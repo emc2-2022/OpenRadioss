@@ -1,36 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_N_BCS                    source/output/sta/stat_n_bcs.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        SPMD_ISTAT_GATH               source/mpi/output/spmd_stat.F 
-Chd|        STRS_TXT50                    source/output/sta/sta_txt.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_n_bcs        ../engine/source/output/sta/stat_n_bcs.F
+!||--- called by ------------------------------------------------------
+!||    genstat           ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_istat_gath   ../engine/source/mpi/output/spmd_stat.F
+!||    strs_txt50        ../engine/source/output/sta/sta_txt.F
+!||--- uses       -----------------------------------------------------
+!||    my_alloc_mod      ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE STAT_N_BCS(ICODE,NUMNOD,ITAB,ITABG,LENG,
      .   NODGLOB,ISKEW,NODTAG)
-
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE MY_ALLOC_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -39,10 +44,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "scr14_c.inc"
-#include      "scr16_c.inc"
 #include      "spmd_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
@@ -53,18 +56,22 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,N, IC, IC1, IC2, IROT, ITRA, ISK,
-     .   ICODEG(LENG),ISKEWG(LENG),NODTAGLOB(LENG)
+      INTEGER N, IC, IC1, IC2, IROT, ITRA, ISK
+      INTEGER,DIMENSION(:),ALLOCATABLE::ICODEG
+      INTEGER,DIMENSION(:),ALLOCATABLE::ISKEWG
+      INTEGER,DIMENSION(:),ALLOCATABLE::NODTAGLOB
       CHARACTER TRA*3,ROT*3
       CHARACTER*100 LINE
 C-----------------------------------------------
+      CALL MY_ALLOC(ICODEG,LENG)
+      CALL MY_ALLOC(ISKEWG,LENG)
+      CALL MY_ALLOC(NODTAGLOB,LENG)
 C
-
       IF (NSPMD > 1) THEN
         CALL SPMD_ISTAT_GATH(ICODE,NODGLOB,ICODEG)
         CALL SPMD_ISTAT_GATH(ISKEW,NODGLOB,ISKEWG)
         CALL SPMD_ISTAT_GATH(NODTAG,NODGLOB,NODTAGLOB)
-        IF (ISPMD.NE.0) RETURN
+        IF (ISPMD/=0) RETURN
       ENDIF
 
 
@@ -109,7 +116,7 @@ C
              ELSE
                 ITRA = 0    
              ENDIF
-             IF(IRODDL.GT.0)THEN 
+             IF(IRODDL>0)THEN 
                 IC2=(IC-512*IC1)/64
                 IF(IC2 == 7) THEN
                    ROT = '111'
@@ -132,7 +139,7 @@ C
                 IROT = 0        
              ENDIF
 C
-             IF(ITRA.NE.0.AND.IROT.NE.0)THEN
+             IF(ITRA/=0.AND.IROT/=0)THEN
                 ISK = ISKEW(N) -1
                 IF (IZIPSTRS == 0) THEN
                     WRITE(IUGEO,'(3X,A3,1X,A3,I10,I10)')
@@ -171,7 +178,7 @@ C
              ELSE
                 ITRA = 0    
              ENDIF
-             IF(IRODDL.GT.0)THEN 
+             IF(IRODDL>0)THEN 
                 IC2=(IC-512*IC1)/64
                 IF(IC2 == 7) THEN
                    ROT = '111'
@@ -194,7 +201,7 @@ C
                 IROT = 0        
              ENDIF
 C
-             IF(ITRA.NE.0.AND.IROT.NE.0)THEN
+             IF(ITRA/=0.AND.IROT/=0)THEN
                ISK = ISKEWG(N) -1
                IF (IZIPSTRS == 0) THEN
                  WRITE(IUGEO,'(3X,A3,1X,A3,I10,I10)')
@@ -210,6 +217,10 @@ C
       ENDIF
 
 C
+      DEALLOCATE(ICODEG)
+      DEALLOCATE(ISKEWG)
+      DEALLOCATE(NODTAGLOB)
+ 
       RETURN
       END
 

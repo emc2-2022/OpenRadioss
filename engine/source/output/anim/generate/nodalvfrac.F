@@ -1,43 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  NODALVFRAC                    source/output/anim/generate/nodalvfrac.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    nodalvfrac           ../engine/source/output/anim/generate/nodalvfrac.F
+!||--- called by ------------------------------------------------------
+!||    genani               ../engine/source/output/anim/generate/genani.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod         ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    i22bufbric_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22edge_mod          ../common_source/modules/interfaces/cut-cell-buffer_mod.F
+!||    i22tri_mod           ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    initbuf_mod          ../engine/share/resol/initbuf.F
+!||    multimat_param_mod   ../common_source/modules/multimat_param_mod.F90
+!||====================================================================
       SUBROUTINE NODALVFRAC(IFUNC    , WA4, IFLOW, RFLOW, IPARG, 
      .                      ELBUF_TAB, IX , NIX  , ITAB , NV46 )
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
-C     This suroutine computes nodal volumetric fraction for
+C     This subroutine computes nodal volumetric fraction for
 C     ALE elements. In case of CEL coupling (inter22)
-C     result is also calcultated from cut cells.
+C     result is also calculated from cut cells.
 C     Aim is to expand centroid values to nodal positions
 C-----------------------------------------------
 C   P r e - C o n d i t i o n s
@@ -51,7 +53,8 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD  
       USE I22BUFBRIC_MOD   
       USE I22EDGE_MOD    
-      USE I22TRI_MOD           
+      USE I22TRI_MOD
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -62,9 +65,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
-#include      "flowcom.inc"
-#include      "task_c.inc"
 #include      "param_c.inc"
 #include      "inter22.inc"
 C-----------------------------------------------
@@ -79,15 +79,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER                            :: IADI, IADR, I, ITYP, NINOUT, NNO, NEL, II1, II2,K1,K,
+      INTEGER                            :: I, ITYP, NEL, K1, K, 
      .                                      IR1, IR2, J, JJ, NNO_L, NNI_L, II3, II4, JJJ, NNI,
      .                                      IALEL,NNOD,IPOS,IV,NGv,J1,J2,IBV, MLW,NumNodCell,
      .                                      NG, KCVT, II, NBF, NBL, IB, ICELL, NIN, MCELL,
      .                                      IPHASE
-      TYPE(G_BUFEL_)  ,POINTER           :: GBUF,GBUFv     
+      TYPE(G_BUFEL_)  ,POINTER           :: GBUF
       my_real, ALLOCATABLE, DIMENSION(:) :: COUNT_VOL    
-      my_real                            :: P,VF,D,V
-      INTEGER,DIMENSION(:,:), POINTER    :: pAdjBRICK      
+      my_real                            :: VF, V
+ 
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -135,7 +135,7 @@ C-----------------------------------------------
              ELSEIF(MLW==51)THEN
                DO I=1,NEL
                  IPOS             = 1
-                 K1               = N0PHAS + (IPHASE-1)*NVPHAS +IPOS-1   ! exemple : IPOS=1 => VFRAC  {UVAR(I,ADD)=UVAR(K+I)} 
+                 K1               = M51_N0PHAS + (IPHASE-1)*M51_NVPHAS +IPOS-1   ! example : IPOS=1 => VFRAC  {UVAR(I,ADD)=UVAR(K+I)} 
                  K                = K1 * NEL   
                  VF               = MBUF%VAR(K+I) 
                  V                = GBUF%VOL(I)                                                                                                                         
@@ -198,7 +198,7 @@ C-----------------------------------------------
                     ENDDO !next J          
                   ELSEIF(MLW==51)THEN
                     IPOS             = 1
-                    K1               = N0PHAS + (IPHASE-1)*NVPHAS +IPOS-1   ! exemple : IPOS=1 => VFRAC  {UVAR(I,ADD)=UVAR(K+I)} 
+                    K1               = M51_N0PHAS + (IPHASE-1)*M51_NVPHAS +IPOS-1   ! example : IPOS=1 => VFRAC  {UVAR(I,ADD)=UVAR(K+I)} 
                     K                = K1 * NEL   
                     VF               = MBUF%VAR(K+I)  
                     V                = GBUF%VOL(I)                                                                                                                        
@@ -217,7 +217,7 @@ C-----------------------------------------------
                     JJ            = IX(J,NFT+I)
                     ICELL         = BRICK_LIST(NIN,IB)%NODE(J-1)%WhichCell
                     VF            = BRICK_LIST(NIN,IB)%POLY(ICELL)%VFRACm(IPHASE)
-                   ! if(vf.lt.zero .or. vf.gt.un)then
+                   ! if(vf<zero .or. vf>un)then
                    !   print *,"**inter22, cell vfrac warning", vf
                    ! endif
                     NumNodCELL    = BRICK_LIST(NIN,IB)%POLY(ICELL)%NumNOD 

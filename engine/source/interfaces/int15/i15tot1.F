@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I15TOT1                       source/interfaces/int15/i15tot1.F
-Chd|-- called by -----------
-Chd|        I15CMP                        source/interfaces/int15/i15cmp.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i15tot1        ../engine/source/interfaces/int15/i15tot1.F
+!||--- called by ------------------------------------------------------
+!||    i15cmp         ../engine/source/interfaces/int15/i15cmp.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||====================================================================
       SUBROUTINE I15TOT1(NOINT ,NDEB  ,NSC  ,X     ,KSURF ,
      2                  IGRSURF,BUFSF ,KSC  ,KSI   ,NOLD  ,
      3                  XP1   ,XP2    ,XP3  ,XP4   ,GX    ,
@@ -51,9 +51,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -80,13 +78,13 @@ C-----------------------------------------------
      .   A, B, C, AN, BN, CN, ROT(9), DGR, EXPN,
      .   XG, YG, ZG,
      .   NTN,
-     .   N1, N2, N3, N, N11, N12, N13, N21, N22, N23, NR1, NR2,
-     .   XKN1, YKN1, ZKN1, SGNXKN, SGNYKN, SGNZKN, XKN, YKN, ZKN, EH,
+     .   N1, N2, N3, N11, N12, N13, N21, N22, N23, NR1, NR2,
+     .   XKN1, YKN1, ZKN1, SGNXKN, SGNYKN, SGNZKN, EH,
      .   LAMBDA1, LAMBDA2, ALP, BET,
-     .   XH , YH , ZH , MU, XH1, YH1, ZH1, MU1, XH2, YH2, ZH2, MU2,
+     .   XH , YH , ZH , XH1, YH1, ZH1, MU1, XH2, YH2, ZH2, MU2,
      .   DX1, DY1, DZ1, DX2, DY2, DZ2, DX3, DY3, DZ3,
-     .   SIDE1, SIDE2, OLDNX, OLDNY, OLDNZ, OUT, PS, NR,
-     .   LAMBDA, EM, EP
+     .     OUT, PS, NR,
+     .    EM
       my_real
      .   X1(MVSIZ),  Y1(MVSIZ),  Z1(MVSIZ),
      .   X2(MVSIZ),  Y2(MVSIZ),  Z2(MVSIZ),
@@ -97,7 +95,6 @@ C-----------------------------------------------
      .   XM(MVSIZ) , YM(MVSIZ) , ZM(MVSIZ) , 
      .   XTK2(MVSIZ), YTK2(MVSIZ) , ZTK2(MVSIZ) , 
      .   D(MVSIZ)
-C-----------------------------------------------
 C-----------------------------------------------
       ADRBUF=IGRSURF(KSURF)%IAD_BUFR
       A =BUFSF(ADRBUF+1)
@@ -118,7 +115,7 @@ C-----------------------------------------------
        ROT(I)=BUFSF(ADRBUF+7+I-1)
       END DO
 C-------------------------------
-C     Passage au repere local :
+C     Passage to the local frame:
 C-------------------------------
       DO 75 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
@@ -127,7 +124,7 @@ C-------------------------------
       IN2=KSI(2,IL)
       IN3=KSI(3,IL)
       IN4=KSI(4,IL)
-C     Passage au repere local.
+C     Passage to the local frame.
       XG=X(1,IN1)-BUFSF(ADRBUF+4)
       YG=X(2,IN1)-BUFSF(ADRBUF+5)
       ZG=X(3,IN1)-BUFSF(ADRBUF+6)
@@ -192,7 +189,7 @@ C-----
       Z23(I)=Z3(I)-Z2(I)
  100  CONTINUE
 C-------------------------------
-C     POINTS K,H SUR E,L / LA DISTANCE D(K,H) EST LOCALEMENT MAXIMUM
+C     points k, h on e, l / the distance d(k, h) is locally maximum
 C-------------------------------
       DO 125 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
@@ -200,17 +197,17 @@ C-------------------------------
       EH  =(ABS(NTX(1,I)/(DGR*AN))**EXPN)*AN
      .    +(ABS(NTY(1,I)/(DGR*BN))**EXPN)*BN
      .    +(ABS(NTZ(1,I)/(DGR*CN))**EXPN)*CN
-C     X EST DU SIGNE DE LAMBDA*NTX, IDEM EN Y ET Z.
+C     x has the sign of lambda*ntx, same for y and z
 C     LAMBDA1=EXP(LOG(1./EH)/EXPN)
       LAMBDA1=(MAX(EM20,EH))**(-ONE/EXPN)
       XH1=ABS(LAMBDA1*NTX(1,I)/(DGR*AN))**(ONE/(DGR-ONE))
-      IF (NTX(1,I).LT.ZERO) XH1=-XH1
+      IF (NTX(1,I)<ZERO) XH1=-XH1
       YH1=ABS(LAMBDA1*NTY(1,I)/(DGR*BN))**(ONE/(DGR-ONE))
-      IF (NTY(1,I).LT.ZERO) YH1=-YH1
+      IF (NTY(1,I)<ZERO) YH1=-YH1
       ZH1=ABS(LAMBDA1*NTZ(1,I)/(DGR*CN))**(ONE/(DGR-ONE))
-      IF (NTZ(1,I).LT.ZERO) ZH1=-ZH1
+      IF (NTZ(1,I)<ZERO) ZH1=-ZH1
       MU1   =-NTX(1,I)*XH1-NTY(1,I)*YH1-NTZ(1,I)*ZH1-D(I)
-C     LAMBDA2=-LAMBDA1
+C     Lambda2 = -Lambda1
       XH2 =-XH1
       YH2 =-YH1
       ZH2 =-ZH1
@@ -224,7 +221,7 @@ C     MU2   =-NTX(1,I)*XH2-NTY(1,I)*YH2-NTZ(1,I)*ZH2-D(I)
       ZTK2(I)  =ZH2+MU2*NTZ(1,I)
  125  CONTINUE
 C-------------------------------
-C     RAMENER LE PT PK SUR LE TRIANGLE.
+C     bring point pk back onto the triangle
 C-------------------------------
       DO 150 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
@@ -239,8 +236,8 @@ C-----
       OUT = (DY1*DZ2-DY2*DZ1)*NTX(1,I)
      .     +(DZ1*DX2-DZ2*DX1)*NTY(1,I)
      .     +(DX1*DY2-DY1*DX2)*NTZ(1,I)
-      IF (OUT.LT.0.) THEN
-C       PROJECTION SUR 1,2
+      IF (OUT<0.) THEN
+C       projection onto 1,2
         PS =DX1*X12(I)+DY1*Y12(I)+DZ1*Z12(I)
         NR =X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I)
         BET=PS/MAX(EM20,NR)
@@ -257,8 +254,8 @@ C       PROJECTION SUR 1,2
       OUT = (DY2*DZ3-DY3*DZ2)*NTX(1,I)
      .     +(DZ2*DX3-DZ3*DX2)*NTY(1,I)
      .     +(DX2*DY3-DY2*DX3)*NTZ(1,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 2,3
+      IF (OUT<ZERO) THEN
+C       projection onto 2,3
         PS =DX2*X23(I)+DY2*Y23(I)+DZ2*Z23(I)
         NR =X23(I)*X23(I)+Y23(I)*Y23(I)+Z23(I)*Z23(I)
         BET=PS/MAX(EM20,NR)
@@ -272,8 +269,8 @@ C       PROJECTION SUR 2,3
       OUT = (DY3*DZ1-DY1*DZ3)*NTX(1,I)
      .     +(DZ3*DX1-DZ1*DX3)*NTY(1,I)
      .     +(DX3*DY1-DY3*DX1)*NTZ(1,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 3,1
+      IF (OUT<ZERO) THEN
+C       projection onto 3,1
         PS =-DX3*X13(I)-DY3*Y13(I)-DZ3*Z13(I)
         NR =X13(I)*X13(I)+Y13(I)*Y13(I)+Z13(I)*Z13(I)
         BET=PS/MAX(EM20,NR)
@@ -294,8 +291,8 @@ C-----
       OUT = (DY1*DZ2-DY2*DZ1)*NTX(1,I)
      .      +(DZ1*DX2-DZ2*DX1)*NTY(1,I)
      .      +(DX1*DY2-DY1*DX2)*NTZ(1,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 1,2
+      IF (OUT<ZERO) THEN
+C       projection onto 1,2
         PS =DX1*X12(I)+DY1*Y12(I)+DZ1*Z12(I)
         NR =X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I)
         BET=PS/MAX(EM20,NR)
@@ -312,8 +309,8 @@ C       PROJECTION SUR 1,2
       OUT = (DY2*DZ3-DY3*DZ2)*NTX(1,I)
      .      +(DZ2*DX3-DZ3*DX2)*NTY(1,I)
      .      +(DX2*DY3-DY2*DX3)*NTZ(1,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 2,3
+      IF (OUT<ZERO) THEN
+C       projection onto 2,3
         PS =DX2*X23(I)+DY2*Y23(I)+DZ2*Z23(I)
         NR =X23(I)*X23(I)+Y23(I)*Y23(I)+Z23(I)*Z23(I)
         BET=PS/MAX(EM20,NR)
@@ -327,8 +324,8 @@ C       PROJECTION SUR 2,3
       OUT = (DY3*DZ1-DY1*DZ3)*NTX(1,I)
      .      +(DZ3*DX1-DZ1*DX3)*NTY(1,I)
      .      +(DX3*DY1-DY3*DX1)*NTZ(1,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 3,1
+      IF (OUT<ZERO) THEN
+C       projection onto 3,1
         PS =-DX3*X13(I)-DY3*Y13(I)-DZ3*Z13(I)
         NR =X13(I)*X13(I)+Y13(I)*Y13(I)+Z13(I)*Z13(I)
         BET=PS/MAX(EM20,NR)
@@ -342,32 +339,32 @@ C       PROJECTION SUR 3,1
 C-------------------------------
  150  CONTINUE
 C-------------------------------
-C     PROJECTION DE PK SUR L ET PENETRATION.
+C     projection of pk onto l and penetration
 C-------------------------------
       DO 175 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
       I  =NLS-NDEB
-      IF (IACTIV(1,IL).EQ.-1) GOTO 175
+      IF (IACTIV(1,IL)==-1) GOTO 175
 C-----
       XH =XTK(1,I)
       YH =YTK(1,I)
       ZH =ZTK(1,I)
       XKN1 =XH**(IDG-1)
       SGNXKN=-ONE
-      IF (XKN1*XH.GE.ZERO) SGNXKN=ONE
+      IF (XKN1*XH>=ZERO) SGNXKN=ONE
       YKN1 =YH**(IDG-1)
       SGNYKN=-ONE
-      IF (YKN1*YH.GE.ZERO) SGNYKN=ONE
+      IF (YKN1*YH>=ZERO) SGNYKN=ONE
       ZKN1 =ZH**(IDG-1)
       SGNZKN=-ONE
-      IF (ZKN1*ZH.GE.ZERO) SGNZKN=ONE
+      IF (ZKN1*ZH>=ZERO) SGNZKN=ONE
       N11 =SGNXKN*XKN1*AN
       N12 =SGNYKN*YKN1*BN
       N13 =SGNZKN*ZKN1*CN
       NR1 =N11*N11+N12*N12+N13*N13
       NR1 =SQRT(NR1)
       EM =N11*XTK(1,I)+N12*YTK(1,I)+N13*ZTK(1,I)
-      IF (EM.LE.ONE) THEN
+      IF (EM<=ONE) THEN
         LAMBDA1=(EM-EXP((DGR-ONE)*LOG(MAX(EM,EM20))/DGR))
      .         / MAX(EXP((DGR-ONE)*LOG(EM20)/DGR),NR1)
         INSIDE1=1
@@ -380,20 +377,20 @@ C-----
       ZH =ZTK2(I)
       XKN1 =XH**(IDG-1)
       SGNXKN=-ONE
-      IF (XKN1*XH.GE.ZERO) SGNXKN=ONE
+      IF (XKN1*XH>=ZERO) SGNXKN=ONE
       YKN1 =YH**(IDG-1)
       SGNYKN=-ONE
-      IF (YKN1*YH.GE.ZERO) SGNYKN=ONE
+      IF (YKN1*YH>=ZERO) SGNYKN=ONE
       ZKN1 =ZH**(IDG-1)
       SGNZKN=-ONE
-      IF (ZKN1*ZH.GE.ZERO) SGNZKN=ONE
+      IF (ZKN1*ZH>=ZERO) SGNZKN=ONE
       N21 =SGNXKN*XKN1*AN
       N22 =SGNYKN*YKN1*BN
       N23 =SGNZKN*ZKN1*CN
       NR2 =N21*N21+N22*N22+N23*N23
       NR2 =SQRT(NR2)
       EM =N21*XTK2(I)+N22*YTK2(I)+N23*ZTK2(I)
-      IF (EM.LE.ONE) THEN
+      IF (EM<=ONE) THEN
         LAMBDA2=(EM-EXP((DGR-ONE)*LOG(MAX(EM,EM20))/DGR))
      .         / MAX(EXP((DGR-ONE)*LOG(EM20)/DGR),NR2)
         INSIDE2=1
@@ -401,13 +398,13 @@ C-----
         INSIDE2=0
       ENDIF
 C-----
-      IF (INSIDE1.EQ.0.AND.INSIDE2.EQ.0) THEN
+      IF (INSIDE1==0.AND.INSIDE2==0) THEN
         IACTIV(1,IL)=0
       ELSE
 C-----
-      IF (IACTIV(1,IL).EQ.0) THEN
-        IF (INSIDE1.NE.0.AND.INSIDE2.NE.0) THEN
-         IF (ABS(LAMBDA1).GE.ABS(LAMBDA2)) THEN
+      IF (IACTIV(1,IL)==0) THEN
+        IF (INSIDE1/=0.AND.INSIDE2/=0) THEN
+         IF (ABS(LAMBDA1)>=ABS(LAMBDA2)) THEN
           XM(I)=XTK(1,I)-LAMBDA1*N11/MAX(EM20,NR1)
           YM(I)=YTK(1,I)-LAMBDA1*N12/MAX(EM20,NR1)
           ZM(I)=ZTK(1,I)-LAMBDA1*N13/MAX(EM20,NR1)
@@ -419,11 +416,11 @@ C-----
           YTK(1,I)=YTK2(I)
           ZTK(1,I)=ZTK2(I)
          ENDIF
-        ELSEIF(INSIDE1.NE.0) THEN
+        ELSEIF(INSIDE1/=0) THEN
           XM(I)=XTK(1,I)-LAMBDA1*N11/MAX(EM20,NR1)
           YM(I)=YTK(1,I)-LAMBDA1*N12/MAX(EM20,NR1)
           ZM(I)=ZTK(1,I)-LAMBDA1*N13/MAX(EM20,NR1)
-        ELSEIF(INSIDE2.NE.0) THEN
+        ELSEIF(INSIDE2/=0) THEN
           XM(I)=XTK2(I)-LAMBDA2*N21/MAX(EM20,NR2)
           YM(I)=YTK2(I)-LAMBDA2*N22/MAX(EM20,NR2)
           ZM(I)=ZTK2(I)-LAMBDA2*N23/MAX(EM20,NR2)
@@ -445,8 +442,8 @@ C-----
         LAMBDA2=(XH-XTK2(I))*N1
      .         +(YH-YTK2(I))*N2
      .         +(ZH-ZTK2(I))*N3
-        IF (INSIDE1.NE.0.AND.INSIDE2.NE.0) THEN
-          IF (ABS(LAMBDA1).GE.ABS(LAMBDA2)) THEN
+        IF (INSIDE1/=0.AND.INSIDE2/=0) THEN
+          IF (ABS(LAMBDA1)>=ABS(LAMBDA2)) THEN
            XM(I)=XTK(1,I)+LAMBDA1*N1
            YM(I)=YTK(1,I)+LAMBDA1*N2
            ZM(I)=ZTK(1,I)+LAMBDA1*N3
@@ -458,11 +455,11 @@ C-----
            YTK(1,I)=YTK2(I)
            ZTK(1,I)=ZTK2(I)
           ENDIF
-        ELSEIF(INSIDE1.NE.0) THEN
+        ELSEIF(INSIDE1/=0) THEN
            XM(I)=XTK(1,I)+LAMBDA1*N1
            YM(I)=YTK(1,I)+LAMBDA1*N2
            ZM(I)=ZTK(1,I)+LAMBDA1*N3
-        ELSEIF(INSIDE2.NE.0) THEN
+        ELSEIF(INSIDE2/=0) THEN
            XM(I)=XTK2(I)+LAMBDA2*N1
            YM(I)=YTK2(I)+LAMBDA2*N2
            ZM(I)=ZTK2(I)+LAMBDA2*N3
@@ -473,13 +470,13 @@ C-----
 C       one more iteration.
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE
         N1 =SGNXKN*XKN1*AN
         N2 =SGNYKN*YKN1*BN
         N3 =SGNZKN*ZKN1*CN
@@ -489,13 +486,13 @@ C       one more iteration.
         ZM(I)=ZM(I)/MAX(EM20,EM**(ONE/DGR))        
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE
         N1 =SGNXKN*XKN1*AN
         N2 =SGNYKN*YKN1*BN
         N3 =SGNZKN*ZKN1*CN
@@ -520,18 +517,18 @@ C-----
       IL =KSC(NLS)
       I  =NLS-NDEB
 C-----
-      IF (IACTIV(1,IL).LE.0) GOTO 200
+      IF (IACTIV(1,IL)<=0) GOTO 200
 C-----
-C      projection radiale de M.
+C      radial projection of m
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE        
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE        
        N1 =SGNXKN*XKN1*AN
        N2 =SGNYKN*YKN1*BN
        N3 =SGNZKN*ZKN1*CN
@@ -543,13 +540,13 @@ C------
 C      normale a l'ellipsoide en M.
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE        
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE        
        N1 =SGNXKN*XKN1*AN
        N2 =SGNYKN*YKN1*BN
        N3 =SGNZKN*ZKN1*CN
@@ -568,7 +565,7 @@ C------
      .           +(ZTK(1,I)-ZM(I))*NZI(1,I)
        PENET(1,I)=-PENET(1,I)
        PENET(1,I)=MAX(ZERO,PENET(1,I))
-       IF (DEPTH(1,I)-PENET(1,I).LT.EM10*DEPTH(1,I)) THEN
+       IF (DEPTH(1,I)-PENET(1,I)<EM10*DEPTH(1,I)) THEN
          PENET(1,I)=ZERO
          IACTIV(1,IL)=-2
        ENDIF
@@ -581,7 +578,7 @@ C-------------------------------
       IL =KSC(NLS)
       I  =NLS-NDEB
 C-----
-      IF (IACTIV(1,IL).EQ.-2) THEN
+      IF (IACTIV(1,IL)==-2) THEN
          IN1=ITAB(KSI(1,IL))
          IN2=ITAB(KSI(2,IL))
          IN3=ITAB(KSI(3,IL))
@@ -637,7 +634,7 @@ C-----
       Z23(I)=Z3(I)-Z2(I)
  225  CONTINUE
 C-------------------------------
-C     POINTS K,H SUR E,L / LA DISTANCE D(K,H) EST LOCALEMENT MAXIMUM
+C     points k, h on e, l / the distance d(k, h) is locally maximum
 C-------------------------------
       DO 250 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
@@ -646,17 +643,17 @@ C-----
       EH  =(ABS(NTX(2,I)/(DGR*AN))**EXPN)*AN
      .    +(ABS(NTY(2,I)/(DGR*BN))**EXPN)*BN
      .    +(ABS(NTZ(2,I)/(DGR*CN))**EXPN)*CN
-C     X EST DU SIGNE DE LAMBDA*NTX, IDEM EN Y ET Z.
+C     x has the sign of lambda*ntx, same for y and z
 C     LAMBDA1=EXP(LOG(1./EH)/EXPN)
       LAMBDA1=(MAX(EM20,EH))**(-ONE/EXPN)
       XH1   =ABS(LAMBDA1*NTX(2,I)/(DGR*AN))**(ONE/(DGR-ONE))
-      IF (NTX(2,I).LT.ZERO) XH1=-XH1
+      IF (NTX(2,I)<ZERO) XH1=-XH1
       YH1   =ABS(LAMBDA1*NTY(2,I)/(DGR*BN))**(ONE/(DGR-ONE))
-      IF (NTY(2,I).LT.ZERO) YH1=-YH1
+      IF (NTY(2,I)<ZERO) YH1=-YH1
       ZH1   =ABS(LAMBDA1*NTZ(2,I)/(DGR*CN))**(ONE/(DGR-ONE))
-      IF (NTZ(2,I).LT.ZERO) ZH1=-ZH1
+      IF (NTZ(2,I)<ZERO) ZH1=-ZH1
       MU1   =-NTX(2,I)*XH1-NTY(2,I)*YH1-NTZ(2,I)*ZH1-D(I)
-C     LAMBDA2=-LAMBDA1
+C     Lambda2 = -Lambda1
       XH2   =-XH1
       YH2   =-YH1
       ZH2   =-ZH1
@@ -671,7 +668,7 @@ C      MU2   =-NTX(2,I)*XH2-NTY(2,I)*YH2-NTZ(2,I)*ZH2-D(I)
 C-------------------------------
  250  CONTINUE
 C-------------------------------
-C     RAMENER LE PT PK SUR LE TRIANGLE.
+C     bring point pk back onto the triangle
 C-------------------------------
       DO 275 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
@@ -686,8 +683,8 @@ C-----
       OUT = (DY1*DZ2-DY2*DZ1)*NTX(2,I)
      .     +(DZ1*DX2-DZ2*DX1)*NTY(2,I)
      .     +(DX1*DY2-DY1*DX2)*NTZ(2,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 1,2
+      IF (OUT<ZERO) THEN
+C       projection onto 1,2
         PS =DX1*X12(I)+DY1*Y12(I)+DZ1*Z12(I)
         NR =X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I)
         BET=PS/MAX(EM20,NR)
@@ -704,8 +701,8 @@ C       PROJECTION SUR 1,2
       OUT = (DY2*DZ3-DY3*DZ2)*NTX(2,I)
      .     +(DZ2*DX3-DZ3*DX2)*NTY(2,I)
      .     +(DX2*DY3-DY2*DX3)*NTZ(2,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 2,3
+      IF (OUT<ZERO) THEN
+C       projection onto 2,3
         PS =DX2*X23(I)+DY2*Y23(I)+DZ2*Z23(I)
         NR =X23(I)*X23(I)+Y23(I)*Y23(I)+Z23(I)*Z23(I)
         BET=PS/MAX(EM20,NR)
@@ -719,8 +716,8 @@ C       PROJECTION SUR 2,3
       OUT = (DY3*DZ1-DY1*DZ3)*NTX(2,I)
      .     +(DZ3*DX1-DZ1*DX3)*NTY(2,I)
      .     +(DX3*DY1-DY3*DX1)*NTZ(2,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 3,1
+      IF (OUT<ZERO) THEN
+C       projection onto 3,1
         PS =-DX3*X13(I)-DY3*Y13(I)-DZ3*Z13(I)
         NR =X13(I)*X13(I)+Y13(I)*Y13(I)+Z13(I)*Z13(I)
         BET=PS/MAX(EM20,NR)
@@ -741,8 +738,8 @@ C-----
       OUT = (DY1*DZ2-DY2*DZ1)*NTX(2,I)
      .      +(DZ1*DX2-DZ2*DX1)*NTY(2,I)
      .      +(DX1*DY2-DY1*DX2)*NTZ(2,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 1,2
+      IF (OUT<ZERO) THEN
+C       projection onto 1,2
         PS =DX1*X12(I)+DY1*Y12(I)+DZ1*Z12(I)
         NR =X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I)
         BET=PS/MAX(EM20,NR)
@@ -759,8 +756,8 @@ C       PROJECTION SUR 1,2
       OUT = (DY2*DZ3-DY3*DZ2)*NTX(2,I)
      .      +(DZ2*DX3-DZ3*DX2)*NTY(2,I)
      .      +(DX2*DY3-DY2*DX3)*NTZ(2,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 2,3
+      IF (OUT<ZERO) THEN
+C       projection onto 2,3
         PS =DX2*X23(I)+DY2*Y23(I)+DZ2*Z23(I)
         NR =X23(I)*X23(I)+Y23(I)*Y23(I)+Z23(I)*Z23(I)
         BET=PS/MAX(EM20,NR)
@@ -774,8 +771,8 @@ C       PROJECTION SUR 2,3
       OUT = (DY3*DZ1-DY1*DZ3)*NTX(2,I)
      .      +(DZ3*DX1-DZ1*DX3)*NTY(2,I)
      .      +(DX3*DY1-DY3*DX1)*NTZ(2,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 3,1
+      IF (OUT<ZERO) THEN
+C       projection onto 3,1
         PS =-DX3*X13(I)-DY3*Y13(I)-DZ3*Z13(I)
         NR =X13(I)*X13(I)+Y13(I)*Y13(I)+Z13(I)*Z13(I)
         BET=PS/MAX(EM20,NR)
@@ -789,32 +786,32 @@ C       PROJECTION SUR 3,1
 C-------------------------------
  275  CONTINUE
 C-------------------------------
-C     PROJECTION DE PK SUR L ET PENETRATION.
+C     projection of pk onto l and penetration
 C-------------------------------
       DO 300 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
       I  =NLS-NDEB
-      IF (IACTIV(2,IL).EQ.-1) GOTO 300
+      IF (IACTIV(2,IL)==-1) GOTO 300
 C-----
       XH =XTK(2,I)
       YH =YTK(2,I)
       ZH =ZTK(2,I)
       XKN1 =XH**(IDG-1)
       SGNXKN=-ONE
-      IF (XKN1*XH.GE.ZERO) SGNXKN=ONE
+      IF (XKN1*XH>=ZERO) SGNXKN=ONE
       YKN1 =YH**(IDG-1)
       SGNYKN=-1.
-      IF (YKN1*YH.GE.0.) SGNYKN=1.
+      IF (YKN1*YH>=0.) SGNYKN=1.
       ZKN1 =ZH**(IDG-1)
       SGNZKN=-ONE
-      IF (ZKN1*ZH.GE.ZERO) SGNZKN=ONE
+      IF (ZKN1*ZH>=ZERO) SGNZKN=ONE
       N11 =SGNXKN*XKN1*AN
       N12 =SGNYKN*YKN1*BN
       N13 =SGNZKN*ZKN1*CN
       NR1 =N11*N11+N12*N12+N13*N13
       NR1 =SQRT(NR1)
       EM =N11*XTK(2,I)+N12*YTK(2,I)+N13*ZTK(2,I)
-      IF (EM.LE.ONE) THEN
+      IF (EM<=ONE) THEN
         LAMBDA1=(EM-EXP((DGR-ONE)*LOG(MAX(EM,EM20))/DGR))
      .         / MAX(EXP((DGR-ONE)*LOG(EM20)/DGR),NR1)
         INSIDE1=1
@@ -827,20 +824,20 @@ C-----
       ZH =ZTK2(I)
       XKN1 =XH**(IDG-1)
       SGNXKN=-ONE
-      IF (XKN1*XH.GE.ZERO) SGNXKN=ONE
+      IF (XKN1*XH>=ZERO) SGNXKN=ONE
       YKN1 =YH**(IDG-1)
       SGNYKN=-ONE
-      IF (YKN1*YH.GE.ZERO) SGNYKN=ONE     
+      IF (YKN1*YH>=ZERO) SGNYKN=ONE     
       ZKN1 =ZH**(IDG-1)
       SGNZKN=-ONE
-      IF (ZKN1*ZH.GE.ZERO) SGNZKN=ONE
+      IF (ZKN1*ZH>=ZERO) SGNZKN=ONE
       N21 =SGNXKN*XKN1*AN
       N22 =SGNYKN*YKN1*BN
       N23 =SGNZKN*ZKN1*CN
       NR2  =N21*N21+N22*N22+N23*N23
       NR2 =SQRT(NR2)
       EM =N21*XTK2(I)+N22*YTK2(I)+N23*ZTK2(I)
-      IF (EM.LE.ONE) THEN
+      IF (EM<=ONE) THEN
         LAMBDA2=(EM-EXP((DGR-ONE)*LOG(MAX(EM,EM20))/DGR))
      .         / MAX(EXP((DGR-ONE)*LOG(EM20)/DGR),NR2)
         INSIDE2=1
@@ -848,13 +845,13 @@ C-----
         INSIDE2=0
       ENDIF
 C-----
-      IF (INSIDE1.EQ.0.AND.INSIDE2.EQ.0) THEN
+      IF (INSIDE1==0.AND.INSIDE2==0) THEN
         IACTIV(2,IL)=0
       ELSE
 C-----
-      IF (IACTIV(2,IL).EQ.0) THEN
-        IF (INSIDE1.NE.0.AND.INSIDE2.NE.0) THEN
-         IF (ABS(LAMBDA1).GE.ABS(LAMBDA2)) THEN
+      IF (IACTIV(2,IL)==0) THEN
+        IF (INSIDE1/=0.AND.INSIDE2/=0) THEN
+         IF (ABS(LAMBDA1)>=ABS(LAMBDA2)) THEN
           XM(I)=XTK(2,I)-LAMBDA1*N11/MAX(EM20,NR1)
           YM(I)=YTK(2,I)-LAMBDA1*N12/MAX(EM20,NR1)
           ZM(I)=ZTK(2,I)-LAMBDA1*N13/MAX(EM20,NR1)
@@ -866,11 +863,11 @@ C-----
           YTK(2,I)=YTK2(I)
           ZTK(2,I)=ZTK2(I)
          ENDIF
-        ELSEIF(INSIDE1.NE.0) THEN
+        ELSEIF(INSIDE1/=0) THEN
           XM(I)=XTK(2,I)-LAMBDA1*N11/MAX(EM20,NR1)
           YM(I)=YTK(2,I)-LAMBDA1*N12/MAX(EM20,NR1)
           ZM(I)=ZTK(2,I)-LAMBDA1*N13/MAX(EM20,NR1)
-        ELSEIF(INSIDE2.NE.0) THEN
+        ELSEIF(INSIDE2/=0) THEN
           XM(I)=XTK2(I)-LAMBDA2*N21/MAX(EM20,NR2)
           YM(I)=YTK2(I)-LAMBDA2*N22/MAX(EM20,NR2)
           ZM(I)=ZTK2(I)-LAMBDA2*N23/MAX(EM20,NR2)
@@ -892,8 +889,8 @@ C-----
         LAMBDA2=(XH-XTK2(I))*N1
      .         +(YH-YTK2(I))*N2
      .         +(ZH-ZTK2(I))*N3
-        IF (INSIDE1.NE.0.AND.INSIDE2.NE.0) THEN
-         IF (ABS(LAMBDA1).GE.ABS(LAMBDA2)) THEN
+        IF (INSIDE1/=0.AND.INSIDE2/=0) THEN
+         IF (ABS(LAMBDA1)>=ABS(LAMBDA2)) THEN
            XM(I)=XTK(2,I)+LAMBDA1*N1
            YM(I)=YTK(2,I)+LAMBDA1*N2
            ZM(I)=ZTK(2,I)+LAMBDA1*N3
@@ -905,11 +902,11 @@ C-----
            YTK(2,I)=YTK2(I)
            ZTK(2,I)=ZTK2(I)
           ENDIF
-        ELSEIF(INSIDE1.NE.0) THEN
+        ELSEIF(INSIDE1/=0) THEN
            XM(I)=XTK(2,I)+LAMBDA1*N1
            YM(I)=YTK(2,I)+LAMBDA1*N2
            ZM(I)=ZTK(2,I)+LAMBDA1*N3
-        ELSEIF(INSIDE2.NE.0) THEN
+        ELSEIF(INSIDE2/=0) THEN
            XM(I)=XTK2(I)+LAMBDA2*N1
            YM(I)=YTK2(I)+LAMBDA2*N2
            ZM(I)=ZTK2(I)+LAMBDA2*N3
@@ -920,12 +917,12 @@ C-----
 C       one more iteration.
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE
         N1 =SGNXKN*XKN1*AN
         N2 =SGNYKN*YKN1*BN
         N3 =SGNZKN*ZKN1*CN
@@ -935,13 +932,13 @@ C       one more iteration.
         ZM(I)=ZM(I)/MAX(EM20,EM**(ONE/DGR))        
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE        
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE        
         N1 =SGNXKN*XKN1*AN
         N2 =SGNYKN*YKN1*BN
         N3 =SGNZKN*ZKN1*CN
@@ -966,18 +963,18 @@ C-----
       IL =KSC(NLS)
       I  =NLS-NDEB
 C-----
-      IF (IACTIV(2,IL).LE.0) GOTO 325
+      IF (IACTIV(2,IL)<=0) GOTO 325
 C-----
-C      projection radiale de M.
+C      radial projection of m
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE        
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE        
        N1 =SGNXKN*XKN1*AN
        N2 =SGNYKN*YKN1*BN
        N3 =SGNZKN*ZKN1*CN
@@ -990,13 +987,13 @@ C------
 C      normale a l'ellipsoide en M.
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
        ZKN1 =ZM(I)**(IDG-1)
        SGNZKN=-ONE
-       IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE        
+       IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE        
        N1 =SGNXKN*XKN1*AN
        N2 =SGNYKN*YKN1*BN
        N3 =SGNZKN*ZKN1*CN
@@ -1015,7 +1012,7 @@ C------
      .          +(ZTK(2,I)-ZM(I))*NZI(2,I)
        PENET(2,I)=-PENET(2,I)
        PENET(2,I)=MAX(ZERO,PENET(2,I))
-       IF (DEPTH(2,I)-PENET(2,I).LT.EM10*DEPTH(2,I)) THEN
+       IF (DEPTH(2,I)-PENET(2,I)<EM10*DEPTH(2,I)) THEN
          PENET(2,I)=ZERO
          IACTIV(2,IL)=-2
        ENDIF
@@ -1028,7 +1025,7 @@ C-------------------------------
       IL =KSC(NLS)
       I  =NLS-NDEB
 C-----
-      IF (IACTIV(2,IL).EQ.-2) THEN
+      IF (IACTIV(2,IL)==-2) THEN
          IN1=ITAB(KSI(1,IL))
          IN2=ITAB(KSI(2,IL))
          IN3=ITAB(KSI(3,IL))
@@ -1084,7 +1081,7 @@ C-----
       Z23(I)=Z3(I)-Z2(I)
  350  CONTINUE
 C-------------------------------
-C     POINTS K,H SUR E,L / LA DISTANCE D(K,H) EST LOCALEMENT MAXIMUM
+C     points k, h on e, l / the distance d(k, h) is locally maximum
 C-------------------------------
       DO 375 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
@@ -1093,17 +1090,17 @@ C-----
       EH  =(ABS(NTX(3,I)/(DGR*AN))**EXPN)*AN
      .    +(ABS(NTY(3,I)/(DGR*BN))**EXPN)*BN
      .    +(ABS(NTZ(3,I)/(DGR*CN))**EXPN)*CN
-C     X EST DU SIGNE DE LAMBDA*NTX, IDEM EN Y ET Z.
+C     x has the sign of lambda*ntx, same for y and z
 C     LAMBDA1=EXP(LOG(1./EH)/EXPN)
       LAMBDA1=(MAX(EM20,EH))**(-ONE/EXPN)
       XH1   =ABS(LAMBDA1*NTX(3,I)/(DGR*AN))**(ONE/(DGR-ONE))
-      IF (NTX(3,I).LT.ZERO) XH1=-XH1
+      IF (NTX(3,I)<ZERO) XH1=-XH1
       YH1   =ABS(LAMBDA1*NTY(3,I)/(DGR*BN))**(ONE/(DGR-ONE))
-      IF (NTY(3,I).LT.ZERO) YH1=-YH1
+      IF (NTY(3,I)<ZERO) YH1=-YH1
       ZH1   =ABS(LAMBDA1*NTZ(3,I)/(DGR*CN))**(ONE/(DGR-ONE))
-      IF (NTZ(3,I).LT.ZERO) ZH1=-ZH1
+      IF (NTZ(3,I)<ZERO) ZH1=-ZH1
       MU1   =-NTX(3,I)*XH1-NTY(3,I)*YH1-NTZ(3,I)*ZH1-D(I)
-C     LAMBDA2=-LAMBDA1
+C     Lambda2 = -Lambda1
       XH2   =-XH1
       YH2   =-YH1
       ZH2   =-ZH1
@@ -1118,7 +1115,7 @@ C      MU2   =-NTX(3,I)*XH2-NTY(3,I)*YH2-NTZ(3,I)*ZH2-D(I)
 C-------------------------------
  375  CONTINUE
 C-------------------------------
-C     RAMENER LE PT PK SUR LE TRIANGLE.
+C     bring point pk back onto the triangle
 C-------------------------------
       DO 400 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
@@ -1133,8 +1130,8 @@ C-----
       OUT = (DY1*DZ2-DY2*DZ1)*NTX(3,I)
      .     +(DZ1*DX2-DZ2*DX1)*NTY(3,I)
      .     +(DX1*DY2-DY1*DX2)*NTZ(3,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 1,2
+      IF (OUT<ZERO) THEN
+C       projection onto 1,2
         PS =DX1*X12(I)+DY1*Y12(I)+DZ1*Z12(I)
         NR =X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I)
         BET=PS/MAX(EM20,NR)
@@ -1151,8 +1148,8 @@ C       PROJECTION SUR 1,2
       OUT = (DY2*DZ3-DY3*DZ2)*NTX(3,I)
      .     +(DZ2*DX3-DZ3*DX2)*NTY(3,I)
      .     +(DX2*DY3-DY2*DX3)*NTZ(3,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 2,3
+      IF (OUT<ZERO) THEN
+C       projection onto 2,3
         PS =DX2*X23(I)+DY2*Y23(I)+DZ2*Z23(I)
         NR =X23(I)*X23(I)+Y23(I)*Y23(I)+Z23(I)*Z23(I)
         BET=PS/MAX(EM20,NR)
@@ -1166,8 +1163,8 @@ C       PROJECTION SUR 2,3
       OUT = (DY3*DZ1-DY1*DZ3)*NTX(3,I)
      .     +(DZ3*DX1-DZ1*DX3)*NTY(3,I)
      .     +(DX3*DY1-DY3*DX1)*NTZ(3,I)
-      IF (OUT.LT.0.) THEN
-C       PROJECTION SUR 3,1
+      IF (OUT<0.) THEN
+C       projection onto 3,1
         PS =-DX3*X13(I)-DY3*Y13(I)-DZ3*Z13(I)
         NR =X13(I)*X13(I)+Y13(I)*Y13(I)+Z13(I)*Z13(I)
         BET=PS/MAX(EM20,NR)
@@ -1188,8 +1185,8 @@ C-----
       OUT = (DY1*DZ2-DY2*DZ1)*NTX(3,I)
      .      +(DZ1*DX2-DZ2*DX1)*NTY(3,I)
      .      +(DX1*DY2-DY1*DX2)*NTZ(3,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 1,2
+      IF (OUT<ZERO) THEN
+C       projection onto 1,2
         PS =DX1*X12(I)+DY1*Y12(I)+DZ1*Z12(I)
         NR =X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I)
         BET=PS/MAX(EM20,NR)
@@ -1206,8 +1203,8 @@ C       PROJECTION SUR 1,2
       OUT = (DY2*DZ3-DY3*DZ2)*NTX(3,I)
      .      +(DZ2*DX3-DZ3*DX2)*NTY(3,I)
      .      +(DX2*DY3-DY2*DX3)*NTZ(3,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 2,3
+      IF (OUT<ZERO) THEN
+C       projection onto 2,3
         PS =DX2*X23(I)+DY2*Y23(I)+DZ2*Z23(I)
         NR =X23(I)*X23(I)+Y23(I)*Y23(I)+Z23(I)*Z23(I)
         BET=PS/MAX(EM20,NR)
@@ -1221,8 +1218,8 @@ C       PROJECTION SUR 2,3
       OUT = (DY3*DZ1-DY1*DZ3)*NTX(3,I)
      .      +(DZ3*DX1-DZ1*DX3)*NTY(3,I)
      .      +(DX3*DY1-DY3*DX1)*NTZ(3,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 3,1
+      IF (OUT<ZERO) THEN
+C       projection onto 3,1
         PS =-DX3*X13(I)-DY3*Y13(I)-DZ3*Z13(I)
         NR =X13(I)*X13(I)+Y13(I)*Y13(I)+Z13(I)*Z13(I)
         BET=PS/MAX(EM20,NR)
@@ -1236,32 +1233,32 @@ C       PROJECTION SUR 3,1
 C-------------------------------
  400  CONTINUE
 C-------------------------------
-C     PROJECTION DE PK SUR L ET PENETRATION.
+C     projection of pk onto l and penetration
 C-------------------------------
       DO 425 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
       I  =NLS-NDEB
-      IF (IACTIV(3,IL).EQ.-1) GOTO 425
+      IF (IACTIV(3,IL)==-1) GOTO 425
 C-----
       XH =XTK(3,I)
       YH =YTK(3,I)
       ZH =ZTK(3,I)
       XKN1 =XH**(IDG-1)
       SGNXKN=-ONE
-      IF (XKN1*XH.GE.ZERO) SGNXKN=ONE      
+      IF (XKN1*XH>=ZERO) SGNXKN=ONE      
       YKN1 =YH**(IDG-1)
       SGNYKN=-ONE
-      IF (YKN1*YH.GE.ZERO) SGNYKN=ONE     
+      IF (YKN1*YH>=ZERO) SGNYKN=ONE     
       ZKN1 =ZH**(IDG-1)
       SGNZKN=-ONE
-      IF (ZKN1*ZH.GE.ZERO) SGNZKN=ONE      
+      IF (ZKN1*ZH>=ZERO) SGNZKN=ONE      
       N11 =SGNXKN*XKN1*AN
       N12 =SGNYKN*YKN1*BN
       N13 =SGNZKN*ZKN1*CN
       NR1 =N11*N11+N12*N12+N13*N13
       NR1 =SQRT(NR1)
       EM =N11*XTK(3,I)+N12*YTK(3,I)+N13*ZTK(3,I)
-      IF (EM.LE.ONE) THEN
+      IF (EM<=ONE) THEN
         LAMBDA1=(EM-EXP((DGR-ONE)*LOG(MAX(EM,EM20))/DGR))
      .         / MAX(EXP((DGR-ONE)*LOG(EM20)/DGR),NR1)
         INSIDE1=1
@@ -1274,20 +1271,20 @@ C-----
       ZH =ZTK2(I)
       XKN1 =XH**(IDG-1)
       SGNXKN=-ONE
-      IF (XKN1*XH.GE.ZERO) SGNXKN=ONE      
+      IF (XKN1*XH>=ZERO) SGNXKN=ONE      
       YKN1 =YH**(IDG-1)
       SGNYKN=-ONE
-      IF (YKN1*YH.GE.ZERO) SGNYKN=ONE     
+      IF (YKN1*YH>=ZERO) SGNYKN=ONE     
       ZKN1 =ZH**(IDG-1)
       SGNZKN=-ONE
-      IF (ZKN1*ZH.GE.ZERO) SGNZKN=ONE      
+      IF (ZKN1*ZH>=ZERO) SGNZKN=ONE      
       N21 =SGNXKN*XKN1*AN
       N22 =SGNYKN*YKN1*BN
       N23 =SGNZKN*ZKN1*CN
       NR2 =N21*N21+N22*N22+N23*N23
       NR2 =SQRT(NR2)
       EM =N21*XTK2(I)+N22*YTK2(I)+N23*ZTK2(I)
-       IF (EM.LE.ONE) THEN
+       IF (EM<=ONE) THEN
         LAMBDA2=(EM-EXP((DGR-ONE)*LOG(MAX(EM,EM20))/DGR))
      .         / MAX(EXP((DGR-ONE)*LOG(EM20)/DGR),NR2)    
         INSIDE2=1
@@ -1295,13 +1292,13 @@ C-----
         INSIDE2=0
       ENDIF
 C-----
-      IF (INSIDE1.EQ.0.AND.INSIDE2.EQ.0) THEN
+      IF (INSIDE1==0.AND.INSIDE2==0) THEN
         IACTIV(3,IL)=0
       ELSE
 C-----
-      IF (IACTIV(3,IL).EQ.0) THEN
-        IF (INSIDE1.NE.0.AND.INSIDE2.NE.0) THEN
-         IF (ABS(LAMBDA1).GE.ABS(LAMBDA2)) THEN
+      IF (IACTIV(3,IL)==0) THEN
+        IF (INSIDE1/=0.AND.INSIDE2/=0) THEN
+         IF (ABS(LAMBDA1)>=ABS(LAMBDA2)) THEN
           XM(I)=XTK(3,I)-LAMBDA1*N11/MAX(EM20,NR1)
           YM(I)=YTK(3,I)-LAMBDA1*N12/MAX(EM20,NR1)
           ZM(I)=ZTK(3,I)-LAMBDA1*N13/MAX(EM20,NR1)
@@ -1313,11 +1310,11 @@ C-----
           YTK(3,I)=YTK2(I)
           ZTK(3,I)=ZTK2(I)
          ENDIF
-        ELSEIF(INSIDE1.NE.0) THEN
+        ELSEIF(INSIDE1/=0) THEN
           XM(I)=XTK(3,I)-LAMBDA1*N11/MAX(EM20,NR1)
           YM(I)=YTK(3,I)-LAMBDA1*N12/MAX(EM20,NR1)
           ZM(I)=ZTK(3,I)-LAMBDA1*N13/MAX(EM20,NR1)
-        ELSEIF(INSIDE2.NE.0) THEN
+        ELSEIF(INSIDE2/=0) THEN
           XM(I)=XTK2(I)-LAMBDA2*N21/MAX(EM20,NR2)
           YM(I)=YTK2(I)-LAMBDA2*N22/MAX(EM20,NR2)
           ZM(I)=ZTK2(I)-LAMBDA2*N23/MAX(EM20,NR2)
@@ -1339,8 +1336,8 @@ C-----
         LAMBDA2=(XH-XTK2(I))*N1
      .         +(YH-YTK2(I))*N2
      .         +(ZH-ZTK2(I))*N3
-        IF (INSIDE1.NE.0.AND.INSIDE2.NE.0) THEN
-         IF (ABS(LAMBDA1).GE.ABS(LAMBDA2)) THEN
+        IF (INSIDE1/=0.AND.INSIDE2/=0) THEN
+         IF (ABS(LAMBDA1)>=ABS(LAMBDA2)) THEN
            XM(I)=XTK(3,I)+LAMBDA1*N1
            YM(I)=YTK(3,I)+LAMBDA1*N2
            ZM(I)=ZTK(3,I)+LAMBDA1*N3
@@ -1352,11 +1349,11 @@ C-----
            YTK(3,I)=YTK2(I)
            ZTK(3,I)=ZTK2(I)
           ENDIF
-        ELSEIF(INSIDE1.NE.0) THEN
+        ELSEIF(INSIDE1/=0) THEN
            XM(I)=XTK(3,I)+LAMBDA1*N1
            YM(I)=YTK(3,I)+LAMBDA1*N2
            ZM(I)=ZTK(3,I)+LAMBDA1*N3
-        ELSEIF(INSIDE2.NE.0) THEN
+        ELSEIF(INSIDE2/=0) THEN
            XM(I)=XTK2(I)+LAMBDA2*N1
            YM(I)=YTK2(I)+LAMBDA2*N2
            ZM(I)=ZTK2(I)+LAMBDA2*N3
@@ -1367,13 +1364,13 @@ C-----
 C       one more iteration.
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE
         N1 =SGNXKN*XKN1*AN
         N2 =SGNYKN*YKN1*BN
         N3 =SGNZKN*ZKN1*CN
@@ -1383,13 +1380,13 @@ C       one more iteration.
         ZM(I)=ZM(I)/MAX(EM20,EM**(ONE/DGR))        
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE        
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE        
         N1 =SGNXKN*XKN1*AN
         N2 =SGNYKN*YKN1*BN
         N3 =SGNZKN*ZKN1*CN
@@ -1414,18 +1411,18 @@ C-----
       IL =KSC(NLS)
       I  =NLS-NDEB
 C-----
-      IF (IACTIV(3,IL).LE.0) GOTO 450
+      IF (IACTIV(3,IL)<=0) GOTO 450
 C-----
-C      projection radiale de M.
+C      radial projection of m
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE        
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE        
        N1 =SGNXKN*XKN1*AN
        N2 =SGNYKN*YKN1*BN
        N3 =SGNZKN*ZKN1*CN
@@ -1438,13 +1435,13 @@ C------
 C      normale a l'ellipsoide en M.
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE        
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE        
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE        
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE        
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE        
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE        
        N1 =SGNXKN*XKN1*AN
        N2 =SGNYKN*YKN1*BN
        N3 =SGNZKN*ZKN1*CN
@@ -1463,7 +1460,7 @@ C------
      .          +(ZTK(3,I)-ZM(I))*NZI(3,I)
        PENET(3,I)=-PENET(3,I)
        PENET(3,I)=MAX(ZERO,PENET(3,I))
-       IF (DEPTH(3,I)-PENET(3,I).LT.EM10*DEPTH(3,I)) THEN
+       IF (DEPTH(3,I)-PENET(3,I)<EM10*DEPTH(3,I)) THEN
          PENET(3,I)=ZERO
          IACTIV(3,IL)=-2
        ENDIF
@@ -1476,7 +1473,7 @@ C-------------------------------
       IL =KSC(NLS)
       I  =NLS-NDEB
 C-----
-      IF (IACTIV(3,IL).EQ.-2) THEN
+      IF (IACTIV(3,IL)==-2) THEN
          IN1=ITAB(KSI(1,IL))
          IN2=ITAB(KSI(2,IL))
          IN3=ITAB(KSI(3,IL))
@@ -1532,7 +1529,7 @@ C-----
       Z23(I)=Z3(I)-Z2(I)
  475  CONTINUE
 C-------------------------------
-C     POINTS K,H SUR E,L / LA DISTANCE D(K,H) EST LOCALEMENT MAXIMUM
+C     points k, h on e, l / the distance d(k, h) is locally maximum
 C-------------------------------
       DO 500 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
@@ -1541,17 +1538,17 @@ C-----
       EH  =(ABS(NTX(4,I)/(DGR*AN))**EXPN)*AN
      .    +(ABS(NTY(4,I)/(DGR*BN))**EXPN)*BN
      .    +(ABS(NTZ(4,I)/(DGR*CN))**EXPN)*CN
-C     X EST DU SIGNE DE LAMBDA*NTX, IDEM EN Y ET Z.
+C     x has the sign of lambda*ntx, same for y and z
 C     LAMBDA1=EXP(LOG(1./EH)/EXPN)
       LAMBDA1=(MAX(EM20,EH))**(-ONE/EXPN)
       XH1   =ABS(LAMBDA1*NTX(4,I)/(DGR*AN))**(ONE/(DGR-ONE))
-      IF (NTX(4,I).LT.ZERO) XH1=-XH1
+      IF (NTX(4,I)<ZERO) XH1=-XH1
       YH1   =ABS(LAMBDA1*NTY(4,I)/(DGR*BN))**(ONE/(DGR-ONE))
-      IF (NTY(4,I).LT.ZERO) YH1=-YH1
+      IF (NTY(4,I)<ZERO) YH1=-YH1
       ZH1   =ABS(LAMBDA1*NTZ(4,I)/(DGR*CN))**(ONE/(DGR-ONE))
-      IF (NTZ(4,I).LT.ZERO) ZH1=-ZH1
+      IF (NTZ(4,I)<ZERO) ZH1=-ZH1
       MU1   =-NTX(4,I)*XH1-NTY(4,I)*YH1-NTZ(4,I)*ZH1-D(I)
-C     LAMBDA2=-LAMBDA1
+C     Lambda2 = -Lambda1
       XH2   =-XH1
       YH2   =-YH1
       ZH2   =-ZH1
@@ -1566,7 +1563,7 @@ C      MU2   =-NTX(4,I)*XH2-NTY(4,I)*YH2-NTZ(4,I)*ZH2-D(I)
 C-------------------------------
  500  CONTINUE
 C-------------------------------
-C     RAMENER LE PT PK SUR LE TRIANGLE.
+C     bring point pk back onto the triangle
 C-------------------------------
       DO 525 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
@@ -1581,8 +1578,8 @@ C-----
       OUT = (DY1*DZ2-DY2*DZ1)*NTX(4,I)
      .     +(DZ1*DX2-DZ2*DX1)*NTY(4,I)
      .     +(DX1*DY2-DY1*DX2)*NTZ(4,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 1,2
+      IF (OUT<ZERO) THEN
+C       projection onto 1,2
         PS =DX1*X12(I)+DY1*Y12(I)+DZ1*Z12(I)
         NR =X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I)
         BET=PS/MAX(EM20,NR)
@@ -1599,8 +1596,8 @@ C       PROJECTION SUR 1,2
       OUT = (DY2*DZ3-DY3*DZ2)*NTX(4,I)
      .     +(DZ2*DX3-DZ3*DX2)*NTY(4,I)
      .     +(DX2*DY3-DY2*DX3)*NTZ(4,I)
-      IF (OUT.LT.0.) THEN
-C       PROJECTION SUR 2,3
+      IF (OUT<0.) THEN
+C       projection onto 2,3
         PS =DX2*X23(I)+DY2*Y23(I)+DZ2*Z23(I)
         NR =X23(I)*X23(I)+Y23(I)*Y23(I)+Z23(I)*Z23(I)
         BET=PS/MAX(EM20,NR)
@@ -1614,8 +1611,8 @@ C       PROJECTION SUR 2,3
       OUT = (DY3*DZ1-DY1*DZ3)*NTX(4,I)
      .     +(DZ3*DX1-DZ1*DX3)*NTY(4,I)
      .     +(DX3*DY1-DY3*DX1)*NTZ(4,I)
-      IF (OUT.LT.0.) THEN
-C       PROJECTION SUR 3,1
+      IF (OUT<0.) THEN
+C       projection onto 3,1
         PS =-DX3*X13(I)-DY3*Y13(I)-DZ3*Z13(I)
         NR =X13(I)*X13(I)+Y13(I)*Y13(I)+Z13(I)*Z13(I)
         BET=PS/MAX(EM20,NR)
@@ -1636,8 +1633,8 @@ C-----
       OUT = (DY1*DZ2-DY2*DZ1)*NTX(4,I)
      .      +(DZ1*DX2-DZ2*DX1)*NTY(4,I)
      .      +(DX1*DY2-DY1*DX2)*NTZ(4,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 1,2
+      IF (OUT<ZERO) THEN
+C       projection onto 1,2
         PS =DX1*X12(I)+DY1*Y12(I)+DZ1*Z12(I)
         NR =X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I)
         BET=PS/MAX(EM20,NR)
@@ -1654,8 +1651,8 @@ C       PROJECTION SUR 1,2
       OUT = (DY2*DZ3-DY3*DZ2)*NTX(4,I)
      .      +(DZ2*DX3-DZ3*DX2)*NTY(4,I)
      .      +(DX2*DY3-DY2*DX3)*NTZ(4,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 2,3
+      IF (OUT<ZERO) THEN
+C       projection onto 2,3
         PS =DX2*X23(I)+DY2*Y23(I)+DZ2*Z23(I)
         NR =X23(I)*X23(I)+Y23(I)*Y23(I)+Z23(I)*Z23(I)
         BET=PS/MAX(EM20,NR)
@@ -1669,8 +1666,8 @@ C       PROJECTION SUR 2,3
       OUT = (DY3*DZ1-DY1*DZ3)*NTX(4,I)
      .      +(DZ3*DX1-DZ1*DX3)*NTY(4,I)
      .      +(DX3*DY1-DY3*DX1)*NTZ(4,I)
-      IF (OUT.LT.ZERO) THEN
-C       PROJECTION SUR 3,1
+      IF (OUT<ZERO) THEN
+C       projection onto 3,1
         PS =-DX3*X13(I)-DY3*Y13(I)-DZ3*Z13(I)
         NR =X13(I)*X13(I)+Y13(I)*Y13(I)+Z13(I)*Z13(I)
         BET=PS/MAX(EM20,NR)
@@ -1684,32 +1681,32 @@ C       PROJECTION SUR 3,1
 C-------------------------------
  525  CONTINUE
 C-------------------------------
-C     PROJECTION DE PK SUR L ET PENETRATION.
+C     projection of pk onto l and penetration
 C-------------------------------
       DO 550 NLS=NDEB+1,MIN(NDEB+MVSIZ,NSC)
       IL =KSC(NLS)
       I  =NLS-NDEB
-      IF (IACTIV(4,IL).EQ.-1) GOTO 550
+      IF (IACTIV(4,IL)==-1) GOTO 550
 C-----
       XH =XTK(4,I)
       YH =YTK(4,I)
       ZH =ZTK(4,I)
       XKN1 =XH**(IDG-1)
       SGNXKN=-ONE
-      IF (XKN1*XH.GE.ZERO) SGNXKN=ONE
+      IF (XKN1*XH>=ZERO) SGNXKN=ONE
       YKN1 =YH**(IDG-1)
       SGNYKN=-ONE
-      IF (YKN1*YH.GE.ZERO) SGNYKN=ONE
+      IF (YKN1*YH>=ZERO) SGNYKN=ONE
       ZKN1 =ZH**(IDG-1)
       SGNZKN=-ONE
-      IF (ZKN1*ZH.GE.ZERO) SGNZKN=ONE
+      IF (ZKN1*ZH>=ZERO) SGNZKN=ONE
       N11 =SGNXKN*XKN1*AN
       N12 =SGNYKN*YKN1*BN
       N13 =SGNZKN*ZKN1*CN
       NR1 =N11*N11+N12*N12+N13*N13
       NR1 =SQRT(NR1)
       EM =N11*XTK(4,I)+N12*YTK(4,I)+N13*ZTK(4,I)
-      IF (EM.LE.ONE) THEN
+      IF (EM<=ONE) THEN
         LAMBDA1=(EM-EXP((DGR-ONE)*LOG(MAX(EM,EM20))/DGR))
      .         / MAX(EXP((DGR-ONE)*LOG(EM20)/DGR),NR1)
         INSIDE1=1
@@ -1722,20 +1719,20 @@ C-----
       ZH =ZTK2(I)
       XKN1 =XH**(IDG-1)
       SGNXKN=-ONE
-      IF (XKN1*XH.GE.ZERO) SGNXKN=ONE
+      IF (XKN1*XH>=ZERO) SGNXKN=ONE
       YKN1 =YH**(IDG-1)
       SGNYKN=-ONE
-      IF (YKN1*YH.GE.ONE) SGNYKN=ONE
+      IF (YKN1*YH>=ONE) SGNYKN=ONE
       ZKN1 =ZH**(IDG-1)
       SGNZKN=-ONE
-      IF (ZKN1*ZH.GE.ZERO) SGNZKN=ONE
+      IF (ZKN1*ZH>=ZERO) SGNZKN=ONE
       N21 =SGNXKN*XKN1*AN
       N22 =SGNYKN*YKN1*BN
       N23 =SGNZKN*ZKN1*CN
       NR2 =N21*N21+N22*N22+N23*N23
       NR2 =SQRT(NR2)
       EM =N21*XTK2(I)+N22*YTK2(I)+N23*ZTK2(I)
-      IF (EM.LE.ONE) THEN
+      IF (EM<=ONE) THEN
         LAMBDA2=(EM-EXP((DGR-ONE)*LOG(MAX(EM,EM20))/DGR))
      .         / MAX(EXP((DGR-ONE)*LOG(EM20)/DGR),NR2)
         INSIDE2=1
@@ -1743,13 +1740,13 @@ C-----
         INSIDE2=0
       ENDIF
 C-----
-      IF (INSIDE1.EQ.0.AND.INSIDE2.EQ.0) THEN
+      IF (INSIDE1==0.AND.INSIDE2==0) THEN
         IACTIV(4,IL)=0
       ELSE
 C-----
-      IF (IACTIV(4,IL).EQ.0) THEN
-        IF (INSIDE1.NE.0.AND.INSIDE2.NE.0) THEN
-         IF (ABS(LAMBDA1).GE.ABS(LAMBDA2)) THEN
+      IF (IACTIV(4,IL)==0) THEN
+        IF (INSIDE1/=0.AND.INSIDE2/=0) THEN
+         IF (ABS(LAMBDA1)>=ABS(LAMBDA2)) THEN
           XM(I)=XTK(4,I)-LAMBDA1*N11/MAX(EM20,NR1)
           YM(I)=YTK(4,I)-LAMBDA1*N12/MAX(EM20,NR1)
           ZM(I)=ZTK(4,I)-LAMBDA1*N13/MAX(EM20,NR1)
@@ -1761,11 +1758,11 @@ C-----
           YTK(4,I)=YTK2(I)
           ZTK(4,I)=ZTK2(I)
          ENDIF
-        ELSEIF(INSIDE1.NE.0) THEN
+        ELSEIF(INSIDE1/=0) THEN
           XM(I)=XTK(4,I)-LAMBDA1*N11/MAX(EM20,NR1)
           YM(I)=YTK(4,I)-LAMBDA1*N12/MAX(EM20,NR1)
           ZM(I)=ZTK(4,I)-LAMBDA1*N13/MAX(EM20,NR1)
-        ELSEIF(INSIDE2.NE.0) THEN
+        ELSEIF(INSIDE2/=0) THEN
           XM(I)=XTK2(I)-LAMBDA2*N21/MAX(EM20,NR2)
           YM(I)=YTK2(I)-LAMBDA2*N22/MAX(EM20,NR2)
           ZM(I)=ZTK2(I)-LAMBDA2*N23/MAX(EM20,NR2)
@@ -1787,8 +1784,8 @@ C-----
         LAMBDA2=(XH-XTK2(I))*N1
      .         +(YH-YTK2(I))*N2
      .         +(ZH-ZTK2(I))*N3
-        IF (INSIDE1.NE.0.AND.INSIDE2.NE.0) THEN
-         IF (ABS(LAMBDA1).GE.ABS(LAMBDA2)) THEN
+        IF (INSIDE1/=0.AND.INSIDE2/=0) THEN
+         IF (ABS(LAMBDA1)>=ABS(LAMBDA2)) THEN
            XM(I)=XTK(4,I)+LAMBDA1*N1
            YM(I)=YTK(4,I)+LAMBDA1*N2
            ZM(I)=ZTK(4,I)+LAMBDA1*N3
@@ -1800,11 +1797,11 @@ C-----
            YTK(4,I)=YTK2(I)
            ZTK(4,I)=ZTK2(I)
           ENDIF
-        ELSEIF(INSIDE1.NE.0) THEN
+        ELSEIF(INSIDE1/=0) THEN
            XM(I)=XTK(4,I)+LAMBDA1*N1
            YM(I)=YTK(4,I)+LAMBDA1*N2
            ZM(I)=ZTK(4,I)+LAMBDA1*N3
-        ELSEIF(INSIDE2.NE.0) THEN
+        ELSEIF(INSIDE2/=0) THEN
            XM(I)=XTK2(I)+LAMBDA2*N1
            YM(I)=YTK2(I)+LAMBDA2*N2
            ZM(I)=ZTK2(I)+LAMBDA2*N3
@@ -1815,13 +1812,13 @@ C-----
 C       one more iteration.
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE
         N1 =SGNXKN*XKN1*AN
         N2 =SGNYKN*YKN1*BN
         N3 =SGNZKN*ZKN1*CN
@@ -1831,13 +1828,13 @@ C       one more iteration.
         ZM(I)=ZM(I)/MAX(EM20,EM**(ONE/DGR))
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE 
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE
         N1 =SGNXKN*XKN1*AN
         N2 =SGNYKN*YKN1*BN
         N3 =SGNZKN*ZKN1*CN
@@ -1862,18 +1859,18 @@ C-----
       IL =KSC(NLS)
       I  =NLS-NDEB
 C-----
-      IF (IACTIV(4,IL).LE.0) GOTO 575
+      IF (IACTIV(4,IL)<=0) GOTO 575
 C-----
-C      projection radiale de M.
+C      radial projection of m
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE
        N1 =SGNXKN*XKN1*AN
        N2 =SGNYKN*YKN1*BN
        N3 =SGNZKN*ZKN1*CN
@@ -1886,13 +1883,13 @@ C------
 C      normale a l'ellipsoide en M.
         XKN1 =XM(I)**(IDG-1)
         SGNXKN=-ONE
-        IF (XKN1*XM(I).GE.ZERO) SGNXKN=ONE
+        IF (XKN1*XM(I)>=ZERO) SGNXKN=ONE
         YKN1 =YM(I)**(IDG-1)
         SGNYKN=-ONE
-        IF (YKN1*YM(I).GE.ZERO) SGNYKN=ONE
+        IF (YKN1*YM(I)>=ZERO) SGNYKN=ONE
         ZKN1 =ZM(I)**(IDG-1)
         SGNZKN=-ONE
-        IF (ZKN1*ZM(I).GE.ZERO) SGNZKN=ONE
+        IF (ZKN1*ZM(I)>=ZERO) SGNZKN=ONE
        N1 =SGNXKN*XKN1*AN
        N2 =SGNYKN*YKN1*BN
        N3 =SGNZKN*ZKN1*CN
@@ -1911,7 +1908,7 @@ C------
      .          +(ZTK(4,I)-ZM(I))*NZI(4,I)
        PENET(4,I)=-PENET(4,I)
        PENET(4,I)=MAX(ZERO,PENET(4,I))
-       IF (DEPTH(4,I)-PENET(4,I).LT.EM10*DEPTH(4,I)) THEN
+       IF (DEPTH(4,I)-PENET(4,I)<EM10*DEPTH(4,I)) THEN
          PENET(4,I)=ZERO
          IACTIV(4,IL)=-2
        ENDIF
@@ -1924,7 +1921,7 @@ C-------------------------------
       IL =KSC(NLS)
       I  =NLS-NDEB
 C-----
-      IF (IACTIV(4,IL).EQ.-2) THEN
+      IF (IACTIV(4,IL)==-2) THEN
          IN1=ITAB(KSI(1,IL))
          IN2=ITAB(KSI(2,IL))
          IN3=ITAB(KSI(3,IL))

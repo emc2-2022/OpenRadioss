@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPDENS                        source/elements/sph/spdens.F  
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|-- calls ---------------
-Chd|        WEIGHT1                       source/elements/sph/weight.F  
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spdens    ../engine/source/elements/sph/spdens.F
+!||--- called by ------------------------------------------------------
+!||    forintp   ../engine/source/elements/forintp.F
+!||--- calls      -----------------------------------------------------
+!||    weight1   ../engine/source/elements/sph/weight.F
+!||--- uses       -----------------------------------------------------
+!||    sphbox    ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPDENS(
      1    X        ,V       ,MS      ,SPBUF   ,ITAB    ,
      2    KXSP     ,IXSP    ,NOD2SP  ,ISPSYM  ,XSPSYM  ,
@@ -36,35 +37,22 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE SPHBOX
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr01_c.inc"
-#include      "scr18_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),ITAB(*),
      .        ISPSYM(NSPCOND,*),IPARG(NPARG,*)
-C     REAL
       my_real
      .   X(3,*)    ,V(3,*)    ,MS(*)   ,
      .   SPBUF(NSPBUF,*) ,XSPSYM(3,*) ,VSPSYM(3,*) ,
@@ -73,23 +61,23 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,N,INOD,JNOD,J,NVOIS,M,
-     .        NVOISS,SM,JS,NC,NS,NN
+     .        NVOISS,SM,JS,NC,NN
       my_real
      .       XI,YI,ZI,DI,RHOI,XJ,YJ,ZJ,DJ,RHOJ,DIJ,
      .       VXI,VYI,VZI,VXJ,VYJ,VZJ,
      .       VJ,VJX,VJY,VJZ,
      .       DRHO,WGHT,WGRAD(3),DIVV,
      .       MUIJ,MUMAX,
-     .       FACT,WUN,WVX,WVY,WVZ,WRHO,
+     .       
      .       DXX,DXY,DXZ,DYX,DYY,DYZ,DZX,DZY,DZZ,DT1D2,
      .       EXX,EXY,EXZ,EYX,EYY,EYZ,EZX,EZY,EZZ,
      .       ROTVX,ROTVY,ROTVZ,ROTV,
      . ALPHAI,ALPHAXI,ALPHAYI,ALPHAZI,
-     . BETAXI,BETAYI,BETAZI,
+     . 
      . BETAXXI,BETAYXI,BETAZXI,
      . BETAXYI,BETAYYI,BETAZYI,
      . BETAXZI,BETAYZI,BETAZZI,
-     . BETAX,WGRDX,WGRDY,WGRDZ
+     . WGRDX,WGRDY,WGRDZ
 C-------------------------------------------
       DO I=LFT,LLT
        N    =NFT+I
@@ -102,17 +90,17 @@ C-------------------------------------------
        WA(7,N)=ZERO
        WA(8,N)=ZERO
        WA(9,N)=ZERO    
-C      characteristic lenght = diameter.
+C      characteristic length = diameter.
        WA(11,N)=SPBUF(1,N)
        WA(12,N)=ZERO
       ENDDO
 C-----------------------------------------------
-C     Calcul des densites et tenseurs de deformations.
+C     Calculation of densities and strain tensors.
 C-----------------------------------------------
       DT1D2=0.5*DT1
       DO 10 I=LFT,LLT
        N    =NFT+I
-       IF(KXSP(2,N).LE.0)GOTO 10
+       IF(KXSP(2,N)<=0)GOTO 10
        INOD =KXSP(3,N)
        XI=X(1,INOD)
        YI=X(2,INOD)
@@ -131,9 +119,9 @@ C
        ROTVZ=ZERO    
 C------
        ALPHAI=WACOMP(1,N)
-       BETAXI=WACOMP(2,N)
-       BETAYI=WACOMP(3,N)
-       BETAZI=WACOMP(4,N)
+C       BETAXI=WACOMP(2,N)
+C       BETAYI=WACOMP(3,N)
+C       BETAZI=WACOMP(4,N)
        ALPHAXI=WACOMP( 5,N)
        ALPHAYI=WACOMP( 6,N)
        ALPHAZI=WACOMP( 7,N)
@@ -150,7 +138,7 @@ C------
        NVOIS=KXSP(4,N)
        DO J=1,NVOIS
         JNOD=IXSP(J,N)
-        IF(JNOD.GT.0)THEN
+        IF(JNOD>0)THEN
           M=NOD2SP(JNOD)
           XJ=X(1,JNOD)
           YJ=X(2,JNOD)
@@ -177,22 +165,23 @@ C------
           RHOJ=XSPHR(7,NN)
           VJ=XSPHR(8,NN)/MAX(EM20,RHOJ)
         END IF
-        BETAX=ONE +BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
-        WGRDX=
-     .   WGRAD(1)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAXI*BETAX+ALPHAI*
-     .       (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
-        WGRDY=
-     .   WGRAD(2)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAYI*BETAX+ALPHAI*
-     .       (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
-        WGRDZ=
-     .   WGRAD(3)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAZI*BETAX+ALPHAI*
-     .       (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
+        WGRDX=WGRAD(1)*ALPHAI+WGHT*ALPHAXI
+     .       +WGRAD(1)*BETAXXI+WGRAD(2)*BETAXYI+WGRAD(3)*BETAXZI
+        WGRDY=WGRAD(2)*ALPHAI+WGHT*ALPHAYI
+     .       +WGRAD(1)*BETAYXI+WGRAD(2)*BETAYYI+WGRAD(3)*BETAYZI
+        WGRDZ=WGRAD(3)*ALPHAI+WGHT*ALPHAZI
+     .       +WGRAD(1)*BETAZXI+WGRAD(2)*BETAZYI+WGRAD(3)*BETAZZI      
+!        Old order1 correction        
+!        BETAX=ONE +BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
+!        WGRDX=WGRAD(1)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAXI*BETAX+ALPHAI*
+!     .    (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
+!        WGRDY=WGRAD(2)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAYI*BETAX+ALPHAI*
+!     .    (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
+!        WGRDZ=WGRAD(3)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAZI*BETAX+ALPHAI*
+!     .    (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
         WGRAD(1)=WGRDX
         WGRAD(2)=WGRDY
         WGRAD(3)=WGRDZ
@@ -258,11 +247,11 @@ C       for artificial viscosity computation :
         ROTVZ=ROTVZ+VJX*WGRAD(2)-VJY*WGRAD(1)
        END DO
 C------
-C      partie symetrique.
+C      symmetrical part.
        NVOISS=KXSP(6,N)
        DO J=KXSP(5,N)+1,KXSP(5,N)+NVOISS
         JS=IXSP(J,N)
-        IF(JS.GT.0)THEN
+        IF(JS>0)THEN
           SM=JS/(NSPCOND+1)
           NC=MOD(JS,NSPCOND+1)
           JS=ISPSYM(NC,SM)
@@ -293,22 +282,24 @@ C      partie symetrique.
           CALL WEIGHT1(XI,YI,ZI,XJ,YJ,ZJ,DIJ,WGHT,WGRAD)
           VJ=XSPHR(8,SM)/MAX(EM20,RHOJ)
         END IF
-        BETAX=ONE + BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
-        WGRDX=
-     .   WGRAD(1)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAXI*BETAX+ALPHAI*
-     .       (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
-        WGRDY=
-     .   WGRAD(2)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAYI*BETAX+ALPHAI*
-     .       (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
-        WGRDZ=
-     .   WGRAD(3)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAZI*BETAX+ALPHAI*
-     .       (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
+C
+        WGRDX=WGRAD(1)*ALPHAI+WGHT*ALPHAXI
+     .       +WGRAD(1)*BETAXXI+WGRAD(2)*BETAXYI+WGRAD(3)*BETAXZI
+        WGRDY=WGRAD(2)*ALPHAI+WGHT*ALPHAYI
+     .       +WGRAD(1)*BETAYXI+WGRAD(2)*BETAYYI+WGRAD(3)*BETAYZI
+        WGRDZ=WGRAD(3)*ALPHAI+WGHT*ALPHAZI
+     .       +WGRAD(1)*BETAZXI+WGRAD(2)*BETAZYI+WGRAD(3)*BETAZZI
+!        Old order1 correction        
+!        BETAX=ONE + BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
+!        WGRDX=WGRAD(1)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAXI*BETAX+ALPHAI*
+!     .    (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
+!        WGRDY=WGRAD(2)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAYI*BETAX+ALPHAI*
+!     .    (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
+!        WGRDZ=WGRAD(3)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAZI*BETAX+ALPHAI*
+!     .    (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
         WGRAD(1)=WGRDX
         WGRAD(2)=WGRDY
         WGRAD(3)=WGRDZ
@@ -375,7 +366,7 @@ C       for artificial viscosity computation :
 C------
 C      for stability computation into material routines:
        WA(12,N)=MUMAX
-C      characteristic lenght = diameter.
+C      characteristic length = diameter.
        WA(11,N)=SPBUF(1,N)
 C------
 C      actual density:

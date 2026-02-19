@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  I2MAIN                        source/interfaces/interf1/i2master.F
-Chd|-- called by -----------
-Chd|        ININT2                        source/interfaces/inter2d1/inint2.F
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i2main          ../starter/source/interfaces/interf1/i2master.F
+!||--- called by ------------------------------------------------------
+!||    inint2          ../starter/source/interfaces/inter2d1/inint2.F
+!||    inint3          ../starter/source/interfaces/inter3d1/inint3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I2MAIN(NSV,MSR,IRECTM,IPARI,
      .                   TAG,MSRU,INTBUF_TAB)
 C-----------------------------------------------
@@ -36,7 +35,7 @@ C   M o d u l e s
 C----------------------------------------------- 
       USE INTBUFDEF_MOD 
 C-----------------------------------------------------------------------
-C recontruit MSR et IRECTM en fonction des main nodes utiles
+C reconstructing MSR and Irectm as a function of useful nodes
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -67,36 +66,36 @@ C
         TAG(I) = 0
       ENDDO
 C
-      IF (N2D.EQ.0) THEN
+      IF (N2D==0) THEN
         NIR = 4
       ELSE
         NIR = 2
       ENDIF
-C determination des main nodes reellement utilises
+C Dettermination of the nodes actually used
       DO I = 1, NSN
         J = INTBUF_TAB%IRTLM(I)
         DO K = 1, NIR
           M = IRECTM(K,J)
-          IF (TAG(M).EQ.0) THEN
+          IF (TAG(M)==0) THEN
             NMNU = NMNU + 1
             TAG(M) = NMNU
             MSRU(NMNU) = MSR(M)
           ENDIF
         ENDDO
       ENDDO
-C mise a jour de MSR
+C MSR update
       DO I = 1, NMNU
         MSR(I) = MSRU(I)
       ENDDO
-C mise a jour de irectm
+C Irectm update
 C---------------------------------------------------------------
-C     LE NOEUD LOCAL EST REMPLACE PAR LE NOEUD GLOBAL DANS IRECT
+C     THE LOCAL NODE IS REPLACED BY THE GLOBAL NODE IN IRECT
 C---------------------------------------------------------------
       DO I = 1, NRTM
         DO K = 1, NIR
           M = IRECTM(K,I)
           NM = TAG(M)
-          IF (NM.EQ.0) THEN
+          IF (NM==0) THEN
             IRECTM(K,I) = 1
           ELSE
 CGW            IRECTM(K,I) = NM
@@ -104,7 +103,7 @@ CGW            IRECTM(K,I) = NM
           ENDIF
         ENDDO
       ENDDO 
-C mise a jour de IPARI et offset de IRTLM
+C update of IPARI and offset of IRTLM
       IPARI(6) = NMNU
 C
       RETURN

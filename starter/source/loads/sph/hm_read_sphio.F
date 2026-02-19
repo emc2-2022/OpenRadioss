@@ -1,49 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_SPHIO                 source/loads/sph/hm_read_sphio.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_sphio          ../starter/source/loads/sph/hm_read_sphio.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    get_u_geo              ../starter/source/user_interface/uaccess.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim      ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    subrotpoint            ../starter/source/model/submodel/subrot.F
+!||    udouble                ../starter/source/system/sysfus.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_SPHIO(ISPHIO   ,VSPHIO   ,IPART    ,IGRSURF  ,
      .                         NOD2SP   ,IPARTSP  ,ITAB     ,X        ,
      .                         MFI      ,LWASPIO  ,ITABM1   ,UNITAB   ,
-     .                         LSUBMODEL)
+     .                         LSUBMODEL,RTRANS   ,NRTRANS )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -53,36 +54,32 @@ C-----------------------------------------------
       USE HM_OPTION_READ_MOD
       USE SUBMODEL_MOD    
       USE UNITAB_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "sphcom.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
-#include      "param_c.inc"
 #include      "r2r_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ISPHIO(NISPHIO,*), IPART(LIPART1,*),
      .        NOD2SP(*),IPARTSP(*),
      .        ITAB(*),MFI,LWASPIO,ITABM1(*)
+      INTEGER, INTENT(IN) :: NRTRANS
       my_real
      .   VSPHIO(*),X(3,*)
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
+      my_real, DIMENSION(NTRANSF,NRTRANS),INTENT(IN) ::  RTRANS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -90,15 +87,17 @@ C-----------------------------------------------
      .  IPROP, ISU, NSEG,
      .  MFITMP, IVAD, LVAD, ITYPE, IDSURF, IFTEMP,
      .  IFVITS,IFDENS, IFPRES, IFENER,SKIP,
-     .  IAD,IN1,IN2,IN3,IN4, IUN,NBOX,NBOY,NBOZ,NBAND
-      CHARACTER MESS*40,TITR*nchartitle,KEY*ncharkey
+     .  IAD,IN1,IN2,IN3,IN4, IUN,NBOX,NBOY,NBOZ,NBAND,SUB_ID
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY) :: KEY
       my_real
      .   BID,RHOIN,PIN,EIN,DIST,
      .   X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,
      .   X12,Y12,Z12,X13,Y13,Z13,NN,NX,NY,NZ,
      .   DBUCS,XBMIN,YBMIN,ZBMIN,XBMAX,YBMAX,ZBMAX,
      .   PINFINI,CARL,XX(9),FCUT,
-     .   RHOIN_UNIT,PIN_UNIT,EIN_UNIT
+     .   RHOIN_UNIT,PIN_UNIT,EIN_UNIT,XL(3)
       LOGICAL IS_AVAILABLE,FOUND
 C-----------------------------------------------
       DATA MESS/'SPH INLET/OUTLET DEFINITION             '/
@@ -140,11 +139,11 @@ Case TYPE=1
 C   VSPHIO(IVAD+4+2*J,J=0,NSEG-1) =                        x
 C          MASS FLOW THROUGH SEGMENT J SINCE LAST ENTRY
 C   VSPHIO(IVAD+5+2*J,J=0,NSEG-1) = SEGMENTS WIDTH         x                       
-Case TYPE=2,3,4 control section + new outlet / silent bounday (if surface defined by coordinates)                          
+Case TYPE=2,3,4 control section + new outlet / silent boundary (if surface defined by coordinates)                          
 C   VSPHIO(IVAD+4->6) = X1                                          x        x        x                           
 C   VSPHIO(IVAD+7->9) = X2                                          x        x        x                          
 C   VSPHIO(IVAD+10->12) = X3                                        x        x        x
-Case TYPE=2,3,4 control section + new outlet / silent bounday
+Case TYPE=2,3,4 control section + new outlet / silent boundary
 C   VSPHIO(IVAD+13) = Total mass that cross section                 x        x        x
 C   VSPHIO(IVAD+14) = DT12                                          x        x        x
 C   VSPHIO(IVAD+15) = Fcut Butterworth filter                       x        x        x
@@ -165,18 +164,19 @@ C
       I = 0
       DO N = 1,NSPHIO
         SKIP = 0
-CC----------Multidomaines --> on ignore les inlets non tages------------
+CC --------- Multidomatic-> We do not know the inlets non-tages ------------------------------------
         IF (NSUBDOM > 0) THEN
           IF (TAGSPHIO(N) == 0) SKIP = 1
         ENDIF
-C----------------------------------------------------------------------	
+C----------------------------------------------------------------------
         IF (SKIP == 0) THEN
 C
           ! Title and ID
           TITR = ''   
           CALL HM_OPTION_READ_KEY(LSUBMODEL, 
      .                            OPTION_ID   = ID, 
-     .                            OPTION_TITR = TITR) 
+     .                            OPTION_TITR = TITR, 
+     .                          SUBMODEL_ID   = SUB_ID)
 C        
           I = I+1
           ISPHIO(NISPHIO,I)=ID
@@ -245,6 +245,17 @@ C         input by coordinates ->  ISPHIO(12,I) = 1
             CALL HM_GET_FLOATV('XM2' ,XX(7)   ,IS_AVAILABLE,LSUBMODEL, UNITAB)   
             CALL HM_GET_FLOATV('YM2' ,XX(8)   ,IS_AVAILABLE,LSUBMODEL, UNITAB)  
             CALL HM_GET_FLOATV('ZM2' ,XX(9)   ,IS_AVAILABLE,LSUBMODEL, UNITAB)              
+            IF(SUB_ID /= 0) THEN
+              XL(1:3) = XX(1:3)
+              CALL SUBROTPOINT(XL(1),XL(2),XL(3),RTRANS,SUB_ID,LSUBMODEL)
+              XX(1:3) = XL(1:3) 
+              XL(1:3) = XX(4:6)
+              CALL SUBROTPOINT(XL(1),XL(2),XL(3),RTRANS,SUB_ID,LSUBMODEL)
+              XX(4:6) = XL(1:3) 
+              XL(1:3) = XX(7:9)
+              CALL SUBROTPOINT(XL(1),XL(2),XL(3),RTRANS,SUB_ID,LSUBMODEL)
+              XX(7:9) = XL(1:3) 
+            END IF
             DO J = 1,9
               VSPHIO(IVAD+3+J) = XX(J)
             ENDDO 
@@ -324,19 +335,19 @@ C
           ENDIF
           MFITMP = MFITMP+LVAD
           IVAD   = IVAD+LVAD
-C----------------------------------------------------------------------	
+C----------------------------------------------------------------------
         ENDIF
       ENDDO
       MFI = MFITMP
 C-------------------------------------
-C Recherche des ID doubles
+C search for duplicate ids
 C-------------------------------------
       CALL UDOUBLE(ISPHIO(NISPHIO,1),NISPHIO,NSPHIO,MESS,0,BID)
 C-------------------------------------
 C inlets, pre-computes surface of segments.
 C-------------------------------------
       DO N=1,NSPHIO
-       IF(ISPHIO(1,N).EQ.1)THEN
+       IF(ISPHIO(1,N)==1)THEN
         IVAD=ISPHIO(4,N)+5
         ISU =ISPHIO(3,N)
         NSEG=IGRSURF(ISU)%NSEG
@@ -364,7 +375,7 @@ C-------------------------------------
           NY=Z12*X13-X12*Z13
           NZ=X12*Y13-Y12*X13
           NN =SQRT(NX*NX+NY*NY+NZ*NZ)
-          IF(IN4.NE.IN3)THEN
+          IF(IN4/=IN3)THEN
            X4=X(1,IN4)
            Y4=X(2,IN4)
            Z4=X(3,IN4)
@@ -388,7 +399,7 @@ C-------------------------------------
 C inlets, outlets : necessary work space (cf engine).
 C-------------------------------------
       DO N=1,NSPHIO
-        IF(ISPHIO(12,N).EQ.0)THEN
+        IF(ISPHIO(12,N)==0)THEN
         IVAD=ISPHIO(4,N)
         ISU =ISPHIO(3,N)
         NSEG=IGRSURF(ISU)%NSEG
@@ -443,7 +454,7 @@ C-------------------------------------
           DBUCS=MAX(DBUCS,ABS(Y3-Y1))
           DBUCS=MAX(DBUCS,ABS(Z3-Z1))
           IN4=IGRSURF(ISU)%NODES(J,4)
-          IF(IN4.NE.IN3)THEN
+          IF(IN4/=IN3)THEN
            X4=X(1,IN4)
            Y4=X(2,IN4)
            Z4=X(3,IN4)
@@ -486,14 +497,14 @@ C-------------------------------------
       WRITE(IOUT,1000)
       DO N=1,NSPHIO
          IVAD=ISPHIO(4,N)
-         IF(ISPHIO(1,N).EQ.1)THEN
+         IF(ISPHIO(1,N)==1)THEN
            WRITE(IOUT,1100) ISPHIO(NISPHIO,N),
      .     IPART(4,ISPHIO(2,N)),IGRSURF(ISPHIO(3,N))%ID,
      .     ISPHIO(5,N),VSPHIO(IVAD),ISPHIO(7,N),
      .     VSPHIO(IVAD+2),ISPHIO(8,N),VSPHIO(IVAD+3)
          ELSE
-           IF(ISPHIO(1,N).EQ.2)THEN
-             IF (ISPHIO(12,N).EQ.0) THEN
+           IF(ISPHIO(1,N)==2)THEN
+             IF (ISPHIO(12,N)==0) THEN
                WRITE(IOUT,1200) ISPHIO(NISPHIO,N),
      .         IPART(4,ISPHIO(2,N)),IGRSURF(ISPHIO(3,N))%ID,
      .         ISPHIO(6,N),VSPHIO(IVAD+1),VSPHIO(IVAD+3)
@@ -501,40 +512,39 @@ C-------------------------------------
                WRITE(IOUT,1400) ISPHIO(NISPHIO,N),
      .         IPART(4,ISPHIO(2,N)),ISPHIO(6,N),VSPHIO(IVAD+1),VSPHIO(IVAD+3)
              ENDIF
-           ELSEIF(ISPHIO(1,N).EQ.3)THEN
-             IF (ISPHIO(12,N).EQ.0) THEN
+           ELSEIF(ISPHIO(1,N)==3)THEN
+             IF (ISPHIO(12,N)==0) THEN
                WRITE(IOUT,1300) ISPHIO(NISPHIO,N),
      .         IPART(4,ISPHIO(2,N)),IGRSURF(ISPHIO(3,N))%ID,VSPHIO(IVAD+3),
      .         ISPHIO(6,N),VSPHIO(IVAD+1),VSPHIO(IVAD+2)
-             ELSEIF (ISPHIO(12,N).EQ.1) THEN
+             ELSEIF (ISPHIO(12,N)==1) THEN
                WRITE(IOUT,1500) ISPHIO(NISPHIO,N),IPART(4,ISPHIO(2,N)),
      .         ISPHIO(6,N),VSPHIO(IVAD+1),VSPHIO(IVAD+2)
              ENDIF
-           ELSEIF(ISPHIO(1,N).EQ.4)THEN
-             IF (ISPHIO(12,N).EQ.0) THEN
+           ELSEIF(ISPHIO(1,N)==4)THEN
+             IF (ISPHIO(12,N)==0) THEN
                WRITE(IOUT,1600) ISPHIO(NISPHIO,N),IPART(4,ISPHIO(2,N)),
      .         IGRSURF(ISPHIO(3,N))%ID
              ELSE
                WRITE(IOUT,1700) ISPHIO(NISPHIO,N),IPART(4,ISPHIO(2,N))
              ENDIF
            ENDIF
-           IF (ISPHIO(12,N).EQ.1) THEN
+           IF (ISPHIO(12,N)==1) THEN
 C            input by coordinates
              IVAD=ISPHIO(4,N)
              WRITE(IOUT,2100) VSPHIO(IVAD+4),VSPHIO(IVAD+5),VSPHIO(IVAD+6),
      .       VSPHIO(IVAD+7),VSPHIO(IVAD+8),VSPHIO(IVAD+9),VSPHIO(IVAD+10),
      .       VSPHIO(IVAD+11),VSPHIO(IVAD+12) 
-           ELSEIF (ISPHIO(12,N).EQ.2) THEN
+           ELSEIF (ISPHIO(12,N)==2) THEN
 C            input by node ID
              WRITE(IOUT,2200) ITAB(ISPHIO(13,N)),ITAB(ISPHIO(14,N)),ITAB(ISPHIO(15,N))
            ENDIF
-           IF (VSPHIO(IVAD+15).GT.EM20) WRITE(IOUT,2300) VSPHIO(IVAD+15)
+           IF (VSPHIO(IVAD+15)>EM20) WRITE(IOUT,2300) VSPHIO(IVAD+15)
          ENDIF
       ENDDO
 C-------------------------------------
 C
       RETURN
- 999  CALL FREERR(3)
 C
  1000 FORMAT(//
      .'     SPH INLET/OUTLET CONDITIONS       '/

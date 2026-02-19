@@ -1,39 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I25E2E          source/spmd/prepare_split_i25e2e.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        LOCAL_EDGE_NUMBERING          source/spmd/prepare_split_i25e2e.F
-Chd|        ID                            source/boundary_conditions/ebcs/hm_read_ebcs_inlet.F
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        I25_FIE_MOD                   share/modules1/i25_fie_mod.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE PREPARE_SPLIT_I25E2E(NSPMD,
-     1   INTBUF_TAB , IPARI, INTERCEP)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    prepare_split_i25e2e   ../starter/source/spmd/prepare_split_i25e2e.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    cpp_count_candidates   ../starter/source/spmd/cpp_split_tool.cpp
+!||    local_edge_numbering   ../starter/source/spmd/prepare_split_i25e2e.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod              ../starter/share/modules1/front_mod.F
+!||    i25_fie_mod            ../starter/share/modules1/i25_fie_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE PREPARE_SPLIT_I25E2E(NSPMD, INTBUF_TAB , IPARI, INTERCEP)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
@@ -46,19 +45,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "assert.inc"
 #include      "param_c.inc"
 #include      "com04_c.inc"
-C#include      "scr17_c.inc"
-C#include      "scr23_c.inc"
-C#include      "com01_c.inc"
-C#include      "rnur_c.inc"
-C#include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -66,7 +57,6 @@ C-----------------------------------------------
       INTEGER,             INTENT(IN) ::    IPARI(NPARI,*)
       TYPE(INTERSURFP),    INTENT(IN) ::    INTERCEP(3,NINTER)
       TYPE(INTBUF_STRUCT_),INTENT(INOUT) :: INTBUF_TAB(*)
-
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -80,7 +70,6 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:), ALLOCATABLE :: LOCAL_ID_EDG
       INTEGER, DIMENSION(:), ALLOCATABLE :: LOCAL_ID_SEG
       INTEGER, DIMENSION(:), ALLOCATABLE :: LOCAL_ID
-
 C C++ interface
       INTEGER :: nbCand, nbCandE2E, nbCandE2S, sizeM
       INTEGER, DIMENSION(:), ALLOCATABLE :: CANDS,CANDM
@@ -88,10 +77,8 @@ C C++ interface
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: secondaryRemoteCount
       INTEGER :: LOCAL_CAND_COUNT(NSPMD)
 C-----------------------------------------------
-
         ALLOCATE(I25_SPLIT_CAND(NINTER,NSPMD))
         ALLOCATE(I25_FIE(NINTER,NSPMD))
-
 
         DO  NIN = 1,NINTER
           NTY=IPARI(7,NIN)
@@ -102,7 +89,7 @@ C         WRITE(6,*) NIN,NTY,IEDGE
           IF(NTY/=25 .OR. IEDGE==0) CYCLE
           NEDGE = IPARI(68,NIN)
           NRTM = IPARI(4,NIN) 
-          ALLOCATE(CEP_EDGE(NEDGE)) !saved also temporarly in LEDGE
+          ALLOCATE(CEP_EDGE(NEDGE)) !saved also temporarily in LEDGE
           ALLOCATE(LOCAL_ID_EDG(NEDGE))
           ALLOCATE(LOCAL_ID_SEG(NRTM))
           CALL LOCAL_EDGE_NUMBERING(NEDGE,NRTM,NSPMD,
@@ -239,23 +226,25 @@ CC ==========
         ENDDO
       END SUBROUTINE
 
-Chd|====================================================================
-Chd|  LOCAL_EDGE_NUMBERING          source/spmd/prepare_split_i25e2e.F
-Chd|-- called by -----------
-Chd|        PREPARE_SPLIT_I25E2E          source/spmd/prepare_split_i25e2e.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    local_edge_numbering   ../starter/source/spmd/prepare_split_i25e2e.F
+!||--- called by ------------------------------------------------------
+!||    prepare_split_i25e2e   ../starter/source/spmd/prepare_split_i25e2e.F
+!||====================================================================
        SUBROUTINE LOCAL_EDGE_NUMBERING(NEDGE,NRTM,NSPMD,
-     .                              LEDGE,           
-     .                              CEP_SEG,
-     .                              LOCAL_ID_SEG,
-     .                              CEP_EDGE,
-     .                              LOCAL_ID_EDG)
+     .                                 LEDGE,           
+     .                                 CEP_SEG,
+     .                                 LOCAL_ID_SEG,
+     .                                 CEP_EDGE,
+     .                                 LOCAL_ID_EDG)
+C-----------------------------------------------
+C   I m p l i c i t   T y p e s
+C-----------------------------------------------
+#include      "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -275,7 +264,7 @@ C-----------------------------------------------
       INTEGER :: NB_BOUNDARY_EDGES_REMOTE(NSPMD) ! boundary edges treated by the other domain 
       INTEGER :: EDGE_LOCAL(NSPMD)
       INTEGER :: ISPMD
-      INTEGER :: I,E1,E2,K1,K2
+      INTEGER :: I,E1,E2,K1,K2,K
 C-----------------------------------------------
       NRTM_LOCAL(1:NSPMD) = 0
       EDGE_LOCAL(1:NSPMD) = 0

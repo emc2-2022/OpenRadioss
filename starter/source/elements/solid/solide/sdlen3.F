@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  SDLEN3                        source/elements/solid/solide/sdlen3.F
-Chd|-- called by -----------
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        MULTIFLUID_INIT3              source/multifluid/multifluid_init3.F
-Chd|        SCINIT3                       source/elements/thickshell/solidec/scinit3.F
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|        SUINIT3                       source/elements/elbuf_init/suinit3.F
-Chd|-- calls ---------------
-Chd|        SLEN                          source/elements/solid/solide/slen.F
-Chd|====================================================================
+!||====================================================================
+!||    sdlen3             ../starter/source/elements/solid/solide/sdlen3.F
+!||--- called by ------------------------------------------------------
+!||    inirig_mat         ../starter/source/elements/initia/inirig_mat.F
+!||    inivoid            ../starter/source/elements/initia/inivoid.F
+!||    multifluid_init3   ../starter/source/multifluid/multifluid_init3.F
+!||    scinit3            ../starter/source/elements/thickshell/solidec/scinit3.F
+!||    sinit3             ../starter/source/elements/solid/solide/sinit3.F
+!||    suinit3            ../starter/source/elements/elbuf_init/suinit3.F
+!||--- calls      -----------------------------------------------------
+!||    slen               ../starter/source/elements/solid/solide/slen.F
+!||====================================================================
       SUBROUTINE SDLEN3(
      .              X1   ,X2   ,X3   ,X4   ,X5   ,X6   ,X7   ,X8   ,
      .              Y1   ,Y2   ,Y3   ,Y4   ,Y5   ,Y6   ,Y7   ,Y8   ,
@@ -53,7 +53,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "alesolver.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -84,13 +83,13 @@ C---------------------------------------------------------------------
       
       DO I=LFT,LLT
         NFAC=0
-        IF(AREA(1,I).LT.ATEST(I)) NFAC=NFAC+1
-        IF(AREA(2,I).LT.ATEST(I)) NFAC=NFAC+1
-        IF(AREA(3,I).LT.ATEST(I)) NFAC=NFAC+1
-        IF(AREA(4,I).LT.ATEST(I)) NFAC=NFAC+1
-        IF(AREA(5,I).LT.ATEST(I)) NFAC=NFAC+1
-        IF(AREA(6,I).LT.ATEST(I)) NFAC=NFAC+1
-        IF(NFAC.GE.3) XIOFF(I)=EP03
+        IF(AREA(1,I)<ATEST(I)) NFAC=NFAC+1
+        IF(AREA(2,I)<ATEST(I)) NFAC=NFAC+1
+        IF(AREA(3,I)<ATEST(I)) NFAC=NFAC+1
+        IF(AREA(4,I)<ATEST(I)) NFAC=NFAC+1
+        IF(AREA(5,I)<ATEST(I)) NFAC=NFAC+1
+        IF(AREA(6,I)<ATEST(I)) NFAC=NFAC+1
+        IF(NFAC>=3) XIOFF(I)=EP03
       ENDDO
       
       DO I=LFT,LLT

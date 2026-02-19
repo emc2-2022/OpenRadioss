@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I9FRMS                        source/interfaces/int09/i9frms.F
-Chd|-- called by -----------
-Chd|        I9MAIN2                       source/interfaces/int09/i9main2.F
-Chd|        I9MAIN3                       source/interfaces/int09/i9main3.F
-Chd|-- calls ---------------
-Chd|        SHAPEH                        source/ale/inter/shapeh.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i9frms    ../engine/source/interfaces/int09/i9frms.F
+!||--- called by ------------------------------------------------------
+!||    i9main2   ../engine/source/interfaces/int09/i9main2.F
+!||    i9main3   ../engine/source/interfaces/int09/i9main3.F
+!||--- calls      -----------------------------------------------------
+!||    shapeh    ../engine/source/ale/inter/shapeh.F
+!||====================================================================
       SUBROUTINE I9FRMS(X    ,SKEW,A   ,FN ,FT   ,
      2                  IRECT,LMSR,CRST,MSR,NSV  ,
      3                  ILOC ,IRTL,MS  ,NOR,LCODE,
-     4                  ISKEW,FRIC,MSMN,MSMT)
+     4                  ISKEW,FRIC,MSMN,MSMT,NMN,NSN)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -40,8 +40,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr04_c.inc"
-#include      "scr08_s_c.inc"
 #include      "scr08_a_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -53,19 +51,20 @@ C     REAL
       my_real
      .   X(3,*), SKEW(LSKEW,*), A(*), FN(*), FT(*), MSMN(*), MSMT(*),
      .   CRST(2,*), MS(*), NOR(3,*), FRIC
+      INTEGER, INTENT(in) :: NMN,NSN
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, II, L, JJ, NN, JJ3,
-     .   JJ2, JJ1, ISK, LCOD
+     .   JJ2, JJ1
 C     REAL
       my_real
      .   H(4), N1, N2, N3, AA(3), SS, TT, XMSS, FXI, FYI, FZI, FSN,
      .   FXN, FYN, FZN, FXT, FYT, FZT, FST, FAC, FXMI, FYMI, FZMI,
-     .   FSM, FXMN, FYMN, FZMN, FXMT, FYMT, FZMT, FSMT
+     .   FSM, FXMN, FYMN, FZMN, FXMT, FYMT, FZMT
 C-----------------------------------------------
 C
-      IF(N2D.EQ.0)THEN
+      IF(N2D==0)THEN
         NIR=4
       ELSE
         NIR=2
@@ -89,7 +88,7 @@ C
       DO 60 II=1,NSN
       I=NSV(II)
       J=ILOC(II)
-      IF(J.LT.1) GO TO 60
+      IF(J<1) GO TO 60
       L=IRTL(II)
       DO 20 JJ=1,NIR
       NN=IRECT(JJ,L)
@@ -109,7 +108,7 @@ C
       AA(2)=A(I2)
       AA(3)=A(I3)
 C
-      IF(N2D.EQ.0)THEN
+      IF(N2D==0)THEN
         CALL SHAPEH(H,SS,TT)
       ELSE
         H(1) = HALF*(ONE - SS)
@@ -134,8 +133,7 @@ C-------------------------------------
       FYMI=A(JJ1)*XMSS
       FZMI=A(JJ1)*XMSS
 C-------------------------------------
-C     FORCE NORMALE SECND
-C-------------------------------------
+C     FORCE NORMALE SECOND C-------------------------------------
       FSN=(FXI*N1+FYI*N2+FZI*N3)
       FXN=FSN*N1
       FYN=FSN*N2
@@ -148,7 +146,7 @@ C-------------------------------------
       FYMN = FSM*N2
       FZMN = FSM*N3
 C-------------------------------------
-C     SOMME DES FORCES NORMALES
+C     sum of normal forces
 C-------------------------------------
       FN(J1) = FN(J1) + FXN - FXMN
       FN(J2) = FN(J2) + FYN - FYMN
@@ -169,7 +167,7 @@ C-------------------------------------
       FYMT = FYMI - FYMN
       FZMT = FZMI - FZMN
 C-------------------------------------
-C     SOMME DES FORCES DE FRICTION
+C     sum of friction forces
 C-------------------------------------
       FT(J1)=FT(J1) + (FXT - FXMT)*FAC
       FT(J2)=FT(J2) + (FYT - FYMT)*FAC

@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  OUTP_R_S                      source/output/sty/outp_r_s.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|-- calls ---------------
-Chd|        SPMD_RGATHER9_1COMM           source/mpi/interfaces/spmd_outp.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    outp_r_s              ../engine/source/output/sty/outp_r_s.F
+!||--- called by ------------------------------------------------------
+!||    genoutp               ../engine/source/output/sty/genoutp.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_rgather9_1comm   ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE OUTP_R_S(NBX   ,KEY   ,TEXT ,ELBUF_TAB,IPARG,
      2                    DD_IAD,SIZLOC,SIZP0,SIZ_WR   )
 C-----------------------------------------------
@@ -41,12 +42,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr01_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"     
 #include      "scr16_c.inc"
 C-----------------------------------------------
@@ -98,7 +96,7 @@ C-----------------------------------------------
         DO NG = NGF, NGL
          ITY   =IPARG(5,NG)
          GBUF => ELBUF_TAB(NG)%GBUF
-         IF(ITY.EQ.6) THEN
+         IF(ITY==6) THEN
            NEL   =IPARG(2,NG)
            NFT   =IPARG(3,NG)
            IAD   =IPARG(4,NG)
@@ -106,8 +104,8 @@ C-----------------------------------------------
            LLT=NEL 
            DO I=LFT,LLT
              JJ = JJ + 1
-             IF (NBX.EQ.1)WA(JJ) = GBUF%OFF(I)
-cc             IF (NBX.EQ.1)WA(JJ) = BUFEL((IAD-1)+ I) 
+             IF (NBX==1)WA(JJ) = GBUF%OFF(I)
+cc             IF (NBX==1)WA(JJ) = BUFEL((IAD-1)+ I) 
            ENDDO 
          ENDIF  
         ENDDO 
@@ -126,7 +124,7 @@ cc             IF (NBX.EQ.1)WA(JJ) = BUFEL((IAD-1)+ I)
         ENDDO
        ENDIF
 !     ++++++++++
-       IF(ISPMD.EQ.0) THEN
+       IF(ISPMD==0) THEN
          RESP0 = 0 
          DO NN=1,NSPGROUP
           COMPTEUR = 0
@@ -140,11 +138,11 @@ cc             IF (NBX.EQ.1)WA(JJ) = BUFEL((IAD-1)+ I)
           ENDDO    ! k=1,nspmd
 
           JJ_OLD = COMPTEUR+RESP0
-          IF(JJ_OLD.GT.0) THEN
+          IF(JJ_OLD>0) THEN
            RES=MOD(JJ_OLD,6)
            WRTLEN=JJ_OLD-RES
-           IF (WRTLEN.GT.0) THEN
-            IF (OUTYY_FMT.EQ.2) THEN
+           IF (WRTLEN>0) THEN
+            IF (OUTYY_FMT==2) THEN
              WRITE(IUGEO,'(1P6E12.5)')(WAP0(J),J=1,WRTLEN)
             ELSE
              WRITE(IUGEO,'(1P6E20.13)')(WAP0(J),J=1,WRTLEN)
@@ -155,9 +153,9 @@ cc             IF (NBX.EQ.1)WA(JJ) = BUFEL((IAD-1)+ I)
            ENDDO
            RESP0=RES
           ENDIF        ! if(jj_old>0)
-         ENDDO         ! nn=1,nspgroup
-         IF (RESP0.GT.0) THEN
-          IF (OUTYY_FMT.EQ.2) THEN
+         ENDDO         ! nn = 1, nspgroup
+         IF (RESP0>0) THEN
+          IF (OUTYY_FMT==2) THEN
             WRITE(IUGEO,'(1P6E12.5)')(WAP0(J),J=1,RESP0)
           ELSE
             WRITE(IUGEO,'(1P6E20.13)')(WAP0(J),J=1,RESP0)
@@ -167,13 +165,12 @@ cc             IF (NBX.EQ.1)WA(JJ) = BUFEL((IAD-1)+ I)
        RETURN
        END
 
-Chd|====================================================================
-Chd|  COUNT_ARSZ_RS                 source/output/sty/outp_r_s.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|        OUTP_ARSZ_RS                  source/mpi/interfaces/spmd_outp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    count_arsz_rs   ../engine/source/output/sty/outp_r_s.F
+!||--- called by ------------------------------------------------------
+!||    genoutp         ../engine/source/output/sty/genoutp.F
+!||    outp_arsz_rs    ../engine/source/mpi/interfaces/spmd_outp.F
+!||====================================================================
       SUBROUTINE COUNT_ARSZ_RS(IPARG,DD_IAD,WASZ,SIZ_WRITE_LOC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -184,7 +181,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------

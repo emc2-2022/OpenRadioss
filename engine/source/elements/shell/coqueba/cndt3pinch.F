@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CNDT3PINCH                    source/elements/shell/coqueba/cndt3pinch.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cndt3pinch   ../engine/source/elements/shell/coqueba/cndt3pinch.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3     ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CNDT3PINCH(JFT   ,JLT     ,OFF  ,DT2T ,AMU  ,
      1                 NELTST,ITYPTST ,STI  ,STIR ,OFFG,
      2                 SSP   ,VISCMX  ,RHO  ,VOL0 ,THK0,THK02,
@@ -45,13 +44,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "couple_c.inc"
-#include      "param_c.inc"
 #include      "scr02_c.inc"
-#include      "scr06_c.inc"
 #include      "scr07_c.inc"
 #include      "scr17_c.inc"
 #include      "scr18_c.inc"
@@ -72,8 +66,8 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER INDXOF(MVSIZ),
-     .        I, J, II, NINDX,IDT,ITYEL
-      my_real DT(MVSIZ),FAC,MAS,DIVM,MMIN  ,IZ   
+     . I, J, NINDX,IDT,ITYEL
+      my_real DT(MVSIZ),FAC,DIVM,MMIN
 C=======================================================================
       DO I=JFT,JLT
         VISCMX(I) = MAX(VISCMX(I), AMU(I))
@@ -82,11 +76,11 @@ C=======================================================================
       ENDDO
 c---------------------------------------------------
       ITYEL = 3
-      IF (NNE.EQ.3) ITYEL = 7
+      IF (NNE==3) ITYEL = 7
 C----- isub will add here-----
       IF(IDTMINS == 2)THEN
         DO I=JFT,JLT
-         IF (OFF(I).EQ.ZERO) THEN
+         IF (OFF(I)==ZERO) THEN
           STI(I) = ZERO
           STIR(I) = ZERO          
          ELSE
@@ -113,10 +107,10 @@ c dmelc = 2*dmelc !!
 c w^2 < 2k / (m+dmelc+dmelc/3) < 2k / (m+dmelc)
 c dt = 2/w = sqrt( 2*(m+dmelc)/k)
             DMELC(I)=MAX(DMELC(I),
-     .  		(DTMINS/DTFACS)**2 * STI(I) - TWO*MSC(I))
+     .      (DTMINS/DTFACS)**2 * STI(I) - TWO*MSC(I))
             DT(I)  = DTFACS*
-     .  	     SQRT((TWO*MSC(I)+DMELC(I))/MAX(EM20,STI(I)))
-            IF(DT(I).LT.DT2T)THEN
+     .         SQRT((TWO*MSC(I)+DMELC(I))/MAX(EM20,STI(I)))
+            IF(DT(I)<DT2T)THEN
               DT2T    = DT(I)
               NELTST  = NGL(I)
               ITYPTST = ITYEL
@@ -132,10 +126,10 @@ c dmelc = 2*dmelc !!
 c w^2 < 2k / (m+dmelc+dmelc/2) < 2k / (m+dmelc)
 c dt = 2/w = sqrt( 2*(m+dmelc)/k)
             DMELC(I)=MAX(DMELC(I),
-     .  		(DTMINS/DTFACS)**2 * STI(I) - TWO*MMIN)
+     .      (DTMINS/DTFACS)**2 * STI(I) - TWO*MMIN)
             DT(I)  = DTFACS*
-     .  	     SQRT((TWO*MMIN+DMELC(I))/MAX(EM20,STI(I)))
-            IF(DT(I).LT.DT2T)THEN
+     .         SQRT((TWO*MMIN+DMELC(I))/MAX(EM20,STI(I)))
+            IF(DT(I)<DT2T)THEN
               DT2T    = DT(I)
               NELTST  = NGL(I)
               ITYPTST = ITYEL
@@ -143,12 +137,12 @@ c dt = 2/w = sqrt( 2*(m+dmelc)/k)
            END DO
          END IF
         ENDIF
-      ELSEIF(NODADT.NE.0)THEN
+      ELSEIF(NODADT/=0)THEN
 C          IF(IGTYP == 52 .OR. 
 C     .        ((IGTYP == 11 .OR. IGTYP == 17 .OR. IGTYP == 51)
 C     .                                   .AND. IGMAT > 0 ))THEN
 C            DO I=JFT,JLT
-C                IF (OFF(I).EQ.ZERO) THEN
+C                IF (OFF(I)==ZERO) THEN
 C                   STI(I) = ZERO
 C                   STIR(I) = ZERO          
 C                ELSE
@@ -160,7 +154,7 @@ C                  ENDIF
 C             ENDDO
 C          ELSE
              DO I=JFT,JLT
-                IF (OFF(I).EQ.ZERO) THEN
+                IF (OFF(I)==ZERO) THEN
                    STI(I) = ZERO
                    STIR(I) = ZERO          
                 ELSE
@@ -174,27 +168,27 @@ C
       DO I=JFT,JLT
         DT(I)=DTFAC1(ITYEL)*ALDT(I)/SSP(I)   
       ENDDO
-      IF(G_DT.GT.0)THEN
+      IF(G_DT>0)THEN
         DO I=JFT,JLT
           DTEL(I)=ALDT(I)/SSP(I)     ! DT=ALDT(I)/SSP(I) & DT=DT*DTFAC1 does not lead to same digits, so operation is made again here.
         ENDDO
       ENDIF
       IF((NODADT/=0.OR.IDTMINS==2).AND.IDTMIN(ITYEL)==0)RETURN
 C
-      IF(IDTMIN(ITYEL).GE.1)THEN
+      IF(IDTMIN(ITYEL)>=1)THEN
         NINDX=IOFC
         DO I=JFT,JLT
-         IF(DT(I).LE.DTMIN1(ITYEL).AND.
-     .     OFF(I).GE.ONE.AND.OFFG(I).NE.TWO.AND.OFFG(I).GE.ZERO) THEN
+         IF(DT(I)<=DTMIN1(ITYEL).AND.
+     .     OFF(I)>=ONE.AND.OFFG(I)/=TWO.AND.OFFG(I)>=ZERO) THEN
           NINDX=NINDX+1
           INDXOF(NINDX)=I
          ENDIF
         ENDDO
       ENDIF
 C
-      IF(IDTMIN(ITYEL).EQ.1)THEN
+      IF(IDTMIN(ITYEL)==1)THEN
 
-        IF(NINDX.GT.IOFC) MSTOP = 2
+        IF(NINDX>IOFC) MSTOP = 2
 
         DO 100 J=IOFC+1,NINDX
           I = INDXOF(J)
@@ -203,8 +197,8 @@ C
           WRITE(ISTDO,1000) NNE,NGL(I)
 #include "lockoff.inc"
   100   CONTINUE
-      ELSEIF(IDTMIN(ITYEL).EQ.2)THEN
-        IF(NINDX.GT.IOFC) IDEL7NOK = 1         
+      ELSEIF(IDTMIN(ITYEL)==2)THEN
+        IF(NINDX>IOFC) IDEL7NOK = 1         
         DO 125 J=IOFC+1,NINDX
          I = INDXOF(J)
          OFF(I)=0.
@@ -214,7 +208,7 @@ C
 #include "lockoff.inc"
   125   CONTINUE
         IOFC = NINDX
-      ELSEIF(IDTMIN(ITYEL).EQ.3.AND.ISMSTR.EQ.2)THEN
+      ELSEIF(IDTMIN(ITYEL)==3.AND.ISMSTR==2)THEN
         DO 140 J=IOFC+1,NINDX
          I = INDXOF(J)
          OFFG(I)=2.
@@ -224,8 +218,8 @@ C
 #include "lockoff.inc"
   140   CONTINUE
         NINDX=IOFC
-      ELSEIF(IDTMIN(ITYEL).EQ.5)THEN
-        IF(NINDX.GT.IOFC) MSTOP = 2
+      ELSEIF(IDTMIN(ITYEL)==5)THEN
+        IF(NINDX>IOFC) MSTOP = 2
         DO 160 J=IOFC+1,NINDX
          I = INDXOF(J)
 #include "lockon.inc"
@@ -239,20 +233,20 @@ C
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
  1000 FORMAT(1X,'--MINIMUM TIME STEP ',I1,'N SHELL ELEMENT NUMBER ',I10)
  1200 FORMAT(1X,'--DELETE ',I1,'N SHELL ELEMENT NUMBER ',I10)
- 1300 FORMAT(1X,'--DELETE ',I1',N SHELL ELEMENT:',I10,' AT TIME:',G11.4)
+ 1300 FORMAT(1X,'--DELETE ',I1,'N SHELL ELEMENT:',I10,' AT TIME:',G11.4)
  1400 FORMAT(1X,'--CONSTANT TIME STEP ',I1,'N SHELL ELEMENT NUMBER',I10)
 C
-      IF(NODADT.NE.0.OR.(IDTMINS==2.AND.JSMS/=0))RETURN
+      IF(NODADT/=0.OR.(IDTMINS==2.AND.JSMS/=0))RETURN
 C
 C- VECTOR
       IDT=0
       DO I=JFT,JLT
-       IF(OFFG(I).GT.ZERO.AND.OFF(I).NE.ZERO.AND.DT(I).LT.DT2T) IDT=1
+       IF(OFFG(I)>ZERO.AND.OFF(I)/=ZERO.AND.DT(I)<DT2T) IDT=1
       ENDDO
 C- NON VECTOR
-      IF(IDT.EQ.1)THEN
+      IF(IDT==1)THEN
        DO I=JFT,JLT
-       IF(OFFG(I).GT.ZERO.AND.OFF(I).NE.ZERO.AND.DT(I).LT.DT2T)THEN
+       IF(OFFG(I)>ZERO.AND.OFF(I)/=ZERO.AND.DT(I)<DT2T)THEN
          DT2T    = DT(I)
          NELTST  = NGL(I)
          ITYPTST = ITYEL

@@ -1,46 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_IMPACC                source/constraints/general/impvel/hm_read_impacc.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        NODGRNR5                      source/starter/freform.F      
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_impacc         ../starter/source/constraints/general/impvel/hm_read_impacc.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim      ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string          ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_count        ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    kinset                 ../starter/source/constraints/general/kinset.F
+!||    nodgrnr5               ../starter/source/starter/freform.F
+!||    udouble                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_IMPACC(
      .           FAC      ,IBFV     ,NFXVEL0  ,ITAB     ,ITABM1   ,
      .           IKINE    ,IGRNOD   ,ISKN     ,UNITAB   ,LSUBMODEL,
@@ -53,6 +53,7 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -60,42 +61,35 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
 #include      "sphcom.inc"
-#include      "submod_c.inc"
-#include      "titr_c.inc"
 #include      "units_c.inc"
-#include      "sysunit.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER ,INTENT(INOUT) :: NIMPACC,NUM
       INTEGER ,INTENT(IN)    :: NFXVEL0
-      INTEGER ,DIMENSION(NIFV,NFXVEL0)   :: IBFV
-      INTEGER ,DIMENSION(LISKN,*)        :: ISKN
-      INTEGER ,DIMENSION(*)              :: ITAB,ITABM1,IKINE
-      my_real            ,DIMENSION(LFXVELR,*) ,INTENT(INOUT) :: FAC
+      INTEGER ,DIMENSION(NIFV,NFXVEL0) :: IBFV
+      INTEGER ,DIMENSION(LISKN,*)      :: ISKN
+      INTEGER ,DIMENSION(*)            :: ITAB,ITABM1,IKINE
+      my_real,DIMENSION(LFXVELR,*) ,INTENT(INOUT) :: FAC
 
       TYPE (GROUP_)      ,DIMENSION(NGRNOD)    ,INTENT(IN)    :: IGRNOD
       TYPE(SUBMODEL_DATA),DIMENSION(*)         ,INTENT(IN)    :: LSUBMODEL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,ID,UID,IACC,FCT_ID,INP_ID,SENS_ID,GRN,NACC,
+      INTEGER J,ID,UID,IACC,FCT_ID,INP_ID,SENS_ID,GRN,NACC,
      .        NOSKEW,NOFRAME,NUM0,NN,I_VDA,INOD,NODID,IGS,
      .        L_XYZ,SUBID,NOSUB,NODENUM(NFXVEL0)
       INTEGER ,DIMENSION(3*NUMNOD) :: IKINE1
       LOGICAL IS_AVAILABLE
-      CHARACTER(ncharfield)  :: XYZ
-      CHARACTER(nchartitle)  :: TITR,MESS
+      CHARACTER(LEN=NCHARFIELD) :: XYZ
+      CHARACTER(LEN=NCHARTITLE) :: TITR,MESS
       INTEGER ,DIMENSION(:),ALLOCATABLE  :: IACCIDS
-      CHARACTER(2)           :: X,Y,Z,XX,YY,ZZ
+      CHARACTER(LEN=2) :: X,Y,Z,XX,YY,ZZ
       my_real :: FAC1,FAC2,FAC3,FACX,FSCAL_T,FSCAL_A,BID
 C-----------------------------------------------
 C   D a t a
@@ -216,7 +210,7 @@ c--------------------------------------------------
           IBFV(3,I_VDA)  = FCT_ID
           IBFV(4,I_VDA)  = SENS_ID
           IBFV(5,I_VDA)  = 0
-          IBFV(6,I_VDA)  = 0  ! init dans lecrby (si vitesse de rotation sur main)
+          IBFV(6,I_VDA)  = 0  ! initialization in lecrby (if rotation velocity on main)
           IBFV(7,I_VDA)  = 0
           IBFV(8,I_VDA)  = 0
           IBFV(9,I_VDA)  = NOFRAME

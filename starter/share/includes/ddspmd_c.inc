@@ -1,5 +1,5 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
 Copyright>    
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
@@ -27,23 +27,23 @@ Cow       necessite avant l include nmtvi_c.inc
       COMMON /DDSPMDV5/ TPSREF,
      .  SOL1TNL(0:MAXLAW,3),SOL8TNL(0:MAXLAW,3),SHTNL(0:MAXLAW,0:3,3),
      .  SOLTELT(20),SHTELT(30),TRITNL(0:MAXLAW,0:3,3),TRITELT(10),
-Cow51e11+2
      .  TET4TNL(0:MAXLAW,3),TET10TNL(0:MAXLAW,3),TET4TELT(10),
      .  TET10TELT(10),
      .  RUPTURE_SHELL(MAXFAIL,6),
      .  RUPTURE_SOL(MAXFAIL,3),RUPTURE_SOL12(MAXFAIL,3),
      .  RUPTURE_TET4(MAXFAIL,3),RUPTURE_TET10(MAXFAIL,3),
-     .  SHTNL_OPTION(10,5),SOL_OPTION(10,5),NLOCAL_OPTION(10)
+     .  SHTNL_OPTION(10,5),SOL_OPTION(10,5),NLOCAL_OPTION(10),
+     .  ELM_OVER_COST(10),VISC_PRONY_COST
       COMMON /DDSPMD_I/  DD_OPTIMIZATION,DOMDEC_TUNING
 
       my_real
      .   TPSREF,SOL1TNL,SOL8TNL,SHTNL,
      .   TRITNL,SOLTELT,SHTELT,TRITELT,
-Cow51e11+1
      .   TET4TNL,TET10TNL,TET4TELT,TET10TELT,
      .   RUPTURE_SHELL,
      .   RUPTURE_SOL,RUPTURE_SOL12,
      .   RUPTURE_TET4,RUPTURE_TET10,
-     .   SHTNL_OPTION,SOL_OPTION,NLOCAL_OPTION
+     .   SHTNL_OPTION,SOL_OPTION,NLOCAL_OPTION,
+     .   ELM_OVER_COST,VISC_PRONY_COST
       INTEGER 
      .   DD_OPTIMIZATION,DOMDEC_TUNING

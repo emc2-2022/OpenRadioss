@@ -1,37 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3COOR3                       source/elements/sh3n/coque3n/c3coor3.F
-Chd|-- called by -----------
-Chd|        C3FORC3                       source/elements/sh3n/coque3n/c3forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3coor3       ../engine/source/elements/sh3n/coque3n/c3coor3.F
+!||--- called by ------------------------------------------------------
+!||    c3forc3       ../engine/source/elements/sh3n/coque3n/c3forc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE C3COOR3(JFT      ,JLT      ,X       ,IXTG     ,
      .                   OFFG     ,OFF      ,DT1C    ,
      .                   V        ,VR       ,VL1     ,VL2      ,VL3      ,
      .                   VRL1     ,VRL2     ,VRL3    ,SIGY     ,
      .                   X1       ,X2       ,X3      ,Y1       ,Y2       ,
-     .                   Y3       ,Z1       ,Z2      ,Z3       ,XDP      )  
+     .                   Y3       ,Z1       ,Z2      ,Z3       ,XDP      )
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -43,7 +45,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "com08_c.inc"
 #include      "scr05_c.inc"
 C-----------------------------------------------
@@ -65,7 +66,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, NC1, NC2, NC3
+      INTEGER I, NC1, NC2, NC3
       my_real OFF_L    
 C=======================================================================
       IF(IRESP == 1)THEN
@@ -176,12 +177,13 @@ C
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  C3COORT3                      source/elements/sh3n/coque3n/c3coor3.F
-Chd|-- called by -----------
-Chd|        C3FORC3                       source/elements/sh3n/coque3n/c3forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    c3coort3      ../engine/source/elements/sh3n/coque3n/c3coor3.F
+!||--- called by ------------------------------------------------------
+!||    c3forc3       ../engine/source/elements/sh3n/coque3n/c3forc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE C3COORT3(JFT    ,JLT    ,X     ,IXTG   ,OFFG   ,
      1                    DR     ,XL2    ,XL3   ,YL2    ,YL3    ,
      2                    E1X    ,E1Y    ,E1Z   ,E2X    ,E2Y    ,
@@ -189,6 +191,7 @@ Chd|====================================================================
      5                    V21X   ,V31X   ,V21Y  ,V31Y   ,RZ13   ,
      6                    RZ23   ,X2_T   ,X3_T  ,Y2_T   ,Y3_T   ,
      7                    AREA   ,SMSTR  ,ISROT )
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -197,12 +200,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com08_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -220,8 +217,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, NC1, NC2, NC3,II(6),NN(3)
-C     REAL
+      INTEGER I,II(6),NN(3)
       my_real 
      .   X0G2(MVSIZ),X0G3(MVSIZ),Y0G2(MVSIZ),Y0G3(MVSIZ),OFF_L,
      .   Z0G2(MVSIZ),Z0G3(MVSIZ),AXYZ(MVSIZ,3,3),
@@ -231,7 +227,6 @@ C     REAL
      .   Y0L2(MVSIZ),Y0L3(MVSIZ),SUM(MVSIZ),NORM,XL,YL,VR1_12,VR1_21,
      .   RLZ1,RLZ2,RLZ3,AREAI,X0G32,Y0G32,Z0G32,DIRZ(MVSIZ,2)
 C-----------------------------------------------
-C=======================================================================
       DO I=1,6
         II(I) = NEL*(I-1)
       ENDDO
@@ -325,7 +320,7 @@ C----------------------------
         X0L3(I)=XL
         Y0L3(I)=YL
       ENDDO
-C------U21,U31 in actual local system	  
+C------U21,U31 in actual local system    
       DO I=JFT,JLT
         V21X(I)=XL2(I)-X0L2(I)
         V31X(I)=XL3(I)-X0L3(I)
@@ -339,7 +334,7 @@ C------U21,U31 in actual local system
         Y3_T(I) = Y0L3(I)
       ENDDO 
       IF (ISROT>0) THEN
-C------RZ13,RZ23 in actual local system	  
+C------RZ13,RZ23 in actual local system    
        DO I=JFT,JLT
         AREAI=HALF/MAX(EM20,AREA(I))
         RLZ1 =E3X(I)*AXYZ(I,1,1)+E3Y(I)*AXYZ(I,2,1)+E3Z(I)*AXYZ(I,3,1)

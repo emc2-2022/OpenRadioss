@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  C_ISPH                        source/restart/ddsplit/c_isph.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    c_isph    ../starter/source/restart/ddsplit/c_isph.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit   ../starter/source/restart/ddsplit/ddsplit.F
+!||====================================================================
       SUBROUTINE C_ISPH(KXSP,CEPSP,PROC,NUMSPH_L,
      .                  SLONFSPH_L,SLPRTSPH,SLPRTSPH_L,IPARTSP,
      .      SSPHVELN_L,NSPHSOL_L,FIRST_SPHSOL_L)
@@ -60,20 +59,20 @@ C
       NB_L = 0
 C
       DO I = 1, NUMSPH
-        IF(CEPSP(I).EQ.PROC) THEN
+        IF(CEPSP(I)==PROC) THEN
           NB_L = NB_L + 1
         ENDIF
       ENDDO
 C
       NUMSPH_L = NB_L
 C
-c inlet spmd calcul SLONFSPH_L
+c inlet spmd calculation SLONFSPH_L
       SLONFSPH_L = 0
 
       DO IPRT=1,NPART
        DO N=1,NUMSPH
-        IF(CEPSP(N).EQ.PROC.and.IPARTSP(N).EQ.IPRT.
-     .     AND.KXSP(2,N).NE.0)THEN
+        IF(CEPSP(N)==PROC.and.IPARTSP(N)==IPRT.
+     .     AND.KXSP(2,N)/=0)THEN
          SLONFSPH_L=SLONFSPH_L+1
         ENDIF
        ENDDO
@@ -84,7 +83,7 @@ c inlet spmd calcul SLONFSPH_L
 C
       NB_L = 0
       DO I = 1, FIRST_SPHSOL-1
-        IF(CEPSP(I).EQ.PROC) THEN
+        IF(CEPSP(I)==PROC) THEN
           NB_L = NB_L + 1
         ENDIF
       ENDDO
@@ -92,7 +91,7 @@ C
 C
       NB_L = 0
       DO I = 1, NSPHSOL
-        IF(CEPSP(FIRST_SPHSOL+I-1).EQ.PROC) THEN
+        IF(CEPSP(FIRST_SPHSOL+I-1)==PROC) THEN
           NB_L = NB_L + 1
         ENDIF
       ENDDO

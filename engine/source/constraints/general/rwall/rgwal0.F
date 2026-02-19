@@ -1,42 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RGWAL0                        source/constraints/general/rwall/rgwal0.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        RGWALC                        source/constraints/general/rwall/rgwalc.F
-Chd|        RGWALL                        source/constraints/general/rwall/rgwall.F
-Chd|        RGWALP                        source/constraints/general/rwall/rgwalp.F
-Chd|        RGWALS                        source/constraints/general/rwall/rgwals.F
-Chd|        RGWALT                        source/constraints/general/rwall/rgwal0.F
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rgwal0          ../engine/source/constraints/general/rwall/rgwal0.F
+!||--- called by ------------------------------------------------------
+!||    resol           ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier      ../engine/source/system/machine.F
+!||    rgwalc          ../engine/source/constraints/general/rwall/rgwalc.F
+!||    rgwall          ../engine/source/constraints/general/rwall/rgwall.F
+!||    rgwalp          ../engine/source/constraints/general/rwall/rgwalp.F
+!||    rgwals          ../engine/source/constraints/general/rwall/rgwals.F
+!||    rgwalt          ../engine/source/constraints/general/rwall/rgwal0.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||====================================================================
       SUBROUTINE RGWAL0(X      ,A      ,V      ,RWBUF   ,LPRW  ,
      2                  NPRW   ,MS     ,FSAV   ,FR_WALL ,FOPT  ,
      3                  RWSAV  ,WEIGHT ,FRWL6 ,NODNX_SMS,WEIGHT_MD,
-     4                  DIMFB  , FBSAV6,STABSEN,TABSENSOR )
+     4                  DIMFB  , FBSAV6,STABSEN,TABSENSOR,WFEXT,WFEXT_MD )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,9 +49,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-#include      "scr03_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -63,11 +60,11 @@ C-----------------------------------------------
      .        FSAV(NTHVKI,*), FOPT(6,*)
       DOUBLE PRECISION FRWL6(7,6,NRWALL)
       DOUBLE PRECISION FBSAV6(12,6,DIMFB),RBID(12,6)
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT, WFEXT_MD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K,N,N2,N3,N4,N5,N6, ITYP, ISL, IFQ, ILAGM, IMP,
-     .        PMAIN,IPARSENS,ISECT
+      INTEGER K,N,N2,N3,N4,N5,N6, ITYP, ISL, IFQ, ILAGM, IMP, PMAIN,IPARSENS,ISECT,IPEN
 C-----------------------------------------------
           RBID = ZERO
 C Init global result to 0
@@ -89,7 +86,6 @@ C Init global result to 0
           ISL = 1
           K=1
           IMP=0
-
           DO N=1,NRWALL
             N2=N +NRWALL
             N3=N2+NRWALL
@@ -99,33 +95,36 @@ C Init global result to 0
 C
             ITYP= NPRW(N4)
             ILAGM= 0
+            IPEN= NPRW(N+8*NRWALL)
             IF (NPRW(N6) == 1) ILAGM=1
-            IF(ITYP == 1.AND.ILAGM == 0)THEN
-              CALL RGWALL(
-     +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K),
-     +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
-     +          NPRW(N5),RWSAV(ISL),FRWL6(1,1,N),IMP       ,IBID   ,
-     +          IBID    ,IBID      ,IBID        ,NODNX_SMS ,WEIGHT_MD)
-            ELSEIF(ITYP == 2)THEN
-              CALL RGWALC(
-     +          X       ,A           ,V       ,RWBUF(1,N) ,LPRW(K),
-     +          NPRW(N) ,NPRW(N2)    ,NPRW(N3),MS         ,WEIGHT ,
-     +          NPRW(N5),FRWL6(1,1,N),IMP     ,IBID       ,IBID   ,
-     +          IBID    ,IBID        ,NODNX_SMS , WEIGHT_MD)
-C
-            ELSEIF(ITYP == 3)THEN
-              CALL RGWALS(
-     +          X       ,A           ,V       ,RWBUF(1,N),LPRW(K),
-     +          NPRW(N) ,NPRW(N2)    ,NPRW(N3),MS        ,WEIGHT ,
-     +          NPRW(N5),FRWL6(1,1,N),IMP     ,IBID      ,IBID   ,
-     +          IBID    ,IBID        ,NODNX_SMS ,WEIGHT_MD)
-            ELSEIF(ITYP == 4)THEN
-              CALL RGWALP(
-     +          X       ,A           ,V       ,RWBUF(1,N),LPRW(K),
-     +          NPRW(N) ,NPRW(N2)    ,NPRW(N3),MS        ,WEIGHT ,
-     +          NPRW(N5),FRWL6(1,1,N),IMP     ,IBID      ,IBID   ,
-     +          IBID    ,IBID        ,NODNX_SMS ,WEIGHT_MD)
-            ENDIF
+            IF (IPEN == 0.OR.IMPL_S>0) THEN
+              IF(ITYP == 1.AND.ILAGM == 0)THEN
+                CALL RGWALL(
+     +            X       ,A         ,V           ,RWBUF(1,N),LPRW(K),
+     +            NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
+     +            NPRW(N5),RWSAV(ISL),FRWL6(1,1,N),IMP       ,IBID   ,
+     +            IBID    ,IBID      ,IBID        ,NODNX_SMS ,WEIGHT_MD, WFEXT, WFEXT_MD)
+              ELSEIF(ITYP == 2)THEN
+                CALL RGWALC(
+     +            X       ,A           ,V       ,RWBUF(1,N) ,LPRW(K),
+     +            NPRW(N) ,NPRW(N2)    ,NPRW(N3),MS         ,WEIGHT ,
+     +            NPRW(N5),FRWL6(1,1,N),IMP     ,IBID       ,IBID   ,
+     +            IBID    ,IBID        ,NODNX_SMS , WEIGHT_MD,WFEXT, WFEXT_MD)
+C  
+              ELSEIF(ITYP == 3)THEN
+                CALL RGWALS(
+     +            X       ,A           ,V       ,RWBUF(1,N),LPRW(K),
+     +            NPRW(N) ,NPRW(N2)    ,NPRW(N3),MS        ,WEIGHT ,
+     +            NPRW(N5),FRWL6(1,1,N),IMP     ,IBID      ,IBID   ,
+     +            IBID    ,IBID        ,NODNX_SMS ,WEIGHT_MD,WFEXT, WFEXT_MD)
+              ELSEIF(ITYP == 4)THEN
+                CALL RGWALP(
+     +            X       ,A           ,V       ,RWBUF(1,N),LPRW(K),
+     +            NPRW(N) ,NPRW(N2)    ,NPRW(N3),MS        ,WEIGHT ,
+     +            NPRW(N5),FRWL6(1,1,N),IMP     ,IBID      ,IBID   ,
+     +            IBID    ,IBID        ,NODNX_SMS ,WEIGHT_MD,WFEXT,WFEXT_MD)
+              ENDIF
+            END IF !(IPEN == 0.OR.IMPL_S>0) THEN
             K=K+NPRW(N)
             IFQ = NINT(RWBUF(15,N))
             IF (SMINVER < 9.OR.IFQ > 0) THEN
@@ -155,7 +154,7 @@ C
               N6=N5+NRWALL
               IF(NPRW(N3) /= 0) THEN
                 IF(NSPMD > 1) THEN
-Cel si proc concerne par le rgwall
+C   if processor concerned by the rgwall
                   IF(FR_WALL(ISPMD+1,N) /= 0) THEN
                     CALL SPMD_EXCH_FR6(FR_WALL(1,N),FRWL6(1,1,N),7*6)
                   ENDIF
@@ -189,28 +188,28 @@ C
 
       RETURN
       END
-Chd|====================================================================
-Chd|  RGWAL0_IMP                    source/constraints/general/rwall/rgwal0.F
-Chd|-- called by -----------
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        FV_RWL                        source/constraints/general/rwall/srw_imp.F
-Chd|        GETDYNA_A                     source/implicit/imp_dyna.F    
-Chd|        RGWALC                        source/constraints/general/rwall/rgwalc.F
-Chd|        RGWALL                        source/constraints/general/rwall/rgwall.F
-Chd|        RGWALP                        source/constraints/general/rwall/rgwalp.F
-Chd|        RGWALS                        source/constraints/general/rwall/rgwals.F
-Chd|        RGWALT                        source/constraints/general/rwall/rgwal0.F
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|        ZEROR                         source/system/zero.F          
-Chd|====================================================================
+!||====================================================================
+!||    rgwal0_imp      ../engine/source/constraints/general/rwall/rgwal0.F
+!||--- called by ------------------------------------------------------
+!||    imp_buck        ../engine/source/implicit/imp_buck.F
+!||    imp_chkm        ../engine/source/implicit/imp_solv.F
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    fv_rwl          ../engine/source/constraints/general/rwall/srw_imp.F
+!||    getdyna_a       ../engine/source/implicit/imp_dyna.F
+!||    rgwalc          ../engine/source/constraints/general/rwall/rgwalc.F
+!||    rgwall          ../engine/source/constraints/general/rwall/rgwall.F
+!||    rgwalp          ../engine/source/constraints/general/rwall/rgwalp.F
+!||    rgwals          ../engine/source/constraints/general/rwall/rgwals.F
+!||    rgwalt          ../engine/source/constraints/general/rwall/rgwal0.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||    zeror           ../engine/source/system/zero.F
+!||====================================================================
       SUBROUTINE RGWAL0_IMP(X      ,D      ,V      ,RWBUF   ,LPRW   ,
      1                  NPRW   ,MS     ,FSAV   ,FR_WALL ,FOPT   ,
      2                  RWSAV  ,WEIGHT ,FSAVD   ,NT_RW  ,
      3                  IDDL   ,IKC    ,ICOMV  ,NDOF  ,FRWL6 ,WEIGHT_MD,
-     4                  DIMFB  , FBSAV6,STABSEN,TABSENSOR)
+     4                  DIMFB  , FBSAV6,STABSEN,TABSENSOR, WFEXT, WFEXT_MD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -223,8 +222,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
 #include      "scr03_c.inc"
 #include      "com08_c.inc"
 #include      "impl1_c.inc"
@@ -236,16 +233,15 @@ C-----------------------------------------------
      .        DIMFB,STABSEN,TABSENSOR(*)
       my_real X(3,NUMNOD), D(3,NUMNOD), V(3,NUMNOD),RWBUF(NRWLP,*),RWSAV(*),MS(*),
      .        FSAV(NTHVKI,*), FOPT(6,*),FSAVD(NTHVKI,*)
-      DOUBLE PRECISION
-     .        FRWL6(7,6,NRWALL)
-      DOUBLE PRECISION
-     .        FBSAV6(12,6,DIMFB),RBID(12,6)
+      DOUBLE PRECISION FRWL6(7,6,NRWALL)
+      DOUBLE PRECISION FBSAV6(12,6,DIMFB),RBID(12,6)
+      DOUBLE PRECISION,INTENT(INOUt) :: WFEXT, WFEXT_MD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER K, N, N2, N3, N4, N5, N6, ITYP, ISL, IFQ, ILAGM,
      .        NDS,IMP, PMAIN, IBID,IPARSENS,ISECT
-      my_real A(3,NUMNOD),BID,DTI
+      my_real A(3,NUMNOD),DTI
 C-----------------------------------------------
           RBID = ZERO
 C Init global result to 0
@@ -267,11 +263,11 @@ c!$OMP END DO
 
           NDS=0
           IMP=1
-	      IF (IDYNA > 0) THEN
-	        CALL GETDYNA_A(1  ,NUMNOD   ,A )
-	      ELSE
+                IF (IDYNA > 0) THEN
+                  CALL GETDYNA_A(1  ,NUMNOD   ,A )
+                ELSE
             CALL ZEROR(A,NUMNOD)
-	      END IF
+                END IF
           IF (ICOMV == 1) THEN
            DTI = ONE/DT2
            DO N=1,NUMNOD
@@ -299,25 +295,25 @@ c!$OMP END DO
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K),
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N5),RWSAV(ISL),FRWL6(1,1,N),IMP       ,NT_RW  ,
-     +          IDDL    ,IKC       ,NDOF        ,IBID      ,WEIGHT_MD)
+     +          IDDL    ,IKC       ,NDOF        ,IBID      ,WEIGHT_MD, WFEXT, WFEXT_MD)
             ELSEIF(ITYP == 2)THEN
               CALL RGWALC(
      +          X       ,A           ,V       ,RWBUF(1,N),LPRW(K),
      +          NPRW(N) ,NPRW(N2)    ,NPRW(N3),MS        ,WEIGHT ,
      +          NPRW(N5),FRWL6(1,1,N),IMP     ,NT_RW     ,IDDL   ,
-     +          IKC     ,NDOF        ,IBID    ,WEIGHT_MD)
+     +          IKC     ,NDOF        ,IBID    ,WEIGHT_MD ,WFEXT  ,WFEXT_MD)
             ELSEIF(ITYP == 3)THEN
               CALL RGWALS(
      +          X       ,A           ,V       ,RWBUF(1,N),LPRW(K),
      +          NPRW(N) ,NPRW(N2)    ,NPRW(N3),MS        ,WEIGHT ,
      +          NPRW(N5),FRWL6(1,1,N),IMP     ,NT_RW     ,IDDL   ,
-     +          IKC     ,NDOF        ,IBID    ,WEIGHT_MD)
+     +          IKC     ,NDOF        ,IBID    ,WEIGHT_MD ,WFEXT, WFEXT_MD)
             ELSEIF(ITYP == 4)THEN
               CALL RGWALP(
      +          X       ,A           ,V       ,RWBUF(1,N),LPRW(K),
      +          NPRW(N) ,NPRW(N2)    ,NPRW(N3),MS        ,WEIGHT ,
      +          NPRW(N5),FRWL6(1,1,N),IMP     ,NT_RW     ,IDDL   ,
-     +          IKC     ,NDOF        ,IBID    ,WEIGHT_MD)
+     +          IKC     ,NDOF        ,IBID    ,WEIGHT_MD ,WFEXT, WFEXT_MD)
             ENDIF
 
             K=K+NPRW(N)
@@ -339,7 +335,7 @@ C
               N6=N5+NRWALL
               IF(NPRW(N3) /= 0) THEN
                 IF(NSPMD > 1) THEN
-Cel si proc concerne par le rgwall
+C   if processor concerned by the rgwall
                   IF(FR_WALL(ISPMD+1,N) /= 0) THEN
                     CALL SPMD_EXCH_FR6(FR_WALL(1,N),FRWL6(1,1,N),7*6)
                   ENDIF
@@ -375,12 +371,11 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  RGWALF                        source/constraints/general/rwall/rgwal0.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rgwalf   ../engine/source/constraints/general/rwall/rgwal0.F
+!||--- called by ------------------------------------------------------
+!||    resol    ../engine/source/engine/resol.F
+!||====================================================================
       SUBROUTINE RGWALF(A      ,RWBUF   ,NPRW   ,MS    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -390,22 +385,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NPRW(*)
+      INTEGER NPRW(NRWALL,NNPRW)
       my_real A(3,NUMNOD),RWBUF(NRWLP,*),MS(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N,N2,N3,N4,N5,N6, MSR, ITYP, ILAGM
+      INTEGER N, MSR, ITYP, ILAGM,IPEN
       my_real DM
 C-----------------------------------------------
 C
@@ -415,16 +405,12 @@ C RWL(19) = Fz
 C RWL(20) = Somme (Xslv)
 C
       DO N=1,NRWALL
-        N2=N +NRWALL
-        N3=N2+NRWALL
-        N4=N3+NRWALL
-        N5=N4+NRWALL
-        N6=N5+NRWALL
-        ITYP= NPRW(N4)
+        ITYP= NPRW(N,4)
         ILAGM= 0
-        IF (NPRW(N6) == 1) ILAGM=1
-        IF(ITYP >= 1.AND.ITYP <= 4.AND.ILAGM == 0)THEN
-          MSR = NPRW(N3)
+        IF (NPRW(N,6) == 1) ILAGM=1
+        IPEN = NPRW(N,9)
+        IF(ITYP >= 1.AND.ITYP <= 4.AND.ILAGM == 0.AND.IPEN == 0)THEN
+          MSR = NPRW(N,3)
           IF(MSR /= 0)THEN
             DM = MS(MSR)+ RWBUF(20,N)
             IF(DM /= ZERO) THEN
@@ -441,13 +427,13 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  RGWALT                        source/constraints/general/rwall/rgwal0.F
-Chd|-- called by -----------
-Chd|        RGWAL0                        source/constraints/general/rwall/rgwal0.F
-Chd|        RGWAL0_IMP                    source/constraints/general/rwall/rgwal0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rgwalt       ../engine/source/constraints/general/rwall/rgwal0.F
+!||--- called by ------------------------------------------------------
+!||    rgwal0       ../engine/source/constraints/general/rwall/rgwal0.F
+!||    rgwal0_imp   ../engine/source/constraints/general/rwall/rgwal0.F
+!||    rgwal0_pen   ../engine/source/constraints/general/rwall/rgwall_pen.F90
+!||====================================================================
       SUBROUTINE RGWALT(MSR ,RWL,FRWL6,PMAIN,FSAV,
      2                  FOPT,FBSAV6,IPARSENS)
 C-----------------------------------------------
@@ -458,10 +444,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "sms_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
@@ -509,12 +492,12 @@ C
       ENDIF
 C
       IF(IDTMINS==0.AND.IDTMINS_INT==0)THEN
-Cel changement formulation F et XMT stockoques dans RWL et appliques debut cycle suivant
+C   change of formulation for F and XMT stored in RWL and applied at the beginning of the next cycle
          RWL(17)=(FXN+FXT)*DIVDT12
          RWL(18)=(FYN+FYT)*DIVDT12
          RWL(19)=(FZN+FZT)*DIVDT12
          RWL(20)=XMT
-C test  pour ne cummuler qu'une fois en multiprocessors dans le cas moving
+C test to accumulate only once in multiprocessor mode in the moving case
         IF(ISPMD+1 == PMAIN.OR. MSR == 0) THEN
           FSAV(1)=FSAV(1)+FXN
           FSAV(2)=FSAV(2)+FYN
@@ -531,7 +514,7 @@ C test  pour ne cummuler qu'une fois en multiprocessors dans le cas moving
         RWL(18)=RWL(18)+(FYN+FYT)*DIVDT12
         RWL(19)=RWL(19)+(FZN+FZT)*DIVDT12
         RWL(20)=RWL(20)+XMT
-C test pour ne cummuler qu'une fois en multiprocessors dans le cas moving
+C test to accumulate only once in multiprocessor mode in the moving case
         IF(ISPMD+1 == PMAIN.OR. MSR == 0) THEN
          FSAV(1)=FSAV(1)+FXN
          FSAV(2)=FSAV(2)+FYN

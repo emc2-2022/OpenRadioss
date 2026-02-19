@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVVENTHOLEINT                 source/airbag/fvventholeint.F 
-Chd|-- called by -----------
-Chd|        FVMESH0                       source/airbag/fvmesh0.F       
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvventholeint   ../starter/source/airbag/fvventholeint.F
+!||--- called by ------------------------------------------------------
+!||    fvmesh0         ../starter/source/airbag/fvmesh0.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE FVVENTHOLEINT(IBUF  , ELEM   , IBAGHOL,
      .                         NVENT , IGRSURF,
      .                         ITAGEL, NN     , NEL, NB_NODE) 
@@ -39,14 +38,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -92,17 +87,17 @@ C
             ITAGVENT(N4)=IVENT
          ENDDO
       ENDDO
-C			
+C
       DO IEL=1,NEL
          IF(ITAGEL(IEL) > 0) CYCLE   ! injecteur
          N1=ELEM(1,IEL)
          N2=ELEM(2,IEL)
          N3=ELEM(3,IEL)
          NALL=ITAGVENT(N1)*ITAGVENT(N2)*ITAGVENT(N3)
-         IF(NALL.NE.0) THEN
+         IF(NALL/=0) THEN
             NN1=ITAGVENT(N2)-ITAGVENT(N1)
             NN2=ITAGVENT(N3)-ITAGVENT(N1)
-            IF (NN1 == 0 .AND. NN2 == 0) ITAGEL(IEL)=-ITAGVENT(N1)					
+            IF (NN1 == 0 .AND. NN2 == 0) ITAGEL(IEL)=-ITAGVENT(N1)
          ENDIF 
       ENDDO
 C

@@ -1,43 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS84                      source/materials/mat/mat084/sigeps84.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE SIGEPS84 (
-     1     NEL    ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC   ,NPF    ,
-     2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0    ,RHO    ,
-     3     VOLUME ,EINT   ,TEMPEL, NGL ,
-     4     EPSPXX ,EPSPYY ,EPSPZZ  ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
-     5     DEPSXX ,DEPSYY ,DEPSZZ  ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
-     6     EPSXX  ,EPSYY  ,EPSZZ   ,EPSXY   ,EPSYZ   ,EPSZX  ,
-     7     SIGOXX ,SIGOYY ,SIGOZZ  ,SIGOXY  ,SIGOYZ  ,SIGOZX ,
-     8     SIGNXX ,SIGNYY ,SIGNZZ  ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
-     9     SIGVXX ,SIGVYY ,SIGVZZ  ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
-     A     SOUNDSP,VISCMAX,UVAR    ,OFF     ,YLD     ,PLA    ,
-     B     DEP    ,ETSE   ,IPM     ,MAT    )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps84   ../engine/source/materials/mat/mat084/sigeps84.F
+!||--- called by ------------------------------------------------------
+!||    mulaw      ../engine/source/materials/mat_share/mulaw.F90
+!||====================================================================
+      SUBROUTINE SIGEPS84(
+     1   NEL,     NUPARAM ,NUVAR ,  JLAG,  
+     2   TIME,    TIMESTEP,UPARAM,  RHO0,    RHO,
+     3   VOLUME,  EINT,    TEMP,    JTHE,
+     4   EPSPXX,  EPSPYY,  EPSPZZ,  EPSPXY,
+     5   EPSPYZ,  EPSPZX,  DEPSXX,  DEPSYY,
+     6   DEPSZZ,  DEPSXY,  DEPSYZ,  DEPSZX,
+     7   EPSXX,   EPSYY,   EPSZZ,   EPSXY,
+     8   EPSYZ,   EPSZX,   SIGOXX,  SIGOYY,
+     9   SIGOZZ,  SIGOXY,  SIGOYZ,  SIGOZX,
+     A   SIGNXX,  SIGNYY,  SIGNZZ,  SIGNXY,
+     B   SIGNYZ,  SIGNZX,  SIGVXX,  SIGVYY,
+     C   SIGVZZ,  SIGVXY,  SIGVYZ,  SIGVZX,
+     D   SOUNDSP, VISCMAX, UVAR,    OFF,
+     E   YLD,     PLA,     DEP,     ETSE  ,FHEAT )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,23 +48,13 @@ C-----------------------------------------------
 C   G L O B A L   P A R A M E T E R S
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr17_c.inc"
 #include      "param_c.inc"
-#include      "vect01_c.inc"
-C-----------------------------------------------
-C   C O M M O N
-C-----------------------------------------------
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
 C NEL     |  1      | I | R | SIZE OF THE ELEMENT GROUP NEL
 C NUPARAM |  1      | I | R | SIZE OF THE USER PARAMETER ARRAY
 C NUVAR   |  1      | I | R | NUMBER OF USER ELEMENT VARIABLES
-C---------+---------+---+---+--------------------------------------------
-C NFUNC   |  1      | I | R | NUMBER FUNCTION USED FOR THIS USER LAW
-C IFUNC   | NFUNC   | I | R | FUNCTION INDEX
-C NPF     |  *      | I | R | FUNCTION ARRAY
-C TF      |  *      | F | R | FUNCTION ARRAY
 C---------+---------+---+---+--------------------------------------------
 C TIME    |  1      | F | R | CURRENT TIME
 C TIMESTEP|  1      | F | R | CURRENT TIME STEP
@@ -91,7 +83,7 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -99,9 +91,9 @@ C---------+---------+---+---+--------------------------------------------
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-C
-      INTEGER NEL, NUPARAM, NUVAR,
-     .        IPM(NPROPMI,*),MAT(NEL), NGL(NEL)
+      INTEGER, INTENT(IN) :: JTHE
+      INTEGER, INTENT(IN) :: JLAG
+      INTEGER NEL, NUPARAM, NUVAR
       my_real 
      .   TIME,TIMESTEP,UPARAM(NUPARAM),
      .   RHO(NEL),RHO0(NEL),VOLUME(NEL),EINT(NEL),
@@ -112,8 +104,7 @@ C
      .   EPSXX(NEL) ,EPSYY(NEL) ,EPSZZ(NEL) ,
      .   EPSXY(NEL) ,EPSYZ(NEL) ,EPSZX(NEL) ,
      .   SIGOXX(NEL),SIGOYY(NEL),SIGOZZ(NEL),
-     .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL),
-     .   TEMPEL(NEL)
+     .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL)
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -127,25 +118,23 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
-      my_real 
-     .   UVAR(NEL,NUVAR), OFF(NEL)
-      INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
-      my_real 
-     .   FINTER ,TF(*)
+      my_real :: UVAR(NEL,NUVAR), OFF(NEL)
+      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: FHEAT
+      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: TEMP      
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,J,K,NITER,NINDX
+      INTEGER I,II,K,NITER,NINDX
       INTEGER INDX(NEL)
       my_real
-     .   TOL,LAMDA,RES,DRES,SQR2INV,SEQ,YLDP,DAV,NU,YOUNG,SHEAR,G2,
+     .   TOL,LAMDA,RES,DRES,SQR2INV,YLDP,DAV,NU,YOUNG,SHEAR,G2,
      .   BULK,QVOCE,BVOCE,KSWIFT,KVOCE,KSWIFTP,KVOCEP,EXPV,                      
-     .   K0,ALPHA,AN,EPS0,NN,DEPS0,EPSP0,CEPSP,CEPSPN,
+     .   K0,ALPHA,AN,EPS0,NN,DEPS0,CEPSP,CEPSPN,
      .   ETA,CP,TINI,TREF,TMELT,MTEMP,DEPSAD,SEFF,GEFF,F_EPS,GSS,       
      .   GGSIG,G2GSIG,P12,P22,P33,G12,G22,G33,OMEGA,PLAP0 
       my_real
      .   GSIG(6),PSIG(6),F_EPSP(NEL),F_TEMP(NEL),SVM(NEL),
-     .   TEMP(NEL),DLAM(NEL),DLAMIN(NEL),PLAP(NEL),
+     .   DLAM(NEL),DLAMIN(NEL),PLAP(NEL),DHEAT(NEL),
      .   SIGTRXX(NEL),SIGTRYY(NEL),SIGTRZZ(NEL),
      .   SIGTRXY(NEL),SIGTRYZ(NEL),SIGTRZX(NEL)                         
 c=========================================================================
@@ -155,8 +144,6 @@ c      UVAR(1)   = PLA  ----- equiv. plastic strain
 c      UVAR(2)   = YLD  ----- Yield
 c      UVAR(3)   = PLAP ---   Plastic Strain rate
 c      UVAR(4)   = DLAM ----- Plastic Multiplier
-c      UVAR(5)   = TEMP ----- Temperature
-c      UVAR(6)   = H    ----- Tangent module (Yield prime)
 C-----------------------------------------------
 c     Plasticity model :
 c      1- Quadratic Yield surface
@@ -197,7 +184,7 @@ C
 C     Initialize material parameters
 C     --------------
       YOUNG = UPARAM(1)
-	 NU    = UPARAM(2)
+           NU    = UPARAM(2)
       SHEAR = YOUNG*HALF/(ONE+NU)
       G2    = TWO*SHEAR   
       LAMDA = YOUNG*NU/(ONE+NU)/(ONE-TWO*NU)  
@@ -237,9 +224,7 @@ C     ------------------------
           F_TEMP(I)= ONE - F_TEMP(I)
           F_EPS    = ALPHA*(AN*EPS0**NN) + (ONE-ALPHA)*K0
           YLD(I)   = F_EPS * F_TEMP(I)
-c
           UVAR(I,2) = YLD(I)
-          UVAR(I,5) = TINI
         ENDDO
       ENDIF      
 C     ------------------------
@@ -250,16 +235,6 @@ C     ------------------------
         DLAM(I) = ZERO       
         DEP(I)  = ZERO       
       ENDDO
-C
-      IF (JTHE > 0 ) THEN        
-        DO I=1,NEL     
-          TEMP(I) = TEMPEL(I)
-        ENDDO
-      ELSE
-        DO I=1,NEL     
-          TEMP(I) = UVAR(I,5)
-        ENDDO
-      ENDIF
 c
 C     Trial stress
 C     ------------
@@ -401,7 +376,6 @@ c-----
           YLDP    = ALPHA*KSWIFTP + (ONE - ALPHA)*KVOCEP                         
           YLDP    = YLDP * F_TEMP(I) * F_EPSP(I)                                
           YLDP    = YLDP + YLD(I) * CEPSPN / DLAM(I) 
-          !UVAR(I,6)=  YLDP                         
           YLD(I)  = UVAR(I,2) * F_EPSP(I)                                       
 c         f(sig)-yield                                                           
           RES  = SEFF - YLD(I)                                                  
@@ -451,23 +425,32 @@ c-----------    end Newton iterations
 c
       ENDDO     ! plastic increment loop
 c
-c----------
-C
-C     Calculate Plastic Work / Temperature depending on omega
-C     ---------------------------------
-      IF (JTHE == 0 ) THEN        
+!-------------------------------------------------------------
+!     Calculate Plastic Work / Temperature depending on omega
+!-------------------------------------------------------------
+      DO II=1,NINDX
+        I = INDX(II)
+        IF (PLAP(I) <= DEPS0)THEN
+          OMEGA = ZERO
+        ELSEIF (PLAP(I) > DEPSAD) THEN
+          OMEGA = ONE
+        ELSE
+          OMEGA = ((PLAP(I)-DEPS0)**2 )*
+     .            (THREE*DEPSAD - TWO*PLAP(I) - DEPS0)
+     .           /((DEPSAD-DEPS0)**3)
+        ENDIF
+        DHEAT(I) = ETA*OMEGA*YLD(I)*DEP(I)
+      ENDDO
+!
+      IF (JTHE < 0 .AND. JLAG /= 0) THEN
         DO II=1,NINDX
           I = INDX(II)
-          IF (PLAP(I) <= DEPS0)THEN
-            OMEGA = ZERO
-          ELSEIF (PLAP(I) > DEPSAD) THEN
-            OMEGA = ONE
-          ELSE
-            OMEGA = ((PLAP(I)-DEPS0)**2 )*
-     .              (THREE*DEPSAD - TWO*PLAP(I) - DEPS0)
-     .             /((DEPSAD-DEPS0)**3)
-          ENDIF
-          TEMP(I) = UVAR(I,5) + OMEGA*YLD(I)*DEP(I)*ETA/(RHO0(I)*CP)
+          FHEAT(I) = FHEAT(I) + DHEAT(I)*VOLUME(I)
+        ENDDO
+      ELSE     
+        DO II=1,NINDX
+          I = INDX(II)
+          TEMP(I) = TEMP(I) + DHEAT(I) / (RHO0(I)*CP)
         ENDDO
       ENDIF
 C-----------
@@ -476,7 +459,6 @@ C-----------
         UVAR(I,2) = YLD(I)
         UVAR(I,3) = PLAP(I)
         UVAR(I,4) = DLAM(I)
-        UVAR(I,5) = TEMP(I)
         ETSE(I)   = ONE
         SOUNDSP(I)= SQRT((BULK+FOUR_OVER_3*SHEAR)/RHO0(I))
         VISCMAX(I)= ZERO

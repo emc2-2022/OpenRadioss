@@ -1,35 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RUSER46                       source/elements/spring/ruser46.F
-Chd|-- called by -----------
-Chd|        RFORC3                        source/elements/spring/rforc3.F
-Chd|-- calls ---------------
-Chd|        GET_U_FUNC                    source/user_interface/ufunc.F 
-Chd|        GET_U_GEO                     source/user_interface/upidmid.F
-Chd|        GET_U_PNU                     source/user_interface/upidmid.F
-Chd|        GET_U_TIME                    source/user_interface/uaccess.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ruser46      ../engine/source/elements/spring/ruser46.F
+!||--- called by ------------------------------------------------------
+!||    rforc3       ../engine/source/elements/spring/rforc3.F
+!||--- calls      -----------------------------------------------------
+!||    get_u_func   ../engine/source/user_interface/ufunc.F
+!||    get_u_mid    ../engine/source/user_interface/upidmid.F
+!||    get_u_mnu    ../engine/source/user_interface/upidmid.F
+!||    get_u_pid    ../engine/source/user_interface/upidmid.F
+!||    get_u_pnu    ../engine/source/user_interface/upidmid.F
+!||    get_u_time   ../engine/source/user_interface/uaccess.F
+!||====================================================================
       SUBROUTINE RUSER46(NEL,IOUT   ,IPROP  ,UVAR   ,NUVAR  ,
      2             FX      ,FY      ,FZ     ,XMOM   ,YMOM   ,
      3             ZMOM    ,E       ,OFF    ,STIFM  ,STIFR  ,
@@ -73,7 +75,7 @@ C         I     :     VARIABLE INDEX(1 for first function)
 C         IM    :     MATERIAL NUMBER
 C         KFUNC :     ONLY FUNCTION ARE YET AVAILABLE.
 C         THIS FUNCTION RETURN THE USER STORED FUNCTION NUMBER(function 
-C         refered by users materials).
+C         referred by users materials).
 C         SEE LECM29 FOR CORRESPONDING ID STORAGE.
 C-------------------------------------------------------------------------
 C my_real PARAMI = GET_U_GEO(I,IP)
@@ -116,7 +118,7 @@ C   D u m m y   A r g u m e n t s   a n d   F u n c t i o n
 C----------------------------------------------------------
       INTEGER IOUT,NEL,NUVAR,IPROP,
      .        GET_U_PNU,GET_U_PID,GET_U_MID,GET_U_MNU,
-     .        KFUNC,KMAT,KPROP,GET_SPRING_ELNUM
+     .        KFUNC
       my_real
      .   UVAR(NUVAR,*),DT ,
      .   FX(*), FY(*), FZ(*), E(*), VX(*),MASS(*) ,XINER(*),
@@ -125,8 +127,7 @@ C----------------------------------------------------------
      .   STIFM(*) ,STIFR(*) , VISCM(*) ,VISCR(*) ,FR_WAVE(*) ,
      .   GET_U_MAT, GET_U_GEO, GET_U_FUNC, GET_U_TIME
       EXTERNAL GET_U_MNU,GET_U_PNU,GET_U_MID,GET_U_PID,
-     .         GET_U_MAT,GET_U_GEO, GET_U_FUNC, GET_U_TIME,
-     .         GET_SPRING_ELNUM
+     .         GET_U_MAT,GET_U_GEO, GET_U_FUNC, GET_U_TIME
       PARAMETER (KFUNC=29)
 !      PARAMETER (KMAT=31)
 !      PARAMETER (KPROP=33)
@@ -141,8 +142,8 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,IFUNC1,IFUNC2,IFUNC3,IFUNC4,IFUNC5,EPSI
       my_real
-     .        ELASTIF,X,DXDY,XLIM1,XLIM2,FMX,FMN,DX,DAMP,
-     .        FUX1,FUX2,FUX3,FUX4,DEBUG,SLOPE
+     .        ELASTIF,X,DXDY,XLIM1,XLIM2,DX,DAMP,
+     .        FUX1,FUX2,FUX3,FUX4,SLOPE
       my_real
      .        TT,NEWLEN,DELTALEN,DELTALENDOT,SCALET,SCALEX,SCALEV,SCALEF
 C-----------------------------------------------
@@ -200,11 +201,11 @@ C          FUX3 = GET_U_FUNC(IFUNC3,VX(I),DXDY)
 C Passive force vs. elongation
           FUX4 = GET_U_FUNC(IFUNC4,DELTALEN,DXDY)
           FUX4 = FUX4 * SCALEF
-C Check if velocity .GT. limit1 ...if YES, then use XLIM1 = max_vel
+C Check if velocity > limit1 ...if YES, then use XLIM1 = max_vel
 C Sum FX + damping*velocity
-          IF (VX(I).GT.XLIM1)THEN
+          IF (VX(I)>XLIM1)THEN
              FX(I) = XLIM2 * FUX1 * FUX2 * FUX3 + FUX4 + DAMP*XLIM1
-          ELSEIF (VX(I).LT.-XLIM1)THEN
+          ELSEIF (VX(I)<-XLIM1)THEN
              FX(I) = XLIM2 * FUX1 * FUX2 * FUX3 + FUX4 - DAMP*XLIM1
           ELSE
              FX(I) = XLIM2 * FUX1 * FUX2 * FUX3 + FUX4 + DAMP*VX(I)
@@ -215,7 +216,7 @@ C=======================================================================
 C       TIME STEP
 C=======================================================================
 C          STIFM(I) = ELASTIF / XL(I)
-          IF(DELTALEN .NE. ZERO)THEN
+          IF(DELTALEN /= ZERO)THEN
             SLOPE = ABS(FX(I)-UVAR(4,I))/ABS(DX)
 C            WRITE(IOUT,*) 'Slope: FR_WAVE = ZERO'
           ELSE

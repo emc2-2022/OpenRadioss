@@ -1,56 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
 
-Chd|====================================================================
-Chd|  SPMD_IGLOB_PARTN              source/mpi/anim/spmd_iglob_partn.F
-Chd|-- called by -----------
-Chd|        PARSOR0                       source/output/anim/generate/parsor0.F
-Chd|        PARSORC                       source/output/anim/generate/parsorc.F
-Chd|        PARSORF                       source/output/anim/generate/parsorf.F
-Chd|        PARSORS                       source/output/anim/generate/parsors.F
-Chd|        PARSOR_CRK                    source/output/anim/generate/parsor_crk.F
-Chd|        PARSOR_PLY                    source/output/anim/generate/parsor_ply.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_iglob_partn      ../engine/source/mpi/anim/spmd_iglob_partn.F
+!||--- called by ------------------------------------------------------
+!||    parsor0               ../engine/source/output/anim/generate/parsor0.F
+!||    parsor_crk            ../engine/source/output/anim/generate/parsor_crk.F
+!||    parsor_ply            ../engine/source/output/anim/generate/parsor_ply.F
+!||    parsorc               ../engine/source/output/anim/generate/parsorc.F
+!||    parsorf               ../engine/source/output/anim/generate/parsorf.F
+!||    parsors               ../engine/source/output/anim/generate/parsors.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_IGLOB_PARTN(IAD,NBPART,IADG,SBUF)
-C iglob_part reconstruit sur p0 un tableau global de part 
+C iglob_part reconstructs on p0 a global array of part
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -61,7 +60,7 @@ C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER MSGOFF,MSGTYP,INFO,K,N,NB_TMP
+      INTEGER MSGOFF,MSGTYP,K,N,NB_TMP
       INTEGER, DIMENSION(:),ALLOCATABLE :: RECBUF
       INTEGER STATUS(MPI_STATUS_SIZE),IERROR
 
@@ -71,10 +70,10 @@ C   S o u r c e  L i n e s
 C-----------------------------------------------
       ALLOCATE(RECBUF(SBUF))
 
-      IF (ISPMD.NE.0) THEN
+      IF (ISPMD/=0) THEN
          MSGTYP= MSGOFF
          CALL MPI_SEND(IAD,NBPART,MPI_INTEGER,IT_SPMD(1),MSGTYP,
-     .                MPI_COMM_WORLD,ierror)
+     .                SPMD_COMM_WORLD,ierror)
 
       ELSE
         DO N = 1, NBPART
@@ -84,10 +83,10 @@ C-----------------------------------------------
         DO K=2,NSPMD
           MSGTYP= MSGOFF
           CALL MPI_PROBE(IT_SPMD(K),MSGTYP,
-     .                   MPI_COMM_WORLD,STATUS,ierror)
+     .                   SPMD_COMM_WORLD,STATUS,ierror)
           CALL MPI_GET_COUNT(STATUS,MPI_INTEGER,NB_TMP,ierror)
           CALL MPI_RECV(RECBUF,NB_TMP,MPI_INTEGER,IT_SPMD(K),MSGTYP,
-     .                  MPI_COMM_WORLD,STATUS,ierror)
+     .                  SPMD_COMM_WORLD,STATUS,ierror)
 
           DO N = 1, NBPART
             IADG(K,N) = RECBUF(N)

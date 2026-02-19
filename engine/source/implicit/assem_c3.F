@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ASSEM_C3                      source/implicit/assem_c3.F    
-Chd|-- called by -----------
-Chd|        C3KE3                         source/elements/sh3n/coque3n/c3ke3.F
-Chd|-- calls ---------------
-Chd|        ASSEMC_KII                    source/implicit/imp_glob_k.F  
-Chd|        ASSEMC_KIJ                    source/implicit/imp_glob_k.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    assem_c3      ../engine/source/implicit/assem_c3.F
+!||--- called by ------------------------------------------------------
+!||    c3ke3         ../engine/source/elements/sh3n/coque3n/c3ke3.F
+!||--- calls      -----------------------------------------------------
+!||    assemc_kii    ../engine/source/implicit/imp_glob_k.F
+!||    assemc_kij    ../engine/source/implicit/imp_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE ASSEM_C3(
      1         IXTG     ,NEL       ,IDDL      ,NDOF      ,K_DIAG    ,
      2         K_LT     ,IADK      ,JDIK      ,KC11      ,KC12      ,
      3         KC13     ,KC22      , KC23     ,KC33      ,OFF       )
+      use element_mod , only : nixtg
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -43,7 +46,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

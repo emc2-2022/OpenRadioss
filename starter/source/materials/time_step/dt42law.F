@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DT42LAW                       source/materials/time_step/dt42law.F
-Chd|-- called by -----------
-Chd|        DTMAIN                        source/materials/time_step/dtmain.F
-Chd|-- calls ---------------
-Chd|        DTEL                          source/materials/time_step/dtel.F
-Chd|        DTSPH                         source/materials/time_step/dtsph.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dt42law   ../starter/source/materials/time_step/dt42law.F
+!||--- called by ------------------------------------------------------
+!||    dtmain    ../starter/source/materials/time_step/dtmain.F
+!||--- calls      -----------------------------------------------------
+!||    dtel      ../starter/source/materials/time_step/dtel.F
+!||    dtsph     ../starter/source/materials/time_step/dtsph.F
+!||====================================================================
       SUBROUTINE DT42LAW(PM,GEO,PID, MAT, DELTAX, AIRE, VOL, DTX, NEL)
 C
-C     CALCUL DES DT ELEM. DES LOIS 42 et 69
+C     CALCULATION OF DT ELEM. OF LAWS 42 and 69
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -44,7 +44,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------
@@ -71,15 +70,15 @@ C=======================================================================
         VIS(I)  = ZERO
       END DO
 C-----------------------------
-C     CALCUL DE VITESSE DU SON
+C     CALCULATION OF SOUND VELOCITY
 C-----------------------------
       DO I=LFT,LLT
         SSP(I)=SQRT((FOUR_OVER_3*GS+C1)/RHO0(I))
       END DO
 C----------------------------------
-C     CALCUL DES DT ELEMENTAIRES
+C     CALCULATION OF ELEMENTARY DT
 C----------------------------------
-      IF(JSPH.EQ.0)THEN
+      IF(JSPH==0)THEN
          CALL DTEL(SSP,PM,GEO,PID,MAT, RHO0, VIS, DELTAX, AIRE, VOL, DTX)
       ELSE
          CALL DTSPH(SSP,PM,GEO,PID,MAT, RHO0, VIS, DELTAX, VOL, DTX)

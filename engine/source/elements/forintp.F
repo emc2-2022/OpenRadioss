@@ -1,85 +1,72 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MOD_FORINTP                   source/elements/forintp.F     
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|-- calls ---------------
-Chd|====================================================================
-      MODULE MOD_FORINTP
-      implicit none
-#include      "my_real.inc"
-      my_real
-     .       , DIMENSION(:), ALLOCATABLE :: 
-     .       WT, WGRADT, WLAPLT, LAMBDA, WGRADTSM,
-     .       WTR,LAMBDR,WASIGSM
-      my_real
-     .       , DIMENSION(:,:), ALLOCATABLE :: 
-     .       WAR, WGR, WAR2
-      my_real
-     .      , DIMENSION(:,:), ALLOCATABLE :: 
-     .    STAB
-      END MODULE MOD_FORINTP
-Chd|====================================================================
-Chd|  FORINTP                       source/elements/forintp.F     
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SOLTOSPHP                     source/elements/sph/soltosph.F
-Chd|        SPADAH                        source/elements/sph/spadah.F  
-Chd|        SPDENS                        source/elements/sph/spdens.F  
-Chd|        SPFORCP                       source/elements/sph/spforcp.F 
-Chd|        SPGAUGE                       source/elements/sph/spgauge.F 
-Chd|        SPGRADT                       source/elements/sph/sptemp.F  
-Chd|        SPGTSYM                       source/elements/sph/sptemp.F  
-Chd|        SPLAPLT                       source/elements/sph/sptemp.F  
-Chd|        SPMD_SPHGETG                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETSTB                source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETT                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETW                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETWA                 source/mpi/elements/spmd_sph.F
-Chd|        SPONFPRS                      source/elements/sph/sponfprs.F
-Chd|        SPONFRO                       source/elements/sph/sponfro.F 
-Chd|        SPSCOMP                       source/elements/sph/spcompl.F 
-Chd|        SPSGSYM                       source/elements/sph/spsgsym.F 
-Chd|        SPSTABS                       source/elements/sph/spstab.F  
-Chd|        SPSTABW                       source/elements/sph/spstab.F  
-Chd|        SPSTRES                       source/elements/sph/spstres.F 
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STARTIMEG                     source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        STOPTIMEG                     source/system/timer.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MOD_FORINTP                   source/elements/forintp.F     
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
-      SUBROUTINE FORINTP(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    forintp          ../engine/source/elements/forintp.F
+!||--- called by ------------------------------------------------------
+!||    resol            ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf          ../engine/share/resol/initbuf.F
+!||    my_barrier       ../engine/source/system/machine.F
+!||    soltosphp        ../engine/source/elements/sph/soltosph.F
+!||    spadah           ../engine/source/elements/sph/spadah.F
+!||    spdens           ../engine/source/elements/sph/spdens.F
+!||    spforcp          ../engine/source/elements/sph/spforcp.F
+!||    spgauge          ../engine/source/elements/sph/spgauge.F
+!||    spgradt          ../engine/source/elements/sph/sptemp.F
+!||    spgtsym          ../engine/source/elements/sph/sptemp.F
+!||    splaplt          ../engine/source/elements/sph/sptemp.F
+!||    spmd_sphgetg     ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetstb   ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgett     ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetw     ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetwa    ../engine/source/mpi/elements/spmd_sph.F
+!||    sponfprs         ../engine/source/elements/sph/sponfprs.F
+!||    sponfro          ../engine/source/elements/sph/sponfro.F
+!||    spscomp          ../engine/source/elements/sph/spcompl.F
+!||    spsgsym          ../engine/source/elements/sph/spsgsym.F
+!||    spstabs          ../engine/source/elements/sph/spstab.F
+!||    spstabw          ../engine/source/elements/sph/spstab.F
+!||    spstres          ../engine/source/elements/sph/spstres.F
+!||    startime         ../engine/source/system/timer_mod.F90
+!||    startimeg        ../engine/source/system/timer.F
+!||    stoptime         ../engine/source/system/timer_mod.F90
+!||    stoptimeg        ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    dt_mod           ../engine/source/modules/dt_mod.F
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||    glob_therm_mod   ../common_source/modules/mat_elem/glob_therm_mod.F90
+!||    initbuf_mod      ../engine/share/resol/initbuf.F
+!||    mat_elem_mod     ../common_source/modules/mat_elem/mat_elem_mod.F90
+!||    nlocal_reg_mod   ../common_source/modules/nlocal_reg_mod.F
+!||    output_mod       ../common_source/modules/output/output_mod.F90
+!||    sensor_mod       ../common_source/modules/sensor_mod.F90
+!||    sph_work_mod     ../common_source/modules/mat_elem/sph_work.F90
+!||    sphbox           ../engine/share/modules/sphbox.F
+!||    table_mod        ../engine/share/modules/table_mod.F
+!||    timer_mod        ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE FORINTP(TIMERS,
      1    PM        ,GEO       ,X         ,A         ,V         ,
      2    MS        ,W         ,ELBUF_TAB ,WA        ,FV        ,
      3    STIFN     ,PLD       ,BUFMAT    ,PARTSAV   ,NLOC_DMG  ,
@@ -94,17 +81,26 @@ Chd|====================================================================
      C    NGROUNC   ,IGROUNC   ,IXS       ,IRST      ,SOL2SPH   ,
      D    SPH2SOL   ,FSKYV     ,FSKY      ,IGEO      ,TEMP      ,
      E    FTHE      ,FTHESKYI  ,SPHG_F6   ,WSMCOMP   ,SOL2SPH_TYP,
-     F    MATPARAM_TAB)
+     F    MAT_ELEM  ,OUTPUT    ,SPH_IORD1 ,SNPC      ,STF,
+     G    SBUFMAT   ,IDTMINS   ,NSVOIS    ,IRESP     ,MAXFUNC   ,
+     .    IMON_MAT  ,USERL_AVAIL,impl_s  ,idyna     ,
+     .    DT        ,GLOB_THERM,SPH_WORK ,WFEXT     ,sensors    )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE TIMER_MOD
       USE INITBUF_MOD
       USE SPHBOX
-      USE MOD_FORINTP
       USE TABLE_MOD
-      USE ELBUFDEF_MOD            
+      USE MAT_ELEM_MOD
+      USE ELBUFDEF_MOD
       USE NLOCAL_REG_MOD
-      USE MATPARAM_DEF_MOD
+      USE OUTPUT_MOD , ONLY : OUTPUT_
+      USE DT_MOD
+      use glob_therm_mod
+      use sensor_mod
+      USE SPH_WORK_MOD
+      use element_mod , only : nixs
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -119,25 +115,32 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "com10_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "scr17_c.inc"
 #include      "task_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
 #include      "scr02_c.inc"
 #include      "scr18_c.inc"
-#include      "scr_thermal_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS
+      INTEGER, INTENT(IN) :: SNPC
+      INTEGER, INTENT(IN) :: STF
+      INTEGER, INTENT(IN) :: SBUFMAT
+      INTEGER, INTENT(IN) :: NSVOIS
+      INTEGER, INTENT(IN) :: IDTMINS
+      INTEGER ,INTENT(IN) :: IRESP
+      INTEGER ,INTENT(IN) :: MAXFUNC
+      INTEGER, INTENT(IN) :: IMPL_S
+      INTEGER, INTENT(IN) :: IDYNA
+      INTEGER, INTENT(IN) :: USERL_AVAIL
+      INTEGER, INTENT(IN) :: IMON_MAT
       INTEGER IPART(LIPART1,*) ,NPC(*), IPARG(NPARG,*),IADS(8,*),
      .   NELTST, ITYPTST, IPARTSP(*), ISKY(*), ITAB(*),IPM(*),
      .   KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),
@@ -146,6 +149,7 @@ C-----------------------------------------------
      .   LPRTSPH(2,0:NPART),LONFSPH(*),WASPACT(*),ISPHIO(NISPHIO,*),
      .   ITASK,GRTH(*),IGRTH(*), LGAUGE(3,*), NGROUNC, IGROUNC(*), 
      .   IXS(NIXS,*), IRST(3,*), SOL2SPH(2,*), SPH2SOL(*), SOL2SPH_TYP(*)
+      INTEGER, INTENT(IN) :: SPH_IORD1
       my_real
      .   X(3,*), V(3,*), MS(*), W(*), PM(NPROPM,*), GEO(NPROPG,*),
      .   BUFMAT(*), BUFGEO(*), PLD(*)  ,
@@ -159,22 +163,30 @@ C-----------------------------------------------
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
       TYPE (NLOCAL_STR_)  , TARGET :: NLOC_DMG 
       DOUBLE PRECISION SPHG_F6(4,6,NBGAUGE)
-      TYPE(MATPARAM_STRUCT_)  , DIMENSION(NUMMAT) :: MATPARAM_TAB
+ 
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT !< output structure
+      TYPE (MAT_ELEM_) ,INTENT(INOUT) :: MAT_ELEM
+      TYPE (DT_), INTENT(IN) :: DT
+      type(glob_therm_)  ,intent(inout)    :: glob_therm
+      TYPE (SPH_WORK_),INTENT(INOUT) :: SPH_WORK
+      type (sensors_)    ,intent(in)    :: sensors     !< sensor structure
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NDSVOID
-      INTEGER I,N, IG, NG, NVC, MLW, JFT, JLT, K, ISTRA,
-     .   KAD,IAD2,NF1,IPRI,NGLOC, NELEM, NEL, OFFSET, NSG,
-     .   INOD,MX,NS,KSMCOMP,KVNORM,MYADRN,ADRN, NISKY_L,
-     .   IPRTSPH, NSOL, NSKI, N1, N2, N3, N4, N5, N6, N7, N8,
+      INTEGER I, N, NG, NVC, K, ISTRA, 
+     . KAD, NELEM, NEL, OFFSET, NSG,
+     . INOD,MX,NS,KVNORM,MYADRN,ADRN, NISKY_L,
+     . NSOL, NSKI, N1, N2, N3, N4, N5, N6, N7, N8,
      .   K1, K2, K3, K4, K5, K6, K7, K8, IR, IS, IT, NSPHDIR, STAT,
      .   IEXPAN,IBID
       my_real
-     .   OFF,DTX,DT05,RHOI,VI,
+     . DTX,DT05,RHOI,VI,
      .   PHI1,PHI2,PHI3,PHI4,PHI5,PHI6,PHI7,PHI8,
      .   KSI, ETA, ZETA,
-     .   VOLN(MVSIZ)  !local array to get rid of equivalence statments       
+     .   VOLN(MVSIZ)
+      my_real, DIMENSION(MVSIZ,6) :: SVIS
 C
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C-----------------------------------------------
@@ -238,27 +250,30 @@ C-----------------------------------------------
      9 0.350000000000000,0.450000000000000,0.550000000000000,
      9 0.650000000000000,0.750000000000000,0.850000000000000/
 C-----------------------------------------------
-C       calcul des densites et taux de deformations.
-C       charge WA(1:14*NUMSPH), qui ne doit pas etre ecrase 
-C       avt SPSTRES (pour redescente vers les buffers d'elements).
+C       calculation of densities and strain rates
+C       load wa (1: 14*numsph), which must not be crushed 
+C       before SPSTRES (for transfer to element buffers)
 C
-C         DIVV=WA(13,1:NUMSPH) et ROTV=WA(14,1:NUMSPH) ne doivent pas etre
-C         ecrases avt le calcul des forces (SPFORC).
+C         Divv = Wa (13.1: Numsph) and Rotv = Wa (14.1: Numsph) must not be
+C         overwritten before the calculation of forces (SPFORC)
 C
-C         DIVV=WA(13,1:NUMSPH) ne doit pas etre ecrase avt SPADAH 
-C         (adaptation du diametre des particules).
+C         Divv = WA (13.1: NUMSPH) must not be crushed before spadah 
+C         (adaptation of the particle diameter)
 C-----------------------------------------------
         IBID = 0
 C
-C Allocation SPMD a faire en memoire partagee
+C SPMD allowance to do in memory shared
 C
         IF(ITASK==0) THEN
-          ALLOCATE(WASIGSM(6*NSPHSYM))
-          WASIGSM = ZERO
+          ALLOCATE(SPH_WORK%WASIGSM(6*NSPHSYM))
+          SPH_WORK%WASIGSM = ZERO
         ENDIF
         IF(ITASK==0 .AND. NSPMD > 1)THEN 
-          ALLOCATE(WAR(10,NSPHR),WTR(NSPHR),WGR(3,NSPHR),LAMBDR(NSPHR),
-     .             WAR2(9,NSPHR))
+          ALLOCATE(SPH_WORK%WAR(10,NSPHR))
+          ALLOCATE(SPH_WORK%WTR(NSPHR))
+          ALLOCATE(SPH_WORK%WGR(3,NSPHR))
+          ALLOCATE(SPH_WORK%LAMBDR(NSPHR))
+          ALLOCATE(SPH_WORK%WAR2(9,NSPHR))
         END IF
 C-------
         KVNORM =16*NUMSPH+1
@@ -268,10 +283,13 @@ C       old density storage.
           WA(KWASPH*(N-1)+10)=SPBUF(2,N)
         ENDDO
 
-        IF( (ITHERM.NE.0).OR.(ITHERM_FE.NE.0)) THEN
+        IF( (GLOB_THERM%ITHERM/=0) .OR. (GLOB_THERM%ITHERM_FE/=0)) THEN
          IF(ITASK==0)THEN
-           ALLOCATE(WT(NUMSPH), WGRADT(3*NUMSPH), WLAPLT(NUMSPH),
-     .              LAMBDA(NUMSPH), WGRADTSM(3*NSPHSYM))
+           ALLOCATE(SPH_WORK%WT(NUMSPH))
+           ALLOCATE(SPH_WORK%WGRADT(3*NUMSPH))
+           ALLOCATE(SPH_WORK%WLAPLT(NUMSPH))
+           ALLOCATE(SPH_WORK%LAMBDA(NUMSPH))
+           ALLOCATE(SPH_WORK%WGRADTSM(3*NSPHSYM))
          END IF
          NGDONE = 1
 C       /---------------/
@@ -280,7 +298,7 @@ C       /---------------/
 C
  50      CONTINUE
 #include "lockon.inc"
-         IF(NGDONE.GT.NGROUP) THEN
+         IF(NGDONE>NGROUP) THEN
 #include "lockoff.inc"
           GOTO 51
          ENDIF
@@ -288,13 +306,13 @@ C
          NGDONE = NG + 1
 #include "lockoff.inc"
 C--------
-          IF(IPARG(8,NG).EQ.1)GOTO 50
-          IF (IDDW.GT.0) CALL STARTIMEG(NG)
+          IF(IPARG(8,NG)==1)GOTO 50
+          IF (IDDW>0) CALL STARTIMEG(NG)
           DO NELEM = 1,IPARG(2,NG),NVSIZ
             OFFSET = NELEM - 1
             NSG   =IPARG(10,NG)
             NVC   =IPARG(19,NG)
-            CALL INITBUF (IPARG    ,NG      ,                      
+            CALL INITBUF(IPARG    ,NG      ,                      
      2         MTN     ,NEL     ,NFT     ,IAD     ,ITY     ,       
      3         NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,       
      4         JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,       
@@ -303,60 +321,60 @@ C--------
      7         ICSEN   ,ISORTH  ,ISORTHG ,IFAILURE,JSMS    )
             LFT=1
             LLT=MIN(NVSIZ,NEL-NELEM+1)
-            IF(ITY.EQ.51) THEN
+            IF(ITY==51) THEN
 C-----------------------------------------------
               GBUF => ELBUF_TAB(NG)%GBUF
               IF(JTHE > 0)THEN
                DO I=LFT,LLT
                 N=NFT+I
-                IF(KXSP(2,N).GT.0)THEN
-                  WT(N)=GBUF%TEMP(I)
+                IF(KXSP(2,N)>0)THEN
+                  SPH_WORK%WT(N)=GBUF%TEMP(I)
                   MX   =IPART(1,IPARTSP(N))
-                  IF(WT(N).LE.PM(80,MX))THEN
-                    LAMBDA(N)=PM(75,MX)+PM(76,MX)*WT(N)
+                  IF(SPH_WORK%WT(N)<=PM(80,MX))THEN
+                    SPH_WORK%LAMBDA(N)=PM(75,MX)+PM(76,MX)*SPH_WORK%WT(N)
                   ELSE
-                    LAMBDA(N)=PM(77,MX)+PM(78,MX)*WT(N)
+                    SPH_WORK%LAMBDA(N)=PM(77,MX)+PM(78,MX)*SPH_WORK%WT(N)
                   END IF
                 END IF
                END DO
               ELSEIF (JTHE < 0) THEN
                DO I=LFT,LLT
                 N=NFT+I
-                IF(KXSP(2,N).GT.0)THEN
+                IF(KXSP(2,N)>0)THEN
                   INOD = KXSP(3,N)
-                  WT(N)=TEMP(INOD)
+                  SPH_WORK%WT(N)=TEMP(INOD)
                   MX   =IPART(1,IPARTSP(N))
-                  IF(WT(N).LE.PM(80,MX))THEN
-                    LAMBDA(N)=PM(75,MX)+PM(76,MX)*WT(N)
+                  IF(SPH_WORK%WT(N)<=PM(80,MX))THEN
+                    SPH_WORK%LAMBDA(N)=PM(75,MX)+PM(76,MX)*SPH_WORK%WT(N)
                   ELSE
-                    LAMBDA(N)=PM(77,MX)+PM(78,MX)*WT(N)
+                    SPH_WORK%LAMBDA(N)=PM(77,MX)+PM(78,MX)*SPH_WORK%WT(N)
                   END IF
-				  LAMBDA(N)=LAMBDA(N)*THEACCFACT
+                  SPH_WORK%LAMBDA(N)=SPH_WORK%LAMBDA(N)*GLOB_THERM%THEACCFACT
                 END IF
                END DO
               ELSE
                DO I=LFT,LLT
                 N=NFT+I
-                WT(N)    =ZERO
-                LAMBDA(N)=ZERO
+                SPH_WORK%WT(N)    =ZERO
+                SPH_WORK%LAMBDA(N)=ZERO
                END DO
               END IF
 C-----------------------------------------------
             ENDIF
-            IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+            IF (IDDW>0) CALL STOPTIMEG(NG)
           END DO
          GOTO 50
 C-------
  51      CONTINUE
 C
-         IF(NSPMD.GT.1) THEN
+         IF(NSPMD>1) THEN
 C         /---------------/
            CALL MY_BARRIER
 C         /---------------/
-           IF(ITASK.EQ.0) THEN
-             CALL STARTIME(93,1)
-             CALL SPMD_SPHGETT(WT,WTR,LAMBDA,LAMBDR)
-             CALL STOPTIME(93,1)
+           IF(ITASK==0) THEN
+             CALL STARTIME(TIMERS,93)
+             CALL SPMD_SPHGETT(SPH_WORK%WT,SPH_WORK%WTR,SPH_WORK%LAMBDA,SPH_WORK%LAMBDR)
+             CALL STOPTIME(TIMERS,93)
            END IF
          END IF
 C
@@ -372,7 +390,7 @@ C       /---------------/
 C
  60      CONTINUE
 #include "lockon.inc"
-         IF(NGDONE.GT.NGROUP) THEN
+         IF(NGDONE>NGROUP) THEN
 #include "lockoff.inc"
           GOTO 61
          ENDIF
@@ -380,13 +398,13 @@ C
          NGDONE = NG + 1
 #include "lockoff.inc"
 C--------
-          IF(IPARG(8,NG).EQ.1)GOTO 60
-          IF (IDDW.GT.0) CALL STARTIMEG(NG)
+          IF(IPARG(8,NG)==1)GOTO 60
+          IF (IDDW>0) CALL STARTIMEG(NG)
           DO NELEM = 1,IPARG(2,NG),NVSIZ
             OFFSET = NELEM - 1
             NSG   =IPARG(10,NG)
             NVC   =IPARG(19,NG)
-            CALL INITBUF (IPARG    ,NG      ,                      
+            CALL INITBUF(IPARG    ,NG      ,                      
      2         MTN     ,NEL     ,NFT     ,IAD     ,ITY     ,       
      3         NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,       
      4         JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,       
@@ -395,15 +413,15 @@ C--------
      7         ICSEN   ,ISORTH  ,ISORTHG ,IFAILURE,JSMS    )
             LFT=1
             LLT=MIN(NVSIZ,NEL-NELEM+1)
-            IF(ITY.EQ.51.AND.JTHE.NE.0) THEN
+            IF(ITY==51.AND.JTHE/=0) THEN
 C-----------------------------------------------
               CALL SPGRADT(
      1    X         ,MS        ,SPBUF     ,KXSP      ,IXSP      ,
      2    NOD2SP    ,ISPSYM    ,XSPSYM    ,WA        ,WASPH     ,
-     3    WT        ,WTR       ,WGRADT    )
+     3    SPH_WORK%WT,SPH_WORK%WTR,SPH_WORK%WGRADT , LFT, LLT, NFT)
 C-----------------------------------------------
             ENDIF
-            IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+            IF (IDDW>0) CALL STOPTIMEG(NG)
           END DO
          GOTO 60
 C-------
@@ -413,11 +431,11 @@ C       /---------------/
          CALL MY_BARRIER
 C       /---------------/
 C
-         IF(NSPMD.GT.1) THEN
-           IF(ITASK.EQ.0) THEN
-             CALL STARTIME(93,1)
-             CALL SPMD_SPHGETG(WGRADT,WASPH,WGR)
-             CALL STOPTIME(93,1)
+         IF(NSPMD>1) THEN
+           IF(ITASK==0) THEN
+             CALL STARTIME(TIMERS,93)
+             CALL SPMD_SPHGETG(SPH_WORK%WGRADT,WASPH,SPH_WORK%WGR,SPH_IORD1)
+             CALL STOPTIME(TIMERS,93)
            END IF
 C         /---------------/
            CALL MY_BARRIER
@@ -436,15 +454,17 @@ C       /---------------/
          CALL MY_BARRIER
 C       /---------------/
          IF(ITASK==0)
-     1    CALL SPGTSYM(ISPCOND ,XFRAME  ,ISPSYM ,XSPSYM  ,WGRADT  ,
-     2                 WGRADTSM,WASPACT ,WGR    )
+     1    CALL SPGTSYM(
+     1   ISPCOND, XFRAME,  ISPSYM,  XSPSYM,
+     2   SPH_WORK%WGRADT,  SPH_WORK%WGRADTSM,WASPACT, SPH_WORK%WGR,
+     3   LFT,     LLT,     NFT)
 C       /---------------/
          CALL MY_BARRIER
 C       /---------------/
 C
  70      CONTINUE
 #include "lockon.inc"
-         IF(NGDONE.GT.NGROUP) THEN
+         IF(NGDONE>NGROUP) THEN
 #include "lockoff.inc"
           GOTO 71
          ENDIF
@@ -452,13 +472,13 @@ C
          NGDONE = NG + 1
 #include "lockoff.inc"
 C--------
-          IF(IPARG(8,NG).EQ.1)GOTO 70
-          IF (IDDW.GT.0) CALL STARTIMEG(NG)
+          IF(IPARG(8,NG)==1)GOTO 70
+          IF (IDDW>0) CALL STARTIMEG(NG)
           DO NELEM = 1,IPARG(2,NG),NVSIZ
             OFFSET = NELEM - 1
             NSG   =IPARG(10,NG)
             NVC   =IPARG(19,NG)
-            CALL INITBUF (IPARG    ,NG      ,                      
+            CALL INITBUF(IPARG    ,NG      ,                      
      2         MTN     ,NEL     ,NFT     ,IAD     ,ITY     ,       
      3         NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,       
      4         JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,       
@@ -467,47 +487,47 @@ C--------
      7         ICSEN   ,ISORTH  ,ISORTHG ,IFAILURE,JSMS    )
             LFT=1
             LLT=MIN(NVSIZ,NEL-NELEM+1)
-            IF(ITY.EQ.51.AND.JTHE.EQ.1) THEN
+            IF(ITY==51.AND.JTHE==1) THEN
 C-----------------------------------------------
               CALL SPLAPLT(
      1    X         ,MS        ,SPBUF     ,KXSP      ,IXSP      ,
      2    NOD2SP    ,ISPSYM    ,XSPSYM    ,WA        ,WASPH     ,
-     3    WGRADT    ,WGR       ,WGRADTSM  ,WLAPLT ,WSMCOMP,
-     4    LAMBDA    ,LAMBDR    )
+     3    SPH_WORK%WGRADT    ,SPH_WORK%WGR       ,SPH_WORK%WGRADTSM  ,SPH_WORK%WLAPLT ,WSMCOMP,
+     4    SPH_WORK%LAMBDA    ,SPH_WORK%LAMBDR,   LFT, LLT, NFT   )
 C-----------------------------------------------
               GBUF => ELBUF_TAB(NG)%GBUF
               DO I=LFT,LLT
                 N=NFT+I
-                IF(KXSP(2,N).GT.0)THEN
+                IF(KXSP(2,N)>0)THEN
                   INOD =KXSP(3,N)
                   RHOI =SPBUF(2,N)
                   VI   =SPBUF(12,N)/MAX(EM20,RHOI)
                   GBUF%EINT(I) = GBUF%EINT(I)
-     .                         + VI*WLAPLT(N)*DT1/MAX(EM20,GBUF%VOL(I))
+     .                         + VI*SPH_WORK%WLAPLT(N)*DT1/MAX(EM20,GBUF%VOL(I))
                 END IF
               END DO
-            ELSEIF(ITY.EQ.51.AND.JTHE.EQ.-1)THEN
+            ELSEIF(ITY==51.AND.JTHE==-1)THEN
 C-----------------------------------------------
               CALL SPLAPLT(
      1    X         ,MS        ,SPBUF     ,KXSP      ,IXSP      ,
      2    NOD2SP    ,ISPSYM    ,XSPSYM    ,WA        ,WASPH     ,
-     3    WGRADT    ,WGR       ,WGRADTSM  ,WLAPLT ,WSMCOMP,
-     4    LAMBDA    ,LAMBDR    )
+     3    SPH_WORK%WGRADT    ,SPH_WORK%WGR       ,SPH_WORK%WGRADTSM  ,SPH_WORK%WLAPLT ,WSMCOMP,
+     4    SPH_WORK%LAMBDA    ,SPH_WORK%LAMBDR    ,LFT,LLT,NFT    )
 C-----------------------------------------------
               GBUF => ELBUF_TAB(NG)%GBUF
               DO I=LFT,LLT
                 N=NFT+I
-                IF(KXSP(2,N).GT.0)THEN
+                IF(KXSP(2,N)>0)THEN
                   MYADRN  =KWASPH*(N-1)
                   INOD =KXSP(3,N)
                   RHOI =SPBUF(2,N)
                   VI   =SPBUF(12,N)/MAX(EM20,RHOI)
-                  WA(MYADRN+15) = VI*WLAPLT(N)*DT1
+                  WA(MYADRN+15) = VI*SPH_WORK%WLAPLT(N)*DT1
                 END IF
               END DO
 C-----------------------------------------------
             ENDIF
-            IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+            IF (IDDW>0) CALL STOPTIMEG(NG)
           END DO
          GOTO 70
 C-------
@@ -517,7 +537,7 @@ C       /---------------/
          CALL MY_BARRIER
 C       /---------------/
 C
-         IF(ITASK==0) DEALLOCATE(WT, WGRADT, WLAPLT, LAMBDA, WGRADTSM)
+         IF(ITASK==0) DEALLOCATE(SPH_WORK%WT, SPH_WORK%WGRADT, SPH_WORK%WLAPLT, SPH_WORK%LAMBDA, SPH_WORK%WGRADTSM)
        
         END IF
 C-----------------------------------------------
@@ -531,7 +551,7 @@ C
 C-------
 100     CONTINUE
 #include "lockon.inc"
-        IF(NGDONE.GT.NGROUP) THEN
+        IF(NGDONE>NGROUP) THEN
 #include "lockoff.inc"
           GOTO 101
         ENDIF
@@ -539,8 +559,8 @@ C-------
         NGDONE = NG + 1
 #include "lockoff.inc"
 C--------
-          IF(IPARG(8,NG).EQ.1)GOTO 100
-          IF (IDDW.GT.0) CALL STARTIMEG(NG)
+          IF(IPARG(8,NG)==1)GOTO 100
+          IF (IDDW>0) CALL STARTIMEG(NG)
           DO NELEM = 1,IPARG(2,NG),NVSIZ
             OFFSET = NELEM - 1
             NEL   =IPARG(2,NG)
@@ -550,13 +570,13 @@ C--------
             LFT=1
             LLT=MIN(NVSIZ,NEL-NELEM+1)
             ISPH2SOL=IPARG(69,NG)
-            IF(ITY.EQ.51) THEN
+            IF(ITY==51) THEN
              CALL SPDENS(
      1    X         ,V         ,MS        ,SPBUF     ,ITAB      ,
      2    KXSP      ,IXSP      ,NOD2SP    ,ISPSYM    ,XSPSYM    ,
      3    VSPSYM    ,IPARG     ,WA        ,WASPH     )
             ENDIF
-            IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+            IF (IDDW>0) CALL STOPTIMEG(NG)
           END DO
         GOTO 100
  101    CONTINUE
@@ -565,24 +585,24 @@ C      /---------------/
         CALL MY_BARRIER
 C      /---------------/
 C
-        IF(ITASK.EQ.0)THEN
+        IF(ITASK==0)THEN
 C-------
 C-----------------------------------------------
 C       Inlets/outlets : Re-impose rho.
 C-----------------------------------------------
-          IF(NSPHIO.NE.0)THEN
-C Comm WA et WACOMP sur cellules remotes avant traitement part. sym.
-C on a besoin potentiellement de WA remote
-            IF(NSPMD.GT.1)THEN
-              CALL STARTIME(93,1)
-              CALL SPMD_SPHGETWA(WA,WAR2,KXSP)
-              CALL STOPTIME(93,1)
+          IF(NSPHIO/=0)THEN
+C Comm wa and wa comp on remote cells before treatment with.Sym.
+C we potentially need wa remote
+            IF(NSPMD>1)THEN
+              CALL STARTIME(TIMERS,93)
+              CALL SPMD_SPHGETWA(WA,SPH_WORK%WAR2,KXSP)
+              CALL STOPTIME(TIMERS,93)
             ENDIF
 
             CALL SPONFRO(X ,V        ,A       ,MS      ,
      2             SPBUF   ,ITAB    ,KXSP    ,IXSP    ,NOD2SP  ,
      3             ISPHIO  ,IPART   ,IPARTSP ,WASPACT ,WA      ,
-     4             WASPH(KVNORM), WAR2  )
+     4             WASPH(KVNORM), SPH_WORK%WAR2  )
 
           ENDIF 
         ENDIF
@@ -594,11 +614,11 @@ C      /---------------/
 C      /---------------/
 C
 C-----------------------------------------------
-C     Pression=f(densite) : lois materiaux.
+C     Pressure = F (Densite): Material laws.
 C-----------------------------------------------
 250     CONTINUE
 #include "lockon.inc"
-        IF(NGDONE.GT.NGROUP) THEN
+        IF(NGDONE>NGROUP) THEN
 #include "lockoff.inc"
           GOTO 251
         ENDIF
@@ -606,13 +626,13 @@ C-----------------------------------------------
         NGDONE = NG + 1
 #include "lockoff.inc"
 C--------
-          IF(IPARG(8,NG).EQ.1)GOTO 250
-          IF (IDDW.GT.0) CALL STARTIMEG(NG)
+          IF(IPARG(8,NG)==1)GOTO 250
+          IF (IDDW>0) CALL STARTIMEG(NG)
           DO NELEM = 1,IPARG(2,NG),NVSIZ
             OFFSET = NELEM - 1
             NSG   =IPARG(10,NG)
             NVC   =IPARG(19,NG)
-            CALL INITBUF (IPARG    ,NG      ,                      
+            CALL INITBUF(IPARG    ,NG      ,                      
      2         MTN     ,NEL     ,NFT     ,IAD     ,ITY     ,       
      3         NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,       
      4         JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,       
@@ -621,7 +641,7 @@ C--------
      7         ICSEN   ,ISORTH  ,ISORTHG ,IFAILURE,JSMS    )
             LFT=1
             LLT=MIN(NVSIZ,NEL-NELEM+1)
-            IF(ITY.EQ.51) THEN
+            IF(ITY==51) THEN
              JSPH=1
              JCVT=0
 C            full plasticity correction (radial return) by default.
@@ -631,22 +651,26 @@ C            full plasticity correction (radial return) by default.
              IEXPAN = IPARG(49,NG)
              IPARTSPH=0
 C-----------------------------------------------
-C            retourne SIG, STIF et SSP dans WA(1:8,1:NUMSPH).
+C            Returns GIS, STIF and SSP in WA (1: 8.1: NUMSPH).
 C            a ne pas ecraser avt SPFORC.
 C-----------------------------------------------
              NDSVOID=0
-             CALL SPSTRES(ELBUF_TAB,NG    ,
-     1    PM        ,GEO       ,X         ,V         ,MS        ,
-     2    W         ,SPBUF     ,WA        ,NLOC_DMG  ,
-     3    ITAB      ,PLD       ,BUFMAT    ,BUFGEO    ,PARTSAV   ,
-     4    FSAV      ,DT2T      ,IPARG     ,NPC       ,KXSP      ,
-     5    IXSP      ,NOD2SP    ,NELTST    ,ITYPTST   ,IPART     ,
-     6    IPARTSP   ,FV        ,NEL       ,IPM       ,GRESAV    ,
-     7    GRTH      ,IGRTH     ,TABLE     ,ISTRA     ,VOLN      ,
-     8    IGEO      ,IEXPAN    ,TEMP      ,ITASK     ,SPH2SOL   ,
-     9    MATPARAM_TAB,IBID)
+             CALL SPSTRES(TIMERS,ELBUF_TAB,NG    ,
+     1            PM        ,GEO       ,X         ,V         ,MS        ,
+     2            W         ,SPBUF     ,WA        ,NLOC_DMG  ,
+     3            ITAB      ,PLD       ,BUFMAT    ,BUFGEO    ,PARTSAV   ,
+     4            FSAV      ,DT2T      ,IPARG     ,NPC       ,KXSP      ,
+     5            IXSP      ,NOD2SP    ,NELTST    ,ITYPTST   ,IPART     ,
+     6            IPARTSP   ,FV        ,NEL       ,IPM       ,GRESAV    ,
+     7            GRTH      ,IGRTH     ,TABLE     ,ISTRA     ,VOLN      ,
+     8            IGEO      ,IEXPAN    ,TEMP      ,ITASK     ,SPH2SOL   ,
+     9            MAT_ELEM  ,IBID      ,OUTPUT    ,SNPC      ,STF       ,
+     A            SBUFMAT,   SVIS      ,NSVOIS    ,IDTMINS   ,IRESP,      
+     .            IDEL7NG,   IDEL7NOK  ,IDTMIN    ,MAXFUNC   ,LIPART1,
+     .            IMON_MAT,  USERL_AVAIL,impl_s,
+     V            idyna,     DT        ,GLOB_THERM,sensors)
             ENDIF
-            IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+            IF (IDDW>0) CALL STOPTIMEG(NG)
           END DO
         GOTO 250
 C-------
@@ -673,10 +697,10 @@ C-----------------------------------------------
 C       Stabilization (SPH without a tensile instability) :: W(Dp)
 C-----------------------------------------------
        IF(ITASK==0)THEN
-         ALLOCATE(STAB(7,NUMSPH+NSPHR+NSPHSYM+1),STAT=STAT)
+         ALLOCATE(SPH_WORK%STAB(7,NUMSPH+NSPHR+NSPHSYM+1),STAT=STAT)
          IF (STAT/=0)THEN
          END IF
-         STAB=ZERO
+         SPH_WORK%STAB=ZERO
        END IF
 C     /---------------/
        CALL MY_BARRIER
@@ -684,50 +708,50 @@ C     /---------------/
        CALL SPSTABW(
      1   ITASK     ,IPARG     ,NGROUNC   ,IGROUNC   ,KXSP      ,
      2   ISPCOND   ,ISPSYM    ,WASPACT   ,SPH2SOL   ,WA        ,
-     3   WASIGSM,WAR       ,STAB      ,IXSP      ,NOD2SP    ,
+     3   SPH_WORK%WASIGSM,SPH_WORK%WAR       ,SPH_WORK%STAB      ,IXSP      ,NOD2SP    ,
      4   SPBUF     ,X         ,IPART     ,IPARTSP   ,XSPSYM    )
 C
 C-------
 C
-C Comm WA et WACOMP sur cellules remotes avant traitement part. sym.
+C Comm wa and wa comp on remote cells before treatment with.Sym.
 C
-       IF(NSPMD.GT.1)THEN
+       IF(NSPMD>1)THEN
 C       /---------------/
          CALL MY_BARRIER
 C       /---------------/
-         IF(ITASK.EQ.0)THEN
-           CALL STARTIME(93,1)
-           CALL SPMD_SPHGETW(SPBUF,WASPH,WA,WAR)
-C a optimiser (1 seule comm)
-           CALL SPMD_SPHGETSTB(STAB,STAB(1,NUMSPH+1))
-           CALL STOPTIME(93,1)
+         IF(ITASK==0)THEN
+           CALL STARTIME(TIMERS,93)
+           CALL SPMD_SPHGETW(SPBUF,WASPH,WA,SPH_WORK%WAR,SPH_IORD1)
+C To optimize (1 comm)
+           CALL SPMD_SPHGETSTB(SPH_WORK%STAB,SPH_WORK%STAB(1,NUMSPH+1))
+           CALL STOPTIME(TIMERS,93)
          ENDIF
        END IF
 C-----------------------------------------------
 C        Outlets : Re-impose P,E.
 C-----------------------------------------------
-       IF(ITASK.EQ.0)THEN
-          IF(NSPHIO.NE.0)THEN
+       IF(ITASK==0)THEN
+          IF(NSPHIO/=0)THEN
             CALL SPONFPRS(X ,V        ,A       ,MS      ,
      2              SPBUF   ,ITAB     ,KXSP    ,IXSP    ,NOD2SP  ,
      3              ISPHIO  ,VSPHIO   ,NPC     ,PLD     ,PM      ,
      4              IPARG   ,ELBUF_TAB,IPART   ,IPARTSP ,WASPACT ,
-     5              WASPH(KVNORM),WA  ,SPHVELN ,WAR)
+     5              WASPH(KVNORM),WA  ,SPHVELN ,SPH_WORK%WAR, WFEXT)
 
 c on doit mettre a jour wa(1),wa(2),wa(3) suite a sponfprs
-            IF(NSPMD.GT.1) THEN
-              CALL STARTIME(93,1)
-              CALL SPMD_SPHGETW(SPBUF,WASPH,WA,WAR)
-              CALL STOPTIME(93,1)
+            IF(NSPMD>1) THEN
+              CALL STARTIME(TIMERS,93)
+              CALL SPMD_SPHGETW(SPBUF,WASPH,WA,SPH_WORK%WAR,SPH_IORD1)
+              CALL STOPTIME(TIMERS,93)
             ENDIF
           ENDIF 
        END IF
 C-----------------------------------------------
 C        PREPARE SYMMETRIC PARTICLES STRESSES.
 C-----------------------------------------------
-        IF(ITASK.EQ.0)THEN
+        IF(ITASK==0)THEN
           CALL SPSGSYM(ISPCOND ,XFRAME    ,ISPSYM ,XSPSYM  ,VSPSYM  ,
-     2                WA      ,WASIGSM,WASPACT,WAR     )
+     2                WA      ,SPH_WORK%WASIGSM,WASPACT,SPH_WORK%WAR )
         ENDIF
 C------
 C
@@ -744,20 +768,20 @@ C
 C-----------------------------------------------
 C        PREPARE KERNEL CORRECTIONS FOR SYMMETRIC PARTICLES.
 C-----------------------------------------------
-        IF(ITHERM.EQ.0)
+        IF (GLOB_THERM%ITHERM==0)
      .    CALL SPSCOMP(
      1      ISPSYM  ,WASPH   ,ISPCOND ,XFRAME  ,WSMCOMP,
      2      GEO     ,IPART   ,IPARTSP ,WASPACT ,ITASK         )
 C
 C-----------------------------------------------
-C       Assemblage des forces sur les particules.
+C       assembly of forces on the particles
 C-----------------------------------------------
 C      /---------------/
         CALL MY_BARRIER
 C      /---------------/
-C       initialisation sur task i
+C       initialization on task i
         DO NS=ITASK+1,NSPHACT,NTHREAD
-          N	  =WASPACT(NS)
+          N    =WASPACT(NS)
 C         (re)used for storage of FX, FY, FZ, STIF :
           MYADRN  =KWASPH*(N-1)
           WA(MYADRN+10)=ZERO
@@ -771,10 +795,10 @@ C-----------------------------------------------
         CALL SPSTABS(
      1    ITASK     ,IPARG     ,NGROUNC   ,IGROUNC   ,KXSP      ,
      2    ISPCOND   ,ISPSYM    ,WASPACT   ,SPH2SOL   ,WA        ,
-     3    WASIGSM,WAR       ,STAB      ,IXSP      ,NOD2SP    ,
+     3    SPH_WORK%WASIGSM,SPH_WORK%WAR   ,SPH_WORK%STAB ,IXSP      ,NOD2SP    ,
      4    SPBUF     ,X         )
 C
-C barriere sur WA & STAB obligatoire, WA & STAB partages
+C Barrier on WA & STAB compulsory, WA & STAB SHARING
         NGDONE = 1
 C      /---------------/
         CALL MY_BARRIER
@@ -782,7 +806,7 @@ C      /---------------/
 C-------
  350    CONTINUE
 #include "lockon.inc"
-          IF(NGDONE.GT.NGROUP) THEN
+          IF(NGDONE>NGROUP) THEN
 #include "lockoff.inc"
             GOTO 351
           ENDIF
@@ -791,8 +815,8 @@ C-------
 #include "lockoff.inc"
 C--------
 C Solids to SPH, particles must be computed when cloud active
-          IF(IPARG(8,NG).EQ.1)GOTO 350
-          IF (IDDW.GT.0) CALL STARTIMEG(NG)
+          IF(IPARG(8,NG)==1)GOTO 350
+          IF (IDDW>0) CALL STARTIMEG(NG)
           DO NELEM = 1,IPARG(2,NG),NVSIZ
             OFFSET = NELEM - 1
             NEL   =IPARG(2,NG)
@@ -803,7 +827,7 @@ C Solids to SPH, particles must be computed when cloud active
             IPARTSPH=0
             LFT=1
             LLT=MIN(NVSIZ,NEL-NELEM+1)
-            IF(ITY.EQ.51) THEN
+            IF(ITY==51) THEN
 C-----------
              CALL SPFORCP(
      1    PM        ,GEO        ,X         ,V         ,MS        ,
@@ -811,10 +835,10 @@ C-----------
      3    PARTSAV   ,FSAV       ,DT2T      ,IPARG     ,NPC       ,
      4    KXSP      ,IXSP       ,NOD2SP    ,NELTST    ,ITYPTST   ,
      5    IPART     ,IPARTSP    ,ISPCOND   ,XFRAME    ,ISPSYM    ,
-     6    XSPSYM    ,VSPSYM     ,WA        ,WASIGSM,WASPH     ,
-     7    WSMCOMP,WASPACT,WAR       ,STAB)
+     6    XSPSYM    ,VSPSYM     ,WA        ,SPH_WORK%WASIGSM,WASPH     ,
+     7    WSMCOMP,WASPACT,SPH_WORK%WAR     ,SPH_WORK%STAB, WFEXT)
             ENDIF
-            IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+            IF (IDDW>0) CALL STOPTIMEG(NG)
           END DO
           GOTO 350
 C--------
@@ -826,8 +850,8 @@ C      /---------------/
 C      /---------------/
 C--------
         IF(NSPHSOL==0)THEN
-          IF(ITHERM_FE > 0)THEN
-           IF(IPARIT.EQ.0)THEN
+          IF (GLOB_THERM%ITHERM_FE > 0)THEN
+           IF(IPARIT==0)THEN
              DO NS=ITASK+1,NSPHACT,NTHREAD
                N=WASPACT(NS)
                MYADRN  =KWASPH*(N-1)
@@ -850,10 +874,10 @@ C--------
                FTHESKYI(NISKY_L+NS)=WA(MYADRN+15)
                ISKY(NISKY_L+NS)   =INOD
              ENDDO
-             IF(ITASK.EQ.0) NISKY = NISKY + NSPHACT
+             IF(ITASK==0) NISKY = NISKY + NSPHACT
            ENDIF
           ELSE
-           IF(IPARIT.EQ.0)THEN
+           IF(IPARIT==0)THEN
              DO NS=ITASK+1,NSPHACT,NTHREAD
                N=WASPACT(NS)
                MYADRN  =KWASPH*(N-1)
@@ -874,11 +898,11 @@ C--------
                FSKYI(NISKY_L+NS,4)=WA(MYADRN+7)
                ISKY(NISKY_L+NS)   =INOD
              ENDDO
-             IF(ITASK.EQ.0) NISKY = NISKY + NSPHACT
+             IF(ITASK==0) NISKY = NISKY + NSPHACT
            ENDIF
           ENDIF
         ELSE
-         IF(IPARIT.EQ.0)THEN
+         IF(IPARIT==0)THEN
           DO NS=ITASK+1,NSPHACT,NTHREAD
             N=WASPACT(NS)
             MYADRN  =KWASPH*(N-1)
@@ -888,7 +912,7 @@ C--------
               A(2,INOD)=A(2,INOD)+WA(MYADRN+11)
               A(3,INOD)=A(3,INOD)+WA(MYADRN+12)
               STIFN(INOD)=STIFN(INOD)+WA(MYADRN+7)
-            ELSEIF (SOL2SPH_TYP(SPH2SOL(N)).EQ.4) THEN
+            ELSEIF (SOL2SPH_TYP(SPH2SOL(N))==4) THEN
 C---------------
 C------ Tetra -- 
 C---------------
@@ -1022,7 +1046,7 @@ C
               FSKYI(NISKY_L+NSKI,3)=WA(MYADRN+12)
               FSKYI(NISKY_L+NSKI,4)=WA(MYADRN+7)
               ISKY(NISKY_L+NSKI)   =INOD
-            ELSEIF (SOL2SPH_TYP(SPH2SOL(N)).EQ.4) THEN
+            ELSEIF (SOL2SPH_TYP(SPH2SOL(N))==4) THEN
 C---------------
 C------ Tetra -- 
 C---------------
@@ -1149,7 +1173,7 @@ C
          END IF
         END IF
 C--------
-C       pour travail des forces de visc. artificielle (par cellule).
+C       for artificial viscosity force work (per cell).
         DT05=HALF*DT1
         DO NS=ITASK+1,NSPHACT,NTHREAD
           N=WASPACT(NS)
@@ -1160,8 +1184,8 @@ C       SPH gauges
 C-----------------------------------------------
         CALL SPGAUGE(LGAUGE  ,GAUGE ,KXSP   ,IXSP  ,
      1               SPBUF   ,IPARG   ,ELBUF_TAB,ISPSYM ,XSPSYM,
-     2               NOD2SP  ,X       ,ITASK   ,WA      ,WASIGSM,
-     3               WAR     ,SPHG_F6)
+     2               NOD2SP  ,X       ,ITASK   ,WA      ,SPH_WORK%WASIGSM,
+     3               SPH_WORK%WAR     ,SPHG_F6)
 C----------------------------------
 C
         NGDONE = 1
@@ -1170,21 +1194,21 @@ C      /---------------/
         CALL MY_BARRIER
 C      /---------------/
 C
-C Deallocation SPMD a faire en memoire partagee
+C SPMD DEALLOGATION TO MAKE IN MEMORY SHARED
 C
-        IF(ITASK==0) DEALLOCATE(STAB, WASIGSM)
+        IF(ITASK==0) DEALLOCATE(SPH_WORK%STAB, SPH_WORK%WASIGSM)
         IF(ITASK==0 .AND. NSPMD > 1)THEN
-          DEALLOCATE(WAR, WTR, WGR, LAMBDR, WAR2)
+          DEALLOCATE(SPH_WORK%WAR, SPH_WORK%WTR, SPH_WORK%WGR, SPH_WORK%LAMBDR, SPH_WORK%WAR2)
         END IF
 C
 C--------
-        IF(NODADT.EQ.1.AND.
-     .     (IDTMIN(51).EQ.1
-     .     .OR.IDTMIN(51).EQ.2
-     .     .OR.IDTMIN(51).EQ.5))THEN
+        IF(NODADT==1.AND.
+     .     (IDTMIN(51)==1
+     .     .OR.IDTMIN(51)==2
+     .     .OR.IDTMIN(51)==5))THEN
 400       CONTINUE
 #include "lockon.inc"
-          IF(NGDONE.GT.NGROUP) THEN
+          IF(NGDONE>NGROUP) THEN
 #include "lockoff.inc"
             GOTO 401
           ENDIF
@@ -1192,11 +1216,11 @@ C--------
           NGDONE = NG + 1
 #include "lockoff.inc"
 C--------
-          IF(IPARG(8,NG).EQ.1)GOTO 400
-          IF (IDDW.GT.0) CALL STARTIMEG(NG)
+          IF(IPARG(8,NG)==1)GOTO 400
+          IF (IDDW>0) CALL STARTIMEG(NG)
           DO NELEM = 1,IPARG(2,NG),NVSIZ
             OFFSET = NELEM - 1
-            CALL INITBUF (IPARG    ,NG      ,                    
+            CALL INITBUF(IPARG    ,NG      ,                    
      2         MTN     ,NEL     ,NFT     ,KAD     ,ITY     ,     
      3         NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,     
      4         JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,     
@@ -1205,16 +1229,16 @@ C--------
      7         ICSEN   ,ISORTH  ,ISORTHG ,IFAILURE,JSMS    )
             LFT=1
             LLT=MIN(NVSIZ,NEL-NELEM+1)
-            IF(ITY.EQ.51) THEN
+            IF(ITY==51) THEN
               GBUF => ELBUF_TAB(NG)%GBUF
               DO 500 K=LFT,LLT
                 N=NFT+K
-                IF(KXSP(2,N).LE.0)GOTO 500
+                IF(KXSP(2,N)<=0)GOTO 500
                 INOD=KXSP(3,N)
                 ADRN=KWASPH*(N-1)+7
                 DTX =DTFAC1(51)*SQRT(TWO*MS(INOD)/MAX(EM20,WA(ADRN)))
-                IF(DTX.GT.DTMIN1(51)) GO TO 500
-                IF(IDTMIN(51).EQ.1)THEN
+                IF(DTX>DTMIN1(51)) GO TO 500
+                IF(IDTMIN(51)==1)THEN
                   TSTOP = TT
 #include "lockon.inc"
                   WRITE(IOUT,*)
@@ -1222,8 +1246,8 @@ C--------
                   WRITE(ISTDO,*)
      . ' **ERROR : TIME STEP LESS OR EQUAL DTMIN FOR SPH PARTICLE'
 #include "lockoff.inc"
-                ELSEIF(IDTMIN(51).EQ.2)THEN
-                  IF (GBUF%OFF(K).NE.ZERO)THEN
+                ELSEIF(IDTMIN(51)==2)THEN
+                  IF (GBUF%OFF(K)/=ZERO)THEN
                     GBUF%OFF(K) = ZERO
                     KXSP(2,N)    = 0
 #include "lockon.inc"
@@ -1235,7 +1259,7 @@ C--------
      . ' -- DELETE SPH PARTICLE',KXSP(NISP,N)
 #include "lockoff.inc"
                   END IF
-                ELSEIF(IDTMIN(51).EQ.5)THEN
+                ELSEIF(IDTMIN(51)==5)THEN
                   MSTOP=2
 #include "lockon.inc"
                   WRITE(IOUT,*)
@@ -1247,7 +1271,7 @@ C--------
  500          CONTINUE
             ENDIF
            END DO
-          IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+          IF (IDDW>0) CALL STOPTIMEG(NG)
           GOTO 400
 C--------
  401      CONTINUE
@@ -1260,8 +1284,8 @@ C        /---------------/
 C
         ENDIF
 C-----------------------------------------------
-C       distances de recherche variables 
-C       apres calcul des forces (optimisation cpu si CSPH).
+C       variable search distances
+C       After calculation of the forces (CPU optimization if CSPH).
 C-----------------------------------------------
         CALL SPADAH(
      1    X         ,V         ,MS        ,SPBUF     ,ITAB      ,

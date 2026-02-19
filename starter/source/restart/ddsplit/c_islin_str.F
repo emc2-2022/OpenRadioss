@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C_ISLIN_STR                   source/restart/ddsplit/c_islin_str.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c_islin_str    ../starter/source/restart/ddsplit/c_islin_str.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit        ../starter/source/restart/ddsplit/ddsplit.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE C_ISLIN_STR(IGRSLIN ,PROC, LENISLIN_L)
 C-----------------------------------------------
 C   M o d u l e s
@@ -40,8 +39,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -51,8 +48,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER ISU,I,J,K,NSEG,ELTYP,ELEM,
-     .        L_SLIN,ID,TYPE,LEVEL,TH_SURF,NSEG_R2R_ALL,
+      INTEGER ISU,J,K,NSEG,
+     .        L_SLIN,ID,TYPE,LEVEL,NSEG_R2R_ALL,
      .        NSEG_R2R_SHARE,P
 C-----------------------------------------------
 !
@@ -91,8 +88,8 @@ C-----------------------------------------------
             DO K=1,2
 !              NOD = IGRSLIN(ISU)%NODES(J,K)
 !              IF(NOD > 0)THEN;IGRSLIN_L(L_SLIN+1) = NODLOCAL(NOD)
-!	      ELSE;           IGRSLIN_L(L_SLIN+1) = 0
-!	      ENDIF
+!        ELSE;           IGRSLIN_L(L_SLIN+1) = 0
+!        ENDIF
               L_SLIN = L_SLIN+1
             ENDDO
 !            IGRSLIN_L(L_SLIN+1) = PROC

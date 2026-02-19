@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  TENSOR0                       source/output/anim/generate/tensor0.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_R4GET_PARTN              source/mpi/anim/spmd_r4get_partn.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    tensor0            ../engine/source/output/anim/generate/tensor0.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf            ../engine/share/resol/initbuf.F
+!||    spmd_r4get_partn   ../engine/source/mpi/anim/spmd_r4get_partn.F
+!||    write_r_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    initbuf_mod        ../engine/share/resol/initbuf.F
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE TENSOR0(ELBUF_TAB,IPARG   ,ITENS   ,PM      ,EL2FA   ,
      2                   NBF      ,TENS    ,EPSDOT           ,IADP    ,
      3                   NBPART   ,X       ,IADG    ,IPART   ,IPARTSP ,
@@ -39,7 +41,8 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD         
+      USE ELBUFDEF_MOD
+      USE MY_ALLOC_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,12 +51,9 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "mvsiz_p.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "scr01_c.inc"
 #include      "scr17_c.inc"
 #include      "task_c.inc"
 #include      "spmd_c.inc"
@@ -72,14 +72,15 @@ C     REAL
      .   G11,G22,G33,G12,G21,G23,G32,G13,G31,
      .   L11,L22,L33,L12,L21,L23,L32,L13,L31,
      .   S11,S22,S33,S12,S21,S23,S32,S13,S31
-      REAL R4(18),
-     .   WA(6*NBF)
+      REAL R4(18)
+      REAL,DIMENSION(:),ALLOCATABLE :: WA
 
-      INTEGER I,II, NG, NEL, IPT, MT1,IADD, N, J, MLW,
+      INTEGER I, NG, NEL, MT1, N, J, MLW,
      .        NN1,NN2,IPRT,BUF, ISTRAIN, NUVAR, NUVARR,JJ(6)
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
 C=======================================================================
+       CALL my_alloc(WA,6*NBF)
        DO 5 J=1,18
            R4(J) = ZERO
  5     CONTINUE
@@ -88,7 +89,7 @@ C
       NN2 = NN1 + (NUMSPH+MAXPJET)
 C
        DO 490 NG=1,NGROUP
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -116,7 +117,7 @@ C          STRESS
 C-----------------------------------------------
            DO I=LFT,LLT
              N  = I + NFT
-             IF(EL2FA(NN1+N).NE.0)THEN
+             IF(EL2FA(NN1+N)/=0)THEN
                TENS(1,EL2FA(NN1+N)) = GBUF%SIG(JJ(1) + I)
                TENS(2,EL2FA(NN1+N)) = GBUF%SIG(JJ(2) + I)
                TENS(3,EL2FA(NN1+N)) = GBUF%SIG(JJ(3) + I)
@@ -135,7 +136,7 @@ C-----------------------------------------------
                  N  = I + NFT
                  TENS(1,EL2FA(NN1+N)) =  LBUF%DGLO(JJ(1) + I)
                  TENS(2,EL2FA(NN1+N)) =  LBUF%DGLO(JJ(2) + I)
-                 TENS(3,EL2FA(NN1+N)) =  LBUF%DGLO(JJ(3) + I)			   
+                 TENS(3,EL2FA(NN1+N)) =  LBUF%DGLO(JJ(3) + I)         
                  TENS(4,EL2FA(NN1+N)) =  LBUF%DGLO(JJ(4) + I)
                  TENS(5,EL2FA(NN1+N)) =  LBUF%DGLO(JJ(5) + I)
                  TENS(6,EL2FA(NN1+N)) =  LBUF%DGLO(JJ(6) + I)
@@ -143,11 +144,11 @@ C-----------------------------------------------
             ELSE
               DO I=LFT,LLT                                              
                 N  = I + NFT
-                L11 = LBUF%DGLO(JJ(1) + I)	       
-                L21 = LBUF%DGLO(JJ(2) + I)	       
-                L31 = LBUF%DGLO(JJ(3) + I)	       
-                L12 = LBUF%DGLO(JJ(4) + I)	
-                L22 = LBUF%DGLO(JJ(5) + I)	
+                L11 = LBUF%DGLO(JJ(1) + I)         
+                L21 = LBUF%DGLO(JJ(2) + I)         
+                L31 = LBUF%DGLO(JJ(3) + I)         
+                L12 = LBUF%DGLO(JJ(4) + I)
+                L22 = LBUF%DGLO(JJ(5) + I)
                 L32 = LBUF%DGLO(JJ(6) + I)
                 L13 = L21*L32-L31*L22
                 L23 = L31*L12-L11*L32
@@ -187,7 +188,7 @@ C-----------------------------------------------
             ISTRAIN= IPARG(44,NG)    
             NUVAR  = IPM(8,MT1)
             NUVARR = IPM(221,MT1) 
-            IF (MLW.GE.28.AND.MLW.NE.49)THEN
+            IF (MLW>=28.AND.MLW/=49)THEN
               DO I=LFT,LLT
                N = I + NFT
                TENS(1,EL2FA(NN1+N)) =  LBUF%STRA(JJ(1) + I)
@@ -202,7 +203,7 @@ C-----------------------------------------------
                N = I + NFT                                    
                TENS(1,EL2FA(NN1+N)) = LBUF%EPE(JJ(1) + I)
                TENS(2,EL2FA(NN1+N)) = LBUF%EPE(JJ(2) + I)
-               TENS(3,EL2FA(NN1+N)) = LBUF%EPE(JJ(3) + I)	  
+               TENS(3,EL2FA(NN1+N)) = LBUF%EPE(JJ(3) + I)    
                TENS(4,EL2FA(NN1+N)) =  ZERO
                TENS(5,EL2FA(NN1+N)) =  ZERO
                TENS(6,EL2FA(NN1+N)) =  ZERO
@@ -212,19 +213,19 @@ C-----------------------------------------------
                N  = I + NFT                                    
                TENS(1,EL2FA(NN1+N)) = LBUF%STRA(JJ(1) + I)
                TENS(2,EL2FA(NN1+N)) = LBUF%STRA(JJ(2) + I)
-               TENS(3,EL2FA(NN1+N)) = LBUF%STRA(JJ(3) + I)			
+               TENS(3,EL2FA(NN1+N)) = LBUF%STRA(JJ(3) + I)
                TENS(4,EL2FA(NN1+N)) = LBUF%STRA(JJ(4) + I)*HALF
                TENS(5,EL2FA(NN1+N)) = LBUF%STRA(JJ(5) + I)*HALF
                TENS(6,EL2FA(NN1+N)) = LBUF%STRA(JJ(6) + I)*HALF   
               ENDDO
             ELSEIF(ISTRAIN == 1)THEN
-              IF(MLW.NE.14.AND.MLW.NE.24.AND.MLW.LT.28.OR.
+              IF(MLW/=14.AND.MLW/=24.AND.MLW<28.OR.
      .            MLW == 49)THEN               
                 DO I=LFT,LLT
                   N  = I + NFT  
                   TENS(1,EL2FA(NN1+N)) = LBUF%STRA(JJ(1) + I)
-                  TENS(2,EL2FA(NN1+N)) = LBUF%STRA(JJ(2) + I)	       
-                  TENS(3,EL2FA(NN1+N)) = LBUF%STRA(JJ(3) + I)			  
+                  TENS(2,EL2FA(NN1+N)) = LBUF%STRA(JJ(2) + I)         
+                  TENS(3,EL2FA(NN1+N)) = LBUF%STRA(JJ(3) + I)        
                   TENS(4,EL2FA(NN1+N)) = LBUF%STRA(JJ(4) + I)*HALF   
                   TENS(5,EL2FA(NN1+N)) = LBUF%STRA(JJ(5) + I)*HALF   
                   TENS(6,EL2FA(NN1+N)) = LBUF%STRA(JJ(6) + I)*HALF   
@@ -249,7 +250,7 @@ C-----------------------------------------------
                N  = I + NFT                                    
                TENS(1,EL2FA(NN1+N)) = LBUF%PLA(JJ(1) + I + NEL)
                TENS(2,EL2FA(NN1+N)) = LBUF%PLA(JJ(2) + I + NEL)
-               TENS(3,EL2FA(NN1+N)) = LBUF%PLA(JJ(3) + I + NEL)			
+               TENS(3,EL2FA(NN1+N)) = LBUF%PLA(JJ(3) + I + NEL)
                TENS(4,EL2FA(NN1+N)) = LBUF%PLA(JJ(4) + I + NEL)*HALF
                TENS(5,EL2FA(NN1+N)) = LBUF%PLA(JJ(5) + I + NEL)*HALF
                TENS(6,EL2FA(NN1+N)) = LBUF%PLA(JJ(6) + I + NEL)*HALF   
@@ -262,7 +263,7 @@ C
 C-----------------------------------------------
            DO I=LFT,LLT
              N = I + NFT
-             IF(EL2FA(NN1+N).NE.0)THEN
+             IF(EL2FA(NN1+N)/=0)THEN
                TENS(1,EL2FA(NN1+N)) = ZERO
                TENS(2,EL2FA(NN1+N)) = ZERO
                TENS(3,EL2FA(NN1+N)) = ZERO
@@ -309,5 +310,6 @@ C
 C-------------
  600  CONTINUE
 C-------------
+      DEALLOCATE(WA)
       RETURN
       END

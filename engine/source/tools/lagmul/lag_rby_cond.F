@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LAG_RBY_COND                  source/tools/lagmul/lag_rby_cond.F
-Chd|-- called by -----------
-Chd|        LAG_RBY                       source/tools/lagmul/lag_rby.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lag_rby_cond   ../engine/source/tools/lagmul/lag_rby_cond.F
+!||--- called by ------------------------------------------------------
+!||    lag_rby        ../engine/source/tools/lagmul/lag_rby.F
+!||====================================================================
       SUBROUTINE LAG_RBY_COND(NPBYL  ,LPBYL ,RBYL   ,MASS   ,INER   ,
      2                        X      ,V     ,VR     ,A      ,AR     ,
      3                        IADLL  ,LLL   ,COMNTAG,NN     ,NC     )
@@ -37,7 +36,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -51,12 +49,11 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,IC,IK,N,NS,MSL,MSL2,M,IFX,IFR,NFIX,NFRE
+      INTEGER I, J, N, NS, MSL, MSL2, IFX, IFR, NFIX, NFRE
       my_real XX,YY,ZZ,XY,YZ,XZ,IXX,IYY,IZZ,IXY,IXZ,IYZ,
      .        JXX,JYY,JZZ,JXY,JXZ,JYZ,JXY2,JXZ2,JYZ2,DET,
-     .        B1,B2,B3,C1,C2,C3,VX1,VX2,VX3,WA1,WA2,WA3,MMAS,USDT,DDT,
-     .        VI(3),VG(3),AG(3),XM(3),VTM(3),VRM(3),ATM(3),ARM(3),
-     .        XROT(9),IPR(3)
+     . B1,B2,B3,C1,C2,C3,VX1,VX2,VX3,MMAS,USDT,DDT,
+     . VG(3),AG(3),XM(3),VTM(3),VRM(3),ATM(3),ARM(3)
 C======================================================================|
       MSL = NPBYL(2,NN)
       MSL2= MSL*2 
@@ -66,7 +63,7 @@ C======================================================================|
       IFR = 0
 C---  main
       NS = LPBYL(MSL)
-      IF (COMNTAG(NS).EQ.1) THEN
+      IF (COMNTAG(NS)==1) THEN
         NFIX = NFIX + 1
         LPBYL(MSL+NFIX)  = NS
       ELSE
@@ -76,7 +73,7 @@ C---  main
 C---  and secnds
       DO N=1,MSL-1
         NS = LPBYL(N)
-        IF (COMNTAG(NS).EQ.1) THEN
+        IF (COMNTAG(NS)==1) THEN
           NFIX = NFIX + 1
           LPBYL(MSL+NFIX)  = NS
         ELSE
@@ -84,9 +81,9 @@ C---  and secnds
           LPBYL(MSL2+NFRE) = NS
         ENDIF
       ENDDO
-      IF (NFIX.LE.1) NFIX = 0
+      IF (NFIX<=1) NFIX = 0
 C--------------------------------------
-      IF (NFIX.NE.0) THEN
+      IF (NFIX/=0) THEN
         IFX  = LPBYL(MSL+1)
         JXX  = ZERO
         JYY  = ZERO
@@ -188,8 +185,8 @@ C
         ARM(2)= AG(1)*C3 + AG(2)*B2 + AG(3)*C1
         ARM(3)= AG(1)*C2 + AG(2)*C1 + AG(3)*B3        
 C-----------------------------        
-        IF (NFRE.EQ.0) THEN
-C---      Total condensation => direct solution + decondensation
+        IF (NFRE==0) THEN
+C--- Total condensation => Direct solution + decondensation
           USDT = ONE / DT12
           DDT  = HALF * DT12
           DO J=1,3
@@ -266,16 +263,17 @@ C
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_DECOND                    source/tools/lagmul/lag_rby_cond.F
-Chd|-- called by -----------
-Chd|        LAG_MULT                      source/tools/lagmul/lag_mult.F
-Chd|        LAG_MULTP                     source/tools/lagmul/lag_mult.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    rby_decond    ../engine/source/tools/lagmul/lag_rby_cond.F
+!||--- called by ------------------------------------------------------
+!||    lag_mult      ../engine/source/tools/lagmul/lag_mult.F
+!||    lag_multp     ../engine/source/tools/lagmul/lag_mult.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE RBY_DECOND(X      ,V     ,VR     ,A      ,AR     ,
      2                      IADLL  ,LLL   ,JLL    ,XLL    ,LAMBDA ,
      3                      MASS   ,INER  ,RBYL   ,NPBYL  ,LPBYL  ,
@@ -293,16 +291,9 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "lagmult.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "units_c.inc"
 
 
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -315,7 +306,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,JF,IC,IK,IR,IFX,IFR,N,NS,NFIX,NFRE,MSL,TNSL
+      INTEGER I, J, K, IC, IK, IR, IFX, N, NS, NFIX, NFRE, MSL, TNSL
       my_real 
      .  XX,YY,ZZ,VX1,VX2,VX3,USDT,DDT,XM(3),VTM(3),VRM(3),ATM(3),ARM(3)
 C======================================================================|
@@ -328,7 +319,7 @@ C======================================================================|
         IFX  = NPBYL(7,IR)
         NFIX = NPBYL(4,IR)
         NFRE = NPBYL(5,IR)
-        IF (NFIX.GT.0.AND.NFRE.GT.0) THEN
+        IF (NFIX>0.AND.NFRE>0) THEN
 C---      calculate acceleration of condensed node: a = ao + [M]-1[L]t la
           DO K = 1,3
             IC = IC + 1
@@ -336,20 +327,20 @@ C---      calculate acceleration of condensed node: a = ao + [M]-1[L]t la
               I = LLL(IK)
               J = JLL(IK)
               XLL(IK) = XLL(IK)*LAMBDA(IC)
-              IF (J.LE.3) THEN
+              IF (J<=3) THEN
 c                A(J,I)  = A(J,I)  - XLL(IK)/MASS(I)
                 CALL ANCMSG(MSGID=117,ANMODE=ANINFO,
      .                    I1=I) 
                 CALL ARRET(2)
-              ELSEIF(I.NE.IFX) THEN
+              ELSEIF(I/=IFX) THEN
                 J = J-3
                 AR(J,I) = AR(J,I) - XLL(IK)/INER(I)
-              ELSEIF (XLL(IK).NE.0.) THEN
-                IF(J.EQ.4) THEN
+              ELSEIF (XLL(IK)/=0.) THEN
+                IF(J==4) THEN
                   AR(1,IFX) = AR(1,IFX) - XLL(IK)*RBYL(1,IR)
                   AR(2,IFX) = AR(2,IFX) - XLL(IK)*RBYL(6,IR)
                   AR(3,IFX) = AR(3,IFX) - XLL(IK)*RBYL(5,IR)
-                ELSEIF(J.EQ.5) THEN
+                ELSEIF(J==5) THEN
                   AR(1,IFX) = AR(1,IFX) - XLL(IK)*RBYL(6,IR)
                   AR(2,IFX) = AR(2,IFX) - XLL(IK)*RBYL(2,IR)
                   AR(3,IFX) = AR(3,IFX) - XLL(IK)*RBYL(4,IR)
@@ -390,11 +381,11 @@ c
             VX1 = VRM(2)*ZZ - VRM(3)*YY
             VX2 = VRM(3)*XX - VRM(1)*ZZ
             VX3 = VRM(1)*YY - VRM(2)*XX
-c             pas de second ordre
+c             no second order
 c            A(1,NS) = ATM(1) + USDT*(VTM(1) + VX1 - V(1,NS))
 c            A(2,NS) = ATM(2) + USDT*(VTM(2) + VX2 - V(2,NS))
 c            A(3,NS) = ATM(3) + USDT*(VTM(3) + VX3 - V(3,NS))
-c             calcul du second ordre
+c             second order calculation
             A(1,NS) = ATM(1) + USDT*
      .                (VTM(1)-V(1,NS)+VX1+DDT*(VRM(2)*VX3-VRM(3)*VX2))
             A(2,NS) = ATM(2) + USDT*

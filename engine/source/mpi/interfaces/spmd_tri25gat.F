@@ -1,20 +1,43 @@
-Chd|====================================================================
-Chd|  SPMD_TRI25GAT                 source/mpi/interfaces/spmd_tri25gat.F
-Chd|-- called by -----------
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>        OpenRadioss
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
+Copyright>        This program is free software: you can redistribute it and/or modify
+Copyright>        it under the terms of the GNU Affero General Public License as published by
+Copyright>        the Free Software Foundation, either version 3 of the License, or
+Copyright>        (at your option) any later version.
+Copyright>
+Copyright>        This program is distributed in the hope that it will be useful,
+Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
+Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+Copyright>        GNU Affero General Public License for more details.
+Copyright>
+Copyright>        You should have received a copy of the GNU Affero General Public License
+Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_tri25gat   ../engine/source/mpi/interfaces/spmd_tri25gat.F
+!||--- called by ------------------------------------------------------
+!||    i25main_tri     ../engine/source/interfaces/intsort/i25main_tri.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../engine/source/output/message/message.F
+!||    arret           ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod         ../engine/share/modules/h3d_mod.F
+!||    message_mod     ../engine/share/message_module/message_mod.F
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_TRI25GAT(RESULT,NSN ,CAND_N ,I_STOK,NIN,
      2                        IGAP  ,NSNR,MULTIMP,ITY,INTTH ,
      3                        ILEV  ,NSNFIOLD,IPARI,NSNROLD ,
      4                        RENUM ,H3D_DATA,INTFRIC,FLAGREMN,
      5                        LREMNORMAX,NRTM,KREMNOD,REMNOD,
-     6                        IVIS2)
+     6                        IVIS2,ISTIF_MSDT,IFSUB_CAREA,NODADT_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -25,13 +48,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -39,7 +55,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "scr18_c.inc"
@@ -56,16 +71,18 @@ C-----------------------------------------------
      .        NSNFIOLD(*), IPARI(NPARI,NINTER), NSNROLD, RENUM(*),
      .        KREMNOD(*), REMNOD(*)
       TYPE(H3D_DATABASE) :: H3D_DATA
+      INTEGER , INTENT(IN) :: ISTIF_MSDT, IFSUB_CAREA
+      INTEGER , INTENT(IN) :: NODADT_THERM
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
       INTEGER OLDNSNR,NODFI,NNP,LSKYFI,
-     .        NOD, LOC_PROC, I, N, NN, P, IDEB, J, K, NI,
+     .         LOC_PROC, I, N, NN, P, IDEB, J, NI,
      .        IERROR1,IERROR2,IERROR3,IERROR4,IERROR5,IERROR6,IERROR7,
      .        IERROR8,IERROR9,IERROR0,IERROR11,IERROR12,
      .        IERROR13,IERROR14,IERROR15,IERROR16,IERROR17,IERROR18,IERROR19,IERROR20,
-     .        IERROR21,INDEX(NSNR),NN2,RSHIFT,ISHIFT, IOLDNSNFI, ND, JDEB, NSNR_OLD, Q,
+     .        IERROR21,INDEX(NSNR),NN2,RSHIFT,ISHIFT, IOLDNSNFI, JDEB, NSNR_OLD, Q,
      .        KK ,SIZREMNORFI, NE, KI, KM, LL
 
       INTEGER, DIMENSION(:), ALLOCATABLE :: IAUX, IFFI_ADH
@@ -87,32 +104,34 @@ C
       IF(.NOT.(ALLOCATED(CURRENT_NODFI))) ALLOCATE(CURRENT_NODFI(NINTER))
 
 
-      IF(RESULT.EQ.0) THEN
+      IF(RESULT==0) THEN
 C
-C Reperage des candidats
+C identification of candidates
 C
         DO NI = 1, NSNROLD
-C         STIFI a ete mis a jour dans SPMD_GET_STIF !
+C         STIFI has been updated in SPMD_Get_Stif!
 C         STIFI was not set at time=0 (not read from restart)
-          IF((TT==ZERO.OR.STIFI(NIN)%P(NI).GT.ZERO).AND.IRTLM_FI(NIN)%P(4,NI)==LOC_PROC)THEN
+          IF((TT==ZERO.OR.STIFI(NIN)%P(NI)>ZERO).AND.IRTLM_FI(NIN)%P(4,NI)==LOC_PROC)THEN
             NODFI = NODFI + 1
             NN = RENUM(NI)
-            IREM(1,NN) = -IREM(1,NN)
+            IF( NN >0)THEN
+              IREM(1,NN) = -IREM(1,NN)
+            ENDIF
           END IF
         END DO
 C
         DO I = 1, I_STOK
           N = CAND_N(I)
           NN = N-NSN
-          IF(NN.GT.0)THEN
-            IF(IREM(1,NN).GT.0)THEN
+          IF(NN>0)THEN
+            IF(IREM(1,NN)>0)THEN
               NODFI = NODFI + 1
               IREM(1,NN) = -IREM(1,NN)
             ENDIF
           ENDIF
         ENDDO
 C
-C Allocation des tableaux de frontieres interfaces
+C allocation of interface boundary arrays
 C
         IERROR1 = 0
         IERROR2 = 0
@@ -157,8 +176,8 @@ C
         ALLOCATE(STIFI(NIN)%P(NODFI),STAT=IERROR5)
         IF(ASSOCIATED(ITAFI(NIN)%P)) DEALLOCATE(ITAFI(NIN)%P)
         ALLOCATE(ITAFI(NIN)%P(NODFI),STAT=IERROR6)
-        IF(ITY.EQ.7.OR.ITY.EQ.22.OR.ITY.EQ.23.OR.ITY.EQ.24.OR.
-     +     ITY.EQ.25) THEN
+        IF(ITY==7.OR.ITY==22.OR.ITY==23.OR.ITY==24.OR.
+     +     ITY==25) THEN
           IF(ASSOCIATED(KINFI(NIN)%P)) DEALLOCATE(KINFI(NIN)%P)
           ALLOCATE(KINFI(NIN)%P(NODFI),STAT=IERROR8)
           IF(INTTH > 0 ) THEN
@@ -188,13 +207,21 @@ c IF_ADHFI allocation is done later once NSNR_OLD is calculated
          IF(ASSOCIATED(PROCAMSFI(NIN)%P)) DEALLOCATE(PROCAMSFI(NIN)%P)
          ALLOCATE(PROCAMSFI(NIN)%P(NODFI),STAT=IERROR14)
         ENDIF
-        IF(IGAP.NE.0) THEN
+        IF(IGAP/=0) THEN
           IF(ASSOCIATED(GAPFI(NIN)%P)) DEALLOCATE(GAPFI(NIN)%P)
           ALLOCATE(GAPFI(NIN)%P(NODFI),STAT=IERROR7)
-          IF(IGAP.EQ.3) THEN
+          IF(IGAP==3) THEN
             IF(ASSOCIATED(GAP_LFI(NIN)%P)) DEALLOCATE(GAP_LFI(NIN)%P)
             ALLOCATE(GAP_LFI(NIN)%P(NODFI),STAT=IERROR7)
           ENDIF
+        ENDIF
+        IF(ISTIF_MSDT > 0) THEN
+           IF(ASSOCIATED(STIF_MSDT_FI(NIN)%P))DEALLOCATE(STIF_MSDT_FI(NIN)%P)
+           ALLOCATE(STIF_MSDT_FI(NIN)%P(NODFI),STAT=IERROR7)        
+        ENDIF
+        IF(IFSUB_CAREA > 0) THEN
+           IF(ASSOCIATED(INTAREANFI(NIN)%P))DEALLOCATE(INTAREANFI(NIN)%P)
+           ALLOCATE(INTAREANFI(NIN)%P(NODFI),STAT=IERROR7)        
         ENDIF
 C
         NSNR_OLD=IPARI(24,NIN)
@@ -207,7 +234,7 @@ C
 
 C create a temporary array IFFI_ADH to copy old values
 
-        IF(ITY.EQ.25.AND.IVIS2==-1.AND.INTTH==0) THEN
+        IF(ITY==25.AND.IVIS2==-1) THEN
           ALLOCATE(IFFI_ADH(NSNR_OLD), STAT=IERROR16)
           IFFI_ADH(1:NSNR_OLD) = 0
         ENDIF
@@ -240,7 +267,7 @@ C
         ALLOCATE(STIF_OLDFI(NIN)%P(2,NODFI),STAT=IERROR16)
 C
 C copy old values of if_adh
-        IF(IVIS2==-1.AND.INTTH==0) THEN
+        IF(IVIS2==-1) THEN
           IF(ASSOCIATED(IF_ADHFI(NIN)%P)) THEN
               IFFI_ADH(1:NSNR_OLD)=IF_ADHFI(NIN)%P(1:NSNR_OLD)
               DEALLOCATE(IF_ADHFI(NIN)%P)
@@ -277,7 +304,7 @@ C
         IF(IERROR1+IERROR2+IERROR3+IERROR4+IERROR5+
      +     IERROR6+IERROR7+IERROR8 + IERROR9 + IERROR0 +
      +     IERROR11+IERROR12+IERROR13+IERROR14+IERROR15+
-     +     IERROR16+IERROR17+IERROR18+IERROR19.NE. 0) THEN
+     +     IERROR16+IERROR17+IERROR18+IERROR19/= 0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
         ENDIF
@@ -287,11 +314,11 @@ C
         STIF_OLDFI(NIN)%P(1:2,1:NODFI)=ZERO
 C
 C reset FI
-        IF(IVIS2==-1.AND.INTTH==0) IF_ADHFI(NIN)%P(1:NODFI) = 0
+        IF(IVIS2==-1) IF_ADHFI(NIN)%P(1:NODFI) = 0
 C
         IF(FLAGREMN == 2 ) THEN
            ALLOCATE(REMNOR_FI_TMP(NODFI*LREMNORMAX),STAT=IERROR20)
-           IF(IERROR20.NE. 0) THEN
+           IF(IERROR20/= 0) THEN
              CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
              CALL ARRET(2)
            ENDIF
@@ -307,15 +334,15 @@ C
         DO P = 1, NSPMD
           NN = 0
           OLDNSNR = NSNFI(NIN)%P(P)
-          IF(OLDNSNR.NE.0) THEN
+          IF(OLDNSNR/=0) THEN
             ALLOCATE(IAUX(OLDNSNR),STAT=IERROR17)
-            IF(IERROR17.NE.0) THEN
+            IF(IERROR17/=0) THEN
               CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
             NNP = NN2
             DO I = 1, OLDNSNR
-              IF(IREM(1,I+IDEB).LT.0) THEN
+              IF(IREM(1,I+IDEB)<0) THEN
                 NN = NN + 1
                 IAUX(NN) = I
               ENDIF
@@ -360,7 +387,7 @@ c shift for integer variables (prepare for next setting)
             ENDIF
 
 c IGAP=1 or IGAP=2
-            IF(IGAP.EQ.1 .OR. IGAP.EQ.2)THEN
+            IF(IGAP==1 .OR. IGAP==2.OR. IGAP==5)THEN
 #include      "vectorize.inc"
               DO J = 1, NN
                 I = IAUX(J)
@@ -368,7 +395,7 @@ c IGAP=1 or IGAP=2
               ENDDO
               RSHIFT = RSHIFT + 1
 c IGAP=3
-            ELSEIF(IGAP.EQ.3)THEN
+            ELSEIF(IGAP==3)THEN
 #include      "vectorize.inc"
               DO J = 1, NN
                 I = IAUX(J)
@@ -379,7 +406,7 @@ c IGAP=3
             ENDIF
 
 C thermic
-            IF(INTTH.GT.0)THEN
+            IF(INTTH>0)THEN
 #include      "vectorize.inc"
               DO J = 1, NN
                 I = IAUX(J)
@@ -391,7 +418,7 @@ C thermic
               ISHIFT = ISHIFT + 1
             ENDIF
 C Interface Adhesion
-            IF(IVIS2==-1.AND.INTTH==0)THEN
+            IF(IVIS2==-1)THEN
               JDEB = 0
               DO Q=1,P-1
                 JDEB = JDEB + NSNFIOLD(Q)
@@ -400,7 +427,7 @@ C Interface Adhesion
 #include      "vectorize.inc"
                 DO J = 1, NN
                   I = IAUX(J)
-                  AREASFI(NIN)%P(NN2+J) = XREM(RSHIFT,I+IDEB)
+                  IF(INTTH==0) AREASFI(NIN)%P(NN2+J) = XREM(RSHIFT,I+IDEB)
                   IF_ADHFI(NIN)%P(NN2+J) = IREM(ISHIFT,I+IDEB)
                   IOLDNSNFI = IREM(ISHIFT+1,I+IDEB)
                 ENDDO
@@ -408,7 +435,7 @@ C Interface Adhesion
 #include      "vectorize.inc"
                 DO J = 1, NN
                   I = IAUX(J)
-                  AREASFI(NIN)%P(NN2+J) = XREM(RSHIFT,I+IDEB)
+                   IF(INTTH==0) AREASFI(NIN)%P(NN2+J) = XREM(RSHIFT,I+IDEB)
                   IOLDNSNFI = IREM(ISHIFT+1,I+IDEB)
                   IF(IOLDNSNFI /= 0)THEN
                     IF_ADHFI(NIN)%P(NN2+J)=IFFI_ADH(IOLDNSNFI+JDEB)
@@ -417,12 +444,12 @@ C Interface Adhesion
                   ENDIF
                 ENDDO
               ENDIF
-              RSHIFT = RSHIFT + 1
+               IF(INTTH==0) RSHIFT = RSHIFT + 1
               ISHIFT = ISHIFT + 2
             ENDIF
 
 C Friction model
-          IF(INTFRIC.GT.0)THEN
+          IF(INTFRIC>0)THEN
 #include      "vectorize.inc"
             DO J = 1, NN
               I = IAUX(J)
@@ -430,8 +457,31 @@ C Friction model
             ENDDO
             ISHIFT = ISHIFT + 1
           ENDIF
+
+C Stif based on mass and dt
+
+          IF(ISTIF_MSDT > 0) THEN
+#include      "vectorize.inc"                    
+             DO J = 1, NN
+                I = IAUX(J)
+                STIF_MSDT_FI(NIN)%P(NN2+J) = XREM(RSHIFT,I+IDEB)
+             ENDDO
+               RSHIFT = RSHIFT + 1
+          ENDIF
+
+C CAREA output in case of NISUB
+
+          IF(IFSUB_CAREA > 0) THEN
+#include      "vectorize.inc"                    
+             DO J = 1, NN
+                I = IAUX(J)
+                INTAREANFI(NIN)%P(NN2+J) = XREM(RSHIFT,I+IDEB)
+             ENDDO
+               RSHIFT = RSHIFT + 1
+          ENDIF
+
 C -- IDTMINS==2
-          IF(IDTMINS.EQ.2)THEN
+          IF(IDTMINS==2)THEN
 #include      "vectorize.inc"
               DO J = 1, NN
                 I = IAUX(J)
@@ -441,7 +491,7 @@ C -- IDTMINS==2
               ENDDO
               ISHIFT = ISHIFT + 2
 C -- IDTMINS_INT /= 0
-            ELSEIF(IDTMINS_INT.NE.0)THEN
+            ELSEIF(IDTMINS_INT/=0)THEN
 #include      "vectorize.inc"
               DO J = 1, NN
                 I = IAUX(J)
@@ -533,7 +583,7 @@ C -- IDTMINS_INT /= 0
             NSNFI(NIN)%P(P) = NN2-NNP
             DEALLOCATE(IAUX)
 
-          ENDIF !IF(OLDNSNR.NE.0)
+          ENDIF !IF(OLDNSNR/=0)
 
         ENDDO  ! end do NSPMD
         LSKYFI = NN2*MULTIMAX
@@ -568,7 +618,7 @@ C-------------------------------------------------------------------------------
          SIZREMNORFI = KREMNOR_FI(NIN)%P(NODFI+1)
          ALLOCATE(REMNOR_FI(NIN)%P(SIZREMNORFI),STAT=IERROR21)
          IF(SIZREMNORFI /= 0) THEN
-           IF(IERROR21.NE. 0) THEN
+           IF(IERROR21/= 0) THEN
              CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
              CALL ARRET(2)
            ENDIF
@@ -583,7 +633,7 @@ C-------------------------------------------------------------------------------
       IF(ALLOCATED(XREM)) DEALLOCATE(XREM)
       IF(ALLOCATED(IREM)) DEALLOCATE(IREM)
 
-      IF(ITY.EQ.25)THEN
+      IF(ITY==25)THEN
         DEALLOCATE(SECND_FRFI_OLD,PENEFI_OLD,STIFFI_OLD)
         IF(IVIS2==-1) DEALLOCATE(IFFI_ADH)
       END IF
@@ -597,7 +647,7 @@ C
 C
 C Allocation Parith/OFF
 C
-        IF(IPARIT.EQ.0) THEN
+        IF(IPARIT==0) THEN
 
           IF(ASSOCIATED(AFI(NIN)%P)) THEN
               DEALLOCATE(AFI(NIN)%P)
@@ -608,8 +658,8 @@ C
               NULLIFY(AFI(NIN)%P)
           ENDIF
 
-          IF(NODFI.GT.0)ALLOCATE(AFI(NIN)%P(3,NODFI*NTHREAD),STAT=IERROR1)
-          IF(NODFI.GT.0)ALLOCATE(STNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR2)
+          IF(NODFI>0)ALLOCATE(AFI(NIN)%P(3,NODFI*NTHREAD),STAT=IERROR1)
+          IF(NODFI>0)ALLOCATE(STNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR2)
 C Init a 0
           DO I = 1, NODFI*NTHREAD
             AFI(NIN)%P(1,I) = ZERO
@@ -618,9 +668,9 @@ C Init a 0
             STNFI(NIN)%P(I) = ZERO
           ENDDO
 C
-          IF(KDTINT.NE.0)THEN
+          IF(KDTINT/=0)THEN
             IF(ASSOCIATED(VSCFI(NIN)%P)) DEALLOCATE(VSCFI(NIN)%P)
-            IF(NODFI.GT.0)ALLOCATE(VSCFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR3)
+            IF(NODFI>0)ALLOCATE(VSCFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR3)
 C Init a 0
             DO I = 1, NODFI*NTHREAD
               VSCFI(NIN)%P(I) = ZERO
@@ -637,17 +687,17 @@ C
 C
 C Allocation Parith/OFF
 C
-        IF(IPARIT.EQ.0) THEN
+        IF(IPARIT==0) THEN
           IF(ASSOCIATED(AFI(NIN)%P)) DEALLOCATE(AFI(NIN)%P)
           IF(ASSOCIATED(STNFI(NIN)%P)) DEALLOCATE(STNFI(NIN)%P)
           IF(ASSOCIATED(FTHEFI(NIN)%P)) DEALLOCATE(FTHEFI(NIN)%P)
-          IF(NODFI.GT.0)ALLOCATE(AFI(NIN)%P(3,NODFI*NTHREAD),STAT=IERROR1)
-          IF(NODFI.GT.0)ALLOCATE(STNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR2)
-          IF(NODFI.GT.0)ALLOCATE(FTHEFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR3)
+          IF(NODFI>0)ALLOCATE(AFI(NIN)%P(3,NODFI*NTHREAD),STAT=IERROR1)
+          IF(NODFI>0)ALLOCATE(STNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR2)
+          IF(NODFI>0)ALLOCATE(FTHEFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR3)
 C
           IF(NODADT_THERM ==1) THEN
             IF(ASSOCIATED(CONDNFI(NIN)%P)) DEALLOCATE(CONDNFI(NIN)%P)
-            IF(NODFI.GT.0.AND.NODADT_THERM ==1)ALLOCATE(CONDNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR4)
+            IF(NODFI>0.AND.NODADT_THERM ==1)ALLOCATE(CONDNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR4)
           ENDIF
 C Init a 0
           DO I = 1, NODFI*NTHREAD
@@ -663,9 +713,9 @@ C Init a 0
             ENDDO
           ENDIF
 C
-          IF(KDTINT.NE.0)THEN
+          IF(KDTINT/=0)THEN
             IF(ASSOCIATED(VSCFI(NIN)%P)) DEALLOCATE(VSCFI(NIN)%P)
-            IF(NODFI.GT.0)ALLOCATE(VSCFI(NIN)%P(NODFI),STAT=IERROR4)
+            IF(NODFI>0)ALLOCATE(VSCFI(NIN)%P(NODFI),STAT=IERROR4)
 C Init a 0
             DO I = 1, NODFI
               VSCFI(NIN)%P(I) = ZERO
@@ -681,19 +731,19 @@ C Done in upgrade_rem_slv
         ENDIF
       ENDIF
 C
-      IF(IERROR1+IERROR2+IERROR3+IERROR4.NE.0) THEN
+      IF(IERROR1+IERROR2+IERROR3+IERROR4/=0) THEN
         CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
         CALL ARRET(2)
       ENDIF
 C
-C pressure output
+C pressure output / friction energy output
 C
-      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT .GT.0)THEN
+      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT >0)THEN
         IF(ASSOCIATED(FNCONTI(NIN)%P)) DEALLOCATE(FNCONTI(NIN)%P)
         IF(ASSOCIATED(FTCONTI(NIN)%P)) DEALLOCATE(FTCONTI(NIN)%P)
         ALLOCATE(FNCONTI(NIN)%P(3,NODFI),STAT=IERROR1)
         ALLOCATE(FTCONTI(NIN)%P(3,NODFI),STAT=IERROR2)
-        IF(IERROR1+IERROR2.NE.0) THEN
+        IF(IERROR1+IERROR2/=0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
         ELSE
@@ -707,13 +757,41 @@ C
           END DO
         END IF
       END IF
+
+      IF(H3D_DATA%N_SCAL_CSE_FRICINT >0)THEN
+       IF(H3D_DATA%N_CSE_FRIC_INTER (NIN) >0)THEN
+        IF(ASSOCIATED(EFRICFI(NIN)%P)) DEALLOCATE(EFRICFI(NIN)%P)
+        ALLOCATE(EFRICFI(NIN)%P(NODFI),STAT=IERROR1)
+        IF(IERROR1/=0) THEN
+          CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
+          CALL ARRET(2)
+        ELSE
+          DO J = 1, NODFI
+            EFRICFI(NIN)%P(J)=ZERO
+          END DO                  
+        END IF            
+       END IF
+      ENDIF
+
+      IF(H3D_DATA%N_SCAL_CSE_FRIC >0)THEN
+        IF(ASSOCIATED(EFRICGFI(NIN)%P)) DEALLOCATE(EFRICGFI(NIN)%P)
+        ALLOCATE(EFRICGFI(NIN)%P(NODFI),STAT=IERROR1)
+        IF(IERROR1/=0) THEN
+          CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
+          CALL ARRET(2)
+        ELSE
+          DO J = 1, NODFI
+            EFRICGFI(NIN)%P(J)=ZERO
+          END DO                  
+        END IF            
+      END IF
 C
 C Renumbering candidate
 C
       DO I = 1, I_STOK
         N = CAND_N(I)
         NN = N-NSN
-        IF(NN.GT.0)THEN
+        IF(NN>0)THEN
           CAND_N(I) = INDEX(NN)+NSN
         ENDIF
       ENDDO

@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I15ASS                        source/interfaces/int15/i15ass.F
-Chd|-- called by -----------
-Chd|        I15CMP                        source/interfaces/int15/i15cmp.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE I15ASS(AF    ,X     ,V    ,KSURF ,IGRSURF ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i15ass         ../engine/source/interfaces/int15/i15ass.F
+!||--- called by ------------------------------------------------------
+!||    i15cmp         ../engine/source/interfaces/int15/i15cmp.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||    h3d_mod        ../engine/share/modules/h3d_mod.F
+!||    output_mod     ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE I15ASS(OUTPUT,AF    ,X     ,V    ,KSURF ,IGRSURF ,
      2                  BUFSF ,STIFN ,FS   ,FCONT ,FSKYI ,
      3                  ISKY  ,DE    ,WNF  ,WTF   ,WNS   ,
      4                  FNORMX ,FNORMY ,FNORMZ ,FTANGX ,FTANGY ,
@@ -38,19 +39,15 @@ C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
       USE GROUPDEF_MOD
+      USE OUTPUT_MOD, ONLY : OUTPUT_ 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "task_c.inc"
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
@@ -60,13 +57,11 @@ C-----------------------------------------------
 #include      "parit_c.inc"
 #include      "param_c.inc"
 #include      "scr18_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
       INTEGER KSURF,ISKY(*),NNC,KNC(*)
-C     REAL
       my_real
      .  AF(*) , X(3,*), V(3,*),BUFSF(*),
      .  STIFN(*), FS(NTHVKI), 
@@ -79,8 +74,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER ADRBUF, I, IN, I3, I2, I1
-      INTEGER NFORC , NISKYL
-      INTEGER NDEB, NREST
+      INTEGER NISKYL
       my_real
      .   ROT(9), XK , YK, ZK, FX, FY, FZ, AM1, AM2, AM3,
      .   FN1, FN2, FN3, FT1, FT2, FT3,
@@ -91,7 +85,7 @@ C-----------------------------------------------
        ROT(I)=BUFSF(ADRBUF+7+I-1)
       END DO
 C---------------------------------
-C     SORTIES dans le rep. global.
+C     outputs in the global coordinate system
 C---------------------------------
       FN1=ROT(1)*FNORMX+ROT(4)*FNORMY+ROT(7)*FNORMZ
       FN2=ROT(2)*FNORMX+ROT(5)*FNORMY+ROT(8)*FNORMZ
@@ -119,7 +113,7 @@ C------------------------------------------------------------
       WNF(3,IN)=ROT(3)*FX+ROT(6)*FY+ROT(9)*FZ
       ENDDO
 C------------------------------------------------------------
-C     ASSEMBLAGE AU NOEUD MAIN DE LA SURFACE.
+C     assembly at the main node of the surface
 C------------------------------------------------------------
       DO I=1,NNC
       IN=KNC(I)
@@ -146,15 +140,15 @@ C-----
       BUFSF(ADRBUF+32)=BUFSF(ADRBUF+32)+DD*STF
       ENDDO
 C---------------------------------
-C     ASSEMBLAGE des FORCES aux NOEUDS SECONDS.
+C     Assembly of forces with second nodes.
 C---------------------------------
-      IF (IPARIT.NE.0) THEN
+      IF (IPARIT/=0) THEN
 #include "lockon.inc"
         NISKYL = NISKY
         NISKY  = NISKY+NNC
 #include "lockoff.inc"
       END IF
-      IF (IPARIT.EQ.0) THEN
+      IF (IPARIT==0) THEN
 #include "vectorize.inc"
        DO 300 I=1,NNC
         IN=KNC(I)
@@ -170,7 +164,7 @@ C---------------------------------
         STIFN(IN)=STIFN(IN)+WNS(IN)
  300   CONTINUE
       ELSE
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
         DO 350 I=1,NNC
          IN=KNC(I)
          FX=WNF(1,IN)
@@ -200,11 +194,11 @@ C---------------------------------
        ENDIF
       ENDIF
 C------------------------------------------------------------
-C     ANIM (FORCES DE CONTACT).
+C     animation (contact forces)
 C------------------------------------------------------------
-      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT.GT.0.AND.
-     .    (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))THEN
+      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT>0.AND.
+     .    ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))THEN
 #include "lockon.inc"
 #include "vectorize.inc"
         DO 400 I=1,NNC
@@ -216,9 +210,9 @@ C------------------------------------------------------------
 #include "lockoff.inc"
       ENDIF
 C---------------------------------
-C     Pour Travail des forces sur noeuds seconds
+C     for work of forces on secondary nodes
 C     1ere partie : ici
-C     2eme partie : apres calcul de DT2.
+C     2eme partie : apres calculation de DT2.
 C---------------------------------
        DO 450 I=1,NNC
        IN=KNC(I)
@@ -228,14 +222,13 @@ C---------------------------------
          DE=DE+FX*V(1,IN)+FY*V(2,IN)+FZ*V(3,IN)
  450  CONTINUE
 C---------------------------------
-C     Travail des forces d'interface avec Madymo.
+C     Working force at interface (Madymo)
 C---------------------------------
       FS(7)=FS(7)+DE*DT1*HALF
-      IF (IGRSURF(KSURF)%TYPE.EQ.100) THEN
-C     Sorties Ellipdoides Madymo.
-#include "atomic.inc"
-          TFEXT=TFEXT+DE*DT1*HALF
-#include "atomend.inc"
+      IF (IGRSURF(KSURF)%TYPE==100) THEN
+C     Madymo Ellipsoids
+!$OMP ATOMIC
+          OUTPUT%TH%WFEXT=OUTPUT%TH%WFEXT+DE*DT1*HALF
       ENDIF
 C----------------------------------
       RETURN

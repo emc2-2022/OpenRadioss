@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
 
-Chd|====================================================================
-Chd|  SPMD_EXCH_SMST2               source/mpi/ams/spmd_exch_smst2.F
-Chd|-- called by -----------
-Chd|        SMS_INI_INT                   source/ams/sms_init.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        SPMD_CHECK_TAG                source/mpi/ams/spmd_check_tag.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_smst2       ../engine/source/mpi/ams/spmd_exch_smst2.F
+!||--- called by ------------------------------------------------------
+!||    sms_ini_int           ../engine/source/ams/sms_init.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||    spmd_check_tag        ../engine/source/mpi/ams/spmd_check_tag.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod         ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_EXCH_SMST2(IPARI,TAG,INTLIST,NBINTC,INTBUF_TAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -44,28 +46,18 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
-#ifdef  MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "com01_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "spmd_c.inc"
-#include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -115,10 +107,10 @@ C     REAL
 !       --> one must build NSNSI and NSVSI one each process/domain
 !           using NSNFI and NSVFI arrays located on the others domain
 !
-!       1srt comm : building of NSNSI array (for ispmd domain) with NSNFI array (located on p domain, p/=ispmd) 
-!       2rd comm : building of NSVSI array (for ispmd domain) with NSVFI array (located on p domain, p/=ispmd) !      
+!       1st comm : building of NSNSI array (for ispmd domain) with NSNFI array (located on p domain, p/=ispmd)
+!       2nd comm : building of NSVSI array (for ispmd domain) with NSVFI array (located on p domain, p/=ispmd) !
 !       3rd comm  : comm of tag array (each ispmd domain sends NSNSI values of tag arrays to p domain) 
-!       chek the value of tag : if tag = -1, cand_a/e are deleted   
+!       check the value of tag : if tag = -1, cand_a/e are deleted   
 !       -----------------------------------------------
         IF(NSPMD == 1)RETURN
          
@@ -153,7 +145,7 @@ C     REAL
             DO P=1,NSPMD
               IADS(P)=LENSD_0+1
               DO NI=1,NBINTC
-	         NIN = INTLIST(NI)
+                   NIN = INTLIST(NI)
                  NTY=IPARI(7,NIN)
                  IF(NTY==7.OR.NTY==10.OR.NTY==20.OR.NTY==24.OR.NTY==25.OR.NTY==11)THEN
                     LENSD_0 = LENSD_0 + NSNFI(NIN)%P(P)*ALEN
@@ -166,7 +158,7 @@ C     REAL
             ! AlltoAll comm in order to know the sent buffer size
             CALL MPI_ALLTOALL(TAB_LOC(1),NINTER,MPI_INTEGER,
      .                        TAB_SEND(1),NINTER,MPI_INTEGER,
-     .                        MPI_COMM_WORLD,IERROR)
+     .                        SPMD_COMM_WORLD,IERROR)
 
         ! -----------------------
             ! SECOND COMM.
@@ -177,7 +169,7 @@ C     REAL
             DO P=1,NSPMD
               IADR(P) = LENRV_0 + 1
               DO NI=1,NBINTC
-	         NIN = INTLIST(NI)
+                   NIN = INTLIST(NI)
                  NTY=IPARI(7,NIN)
                  IF(NTY==7.OR.NTY==10.OR.NTY==20.OR.NTY==24.OR.NTY==25.OR.NTY==11)THEN
                     LENRV_0 = LENRV_0 + TAB_SEND(NIN+NINTER*(P-1))*ALEN
@@ -209,7 +201,7 @@ C     REAL
              ENDIF
 
              DO NI=1,NBINTC
-	      NIN = INTLIST(NI)
+                NIN = INTLIST(NI)
               NTY = IPARI(7,NIN)
               IF(NTY==7.OR.NTY==10.OR.NTY==20.OR.NTY==24.OR.NTY==25.OR.NTY==11)THEN
                 NSNR = IPARI(24,NIN)
@@ -227,24 +219,24 @@ C     REAL
              ENDDO
             ENDIF
             ! -----------------
-            ! Recieved MPI comm
+            ! Received MPI comm
             DO P=1, NSPMD
               SIZ=IADR(P+1)-IADR(P)
               IF (SIZ > 0) THEN
                  MSGTYP = MSGOFF
                  CALL MPI_IRECV( IBUFR(IADR(P)),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .                           MPI_COMM_WORLD,REQ_R(P),IERROR )
+     .                           SPMD_COMM_WORLD,REQ_R(P),IERROR )
               ENDIF
             ENDDO
             ! -----------------
-            ! Sent MPI comm
+            ! Feels mpi comm
             L=1
             IDEBS=0
             DO P=1, NSPMD
               IADS(P)=L
               IF (P/= LOC_PROC) THEN
                 DO NI=1,NBINTC
-	          NIN = INTLIST(NI)
+                    NIN = INTLIST(NI)
                   NTY = IPARI(7,NIN)
                   IF(NTY==7.OR.NTY==10.OR.NTY==20.OR.NTY==24.OR.NTY==25.OR.NTY==11) THEN
                     NB = NSNFI(NIN)%P(P) ! size = nsnfi
@@ -258,15 +250,15 @@ C     REAL
                   ENDIF
                 ENDDO  ! DO NIN=1,NINTER
                 SIZ = L-IADS(P)
-                IF(SIZ.GT.0)THEN
+                IF(SIZ>0)THEN
                   MSGTYP = MSGOFF
                   CALL MPI_ISEND( IBUFS(IADS(P)),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .                            MPI_COMM_WORLD,REQ_SI(P),IERROR )
+     .                            SPMD_COMM_WORLD,REQ_SI(P),IERROR )
                 ENDIF
               ENDIF ! ENDIF P/= LOC_PROC
             ENDDO  ! DO P=1, NSPMD
             ! -----------------
-            ! Recieve
+            ! Receive
             L=0
             IDEBR = 0                
 
@@ -278,7 +270,7 @@ C     REAL
                 ! MPI WAIT
                 CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
                 DO NI=1,NBINTC
-	         NIN = INTLIST(NI)
+                   NIN = INTLIST(NI)
                  NTY = IPARI(7,NIN)
                  IF(NTY==7.OR.NTY==10.OR.NTY==20.OR.NTY==24.OR.NTY==25.OR.NTY==11)THEN
                   NB = TAB_SEND(NIN+NINTER*(P-1)) ! nsnfi becomes nsnsi on local proc
@@ -296,14 +288,14 @@ C     REAL
             ENDDO   ! DO P=1, NSPMD
 
             ! -----------------
-            ! Fin du send
+            ! End of send
             DO P = 1, NSPMD
               IF (P==NSPMD)THEN
                 SIZ=LENSD_0-IADS(P)
               ELSE
                 SIZ=IADS(P+1)-IADS(P)
               ENDIF
-              IF(SIZ.GT.0) THEN
+              IF(SIZ>0) THEN
                CALL MPI_WAIT(REQ_SI(P),STATUS,IERROR)
               ENDIF
             ENDDO
@@ -328,7 +320,7 @@ C     REAL
               IADS(P)=LENSD+1
               IADR(P)=LENRV+1
               DO NI=1,NBINTC
-	         NIN = INTLIST(NI)
+                   NIN = INTLIST(NI)
                  NTY=IPARI(7,NIN)
                  IF(NTY==7.OR.NTY==10.OR.NTY==20.OR.NTY==24.OR.NTY==25.OR.NTY==11)THEN
                     LENSD = LENSD + TAB_SEND(NIN+NINTER*(P-1))*ALEN
@@ -357,24 +349,24 @@ C     REAL
              ENDIF
             ENDIF 
             ! -----------------
-            ! Recieved MPI comm
+            ! Received MPI comm
             DO P=1, NSPMD
               SIZ=IADR(P+1)-IADR(P)
               IF (SIZ > 0) THEN
                  MSGTYP = MSGOFF2
                  CALL MPI_IRECV( IBUFR(IADR(P)),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .                           MPI_COMM_WORLD,REQ_R(P),IERROR )
+     .                           SPMD_COMM_WORLD,REQ_R(P),IERROR )
               ENDIF
             ENDDO
             ! -----------------
-            ! Sent MPI comm
+            ! Feels mpi comm
             L=1
             IDEBS = 0
             DO P=1, NSPMD
               IADS(P)=L
               IF (P/= LOC_PROC) THEN
                 DO NI=1,NBINTC
-	          NIN = INTLIST(NI)
+                    NIN = INTLIST(NI)
                   NTY = IPARI(7,NIN)
                   IF(NTY==7.OR.NTY==10.OR.NTY==20.OR.NTY==24.OR.NTY==25) THEN
                     NB = TAB_SEND(NIN+NINTER*(P-1)) ! size = nsnsi
@@ -406,10 +398,10 @@ C     REAL
                   ENDIF
                 ENDDO  ! DO NIN=1,NINTER
                 SIZ = L-IADS(P)
-                IF(SIZ.GT.0)THEN
+                IF(SIZ>0)THEN
                   MSGTYP = MSGOFF2
                   CALL MPI_ISEND( IBUFS(IADS(P)),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .                            MPI_COMM_WORLD,REQ_SI(P),IERROR )
+     .                            SPMD_COMM_WORLD,REQ_SI(P),IERROR )
                 ENDIF
               ENDIF ! ENDIF P/= LOC_PROC
             ENDDO  ! DO P=1, NSPMD
@@ -418,7 +410,7 @@ C     REAL
             ! Recv. MPI comm
             ALLOCATE( TAG_LOC(NINTER) )
             DO NI=1,NBINTC
-	     NIN = INTLIST(NI)
+               NIN = INTLIST(NI)
              NTY = IPARI(7,NIN)
              IF(NTY==7.OR.NTY==10.OR.NTY==20.OR.NTY==24.OR.NTY==25.OR.NTY==11)THEN
                NSNR = IPARI(24,NIN)
@@ -443,7 +435,7 @@ C     REAL
                 CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
                 
                 DO NI=1,NBINTC
-	         NIN = INTLIST(NI)
+                   NIN = INTLIST(NI)
                  NTY = IPARI(7,NIN)
                  IF(NTY==7.OR.NTY==10.OR.NTY==20.OR.NTY==24.OR.NTY==25.OR.NTY==11)THEN
                   NB = NSNFI(NIN)%P(P) ! size = nsnfi
@@ -460,21 +452,21 @@ C     REAL
               ENDIF !  IF (NB > 0)
             ENDDO ! DO P=1, NSPMD
             ! -----------------
-            ! Fin du send
+            ! End of send
             DO P = 1, NSPMD
               IF (P==NSPMD)THEN
                 SIZ=LENSD-IADS(P)
               ELSE
                 SIZ=IADS(P+1)-IADS(P)
               ENDIF
-              IF(SIZ.GT.0) THEN
+              IF(SIZ>0) THEN
                CALL MPI_WAIT(REQ_SI(P),STATUS,IERROR)
               ENDIF
             ENDDO
         ! -----------------------
-            ! Chek the value of tag and elimination of cand_a/e if tag = -1
+            ! Check the value of tag and elimination of cand_a/e if tag = -1
             DO NI=1,NBINTC
-	      NIN = INTLIST(NI)
+                NIN = INTLIST(NI)
               NTY = IPARI(7,NIN)
               NSN = IPARI(5,NIN)
               NSNR = IPARI(24,NIN)

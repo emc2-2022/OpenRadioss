@@ -1,45 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MULTIFLUID_INIT3T             source/multifluid/multifluid_init3t.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        M5IN3                         source/initial_conditions/detonation/m5in3.F
-Chd|        MATINI                        source/materials/mat_share/matini.F
-Chd|        S4COOR3                       source/elements/solid/solide4/s4coor3.F
-Chd|        S4DERI3                       source/elements/solid/solide4/s4deri3.F
-Chd|        S4MASS3                       source/elements/solid/solide4/s4mass3.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        DETONATORS_MOD                share/modules1/detonators_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    multifluid_init3t      ../starter/source/multifluid/multifluid_init3t.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    m5in3                  ../starter/source/initial_conditions/detonation/m5in3.F
+!||    matini                 ../starter/source/materials/mat_share/matini.F
+!||    s4coor3                ../starter/source/elements/solid/solide4/s4coor3.F
+!||    s4deri3                ../starter/source/elements/solid/solide4/s4deri3.F
+!||    s4mass3                ../starter/source/elements/solid/solide4/s4mass3.F
+!||--- uses       -----------------------------------------------------
+!||    defaults_mod           ../starter/source/modules/defaults_mod.F90
+!||    detonators_mod         ../starter/share/modules1/detonators_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE MULTIFLUID_INIT3T(ELBUF_STR, 
      .     NEL, NSIGS, NSIGI, IXS, IGEO, IPM, IPARG, ALE_CONNECTIVITY, IPARTS, PTSOL, NPF, IPART, ILOADP,
      .     XREFS, GEO, PM, FACLOAD, TF, SKEW, SIGI, BUFMAT, X, 
-     .     WMA, PARTSAV, MAS, V, MSS, MSSF, MSSA, MSNF, MCPS, ERROR_THROWN, DETONATORS)
+     .     WMA, PARTSAV, MAS, V, MSS, MSSF, MSSA, MSNF, MCPS, ERROR_THROWN, DETONATORS,DEFAULTS,
+     .     MAT_PARAM,NINTEMP)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -47,6 +48,9 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE DETONATORS_MOD
       USE ALE_CONNECTIVITY_MOD
+      USE DEFAULTS_MOD
+      USE MATPARAM_DEF_MOD, ONLY : MATPARAM_STRUCT_
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -72,17 +76,21 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(ELBUF_STRUCT_), INTENT(IN), TARGET :: ELBUF_STR
-      INTEGER, INTENT(IN) :: NEL, NSIGS, NSIGI, IXS(NIXS, *), IGEO(NPROPGI, *), IPM(NPROPMI, *), 
-     .     IPARG(*), 
+      INTEGER, INTENT(IN) :: NEL, NSIGS, NSIGI, IGEO(NPROPGI, *), IPM(NPROPMI, *), 
      .     IPARTS(*), PTSOL(*), NPF(*), IPART(LIPART1, *), ILOADP(SIZLOADP, *)
-      my_real, INTENT(IN) :: XREFS(8, 3, *), X(3, *), GEO(NPROPG, *),  
+      INTEGER, INTENT(INOUT) :: IPARG(*), IXS(NIXS,*)
+      INTEGER, INTENT(IN) ::  NINTEMP
+      my_real, INTENT(IN) :: X(3, *), GEO(NPROPG, *),  
      .     FACLOAD(LFACLOAD, *), TF(*), SKEW(LSKEW, *), SIGI(NSIGI, *), BUFMAT(*)
+      my_real, INTENT(INOUT) :: XREFS(8, 3, *)
       my_real,INTENT(INOUT) :: PM(NPROPM, *)
       my_real, INTENT(INOUT) :: WMA(*), PARTSAV(20, *), MAS(*), V(*), 
      .     MSNF(*), MCPS(8, *), MSSF(8, *), MSS(8, *), MSSA(*)
       LOGICAL :: ERROR_THROWN
-      TYPE(DETONATOR_STRUCT_) DETONATORS
+      TYPE(DETONATORS_STRUCT_) DETONATORS
       TYPE(t_ale_connectivity), INTENT(INOUT) :: ALE_CONNECTIVITY
+      TYPE(DEFAULTS_), INTENT(IN) :: DEFAULTS
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -102,7 +110,8 @@ C-----------------------------------------------
      .     PY1(MVSIZ),PY2(MVSIZ),PY3(MVSIZ),PY4(MVSIZ),
      .     PZ1(MVSIZ),PZ2(MVSIZ),PZ3(MVSIZ),PZ4(MVSIZ),
      .     VOLU(MVSIZ), BID(MVSIZ), DUMMY, PRES,VFRAC
-      INTEGER :: II, IP, IBID, MATLAW
+      my_real :: TEMPEL(NEL)
+      INTEGER :: II, IP, IBID, MATLAW,IMAS_DS
       DOUBLE PRECISION 
      .   VOLDP(MVSIZ)
 C-----------------------------------------------
@@ -111,6 +120,7 @@ C-----------------------------------------------
       GBUF => ELBUF_STR%GBUF
 C     Number of layers ( = number of material in law 151)
       NLAY = ELBUF_STR%NLAY
+      IMAS_DS = DEFAULTS%SOLID%IMAS
 C     Gather coordinates
       CALL S4COOR3(X, XREFS(1, 1, NFT + 1), IXS(1, NFT + 1), NGL, 
      .     MAT, PID, IX1, IX2, IX3, IX4, 
@@ -129,6 +139,7 @@ C     Volume
      .     GBUF%DELTAX, VOLU, NGL, PID, MAT,
      .     PM ,VOLDP)
 
+      TEMPEL(:) = ZERO
       PM(104,IXS(1, 1 + NFT)) = ZERO  !global pressure
       
 C     Loop over the materials
@@ -136,12 +147,12 @@ C     Loop over the materials
 C     Layer buffer
          LBUF => ELBUF_STR%BUFLY(ILAY)%LBUF(1,1,1)
          MBUF => ELBUF_STR%BUFLY(ILAY)%MAT(1,1,1)
-         DO II = LFT, LLT
+         DO II = 1, NEL
 C     Material
-            MAT(II) = IPM(20 + ILAY, IXS(1, II + NFT))
+            MAT(II) = MAT_PARAM( IXS(1,II+NFT) )%MULTIMAT%MID(ILAY)
 C     Partial volumes
-            LBUF%VOL(II) = PM(20 + ILAY, IXS(1, II + NFT)) * GBUF%VOL(II)
-            LBUF%VOL0DP(II) = PM(20 + ILAY, IXS(1, II + NFT)) * VOLDP(II)
+            LBUF%VOL(II) = MAT_PARAM( IXS(1,II+NFT) )%MULTIMAT%VFRAC(ILAY) * GBUF%VOL(II)
+            LBUF%VOL0DP(II) = MAT_PARAM( IXS(1,II+NFT) )%MULTIMAT%VFRAC(ILAY) * VOLDP(II)
          ENDDO
 C     Material initialization
          IP = 1
@@ -153,46 +164,47 @@ C     Material initialization
      .        MAT, IPM, NSIGS, NUMSOL, PTSOL,
      .        IP, NGL,NPF, TF, BUFMAT,
      .        GBUF, LBUF, MBUF, ELBUF_STR, ILOADP,
-     .        FACLOAD, GBUF%DELTAX)
+     .        FACLOAD, GBUF%DELTAX,TEMPEL, MAT_PARAM )
      
-         VFRAC = PM(20+ILAY,IXS(1, 1 + NFT))
-         PRES  = PM(104, IPM(20+ILAY,IXS(1, 1 + NFT)))
+         VFRAC = MAT_PARAM( IXS(1,1+NFT) )%MULTIMAT%VFRAC(ILAY)
+         PRES  = PM(104, MAT_PARAM( IXS(1,1+NFT) )%MULTIMAT%MID(ILAY))
          PM(104,IXS(1, 1 + NFT)) = PM(104,IXS(1, 1 + NFT)) + VFRAC * PRES !global pressure
      
          MATLAW = IPM(2, MAT(1))
-         IF (MATLAW .EQ. 5) THEN
+         IF (MATLAW == 5) THEN
 ! JWL MAT
             IF (.NOT. ERROR_THROWN) THEN
-               IF (PM(44, MAT(1)) .EQ. ZERO) THEN
+               IF (PM(44, MAT(1)) == ZERO) THEN
                   CALL ANCMSG(MSGID = 1623, MSGTYPE = MSGERROR, ANMODE = ANINFO, 
      .                 I1 = IPM(1, IXS(1, 1 + NFT)), I2 = IPM(1, MAT(1)))
                ENDIF
                ERROR_THROWN = .TRUE.
             ENDIF
-            CALL M5IN3(PM, MAT, IPM(1, IXS(1,LFT+NFT)), DETONATORS, LBUF%TB, NGL, IPARG, X, IXS, NIXS)
+            CALL M5IN3(PM, MAT, IPM(1, IXS(1,1+NFT)), DETONATORS, LBUF%TB, IPARG, X, IXS, NIXS)
          ENDIF
       ENDDO
 
-      IF (NLAY .GT. 1) THEN     
+      IF (NLAY > 1) THEN     
 
 C     Mass globalization
          
-         DO II = LFT, LLT
+         DO II = 1, NEL
             GBUF%RHO(II) = ZERO
          ENDDO
          DO ILAY = 1, NLAY
             LBUF  => ELBUF_STR%BUFLY(ILAY)%LBUF(1,1,1)
-            DO II = LFT, LLT
-               GBUF%RHO(II) = GBUF%RHO(II) + LBUF%RHO(II) * PM(20 + ILAY, IXS(1, II + NFT))
+            DO II = 1, NEL
+               GBUF%RHO(II) = GBUF%RHO(II) + LBUF%RHO(II) * MAT_PARAM( IXS(1,II+NFT) )%MULTIMAT%VFRAC(ILAY)
             ENDDO
          ENDDO
 
 C      Temperature globalization. We must solve later T such as e+p/rho=integral(Cp_global(T),dT)
-         GBUF%TEMP(LFT:LLT)=ZERO
+         GBUF%TEMP(1:NEL)=ZERO
          DO ILAY = 1, NLAY
             LBUF  => ELBUF_STR%BUFLY(ILAY)%LBUF(1,1,1)
-            DO II = LFT, LLT
-               GBUF%TEMP(II) = GBUF%TEMP(II) + LBUF%TEMP(II) * PM(20 + ILAY, IXS(1, II + NFT))*LBUF%RHO(II)/GBUF%RHO(II)   !volfrac*densfrac=massfrac
+            DO II = 1, NEL
+               GBUF%TEMP(II) = GBUF%TEMP(II) + LBUF%TEMP(II) *
+     .         MAT_PARAM( IXS(1,II+NFT) )%MULTIMAT%VFRAC(ILAY)  *LBUF%RHO(II)/GBUF%RHO(II)   !volfrac*densfrac=massfrac
             ENDDO
          ENDDO        
                   
@@ -202,5 +214,5 @@ C      Temperature globalization. We must solve later T such as e+p/rho=integral
      2     IPARTS(NFT + 1),MSS(1,NFT + 1),MSNF   ,MSSF(1,NFT + 1),WMA,
      3     BID      ,BID       ,MCPS(1,NFT + 1),BID,BID ,
      4     MSSA       ,IX1     ,IX2     ,IX3     ,IX4    ,
-     5     GBUF%FILL, GBUF%VOL)
+     5     GBUF%FILL, GBUF%VOL ,IMAS_DS, NINTEMP)
       END SUBROUTINE MULTIFLUID_INIT3T

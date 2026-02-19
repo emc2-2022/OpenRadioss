@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_AUTO_DT                   source/ams/sms_auto_dt.F      
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        NOD_SMS_DT                    source/ams/sms_auto_dt.F      
-Chd|        NOD_SMS_DT_SOL                source/ams/sms_auto_dt.F      
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_auto_dt      ../starter/source/ams/sms_auto_dt.F
+!||--- called by ------------------------------------------------------
+!||    initia           ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    nod_sms_dt       ../starter/source/ams/sms_auto_dt.F
+!||    nod_sms_dt_sol   ../starter/source/ams/sms_auto_dt.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SMS_AUTO_DT(DTELEM,NATIV_SMS,
      1  IXS     ,IXQ      ,IXC     ,IXT     ,IXP       ,
      2  IXR     ,IXTG     ,IXS10   ,IXS16   ,IXS20     ,
      3  IPARTS  ,IPARTQ   ,IPARTC  ,IPARTT  ,IPARTP    ,
-     4  IPARTR  ,IPARTUR  ,IPARTG  ,IPARTX  ,IPART     ,
+     4  IPARTR  ,IPARTG  ,IPARTX  ,IPART     ,
      5  IPARG   ,ELBUF_TAB,IGEO    ,IDDLEVEL,TAGPRT_SMS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------                     
       USE ELBUFDEF_MOD  
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,12 +49,9 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "param_c.inc"
-#include      "scr15_c.inc"
 #include      "scr17_c.inc"
 #include      "sphcom.inc"
-#include      "rnur_c.inc"
 #include      "units_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
@@ -63,7 +61,7 @@ C-----------------------------------------------
      .   IXS(NIXS,*),IXS10(6,*) ,IXS16(8,*) ,IXS20(12,*),
      .   IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
      .   IXR(NIXR,*),IXTG(NIXTG,*),IPARTS(*),IPARTQ(*),IPARTC(*),
-     .   IPARTT(*),IPARTP(*),IPARTR(*),IPARTUR(*),IPARTG(*),IPARTX(*),
+     .   IPARTT(*),IPARTP(*),IPARTR(*),IPARTG(*),IPARTX(*),
      .   IPARG(NPARG,NGROUP),IGEO(NPROPGI,*),IDDLEVEL, TAGPRT_SMS(*)
       my_real
      .   DTELEM(*)
@@ -75,7 +73,6 @@ C-----------------------------------------------
       INTEGER I,NEL,IAD,NFT,ITY,ISOL,NG,NUMEL,
      .   COMPT_PART(NPART),COMPT_TOT_PART(NPART),COMPT(7),COMPT_TOT,
      .   NUME(7),DT_INDEX(7)
-      CHARACTER FILNAM*109, KEYA*80, KEYA2*80
       CHARACTER*12 :: TYPE_ELEM(7)
       my_real
      .   RATIO
@@ -92,7 +89,7 @@ C
 C-----------------------------------------------
 C
 C-----------------------------------------------
-C     Remplissage de ISMS pour les elements selectionnes par PART
+C     ISMS filling for selected elements by share
 C-----------------------------------------------
 C
       IF(ISMS_SELEC==1 .OR. ISMS_SELEC==2 .OR. ISMS_SELEC==4)THEN
@@ -138,10 +135,10 @@ C
       END IF
 C
 C-----------------------------------------------
-C     Calcul des index dans dtelem pour chaque type d'element
+C     Calculation of indexes in Dtelem for each type of element
 C-----------------------------------------------
 C
-      NUMEL= NUMELC+NUMELS+NUMELT+NUMELQ+NUMELP+NUMELR+NUMELUR+NUMELTG
+      NUMEL= NUMELC+NUMELS+NUMELT+NUMELQ+NUMELP+NUMELR+NUMELTG
      .      +NUMELX+NUMSPH+NUMELIG3D
 C
       NUME(1) = NUMELS
@@ -150,7 +147,7 @@ C
       NUME(4) = NUMELT
       NUME(5) = NUMELP
       NUME(6) = NUMELR
-      NUME(7) = NUMELTG 	 
+      NUME(7) = NUMELTG    
       DT_INDEX(1)  = 0
       DO I=2,7
         DT_INDEX(I)  = DT_INDEX(I-1)  + NUME(I-1)
@@ -168,7 +165,7 @@ C
       TYPE_ELEM(7)='SHELL-3NODES'
 C
 C--------------------------------------------------
-C     Identification des elements a switcher en AMS	
+C     Identification of switcher elements in AMS
 C--------------------------------------------------
 C
       DO NG=1,NGROUP
@@ -188,38 +185,38 @@ C
 C
 C    Tag of additional nodes for solides with more than 8 nodes
 C
-          IF (ISOL.EQ.10) CALL NOD_SMS_DT_SOL(NUMNOD,GBUF%ISMS,NEL,NFT,6 ,NUMELS8,
+          IF (ISOL==10) CALL NOD_SMS_DT_SOL(NUMNOD,GBUF%ISMS,NEL,NFT,6 ,NUMELS8,
      .        IXS10 ,NATIV_SMS)
-          IF (ISOL.EQ.20) CALL NOD_SMS_DT_SOL(NUMNOD,GBUF%ISMS,NEL,NFT,12,NUMELS8+NUMELS10,
+          IF (ISOL==20) CALL NOD_SMS_DT_SOL(NUMNOD,GBUF%ISMS,NEL,NFT,12,NUMELS8+NUMELS10,
      .        IXS20 ,NATIV_SMS)
-          IF (ISOL.EQ.16) CALL NOD_SMS_DT_SOL(NUMNOD,GBUF%ISMS,NEL,NFT,8 ,NUMELS8+NUMELS10+NUMELS20,
+          IF (ISOL==16) CALL NOD_SMS_DT_SOL(NUMNOD,GBUF%ISMS,NEL,NFT,8 ,NUMELS8+NUMELS10+NUMELS20,
      .        IXS16 ,NATIV_SMS)
 C
-        ELSEIF (ITY.EQ.3) THEN
+        ELSEIF (ITY==3) THEN
 C                                        
           CALL NOD_SMS_DT(NUMNOD,GBUF%ISMS,NEL,NFT,NIXC ,1 ,4 ,
      .        IXC ,NATIV_SMS,DTELEM,ITY,DT_INDEX(ITY),
      .        IPARTC,COMPT(ITY),COMPT_PART,COMPT_TOT_PART,IGEO,IPART,TAGPRT_SMS)
 C
-        ELSEIF (ITY.EQ.7) THEN
+        ELSEIF (ITY==7) THEN
 C
           CALL NOD_SMS_DT(NUMNOD,GBUF%ISMS,NEL,NFT,NIXTG,1 ,3 ,
      .        IXTG,NATIV_SMS,DTELEM,ITY,DT_INDEX(ITY),
      .        IPARTG,COMPT(ITY),COMPT_PART,COMPT_TOT_PART,IGEO,IPART,TAGPRT_SMS)
 C
-        ELSEIF (ITY.EQ.4) THEN
+        ELSEIF (ITY==4) THEN
 C
           CALL NOD_SMS_DT(NUMNOD,GBUF%ISMS,NEL,NFT,NIXT ,1 ,2 ,
      .        IXT ,NATIV_SMS,DTELEM,ITY,DT_INDEX(ITY),
      .        IPARTT,COMPT(ITY),COMPT_PART,COMPT_TOT_PART,IGEO,IPART,TAGPRT_SMS)
 C
-        ELSEIF (ITY.EQ.5) THEN
+        ELSEIF (ITY==5) THEN
 C
           CALL NOD_SMS_DT(NUMNOD,GBUF%ISMS,NEL,NFT,NIXP ,1 ,2 ,
      .        IXP ,NATIV_SMS,DTELEM,ITY,DT_INDEX(ITY),
      .        IPARTP,COMPT(ITY),COMPT_PART,COMPT_TOT_PART,IGEO,IPART,TAGPRT_SMS)
 C
-        ELSEIF (ITY.EQ.6) THEN
+        ELSEIF (ITY==6) THEN
 C
           CALL NOD_SMS_DT(NUMNOD,GBUF%ISMS,NEL,NFT,NIXR ,1 ,2 ,
      .        IXR ,NATIV_SMS,DTELEM,ITY,DT_INDEX(ITY),
@@ -235,27 +232,27 @@ C
       ENDDO
 C
 C------------------------------------------------------------------
-C     Printout of selected elements - only at first call of initia	
+C     Printout of selected elements - only at first call of initia
 C------------------------------------------------------------------
 C
       IF (IDDLEVEL == 0) THEN
 C
         WRITE(IOUT,1000)
         WRITE(IOUT,1001)
-        IF (COMPT_TOT.GT.0) THEN
+        IF (COMPT_TOT>0) THEN
           WRITE(IOUT,2000) COMPT_TOT
           RATIO = 100*REAL(COMPT_TOT)/REAL(MAX(1,NUMEL))
           WRITE(IOUT,2001) RATIO
           WRITE(IOUT,2010)
           WRITE(IOUT,2011)
           DO I=1,7
-            IF (COMPT(I).GT.0) WRITE(IOUT,'(7X,A12,I10)') TYPE_ELEM(I),COMPT(I)
+            IF (COMPT(I)>0) WRITE(IOUT,'(7X,A12,I10)') TYPE_ELEM(I),COMPT(I)
           END DO
           WRITE(IOUT,2020)
           WRITE(IOUT,2011)
           WRITE(IOUT,2021)
           DO I=1,NPART
-            IF ((COMPT_PART(I).GT.0).AND.(COMPT_TOT_PART(I).GT.0)) THEN
+            IF ((COMPT_PART(I)>0).AND.(COMPT_TOT_PART(I)>0)) THEN
               RATIO = 100*REAL(COMPT_PART(I))/REAL(COMPT_TOT_PART(I))
               WRITE(IOUT,'(4X,I10,19X,I10,12X,F16.1)') IPART(4,I),COMPT_PART(I),RATIO
             ENDIF
@@ -283,12 +280,11 @@ C
 
       END
 
-Chd|====================================================================
-Chd|  NOD_SMS_DT                    source/ams/sms_auto_dt.F      
-Chd|-- called by -----------
-Chd|        SMS_AUTO_DT                   source/ams/sms_auto_dt.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    nod_sms_dt    ../starter/source/ams/sms_auto_dt.F
+!||--- called by ------------------------------------------------------
+!||    sms_auto_dt   ../starter/source/ams/sms_auto_dt.F
+!||====================================================================
       SUBROUTINE NOD_SMS_DT(
      1 NUMNOD  ,TAGEL_SMS,NEL,NFT,NIX ,MIX ,LIX_INPUT,
      2 IX      ,TAGN_SMS,DTELEM,ITY,DT_INDEX,
@@ -297,13 +293,9 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 #include      "sms_c.inc"
 #include      "scr17_c.inc"
 #include      "param_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -326,13 +318,13 @@ C
         ID_PART = IPART(ID_ELT)
         IGG = IPARTG(2,ID_PART)
         IGTYP =  IGEO(11,IGG)
-        IF (TAGPRT_SMS(ID_PART).EQ.0) COMPT_TOT_PART(ID_PART) = COMPT_TOT_PART(ID_PART) + 1
+        IF (TAGPRT_SMS(ID_PART)==0) COMPT_TOT_PART(ID_PART) = COMPT_TOT_PART(ID_PART) + 1
 C
-        IF(DTELEM(DT_INDEX+ID_ELT).GT.DT_SMS_SWITCH) CYCLE
+        IF(DTELEM(DT_INDEX+ID_ELT)>DT_SMS_SWITCH) CYCLE
 C
 C---   Third node must be taken into account for spring pulley
         LIX = LIX_INPUT
-        IF ((ITY.EQ.6).AND.(IGTYP.EQ.12)) LIX = 3
+        IF ((ITY==6).AND.(IGTYP==12)) LIX = 3
 C
         DO K=1,LIX                               
           I = IX(MIX+K,ID_ELT) 
@@ -344,10 +336,10 @@ C
             IF(TAG(I)==0)THEN
               TAGN_SMS(I)=1
               TAG(I)=1
-            END IF		    
-          END IF		    
+            END IF        
+          END IF        
         ENDDO
-        IF (TAGPRT_SMS(ID_PART).EQ.0) THEN
+        IF (TAGPRT_SMS(ID_PART)==0) THEN
           COMPT = COMPT + 1
           COMPT_PART(ID_PART) = COMPT_PART(ID_PART) + 1
         ENDIF
@@ -360,13 +352,13 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  NOD_SMS_DT_SOL                source/ams/sms_auto_dt.F      
-Chd|-- called by -----------
-Chd|        SMS_AUTO_DT                   source/ams/sms_auto_dt.F      
-Chd|-- calls ---------------
-Chd|        SMS_MOD                       share/modules1/sms_mod.F      
-Chd|====================================================================
+!||====================================================================
+!||    nod_sms_dt_sol   ../starter/source/ams/sms_auto_dt.F
+!||--- called by ------------------------------------------------------
+!||    sms_auto_dt      ../starter/source/ams/sms_auto_dt.F
+!||--- uses       -----------------------------------------------------
+!||    sms_mod          ../starter/share/modules1/sms_mod.F
+!||====================================================================
       SUBROUTINE NOD_SMS_DT_SOL(
      1 NUMNOD  ,TAGEL_SMS ,NEL  ,NFT     ,NIX ,OFFSET,
      2 IXS  ,TAGN_SMS)
@@ -378,13 +370,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-#include      "sms_c.inc"
-#include      "scr17_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -416,8 +401,8 @@ C
               IF(TAG(I)==0)THEN
                 TAGN_SMS(I)=1
                 TAG(I)=1
-              END IF		    
-            END IF		    
+              END IF        
+            END IF        
           ENDDO
 C
         ENDIF

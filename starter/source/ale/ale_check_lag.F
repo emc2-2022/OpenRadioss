@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALE_CHECK_LAG                 source/ale/ale_check_lag.F    
-Chd|-- called by -----------
-Chd|        ALELEC                        source/ale/alelec.F           
-Chd|        R2R_GROUP                     source/coupling/rad2rad/r2r_group.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE ALE_CHECK_LAG(NALE,IXS,IXQ,IXC,IXT,IXTG,PM,ITAB,NALE_R2R,FLAG_R2R)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ale_check_lag   ../starter/source/ale/ale_check_lag.F
+!||--- called by ------------------------------------------------------
+!||    alelec          ../starter/source/ale/alelec.F
+!||    r2r_group       ../starter/source/coupling/rad2rad/r2r_group.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE ALE_CHECK_LAG(NALE,IXS,IXQ,IXC,IXT,IXTG,PM,ITAB,NALE_R2R,FLAG_R2R,IGEO)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -41,6 +42,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,19 +53,18 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER,INTENT(INOUT) :: NALE(NUMNOD)
       INTEGER,INTENT(IN) :: IXS(NIXS,NUMELS), IXQ(NIXQ,NUMELQ), IXC(NIXC,NUMELC), IXT(NIXT,NUMELT), IXTG(NIXTG,NUMELTG)
-      INTEGER,INTENT(IN) :: ITAB(NUMNOD), NALE_R2R(*),FLAG_R2R
+      INTEGER,INTENT(IN) :: ITAB(NUMNOD), NALE_R2R(*),FLAG_R2R, IGEO(NPROPGI,NUMGEO)
       my_real,INTENT(IN) :: PM(NPROPM,NUMMAT)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER M, IAL, I, N, JWARN, IMAT
+      INTEGER M, IAL, I, N, JWARN, IMAT, IPROP
+      INTEGER JALE_FROM_MAT, JALE_FROM_PROP
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
@@ -74,15 +75,18 @@ C--------------------------------------------------------------
       JWARN=0
       IF(NUMELQ /= 0)THEN
         DO M=1,NUMELQ
-          IMAT = IABS(IXQ(1,M))
+          IMAT = IABS(IXQ(1,M)) !/EULER/MAT or /ALE/MAT
+          IPROP = IABS(IXQ(6,M))!/PROP/TYPE14 (IALE_FLAG)
           IF(IMAT == 0)CYCLE
-          IAL = PM(72,IMAT)
+          JALE_FROM_MAT = NINT(PM(72,IMAT))
+          JALE_FROM_PROP = IGEO(62,IPROP)
+          IAL = JALE_FROM_MAT + JALE_FROM_PROP
           IF(IAL /= 0)CYCLE
           DO I=2,5
             N=IXQ(I,M)
             IF(IABS(NALE(N)) == 2)THEN
               JWARN=1
-              !WARNING NODE CONNECTS LAGRANGIAN QUAD TO EULERIAN QUAD	      
+              !WARNING NODE CONNECTS LAGRANGIAN QUAD TO EULERIAN QUAD        
               CALL ANCMSG(MSGID=336,MSGTYPE=MSGWARNING,ANMODE=ANINFO_BLIND_1,I1=ITAB(N),PRMOD=MSG_CUMU,C1='QUAD')
             ENDIF
           NALE(N)=0
@@ -96,9 +100,12 @@ C LAGRANGIAN CONDITION FOR NODES ON 3D LAGRANGIANS ELEMS
 C--------------------------------------------------------------
       IF(NUMELS /= 0)THEN
         DO M=1,NUMELS
-          IMAT = IABS(IXS(1,M))
+          IMAT = IABS(IXS(1,M)) !/EULER/MAT or /ALE/MAT
+          IPROP = IABS(IXS(10,M))!/PROP/TYPE14 (IALE_FLAG)
           IF(IMAT == 0)CYCLE
-          IAL = PM(72,IMAT)
+          JALE_FROM_MAT = NINT(PM(72,IMAT))
+          JALE_FROM_PROP = IGEO(62,IPROP)
+          IAL = JALE_FROM_MAT + JALE_FROM_PROP
           IF(IAL /= 0)CYCLE
           DO I=2,9
             N=IXS(I,M)
@@ -122,7 +129,7 @@ C---------------------------------------------------
             N=IXC(I,M)
             IF(IABS(NALE(N)) == 2)THEN
               JWARN=1
-	      !WARNING NODE CONNECTS SHELL (LAGRANGIAN) TO EULERIAN SOLID
+                !WARNING NODE CONNECTS SHELL (LAGRANGIAN) TO EULERIAN SOLID
               CALL ANCMSG(MSGID=336,MSGTYPE=MSGWARNING,ANMODE=ANINFO_BLIND_1,I1=ITAB(N),PRMOD=MSG_CUMU,C1='SHELL')
             ENDIF
           NALE(N)=0

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I11PEN3_VOX1                  source/interfaces/inter3d1/i11pen3.F
-Chd|-- called by -----------
-Chd|        I11STO_VOX1                   source/interfaces/inter3d1/i11sto.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i11pen3_vox1   ../starter/source/interfaces/inter3d1/i11pen3.F
+!||--- called by ------------------------------------------------------
+!||    i11sto_vox1    ../starter/source/interfaces/inter3d1/i11sto.F
+!||====================================================================
       SUBROUTINE I11PEN3_VOX1(JLT   ,CAND_S ,CAND_M ,GAPMIN ,DRAD   ,
      .                        MARGE ,GAP_S  ,GAP_M  ,GAP_S_L,GAP_M_L,
      .                        IGAP  ,X      ,IRECTS ,IRECTM ,PENE   ,
@@ -50,20 +49,17 @@ C-----------------------------------------------
      .     X(3,*), PENE(MVSIZ), 
      .     GAP_S(*), GAP_M(*), GAP_S_L(*), GAP_M_L(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG,N1,N2,M1,M2
+      INTEGER I, N1, N2, M1, M2
       my_real
      .     XS12,YS12,ZS12,XM12,YM12,ZM12,XA,XB,
-     .     XS2,XM2,XSM,XS2M2,YS2,YM2,YSM,YS2M2,ZS2,ZM2,ZSM,ZS2M2,
+     .     XS2,XM2,XSM,XS2M2,YS2M2,ZS2M2,
      .     XX,YY,ZZ,ALS,ALM,DET,
      .     GAP2, GAPV(MVSIZ)
 C-----------------------------------------------
 C
-      IF(IGAP.EQ.0)THEN
+      IF(IGAP==0)THEN
         DO I=1,JLT
           GAPV(I)=MAX(DRAD,GAPMIN+DGAPLOAD)+MARGE
         ENDDO
@@ -134,7 +130,7 @@ C
        ALM=MIN(ONE,MAX(ZERO,ALM))
 
 C !!!!!!!!!!!!!!!!!!!!!!!
-C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 C!!!!!!!!!!!!!!!!!!!!!!!!
        XX =  ALS*X(1,N1) + (1.-ALS)*X(1,N2)
      .      - ALM*X(1,M1) - (1.-ALM)*X(1,M2)
@@ -149,12 +145,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I11PEN3                       source/interfaces/inter3d1/i11pen3.F
-Chd|-- called by -----------
-Chd|        I11STO                        source/interfaces/inter3d1/i11sto.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i11pen3   ../starter/source/interfaces/inter3d1/i11pen3.F
+!||--- called by ------------------------------------------------------
+!||    i11sto    ../starter/source/interfaces/inter3d1/i11sto.F
+!||====================================================================
       SUBROUTINE I11PEN3(JLT   ,CAND_N,CAND_E,GAP   ,X,
      .                  IRECTS  ,IRECTM ,PENE  )
 C-----------------------------------------------
@@ -175,15 +170,12 @@ C-----------------------------------------------
       my_real
      .     X(3,*), PENE(MVSIZ)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG,N1,N2,M1,M2
+      INTEGER I, N1, N2, M1, M2
       my_real
      .     XS12,YS12,ZS12,XM12,YM12,ZM12,XA,XB,
-     .     XS2,XM2,XSM,XS2M2,YS2,YM2,YSM,YS2M2,ZS2,ZM2,ZSM,ZS2M2,
+     .     XS2,XM2,XSM,XS2M2,YS2M2,ZS2M2,
      .     XX,YY,ZZ,ALS,ALM,DET,
      .     GAP2
 C-----------------------------------------------
@@ -248,7 +240,7 @@ C
        ALM=MIN(ONE,MAX(ZERO,ALM))
 
 C !!!!!!!!!!!!!!!!!!!!!!!
-C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 C!!!!!!!!!!!!!!!!!!!!!!!!
        XX =  ALS*X(1,N1) + (1.-ALS)*X(1,N2)
      .      - ALM*X(1,M1) - (1.-ALM)*X(1,M2)

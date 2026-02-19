@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I24COR3                       source/interfaces/int24/i24cor3.F
-Chd|-- called by -----------
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|-- calls ---------------
-Chd|        I24FIC_GETN                   source/interfaces/int24/i24for3e.F
-Chd|        DEBUG_MOD                     share/modules/debug_mod.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i24cor3          ../engine/source/interfaces/int24/i24cor3.F
+!||--- called by ------------------------------------------------------
+!||    i24mainf         ../engine/source/interfaces/int24/i24main.F
+!||--- calls      -----------------------------------------------------
+!||    i24fic_getn      ../engine/source/interfaces/int24/i24for3e.F
+!||--- uses       -----------------------------------------------------
+!||    debug_mod        ../engine/share/modules/debug_mod.F
+!||    parameters_mod   ../common_source/modules/interfaces/parameters_mod.F
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24COR3(
      1               JLT      ,X        ,IRECT   ,NSV     ,CAND_E   ,
      2               CAND_N   ,CAND_T   ,STF     ,STFN    ,STIF     ,
@@ -47,12 +49,14 @@ Chd|====================================================================
      I               IXX3     ,IXX4      , XX1     ,XX2   ,XX3       ,
      3               XX4      ,YY1       ,YY2      ,YY3   ,YY4       ,
      4               ZZ1      ,ZZ2       ,ZZ3      ,ZZ4   ,NINLOADP  ,
-     5               DIST    ) 
+     5               DIST     ,ISTIF_MSDT,DTSTIF   ,STIFMSDT_S,STIFMSDT_M,
+     6               NRTM     ,PARAMETERS) 
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE TRI7BOX
       USE DEBUG_MOD
+      USE PARAMETERS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -64,15 +68,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
 #include      "sms_c.inc"
-#include      "units_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -86,6 +83,8 @@ C-----------------------------------------------
      .        IPARTFRICMI(MVSIZ),IREP_FRICM(*),IREP_FRICMI(MVSIZ),
      .        IXX3(MVSIZ),IXX4(MVSIZ)
            INTEGER  , INTENT(IN) :: NINLOADP
+      INTEGER , INTENT(IN) :: ISTIF_MSDT
+      INTEGER , INTENT(IN) :: NRTM
 C     REAL
       my_real
      .   X(3,*), STF(*), STFN(*),
@@ -100,15 +99,19 @@ C     REAL
      .   DIR_FRICM(2,*) ,DIR_FRICMI(MVSIZ,2) ,
      .   XX1(MVSIZ), XX2(MVSIZ), XX3(MVSIZ), XX4(MVSIZ),
      .   YY1(MVSIZ), YY2(MVSIZ), YY3(MVSIZ), YY4(MVSIZ),
-     .   ZZ1(MVSIZ), ZZ2(MVSIZ), ZZ3(MVSIZ), ZZ4(MVSIZ)
+     .   ZZ1(MVSIZ), ZZ2(MVSIZ), ZZ3(MVSIZ), ZZ4(MVSIZ),
+     .   STIF_MSDT(MVSIZ)
       my_real  , INTENT(INOUT) :: DIST(MVSIZ)
+      my_real , INTENT(IN) :: DTSTIF
+      my_real , INTENT(IN) ::  STIFMSDT_S(NSN) ,STIFMSDT_M(NRTM)
+      TYPE (PARAMETERS_) ,INTENT(IN):: PARAMETERS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I ,J  ,IL, L, NN, IG,JFT, IX,  NI,IGF,IPT,IE,NS1,NS2,
      .        ICONT1,ICONT2,NSI,IPT2,NS
       my_real
-     .        SX1, SY1, SZ1, SX2, SY2, SZ2, NORM
+     .        SX1, SY1, SZ1, SX2, SY2, SZ2, NORM, DTS
 C-----------------------------------------------
 C initiailisation
       DO I=1,JLT
@@ -120,7 +123,7 @@ C-initialize ISPT2_LOC (local or Remote)
        IF (IEDG4 > 0) THEN
          DO I=1,JLT
            NI = CAND_N(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
               ISPT2_LOC(I) = ISPT2(NI)
            ELSE
              NN = NI - NSN
@@ -137,10 +140,10 @@ C
       DO I=1,JLT
            NI = CAND_N(I)
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IG = NSV(NI)
              NSVG(I) = IG
-C---------------voir KINET(IG) est initi   quand    
+C-------------- see Kinet (IG) is initial when    
             IF (IG <= NUMNOD) THEN         
              KINI(I) = KINET(IG)
              XI(I) = X(1,IG)
@@ -485,62 +488,62 @@ C
            ENDIF
 
       END DO
-C	  
-      IF(IGSTI.LE.1)THEN
+C    
+      IF(IGSTI<=1)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=STF(L)*ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF(I)=STF(L)*ABS(STIFI(NIN)%P(NN))
           END IF
          ENDDO
-      ELSEIF(IGSTI.EQ.2)THEN
+      ELSEIF(IGSTI==2)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF(I)=ABS(STIFI(NIN)%P(NN))
           END IF
           STIF(I)=HALF*(STF(L)+STIF(I))
-          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-      ELSEIF(IGSTI.EQ.3)THEN
+      ELSEIF(IGSTI==3)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF(I)=ABS(STIFI(NIN)%P(NN))
           END IF
           STIF(I)=MAX(STF(L),STIF(I))
-          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-      ELSEIF(IGSTI.EQ.4.OR.IGSTI.EQ.6)THEN
+      ELSEIF(IGSTI==4.OR.IGSTI==6)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF(I)=ABS(STIFI(NIN)%P(NN))
           END IF
           STIF(I)=MIN(STF(L),STIF(I))
-          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-      ELSEIF(IGSTI.EQ.5)THEN
+      ELSEIF(IGSTI==5)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
@@ -548,7 +551,11 @@ C
           END IF
           STIF(I)=STF(L)*STIF(I)/
      .            MAX(EM30,(STF(L)+STIF(I)))
-          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+         ENDDO
+      ELSEIF(IGSTI==7)THEN
+         DO I=1,JLT
+            STIF(I)=ZERO
          ENDDO
       ENDIF
 c      DO I=1,JLT
@@ -561,10 +568,44 @@ c           STIF(I) = ZEP3*STIF(I)
 c          END IF
 c        END IF
 c      END DO !I=1,JLT
+
+
+C------------------------------------------
+C   Stiffness based on mass and time step
+C------------------------------------------
+
+      IF(ISTIF_MSDT > 0) THEN
+         IF(DTSTIF > ZERO) THEN
+            DTS = DTSTIF
+         ELSE
+            DTS = PARAMETERS%DT_STIFINT
+         ENDIF
+         DO I=1,JLT
+            L  = CAND_E(I)
+            NI = CAND_N(I)
+            IF(NI<=NSN)THEN
+              STIF_MSDT(I) = STIFMSDT_S(NI)
+            ELSE
+              NN = NI - NSN
+              STIF_MSDT(I) = ABS(STIF_MSDT_FI(NIN)%P(NN))
+            ENDIF
+            STIF_MSDT(I) = STIFMSDT_M(L)*STIF_MSDT(I)/(STIFMSDT_M(L)+STIF_MSDT(I))
+            STIF_MSDT(I) = STIF_MSDT(I)/(DTS*DTS)
+            STIF(I)=MAX(STIF(I),STIF_MSDT(I))
+         ENDDO
+      ENDIF
+C
+      DO I=1,JLT
+         STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+      ENDDO
+C----------
+
+
+
 C----------
       IF(IDTMINS==2)THEN
        DO I=1,JLT
-        IF(NSVG(I).GT.0)THEN
+        IF(NSVG(I)>0)THEN
          IF (NSVG(I) <= NUMNOD) THEN 
           NN = NODNX_SMS(NSVG(I))
          ELSE
@@ -585,7 +626,7 @@ C----------
        ENDDO
        IF(IDTMINS_INT/=0)THEN
          DO I=1,JLT
-          IF(NSMS(I).EQ.0)NSMS(I)=-1
+          IF(NSMS(I)==0)NSMS(I)=-1
          ENDDO
        END IF
       ELSEIF(IDTMINS_INT/=0)THEN
@@ -594,12 +635,12 @@ C----------
         ENDDO
       ENDIF
          
-C----Friction model : secnd part IDs---------
+C----Friction model : second part IDs---------
       IF(INTFRIC > 0) THEN
          DO I=1,JLT
            NI = CAND_N(I)
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IPARTFRICSI(I)= IPARTFRICS(NI)
            ELSE
              NN = NI - NSN
@@ -629,11 +670,11 @@ C
          ENDDO
        ENDIF
 C
-C----Friction model : secnd part IDs---------
+C----Friction model : second part IDs---------
       IF(INTNITSCHE > 0) THEN
          DO I=1,JLT
            NI = CAND_N(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IG = NSVG(I)
              FORNEQSI(I,1)= FORNEQS(1,IG)
              FORNEQSI(I,2)= FORNEQS(2,IG)
@@ -649,7 +690,7 @@ C----Friction model : secnd part IDs---------
 C
       IF(NINLOADP > 0) THEN
 C-----------------------------------------------
-C         Distance between secnd node 
+C         Distance between second node 
 C              and main segment 
 C-----------------------------------------------
         DO I=1,JLT 
@@ -677,11 +718,9 @@ C
        ENDIF
       RETURN
       END
-Chd|====================================================================
-Chd|  I24INI_ISPT2                  source/interfaces/int24/i24cor3.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i24ini_ispt2   ../engine/source/interfaces/int24/i24cor3.F
+!||====================================================================
       SUBROUTINE I24INI_ISPT2(
      1               JLT     ,NSV   ,CAND_N ,NSN   ,IRTSE  ,
      2               IS2SE   ,ISPT2 ,ISEGPT ,IRTLM ,NSNE   ,
@@ -691,14 +730,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -708,7 +742,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C----- get edge NS1,NS2 and--Secnd seg id :IE-
+C----- get edge NS1,NS2 and--Second seg id :IE-
       INTEGER ITAG(NRTSE),IE1,IE2
       INTEGER I ,J  ,IL, L, NN, IG,JFT, IX,  NI,IGF,IPT,IE,NS1,NS2,
      .        ICONT1,ICONT2,NSI,IPT2,NS,ip
@@ -766,12 +800,11 @@ C
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24ISPT2_INI                  source/interfaces/int24/i24cor3.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i24ispt2_ini   ../engine/source/interfaces/int24/i24cor3.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box        ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24ISPT2_INI(
      1               JLT     ,NSV   ,CAND_N ,NSN   ,IRTSE  ,
      2               IS2SE   ,ISPT2 ,ISEGPT ,IRTLM ,NSNE   ,
@@ -782,14 +815,9 @@ C-----------------------------------------------
       USE TRI7BOX
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -799,7 +827,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C----- get edge NS1,NS2 and--Secnd seg id :IE-
+C----- get edge NS1,NS2 and--Second seg id :IE-
       INTEGER IE1,IE2
       INTEGER I ,J  ,IL, L, NN, IG,JFT, IX,  NI,IGF,IPT,IE,NS1,NS2,
      .        ICONT1,ICONT2,NSI,IPT2,NS,ip
@@ -814,7 +842,7 @@ C-initialize ISPT2(takes nodal normal or not),
 C---not set ISPT2=0 : when only one internal point is on contact  
         DO I=1,JLT
            NI = CAND_N(I)
-           IF(NI .LE. NSN)THEN
+           IF(NI <= NSN)THEN
              NSI = ISEGPT(NI)
              IF (NSI >0) THEN
               NS = NSV(NSI)-NUMNOD
@@ -823,7 +851,7 @@ C-----------one internal point for SPMD reason ----
                NN = NSI
                ICONT1 = IRTLM(1,NN)
               IF (ICONT1 /=0) THEN
-	       ISPT2(I) = 0
+                 ISPT2(I) = 0
               ELSE
                ISPT2(I) = NSI
               END IF
@@ -850,14 +878,14 @@ C-----------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I24ISPT2_INI_OPTTRI           source/interfaces/int24/i24cor3.F
-Chd|-- called by -----------
-Chd|        I24OPTCD                      source/interfaces/intsort/i24optcd.F
-Chd|-- calls ---------------
-Chd|        DEBUG_MOD                     share/modules/debug_mod.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i24ispt2_ini_opttri   ../engine/source/interfaces/int24/i24cor3.F
+!||--- called by ------------------------------------------------------
+!||    i24optcd              ../engine/source/interfaces/intsort/i24optcd.F
+!||--- uses       -----------------------------------------------------
+!||    debug_mod             ../engine/share/modules/debug_mod.F
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24ISPT2_INI_OPTTRI(
      1               JFT,JLT     ,NSV   ,CAND_N ,NSN   ,IRTSE  ,
      2               IS2SE   ,ISPT2 ,ISEGPT ,IRTLM ,NSNE   ,
@@ -869,15 +897,6 @@ C-----------------------------------------------
       USE DEBUG_MOD
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IRTSE(5,*) ,IS2SE(2,*),JLT ,NSV(*),CAND_N(*) ,NSN   ,
@@ -886,7 +905,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C----- get edge NS1,NS2 and--Secnd seg id :IE-
+C----- get edge NS1,NS2 and--Second seg id :IE-
       INTEGER IE1,IE2
       INTEGER I ,J  ,IL, L, IG,JFT, IX,  NI,IGF,IPT,IE,NS1,NS2,
      .        ICONT1,ICONT2,NSI,IPT2,ip,SN
@@ -907,7 +926,7 @@ C---not set ISPT2=0 : when only one internal point is on contact
 C-----------one internal point for SPMD reason ----   
                ICONT1 = IRTLM(1,NSI)
               IF (ICONT1 /=0) THEN
-	       ISPT2(NI) = 0
+                 ISPT2(NI) = 0
               ELSE
                ISPT2(NI) = 1
               END IF
@@ -921,18 +940,18 @@ C-----------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I_CORPFIT3                    source/interfaces/int24/i24cor3.F
-Chd|-- called by -----------
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i_corpfit3   ../engine/source/interfaces/int24/i24cor3.F
+!||--- called by ------------------------------------------------------
+!||    i24mainf     ../engine/source/interfaces/int24/i24main.F
+!||    i25mainf     ../engine/source/interfaces/int25/i25mainf.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box      ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I_CORPFIT3(
      1               JLT      ,STF     ,STFN    ,STIF     ,NSN    ,
      2               CAND_E   ,CAND_N  ,NIN     ,IGSTI   ,KMIN     ,
-     3               KMAX     ,INACTI  ,NCFIT   ,TNCY) 
+     3               KMAX     ,INACTI  ,NCFIT   ,TNCY    ,IKNON   ) 
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -946,61 +965,94 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "units_c.inc"
-#include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER CAND_E(*), CAND_N(*),JLT,NSN, NIN, IGSTI,NCFIT,INACTI
 C     REAL
       my_real
      .   STF(*), STFN(*),STIF(*),KMIN,KMAX,TNCY
+      INTEGER, DIMENSION(MVSIZ), INTENT(INOUT) :: IKNON
 C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I ,J  ,L, NN, IG,JFT, IX,  NI
       my_real
-     .   STIF_S,STIF_R(MVSIZ),F_PFIT,FA,FB,FAB
+     .   STIF_S,STIF_R(MVSIZ),F_PFIT,FA,FB,FAB,R_MIN
 C-----------------------------------------------
 C--- fixing min(stif) with Inacti=-1
+      R_MIN = ONE
       IF (INACTI==-1)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF_S =ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF_S =ABS(STIFI(NIN)%P(NN))
           END IF
-c		  STIF_R(I) = MIN(STIF_S,STF(L))/MAX(EM20,STIF(I))
-		  STIF(I) = MIN(STIF_S,STF(L))
+          STIF(I) = MIN(STIF_S,STF(L))
+          STIF_R(I) = STIF(I)/MAX(STIF_S,STF(L))
+          R_MIN = MIN(R_MIN,STIF_R(I))
+          IF(IGSTI==2) STIF(I) = HALF*(STIF_S+STF(L)) !option Inacti=-2
+         ENDDO
+      ELSEIF (IGSTI==-1)THEN
+         DO I=1,JLT
+           L  = CAND_E(I)
+           NI = CAND_N(I)
+           IF(NI<=NSN)THEN
+             STIF_S =ABS(STFN(NI))
+           ELSE
+             NN = NI - NSN
+             STIF_S =ABS(STIFI(NIN)%P(NN))
+           END IF
+           STIF(I) = MIN(STIF_S,STF(L))
+           STIF_R(I) = STIF(I)/MAX(STIF_S,STF(L))
          ENDDO
       END IF
       IF(NCFIT>0)THEN
          FA = MIN(ONE,THREE*TNCY)
          FAB= MAX(ZERO,THREE*TNCY-ONE)
          FB = MAX(ZERO,THREE*TNCY-TWO)
-         F_PFIT = EM04*(FA+FAB)+FB
+         IF (IGSTI==2.AND.R_MIN>ZEP05) THEN
+           F_PFIT = EM04*FA+EM02*FAB+FB
+         ELSE
+           F_PFIT = EM04*(FA+FAB)+FB
+         END IF
          STIF(1:JLT)=F_PFIT*STIF(1:JLT)
+         IF (FB >ZERO.AND.IGSTI/=2) THEN 
+           DO I=1,JLT
+             IF (STIF_R(I)<ZEP05) IKNON(I) = 1 
+           ENDDO
+         ELSEIF (FAB >ZERO.AND.IGSTI/=2) THEN 
+           IKNON(1:JLT) = -1 ! special quadratic 
+         END IF
+      ELSEIF (INACTI==-1.AND.IGSTI/=2)THEN
+         DO I=1,JLT
+           IF (STIF_R(I)<ZEP05) IKNON(I) = 1 
+         ENDDO
+      ELSEIF (IGSTI ==-1)THEN
+         DO I=1,JLT
+           IF (STIF_R(I) > 0.9 ) THEN
+             IKNON(I) = 1 
+           ELSEIF (STIF_R(I) < EM03) THEN
+             IKNON(I) = 3
+           ELSE             
+             IKNON(I) = 2
+           END IF
+         ENDDO
       END IF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I_COR_EPFIT3                  source/interfaces/int24/i24cor3.F
-Chd|-- called by -----------
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i_cor_epfit3   ../engine/source/interfaces/int24/i24cor3.F
+!||--- called by ------------------------------------------------------
+!||    i25mainf       ../engine/source/interfaces/int25/i25mainf.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box        ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I_COR_EPFIT3(
      1               JLT      ,STFE    ,STIF    ,CAND_S ,CAND_M ,
      3               NEDGE    ,NIN     ,INACTI  ,NCFIT   ,TNCY) 
@@ -1016,12 +1068,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "com04_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1044,15 +1090,15 @@ C--- fixing min(stif) with Inacti=-1
          DO I=1,JLT
           EM = CAND_M(I)
           NI = CAND_S(I)
-          IF(NI.LE.NEDGE)THEN
+          IF(NI<=NEDGE)THEN
             ES =NI
             STIF_S =STFE(ES)
           ELSE
             NN = NI - NEDGE
             STIF_S =STIFIE(NIN)%P(NN)
           END IF
-c		  STIF_R(I) = MIN(STIF_S,STFE(EM))/MAX(EM20,STIF(I))
-		  STIF(I) = MIN(STIF_S,STFE(EM))
+c      STIF_R(I) = MIN(STIF_S,STFE(EM))/MAX(EM20,STIF(I))
+            STIF(I) = MIN(STIF_S,STFE(EM))
          ENDDO
       END IF
       IF(NCFIT>0)THEN

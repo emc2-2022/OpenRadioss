@@ -1,54 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIT_SURF_ELM                 source/groups/init_surf_elm.F 
-Chd|-- called by -----------
-Chd|        HM_READ_LINES                 source/groups/hm_read_lines.F 
-Chd|        HM_READ_SURF                  source/groups/hm_read_surf.F  
-Chd|-- calls ---------------
-Chd|        SURF_MOD                      share/modules1/surf_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    init_surf_elm   ../starter/source/groups/init_surf_elm.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_lines   ../starter/source/groups/hm_read_lines.F
+!||    hm_read_surf    ../starter/source/groups/hm_read_surf.F
+!||--- uses       -----------------------------------------------------
+!||    surf_mod        ../starter/share/modules1/surf_mod.F
+!||====================================================================
         SUBROUTINE INIT_SURF_ELM( NUMELS  ,NUMELS8,NUMELS10,NUMELC ,NUMELTG ,
      1                            NUMELT  ,NUMELP ,NUMELR  ,NPART  ,IPARTS  ,
      2                            IPARTC  ,IPARTTG,IPARTT  ,IPARTP ,IPARTR  ,
      3                            SURF_ELM,MODE )
         USE SURF_MOD
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* 
-!       INIT_SURF_ELM initializes the structur SURF_ELM
+!       INIT_SURF_ELM initializes the structure SURF_ELM
 !       SURF_ELM gathers the element ID for each /PART
-!       MODE = 1 is for solid/shell and shell3n elememts
+!       MODE = 1 is for solid/shell and shell3n elements
 !       MODE = 2 is for truss/beam and spring elements
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -65,7 +59,7 @@ C-----------------------------------------------
 !                  number of solid/solid8/10/shell/shell3n...
 !       IPARTxxx : integer, dimension=number of element
 !                  ID of the /PART for the current I element
-!       SURF_ELM : PART_TYPE structur 
+!       SURF_ELM : PART_TYPE structure 
 !                  %Nxxx : number of element per part
 !                  %xxx_PART : ID of the element 
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -194,21 +188,21 @@ C-----------------------------------------------
         RETURN
         END SUBROUTINE INIT_SURF_ELM
 
-Chd|====================================================================
-Chd|  DEALLOCATE_SURF_ELM           source/groups/init_surf_elm.F 
-Chd|-- called by -----------
-Chd|        HM_READ_LINES                 source/groups/hm_read_lines.F 
-Chd|        HM_READ_SURF                  source/groups/hm_read_surf.F  
-Chd|-- calls ---------------
-Chd|        SURF_MOD                      share/modules1/surf_mod.F     
-Chd|====================================================================
+!||====================================================================
+!||    deallocate_surf_elm   ../starter/source/groups/init_surf_elm.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_lines         ../starter/source/groups/hm_read_lines.F
+!||    hm_read_surf          ../starter/source/groups/hm_read_surf.F
+!||--- uses       -----------------------------------------------------
+!||    surf_mod              ../starter/share/modules1/surf_mod.F
+!||====================================================================
         SUBROUTINE DEALLOCATE_SURF_ELM(NPART,SURF_ELM,MODE)
 
         USE SURF_MOD
 
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* 
-!       DEALLOCATE_SURF_ELM deallocates the structur SURF_ELM
-!       MODE = 1 is for solid/shell and shell3n elememts
+!       DEALLOCATE_SURF_ELM deallocates the structure SURF_ELM
+!       MODE = 1 is for solid/shell and shell3n elements
 !       MODE = 2 is for truss/beam and spring elements
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-* 
 C-----------------------------------------------
@@ -216,22 +210,16 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
         INTEGER, INTENT(IN) :: NPART,MODE
         TYPE(PART_TYPE), DIMENSION(NPART), INTENT(INOUT) :: SURF_ELM
-!       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*       
+!       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 !       NPART    : integer
 !                  number of /PART
-!       SURF_ELM : PART_TYPE structur 
+!       SURF_ELM : PART_TYPE structure 
 !                  %Nxxx : number of element per part
-!                  %xxx_PART : ID of the element 
+!                  %xxx_PART : ID of the element
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s

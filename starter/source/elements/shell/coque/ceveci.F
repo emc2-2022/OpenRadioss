@@ -1,36 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CEVECI                        source/elements/shell/coque/ceveci.F
-Chd|-- called by -----------
-Chd|        CEPSINI                       source/elements/shell/coque/cepsini.F
-Chd|        CFINT_REG_INI                 source/elements/shell/coque/cfint_reg_ini.F
-Chd|        CINIT3                        source/elements/shell/coque/cinit3.F
-Chd|        FSIGCINI                      source/constraints/fxbody/fsigcini.F
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ceveci          ../starter/source/elements/shell/coque/ceveci.F
+!||--- called by ------------------------------------------------------
+!||    cepsini         ../starter/source/elements/shell/coque/cepsini.F
+!||    cfint_reg_ini   ../starter/source/elements/shell/coque/cfint_reg_ini.F
+!||    cinit3          ../starter/source/elements/shell/coque/cinit3.F
+!||    fsigcini        ../starter/source/constraints/fxbody/fsigcini.F
+!||    inirig_mat      ../starter/source/elements/initia/inirig_mat.F
+!||    inivoid         ../starter/source/elements/initia/inivoid.F
+!||====================================================================
       SUBROUTINE CEVECI(JFT,JLT,AREA,
      .           X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  ,
      .           Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4  ,

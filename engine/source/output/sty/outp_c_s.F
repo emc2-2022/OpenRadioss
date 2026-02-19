@@ -1,40 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  OUTP_C_S                      source/output/sty/outp_c_s.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|-- calls ---------------
-Chd|        SPMD_RGATHER9_1COMM           source/mpi/interfaces/spmd_outp.F
-Chd|        S_USER                        source/output/sty/s_user.F    
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    outp_c_s              ../engine/source/output/sty/outp_c_s.F
+!||--- called by ------------------------------------------------------
+!||    genoutp               ../engine/source/output/sty/genoutp.F
+!||--- calls      -----------------------------------------------------
+!||    s_user                ../engine/source/output/sty/s_user.F
+!||    spmd_rgather9_1comm   ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE OUTP_C_S(NBXX,KEY,TEXT,ELBUF_TAB,IPARG ,EANI,
      .                    IPM ,IGEO,IXC ,IXTG ,DD_IAD,SIZLOC,SIZP0,THKE,SIZ_WR)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,10 +49,7 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "scr03_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -66,11 +66,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,II,JJ,IGTYP,NUVAT,NBB(100),RESP0,WRTLEN,RES
-      INTEGER NG, NEL, NFT, IAD, ITY, LFT, NPT,NLAY,NPTR,NPTS,NPTT,
-     .        LLT, MLW, ISTRAIN,N, K1, K2,IL,IR,IS,IT,
-     .        IHBE, JJ_OLD, NGF, NGL, NN, LEN, IMX,NUVAR,L,
-     .        NBX,NPG,MPT,IPT,I1,NU,KK,NS,NVAR,ITHK,I5,COMPTEUR,
+      INTEGER I,J,K,JJ,RESP0,WRTLEN,RES
+      INTEGER NG, NEL, NFT, ITY, LFT, NPT,NLAY,NPTR,NPTS,NPTT,
+     .        LLT, MLW, ISTRAIN,N,IL,IR,IS,IT,
+     .        IHBE, JJ_OLD, NGF, NGL, NN, IMX,NUVAR,L,
+     .        NBX,NPG,MPT,IPT,I1,NU,KK,NVAR,ITHK,COMPTEUR,
      .        IJ(3)
       INTEGER, DIMENSION(NSPGROUP) :: JJ_LOC
       INTEGER, DIMENSION(NSPGROUP+1,NSPMD) :: ADRESS 
@@ -78,9 +78,9 @@ C-----------------------------------------------
      .   WA(SIZLOC),WAP0(SIZ_WR),WAP0_LOC(SIZP0)
 
       my_real   
-     .   FAC,S1, S2, S12, VONM2,AA,MEAN_GAUSS
+     .   FAC,S1, S2, S12, VONM2,MEAN_GAUSS
       my_real   
-     .   FUNC(6),FUNC1(100)
+     .   FUNC(6)
       TYPE(BUF_LAY_) ,POINTER :: BUFLY     
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
@@ -162,7 +162,7 @@ C
      .            (MLW == 1.OR.MLW == 2.OR.MLW == 3.OR.MLW == 19.OR.
      .             MLW == 22.OR.MLW == 15.OR.MLW == 23.OR.MLW == 25.OR.
      .             MLW == 27.OR.MLW == 32)) THEN
-C Ecriture de 0. si loi non user et outp user demande
+C Writing 0. If law not user and outp user requests
                 DO I=LFT,LLT
                   JJ=JJ+1
                   WA(JJ) = ZERO
@@ -523,7 +523,7 @@ c-----------------------------------------------------------------
         ENDDO
        ENDIF
 !     ++++++++++
-       IF(ISPMD.EQ.0) THEN
+       IF(ISPMD==0) THEN
          RESP0 = 0
          DO NN=1,NSPGROUP
           COMPTEUR = 0
@@ -542,7 +542,7 @@ c-----------------------------------------------------------------
 c-------
             IF (NBX == 26) THEN    ! all User variables           
               J = 1
-              DO WHILE (J.LT.JJ_OLD+1)
+              DO WHILE (J<JJ_OLD+1)
                 IHBE  = NINT(WAP0(J )) 
                 NPT   = NINT(WAP0(J + 1)) 
                 NPG   = NINT(WAP0(J + 2)) 
@@ -595,11 +595,11 @@ c
                     ENDDO 
                   ENDIF 
                 ENDIF        
-              ENDDO    ! DO WHILE (J.LT.JJ_OLD)
+              ENDDO    ! DO WHILE (J<JJ_OLD)
 c-------
             ELSEIF (NBX >= 27 .AND. NBX <= 86) THEN  ! single User variables          
               J = 1
-              DO WHILE (J.LT.JJ_OLD+1)
+              DO WHILE (J<JJ_OLD+1)
                 IHBE  = NINT(WAP0(J )) 
                 NPT   = NINT(WAP0(J + 1)) 
                 NPG   = NINT(WAP0(J + 2)) 
@@ -618,7 +618,7 @@ c-------
                   WRITE(IUGEO,'(1P6E20.13)')(WAP0(J + K - 1),K=1,NVAR)
                 ENDIF
                 J = J + NVAR
-              ENDDO  ! DO WHILE (J.LT.JJ_OLD)
+              ENDDO  ! DO WHILE (J<JJ_OLD)
 c-------
             ELSE  ! Other NBX
               RES=MOD(JJ_OLD,6)
@@ -653,14 +653,16 @@ c-----------
       RETURN
       END
 c
-Chd|====================================================================
-Chd|  COUNT_ARSZ_CS                 source/output/sty/outp_c_s.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|        OUTP_ARSZ_CS                  source/mpi/interfaces/spmd_outp.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE COUNT_ARSZ_CS(IPARG,IXC,IXTG,IGEO,IPM,DD_IAD,WASZ,SIZ_WRITE_LOC) 
+!||====================================================================
+!||    count_arsz_cs   ../engine/source/output/sty/outp_c_s.F
+!||--- called by ------------------------------------------------------
+!||    genoutp         ../engine/source/output/sty/genoutp.F
+!||    outp_arsz_cs    ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||====================================================================
+      SUBROUTINE COUNT_ARSZ_CS(IPARG,IXC,IXTG,IGEO,IPM,DD_IAD,WASZ,SIZ_WRITE_LOC)
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -682,8 +684,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER JJ,NGF,NGL,NN,ITY,IAD,NFT,LFT,LLT,NPT,
-     .        IHBE,IGTYP,NUVAR,MLW,NG,NEL,NBX,I,NPG,MPT,
+      INTEGER JJ,NGF,NGL,NN,ITY,NFT,LFT,LLT,NPT,
+     .        IHBE,IGTYP,NUVAR,MLW,NG,NEL,I,NPG,MPT,
      .        WASZ1,WASZ26,J
 C-----------------------------------------------
       WASZ1 = 0
@@ -744,9 +746,9 @@ C-----------------------------------------------
                ENDDO
            ENDIF
 
-           IF ((MLW.GE.29.AND.MLW.LE.31).OR.
+           IF ((MLW>=29.AND.MLW<=31).OR.
      .        MLW == 35.OR.MLW == 36.OR.MLW == 43.OR.
-     .        MLW == 44.OR.MLW == 45.OR.MLW == 48.OR.MLW.GE.50) THEN
+     .        MLW == 44.OR.MLW == 45.OR.MLW == 48.OR.MLW>=50) THEN
 
               NPG=0
 
@@ -812,9 +814,9 @@ C
                  NUVAR  = MAX(NUVAR,IPM(8,IXTG(1,I+NFT)))
                ENDDO
            ENDIF
-             IF ((MLW.GE.29.AND.MLW.LE.31).OR.
+             IF ((MLW>=29.AND.MLW<=31).OR.
      .        MLW == 35.OR.MLW == 36.OR.MLW == 43.OR.
-     .        MLW == 44.OR.MLW == 45.OR.MLW == 48.OR.MLW.GE.50) THEN
+     .        MLW == 44.OR.MLW == 45.OR.MLW == 48.OR.MLW>=50) THEN
 
               NPG=0
 

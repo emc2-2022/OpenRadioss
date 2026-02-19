@@ -1,36 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  H3D_VELVECC22                 source/output/h3d/h3d_results/h3d_velvecc22.F
-Chd|-- called by -----------
-Chd|        H3D_NODAL_VECTOR              source/output/h3d/h3d_results/h3d_nodal_vector.F
-Chd|-- calls ---------------
-Chd|        H3D_WRITE_VECTOR              source/output/h3d/h3d_results/h3d_write_vector.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    h3d_velvecc22      ../engine/source/output/h3d/h3d_results/h3d_velvecc22.F
+!||--- called by ------------------------------------------------------
+!||    h3d_nodal_vector   ../engine/source/output/h3d/h3d_results/h3d_nodal_vector.F
+!||--- calls      -----------------------------------------------------
+!||    h3d_write_vector   ../engine/source/output/h3d/h3d_results/h3d_write_vector.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod     ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22edge_mod        ../common_source/modules/interfaces/cut-cell-buffer_mod.F
+!||    i22tri_mod         ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    initbuf_mod        ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE H3D_VELVECC22(ELBUF_TAB,IPARG,IFLG,IXS,IXQ,ITAB,
      .                         IOK_PART,IS_WRITTEN_NODE,NODAL_VECTOR)
 C-----------------------------------------------
@@ -50,7 +53,8 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD  
       USE I22BUFBRIC_MOD   
       USE I22EDGE_MOD    
-      USE I22TRI_MOD         
+      USE I22TRI_MOD        
+      use element_mod , only : nixs,nixq 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,27 +62,23 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "spmd_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER, INTENT(IN) :: IPARG(NPARG,*), IFLG,IXS(NIXS,NUMELS),IXQ(NIXQ,NUMELQ),ITAB(NUMNOD)
-      INTEGER, INTENT(IN)    :: IOK_PART(*),IS_WRITTEN_NODE(*) 
+      INTEGER, INTENT(IN)    :: IOK_PART(*)
+      INTEGER, INTENT(INOUT) :: IS_WRITTEN_NODE(*) 
       my_real, INTENT(INOUT) :: NODAL_VECTOR(3,*)   
-      REAL R4
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB      
       TYPE(BUF_MAT_),POINTER                          :: MBUF   
       TYPE(G_BUFEL_),POINTER                          :: GBUF 
 C-----------------------------------------------
 C   L o c a l   A r g u m e n t s
 C----------------------------------------------- 
-      INTEGER :: NGM, IDLOCM, IBM,ICELLM,MLW,NCELL,NELm,NBF,NBL,ICELL,NIN,NODE_ID,IB,NG,I
+      INTEGER :: NGM, IDLOCM, IBM,ICELLM,MLW,NCELL,NELm,NBF,NBL,ICELL,NIN,NODE_ID,IB,I
       my_real :: rho_cell, RHO(4), VFRAC(4)
       REAL,DIMENSION(:,:),ALLOCATABLE :: BUFFER
       my_real VALUE(3)
@@ -95,7 +95,7 @@ C-----------------------------------------------
        DO IB=NBF,NBL    
          ICELL               =  0                                                                
          NCELL               = BRICK_LIST(NIN,IB)%NBCUT                                                                                                          
-         DO WHILE (ICELL.LE.NCELL) ! loop on polyhedron {1:NCELL} U {9}                                                                            
+         DO WHILE (ICELL<=NCELL) ! loop on polyhedron {1:NCELL} U {9}                                                                            
            ICELL             = ICELL +1                                                                                                                        
            IF (ICELL>NCELL .AND. NCELL/=0)ICELL=9   
            IBM               = BRICK_LIST(NIN,IB)%POLY(ICELL)%WhereIsMain(4)
@@ -111,7 +111,7 @@ C-----------------------------------------------
            NELm              = IPARG(2,NGM)   
            MLW               = IPARG(1,NGM)                                             
            IF(MLW==37)THEN
-              !UVAR(I,1) : massic percentage of liquid * global density  (rho1*V1/V : it needs to give liquid mass multipling by element volume in aleconve.F)
+              !UVAR(I,1) : massic percentage of liquid * global density  (rho1*V1/V : it needs to give liquid mass multiplying by element volume in aleconve.F)
               !UVAR(I,2) : density of gas
               !UVAR(I,3) : density of liquid
               !UVAR(I,4) : volumetric fraction of liquid
@@ -129,7 +129,7 @@ C-----------------------------------------------
               rho_cell       = GBUF%RHO(IDLOCM)
            ENDIF
            NODE_ID           = BRICK_LIST(NIN,IB)%POLY(ICELL)%ID_FREE_NODE  
-           IF(NODE_ID.LE.0)CYCLE ! not enough nodes in the group or SMP disabling
+           IF(NODE_ID<=0)CYCLE ! not enough nodes in the group or SMP disabling
            IF(IFLG==1)THEN       
              !velocity vector : U                                                          
              BUFFER(1,NODE_ID) = GBUF%MOM(NELm*(1-1) + IDLOCm) / rho_cell                                                                               
@@ -154,11 +154,11 @@ C-----------------------------------------------
        ENDDO!next IB
         
        DO I=1,NUMNOD   
-	 VALUE(1)=BUFFER(1,I)
-	 VALUE(2)=BUFFER(2,I)
-	 VALUE(3)=BUFFER(3,I)
+           VALUE(1)=BUFFER(1,I)
+           VALUE(2)=BUFFER(2,I)
+           VALUE(3)=BUFFER(3,I)
          CALL H3D_WRITE_VECTOR(IOK_PART,IS_WRITTEN_NODE,NODAL_VECTOR,I,0,0,
-     .   				 VALUE)
+     .            VALUE)
        ENDDO
           
        DEALLOCATE(BUFFER)   

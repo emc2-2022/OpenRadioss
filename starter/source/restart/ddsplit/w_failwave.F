@@ -1,45 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  W_FAILWAVE                    source/restart/ddsplit/w_failwave.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        FAILWAVE_MOD                  ../common_source/modules/failwave_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    w_failwave     ../starter/source/restart/ddsplit/w_failwave.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit        ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE W_FAILWAVE(FAILWAVE,NODGLOB,NUMNOD,NUMNOD_L,LEN_AM,ITAB)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE FAILWAVE_MOD
+      USE MY_ALLOC_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -51,18 +48,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,IWAVE,NNOD,NDDL,SIZE,LEN,NNOD_L,IAD,NG,NL,NN
-      INTEGER, DIMENSION(NUMNOD_L) :: INDX_LOC,IDXI_LOC
+      INTEGER I, IWAVE, NNOD, NDDL, SIZE, LEN, NNOD_L, NG, NN
+      INTEGER, DIMENSION(:), ALLOCATABLE :: INDX_LOC,IDXI_LOC
       INTEGER, DIMENSION(4)  :: HEAD
       INTEGER, DIMENSION(:), ALLOCATABLE :: RBUF
 C=======================================================================
+      CALL MY_ALLOC(INDX_LOC,NUMNOD_L)
+      CALL MY_ALLOC(IDXI_LOC,NUMNOD_L)
       IWAVE = FAILWAVE%WAVE_MOD
       NNOD  = FAILWAVE%NNOD
       NDDL  = FAILWAVE%NDDL
       SIZE  = FAILWAVE%SIZE
 c
       IF (IWAVE == 0) THEN
-        HEAD(:) = ZERO
+        HEAD(1:4) = 0
         CALL WRITE_I_C(HEAD,4)
         LEN_AM = LEN_AM + 4
 c
@@ -102,6 +101,8 @@ c
 c---
         DEALLOCATE( RBUF )
       ENDIF
-c--------------------------------
+c-------------------------------- 
+      DEALLOCATE(INDX_LOC)
+      DEALLOCATE(IDXI_LOC)
       RETURN
       END

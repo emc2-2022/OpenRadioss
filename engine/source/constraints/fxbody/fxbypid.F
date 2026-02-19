@@ -1,43 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FXBYPID                       source/constraints/fxbody/fxbypid.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        SPMD_CHKW                     source/mpi/generic/spmd_chkw.F
-Chd|        SPMD_GLOB_ISUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_IBCAST                   source/mpi/generic/spmd_ibcast.F
-Chd|        SPMD_WIOUT                    source/mpi/generic/spmd_wiout.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE FXBYPID(IPARG ,         IXS   , IXQ   , IXC       ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fxbypid           ../engine/source/constraints/fxbody/fxbypid.F
+!||--- called by ------------------------------------------------------
+!||    resol             ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_chkw         ../engine/source/mpi/generic/spmd_chkw.F
+!||    spmd_glob_isum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_ibcast       ../engine/source/mpi/generic/spmd_ibcast.F
+!||    spmd_wiout        ../engine/source/mpi/generic/spmd_wiout.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod      ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod       ../common_source/modules/elements/element_mod.F90
+!||    output_mod        ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE FXBYPID(OUTPUT,IPARG ,         IXS   , IXQ   , IXC       ,
      .                   IXT   , IXP   , IXR   , IXTG  , FXBIPM    , 
      .                   FXBNOD, ONOF  , ITAG  , ONFELT, ELBUF_STR )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD            
+      USE OUTPUT_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,12 +53,12 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
       INTEGER IPARG(NPARG,*),IXS(NIXS,*), IXQ(NIXQ,*),IXC(NIXC,*), 
      .        IXT(NIXT,*),IXP(NIXP,*),IXR(NIXR,*),IXTG(NIXTG,*),
      .        FXBIPM(*),FXBNOD(*),ONOF,ITAG(*),ONFELT
@@ -61,7 +66,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NSN,NG,MLW,ITY,NEL,NFT,IAD,I,II,NALL,IGOF,ISHFT,IWIOUT
+      
+      INTEGER NSN,NG,MLW,ITY,NEL,NFT,IAD,I,II,NALL,IGOF,IWIOUT
       my_real,
      .    DIMENSION(:), POINTER :: OFFG
 C-----------------------------------------------
@@ -204,7 +210,7 @@ C Test group elimination
 C----------------------------------------
         IGOF = 1
         DO I = 1,NEL
-         IF(OFFG(I).GT.ZERO) IGOF=0
+         IF(OFFG(I)>ZERO) IGOF=0
         ENDDO
         IPARG(8,NG) = IGOF
 C-----------------------
@@ -236,7 +242,7 @@ C----------------------------------------
 C------------------------------
 C     7. 3-nodes shell elements
 C------------------------------
-       ELSEIF(ITY == 7 .and. MLW /= 0)THEN       ! loi0, pas de off
+       ELSEIF(ITY == 7 .and. MLW /= 0)THEN       ! law0, no off
          OFFG => ELBUF_STR(NG)%GBUF%OFF
          DO I=1,NEL
           II=I+NFT
@@ -263,14 +269,14 @@ C----------------------------------------
 C----------------------------------------
        ENDIF
       ENDDO
-      IF(NSPMD.GT.1) THEN
+      IF(NSPMD>1) THEN
 C
 C Recovery of active or de-activated elements in the right order
         IWIOUT = 0
         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-        IF (IWIOUT.GT.0) THEN
+        IF (IWIOUT>0) THEN
           CALL SPMD_WIOUT(IOUT,IWIOUT)
           IWIOUT = 0
         ENDIF

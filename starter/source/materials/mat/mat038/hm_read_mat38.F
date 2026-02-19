@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT38                 source/materials/mat/mat038/hm_read_mat38.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat38              ../starter/source/materials/mat/mat038/hm_read_mat38.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat                ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim          ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted     ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword           ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod               ../starter/share/modules1/elbuftag_mod.F
+!||    format_mod                 ../starter/share/modules1/format_mod.F90
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT38(UPARAM   ,MAXUPARAM, NUPARAM   ,NUVAR  ,IFUNC    , 
      .                         MAXFUNC  ,NFUNC    , PARMAT   ,UNITAB ,MAT_ID    , 
      .                         MTAG     ,TITR     , LSUBMODEL,PM     ,IMATVIS   ,
@@ -67,7 +68,9 @@ C-----------------------------------------------
       USE MESSAGE_MOD      
       USE SUBMODEL_MOD
       USE MATPARAM_DEF_MOD          
-      USE HM_OPTION_READ_MOD 
+      USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE FORMAT_MOD , ONLY : FMW_5I
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -75,14 +78,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -90,12 +86,12 @@ C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       my_real, DIMENSION(NPROPM) ,INTENT(INOUT)   :: PM     
       my_real, DIMENSION(100)    ,INTENT(INOUT)   :: PARMAT
-      my_real, DIMENSION(MAXUPARAM) ,INTENT(OUT)  :: UPARAM
-      INTEGER, DIMENSION(MAXFUNC)   ,INTENT(OUT)  :: IFUNC
+      my_real, DIMENSION(MAXUPARAM) ,INTENT(INOUT)  :: UPARAM
+      INTEGER, DIMENSION(MAXFUNC)   ,INTENT(INOUT)  :: IFUNC
       INTEGER, INTENT(INOUT)          :: NFUNC,NUPARAM,NUVAR,IMATVIS
       TYPE(MLAW_TAG_),INTENT(INOUT)   :: MTAG
       INTEGER,INTENT(IN)              :: MAT_ID,MAXFUNC,MAXUPARAM
-      CHARACTER*nchartitle,INTENT(IN) :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN) :: TITR
       TYPE(SUBMODEL_DATA),INTENT(IN)  :: LSUBMODEL(*)
       TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
@@ -113,12 +109,12 @@ C-----------------------------------------------
       my_real :: TENSIONCUT
       my_real :: EFINAL,EPSFIN,LAMDA,VISCOSITY,TOLERANCE,PSCALE
       my_real :: GAMA0,FAC,FAC_P,RHO0,RHOR, FSCAL_TAB(5), EPS_TAB(5)
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
       
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
       IUNLOAD=0
       NFUNC=2
@@ -128,7 +124,7 @@ C-----------------------------------------------
       UPARAM(1)=NUPARAM
       IMATVIS=1
 
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 !LINE-1
       CALL HM_GET_FLOATV('MAT_RHO'   ,RHO0     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Refer_Rho' ,RHOR     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -229,35 +225,35 @@ C----------------
 
       IF (PSCALE == ZERO) PSCALE = ONE
 
-      IF( VT       .LE. ZERO) VT =EM20
-      IF( VT       .GE.HALF ) VT =ZEP499
-      IF( VC       .GE.HALF ) VC =ZEP499
-      IF( ITOTAL   .GT. 3 ) ITOTAL = 0      
-      IF( BETA     .LE. ZERO) BETA =EM20         
-      IF( HYSTER   .LE. ZERO) HYSTER =ONE         
-      IF( RATEDAMP .LE. ZERO) RATEDAMP = HALF  
-      IF( KRECOVER .LE. 0 ) KRECOVER =0          
-      IF( KRECOVER .GT. 2 ) KRECOVER =0          
-      IF( KDECAY   .LE. 0 ) KDECAY =0            
-      IF( KDECAY   .GT. 2 ) KDECAY =0            
-      IF( THETA    .LE. ZERO) THETA =ZEP67
-      IF( RELAXP   .LE. ZERO) THEN      
+      IF( VT       <= ZERO) VT =EM20
+      IF( VT       >=HALF ) VT =ZEP499
+      IF( VC       >=HALF ) VC =ZEP499
+      IF( ITOTAL   > 3 ) ITOTAL = 0      
+      IF( BETA     <= ZERO) BETA =EM20         
+      IF( HYSTER   <= ZERO) HYSTER =ONE         
+      IF( RATEDAMP <= ZERO) RATEDAMP = HALF  
+      IF( KRECOVER <= 0 ) KRECOVER =0          
+      IF( KRECOVER > 2 ) KRECOVER =0          
+      IF( KDECAY   <= 0 ) KDECAY =0            
+      IF( KDECAY   > 2 ) KDECAY =0            
+      IF( THETA    <= ZERO) THETA =ZEP67
+      IF( RELAXP   <= ZERO) THEN      
          RELAXP= EM20                        
       ENDIF                             
-      IF( MAXPRES  .LE. ZERO) THEN      
+      IF( MAXPRES  <= ZERO) THEN      
          MAXPRES= INFINITY                    
       ENDIF                             
-      IF( FUNLOAD.LE.ZERO) FUNLOAD = ONE 
-      IF( EXPONAS.EQ.ZERO) EXPONAS = ONE 
-      IF( EXPONBS.EQ.ZERO) EXPONBS = ONE 
-      IF( MFUNC.GT.5  ) MFUNC=5
-      IF( TENSIONCUT.LE.ZERO) THEN
+      IF( FUNLOAD<=ZERO) FUNLOAD = ONE 
+      IF( EXPONAS==ZERO) EXPONAS = ONE 
+      IF( EXPONBS==ZERO) EXPONBS = ONE 
+      IF( MFUNC>5  ) MFUNC=5
+      IF( TENSIONCUT<=ZERO) THEN
          TENSIONCUT =INFINITY
       ENDIF   
-      IF(EPSFIN.LE.ZERO.OR.EPSFIN.GT.ZERO) EPSFIN=ONE
-      IF( LAMDA.LE.ZERO) LAMDA =ONE
-      IF( TOLERANCE .LE.ZERO) TOLERANCE = ONE
-      IF( VISCOSITY.LE.ZERO) THEN
+      IF(EPSFIN<=ZERO.OR.EPSFIN>ZERO) EPSFIN=ONE
+      IF( LAMDA<=ZERO) LAMDA =ONE
+      IF( TOLERANCE <=ZERO) TOLERANCE = ONE
+      IF( VISCOSITY<=ZERO) THEN
          VISCOSITY =INFINITY
       ENDIF
       IF (MFUNC < 1) THEN
@@ -268,7 +264,7 @@ C----------------
      .              C1=TITR)
       ENDIF
       
-      IF (EFINAL.LE.E) EFINAL = E
+      IF (EFINAL<=E) EFINAL = E
       !PSCALE = PSCALE * FAC_C
       !FUNLOAD = FUNLOAD * FAC_C
       UPARAM(2)=E
@@ -311,7 +307,7 @@ C----------------
 
 
 
-!LAST-LINES   
+!Last-lines   
       DO I=1,MFUNC 
         CALL HM_GET_INT_ARRAY_INDEX  ('Funct_Id_Load'  ,IFLOAD(I)     ,I ,IS_AVAILABLE, LSUBMODEL)
         CALL HM_GET_INT_ARRAY_INDEX  ('Funct_Id_UnLoad',IFUNLOAD(I)   ,I ,IS_AVAILABLE, LSUBMODEL)        
@@ -324,7 +320,7 @@ C----------------
         UPARAM(NUPARAM+MFUNC+I) = EPS_TAB(I)
       ENDDO
       DO I=1,MFUNC
-         IF(UPARAM(NUPARAM+I).LE.0.) UPARAM(NUPARAM+I)=ONE
+         IF(UPARAM(NUPARAM+I)<=0.) UPARAM(NUPARAM+I)=ONE
          UPARAM(NUPARAM+I) = UPARAM(NUPARAM+I) !* FAC_C
          UPARAM(NUPARAM+MFUNC+I) = UPARAM(NUPARAM+MFUNC+I) !/ FAC_T
       ENDDO
@@ -344,17 +340,17 @@ C----------------
      .                I2=MFUNC)
            EXIT
         ENDIF
-        IF(IFUNLOAD(J).LE.0)IFUNLOAD(J)=IFLOAD(1)
+        IF(IFUNLOAD(J)<=0)IFUNLOAD(J)=IFLOAD(1)
         IFUNC(J+MFUNC)=IFUNLOAD(J)
       ENDDO
 C-------to be consisting w/ dt in engine
       PARMAT(1)=E
       PARMAT(2)=E
-      PARMAT(3)=MAX(VC,VT)
+      NU = MAX(VC,VT)
+      PARMAT(3)=NU
 c------------------------------------
 C     Formulation for solid elements time step computation.
       IF(NPCURVE==0)THEN
-        NU=MAX(VC,VT)
         PARMAT(16) = 2
         PARMAT(17) = (ONE-TWO*NU)/(ONE-NU)
       ELSE
@@ -370,16 +366,20 @@ c
       MTAG%L_EPSD = 1
 c-----------------
       CALL INIT_MAT_KEYWORD(MATPARAM,"TOTAL")
-      IF (NU >= 0.49) THEN
+      IF (NU > 0.49) THEN
         CALL INIT_MAT_KEYWORD(MATPARAM,"INCOMPRESSIBLE")
       ELSE
         CALL INIT_MAT_KEYWORD(MATPARAM,"COMPRESSIBLE")
       END IF
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HOOK")
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")  
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SPH")  
 c-----------------
       WRITE(IOUT,1001) TRIM(TITR),MAT_ID,38
       WRITE(IOUT,1000)
 
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,7000)
       ELSE
       WRITE(IOUT,1002)RHO0

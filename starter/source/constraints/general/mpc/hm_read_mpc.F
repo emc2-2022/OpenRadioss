@@ -1,47 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MPC                   source/constraints/general/mpc/hm_read_mpc.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SZ_R2R                     source/coupling/rad2rad/routines_r2r.F
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mpc                ../starter/source/constraints/general/mpc/hm_read_mpc.F
+!||--- called by ------------------------------------------------------
+!||    lectur                     ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    fretitl                    ../starter/source/starter/freform.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key         ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start            ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_sz_r2r                  ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    ifrontplus                 ../starter/source/spmd/node/frontplus.F
+!||    kinset                     ../starter/source/constraints/general/kinset.F
+!||    usr2sys                    ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    r2r_mod                    ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MPC(RBUF   ,IBUFNC ,IBUFNN  ,IBUFDL  ,IBUFSK  ,
      2                       ISKN   ,ITAB   ,ITABM   ,LAG_NCF ,LAG_NKF ,
      3                       LAG_NHF,IKINE  ,IKINE1LAG,NOM_OPT,ITAGND  ,
@@ -52,24 +52,19 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
       USE UNITAB_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "scr17_c.inc"
 #include      "com04_c.inc"
 #include      "sphcom.inc"
-#include      "submod_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "r2r_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -77,8 +72,7 @@ C-----------------------------------------------
       INTEGER LAG_NCF, LAG_NKF, LAG_NHF, ITAB(*), ITABM(*),
      .        ISKN(LISKN,*),IBUFNC(*),IBUFNN(*),IBUFDL(*),IBUFSK(*),
      .        IKINE(*),IKINE1LAG(*),ITAGND(*)
-      my_real
-     .        RBUF(*)
+      my_real :: RBUF(*)
       INTEGER NOM_OPT(LNOPT1,*)
       TYPE(UNIT_TYPE_),INTENT(IN) ::UNITAB 
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
@@ -87,7 +81,9 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, II, J, ID, NOD, IDDL, ISKW, NUMC, KF, NOSYS, NMP
       my_real COEF
-      CHARACTER TITR*nchartitle,KEY*ncharkey,MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY) :: KEY
+      CHARACTER :: MESS*40
       DATA MESS/'MULTI-POINT CONSTRAINTS          '/
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
@@ -106,8 +102,8 @@ C
       DO I=1,NUMMPC
         NMP=NMP+1
 C----------Multidomaines --> on ignore les mpc non tages----------
-        IF(NSUBDOM.GT.0)THEN
-	  IF(TAGMPC(NMP).EQ.0)CALL HM_SZ_R2R(TAGMPC,NMP,LSUBMODEL)
+        IF(NSUBDOM>0)THEN
+            IF(TAGMPC(NMP)==0)CALL HM_SZ_R2R(TAGMPC,NMP,LSUBMODEL)
         END IF
 C-----------------------------------------------------------------
         CALL HM_OPTION_READ_KEY(LSUBMODEL,
@@ -125,11 +121,12 @@ C
           CALL HM_GET_INT_ARRAY_INDEX('skew_ID',ISKW,II,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_FLOAT_ARRAY_INDEX('alpha',COEF,II,IS_AVAILABLE,LSUBMODEL,UNITAB)
           KF   = KF   + 1
-          IF (COEF.EQ.ZERO) COEF = ONE
+          IF (COEF==ZERO) COEF = ONE
           RBUF  (KF) = COEF
           NOSYS = USR2SYS(NOD,ITABM,MESS,ID)
-          IF (NS10E>0.AND.ITAGND(NOSYS)/=0) THEN
-C------- error out	
+          IF (NS10E>0) THEN 
+            IF(ITAGND(NOSYS)/=0) THEN
+C------- error out
            CALL ANCMSG(MSGID=1208,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -137,14 +134,15 @@ C------- error out
      .                C1='MPC ',
      .                I2=ID,
      .                C2='MPC ')
+            ENDIF
           END IF
           CALL KINSET(512,ITAB(NOSYS),IKINE(NOSYS),7,0,IKINE1LAG(NOSYS))
           IBUFNN(KF) = NOSYS
-	  IF(IMACH.EQ.3) CALL IFRONTPLUS(NOSYS,1)
+          CALL IFRONTPLUS(NOSYS,1)
           IBUFDL(KF) = IDDL
           IBUFSK(KF) = 0
           DO J=0,NUMSKW+MIN(1,NSPCOND)*NUMSPH+NSUBMOD
-            IF(ISKW.EQ.ISKN(4,J+1)) THEN
+            IF(ISKW==ISKN(4,J+1)) THEN
               IBUFSK(KF) = J+1
               GO TO 10
             ENDIF
@@ -154,7 +152,7 @@ C------- error out
      .                C2='MPC',
      .                I1=ID,I2=ISKW,C3=TITR)
  10       CONTINUE
-          IF (ISKW.EQ.0) THEN
+          IF (ISKW==0) THEN
             LAG_NKF = LAG_NKF + 1
           ELSE
             LAG_NKF = LAG_NKF + 3
@@ -162,7 +160,7 @@ C------- error out
         ENDDO
         IBUFNC(I) = NUMC
         WRITE(IOUT,1101) ID,NUMC
-        WRITE(IOUT,1102) (ITAB(IBUFNN(J)),IBUFDL(J),IBUFSK(J),RBUF(J),
+        WRITE(IOUT,1102) (ITAB(IBUFNN(J)),IBUFDL(J),ISKN(4,IBUFSK(J)),RBUF(J),
      .                    J=KF-NUMC+1,KF)
       ENDDO
 C---
@@ -170,7 +168,6 @@ C---
       LAG_NCF = LAG_NCF + NUMMPC
 C---
       RETURN
- 999  CALL FREERR(1)
  1000 FORMAT(//
      .'       MULTI-POINT CONSTRAINTS   '/
      . '      ----------------------   ')
@@ -184,22 +181,23 @@ C---
       END
 
 
-Chd|====================================================================
-Chd|  HM_READ_MPC0                  source/constraints/general/mpc/hm_read_mpc.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    hm_read_mpc0           ../starter/source/constraints/general/mpc/hm_read_mpc.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MPC0 (LEN, LSUBMODEL)
 C-----------------------------------------------
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -208,8 +206,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr17_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -219,7 +215,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, ID, NUMC 
-      CHARACTER TITR*nchartitle
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       LOGICAL IS_AVAILABLE
 C======================================================================|
       IS_AVAILABLE = .FALSE.
@@ -237,7 +233,5 @@ C
         LEN = LEN+NUMC
       ENDDO
 C---
-      RETURN
- 999  CALL FREERR(1)
       RETURN
       END

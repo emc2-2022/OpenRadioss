@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DELNUMBF                      source/output/anim/delnumbf.F 
-Chd|-- called by -----------
-Chd|        GENANI1                       source/output/anim/genani1.F  
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    delnumbf      ../starter/source/output/anim/delnumbf.F
+!||--- called by ------------------------------------------------------
+!||    genani1       ../starter/source/output/anim/genani1.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE DELNUMBF(IPARG ,IXT  ,IXP  ,IXR  ,               
      .                    EL2FA,NBF   ,INUM ,                           
-     .                    INUMX1 )                                  
+     .                    INUMX1 )        
+      use element_mod , only : nixt,nixr,nixp
 C-----------------------------------------------                        
 C   I m p l i c i t   T y p e s                                         
 C-----------------------------------------------                        
@@ -40,7 +41,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"                                             
 #include      "com04_c.inc"                                             
 #include      "param_c.inc"                                             
-#include      "scr05_c.inc"                                             
 C-----------------------------------------------                        
 C   D u m m y   A r g u m e n t s                                       
 C-----------------------------------------------                        
@@ -77,7 +77,7 @@ C
 C-----------------------------------------------                        
 C       TRUSS                                                           
 C-----------------------------------------------                        
-        IF(ITY.EQ.4)THEN                                                
+        IF(ITY==4)THEN                                                
          DO I=LFT,LLT                                                   
           N = I + NFT                                                   
           INUM(EL2FA(NN6+N)) = IXT(NIXT,N)                              
@@ -85,7 +85,7 @@ C-----------------------------------------------
 C-----------------------------------------------                        
 C       POUTRES                                                         
 C-----------------------------------------------                        
-        ELSEIF(ITY.EQ.5)THEN                                            
+        ELSEIF(ITY==5)THEN                                            
          DO I=LFT,LLT                                                   
           N = I + NFT                                                   
           INUM(EL2FA(NN7+N)) = IXP(NIXP,N)                              
@@ -93,11 +93,11 @@ C-----------------------------------------------
 C-----------------------------------------------                        
 C       RESSORTS                                                        
 C-----------------------------------------------                        
-        ELSEIF(ITY.EQ.6)THEN                                            
+        ELSEIF(ITY==6)THEN                                            
          DO I=LFT,LLT                                                   
           N = I + NFT                                                   
           INUM(EL2FA(NN8+N)) = IXR(NIXR,N)                              
-          IF(MLW.EQ.3)INUM(EL2FA(NN8+N)+1) = IXR(NIXR,N)                
+          IF(MLW==3)INUM(EL2FA(NN8+N)+1) = IXR(NIXR,N)                
          ENDDO                                                          
 C-----------------------------------------------                        
         ELSE                                                            

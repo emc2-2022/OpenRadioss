@@ -1,43 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_SD_SKW                   source/mpi/output/spmd_sd_skw.F
-Chd|-- called by -----------
-Chd|        NEWSKW                        source/tools/skew/newskw.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_sd_skw           ../engine/source/mpi/output/spmd_sd_skw.F
+!||--- called by ------------------------------------------------------
+!||    newskw                ../engine/source/tools/skew/newskw.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_SD_SKW(SKEW,ISKWP_L_SEND,NUMSKW_L_SEND,RECVCOUNT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -63,7 +63,6 @@ C-----------------------------------------------
 !                   number of received SKEW
 !       -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*
 C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
@@ -83,9 +82,9 @@ C-----------------------------------------------
 !       SPMD_SD_SKW organization :
 !       - initialize the SBUF buffer with the local SKEW value
 !       - initialize the displacement and the total number of 
-!         recevied SKEW
-!       - ALLGATHERV comm
-!       - fill the SKEW array with the recevied RBUFF buffer
+!         received SKEW
+!       - Allgatherv com
+!       - fill the SKEW array with the received RBUFF buffer
 !
 !       proc 1 :
 !               SBUF :   1 | 4 | 100          (--> 3 values)
@@ -122,7 +121,7 @@ C-----------------------------------------------
                 SBUF(10+(K-1)*10) = N+1
         END DO
 
-!       displacement, number of sent value and total number of recevied values
+!       displacement, number of sent value and total number of received values
         SENDCOUNT = K*10
         DIPSPL(1)=0
         TOTAL_RECV = RECVCOUNT(1)
@@ -133,7 +132,7 @@ C-----------------------------------------------
         TOTAL_RECV = TOTAL_RECV / 10              
 
 !       comm        
-        CALL MPI_ALLGATHERV(SBUF,SENDCOUNT,REAL,RBUF,RECVCOUNT,DIPSPL,REAL,MPI_COMM_WORLD,IERROR)
+        CALL MPI_ALLGATHERV(SBUF,SENDCOUNT,REAL,RBUF,RECVCOUNT,DIPSPL,REAL,SPMD_COMM_WORLD,IERROR)
                 
 !       fill the SKEW array 
         DO I=1,TOTAL_RECV
@@ -153,24 +152,24 @@ C
       RETURN
       END SUBROUTINE SPMD_SD_SKW
 C
-Chd|====================================================================
-Chd|  SPMD_SD_SKW_ANIM              source/mpi/output/spmd_sd_skw.F
-Chd|-- called by -----------
-Chd|        SORTIE_MAIN                   source/output/sortie_main.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_sd_skw_anim      ../engine/source/mpi/output/spmd_sd_skw.F
+!||--- called by ------------------------------------------------------
+!||    sortie_main           ../engine/source/output/sortie_main.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_SD_SKW_ANIM(SKEW,ISKWP)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -191,16 +190,14 @@ C-----------------------------------------------
 !              SKEW array
 !       -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*
 C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-        INTEGER :: I,K,N,LOC_PROC,j
+        INTEGER :: I,K,N,LOC_PROC
         INTEGER :: IERROR
         INTEGER :: SENDCOUNT,TOTAL_RECV
         INTEGER, DIMENSION(NSPMD) :: RECVCOUNT,DIPSPL
         my_real, DIMENSION(10*NUMSKW) :: SBUF,RBUF
-
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -212,9 +209,9 @@ C-----------------------------------------------
 !       SPMD_SD_SKW_ANIM organization :
 !       - initialize the SBUF buffer with the local SKEW value
 !       - initialize the displacement and the total number of 
-!         recevied SKEW
+!         received SKEW
 !       - ALLGATHER comm on 0 proc
-!       - fill the SKEW array with the recevied RBUFF buffer
+!       - fill the SKEW array with the received RBUFF buffer
 !
 !       proc 1 :
 !               SBUF :   1 | 4 | 100          (--> 3 values)
@@ -253,7 +250,7 @@ C-----------------------------------------------
                 IF(ISKWP(N+1)/=0) RECVCOUNT(ABS(ISKWP(N+1))) = RECVCOUNT(ABS(ISKWP(N+1))) + 10
         END DO
 
-!       displacement, number of sent value and total number of recevied values
+!       displacement, number of sent value and total number of received values
         SENDCOUNT = K*10
         DIPSPL(1)=0
         TOTAL_RECV = RECVCOUNT(1)
@@ -264,7 +261,7 @@ C-----------------------------------------------
         TOTAL_RECV = TOTAL_RECV / 10              
 
 !       comm on proc 0 (main)       
-        CALL MPI_GATHERV(SBUF,SENDCOUNT,REAL,RBUF,RECVCOUNT,DIPSPL,REAL,0,MPI_COMM_WORLD,IERROR)
+        CALL MPI_GATHERV(SBUF,SENDCOUNT,REAL,RBUF,RECVCOUNT,DIPSPL,REAL,0,SPMD_COMM_WORLD,IERROR)
                 
 !       fill the RBUF array (only main proc)
         IF(ISPMD==0) THEN

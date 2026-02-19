@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 CCgw|============================================================
-Chd|====================================================================
-Chd|  S4DERI3                       source/elements/solid/solide4/s4deri3.F
-Chd|-- called by -----------
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        MULTIFLUID_INIT3T             source/multifluid/multifluid_init3t.F
-Chd|        S4INIT3                       source/elements/solid/solide4/s4init3.F
-Chd|        S4REFSTA3                     source/elements/solid/solide4/s4refsta3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    s4deri3             ../starter/source/elements/solid/solide4/s4deri3.F
+!||--- called by ------------------------------------------------------
+!||    inirig_mat          ../starter/source/elements/initia/inirig_mat.F
+!||    inivoid             ../starter/source/elements/initia/inivoid.F
+!||    multifluid_init3t   ../starter/source/multifluid/multifluid_init3t.F
+!||    s4init3             ../starter/source/elements/solid/solide4/s4init3.F
+!||    s4refsta3           ../starter/source/elements/solid/solide4/s4refsta3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg              ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod         ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE S4DERI3(VOL   ,VEUL  ,GEO   ,IGEO   ,RX     ,
      .                   RY    ,RZ    ,SX    ,SY     ,SZ     ,
      .                   TX    ,TY    ,TZ    ,
@@ -44,16 +45,10 @@ Chd|====================================================================
      .                   DELTAX,DET   ,NGL   ,NGEO   ,MXT  ,
      .                   PM    ,VOLDP ) 
       USE MESSAGE_MOD
-C------------------------------------------------------
-C
-C------------------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -62,8 +57,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr03_c.inc"
-#include      "com06_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
 #include      "param_c.inc"
 #include      "com01_c.inc"
@@ -179,10 +172,10 @@ C
        IF(IDT1SOL==0)THEN
 
          DO I=LFT,LLT
-	   D = MAX(PX1(I)*PX1(I)+PY1(I)*PY1(I)+PZ1(I)*PZ1(I),
-     .    	   PX2(I)*PX2(I)+PY2(I)*PY2(I)+PZ2(I)*PZ2(I),
-     .  	   PX3(I)*PX3(I)+PY3(I)*PY3(I)+PZ3(I)*PZ3(I),
-     .  	   PX4(I)*PX4(I)+PY4(I)*PY4(I)+PZ4(I)*PZ4(I))
+             D = MAX(PX1(I)*PX1(I)+PY1(I)*PY1(I)+PZ1(I)*PZ1(I),
+     .         PX2(I)*PX2(I)+PY2(I)*PY2(I)+PZ2(I)*PZ2(I),
+     .       PX3(I)*PX3(I)+PY3(I)*PY3(I)+PZ3(I)*PZ3(I),
+     .       PX4(I)*PX4(I)+PY4(I)*PY4(I)+PZ4(I)*PZ4(I))
            DELTAX(I) = ONE / SQRT(D)
          END DO
 
@@ -269,7 +262,7 @@ C
           VEUL(12,I)= PZ4(I)
           VEUL(13,I)= DELTAX(I)
 C------------------------------------------
-C     CALCUL DE LA NORMALE A CHAQUE FACE
+C     calculation of the normal to each face
 C------------------------------------------
           VEUL(14,I) = ZERO
           VEUL(15,I) = HALF*B1(I)

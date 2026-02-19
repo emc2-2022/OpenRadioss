@@ -1,36 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIST3                        source/interfaces/inter3d1/inist3.F
-Chd|-- called by -----------
-Chd|        I12TID3                       source/interfaces/inter3d1/i12tid3.F
-Chd|        I1TID3                        source/interfaces/inter3d1/i1tid3.F
-Chd|        I3PEN3                        source/interfaces/inter3d1/i3pen3.F
-Chd|        I5PWR3                        source/interfaces/inter3d1/i3pen3.F
-Chd|        I6PEN3                        source/interfaces/inter3d1/i6pen3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE INIST3(N1,N2,N3,SSC,TTC,IER,ALP)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inist3    ../starter/source/interfaces/inter3d1/inist3.F
+!||--- called by ------------------------------------------------------
+!||    i12tid3   ../starter/source/interfaces/inter3d1/i12tid3.F
+!||    i1tid3    ../starter/source/interfaces/inter3d1/i1tid3.F
+!||    i3pen3    ../starter/source/interfaces/inter3d1/i3pen3.F
+!||    i5pwr3    ../starter/source/interfaces/inter3d1/i3pen3.F
+!||    i6pen3    ../starter/source/interfaces/inter3d1/i6pen3.F
+!||====================================================================
+      SUBROUTINE INIST3(N1,N2,N3,SSC,TTC,IER,ALP,XX1,XX2,XX3,XS1,YS1,ZS1,XC,YC,ZC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,10 +40,7 @@ C-----------------------------------------------
       INTEGER,INTENT(INOUT)  :: IER
       my_real, INTENT(INOUT) :: N1, N2, N3, SSC, TTC
       my_real, INTENT(IN)    :: ALP
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr07_c.2.inc"
+      my_real,INTENT(INOUT)  :: XX1(4), XX2(4),XX3(4),XS1,YS1,ZS1,XC,YC,ZC
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -141,7 +137,7 @@ C-----------------------------------------------
       N2  = N2/AN
       N3  = N3/AN
       !in case of degenerated segment
-      IF(AN.LE.EM19) THEN
+      IF(AN<=EM19) THEN
         IER=-1
         RETURN
       ENDIF
@@ -151,22 +147,22 @@ C-----------------------------------------------
       A34 = (N1*XN3+N2*YN3+N3*ZN3)
       A41 = (N1*XN4+N2*YN4+N3*ZN4)
 
-      !1st traingle based on SECONDARY node
+      !1st triangle based on SECONDARY node
       XN1 = YI1*ZI2 - YI2*ZI1
       YN1 = ZI1*XI2 - ZI2*XI1
       ZN1 = XI1*YI2 - XI2*YI1
       B12 = (N1*XN1+N2*YN1+N3*ZN1)
-      !2nd traingle based on SECONDARY node
+      !2nd triangle based on SECONDARY node
       XN2 = YI2*ZI3 - YI3*ZI2
       YN2 = ZI2*XI3 - ZI3*XI2
       ZN2 = XI2*YI3 - XI3*YI2
       B23 = (N1*XN2+N2*YN2+N3*ZN2)
-      !3rd traingle based on SECONDARY node
+      !3rd triangle based on SECONDARY node
       XN3 = YI3*ZI4 - YI4*ZI3
       YN3 = ZI3*XI4 - ZI4*XI3
       ZN3 = XI3*YI4 - XI4*YI3
       B34 = (N1*XN3+N2*YN3+N3*ZN3)
-      !4th traingle based on SECONDARY node
+      !4th triangle based on SECONDARY node
       XN4 = YI4*ZI1 - YI1*ZI4
       YN4 = ZI4*XI1 - ZI1*XI4
       ZN4 = XI4*YI1 - XI1*YI4
@@ -174,34 +170,34 @@ C-----------------------------------------------
       !SSC
       AB1 = A23*B41
       AB2 = B23*A41
-      IF(ABS(AB1+AB2)/AREA.GT.EM10)THEN
+      IF(ABS(AB1+AB2)/AREA>EM10)THEN
        SSC = (AB1-AB2)/(AB1+AB2)
       ELSE
        SSC = ZERO
       ENDIF
       !TTC
-      IF(ABS(A34/AREA).GT.EM10)THEN
+      IF(ABS(A34/AREA)>EM10)THEN
        AB1 = B12*A34
        AB2 = B34*A12
        TTC = (AB1-AB2)/(AB1+AB2)
       ELSE
        TTC = (B12-A12)/A12
-       IF(B23.LE.ZERO .AND. B41.LE.ZERO)THEN
-         IF(-B23/A12.LE.ALP.AND.-B41/A12.LE.ALP)SSC=ZERO
-       ELSEIF(B23.LE.ZERO)THEN
-         IF(-B23/A12.LE.ALP)SSC=ONE
-       ELSEIF(B41.LE.ZERO)THEN
-         IF(-B41/A12.LE.ALP)SSC=-ONE
+       IF(B23<=ZERO .AND. B41<=ZERO)THEN
+         IF(-B23/A12<=ALP.AND.-B41/A12<=ALP)SSC=ZERO
+       ELSEIF(B23<=ZERO)THEN
+         IF(-B23/A12<=ALP)SSC=ONE
+       ELSEIF(B41<=ZERO)THEN
+         IF(-B41/A12<=ALP)SSC=-ONE
        ENDIF
       ENDIF
       !lecipari : GAP=TWO*EM02 GAP->FRIGAP(2)->ALP (hardcoded tolerance)
 
-      IF(ABS(SSC).GT.ONE+ALP.OR.ABS(TTC).GT.ONE+ALP) THEN
+      IF(ABS(SSC)>ONE+ALP.OR.ABS(TTC)>ONE+ALP) THEN
         IER = 1  !SECONDARY node not on MAIN segment
       ELSE
         IER = 0
-        IF(ABS(SSC).GT.ONE)SSC=SSC/ABS(SSC)
-        IF(ABS(TTC).GT.ONE)TTC=TTC/ABS(TTC)
+        IF(ABS(SSC)>ONE)SSC=SSC/ABS(SSC)
+        IF(ABS(TTC)>ONE)TTC=TTC/ABS(TTC)
       ENDIF
 
       TP   = FOURTH*(ONE+TTC)

@@ -1,43 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT93                 source/materials/mat/mat093/hm_read_mat93.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat93              ../starter/source/materials/mat/mat093/hm_read_mat93.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat                ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim          ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted     ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword           ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod               ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT93(UPARAM ,MAXUPARAM,NUPARAM  ,ISRATE   , IMATVIS  ,
      .                         NUVAR  ,IFUNC    ,MAXFUNC  ,NFUNC    , PARMAT   , 
      .                         UNITAB ,MAT_ID   ,TITR     ,MTAG     , LSUBMODEL,
@@ -65,7 +65,8 @@ C-----------------------------------------------
       USE ELBUFTAG_MOD            
       USE MESSAGE_MOD      
       USE SUBMODEL_MOD
-      USE MATPARAM_DEF_MOD          
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -73,14 +74,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -92,9 +86,9 @@ C-----------------------------------------------
      .                                         NVARTMP
       TYPE(MLAW_TAG_),INTENT(INOUT)         :: MTAG
       INTEGER,INTENT(IN)                    :: MAT_ID
-      CHARACTER*nchartitle,INTENT(IN)       :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)       :: TITR
       TYPE(SUBMODEL_DATA),INTENT(IN)        :: LSUBMODEL(*)
-      TYPE(MATPARAM_STRUCT_) ,INTENT(OUT)   :: MATPARAM
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT)   :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -105,16 +99,16 @@ C-----------------------------------------------
      .    D11,D22,D33,D12,D13,D23,A11,A22,A12,C11,C22,C33,C12,C13,
      .    C23,NU21,NU31,NU32,DETC,FAC,YFAC(100),RATE(100),DMIN,DMAX,
      .    YSCALE_UNIT,RHO0,RHOR,ASRATE
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
 C-----------------------------------------------
 C   S o u r c e   L i n e s 
 C-----------------------------------------------      
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED   = .FALSE.
       IS_AVAILABLE = .FALSE.
       ILAW = 93
 c
 c-----------------------------------------------             
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 c-----------------------------------------------
 c
 card1 - Density
@@ -188,33 +182,7 @@ C
       IF(R23 == ZERO)  R23  = ONE
       IF(R13 == ZERO)  R13  = ONE
 C
-      ! Elastic parameters
-      !   Poisson's ratio
-      IF (NU12 < ZERO .OR. NU12 >= HALF) THEN
-         CALL ANCMSG(MSGID=49,
-     .               MSGTYPE=MSGERROR,
-     .               ANMODE=ANINFO_BLIND_2,
-     .               R1=NU12,
-     .               I1=MAT_ID,
-     .               C1=TITR)
-      ENDIF  
-      IF (NU13 < ZERO .OR. NU13 >= HALF) THEN
-         CALL ANCMSG(MSGID=49,
-     .               MSGTYPE=MSGERROR,
-     .               ANMODE=ANINFO_BLIND_2,
-     .               R1=NU13,
-     .               I1=MAT_ID,
-     .               C1=TITR)
-      ENDIF   
-      IF (NU23 < ZERO .OR. NU23 >= HALF) THEN
-         CALL ANCMSG(MSGID=49,
-     .               MSGTYPE=MSGERROR,
-     .               ANMODE=ANINFO_BLIND_2,
-     .               R1=NU23,
-     .               I1=MAT_ID,
-     .               C1=TITR)
-      ENDIF
-      ! Young modulus
+       ! Young modulus
       IF (E22 == ZERO) E22 = E11
       IF (E33 == ZERO) E33 = E22
       ! Shear modulus
@@ -223,17 +191,28 @@ C
       ! Remaining Poisson's ratio
       NU21 = NU12*E22/E11
       NU31 = NU13*E33/E11  
-      NU32 = NU23*E33/E22    
-C
-      ! Checking Poisson's ratio 
-      DETC = ONE - NU12*NU21
-      IF (DETC <= ZERO) THEN
-        CALL ANCMSG(MSGID=307,
-     .              MSGTYPE=MSGERROR,
-     .              ANMODE=ANINFO,
-     .              I1=MAT_ID,
-     .              C1=TITR)
-      ENDIF 
+      NU32 = NU23*E33/E22  
+      !check stability 
+      ! checking poisson's ratio 
+      if(NU12*NU21 >= one ) then
+        call ANCMSG(MSGID=3068,                        
+     .             MSGTYPE=MSGERROR,                    
+     .             ANMODE=ANINFO_BLIND_2,               
+     .             I1=MAT_ID ,                          
+     .             C1=TITR)
+      else if(NU13*NU31 >= one ) then
+        call ANCMSG(MSGID=3069,                        
+     .             MSGTYPE=MSGERROR,                    
+     .             ANMODE=ANINFO_BLIND_2,               
+     .             I1=MAT_ID ,                         
+     .             C1=TITR)
+      else if(NU23*NU32 >= one ) then
+        call ANCMSG(MSGID=3070,                        
+     .             MSGTYPE=MSGERROR,                    
+     .             ANMODE=ANINFO_BLIND_2,               
+     .             I1=MAT_ID ,                          
+     .             C1=TITR)
+      endif 
 C
       ! Hill coefficient
       A1 = ONE/R11/R11
@@ -261,7 +240,7 @@ C
       ! Checking input
       DETC= C11*C22*C33-C11*C23*C23-C12*C12*C33+C12*C13*C23
      +     +C13*C12*C23-C13*C22*C13
-      IF(DETC.LE.ZERO) THEN
+      IF(DETC<=ZERO) THEN
          CALL ANCMSG(MSGID=307,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -283,9 +262,9 @@ C
         ISRATE = 1
         IF (VP == 0) VP = 2
         IF (VP == 1) THEN
-          ASRATE = 1.0D4*FAC_T_WORK
+          ASRATE = 1.0D4*UNITAB%FAC_T_WORK
         ELSE
-          IF (ASRATE == ZERO) ASRATE = 1.0D4*FAC_T_WORK
+          IF (ASRATE == ZERO) ASRATE = 1.0D4*UNITAB%FAC_T_WORK
         ENDIF  
       ELSE
         ISRATE = 0
@@ -318,6 +297,13 @@ C
       CALL INIT_MAT_KEYWORD(MATPARAM ,"ELASTO_PLASTIC")
       CALL INIT_MAT_KEYWORD(MATPARAM ,"INCREMENTAL"   )
       CALL INIT_MAT_KEYWORD(MATPARAM ,"LARGE_STRAIN"  )
+      CALL INIT_MAT_KEYWORD(MATPARAM ,"HOOK")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ORTHOTROPIC")
+C
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ORTHOTROPIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ORTHOTROPIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SPH")
 C
       ! No viscosity
       IMATVIS = 0
@@ -381,7 +367,7 @@ c     Parameters printout
 c-------------------------- 
       WRITE(IOUT,1001) TRIM(TITR),MAT_ID,ILAW
       WRITE(IOUT,1000)
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
         WRITE(IOUT,1002) RHO0
@@ -439,7 +425,7 @@ C-----------------------------------------------------------------
      & 5X,'CONTINUOUS YIELD STRESS               '/,
      & 5X,'--------------------------------------'//) 
  1400 FORMAT(
-     & 5X,'INTIAL YIELD STRESS . . . . . . . . .=',1PG20.13/,
+     & 5X,'INITIAL YIELD STRESS. . . . . . . . .=',1PG20.13/,
      & 5X,'PARAMETER QR1 OF  HARDENING . . . . .=',1PG20.13/,
      & 5X,'PARAMETER CR1 OF  HARDENING . . . . .=',1PG20.13/,
      & 5X,'PARAMETER QR2 OF  HARDENING . . . . .=',1PG20.13/,

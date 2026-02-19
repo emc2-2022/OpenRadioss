@@ -1,36 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  W_BUFBRIC_22                  source/interfaces/inter3d1/w_bufbric_22.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    w_bufbric_22     ../starter/source/interfaces/inter3d1/w_bufbric_22.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit          ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    arret            ../starter/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE W_BUFBRIC_22()
 C-----------------------------------------------
 C   M o d u l e s
@@ -44,13 +41,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
 #include      "inter22.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      my_real          :: BID
+      my_real          :: BID(1)
       INTEGER          :: NIN, I, J, K, IERR1, ISIZ
       INTEGER          :: Isectype(14)  
       CHARACTER*14     :: string
@@ -62,19 +58,19 @@ C-----------------------------------------------
       
       IF(.NOT.ALLOCATED(LIST_B_OLD))THEN   
         ALLOCATE(LIST_B_OLD(INT22,I22LEN),STAT=IERR1)
-        IF (IERR1.NE.0) GOTO 1000        
+        IF (IERR1/=0) GOTO 1000        
         LIST_B_OLD(:,:) = 0
       ENDIF   
       
       IF(.NOT.ALLOCATED(NBOLD))THEN   
         ALLOCATE(NBOLD(INT22)            ,STAT=IERR1)
-        IF (IERR1.NE.0) GOTO 1000       
+        IF (IERR1/=0) GOTO 1000       
         NBOLD(:) = 0
       ENDIF        
       
       IF(.NOT.ALLOCATED(BRICK_LIST))THEN
         ALLOCATE(BRICK_LIST(INT22,I22LEN),STAT=IERR1)
-        IF (IERR1.NE.0) GOTO 1000 
+        IF (IERR1/=0) GOTO 1000 
         
         BRICK_LIST(:,:)%ID                                = -1
         BRICK_LIST(:,:)%NG                                = -2
@@ -442,10 +438,10 @@ C-----------------------------------------------
         DO J=1,9 ; CALL WRITE_I_C ( BRICK_LIST(NIN,1:I22LEN)%POLY(J)%FACE(K)%Adjacent_Cell(I)   , I22LEN) ; ENDDO      
         ENDDO          
         DO I=1,5       
-        DO J=1,9 ; CALL WRITE_I_C ( BRICK_LIST(NIN,1:I22LEN)%POLY(J)%FACE(K)%Adjacent_FLUX(I)   , I22LEN) ; ENDDO      
+        DO J=1,9 ; CALL WRITE_DB  ( BRICK_LIST(NIN,1:I22LEN)%POLY(J)%FACE(K)%Adjacent_FLUX(I)   , I22LEN) ; ENDDO
         ENDDO 
         DO I=1,5       
-        DO J=1,9 ; CALL WRITE_I_C ( BRICK_LIST(NIN,1:I22LEN)%POLY(J)%FACE(K)%Adjacent_upwFLUX(I), I22LEN) ; ENDDO      
+        DO J=1,9 ; CALL WRITE_DB  ( BRICK_LIST(NIN,1:I22LEN)%POLY(J)%FACE(K)%Adjacent_upwFLUX(I), I22LEN) ; ENDDO
         ENDDO 
         DO I=1,3       
         DO J=1,9 ; CALL WRITE_DB ( BRICK_LIST(NIN,1:I22LEN)%POLY(J)%FACE(K)%Center(I)           , I22LEN) ; ENDDO      
@@ -553,7 +549,7 @@ C-----------------------------------------------
                    CALL WRITE_DB ( BRICK_LIST(NIN,1:I22LEN)%bakMAT%ssp                          , I22LEN) 
         ISIZ = MAX (I22LAW37, I22LAW51)
         BID  = ZERO
-        IF(ISIZ.NE.0)THEN
+        IF(ISIZ/=0)THEN
           DO K=1,I22LEN
           DO I=1,ISIZ 
                    !CALL WRITE_DB ( BRICK_LIST(NIN,K)%bakMAT%UVAR(I)                      , I22LEN)
@@ -588,7 +584,7 @@ C-----------------------------------------------
 C----------------------------------------------- 
  1000 CONTINUE
 
-        IF (IERR1.NE.0) THEN
+        IF (IERR1/=0) THEN
           WRITE(IOUT,*)' ** ERROR IN MEMORY ALLOCATION (INTER22)'
           WRITE(ISTDO,*)' ** ERROR IN MEMORY ALLOCATION (INTER22)'
           CALL ARRET(2)

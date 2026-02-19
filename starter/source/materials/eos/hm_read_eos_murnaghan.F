@@ -1,43 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_EOS_MURNAGHAN         source/materials/eos/hm_read_eos_murnaghan.F
-Chd|-- called by -----------
-Chd|        HM_READ_EOS                   source/materials/eos/hm_read_eos.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_EOS_MURNAGHAN(IOUT,PM,UNITAB,IUNIT,LSUBMODEL,IMIDEOS)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_eos_murnaghan    ../starter/source/materials/eos/hm_read_eos_murnaghan.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_eos              ../starter/source/materials/eos/hm_read_eos.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_EOS_MURNAGHAN(NPROPM, IOUT,PM,UNITAB,IUNIT,LSUBMODEL,IMIDEOS,MAT_PARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
+      USE MATPARAM_DEF_MOD, ONLY : MATPARAM_STRUCT_
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -54,39 +56,34 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER IIN,IOUT,IUNIT
+      INTEGER IOUT, IUNIT, NPROPM
       my_real PM(NPROPM)
       TYPE(SUBMODEL_DATA), DIMENSION(NSUBMOD), INTENT(IN) :: LSUBMODEL
+      TYPE(MATPARAM_STRUCT_),INTENT(INOUT) :: MAT_PARAM
       INTEGER,INTENT(IN) :: IMIDEOS
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "submod_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      my_real  GAMMA, P0,T0, E0, PSH, RHO0,FAC_L,FAC_T,FAC_M,FAC_C,K0,K1,RHOI,RHOR,MU0,DF,SSP0,G0,DPDMU
-      LOGICAL :: IS_ENCRYPTED, IS_AVAILABLE
+      my_real  P0, E0, PSH, RHO0, K0, K1, RHOI, RHOR, MU0, DF, SSP0, G0, DPDMU
+      LOGICAL :: IS_ENCRYPTED, IS_AVAILABLE, IS_AVAILABLE_RHO0
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
       IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
+      IS_AVAILABLE_RHO0 = .FALSE.
 
-      CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 
       CALL HM_GET_FLOATV('EOS_K0', K0, IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('K1', K1, IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('LAW5_P0', P0, IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('LAW5_PSH', PSH, IS_AVAILABLE,LSUBMODEL,UNITAB)
-      CALL HM_GET_FLOATV('Refer_Rho', RHO0, IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('Refer_Rho', RHO0, IS_AVAILABLE_RHO0,LSUBMODEL,UNITAB)
 
       RHOR = PM(1)
       RHOI = PM(89)
@@ -94,6 +91,7 @@ C-----------------------------------------------
       IF(RHO0 > ZERO) THEN
         RHOR = RHO0
         PM(1)= RHO0 
+        MAT_PARAM%RHO = RHO0
       ELSE
         RHO0=RHOR                   
       ENDIF
@@ -101,29 +99,28 @@ C-----------------------------------------------
       E0=ZERO
       
       IF(K0 <= ZERO)THEN
-         CALL ANCMSG(MSGID=67,
-     .               MSGTYPE=MSGERROR,
-     .               ANMODE=ANINFO,
-     .               I1=IMIDEOS,
-     .               C1='/EOS/MURNAGHAN',
-     .               C2='K0 MUST BE POSITIVE')
+         CALL ANCMSG(MSGID=67,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=IMIDEOS, C1='/EOS/MURNAGHAN', C2='K0 MUST BE POSITIVE')
       ENDIF
-
-!      IF(K1.LE.ZERO)THEN
-!         CALL ANCMSG(MSGID=67,
-!     .               MSGTYPE=MSGERROR,
-!     .               ANMODE=ANINFO,
-!     .               I1=IMIDEOS,
-!     .               C1='/EOS/MURNAGHAN',
-!     .               C2='K1 MUST BE POSITIVE')
-!      ENDIF
       
-      PM(32)=P0
-      PM(36)=K0
+      PM(32)=K0 !BULK = (1+µ)*dP/dmu (partial derivative at constant E)
       PM(88)=PSH
       PM(23)=E0
-      PM(35)=K1
-      IF(PM(79)==ZERO)PM(79)=THREE100
+
+      MAT_PARAM%EOS%NUPARAM = 3
+      MAT_PARAM%EOS%NIPARAM = 0
+      MAT_PARAM%EOS%NFUNC   = 0
+      MAT_PARAM%EOS%NTABLE  = 0
+      CALL MAT_PARAM%EOS%CONSTRUCT() !allocations
+
+      MAT_PARAM%EOS%UPARAM(1) = K0
+      MAT_PARAM%EOS%UPARAM(2) = P0
+      MAT_PARAM%EOS%UPARAM(3) = K1
+      MAT_PARAM%EOS%PSH = PSH
+      MAT_PARAM%EOS%E0 = E0
+      IF (MAT_PARAM%THERM%TINI == ZERO) THEN
+        MAT_PARAM%THERM%TINI =THREE100
+        PM(79) = THREE100
+      END IF
 
       IF(RHOI == ZERO)THEN
         MU0 = ZERO ! error 683 already displayed
@@ -149,8 +146,8 @@ C-----------------------------------------------
       SSP0 = ZERO 
       G0 = PM(22)
       RHOI = PM(89)      
-        DPDMU = K0*EXP( K1*LOG(1+MU0) )/(ONE+MU0)  
-      DPDMU=MAX(ZERO,DPDMU)
+      DPDMU = K0*EXP( K1*LOG(1+MU0) )/(ONE+MU0)  
+      DPDMU = MAX(ZERO,DPDMU)
       IF(RHOR > ZERO) SSP0 = SQRT((DPDMU + TWO_THIRD*G0)/RHOR) 
       PM(27)=SSP0
       WRITE(IOUT,1000)
@@ -158,7 +155,8 @@ C-----------------------------------------------
       IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
-        WRITE(IOUT,1500)K0,K1,P0,PM(31),PSH,RHO0
+        WRITE(IOUT,1500)K0,K1,P0,PM(31),PSH
+        IF(IS_AVAILABLE_RHO0)WRITE(IOUT,1501)PM(1)
       ENDIF
 
       RETURN
@@ -170,8 +168,10 @@ C-----------------------------------------------
      & 5X,'K1. . . . . . . . . . . . . . . . . . . .=',1PG20.13/,
      & 5X,'P0. . . . . . . . . . . . . . . . . . . .=',1PG20.13/,
      & 5X,'INITIAL PRESSURE. . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'PSH . . . . . . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'RHO0. . . . . . . . . . . . . . . . . . .=',1PG20.13/)
+     & 5X,'PSH . . . . . . . . . . . . . . . . . . .=',1PG20.13)
+ 1501 FORMAT(     
+     & 5X,'EOS REFERENCE DENSITY . . . . . . . . . .=',1PG20.13) 
+      
 
       RETURN
 

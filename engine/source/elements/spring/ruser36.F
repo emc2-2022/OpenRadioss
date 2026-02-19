@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RUSER36                       source/elements/spring/ruser36.F
-Chd|-- called by -----------
-Chd|        RFORC3                        source/elements/spring/rforc3.F
-Chd|-- calls ---------------
-Chd|        GET_U_FUNC                    source/user_interface/ufunc.F 
-Chd|        GET_U_GEO                     source/user_interface/upidmid.F
-Chd|        GET_U_MAT                     source/user_interface/upidmid.F
-Chd|        GET_U_MNU                     source/user_interface/upidmid.F
-Chd|        GET_U_PNU                     source/user_interface/upidmid.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ruser36      ../engine/source/elements/spring/ruser36.F
+!||--- called by ------------------------------------------------------
+!||    rforc3       ../engine/source/elements/spring/rforc3.F
+!||--- calls      -----------------------------------------------------
+!||    get_u_func   ../engine/source/user_interface/ufunc.F
+!||    get_u_mid    ../engine/source/user_interface/upidmid.F
+!||    get_u_mnu    ../engine/source/user_interface/upidmid.F
+!||    get_u_pid    ../engine/source/user_interface/upidmid.F
+!||    get_u_pnu    ../engine/source/user_interface/upidmid.F
+!||====================================================================
       SUBROUTINE RUSER36(
      1             NEL     ,IPROP   ,UVAR   ,NUVAR  ,FR_WAVE,
      2             FX      ,FY      ,FZ     ,XMOM   ,YMOM   ,
@@ -39,26 +39,12 @@ Chd|====================================================================
      5             XL      ,VX      ,RY1    ,RZ1    ,RX     ,
      6             RY2     ,RZ2     )
 C-------------------------------------------------------------------------
-C  PROJET PREDIT - MECALOG  (NOVEMBRE98 - NOVEMBRE 2000)
-C 
-C  ROUTINE USER POUR RESSORT SPECIFIQUE PREDIT
-C
-C  Modele : A . Combescure
-C  Implementation initiale :   Q.Zeng / C. Benoit
-C  Mises a jour : Q. Zeng / F. Delcroix
-C-------------------------------------------------------------------------
-C   I M P L I C I T   T Y P E S
+C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "secur_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
 C----------------------------------------------------------
-C   D U M M Y   A R G U M E N T S   A N D   F U N C T I O N
+C   d u m m y   a r g u m e n t s   a n d   f u n c t i o n
 C----------------------------------------------------------
       INTEGER NEL,NUVAR,IPROP,
      .        GET_U_PNU,GET_U_PID,GET_U_MID,GET_U_MNU,
@@ -79,28 +65,27 @@ C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
       INTEGER I,KCST,N0,
-     .        IMAT1,IPROP1,IUTYP1,
-     .        IMAT2,IPROP2,IUTYP2
+     . IMAT1,IPROP1,
+     . IMAT2,IPROP2
       INTEGER J,N,NINDX,NMAX,INDEX(MVSIZ),IFUNC
       MY_REAL 
      .        FAC,RHO,AREA,IXX,IYY,IZZ,IMYZ,YOUNG,G,
      .        AREA1,IXX1,IYY1,IZZ1,RHO1,YOUNG1,G1,
-     .        AREA2,IXX2,IYY2,IZZ2,RHO2,YOUNG2,G2,
-     .        K11,K22,K26,K33,K35,K44,K55,K5B,K66,K6C
+     .        AREA2,IXX2,IYY2,IZZ2,RHO2,YOUNG2,G2
       MY_REAL R_Y1,R_Y2,R_Z1,R_Z2,R_Y,R_Z,R_X,FACX,FACY,FACZ,
      .        AY1,AY2,AZ1,AZ2,AY,AZ,BY1,BY2,BZ1,BZ2,BY,BZ,G3,
      .        CX1,CX2,CX,AREA_Y(MVSIZ),AREA_Z(MVSIZ),
      .        YLD(MVSIZ),DRE,DRG,DPLA_I,DPLA_J(MVSIZ),DFE,DFG,
-     .        ERR,F,DF,YLD_I,C1,FN,FM,DFN,DFM,Y1,Y2,
+     . ERR,F,DF,YLD_I,C1,FN,FM,Y1,Y2,
      .        PNX,PNX2,PNY,PNY2,PNZ,PNZ2,PMX,PMX2,PMY,PMY2,PMZ,PMZ2,
-     .        NX2,NY2,NZ2,MX2,MY2,MZ2,TEMPY,TEMPZ,XL3,KTRAN,KROT,
+     . NX2,NY2,NZ2,MX2,MY2,MZ2,TEMPY,TEMPZ,KTRAN,KROT,
      .        NX(MVSIZ),NY(MVSIZ),NZ(MVSIZ),YOUNGM(MVSIZ),GM(MVSIZ),
      .        MX(MVSIZ),MY(MVSIZ),MZ(MVSIZ),SVM(MVSIZ),H(MVSIZ),
      .        EPSVXX(MVSIZ),EPSVXY(MVSIZ),EPSVXZ(MVSIZ),
      .        EPSCBX(MVSIZ),EPSCBY(MVSIZ),EPSCBZ(MVSIZ),
      .        SIGNXX(MVSIZ),SIGNXY(MVSIZ),SIGNXZ(MVSIZ),
-     .        MOMNXX(MVSIZ),MOMNYY(MVSIZ),MOMNZZ(MVSIZ),FXAP,
-     .        GAMA(MVSIZ),GAMAC(MVSIZ),XL2(MVSIZ),DEVOL,FXAV,
+     . MOMNXX(MVSIZ),MOMNYY(MVSIZ),MOMNZZ(MVSIZ),
+     . GAMA(MVSIZ),GAMAC(MVSIZ),XL2(MVSIZ),DEVOL,
      .        PC1,DC1,PR1,PS1,DC2,PR2,PS2,DC,PR,PS,UEQ,DTEMP,
      .        SIG01,SIG02, SIG0,HPLA,H1,H2,M1,M2,M,DSIGY,CC1,
      .        FAC1,FAC2
@@ -191,11 +176,11 @@ C
       DO I=1,NEL
         YOUNGM(I)  = YOUNG*(1-UVAR(N0+4,I))
         GM(I)      = G*(1-UVAR(N0+4,I))
-C== ON CALCULE D'ABORD LES VITESSES DES DEFORMATIONS GENERALISEES ====
+C== WE FIRST CALCULATE THE VELOCITIES OF GENERALIZED DEFORMATIONS ====
         DTEMP = ONE/MAX(XL(I),EM20)
         EPSVXX(I) = VX(I)*DTEMP
         EPSVXY(I) = -HALF*(RZ1(I) + RZ2(I))
-        EPSVXZ(I) = HALF*(RY1(I) + RY2(I))	
+        EPSVXZ(I) = HALF*(RY1(I) + RY2(I))
         EPSCBX(I) = R_X*RX(I)*DTEMP
         EPSCBY(I) = R_Y*(RY2(I) - RY1(I))*DTEMP
         EPSCBZ(I) = R_Z*(RZ2(I) - RZ1(I))*DTEMP
@@ -236,7 +221,7 @@ C
         PC1 = SIX*YOUNGM(I)*(UVAR(N0+3,I)/UVAR(N0+1,I))
         CC1 =  (THREE*PI/SIXTEEN)**2
         C1=ONE - (ONE - CC1)*EXP(-PC1)
-        GAMA(I)=CC1/MAX(C1,EM20)	
+        GAMA(I)=CC1/MAX(C1,EM20)
 C
         NX(I)=SIGNXX(I)
         NY(I)=AY*SIGNXY(I)
@@ -278,7 +263,7 @@ C
           DPLA_J(I)=(SVM(I)-YLD(I))/(G3+H(I))
         ENDDO
 C
-C ATTENTION, LA VERSION DU MODELE DE RESSORT (Q.ZENG/A.COMBESCURE/C.BENOIT)
+C WARNING, THE VERSION OF THE SPRING MODEL (Q.ZENG/A.COMBESCURE/C.BENOIT)
 C NE CONSIDERE PAS D'ERREUR CUMULEE SUR PLUSIEURS ELEMENTS...
 C
 C --> EXISTE VERSION AVEC TEST MULTI-ELEMENTS (ERR_MULTI/RUSER29.F)
@@ -293,11 +278,11 @@ C
             DPLA_I=DPLA_J(I)
             IF (IFUNC /= 0) THEN
               YLD_I =YLD(I)+H(I)*DPLA_I
-	    ELSEIF (UVAR(N0,I) > EM20) THEN
+              ELSEIF (UVAR(N0,I) > EM20) THEN
               YLD_I =YLD(I)+H(I)*M*DPLA_I*(UVAR(N0,I)+DPLA_I)**(M-1)
-	    ELSE
+              ELSE
               YLD_I =YLD(I)
-	    ENDIF
+              ENDIF
             DRE =YOUNGM(I)*DPLA_I/YLD_I
             DRG =G*DPLA_I/YLD_I
             PNX  =ONE/(ONE+DRE)
@@ -305,7 +290,7 @@ C
             PNZ  =ONE/(ONE+THREE*DRG*AZ**2)
             PMX  =ONE/(ONE+THREE*DRG*GAMAC(I)**2)
             PMY  =ONE/(ONE+DRE*(BY*GAMA(I))**2)
-            PMZ  =ONE/(ONE+DRE*(BZ*GAMA(I))**2)	  
+            PMZ  =ONE/(ONE+DRE*(BZ*GAMA(I))**2)    
             PNX2=PNX*PNX
             PNY2=PNY*PNY
             PNZ2=PNZ*PNZ
@@ -327,11 +312,11 @@ C
      .                    +MX2*PMX2*PMX*GAMAC(I)**2
             IF (IFUNC /= 0) THEN
               DSIGY = -H(I)*YLD_I*TWO
-	    ELSEIF (UVAR(N0,I).GT.EM20) THEN 
+              ELSEIF (UVAR(N0,I)>EM20) THEN 
               DSIGY = -(H(I)*YLD_I*M*(DPLA_I+UVAR(N0,I))**(M-1))*TWO
             ELSE
               DSIGY = ZERO
-	    ENDIF
+              ENDIF
             DF =(-DFE*(YOUNGM(I)-DRE*H(I))/YLD_I
      .           -NINE*DFG*(G-DRG*H(I))/YLD_I)*TWO
             DF=DF+DSIGY
@@ -363,7 +348,7 @@ C INCREMENT N+1
           PNZ  =ONE/(ONE+THREE*DRG*AZ**2)
           PMX  =ONE/(ONE+THREE*DRG*GAMAC(I)**2)
           PMY  =ONE/(ONE+DRE*(BY*GAMA(I))**2)
-          PMZ  =ONE/(ONE+DRE*(BZ*GAMA(I))**2)	
+          PMZ  =ONE/(ONE+DRE*(BZ*GAMA(I))**2)
 C
           SIGNXX(I) = SIGNXX(I)*PNX
           SIGNXY(I) = SIGNXY(I)*PNY
@@ -383,7 +368,7 @@ C
           IF (UVAR(N0,I) > PS) THEN
              DEVOL = DC*DPLA_I/(PR - PS)
           ELSE
-	     DEVOL = ZERO
+               DEVOL = ZERO
           ENDIF
 C
           UVAR(N0+4,I) = UVAR(N0+4,I)+DEVOL
@@ -405,27 +390,6 @@ C
         YMOM(I) = MOMNYY(I)*OFF(I)/FACY
         ZMOM(I) = MOMNZZ(I)*OFF(I)/FACZ
       ENDDO
-C---
- 1110 FORMAT(
-     & 5X,'N. . . . . . . =',I5/,
-     & 5X,'ERR. . . . . . =',E12.4/,
-     & 5X,'DPPLAS . . . . =',E12.4/,
-     & 5X,'F PLAS . . . . =',E12.4/,
-     & 5X,'DF PLAS. . . . =',E12.4///)
- 1120 FORMAT(
-     & 5X,'MODULE YOUNG . . . . . ..=',E12.4/,
-     & 5X,'PPLAS CUMULEE. . . . . . =',E12.4/,
-     & 5X,'PPLAS TORSION . . . .  . =',E12.4/,
-     & 5X,'PPLAS FLEXION. . . . . . =',E12.4/,
-     & 5X,'ENDOMMAGEMENT . . . . .  =',E12.4///)
- 1130 FORMAT(
-     & 5X,'PPLAS CUMULEE. . . . . . =',E12.4/,
-     & 5X,'DEVOL . . . .  . =',E12.4/,
-     & 5X,'PS . . . . . ..=',E12.4/,
-     & 5X,'PR . . . . .  =',E12.4///)
- 1140 FORMAT(
-     & 3X,E16.10,
-     & 3X,F14.4)
 C---
       RETURN
       END

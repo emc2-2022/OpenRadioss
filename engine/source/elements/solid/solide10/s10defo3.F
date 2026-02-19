@@ -1,35 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S10DEFO3                      source/elements/solid/solide10/s10defo3.F
-Chd|-- called by -----------
-Chd|        S10FORC3                      source/elements/solid/solide10/s10forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s10defo3   ../engine/source/elements/solid/solide10/s10defo3.F
+!||--- called by ------------------------------------------------------
+!||    s10forc3   ../engine/source/elements/solid/solide10/s10forc3.F
+!||====================================================================
       SUBROUTINE S10DEFO3(
-     .   PX, PY, PZ, VX, VY, VZ, 
-     .   DXX, DXY, DXZ, DYX, DYY, DYZ, DZX, DZY,
-     .   DZZ, D4, D5, D6, WXX, WYY, WZZ,VOLP,VOLN,RHO,RHOO)
+     1   PX,      PY,      PZ,      VX,
+     2   VY,      VZ,      DXX,     DXY,
+     3   DXZ,     DYX,     DYY,     DYZ,
+     4   DZX,     DZY,     DZZ,     D4,
+     5   D5,      D6,      WXX,     WYY,
+     6   WZZ,     VOLP,    VOLN,    RHO,
+     7   RHOO,    NEL,     JHBE,    ISROT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,6 +44,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NEL
+      INTEGER, INTENT(IN) :: JHBE
+      INTEGER, INTENT(IN) :: ISROT
 C     REAL
       my_real
      .  VX(MVSIZ,10),VY(MVSIZ,10),VZ(MVSIZ,10),
@@ -53,7 +59,6 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
 #include      "com08_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -63,21 +68,21 @@ C     REAL
       my_real
      .   DT1D2
       my_real 
-     .   PXX2,PYY2,PZZ2,PXX2P,PYY2P,PZZ2P,AAA,BBB
+     .   PXX2,PYY2,PZZ2,AAA
 C-----------------------------------------------
 C   
       IF(ISROT /= 1)THEN                                                                 
-        DO I=LFT,LLT
+        DO I=1,NEL
           VOLN(I)=VOLP(I)
           RHOO(I)=RHO(I)
         ENDDO
       ELSE
-        DO I=LFT,LLT
+        DO I=1,NEL
 c          VOLN(I)=VOLP(I)
           RHOO(I)=RHO(I)
         ENDDO
       ENDIF
-      DO I=LFT,LLT
+      DO I=1,NEL
        DXX(I)=PX(I,1)*VX(I,1)+PX(I,2)*VX(I,2)+PX(I,3)*VX(I,3)+PX(I,4)*VX(I,4)+PX(I,5)*VX(I,5)
      .         +PX(I,6)*VX(I,6)+PX(I,7)*VX(I,7)+PX(I,8)*VX(I,8)+PX(I,9)*VX(I,9)+PX(I,10)*VX(I,10)
        DYY(I)=PY(I,1)*VY(I,1)+PY(I,2)*VY(I,2)+PY(I,3)*VY(I,3)+PY(I,4)*VY(I,4)+PY(I,5)*VY(I,5)
@@ -100,8 +105,8 @@ c          VOLN(I)=VOLP(I)
 C
       DT1D2=HALF*DT1
 C
-      IF(JHBE.GE.2)THEN
-        DO I=LFT,LLT
+      IF(JHBE>=2)THEN
+        DO I=1,NEL
          DXX(I)  = DXX(I)
      .            -DT1D2*(DXX(I)*DXX(I)+DYX(I)*DYX(I)+DZX(I)*DZX(I))
          DYY(I)  = DYY(I)
@@ -134,8 +139,8 @@ C
          WXX(I)=DT1*(PZZ2*DZY(I)-PYY2*DYZ(I))/(PYY2+PZZ2)
          WYY(I)=DT1*(PXX2*DXZ(I)-PZZ2*DZX(I))/(PZZ2+PXX2)
         ENDDO
-      ELSE !IF(JHBE.GE.2)
-        DO I=LFT,LLT
+      ELSE !IF(JHBE>=2)
+        DO I=1,NEL
          D4(I)   =DXY(I)+DYX(I)
          D5(I)   =DYZ(I)+DZY(I)
          D6(I)   =DXZ(I)+DZX(I)
@@ -148,196 +153,3 @@ C
       RETURN
 C
       END
-Chd|====================================================================
-Chd|  S10DEFOT3                     source/elements/solid/solide10/s10defo3.F
-Chd|-- called by -----------
-Chd|        S10FORC3                      source/elements/solid/solide10/s10forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE S10DEFOT3(
-     .   PX, PY, PZ, VX, VY, VZ, 
-     .   DXX, DXY, DXZ, DYX, DYY, DYZ, DZX, DZY,
-     .   DZZ)
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C     REAL
-      my_real
-     .  VX(MVSIZ,10),VY(MVSIZ,10),VZ(MVSIZ,10),
-     .  PX(MVSIZ,10),PY(MVSIZ,10),PZ(MVSIZ,10),
-     .   DXX(*), DXY(*), DXZ(*),
-     .   DYX(*), DYY(*), DYZ(*),
-     .   DZX(*), DZY(*), DZZ(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect01_c.inc"
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER  I,N
-C     REAL
-C-----------------------------------------------
-C   
-
-
-        DO I=LFT,LLT
-       DXX(I)=PX(I,1)*VX(I,1)+PX(I,2)*VX(I,2)+PX(I,3)*VX(I,3)+PX(I,4)*VX(I,4)+PX(I,5)*VX(I,5)
-     .         +PX(I,6)*VX(I,6)+PX(I,7)*VX(I,7)+PX(I,8)*VX(I,8)+PX(I,9)*VX(I,9)+PX(I,10)*VX(I,10)
-       DYY(I)=PY(I,1)*VY(I,1)+PY(I,2)*VY(I,2)+PY(I,3)*VY(I,3)+PY(I,4)*VY(I,4)+PY(I,5)*VY(I,5)
-     .         +PY(I,6)*VY(I,6)+PY(I,7)*VY(I,7)+PY(I,8)*VY(I,8)+PY(I,9)*VY(I,9)+PY(I,10)*VY(I,10)
-       DZZ(I)=PZ(I,1)*VZ(I,1)+PZ(I,2)*VZ(I,2)+PZ(I,3)*VZ(I,3)+PZ(I,4)*VZ(I,4)+PZ(I,5)*VZ(I,5)
-     .         +PZ(I,6)*VZ(I,6)+PZ(I,7)*VZ(I,7)+PZ(I,8)*VZ(I,8)+PZ(I,9)*VZ(I,9)+PZ(I,10)*VZ(I,10)
-       DXY(I)=PY(I,1)*VX(I,1)+PY(I,2)*VX(I,2)+PY(I,3)*VX(I,3)+PY(I,4)*VX(I,4)+PY(I,5)*VX(I,5)
-     .         +PY(I,6)*VX(I,6)+PY(I,7)*VX(I,7)+PY(I,8)*VX(I,8)+PY(I,9)*VX(I,9)+PY(I,10)*VX(I,10)
-       DXZ(I)=PZ(I,1)*VX(I,1)+PZ(I,2)*VX(I,2)+PZ(I,3)*VX(I,3)+PZ(I,4)*VX(I,4)+PZ(I,5)*VX(I,5)
-     .         +PZ(I,6)*VX(I,6)+PZ(I,7)*VX(I,7)+PZ(I,8)*VX(I,8)+PZ(I,9)*VX(I,9)+PZ(I,10)*VX(I,10)
-       DYX(I)=PX(I,1)*VY(I,1)+PX(I,2)*VY(I,2)+PX(I,3)*VY(I,3)+PX(I,4)*VY(I,4)+PX(I,5)*VY(I,5)
-     .         +PX(I,6)*VY(I,6)+PX(I,7)*VY(I,7)+PX(I,8)*VY(I,8)+PX(I,9)*VY(I,9)+PX(I,10)*VY(I,10)
-       DYZ(I)=PZ(I,1)*VY(I,1)+PZ(I,2)*VY(I,2)+PZ(I,3)*VY(I,3)+PZ(I,4)*VY(I,4)+PZ(I,5)*VY(I,5)
-     .         +PZ(I,6)*VY(I,6)+PZ(I,7)*VY(I,7)+PZ(I,8)*VY(I,8)+PZ(I,9)*VY(I,9)+PZ(I,10)*VY(I,10)
-       DZX(I)=PX(I,1)*VZ(I,1)+PX(I,2)*VZ(I,2)+PX(I,3)*VZ(I,3)+PX(I,4)*VZ(I,4)+PX(I,5)*VZ(I,5)
-     .         +PX(I,6)*VZ(I,6)+PX(I,7)*VZ(I,7)+PX(I,8)*VZ(I,8)+PX(I,9)*VZ(I,9)+PX(I,10)*VZ(I,10)
-       DZY(I)=PY(I,1)*VZ(I,1)+PY(I,2)*VZ(I,2)+PY(I,3)*VZ(I,3)+PY(I,4)*VZ(I,4)+PY(I,5)*VZ(I,5)
-     .         +PY(I,6)*VZ(I,6)+PY(I,7)*VZ(I,7)+PY(I,8)*VZ(I,8)+PY(I,9)*VZ(I,9)+PY(I,10)*VZ(I,10)
-      ENDDO
-C
-      RETURN
-C
-      END
-Chd|====================================================================
-Chd|  S10_ICPT                      source/elements/solid/solide10/s10defo3.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        JACOB_J33                     source/elements/solid/solide8e/s8edefo3.F
-Chd|====================================================================
-      SUBROUTINE S10_ICPT(
-     .   DXX, DXY, DXZ, DYX, DYY, DYZ, DZX, DZY,
-     .   DZZ,NU ,NPT,NEL)
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER  NPT,NEL
-      my_real ,DIMENSION(MVSIZ) ,INTENT(IN) :: NU
-      my_real ,DIMENSION(MVSIZ,5) ,INTENT(INOUT) :: 
-     .   DXX, DXY, DXZ,
-     .   DYX, DYY, DYZ,
-     .   DZX, DZY, DZZ
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER  I,N,IP
-      my_real
-     .   JAC0(MVSIZ),JAC(MVSIZ,5),FAC,BASE,JFAC
-C-----------------------------------------------
-C
-      JAC0(1:NEL)=ZERO   
-      DO IP=1,NPT
-        CALL JACOB_J33(JAC(1,IP),
-     .                DXX(1,IP), DXY(1,IP), DXZ(1,IP),
-     .                DYX(1,IP), DYY(1,IP), DYZ(1,IP),
-     .                DZX(1,IP), DZY(1,IP), DZZ(1,IP))
-        JAC0(1:NEL)=JAC0(1:NEL)+JAC(1:NEL,IP)   
-      ENDDO
-C
-      DO IP=1,NPT
-        DO I=1,NEL
-         FAC=TWO_THIRD*NU(I)
-         BASE = JAC0(I)/MAX(EM20,NPT*JAC(I,IP))
-         JFAC =EXP(FAC*LOG(MAX(EM20,BASE)))
-C         
-         DXX(I,IP) = JFAC*DXX(I,IP)+JFAC-ONE
-         DYY(I,IP) = JFAC*DYY(I,IP)+JFAC-ONE
-         DZZ(I,IP) = JFAC*DZZ(I,IP)+JFAC-ONE
-         DXY(I,IP) = JFAC*DXY(I,IP)
-         DYX(I,IP) = JFAC*DYX(I,IP)
-         DZX(I,IP) = JFAC*DZX(I,IP)
-         DXZ(I,IP) = JFAC*DXZ(I,IP)
-         DYZ(I,IP) = JFAC*DYZ(I,IP)
-         DZY(I,IP) = JFAC*DZY(I,IP)
-        ENDDO
-      ENDDO
-C      
-      RETURN
-C
-      END SUBROUTINE S10_ICPT
-Chd|====================================================================
-Chd|  S10_ICP                       source/elements/solid/solide10/s10defo3.F
-Chd|-- called by -----------
-Chd|        S10FORC3                      source/elements/solid/solide10/s10forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE S10_ICP(OFFG,VOLG0,VOLG,FACP,
-     .                   VOL0,VOLN,VOL0DP,VOLDP,NEL)
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-#include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "com01_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NEL
-C     REAL
-      my_real ,DIMENSION(NEL) ,INTENT(IN) :: OFFG,VOLG0,VOL0
-      DOUBLE PRECISION , DIMENSION(NEL) ,INTENT(IN) :: VOL0DP
-      my_real ,DIMENSION(MVSIZ) ,INTENT(IN) :: VOLG,FACP
-      my_real ,DIMENSION(MVSIZ) ,INTENT(INOUT) :: VOLN
-      DOUBLE PRECISION , DIMENSION(NEL) ,INTENT(INOUT) :: VOLDP
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "vect01_c.inc"
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I, K
-C     REAL
-
-      DOUBLE PRECISION   :: FACVM
-
-C----------------------------
-      IF(ISMSTR==1.OR.ISMSTR>=10)THEN
-      ELSE
-c-------------------------------------------------------------------------
-       IF(IRESP==1)THEN
-        DO I=1,NEL
-         IF(OFFG(I)==ZERO.OR.ABS(OFFG(I))>ONE) CYCLE
-         FACVM = VOLG(I)/VOLG0(I)
-         VOLDP(I) = (ONE-FACP(I))*VOLDP(I)+FACP(I)*FACVM*VOL0DP(I)             
-        ENDDO
-       ELSE
-        DO I=1,NEL
-         IF(OFFG(I)==ZERO.OR.ABS(OFFG(I))>ONE) CYCLE
-         FACVM = VOLG(I)/VOLG0(I)
-         VOLN(I) = (ONE-FACP(I))*VOLN(I)+FACP(I)*FACVM*VOL0(I)             
-        ENDDO
-       ENDIF
-      END IF !(ISMSTR==1.OR.ISMSTR>=10)THEN
-C       
-      RETURN
-      END SUBROUTINE S10_ICP

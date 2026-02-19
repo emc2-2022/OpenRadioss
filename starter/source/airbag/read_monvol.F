@@ -1,55 +1,66 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  READ_MONVOL                   source/airbag/read_monvol.F   
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_READ_MONVOL_TYPE1          source/airbag/hm_read_monvol_type1.F
-Chd|        HM_READ_MONVOL_TYPE10         source/airbag/hm_read_monvol_type10.F
-Chd|        HM_READ_MONVOL_TYPE11         source/airbag/hm_read_monvol_type11.F
-Chd|        HM_READ_MONVOL_TYPE2          source/airbag/hm_read_monvol_type2.F
-Chd|        HM_READ_MONVOL_TYPE3          source/airbag/hm_read_monvol_type3.F
-Chd|        HM_READ_MONVOL_TYPE4          source/airbag/hm_read_monvol_type4.F
-Chd|        HM_READ_MONVOL_TYPE5          source/airbag/hm_read_monvol_type5.F
-Chd|        HM_READ_MONVOL_TYPE6          source/airbag/hm_read_monvol_type6.F
-Chd|        HM_READ_MONVOL_TYPE7          source/airbag/hm_read_monvol_type7.F
-Chd|        HM_READ_MONVOL_TYPE8          source/airbag/hm_read_monvol_type8.F
-Chd|        HM_READ_MONVOL_TYPE9          source/airbag/hm_read_monvol_type9.F
-Chd|        HM_SZ_R2R                     source/coupling/rad2rad/routines_r2r.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    read_monvol                 ../starter/source/airbag/read_monvol.F
+!||--- called by ------------------------------------------------------
+!||    lectur                      ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                      ../starter/source/output/message/message.F
+!||    fretitl                     ../starter/source/starter/freform.F
+!||    hm_option_read_key          ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start             ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_read_monvol_type1        ../starter/source/airbag/hm_read_monvol_type1.F
+!||    hm_read_monvol_type10       ../starter/source/airbag/hm_read_monvol_type10.F
+!||    hm_read_monvol_type11       ../starter/source/airbag/hm_read_monvol_type11.F
+!||    hm_read_monvol_type2        ../starter/source/airbag/hm_read_monvol_type2.F
+!||    hm_read_monvol_type3        ../starter/source/airbag/hm_read_monvol_type3.F
+!||    hm_read_monvol_type4        ../starter/source/airbag/hm_read_monvol_type4.F
+!||    hm_read_monvol_type5        ../starter/source/airbag/hm_read_monvol_type5.F
+!||    hm_read_monvol_type6        ../starter/source/airbag/hm_read_monvol_type6.F
+!||    hm_read_monvol_type7        ../starter/source/airbag/hm_read_monvol_type7.F
+!||    hm_read_monvol_type8        ../starter/source/airbag/hm_read_monvol_type8.F
+!||    hm_read_monvol_type9        ../starter/source/airbag/hm_read_monvol_type9.F
+!||    hm_sz_r2r                   ../starter/source/coupling/rad2rad/routines_r2r.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    hm_read_monvol_type10_mod   ../starter/source/airbag/hm_read_monvol_type10.F
+!||    hm_read_monvol_type11_mod   ../starter/source/airbag/hm_read_monvol_type11.F
+!||    hm_read_monvol_type1_mod    ../starter/source/airbag/hm_read_monvol_type1.F
+!||    hm_read_monvol_type2_mod    ../starter/source/airbag/hm_read_monvol_type2.F
+!||    hm_read_monvol_type3_mod    ../starter/source/airbag/hm_read_monvol_type3.F
+!||    hm_read_monvol_type4_mod    ../starter/source/airbag/hm_read_monvol_type4.F
+!||    hm_read_monvol_type5_mod    ../starter/source/airbag/hm_read_monvol_type5.F
+!||    hm_read_monvol_type6_mod    ../starter/source/airbag/hm_read_monvol_type6.F
+!||    hm_read_monvol_type7_mod    ../starter/source/airbag/hm_read_monvol_type7.F
+!||    hm_read_monvol_type8_mod    ../starter/source/airbag/hm_read_monvol_type8.F
+!||    hm_read_monvol_type9_mod    ../starter/source/airbag/hm_read_monvol_type9.F
+!||    message_mod                 ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod           ../starter/share/modules1/monvol_struct_mod.F
+!||    r2r_mod                     ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE READ_MONVOL(T_MONVOL, T_MONVOL_METADATA, ITAB, ITABM1, IPM, IGEO, 
-     .     X, PM, GEO, IXC, IXTG, LSENSOR,SENSOR,
+     .     X, PM, GEO, IXC, IXTG, SENSORS,
      .     UNITAB, NPC, NPT, PLD, IGRSURF, IGRBRIC, NOM_OPT,IFRAME, XFRAME, 
      .     LSUBMODEL)
 C-----------------------------------------------
@@ -58,10 +69,24 @@ C-----------------------------------------------
       USE UNITAB_MOD
       USE R2R_MOD
       USE MESSAGE_MOD
-      USE GROUPDEF_MOD
+      USE GROUPDEF_MOD , only:GROUP_,SURF_
       USE MONVOL_STRUCT_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE SENSOR_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      USE HM_READ_MONVOL_TYPE1_MOD  ,ONLY : HM_READ_MONVOL_TYPE1
+      USE HM_READ_MONVOL_TYPE2_MOD  ,ONLY : HM_READ_MONVOL_TYPE2
+      USE HM_READ_MONVOL_TYPE3_MOD  ,ONLY : HM_READ_MONVOL_TYPE3
+      USE HM_READ_MONVOL_TYPE4_MOD  ,ONLY : HM_READ_MONVOL_TYPE4
+      USE HM_READ_MONVOL_TYPE5_MOD  ,ONLY : HM_READ_MONVOL_TYPE5
+      USE HM_READ_MONVOL_TYPE6_MOD  ,ONLY : HM_READ_MONVOL_TYPE6
+      USE HM_READ_MONVOL_TYPE7_MOD  ,ONLY : HM_READ_MONVOL_TYPE7
+      USE HM_READ_MONVOL_TYPE8_MOD  ,ONLY : HM_READ_MONVOL_TYPE8
+      USE HM_READ_MONVOL_TYPE9_MOD  ,ONLY : HM_READ_MONVOL_TYPE9
+      USE HM_READ_MONVOL_TYPE10_MOD ,ONLY : HM_READ_MONVOL_TYPE10
+      USE HM_READ_MONVOL_TYPE11_MOD ,ONLY : HM_READ_MONVOL_TYPE11
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -78,32 +103,31 @@ C     NSUBDOM
 C     NIMV, NRVOLU
 #include      "param_c.inc"
 C     LUNIT, NUNITS
-#include      "sysunit.inc"
 C     IOUT
 #include      "units_c.inc"
-C     NSUBMOD
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(MONVOL_STRUCT_), DIMENSION(NVOLU + NMONVOL), INTENT(INOUT) :: T_MONVOL
       TYPE(MONVOL_METADATA_), INTENT(INOUT) :: T_MONVOL_METADATA
       TYPE(UNIT_TYPE_), INTENT(IN) :: UNITAB
-      my_real, INTENT(IN) :: X(3, *), GEO(NPROPG, *), PM(NPROPM, *), PLD(2, *), 
-     .     SENSOR(NSENSR, *),XFRAME(NXFRAME,*)
+      my_real, INTENT(IN) :: X(3, NUMNOD), GEO(NPROPG, NUMGEO), PM(NPROPM, NUMMAT), PLD(2, *), 
+     .     XFRAME(NXFRAME,*)
       INTEGER, INTENT(IN) :: NPC(*), NPT(*), ITAB(*), ITABM1(*), 
-     .     IXC(NIXC, *), IXTG(NIXTG, *), LSENSOR(NSENSI, *), IPM(NPROPMI, *), 
-     .     IGEO(NPROPGI, *),IFRAME(LISKN,*)
+     .     IXC(NIXC, NUMELC), IXTG(NIXTG, NUMELTG),IPM(NPROPMI, NUMMAT), 
+     .     IGEO(NPROPGI, NUMGEO),IFRAME(LISKN,*)
       INTEGER, INTENT(INOUT) :: NOM_OPT(LNOPT1, *)
       TYPE (SURF_), INTENT(INOUT), DIMENSION(NSURF) :: IGRSURF
       TYPE (GROUP_), DIMENSION(NGRBRIC), INTENT(IN) :: IGRBRIC
-      TYPE(SUBMODEL_DATA), DIMENSION(NSUBMOD), INTENT(IN) :: LSUBMODEL
+      TYPE (SUBMODEL_DATA), DIMENSION(NSUBMOD), INTENT(IN) :: LSUBMODEL
+      TYPE (SENSORS_) ,INTENT(IN) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER :: II, JJ
       INTEGER :: NVB, ITYPE, ID, UID, LOCAL_UID
-      CHARACTER :: KEY*ncharkey, TITR*nchartitle
+      CHARACTER(len=ncharkey) :: KEY
+      CHARACTER(len=nchartitle) :: TITR
       LOGICAL :: FOUND
 C-----------------------------------------------
 C     B e g i n n i n g   o f   s o u r c e
@@ -131,7 +155,7 @@ C     Multidomain -> skip untagged monvols
          CALL FRETITL(TITR,NOM_OPT(LNOPT1-LTITR+1,II),LTITR)
 C     Check units
          FOUND = .FALSE.
-         DO JJ = 1, NUNITS
+         DO JJ = 1,UNITAB%NUNITS
             IF (UNITAB%UNIT_ID(JJ) == UID) THEN
                FOUND = .TRUE.
                LOCAL_UID = JJ
@@ -165,12 +189,14 @@ C     Check units
          ELSEIF (KEY(1:6) == 'LFLUID') THEN
             ITYPE = 10
          ELSE
+            ITYPE = 0
             CALL ANCMSG(MSGID=7,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .           I1=ID,C1=TITR)
          ENDIF
 
          T_MONVOL(II)%ID = ID
          T_MONVOL(II)%IVOLU(1) = ID
+         T_MONVOL(II)%IVOLU(27) = -1 !ID_DT_OPTION  ( /DT/FVMBAG/[id_dt_option] )
          T_MONVOL(II)%TYPE = ITYPE
          T_MONVOL(II)%IVOLU(2) = ITYPE
          T_MONVOL(II)%TITLE = TRIM(TITR)
@@ -182,56 +208,52 @@ C     Check units
 !     ************     !
 !     /MONVOL/AREA     !
 !     ************     !
-            CALL HM_READ_MONVOL_TYPE1(T_MONVOL(II), IPM, IGEO, ITABM1, 
-     .           LSENSOR, SENSOR, NPT, PLD, 
-     .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG, 
-     .           LSUBMODEL)
+            CALL HM_READ_MONVOL_TYPE1(T_MONVOL(II),
+     .           UNITAB, LOCAL_UID, IGRSURF,
+     .           ITAB, X, PM, GEO, IXC, IXTG,LSUBMODEL)
          CASE(2)
 !     ************     !
 !     /MONVOL/PRES     !
 !     ************     !
-            CALL HM_READ_MONVOL_TYPE2(T_MONVOL(II), IPM, IGEO, ITABM1, 
-     .           LSENSOR, SENSOR, NPT, PLD, 
-     .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG, 
-     .           LSUBMODEL)
+            CALL HM_READ_MONVOL_TYPE2(T_MONVOL(II),
+     .           UNITAB, LOCAL_UID, NPC, IGRSURF,
+     .           ITAB, X, PM, GEO, IXC, IXTG,LSUBMODEL)
          CASE(3)
 !     ***********     !
 !     /MONVOL/GAS     !
 !     ***********     !
-            CALL HM_READ_MONVOL_TYPE3(T_MONVOL(II), IPM, IGEO, ITABM1,   
-     .           LSENSOR, SENSOR, NPT, PLD, 
-     .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG, 
-     .           LSUBMODEL)
+            CALL HM_READ_MONVOL_TYPE3(T_MONVOL(II),
+     .           UNITAB, LOCAL_UID, NPC, IGRSURF,
+     .           ITAB, X, PM, GEO, IXC, IXTG, LSUBMODEL)
          CASE(4)
 !     **************     !
 !     /MONVOL/AIRBAG     !
 !     **************     !
-            CALL HM_READ_MONVOL_TYPE4(T_MONVOL(II), IPM, IGEO, ITABM1, 
-     .           LSENSOR, SENSOR, NPT, PLD, 
-     .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG,
-     .           LSUBMODEL)
+            CALL HM_READ_MONVOL_TYPE4(T_MONVOL(II), ITABM1,
+     .           SENSORS, NPT, PLD, UNITAB, LOCAL_UID, NPC, IGRSURF,
+     .           ITAB, X, PM, GEO, IXC, IXTG, LSUBMODEL)
          CASE(5)
 !     *************     !
 !     /MONVOL/COMMU     !
 !     *************     !
-            CALL HM_READ_MONVOL_TYPE5(T_MONVOL(II), T_MONVOL_METADATA, IPM, IGEO, ITABM1, 
-     .           LSENSOR, SENSOR, NPT, PLD, 
+            CALL HM_READ_MONVOL_TYPE5(T_MONVOL(II), T_MONVOL_METADATA, ITABM1,
+     .           SENSORS, NPT, PLD, 
      .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG,
      .           LSUBMODEL)
          CASE(6)
 !     **************     !
 !     /MONVOL/FVMBAG     !
 !     **************     !
-            CALL HM_READ_MONVOL_TYPE6(T_MONVOL(II), IPM, IGEO, ITABM1, 
-     .           LSENSOR, SENSOR, NPT, PLD, IGRBRIC,
-     .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG,
+            CALL HM_READ_MONVOL_TYPE6(T_MONVOL(II),
+     .           SENSORS, NPT, PLD, IGRBRIC,
+     .           UNITAB,  NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG,
      .           LSUBMODEL)
          CASE(7)
 !     ***************     !
 !     /MONVOL/AIRBAG1     !
 !     ***************     !
-            CALL HM_READ_MONVOL_TYPE7(T_MONVOL(II), IPM, IGEO, ITABM1,   
-     .           LSENSOR, SENSOR, NPT, PLD, 
+            CALL HM_READ_MONVOL_TYPE7(T_MONVOL(II), IPM, IGEO, ITABM1,
+     .           SENSORS,
      .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG,
      .           LSUBMODEL)
          CASE(8)
@@ -239,7 +261,7 @@ C     Check units
 !     /MONVOL/FVMBAG1     !
 !     ***************     !
            CALL HM_READ_MONVOL_TYPE8(T_MONVOL(II), IPM, IGEO, ITABM1,   
-     .           LSENSOR, SENSOR, NPT, PLD, IFRAME, XFRAME, IGRBRIC,
+     .           SENSORS, IFRAME, XFRAME, IGRBRIC,
      .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG, 
      .           LSUBMODEL)           
 
@@ -248,23 +270,21 @@ C     Check units
 !     /MONVOL/COMMU1     !
 !     **************     !
             CALL HM_READ_MONVOL_TYPE9(T_MONVOL(II), T_MONVOL_METADATA, IPM, IGEO, ITABM1,   
-     .           LSENSOR, SENSOR, NPT, PLD, 
+     .           SENSORS,
      .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG,
      .           LSUBMODEL)
          CASE(10)
 !     **************     !
 !     /MONVOL/LFLUID     !
 !     **************     !
-            CALL HM_READ_MONVOL_TYPE10(T_MONVOL(II), IPM, IGEO, ITABM1,   
-     .           LSENSOR, SENSOR, NPT, PLD, 
-     .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG, 
-     .           LSUBMODEL)
+            CALL HM_READ_MONVOL_TYPE10(T_MONVOL(II),
+     .           UNITAB,  NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG,LSUBMODEL)
          CASE(11)
 !     ***************     !
 !     /MONVOL/FVMBAG2     !
 !     ***************     !
             CALL HM_READ_MONVOL_TYPE11(T_MONVOL(II), IPM, IGEO, ITABM1,   
-     .           LSENSOR, SENSOR, NPT, PLD, IFRAME, XFRAME, IGRBRIC,
+     .           SENSORS, XFRAME, IGRBRIC,
      .           UNITAB, LOCAL_UID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG, 
      .           LSUBMODEL)
          END SELECT

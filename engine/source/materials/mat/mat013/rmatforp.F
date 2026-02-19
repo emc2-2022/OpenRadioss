@@ -1,41 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RMATFORP                      source/materials/mat/mat013/rmatforp.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        RMATPON                       source/materials/mat/mat013/rmatpon.F
-Chd|        SPMD_EXCH_A_RM6               source/mpi/kinematic_conditions/spmd_exch_a_rm6.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|====================================================================
-      SUBROUTINE RMATFORP(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rmatforp          ../engine/source/materials/mat/mat013/rmatforp.F
+!||--- called by ------------------------------------------------------
+!||    resol             ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    rmatpon           ../engine/source/materials/mat/mat013/rmatpon.F
+!||    spmd_exch_a_rm6   ../engine/source/mpi/kinematic_conditions/spmd_exch_a_rm6.F
+!||    startime          ../engine/source/system/timer_mod.F90
+!||    stoptime          ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    timer_mod         ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE RMATFORP(TIMERS,
      1   A       ,AR       ,X        ,VR     ,IN     ,
      2   STIFN   ,STIFR    ,IRBY     ,LNRBY  ,RBY    , 
      3   ICODRBY ,WEIGHT   ,MS       ,V      ,FR_RBM ,
      4   IAD_RBY ,ARBY    ,VRBY     ,ARRBY   ,VRRBY  ,
      5   KIND    ,RBYM6   )
+        USE TIMER_MOD
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,16 +49,11 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "param_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "timeri_c.inc"
-#include      "spmd_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS
       INTEGER FR_RBM(*),IAD_RBY(*),
      .        ICODRBY(2,*),WEIGHT(*),LNRBY(*),IRBY(NIRBYM,*),
      .        KIND(NRBYM)
@@ -72,7 +70,7 @@ C-----------------------------------------------
       INTEGER  K,M
 
 C-------------------------------------
-C Traitement rigid material  
+C Processing rigid material
 C-------------------------------------
 
 !$OMP SINGLE
@@ -98,18 +96,18 @@ C-------------------------------------
 
         IF (NSPMD > 1) THEN
 !$OMP SINGLE
-          IF (IMON.GT.0) CALL STARTIME(11,1)
+          IF (IMON>0) CALL STARTIME(TIMERS,11)
 C
 C Comm non multi-thread
 C
           CALL SPMD_EXCH_A_RM6(
      1         IAD_RBY,FR_RBM,IAD_RBY(NSPMD+1),RBYM6 )
-          IF (IMON.GT.0) CALL STOPTIME(11,1)
+          IF (IMON>0) CALL STOPTIME(TIMERS,11)
 !$OMP END SINGLE
 
         END IF
 C
-C Traitement fin parith/on multi-thread
+C End of parith/on multi-thread processing
 C
 
 !$OMP DO SCHEDULE(DYNAMIC,1)

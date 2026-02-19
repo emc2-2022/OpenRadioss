@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BFGS_INI                      source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    bfgs_ini   ../engine/source/implicit/imp_bfgs.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv   ../engine/source/implicit/imp_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_INI(NDDL,MAX_BFGS) 
 C-----------------------------------------------
 C   M o d u l e s
@@ -36,8 +36,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -53,11 +51,11 @@ C-----------------------------------------------
       INTEGER IER1,IER2,IER3,LV
 C------------------------------------------
 C
-      IF (INSOLV.EQ.5) THEN
+      IF (INSOLV==5) THEN
        IF(ALLOCATED(BFGS_V)) DEALLOCATE(BFGS_V)
        ALLOCATE(BFGS_V(NDDL,1),STAT=IER2)
       ELSE
-       IF(L_BFGS.EQ.0) THEN
+       IF(L_BFGS==0) THEN
         LV = MAX_BFGS
        ELSE
         LV = L_BFGS
@@ -72,13 +70,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_0                        source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|        NL_SOLV                       source/implicit/nl_solv.F     
-Chd|-- calls ---------------
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_0     ../engine/source/implicit/imp_bfgs.F
+!||--- called by ------------------------------------------------------
+!||    nl_solv    ../engine/source/implicit/nl_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_0
 C-----------------------------------------------
 C   M o d u l e s
@@ -88,15 +86,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -109,13 +98,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_LS                       source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|        NL_SOLV                       source/implicit/nl_solv.F     
-Chd|-- calls ---------------
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_ls    ../engine/source/implicit/imp_bfgs.F
+!||--- called by ------------------------------------------------------
+!||    nl_solv    ../engine/source/implicit/nl_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_LS(LS)
 C-----------------------------------------------
 C   M o d u l e s
@@ -126,14 +115,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
       my_real
      .   LS 
 C-----------------------------------------------
@@ -145,14 +128,14 @@ C------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_1                        source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        BFGS_RHD                      source/implicit/imp_bfgs.F    
-Chd|        PRODUT_W                      source/implicit/produt_v.F    
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_1     ../engine/source/implicit/imp_bfgs.F
+!||--- calls      -----------------------------------------------------
+!||    bfgs_rhd   ../engine/source/implicit/imp_bfgs.F
+!||    produt_w   ../engine/source/implicit/produt_v.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_1(NDDL,W_DDL,F,A2,IT)
 C-----------------------------------------------
 C   M o d u l e s
@@ -163,14 +146,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
       INTEGER NDDL,W_DDL(*),IT
       my_real
      .   F(*) ,A2
@@ -181,7 +158,7 @@ C-----------------------------------------------
       my_real
      .   A1 ,B1
 C------------------------------------------
-       IF (IT.EQ.0.OR.(IACTB.EQ.0.AND.IT.LT.2)) RETURN
+       IF (IT==0.OR.(IACTB==0.AND.IT<2)) RETURN
        N = N_BFGS + 1
 C--------V->dr----------------------------------
        A2=ZERO
@@ -189,7 +166,7 @@ C--------V->dr----------------------------------
         BFGS_V(I,N) = F(I) - BFGS_V(I,N)
        ENDDO
        CALL PRODUT_W(NDDL,BFGS_W(1,N),BFGS_V(1,N),W_DDL,A1)
-       IF (ABS(A1).GT.EM10) THEN
+       IF (ABS(A1)>EM10) THEN
          N_BFGS = N
          CALL PRODUT_W(NDDL,BFGS_W(1,N),F,W_DDL,A2)
          A2 = A2*S_LIN
@@ -206,26 +183,21 @@ C--------W->b1*du----------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_RHD                      source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|        BFGS_1                        source/implicit/imp_bfgs.F    
-Chd|        BFGS_1P                       source/implicit/imp_bfgs.F    
-Chd|        BFGS_2                        source/implicit/imp_bfgs.F    
-Chd|        BFGS_2P                       source/implicit/imp_bfgs.F    
-Chd|-- calls ---------------
-Chd|        PRODUT_W                      source/implicit/produt_v.F    
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_rhd   ../engine/source/implicit/imp_bfgs.F
+!||--- called by ------------------------------------------------------
+!||    bfgs_1     ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_1p    ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_2     ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_2p    ../engine/source/implicit/imp_bfgs.F
+!||--- calls      -----------------------------------------------------
+!||    produt_w   ../engine/source/implicit/produt_v.F
+!||====================================================================
       SUBROUTINE BFGS_RHD(NDDL,W_DDL,BW,BV,B)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -248,13 +220,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_2                        source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        BFGS_RHD                      source/implicit/imp_bfgs.F    
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_2     ../engine/source/implicit/imp_bfgs.F
+!||--- calls      -----------------------------------------------------
+!||    bfgs_rhd   ../engine/source/implicit/imp_bfgs.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_2(NDDL,W_DDL,U,F,A2,IT,MAX_BFGS)
 C-----------------------------------------------
 C   M o d u l e s
@@ -264,8 +236,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -282,27 +252,27 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I ,N
 C------------------------------------------
-       IF (IACTB.EQ.0.AND.IT.EQ.0) RETURN
+       IF (IACTB==0.AND.IT==0) RETURN
        IACTB = 1
-       IF (IT.EQ.0.AND.L_BFGS.EQ.0) N_BFGS = 0
-       IF(N_BFGS.GT.0) THEN
+       IF (IT==0.AND.L_BFGS==0) N_BFGS = 0
+       IF(N_BFGS>0) THEN
         DO I=1,N_BFGS
          CALL BFGS_RHD(NDDL,W_DDL,BFGS_V(1,I),BFGS_W(1,I),U)
         ENDDO
-        IF (A2.NE.ZERO) THEN
+        IF (A2/=ZERO) THEN
          DO I=1,NDDL
           U(I) = U(I) - A2*BFGS_W(I,N_BFGS)
          ENDDO
         ENDIF 
        ENDIF 
-       IF (L_BFGS.GT.0) THEN
-        IF (N_BFGS.LT.L_BFGS) THEN
+       IF (L_BFGS>0) THEN
+        IF (N_BFGS<L_BFGS) THEN
          N = N_BFGS + 1
          DO I=1,NDDL
           BFGS_W(I,N) = U(I)
           BFGS_V(I,N) = F(I)
          ENDDO
-        ELSEIF (N_BFGS.EQ.L_BFGS) THEN
+        ELSEIF (N_BFGS==L_BFGS) THEN
          N_BFGS=L_BFGS-1
          DO N=1,N_BFGS
           DO I=1,NDDL
@@ -316,7 +286,7 @@ C------------------------------------------
          ENDDO
         ENDIF 
        ELSE
-       IF (N_BFGS.LT.MAX_BFGS) THEN
+       IF (N_BFGS<MAX_BFGS) THEN
         N = N_BFGS + 1
         DO I=1,NDDL
          BFGS_W(I,N) = U(I)
@@ -327,14 +297,14 @@ C------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_1P                       source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        BFGS_RHD                      source/implicit/imp_bfgs.F    
-Chd|        PRODUT_W                      source/implicit/produt_v.F    
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_1p    ../engine/source/implicit/imp_bfgs.F
+!||--- calls      -----------------------------------------------------
+!||    bfgs_rhd   ../engine/source/implicit/imp_bfgs.F
+!||    produt_w   ../engine/source/implicit/produt_v.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_1P(NDDL,W_DDL,F,A2,IT)
 C-----------------------------------------------
 C   M o d u l e s
@@ -344,11 +314,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -363,7 +328,7 @@ C-----------------------------------------------
       my_real
      .   A1 ,B1
 C------------------------------------------
-       IF (IT.EQ.0.OR.(IACTB.EQ.0.AND.IT.LT.2)) RETURN
+       IF (IT==0.OR.(IACTB==0.AND.IT<2)) RETURN
        N = N_BFGS + 1
 C--------V->dr----------------------------------
        DO I=1,NDDL
@@ -372,9 +337,9 @@ C--------V->dr----------------------------------
        CALL PRODUT_W(NDDL,BFGS_W(1,N),BFGS_V(1,N),W_DDL,A1)
        CALL PRODUT_W(NDDL,BFGS_W(1,N),F,W_DDL,A2)
        A1 = S_LIN*A1
-       IF (ABS(A2).GT.EM10) THEN
+       IF (ABS(A2)>EM10) THEN
         B1=-A1/A2
-        IF (ABS(A1).GT.EM10.AND.B1.GT.ZERO) THEN
+        IF (ABS(A1)>EM10.AND.B1>ZERO) THEN
          N_BFGS = N
 C--------W->b1*du----------------------------------
          B1 = SQRT(B1)
@@ -390,13 +355,13 @@ C--------W->b1*du----------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_2P                       source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        BFGS_RHD                      source/implicit/imp_bfgs.F    
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_2p    ../engine/source/implicit/imp_bfgs.F
+!||--- calls      -----------------------------------------------------
+!||    bfgs_rhd   ../engine/source/implicit/imp_bfgs.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_2P(NDDL,W_DDL,U,F,A2,IT,MAX_BFGS)
 C-----------------------------------------------
 C   M o d u l e s
@@ -406,8 +371,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -424,24 +387,24 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I ,N
 C------------------------------------------
-       IF (IACTB.EQ.0.AND.IT.EQ.0) RETURN
+       IF (IACTB==0.AND.IT==0) RETURN
        IACTB = 1
-       IF (IT.EQ.0.AND.L_BFGS.EQ.0) N_BFGS = 0
+       IF (IT==0.AND.L_BFGS==0) N_BFGS = 0
 C
-       IF(N_BFGS.GT.0) THEN
+       IF(N_BFGS>0) THEN
         DO I=1,N_BFGS
          CALL BFGS_RHD(NDDL,W_DDL,BFGS_V(1,I),BFGS_W(1,I),U)
         ENDDO
        ENDIF 
 C
-       IF (L_BFGS.GT.0) THEN
-        IF (N_BFGS.LT.L_BFGS) THEN
+       IF (L_BFGS>0) THEN
+        IF (N_BFGS<L_BFGS) THEN
          N = N_BFGS + 1
          DO I=1,NDDL
           BFGS_W(I,N) = U(I)
           BFGS_V(I,N) = F(I)
          ENDDO
-        ELSEIF (N_BFGS.EQ.L_BFGS) THEN
+        ELSEIF (N_BFGS==L_BFGS) THEN
          N_BFGS=L_BFGS-1
          DO N=1,N_BFGS
           DO I=1,NDDL
@@ -455,7 +418,7 @@ C
          ENDDO
         ENDIF 
        ELSE
-        IF (N_BFGS.LT.MAX_BFGS) THEN
+        IF (N_BFGS<MAX_BFGS) THEN
          N = N_BFGS + 1
          DO I=1,NDDL
           BFGS_W(I,N) = U(I)
@@ -466,12 +429,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  NSLOAN_0                      source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    nsloan_0   ../engine/source/implicit/imp_bfgs.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE NSLOAN_0(NDDL0)
 C-----------------------------------------------
 C   M o d u l e s
@@ -481,11 +443,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -500,14 +457,14 @@ C------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  NSLOAN_5                      source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        D_TO_U                        source/implicit/produt_v.F    
-Chd|        PRODUT_W                      source/implicit/produt_v.F    
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    nsloan_5   ../engine/source/implicit/imp_bfgs.F
+!||--- calls      -----------------------------------------------------
+!||    d_to_u     ../engine/source/implicit/produt_v.F
+!||    produt_w   ../engine/source/implicit/produt_v.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE NSLOAN_5(NDDL  ,IDDL  ,NDOF  ,IKC   ,W_DDL  ,
      .                    DD    ,DDR   ,U     ,F     ,ICONV  )
 C-----------------------------------------------
@@ -518,11 +475,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -537,7 +489,7 @@ C-----------------------------------------------
       my_real
      .   UOLD(NDDL),RE,REP
 C------------------------------------------
-       IF (ICONV.EQ.0) THEN
+       IF (ICONV==0) THEN
         NDDL0 = N_BFGS 
         CALL D_TO_U(NDDL0 ,NDDL  ,IDDL  ,NDOF  ,IKC   ,
      .             DD    ,DDR   ,UOLD  )
@@ -557,12 +509,11 @@ C------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  GET_SLIN                      source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    get_slin   ../engine/source/implicit/imp_bfgs.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE GET_SLIN(FR)
 C-----------------------------------------------
 C   M o d u l e s
@@ -573,17 +524,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NDDL0
       my_real
      .   FR
-C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -592,16 +537,17 @@ C------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_H1                       source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|        LIN_SOLV                      source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        BFGS_RHDH                     source/implicit/imp_bfgs.F    
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        PRODUT_H                      source/implicit/produt_v.F    
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_h1      ../engine/source/implicit/imp_bfgs.F
+!||--- called by ------------------------------------------------------
+!||    lin_solv     ../engine/source/implicit/lin_solv.F
+!||--- calls      -----------------------------------------------------
+!||    bfgs_rhdh    ../engine/source/implicit/imp_bfgs.F
+!||    my_barrier   ../engine/source/system/machine.F
+!||    produt_h     ../engine/source/implicit/produt_v.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs     ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_H1(F_DDL,L_DDL,W_DDL,F,A2,IT,ITASK)
 C-----------------------------------------------
 C   M o d u l e s
@@ -612,14 +558,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
       INTEGER F_DDL,L_DDL,W_DDL(*),IT,ITASK
       my_real
      .   F(*) ,A2
@@ -630,7 +570,7 @@ C-----------------------------------------------
       my_real
      .   A1 ,B1
 C------------------------------------------
-       IF (IT.EQ.0.OR.(IACTB.EQ.0.AND.IT.LT.2)) RETURN
+       IF (IT==0.OR.(IACTB==0.AND.IT<2)) RETURN
        N = N_BFGS + 1
 C--------V->dr----------------------------------
        A2=ZERO
@@ -640,12 +580,12 @@ C--------V->dr----------------------------------
        CALL PRODUT_H(F_DDL,L_DDL,BFGS_W(1,N),BFGS_V(1,N),W_DDL,A1,
      .               ITASK)
        IF (ITASK==0) THEN
-        IF (ABS(A1).GT.EM10) N_BFGS = N
+        IF (ABS(A1)>EM10) N_BFGS = N
        END IF
 C----------------------
       CALL MY_BARRIER
 C---------------------
-       IF (ABS(A1).GT.EM10) THEN
+       IF (ABS(A1)>EM10) THEN
          CALL PRODUT_H(F_DDL,L_DDL,BFGS_W(1,N),F,W_DDL,A2,ITASK)
          IF (ITASK==0) A2 = A2*S_LIN
 C--------W->b1*du----------------------------------
@@ -662,26 +602,21 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_RHDH                     source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|        BFGS_H1                       source/implicit/imp_bfgs.F    
-Chd|        BFGS_H1P                      source/implicit/imp_bfgs.F    
-Chd|        BFGS_H2                       source/implicit/imp_bfgs.F    
-Chd|        BFGS_H2P                      source/implicit/imp_bfgs.F    
-Chd|-- calls ---------------
-Chd|        PRODUT_H                      source/implicit/produt_v.F    
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_rhdh   ../engine/source/implicit/imp_bfgs.F
+!||--- called by ------------------------------------------------------
+!||    bfgs_h1     ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_h1p    ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_h2     ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_h2p    ../engine/source/implicit/imp_bfgs.F
+!||--- calls      -----------------------------------------------------
+!||    produt_h    ../engine/source/implicit/produt_v.F
+!||====================================================================
       SUBROUTINE BFGS_RHDH(F_DDL,L_DDL,W_DDL,BW,BV,B,ITASK)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -703,15 +638,16 @@ C------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_H2                       source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|        LIN_SOLV                      source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        BFGS_RHDH                     source/implicit/imp_bfgs.F    
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_h2      ../engine/source/implicit/imp_bfgs.F
+!||--- called by ------------------------------------------------------
+!||    lin_solv     ../engine/source/implicit/lin_solv.F
+!||--- calls      -----------------------------------------------------
+!||    bfgs_rhdh    ../engine/source/implicit/imp_bfgs.F
+!||    my_barrier   ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs     ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_H2(F_DDL,L_DDL,W_DDL,U,F,A2,IT,MAX_BFGS,ITASK)
 C-----------------------------------------------
 C   M o d u l e s
@@ -721,8 +657,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -739,37 +673,37 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I ,N
 C------------------------------------------
-       IF (IACTB.EQ.0.AND.IT.EQ.0) RETURN
+       IF (IACTB==0.AND.IT==0) RETURN
 C----------------------
       CALL MY_BARRIER
 C---------------------
        IF (ITASK==0) THEN
         IACTB = 1
-        IF (IT.EQ.0.AND.L_BFGS.EQ.0) N_BFGS = 0
+        IF (IT==0.AND.L_BFGS==0) N_BFGS = 0
        END IF !(ITASK==0) THEN
 C----------------------
       CALL MY_BARRIER
 C---------------------
-       IF(N_BFGS.GT.0) THEN
+       IF(N_BFGS>0) THEN
         DO I=1,N_BFGS
          CALL BFGS_RHDH(F_DDL,L_DDL,W_DDL,BFGS_V(1,I),BFGS_W(1,I),U,
      .                  ITASK)
         ENDDO
-        IF (A2.NE.ZERO) THEN
+        IF (A2/=ZERO) THEN
          DO I=F_DDL,L_DDL
           U(I) = U(I) - A2*BFGS_W(I,N_BFGS)
          ENDDO
         ENDIF 
        ENDIF 
 C
-       IF (L_BFGS.GT.0) THEN
-        IF (N_BFGS.LT.L_BFGS) THEN
+       IF (L_BFGS>0) THEN
+        IF (N_BFGS<L_BFGS) THEN
          N = N_BFGS + 1
          DO I=F_DDL,L_DDL
           BFGS_W(I,N) = U(I)
           BFGS_V(I,N) = F(I)
          ENDDO
-        ELSEIF (N_BFGS.EQ.L_BFGS) THEN
+        ELSEIF (N_BFGS==L_BFGS) THEN
          DO N=1,N_BFGS-1
           DO I=F_DDL,L_DDL
            BFGS_W(I,N) = BFGS_W(I,N+1)
@@ -783,7 +717,7 @@ C
         ENDIF 
        ELSE
 C
-        IF (N_BFGS.LT.MAX_BFGS) THEN
+        IF (N_BFGS<MAX_BFGS) THEN
          N = N_BFGS + 1
          DO I=F_DDL,L_DDL
           BFGS_W(I,N) = U(I)
@@ -800,14 +734,14 @@ C
           BFGS_W(I,N_BFGS) = U(I)
           BFGS_V(I,N_BFGS) = F(I)
          ENDDO
-        END IF !IF (N_BFGS.LT.MAX_BFGS)
+        END IF !IF (N_BFGS<MAX_BFGS)
 C
-       END IF !IF (L_BFGS.GT.0)
+       END IF !IF (L_BFGS>0)
 C----------------------
       CALL MY_BARRIER
 C---------------------
        IF (ITASK==0) THEN
-        IF (L_BFGS.GT.0) THEN
+        IF (L_BFGS>0) THEN
          IF (N_BFGS==L_BFGS) N_BFGS=L_BFGS-1
         ELSEIF (N_BFGS==MAX_BFGS) THEN
          N_BFGS=MAX_BFGS-1
@@ -816,16 +750,17 @@ C---------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_H1P                      source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|        LIN_SOLV                      source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        BFGS_RHDH                     source/implicit/imp_bfgs.F    
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        PRODUT_H                      source/implicit/produt_v.F    
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_h1p     ../engine/source/implicit/imp_bfgs.F
+!||--- called by ------------------------------------------------------
+!||    lin_solv     ../engine/source/implicit/lin_solv.F
+!||--- calls      -----------------------------------------------------
+!||    bfgs_rhdh    ../engine/source/implicit/imp_bfgs.F
+!||    my_barrier   ../engine/source/system/machine.F
+!||    produt_h     ../engine/source/implicit/produt_v.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs     ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_H1P(F_DDL,L_DDL,W_DDL,F,A2,IT,ITASK)
 C-----------------------------------------------
 C   M o d u l e s
@@ -835,11 +770,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -854,7 +784,7 @@ C-----------------------------------------------
       my_real
      .   A0,A1 ,B1
 C------------------------------------------
-       IF (IT.EQ.0.OR.(IACTB.EQ.0.AND.IT.LT.2)) RETURN
+       IF (IT==0.OR.(IACTB==0.AND.IT<2)) RETURN
        N = N_BFGS + 1
 C--------V->dr----------------------------------
        DO I=F_DDL,L_DDL
@@ -866,17 +796,17 @@ C--------V->dr----------------------------------
 C       
        A1 = S_LIN*A0
        IF (ITASK==0) THEN
-        IF (ABS(A2).GT.EM10) THEN
+        IF (ABS(A2)>EM10) THEN
          B1=-A1/A2
-         IF (ABS(A1).GT.EM10.AND.B1.GT.ZERO) N_BFGS = N
+         IF (ABS(A1)>EM10.AND.B1>ZERO) N_BFGS = N
         END IF 
        END IF
 C----------------------
       CALL MY_BARRIER
 C---------------------
-       IF (ABS(A2).GT.EM10) THEN
+       IF (ABS(A2)>EM10) THEN
         B1=-A1/A2
-        IF (ABS(A1).GT.EM10.AND.B1.GT.ZERO) THEN
+        IF (ABS(A1)>EM10.AND.B1>ZERO) THEN
 C--------W->b1*du----------------------------------
          B1 = SQRT(B1)
          DO I=F_DDL,L_DDL
@@ -895,15 +825,16 @@ C---------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BFGS_H2P                      source/implicit/imp_bfgs.F    
-Chd|-- called by -----------
-Chd|        LIN_SOLV                      source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        BFGS_RHDH                     source/implicit/imp_bfgs.F    
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    bfgs_h2p     ../engine/source/implicit/imp_bfgs.F
+!||--- called by ------------------------------------------------------
+!||    lin_solv     ../engine/source/implicit/lin_solv.F
+!||--- calls      -----------------------------------------------------
+!||    bfgs_rhdh    ../engine/source/implicit/imp_bfgs.F
+!||    my_barrier   ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    imp_bfgs     ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE BFGS_H2P(F_DDL,L_DDL,W_DDL,U,F,A2,IT,MAX_BFGS,ITASK)
 C-----------------------------------------------
 C   M o d u l e s
@@ -913,8 +844,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -931,32 +860,32 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I ,N
 C------------------------------------------
-       IF (IACTB.EQ.0.AND.IT.EQ.0) RETURN
+       IF (IACTB==0.AND.IT==0) RETURN
 C----------------------
       CALL MY_BARRIER
 C---------------------
        IF (ITASK==0) THEN
         IACTB = 1
-        IF (IT.EQ.0.AND.L_BFGS.EQ.0) N_BFGS = 0
+        IF (IT==0.AND.L_BFGS==0) N_BFGS = 0
        END IF !(ITASK==0) THEN
 C----------------------
       CALL MY_BARRIER
 C---------------------
-       IF(N_BFGS.GT.0) THEN
+       IF(N_BFGS>0) THEN
         DO I=1,N_BFGS
          CALL BFGS_RHDH(F_DDL,L_DDL,W_DDL,BFGS_V(1,I),BFGS_W(1,I),U,
      .                  ITASK)
         ENDDO
        ENDIF 
 C
-       IF (L_BFGS.GT.0) THEN
-        IF (N_BFGS.LT.L_BFGS) THEN
+       IF (L_BFGS>0) THEN
+        IF (N_BFGS<L_BFGS) THEN
          N = N_BFGS + 1
          DO I=F_DDL,L_DDL
           BFGS_W(I,N) = U(I)
           BFGS_V(I,N) = F(I)
          ENDDO
-        ELSEIF (N_BFGS.EQ.L_BFGS) THEN
+        ELSEIF (N_BFGS==L_BFGS) THEN
          DO N=1,N_BFGS-1
           DO I=F_DDL,L_DDL
            BFGS_W(I,N) = BFGS_W(I,N+1)
@@ -969,7 +898,7 @@ C
          ENDDO
         ENDIF 
        ELSE
-        IF (N_BFGS.LT.MAX_BFGS) THEN
+        IF (N_BFGS<MAX_BFGS) THEN
          N = N_BFGS + 1
          DO I=F_DDL,L_DDL
           BFGS_W(I,N) = U(I)
@@ -986,13 +915,13 @@ C
           BFGS_W(I,N_BFGS) = U(I)
           BFGS_V(I,N_BFGS) = F(I)
          ENDDO
-        END IF !IF (N_BFGS.LT.MAX_BFGS)
-       END IF !IF (L_BFGS.GT.0)
+        END IF !IF (N_BFGS<MAX_BFGS)
+       END IF !IF (L_BFGS>0)
 C----------------------
       CALL MY_BARRIER
 C---------------------
        IF (ITASK==0) THEN
-        IF (L_BFGS.GT.0) THEN
+        IF (L_BFGS>0) THEN
          IF (N_BFGS==L_BFGS) N_BFGS=L_BFGS-1
         ELSEIF (N_BFGS==MAX_BFGS) THEN
          N_BFGS=MAX_BFGS-1

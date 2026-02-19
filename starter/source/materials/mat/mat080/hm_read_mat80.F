@@ -1,47 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT80                 source/materials/mat/mat080/hm_read_mat80.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|        TABLE_MOD                     share/modules1/table_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat80            ../starter/source/materials/mat/mat080/hm_read_mat80.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||    table_mod                ../starter/share/modules1/table_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT80(
      .     UPARAM      ,MAXUPARAM,NUPARAM  ,NUVAR    ,NFUNC    ,
      .     MAXFUNC     ,IFUNC    ,PARMAT   ,MAT_ID   ,PM       ,
      .     ISRATE_IN   ,MTAG     ,TITR     ,UNITAB   ,LSUBMODEL,
-     .     ITABLE      ,MAXTABL  ,NUMTABL  ,NVARTMP  ,TABLE)
+     .     ITABLE      ,MAXTABL  ,NUMTABL  ,NVARTMP  ,TABLE    ,
+     .     MATPARAM    )
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -55,6 +56,7 @@ C-----------------------------------------------
       USE MATPARAM_DEF_MOD    
       USE ELBUFTAG_MOD          
       USE TABLE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -62,9 +64,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "units_c.inc"
 #include      "param_c.inc"
 #include      "com04_c.inc"
@@ -76,26 +75,27 @@ C-----------------------------------------------
       INTEGER, INTENT(INOUT)                :: IFUNC(MAXFUNC), NFUNC, MAXFUNC, MAXUPARAM, 
      .     NUPARAM, NUVAR,NVARTMP, ISRATE_IN, ITABLE(MAXTABL), NUMTABL
       INTEGER, INTENT(IN)                    :: MAT_ID, MAXTABL
-      CHARACTER*nchartitle,INTENT(IN)       :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)       :: TITR
       TYPE(SUBMODEL_DATA),INTENT(IN)        :: LSUBMODEL(*)
       TYPE(MLAW_TAG_), INTENT(INOUT)   :: MTAG
       TYPE(TTABLE) TABLE(NTABLE)
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER MATS,IFLAG1,IFLAG2,ITEMAX,j,FLAGEPS,ISRATE, I,
+      INTEGER j,ISRATE, I,
      .        HEATFLAG,FLAG_HEAT_ID,FLAG_LOC,
      .        FLAG_TR_STRAIN,FLAG_TR_KINETICS,NDIM(5)
 
       my_real
      .      YSCALE1,YSCALE2,YSCALE3,YSCALE4,YSCALE5,XSCALE(5),RSCALE_UNIT(5),
-     .      XSCALE2,XSCALE3,XSCALE4,XSCALE5,EFAC,UNITT,RSCALE(5),
+     .      EFAC,UNITT,RSCALE(5),
      .      TETA2, TETA3,TETA4, TETA5,QR2,QR3,QR4,ALPHA2, TREF,  
      .      AE1, AE3,BS,MS,GSIZE,B, MO,MN,W,AL,C,CR,SI,CU,AS,
      .      CO,NI,V,P,TI,E,NU,CEPS, PEPS, BULK,CE,HFP,HB,HM,TINI,
-     .      ALFA1, ALFA2,KF,KP,LAT1,LAT2,AC1,AC3,TAU1,TAU3,
+     .      ALFA1, ALFA2,KF,KP,LAT1,LAT2,TAU1,TAU3,
      .      FCFER,FCPER,FCBAI,FGRAIN,KPER,KBAIN,T1,T2,XEQ2,CEUT,
-     .      FLAGFILTRE, ALPHAEPS,xeqtest, RHO0, RHOR, FCUT,
+     .       RHO0, RHOR, FCUT,
      .      GFAC_F,PHI_F,PSI_F,CR_F,CF,GFAC_P,PHI_P,PSI_P,CR_P,CP,
      .      GFAC_B,PHI_B,PSI_B,CR_B,CB,PHI_M,PSI_M,N_M,FGFER,FGPER,FGBAI
 
@@ -110,11 +110,12 @@ C-----------------------------------------------
       MTAG%L_EPSD = 1
       MTAG%G_PLA  = 1
       MTAG%L_PLA  = 1
+      MTAG%L_TEMP = 1
       
       IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 
-      CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)     
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)     
 
       NFUNC =7
       NUMTABL = 5 
@@ -322,7 +323,7 @@ c------------------------------------------------------------------------
       ENDIF
 C
       NUVAR = 44
-      IF (ISRATE > 0 .AND. FCUT == ZERO)  FCUT = EP05*FAC_T_WORK  ! default : force filtering
+      IF (ISRATE > 0 .AND. FCUT == ZERO)  FCUT = EP05*UNITAB%FAC_T_WORK  ! default : force filtering
       IF (FLAG_LOC == 0) FLAG_LOC = 2
       IF (YSCALE1 == ZERO)YSCALE1 = ONE
       IF (YSCALE2 == ZERO)YSCALE2 = ONE
@@ -515,6 +516,13 @@ c----------------------------
 CC     Formulation for solid elements time step computation.
       PARMAT(16) = 2
       PARMAT(17) =  (ONE - TWO*NU)/(ONE - NU) ! == TWO*G/(C1+FOUR_OVER_3*G)
+C------------------------------           
+      ! MATPARAM keywords     
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HOOK")
+C
+      ! Properties compatibility  
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")  
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ISOTROPIC")  
 C------------------------------   
       WRITE(IOUT, 900) TRIM(TITR),MAT_ID,80
       WRITE(IOUT,1000)
@@ -669,6 +677,5 @@ C------------------------------
      & 5X,'FERRITE ALLOY DEPENDENT FACTOR CF. . . . . . . . . =',1PG20.13/
      & 5X,'PEARLITE  ALLOY DEPENDENT FACTOR CP. . . . . . . . =',1PG20.13/
      & 5X,'BAINITE   ALLOY DEPENDENT FACTOR CB. . . . . . . . =',1PG20.13/)
-999    CALL FREERR(3)
       RETURN
       END

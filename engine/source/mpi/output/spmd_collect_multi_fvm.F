@@ -1,36 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_COLLECT_MULTI_FVM        source/mpi/output/spmd_collect_multi_fvm.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        DEBUG_MOD                     share/modules/debug_mod.F     
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
-      SUBROUTINE SPMD_COLLECT_MULTI_FVM(IXS,MULTI_FVM)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_collect_multi_fvm   ../engine/source/mpi/output/spmd_collect_multi_fvm.F
+!||--- called by ------------------------------------------------------
+!||    resol                    ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    double_array_checksum    ../engine/source/mpi/output/node_checksum.F
+!||    my_orders                ../common_source/tools/sort/my_orders.c
+!||--- uses       -----------------------------------------------------
+!||    checksum_mod             ../engine/source/mpi/output/node_checksum.F
+!||    debug_mod                ../engine/share/modules/debug_mod.F
+!||    element_mod              ../common_source/modules/elements/element_mod.F90
+!||    inoutfile_mod            ../common_source/modules/inoutfile_mod.F
+!||    multi_fvm_mod            ../common_source/modules/ale/multi_fvm_mod.F90
+!||    spmd_comm_world_mod      ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
+      SUBROUTINE SPMD_COLLECT_MULTI_FVM(IXS,MULTI_FVM,FLAG)
 !$COMMENT
 !       SPMD_COLLECT_MULTI_FVM description
 !       creation of a file with hexa values of MULTI_FVM%VEL
@@ -42,20 +47,20 @@ Chd|====================================================================
 !        * creation of the *.adb file
 !
 !$ENDCOMMENT
+      USE CHECKSUM_MOD, ONLY : DOUBLE_ARRAY_CHECKSUM
       USE INOUTFILE_MOD
       USE DEBUG_MOD
       USE MULTI_FVM_MOD
+      use element_mod , only : nixs
+      USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -65,26 +70,28 @@ C-----------------------------------------------
 #include      "spmd_c.inc"
 #include      "chara_c.inc"
 #include      "units_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER, DIMENSION(NIXS,*), INTENT(in) :: IXS
       TYPE(MULTI_FVM_STRUCT), INTENT(INOUT) :: MULTI_FVM
+      INTEGER,INTENT(in) :: FLAG ! 1: write the file ; 2 compute the checksum
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
-      INTEGER MSGOFF,MSGOFF0,MSGTYP,INFO,I,K,NG,N,
-     .        EMPL,FILEN 
+      INTEGER MSGOFF,MSGOFF0,MSGTYP,I,K,N,
+     .        FILEN 
       CHARACTER FILNAM*100,CYCLENUM*7
       INTEGER :: LEN_TMP_NAME,SHIFT
       CHARACTER(len=2148) :: TMP_NAME
       INTEGER, DIMENSION(NSPMD) :: SIZE_NUMELS
       INTEGER, DIMENSION(:), ALLOCATABLE :: SDNODG
       DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: AGLOB,RECGLOB 
+      DOUBLE PRECISION, DIMENSION(:,:), ALLOCATABLE :: RECGLOB_ORDERED
       ! array for sorting
       INTEGER, DIMENSION(:), ALLOCATABLE :: ITRI,WORK,INDEX_TRI
+      INTEGER ::CHECKSUM
+
 
 #ifdef MPI 
       INTEGER STATUS(MPI_STATUS_SIZE),IERROR
@@ -106,10 +113,9 @@ C-----------------------------------------------
 
       SIZE_NUMELS(1:NSPMD) = 0
 #ifdef MPI 
-      IF (ISPMD.NE.0) THEN
+      IF (ISPMD/=0) THEN
  
       DO I = 1,NUMELS
-!        SDNODG(I) = IXS(NIXS,I)
         AGLOB(1,I) = IXS(NIXS,I)
         AGLOB(2,I) = MULTI_FVM%VEL(1,I)
         AGLOB(3,I) = MULTI_FVM%VEL(2,I)
@@ -119,26 +125,26 @@ C-----------------------------------------------
         MSGTYP=MSGOFF0
         CALL MPI_SEND(NUMELS,1,MPI_INTEGER,
      .                IT_SPMD(1),MSGTYP,
-     .                MPI_COMM_WORLD,IERROR)
+     .                SPMD_COMM_WORLD,IERROR)
 
         MSGTYP=MSGOFF
         CALL MPI_SEND(AGLOB,4*NUMELS,MPI_DOUBLE_PRECISION,
      .                IT_SPMD(1),MSGTYP,
-     .                MPI_COMM_WORLD,IERROR)
+     .                SPMD_COMM_WORLD,IERROR)
       ELSE
         SIZE_NUMELS(1) = NUMELS
         DO K=2,NSPMD
             MSGTYP=MSGOFF0
             CALL MPI_RECV(SIZE_NUMELS(K),1,MPI_INTEGER,
      .                    IT_SPMD(K),MSGTYP,
-     .                    MPI_COMM_WORLD,STATUS,IERROR)
+     .                    SPMD_COMM_WORLD,STATUS,IERROR)
 
             ALLOCATE( AGLOB(4,SIZE_NUMELS(K)) )
  
             MSGTYP=MSGOFF
             CALL MPI_RECV(AGLOB,4*SIZE_NUMELS(K),MPI_DOUBLE_PRECISION,
      .                    IT_SPMD(K),MSGTYP,
-     .                    MPI_COMM_WORLD,STATUS,IERROR)
+     .                    SPMD_COMM_WORLD,STATUS,IERROR)
     
             SHIFT = 0
             DO I=1,K-1
@@ -157,16 +163,6 @@ C-----------------------------------------------
 C
 
         IF(ISPMD==0) THEN
-            WRITE(CYCLENUM,'(I7.7)')NCYCLE
-            FILNAM=ROOTNAM(1:ROOTLEN)//'_FVM_'//CHRUN//'_'//CYCLENUM//'.adb'
-
-            LEN_TMP_NAME = OUTFILE_NAME_LEN + LEN_TRIM(FILNAM)
-            TMP_NAME=OUTFILE_NAME(1:OUTFILE_NAME_LEN)//FILNAM(1:LEN_TRIM(FILNAM)) 
-       
-            OPEN(UNIT=IDBG5,FILE=TMP_NAME(1:LEN_TMP_NAME),ACCESS='SEQUENTIAL',
-     .                  FORM='FORMATTED',STATUS='UNKNOWN')
-
-            FILEN = ROOTLEN+17
 
             DO I=1,NUMELS
                 N =  IXS(NIXS,I)
@@ -186,14 +182,38 @@ C
 
             CALL MY_ORDERS(0,WORK,ITRI,INDEX_TRI,NUMELSG,1)
 
-        
-            DO I = 1, NUMELSG
-                N = INDEX_TRI(I)
-                WRITE(IDBG5,'(A,I10,I10,Z20,Z20,Z20)' ) '>',NCYCLE,NINT(RECGLOB(1,N)),RECGLOB(2,N),RECGLOB(3,N),RECGLOB(4,N)
-            END DO
-            WRITE (IOUT,1300)  FILNAM(1:FILEN)
-            WRITE (ISTDO,1300) FILNAM(1:FILEN)
-            CLOSE(UNIT=IDBG5)
+            IF(FLAG == 2) THEN
+              ALLOCATE(RECGLOB_ORDERED(4,NUMELSG))
+              DO I = 1, NUMELSG
+                  N = INDEX_TRI(I)
+                  RECGLOB_ORDERED(1,I) = RECGLOB(1,N)
+                  RECGLOB_ORDERED(2,I) = RECGLOB(2,N)
+                  RECGLOB_ORDERED(3,I) = RECGLOB(3,N)
+                  RECGLOB_ORDERED(4,I) = RECGLOB(4,N)
+              END DO
+              CHECKSUM = DOUBLE_ARRAY_CHECKSUM(RECGLOB_ORDERED,NUMELSG,4)
+              WRITE(IOUT,*) NCYCLE, "MULTI_FVM CHECKSUM:",CHECKSUM
+              DEALLOCATE( RECGLOB_ORDERED)
+            ELSE IF(FLAG == 1) THEN
+              WRITE(CYCLENUM,'(I7.7)')NCYCLE
+              FILNAM=ROOTNAM(1:ROOTLEN)//'_FVM_'//CHRUN//'_'//CYCLENUM//'.adb'
+  
+              LEN_TMP_NAME = OUTFILE_NAME_LEN + LEN_TRIM(FILNAM)
+              TMP_NAME=OUTFILE_NAME(1:OUTFILE_NAME_LEN)//FILNAM(1:LEN_TRIM(FILNAM)) 
+         
+              OPEN(UNIT=IDBG5,FILE=TMP_NAME(1:LEN_TMP_NAME),ACCESS='SEQUENTIAL',
+     .                  FORM='FORMATTED',STATUS='UNKNOWN')
+
+              FILEN = ROOTLEN+17
+
+              DO I = 1, NUMELSG
+                  N = INDEX_TRI(I)
+                  WRITE(IDBG5,'(A,I10,I10,Z20,Z20,Z20)' ) '>',NCYCLE,NINT(RECGLOB(1,N)),RECGLOB(2,N),RECGLOB(3,N),RECGLOB(4,N)
+              END DO
+              WRITE (IOUT,1300)  FILNAM(1:FILEN)
+              WRITE (ISTDO,1300) FILNAM(1:FILEN)
+              CLOSE(UNIT=IDBG5)
+            ENDIF
 
             DEALLOCATE( ITRI )
             DEALLOCATE( INDEX_TRI )  
@@ -201,10 +221,11 @@ C
 
       END IF
 
-        IF(ALLOCATED(SDNODG)) DEALLOCATE( SDNODG )
-        IF(ALLOCATED(RECGLOB)) DEALLOCATE( RECGLOB )
-        IF(ALLOCATED(AGLOB)) DEALLOCATE( AGLOB )
+      IF(ALLOCATED(SDNODG)) DEALLOCATE( SDNODG )
+      IF(ALLOCATED(RECGLOB)) DEALLOCATE( RECGLOB )
+      IF(ALLOCATED(AGLOB)) DEALLOCATE( AGLOB )
 C
  1300   FORMAT (4X,' DEBUG ANALYSIS FVM FILE :',1X,A,' WRITTEN')
       RETURN
       END SUBROUTINE SPMD_COLLECT_MULTI_FVM
+

@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25OPTCD_E2S                  source/interfaces/intsort/i25optcd_e2s.F
-Chd|-- called by -----------
-Chd|        I25MAIN_OPT_TRI               source/interfaces/intsort/i25main_opt_tri.F
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SYNC_DATA                     source/system/machine.F       
-Chd|        INT_CHECKSUM                  share/modules/debug_mod.F     
-Chd|        DEBUG_MOD                     share/modules/debug_mod.F     
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25optcd_e2s      ../engine/source/interfaces/intsort/i25optcd_e2s.F
+!||--- called by ------------------------------------------------------
+!||    i25main_opt_tri   ../engine/source/interfaces/intsort/i25main_opt_tri.F
+!||--- calls      -----------------------------------------------------
+!||    int_checksum      ../engine/share/modules/debug_mod.F
+!||    my_barrier        ../engine/source/system/machine.F
+!||    sync_data         ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    debug_mod         ../engine/share/modules/debug_mod.F
+!||    tri25ebox         ../engine/share/modules/tri25ebox.F
+!||    tri7box           ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25OPTCD_E2S(CAND_M,CAND_S,X     ,I_STOK,IRECT   ,
      2                        NIN   ,V     ,GAP_M,IGAP  ,ITASK ,
      3                        STF   ,GAP_M_L,COUNT_REMSLVE,DRAD  ,
@@ -74,45 +75,41 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
 #include      "com01_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "couple_c.inc"
 #include      "parit_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I , L, M, E, IE, JE, NN1, NN2, IL, JL, I1, I2, SOL_EDGE, SH_EDGE, 
+      INTEGER I , L, IE, JE, NN1, NN2, SOL_EDGE, SH_EDGE,
      .        NRTMFT, NRTMLT
       my_real
-     .        XI,YI,ZI,X1S,X2S,Y1S,Y2S,Z1S,Z2S,
+     . X1S,X2S,Y1S,Y2S,Z1S,Z2S,
      .        X1,X2,X3,X4,
      .        Y1,Y2,Y3,Y4,
      .        Z1,Z2,Z3,Z4,
-     .        X5,X6,X7,X8,
-     .        Y5,Y6,Y7,Y8,
-     .        Z5,Z6,Z7,Z8,
+     .
+     .
+     .
      .        XMINS,XMAXS,YMINS,YMAXS,ZMINS,ZMAXS,
      .        XMINM,XMAXM,YMINM,YMAXM,ZMINM,ZMAXM,
-     .        XMINM_1,XMAXM_1,YMINM_1,YMAXM_1,ZMINM_1,ZMAXM_1,
-     .        XMINM_2,XMAXM_2,YMINM_2,YMAXM_2,ZMINM_2,ZMAXM_2,DXM,DYM,DZM,
-     .        V12,V22,V32,V42,VV,GAPVD,S
+     .
+     . DXM,DYM,DZM,
+     . GAPVD,S
       INTEGER MSEG,CT
       my_real
-     .        GAPV(MVSIZ),DTTI(MVSIZ)
+     . GAPV(MVSIZ)
       INTEGER LIST(MVSIZ), LISTI(MVSIZ)
-      INTEGER IS,JS,LS,NLS,NLT,NSEG,NLF,II,NLS2,NLSAV
-      INTEGER N1(MVSIZ),N2(MVSIZ),M1(MVSIZ),M2(MVSIZ)
+      INTEGER IS,JS,LS,NLS,NLT,NSEG,NLF,II,NLS2
+      INTEGER N1(MVSIZ),N2(MVSIZ)
       INTEGER SG, FIRST, LAST,COUNT_CAND
       INTEGER, DIMENSION(:),ALLOCATABLE :: TAGM
       my_real, 
      .         DIMENSION(:,:),ALLOCATABLE :: BOXM
       SAVE TAGM,BOXM
-      INTEGER :: IDS(4)
+      INTEGER :: J
+      INTEGER :: MY_SIZE
+      INTEGER, DIMENSION(:), ALLOCATABLE :: LIST_REAL_CANDIDATE
 
 C-----------------------------------------------
       SOL_EDGE=IEDGE/10 ! solids
@@ -123,6 +120,8 @@ C-----------------------------------------------
       MSEG = NVSIZ
       FIRST = 1 + I_STOK*ITASK / NTHREAD
       LAST = I_STOK*(ITASK+1) / NTHREAD
+      MY_SIZE = LAST - FIRST + 1
+      ALLOCATE( LIST_REAL_CANDIDATE(MY_SIZE) )
 C-----------------------------------------------
       IF(SOL_EDGE/=0)THEN
 
@@ -205,7 +204,7 @@ C-----
 C-----------------------------------------------
 C      solid edges on main side
 C-----------------------------------------------
-       IF(NSPMD.GT.1) THEN
+       IF(NSPMD>1) THEN
 C
 C Partage cand_n local / frontiere
 C
@@ -213,7 +212,7 @@ C
          NLS2 = NSEG+1
          DO IS = 1, NSEG
            I=JS+IS
-           IF(CAND_S(I).LE.NEDGE)THEN
+           IF(CAND_S(I)<=NEDGE)THEN
 
              IF(SH_EDGE==1.AND.
      .          LEDGE(7,CAND_S(I))/=1.AND.
@@ -251,7 +250,7 @@ C Debug only
 C LISTI(1:NLS) = Local
 C LISTI(NLS+1:NSEG) = REMOTE
 
-CC LOCAL OF SPMD
+CC'LOCAL OF SPMD
 C#include      "vectorize.inc"
 C         DO LS = 1, NLS
 C           IS = LISTI(LS)
@@ -308,7 +307,6 @@ C
        NLT = NLS
        NLS = 0
 C ======== LOCAL TIRM 1
-#include      "vectorize.inc"
        DO LS = NLF, NLT
          IS = LISTI(LS)
          I = JS + IS
@@ -340,7 +338,7 @@ C          S = ZERO
          DEBUG_E2E(INT_CHECKSUM(IDS,4,1)==D_EM .AND. LEDGE(8,CAND_S(I)) == D_ES,S)
 #endif
 
-         IF (S.NE.ZERO) THEN
+         IF (S/=ZERO) THEN
            N1(IS)= LEDGE(5,CAND_S(I))
            N2(IS)= LEDGE(6,CAND_S(I))
            Z1S=X(3,N1(IS))
@@ -363,7 +361,7 @@ C          S = ZERO
             DEBUG_E2E(INT_CHECKSUM(IDS,4,1)==D_EM .AND. LEDGE(8,CAND_S(I)) == D_ES,ZMINM)
 #endif
 
-           IF (ZMAXS.GE.ZMINM.AND.ZMAXM.GE.ZMINS) THEN
+           IF (ZMAXS>=ZMINM.AND.ZMAXM>=ZMINS) THEN
              NLS=NLS+1
              LIST(NLS)=IS
            ENDIF
@@ -373,7 +371,6 @@ C
        NLT=NLS
        NLS=0
 C ======== LOCAL TIRM 2
-#include      "vectorize.inc"
        DO LS=NLF,NLT
           IS=LIST(LS)
           I=JS+IS
@@ -397,7 +394,7 @@ C ======== LOCAL TIRM 2
             DEBUG_E2E(INT_CHECKSUM(IDS,4,1)==D_EM .AND. LEDGE(8,CAND_S(I)) == D_ES,YMINM)
 #endif
 
-          IF (YMAXS.GE.YMINM.AND.YMAXM.GE.YMINS) THEN
+          IF (YMAXS>=YMINM.AND.YMAXM>=YMINS) THEN
             NLS=NLS+1
             LIST(NLS)=IS
           ENDIF
@@ -406,7 +403,6 @@ C
        NLT = NLS
        NLS=0
 C ======== LOCAL TIRM 3
-#include      "vectorize.inc"
        DO LS=NLF,NLT
           IS=LIST(LS)
           I=JS+IS
@@ -430,13 +426,14 @@ C ======== LOCAL TIRM 3
             DEBUG_E2E(INT_CHECKSUM(IDS,4,1)==D_EM .AND. LEDGE(8,CAND_S(I)) == D_ES,XMINM)
 #endif
 
-          IF (XMAXS.GE.XMINM.AND.XMAXM.GE.XMINS) THEN
+          IF (XMAXS>=XMINM.AND.XMAXM>=XMINS) THEN
             CAND_S(I) = -CAND_S(I)
             COUNT_CAND = COUNT_CAND+1
+            LIST_REAL_CANDIDATE(COUNT_CAND) = I
           ENDIF
        ENDDO
 C
-       IF(NSPMD.GT.1)THEN
+       IF(NSPMD>1)THEN
          NLF = NLS2
          NLT = NSEG
 C =========  REMOTE 
@@ -454,9 +451,8 @@ C =========  REMOTE
 C
          NLS=0
 C =========  REMOTE TRIM 1
-#include      "vectorize.inc"
          DO LS = NLF, NLT
-Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
+C   keep LISTI and LIST to optimize generated code (IA64)
           IS = LISTI(LS)
           I=JS+IS
           II = CAND_S(I)-NEDGE
@@ -468,13 +464,13 @@ Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
             DEBUG_E2E(INT_CHECKSUM(IDS,4,1)==D_EM .AND. LEDGE_FIE(NIN)%P(E_GLOBAL_ID,CAND_S(I)-NEDGE) == D_ES,STIFIE(NIN)%P(II))
 #endif
 
-          IF (STIFIE(NIN)%P(II).NE.ZERO) THEN
+          IF (STIFIE(NIN)%P(II)/=ZERO) THEN
            NN1 = 2*(II-1)+1
            NN2 = 2*II
            Z1S=XFIE(NIN)%P(3,NN1)
            Z2S=XFIE(NIN)%P(3,NN2)
 C          L  = LEDGE(1,CAND_M(I))
-C          IF (STF(L).NE.ZERO) THEN
+C          IF (STF(L)/=ZERO) THEN
            GAPVD = GAPV(IS)
            ZMINS = MIN(Z1S,Z2S)-GAPVD
            ZMAXS = MAX(Z1S,Z2S)+GAPVD
@@ -493,7 +489,7 @@ C          IF (STF(L).NE.ZERO) THEN
             DEBUG_E2E(INT_CHECKSUM(IDS,4,1)==D_EM .AND. LEDGE_FIE(NIN)%P(E_GLOBAL_ID,CAND_S(I)-NEDGE) == D_ES,ZMINM)
 #endif
 
-           IF (ZMAXS.GE.ZMINM.AND.ZMAXM.GE.ZMINS) THEN
+           IF (ZMAXS>=ZMINM.AND.ZMAXM>=ZMINS) THEN
             NLS=NLS+1
             LIST(NLS)=IS
            ENDIF
@@ -505,7 +501,6 @@ C
         NLT=NLS
         NLS=0
 C ============= REMOTE TRIM 2
-#include      "vectorize.inc"
         DO LS=NLF,NLT
           IS=LIST(LS)
           I=JS+IS
@@ -535,13 +530,12 @@ C ============= REMOTE TRIM 2
             DEBUG_E2E(INT_CHECKSUM(IDS,4,1)==D_EM .AND. LEDGE_FIE(NIN)%P(E_GLOBAL_ID,CAND_S(I)-NEDGE) == D_ES,YMINM)
 #endif
 
-          IF (YMAXS.GE.YMINM.AND.YMAXM.GE.YMINS) THEN
+          IF (YMAXS>=YMINM.AND.YMAXM>=YMINS) THEN
             NLS=NLS+1
             LIST(NLS)=IS
           ENDIF
         ENDDO
 C ================ REMOTE TRIM 3
-#include      "vectorize.inc"
         DO LS=NLF,NLS
           IS=LIST(LS)
           I=JS+IS
@@ -568,11 +562,12 @@ C ================ REMOTE TRIM 3
             DEBUG_E2E(INT_CHECKSUM(IDS,4,1)==D_EM .AND. LEDGE_FIE(NIN)%P(E_GLOBAL_ID,CAND_S(I)-NEDGE) == D_ES,XMINM)
 #endif
 
-          IF (XMAXS.GE.XMINM.AND.XMAXM.GE.XMINS) THEN
+          IF (XMAXS>=XMINM.AND.XMAXM>=XMINS) THEN
 
             CAND_S(I) = -CAND_S(I)
             COUNT_CAND = COUNT_CAND+1
             CT = CT+1
+            LIST_REAL_CANDIDATE(COUNT_CAND) = I
 
           ENDIF
         ENDDO
@@ -581,12 +576,16 @@ C ================ REMOTE TRIM 3
        JS = JS + NSEG
       ENDDO
       IF (IFQ > 0) THEN
-        DO I=FIRST,LAST
-          IF (IFPEN(I) == 0 ) THEN
+#include "vectorize.inc"
+        DO J=1,COUNT_CAND
+          I = LIST_REAL_CANDIDATE(J)
+          IF(IFPEN(I) == 0 ) THEN
             CAND_FX(1:4,I) = ZERO
             CAND_FY(1:4,I) = ZERO
             CAND_FZ(1:4,I) = ZERO
           ENDIF
+        ENDDO
+        DO I=FIRST,LAST
           IFPEN(I) = 0
         ENDDO
       ENDIF
@@ -605,6 +604,8 @@ C
         IF(ITASK==0)DEALLOCATE(TAGM,BOXM)
 
       END IF
+
+      DEALLOCATE( LIST_REAL_CANDIDATE )
 C
       RETURN
       END

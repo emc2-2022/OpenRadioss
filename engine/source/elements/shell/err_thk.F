@@ -1,70 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ERR_THK_MOD                   source/elements/shell/err_thk.F
-Chd|-- called by -----------
-Chd|        ERR_THK                       source/elements/shell/err_thk.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      MODULE ERR_THK_MOD
-#include "my_real.inc"
-
-        my_real , 
-     .    DIMENSION(:), ALLOCATABLE :: 
-     .      THICK_SH4, THICK_SH3,
-     .      THICK_NOD, AREA_NOD
-        my_real , 
-     .    DIMENSION(:), ALLOCATABLE :: 
-     .      AREA_SH4, AREA_SH3
-
-      END MODULE ERR_THK_MOD
-Chd|====================================================================
-Chd|  ERR_THK                       source/elements/shell/err_thk.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ADMTHKE                       source/model/remesh/admthke.F 
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_EXCH_NODAREA             source/mpi/anim/spmd_exch_nodarea.F
-Chd|        STARTIMEG                     source/system/timer.F         
-Chd|        STOPTIMEG                     source/system/timer.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        ERR_THK_MOD                   source/elements/shell/err_thk.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    err_thk             ../engine/source/elements/shell/err_thk.F
+!||--- called by ------------------------------------------------------
+!||    resol               ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    admthke             ../engine/source/model/remesh/admthke.F
+!||    my_barrier          ../engine/source/system/machine.F
+!||    spmd_exch_nodarea   ../engine/source/mpi/anim/spmd_exch_nodarea.F
+!||    startimeg           ../engine/source/system/timer.F
+!||    stoptimeg           ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    message_mod         ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ERR_THK(
      .             IXC     ,IXTG    ,IPARG   ,IAD_ELEM,FR_ELEM ,
      .             WEIGHT  ,X       ,ELBUF_TAB,IPART   ,IPARTC  ,
      .             IPARTTG ,ITASK   ,NODFT   ,NODLT   ,ERR_THK_SH4,
-     .             ERR_THK_SH3,SH4TREE,SH3TREE)
+     .             ERR_THK_SH3,SH4TREE,SH3TREE,
+     .             AREA_SH4,  AREA_SH3,  AREA_NOD,
+     .             THICK_SH4, THICK_SH3, THICK_NOD)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ERR_THK_MOD
       USE MESSAGE_MOD
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -77,10 +60,7 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
@@ -96,34 +76,26 @@ C     REAL
       my_real
      .   X(3,*), ERR_THK_SH4(*), ERR_THK_SH3(*)
       TYPE(ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
+      my_real, INTENT(INOUT),DIMENSION(NUMELC) :: AREA_SH4
+      my_real, INTENT(INOUT),DIMENSION(NUMELTG) :: AREA_SH3
+      my_real, INTENT(INOUT),DIMENSION(NUMNOD) :: AREA_NOD
+      my_real, INTENT(INOUT),DIMENSION(NUMELC) :: THICK_SH4
+      my_real, INTENT(INOUT),DIMENSION(NUMELTG) :: THICK_SH3
+      my_real, INTENT(INOUT),DIMENSION(NUMNOD) :: THICK_NOD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER SH4FT, SH4LT, SH3FT, SH3LT, IERROR, MLW
+      INTEGER SH4FT, SH4LT, SH3FT, SH3LT, MLW
       INTEGER N1,N2,N3,N4,
      .        I,N,NG,NEL,LENR,PRT,IADM
 C     REAL
        my_real
-     .     AREA, A, AT, THK, 
+     .     AREA, AT, 
      .     X1,Y1,Z1,X2,Y2,Z2,X3,Y3,Z3,X4,Y4,Z4,
      .     X31,Y31,Z31,X42,Y42,Z42,X32,Y32,Z32,E3X,E3Y,E3Z,
-     .     TN1,TN2,TN3,TN4,TPG1,TPG2,TPG3,TPG4,UNT
-      TYPE(G_BUFEL_) ,POINTER :: GBUF     
+     .     TN1,TN2,TN3,TN4,UNT
+      TYPE(G_BUFEL_) ,POINTER :: GBUF
 C-----------------------------------------------
-      IF(ITASK==0)THEN
-        ALLOCATE(
-     .   AREA_SH4(NUMELC), AREA_SH3(NUMELTG), AREA_NOD(NUMNOD),
-     .   THICK_SH4(NUMELC), THICK_SH3(NUMELTG), THICK_NOD(NUMNOD),
-     .   STAT=IERROR)
-C
-        IF(IERROR/=0) THEN
-          CALL ANCMSG(MSGID=71,ANMODE=ANINFO_BLIND,
-     .                I1=IERROR)
-          CALL ARRET(2)
-        END IF
-      END IF
-C
-      CALL MY_BARRIER
 C
       SH4FT = 1+ITASK*NUMELC/ NTHREAD
       SH4LT = (ITASK+1)*NUMELC/NTHREAD
@@ -145,10 +117,10 @@ C     elts belonging to non adapted parts
       DO NG=ITASK+1,NGROUP,NTHREAD
 
        ITY   =IPARG(5,NG)
-       IF(ITY.NE.3.AND.ITY.NE.7)GOTO 150
+       IF(ITY/=3.AND.ITY/=7)GOTO 150
        GBUF => ELBUF_TAB(NG)%GBUF
 
-       IF (IDDW.GT.0) CALL STARTIMEG(NG)
+       IF (IDDW>0) CALL STARTIMEG(NG)
 
        NEL   =IPARG(2,NG)
        NFT   =IPARG(3,NG)
@@ -268,7 +240,7 @@ C
          END DO
         END IF
        END IF
-       IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+       IF (IDDW>0) CALL STOPTIMEG(NG)
 C
  150   CONTINUE
       END DO
@@ -305,10 +277,10 @@ C
       DO NG=ITASK+1,NGROUP,NTHREAD
 
        ITY   =IPARG(5,NG)
-       IF(ITY.NE.3.AND.ITY.NE.7)GOTO 250
+       IF(ITY/=3.AND.ITY/=7)GOTO 250
        GBUF => ELBUF_TAB(NG)%GBUF
 
-       IF (IDDW.GT.0) CALL STARTIMEG(NG)
+       IF (IDDW>0) CALL STARTIMEG(NG)
 
        MLW   =IPARG(1,NG)
        NEL   =IPARG(2,NG)
@@ -367,13 +339,6 @@ C
  250  CONTINUE
       END DO
 C
-      CALL MY_BARRIER
-C
-
-      IF(ITASK==0)
-     .   DEALLOCATE(AREA_SH4, AREA_SH3, AREA_NOD,
-     .   THICK_SH4, THICK_SH3, THICK_NOD)
-
       RETURN
       END
 

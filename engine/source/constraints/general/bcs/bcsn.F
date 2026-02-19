@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BCSN                          source/constraints/general/bcs/bcsn.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    bcsn    ../engine/source/constraints/general/bcs/bcsn.F
+!||--- called by ------------------------------------------------------
+!||    resol   ../engine/source/engine/resol.F
+!||====================================================================
       SUBROUTINE BCSN(ICODE,ICODT,ICODR,PARTS0,PARTSAV)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -53,7 +52,7 @@ C
       ICODE(N)=ICODE(N)+512*(ICODT(N)-ICODE(N)/512)
    10 CONTINUE
 C
-      IF(IRODDL.GT.0)THEN
+      IF(IRODDL>0)THEN
        DO 20 N=1,NUMNOD
        IC=ICODE(N)
        IC1=IC/512
@@ -65,7 +64,7 @@ C
    20  CONTINUE
       END IF
 C
-      IF(IALE.GT.0) THEN
+      IF(IALE>0) THEN
       DO 30 N=1,NUMNOD
        IC=ICODE(N)
        IC1=IC/512

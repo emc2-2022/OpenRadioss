@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  WRITE_TH                      source/output/th/write_th.F   
-Chd|-- called by -----------
-Chd|        ABFHIST2                      source/output/abf/abfhist2.F  
-Chd|        HIST2                         source/output/th/hist2.F      
-Chd|-- calls ---------------
-Chd|        WRTDES                        source/output/th/wrtdes.F     
-Chd|        TH_MOD                        share/modules/th_mod.F        
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    write_th   ../engine/source/output/th/write_th.F
+!||--- called by ------------------------------------------------------
+!||    hist2      ../engine/source/output/th/hist2.F
+!||--- calls      -----------------------------------------------------
+!||    wrtdes     ../engine/source/output/th/wrtdes.F
+!||--- uses       -----------------------------------------------------
+!||    th_mod     ../engine/share/modules/th_mod.F
+!||====================================================================
         SUBROUTINE WRITE_TH(N,NSPMD,NN,NVAR,ITTYP,
      1                      ELTYPE_STRUCT,WA_ELTYPE_P0)
         USE TH_MOD
@@ -36,11 +36,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -73,7 +68,7 @@ C-----------------------------------------------
 !           - check if a processor must write its values (SIZE_N>0)
 !           - compute the number of group for a given processor (REST)
 !           - compute the position in the TH file (CURRENT_J)
-!           - initialization of the writen values WA_LOCAL with the position CURRENT_J + J
+!           - initialization of the written values WA_LOCAL with the position CURRENT_J + J
 !        * write the WA_LOCAL values 
 !$ENDCOMMENT
 

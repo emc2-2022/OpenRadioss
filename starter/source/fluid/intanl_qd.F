@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTANL_QD                     source/fluid/intanl_qd.F      
-Chd|-- called by -----------
-Chd|        MASS_FLUID_QD                 source/fluid/mass-fluid_qd.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    intanl_qd       ../starter/source/fluid/intanl_qd.F
+!||--- called by ------------------------------------------------------
+!||    mass_fluid_qd   ../starter/source/fluid/mass-fluid_qd.F
+!||====================================================================
       SUBROUTINE INTANL_QD(X1,  Y1,  Z1,  X2,  Y2,  Z2,  X3,  Y3,  Z3, 
      .                     X4,  Y4,  Z4,  XP,  YP,  ZP, NRX, NRY, NRZ,
      .                     AREA,RVLH,RVLG,JEL, IEL)
@@ -33,9 +32,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -66,11 +62,11 @@ C SIMPLIFICATION SI SOURCE LOIN DU POINT P
       L42=(X1-X4)**2+(Y1-Y4)**2+(Z1-Z4)**2
       LM2=MAX(L12,L22,L32,L42)
 
-      IF(D2.GT.TWENTY5*LM2) THEN  
+      IF(D2>TWENTY5*LM2) THEN  
         RVLG=AREA/SQRT(D2)
-        RVLH=AREA*(NRX*(X0-XP)+NRY*(Y0-YP)+NRZ*(Z0-ZP))/(D2**THREE_HALF)	  
+        RVLH=AREA*(NRX*(X0-XP)+NRY*(Y0-YP)+NRZ*(Z0-ZP))/(D2**THREE_HALF)    
       ELSE
-C COORDONNEES LOCALES
+C local contact details
         VX1=X2-X1
         VY1=Y2-Y1
         VZ1=Z2-Z1
@@ -127,7 +123,7 @@ C
         S(3)=SQRT(L32)
         S(4)=SQRT(L42)
         R(5)=R(1)
-	  
+            
         DO I=1,4
           CS(I)=DKSI(I)/S(I)
           SN(I)=DETA(I)/S(I)
@@ -135,7 +131,7 @@ C
 C
         RVLH=ZERO
 C INTEGRALE DOUBLE COUCHE
-        IF (ZLS.NE.ZERO) THEN
+        IF (ZLS/=ZERO) THEN
            DO I=1,4
               J=I+1
               RVLH=RVLH
@@ -150,7 +146,7 @@ C INTEGRALE SIMPLE COUCHE
            J=I+1
            V=(XLS-KSI(I))*SN(I)-(YLS-ETA(I))*CS(I)
            ARG=(R(I)+R(J)-S(I))/(R(I)+R(J)+S(I))
-           IF (ARG.GT.ZERO) THEN
+           IF (ARG>ZERO) THEN
               FLN=-LOG(ARG)
               RVLG=RVLG+V*FLN
            ELSE
@@ -159,7 +155,7 @@ C INTEGRALE SIMPLE COUCHE
         ENDDO
         RVLG=-RVLG+ZLS*RVLH
 
-      ENDIF	 
+      ENDIF   
 C
       RETURN
       END

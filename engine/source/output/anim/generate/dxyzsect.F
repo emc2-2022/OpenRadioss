@@ -1,40 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C            SPMD_AGETMSR                    /spe/spmd_anim.F
 C            SSPMD_AGET_SECT                 /spe/spmd_anim.F
-Chd|====================================================================
-Chd|  DXYZSECT                      source/output/anim/generate/dxyzsect.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        DXWALC                        source/output/anim/generate/dxwalc.F
-Chd|        DXWALL                        source/output/anim/generate/dxwall.F
-Chd|        DXWALP                        source/output/anim/generate/dxwalp.F
-Chd|        DXWALS                        source/output/anim/generate/dxwals.F
-Chd|        SPMD_AGETMSR                  source/mpi/anim/spmd_agetmsr.F
-Chd|        SPMD_AGET_SECT                source/mpi/anim/spmd_aget_sect.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+!||====================================================================
+!||    dxyzsect         ../engine/source/output/anim/generate/dxyzsect.F
+!||--- called by ------------------------------------------------------
+!||    genani           ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    dxwalc           ../engine/source/output/anim/generate/dxwalc.F
+!||    dxwall           ../engine/source/output/anim/generate/dxwall.F
+!||    dxwalp           ../engine/source/output/anim/generate/dxwalp.F
+!||    dxwals           ../engine/source/output/anim/generate/dxwals.F
+!||    spmd_aget_sect   ../engine/source/mpi/anim/spmd_aget_sect.F
+!||    spmd_agetmsr     ../engine/source/mpi/anim/spmd_agetmsr.F
+!||    write_r_c        ../common_source/tools/input_output/write_routines.c
+!||====================================================================
       SUBROUTINE DXYZSECT (NSTRF,RWBUF,NPRW  ,X     ,XMIN ,
      2                     YMIN ,ZMIN  ,XMAX ,YMAX  , ZMAX,
      3                      FR_SEC,FR_WALL,WEIGHT,ITAB)
@@ -45,10 +45,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
 #include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
@@ -114,7 +112,7 @@ C
       ELSE
         IF (NSECT > 0) CALL SPMD_AGET_SECT(NSTRF,X,XSEC,WEIGHT,ITAB)
 
-          IF (ISPMD.EQ.0) THEN
+          IF (ISPMD==0) THEN
  
             DO I=1,NSECT
 
@@ -161,12 +159,12 @@ C
         N4=N3+NRWALL
         MSR = NPRW(N3)
         IF (NSPMD == 1) THEN
-          IF(MSR.EQ.0)THEN
+          IF(MSR==0)THEN
             XWL=RWBUF(4,N)
             YWL=RWBUF(5,N)
             ZWL=RWBUF(6,N)
           ELSE
-C verifier que ce noeud est sur proc0 !
+C check that this node is on proc0!
             XWL=X(1,MSR)
             YWL=X(2,MSR)
             ZWL=X(3,MSR)
@@ -174,15 +172,15 @@ C verifier que ce noeud est sur proc0 !
         ELSE
           CALL SPMD_AGETMSR(FR_WALL(1,N),X,MSR,XWL,YWL,ZWL,RWBUF(1,N))
         END IF
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
           ITYP= NPRW(N4)
-          IF(ITYP.EQ.4)THEN
+          IF(ITYP==4)THEN
            XWL = XWL + HALF*(RWBUF(7,N)+RWBUF(10,N))
            YWL = YWL + HALF*(RWBUF(8,N)+RWBUF(11,N))
            ZWL = ZWL + HALF*(RWBUF(9,N)+RWBUF(12,N)) 
           ENDIF
           K=K+NPRW(N)
-          IF(NPRW(N4).EQ.-1)K=K+NINT(RWBUF(8,N))
+          IF(NPRW(N4)==-1)K=K+NINT(RWBUF(8,N))
           R4 = XWL
           CALL WRITE_R_C(R4,1)
           R4 = YWL
@@ -199,19 +197,19 @@ C
         N4=N3+NRWALL
         ITYP= NPRW(N4)
 
-        IF(IABS(ITYP).EQ.1)THEN
+        IF(IABS(ITYP)==1)THEN
            CALL DXWALL(X,RWBUF(1,N),NPRW(N3),XMIN ,YMIN ,
      .                 ZMIN  ,XMAX ,YMAX  , ZMAX,FR_WALL(1,N))
-        ELSEIF(ITYP.EQ.2)THEN
+        ELSEIF(ITYP==2)THEN
            CALL DXWALC(X,RWBUF(1,N),NPRW(N3),XMIN ,YMIN ,
      .                 ZMIN  ,XMAX ,YMAX  , ZMAX,FR_WALL(1,N))
-        ELSEIF(ITYP.EQ.3)THEN
+        ELSEIF(ITYP==3)THEN
            CALL DXWALS(X,RWBUF(1,N),NPRW(N3),FR_WALL(1,N))
-        ELSEIF(ITYP.EQ.4)THEN
+        ELSEIF(ITYP==4)THEN
            CALL DXWALP(X,RWBUF(1,N),NPRW(N3),FR_WALL(1,N))
         ENDIF
         K=K+NPRW(N)
-        IF(NPRW(N4).EQ.-1)K=K+NINT(RWBUF(8,N))
+        IF(NPRW(N4)==-1)K=K+NINT(RWBUF(8,N))
       ENDDO
 C
       RETURN

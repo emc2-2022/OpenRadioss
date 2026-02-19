@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DFUNC0                        source/output/anim/dfunc0.F   
-Chd|-- called by -----------
-Chd|        GENANI1                       source/output/anim/genani1.F  
-Chd|-- calls ---------------
-Chd|        WRITE_R_C                     source/output/tools/write_routines.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dfunc0         ../starter/source/output/anim/dfunc0.F
+!||--- called by ------------------------------------------------------
+!||    genani1        ../starter/source/output/anim/genani1.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE DFUNC0(ELBUF_TAB ,FUNC    ,IFUNC   ,IPARG   ,PM      ,
      2                  EL2FA   ,NBF   ,SPBUF   ,IPART   ,IPARTSP )                                         
 C-----------------------------------------------
@@ -45,8 +44,6 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"                                            
 #include      "sphcom.inc"
 #include      "com01_c.inc"                                             
-#include      "com04_c.inc"                                             
-#include      "scr01_c.inc"                                             
 #include      "scr17_c.inc"
 #include      "param_c.inc"                                             
 C-----------------------------------------------                        
@@ -64,11 +61,11 @@ C-----------------------------------------------
       my_real                                                           
      .   EVAR(MVSIZ),                                                   
      .   P, VONM2, VONM, S1, S2, S12, S3, VALUE
-      INTEGER I,II(6),NG,NEL,N,MLW,NN,NN1,JTURB,MT,IALEL,IPRT           
+      INTEGER I, II(6), NG, NEL, N, NN1, JTURB, MT, IALEL, IPRT
       TYPE(G_BUFEL_) ,POINTER :: GBUF
       REAL R4,WA(NBF)                                                   
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
-C La routine ne fonctionne que pour les IFUNC 3,6,7,14-19 (stress)      
+C La routine ne fonctionne que pour les IFUNC 3,6,7,14-19 (stress)
 C=======================================================================                                                                       
       NN1 = 1                                                           
 c      NN2 = NN1 + (NUMSPH+MAXPJET)                                      
@@ -116,15 +113,15 @@ c
               DO I=LFT,LLT                                               
 !!                II = (I-1)*6
                 N = I + NFT                                              
-                IF(EL2FA(NN1+N).NE.0)THEN                                
+                IF(EL2FA(NN1+N)/=0)THEN                                
                   P = - (GBUF%SIG(II(1) + I)                
      .                 + GBUF%SIG(II(2) + I)                
      .                 + GBUF%SIG(II(3) + I) ) * THIRD
                   VALUE = P
                   IF(IFUNC == 7) THEN                                   
-                    S1=GBUF%SIG(II(1) + I) + P  	      
-                    S2=GBUF%SIG(II(2) + I) + P  	      
-                    S3=GBUF%SIG(II(3) + I) + P  	      
+                    S1=GBUF%SIG(II(1) + I) + P          
+                    S2=GBUF%SIG(II(2) + I) + P          
+                    S3=GBUF%SIG(II(3) + I) + P          
                     VONM2= THREE*(GBUF%SIG(II(4) + I)**2 +    
      .                            GBUF%SIG(II(5) + I)**2 +    
      .                            GBUF%SIG(II(6) + I)**2 +    
@@ -140,14 +137,14 @@ c
               DO I=LFT,LLT                                               
 !!                II = (I-1)*6
                 N = I + NFT                                               
-                IF(EL2FA(NN1+N).NE.0)THEN                                 
+                IF(EL2FA(NN1+N)/=0)THEN                                 
                    FUNC(EL2FA(NN1+N)) = GBUF%SIG(II(IFUNC - 13) + I)
                ENDIF                                                     
               ENDDO                                                      
             ELSE                                                         
               DO I=LFT,LLT                                               
                 N = I + NFT                                               
-                IF(EL2FA(NN1+N).NE.0)THEN                                 
+                IF(EL2FA(NN1+N)/=0)THEN                                 
                    FUNC(EL2FA(NN1+N)) = ZERO                             
                 ENDIF                                                     
               ENDDO                                                      
@@ -155,7 +152,7 @@ c
           ENDIF                                                         
         ENDIF                                                           
 C-----------------------------------------------                        
-C       FIN DE BOUCLE SUR LES GROUPES                                   
+C       END OF LOOP ON GROUPS
 C-----------------------------------------------                        
  900  CONTINUE                                                          
 C-----------------------------------------------                        

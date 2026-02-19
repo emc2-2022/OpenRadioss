@@ -1,69 +1,68 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_SURF                  source/groups/hm_read_surf.F  
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        DEALLOCATE_SURF_ELM           source/groups/init_surf_elm.F 
-Chd|        HM_BIGSBOX                    source/groups/hm_bigsbox.F    
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SUBMODPART                 source/groups/hm_submodpart.F 
-Chd|        HM_SURFGR2                    source/groups/hm_surfgr2.F    
-Chd|        HM_TAGPART2                   source/groups/hm_tagpart2.F   
-Chd|        INIT_SURF_ELM                 source/groups/init_surf_elm.F 
-Chd|        QSURFTAG                      source/groups/qsurftag.F      
-Chd|        SBOXBOXSURF                   source/model/box/bigbox.F     
-Chd|        SEGSURF                       source/groups/tsurftag.F      
-Chd|        SSURFTAG                      source/groups/ssurftag.F      
-Chd|        SSURFTAGIGEO                  source/groups/ssurftagigeo.F  
-Chd|        SUBROTPOINT                   source/model/submodel/subrot.F
-Chd|        SURFTAG                       source/groups/surftag.F       
-Chd|        SURFTAGADM                    source/groups/surftag.F       
-Chd|        SURFTAGE                      source/groups/surftage.F      
-Chd|        TSURFTAG                      source/groups/tsurftag.F      
-Chd|        UDOUBLE_IGR                   source/system/sysfus.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MAPPING_OPTION_MOD            share/modules1/dichotomy_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|        SURF_MOD                      share/modules1/surf_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_surf             ../starter/source/groups/hm_read_surf.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    deallocate_surf_elm      ../starter/source/groups/init_surf_elm.F
+!||    hm_bigsbox               ../starter/source/groups/hm_bigsbox.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_submodpart            ../starter/source/groups/hm_submodpart.F
+!||    hm_surfgr2               ../starter/source/groups/hm_surfgr2.F
+!||    hm_tagpart2              ../starter/source/groups/hm_tagpart2.F
+!||    init_surf_elm            ../starter/source/groups/init_surf_elm.F
+!||    qsurftag                 ../starter/source/groups/qsurftag.F
+!||    sboxboxsurf              ../starter/source/model/box/bigbox.F
+!||    segsurf                  ../starter/source/groups/tsurftag.F
+!||    ssurftag                 ../starter/source/groups/ssurftag.F
+!||    ssurftagigeo             ../starter/source/groups/ssurftagigeo.F
+!||    subrotpoint              ../starter/source/model/submodel/subrot.F
+!||    surftag                  ../starter/source/groups/surftag.F
+!||    surftagadm               ../starter/source/groups/surftag.F
+!||    surftage                 ../starter/source/groups/surftage.F
+!||    tsurftag                 ../starter/source/groups/tsurftag.F
+!||    udouble_igr              ../starter/source/system/sysfus.F
+!||    usr2sys                  ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    mapping_option_mod       ../starter/share/modules1/dichotomy_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||    surf_mod                 ../starter/share/modules1/surf_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_SURF(
      1           ITAB    ,ITABM1  ,
      2           IGRSURF ,IXS     ,IXQ     ,IXC     ,IXT     ,
      3           IXP     ,IXR     ,IXTG
      4                   ,IPART   ,IPARTS  ,IPARTQ  ,IPARTC  ,
      5           IPARTT  ,IPARTP  ,IPARTR  ,IPARTTG ,X       ,
-     6           INSEG   ,MFI     ,ISKN    ,SKEW    ,
+     6           MFI     ,ISKN    ,SKEW    ,
      7           BUFSF   ,KNOD2ELS,NOD2ELS ,SH4TREE ,SH3TREE ,
      8           ISUBMOD ,FLAG    ,UNITAB  ,IBOX    ,
      9           IXS10   ,IXS16   , IXS20  ,RTRANS  ,
@@ -77,6 +76,7 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
@@ -85,29 +85,21 @@ C-----------------------------------------------
       USE SURF_MOD
       USE HM_OPTION_READ_MOD
       USE MAPPING_OPTION_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      use element_mod , only : nixs, nixq, nixc, nixt, nixp, nixr, nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com_xfem1.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "ige3d_c.inc"
-#include      "my_allocate.inc"
 #include      "sphcom.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -128,10 +120,9 @@ C-----------------------------------------------
      .        KNOD2ELIG3D(NUMNOD+1),NOD2ELIG3D(*),
      .        NIGE(*),IGEO(NPROPGI,NUMGEO),
      .        KNOD2ELQ(NUMNOD+1),NOD2ELQ(4*NUMELQ)
-      INTEGER INSEG,FLAG,IADTABIGE,DECALIGEO,
+      INTEGER FLAG,IADTABIGE,DECALIGEO,
      .        IADBOXMAX,NSETS
-      my_real
-     .        X(3,NUMNOD),SKEW(LSKEW,SSKEW/LSKEW),BUFSF(LISURF1*NSURF),
+      my_real X(3,NUMNOD),SKEW(LSKEW,SSKEW/LSKEW),BUFSF(LISURF1*NSURF),
      .        RTRANS(NTRANSF,NRTRANS),V(3,NUMNOD),RIGE(*),XIGE(*),VIGE(*),
      .        WIGE(*),KNOT(*),KNOTLOCPC(*),KNOTLOCEL(*)
       TYPE(SUBMODEL_DATA) LSUBMODEL(NSUBMOD)
@@ -159,12 +150,13 @@ C-----------------------------------------------
             my_real
      .        XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,BID,
      .        S_A,S_B,S_C,XG,YG,ZG,FAC_L,DIAM,XP1,YP1,ZP1,XP2,YP2,ZP2
-      CHARACTER TITR*nchartitle,MESS*40,KEY*ncharkey,KEY2*ncharkey,
-     .          KEY3*ncharkey,STRING*nchartitle
+      CHARACTER(LEN=NCHARTITLE) :: TITR,STRING
+      CHARACTER :: MESS*40
+      CHARACTER(LEN=NCHARKEY) :: KEY,KEY2,KEY3
       INTEGER, DIMENSION(:),ALLOCATABLE :: BUFBOX, BUFTMP, INDX ,TAGSHELLBOXC,TAGSHELLBOXG
       my_real :: VECTX,VECTY,VECTZ,VECT
       DOUBLE PRECISION RSBUFBOX
-      CHARACTER*nchartitle,TITR1
+      CHARACTER(LEN=NCHARTITLE) :: TITR1
       LOGICAL :: FLAG_GRBRIC, lFOUND, IS_AVAILABLE, IS_ENCRYPTED, lERROR, l1104
       INTEGER :: ID_PART,MODE
       INTEGER :: IBID
@@ -172,19 +164,19 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:), ALLOCATABLE :: INDX_SOL, INDX_SOL10
       TYPE(PART_TYPE), DIMENSION(:), ALLOCATABLE :: SURF_ELM
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*       
-!       FLAG_GRBRIC : flag to initialize the INDX_SOL(10) arraies
+!       FLAG_GRBRIC : flag to initialize the INDX_SOL(10) arrays
 !                     and optimize an old and expensive treatment in SSURFTAG      
 !       NINDX_SOL(10) : number of the tagged solid(10) element
 !                      --> need to split solid and solid10 
 !                      for a treatment in the SSURFTAG routine
-!                      only usefull for /SURF/GRBRIC
+!                      only useful for /SURF/GRBRIC
 !       INDX_SOL(10) : ID of the tagged solid(10) element
 !                      --> need to split solid and solid10 
 !                      for a treatment in the SSURFTAG routine
-!                      only usefull for /SURF/GRBRIC
+!                      only useful for /SURF/GRBRIC
 !       MODE : integer
 !              switch to initialize solid/shell/shell3n or truss/beam/spring
-!       SURF_ELM : PART_TYPE structur 
+!       SURF_ELM : PART_TYPE structure
 !                  %Nxxx : number of element per part
 !                  %xxx_PART : ID of the element 
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -192,7 +184,6 @@ C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
       INTEGER USR2SYS
-C                1234567890123456789012345678901234567890
       DATA MESS/'SURFACE DEFINITION                      '/
       DATA INTMAX /2147483647/
 C-----------------------------------------------
@@ -209,12 +200,12 @@ C-----------------------------------------------
 !                             (computed in Radioss Engine, when receiving Datas from MaDyMo).
 !                             ID MaDyMo - for entity type which impose surface movement:
 !                             No systeme MaDyMo for entity type which impose surface movement
-!   IGRSURF(IGS)%NB_MADYMO   :: No de l'entite qui impose le mvt de la surface.
-!                                --> No systeme Radioss ou MaDyMO.
+! IGRSURF(IGS)%NB_MADYMO   :: Entity number imposing surface movement.
+!                                --> No Radioss or MaDyMO system.
 !   IGRSURF(IGS)%TYPE_MADYMO   :: Entity type which impose surface movement.
 !                                  = 1 : Rigid Body.
 !                                  = 2 : MADYMO Hyper-ellipsoide.
-!   IGRSURF(IGS)%IAD_BUFR   :: Analitical Surfaces address (reals BUFSF - temp)
+!   IGRSURF(IGS)%IAD_BUFR   :: Analytical Surfaces address (reals BUFSF - temp)
 !   IGRSURF(IGS)%LEVEL   :: FLAG "SUBLEVEL DONE" FOR SURFACES OF SURFACES
 !                                 = 0 ! initialized surface
 !                                 = 1 ! uninitialized surface
@@ -293,7 +284,7 @@ C=======================================================================
             IGRSURF(IGS)%TYPE=0
             IGRSURF(IGS)%TITLE=TITR
             IF(KEY(1:4)=='SURF' .OR. KEY(1:5)=='DSURF')THEN
-C             tag des SURFACES DE SURFACES
+C             tag for surfaces defined from surface list
               IGRSURF(IGS)%NSEG=-1
               IGRSURF(IGS)%LEVEL=0
               IT0=IT0+1
@@ -302,11 +293,11 @@ C             tag des SURFACES DE SURFACES
               IF (FLAG == 0) IGRSURF(IGS)%NSEG=0
               IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0
                 NSEG0 = IGRSURF(IGS)%NSEG
-                MY_ALLOCATE2D(IGRSURF(IGS)%NODES,NSEG0,4)
+                CALL MY_ALLOC(IGRSURF(IGS)%NODES,NSEG0,4)
                 IGRSURF(IGS)%NODES(1:NSEG0,1:4) = 0
-                MY_ALLOCATE(IGRSURF(IGS)%ELTYP,NSEG0)
+                CALL MY_ALLOC(IGRSURF(IGS)%ELTYP,NSEG0)
                 IGRSURF(IGS)%ELTYP(1:NSEG0) = 0
-                MY_ALLOCATE(IGRSURF(IGS)%ELEM,NSEG0)
+                CALL MY_ALLOC(IGRSURF(IGS)%ELEM,NSEG0)
                 IGRSURF(IGS)%ELEM(1:NSEG0) = 0
               ENDIF
               IGRSURF(IGS)%LEVEL=1
@@ -324,7 +315,7 @@ C             tag des SURFACES DE SURFACES
                     CALL HM_GET_INT_ARRAY_INDEX('N4',N4,KK,IS_AVAILABLE,LSUBMODEL)                
                     IF(N2D == 0) THEN
                         N3 = USR2SYS(N3,ITABM1,MESS,ID)
-                        IF(N4.NE.0) THEN
+                        IF(N4/=0) THEN
                             N4 = USR2SYS(N4,ITABM1,MESS,ID)
                         ELSE
                             N4 = N3
@@ -355,7 +346,6 @@ C             tag des SURFACES DE SURFACES
                   ENDIF
                 ENDIF
                 IF (FLAG == 0) THEN
-                  INSEG=INSEG+NISX*NSEG
                   IGRSURF(IGS)%NSEG = NSEG
                 ENDIF
               ENDDO
@@ -363,14 +353,14 @@ C             tag des SURFACES DE SURFACES
             ELSEIF(KEY(1:6)=='SUBSET'.OR. KEY(1:4)=='PART'.OR.
      .             KEY(1:3)=='MAT'   .OR. KEY(1:4)=='PROP'.OR.
      .             KEY(1:6)=='GRBRIC')THEN
-C             surf de SUBSET PART MAT OU PROP
+C             surf of SUBSET PART MAT OR PROP
               IT2=IT2+1
               IF (FLAG == 0) IGRSURF(IGS)%NSEG=0
                IGRSURF(IGS)%LEVEL=1
             ELSEIF(KEY(1:3) == 'BOX'.AND.NBBOX == 0 .AND.
      .       (KEY2(1:5) /= 'RECTA'.AND.
      .        KEY2(1:5) /= 'CYLIN'.AND.KEY2(1:5) /= 'SPHER'))THEN
-C             surf dans un box (old box)
+C             surf in a box (old box)
               lERROR=.TRUE.
             ELSEIF(KEY(1:2)=='GR')THEN
 C             surf d'un group d'elements
@@ -378,37 +368,36 @@ C             surf d'un group d'elements
               IF (FLAG == 0) IGRSURF(IGS)%NSEG=0
                IGRSURF(IGS)%LEVEL=1
             ELSEIF(KEY(1:6)=='ELLIPS'.OR.KEY(1:8)=='MDELLIPS')THEN
-C             une surface analytique (rigid, non-meshed).
+C             surface with formal equation (non-meshed).
               IT5=IT5+1
               IF (FLAG == 0) IGRSURF(IGS)%NSEG=1
                IGRSURF(IGS)%LEVEL=1
                IF (FLAG == 1) THEN
                  NSEG0 = IGRSURF(IGS)%NSEG
-                 MY_ALLOCATE2D(IGRSURF(IGS)%NODES,NSEG0,4)
+                 CALL MY_ALLOC(IGRSURF(IGS)%NODES,NSEG0,4)
                  IGRSURF(IGS)%NODES(1:NSEG0,1:4) = 0
-                 MY_ALLOCATE(IGRSURF(IGS)%ELTYP,NSEG0)
+                 CALL MY_ALLOC(IGRSURF(IGS)%ELTYP,NSEG0)
                  IGRSURF(IGS)%ELTYP(1:NSEG0) = 0
-                 MY_ALLOCATE(IGRSURF(IGS)%ELEM,NSEG0)
+                 CALL MY_ALLOC(IGRSURF(IGS)%ELEM,NSEG0)
                  IGRSURF(IGS)%ELEM(1:NSEG0) = 0
                ENDIF
             ELSEIF(KEY(1:6)=='SUBMOD')THEN
-C             une surface d'un submodel.
+C             a surface of a submodel.
               IT6=IT6+1
               IF (FLAG == 0) IGRSURF(IGS)%NSEG=0
                IGRSURF(IGS)%LEVEL=1
             ELSEIF(KEY(1:3)=='BOX'.AND.(KEY2(1:5) == 'RECTA'.OR.
      .        KEY2(1:5) == 'CYLIN'.OR.KEY2(1:5) == 'SPHER'))THEN
 C             old /grnod/box (not /BOX/BOX)
-C             une surface dans un box (classical box, parallelepiped (oriented),
-C                       cylindrical, spherical)
+C             surf inside a box (classical box, parallelepiped (oriented), cylindrical, spherical)
               lERROR=.TRUE.
             ELSEIF(KEY(1:3) == 'BOX' .AND. NBBOX > 0)THEN
-C             multi box (box de box)
+C             multi box (box of boxes)
               IT8=IT8+1
               IF (FLAG == 0) IGRSURF(IGS)%NSEG=0
               IGRSURF(IGS)%LEVEL=1
             ELSEIF(KEY(1:6)=='PLANE')THEN
-C             une surface infinite plane (non-meshed)
+C             infinite plane (non-meshed)
               IT9=IT9+1
               IF (FLAG == 0) IGRSURF(IGS)%NSEG=0
               IGRSURF(IGS)%LEVEL=1
@@ -430,7 +419,7 @@ c----------------------------
       NUMEL = NUMELC+NUMELTG
 C
 C-------------------------------------
-C Recherche des ID doubles
+C Searching for double IDs
 C-------------------------------------
       IF (FLAG == 0) THEN
         DO IGS=1,NSURF
@@ -441,19 +430,19 @@ C-------------------------------------
 C=======================================================================
 C BOX (OLD)
 C=======================================================================
-      IF (IT3.NE.0)THEN
+      IF (IT3/=0)THEN
         !no longer supported with new reader based on CFG files
       ENDIF
 C=======================================================================
 C BOX (parallelepiped, cylindrical, spherical) - old one (10SA1)
 C=======================================================================
-      IF (IT7.NE.0)THEN
+      IF (IT7/=0)THEN
         !no longer supported with new reader based on CFG files
       ENDIF
 C=======================================================================
 C NEW BOX OPTION (MULTI BOX COMBINATION)
 C=======================================================================
-      IF (IT8.NE.0) THEN
+      IF (IT8/=0) THEN
         ALLOCATE(TAGSHELLBOXC(NUMELC),STAT=stat)
         ALLOCATE(TAGSHELLBOXG(NUMELTG),STAT=stat)
         TAGSHELLBOXC(1:NUMELC) = 0
@@ -482,14 +471,14 @@ C
             NSEG=0                                                     
             IADBOX = 1                                                 
             IFLAGUNIT = 0                                              
-            DO J=1,NUNITS                                              
+            DO J=1,UNITAB%NUNITS                                              
               IF (UNITAB%UNIT_ID(J) == UID) THEN                       
                 FAC_L = UNITAB%FAC_L(J)                                
                 IFLAGUNIT = 1                                          
                 EXIT                                                   
               ENDIF                                                    
             ENDDO                                                      
-            IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+            IF (UID/=0.AND.IFLAGUNIT==0) THEN
               CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,    
      .                    I2=UID,I1=ID,C1='SURFACE',                   
      .               C2='SURFACE',                                     
@@ -498,11 +487,11 @@ C
 !
             IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0             
               NSEG0 = IGRSURF(IGS)%NSEG                                
-              MY_ALLOCATE2D(IGRSURF(IGS)%NODES,NSEG0,4)                
+              CALL MY_ALLOC(IGRSURF(IGS)%NODES,NSEG0,4)                
               IGRSURF(IGS)%NODES(1:NSEG0,1:4) = 0                      
-              MY_ALLOCATE(IGRSURF(IGS)%ELTYP,NSEG0)                    
+              CALL MY_ALLOC(IGRSURF(IGS)%ELTYP,NSEG0)                    
               IGRSURF(IGS)%ELTYP(1:NSEG0) = 0                          
-              MY_ALLOCATE(IGRSURF(IGS)%ELEM,NSEG0)                     
+              CALL MY_ALLOC(IGRSURF(IGS)%ELEM,NSEG0)                     
               IGRSURF(IGS)%ELEM(1:NSEG0) = 0                           
             ENDIF                                                      
 !
@@ -535,10 +524,11 @@ C---
 C---
             IEXT=0                                                     
             IF(KEY2(1:3)=='EXT')THEN                                   
-              IEXT=1                                                   
+              IEXT=EXT_SURF                                                   
             ELSEIF(KEY2(1:3)=='ALL')THEN                               
-              IEXT=2                                                   
-            END IF                                                     
+              IEXT=ALL_SURF                                                  
+            END IF
+            IGRSURF(IGS)%EXT_ALL = IEXT                               
 C---
             IF (NUMELS > 0) THEN                                       
               NSEG0 = IGRSURF(IGS)%NSEG                                
@@ -564,10 +554,10 @@ C---
         ENDDO
         IF(ALLOCATED(BUFBOX))DEALLOCATE(BUFBOX)
         DEALLOCATE(TAGSHELLBOXC,TAGSHELLBOXG)
-      ENDIF  ! IT8.NE.0
+      ENDIF  ! IT8/=0
 C
 C=======================================================================
-C groupes de SUBSETS,PART,MAT,PROP,BRIC
+C groups of SUBSETS,PART,MAT,PROP,BRIC
 C=======================================================================
 
       IF(IT2/=0.OR.IT6/=0)THEN
@@ -579,7 +569,7 @@ C=======================================================================
      3                     SURF_ELM,MODE )
       ENDIF
 
-      IF(IT2.NE.0)THEN
+      IF(IT2/=0)THEN
         NINDX_SOL = 0
         NINDX_SOL10 = 0
         ALLOCATE( INDX_SOL(NUMELS) )
@@ -599,13 +589,13 @@ C=======================================================================
           IF (KEY(1:6)=='GRBRIC')THEN                                          
             IF(KEY2(1:3)=='EXT')THEN                                           
               IFRE=0                                                           
-              IEXT=1                                                           
+              IEXT=EXT_SURF                                                           
             END IF                                                             
             IF(KEY2(1:4)=='FREE')THEN                                          
               IFRE=1                                                           
               IEXT=1                                                           
             END IF                                                             
-            IF(IEXT==0.AND.IFRE==0)THEN !seul /grbric/ext est gere             
+            IF(IEXT==0.AND.IFRE==0)THEN !only /grbric/ext is treated             
               CALL ANCMSG(MSGID=479,                                           
      .                    MSGTYPE=MSGERROR,                                    
      .                    ANMODE=ANINFO,                                       
@@ -615,11 +605,11 @@ C=======================================================================
 !
             IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0                     
               NSEG0 = IGRSURF(IGS)%NSEG                                        
-              MY_ALLOCATE2D(IGRSURF(IGS)%NODES,NSEG0,4)                        
+              CALL MY_ALLOC(IGRSURF(IGS)%NODES,NSEG0,4)                        
               IGRSURF(IGS)%NODES(1:NSEG0,1:4) = 0                              
-              MY_ALLOCATE(IGRSURF(IGS)%ELTYP,NSEG0)                            
+              CALL MY_ALLOC(IGRSURF(IGS)%ELTYP,NSEG0)                            
               IGRSURF(IGS)%ELTYP(1:NSEG0) = 0                                  
-              MY_ALLOCATE(IGRSURF(IGS)%ELEM,NSEG0)                             
+              CALL MY_ALLOC(IGRSURF(IGS)%ELEM,NSEG0)                             
               IGRSURF(IGS)%ELEM(1:NSEG0) = 0                                   
             ENDIF                                                              
 !
@@ -637,7 +627,6 @@ C=======================================================================
      6                    NINDX_SOL, NINDX_SOL10, INDX, INDX_SOL, INDX_SOL10,  
      7                    SURF_ELM)                                            
             IF (FLAG == 0) THEN                                                
-              INSEG=INSEG+NISX*NSEG                                            
               IGRSURF(IGS)%NSEG = NSEG                                         
             ENDIF                                                              
           ENDIF                                                                
@@ -645,33 +634,34 @@ C=======================================================================
           IF (KEY(1:4)=='PART'.OR.KEY(1:6)=='SUBSET'.OR.     
      .        KEY(1:3)=='MAT' .OR.KEY(1:4)=='PROP') THEN     
             IF(KEY2(1:3)=='EXT')THEN                         
-              IEXT=1                                         
+              IEXT=EXT_SURF                                      
             ELSEIF(KEY2(1:3)=='ALL')THEN                     
-              IEXT=2                                         
-            END IF                                           
+              IEXT=ALL_SURF                                         
+            END IF     
+            IGRSURF(IGS)%EXT_ALL = IEXT                                           
             IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0   
 !             ISOGEO                                         
               NSEG0 = IGRSURF(IGS)%NSEG_IGE                  
-              MY_ALLOCATE2D(IGRSURF(IGS)%NODES_IGE,NSEG0,4)  
+              CALL MY_ALLOC(IGRSURF(IGS)%NODES_IGE,NSEG0,4)  
               IGRSURF(IGS)%NODES_IGE(1:NSEG0,1:4) = 0        
-              MY_ALLOCATE(IGRSURF(IGS)%ELTYP_IGE,NSEG0)      
+              CALL MY_ALLOC(IGRSURF(IGS)%ELTYP_IGE,NSEG0)      
               IGRSURF(IGS)%ELTYP_IGE(1:NSEG0) = 0            
-              MY_ALLOCATE(IGRSURF(IGS)%ELEM_IGE,NSEG0)       
+              CALL MY_ALLOC(IGRSURF(IGS)%ELEM_IGE,NSEG0)       
               IGRSURF(IGS)%ELEM_IGE(1:NSEG0) = 0             
 !
               NSEG0 = IGRSURF(IGS)%NSEG                      
-              MY_ALLOCATE2D(IGRSURF(IGS)%NODES,NSEG0,4)      
+              CALL MY_ALLOC(IGRSURF(IGS)%NODES,NSEG0,4)      
               IGRSURF(IGS)%NODES(1:NSEG0,1:4) = 0            
-              MY_ALLOCATE(IGRSURF(IGS)%ELTYP,NSEG0)          
+              CALL MY_ALLOC(IGRSURF(IGS)%ELTYP,NSEG0)          
               IGRSURF(IGS)%ELTYP(1:NSEG0) = 0                
-              MY_ALLOCATE(IGRSURF(IGS)%ELEM,NSEG0)           
+              CALL MY_ALLOC(IGRSURF(IGS)%ELEM,NSEG0)           
               IGRSURF(IGS)%ELEM(1:NSEG0) = 0                 
 !
-              IF (NVOLU + NMONVOL .GT. 0) THEN               
+              IF (NVOLU + NMONVOL > 0) THEN               
                  NSEG0 = IGRSURF(IGS)%NSEG                   
                  !Keep track of the "reversed surface" -> when /SURF/PART comes
                  !with a negative part_id
-                 MY_ALLOCATE(IGRSURF(IGS)%REVERSED, NSEG0)                     
+                 CALL MY_ALLOC(IGRSURF(IGS)%REVERSED, NSEG0)                     
               ENDIF                                                            
             ENDIF                                                              
 !
@@ -702,7 +692,7 @@ C=======================================================================
               DO II=1,NUMELS                                                   
                  IF (IABS(BUFTMP(IPARTS(II)))==1)THEN 
                  l1104=.TRUE.                         
-	           CALL ANCMSG(MSGID=1104,                                     
+                     CALL ANCMSG(MSGID=1104,                                     
      .                         MSGTYPE=MSGERROR,                               
      .                         ANMODE=ANINFO_BLIND_1,                          
      .                         PRMOD=MSG_CUMU,                                 
@@ -710,7 +700,7 @@ C=======================================================================
      .                         I2=IXS(11,II))                                  
                  ENDIF                                                         
               ENDDO                                                            
-	      IF(l1104)CALL ANCMSG(MSGID=1104,                                          
+                IF(l1104)CALL ANCMSG(MSGID=1104,                                          
      .                    MSGTYPE=MSGERROR,                                    
      .                    ANMODE=ANINFO_BLIND_1,                               
      .                    PRMOD=MSG_PRINT,
@@ -738,7 +728,7 @@ C=======================================================================
      5                    IXC     ,IXTG    ,IPARTC   ,IPARTTG ,NINDX,          
      6                    NINDX_SOL, NINDX_SOL10, INDX, INDX_SOL, INDX_SOL10,  
      7                    SURF_ELM)                                            
-            IF(NUMELIG3D.NE.0) THEN                                            
+            IF(NUMELIG3D/=0) THEN                                            
               CALL SSURFTAGIGEO(IXIG3D,IPARTIG3D,KXIG3D,                       
      2                          BUFTMP ,NSEG   ,                               
      3                          IEXT  ,FLAG     ,IFRE   ,KEY    ,              
@@ -756,8 +746,7 @@ C------------/SURF/PART/EXT FOR QUADS --------------------
             IF (FLAG == 0) THEN                                                                                               
               IGRSURF(IGS)%NSEG = NSEG                                                                                        
               IGRSURF(IGS)%NSEG_IGE = NSEGIGE                                                                                 
-              INSEG=INSEG+NISX*NSEG                                                                                           
-              NUMFAKENODIGEO=NUMFAKENODIGEO+16*NSEGIGE/9 ! remplit la meme fonction que IADTABIGE ! 9 anciennement NIGEOCUT  
+              NUMFAKENODIGEO=NUMFAKENODIGEO+16*NSEGIGE/9 ! same functionality as IADTABIGE
             ENDIF                                                                                                             
           ENDIF                                                                                                               
 C reset BUFTMP to 0 (only where it was set to 1/-1)
@@ -773,7 +762,7 @@ C reset BUFTMP to 0 (only where it was set to 1/-1)
         DEALLOCATE( INDX_SOL10 )      
       ENDIF
 C=======================================================================
-C surfaces de SUBMODELS
+C surfaces from SUBMODELS
 C=======================================================================
       IF (IT6 > 0)THEN
         CALL HM_OPTION_START('/SURF')
@@ -788,24 +777,25 @@ C=======================================================================
           IEXT=0
           IF (KEY(1:6)=='SUBMOD') THEN
             IF(KEY2(1:3)=='EXT')THEN                                               
-              IEXT=1                                                               
+              IEXT=EXT_SURF                                                               
             ELSEIF(KEY2(1:3)=='ALL')THEN                                           
-              IEXT=2                                                               
-            END IF                                                                 
+              IEXT=ALL_SURF                                                               
+            END IF 
+            IGRSURF(IGS)%EXT_ALL = IEXT
 !
             IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0                         
               NSEG0 = IGRSURF(IGS)%NSEG                                            
-              MY_ALLOCATE2D(IGRSURF(IGS)%NODES,NSEG0,4)                            
+              CALL MY_ALLOC(IGRSURF(IGS)%NODES,NSEG0,4)                            
               IGRSURF(IGS)%NODES(1:NSEG0,1:4) = 0                                  
-              MY_ALLOCATE(IGRSURF(IGS)%ELTYP,NSEG0)                                
+              CALL MY_ALLOC(IGRSURF(IGS)%ELTYP,NSEG0)                                
               IGRSURF(IGS)%ELTYP(1:NSEG0) = 0                                      
-              MY_ALLOCATE(IGRSURF(IGS)%ELEM,NSEG0)                                 
+              CALL MY_ALLOC(IGRSURF(IGS)%ELEM,NSEG0)                                 
               IGRSURF(IGS)%ELEM(1:NSEG0) = 0                                       
-              IF (NVOLU + NMONVOL .GT. 0) THEN                                     
+              IF (NVOLU + NMONVOL > 0) THEN                                     
                  NSEG0 = IGRSURF(IGS)%NSEG                                         
                  !Keep track of the "reversed surface" -> when /SURF/PART comes    
                  !with a negative part_id                                          
-                 MY_ALLOCATE(IGRSURF(IGS)%REVERSED, NSEG0)                         
+                 CALL MY_ALLOC(IGRSURF(IGS)%REVERSED, NSEG0)                         
               ENDIF                                                                
             ENDIF                                                                  
 !
@@ -838,7 +828,7 @@ C-----------------------                                                        
               DO II=1,NUMELS                                                       
                  IF(IABS(BUFTMP(IPARTS(II)))==1)THEN                               
                    l1104=.TRUE.
-	           CALL ANCMSG(MSGID=1104,                                         
+                     CALL ANCMSG(MSGID=1104,                                         
      .                         MSGTYPE=MSGERROR,                                   
      .                         ANMODE=ANINFO_BLIND_1,                              
      .                         PRMOD=MSG_CUMU,                                     
@@ -846,7 +836,7 @@ C-----------------------                                                        
      .                         I2=IXS(11,II))                                      
                  ENDIF                                                             
               ENDDO                                                                
-	      IF(l1104)CALL ANCMSG(MSGID=1104,                                              
+                IF(l1104)CALL ANCMSG(MSGID=1104,                                              
      .                    MSGTYPE=MSGERROR,                                        
      .                    ANMODE=ANINFO_BLIND_1,                                   
      .                    I1=ID,                                                   
@@ -874,7 +864,6 @@ C-------------------------
      7                    SURF_ELM)                                            
             IF (FLAG == 0) THEN                                                
               IGRSURF(IGS)%NSEG = NSEG                                         
-              INSEG=INSEG+NISX*NSEG                                            
             ENDIF                                                              
 C-------------------------
           ENDIF
@@ -886,7 +875,7 @@ C reset BUFTMP to 0 (only where it was set to 1/-1)
         ENDDO
       ENDIF
 C=======================================================================
-C SURFACE FORMEE DE GROUPE DE COQUES (4N ET 3N)
+C SURFACE FROM GROUP OF SHELLS (4N ET 3N)
 C=======================================================================
       IF (IT4 /= 0) THEN
         CALL HM_OPTION_START('/SURF')
@@ -905,18 +894,18 @@ C-----------                                              --
 !
             IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0  
               NSEG0 = IGRSURF(IGS)%NSEG                     
-              MY_ALLOCATE2D(IGRSURF(IGS)%NODES,NSEG0,4)     
+              CALL MY_ALLOC(IGRSURF(IGS)%NODES,NSEG0,4)     
               IGRSURF(IGS)%NODES(1:NSEG0,1:4) = 0           
-              MY_ALLOCATE(IGRSURF(IGS)%ELTYP,NSEG0)         
+              CALL MY_ALLOC(IGRSURF(IGS)%ELTYP,NSEG0)         
               IGRSURF(IGS)%ELTYP(1:NSEG0) = 0               
-              MY_ALLOCATE(IGRSURF(IGS)%ELEM,NSEG0)          
+              CALL MY_ALLOC(IGRSURF(IGS)%ELEM,NSEG0)          
               IGRSURF(IGS)%ELEM(1:NSEG0) = 0                
 !
-              IF (NVOLU + NMONVOL .GT. 0) THEN              
+              IF (NVOLU + NMONVOL > 0) THEN              
                  NSEG0 = IGRSURF(IGS)%NSEG                  
                  !     Keep track of the "reversed surface" -> when /SURF/PART comes
                  !     with a negative part_id
-                   MY_ALLOCATE(IGRSURF(IGS)%REVERSED, NSEG0)
+                   CALL MY_ALLOC(IGRSURF(IGS)%REVERSED, NSEG0)
               ENDIF
             ENDIF
 !
@@ -931,25 +920,24 @@ C-----------                                              --
      .                    INDX,NINDX,NSEG_TOT)                           
             IF (FLAG == 0) THEN                                          
               IGRSURF(IGS)%NSEG = NSEG                                   
-              INSEG=INSEG+NISX*NSEG                                      
             ENDIF                                                        
 C---
           ELSEIF (KEY(1:6)=='GRSH3N' .OR. KEY(1:6)=='GRTRIA') THEN
 !
             IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0                              
               NSEG0 = IGRSURF(IGS)%NSEG                                                 
-              MY_ALLOCATE2D(IGRSURF(IGS)%NODES,NSEG0,4)                                 
+              CALL MY_ALLOC(IGRSURF(IGS)%NODES,NSEG0,4)                                 
               IGRSURF(IGS)%NODES(1:NSEG0,1:4) = 0                                       
-              MY_ALLOCATE(IGRSURF(IGS)%ELTYP,NSEG0)                                     
+              CALL MY_ALLOC(IGRSURF(IGS)%ELTYP,NSEG0)                                     
               IGRSURF(IGS)%ELTYP(1:NSEG0) = 0                                           
-              MY_ALLOCATE(IGRSURF(IGS)%ELEM,NSEG0)                                      
+              CALL MY_ALLOC(IGRSURF(IGS)%ELEM,NSEG0)                                      
               IGRSURF(IGS)%ELEM(1:NSEG0) = 0                                            
 !
-              IF (NVOLU + NMONVOL .GT. 0) THEN                                          
+              IF (NVOLU + NMONVOL > 0) THEN                                          
                  NSEG0 = IGRSURF(IGS)%NSEG                                              
                  !     Keep track of the "reversed surface" -> when /SURF/PART comes    
                  !     with a negative part_id                                          
-                 MY_ALLOCATE(IGRSURF(IGS)%REVERSED, NSEG0)                              
+                 CALL MY_ALLOC(IGRSURF(IGS)%REVERSED, NSEG0)                              
               ENDIF                                                                     
             ENDIF                                                                       
 !
@@ -964,7 +952,6 @@ C---
      .                    INDX,NINDX,NSEG_TOT)                                          
             IF (FLAG == 0) THEN                                                         
               IGRSURF(IGS)%NSEG = NSEG                                                  
-              INSEG=INSEG+NISX*NSEG                                                     
             ENDIF                                                                       
           ENDIF
           !reset BUFTMP to 0 (only where it was set to 1/-1)
@@ -977,7 +964,7 @@ C-----------
       ENDIF!(IT4 /= 0)
 
 C=======================================================================
-C SURFACE ANALYTIQUE (ETC).
+C SURFACE WITH FORMAL EQUATION (ETC).
 C=======================================================================
       MAD=0
       IF (IT5 /= 0 .AND. FLAG == 1)THEN
@@ -1000,9 +987,9 @@ C=======================================================================
             DGR1=0            
             CALL HM_GET_INTV  ('SKEW' ,ISKEW,IS_AVAILABLE,LSUBMODEL)
             CALL HM_GET_INTV  ('n' ,DGR1,IS_AVAILABLE,LSUBMODEL)            
-            !Stockage temporaire du No de Skew User.                          
+            !skew:temporary storage of user id                           
             IGRSURF(IGS)%ID_MADYMO = ISKEW                                   
-            !Decodage du SKEW a partir de son identificateur. 
+            !get internal id from user id 
             lFOUND=.FALSE.                
             DO J=0,NUMSKW+MIN(1,NSPCOND)*NUMSPH+NSUBMOD                      
              IF(ISKEW==ISKN(4,J+1)) THEN                                     
@@ -1022,7 +1009,7 @@ C=======================================================================
      .                    I2=ISKEW)                                          
 C
             ELSE                                                       
-C           Initialisation de la rotation de la surface.                     
+C           Init surface rotation                     
               DO J=1,9                                                         
                 BUFSF(MAD+7+J-1)=SKEW(J,ISKEW)                                  
               END DO                                                           
@@ -1035,8 +1022,8 @@ C
             BUFSF(MAD+4)=XG                                                  
             BUFSF(MAD+5)=YG                                                  
             BUFSF(MAD+6)=ZG                                                  
-            !Initialisation du point d'application des forces et moments.     
-            !/* ellipsoides : on choisit le centre de l'ellipsoide  ! */      
+            !Init application point for force and momentum     
+            !/* ellipsoides : defining center ! */      
             BUFSF(MAD+16)=XG                                                 
             BUFSF(MAD+17)=YG                                                 
             BUFSF(MAD+18)=ZG                                                 
@@ -1058,18 +1045,12 @@ C
             ELSEIF (DGR1==0) THEN                                            
              DGR1=DGR                                                        
             ENDIF                                                            
-c            IF (DGR1.LT.2) THEN                                              
-c               CALL ANCMSG(MSGID=186,                                        
-c     .                     MSGTYPE=MSGERROR,                                 
-c     .                     ANMODE=ANINFO,                                    
-c     .                     I1=ID,                                            
-c     .                     C1=TITR)                                          
-c            ENDIF                                                            
+                                                        
             BUFSF(MAD+1)=S_A                                                  
             BUFSF(MAD+2)=S_B                                                  
             BUFSF(MAD+3)=S_C                                                  
             BUFSF(MAD+36)=DGR1                                               
-C
+
             MAD=MAD+36                                                       
           ELSEIF (KEY(1:8)=='MDELLIPS')THEN                                  
             IGRSURF(IGS)%ID = ID                                             
@@ -1077,9 +1058,9 @@ C
             IGRSURF(IGS)%IAD_BUFR = MAD                                      
             MFI=MFI+43                                                       
             CALL HM_GET_INTV  ('MDELLIPS' ,REFMAD,IS_AVAILABLE,LSUBMODEL)                                                            
-            !ID MaDyMo de l'entite qui impose le mvt de la surface :          
+            !ID MaDyMo of entity which imposes the surface movement          
             IGRSURF(IGS)%ID_MADYMO = REFMAD                                  
-            !No systeme MaDyMo de l'entite qui impose le mvt de la surface    
+            !Madymo syst id of entity which imposes the surface movement    
             !(computed in Radioss Engine, when receiving Datas from MaDyMo).  
             IGRSURF(IGS)%NB_MADYMO = 0                                       
             MAD=MAD+43                                                       
@@ -1087,7 +1068,7 @@ C
         ENDDO
       ENDIF
 C=======================================================================
-C SURFACE INFINITE PLANE
+C INFINITE PLANE
 C=======================================================================
       IADPL = MAD
       IF (IT9 /= 0 .AND. FLAG == 1)THEN
@@ -1102,14 +1083,14 @@ C=======================================================================
      .                            SUBMODEL_ID = SUB_ID)     
             IGRSURF(IGS)%TITLE = TITR
             IFLAGUNIT = 0
-            DO J=1,NUNITS
+            DO J=1,UNITAB%NUNITS
               IF (UNITAB%UNIT_ID(J) == UID) THEN
                 FAC_L = UNITAB%FAC_L(J)
                 IFLAGUNIT = 1
                 EXIT
               ENDIF
             ENDDO
-            IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+            IF (UID/=0.AND.IFLAGUNIT==0) THEN
               CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                    I2=UID,I1=ID,C1='SURFACE',
      .                 C2='SURFACE',
@@ -1139,26 +1120,18 @@ C=======================================================================
               CALL HM_GET_FLOATV  ('Z_B' ,ZP2,IS_AVAILABLE,LSUBMODEL,UNITAB)                                                            
               IF(SUB_ID /= 0)CALL SUBROTPOINT(XP2,YP2,ZP2,RTRANS,SUB_ID,LSUBMODEL)
 
-              IF(IFLAGUNIT /= 0)THEN
-                XP1  = XP1  * FAC_L
-                YP1  = YP1  * FAC_L
-                ZP1  = ZP1  * FAC_L
-                XP2  = XP2  * FAC_L
-                YP2  = YP2  * FAC_L
-                ZP2  = ZP2  * FAC_L
-              ENDIF
               VECTX = (XP2-XP1)*(XP2-XP1)
               VECTY = (YP2-YP1)*(YP2-YP1)
               VECTZ = (ZP2-ZP1)*(ZP2-ZP1)
               VECT  = SQRT(VECTX+VECTY+VECTZ)
-              IF(VECT .LE. EM10)THEN
+              IF(VECT <= EM10)THEN
                 CALL ANCMSG(MSGID=891,
      .                      MSGTYPE=MSGERROR,
      .                      ANMODE=ANINFO,
      .                      I1=ID,
      .                      C1=TITR)
               ENDIF
-C             Stockage du normal vector (reel)
+C             Normal Vector
               BUFSF(IADPL+1)=XP1
               BUFSF(IADPL+2)=YP1
               BUFSF(IADPL+3)=ZP1
@@ -1180,8 +1153,7 @@ C=======================================================================
         DEALLOCATE( SURF_ELM )  
       ENDIF
       RETURN
- 900  CONTINUE
-      !  Il n y a pas de label 900 ...
+
       CALL ANCMSG(MSGID=189,
      .            MSGTYPE=MSGERROR,
      .            ANMODE=ANINFO,

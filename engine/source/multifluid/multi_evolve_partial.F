@@ -1,46 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MULTI_EVOLVE_PARTIAL          source/multifluid/multi_evolve_partial.F
-Chd|-- called by -----------
-Chd|        MULTI_TIMEEVOLUTION           source/multifluid/multi_timeevolution.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    multi_evolve_partial   ../engine/source/multifluid/multi_evolve_partial.F
+!||--- called by ------------------------------------------------------
+!||    multi_timeevolution    ../engine/source/multifluid/multi_timeevolution.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod            ../engine/share/resol/initbuf.F
+!||    multi_fvm_mod          ../common_source/modules/ale/multi_fvm_mod.F90
+!||====================================================================
       SUBROUTINE MULTI_EVOLVE_PARTIAL(TIMESTEP, NG, ELBUF_TAB, 
      .     IPARG, ITASK, IXS, IXQ, IXTG, MULTI_FVM, 
      .     PM, IPM, GRAVITY, CURRENT_TIME)
-C-----------------------------------------------
-C     D e s c r i p t i o n
-C-----------------------------------------------
 C-----------------------------------------------
 C     M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD      
       USE ELBUFDEF_MOD
       USE MULTI_FVM_MOD
+      use element_mod , only : nixs,nixq,nixtg
 C-----------------------------------------------
 C     I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,7 +49,6 @@ C     C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
 C     D u m m y   A r g u m e n t s
@@ -101,7 +99,7 @@ C-----------------------------------------------
 
       PSHIFT = MULTI_FVM%PRES_SHIFT
 
-      IF (MULTI_FVM%NBMAT .GT. 1) THEN
+      IF (MULTI_FVM%NBMAT > 1) THEN
 !DIR$ NOVECTOR
          DO IMAT = 1, MULTI_FVM%NBMAT
             LBUFS(IMAT)%LBUF => ELBUF_TAB(NG)%BUFLY(IMAT)%LBUF(1, 1, 1)
@@ -109,14 +107,14 @@ C-----------------------------------------------
       ENDIF
       DO IMAT = 1, MULTI_FVM%NBMAT
 
-         IF (MULTI_FVM%SYM .EQ. 0) THEN
+         IF (MULTI_FVM%SYM == 0) THEN
             NB_FACE = 6
             LOCAL_MATID = IPM(20 + IMAT, IXS(1, 1 + NFT))
-         ELSEIF (ITY .EQ. 2) THEN
+         ELSEIF (ITY == 2) THEN
 C     QUADS
             NB_FACE = 4
             LOCAL_MATID = IPM(20 + IMAT, IXQ(1, 1 + NFT))
-         ELSEIF (ITY .EQ. 7) THEN
+         ELSEIF (ITY == 7) THEN
 C     TRIANGLES
             NB_FACE = 3
             LOCAL_MATID = IPM(20 + IMAT, IXTG(1, 1 + NFT))
@@ -126,8 +124,8 @@ C     TRIANGLES
 C     UPDATE
          DO II = 1, NEL
             I = II + NFT
-C     Fluxes sum
-            IF (MULTI_FVM%SYM .EQ. 0 .AND. ISOLNOD .NE. 4) THEN
+C     SUM Flow
+            IF (MULTI_FVM%SYM == 0 .AND. ISOLNOD /= 4) THEN
 C     Volume flux
                SUMFLUX(1) = MULTI_FVM%SUBVOL_FLUXES(IMAT, 1, I) + MULTI_FVM%SUBVOL_FLUXES(IMAT, 2, I) + 
      .              MULTI_FVM%SUBVOL_FLUXES(IMAT, 3, I) + MULTI_FVM%SUBVOL_FLUXES(IMAT, 4, I) +
@@ -140,7 +138,7 @@ C     Energy flux
                SUMFLUX(3) = MULTI_FVM%SUBENER_FLUXES(IMAT, 1, I) + MULTI_FVM%SUBENER_FLUXES(IMAT, 2, I) + 
      .              MULTI_FVM%SUBENER_FLUXES(IMAT, 3, I) + MULTI_FVM%SUBENER_FLUXES(IMAT, 4, I) +
      .              MULTI_FVM%SUBENER_FLUXES(IMAT, 5, I) + MULTI_FVM%SUBENER_FLUXES(IMAT, 6, I)
-            ELSEIF (ISOLNOD .EQ. 4) THEN
+            ELSEIF (ISOLNOD == 4) THEN
 C     Volume flux
                SUMFLUX(1) = MULTI_FVM%SUBVOL_FLUXES(IMAT, 5, I) + MULTI_FVM%SUBVOL_FLUXES(IMAT, 6, I) + 
      .              MULTI_FVM%SUBVOL_FLUXES(IMAT, 2, I) + MULTI_FVM%SUBVOL_FLUXES(IMAT, 4, I)
@@ -161,7 +159,7 @@ C     Mass flux
 C     Energy flux
                SUMFLUX(3) = MULTI_FVM%SUBENER_FLUXES(IMAT, 1, I) + MULTI_FVM%SUBENER_FLUXES(IMAT, 2, I) + 
      .              MULTI_FVM%SUBENER_FLUXES(IMAT, 3, I)
-               IF (ITY .EQ. 2) THEN
+               IF (ITY == 2) THEN
 C     QUADS
 C     Volume flux
                   SUMFLUX(1) = SUMFLUX(1) + MULTI_FVM%SUBVOL_FLUXES(IMAT, 4, I)
@@ -173,7 +171,7 @@ C     Energy flux
             ENDIF         
             
             SUM_NORMALVEL = ZERO
-            IF (MULTI_FVM%SYM .EQ. 0 .AND. ISOLNOD .EQ. 4) THEN
+            IF (MULTI_FVM%SYM == 0 .AND. ISOLNOD == 4) THEN
                KFACE = 5
                NORMAL_VEL = MULTI_FVM%FLUXES(6, KFACE, I)
                SUM_NORMALVEL = SUM_NORMALVEL + NORMAL_VEL

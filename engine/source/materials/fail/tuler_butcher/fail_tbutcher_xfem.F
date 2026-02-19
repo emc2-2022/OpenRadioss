@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_TBUTCHER_XFEM            source/materials/fail/tuler_butcher/fail_tbutcher_xfem.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_tbutcher_xfem   ../engine/source/materials/fail/tuler_butcher/fail_tbutcher_xfem.F
+!||--- called by ------------------------------------------------------
+!||    mulawc               ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell        ../engine/source/materials/mat_share/usermat_shell.F
+!||====================================================================
       SUBROUTINE FAIL_TBUTCHER_XFEM(
      1     NEL      ,NUPARAM  ,UPARAM   ,NUVAR    ,UVAR     ,
      2     TIME     ,TIMESTEP ,TENS     ,DFMAX    ,TDEL     ,
@@ -81,13 +80,13 @@ C-----------------------------------------------
       INTEGER NGL(NEL),ELCRKINI(NXLAYMAX,*),NOFF(NEL)
       my_real 
      .   TIME,TIMESTEP(NEL),UPARAM(NUPARAM),NPTTF(NEL),
-     .   SIGNXX(NEL),SIGNYY(NEL),SIGNZZ(NEL),SIGNXY(NEL),SIGNYZ(NEL),
+     . SIGNXX(NEL),SIGNYY(NEL),SIGNXY(NEL),SIGNYZ(NEL),
      .   SIGNZX(NEL),TENS(NEL,5),DFMAX(NEL),TDEL(NEL)
 C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
       my_real UVAR(NEL,NUVAR), OFF(NEL),OFFL(NEL)
-      my_real, DIMENSION(:) ,POINTER  :: SIGSAV
+ 
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -103,12 +102,9 @@ C=======================================================================
       SIGR_INI = UPARAM(3)                        
       ISHELL   = INT(UPARAM(4))                     
       IBRIT    = INT(UPARAM(6))                   
-      LAYXFEM  = INT(UPARAM(7))                  
       BRIT_B   = UPARAM(8)                        
       BRIT_C   = UPARAM(9)                        
       DADV     = UPARAM(10)
-c-----------------------------
-      IF (LAYXFEM == 0) RETURN
 c-----------------------------
       LAYXFEM = IXFEM
       IF (LAYXFEM == 1 .and. ISHELL == 1) ISHELL = 2
@@ -479,10 +475,6 @@ c---  Maximum Damage storing for output : 0 < DFMAX < 1
         DFMAX(I) = MIN(ONE, MAX(DFMAX(I),UVAR(I,1)/TBK))
       ENDDO
 C-----------------------------------------------
- 2000 FORMAT(1X,'FOR SHELL ELEMENT',I10,1X,'LAYER',I3,':',/
-     .       1X, 'STRESS TENSOR SET TO ZERO (TBUTCHER)')
- 2100 FORMAT(1X,'FOR SHELL ELEMENT',I10,1X,'LAYER',I3,':',/,
-     .       1X, 'STRESS TENSOR SET TO ZERO (TBUTCHER)',1X,'AT TIME :',1PE20.13)
 c---  multilayer xfem
  3000 FORMAT(1X,'CRACK INITIALIZATION IN SHELL ELEMENT',I10,1X,'LAYER',I3)
  3100 FORMAT(1X,'CRACK INITIALIZATION IN SHELL ELEMENT',I10,1X,'LAYER',I3,/

@@ -1,55 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_LINES                 source/groups/hm_read_lines.F 
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        DEALLOCATE_SURF_ELM           source/groups/init_surf_elm.F 
-Chd|        HM_BIGSBOX                    source/groups/hm_bigsbox.F    
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SUBMODPART                 source/groups/hm_submodpart.F 
-Chd|        HM_SURFGR2                    source/groups/hm_surfgr2.F    
-Chd|        HM_TAGPART2                   source/groups/hm_tagpart2.F   
-Chd|        INIT_SURF_ELM                 source/groups/init_surf_elm.F 
-Chd|        LINEDGE                       source/groups/linedge.F       
-Chd|        SURFTAG                       source/groups/surftag.F       
-Chd|        SURFTAGE                      source/groups/surftage.F      
-Chd|        SURFTAGX                      source/groups/surftag.F       
-Chd|        UDOUBLE_IGR                   source/system/sysfus.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MAPPING_OPTION_MOD            share/modules1/dichotomy_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|        SURF_MOD                      share/modules1/surf_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_lines            ../starter/source/groups/hm_read_lines.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    deallocate_surf_elm      ../starter/source/groups/init_surf_elm.F
+!||    hm_bigsbox               ../starter/source/groups/hm_bigsbox.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_submodpart            ../starter/source/groups/hm_submodpart.F
+!||    hm_surfgr2               ../starter/source/groups/hm_surfgr2.F
+!||    hm_tagpart2              ../starter/source/groups/hm_tagpart2.F
+!||    init_surf_elm            ../starter/source/groups/init_surf_elm.F
+!||    linedge                  ../starter/source/groups/linedge.F
+!||    surftag                  ../starter/source/groups/surftag.F
+!||    surftage                 ../starter/source/groups/surftage.F
+!||    surftagx                 ../starter/source/groups/surftag.F
+!||    udouble_igr              ../starter/source/system/sysfus.F
+!||    usr2sys                  ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    mapping_option_mod       ../starter/share/modules1/dichotomy_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    reader_old_mod           ../starter/share/modules1/reader_old_mod.F90
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||    surf_mod                 ../starter/share/modules1/surf_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_LINES(
      1           ITAB   ,ITABM1 ,
      2           ISUBMOD,IGRSLIN,IGRSURF,X      ,IXS    ,
@@ -63,14 +63,18 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE UNITAB_MOD
-      USE SUBMODEL_MOD
+      USE SUBMODEL_MOD , ONLY : NSUBMOD, SUBMODEL_DATA
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
       USE OPTIONDEF_MOD
       USE SURF_MOD
       USE HM_OPTION_READ_MOD
       USE MAPPING_OPTION_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      USE READER_OLD_MOD , ONLY : LINE, KLINE
+      use element_mod , only : nixs, nixq, nixc, nixt, nixp, nixr, nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -79,15 +83,9 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "scr23_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "sysunit.inc"
-#include      "my_allocate.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -123,10 +121,10 @@ C-----------------------------------------------
       my_real
      .        XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,BID,FAC_L,
      .        DIAM,XP1,YP1,ZP1,XP2,YP2,ZP2
-      CHARACTER TITR*nchartitle,KEY*ncharkey,MESS*40,KEY2*ncharkey
+      CHARACTER(LEN=NCHARTITLE) :: TITR,TITR1,STRING
+      CHARACTER(LEN=NCHARKEY) :: KEY,KEY2
+      CHARACTER MESS*40
       INTEGER, DIMENSION(:),ALLOCATABLE :: BUFBOX, BUFTMP, INDX,TAGT ,TAGP
-      CHARACTER*nchartitle,
-     .   TITR1,STRING
       LOGICAL :: FLAG_GRBRIC
       INTEGER :: MODE, NENTITY
       TYPE(PART_TYPE), DIMENSION(:), ALLOCATABLE :: SURF_ELM
@@ -135,12 +133,12 @@ C-----------------------------------------------
 C   D e s c r i p t i o n 
 C-----------------------------------------------
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*       
-!       FLAG_GRBRIC : flag to initialize the INDX_SOL(10) arraies
+!       FLAG_GRBRIC : flag to initialize the INDX_SOL(10) arrays
 !                     and optimize an old and expensive treatment in SSURFTAG 
 !                     NOT USED IN THIS ROUTINE !!!!!!!!!!!!     
 !       MODE : integer
 !              switch to initialize solid/shell/shell3n or truss/beam/spring
-!       SURF_ELM : PART_TYPE structur 
+!       SURF_ELM : PART_TYPE structure 
 !                  %Nxxx : number of element per part
 !                  %xxx_PART : ID of the element 
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -158,7 +156,6 @@ C-----------------------------------------------
 !   1. Set processor only when no element is set in lines
 !   2. Split lines accordingly
 !
-C-----------------------------------------------
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -217,13 +214,13 @@ C-----------------------------------------------
           IF (FLAG == 0) THEN                                              
             CALL HM_GET_INTV('segmax',NSEG,IS_AVAILABLE,LSUBMODEL)                                             
             IGRSLIN(IGS)%NSEG = NSEG                                       
-            MY_ALLOCATE2D(IGRSLIN(IGS)%NODES,NSEG,2)                       
+            CALL MY_ALLOC(IGRSLIN(IGS)%NODES,NSEG,2)                       
             IGRSLIN(IGS)%NODES(1:NSEG,1:2) = 0                             
-            MY_ALLOCATE(IGRSLIN(IGS)%ELTYP,NSEG)                           
+            CALL MY_ALLOC(IGRSLIN(IGS)%ELTYP,NSEG)                           
             IGRSLIN(IGS)%ELTYP(1:NSEG) = 0                                 
-            MY_ALLOCATE(IGRSLIN(IGS)%ELEM,NSEG)                            
+            CALL MY_ALLOC(IGRSLIN(IGS)%ELEM,NSEG)                            
             IGRSLIN(IGS)%ELEM(1:NSEG) = 0                                  
-            MY_ALLOCATE(IGRSLIN(IGS)%PROC,NSEG)                            
+            CALL MY_ALLOC(IGRSLIN(IGS)%PROC,NSEG)                            
             IGRSLIN(IGS)%PROC(1:NSEG) = 0                                  
           ENDIF  
           IF(FLAG == 1) THEN                    
@@ -238,27 +235,27 @@ C-----------------------------------------------
             ENDDO   
           ENDIF                                                                                   
         ELSEIF(KEY(1:4) == 'PART'.OR.KEY(1:6) == 'SUBSET'.OR. KEY(1:3) == 'MAT' .OR.KEY(1:4) == 'PROP') THEN              
-C         line de SUBSET PART MAT OU PROP                                  
+C         line of SUBSET PART MAT OR PROP
           IT2=IT2+1                                                        
           IF (FLAG == 0) IGRSLIN(IGS)%NSEG = 0                             
         ELSEIF(KEY(1:3) == 'BOX'.AND.NBBOX == 0 .AND.(KEY2(1:5) /= 'RECTA'.AND.KEY2(1:5) /= 'CYLIN'.AND.KEY2(1:5) /= 'SPHER'))THEN             
-C         line dans un box (old)                                           
+C         line in a box (old)
           lERROR=.TRUE.                           
         ELSEIF(KEY(1:2) == 'GR'.OR.KEY(1:4) == 'WIRE') THEN                
-C         line d'ele 2N dans un group d'elements                           
+C         line of ele 2N in an element group
           IT4=IT4+1                                                        
           IF (FLAG == 0) IGRSLIN(IGS)%NSEG = 0                             
         ELSEIF(KEY(1:4) == 'SURF'.OR.KEY(1:4) == 'EDGE') THEN              
-C         line d'ele 2N dans une surface ou son bord                       
+C         line of ele 2N in a surface or its edge
           IT5=IT5+1                                                        
           IF (FLAG == 0) IGRSLIN(IGS)%NSEG = 0                             
         ELSEIF(KEY(1:6) == 'SUBMOD') THEN                                  
-C         line de submodel                                                 
+C         line of submodel
           IT6=IT6+1                                                        
           IF (FLAG == 0) IGRSLIN(IGS)%NSEG = 0                             
         ELSEIF(KEY(1:3) == 'BOX'.AND.(KEY2(1:5) == 'RECTA'.OR. KEY2(1:5) == 'CYLIN'.OR.KEY2(1:5) == 'SPHER'))THEN               
           !old /grnod/box (not /BOX/BOX)                                    
-          !line dans un box (classical box, parallelepiped (oriented),      
+          !line in a box (classical box, parallelepiped (oriented),
           !          cylindrical, spherical)                                
           lERROR=.TRUE.                             
         ELSEIF(KEY(1:3) == 'BOX' .AND. NBBOX > 0)THEN                      
@@ -279,7 +276,7 @@ C         line de submodel
       ENDDO
 
 C-------------------------------------
-C Recherche des ID doubles
+C Search for double IDs
 C-------------------------------------
       IF (FLAG == 0) THEN
         DO IGS=1,NSLIN
@@ -331,26 +328,26 @@ C-------------------------
               NSEG=0
               IADBOX = 1
               IFLAGUNIT = 0
-              DO J=1,NUNITS
+              DO J=1,UNITAB%NUNITS
                 IF (UNITAB%UNIT_ID(J) == UID) THEN
                   FAC_L = UNITAB%FAC_L(J)
                   IFLAGUNIT = 1
                   EXIT
                 ENDIF
               ENDDO
-              IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+              IF (UID/=0.AND.IFLAGUNIT==0) THEN
                 CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,I2=UID,I1=ID,C1='LINE',C2='LINE',C3=TITR)
               ENDIF
 
               IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0
                 NSEG0 = IGRSLIN(IGS)%NSEG
-                MY_ALLOCATE2D(IGRSLIN(IGS)%NODES,NSEG0,2)
+                CALL MY_ALLOC(IGRSLIN(IGS)%NODES,NSEG0,2)
                 IGRSLIN(IGS)%NODES(1:NSEG0,1:2) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELTYP,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELTYP,NSEG0)
                 IGRSLIN(IGS)%ELTYP(1:NSEG0) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELEM,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELEM,NSEG0)
                 IGRSLIN(IGS)%ELEM(1:NSEG0) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%PROC,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%PROC,NSEG0)
                 IGRSLIN(IGS)%PROC(1:NSEG0) = 0
               ENDIF
 
@@ -386,7 +383,7 @@ C-------------------------
       ENDIF ! IF(IT8 /= 0)
 C---
 C=======================================================================
-C ligne de SUBSETS,PART,MAT,PROP
+C line of subsets, share, mat, prop
 C=======================================================================
       IF(IT2/=0.OR.IT6/=0) THEN
         ALLOCATE( SURF_ELM(NPART) )        
@@ -412,13 +409,13 @@ C=======================================================================
             IF (KEY(1:4) == 'PART'.OR.KEY(1:6) == 'SUBSET'.OR. KEY(1:3) == 'MAT' .OR.KEY(1:4) == 'PROP') THEN
               IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0
                 NSEG0 = IGRSLIN(IGS)%NSEG
-                MY_ALLOCATE2D(IGRSLIN(IGS)%NODES,NSEG0,2)
+                CALL MY_ALLOC(IGRSLIN(IGS)%NODES,NSEG0,2)
                 IGRSLIN(IGS)%NODES(1:NSEG0,1:2) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELTYP,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELTYP,NSEG0)
                 IGRSLIN(IGS)%ELTYP(1:NSEG0) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELEM,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELEM,NSEG0)
                 IGRSLIN(IGS)%ELEM(1:NSEG0) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%PROC,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%PROC,NSEG0)
                 IGRSLIN(IGS)%PROC(1:NSEG0) = 0
               ENDIF
               CALL HM_TAGPART2(BUFTMP,IPART ,KEY   ,
@@ -448,7 +445,7 @@ C=======================================================================
       ENDIF
 
 C=======================================================================
-C ligne de SUBMODELS
+C line of SUBMODELS
 C=======================================================================
       IGS=0
       IF (IT6 > 0)THEN
@@ -465,13 +462,13 @@ C=======================================================================
             IF (KEY(1:6)=='SUBMOD') THEN
               IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0
                 NSEG0 = IGRSLIN(IGS)%NSEG
-                MY_ALLOCATE2D(IGRSLIN(IGS)%NODES,NSEG0,2)
+                CALL MY_ALLOC(IGRSLIN(IGS)%NODES,NSEG0,2)
                 IGRSLIN(IGS)%NODES(1:NSEG0,1:2) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELTYP,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELTYP,NSEG0)
                 IGRSLIN(IGS)%ELTYP(1:NSEG0) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELEM,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELEM,NSEG0)
                 IGRSLIN(IGS)%ELEM(1:NSEG0) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%PROC,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%PROC,NSEG0)
                 IGRSLIN(IGS)%PROC(1:NSEG0) = 0
               ENDIF
 !
@@ -497,7 +494,7 @@ C reset BUFTMP to 0 (only where it was set to 1/-1)
         ENDDO
       ENDIF
 C=======================================================================
-C ligne de bord de surface
+C edge line of surface
 C=======================================================================
       IF (IT5 /= 0) THEN
         CALL HM_OPTION_START('/LINE')
@@ -543,13 +540,13 @@ C=======================================================================
                 ENDIF                                                                      
               ENDDO
               IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0
-                MY_ALLOCATE2D(IGRSLIN(IGS)%NODES, IGRSLIN(IGS)%NSEG,2)
+                CALL MY_ALLOC(IGRSLIN(IGS)%NODES, IGRSLIN(IGS)%NSEG,2)
                 IGRSLIN(IGS)%NODES(1:IGRSLIN(IGS)%NSEG,1:2) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELTYP,IGRSLIN(IGS)%NSEG)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELTYP,IGRSLIN(IGS)%NSEG)
                 IGRSLIN(IGS)%ELTYP(1:IGRSLIN(IGS)%NSEG) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELEM,IGRSLIN(IGS)%NSEG)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELEM,IGRSLIN(IGS)%NSEG)
                 IGRSLIN(IGS)%ELEM(1:IGRSLIN(IGS)%NSEG) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%PROC,IGRSLIN(IGS)%NSEG)
+                CALL MY_ALLOC(IGRSLIN(IGS)%PROC,IGRSLIN(IGS)%NSEG)
                 IGRSLIN(IGS)%PROC(1:IGRSLIN(IGS)%NSEG) = 0
               ENDIF
               IF (NSEG0 > 0) THEN
@@ -569,7 +566,7 @@ C=======================================================================
         ENDDO
       ENDIF
 C=======================================================================
-C LIGNE FORMEE DE GROUPE DE TRUSS POUTRE RESSORT
+C LINE FORMED OF TRUSS BEAM SPRING GROUP
 C=======================================================================
       IF (IT4 /= 0) THEN
         CALL HM_OPTION_START('/LINE')
@@ -586,13 +583,13 @@ C=======================================================================
             IF (KEY(1:2) == 'GR'.OR.KEY(1:4) == 'WIRE') THEN
               IF (FLAG == 1) THEN ! NSEG counted at FLAG = 0
                 NSEG0 = IGRSLIN(IGS)%NSEG
-                MY_ALLOCATE2D(IGRSLIN(IGS)%NODES,NSEG0,2)
+                CALL MY_ALLOC(IGRSLIN(IGS)%NODES,NSEG0,2)
                 IGRSLIN(IGS)%NODES(1:NSEG0,1:2) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELTYP,IGRSLIN(IGS)%NSEG)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELTYP,IGRSLIN(IGS)%NSEG)
                 IGRSLIN(IGS)%ELTYP(1:IGRSLIN(IGS)%NSEG) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELEM,IGRSLIN(IGS)%NSEG)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELEM,IGRSLIN(IGS)%NSEG)
                 IGRSLIN(IGS)%ELEM(1:IGRSLIN(IGS)%NSEG) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%PROC,NSEG0)
+                CALL MY_ALLOC(IGRSLIN(IGS)%PROC,NSEG0)
                 IGRSLIN(IGS)%PROC(1:NSEG0) = 0
               ENDIF
               IF(KEY(1:6) == 'GRSPRI') THEN
@@ -636,7 +633,7 @@ C-----------
 C=======================================================================
       DEALLOCATE(BUFTMP,INDX)
       IF(IT2/=0.OR.IT6/=0) THEN
-!       deallocation of SURT_ELM structur
+!       deallocation of SURT_ELM structure
         MODE = 2
         CALL DEALLOCATE_SURF_ELM(NPART,SURF_ELM,MODE)
         DEALLOCATE( SURF_ELM ) 

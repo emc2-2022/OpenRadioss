@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALEFVM_AFLUX3                 source/ale/alefvm/alefvm_aflux3.F
-Chd|-- called by -----------
-Chd|        AFLUX0                        source/ale/aflux0.F           
-Chd|-- calls ---------------
-Chd|        ALEFVM_MOD                    ../common_source/modules/alefvm_mod.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
-      SUBROUTINE ALEFVM_AFLUX3(PM   ,IXS  ,V     ,W       ,FLUX ,
-     2                         FLU1 ,VEUL ,ALE_CONNECT  ,TAG22,
-     3                         IPM  ,NV46 ,MOM   ,ITASK   ,X    ,
-     4                         NEL  )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    alefvm_aflux3          ../engine/source/ale/alefvm/alefvm_aflux3.F
+!||--- called by ------------------------------------------------------
+!||    aflux0                 ../engine/source/ale/aflux0.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    alefvm_mod             ../common_source/modules/ale/alefvm_mod.F
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    i22tri_mod             ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
+      SUBROUTINE ALEFVM_AFLUX3(PM   ,IXS  ,W            ,FLUX ,
+     2                         FLU1 ,ALE_CONNECT  ,
+     3                         IPM  ,NV46 ,X            ,
+     4                         NEL  ,s_flux)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C 'alefvm' is related to a collocated scheme (built from FVM and based on Godunov scheme)
 C  which was temporarily introduced for experimental option /INTER/TYPE22 (FSI coupling with cut cell method)
-C This cut cell method is not completed, abandonned, and is not an official option.
+C This cut cell method is not completed, abandoned, and is not an official option.
 C There is no other use for this scheme which is automatically enabled when /INTER/TYPE22 is defined (INT22>0 => IALEFVM=1).
 C
 C This subroutine is treating an uncut cell.
@@ -48,6 +49,7 @@ C-----------------------------------------------
       USE I22TRI_MOD
       USE ALEFVM_MOD
       USE ALE_CONNECTIVITY_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -62,21 +64,19 @@ C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "inter22.inc"
-#include      "alefvm.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      integer, intent(in) :: s_flux !< first dimension of FLUX array
       INTEGER :: IXS(NIXS,*), NV46, IPM(NPROPMI,*),NEL
-      my_real :: PM(NPROPM,*), V(3,*), FLUX(6,*), FLU1(*), VEUL(LVEUL,*), TAG22(*),MOM(NEL,3),X(3,*),W(3,*)
+      my_real :: PM(NPROPM,*), FLUX(s_flux,6), FLU1(*), X(3,*),W(3,*)
       TYPE(t_ale_connectivity), INTENT(IN) :: ALE_CONNECT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER MAT(MVSIZ), NC1(MVSIZ), NC2(MVSIZ), NC3(MVSIZ), NC4(MVSIZ), NC5(MVSIZ), NC6(MVSIZ),
-     .   NC7(MVSIZ), NC8(MVSIZ), I, II,J,IMAT,IALEFVM_FLG,IDV, ITASK,ICF(4,6),
+     .   NC7(MVSIZ), NC8(MVSIZ), I, II,J,IMAT,IALEFVM_FLG,IDV, ICF(4,6),
      .   IX1,IX2,IX3,IX4
       my_real
      .   X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), X4(MVSIZ), X5(MVSIZ), X6(MVSIZ), X7(MVSIZ), X8(MVSIZ),
@@ -87,11 +87,8 @@ C-----------------------------------------------
      .   N6Z(MVSIZ), FLUX1(MVSIZ), FLUX2(MVSIZ), FLUX3(MVSIZ), FLUX4(MVSIZ), FLUX5(MVSIZ),
      .   FLUX6(MVSIZ), VX1(MVSIZ), VX2(MVSIZ), VX3(MVSIZ), VX4(MVSIZ), VX5(MVSIZ), VX6(MVSIZ),
      .   VY1(MVSIZ), VY2(MVSIZ), VY3(MVSIZ), VY4(MVSIZ), VY5(MVSIZ), VY6(MVSIZ), VZ1(MVSIZ), VZ2(MVSIZ),
-     .   VZ3(MVSIZ), VZ4(MVSIZ), VZ5(MVSIZ), VZ6(MVSIZ), VDX1(MVSIZ), VDX2(MVSIZ), VDX3(MVSIZ),
-     .   VDX4(MVSIZ), VDX5(MVSIZ), VDX6(MVSIZ), VDX7(MVSIZ), VDX8(MVSIZ), VDY1(MVSIZ), VDY2(MVSIZ),
-     .   VDY3(MVSIZ), VDY4(MVSIZ), VDY5(MVSIZ), VDY6(MVSIZ), VDY7(MVSIZ), VDY8(MVSIZ), VDZ1(MVSIZ),
-     .   VDZ2(MVSIZ), VDZ3(MVSIZ), VDZ4(MVSIZ), VDZ5(MVSIZ), VDZ6(MVSIZ), VDZ7(MVSIZ), VDZ8(MVSIZ),
-     .   REDUC,UPWL(6,MVSIZ),VALVOIS(6,NV46,MVSIZ), VALEL(6,MVSIZ),VEC(3,6),Cf(3,MVSIZ),
+     .   VZ3(MVSIZ), VZ4(MVSIZ), VZ5(MVSIZ), VZ6(MVSIZ),
+     .   REDUC,UPWL(MVSIZ,6),VALVOIS(6,NV46,MVSIZ), VALEL(6,MVSIZ),VEC(3,6),Cf(3,MVSIZ),
      .   Z(3),Zadj(3),ZCf(3),ZZadj(3),Zcf_,ZZadj_,cos, PS, denom, denom1,denom2,lambda,Xsi,Wface(3,6,MVSIZ),SR1,SR2,
      .   SURF(6), TERM2, N(3,6,MVSIZ)
       LOGICAL debug_outp
@@ -118,18 +115,18 @@ C (used to compute centroid force)
 C-----------------------------------------------
 C   P r e - C o n d i t i o n s
 C-----------------------------------------------      
-      IF(IALEFVM == 0)    RETURN
-      IMAT        = IXS(1,LFT+NFT)
+      IF(ALEFVM_Param%IEnabled == 0)    RETURN
+      IMAT        = IXS(1,1+NFT)
       IALEFVM_FLG = IPM(251,IMAT)
-      IF(IALEFVM_FLG .LE. 1)RETURN
+      IF(IALEFVM_FLG <= 1)RETURN
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
      
-      DO I=LFT,LLT
+      DO I=1,NEL
         II     = I + NFT
         MAT(I) = IXS(1,II)
-	!---8 local node numbers NC1 TO NC8 for solid element I ---!
+          !---8 local node numbers NC1 TO NC8 for solid element I ---!
         NC1(I)=IXS(2,II)
         NC2(I)=IXS(3,II)
         NC3(I)=IXS(4,II)
@@ -138,7 +135,7 @@ C-----------------------------------------------
         NC6(I)=IXS(7,II)
         NC7(I)=IXS(8,II)
         NC8(I)=IXS(9,II)
-	!
+          !
         !---Coordinates of the 8 nodes
         X1(I)=X(1,NC1(I))
         Y1(I)=X(2,NC1(I))
@@ -176,7 +173,7 @@ C-----------------------------------------------
       !======================================================!
       ! FACE VELOCITIES                                      !
       !======================================================!
-      DO I=LFT,LLT
+      DO I=1,NEL
         Wface(1,1,I) = FOURTH*(W(1,NC1(I))+W(1,NC2(I))+W(1,NC3(I))+W(1,NC4(I)))
         Wface(2,1,I) = FOURTH*(W(2,NC1(I))+W(2,NC2(I))+W(2,NC3(I))+W(2,NC4(I)))
         Wface(3,1,I) = FOURTH*(W(3,NC1(I))+W(3,NC2(I))+W(3,NC3(I))+W(3,NC4(I)))
@@ -207,32 +204,32 @@ C-----------------------------------------------
       ! INITIALIZATION : ADJAENT VALUES                      !
       !======================================================!
       !FCELL = [rhoU]. this quantity must be know for all groups
-      DO I=LFT,LLT
+      DO I=1,NEL
         II                 = I + NFT
-        VALEL(1,I)         = FCELL(1,II) !rho.ux
-        VALEL(2,I)         = FCELL(2,II) !rho.uy
-        VALEL(3,I)         = FCELL(3,II) !rho.uz
-        VALEL(4,I)         = FCELL(4,II) !rho
-        VALEL(5,I)         = FCELL(5,II) !ssp
-        VALEL(6,I)         = FCELL(6,II) !P 
+        VALEL(1,I)         = ALEFVM_Buffer%FCELL(1,II) !rho.ux
+        VALEL(2,I)         = ALEFVM_Buffer%FCELL(2,II) !rho.uy
+        VALEL(3,I)         = ALEFVM_Buffer%FCELL(3,II) !rho.uz
+        VALEL(4,I)         = ALEFVM_Buffer%FCELL(4,II) !rho
+        VALEL(5,I)         = ALEFVM_Buffer%FCELL(5,II) !ssp
+        VALEL(6,I)         = ALEFVM_Buffer%FCELL(6,II) !P 
         IAD2 = ALE_CONNECT%ee_connect%iad_connect(II)
         LGTH = ALE_CONNECT%ee_connect%iad_connect(II+1) - IAD2
         DO J=1,LGTH
           IDV = ALE_CONNECT%ee_connect%connected(IAD2 + J - 1)
           IF(IDV <= 0) THEN
-            VALVOIS(1,J,I) = -FCELL(1,II) 
-            VALVOIS(2,J,I) = -FCELL(2,II) 
-            VALVOIS(3,J,I) = -FCELL(3,II) 
-            VALVOIS(4,J,I) =  FCELL(4,II) 
-            VALVOIS(5,J,I) =  FCELL(5,II) 
-            VALVOIS(6,J,I) =  FCELL(6,II)               
+            VALVOIS(1,J,I) = -ALEFVM_Buffer%FCELL(1,II) 
+            VALVOIS(2,J,I) = -ALEFVM_Buffer%FCELL(2,II) 
+            VALVOIS(3,J,I) = -ALEFVM_Buffer%FCELL(3,II) 
+            VALVOIS(4,J,I) =  ALEFVM_Buffer%FCELL(4,II) 
+            VALVOIS(5,J,I) =  ALEFVM_Buffer%FCELL(5,II) 
+            VALVOIS(6,J,I) =  ALEFVM_Buffer%FCELL(6,II)               
           ELSE
-            VALVOIS(1,J,I) = FCELL(1,IDV)
-            VALVOIS(2,J,I) = FCELL(2,IDV)
-            VALVOIS(3,J,I) = FCELL(3,IDV) 
-            VALVOIS(4,J,I) = FCELL(4,IDV)  
-            VALVOIS(5,J,I) = FCELL(5,IDV) 
-            VALVOIS(6,J,I) = FCELL(6,IDV)                  
+            VALVOIS(1,J,I) = ALEFVM_Buffer%FCELL(1,IDV)
+            VALVOIS(2,J,I) = ALEFVM_Buffer%FCELL(2,IDV)
+            VALVOIS(3,J,I) = ALEFVM_Buffer%FCELL(3,IDV) 
+            VALVOIS(4,J,I) = ALEFVM_Buffer%FCELL(4,IDV)  
+            VALVOIS(5,J,I) = ALEFVM_Buffer%FCELL(5,IDV) 
+            VALVOIS(6,J,I) = ALEFVM_Buffer%FCELL(6,IDV)                  
           ENDIF
         ENDDO!next J
       ENDDO!next I
@@ -243,7 +240,7 @@ C-----------------------------------------------
       !    where                                             !
       !      [n] : unitary normal vector on face             !
       !======================================================!
-      DO I=LFT,LLT
+      DO I=1,NEL
         ! Face-1
         N1X(I)=(Y3(I)-Y1(I))*(Z2(I)-Z4(I)) - (Z3(I)-Z1(I))*(Y2(I)-Y4(I))
         N1Y(I)=(Z3(I)-Z1(I))*(X2(I)-X4(I)) - (X3(I)-X1(I))*(Z2(I)-Z4(I))
@@ -269,12 +266,29 @@ C-----------------------------------------------
         N6Y(I)=(Z8(I)-Z1(I))*(X4(I)-X5(I)) - (X8(I)-X1(I))*(Z4(I)-Z5(I))
         N6Z(I)=(X8(I)-X1(I))*(Y4(I)-Y5(I)) - (Y8(I)-Y1(I))*(X4(I)-X5(I))
         ! Stack
-        N(1:3,1,I) = (/N1X(I),N1Y(I),N1Z(I)/)
-        N(1:3,2,I) = (/N2X(I),N2Y(I),N2Z(I)/)
-        N(1:3,3,I) = (/N3X(I),N3Y(I),N3Z(I)/)
-        N(1:3,4,I) = (/N4X(I),N4Y(I),N4Z(I)/)
-        N(1:3,5,I) = (/N5X(I),N5Y(I),N5Z(I)/)
-        N(1:3,6,I) = (/N6X(I),N6Y(I),N6Z(I)/)
+        N(1,1,I) = N1X(I)
+        N(2,1,I) = N1Y(I)
+        N(3,1,I) = N1Z(I)
+        !
+        N(1,2,I) = N2X(I)
+        N(2,2,I) = N2Y(I)
+        N(3,2,I) = N2Z(I)
+        !
+        N(1,3,I) = N3X(I)
+        N(2,3,I) = N3Y(I)
+        N(3,3,I) = N3Z(I)
+        !
+        N(1,4,I) = N4X(I)
+        N(2,4,I) = N4Y(I)
+        N(3,4,I) = N4Z(I)
+        !
+        N(1,5,I) = N5X(I)
+        N(2,5,I) = N5Y(I)
+        N(3,5,I) = N5Z(I)
+        !
+        N(1,6,I) = N6X(I)
+        N(2,6,I) = N6Y(I)
+        N(3,6,I) = N6Z(I)
       END DO
       
       !======================================================!
@@ -283,14 +297,14 @@ C-----------------------------------------------
       !UPDATE LATER WITH LINEAR INTERPOLATION INSTEAD OF MEAN VALUE
       !MEAN VALUE OK FOR CARTESIAN REGULAR MESH
 
-      IF(IALEFVM_IFORM.NE.0)IALEFVM_FLG = IALEFVM_IFORM !for debug purpose if set in alefvm_init.F
+      IF(ALEFVM_Param%IFORM/=0)IALEFVM_FLG = ALEFVM_Param%IFORM !for debug purpose if set in alefvm_init.F
 
-      SELECT CASE(I_ALE_SOLVER)
+      SELECT CASE(ALEFVM_Param%ISOLVER)
       
 
        CASE(1)
         !CENTERED FVM - U average 
-          DO I=LFT,LLT
+          DO I=1,NEL
             II               = I + NFT
             DO J=1,NV46
                VEC(1,J)      = HALF * (VALEL(1,I)/VALEL(4,I) + VALVOIS(1,J,I)/VALVOIS(4,J,I)) 
@@ -301,9 +315,9 @@ C-----------------------------------------------
                VEC(3,J)      = VEC(3,J) - Wface(3,J,I) 
             ENDDO!next J 
             DO J=1,NV46
-              F_FACE(1,J,II) = VEC(1,J)
-              F_FACE(2,J,II) = VEC(2,J)
-              F_FACE(3,J,II) = VEC(3,J)
+              ALEFVM_Buffer%F_FACE(1,J,II) = VEC(1,J)
+              ALEFVM_Buffer%F_FACE(2,J,II) = VEC(2,J)
+              ALEFVM_Buffer%F_FACE(3,J,II) = VEC(3,J)
             ENDDO        
             !---face-1
             VX1(I)           = VEC(1,1)
@@ -333,7 +347,7 @@ C-----------------------------------------------
 
         CASE(2)
         !CENTERED FVM - rho.U average 
-          DO I=LFT,LLT
+          DO I=1,NEL
             II               = I + NFT
             DO J=1,NV46
                VEC(1,J)      = (VALEL(1,I) + VALVOIS(1,J,I)) / (VALEL(4,I)+VALVOIS(4,J,I))
@@ -344,9 +358,9 @@ C-----------------------------------------------
                VEC(3,J)      = VEC(3,J) - Wface(3,J,I) 
             ENDDO!next J 
             DO J=1,NV46
-              F_FACE(1,J,II) = VEC(1,J)
-              F_FACE(2,J,II) = VEC(2,J)
-              F_FACE(3,J,II) = VEC(3,J)
+              ALEFVM_Buffer%F_FACE(1,J,II) = VEC(1,J)
+              ALEFVM_Buffer%F_FACE(2,J,II) = VEC(2,J)
+              ALEFVM_Buffer%F_FACE(3,J,II) = VEC(3,J)
             ENDDO        
             !---face-1
             VX1(I)           = VEC(1,1)
@@ -376,7 +390,7 @@ C-----------------------------------------------
           
         CASE(3)
         !CENTERED FVM - Roe-average 
-          DO I=LFT,LLT
+          DO I=1,NEL
             II               = I + NFT
             SR1              = SQRT(VALEL(4,I))
             DO J=1,NV46
@@ -389,9 +403,9 @@ C-----------------------------------------------
                VEC(3,J)      = VEC(3,J) - Wface(3,J,I) 
             ENDDO!next J 
             DO J=1,NV46
-              F_FACE(1,J,II) = VEC(1,J) 
-              F_FACE(2,J,II) = VEC(2,J) 
-              F_FACE(3,J,II) = VEC(3,J) 
+              ALEFVM_Buffer%F_FACE(1,J,II) = VEC(1,J) 
+              ALEFVM_Buffer%F_FACE(2,J,II) = VEC(2,J) 
+              ALEFVM_Buffer%F_FACE(3,J,II) = VEC(3,J) 
             ENDDO        
             !---face-1
             VX1(I)           = VEC(1,1)
@@ -421,7 +435,7 @@ C-----------------------------------------------
           
         CASE(4)
         !CENTERED FVM - rho.c.U average 
-          DO I=LFT,LLT
+          DO I=1,NEL
             II               = I + NFT
             DO J=1,NV46
               IF(DT1==ZERO)THEN            
@@ -444,9 +458,9 @@ C-----------------------------------------------
               VEC(3,J)      = VEC(3,J) - Wface(3,J,I) 
             ENDDO!next J 
             DO J=1,NV46
-              F_FACE(1,J,II) = VEC(1,J)
-              F_FACE(2,J,II) = VEC(2,J)
-              F_FACE(3,J,II) = VEC(3,J)
+              ALEFVM_Buffer%F_FACE(1,J,II) = VEC(1,J)
+              ALEFVM_Buffer%F_FACE(2,J,II) = VEC(2,J)
+              ALEFVM_Buffer%F_FACE(3,J,II) = VEC(3,J)
             ENDDO        
             !---face-1
             VX1(I)           = VEC(1,1)
@@ -476,7 +490,7 @@ C-----------------------------------------------
 
         CASE(5)
         !Godunov Acoustic for Riemann problem
-          DO I=LFT,LLT
+          DO I=1,NEL
             II               = I + NFT
             IF(DT1==ZERO)THEN
               DO J=1,NV46
@@ -512,9 +526,9 @@ C-----------------------------------------------
               ENDDO!next J 
             ENDIF
             DO J=1,NV46
-              F_FACE(1,J,II) = VEC(1,J) 
-              F_FACE(2,J,II) = VEC(2,J)  
-              F_FACE(3,J,II) = VEC(3,J)  
+              ALEFVM_Buffer%F_FACE(1,J,II) = VEC(1,J) 
+              ALEFVM_Buffer%F_FACE(2,J,II) = VEC(2,J)  
+              ALEFVM_Buffer%F_FACE(3,J,II) = VEC(3,J)  
             ENDDO        
             !---face-1
             VX1(I)           = VEC(1,1)
@@ -544,8 +558,8 @@ C-----------------------------------------------
                 
         CASE(6)
         !INTERPOLATED
-        !WARNING : ADD SYMETRY LATER IF FORMULATION IS KEPT (mean value for identical value on both sides)
-          DO I=LFT,LLT
+        !WARNING : ADD SYMMETRY LATER IF FORMULATION IS KEPT (mean value for identical value on both sides)
+          DO I=1,NEL
             II               = I + NFT
             NC(1,I)          = IXS(2,II)
             NC(2,I)          = IXS(3,II)
@@ -562,7 +576,7 @@ C-----------------------------------------------
             LGTH = ALE_CONNECT%ee_connect%iad_connect(II + 1) - IAD2
             DO J=1,LGTH
               IDV = ALE_CONNECT%ee_connect%connected(IAD2 + J - 1)
-              IF(IDV.LE.0)THEN
+              IF(IDV<=0)THEN
                 VEC(1:3,J) = ZERO
                 CYCLE
               ENDIF
@@ -605,9 +619,9 @@ C-----------------------------------------------
               VEC(3,J)  = VALEL(3,I) + LAMBDA*(VALVOIS(3,J,I)/VALVOIS(4,J,I)-VALEL(3,I)/VALEL(4,I)) - Wface(3,J,I)                   
             ENDDO!next J
             DO J=1,NV46
-              F_FACE(1,J,II) = VEC(1,J)
-              F_FACE(2,J,II) = VEC(2,J)
-              F_FACE(3,J,II) = VEC(3,J)
+              ALEFVM_Buffer%F_FACE(1,J,II) = VEC(1,J)
+              ALEFVM_Buffer%F_FACE(2,J,II) = VEC(2,J)
+              ALEFVM_Buffer%F_FACE(3,J,II) = VEC(3,J)
             ENDDO        
             !---face-1
             VX1(I)           = VEC(1,1)
@@ -641,7 +655,7 @@ C-----------------------------------------------
       ! FLUXES CALCULATION ON EACH FACE                      !
       !    FLUX_face = [0.5*V_face] . [2S*n]                 !       
       !======================================================!
-      DO I=LFT,LLT
+      DO I=1,NEL
         FLUX1(I)=HALF*(VX1(I)*N1X(I)+VY1(I)*N1Y(I)+VZ1(I)*N1Z(I))
         FLUX2(I)=HALF*(VX2(I)*N2X(I)+VY2(I)*N2Y(I)+VZ2(I)*N2Z(I))
         FLUX3(I)=HALF*(VX3(I)*N3X(I)+VY3(I)*N3Y(I)+VZ3(I)*N3Z(I))
@@ -651,19 +665,19 @@ C-----------------------------------------------
       ENDDO
 
         !DEBUG-OUTPUT---------------!
-        if(IALEFVM_OUTP_FLUX /= 0)then
+        if(ALEFVM_Param%IOUTP_FLUX /= 0)then
           debug_outp = .FALSE.
-          if(IALEFVM_OUTP_FLUX>0)then
+          if(ALEFVM_Param%IOUTP_FLUX>0)then
             do i=lft,llt
               ii = nft + i
-              if(ixs(11,ii)==IALEFVM_OUTP_FLUX)THEN
+              if(ixs(11,ii)==ALEFVM_Param%IOUTP_FLUX)THEN
                 debug_outp = .TRUE.
                 idbf   = i
                 idbl   = i
                 EXIT
               endif
              enddo
-          elseif(IALEFVM_OUTP_FLUX==-1)then
+          elseif(ALEFVM_Param%IOUTP_FLUX==-1)then
             debug_outp=.TRUE.
                 idbf   = lft
                 idbl   = llt          
@@ -681,16 +695,16 @@ C-----------------------------------------------
             write (*,FMT='(A,6E26.14)') "       Flux(1:6) =", FLUX1(I),FLUX2(I),FLUX3(I),FLUX4(I),FLUX5(I),FLUX6(I)
             write(*,FMT='(A24,1A20)')       "                        ",  
      .                                  "#--------- cell-----------"          
-            write (*,FMT='(A,1E26.14)') "       V_cell-X  =", FCELL(1,II)           
-            write (*,FMT='(A,1E26.14)') "       V_cell-Y  =", FCELL(2,II)           
-            write (*,FMT='(A,1E26.14)') "       V_cell-Z  =", FCELL(3,II)  
+            write (*,FMT='(A,1E26.14)') "       V_cell-X  =", ALEFVM_Buffer%FCELL(1,II)           
+            write (*,FMT='(A,1E26.14)') "       V_cell-Y  =", ALEFVM_Buffer%FCELL(2,II)           
+            write (*,FMT='(A,1E26.14)') "       V_cell-Z  =", ALEFVM_Buffer%FCELL(3,II)  
             write(*,FMT='(A24,6A26)')   "                        ",    
      .                                  "#--------- adj_1 ---------","#--------- adj_2 ---------",
      .                                  "#--------- adj_3 ---------","#--------- adj_4 ---------",
      .                                  "#--------- adj_5 ---------","#--------- adj_6 --------#"
-            write (*,FMT='(A,6E26.14)') "       V_faces-X =", F_FACE(1,1:6,II)           
-            write (*,FMT='(A,6E26.14)') "       V_faces-Y =", F_FACE(2,1:6,II)
-            write (*,FMT='(A,6E26.14)') "       V_faces-Z =", F_FACE(3,1:6,II)                        
+            write (*,FMT='(A,6E26.14)') "       V_faces-X =", ALEFVM_Buffer%F_FACE(1,1:6,II)           
+            write (*,FMT='(A,6E26.14)') "       V_faces-Y =", ALEFVM_Buffer%F_FACE(2,1:6,II)
+            write (*,FMT='(A,6E26.14)') "       V_faces-Z =", ALEFVM_Buffer%F_FACE(3,1:6,II)                        
             print *, "      "          
           enddo
 !#!include "lockoff.inc"       
@@ -703,14 +717,14 @@ C-----------------------------------------------
       ! TRIMATERIAL CASE INITIALIZATION (LAW51)              !
       ! -->RETURN                                            !
       !======================================================!
-      IF(NINT(PM(19,MAT(1))).EQ.51)THEN
-        DO I=LFT,LLT
-          FLUX(1,I)=FLUX1(I)
-          FLUX(2,I)=FLUX2(I)
-          FLUX(3,I)=FLUX3(I)
-          FLUX(4,I)=FLUX4(I)
-          FLUX(5,I)=FLUX5(I)
-          FLUX(6,I)=FLUX6(I)
+      IF(NINT(PM(19,MAT(1)))==51)THEN
+        DO I=1,NEL
+          FLUX(NFT+I,1)=FLUX1(I)
+          FLUX(NFT+I,2)=FLUX2(I)
+          FLUX(NFT+I,3)=FLUX3(I)
+          FLUX(NFT+I,4)=FLUX4(I)
+          FLUX(NFT+I,5)=FLUX5(I)
+          FLUX(NFT+I,6)=FLUX6(I)
         ENDDO !next I
         RETURN
       ENDIF
@@ -720,60 +734,60 @@ C-----------------------------------------------
       !    slip wall bc                                      !
       !======================================================!
       DO J=1,6
-        DO I=LFT,LLT
-          UPWL(J,I)=PM(16,MAT(I))
+        DO I=1,NEL
+          UPWL(I,J)=PM(16,MAT(I))
         ENDDO !next I
       ENDDO !next J
 
-      DO I=LFT,LLT
+      DO I=1,NEL
        REDUC=PM(92,MAT(I))
        IAD2 = ALE_CONNECT%ee_connect%iad_connect(I + NFT)
        !---face1---!
        II=ALE_CONNECT%ee_connect%connected(IAD2 + 1 - 1)
-       IF(II.EQ.0)THEN
+       IF(II==0)THEN
         FLUX1(I)=FLUX1(I)*REDUC
        ENDIF
        !---face2---!
        II=ALE_CONNECT%ee_connect%connected(IAD2 + 2 - 1)
-       IF(II.EQ.0)THEN
+       IF(II==0)THEN
         FLUX2(I)=FLUX2(I)*REDUC
        ENDIF
        !---face3---!
        II=ALE_CONNECT%ee_connect%connected(IAD2 + 3 - 1)
-       IF(II.EQ.0)THEN
+       IF(II==0)THEN
         FLUX3(I)=FLUX3(I)*REDUC
        ENDIF
        !---face4---!
        II=ALE_CONNECT%ee_connect%connected(IAD2 + 4 - 1)
-       IF(II.EQ.0)THEN
+       IF(II==0)THEN
         FLUX4(I)=FLUX4(I)*REDUC
        ENDIF
        !---face5---!
        II=ALE_CONNECT%ee_connect%connected(IAD2 + 5 - 1)
-       IF(II.EQ.0)THEN
+       IF(II==0)THEN
         FLUX5(I)=FLUX5(I)*REDUC
        ENDIF
        !---face6---!
        II=ALE_CONNECT%ee_connect%connected(IAD2 + 6 - 1)
-       IF(II.EQ.0)THEN
+       IF(II==0)THEN
         FLUX6(I)=FLUX6(I)*REDUC
        ENDIF
       ENDDO !next I
 
-      DO I=LFT,LLT
-        FLUX(1,I)=FLUX1(I)-UPWL(1,I)*ABS(FLUX1(I))
-        FLUX(2,I)=FLUX2(I)-UPWL(2,I)*ABS(FLUX2(I))
-        FLUX(3,I)=FLUX3(I)-UPWL(3,I)*ABS(FLUX3(I))
-        FLUX(4,I)=FLUX4(I)-UPWL(4,I)*ABS(FLUX4(I))
-        FLUX(5,I)=FLUX5(I)-UPWL(5,I)*ABS(FLUX5(I))
-        FLUX(6,I)=FLUX6(I)-UPWL(6,I)*ABS(FLUX6(I))
+      DO I=1,NEL
+        FLUX(NFT+I,1)=FLUX1(I)-UPWL(I,1)*ABS(FLUX1(I))
+        FLUX(NFT+I,2)=FLUX2(I)-UPWL(I,2)*ABS(FLUX2(I))
+        FLUX(NFT+I,3)=FLUX3(I)-UPWL(I,3)*ABS(FLUX3(I))
+        FLUX(NFT+I,4)=FLUX4(I)-UPWL(I,4)*ABS(FLUX4(I))
+        FLUX(NFT+I,5)=FLUX5(I)-UPWL(I,5)*ABS(FLUX5(I))
+        FLUX(NFT+I,6)=FLUX6(I)-UPWL(I,6)*ABS(FLUX6(I))
 
-        FLU1(I)  =FLUX1(I)+UPWL(1,I)*ABS(FLUX1(I))
-     .           +FLUX2(I)+UPWL(2,I)*ABS(FLUX2(I))
-     .           +FLUX3(I)+UPWL(3,I)*ABS(FLUX3(I))
-     .           +FLUX4(I)+UPWL(4,I)*ABS(FLUX4(I))
-     .           +FLUX5(I)+UPWL(5,I)*ABS(FLUX5(I))
-     .           +FLUX6(I)+UPWL(6,I)*ABS(FLUX6(I))
+        FLU1(I)  =FLUX1(I)+UPWL(I,1)*ABS(FLUX1(I))
+     .           +FLUX2(I)+UPWL(I,2)*ABS(FLUX2(I))
+     .           +FLUX3(I)+UPWL(I,3)*ABS(FLUX3(I))
+     .           +FLUX4(I)+UPWL(I,4)*ABS(FLUX4(I))
+     .           +FLUX5(I)+UPWL(I,5)*ABS(FLUX5(I))
+     .           +FLUX6(I)+UPWL(I,6)*ABS(FLUX6(I))
       ENDDO !next I
 
 

@@ -1,62 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_FAIL_CONNECT          source/materials/fail/connect/hm_read_fail_connect.F
-Chd|-- called by -----------
-Chd|        HM_READ_FAIL                  source/materials/fail/hm_read_fail.F
-Chd|-- calls ---------------
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_FAIL_CONNECT(
-     .           UPARAM   ,MAXUPARAM,NUPARAM  ,NUVAR  ,IFUNC    ,
-     .           MAXFUNC  ,NFUNC    ,UNITAB   ,ID     ,FAIL_ID  ,
-     .           LSUBMODEL,UNIT_ID)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_fail_connect     ../starter/source/materials/fail/connect/hm_read_fail_connect.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_fail             ../starter/source/materials/fail/hm_read_fail.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_FAIL_CONNECT(FAIL ,
+     .           MAT_ID   ,FAIL_ID  ,IRUPT    ,UNIT_ID,
+     .           LSUBMODEL,UNITAB   ,FAIL_TAG )
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
 C   READ FAILURE CONNECT 
 C-----------------------------------------------
-C   DUMMY ARGUMENTS DESCRIPTION:
-C   ===================
-C
-C     NAME            DESCRIPTION                         
-C
-C     UNITAB          UNITS ARRAY
-C     FAIL_ID         FAILURE ID(INTEGER)
-C     TITR            MATERIAL TITLE
-C     LSUBMODEL       SUBMODEL STRUCTURE    
-C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE FAIL_PARAM_MOD
       USE UNITAB_MOD
-      USE MESSAGE_MOD 
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD 
+      USE ELBUFTAG_MOD            
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -64,38 +55,33 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C INPUT ARGUMENTS
-      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER,INTENT(IN)             ::ID,FAIL_ID,UNIT_ID
-      TYPE(SUBMODEL_DATA),INTENT(IN) ::LSUBMODEL(*)
-C MODIFIED ARGUMENT
-      INTEGER,INTENT(INOUT)          ::IFUNC(MAXFUNC),NFUNC,MAXFUNC,MAXUPARAM
-      my_real,INTENT(INOUT)          ::UPARAM(MAXUPARAM)
-      INTEGER,INTENT(OUT)            ::NUPARAM,NUVAR
+      INTEGER             ,INTENT(IN) :: FAIL_ID       !< failure model ID
+      INTEGER             ,INTENT(IN) :: MAT_ID        !< material law ID
+      INTEGER             ,INTENT(IN) :: UNIT_ID       ! 
+      INTEGER             ,INTENT(IN) :: IRUPT         !< failure model number
+      TYPE (UNIT_TYPE_)   ,INTENT(IN) :: UNITAB        !< table of input units
+      TYPE (SUBMODEL_DATA),INTENT(IN) :: LSUBMODEL(*) 
+      TYPE (FAIL_PARAM_)  ,INTENT(INOUT) :: FAIL
+      TYPE (FAIL_TAG_)    ,INTENT(INOUT) :: FAIL_TAG   !< failure model tag for buffer allocation
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C     REAL
-      INTEGER    ::     IFUNN,IFUNT,IFAIL,IFAILS,IFAILE,ISOLID,NFAIL,ISYM,IUNIT,IFLAGUNIT
+      INTEGER    ::     IFUNN,IFUNT,IFAIL,IFAILS,IFAILE,ISOLID,NFAIL,ISYM
       my_real    ::     MAXDN,MAXDT,EXPN,EXPT,FACN,FACT,ASCALE,MAXEI,MAXEN,MAXET,NN,NT,
      .                  DTIME,DSOFT,AREASCALE, UNIT_T
 C-----------------------------------------------
-      LOGICAL    ::     IS_AVAILABLE,IS_CRYPTED
+      LOGICAL    ::     IS_AVAILABLE,IS_ENCRYPTED
 C=======================================================================
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
 C--------------------------------------------------
@@ -162,40 +148,61 @@ c-----------------------------------------------------------------------
       ENDIF
       ASCALE = ONE / UNIT_T
 c-----------------------------------------------------------------------
-      UPARAM(1)  = MAXDN
-      UPARAM(2)  = MAXDT
-      UPARAM(3)  = EXPN
-      UPARAM(4)  = EXPT
-      UPARAM(5)  = FACN
-      UPARAM(6)  = FACT
-      UPARAM(7)  = ASCALE
-      UPARAM(8)  = IFAILS
-      UPARAM(9)  = IFAILE
-      UPARAM(10) = NFAIL
-      UPARAM(11) = MAXEI
-      UPARAM(12) = MAXEN
-      UPARAM(13) = MAXET
-      UPARAM(14) = NN
-      UPARAM(15) = NT
-      UPARAM(16) = DTIME
-      UPARAM(17) = DSOFT
-      UPARAM(18) = ISYM
-      UPARAM(19) = AREASCALE
+      FAIL%KEYWORD = 'CONNECT' 
+      FAIL%IRUPT   = IRUPT 
+      FAIL%FAIL_ID = FAIL_ID 
+      FAIL%NUPARAM = 19
+      FAIL%NIPARAM = 0
+      FAIL%NUVAR   = 8
+      FAIL%NFUNC   = 2
+      FAIL%NTABLE  = 0
+      FAIL%NMOD    = 7
+c            
+      ALLOCATE (FAIL%UPARAM(FAIL%NUPARAM))
+      ALLOCATE (FAIL%IPARAM(FAIL%NIPARAM))
+      ALLOCATE (FAIL%IFUNC (FAIL%NFUNC))
+      ALLOCATE (FAIL%TABLE (FAIL%NTABLE))
+c
+      ! Modes of failure
+      FAIL_TAG%LF_DAMMX = FAIL_TAG%LF_DAMMX + FAIL%NMOD
+      ALLOCATE (FAIL%MODE(FAIL%NMOD))
+      FAIL%MODE(1) = "Normal direction displ. damage"
+      FAIL%MODE(2) = "Shear plane displ. damage"
+      FAIL%MODE(3) = "Displacement based damage"
+      FAIL%MODE(4) = "Normal direction ener. damage"
+      FAIL%MODE(5) = "Shear plane ener. damage"
+      FAIL%MODE(6) = "Total energy damage"
+      FAIL%MODE(7) = "Energy based damage"
+c
+      FAIL%UPARAM(1)  = MAXDN
+      FAIL%UPARAM(2)  = MAXDT
+      FAIL%UPARAM(3)  = EXPN
+      FAIL%UPARAM(4)  = EXPT
+      FAIL%UPARAM(5)  = FACN
+      FAIL%UPARAM(6)  = FACT
+      FAIL%UPARAM(7)  = ASCALE
+      FAIL%UPARAM(8)  = IFAILS
+      FAIL%UPARAM(9)  = IFAILE
+      FAIL%UPARAM(10) = NFAIL
+      FAIL%UPARAM(11) = MAXEI
+      FAIL%UPARAM(12) = MAXEN
+      FAIL%UPARAM(13) = MAXET
+      FAIL%UPARAM(14) = NN
+      FAIL%UPARAM(15) = NT
+      FAIL%UPARAM(16) = DTIME
+      FAIL%UPARAM(17) = DSOFT
+      FAIL%UPARAM(18) = ISYM
+      FAIL%UPARAM(19) = AREASCALE
 C    
-      IFUNC(1) = IFUNN
-      IFUNC(2) = IFUNT
-C    
-      NUPARAM = 19
-      NFUNC   = 2
-      NUVAR   = 13
+      FAIL%IFUNC(1) = IFUNN
+      FAIL%IFUNC(2) = IFUNT
 C--------------------------------------------------
-      IF (IS_CRYPTED) THEN
+      IF (IS_ENCRYPTED) THEN
         WRITE(IOUT, 1000)
       ELSE
         WRITE(IOUT, 1100) MAXDN,MAXDT,EXPN,EXPT,IFAIL,ISOLID,ISYM,
      .                    IFUNN,IFUNT,FACN,FACT,
      .                    MAXEI,MAXEN,MAXET,NN,NT,DTIME,DSOFT,AREASCALE
-
       ENDIF
 C--------------------------------------------------
       RETURN
@@ -212,8 +219,8 @@ C--------------------------------------------------
      & 5X,'Multi-directional rupture flag                 . . =',I10/
      & 5X,'Integration point rupture flag                 . . =',I10/
      & 5X,'Rupture deactivation flag in compression       . . =',I10/
-     & 5X,'Strain rate scale fuction in normal direction  . . =',I10/
-     & 5X,'Strain rate scale fuction in tangent direction . . =',I10/
+     & 5X,'Strain rate scale function in normal direction . . =',I10/
+     & 5X,'Strain rate scale function in tangent direction. . =',I10/
      & 5X,'Function scale factor in normal direction  . . . . =',E16.9/
      & 5X,'Function scale factor in tangent direction . . . . =',E16.9/
      & 5X,'Maximum total internal energy    . . . . . . . . . =',E16.9/
@@ -221,7 +228,7 @@ C--------------------------------------------------
      & 5X,'Maximum energy in tangent direction      . . . . . =',E16.9/
      & 5X,'Energy exponent in normal direction      . . . . . =',E16.9/
      & 5X,'Energy exponent in tangent direction     . . . . . =',E16.9/
-     & 5X,'Damage duration paramater      . . . . . . . . . . =',E16.9/
+     & 5X,'Damage duration parameter      . . . . . . . . . . =',E16.9/
      & 5X,'Damage softening parameter     . . . . . . . . . . =',E16.9/ 
      & 5X,'Element deformation parameter  . . . . . . . . . . =',E16.9/)
 C-----------       

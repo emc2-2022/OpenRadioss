@@ -1,55 +1,60 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECREFSTA                     source/loads/reference_state/refsta/lecrefsta.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        R2R_SYS                       source/coupling/rad2rad/routines_r2r.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lecrefsta        ../starter/source/loads/reference_state/refsta/lecrefsta.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg           ../starter/source/output/message/message.F
+!||    r2r_sys          ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    usr2sys          ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../starter/share/message_module/message_mod.F
+!||    reader_old_mod   ../starter/share/modules1/reader_old_mod.F90
+!||    refsta_mod       ../starter/share/modules1/refsta_mod.F
+!||====================================================================
       SUBROUTINE LECREFSTA(ITABM1  ,UNITAB,IXC   ,IXTG  ,IXS   ,
      .                     XYZREF  ,XREFC ,XREFTG,XREFS ,TAGNOD,
      .                     IDDLEVEL,TAGREF )
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        USE READER_OLD_MOD , ONLY : IREC, NSLASH
       USE UNITAB_MOD
       USE MESSAGE_MOD
+      USE REFSTA_MOD , ONLY : RS0_FMT
+      USE READER_OLD_MOD , ONLY : LINE
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "com04_c.inc"
-#include      "sysunit.inc"
 #include      "r2r_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -61,16 +66,12 @@ C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER ITABM1(*),IXC(NIXC,*),IXTG(NIXTG,*),IXS(NIXS,*),TAGNOD(*)
       INTEGER IDDLEVEL,TAGREF(*)
-      my_real
-     .  XREFC(4,3,*),XREFTG(3,3,*),XREFS(8,3,*),
-     .  XYZREF(3,*)
+      my_real XREFC(4,3,*),XREFTG(3,3,*),XREFS(8,3,*),XYZREF(3,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER  I,J,IE,IN,ID,NN,IFLAGUNIT,NNOD
-C     REAL
-      my_real
-     .  XX,YY,ZZ,FAC_L
+      INTEGER  IE, IN, ID, NN, NNOD
+      my_real XX, YY, ZZ
       CHARACTER MESS*40
       DATA MESS/'REFSTA'/      
 C-----------------------------------------------
@@ -79,7 +80,7 @@ C-----------------------------------------------
       INTEGER USR2SYS,R2R_SYS
 C=======================================================================
 C--------------------------------------                              
-C  LECTURE DES NOEUDS ETAT DE REFERENCE
+C  READING OF REFERENCE STATE NODES
 C--------------------------------------
       IF(IDDLEVEL == 0) THEN
         WRITE(IOUT,1000)
@@ -97,8 +98,8 @@ C--------------------------------------
         IF (ID <= 0) CYCLE
         IF (NSUBDOM == 0) NN = USR2SYS(ID,ITABM1,MESS,0)
         IF (NSUBDOM  > 0) THEN
-	         NN = R2R_SYS(ID,ITABM1,MESS)
-	         IF (NN == 0) CYCLE
+                   NN = R2R_SYS(ID,ITABM1,MESS)
+                   IF (NN == 0) CYCLE
         ENDIF
         TAGREF(NN) = 1
         IF (TAGNOD(NN) == 0) THEN
@@ -125,7 +126,7 @@ C-------------
      .            MSGTYPE=MSGERROR,
      .            ANMODE=ANINFO)
  799  CONTINUE                                          
-      IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1010) NNOD		
+      IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1010) NNOD
 C-------------                                                       
       DO IE=1,NUMELC                                    
         DO IN=1,4                                       

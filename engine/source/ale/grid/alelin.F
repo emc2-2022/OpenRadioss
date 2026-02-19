@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALELIN                        source/ale/grid/alelin.F      
-Chd|-- called by -----------
-Chd|        ALEWDX                        source/ale/grid/alewdx.F      
-Chd|-- calls ---------------
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_RBCAST                   source/mpi/generic/spmd_rbcast.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
-      SUBROUTINE ALELIN(NALELK ,LINALE ,W ,WEIGHT ,IGRNOD , ITAB)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    alelin            ../engine/source/ale/grid/alelin.F
+!||--- called by ------------------------------------------------------
+!||    alewdx            ../engine/source/ale/grid/alewdx.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_glob_dsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_rbcast       ../engine/source/mpi/generic/spmd_rbcast.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod      ../common_source/modules/groupdef_mod.F
+!||====================================================================
+      SUBROUTINE ALELIN(NALELK ,LINALE ,W ,WEIGHT ,IGRNOD)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -43,16 +44,11 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "task_c.inc"
-#include      "param_c.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER,INTENT(IN)   :: NALELK
-      INTEGER,INTENT(IN)   :: LINALE(*), WEIGHT(*),ITAB(NUMNOD) 
+      INTEGER,INTENT(IN)   :: LINALE(*), WEIGHT(*)
       my_real, INTENT(INOUT) :: W(3,NUMNOD)
       TYPE (GROUP_)  , DIMENSION(NGRNOD)  :: IGRNOD
 C-----------------------------------------------
@@ -72,10 +68,10 @@ C
 C   NALELK    : number of ALE LINKS
 C   LINALE[:] : definition array
 C         [1] : user ID         (uID)
-C         [2] : main node     (M1)
-C         [3] : main node     (M2)
+C         [2]: main node (M1)
+C         [3]: main node (m2)
 C         [4] : number of nodes (N)
-C         [5] : direction XYZ   (IC)
+C         [5]: Direction XYZ (IC)
 C         [6] : formulation     (IM)
 C
 C                  |ALE LINK 1                                       |2              |NALELK
@@ -101,11 +97,12 @@ C-----------------------------------------------
 
         K=0
         N=0
+        GR_ID = -huge(GR_ID)
         DO JJ=1,NALELK
         
           WM1M2(1) = ZERO
           WM1M2(2) = ZERO 
-          WM1M2(3) = ZERO	    
+          WM1M2(3) = ZERO      
           WM1M2(4) = ZERO 
           WM1M2(5) = ZERO 
           WM1M2(6) = ZERO

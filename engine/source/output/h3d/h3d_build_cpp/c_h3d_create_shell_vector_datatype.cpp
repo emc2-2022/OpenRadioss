@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //
 #include <stdio.h>
 #include <string.h>
@@ -114,11 +114,19 @@ void c_h3d_create_shell_vector_datatype_(int *cpt_data, char *name1, int *size1,
 
     H3D_ID layer_pool_id = H3D_NULL_ID;
 
+#ifdef _WIN64
+    strcat_s(RES_STRING,100,cname);
+#else
     RES_STRING = strcat(RES_STRING,cname);
+#endif
     if(*nuvar > 0)
     {
-        sprintf(NUVAR_STRING, " %d \0",*nuvar);
+        sprintf(NUVAR_STRING, " %d ",*nuvar);
+#ifdef _WIN64
+        strcat_s(RES_STRING,100,NUVAR_STRING);
+#else
         RES_STRING = strcat(RES_STRING,NUVAR_STRING);
+#endif
     }
 
     if(*layer > 0 || *ipt > 0 || *ply > 0|| *gauss > 0)
@@ -126,57 +134,97 @@ void c_h3d_create_shell_vector_datatype_(int *cpt_data, char *name1, int *size1,
         
         if(*layer > 0 && *ipt > 0)
         {
-             sprintf(LAYER_STRING, "LAYER/IPT %d %d \0" ,*layer,*ipt);
+             sprintf(LAYER_STRING, "LAYER/IPT %d %d " ,*layer,*ipt);
+#ifdef _WIN64
+             strcat_s(LAYERPOOL,100,LAYER_STRING);
+#else
              LAYERPOOL = strcat(LAYERPOOL,LAYER_STRING);
+#endif
         }
         else if(*layer > 0)
         {
-             sprintf(LAYER_STRING, "LAYER %d \0" ,*layer);
+             sprintf(LAYER_STRING, "LAYER %d " ,*layer);
+#ifdef _WIN64
+             strcat_s(LAYERPOOL,100,LAYER_STRING);
+#else
              LAYERPOOL = strcat(LAYERPOOL,LAYER_STRING);
+#endif
         }
         else if(*ply > 0 && *ipt > 0)
         {
-             sprintf(PLY_STRING, "PLY/IPT %d %d\0" ,*ply,*ipt);
+             sprintf(PLY_STRING, "PLY/IPT %d %d" ,*ply,*ipt);
+#ifdef _WIN64
+             strcat_s(LAYERPOOL,100,PLY_STRING);
+#else
              LAYERPOOL = strcat(LAYERPOOL,PLY_STRING);
+#endif
         }
         else if(*ipt > 0)
         {
-             sprintf(IPT_STRING, "IPT %d \0" ,*ipt);
+             sprintf(IPT_STRING, "IPT %d " ,*ipt);
+#ifdef _WIN64
+             strcat_s(LAYERPOOL,100,IPT_STRING);
+#else
              LAYERPOOL = strcat(LAYERPOOL,IPT_STRING);
+#endif
         }
         else if(*ply > 0)
         {
-             sprintf(IPT_STRING, "PLY %d \0" ,*ply);
+             sprintf(IPT_STRING, "PLY %d " ,*ply);
+#ifdef _WIN64
+             strcat_s(LAYERPOOL,100,IPT_STRING);
+#else
              LAYERPOOL = strcat(LAYERPOOL,IPT_STRING);
+#endif
         }
     }
     else if(*layer < -1 || *ipt < -1 )
     {
         if(*layer == -2)
         {
-             sprintf(LAYER_STRING, "Layer Lower \0" );
+             sprintf(LAYER_STRING, "Layer Lower " );
+#ifdef _WIN64
+             strcat_s(LAYERPOOL,100,LAYER_STRING);
+#else
              LAYERPOOL = strcat(LAYERPOOL,LAYER_STRING);
+#endif
         }
         if(*layer == -3)
         {
-             sprintf(LAYER_STRING, "Layer Upper \0" );
+             sprintf(LAYER_STRING, "Layer Upper " );
+#ifdef _WIN64
+             strcat_s(LAYERPOOL,100,LAYER_STRING);
+#else
              LAYERPOOL = strcat(LAYERPOOL,LAYER_STRING);
+#endif
         }
         if(*ipt == -2)
         {
-             sprintf(IPT_STRING, "ipt Lower \0" );
+             sprintf(IPT_STRING, "ipt Lower " );
+#ifdef _WIN64
+             strcat_s(LAYERPOOL,100,IPT_STRING);
+#else
              LAYERPOOL = strcat(LAYERPOOL,IPT_STRING);
+#endif
         }
         if(*ipt == -3)
         {
-             sprintf(IPT_STRING, "ipt Upper \0" );
+             sprintf(IPT_STRING, "ipt Upper " );
+#ifdef _WIN64
+             strcat_s(LAYERPOOL,100,IPT_STRING);
+#else
              LAYERPOOL = strcat(LAYERPOOL,IPT_STRING);
+#endif
         }
     }
     else
     {
-        sprintf(IPT_STRING, "Mid\0" );
+        sprintf(IPT_STRING, "Mid" );
+#ifdef _WIN64
+        strcat_s(LAYERPOOL,100,IPT_STRING);
+#else
         LAYERPOOL = strcat(LAYERPOOL,IPT_STRING);
+#endif
     }
     rc = Hyper3DAddString(h3d_file, LAYERPOOL, &layer_pool_id);
 

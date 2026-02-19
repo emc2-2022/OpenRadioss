@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RUSER35                       source/elements/spring/ruser35.F
-Chd|-- called by -----------
-Chd|        RFORC3                        source/elements/spring/rforc3.F
-Chd|-- calls ---------------
-Chd|        GET_U_FUNC                    source/user_interface/ufunc.F 
-Chd|        GET_U_GEO                     source/user_interface/upidmid.F
-Chd|        GET_U_PNU                     source/user_interface/upidmid.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ruser35      ../engine/source/elements/spring/ruser35.F
+!||--- called by ------------------------------------------------------
+!||    rforc3       ../engine/source/elements/spring/rforc3.F
+!||--- calls      -----------------------------------------------------
+!||    get_u_func   ../engine/source/user_interface/ufunc.F
+!||    get_u_mid    ../engine/source/user_interface/upidmid.F
+!||    get_u_mnu    ../engine/source/user_interface/upidmid.F
+!||    get_u_pid    ../engine/source/user_interface/upidmid.F
+!||    get_u_pnu    ../engine/source/user_interface/upidmid.F
+!||====================================================================
       SUBROUTINE RUSER35(
      1             NEL     ,IOUT    ,IPROP   ,UVAR   ,NUVAR  ,
      2             FX      ,FY      ,FZ      ,XMOM   ,YMOM   ,
@@ -54,7 +56,7 @@ C The user routine does not need to return elements mass in vector MASS :
 C this vector is not used by RADIOSS since version 4.1E.
 C The mass which is used by RADIOSS for time step (and output) is the 
 C initial mass which was returned by user routine RINI29 into starter.
-C utilisation de la version 4.1d ==> on recupere la masse
+C use of version 4.1d ==> we recover the mass
 C-------------------------------------------------------------------------
 C FUNCTION 
 C-------------------------------------------------------------------------
@@ -74,7 +76,7 @@ C         I     :     VARIABLE INDEX(1 for first function)
 C         IM    :     MATERIAL NUMBER
 C         KFUNC :     ONLY FUNCTION ARE YET AVAILABLE.
 C         THIS FUNCTION RETURN THE USER STORED FUNCTION NUMBER(function 
-C         refered by users materials).
+C         referred by users materials).
 C         SEE LECM29 FOR CORRESPONDING ID STORAGE.
 C-------------------------------------------------------------------------
 C my_real PARAMI = GET_U_GEO(I,IP)
@@ -166,12 +168,12 @@ c
 c
         IF (UVAR(3,I) >= ONE) THEN
           FR_WAVE(I)=ONE
-c  UVAR(2,I) = endommagement sur fonction yield et stiffness 
-c              par facteur 0 <= D1 < 1.              
+c  UVAR(2,I) = damage on yield function and stiffness
+c              By factor 0 <= D1 <1.              
           IF (ILOAD == 0 .OR. DX > ZERO) UVAR(2,I)=UVAR(2,I)*(ONE-D1)
         ELSEIF (FR_WAVE(I) == ONE) THEN
           IF (ILOAD == 0 .OR. DX > ZERO) UVAR(3,I)=UVAR(3,I)+D2    
-c FR_WAVE est laisse a 1.
+c Fr_wave is left to 1.
         ENDIF
 C
         IF (X >= XLIM1) THEN

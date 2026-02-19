@@ -1,32 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RINI46                        source/elements/spring/rini46.F
-Chd|-- called by -----------
-Chd|        RINIT3                        source/elements/spring/rinit3.F
-Chd|-- calls ---------------
-Chd|        GET_U_GEO                     source/user_interface/uaccess.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rini46      ../starter/source/elements/spring/rini46.F
+!||--- called by ------------------------------------------------------
+!||    rinit3      ../starter/source/elements/spring/rinit3.F
+!||--- calls      -----------------------------------------------------
+!||    get_u_geo   ../starter/source/user_interface/uaccess.F
+!||    get_u_mat   ../starter/source/user_interface/uaccess.F
+!||    get_u_mid   ../starter/source/user_interface/uaccess.F
+!||    get_u_mnu   ../starter/source/user_interface/uaccess.F
+!||    get_u_pid   ../starter/source/user_interface/uaccess.F
+!||    get_u_pnu   ../starter/source/user_interface/uaccess.F
+!||====================================================================
       SUBROUTINE RINI46(NEL   ,IOUT   ,IPROP ,
      3                  IX    ,XL     ,MASS  ,XINER  ,STIFM ,
      4                  STIFR ,VISCM  ,VISCR ,UVAR   ,NUVAR )
@@ -42,7 +47,7 @@ C----------+---------+---+---+--------------------------------------------
 C IX       | 3*NEL   | I | R | SPRING CONNECTIVITY
 C                            | IX(1,I) NODE 1 ID
 C                            | IX(2,I) NODE 2 ID
-C                            | IX(3,I) OPTIONNAL NODE 3 ID
+C                            | IX(3,I) OPTIONAL NODE 3 ID
 C                            | IX(4,I) SPRING ID
 C XL       |   NEL   | F | R | ELEMENT LENGTH
 C----------+---------+---+---+--------------------------------------------
@@ -75,7 +80,7 @@ C         I     :     VARIABLE INDEX(1 for first function)
 C         IM    :     MATERIAL NUMBER
 C         KFUNC :     ONLY FUNCTION ARE YET AVAILABLE.
 C         THIS FUNCTION RETURN THE USER STORED FUNCTION NUMBERS(function 
-C         refered by users materials).
+C         referred by users materials).
 C         SEE LECM29 FOR CORRESPONDING ID STORAGE.
 C-------------------------------------------------------------------------
 C my_real PARAMI = GET_U_GEO(I,IP)

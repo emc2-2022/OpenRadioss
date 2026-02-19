@@ -1,38 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_OLDNUMCD                 source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        I10TRI                        source/interfaces/intsort/i10tri.F
-Chd|        I20TRI                        source/interfaces/intsort/i20tri.F
-Chd|        I23TRIVOX                     source/interfaces/intsort/i23trivox.F
-Chd|        I24TRIVOX                     source/interfaces/intsort/i24trivox.F
-Chd|        I7TRI                         source/interfaces/intsort/i7tri.F
-Chd|        I7TRIVOX                      source/interfaces/intsort/i7trivox.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE SPMD_OLDNUMCD(RENUM,OLDNUM,NSNR,NSNROLD) 
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_oldnumcd                ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    i10tri                       ../engine/source/interfaces/intsort/i10tri.F
+!||    i20tri                       ../engine/source/interfaces/intsort/i20tri.F
+!||    i23trivox                    ../engine/source/interfaces/intsort/i23trivox.F
+!||    i24trivox                    ../engine/source/interfaces/intsort/i24trivox.F
+!||    i7tri                        ../engine/source/interfaces/intsort/i7tri.F
+!||    i7trivox                     ../engine/source/interfaces/intsort/i7trivox.F
+!||    inter7_collision_detection   ../engine/source/interfaces/intsort/inter7_collision_detection.F90
+!||--- uses       -----------------------------------------------------
+!||    tri7box                      ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE SPMD_OLDNUMCD(RENUM,OLDNUM,NSNR,NSNROLD,
+     .           INTHEAT,IDT_THERM,NODADT_THERM) 
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -41,17 +43,14 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER OLDNUM(*), RENUM(*),
-     .        NSNR, NSNROLD
+      INTEGER ,INTENT(IN) :: INTHEAT
+      INTEGER ,INTENT(IN) :: IDT_THERM
+      INTEGER ,INTENT(IN) :: NODADT_THERM 
+      INTEGER :: NSNR, NSNROLD
+      INTEGER :: OLDNUM(*), RENUM(*)
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -60,26 +59,26 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
-C ancienne numerotation des nouveaux candidats
+C old numbering of new candidates
 C
       DO I = 1, NSNR 
         OLDNUM(I) = 0
       END DO
       DO I = 1, NSNROLD
-        IF(RENUM(I).GT.0)        ! cas elt non penetre et non retenu
+        IF(RENUM(I)>0)        ! case non-penetrated and non-retained element
      +    OLDNUM(RENUM(I)) = I
       END DO
 C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_RNUMCD20                 source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        I20MAIN_TRI                   source/interfaces/intsort/i20main_tri.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_rnumcd20   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    i20main_tri     ../engine/source/interfaces/intsort/i20main_tri.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_RNUMCD20(
      1   CAND_N  ,RENUM  ,II_STOK,NIN,NSN,
      2   NSNFIOLD,NSNROLD)
@@ -91,7 +90,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -117,18 +115,18 @@ C-----------------------------------------------
       DO P = 1, NSPMD
         I = 1
         J = 1
-        DO WHILE (J.LE.NSNFI(NIN)%P(P).AND.I.LE.NSNFIOLD(P))
-          IF(NINT(XREM(4,J+JDEB)).EQ.
+        DO WHILE (J<=NSNFI(NIN)%P(P).AND.I<=NSNFIOLD(P))
+          IF(NINT(XREM(4,J+JDEB))==
      +       NSVFI(NIN)%P(I+IDEB)) THEN
             RENUM(I+IDEB) = J+JDEB
             I = I + 1
             J = J + 1
-          ELSEIF(NINT(XREM(4,J+JDEB)).LT.
+          ELSEIF(NINT(XREM(4,J+JDEB))<
      +           NSVFI(NIN)%P(I+IDEB)) THEN
             J = J + 1
-          ELSEIF(NINT(XREM(4,J+JDEB)).GT.
+          ELSEIF(NINT(XREM(4,J+JDEB))>
      +           NSVFI(NIN)%P(I+IDEB)) THEN
-Cas candidat non penetre et non retenu
+Case non-penetrated and non-retained candidate
             I = I + 1
           END IF
         END DO
@@ -136,11 +134,11 @@ Cas candidat non penetre et non retenu
         IDEB = IDEB + NSNFIOLD(P)
       END DO
 C
-C renumerotation des anciens candidats suivant les nouveaux no
+C renumbering of old candidates according to new numbers
 C
       DO I = 1, I_STOK
         NI = CAND_N(I)
-        IF(NI.GT.NSN) THEN
+        IF(NI>NSN) THEN
           NI = NI - NSN
           CAND_N(I) = RENUM(NI) + NSN
         END IF        
@@ -148,16 +146,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SPMD_RNUMCD                   source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        I23MAIN_TRI                   source/interfaces/intsort/i23main_tri.F
-Chd|        I24MAIN_TRI                   source/interfaces/intsort/i24main_tri.F
-Chd|        I7MAIN_TRI                    source/interfaces/intsort/i7main_tri.F
-Chd|        INTER_SORT_07                 source/interfaces/int07/inter_sort_07.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_rnumcd     ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    i23main_tri     ../engine/source/interfaces/intsort/i23main_tri.F
+!||    i24main_tri     ../engine/source/interfaces/intsort/i24main_tri.F
+!||    i7main_tri      ../engine/source/interfaces/intsort/i7main_tri.F
+!||    inter_sort_07   ../engine/source/interfaces/int07/inter_sort_07.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_RNUMCD(
      1   CAND_N  ,RENUM  ,II_STOK,NIN,NSN,
      2   NSNFIOLD,NSNROLD)
@@ -169,7 +167,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -195,18 +192,18 @@ C-----------------------------------------------
       DO P = 1, NSPMD
         I = 1
         J = 1
-        DO WHILE (J.LE.NSNFI(NIN)%P(P).AND.I.LE.NSNFIOLD(P))
-          IF(IREM(1,J+JDEB).EQ.
+        DO WHILE (J<=NSNFI(NIN)%P(P).AND.I<=NSNFIOLD(P))
+          IF(IREM(1,J+JDEB)==
      +       NSVFI(NIN)%P(I+IDEB)) THEN
             RENUM(I+IDEB) = J+JDEB
             I = I + 1
             J = J + 1
-          ELSEIF(IREM(1,J+JDEB).LT.
+          ELSEIF(IREM(1,J+JDEB)<
      +           NSVFI(NIN)%P(I+IDEB)) THEN
             J = J + 1
-          ELSEIF(IREM(1,J+JDEB).GT.
+          ELSEIF(IREM(1,J+JDEB)>
      +           NSVFI(NIN)%P(I+IDEB)) THEN
-Cas candidat non penetre et non retenu
+Case non-penetrated and non-retained candidate
             I = I + 1
           END IF
         END DO
@@ -214,11 +211,11 @@ Cas candidat non penetre et non retenu
         IDEB = IDEB + NSNFIOLD(P)
       END DO
 C
-C renumerotation des anciens candidats suivant les nouveaux no
+C renumbering of old candidates according to new numbers
 C
       DO I = 1, I_STOK
         NI = CAND_N(I)
-        IF(NI.GT.NSN) THEN
+        IF(NI>NSN) THEN
           NI = NI - NSN
           CAND_N(I) = RENUM(NI) + NSN
         END IF        
@@ -229,13 +226,13 @@ C
       END
 
 C
-Chd|====================================================================
-Chd|  SPMD_RNUMCD10                 source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        I10MAIN_TRI                   source/interfaces/intsort/i10main_tri.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_rnumcd10   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    i10main_tri     ../engine/source/interfaces/intsort/i10main_tri.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_RNUMCD10(
      1   CAND_N  ,RENUM  ,II_STOK,NIN,NSN,
      2   NSNFIOLD,NSNROLD)
@@ -247,8 +244,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -276,19 +271,19 @@ C-----------------------------------------------
       DO P = 1, NSPMD
         I = 1
         J = 1
-        DO WHILE (J.LE.NSNFI(NIN)%P(P).AND.I.LE.NSNFIOLD(P))
+        DO WHILE (J<=NSNFI(NIN)%P(P).AND.I<=NSNFIOLD(P))
 
-          IF(IREM(1,J+JDEB).EQ.
+          IF(IREM(1,J+JDEB)==
      +       NSVFI(NIN)%P(I+IDEB)) THEN
             RENUM(I+IDEB) = J+JDEB
             I = I + 1
             J = J + 1
-          ELSEIF(IREM(1,J+JDEB).LT.
+          ELSEIF(IREM(1,J+JDEB)<
      +           NSVFI(NIN)%P(I+IDEB)) THEN
             J = J + 1
-          ELSEIF(IREM(1,J+JDEB).GT.
+          ELSEIF(IREM(1,J+JDEB)>
      +           NSVFI(NIN)%P(I+IDEB)) THEN
-Cas candidat non penetre et non retenu
+Case non-penetrated and non-retained candidate
             I = I + 1
           END IF
         END DO
@@ -297,11 +292,11 @@ Cas candidat non penetre et non retenu
         IDEB = IDEB + NSNFIOLD(P)
       END DO
 C
-C renumerotation des anciens candidats suivant les nouveaux no
+C renumbering of old candidates according to new numbers
 C
       DO I = 1, I_STOK
         NI = CAND_N(I)
-        IF(NI.GT.NSN) THEN
+        IF(NI>NSN) THEN
           NI = NI - NSN
           IF(RENUM(NI) > 0) THEN
              CAND_N(I) = RENUM(NI) + NSN
@@ -315,13 +310,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SPMD_RNUM25                   source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_rnum25   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    i25main_tri   ../engine/source/interfaces/intsort/i25main_tri.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box       ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_RNUM25(
      1   RENUM  ,NIN,NSN,NSNFIOLD,NSNROLD)
 C-----------------------------------------------
@@ -332,7 +327,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -358,18 +352,18 @@ C-----------------------------------------------
       DO P = 1, NSPMD
         I = 1
         J = 1
-        DO WHILE (J.LE.NSNFI(NIN)%P(P).AND.I.LE.NSNFIOLD(P))
-          IF(IREM(1,J+JDEB).EQ.
+        DO WHILE (J<=NSNFI(NIN)%P(P).AND.I<=NSNFIOLD(P))
+          IF(IREM(1,J+JDEB)==
      +       NSVFI(NIN)%P(I+IDEB)) THEN
             RENUM(I+IDEB) = J+JDEB
             I = I + 1
             J = J + 1
-          ELSEIF(IREM(1,J+JDEB).LT.
+          ELSEIF(IREM(1,J+JDEB)<
      +           NSVFI(NIN)%P(I+IDEB)) THEN
             J = J + 1
-          ELSEIF(IREM(1,J+JDEB).GT.
+          ELSEIF(IREM(1,J+JDEB)>
      +           NSVFI(NIN)%P(I+IDEB)) THEN
-Cas candidat non penetre et non retenu
+Case non-penetrated and non-retained candidate
             I = I + 1
           END IF
         END DO
@@ -380,13 +374,13 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_RNUMCD11                 source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        I11MAIN_TRI                   source/interfaces/intsort/i11main_tri.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_rnumcd11   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    i11main_tri     ../engine/source/interfaces/intsort/i11main_tri.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_RNUMCD11(
      1   CAND_N  ,RENUM  ,II_STOK,NIN,NRTS,
      2   NSNFIOLD,NSNROLD,ADDCM,CHAINE,CAND_M,NSN4,NRTM)
@@ -398,8 +392,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -426,18 +418,18 @@ C-----------------------------------------------
       DO P = 1, NSPMD
         I = 1
         J = 1
-        DO WHILE (J.LE.NSNFI(NIN)%P(P).AND.I.LE.NSNFIOLD(P))
-          IF(IREM(1,J+JDEB).EQ.
+        DO WHILE (J<=NSNFI(NIN)%P(P).AND.I<=NSNFIOLD(P))
+          IF(IREM(1,J+JDEB)==
      +       NSVFI(NIN)%P(I+IDEB)) THEN
             RENUM(I+IDEB) = J+JDEB
             I = I + 1
             J = J + 1
-          ELSEIF(IREM(1,J+JDEB).LT.
+          ELSEIF(IREM(1,J+JDEB)<
      +           NSVFI(NIN)%P(I+IDEB)) THEN
             J = J + 1
-          ELSEIF(IREM(1,J+JDEB).GT.
+          ELSEIF(IREM(1,J+JDEB)>
      +           NSVFI(NIN)%P(I+IDEB)) THEN
-Cas candidat non penetre et non retenu
+Case non-penetrated and non-retained candidate
             I = I + 1
           END IF
         END DO
@@ -445,11 +437,11 @@ Cas candidat non penetre et non retenu
         IDEB = IDEB + NSNFIOLD(P)
       END DO
 C
-C renumerotation des anciens candidats suivant les nouveaux no
+C renumbering of old candidates according to new numbers
 C
       DO I = 1, I_STOK
         NI = CAND_N(I)
-        IF(NI.GT.NRTS) THEN
+        IF(NI>NRTS) THEN
           NI = NI - NRTS
           CAND_N(I) = RENUM(NI) + NRTS
         END IF        
@@ -457,9 +449,9 @@ C
       DO I=1,NRTM
         J=0
         IAD = ADDCM(I)
-        DO WHILE(IAD.GT.0.AND.J.LT.NSN4)
+        DO WHILE(IAD>0.AND.J<NSN4)
           J=J+1
-          IF(CHAINE(1,IAD) .GT. NRTS )THEN
+          IF(CHAINE(1,IAD) > NRTS )THEN
             CHAINE(1,IAD) = RENUM(CHAINE(1,IAD)-NRTS)+NRTS
           ENDIF
           IAD=CHAINE(2,IAD)
@@ -469,36 +461,40 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_FIADD_POFF               source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_POFF              source/mpi/forces/spmd_i7fcom_poff.F
-Chd|-- calls ---------------
-Chd|        IBCOFF                        source/interfaces/interf/ibcoff.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD_POFF(
+!||====================================================================
+!||    spmd_fiadd_poff    ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_poff   ../engine/source/mpi/forces/spmd_i7fcom_poff.F
+!||--- calls      -----------------------------------------------------
+!||    ibcoff             ../engine/source/interfaces/interf/ibcoff.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod            ../engine/share/modules/h3d_mod.F
+!||    multi_fvm_mod      ../common_source/modules/ale/multi_fvm_mod.F90
+!||    output_mod         ../common_source/modules/output/output_mod.F90
+!||    parameters_mod     ../common_source/modules/interfaces/parameters_mod.F
+!||====================================================================
+      SUBROUTINE SPMD_FIADD_POFF(OUTPUT,
      1       NB    ,LEN     ,BUFR   ,NSV    ,A       ,
      2       STIFN ,VISCN   ,IBC    ,ISECIN ,NOINT   ,
      3       IBAG  ,ICODT   ,SECFCUM,NSTRF  ,ICONTACT,
      4       FCONT ,INACTI  ,IADM   ,INTTH  ,FTHE    ,
      5       CONDN ,H3D_DATA, MULTI_FVM,NIN ,TAGNCONT,
-     6       KLOADPINTER,LOADPINTER,LOADP_HYD_INTER)
+     6       KLOADPINTER,LOADPINTER,LOADP_HYD_INTER  ,
+     .       INTCAREA,FSAV  ,PARAMETERS,NODADT_THERM)       
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
       USE MULTI_FVM_MOD
+      USE OUTPUT_MOD
+      USE PARAMETERS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "parit_c.inc"
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
@@ -507,28 +503,30 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
 #include      "impl1_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), intent(inout) :: OUTPUT
       INTEGER NB, LEN, IBC  ,ISECIN  ,IBAG , NOINT, INACTI,
      .        NSV(*), ICODT(*), NSTRF(*),ICONTACT(*),
      .        TAGNCONT(NLOADP_HYD_INTER,*),KLOADPINTER(*),LOADPINTER(*),
      .        LOADP_HYD_INTER(*),
      .        IADM,INTTH
-      INTEGER, INTENT(in) :: NIN
+      INTEGER, INTENT(in) :: NIN, INTCAREA
+      INTEGER, INTENT(IN) :: NODADT_THERM
       my_real
      .        BUFR(LEN,*), A(3,*), STIFN(*), VISCN(*),
      .        SECFCUM(7,NUMNOD,NSECT),
      .        FCONT(3,*),FTHE(*),CONDN(*)
+      my_real, INTENT(INOUT) :: FSAV(*)
       TYPE(H3D_DATABASE) :: H3D_DATA
       TYPE(MULTI_FVM_STRUCT), INTENT(INOUT) :: MULTI_FVM
+      TYPE (PARAMETERS_) ,INTENT(IN):: PARAMETERS
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
-      my_real :: MASS
+      my_real :: MASS, FSAV29
       INTEGER :: IBRIC
       INTEGER I, J, II, N, NOD, K0, K1S, IBCS, IBCM, NBINTER,PP,PPL,NP  
 C-----------------------------------------------
@@ -552,10 +550,10 @@ C
                A(2,NOD)   = A(2,NOD) + BUFR(3,I)
                A(3,NOD)   = A(3,NOD) + BUFR(4,I)
                STIFN(NOD) = STIFN(NOD) + BUFR(5,I)          
-               IF(KDTINT .NE. 0) VISCN(NOD) = VISCN(NOD) + BUFR(6,I)          
+               IF(KDTINT /= 0) VISCN(NOD) = VISCN(NOD) + BUFR(6,I)          
             ENDDO
          ELSE
-            IF(KDTINT.EQ.0)THEN
+            IF(KDTINT==0)THEN
                 DO I = 1, NB
                    N = NINT(BUFR(1,I))
                    NOD = NSV(N)
@@ -581,13 +579,13 @@ C
             ENDIF
          ENDIF      
 C     
-C     suite traitement i7for3 et i10for3 sur noeud secnd
+C     following i7for3 & i10for3 process on secondary nodes
 C     
-         IF (INCONV .EQ. 1) THEN
-            IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .           (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .           (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .          .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+         IF (INCONV == 1) THEN
+            IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .           ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .           (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .          .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C     Anim FCONT
                DO I = 1, NB
                   N = NINT(BUFR(1,I))
@@ -611,20 +609,20 @@ C------------For /LOAD/PRESSURE tag nodes in contact-------------
             ENDDO
          ENDIF
 C     
-         IF(ISECIN.GT.0)THEN
+         IF(ISECIN>0)THEN
 C     Sections
             K0=NSTRF(25)
-            IF(NSTRF(1)+NSTRF(2).NE.0)THEN
+            IF(NSTRF(1)+NSTRF(2)/=0)THEN
                DO I=1,NSECT
                   NBINTER=NSTRF(K0+14)
                   K1S=K0+30
                   DO J=1,NBINTER
-                     IF(NSTRF(K1S).EQ.NOINT)THEN
-                        IF(ISECUT.NE.0)THEN
+                     IF(NSTRF(K1S)==NOINT)THEN
+                        IF(ISECUT/=0)THEN
                            DO II = 1, NB
                               N = NINT(BUFR(1,II))
                               NOD = NSV(N)
-                              IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                              IF(SECFCUM(4,NOD,I)==1.)THEN
                                  SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                                  SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                                  SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
@@ -639,12 +637,12 @@ C     Sections
             ENDIF
          ENDIF
 C     
-         IF((IBAG.NE.0.AND.INACTI.NE.7).OR.
-     .        (IADM.NE.0).OR.(IDAMP_RDOF.NE.0)) THEN ! attention conflit inacti=7 et ibag=3
+         IF((IBAG/=0.AND.INACTI/=7).OR.
+     .        (IADM/=0).OR.(IDAMP_RDOF/=0)) THEN ! warning conflict inacti=7 and ibag=3
 C     Airbags IBAG
             DO I = 1, NB
-               IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +              BUFR(4,I).NE.ZERO) THEN
+               IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +              BUFR(4,I)/=ZERO) THEN
                   N = NINT(BUFR(1,I))
                   NOD = NSV(N)
                   ICONTACT(NOD)=1
@@ -652,11 +650,11 @@ C     Airbags IBAG
             END DO
          END IF
 C     
-         IF(IBC.NE.0) THEN
+         IF(IBC/=0) THEN
             IBCM = IBC / 8
             IBCS = IBC - 8 * IBCM
 C     Boundary cond.
-            IF(IBCS.GT.0) THEN
+            IF(IBCS>0) THEN
                DO I = 1, NB
                   N = NINT(BUFR(1,I))
                   NOD = NSV(N)
@@ -669,28 +667,29 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_FIADD11_POFF             source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_POFF              source/mpi/forces/spmd_i7fcom_poff.F
-Chd|-- calls ---------------
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD11_POFF(
+!||====================================================================
+!||    spmd_fiadd11_poff   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_poff    ../engine/source/mpi/forces/spmd_i7fcom_poff.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod             ../engine/share/modules/h3d_mod.F
+!||    output_mod          ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE SPMD_FIADD11_POFF(OUTPUT,
      1       NB    ,LEN     ,BUFR   ,IRECTS ,A       ,
      2       STIFN ,VISCN   ,IBC    ,ISECIN ,NOINT   ,
      3       IBAG  ,ICODT   ,SECFCUM,NSTRF  ,ICONTACT,
      4       FCONT ,INTTH   ,FTHE   ,CONDN  ,H3D_DATA,
-     5       TAGNCONT,KLOADPINTER,LOADPINTER,LOADP_HYD_INTER)
+     5       TAGNCONT,KLOADPINTER,LOADPINTER,LOADP_HYD_INTER,NODADT_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -702,15 +701,16 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), intent(inout) :: OUTPUT
       INTEGER NB, LEN, IBC  ,ISECIN  ,IBAG , NOINT,INTTH,
      .        IRECTS(2,*), ICODT(*), NSTRF(*),ICONTACT(*),
      .        TAGNCONT(NLOADP_HYD_INTER,*),
      .        KLOADPINTER(*),LOADPINTER(*),LOADP_HYD_INTER(*)
+      INTEGER, INTENT(IN) :: NODADT_THERM
       my_real
      .        BUFR(LEN,*), A(3,*), STIFN(*), VISCN(*),
      .        SECFCUM(7,NUMNOD,NSECT),
@@ -724,7 +724,7 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
       IF(INTTH == 0) THEN
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
         DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = IRECTS(1,N)
@@ -757,7 +757,7 @@ C-----------------------------------------------
        ENDIF
       ELSE
        IF(NODADT_THERM ==1 )THEN
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
          DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = IRECTS(1,N)
@@ -797,7 +797,7 @@ C-----------------------------------------------
          ENDDO
         ENDIF
        ELSE
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
          DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = IRECTS(1,N)
@@ -835,15 +835,15 @@ C-----------------------------------------------
        ENDIF
       ENDIF
 C
-C suite traitement i11for3 sur noeud secnd
+C continue i11for3 processing on secondary node
 C
-      IF(INCONV .EQ. 1) THEN
-       IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .   (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+      IF(INCONV == 1) THEN
+       IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .   ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C Anim FCONT
-         IF(KDTINT.EQ.0)THEN
+         IF(KDTINT==0)THEN
           DO I = 1, NB
            N = NINT(BUFR(1,I))
            NOD = IRECTS(1,N)
@@ -885,27 +885,27 @@ C------------For /LOAD/PRESSURE tag nodes in contact-------------
          ENDDO
       ENDIF
 C
-      IF(ISECIN.GT.0)THEN
+      IF(ISECIN>0)THEN
 C Sections
         K0=NSTRF(25)
-        IF(NSTRF(1)+NSTRF(2).NE.0)THEN
+        IF(NSTRF(1)+NSTRF(2)/=0)THEN
           DO I=1,NSECT
            NBINTER=NSTRF(K0+14)
            K1S=K0+30
            DO J=1,NBINTER
-            IF(NSTRF(K1S).EQ.NOINT)THEN
-              IF(ISECUT.NE.0)THEN
-               IF(KDTINT.EQ.0)THEN
+            IF(NSTRF(K1S)==NOINT)THEN
+              IF(ISECUT/=0)THEN
+               IF(KDTINT==0)THEN
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   NOD = IRECTS(1,N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
                   ENDIF
                   NOD = IRECTS(2,N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(6,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(7,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(8,II)
@@ -915,13 +915,13 @@ C Sections
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   NOD = IRECTS(1,N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
                   ENDIF
                   NOD = IRECTS(2,N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(7,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(8,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(9,II)
@@ -937,32 +937,32 @@ C Sections
         ENDIF
       ENDIF
 C
-      IF ((IBAG.NE.0).OR.(IDAMP_RDOF.NE.0)) THEN
+      IF ((IBAG/=0).OR.(IDAMP_RDOF/=0)) THEN
 C Airbags IBAG
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
            N = NINT(BUFR(1,I))
            NOD = IRECTS(1,N)
            ICONTACT(NOD)=1
           END IF
-          IF(BUFR(6,I).NE.ZERO.OR.BUFR(7,I).NE.ZERO.OR.
-     +       BUFR(8,I).NE.ZERO) THEN
+          IF(BUFR(6,I)/=ZERO.OR.BUFR(7,I)/=ZERO.OR.
+     +       BUFR(8,I)/=ZERO) THEN
            NOD = IRECTS(2,N)
            ICONTACT(NOD)=1
           END IF
         END DO
        ELSE
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
            N = NINT(BUFR(1,I))
            NOD = IRECTS(1,N)
            ICONTACT(NOD)=1
           END IF
-          IF(BUFR(7,I).NE.ZERO.OR.BUFR(8,I).NE.ZERO.OR.
-     +       BUFR(9,I).NE.ZERO) THEN
+          IF(BUFR(7,I)/=ZERO.OR.BUFR(8,I)/=ZERO.OR.
+     +       BUFR(9,I)/=ZERO) THEN
            NOD = IRECTS(2,N)
            ICONTACT(NOD)=1
           END IF
@@ -973,14 +973,16 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_FIADD17_POFF             source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_POFF              source/mpi/forces/spmd_i7fcom_poff.F
-Chd|-- calls ---------------
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD17_POFF(
+!||====================================================================
+!||    spmd_fiadd17_poff   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_poff    ../engine/source/mpi/forces/spmd_i7fcom_poff.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    h3d_mod             ../engine/share/modules/h3d_mod.F
+!||    output_mod          ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE SPMD_FIADD17_POFF(OUTPUT,
      1       NB    ,LEN   ,BUFR   ,NELEMS ,A     ,
      2       STIFN ,FCONT ,IXS    ,IXS16  ,FROTS ,
      3       H3D_DATA)
@@ -988,27 +990,24 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD
+      use element_mod , only :nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), intent(inout) :: OUTPUT
       INTEGER NB, LEN, NN,
      .        NELEMS(*), IXS(NIXS,*)  ,IXS16(8,*)
       my_real
@@ -1114,12 +1113,12 @@ C
           FROTS(4,NN) = FROTS(4,NN) + BUFR(69,I)                       
         ENDDO
 C
-C suite traitement i11for3 sur noeud secnd
+C continue i11for3 processing on secondary node
 C
-      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .   (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .   ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C Anim FCONT
         DO I = 1, NB
           NE = NINT(BUFR(1,I))
@@ -1195,16 +1194,18 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_FIADD20_POFF             source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_POFF              source/mpi/forces/spmd_i7fcom_poff.F
-Chd|-- calls ---------------
-Chd|        GETDPDAANC                    source/mpi/interfaces/spmd_i7tool.F
-Chd|        IBCOFF                        source/interfaces/interf/ibcoff.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD20_POFF(
+!||====================================================================
+!||    spmd_fiadd20_poff   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_poff    ../engine/source/mpi/forces/spmd_i7fcom_poff.F
+!||--- calls      -----------------------------------------------------
+!||    getdpdaanc          ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    ibcoff              ../engine/source/interfaces/interf/ibcoff.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod             ../engine/share/modules/h3d_mod.F
+!||    output_mod          ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE SPMD_FIADD20_POFF(OUTPUT,
      1       NB    ,LEN     ,BUFR   ,NSV    ,A       ,
      2       STIFN ,VISCN   ,IBC    ,ISECIN ,NOINT   ,
      3       IBAG  ,ICODT   ,SECFCUM,NSTRF  ,ICONTACT,
@@ -1214,15 +1215,14 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "parit_c.inc"
 #include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
@@ -1232,10 +1232,10 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), intent(inout) :: OUTPUT
       INTEGER NB, LEN, IBC  ,ISECIN  ,IBAG , NOINT, INACTI,
      .        NSV(*), ICODT(*), NSTRF(*), NLG(*),
      .        ICONTACT(*), IADM,INTTH
@@ -1255,7 +1255,7 @@ C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
       IF(INTTH == 0 ) THEN
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
         DO I = 1, NB
           N = NSV(NINT(BUFR(1,I)))
           NOD = NLG(N)
@@ -1263,7 +1263,7 @@ C
           A(2,NOD)   = A(2,NOD) + BUFR(3,I)
           A(3,NOD)   = A(3,NOD) + BUFR(4,I)
           STIFN(NOD) = STIFN(NOD) + BUFR(5,I)          
-C Traitement interface type20
+C type20 interface treatment
           ISIGN = 1
           IF(ALPHAK(2,N) < ZERO .or. BUFR(6,I) < ZERO)ISIGN = -1
           ALPHAK(2,N) = ISIGN*MIN(ABS(ALPHAK(2,N)),ABS(BUFR(6,I)))             
@@ -1299,7 +1299,7 @@ C Traitement interface type20
           ISIGN = 1
           IF(ALPHAK(2,N) < ZERO .or. BUFR(7,I) < ZERO)ISIGN = -1
           ALPHAK(2,N) = ISIGN*MIN(ABS(ALPHAK(2,N)),ABS(BUFR(7,I)))             
-C Traitement interface type20
+C type20 interface treatment
           CALL GETDPDAANC(DAANC6L,BUFR(8,I),IRESP,INC)
           DAANC6(1,1,N) = DAANC6(1,1,N)+DAANC6L(1,1)
           DAANC6(1,2,N) = DAANC6(1,2,N)+DAANC6L(1,2)
@@ -1323,7 +1323,7 @@ C Traitement interface type20
        ENDIF
 C
       ELSE
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
          DO I = 1, NB
           N = NSV(NINT(BUFR(1,I)))
           NOD = NLG(N)
@@ -1332,7 +1332,7 @@ C
           A(3,NOD)   = A(3,NOD) + BUFR(4,I)
           STIFN(NOD) = STIFN(NOD) + BUFR(5,I)
           FTHE(NOD) = FTHE(NOD) + BUFR(6,I)       
-C Traitement interface type20
+C type20 interface treatment
           ISIGN = 1
           IF(ALPHAK(2,N) < ZERO .or. BUFR(7,I) < ZERO)ISIGN = -1
           ALPHAK(2,N) = ISIGN*MIN(ABS(ALPHAK(2,N)),ABS(BUFR(7,I)))             
@@ -1366,7 +1366,7 @@ C Traitement interface type20
           STIFN(NOD) = STIFN(NOD) + BUFR(5,I)          
           VISCN(NOD) = VISCN(NOD) + BUFR(6,I)
           FTHE(NOD) = FTHE(NOD) + BUFR(7,I)            
-C Traitement interface type20
+C type20 interface treatment
           ISIGN = 1
           IF(ALPHAK(2,N) < ZERO .or. BUFR(8,I) < ZERO)ISIGN = -1
           ALPHAK(2,N) = ISIGN*MIN(ABS(ALPHAK(2,N)),ABS(BUFR(8,I)))             
@@ -1393,12 +1393,12 @@ C Traitement interface type20
         ENDIF
       ENDIF
 C
-C suite traitement i7for3 et i10for3 sur noeud secnd
+C following i7for3 & i10for3 process on secondary nodes
 C
-      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .   (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .    .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .   ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .    .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C Anim FCONT
         DO I = 1, NB
           N = NINT(BUFR(1,I))
@@ -1409,20 +1409,20 @@ C Anim FCONT
         END DO
       END IF
 C
-      IF(ISECIN.GT.0)THEN
+      IF(ISECIN>0)THEN
 C Sections
         K0=NSTRF(25)
-        IF(NSTRF(1)+NSTRF(2).NE.0)THEN
+        IF(NSTRF(1)+NSTRF(2)/=0)THEN
           DO I=1,NSECT
            NBINTER=NSTRF(K0+14)
            K1S=K0+30
            DO J=1,NBINTER
-            IF(NSTRF(K1S).EQ.NOINT)THEN
-              IF(ISECUT.NE.0)THEN
+            IF(NSTRF(K1S)==NOINT)THEN
+              IF(ISECUT/=0)THEN
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   NOD = NSV(N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
@@ -1437,12 +1437,12 @@ C Sections
         ENDIF
       ENDIF
 C
-      IF((IBAG.NE.0.AND.INACTI.NE.7).OR.
-     .   IADM.NE.0)THEN ! attention conflit inacti=7 et ibag=3
+      IF((IBAG/=0.AND.INACTI/=7).OR.
+     .   IADM/=0)THEN ! warning conflict inacti=7 and ibag=3
 C Airbags IBAG
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
             N = NINT(BUFR(1,I))
             NOD = NLG(NSV(N))
             ICONTACT(NOD)=1
@@ -1450,11 +1450,11 @@ C Airbags IBAG
         END DO
       END IF
 C
-      IF(IBC.NE.0) THEN
+      IF(IBC/=0) THEN
         IBCM = IBC / 8
         IBCS = IBC - 8 * IBCM
 C Boundary cond.
-        IF(IBCS.GT.0) THEN
+        IF(IBCS>0) THEN
           DO I = 1, NB
             N = NINT(BUFR(1,I))
             NOD = NLG(NSV(N))
@@ -1466,15 +1466,17 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_FIADD20E_POFF            source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_POFF              source/mpi/forces/spmd_i7fcom_poff.F
-Chd|-- calls ---------------
-Chd|        GETDPDAANC                    source/mpi/interfaces/spmd_i7tool.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD20E_POFF(
+!||====================================================================
+!||    spmd_fiadd20e_poff   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_poff     ../engine/source/mpi/forces/spmd_i7fcom_poff.F
+!||--- calls      -----------------------------------------------------
+!||    getdpdaanc           ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod              ../engine/share/modules/h3d_mod.F
+!||    output_mod           ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE SPMD_FIADD20E_POFF(OUTPUT,
      1       NB    ,LEN     ,BUFR   ,IXLINS ,A       ,
      2       STIFN ,VISCN   ,IBC    ,ISECIN ,NOINT   ,
      3       IBAG  ,ICODT   ,SECFCUM,NSTRF  ,ICONTACT,
@@ -1483,15 +1485,14 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "parit_c.inc"
 #include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
@@ -1501,10 +1502,10 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), intent(inout)  :: OUTPUT
       INTEGER NB, LEN, IBC  ,ISECIN  ,IBAG , NOINT,
      .        IXLINS(2,*), ICODT(*), NSTRF(*),
      .        ICONTACT(*), NLG(*)
@@ -1523,7 +1524,7 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
         DO I = 1, NB
           N = NINT(BUFR(1,I))
           N1 = IXLINS(1,N)
@@ -1652,12 +1653,12 @@ C Traitement interface type20
        ENDIF
 C
 C
-C suite traitement i7for3 et i10for3 sur noeud secnd
+C continue i7for3 and i10for3 processing on secondary node
 C
-      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .   (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .    .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .   ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .    .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C Anim FCONT
         DO I = 1, NB
           N = NINT(BUFR(1,I))
@@ -1676,29 +1677,29 @@ C
         END DO
       END IF
 C
-      IF(ISECIN.GT.0)THEN
+      IF(ISECIN>0)THEN
 C Sections
         K0=NSTRF(25)
-        IF(NSTRF(1)+NSTRF(2).NE.0)THEN
+        IF(NSTRF(1)+NSTRF(2)/=0)THEN
           DO I=1,NSECT
            NBINTER=NSTRF(K0+14)
            K1S=K0+30
            DO J=1,NBINTER
-            IF(NSTRF(K1S).EQ.NOINT)THEN
-              IF(ISECUT.NE.0)THEN
-               IF(KDTINT.EQ.0)THEN
+            IF(NSTRF(K1S)==NOINT)THEN
+              IF(ISECUT/=0)THEN
+               IF(KDTINT==0)THEN
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   N1 = IXLINS(1,N)
                   N2 = IXLINS(2,N)
                   N1G = NLG(N1)
                   N2G = NLG(N2)
-                  IF(SECFCUM(4,N1G,I).EQ.1.)THEN
+                  IF(SECFCUM(4,N1G,I)==1.)THEN
                     SECFCUM(1,N1G,I)=SECFCUM(1,N1G,I)+BUFR(2,II)
                     SECFCUM(2,N1G,I)=SECFCUM(2,N1G,I)+BUFR(3,II)
                     SECFCUM(3,N1G,I)=SECFCUM(3,N1G,I)+BUFR(4,II)
                   ENDIF
-                  IF(SECFCUM(4,N2G,I).EQ.1.)THEN
+                  IF(SECFCUM(4,N2G,I)==1.)THEN
                     SECFCUM(1,N2G,I)=SECFCUM(1,N2G,I)+BUFR(6,II)
                     SECFCUM(2,N2G,I)=SECFCUM(2,N2G,I)+BUFR(7,II)
                     SECFCUM(3,N2G,I)=SECFCUM(3,N2G,I)+BUFR(8,II)
@@ -1711,12 +1712,12 @@ C Sections
                   N2 = IXLINS(2,N)
                   N1G = NLG(N1)
                   N2G = NLG(N2)
-                  IF(SECFCUM(4,N1G,I).EQ.1.)THEN
+                  IF(SECFCUM(4,N1G,I)==1.)THEN
                     SECFCUM(1,N1G,I)=SECFCUM(1,N1G,I)+BUFR(2,II)
                     SECFCUM(2,N1G,I)=SECFCUM(2,N1G,I)+BUFR(3,II)
                     SECFCUM(3,N1G,I)=SECFCUM(3,N1G,I)+BUFR(4,II)
                   ENDIF
-                  IF(SECFCUM(4,N2G,I).EQ.1.)THEN
+                  IF(SECFCUM(4,N2G,I)==1.)THEN
                     SECFCUM(1,N2G,I)=SECFCUM(1,N2G,I)+BUFR(7,II)
                     SECFCUM(2,N2G,I)=SECFCUM(2,N2G,I)+BUFR(8,II)
                     SECFCUM(3,N2G,I)=SECFCUM(3,N2G,I)+BUFR(9,II)
@@ -1732,19 +1733,19 @@ C Sections
         ENDIF
       ENDIF
 C
-      IF(IBAG.NE.0)THEN
+      IF(IBAG/=0)THEN
 C Airbags IBAG
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
             N = NINT(BUFR(1,I))
             N1 = IXLINS(1,N)
             N1G = NLG(N1)
             ICONTACT(N1G)=1
           END IF
-          IF(BUFR(6,I).NE.ZERO.OR.BUFR(7,I).NE.ZERO.OR.
-     +       BUFR(8,I).NE.ZERO) THEN
+          IF(BUFR(6,I)/=ZERO.OR.BUFR(7,I)/=ZERO.OR.
+     +       BUFR(8,I)/=ZERO) THEN
             N = NINT(BUFR(1,I))
             N2 = IXLINS(2,N)
             N2G = NLG(N2)
@@ -1753,15 +1754,15 @@ C Airbags IBAG
         END DO
        ELSE
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
             N = NINT(BUFR(1,I))
             N1 = IXLINS(1,N)
             N1G = NLG(N1)
             ICONTACT(N1G)=1
           END IF
-          IF(BUFR(7,I).NE.ZERO.OR.BUFR(8,I).NE.ZERO.OR.
-     +       BUFR(9,I).NE.ZERO) THEN
+          IF(BUFR(7,I)/=ZERO.OR.BUFR(8,I)/=ZERO.OR.
+     +       BUFR(9,I)/=ZERO) THEN
             N = NINT(BUFR(1,I))
             N2 = IXLINS(2,N)
             N2G = NLG(N2)
@@ -1774,204 +1775,39 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_FIADD20_PON              source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|        GETDPDAANC                    source/mpi/interfaces/spmd_i7tool.F
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD20_PON(
-     1       NB, LEN, NSVSI, BUFR, DAANC6, NSV, ALPHAK)
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "parit_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NB, LEN, NSVSI(*),NSV(*)
-      my_real
-     .        BUFR(LEN,*), ALPHAK(3,*)
-      DOUBLE PRECISION DAANC6(3,6,*)
-C-----------------------------------------------
-C   L o c a l  V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I, N, INC ,ISIGN
-      DOUBLE PRECISION DAANC6L(3,6) 
-C-----------------------------------------------
-C   S o u r c e  L i n e s
-C-----------------------------------------------
 C
-      DO I = 1, NB
-        N = NSV(NSVSI(I))
-        ISIGN = 1
-        IF(ALPHAK(2,N) < ZERO .or. BUFR(1,I) < ZERO)ISIGN = -1
-        ALPHAK(2,N) = ISIGN*MIN(ABS(ALPHAK(2,N)),ABS(BUFR(1,I)))
-        CALL GETDPDAANC(DAANC6L,BUFR(2,I),IRESP,INC)
-        DAANC6(1,1,N) = DAANC6(1,1,N)+DAANC6L(1,1)
-        DAANC6(1,2,N) = DAANC6(1,2,N)+DAANC6L(1,2)
-        DAANC6(1,3,N) = DAANC6(1,3,N)+DAANC6L(1,3)
-        DAANC6(1,4,N) = DAANC6(1,4,N)+DAANC6L(1,4)
-        DAANC6(1,5,N) = DAANC6(1,5,N)+DAANC6L(1,5)
-        DAANC6(1,6,N) = DAANC6(1,6,N)+DAANC6L(1,6)
-        DAANC6(2,1,N) = DAANC6(2,1,N)+DAANC6L(2,1)
-        DAANC6(2,2,N) = DAANC6(2,2,N)+DAANC6L(2,2)
-        DAANC6(2,3,N) = DAANC6(2,3,N)+DAANC6L(2,3)
-        DAANC6(2,4,N) = DAANC6(2,4,N)+DAANC6L(2,4)
-        DAANC6(2,5,N) = DAANC6(2,5,N)+DAANC6L(2,5)
-        DAANC6(2,6,N) = DAANC6(2,6,N)+DAANC6L(2,6)
-        DAANC6(3,1,N) = DAANC6(3,1,N)+DAANC6L(3,1)
-        DAANC6(3,2,N) = DAANC6(3,2,N)+DAANC6L(3,2)
-        DAANC6(3,3,N) = DAANC6(3,3,N)+DAANC6L(3,3)
-        DAANC6(3,4,N) = DAANC6(3,4,N)+DAANC6L(3,4)
-        DAANC6(3,5,N) = DAANC6(3,5,N)+DAANC6L(3,5)
-        DAANC6(3,6,N) = DAANC6(3,6,N)+DAANC6L(3,6)
-      END DO
-C
-      RETURN
-      END
-C
-Chd|====================================================================
-Chd|  SPMD_FIADD20E_PON             source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|        GETDPDAANC                    source/mpi/interfaces/spmd_i7tool.F
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD20E_PON(
-     1       NB, LEN, NSVSI, BUFR, DAANC6, IXLINS, ALPHAK)
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "parit_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NB, LEN, NSVSI(*), IXLINS(2,*)
-      my_real
-     .        BUFR(LEN,*), ALPHAK(3,*)
-      DOUBLE PRECISION  DAANC6(3,6,*)
-C-----------------------------------------------
-C   L o c a l  V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I, N, NL1, NL2, INC ,ISIGN
-      DOUBLE PRECISION DAANC6L(3,6) 
-C-----------------------------------------------
-C   S o u r c e  L i n e s
-C-----------------------------------------------
-C
-      DO I = 1, NB
-        N = NSVSI(I)
-        NL1 = IXLINS(1,N)
-        NL2 = IXLINS(2,N)
-        ISIGN = 1
-        IF(ALPHAK(2,NL1) < ZERO .or. BUFR(1,I) < ZERO)ISIGN = -1
-        ALPHAK(2,NL1) = ISIGN*MIN(ABS(ALPHAK(2,NL1)),ABS(BUFR(1,I)))          
-        ISIGN = 1
-        IF(ALPHAK(2,NL2) < ZERO .or. BUFR(2,I) < ZERO)ISIGN = -1
-        ALPHAK(2,NL2) = ISIGN*MIN(ABS(ALPHAK(2,NL2)),ABS(BUFR(2,I)))          
-        CALL GETDPDAANC(DAANC6L,BUFR(3,I),IRESP,INC)
-        DAANC6(1,1,NL1) = DAANC6(1,1,NL1)+DAANC6L(1,1)
-        DAANC6(1,2,NL1) = DAANC6(1,2,NL1)+DAANC6L(1,2)
-        DAANC6(1,3,NL1) = DAANC6(1,3,NL1)+DAANC6L(1,3)
-        DAANC6(1,4,NL1) = DAANC6(1,4,NL1)+DAANC6L(1,4)
-        DAANC6(1,5,NL1) = DAANC6(1,5,NL1)+DAANC6L(1,5)
-        DAANC6(1,6,NL1) = DAANC6(1,6,NL1)+DAANC6L(1,6)
-        DAANC6(2,1,NL1) = DAANC6(2,1,NL1)+DAANC6L(2,1)
-        DAANC6(2,2,NL1) = DAANC6(2,2,NL1)+DAANC6L(2,2)
-        DAANC6(2,3,NL1) = DAANC6(2,3,NL1)+DAANC6L(2,3)
-        DAANC6(2,4,NL1) = DAANC6(2,4,NL1)+DAANC6L(2,4)
-        DAANC6(2,5,NL1) = DAANC6(2,5,NL1)+DAANC6L(2,5)
-        DAANC6(2,6,NL1) = DAANC6(2,6,NL1)+DAANC6L(2,6)
-        DAANC6(3,1,NL1) = DAANC6(3,1,NL1)+DAANC6L(3,1)
-        DAANC6(3,2,NL1) = DAANC6(3,2,NL1)+DAANC6L(3,2)
-        DAANC6(3,3,NL1) = DAANC6(3,3,NL1)+DAANC6L(3,3)
-        DAANC6(3,4,NL1) = DAANC6(3,4,NL1)+DAANC6L(3,4)
-        DAANC6(3,5,NL1) = DAANC6(3,5,NL1)+DAANC6L(3,5)
-        DAANC6(3,6,NL1) = DAANC6(3,6,NL1)+DAANC6L(3,6)
-        CALL GETDPDAANC(DAANC6L,BUFR(3+INC,I),IRESP,INC)
-        DAANC6(1,1,NL2) = DAANC6(1,1,NL2)+DAANC6L(1,1)
-        DAANC6(1,2,NL2) = DAANC6(1,2,NL2)+DAANC6L(1,2)
-        DAANC6(1,3,NL2) = DAANC6(1,3,NL2)+DAANC6L(1,3)
-        DAANC6(1,4,NL2) = DAANC6(1,4,NL2)+DAANC6L(1,4)
-        DAANC6(1,5,NL2) = DAANC6(1,5,NL2)+DAANC6L(1,5)
-        DAANC6(1,6,NL2) = DAANC6(1,6,NL2)+DAANC6L(1,6)
-        DAANC6(2,1,NL2) = DAANC6(2,1,NL2)+DAANC6L(2,1)
-        DAANC6(2,2,NL2) = DAANC6(2,2,NL2)+DAANC6L(2,2)
-        DAANC6(2,3,NL2) = DAANC6(2,3,NL2)+DAANC6L(2,3)
-        DAANC6(2,4,NL2) = DAANC6(2,4,NL2)+DAANC6L(2,4)
-        DAANC6(2,5,NL2) = DAANC6(2,5,NL2)+DAANC6L(2,5)
-        DAANC6(2,6,NL2) = DAANC6(2,6,NL2)+DAANC6L(2,6)
-        DAANC6(3,1,NL2) = DAANC6(3,1,NL2)+DAANC6L(3,1)
-        DAANC6(3,2,NL2) = DAANC6(3,2,NL2)+DAANC6L(3,2)
-        DAANC6(3,3,NL2) = DAANC6(3,3,NL2)+DAANC6L(3,3)
-        DAANC6(3,4,NL2) = DAANC6(3,4,NL2)+DAANC6L(3,4)
-        DAANC6(3,5,NL2) = DAANC6(3,5,NL2)+DAANC6L(3,5)
-        DAANC6(3,6,NL2) = DAANC6(3,6,NL2)+DAANC6L(3,6)
-      END DO
-C
-      RETURN
-      END
-C
-Chd|====================================================================
-Chd|  SPMD_FIADD_PON                source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        IBCOFF                        source/interfaces/interf/ibcoff.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD_PON(
+!||====================================================================
+!||    spmd_fiadd_pon    ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon   ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg            ../engine/source/output/message/message.F
+!||    arret             ../engine/source/system/arret.F
+!||    ibcoff            ../engine/source/interfaces/interf/ibcoff.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod           ../engine/share/modules/h3d_mod.F
+!||    message_mod       ../engine/share/message_module/message_mod.F
+!||    output_mod        ../common_source/modules/output/output_mod.F90
+!||    parameters_mod    ../common_source/modules/interfaces/parameters_mod.F
+!||====================================================================
+      SUBROUTINE SPMD_FIADD_PON(OUTPUT,
      1       NB     ,LEN    ,BUFR   ,NSV     ,FSKYI,
      2       ISKY   ,IBC    ,ISECIN ,NOINT   ,IBAG ,
      3       ICODT  ,SECFCUM,NSTRF  ,ICONTACT,FCONT,
      4       INACTI ,IADM   ,INTTH  ,FTHESKYI,CONDNSKYI,
      5       H3D_DATA,NIN   ,TAGNCONT,KLOADPINTER,LOADPINTER  ,
-     6       LOADP_HYD_INTER )
+     6       LOADP_HYD_INTER,INTCAREA,FSAV   ,PARAMETERS,NODADT_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE H3D_MOD
+      USE OUTPUT_MOD
+      USE PARAMETERS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1984,30 +1820,34 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), intent(inout) :: OUTPUT
       INTEGER NB, LEN, IBC  ,ISECIN  ,IBAG , NOINT, INACTI,NIN,
      .        NSV(*), ISKY(*), ICODT(*), NSTRF(*),ICONTACT(*),
      .        TAGNCONT(NLOADP_HYD_INTER,*),KLOADPINTER(*),LOADPINTER(*),
      .        LOADP_HYD_INTER(*),
      .        IADM,INTTH
+      INTEGER ,INTENT(IN):: INTCAREA
+      INTEGER, INTENT(IN) :: NODADT_THERM
       my_real
      .        BUFR(LEN,*),
      .        FSKYI(LSKYI,NFSKYI), SECFCUM(7,NUMNOD,NSECT),
      .        FCONT(3,*),FTHESKYI(LSKYI),CONDNSKYI(LSKYI)
+      my_real, INTENT(INOUT) :: FSAV(*) 
       TYPE(H3D_DATABASE) :: H3D_DATA
+      TYPE (PARAMETERS_) ,INTENT(IN):: PARAMETERS
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, II, N, NOD, K0, K1S, IBCS, IBCM, NBINTER,
      .        NISKY_SAV,TEMP_SIZ,IERROR,PP,PPL,NP
+      my_real FSAV29
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-      IF ((NISKY+NB).GT. LSKYI)THEN
+      IF ((NISKY+NB)> LSKYI)THEN
            CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
            CALL ARRET(2)
       ENDIF
@@ -2054,12 +1894,12 @@ C
 
 
 C
-C suite traitement i7for3 et i10for3 sur noeud secnd
+C continue i7for3 and i10for3 processing on secondary node
 C
-      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .   (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .   ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C Anim FCONT
         DO I = 1, NB
           N = NINT(BUFR(1,I))
@@ -2082,21 +1922,32 @@ C------------For /LOAD/PRESSURE tag nodes in contact-------------
             ENDDO
          ENDDO
        ENDIF
+C------------For outputting total contact area------------
+c         IF(INTCAREA > 0) THEN
+c           FSAV29 = ZERO
+c           DO I = 1, NB
+c              N = NINT(BUFR(1,I))
+c              NOD = NSV(N)
+c              FSAV29 = FSAV29 + PARAMETERS%INTAREAN(NOD)
+c            ENDDO
+c            FSAV(29) = FSAV(29) + FSAV29
+c         ENDIF
+C 
 C
-      IF(ISECIN.GT.0)THEN
+      IF(ISECIN>0)THEN
 C Sections
         K0=NSTRF(25)
-        IF(NSTRF(1)+NSTRF(2).NE.0)THEN
+        IF(NSTRF(1)+NSTRF(2)/=0)THEN
           DO I=1,NSECT
            NBINTER=NSTRF(K0+14)
            K1S=K0+30
            DO J=1,NBINTER
-            IF(NSTRF(K1S).EQ.NOINT)THEN
-              IF(ISECUT.NE.0)THEN
+            IF(NSTRF(K1S)==NOINT)THEN
+              IF(ISECUT/=0)THEN
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   NOD = NSV(N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
@@ -2111,12 +1962,12 @@ C Sections
         ENDIF
       ENDIF
 C
-      IF((IBAG.NE.0.AND.INACTI.NE.7).OR.
-     .   (IADM.NE.0).OR.(IDAMP_RDOF.NE.0))THEN ! attention conflit inacti=7 et ibag=3
+      IF((IBAG/=0.AND.INACTI/=7).OR.
+     .   (IADM/=0).OR.(IDAMP_RDOF/=0))THEN ! warning conflict inacti=7 and ibag=3
 C Airbags IBAG   
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
             N = NINT(BUFR(1,I))
             NOD = NSV(N)
             ICONTACT(NOD)=1
@@ -2124,11 +1975,11 @@ C Airbags IBAG
         END DO
       END IF
 C
-      IF(IBC.NE.0) THEN
+      IF(IBC/=0) THEN
         IBCM = IBC / 8
         IBCS = IBC - 8 * IBCM
 C Boundary cond.
-        IF(IBCS.GT.0) THEN
+        IF(IBCS>0) THEN
           DO I = 1, NB
             N = NINT(BUFR(1,I))
             NOD = NSV(N)
@@ -2139,18 +1990,20 @@ C Boundary cond.
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SPMD_FIADD20F_PON             source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        IBCOFF                        source/interfaces/interf/ibcoff.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD20F_PON(
+!||====================================================================
+!||    spmd_fiadd20f_pon   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon     ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg              ../engine/source/output/message/message.F
+!||    arret               ../engine/source/system/arret.F
+!||    ibcoff              ../engine/source/interfaces/interf/ibcoff.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod             ../engine/share/modules/h3d_mod.F
+!||    message_mod         ../engine/share/message_module/message_mod.F
+!||    output_mod          ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE SPMD_FIADD20F_PON(OUTPUT,
      1       NB     ,LEN    ,BUFR   ,NSV     ,FSKYI,
      2       ISKY   ,IBC    ,ISECIN ,NOINT   ,IBAG ,
      3       ICODT  ,SECFCUM,NSTRF  ,ICONTACT,FCONT,
@@ -2161,11 +2014,11 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -2178,11 +2031,10 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), intent(inout) :: OUTPUT
       INTEGER NB, LEN, IBC  ,ISECIN  ,IBAG , NOINT, INACTI,
      .        NSV(*), ISKY(*), ICODT(*), NSTRF(*), NLG(*),
      .        ICONTACT(*), IADM,INTTH
@@ -2198,13 +2050,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-      IF ((NISKY+NB).GT. LSKYI)THEN
+      IF ((NISKY+NB)> LSKYI)THEN
            CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
            CALL ARRET(2)
       ENDIF
 C
       IF(INTTH == 0 ) THEN
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
          DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = NLG(NSV(N))
@@ -2229,10 +2081,10 @@ C
          ENDDO
        ENDIF
 C
-C --- interface type 7 + la thermique
+C --- interface type 7 + thermal
 C
       ELSE
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
          DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = NLG(NSV(N))
@@ -2260,12 +2112,12 @@ C
         ENDIF
        ENDIF       
 C
-C suite traitement i7for3 et i10for3 sur noeud secnd
+C continue i7for3 and i10for3 processing on secondary node
 C
-      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .   (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .   ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C Anim FCONT
         DO I = 1, NB
           N = NINT(BUFR(1,I))
@@ -2276,20 +2128,20 @@ C Anim FCONT
         END DO
       END IF
 C
-      IF(ISECIN.GT.0)THEN
+      IF(ISECIN>0)THEN
 C Sections
         K0=NSTRF(25)
-        IF(NSTRF(1)+NSTRF(2).NE.0)THEN
+        IF(NSTRF(1)+NSTRF(2)/=0)THEN
           DO I=1,NSECT
            NBINTER=NSTRF(K0+14)
            K1S=K0+30
            DO J=1,NBINTER
-            IF(NSTRF(K1S).EQ.NOINT)THEN
-              IF(ISECUT.NE.0)THEN
+            IF(NSTRF(K1S)==NOINT)THEN
+              IF(ISECUT/=0)THEN
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   NOD = NLG(NSV(N))
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
@@ -2304,12 +2156,12 @@ C Sections
         ENDIF
       ENDIF
 C
-      IF((IBAG.NE.0.AND.INACTI.NE.7).OR.
-     .   IADM.NE.0)THEN ! attention conflit inacti=7 et ibag=3
+      IF((IBAG/=0.AND.INACTI/=7).OR.
+     .   IADM/=0)THEN ! warning conflict inacti=7 and ibag=3
 C Airbags IBAG
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
             N = NINT(BUFR(1,I))
             NOD = NLG(NSV(N))
             ICONTACT(NOD)=1
@@ -2317,11 +2169,11 @@ C Airbags IBAG
         END DO
       END IF
 C
-      IF(IBC.NE.0) THEN
+      IF(IBC/=0) THEN
         IBCM = IBC / 8
         IBCS = IBC - 8 * IBCM
 C Boundary cond.
-        IF(IBCS.GT.0) THEN
+        IF(IBCS>0) THEN
           DO I = 1, NB
             N = NINT(BUFR(1,I))
             NOD = NLG(NSV(N))
@@ -2333,33 +2185,35 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SPMD_FIADD11_PON              source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD11_PON(
+!||====================================================================
+!||    spmd_fiadd11_pon   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon    ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../engine/source/output/message/message.F
+!||    arret              ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod            ../engine/share/modules/h3d_mod.F
+!||    message_mod        ../engine/share/message_module/message_mod.F
+!||    output_mod         ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE SPMD_FIADD11_PON(OUTPUT,
      1       NB     ,LEN    ,BUFR  ,IRECTS  ,FSKYI,
      2       ISKY   ,IBC    ,ISECIN,NOINT   ,IBAG ,
      3       ICODT  ,SECFCUM,NSTRF ,ICONTACT,FCONT,
      4       INTTH  ,FTHESKYI,CONDNSKYI,H3D_DATA,
      5       NIN    ,TAGNCONT,KLOADPINTER,LOADPINTER,
-     7       LOADP_HYD_INTER)
+     7       LOADP_HYD_INTER,NODADT_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -2372,16 +2226,16 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(output_), intent(inout) :: OUTPUT
       INTEGER NB, LEN, IBC  ,ISECIN  ,IBAG , NOINT,INTTH,NIN,
      .        IRECTS(2,*), ISKY(*), ICODT(*), NSTRF(*),
      .        ICONTACT(*), 
      .        TAGNCONT(NLOADP_HYD_INTER,*),KLOADPINTER(*),LOADPINTER(*),
      .        LOADP_HYD_INTER(*)
+      INTEGER, INTENT(IN) :: NODADT_THERM
       my_real
      .        BUFR(LEN,*),
      .        FSKYI(LSKYI,NFSKYI), SECFCUM(7,NUMNOD,NSECT),
@@ -2394,13 +2248,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-      IF ((NISKY+NB).GT. LSKYI)THEN
+      IF ((NISKY+NB)> LSKYI)THEN
            CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
            CALL ARRET(2)
       ENDIF
 
       IF(INTTH == 0 ) THEN
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
         DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = IRECTS(1,N)
@@ -2441,7 +2295,7 @@ C-----------------------------------------------
        ENDIF
       ELSE
        IF(NODADT_THERM == 1) THEN ! Thermal Time Step
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
          DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = IRECTS(1,N)
@@ -2489,7 +2343,7 @@ C-----------------------------------------------
          ENDDO
         ENDIF
        ELSE
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
          DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = IRECTS(1,N)
@@ -2535,14 +2389,14 @@ C-----------------------------------------------
        ENDIF
       ENDIF
 C
-C suite traitement i11for3 sur noeud secnd
+C continue i11for3 processing on secondary node
 C
-      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .   (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .   ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C Anim FCONT
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
          DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = IRECTS(1,N)
@@ -2584,27 +2438,27 @@ C------------For /LOAD/PRESSURE tag nodes in contact-------------
          ENDDO
       ENDIF
 C
-      IF(ISECIN.GT.0)THEN
+      IF(ISECIN>0)THEN
 C Sections
         K0=NSTRF(25)
-        IF(NSTRF(1)+NSTRF(2).NE.0)THEN
+        IF(NSTRF(1)+NSTRF(2)/=0)THEN
           DO I=1,NSECT
            NBINTER=NSTRF(K0+14)
            K1S=K0+30
            DO J=1,NBINTER
-            IF(NSTRF(K1S).EQ.NOINT)THEN
-              IF(ISECUT.NE.0)THEN
-               IF(KDTINT.EQ.0)THEN
+            IF(NSTRF(K1S)==NOINT)THEN
+              IF(ISECUT/=0)THEN
+               IF(KDTINT==0)THEN
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   NOD = IRECTS(1,N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
                   ENDIF
                   NOD = IRECTS(2,N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(6,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(7,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(8,II)
@@ -2614,13 +2468,13 @@ C Sections
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   NOD = IRECTS(1,N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
                   ENDIF
                   NOD = IRECTS(2,N)
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(7,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(8,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(9,II)
@@ -2636,32 +2490,32 @@ C Sections
         ENDIF
       ENDIF
 C
-      IF((IBAG.NE.0).OR.(IDAMP_RDOF.NE.0))THEN
+      IF((IBAG/=0).OR.(IDAMP_RDOF/=0))THEN
 C Airbags IBAG
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
            N = NINT(BUFR(1,I))
            NOD = IRECTS(1,N)
            ICONTACT(NOD)=1
           END IF
-          IF(BUFR(6,I).NE.ZERO.OR.BUFR(7,I).NE.ZERO.OR.
-     +       BUFR(8,I).NE.ZERO) THEN
+          IF(BUFR(6,I)/=ZERO.OR.BUFR(7,I)/=ZERO.OR.
+     +       BUFR(8,I)/=ZERO) THEN
            NOD = IRECTS(2,N)
            ICONTACT(NOD)=1
           END IF
         END DO
        ELSE
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
            N = NINT(BUFR(1,I))
            NOD = IRECTS(1,N)
            ICONTACT(NOD)=1
           END IF
-          IF(BUFR(7,I).NE.ZERO.OR.BUFR(8,I).NE.ZERO.OR.
-     +       BUFR(9,I).NE.ZERO) THEN
+          IF(BUFR(7,I)/=ZERO.OR.BUFR(8,I)/=ZERO.OR.
+     +       BUFR(9,I)/=ZERO) THEN
            NOD = IRECTS(2,N)
            ICONTACT(NOD)=1
           END IF
@@ -2672,17 +2526,19 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_FIADD20FE_PON            source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD20FE_PON(
+!||====================================================================
+!||    spmd_fiadd20fe_pon   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon      ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg               ../engine/source/output/message/message.F
+!||    arret                ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod              ../engine/share/modules/h3d_mod.F
+!||    message_mod          ../engine/share/message_module/message_mod.F
+!||    output_mod           ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE SPMD_FIADD20FE_PON(OUTPUT,
      1       NB     ,LEN    ,BUFR  ,IRECTS  ,FSKYI,
      2       ISKY   ,IBC    ,ISECIN,NOINT   ,IBAG ,
      3       ICODT  ,SECFCUM,NSTRF ,ICONTACT,FCONT,
@@ -2692,11 +2548,11 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -2709,11 +2565,10 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
       INTEGER NB, LEN, IBC  ,ISECIN  ,IBAG , NOINT,
      .        IRECTS(2,*), ISKY(*), ICODT(*), NSTRF(*),
      .        ICONTACT(*),NLG(*)
@@ -2729,12 +2584,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-      IF ((NISKY+NB).GT. LSKYI)THEN
+      IF ((NISKY+NB)> LSKYI)THEN
            CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
            CALL ARRET(2)
       ENDIF
 
-      IF(KDTINT.EQ.0)THEN
+      IF(KDTINT==0)THEN
         DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = NLG(IRECTS(1,N))
@@ -2774,14 +2629,14 @@ C-----------------------------------------------
         ENDDO
       ENDIF
 C
-C suite traitement i11for3 sur noeud secnd
+C continue i11for3 processing on secondary node
 C
-      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .   (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .   ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C Anim FCONT
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
          DO I = 1, NB
           N = NINT(BUFR(1,I))
           NOD = NLG(IRECTS(1,N))
@@ -2808,27 +2663,27 @@ C Anim FCONT
         END IF
       END IF
 C
-      IF(ISECIN.GT.0)THEN
+      IF(ISECIN>0)THEN
 C Sections
         K0=NSTRF(25)
-        IF(NSTRF(1)+NSTRF(2).NE.0)THEN
+        IF(NSTRF(1)+NSTRF(2)/=0)THEN
           DO I=1,NSECT
            NBINTER=NSTRF(K0+14)
            K1S=K0+30
            DO J=1,NBINTER
-            IF(NSTRF(K1S).EQ.NOINT)THEN
-              IF(ISECUT.NE.0)THEN
-               IF(KDTINT.EQ.0)THEN
+            IF(NSTRF(K1S)==NOINT)THEN
+              IF(ISECUT/=0)THEN
+               IF(KDTINT==0)THEN
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   NOD = NLG(IRECTS(1,N))
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
                   ENDIF
                   NOD = NLG(IRECTS(2,N))
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(6,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(7,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(8,II)
@@ -2838,13 +2693,13 @@ C Sections
                 DO II = 1, NB
                   N = NINT(BUFR(1,II))
                   NOD = NLG(IRECTS(1,N))
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(2,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(3,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(4,II)
                   ENDIF
                   NOD = NLG(IRECTS(2,N))
-                  IF(SECFCUM(4,NOD,I).EQ.1.)THEN
+                  IF(SECFCUM(4,NOD,I)==1.)THEN
                     SECFCUM(1,NOD,I)=SECFCUM(1,NOD,I)+BUFR(7,II)
                     SECFCUM(2,NOD,I)=SECFCUM(2,NOD,I)+BUFR(8,II)
                     SECFCUM(3,NOD,I)=SECFCUM(3,NOD,I)+BUFR(9,II)
@@ -2860,32 +2715,32 @@ C Sections
         ENDIF
       ENDIF
 C
-      IF(IBAG.NE.0)THEN
+      IF(IBAG/=0)THEN
 C Airbags IBAG
-       IF(KDTINT.EQ.0)THEN
+       IF(KDTINT==0)THEN
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
            N = NINT(BUFR(1,I))
            NOD = NLG(IRECTS(1,N))
            ICONTACT(NOD)=1
           END IF
-          IF(BUFR(6,I).NE.ZERO.OR.BUFR(7,I).NE.ZERO.OR.
-     +       BUFR(8,I).NE.ZERO) THEN
+          IF(BUFR(6,I)/=ZERO.OR.BUFR(7,I)/=ZERO.OR.
+     +       BUFR(8,I)/=ZERO) THEN
            NOD = NLG(IRECTS(2,N))
            ICONTACT(NOD)=1
           END IF
         END DO
        ELSE
         DO I = 1, NB
-          IF(BUFR(2,I).NE.ZERO.OR.BUFR(3,I).NE.ZERO.OR.
-     +       BUFR(4,I).NE.ZERO) THEN
+          IF(BUFR(2,I)/=ZERO.OR.BUFR(3,I)/=ZERO.OR.
+     +       BUFR(4,I)/=ZERO) THEN
            N = NINT(BUFR(1,I))
            NOD = NLG(IRECTS(1,N))
            ICONTACT(NOD)=1
           END IF
-          IF(BUFR(7,I).NE.ZERO.OR.BUFR(8,I).NE.ZERO.OR.
-     +       BUFR(9,I).NE.ZERO) THEN
+          IF(BUFR(7,I)/=ZERO.OR.BUFR(8,I)/=ZERO.OR.
+     +       BUFR(9,I)/=ZERO) THEN
            NOD = NLG(IRECTS(2,N))
            ICONTACT(NOD)=1
           END IF
@@ -2896,26 +2751,28 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_FIADD17_PON              source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE SPMD_FIADD17_PON(
+!||====================================================================
+!||    spmd_fiadd17_pon   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon    ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    h3d_mod            ../engine/share/modules/h3d_mod.F
+!||    output_mod         ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE SPMD_FIADD17_PON(OUTPUT,
      1       NB     ,LEN    ,BUFR  ,NELEMS ,FSKYI ,
      2       ISKY   ,FCONT  ,IXS   ,IXS16  ,H3D_DATA  )
-c     2       ISKY   ,FCONT  ,IXS   ,IXS16  ,FROTS )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -2923,20 +2780,16 @@ C-----------------------------------------------
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
       INTEGER NB, LEN, 
      .        NELEMS(*), ISKY(*), IXS(NIXS,*), IXS16(8,*)
-      my_real
-     .        BUFR(LEN,*),
+      my_real BUFR(LEN,*),
      .        FSKYI(LSKYI,NFSKYI),
      .        FCONT(3,*)
       TYPE(H3D_DATABASE) :: H3D_DATA
@@ -2949,14 +2802,10 @@ C   S o u r c e  L i n e s
 C-----------------------------------------------
       DO I = 1, NB
         NN = NINT(BUFR(1,I))
-        IES = NELEMS(NN)
-c        FROTS(1,NN) = FROTS(1,NN) + BUFR(2,I)                       
-c        FROTS(2,NN) = FROTS(2,NN) + BUFR(3,I)                       
-c        FROTS(3,NN) = FROTS(3,NN) + BUFR(4,I)                       
-c        FROTS(4,NN) = FROTS(4,NN) + BUFR(5,I)                       
+        IES = NELEMS(NN)                    
         DO II =1,8
           IIIS = NINT(BUFR(6+(II-1)*5,I))
-          IF(IIIS.LE.8)THEN
+          IF(IIIS<=8)THEN
             NOD = IXS(IIIS+1,IES)
           ELSE
             NOD = IXS16(IIIS-8,IES-NUMELS8-NUMELS10-NUMELS20)
@@ -2970,19 +2819,19 @@ c        FROTS(4,NN) = FROTS(4,NN) + BUFR(5,I)
         END DO
       END DO
 C
-C suite traitement i11for3 sur noeud secnd
+C following i11for3 process on secondary nodes
 C
-      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .   (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))
-     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX.GT.0)THEN
+      IF((ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .   ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))
+     .   .OR.ANIM_V(26)+H3D_DATA%N_VECT_CONT_MAX>0)THEN
 C Anim FCONT
         DO I = 1, NB
           IES = NELEMS(NINT(BUFR(1,I)))
           DO II =1,8
             IIIS = NINT(BUFR(6+(II-1)*5,I))
 c            IIIS = NINT(BUFR(10+(II-1)*5,I))
-            IF(IIIS.LE.8)THEN
+            IF(IIIS<=8)THEN
               NOD = IXS(IIIS+1,IES)
             ELSE
               NOD = IXS16(IIIS-8,IES-NUMELS8-NUMELS10-NUMELS20)
@@ -2997,25 +2846,28 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  MPP_INIT                      source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        RESOL_INIT                    source/engine/resol_init.F    
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        SPMD_IBCAST                   source/mpi/generic/spmd_ibcast.F
-Chd|        SPMD_SPLIT_COMM               source/mpi/init/spmd_split_comm.F
-Chd|        SPMD_SPLIT_COMM_INTER         source/mpi/interfaces/spmd_split_comm_inter.F
-Chd|        SPMD_SPLIT_COMM_JOINT         source/mpi/init/spmd_split_comm_joint.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTERFACE_MODIFICATION_MOD    share/modules/interface_modification_mod.F
-Chd|        INTER_SORTING_MOD             share/modules/inter_sorting_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    mpp_init                     ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    resol_init                   ../engine/source/engine/resol_init.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                       ../engine/source/output/message/message.F
+!||    my_orders                    ../common_source/tools/sort/my_orders.c
+!||    spmd_ibcast                  ../engine/source/mpi/generic/spmd_ibcast.F
+!||    spmd_split_comm              ../engine/source/mpi/init/spmd_split_comm.F
+!||    spmd_split_comm_inter        ../engine/source/mpi/interfaces/spmd_split_comm_inter.F
+!||    spmd_split_comm_joint        ../engine/source/mpi/init/spmd_split_comm_joint.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod                 ../common_source/modules/groupdef_mod.F
+!||    intbufdef_mod                ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    inter_sorting_mod            ../engine/share/modules/inter_sorting_mod.F
+!||    interface_modification_mod   ../engine/share/modules/interface_modification_mod.F
+!||    message_mod                  ../engine/share/message_module/message_mod.F
+!||    my_alloc_mod                 ../common_source/tools/memory/my_alloc.F90
+!||    sensor_mod                   ../common_source/modules/sensor_mod.F90
+!||    tri25ebox                    ../engine/share/modules/tri25ebox.F
+!||    tri7box                      ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE MPP_INIT(
      1   IPARI   ,ISENDTO ,IRCVFROM,INTLIST ,NBINTC  ,
      2   ISIZXV  ,ILENXV  ,IAD_ELEM,I2SIZE  ,ITASK   ,
@@ -3023,9 +2875,9 @@ Chd|====================================================================
      4   NME17   ,ISLEN17 ,IRLEN17 ,IRLEN7T ,ISLEN7T ,
      5   LINDIDEL,LBUFIDEL,IRLEN20 ,ISLEN20 ,IRLEN20T,
      6   ISLEN20T,NBINT20 ,IRLEN20E,ISLEN20E,FR_RBY  ,
-     7   FR_RBY6 ,NPBY    ,IRBKIN_L,
-     8   NRBYKIN_L,KINDRBY,SENSOR,LBUFIDEL24,INTBUF_TAB,
-     9   SORT_COMM)
+     7   FR_RBY6 ,NPBY    ,IRBKIN_L,NRBYKIN_L,KINDRBY,
+     8   NSENSOR ,SENSOR_TAB,LBUFIDEL24,INTBUF_TAB,
+     9   SORT_COMM,NEED_COMM_INT25_SOLID_EROSION,COMM_INT25_SOLID_EROSION )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -3036,18 +2888,18 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE INTERFACE_MODIFICATION_MOD
       USE INTER_SORTING_MOD
+      USE SENSOR_MOD
+      USE MY_ALLOC_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "scr17_c.inc"
 #include      "scr18_c.inc"
 #include      "task_c.inc"
@@ -3055,12 +2907,13 @@ C-----------------------------------------------
 #include      "units_c.inc"
 #include      "warn_c.inc"
 #include      "tabsiz_c.inc"
-C commun local a spmd_init et spmd_ring_mmx
+C common local to spmd_init and spmd_ring_mmx
        COMMON /RING/IRECVF,ISENDT,IRING
        INTEGER IRECVF,ISENDT,IRING
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NSENSOR
       INTEGER ISENDTO(NINTER+1,NSPMD+1),
      .        IRCVFROM(NINTER+1,NSPMD+1), IPARI(NPARI,*),
      .        INTLIST(NINTER), IAD_ELEM(2,*),
@@ -3070,11 +2923,11 @@ C-----------------------------------------------
      .        IRLEN20,ISLEN20,IRLEN20T,ISLEN20T,NBINT20,
      .        IRLEN20E, ISLEN20E, NRBYKIN_L, IRBKIN_L(*),KINDRBY(*),
      .        FR_RBY(*), FR_RBY6(*), NPBY(NNPBY,*),LBUFIDEL24
-      my_real
-     .        SENSOR(NSENSR,*)
-
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
       TYPE(sorting_comm_type), DIMENSION(NINTER), INTENT(inout) :: SORT_COMM   ! structure for interface sorting comm
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) :: SENSOR_TAB
+      LOGICAL, DIMENSION(NSPMD), INTENT(inout) :: NEED_COMM_INT25_SOLID_EROSION !< boolean, true if the proc needs to comm some values related to interface type 25 with solid erosion
+      INTEGER, INTENT(inout) :: COMM_INT25_SOLID_EROSION !< integer, sub-communicator related to interface type 25 with solid erosion
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRBRIC) :: IGRBRIC
 C-----------------------------------------------
@@ -3083,56 +2936,72 @@ C-----------------------------------------------
       INTEGER I, J, K, NSN, NMN, ITYP, IERROR, IERROR1, KK, NIN, P,
      .        SCPMAX1,ISD,IRC,MY_RANK,LAST, IGE, IGN, NME, NMES,INTTH,
      .        NRTM, NRTS, NLINM, NLINS,NSNE, NMNE,N,M,
-     .        WORK(70000),INDX(2*NINTER), PPAR(NINTER),
-     .        INDP(2*NSPMD),NNP(NSPMD),RANK(NSPMD),IRBODY(NUMNOD),
-     .        INDB(2*NRBYKIN),NNSN(NRBYKIN),
-     .        ITY,NOINT,INACTI,ISENS,INTERACT
+     .        WORK(70000),ITY,NOINT,INACTI,ISENS,INTERACT
+      INTEGER,DIMENSION(:), ALLOCATABLE:: INDX
+      INTEGER,DIMENSION(:), ALLOCATABLE:: PPAR
+      INTEGER,DIMENSION(:), ALLOCATABLE:: INDP
+      INTEGER,DIMENSION(:), ALLOCATABLE:: NNP
+      INTEGER,DIMENSION(:), ALLOCATABLE:: RANK
+      INTEGER,DIMENSION(:), ALLOCATABLE:: IRBODY
+      INTEGER,DIMENSION(:), ALLOCATABLE:: INDB
+      INTEGER,DIMENSION(:), ALLOCATABLE:: NNSN
       my_real STARTT, STOPT,TS
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
+      CALL MY_ALLOC(INDX,2*NINTER)
+      CALL MY_ALLOC(PPAR,NINTER)
+      CALL MY_ALLOC(INDP,2*NSPMD)
+      CALL MY_ALLOC(NNP,NSPMD)
+      CALL MY_ALLOC(RANK,NSPMD)
+      CALL MY_ALLOC(IRBODY,NUMNOD)
+      CALL MY_ALLOC(INDB,2*NRBYKIN)
+      CALL MY_ALLOC(NNSN,NRBYKIN)
+C-----------------------------------------------
 C
-C ne sert plus que dans spmd_anim (a virer)
-        NEW_BOUND = 1
-        NEW_BOUND_E = 1
-        NEW_BOUND_A = 1
-        NEW_BOUND_V = 1
-C iexicodt : flag pour envoi icodt en cours de run
+C iexicodt : flag for sending icodt during run
         IEXICODT = 0
 C
         LINDIDEL = 0
         LBUFIDEL = 0
         LBUFIDEL24 = 0
 C
-        IF(NINTER.NE.0) THEN
-
-
-C Cas INACTI = 5, 6 ou 7 + TSTART
+        !init ISENDTO/IRCVFROM
+        DO I=1,NINTER+1
+          DO J=1,NSPMD+1
+            ISENDTO(I,J)=0
+            IRCVFROM(I,J)=0
+          ENDDO
+        ENDDO
+C
+        !-----------------------------------------------        
+        IF(NINTER/=0) THEN
+C Case INACTI = 5, 6 or 7 + TSTART
          ALLOCATE(NSNFI_FLAG(NINTER))
          NSNFI_FLAG(1:NINTER)=0 
 
          DO I=1,NINTER
            ITY = IPARI(7,I)
-           IF(ITY.EQ.7.OR.ITY.EQ.10.OR.ITY.EQ.11.OR.
-     .        ITY.EQ.17.OR.ITY.EQ.20.OR.
-     .        ITY.EQ.22.OR.ITY.EQ.23.OR.ITY.EQ.24.OR.ITY.EQ.25) THEN
+           IF(ITY==7.OR.ITY==10.OR.ITY==11.OR.
+     .        ITY==17.OR.ITY==20.OR.
+     .        ITY==22.OR.ITY==23.OR.ITY==24.OR.ITY==25) THEN
              INACTI=IPARI(22,I)
-             IF (INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.ITY.EQ.23.OR.INACTI==-1)THEN
+             IF (INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.ITY==23.OR.INACTI==-1)THEN
 C
               INTERACT = 1
               ISENS = 0
               IF(ITY == 7.OR.ITY == 11.OR.ITY == 24.OR.ITY == 25) 
      .           ISENS = IPARI(64,I)      
-              IF(ISENS.NE.0) THEN            
-                TS = SENSOR(2,ISENS)
-                IF (TS.GT.TT) INTERACT = 0
+              IF (ISENS > 0) THEN            
+                TS = SENSOR_TAB(ISENS)%TSTART
+                IF (TS>TT) INTERACT = 0
               ELSE
                 STARTT = INTBUF_TAB(I)%VARIABLES(3)
                 STOPT  = INTBUF_TAB(I)%VARIABLES(11)
-                IF (STARTT.GT.TT) INTERACT = 0
+                IF (STARTT>TT) INTERACT = 0
               ENDIF
 C
-              IF (INTERACT.EQ.0)THEN
+              IF (INTERACT==0)THEN
                  NOINT =IPARI(15,I)
 C Printout Warning
                  IF(ISPMD==0)THEN
@@ -3140,7 +3009,7 @@ C Printout Warning
      *                     I1=NOINT,I2=INACTI,R1=STARTT,R2=STARTT)
                  ENDIF             
               ENDIF
-              IF (INTERACT.EQ.0 .AND. ITY /=25)THEN ! All but ITY == 25
+              IF (INTERACT==0 .AND. ITY /=25)THEN ! All but ITY == 25
                  ALLOCATE(NSNFI_SAV(I)%P(NSPMD))
                  ALLOCATE(NSNSI_SAV(I)%P(NSPMD))
                  NSNFI_SAV(I)%P(1:NSPMD)=NSNFI(I)%P(1:NSPMD)
@@ -3157,33 +3026,33 @@ C Printout Warning
 C
 C Alloc Idel
 C
-          IF(IDEL7NG.GT.0)THEN
+          IF(IDEL7NG>0)THEN
             DO I = 1, NINTER
-              IF(IPARI(17,I).GT.0)THEN
+              IF(IPARI(17,I)>0)THEN
                 ITYP = IPARI(7,I)
                 NRTS = IPARI(3,I)
                 NRTM = IPARI(4,I)
                 NSN  = IPARI(5,I)
-                IF(ITYP.EQ.7.OR.ITYP.EQ.22.OR.
-     .             ITYP.EQ.10.OR.ITYP.EQ.5.OR.
-     .             ITYP.EQ.23.OR.ITYP.EQ.24.OR.
-     .             ITYP.EQ.25)THEN
+                IF(ITYP==7.OR.ITYP==22.OR.
+     .             ITYP==10.OR.ITYP==5.OR.
+     .             ITYP==23.OR.ITYP==24.OR.
+     .             ITYP==25)THEN
                   LINDIDEL = LINDIDEL+NRTM
                   LBUFIDEL = LBUFIDEL+4*NRTM+4
                   IF(ITYP==24.OR.ITYP==25) LBUFIDEL24 = LBUFIDEL24 + NRTM
-                ELSEIF(ITYP.EQ.11)THEN 
+                ELSEIF(ITYP==11)THEN 
                   LINDIDEL = LINDIDEL+NRTM+NRTS
                   LBUFIDEL = LBUFIDEL+2*(NRTM+NRTS)+4
-                ELSEIF(ITYP.EQ.3)THEN
+                ELSEIF(ITYP==3)THEN
                   LINDIDEL = LINDIDEL+NRTM+NRTS
                   LBUFIDEL = LBUFIDEL+4*(NRTM+NRTS)+4
-                ELSEIF(ITYP.EQ.2)THEN
+                ELSEIF(ITYP==2)THEN
                   LINDIDEL = LINDIDEL+NSN
                   LBUFIDEL = LBUFIDEL+4*NSN+4
-                ELSEIF(ITYP.EQ.20)THEN
+                ELSEIF(ITYP==20)THEN
                   LINDIDEL = LINDIDEL+NRTM
                   LBUFIDEL = LBUFIDEL+4*NRTM+4
-C partie edge
+C Edge part
                   NLINS  = IPARI(51,I)                                   
                   NLINM  = IPARI(52,I)                                   
                   LINDIDEL = LINDIDEL+NLINM+NLINS
@@ -3193,28 +3062,21 @@ C partie edge
             END DO
           END IF
 C
-          DO I=1,NINTER+1
-            DO J=1,NSPMD+1
-              ISENDTO(I,J)=0
-              IRCVFROM(I,J)=0
-            ENDDO
-          ENDDO
-C
           NME17=0
 C
           DO I=1,NINTER
             ITYP = IPARI(7,I)
-            IF (ITYP.EQ.7.OR.ITYP.EQ.10.OR.ITYP.EQ.22.OR.
-     .          ITYP.EQ.11.OR.ITYP.EQ.23.OR.ITYP.EQ.24.OR.
-     .          ITYP.EQ.25) THEN
+            IF (ITYP==7.OR.ITYP==10.OR.ITYP==22.OR.
+     .          ITYP==11.OR.ITYP==23.OR.ITYP==24.OR.
+     .          ITYP==25) THEN
               NSN = IPARI(5,I)
               NMN = IPARI(6,I)               
-              IF(NSN.NE.0) THEN
+              IF(NSN/=0) THEN
                 ISENDTO(I,ISPMD+1)=NSN
                 ISENDTO(I,NSPMD+1)=ISENDTO(I,NSPMD+1)+1
                 ISENDTO(NINTER+1,ISPMD+1)=ISENDTO(NINTER+1,ISPMD+1)+NSN
               ENDIF
-              IF(NMN.NE.0) THEN
+              IF(NMN/=0) THEN
                 IRCVFROM(I,ISPMD+1) = NMN
                 IRCVFROM(I,NSPMD+1)=IRCVFROM(I,NSPMD+1)+1
                 IRCVFROM(NINTER+1,ISPMD+1)=IRCVFROM(NINTER+1,ISPMD+1)
@@ -3222,39 +3084,39 @@ C
               ENDIF
 
 
-            ELSEIF(ITYP.EQ.17)THEN
+            ELSEIF(ITYP==17)THEN
               IF(IPARI(33,I)==0)THEN
                 IGN = IPARI(36,I)
                 IGE = IPARI(34,I)
                 NMES= IGRBRIC(IGN)%NENTITY
                 NME = IGRBRIC(IGE)%NENTITY
                 NME17 = NME17+NME+NMES
-                IF(NMES.NE.0) THEN
+                IF(NMES/=0) THEN
                   ISENDTO(I,ISPMD+1)=NMES
                   ISENDTO(I,NSPMD+1)=ISENDTO(I,NSPMD+1)+1
                   ISENDTO(NINTER+1,ISPMD+1)=ISENDTO(NINTER+1,ISPMD+1)
      +                                     +NMES
                 ENDIF
-                IF(NME.NE.0) THEN
+                IF(NME/=0) THEN
                   IRCVFROM(I,ISPMD+1) = NME
                   IRCVFROM(I,NSPMD+1)=IRCVFROM(I,NSPMD+1)+1
                   IRCVFROM(NINTER+1,ISPMD+1)=IRCVFROM(NINTER+1,ISPMD+1)
      +                                      +NME
                 ENDIF                
               END IF
-            ELSEIF(ITYP.EQ.20)THEN
+            ELSEIF(ITYP==20)THEN
               NSN  = IPARI(5,I)
               NMN = IPARI(6,I)  
-C partie edge rajoutee             
+C Edge part added             
               NSNE   = IPARI(55,I)                                   
               NMNE   = IPARI(56,I)                                   
-              IF(NSN+NSNE.NE.0) THEN
+              IF(NSN+NSNE/=0) THEN
                 ISENDTO(I,ISPMD+1)=NSN+NSNE
                 ISENDTO(I,NSPMD+1)=ISENDTO(I,NSPMD+1)+1
                 ISENDTO(NINTER+1,ISPMD+1)=ISENDTO(NINTER+1,ISPMD+1)
      +                                   +NSN+NSNE
               ENDIF
-              IF(NMN+NMNE.NE.0) THEN
+              IF(NMN+NMNE/=0) THEN
                 IRCVFROM(I,ISPMD+1) = NMN+NMNE
                 IRCVFROM(I,NSPMD+1)=IRCVFROM(I,NSPMD+1)+1
                 IRCVFROM(NINTER+1,ISPMD+1)=IRCVFROM(NINTER+1,ISPMD+1)
@@ -3275,21 +3137,23 @@ C
             ISENDTO(I,NSPMD+1)=0
             IRCVFROM(I,NSPMD+1)=0
             DO K=1,NSPMD
-              IF(IRCVFROM(I,K).NE.0) THEN
+              IF(IRCVFROM(I,K)/=0) THEN
                 IRCVFROM(I,NSPMD+1)=IRCVFROM(I,NSPMD+1)+1
               ENDIF
-              IF(ISENDTO(I,K).NE.0) THEN
+              IF(ISENDTO(I,K)/=0) THEN
                 ISENDTO(I,NSPMD+1)=ISENDTO(I,NSPMD+1)+1
               ENDIF
             END DO
           END DO
-        END IF
+        END IF !(NINTER/=0)
+        !-----------------------------------------------
+        
         NBINTC = 0
         DO I=1,NINTER
           ITYP = IPARI(7,I)
-          IF (ITYP.EQ.7.OR.ITYP.EQ.10.OR.ITYP.EQ.11.OR.
-     .        (ITYP.EQ.17.AND.IPARI(33,I) == 0).OR.ITYP.EQ.20.OR.
-     .        ITYP.EQ.22.OR.ITYP.EQ.23.OR.ITYP.EQ.24.OR.ITYP.EQ.25) THEN
+          IF (ITYP==7.OR.ITYP==10.OR.ITYP==11.OR.
+     .        (ITYP==17.AND.IPARI(33,I) == 0).OR.ITYP==20.OR.
+     .        ITYP==22.OR.ITYP==23.OR.ITYP==24.OR.ITYP==25) THEN
             NBINTC = NBINTC + 1
             INTLIST(NBINTC) = I
             SCPMAX1=0
@@ -3308,7 +3172,7 @@ C
           INTLIST(I)=INDX(INDX(I)+NBINTC)
         ENDDO
 C
-        IF(DEBUG(3).GE.1.AND.ISPMD.EQ.0.AND.NSPMD.GT.1) THEN
+        IF(DEBUG(3)>=1.AND.ISPMD==0.AND.NSPMD>1) THEN
           WRITE(ISTDO,*)'** INTERFACES NODAL DECOMPOSITION '
           WRITE(ISTDO,*)'#PROC  NSN TOT   NMN TOT     TOTAL'
           WRITE(IOUT,*)'** INTERFACES NODAL DECOMPOSITION '
@@ -3325,7 +3189,7 @@ C
           ENDDO
         ENDIF
 C
-C preparation pour comm dans spmd_icrit
+C preparation for communication in spmd_icrit
 C
         DO K=1,NSPMD
           NNP(K) = IRCVFROM(NINTER+1,K) + ISENDTO(NINTER+1,K)
@@ -3338,25 +3202,25 @@ C
         IRECVF = 0
         ISENDT = 0
         IRING = 0
-        IF(NNP(ISPMD+1).GT.0)THEN
+        IF(NNP(ISPMD+1)>0)THEN
           MY_RANK = RANK(ISPMD+1)
-          IF(MY_RANK.GT.1)THEN
+          IF(MY_RANK>1)THEN
             LAST = INDP(MY_RANK-1)
-            IF(NNP(LAST).GT.0)THEN
+            IF(NNP(LAST)>0)THEN
               IRECVF = LAST
             END IF
           END IF
-          IF(MY_RANK.EQ.NSPMD)THEN         ! DERNIER PROC DU RING
-            IF(IRECVF.NE.0) ISENDT = -1      ! -1 : ENVOI A TS LE MONDE (SI COMM NECESSAIRE)
-          ELSE ! PROCESSEUR DANS LE RING
+          IF(MY_RANK==NSPMD)THEN         ! LAST PROC OF THE RING
+            IF(IRECVF/=0) ISENDT = -1      ! -1 : ENVOI A TS LE MONDE (SI COMM NECESSAIRE)
+          ELSE ! PROCESSOR IN THE RING
             ISENDT = INDP(MY_RANK+1)
           END IF
-          IF(NSPMD.GT.1) THEN
-            IF(NNP(INDP(NSPMD-1)).GT.0)IRING= INDP(NSPMD) ! IRING = NO DU DERNIER PROCESSEUR DS LE RING (OU 0 SI PAS DE RING NECESSAIRE) 
+          IF(NSPMD>1) THEN
+            IF(NNP(INDP(NSPMD-1))>0)IRING= INDP(NSPMD) ! IRING = NO OF THE LAST PROCESSOR IN THE RING (OR 0 IF NO RING NECESSARY)
           END IF
         END IF
 C
-C longueur comm routine SPMD_SD_XV
+C length com routine SPMD_SD_XV
 C
         ISIZXV = 0
         DO I = 1, NSPMD
@@ -3365,19 +3229,19 @@ C
 
         ILENXV = 10 + 3*IRODDL
 C comm w
-        IF(IALE.NE.0.AND.NINTER.GT.0) ILENXV = ILENXV + 6
+        IF(IALE/=0.AND.NINTER>0) ILENXV = ILENXV + 6
 
-        IF(IDTMIN(11).EQ.3.OR.IDTMIN(10).EQ.3) ILENXV = ILENXV + 2
+        IF(IDTMIN(11)==3.OR.IDTMIN(10)==3) ILENXV = ILENXV + 2
 C
-C longueur comm routine EXCH_A_INT2_PON
+C length com routine exch_a_int2_pon
 C
-        IF(IRODDL.EQ.0) THEN
+        IF(IRODDL==0) THEN
           I2SIZE = 5
         ELSE
           I2SIZE = 10
         ENDIF
 C
-C longueur comm routine I7XVCOM et I7FCOM
+C Comm routine length i7 xcom and i7 xcom
 C
         ISLEN7 = 0
         IRLEN7 = 0
@@ -3403,10 +3267,10 @@ C
           NIN = INTLIST(I)
           ITYP = IPARI(7,NIN)
           INTTH = IPARI(47,NIN)
-C type 7 ou 10
-          IF(ITYP.EQ.7 .OR.ITYP.EQ.10.OR.
-     .       ITYP.EQ.23.OR.ITYP.EQ.22.OR.ITYP.EQ.24.OR.
-     .       ITYP.EQ.25)THEN
+C type 7 or 10
+          IF(ITYP==7 .OR.ITYP==10.OR.
+     .       ITYP==23.OR.ITYP==22.OR.ITYP==24.OR.
+     .       ITYP==25)THEN
            IF(INTTH == 0) THEN 
              DO P = 1, NSPMD
                ISLEN7 = ISLEN7 + NSNSI(NIN)%P(P)
@@ -3424,19 +3288,19 @@ C type 7 ou 10
             IRLEN25E= SUM(NSNFIE(NIN)%P(1:NSPMD))
           ENDIF
 
-          ELSEIF(ITYP.EQ.11) THEN
+          ELSEIF(ITYP==11) THEN
 C type 11
              DO P = 1, NSPMD
                ISLEN11 = ISLEN11 + NSNSI(NIN)%P(P)
                IRLEN11 = IRLEN11 + NSNFI(NIN)%P(P)
              END DO
-          ELSEIF(ITYP.EQ.17.AND.IPARI(33,NIN).EQ.0)THEN
+          ELSEIF(ITYP==17.AND.IPARI(33,NIN)==0)THEN
 C type 17 curvature
              DO P = 1, NSPMD
                ISLEN17 = ISLEN17 + NSNSI(NIN)%P(P)
                IRLEN17 = IRLEN17 + NSNFI(NIN)%P(P)
              END DO
-          ELSEIF(ITYP.EQ.20)THEN
+          ELSEIF(ITYP==20)THEN
 C type 20
            NBINT20 = NBINT20 + 1
            IF(INTTH == 0) THEN 
@@ -3475,7 +3339,7 @@ C
               NNSN(NRBYKIN_L)=-NPBY(2,N)
               IRBKIN_L(NRBYKIN_L)=N
 c           ELSE
-c             if(NPBY(2,N) .NE. 0) print*,'error!!!'
+c             if(NPBY(2,N) /= 0) print*,'error!!!'
             END IF  
             KINDRBY(N)=K
             K=K+NPBY(2,N)
@@ -3486,13 +3350,13 @@ C
           END DO
 C optimisation RBY
           CALL MY_ORDERS(0,WORK,NNSN,INDB,NRBYKIN_L,1)
-c         if(ispmd.eq.0)print*,'opt RBD:',NRBYKIN,NRBYKIN_L
+c         if(ispmd==0)print*,'opt RBD:',NRBYKIN,NRBYKIN_L
           DO N = 1, NRBYKIN_L
             INDB(NRBYKIN_L+N)=IRBKIN_L(N)
           END DO
           DO N = 1, NRBYKIN_L
             IRBKIN_L(N)=INDB(NRBYKIN_L+INDB(N))
-c           if(ispmd.eq.0)print*,'>>>',N,NPBY(2,IRBKIN_L(N))
+c           if(ispmd==0)print*,'>>>',N,NPBY(2,IRBKIN_L(N))
           END DO
         END IF 
         
@@ -3508,30 +3372,43 @@ C
       CALL SPMD_SPLIT_COMM(
      .  IRCVFROM(NINTER+1,ISPMD+1)+ISENDTO(NINTER+1,ISPMD+1),COMM_CONT)
 
-      IF(NINTER/=0) CALL SPMD_SPLIT_COMM_INTER( NBINTC,INTLIST,IPARI,ISENDTO,IRCVFROM,SORT_COMM )
+      IF(NINTER/=0) CALL SPMD_SPLIT_COMM_INTER( INTBUF_TAB, NBINTC,INTLIST,IPARI,ISENDTO,IRCVFROM,SORT_COMM,
+     .                                          NEED_COMM_INT25_SOLID_EROSION,COMM_INT25_SOLID_EROSION )
 
 !     Create CJOINT communicator
       CALL SPMD_SPLIT_COMM_JOINT()
+
+      DEALLOCATE(INDX)
+      DEALLOCATE(PPAR)
+      DEALLOCATE(INDP)
+      DEALLOCATE(NNP)
+      DEALLOCATE(RANK)
+      DEALLOCATE(IRBODY)
+      DEALLOCATE(INDB)
+      DEALLOCATE(NNSN)
+
       RETURN
       END
-Chd|====================================================================
-Chd|  SPMD_INITFI                   source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        RDRESB                        source/output/restart/rdresb.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        READ_DB                       source/output/tools/read_db.F 
-Chd|        READ_I_C                      source/output/tools/sortie_c.c
-Chd|        READ_R_C                      source/output/tools/sortie_c.c
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTERFACE_MODIFICATION_MOD    share/modules/interface_modification_mod.F
-Chd|        INTSTAMP_GLOB_MOD             share/modules/intstamp_glob_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE SPMD_INITFI(IPARI,IFLAG,H3D_DATA)
+!||====================================================================
+!||    spmd_initfi                  ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    rdresb                       ../engine/source/output/restart/rdresb.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                       ../engine/source/output/message/message.F
+!||    arret                        ../engine/source/system/arret.F
+!||    read_db                      ../common_source/tools/input_output/read_db.F
+!||    read_i_c                     ../common_source/tools/input_output/write_routines.c
+!||    read_r_c                     ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod                      ../engine/share/modules/h3d_mod.F
+!||    interface_modification_mod   ../engine/share/modules/interface_modification_mod.F
+!||    intstamp_glob_mod            ../engine/share/modules/intstamp_glob_mod.F
+!||    message_mod                  ../engine/share/message_module/message_mod.F
+!||    parameters_mod               ../common_source/modules/interfaces/parameters_mod.F
+!||    tri25ebox                    ../engine/share/modules/tri25ebox.F
+!||    tri7box                      ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE SPMD_INITFI(IPARI,IFLAG,H3D_DATA,PARAMETERS,IDT_THERM,INTHEAT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -3541,48 +3418,46 @@ C-----------------------------------------------
       USE INTSTAMP_GLOB_MOD
       USE H3D_MOD
       USE INTERFACE_MODIFICATION_MOD
+      USE PARAMETERS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "i25edge_c.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "scr18_c.inc"
 #include      "task_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "parit_c.inc"
 #include      "spmd_c.inc"
-#include      "impl1_c.inc"
 #include      "sms_c.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(NPARI,*), IFLAG
+      INTEGER, INTENT(IN) :: IDT_THERM
+      INTEGER, INTENT(IN) :: INTHEAT
       TYPE(H3D_DATABASE) :: H3D_DATA
+      TYPE (PARAMETERS_) ,INTENT(IN):: PARAMETERS
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, P, NSN, NMN, ITYP, IGAP, IERROR, IERROR1, LENS, LENR,
      .        LSKYFI, INACTI, NBINTC, LENI, J,INTTH, K, L,IEDGE4 ,INTFRIC ,
-     .        FLAGREMN ,SIZREMNORFI, IVIS2 ,INTNITSCHE,ITIED
+     .        FLAGREMN ,SIZREMNORFI, IVIS2 ,INTNITSCHE,ITIED,IPSTIF
       INTEGER :: LENR_EDGE,LENS_EDGE
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-      IF(IFLAG.EQ.1) THEN
-C init Pointeur + lecture partie entiere
-       IF(NINTER.NE.0) THEN
+      IF(IFLAG==1) THEN
+C Init Pointer + Reading Wait
+       IF(NINTER/=0) THEN
         IERROR = 0
         ALLOCATE(NSVFI(NINTER),STAT=IERROR1)
         IERROR = IERROR + IERROR1
@@ -3637,6 +3512,10 @@ C
         IERROR = IERROR + IERROR1
         ALLOCATE(ADDSUBSFI(NINTER),STAT=IERROR1)
         IERROR = IERROR + IERROR1
+        IF(PARAMETERS%INTCAREA > 0 ) THEN
+           ALLOCATE(INTAREANFI(NINTER),STAT=IERROR1)
+           IERROR = IERROR + IERROR1
+        ENDIF
 
         ALLOCATE(NISUBSFIE(NINTER),STAT=IERROR1)
         IERROR = IERROR + IERROR1
@@ -3798,7 +3677,14 @@ C INT 25
         IERROR = IERROR + IERROR1
         ALLOCATE (ISKEW_FI(NINTER),STAT=IERROR1)
         IERROR = IERROR + IERROR1
-
+        IPSTIF = 0
+        DO I = 1,NINTER
+          IF(IPARI(97,I) > 0) IPSTIF = IPSTIF + IPARI(97,I)
+        END DO
+        IF(PARAMETERS%ISTIF_DT > 0 .OR. IPSTIF>0 ) THEN
+           ALLOCATE(STIF_MSDT_FI(NINTER))
+           ALLOCATE(STIFE_MSDT_FI(NINTER))
+        ENDIF
 C
         IF(INTHEAT > 0 ) THEN
          ALLOCATE (FTHESKYFI(NINTER),STAT=IERROR1)
@@ -3855,11 +3741,17 @@ C
 C
         IF(INTHEAT > 0.OR.INTERADHESION > 0 ) THEN
          ALLOCATE(AREASFI(NINTER),STAT=IERROR1)        
+          DO I = 1, NINTER
+            NULLIFY(AREASFI(I)%p)
+          ENDDO
          IERROR = IERROR + IERROR1 
         ENDIF
 C
         IF(INTERADHESION > 0) THEN
          ALLOCATE(IF_ADHFI(NINTER),STAT=IERROR1)        
+          DO I = 1, NINTER
+            NULLIFY(IF_ADHFI(I)%p)
+          ENDDO
          IERROR = IERROR + IERROR1 
         ENDIF
 
@@ -3871,12 +3763,18 @@ C
          IERROR = IERROR + IERROR1 
         ENDIF
 
-C       MY_ALLOCATE(MAIN_FIE,NINTER)
-        MY_ALLOCATE(GAPE_L_FIE,NINTER)
-        MY_ALLOCATE(EDG_BISECTOR_FIE,NINTER)
-        MY_ALLOCATE(VTX_BISECTOR_FIE,NINTER)
-        MY_ALLOCATE(X_SEG_FIE,NINTER)
-        MY_ALLOCATE(LEDGE_FIE,NINTER)
+C
+        ALLOCATE(EFRICFI(NINTER),STAT=IERROR1)
+        IERROR = IERROR + IERROR1
+        ALLOCATE(EFRICGFI(NINTER),STAT=IERROR1)
+        IERROR = IERROR + IERROR1
+
+C       ALLOCATE(MAIN_FIE(NINTER))
+        ALLOCATE(GAPE_L_FIE(NINTER))
+        ALLOCATE(EDG_BISECTOR_FIE(NINTER))
+        ALLOCATE(VTX_BISECTOR_FIE(NINTER))
+        ALLOCATE(X_SEG_FIE(NINTER))
+        ALLOCATE(LEDGE_FIE(NINTER))
 
 
 C
@@ -3908,6 +3806,7 @@ C
           NULLIFY(LISUBSFI(I)%p)
           NULLIFY(INFLG_SUBSFI(I)%p)
           NULLIFY(ADDSUBSFI(I)%p)
+          IF(PARAMETERS%INTCAREA > 0) NULLIFY(INTAREANFI(I)%p)
 
           NULLIFY(NISUBSFIE(I)%p)
           NULLIFY(LISUBSFIE(I)%p)
@@ -3995,6 +3894,10 @@ C INT25
           NULLIFY(CANDF_SI(I)%P)
           NULLIFY(ISKEW_FI(I)%P)
           NULLIFY(ICODT_FI(I)%P)
+          IF(PARAMETERS%ISTIF_DT > 0 .OR. IPARI(97,I)>0 ) THEN
+             NULLIFY(STIF_MSDT_FI(I)%P)
+             NULLIFY(STIFE_MSDT_FI(I)%P)
+          ENDIF
 C INT25 E2E
 C         NULLIFY(MAIN_FIE(I)%P)
           NULLIFY(GAPE_L_FIE(I)%P)
@@ -4002,7 +3905,9 @@ C         NULLIFY(MAIN_FIE(I)%P)
           NULLIFY(VTX_BISECTOR_FIE(I)%P)
           NULLIFY(LEDGE_FIE(I)%P)
           NULLIFY(X_SEG_FIE(I)%P)
-
+C
+           NULLIFY(EFRICFI(I)%P)  
+           NULLIFY(EFRICGFI(I)%P)                
         END DO
 C
         IF(INTHEAT /= 0) THEN
@@ -4054,12 +3959,12 @@ C
           ENDDO   
         ENDIF
 C        
-        IF(IERROR.NE.0) THEN
+        IF(IERROR/=0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
         ENDIF
 C
-C allocation et lecture strutures interfaces sur fichier restart (partie entiere)
+C Allocation and reading Strings Interfaces on Restart file (integer part)
 C
         NBINTC = 0
         DO I =1, NINTER
@@ -4079,17 +3984,17 @@ C
           ELSE
              IEDGE4 = 0
           ENDIF
-          IF(ITYP.EQ.7.OR.ITYP.EQ.10.OR.ITYP.EQ.11.OR.
-     +      (ITYP.EQ.17.AND.IPARI(33,I).EQ.0).OR.ITYP.EQ.20.OR.
-     +       ITYP.EQ.22.OR.ITYP.EQ.23.OR.ITYP.EQ.24.OR.
-     +       ITYP.EQ.25)THEN
+          IF(ITYP==7.OR.ITYP==10.OR.ITYP==11.OR.
+     +      (ITYP==17.AND.IPARI(33,I)==0).OR.ITYP==20.OR.
+     +       ITYP==22.OR.ITYP==23.OR.ITYP==24.OR.
+     +       ITYP==25)THEN
 C
             NBINTC = NBINTC + 1
             ALLOCATE(NSNSI(I)%P(NSPMD),STAT=IERROR)
             ALLOCATE(NSNFI(I)%P(NSPMD),STAT=IERROR1)
 
 
-            IF(IERROR+IERROR1.NE.0) THEN
+            IF(IERROR+IERROR1/=0) THEN
               CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
@@ -4105,7 +4010,7 @@ C
             IERROR = 0
 C
             IERROR1 = 0
-            IF(LENS.GT.0) THEN
+            IF(LENS>0) THEN
               ALLOCATE(NSVSI(I)%P(LENS),STAT=IERROR1)
               CALL READ_I_C(NSVSI(I)%P(1),LENS)
               IERROR = IERROR + IERROR1
@@ -4113,24 +4018,24 @@ C
             ALLOCATE(CANDF_SI(I)%P(NSN),STAT=IERROR1)      
             CANDF_SI(I)%P(1:NSN)=0
 C
-            IF(LENR.GT.0) THEN
+            IF(LENR>0) THEN
               ALLOCATE(NSVFI(I)%P(LENR),STAT=IERROR1)
               IERROR = IERROR + IERROR1
               CALL READ_I_C(NSVFI(I)%P(1),LENR)
-              IF(ITYP.EQ.7.OR.ITYP.EQ.10.OR.
-     +           ITYP.EQ.20.OR.ITYP.EQ.22.OR.
-     +           ITYP.EQ.23.OR.ITYP.EQ.24.OR.
-     +           ITYP.EQ.25)THEN
+              IF(ITYP==7.OR.ITYP==10.OR.
+     +           ITYP==20.OR.ITYP==22.OR.
+     +           ITYP==23.OR.ITYP==24.OR.
+     +           ITYP==25)THEN
                ALLOCATE(ITAFI(I)%P(LENR),STAT=IERROR1)
                IERROR = IERROR + IERROR1
                CALL READ_I_C(ITAFI(I)%P(1),LENR)
-               IF(ITYP.EQ.7.OR.ITYP.EQ.20.OR.ITYP.EQ.22.OR.
-     +            ITYP.EQ.23.OR.ITYP.EQ.24.OR.ITYP.EQ.25)THEN
+               IF(ITYP==7.OR.ITYP==20.OR.ITYP==22.OR.
+     +            ITYP==23.OR.ITYP==24.OR.ITYP==25)THEN
                  ALLOCATE(KINFI(I)%P(LENR),STAT=IERROR1)
                  IERROR = IERROR + IERROR1
                  CALL READ_I_C(KINFI(I)%P(1),LENR)
 C
-                 IF(ITYP.EQ.20)THEN
+                 IF(ITYP==20)THEN
                    ALLOCATE(NBINFLFI(I)%P(LENR),STAT=IERROR1)
                    IERROR = IERROR + IERROR1
                    CALL READ_I_C(NBINFLFI(I)%P(1),LENR)
@@ -4141,13 +4046,13 @@ C
                   IERROR = IERROR + IERROR
                   CALL READ_I_C(MATSFI(I)%P(1),LENR) 
                  ENDIF
-                 IF((ITYP.EQ.7.OR.ITYP.EQ.24.OR.ITYP.EQ.25).AND.INTFRIC > 0) THEN
+                 IF((ITYP==7.OR.ITYP==24.OR.ITYP==25).AND.INTFRIC > 0) THEN
                   ALLOCATE(IPARTFRICSFI(I)%P(LENR),STAT=IERROR1)
                   IERROR = IERROR + IERROR
                   CALL READ_I_C(IPARTFRICSFI(I)%P(1),LENR) 
                  ENDIF
 C                
-                 IF (ITYP.EQ.24)THEN
+                 IF (ITYP==24)THEN
                   IF(.NOT.ASSOCIATED(IRTLM_FI(I)%P))
      *                      ALLOCATE(IRTLM_FI(I)%P(2,LENR),STAT=IERROR1)
 
@@ -4190,7 +4095,7 @@ C
 
                  ENDIF
 C
-                 IF (ITYP.EQ.25)THEN
+                 IF (ITYP==25)THEN
                   IF(.NOT.ASSOCIATED(PMAINFI(I)%P))
      *                      ALLOCATE(PMAINFI(I)%P(LENR),STAT=IERROR1)
                   CALL READ_I_C(PMAINFI(I)%P(1),LENR)
@@ -4310,10 +4215,10 @@ C
                IERROR = IERROR + IERROR1
                ALLOCATE(STIFI(I)%P(LENR),STAT=IERROR1)
                IERROR = IERROR + IERROR1
-               IF(IGAP.NE.0)THEN
+               IF(IGAP/=0)THEN
                 ALLOCATE(GAPFI(I)%P(LENR),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
-                 IF(IGAP.EQ.3)THEN
+                 IF(IGAP==3)THEN
                   ALLOCATE(GAP_LFI(I)%P(LENR),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                  END IF
@@ -4323,12 +4228,12 @@ C
                ALLOCATE(VFI(I)%P(3,LENR),STAT=IERROR1)
                IERROR = IERROR + IERROR1
 
-               IF(IPARIT.EQ.0) THEN
+               IF(IPARIT==0) THEN
                 ALLOCATE(AFI(I)%P(3,LENR*NTHREAD),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
                 ALLOCATE(STNFI(I)%P(LENR*NTHREAD),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
-                IF(KDTINT.NE.0)THEN
+                IF(KDTINT/=0)THEN
                   ALLOCATE(VSCFI(I)%P(LENR*NTHREAD),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                 ENDIF
@@ -4383,8 +4288,6 @@ C
                 IF(INTTH > 0 )  THEN      
                  ALLOCATE(TEMPFI(I)%P(LENR),STAT=IERROR1)
                  IERROR = IERROR + IERROR1
-c                  ALLOCATE(MATSFI(I)%P(LENR),STAT=IERROR1)
-c                 IERROR = IERROR + IERROR
                 ENDIF
 C
                 IF(INTTH>0.OR.(ITYP == 25.AND.IVIS2==-1)) THEN
@@ -4395,8 +4298,6 @@ C
                   ALLOCATE(IF_ADHFI(I)%P(LENR),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                 ENDIF
-C
-                
 C  
                END IF
                IF(ITYP == 24)THEN
@@ -4418,8 +4319,24 @@ C
                  ALLOCATE(STIF_OLDFI(I)%P(2,LENR),STAT=IERROR1)
                  STIF_OLDFI(I)%P(1:2,1:LENR)=ZERO
                  IERROR = IERROR + IERROR1
+
+                 IF(IPARI(97,I) > 0) THEN
+                    ALLOCATE(STIF_MSDT_FI(I)%P(LENR))
+                    STIF_MSDT_FI(I)%P(1:LENR)=ZERO
+                 ENDIF
+
+                 IF(ITYP == 25.AND.PARAMETERS%INTCAREA > 0.AND.IPARI(36,I)>0) THEN
+                   ALLOCATE(INTAREANFI(I)%P(LENR),STAT=IERROR1)
+                   IERROR = IERROR + IERROR1
+                   INTAREANFI(I)%P(1:LENR) =ZERO
+                ENDIF
+                 IF(ITYP == 24.AND.PARAMETERS%INTCAREA > 0) THEN
+                   ALLOCATE(INTAREANFI(I)%P(LENR),STAT=IERROR1)
+                   IERROR = IERROR + IERROR1
+                   INTAREANFI(I)%P(1:LENR) =ZERO
+                ENDIF
                ENDIF
-              ELSEIF(ITYP.EQ.11)THEN
+              ELSEIF(ITYP==11)THEN
 C type11
                ALLOCATE(ITAFI(I)%P(2*LENR),STAT=IERROR1)
                IERROR = IERROR + IERROR1
@@ -4460,10 +4377,10 @@ C
                IERROR = IERROR + IERROR1
                ALLOCATE(STIFI(I)%P(LENR),STAT=IERROR1)
                IERROR = IERROR + IERROR1
-               IF(IGAP.NE.0)THEN
+               IF(IGAP/=0)THEN
                 ALLOCATE(GAPFI(I)%P(LENR),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
-                 IF(IGAP.EQ.3)THEN
+                 IF(IGAP==3)THEN
                   ALLOCATE(GAP_LFI(I)%P(LENR),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                  END IF
@@ -4472,15 +4389,15 @@ C
                IERROR = IERROR + IERROR1
                ALLOCATE(VFI(I)%P(3,2*LENR),STAT=IERROR1)
                IERROR = IERROR + IERROR1
-               IF(INACTI.EQ.5.OR.INACTI.EQ.6) THEN
+               IF(INACTI==5.OR.INACTI==6) THEN
                  ALLOCATE(PENFI(I)%P(2,LENR),STAT=IERROR1)
                END IF
-               IF(IPARIT.EQ.0) THEN
+               IF(IPARIT==0) THEN
                 ALLOCATE(AFI(I)%P(3,2*LENR*NTHREAD),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
                 ALLOCATE(STNFI(I)%P(2*LENR*NTHREAD),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
-                IF(KDTINT.NE.0)THEN
+                IF(KDTINT/=0)THEN
                   ALLOCATE(VSCFI(I)%P(2*LENR*NTHREAD),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                 ENDIF
@@ -4517,7 +4434,7 @@ c                 IERROR = IERROR + IERROR
                 ENDIF
                END IF
 C fin type11
-              ELSEIF(ITYP.EQ.17)THEN
+              ELSEIF(ITYP==17)THEN
                ALLOCATE(XFI17(I)%P(3,16,LENR),STAT=IERROR1)
                IERROR = IERROR + IERROR1
                ALLOCATE(VFI17(I)%P(3,16,LENR),STAT=IERROR1)
@@ -4528,7 +4445,7 @@ C fin type11
                IERROR = IERROR + IERROR1
                ALLOCATE(EMINXFI(I)%P(6,LENR),STAT=IERROR1)
                IERROR = IERROR + IERROR1
-               IF(IPARIT.EQ.0) THEN
+               IF(IPARIT==0) THEN
                 ALLOCATE(AFI17(I)%P(3,16,LENR),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
                 ALLOCATE(STNFI17(I)%P(16,LENR),STAT=IERROR1)
@@ -4545,24 +4462,24 @@ C fin type11
                END IF
 C fin type 17
               END IF
-C cas LENR = 0, on a pas besoin de tableau ISKYFI et FSKYFI
+C Lenr case = 0, we don't need an iskyfi and fskyfi table
             ELSE
               NLSKYFI(I) = 0
             ENDIF
 C
-            IF(IERROR.NE.0) THEN
+            IF(IERROR/=0) THEN
               CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
 C
-            IF(ITYP.EQ.20)THEN
+            IF(ITYP==20)THEN
               ALLOCATE(DAANC6FI(I)%P(3,6,LENR),STAT=IERROR1)
               IERROR = IERROR + IERROR1
               ALLOCATE(DXANCFI(I)%P(3,LENR),STAT=IERROR1)
               IERROR = IERROR + IERROR1
               ALLOCATE(DVANCFI(I)%P(3,LENR),STAT=IERROR1)
               IERROR = IERROR + IERROR1
-              IF((INACTI.EQ.5.OR.INACTI.EQ.6) .AND. LENR > 0) THEN
+              IF((INACTI==5.OR.INACTI==6) .AND. LENR > 0) THEN
                 ALLOCATE(PENFI(I)%P(2,LENR),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
                 ALLOCATE(PENFIA(I)%P(5,LENR),STAT=IERROR1)
@@ -4577,7 +4494,7 @@ C
               ALLOCATE(DAANCFI(I)%P(3,LENR),STAT=IERROR1)
               DAANCFI(I)%P(1:3,1:LENR)=ZERO
               IERROR = IERROR + IERROR1
-              IF(IERROR.NE.0) THEN
+              IF(IERROR/=0) THEN
                 CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                 CALL ARRET(2)
               END IF                   
@@ -4595,13 +4512,13 @@ C type20 edge
                 LENR = LENR + NSNFIE(I)%P(P)
               END DO
 C
-              IF(LENS.GT.0) THEN
+              IF(LENS>0) THEN
                 ALLOCATE(NSVSIE(I)%P(LENS),STAT=IERROR1)
                 CALL READ_I_C(NSVSIE(I)%P(1),LENS)
                 IERROR = IERROR + IERROR1
               ENDIF
 C
-              IF(LENR.GT.0) THEN
+              IF(LENR>0) THEN
                 ALLOCATE(NSVFIE(I)%P(LENR),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
                 CALL READ_I_C(NSVFIE(I)%P(1),LENR)
@@ -4612,7 +4529,7 @@ C
                 IERROR = IERROR + IERROR1
                 ALLOCATE(STIFIE(I)%P(LENR),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
-                IF(IGAP.NE.0)THEN
+                IF(IGAP/=0)THEN
                   ALLOCATE(GAPFIE(I)%P(LENR),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                 END IF
@@ -4620,18 +4537,18 @@ C
                 IERROR = IERROR + IERROR1
                 ALLOCATE(VFIE(I)%P(3,2*LENR),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
-                IF(INACTI.EQ.5.OR.INACTI.EQ.6) THEN
+                IF(INACTI==5.OR.INACTI==6) THEN
                   ALLOCATE(PENFIE(I)%P(2,LENR),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                   ALLOCATE(PENFIAE(I)%P(5,2*LENR),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                 END IF
-                IF(IPARIT.EQ.0) THEN
+                IF(IPARIT==0) THEN
                   ALLOCATE(AFIE(I)%P(3,2*LENR*NTHREAD),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                   ALLOCATE(STNFIE(I)%P(2*LENR*NTHREAD),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
-                  IF(KDTINT.NE.0)THEN
+                  IF(KDTINT/=0)THEN
                     ALLOCATE(VSCFIE(I)%P(2*LENR*NTHREAD),STAT=IERROR1)
                     IERROR = IERROR + IERROR1
                   ENDIF
@@ -4641,7 +4558,7 @@ C
                   NLSKYFIE(I) = LSKYFI
                   ALLOCATE(ISKYFIE(I)%P(LSKYFI),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
-                  IF(KDTINT.EQ.0) THEN
+                  IF(KDTINT==0) THEN
 C                   ALLOCATE(FSKYFIE(I)%P(8,LSKYFI),STAT=IERROR1)
                     ALLOCATE(FSKYFIE(I)%P(10,LSKYFI),STAT=IERROR1)
 
@@ -4684,11 +4601,11 @@ C
                  CALL READ_I_C(PROCAMSFIE(I)%P(1),LENR)
                 ENDIF 
 C
-                IF(IERROR.NE.0) THEN
+                IF(IERROR/=0) THEN
                   CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                   CALL ARRET(2)
                 END IF
-C cas LENR = 0, on a pas besoin de tableau ISKYFI et FSKYFI
+C Lenr case = 0, we don't need an iskyfi and fskyfi table
               ELSE
                 NLSKYFIE(I) = 0
               END IF
@@ -4714,7 +4631,7 @@ C cas LENR = 0, on a pas besoin de tableau ISKYFI et FSKYFI
                   LENR_EDGE = LENR_EDGE + NSNFIE(I)%P(P)
                 END DO
 C
-                IF(LENS_EDGE.GT.0) THEN
+                IF(LENS_EDGE>0) THEN
                   ALLOCATE(NSVSIE(I)%P(LENS_EDGE),STAT=IERROR1)
                   CALL READ_I_C(NSVSIE(I)%P(1),LENS_EDGE)
                   IERROR = IERROR + IERROR1
@@ -4726,7 +4643,7 @@ C
                    IERROR = IERROR + IERROR1
                    ALLOCATE(STNFIE(I)%P(2*LENR_EDGE*NTHREAD),STAT=IERROR1)
                    IERROR = IERROR + IERROR1
-                   IF(KDTINT.NE.0)THEN
+                   IF(KDTINT/=0)THEN
                      ALLOCATE(VSCFIE(I)%P(2*LENR_EDGE*NTHREAD),STAT=IERROR1)
                      IERROR = IERROR + IERROR1
                    ENDIF
@@ -4735,30 +4652,28 @@ C
                   NLSKYFIE(I) = LSKYFI
                   ALLOCATE(ISKYFIE(I)%P(LSKYFI),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
-                  IF(KDTINT.EQ.0) THEN
-C                   ALLOCATE(FSKYFIE(I)%P(8,LSKYFI),STAT=IERROR1)
+                  IF(KDTINT==0) THEN
                     ALLOCATE(FSKYFIE(I)%P(8,LSKYFI),STAT=IERROR1)
                   ELSE
                     ALLOCATE(FSKYFIE(I)%P(8,LSKYFI),STAT=IERROR1)
                   END IF
                   IERROR = IERROR + IERROR1
                 ENDIF
-                IF(LENR_EDGE.GT.0) THEN
-                  MY_ALLOCATE(NSVFIE(I)%P,LENR_EDGE) !ok
-                  MY_ALLOCATE(ITAFIE(I)%P,LENR_EDGE*2)
-C                 MY_ALLOCATE(MAIN_FIE(I)%P,LENR_EDGE)
-                  MY_ALLOCATE2D(LEDGE_FIE(I)%P,E_LEDGE_SIZE,LENR_EDGE) !ok
-                  MY_ALLOCATE2D(XFIE(I)%P,3,LENR_EDGE*2) !ok
-                  MY_ALLOCATE2D(VFIE(I)%P,3,LENR_EDGE*2) !ok
-                  MY_ALLOCATE(MSFIE(I)%P,LENR_EDGE*2) !ok
-                  MY_ALLOCATE(GAPFIE(I)%P,LENR_EDGE) !ok
+                IF(LENR_EDGE>0) THEN
+                  ALLOCATE(NSVFIE(I)%P(LENR_EDGE)) 
+                  ALLOCATE(ITAFIE(I)%P(LENR_EDGE*2))
+                  ALLOCATE(LEDGE_FIE(I)%P(E_LEDGE_SIZE,LENR_EDGE)) 
+                  ALLOCATE(XFIE(I)%P(3,LENR_EDGE*2)) 
+                  ALLOCATE(VFIE(I)%P(3,LENR_EDGE*2)) 
+                  ALLOCATE(MSFIE(I)%P(LENR_EDGE*2)) 
+                  ALLOCATE(GAPFIE(I)%P(LENR_EDGE)) 
                   IF( IGAP == 3) THEN
-                    MY_ALLOCATE(GAPE_L_FIE(I)%P,LENR_EDGE) !ok
+                    ALLOCATE(GAPE_L_FIE(I)%P(LENR_EDGE)) 
                   ENDIF
-                  MY_ALLOCATE(STIFIE(I)%P,LENR_EDGE) !ok
-                  ALLOCATE(EDG_BISECTOR_FIE(I)%P(3,3,LENR_EDGE)) !ok
-                  ALLOCATE(VTX_BISECTOR_FIE(I)%P(3,4,LENR_EDGE)) !ok
-                  ALLOCATE(X_SEG_FIE(I)%P(3,4,LENR_EDGE)) !ok
+                  ALLOCATE(STIFIE(I)%P(LENR_EDGE)) 
+                  ALLOCATE(EDG_BISECTOR_FIE(I)%P(3,3,LENR_EDGE)) 
+                  ALLOCATE(VTX_BISECTOR_FIE(I)%P(3,4,LENR_EDGE)) 
+                  ALLOCATE(X_SEG_FIE(I)%P(3,4,LENR_EDGE)) 
                   EDG_BISECTOR_FIE(I)%P(1:3,1:3,1:LENR_EDGE) = 0
                   VTX_BISECTOR_FIE(I)%P(1:3,1:4,1:LENR_EDGE) = 0
                   X_SEG_FIE(I)%P(1:3,1:4,1:LENR_EDGE) = 0
@@ -4768,8 +4683,12 @@ C                 MY_ALLOCATE(MAIN_FIE(I)%P,LENR_EDGE)
                   CALL READ_I_C(LEDGE_FIE(I)%P,E_LEDGE_SIZE*LENR_EDGE)
                   IPARI(69,I) = LENR_EDGE
                   IF(INTFRIC > 0) THEN
-                     ALLOCATE(IPARTFRIC_FIE(I)%P(LENR),STAT=IERROR1)
+                     ALLOCATE(IPARTFRIC_FIE(I)%P(LENR_EDGE),STAT=IERROR1)
                      CALL READ_I_C(IPARTFRIC_FIE(I)%P,LENR_EDGE)
+                  ENDIF
+                  IF(IPARI(97,I) > 0) THEN
+                    ALLOCATE(STIFE_MSDT_FI(I)%P(LENR_EDGE))
+                    STIFE_MSDT_FI(I)%P(1:LENR_EDGE)=ZERO
                   ENDIF
 
                 ENDIF
@@ -4778,8 +4697,8 @@ C                 MY_ALLOCATE(MAIN_FIE(I)%P,LENR_EDGE)
 
 C
 C
-            IF(IPARI(36,I).GT.0.AND.IPARI(7,I).NE.17) THEN
-C structure output sous interfaces
+            IF(IPARI(36,I)>0.AND.IPARI(7,I)/=17) THEN
+C Output structure under interfaces
               IERROR = 0
               ALLOCATE(NISUBSFI(I)%P(NSPMD),STAT=IERROR1)
               IERROR = IERROR + IERROR1
@@ -4791,8 +4710,8 @@ C structure output sous interfaces
                 LENR = LENR + NSNFI(I)%P(P)
               END DO
 
-              IF(LENI.GT.0) THEN
-                IF(LENR.GT.0) THEN
+              IF(LENI>0) THEN
+                IF(LENR>0) THEN
                   ALLOCATE(ADDSUBSFI(I)%P(LENR+1),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                   CALL READ_I_C(ADDSUBSFI(I)%P(1),LENR+1)
@@ -4806,19 +4725,19 @@ C structure output sous interfaces
                   CALL READ_I_C(INFLG_SUBSFI(I)%P(1),LENI)
                 END IF
               ELSE
-                IF(LENR.GT.0) THEN
+                IF(LENR>0) THEN
                   ALLOCATE(ADDSUBSFI(I)%P(LENR+1),STAT=IERROR1)
                   DO J=1,LENR+1
                     ADDSUBSFI(I)%P(J)=1
                   END DO
                 END IF
               END IF
-              IF(IERROR.NE.0) THEN
+              IF(IERROR/=0) THEN
                 CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                 CALL ARRET(2)
               END IF               
 C =================== EDGES TO EDGE
-C structure output sous interfaces
+C Output structure under interfaces
               IF(IPARI(7,I) == 25 .AND. IPARI(58,I) > 0) THEN
                 IERROR = 0
                 ALLOCATE(NISUBSFIE(I)%P(NSPMD),STAT=IERROR1)
@@ -4828,8 +4747,8 @@ C structure output sous interfaces
                 DO P = 1, NSPMD
                   LENI = LENI + NISUBSFIE(I)%P(P)
                 END DO
-                IF(LENI.GT.0) THEN
-                  IF(LENR_EDGE.GT.0) THEN
+                IF(LENI>0) THEN
+                  IF(LENR_EDGE>0) THEN
                     ALLOCATE(ADDSUBSFIE(I)%P(LENR_EDGE+1),STAT=IERROR1)
                     IERROR = IERROR + IERROR1
                     CALL READ_I_C(ADDSUBSFIE(I)%P(1),LENR_EDGE+1)
@@ -4841,7 +4760,7 @@ C structure output sous interfaces
                   IERROR = IERROR + IERROR1
                   CALL READ_I_C(INFLG_SUBSFIE(I)%P(1),LENI)
                 ELSE
-                  IF(LENR_EDGE.GT.0) THEN
+                  IF(LENR_EDGE>0) THEN
                     ALLOCATE(ADDSUBSFIE(I)%P(LENR_EDGE+1),STAT=IERROR1)
                     DO J=1,LENR_EDGE+1
                       ADDSUBSFIE(I)%P(J)=1
@@ -4852,13 +4771,13 @@ C structure output sous interfaces
             END IF
 
 C
-            IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT .GT.0)THEN
+            IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT >0)THEN
               IERROR = 0
               ALLOCATE(FNCONTI(I)%P(3,LENR),STAT=IERROR1)
               IERROR = IERROR + IERROR1
               ALLOCATE(FTCONTI(I)%P(3,LENR),STAT=IERROR1)
               IERROR = IERROR + IERROR1
-              IF(IERROR.NE.0) THEN
+              IF(IERROR/=0) THEN
                 CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                 CALL ARRET(2)
               ELSE
@@ -4877,7 +4796,7 @@ C
 C Allocate and Read in RST file inter 21 structure for nodal temperature 
 C                Actualisation
 C
-          IF(ITYP.EQ.21) THEN
+          IF(ITYP==21) THEN
 C
             IF(INTTH==2.OR.IPARI(95,I) > 0) THEN
               NBINTC = NBINTC + 1
@@ -4890,7 +4809,7 @@ C
 C
               ALLOCATE(NMNFI(I)%P(NSPMD),STAT=IERROR1)
               IERROR = IERROR + IERROR1
-              IF(IERROR.NE.0) THEN
+              IF(IERROR/=0) THEN
                 CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                 CALL ARRET(2)
               ENDIF
@@ -4906,7 +4825,7 @@ C
               IERROR = 0
 C
               IERROR1 = 0
-              IF(LENS.GT.0) THEN
+              IF(LENS>0) THEN
                 ALLOCATE(NMVSI(I)%P(LENS),STAT=IERROR1)
                 CALL READ_I_C(NMVSI(I)%P(1),LENS)
                 IERROR = IERROR + IERROR1
@@ -4917,11 +4836,11 @@ C
 
               ENDIF
 C
-              IF(LENR.GT.0) THEN
+              IF(LENR>0) THEN
                 ALLOCATE(NMVFI(I)%P(LENR),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
 
-                IF(IERROR.NE.0) THEN
+                IF(IERROR/=0) THEN
                   CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                   CALL ARRET(2)
                 ENDIF
@@ -4936,7 +4855,7 @@ C
                 ENDIF
 
                 IF(IPARI(48,I) /= 0 )THEN 
-                 IF(IPARIT.EQ.0) THEN   
+                 IF(IPARIT==0) THEN   
                    ALLOCATE(FTHEFI(I)%P(LENR*NTHREAD),STAT=IERROR1)
                    IERROR = IERROR + IERROR1
 
@@ -4958,36 +4877,36 @@ C
            ENDIF
           ENDIF
         ENDDO
-C allocation buffer echanges => remplace par alloc dynamique ds les echanges
+C Buffer Allocation Exchanges => replaced by Dynamic Alloc in the exchanges
        ENDIF
 C
        
       ELSE
-C iflag = 2 lecture partie reelle
-       IF(NINTER.NE.0) THEN
+C Iflag = 2 Reading part Reel
+       IF(NINTER/=0) THEN
         DO I =1, NINTER
           ITYP = IPARI(7,I)
           IVIS2 = IPARI(14,I) ! ivis2==-1 : Flag for interface adhesion
           IGAP = IPARI(21,I)
           INACTI = IPARI(22,I)
           INTTH = IPARI(47,I)
-          IF(ITYP.EQ.7.OR.ITYP.EQ.10.OR.ITYP.EQ.11.OR.
-     +      (ITYP.EQ.17.AND.IPARI(33,I).EQ.0).OR.ITYP.EQ.20.OR.
-     +       ITYP.EQ.22.OR.ITYP.EQ.23.OR.ITYP.EQ.24.OR.
-     +       ITYP.EQ.25)THEN
+          IF(ITYP==7.OR.ITYP==10.OR.ITYP==11.OR.
+     +      (ITYP==17.AND.IPARI(33,I)==0).OR.ITYP==20.OR.
+     +       ITYP==22.OR.ITYP==23.OR.ITYP==24.OR.
+     +       ITYP==25)THEN
             LENR = 0
             DO P = 1, NSPMD
               LENR = LENR + NSNFI(I)%P(P)
             END DO
-            IF(LENR.GT.0) THEN
-              IF(ITYP.EQ.7.OR.ITYP.EQ.22.OR.ITYP.EQ.23.OR.
-     +           ITYP.EQ.20.OR.ITYP.EQ.10.OR.ITYP.EQ.24.OR.
-     +           ITYP.EQ.25)THEN
+            IF(LENR>0) THEN
+              IF(ITYP==7.OR.ITYP==22.OR.ITYP==23.OR.
+     +           ITYP==20.OR.ITYP==10.OR.ITYP==24.OR.
+     +           ITYP==25)THEN
                 CALL READ_DB(MSFI(I)%P(1),LENR)
                 CALL READ_DB(STIFI(I)%P(1),LENR)
-                IF(IGAP.NE.0)THEN
+                IF(IGAP/=0)THEN
                   CALL READ_DB(GAPFI(I)%P(1),LENR)
-                  IF(IGAP.EQ.3)THEN
+                  IF(IGAP==3)THEN
                     CALL READ_DB(GAP_LFI(I)%P(1),LENR)
                   END IF
                 END IF
@@ -4995,8 +4914,8 @@ C iflag = 2 lecture partie reelle
                 CALL READ_DB(VFI(I)%P(1,1),3*LENR)
 C
                 IF((ITYP == 7.OR.ITYP == 20.OR.
-     +              ITYP.EQ.22.OR.ITYP.EQ.23.OR.ITYP.EQ.24.OR.
-     +              ITYP.EQ.25).AND.IPARI(47,I) > 0) THEN
+     +              ITYP==22.OR.ITYP==23.OR.ITYP==24.OR.
+     +              ITYP==25).AND.IPARI(47,I) > 0) THEN
                   CALL READ_DB(TEMPFI(I)%P(1),LENR)
                 ENDIF
                 IF(INTTH>0.OR.(ITYP == 25.AND.IVIS2==-1)) THEN
@@ -5008,25 +4927,25 @@ C
  
  
 C
-              ELSEIF(ITYP.EQ.11) THEN
+              ELSEIF(ITYP==11) THEN
                 CALL READ_DB(MSFI(I)%P(1),2*LENR)
                 CALL READ_DB(STIFI(I)%P(1),LENR)
-                IF(IGAP.NE.0)THEN
+                IF(IGAP/=0)THEN
                   CALL READ_DB(GAPFI(I)%P(1),LENR)
-                  IF(IGAP.EQ.3)THEN
+                  IF(IGAP==3)THEN
                     CALL READ_DB(GAP_LFI(I)%P(1),LENR)
                   END IF
                 END IF
                 CALL READ_DB(XFI(I)%P(1,1),3*2*LENR)
                 CALL READ_DB(VFI(I)%P(1,1),3*2*LENR)
-                IF(INACTI.EQ.5.OR.INACTI.EQ.6) THEN
+                IF(INACTI==5.OR.INACTI==6) THEN
                   CALL READ_DB(PENFI(I)%P(1,1),2*LENR)
                 END IF
                 IF(IPARI(47,I)>0) THEN
                   CALL READ_DB(TEMPFI(I)%P(1),2*LENR)
                   CALL READ_DB(AREASFI(I)%P(1),LENR)
                 ENDIF 
-              ELSEIF(ITYP.EQ.17.AND.IPARI(33,I).EQ.0)THEN
+              ELSEIF(ITYP==17.AND.IPARI(33,I)==0)THEN
                 CALL READ_DB(XFI17(I)%P(1,1,1),3*16*LENR)
                 CALL READ_DB(VFI17(I)%P(1,1,1),3*16*LENR)
                 CALL READ_DB(FROTSFI(I)%P(1,1),7*LENR)
@@ -5035,14 +4954,14 @@ C
               END IF
             END IF
           END IF
-C Int 20 specifique
-          IF(ITYP.EQ.20)THEN
-C rajout ancrage
-            IF(LENR.GT.0) THEN
+C Int 20 Specifique
+          IF(ITYP==20)THEN
+C Addition anchoring
+            IF(LENR>0) THEN
               CALL READ_DB(DAANC6FI(I)%P(1,1,1),3*6*LENR)
               CALL READ_DB(DXANCFI(I)%P(1,1),3*LENR)
               CALL READ_DB(DVANCFI(I)%P(1,1),3*LENR)
-              IF(INACTI.EQ.5.OR.INACTI.EQ.6) THEN
+              IF(INACTI==5.OR.INACTI==6) THEN
                 CALL READ_DB(PENFI(I)%P(1,1),2*LENR)
                 CALL READ_DB(PENFIA(I)%P(1,1),5*LENR)
               END IF
@@ -5052,20 +4971,20 @@ C rajout ancrage
                 CALL READ_DB(DIAG_SMSFI(I)%P(1),LENR)
               ENDIF 
             END IF
-C rajout partie edge
+C Edge part addition
             LENR = 0
             DO P = 1, NSPMD
               LENR = LENR + NSNFIE(I)%P(P)
             END DO
-            IF(LENR.GT.0) THEN
+            IF(LENR>0) THEN
               CALL READ_DB(MSFIE(I)%P(1),2*LENR)
               CALL READ_DB(STIFIE(I)%P(1),LENR)
-              IF(IGAP.NE.0)THEN
+              IF(IGAP/=0)THEN
                 CALL READ_DB(GAPFIE(I)%P(1),LENR)
               END IF
               CALL READ_DB(XFIE(I)%P(1,1),3*2*LENR)
               CALL READ_DB(VFIE(I)%P(1,1),3*2*LENR)
-              IF(INACTI.EQ.5.OR.INACTI.EQ.6) THEN
+              IF(INACTI==5.OR.INACTI==6) THEN
                 CALL READ_DB(PENFIE(I)%P(1,1),2*LENR)
                 CALL READ_DB(PENFIAE(I)%P(1,1),5*2*LENR)
               END IF
@@ -5086,6 +5005,15 @@ C rajout partie edge
               CALL READ_DB(SECND_FRFI(I)%P(1,1),6*LENR)
               CALL READ_DB(PENE_OLDFI(I)%P(1,1),5*LENR)
               CALL READ_DB(STIF_OLDFI(I)%P(1,1),2*LENR)
+              IF(IPARI(97,I) > 0) THEN
+                 CALL READ_DB(STIF_MSDT_FI(I)%P(1),LENR) ! stif based on mass and dt
+              ENDIF
+              IF(ITYP==25.AND.PARAMETERS%INTCAREA > 0.AND.IPARI(36,I)>0) THEN
+                 CALL READ_DB(INTAREANFI(I)%P(1),LENR) ! Area of secondary node
+              ENDIF
+              IF(ITYP==24.AND.PARAMETERS%INTCAREA > 0) THEN
+                 CALL READ_DB(INTAREANFI(I)%P(1),LENR) ! Area of secondary node
+              ENDIF
           ENDIF  ! fin partie type 24 & 25
 C
           IF (ITYP==24) THEN
@@ -5120,7 +5048,7 @@ C
               DO P = 1, NSPMD
                 LENR = LENR + NSNFIE(I)%P(P)
               END DO
-              IF(LENR.GT.0) THEN
+              IF(LENR>0) THEN
                 CALL READ_DB(XFIE(I)%P(1,1),3*(LENR*2))
                 CALL READ_DB(VFIE(I)%P(1,1),3*(LENR*2))
                 CALL READ_DB(MSFIE(I)%P(1),LENR*2)
@@ -5133,23 +5061,27 @@ C
                 CALL READ_R_C(VTX_BISECTOR_FIE(I)%P(1,1,1),3*4*LENR)
                 CALL READ_DB(X_SEG_FIE(I)%P(1,1,1),3*4*LENR)
                 IF(IDTMINS_OLD == 2) THEN
-                 MY_ALLOCATE(NODNXFIE(I)%P,LENR*2)
+                 ALLOCATE(NODNXFIE(I)%P(LENR*2))
                  CALL READ_I_C(NODNXFIE(I)%P(1),LENR*2)
-                 MY_ALLOCATE(NODAMSFIE(I)%P,LENR*2)
+                 ALLOCATE(NODAMSFIE(I)%P(LENR*2))
                  CALL READ_I_C(NODAMSFIE(I)%P(1),LENR*2)
-                 MY_ALLOCATE(PROCAMSFIE(I)%P,LENR*2)
+                 ALLOCATE(PROCAMSFIE(I)%P(LENR*2))
                  CALL READ_I_C(PROCAMSFIE(I)%P(1),LENR*2)
                 ELSEIF(IDTMINS_INT_OLD /= 0) THEN
-                 MY_ALLOCATE(NODAMSFIE(I)%P,LENR*2)
+                 ALLOCATE(NODAMSFIE(I)%P(LENR*2))
                  CALL READ_I_C(NODAMSFIE(I)%P(1),LENR*2)
-                 MY_ALLOCATE(PROCAMSFIE(I)%P,LENR*2)
+                 ALLOCATE(PROCAMSFIE(I)%P(LENR*2))
                  CALL READ_I_C(PROCAMSFIE(I)%P(1),LENR*2)
-              ENDIF
+                ENDIF
+
+                IF(IPARI(97,I) > 0) THEN
+                   CALL READ_DB(STIFE_MSDT_FI(I)%P(1),LENR)
+                ENDIF
               ENDIF
             ENDIF
           ENDIF
 
-          IF(ITYP.EQ.21) THEN
+          IF(ITYP==21) THEN
 C
             IF(INTTH==2) THEN
 C
@@ -5162,16 +5094,15 @@ C
 C
               IERROR1 = 0
 C
-              IF(LENR.GT.0) THEN
+              IF(LENR>0) THEN
                 ALLOCATE(NMTEMP(I)%P(LENR),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
                 CALL READ_DB(NMTEMP(I)%P(1),LENR)
               ENDIF
-              IF(IERROR.NE.0) THEN
+              IF(IERROR/=0) THEN
                 CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                 CALL ARRET(2)
               ENDIF
-C
             ENDIF
           ENDIF
 C
@@ -5182,21 +5113,24 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_SAVEFI                   source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        WRRESTP                       source/output/restart/wrrestp.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/output/tools/write_db.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTERFACE_MODIFICATION_MOD    share/modules/interface_modification_mod.F
-Chd|        INTSTAMP_GLOB_MOD             share/modules/intstamp_glob_mod.F
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE SPMD_SAVEFI(IPARI, IFLAG,INTBUF_TAB,SENSOR)
+!||====================================================================
+!||    spmd_savefi                  ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    wrrestp                      ../engine/source/output/restart/wrrestp.F
+!||--- calls      -----------------------------------------------------
+!||    write_db                     ../common_source/tools/input_output/write_db.F
+!||    write_i_c                    ../common_source/tools/input_output/write_routines.c
+!||    write_r_c                    ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod                ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    interface_modification_mod   ../engine/share/modules/interface_modification_mod.F
+!||    intstamp_glob_mod            ../engine/share/modules/intstamp_glob_mod.F
+!||    parameters_mod               ../common_source/modules/interfaces/parameters_mod.F
+!||    sensor_mod                   ../common_source/modules/sensor_mod.F90
+!||    tri25ebox                    ../engine/share/modules/tri25ebox.F
+!||    tri7box                      ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE SPMD_SAVEFI(IPARI, IFLAG,INTBUF_TAB,NSENSOR,SENSOR_TAB,PARAMETERS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -5205,34 +5139,28 @@ C-----------------------------------------------
       USE INTBUFDEF_MOD
       USE INTSTAMP_GLOB_MOD
       USE INTERFACE_MODIFICATION_MOD
+      USE SENSOR_MOD
+      USE PARAMETERS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr18_c.inc"
-#include      "task_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "parit_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NSENSOR
       INTEGER IPARI(NPARI,*), IFLAG
-
-      my_real
-     .        SENSOR(NSENSR,*)
-
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) :: SENSOR_TAB
+      TYPE (PARAMETERS_) ,INTENT(IN):: PARAMETERS
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -5240,46 +5168,53 @@ C-----------------------------------------------
      .        INACTI, LSKYFI, LENI,INTTH,IEDGE4, IVIS2, INTNITSCHE
       INTEGER INTERACT,ISENS
       my_real TS,STARTT,STOPT
+      INTEGER, DIMENSION(NSPMD) :: SAVE_NSNFI,SAVE_NSNSI
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 C Global init of variable
       IEDGE4=0
 C
-C Sauvegarde Structure interfaces sur restart
+C Building Structure Interfaces on Restart
 C
-      IF(IFLAG.EQ.1) THEN
-        IF(NINTER.NE.0) THEN
-C ecriture strutures interfaces sur fichier restart (partie entiere)
+      IF(IFLAG==1) THEN
+        IF(NINTER/=0) THEN
+C Writing Structures Interfaces on Restart file (integer part)
           DO I =1, NINTER
             ITYP = IPARI(7,I)
-            IF(ITYP.EQ.7.OR.
-     +         ITYP.EQ.10.OR.ITYP.EQ.11.OR.
-     +        (ITYP.EQ.17.AND.IPARI(33,I).EQ.0).OR.ITYP.EQ.20.OR.
-     +         ITYP.EQ.22.OR.ITYP.EQ.23.OR.ITYP.EQ.24.OR.
-     +         ITYP.EQ.25)THEN
+            IF(ITYP==7.OR.
+     +         ITYP==10.OR.ITYP==11.OR.
+     +        (ITYP==17.AND.IPARI(33,I)==0).OR.ITYP==20.OR.
+     +         ITYP==22.OR.ITYP==23.OR.ITYP==24.OR.
+     +         ITYP==25)THEN
 
 C Issue : Restarts + INACTI + TSTART when Start timee was not reached before Restart
                INTERACT = 1
 
+               SAVE_NSNFI(1:NSPMD) = NSNFI(I)%P(1:NSPMD)
+               SAVE_NSNSI(1:NSPMD) = NSNSI(I)%P(1:NSPMD)
+
                INACTI=IPARI(22,I)
-               IF (INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.ITYP.EQ.23.OR.INACTI==-1)THEN
+               IF (INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.ITYP==23.OR.INACTI==-1)THEN
 C
                ISENS = 0
                IF(ITYP == 7.OR.ITYP == 11.OR.ITYP == 24) ! All but ITYP == 25
      .            ISENS = IPARI(64,I)      
-                  IF(ISENS.NE.0) THEN            
-                    TS = SENSOR(2,ISENS)
-                    IF (TS.GT.TT) INTERACT = 0
+                  IF (ISENS > 0) THEN            
+                    TS = SENSOR_TAB(ISENS)%TSTART
+                    IF (TS>TT) INTERACT = 0
                   ELSE
                     STARTT = INTBUF_TAB(I)%VARIABLES(3)
                     STOPT  = INTBUF_TAB(I)%VARIABLES(11)
-                    IF (STARTT.GT.TT) INTERACT = 0
+                    IF (STARTT>TT) INTERACT = 0
                   ENDIF
                ENDIF
                IF((INTERACT == 0 .OR. NSNFI_FLAG(I)==1).AND.ITYP/=25) THEN
                     NSNFI(I)%P(1:NSPMD) = NSNFI_SAV(I)%P(1:NSPMD)
                     NSNSI(I)%P(1:NSPMD) = NSNSI_SAV(I)%P(1:NSPMD)
+
+                    NSNFI_SAV(I)%P(1:NSPMD) = SAVE_NSNFI(1:NSPMD)
+                    NSNSI_SAV(I)%P(1:NSPMD) = SAVE_NSNSI(1:NSPMD)
                ENDIF
 
               IF(ITYP==24)THEN
@@ -5298,16 +5233,17 @@ C
 C
               CALL WRITE_I_C(NSNSI(I)%P(1),NSPMD)
               CALL WRITE_I_C(NSNFI(I)%P(1),NSPMD)
-              IF (LENS.GT.0)
+
+              IF (LENS>0)
      .         CALL WRITE_I_C(NSVSI(I)%P(1),LENS)
 C
-              IF (LENR.GT.0) THEN
+              IF (LENR>0) THEN
                 CALL WRITE_I_C(NSVFI(I)%P(1),LENR)
-                IF(ITYP.EQ.7.OR.ITYP.EQ.20.OR.ITYP.EQ.22.OR.
-     +             ITYP.EQ.23.OR.ITYP.EQ.24.OR.ITYP.EQ.25) THEN
+                IF(ITYP==7.OR.ITYP==20.OR.ITYP==22.OR.
+     +             ITYP==23.OR.ITYP==24.OR.ITYP==25) THEN
                   CALL WRITE_I_C(ITAFI(I)%P(1),LENR)
                   CALL WRITE_I_C(KINFI(I)%P(1),LENR)
-                  IF(ITYP.EQ.20)THEN
+                  IF(ITYP==20)THEN
                     CALL WRITE_I_C(NBINFLFI(I)%P(1),LENR)
                   END IF
 C
@@ -5317,7 +5253,7 @@ C
                     CALL WRITE_I_C(IPARTFRICSFI(I)%P(1),LENR)
                   ENDIF
 C
-                  IF (ITYP.EQ.24)THEN
+                  IF (ITYP==24)THEN
                     CALL WRITE_I_C(IRTLM_FI(I)%P(1,1),2*LENR)
                     CALL WRITE_I_C(ICONT_I_FI(I)%P(1),LENR)
 C E2E Arrays
@@ -5334,7 +5270,7 @@ C E2E Arrays
 
                   ENDIF
 C
-                  IF (ITYP.EQ.25)THEN
+                  IF (ITYP==25)THEN
                     CALL WRITE_I_C(PMAINFI(I)%P(1),LENR)
                     CALL WRITE_I_C(IRTLM_FI(I)%P(1,1),4*LENR)
                     CALL WRITE_I_C(ICONT_I_FI(I)%P(1),LENR)
@@ -5355,14 +5291,14 @@ C
                     CALL WRITE_I_C(NODNXFI(I)%P(1),LENR)
                     CALL WRITE_I_C(NODAMSFI(I)%P(1),LENR)
                     CALL WRITE_I_C(PROCAMSFI(I)%P(1),LENR)
-                    IF (ITYP.EQ.24) CALL WRITE_I_C(T2MAIN_SMS_FI(I)%P(1,1),6*LENR)
+                    IF (ITYP==24) CALL WRITE_I_C(T2MAIN_SMS_FI(I)%P(1,1),6*LENR)
                   ELSEIF(IDTMINS_INT/=0)THEN
                     CALL WRITE_I_C(NODAMSFI(I)%P(1),LENR)
                     CALL WRITE_I_C(PROCAMSFI(I)%P(1),LENR)
-                    IF (ITYP.EQ.24) CALL WRITE_I_C(T2MAIN_SMS_FI(I)%P(1,1),6*LENR)
+                    IF (ITYP==24) CALL WRITE_I_C(T2MAIN_SMS_FI(I)%P(1,1),6*LENR)
                   END IF
 C
-                ELSEIF(ITYP.EQ.10) THEN
+                ELSEIF(ITYP==10) THEN
                   CALL WRITE_I_C(ITAFI(I)%P(1),LENR)
 C
                   IF(IDTMINS==2)THEN
@@ -5374,7 +5310,7 @@ C
                     CALL WRITE_I_C(PROCAMSFI(I)%P(1),LENR)
                   END IF
 C
-                ELSEIF(ITYP.EQ.11) THEN
+                ELSEIF(ITYP==11) THEN
                   CALL WRITE_I_C(ITAFI(I)%P(1),2*LENR)
 C
                   IF(IDTMINS==2)THEN
@@ -5390,11 +5326,11 @@ C
 C
                   IF(IPARI(72,I) > 0) CALL WRITE_I_C(IPARTFRICSFI(I)%P(1),LENR)
 C
-                ELSEIF(ITYP.EQ.17)THEN
+                ELSEIF(ITYP==17)THEN
                 END IF
               END IF
 C type20 edge
-              IF(ITYP.EQ.20)THEN
+              IF(ITYP==20)THEN
                 LENS = 0
                 LENR = 0
                 DO P = 1, NSPMD
@@ -5404,10 +5340,10 @@ C type20 edge
 C
                 CALL WRITE_I_C(NSNSIE(I)%P(1),NSPMD)
                 CALL WRITE_I_C(NSNFIE(I)%P(1),NSPMD)
-                IF (LENS.GT.0)
+                IF (LENS>0)
      .            CALL WRITE_I_C(NSVSIE(I)%P(1),LENS)
 C
-                IF (LENR.GT.0) THEN
+                IF (LENR>0) THEN
                   CALL WRITE_I_C(NSVFIE(I)%P(1),LENR)
                   CALL WRITE_I_C(ITAFIE(I)%P(1),2*LENR)
                 END IF
@@ -5434,10 +5370,10 @@ C
                     LENR = LENR + NSNFIE(I)%P(P)
                   END DO
 
-                  IF(LENS.GT.0) THEN
+                  IF(LENS>0) THEN
                     CALL WRITE_I_C(NSVSIE(I)%P(1),LENS)
                   ENDIF
-                  IF(LENR.GT.0) THEN
+                  IF(LENR>0) THEN
                     CALL WRITE_I_C(NSVFIE(I)%P,LENR)
                     CALL WRITE_I_C(LEDGE_FIE(I)%P,E_LEDGE_SIZE*LENR)
                     IF(IPARI(72,I) > 0) CALL WRITE_I_C(IPARTFRIC_FIE(I)%P(1),LENR)
@@ -5445,7 +5381,7 @@ C
                 ENDIF
               ENDIF
 C
-              IF(IPARI(36,I).GT.0.AND.IPARI(7,I).NE.17) THEN
+              IF(IPARI(36,I)>0.AND.IPARI(7,I)/=17) THEN
                 CALL WRITE_I_C(NISUBSFI(I)%P(1),NSPMD)
                 LENI = 0
                 LENR = 0
@@ -5453,8 +5389,8 @@ C
                   LENI = LENI + NISUBSFI(I)%P(P)
                   LENR = LENR + NSNFI(I)%P(P)
                 END DO
-                IF(LENI.GT.0) THEN
-                  IF(LENR.GT.0) THEN
+                IF(LENI>0) THEN
+                  IF(LENR>0) THEN
                     CALL WRITE_I_C(ADDSUBSFI(I)%P(1),LENR+1)
                   END IF
                   CALL WRITE_I_C(LISUBSFI(I)%P(1),LENI)
@@ -5463,7 +5399,7 @@ C
                   END IF
                 END IF
 C =================== EDGES TO EDGE
-C structure output sous interfaces
+C Output structure under interfaces
                 IF(IPARI(7,I) == 25 .AND. IPARI(58,I) > 0) THEN
                   CALL WRITE_I_C(NISUBSFIE(I)%P(1),NSPMD)
                   LENI = 0
@@ -5490,7 +5426,7 @@ C
 C Write in RST file inter 21 structure for nodal temperature 
 C                Actualisation
 C
-            IF(ITYP.EQ.21) THEN
+            IF(ITYP==21) THEN
               INTTH = IPARI(47,I)
 C
               IF(INTTH==2.OR.IPARI(95,I) > 0) THEN
@@ -5504,12 +5440,12 @@ C
                 CALL WRITE_I_C(NMNSI(I)%P(1),NSPMD)
                 CALL WRITE_I_C(NMNFI(I)%P(1),NSPMD)
 
-                IF (LENS.GT.0) THEN
+                IF (LENS>0) THEN
                   CALL WRITE_I_C(NMVSI(I)%P(1),LENS)
                   CALL WRITE_I_C(TEMPNOD(I)%P(1),LENS)
                 ENDIF
 C
-                IF (LENR.GT.0) THEN
+                IF (LENR>0) THEN
                   CALL WRITE_I_C(NMVFI(I)%P(1),LENR)
                 ENDIF
               ENDIF
@@ -5520,19 +5456,19 @@ C
 C
       ELSE ! WRITE REAL
 
-        IF(NINTER.NE.0) THEN
-C ecriture strutures interfaces sur fichier restart (partie reelle)
+        IF(NINTER/=0) THEN
+C Writing Structures Interfaces on Restart file (real part)
           DO I =1, NINTER
             ITYP = IPARI(7,I)
             IGAP = IPARI(21,I)
             INACTI = IPARI(22,I)
             IVIS2 = IPARI(14,I) ! ivis2==-1 : Flag for interface adhesion
             LENR = 0
-            IF(ITYP.EQ.7.OR.
-     +         ITYP.EQ.10.OR.ITYP.EQ.11.OR.
-     +        (ITYP.EQ.17.AND.IPARI(33,I).EQ.0).OR.ITYP.EQ.20.OR.
-     +         ITYP.EQ.22.OR.ITYP.EQ.23.OR.ITYP.EQ.24.OR.
-     +         ITYP.EQ.25)THEN
+            IF(ITYP==7.OR.
+     +         ITYP==10.OR.ITYP==11.OR.
+     +        (ITYP==17.AND.IPARI(33,I)==0).OR.ITYP==20.OR.
+     +         ITYP==22.OR.ITYP==23.OR.ITYP==24.OR.
+     +         ITYP==25)THEN
               LENR = 0
               DO P = 1, NSPMD
                 LENR = LENR + NSNFI(I)%P(P)
@@ -5542,34 +5478,41 @@ C In case deactivated Interface - Flush NSNFI back to Zero
 C Issue : Restarts + INACTI + TSTART when Start timee was not reached before Restart
                INTERACT = 1
 
+               ISENS = 0
+               IF(ITYP == 7.OR.ITYP == 11.OR.ITYP == 24)  ISENS = IPARI(64,I)  ! All but ITYP == 25
+ 
+               IF (ISENS > 0) THEN               ! Sensors may be deactivated w/o INACTI            
+                  TS = SENSOR_TAB(ISENS)%TSTART
+                  IF (TS>TT) INTERACT = 0
+               ENDIF
+
                INACTI=IPARI(22,I)
-               IF (INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.ITYP.EQ.23.OR.INACTI==-1)THEN
+               IF (INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.ITYP==23.OR.INACTI==-1)THEN
 C
                ISENS = 0
-               IF(ITYP == 7.OR.ITYP == 11.OR.ITYP == 24) ! All but ITYP == 25
-     .            ISENS = IPARI(64,I)      
-                  IF(ISENS.NE.0) THEN            
-                    TS = SENSOR(2,ISENS)
-                    IF (TS.GT.TT) INTERACT = 0
-                  ELSE
+               IF(ITYP == 7.OR.ITYP == 11.OR.ITYP == 24)  ISENS = IPARI(64,I) ! All but ITYP == 25
+                  IF(ISENS == 0)THEN
                     STARTT = INTBUF_TAB(I)%VARIABLES(3)
                     STOPT  = INTBUF_TAB(I)%VARIABLES(11)
-                   IF (STARTT.GT.TT) INTERACT = 0
+                   IF (STARTT>TT) INTERACT = 0
                   ENDIF
                ENDIF
-               IF(INTERACT == 0) NSNFI(I)%P(1:NSPMD) = 0
-              
 
+               IF((INTERACT == 0 .OR. NSNFI_FLAG(I)==1).AND.ITYP/=25) THEN
+                    NSNFI(I)%P(1:NSPMD) = NSNFI_SAV(I)%P(1:NSPMD)
+                    NSNSI(I)%P(1:NSPMD) = NSNSI_SAV(I)%P(1:NSPMD)
+               ENDIF
+              
 C
-              IF(LENR.GT.0) THEN
+              IF(LENR>0) THEN
 C
-                IF(ITYP.EQ.7.OR.ITYP.EQ.22.OR.ITYP.EQ.23.OR.
-     +             ITYP.EQ.10.OR.ITYP.EQ.20.OR.ITYP.EQ.24.OR.
-     +             ITYP.EQ.25) THEN
+                IF(ITYP==7.OR.ITYP==22.OR.ITYP==23.OR.
+     +             ITYP==10.OR.ITYP==20.OR.ITYP==24.OR.
+     +             ITYP==25) THEN
                   CALL WRITE_DB(MSFI(I)%P(1),LENR)
                   CALL WRITE_DB(STIFI(I)%P(1),LENR)
-                  IF(IGAP.NE.0)CALL WRITE_DB(GAPFI(I)%P(1),LENR)
-                  IF(IGAP.EQ.3)CALL WRITE_DB(GAP_LFI(I)%P(1),LENR)
+                  IF(IGAP/=0)CALL WRITE_DB(GAPFI(I)%P(1),LENR)
+                  IF(IGAP==3)CALL WRITE_DB(GAP_LFI(I)%P(1),LENR)
                   CALL WRITE_DB(XFI(I)%P(1,1),3*LENR)
                   CALL WRITE_DB(VFI(I)%P(1,1),3*LENR)
 C
@@ -5585,21 +5528,21 @@ C
                       CALL WRITE_I_C(IF_ADHFI(I)%P(1),LENR) 
                    ENDIF
 C
-                ELSEIF(ITYP.EQ.11)THEN
+                ELSEIF(ITYP==11)THEN
                   CALL WRITE_DB(MSFI(I)%P(1),2*LENR)
                   CALL WRITE_DB(STIFI(I)%P(1),LENR)
-                  IF(IGAP.NE.0)CALL WRITE_DB(GAPFI(I)%P(1),LENR)
-                  IF(IGAP.EQ.3)CALL WRITE_DB(GAP_LFI(I)%P(1),LENR)
+                  IF(IGAP/=0)CALL WRITE_DB(GAPFI(I)%P(1),LENR)
+                  IF(IGAP==3)CALL WRITE_DB(GAP_LFI(I)%P(1),LENR)
                   CALL WRITE_DB(XFI(I)%P(1,1),3*2*LENR)
                   CALL WRITE_DB(VFI(I)%P(1,1),3*2*LENR)
-                  IF(INACTI.EQ.5.OR.INACTI.EQ.6)
+                  IF(INACTI==5.OR.INACTI==6)
      .              CALL WRITE_DB(PENFI(I)%P(1,1),2*LENR)
                   IF(IPARI(47,I)>0) THEN
                     CALL WRITE_DB(TEMPFI(I)%P(1),2*LENR)
                     CALL WRITE_DB(AREASFI(I)%P(1),LENR) 
                    ENDIF
 C
-                ELSEIF(ITYP.EQ.17)THEN
+                ELSEIF(ITYP==17)THEN
                   CALL WRITE_DB(XFI17(I)%P(1,1,1),3*16*LENR)
                   CALL WRITE_DB(VFI17(I)%P(1,1,1),3*16*LENR)
                   CALL WRITE_DB(FROTSFI(I)%P(1,1),7*LENR)
@@ -5608,14 +5551,14 @@ C
                 END IF
               END IF
             END IF
-C type20 specifique
-            IF(ITYP.EQ.20)THEN
-C rajout ancrage
-              IF(LENR.GT.0) THEN
+C SPECIFIC TYPE20
+            IF(ITYP==20)THEN
+C Addition anchoring
+              IF(LENR>0) THEN
                 CALL WRITE_DB(DAANC6FI(I)%P(1,1,1),3*6*LENR)
                 CALL WRITE_DB(DXANCFI(I)%P(1,1),3*LENR)
                 CALL WRITE_DB(DVANCFI(I)%P(1,1),3*LENR)
-                IF(INACTI.EQ.5.OR.INACTI.EQ.6) THEN
+                IF(INACTI==5.OR.INACTI==6) THEN
                   CALL WRITE_DB(PENFI(I)%P(1,1),2*LENR)
                   CALL WRITE_DB(PENFIA(I)%P(1,1),5*LENR)
                 END IF
@@ -5631,13 +5574,13 @@ C rajout edge
                 LENR = LENR + NSNFIE(I)%P(P)
               END DO
 C
-              IF(LENR.GT.0) THEN
+              IF(LENR>0) THEN
                 CALL WRITE_DB(MSFIE(I)%P(1),2*LENR)
                 CALL WRITE_DB(STIFIE(I)%P(1),LENR)
-                IF(IGAP.NE.0)CALL WRITE_DB(GAPFIE(I)%P(1),LENR)
+                IF(IGAP/=0)CALL WRITE_DB(GAPFIE(I)%P(1),LENR)
                 CALL WRITE_DB(XFIE(I)%P(1,1),3*2*LENR)
                 CALL WRITE_DB(VFIE(I)%P(1,1),3*2*LENR)
-                IF(INACTI.EQ.5.OR.INACTI.EQ.6) THEN
+                IF(INACTI==5.OR.INACTI==6) THEN
                   CALL WRITE_DB(PENFIE(I)%P(1,1),2*LENR)
                   CALL WRITE_DB(PENFIAE(I)%P(1,1),5*2*LENR)
                 END IF
@@ -5660,9 +5603,12 @@ C
                 CALL WRITE_DB(SECND_FRFI(I)%P(1,1),6*LENR)
                 CALL WRITE_DB(PENE_OLDFI(I)%P(1,1),5*LENR)
                 CALL WRITE_DB(STIF_OLDFI(I)%P(1,1),2*LENR)
+                IF(IPARI(97,I) > 0) CALL WRITE_DB(STIF_MSDT_FI(I)%P(1),LENR) ! stif based on mass and dt
               ENDIF  ! fin partie type 24 & 25
+              IF(ITYP==25.AND.PARAMETERS%INTCAREA > 0.AND.IPARI(36,I)>0) CALL WRITE_DB(INTAREANFI(I)%P(1),LENR) ! output carea th (only case NISUB)
+              IF(ITYP==24.AND.PARAMETERS%INTCAREA > 0) CALL WRITE_DB(INTAREANFI(I)%P(1),LENR) ! output carea th 
 C             
-              IF (ITYP.EQ.24) THEN
+              IF (ITYP==24) THEN
                 IF(IDTMINS==2)THEN
                   CALL WRITE_DB(T2FAC_SMS_FI(I)%P(1),LENR)
                 ELSEIF(IDTMINS_INT/=0)THEN
@@ -5677,7 +5623,7 @@ C
                 DO P = 1, NSPMD
                   LENR = LENR + NSNFIE(I)%P(P)
                 END DO
-                IF(LENR.GT.0) THEN
+                IF(LENR>0) THEN
                   CALL WRITE_DB(XFIE(I)%P(1,1),3*(LENR*2))
                   CALL WRITE_DB(VFIE(I)%P(1,1),3*(LENR*2))
                   CALL WRITE_DB(MSFIE(I)%P(1),LENR*2)
@@ -5699,11 +5645,15 @@ C
                     CALL WRITE_I_C(PROCAMSFIE(I)%P(1),LENR*2)
                   END IF
 
+                  IF(IPARI(97,I) > 0) THEN
+                   CALL WRITE_DB(STIFE_MSDT_FI(I)%P(1),LENR)
+                  ENDIF
+
                 ENDIF
               ENDIF
             ENDIF
 
-           IF(ITYP.EQ.21) THEN
+           IF(ITYP==21) THEN
             INTTH = IPARI(47,I)
 C
             IF(INTTH==2) THEN
@@ -5712,7 +5662,7 @@ C
                 LENR = LENR + NMNFI(I)%P(P)
                END DO
 C
-               IF (LENR.GT.0) THEN
+               IF (LENR>0) THEN
                  CALL WRITE_DB(NMTEMP(I)%P(1),LENR)
                ENDIF
             ENDIF
@@ -5725,23 +5675,18 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SORTINT                       source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I21FTHECOM               source/mpi/interfaces/send_cand.F
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sortint           ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i21fthecom   ../engine/source/mpi/interfaces/send_cand.F
+!||    spmd_i7fcom_pon   ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||====================================================================
       SUBROUTINE SORTINT(N,ISKY,INDEX)  
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "task_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5755,13 +5700,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-Cel test sur n=0
-      IF (N.EQ.0) RETURN
+C   test on n=0
+      IF (N==0) RETURN
       L=N/2+1
       IR=N
 
 10     CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           IIA2=INDEX(L)
@@ -5774,7 +5719,7 @@ Cel test sur n=0
           
           IR=IR-1
 
-          IF(IR.LE.1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             INDEX(1)=IIA2
             RETURN
@@ -5782,11 +5727,11 @@ Cel test sur n=0
         ENDIF
         I=L
         J=L+L
-20      IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+20      IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             INDEX(I)=INDEX(J)
             I=J
@@ -5803,20 +5748,15 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SORTI7                        source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sorti7   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||====================================================================
       SUBROUTINE SORTI7(N,ISKY,FSKYI,FTHESKYI,NFSKYI)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5832,13 +5772,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-Cel test sur n=0
-      IF (N.EQ.0) RETURN
+C   test on n=0
+      IF (N==0) RETURN
       L=N/2+1
       IR=N
-      IF(NFSKYI.EQ.4)THEN
+      IF(NFSKYI==4)THEN
 10     CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -5860,8 +5800,8 @@ Cel test sur n=0
           FSKYI(4,IR)=FSKYI(4,1)
           FTHESKYI(IR)=FTHESKYI(1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -5873,11 +5813,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-20      IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+20      IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -5900,7 +5840,7 @@ C         IF(IR.EQ.1)THEN
        GO TO 10
       ELSE
 100    CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -5924,8 +5864,8 @@ C         IF(IR.EQ.1)THEN
           FSKYI(5,IR)=FSKYI(5,1)
           FTHESKYI(IR)=FTHESKYI(1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -5938,11 +5878,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-200     IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+200     IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -5970,20 +5910,15 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SORTI7T                       source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sorti7t   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||====================================================================
       SUBROUTINE SORTI7T(N,ISKY,FSKYI,FTHESKYI,CONDNSKYI,NFSKYI)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5999,13 +5934,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-Cel test sur n=0
-      IF (N.EQ.0) RETURN
+C   test on n=0
+      IF (N==0) RETURN
       L=N/2+1
       IR=N
-      IF(NFSKYI.EQ.4)THEN
+      IF(NFSKYI==4)THEN
 10     CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -6029,8 +5964,8 @@ Cel test sur n=0
           FTHESKYI(IR)=FTHESKYI(1)
           CONDNSKYI(IR)=CONDNSKYI(1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -6043,11 +5978,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-20      IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+20      IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -6072,7 +6007,7 @@ C         IF(IR.EQ.1)THEN
        GO TO 10
       ELSE
 100    CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -6098,8 +6033,8 @@ C         IF(IR.EQ.1)THEN
           FTHESKYI(IR)=FTHESKYI(1)
           CONDNSKYI(IR)=CONDNSKYI(1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -6113,11 +6048,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-200     IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+200     IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -6147,22 +6082,18 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SORTI20                       source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I17FROTS_PON             source/mpi/interfaces/spmd_i17frots_pon.F
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sorti20             ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i17frots_pon   ../engine/source/mpi/interfaces/spmd_i17frots_pon.F
+!||    spmd_i7fcom_pon     ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||====================================================================
       SUBROUTINE SORTI20(N,ISKY,FSKYI,NFSKYI)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6178,13 +6109,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-Cel test sur n=0
-      IF (N.EQ.0) RETURN
+C   test on n=0
+      IF (N==0) RETURN
       L=N/2+1
       IR=N
-      IF(NFSKYI.EQ.4)THEN
+      IF(NFSKYI==4)THEN
 10     CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -6203,8 +6134,8 @@ Cel test sur n=0
           FSKYI(3,IR)=FSKYI(3,1)
           FSKYI(4,IR)=FSKYI(4,1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -6215,11 +6146,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-20      IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+20      IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -6240,7 +6171,7 @@ C         IF(IR.EQ.1)THEN
        GO TO 10
       ELSE
 100    CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -6262,8 +6193,8 @@ C         IF(IR.EQ.1)THEN
           FSKYI(4,IR)=FSKYI(4,1)
           FSKYI(5,IR)=FSKYI(5,1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -6275,11 +6206,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-200     IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+200     IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -6305,14 +6236,13 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  INTCONTP                      source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I17FROTS_PON             source/mpi/interfaces/spmd_i17frots_pon.F
-Chd|        SPMD_I21FTHECOM               source/mpi/interfaces/send_cand.F
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    intcontp            ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i17frots_pon   ../engine/source/mpi/interfaces/spmd_i17frots_pon.F
+!||    spmd_i21fthecom     ../engine/source/mpi/interfaces/send_cand.F
+!||    spmd_i7fcom_pon     ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||====================================================================
       SUBROUTINE INTCONTP(N,ISKY,NSNFI,ISIZENV,NSNFITOT,LEN)
 C
 C-----------------------------------------------
@@ -6336,13 +6266,13 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
-      IF(N.GT.0)THEN
+      IF(N>0)THEN
         I = 1
         P = 1
         LASTIG = NSNFI(P)
-        DO WHILE (I .LE. N)
+        DO WHILE (I <= N)
           IG = ISKY(I)
-          IF(IG.LE.LASTIG)THEN
+          IF(IG<=LASTIG)THEN
             ISIZENV(1,P) = ISIZENV(1,P) + LEN
             ISIZENV(2,P) = ISIZENV(2,P) + 1
             I = I + 1
@@ -6360,12 +6290,11 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  ADDCOMI20                     source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    addcomi20         ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon   ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||====================================================================
       SUBROUTINE ADDCOMI20(NSNFI,NSVFI,ISIZENV,LENI20)
 C
 C-----------------------------------------------
@@ -6393,9 +6322,9 @@ C      IDEB = 0
       DO P = 1, NSPMD
         NB = NSNFI(P)
         ISIZENV(1,P) = ISIZENV(1,P) + NB*LENI20
-C envoi tjrs mais peut etre optimise
+C always send but maybe optimistic
 C        DO N = 1, NB
-C          IF(NSVFI(IDEB+N).LT.0) THEN
+C          IF(NSVFI(IDEB+N)<0) THEN
 C            ISIZENV(P) = ISIZENV(P) + LENI20
 C          END IF
 C        END DO
@@ -6405,21 +6334,17 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SORTI11                       source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sorti11           ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon   ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||====================================================================
       SUBROUTINE SORTI11(N,ISKY,FSKYI,NFSKYI)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6436,13 +6361,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-Cel test sur n=0
-      IF (N.EQ.0) RETURN
+C   test on n=0
+      IF (N==0) RETURN
       L=N/2+1
       IR=N
-      IF(NFSKYI.EQ.4)THEN
+      IF(NFSKYI==4)THEN
 10     CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -6473,8 +6398,8 @@ Cel test sur n=0
           FSKYI(7,IR)=FSKYI(7,1)
           FSKYI(8,IR)=FSKYI(8,1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -6489,11 +6414,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-20      IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+20      IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -6522,7 +6447,7 @@ C         IF(IR.EQ.1)THEN
        GO TO 10
       ELSE
 100    CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -6559,8 +6484,8 @@ C         IF(IR.EQ.1)THEN
           FSKYI(9,IR)=FSKYI(9,1)
           FSKYI(10,IR)=FSKYI(10,1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -6577,11 +6502,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-200     IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+200     IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -6617,21 +6542,17 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SORTI11T                      source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sorti11t          ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon   ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||====================================================================
       SUBROUTINE SORTI11T(N,ISKY,FSKYI,FTHESKYI,NFSKYI)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6649,13 +6570,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-Cel test sur n=0
-      IF (N.EQ.0) RETURN
+C   test on n=0
+      IF (N==0) RETURN
       L=N/2+1
       IR=N
-      IF(NFSKYI.EQ.4)THEN
+      IF(NFSKYI==4)THEN
 10     CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -6689,8 +6610,8 @@ Cel test sur n=0
           FSKYI(8,IR)=FSKYI(8,1)
           FTHESKYI(IR)=FTHESKYI(1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -6706,11 +6627,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-20      IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+20      IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -6741,7 +6662,7 @@ C         IF(IR.EQ.1)THEN
        GO TO 10
       ELSE
 100    CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -6781,8 +6702,8 @@ C         IF(IR.EQ.1)THEN
           FSKYI(10,IR)=FSKYI(10,1)
           FTHESKYI(IR)=FTHESKYI(1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -6800,11 +6721,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-200     IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+200     IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -6842,21 +6763,17 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SORTI11TT                     source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sorti11tt         ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon   ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||====================================================================
       SUBROUTINE SORTI11TT(N,ISKY,FSKYI,FTHESKYI,CONDNSKYI,NFSKYI)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6874,13 +6791,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-Cel test sur n=0
-      IF (N.EQ.0) RETURN
+C   test on n=0
+      IF (N==0) RETURN
       L=N/2+1
       IR=N
-      IF(NFSKYI.EQ.4)THEN
+      IF(NFSKYI==4)THEN
 10     CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -6917,8 +6834,8 @@ Cel test sur n=0
           FTHESKYI(IR)=FTHESKYI(1)
           CONDNSKYI(IR)=CONDNSKYI(1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -6935,11 +6852,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-20      IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+20      IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -6972,7 +6889,7 @@ C         IF(IR.EQ.1)THEN
        GO TO 10
       ELSE
 100    CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -7015,8 +6932,8 @@ C         IF(IR.EQ.1)THEN
           FTHESKYI(IR)=FTHESKYI(1)
           CONDNSKYI(IR)=CONDNSKYI(1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -7035,11 +6952,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-200     IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+200     IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -7079,21 +6996,17 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SORTI17                       source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sorti17           ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon   ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||====================================================================
       SUBROUTINE SORTI17(N,ISKY,FSKYI)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7109,11 +7022,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-      IF (N.EQ.0) RETURN
+      IF (N==0) RETURN
       L=N/2+1
       IR=N
 10    CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           DO II = 1, 40
@@ -7129,7 +7042,7 @@ C-----------------------------------------------
             FSKYI(II,IR)=FSKYI(II,1)
           END DO
           IR=IR-1
-          IF(IR.LE.1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             DO II = 1, 40
               FSKYI(II,1)=RRA(II)
@@ -7139,11 +7052,11 @@ C-----------------------------------------------
         ENDIF
         I=L
         J=L+L
-20      IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+20      IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             DO II = 1, 40
               FSKYI(II,I)=FSKYI(II,J)
@@ -7165,106 +7078,18 @@ C
       END
 
 
-Chd|====================================================================
-Chd|  PUTDPDAANC                    source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_EXCH_DA20                source/mpi/interfaces/spmd_exch_da20.F
-Chd|        SPMD_I7FCOM_POFF              source/mpi/forces/spmd_i7fcom_poff.F
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|        SPMD_I7XVCOM2                 source/mpi/interfaces/spmd_i7xvcom2.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE PUTDPDAANC(DAANC6,BUF,IRESP,INC)
-C
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER IRESP,INC
-      my_real
-     .        BUF(*), DAANC6(*)
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I
-C-----------------------------------------------
-C   S o u r c e  L i n e s
-C-----------------------------------------------
-C si double precision, on compacte 18 valeurs dp
-C si simple precision, on compacte 18 valeurs dp soit 36 sp
-      INC = 18*(1+IRESP)
-      DO I = 1,INC
-        BUF(I) = DAANC6(I)
-      END DO
-C
-      RETURN
-      END
-
-Chd|====================================================================
-Chd|  GETDPDAANC                    source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_EXCH_DA20                source/mpi/interfaces/spmd_exch_da20.F
-Chd|        SPMD_FIADD20E_POFF            source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_FIADD20E_PON             source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_FIADD20_POFF             source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_FIADD20_PON              source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_I7XVCOM2                 source/mpi/interfaces/spmd_i7xvcom2.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE GETDPDAANC(DAANC6,BUF,IRESP,INC)
-C
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER IRESP,INC
-      my_real
-     .        BUF(*), DAANC6(*)
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I
-C-----------------------------------------------
-C   S o u r c e  L i n e s
-C-----------------------------------------------
-C si double precision, on compacte 18 valeurs dp
-C si simple precision, on compacte 18 valeurs dp soit 36 sp
-      INC = 18*(1+IRESP)
-      DO I = 1,INC
-        DAANC6(I) = BUF(I)
-      END DO
-C
-      RETURN
-      END
-
-Chd|====================================================================
-Chd|  PUTDPZERO                     source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|        SPMD_I7XVCOM2                 source/mpi/interfaces/spmd_i7xvcom2.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    putdpzero         ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon   ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||    spmd_i7xvcom2     ../engine/source/mpi/interfaces/spmd_i7xvcom2.F
+!||====================================================================
       SUBROUTINE PUTDPZERO(ZZ,BUF,IRESP,INC)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7278,10 +7103,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-C si double precision, on compacte 18 valeurs dp
-C si simple precision, on compacte 18 valeurs dp soit 36 sp
+C If double precision, we compact 18 DP values
+C If simple precision, we compact 18 DP values or 36 SP
       INC = 18
-      IF(IRESP.EQ.0) THEN
+      IF(IRESP==0) THEN
         DO I = 1,INC
           BUF(I) = ZZ(1)
         END DO
@@ -7296,21 +7121,17 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  ADDDP                         source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_EXCH_DA20                source/mpi/interfaces/spmd_exch_da20.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    adddp            ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_exch_da20   ../engine/source/mpi/interfaces/spmd_exch_da20.F
+!||====================================================================
       SUBROUTINE ADDDP(DAANC6,DAANC6L,LEN)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7329,7 +7150,7 @@ C-----------------------------------------------
       DO I = 1,LEN
         DATMP(I) = DAANC6(I) + DAANC6L(I)
       END DO
-C 2 boucles pour eviter pb alignement entier dp sur pgi
+C 2 loops to avoid integer dp alignment problem on pgi
       DO I = 1,LEN
         DAANC6(I) = DATMP(I)
       END DO
@@ -7337,21 +7158,17 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  CONVERSION7                   source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_TRI20BOX                 source/mpi/interfaces/spmd_tri20box.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    conversion7     ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_tri20box   ../engine/source/mpi/interfaces/spmd_tri20box.F
+!||====================================================================
       SUBROUTINE CONVERSION7(XREM,XREM_DP,IREM,SIZ,LEN)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7378,22 +7195,18 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  CONVERSION11                  source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        SPMD_TRI20BOXE                source/mpi/interfaces/spmd_tri20boxe.F
-Chd|        SPMD_TRI22VOX                 source/mpi/interfaces/spmd_tri22vox.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    conversion11     ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_tri20boxe   ../engine/source/mpi/interfaces/spmd_tri20boxe.F
+!||    spmd_tri22vox    ../engine/source/mpi/interfaces/spmd_tri22vox.F
+!||====================================================================
       SUBROUTINE CONVERSION11(XREM,XREM_DP,IREM,SIZ,LEN)
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7420,18 +7233,19 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPGRADE_REM_2RY               source/mpi/interfaces/spmd_i7tool.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE UPGRADE_REM_2RY(IPARI,COUNT_REMSLV,COUNT_REMSLVE)
+!||====================================================================
+!||    upgrade_rem_2ry   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    resol             ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg            ../engine/source/output/message/message.F
+!||    arret             ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod       ../engine/share/message_module/message_mod.F
+!||    tri25ebox         ../engine/share/modules/tri25ebox.F
+!||    tri7box           ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE UPGRADE_REM_2RY(IPARI,COUNT_REMSLV,COUNT_REMSLVE,NODADT_THERM)
       USE TRI7BOX
       USE TRI25EBOX
       USE MESSAGE_MOD
@@ -7449,6 +7263,7 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(NPARI,*),COUNT_REMSLV(*),COUNT_REMSLVE(*)
+      INTEGER, INTENT(IN) :: NODADT_THERM 
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -7459,7 +7274,7 @@ C-----------------------------------------------
         IERROR = 0
         IERROR1 = 0
 
-        IF (COUNT_REMSLV(NI) .GT. NLSKYFI(NI))THEN
+        IF (COUNT_REMSLV(NI) > NLSKYFI(NI))THEN
 
            ITYP   = IPARI(7,NI)
 C           
@@ -7467,9 +7282,9 @@ C
 
            LSKYFI=NLSKYFI(NI)
 C
-           IF(ITYP.EQ.7.OR.ITYP.EQ.10.OR.ITYP.EQ.20.OR.
-     .        ITYP.EQ.22.OR.ITYP.EQ.23.OR.ITYP==24.OR.
-     .        ITYP.EQ.25)THEN
+           IF(ITYP==7.OR.ITYP==10.OR.ITYP==20.OR.
+     .        ITYP==22.OR.ITYP==23.OR.ITYP==24.OR.
+     .        ITYP==25)THEN
               INTTH = IPARI(47,NI)
 
               IF (ASSOCIATED(ISKYFI(NI)%P)) DEALLOCATE(ISKYFI(NI)%P)
@@ -7477,58 +7292,58 @@ C
 C
               ALLOCATE(ISKYFI(NI)%P(LSKYFI),STAT=IERROR1)
               IERROR = IERROR + IERROR1
-              IF(KDTINT.EQ.0) THEN
+              IF(KDTINT==0) THEN
                 ALLOCATE(FSKYFI(NI)%P(4,LSKYFI),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
               ELSE
                 ALLOCATE(FSKYFI(NI)%P(5,LSKYFI),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
               END IF
-              IF(ITYP.EQ.7 .OR. ITYP==25) THEN
-                IF(INTTH .NE.0 ) THEN 
+              IF(ITYP==7 .OR. ITYP==25) THEN
+                IF(INTTH /=0 ) THEN 
                   IF(ASSOCIATED(FTHESKYFI(NI)%P)) DEALLOCATE(FTHESKYFI(NI)%P)
                   ALLOCATE(FTHESKYFI(NI)%P(LSKYFI),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                 ENDIF
-                IF(INTTH .NE. 0 .AND. NODADT_THERM ==1) THEN
+                IF(INTTH /= 0 .AND. NODADT_THERM ==1) THEN
                   IF(ASSOCIATED(CONDNSKYFI(NI)%P)) DEALLOCATE(CONDNSKYFI(NI)%P)
                   ALLOCATE(CONDNSKYFI(NI)%P(LSKYFI),STAT=IERROR1)
                   IERROR = IERROR + IERROR1
                 ENDIF
               ENDIF
-           ELSEIF(ITYP.EQ.11)THEN
+           ELSEIF(ITYP==11)THEN
               INTTH = IPARI(47,NI)
               IERROR = 0
               IF(ASSOCIATED(ISKYFI(NI)%P))     DEALLOCATE(ISKYFI(NI)%P)
               IF(ASSOCIATED(FSKYFI(NI)%P))     DEALLOCATE(FSKYFI(NI)%P)
               ALLOCATE(ISKYFI(NI)%P(LSKYFI),STAT=IERROR1)
               IERROR = IERROR + IERROR1
-              IF(INTTH .NE.0 ) THEN
+              IF(INTTH /=0 ) THEN
                 IF(ASSOCIATED(FTHESKYFI(NI)%P)) DEALLOCATE(FTHESKYFI(NI)%P)
                 ALLOCATE(FTHESKYFI(NI)%P(2*LSKYFI),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
               ENDIF
-              IF(KDTINT.EQ.0) THEN
+              IF(KDTINT==0) THEN
                 ALLOCATE(FSKYFI(NI)%P(8,LSKYFI),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
               ELSE
                 ALLOCATE(FSKYFI(NI)%P(10,LSKYFI),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
               END IF
-              IF(INTTH .NE. 0 .AND. NODADT_THERM ==1) THEN
+              IF(INTTH /= 0 .AND. NODADT_THERM ==1) THEN
                 IF(ASSOCIATED(CONDNSKYFI(NI)%P)) DEALLOCATE(CONDNSKYFI(NI)%P)
                 ALLOCATE(CONDNSKYFI(NI)%P(2*LSKYFI),STAT=IERROR1)
                 IERROR = IERROR + IERROR1
               ENDIF
            ENDIF
         ENDIF
-        IF( COUNT_REMSLVE(NI) .GT. NLSKYFIE(NI) )THEN
+        IF( COUNT_REMSLVE(NI) > NLSKYFIE(NI) )THEN
           NLSKYFIE(NI) = NINT(1.2D0 * COUNT_REMSLVE(NI))
           LSKYFI = COUNT_REMSLVE(NI)
           IF (ASSOCIATED(FSKYFIE(NI)%P))DEALLOCATE(FSKYFIE(NI)%P)
           IF (ASSOCIATED(ISKYFIE(NI)%P)) DEALLOCATE(ISKYFIE(NI)%P)
           ALLOCATE(ISKYFIE(NI)%P(LSKYFI),STAT=IERROR1)
-          IF(KDTINT.EQ.0) THEN
+          IF(KDTINT==0) THEN
 C            ALLOCATE(FSKYFIE(NI)%P(8,LSKYFI),STAT=IERROR1)
              ALLOCATE(FSKYFIE(NI)%P(8,LSKYFI),STAT=IERROR1)
              IERROR = IERROR + IERROR1
@@ -7538,10 +7353,87 @@ C            ALLOCATE(FSKYFIE(NI)%P(8,LSKYFI),STAT=IERROR1)
           END IF
         ENDIF
 
-        IF(IERROR.NE.0) THEN
+        IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
         ENDIF
       ENDDO
+      RETURN
+      END
+
+!||====================================================================
+!||    getdpdaanc           ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_exch_da20       ../engine/source/mpi/interfaces/spmd_exch_da20.F
+!||    spmd_fiadd20_poff    ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    spmd_fiadd20_pon     ../engine/source/mpi/interfaces/spmd_i20tool.F
+!||    spmd_fiadd20e_poff   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    spmd_fiadd20e_pon    ../engine/source/mpi/interfaces/spmd_i20tool.F
+!||    spmd_i7xvcom2        ../engine/source/mpi/interfaces/spmd_i7xvcom2.F
+!||====================================================================
+      SUBROUTINE GETDPDAANC(DAANC6,BUF,IRESP,INC)
+C
+C-----------------------------------------------
+C   I m p l i c i t   T y p e s
+C-----------------------------------------------
+#include      "implicit_f.inc"
+C-----------------------------------------------
+C   D u m m y   A r g u m e n t s
+C-----------------------------------------------
+      INTEGER IRESP,INC
+      my_real
+     .        BUF(*), DAANC6(*)
+C-----------------------------------------------
+C   L o c a l   V a r i a b l e s
+C-----------------------------------------------
+      INTEGER I
+C-----------------------------------------------
+C   S o u r c e  L i n e s
+C-----------------------------------------------
+C If double precision, we compact 18 DP values
+C If simple precision, we compact 18 DP values or 36 SP
+      INC = 18*(1+IRESP)
+      DO I = 1,INC
+        DAANC6(I) = BUF(I)
+      END DO
+C
+      RETURN
+      END
+
+
+!||====================================================================
+!||    putdpdaanc         ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- called by ------------------------------------------------------
+!||    spmd_exch_da20     ../engine/source/mpi/interfaces/spmd_exch_da20.F
+!||    spmd_i7fcom_poff   ../engine/source/mpi/forces/spmd_i7fcom_poff.F
+!||    spmd_i7fcom_pon    ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||    spmd_i7xvcom2      ../engine/source/mpi/interfaces/spmd_i7xvcom2.F
+!||====================================================================
+      SUBROUTINE PUTDPDAANC(DAANC6,BUF,IRESP,INC)
+C
+C-----------------------------------------------
+C   I m p l i c i t   T y p e s
+C-----------------------------------------------
+#include      "implicit_f.inc"
+C-----------------------------------------------
+C   D u m m y   A r g u m e n t s
+C-----------------------------------------------
+      INTEGER IRESP,INC
+      my_real
+     .        BUF(*), DAANC6(*)
+C-----------------------------------------------
+C   L o c a l   V a r i a b l e s
+C-----------------------------------------------
+      INTEGER I
+C-----------------------------------------------
+C   S o u r c e  L i n e s
+C-----------------------------------------------
+C If double precision, we compact 18 DP values
+C If simple precision, we compact 18 DP values or 36 SP
+      INC = 18*(1+IRESP)
+      DO I = 1,INC
+        BUF(I) = DAANC6(I)
+      END DO
+C
       RETURN
       END

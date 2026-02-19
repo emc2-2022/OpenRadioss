@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_RNUM25_EDGE              source/mpi/interfaces/spmd_rnum25_edge.F
-Chd|-- called by -----------
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|-- calls ---------------
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_rnum25_edge   ../engine/source/mpi/interfaces/spmd_rnum25_edge.F
+!||--- called by ------------------------------------------------------
+!||    i25main_tri        ../engine/source/interfaces/intsort/i25main_tri.F
+!||--- uses       -----------------------------------------------------
+!||    tri25ebox          ../engine/share/modules/tri25ebox.F
+!||    tri7box            ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_RNUM25_EDGE(NIN,NEDGE,CAND_E2E,ISTOK_E2E, CAND_E2S,ISTOK_E2S)
 C-----------------------------------------------
 C   M o d u l e s
@@ -37,9 +37,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
-#include      "assert.inc"
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 #include      "i25edge_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -53,8 +51,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, P, I_STOK, IDEB, JDEB, NI
-      INTEGER EID,N_REMOTE_OLD
+      INTEGER I, J, P, IDEB, JDEB, NI
+      INTEGER N_REMOTE_OLD
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -82,9 +80,9 @@ C-----------------------------------------------
       DO P = 1, NSPMD
         I = 1
         J = 1
-        DO WHILE (J.LE.NSNFIE(NIN)%P(P).AND.I.LE.NSNFIEOLD(P))
+        DO WHILE (J<=NSNFIE(NIN)%P(P).AND.I<=NSNFIEOLD(P))
 
-          IF(IREM_EDGE(E_LOCAL_ID,J+JDEB).EQ.
+          IF(IREM_EDGE(E_LOCAL_ID,J+JDEB)==
      +       NSVFIE(NIN)%P(I+IDEB)) THEN
 C           RENUM_EDGE(OLD) = NEW
             RENUM_EDGE(I+IDEB) = J+JDEB
@@ -94,13 +92,13 @@ C    .                 " RENUM(",J+JDEB,")= ",I+IDEB,NEDGE_REMOTE
 C
             I = I + 1
             J = J + 1
-          ELSEIF(IREM_EDGE(E_LOCAL_ID,J+JDEB).LT.
+          ELSEIF(IREM_EDGE(E_LOCAL_ID,J+JDEB)<
      +           NSVFIE(NIN)%P(I+IDEB)) THEN
            J = J + 1
 
-          ELSEIF(IREM_EDGE(E_LOCAL_ID,J+JDEB).GT.
+          ELSEIF(IREM_EDGE(E_LOCAL_ID,J+JDEB)>
      +           NSVFIE(NIN)%P(I+IDEB)) THEN
-Cas candidat non penetre et non retenu
+Cas candidate not penetrating and not selected
             I = I + 1
           END IF
         END DO
@@ -110,7 +108,7 @@ Cas candidat non penetre et non retenu
 C
 
       DO I = 1, N_REMOTE_OLD
-        IF(RENUM_EDGE(I).GT.0)  THEN
+        IF(RENUM_EDGE(I)>0)  THEN
 !          OLDNUM_EDGE(NEW) = OLD
            OLDNUM_EDGE(RENUM_EDGE(I)) = I
         ENDIF
@@ -118,7 +116,7 @@ C
 
       DO I = 1, ISTOK_E2E
         NI = CAND_E2E(I)
-        IF(NI.GT.NEDGE) THEN
+        IF(NI>NEDGE) THEN
           NI = NI - NEDGE 
           CAND_E2E(I) = RENUM_EDGE(NI) + NEDGE
         END IF        
@@ -126,7 +124,7 @@ C
 
       DO I = 1, ISTOK_E2S
         NI = CAND_E2S(I)
-        IF(NI.GT.NEDGE) THEN
+        IF(NI>NEDGE) THEN
           NI = NI - NEDGE 
           CAND_E2S(I) = RENUM_EDGE(NI) + NEDGE
         END IF        

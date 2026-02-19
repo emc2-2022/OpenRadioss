@@ -1,66 +1,66 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_RWALL_PARAL           source/constraints/general/rwall/hm_read_rwall_paral.F
-Chd|-- called by -----------
-Chd|        READ_RWALL                    source/constraints/general/rwall/read_rwall.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ANODSET                       source/output/analyse/analyse_node.c
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        REMOVE_ND                     source/elements/solid/solide10/dim_s10edg.F
-Chd|        SUBROTPOINT                   source/model/submodel/subrot.F
-Chd|        SUBROTVECT                    source/model/submodel/subrot.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_rwall_paral    ../starter/source/constraints/general/rwall/hm_read_rwall_paral.F
+!||--- called by ------------------------------------------------------
+!||    read_rwall             ../starter/source/constraints/general/rwall/read_rwall.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    anodset                ../starter/source/output/analyse/analyse_node.c
+!||    fretitl                ../starter/source/starter/freform.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    kinset                 ../starter/source/constraints/general/kinset.F
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||    remove_nd              ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||    subrotpoint            ../starter/source/model/submodel/subrot.F
+!||    subrotvect             ../starter/source/model/submodel/subrot.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_RWALL_PARAL(RWL     ,NPRW    ,LPRW    ,IFI     ,MS      ,
      .                               V       ,ITAB    ,ITABM1  ,X       ,IKINE   ,
      .                               IGRNOD  ,MFI     ,IMERGE  ,UNITAB  ,IDDLEVEL,
      .                              LSUBMODEL,RTRANS  ,NOM_OPT ,ITAGND  ,NCHPARAL,
      .                               K       ,OFFS    ,IKINE1  ) 
 C-------------------------------------
-C     LECTURE MUR RIGIDE
-C-----------------------------------------------
+C     READING MUR RIGIDE
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE UNITAB_MOD
-      USE SUBMODEL_MOD
+      USE SUBMODEL_MOD , ONLY : NSUBMOD, SUBMODEL_DATA
       USE MESSAGE_MOD
       USE R2R_MOD
       USE GROUPDEF_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -72,44 +72,34 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "lagmult.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "param_c.inc"
-#include      "sysunit.inc"
-#include      "submod_c.inc"
 #include      "tabsiz_c.inc"
 #include      "r2r_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER IFI,MFI,IDDLEVEL,NCHPARAL,K,OFFS
-      INTEGER NPRW(*), LPRW(*), ITAB(*), ITABM1(*),
-     .        IKINE(*), IMERGE(*),ITAGND(*),IKINE1(3*NUMNOD)
-      TYPE(SUBMODEL_DATA) LSUBMODEL(*)
-C     REAL
-      my_real
-     .   RWL(NRWLP,*), MS(*), V(3,*), X(3,*),
-     .   RTRANS(NTRANSF,*)
+      TYPE (UNIT_TYPE_),INTENT(IN) :: UNITAB
+      INTEGER :: IFI,MFI,IDDLEVEL,NCHPARAL,K,OFFS
+      INTEGER :: NPRW(*), LPRW(*), ITAB(*), ITABM1(*),IKINE(*), IMERGE(*),ITAGND(*),IKINE1(3*NUMNOD)
+      TYPE(SUBMODEL_DATA) :: LSUBMODEL(NSUBMOD)
+      my_real :: RWL(NRWLP,*), MS(*), V(3,*), X(3,*),RTRANS(NTRANSF,*)
       INTEGER NOM_OPT(LNOPT1,*)
 C-----------------------------------------------
       TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, ITYP, ITIED, NSL, NUSER, MSR, J, I,
-     .   L, IGU,IGU2, IGRS, NOSYS, IFQ, JC,UID,
-     .   IFLAGUNIT,SUB_ID, SUB_INDEX
-      my_real
-     .   DIST, FRIC, DIAM, XMAS, VX, VY, VZ, XM1, YM1, ZM1, XM2, YM2, VN,
-     .   ZM2, XN, X1, Y1, Z1, DISN, X2, Y2, Z2, X3, FREQ, ALPHA, FAC_M_R2R
-      CHARACTER MESS*40,OPT*ncharkey,TITR*nchartitle
+      INTEGER N, ITYP, ITIED, NSL, NUSER, MSR, J, I,L, IGU,IGU2, IGRS, NOSYS, IFQ, JC,UID,IFLAGUNIT,SUB_ID, SUB_INDEX
+      my_real :: DIST, FRIC, DIAM, XMAS, VX, VY, VZ, XM1, YM1, ZM1, XM2, YM2, VN
+      my_real :: ZM2, XN, X1, Y1, Z1, DISN, X2, X3, FREQ, ALPHA, FAC_M_R2R
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       LOGICAL :: IS_AVAILABLE
+      INTEGER :: IPEN
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -147,7 +137,7 @@ C
 C
         ! Checking flag unit
         IFLAGUNIT = 0        
-        DO J=1,NUNITS                           
+        DO J=1,UNITAB%NUNITS                           
           IF (UNITAB%UNIT_ID(J) == UID) THEN          
             IFLAGUNIT = 1                         
             EXIT                                
@@ -165,6 +155,7 @@ C
         CALL HM_GET_INTV('slidingflag',ITIED,IS_AVAILABLE,LSUBMODEL)  
         CALL HM_GET_INTV('NodeSet_ID',IGU,IS_AVAILABLE,LSUBMODEL)  
         CALL HM_GET_INTV('excludeNodeSet_ID',IGU2,IS_AVAILABLE,LSUBMODEL)  
+        CALL HM_GET_INTV('Iform',IPEN,IS_AVAILABLE,LSUBMODEL)  
 C
         IF(NUSER /= 0) THEN
           MSR = USR2SYS(NUSER,ITABM1,MESS,NUSER)
@@ -185,6 +176,7 @@ C
         CALL HM_GET_INTV('Filteringflag'    ,IFQ        ,IS_AVAILABLE, LSUBMODEL)  
         IF (FREQ == 0 .AND. IFQ /= 0) IFQ = 0
         IF (IFQ == 0) FREQ = ONE
+        ALPHA = ZERO
         IF (IFQ >= 0) THEN
           IF (IFQ <= 1) ALPHA = FREQ                         
           IF (IFQ == 2) ALPHA = FOUR*ATAN2(ONE,ZERO) / FREQ 
@@ -211,6 +203,9 @@ C
           RWL(4,N) = X1
           RWL(5,N) = X2
           RWL(6,N) = X3 
+          VX = ZERO
+          VY = ZERO
+          VZ = ZERO
         ! if node_ID > 0
         ELSE IF (MSR /= 0)THEN
           !               Mass                 VX0                 VY0                 VZ0
@@ -248,7 +243,7 @@ C
         IF(SUB_ID /= 0) CALL SUBROTPOINT(XM2,YM2,ZM2,RTRANS,SUB_ID,LSUBMODEL)
 C
         ! Initialization depending on the type of interface
-C       MM1 ET MM2 DEFINISSENT LE PARALLELOGRAMME
+C       MM1 AND MM2 DEFINE THE PARALLELOGRAM
         RWL(1,N) = (YM1-RWL(5,N))*(ZM2-RWL(6,N))
      .           - (ZM1-RWL(6,N))*(YM2-RWL(5,N))
         RWL(2,N) = (ZM1-RWL(6,N))*(XM2-RWL(4,N))
@@ -319,18 +314,18 @@ C
         NSL = 0
         DO I = 1,NUMNOD
           IF (LPRW(K+I) > 0) THEN
-            IF (NS10E > 0) THEN
+            IF (NS10E > 0.AND. IPEN==0) THEN
               IF(ITAGND(I) /= 0) CYCLE
             ENDIF
             NSL = NSL+1
             LPRW(K+NSL) = I
-            IF (IDDLEVEL == 0) THEN
+            IF (IDDLEVEL == 0.AND. IPEN==0) THEN
               CALL KINSET(4,ITAB(I),IKINE(I),1,N+NUMSKW+1,IKINE1(I))
             ENDIF
           ENDIF
         ENDDO
         ! Itet=2 of S10      
-        IF (NS10E > 0 ) CALL REMOVE_ND(NSL,LPRW(K+1),ITAGND)
+        IF (NS10E > 0 .AND. IPEN==0) CALL REMOVE_ND(NSL,LPRW(K+1),ITAGND)
         IFI=IFI+NSL
         IF (IFQ > 0) THEN
           MFI=MFI+3*NSL
@@ -343,6 +338,7 @@ C
         ELSE
           WRITE(IOUT,1150) N,ITYP,ITIED,NSL,NUSER,XMAS,VX,VY,VZ
         ENDIF
+        IF (IPEN > 0) WRITE(IOUT,2500)
 C
         WRITE(IOUT,2004)(RWL(L,N),L=4,6),(RWL(L,N),L=7,9),
      .                  (RWL(L,N),L=10,12)
@@ -359,6 +355,7 @@ C
         NPRW(N+3*NRWALL) = ITYP
         NPRW(N+4*NRWALL) = 0
         NPRW(N+5*NRWALL) = 0
+        NPRW(N+8*NRWALL) = IPEN
         IF (MSR /= 0) THEN
           VN = VX*RWL(1,N)+VY*RWL(2,N)+VZ*RWL(3,N)
           RWL(4,N) = VN
@@ -397,4 +394,5 @@ C
      .       /10X,'FRICTION COEFFICIENT . . .',1PG14.4
      .       /10X,'FILTRATION FLAG. . . . . .',I10
      .       /10X,'FILTRATION FACTOR. . . . .',1PG14.4)
+ 2500 FORMAT(/5X,'RIGID WALL FORMULATION     : PENALTY'/)
       END

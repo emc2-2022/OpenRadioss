@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  VALPR                         source/materials/mat/mat019/valpr.F
-Chd|-- called by -----------
-Chd|        INEPRI                        source/materials/mat/mat019/inepri.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    valpr    ../starter/source/materials/mat/mat019/valpr.F
+!||--- called by ------------------------------------------------------
+!||    inepri   ../starter/source/materials/mat/mat019/inepri.F
+!||====================================================================
       SUBROUTINE VALPR (A,R,N,MV)
 C-----------------------------------
 C-----------------------------------------------
@@ -50,14 +49,14 @@ C     REAL
      .   RANGE, ANORM, ANRMX, THR, X, Y, SINX, SINX2, COSX, COSX2,
      .   SINCS   
       RANGE = 1.0E-7
-      IF (MV.NE.1)THEN
+      IF (MV/=1)THEN
         IQ = -N
         DO J = 1,N
           IQ = IQ+N
           DO I = 1,N
             IJ = IQ+I
             R(IJ) = ZERO
-            IF (I.EQ.J)R(IJ) = ONE
+            IF (I==J)R(IJ) = ONE
 
           ENDDO
         ENDDO
@@ -65,13 +64,13 @@ C     REAL
       ANORM = ZERO
       DO I = 1,N
         DO J = 1,N
-          IF (I.NE.J) THEN
+          IF (I/=J) THEN
             IA = I+(J*J-J)/2
             ANORM = ANORM+A(IA)*A(IA)
           ENDIF
         ENDDO
       ENDDO
-      IF (ANORM.LE.ZERO) GOTO 300
+      IF (ANORM<=ZERO) GOTO 300
       ANORM = ONEP414*SQRT(ANORM)
       ANRMX = ANORM*RANGE/FLOAT(N)
       IND = 0
@@ -85,17 +84,17 @@ C
       MQ = (M*M-M)/2
       LQ = (L*L-L)/2
       LM = L+MQ
-      IF (ABS(A(LM)).LT.THR) GOTO 200
+      IF (ABS(A(LM))<THR) GOTO 200
       IND = 1
       LL = L+LQ
       MM = M+MQ
       X = HALF*(A(LL)-A(MM))
       Y = -A(LM)/SQRT(A(LM)*A(LM)+X*X)
-      IF (X.LT.ZERO) THEN
+      IF (X<ZERO) THEN
        Y = -Y
-      ELSEIF((X.EQ.ZERO).AND.(A(LM).LT.0)) THEN
+      ELSEIF((X==ZERO).AND.(A(LM)<0)) THEN
        Y = 1
-      ELSEIF((X.EQ.ZERO).AND.(A(LM).GT.0)) THEN
+      ELSEIF((X==ZERO).AND.(A(LM)>0)) THEN
        Y = -1
       ENDIF
       SINX = Y/SQRT(TWO*(ONE+(SQRT(ABS(ONE-Y*Y)))))
@@ -107,13 +106,13 @@ C
       IMQ = N*(M-1)
       DO I = 1,N
        IQ = (I*I-I)/2
-       IF (I.NE.L.AND.I.NE.M) THEN
-        IF (I.LT.M) THEN
+       IF (I/=L.AND.I/=M) THEN
+        IF (I<M) THEN
           IM = I+MQ
         ELSE
           IM = M+IQ
         ENDIF
-        IF (I.GE.L) THEN
+        IF (I>=L) THEN
           IL = L+IQ
         ELSE
           IL = I+LQ
@@ -122,7 +121,7 @@ C
         A(IM) = A(IL)*SINX+A(IM)*COSX
         A(IL) = X
        ENDIF
-       IF (MV.NE.1) THEN
+       IF (MV/=1) THEN
         ILR = ILQ+I
         IMR = IMQ+I
         X = R(ILR)*COSX-R(IMR)*SINX
@@ -139,22 +138,22 @@ C
 C
   200 CONTINUE
 C
-      IF (M.NE.N) THEN
+      IF (M/=N) THEN
         M = M+1
         GO TO 100
       ENDIF
-      IF (L.NE.(N-1)) THEN
+      IF (L/=(N-1)) THEN
         L = L+1
         M = L+1
         GO TO 100
       ENDIF
-      IF (IND.EQ.1) THEN
+      IF (IND==1) THEN
         IND = 0
         L = 1
         M = L+1
         GO TO 100
       ENDIF
-      IF (THR.GT.ANRMX) THEN
+      IF (THR>ANRMX) THEN
         THR = THR/FLOAT(N)
         L = 1
         M = L+1
@@ -172,11 +171,11 @@ C
         DO J = I,N
           JQ = JQ+N
           MM = J+(J*J-J)/2
-          IF (A(LL).LT.A(MM)) THEN
+          IF (A(LL)<A(MM)) THEN
            X = A(LL)
            A(LL) = A(MM)
            A(MM) = X
-           IF (MV.NE.1) THEN
+           IF (MV/=1) THEN
             DO K = 1,N
              ILR = IQ+K
              IMR = JQ+K

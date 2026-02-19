@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ADDMASPART                    source/tools/admas/addmaspart.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    addmaspart             ../starter/source/tools/admas/addmaspart.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ADDMASPART(IPART,IPMAS,PARTSAV,
      .                      PART_AREA,PM,ADDEDMS,NOM_OPT,PARTSAV_PON)
 C-----------------------------------------------
@@ -37,41 +37,30 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE OPTIONDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPART(LIPART1,*)
-C     REAL
-      my_real
-     .   PARTSAV(20,*),PARTSAV_PON(*),PART_AREA(*),
-     .   PM(NPROPM,*),ADDEDMS(*)
+      my_real PARTSAV(20,*),PARTSAV_PON(*),PART_AREA(*),PM(NPROPM,*),ADDEDMS(*)
       INTEGER NOM_OPT(LNOPT1,*)
-!
       TYPE (ADMAS_)  , DIMENSION(NODMAS)  :: IPMAS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,ID_MASS,IPA,IP,NMAS,KAD,II,IMID,ITYPE,IFLAG
-C     REAL
-      my_real
-     .   AMAS,MSP,MASST(NODMAS),RATIO,ADDMAS
-      CHARACTER*nchartitle,
-     .   TITR
+      INTEGER I, ID_MASS, IPA, IP, NMAS, II, ITYPE, IFLAG
+      my_real AMAS,MSP,MASST(NODMAS),RATIO,ADDMAS
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C=======================================================================
 !---
       MASST(1:NODMAS) = ZERO
@@ -86,14 +75,14 @@ C=======================================================================
 !
         CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,I),LTITR)
 !
-! ckeck for type 4 and 7 :
+! check for type 4 and 7 :
 ! if AMAS (replacing mass) < MSP (structured mass of concerned parts or list of parts)
         IF (ITYPE == 4) THEN
-          MSP = ZERO ! structured mass of liste of parts
+          MSP = ZERO ! structured mass of list of parts
           AMAS = ZERO
           DO II = 1,NMAS
             IP = IPMAS(I)%PARTID(II)
-            MSP = MSP + PARTSAV_PON(IP) ! structured mass (of list of parts)
+            MSP = MSP + PARTSAV_PON(IP) ! structured mass of list of parts
             AMAS = IPMAS(I)%PART(II)%RPMAS
           ENDDO ! DO II = 1,NMAS
           IF (AMAS > MSP) THEN

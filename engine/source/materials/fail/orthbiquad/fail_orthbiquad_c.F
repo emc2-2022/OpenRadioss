@@ -1,44 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_ORTHBIQUAD_C             source/materials/fail/orthbiquad/fail_orthbiquad_c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_orthbiquad_c   ../engine/source/materials/fail/orthbiquad/fail_orthbiquad_c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc              ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell       ../engine/source/materials/mat_share/usermat_shell.F
+!||--- calls      -----------------------------------------------------
+!||    finter              ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE FAIL_ORTHBIQUAD_C(
      1           NEL      ,NUVAR    ,
      2           TIME     ,UPARAM   ,NGL      ,IPT      ,NPTOT    ,
      3           SIGNXX   ,SIGNYY   ,SIGNXY   ,SIGNYZ   ,SIGNZX   ,
-     4           DPLA     ,EPSP     ,UVAR     ,PTHKF    ,UEL1     ,
+     4           DPLA     ,EPSP     ,UVAR     ,UEL1     ,
      5           OFF      ,OFFL     ,DFMAX    ,TDEL     ,NFUNC    ,
      6           IFUNC    ,NPF      ,TF       ,ALDT     ,FOFF     ,
      7           IPG      )
 C-----------------------------------------------
 C    ORTHOTROPIC BIQUADRATIC FAILURE MODEL
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,9 +46,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include "units_c.inc"
-#include "param_c.inc"
-#include "scr17_c.inc"
-#include "scr19_c.inc"
 #include "comlock.inc"
 #include "mvsiz_p.inc"
 C---------+---------+---+---+--------------------------------------------
@@ -60,17 +56,13 @@ C NUVAR   |  1      | I | R | NUMBER OF USER ELEMENT VARIABLES
 C---------+---------+---+---+--------------------------------------------
 C NPT     |  1      | I | R | NUMBER OF LAYERS OR INTEGRATION POINTS   
 C IPT     |  1      | I | R | LAYER OR INTEGRATION POINT NUMBER   
-C ISHELL  |  *      | I | R | GEOMETRICAL FLAGS   
-C NGL     | NEL     | I | R | ELEMEMT NUMBER
-C SHF     | NEL     | F | R | SHEAR FACTOR
+C NGL     | NEL     | I | R | ELEMENT NUMBER
 C---------+---------+---+---+--------------------------------------------
 C TIME    |  1      | F | R | CURRENT TIME
 C---------+---------+---+---+--------------------------------------------
 C SIGNXX  | NEL     | F | W | NEW ELASTO PLASTIC STRESS XX
 C SIGNYY  | NEL     | F | W | NEW ELASTO PLASTIC STRESS YY
 C ...     |         |   |   |
-C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C PLA     | NEL     | F |R/W| PLASTIC STRAIN
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
@@ -80,15 +72,13 @@ C---------+---------+---+---+--------------------------------------------
 C IPT                         CURRENT INTEGRATION POINT IN ALL LAYERS
 C IPTT                        CURRENT INTEGRATION POINT IN THE LAYER (FOR OUTPUT ONLY)
 C NPTOT                       NUMBER OF INTEGRATION POINTS IN ALL LAYERS (TOTAL)
-C NOFF                        NUMBER OF FAILED INTEGRATION POINTS (TOTAL)
-C IGTYP                       PROPERTY TYPE
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NEL,NUVAR,IPT,NPTOT,NFUNC,IPG
       INTEGER NGL(NEL),IFUNC(NFUNC)
       my_real TIME,UPARAM(*),DPLA(NEL),EPSP(NEL),
-     .   UEL1(NEL),ALDT(NEL),PTHKF
+     .   UEL1(NEL),ALDT(NEL)
 C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
@@ -114,12 +104,13 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       my_real hydros,vmises,triaxs,REF_EL_LEN
-      INTEGER I,J,K,L,NINDX1,NINDX2,SEL,NANGLE
-      INTEGER FAIL_COUNT,IT,IREG,IRATE
+      INTEGER I,J,K,NINDX1,NINDX2,SEL,NANGLE
+      INTEGER IREG,IRATE
       INTEGER, DIMENSION(MVSIZ) :: INDX1,INDX2
-      my_real X_1(3),X_2(3),c3,DYDX,COS2(10,10),EPSD0,CJC,RATE_SCALE,FRATE
-      my_real EPS_FAIL,EPS_FAIL2,DAMAGE,INST,FSCALE_LEN,MOHR_RADIUS
+      my_real X_1(3),X_2(3),DYDX,COS2(10,10),EPSD0,CJC,RATE_SCALE,FRATE
+      my_real EPS_FAIL,EPS_FAIL2,DAMAGE,INST,MOHR_RADIUS
       my_real P1X,P1Y,S1X,S1Y,S2Y,A1,A2,B1,B2,C1,C2,FAC,LAMBDA,COS2THETA(NEL)
+      my_real SIG1(NEL),SIG2(NEL),MOHR_CENTER
       my_real, DIMENSION(:), ALLOCATABLE :: Q_X11,Q_X12,Q_X13,Q_X21,Q_X22,Q_X23,Q_INST
 C
       DATA  COS2/
@@ -135,7 +126,7 @@ C
      A 0.   ,9.   ,0.   ,-120.,0.   ,432. ,0.   ,-576 ,0.   ,256. /
 C-----------------------------------------------
 c! UVAR1 = damage due to instability (triax between 1/3 and 2/3)
-c! UVAR2 = actuall integration point ON or OFF
+c! UVAR2 = actual integration point ON or OFF
 c! UVAR3 = 
 C-----------------------------------------------
 c      
@@ -143,13 +134,13 @@ c
       ! - INITIALISATION OF COMPUTATION ON TIME STEP
       !=======================================================================
       ! Recovering model parameters
-      PTHKF      = UPARAM(1)
       SEL        = INT(UPARAM(2))
       REF_EL_LEN = UPARAM(3)
       EPSD0      = UPARAM(4)
       CJC        = UPARAM(5)
       RATE_SCALE = UPARAM(6)
       NANGLE     = INT(UPARAM(7))
+      FRATE = -HUGE(FRATE)
       ! -> Allocation of factors
       ALLOCATE(Q_X11(NANGLE),Q_X12(NANGLE),Q_X13(NANGLE),
      .         Q_X21(NANGLE),Q_X22(NANGLE),Q_X23(NANGLE))
@@ -213,10 +204,16 @@ c
 c
           ! Computation of loading angle
           MOHR_RADIUS = SQRT(((SIGNXX(I)-SIGNYY(I))/TWO)**2 + SIGNXY(I)**2)
+          MOHR_CENTER = (SIGNXX(I)+SIGNYY(I))/TWO
           IF (MOHR_RADIUS > EM20) THEN
             COS2THETA(I) = ((SIGNXX(I)-SIGNYY(I))/TWO)/MOHR_RADIUS
           ELSE
             COS2THETA(I) = ONE
+          ENDIF
+          SIG1(I) = MOHR_CENTER + MOHR_RADIUS
+          SIG2(I) = MOHR_CENTER - MOHR_RADIUS
+          IF (SIG1(I)<ZERO.OR.((SIG2(I)<ZERO).AND.(SIG2(I)<-SIG1(I)))) THEN 
+            COS2THETA(I) = -COS2THETA(I)
           ENDIF
 c
           ! Computation of the BIQUAD parameters

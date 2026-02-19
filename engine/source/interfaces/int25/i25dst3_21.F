@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25DST3_21                    source/interfaces/int25/i25dst3_21.F
-Chd|-- called by -----------
-Chd|        I25COMP_2                     source/interfaces/int25/i25comp_2.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25dst3_21   ../engine/source/interfaces/int25/i25dst3_21.F
+!||--- called by ------------------------------------------------------
+!||    i25comp_2    ../engine/source/interfaces/int25/i25comp_2.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box      ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25DST3_21(
      1                  JLT    ,CAND_N ,CAND_E ,NRTM   ,XX     ,
      2                  YY     ,ZZ     ,XI     ,YI     ,ZI     ,
@@ -50,12 +50,7 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "com01_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "task_c.inc"
-#include      "impl1_c.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -64,7 +59,7 @@ C-----------------------------------------------
      .        CAND_N(*),
      .        CAND_E(*),NSVG(MVSIZ), ETYP(*), ICODT(*), ISKEW(*)
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
-     .        INTTH,MSEGLO(*),IRTLM(4,NSN), KSLIDE(MVSIZ,4), MVOISN(MVSIZ,4), 
+     . MSEGLO(*),IRTLM(4,NSN), KSLIDE(MVSIZ,4), MVOISN(MVSIZ,4),
      .        IBOUND(4,MVSIZ)
       my_real , INTENT(IN) :: DGAPLOAD ,DRAD
       my_real
@@ -78,32 +73,25 @@ C-----------------------------------------------
       INTEGER IRECT(4,*),ITAB(*),FAR(MVSIZ,4)
       REAL*4 VTX_BISECTOR(3,2,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com08_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K, L, N, ITQ, N4N, IKEEP, MGLOB, IB1, IB2, IB3, IBX, IX, IY, IZ
+      INTEGER I, J, K, L, N, N4N, MGLOB, IB1, IB2, IB3, IBX, IX, IY, IZ
       INTEGER I4N(MVSIZ),
      .        INGAP(MVSIZ,4),
      .        IT, JJ, I1, I2, ITRIA(2,4), SUBTRIA(MVSIZ),
-     .        IBC21, IBC22, IBC23, IBCS, ISKS, IBCM(4), ISKM(4), 
+     . IBCS, ISKS, IBCM(4), ISKM(4),
      .        IBCX(MVSIZ), IBCY(MVSIZ), IBCZ(MVSIZ)
       my_real
-     .     XIJ(MVSIZ,4),  XI0V(MVSIZ),  XI5,
-     .     YIJ(MVSIZ,4),  YI0V(MVSIZ),  YI5,
-     .     ZIJ(MVSIZ,4),  ZI0V(MVSIZ),  ZI5,
-     .     X51,  X52,  X53, X54,
-     .     Y51,  Y52,  Y53, Y54,
-     .     Z51,  Z52,  Z53, Z54,
-     .     XO1, XO2, XO3, XO4, XO5, XOI,
-     .     YO1, YO2, YO3, YO4, YO5, YOI,
-     .     ZO1, ZO2, ZO3, ZO4, ZO5, ZOI,
-     .     VO12, VO23, VO34, VO41, PENE
+     . XIJ(MVSIZ,4), XI0V(MVSIZ),
+     . YIJ(MVSIZ,4), YI0V(MVSIZ),
+     . ZIJ(MVSIZ,4), ZI0V(MVSIZ),
+     .
+     .
+     .
+     .
+     .
+     .
+     . PENE
       my_real
      .     GAP_MM(MVSIZ), GAP, GAP2,
      .     XP, YP, ZP,
@@ -111,7 +99,7 @@ C-----------------------------------------------
      .     LAP, HLA, HLB(MVSIZ,4), HLC(MVSIZ,4),
      .     AL(MVSIZ,4)
       my_real
-     .     UNP,ZEROM,EPS,UNPT,ZEROMT,AAA,BB(MVSIZ,4),
+     . AAA,BB(MVSIZ,4),
      .     SX1,SX2,SX3,SX4,
      .     SY1,SY2,SY3,SY4,
      .     SZ1,SZ2,SZ3,SZ4,
@@ -122,7 +110,6 @@ C-----------------------------------------------
      .     PX, PY, PZ, PP, P1, P2, XH, YH, ZH, D1, D2, D3, VX, VY, VZ,
      .     LL ,NN, PN, LD(MVSIZ), LX, LAX, LBX, LCX,
      .     PREC
-      INTEGER ISHEL(MVSIZ)
       DATA ITRIA/1,2,2,3,3,4,4,1/
 C-----------------------------------------------------------------------
 C
@@ -137,7 +124,7 @@ C
 C
 C       For computing LBP, LCP, FAR=2, etc
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C    
         X0N(I,1) = XX(I,1) - XX(I,5)
         Y0N(I,1) = YY(I,1) - YY(I,5)
@@ -165,7 +152,7 @@ C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
         XI0V(I) = XX(I,5) - XI(I)
         YI0V(I) = YY(I,5) - YI(I)
@@ -253,7 +240,7 @@ C
 #include  "vectorize.inc"
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
         AAA      = ONE/MAX(EM30,X0N(I,1)*X0N(I,1)+Y0N(I,1)*Y0N(I,1)+Z0N(I,1)*Z0N(I,1))
         HLC(I,1) = LC(I,1)*ABS(LC(I,1))*AAA
@@ -286,7 +273,7 @@ C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
         X12(I) = XX(I,I2) - XX(I,I1)
         Y12(I) = YY(I,I2) - YY(I,I1)
@@ -295,20 +282,20 @@ C
         LBP(I,IT) = LB(I,IT)
         LCP(I,IT) = LC(I,IT)
         LAP       = ONE-LBP(I,IT)-LCP(I,IT)
-C       HLA, HLB, HLC necessaires pour triangle angle obtu
+C       HLA, HLB, HLC required for triangle sharp angle
         AAA = ONE / MAX(EM20,X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I))
         HLA= LAP*ABS(LAP) * AAA
-        IF(LAP.LT.ZERO.AND.
-     +     HLA.LE.HLB(I,IT).AND.HLA.LE.HLC(I,IT))THEN
+        IF(LAP<ZERO.AND.
+     +     HLA<=HLB(I,IT).AND.HLA<=HLC(I,IT))THEN
          LBP(I,IT) = (XIJ(I,I2)*X12(I)+YIJ(I,I2)*Y12(I)+ZIJ(I,I2)*Z12(I)) * AAA
          LBP(I,IT) = MAX(ZERO,MIN(ONE,LBP(I,IT)))
          LCP(I,IT) = ONE - LBP(I,IT)
-        ELSEIF(LBP(I,IT).LT.ZERO.AND.
-     +         HLB(I,IT).LE.HLC(I,IT).AND.HLB(I,IT).LE.HLA)THEN
+        ELSEIF(LBP(I,IT)<ZERO.AND.
+     +         HLB(I,IT)<=HLC(I,IT).AND.HLB(I,IT)<=HLA)THEN
          LBP(I,IT) = ZERO
          LCP(I,IT) = AL(I,I2)
-        ELSEIF(LCP(I,IT).LT.ZERO.AND.
-     +         HLC(I,IT).LE.HLA.AND.HLC(I,IT).LE.HLB(I,IT))THEN
+        ELSEIF(LCP(I,IT)<ZERO.AND.
+     +         HLC(I,IT)<=HLA.AND.HLC(I,IT)<=HLB(I,IT))THEN
          LCP(I,IT) = ZERO
          LBP(I,IT) = AL(I,I1)
         ENDIF
@@ -324,12 +311,12 @@ C       HLA, HLB, HLC necessaires pour triangle angle obtu
 
       END DO
 C--------------------------------------------------------
-C     Verifie si penetre vs gap cylindrique ...
+C     Check if penetra vs cylindrical gap ...
 C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I =1,JLT
 C          
-        IF (STIF(I) == ZERO)CYCLE
+        IF (STIF(I) <= ZERO)CYCLE
 C
         LAP  = ONE-LBP(I,IT)-LCP(I,IT)
 C
@@ -354,9 +341,9 @@ C--------------------------------------------------------
       N4N=0
       DO I=1,JLT
 C
-       IF(STIF(I) == ZERO)CYCLE
+       IF(STIF(I) <= ZERO)CYCLE
 C
-       IF(IX3(I).NE.IX4(I))THEN
+       IF(IX3(I)/=IX4(I))THEN
          N4N = N4N+1
          I4N(N4N)=I
        ENDIF
@@ -378,20 +365,20 @@ C
          LBP(I,IT) = LB(I,IT)
          LCP(I,IT) = LC(I,IT)
          LAP       = ONE-LBP(I,IT)-LCP(I,IT)
-C        HLA, HLB, HLC necessaires pour triangle angle obtu
+C        HLA, HLB, HLC required for triangle sharp angle
          AAA = ONE / MAX(EM20,X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I))
          HLA= LAP*ABS(LAP) * AAA
-         IF(LAP.LT.ZERO.AND.
-     +      HLA.LE.HLB(I,IT).AND.HLA.LE.HLC(I,IT))THEN
+         IF(LAP<ZERO.AND.
+     +      HLA<=HLB(I,IT).AND.HLA<=HLC(I,IT))THEN
           LBP(I,IT) = (XIJ(I,I2)*X12(I)+YIJ(I,I2)*Y12(I)+ZIJ(I,I2)*Z12(I)) * AAA
           LBP(I,IT) = MAX(ZERO,MIN(ONE,LBP(I,IT)))
           LCP(I,IT) = ONE - LBP(I,IT)
-         ELSEIF(LBP(I,IT).LT.ZERO.AND.
-     +          HLB(I,IT).LE.HLC(I,IT).AND.HLB(I,IT).LE.HLA)THEN
+         ELSEIF(LBP(I,IT)<ZERO.AND.
+     +          HLB(I,IT)<=HLC(I,IT).AND.HLB(I,IT)<=HLA)THEN
           LBP(I,IT) = ZERO
           LCP(I,IT) = AL(I,I2)
-         ELSEIF(LCP(I,IT).LT.ZERO.AND.
-     +          HLC(I,IT).LE.HLA.AND.HLC(I,IT).LE.HLB(I,IT))THEN
+         ELSEIF(LCP(I,IT)<ZERO.AND.
+     +          HLC(I,IT)<=HLA.AND.HLC(I,IT)<=HLB(I,IT))THEN
           LCP(I,IT) = ZERO
           LBP(I,IT) = AL(I,I1)
          ENDIF
@@ -407,7 +394,7 @@ C        HLA, HLB, HLC necessaires pour triangle angle obtu
 
         END DO
 C--------------------------------------------------------
-C       Verifie si penetre vs gap cylindrique ...
+C       Check if penetra vs cylindrical gap ...
 C--------------------------------------------------------
 #include  "vectorize.inc"
         DO K=1,N4N
@@ -438,7 +425,7 @@ C     Look for closest sub-triangle
 C--------------------------------------------------------
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
 C       Erase Subtria (cf intersections)
         SUBTRIA(I)=0
@@ -452,11 +439,11 @@ C
               LCX = LC(I,JJ)
               LAX = ONE-LB(I,JJ)-LC(I,JJ)
 C
-C             Privilegier secteur dans lequel on se trouve.
+C             Privilegier sector in which we are.
               IF(LBX >= ZERO .AND. LCX >= ZERO)THEN
                 LX=ZERO
               ELSE
-                ! point le plus proche dans le secteur angulaire == centre
+                ! closest point in the angular sector == center
                 LX  = MAX(ZERO,DD(I,JJ)-BB(I,JJ)*BB(I,JJ))
               END IF
 
@@ -489,7 +476,7 @@ C--------------------------------------------------------
       IBCZ(1:JLT)=0
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
         IF(.NOT.(ETYP(I)==0 .OR. ETYP(I) > NRTM))CYCLE ! only solids including coating shell.
 C
@@ -542,9 +529,10 @@ C-----
       PREC=ONE-EM04
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
         IT = SUBTRIA(I)
+        IF(IT==0)CYCLE
         IF(PENT(I,IT) == ZERO)CYCLE
 C
         IF((IBCZ(I)==1.AND.ABS(ZN(I,IT)) > PREC).OR.
@@ -560,15 +548,16 @@ C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I =1,JLT
 C          
-        IF (STIF(I) == ZERO)CYCLE
+        IF (STIF(I) <= ZERO)CYCLE
 C
         IT=SUBTRIA(I)
+        IF(IT==0)CYCLE
         IF(PENT(I,IT)==ZERO) CYCLE
 C
         I1=ITRIA(1,IT)
         I2=ITRIA(2,IT)
 C
-C       Projection en dehors du triangle
+C       Projection outside the triangle
         IF(LB(I,IT) < -EM03 .OR. LC(I,IT) < -EM03 .OR.
      .      LB(I,IT)+LC(I,IT) > ONE+EM03) FAR(I,IT)=1
 C
@@ -625,10 +614,10 @@ C         Cone
 
             IF(INGAP(I,IT)  == 1 .OR.  (KSLIDE(I,I1)/=0.OR.KSLIDE(I,I2)/=0))THEN
 C
-C               INGAP = 1 => tjrs regarder si l'on est dans le cone (permet de determiner dans quel cone on se trouve) 
+C               INGAP = 1 => always check if we are in the cone (allows to determine which cone we are in)
 C
-C               Glissement => utiliser le cone pour choisir entre les segments voisins
-C                             mais garder le contact si le nd a glisse de plus d'un elt (cf supersonic)
+C               sliding => use the cone to choose between neighboring segments
+C                             but keep the contact if the node has slipped more than one element (see supersonic)
 C            
               X12(I)=XX(I,I2)-XX(I,I1)
               Y12(I)=YY(I,I2)-YY(I,I1)
@@ -718,10 +707,10 @@ C
 
             IF(MVOISN(I,1) /= 0 .AND. (INGAP(I,IT)  == 1 .OR. (KSLIDE(I,1)/=0.OR.KSLIDE(I,2)/=0)))THEN
 C
-C             INGAP = 1 => tjrs regarder si l'on est dans le cone (permet de determiner dans quel cone on se trouve) 
+C             INGAP = 1 => always check if we are in the cone (allows to determine which cone we are in)
 C
-C             Glissement => utiliser le cone pour choisir entre les segments voisins
-C                           mais garder le contact si le nd a glisse de plus d'un elt (cf supersonic)
+C             sliding => use the cone to choose between neighboring segments
+C                           but keep the contact if the node has slipped more than one element (see supersonic)
 C          
               X12(I)=XX(I,2)-XX(I,1)
               Y12(I)=YY(I,2)-YY(I,1)
@@ -742,10 +731,10 @@ C
 
             IF(MVOISN(I,2) /= 0 .AND. (INGAP(I,IT)  == 1 .OR. (KSLIDE(I,2)/=0.OR.KSLIDE(I,3)/=0)))THEN
 C
-C             INGAP = 1 => tjrs regarder si l'on est dans le cone (permet de determiner dans quel cone on se trouve) 
+C             INGAP = 1 => always check if we are in the cone (allows to determine which cone we are in)
 C
-C             Glissement => utiliser le cone pour choisir entre les segments voisins
-C                           mais garder le contact si le nd a glisse de plus d'un elt (cf supersonic)
+C             sliding => use the cone to choose between neighboring segments
+C                           but keep the contact if the node has slipped more than one element (see supersonic)
 C            
               X12(I)=XX(I,3)-XX(I,2)
               Y12(I)=YY(I,3)-YY(I,2)
@@ -766,10 +755,10 @@ C
 
             IF(MVOISN(I,4) /= 0 .AND. (INGAP(I,IT)  == 1 .OR. (KSLIDE(I,3)/=0.OR.KSLIDE(I,1)/=0)))THEN
 C
-C               INGAP = 1 => tjrs regarder si l'on est dans le cone (permet de determiner dans quel cone on se trouve) 
+C               INGAP = 1 => always check if we are in the cone (allows to determine which cone we are in)
 C
-C               Glissement => utiliser le cone pour choisir entre les segments voisins
-C                             mais garder le contact si le nd a glisse de plus d'un elt (cf supersonic)
+C               sliding => use the cone to choose between neighboring segments
+C                             but keep the contact if the node has slipped more than one element (see supersonic)
 C            
               X12(I)=XX(I,1)-XX(I,3)
               Y12(I)=YY(I,1)-YY(I,3)
@@ -796,7 +785,7 @@ C
 C--------------------------------------------------------
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
         IT  = SUBTRIA(I)
         IF(IT/=0.AND.PENT(I,IT)==ZERO) IT=0
@@ -809,7 +798,7 @@ C
         MGLOB=MSEGLO(L)
 
         PENE=PENT(I,IT) ! PENE /= ZERO
-        IF(N.LE.NSN)THEN
+        IF(N<=NSN)THEN
 #include "lockon.inc"
 
 c       if(itab(nsvg(i))==27363)

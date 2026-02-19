@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21BUCE                       source/interfaces/intsort/i21buce.F
-Chd|-- called by -----------
-Chd|        I21MAIN_TRI                   source/interfaces/intsort/i21main_tri.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        I21TRI                        source/interfaces/intsort/i21tri.F
-Chd|        INTSTAMP_GLOB_MOD             share/modules/intstamp_glob_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21buce             ../engine/source/interfaces/intsort/i21buce.F
+!||--- called by ------------------------------------------------------
+!||    i21main_tri         ../engine/source/interfaces/intsort/i21main_tri.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg              ../engine/source/output/message/message.F
+!||    arret               ../engine/source/system/arret.F
+!||    i21tri              ../engine/source/interfaces/intsort/i21tri.F
+!||--- uses       -----------------------------------------------------
+!||    intstamp_glob_mod   ../engine/share/modules/intstamp_glob_mod.F
+!||    message_mod         ../engine/share/message_module/message_mod.F
+!||    tri7box             ../engine/share/modules/tri7box.F
+!||====================================================================
        SUBROUTINE I21BUCE(
      1   X        ,IRECT   ,NSV      ,INACTI  ,
      2   NRTM     ,NSN     ,CAND_E   ,CAND_N  ,GAP      ,
@@ -60,16 +61,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
-#include      "timeri_c.inc"
 #include      "units_c.inc"
 #include      "warn_c.inc"
-#include      "parit_c.inc"
-#include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -88,10 +81,6 @@ C     REAL
       my_real
      .   X(3,*), STFN(*), STF(*), GAP_S(*), 
      .   XM0(3,*), NOD_NORMAL(3,*), XLOC(3,*)
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -137,12 +126,12 @@ C a revoir :
           ENDDO
       ENDIF
 C--------------------------------------------------
-      IF (INIT.EQ.1) THEN
-C premier appel a i21buce
+      IF (INIT==1) THEN
+C premier call a i21buce
 C--------------------------------------------------
-C      CAS RECALCUL DU TRI PAR BUCKETS
+C      case of recalculation of sorting by buckets
 C--------------------------------------------------
-        IF (DEBUG(3).GE.1) THEN
+        IF (DEBUG(3)>=1) THEN
 #include "lockon.inc"
           WRITE(ISTDO,*)'** NEW SORT FOR INTERFACE NUMBER ',NOINT,
      .                ' AT CYCLE ',NCYCLE
@@ -152,7 +141,7 @@ C--------------------------------------------------
         ENDIF
 C
 C--------------------------------
-C     CALCUL DES BORNES DU DOMAINE
+C     calculation of the domain bounds
 C--------------------------------
         XMIN=EP30
         XMAX=-EP30
@@ -164,7 +153,7 @@ C
         DO I=1,NSN
           J=NSV(I)
 C stfn = 0 <=> shooting nodes
-          IF(STFN(I).NE.ZERO) THEN
+          IF(STFN(I)/=ZERO) THEN
            XMIN= MIN(XMIN,XLOC(1,I))
            YMIN= MIN(YMIN,XLOC(2,I))
            ZMIN= MIN(ZMIN,XLOC(3,I))
@@ -181,9 +170,9 @@ C
         YMAX=YMAX+LYM
         ZMAX=ZMAX+LZM
 C
-        IF(ABS(ZMAX-ZMIN).GT.2*EP30.OR.
-     +     ABS(YMAX-YMIN).GT.2*EP30.OR.
-     +     ABS(XMAX-XMIN).GT.2*EP30)THEN
+        IF(ABS(ZMAX-ZMIN)>2*EP30.OR.
+     +     ABS(YMAX-YMIN)>2*EP30.OR.
+     +     ABS(XMAX-XMIN)>2*EP30)THEN
           IF (ISTAMPING == 1)THEN
             CALL ANCMSG(MSGID=101,ANMODE=ANINFO,
      .                  I1=NOINT,I2=NOINT)
@@ -226,11 +215,11 @@ C
 C Fin initialisation
 C-----------------------------------------------
 C
-C-----2- TRI PAR BOITES DES ELEMENTS ET DES NOEUDS
+C2- sorting by boxes of elements and nodes
 C
 C-----------------------------------------------
-C SI ON A PAS ASSEZ DE MEMOIRE POUR LES PILES ON RECOMMENCE LE TRI
-C EN INCREMENTANT LE NB_N_B (NOMBRE DE NOEUDS PAR BOITE FINIE)
+C if there is not enough memory for the stacks, the sorting is restarted
+C by increasing nb_n_b (number of nodes per finished box)
 C     POINTEUR  NOM                 TAILLE
 C     P0........                    NSN + 3
 C     P1........Elt Bas Pile        NRTM
@@ -243,7 +232,7 @@ C
       IP0 = 1
       IP1 = IP0 + NSN  + 3
 C
-C-----INITIALISATION DES ADRESSES ET X,Y,Z
+Cinitialization of addresses and x, y, z
 C
 C     ADDE     ADDN     X      Y      Z
 C     1        1        XMIN   YMIN   ZMIN
@@ -262,11 +251,11 @@ C
       XYZM(6,I_ADD) = ZMAX
       I_MEM = 0
 C
-C-----DEBUT DE LA PHASE DE TRI 
+C     start of the sorting phase
 C
 C       SEPARER B ET N EN TWO
 C
-C     MARGE plus importante que dans le critere de tri.
+C     margin larger than in the sorting criterion
       MARGE = TZINF - MAX(DEPTH,GAP + DGAPLOAD,DRAD)
       CALL I21TRI(
      1   ADD      ,NSN      ,IRECT   ,XLOC      ,STF_L    ,
@@ -280,11 +269,11 @@ C     MARGE plus importante que dans le critere de tri.
       IF (I_MEM == 2) RETURN
 C
 C     I_MEM = 1 ==> PAS ASSEZ DE MEMOIRE PILE
-C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATS
+C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATES
 C     I_MEM = 3 ==> TROP NIVEAUX PILE 
-      IF(I_MEM.EQ.1)THEN
+      IF(I_MEM==1)THEN
         NB_N_B = NB_N_B + 1
-        IF ( NB_N_B .GT. NSN) THEN
+        IF ( NB_N_B > NSN) THEN
           IF (ISTAMPING == 1)THEN
             CALL ANCMSG(MSGID=101,ANMODE=ANINFO,
      .                  I1=NOINT,I2=NOINT)
@@ -295,8 +284,8 @@ C     I_MEM = 3 ==> TROP NIVEAUX PILE
           CALL ARRET(2)
         ENDIF
         ILD = 1
-      ELSEIF(I_MEM.EQ.2) THEN
-        IF(DEBUG(1).GE.1) THEN
+      ELSEIF(I_MEM==2) THEN
+        IF(DEBUG(1)>=1) THEN
           IWARN = IWARN+1
 #include "lockon.inc"
           WRITE(ISTDO,*)' **WARNING INTERFACE/MEMORY'
@@ -309,7 +298,7 @@ C     I_MEM = 3 ==> TROP NIVEAUX PILE
         TZINF = THREE_OVER_4*TZINF
         MINBOX= THREE_OVER_4*MINBOX
         MAXBOX= THREE_OVER_4*MAXBOX
-        IF( TZINF.LE.MAX(DEPTH,GAP+ DGAPLOAD,DRAD) ) THEN
+        IF( TZINF<=MAX(DEPTH,GAP+ DGAPLOAD,DRAD) ) THEN
           IF (ISTAMPING == 1)THEN
             CALL ANCMSG(MSGID=101,ANMODE=ANINFO,
      .                  I1=NOINT,I2=NOINT)
@@ -320,9 +309,9 @@ C     I_MEM = 3 ==> TROP NIVEAUX PILE
           CALL ARRET(2)
         ENDIF
         ILD = 1
-      ELSEIF(I_MEM.EQ.3)THEN
+      ELSEIF(I_MEM==3)THEN
         NB_N_B = NB_N_B + 1
-        IF ( NB_N_B .GT. NSN) THEN
+        IF ( NB_N_B > NSN) THEN
           IF (ISTAMPING == 1)THEN
             CALL ANCMSG(MSGID=101,ANMODE=ANINFO,
      .                  I1=NOINT,I2=NOINT)

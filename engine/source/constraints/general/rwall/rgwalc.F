@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RGWALC                        source/constraints/general/rwall/rgwalc.F
-Chd|-- called by -----------
-Chd|        RGWAL0                        source/constraints/general/rwall/rgwal0.F
-Chd|        RGWAL0_IMP                    source/constraints/general/rwall/rgwal0.F
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rgwalc        ../engine/source/constraints/general/rwall/rgwalc.F
+!||--- called by ------------------------------------------------------
+!||    rgwal0        ../engine/source/constraints/general/rwall/rgwal0.F
+!||    rgwal0_imp    ../engine/source/constraints/general/rwall/rgwal0.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier    ../engine/source/system/machine.F
+!||    sum_6_float   ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE RGWALC(X    ,A    ,V    ,RWL  ,NSW   ,
      .                  NSN  ,ITIED,MSR  ,MS   ,WEIGHT,
      .                  ICONT,FRWL6,IMP_S,NT_RW,IDDL  ,
-     .                  IKC  ,NDOF ,NODNX_SMS, WEIGHT_MD)
+     .                  IKC  ,NDOF ,NODNX_SMS, WEIGHT_MD,
+     .                  WFEXT, WFEXT_MD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,10 +42,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "scr11_c.inc"
 #include      "impl1_c.inc"
 #include      "sms_c.inc"
@@ -52,13 +51,10 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN, ITIED, MSR,ICONT,IMP_S,NT_RW
-      INTEGER NSW(*),WEIGHT(*), IDDL(*),IKC(*),NDOF(*), NODNX_SMS(*),
-     .   WEIGHT_MD(*)      
-C     REAL
-      my_real
-     .   X(*), A(*), V(*), RWL(*), MS(*)
-      DOUBLE PRECISION 
-     .   FRWL6(7,6)
+      INTEGER NSW(*),WEIGHT(*), IDDL(*),IKC(*),NDOF(*), NODNX_SMS(*), WEIGHT_MD(*)
+      my_real X(*), A(*), V(*), RWL(*), MS(*)
+      DOUBLE PRECISION FRWL6(7,6)
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT, WFEXT_MD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -66,13 +62,13 @@ C-----------------------------------------------
      .        INDEX(NSN)
 C     REAL
       my_real
-     .   RA2, XWL, YWL, ZWL, VXW, VYW, VZW, TFXTN, FACT,
-     .   TFXT, VX, VY, VZ, UX, UY, UZ, XC, YC, ZC, DD1, DD,
+     .   RA2, XWL, YWL, ZWL, VXW, VYW, VZW, WFXTN, FACT,
+     .   WFXT, VX, VY, VZ, UX, UY, UZ, XC, YC, ZC, DD1, DD,
      .   DP, XT, YT, ZT, XX, XN, YN, ZN, DV, DA, DVT, FNXN, FNYN, FNZN,
      .   FNXT, FNYT, FNZT, FNDFN, FTDFT, FRIC, FRIC2, FCOE,
      .   XWLO, YWLO, ZWLO,
      .   F1(NSN), F2(NSN), F3(NSN), F4(NSN), F5(NSN), F6(NSN), F7(NSN),
-     .   TFXT2, TFXTN2, WEWE2
+     .   WFXT2, WFXTN2, WEWE2
       DOUBLE PRECISION 
      .   FRWL6_L(7,6)
 C-----------------------------------------------
@@ -84,7 +80,7 @@ C-----------------------------------------------
 !       ICONT to 0
 !       ICONT is a shared variable 
       RA2=(HALF*RWL(7))**2
-      IF(MSR.EQ.0)THEN
+      IF(MSR==0)THEN
        XWLO=RWL(4)
        YWLO=RWL(5)
        ZWLO=RWL(6)
@@ -98,7 +94,7 @@ C-----------------------------------------------
        M3=3*MSR
        M2=M3-1
        M1=M2-1
-Cel changement formulation : plus d'impasse sur contribution force
+C   changement formulation : plus d'impasse sur contribution force
        VXW=V(M1)+A(M1)*DT12
        VYW=V(M2)+A(M2)*DT12
        VZW=V(M3)+A(M3)*DT12
@@ -109,10 +105,10 @@ Cel changement formulation : plus d'impasse sur contribution force
        YWL=X(M2)+VYW*DT2
        ZWL=X(M3)+VZW*DT2
       ENDIF
-      TFXT =ZERO     
-      TFXTN=ZERO
-      TFXT2 =ZERO     
-      TFXTN2=ZERO            
+      WFXT =ZERO
+      WFXTN=ZERO
+      WFXT2 =ZERO
+      WFXTN2=ZERO
       NINDEX=0     
 C----  
       IF(IDTMINS==0.AND.IDTMINS_INT==0)THEN
@@ -196,16 +192,16 @@ C
        FNXN=DVT*XN*MS(N)
        FNYN=DVT*YN*MS(N)
        FNZN=DVT*ZN*MS(N)
-       TFXTN = TFXTN - WEIGHT_MD(N)*FACT*
+       WFXTN = WFXTN - WEIGHT_MD(N)*FACT*
      . ((V(N1)-VXW)*FNXN+(V(N2)-VYW)*FNYN+(V(N3)-VZW)*FNZN)
        WEWE2 = (1-WEIGHT_MD(N))*WEIGHT(N)
-       TFXTN2 = TFXTN2 - WEWE2*FACT*
+       WFXTN2 = WFXTN2 - WEWE2*FACT*
      . ((V(N1)-VXW)*FNXN+(V(N2)-VYW)*FNYN+(V(N3)-VZW)*FNZN)     
        F1(J) = FNXN*WEIGHT_MD(N)
        F2(J) = FNYN*WEIGHT_MD(N)
        F3(J) = FNZN*WEIGHT_MD(N)
        F4(J) = MS(N)*WEIGHT_MD(N)
-       IF(ITIED.NE.0)THEN
+       IF(ITIED/=0)THEN
         FNXT=((V(N1)-VXW)+A(N1)*DT12)*MS(N)-FNXN
         FNYT=((V(N2)-VYW)+A(N2)*DT12)*MS(N)-FNYN
         FNZT=((V(N3)-VZW)+A(N3)*DT12)*MS(N)-FNZN
@@ -213,7 +209,7 @@ C
         FTDFT=FNXT**2+FNYT**2+FNZT**2
         FRIC=RWL(13)
         FRIC2=FRIC**2
-        IF(FTDFT.LE.FRIC2*FNDFN.OR.ITIED.EQ.1) THEN
+        IF(FTDFT<=FRIC2*FNDFN.OR.ITIED==1) THEN
 C         POINT SECND TIED
           A(N1)=ZERO
           A(N2)=ZERO
@@ -221,13 +217,13 @@ C         POINT SECND TIED
           V(N1)=VXW
           V(N2)=VYW
           V(N3)=VZW
-          IF (IMP_S.EQ.1)THEN
-            IF(NDOF(N).GT.0) THEN
+          IF (IMP_S==1)THEN
+            IF(NDOF(N)>0) THEN
 
               JJ=IDDL(N)+1
-              IF (IKC(JJ).EQ.0)IKC(JJ)=3
-              IF (IKC(JJ+1).EQ.0)IKC(JJ+1)=3
-              IF (IKC(JJ+2).EQ.0)IKC(JJ+2)=3
+              IF (IKC(JJ)==0)IKC(JJ)=3
+              IF (IKC(JJ+1)==0)IKC(JJ+1)=3
+              IF (IKC(JJ+2)==0)IKC(JJ+2)=3
             ENDIF
           ENDIF 
         ELSE
@@ -242,21 +238,21 @@ C         POINT SECND SLIDING
           V(N1)=V(N1)-DV*XN
           V(N2)=V(N2)-DV*YN
           V(N3)=V(N3)-DV*ZN
-          IF (IMP_S.EQ.1) THEN
-            IF(NDOF(N).GT.0) THEN
+          IF (IMP_S==1) THEN
+            IF(NDOF(N)>0) THEN
               V(N1)=-DV
               A(N1)=XN
               A(N2)=YN
               A(N3)=ZN    
               JJ=IDDL(N)+1
-              IF (IKC(JJ).EQ.0)IKC(JJ)=10
+              IF (IKC(JJ)==0)IKC(JJ)=10
             ENDIF 
           ENDIF
-          TFXT=TFXT-
+          WFXT=WFXT-
      .        ((V(N1)-VXW)*FNXT+(V(N2)-VYW)*FNYT+(V(N3)-VZW)*FNZT)
      .        *WEIGHT_MD(N)
           WEWE2 = (1-WEIGHT_MD(N))*WEIGHT(N)
-          TFXT2=TFXT2-
+          WFXT2=WFXT2-
      .        ((V(N1)-VXW)*FNXT+(V(N2)-VYW)*FNYT+(V(N3)-VZW)*FNZT)
      .        *WEWE2          
         ENDIF
@@ -273,25 +269,25 @@ C         POINT SECND SLIDING
         V(N1)=V(N1)-DV*XN
         V(N2)=V(N2)-DV*YN
         V(N3)=V(N3)-DV*ZN
-        IF (IMP_S.EQ.1) THEN
-          IF(NDOF(N).GT.0) THEN
+        IF (IMP_S==1) THEN
+          IF(NDOF(N)>0) THEN
             V(N1)=-DV
             A(N1)=XN
             A(N2)=YN
             A(N3)=ZN    
             JJ=IDDL(N)+1
-            IF (IKC(JJ).EQ.0)IKC(JJ)=10
+            IF (IKC(JJ)==0)IKC(JJ)=10
           ENDIF
         ENDIF 
        ENDIF
       ENDDO 
 C
-      IF(IMCONV.EQ.1)THEN
-        TFXT=TFXT+HALF*DT1*TFXTN
-        TFXT2=TFXT2+HALF*DT1*TFXTN2
-#include "atomic.inc"
-        TFEXT=TFEXT+TFXT
-        TFEXT_MD=TFEXT_MD+TFXT2
+      IF(IMCONV==1)THEN
+        WFXT=WFXT+HALF*DT1*WFXTN
+        WFXT2=WFXT2+HALF*DT1*WFXTN2
+!$OMP ATOMIC
+        WFEXT=WFEXT+WFXT
+        WFEXT_MD=WFEXT_MD+WFXT2
         DO K = 1, 6
           FRWL6_L(1,K) = ZERO
           FRWL6_L(2,K) = ZERO
@@ -322,13 +318,13 @@ C
 #include "lockoff.inc"
       ENDIF
       
-      IF (IMP_S.EQ.1) THEN
+      IF (IMP_S==1) THEN
         DO J=1,NINDEX
            I = INDEX(J)
            N=NSW(I)
-           IF (NDOF(N).GT.0) THEN
+           IF (NDOF(N)>0) THEN
 C to be uncommented the day it is parallel in implicit
-#include "atomic.inc"
+!$OMP ATOMIC
              NT_RW = NT_RW + 1
            END IF
         ENDDO

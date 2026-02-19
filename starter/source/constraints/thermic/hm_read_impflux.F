@@ -1,43 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_IMPFLUX               source/constraints/thermic/hm_read_impflux.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_impflux        ../starter/source/constraints/thermic/hm_read_impflux.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim      ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_IMPFLUX(IB      ,FAC    ,ITAB   ,IXS    ,IGRSURF  ,
-     .                      UNITAB ,IGRNOD ,IGRBRIC, LSUBMODEL)
+     .                      UNITAB ,IGRNOD ,IGRBRIC, LSUBMODEL,
+     .                      NIMPFLUX,NITFLUX,LFACTHER)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -46,29 +47,25 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
-#include      "thermal_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
+      INTEGER ,INTENT(IN)    :: NIMPFLUX
+      INTEGER ,INTENT(IN)    :: NITFLUX
+      INTEGER ,INTENT(IN)    :: LFACTHER
       INTEGER IB(NITFLUX,*), ITAB(*), IXS(NIXS,*)
 C
       my_real FAC(LFACTHER,*)
@@ -86,13 +83,13 @@ C-----------------------------------------------
       INTEGER IEL, IGBR, K1, K2
 C
       my_real FCX, FCY, FCX_DIM, FCY_DIM
-      my_real TEMP, TSTART, TSTOP, TSTOP_DIM
-      CHARACTER MESS*40,TITR*nchartitle
+      my_real TSTART, TSTOP, TSTOP_DIM
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE)::TITR
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER USR2SYS
       DATA MESS/'THERMAL  FLUX  DEFINITION               '/
 C=======================================================================
       IS_AVAILABLE = .FALSE.                                       
@@ -134,7 +131,7 @@ C--------------------------------------------------
         CALL HM_GET_FLOATV_DIM('rad_tstop',TSTOP_DIM,IS_AVAILABLE,LSUBMODEL,UNITAB)   
 C--------------------------------------------------  
         IFLAGUNIT = 0                                        
-        DO J=1,NUNITS                           
+        DO J=1,UNITAB%NUNITS                           
           IF (UNITAB%UNIT_ID(J) == UID) THEN                     
             IFLAGUNIT = 1                       
             EXIT                                
@@ -167,7 +164,7 @@ C
             IB(2,K)=IGRSURF(IS)%NODES(J,2)
             IB(3,K)=IGRSURF(IS)%NODES(J,3)
             ITY    =IGRSURF(IS)%ELTYP(J)
-            IF(ITY.EQ.7)THEN                          
+            IF(ITY==7)THEN                          
 C          true triangles (not segments built from 3 nodes).   
              IB(4,K)=0                                           
             ELSE                                                 
@@ -175,8 +172,8 @@ C          true triangles (not segments built from 3 nodes).
             ENDIF                                                
             IB(5,K)  = IFU                                           
             IB(6,K)  = ISENS 
-            IB(7,K)  = IGRSURF(IS)%ELTYP(IS)
-            IB(8,K)  = IGRSURF(IS)%ELEM(IS)
+            IB(7,K)  = IGRSURF(IS)%ELTYP(J)
+            IB(8,K)  = IGRSURF(IS)%ELEM(J)
             IF(ITY == 1) THEN
               IB(9,K)  = IXS(11,IGRSURF(IS)%ELEM(J))
             ELSE
@@ -194,9 +191,9 @@ C
          ELSE
           CALL ANCMSG(MSGID=1230,ANMODE=ANINFO,MSGTYPE=MSGERROR,C1=TITR,I1=ISU)                              
          ENDIF
-C		 
+C     
         ELSEIF(IGBR > 0) THEN
-         IS=0		
+         IS=0
          DO J=1,NGRBRIC
            IF (IGBR == IGRBRIC(J)%ID) IS=J
          ENDDO

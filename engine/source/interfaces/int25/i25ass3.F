@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25ASS3                       source/interfaces/int25/i25ass3.F
-Chd|-- called by -----------
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|-- calls ---------------
-Chd|        I25ASS0                       source/interfaces/int25/i25ass3.F
-Chd|        I25ASS2                       source/interfaces/int25/i25ass3.F
-Chd|        PINCHTYPE_MOD                 ../common_source/modules/pinchtype_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25ass3         ../engine/source/interfaces/int25/i25ass3.F
+!||--- called by ------------------------------------------------------
+!||    i25mainf        ../engine/source/interfaces/int25/i25mainf.F
+!||--- calls      -----------------------------------------------------
+!||    i25ass0         ../engine/source/interfaces/int25/i25ass3.F
+!||    i25ass2         ../engine/source/interfaces/int25/i25ass3.F
+!||--- uses       -----------------------------------------------------
+!||    pinchtype_mod   ../common_source/modules/pinchtype_mod.F
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25ASS3(JLT     ,NSVG      ,ITAB      ,CE_LOC    ,
      2    JTASK       ,NIN       ,NOINT     ,INTPLY    ,A         ,
      3    STIF        ,STIFN     ,NISKYFI   ,FSKYI     ,ISKY      ,
@@ -41,7 +42,7 @@ Chd|====================================================================
      9    FX1         ,FY1      ,FZ1        ,FX2       ,FY2       ,
      A    FZ2         ,FX3      ,FY3        ,FZ3       ,FX4       ,
      B    FY4         ,FZ4      ,FXI        ,FYI       ,FZI       ,
-     F    IFORM    ,CONDINT    ,CONDN     ,CONDNSKYI )
+     F    IFORM    ,CONDINT    ,CONDN     ,CONDNSKYI   ,NODADT_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -63,6 +64,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NODADT_THERM
       INTEGER JLT, NIN, NOINT, JTASK, NISKYFI, INTTH, INTPLY,
      .        IFORM,
      .        ITAB(*), ISKY(*), MSEGTYP(*)
@@ -79,7 +81,7 @@ C-----------------------------------------------
      .    CONDN(*),CONDNSKYI(LSKYI)
       my_real
      .    FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ), FNI(MVSIZ),
-     .    FXT(MVSIZ),FYT(MVSIZ),FZT(MVSIZ),
+     .
      .    FX1(MVSIZ), FX2(MVSIZ), FX3(MVSIZ), FX4(MVSIZ),
      .    FY1(MVSIZ), FY2(MVSIZ), FY3(MVSIZ), FY4(MVSIZ),
      .    FZ1(MVSIZ), FZ2(MVSIZ), FZ3(MVSIZ), FZ4(MVSIZ),
@@ -87,9 +89,9 @@ C-----------------------------------------------
      .    PHI4(MVSIZ),CONDINT(MVSIZ)
 C-----------------------------------------------
 C
-      IF(IPARIT.EQ.3)THEN
+      IF(IPARIT==3)THEN
          stop 789
-      ELSEIF(IPARIT.EQ.0)THEN
+      ELSEIF(IPARIT==0)THEN
          CALL I25ASS0(JLT  ,IX1    ,IX2  ,IX3  ,IX4    ,
      2               NSVG  ,H1     ,H2   ,H3   ,H4     ,STIF ,
      3               FX1   ,FY1    ,FZ1  ,FX2  ,FY2    ,FZ2  ,
@@ -98,7 +100,7 @@ C
      6               INTTH ,PHI    ,FTHE ,PHI1 , PHI2  ,PHI3 ,
      7               PHI4  ,JTASK  ,APINCH     ,STIFPINCH, MSEGTYP, CE_LOC,     
      8               FNI   ,N1     ,N2         ,N3     ,IFORM,
-     9               CONDINT,CONDN )
+     9               CONDINT,CONDN ,NODADT_THERM)
       ELSE
          CALL I25ASS2(JLT   ,IX1   ,IX2  ,IX3  ,IX4  ,
      2               NSVG  ,H1    ,H2   ,H3   ,H4   ,STIF   ,
@@ -107,23 +109,23 @@ C
      5               FXI   ,FYI   ,FZI  ,FSKYI,ISKY ,NISKYFI,
      6               NIN   ,NOINT ,INTTH,PHI  ,FTHESKYI ,INTPLY,
      7               PHI1  ,PHI2  ,PHI3 , PHI4 ,ITAB ,IFORM,
-     C               CONDINT,CONDNSKYI )     
+     C               CONDINT,CONDNSKYI ,NODADT_THERM)     
       ENDIF
 C
 C
       RETURN
       END
-Cel nouvelle routine
-Chd|====================================================================
-Chd|  I25ASS2                       source/interfaces/int25/i25ass3.F
-Chd|-- called by -----------
-Chd|        I25ASS3                       source/interfaces/int25/i25ass3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25ass2       ../engine/source/interfaces/int25/i25ass3.F
+!||--- called by ------------------------------------------------------
+!||    i25ass3       ../engine/source/interfaces/int25/i25ass3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||    tri7box       ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25ASS2(JLT   ,IX1   ,IX2  ,IX3  ,IX4   ,
      2                  NSVG  ,H1    ,H2   ,H3   ,H4    ,STIF   ,
      3                  FX1   ,FY1   ,FZ1  ,FX2  ,FY2   ,FZ2    ,
@@ -131,7 +133,7 @@ Chd|====================================================================
      5                  FXI   ,FYI   ,FZI  ,FSKYI,ISKY  ,NISKYFI,
      6                  NIN   ,NOINT ,INTTH,PHI  ,FTHESKYI,INTPLY,
      7                  PHI1  ,PHI2  ,PHI3 , PHI4 ,ITAB,IFORM,
-     C                  CONDINT,CONDNSKYI )       
+     C                  CONDINT,CONDNSKYI ,NODADT_THERM)       
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -149,14 +151,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "parit_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "warn_c.inc"
-#include      "com04_c.inc"
 #include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -164,6 +159,7 @@ C-----------------------------------------------
       INTEGER JLT,NISKYFI,NIN,NOINT,INTTH,INTPLY,IFORM,
      .        ISKY(*),ITAB(*),
      .        IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),IX4(MVSIZ),NSVG(MVSIZ)
+      INTEGER  , INTENT(IN) :: NODADT_THERM
       my_real
      .    H1(MVSIZ),H2(MVSIZ),H3(MVSIZ),H4(MVSIZ),STIF(MVSIZ),
      .    FX1(MVSIZ),FY1(MVSIZ),FZ1(MVSIZ),
@@ -179,29 +175,29 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       my_real
-     .    HH(MVSIZ),FICI(5),FICS(4,4),FICSTH(4,5)
-      INTEGER I, J1, IG, NISKYL1, NISKYL,IGP,IGM,IDR,NISKYFIL,J
-      INTEGER ITG,NN,ILY,JG,IXSS(4)
+     . HH(MVSIZ)
+      INTEGER I, IG, NISKYL1, NISKYL, IGP, IGM, NISKYFIL
+ 
 C
       NISKYL1 = 0
       DO I = 1, JLT
        HH(I)=H1(I)+H2(I)+H3(I)+H4(I)
        IF(HH(I)==ZERO)CYCLE
-        IF (H1(I).NE.ZERO) NISKYL1 = NISKYL1 + 1
-        IF (H2(I).NE.ZERO) NISKYL1 = NISKYL1 + 1
-        IF (H3(I).NE.ZERO) NISKYL1 = NISKYL1 + 1
-        IF (H4(I).NE.ZERO) NISKYL1 = NISKYL1 + 1
+        IF (H1(I)/=ZERO) NISKYL1 = NISKYL1 + 1
+        IF (H2(I)/=ZERO) NISKYL1 = NISKYL1 + 1
+        IF (H3(I)/=ZERO) NISKYL1 = NISKYL1 + 1
+        IF (H4(I)/=ZERO) NISKYL1 = NISKYL1 + 1
         
       ENDDO
 C
-C Precalcul impact locaux / remote
+C Precalcul impact local / remote
 C
       IGP = 0
       IGM = 0
       DO I=1,JLT
        IF(HH(I)==ZERO)CYCLE
         IG =NSVG(I)
-        IF(IG.GT.0) THEN
+        IF(IG>0) THEN
           IGP = IGP+1
         ELSE
           IGM = IGM+1
@@ -215,18 +211,18 @@ C
       NISKYFI = NISKYFI + IGM
 #include "lockoff.inc"
 C
-      IF (NISKYL+NISKYL1+IGP .GT. LSKYI) THEN
+      IF (NISKYL+NISKYL1+IGP > LSKYI) THEN
          CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
          CALL ARRET(2)
       ENDIF
-      IF (NISKYFIL+IGM .GT. NLSKYFI(NIN)) THEN
+      IF (NISKYFIL+IGM > NLSKYFI(NIN)) THEN
         CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
         CALL ARRET(2)
       ENDIF
 C  
       IF(INTTH == 0 ) THEN
         DO I=1,JLT
-          IF (H1(I).NE.ZERO) THEN
+          IF (H1(I)/=ZERO) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=FX1(I)
             FSKYI(NISKYL,2)=FY1(I)
@@ -236,7 +232,7 @@ C
           ENDIF
         ENDDO
         DO I=1,JLT
-          IF (H2(I).NE.ZERO) THEN
+          IF (H2(I)/=ZERO) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=FX2(I)
             FSKYI(NISKYL,2)=FY2(I)
@@ -246,7 +242,7 @@ C
           ENDIF
         ENDDO
         DO I=1,JLT
-          IF (H3(I).NE.ZERO) THEN
+          IF (H3(I)/=ZERO) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=FX3(I)
             FSKYI(NISKYL,2)=FY3(I)
@@ -256,7 +252,7 @@ C
           ENDIF
         ENDDO
         DO I=1,JLT
-          IF (H4(I).NE.ZERO) THEN
+          IF (H4(I)/=ZERO) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=FX4(I)
             FSKYI(NISKYL,2)=FY4(I)
@@ -269,7 +265,7 @@ C
         DO I=1,JLT
           IF(HH(I)==ZERO)CYCLE
           IG =NSVG(I)
-          IF(IG.GT.0) THEN
+          IF(IG>0) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=-FXI(I)
             FSKYI(NISKYL,2)=-FYI(I)
@@ -289,7 +285,7 @@ C
 C Thermique
       ELSE
         DO I=1,JLT
-          IF (H1(I).NE.0.) THEN
+          IF (H1(I)/=0.) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=FX1(I)
             FSKYI(NISKYL,2)=FY1(I)
@@ -301,7 +297,7 @@ C Thermique
           ENDIF
         ENDDO
         DO I=1,JLT
-          IF (H2(I).NE.ZERO) THEN
+          IF (H2(I)/=ZERO) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=FX2(I)
             FSKYI(NISKYL,2)=FY2(I)
@@ -313,7 +309,7 @@ C Thermique
           ENDIF
         ENDDO
         DO I=1,JLT
-          IF (H3(I).NE.ZERO) THEN
+          IF (H3(I)/=ZERO) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=FX3(I)
             FSKYI(NISKYL,2)=FY3(I)
@@ -325,7 +321,7 @@ C Thermique
           ENDIF
         ENDDO
         DO I=1,JLT
-          IF (H4(I).NE.ZERO) THEN
+          IF (H4(I)/=ZERO) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=FX4(I)
             FSKYI(NISKYL,2)=FY4(I)
@@ -340,7 +336,7 @@ C
         DO I=1,JLT
          IF(HH(I)==ZERO)CYCLE
           IG =NSVG(I)
-          IF(IG.GT.0) THEN
+          IF(IG>0) THEN
             NISKYL = NISKYL + 1
             FSKYI(NISKYL,1)=-FXI(I)
             FSKYI(NISKYL,2)=-FYI(I)
@@ -365,14 +361,14 @@ C
 C      
       RETURN
       END
-Chd|====================================================================
-Chd|  I25ASS0                       source/interfaces/int25/i25ass3.F
-Chd|-- called by -----------
-Chd|        I25ASS3                       source/interfaces/int25/i25ass3.F
-Chd|-- calls ---------------
-Chd|        PINCHTYPE_MOD                 ../common_source/modules/pinchtype_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25ass0         ../engine/source/interfaces/int25/i25ass3.F
+!||--- called by ------------------------------------------------------
+!||    i25ass3         ../engine/source/interfaces/int25/i25ass3.F
+!||--- uses       -----------------------------------------------------
+!||    pinchtype_mod   ../common_source/modules/pinchtype_mod.F
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25ASS0(JLT   ,IX1  ,IX2  ,IX3  ,IX4    ,
      2                  NSVG  ,H1   ,H2   ,H3   ,H4     ,STIF ,
      3                  FX1   ,FY1  ,FZ1  ,FX2  ,FY2    ,FZ2  ,
@@ -381,7 +377,7 @@ Chd|====================================================================
      6                  INTTH ,PHI  ,FTHE ,PHI1 , PHI2  ,PHI3 ,
      7                  PHI4  ,JTASK,APINCH     ,STIFPINCH ,MSEGTYP, CE_LOC,
      8                  FNI   ,N1   ,N2         ,N3     ,IFORM,
-     9                  CONDINT,CONDN )
+     9                  CONDINT,CONDN ,NODADT_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -398,11 +394,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -410,6 +401,7 @@ C-----------------------------------------------
       INTEGER JLT, NIN,INTTH,IFORM,
      .        IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),IX4(MVSIZ),NSVG(MVSIZ),JTASK,
      .        MSEGTYP(*),CE_LOC(MVSIZ) 
+      INTEGER  , INTENT(IN) :: NODADT_THERM
       my_real
      .    H1(MVSIZ),H2(MVSIZ),H3(MVSIZ),H4(MVSIZ),STIF(MVSIZ),
      .    FX1(MVSIZ),FY1(MVSIZ),FZ1(MVSIZ),
@@ -426,15 +418,15 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       my_real
-     .    HH(MVSIZ),FICI(5),FICS(4,4),FICSTH(4,5),FACT
-      INTEGER I, J1, IG,ILY,NN,JG,IXSS(4),NFIC,J,ISHIFT,NODFI
+     . HH(MVSIZ),FACT
+      INTEGER I, J1, IG, ISHIFT, NODFI
 
 C      
       IF(INTTH == 0) THEN
         IF(NPINCH > 0)THEN
           DO I=1,JLT
            FACT = HALF
-           IF(MSEGTYP(CE_LOC(I)).LT.0) THEN
+           IF(MSEGTYP(CE_LOC(I))<0) THEN
              FACT = -HALF
            ENDIF
 C
@@ -554,7 +546,7 @@ C
          DO I=1,JLT
            IF(HH(I)==ZERO)CYCLE
            IG=NSVG(I)
-           IF(IG.GT.0)THEN
+           IF(IG>0)THEN
              A(1,IG)=A(1,IG)-FXI(I)
              A(2,IG)=A(2,IG)-FYI(I)
              A(3,IG)=A(3,IG)-FZI(I)
@@ -572,7 +564,7 @@ C
          DO I=1,JLT
            IF(HH(I)==ZERO)CYCLE
            IG=NSVG(I)
-           IF(IG.GT.0)THEN
+           IF(IG>0)THEN
              A(1,IG)=A(1,IG)-FXI(I)
              A(2,IG)=A(2,IG)-FYI(I)
              A(3,IG)=A(3,IG)-FZI(I)

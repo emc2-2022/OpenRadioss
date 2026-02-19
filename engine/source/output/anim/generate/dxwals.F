@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DXWALS                        source/output/anim/generate/dxwals.F
-Chd|-- called by -----------
-Chd|        DXYZSECT                      source/output/anim/generate/dxyzsect.F
-Chd|-- calls ---------------
-Chd|        SPMD_AGETMSR                  source/mpi/anim/spmd_agetmsr.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dxwals         ../engine/source/output/anim/generate/dxwals.F
+!||--- called by ------------------------------------------------------
+!||    dxyzsect       ../engine/source/output/anim/generate/dxyzsect.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_agetmsr   ../engine/source/mpi/anim/spmd_agetmsr.F
+!||    write_r_c      ../common_source/tools/input_output/write_routines.c
+!||====================================================================
       SUBROUTINE DXWALS(X ,RWL ,MSR,FR_WALL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -35,7 +35,6 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "com01_c.inc"
 #include      "task_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -49,7 +48,7 @@ C-----------------------------------------------
       INTEGER I,J,L
 C     REAL
       my_real
-     .   XWL, YWL, ZWL,XN,YN,ZN,D,DX,DY,DZ,XX,YY,ZZ,R,XX0,YY0,ZZ0,
+     .   XWL, YWL, ZWL,XN,YN,ZN,D,XX,YY,ZZ,R,XX0,YY0,ZZ0,
      .   X0(6),Y0(6),Z0(6),DX0(6),DY0(6),DZ0(6),DX1(6),DY1(6),DZ1(6)
       REAL R4
       DATA DX0/ 0., 0., 0., 0., 0., 0./
@@ -67,7 +66,7 @@ C
        YN =RWL(2)
        ZN =RWL(3)
        IF (NSPMD == 1) THEN
-        IF(MSR.EQ.0)THEN
+        IF(MSR==0)THEN
          XWL=RWL(4)
          YWL=RWL(5)
          ZWL=RWL(6)
@@ -79,7 +78,7 @@ C
       ELSE
          CALL SPMD_AGETMSR(FR_WALL,X,MSR,XWL,YWL,ZWL,RWL)
       END IF 
-      IF (ISPMD.EQ.0) THEN
+      IF (ISPMD==0) THEN
 C
       R = HALF*RWL(7)
 C

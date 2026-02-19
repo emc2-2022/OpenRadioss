@@ -1,43 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT58                 source/materials/mat/mat058/hm_read_mat58.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_MAT58(
-     .           UPARAM   ,MAXUPARAM,NUPARAM  ,NUVAR    ,NFUNC    ,
-     .           MAXFUNC  ,IFUNC    ,MTAG     ,PARMAT   ,UNITAB   ,
-     .           PM       ,LSUBMODEL,MAT_ID   ,TITR     )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat58            ../starter/source/materials/mat/mat058/hm_read_mat58.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_MAT58(MATPARAM ,NUVAR    ,NFUNC    ,
+     .                         MAXFUNC  ,IFUNC    ,MTAG     ,PARMAT   ,
+     .                         UNITAB   ,LSUBMODEL,MAT_ID   ,TITR     )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -45,6 +46,8 @@ C-----------------------------------------------
       USE ELBUFTAG_MOD            
       USE MESSAGE_MOD 
       USE SUBMODEL_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -63,43 +66,39 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER, INTENT(IN)    :: MAT_ID,MAXUPARAM,MAXFUNC
-      my_real, DIMENSION(NPROPM) ,INTENT(INOUT)    :: PM     
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
-      INTEGER, INTENT(OUT)                         :: NUPARAM,NUVAR,NFUNC
-      INTEGER, DIMENSION(MAXFUNC)   ,INTENT(OUT)   :: IFUNC
-      my_real, DIMENSION(MAXUPARAM) ,INTENT(OUT)   :: UPARAM
-      my_real, DIMENSION(100),INTENT(OUT) :: PARMAT
+      INTEGER, INTENT(IN)    :: MAT_ID,MAXFUNC
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
+      INTEGER, INTENT(INOUT)                       :: NUVAR,NFUNC
+      INTEGER, DIMENSION(MAXFUNC)   ,INTENT(INOUT) :: IFUNC
+      my_real, DIMENSION(100)       ,INTENT(INOUT) :: PARMAT
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
-      TYPE(MLAW_TAG_), INTENT(OUT) :: MTAG
+      TYPE (UNIT_TYPE_)      ,INTENT(IN)    :: UNITAB 
+      TYPE(MLAW_TAG_)        ,INTENT(INOUT) :: MTAG
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
       INTEGER :: I,ILAW,NC,NT,ISENS,ILOAD,ULOAD
       my_real :: RHO0,RHOR,YOUNG,EC,ET,BC,BT,G,G0,GT,GB,GSH,GFROT,
-     .   KC,KT,KKC,KKT,KXC,KXT,KFC,KFT,FLEX,FLEX1,FLEX2,EMBC,EMBT,
+     .   KC,KT,KKC,KKT,KFC,KFT,FLEX,FLEX1,FLEX2,EMBC,EMBT,
      .   LC0,LT0,DC0,DT0,HC0,HT0,COSIN,TAN_LOCK,PHI_LOCK,
      .   VISCE,VISCG,AREAMIN1,AREAMIN2,ZEROSTRESS,STRESS_UNIT
       my_real ,DIMENSION(6) ::  YFAC
 C=======================================================================
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
       ILAW  = 58
       ILOAD = 0
       NFUNC = 3
       AREAMIN1 = ZERO
 c
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 c
       CALL HM_GET_FLOATV('MAT_RHO'       ,RHO0      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Refer_Rho'     ,RHOR      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -242,7 +241,7 @@ c---  rigidite flexion
       KFC = FLEX1*KC*HC0/DC0
       KFT = FLEX2*KT*HT0/DT0
 c
-c---  angle blocage cisaillement
+c--- CISAGE Blocking angle
       IF (PHI_LOCK == ZERO) THEN
         COSIN = HALF*(HC0/LC0 + HT0/LT0)
         TAN_LOCK = SQRT(ONE - COSIN*COSIN) / COSIN
@@ -259,53 +258,64 @@ c
       IF (GFROT == ZERO .and. ILOAD == 0) GFROT = G0
       IF (GSH   == ZERO .and. ILOAD == 0) GSH   = G0
 c-----------------------------------------------------------------------
-      NUVAR   = 39+1     
-      NUPARAM = 46 !4pts pour l intersection +flag+PR SHEAR
+      NUVAR   = 40   
 c-----------------------------------------------------------------------
-      UPARAM(1:NUPARAM) = ZERO
-c
-      UPARAM( 1) = LC0
-      UPARAM( 2) = LT0
-      UPARAM( 3) = DC0
-      UPARAM( 4) = DT0
-      UPARAM( 5) = HC0
-      UPARAM( 6) = HT0
-      UPARAM( 7) = NC
-      UPARAM( 8) = NT
-      UPARAM( 9) = KC
-      UPARAM(10) = KT
-      UPARAM(11) = KFC
-      UPARAM(12) = KFT
-      UPARAM(13) = G0 
-      UPARAM(14) = G 
-      UPARAM(15) = GB
-      UPARAM(16) = TAN_LOCK
-      UPARAM(17) = VISCE
-      UPARAM(18) = VISCG
-      UPARAM(19) = KKC
-      UPARAM(20) = KKT
-      UPARAM(21) = GFROT
-      UPARAM(22) = AREAMIN1
+      MATPARAM%NUPARAM = 46 ! 4pts for intersection +flag +pr shear
+      MATPARAM%NIPARAM = 4
+      MATPARAM%NFUNC   = NFUNC
+!
+      ALLOCATE (MATPARAM%UPARAM(MATPARAM%NUPARAM))
+      ALLOCATE (MATPARAM%IPARAM(MATPARAM%NIPARAM))
+      MATPARAM%UPARAM(:) = ZERO 
+      MATPARAM%IPARAM(:) = 0 
+c-----------------------------------------------------------------------
+      MATPARAM%IPARAM(1) = ULOAD
+      MATPARAM%IPARAM(2) = ISENS
+      MATPARAM%IPARAM(3) = NC
+      MATPARAM%IPARAM(4) = NT
+!
+      MATPARAM%UPARAM( 1) = LC0
+      MATPARAM%UPARAM( 2) = LT0
+      MATPARAM%UPARAM( 3) = DC0
+      MATPARAM%UPARAM( 4) = DT0
+      MATPARAM%UPARAM( 5) = HC0
+      MATPARAM%UPARAM( 6) = HT0
+      MATPARAM%UPARAM( 7) = 0  ! moved to IPARAM (NC)
+      MATPARAM%UPARAM( 8) = 0  ! moved to IPARAM (NT) 
+      MATPARAM%UPARAM( 9) = KC
+      MATPARAM%UPARAM(10) = KT
+      MATPARAM%UPARAM(11) = KFC
+      MATPARAM%UPARAM(12) = KFT
+      MATPARAM%UPARAM(13) = G0 
+      MATPARAM%UPARAM(14) = G 
+      MATPARAM%UPARAM(15) = GB
+      MATPARAM%UPARAM(16) = TAN_LOCK
+      MATPARAM%UPARAM(17) = VISCE
+      MATPARAM%UPARAM(18) = VISCG
+      MATPARAM%UPARAM(19) = KKC
+      MATPARAM%UPARAM(20) = KKT
+      MATPARAM%UPARAM(21) = GFROT
+      MATPARAM%UPARAM(22) = AREAMIN1
       AREAMIN2 = ONE + HALF*(AREAMIN1-ONE)
       IF (AREAMIN2 > AREAMIN1) THEN
-        UPARAM(23)= ONE / (AREAMIN2-AREAMIN1)
+        MATPARAM%UPARAM(23)= ONE / (AREAMIN2-AREAMIN1)
       ELSE
-        UPARAM(23)= ZERO
+        MATPARAM%UPARAM(23)= ZERO
       ENDIF
-      UPARAM(24) = ZEROSTRESS
-      UPARAM(25) = ISENS
-      UPARAM(26) = FLEX1
-      UPARAM(27) = FLEX2
-      UPARAM(28) = YFAC(1)
-      UPARAM(29) = YFAC(2)
-      UPARAM(30) = YFAC(3)
-      UPARAM(31) = NFUNC
-      UPARAM(32) = GSH
-      UPARAM(33) = YFAC(4)
-      UPARAM(34) = YFAC(5)
-      UPARAM(35) = ULOAD
-      UPARAM(42) = YFAC(6)
-C
+      MATPARAM%UPARAM(24) = ZEROSTRESS
+      MATPARAM%UPARAM(25) = 0  ! not used
+      MATPARAM%UPARAM(26) = FLEX1
+      MATPARAM%UPARAM(27) = FLEX2
+      MATPARAM%UPARAM(28) = YFAC(1)
+      MATPARAM%UPARAM(29) = YFAC(2)
+      MATPARAM%UPARAM(30) = YFAC(3)
+      MATPARAM%UPARAM(31) = 0 ! not used
+      MATPARAM%UPARAM(32) = GSH
+      MATPARAM%UPARAM(33) = YFAC(4)
+      MATPARAM%UPARAM(34) = YFAC(5)
+      MATPARAM%UPARAM(35) = 0  ! not used
+      MATPARAM%UPARAM(42) = YFAC(6)
+c-----------------------------------------------------------------------
       YOUNG = MAX(KC,KT)
 c--------------------------
       PARMAT(1) = YOUNG/THREE
@@ -314,9 +324,14 @@ c--------------------------
       PARMAT(4) = ZERO
       PARMAT(5) = ZERO
 c--------------------------
-      PM(1)  = RHOR
-      PM(89) = RHO0
-      PM(23) = YOUNG
+      MATPARAM%RHO   = RHOR
+      MATPARAM%RHO0  = RHO0
+      MATPARAM%YOUNG = YOUNG
+c--------------------------
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ANISOTROPIC")
+c
+      ! Properties compatibility       
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ANISOTROPIC") 
 c--------------------------
       MTAG%L_ANG  = 1
 c--------------------------------------------------
@@ -324,7 +339,7 @@ c     Starter output
 c--------------------------------------------------
       WRITE(IOUT,1000) TRIM(TITR),MAT_ID,58
       WRITE(IOUT,1100)
-      IF (IS_CRYPTED) THEN
+      IF (IS_ENCRYPTED) THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
         WRITE(IOUT,1200) RHO0

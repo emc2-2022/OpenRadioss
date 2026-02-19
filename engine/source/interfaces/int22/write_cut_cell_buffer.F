@@ -1,41 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  WRITE_CUT_CELL_BUFFER         source/interfaces/int22/write_cut_cell_buffer.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    write_cut_cell_buffer   ../engine/source/interfaces/int22/write_cut_cell_buffer.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier              ../engine/source/system/machine.F
+!||    omp_get_thread_num      ../engine/source/engine/openmp_stub.F90
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod            ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    i22bufbric_mod          ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod              ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    initbuf_mod             ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE WRITE_CUT_CELL_BUFFER ()      
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C This subroutine was introduce for debug purpose
 C only. The aim is to print full Cut Cell Buffer
@@ -57,10 +58,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"   
 #include      "inter22.inc"
-#include      "tabsiz_c.inc"
-#include      "mvsiz_p.inc"
 #include      "comlock.inc"
-#include      "subvolumes.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -82,7 +80,7 @@ C-----------------------------------------------
       ITSK = OMP_GET_THREAD_NUM()
       
       IF(ITSK/=0)      RETURN
-      IF(INT22 .EQ. 0) RETURN
+      IF(INT22 == 0) RETURN
 C-----------------------------------------------
 C   S o u r c e    L i n e s
 C-----------------------------------------------
@@ -181,7 +179,7 @@ C-----------------------------------------------
         WRITE(unit=IUNIT,  fmt='(A,01I10)    ')"   ", pPLANE%NP
         ENDDO
         
-        !SECND CELL LIST
+        !Second Cell List
         pSECND => BRICK_LIST(NIN,IB)%SecndList        
         WRITE(unit=IUNIT,  fmt='(A,01F20.14)' )"   ", pSECND%VOL_Unmerged         
         WRITE(unit=IUNIT,  fmt='(A,01I10)' )   "   ", pSECND%Num                 

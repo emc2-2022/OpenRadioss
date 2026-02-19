@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25COR3E                      source/interfaces/int25/i25cor3e.F
-Chd|-- called by -----------
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|-- calls ---------------
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25cor3e         ../engine/source/interfaces/int25/i25cor3e.F
+!||--- called by ------------------------------------------------------
+!||    i25mainf         ../engine/source/interfaces/int25/i25mainf.F
+!||--- uses       -----------------------------------------------------
+!||    parameters_mod   ../common_source/modules/interfaces/parameters_mod.F
+!||    tri25ebox        ../engine/share/modules/tri25ebox.F
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25COR3E(
      1      JLT    ,LEDGE  ,IRECT  ,X      ,V      ,
      2      CAND_S ,CAND_M ,STFE   ,MS     ,EX     ,
@@ -45,12 +46,14 @@ Chd|====================================================================
      F      IAM    ,JAM    ,IBM    ,JBM    ,IAS    ,
      G      JAS    ,IBS    ,JBS    ,ITAB   , EDGE_ID,
      H      INTFRIC,IPARTFRIC_E,IPARTFRICSI,IPARTFRICMI,
-     I      IGAP   ,GAP_E_L)
+     I      IGAP   ,GAP_E_L,IGSTI  ,KMIN   ,KMAX   ,
+     J      ISTIF_MSDT,DTSTIF,STIFMSDT_EDG ,PARAMETERS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE TRI25EBOX
       USE TRI7BOX
+      USE PARAMETERS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -62,10 +65,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "sms_c.inc"
 #include      "assert.inc"
@@ -74,7 +73,7 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER LEDGE(NLEDGE,*), IRECT(4,*), CAND_M(*), CAND_S(*), ADMSR(4,*),
-     .        LBOUND(*), JLT, NRTS, NIN, IEDGE, IGAP0,INTFRIC,IGAP,
+     . LBOUND(*), JLT, NIN, IEDGE, IGAP0,INTFRIC,IGAP,
      .        N1(MVSIZ), N2(MVSIZ), 
      .        M1(MVSIZ), M2(MVSIZ), 
      .        NODNX_SMS(*), NSMS(MVSIZ), 
@@ -84,6 +83,8 @@ C-----------------------------------------------
      .        IPARTFRIC_E(*),IPARTFRICSI(MVSIZ),IPARTFRICMI(MVSIZ)
       INTEGER :: EDGE_ID(2,MVSIZ)
       INTEGER NEDGE
+      INTEGER  , INTENT(IN) :: IGSTI
+      INTEGER , INTENT(IN) :: ISTIF_MSDT
 C     REAL
       my_real
      .        X(3,*), STFE(*), MS(*), V(3,*), GAPE(*), 
@@ -98,18 +99,24 @@ C     REAL
      .        EX(*), EY(*), EZ(*), FX(*), FY(*), FZ(*),
      .        GAP_E_L(NEDGE)
       REAL*4 EDG_BISECTOR(3,4,*), VTX_BISECTOR(3,2,*)
+      my_real  , INTENT(IN) :: KMIN, KMAX
+      my_real  , INTENT(IN) :: DTSTIF
+      my_real  , INTENT(IN) ::  STIFMSDT_EDG(NEDGE) 
+      TYPE (PARAMETERS_) ,INTENT(IN):: PARAMETERS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,NN, J, JRM, K, KRM, I1, J1, I2, J2, 
+      INTEGER I, NN, I1, I2, 
      .        EM, IE, ES, JE, SOL_EDGE, SH_EDGE, 
      .        TYPEDGS(MVSIZ), IM(MVSIZ), IS(MVSIZ)
       INTEGER ::  NOD1S(MVSIZ),NOD2S(MVSIZ)
       INTEGER ::  NOD1M(MVSIZ),NOD2M(MVSIZ)
 
-      INTEGER :: ISR ! orientation SECONDARY edge
+ 
       my_real
-     .   AAA, DX, DY, DZ, DD, NNI, NI2, INVCOS, GAPE_M(MVSIZ), GAPE_S(MVSIZ)
+     .   AAA, DX, DY, DZ, DD, NNI, NI2, INVCOS,DTS
+      my_real
+     .    GAPE_M(MVSIZ), GAPE_S(MVSIZ), STIF_MSDT(MVSIZ)
 C-----------------------------------------------
       DO I=1,JLT
 
@@ -138,11 +145,11 @@ CC            print *,'i25cor3e - internal problem',EM,M1(I),M2(I),
 CC     .                          IRECT(JAM(I),IAM(I)),IRECT(MOD(JAM(I),4)+1,IAM(I))
 CC          END IF
 CC        ELSE
-CCC Faire le cas frontiere
+CCC Make the boundary case
 CC          IM(I) = 1
 CC        ENDIF
 CC         ASSERT(IM(I) == LEDGE(10,EM))
-c       IF ( IM(I) .NE. LEDGE(10,EM) ) THEN
+c       IF ( IM(I) /= LEDGE(10,EM) ) THEN
 c         WRITE(6,'(4I10)') I,LEDGE(10,EM),LEDGE(11,EM),IM(I)
 c       ENDIF
         STM=STFE(EM)
@@ -162,7 +169,7 @@ c       ENDIF
         MM1(I) = MS(M1(I))
         MM2(I) = MS(M2(I))
 C
-        IF(CAND_S(I).LE.NEDGE) THEN
+        IF(CAND_S(I)<=NEDGE) THEN
 
           ES    =CAND_S(I)
           EDGE_ID(2,I) = LEDGE(8,ES)
@@ -186,13 +193,14 @@ CC              print *,'i25cor3e - internal problem',ES,N1(I),N2(I),
 CC     .                            IRECT(JAS(I),IAS(I)),IRECT(MOD(JAS(I),4)+1,IAS(I))
 CC            END IF
 CC          ELSE
-CCC faire le SPMD
+Cdo the spmd
 CC            IS(I) = 1
 CC          ENDIF
 CC          ASSERT(IS(I) == LEDGE(10,ES))
 
           STS=STFE(ES)
           STIF(I)=STS*STM / MAX(EM20,STS+STM)
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
           XXS1(I) = X(1,N1(I))
           XYS1(I) = X(2,N1(I))
           XZS1(I) = X(3,N1(I))
@@ -239,6 +247,7 @@ c         ENDIF
           TYPEDGS(I)=LEDGE_FIE(NIN)%P(E_TYPE,NN)
           STS=STIFIE(NIN)%P(NN)
           STIF(I)=STS*STM / MAX(EM20,STS+STM)
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
 
 
 c          STS=STFE(ES)
@@ -267,6 +276,36 @@ c       DEBUG_E2E(EDGE_ID(1,I) ==  D_EM.AND. EDGE_ID(2,I) == D_ES,XXS1(i))
 c       DEBUG_E2E(EDGE_ID(1,I) ==  D_EM.AND. EDGE_ID(2,I) == D_ES,XXS2(i))
       END DO
 
+C------------------------------------------
+C   Stiffness based on mass and time step
+C------------------------------------------
+
+      IF(ISTIF_MSDT > 0) THEN
+         IF(DTSTIF > ZERO) THEN
+            DTS = DTSTIF
+         ELSE
+            DTS = PARAMETERS%DT_STIFINT
+         ENDIF
+         DO I=1,JLT
+            EM    =CAND_M(I)
+           IF(CAND_S(I)<=NEDGE) THEN
+              ES    =CAND_S(I)
+              STIF_MSDT(I) = STIFMSDT_EDG(ES)
+            ELSE
+              NN = CAND_S(I) - NEDGE            
+              STIF_MSDT(I) = ABS(STIFE_MSDT_FI(NIN)%P(NN))
+            ENDIF
+            STIF_MSDT(I) = STIFMSDT_EDG(EM)*STIF_MSDT(I)/(STIFMSDT_EDG(EM)+STIF_MSDT(I))
+
+            STIF_MSDT(I) = STIF_MSDT(I)/(DTS*DTS)
+            STIF(I)=MAX(STIF(I),STIF_MSDT(I))
+         ENDDO
+      ENDIF
+C
+      DO I=1,JLT
+         STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+      ENDDO
+
       SOL_EDGE=IEDGE/10 ! solids
       SH_EDGE =IEDGE-10*SOL_EDGE ! shells
 
@@ -287,7 +326,7 @@ C
           EZ(I) = EDG_BISECTOR(3,JAM(I),IAM(I))
 C
           IF(IABS(TYPEDGS(I))/=1)THEN
-            IF(CAND_S(I).LE.NEDGE) THEN
+            IF(CAND_S(I)<=NEDGE) THEN
               FX(I) = EDG_BISECTOR(1,JAS(I),IAS(I))
               FY(I) = EDG_BISECTOR(2,JAS(I),IAS(I))
               FZ(I) = EDG_BISECTOR(3,JAS(I),IAS(I))
@@ -302,7 +341,7 @@ C
 
       DO I=1,JLT
         GAPE_M(I)=GAPE(CAND_M(I))
-        IF(CAND_S(I).LE.NEDGE) THEN
+        IF(CAND_S(I)<=NEDGE) THEN
           GAPE_S(I)=GAPE(CAND_S(I))
         ELSE 
           GAPE_S(I)= GAPFIE(NIN)%P(CAND_S(I) - NEDGE)
@@ -313,7 +352,7 @@ C
       IF(IGAP == 3) THEN
         DO I=1,JLT
            GAPE_M(I)=MIN(GAPE_M(I),GAP_E_L(CAND_M(I)))
-          IF(CAND_S(I).LE.NEDGE) THEN
+          IF(CAND_S(I)<=NEDGE) THEN
               GAPE_S(I)=MIN(GAPE_S(I),GAP_E_L(CAND_S(I)))
              GAPVE(I)=MIN(GAP_E_L(CAND_M(I))+GAP_E_L(CAND_S(I)),GAPVE(I)) 
           ELSE
@@ -424,7 +463,7 @@ C       Shift SECONDARY edge toward inner side
 
           IF(IBS(I)/=0)CYCLE
 
-          IF(CAND_S(I).LE.NEDGE) THEN
+          IF(CAND_S(I)<=NEDGE) THEN
           IE=IAS(I)
           JE=JAS(I)
 
@@ -489,7 +528,7 @@ C
           XYS1(I) = XYS1(I)-GAPE_S(I)*DY
           XZS1(I) = XZS1(I)-GAPE_S(I)*DZ
 C
-          IF(CAND_S(I).LE.NEDGE) THEN
+          IF(CAND_S(I)<=NEDGE) THEN
 C         DX, DY, DZ Direction for shifting
           DX = VTX_BISECTOR(1,1,I2)+VTX_BISECTOR(1,2,I2)
           DY = VTX_BISECTOR(2,1,I2)+VTX_BISECTOR(2,2,I2)
@@ -541,7 +580,7 @@ C
 C
       IF(IDTMINS==2)THEN
        DO I=1,JLT
-        IF(CAND_S(I).LE.NEDGE)THEN
+        IF(CAND_S(I)<=NEDGE)THEN
           NSMS(I)=NODNX_SMS(N1(I))+NODNX_SMS(N2(I))+
      .            NODNX_SMS(M1(I))+NODNX_SMS(M2(I))
         ELSE
@@ -551,7 +590,7 @@ C
        ENDDO
        IF(IDTMINS_INT/=0)THEN
          DO I=1,JLT
-          IF(NSMS(I).EQ.0)NSMS(I)=-1
+          IF(NSMS(I)==0)NSMS(I)=-1
          ENDDO
        END IF
       ELSEIF(IDTMINS_INT/=0)THEN
@@ -560,11 +599,11 @@ C
         ENDDO
       ENDIF
 C
-C----Friction model : secnd part IDs---------
+C----Friction model : second part IDs---------
       IF(INTFRIC > 0) THEN
          DO I=1,JLT
 
-           IF(CAND_S(I).LE.NEDGE)THEN
+           IF(CAND_S(I)<=NEDGE)THEN
              IPARTFRICSI(I) = IPARTFRIC_E(CAND_S(I))
            ELSE
              NN = CAND_S(I) - NEDGE            

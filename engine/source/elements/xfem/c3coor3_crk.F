@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3COOR3_CRK                   source/elements/xfem/c3coor3_crk.F
-Chd|-- called by -----------
-Chd|        C3FORC3_CRK                   source/elements/xfem/c3forc3_crk.F
-Chd|-- calls ---------------
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3coor3_crk     ../engine/source/elements/xfem/c3coor3_crk.F
+!||--- called by ------------------------------------------------------
+!||    c3forc3_crk     ../engine/source/elements/xfem/c3forc3_crk.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod   ../engine/share/modules/crackxfem_mod.F
+!||====================================================================
       SUBROUTINE C3COOR3_CRK(JFT    ,JLT    ,OFFG   ,OFF    ,SIGY    ,
      .                       DT1C   ,THKE   ,VL1    ,VL2    ,VL3     ,
      .                       VRL1   ,VRL2   ,VRL3   ,X1     ,X2      ,
@@ -46,7 +46,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "com08_c.inc"
 #include      "com_xfem1.inc"
 C-----------------------------------------------
@@ -64,7 +63,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NC1,NC2,NC3,ELCRK,ELCRK0,IADC1,IADC2,IADC3
+      INTEGER I,ELCRK,ELCRK0,IADC1,IADC2,IADC3
       my_real OFF_L    
 C=======================================================================
 C get elem from activ level: (superposed element)
@@ -125,9 +124,9 @@ C-----------------------------------------------
         SIGY(I) = EP30
  40   CONTINUE
 C---
-      IF(OFF_L.LT.ZERO)THEN
+      IF(OFF_L<ZERO)THEN
         DO I=JFT,JLT
-         IF(OFFG(I).LT.ZERO)THEN
+         IF(OFFG(I)<ZERO)THEN
            VL1(I,1)=ZERO
            VL1(I,2)=ZERO
            VL1(I,3)=ZERO
@@ -152,13 +151,13 @@ C---
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  C3COOR3_CRK2                  source/elements/xfem/c3coor3_crk.F
-Chd|-- called by -----------
-Chd|        C3BILAN                       source/elements/sh3n/coque3n/c3bilan.F
-Chd|-- calls ---------------
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    c3coor3_crk2    ../engine/source/elements/xfem/c3coor3_crk.F
+!||--- called by ------------------------------------------------------
+!||    c3bilan         ../engine/source/elements/sh3n/coque3n/c3bilan.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod   ../engine/share/modules/crackxfem_mod.F
+!||====================================================================
       SUBROUTINE C3COOR3_CRK2(
      1              JFT  ,JLT  ,NFT  ,ILEV     ,IEL_CRK,
      2              X    ,V    ,VR   ,VL1      ,VL2    ,
@@ -178,9 +177,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com08_c.inc"
-#include      "com01_c.inc"
 #include      "com_xfem1.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s

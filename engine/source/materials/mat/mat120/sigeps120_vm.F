@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS120_VM                  source/materials/mat/mat120/sigeps120_vm.F
-Chd|-- called by -----------
-Chd|        SIGEPS120                     source/materials/mat/mat120/sigeps120.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps120_vm   ../engine/source/materials/mat/mat120/sigeps120_vm.F
+!||--- called by ------------------------------------------------------
+!||    sigeps120      ../engine/source/materials/mat/mat120/sigeps120.F
+!||====================================================================
       SUBROUTINE SIGEPS120_VM(
      1      NEL     ,NGL     ,NUPARAM ,NUVAR   ,TIME    ,TIMESTEP,
      2      UPARAM  ,UVAR    ,OFF     ,PLA     ,EPSD    ,SOUNDSP ,
@@ -33,7 +32,7 @@ Chd|====================================================================
      4      DEPSXX  ,DEPSYY  ,DEPSZZ  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,
      5      SIGOXX  ,SIGOYY  ,SIGOZZ  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
      6      SIGNXX  ,SIGNYY  ,SIGNZZ  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,
-     7      INLOC   ,DPLANL  )
+     7      INLOC   ,DPLANL  ,DMG     , DMG_SCALE)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,7 +57,7 @@ c
       my_real ,DIMENSION(NEL) ,INTENT(OUT) :: EPSD,SOUNDSP
       my_real ,DIMENSION(NEL) ,INTENT(OUT) :: 
      .         SIGNXX,SIGNYY,SIGNZZ,SIGNXY,SIGNYZ,SIGNZX
-      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: OFF,PLA,DPLANL
+      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: OFF,PLA,DPLANL,DMG,DMG_SCALE
       my_real ,DIMENSION(NEL,NUVAR) ,INTENT(INOUT) :: UVAR
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
@@ -67,15 +66,15 @@ C----------------------------------------------------------------
       INTEGER  ,DIMENSION(NEL) :: INDX,INDF
 c     material parameters
       my_real :: YOUNG,NU,SSP,G,G2,BULK,YLD0,QQ,BETA,HH,C11,C12,
-     .   A1F,A2F,AS,D1C,D2C,D1F,D2F,D_TRX,D_JC,DM,EXPN
+     .   A1F,A2F,AS,D1C,D2C,D1F,D2F,D_TRX,D_JC,EXPN
 c     Johnson & Cook rate-dependency
-      my_real CC,EPSDREF,EPSDMAX,FRATE,FCUT,ALPHA,ALPHAI
+      my_real CC,EPSDREF,EPSDMAX,FCUT,ALPHA,ALPHAI
 c     Local variables
-      my_real FACR,TRIAX,RVOCE,FVM,I1P,IP,JP,TP,FACT,FACD,DFAC,DTINV,
+      my_real FACR,TRIAX,RVOCE,FVM,I1P,IP,JP,TP,FACT,DFAC,DTINV,
      .   DLAM,DDEP,DFDLAM,DYLD_DPLA,DPLA_DLAM,DPHI_DLAM,
      .   GAMC,GAMF,NP_XX,NP_YY,NP_ZZ,NP_XY,NP_YZ,NP_ZX,
      .   NF_XX,NF_YY,NF_ZZ,NF_XY,NF_YZ,NF_ZX,DPXX,DPYY,DPZZ,DPXY,DPYZ,DPZX
-      my_real ,DIMENSION(NEL) :: I1,J2,YLD,PHI,DAM,FDAM,JCRATE,
+      my_real ,DIMENSION(NEL) :: I1,J2,YLD,PHI,DAM,JCRATE,
      .   SXX,SYY,SZZ,SXY,SYZ,SZX,DPLA,JCR_LOG,GAMMA,DGAMM,PLA_NL,DPDT_NL
 c--------------------------------
 c     Material parameters
@@ -86,17 +85,17 @@ c     UPARAM(3)  = shear modulus   G
 c     UPARAM(4)  = bulk modulus    K
 c     UPARAM(5)  = Yld0: instant yield stress 
 c     UPARAM(6)  = Q : expontial term coefficient in the hardening law
-c     UPARAM(7)  = BETA : exponent of the exponetial term 
+c     UPARAM(7)  = BETA : exponent of the exponential term 
 c     UPARAM(8)  = P : multiplier of the linear term in the hardening law
 c     UPARAM(9)  = A1F : parameter of the yield function
 c     UPARAM(10) = A2F : parameter of the yield function
 c     UPARAM(11) = A1H : distortionnal yield hardening coefficiant
 c     UPARAM(12) = A2H : distortionnal yield hardening coefficiant
 c     UPARAM(13) = AS : parameter of the potential function
-c     UPARAM(14) = D1C: first  damage strain parameter in initial damage treshold
-c     UPARAM(15) = D2C: second damage strain parameter in initial damage treshold 
-c     UPARAM(16) = D1F: first  damage strain parameter in final damage treshold
-c     UPARAM(17) = D2F: second damage strain parameter in final damage treshold
+c     UPARAM(14) = D1C: first  damage strain parameter in initial damage threshold
+c     UPARAM(15) = D2C: second damage strain parameter in initial damage threshold 
+c     UPARAM(16) = D1F: first  damage strain parameter in final damage threshold
+c     UPARAM(17) = D2F: second damage strain parameter in final damage threshold
 c     UPARAM(18) = D_TRX : triaxiality factor in damage formula
 c     UPARAM(19) = D_JC: JC strain rate coefficient in damage formula
 c     UPARAM(20) = EXPN exponent in damage evolution
@@ -127,7 +126,7 @@ C=======================================================================
       NU    = UPARAM(2)
       G     = UPARAM(3)
       BULK  = UPARAM(4)
-c     Paramters of yield function/hardening law and flow potential
+c     Parameters of yield function/hardening law and flow potential
       YLD0  = UPARAM(5)
       QQ    = UPARAM(6)
       BETA  = UPARAM(7)
@@ -172,19 +171,19 @@ c
 c------------------------------------------------------------------
 c     Computation of the nominal trial stress tensor (non damaged)
 c------------------------------------------------------------------
-      DAM (1:NEL) = UVAR(1:NEL,2)
-      FDAM(1:NEL) = ONE - DAM(1:NEL)
+      DAM (1:NEL) = DMG(1:NEL)  
+      DPLA(1:NEL)   = ZERO          
 c
       DO I = 1,NEL
         IF (OFF(I) < 0.001) OFF(I) = ZERO
         IF (OFF(I) < ONE)    OFF(I) = OFF(I)*FOUR_OVER_5
         IF (OFF(I) == ONE) THEN
-          SIGNXX(I) = SIGOXX(I)/FDAM(I) + C11*DEPSXX(I) + C12*(DEPSYY(I) + DEPSZZ(I))
-          SIGNYY(I) = SIGOYY(I)/FDAM(I) + C11*DEPSYY(I) + C12*(DEPSXX(I) + DEPSZZ(I))
-          SIGNZZ(I) = SIGOZZ(I)/FDAM(I) + C11*DEPSZZ(I) + C12*(DEPSXX(I) + DEPSYY(I))
-          SIGNXY(I) = SIGOXY(I)/FDAM(I) + DEPSXY(I)*G 
-          SIGNYZ(I) = SIGOYZ(I)/FDAM(I) + DEPSYZ(I)*G
-          SIGNZX(I) = SIGOZX(I)/FDAM(I) + DEPSZX(I)*G
+          SIGNXX(I) = SIGOXX(I)  + C11*DEPSXX(I) + C12*(DEPSYY(I) + DEPSZZ(I))
+          SIGNYY(I) = SIGOYY(I)  + C11*DEPSYY(I) + C12*(DEPSXX(I) + DEPSZZ(I))
+          SIGNZZ(I) = SIGOZZ(I)  + C11*DEPSZZ(I) + C12*(DEPSXX(I) + DEPSYY(I))
+          SIGNXY(I) = SIGOXY(I)  + DEPSXY(I)*G 
+          SIGNYZ(I) = SIGOYZ(I)  + DEPSYZ(I)*G
+          SIGNZX(I) = SIGOZX(I)  + DEPSZX(I)*G
           I1(I)     = SIGNXX(I) + SIGNYY(I) + SIGNZZ(I)
 c
           SXX(I) = SIGNXX(I) - I1(I) * THIRD
@@ -279,7 +278,6 @@ c
 c
           DYLD_DPLA = (HH + BETA*QQ*EXP(-BETA*PLA(I))) * JCRATE(I)
           DPLA_DLAM = TWO*SQRT((J2(I) + TP*AS*I1(I)))
-          DPLA_DLAM = DPLA_DLAM / FDAM(I)
           DPHI_DLAM = DFDLAM - TWO*YLD(I)*DYLD_DPLA*DPLA_DLAM
 c----------------------------------------------------------------
           DLAM = -PHI(I) / DPHI_DLAM
@@ -339,26 +337,27 @@ c---------------------------------------------------------------------
           END IF
         ELSE
           IF (INLOC == 1) THEN
-            DGAMM(1:NEL)  = DPLANL(1:NEL) * FDAM(1:NEL)
+            DGAMM(1:NEL)  = DPLANL(1:NEL) * DMG_SCALE(1:NEL)  
             UVAR(1:NEL,1) = UVAR(1:NEL,1) + DGAMM(1:NEL)
             GAMMA (1:NEL) = UVAR(1:NEL,1)
           ELSE
-            DGAMM(1:NEL)  = DPLA(1:NEL) * FDAM(1:NEL)
+            DGAMM(1:NEL)  = DPLA(1:NEL) * DMG_SCALE(1:NEL)  
             UVAR(1:NEL,1) = UVAR(1:NEL,1) + DGAMM(1:NEL)
             GAMMA (1:NEL) = UVAR(1:NEL,1)
           END IF
         END IF
 c
-        DO II = 1,NINDX
-          I = INDX(II)
+        DO I = 1,NEL
 c
+          TRIAX = ZERO
+          FACT = ONE
           FACR = ONE + D_JC * JCR_LOG(I)  ! total strain rate factor on damage
-          IF (ITRX == 1) THEN
-            TRIAX = THIRD * I1(I) / SQRT(THREE*J2(I))
+          IF ( J2(I)/= ZERO)TRIAX = THIRD * I1(I) / SQRT(THREE*J2(I))
+          IF (ITRX == 1 ) THEN
             FACT  = EXP(-D_TRX*TRIAX)
-          ELSE IF (I1(I) <= ZERO) THEN  ! ITRX = 2 => no triaxiality influence in compression
-            FACT = ONE
-          END IF
+          ELSE
+           IF (TRIAX > ZERO )FACT  = EXP(-D_TRX*TRIAX)
+          ENDIF
           GAMC = (D1C + D2C * FACT) * FACR
           GAMF = (D1F + D2F * FACT) * FACR
           IF (GAMMA(I) > GAMC) THEN
@@ -376,18 +375,12 @@ c
               DAM(I) = ONE
               OFF(I) = FOUR_OVER_5
             END IF
-            UVAR(I,2) = DAM(I)
+            DMG(I) = DAM(I)
           END IF ! GAMMA > GAMC
         ENDDO
 c       Update damaged stress
         DO I = 1, NEL
-          FACD = ONE - DAM(I)
-          SIGNXX(I) = SIGNXX(I) * FACD
-          SIGNYY(I) = SIGNYY(I) * FACD
-          SIGNZZ(I) = SIGNZZ(I) * FACD
-          SIGNXY(I) = SIGNXY(I) * FACD
-          SIGNYZ(I) = SIGNYZ(I) * FACD
-          SIGNZX(I) = SIGNZX(I) * FACD        
+          DMG_SCALE(I) = ONE - DAM(I)   
         END DO
       END IF
 c-------------------------

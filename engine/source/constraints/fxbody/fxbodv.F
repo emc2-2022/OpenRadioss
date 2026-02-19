@@ -1,41 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FXLINK                        source/constraints/fxbody/fxbodv.F
-Chd|-- called by -----------
-Chd|        FXBODVP1                      source/constraints/fxbody/fxbodvp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fxlink     ../engine/source/constraints/fxbody/fxbodv.F
+!||--- called by ------------------------------------------------------
+!||    fxbodvp1   ../engine/source/constraints/fxbody/fxbodvp.F
+!||====================================================================
       SUBROUTINE FXLINK(CR    , SR,  DT1, DT2, FXBRPM,
      .                  FXBVIT, NME)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -171,12 +166,11 @@ C-----------------------------------------------
 C      
       RETURN
       END   
-Chd|====================================================================
-Chd|  SPLINK                        source/constraints/fxbody/fxbodv.F
-Chd|-- called by -----------
-Chd|        FXBODVP1                      source/constraints/fxbody/fxbodvp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    splink     ../engine/source/constraints/fxbody/fxbodv.F
+!||--- called by ------------------------------------------------------
+!||    fxbodvp1   ../engine/source/constraints/fxbody/fxbodvp.F
+!||====================================================================
       SUBROUTINE SPLINK(MT, ST, DT1, FXBRPM, FXBVIT,
      .                  DMT)
 C-----------------------------------------------
@@ -187,7 +181,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -222,7 +215,7 @@ C
       P32=FXBRPM(9)
       P33=FXBRPM(10)
 C
-      IF (NCYCLE.EQ.0) THEN
+      IF (NCYCLE==0) THEN
          MT(22,13)=ONE
          MT(23,14)=ONE
          MT(24,15)=ONE
@@ -256,7 +249,7 @@ C
          MT(24,15)=-ONE
       ENDIF
 C
-      IF (NCYCLE.EQ.0) THEN
+      IF (NCYCLE==0) THEN
          ST(22)=ZERO
          ST(23)=ZERO
          ST(24)=ZERO
@@ -292,61 +285,50 @@ C
 C 
       RETURN
       END   
-Chd|====================================================================
-Chd|  FXSPIN                        source/constraints/fxbody/fxbodv.F
-Chd|-- called by -----------
-Chd|        FXBODVP2                      source/constraints/fxbody/fxbodvp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    fxspin     ../engine/source/constraints/fxbody/fxbodv.F
+!||--- called by ------------------------------------------------------
+!||    fxbodvp2   ../engine/source/constraints/fxbody/fxbodvp.F
+!||====================================================================
       SUBROUTINE FXSPIN(FXBRPM, FXBVIT, S, R12, DT2)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      my_real
-     .   FXBRPM(*), FXBVIT(*), S(*), R12(*), DT2
+      my_real :: FXBRPM(*), FXBVIT(*), S(*), R12(*), DT2
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      my_real
-     .   SL(3),DDEP(12),DT05
-      my_real
-     .   RT(3,3),RP(3,3),OM(3,3)
-      INTEGER I,J,K
-C
+      my_real SL(3),DDEP(12),DT05
+      INTEGER I,J
       DT05=HALF*DT2
       DO I=1,12
          DDEP(I)=DT05*FXBVIT(I)
       ENDDO
       DO I=1,3
          DO J=1,3
-            R12(3*(I-1)+J)=FXBRPM(1+3*(I-1)+J)
-     .                     +DDEP(3*(J-1)+I)-DDEP(9+I)
+            R12(3*(I-1)+J)=FXBRPM(1+3*(I-1)+J)+DDEP(3*(J-1)+I)-DDEP(9+I)
          ENDDO
       ENDDO
-C
+
       SL(1)=-R12(2)*(FXBVIT(7)-FXBVIT(10))
      .      -R12(5)*(FXBVIT(8)-FXBVIT(11))
      .      -R12(8)*(FXBVIT(9)-FXBVIT(12))
-C
+
       SL(2)=R12(1)*(FXBVIT(7)-FXBVIT(10))
      .     +R12(4)*(FXBVIT(8)-FXBVIT(11))
      .     +R12(7)*(FXBVIT(9)-FXBVIT(12))
-C
+
       SL(3)=-R12(1)*(FXBVIT(4)-FXBVIT(10))
      .      -R12(4)*(FXBVIT(5)-FXBVIT(11))
      .      -R12(7)*(FXBVIT(6)-FXBVIT(12))
-C
+
       S(1)=R12(1)*SL(1)+R12(2)*SL(2)+R12(3)*SL(3)
       S(2)=R12(4)*SL(1)+R12(5)*SL(2)+R12(6)*SL(3)
       S(3)=R12(7)*SL(1)+R12(8)*SL(2)+R12(9)*SL(3)
-C      
+
       RETURN
       END

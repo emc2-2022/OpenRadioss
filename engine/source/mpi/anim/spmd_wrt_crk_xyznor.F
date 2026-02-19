@@ -1,54 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_WRT_CRK_XYZNOR           source/mpi/anim/spmd_wrt_crk_xyznor.F
-Chd|-- called by -----------
-Chd|        XYZNOR_CRK                    source/output/anim/generate/xyznor_crk.F
-Chd|-- calls ---------------
-Chd|        WRITE_S_C                     source/output/tools/sortie_c.c
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_wrt_crk_xyznor   ../engine/source/mpi/anim/spmd_wrt_crk_xyznor.F
+!||--- called by ------------------------------------------------------
+!||    xyznor_crk            ../engine/source/output/anim/generate/xyznor_crk.F
+!||--- calls      -----------------------------------------------------
+!||    write_s_c             ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod         ../engine/share/modules/crackxfem_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
        SUBROUTINE SPMD_WRT_CRK_XYZNOR(ICRK,XNORM,NUM)
 C-----------------------------------------------
       USE CRACKXFEM_MOD        
 C-----------------------------------------------
-C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "task_c.inc"
-#include      "spmd_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -61,11 +57,11 @@ C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
 #ifdef MPI
       INTEGER STATUS(MPI_STATUS_SIZE),IERROR,MSGOFF,EMPL
-      INTEGER SIZ,MSGTYP,I,K,NG,NREC,MSGOFF2,SI,MSGTYP2,SIZ0
+      INTEGER SIZ,MSGTYP,I,K,NREC,MSGOFF2,SIZ0
 C
       INTEGER,DIMENSION(:,:),ALLOCATABLE ::  RNGLOB,IBUF
  
-C   Tableau utilise par proc 0
+C   Table used by Pro 0
       my_real
      .   S3000,S,XN1,XN2,XN3,IXNN
 C-----------------------------------------------         
@@ -78,25 +74,18 @@ C-----------------------------------------------
 
       S3000 = THREE1000
       IXNN = S3000
-      IF(FMT_ANI.EQ.4)IXNN=0
+      IF(FMT_ANI==4)IXNN=0
 C---
-       IF (ISPMD.NE.0) THEN
+       IF (ISPMD/=0) THEN
 
         SIZ = 0
         DO I=1,CRKNOD(ICRK)%CRKNUMNODS
            EMPL = CRKNOD(ICRK)%XFENODES(I)
 C           S = SQRT(XNORM(1,I)**2 + XNORM(2,I)**2 + XNORM(3,I)**2)
            S = ZERO
-           IF(S /= ZERO)THEN
-c             S = S3000 / S
-c               XN1 = XNORM(1,I) * S
-c               XN2 = XNORM(2,I) * S
-c               XN3 = XNORM(3,I) * S
-           ELSE
-             XN1 = 0
-             XN2 = 0
-             XN3 = IXNN
-           END IF
+           XN1 = 0
+           XN2 = 0
+           XN3 = IXNN
            SIZ = SIZ + 1
            IBUF(1,SIZ) = CRKNOD(ICRK)%XFECRKNODID(I)
            IBUF(2,SIZ) = XN1
@@ -104,13 +93,13 @@ c               XN3 = XNORM(3,I) * S
            IBUF(4,SIZ) = XN3
         END DO
 C
-C   a cause de la version simple precision, on ne peux pas metre l'entier
-C   dans le buffer flottant car on n a que 2puiss 24 bits dispo ~ 16 Million
-C   de noeuds au max
+C   Because of the simple precision version, we cannot put the integer
+C   In the floating buffer because there are only 2 24 bits available ~ 16 million
+C   maximum number of nodes
 
          MSGTYP = MSGOFF2
          CALL MPI_SEND(IBUF,4*SIZ,MPI_INTEGER,IT_SPMD(1),MSGTYP,
-     .     MPI_COMM_WORLD,ierror)
+     .     SPMD_COMM_WORLD,ierror)
 
        ELSE
 
@@ -121,21 +110,14 @@ C proc 0
 c           NG = CRKNOD(ICRK)%XFECRKNODID(I)
 C
            SIZ0 = SIZ0 + 1
-c           S = SQRT(XNORM(1,I)**2 + XNORM(2,I)**2 + XNORM(3,I)**2)
+c          S = SQRT(XNORM(1,I)**2 + XNORM(2,I)**2 + XNORM(3,I)**2)
            S = ZERO
-           IF(S.NE.ZERO)THEN
-             S = S3000 / S
-c             XN1 = XNORM(1,I) * S
-c             XN2 = XNORM(2,I) * S
-c             XN3 = XNORM(3,I) * S
-           ELSE
-             XN1 = 0
-             XN2 = 0
-             XN3 = IXNN
-           END IF 
-c           RNGLOB(1,NG) = XN1
-c           RNGLOB(2,NG) = XN2
-c           RNGLOB(3,NG) = XN3
+           XN1 = 0
+           XN2 = 0
+           XN3 = IXNN
+c          RNGLOB(1,NG) = XN1
+c          RNGLOB(2,NG) = XN2
+c          RNGLOB(3,NG) = XN3
            RNGLOB(1,SIZ0) = XN1
            RNGLOB(2,SIZ0) = XN2
            RNGLOB(3,SIZ0) = XN3
@@ -146,11 +128,11 @@ c           RNGLOB(3,NG) = XN3
             MSGTYP = MSGOFF2
 
             CALL MPI_PROBE(IT_SPMD(I),MSGTYP,
-     .                    MPI_COMM_WORLD,STATUS,ierror)
-	    CALL MPI_GET_COUNT(STATUS,MPI_INTEGER,SIZ,ierror)
+     .                    SPMD_COMM_WORLD,STATUS,ierror)
+              CALL MPI_GET_COUNT(STATUS,MPI_INTEGER,SIZ,ierror)
 
             CALL MPI_RECV(IBUF,SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     .                  MPI_COMM_WORLD,STATUS,ierror)
+     .                  SPMD_COMM_WORLD,STATUS,ierror)
 
             NREC = SIZ / 4
 

@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //    
 #include <stdio.h>
 #include <string.h>
@@ -121,7 +121,7 @@ void c_h3d_update_oned_scalar_(my_real *TT,int *IH3D, int *ITAB, int *NUMELT, in
 
           rc = Hyper3DDatasetBegin(h3d_file, *NUMELT, sim_idx, subcase_id, H3D_DS_ELEM, 
                                         H3D_DS_SCALAR, num_corners, num_modes, *CPT_DATATYPE, 
-                                        NULL, truss_poolname_id, complex); 
+                                        0, truss_poolname_id, complex); 
           if( !rc ) throw rc;
 
           offset = 0;
@@ -145,7 +145,7 @@ void c_h3d_update_oned_scalar_(my_real *TT,int *IH3D, int *ITAB, int *NUMELT, in
 
           rc = Hyper3DDatasetBegin(h3d_file, *NUMELP, sim_idx, subcase_id, H3D_DS_ELEM, 
                                         H3D_DS_SCALAR, num_corners, num_modes, *CPT_DATATYPE, 
-                                        NULL, beam_poolname_id, complex); 
+                                        0, beam_poolname_id, complex); 
           if( !rc ) throw rc;
 
           for( i = 0; i < *NUMELT + *NUMELP + *NUMELR; i++ ) 
@@ -166,7 +166,7 @@ void c_h3d_update_oned_scalar_(my_real *TT,int *IH3D, int *ITAB, int *NUMELT, in
 
           rc = Hyper3DDatasetBegin(h3d_file, *NUMELR, sim_idx, subcase_id, H3D_DS_ELEM, 
                                         H3D_DS_SCALAR, num_corners, num_modes, *CPT_DATATYPE, 
-                                        NULL, spring_poolname_id, complex); 
+                                        0, spring_poolname_id, complex); 
           if( !rc ) throw rc;
 
           for( i = 0; i < *NUMELT + *NUMELP + *NUMELR; i++ ) 

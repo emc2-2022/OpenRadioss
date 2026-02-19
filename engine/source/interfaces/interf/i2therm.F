@@ -1,68 +1,54 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2THERM                       source/interfaces/interf/i2therm.F
-Chd|-- called by -----------
-Chd|        INTTI2F                       source/interfaces/interf/intti2f.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2therm   ../engine/source/interfaces/interf/i2therm.F
+!||--- called by ------------------------------------------------------
+!||    intti2f   ../engine/source/interfaces/interf/intti2f.F
+!||====================================================================
       SUBROUTINE I2THERM(X       ,NSN     ,NSV     ,IRTL    ,MS      ,
      .                   WEIGHT  ,IRECT   ,CRST    ,IADI2   ,KTHE    ,
      .                   TEMP    ,AREAS   ,FTHE    ,FTHESKYI,CONDN   ,   
-     .                   CONDNSKYI,I0     ,ITAB    )
+     .                   CONDNSKYI,I0     ,ITAB    ,IDT_THERM    ,THEACCFACT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
-#include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr14_c.inc"
 #include      "scr18_c.inc"
-#include      "sms_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
-#include      "scr_thermal_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NSN,I0
       INTEGER  IRECT(4,*),NSV(*),IRTL(*),WEIGHT(*), IADI2(4,*),ITAB(*)
-      my_real
-     .   KTHE,
-     .   X(3,*),TEMP(*),MS(*),CRST(2,*),AREAS(*),FTHE(*),FTHESKYI(*),
+      INTEGER ,intent(in) :: IDT_THERM
+      my_real ,intent(in) :: theaccfact
+      my_real :: KTHE
+      my_real :: X(3,*),TEMP(*),MS(*),CRST(2,*),AREAS(*),FTHE(*),FTHESKYI(*),
      .   CONDN(*),CONDNSKYI(*)
-C     
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -77,7 +63,7 @@ C-----------------------------------------------
       DO II=1,NSN
          I=NSV(II)
 C
-         IF(I.GT.0)THEN
+         IF(I>0)THEN
            L=IRTL(II)
 C
            W = WEIGHT(I)
@@ -92,7 +78,7 @@ C
            IX2 = IRECT(2,L)                                       
            IX3 = IRECT(3,L)                                       
            IX4 = IRECT(4,L)  
-           IF(IX3.EQ.IX4) THEN
+           IF(IX3==IX4) THEN
               H1=TM*SM                                         
               H2=TM*SP  
               H3=ONE-H1-H2

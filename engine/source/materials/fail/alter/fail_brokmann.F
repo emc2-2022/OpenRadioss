@@ -1,37 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_BROKMANN                 source/materials/fail/alter/fail_brokmann.F
-Chd|-- called by -----------
-Chd|        FAIL_WIND_FRWAVE              source/materials/fail/alter/fail_wind_frwave.F
-Chd|-- calls ---------------
-Chd|        NEWMAN_RAJU                   source/materials/fail/alter/newman_raju.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_brokmann      ../engine/source/materials/fail/alter/fail_brokmann.F
+!||--- called by ------------------------------------------------------
+!||    fail_wind_frwave   ../engine/source/materials/fail/alter/fail_wind_frwave.F
+!||--- calls      -----------------------------------------------------
+!||    newman_raju        ../common_source/fail/newman_raju.F90
+!||--- uses       -----------------------------------------------------
+!||    newman_raju_mod    ../common_source/fail/newman_raju.F90
+!||====================================================================
       SUBROUTINE FAIL_BROKMANN(
      .     NEL       ,NUPARAM   ,NUVAR     ,TIME      ,TIMESTEP  ,
      .     UPARAM    ,NGL       ,SIGNXX    ,SIGNYY    ,SIGNXY    ,
      .     UVAR      ,OFF       ,IPT       ,NINDXF    ,INDXF     ,
      .     TDEL      )
+!-----------------------------------------------
+!   M o d u l e s
+!-----------------------------------------------
+      use newman_raju_mod
 C-----------------------------------------------
 c    Test of Ch. Brokmann criterion in glass, taking account for initial
 c    statistically distributed micro cracks
@@ -122,7 +128,7 @@ c         take into account high stress rates
 c------------------------
 c         Residual stress
 c------------------------
-          SIG_COSW = SIG_COS - SIG_INI   ! Substracting initial surface stress
+          SIG_COSW = SIG_COS - SIG_INI   ! Subtracting initial surface stress
           SIG_COSW = MAX(ZERO , SIG_COSW)
 c------------------------
 c         Test criteria

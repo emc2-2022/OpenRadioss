@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ST_QAPRINT_CONSTRAINTS        source/output/qaprint/st_qaprint_constraints.F
-Chd|-- called by -----------
-Chd|        ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|-- calls ---------------
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    st_qaprint_constraints   ../starter/source/output/qaprint/st_qaprint_constraints.F
+!||--- called by ------------------------------------------------------
+!||    st_qaprint_driver        ../starter/source/output/qaprint/st_qaprint_driver.F
+!||--- calls      -----------------------------------------------------
+!||    fretitl2                 ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    r2r_mod                  ../starter/share/modules1/r2r_mod.F
+!||====================================================================
       SUBROUTINE ST_QAPRINT_CONSTRAINTS(NOM_OPT   ,INOM_OPT  ,NPBY      ,LPBY      ,RBY       ,
      2                                  IBFTEMP   ,FBFTEMP   ,IBFFLUX   ,FBFFLUX   ,ITAB      ,
      3                                  ICODE     ,ISKEW     ,IBCSLAG   ,IBFVEL    ,FBFVEL    ,
@@ -37,30 +38,27 @@ Chd|====================================================================
      7                                  LPBYL     ,RBYL      ,IBMPC     ,IBMPC2    ,IBMPC3    ,
      8                                  IBMPC4    ,RBMPC     ,LJOINT    ,NNLINK    ,LNLINK,
      9                                  LLINAL    ,LINALE    ,GJBUFI    ,GJBUFR    ,MS        ,
-     9                                  IN        ,FXBIPM    ,FXBFILE_TAB)
+     9                                  IN        ,FXBIPM    ,FXBFILE_TAB,GLOB_THERM)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
       USE QA_OUT_MOD
       USE R2R_MOD
+      USE BCS_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use glob_therm_mod
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "lagmult.inc"
 #include      "param_c.inc"
 #include      "scr17_c.inc"
 #include      "tabsiz_c.inc"
-#include      "thermal_c.inc"
-#include      "units_c.inc"
 #include      "sphcom.inc"
 #include      "fxbcom.inc"
 C-----------------------------------------------
@@ -68,6 +66,7 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER, INTENT(IN) :: NOM_OPT(LNOPT1,SNOM_OPT1), INOM_OPT(SINOM_OPT)
       INTEGER, INTENT(IN) :: ITAB(NUMNOD)
+      TYPE (glob_therm_) ,intent(in) :: glob_therm
 C-----------------------------------------------
 C      NOM_OPT(LNOPT1,SNOM_OPT1) 
 C         * Possibly, NOM_OPT(1) = ID
@@ -120,23 +119,23 @@ C-----------------------------------------------
       INTEGER, INTENT(IN) :: NIMPDISP,NIMPVEL,NIMPACC
       INTEGER, INTENT(IN) :: NPBY(NNPBY,NRBYKIN), NPBYL(NNPBY,NRBYLAG), 
      .                       LPBY(*), LPBYL(*), IBCSCYC(4,NBCSCYC)
-      INTEGER, INTENT(IN) :: IBFTEMP(NIFT,NFXTEMP), IBFFLUX(NITFLUX,NFXFLUX)
+      INTEGER, INTENT(IN) :: IBFTEMP(GLOB_THERM%NIFT,GLOB_THERM%NFXTEMP)
+      INTEGER, INTENT(IN) :: IBFFLUX(GLOB_THERM%NITFLUX,GLOB_THERM%NFXFLUX)
       INTEGER, INTENT(IN) :: ICODE(NUMNOD), ISKEW(NUMNOD),IBFVEL(NIFV,NFXVEL)
       INTEGER, INTENT(IN) :: IBCSLAG(5,NBCSLAG),NPRW(NRWALL,NNPRW),LPRW(SLPRW)
       INTEGER, INTENT(IN) :: IRBE3(NRBE3L,NRBE3), LRBE3(SLRBE3)
       INTEGER, INTENT(IN) :: IRBE2(NRBE2L,NRBE2), LRBE2(SLRBE2)
       INTEGER, INTENT(IN) :: NNLINK(10,SNNLINK), LNLINK(SLNLINK)
       INTEGER, DIMENSION(NRWALL) :: IDX, IDS
-      INTEGER, DIMENSION(NFXVEL) :: IDXVEL, IDSVEL
       INTEGER, DIMENSION(NFXBODY) :: IDXFX, IDSFX
       INTEGER, INTENT(IN) :: MGRBY(NMGRBY,SMGRBY)
       INTEGER, INTENT(IN) :: ISPCOND(NISPCOND,*),LJOINT(*),GJBUFI(LKJNI,*)
       INTEGER, INTENT(IN) :: IBMPC(NUMMPC),IBMPC2(LMPC),IBMPC3(LMPC),IBMPC4(LMPC)
       my_real, INTENT(IN) ::
      .                       RBY(NRBY,NRBYKIN),RBYL(NRBY,NRBYLAG),FRBE3(6,*),GJBUFR(LKJNR,*),MS(*),IN(*)
-      my_real, INTENT(IN) ::  
-     .                       FBFTEMP(LFACTHER,NFXTEMP), FBFFLUX(LFACTHER,NFXFLUX),
-     .                       FBFVEL(LFXVELR,NFXVEL)
+      my_real, INTENT(IN) :: FBFTEMP(GLOB_THERM%LFACTHER,GLOB_THERM%NFXTEMP)
+      my_real, INTENT(IN) :: FBFFLUX(GLOB_THERM%LFACTHER,GLOB_THERM%NFXFLUX)
+      my_real, INTENT(IN) :: FBFVEL(LFXVELR,NFXVEL)
       my_real, INTENT(IN) ::
      .                       RWBUF(NRWLP,NRWALL)
       my_real, INTENT(IN) ::
@@ -149,11 +148,12 @@ C--------------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, II, MY_ID, MY_RBODY, MY_CONSTRAINT, MY_NODE, MY_RWALL, POSI(NRWALL+1),
-     .        MY_MERGE, TNSL, K, NS, MY_FXBODY
-      CHARACTER *nchartitle TITR
+     .        MY_MERGE, TNSL, NS, MY_FXBODY
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       CHARACTER (LEN=255) :: VARNAME
       DOUBLE PRECISION TEMP_DOUBLE
-      INTEGER IADS
+      INTEGER TEMP_INTEGER
+      INTEGER IADS,ITMP
 C-----------------------------------------------
 C     Rigid Bodies
 C-----------------------------------------------
@@ -245,7 +245,6 @@ C
           MY_ID = ITAB(MY_NODE)
 C
           IF(ICODE(MY_NODE)/=0)THEN
-C
 C           VARNAME: variable name in ref.extract (without blanks)
             WRITE(VARNAME,'(A,I0,I0)') 'ICODE_',MY_ID
             CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ICODE(MY_NODE),0.0_8)
@@ -264,7 +263,7 @@ C-----------------------------------------------
 C     /IMPTEMP
 C-----------------------------------------------
       IF (MYQAKEY('/IMPTEMP')) THEN
-        DO MY_CONSTRAINT=1,NFXTEMP
+        DO MY_CONSTRAINT=1,GLOB_THERM%NFXTEMP
 C
 C         Title of the option was not stored in NOM_OPT ... TBD
 C         and Imptemp ID is not stored 
@@ -275,7 +274,7 @@ C         and Imptemp ID is not stored
             CALL QAPRINT('A_IMPTEMP_FAKE_NAME',MY_CONSTRAINT,0.0_8)
           END IF
 C
-          DO I=1,NIFT
+          DO I=1,GLOB_THERM%NIFT
             IF(IBFTEMP(I,MY_CONSTRAINT) /=0)THEN
 C
 C             VARNAME: variable name in ref.extract (without blanks)
@@ -284,7 +283,7 @@ C             VARNAME: variable name in ref.extract (without blanks)
             END IF
           END DO
 C
-          DO I=1,LFACTHER
+          DO I=1,GLOB_THERM%LFACTHER
             IF(FBFTEMP(I,MY_CONSTRAINT)/=ZERO)THEN
 C
 C             VARNAME: variable name in ref.extract (without blanks)
@@ -404,7 +403,7 @@ C-----------------------------------------------
 C     /IMPFLUX
 C-----------------------------------------------
       IF (MYQAKEY('/IMPFLUX')) THEN
-        DO MY_CONSTRAINT=1,NFXFLUX
+        DO MY_CONSTRAINT=1,GLOB_THERM%NFXFLUX
 C
 C         Title of the option was not stored in NOM_OPT ... TBD
 C         and Impflux ID is not stored 
@@ -415,7 +414,7 @@ C         and Impflux ID is not stored
             CALL QAPRINT('A_IMPFLUX_FAKE_NAME',MY_CONSTRAINT,0.0_8)
           END IF
 C
-          DO I=1,NITFLUX
+          DO I=1,GLOB_THERM%NITFLUX
             IF(IBFFLUX(I,MY_CONSTRAINT) /=0)THEN
 C
 C             VARNAME: variable name in ref.extract (without blanks)
@@ -424,7 +423,7 @@ C             VARNAME: variable name in ref.extract (without blanks)
             END IF
           END DO
 C
-          DO I=1,LFACTHER
+          DO I=1,GLOB_THERM%LFACTHER
             IF(FBFFLUX(I,MY_CONSTRAINT)/=ZERO)THEN
 C
 C             VARNAME: variable name in ref.extract (without blanks)
@@ -491,12 +490,124 @@ C
         END DO ! MY_CONSTRAINT=1,NBCSCYC
       END IF
 C-----------------------------------------------
+C     /BCS/WALL
+C-----------------------------------------------
+      IF (MYQAKEY('/BCS/WALL')) THEN
+        DO MY_CONSTRAINT=1,BCS%NUM_WALL
+
+          TITR(1:nchartitle)=''
+          MY_ID = BCS%WALL(MY_CONSTRAINT)%user_id
+          IF(LEN_TRIM(TITR)/=0)THEN
+            CALL QAPRINT(TITR(1:LEN_TRIM(TITR)),MY_ID,0.0_8)
+          ELSE
+            CALL QAPRINT('A_BCS_WALL_FAKE_NAME',MY_ID,0.0_8)
+          END IF
+          !
+          WRITE(VARNAME,'(A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__IS_DEPENDING_ON_TIME_'
+          TEMP_INTEGER = 0
+          IF(BCS%WALL(MY_CONSTRAINT)%IS_DEPENDING_ON_TIME)TEMP_INTEGER=1
+          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          !
+          WRITE(VARNAME,'(A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__IS_DEPENDING_ON_SENSOR_'
+          TEMP_INTEGER = 0
+          IF(BCS%WALL(MY_CONSTRAINT)%IS_DEPENDING_ON_SENSOR)TEMP_INTEGER=1
+          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          !
+          WRITE(VARNAME,'(A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__GRNOD_ID_'
+          TEMP_INTEGER = BCS%WALL(MY_CONSTRAINT)%GRNOD_ID
+          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          !
+          WRITE(VARNAME,'(A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__SENSOR_ID_'
+          TEMP_INTEGER = BCS%WALL(MY_CONSTRAINT)%SENSOR_ID
+          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          !
+          WRITE(VARNAME,'(A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__TSTART_'
+          TEMP_DOUBLE = BCS%WALL(MY_CONSTRAINT)%TSTART
+          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+          !
+          WRITE(VARNAME,'(A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__TSTOP_'
+          TEMP_DOUBLE = BCS%WALL(MY_CONSTRAINT)%TSTOP
+          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+          !
+          WRITE(VARNAME,'(A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__LIST__SIZE_'
+          TEMP_INTEGER = BCS%WALL(MY_CONSTRAINT)%LIST%SIZE
+          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          !
+          ITMP=TEMP_INTEGER
+          IF(ITMP == 1)THEN
+            WRITE(VARNAME,'(A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__LIST__ELEM_1_'
+            TEMP_INTEGER = BCS%WALL(MY_CONSTRAINT)%LIST%ELEM(1)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+            !
+            WRITE(VARNAME,'(A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__LIST__FACE_1_'
+            TEMP_INTEGER = BCS%WALL(MY_CONSTRAINT)%LIST%FACE(1)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          ELSEIF(ITMP > 1)THEN
+            TEMP_INTEGER = BCS%WALL(MY_CONSTRAINT)%LIST%ELEM(1)
+            WRITE(VARNAME,'(A,I0,A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__LIST__ELEMS_  ',TEMP_INTEGER,'  ...'
+            TEMP_INTEGER = BCS%WALL(MY_CONSTRAINT)%LIST%ELEM(ITMP)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+            !
+            TEMP_INTEGER = BCS%WALL(MY_CONSTRAINT)%LIST%FACE(1)
+            WRITE(VARNAME,'(A,I0,A,I0,A)') 'BCS_WALL_',MY_CONSTRAINT,'__LIST__FACES_  ',TEMP_INTEGER,'  ...'
+            TEMP_INTEGER = BCS%WALL(MY_CONSTRAINT)%LIST%FACE(ITMP)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          ENDIF
+
+        END DO ! MY_CONSTRAINT=1,BCS%NUM_WALL
+      END IF   
+C-----------------------------------------------
+C     /BCS/NRF
+C-----------------------------------------------
+      IF (MYQAKEY('/BCS/NRF')) THEN
+        DO MY_CONSTRAINT=1,BCS%NUM_NRF
+
+          TITR(1:nchartitle)=''
+          MY_ID = BCS%NRF(MY_CONSTRAINT)%user_id
+          IF(LEN_TRIM(TITR)/=0)THEN
+            CALL QAPRINT(TITR(1:LEN_TRIM(TITR)),MY_ID,0.0_8)
+          ELSE
+            CALL QAPRINT('A_BCS_NRF_FAKE_NAME',MY_ID,0.0_8)
+          END IF
+          !
+          WRITE(VARNAME,'(A,I0,A)') 'BCS_NRF_',MY_CONSTRAINT,'__GRNOD_ID_'
+          TEMP_INTEGER = BCS%NRF(MY_CONSTRAINT)%SET_ID
+          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          !
+          WRITE(VARNAME,'(A,I0,A)') 'BCS_NRF_',MY_CONSTRAINT,'__LIST__SIZE_'
+          TEMP_INTEGER = BCS%NRF(MY_CONSTRAINT)%LIST%SIZE
+          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          !
+          ITMP=TEMP_INTEGER
+          IF(ITMP == 1)THEN
+            WRITE(VARNAME,'(A,I0,A)') 'BCS_NRF_',MY_CONSTRAINT,'__LIST__ELEM_1_'
+            TEMP_INTEGER = BCS%NRF(MY_CONSTRAINT)%LIST%ELEM(1)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+            !
+            WRITE(VARNAME,'(A,I0,A)') 'BCS_NRF_',MY_CONSTRAINT,'__LIST__FACE_1_'
+            TEMP_INTEGER = BCS%NRF(MY_CONSTRAINT)%LIST%FACE(1)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          ELSEIF(ITMP > 1)THEN
+            TEMP_INTEGER = BCS%NRF(MY_CONSTRAINT)%LIST%ELEM(1)
+            WRITE(VARNAME,'(A,I0,A,I0,A)') 'BCS_NRF_',MY_CONSTRAINT,'__LIST__ELEMS_  ',TEMP_INTEGER,'  ...'
+            TEMP_INTEGER = BCS%NRF(MY_CONSTRAINT)%LIST%ELEM(ITMP)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+            !
+            TEMP_INTEGER = BCS%NRF(MY_CONSTRAINT)%LIST%FACE(1)
+            WRITE(VARNAME,'(A,I0,A,I0,A)') 'BCS_NRF_',MY_CONSTRAINT,'__LIST__FACES_  ',TEMP_INTEGER,'  ...'
+            TEMP_INTEGER = BCS%NRF(MY_CONSTRAINT)%LIST%FACE(ITMP)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
+          ENDIF
+
+        END DO ! MY_CONSTRAINT=1,BCS%NUM_NRF
+      END IF           
+C-----------------------------------------------
 C     /RWALL
 C-----------------------------------------------
       IF (MYQAKEY('/RWALL')) THEN
         IF (NRWALL > 0) THEN
 C          
-!     Sort by ID to ensure internal order independant output
+!     Sort by ID to ensure internal order independent output
           POSI(1) = 1
           DO I = 1, NRWALL
             IDS(I)    = NOM_OPT(LNOPT1*INOM_OPT(5)+1,I)
@@ -863,7 +974,7 @@ C-----------------------------------------------
       IF (MYQAKEY('/FXBODY')) THEN
         IF (NFXBODY > 0) THEN 
 C          
-!     Sort by ID to ensure internal order independant output
+!     Sort by ID to ensure internal order independent output
           DO I = 1, NFXBODY
             IDSFX(I)    = FXBIPM(1,I)
             IDXFX(I)    = I
@@ -896,7 +1007,6 @@ C
           ENDDO
         ENDIF
       ENDIF
-C-----------------------------------------------
 C-----------------------------------------------
       RETURN
       END

@@ -1,37 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C   |============================================================
 C   |  CBABE3                          /coqueba/cbabe3.F
 C   |------------------------------------------------------------
-C   |-- appelee par -----------
+C   |-- called by -----------
 C   |         CBAKE3                         /coqueba/cbake3.F
 C   |============================================================
-Chd|====================================================================
-Chd|  CBABE3                        source/elements/shell/coqueba/cbabe3.F
-Chd|-- called by -----------
-Chd|        CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbabe3   ../engine/source/elements/shell/coqueba/cbabe3.F
+!||--- called by ------------------------------------------------------
+!||    cbake3   ../engine/source/elements/shell/coqueba/cbake3.F
+!||====================================================================
       SUBROUTINE CBABE3(JFT,JLT,NG,VCORE,AREA,CDET,VQN,VQ,VJFI,
      1                  VNRM,VASTN,HX,HY,VETA,VKSI,
      2                  BM,BMF,BF,BC,TC,BZZ,NPLAT,IPLAT,
@@ -60,13 +59,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER PT,PT00,PT0,I,J,EP,NG1,K
+      INTEGER I,EP
       MY_REAL 
-     .   VPG(2,NPG),THK(MVSIZ),DETJ,DET,
-     .   TFN(3,2),BCX,BCY,V1(2),V2(2),C1,C2,BC1,BC2,VB1,
-     .   VJF1(2,3),VJF(3,3),TBI(2,2),TBC(MVSIZ,2,2),V11(4)
+     .   VPG(2,NPG),THK(MVSIZ),
+     .   TFN(3,2),V1(2),V2(2),C1,C2,BC1,BC2,
+     .   TBI(2,2),TBC(MVSIZ,2,2),V11(4)
       MY_REAL 
-     .   A_1,C11,C12,C21,C22,CC,BETA1,KSI1,KSIY1,BETA2,KSI2,KSIY2,
+     .   A_1,C11,C12,C21,C22,BETA1,KSI1,BETA2,KSI2,
      .   BMT(8),BCT(12),BXY(3),BYX(3)
       MY_REAL 
      .   PG1,PG
@@ -178,7 +177,7 @@ C
        DO I=NPLAT+1,JLT 
         EP=IPLAT(I)
 C---------------------------------------------------
-C  CALCUL DE [FN] 
+C  calculation of [fn]
 C---------------------------------------------------
           TFN(1,1)=VKSI(1,NG)*VQN(EP,7,1)+VKSI(2,NG)*VQN(EP,7,2)
      1            +VKSI(3,NG)*VQN(EP,7,3)+VKSI(4,NG)*VQN(EP,7,4)
@@ -246,7 +245,7 @@ C--------TERMES ASSOCIEES AUX U,V,W DE [B1]=<T>BCI-------
          BC2=VKSI(1,NG)*TBC(EP,1,2)+VETA(1,NG)*TBC(EP,2,2)
 C          I = 1; JJ = 3*KK =0
 C---------CONTRIBUTION DU <T1> :EPS-X
-         IF (ISROT.GT.0) THEN
+         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -317,7 +316,7 @@ C--------TERMES ASSOCIEES AUX U,V,W DE [B1]=<T>BCI-------
 C
 C         I = 1; JJ = 3*KK =9
 C---------:EPS-X:EPS-Y:EPS-XY
-         IF (ISROT.GT.0) THEN
+         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -388,7 +387,7 @@ C--------TERMES ASSOCIEES AUX U,V,W DE [B1]=<T>BCI-------
          BC2=VKSI(3,NG)*TBC(EP,1,2)+VETA(3,NG)*TBC(EP,2,2)
 C         I = 1;JJ = 3*KK=18
 C---------:EPS-X:EPS-Y:EPS-XY
-         IF (ISROT.GT.0) THEN
+         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -461,7 +460,7 @@ C         I = 1; JJ = 3*KK =27
           BM(I,29)=VQ(EP,1,2,NG)*C2
           BMF(I,29)=THK(EP)*BM(I,29)+VQ(EP,1,2,NG)*BC2
 C---------CONTRIBUTION DU <T> :EPS-XY
-         IF (ISROT.GT.0) THEN
+         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -616,8 +615,8 @@ C--------TERMES <ASI>-------
           BC(I,28)=V11(4)*VASTN(EP,15)
           BC(I,30)=V11(4)*VASTN(EP,16)
        ENDDO 
-C--------pour rigidite en rzz-------
-       IF (ISROT.EQ.0) THEN
+C--------for rzz stiffness-------
+       IF (ISROT==0) THEN
 #include "vectorize.inc"
        DO I=NPLAT+1,JLT 
         EP=IPLAT(I)
@@ -630,16 +629,14 @@ C--------pour rigidite en rzz-------
         BZZ(I,7)=TC(EP,1,1)*VKSI(4,NG)+TC(EP,2,1)*VETA(4,NG)
         BZZ(I,8)=TC(EP,1,2)*VKSI(4,NG)+TC(EP,2,2)*VETA(4,NG)
        ENDDO 
-       END IF !(ISROT.EQ.0) THEN
+       END IF !(ISROT==0) THEN
        RETURN
        END
-C   ----nouvelle routine ---
-Chd|====================================================================
-Chd|  CBABEC3                       source/elements/shell/coqueba/cbabe3.F
-Chd|-- called by -----------
-Chd|        CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbabec3   ../engine/source/elements/shell/coqueba/cbabe3.F
+!||--- called by ------------------------------------------------------
+!||    cbake3    ../engine/source/elements/shell/coqueba/cbake3.F
+!||====================================================================
         SUBROUTINE CBABEC3(JFT  ,JLT  ,X13  ,X24  ,Y13  ,Y24  ,
      1                                         BM, NPLAT, IPLAT)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
@@ -658,7 +655,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I ,J,EP
+        INTEGER I ,EP
 #include "vectorize.inc"
        DO EP=NPLAT+1,JLT 
         I=IPLAT(EP)
@@ -677,12 +674,11 @@ C-----------------------------------------------
        ENDDO
        RETURN
        END
-Chd|====================================================================
-Chd|  CBABER3                       source/elements/shell/coqueba/cbabe3.F
-Chd|-- called by -----------
-Chd|        CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbaber3   ../engine/source/elements/shell/coqueba/cbabe3.F
+!||--- called by ------------------------------------------------------
+!||    cbake3    ../engine/source/elements/shell/coqueba/cbake3.F
+!||====================================================================
         SUBROUTINE CBABER3(JFT ,JLT  ,BM0RZ,BMKRZ,BMERZ  ,
      2                     BMRZ ,BRZ  ,BM   ,NPLAT  ,IPLAT,
      3                     NG   )
@@ -699,7 +695,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,J,EP,NPG
+      INTEGER I,J,NPG
       PARAMETER (NPG = 4)
       my_real
      .   VPG(2,NPG),PG,PG1

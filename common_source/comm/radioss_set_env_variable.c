@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -48,15 +48,17 @@ void radioss_set_env_variable(char *variable,char * value, int *len_value)
  int result;
  char *path_name ;
   path_name = (char *) calloc(*len_value+1, sizeof (char));
-  /* printf("%s\n",variable); */
+
 #ifdef _WIN64
   char env_string[10192];
+  size_t len=10192;
+  
   env_string[0]='\0';
-  strcat(env_string,variable);
-  strcat(env_string,"=");
-  strcat(env_string,value);
-
+  strcat_s(env_string,len,variable);
+  strcat_s(env_string,len,"=");
+  strcat_s(env_string,len,value);
   _putenv(env_string);
+  
 #elif 1
   strncpy(path_name,value, *len_value);     
   result=setenv(variable,path_name,1);

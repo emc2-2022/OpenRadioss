@@ -1,51 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVBRIC2                       source/airbag/fvbric2.F       
-Chd|-- called by -----------
-Chd|        INIT_MONVOL                   source/airbag/init_monvol.F   
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE FVBRIC2(IBUF  , ELEM, IXS   , NEL , NBRIC,
-     .                   TBRIC , TFAC, TAGELS, NELA,
-     .                   IBUFA , NNA , ELEMA , 
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvbric2_mod   ../starter/source/airbag/fvbric2.F
+!||--- called by ------------------------------------------------------
+!||    init_monvol   ../starter/source/airbag/init_monvol.F
+!||====================================================================
+      MODULE FVBRIC2_MOD
+      CONTAINS
+!||====================================================================
+!||    fvbric2       ../starter/source/airbag/fvbric2.F
+!||--- called by ------------------------------------------------------
+!||    init_monvol   ../starter/source/airbag/init_monvol.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE FVBRIC2(ELEM  , IXS , NEL    , NBRIC,
+     .                   TBRIC , TFAC, TAGELS , NELA ,
+     .                   IBUFA , NNA , ELEMA  ,
      .                   TAGELA, BRNA, NB_NODE)
+      use element_mod , only : nixs      
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "units_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IBUF(*), ELEM(3,*), IXS(NIXS,*), NEL, NBRIC,
-     .        NELA, 
-     .        NNA, ELEMA(3,*), TAGELA(*), BRNA(8,*), NB_NODE
+      INTEGER ELEM(3,*), IXS(NIXS,*), NEL, NBRIC,NELA, NNA, ELEMA(3,*), TAGELA(*), BRNA(8,*), NB_NODE
       INTEGER, DIMENSION(NNA), INTENT(IN) :: IBUFA
       INTEGER, DIMENSION(NEL), INTENT(IN) :: TAGELS
       INTEGER, DIMENSION(2, NBRIC), INTENT(IN) :: TBRIC
@@ -53,7 +53,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, II, ITABINV(NB_NODE), NFAC, J, K, KK, N1, N2, N3, N4, JJ
+      INTEGER I, II, ITABINV(NB_NODE), NFAC, J, KK, JJ
       INTEGER FAC4(3,4), FAC8(4,6), FAC6(4,5), NOD6(5)
       INTEGER FAC5(4,5), NOD5(5), NFACE(4), NTYPE
       DATA FAC4 /1,5,3,
@@ -82,7 +82,7 @@ C-----------------------------------------------
 C
       NELA=0
       DO I=1,NEL
-         IF (TAGELS(I).EQ.0) THEN
+         IF (TAGELS(I)==0) THEN
             NELA=NELA+1
             TAGELA(NELA)=I
             ELEMA(1,NELA)=ELEM(1,I)
@@ -100,8 +100,8 @@ C
          NTYPE=TBRIC(2,I)
          NFAC=NFACE(NTYPE)
          DO J=1,NFAC
-            IF (TFAC(2*(J-1)+1,I).EQ.3) THEN
-C La facette de solide est libre a l'interieur de l'airbag
+            IF (TFAC(2*(J-1)+1,I)==3) THEN
+C The solid facet is free inside the airbag
                IF (NTYPE==2) THEN
                   NELA=NELA+1
                   KK=FAC4(1,J)
@@ -127,7 +127,7 @@ C La facette de solide est libre a l'interieur de l'airbag
                   ELEMA(2,NELA)=KK
                   TAGELA(NELA)=-I
 C
-                  IF(NOD6(J).EQ.4) THEN
+                  IF(NOD6(J)==4) THEN
                      NELA=NELA+1
                      KK=FAC6(1,J)
                      KK=ITABINV(IXS(1+KK,II))
@@ -153,7 +153,7 @@ C
                   ELEMA(2,NELA)=KK
                   TAGELA(NELA)=-I
 C
-                  IF(NOD5(J).EQ.4) THEN
+                  IF(NOD5(J)==4) THEN
                      NELA=NELA+1
                      KK=FAC5(1,J)
                      KK=ITABINV(IXS(1+KK,II))
@@ -201,5 +201,5 @@ C
       ENDDO
 C
       RETURN
-      END
-
+      END SUBROUTINE FVBRIC2
+      END MODULE FVBRIC2_MOD

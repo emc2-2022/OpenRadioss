@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CREATE_SET_ARRAY              source/model/sets/create_set_clause.F
-Chd|-- called by -----------
-Chd|        HM_SET                        source/model/sets/hm_set.F    
-Chd|        SORT_SET                      source/model/sets/sort_sets.F 
-Chd|-- calls ---------------
-Chd|        CREATE_SET_LIST               source/model/sets/create_set_clause.F
-Chd|        CREATE_SET_LIST_G             source/model/sets/create_set_clause.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    create_set_array     ../starter/source/model/sets/create_set_clause.F
+!||--- called by ------------------------------------------------------
+!||    hm_set               ../starter/source/model/sets/hm_set.F
+!||    sort_set             ../starter/source/model/sets/sort_sets.F
+!||--- calls      -----------------------------------------------------
+!||    create_set_list      ../starter/source/model/sets/create_set_clause.F
+!||    create_set_list_g    ../starter/source/model/sets/create_set_clause.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod   ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod          ../starter/share/message_module/message_mod.F
+!||    submodel_mod         ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SET_ARRAY(SET_ARRAY ,ARRAY_SIZE, 
      .                            ISETM  , NSET_GENERAL,
      .                            JCLAUSE ,OPT_G ,IS_AVAILABLE ,
@@ -68,10 +68,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "submod_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JCLAUSE,OPT_G,ARRAY_SIZE,NSET_GENERAL,FLAG
@@ -93,21 +89,20 @@ C-----------------------------------------------
         ENDIF
 C-----------------------------------------------
       END
-Chd|====================================================================
-Chd|  CREATE_SET_LIST               source/model/sets/create_set_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_SET_ARRAY              source/model/sets/create_set_clause.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_INT_ARRAY_2INDEXES     source/devtools/hm_reader/hm_get_int_array_2indexes.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        SET_USRTOS                    source/model/sets/ipartm1.F   
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    create_set_list             ../starter/source/model/sets/create_set_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_set_array            ../starter/source/model/sets/create_set_clause.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                      ../starter/source/output/message/message.F
+!||    hm_get_int_array_2indexes   ../starter/source/devtools/hm_reader/hm_get_int_array_2indexes.F
+!||    hm_get_int_array_index      ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    set_usrtos                  ../starter/source/model/sets/ipartm1.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                 ../starter/share/message_module/message_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SET_LIST(
      .               ARRAY, ARRAY_SIZE, ISETM ,NSET_GENERAL ,JCLAUSE ,IS_AVAILABLE ,LSUBMODEL,
      .               CLAUSE,FLAG)
@@ -139,16 +134,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "submod_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JCLAUSE, ARRAY_SIZE,NSET_GENERAL,FLAG
       LOGICAL :: IS_AVAILABLE
-      INTEGER, INTENT(IN), DIMENSION(NSETS,2) :: ISETM
+      INTEGER, INTENT(IN), DIMENSION(NSET_GENERAL,2) :: ISETM
       INTEGER ARRAY(*)
       TYPE (SET_) ::  CLAUSE
       TYPE(SUBMODEL_DATA),INTENT(IN):: LSUBMODEL(*)
@@ -226,19 +216,19 @@ C-------------------------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  CREATE_SET_LIST_G             source/model/sets/create_set_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_SET_ARRAY              source/model/sets/create_set_clause.F
-Chd|-- calls ---------------
-Chd|        HM_GET_INT_ARRAY_2INDEXES     source/devtools/hm_reader/hm_get_int_array_2indexes.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        SET_USRTOS_NEAREST            source/model/sets/ipartm1.F   
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    create_set_list_g           ../starter/source/model/sets/create_set_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_set_array            ../starter/source/model/sets/create_set_clause.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_int_array_2indexes   ../starter/source/devtools/hm_reader/hm_get_int_array_2indexes.F
+!||    hm_get_int_array_index      ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    set_usrtos_nearest          ../starter/source/model/sets/ipartm1.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                 ../starter/share/message_module/message_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SET_LIST_G(
      .               ARRAY, ARRAY_SIZE,  ISETM, NSET_GENERAL, JCLAUSE ,IS_AVAILABLE ,LSUBMODEL)
 C-----------------------------------------------
@@ -268,11 +258,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -349,25 +334,26 @@ C=======================================================================
       DEALLOCATE (SET_READ_TMP)
       DEALLOCATE (RESULT)
       END
-Chd|====================================================================
-Chd|  CREATE_SET_CLAUSE             source/model/sets/create_set_clause.F
-Chd|-- called by -----------
-Chd|        HM_SET                        source/model/sets/hm_set.F    
-Chd|-- calls ---------------
-Chd|        INSERT_CLAUSE_IN_SET          source/model/sets/insert_clause_in_set.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SET_SCRATCH_MOD               ../common_source/modules/setdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    create_set_clause      ../starter/source/model/sets/create_set_clause.F
+!||--- called by ------------------------------------------------------
+!||    hm_set                 ../starter/source/model/sets/hm_set.F
+!||--- calls      -----------------------------------------------------
+!||    insert_clause_in_set   ../starter/source/model/sets/insert_clause_in_set.F
+!||--- uses       -----------------------------------------------------
+!||    set_mod                ../starter/share/modules1/set_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SET_CLAUSE(SET,
      .                             SETL,SETL_SIZE,
      .                             CLAUSE,
-     .                             IXS       ,IXS10    ,IXS20     ,IXS16     ,IXQ    ,
+     .                             IXS       ,IXS10    ,                      IXQ    ,
      .                             IXC       ,IXTG     ,IXT       ,IXP       ,IXR    ,
-     .                             IXX       ,KXX      ,KXSP      ,GEO       ,SH4TREE,
+     .                                                                        SH4TREE,
      .                             SH3TREE   ,KNOD2ELS ,NOD2ELS   ,KNOD2ELC  ,NOD2ELC,
      .                             KNOD2ELTG ,NOD2ELTG ,IPARTC    ,IPARTG    ,IPARTS ,
      .                             IPART     ,OPT_A    ,OPT_O     ,KNOD2ELQ  ,NOD2ELQ,
-     .                             X         ,KEYSET   ,OPT_E     ,DELBUF    )
+     .                             X         ,KEYSET   ,OPT_E     ,DELBUF    ,IPARTQ ,
+     .                             NUMELQ    )
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -390,36 +376,34 @@ C   M o d u l e s
 C-----------------------------------------------
       USE SETDEF_MOD
       USE SET_SCRATCH_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARFIELD
+      USE SET_MOD , ONLY : SET_ADD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "set_def.inc"
 #include      "param_c.inc"
 #include      "sphcom.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER SETL_SIZE
+      INTEGER SETL_SIZE,NUMELQ
       INTEGER  OPT_A,OPT_O,OPT_E
       INTEGER, DIMENSION(NSETS),    INTENT(IN) :: SETL
       TYPE (SET_),DIMENSION(NSETS), INTENT(IN) :: SET
       TYPE (SET_) :: CLAUSE
       TYPE (SET_SCRATCH) ::  DELBUF
 C
-      INTEGER IXS(NIXS,*),IXS10(6,*),IXS16(8,*),IXS20(12,*),
+      INTEGER IXS(NIXS,*),IXS10(6,*),
      .        IXQ(NIXQ,*),IXC(NIXC,*),IXTG(NIXTG,*),IXT(NIXT,*),
-     .        IXP(NIXP,*),IXR(NIXR,*),IXX(*),KXX(*),KXSP(NISP,*),
+     .        IXP(NIXP,*),IXR(NIXR,*),
      .        SH4TREE(*),SH3TREE(*),KNOD2ELS(*),KNOD2ELC(*),KNOD2ELTG(*),
      .        KNOD2ELQ(*),NOD2ELS(*),NOD2ELC(*),NOD2ELTG(*),NOD2ELQ(*),
-     .        IPARTS(*),IPARTC(*),IPARTG(*),IPART(LIPART1,*)
-      my_real
-     .    GEO(NPROPG,*),X(3,*)
-      CHARACTER KEYSET*ncharfield
+     .        IPARTS(*),IPARTC(*),IPARTG(*),IPART(LIPART1,*),IPARTQ(NUMELQ)
+      my_real X(3,*)
+      CHARACTER(LEN=NCHARFIELD) :: KEYSET
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -432,13 +416,13 @@ C-----------------------------------------------
           ! The goal is to merge all entities from SET in the clause.
           ! Call to insert_clause_in_set can be used for that...
           CALL INSERT_CLAUSE_IN_SET(CLAUSE    ,SET(IGS) ,SET_ADD,
-     .                              IXS       ,IXS10    ,IXS20   ,IXS16     ,IXQ    ,
+     .                              IXS       ,IXS10    ,                    IXQ    ,
      .                              IXC       ,IXTG     ,IXT     ,IXP       ,IXR    ,
-     .                              IXX       ,KXX      ,KXSP    ,GEO       ,SH4TREE,
+     .                                                                       SH4TREE,
      .                              SH3TREE   ,KNOD2ELS ,NOD2ELS ,KNOD2ELC  ,NOD2ELC,
      .                              KNOD2ELTG ,NOD2ELTG ,IPARTC  ,IPARTG    ,IPARTS ,
      .                              IPART     ,OPT_A    ,OPT_O   ,KNOD2ELQ  ,NOD2ELQ,
-     .                              X         ,KEYSET   ,OPT_E   ,DELBUF    )
+     .                              X         ,KEYSET   ,OPT_E   ,DELBUF    ,IPARTQ)
 C
        ENDDO
 C-----------------------------------------------

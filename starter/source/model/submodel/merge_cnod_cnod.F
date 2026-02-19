@@ -1,33 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MERGE_CNOD_CNOD               source/model/submodel/merge_cnod_cnod.F
-Chd|-- called by -----------
-Chd|        MERGE                         source/model/submodel/merge.F 
-Chd|-- calls ---------------
-Chd|        USRTOSC                       source/model/submodel/merge.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    merge_cnod_cnod   ../starter/source/model/submodel/merge_cnod_cnod.F
+!||--- called by ------------------------------------------------------
+!||    merge             ../starter/source/model/submodel/merge.F
+!||--- calls      -----------------------------------------------------
+!||    usrtos            ../starter/source/system/sysfus.F
+!||    usrtosc           ../starter/source/model/submodel/merge.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod       ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE MERGE_CNOD_CNOD(X      ,ITAB     ,ITABM1 ,CMERGE ,IMERGE,
      .                           IMERGE2,IADMERGE2,IMERGE0,NMERGE_TOT)
       USE MESSAGE_MOD
@@ -40,10 +42,7 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "units_c.inc"
 #include      "com04_c.inc"
-#include      "scr06_c.inc"
-#include      "scr03_c.inc"
 #include      "titr_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -55,8 +54,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,M,N,I1,IB,IG,JG,J1,JK,KK,KP,N1,N2,NC,NS,NN,NM,
-     .      IBZ1,IBZ,IBY1,IBY,IBX1,IBX,KS,NUMNOD1,NUMCNOD1,
+      INTEGER I,J,N,IB,IG,JG,KP,NC,NS,NN,NM,
+     .      IBZ,IBY,IBX,KS,NUMNOD1,
      .      NBOX,NBOY,NBOZ,NBX,NBY,NBZ,NBAND,IBOITE,NMERGED_OLD
 C
       INTEGER 
@@ -70,7 +69,7 @@ C
      .    IMERGETMP
 C 
       my_real
-     .        XI, YI, ZI, XJ, YJ, ZJ, DK,
+     .        XI, YI, ZI, XJ, YJ, ZJ,
      .        DIST2,DVOIS,DBUC,EPS,XMIN,XMAX,YMIN,YMAX,ZMIN,
      .        ZMAX,DMX,DMY,DMZ,DMERGE,DDD(NUMCNOD)
 C-----------------------------------------------
@@ -168,10 +167,10 @@ C
       IPCZ(NUMCNOD+NBAND) = 0
       IMERGETMP(1:NUMCNOD) = 0
 C--------------------------------------------------
-C     CLASSEMENT DES BUCKETS X
+C     BUCKETS X SORTING
 C--------------------------------------------------
 C 
-C---      bande NBX uniquement. 
+C--- NBX strip only. 
 C 
       DO IB=0,NBX+1
        NPX(IB)=0
@@ -192,7 +191,7 @@ C
 !
       DO N=1,NUMCNOD
         NBOX=NOBX(N)+1
-C      bande NBX uniquement.
+C      NBX strip only.
         IF(NBOX >= 1.AND.NBOX <= NBX+1)THEN
            NPX(NBOX)=NPX(NBOX)+1
            IPX(NPX(NBOX))=N       
@@ -218,7 +217,7 @@ C
       ENDDO
       DO N=1,NUMCNOD
          NBOX=NOBCX(N)+1
-C      bande NBX uniquement.
+C      NBX strip only.
          IF(NBOX >= 1.AND.NBOX <= NBX+1)THEN
            NPCX(NBOX)=NPCX(NBOX)+1
            IPCX(NPCX(NBOX))=N               
@@ -238,7 +237,7 @@ C
               DO KS=NPX(MAX(IBX-2,0))+1,NPX(MIN(IBX+1,NBX+1))
                  N  =IPX(KS)
                  NBOY=NOBY(N)+1           
-C       bande NBY uniquement.
+C       NBY band only.
                  IF(NBOY >= 1 .AND. NBOY <= NBY+1)THEN
                      NPY(NBOY)=NPY(NBOY)+1
                  ENDIF
@@ -252,7 +251,7 @@ C       bande NBY uniquement.
              DO KS=NPX(MAX(IBX-2,0))+1,NPX(MIN(IBX+1,NBX+1))
                   N  =IPX(KS)      
                   NBOY=NOBY(N)+1
-C       bande NBY uniquement.
+C       NBY band only.
                   IF(NBOY >= 1 .AND. NBOY <= NBY+1)THEN
                        NPY(NBOY)=NPY(NBOY)+1
                        IPY(NPY(NBOY))=N 
@@ -267,7 +266,7 @@ C
              DO KS=NPCX(IBX-1)+1,NPCX(IBX)
                  N  =IPCX(KS)      
                  NBOY=NOBCY(N)+1
-C       bande NBY uniquement.
+C       NBY band only.
                  IF(NBOY >= 1.AND.NBOY <= NBY+1)THEN
                      NPCY(NBOY)=NPCY(NBOY)+1
                  ENDIF
@@ -283,14 +282,14 @@ C
              DO KS=NPCX(IBX-1)+1,NPCX(IBX)
                   N  =IPCX(KS)      
                   NBOY=NOBCY(N)+1
-C       bande NBY uniquement.
+C       NBY band only.
                   IF(NBOY >= 1.AND. NBOY <= NBY+1)THEN
                      NPCY(NBOY)=NPCY(NBOY)+1
                      IPCY(NPCY(NBOY))=N         
                   ENDIF
              ENDDO
 C        
-C -- les boites suivantes z
+C -- the following boxes z
 C 
              DO IBY=1,NBY+1   
                 IBOITE = 0   
@@ -305,7 +304,7 @@ C
                   DO KS=NPY(MAX(IBY-2,0))+1,NPY(MIN(IBY+1, NBY+1))
                       N  =IPY(KS) 
                       NBOZ=NOBZ(N)+1
-C        bande NBZ uniquement.
+C        NBZ band only.
                       IF(NBOZ >= 1.AND.NBOZ <= NBZ+1)THEN
                            NPZ(NBOZ)=NPZ(NBOZ)+1
                       ENDIF
@@ -319,7 +318,7 @@ C        bande NBZ uniquement.
                   DO KS=NPY(MAX(IBY-2,0))+1,NPY(MIN(IBY+1, NBY+1))
                       N  =IPY(KS)
                       NBOZ=NOBZ(N)+1
-C        bande NBZ uniquement.
+C        NBZ band only.
                       IF(NBOZ >= 1 .AND. NBOZ <= NBZ+1)THEN
                            NPZ(NBOZ)=NPZ(NBOZ)+1
                            IPZ(NPZ(NBOZ))=N   

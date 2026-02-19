@@ -1,44 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LGMINI_FXV                    source/tools/lagmul/lgmini_fxv.F
-Chd|-- called by -----------
-Chd|        LAGM_INI                      source/tools/lagmul/lagm_ini.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lgmini_fxv             ../starter/source/tools/lagmul/lgmini_fxv.F
+!||--- called by ------------------------------------------------------
+!||    lagm_ini               ../starter/source/tools/lagmul/lagm_ini.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LGMINI_FXV(IADLL  ,JLL    ,LLL    ,IBFV   ,VEL    ,
      .                      NC, MASS, INER, ITAB   ,NOM_OPT)
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C----------------------------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -57,21 +56,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, IK, ISK, NNO
+      INTEGER J, N, IK, ISK, NNO
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C======================================================================| 
       DO N=1,NFXVEL
         ID=NOM_OPT(1,IBFV(12,N))
-        CALL FRETITL2(TITR,
-     .       NOM_OPT(LNOPT1-LTITR+1,IBFV(12,N)),LTITR)
-        IF (IBFV(8,N).NE.0) THEN
+        CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,IBFV(12,N)),LTITR)
+        IF (IBFV(8,N)/=0) THEN
           NNO = IABS(IBFV(1,N))
           ISK = IBFV(2,N)/10
           J=IBFV(2,N)-10*ISK
           NC = NC + 1
-          IF(J.LE.3.AND.MASS(NNO).EQ.0)THEN
+          IF(J<=3.AND.MASS(NNO)==0)THEN
             CALL ANCMSG(MSGID=535,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_1,
@@ -80,7 +77,7 @@ C======================================================================|
      .                  C2='FIXED TRANSLATIONAL VELOCITY',
      .                  C3=TITR,C4=' ',
      .                  I2=ITAB(IABS(IBFV(1,N))))
-	  ELSEIF(J.GT.3.AND.MASS(NNO).EQ.0)THEN
+            ELSEIF(J>3.AND.MASS(NNO)==0)THEN
             CALL ANCMSG(MSGID=535,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_1,
@@ -89,9 +86,9 @@ C======================================================================|
      .                  C2='FIXED ROTATIONAL VELOCITY',
      .                  C3=TITR,C4=' ',
      .                  I2=ITAB(IABS(IBFV(1,N))))
-	  ENDIF
+            ENDIF
 Cm41u07---
-	  IF(NC.GT.LAG_NCF)THEN
+            IF(NC>LAG_NCF)THEN
             CALL ANCMSG(MSGID=468,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO,
@@ -100,9 +97,9 @@ Cm41u07---
      .                  C2='IMPOSED VELOCITY',
      .                  C3=TITR)
           ENDIF
-          IF (ISK.LE.1) THEN
+          IF (ISK<=1) THEN
             IADLL(NC+1)=IADLL(NC) + 1
-            IF(IADLL(NC+1)-1.GT.LAG_NKF)THEN
+            IF(IADLL(NC+1)-1>LAG_NKF)THEN
               CALL ANCMSG(MSGID=469,
      .                    MSGTYPE=MSGERROR,
      .                    ANMODE=ANINFO,
@@ -114,7 +111,7 @@ Cm41u07---
             IK = IADLL(NC)
             LLL(IK) = NNO
             JLL(IK) = J
-            IF(J.GT.3.AND.INER(NNO).EQ.0)THEN
+            IF(J>3.AND.INER(NNO)==0)THEN
                CALL ANCMSG(MSGID=536,
      .                     MSGTYPE=MSGERROR,
      .                     ANMODE=ANINFO_BLIND_1,
@@ -123,10 +120,10 @@ Cm41u07---
      .                     C2='FIXED ROTATIONAL VELOCITY',
      .                     C3=TITR,
      .                     I2=ITAB(IABS(IBFV(1,N))))
-	    ENDIF
+              ENDIF
           ELSE
             IADLL(NC+1)=IADLL(NC) + 3
-            IF(IADLL(NC+1)-1.GT.LAG_NKF)THEN
+            IF(IADLL(NC+1)-1>LAG_NKF)THEN
               CALL ANCMSG(MSGID=469,
      .                    MSGTYPE=MSGERROR,
      .                    ANMODE=ANINFO,
@@ -135,7 +132,7 @@ Cm41u07---
      .                    C2='IMPOSED VELOCITY',
      .                    C3=TITR)
             ENDIF
-            IF(J.LE.3)THEN
+            IF(J<=3)THEN
               IK = IADLL(NC)
               LLL(IK) = NNO
               JLL(IK) = 1
@@ -146,7 +143,7 @@ Cm41u07---
               LLL(IK) = NNO
               JLL(IK) = 3
             ELSE
-              IF(INER(NNO).EQ.0)THEN
+              IF(INER(NNO)==0)THEN
                CALL ANCMSG(MSGID=536,
      .                     MSGTYPE=MSGERROR,
      .                     ANMODE=ANINFO_BLIND_1,
@@ -155,7 +152,7 @@ Cm41u07---
      .                     C2='FIXED ROTATIONAL VELOCITY',
      .                     C3=TITR,
      .                     I2=ITAB(IABS(IBFV(1,N))))
-	      ENDIF
+                ENDIF
               IK = IADLL(NC)
               LLL(IK) = NNO
               JLL(IK) = 4

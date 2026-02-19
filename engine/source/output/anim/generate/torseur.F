@@ -1,37 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Cel|         SPMD_R4GATHER_PART              /spe/spmd_anim.F
-Chd|====================================================================
-Chd|  TORSEUR                       source/output/anim/generate/torseur.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_R4GET_PARTN              source/mpi/anim/spmd_r4get_partn.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+C  |         SPMD_R4GATHER_PART              /spe/spmd_anim.F
+!||====================================================================
+!||    torseur            ../engine/source/output/anim/generate/torseur.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_r4get_partn   ../engine/source/mpi/anim/spmd_r4get_partn.F
+!||    write_r_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE TORSEUR(IADG  ,IPARG,ITENS,IXT   ,IXP  ,
      .                   IXR   ,EL2FA,NBF  ,TENS  ,TORS ,
      .                   NBPART)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixt,nixr,nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -42,9 +50,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "rnur_c.inc"
 #include      "task_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
@@ -60,17 +65,14 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 C     REAL
-      my_real
-     .   OFF, FAC, A1, A2, A3, THK
       REAL R4(18)
-      INTEGER I, NG, NEL, NFT, IAD, ITY, LFT, NPT, IPT,M,
-     .        IADD, N, J, LLT, MLW, NB1, NB2, NB3, NB4, NB5, 
-     .        NB6, NB7, NB8, NB9, NB10, NB11, NB12, ISTRAIN,
-     .        IPID, I1, I2, IAD2, NS1, NS2  , IALEL, ISTRE,
-     .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,NNI,N0,
-     .        IHBE,BUF
-      REAL WAL(9*NBF)
+      INTEGER I, NG, NEL, NFT, IAD, ITY, LFT, M, 
+     . N, J, LLT, MLW, NB1,
+     . NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,
+     . BUF
+      REAL,DIMENSION(:),ALLOCATABLE :: WAL
 C-----------------------------------------------
+       CALL MY_ALLOC(WAL,9*NBF)
        DO 5 J=1,18
            R4(J) = ZERO
  5     CONTINUE
@@ -88,7 +90,7 @@ C
       NN10= NN9
 C
        DO 490 NG=1,NGROUP
-C       IF(ANIM_K.EQ.0.AND.IPARG(8,NG).EQ.1)GOTO 490
+C       IF(ANIM_K==0.AND.IPARG(8,NG)==1)GOTO 490
         MLW   =IPARG(1,NG)
         NEL   =IPARG(2,NG)
         NFT   =IPARG(3,NG)
@@ -100,7 +102,7 @@ C       IF(ANIM_K.EQ.0.AND.IPARG(8,NG).EQ.1)GOTO 490
 C-----------------------------------------------
 C       TRUSS
 C-----------------------------------------------
-        IF(ITY.EQ.4)THEN
+        IF(ITY==4)THEN
            DO I=LFT,LLT
                  N = I + NFT
                  TENS(1,EL2FA(NN6+N)) = TORS(1,N)
@@ -116,7 +118,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C       POUTRES
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.5)THEN
+        ELSEIF(ITY==5)THEN
            DO I=LFT,LLT
                  N = I + NFT
                  M = N+NUMELT
@@ -133,14 +135,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C       RESSORTS
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.6)THEN
+        ELSEIF(ITY==6)THEN
            DO I=LFT,LLT
                 N = I + NFT
                 M = N+NUMELT+NUMELP
                 TENS(1,EL2FA(NN8+N)) = TORS(1,M)
                 TENS(2,EL2FA(NN8+N)) = TORS(2,M)
                 TENS(3,EL2FA(NN8+N)) = TORS(3,M)
-                IF(MLW.EQ.3)THEN
+                IF(MLW==3)THEN
                   TENS(4,EL2FA(NN8+N)) = ZERO
                   TENS(5,EL2FA(NN8+N)) = ZERO
                   TENS(6,EL2FA(NN8+N)) = ZERO
@@ -196,7 +198,7 @@ C-----------------------------------------------
           WAL(9*N-1) = TENS(8,N)
           WAL(9*N  ) = TENS(9,N)
         ENDDO
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
           BUF = 9*NB1DG
         ELSE
           BUF = 1
@@ -205,5 +207,6 @@ C-----------------------------------------------
       ENDIF
 C
 C-----------------------------------------------
+      DEALLOCATE(WAL)
       RETURN
       END

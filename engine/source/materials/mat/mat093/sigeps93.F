@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C Orthotropic Hill
-Chd|====================================================================
-Chd|  SIGEPS93                      source/materials/mat/mat093/sigeps93.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        MSTRAIN_RATE                  source/materials/mat_share/mstrain_rate.F
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|====================================================================
+!||====================================================================
+!||    sigeps93       ../engine/source/materials/mat/mat093/sigeps93.F
+!||--- called by ------------------------------------------------------
+!||    mulaw          ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    mstrain_rate   ../engine/source/materials/mat_share/mstrain_rate.F
+!||    vinter         ../engine/source/tools/curve/vinter.F
+!||====================================================================
        SUBROUTINE SIGEPS93(
      1      NEL      ,NUPARAM  ,NUVAR    ,MFUNC    ,KFUNC    , 
      2      NPF      ,TF       ,TIME     ,TIMESTEP ,UPARAM   ,     
@@ -43,18 +43,6 @@ C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G L O B A L   P A R A M E T E R S
-C-----------------------------------------------
-#include "scr17_c.inc"
-C-----------------------------------------------
-C   C O M M O N 
-C-----------------------------------------------
-#include "scr05_c.inc"
-#include "impl1_c.inc"
-#include "units_c.inc"
-#include "com01_c.inc"
-#include "com04_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
@@ -137,7 +125,7 @@ C
       SIGY = UPARAM(25) ! Initial yield stress
       QR1  = UPARAM(26) ! Voce 1 first parameter
       CR1  = UPARAM(27) ! Voce 1 second parameter
-      QR2  = UPARAM(28) ! Voce 2 fisrt parameter
+      QR2  = UPARAM(28) ! Voce 2 first parameter
       CR2  = UPARAM(29) ! Voce 2 second parameter
       ! Strain-rate computation flag
       VP   = NINT(UPARAM(30))
@@ -304,12 +292,12 @@ c
           ! the consistency condition using the backward Euler implicit method
           ! with a Newton-Raphson iterative procedure
           ! Its expression at each iteration is : DLAMBDA = - PHI/DPHI_DLAMBDA
-	  ! -> PHI          : current value of yield function (known)
+            ! -> PHI          : current value of yield function (known)
           ! -> DPHI_DLAMBDA : derivative of PHI with respect to DLAMBDA by taking
           !                   into account of internal variables kinetic : 
           !                   plasticity, temperature and damage (to compute)
 c        
-	  ! 1 - Computation of DPHI_DSIG the normal to the yield surface
+            ! 1 - Computation of DPHI_DSIG the normal to the yield surface
           !------------------------------------------------------------- 
           NORMXX = (GG*(SIGNXX(I)-SIGNZZ(I)) + HH*(SIGNXX(I)-SIGNYY(I)))/(MAX(SIGHL(I),EM20))
           NORMYY = (FF*(SIGNYY(I)-SIGNZZ(I)) + HH*(SIGNYY(I)-SIGNXX(I)))/(MAX(SIGHL(I),EM20))
@@ -321,7 +309,7 @@ c
           ! 2 - Computation of DPHI_DLAMBDA
           !---------------------------------------------------------
 c        
-          !   a) Derivative with respect stress increments tensor DSIG			
+          !   a) Derivative with respect stress increments tensor DSIG
           !   --------------------------------------------------------
           DFDSIG2 = NORMXX * (D11 * NORMXX + D12 * NORMYY + D13 * NORMZZ )
      .            + NORMYY * (D12 * NORMXX + D22 * NORMYY + D23 * NORMZZ )
@@ -330,7 +318,7 @@ c
      .            + NORMYZ * NORMYZ * G23
      .            + NORMZX * NORMZX * G13      
 c
-          !   b) Derivatives with respect to plastic strain P 			
+          !   b) Derivatives with respect to plastic strain P 
           !   ------------------------------------------------  
 c          
           !     i) Derivative of the yield stress with respect to plastic strain dYLD / dPLA

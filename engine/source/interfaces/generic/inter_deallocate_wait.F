@@ -1,40 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTER_DEALLOCATE_WAIT         source/interfaces/generic/inter_deallocate_wait.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTER_SORTING_MOD             share/modules/inter_sorting_mod.F
-Chd|        INTER_STRUCT_MOD              share/modules/inter_struct_mod.F
-Chd|        METRIC_MOD                    ../common_source/modules/metric_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
-        SUBROUTINE INTER_DEALLOCATE_WAIT( ITASK,NB_INTER_SORTED,LIST_INTER_SORTED,IPARI,ISENDTO,
-     1                                    IRECVFROM,INTBUF_TAB,SENSOR,INTER_STRUCT,SORT_COMM )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inter_deallocate_wait   ../engine/source/interfaces/generic/inter_deallocate_wait.F
+!||--- called by ------------------------------------------------------
+!||    inttri                  ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier              ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod                 ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod           ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    inter_sorting_mod       ../engine/share/modules/inter_sorting_mod.F
+!||    inter_struct_mod        ../engine/share/modules/inter_struct_mod.F
+!||    metric_mod              ../common_source/modules/interfaces/metric_mod.F
+!||    multi_fvm_mod           ../common_source/modules/ale/multi_fvm_mod.F90
+!||    sensor_mod              ../common_source/modules/sensor_mod.F90
+!||====================================================================
+        SUBROUTINE INTER_DEALLOCATE_WAIT( ITASK,NB_INTER_SORTED,LIST_INTER_SORTED,IPARI,
+     1                          NSENSOR,IRECVFROM,SENSOR_TAB,INTER_STRUCT,SORT_COMM )
 !$COMMENT
 !       INTER_DEALLOCATE_WAIT description
 !       wait the message "send the secondary nodes" & deallocation of array
@@ -43,20 +45,17 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-        USE MULTI_FVM_MOD
-        USE H3D_MOD
-        USE METRIC_MOD
-        USE INTBUFDEF_MOD  
-        USE INTER_STRUCT_MOD
-        USE INTER_SORTING_MOD
+      USE MULTI_FVM_MOD
+      USE H3D_MOD
+      USE METRIC_MOD
+      USE INTBUFDEF_MOD  
+      USE INTER_STRUCT_MOD
+      USE INTER_SORTING_MOD
+      USE SENSOR_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -64,34 +63,26 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "warn_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "timeri_c.inc"
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-        INTEGER, INTENT(in) :: ITASK    !   omp thread ID
-        INTEGER, INTENT(in) :: NB_INTER_SORTED        !   number of interfaces that need to be sorted
-        INTEGER, DIMENSION(NB_INTER_SORTED), INTENT(in) :: LIST_INTER_SORTED   !   list of interfaces that need to be sorted
-        INTEGER, DIMENSION(NPARI,NINTER), INTENT(in) :: IPARI    !   interface data
-        INTEGER, DIMENSION(NINTER+1,NSPMD+1), INTENT(in) :: ISENDTO,IRECVFROM 
-        TYPE(INTBUF_STRUCT_),DIMENSION(NINTER), INTENT(inout) :: INTBUF_TAB    ! interface data
-        my_real, DIMENSION(NSENSR,NSENSOR), INTENT(in) :: SENSOR
-        TYPE(inter_struct_type), DIMENSION(NINTER), INTENT(inout) :: INTER_STRUCT   !   struture for interface
-        TYPE(sorting_comm_type), DIMENSION(NINTER), INTENT(inout) :: SORT_COMM   ! structure for interface sorting comm
+      INTEGER, INTENT(in) :: ITASK    !   omp thread ID
+      INTEGER, INTENT(in) :: NB_INTER_SORTED        !   number of interfaces that need to be sorted
+      INTEGER, INTENT(in) :: NSENSOR
+      INTEGER, DIMENSION(NB_INTER_SORTED), INTENT(in) :: LIST_INTER_SORTED   !   list of interfaces that need to be sorted
+      INTEGER, DIMENSION(NPARI,NINTER), INTENT(in) :: IPARI    !   interface data
+      INTEGER, DIMENSION(NINTER+1,NSPMD+1), INTENT(in) :: IRECVFROM 
+      TYPE(inter_struct_type), DIMENSION(NINTER), INTENT(inout) :: INTER_STRUCT   !   structure for interface
+      TYPE(sorting_comm_type), DIMENSION(NINTER), INTENT(inout) :: SORT_COMM   ! structure for interface sorting comm
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) :: SENSOR_TAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-        INTEGER :: KK,N,ESHIFT,P
+        INTEGER :: KK,N,P
         INTEGER :: NTY,INACTI,ISENS
-        INTEGER :: NRTM_T,NSN,NMN
+        INTEGER :: NSN,NMN
         LOGICAL :: TYPE18
 #ifdef MPI
         INTEGER :: IERROR,STATUS(MPI_STATUS_SIZE)
@@ -109,8 +100,8 @@ C-----------------------------------------------
 
                 ISENS = 0
                 IF(NTY == 7.OR.NTY == 11.OR.NTY == 24.OR.NTY == 25) ISENS = IPARI(64,N)  
-                IF(ISENS.NE.0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
-                    TS = SENSOR(2,ISENS)
+                IF (ISENS > 0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
+                    TS = SENSOR_TAB(ISENS)%TSTART
                 ELSE
                     TS = TT
                 ENDIF
@@ -119,13 +110,13 @@ C-----------------------------------------------
                 NMN = IPARI(6,N)
                 ! -----------------------------------------------------
                 ! type 7
-                IF((NTY==7.AND.TT.GE.TS).AND.(.NOT.TYPE18))THEN
+                IF((NTY==7.AND.TT>=TS).AND.(.NOT.TYPE18))THEN
                     ! wait the message only for proc with only secondary nodes 
                     IF(NSN>0.AND.NMN==0) THEN   !   local nsn>0 && local nmn == 0
                         DO P = 1, NSPMD
-                            IF(IRECVFROM(N,P).NE.0) THEN     !   nmn >0
-                                IF(P.NE.ISPMD+1) THEN
-                                    IF(SORT_COMM(N)%NB(P).NE.0) THEN
+                            IF(IRECVFROM(N,P)/=0) THEN     !   nmn >0
+                                IF(P/=ISPMD+1) THEN
+                                    IF(SORT_COMM(N)%NB(P)/=0) THEN
 #ifdef MPI
                                         CALL MPI_WAIT(SORT_COMM(N)%REQ_SD2(P),STATUS,IERROR) 
                                         DEALLOCATE(SORT_COMM(N)%DATA_PROC(P)%RBUF) 

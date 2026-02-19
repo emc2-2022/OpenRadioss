@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CEVEC3                        source/elements/shell/coque/cevec3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|-- calls ---------------
-Chd|        CORTDIR3                      source/elements/shell/coque/cortdir3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cevec3         ../engine/source/elements/shell/coque/cevec3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3         ../engine/source/elements/shell/coque/cforc3.F
+!||--- calls      -----------------------------------------------------
+!||    cortdir3       ../engine/source/elements/shell/coque/cortdir3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE CEVEC3(ELBUF_STR,DIR_A  ,DIR_B  ,
      1    JFT,JLT,X1 ,X2 ,X3 ,X4 ,Y1 ,Y2 ,Y3 ,Y4  ,
      2    Z1 ,Z2 ,Z3 ,Z4 ,E1X,E1Y,E1Z,E2X,E2Y, E2Z, 
@@ -47,7 +48,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JFT, JLT,J,IREP,NLAY,NEL
+      INTEGER JFT, JLT,IREP,NLAY,NEL
       my_real
      .   X1(*), X2(*), X3(*), X4(*), Y1(*), Y2(*), Y3(*), Y4(*),
      .   Z1(*), Z2(*), Z3(*), Z4(*), E1X(*), E1Y(*), E1Z(*), E2X(*),
@@ -63,7 +64,7 @@ C     REAL
       my_real
      .   X31(MVSIZ), Y31(MVSIZ), Z31(MVSIZ), X42(MVSIZ), Y42(MVSIZ),
      .   Z42(MVSIZ), X21(MVSIZ), Y21(MVSIZ), Z21(MVSIZ),
-     .   SUM(MVSIZ), SUMA
+     .   SUMA
 C=======================================================================
       DO I=JFT,JLT                                      
         X21(I)=X2(I)-X1(I)                              
@@ -112,7 +113,7 @@ C
         E2Z(I)=E2Z(I)/SUMA                                
       ENDDO                                               
 C
-C---  directions orthotropie / anisotropie convectes
+C--- Orthotropy / anisotropy convectes directions
 C
       CALL CORTDIR3(ELBUF_STR,DIR_A,DIR_B  ,JFT    ,JLT    ,
      .              NLAY   ,IREP   ,X21    ,Y21    ,Z21    ,

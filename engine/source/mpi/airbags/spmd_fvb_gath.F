@@ -1,39 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
 C
-Chd|====================================================================
-Chd|  SPMD_FVB_GATH                 source/mpi/airbags/spmd_fvb_gath.F
-Chd|-- called by -----------
-Chd|        FVBAG1                        source/airbag/fvbag.F         
-Chd|        FVBRIC                        source/airbag/fvbric.F        
-Chd|        FVMESH1                       source/airbag/fvmesh.F        
-Chd|        FVREZONE1                     source/airbag/fvrezone.F      
-Chd|        FV_UP_SWITCH                  source/airbag/fv_up_switch.F  
-Chd|        LECFVBAG                      source/input/lecfvbag.F       
-Chd|-- calls ---------------
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|====================================================================
+!||====================================================================
+!||    spmd_fvb_gath   ../engine/source/mpi/airbags/spmd_fvb_gath.F
+!||--- called by ------------------------------------------------------
+!||    fv_up_switch    ../engine/source/airbag/fv_up_switch.F
+!||    fvbag1          ../engine/source/airbag/fvbag1.F
+!||    fvbric          ../engine/source/airbag/fvbric.F
+!||    fvmesh1         ../engine/source/airbag/fvmesh.F
+!||    fvrezone1       ../engine/source/airbag/fvrezone.F
+!||    lecfvbag        ../engine/source/input/lecfvbag.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod       ../engine/share/modules/fvbag_mod.F
+!||====================================================================
       SUBROUTINE SPMD_FVB_GATH(IFV, X, XXX, XXXA, XXXSA,
      .                         IDO)
 C Gather local X into XXX,XXXA,XXXSA on the PMAIN of the FVM
@@ -59,9 +60,7 @@ C-----------------------------------------------
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -123,29 +122,31 @@ C
          ALLOCATE(IBUF(LENI), RBUF(LENR))
          RBUF(1:LENR) = ZERO
          IBUF(1:LENI) = 0
-C Reception des entiers
+C reception of integers
          II=0
          DO I=1,FVSPMD(IFV)%NSPMD-1
             II=II+1
             ITAG=MSGOFF
             IAD=IADI(II)
             LEN=ITAB(1,II)+ITAB(2,II)+ITAB(3,II)
-            CALL MPI_IRECV(IBUF(IAD), LEN, MPI_INTEGER, I,
+            REQ(II) = MPI_REQUEST_NULL
+            IF(LEN > 0) CALL MPI_IRECV(IBUF(IAD), LEN, MPI_INTEGER, I,
      .                     ITAG, FVSPMD(IFV)%MPI_COMM, REQ(II), IERR)
          ENDDO
-C Reception des reels
+C reception of reals
          II=0
          DO I=1,FVSPMD(IFV)%NSPMD-1
             II=II+1
             ITAG=MSGOFF
             IAD=IADR(II)
             LEN=3*(ITAB(1,II)+ITAB(2,II)+ITAB(3,II))
-            CALL MPI_IRECV(RBUF(IAD), LEN, REAL, I, ITAG,
+            REQ(FVSPMD(IFV)%NSPMD-1+II) = MPI_REQUEST_NULL
+            IF(LEN >0 ) CALL MPI_IRECV(RBUF(IAD), LEN, REAL, I, ITAG,
      .      FVSPMD(IFV)%MPI_COMM, REQ(FVSPMD(IFV)%NSPMD-1+II), IERR)
          ENDDO
-C Remplissage des tableaux de sortie XXX, XXXA, XXXSA
+C filling of output tables xxx, xxxa, xxksa
          LEN = FVSPMD(IFV)%NN_L
-C ajout noeuds internes
+C Addition Internal nodes
          IF(IDO2 == 1)LEN = LEN + FVSPMD(IFV)%NNI_L
          DO I=1,LEN
             I1=FVSPMD(IFV)%IBUF_L(1,I)
@@ -158,7 +159,7 @@ C ajout noeuds internes
             DO I=1,FVSPMD(IFV)%NNA_L
                I1=FVSPMD(IFV)%IBUFA_L(1,I)
                I2=FVSPMD(IFV)%IBUFA_L(2,I)
-               IF (I2 .LE. NUMNOD) THEN
+               IF (I2 <= NUMNOD) THEN
                   ! IF MESHGEMS IS USED, EXTRA NODES ARE NOT INCLUDED WITHIN THE NUMNOD NODES
                   XXXA(1,I1)=X(1,I2)
                   XXXA(2,I1)=X(2,I2)
@@ -168,7 +169,7 @@ C ajout noeuds internes
             DO I=1,FVSPMD(IFV)%NNSA_L
                I1=FVSPMD(IFV)%IBUFSA_L(1,I)
                I2=FVSPMD(IFV)%IBUFSA_L(2,I)
-               IF (I2 .LE. NUMNOD) THEN
+               IF (I2 <= NUMNOD) THEN
                   ! IF MESHGEMS IS USED, EXTRA NODES ARE NOT INCLUDED WITHIN THE NUMNOD NODES
                   XXXSA(1,I1)=X(1,I2)
                   XXXSA(2,I1)=X(2,I2)
@@ -210,7 +211,7 @@ C ajout noeuds internes
          DEALLOCATE(IBUF, RBUF)
       ELSE IF(FVSPMD(IFV)%RANK > 0) THEN
          ITABL(1)=FVSPMD(IFV)%NN_L
-C ajout noeuds internes
+C Addition Internal nodes
          IF(IDO2== 1 ) ITABL(1)=ITABL(1)+FVSPMD(IFV)%NNI_L
          IF (IDO1 > 1) THEN
             ITABL(2)=FVSPMD(IFV)%NNA_L
@@ -242,7 +243,7 @@ C
                I1=FVSPMD(IFV)%IBUFA_L(1,I)
                I2=FVSPMD(IFV)%IBUFA_L(2,I)
                IBUF(IAD1-1+I)=I1
-               IF (I2 .LE. NUMNOD) THEN
+               IF (I2 <= NUMNOD) THEN
                   ! IF MESHGEMS IS USED, EXTRA NODES ARE NOT INCLUDED WITHIN THE NUMNOD NODES
                   RBUF(IAD2-1+3*(I-1)+1)=X(1,I2)
                   RBUF(IAD2-1+3*(I-1)+2)=X(2,I2)
@@ -255,7 +256,7 @@ C
                I1=FVSPMD(IFV)%IBUFSA_L(1,I)
                I2=FVSPMD(IFV)%IBUFSA_L(2,I)
                IBUF(IAD1-1+I)=I1
-               IF (I2 .LE. NUMNOD) THEN
+               IF (I2 <= NUMNOD) THEN
                   ! IF MESHGEMS IS USED, EXTRA NODES ARE NOT INCLUDED WITHIN THE NUMNOD NODES
                   RBUF(IAD2-1+3*(I-1)+1)=X(1,I2)
                   RBUF(IAD2-1+3*(I-1)+2)=X(2,I2)
@@ -266,12 +267,14 @@ C
 C
          ITAG=MSGOFF
          LEN=ITABL(1)+ITABL(2)+ITABL(3)
-         CALL MPI_ISEND(IBUF, LEN, MPI_INTEGER, 0,
+         REQ(1) = MPI_REQUEST_NULL
+         REQ(2) = MPI_REQUEST_NULL
+         IF(LEN > 0) CALL MPI_ISEND(IBUF, LEN, MPI_INTEGER, 0,
      .                  ITAG, FVSPMD(IFV)%MPI_COMM, REQ(1), IERR)
 C
          ITAG=MSGOFF
          LEN=3*(ITABL(1)+ITABL(2)+ITABL(3))
-         CALL MPI_ISEND(RBUF, LEN, REAL, 0,
+         IF(LEN > 0 ) CALL MPI_ISEND(RBUF, LEN, REAL, 0,
      .                  ITAG, FVSPMD(IFV)%MPI_COMM, REQ(2), IERR)
 C
          CALL MPI_WAITALL(2, REQ, STAT, IERR)

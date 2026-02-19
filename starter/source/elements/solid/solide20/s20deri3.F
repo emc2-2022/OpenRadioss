@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S20DERI3                      source/elements/solid/solide20/s20deri3.F
-Chd|-- called by -----------
-Chd|        S20INIT3                      source/elements/solid/solide20/s20init3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s20deri3      ../starter/source/elements/solid/solide20/s20deri3.F
+!||--- called by ------------------------------------------------------
+!||    s20init3      ../starter/source/elements/solid/solide20/s20init3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE S20DERI3(NGL,OFF,R,S,T    ,W     ,
      2   DNIDR ,DNIDS ,DNIDT ,DXDR  ,DYDR  ,DZDR  ,
      3   DXDS  ,DYDS  ,DZDS  ,DXDT  ,DYDT  ,DZDT  ,
@@ -324,7 +325,7 @@ c         print *,'dx y z/dt='
 c         print *,DXDT(1),DYDT(1),DZDT(1)
 C-----------------------------------------------------------------------
 C          -1
-C       [J]          Inversion du jacobien
+C       [J] Jacobian inversion
 C-----------------------------------------------------------------------
         DRDX(I)=DYDS(I)*DZDT(I)-DZDS(I)*DYDT(I)
         DRDY(I)=DZDS(I)*DXDT(I)-DXDS(I)*DZDT(I)
@@ -344,7 +345,7 @@ C
         DET(I) = DETDP
         VOLDP(I) = W * DET(I)
         VOL(I) = VOLDP(I)
-        IF(VOL(I).LE.ZERO)THEN
+        IF(VOL(I)<=ZERO)THEN
          CALL ANCMSG(MSGID=484,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -353,14 +354,14 @@ C
 C
       ENDDO
 C
-C      IF(IDTMIN(1).EQ.1)THEN
+C      IF(IDTMIN(1)==1)THEN
 C ...
 C      ENDIF
 C
       DO I=LFT,LLT
 C-----------------------------------------------------------------------
-C          -1            Inversion du jacobien suite
-C       [J]              et repere local r,s,t
+C          -1 inversion of the Jacobian suite
+C       [J]              and local frame r,s,t
 C-----------------------------------------------------------------------
         D = 1./DET(I)
         DRDX(I)=D*DRDX(I)
@@ -448,7 +449,7 @@ C
 C
 C
 C
-      IF(IP.EQ.1)THEN
+      IF(IP==1)THEN
         DO N=1,20
           DO I=LFT,LLT
             UL(I,N) = ZERO
@@ -469,14 +470,14 @@ C
           VOLG(I) = VOLG(I) + VOL(I)
       ENDDO
 C
-      IF(IP.EQ.NIP)THEN
+      IF(IP==NIP)THEN
        DO I=LFT,LLT
         AA = MAX(UL(I,1),UL(I,2),UL(I,3),UL(I,4),
      .           UL(I,5),UL(I,6),UL(I,7),UL(I,8))
         BB = MAX(UL(I,9),UL(I,10),UL(I,11),UL(I,12),UL(I,13),UL(I,14),
      .          UL(I,15),UL(I,16),UL(I,17),UL(I,18),UL(I,19),UL(I,20))
         DELTAX2(I) = AA/MAX(AA,BB)
-C       64,64/5 cf s20mass3 (rapport des masses noeuds sommet/milieu)
+C       64.64/5 Cf s20mass3 (Masses ratio nodes summit/environment)
         AA = AA*SIXTY4
         BB = BB*EIGHTY16/SEVEN
         DELTAX(I) = SQRT(TWO*VOLG(I)/MAX(AA,BB))
@@ -494,12 +495,11 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  S20RST                        source/elements/solid/solide20/s20deri3.F
-Chd|-- called by -----------
-Chd|        S20INIT3                      source/elements/solid/solide20/s20init3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    s20rst     ../starter/source/elements/solid/solide20/s20deri3.F
+!||--- called by ------------------------------------------------------
+!||    s20init3   ../starter/source/elements/solid/solide20/s20init3.F
+!||====================================================================
       SUBROUTINE S20RST(R,S,T,
      2   NI   ,DNIDR ,DNIDS ,DNIDT )
 C-----------------------------------------------

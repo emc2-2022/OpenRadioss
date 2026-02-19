@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2VIT10                       source/interfaces/interf/i2vit10.F
-Chd|-- called by -----------
-Chd|        INTTI2V                       source/interfaces/interf/intti2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2vit10   ../engine/source/interfaces/interf/i2vit10.F
+!||--- called by ------------------------------------------------------
+!||    intti2v   ../engine/source/interfaces/interf/intti2v.F
+!||====================================================================
       SUBROUTINE I2VIT10(
      1 NSN     ,NMN     ,MS      ,V       ,A       ,
      2 AR      ,VR      ,X       ,IRECT   ,NSV     ,
@@ -43,17 +42,12 @@ C     REAL
       my_real
      .   A(3,*),V(3,*),AR(3,*),VR(3,*),X(3,*),MS(*),CRST(2,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR, I, J, II,JJ,L,NN, ISK, ICOD
+      INTEGER NIR, I, J, II, JJ, L
 C     REAL
       my_real
-     .   H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM,MAS,
-     .   FAC, V1X2, V2X1, V2X3, V3X2, V3X1, V1X3,XC0,YC0,ZC0
+     . H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM
 C=======================================================================
       NIR=4
 C
@@ -100,12 +94,11 @@ C
 C----
       RETURN
       END
-Chd|====================================================================
-Chd|  I2ROT10                       source/interfaces/interf/i2vit10.F
-Chd|-- called by -----------
-Chd|        INTTI2V                       source/interfaces/interf/intti2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2rot10   ../engine/source/interfaces/interf/i2vit10.F
+!||--- called by ------------------------------------------------------
+!||    intti2v   ../engine/source/interfaces/interf/intti2v.F
+!||====================================================================
       SUBROUTINE I2ROT10(
      1 NSN     ,NMN     ,MS      ,V       ,A       ,
      2 AR      ,VR      ,X       ,IRECT   ,NSV     ,
@@ -123,17 +116,13 @@ C     REAL
       my_real
      .   A(3,*),V(3,*),AR(3,*),VR(3,*),X(3,*),MS(*),CRST(2,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR, I, J, II,JJ,L,NN, ISK, ICOD
+      INTEGER NIR, I, J, II, JJ, L
 C     REAL
       my_real
-     .   H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM,MAS,
-     .   FAC, V1X2, V2X1, V2X3, V3X2, V3X1, V1X3,XC0,YC0,ZC0
+     . H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM,
+     . V1X2, V2X1, V2X3, V3X2, V3X1, V1X3,XC0,YC0,ZC0
 C=======================================================================
       NIR=4
 C

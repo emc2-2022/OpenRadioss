@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MAT115_NEWTON                 source/materials/mat/mat115/mat115_newton.F
-Chd|-- called by -----------
-Chd|        SIGEPS115                     source/materials/mat/mat115/sigeps115.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    mat115_newton   ../engine/source/materials/mat/mat115/mat115_newton.F
+!||--- called by ------------------------------------------------------
+!||    sigeps115       ../engine/source/materials/mat/mat115/sigeps115.F
+!||====================================================================
       SUBROUTINE MAT115_NEWTON(
      1     NEL     ,NGL     ,NUPARAM ,NUVAR   ,GRHO    , 
      2     TIME    ,TIMESTEP,UPARAM  ,UVAR    ,OFF     ,SIGY    ,
@@ -40,9 +39,6 @@ Chd|====================================================================
       !=======================================================================
       !      Common
       !=======================================================================
-#include      "param_c.inc" 
-#include      "com01_c.inc"
-#include      "scr17_c.inc"
       !=======================================================================
       !      Dummy arguments
       !=======================================================================
@@ -79,15 +75,16 @@ c
       my_real, DIMENSION(NEL) ::
      .   GAMMA,EPSD,ALPHA2,BETA,SIGP
 c
+      real(kind=8) :: LDAV
       my_real 
-     .   H,LDAV,TRDEP,DLAM,DDEP,DPHI_DSIGVM,DPHI_DSIGM,
+     .   TRDEP,DLAM,DDEP,DPHI_DSIGVM,DPHI_DSIGM,
      .   DPXX,DPYY,DPZZ,DPXY,DPYZ,DPZX,TRDFDS,
      .   NORMXX,NORMYY,NORMZZ,NORMXY,NORMYZ,NORMZX,
-     .   DPHI,SIG_DFDSIG,DFDSIG2,DPHI_DPLA,
+     .   SIG_DFDSIG,DFDSIG2,DPHI_DPLA,
      .   I1,I2,I3,Q,R,R_INTER,PSI,S11,S22,S33
 c     
       my_real, DIMENSION(NEL) ::
-     .   SIGVM,SIGEQ,DSIGXX,DSIGYY,DSIGZZ,DSIGXY,DSIGYZ,DSIGZX,TRSIG,
+     .   SIGVM,SIGEQ,TRSIG,
      .   SXX,SYY,SZZ,SXY,SYZ,SZX,SIGM,J2,YLD,HARDP,PHI,DPLA_DLAM,DPHI_DLAM,
      .   DEFVP
       !=======================================================================
@@ -214,12 +211,12 @@ c
           ! the consistency condition using the backward Euler implicit method
           ! with a Newton-Raphson iterative procedure
           ! Its expression at each iteration is : DLAMBDA = - PHI/DPHI_DLAMBDA
-	  ! -> PHI          : current value of yield function (known)
+            ! -> PHI          : current value of yield function (known)
           ! -> DPHI_DLAMBDA : derivative of PHI with respect to DLAMBDA by taking
           !                   into account of internal variables kinetic : 
           !                   plasticity, temperature and damage (to compute)
 c        
-	  ! 1 - Computation of DPHI_DSIG the normal to the yield surface
+            ! 1 - Computation of DPHI_DSIG the normal to the yield surface
           !-------------------------------------------------------------
 c
           ! Derivative with respect to the Von Mises equivalent stress
@@ -239,7 +236,7 @@ c
           ! 2 - Computation of DPHI_DLAMBDA
           !---------------------------------------------------------
 c        
-          !   a) Derivative with respect stress increments tensor DSIG			
+          !   a) Derivative with respect stress increments tensor DSIG
           !   --------------------------------------------------------
           TRDFDS  = NORMXX + NORMYY + NORMZZ    
           DFDSIG2 = NORMXX * (NORMXX*G2 + LAMHOOK*TRDFDS)
@@ -249,7 +246,7 @@ c
      .            + NORMYZ * NORMYZ * G
      .            + NORMZX * NORMZX * G
 c     
-          !   b) Derivatives with respect to plastic strain P 			
+          !   b) Derivatives with respect to plastic strain P 
           !   ------------------------------------------------  
 c          
           !     i) Derivative of the yield function with respect to plastic strain dPHI / dPLA
@@ -279,7 +276,7 @@ c
           ! Computation of the plastic multiplier
           DLAM = -PHI(I)/DPHI_DLAM(I)
 c          
-	  ! Plastic strains tensor update
+            ! Plastic strains tensor update
           DPXX  = DLAM * NORMXX
           DPYY  = DLAM * NORMYY
           DPZZ  = DLAM * NORMZZ
@@ -350,7 +347,7 @@ c
      .         SIGNYY(I)*SIGNZX(I)*SIGNZX(I)-SIGNZZ(I)*SIGNXY(I)*SIGNXY(I)+
      .         TWO*SIGNXY(I)*SIGNZX(I)*SIGNYZ(I)
           Q  = (THREE*I2 - I1*I1)/NINE
-          R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/CINQUANTE4     ! (2*I3^3-9*I1*I2+27*I3)/54
+          R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/FIFTY4     ! (2*I3^3-9*I1*I2+27*I3)/54
           R_INTER = MIN(R/SQRT(MAX(EM20,(-Q**3))),ONE)
           PSI = ACOS(MAX(R_INTER,-ONE))
           S11 = TWO*SQRT(-Q)*COS(PSI/THREE)+THIRD*I1
@@ -364,7 +361,11 @@ c
         ENDIF
         SEQ(I)     = SIGEQ(I) ! SIGEQ
         ! Coefficient for hourglass
-        ET(I)      = HARDP(I) / (HARDP(I) + YOUNG)
+        IF (DPLA(I) > ZERO) THEN 
+          ET(I)    = HARDP(I) / (HARDP(I) + YOUNG)
+        ELSE
+          ET(I)    = ONE
+        ENDIF
         ! Computation of the sound speed
         SOUNDSP(I) = SQRT((BULK + FOUR_OVER_3*G)/GRHO(NEL+I))
         ! Storing the yield stress

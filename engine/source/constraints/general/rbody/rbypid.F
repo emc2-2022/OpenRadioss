@@ -1,41 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RBYPID                        source/constraints/general/rbody/rbypid.F
-Chd|-- called by -----------
-Chd|        RBYONF                        source/constraints/general/rbody/rbyonf.F
-Chd|        RBYSENS                       source/constraints/general/rbody/rbyonf.F
-Chd|-- calls ---------------
-Chd|        RBYACT                        source/constraints/general/rbody/rbyact.F
-Chd|        SPMD_CHKW                     source/mpi/generic/spmd_chkw.F
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|        SPMD_GLOB_ISUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_IBCAST                   source/mpi/generic/spmd_ibcast.F
-Chd|        SPMD_PART_COM                 source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_WIOUT                    source/mpi/generic/spmd_wiout.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rbypid            ../engine/source/constraints/general/rbody/rbypid.F
+!||--- called by ------------------------------------------------------
+!||    rbyonf            ../engine/source/constraints/general/rbody/rbyonf.F
+!||    rbysens           ../engine/source/constraints/general/rbody/rbyonf.F
+!||--- calls      -----------------------------------------------------
+!||    rbyact            ../engine/source/constraints/general/rbody/rbyact.F
+!||    spmd_chkw         ../engine/source/mpi/generic/spmd_chkw.F
+!||    spmd_exch_fr6     ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||    spmd_glob_isum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_ibcast       ../engine/source/mpi/generic/spmd_ibcast.F
+!||    spmd_part_com     ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_wiout        ../engine/source/mpi/generic/spmd_wiout.F
+!||    sum_6_float       ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod      ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod       ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE RBYPID(IPARG   ,IPARI       ,MS    ,IN     ,
      .                  IXS     ,IXQ  ,IXC   ,IXT   ,IXP    ,
      .                  IXR     ,SKEW ,ITAB  ,ITABM1,ISKWN  ,
@@ -43,11 +45,13 @@ Chd|====================================================================
      .                  X       ,V    ,VR    ,RBY   ,
      .                  IXTG    ,NPBYI,RBYI  ,LPBYI ,IACTS  ,
      .                  FR_RBY2 ,NRB  ,ONFELT,WEIGHT,PARTSAV,
-     .                  IPARTC  ,NSN  ,ELBUF_TAB)
+     .                  NSN  ,ELBUF_TAB,PRI_OFF,IPARTC,IPARTG,
+     .                  IPARTS  ,IPARTQ,IPARTT,IPARTP,IPARTR )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD            
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -57,24 +61,10 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com07_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr01_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "scr07_c.inc"
-#include      "cong1_c.inc"
-#include      "cong2_c.inc"
-#include      "scrfs_c.inc"
-#include      "stati_c.inc"
-#include      "statr_c.inc"
 #include      "units_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -83,8 +73,16 @@ C-----------------------------------------------
      .   IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*), IXR(NIXR,*),
      .   ITAB(*), ITABM1(*),IXTG(NIXTG,*),NRB, NSN,
      .   ISKWN(LISKN,*), NPBY(*),ITAG(*),LPBY(*),NPBYI(*) ,LPBYI(*),
-     .   WEIGHT(*), FR_RBY2(3,*), IPARTC(*)
+     .   WEIGHT(*), FR_RBY2(3,*)
       INTEGER ONOF,IACTS, ONFELT, IWIOUT
+      INTEGER, INTENT(IN) :: PRI_OFF
+      INTEGER, DIMENSION(NUMELC),  INTENT(IN) :: IPARTC
+      INTEGER, DIMENSION(NUMELTG), INTENT(IN) :: IPARTG
+      INTEGER, DIMENSION(NUMELT),  INTENT(IN) :: IPARTT
+      INTEGER, DIMENSION(NUMELP),  INTENT(IN) :: IPARTP
+      INTEGER, DIMENSION(NUMELR),  INTENT(IN) :: IPARTR
+      INTEGER, DIMENSION(NUMELS),  INTENT(IN) :: IPARTS
+      INTEGER, DIMENSION(NUMELQ),  INTENT(IN) :: IPARTQ
 C     REAL
       my_real
      .   SKEW(LSKEW,*),MS(*),IN(*),PARTSAV(NPSAV,*),
@@ -93,18 +91,18 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, II, NG, ITY, NEL, NFT, IAD, IGOF, N, NI, LSKYRBKG,
-     .   M, ISPH, NALL,MLW, K, PMAIN, TAG, L,
-     .   MX,ICOMM(NSPMD+2),ISTRAIN,NPT,IHBE, ID
+      INTEGER I, II, NG, ITY, NEL, NFT, IAD, IGOF, N, NI,
+     .   M, ISPH, NALL,MLW, K, PMAIN, TAG,
+     .   MX,ICOMM(NSPMD+2),ISTRAIN,NPT,IHBE, ID,IGOF_OLD
 C     REAL
       my_real
      .   XMOM, YMOM, ZMOM,II1,II2,II3,II4,II5,II6,II7,II8,II9,
      .   IG1,IG2,IG3,IG4,IG5,IG6,IG7,IG8,IG9,
      .   XXMOM, YYMOM, ZZMOM, WA1, WA2, WA3, 
-     .   TSUM(100),
-     .   FSKYRBK(NSKYRBK0*10+1),
+     .   
+     .   
      .   F1(NSN), F2(NSN), F3(NSN), F4(NSN),
-     .   F5(NSN), F6(NSN)
+     .   F5(NSN), F6(NSN), OFF_OLD
       DOUBLE PRECISION RBF6(6,6)
       my_real,
      .   DIMENSION(:), POINTER :: OFFG
@@ -112,15 +110,17 @@ C     REAL
 C======================================================================|
       M    = NPBY(1)
 C
+      ICOMM(1:NSPMD+2) = 0
       IF(NSPMD > 1)THEN
-C FR_RBY2(3,NRB) => proc main ; ICOMM : tableau de flag si comm necessaire pmain => p
+C FR_RBY2(3,NRB) => proc main ; ICOMM : Array of flag for necessary comm pmain => p
         PMAIN = ABS(FR_RBY2(3,NRB))
         TAG = 1
         IF(M < 0) TAG = 0
+        IF(ISPMD+1/=PMAIN) ICOMM(ISPMD+1) = TAG
         CALL SPMD_PART_COM(TAG,PMAIN,ICOMM)
         IF(M < 0) GOTO 100
-C pour utilisation de ICOMM dans SPMD_EXCH_FR6
-C FR_RBY2 ne peut pas directement etre utilise (pas de doublons)
+C for use of ICOMM in SPMD_EXCH_FR6
+C FR_RBY2 can not be used directly
         ICOMM(NSPMD+1) = 0
         ICOMM(NSPMD+2) = PMAIN
       ELSE
@@ -133,16 +133,16 @@ C
 C-----------------------------------------------
       IF(ONOF == 0)THEN
 C-----------------------
-C     DEACTIVATION DES RB
+C     DEACTIVATION OF RB
 C-----------------------
         IN(M) = RBY(13)
         MS(M) = RBY(15)
       ELSEIF(ONOF == 1)THEN
 C-----------------------
-C     REACTIVATION DES RB
+C     REACTIVATION OF RB
 C-----------------------
        IF(N2D==0) THEN
-C        ANALYSE 3D
+C        3D ANALYSIS
          XMOM = V(1,M)*MS(M)
          YMOM = V(2,M)*MS(M)
          ZMOM = V(3,M)*MS(M)
@@ -150,8 +150,8 @@ C
          XXMOM = VR(1,M)*IN(M)
          YYMOM = VR(2,M)*IN(M)
          ZZMOM = VR(3,M)*IN(M)
-       ELSEIF(N2D.EQ.1) THEN
-C        ANALYSE 2D : Axisymetry
+       ELSEIF(N2D==1) THEN
+C        2D ANALYSIS : Axisymmetry
          XMOM = ZERO
          YMOM = V(2,M)*MS(M)
          ZMOM = V(3,M)*MS(M)
@@ -159,8 +159,8 @@ C
          XXMOM = ZERO
          YYMOM = ZERO
          ZZMOM = VR(3,M)*IN(M)   
-       ELSEIF(N2D.EQ.2) THEN
-C        ANALYSE 2D : Plane strain
+       ELSEIF(N2D==2) THEN
+C        2D ANALYSIS : Plane strain
          XMOM = ZERO
          YMOM = V(2,M)*MS(M)
          ZMOM = V(3,M)*MS(M)
@@ -175,15 +175,15 @@ C
      .             ITAG(1+NUMNOD),NPBYI,RBYI  ,LPBYI ,
      .             PMAIN,ICOMM,WEIGHT,ID    )
 C----------------------------------------------
-C     QUANTITE DE MOUVEMENT +
-C     MISE A ZERO DES MASSES ET INERTIES SECNDS
+C     MOMENTUM +
+C     RESET OF MASSES AND INERTIAS OF SECNDS NODES
 C----------------------------------------------
        IF(N2D==0) THEN
-C        ANALYSE 3D
+C       3D ANALYSIS
         DO I=1,NSN
           N = LPBY(I)
           IF(ITAG(NUMNOD+N) > 0.AND.WEIGHT(N) == 1)THEN
-C noeud main de sous rby
+C main node of secondary rbody
             NI = ITAG(NUMNOD+N)
             F1(I) =  V(1,N)*MS(N)
             F2(I) =  V(2,N)*MS(N)
@@ -191,7 +191,7 @@ C noeud main de sous rby
 c           XMOM = XMOM + V(1,N)*MS(N)
 c           YMOM = YMOM + V(2,N)*MS(N)
 c           ZMOM = ZMOM + V(3,N)*MS(N)
-C MATRICE d'inertie -> repere globale
+C Inertia matrix -> global frame
             II1=RBYI(10,NI)*RBYI(1,NI)
             II2=RBYI(10,NI)*RBYI(2,NI)
             II3=RBYI(10,NI)*RBYI(3,NI)
@@ -231,7 +231,7 @@ c            ZZMOM = ZZMOM + VR(1,N)*IG7 + VR(2,N)*IG8 + VR(3,N)*IG9
 c     .        +(X(1,N)-X(1,M))*V(2,N)*MS(N)
 c     .        -(X(2,N)-X(2,M))*V(1,N)*MS(N)
           ELSEIF(ITAG(NUMNOD+N) == 0.AND.WEIGHT(N) == 1)THEN
-C noeud ni main ni second. de sous rby
+C node neither main nor secondary of secondary rbody
             F1(I) = V(1,N)*MS(N)
             F2(I) = V(2,N)*MS(N)
             F3(I) = V(3,N)*MS(N)
@@ -240,8 +240,8 @@ c            YMOM = YMOM + V(2,N)*MS(N)
 c            ZMOM = ZMOM + V(3,N)*MS(N)
 C
             F4(I) = VR(1,N)*IN(N)
-     .	           +(X(2,N)-X(2,M))*V(3,N)*MS(N)
-     .	           -(X(3,N)-X(3,M))*V(2,N)*MS(N)
+     .             +(X(2,N)-X(2,M))*V(3,N)*MS(N)
+     .             -(X(3,N)-X(3,M))*V(2,N)*MS(N)
             F5(I) = VR(2,N)*IN(N)
      .             +(X(3,N)-X(3,M))*V(1,N)*MS(N)
      .             -(X(1,N)-X(1,M))*V(3,N)*MS(N)
@@ -268,16 +268,16 @@ c     .        -(X(2,N)-X(2,M))*V(1,N)*MS(N)
 C
         ENDDO
        ELSEIF(N2D==1) THEN
-C        ANALYSE 2D : Axisymetry
+C       2D ANALYSIS : Axisymmetry
         DO I=1,NSN
           N = LPBY(I)
           IF(ITAG(NUMNOD+N) > 0.AND.WEIGHT(N) == 1)THEN
-C noeud main de sous rby
+C main node of secondary rbody
             NI = ITAG(NUMNOD+N)
             F1(I) =  V(1,N)*MS(N)
             F2(I) =  V(2,N)*MS(N)
             F3(I) =  V(3,N)*MS(N)
-C MATRICE d'inertie -> repere globale
+C Inertia matrix -> global frame
             IG1=RBYI(10,NI)
             IG5=RBYI(11,NI)
             IG9=RBYI(12,NI)
@@ -285,7 +285,7 @@ C
             F4(I) = VR(1,N)*IG1 
      .             +(X(2,N)-X(2,M))*V(3,N)*MS(N)
      .             -(X(3,N)-X(3,M))*V(2,N)*MS(N)
-            F5(I) = VR(2,N)*IG5 + 
+            F5(I) = VR(2,N)*IG5
      .             +(X(3,N)-X(3,M))*V(1,N)*MS(N)
      .             -(X(1,N)-X(1,M))*V(3,N)*MS(N)
             F6(I) = VR(3,N)*IG9
@@ -293,14 +293,14 @@ C
      .             -(X(2,N)-X(2,M))*V(1,N)*MS(N)
 
           ELSEIF(ITAG(NUMNOD+N) == 0.AND.WEIGHT(N) == 1)THEN
-C noeud ni main ni second. de sous rby
+C node neither main nor secondary of secondary rbody
             F1(I) = V(1,N)*MS(N)
             F2(I) = V(2,N)*MS(N)
             F3(I) = V(3,N)*MS(N)
 C
             F4(I) = VR(1,N)*IN(N)
-     .	           +(X(2,N)-X(2,M))*V(3,N)*MS(N)
-     .	           -(X(3,N)-X(3,M))*V(2,N)*MS(N)
+     .             +(X(2,N)-X(2,M))*V(3,N)*MS(N)
+     .             -(X(3,N)-X(3,M))*V(2,N)*MS(N)
             F5(I) = VR(2,N)*IN(N)
      .             +(X(3,N)-X(3,M))*V(1,N)*MS(N)
      .             -(X(1,N)-X(1,M))*V(3,N)*MS(N)
@@ -318,16 +318,16 @@ C
 C
         ENDDO
        ELSEIF(N2D==2) THEN
-C        ANALYSE 2D : Plane symetry
+C       2D ANALYSIS : Plane symmetry
         DO I=1,NSN
           N = LPBY(I)
           IF(ITAG(NUMNOD+N) > 0.AND.WEIGHT(N) == 1)THEN
-C noeud main de sous rby
+C main node of secondary rbody
             NI = ITAG(NUMNOD+N)
             F1(I) =  ZERO
             F2(I) =  V(2,N)*MS(N)
             F3(I) =  V(3,N)*MS(N)
-C MATRICE d'inertie -> repere globale
+C Inertia matrix -> global frame
             II1=RBYI(10,NI)*RBYI(1,NI)
             II5=RBYI(11,NI)*RBYI(5,NI)
             II6=RBYI(11,NI)*RBYI(6,NI)
@@ -347,7 +347,7 @@ C
             F5(I) = VR(2,N)*IG5 + VR(3,N)*IG6
             F6(I) = VR(2,N)*IG8 + VR(3,N)*IG9
           ELSEIF(ITAG(NUMNOD+N) == 0.AND.WEIGHT(N) == 1)THEN
-C noeud ni main ni second. de sous rby
+C node neither main nor secondary of secondary rbody
             F1(I) = ZERO
             F2(I) = V(2,N)*MS(N)
             F3(I) = V(3,N)*MS(N)
@@ -370,7 +370,8 @@ C
       ENDIF
 C
 C
-C Traitement Parith/ON avant echange
+C Parith/ON treatment before exchange
+C 
 C
          DO K = 1, 6
           RBF6(1,K) = ZERO
@@ -444,13 +445,13 @@ C
 C
       IF(ONFELT == 0.OR.ONFELT == 1)THEN
 C-----------------------
-C     TAG DES NOEUDS SECONDS
+C     Tag of secondary nodes
 C-----------------------
       DO I=1,NSN
        ITAG(LPBY(I))=1
       ENDDO
 C-----------------------
-C     MISE DE OFF A -OFF
+C     OFF SET TO -OFF
 C-----------------------
       DO NG=1,NGROUP
        MLW=IPARG(1,NG)
@@ -459,222 +460,310 @@ C-----------------------
        NFT=IPARG(3,NG)
        IAD=IPARG(4,NG) - 1
        GBUF => ELBUF_TAB(NG)%GBUF
+       IGOF_OLD = IPARG(8,NG)
 C-----------------------
-C     1. ELEMENTS SOLIDES
+C     1. Solid elements
 C-----------------------
-       IF(ITY == 1.AND.MLW /= 0)THEN       ! loi0, pas de off
-        OFFG => ELBUF_TAB(NG)%GBUF%OFF
-        DO I=1,NEL
-         II=I+NFT
-         NALL = ITAG(IXS(2,II)) * ITAG(IXS(3,II)) *
-     +          ITAG(IXS(4,II)) * ITAG(IXS(5,II)) *
-     +          ITAG(IXS(6,II)) * ITAG(IXS(7,II)) *
-     +          ITAG(IXS(8,II)) * ITAG(IXS(9,II))
-         IF(NALL /= 0)THEN
-           IF (ONFELT == 1) THEN
-             OFFG(I) = ABS(OFFG(I))
-             WRITE(IOUT,*)' BRICK ACTIVATION:',IXS(11,II)
-           ELSEIF(ONFELT == 0)THEN
-             OFFG(I) = -ABS(OFFG(I))
-             WRITE(IOUT,*)' BRICK DEACTIVATION:',IXS(11,II)
+       IF(ITY == 1.AND.MLW /= 0)THEN       ! void material, off not used
+         OFFG => ELBUF_TAB(NG)%GBUF%OFF
+         DO I=1,NEL
+           II=I+NFT
+           NALL = ITAG(IXS(2,II)) * ITAG(IXS(3,II)) *
+     +            ITAG(IXS(4,II)) * ITAG(IXS(5,II)) *
+     +            ITAG(IXS(6,II)) * ITAG(IXS(7,II)) *
+     +            ITAG(IXS(8,II)) * ITAG(IXS(9,II))
+           IF(NALL /= 0)THEN
+             OFF_OLD = OFFG(I)
+             IF (ONFELT == 1) THEN
+               OFFG(I) = ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' BRICK ACTIVATION:',IXS(11,II)
+             ELSEIF(ONFELT == 0)THEN
+               OFFG(I) = -ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' BRICK DEACTIVATION:',IXS(11,II)
+             ENDIF
            ENDIF
-         ENDIF
-        ENDDO
+         ENDDO
 C----------------------------------------
-C       TEST POUR L'ELIMINATION D'ONE GROUPE
+C       Test for elimination of the group
 C----------------------------------------
-        IGOF = 1
-        DO I = 1,NEL
-         II=I+NFT
-         IF (OFFG(I) > ZERO) IGOF=0
-        ENDDO
-        IPARG(8,NG) = IGOF
+         IGOF = 1
+         DO I = 1,NEL
+           II=I+NFT
+           IF (OFFG(I) > ZERO) IGOF=0
+         ENDDO
+         IPARG(8,NG) = IGOF
+         IF(IGOF == 1.OR.IGOF /=IGOF_OLD)THEN
+           MX = IPARTS(1+NFT)
+           IF(ONFELT == 1.AND.IGOF_OLD==1)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)- GBUF%EINT(I) 
+             END DO
+           ELSE IF(IGOF == 1.AND.ONFELT == 0)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)+ GBUF%EINT(I) 
+             END DO
+           END IF !(ONFELT == 1)THEN
+         END IF
 C-----------------------
-C     2. ELEMENTS QUADS
+C     2. Quad elements
 C-----------------------
-       ELSEIF(ITY == 2.AND.MLW /= 0)THEN       ! loi0, pas de off
-        OFFG => ELBUF_TAB(NG)%GBUF%OFF
-        DO I=1,NEL
-         II=I+NFT
-         NALL = ITAG(IXQ(2,II)) * ITAG(IXQ(3,II)) *
-     +          ITAG(IXQ(4,II)) * ITAG(IXQ(5,II)) 
-         IF(NALL /= 0)THEN
-           IF (ONFELT == 1) THEN
-             OFFG(I) = ABS(OFFG(I))
-             WRITE(IOUT,*)' QUAD ACTIVATION:',IXQ(7,II)
-           ELSEIF(ONFELT == 0)THEN
-             OFFG(I) = -ABS(OFFG(I))
-             WRITE(IOUT,*)' QUAD DEACTIVATION:',IXQ(7,II)
+       ELSEIF(ITY == 2.AND.MLW /= 0)THEN       ! void material, off not used
+         OFFG => ELBUF_TAB(NG)%GBUF%OFF
+         DO I=1,NEL
+           II=I+NFT
+           NALL = ITAG(IXQ(2,II)) * ITAG(IXQ(3,II)) *
+     +            ITAG(IXQ(4,II)) * ITAG(IXQ(5,II)) 
+           IF(NALL /= 0)THEN
+             OFF_OLD = OFFG(I)
+             IF (ONFELT == 1) THEN
+               OFFG(I) = ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' QUAD ACTIVATION:',IXQ(7,II)
+             ELSEIF(ONFELT == 0)THEN
+               OFFG(I) = -ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' QUAD DEACTIVATION:',IXQ(7,II)
+             ENDIF
            ENDIF
-         ENDIF
-        ENDDO
+         ENDDO
 C----------------------------------------
-C       TEST POUR L'ELIMINATION D'ONE GROUPE
+C       Test for elimination of the group
 C----------------------------------------
-        IGOF = 1
-        DO I = 1,NEL
-         II=I+NFT
-         IF (OFFG(I) > ZERO) IGOF=0
-        ENDDO
-        IPARG(8,NG) = IGOF
+         IGOF = 1
+         DO I = 1,NEL
+           II=I+NFT
+           IF (OFFG(I) > ZERO) IGOF=0
+         ENDDO
+         IPARG(8,NG) = IGOF
+         IF(IGOF == 1.OR.IGOF /=IGOF_OLD)THEN
+           MX = IPARTQ(1+NFT)
+           IF(ONFELT == 1.AND.IGOF_OLD==1)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)- GBUF%EINT(I) 
+             END DO
+           ELSE IF(IGOF == 1.AND.ONFELT == 0)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)+ GBUF%EINT(I) 
+             END DO
+           END IF !(ONFELT == 1)THEN
+         END IF
 C-----------------------
-C     3. ELEMENTS COQUES
+C     3. SHell elements
 C-----------------------
-       ELSEIF(ITY == 3.AND.MLW /= 0)THEN       ! loi0, pas de off
+       ELSEIF(ITY == 3.AND.MLW /= 0)THEN       ! void material, off not used
          OFFG => ELBUF_TAB(NG)%GBUF%OFF
          ISTRAIN = IPARG(44,NG)
          NPT    =  IABS(IPARG(6,NG))
          IHBE   =  IPARG(23,NG)
          DO I=1,NEL
-          II=I+NFT
-          NALL = ITAG(IXC(2,II)) * ITAG(IXC(3,II)) *
-     +           ITAG(IXC(4,II)) * ITAG(IXC(5,II))
-            IF(NALL /= 0)THEN
-              IF(ONFELT == 1)THEN
-                IF (OFFG(I) < ZERO)THEN
-                  OFFG(I) = -OFFG(I)
-                MX = IPARTC(II)
-                PARTSAV(24,MX) = PARTSAV(24,MX)
-     .                         - GBUF%EINT(I) - GBUF%EINT(I+NEL)
-                ENDIF
-                WRITE(IOUT,*)' SHELL ACTIVATION:',IXC(7,II)
-              ELSEIF(ONFELT == 0)THEN
-                IF (OFFG(I) > ZERO) THEN
-                  OFFG(I) = -OFFG(I)
-                MX = IPARTC(II)
-                PARTSAV(24,MX) = PARTSAV(24,MX)
-     .                         + GBUF%EINT(I) + GBUF%EINT(I+NEL)
-              ENDIF
-              WRITE(IOUT,*)' SHELL DEACTIVATION:',IXC(7,II)
-            ENDIF
-          ENDIF
+           II=I+NFT
+           NALL = ITAG(IXC(2,II)) * ITAG(IXC(3,II)) *
+     +            ITAG(IXC(4,II)) * ITAG(IXC(5,II))
+           IF(NALL /= 0)THEN
+             OFF_OLD = OFFG(I)
+             IF(ONFELT == 1)THEN
+               IF (OFFG(I) < ZERO)THEN
+                 OFFG(I) = -OFFG(I)
+               ENDIF
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' SHELL ACTIVATION:',IXC(7,II)
+             ELSEIF(ONFELT == 0)THEN
+               IF (OFFG(I) > ZERO) THEN
+                 OFFG(I) = -OFFG(I)
+               ENDIF
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' SHELL DEACTIVATION:',IXC(7,II)
+             ENDIF
+           ENDIF
          ENDDO
 C----------------------------------------
-C       TEST POUR L'ELIMINATION D'ONE GROUPE
+C       Test for elimination of the group
 C----------------------------------------
-        IGOF = 1
-        DO I = 1,NEL
-          IF (OFFG(I) > ZERO) IGOF=0
-        ENDDO
-        IPARG(8,NG) = IGOF
+         IGOF = 1
+         DO I = 1,NEL
+           IF (OFFG(I) > ZERO) IGOF=0
+         ENDDO
+         IPARG(8,NG) = IGOF
+         IF(IGOF == 1.OR.IGOF /=IGOF_OLD)THEN
+           MX = IPARTC(1+NFT)
+           IF(ONFELT == 1.AND.IGOF_OLD==1)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)- GBUF%EINT(I) - GBUF%EINT(I+NEL)
+             END DO
+           ELSE IF(IGOF == 1.AND.ONFELT == 0)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)+ GBUF%EINT(I) + GBUF%EINT(I+NEL)
+             END DO
+           END IF !(ONFELT == 1)THEN
+         END IF
 C-----------------------
-C     4. ELEMENTS TRUSS
+C     4. Truss elements
 C-----------------------
-       ELSEIF(ITY == 4.AND.(IACTS == 1.OR.CODVERS.GE.44))THEN
-        OFFG => ELBUF_TAB(NG)%GBUF%OFF
-        DO I=1,NEL
-         II=I+NFT
-         NALL = ITAG(IXT(2,II)) * ITAG(IXT(3,II))
-         IF(NALL /= 0)THEN
-           IF(ONFELT == 1)THEN
-             OFFG(I) = ABS(OFFG(I))
-             WRITE(IOUT,*)' TRUSS ACTIVATION:',IXT(5,II)
-           ELSEIF(ONFELT == 0)THEN
-             OFFG(I) = -ABS(OFFG(I))
-             WRITE(IOUT,*)' TRUSS DEACTIVATION:',IXT(5,II)
+       ELSEIF(ITY == 4.AND.(IACTS == 1.OR.CODVERS>=44))THEN
+         OFFG => ELBUF_TAB(NG)%GBUF%OFF
+         DO I=1,NEL
+           II=I+NFT
+           NALL = ITAG(IXT(2,II)) * ITAG(IXT(3,II))
+           IF(NALL /= 0)THEN
+             OFF_OLD = OFFG(I)
+             IF(ONFELT == 1)THEN
+               OFFG(I) = ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' TRUSS ACTIVATION:',IXT(5,II)
+             ELSEIF(ONFELT == 0)THEN
+               OFFG(I) = -ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' TRUSS DEACTIVATION:',IXT(5,II)
+             ENDIF
            ENDIF
-         ENDIF
-        ENDDO
+         ENDDO
 C----------------------------------------
-C       TEST POUR L'ELIMINATION D'ONE GROUPE
+C       Test for elimination of the group
 C----------------------------------------
-C Imcompatible avec option de gap dans propriete de truss
+C Incompatible with gap option in truss property
 C        IGOF = 1
 C        DO I = 1,NEL
 C         IF(ELBUF(IAD + I) /= ZERO) IGOF=0
 C        ENDDO
 C        IPARG(8,NG) = IGOF
 C-----------------------
-C     5. ELEMENTS POUTRES
+C     5. Beam elements
 C-----------------------
-       ELSEIF(ITY == 5.AND.(IACTS == 1.OR.CODVERS.GE.44))THEN
-        OFFG => ELBUF_TAB(NG)%GBUF%OFF
-        DO I=1,NEL
-         II=I+NFT
-         NALL = ITAG(IXP(2,II)) * ITAG(IXP(3,II))
-         IF(NALL /= 0)THEN
-           IF(ONFELT == 1)THEN
-             OFFG(I) = ABS(OFFG(I))
-             WRITE(IOUT,*)' BEAM ACTIVATION:',IXP(6,II)
-           ELSEIF(ONFELT == 0)THEN
-             OFFG(I) = -ABS(OFFG(I))
-             WRITE(IOUT,*)' BEAM DEACTIVATION:',IXP(6,II)
+       ELSEIF(ITY == 5.AND.(IACTS == 1.OR.CODVERS>=44))THEN
+         OFFG => ELBUF_TAB(NG)%GBUF%OFF
+         DO I=1,NEL
+           II=I+NFT
+           NALL = ITAG(IXP(2,II)) * ITAG(IXP(3,II))
+           IF(NALL /= 0)THEN
+             OFF_OLD = OFFG(I)
+             IF(ONFELT == 1)THEN
+               OFFG(I) = ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' BEAM ACTIVATION:',IXP(6,II)
+             ELSEIF(ONFELT == 0)THEN
+               OFFG(I) = -ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' BEAM DEACTIVATION:',IXP(6,II)
+             ENDIF
            ENDIF
-         ENDIF
-        ENDDO
+         ENDDO
 C----------------------------------------
-C       TEST POUR L'ELIMINATION D'ONE GROUPE
+C        Test for elimination of the group
 C----------------------------------------
-        IGOF = 1
-        DO I = 1,NEL
-          IF (OFFG(I) > ZERO) IGOF=0
-        ENDDO
-        IPARG(8,NG) = IGOF
+         IGOF = 1
+         DO I = 1,NEL
+           IF (OFFG(I) > ZERO) IGOF=0
+         ENDDO
+         IPARG(8,NG) = IGOF
+         IF(IGOF == 1.OR.IGOF /=IGOF_OLD)THEN
+           MX = IPARTP(1+NFT)
+           IF(ONFELT == 1.AND.IGOF_OLD==1)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)- GBUF%EINT(I) - GBUF%EINT(I+NEL)
+             END DO
+           ELSE IF(IGOF == 1.AND.ONFELT == 0)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)+ GBUF%EINT(I) + GBUF%EINT(I+NEL)
+             END DO
+           END IF !(ONFELT == 1)THEN
+         END IF
 C-----------------------
-C     6. ELEMENTS RESSORTS
+C     6. Spring elements
 C-----------------------
        ELSEIF(ITY == 6.AND.MLW /= 3.AND.
-     .        (IACTS == 1.OR.CODVERS.GE.44))THEN
-        OFFG => ELBUF_TAB(NG)%GBUF%OFF
-        DO I=1,NEL
-         II=I+NFT
-         NALL = ITAG(IXR(2,II)) * ITAG(IXR(3,II))
-         IF(NALL /= 0)THEN
-           IF(ONFELT == 1)THEN
-             IF (OFFG(I) /= -TEN)
-C               spring is active
-     .          OFFG(I)= ABS(OFFG(I))
-             WRITE(IOUT,*)' SPRING ACTIVATION:',IXR(NIXR,II)
-           ELSEIF(ONFELT == 0)THEN
-             IF (OFFG(I) /= -TEN)
-C               spring is active
-     .          OFFG(I) = -ABS(OFFG(I))
-             WRITE(IOUT,*)' SPRING DEACTIVATION:',IXR(NIXR,II)
+     .        (IACTS == 1.OR.CODVERS>=44))THEN
+         OFFG => ELBUF_TAB(NG)%GBUF%OFF
+         DO I=1,NEL
+           II=I+NFT
+           NALL = ITAG(IXR(2,II)) * ITAG(IXR(3,II))
+           IF(NALL /= 0)THEN
+             OFF_OLD = OFFG(I)
+             IF(ONFELT == 1)THEN
+               IF (OFFG(I) /= -TEN)
+C                spring is active
+     .           OFFG(I)= ABS(OFFG(I))
+                 IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .              WRITE(IOUT,*)' SPRING ACTIVATION:',IXR(NIXR,II)
+             ELSEIF(ONFELT == 0)THEN
+               IF (OFFG(I) /= -TEN)
+C                spring is active
+     .           OFFG(I) = -ABS(OFFG(I))
+                 IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .              WRITE(IOUT,*)' SPRING DEACTIVATION:',IXR(NIXR,II)
+             ENDIF
            ENDIF
-         ENDIF
-        ENDDO
+         ENDDO
 C----------------------------------------
-C       TEST POUR L'ELIMINATION D'ONE GROUPE
+C        Test for elimination of the group
 C----------------------------------------
-        IGOF = 1
-        DO I = 1,NEL
-          IF(OFFG(I) /= ZERO) IGOF=0
-        ENDDO
-        IPARG(8,NG) = IGOF
+         IGOF = 1
+         DO I = 1,NEL
+           IF(OFFG(I) /= ZERO) IGOF=0
+         ENDDO
+         IPARG(8,NG) = IGOF
+         IF(IGOF == 1.OR.IGOF /=IGOF_OLD)THEN
+           MX = IPARTR(1+NFT)
+           IF(ONFELT == 1.AND.IGOF_OLD==1)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)- GBUF%EINT(I) 
+             END DO
+           ELSE IF(IGOF == 1.AND.ONFELT == 0)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)+ GBUF%EINT(I) 
+             END DO
+           END IF !(ONFELT == 1)THEN
+         END IF
 C-----------------------
-C     7. ELEMENTS COQUES 3N
+C     7. SH3N elements
 C-----------------------
-       ELSEIF (ITY == 7 .AND. MLW /= 0) THEN       ! loi0, pas de off
+       ELSEIF (ITY == 7 .AND. MLW /= 0) THEN       ! void material, off not used
          OFFG => ELBUF_TAB(NG)%GBUF%OFF
          ISTRAIN = IPARG(44,NG)
          NPT    =  IABS(IPARG(6,NG))
          DO I=1,NEL
-          II=I+NFT
-          NALL = ITAG(IXTG(2,II)) * ITAG(IXTG(3,II)) *
-     +           ITAG(IXTG(4,II))
-            IF(NALL /= 0)THEN
-              IF (ONFELT == 1) THEN
-                OFFG(I) = ABS(OFFG(I))
-              WRITE(IOUT,*)' SH_3N ACTIVATION:',IXTG(6,II)
-              ELSEIF(ONFELT == 0)THEN
-                OFFG(I) = -ABS(OFFG(I))
-              WRITE(IOUT,*)' SH_3N DEACTIVATION:',IXTG(6,II)
-            ENDIF
-          ENDIF
+           II=I+NFT
+           NALL = ITAG(IXTG(2,II)) * ITAG(IXTG(3,II)) *
+     +            ITAG(IXTG(4,II))
+           IF(NALL /= 0)THEN
+             OFF_OLD = OFFG(I)
+             IF (ONFELT == 1) THEN
+               OFFG(I) = ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' SH_3N ACTIVATION:',IXTG(6,II)
+             ELSEIF(ONFELT == 0)THEN
+               OFFG(I) = -ABS(OFFG(I))
+               IF ((PRI_OFF==0).OR.(OFF_OLD*OFFG(I)<ZERO))
+     .            WRITE(IOUT,*)' SH_3N DEACTIVATION:',IXTG(6,II)
+             ENDIF
+           ENDIF
          ENDDO
 C----------------------------------------
-C       TEST POUR L'ELIMINATION D'ONE GROUPE
+C        Test for elimination of the group
 C----------------------------------------
         IGOF = 1
         DO I = 1,NEL
           IF (OFFG(I) > ZERO) IGOF=0
         ENDDO
         IPARG(8,NG) = IGOF
+         IF(IGOF == 1.OR.IGOF /=IGOF_OLD)THEN
+           MX = IPARTG(1+NFT)
+           IF(ONFELT == 1.AND.IGOF_OLD==1)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)- GBUF%EINT(I) - GBUF%EINT(I+NEL)
+             END DO
+           ELSE IF(IGOF == 1.AND.ONFELT == 0)THEN
+             DO I=1,NEL
+               PARTSAV(24,MX) = PARTSAV(24,MX)+ GBUF%EINT(I) + GBUF%EINT(I+NEL)
+             END DO
+           END IF !(ONFELT == 1)THEN
+         END IF
 C----------------------------------------
        ENDIF
       ENDDO
 C-----------------------
-C     RESET TAG DES NOEUDS SECONDS
+C     Rest of tag of secondary nodes
 C-----------------------
       DO I=1,NSN
        ITAG(LPBY(I))=0
@@ -684,7 +773,7 @@ C-----------------------
 C
  100  CONTINUE
       IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les elts active ou desactive dans l'ordre
+C Treatment needed to get active and inative elements in the right order 
         IWIOUT = 0
         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
         CALL SPMD_GLOB_ISUM9(IWIOUT,1)

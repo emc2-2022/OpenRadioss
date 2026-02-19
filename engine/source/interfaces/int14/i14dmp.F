@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I14DMP                        source/interfaces/int14/i14dmp.F
-Chd|-- called by -----------
-Chd|        I14CMP                        source/interfaces/int14/i14cmp.F
-Chd|-- calls ---------------
-Chd|        NINTERP                       source/interfaces/int14/ninterp.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i14dmp         ../engine/source/interfaces/int14/i14dmp.F
+!||--- called by ------------------------------------------------------
+!||    i14cmp         ../engine/source/interfaces/int14/i14cmp.F
+!||--- calls      -----------------------------------------------------
+!||    ninterp        ../engine/source/interfaces/int14/ninterp.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||====================================================================
       SUBROUTINE I14DMP(X      ,V      ,KSURF  ,IGRSURF,BUFSF ,
      2                  NSC    ,KSC    ,NSP    ,KSP    ,KSI   ,
      3                  IMPACT ,CIMP   ,NIMP   ,VISC  ,NDAMP1 ,
@@ -49,9 +50,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -82,7 +80,6 @@ C-----------------------------------------------
      .   XPV(3,MVSIZ),NV(3,MVSIZ),FNPV(MVSIZ),VIS(MVSIZ),
      .   VISC1(MVSIZ),VISC2(MVSIZ),VN(MVSIZ)
 C-----------------------------------------------
-C-----------------------------------------------
       ADRBUF=IGRSURF(KSURF)%IAD_BUFR
 C-----------------------------------------------
       A =BUFSF(ADRBUF+1)
@@ -99,12 +96,11 @@ C-----------------------------------------------
        ROT(I)=BUFSF(ADRBUF+7+I-1)
       END DO
 C-----------------------------------------------
-C-----------------------------------------------
-C     Noeud main dans le repere de l'ellipsoide :
-C     pour calcul de l'amortissement.
-C     la position (el les vitesses) du noeud main sont transmises 
-C     par l'objet qui utilise la surface (Rigid Body)
-C     - dans le Starter au Temps TT=0.
+C     main node in the ellipsoid frame:
+C     for damping calculation
+C     the position (and velocities) of the main node are transmitted
+C     by the object using the surface (rigid body)
+C     - in the starter at time tt=0.
 C-----------------------------------------------
       X1=BUFSF(ADRBUF+16)-BUFSF(ADRBUF+4)
       X2=BUFSF(ADRBUF+17)-BUFSF(ADRBUF+5)
@@ -113,7 +109,7 @@ C-----------------------------------------------
       YM=ROT(4)*X1+ROT(5)*X2+ROT(6)*X3
       ZM=ROT(7)*X1+ROT(8)*X2+ROT(9)*X3
 C-----------------------------------------------
-C     Vitesse du noeud main en local.
+C     main node velocity locally.
 C-----------------------------------------------
       V1=BUFSF(ADRBUF+19)
       V2=BUFSF(ADRBUF+20)
@@ -122,7 +118,7 @@ C-----------------------------------------------
       VYM=ROT(4)*V1+ROT(5)*V2+ROT(6)*V3
       VZM=ROT(7)*V1+ROT(8)*V2+ROT(9)*V3
 C-----------------------------------------------
-C     Vitesse  de rotation du noeud main en local.
+C     rotation velocity of the main node in local coordinates
 C-----------------------------------------------
       V1=BUFSF(ADRBUF+22)
       V2=BUFSF(ADRBUF+23)
@@ -146,23 +142,23 @@ C-------------------------------
       NV(3,I) =NIMP(3,IL)
       ENDDO
 C------------------------------------------------
-C     Coefficient d'amortissement :
-C     F(VITESSE NORMALE) * G(FORCE NORMALE LOCALE)
+C     Depreciation coefficient:
+C     F(VELOCITY NORMALE) * G(FORCE NORMALE LOCALE)
 C-----------------------------------------------
-      IF (NDAMP1.EQ.0 .AND. NDAMP2.EQ.0) THEN
+      IF (NDAMP1==0 .AND. NDAMP2==0) THEN
 C---------------------------------
        DO I=1,MIN(MVSIZ,NREST)
         IL=KSC(I+NDEB)
         IN=KSI(IL)
         VIS(I) = VISC*2.*SQRT(STF*MS(IN))
        ENDDO
-      ELSEIF (NDAMP1.EQ.0) THEN
+      ELSEIF (NDAMP1==0) THEN
 C---------------------------------
        CALL NINTERP(NDAMP2,NPC,PLD,MIN(MVSIZ,NREST),FNPV,VISC2)
        DO I=1,MIN(MVSIZ,NREST)
         VIS(I)=VISC*VISC2(I)
        ENDDO
-      ELSEIF (NDAMP2.EQ.0) THEN
+      ELSEIF (NDAMP2==0) THEN
 C---------------------------------
        DO I=1,MIN(MVSIZ,NREST)
         IL=KSC(I+NDEB)
@@ -193,14 +189,14 @@ C---------------------------------
        ENDDO
       ENDIF
 C------------------------------------------------
-C     Amortissement :
+C     Depreciation:
 C-----------------------------------------------
 #include "vectorize.inc"
       DO I=1,MIN(MVSIZ,NREST)
       IL=KSC(I+NDEB)
       IN=KSI(IL)
 C-------------------------------
-      IF (IMPACT(IL).GT.0) THEN
+      IF (IMPACT(IL)>0) THEN
         XI=CIMP(1,IL)+GAPMIN*NIMP(1,IL)
         YI=CIMP(2,IL)+GAPMIN*NIMP(2,IL)
         ZI=CIMP(3,IL)+GAPMIN*NIMP(3,IL)
@@ -226,7 +222,7 @@ C-------------------------------
       END IF
       ENDDO
 C---------------------------------
-      IF (NREST-MVSIZ.GT.0) THEN
+      IF (NREST-MVSIZ>0) THEN
         NREST=NREST-MVSIZ
         NDEB =NDEB +MVSIZ
         GOTO 100
@@ -247,23 +243,23 @@ C-------------------------------
       NV(3,I) =NIMP(3,IL)
       ENDDO
 C------------------------------------------------
-C     Coefficient d'amortissement :
-C     F(VITESSE NORMALE) * G(FORCE NORMALE LOCALE)
+C     Depreciation coefficient:
+C     F(VELOCITY NORMALE) * G(FORCE NORMALE LOCALE)
 C-----------------------------------------------
-      IF (NDAMP1.EQ.0 .AND. NDAMP2.EQ.0) THEN
+      IF (NDAMP1==0 .AND. NDAMP2==0) THEN
 C---------------------------------
        DO I=1,MIN(MVSIZ,NREST)
         IL=KSP(I+NDEB)
         IN=KSI(IL)
         VIS(I) = VISC*TWO*SQRT(STF*MS(IN))
        ENDDO
-      ELSEIF (NDAMP1.EQ.0) THEN
+      ELSEIF (NDAMP1==0) THEN
 C---------------------------------
        CALL NINTERP(NDAMP2,NPC,PLD,MIN(MVSIZ,NREST),FNPV,VISC2)
        DO I=1,MIN(MVSIZ,NREST)
         VIS(I)=VISC*VISC2(I)
        ENDDO
-      ELSEIF (NDAMP2.EQ.0) THEN
+      ELSEIF (NDAMP2==0) THEN
 C---------------------------------
        DO I=1,MIN(MVSIZ,NREST)
         IL=KSP(I+NDEB)
@@ -294,7 +290,7 @@ C---------------------------------
        ENDDO
       ENDIF
 C------------------------------------------------
-C     Amortissement :
+C     Depreciation:
 C-----------------------------------------------
 #include "vectorize.inc"
       DO I=1,MIN(MVSIZ,NREST)
@@ -323,7 +319,7 @@ C-------------------------------
         WST(IN)  = VIS(I)
       ENDDO
 C---------------------------------
-      IF (NREST-MVSIZ.GT.0) THEN
+      IF (NREST-MVSIZ>0) THEN
         NREST=NREST-MVSIZ
         NDEB =NDEB +MVSIZ
         GOTO 200

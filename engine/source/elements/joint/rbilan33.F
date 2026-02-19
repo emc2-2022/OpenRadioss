@@ -1,35 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RBILAN33                      source/elements/joint/rbilan33.F
-Chd|-- called by -----------
-Chd|        RGJOINT                       source/elements/joint/rgjoint.F
-Chd|-- calls ---------------
-Chd|        GRELEM_SAV                    source/output/th/grelem_sav.F 
-Chd|====================================================================
-      SUBROUTINE RBILAN33(JFT    ,JLT    ,EINT   ,PARTSAV,UMAS ,
-     .                    V      ,IPARTR ,GRESAV ,GRTH   ,IGRTH,
-     .                    NC1    ,NC2    )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rbilan33     ../engine/source/elements/joint/rbilan33.F
+!||--- called by ------------------------------------------------------
+!||    rgjoint      ../engine/source/elements/joint/rgjoint.F
+!||--- calls      -----------------------------------------------------
+!||    grelem_sav   ../engine/source/output/th/grelem_sav.F
+!||====================================================================
+      SUBROUTINE RBILAN33(
+     1   JFT,     JLT,     EINT,    PARTSAV,
+     2   UMAS,    V,       IPARTR,  GRESAV,
+     3   GRTH,    IGRTH,   NC1,     NC2,
+     4   IGRE)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -43,13 +45,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com06_c.inc"
-#include      "scr11_c.inc"
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: IGRE
       INTEGER JFT,JLT, IPARTR(*),GRTH(*),IGRTH(*),NC1(*),NC2(*)
       my_real UMAS(*),EINT(*),PARTSAV(NPSAV,*),V(3,*),GRESAV(*)
 C-----------------------------------------------
@@ -69,9 +69,8 @@ C-----------------------------------------------
         REINTT=REINTT + EINT(I)
       ENDDO
 C
-#include "atomic.inc"
+!$OMP ATOMIC
         REINT = REINT + REINTT
-#include "atomend.inc"
 C
       DO I=JFT,JLT
         XMAS2=UMAS(I)*HALF

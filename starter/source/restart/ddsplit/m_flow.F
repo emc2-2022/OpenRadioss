@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  M_FLOW                        source/restart/ddsplit/m_flow.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    m_flow    ../starter/source/restart/ddsplit/m_flow.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit   ../starter/source/restart/ddsplit/ddsplit.F
+!||====================================================================
       SUBROUTINE M_FLOW(IFLOW, IFLOW_L, NODLOCAL, P, MEMFLOW)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -47,7 +46,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, IADI, IADJ, NINOUT, NNO, NEL, NNN, IADL, NNO_L, J,
-     .        JJ, J1, J2, J3, PJ1, PJ2, PJ3, IADMATI, IADMATR, ITYP,
+     .        JJ, IADMATI, IADMATR, ITYP,
      .        NR, NC, NPROW, NPCOL, NNR_P, NNC_P, NNE_P, NBLOC,
      .        NNN_L
       INTEGER JFORM
@@ -59,6 +58,7 @@ C
       IADI=0
       IADMATI=1
       IADMATR=1
+      IADL = 0
       DO I=1,NFLOW
          ITYP =IFLOW(IADI+2)
          NNO  =IFLOW(IADI+5)
@@ -66,8 +66,8 @@ C
          NBLOC=IFLOW(IADI+12)
          NPROW=IFLOW(IADI+18)
          NPCOL=IFLOW(IADI+19)
-		 
-         IF (ITYP.EQ.1) THEN
+           
+         IF (ITYP==1) THEN
             NINOUT=IFLOW(IADI+4)
             NNN=IFLOW(IADI+7)
 C
@@ -77,7 +77,7 @@ C
             DO J=1,NNO
                JJ=IFLOW(IADI+NIFLOW+J)
                IFLOW_L(IADI+NIFLOW+J)=NODLOCAL(JJ)   ! IBUF
-               IF (NODLOCAL(JJ).NE.0) THEN
+               IF (NODLOCAL(JJ)/=0) THEN
                   NNO_L=NNO_L+1
                   IF(NSPMD == 1) THEN
                     IFLOW_L(IADL+NNO_L)=J  ! IBUFL
@@ -91,7 +91,7 @@ C
             DO J=1,NNN
                JJ=IFLOW(IADJ+J)
                IFLOW_L(IADJ+J)=NODLOCAL(JJ) ! IBUFI
-               IF (NODLOCAL(JJ).GT.0) THEN
+               IF (NODLOCAL(JJ)>0) THEN
                   NNN_L=NNN_L+1
                   IF(NSPMD == 1) THEN
                     IFLOW_L(IADL+NNO+NNN_L)=J  ! IBUFIL
@@ -107,7 +107,7 @@ C
               NC=P-(NR-1)*NPCOL
               NNR_P=0
               DO J=1,NNO
-                 IF (IFLOW(IADL+J).EQ.NR) THEN
+                 IF (IFLOW(IADL+J)==NR) THEN
                     NNR_P=NNR_P+1
                     IFLOW_L(IADL+J)=1   ! IBUFR
                  ELSE
@@ -116,7 +116,7 @@ C
               ENDDO
               NNC_P=0
               DO J=1,NNO
-                 IF (IFLOW(IADL+NNO+J).EQ.NC) THEN
+                 IF (IFLOW(IADL+NNO+J)==NC) THEN
                     NNC_P=NNC_P+1
                     IFLOW_L(IADL+NNO+J)=1  ! IBUFC
                  ELSE
@@ -125,7 +125,7 @@ C
               ENDDO
               IADL=IADL+4*NNO+2*NNN
               DO J=1,NEL
-                 IF (IFLOW(IADL+J).EQ.NR) THEN
+                 IF (IFLOW(IADL+J)==NR) THEN
                     IFLOW_L(IADL+J)=1   ! IBUFELR
                  ELSE
                     IFLOW_L(IADL+J)=0
@@ -133,7 +133,7 @@ C
               ENDDO
               NNE_P=0
               DO J=1,NEL
-                 IF (IFLOW(IADL+NEL+J).EQ.NC) THEN
+                 IF (IFLOW(IADL+NEL+J)==NC) THEN
                     NNE_P=NNE_P+1
                     IFLOW_L(IADL+NEL+J)=1   ! IBUFELC
                  ELSE
@@ -165,7 +165,7 @@ C
             DO J=1,NNO
                JJ=IFLOW(IADI+NIFLOW+J)
                IFLOW_L(IADI+NIFLOW+J)=NODLOCAL(JJ)  ! IBUF
-               IF (NODLOCAL(JJ).NE.0) THEN
+               IF (NODLOCAL(JJ)/=0) THEN
                   NNO_L=NNO_L+1
                   IFLOW_L(IADL+NNO_L)=J  ! IBUFL
                ENDIF
@@ -179,7 +179,7 @@ C
               IF(JFORM == 2) IADL=IADL+NNO+NBGAUGE+NNO+NEL
               NNR_P=0
               DO J=1,NEL
-                 IF (IFLOW(IADL+J).EQ.NR) THEN
+                 IF (IFLOW(IADL+J)==NR) THEN
                     NNR_P=NNR_P+1
                     IFLOW_L(IADL+J)=1   ! IBUFELR
                  ELSE
@@ -189,7 +189,7 @@ C
               IADL=IADL+NEL
               NNC_P=0
               DO J=1,NEL
-                 IF (IFLOW(IADL+J).EQ.NC) THEN
+                 IF (IFLOW(IADL+J)==NC) THEN
                     NNC_P=NNC_P+1
                     IFLOW_L(IADL+J)=1   ! IBUFELC
                  ELSE
@@ -202,7 +202,7 @@ C
                  WRITE(IOUT,'(4X,A)') 'PROC  NB OF ROWS  NB OF COLUMNS'
               ENDIF
               WRITE(IOUT,'(3I10)') P,NNR_P,NNC_P
-			  
+            
               IFLOW_L(IADI+8) = NNR_P+NBLOC
               IFLOW_L(IADI+9) = NNR_P*NNC_P
               IFLOW_L(IADI+10)= IADMATI

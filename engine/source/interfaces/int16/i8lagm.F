@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I8LAGM                        source/interfaces/int16/i8lagm.F
-Chd|-- called by -----------
-Chd|        I16MAIN                       source/interfaces/int16/i16main.F
-Chd|-- calls ---------------
-Chd|        I8LLL                         source/interfaces/int16/i8lagm.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i8lagm        ../engine/source/interfaces/int16/i8lagm.F
+!||--- called by ------------------------------------------------------
+!||    i16main       ../engine/source/interfaces/int16/i16main.F
+!||--- calls      -----------------------------------------------------
+!||    i8lll         ../engine/source/interfaces/int16/i8lagm.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE I8LAGM(X      ,V      ,LLL    ,JLL     ,SLL   ,
      2                  XLL    ,CANDN  ,CANDE  ,I_STOK  ,IXS   ,
      3                  IADLL  ,EMINX  ,NSV    ,NELEM   ,
      4                  N_MUL_MX,ITASK ,A       ,ITIED ,
      5                  NINT   ,NKMAX  ,COMNTAG)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -44,15 +47,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "warn_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "param_c.inc"
-#include      "couple_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -66,17 +62,16 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,IK,IE,IS,IC,NK,III(MVSIZ,9),LLT,NFT,LE,FIRST,LAST,
-     .        I8
+      INTEGER I, K, IE, IS, IC, III(MVSIZ, 9), LLT, NFT, LE, FIRST, LAST
       my_real
      .   XX(MVSIZ,9),YY(MVSIZ,9),ZZ(MVSIZ,9),
-     .   AA,XMIN,YMIN,ZMIN,XMAX,YMAX,ZMAX,DIST
+     . DIST
 C-----------------------------------------------
 C
 C
 C       | M | Lt| | a    | M ao
 C       |---+---| |    = |
-C       | L | 0 | | la   | bo
+C       | l | 0 | | la   | bo
 C
 C        [M] a + [L]t la = [M] ao
 C        [L] a = bo
@@ -88,12 +83,12 @@ C on pose:
 C        [H] = [L][M]-1[L]t
 C        b  = [L] ao - bo
 C
-C        [H] la = b
+C        [h] la = b
 C
 C        a = ao - [M]-1[L]t la
 C-----------------------------------------------
 C
-C        la              : LAMBDA(NC)
+C        la              : lambda(nc)
 C        ao              : A(NUMNOD)
 C        L               : XLL(NK,NC)
 C        M               : MAS(NUMNOD)
@@ -101,17 +96,17 @@ C        [L][M]-1[L]t la : HLA(NC)
 C        [L] ao - b      : B(NC)
 C        [M]-1[L]t la    : LTLA(NUMNOD)
 C
-C        NC : nombre de contact 
-C        NK : nombre de noeud pour un contact (8+1,16+1,8+8,16+16)
+C        nc: number of contacts
+C        NK: Number of node for contact (8+1.16+1.8+8.16+16)
 C
-C        IC : numero du contact (1,NC)
-C        IK : numero de noeud local a un contact (1,NK)
-C        I  : numero global du noeud (1,NUMNOD)
+C        IC : contact number (1,NC)
+C        IK : local node number for a contact (1,NK)
+C        I  : global node number (1,NUMNOD)
 C
 C        IADLL(NC)        : IAD = IADLL(IC)
 C        LLL(NC*(9,27))  : I  = LLL(IAD+1,2...IADNEXT-1)
 C-----------------------------------------------
-C  evaluation de b:
+C  evaluation of b:
 C
 C         Vs = Somme(Ni Vi)
 C         Vs_ + dt As = Somme(Ni Vi_) + Somme(dt Ni Ai)
@@ -124,7 +119,7 @@ C-----------------------------------------------
 C                 b  = [L] vo+/dt   +   vout
 C-----------------------------------------------
 C-----------------------------------------------------------------------
-C     boucle sur les candidats au contact   
+C     loop over contact candidates
 C-----------------------------------------------------------------------
       FIRST = 1 + I_STOK * ITASK / NTHREAD
       LAST = I_STOK*(ITASK+1) / NTHREAD
@@ -146,11 +141,11 @@ C-----------------------------------------------------------------------
         DIST = MAX(EMINX(3,LE)-X(3,IS)-DT2*(V(3,IS)+DT12*A(3,IS)),
      .             X(3,IS)+DT2*(V(3,IS)+DT12*A(3,IS))-EMINX(6,LE),DIST)
 C-----------------------------------------------------------------------
-C       test si dans la boite   
+C       test if inside the box
 C-----------------------------------------------------------------------
         IF(DIST.LE .ZERO)THEN
 c
-c      print *, "dans la boite",XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX
+c      print *, "in la boite",XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX
 c
           LLT = LLT+1
           III(LLT,9)=IS
@@ -168,9 +163,9 @@ c
 c      print *, "XX(1,1),XX(1,9)",XX(1,1),XX(1,9)
 c
 C-----------------------------------------------------------------------
-C     calcul de  [L] par paquet de mvsiz   
+C     calculation of [l] by mvsiz packet
 C-----------------------------------------------------------------------
-          IF(LLT.EQ.MVSIZ-1)THEN
+          IF(LLT==MVSIZ-1)THEN
             CALL I8LLL(
      1       LLT ,LLL       ,JLL       ,SLL       ,XLL     ,V       ,
      2       XX  ,YY        ,ZZ        ,III       ,IADLL   ,
@@ -186,9 +181,9 @@ c debug
        ENDIF
       ENDDO
 C-----------------------------------------------------------------------
-C     calcul de  [L] pour dernier paquet   
+C     calculation of [l] for the last packet
 C-----------------------------------------------------------------------
-      IF(LLT.NE.0) CALL I8LLL(
+      IF(LLT/=0) CALL I8LLL(
      1       LLT ,LLL       ,JLL       ,SLL       ,XLL     ,V       ,
      2       XX  ,YY        ,ZZ        ,III       ,IADLL   ,
      3       N_MUL_MX ,A    ,X         ,ITIED     ,NINT    ,NKMAX   ,
@@ -197,16 +192,17 @@ C
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I8LLL                         source/interfaces/int16/i8lagm.F
-Chd|-- called by -----------
-Chd|        I8LAGM                        source/interfaces/int16/i8lagm.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        I8RST                         source/interfaces/int16/i8lagm.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i8lll         ../engine/source/interfaces/int16/i8lagm.F
+!||--- called by ------------------------------------------------------
+!||    i8lagm        ../engine/source/interfaces/int16/i8lagm.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||    i8rst         ../engine/source/interfaces/int16/i8lagm.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I8LLL(LLT  ,LLL       ,JLL  ,SLL  ,XLL  ,V     ,
      2                  XX   ,YY        ,ZZ   ,III  ,IADLL ,
      3                  N_MUL_MX,A      ,X    ,ITIED,NINT ,NKMAX ,
@@ -228,7 +224,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com08_c.inc"
-#include      "units_c.inc"
       COMMON /LAGGLOB/N_MULT
       INTEGER N_MULT
 C-----------------------------------------------
@@ -245,7 +240,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,IK,NK,I1,I2,I3,I4,IAD,NN
+      INTEGER I, IK, NK, IAD, NN
       my_real
      .   VX,VY,VZ,VN,AA
       my_real
@@ -253,7 +248,7 @@ C-----------------------------------------------
      .   NX(MVSIZ), NY(MVSIZ), NZ(MVSIZ),
      .   NI(MVSIZ,9) 
 C-----------------------------------------------
-C      calcul de r,s,t
+C      calculation de r,s,t
 C-----------------------------------------------
 c
 c      print *, "XX(1,1),XX(1,9)",XX(1,1),XX(1,9)
@@ -261,15 +256,15 @@ c
       CALL I8RST(LLT   ,R     ,S     ,T     ,NI    ,
      2            NX    ,NY    ,NZ    ,XX    ,YY    ,ZZ    )
 C-----------------------------------------------
-C      calcul de [L]
+C      calculation of [l]
 C-----------------------------------------------
-      IF(ITIED.EQ.0)THEN
+      IF(ITIED==0)THEN
        DO I=1,LLT
 C-----------------------------------------------
-C       test si contact
+C       Test if contact
 C-----------------------------------------------
-        IF(R(I).GE.-ONE.AND.S(I).GE.-ONE.AND.T(I).GE.-ONE.AND.
-     .     R(I).LE. ONE.AND.S(I).LE. ONE.AND.T(I).LE. ONE)THEN
+        IF(R(I)>=-ONE.AND.S(I)>=-ONE.AND.T(I)>=-ONE.AND.
+     .     R(I)<= ONE.AND.S(I)<= ONE.AND.T(I)<= ONE)THEN
 C
           NK = 9
           VX = ZERO
@@ -286,11 +281,11 @@ c      print *, "nx,ny,nz ", NX(I),NY(I),NZ(I)
 c
           VN = NX(I)*VX + NY(I)*VY + NZ(I)*VZ
 C-----------------------------------------------
-C         test si vitesse entrante en s
+C         Test if incoming velocity in S
 C-----------------------------------------------
-          IF(S(I)*VN.LE.ZERO)THEN
+          IF(S(I)*VN<=ZERO)THEN
 c
-c      print *, "vitesse entrante",vn
+c      print *, "velocity entrante",vn
 c      print *, "s = ",S(I)
 c
 c           AA = DT12/SQRT(NX(I)*NX(I)+NY(I)*NY(I)+NZ(I)*NZ(I))
@@ -300,13 +295,13 @@ c           AA = DT12/SQRT(NX(I)*NX(I)+NY(I)*NY(I)+NZ(I)*NZ(I))
            NZ(I) = NZ(I)*AA
 #include "lockon.inc"
             N_MULT=N_MULT+1
-            IF(N_MULT.GT.N_MUL_MX)THEN
+            IF(N_MULT>N_MUL_MX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
             IADLL(N_MULT+1)=IADLL(N_MULT) + 27
-            IF(IADLL(N_MULT+1)-1.GT.NKMAX)THEN
+            IF(IADLL(N_MULT+1)-1>NKMAX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
@@ -335,21 +330,21 @@ c           AA = DT12/SQRT(NX(I)*NX(I)+NY(I)*NY(I)+NZ(I)*NZ(I))
           ENDIF
         ENDIF
        ENDDO
-      ELSEIF(ITIED.EQ.1)THEN
+      ELSEIF(ITIED==1)THEN
 C-----------------------------------------------
 C      ITIED = 1
 C-----------------------------------------------
        DO I=1,LLT
 C-----------------------------------------------
-C       test si contact
+C       Test if contact
 C-----------------------------------------------
-        IF(R(I).GE.-ONE.AND.S(I).GE.-ONE.AND.T(I).GE.-ONE.AND.
-     .     R(I).LE. ONE.AND.S(I).LE. ONE.AND.T(I).LE. ONE)THEN
+        IF(R(I)>=-ONE.AND.S(I)>=-ONE.AND.T(I)>=-ONE.AND.
+     .     R(I)<= ONE.AND.S(I)<= ONE.AND.T(I)<= ONE)THEN
 C
           NK = 9
           VX = ZERO
           VY = ZERO
-          VZ = ZERO	  
+          VZ = ZERO    
           DO IK=1,NK
             VX = VX - (V(1,III(I,IK))+DT12*A(1,III(I,IK)))*NI(I,IK)
             VY = VY - (V(2,III(I,IK))+DT12*A(2,III(I,IK)))*NI(I,IK)
@@ -361,20 +356,20 @@ c      print *, "nx,ny,nz ", NX(I),NY(I),NZ(I)
 c
           VN = NX(I)*VX + NY(I)*VY + NZ(I)*VZ
 C-----------------------------------------------
-C         test si vitesse entrante en s
+C         Test if incoming velocity in S
 C-----------------------------------------------
-          IF(S(I)*VN.LE.0.0)THEN
+          IF(S(I)*VN<=0.0)THEN
 c
-c      print *, "vitesse entrante",vn
+c      print *, "velocity entrante",vn
 c      print *, "s = ",S(I)
 c
 #include "lockon.inc"
-            IF(N_MULT+3.GT.N_MUL_MX)THEN
+            IF(N_MULT+3>N_MUL_MX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
-            IF(IADLL(N_MULT+1)-1+9*3.GT.NKMAX)THEN
+            IF(IADLL(N_MULT+1)-1+9*3>NKMAX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
@@ -428,22 +423,22 @@ C      ITIED = 2
 C-----------------------------------------------
        DO I=1,LLT
 C-----------------------------------------------
-C       test si contact
+C       Test if contact
 C-----------------------------------------------
-        IF(R(I).GE.-ONE.AND.S(I).GE.-ONE.AND.T(I).GE.-ONE.AND.
-     .     R(I).LE.ONE.AND.S(I).LE.ONE.AND.T(I).LE.ONE)THEN
+        IF(R(I)>=-ONE.AND.S(I)>=-ONE.AND.T(I)>=-ONE.AND.
+     .     R(I)<=ONE.AND.S(I)<=ONE.AND.T(I)<=ONE)THEN
 C
            NK = 9
 C-----------------------------------------------
 c      print *, "s = ",S(I)
 c
 #include "lockon.inc"
-            IF(N_MULT+3.GT.N_MUL_MX)THEN
+            IF(N_MULT+3>N_MUL_MX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
-            IF(IADLL(N_MULT+1)-1+9*3.GT.NKMAX)THEN
+            IF(IADLL(N_MULT+1)-1+9*3>NKMAX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
@@ -497,15 +492,15 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I8RST                         source/interfaces/int16/i8lagm.F
-Chd|-- called by -----------
-Chd|        I8LLL                         source/interfaces/int16/i8lagm.F
-Chd|-- calls ---------------
-Chd|        I8DERI                        source/interfaces/int16/i8lagm.F
-Chd|        I8NI                          source/interfaces/int16/i8lagm.F
-Chd|        I8RSTN                        source/interfaces/int16/i8lagm.F
-Chd|====================================================================
+!||====================================================================
+!||    i8rst    ../engine/source/interfaces/int16/i8lagm.F
+!||--- called by ------------------------------------------------------
+!||    i8lll    ../engine/source/interfaces/int16/i8lagm.F
+!||--- calls      -----------------------------------------------------
+!||    i8deri   ../engine/source/interfaces/int16/i8lagm.F
+!||    i8ni     ../engine/source/interfaces/int16/i8lagm.F
+!||    i8rstn   ../engine/source/interfaces/int16/i8lagm.F
+!||====================================================================
       SUBROUTINE I8RST(LLT,R  ,S     ,T     ,NI    ,
      2            NX  ,NY  ,NZ  ,XX    ,YY    ,ZZ    )
 C-----------------------------------------------
@@ -527,14 +522,9 @@ C     REAL
      .   R(MVSIZ),S(MVSIZ),T(MVSIZ),NI(MVSIZ,9) ,
      .   NX(MVSIZ),NY(MVSIZ),NZ(MVSIZ)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,IK,NK,ITER,NITERMAX,JTER,NJTERMAX,CONV
-      my_real
-     .   VX,VY,VZ,VN
+      INTEGER I, ITER, NITERMAX, JTER, NJTERMAX, CONV
       my_real
      .   DRDX(MVSIZ),DRDY(MVSIZ),DRDZ(MVSIZ),
      .   DSDX(MVSIZ),DSDY(MVSIZ),DSDZ(MVSIZ),     
@@ -582,14 +572,14 @@ C
          TT(I) = ZERO
        ENDDO
 C-----------------------------------------------
-C      calcul de r,s,t   et   Ni(r,s,t)
+C      calculation de r,s,t   et   Ni(r,s,t)
 C-----------------------------------------------
        DO ITER=1,NITERMAX
 c
 c      print *, "iter",iter
 c
 C-----------------------------------------------
-C          calcul de Ni(r,s,t); [J]; [J]-1
+C          calculation de Ni(r,s,t); [J]; [J]-1
 C-----------------------------------------------
            CALL I8DERI(LLT,RR ,SS    ,TT    ,NI    ,
      2            DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
@@ -601,7 +591,7 @@ c
 c      print *, "jter",jter
 c
 C-----------------------------------------------
-C            calcul de r,s,t new
+C            calculation de r,s,t new
 C-----------------------------------------------
              CALL I8RSTN(LLT,RR,SS   ,TT    ,NI    ,CONV  ,
      2            DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
@@ -612,11 +602,11 @@ c      print *, "r,s,t",r(1),s(1),t(1)
 c      print *, "rr,ss,tt",rr(1),ss(1),tt(1)
 c
 C-----------------------------------------------
-C            calcul de Ni(-1<r<1 , -1<s<1 , -1<t<1)
+C            calculation de Ni(-1<r<1 , -1<s<1 , -1<t<1)
 C-----------------------------------------------
              CALL I8NI(LLT,RR ,SS ,TT ,NI  )
-C  pb de parith on si conv fonction de mvsiz !!!!!!!
-C             IF(CONV.NE.0)RETURN
+C  parith on problem if conv function of mvsiz !!!!!!
+C             IF(CONV/=0)RETURN
 C
            ENDDO
       ENDDO
@@ -630,12 +620,11 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I8NI                          source/interfaces/int16/i8lagm.F
-Chd|-- called by -----------
-Chd|        I8RST                         source/interfaces/int16/i8lagm.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i8ni    ../engine/source/interfaces/int16/i8lagm.F
+!||--- called by ------------------------------------------------------
+!||    i8rst   ../engine/source/interfaces/int16/i8lagm.F
+!||====================================================================
       SUBROUTINE I8NI(LLT,RR ,SS ,TT ,NI    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -658,11 +647,11 @@ C-----------------------------------------------
       my_real
      .  U_M_R,U_P_R,U_M_S,U_P_S,U_M_T,U_P_T,
      .  UMS_UMT,UMS_UPT,UPS_UMT,UPS_UPT,
-     .  UMR_UMS,UMR_UPS,UPR_UMS,UPR_UPS,
-     .  UMT_UMR,UMT_UPR,UPT_UMR,UPT_UPR,
-     .  A,R05,S05,T05
+     .
+     .
+     . R05,S05,T05
 C-----------------------------------------------------------------------
-C     calcul de Ni
+C     calculation of ni
 C-----------------------------------------------------------------------
       DO I=1,LLT
 C
@@ -699,12 +688,13 @@ C------------------------------------
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I8RSTN                        source/interfaces/int16/i8lagm.F
-Chd|-- called by -----------
-Chd|        I8RST                         source/interfaces/int16/i8lagm.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i8rstn         ../engine/source/interfaces/int16/i8lagm.F
+!||--- called by ------------------------------------------------------
+!||    i8rst          ../engine/source/interfaces/int16/i8lagm.F
+!||--- uses       -----------------------------------------------------
+!||    constant_mod   ../common_source/modules/constant_mod.F
+!||====================================================================
       SUBROUTINE I8RSTN(LLT,RR ,SS    ,TT    ,NI    ,CONV  ,
      2            DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
      3            DTDX  ,DTDY  ,DTDZ  ,XX    ,YY    ,ZZ    ,
@@ -712,13 +702,12 @@ Chd|====================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
-c#include      "implicit_f.inc"
+      use constant_mod, only : zero, one, em4
       implicit none
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "constant.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -766,8 +755,8 @@ C
         S(I) = SS(I)
         T(I) = TT(I)
 C
-        IF(R(I).GE.-ONE.AND.S(I).GE.-ONE.AND.T(I).GE.-ONE.AND.
-     .     R(I).LE. ONE.AND.S(I).LE. ONE.AND.T(I).LE. ONE)THEN
+        IF(R(I)>=-ONE.AND.S(I)>=-ONE.AND.T(I)>=-ONE.AND.
+     .     R(I)<= ONE.AND.S(I)<= ONE.AND.T(I)<= ONE)THEN
           ERR = MAX(ERR,ABS(DR),ABS(DS),ABS(DT))
         ELSE
           RR(I) = MAX(MIN(RR(I),ONE),-ONE)
@@ -777,16 +766,15 @@ C
 c
       ENDDO
 C
-      IF(ERR.LT.EM4) CONV = 1
+      IF(ERR<EM4) CONV = 1
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I8DERI                        source/interfaces/int16/i8lagm.F
-Chd|-- called by -----------
-Chd|        I8RST                         source/interfaces/int16/i8lagm.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i8deri   ../engine/source/interfaces/int16/i8lagm.F
+!||--- called by ------------------------------------------------------
+!||    i8rst    ../engine/source/interfaces/int16/i8lagm.F
+!||====================================================================
       SUBROUTINE I8DERI(LLT,RR,SS ,TT    ,NI    ,
      2   DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
      3   DTDX  ,DTDY  ,DTDZ  ,DXDR  ,DYDR  ,DZDR  ,
@@ -813,21 +801,18 @@ C     REAL
      .   XX(MVSIZ,9) ,YY(MVSIZ,9),ZZ(MVSIZ,9),
      .   NI(MVSIZ,9) ,RR(MVSIZ) ,SS(MVSIZ) ,TT(MVSIZ)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,N
+      INTEGER I
       my_real
      .   DXDS(MVSIZ), DYDS(MVSIZ), DZDS(MVSIZ),
      .   DNIDR(8),DNIDS(8),DNIDT(8),
-     .   D, AA, BB, DET(MVSIZ),R9 ,R13 ,S9 ,S10 ,S11 ,S12 ,T10 ,T14
+     . D, DET(MVSIZ)
       my_real
      .  U_M_R,U_P_R,U_M_S,U_P_S,U_M_T,U_P_T,
      .  UMS_UMT,UMS_UPT,UPS_UMT,UPS_UPT,
-     .  UMR_UMS,UMR_UPS,UPR_UMS,UPR_UPS,
-     .  UMT_UMR,UMT_UPR,UPT_UMR,UPT_UPR,
+     .
+     .
      .  A,R05,S05,T05
 C-----------------------------------------------
 C/*
@@ -993,7 +978,7 @@ C
      +          + DNIDT(7)*ZZ(I,7) + DNIDT(8)*ZZ(I,8)  
 C-----------------------------------------------------------------------
 C          -1
-C       [J]          Inversion du jacobien
+C       [j]          jacobian inversion
 C-----------------------------------------------------------------------
         DRDX(I)=DYDS(I)*DZDT(I)-DZDS(I)*DYDT(I)
         DRDY(I)=DZDS(I)*DXDT(I)-DXDS(I)*DZDT(I)
@@ -1022,7 +1007,7 @@ C
       DO I=1,LLT
 C-----------------------------------------------------------------------
 C          -1            
-C       [J]              Inversion du jacobien suite
+C       [J] Inversion of the Jacobian Suite
 C-----------------------------------------------------------------------
         D = ONE/DET(I)
         DRDX(I)=D*DRDX(I)

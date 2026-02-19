@@ -1,37 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CPXPY3                        source/elements/shell/coque/cpxpy3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cpxpy3        ../engine/source/elements/shell/coque/cpxpy3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3        ../engine/source/elements/shell/coque/cforc3.F
+!||    cforc3_crk    ../engine/source/elements/xfem/cforc3_crk.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CPXPY3(JFT ,JLT ,PM  ,STI  ,SMSTR,
      2                  PX1  ,PX2 ,PY1 ,PY2 ,STIR,
      3                  IXC  ,AREA,X2  ,X3  ,X4  , 
      4                  Y2   ,Y3  ,Y4  ,Z2  ,THK0,  
      5                  MAT  ,NEL )
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -61,7 +63,7 @@ C-----------------------------------------------
 C     REAL
       my_real
      .     YOUNG , 
-     .     AX, AN, PXX2, PYY2, PXN, PXX, AAA, AL2
+     .     PXX, AL2
 C=======================================================================
       MX = MAT(JFT)  
       YOUNG=PM(20,MX)

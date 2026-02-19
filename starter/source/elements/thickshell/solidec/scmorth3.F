@@ -1,49 +1,52 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SCMORTH3                      source/elements/thickshell/solidec/scmorth3.F
-Chd|-- called by -----------
-Chd|        S6CINIT3                      source/elements/thickshell/solide6c/s6cinit3.F
-Chd|        S8CINIT3                      source/elements/thickshell/solide8c/s8cinit3.F
-Chd|        SCINIT3                       source/elements/thickshell/solidec/scinit3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    scmorth3               ../starter/source/elements/thickshell/solidec/scmorth3.F
+!||--- called by ------------------------------------------------------
+!||    s6cinit3               ../starter/source/elements/thickshell/solide6c/s6cinit3.F
+!||    s8cinit3               ../starter/source/elements/thickshell/solide8c/s8cinit3.F
+!||    scinit3                ../starter/source/elements/thickshell/solidec/scinit3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SCMORTH3(PID  ,GEO  ,IGEO ,SKEW ,IREP ,GAMA ,
      .       RX   ,RY   ,RZ   ,SX   ,SY   ,SZ   ,TX   ,TY   ,TZ   ,
      .       E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y  ,E3Z  ,
      .       NGL  ,ANGLE,NSIGI,SIGSP,NSIGS,SIGI ,IXS  ,ILAY ,
      .       ORTHOGLOB  ,PT,NEL)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -52,7 +55,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "vect01_c.inc"
 #include      "scr17_c.inc"
@@ -60,20 +62,17 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER PID(*),IGEO(NPROPGI,*),IREP,NGL(*),NSIGI,NSIGS,
-     .   IXS(NIXS,*),ILAY,IPID,ORTHOGLOB(*),PT(*),NEL
-C     REAL
-      my_real
-     .   GEO(NPROPG,*),SKEW(LSKEW,*),GAMA(NEL,6),ANGLE(*),
-     .   RX(*) ,RY(*) ,RZ(*) ,SX(*) ,SY(*) ,SZ(*) ,TX(*) ,TY(*) ,TZ(*),
-     .   E1X(*),E1Y(*),E1Z(*),E2X(*),E2Y(*),E2Z(*),E3X(*),E3Y(*),E3Z(*),
-     .   SIGSP(NSIGI,*),SIGI(NSIGS,*)
+     .        IXS(NIXS,*),ILAY,ORTHOGLOB(*),PT(*),NEL
+      my_real GEO(NPROPG,*),SKEW(LSKEW,*),GAMA(NEL,6),ANGLE(*),
+     .        RX(*) ,RY(*) ,RZ(*) ,SX(*) ,SY(*) ,SZ(*) ,TX(*) ,TY(*) ,TZ(*),
+     .        E1X(*),E1Y(*),E1Z(*),E2X(*),E2Y(*),E2Z(*),E3X(*),E3Y(*),E3Z(*),
+     .        SIGSP(NSIGI,*),SIGI(NSIGS,*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE)::TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,IG,IGTYP,ISK,IPNUM,ISKV,IIS,II,J,JJ,N,IFLAGINI,INIORTH(MVSIZ)
+      INTEGER I, IG, IGTYP, IPNUM, ISKV, IIS, II, JJ, IFLAGINI, INIORTH(MVSIZ)
       my_real
      .   VX,VY,VZ,VR,VS,VN,V,PHI,CP,SP,CPN,SPN,
      .   S,D1,D2,U1X,U1Y,U2X,U2Y,DET,W1X,W2X,W1Y,W2Y
@@ -81,7 +80,7 @@ C-----------------------------------------------
 C=======================================================================
 C---- tag elm /w /INIBRI/ORTHO
       INIORTH(LFT:LLT)=0
-      IF (NVSOLID3 .NE. 0) THEN
+      IF (NVSOLID3 /= 0) THEN
         IIS= NVSOLID1  + NVSOLID2 +  4 +NUSOLID 
         DO I=LFT,LLT
          JJ=PT(NFT+I)
@@ -93,20 +92,20 @@ C---- tag elm /w /INIBRI/ORTHO
            ENDIF        
          ELSE            ! IF ORTHOTROPIC AXES IN GLOBAL REFERENCE
           IF(
-     .     SIGSP((ILAY-1)*6+IIS+1,JJ) .NE. ZERO .OR.
-     .     SIGSP((ILAY-1)*6+IIS+2,JJ) .NE. ZERO .OR.
-     .     SIGSP((ILAY-1)*6+IIS+3,JJ) .NE. ZERO .OR. 
-     .     SIGSP((ILAY-1)*6+IIS+4,JJ) .NE. ZERO .OR.
-     .     SIGSP((ILAY-1)*6+IIS+5,JJ) .NE. ZERO .OR. 
-     .     SIGSP((ILAY-1)*6+IIS+6,JJ) .NE. ZERO )THEN
+     .     SIGSP((ILAY-1)*6+IIS+1,JJ) /= ZERO .OR.
+     .     SIGSP((ILAY-1)*6+IIS+2,JJ) /= ZERO .OR.
+     .     SIGSP((ILAY-1)*6+IIS+3,JJ) /= ZERO .OR. 
+     .     SIGSP((ILAY-1)*6+IIS+4,JJ) /= ZERO .OR.
+     .     SIGSP((ILAY-1)*6+IIS+5,JJ) /= ZERO .OR. 
+     .     SIGSP((ILAY-1)*6+IIS+6,JJ) /= ZERO )THEN
              INIORTH(I) = 1
           ENDIF         
          ENDIF
         ENDDO
       ENDIF
 C---
-C     Repere orthotrope pour thick shells-------
-C     Stockage de Transpose(G) p.r.a. corotationel systems comme les coques
+C     Orthotropic frame for thick shells-------
+C     Transpose storage (G) P.R.A.Corotationeel Systems like the shells
 C     GAMA(1)= sina , GAMA(2) = cosa, only first 2 are useful --
 C---
 C------------HA8: variable thickness direction ---------
@@ -125,7 +124,7 @@ C
            CP  = COS(PHI)
            SP  = SIN(PHI)
 C------------------Vx,Vy,VZ defined by skew-----
-         IF (ISKV.EQ.0) THEN
+         IF (ISKV==0) THEN
           VX=GEO(7,IG)
           VY=GEO(8,IG)
           VZ=GEO(9,IG)
@@ -141,7 +140,7 @@ C------------------Vx,Vy,VZ defined by skew-----
           VY=VY-VN*E1Y(I)
           VZ=VZ-VN*E1Z(I)
           V=SQRT(VX*VX+VY*VY+VZ*VZ)
-          IF(V.LT.EM3)THEN
+          IF(V<EM3)THEN
            CALL ANCMSG(MSGID=526,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -165,7 +164,7 @@ C
           VY=VY-VN*E2Y(I)
           VZ=VZ-VN*E2Z(I)
           V=SQRT(VX*VX+VY*VY+VZ*VZ)
-          IF(V.LT.EM3)THEN
+          IF(V<EM3)THEN
            CALL ANCMSG(MSGID=526,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -189,7 +188,7 @@ C
           VY=VY-VN*E3Y(I)
           VZ=VZ-VN*E3Z(I)
           V=SQRT(VX*VX+VY*VY+VZ*VZ)
-          IF(V.LT.EM3)THEN
+          IF(V<EM3)THEN
            CALL ANCMSG(MSGID=526,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -214,11 +213,11 @@ C
 C
        ENDDO
 C------Uij-->gij; Wij->[g]-1-----
-       IF (IREP.EQ.1) THEN
+       IF (IREP==1) THEN
         DO I=LFT,LLT
           IG = PID(I)
           IPNUM = IGEO(2,IG)
-C----par rapport à HA8, permitation si s16----
+C----compared to HA8, permutation if s16----
           SELECT CASE (IPNUM)
           CASE (1)
            U1X = RX(I)*E2X(I)+RY(I)*E2Y(I)+RZ(I)*E2Z(I)
@@ -226,10 +225,10 @@ C----par rapport à HA8, permitation si s16----
            U2X = SX(I)*E2X(I)+SY(I)*E2Y(I)+SZ(I)*E2Z(I)
            U2Y = SX(I)*E3X(I)+SY(I)*E3Y(I)+SZ(I)*E3Z(I)
            DET = U1X*U2Y-U1Y*U2X
-	   W1X = U2Y/DET
+             W1X = U2Y/DET
            W2Y = U1X/DET
-	   W1Y = -U1Y/DET
-	   W2X = -U2X/DET
+             W1Y = -U1Y/DET
+             W2X = -U2X/DET
            D1=GAMA(I,1)
            D2=GAMA(I,2)
            CPN= W1X*D1 + W2X*D2
@@ -244,10 +243,10 @@ C
            U2X = TX(I)*E3X(I)+TY(I)*E3Y(I)+TZ(I)*E3Z(I)
            U2Y = TX(I)*E1X(I)+TY(I)*E1Y(I)+TZ(I)*E1Z(I)
            DET = U1X*U2Y-U1Y*U2X
-	   W1X = U2Y/DET
+             W1X = U2Y/DET
            W2Y = U1X/DET
-	   W1Y = -U1Y/DET
-	   W2X = -U2X/DET
+             W1Y = -U1Y/DET
+             W2X = -U2X/DET
            D1=GAMA(I,1)
            D2=GAMA(I,2)
            CPN= W1X*D1 + W2X*D2
@@ -262,10 +261,10 @@ C
            U2X = RX(I)*E1X(I)+RY(I)*E1Y(I)+RZ(I)*E1Z(I)
            U2Y = RX(I)*E2X(I)+RY(I)*E2Y(I)+RZ(I)*E2Z(I)
            DET = U1X*U2Y-U1Y*U2X
-	   W1X = U2Y/DET
+             W1X = U2Y/DET
            W2Y = U1X/DET
-	   W1Y = -U1Y/DET
-	   W2X = -U2X/DET
+             W1Y = -U1Y/DET
+             W2X = -U2X/DET
            D1=GAMA(I,1)
            D2=GAMA(I,2)
            CPN= W1X*D1 + W2X*D2
@@ -281,17 +280,17 @@ C
        ENDIF
 C
 C---
-      IF (NVSOLID3 .NE. 0) THEN
+      IF (NVSOLID3 /= 0) THEN
         IIS= NVSOLID1  + NVSOLID2 +  4 +NUSOLID 
         DO I=LFT,LLT
          IF(ORTHOGLOB(I) == 0) THEN  ! IF COS(PHI), SIN(PHI)
            II=NFT+I
            JJ=PT(II)
            IFLAGINI = 1
-           IF(JJ.EQ.0)IFLAGINI = 0
+           IF(JJ==0)IFLAGINI = 0
            IF(IFLAGINI == 1 .AND. 
-     .       ( SIGSP((ILAY-1)*6+IIS+1,JJ) .NE. ZERO.OR.
-     .        SIGSP((ILAY-1)*6+IIS+2,JJ).NE.ZERO)  ) THEN
+     .       ( SIGSP((ILAY-1)*6+IIS+1,JJ) /= ZERO.OR.
+     .        SIGSP((ILAY-1)*6+IIS+2,JJ)/=ZERO)  ) THEN
            GAMA(I,1) = SIGSP((ILAY-1)*6+IIS+1,JJ)
            GAMA(I,2) = SIGSP((ILAY-1)*6+IIS+2,JJ)
           ENDIF        
@@ -301,14 +300,14 @@ C---
           IG = PID(I)
           IPNUM = IGEO(2,IG)
           IFLAGINI = 1
-          IF(JJ.EQ.0)IFLAGINI = 0
+          IF(JJ==0)IFLAGINI = 0
           IF(IFLAGINI == 1 .AND.
-     .   ( SIGSP((ILAY-1)*6+IIS+1,JJ) .NE. ZERO .OR.
-     .     SIGSP((ILAY-1)*6+IIS+2,JJ) .NE. ZERO .OR.
-     .     SIGSP((ILAY-1)*6+IIS+3,JJ) .NE. ZERO .OR. 
-     .     SIGSP((ILAY-1)*6+IIS+4,JJ) .NE. ZERO .OR.
-     .     SIGSP((ILAY-1)*6+IIS+5,JJ) .NE. ZERO .OR. 
-     .     SIGSP((ILAY-1)*6+IIS+6,JJ) .NE. ZERO) )THEN
+     .   ( SIGSP((ILAY-1)*6+IIS+1,JJ) /= ZERO .OR.
+     .     SIGSP((ILAY-1)*6+IIS+2,JJ) /= ZERO .OR.
+     .     SIGSP((ILAY-1)*6+IIS+3,JJ) /= ZERO .OR. 
+     .     SIGSP((ILAY-1)*6+IIS+4,JJ) /= ZERO .OR.
+     .     SIGSP((ILAY-1)*6+IIS+5,JJ) /= ZERO .OR. 
+     .     SIGSP((ILAY-1)*6+IIS+6,JJ) /= ZERO) )THEN
                GAMATMP(1) = SIGSP((ILAY-1)*6+IIS+1,JJ)
                GAMATMP(2) = SIGSP((ILAY-1)*6+IIS+2,JJ)
                GAMATMP(3) = SIGSP((ILAY-1)*6+IIS+3,JJ)

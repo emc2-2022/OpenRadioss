@@ -1,35 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  UPGRADE_REMNODE               source/interfaces/interf1/upgrade_remnode.F
-Chd|-- called by -----------
-Chd|        I7REMNODE                     source/interfaces/inter3d1/i7remnode.F
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|        ININTR                        source/interfaces/interf1/inintr.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFMOD                     share/modules1/restart_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    upgrade_remnode    ../starter/source/interfaces/interf1/upgrade_remnode.F
+!||--- called by ------------------------------------------------------
+!||    get_list_remnode   ../starter/source/interfaces/inter3d1/get_list_remnode.F90
+!||    inint3             ../starter/source/interfaces/inter3d1/inint3.F
+!||    inintr             ../starter/source/interfaces/interf1/inintr.F
+!||--- uses       -----------------------------------------------------
+!||    intbufmod          ../starter/share/modules1/restart_mod.F
+!||====================================================================
       SUBROUTINE UPGRADE_REMNODE(IPARI,NREMNODE,INTBUF_TAB,NTY)
 C-----------------------------------------------
 C   M o d u l e s
@@ -41,18 +40,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "tabsiz_c.inc"
-#include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "intread_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NI,NREMNODE,IPARI(*)
+      INTEGER NREMNODE,IPARI(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -64,9 +54,7 @@ C======================================================================|
 C Set Global parameters
 C Set the new NREMNODE parameter for the given Interface
       IPARI(62) = NREMNODE
-
-      IF(NTY/=11 .AND. NTY/=25) INTBUF_TAB%KREMNODE(1:INTBUF_TAB%S_KREMNODE)=0
-
+      
       OLD_SIZE = INTBUF_TAB%S_REMNODE
       ALLOCATE (OLD_TAB(OLD_SIZE))
       !save values
@@ -110,16 +98,16 @@ C
       ENDIF
 
       END
-Chd|====================================================================
-Chd|  UPGRADE_REMNODE2              source/interfaces/interf1/upgrade_remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2OP                     source/interfaces/inter3d1/i7remnode.F
-Chd|        REMN_I2_EDGOP                 source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFMOD                     share/modules1/restart_mod.F  
-Chd|        RESTMOD                       share/modules1/restart_mod.F  
-Chd|====================================================================
+!||====================================================================
+!||    upgrade_remnode2   ../starter/source/interfaces/interf1/upgrade_remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2_edgop      ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    remn_i2op          ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    remn_self24        ../starter/source/interfaces/inter3d1/remn_self24.F
+!||--- uses       -----------------------------------------------------
+!||    intbufmod          ../starter/share/modules1/restart_mod.F
+!||    restmod            ../starter/share/modules1/restart_mod.F
+!||====================================================================
       SUBROUTINE UPGRADE_REMNODE2(NI,NREMNODE,INTBUF_TAB,NTY)
 C-----------------------------------------------
 C   M o d u l e s
@@ -134,12 +122,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "tabsiz_c.inc"
 #include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "intread_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -147,7 +130,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,OLD_SIZE, NRTM, NSN
+      INTEGER I,OLD_SIZE, NRTM, NSN, NEDGE
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
       INTEGER, DIMENSION (:), ALLOCATABLE :: OLD_TAB
@@ -212,19 +195,32 @@ C
         ALLOCATE(INTBUF_TAB%REMNOR(INTBUF_TAB%S_REMNOR))
         INTBUF_TAB%REMNOR(1:INTBUF_TAB%S_REMNOR)=0
 
+        IF(IPARI(NPARI*(NI-1)+58) > 0.AND.INTBUF_TAB%S_KREMNODE_EDG ==0 ) THEN
+           NEDGE = IPARI(NPARI*(NI-1)+68)
+           DEALLOCATE(INTBUF_TAB%KREMNODE_EDG)
+           INTBUF_TAB%S_KREMNODE_EDG = 2*(NEDGE + 1)
+           ALLOCATE(INTBUF_TAB%KREMNODE_EDG(INTBUF_TAB%S_KREMNODE_EDG))
+           INTBUF_TAB%KREMNODE_EDG(1:INTBUF_TAB%S_KREMNODE_EDG)=0
+        ENDIF
+        IF(IPARI(NPARI*(NI-1)+58) > 0.AND.INTBUF_TAB%S_KREMNODE_E2S ==0 ) THEN
+           DEALLOCATE(INTBUF_TAB%KREMNODE_E2S)
+           INTBUF_TAB%S_KREMNODE_E2S= 2*(NRTM + 1)
+           ALLOCATE(INTBUF_TAB%KREMNODE_E2S(INTBUF_TAB%S_KREMNODE_E2S))
+           INTBUF_TAB%KREMNODE_E2S(1:INTBUF_TAB%S_KREMNODE_E2S)=0
+        ENDIF 
+
       END IF
 C
       RETURN
       END 
-Chd|====================================================================
-Chd|  UPGRADE_REMNODE_EDG           source/interfaces/interf1/upgrade_remnode.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|        ININTR                        source/interfaces/interf1/inintr.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFMOD                     share/modules1/restart_mod.F  
-Chd|====================================================================
+!||====================================================================
+!||    upgrade_remnode_edg   ../starter/source/interfaces/interf1/upgrade_remnode.F
+!||--- called by ------------------------------------------------------
+!||    inint3                ../starter/source/interfaces/inter3d1/inint3.F
+!||    inintr                ../starter/source/interfaces/interf1/inintr.F
+!||--- uses       -----------------------------------------------------
+!||    intbufmod             ../starter/share/modules1/restart_mod.F
+!||====================================================================
       SUBROUTINE UPGRADE_REMNODE_EDG(IPARI,NREMNODE,INTBUF_TAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -236,22 +232,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "tabsiz_c.inc"
-#include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "intread_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NI,NREMNODE,IPARI(*)
+      INTEGER NREMNODE,IPARI(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,OLD_SIZE ,NTY
+      INTEGER I,OLD_SIZE 
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
       INTEGER, DIMENSION (:), ALLOCATABLE :: OLD_TAB
@@ -272,7 +259,7 @@ C Set the new NREMNODE parameter for the given Interface
       INTBUF_TAB%S_REMNODE_EDG = NREMNODE
       ALLOCATE(INTBUF_TAB%REMNODE_EDG(INTBUF_TAB%S_REMNODE_EDG))
       INTBUF_TAB%REMNODE_EDG(1:INTBUF_TAB%S_REMNODE_EDG)=0
-      DO I=1,OLD_SIZE
+      DO I=1,MIN(OLD_SIZE,NREMNODE)
         INTBUF_TAB%REMNODE_EDG(I) = OLD_TAB(I)
       ENDDO   
 C
@@ -282,14 +269,13 @@ C
       END
 
 
-Chd|====================================================================
-Chd|  UPGRADE_REMNODE_EDG2          source/interfaces/interf1/upgrade_remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2OP_EDG25               source/interfaces/int25/i25remlin.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFMOD                     share/modules1/restart_mod.F  
-Chd|====================================================================
+!||====================================================================
+!||    upgrade_remnode_edg2   ../starter/source/interfaces/interf1/upgrade_remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2op_edg25        ../starter/source/interfaces/int25/i25remlin.F
+!||--- uses       -----------------------------------------------------
+!||    intbufmod              ../starter/share/modules1/restart_mod.F
+!||====================================================================
       SUBROUTINE UPGRADE_REMNODE_EDG2(IPARI,NREMNODE,INTBUF_TAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -303,12 +289,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "tabsiz_c.inc"
 #include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "intread_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -346,7 +327,7 @@ C Set the new NREMNODE parameter for the given Interface
       INTBUF_TAB%S_REMNODE_EDG = NREMNODE
       ALLOCATE(INTBUF_TAB%REMNODE_EDG(INTBUF_TAB%S_REMNODE_EDG))
       INTBUF_TAB%REMNODE_EDG(1:INTBUF_TAB%S_REMNODE_EDG)=0
-      DO I=1,OLD_SIZE
+      DO I=1,MIN(OLD_SIZE,NREMNODE)
         INTBUF_TAB%REMNODE_EDG(I) = OLD_TAB(I)
       ENDDO   
 C
@@ -355,14 +336,13 @@ C
 
       END
 
-Chd|====================================================================
-Chd|  UPGRADE_REMNODE_E2S           source/interfaces/interf1/upgrade_remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2OP_EDG25               source/interfaces/int25/i25remlin.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFMOD                     share/modules1/restart_mod.F  
-Chd|====================================================================
+!||====================================================================
+!||    upgrade_remnode_e2s   ../starter/source/interfaces/interf1/upgrade_remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2op_edg25       ../starter/source/interfaces/int25/i25remlin.F
+!||--- uses       -----------------------------------------------------
+!||    intbufmod             ../starter/share/modules1/restart_mod.F
+!||====================================================================
       SUBROUTINE UPGRADE_REMNODE_E2S(IPARI,NREMNODE,INTBUF_TAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -376,12 +356,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "tabsiz_c.inc"
 #include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "intread_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -408,22 +383,22 @@ C Set the new NREMNODE parameter for the given Interface
       INTBUF_TAB%KREMNODE_E2S(1:INTBUF_TAB%S_KREMNODE_E2S)=0
 
       OLD_SIZE = INTBUF_TAB%S_REMNODE_E2S
-      ALLOCATE (OLD_TAB(OLD_SIZE))
-      !save values
-      DO I=1,OLD_SIZE
-        OLD_TAB(I)=INTBUF_TAB%REMNODE_E2S(I)
-      ENDDO      
-      DEALLOCATE(INTBUF_TAB%REMNODE_E2S)
-
-      !reallocate with new size and copy saved values
       INTBUF_TAB%S_REMNODE_E2S = NREMNODE
-      ALLOCATE(INTBUF_TAB%REMNODE_E2S(INTBUF_TAB%S_REMNODE_E2S))
-      INTBUF_TAB%REMNODE_E2S(1:INTBUF_TAB%S_REMNODE_E2S)=0
-      DO I=1,OLD_SIZE
-        INTBUF_TAB%REMNODE_E2S(I) = OLD_TAB(I)
-      ENDDO   
-C
-      DEALLOCATE(OLD_TAB)
-C
+      IF(OLD_SIZE < INTBUF_TAB%S_REMNODE_E2S) THEN
+        ALLOCATE (OLD_TAB(OLD_SIZE))
+        !save values
+        DO I=1,OLD_SIZE
+          OLD_TAB(I)=INTBUF_TAB%REMNODE_E2S(I)
+        ENDDO      
+        DEALLOCATE(INTBUF_TAB%REMNODE_E2S)
 
+        !reallocate with new size and copy saved values
+        ALLOCATE(INTBUF_TAB%REMNODE_E2S(INTBUF_TAB%S_REMNODE_E2S))
+        INTBUF_TAB%REMNODE_E2S(1:INTBUF_TAB%S_REMNODE_E2S)=0
+        DO I=1,MIN(OLD_SIZE,NREMNODE)
+          INTBUF_TAB%REMNODE_E2S(I) = OLD_TAB(I)
+        ENDDO   
+C
+        DEALLOCATE(OLD_TAB)
+      ENDIF
       END

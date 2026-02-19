@@ -1,51 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_EOS_SESAME            source/materials/eos/hm_read_eos_sesame.F
-Chd|-- called by -----------
-Chd|        HM_READ_EOS                   source/materials/eos/hm_read_eos.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        MINTP_RE                      ../common_source/eos/mintp_re.F
-Chd|        MINTP_RT                      ../common_source/eos/mintp_rt.F
-Chd|        MRDSE2                        source/materials/mat/mat026/mrdse2.F
-Chd|        TB2SI1                        source/materials/eos/sesame_tools.F
-Chd|        TBUSR1                        source/materials/eos/sesame_tools.F
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_EOS_SESAME(IOUT,PM,UNITAB,IUNIT,LSUBMODEL,IMIDEOS,IMID,TITR,BUFMAT,MFI,IDF)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_eos_sesame       ../starter/source/materials/eos/hm_read_eos_sesame.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_eos              ../starter/source/materials/eos/hm_read_eos.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_string            ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    mrdse2                   ../starter/source/materials/mat/mat026/mrdse2.F
+!||    tb2si1                   ../starter/source/materials/eos/sesame_tools.F
+!||    tbusr1                   ../starter/source/materials/eos/sesame_tools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_EOS_SESAME(IOUT,PM,UNITAB,IUNIT,LSUBMODEL,IMIDEOS,IMID,TITR,BUFMAT,MFI,IDF,MAT_PARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD  
-      USE INOUTFILE_MOD          
+      USE INOUTFILE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE MATPARAM_DEF_MOD, ONLY : MATPARAM_STRUCT_
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -62,23 +62,18 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "tabsiz_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER IIN,IOUT,IUNIT
+      INTEGER IOUT,IUNIT
       INTEGER,INTENT(INOUT) :: MFI, IDF
       INTEGER,INTENT(IN) :: IMID      
       my_real PM(NPROPM),BUFMAT(*)
       TYPE(SUBMODEL_DATA), DIMENSION(NSUBMOD), INTENT(IN) :: LSUBMODEL
-      INTEGER,INTENT(IN) :: IMIDEOS    
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "submod_c.inc"
+      TYPE(MATPARAM_STRUCT_),INTENT(INOUT) :: MAT_PARAM
+      INTEGER,INTENT(IN) :: IMIDEOS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -88,18 +83,19 @@ C-----------------------------------------------
       my_real MU0,DF,SSP0,G0,DPDMU
       CHARACTER FILE*(ncharline),FILE_TMP*(ncharline)
       INTEGER :: FILE_LEN
-      LOGICAL :: IS_ENCRYPTED, IS_AVAILABLE
-      CHARACTER*nchartitle TITR        
+      LOGICAL :: IS_ENCRYPTED, IS_AVAILABLE, IS_AVAILABLE_RHO0
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
       IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
+      IS_AVAILABLE_RHO0 = .FALSE.
 
-      CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 
       CALL HM_GET_FLOATV('MAT_EA', E0, IS_AVAILABLE,LSUBMODEL,UNITAB)
-      CALL HM_GET_FLOATV('SESAME_RHO', RHO0, IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('SESAME_RHO', RHO0, IS_AVAILABLE_RHO0,LSUBMODEL,UNITAB)
       CALL HM_GET_STRING('ISRTY',FILE, ncharline,IS_AVAILABLE)
 
       RHOR = PM(1)
@@ -108,6 +104,7 @@ C-----------------------------------------------
       IF(RHO0 > ZERO) THEN
         RHOR = RHO0
         PM(1)= RHO0 
+        MAT_PARAM%RHO = RHO0
       ELSE
         RHO0=RHOR                   
       ENDIF
@@ -126,9 +123,18 @@ C----------------
       REWIND(31)
       NR = NINT(XNR)
       NT = NINT(XNT)
-      PM(33)=NR
-      PM(34)=NT
-      PM(35)=IDF
+
+      MAT_PARAM%EOS%NUPARAM = 0
+      MAT_PARAM%EOS%NIPARAM = 3
+      MAT_PARAM%EOS%NFUNC = 0
+      MAT_PARAM%EOS%NTABLE = 0
+      CALL MAT_PARAM%EOS%CONSTRUCT() !allocations
+
+      IF (MAT_PARAM%THERM%TINI == ZERO) THEN
+        MAT_PARAM%THERM%TINI =THREE100
+        PM(79) = THREE100
+      END IF
+
       IF(PM(79) == ZERO)PM(79)=THREE100
       IDR = IDF
       IDT = IDR + NR
@@ -136,6 +142,10 @@ C----------------
       IDE = IDP + NR * NT
       IDF = IDE + NR * NT
       MFI = MFI + IDF - IDR
+
+      MAT_PARAM%EOS%IPARAM(1) = NR  ! PM(33)
+      MAT_PARAM%EOS%IPARAM(2) = NT  ! PM(34)
+      MAT_PARAM%EOS%IPARAM(3) = IDR ! PM(35)
 C
       BUFMAT(IDR:IDF-1) = ZERO
 C
@@ -143,7 +153,7 @@ C
       CLOSE(31)
 C
       CALL TB2SI1(BUFMAT(IDR),BUFMAT(IDP),BUFMAT(IDE),NR,NT)
-      CALL TBUSR1(BUFMAT(IDR),BUFMAT(IDP),BUFMAT(IDE),NR,NT)
+      CALL TBUSR1(BUFMAT(IDR),BUFMAT(IDP),BUFMAT(IDE),NR,NT,UNITAB)
 C
       RHO = PM(89)
 
@@ -154,7 +164,8 @@ C
       IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
-        WRITE(IOUT,1500)E0,PM(1),FILE,P0,T0
+        WRITE(IOUT,1500)E0,FILE,P0,T0
+        IF(IS_AVAILABLE_RHO0)WRITE(IOUT,1501)PM(1)
       ENDIF
 
       PM(31) = P0
@@ -187,25 +198,19 @@ C
       
       RETURN
   999 CONTINUE
-      CALL ANCMSG(MSGID=19,
-     .            MSGTYPE=MSGERROR,
-     .            ANMODE=ANINFO,
-     .            I1=IMID,
-     .            C1='EOS',
-     .            C2='EOS',
-     .            C3=TITR,
-     .            C4=FILE)
+      CALL ANCMSG(MSGID=19,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=IMID,C1='EOS',C2='EOS',C3=TITR,C4=FILE)
       RETURN
       
  1000 FORMAT(
      & 5X,'  SESAME TABLE EOS     ',/,
      & 5X,'  ----------------     ',/)
  1500 FORMAT(
-     & 5X,'INITIAL INTERNAL ENERGY PER UNIT VOLUME. . .=',1PG20.13/,
-     & 5X,'REFERENCE DENSITY. . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'SESAME TABLE 301 . . . . . . . . . . . . . .=',A70/,
-     & 5X,'INITIAL PRESSURE . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'INITIAL TEMPERATURE. . . . . . . . . . . . .=',1PG20.13//)
+     & 5X,'INITIAL INTERNAL ENERGY PER UNIT VOLUME. =',1PG20.13/,
+     & 5X,'SESAME TABLE 301 . . . . . . . . . . . . =',A70/,
+     & 5X,'INITIAL PRESSURE . . . . . . . . . . . . =',1PG20.13/,
+     & 5X,'INITIAL TEMPERATURE. . . . . . . . . . . =',1PG20.13)
+ 1501 FORMAT(     
+     & 5X,'EOS REFERENCE DENSITY . . . . . . . . . .=',1PG20.13)        
 C
       RETURN
       END

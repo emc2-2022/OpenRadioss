@@ -1,25 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    int22listcombi   ../engine/source/interfaces/int22/int22ListCombi.F
+!||--- called by ------------------------------------------------------
+!||    i22ident         ../engine/source/interfaces/int22/i22ident.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22edge_mod      ../common_source/modules/interfaces/cut-cell-buffer_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
       RECURSIVE SUBROUTINE int22ListCombi( ITASK      ,
      .                                     arg_ListFIX, arg_SizeFIX, arg_ListVAR, arg_SizeVAR ,
      .                                     NINTP      , ICODE      , IDBLE      , lvl         ,
@@ -28,7 +38,7 @@ C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C  Recursive combinatory algorithm.
 C
@@ -46,7 +56,7 @@ C           potential combination. Is Updated
 C           to remove incompatibility with
 C           combination in ListFIX. Is expanded
 C           into new sublist to test new recursively
-C           new list os combiantion
+C           new list os combination
 C NBITS   : number of bits which represent the
 C           number of intersection points (on brick edges)
 C           remains UNCHANGED in the recursion process
@@ -123,13 +133,13 @@ ccc        print *, arg_ListVAR(1:arg_SizeVAR)
         COUNT      = 0
         CountFIX   = 0
         CountVAR   = 0
-        !accumulation of intersection points recquired by each combination present in the Fixed List.          
+        !accumulation of intersection points required by each combination present in the Fixed List.          
         DO I=1,SizeFIX
           pCODE    = IABS(ListFIX(I))
           ITYP     = GetPolyhedraType(pCODE)
           CountFIX = CountFIX + C_POLYH(ITYP)
         ENDDO !next I
-        !accumulation of intersection points recquired by each combination present in the Variable List.    
+        !accumulation of intersection points required by each combination present in the Variable List.    
         DO I=1,SizeVAR
           pCODE    = ListVAR(I)
           ITYP     = GetPolyhedraType(pCODE)
@@ -176,9 +186,9 @@ ccc            print*,"return1";RETURN;
           Ldble = 0
           Lnbit = 0
           DO J=1,12
-            IF(TAG_edg(J).GT.2) RETURN
-            IF(TAG_edg(J).EQ.2) Ldble = IBSET(Ldble,12-J)            
-            IF(TAG_edg(J).GE.1) THEN
+            IF(TAG_edg(J)>2) RETURN
+            IF(TAG_edg(J)==2) Ldble = IBSET(Ldble,12-J)            
+            IF(TAG_edg(J)>=1) THEN
               Lcode = IBSET(Lcode,12-J)
               !Lnbit = Lnbit + 1 
             ENDIF
@@ -199,16 +209,16 @@ c          print *, "   *** EXPAND"
           !------------------------------------------------!
           ! UPDATE FIXED LIST AND VARIABLE LIST (NEW LOCAL)!
           !------------------------------------------------!         
-          !Expanding the varaible sublist & taking each combination in varaible list to add it in a new fix list.
+          !Expanding the variable sublist & taking each combination in variable list to add it in a new fix list.
           SizeLLFIX = SizeFIX + 1
           !SizeLLVAR = SizeVAR - 1 
           !SizeLLVAR_bak =  SizeLLVAR        
           DO II=1,SizeVAR        
             IKEEP = ListVAR(II)
             LLFIX(II,1:SizeLLFIX) = (/ListFIX(1:SizeFIX), IKEEP /)
-ccc            IF(SizeLLVAR.GE.1)LLVAR(II,1:SizeLLVAR) = (/ListVAR(1:II-1),ListVAR(II+1:SizeVAR)/)  !retirer IKEEP
+ccc            IF(SizeLLVAR>=1)LLVAR(II,1:SizeLLVAR) = (/ListVAR(1:II-1),ListVAR(II+1:SizeVAR)/)  !retirer IKEEP
             SizeLLVAR = SizeVAR-II
-            IF(SizeLLVAR.GE.1)LLVAR(II,1:SizeLLVAR) = (/ListVAR(II+1:SizeVAR)/)  !retirer IKEEP
+            IF(SizeLLVAR>=1)LLVAR(II,1:SizeLLVAR) = (/ListVAR(II+1:SizeVAR)/)  !retirer IKEEP
           ENDDO
           DO II=1,SizeVAR
             SizeLLVAR = SizeVAR-II!SizeLLVAR_bak 
@@ -219,20 +229,20 @@ ccc            print *, "=====LLVAR(II,1:SizeLLVAR) = ",LLVAR(II,1:SizeLLVAR)
             !------------------------------------------------!
             ! CHECKING FIXED LIST CONSISTENCY                !
             !------------------------------------------------!          
-            !--verifier nombre de bits
+            !check number of bits
             CountFIX   = 0
             DO I=1,SizeLLFIX
               pCODE    = IABS(LLFIX(II,I))
               ITYP     = GetPolyhedraType(pCODE)
               CountFIX = CountFIX + C_POLYH(ITYP)
             ENDDO !next I        
-            IF(CountFIX .GT. NINTP)CYCLE
-            !--verifier les sommets isdoles dans LLFIX : doublon impossible
+            IF(CountFIX > NINTP)CYCLE
+            !check isolated vertices in llfix: duplicate impossible
             TAG_nod_fix(1:8) = 0
             DO I=1,SizeLLFIX
               bCOMPL           = .FALSE.
               pCODE            = LLFIX(II,I)
-              IF(pCODE.LT.0) bCOMPL = .TRUE.
+              IF(pCODE<0) bCOMPL = .TRUE.
               pCODE            = IABS(pCODE)
               ITYP             = GetPolyhedraType(pCODE)
               NNOD             = N_POLYH(ITYP)
@@ -247,18 +257,18 @@ ccc            print *, "=====LLVAR(II,1:SizeLLVAR) = ",LLVAR(II,1:SizeLLVAR)
                 DO J=1,8
                   IF( TAG_nod_tmp(J)==0)CYCLE
                   TAG_nod_fix(J) = TAG_nod_fix(J)+1
-                  IF(TAG_nod_fix(J) .GE. 2)GOTO 50 !already a complementary polyhjedron, the original one is incomaptible with the previous in the list, so exit                
+                  IF(TAG_nod_fix(J) >= 2)GOTO 50 !already a complementary polyhedron, the original one is incompatible with the previous in the list, so exit                
                 ENDDO
               ELSE
                 DO J=1,NNOD
                   K = Gnode(J,pCODE)
                   TAG_nod_fix(K) = TAG_nod_fix(K)+1
-                  IF(TAG_nod_fix(K) .GE. 2)bool=.true.
+                  IF(TAG_nod_fix(K) >= 2)bool=.true.
                 ENDDO
               ENDIF
               !this polyhedron also isolate same nodes. Check complementary polyhedron
               IF(BOOL)THEN
-                !restor TAG_nod_fix
+                !restore TAG_nod_fix
                 TAG_nod_fix(1:8) = TAG_nod_bak(1:8)       
                 !check complementary nodes
                 TAG_nod_tmp(1:8) = 1
@@ -269,13 +279,13 @@ ccc            print *, "=====LLVAR(II,1:SizeLLVAR) = ",LLVAR(II,1:SizeLLVAR)
                 DO J=1,8
                   IF( TAG_nod_tmp(J)==0)CYCLE
                   TAG_nod_fix(J) = TAG_nod_fix(J)+1
-                  IF(TAG_nod_fix(J) .GE. 2)GOTO 50                 
+                  IF(TAG_nod_fix(J) >= 2)GOTO 50                 
                 ENDDO
                 !set negative ID to tag a complementary polyhedron
                 LLFIX(II,I) = -LLFIX(II,I)
               ENDIF
             ENDDO !next I        
-            !--verifiers les edges de LLFIX : doublon possible seuelemnt si defini dans IDBLE       
+            !check edges in llfix: duplicate possible only if defined in idble
             TAG_edg_fix(1:12) = 0
             DO I=1,SizeLLFIX
               pCODE    = IABS(LLFIX(II,I))
@@ -283,11 +293,11 @@ ccc            print *, "=====LLVAR(II,1:SizeLLVAR) = ",LLVAR(II,1:SizeLLVAR)
               NEDG     = C_POLYH(ITYP)
               DO J=1,NEDG
                 TAG_edg_fix(IABS(Gcorner(J,pCODE))) = TAG_edg_fix(IABS(Gcorner(J,pCODE)))+1
-                IF(TAG_edg_fix(IABS(Gcorner(J,pCODE))) .GT. 2)GOTO 50
-                !IF(TAG_edg_fix(IABS(Gcorner(J,pCODE))).EQ.2 .AND. BTEST(IDBLE,12-IABS(Gcorner(J,pCODE)))==0      )GOTO 50  
+                IF(TAG_edg_fix(IABS(Gcorner(J,pCODE))) > 2)GOTO 50
+                !IF(TAG_edg_fix(IABS(Gcorner(J,pCODE)))==2 .AND. BTEST(IDBLE,12-IABS(Gcorner(J,pCODE)))==0      )GOTO 50  
                 
                 !check : 14.31 FEM file abS ( 8:15:59) = ../tests/inter22/INTERSECTIONS/ALL-POLY-TEST/EULER/0.FVM/ALL-POLY-TEST_0000.rad                      
-                IF(TAG_edg_fix(IABS(Gcorner(J,pCODE))).EQ.2 )THEN
+                IF(TAG_edg_fix(IABS(Gcorner(J,pCODE)))==2 )THEN
                   IF(BTEST(IDBLE,12-IABS(Gcorner(J,pCODE))) .EQV. (.FALSE.))GOTO 50 
                 ENDIF 
               ENDDO
@@ -295,8 +305,8 @@ ccc            print *, "=====LLVAR(II,1:SizeLLVAR) = ",LLVAR(II,1:SizeLLVAR)
             !------------------------------------------------!
             ! VARIABLE LIST REDUCTION                        !
             !------------------------------------------------!
-            !--verifier les sommets isoles dans LLVAR : doublon impossible
-            !conserver les tags de LLVAR ne pas faire de reset : TAG_nod(1:8) = 0 
+            !check isolated vertices in llvar: duplicate impossible
+            !keep llvar tags, do not reset: tag_nod(1:8) = 0
             I = 1    
 ccc            print *, "LLVAR(II,1:SizeLLVAR)=", LLVAR(II,1:SizeLLVAR)      
             DO WHILE(I < SizeLLVAR)
@@ -307,7 +317,7 @@ ccc            print *, "LLVAR(II,1:SizeLLVAR)=", LLVAR(II,1:SizeLLVAR)
               DO J=1,NNOD
                 K = Gnode(J,pCODE)
                 TAG_nod(K) = TAG_nod(K)+1
-                IF(TAG_nod(K) .GE. 2)THEN
+                IF(TAG_nod(K) >= 2)THEN
                   !removing polyhedra from list
 ccc                  print *, "     removing_a:", LLVAR(II,I)
 ccc                  print *, "     SizeLLVAR,I=:", SizeLLVAR,I                  
@@ -325,8 +335,8 @@ ccc                  print *, " after removing : LLVAR(II,1:SizeLLVAR)=", LLVAR(
    51         CONTINUE
               I = I + 1
             ENDDO !next I 
-            !--verifiers les edges de LLVAR : doublon possible seuelement si defini dans IDBLE                 
-            !conserver les tags de LLFIX, ne pas faire de reset : TAG_edg(1:12) = 0
+            !check edges in llvar: duplicate possible only if defined in idble
+            !keep llfix tags, do not reset: tag_edg(1:12) = 0
             I = 1
             DO WHILE(I < SizeLLVAR)
 ccc              print *, "testing LLVAR=", LLVAR(II,I)
@@ -338,7 +348,7 @@ ccc              print *, "testing LLVAR=", LLVAR(II,I)
                 K = IABS(Gcorner(J,pCODE))
                 TAG_edg(K) = TAG_edg(K)+1
                 !suppression
-                IF(TAG_edg(K) .GT. 2 .OR. (TAG_edg(K).EQ.2 .AND. .NOT.BTEST(IDBLE,12-K)))THEN
+                IF(TAG_edg(K) > 2 .OR. (TAG_edg(K)==2 .AND. .NOT.BTEST(IDBLE,12-K)))THEN
                   !removing polyhedra from list
 ccc                  print *, "     removing_b:", LLVAR(II,I)  
 ccc                  print *, "     SizeLLVAR,I=:", SizeLLVAR,I                                     

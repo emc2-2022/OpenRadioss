@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SDERI3                        source/elements/solid/solide/sderi3.F
-Chd|-- called by -----------
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        MULTIFLUID_INIT3              source/multifluid/multifluid_init3.F
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sderi3             ../starter/source/elements/solid/solide/sderi3.F
+!||--- called by ------------------------------------------------------
+!||    inirig_mat         ../starter/source/elements/initia/inirig_mat.F
+!||    inivoid            ../starter/source/elements/initia/inivoid.F
+!||    multifluid_init3   ../starter/source/multifluid/multifluid_init3.F
+!||    sinit3             ../starter/source/elements/solid/solide/sinit3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SDERI3(
      .              VOL  ,VEUL ,GEO  ,IGEO , 
      .              XD1  ,XD2  ,XD3  ,XD4  ,XD5   ,XD6  ,XD7   ,XD8   ,
@@ -66,6 +67,7 @@ C
       my_real
      .   VOL(NEL), VEUL(LVEUL,*) , GEO(NPROPG,NUMGEO),
      .   JAC1(NEL), JAC2(NEL), JAC3(NEL), JAC4(NEL), JAC5(NEL), JAC6(NEL),
+     .   JAC12(NEL), JAC45(NEL), JAC78(NEL),
      .   PX1(NEL), PX2(NEL), PX3(NEL), PX4(NEL),  
      .   PY1(NEL), PY2(NEL), PY3(NEL), PY4(NEL),  
      .   PZ1(NEL), PZ2(NEL), PZ3(NEL), PZ4(NEL), DET(NEL)
@@ -192,23 +194,35 @@ C Jacobian matrix inverse
 C
 C Shape functions partial derivatives
       DO I=1,NEL
-        PX1(I)=-JACI1(I)-JACI2(I)-JACI3(I)
-        PY1(I)=-JACI4(I)-JACI5(I)-JACI6(I)
-        PZ1(I)=-JACI7(I)-JACI8(I)-JACI9(I)
-C
-        PX2(I)=-JACI1(I)-JACI2(I)+JACI3(I)
-        PY2(I)=-JACI4(I)-JACI5(I)+JACI6(I)
-        PZ2(I)=-JACI7(I)-JACI8(I)+JACI9(I)
-C
-        PX3(I)= JACI1(I)-JACI2(I)+JACI3(I)
-        PY3(I)= JACI4(I)-JACI5(I)+JACI6(I)
-        PZ3(I)= JACI7(I)-JACI8(I)+JACI9(I)
-C
-        PX4(I)= JACI1(I)-JACI2(I)-JACI3(I)
-        PY4(I)= JACI4(I)-JACI5(I)-JACI6(I)
-        PZ4(I)= JACI7(I)-JACI8(I)-JACI9(I)
+        JAC12(I)=JACI1(I)-JACI2(I)
+        JAC45(I)=JACI4(I)-JACI5(I)
+        JAC78(I)=JACI7(I)-JACI8(I)
       ENDDO
 C
+      DO I=1,NEL
+        PX3(I)= JAC12(I)+JACI3(I)
+        PY3(I)= JAC45(I)+JACI6(I)
+        PZ3(I)= JAC78(I)+JACI9(I)
+        PX4(I)= JAC12(I)-JACI3(I)
+        PY4(I)= JAC45(I)-JACI6(I)
+        PZ4(I)= JAC78(I)-JACI9(I)
+      ENDDO
+C
+      DO I=1,NEL
+        JAC12(I)=JACI1(I)+JACI2(I)
+        JAC45(I)=JACI4(I)+JACI5(I)
+        JAC78(I)=JACI7(I)+JACI8(I)
+      ENDDO
+C
+      DO I=1,NEL
+        PX1(I)=-JAC12(I)-JACI3(I)
+        PY1(I)=-JAC45(I)-JACI6(I)
+        PZ1(I)=-JAC78(I)-JACI9(I)
+        PX2(I)=-JAC12(I)+JACI3(I)
+        PY2(I)=-JAC45(I)+JACI6(I)
+        PZ2(I)=-JAC78(I)+JACI9(I)
+      ENDDO
+
       IF(JEUL * (1 - IMULTI_FVM) /= 0)THEN
         DO I=1,NEL
           VEUL(1,I) = PX1(I)
@@ -234,15 +248,14 @@ C
 C
       RETURN
       END SUBROUTINE SDERI3
-Chd|====================================================================
-Chd|  SJAC_I                        source/elements/solid/solide/sderi3.F
-Chd|-- called by -----------
-Chd|        MULTIFLUID_INIT3              source/multifluid/multifluid_init3.F
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|        SREFSTA3                      source/elements/solid/solide/srefsta3.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    sjac_i             ../starter/source/elements/solid/solide/sderi3.F
+!||--- called by ------------------------------------------------------
+!||    multifluid_init3   ../starter/source/multifluid/multifluid_init3.F
+!||    srefsta3           ../starter/source/elements/solid/solide/srefsta3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SJAC_I(
      .              X1   ,X2   ,X3   ,X4   ,X5   ,X6   ,X7   ,X8   ,
      .              Y1   ,Y2   ,Y3   ,Y4   ,Y5   ,Y6   ,Y7   ,Y8   ,
@@ -253,7 +266,6 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
 C-----------------------------------------------
-C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
@@ -261,9 +273,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

@@ -1,34 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIEBCSP                      source/boundary_conditions/ebcs/iniebcsp.F
-Chd|-- called by -----------
-Chd|        INIEBCSP0                     source/boundary_conditions/ebcs/iniebcsp0.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE INIEBCSP(NSEG,NOD,ISEG,IELEM,IRECT,LISTE,
-     .                    LA,IPARG,ELBUF_STR,P0,RHO,X)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    iniebcsp       ../starter/source/boundary_conditions/ebcs/iniebcsp.F
+!||--- called by ------------------------------------------------------
+!||    iniebcsp0      ../starter/source/boundary_conditions/ebcs/iniebcsp0.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE INIEBCSP(NSEG,NOD,ISEG,IELEM,IRECT,LISTE,LA,IPARG,ELBUF_STR,P0,X)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -41,27 +39,22 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com04_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSEG,NOD,ISEG(NSEG),IRECT(4,NSEG),LISTE(NOD),IPARG(NPARG,*), IELEM(NSEG)
-      my_real
-     .     LA(3,NOD),P0(NOD),RHO,X(3,*)
+      my_real LA(3,NOD),P0(NOD),X(3,*)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER                                         
-     .  N1,N2,N3,N4,I,N,IS,                                       
-     .  KSEG,NG1,NG2,NG3,NG4,ESEG,EAD,KTY,KLT,MFT,II(6)
-      my_real                                         
-     .  ORIENT, FAC, X13,Y13,Z13,X24,Y24,Z24, NX,NY,NZ,S,VN,P,DPDV                             
+      INTEGER N1,N2,N3,N4,I,N,IS,KSEG,NG1,NG2,NG3,NG4,ESEG,EAD,KTY,KLT,MFT,II(6)
+      my_real  ORIENT, FAC, X13,Y13,Z13,X24,Y24,Z24, NX,NY,NZ,P
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
-C=======================================================================
+C-----------------------------------------------
       GBUF => ELBUF_STR%GBUF
-C   Initialisation de la surface nodale
+C   Initialization of the nodal surface
           DO I=1,NOD
             LA(1,I)=ZERO
             LA(2,I)=ZERO
@@ -79,7 +72,7 @@ C
             N3=IRECT(3,IS)
             N4=IRECT(4,IS)
 
-            IF(N4.EQ.0 .OR. N4.EQ.N3) THEN
+            IF(N4==0 .OR. N4==N3) THEN
               FAC=ONE_OVER_6*ORIENT
               N4=N3
             ELSE
@@ -111,30 +104,33 @@ c
             LA(2,N3)=LA(2,N3)+NY
             LA(3,N3)=LA(3,N3)+NZ 
 C 
-            IF(N4.NE.N3) THEN
+            IF(N4/=N3) THEN
               LA(1,N4)=LA(1,N4)+NX
               LA(2,N4)=LA(2,N4)+NY
               LA(3,N4)=LA(3,N4)+NZ
             ENDIF
           ENDDO
 C
-C Calcul pression initiale nodale
+C Calculation pression initiale nodale
 C
           DO I=1,NOD
             P0(I)=ZERO
           ENDDO
 
+        MFT = 0
+        KLT = 0
+        KTY = 0
         DO IS=1,NSEG
           KSEG=ABS(ISEG(IS))
           ORIENT=ZERO
           IF(KSEG /= 0)ORIENT=FLOAT(ISEG(IS)/KSEG)
-c         pression voisin
+c         neighboring pressure
           ESEG=IELEM(IS)
           DO N=1,NGROUP
             KTY = IPARG(5,N)
             KLT = IPARG(2,N)
             MFT = IPARG(3,N)
-            IF (KTY.EQ.1 .AND. ESEG.LE.KLT+MFT) GOTO 60
+            IF (KTY==1 .AND. ESEG<=KLT+MFT) GOTO 60
           ENDDO
  60       CONTINUE
 !
@@ -153,7 +149,7 @@ c
           N2=IRECT(2,IS)
           N3=IRECT(3,IS)
           N4=IRECT(4,IS)
-          IF(N4.EQ.0 .OR. N4.EQ.N3) THEN
+          IF(N4==0 .OR. N4==N3) THEN
             FAC=ONE_OVER_6*ORIENT
             N4=N3
           ELSE
@@ -178,7 +174,7 @@ c
           P0(N1)=P0(N1)+P*(NX*LA(1,N1)+NY*LA(2,N1)+NZ*LA(3,N1))
           P0(N2)=P0(N2)+P*(NX*LA(1,N2)+NY*LA(2,N2)+NZ*LA(3,N2))
           P0(N3)=P0(N3)+P*(NX*LA(1,N3)+NY*LA(2,N3)+NZ*LA(3,N3))
-          IF(N4.NE.N3) THEN
+          IF(N4/=N3) THEN
             P0(N4)=P0(N4)+P*(NX*LA(1,N4)+NY*LA(2,N4)+NZ*LA(3,N4))
           ENDIF
         ENDDO

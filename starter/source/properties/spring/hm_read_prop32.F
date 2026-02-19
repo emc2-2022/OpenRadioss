@@ -1,48 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP32                source/properties/spring/hm_read_prop32.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROP_GENERIC          source/properties/hm_read_prop_generic.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        SET_U_GEO                     source/user_interface/uaccess.F
-Chd|        SET_U_PNU                     source/user_interface/uaccess.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop32           ../starter/source/properties/spring/hm_read_prop32.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_prop_generic     ../starter/source/properties/hm_read_prop_generic.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    set_u_geo                ../starter/source/user_interface/uaccess.F
+!||    set_u_pnu                ../starter/source/user_interface/uaccess.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP32(IOUT  ,NUVAR ,PARGEO,UNITAB,IG,
      .                          IGTYP,PROP_TAG,TITR,LSUBMODEL)
 C-----------------------------------------------
       USE UNITAB_MOD
       USE MESSAGE_MOD
       USE ELBUFTAG_MOD
-      USE SUBMODEL_MOD 
+      USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,8 +52,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "warn_c.inc"
-#include      "scr17_c.inc"
 #include      "tablen_c.inc"
 C-----------------------------------------------
 C   A n a l y s e   M o d u l e
@@ -99,8 +99,7 @@ C-----------------------------------------------
       EXTERNAL SET_U_PNU,SET_U_GEO
       PARAMETER (KFUNC=29)
       INTEGER IG
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
 C=======================================================================
@@ -111,15 +110,15 @@ C-----------------------------------------------
       my_real 
      .  AMAS,AA,STIF00,STIF0,STIF1,E1,F1,D1,TSCAL,DSCAL,FSCAL,
      .  T_UNIT,L_UNIT,F_UNIT
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
 C=======================================================================
 C
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
@@ -146,7 +145,7 @@ C
 C
 C----------------------
 C
-      IF(.NOT. IS_CRYPTED)THEN
+      IF(.NOT. IS_ENCRYPTED)THEN
         WRITE(IOUT,1400) IG
       ELSE
         WRITE(IOUT,1500) IG
@@ -160,32 +159,32 @@ C
 C
       D1 = -ABS(D1)
       STIF00=EM20
-      IF(IFUNC1.NE.0.AND.IFUNC2.NE.0)THEN
+      IF(IFUNC1/=0.AND.IFUNC2/=0)THEN
         ITYP=4
-      ELSEIF(IFUNC2.NE.0)THEN
+      ELSEIF(IFUNC2/=0)THEN
         ITYP=3
-      ELSEIF(IFUNC1.NE.0)THEN
+      ELSEIF(IFUNC1/=0)THEN
         ITYP=2
       ELSE
         ITYP=1
-        IF(F1.NE.0..AND.D1.NE.0.)THEN
-         IF(E1.NE.0..OR.STIF1.NE.0.)THEN
+        IF(F1/=0..AND.D1/=0.)THEN
+         IF(E1/=0..OR.STIF1/=0.)THEN
             CALL ANCMSG(MSGID=408,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_2,
      .                   I1=IG,
      .                   C1=TITR)
          ENDIF
-        ELSEIF(F1.NE.0..AND.E1.NE.0.)THEN
-         IF(STIF1.NE.0.)THEN
+        ELSEIF(F1/=0..AND.E1/=0.)THEN
+         IF(STIF1/=0.)THEN
             CALL ANCMSG(MSGID=408,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_2,
      .                   I1=IG,
      .                   C1=TITR)
          ENDIF
-        ELSEIF(D1.NE.0..AND.E1.NE.0.)THEN
-         IF(STIF1.NE.0.)THEN
+        ELSEIF(D1/=0..AND.E1/=0.)THEN
+         IF(STIF1/=0.)THEN
             CALL ANCMSG(MSGID=408,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_2,
@@ -193,32 +192,32 @@ C
      .                   C1=TITR)
          ENDIF
         ENDIF
-        IF(F1.NE.ZERO)THEN
-          IF(D1.NE.ZERO)THEN
+        IF(F1/=ZERO)THEN
+          IF(D1/=ZERO)THEN
             STIF1=-F1/D1
-          ELSEIF(E1.NE.ZERO)THEN
+          ELSEIF(E1/=ZERO)THEN
             STIF1=HALF*F1*F1/E1
-          ELSEIF(STIF1.EQ.ZERO)THEN  
+          ELSEIF(STIF1==ZERO)THEN  
             STIF1=STIF00
           ENDIF
           D1=-F1/STIF1
           E1=-HALF*F1*D1
-          ELSEIF(D1.NE.ZERO)THEN
-          IF(E1.NE.ZERO)THEN
+          ELSEIF(D1/=ZERO)THEN
+          IF(E1/=ZERO)THEN
             STIF1=TWO*E1/D1/D1
-          ELSEIF(STIF1.EQ.ZERO)THEN
+          ELSEIF(STIF1==ZERO)THEN
             STIF1=STIF00
           ENDIF
           F1=-STIF1*D1
           E1=-HALF*F1*D1
-        ELSEIF(E1.NE.ZERO)THEN
-          IF(STIF1.EQ.ZERO)THEN
+        ELSEIF(E1/=ZERO)THEN
+          IF(STIF1==ZERO)THEN
             STIF1=STIF00
           ENDIF
           F1=SQRT(TWO*E1*STIF1)
           D1=-F1/STIF1
         ELSE
-          IF(STIF1.EQ.ZERO)THEN
+          IF(STIF1==ZERO)THEN
             STIF1=STIF00
           ENDIF
           F1=ZERO
@@ -226,7 +225,7 @@ C
           D1=ZERO 
         ENDIF
       ENDIF
-      IF(STIF1.EQ.ZERO)STIF1=STIF0
+      IF(STIF1==ZERO)STIF1=STIF0
       AA = ISENS
       IERROR = SET_U_GEO(5,AA)
       AA = ITYP
@@ -237,14 +236,14 @@ C
       PARGEO(1) = 0
       PARGEO(2) = STIF0+STIF1
 C
-      IF(.NOT. IS_CRYPTED)THEN
-       IF(ITYP.EQ.1)THEN
+      IF(.NOT. IS_ENCRYPTED)THEN
+       IF(ITYP==1)THEN
         WRITE(IOUT,1001)AMAS,STIF0,ISENS,ILOCK,F1,D1,E1,STIF1
-       ELSEIF(ITYP.EQ.2)THEN
+       ELSEIF(ITYP==2)THEN
         WRITE(IOUT,1002)AMAS,STIF0,ISENS,ILOCK,IFUNC1,DSCAL
-       ELSEIF(ITYP.EQ.3)THEN
-        WRITE(IOUT,1002)AMAS,STIF0,ISENS,ILOCK,IFUNC2,TSCAL
-       ELSEIF(ITYP.EQ.4)THEN
+       ELSEIF(ITYP==3)THEN
+        WRITE(IOUT,1003)AMAS,STIF0,ISENS,ILOCK,IFUNC2,TSCAL
+       ELSEIF(ITYP==4)THEN
         WRITE(IOUT,1004)AMAS,STIF0,ISENS,ILOCK,IFUNC1,DSCAL,IFUNC2,TSCAL
        ENDIF
       ENDIF
@@ -269,12 +268,11 @@ C
       PROP_TAG(IGTYP)%G_SKEW = 3
       PROP_TAG(IGTYP)%G_SKEW_ERR = 3
       PROP_TAG(IGTYP)%G_MASS = 1
-      PROP_TAG(IGTYP)%G_V_REPCVT  = 3 ! -- VITESSES REPERE CONVECTEE (V_REPCVT)
-      PROP_TAG(IGTYP)%G_VR_REPCVT = 3  ! -- VITESSES REPERE CONVECTEE (VR_REPCVT)
+      PROP_TAG(IGTYP)%G_V_REPCVT  = 3 ! -- VELOCITIES convected frameE (V_REPCVT)
+      PROP_TAG(IGTYP)%G_VR_REPCVT = 3  ! -- VELOCITIES convected frameE (VR_REPCVT)
       PROP_TAG(IGTYP)%G_NUVAR = NUVAR
 C
       RETURN
- 999  CONTINUE
       CALL ANCMSG(MSGID=401,
      .            MSGTYPE=MSGERROR,
      .            ANMODE=ANINFO,
@@ -300,8 +298,8 @@ C
      & 5X,'STIFFNESS BEFORE SENSOR ACTIVATION. . .=',1PG20.13/,
      & 5X,'ACTIVATION SENSOR ID. . . . . . . . . .=',I10/,
      & 5X,'FLAG FOR LOCK FEATURE ACTIVATION. . . .=',I10/,
-     & 5X,'FORCE(DISP-ACTIV_DISP) FUNCTION ID. . .=',I10/,
-     & 5X,'ABSCISSA SCALE FACTOR ON CURVE . . . . =',1PG20.13//)
+     & 5X,'FORCE SCALE VERSUS DISP. FUNCTION ID. .=',I10/,
+     & 5X,'ABSCISSA SCALE FACTOR ON CURVE. . . . .=',1PG20.13//)
  1003 FORMAT(
      & 5X,'NON LINEAR PRETENSION SPRING',/,
      & 5X,'----------------------------',/,
@@ -310,8 +308,8 @@ C
      & 5X,'STIFFNESS BEFORE SENSOR ACTIVATION. . .=',1PG20.13/,
      & 5X,'ACTIVATION SENSOR ID. . . . . . . . . .=',I10/,
      & 5X,'LOCK FEATURE. . . . . . . . . . . . . .=',I10/,
-     & 5X,'FORCE(TIME-ACTIV_TIME) FUNCTION ID. . .=',I10/,
-     & 5X,'ABSCISSA SCALE FACTOR ON CURVE . . . . =',1PG20.13//)
+     & 5X,'FORCE SCALE VERSUS TIME FUNCTION ID . .=',I10/,
+     & 5X,'ABSCISSA SCALE FACTOR ON CURVE. . . . .=',1PG20.13//)
  1004 FORMAT(
      & 5X,'NON LINEAR PRETENSION SPRING',/,
      & 5X,'----------------------------',/,
@@ -320,10 +318,10 @@ C
      & 5X,'STIFFNESS BEFORE SENSOR ACTIVATION. . .=',1PG20.13/,
      & 5X,'ACTIVATION SENSOR ID. . . . . . . . . .=',I10/,
      & 5X,'FLAG FOR LOCK FEATURE ACTIVATION. . . .=',I10/,
-     & 5X,'FORCE(DISP-ACTIV_DISP) FUNCTION ID. . .=',I10/,
-     & 5X,'ABSCISSA SCALE FACTOR ON CURVE . . . . =',1PG20.13/,
-     & 5X,'F. SCALE FAC(TIME-ACTIV_T) FUNCTION ID.=',I10/,
-     & 5X,'ABSCISSA SCALE FACTOR ON CURVE . . . . =',1PG20.13//)
+     & 5X,'FORCE SCALE VERSUS DISP. FUNCTION ID. .=',I10/,
+     & 5X,'ABSCISSA SCALE FACTOR ON CURVE. . . . .=',1PG20.13/,
+     & 5X,'FORCE SCALE VERSUS TIME FUNCTION ID . .=',I10/,
+     & 5X,'ABSCISSA SCALE FACTOR ON CURVE. . . . .=',1PG20.13//)
 C
  1400 FORMAT(
      & 5X,'USER PROPERTY SET'/,
@@ -335,22 +333,28 @@ C
      & 5X,'CONFIDENTIAL DATA'//)
 C
       END
-Chd|====================================================================
-Chd|  RINI32                        source/properties/spring/hm_read_prop32.F
-Chd|-- called by -----------
-Chd|        RINIT3                        source/elements/spring/rinit3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        AREA                          source/properties/spring/hm_read_prop32.F
-Chd|        GET_U_GEO                     source/user_interface/uaccess.F
-Chd|        GET_U_PNU                     source/user_interface/uaccess.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE RINI32(NEL   ,IOUT   ,IPROP ,
+!||====================================================================
+!||    rini32                 ../starter/source/properties/spring/hm_read_prop32.F
+!||--- called by ------------------------------------------------------
+!||    rinit3                 ../starter/source/elements/spring/rinit3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    area                   ../starter/source/properties/spring/hm_read_prop32.F
+!||    get_u_geo              ../starter/source/user_interface/uaccess.F
+!||    get_u_mat              ../starter/source/user_interface/uaccess.F
+!||    get_u_mid              ../starter/source/user_interface/uaccess.F
+!||    get_u_mnu              ../starter/source/user_interface/uaccess.F
+!||    get_u_pid              ../starter/source/user_interface/uaccess.F
+!||    get_u_pnu              ../starter/source/user_interface/uaccess.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE RINI32(NEL   ,IPROP ,
      3                  IX    ,XL     ,MASS  ,XINER  ,STIFM ,
      4                  STIFR ,VISCM  ,VISCR ,UVAR   ,NUVAR ,
      5                  ID,TITR,EINT,NPF,TF)
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-------------------------------------------------------------------------
 C     This subroutine initialize springs using user properties.
 C-------------------------------------------------------------------------
@@ -363,7 +367,7 @@ C----------+---------+---+---+--------------------------------------------
 C IX       | 3*NEL   | I | R | SPRING CONNECTIVITY
 C                            | IX(1,I) NODE 1 ID
 C                            | IX(2,I) NODE 2 ID
-C                            | IX(3,I) OPTIONNAL NODE 3 ID
+C                            | IX(3,I) OPTIONAL NODE 3 ID
 C                            | IX(4,I) SPRING ID
 C XL       |   NEL   | F | R | ELEMENT LENGTH
 C----------+---------+---+---+--------------------------------------------
@@ -396,7 +400,7 @@ C         I     :     VARIABLE INDEX(1 for first function)
 C         IM    :     MATERIAL NUMBER
 C         KFUNC :     ONLY FUNCTION ARE YET AVAILABLE.
 C         THIS FUNCTION RETURN THE USER STORED FUNCTION NUMBERS(function 
-C         refered by users materials).
+C         referred by users materials).
 C         SEE LECM29 FOR CORRESPONDING ID STORAGE.
 C-------------------------------------------------------------------------
 C my_real PARAMI = GET_U_GEO(I,IP)
@@ -424,17 +428,10 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr17_c.inc"
 C----------------------------------------------------------
 C   D u m m y   A r g u m e n t s   a n d   F u n c t i o n
 C----------------------------------------------------------
-      INTEGER IOUT,NUVAR,NEL,IPROP,   
+      INTEGER NUVAR,NEL,IPROP,   
      .        IX(4,NEL),NPF(*),KFUNC,
      .        GET_U_PNU,GET_U_PID,GET_U_MID,GET_U_MNU
       my_real 
@@ -446,8 +443,7 @@ C-----------------------------------------------
      .         GET_U_MID
       PARAMETER (KFUNC=29)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -472,7 +468,7 @@ C--------------------------------------
 C       ELEMENT CHECK
 C--------------------------------------
         DO I=1,NEL
-          IF(XL(I).EQ.0.0)THEN
+          IF(XL(I)==0.0)THEN
              CALL ANCMSG(MSGID=406,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -527,6 +523,10 @@ C           Non linear case with both space IFUNC1 and time IFUNC2 defined
             IFUNC2   = GET_U_PNU(2,IPROP,KFUNC)
             F0=FSCAL*TF(NPF(IFUNC2)+1)
             NPOINT=(NPF(IFUNC1+1)-NPF(IFUNC1))/2
+            X2=DSCAL*TF(NPF(IFUNC1)+2*0+0)
+            Y2=FSCAL*TF(NPF(IFUNC1)+2*0+1)
+            X3=DSCAL*TF(NPF(IFUNC1)+2*0+2)
+            Y3=FSCAL*TF(NPF(IFUNC1)+2*0+3)
             IF (D1==0) D1=-1e30
             IF (D1>0.AND.Y2>0.AND.X2>D1) THEN
               Y=Y2+(Y3-Y2)/(X3-X2)*(D1-X2)
@@ -556,13 +556,13 @@ C FOR NODAL AND ELEMENT TIME STEP COMPUTATION
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  AREA                          source/properties/spring/hm_read_prop32.F
-Chd|-- called by -----------
-Chd|        RINI32                        source/properties/spring/hm_read_prop32.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    area          ../starter/source/properties/spring/hm_read_prop32.F
+!||--- called by ------------------------------------------------------
+!||    rini32        ../starter/source/properties/spring/hm_read_prop32.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE AREA(D1,X,X2,Y,Y2,EINT,STIF0)
       USE MESSAGE_MOD
 C-------------------------------------------------------------------------

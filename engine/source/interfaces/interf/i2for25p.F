@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2FOR25P                      source/interfaces/interf/i2for25p.F
-Chd|-- called by -----------
-Chd|        INTTI2F                       source/interfaces/interf/intti2f.F
-Chd|-- calls ---------------
-Chd|        I2LOCEQ                       ../common_source/interf/i2loceq.F
-Chd|        I2PEN_ROT                     ../common_source/interf/i2pen_rot.F
-Chd|        I2REP                         ../common_source/interf/i2rep.F
-Chd|        I2SMS25                       source/interfaces/interf/i2sms25.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2for25p    ../engine/source/interfaces/interf/i2for25p.F
+!||--- called by ------------------------------------------------------
+!||    intti2f     ../engine/source/interfaces/interf/intti2f.F
+!||--- calls      -----------------------------------------------------
+!||    i2forces    ../engine/source/interfaces/interf/i2forces.F
+!||    i2loceq     ../common_source/interf/i2loceq.F
+!||    i2pen_rot   ../common_source/interf/i2pen_rot.F
+!||    i2rep       ../common_source/interf/i2rep.F
+!||    i2sms25     ../engine/source/interfaces/interf/i2sms25.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod     ../engine/share/modules/h3d_mod.F
+!||====================================================================
       SUBROUTINE I2FOR25P(X       ,V       ,VR      ,A       ,AR      ,
      .                    MS      ,STIFN   ,STIFR   ,WEIGHT  ,IRECT   ,
      .                    NSV     ,IRTL    ,CRST    ,SKEW    ,XINI    ,
@@ -71,12 +73,9 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
 #include      "com01_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
 #include      "scr11_c.inc"
 #include      "scr14_c.inc"
 #include      "sms_c.inc"
@@ -90,15 +89,16 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   S,T,SP,SM,TP,TM,ECONTT,ECONVT,E1X,E1Y,E1Z,E2X,E2Y,E2Z,E3X,E3Y,E3Z,
-     .   FNORM,FLX,FLY,FLZ,FSX,FSY,FSZ,DDX,DDY,DDZ,XSM,YSM,ZSM,XM,YM,ZM,
-     .   X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,X0,Y0,Z0,XS,YS,ZS,STIFMS,
+     .   FLX,FLY,FLZ,FS(3),XSM,YSM,ZSM,XM,YM,ZM,
+     .   X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,X0,Y0,Z0,XS,YS,ZS,
      .   VX1,VX2,VX3,VX4,VY1,VY2,VY3,VY4,VZ1,VZ2,VZ3,VZ4,DLX,DLY,DLZ,
      .   VX0,VY0,VZ0,VSX,VSY,VSZ,VMX,VMY,VMZ,V1,V2,V3,DTINV,STF,
-     .   FXV,FYV,FZV,DRX,DRY,DRZ,STBRK,DTI,MHARM,DKM, DXT
+     .   FXV,FYV,FZV,STBRK,DTI,MHARM,DKM, DXT
       my_real
-     .   H(4,MVSIZ),FN(3),FT(3),FX(4),FY(4),FZ(4),FMX(4),FMY(4),FMZ(4),
-     .   RX(4),RY(4),RZ(4),RM(3),RS(3),V0(3),VS(3),VM(3),DXOLD(3),
-     .   STIF(MVSIZ), VIS(MVSIZ), STIFM(MVSIZ),VA(3),VB(3),VC(3),VD(3)
+     .   H(4,MVSIZ),FX(4),FY(4),FZ(4),FMX(4),FMY(4),FMZ(4),
+     .   RX(4),RY(4),RZ(4),RM(3),RS(3),VS(3),VM(3),
+     .   STIF(MVSIZ), VIS(MVSIZ), STIFM(MVSIZ),VA(3),VB(3),VC(3),VD(3),
+     .   HL(4)
       my_real
      .   VISCL
 
@@ -154,33 +154,33 @@ C------------------------------------------------
           X1  = X(1,IX1(K))                                       
           Y1  = X(2,IX1(K))                                          
           Z1  = X(3,IX1(K))                                          
-          X2  = X(1,IX2(K))					     
-          Y2  = X(2,IX2(K))					     
-          Z2  = X(3,IX2(K))					     
-          X3  = X(1,IX3(K))					     
-          Y3  = X(2,IX3(K))					     
-          Z3  = X(3,IX3(K))					     
-          X4  = X(1,IX4(K))					     
-          Y4  = X(2,IX4(K))					     
-          Z4  = X(3,IX4(K))					     
+          X2  = X(1,IX2(K))               
+          Y2  = X(2,IX2(K))               
+          Z2  = X(3,IX2(K))               
+          X3  = X(1,IX3(K))               
+          Y3  = X(2,IX3(K))               
+          Z3  = X(3,IX3(K))               
+          X4  = X(1,IX4(K))               
+          Y4  = X(2,IX4(K))               
+          Z4  = X(3,IX4(K))               
           XS  = X(1,I)                                          
           YS  = X(2,I)                                         
           ZS  = X(3,I)                                           
           VSX = V(1,I)                                                   
           VSY = V(2,I)                                                   
           VSZ = V(3,I)                                                   
-          VX1 = V(1,IX1(K))						      
-          VY1 = V(2,IX1(K))						      
-          VZ1 = V(3,IX1(K))						      
-          VX2 = V(1,IX2(K))						      
-          VY2 = V(2,IX2(K))						      
-          VZ2 = V(3,IX2(K))						      
-          VX3 = V(1,IX3(K))						      
-          VY3 = V(2,IX3(K))						      
-          VZ3 = V(3,IX3(K))						      
-          VX4 = V(1,IX4(K))						      
-          VY4 = V(2,IX4(K))						      
-          VZ4 = V(3,IX4(K))								
+          VX1 = V(1,IX1(K))                  
+          VY1 = V(2,IX1(K))                  
+          VZ1 = V(3,IX1(K))                  
+          VX2 = V(1,IX2(K))                  
+          VY2 = V(2,IX2(K))                  
+          VZ2 = V(3,IX2(K))                  
+          VX3 = V(1,IX3(K))                  
+          VY3 = V(2,IX3(K))                  
+          VZ3 = V(3,IX3(K))                  
+          VX4 = V(1,IX4(K))                  
+          VY4 = V(2,IX4(K))                  
+          VZ4 = V(3,IX4(K))
 C---------------------
           CALL I2REP(X1     ,X2     ,X3     ,X4     ,
      .               Y1     ,Y2     ,Y3     ,Y4     ,
@@ -278,9 +278,9 @@ c
         RZ(4) = E3X*X4 + E3Y*Y4 + E3Z*Z4         
 C
         IF(NIR==3)THEN
- 	  RX(4)=ZERO
- 	  RY(4)=ZERO
- 	  RZ(4)=ZERO
+            RX(4)=ZERO
+            RY(4)=ZERO
+            RZ(4)=ZERO
         END IF
 C
         VS(1) = VSX*E1X + VSY*E1Y + VSZ*E1Z
@@ -324,11 +324,11 @@ C---------  Vi = Vi -VR ^ MS
      .    RS   ,RM   ,V1   ,V2   ,V3   ,                        
      .    RX   ,RY   ,RZ   ,VA   ,VB   ,
      .    VC   ,VD)  
-C-------------  vers increm en vitesses
+C-------------  vers increm en velocities
           DLX = V1*DT1
           DLY = V2*DT1
           DLZ = V3*DT1
-C-------------  DX == deplacement relatif
+C-------------- DX == Relative displacement
             DX(1,II) = DX(1,II) + DLX
             DX(2,II) = DX(2,II) + DLY
             DX(3,II) = DX(3,II) + DLZ
@@ -341,7 +341,7 @@ C------------------------------------------------
           FLZ = DX(3,II) * STFN(II)
           VISCL = VISC
 C
-          IF (IVISC.EQ.1) THEN
+          IF (IVISC==1) THEN
 C--  Old visc formulation from Radioss V14 --
            MHARM = MS(I)        
           ELSEIF(MS(I)==ZERO.OR.MS(IX1(K))==ZERO.OR.
@@ -367,9 +367,9 @@ C
           FZV = VIS(K) * V3
 c
           DXT = DX(1,II)**2 + DX(2,II)**2 + DX(3,II)**2
-          ECONTT = ECONTT + HALF*STFN(II)*DXT
+          ECONTT = ECONTT + HALF*STFN(II)*DXT*W
 
-          ECONVT = ECONVT + (FXV*V1 + FYV*V2 + FZV*V3)*DT1
+          ECONVT = ECONVT + (FXV*V1 + FYV*V2 + FZV*V3)*DT1*W
 c
           FLX = FLX + FXV
           FLY = FLY + FYV
@@ -385,26 +385,26 @@ c         update main forces (moment balance)
           CALL I2LOCEQ( NIR    ,RS     ,RX     ,RY     ,RZ      ,    
      .                  FMX    ,FMY    ,FMZ    ,H(1,K) ,STIFM(K))      
 C----------------------------------------------------
-C         Secnd forces -> global coordinates 
+C         Second forces -> global coordinates 
 C----------------------------------------------------
           DO J=1,4
             FX(J) = E1X*FMX(J) + E2X*FMY(J) + E3X*FMZ(J) 
             FY(J) = E1Y*FMX(J) + E2Y*FMY(J) + E3Y*FMZ(J) 
             FZ(J) = E1Z*FMX(J) + E2Z*FMY(J) + E3Z*FMZ(J) 
           ENDDO
-          FSX = ZERO
-          FSY = ZERO
-          FSZ = ZERO
+          FS(1) = ZERO
+          FS(2) = ZERO
+          FS(3) = ZERO
           DO J=1,NIR
-            FSX = FSX - FX(J)
-            FSY = FSY - FY(J)
-            FSZ = FSZ - FZ(J)
+            FS(1) = FS(1) + FX(J)
+            FS(2) = FS(2) + FY(J)
+            FS(3) = FS(3) + FZ(J)
           ENDDO
-          A(1,I) = A(1,I) + FSX
-          A(2,I) = A(2,I) + FSY   
-          A(3,I) = A(3,I) + FSZ 
+          A(1,I) = A(1,I) - FS(1)
+          A(2,I) = A(2,I) - FS(2)   
+          A(3,I) = A(3,I) - FS(3) 
 C
-          IF (IVISC.EQ.1) THEN
+          IF (IVISC==1) THEN
 C--  Old visc formulation from Radioss V14 --
           DTINV = ZERO
           IF (DT1 > ZERO) DTINV=ONE/DT1
@@ -489,83 +489,12 @@ C------------------------------------------------
           FINI(2,II) = FLY
           FINI(3,II) = FLZ
 C------------------------------------------------                  
-C         composantes N/T de la forces nodale -> output
-C------------------------------------------------                  
-          FNORM = E3X*FLX + E3Y*FLY + E3Z*FLZ
-          FN(1) = E3X*FNORM
-          FN(2) = E3Y*FNORM
-          FN(3) = E3Z*FNORM
-C
-          FT(1) = FLX - FN(1)
-          FT(2) = FLY - FN(2)
-          FT(3) = FLZ - FN(3)
-C
-          FSAV(1) = FSAV(1) + FN(1)*DT1*W
-          FSAV(2) = FSAV(2) + FN(2)*DT1*W
-          FSAV(3) = FSAV(3) + FN(3)*DT1*W
-          FSAV(4) = FSAV(4) + FT(1)*DT1*W
-          FSAV(5) = FSAV(5) + FT(2)*DT1*W
-          FSAV(6) = FSAV(6) + FT(3)*DT1*W
-C
-          IF (ANIM_V(13)+H3D_DATA%N_VECT_CONT2 > 0) THEN
-            FNCONT(1,I)  = FNCONT(1,I)  + FSX * W
-            FNCONT(2,I)  = FNCONT(2,I)  + FSY * W
-            FNCONT(3,I)  = FNCONT(3,I)  + FSZ * W
-            FNCONT(1,IX1(K)) = FNCONT(1,IX1(K)) + FX(1)*W
-            FNCONT(2,IX1(K)) = FNCONT(2,IX1(K)) + FY(1)*W
-            FNCONT(3,IX1(K)) = FNCONT(3,IX1(K)) + FZ(1)*W
-            FNCONT(1,IX2(K)) = FNCONT(1,IX2(K)) + FX(2)*W
-            FNCONT(2,IX2(K)) = FNCONT(2,IX2(K)) + FY(2)*W
-            FNCONT(3,IX2(K)) = FNCONT(3,IX2(K)) + FZ(2)*W
-            FNCONT(1,IX3(K)) = FNCONT(1,IX3(K)) + FX(3)*W
-            FNCONT(2,IX3(K)) = FNCONT(2,IX3(K)) + FY(3)*W
-            FNCONT(3,IX3(K)) = FNCONT(3,IX3(K)) + FZ(3)*W
-            FNCONT(1,IX4(K)) = FNCONT(1,IX4(K)) + FX(4)*W
-            FNCONT(2,IX4(K)) = FNCONT(2,IX4(K)) + FY(4)*W
-            FNCONT(3,IX4(K)) = FNCONT(3,IX4(K)) + FZ(4)*W
-          ENDIF
-
-          IF(ANIM_V(27)+H3D_DATA%N_VECT_PCONT2.GT.0) THEN ! Normal/Tangential forces output
-            FNCONTP(1,I) = FNCONTP(1,I)  - FN(1) * W
-            FNCONTP(2,I) = FNCONTP(2,I)  - FN(2) * W
-            FNCONTP(3,I) = FNCONTP(3,I)  - FN(3) * W
-
-            FNCONTP(1,IX1(K)) = FNCONTP(1,IX1(K)) + FN(1)*H(1,K)*W
-            FNCONTP(2,IX1(K)) = FNCONTP(2,IX1(K)) + FN(2)*H(1,K)*W
-            FNCONTP(3,IX1(K)) = FNCONTP(3,IX1(K)) + FN(3)*H(1,K)*W
-
-            FNCONTP(1,IX2(K)) = FNCONTP(1,IX2(K)) + FN(1)*H(2,K)*W
-            FNCONTP(2,IX2(K)) = FNCONTP(2,IX2(K)) + FN(2)*H(2,K)*W
-            FNCONTP(3,IX2(K)) = FNCONTP(3,IX2(K)) + FN(3)*H(2,K)*W
-
-            FNCONTP(1,IX3(K)) = FNCONTP(1,IX3(K)) + FN(1)*H(3,K)*W
-            FNCONTP(2,IX3(K)) = FNCONTP(2,IX3(K)) + FN(2)*H(3,K)*W
-            FNCONTP(3,IX3(K)) = FNCONTP(3,IX3(K)) + FN(3)*H(3,K)*W
-
-            FNCONTP(1,IX4(K)) = FNCONTP(1,IX4(K)) + FN(1)*H(4,K)*W
-            FNCONTP(2,IX4(K)) = FNCONTP(2,IX4(K)) + FN(2)*H(4,K)*W
-            FNCONTP(3,IX4(K)) = FNCONTP(3,IX4(K)) + FN(3)*H(4,K)*W
-
-            FTCONTP(1,I) = FTCONTP(1,I)  - FT(1) * W
-            FTCONTP(2,I) = FTCONTP(2,I)  - FT(2) * W
-            FTCONTP(3,I) = FTCONTP(3,I)  - FT(3) * W
-
-            FTCONTP(1,IX1(K)) = FTCONTP(1,IX1(K)) + FT(1)*H(1,K)*W
-            FTCONTP(2,IX1(K)) = FTCONTP(2,IX1(K)) + FT(2)*H(1,K)*W
-            FTCONTP(3,IX1(K)) = FTCONTP(3,IX1(K)) + FT(3)*H(1,K)*W
-
-            FTCONTP(1,IX2(K)) = FTCONTP(1,IX2(K)) + FT(1)*H(2,K)*W
-            FTCONTP(2,IX2(K)) = FTCONTP(2,IX2(K)) + FT(2)*H(2,K)*W
-            FTCONTP(3,IX2(K)) = FTCONTP(3,IX2(K)) + FT(3)*H(2,K)*W
-
-            FTCONTP(1,IX3(K)) = FTCONTP(1,IX3(K)) + FT(1)*H(3,K)*W
-            FTCONTP(2,IX3(K)) = FTCONTP(2,IX3(K)) + FT(2)*H(3,K)*W
-            FTCONTP(3,IX3(K)) = FTCONTP(3,IX3(K)) + FT(3)*H(3,K)*W
-
-            FTCONTP(1,IX4(K)) = FTCONTP(1,IX4(K)) + FT(1)*H(4,K)*W
-            FTCONTP(2,IX4(K)) = FTCONTP(2,IX4(K)) + FT(2)*H(4,K)*W
-            FTCONTP(3,IX4(K)) = FTCONTP(3,IX4(K)) + FT(3)*H(4,K)*W
-         ENDIF
+C         n/t components of the nodal force -> output
+C------------------------------------------------
+          HL(1:4) = H(1:4,K)
+          CALL I2FORCES(X       ,FS     ,FX     ,FY      ,FZ     ,
+     .                  IRECT(1,L),NIR  ,FSAV   ,FNCONT  ,FNCONTP,
+     .                  FTCONTP ,WEIGHT ,H3D_DATA,I      ,HL)                  
 
 C----------
         ELSE  ! desactivated secnd node
@@ -578,7 +507,7 @@ C
           IX4(K) = IRECT(4,L)  
           STIF(K)= ZERO
           VIS(K) = ZERO
-          IF (WEIGHT(-I) == 1) THEN  ! stokage ZERO pour noeuds delete par idel2
+          IF (WEIGHT(-I) == 1) THEN  ! zero storage for nodes deleted by idel2
             I0 = I0 + 1
             JJ = 1                                                       
             NN = IADI2(JJ,I0)                                            
@@ -646,7 +575,7 @@ c
      2                NSVG  ,H      ,STIF ,NOINT ,
      3                DMINT2(1,KK),NODNX_SMS ,VIS   ,
      4                STIFM ,DTI   )
-         IF(DTI.LT.DT2T)THEN
+         IF(DTI<DT2T)THEN
            DT2T    = DTI
            NELTST  = NOINT
            ITYPTST = 10

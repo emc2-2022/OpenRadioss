@@ -1,52 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  SPMD_EX_CPUTIME               source/mpi/output/spmd_ex_cputime.F
-Chd|-- called by -----------
-Chd|        CUMULTIME_MP                  source/system/timer.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_ex_cputime       ../engine/source/mpi/output/spmd_ex_cputime.F
+!||--- called by ------------------------------------------------------
+!||    cumultime_mp          ../engine/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EX_CPUTIME(DIM_TAB3,TAB3,TAB4)
 C     exchange and sum of cputime/mpitask 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -71,7 +69,7 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
       DIM=DIM_TAB3
-      IF(ISPMD.EQ.0) THEN
+      IF(ISPMD==0) THEN
         DO J=1,DIM_TAB3
          TAB4(NSPMD+1,J) = ZERO
          TAB4(1,J) = TAB3(J)
@@ -81,7 +79,7 @@ C-----------------------------------------------
           MSGTYP=MSGOFF
           SENDER = I-1        
           CALL MPI_RECV(RBUF,DIM,REAL,SENDER,MSGTYP,
-     .                   MPI_COMM_WORLD,STATUS,IERROR) 
+     .                   SPMD_COMM_WORLD,STATUS,IERROR) 
           DO J=1,DIM_TAB3
            TAB4(I,J) = RBUF(J)
           ENDDO
@@ -93,7 +91,7 @@ C-----------------------------------------------
          RBUF(J) = TAB3(J)
         ENDDO
         CALL MPI_SEND(RBUF,DIM,REAL,RECIP,MSGTYP,
-     .                   MPI_COMM_WORLD,IERROR)
+     .                   SPMD_COMM_WORLD,IERROR)
       ENDIF     
 C
 #endif

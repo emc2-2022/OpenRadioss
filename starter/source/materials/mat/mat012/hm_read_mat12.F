@@ -1,53 +1,52 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT12                 source/materials/mat/mat012/hm_read_mat12.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat12            ../starter/source/materials/mat/mat012/hm_read_mat12.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT12(
-     .           LSUBMODEL ,MTAG     ,UNITAB   ,IPM     ,PM,
-     .           MAT_ID    ,TITR     ,EOS_TAG  ,MAXEOS ,ISRATE,
-     .           MATPARAM  )
+     .           LSUBMODEL ,MTAG     ,UNITAB   ,IPM     ,PM      ,
+     .           MAT_ID    ,TITR     ,ISRATE   ,MATPARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE UNITAB_MOD
-      USE ELBUFTAG_MOD            
+      USE ELBUFTAG_MOD !MAXEOS
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
       USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -67,31 +66,25 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "sysunit.inc"
-#include      "submod_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER, INTENT(IN)                          :: MAT_ID,MAXEOS
+      INTEGER, INTENT(IN)                          :: MAT_ID
       INTEGER, INTENT(INOUT)                       :: ISRATE
       INTEGER, DIMENSION(NPROPMI) ,INTENT(INOUT)   :: IPM
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
       my_real, DIMENSION(NPROPM)  ,INTENT(INOUT)   :: PM
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
-      TYPE(MLAW_TAG_), INTENT(OUT)                 :: MTAG
-      TYPE(EOS_TAG_) , TARGET, DIMENSION(0:MAXEOS) ,INTENT(OUT) :: EOS_TAG      
-      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
+      TYPE(MLAW_TAG_), INTENT(INOUT)               :: MTAG
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT)        :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
-      INTEGER ICC,IFLAG
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
+      INTEGER ICC
       my_real
      .   N12, N23, N31, E11, E22, E33, G12, G23, G31, SIGT1, SIGT2,
      .   SIGT3, DELTA, CA, CB, CN, FMAX, SIGYT1, SIGYT2, SIGYC1,
@@ -106,11 +99,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED   = .FALSE.
       IS_AVAILABLE = .FALSE.
       ISRATE = 0
 
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 
       CALL HM_GET_FLOATV('MAT_RHO'   ,RHO0     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Refer_Rho' ,RHOR     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -159,7 +152,7 @@ C-----------------------------------------------
 
       CALL HM_GET_INTV  ('STRFLAG'      ,ICC       ,IS_AVAILABLE,LSUBMODEL)
 
-      IF (RHOR.EQ.ZERO) RHOR=RHO0
+      IF (RHOR==ZERO) RHOR=RHO0
       PM(1) = RHOR
       PM(89)= RHO0
 
@@ -184,15 +177,15 @@ C
 
       
       IF(WPLAREF == ZERO) WPLAREF = ONE    
-      IF(ALPHA.EQ.ONE)ALPHA= ZEP99
-      IF(DELTA.EQ.ZERO)DELTA= FIVEEM2
-      IF(SIGT1.EQ.ZERO)SIGT1= INFINITY
-      IF(SIGT2.EQ.ZERO)SIGT2= SIGT1
-      IF(SIGT3.EQ.ZERO)SIGT3= SIGT1
-      IF(SIGYT1.EQ.ZERO)SIGYT1= INFINITY
-      IF(SIGYC1.EQ.ZERO)SIGYC1= SIGYT1
-      IF(SIGYT2.EQ.ZERO)SIGYT2= SIGYT1
-      IF(SIGYC2.EQ.ZERO)SIGYC2= SIGYC1
+      IF(ALPHA==ONE)ALPHA= ZEP99
+      IF(DELTA==ZERO)DELTA= FIVEEM2
+      IF(SIGT1==ZERO)SIGT1= INFINITY
+      IF(SIGT2==ZERO)SIGT2= SIGT1
+      IF(SIGT3==ZERO)SIGT3= SIGT1
+      IF(SIGYT1==ZERO)SIGYT1= INFINITY
+      IF(SIGYC1==ZERO)SIGYC1= SIGYT1
+      IF(SIGYT2==ZERO)SIGYT2= SIGYT1
+      IF(SIGYC2==ZERO)SIGYC2= SIGYC1
       IF(SIGYT3 == ZERO) SIGYT3 = SIGYT2
       IF(SIGYC3 == ZERO) SIGYC3 = SIGYC2
       IF(SIGYT12 == ZERO) SIGYT12 = INFINITY
@@ -202,19 +195,19 @@ C
       IF(SIGYT13 == ZERO) SIGYT13 = SIGYT12 
       IF(SIGYC13 == ZERO) SIGYC13 = SIGYC12   
       CA=ONE
-      IF(CN.EQ.ZERO)   CN   = ONE
-      IF(FMAX.EQ.ZERO)FMAX= EP10
-      IF(CC.EQ.ZERO)  EPS0  = ONE
-      IF(ICC.EQ.0.)   ICC  = 1
+      IF(CN==ZERO)   CN   = ONE
+      IF(FMAX==ZERO)FMAX= EP10
+      IF(CC==ZERO)  EPS0  = ONE
+      IF(ICC==0.)   ICC  = 1
       EPSFC=-INFINITY
       EPSFT= INFINITY
 C-------------------------------------
       WRITE(IOUT,1001) TRIM(TITR),MAT_ID,12
       WRITE(IOUT,1000)
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
-        WRITE(IOUT,1002) RHO0      
+        WRITE(IOUT,1002) RHO0,RHOR     
         WRITE(IOUT,1100) E11,E22,E33
         WRITE(IOUT,1200) N12,N23,N31
         WRITE(IOUT,1300) G12,G23,G31
@@ -313,13 +306,13 @@ C
       F13= - HALF/SQRT(SIGYT1*SIGYC1*SIGYT3*SIGYC3)
       FT1=F11*F22- FOUR*F12**2
       FT2=F22**2- FOUR*F23**2
-      IF(.NOT.IS_CRYPTED)THEN
+      IF(.NOT.IS_ENCRYPTED)THEN
        WRITE(IOUT,1650) F1,F2,F3,F4,F5,F6,F11,F22,F33,F44,F55,F66,F12,F23,F13,FT1,FT2
       ENDIF
       PM(50)=CC
       PM(51)=EPS0
       PM(52)=ICC
-      IF(EPS0.EQ.ZERO) THEN
+      IF(EPS0==ZERO) THEN
          CALL ANCMSG(MSGID=298,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -360,19 +353,36 @@ CC     Formulation for solid elements time step computation.
       PM(105) =DMIN/C1**2    
 C-----------------------------------------
 c
-C---- Definition des variables internes (stockage elementaire)
+C---- Definition of internal variables (Elementary storage)
 c
-      MTAG%G_PLA   = 1    
-      MTAG%L_PLA   = 1
-      MTAG%L_SIGF  = 1
-      MTAG%L_EPSF  = 1
-      MTAG%L_DAM   = 5
-      MTAG%L_EPE   = 6  ! strain in crack directions
+      MTAG%G_PLA    = 1    
+      MTAG%L_PLA    = 1
+      MTAG%L_SIGF   = 1
+      MTAG%L_EPSF   = 1
+      MTAG%L_DAM    = 5
+      MTAG%L_EPE    = 6  ! strain in crack directions
+      MTAG%G_TSAIWU = 1
+      MTAG%L_TSAIWU = 1
+
+!-------------------------------------------------------------
+      MATPARAM%IEOS = 18    ! linear by default
+      
+      ! MATPARAM Keywords    
+      
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HOOK")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ORTHOTROPIC")
+
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ORTHOTROPIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SPH")
+
+      ! Material compatibility with /EOS option
+      CALL INIT_MAT_KEYWORD(MATPARAM,"EOS")
 c-----------
       CALL INIT_MAT_KEYWORD(MATPARAM,"ELASTO_PLASTIC")
       CALL INIT_MAT_KEYWORD(MATPARAM,"COMPRESSIBLE")
 c----------------------------------------
-      IF(.NOT.IS_CRYPTED)THEN
+      IF(.NOT.IS_ENCRYPTED)THEN
         WRITE(IOUT,'(A)')' COMPOSITE CONSTITUTIVE LAW'
         WRITE(IOUT,'(    1P3G20.13 )') PM(40),PM(41),PM(42)
         WRITE(IOUT,'(20X,1P2G20.13 )') PM(43),PM(44)
@@ -389,7 +399,8 @@ C
      & 5X,'MATERIAL NUMBER . . . . . . . . . . . .=',I10/,
      & 5X,'MATERIAL LAW. . . . . . . . . . . . . .=',I10/)
  1002 FORMAT(
-     & 5X,'INITIAL DENSITY . . . . . . . . . . . .=',1PG20.13/)
+     & 5X,'INITIAL DENSITY . . . . . . . . . . . .=',1PG20.13/,
+     & 5X,'REFERENCE DENSITY . . . . . . . . . . .=',1PG20.13)
  1100 FORMAT(
      & 5X,'YOUNG MODULUS E11 . . . . . . . . . . .=',1PG20.13/,
      & 5X,'YOUNG MODULUS E22 . . . . . . . . . . .=',1PG20.13/,
@@ -448,7 +459,6 @@ C
      & 5X,'F44, F55, F66 . . . . . . . . . . . . . =',3E12.4/,
      & 5X,'F12, F23, F13 . . . . . . . . . . . . ..=',3E12.4/,
      & 5X,'FT1, FT2. . . . . . . . . . . . . . . .=',2E12.4//)
- 999  CALL FREERR(3)
       RETURN
       END
 

@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RADIOSS_TITLE                 source/starter/radioss_title.F
-Chd|-- called by -----------
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        PRINTCENTER                   source/starter/radioss_title.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    radioss_title    ../starter/source/starter/radioss_title.F
+!||--- called by ------------------------------------------------------
+!||    checksum_check   ../starter/source/output/checksum/checksum_check.F90
+!||    starter0         ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    printcenter      ../starter/source/starter/radioss_title.F
+!||====================================================================
       SUBROUTINE RADIOSS_TITLE(IOUT,CPUNAM,ARCHTITLE,
      *             FILNAM,ROOTLEN,CHRUN,IRESP,IFLAG)
 C-----------------------------------------------
@@ -42,11 +43,12 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IOUT,ROOTLEN,IRESP,IFLAG
-      CHARACTER CPUNAM*20,FILNAM*100,CHRUN*4,ARCHTITLE*66
+      CHARACTER(LEN=2148) :: FILNAM
+      CHARACTER CPUNAM*20,CHRUN*4,ARCHTITLE*66
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER LEN,LEN_RAD,LENCPUNAM,LENARCHTIT,CT,RESC,LBT
+      INTEGER LEN, LENCPUNAM, LENARCHTIT, LBT
       CHARACTER RADVERS*68,COPYRIGHTLINE*68
 C-----------------------------------------------
        LEN=LEN_TRIM(VERS)
@@ -76,12 +78,12 @@ C-----------------------------------------------
        CALL PRINTCENTER(" ",0,IOUT,0)
        CALL PRINTCENTER(" ",0,IOUT,0)
        CALL PRINTCENTER(ARCHTITLE,LENARCHTIT,IOUT,2)
-       IF (IRESP .EQ. 1) THEN
+       IF (IRESP == 1) THEN
          CALL PRINTCENTER("Extended Single Precision Version",33,IOUT,2)
        ELSE
-         CALL PRINTCENTER(" ",0,IOUT,0)
+         CALL PRINTCENTER("Double Precision Version",24,IOUT,2)
        ENDIF
-        IF (PMSG .EQ.1)THEN
+        IF (PMSG ==1)THEN
          CALL PRINTCENTER(MSGO,LEN_MSG,IOUT,2)
        ELSE
          CALL PRINTCENTER(" ",0,IOUT,0)
@@ -99,14 +101,13 @@ C-----------------------------------------------
       END
 
 
-Chd|====================================================================
-Chd|  PRINTCENTER                   source/starter/radioss_title.F
-Chd|-- called by -----------
-Chd|        R2R_GROUP                     source/coupling/rad2rad/r2r_group.F
-Chd|        RADIOSS_TITLE                 source/starter/radioss_title.F
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    printcenter     ../starter/source/starter/radioss_title.F
+!||--- called by ------------------------------------------------------
+!||    r2r_group       ../starter/source/coupling/rad2rad/r2r_group.F
+!||    radioss_title   ../starter/source/starter/radioss_title.F
+!||    starter0        ../starter/source/starter/starter0.F
+!||====================================================================
       SUBROUTINE PRINTCENTER(ARRAY,ARRLEN,LINOUT,FLAG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -132,16 +133,16 @@ C Initialisation
 
 C Flag = 0 ligne blanche
 
-       IF (FLAG.EQ.1)THEN
-C Flag = 1 que des * dans la ligne
+       IF (FLAG==1)THEN
+C flag = 1 only * in the line
          PRINTOUT(1:72)='*'
  
 
-       ELSEIF (FLAG.EQ.2) THEN
-C du texte center
+       ELSEIF (FLAG==2) THEN
+C center text
 
-C Test si sortie n'excede pas 68 cararcteres
-         IF (ARRLEN.GT.68) THEN
+C Test if output does not exceed 68 caracters
+         IF (ARRLEN>68) THEN
            WRITE(LINOUT,'(A)') "ERROR PRINTOUT FORMAT"
            RETURN
          ENDIF
@@ -152,7 +153,7 @@ C Test si sortie n'excede pas 68 cararcteres
            PRINTOUT(POS+I-1)=ARRAY(I)
           ENDDO
 
-       ELSEIF (FLAG.EQ.3) THEN
+       ELSEIF (FLAG==3) THEN
 C print left
          POS = 4
          DO I=1,ARRLEN

@@ -1,55 +1,54 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  SPMD_SD_CJ_2                  source/mpi/kinematic_conditions/spmd_sd_cj_2.F
-Chd|-- called by -----------
-Chd|        SMS_BUILD_DIAG                source/ams/sms_build_diag.F   
-Chd|        SMS_INI_KIN_1                 source/ams/sms_init.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_sd_cj_2          ../engine/source/mpi/kinematic_conditions/spmd_sd_cj_2.F
+!||--- called by ------------------------------------------------------
+!||    sms_build_diag        ../engine/source/ams/sms_build_diag.F
+!||    sms_ini_kin_1         ../engine/source/ams/sms_init.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_SD_CJ_2(NOD2ADD,LJOINT,FR_CJ,IADCJ,ICSIZE,
      2                      TAG_LNK_SMS,NODNX_SMS,INDX1_SMS)
-C envoi de p0 vers les autres procs de A, AR, V, VR
-C apres traitement des joints cylindriques
+C sending P0 to other A, AR, V, VR procs
+C After treatment of cylindrical joints
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -58,12 +57,11 @@ C-----------------------------------------------
      .        IADCJ(NSPMD+1,*), TAG_LNK_SMS(*), NODNX_SMS(*),
      .        INDX1_SMS(*)
 C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
       INTEGER MSGTYP,MSGOFF,IERROR,LOC_PROC,NOD,L,I,J,N,
-     .        IDEB,IAD,SIZ,A_AR,NBINDEX,
+     .        IDEB,SIZ,NBINDEX,
      .        INDEXI(NSPMD),REQ_S(NSPMD),STATUS(MPI_STATUS_SIZE),
      .        LEN(NSPMD),IBUF(ICSIZE)
       DATA MSGOFF/104/
@@ -71,7 +69,7 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
       LOC_PROC = ISPMD + 1
-      IF (LOC_PROC.EQ.1) THEN
+      IF (LOC_PROC==1) THEN
         L = 0
         IDEB = 1
 
@@ -81,7 +79,7 @@ C-----------------------------------------------
            IF(TAG_LNK_SMS(N)/=0)
      .       LEN(I) = LEN(I)+IADCJ(I+1,N)-IADCJ(I,N)
           END DO
-          IF(LEN(I).GT.0) THEN
+          IF(LEN(I)>0) THEN
             L=L+1
             INDEXI(L)=I
             DO N=1,NJOINT
@@ -104,21 +102,21 @@ C
          MSGTYP = MSGOFF
          CALL MPI_ISEND(
      S     IBUF(IDEB),SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     G     MPI_COMM_WORLD,REQ_S(L),IERROR)
+     G     SPMD_COMM_WORLD,REQ_S(L),IERROR)
          IDEB = IDEB + SIZ
         END DO
 C
         DO L=1,NBINDEX
           CALL MPI_WAITANY(NBINDEX,REQ_S,I,STATUS,IERROR)
         ENDDO
-      ELSEIF(ICSIZE.GT.0) THEN
+      ELSEIF(ICSIZE>0) THEN
 C proc <> 0
         IDEB = 1
         SIZ = ICSIZE
         MSGTYP = MSGOFF
         CALL MPI_RECV(
      S    IBUF,SIZ,MPI_INTEGER,IT_SPMD(1),MSGTYP,
-     G    MPI_COMM_WORLD,STATUS,IERROR)
+     G    SPMD_COMM_WORLD,STATUS,IERROR)
         DO N = 1, NJOINT
           IF(TAG_LNK_SMS(N)==0)CYCLE
           DO J = IADCJ(1,N),IADCJ(NSPMD+1,N)-1

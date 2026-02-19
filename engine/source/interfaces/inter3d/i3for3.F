@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I3FOR3                        source/interfaces/inter3d/i3for3.F
-Chd|-- called by -----------
-Chd|        INTVO3                        source/interfaces/inter3d/intvo3.F
-Chd|-- calls ---------------
-Chd|        IBCOFF                        source/interfaces/interf/ibcoff.F
-Chd|        CVMGN                         source/system/machine.F       
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE I3FOR3(LFT   ,LLT   ,NFT   ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i3for3       ../engine/source/interfaces/inter3d/i3for3.F
+!||--- called by ------------------------------------------------------
+!||    intvo3       ../engine/source/interfaces/inter3d/intvo3.F
+!||--- calls      -----------------------------------------------------
+!||    ibcoff       ../engine/source/interfaces/interf/ibcoff.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod      ../engine/share/modules/h3d_mod.F
+!||    output_mod   ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE I3FOR3(OUTPUT,LFT   ,LLT   ,NFT   ,
      2                  E     ,MSR   ,NSV   ,IRTL  ,STF      ,
      3                  STFN  ,IBC   ,ICODT ,IMAST ,FSAV     ,
      4                  IGIMP ,FSKYI ,ISKY  ,FCONT ,H3D_DATA ,
@@ -44,6 +45,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD, ONLY: OUTPUT_
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -56,11 +58,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "com01_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "parit_c.inc"
@@ -68,6 +68,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(inout) :: OUTPUT
       INTEGER IBC, IMAST, IGIMP,LFT, LLT, NFT
       INTEGER MSR(*), NSV(*), IRTL(*), ICODT(*), ISKY(*)
       my_real
@@ -95,47 +96,6 @@ C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
       my_real CVMGN
 C-----------------------------------------------
-
-!      EQUIVALENCE (X1,BV(1,1)) ,(Y1,BV(1,2)) ,(Z1,BV(1,3))
-!      EQUIVALENCE (X2,BV(1,4)) ,(Y2,BV(1,5)) ,(Z2,BV(1,6))
-!      EQUIVALENCE (X3,BV(1,7)) ,(Y3,BV(1,8)) ,(Z3,BV(1,9))
-!      EQUIVALENCE (X4,BV(1,10)),(Y4,BV(1,11)),(Z4,BV(1,12))
-!      EQUIVALENCE (YI,BV(1,14)),(ZI,BV(1,15))
-!      EQUIVALENCE (N1,BV(1,19)) ,(N2,BV(1,20)) ,(N3,BV(1,21))
-!      EQUIVALENCE (SSC,BV(1,23)),(TTC,BV(1,24))
-!      EQUIVALENCE (XFACE,BV(1,29))
-!      EQUIVALENCE (X0,BV(1,31)) ,(Y0,BV(1,32)) ,(Z0,BV(1,33))
-!      EQUIVALENCE (XX1,BV(1,34)),(YY1,BV(1,35)),(ZZ1,BV(1,36))
-!      EQUIVALENCE (XX2,BV(1,37)),(YY2,BV(1,38)),(ZZ2,BV(1,39))
-!      EQUIVALENCE (XX3,BV(1,40)),(YY3,BV(1,41)),(ZZ3,BV(1,42))
-!      EQUIVALENCE (XX4,BV(1,43)),(YY4,BV(1,44)),(ZZ4,BV(1,45))
-!      EQUIVALENCE (XI1,BV(1,46)),(YI1,BV(1,47)),(ZI1,BV(1,48))
-!      EQUIVALENCE (XI2,BV(1,49)),(YI2,BV(1,50)),(ZI2,BV(1,51))
-!      EQUIVALENCE (XI3,BV(1,52)),(YI3,BV(1,53)),(ZI3,BV(1,54))
-!      EQUIVALENCE (XI4,BV(1,55)),(YI4,BV(1,56)),(ZI4,BV(1,57))
-!      EQUIVALENCE (XN1,BV(1,58)),(YN1,BV(1,59)),(ZN1,BV(1,60))
-!      EQUIVALENCE (XN2,BV(1,61)),(YN2,BV(1,62)),(ZN2,BV(1,63))
- !     EQUIVALENCE (XN3,BV(1,64)),(YN3,BV(1,65)),(ZN3,BV(1,66))
-!      EQUIVALENCE (XN4,BV(1,67)),(YN4,BV(1,68)),(ZN4,BV(1,69))
-!      EQUIVALENCE (AREA,BV(1,71))
-
-
-
-
-!      EQUIVALENCE (IX1,IV(1,1)) ,(IX2,IV(1,2)) ,(IX3,IV(1,3))
-!      EQUIVALENCE (IX4,IV(1,4))
-C
-!      EQUIVALENCE (N1,BV(1,19)) ,(N2,BV(1,20)) ,(N3,BV(1,21))
-!      EQUIVALENCE (ANS,BV(1,22)),(SSC,BV(1,23)),(TTC,BV(1,24))
-!      EQUIVALENCE (H1,BV(1,25)) ,(H2,BV(1,26)) ,(H3,BV(1,27))
-!      EQUIVALENCE (H4,BV(1,28)) ,(XFACE,BV(1,29)),(STIF,BV(1,30))
-!      EQUIVALENCE (FNI,BV(1,40))
-!      EQUIVALENCE (FXI,BV(1,41)),(FYI,BV(1,42)),(FZI,BV(1,43))
-!      EQUIVALENCE (FX1,BV(1,44)),(FY1,BV(1,45)),(FZ1,BV(1,46))
-!      EQUIVALENCE (FX2,BV(1,47)),(FY2,BV(1,48)),(FZ2,BV(1,49))
-!      EQUIVALENCE (FX3,BV(1,50)),(FY3,BV(1,51)),(FZ3,BV(1,52))
-!      EQUIVALENCE (FX4,BV(1,53)),(FY4,BV(1,54)),(FZ4,BV(1,55))
-!      EQUIVALENCE (THK,BV(1,70))
       DO 100 I=LFT,LLT
       ANS(I)= MIN(ZERO,(ANS(I)*XFACE(I)-THK(I)))
 C
@@ -149,7 +109,7 @@ C
       DO 110 I=LFT,LLT
       IGIMP=IGIMP+ABS(XFACE(I))
  110  CONTINUE
-      IF(IGIMP.EQ.0)RETURN
+      IF(IGIMP==0)RETURN
 C
       DO 140 I=LFT,LLT
       IL=I+NFT
@@ -192,7 +152,7 @@ C
 C
  160  CONTINUE
 C
-      IF(IPARIT.EQ.0)THEN
+      IF(IPARIT==0)THEN
         DO 180 I=LFT,LLT
         J3=3*IX1(I)
         J2=J3-1
@@ -238,7 +198,7 @@ C
          NISKYL = NISKY
          NISKY = NISKY + 5 * LLT
 #include "lockoff.inc"
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
          DO 190 I=LFT,LLT
           NISKYL = NISKYL + 1
           FSKYI(NISKYL,1)=FX1(I)
@@ -314,9 +274,9 @@ C
         ENDIF
       ENDIF
 C
-      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT.GT.0.AND.
-     .    (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))THEN
+      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT>0.AND.
+     .    ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))THEN
 #include "lockon.inc"
            DO I=1,LLT
             FCONT(1,IX1(I)) =FCONT(1,IX1(I)) + FX1(I)
@@ -338,9 +298,9 @@ C
 #include "lockoff.inc"
       ENDIF
 C
-      IF(IBC.EQ.0) RETURN
+      IF(IBC==0) RETURN
       DO 200 I=LFT,LLT
-      IF(IBC.EQ.0.OR.XFACE(I).EQ.ZERO)GOTO 200
+      IF(IBC==0.OR.XFACE(I)==ZERO)GOTO 200
       IL=I+NFT
       IG=NSV(IL)
       CALL IBCOFF(IBC,ICODT(IG))

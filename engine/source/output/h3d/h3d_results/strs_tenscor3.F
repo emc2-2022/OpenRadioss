@@ -1,35 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STRS_TENSCOR3                 source/output/h3d/h3d_results/strs_tenscor3.F
-Chd|-- called by -----------
-Chd|        H3D_SOLID_TENSOR_1            source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- calls ---------------
-Chd|        PRE_HEPH                      source/output/anim/generate/tensor6.F
-Chd|        SROTA6                        source/output/anim/generate/srota6.F
-Chd|        SZSIGPARA                     source/elements/solid/solidez/szhour3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    strs_tenscor3        ../engine/source/output/h3d/h3d_results/strs_tenscor3.F
+!||--- called by ------------------------------------------------------
+!||    h3d_solid_tensor_1   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- calls      -----------------------------------------------------
+!||    pre_heph             ../engine/source/output/anim/generate/tensor6.F
+!||    srota6               ../engine/source/output/anim/generate/srota6.F
+!||    szsigpara            ../engine/source/elements/solid/solidez/szsigpara.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod         ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod          ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE STRS_TENSCOR3(ELBUF_TAB,IPARG   ,IXS      ,IXS10   ,X        ,
      .                        PM        ,KCVT    ,NEL      ,EVAR    )
 C-----------------------------------------------
@@ -37,6 +39,7 @@ C   M o d u l e s
 C-----------------------------------------------
 c      USE INITBUF_MOD
       USE ELBUFDEF_MOD            
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,13 +49,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "mvsiz_p.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "scr18_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -67,20 +64,20 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 C     REAL
       my_real
-     .   GAMA(6),OFF, P, VONM2, VONM, S1, S2, S12, S3, VALUE,
-     .   A1,B1,B2,B3,YEQ,F1,M1,M2,M3,FOR,AREA(MVSIZ),
+     .   GAMA(6),
+     .   
      .   A_GAUSS_R,A_GAUSS_S,A_GAUSS_T,N1,
      .   A_GAUSS_R1,A_GAUSS_S1,A_GAUSS_T1,
      .   A_GAUSS_P_R,A_GAUSS_P_S,A_GAUSS_P_T,
      .   KSI,ETA,ZETA
-      INTEGER I,II, ISS, ISC,NBGAMA,
-     .        IADD, N, J, MLW,  
-     .        ISTRAIN,NN, JTURB,MT, IMID, IALEL,IPID,
-     .        NN1,NF,OFFSET,K,INC,KK, IUS, NUVAR,
-     .        INOD, ISOLNOD, IPRT, LIAD, NPTR, NPTS, NPTT, IPT,
-     .        IS, IR, IT, NPTG,NC(10,MVSIZ),NNOD,IEXPAN,IHBE,MPT,ILAY,
-     .        ICSIG,DIR,IVISC,JJ(6),MAT(MVSIZ)
-      INTEGER MLW2,NLAY
+      INTEGER I,
+     .         N, J,  
+     .        
+     . NN1,K,
+     .         ISOLNOD, NPTR, NPTS, NPTT,
+     .        IS, IR, IT,NC(10,MVSIZ),NNOD,ILAY,
+     .        IVISC,JJ(6),MAT(MVSIZ)
+      INTEGER NLAY
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
       TYPE(L_BUFEL_)  ,POINTER :: LBUF   
       my_real
@@ -141,6 +138,11 @@ C-----Nj : KSI,ETA,ZETA
      6 -1               , 1               , 1               /
 C======================================================================= 
 C------not available w/ S16,S20
+      IR = 0 
+      IS = 0
+      IT = 0
+      N1 = ZERO
+      ILAY = -HUGE(ILAY)
       ALPHA = ZEP1381966
       BETA  = ZEP5854102
       EVAR(1:6,1:20,1:MVSIZ)=ZERO
@@ -221,7 +223,7 @@ C----------
          IF(ISOLNOD == 6 .OR. ISOLNOD == 8 )THEN
 c
 c T_SHELL ( JHBE = 15/16 )
-          IF(NLAY > 1 .AND. JHBE .NE. 14) THEN
+          IF(NLAY > 1 .AND. JHBE /= 14) THEN
            DO I=LFT,LLT
              N = I + NFT
              IF (KCVT /= 0) THEN
@@ -338,7 +340,9 @@ c
                      EVAR_TMP(1:6) = EVAR_TMP(1:6) + LBUF%VISC(JJ(1:6) + I)
                    ENDIF
                    IF (KCVT /= 0)
-     .             CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA,JHBE,IGTYP)
+     .             CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                    EVAR(1:6,J,I) =  EVAR(1:6,J,I)+ N1 * EVAR_TMP(1:6)
                  ENDIF
                ENDDO
@@ -360,9 +364,9 @@ c
                END IF
              END IF
               DO J=1,8
-	         KSI = A_HEPH(1,J)
-	         ETA = A_HEPH(2,J)
-	         ZETA = A_HEPH(3,J)
+                   KSI = A_HEPH(1,J)
+                   ETA = A_HEPH(2,J)
+                   ZETA = A_HEPH(3,J)
 c
                  ILAY = 1
 
@@ -375,7 +379,9 @@ C------       orthotropic laws will be treated later
                    EVAR_TMP(1:6) =EVAR_TMP(1:6)+ LBUF%VISC(JJ(1:6) + I)
                  ENDIF
                  IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA, JHBE,IGTYP)
+     .           CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                   EVAR(1:6,J,I) =  EVAR_TMP(1:6)
               ENDDO
            END DO !I=LFT,LLT
@@ -489,9 +495,9 @@ c
                    ILAY = 1
                  ENDIF
 c
-	         KSI = A_GAUSS(IR,2)
-	         ETA = A_GAUSS(IS,2)
-	         ZETA = A_GAUSS(IT,2)
+                   KSI = A_GAUSS(IR,2)
+                   ETA = A_GAUSS(IS,2)
+                   ZETA = A_GAUSS(IT,2)
 
                  LBUF => ELBUF_TAB%BUFLY(ILAY)%LBUF(IR,IS,IT)
 
@@ -510,7 +516,9 @@ c
                      EVAR_TMP(6) =EVAR_TMP(6)+ LBUF%VISC(JJ(6) + I)
                  ENDIF
                  IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA, JHBE,IGTYP)
+     .           CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                   EVAR(1:6,J,I) =  EVAR(1:6,J,I)+ N1 * EVAR_TMP(1:6)
                ENDDO
              ENDDO
@@ -556,7 +564,9 @@ c
                      EVAR_TMP(6) =EVAR_TMP(6)+ LBUF%VISC(JJ(6) + I)
                  ENDIF
                  IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA, JHBE,IGTYP)
+     .           CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                DO J=1,4
                  EVAR(1:6,J,I) =  N1 * EVAR_TMP(1:6)
                ENDDO
@@ -614,7 +624,9 @@ C
                  ENDIF
                ENDDO
                  IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_T10(1,J),GAMA, JHBE,IGTYP)
+     .           CALL SROTA6(
+     1   X,            IXS(1,N),     KCVT,         EVAR_T10(1,J),
+     2   GAMA,         JHBE,         IGTYP,        ISORTH)
              END DO !J=1,4
              DO J=5,10
                 NN1=IPERM1(J)

@@ -1,50 +1,52 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_GROGRO                     source/groups/hm_grogro.F     
-Chd|-- called by -----------
-Chd|        LECGGROUP                     source/groups/lecggroup.F     
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        GROUPS_GET_ELEM_LIST          source/groups/groups_get_elem_list.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_grogro              ../starter/source/groups/hm_grogro.F
+!||--- called by ------------------------------------------------------
+!||    lecggroup              ../starter/source/groups/lecggroup.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    groups_get_elem_list   ../starter/source/groups/groups_get_elem_list.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_GROGRO(NUMEN   ,NGRELN  ,IGRELEM ,ICOUNT,
      .                  FLAG    ,ITER    ,ELKEY  ,LSUBMODEL )
 !---
-!   group des group des elements + parts
+! group of elements + parts
 !---
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -52,14 +54,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
-#include      "my_allocate.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -72,25 +66,27 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,L,ID,NEL,IGS,IGRS,JREC,ISU,NONTRI,JJ,KK,
      .        FLAG_FMT,GROUP_ID,IFIX_TMP,SKIPFLAG,UID,NN
-      INTEGER BUFTMP(NUMEN*2)
-      CHARACTER TITR*nchartitle,KEY*ncharkey,ELKEY*4,KEY2*ncharkey
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY)::KEY,KEY2
+      CHARACTER :: ELKEY*4
       LOGICAL IS_ENCRYPTED, IS_AVAILABLE
       INTEGER,DIMENSION(:),ALLOCATABLE :: LIST_ELEM
+      INTEGER,DIMENSION(:),ALLOCATABLE :: BUFTMP
       INTEGER :: NENTITY
 C-----------------------------------------------
       INTERFACE
        SUBROUTINE GROUPS_GET_ELEM_LIST(arg1,arg2,arg3)
         USE SUBMODEL_MOD
-#include      "submod_c.inc"
         INTEGER,DIMENSION(:),ALLOCATABLE       :: arg1
         INTEGER,INTENT(INOUT)                  :: arg2
         TYPE(SUBMODEL_DATA)                    :: arg3(NSUBMOD)
        END SUBROUTINE  
       END INTERFACE     
 C=======================================================================
+      CALL MY_ALLOC(BUFTMP,NUMEN*2)
       IF (FLAG == 0) ICOUNT=0
       IGS = 0
-C     boucle sur les groupes
+C     loop over the groups
       DO I=1,NGRELN
         CALL HM_OPTION_READ_KEY(LSUBMODEL,
      .                          OPTION_ID   = GROUP_ID,
@@ -136,15 +132,15 @@ C-----------
                        NEL = 0
                        CYCLE
                      ELSE
-                       !reference a un groupe initialise
+                       !Reference has an initialized group
                        IF (NONTRI == 0) THEN
-                         !sorted group, tag les noeuds
+                         !sorted group, tag the nodes
                          DO L=1,IGRELEM(IGRS)%NENTITY
                            IF (JJ < 0) THEN
-                             !retire les noeuds du group si JJ < 0
+                             !removes nodes from the group if JJ < 0
                               BUFTMP(IGRELEM(IGRS)%ENTITY(L))=-1
                            ELSEIF (BUFTMP(IGRELEM(IGRS)%ENTITY(L)) == 0) THEN
-                              !ajoute les noeuds au group si JJ > 0 et noeud non rire
+                              !add nodes to group if JJ > 0 and node not removed
                              BUFTMP(IGRELEM(IGRS)%ENTITY(L))=1
                            ENDIF
                          ENDDO
@@ -168,7 +164,7 @@ C                  sorted group
                 ENDIF                               
 C
                 IGRELEM(IGS)%NENTITY = NEL
-                MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                 IGRELEM(IGS)%ENTITY = 0
               ENDIF                                 
 C-----------                                             
@@ -193,13 +189,13 @@ C-----------
                       CYCLE                                            
                     ELSE                                                 
                       IF (NONTRI == 0) THEN                                                       
-C                       tag les noeuds                                                            
+C                       tag the nodes
                         DO L=1,IGRELEM(IGRS)%NENTITY
                           IF (JJ < 0) THEN                                                    
-C                           retire les noeuds du group si JJ < 0                                 
+C                           removes nodes from the group if JJ < 0
                             BUFTMP(IGRELEM(IGRS)%ENTITY(L))=-1
                           ELSEIF (BUFTMP(IGRELEM(IGRS)%ENTITY(L)) == 0) THEN
-C                           ajoute les noeuds au group si JJ > 0 et noeud non retire            
+C                           add nodes to group if JJ > 0 and node not removed
                             BUFTMP(IGRELEM(IGRS)%ENTITY(L))=1
                           ENDIF                                                                   
                         ENDDO                                                                     
@@ -233,6 +229,7 @@ C-----------  end_ flag = 1
                                                                   
       ENDDO                                                                        
 
+      DEALLOCATE(BUFTMP)
                                   
 C-----------
       RETURN

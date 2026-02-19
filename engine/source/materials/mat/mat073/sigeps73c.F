@@ -1,50 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS73C                     source/materials/mat/mat073/sigeps73c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        TABLE_VINTERP                 source/tools/curve/table_tools.F
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        INTERFACE_TABLE_MOD           share/modules/table_mod.F     
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps73c             ../engine/source/materials/mat/mat073/sigeps73c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc                ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter                ../engine/source/tools/curve/finter.F
+!||    table_vinterp         ../engine/source/tools/curve/table_tools.F
+!||--- uses       -----------------------------------------------------
+!||    interface_table_mod   ../engine/share/modules/table_mod.F
+!||    table_mod             ../engine/share/modules/table_mod.F
+!||====================================================================
       SUBROUTINE SIGEPS73C(
-     1     NEL    ,NUPARAM,NUVAR   ,TIME   ,TIMESTEP,
-     2     UPARAM  ,RHO0  ,AREA    ,EINT   ,THKLY   ,
-     4     EPSPXX ,EPSPYY ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
-     5     DEPSXX ,DEPSYY ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
-     6     EPSXX  ,EPSYY  ,EPSXY   ,EPSYZ   ,EPSZX  ,
-     7     SIGOXX ,SIGOYY ,SIGOXY  ,SIGOYZ  ,SIGOZX ,
-     8     SIGNXX ,SIGNYY ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
-     9     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
-     A     SOUNDSP,VISCMAX,THK     ,PLA     ,UVAR   ,
-     B     OFF    ,NGL    ,ITABLE  ,ETSE   ,
-     C     GS     ,SIGY   ,DPLA1   ,EPSP    ,TABLE  ,
-     D     VOL    ,TEMPEL ,DIE     ,COEF    ,NPF    ,
-     E     NFUNC  ,IFUNC  ,TF     ,SHF      ,HARDM  ,
-     F     SEQ_OUTPUT,INLOC,DPLANL   )
+     1   NEL,       NUPARAM,   NUVAR,     TIME,
+     2   TIMESTEP,  UPARAM,    RHO0,      AREA,
+     3   EINT,      THKLY,     EPSPXX,    EPSPYY,
+     4   EPSPXY,    EPSPYZ,    EPSPZX,    DEPSXX,
+     5   DEPSYY,    DEPSXY,    DEPSYZ,    DEPSZX,
+     6   EPSXX,     EPSYY,     EPSXY,     EPSYZ,
+     7   EPSZX,     SIGOXX,    SIGOYY,    SIGOXY,
+     8   SIGOYZ,    SIGOZX,    SIGNXX,    SIGNYY,
+     9   SIGNXY,    SIGNYZ,    SIGNZX,    SIGVXX,
+     A   SIGVYY,    SIGVXY,    SIGVYZ,    SIGVZX,
+     B   SOUNDSP,   VISCMAX,   THK,       PLA,
+     C   UVAR,      OFF,       NGL,       ITABLE,
+     D   ETSE,      GS,        SIGY,      DPLA1,
+     E   EPSP,      TABLE,     VOL,       TEMPEL,
+     F   DIE,       NPF,       NFUNC,
+     G   IFUNC,     TF,        SHF,       HARDM,
+     H   SEQ_OUTPUT,INLOC,     DPLANL,    JTHE,
+     I   LOFF)
 C-----------------------------------------------
       USE TABLE_MOD
       USE INTERFACE_TABLE_MOD
@@ -56,12 +61,10 @@ C-----------------------------------------------
 C   G L O B A L   P A R A M E T E R S
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
-#include      "com01_c.inc"
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A R G U M E N T S
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: JTHE
       INTEGER NEL, NUPARAM, NUVAR, NGL(NEL),ITABLE(*),
      .   INLOC
       my_real 
@@ -76,9 +79,10 @@ C-----------------------------------------------
      .   EPSXY(NEL) ,EPSYZ(NEL) ,EPSZX(NEL) ,
      .   SIGOXX(NEL),SIGOYY(NEL),
      .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL),SHF(NEL),
-     .   GS(NEL),VOL(NEL),TEMPEL(NEL),DIE(NEL),COEF(NEL),HARDM(*),
+     .   GS(NEL),VOL(NEL),TEMPEL(NEL),DIE(NEL),HARDM(*),
      .   SEQ_OUTPUT(NEL),DPLANL(NEL)
       TYPE(TTABLE) TABLE(*)
+      my_real, DIMENSION(NEL), INTENT(IN) :: LOFF
 C-----------------------------------------------
 C   O U T P U T   A R G U M E N T S
 C-----------------------------------------------
@@ -103,22 +107,22 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,J,NXK,J1,J2,N,NINDX,NMAX,
+      INTEGER I,J,N,NINDX,NMAX,
      .        INDEX(MVSIZ),OPTE,IFUNCE,FUNC_TAB
       my_real 
-     .        A,B,S12,FAC,DEZZ,SIGZ,S1,S2,S3,DPLA,VM2,EPST,
+     .        A,B,S12,DEZZ,S1,S2,S3,EPST,
      .        A_1,A_2,A_3,P_1,P_2,P_3,PP1,PP2,PP3,DR,DR0,
      .        E,A1,A2,G,G3,
      .        A01,A02,A03,A12,
      .        AXX(MVSIZ),AYY(MVSIZ),AXY(MVSIZ),A_XY(MVSIZ),
      .        DYDX(MVSIZ),SVM(MVSIZ),
-     .        SVM0(MVSIZ),YLD(MVSIZ),YK(MVSIZ),
+     .        YLD(MVSIZ),YK(MVSIZ),
      .        NNU1,NU,NU2,NU3,NU4,NU5,
      .        JQ(MVSIZ),JQ2(MVSIZ),
      .        EPSMAX,DPLA_I(MVSIZ),DPLA_J(MVSIZ),FAIL(MVSIZ),
      .        EPSR1,EPSR2,S11(MVSIZ),S22(MVSIZ),
      .        B_1(MVSIZ),B_2(MVSIZ),B_3(MVSIZ),Q12(MVSIZ),Q21(MVSIZ),
-     .        ERR,F,DF,PLA_I,YLD_I,H(MVSIZ),
+     .        F,DF,YLD_I,H(MVSIZ),
      .        FISOKIN,HK(MVSIZ),FHK,FA01,FA02,FA03,NU1,XFAC,YFAC,CE,
      .        E1(MVSIZ), A11(MVSIZ),A21(MVSIZ),G1(MVSIZ),G31(MVSIZ),
      .        DYDXE(MVSIZ),ESCALE(MVSIZ),EINF,NORMXX,NORMYY
@@ -153,9 +157,9 @@ c--------plastic strain
       A12     = UPARAM(10)
       EPSMAX  = UPARAM(13)
       EINF    = UPARAM(24)
-      IF(EPSMAX.EQ.ZERO)THEN
+      IF(EPSMAX==ZERO)THEN
 c      NXK=SIZE(TABLE(ITABLE)%X(1)%VALUES)
-c      IF(TABLE(ITABLE)%Y%VALUES(NXK).EQ.ZERO)THEN
+c      IF(TABLE(ITABLE)%Y%VALUES(NXK)==ZERO)THEN
 c       EPSMAX = TABLE(ITABLE)%X(1)%VALUES(NXK)
 c      ELSE
         EPSMAX = EP30
@@ -202,12 +206,8 @@ C
       ENDDO
 C
 C-----------------------------------------------
-C  Calcul de la tempurature. (conduction ou adiabatique)
+C  calculation of the temperature (conduction or adiabatic)
 C--------------------    
-        DO I=1,NEL    
-          COEF(I) = ONE
-        END DO
-C
         IF(JTHE > 0 ) THEN
          DO I=1,NEL     
            TEMP(I) = TEMPEL(I)
@@ -217,8 +217,7 @@ C
          DO I=1,NEL
            TEMP(I) = UPARAM(20)
            VOL0    = VOL(I) * RHO0(I)
-           TEMP(I) = TEMP(I) 
-     .             + COEF(I)*RHOCP*(EINT(I,1)+ EINT(I,2))/VOL0
+           TEMP(I) = TEMP(I) + (EINT(I,1)+ EINT(I,2)) * RHOCP/VOL0
          ENDDO
         ENDIF
 C
@@ -260,7 +259,7 @@ C
         XX(I,3)=TEMP(I)
       END DO
 C
-      CALL TABLE_VINTERP(TABLE(FUNC_TAB),NEL,IPOS,XX,YLD,DYDX)
+      CALL TABLE_VINTERP(TABLE(FUNC_TAB),NEL,NEL,IPOS,XX,YLD,DYDX)
 C
 
       DO I=1,NEL
@@ -281,7 +280,7 @@ C
          XX(I,2)=EPSP(I)*XFAC
          XX(I,3)=TEMP(I)
        END DO      
-       CALL TABLE_VINTERP(TABLE(FUNC_TAB),NEL,IPOS,XX,YK,DYDX)
+       CALL TABLE_VINTERP(TABLE(FUNC_TAB),NEL,NEL,IPOS,XX,YK,DYDX)
 
        DO I=1,NEL
 C        ECROUISSAGE CINEMATIQUE
@@ -311,12 +310,12 @@ C     GATHER PLASTIC FLOW
 C-------------------------
       NINDX=0
       DO I=1,NEL
-      IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+      IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
         NINDX=NINDX+1
         INDEX(NINDX)=I
       ENDIF
       ENDDO
-      IF(NINDX.GT.0) THEN
+      IF(NINDX>0) THEN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
@@ -324,7 +323,7 @@ C---------------------------
        I=INDEX(J)
        DPLA_J(I)=(SVM(I)-YLD(I))/(G31(I)+H(I)) !!!
        ETSE(I)= H(I)/(H(I)+E1(I))  !!!
-C   +++cette partie peut etre neglige quand FHK est tres petit
+C   +++ This part can be Neglige when FHK is very small
        HK(I) = H(I)*FISOKIN
        FHK = FOUR_OVER_3*HK(I)/A11(I)  !!
        FA01 =A01*FHK
@@ -340,12 +339,12 @@ C   ---
        S2=A02*NU1*TWO-A03-FA03
        S12=A03-NU1*(A01+A02)+FA03
        S3=SQRT(NU2*(A01-A02)*(A01-A02)+S12*S12)
-       IF (ABS(S1).LT.EM20) THEN 
+       IF (ABS(S1)<EM20) THEN 
         Q12(I)=ZERO
        ELSE
         Q12(I)=-(A01-A02+S3+FA01-FA02)/S1
        ENDIF
-       IF (ABS(S2).LT.EM20) THEN 
+       IF (ABS(S2)<EM20) THEN 
         Q21(I)=ZERO
        ELSE
         Q21(I)=(A01-A02+S3+FA01-FA02)/S2
@@ -375,7 +374,7 @@ C
        DO J=1,NINDX
         I=INDEX(J)
         DPLA_I(I)=DPLA_J(I)
-        IF(DPLA_I(I).GT.ZERO) THEN
+        IF(DPLA_I(I)>ZERO) THEN
         YLD_I =YLD(I)+H(I)*DPLA_I(I)
         DR  =A11(I)*DPLA_I(I)/YLD_I !
         P_1=ONE/(ONE + B_1(I)*DR)
@@ -408,7 +407,7 @@ C------------------------------------------
         DR  =A11(I)*DR0  !!!!
         P_1=ONE/(ONE + B_1(I)*DR)
         P_2=ONE/(ONE + B_2(I)*DR)
-        P_3=ONE/(ONE + B_3(I)*DR)	
+        P_3=ONE/(ONE + B_3(I)*DR)
         S1=S11(I)*P_1
         S2=S22(I)*P_2
         SIGNXX(I)=JQ(I)*(S1-S2*Q12(I))
@@ -432,7 +431,7 @@ C------------------------------------------
       ENDDO
 C
       DO I=1,NEL
-        IF(PLA(I).GT.EPSMAX.AND.OFF(I).EQ.ONE)OFF(I)=FOUR_OVER_5
+        IF(PLA(I)>EPSMAX.AND.OFF(I)==ONE)OFF(I)=FOUR_OVER_5
       ENDDO
       ENDIF
       DO I=1,NEL
@@ -453,9 +452,9 @@ C
       A12     = UPARAM(10)
       G3      = UPARAM(17)
       EPSMAX  = UPARAM(13)
-      IF(EPSMAX.EQ.ZERO)THEN
+      IF(EPSMAX==ZERO)THEN
 c      NXK=SIZE(TABLE(ITABLE)%X(1)%VALUES)
-c      IF(TABLE(ITABLE)%Y%VALUES(NXK).EQ.ZERO)THEN
+c      IF(TABLE(ITABLE)%Y%VALUES(NXK)==ZERO)THEN
 c       EPSMAX = TABLE(ITABLE)%X(1)%VALUES(NXK)
 c      ELSE
         EPSMAX = EP30
@@ -477,12 +476,8 @@ C
       ENDDO
 C
 C-----------------------------------------------
-C  Calcul de la tempurature. (conduction ou adiabatique)
+C  calculation of the temperature (conduction or adiabatic)
 C--------------------    
-        DO I=1,NEL    
-          COEF(I) = ONE
-        END DO
-C
         IF(JTHE > 0 ) THEN
          DO I=1,NEL     
            TEMP(I) = TEMPEL(I)
@@ -492,8 +487,7 @@ C
          DO I=1,NEL
            TEMP(I) = UPARAM(20)
            VOL0    = VOL(I) * RHO0(I)
-           TEMP(I) = TEMP(I) 
-     .             + COEF(I)*RHOCP*(EINT(I,1)+ EINT(I,2))/VOL0
+           TEMP(I) = TEMP(I) + (EINT(I,1)+ EINT(I,2)) * RHOCP/VOL0
          ENDDO
         ENDIF
 C
@@ -532,11 +526,10 @@ C-------------------
 C
         XX(I,1)=PLA (I)
         XX(I,2)=EPSP(I)*XFAC
-c        print *,xx(i,2)
         XX(I,3)=TEMP(I)
       END DO      
 C
-      CALL TABLE_VINTERP(TABLE(FUNC_TAB),NEL,IPOS,XX,YLD,DYDX)
+      CALL TABLE_VINTERP(TABLE(FUNC_TAB),NEL,NEL,IPOS,XX,YLD,DYDX)
 C
       DO I=1,NEL
         YLD(I) = YFAC*YLD(I)
@@ -556,7 +549,7 @@ C
          XX(I,2)=EPSP(I)*XFAC
          XX(I,3)=TEMP(I)
        END DO      
-       CALL TABLE_VINTERP(TABLE(FUNC_TAB),NEL,IPOS,XX,YK,DYDX)
+       CALL TABLE_VINTERP(TABLE(FUNC_TAB),NEL,NEL,IPOS,XX,YK,DYDX)
 
        DO I=1,NEL
 C        ECROUISSAGE CINEMATIQUE
@@ -586,12 +579,12 @@ C     GATHER PLASTIC FLOW
 C-------------------------
       NINDX=0
       DO I=1,NEL
-      IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+      IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
         NINDX=NINDX+1
         INDEX(NINDX)=I
       ENDIF
       ENDDO
-      IF(NINDX.GT.0) THEN
+      IF(NINDX>0) THEN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
@@ -599,7 +592,7 @@ C---------------------------
        I=INDEX(J)
        DPLA_J(I)=(SVM(I)-YLD(I))/(G3+H(I))
        ETSE(I)= H(I)/(H(I)+E)
-C   +++cette partie peut etre neglige quand FHK est tres petit
+C   +++ This part can be Neglige when FHK is very small
        HK(I) = H(I)*FISOKIN
        FHK = FOUR_OVER_3*HK(I)/A1
        FA01 =A01*FHK
@@ -615,12 +608,12 @@ C   ---
        S2=A02*NU1*TWO-A03-FA03
        S12=A03-NU1*(A01+A02)+FA03
        S3=SQRT(NU2*(A01-A02)*(A01-A02)+S12*S12)
-       IF (ABS(S1).LT.EM20) THEN 
+       IF (ABS(S1)<EM20) THEN 
         Q12(I)=ZERO
        ELSE
         Q12(I)=-(A01-A02+S3+FA01-FA02)/S1
        ENDIF
-       IF (ABS(S2).LT.EM20) THEN 
+       IF (ABS(S2)<EM20) THEN 
         Q21(I)=ZERO
        ELSE
         Q21(I)=(A01-A02+S3+FA01-FA02)/S2
@@ -650,7 +643,7 @@ C
        DO J=1,NINDX
         I=INDEX(J)
         DPLA_I(I)=DPLA_J(I)
-        IF(DPLA_I(I).GT.ZERO) THEN
+        IF(DPLA_I(I)>ZERO) THEN
         YLD_I =YLD(I)+H(I)*DPLA_I(I)
         DR  =A1*DPLA_I(I)/YLD_I
         P_1=ONE/(ONE + B_1(I)*DR)
@@ -682,7 +675,7 @@ C------------------------------------------
         DR  =A1*DR0
         P_1=ONE/(ONE + B_1(I)*DR)
         P_2=ONE/(ONE + B_2(I)*DR)
-        P_3=ONE/(ONE + B_3(I)*DR)	
+        P_3=ONE/(ONE + B_3(I)*DR)
         S1=S11(I)*P_1
         S2=S22(I)*P_2
         SIGNXX(I)=JQ(I)*(S1-S2*Q12(I))
@@ -706,7 +699,7 @@ C------------------------------------------
       ENDDO
 C
       DO I=1,NEL
-        IF(PLA(I).GT.EPSMAX.AND.OFF(I).EQ.ONE)OFF(I)=FOUR_OVER_5
+        IF(PLA(I)>EPSMAX.AND.OFF(I)==ONE)OFF(I)=FOUR_OVER_5
       ENDDO
       ENDIF
       DO I=1,NEL
@@ -732,7 +725,7 @@ C------------------------------------------------------------------
         AXY(I)  = A12*SIGNXY(I)*SIGNXY(I)
         SVM(I)  = SQRT(S1+S2-S3+AXY(I))
         SEQ_OUTPUT(I) = SVM(I) 
-        IF (INLOC > 0) THEN 
+        IF ((INLOC > 0).AND.(LOFF(I) == ONE)) THEN 
           NORMXX  = (TWO*A01*SIGNXX(I) - A03*SIGNYY(I))/(MAX(TWO*SVM(I),EM20))
           NORMYY  = (TWO*A02*SIGNYY(I) - A03*SIGNXX(I))/(MAX(TWO*SVM(I),EM20))
           DEZZ    = MAX(DPLANL(I),ZERO)*(NORMXX + NORMYY)

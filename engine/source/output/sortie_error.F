@@ -1,39 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SORTIE_ERROR                  source/output/sortie_error.F  
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_VGATH_ERR                source/mpi/anim/spmd_vgath_err.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sortie_error      ../engine/source/output/sortie_error.F
+!||--- called by ------------------------------------------------------
+!||    resol             ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_glob_dsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_vgath_err    ../engine/source/mpi/anim/spmd_vgath_err.F
+!||====================================================================
       SUBROUTINE SORTIE_ERROR(V,NODGLOB,WEIGHT,ITAB,MS,
      1                        MS0,PARAM,PARTSAV,IPART,PM,
      2                        IGEO)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,8 +42,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "scr17_c.inc"
 #include      "scr18_c.inc"
 #include      "spmd_c.inc"
@@ -66,8 +61,8 @@ C-----------------------------------------------
      .   I,J,K,LENG,FLAG,ISMASSCHANGE,PROPID,MATID
       my_real 
      .   MAXVEL(PARAM),VEL,
-     .   MAXENCIN(PARAM),ENCIN,VEL2,
-     .   MAXMASS(PARAM),MASS,
+     .   MAXENCIN(PARAM),ENCIN,
+     .   
      .   MAXDMASS(PARAM),DMASS,
      .   MAXENINT(PARAM),ENINT
       INTEGER 
@@ -84,7 +79,7 @@ C
         FLAG = 0
         ENCIN= PARTSAV(2,I)
         DO J=1,PARAM
-          IF(ENCIN .GT. MAXENCIN(J) .AND. FLAG == 0) THEN
+          IF(ENCIN > MAXENCIN(J) .AND. FLAG == 0) THEN
             DO K=1,PARAM-J
               IDPART(PARAM-K+1) = IDPART(PARAM-K)
               MAXENCIN(PARAM-K+1) = MAXENCIN(PARAM-K) 
@@ -101,7 +96,7 @@ C
       IF(ISPMD == 0) WRITE(IOUT,1801)
 
       DO I=1,PARAM
-        IF(MAXENCIN(I) .NE. ZERO) THEN
+        IF(MAXENCIN(I) /= ZERO) THEN
           MATID = NINT(PM(19,IPART(1,IDPART(I))))
           PROPID = IGEO(11,IPART(2,IDPART(I)))
           WRITE(IOUT,1900)IPART(4,IDPART(I)),MAXENCIN(I),
@@ -121,7 +116,7 @@ C
         FLAG = 0
         ENINT= PARTSAV(1,I)+PARTSAV(24,I)+PARTSAV(26,I)
         DO J=1,PARAM
-          IF(ENINT .GT. MAXENINT(J) .AND. FLAG == 0) THEN
+          IF(ENINT > MAXENINT(J) .AND. FLAG == 0) THEN
             DO K=1,PARAM-J
               IDPART(PARAM-K+1) = IDPART(PARAM-K)
               MAXENINT(PARAM-K+1) = MAXENINT(PARAM-K) 
@@ -137,7 +132,7 @@ C
       IF(ISPMD == 0) WRITE(IOUT,3000)
       IF(ISPMD == 0) WRITE(IOUT,2001)
       DO I=1,PARAM
-        IF(MAXENINT(I) .NE. ZERO) THEN
+        IF(MAXENINT(I) /= ZERO) THEN
           MATID = NINT(PM(19,IPART(1,IDPART(I))))
           PROPID = IGEO(11,IPART(2,IDPART(I)))
           WRITE(IOUT,2100)IPART(4,IDPART(I)),MAXENINT(I),
@@ -158,7 +153,7 @@ C
          FLAG = 0
          VEL=SQRT(V(1,I)**2+V(2,I)**2+V(3,I)**2)
          DO J=1,PARAM
-           IF(VEL .GT. MAXVEL(J) .AND. FLAG == 0) THEN
+           IF(VEL > MAXVEL(J) .AND. FLAG == 0) THEN
              DO K=1,PARAM-J
                IDNOD(PARAM-K+1) = IDNOD(PARAM-K)
                MAXVEL(PARAM-K+1) = MAXVEL(PARAM-K) 
@@ -174,7 +169,7 @@ C
        WRITE(IOUT,3000)
        WRITE(IOUT,1001)
        DO I=1,PARAM
-         IF(MAXVEL(I) .NE. ZERO)THEN
+         IF(MAXVEL(I) /= ZERO)THEN
            ENCIN = HALF * MS(IDNOD(I))*MAXVEL(I)**2
            WRITE(IOUT,1100) ITAB(IDNOD(I)),MAXVEL(I),ENCIN,
      .                    MS(IDNOD(I)),MS0(IDNOD(I)),
@@ -182,7 +177,7 @@ C
          ENDIF
        ENDDO
       ELSE
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
            LENG = NUMNODG
         ELSE
            LENG = 0
@@ -201,7 +196,7 @@ c       DO I=1,NUMNOD
 c         FLAG = 0
 c         ENCIN=HALF*MS(I)*(V(1,I)**2+V(2,I)**2+V(3,I)**2)
 c         DO J=1,PARAM
-c           IF(ENCIN .GT. MAXENCIN(J) .AND. FLAG == 0) THEN
+c           IF(ENCIN > MAXENCIN(J) .AND. FLAG == 0) THEN
 c             DO K=1,PARAM-J
 c               IDNOD(PARAM-K+1) = IDNOD(PARAM-K)
 c               MAXENCIN(PARAM-K+1) = MAXENCIN(PARAM-K) 
@@ -221,7 +216,7 @@ c         WRITE(IOUT,1300) ITAB(IDNOD(I)),MAXENCIN(I),MS(IDNOD(I)),
 c     .                     MS0(IDNOD(I)),MS(IDNOD(I))/MS0(IDNOD(I))
 c       ENDDO
 c      ELSE
-c        IF (ISPMD.EQ.0) THEN
+c        IF (ISPMD==0) THEN
 c           LENG = NUMNODG
 c        ELSE
 c           LENG = 0
@@ -240,7 +235,7 @@ c       DO I=1,NUMNOD
 c         FLAG = 0
 c         MASS=MS(I)
 c         DO J=1,PARAM
-c           IF(MASS .GT. MAXMASS(J) .AND. FLAG == 0) THEN
+c           IF(MASS > MAXMASS(J) .AND. FLAG == 0) THEN
 c             DO K=1,PARAM-J
 c               IDNOD(PARAM-K+1) = IDNOD(PARAM-K)
 c               MAXMASS(PARAM-K+1) = MAXMASS(PARAM-K) 
@@ -260,7 +255,7 @@ c         WRITE(IOUT,1500) ITAB(IDNOD(I)),MAXMASS(I),
 c     .                     MS0(IDNOD(I)),MS(IDNOD(I))/MS0(IDNOD(I))
 c       ENDDO
 c      ELSE
-c        IF (ISPMD.EQ.0) THEN
+c        IF (ISPMD==0) THEN
 c           LENG = NUMNODG
 c        ELSE
 c           LENG = 0
@@ -280,7 +275,7 @@ C
            FLAG = 0
            DMASS=(MS(I)-MS0(I))/MAX(MS0(I),EM20)
            DO J=1,PARAM
-             IF(DMASS .GT. MAXDMASS(J) .AND. FLAG == 0) THEN
+             IF(DMASS > MAXDMASS(J) .AND. FLAG == 0) THEN
                DO K=1,PARAM-J
                  IDNOD(PARAM-K+1) = IDNOD(PARAM-K)
                  MAXDMASS(PARAM-K+1) = MAXDMASS(PARAM-K) 
@@ -293,21 +288,21 @@ C
          ENDDO
          ISMASSCHANGE = 0
          DO I=1,PARAM
-           IF(MAXDMASS(I) .NE.ZERO) ISMASSCHANGE = 1
+           IF(MAXDMASS(I) /=ZERO) ISMASSCHANGE = 1
          ENDDO
-         IF(ISMASSCHANGE .NE. 0)THEN
+         IF(ISMASSCHANGE /= 0)THEN
            WRITE(IOUT,3000)
            WRITE(IOUT,1600)
            WRITE(IOUT,3000)
            WRITE(IOUT,1601)
            DO I=1,PARAM
-             IF(MAXDMASS(I) .NE. ZERO)
+             IF(MAXDMASS(I) /= ZERO)
      .       WRITE(IOUT,1700) ITAB(IDNOD(I)),MS(IDNOD(I)),MS0(IDNOD(I)),
      .                        MAXDMASS(I)
            ENDDO
          ENDIF
         ELSE
-          IF (ISPMD.EQ.0) THEN
+          IF (ISPMD==0) THEN
              LENG = NUMNODG
           ELSE
              LENG = 0
@@ -315,6 +310,7 @@ C
           CALL SPMD_VGATH_ERR(V,MS,MS0,NODGLOB,WEIGHT,PARAM,4,ITAB,LENG) 
         ENDIF
       ENDIF
+      IF(ISPMD == 0) CALL FLUSH(IOUT)
       
  1600 FORMAT('***  NODES WITH HIGHEST MASS CHANGE')
  1601 FORMAT('      NODE       MASS      MASS0   DM/MASS0')

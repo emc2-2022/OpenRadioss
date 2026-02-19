@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  SPMD_EXCH_DA20                source/mpi/interfaces/spmd_exch_da20.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ADDDP                         source/mpi/interfaces/spmd_i7tool.F
-Chd|        GETDPDAANC                    source/mpi/interfaces/spmd_i7tool.F
-Chd|        PUTDPDAANC                    source/mpi/interfaces/spmd_i7tool.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_da20        ../engine/source/mpi/interfaces/spmd_exch_da20.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    adddp                 ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    getdpdaanc            ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    putdpdaanc            ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod         ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_DA20(
      1   INTBUF_TAB,IPARI,IAD_ELEM,FR_ELEM,
      2   LEN20,NBINT20,LENR ,INTLIST ,NBINTC )
@@ -41,14 +43,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -56,11 +56,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "spmd_c.inc"
-#include      "units_c.inc"
-#include      "timeri_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -74,8 +69,8 @@ C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER MSGTYP,I,NOD,LOC_PROC,IERROR,INDEX, N, MSGOFF,
-     .        SIZ,J,K,L,NB_NOD,NBIRECV, II, JJ, NI,INC,
+      INTEGER MSGTYP,I,NOD,LOC_PROC,IERROR, N, MSGOFF,
+     .        SIZ,J,L,NB_NOD,NBIRECV, II, NI,INC,
      .        NIN, NLN, LL,IL,IG,
      .        IAD_RECV(NSPMD+1),DEBUT(NSPMD),
      .        STATUS(MPI_STATUS_SIZE),RSTATUS(MPI_STATUS_SIZE,NSPMD),
@@ -88,7 +83,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-C LEN20 = 1 + 18 + 2  ! (1 : longueur ; 18 : daanc6 et 2 : alphak)
+C Len20 = 1 + 18 + 2!(1: length; 18: DAANC6 and 2: Alphak)
 C SIZE = LEN20*NBINT20
 C
       LOC_PROC = ISPMD + 1
@@ -97,14 +92,14 @@ C
       L = 1
       IAD_RECV(1) = 1
       DO I = 1, NSPMD
-        IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I).GT.0) THEN
+        IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I)>0) THEN
           SIZ = NBINT20*(LEN20*(IAD_ELEM(1,I+1)-IAD_ELEM(1,I))+1)
           MSGTYP = MSGOFF 
           NBIRECV = NBIRECV + 1
           IRINDEX(NBIRECV) = I
           CALL MPI_IRECV(
      S      RBUF(L),SIZ,MPI_DOUBLE_PRECISION,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(NBIRECV),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(NBIRECV),IERROR)
           L = L + SIZ
         ENDIF
         IAD_RECV(I+1) = L
@@ -115,7 +110,7 @@ C Pre Traitement interfaces
 C
       DO NI = 1, NBINTC
         NIN = INTLIST(NI)
-        IF(IPARI(7,NIN).EQ.20)THEN
+        IF(IPARI(7,NIN)==20)THEN
           NLN=IPARI(35,NIN)
 C
           DO I = 1, NUMNOD
@@ -128,14 +123,13 @@ C
           END DO
 C
           DO I = 1, NSPMD
-            IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I).GT.0) THEN
+            IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I)>0) THEN
               LL = DEBUT(I)
               SBUF(LL)=0
               L = LL+1
-#include    "vectorize.inc"
               DO J=IAD_ELEM(1,I),IAD_ELEM(1,I+1)-1
                 NOD = FR_ELEM(J)
-                IF(ITAGX(NOD).NE.0)THEN
+                IF(ITAGX(NOD)/=0)THEN
                   II = ITAGX(NOD)
                   SBUF(L) = J+1-IAD_ELEM(1,I)
 C ALPHAK(2)
@@ -164,7 +158,7 @@ C
         MSGTYP = MSGOFF
         CALL MPI_ISEND(
      S    SBUF(L),SIZ,MPI_DOUBLE_PRECISION,IT_SPMD(I),MSGTYP,
-     G    MPI_COMM_WORLD,REQ_S(I),IERROR)
+     G    SPMD_COMM_WORLD,REQ_S(I),IERROR)
       ENDDO
 C
 C decompactage
@@ -172,7 +166,7 @@ C
         CALL MPI_WAITALL(NBIRECV,REQ_R,RSTATUS,IERROR)
         DO NI = 1, NBINTC
           NIN = INTLIST(NI)
-          IF(IPARI(7,NIN).EQ.20)THEN
+          IF(IPARI(7,NIN)==20)THEN
             NLN=IPARI(35,NIN)
 C
 c            DO II = 1, NUMNOD
@@ -208,21 +202,21 @@ C ALPHAK(3)
               INTBUF_TAB(NIN)%ALPHAK((II-1)*3+3)=MIN(INTBUF_TAB(NIN)%ALPHAK((II-1)*3+3),
      .                                       RBUF(L+2))
               CALL GETDPDAANC(DAANC6L,RBUF(L+3),IRESP,INC)
-C             L  = L + 18 car variable en double precision
+C             the =+ 18 because variable in double precision
               CALL ADDDP(INTBUF_TAB(NIN)%DAANC6(1+(II-1)*3*6*2),DAANC6L,18)
               ENDIF
               L = L + LEN20
             END DO
-C Repositionne IAD_RECV pour l'interface suivante
+C Reposition IAD_RECV for the following interface
             IAD_RECV(P)=L
         END DO
           END IF
       END DO
 C
-Cel wait terminaison isend
+C   wait terminaison isend
 C
       DO I = 1, NSPMD
-        IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I).GT.0)
+        IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I)>0)
      .    CALL MPI_WAIT(REQ_S(I),STATUS,IERROR)
       ENDDO
 C

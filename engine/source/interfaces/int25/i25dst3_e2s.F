@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25DST3_E2S                   source/interfaces/int25/i25dst3_e2s.F
-Chd|-- called by -----------
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|-- calls ---------------
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25dst3_e2s   ../engine/source/interfaces/int25/i25dst3_e2s.F
+!||--- called by ------------------------------------------------------
+!||    i25mainf      ../engine/source/interfaces/int25/i25mainf.F
+!||--- uses       -----------------------------------------------------
+!||    tri25ebox     ../engine/share/modules/tri25ebox.F
+!||====================================================================
       SUBROUTINE I25DST3_E2S(
      1   JLT    ,CAND_S,CAND_M,H1S   ,H2S   ,
      2   H1M    ,H2M   ,NX    ,NY    ,NZ    ,
@@ -43,7 +43,7 @@ Chd|====================================================================
      E   CAND_P ,TYPEDGS,IAS  ,JAS   ,IBS   ,
      F   JBS    ,IAM    ,ITAB ,INDX1 ,INDX2 ,
      G   CS_LOC4,CM_LOC4, EDGE_ID, NEDGE, NIN,
-     H   E2S_NOD_NORMAL ,ADMSR   ,DGAPLOADPMAX)
+     H   DGAPLOADPMAX,NORMALN1,NORMALN2,NORMALM1,NORMALM2)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -58,11 +58,8 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "assert.inc"
 #include      "mvsiz_p.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "sms_c.inc"
-#include      "com01_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -71,7 +68,7 @@ C-----------------------------------------------
       INTEGER :: EDGE_ID(2,4*MVSIZ)
       INTEGER JLT,JLT_NEW, IEDGE,INTFRIC
       INTEGER CAND_S(MVSIZ),CAND_M(MVSIZ),INDEX(*),CS_LOC4(*),CM_LOC4(*),
-     .        N1(4,MVSIZ),N2(4,MVSIZ),M1(4,MVSIZ),M2(4,MVSIZ),ADMSR(4,*),
+     .        N1(4,MVSIZ),N2(4,MVSIZ),M1(4,MVSIZ),M2(4,MVSIZ),
      .        TYPEDGS(MVSIZ),IAS(MVSIZ),JAS(MVSIZ),IBS(MVSIZ),JBS(MVSIZ),IAM(MVSIZ),    
      .        NSMS(4,MVSIZ),IPARTFRIC_ES(4,MVSIZ),IPARTFRIC_EM(4,MVSIZ), 
      .        IRECT(4,*),LEDGE(NLEDGE,*),ITAB(*), INDX1(4*MVSIZ), INDX2(4*MVSIZ)
@@ -85,45 +82,39 @@ C-----------------------------------------------
      .     GAPVE(4,*), X(3,*), CAND_P(4,*),
      .     EX(4,MVSIZ), EY(4,MVSIZ), EZ(4,MVSIZ),
      .     FX(MVSIZ), FY(MVSIZ) , FZ(MVSIZ)
-      REAL*4 E2S_NOD_NORMAL(3,*)
       my_real  , INTENT(IN) :: DGAPLOADPMAX
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
+      my_real  , INTENT(IN) :: NORMALN1(3,MVSIZ),NORMALN2(3,MVSIZ),
+     .       NORMALM1(3,4,MVSIZ),NORMALM2(3,4,MVSIZ)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IA, JA, IB, JB, SOL_EDGE, SH_EDGE, K, NJNDX, N4A, 
-     .        EJ, I1, I2, I3, I4, I0, IT, EJ_NEW, I_NEW,
+      INTEGER I, SOL_EDGE, SH_EDGE, K, NJNDX, N4A, 
+     .        EJ, I1, I2, I3, I4, I0, EJ_NEW, I_NEW,
      .        IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
-     .        JX1(MVSIZ), JX2(MVSIZ), JX3(MVSIZ), JX4(MVSIZ),
+     .           
      .        JNDX(MVSIZ), I4A(MVSIZ)
       my_real
-     .     XA0(MVSIZ),XA1(MVSIZ),XA2(MVSIZ),XA3(MVSIZ),XA4(MVSIZ),
-     .     YA0(MVSIZ),YA1(MVSIZ),YA2(MVSIZ),YA3(MVSIZ),YA4(MVSIZ),
-     .     ZA0(MVSIZ),ZA1(MVSIZ),ZA2(MVSIZ),ZA3(MVSIZ),ZA4(MVSIZ),
-C    .     XB0(MVSIZ),XB1(MVSIZ),XB2(MVSIZ),XB3(MVSIZ),XB4(MVSIZ),
-C    .     YB0(MVSIZ),YB1(MVSIZ),YB2(MVSIZ),YB3(MVSIZ),YB4(MVSIZ),
-C    .     ZB0(MVSIZ),ZB1(MVSIZ),ZB2(MVSIZ),ZB3(MVSIZ),ZB4(MVSIZ),
+     .     
+     .     
+     .     
      .     XA(5,MVSIZ),YA(5,MVSIZ),ZA(5,MVSIZ)
       my_real
      .     PENE2(4,MVSIZ),
      .     XS12(4,MVSIZ),YS12(4,MVSIZ),ZS12(4,MVSIZ),XM12(4,MVSIZ),
      .     YM12(4,MVSIZ),ZM12(4,MVSIZ),XAA,XBB,XS2(4,MVSIZ),XM2(4,MVSIZ),
-     .     XSM,XS2M2,YS2,YM2,YSM,YS2M2,ZS2,ZM2,ZSM,ZS2M2,
-     .     XX,YY,ZZ,ALS,ALM,DET,AAA,BBB,GAP2,P1,P2,NN(4,MVSIZ),
+     .     XSM,XS2M2,YS2M2,ZS2M2,
+     .     DET,AAA,P1,P2,NN(4,MVSIZ),
      .     X0A(MVSIZ,4),Y0A(MVSIZ,4),Z0A(MVSIZ,4),
-     .     X0B(MVSIZ,4),Y0B(MVSIZ,4),Z0B(MVSIZ,4),
+     .     
      .     XNA(MVSIZ,4), YNA(MVSIZ,4), ZNA(MVSIZ,4), XNB(MVSIZ,4), YNB(MVSIZ,4), ZNB(MVSIZ,4), PS,
-     .     XS, YS, ZS, XM, YM, ZM, DA, DB, CNVX, DA1, DB1, DA2, DB2,
-     .     RZERO, RUN, RDIX, REM30, REP30,
-     .     ALP,XXS,XYS,XZS,XXM,XYM,XZM,
+     .     XS, YS, ZS, XM, YM, ZM, DA, DB, CNVX, DA1, DA2,
+     .     
+     .     ALP,XXS,XYS,XZS,
      .     XI0,YI0,ZI0,XI1,YI1,ZI1,XI2,YI2,ZI2,
      .     SX1,SY1,SZ1,SX2,SY2,SZ2,
      .     LBA(MVSIZ,4),LCA(MVSIZ,4),
      .     NNNN,NM(3),NS(3),
      .     NNCX,NNCY,NNCZ,NNCP,DIST,PEDG,NEDG
-      REAL*4 NNM11(3),NNM22(3),NNS11(3),NNS22(3)
       INTEGER :: EDGE_ID_CP(2,MVSIZ)
       INTEGER NTRIA(3,4)
       INTEGER :: INTFRIC_LOC,IDTMINS_LOC
@@ -243,7 +234,7 @@ C
           H2S(EJ,I) = ONE -H1S(EJ,I)
           H2M(EJ,I) = ONE -H1M(EJ,I)
 C !!!!!!!!!!!!!!!!!!!!!!!!!!
-C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE = GAP^2 - DIST^2 Used for testing non zero penetration
 C!!!!!!!!!!!!!!!!!!!!!!!!!!!
           NX(EJ,I) = H1S(EJ,I)*XXS1(EJ,I)    + H2S(EJ,I)*XXS2(EJ,I)
      .             - H1M(EJ,I)*XXM1(EJ,I) - H2M(EJ,I)*XXM2(EJ,I)
@@ -258,7 +249,7 @@ C!!!!!!!!!!!!!!!!!!!!!!!!!!!
           NY(EJ,I)    = -NY(EJ,I)
           NZ(EJ,I)    = -NZ(EJ,I)
 
-          PENE2(EJ,I) =  DGAPLOADPMAX*DGAPLOADPMAX - NN(EJ,I)
+          PENE2(EJ,I) =  DGAPLOADPMAX*DGAPLOADPMAX + NN(EJ,I)
           DEBUG_E2E(EDGE_ID(1,I)==D_EM .AND. EDGE_ID(2,I) ==  D_ES,PENE2(EJ,I))
 
         ENDDO
@@ -294,78 +285,73 @@ C
           IF(PENE2(1,I)+PENE2(2,I)+PENE2(3,I)+PENE2(4,I)==ZERO) CYCLE
 
           IF(TYPEDGS(I)/=1)CYCLE
+C---------------------------------------
+C         Solid on second side !
+C---------------------------------------
+
+c          IF(IAS(I)==0 .OR. IBS(I)==0) THEN
+c            print *,' internal error - i25dst3_e2s'   ! This error message is desactivated : E2E solid erosion will be taken into account
+c          END IF
+
 
           DO EJ=1,4
 
 
-          IF(PENE2(EJ,I)==ZERO) CYCLE
+           IF(PENE2(EJ,I)==ZERO) CYCLE
 
 C
 C         Only contact solid/solid 
 C            Common normal : contact normal computing using cross product
 C            contact normal can't be normal to secondary and main surfaces :
 C            using node normal 
-C             +- 90 with tolerance ( 10)
+C             +- 90 with tolerance ( 10deg)
 
 
 C Computing cross product :
 
-          PEDG = XM12(EJ,I) *XS12(EJ,I) + YM12(EJ,I) *YS12(EJ,I) + ZM12(EJ,I) *ZS12(EJ,I)
-          NEDG = SQRT(XM2(EJ,I)) * SQRT(XS2(EJ,I))
-          IF(ABS(PEDG).GT.(ONE-EM04)*NEDG) THEN
-            PENE2(EJ,I)=ZERO
-            CYCLE  ! no contact
-          END IF
+           PEDG = XM12(EJ,I) *XS12(EJ,I) + YM12(EJ,I) *YS12(EJ,I) + ZM12(EJ,I) *ZS12(EJ,I)
+           NEDG = SQRT(XM2(EJ,I)) * SQRT(XS2(EJ,I))
+           IF(ABS(PEDG)>ZEP999*NEDG) THEN
+             PENE2(EJ,I)=ZERO
+             CYCLE  ! no contact
+           END IF
 
-          NNCX = YS12(EJ,I)*ZM12(EJ,I)- ZS12(EJ,I)*YM12(EJ,I) 
-          NNCY = ZS12(EJ,I)*XM12(EJ,I)- ZM12(EJ,I)*XS12(EJ,I)
-          NNCZ = XS12(EJ,I)*YM12(EJ,I)- YS12(EJ,I)*XM12(EJ,I)   
+           NNCX = YS12(EJ,I)*ZM12(EJ,I)- ZS12(EJ,I)*YM12(EJ,I) 
+           NNCY = ZS12(EJ,I)*XM12(EJ,I)- ZM12(EJ,I)*XS12(EJ,I)
+           NNCZ = XS12(EJ,I)*YM12(EJ,I)- YS12(EJ,I)*XM12(EJ,I)   
 
-          NNCP = SQRT(NNCX*NNCX+NNCY*NNCY+NNCZ*NNCZ)
+           NNCP = SQRT(NNCX*NNCX+NNCY*NNCY+NNCZ*NNCZ)
          
-          NNCX = NNCX / MAX(EM30,NNCP)
-          NNCY = NNCY / MAX(EM30,NNCP)
-          NNCZ = NNCZ / MAX(EM30,NNCP) 
+           NNCX = NNCX / MAX(EM30,NNCP)
+           NNCY = NNCY / MAX(EM30,NNCP)
+           NNCZ = NNCZ / MAX(EM30,NNCP) 
 
-          DIST = NNCX*NX(EJ,I)+NNCY*NY(EJ,I)+NNCZ*NZ(EJ,I)
+           DIST = NNCX*NX(EJ,I)+NNCY*NY(EJ,I)+NNCZ*NZ(EJ,I)
 
-          NX(EJ,I)    = NNCX * DIST
-          NY(EJ,I)    = NNCY * DIST
-          NZ(EJ,I)    = NNCZ * DIST 
+           NX(EJ,I)    = NNCX * DIST
+           NY(EJ,I)    = NNCY * DIST
+           NZ(EJ,I)    = NNCZ * DIST 
 
-          NN(EJ,I)=SQRT(NX(EJ,I)**2 + NY(EJ,I)**2 + NZ(EJ,I)**2)
+           NN(EJ,I)=SQRT(NX(EJ,I)**2 + NY(EJ,I)**2 + NZ(EJ,I)**2)
 
-          PENE2(EJ,I) = NN(EJ,I)
+           PENE2(EJ,I) = NN(EJ,I)
 
-C Exclusions :
+C Exclusions:
 
-          NNM11(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(EJ,IAM(I)))
-          NNM22(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(MOD(EJ,4)+1,IAM(I)))
+           NM(1:3)=H1M(EJ,I)*NORMALM1(1:3,EJ,I)+H2M(EJ,I)*NORMALM2(1:3,EJ,I)
+           NS(1:3)=H1S(EJ,I)*NORMALN1(1:3,I)+H2S(EJ,I)*NORMALN2(1:3,I)
 
-
-          IF(CAND_S(I) <= NEDGE) THEN
-             NNS11(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(JAS(I),IAS(I)))
-             NNS22(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(MOD(JAS(I),4)+1,IAS(I)))
-          ELSE
-             NNS11(1:3) = EDG_BISECTOR_FIE(NIN)%P(1:3,2,CAND_S(I) - NEDGE)
-             NNS22(1:3) = EDG_BISECTOR_FIE(NIN)%P(1:3,3,CAND_S(I) - NEDGE)
-          ENDIF
-
-
-          NM(1:3)=H1M(EJ,I)*NNM11(1:3)+H2M(EJ,I)*NNM22(1:3)
-          NS(1:3)=H1S(EJ,I)*NNS11(1:3)+H2S(EJ,I)*NNS22(1:3)
-
-          P1=-(NX(EJ,I)*NM(1)+NY(EJ,I)*NM(2)+NZ(EJ,I)*NM(3))
-          P2=  NX(EJ,I)*NS(1)+NY(EJ,I)*NS(2)+NZ(EJ,I)*NS(3)  
+           P1=-(NX(EJ,I)*NM(1)+NY(EJ,I)*NM(2)+NZ(EJ,I)*NM(3))
+           P2=  NX(EJ,I)*NS(1)+NY(EJ,I)*NS(2)+NZ(EJ,I)*NS(3)  
  
-          NNNN=NN(EJ,I)
+           NNNN=NN(EJ,I)
 
 
            IF(P2 > EM04*NNNN.OR.P1 > EM04*NNNN)THEN ! Tolerance EM04
             PENE2(EJ,I)=ZERO 
            ENDIF
 
-           IF(ABS(P1) <= ONE_FIFTH*NNNN .OR. ABS(P2) <= ONE_FIFTH*NNNN) THEN ! Tolerance :+-80deg
+           IF(ABS(P1) <= ZEP2*NNNN .OR. ABS(P2) <= ZEP2*NNNN) THEN ! Tolerance :+-80deg
              PENE2(EJ,I)=ZERO 
              CYCLE  ! no contact
            ENDIF
@@ -376,159 +362,13 @@ C Exclusions :
       END IF
 
 
-      IF(SOL_EDGE/=0)THEN !  provisoire pour solides
+      IF(SOL_EDGE/=0)THEN ! temporary for solids
+C-----------Keep this condition for the moment (need?) : increase tolerance ( missing contacts )
 
-        DO I=1,JLT
-
-          IF(PENE2(1,I)+PENE2(2,I)+PENE2(3,I)+PENE2(4,I)==ZERO) CYCLE
-
-          IF(TYPEDGS(I)/=1)CYCLE
-       
-C         IF(CAND_S(I) <= NEDGE) THEN
-C---------------------------------------
-C         Solid on secnd side !
-C---------------------------------------
-
-          IF(IAS(I)==0 .OR. IBS(I)==0) THEN
-            print *,' internal error - i25dst3_e2s'
-          END IF
-
-          IF(CAND_S(I) <= NEDGE) THEN
-          IF(IRECT(3,IAS(I))/=IRECT(4,IAS(I)))THEN
-            IX1(I)=IRECT(    JAS(I)       ,IAS(I))
-            IX2(I)=IRECT(MOD(JAS(I),4)  +1,IAS(I))
-            IX3(I)=IRECT(MOD(JAS(I)+1,4)+1,IAS(I))
-            IX4(I)=IRECT(MOD(JAS(I)+2,4)+1,IAS(I))
-          ELSE
-            IX1(I)=IRECT(NTRIA(1,JAS(I)),IAS(I))
-            IX2(I)=IRECT(NTRIA(2,JAS(I)),IAS(I))
-            IX3(I)=IRECT(NTRIA(3,JAS(I)),IAS(I))
-            IX4(I)=IX3(I)
-          END IF
-          XA1(I)=X(1,IX1(I))
-          YA1(I)=X(2,IX1(I))
-          ZA1(I)=X(3,IX1(I))
-          XA2(I)=X(1,IX2(I))
-          YA2(I)=X(2,IX2(I))
-          ZA2(I)=X(3,IX2(I))
-          XA3(I)=X(1,IX3(I))
-          YA3(I)=X(2,IX3(I))
-          ZA3(I)=X(3,IX3(I))
-          XA4(I)=X(1,IX4(I))
-          YA4(I)=X(2,IX4(I))
-          ZA4(I)=X(3,IX4(I))
-          IF(IX3(I).NE.IX4(I))THEN
-           XA0(I) = FOURTH*(XA1(I)+XA2(I)+XA3(I)+XA4(I))
-           YA0(I) = FOURTH*(YA1(I)+YA2(I)+YA3(I)+YA4(I))
-           ZA0(I) = FOURTH*(ZA1(I)+ZA2(I)+ZA3(I)+ZA4(I)) 
-          ELSE
-           XA0(I) = XA3(I)
-           YA0(I) = YA3(I)
-           ZA0(I) = ZA3(I)
-          ENDIF
-
-          ELSE
-            XA1(I)=X_SEG_FIE(NIN)%P(1,1,CAND_S(I) - NEDGE)
-            YA1(I)=X_SEG_FIE(NIN)%P(2,1,CAND_S(I) - NEDGE)
-            ZA1(I)=X_SEG_FIE(NIN)%P(3,1,CAND_S(I) - NEDGE)
-            XA2(I)=X_SEG_FIE(NIN)%P(1,2,CAND_S(I) - NEDGE)
-            YA2(I)=X_SEG_FIE(NIN)%P(2,2,CAND_S(I) - NEDGE)
-            ZA2(I)=X_SEG_FIE(NIN)%P(3,2,CAND_S(I) - NEDGE)
-            XA3(I)=X_SEG_FIE(NIN)%P(1,3,CAND_S(I) - NEDGE)
-            YA3(I)=X_SEG_FIE(NIN)%P(2,3,CAND_S(I) - NEDGE)
-            ZA3(I)=X_SEG_FIE(NIN)%P(3,3,CAND_S(I) - NEDGE)
-            XA4(I)=X_SEG_FIE(NIN)%P(1,4,CAND_S(I) - NEDGE)
-            YA4(I)=X_SEG_FIE(NIN)%P(2,4,CAND_S(I) - NEDGE)
-            ZA4(I)=X_SEG_FIE(NIN)%P(3,4,CAND_S(I) - NEDGE)
-            IF(
-     .         XA3(I) == XA4(I) .AND.
-     .         YA3(I) == YA4(I) .AND.
-     .         ZA3(I) == ZA4(I) 
-     .         )THEN
-             XA0(I) = XA3(I)
-             YA0(I) = YA3(I)
-             ZA0(I) = ZA3(I)
-            ELSE
-             XA0(I) = FOURTH*(XA1(I)+XA2(I)+XA3(I)+XA4(I))
-             YA0(I) = FOURTH*(YA1(I)+YA2(I)+YA3(I)+YA4(I))
-             ZA0(I) = FOURTH*(ZA1(I)+ZA2(I)+ZA3(I)+ZA4(I)) 
-            ENDIF
-          ENDIF
-        END DO
-
-        DO I=1,JLT
-
-          IF(PENE2(1,I)+PENE2(2,I)+PENE2(3,I)+PENE2(4,I)==ZERO) CYCLE
-
-          IF(TYPEDGS(I)/=1)CYCLE
-C---------------------------------------
-C         Solid on secnd side !
-C---------------------------------------
-C
-C
-          X0A(I,1) = XA1(I) - XA0(I)
-          Y0A(I,1) = YA1(I) - YA0(I)
-          Z0A(I,1) = ZA1(I) - ZA0(I)
-C
-          X0A(I,2) = XA2(I) - XA0(I)
-          Y0A(I,2) = YA2(I) - YA0(I)
-          Z0A(I,2) = ZA2(I) - ZA0(I)
-C
-          XNA(I,1) = -(Y0A(I,1)*Z0A(I,2) - Z0A(I,1)*Y0A(I,2))
-          YNA(I,1) = -(Z0A(I,1)*X0A(I,2) - X0A(I,1)*Z0A(I,2))
-          ZNA(I,1) = -(X0A(I,1)*Y0A(I,2) - Y0A(I,1)*X0A(I,2))
-C
-C         Normal to neighboring segment (cf F == Bisector)
-          PS=XNA(I,1)*FX(I)+YNA(I,1)*FY(I)+ZNA(I,1)*FZ(I)
-          XNB(I,1) = -XNA(I,1)+TWO*PS*FX(I)
-          YNB(I,1) = -YNA(I,1)+TWO*PS*FY(I)
-          ZNB(I,1) = -ZNA(I,1)+TWO*PS*FZ(I)
-C
-        ENDDO
-
-        DO I=1,JLT
-
-          IF(TYPEDGS(I)/=1)CYCLE
-C---------------------------------------
-C         Solid on secnd side !
-C---------------------------------------
-          DO EJ=1,4
-
-            IF(EJ==3.AND.M1(EJ,I)==M2(EJ,I)) CYCLE
-
-            DEBUG_E2E(EDGE_ID(1,I)==D_EM .AND. EDGE_ID(2,I) ==  D_ES,PENE2(EJ,I))
-
-            IF(PENE2(EJ,I)==ZERO) CYCLE
-
-            XS = H1S(EJ,I)*XXS1(EJ,I) + H2S(EJ,I)*XXS2(EJ,I)
-            YS = H1S(EJ,I)*XYS1(EJ,I) + H2S(EJ,I)*XYS2(EJ,I)
-            ZS = H1S(EJ,I)*XZS1(EJ,I) + H2S(EJ,I)*XZS2(EJ,I)
-
-            XM = H1M(EJ,I)*XXM1(EJ,I) + H2M(EJ,I)*XXM2(EJ,I)
-            YM = H1M(EJ,I)*XYM1(EJ,I) + H2M(EJ,I)*XYM2(EJ,I)
-            ZM = H1M(EJ,I)*XZM1(EJ,I) + H2M(EJ,I)*XZM2(EJ,I)
-            DA = (XM-XS)*XNA(I,1)+(YM-YS)*YNA(I,1)+(ZM-ZS)*ZNA(I,1)
-            DB = (XM-XS)*XNB(I,1)+(YM-YS)*YNB(I,1)+(ZM-ZS)*ZNB(I,1)
-
-            CNVX= (XA0(I)-XA1(I))*XNB(I,1)
-     .           +(YA0(I)-YA1(I))*YNB(I,1)
-     .           +(ZA0(I)-ZA1(I))*ZNB(I,1) 
-            DEBUG_E2E(EDGE_ID(1,I)==D_EM .AND. EDGE_ID(2,I) ==  D_ES,CNVX)
-
-            IF(CNVX >= ZERO)THEN 
-              IF(.NOT.((DA >= ZERO .AND.  DB >= -EM04*CNVX) .OR.
-     .                 (DA >= -EM04*CNVX .AND. DB >= ZERO)))PENE2(EJ,I)=ZERO ! Clip ok
-            ELSE 
-              IF(DA <= ZERO .AND. DB <= ZERO) PENE2(EJ,I)=ZERO
-            END IF
-            DEBUG_E2E(EDGE_ID(1,I)==D_EM .AND. EDGE_ID(2,I) ==  D_ES,PENE2(EJ,I))
-          ENDDO
-        ENDDO
-C---------------------------------------
-        LBA(1:JLT,1:4) = -ONE ! cf test LBA, LCA
+        LBA(1:JLT,1:4) = -ONE ! See test LBA, LCA
         LCA(1:JLT,1:4) = ZERO
 C---------------------------------------
-C       Extraction des coordonnees et pre-filtrage des candidats vs diedre main
+C       extraction of coordinates and pre-filtering of candidates vs main dihedral
 C---------------------------------------
         DO I=1,JLT
 
@@ -556,7 +396,7 @@ C---------------------------------------
           YA(4,I)=X(2,IX4(I))
           ZA(4,I)=X(3,IX4(I))
 
-          IF(IX3(I).NE.IX4(I))THEN
+          IF(IX3(I)/=IX4(I))THEN
             XA(5,I) = FOURTH*(XA(1,I)+XA(2,I)+XA(3,I)+XA(4,I))
             YA(5,I) = FOURTH*(YA(1,I)+YA(2,I)+YA(3,I)+YA(4,I))
             ZA(5,I) = FOURTH*(ZA(1,I)+ZA(2,I)+ZA(3,I)+ZA(4,I)) 
@@ -629,6 +469,8 @@ C         Solid on main side !
 C---------------------------------------
         DO I=1,JLT
 
+          IF(TYPEDGS(I)==1)CYCLE ! keep condition only Shell/solid 
+
           DO EJ=1,4
 
             DEBUG_E2E(EDGE_ID(1,I)==D_EM .AND. EDGE_ID(2,I) ==  D_ES,PENE2(EJ,I))
@@ -688,7 +530,7 @@ C
           ENDDO
         ENDDO
 C---------------------------------------
-C       Calculer uniquement candidats filtres par la suite...
+C       only filter candidates will be calculated afterwards...
 C---------------------------------------
         NJNDX = 0
         N4A   = 0
@@ -720,8 +562,8 @@ C
           DA1 = (XXS1(1,I)-XA(5,I))*XNA(I,1)+(XYS1(1,I)-YA(5,I))*YNA(I,1)+(XZS1(1,I)-ZA(5,I))*ZNA(I,1)
           DA2 = (XXS2(1,I)-XA(5,I))*XNA(I,1)+(XYS2(1,I)-YA(5,I))*YNA(I,1)+(XZS2(1,I)-ZA(5,I))*ZNA(I,1)
 C
-C         On traite y-compris le cas ou S1 ou S2 sont exactement sur la surface 
-C         (en dehors du 3eme point du triangle, que l'on peut rater)
+C         also handles the case where s1 or s2 are exactly on the surface
+C         (except for the third point of the triangle, which can be missed)
           IF(DA1*DA2 <= ZERO)THEN
             ALP=-DA2/SIGN(MAX(EM20,ABS(DA1-DA2)),DA1-DA2)
             XXS=ALP*XXS1(1,I)+(ONE-ALP)*XXS2(1,I)
@@ -766,8 +608,8 @@ C
           DA1 = (XXS1(1,I)-XA(5,I))*XNA(I,2)+(XYS1(1,I)-YA(5,I))*YNA(I,2)+(XZS1(1,I)-ZA(5,I))*ZNA(I,2)
           DA2 = (XXS2(1,I)-XA(5,I))*XNA(I,2)+(XYS2(1,I)-YA(5,I))*YNA(I,2)+(XZS2(1,I)-ZA(5,I))*ZNA(I,2)
 C
-C         On traite y-compris le cas ou S1 ou S2 sont exactement sur la surface 
-C         (en dehors du 3eme point du triangle, que l'on peut rater)
+C         also handles the case where s1 or s2 are exactly on the surface
+C         (outside the third point of the triangle, which can be missed)
           IF(DA1*DA2 <= ZERO)THEN
             ALP=-DA2/SIGN(MAX(EM20,ABS(DA1-DA2)),DA1-DA2)
             XXS=ALP*XXS1(1,I)+(ONE-ALP)*XXS2(1,I)
@@ -812,8 +654,8 @@ C
           DA1 = (XXS1(1,I)-XA(5,I))*XNA(I,3)+(XYS1(1,I)-YA(5,I))*YNA(I,3)+(XZS1(1,I)-ZA(5,I))*ZNA(I,3)
           DA2 = (XXS2(1,I)-XA(5,I))*XNA(I,3)+(XYS2(1,I)-YA(5,I))*YNA(I,3)+(XZS2(1,I)-ZA(5,I))*ZNA(I,3)
 C
-C         On traite y-compris le cas ou S1 ou S2 sont exactement sur la surface 
-C         (en dehors du 3eme point du triangle, que l'on peut rater)
+C         we also handle the case where s1 or s2 are exactly on the surface
+C         (outside the third point of the triangle, which can be missed)
           IF(DA1*DA2 <= ZERO)THEN
             ALP=-DA2/SIGN(MAX(EM20,ABS(DA1-DA2)),DA1-DA2)
             XXS=ALP*XXS1(1,I)+(ONE-ALP)*XXS2(1,I)
@@ -858,8 +700,8 @@ C
           DA1 = (XXS1(1,I)-XA(5,I))*XNA(I,4)+(XYS1(1,I)-YA(5,I))*YNA(I,4)+(XZS1(1,I)-ZA(5,I))*ZNA(I,4)
           DA2 = (XXS2(1,I)-XA(5,I))*XNA(I,4)+(XYS2(1,I)-YA(5,I))*YNA(I,4)+(XZS2(1,I)-ZA(5,I))*ZNA(I,4)
 C
-C         On traite y-compris le cas ou S1 ou S2 sont exactement sur la surface 
-C         (en dehors du 3eme point du triangle, que l'on peut rater)
+C         we also handle the case where s1 or s2 are exactly on the surface
+C         (outside the third point of the triangle, which can be missed)
           IF(DA1*DA2 <= ZERO)THEN
             ALP=-DA2/SIGN(MAX(EM20,ABS(DA1-DA2)),DA1-DA2)
             XXS=ALP*XXS1(1,I)+(ONE-ALP)*XXS2(1,I)
@@ -907,13 +749,13 @@ C---------------------------------------
 C         Solid on main side !
 C---------------------------------------
 
-          IF(LBA(I,1) < -EM02 .OR. LCA(I,1) < -EM02 .OR. LBA(I,1)+LCA(I,1) > ONEP02)
+          IF(LBA(I,1) < -EM01 .OR. LCA(I,1) < -EM01 .OR. LBA(I,1)+LCA(I,1) > ONEP01)
      .      PENE2(1,I)=ZERO
-          IF(LBA(I,2) < -EM02 .OR. LCA(I,2) < -EM02 .OR. LBA(I,2)+LCA(I,2) > ONEP02)
+          IF(LBA(I,2) < -EM01 .OR. LCA(I,2) < -EM01 .OR. LBA(I,2)+LCA(I,2) > ONEP01)
      .      PENE2(2,I)=ZERO
-          IF(LBA(I,3) < -EM02 .OR. LCA(I,3) < -EM02 .OR. LBA(I,3)+LCA(I,3) > ONEP02)
+          IF(LBA(I,3) < -EM01 .OR. LCA(I,3) < -EM01 .OR. LBA(I,3)+LCA(I,3) > ONEP01)
      .      PENE2(3,I)=ZERO
-          IF(LBA(I,4) < -EM02 .OR. LCA(I,4) < -EM02 .OR. LBA(I,4)+LCA(I,4) > ONEP02)
+          IF(LBA(I,4) < -EM01 .OR. LCA(I,4) < -EM01 .OR. LBA(I,4)+LCA(I,4) > ONEP01)
      .      PENE2(4,I)=ZERO
 
             DEBUG_E2E(EDGE_ID(1,I)==D_EM .AND. EDGE_ID(2,I) ==  D_ES,PENE2(1,I))
@@ -937,7 +779,6 @@ C
       EJ_NEW=0
       INDX1(1:4*MVSIZ) = -666
       EDGE_ID_CP(1:2,1:MVSIZ) = EDGE_ID(1:2,1:MVSIZ)
-#include      "vectorize.inc"
           DO I=1,JLT
           DO EJ=1,4
 
@@ -946,7 +787,7 @@ C
             DEBUG_E2E(EDGE_ID(1,I)==D_EM .AND. EDGE_ID(2,I) ==  D_ES,NSMS(EJ,I))
 
 
-             IF( STIF(EJ,I).NE.ZERO.AND.PENE2(EJ,I)/=ZERO)THEN
+             IF( STIF(EJ,I)/=ZERO.AND.PENE2(EJ,I)/=ZERO)THEN
                JLT_NEW = JLT_NEW + 1
                EJ_NEW=EJ_NEW+1
                IF(EJ_NEW > 4)THEN
@@ -990,8 +831,8 @@ C
                MM2(EJ_NEW,I_NEW)  = MM2(EJ,I)
                INDX1(JLT_NEW)     =INDEX(I)
                INDX2(JLT_NEW)     =EJ
-               IF(INTFRIC_LOC .NE. 0)  IPARTFRIC_ES(EJ_NEW,I_NEW)=IPARTFRIC_ES(EJ,I)
-               IF(INTFRIC_LOC .NE. 0)  IPARTFRIC_EM(EJ_NEW,I_NEW)=IPARTFRIC_EM(EJ,I)
+               IF(INTFRIC_LOC /= 0)  IPARTFRIC_ES(EJ_NEW,I_NEW)=IPARTFRIC_ES(EJ,I)
+               IF(INTFRIC_LOC /= 0)  IPARTFRIC_EM(EJ_NEW,I_NEW)=IPARTFRIC_EM(EJ,I)
                IF(IDTMINS_LOC == 2) NSMS(EJ_NEW,I_NEW) = NSMS(EJ,I)
 C#ifdef WITH_ASSERT
 C               WRITE(6,*) EJ_NEW,I_NEW,NSMS(EJ_NEW,I_NEW)

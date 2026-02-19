@@ -1,44 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECFILL                       source/elements/initia/lecfill.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        UEL2SYS                       source/initial_conditions/inista/yctrl.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lecfill                    ../starter/source/elements/initia/lecfill.F
+!||--- called by ------------------------------------------------------
+!||    lectur                     ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_count            ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_read_key         ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start            ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    uel2sys                    ../starter/source/initial_conditions/inista/yctrl.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE LECFILL(IXS,FILLSOL,UNITAB,LSUBMODEL)
 C-----------------------------------------------
 C   M o d u l e s
@@ -47,6 +46,8 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE UNITAB_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARKEY
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,36 +55,25 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scry_c.inc"
-#include      "scr17_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXS(NIXS,*)
-      my_real
-     .      FILLSOL(*)
+      my_real FILLSOL(*)
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER 
-     .      INI,J,N,ID_ELEM,IE,UID,SUB_ID,STAT,NB_INIBRI,
-     .      IFLAGUNIT,IUNIT,NB_ELEMENTS
-      INTEGER WORKS(70000)
+      INTEGER :: INI,J,N,ID_ELEM,IE,UID,SUB_ID,STAT,NB_INIBRI, IFLAGUNIT,IUNIT,NB_ELEMENTS
+      INTEGER :: WORKS(70000)
       INTEGER, DIMENSION(:), ALLOCATABLE :: KSYSUSRS,INDEXS,ITRIS
-      CHARACTER MESS*40,KEY*ncharkey
-      my_real
-     .      FILL
-      LOGICAL IS_AVAILABLE
-      INTEGER UEL2SYS
-      EXTERNAL UEL2SYS
+      CHARACTER(LEN=NCHARKEY) :: KEY
+      my_real :: FILL
+      LOGICAL :: IS_AVAILABLE
+      INTEGER, EXTERNAL ::  UEL2SYS
 C=======================================================================
       DO N=1,NUMELS
         FILLSOL(N)=ONE
@@ -91,7 +81,7 @@ C=======================================================================
 C------------------------------------
       IS_AVAILABLE = .FALSE.
 !-----------------------------------------
-!       pre lecture of FILL for interfaces stiffness computation
+!       pre-reading of FILL for interfaces stiffness computation
 !             ---  /INIBRI/FILL  ---
 !-----------------------------------------
       CALL HM_OPTION_COUNT('/INIBRI', NB_INIBRI)
@@ -165,13 +155,13 @@ C------------------------------------
      .                            KEYWORD2 = KEY)
 !
           IFLAGUNIT = 0
-          DO IUNIT=1,NUNITS
+          DO IUNIT=1,UNITAB%NUNITS
             IF (UNITAB%UNIT_ID(IUNIT) == UID) THEN    
               IFLAGUNIT = 1
               EXIT
             ENDIF
           ENDDO
-          IF (UID.NE.0.AND.IFLAGUNIT == 0) THEN
+          IF (UID/=0.AND.IFLAGUNIT == 0) THEN
             CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                  I2=UID,I1=SUB_ID,C1='INIBRI',
      .                  C2='INIBRI',C3=' ')
@@ -202,7 +192,5 @@ C---------
       ENDIF ! IF ( NB_INIBRI > 0 ) THEN
 !
 C-----------------------------------------------
-      RETURN
- 999  CALL FREERR(3)
       RETURN
       END

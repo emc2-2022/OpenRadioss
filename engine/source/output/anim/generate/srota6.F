@@ -1,67 +1,64 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SROTA6                        source/output/anim/generate/srota6.F
-Chd|-- called by -----------
-Chd|        FORINT                        source/elements/forint.F      
-Chd|        GPSSTRAIN_SKIN                source/output/anim/generate/tensgpstrain.F
-Chd|        H3D_SOLID_TENSOR_1            source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|        STAT_S_STRAF                  source/output/sta/stat_s_straf.F
-Chd|        STAT_S_STRSF                  source/output/sta/stat_s_strsf.F
-Chd|        STRN_TENSCOR3                 source/output/h3d/h3d_results/h3d_strn_tenscor3.F
-Chd|        STRS_TENSCOR3                 source/output/h3d/h3d_results/strs_tenscor3.F
-Chd|        TENSGPS1                      source/output/anim/generate/tensor6.F
-Chd|        TENSGPS2                      source/output/anim/generate/tensor6.F
-Chd|        TENSGPS3                      source/output/anim/generate/tensor6.F
-Chd|        TENSGPSTRAIN                  source/output/anim/generate/tensgpstrain.F
-Chd|        TENSGPS_SKIN                  source/output/anim/generate/tensor6.F
-Chd|        TENSORS                       source/output/anim/generate/tensor6.F
-Chd|        THSOL                         source/output/th/thsol.F      
-Chd|-- calls ---------------
-Chd|        SCOOR431                      source/elements/solid/sconnect/scoor431.F
-Chd|        SCORTHO31                     source/elements/thickshell/solidec/scortho31.F
-Chd|        SORTHO31                      source/elements/solid/solide/sortho31.F
-Chd|====================================================================
-      SUBROUTINE SROTA6(X     ,IXS   ,KCVT  ,TENS  ,GAMA  , 
-     .                  KHBE  ,ITYP  )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    srota6               ../engine/source/output/anim/generate/srota6.F
+!||--- called by ------------------------------------------------------
+!||    forint               ../engine/source/elements/forint.F
+!||    gpsstrain_skin       ../engine/source/output/anim/generate/tensgpstrain.F
+!||    h3d_solid_tensor_1   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||    stat_s_straf         ../engine/source/output/sta/stat_s_straf.F
+!||    stat_s_strsf         ../engine/source/output/sta/stat_s_strsf.F
+!||    strn_tenscor3        ../engine/source/output/h3d/h3d_results/h3d_strn_tenscor3.F
+!||    strs_tenscor3        ../engine/source/output/h3d/h3d_results/strs_tenscor3.F
+!||    tensgps1             ../engine/source/output/anim/generate/tensor6.F
+!||    tensgps2             ../engine/source/output/anim/generate/tensor6.F
+!||    tensgps3             ../engine/source/output/anim/generate/tensor6.F
+!||    tensgps_skin         ../engine/source/output/anim/generate/tensor6.F
+!||    tensgpstrain         ../engine/source/output/anim/generate/tensgpstrain.F
+!||    tensors              ../engine/source/output/anim/generate/tensor6.F
+!||    thsol                ../engine/source/output/th/thsol.F
+!||--- calls      -----------------------------------------------------
+!||    scoor431             ../engine/source/elements/solid/sconnect/scoor431.F
+!||    scortho31            ../engine/source/elements/thickshell/solidec/scortho31.F
+!||    sortho31             ../engine/source/elements/solid/solide/sortho31.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod          ../common_source/modules/elements/element_mod.F90
+!||====================================================================
+      SUBROUTINE SROTA6(
+     1   X,       IXS,     KCVT,    TENS,
+     2   GAMA,    KHBE,    ITYP,    ISORTH)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "vect01_c.inc"
-#include      "scr18_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: ISORTH
 C     REAL
       my_real
      .   X(3,*),TENS(6),GAMA(6)
@@ -130,9 +127,9 @@ C        Corotational frame - hexa spotwelds
      .     Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,                       
      .     Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8,                       
      .     R11, R12, R13, R21, R22, R23, R31, R32, R33)          
-       ELSEIF(KHBE.NE.15)THEN
-C        REPERE CONVECTE
-         IF (KHBE.EQ.24.OR.KHBE.EQ.14) THEN
+       ELSEIF(KHBE/=15)THEN
+C        convected frame
+         IF (KHBE==24.OR.KHBE==14) THEN
            CALL SORTHO31(
      .          X1, X2, X3, X4, X5, X6, X7, X8,               
      .          Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,               
@@ -155,7 +152,7 @@ C        REPERE CONVECTE
 C-----------
 C     ORTHOTROPIC ELEMENTS : Rotation from ORHTOROPIC FRAME TO LOCAL FRAME
 C-----------
-      IF (KCVT.EQ.2) THEN
+      IF (KCVT==2) THEN
         IF (ISORTH > 0) THEN
         G11=GAMA(1)
         G21=GAMA(2)

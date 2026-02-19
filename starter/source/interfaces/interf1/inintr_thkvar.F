@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  THICKVAR                      source/interfaces/interf1/inintr_thkvar.F
-Chd|-- called by -----------
-Chd|        ININTR_THKVAR                 source/interfaces/interf1/inintr_thkvar.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    thickvar        ../starter/source/interfaces/interf1/inintr_thkvar.F
+!||--- called by ------------------------------------------------------
+!||    inintr_thkvar   ../starter/source/interfaces/interf1/inintr_thkvar.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE THICKVAR(ELBUF_TAB,IPARG,THKSH4_VAR,THKSH3_VAR,THKNOD,
      .                    IXC  ,IXTG     )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD           
+      use element_mod , only : nixc,nixtg 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -42,7 +42,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -84,23 +83,20 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ININTR_THKVAR                 source/interfaces/interf1/inintr_thkvar.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        ININT3_THKVAR                 source/interfaces/inter3d1/inint3_thkvar.F
-Chd|        THICKVAR                      source/interfaces/interf1/inintr_thkvar.F
-Chd|        UPGRADE_MULTIMP               ../common_source/interf/upgrade_multimp.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFSCRATCH_MOD             source/interfaces/interf1/intbufscratch_mod.F
-Chd|        INTSTAMP_MOD                  share/modules1/intstamp_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    inintr_thkvar          ../starter/source/interfaces/interf1/inintr_thkvar.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    inint3_thkvar          ../starter/source/interfaces/inter3d1/inint3_thkvar.F
+!||    thickvar               ../starter/source/interfaces/interf1/inintr_thkvar.F
+!||--- uses       -----------------------------------------------------
+!||    intbufscratch_mod      ../starter/source/interfaces/interf1/intbufscratch_mod.F
+!||    intstamp_mod           ../starter/share/modules1/intstamp_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ININTR_THKVAR(ELBUF_TAB,
      1                  IPARI   ,INTBUF_TAB,INSCR   ,X       ,
      2                  IXS     ,IXC     ,PM      ,GEO     ,ITAB    ,
@@ -119,20 +115,16 @@ C-----------------------------------------------
       USE INTBUFDEF_MOD
       USE INTBUFSCRATCH_MOD
       USE INOUTFILE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
 #include      "scr15_c.inc"
 #include      "scr17_c.inc"
 #include      "com01_c.inc"
@@ -168,8 +160,7 @@ C-----------------------------------------------
      .   DIMENSION(:),ALLOCATABLE:: THKSH4_VAR,THKSH3_VAR,THKNOD
       CHARACTER*2148 FILNAM
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
       I_MEM = 0
       RESORT = 0
@@ -239,7 +230,7 @@ C
       IF (I_MEM /= 0) GOTO 200
   100 CONTINUE
 C
-      IF(IWRN.NE.0) THEN
+      IF(IWRN/=0) THEN
         LEN_FILNAM = OUTFILE_NAME_LEN + ROOTLEN + 6
         FILNAM = OUTFILE_NAME(1:OUTFILE_NAME_LEN)//ROOTNAM(1:ROOTLEN)//'.coord'
         OPEN(UNIT=IOU2,FILE=FILNAM(1:LEN_FILNAM),STATUS='UNKNOWN',

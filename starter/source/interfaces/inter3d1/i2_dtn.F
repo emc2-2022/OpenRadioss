@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2_DTN                        source/interfaces/inter3d1/i2_dtn.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        I2_DTN_0                      source/interfaces/inter3d1/i2_dtn.F
-Chd|        I2_DTN_1                      source/interfaces/inter3d1/i2_dtn.F
-Chd|        I2_DTN_25                     source/interfaces/inter3d1/i2_dtn.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE I2_DTN(X,INTBUF_TAB,IPARI,STIFN,MS,IN,N,NSN,ILEV)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2_dtn          ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||--- called by ------------------------------------------------------
+!||    inintr2         ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    i2_dtn_0        ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||    i2_dtn_1        ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||    i2_dtn_25       ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE I2_DTN(X,INTBUF_TAB,IPARI,STIFN,MS,IN,N,ILEV)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
@@ -42,54 +42,44 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(NPARI,*),NSN,N,ILEV
-C     REAL
-      my_real
-     .   X(3,*),STIFN(*),MS(*),IN(*)
-C
+      my_real X(3,*),STIFN(*),MS(*),IN(*)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,NI
 C=======================================================================
-C
-         
-C
+
       IF (((ILEV==1).OR.(ILEV==3)).AND.(IRODDL==1)) THEN
-        CALL I2_DTN_1(X,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%MSR,INTBUF_TAB(N)%NSV,INTBUF_TAB(N)%IRTLM,
+        CALL I2_DTN_1(X,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%NSV,INTBUF_TAB(N)%IRTLM,
      .                IPARI(1,N),STIFN, STIFN(NUMNOD+1),MS,IN,ILEV)
       ELSEIF (ILEV==25) THEN
         CALL I2_DTN_25(X,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%CSTS,INTBUF_TAB(N)%NSV,INTBUF_TAB(N)%IRTLM,
-     .                 IPARI(1,N),STIFN,INTBUF_TAB(N)%SPENALTY,INTBUF_TAB(N)%VARIABLES(14),IN)
+     .                 IPARI(1,N),STIFN,INTBUF_TAB(N)%SPENALTY,INTBUF_TAB(N)%VARIABLES(14))
       ELSE
-        CALL I2_DTN_0(X,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%CSTS,INTBUF_TAB(N)%CSTS_BIS,INTBUF_TAB(N)%NSV,
-     .                INTBUF_TAB(N)%IRTLM ,IPARI(1,N),INTBUF_TAB(N)%MSEGTYP2, STIFN, STIFN(NUMNOD+1),
-     .                MS,IN,ILEV)
+        CALL I2_DTN_0(INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%CSTS,INTBUF_TAB(N)%CSTS_BIS,INTBUF_TAB(N)%NSV,
+     .                INTBUF_TAB(N)%IRTLM ,IPARI(1,N), STIFN,
+     .                MS)
       ENDIF    
 C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  I2_DTN_0                      source/interfaces/inter3d1/i2_dtn.F
-Chd|-- called by -----------
-Chd|        I2_DTN                        source/interfaces/inter3d1/i2_dtn.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE I2_DTN_0(X,IRECT ,CRST    ,CSTS_BIS, NSV  ,
-     2                    IRTL  ,IPARI, MSEGTYP2, STIFN, STIFR,
-     2                    MS, IN, ILEV)
+!||====================================================================
+!||    i2_dtn_0   ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||--- called by ------------------------------------------------------
+!||    i2_dtn     ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||====================================================================
+      SUBROUTINE I2_DTN_0(IRECT ,CRST    ,CSTS_BIS, NSV  ,
+     2                    IRTL  ,IPARI , STIFN  ,
+     2                    MS)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
@@ -99,21 +89,10 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IRECT(4,*), NSV(*),IRTL(*),
-     .        IPARI(*),MSEGTYP2(*),ILEV
-C     REAL
-      my_real
-     .   X(3,*),CRST(2,*),STIFN(*),STIFR(*), MS(*),CSTS_BIS(2,*),IN(*)
+      INTEGER IRECT(4,*), NSV(*),IRTL(*), IPARI(*)
+      my_real CRST(2,*),STIFN(*),MS(*),CSTS_BIS(2,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -157,7 +136,9 @@ C
         H2(3)=TP*SP                                       
         H2(4)=TP*SM    
 C
-        IF(IX3 == IX4) THEN
+        IF (N2D/=0) THEN
+          NIR = 2
+        ELSEIF(IX3 == IX4) THEN
           H(3) = H(3) + H(4) 
           H(4) = ZERO
           H2(3) = H2(3) + H2(4) 
@@ -182,13 +163,12 @@ C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  I2_DTN_1                      source/interfaces/inter3d1/i2_dtn.F
-Chd|-- called by -----------
-Chd|        I2_DTN                        source/interfaces/inter3d1/i2_dtn.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE I2_DTN_1(X,IRECT , MSR   ,NSV  ,IRTL  ,
+!||====================================================================
+!||    i2_dtn_1   ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||--- called by ------------------------------------------------------
+!||    i2_dtn     ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||====================================================================
+      SUBROUTINE I2_DTN_1(X,IRECT , NSV  ,IRTL  ,
      2                         IPARI, STIFN, STIFR, MS, IN,ILEV)
 C-----------------------------------------------
 C   M o d u l e s
@@ -198,27 +178,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr07_c.2.inc"
-#include      "scr17_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IRECT(4,*), MSR(*), NSV(*),IRTL(*),
-     .        IPARI(*),ILEV
-C     REAL
-      my_real
-     .   X(3,*),STIFN(*),STIFR(*), MS(*),IN(*)
+      INTEGER IRECT(4,*), NSV(*),IRTL(*), IPARI(*),ILEV
+      my_real X(3,*),STIFN(*),STIFR(*), MS(*),IN(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -320,17 +284,17 @@ C
         MR=DET*INX*MAX(MRX,MRY,MRZ)
 C
         FACT = ONE
-        IF (IRODDL.EQ.1) THEN
-        IF (IN(J1).GT.ZERO.AND.IN(J2).GT.ZERO.AND.IN(J3).GT.ZERO.AND.IN(J4).GT.ZERO) THEN
-C--       Inertie transmise sous forme d'inertie
+        IF (IRODDL==1) THEN
+        IF (IN(J1)>ZERO.AND.IN(J2)>ZERO.AND.IN(J3)>ZERO.AND.IN(J4)>ZERO) THEN
+C- inertia transmitted in the form of inertia
           FACT = ZERO
         ENDIF
         ENDIF
 C
         XMSI = MS(I)
-        IF(ILEV.EQ.1)THEN
+        IF(ILEV==1)THEN
           XMSI=FOURTH*XMSI+MR
-        ELSEIF(ILEV.EQ.3)THEN
+        ELSEIF(ILEV==3)THEN
           XMSI=MAX(FOURTH*XMSI,MR)
         ENDIF     
 C
@@ -346,7 +310,7 @@ C
         STIFN(J3)=STIFN(J3) + STF
         STIFN(J4)=STIFN(J4) + STF
 C
-        IF (IRODDL.EQ.1) THEN
+        IF (IRODDL==1) THEN
           IN(J1)=IN(J1)+INX*FOURTH*(ONE-FACT)
           IN(J2)=IN(J2)+INX*FOURTH*(ONE-FACT)
           IN(J3)=IN(J3)+INX*FOURTH*(ONE-FACT)
@@ -356,7 +320,7 @@ C
         MS(I)=ZERO
         STIFN(I)=EM20
 C  
-        IF (IRODDL.EQ.1) THEN
+        IF (IRODDL==1) THEN
           IN(I)=ZERO
           STIFR(I)=EM20
         ENDIF
@@ -367,17 +331,14 @@ C-----------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I2_DTN_25                     source/interfaces/inter3d1/i2_dtn.F
-Chd|-- called by -----------
-Chd|        I2_DTN                        source/interfaces/inter3d1/i2_dtn.F
-Chd|-- calls ---------------
-Chd|        I2LOCEQ                       ../common_source/interf/i2loceq.F
-Chd|        I2PEN_ROT                     ../common_source/interf/i2pen_rot.F
-Chd|        I2REP                         ../common_source/interf/i2rep.F
-Chd|====================================================================
+!||====================================================================
+!||    i2_dtn_25   ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||--- called by ------------------------------------------------------
+!||    i2_dtn      ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I2_DTN_25(X,IRECT ,CRST    ,NSV  ,IRTL,
-     2                     IPARI,STIFN,STFN,VISC,IN)
+     2                     IPARI,STIFN,STFN,VISC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -386,21 +347,12 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  IRECT(4,*),NSV(*),IRTL(*),IPARI(*)
-C     REAL
-      my_real
-     .   X(3,*),IN(*),STIFN(*),STFN(*),CRST(2,*),VISC
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "param_c.inc"
+      my_real X(3,*),STIFN(*),STFN(*),CRST(2,*),VISC
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NIR,I,J,II,JJ,L,W,NN,KK,LLT,
      .        IX1, IX2, IX3, IX4,NSVG,NSN
-C     REAL
       my_real
      .   S,T,SP,SM,TP,TM,E1X,E1Y,E1Z,E2X,E2Y,E2Z,E3X,E3Y,E3Z,
      .   XSM,YSM,ZSM,XM,YM,ZM,X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,X0,Y0,Z0,XS,YS,ZS,STIFM,
@@ -575,7 +527,7 @@ C------------------------------------------------
 
 C------------------------------------------------
 C
-C--   Secnd node of solids
+C--   Second node of solids
 C
           STR = ZERO
 c         update main forces (moment balance)  

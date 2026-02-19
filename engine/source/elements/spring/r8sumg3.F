@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R8SUMG3                       source/elements/spring/r8sumg3.F
-Chd|-- called by -----------
-Chd|        R8KE3                         source/elements/spring/r8ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r8sumg3   ../engine/source/elements/spring/r8sumg3.F
+!||--- called by ------------------------------------------------------
+!||    r8ke3     ../engine/source/elements/spring/r8ke3.F
+!||====================================================================
       SUBROUTINE R8SUMG3(JFT    ,JLT    ,KX      ,KY      ,KZ     ,
      2                    MX     ,MY     ,MZ      ,R11     ,R12    ,
      3                    R13    ,R21    ,R22     ,R23     ,R31    ,
@@ -48,7 +47,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I, J, EP,IS,IAS,MI,MJ
+      INTEGER I, J, EP,MI,MJ
       my_real 
      .     Q(3,3,MVSIZ),K11(3,MVSIZ),M11(3,MVSIZ),
      .     M12(3,MVSIZ),Q1,Q2,Q3

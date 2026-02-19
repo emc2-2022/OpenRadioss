@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  M26LAW                        source/materials/mat/mat026/m26law.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    m26law   ../engine/source/materials/mat/mat026/m26law.F
+!||--- called by ------------------------------------------------------
+!||    mmain    ../engine/source/materials/mat_share/mmain.F90
+!||====================================================================
       SUBROUTINE M26LAW(PM   ,OFF   ,SIG  ,RHO,
      2                  EPXE ,THETA ,EPD  ,Z  ,
      3                  MAT  ,VOLN  ,DVOL ,D1 ,
@@ -47,7 +46,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -70,7 +68,7 @@ C-----------------------------------------------
      .   SIGMX_1
 C-----------------------------------------------
 C
-      MX      =MAT(LFT)
+      MX      =MAT(1)
 C
       RHO0_1 =PM( 1,MX)
       CA_1   =PM(38,MX)
@@ -84,7 +82,7 @@ C
       EPMX_1 =PM(41,MX)
       SIGMX_1=PM(42,MX)
 C
-      DO 10 I=LFT,LLT
+      DO 10 I=1,NEL
       RHO0(I) =RHO0_1
       G(I)    =PM(22,MX)*OFF(I)
       CA(I)   =CA_1
@@ -101,10 +99,10 @@ C      PC(I)   =PM(37,MX)
       SIGMX(I)=SIGMX_1
    10 CONTINUE
 C
-      DO 15 I=LFT,LLT
+      DO 15 I=1,NEL
    15 DF(I)=RHO0(I)/RHO(I)
 C
-      DO 30 I=LFT,LLT
+      DO 30 I=1,NEL
       P(I)  =-THIRD*(SIG(I,1)+SIG(I,2)+SIG(I,3))
       DAV(I)=-THIRD*(D1(I)+D2(I)+D3(I))
       G1(I)=DT1*G(I)
@@ -112,9 +110,9 @@ C
       DMU(I)=-DVOL(I)/VOLN(I)
    30 CONTINUE
 C-------------------------------
-C     CONTRAINTES DEVIATORIQUES
+C     DEVIATORIC STRESSES
 C-------------------------------
-      DO 40 I=LFT,LLT
+      DO 40 I=1,NEL
       SIG(I,1)=SIG(I,1)+P(I)+G2(I)*(D1(I)+DAV(I))
       SIG(I,2)=SIG(I,2)+P(I)+G2(I)*(D2(I)+DAV(I))
       SIG(I,3)=SIG(I,3)+P(I)+G2(I)*(D3(I)+DAV(I))
@@ -122,19 +120,19 @@ C-------------------------------
       SIG(I,5)=SIG(I,5)+G1(I)*D5(I)
    40 SIG(I,6)=SIG(I,6)+G1(I)*D6(I)
 C
-      DO 50 I=LFT,LLT
+      DO 50 I=1,NEL
       AJ2(I)=HALF*(SIG(I,1)**2+SIG(I,2)**2+SIG(I,3)**2)
      1              +SIG(I,4)**2+SIG(I,5)**2+SIG(I,6)**2
    50 AJ2(I)=SQRT(3.*AJ2(I))
 C
-      DO 90 I=LFT,LLT
-      IF(THETA(I).GE.TMELT(I)) GOTO 90
+      DO 90 I=1,NEL
+      IF(THETA(I)>=TMELT(I)) GOTO 90
 C
       TSTAR=0.
       CT=1.
-      IF(THETA(I).LE.THREE100) GOTO 60
+      IF(THETA(I)<=THREE100) GOTO 60
       TSTAR=(THETA(I)-THREE100)/(TMELT(I)-THREE100)
-      IF(THETA(I).GT.THETL(I)) CMX(I)=ONE
+      IF(THETA(I)>THETL(I)) CMX(I)=ONE
       CT=ONE -TSTAR**CMX(I)
 C
    60 CE=ONE
@@ -142,22 +140,22 @@ C
       EPD(I)=OFF(I)* MAX(   ABS(D1(I)),   ABS(D2(I)),   ABS(D3(I)),
      .             HALF*ABS(D4(I)),.5*ABS(D5(I)),.5*ABS(D6(I)))
 C----------------------------------------------------------
-      IF(EPD(I).LE.EPDR(I)) GOTO 70
+      IF(EPD(I)<=EPDR(I)) GOTO 70
       CE=ONE + CC(I) * LOG(EPD(I)/EPDR(I))
 C
    70 CH=CA(I)
-      IF(EPXE(I).LE.ZERO) GOTO 80
+      IF(EPXE(I)<=ZERO) GOTO 80
       CH=CA(I)+CB(I)*EPXE(I)**CN(I)
-      IF(EPXE(I).GT.EPMX(I)) CH=CA(I)+CB(I)*EPMX(I)**CN(I)
+      IF(EPXE(I)>EPMX(I)) CH=CA(I)+CB(I)*EPMX(I)**CN(I)
 C
    80 AK(I)= MIN(SIGMX(I),CH)*CE*CT
 C-----------------------
 C     MODULE ECROUISSAGE
 C-----------------------
-      IF(CN(I).GE.1) THEN
+      IF(CN(I)>=1) THEN
        QH(I)= (CB(I)*CN(I)*EPXE(I)**(CN(I)-ONE))*CE*CT
       ELSE
-       IF(EPXE(I).NE.ZERO)THEN
+       IF(EPXE(I)/=ZERO)THEN
         QH(I)= (CB(I)*CN(I)/EPXE(I)**(ONE-CN(I)))*CE*CT
        ELSE
        QH(I)=ZERO
@@ -165,12 +163,12 @@ C-----------------------
       ENDIF
    90 CONTINUE
 C
-      DO 110 I=LFT,LLT
-      IF(THETA(I).GE.TMELT(I)) GOTO 100
-      IF(AJ2(I).LE.AK(I))      GOTO 110
+      DO 110 I=1,NEL
+      IF(THETA(I)>=TMELT(I)) GOTO 100
+      IF(AJ2(I)<=AK(I))      GOTO 110
 C
       SCALE=ZERO
-      IF(AJ2(I).NE.ZERO) SCALE=AK(I)/AJ2(I)
+      IF(AJ2(I)/=ZERO) SCALE=AK(I)/AJ2(I)
       SIG(I,1)=SCALE*SIG(I,1)
       SIG(I,2)=SCALE*SIG(I,2)
       SIG(I,3)=SCALE*SIG(I,3)
@@ -187,7 +185,7 @@ C
       SIG(I,3)=ZERO
       SIG(I,4)=ZERO
       SIG(I,5)=ZERO
-      SIG(I,6)=ZERO	 
+      SIG(I,6)=ZERO   
 C
   110 CONTINUE
       RETURN

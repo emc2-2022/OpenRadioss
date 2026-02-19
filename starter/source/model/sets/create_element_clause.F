@@ -1,40 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CREATE_ELT_CLAUSE             source/model/sets/create_element_clause.F
-Chd|-- called by -----------
-Chd|        HM_SET                        source/model/sets/hm_set.F    
-Chd|-- calls ---------------
-Chd|        CHECK_ELTYP                   source/model/sets/check_eltyp.F
-Chd|        CREATE_ELT_BOX                source/model/sets/create_elt_box.F
-Chd|        CREATE_ELT_LIST               source/model/sets/create_element_clause.F
-Chd|        CREATE_ELT_LIST_G             source/model/sets/create_element_clause.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    create_elt_clause      ../starter/source/model/sets/create_element_clause.F
+!||--- called by ------------------------------------------------------
+!||    hm_set                 ../starter/source/model/sets/hm_set.F
+!||--- calls      -----------------------------------------------------
+!||    check_eltyp            ../starter/source/model/sets/check_eltyp.F
+!||    create_elt_box         ../starter/source/model/sets/create_elt_box.F
+!||    create_elt_list        ../starter/source/model/sets/create_element_clause.F
+!||    create_elt_list_g      ../starter/source/model/sets/create_element_clause.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_ELT_CLAUSE( CLAUSE,ELTYP,
      *                              MAP,    MAPSIZE,
      *                              JCLAUSE,Opt_G,IS_AVAILABLE ,LSUBMODEL,OPT_B,
@@ -63,14 +62,12 @@ C============================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
       USE SETDEF_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
       USE HM_OPTION_READ_MOD
       USE OPTIONDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -78,11 +75,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "nchar_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "scr17_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -94,7 +89,8 @@ C-----------------------------------------------
       LOGICAL :: IS_AVAILABLE
       my_real
      .        X(3,*),SKEW(LSKEW,*)
-      CHARACTER KEYSET*ncharfield,SET_TITLE*nchartitle
+      CHARACTER(LEN=NCHARFIELD) :: KEYSET
+      CHARACTER(LEN=NCHARTITLE) :: SET_TITLE
 C-----------------------------------------------
       TYPE (SET_) ::  CLAUSE
       TYPE(SUBMODEL_DATA),INTENT(IN):: LSUBMODEL(*)
@@ -133,20 +129,20 @@ C-----------------------------------------------
         ENDIF
 C-----------------------------------------------
       END     
-Chd|====================================================================
-Chd|  CREATE_ELT_LIST_G             source/model/sets/create_element_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_ELT_CLAUSE             source/model/sets/create_element_clause.F
-Chd|-- calls ---------------
-Chd|        COPY_LIST_IN_CAUSE            source/model/sets/create_element_clause.F
-Chd|        HM_GET_INT_ARRAY_2INDEXES     source/devtools/hm_reader/hm_get_int_array_2indexes.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        SET_USRTOS_NEAREST            source/model/sets/ipartm1.F   
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    create_elt_list_g           ../starter/source/model/sets/create_element_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_elt_clause           ../starter/source/model/sets/create_element_clause.F
+!||--- calls      -----------------------------------------------------
+!||    copy_list_in_cause          ../starter/source/model/sets/create_element_clause.F
+!||    hm_get_int_array_2indexes   ../starter/source/devtools/hm_reader/hm_get_int_array_2indexes.F
+!||    hm_get_int_array_index      ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    set_usrtos_nearest          ../starter/source/model/sets/ipartm1.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                 ../starter/share/message_module/message_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_ELT_LIST_G(
      .               CLAUSE,ELTYP , MAP,    MAPSIZE,  JCLAUSE ,IS_AVAILABLE ,LSUBMODEL)
 C-----------------------------------------------
@@ -179,9 +175,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "radioss_maptable.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -196,7 +189,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IDS,IDS_MAX,GENE_MAX,K,E,E1
+      INTEGER GENE_MAX,K,E,E1
       INTEGER START_GENE,END_GENE,INCR_GENE,ESTART,ESTOP,STACK,STACK_ONE,NB_RESULT
 !-
       INTEGER, ALLOCATABLE, DIMENSION(:) :: ELT_READ_TMP,
@@ -258,23 +251,22 @@ C-------------------------
       IF (ALLOCATED(RESULT)) DEALLOCATE (RESULT)
 C-------------------------
       END
-Chd|====================================================================
-Chd|  CREATE_ELT_LIST               source/model/sets/create_element_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_ELT_CLAUSE             source/model/sets/create_element_clause.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        COPY_LIST_IN_CAUSE            source/model/sets/create_element_clause.F
-Chd|        GET_ELT_NAME                  source/model/sets/create_element_clause.F
-Chd|        HM_GET_INT_ARRAY_2INDEXES     source/devtools/hm_reader/hm_get_int_array_2indexes.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        SET_USRTOS                    source/model/sets/ipartm1.F   
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    create_elt_list             ../starter/source/model/sets/create_element_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_elt_clause           ../starter/source/model/sets/create_element_clause.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                      ../starter/source/output/message/message.F
+!||    copy_list_in_cause          ../starter/source/model/sets/create_element_clause.F
+!||    get_elt_name                ../starter/source/model/sets/create_element_clause.F
+!||    hm_get_int_array_2indexes   ../starter/source/devtools/hm_reader/hm_get_int_array_2indexes.F
+!||    hm_get_int_array_index      ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    set_usrtos                  ../starter/source/model/sets/ipartm1.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                 ../starter/share/message_module/message_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_ELT_LIST(
      .               CLAUSE,ELTYP,MAP,MAPSIZE,JCLAUSE,IS_AVAILABLE ,LSUBMODEL)
 C-----------------------------------------------
@@ -308,9 +300,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "radioss_maptable.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -326,7 +315,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       CHARACTER (LEN=20) :: ELEMENT_NAME
-      INTEGER I,IDS,SYSID,NINDX,LIST_SIZE,IDS_MAX,ELTP,ELT
+      INTEGER I,IDS,NINDX,LIST_SIZE,IDS_MAX,ELTP,ELT
       INTEGER IWORK(70000)
 !
       INTEGER, ALLOCATABLE, DIMENSION(:) :: ELT_READ_TMP,SORTED_LIST,IDX
@@ -403,15 +392,14 @@ C-------------------------
       END
 
 
-Chd|====================================================================
-Chd|  COPY_LIST_IN_CAUSE            source/model/sets/create_element_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_ELT_BOX                source/model/sets/create_elt_box.F
-Chd|        CREATE_ELT_LIST               source/model/sets/create_element_clause.F
-Chd|        CREATE_ELT_LIST_G             source/model/sets/create_element_clause.F
-Chd|-- calls ---------------
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    copy_list_in_cause   ../starter/source/model/sets/create_element_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_elt_box       ../starter/source/model/sets/create_elt_box.F
+!||    create_elt_list      ../starter/source/model/sets/create_element_clause.F
+!||    create_elt_list_g    ../starter/source/model/sets/create_element_clause.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE COPY_LIST_IN_CAUSE(CLAUSE,ELTYP,SORTED_LIST,LIST_SIZE)
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
@@ -440,9 +428,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "radioss_maptable.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -550,12 +535,11 @@ c
 !---
       END
 
-Chd|====================================================================
-Chd|  GET_ELT_NAME                  source/model/sets/create_element_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_ELT_LIST               source/model/sets/create_element_clause.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    get_elt_name      ../starter/source/model/sets/create_element_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_elt_list   ../starter/source/model/sets/create_element_clause.F
+!||====================================================================
       SUBROUTINE GET_ELT_NAME(ELTYP, ELEMENT_NAME)
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
@@ -570,7 +554,6 @@ C
 C     ELTYP         Id of Element as in radioss_maptable.inc
 C     ELEMENT_NAME  Element name
 C============================================================================
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------

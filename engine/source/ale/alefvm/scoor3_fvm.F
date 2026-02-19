@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SCOOR3_FVM                    source/ale/alefvm/scoor3_fvm.F
-Chd|-- called by -----------
-Chd|        SFORC3                        source/elements/solid/solide/sforc3.F
-Chd|-- calls ---------------
-Chd|        SREPISO3                      source/elements/solid/solide/srepiso3.F
-Chd|        SREPLOC3                      source/elements/solid/solide/sreploc3.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
-      SUBROUTINE SCOOR3_FVM(X,IXS,V,W,GAMA0,GAMA,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    scoor3_fvm       ../engine/source/ale/alefvm/scoor3_fvm.F
+!||--- called by ------------------------------------------------------
+!||    sforc3           ../engine/source/elements/solid/solide/sforc3.F
+!||--- calls      -----------------------------------------------------
+!||    srepiso3         ../engine/source/elements/solid/solide/srepiso3.F
+!||    sreploc3         ../engine/source/elements/solid/solide/sreploc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
+      SUBROUTINE SCOOR3_FVM(X,IXS,V,W,GAMA,
      .   X1, X2, X3, X4, X5, X6, X7, X8,
      .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
      .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8,
@@ -40,19 +42,18 @@ Chd|====================================================================
      .   VDX1, VDX2, VDX3, VDX4, VDX5, VDX6, VDX7, VDX8,
      .   VDY1, VDY2, VDY3, VDY4, VDY5, VDY6, VDY7, VDY8,
      .   VDZ1, VDZ2, VDZ3, VDZ4, VDZ5, VDZ6, VDZ7, VDZ8,
-     .   VDX,VDY,VDZ,VD2,VIS,OFFG,OFF,SAV,RHO,
+     .   VDX,VDY,VDZ,VD2,VIS,OFFG,OFF,RHO,
      .   RHOO,NC1,NC2,NC3,NC4,NC5,NC6,NC7,NC8,NGL,MXT,NGEO,
-     .   VR,VXR,VYR,VZR,FR_WAVE,FR_WAV,
      .   XD1, XD2  , XD3, XD4, XD5, XD6,  XD7, XD8,
      .   YD1, YD2  , YD3, YD4, YD5, YD6,  YD7, YD8,
      .   ZD1, ZD2  , ZD3, ZD4, ZD5, ZD6,  ZD7, ZD8,
-     .   XDP, IPARG, NG , NEL, MOM, TAG22, VOL)
+     .   XDP, IPARG, NG , NEL, MOM, TAG22)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C 'alefvm' is related to a collocated scheme (built from FVM and based on Godunov scheme)
 C  which was temporarily introduced for experimental option /INTER/TYPE22 (FSI coupling with cut cell method)
-C This cut cell method is not completed, abandonned, and is not an official option.
+C This cut cell method is not completed, abandoned, and is not an official option.
 C There is no other use for this scheme which is automatically enabled when /INTER/TYPE22 is defined (INT22>0 => IALEFVM=1).
 C
 C This subroutine is treating an uncut cell.
@@ -61,6 +62,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE I22BUFBRIC_MOD
       USE I22TRI_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -74,9 +76,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "scr05_c.inc"
-#include      "scr18_c.inc"
 #include      "param_c.inc"
-#include      "alefvm.inc"
 #include      "inter22.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -84,9 +84,9 @@ C-----------------------------------------------
 ! MOM(K \in [1:3]) => GBUF%MOM((K-1)*NEL + I)
 
       INTEGER IXS(NIXS,*),IPARG(NPARG,*),NG,NEL
-      my_real, INTENT(IN) :: MOM(NEL,*), TAG22(NEL), VOL(NEL)
+      my_real, INTENT(IN) :: MOM(NEL,*), TAG22(NEL)
       my_real
-     .  X(3,*),V(3,*),W(3,*), VIS(*),VR(3,*),VXR(*),VYR(*),VZR(*),
+     .  X(3,*),V(3,*),W(3,*), VIS(*),
      .  X1(*), X2(*), X3(*), X4(*), X5(*), X6(*), X7(*), X8(*),
      .  Y1(*), Y2(*), Y3(*), Y4(*), Y5(*), Y6(*), Y7(*), Y8(*),
      .  Z1(*), Z2(*), Z3(*), Z4(*), Z5(*), Z6(*), Z7(*), Z8(*),
@@ -97,13 +97,13 @@ C-----------------------------------------------
      .  VDY1(*),VDY2(*),VDY3(*),VDY4(*),VDY5(*),VDY6(*),VDY7(*),VDY8(*),
      .  VDZ1(*),VDZ2(*),VDZ3(*),VDZ4(*),VDZ5(*),VDZ6(*),VDZ7(*),VDZ8(*),
      .  VDX(*), VDY(*), VDZ(*),VD2(*),OFFG(*),OFF(*),RHO(*),
-     .  RHOO(*),GAMA0(NEL,6),GAMA(MVSIZ,6),FR_WAVE(*),FR_WAV(*)
+     .  RHOO(*),GAMA(MVSIZ,6)
 
       INTEGER NC1(*), NC2(*), NC3(*), NC4(*),
      .        NC5(*), NC6(*), NC7(*), NC8(*), MXT(*), NGL(*),NGEO(*)
 
       DOUBLE PRECISION
-     .  XDP(3,*),SAV(NEL,21),
+     .  XDP(3,*),
      .  XD1(*), XD2(*), XD3(*), XD4(*), XD5(*), XD6(*), XD7(*), XD8(*),
      .  YD1(*), YD2(*), YD3(*), YD4(*), YD5(*), YD6(*), YD7(*), YD8(*),
      .  ZD1(*), ZD2(*), ZD3(*), ZD4(*), ZD5(*), ZD6(*), ZD7(*), ZD8(*)
@@ -115,15 +115,15 @@ C-----------------------------------------------
      .   RX, RY, RZ, SX, SY, SZ, TX, TY, TZ,
      .   E1X, E1Y, E1Z, E2X, E2Y, E2Z, E3X, E3Y, E3Z
       my_real
-     .   OFF_L,WDX(MVSIZ),WDY(MVSIZ),WDZ(MVSIZ), rho_,mom_,vel_,VW,VWN,VW1,VW2,VW3,SURF,SUM_SURF,
+     .   OFF_L,WDX(MVSIZ),WDY(MVSIZ),WDZ(MVSIZ),VW,VWN,VW1,VW2,VW3,SURF,SUM_SURF,
      .   WW1,WW2,WW3
 
       LOGICAL IsCutCell
 C=======================================================================
 
       NIN       = 1
-      MXT_1     = IXS(1,LFT)
-      DO I=LFT,LLT
+      MXT_1     = IXS(1,1)
+      DO I=1,NEL
         VIS(I)  = ZERO
         NGEO(I) = IXS(10,I)
         NGL(I)  = IXS(11,I)
@@ -140,7 +140,7 @@ C=======================================================================
       ENDDO
 
 
-        DO I=LFT,LLT
+        DO I=1,NEL
          VDX1(I)=ZERO
          VDX2(I)=ZERO
          VDX3(I)=ZERO
@@ -172,7 +172,7 @@ C=======================================================================
       !     NODAL COORDINATES     |
       !----------------------------
       IF(IRESP==1)THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           XD1(I)=XDP(1,NC1(I))
           YD1(I)=XDP(2,NC1(I))
           ZD1(I)=XDP(3,NC1(I))
@@ -199,7 +199,7 @@ C=======================================================================
           ZD8(I)=XDP(3,NC8(I))
         ENDDO
       ELSE
-        DO I=LFT,LLT
+        DO I=1,NEL
           XD1(I)=X(1,NC1(I))
           YD1(I)=X(2,NC1(I))
           ZD1(I)=X(3,NC1(I))
@@ -228,13 +228,21 @@ C=======================================================================
       ENDIF
 
       CALL SREPISO3(
-     .       XD1, XD2, XD3, XD4, XD5, XD6, XD7, XD8,
-     .       YD1, YD2, YD3, YD4, YD5, YD6, YD7, YD8,
-     .       ZD1, ZD2, ZD3, ZD4, ZD5, ZD6, ZD7, ZD8,
-     .       RX, RY, RZ, SX, SY, SZ, TX, TY, TZ )
+     1   XD1,     XD2,     XD3,     XD4,
+     2   XD5,     XD6,     XD7,     XD8,
+     3   YD1,     YD2,     YD3,     YD4,
+     4   YD5,     YD6,     YD7,     YD8,
+     5   ZD1,     ZD2,     ZD3,     ZD4,
+     6   ZD5,     ZD6,     ZD7,     ZD8,
+     7   RX,      RY,      RZ,      SX,
+     8   SY,      SZ,      TX,      TY,
+     9   TZ,      NEL)
       CALL SREPLOC3(
-     .       RX , RY , RZ , SX , SY , SZ , TX , TY , TZ  ,
-     .       E1X, E2X, E3X, E1Y, E2Y, E3Y, E1Z, E2Z, E3Z )
+     1   RX,      RY,      RZ,      SX,
+     2   SY,      SZ,      TX,      TY,
+     3   TZ,      E1X,     E2X,     E3X,
+     4   E1Y,     E2Y,     E3Y,     E1Z,
+     5   E2Z,     E3Z,     LLT)
 
         GAMA(I,1) = ONE
         GAMA(I,2) = ZERO
@@ -243,13 +251,13 @@ C=======================================================================
         GAMA(I,5) = ONE
         GAMA(I,6) = ZERO
 
-      DO I=LFT,LLT
+      DO I=1,NEL
        OFF(I) = ABS(OFFG(I))
        OFF_L  = MIN(OFF_L,OFFG(I))
       ENDDO
 
       !copy and cast XD (DP) to X (SP) to assure coherence between XD and X
-      DO I=LFT,LLT
+      DO I=1,NEL
         X1(I)= XD1(I)
         Y1(I)= YD1(I)
         Z1(I)= ZD1(I)
@@ -276,7 +284,7 @@ C=======================================================================
         Z8(I)= ZD8(I)
       ENDDO
 
-      DO I=LFT,LLT
+      DO I=1,NEL
        VX1(I)=V(1,NC1(I))
        VY1(I)=V(2,NC1(I))
        VZ1(I)=V(3,NC1(I))
@@ -304,9 +312,9 @@ C=======================================================================
       ENDDO
 
 
-      IF(OFF_L.LT.ZERO)THEN
-        DO I=LFT,LLT
-          IF(OFFG(I).LT.ZERO)THEN
+      IF(OFF_L<ZERO)THEN
+        DO I=1,NEL
+          IF(OFFG(I)<ZERO)THEN
             VX1(I)=ZERO
             VY1(I)=ZERO
             VZ1(I)=ZERO
@@ -337,18 +345,18 @@ C=======================================================================
 
       IF(IPARG(64,NG)==1)THEN
         !boundary material
-        VD2(LFT:LLT)=ZERO
+        VD2(1:NEL)=ZERO
         RETURN
       ENDIF
 
 
        !inter22 euler : w = taken from cut surface only (moving bcs)
-       !        ale   : must also take w on polyedra brick nodes whcih are moving too
+       !        ale   : must also take w on polyedra brick nodes which are moving too
 
 
-      IF(INT22.EQ.0)THEN
-        IF(JALE.NE.0)THEN
-          DO I=LFT,LLT
+      IF(INT22==0)THEN
+        IF(JALE/=0)THEN
+          DO I=1,NEL
             WDX(I) = ONE_OVER_8*( W(1,NC1(I))+W(1,NC2(I))+W(1,NC3(I))+W(1,NC4(I))+W(1,NC5(I))+W(1,NC6(I))+W(1,NC7(I))+W(1,NC8(I)))
             WDY(I) = ONE_OVER_8*( W(2,NC1(I))+W(2,NC2(I))+W(2,NC3(I))+W(2,NC4(I))+W(2,NC5(I))+W(2,NC6(I))+W(2,NC7(I))+W(2,NC8(I)))
             WDZ(I) = ONE_OVER_8*( W(3,NC1(I))+W(3,NC2(I))+W(3,NC3(I))+W(3,NC4(I))+W(3,NC5(I))+W(3,NC6(I))+W(3,NC7(I))+W(3,NC8(I)))
@@ -357,17 +365,17 @@ C=======================================================================
             VDZ(I) = MOM(I,3)/RHO(I) - WDZ(I)
             VD2(I) = VDX(I)*VDX(I)+VDY(I)*VDY(I)+VDZ(I)*VDZ(I)
           ENDDO
-        ELSEIF(JEUL.NE.0)THEN
-          DO I=LFT,LLT
+        ELSEIF(JEUL/=0)THEN
+          DO I=1,NEL
             VDX(I) = MOM(I,1)/RHO(I)
             VDY(I) = MOM(I,2)/RHO(I)
             VDZ(I) = MOM(I,3)/RHO(I)
             VD2(I) = VDX(I)*VDX(I)+VDY(I)*VDY(I)+VDZ(I)*VDZ(I)
           ENDDO
         ENDIF
-      ELSEIF(INT22.NE.0)THEN
-       IF(JEUL.NE.0)THEN
-         DO I=LFT,LLT
+      ELSEIF(INT22/=0)THEN
+       IF(JEUL/=0)THEN
+         DO I=1,NEL
            WDX(I) = ZERO
            WDY(I) = ZERO
            WDZ(I) = ZERO
@@ -376,12 +384,12 @@ C=======================================================================
            VDZ(I) = MOM(I,3)/RHO(I) - WDZ(I)
            VD2(I) = VDX(I)*VDX(I)+VDY(I)*VDY(I)+VDZ(I)*VDZ(I)
           ENDDO !next I
-       ELSEIF(JALE.NE.0)THEN
-         DO I=LFT,LLT
+       ELSEIF(JALE/=0)THEN
+         DO I=1,NEL
           IB = 0
-          IF(INT22.NE.0)IB = NINT(TAG22(I))
+          IF(INT22/=0)IB = NINT(TAG22(I))
           IsCutCell = .FALSE.
-          IF(IB.NE.0)THEN
+          IF(IB/=0)THEN
             NBCUT=BRICK_LIST(NIN,IB)%NBCUT
             IF(NBCUT>0)IsCutCell=.TRUE.
           ENDIF
@@ -428,7 +436,7 @@ C=======================================================================
               VD2(I) = VWN
               DO J=1,6
                 SURF   = BRICK_LIST(NIN,IB)%POLY(MCELL)%FACE(J)%SURF
-                IF(SURF.GT.ZERO)THEN
+                IF(SURF>ZERO)THEN
                   SUM_SURF = SUM_SURF + SURF
                   VW1 = BRICK_LIST(NIN,IB)%POLY(MCELL)%FACE(J)%Vel(1)
                   VW2 = BRICK_LIST(NIN,IB)%POLY(MCELL)%FACE(J)%Vel(2)
@@ -446,7 +454,7 @@ C=======================================================================
                   VD2(I) = MAX(VD2(I),VWN)
                 ENDIF
               ENDDO
-              IF(SUM_SURF.GT.ZERO)THEN
+              IF(SUM_SURF>ZERO)THEN
                  VDX(I) = VDX(I) / SUM_SURF
                  VDY(I) = VDY(I) / SUM_SURF
                  VDZ(I) = VDZ(I) / SUM_SURF
@@ -464,13 +472,13 @@ C=======================================================================
         enddo
       endif
 
-      ! VD2(LFT:LLT) = ZERO
-      ! VDX(LFT:LLT) = ZERO
-      ! VDY(LFT:LLT) = ZERO
-      ! VDZ(LFT:LLT) = ZERO
+      ! VD2(1:NEL) = ZERO
+      ! VDX(1:NEL) = ZERO
+      ! VDY(1:NEL) = ZERO
+      ! VDZ(1:NEL) = ZERO
 
 
-      !Here due to convection subroutine aconve.F
+      !Here due to convection subroutine aconve.f
       !        RHO = rho.vol
       !        MOM = rho.U.vol
       ! => MOM/RHO = U

@@ -1,45 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTVO3                        source/interfaces/inter3d/intvo3.F
-Chd|-- called by -----------
-Chd|        INTFOP1                       source/interfaces/interf/intfop1.F
-Chd|-- calls ---------------
-Chd|        I3COR3                        source/interfaces/inter3d/i3cor3.F
-Chd|        I3CST3                        source/interfaces/inter3d/i3cst3.F
-Chd|        I3DIS3                        source/interfaces/inter3d/i3dis3.F
-Chd|        I3FOR3                        source/interfaces/inter3d/i3for3.F
-Chd|        I3FRI3                        source/interfaces/inter3d/i3fri3.F
-Chd|        I3GAP3                        source/interfaces/inter3d/i3gap3.F
-Chd|        I3LOC3                        source/interfaces/inter3d/i3loc3.F
-Chd|        I3MSR3                        source/interfaces/inter3d/i3msr3.F
-Chd|        I5FOR3                        source/interfaces/inter3d/i5for3.F
-Chd|        I5FRI3                        source/interfaces/inter3d/i3fri3.F
-Chd|        I5IMPK3                       source/interfaces/inter3d/i5cork3.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE INTVO3(IPARI,X ,A  ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    intvo3          ../engine/source/interfaces/inter3d/intvo3.F
+!||--- called by ------------------------------------------------------
+!||    intfop1         ../engine/source/interfaces/interf/intfop1.F
+!||--- calls      -----------------------------------------------------
+!||    i3cor3          ../engine/source/interfaces/inter3d/i3cor3.F
+!||    i3cst3          ../engine/source/interfaces/inter3d/i3cst3.F
+!||    i3dis3          ../engine/source/interfaces/inter3d/i3dis3.F
+!||    i3for3          ../engine/source/interfaces/inter3d/i3for3.F
+!||    i3fri3          ../engine/source/interfaces/inter3d/i3fri3.F
+!||    i3gap3          ../engine/source/interfaces/inter3d/i3gap3.F
+!||    i3loc3          ../engine/source/interfaces/inter3d/i3loc3.F
+!||    i3msr3          ../engine/source/interfaces/inter3d/i3msr3.F
+!||    i5for3          ../engine/source/interfaces/inter3d/i5for3.F
+!||    i5fri3          ../engine/source/interfaces/inter3d/i3fri3.F
+!||    i5impk3         ../engine/source/interfaces/inter3d/i5impk3.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod         ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    output_mod      ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE INTVO3(output, IPARI,X ,A  ,
      2                  ICODT,FSAV ,MWA  ,V ,MS ,
      3                  FSKYI,ISKY ,FCONT,FNCONT,FTCONT,
      4                  ICONTACT,RCONTACT,NUM_IMP,NS_IMP  ,
@@ -47,6 +49,7 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
+      use output_mod
       USE INTBUFDEF_MOD 
       USE H3D_MOD 
 C-----------------------------------------------
@@ -60,21 +63,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "vect07_c.inc"
-#include      "scr03_c.inc"
-#include      "scr04_c.inc"
-#include      "bucki_c.inc"
-#include      "warn_c.inc"
 #include      "parit_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      type(output_), intent(inout) :: output
       INTEGER IPARI(*), ICODT(*), MWA(*), ISKY(*),
      .        ICONTACT(*)
       INTEGER NUM_IMP,NS_IMP(*),NE_IMP(*),ITAB(*)
@@ -90,16 +86,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),I
+ 
 C     REAL
       my_real
-     .   X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), X4(MVSIZ),
-     .   Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), Y4(MVSIZ),
-     .   Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ),
      .   DIST(MVSIZ)
-      INTEGER IBC, NCIMP, NRTM4, NOINT, NGROUS, NGROUM, NG,IGIMP, 
-     .        NCI, I_STOK, NSEG, LLT_NEW, IDT, JFI, KFI
-      INTEGER IFQ,MFROT,JD(50),KD(50),IBAG,IADM,IFORM,IFT0
+      INTEGER IBC, NCIMP, NRTM4, NOINT, NGROUS, NGROUM, NG,IGIMP 
+      INTEGER MFROT, IBAG, IADM, IFORM, IFT0
 
       INTEGER, DIMENSION(MVSIZ) :: IX11,IX12,IX13,IX14
       my_real, DIMENSION(MVSIZ) :: X11,X12,X13,X14,XI
@@ -121,16 +113,16 @@ C     REAL
       my_real, DIMENSION(MVSIZ) :: H1,H2,H3,H4
 C     REAL
       my_real
-     .   STARTT, FRIC, GAP, MAXBOX, MINBOX, STOPT, FB_CAM, FB_IMM,
+     . STARTT, FRIC, GAP, STOPT,
      .   VISC,VISCF,FNOR,DEPTH
+      INTEGER :: NMN, NTY, NSN
+      INTEGER :: LFT, LLT, NFT
 C-----------------------------------------------
 C----     
-      NRTS   = IPARI(3)
-      NRTM   = IPARI(4)
       NSN    = IPARI(5)
       NMN    = IPARI(6)
+      NTY   = IPARI(7) 
       IBC   =IPARI(11)
-      IBUC  =IPARI(12)
       NCIMP =IPARI(13)
       NRTM4 =IPARI(14)
       NOINT =IPARI(15)
@@ -144,8 +136,8 @@ C----
 C
       STARTT=INTBUF_TAB%VARIABLES(3)
       STOPT =INTBUF_TAB%VARIABLES(11)
-      IF(STARTT.GT.TT) RETURN
-      IF(TT.GT.STOPT)  RETURN
+      IF(STARTT>TT) RETURN
+      IF(TT>STOPT)  RETURN
 C
       FRIC =INTBUF_TAB%VARIABLES(1)
       GAP  =INTBUF_TAB%VARIABLES(2)
@@ -156,45 +148,59 @@ C
 C
       DIST = ZERO
 C
-      IF(NTY.EQ.3)THEN
+      IF(NTY==3)THEN
        DO 100 NG=1,NGROUS
        NFT=(NG-1)*NVSIZ
        LFT=1
        LLT=MIN0(NVSIZ,NSN-NFT)
-       CALL I3LOC3(X,INTBUF_TAB%IRECTM,INTBUF_TAB%LMSR,INTBUF_TAB%MSR,
-     1             INTBUF_TAB%NSV,INTBUF_TAB%ILOCS,INTBUF_TAB%NSEGM,XI,YI,ZI,
-     2                  XFACE)
-       CALL I3MSR3(X,INTBUF_TAB%IRECTM,INTBUF_TAB%LMSR,INTBUF_TAB%MSR,
-     1          INTBUF_TAB%NSV,INTBUF_TAB%ILOCS,INTBUF_TAB%IRTLM,INTBUF_TAB%NSEGM,XFACE)
+       CALL I3LOC3(
+     1   X,                INTBUF_TAB%IRECTM,INTBUF_TAB%LMSR,  INTBUF_TAB%MSR,
+     2   INTBUF_TAB%NSV,   INTBUF_TAB%ILOCS, INTBUF_TAB%NSEGM, XI,
+     3   YI,               ZI,               XFACE,            LFT,
+     4   LLT,              NFT)
+       CALL I3MSR3(
+     1   X,                INTBUF_TAB%IRECTM,INTBUF_TAB%LMSR,  INTBUF_TAB%MSR,
+     2   INTBUF_TAB%NSV,   INTBUF_TAB%ILOCS, INTBUF_TAB%IRTLM, INTBUF_TAB%NSEGM,
+     3   XFACE,            LFT,              LLT,              NFT)
        CALL I3COR3(
-     1    X  ,INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,INTBUF_TAB%NSV,INTBUF_TAB%IRTLM,
-     1                  IX11   ,IX12   ,IX13   ,IX14  ,X11   ,
-     2                  X12    ,X13    ,X14    ,Y11   ,Y12   ,
-     3                  Y13    ,Y14    ,Z11   ,Z12    ,Z13   ,
-     4                  Z14    )
-       CALL I3CST3(X11   ,X12     ,X13   ,X14   ,XI ,
-     1             Y11   ,Y12     ,Y13   ,Y14   ,YI ,
-     2             Z11   ,Z12     ,Z13   ,Z14   ,ZI ,
-     3             XFACE ,N1      ,N2    ,N3   ,SSC,
-     4             TTC   ,X0      ,Y0    ,Z0    ,XX1,
-     5             XX2   ,XX3     ,XX4   ,YY1   ,YY2,
-     6             YY3   ,YY4     ,ZZ1   ,ZZ2   ,ZZ3,
-     7             ZZ4   ,XI1     ,XI2   ,XI3   ,XI4,
-     8             YI1   ,YI2     ,YI3   ,YI4   ,ZI1,
-     9             ZI2   ,ZI3     ,ZI4   ,XN1   ,XN2,
-     1             XN3   ,XN4     ,YN1   ,YN2   ,YN3,
-     2             YN4   ,ZN1     ,ZN2   ,ZN3   ,ZN4,
-     3             AREA)
-       CALL I3GAP3(GAP,AREA,THK,ALP)
-       CALL I3DIS3(IGIMP,NTY,DIST ,X11   ,X12,
-     1             X13   ,X14     ,XI    ,Y11   ,Y12 ,
-     2             Y13   ,Y14     ,YI    ,Z11   ,Z12 ,
-     3             Z13   ,Z14     ,ZI    ,XFACE ,N1 ,
-     4             N2    ,N3      ,SSC   ,TTC   ,ALP,
-     5             ANS   ,XP      ,YP    ,ZP    ,H1 ,
-     6             H2    ,H3      ,H4)
-       IF(IGIMP.EQ.0)GOTO 100
-       CALL I3FOR3(LFT   ,LLT   ,NFT   ,
+     1   X,                INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,   INTBUF_TAB%NSV,
+     2   INTBUF_TAB%IRTLM, IX11,             IX12,             IX13,
+     3   IX14,             X11,              X12,              X13,
+     4   X14,              Y11,              Y12,              Y13,
+     5   Y14,              Z11,              Z12,              Z13,
+     6   Z14,              LFT,              LLT,              NFT)
+       CALL I3CST3(
+     1   X11,     X12,     X13,     X14,
+     2   XI,      Y11,     Y12,     Y13,
+     3   Y14,     YI,      Z11,     Z12,
+     4   Z13,     Z14,     ZI,      XFACE,
+     5   N1,      N2,      N3,      SSC,
+     6   TTC,     X0,      Y0,      Z0,
+     7   XX1,     XX2,     XX3,     XX4,
+     8   YY1,     YY2,     YY3,     YY4,
+     9   ZZ1,     ZZ2,     ZZ3,     ZZ4,
+     A   XI1,     XI2,     XI3,     XI4,
+     B   YI1,     YI2,     YI3,     YI4,
+     C   ZI1,     ZI2,     ZI3,     ZI4,
+     D   XN1,     XN2,     XN3,     XN4,
+     E   YN1,     YN2,     YN3,     YN4,
+     F   ZN1,     ZN2,     ZN3,     ZN4,
+     G   AREA,    LFT,     LLT)
+       CALL I3GAP3(
+     1   GAP,     AREA,    THK,     ALP,
+     2   LFT,     LLT)
+       CALL I3DIS3(
+     1   IGIMP,   NTY,     DIST,    X11,
+     2   X12,     X13,     X14,     XI,
+     3   Y11,     Y12,     Y13,     Y14,
+     4   YI,      Z11,     Z12,     Z13,
+     5   Z14,     ZI,      XFACE,   N1,
+     6   N2,      N3,      SSC,     TTC,
+     7   ALP,     ANS,     XP,      YP,
+     8   ZP,      H1,      H2,      H3,
+     9   H4,      LFT,     LLT)
+       IF(IGIMP==0)GOTO 100
+       CALL I3FOR3(output,LFT   ,LLT   ,NFT   ,
      2      A ,INTBUF_TAB%MSR,INTBUF_TAB%NSV,INTBUF_TAB%IRTLM,INTBUF_TAB%STFM,
      3      INTBUF_TAB%STFNS,IBC ,ICODT  ,1   ,FSAV ,
      4      IGIMP     ,FSKYI     ,ISKY      ,FCONT  ,H3D_DATA,
@@ -205,9 +211,9 @@ C
      7      XX4   ,YY4   ,YI1   ,YI2   ,YI3      ,
      8      ZZ4   ,ZI1   ,ZI2   ,ZI3   ,XI1      ,
      9      XI2   ,XI3   ,XI4)
-       IF(FRIC.EQ.0.)GOTO 100
-       IF(IGIMP.EQ.0)GOTO 100
-       CALL I3FRI3(LFT   ,LLT   ,NFT   ,X ,A  ,
+       IF(FRIC==0.)GOTO 100
+       IF(IGIMP==0)GOTO 100
+       CALL I3FRI3(output,LFT   ,LLT   ,NFT   ,X ,A  ,
      2      INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,INTBUF_TAB%NSV,INTBUF_TAB%IRTLM,
      3      NTY,INTBUF_TAB%CSTS,INTBUF_TAB%IRTLOM,INTBUF_TAB%FRICOS,
      4      INTBUF_TAB%VARIABLES(1),1,FSAV,FSKYI,ISKY,
@@ -215,48 +221,60 @@ C
      6      IX11  ,IX12  ,IX13  ,IX14  ,H1    ,
      7      H2    ,H3    ,H4    ,SSC   ,TTC   ,
      8      XFACE ,STIF  ,XP    ,YP    ,ZP    ,
-     9      XX3   )!,YY3   ,ZZ3   ,XX4   ,YY4   ,
-!     1      YI1   ,YI2   ,YI3   ,ZZ3   ,ZI1   ,
-!     2      ZI2   ,ZI3   ,XI1   ,XI2   ,XI3   ,
-!     3      XI4)
+     9      XX3   )
  100   CONTINUE
        DO 130 NG=1,NGROUM
        NFT=(NG-1)*NVSIZ
        LFT=1
        LLT=MIN0(NVSIZ,NMN-NFT)
-       CALL I3LOC3(X,INTBUF_TAB%IRECTS,INTBUF_TAB%LNSV,INTBUF_TAB%NSV,
-     1          INTBUF_TAB%MSR,INTBUF_TAB%ILOCM,INTBUF_TAB%NSEGS,XI,YI,ZI,
-     2          XFACE)
-       CALL I3MSR3(X,INTBUF_TAB%IRECTS,INTBUF_TAB%LNSV,INTBUF_TAB%NSV,
-     1      INTBUF_TAB%MSR,INTBUF_TAB%ILOCM,INTBUF_TAB%IRTLS,INTBUF_TAB%NSEGS,XFACE)
-       CALL I3COR3(X,INTBUF_TAB%IRECTS,INTBUF_TAB%NSV,INTBUF_TAB%MSR,INTBUF_TAB%IRTLS,
-     1             IX11   ,IX12   ,IX13   ,IX14  ,X11   ,
-     2             X12    ,X13    ,X14    ,Y11   ,Y12   ,
-     3             Y13    ,Y14    ,Z11   ,Z12    ,Z13   ,
-     4             Z14    )
-       CALL I3CST3(X11   ,X12     ,X13   ,X14   ,XI ,
-     1             Y11   ,Y12     ,Y13   ,Y14   ,YI ,
-     2             Z11   ,Z12     ,Z13   ,Z14   ,ZI ,
-     3             XFACE ,N1      ,N2    ,N3   ,SSC,
-     4             TTC   ,X0      ,Y0    ,Z0    ,XX1,
-     5             XX2   ,XX3     ,XX4   ,YY1   ,YY2,
-     6             YY3   ,YY4     ,ZZ1   ,ZZ2   ,ZZ3,
-     7             ZZ4   ,XI1     ,XI2   ,XI3   ,XI4,
-     8             YI1   ,YI2     ,YI3   ,YI4   ,ZI1,
-     9             ZI2   ,ZI3     ,ZI4   ,XN1   ,XN2,
-     1             XN3   ,XN4     ,YN1   ,YN2   ,YN3,
-     2             YN4   ,ZN1     ,ZN2   ,ZN3   ,ZN4,
-     3             AREA)
-       CALL I3GAP3(GAP,AREA,THK,ALP)
-       CALL I3DIS3(IGIMP,NTY,DIST,X11   ,X12,
-     1             X13   ,X14     ,XI    ,Y11   ,Y12 ,
-     2             Y13   ,Y14     ,YI    ,Z11   ,Z12 ,
-     3             Z13   ,Z14     ,ZI    ,XFACE ,N1 ,
-     4             N2    ,N3      ,SSC   ,TTC   ,ALP,
-     5             ANS   ,XP      ,YP    ,ZP    ,H1 ,
-     6             H2    ,H3      ,H4)
-       IF(IGIMP.EQ.0)GOTO 130
-       CALL I3FOR3(LFT   ,LLT   ,NFT   , A  ,
+       CALL I3LOC3(
+     1   X,                INTBUF_TAB%IRECTS,INTBUF_TAB%LNSV,  INTBUF_TAB%NSV,
+     2   INTBUF_TAB%MSR,   INTBUF_TAB%ILOCM, INTBUF_TAB%NSEGS, XI,
+     3   YI,               ZI,               XFACE,            LFT,
+     4   LLT,              NFT)
+       CALL I3MSR3(
+     1   X,                INTBUF_TAB%IRECTS,INTBUF_TAB%LNSV,  INTBUF_TAB%NSV,
+     2   INTBUF_TAB%MSR,   INTBUF_TAB%ILOCM, INTBUF_TAB%IRTLS, INTBUF_TAB%NSEGS,
+     3   XFACE,            LFT,              LLT,              NFT)
+       CALL I3COR3(
+     1   X,                INTBUF_TAB%IRECTS,INTBUF_TAB%NSV,   INTBUF_TAB%MSR,
+     2   INTBUF_TAB%IRTLS, IX11,             IX12,             IX13,
+     3   IX14,             X11,              X12,              X13,
+     4   X14,              Y11,              Y12,              Y13,
+     5   Y14,              Z11,              Z12,              Z13,
+     6   Z14,              LFT,              LLT,              NFT)
+       CALL I3CST3(
+     1   X11,     X12,     X13,     X14,
+     2   XI,      Y11,     Y12,     Y13,
+     3   Y14,     YI,      Z11,     Z12,
+     4   Z13,     Z14,     ZI,      XFACE,
+     5   N1,      N2,      N3,      SSC,
+     6   TTC,     X0,      Y0,      Z0,
+     7   XX1,     XX2,     XX3,     XX4,
+     8   YY1,     YY2,     YY3,     YY4,
+     9   ZZ1,     ZZ2,     ZZ3,     ZZ4,
+     A   XI1,     XI2,     XI3,     XI4,
+     B   YI1,     YI2,     YI3,     YI4,
+     C   ZI1,     ZI2,     ZI3,     ZI4,
+     D   XN1,     XN2,     XN3,     XN4,
+     E   YN1,     YN2,     YN3,     YN4,
+     F   ZN1,     ZN2,     ZN3,     ZN4,
+     G   AREA,    LFT,     LLT)
+       CALL I3GAP3(
+     1   GAP,     AREA,    THK,     ALP,
+     2   LFT,     LLT)
+       CALL I3DIS3(
+     1   IGIMP,   NTY,     DIST,    X11,
+     2   X12,     X13,     X14,     XI,
+     3   Y11,     Y12,     Y13,     Y14,
+     4   YI,      Z11,     Z12,     Z13,
+     5   Z14,     ZI,      XFACE,   N1,
+     6   N2,      N3,      SSC,     TTC,
+     7   ALP,     ANS,     XP,      YP,
+     8   ZP,      H1,      H2,      H3,
+     9   H4,      LFT,     LLT)
+       IF(IGIMP==0)GOTO 130
+       CALL I3FOR3(output, LFT   ,LLT   ,NFT   , A  ,
      2      INTBUF_TAB%NSV,INTBUF_TAB%MSR,INTBUF_TAB%IRTLS,INTBUF_TAB%STFS,
      3      INTBUF_TAB%STFNM,IBC  ,ICODT        ,-1        ,FSAV      ,
      4      IGIMP  ,FSKYI     ,ISKY      ,FCONT     ,H3D_DATA, 
@@ -267,27 +285,24 @@ C
      7      XX4   ,YY4   ,YI1   ,YI2   ,YI3      ,
      8      ZZ4   ,ZI1   ,ZI2   ,ZI3   ,XI1      ,
      9      XI2   ,XI3   ,XI4)
-       IF(FRIC.EQ.0.)GOTO 130
-       IF(IGIMP.EQ.0)GOTO 130
+       IF(FRIC==0.)GOTO 130
+       IF(IGIMP==0)GOTO 130
        IPARI(29) = 1
-       CALL I3FRI3(LFT   ,LLT   ,NFT   ,X      ,A    ,
+       CALL I3FRI3(output, LFT   ,LLT   ,NFT   ,X      ,A    ,
      2      INTBUF_TAB%IRECTS,INTBUF_TAB%NSV,INTBUF_TAB%MSR,INTBUF_TAB%IRTLS,
      3      NTY,INTBUF_TAB%CSTM,INTBUF_TAB%IRTLOS,INTBUF_TAB%FRICOM,
      4      INTBUF_TAB%VARIABLES(1),-1  ,FSAV  ,FSKYI  ,ISKY  ,FCONT,H3D_DATA  ,N1   ,N2    ,N3    ,
      6      IX11  ,IX12  ,IX13  ,IX14  ,H1    ,
      7      H2    ,H3    ,H4    ,SSC   ,TTC   ,
      8      XFACE ,STIF  ,XP    ,YP    ,ZP    ,
-     9      XX3   )!,YY3   ,ZZ3   ,XX4   ,YY4   ,
-!     1      YI1   ,YI2   ,YI3   ,ZZ4   ,ZI1   ,
-!     2      ZI2   ,ZI3   ,XI1   ,XI2   ,XI3   ,
-!     3      XI4)
+     9      XX3   )
 
  130   CONTINUE
 C
-      ELSEIF(NTY.EQ.4)THEN
+      ELSEIF(NTY==4)THEN
 C
-      ELSEIF(NTY.EQ.5)THEN
-        IF (IMPL_S.EQ.1) THEN
+      ELSEIF(NTY==5)THEN
+        IF (IMPL_S==1) THEN
          NUM_IMP = 0
          VISC  =ZERO
          VISCF =ZERO
@@ -296,40 +311,54 @@ C
         NFT=(NG-1)*NVSIZ
         LFT=1
         LLT=MIN0(NVSIZ,NSN-NFT)
-        CALL I3LOC3(X ,INTBUF_TAB%IRECTM,INTBUF_TAB%LMSR,INTBUF_TAB%MSR,
-     .          INTBUF_TAB%NSV,INTBUF_TAB%ILOCS,INTBUF_TAB%NSEGM,XI,YI,ZI,
-     2                  XFACE)
-        CALL I3MSR3(X ,INTBUF_TAB%IRECTM,INTBUF_TAB%LMSR,INTBUF_TAB%MSR,
-     .          INTBUF_TAB%NSV,INTBUF_TAB%ILOCS,INTBUF_TAB%IRTLM,INTBUF_TAB%NSEGM,XFACE)
-        CALL I3COR3(X ,INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,INTBUF_TAB%NSV,
-     .              INTBUF_TAB%IRTLM,
-     1              IX11   ,IX12   ,IX13   ,IX14  ,X11   ,
-     2              X12    ,X13    ,X14    ,Y11   ,Y12   ,
-     3              Y13    ,Y14    ,Z11   ,Z12    ,Z13   ,
-     4              Z14    )
-        CALL I3CST3(X11   ,X12     ,X13   ,X14   ,XI ,
-     1             Y11   ,Y12     ,Y13   ,Y14   ,YI ,
-     2             Z11   ,Z12     ,Z13   ,Z14   ,ZI ,
-     3             XFACE ,N1      ,N2    ,N3   ,SSC,
-     4             TTC   ,X0      ,Y0    ,Z0    ,XX1,
-     5             XX2   ,XX3     ,XX4   ,YY1   ,YY2,
-     6             YY3   ,YY4     ,ZZ1   ,ZZ2   ,ZZ3,
-     7             ZZ4   ,XI1     ,XI2   ,XI3   ,XI4,
-     8             YI1   ,YI2     ,YI3   ,YI4   ,ZI1,
-     9             ZI2   ,ZI3     ,ZI4   ,XN1   ,XN2,
-     1             XN3   ,XN4     ,YN1   ,YN2   ,YN3,
-     2             YN4   ,ZN1     ,ZN2   ,ZN3   ,ZN4,
-     3             AREA)
-        CALL I3GAP3(GAP,AREA,THK,ALP)
-        CALL I3DIS3(IGIMP,NTY,DIST,X11   ,X12,
-     1             X13   ,X14     ,XI    ,Y11   ,Y12 ,
-     2             Y13   ,Y14     ,YI    ,Z11   ,Z12 ,
-     3             Z13   ,Z14     ,ZI    ,XFACE ,N1 ,
-     4             N2    ,N3      ,SSC   ,TTC   ,ALP,
-     5             ANS   ,XP      ,YP    ,ZP    ,H1 ,
-     6             H2    ,H3      ,H4)
-        IF(IGIMP.EQ.0)GOTO 150
-        CALL I5FOR3(LFT   ,LLT   ,NFT   , A ,
+        CALL I3LOC3(
+     1   X,                INTBUF_TAB%IRECTM,INTBUF_TAB%LMSR,  INTBUF_TAB%MSR,
+     2   INTBUF_TAB%NSV,   INTBUF_TAB%ILOCS, INTBUF_TAB%NSEGM, XI,
+     3   YI,               ZI,               XFACE,            LFT,
+     4   LLT,              NFT)
+        CALL I3MSR3(
+     1   X,                INTBUF_TAB%IRECTM,INTBUF_TAB%LMSR,  INTBUF_TAB%MSR,
+     2   INTBUF_TAB%NSV,   INTBUF_TAB%ILOCS, INTBUF_TAB%IRTLM, INTBUF_TAB%NSEGM,
+     3   XFACE,            LFT,              LLT,              NFT)
+        CALL I3COR3(
+     1   X,                INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,   INTBUF_TAB%NSV,
+     2   INTBUF_TAB%IRTLM, IX11,             IX12,             IX13,
+     3   IX14,             X11,              X12,              X13,
+     4   X14,              Y11,              Y12,              Y13,
+     5   Y14,              Z11,              Z12,              Z13,
+     6   Z14,              LFT,              LLT,              NFT)
+        CALL I3CST3(
+     1   X11,     X12,     X13,     X14,
+     2   XI,      Y11,     Y12,     Y13,
+     3   Y14,     YI,      Z11,     Z12,
+     4   Z13,     Z14,     ZI,      XFACE,
+     5   N1,      N2,      N3,      SSC,
+     6   TTC,     X0,      Y0,      Z0,
+     7   XX1,     XX2,     XX3,     XX4,
+     8   YY1,     YY2,     YY3,     YY4,
+     9   ZZ1,     ZZ2,     ZZ3,     ZZ4,
+     A   XI1,     XI2,     XI3,     XI4,
+     B   YI1,     YI2,     YI3,     YI4,
+     C   ZI1,     ZI2,     ZI3,     ZI4,
+     D   XN1,     XN2,     XN3,     XN4,
+     E   YN1,     YN2,     YN3,     YN4,
+     F   ZN1,     ZN2,     ZN3,     ZN4,
+     G   AREA,    LFT,     LLT)
+        CALL I3GAP3(
+     1   GAP,     AREA,    THK,     ALP,
+     2   LFT,     LLT)
+        CALL I3DIS3(
+     1   IGIMP,   NTY,     DIST,    X11,
+     2   X12,     X13,     X14,     XI,
+     3   Y11,     Y12,     Y13,     Y14,
+     4   YI,      Z11,     Z12,     Z13,
+     5   Z14,     ZI,      XFACE,   N1,
+     6   N2,      N3,      SSC,     TTC,
+     7   ALP,     ANS,     XP,      YP,
+     8   ZP,      H1,      H2,      H3,
+     9   H4,      LFT,     LLT)
+        IF(IGIMP==0)GOTO 150
+        CALL I5FOR3(output, LFT   ,LLT   ,NFT   , A ,
      2          INTBUF_TAB%MSR,INTBUF_TAB%NSV,INTBUF_TAB%IRTLM,INTBUF_TAB%STFM,
      3          INTBUF_TAB%STFNS,IBC   ,ICODT     ,FSAV      ,IGIMP     ,
      4          FSKYI     ,ISKY     ,FCONT     ,FNCONT    ,ICONTACT  ,
@@ -338,14 +367,16 @@ C
      7          N2    ,N3    ,XFACE   ,H1     ,H2    ,
      8          H3    ,H4    ,THK     ,ANS    ,STIF  ,
      9          XX3 )
-        IF (IMPL_S.EQ.1) THEN
-         CALL I5IMPK3(INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,INTBUF_TAB%NSV,
-     .                INTBUF_TAB%IRTLM,NUM_IMP,NS_IMP,NE_IMP,ANS)
+        IF (IMPL_S==1) THEN
+         CALL I5IMPK3(
+     1   INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,   INTBUF_TAB%NSV,   INTBUF_TAB%IRTLM,
+     2   NUM_IMP,          NS_IMP,           NE_IMP,           ANS,
+     3   LFT,              LLT,              NFT)
         ENDIF
-        IF(FRIC.EQ.0.AND.MFROT.EQ.0)GOTO 150
-        IF(IGIMP.EQ.0)GOTO 150
+        IF(FRIC==0.AND.MFROT==0)GOTO 150
+        IF(IGIMP==0)GOTO 150
         IPARI(29) = 1
-        CALL I5FRI3(LFT    ,LLT    ,NFT    ,IPARI  ,X      ,A      ,
+        CALL I5FRI3(output, LFT    ,LLT    ,NFT    ,IPARI  ,X      ,A      ,
      2          INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,INTBUF_TAB%NSV,INTBUF_TAB%IRTLM,
      3          NTY          ,INTBUF_TAB%CSTS,INTBUF_TAB%IRTLOM,INTBUF_TAB%FRICOS,
      4          FRIC         ,1            ,FSAV         ,FSKYI        ,
@@ -358,13 +389,11 @@ C
      1          H4    ,AREA  ,XX3)
  150    CONTINUE
 C
-      ELSEIF(NTY.EQ.6)THEN
+      ELSEIF(NTY==6)THEN
 C
-      ELSEIF(NTY.EQ.7.OR.NTY.EQ.22)THEN
+      ELSEIF(NTY==7.OR.NTY==22)THEN
 C
-      ELSEIF(NTY.EQ.8)THEN
-
- 180    CONTINUE
+      ELSEIF(NTY==8)THEN
 
 C
       ENDIF

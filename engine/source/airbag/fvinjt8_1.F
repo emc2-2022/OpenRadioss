@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVINJT8_1                     source/airbag/fvinjt8_1.F     
-Chd|-- called by -----------
-Chd|        FVBAG1                        source/airbag/fvbag.F         
-Chd|        FV_UP_SWITCH                  source/airbag/fv_up_switch.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvinjt8_1      ../engine/source/airbag/fvinjt8_1.F
+!||--- called by ------------------------------------------------------
+!||    fv_up_switch   ../engine/source/airbag/fv_up_switch.F
+!||    fvbag1         ../engine/source/airbag/fvbag1.F
+!||====================================================================
       SUBROUTINE FVINJT8_1(NJET   , IBAGJET , RBAGJET ,
      2                    IGEO,     GEO,     PM, 
      3                    IVOLU,   RVOLU, DMOUT, DHOUT)
@@ -58,7 +57,7 @@ C----------------------------------------------------------------------------
       R_IGC1=PM(27,IVOLU(66))
       RMWI  = RVOLU(10)
 C--------------------------
-C     NOMBRE TOTAL DE MOLES
+C     TOTAL NUMBER OF MOLES
 C--------------------------
       GMI = RVOLU(11)
       RNM = GMI*RMWI
@@ -67,9 +66,9 @@ C--------------------------
         I_TYPINJ = IGEO(22,I_INJ)
         NGASES   = IGEO(23,I_INJ)
         DO IK=1,NGASES
-          IF (I_TYPINJ.EQ.1) THEN
+          IF (I_TYPINJ==1) THEN
             I_GAS = IGEO(100+(IK-1)*3+1,I_INJ)
-          ELSE IF (I_TYPINJ.EQ.2) THEN
+          ELSE IF (I_TYPINJ==2) THEN
             I_GAS = IGEO(100+(IK-1)*2+1,I_INJ)
           END IF
           MW   = PM(20,I_GAS)
@@ -82,7 +81,7 @@ C--------------------------
       ENDDO
       RVOLU(14)=RNM
 C-------------------------------
-C     MASSE et ENTHALPY par GAZ
+C     MASS and ENTHALPY by GAS
 C-------------------------------
       RNMI=GMI*RMWI
       DGMOUT=DMOUT*RNMI/RNM
@@ -101,9 +100,9 @@ C
          RBAGJET( 9,IJ)=ZERO
          RBAGJET(10,IJ)=ZERO
          DO IK=1,NGASES
-          IF (I_TYPINJ.EQ.1) THEN
+          IF (I_TYPINJ==1) THEN
             I_GAS = IGEO(100+(IK-1)*3+1,I_INJ)
-          ELSE IF (I_TYPINJ.EQ.2) THEN
+          ELSE IF (I_TYPINJ==2) THEN
             I_GAS = IGEO(100+(IK-1)*2+1,I_INJ)
           END IF
           MW   = PM(20,I_GAS)

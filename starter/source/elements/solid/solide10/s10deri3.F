@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S10DERI3                      source/elements/solid/solide10/s10deri3.F
-Chd|-- called by -----------
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        S10INIT3                      source/elements/solid/solide10/s10init3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        S10JACOB                      source/elements/solid/solide10/s10deri3.F
-Chd|        S10PIJSAV                     source/elements/solid/solide10/s10deri3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s10deri3       ../starter/source/elements/solid/solide10/s10deri3.F
+!||--- called by ------------------------------------------------------
+!||    inirig_mat     ../starter/source/elements/initia/inirig_mat.F
+!||    s10init3       ../starter/source/elements/solid/solide10/s10init3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../starter/source/output/message/message.F
+!||    s10jacob       ../starter/source/elements/solid/solide10/s10deri3.F
+!||    s10pijsav      ../starter/source/elements/solid/solide10/s10deri3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE S10DERI3(VOL,NGL,
      .   XX, YY, ZZ, PX,PY,PZ, NX,
      .   RX,  RY,  RZ,  SX,  SY,  SZ , TX, TY, TZ,VOLU,VOLN,
@@ -50,8 +50,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -68,12 +66,12 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NGL(*), I,IP,N,K1,K2,K3,K4,K5,K6,K7,K8,K9,K10,
-     .        M,IPERM(10,4),
+     .        IPERM(10,4),
      .        NBAD(MVSIZ)
       DOUBLE PRECISION
      .   XA(MVSIZ,10),YA(MVSIZ,10),ZA(MVSIZ,10),
      .   XB(MVSIZ,10),YB(MVSIZ,10),ZB(MVSIZ,10),
-     .   A4,B4,A4M1,B4M1,AA
+     .   A4,B4,A4M1,B4M1
       my_real
      .   ALPH,BETA,W
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
@@ -83,14 +81,18 @@ C-----------------------------------------------
      .            1, 4, 2, 3, 8, 9, 5, 7,10, 6,
      .            1, 2, 3, 4, 5, 6, 7, 8, 9,10/
 C-----------------------------------------------
-      IF(NPT.EQ.4)THEN
+      IF(NPT==4)THEN
         ALPH = ZEP5854102
         BETA  = ZEP1381966
         W = FOURTH
-      ELSEIF(NPT.EQ.5)THEN
+      ELSEIF(NPT==5)THEN
         ALPH = HALF
         BETA  = ONE_OVER_6
         W = NINE_OVER_20
+      ELSE
+        ALPH = -HUGE(ALPH)
+        BETA  = -HUGE(BETA)
+        W = -HUGE(W)
       ENDIF
       A4 = FOUR * ALPH
       B4 = FOUR * BETA
@@ -169,7 +171,7 @@ c
       ENDDO
 C
 C
-      IF(NPT.EQ.5)THEN
+      IF(NPT==5)THEN
         ALPH = FOURTH
         BETA  = FOURTH
         A4 = ONE
@@ -223,7 +225,7 @@ C
       DO IP=1,NPT
         DO I=LFT,LLT
 
-          IF(IP.LE.4.AND.VOL(I,IP).LE.ZERO)THEN
+          IF(IP<=4.AND.VOL(I,IP)<=ZERO)THEN
               NBAD(I)=NBAD(I)+1
               VOL(I,IP)=ZERO
           ENDIF
@@ -233,7 +235,7 @@ C
       ENDDO
 
       DO I=LFT,LLT
-       IF(NBAD(I).GT.0)THEN
+       IF(NBAD(I)>0)THEN
          CALL ANCMSG(MSGID=489,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO_BLIND_1,
@@ -248,15 +250,15 @@ C
 C
       RETURN
 C
- 1000 FORMAT(/' ZERO OR NEGATIVE VOLUME : 3D-ELEMENT NB',I10/)
- 2000 FORMAT(/' ZERO OR NEGATIVE VOLUME : DELETE 3D-ELEMENT NB',I10/)
+C  1000 FORMAT(/' ZERO OR NEGATIVE VOLUME : 3D-ELEMENT NB',I10/)
+C  2000 FORMAT(/' ZERO OR NEGATIVE VOLUME : DELETE 3D-ELEMENT NB',I10/)
       END
-Chd|====================================================================
-Chd|  S10JACOB                      source/elements/solid/solide10/s10deri3.F
-Chd|-- called by -----------
-Chd|        S10DERI3                      source/elements/solid/solide10/s10deri3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    s10jacob   ../starter/source/elements/solid/solide10/s10deri3.F
+!||--- called by ------------------------------------------------------
+!||    s10deri3   ../starter/source/elements/solid/solide10/s10deri3.F
+!||    s10jaci3   ../starter/source/elements/solid/solide10/s10jaci3.F
+!||====================================================================
       SUBROUTINE S10JACOB(ALPH,BETA,W,
      .   X1B,X2B,X3B,X4A,X5B,X6B,X7B,X8B,X9B,X10B,X8A,X9A,X10A,
      .   Y1B,Y2B,Y3B,Y4A,Y5B,Y6B,Y7B,Y8B,Y9B,Y10B,Y8A,Y9A,Y10A,
@@ -302,7 +304,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -381,25 +382,25 @@ C
        VOL(I) = VOLDP(I)
 C
       ENDDO
-C      IF(IDTMIN(1).EQ.1)THEN
+C      IF(IDTMIN(1)==1)THEN
 C       DO I=LFT,LLT
-C        IF(OFF(I) .EQ.0.)THEN
+C        IF(OFF(I) ==0.)THEN
 C          DET(I)=1.
-C        ELSEIF(DET(I).LE.VOLMIN)THEN
+C        ELSEIF(DET(I)<=VOLMIN)THEN
 C          DET(I)=1.
 C          OFF(I)=0.
 C          WRITE(ISTDO,2000) NGL(I)
 C          WRITE(IOUT ,2000) NGL(I)
-C        ELSEIF(DET(I).LE.0.0)THEN
+C        ELSEIF(DET(I)<=0.0)THEN
 C          WRITE(ISTDO,1000) NGL(I)
 C          WRITE(IOUT ,1000) NGL(I)
 C        ENDIF
 C       ENDDO
-C      ELSEIF(IDTMIN(1).EQ.2)THEN
+C      ELSEIF(IDTMIN(1)==2)THEN
 C       DO I=LFT,LLT
-C        IF(OFF(I) .EQ.0.)THEN
+C        IF(OFF(I) ==0.)THEN
 C           DET(I)=1.
-C        ELSEIF(DET(I).LE.VOLMIN.OR.DET(I).LE.0.0)THEN
+C        ELSEIF(DET(I)<=VOLMIN.OR.DET(I)<=0.0)THEN
 C           DET(I)=1.
 C           OFF(I)=0.
 C           WRITE(ISTDO,2000) NGL(I)
@@ -408,7 +409,7 @@ C        ENDIF
 C       ENDDO
 C      ELSE
 C        DO I=LFT,LLT
-C          IF(OFF(I) .EQ.0.)DET(I)=1.
+C          IF(OFF(I) ==0.)DET(I)=1.
 C        ENDDO
 C      ENDIF
 CC
@@ -469,16 +470,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  S10PIJSAV                     source/elements/solid/solide10/s10deri3.F
-Chd|-- called by -----------
-Chd|        S10DERI3                      source/elements/solid/solide10/s10deri3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    s10pijsav   ../starter/source/elements/solid/solide10/s10deri3.F
+!||--- called by ------------------------------------------------------
+!||    s10deri3    ../starter/source/elements/solid/solide10/s10deri3.F
+!||    s10jaci3    ../starter/source/elements/solid/solide10/s10jaci3.F
+!||====================================================================
       SUBROUTINE S10PIJSAV(PX,PY,PZ, PIJ,NEL)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -496,12 +494,9 @@ C     REAL
      .   PX(MVSIZ,10),PY(MVSIZ,10),PZ(MVSIZ,10),
      .   PIJ(NEL,3,10)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K
+      INTEGER I, J
 
 C-----------------------------------------------
       DO J=1,10

@@ -1,35 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  SPMD_IALLTOALLV_INT           source/mpi/generic/spmd_ialltoallv_int.F
-Chd|-- called by -----------
-Chd|        SPMD_CELL_LIST_EXCHANGE       source/mpi/interfaces/spmd_cell_list_exchange.F
-Chd|        SPMD_COARSE_CELL_EXCHANGE     source/mpi/interfaces/spmd_coarse_cell_exchange.F
-Chd|        SPMD_SPHGAT                   source/mpi/sph/spmd_sphgat.F  
-Chd|        SPMD_SPHGETV                  source/mpi/sph/spmd_sphgetv.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_ialltoallv_int         ../engine/source/mpi/generic/spmd_ialltoallv_int.F
+!||--- called by ------------------------------------------------------
+!||    spmd_coarse_cell_exchange   ../engine/source/mpi/interfaces/spmd_coarse_cell_exchange.F
+!||    spmd_sphgat                 ../engine/source/mpi/sph/spmd_sphgat.F
+!||    spmd_sphgetv                ../engine/source/mpi/sph/spmd_sphgetv.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
         SUBROUTINE SPMD_IALLTOALLV_INT(SENDBUF,RECVBUF,SEND_SIZE,TOTAL_SEND_SIZE,SDISPLS,
      .                             TOTAL_RCV_SIZE,RCV_SIZE,RDISPLS,
      .                             REQUEST,COMM,NB_PROC)
@@ -37,28 +36,20 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "task_c.inc"
+#include "spmd.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-        INTEGER, INTENT(in) :: REQUEST,COMM
-        INTEGER, INTENT(in) :: TOTAL_SEND_SIZE,TOTAL_RCV_SIZE,NB_PROC
-        INTEGER, DIMENSION(NB_PROC), INTENT(in) :: SEND_SIZE
-        INTEGER, DIMENSION(NB_PROC), INTENT(in) :: RCV_SIZE
-        INTEGER, DIMENSION(NB_PROC), INTENT(in) :: SDISPLS,RDISPLS
-        INTEGER, DIMENSION(TOTAL_SEND_SIZE), INTENT(in) :: SENDBUF
-        INTEGER, DIMENSION(TOTAL_RCV_SIZE), INTENT(out) :: RECVBUF
+        INTEGER, INTENT(inout) :: REQUEST,COMM
+        INTEGER, INTENT(inout) :: TOTAL_SEND_SIZE,TOTAL_RCV_SIZE,NB_PROC
+        INTEGER, DIMENSION(NB_PROC), INTENT(inout) :: SEND_SIZE
+        INTEGER, DIMENSION(NB_PROC), INTENT(inout) :: RCV_SIZE
+        INTEGER, DIMENSION(NB_PROC), INTENT(inout) :: SDISPLS,RDISPLS
+        INTEGER, DIMENSION(TOTAL_SEND_SIZE), INTENT(inout) :: SENDBUF
+        INTEGER, DIMENSION(TOTAL_RCV_SIZE), INTENT(inout) :: RECVBUF
 
 #ifdef MPI
 C-----------------------------------------------
@@ -80,23 +71,14 @@ C-----------------------------------------------
 !       size =         M(1)     M(2)             M(n)
 !       ------------------------------------------
 
-!   PLMPI uses MPI-2.x version : MPI_IALLTOALLV was introduced in MPI-3.0 version
-#if _PLMPI
-!       ------------------
-!       mpi comm alltoall with different amount of data
         CALL MPI_ALLTOALLV(SENDBUF,SEND_SIZE,SDISPLS,MPI_INTEGER,
      .                     RECVBUF,RCV_SIZE,RDISPLS,MPI_INTEGER,
      .                     COMM,error)
+       
+        REQUEST = MPI_REQUEST_NULL
 !       ------------------
 #else
-!       ------------------
-!       mpi comm alltoall with different amount of data
-        CALL MPI_IALLTOALLV(SENDBUF,SEND_SIZE,SDISPLS,MPI_INTEGER,
-     .                     RECVBUF,RCV_SIZE,RDISPLS,MPI_INTEGER,
-     .                     COMM,REQUEST,error)
-!       ------------------
-#endif
-
+        RECVBUF = 0
 #endif
         RETURN
         END SUBROUTINE SPMD_IALLTOALLV_INT

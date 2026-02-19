@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STATIC                        source/general_controls/damping/static.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        NGR2USR                       source/input/freform.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
-      SUBROUTINE STATIC(V,VR,A,AR,MS,IN,IGRNOD,WEIGHT_MD)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    static         ../engine/source/general_controls/damping/static.F
+!||--- called by ------------------------------------------------------
+!||    resol          ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ngr2usr        ../engine/source/input/freform.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||====================================================================
+      SUBROUTINE STATIC(V,VR,A,AR,MS,IN,IGRNOD,WEIGHT_MD,WFEXT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -37,15 +38,12 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "scr11_c.inc"
 #include      "statr_c.inc"
 #include      "stati_c.inc"
@@ -54,27 +52,23 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER
-     .   WEIGHT_MD(*)
-      my_real
-     .   V(3,*), VR(3,*), A(3,*), AR(3,*),MS(*),IN(*)
+      INTEGER WEIGHT_MD(*)
+      my_real V(3,*), VR(3,*), A(3,*), AR(3,*),MS(*),IN(*)
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD) :: IGRNOD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER J, I,LAST,N,NGR2USR,ISTAT2,ISTAT3
-C     REAL
-      my_real
-     .   ENCINO, OMEGA, UOMEGA, DOMEGA, OMEGA2, ENCINT, ENCINN,
-     .   ENCGRP,ENCGRPN, ENCGRPR,ENCGRPRN
+      my_real ENCINO, OMEGA, UOMEGA, DOMEGA, OMEGA2, ENCINT, ENCINN,ENCGRP,ENCGRPN, ENCGRPR,ENCGRPRN
       EXTERNAL NGR2USR
 C-----------------------------------------------
       DATA ENCINO /0.0/
       DATA LAST /0/
       SAVE ENCINO,LAST
 C
-      IF(ISTATG.LT.0)THEN
+      IF(ISTATG<0)THEN
         ISTATG=NGR2USR(-ISTATG,IGRNOD,NGRNOD)
       ENDIF
       ISTAT2=0
@@ -100,10 +94,10 @@ C
            A(2,I)  = -DOMEGA*V(2,I)  + UOMEGA*A(2,I)
            A(3,I)  = -DOMEGA*V(3,I)  + UOMEGA*A(3,I)
         ENDDO
-        IF (ISPMD.EQ.0) TFEXT = TFEXT - ENCINT + ENCINN
+        IF (ISPMD==0) WFEXT = WFEXT - ENCINT + ENCINN
        END IF !(IDTMINS==0) THEN
-C	   
-        IF(IRODDL.NE.0)THEN
+C     
+        IF(IRODDL/=0)THEN
          ENCINT = ENROT
          ENCINN = ENCINT * OMEGA2
           DO I = 1, NUMNOD
@@ -111,16 +105,15 @@ C
            AR(2,I) = -DOMEGA*VR(2,I) + UOMEGA*AR(2,I)
            AR(3,I) = -DOMEGA*VR(3,I) + UOMEGA*AR(3,I)
           ENDDO
-         IF (ISPMD.EQ.0) TFEXT = TFEXT - ENCINT + ENCINN
+         IF (ISPMD==0) WFEXT = WFEXT - ENCINT + ENCINN
         ENDIF
 C
       ELSEIF(ISTAT2==1.AND.ISTATG==0)THEN
 C
        LAST = LAST+1
        ENCINT = ENCIN+ENROT
-       IF(ENCINT.LT.ENCINO)THEN
-        IF (IMACH.NE.3.OR.(IMACH.EQ.3.AND.ISPMD.EQ.0))
-     .   TFEXT = TFEXT - ENCINT 
+       IF(ENCINT<ENCINO)THEN
+        IF (ISPMD==0)WFEXT = WFEXT - ENCINT
         ENCINO=ZERO
         LAST=0
 C
@@ -128,7 +121,7 @@ C
          DO I = 1, NUMNOD
            V(J,I) = ZERO
          ENDDO
-         IF(IRODDL.NE.0)THEN
+         IF(IRODDL/=0)THEN
            DO I = 1, NUMNOD
              VR(J,I) = ZERO
            ENDDO
@@ -159,8 +152,8 @@ C
         ENDDO
        ENDDO
        END IF !(IDTMINS==0) THEN
-C	   
-        IF(IRODDL.NE.0)THEN
+C     
+        IF(IRODDL/=0)THEN
          DO J=1,3
 #include "vectorize.inc"
           DO N=1,IGRNOD(ISTATG)%NENTITY
@@ -176,16 +169,14 @@ C
        ENCGRPR = HALF*ENCGRPR
        ENCGRPN = ENCGRP * OMEGA2
        ENCGRPRN = ENCGRPR * OMEGA2
-       IF (IMACH.NE.3.OR.(IMACH.EQ.3.AND.ISPMD.EQ.0))
-     .  TFEXT = TFEXT + ENCGRPN - ENCGRP + ENCGRPRN - ENCGRPR
+       IF (ISPMD==0)WFEXT = WFEXT + ENCGRPN - ENCGRP + ENCGRPRN - ENCGRPR
 C
       ELSEIF(ISTAT2==1.AND.ISTATG/=0)THEN
 C
        LAST = LAST+1
        ENCINT = ENCIN+ENROT
-       IF(ENCINT.LT.ENCINO)THEN
-        IF (IMACH.NE.3.OR.(IMACH.EQ.3.AND.ISPMD.EQ.0))
-     .   TFEXT = TFEXT - ENCINT 
+       IF(ENCINT<ENCINO)THEN
+        IF (ISPMD==0)WFEXT = WFEXT - ENCINT
         ENCINO=ZERO
         LAST=0
 C
@@ -195,7 +186,7 @@ C
            I=IGRNOD(ISTATG)%ENTITY(N)
            V(J,I) = ZERO
          ENDDO
-         IF(IRODDL.NE.0)THEN
+         IF(IRODDL/=0)THEN
 #include "vectorize.inc"
            DO N=1,IGRNOD(ISTATG)%NENTITY
             I=IGRNOD(ISTATG)%ENTITY(N)
@@ -210,19 +201,18 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  E_PERIOD                      source/general_controls/damping/static.F
-Chd|-- called by -----------
-Chd|        ENER_W0                       source/general_controls/damping/static.F
-Chd|-- calls ---------------
-Chd|        BUTTERWORTH                   source/tools/univ/butterworth.F
-Chd|====================================================================
+!||====================================================================
+!||    e_period      ../engine/source/general_controls/damping/static.F
+!||--- called by ------------------------------------------------------
+!||    ener_w0       ../engine/source/general_controls/damping/static.F
+!||--- calls      -----------------------------------------------------
+!||    butterworth   ../engine/source/tools/univ/butterworth.F
+!||====================================================================
       SUBROUTINE E_PERIOD(IPI,IPC,F_FIL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -233,17 +223,13 @@ C
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "scr11_c.inc"
 #include      "statr_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER J, I , IDF
+ 
 C     REAL
       my_real
      .   ENCINT, EINT,VV1,VV2,FV1,FV2,FV,FF
@@ -262,27 +248,27 @@ C-----------------------------------------------
        END IF       
        IF (F_FIL>ZERO) THEN
           FF = ENCIN+ENROT
-    	     VV1 = FIL_KE(1)                                
-    	     VV2 = FIL_KE(2)                               
-    	     FV1 = FIL_KE(3)                                
-    	     FV2 = FIL_KE(4)                                
-    	     CALL BUTTERWORTH(DT2,F_FIL,VV2,VV1,FF,FV2,FV1,FV) 
-    	       FIL_KE(1)= FF                               
-    	       FIL_KE(2)= VV1                              
-    	       FIL_KE(3)= FV                              
-    	       FIL_KE(4)= FV1                              
+               VV1 = FIL_KE(1)                                
+               VV2 = FIL_KE(2)                               
+               FV1 = FIL_KE(3)                                
+               FV2 = FIL_KE(4)                                
+               CALL BUTTERWORTH(DT2,F_FIL,VV2,VV1,FF,FV2,FV1,FV) 
+                 FIL_KE(1)= FF                               
+                 FIL_KE(2)= VV1                              
+                 FIL_KE(3)= FV                              
+                 FIL_KE(4)= FV1                              
               ENCINT = FV
 C         
           FF = ENINT
-    	     VV1 = FIL_IE(1)                                
-    	     VV2 = FIL_IE(2)                               
-    	     FV1 = FIL_IE(3)                                
-    	     FV2 = FIL_IE(4)                                
-    	     CALL BUTTERWORTH(DT2,F_FIL,VV2,VV1,FF,FV2,FV1,FV) 
-    	       FIL_IE(1) = FF                                
-    	       FIL_IE(2) = VV1                              
-    	       FIL_IE(3) = FV                               
-    	       FIL_IE(4) = FV1
+               VV1 = FIL_IE(1)                                
+               VV2 = FIL_IE(2)                               
+               FV1 = FIL_IE(3)                                
+               FV2 = FIL_IE(4)                                
+               CALL BUTTERWORTH(DT2,F_FIL,VV2,VV1,FF,FV2,FV1,FV) 
+                 FIL_IE(1) = FF                                
+                 FIL_IE(2) = VV1                              
+                 FIL_IE(3) = FV                               
+                 FIL_IE(4) = FV1
               EINT = FV
 C 
        ELSE      
@@ -293,7 +279,7 @@ C
        PINT = PINT +DT1
        PIMAX = MAX(PIMAX,PINT)
        PCMAX = MAX(PCMAX,PCIN)
-       IF(ENCINT.LT.ENCIN_0.AND.ENCINT>=ZERO)THEN
+       IF(ENCINT<ENCIN_0.AND.ENCINT>=ZERO)THEN
         ENCIN_0=ZERO
         PCIN = ZERO
         IPC = 1
@@ -305,7 +291,7 @@ C
         EINT_0=ZERO
         PINT = ZERO
         IPI = -2
-       ELSEIF(EINT.LT.EINT_0.AND.EINT>=ZERO)THEN
+       ELSEIF(EINT<EINT_0.AND.EINT>=ZERO)THEN
         EINT_0=ZERO
         PINT = ZERO
         IPI = 1
@@ -316,19 +302,18 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ENER_W0                       source/general_controls/damping/static.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        E_PERIOD                      source/general_controls/damping/static.F
-Chd|====================================================================
+!||====================================================================
+!||    ener_w0    ../engine/source/general_controls/damping/static.F
+!||--- called by ------------------------------------------------------
+!||    resol      ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    e_period   ../engine/source/general_controls/damping/static.F
+!||====================================================================
       SUBROUTINE ENER_W0
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -337,10 +322,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "statr_c.inc"
-#include      "scr16_c.inc"
 #include      "task_c.inc"
 #include      "sms_c.inc"
 #include      "warn_c.inc"   
@@ -349,13 +332,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER J, I,FREQ,IDF,IPI,IPC,NC_ACT,IFIRST
+      INTEGER IDF, IPI, IPC, NC_ACT, IFIRST
       PARAMETER (NC_ACT = 200)
 C     REAL
       my_real
-     .   Q_ES,BETATE_N,FC,FI,BETATE_M
+     . BETATE_N,FC,FI,BETATE_M
       my_real
-     .   F_MAX,F_MIN,F_0,EI_TOL
+     . F_MAX,F_0,EI_TOL
 C     REAL
       CHARACTER*8 FILNAME
 C-----------------------------------------------

@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2SMS28                       source/interfaces/interf/i2sms28.F
-Chd|-- called by -----------
-Chd|        I2FOR28P_PEN                  source/interfaces/interf/i2for28p_pen.F
-Chd|        I2FOR28_PEN                   source/interfaces/interf/i2for28_pen.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2sms28        ../engine/source/interfaces/interf/i2sms28.F
+!||--- called by ------------------------------------------------------
+!||    i2for28_pen    ../engine/source/interfaces/interf/i2for28_pen.F
+!||    i2for28p_pen   ../engine/source/interfaces/interf/i2for28p_pen.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I2SMS28(JLT   ,IX1   ,IX2  ,IX3  ,IX4   ,
      2                  NSVG  ,H      ,STIF ,NOINT ,
      3                  DMINT2,NODNX_SMS ,VIS   ,STF_MOM,DTI)
@@ -47,14 +47,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
-#include      "com01_c.inc"
 #include      "sms_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -67,9 +60,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG, NISKYL1, NISKYL, NN
+      INTEGER I
       my_real
-     .        MAS, DTS, MASM, FAC
+     .        MAS, DTS, MASM
 C
       DO I=1,JLT
        DMINT2(1,I)=ZERO
@@ -77,21 +70,21 @@ C
        DMINT2(3,I)=ZERO
        DMINT2(4,I)=ZERO
 C
-       IF(NSVG(I).LE.0) CYCLE
-       IF((IDTMINS_INT.EQ.0.AND.NODNX_SMS(NSVG(I))+
-     .    			NODNX_SMS(IX1(I))+
-     .    			NODNX_SMS(IX2(I))+
-     .    			NODNX_SMS(IX3(I))+
-     .    			NODNX_SMS(IX4(I))==0) .OR.
+       IF(NSVG(I)<=0) CYCLE
+       IF((IDTMINS_INT==0.AND.NODNX_SMS(NSVG(I))+
+     .          NODNX_SMS(IX1(I))+
+     .          NODNX_SMS(IX2(I))+
+     .          NODNX_SMS(IX3(I))+
+     .          NODNX_SMS(IX4(I))==0) .OR.
      .    STIF(I)==ZERO) THEN
          CYCLE
        END IF
 C
-       IF(IDTMINS_INT.EQ.0.AND.NODNX_SMS(NSVG(I))+
-     .    			NODNX_SMS(IX1(I))+
-     .    			NODNX_SMS(IX2(I))+
-     .    			NODNX_SMS(IX3(I))+
-     .    			NODNX_SMS(IX4(I))/=0)THEN
+       IF(IDTMINS_INT==0.AND.NODNX_SMS(NSVG(I))+
+     .          NODNX_SMS(IX1(I))+
+     .          NODNX_SMS(IX2(I))+
+     .          NODNX_SMS(IX3(I))+
+     .          NODNX_SMS(IX4(I))/=0)THEN
          DTS = DTMINS/DTFACS
          DTI=MIN(DTI,DTMINS)
        ELSE

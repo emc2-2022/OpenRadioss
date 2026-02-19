@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MULTI_GLOBALIZE               source/multifluid/multi_globalize.F
-Chd|-- called by -----------
-Chd|        ALEMAIN                       source/ale/alemain.F          
-Chd|-- calls ---------------
-Chd|        MULTI_BILAN                   source/multifluid/multi_bilan.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    multi_globalize   ../engine/source/multifluid/multi_globalize.F
+!||--- called by ------------------------------------------------------
+!||    alemain           ../engine/source/ale/alemain.F
+!||--- calls      -----------------------------------------------------
+!||    multi_bilan       ../engine/source/multifluid/multi_bilan.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod      ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    initbuf_mod       ../engine/share/resol/initbuf.F
+!||    multi_fvm_mod     ../common_source/modules/ale/multi_fvm_mod.F90
+!||====================================================================
       SUBROUTINE MULTI_GLOBALIZE(ELBUF_TAB, IPARG, ITASK, MULTI_FVM, 
      .     PARTSAV, IPARTS, GRESAV, IGRTH, GRTH)
 C-----------------------------------------------
@@ -79,7 +80,7 @@ C     B e g i n n i n g   o f   s u b r o u t i n e
 C-----------------------------------------------
       DO NG = ITASK + 1, NGROUP, NTHREAD
          MTN = IPARG(1, NG)
-         IF (MTN .EQ. 151) THEN
+         IF (MTN == 151) THEN
             NEL = IPARG(2, NG)
             NFT = IPARG(3, NG)
 C     Multifluid law number, get the number of materials
@@ -95,7 +96,7 @@ C     Save velocities in GBUF
                MULTI_FVM%RHO(II + NFT) =  GBUF%RHO(II)
                MULTI_FVM%EINT(II + NFT) = GBUF%EINT(II)
              ENDDO
-            IF (NBMAT .GT. 1) THEN
+            IF (NBMAT > 1) THEN
                DO II = 1, NEL
                   I = II + NFT
                   GBUF%RHO(II) = ZERO
@@ -149,7 +150,7 @@ C
                   MULTI_FVM%EINT(I) = GBUF%EINT(II)
                   MULTI_FVM%PRES(I) = -THIRD * (GBUF%SIG(II + 0 * NEL) + GBUF%SIG(II + 1 * NEL) + GBUF%SIG(II + 2 * NEL))
                ENDDO
-            ENDIF               ! NBMAT .GT. 1
+            ENDIF               ! NBMAT > 1
             CALL MULTI_BILAN(PARTSAV, GBUF%VOL, MULTI_FVM, 
      .           NEL, NFT, IPARTS(1 + NFT), GRESAV, IGRTH, GRTH)
          ENDIF

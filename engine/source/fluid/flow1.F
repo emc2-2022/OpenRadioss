@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FLOW1                         source/fluid/flow1.F          
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        DAAACC                        source/fluid/daaacc.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    flow1    ../engine/source/fluid/flow1.F
+!||--- called by ------------------------------------------------------
+!||    resol    ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    daaacc   ../engine/source/fluid/daaacc.F
+!||====================================================================
       SUBROUTINE FLOW1(IFLOW, RFLOW, NBGAUGE, A)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -51,9 +51,11 @@ C-----------------------------------------------
 C
       IADI=0
       IADR=0
+      II4 = 0
+      II6 = 0
       DO N=1,NFLOW
          ITYP=IFLOW(IADI+2)
-         IF (ITYP.EQ.3) THEN
+         IF (ITYP==3) THEN
             JFORM    = IFLOW(IADI+4)
             NNO      = IFLOW(IADI+5)
             NEL      = IFLOW(IADI+6)
@@ -83,10 +85,12 @@ C
             CALL DAAACC(NDIM, NNO, NEL, IFLOW(II1), IFLOW(II2), IFLOW(II3), IFLOW(II4), IFLOW(II6), 
      .                  A,  RFLOW(IR2), RFLOW(IR8))
          ENDIF
-         IADI=IADI+IFLOW(IADI+14)  
-         IADR=IADR+IFLOW(IADI+15)
+         IF(N < NFLOW) THEN
+           IADI=IADI+IFLOW(IADI+14)  
+           IADR=IADR+IFLOW(IADI+15)
+         ENDIF
       ENDDO
-C	  
+C
       RETURN
       END
       

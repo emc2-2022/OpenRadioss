@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVINJECTINT                   source/airbag/fvinjectint.F   
-Chd|-- called by -----------
-Chd|        FVMESH0                       source/airbag/fvmesh0.F       
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvinjectint    ../starter/source/airbag/fvinjectint.F
+!||--- called by ------------------------------------------------------
+!||    fvmesh0        ../starter/source/airbag/fvmesh0.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE FVINJECTINT(IBUF  , ELEM   , IBAGJET, 
      .                       NJET  , IGRSURF,
      .                       ITAGEL, NN     , NEL, NB_NODE, MINUS_SIGN_REVERSE)
@@ -39,14 +38,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -105,12 +100,12 @@ C
          N3=ELEM(3,IEL)
          ITAGEL(IEL)=0
          NALL=ITAGINJ(N1)*ITAGINJ(N2)*ITAGINJ(N3)
-         IF (NALL.NE.0) THEN
+         IF (NALL/=0) THEN
             NN1=ITAGINJ(N2)-ITAGINJ(N1)
             NN2=ITAGINJ(N3)-ITAGINJ(N1)
-            IF (NN1.EQ.0.AND.NN2.EQ.0) THEN 
+            IF (NN1==0.AND.NN2==0) THEN 
                ITAGEL(IEL)=ITAGINJ(N1)
-               IF(IREVERSED(N1) + IREVERSED(N2) + IREVERSED(N3) .EQ. 3) THEN
+               IF(IREVERSED(N1) + IREVERSED(N2) + IREVERSED(N3) == 3) THEN
                   ELEM(1,IEL) = N3
                   ELEM(3,IEL) = N1
                   MINUS_SIGN_REVERSE(IEL) = 1

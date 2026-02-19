@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I10DST3                       source/interfaces/int10/i10dst3.F
-Chd|-- called by -----------
-Chd|        I10MAINF                      source/interfaces/int10/i10mainf.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i10dst3    ../engine/source/interfaces/int10/i10dst3.F
+!||--- called by ------------------------------------------------------
+!||    i10mainf   ../engine/source/interfaces/int10/i10mainf.F
+!||====================================================================
       SUBROUTINE I10DST3(
      1                  JLT    ,CAND_N ,CAND_E ,CN_LOC ,CE_LOC ,
      2                  X1     ,X2     ,X3     ,X4     ,Y1     ,
@@ -74,7 +73,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG
+      INTEGER I
       my_real
      .     X0(MVSIZ), Y0(MVSIZ), Z0(MVSIZ),
      .     AL1(MVSIZ),  AL2(MVSIZ),  AL3(MVSIZ), AL4(MVSIZ),
@@ -96,7 +95,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C
       DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           X0(I) = FOURTH*(X1(I)+X2(I)+X3(I)+X4(I))
           Y0(I) = FOURTH*(Y1(I)+Y2(I)+Y3(I)+Y4(I))
           Z0(I) = FOURTH*(Z1(I)+Z2(I)+Z3(I)+Z4(I))  
@@ -222,86 +221,86 @@ C
         LA = ONE - LB1(I) - LC1(I)
         AAA = ONE / MAX(EM20,X12*X12+Y12*Y12+Z12*Z12)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB1(I).AND.HLA.LE.HLC1(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB1(I).AND.HLA<=HLC1(I))THEN
          LB1(I) = (XI2(I)*X12+YI2(I)*Y12+ZI2(I)*Z12) * AAA
          LB1(I) = MAX(ZERO,MIN(ONE,LB1(I)))
          LC1(I) = ONE - LB1(I)
-        ELSEIF(LB1(I).LT.ZERO.AND.
-     +         HLB1(I).LE.HLC1(I).AND.HLB1(I).LE.HLA)THEN
+        ELSEIF(LB1(I)<ZERO.AND.
+     +         HLB1(I)<=HLC1(I).AND.HLB1(I)<=HLA)THEN
          LB1(I) = ZERO
          LC1(I) = AL2(I)
-        ELSEIF(LC1(I).LT.ZERO.AND.
-     +         HLC1(I).LE.HLA.AND.HLC1(I).LE.HLB1(I))THEN
+        ELSEIF(LC1(I)<ZERO.AND.
+     +         HLC1(I)<=HLA.AND.HLC1(I)<=HLB1(I))THEN
          LC1(I) = ZERO
          LB1(I) = AL1(I)
         ENDIF
        ENDDO
 C
        DO I=1,JLT
-	X23 = X3(I) - X2(I)
-	Y23 = Y3(I) - Y2(I)
-	Z23 = Z3(I) - Z2(I)
+          X23 = X3(I) - X2(I)
+          Y23 = Y3(I) - Y2(I)
+          Z23 = Z3(I) - Z2(I)
         LA = ONE - LB2(I) - LC2(I)
         AAA = ONE / MAX(EM20,X23*X23+Y23*Y23+Z23*Z23)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB2(I).AND.HLA.LE.HLC2(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB2(I).AND.HLA<=HLC2(I))THEN
          LB2(I) = (XI3(I)*X23+YI3(I)*Y23+ZI3(I)*Z23)*AAA
          LB2(I) = MAX(ZERO,MIN(ONE,LB2(I)))
          LC2(I) = ONE - LB2(I)
-        ELSEIF(LB2(I).LT.ZERO.AND.
-     +         HLB2(I).LE.HLC2(I).AND.HLB2(I).LE.HLA)THEN
+        ELSEIF(LB2(I)<ZERO.AND.
+     +         HLB2(I)<=HLC2(I).AND.HLB2(I)<=HLA)THEN
          LB2(I) = ZERO
          LC2(I) = AL3(I)
-        ELSEIF(LC2(I).LT.ZERO.AND.
-     +         HLC2(I).LE.HLA.AND.HLC2(I).LE.HLB2(I))THEN
+        ELSEIF(LC2(I)<ZERO.AND.
+     +         HLC2(I)<=HLA.AND.HLC2(I)<=HLB2(I))THEN
          LC2(I) = ZERO
          LB2(I) = AL2(I)
         ENDIF
        ENDDO
 C
        DO I=1,JLT
-	X34 = X4(I) - X3(I)
-	Y34 = Y4(I) - Y3(I)
-	Z34 = Z4(I) - Z3(I)
+          X34 = X4(I) - X3(I)
+          Y34 = Y4(I) - Y3(I)
+          Z34 = Z4(I) - Z3(I)
         LA = ONE - LB3(I) - LC3(I)
         AAA = ONE / MAX(EM20,X34*X34+Y34*Y34+Z34*Z34)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB3(I).AND.HLA.LE.HLC3(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB3(I).AND.HLA<=HLC3(I))THEN
          LB3(I) = (XI4(I)*X34+YI4(I)*Y34+ZI4(I)*Z34)*AAA
          LB3(I) = MAX(ZERO,MIN(ONE,LB3(I)))
          LC3(I) = ONE - LB3(I)
-        ELSEIF(LB3(I).LT.ZERO.AND.
-     +         HLB3(I).LE.HLC3(I).AND.HLB3(I).LE.HLA)THEN
+        ELSEIF(LB3(I)<ZERO.AND.
+     +         HLB3(I)<=HLC3(I).AND.HLB3(I)<=HLA)THEN
          LB3(I) = ZERO
          LC3(I) = AL4(I)
-        ELSEIF(LC3(I).LT.ZERO.AND.
-     +         HLC3(I).LE.HLA.AND.HLC3(I).LE.HLB3(I))THEN
+        ELSEIF(LC3(I)<ZERO.AND.
+     +         HLC3(I)<=HLA.AND.HLC3(I)<=HLB3(I))THEN
          LC3(I) = ZERO
          LB3(I) = AL3(I)
         ENDIF
        ENDDO
 C
        DO I=1,JLT
-	X41 = X1(I) - X4(I)
-	Y41 = Y1(I) - Y4(I)
-	Z41 = Z1(I) - Z4(I)
+          X41 = X1(I) - X4(I)
+          Y41 = Y1(I) - Y4(I)
+          Z41 = Z1(I) - Z4(I)
         LA = ONE - LB4(I) - LC4(I)
         AAA = ONE / MAX(EM20,X41*X41+Y41*Y41+Z41*Z41)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB4(I).AND.HLA.LE.HLC4(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB4(I).AND.HLA<=HLC4(I))THEN
          LB4(I) = (XI1(I)*X41+YI1(I)*Y41+ZI1(I)*Z41)*AAA
          LB4(I) = MAX(ZERO,MIN(ONE,LB4(I)))
          LC4(I) = ONE - LB4(I)
-        ELSEIF(LB4(I).LT.ZERO.AND.
-     +         HLB4(I).LE.HLC4(I).AND.HLB4(I).LE.HLA)THEN
+        ELSEIF(LB4(I)<ZERO.AND.
+     +         HLB4(I)<=HLC4(I).AND.HLB4(I)<=HLA)THEN
          LB4(I) = ZERO
          LC4(I) = AL1(I)
-        ELSEIF(LC4(I).LT.ZERO.AND.
-     +         HLC4(I).LE.HLA.AND.HLC4(I).LE.HLB4(I))THEN
+        ELSEIF(LC4(I)<ZERO.AND.
+     +         HLC4(I)<=HLA.AND.HLC4(I)<=HLB4(I))THEN
          LC4(I) = ZERO
          LB4(I) = AL4(I)
         ENDIF
@@ -335,28 +334,27 @@ C
         P4(I) = NX4(I)*NX4(I) + NY4(I)*NY4(I) +NZ4(I)*NZ4(I)
         D4 = MAX(ZERO, GAP2 - P4(I))
 C !!!!!!!!!!!!!!!!!!!!!!!
-C  PENE2 = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE2 = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 C!!!!!!!!!!!!!!!!!!!!!!!!
         PENE2(I) = MAX(D1,D2,D3,D4)
 C
        ENDDO
 C---------------------
-C      MAJ CAND_F sur PENE et STIF et recompactage
+C      UPDATE CAND_F on PENE and STIF and recompaction
 C---------------------
 C 
       IF(IDTMINS < 2)THEN
 C
-       IF(ITIED.EQ.0)THEN
+       IF(ITIED==0)THEN
         DO I=1,JLT
-         IF(PENE2(I).EQ.ZERO.OR.STIF(I).EQ.ZERO)THEN
+         IF(PENE2(I)==ZERO.OR.STIF(I)==ZERO)THEN
            CAND_F(1,INDEX(I))=ZERO
            CAND_F(2,INDEX(I))=ZERO
            CAND_F(3,INDEX(I))=ZERO   
          ENDIF
         ENDDO
-#include      "vectorize.inc"
         DO I=1,JLT
-         IF(PENE2(I).NE.ZERO.AND.STIF(I).NE.ZERO)THEN
+         IF(PENE2(I)/=ZERO.AND.STIF(I)/=ZERO)THEN
           JLT_NEW = JLT_NEW + 1
           CN_LOC(JLT_NEW) = CAND_N(I)
           CE_LOC(JLT_NEW) = CAND_E(I)
@@ -364,7 +362,7 @@ C
           IX2(JLT_NEW)  = IX2(I)
           IX3(JLT_NEW)  = IX3(I)
           IX4(JLT_NEW)  = IX4(I)
-Cel rajout specifique type 10
+C   Specific addition type 10
           X1(JLT_NEW)  = X1(I)
           X2(JLT_NEW)  = X2(I)
           X3(JLT_NEW)  = X3(I)
@@ -377,7 +375,7 @@ Cel rajout specifique type 10
           Z2(JLT_NEW)  = Z2(I)
           Z3(JLT_NEW)  = Z3(I)
           Z4(JLT_NEW)  = Z4(I)
-Cel
+C  
           NSVG(JLT_NEW) = NSVG(I)
           NX1(JLT_NEW)  = NX1(I)
           NX2(JLT_NEW)  = NX2(I)
@@ -414,8 +412,8 @@ Cel
         ENDDO
        ELSE
         DO I=1,JLT
-         IF( (PENE2(I).NE.ZERO.OR.CAND_F(1,INDEX(I)).NE.ZERO) .AND.
-     .       STIF(I).NE.ZERO.AND.STIF(I).NE.ZERO)THEN
+         IF( (PENE2(I)/=ZERO.OR.CAND_F(1,INDEX(I))/=ZERO) .AND.
+     .       STIF(I)/=ZERO.AND.STIF(I)/=ZERO)THEN
           JLT_NEW = JLT_NEW + 1
           CN_LOC(JLT_NEW) = CAND_N(I)
           CE_LOC(JLT_NEW) = CAND_E(I)
@@ -474,17 +472,16 @@ Cel
 C
 C IDTMINS=2
 C ---------
-       IF(ITIED.EQ.0)THEN
+       IF(ITIED==0)THEN
         DO I=1,JLT
-         IF(PENE2(I).EQ.ZERO.OR.STIF(I).EQ.ZERO)THEN
+         IF(PENE2(I)==ZERO.OR.STIF(I)==ZERO)THEN
            CAND_F(1,INDEX(I))=ZERO
            CAND_F(2,INDEX(I))=ZERO
            CAND_F(3,INDEX(I))=ZERO   
          ENDIF
         ENDDO
-#include      "vectorize.inc"
         DO I=1,JLT
-         IF(PENE2(I).NE.ZERO.AND.STIF(I).NE.ZERO)THEN
+         IF(PENE2(I)/=ZERO.AND.STIF(I)/=ZERO)THEN
           JLT_NEW = JLT_NEW + 1
           CN_LOC(JLT_NEW) = CAND_N(I)
           CE_LOC(JLT_NEW) = CAND_E(I)
@@ -492,7 +489,7 @@ C ---------
           IX2(JLT_NEW)  = IX2(I)
           IX3(JLT_NEW)  = IX3(I)
           IX4(JLT_NEW)  = IX4(I)
-Cel rajout specifique type 10
+C   Specific addition type 10
           X1(JLT_NEW)  = X1(I)
           X2(JLT_NEW)  = X2(I)
           X3(JLT_NEW)  = X3(I)
@@ -505,7 +502,7 @@ Cel rajout specifique type 10
           Z2(JLT_NEW)  = Z2(I)
           Z3(JLT_NEW)  = Z3(I)
           Z4(JLT_NEW)  = Z4(I)
-Cel
+C  
           NSVG(JLT_NEW) = NSVG(I)
           NX1(JLT_NEW)  = NX1(I)
           NX2(JLT_NEW)  = NX2(I)
@@ -544,8 +541,8 @@ C
         ENDDO
        ELSE
         DO I=1,JLT
-         IF( (PENE2(I).NE.ZERO.OR.CAND_F(1,INDEX(I)).NE.ZERO) .AND.
-     .       STIF(I).NE.ZERO.AND.STIF(I).NE.ZERO)THEN
+         IF( (PENE2(I)/=ZERO.OR.CAND_F(1,INDEX(I))/=ZERO) .AND.
+     .       STIF(I)/=ZERO.AND.STIF(I)/=ZERO)THEN
           JLT_NEW = JLT_NEW + 1
           CN_LOC(JLT_NEW) = CAND_N(I)
           CE_LOC(JLT_NEW) = CAND_E(I)

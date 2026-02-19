@@ -1,44 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT100                source/materials/mat/mat100/hm_read_mat100.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat100             ../starter/source/materials/mat/mat100/hm_read_mat100.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat                ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim          ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted     ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword           ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod               ../starter/share/modules1/elbuftag_mod.F
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT100(UPARAM   ,MAXUPARAM,NUPARAM ,NUVAR  ,IFUNC     , 
      .                          MFUNC    ,MAXFUNC  ,MTAG    ,PARMAT ,UNITAB    ,
      .                          IMATVIS  ,PM       ,LSUBMODEL, ID   ,TITR      ,
@@ -67,7 +67,8 @@ C-----------------------------------------------
       USE MESSAGE_MOD      
       USE SUBMODEL_MOD
       USE MATPARAM_DEF_MOD          
-      USE HM_OPTION_READ_MOD 
+      USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -75,24 +76,21 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       my_real, DIMENSION(NPROPM) ,INTENT(INOUT)   :: PM     
-      my_real, DIMENSION(100)    ,INTENT(OUT)     :: PARMAT
-      my_real, DIMENSION(MAXUPARAM) ,INTENT(OUT)  :: UPARAM
+      my_real, DIMENSION(100)    ,INTENT(INOUT)     :: PARMAT
+      my_real, DIMENSION(MAXUPARAM) ,INTENT(INOUT)  :: UPARAM
       
       INTEGER, INTENT(INOUT)          :: MFUNC,NUPARAM,NUVAR,IMATVIS
-      INTEGER, DIMENSION(MAXFUNC)   ,INTENT(OUT)  :: IFUNC
+      INTEGER, DIMENSION(MAXFUNC)   ,INTENT(INOUT)  :: IFUNC
       TYPE(MLAW_TAG_),INTENT(INOUT)   :: MTAG
       INTEGER,INTENT(IN)              :: ID,MAXFUNC,MAXUPARAM 
-      CHARACTER*nchartitle,INTENT(IN) :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN) :: TITR
       TYPE(SUBMODEL_DATA),INTENT(IN)  :: LSUBMODEL(*)
       TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
@@ -108,16 +106,17 @@ C-----------------------------------------------
      .           C30, C21,C12,C03,SB,D1,D2,D3,FF,EPSHAT,TAUY ,
      .           A(10),EXPC(10),
      .           EXPM(10),KSI(10),STIFFN(10),B0(10),EXPN(10),TAUREF(10)
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
+      G = ZERO
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C-----------------------------------------------
       IMATVIS = 1                 
       ILAW    = 100
@@ -156,7 +155,6 @@ card1
      .                I1=ID,
      .                C1=TITR)
       ENDIF
-C-----------------------------------------------
 C-----------------------------------------------
 c     FLAG_HE = 1 =>POLYNOMIAL
 c     FLAG_HE = 2 =>ARRUDA - BOYCE
@@ -257,7 +255,7 @@ card
      .                C1=TITR,
      .                I2=FLAG_HE)
       ENDIF
-      !FIN LECTURE PARAMETRES HYPERELASTQUES
+      !FIN READING PARAMETRES HYPERELASTQUES
       !--------------------------------------
       !--------------------------------------
 Card FOR PLASTICITY
@@ -335,7 +333,7 @@ card
 
        ENDDO
 
-       !NUVAR = NUVAR +50 !POUR DEBUG
+       !NUVAR = NUVAR +50 !FOR DEBUG
 C      
       SB = ZERO
       DO NET = 1,N_NETWORK
@@ -431,12 +429,12 @@ C=======================================================================
        UPARAM(TAB + 1)  =  SCALE1
        UPARAM(TAB + 2)  =  SCALE2
        UPARAM(TAB + 3)  =  NFUNC
-       !UPARAM(TAB+4) AND UPARAM(TAB+5) CALCULE DANS UPDMAT
+       !UPARAM(TAB+4) AND UPARAM(TAB+5) CALCULATED IN UPDMAT
        TAB = TAB + NHYPER         
       ENDIF
       !NETWORK 
 
-      !POUR FUTUR STOCKAGE PARAMETRE MULINS THERMIQUE PLASTIQUE
+      !FOR FUTURE STORAGE OF MULINS THERMAL PLASTIC PARAMETER
       IF (FLAG_PL == 1) THEN
         NPLAS = 5 
         UPARAM(TAB + 1) =  FF 
@@ -490,12 +488,15 @@ C=======================================================================
 c-----------------
       CALL INIT_MAT_KEYWORD(MATPARAM,"INCOMPRESSIBLE")
       CALL INIT_MAT_KEYWORD(MATPARAM,"TOTAL")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HOOK")
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")
 C=======================================================================
 c                        output
 C=======================================================================
       WRITE(IOUT,1001) TRIM(TITR),ID,100
       WRITE(IOUT,1000)
-      IF (IS_CRYPTED)THEN                                     
+      IF (IS_ENCRYPTED)THEN                                     
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'     
       ELSE     
          WRITE(IOUT,1002)RHO0

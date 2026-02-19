@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I11COR3                       source/interfaces/int11/i11cor3.F
-Chd|-- called by -----------
-Chd|        I11FKU3                       source/interfaces/int11/i11ke3.F
-Chd|        I11KE3                        source/interfaces/int11/i11ke3.F
-Chd|        I11MAINF                      source/interfaces/int11/i11mainf.F
-Chd|        IMP_I11MAINF                  source/interfaces/int11/i11ke3.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i11cor3        ../engine/source/interfaces/int11/i11cor3.F
+!||--- called by ------------------------------------------------------
+!||    i11fku3        ../engine/source/interfaces/int11/i11ke3.F
+!||    i11ke3         ../engine/source/interfaces/int11/i11ke3.F
+!||    i11mainf       ../engine/source/interfaces/int11/i11mainf.F
+!||    imp_i11mainf   ../engine/source/interfaces/int11/i11ke3.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box        ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I11COR3(
      1      JLT     ,IRECTS  ,IRECTM  ,X        ,V        ,
      2      CAND_S  ,CAND_M  ,STFS    ,STFM     ,GAP      ,
@@ -62,10 +62,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s 
@@ -87,7 +83,7 @@ C     REAL
      .        VZS1(MVSIZ), VZS2(MVSIZ), VXM1(MVSIZ), VXM2(MVSIZ),
      .        VYM1(MVSIZ), VYM2(MVSIZ), VZM1(MVSIZ), VZM2(MVSIZ),
      .        MS1(MVSIZ),  MS2(MVSIZ),  MM1(MVSIZ),  MM2(MVSIZ),
-     .        GAPV(MVSIZ), STIF(MVSIZ), KMIN, KMAX, DRAD,
+     .        GAPV(MVSIZ), STIF(MVSIZ), KMIN, KMAX,
      .        GAP_S_L(*),GAP_M_L(*),TEMP(*),AREAS(*),AREAM(*),
      .        TEMPI1(MVSIZ),TEMPI2(MVSIZ),TEMPM1(MVSIZ),TEMPM2(MVSIZ),
      .        AREAC(MVSIZ)
@@ -96,16 +92,16 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I ,NN ,NI ,L
       my_real
-     .        TM,DIST,SECS,SECM,XS,YS,ZS,XM,YM,ZM,LS,LM,CT,ST,AREA1,AREA2
+     .        SECS,SECM,XS,YS,ZS,XM,YM,ZM,LS,LM,CT,ST,AREA1,AREA2
 C-----------------------------------------------
 C
-      IF(IGAP.EQ.0)THEN
+      IF(IGAP==0)THEN
         DO I=1,JLT
           GAPV(I)=GAP
         ENDDO
       ELSE
         DO I=1,JLT
-          IF(CAND_S(I).LE.NRTS) THEN
+          IF(CAND_S(I)<=NRTS) THEN
             GAPV(I)=GAP_S(CAND_S(I))+GAP_M(CAND_M(I))
             IF(IGAP == 3)  
      .      GAPV(I)=MIN(GAP_S_L(CAND_S(I))+GAP_M_L(CAND_M(I)),GAPV(I))
@@ -121,7 +117,7 @@ C
 C
       IF(IGSTI == 1)THEN
         DO I=1,JLT
-          IF(CAND_S(I).LE.NRTS) THEN
+          IF(CAND_S(I)<=NRTS) THEN
             STIF(I)=ABS(STFS(CAND_S(I)))*STFM(CAND_M(I))
      .             / MAX(EM20,ABS(STFS(CAND_S(I)))+STFM(CAND_M(I)))
           ELSE
@@ -132,7 +128,7 @@ C
         END DO
       ELSEIF(IGSTI == 5)THEN
         DO I=1,JLT
-          IF(CAND_S(I).LE.NRTS) THEN
+          IF(CAND_S(I)<=NRTS) THEN
             STIF(I)=ABS(STFS(CAND_S(I)))*STFM(CAND_M(I))
      .             / MAX(EM20,ABS(STFS(CAND_S(I)))+STFM(CAND_M(I)))
           ELSE
@@ -144,7 +140,7 @@ C
         END DO
       ELSEIF(IGSTI == 2)THEN
         DO I=1,JLT
-          IF(CAND_S(I).LE.NRTS) THEN
+          IF(CAND_S(I)<=NRTS) THEN
             STIF(I)=HALF*(ABS(STFS(CAND_S(I)))+STFM(CAND_M(I)))
           ELSE
             NN = CAND_S(I) - NRTS            
@@ -154,7 +150,7 @@ C
         END DO
       ELSEIF(IGSTI == 3)THEN
         DO I=1,JLT
-          IF(CAND_S(I).LE.NRTS) THEN
+          IF(CAND_S(I)<=NRTS) THEN
             STIF(I)=MAX(ABS(STFS(CAND_S(I))),STFM(CAND_M(I)))
           ELSE
             NN = CAND_S(I) - NRTS            
@@ -164,7 +160,7 @@ C
         END DO
       ELSEIF(IGSTI == 4)THEN
         DO I=1,JLT
-          IF(CAND_S(I).LE.NRTS) THEN
+          IF(CAND_S(I)<=NRTS) THEN
             STIF(I)=MIN(ABS(STFS(CAND_S(I))),STFM(CAND_M(I)))
           ELSE
             NN = CAND_S(I) - NRTS            
@@ -175,7 +171,7 @@ C
       END IF
 C
       DO I=1,JLT
-        IF(CAND_S(I).LE.NRTS) THEN
+        IF(CAND_S(I)<=NRTS) THEN
           N1(I)=IRECTS(1,CAND_S(I))
           N2(I)=IRECTS(2,CAND_S(I))
           M1(I)=IRECTM(1,CAND_M(I))
@@ -247,7 +243,7 @@ C
 C
       IF(IDTMINS==2)THEN
        DO I=1,JLT
-        IF(CAND_S(I).LE.NRTS)THEN
+        IF(CAND_S(I)<=NRTS)THEN
           NSMS(I)=NODNX_SMS(N1(I))+NODNX_SMS(N2(I))+
      .            NODNX_SMS(M1(I))+NODNX_SMS(M2(I))
         ELSE
@@ -257,7 +253,7 @@ C
        ENDDO
        IF(IDTMINS_INT/=0)THEN
          DO I=1,JLT
-          IF(NSMS(I).EQ.0)NSMS(I)=-1
+          IF(NSMS(I)==0)NSMS(I)=-1
          ENDDO
        END IF
       ELSEIF(IDTMINS_INT/=0)THEN
@@ -273,8 +269,8 @@ C
         IF(IFORM == 0) THEN
 C
           DO I=1,JLT
-           IF(CAND_S(I).LE.NRTS) THEN
-C     SECND EDGE AREA
+           IF(CAND_S(I)<=NRTS) THEN
+C     SECOND EDGE AREA
              SECS=AREAS(CAND_S(I))
 C     AREA COMPUTING
              XS = XXS2(I)-XXS1(I)
@@ -284,13 +280,13 @@ C
              LS = SQRT(XS*XS + YS*YS + ZS*ZS)
 C
              AREAC(I) = LS*SECS
-C     SECND TEMPERATURE
+C     SECOND TEMPERATURE
              TEMPI1(I) = TEMP(N1(I))
              TEMPI2(I) = TEMP(N2(I))
              IELECI(I)= IELEC(CAND_S(I))
            ELSE
              NN = CAND_S(I) - NRTS            
-C     SECND EDGE AREA
+C     SECOND EDGE AREA
              SECS =AREASFI(NIN)%P(NN)
 C     AREA COMPUTING
              XS = XXS2(I)-XXS1(I)
@@ -300,7 +296,7 @@ C
              LS = SQRT(XS*XS + YS*YS + ZS*ZS)
 C
              AREAC(I) = LS*SECS
-C     SECND TEMPERATURE
+C     SECOND TEMPERATURE
              TEMPI1(I) = TEMPFI(NIN)%P(N1(I))
              TEMPI2(I) = TEMPFI(NIN)%P(N2(I))
 
@@ -312,8 +308,8 @@ C
         ELSE
 C
           DO I=1,JLT
-           IF(CAND_S(I).LE.NRTS) THEN
-C     SECND EDGE AREA
+           IF(CAND_S(I)<=NRTS) THEN
+C     SECOND EDGE AREA
              SECS=AREAS(CAND_S(I))
 C     main EDGE AREA
              SECM=AREAM(CAND_M(I))
@@ -336,7 +332,7 @@ C     AREA COMPUTING
 
              AREAC(I) = MIN(AREA1,AREA2)
 
-C     SECND TEMPERATURE
+C     SECOND TEMPERATURE
              TEMPI1(I) = TEMP(N1(I))
              TEMPI2(I) = TEMP(N2(I))
 C     main TEMPERATURE
@@ -347,7 +343,7 @@ C     main TEMPERATURE
              IELESI(I)= IELES(CAND_M(I))
            ELSE
              NN = CAND_S(I) - NRTS            
-C     SECND NODAL AREA
+C     SECOND NODAL AREA
              SECS =AREASFI(NIN)%P(NN)
 C     main EDGE AREA
              SECM =AREAM(CAND_M(I))
@@ -370,7 +366,7 @@ C     AREA COMPUTING
 
              AREAC(I) = MIN(AREA1,AREA2)*HALF
 
-C     SECND TEMPERATURE
+C     SECOND TEMPERATURE
              TEMPI1(I) = TEMPFI(NIN)%P(N1(I))
              TEMPI2(I) = TEMPFI(NIN)%P(N2(I))
 C     main TEMPERATURE
@@ -391,7 +387,7 @@ C
          DO I=1,JLT
            NI = CAND_S(I)
            L  = CAND_M(I)
-           IF(NI.LE.NRTS)THEN
+           IF(NI<=NRTS)THEN
              IPARTFRICSI(I)= IPARTFRICS(NI)
            ELSE
              NN = NI - NRTS

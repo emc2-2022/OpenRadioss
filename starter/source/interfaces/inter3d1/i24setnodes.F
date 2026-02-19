@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I24SETNODES                   source/interfaces/inter3d1/i24setnodes.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        INTERSURFL                    source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        I7I10SPLITMOD                 share/modules1/i710split_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i24setnodes     ../starter/source/interfaces/inter3d1/i24setnodes.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../starter/source/output/message/message.F
+!||    ifrontplus      ../starter/source/spmd/node/frontplus.F
+!||    intersurfl      ../starter/source/spmd/node/ddtools.F
+!||    nlocal          ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod       ../starter/share/modules1/front_mod.F
+!||    i7i10splitmod   ../starter/share/modules1/i710split_mod.F
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I24SETNODES(IPARI,INTBUF_TAB,INTERCEP,ITAB,I24MAXNSNE)
 C-----------------------------------------------
 C   M o d u l e s
@@ -46,16 +47,12 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "param_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -93,9 +90,9 @@ C domain than MAIN surface
           I24MAXNSNE = MAX(I24MAXNSNE,NSNE)
           IF (IEDGE4 > 0 ) THEN
             IF (.NOT.(ASSOCIATED(INTERCEP(2,NI)%P)))THEN
-C             In Type24 INTERCEP(2 gives Edge MPI Domain
+C             In Type24 INTERCEP(2) gives Edge MPI Domain
               ALLOCATE(INTERCEP(2,NI)%P(NRTSE))
-            ENDIF	  
+            ENDIF    
 C 
             DO I=1,NRTSE
               N1= INTBUF_TAB(NI)%IRTSE((I-1)*5+1)
@@ -103,7 +100,7 @@ C
               N3= INTBUF_TAB(NI)%IRTSE((I-1)*5+3)
               N4= INTBUF_TAB(NI)%IRTSE((I-1)*5+4)
 
- 	      PROC = INTERSURFL(N1,N2,N3,N4)
+                PROC = INTERSURFL(N1,N2,N3,N4)
     
               INTERCEP(2,NI)%P(I)=PROC
            ENDDO
@@ -111,7 +108,7 @@ C
 
 
           NRTM   = IPARI(4,NI)
-          DO K=1,NRTM	  
+          DO K=1,NRTM    
              PROC = INTERCEP(1,NI)%P(K)
              IF(PROC==0)THEN
                  CALL ANCMSG(MSGID=978,
@@ -134,13 +131,14 @@ C
       END
 
 
-Chd|====================================================================
-Chd|  SECND_SURFACE_ON_DOMAIN       source/interfaces/inter3d1/i24setnodes.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    secnd_surface_on_domain   ../starter/source/interfaces/inter3d1/i24setnodes.F
+!||--- called by ------------------------------------------------------
+!||    ipari_l_ini               ../starter/source/restart/ddsplit/ipari_l_ini.F
+!||    prepare_split_i24         ../starter/source/restart/ddsplit/inter_tools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod                 ../starter/share/modules1/front_mod.F
+!||====================================================================
       INTEGER FUNCTION SECND_SURFACE_ON_DOMAIN(INTERCEP,SE,PROC)
 C-----------------------------------------------
 C   M o d u l e s
@@ -151,18 +149,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

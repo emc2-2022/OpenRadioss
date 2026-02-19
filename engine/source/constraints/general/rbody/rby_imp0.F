@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RBY_IMP0                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        UPD_GLOB_K                    source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        RBY_IMP1                      source/constraints/general/rbody/rby_imp0.F
-Chd|        RBY_IMPM                      source/constraints/general/rbody/rby_imp0.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rby_imp0     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_glob_k   ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    rby_imp1     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    rby_impm     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE RBY_IMP0(X     ,RBY   ,LPBY  ,NPBY  ,SKEW  ,
      1                    NRBYAC,IRBYAC,NSC   ,ISIJ  ,NMC   ,
      2                    IMIJ  ,NSS   ,ISS   ,ISKEW ,ITAB  ,
-     3                    WEIGHT,MS    ,IN    ,SENSOR,
+     3                    WEIGHT,MS    ,IN    ,
      4                    NDDL  ,IADK  ,JDIK  ,DIAG_K ,
      5                    LT_K  ,NDOF  ,IDDL  ,IKC    ,B     )
 C-----------------------------------------------
@@ -42,7 +42,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -51,9 +50,8 @@ C-----------------------------------------------
      .        NRBYAC,IRBYAC(*),NDDL,IADK(*),JDIK(*),NDOF(*),
      .        IDDL(*),IKC(*),NSC(*),ISIJ(*),NSS(*) ,ISS(*),
      .        NMC,IMIJ(*)
-C     REAL
       my_real
-     .   X(3,*), RBY(NRBY,*), SKEW(LSKEW,*), SENSOR(NSENSR,*),
+     .   X(3,*), RBY(NRBY,*), SKEW(LSKEW,*),
      .   IN(*),MS(*),DIAG_K(*),LT_K(*),B(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -78,23 +76,23 @@ C-----------------------------------------------
           NK  = NK  + 2*NSC(I)
         ENDDO
 C
-        IF (NMC.GT.0)
+        IF (NMC>0)
      .  CALL RBY_IMPM(X    ,NMC   ,IMIJ  ,ISIJ(NK),SKEW ,
      1                ISKEW,ITAB  ,WEIGHT,MS      ,IN   ,
      2                IADK ,JDIK  ,LT_K  ,NDOF    ,IDDL )
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMPI                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        UPD_INT_K                     source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        RBY_IMP1                      source/constraints/general/rbody/rby_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rby_impi    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_int_k   ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    rby_imp1    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE RBY_IMPI(X     ,RBY   ,LPBY  ,NPBY  ,SKEW  ,
      1                    NRBYAC,IRBYAC,NSS   ,ISS   ,ISKEW ,
-     2                    ITAB  ,WEIGHT,MS    ,IN    ,SENSOR,
+     2                    ITAB  ,WEIGHT,MS    ,IN    ,
      3                    NDDL  ,IADK  ,JDIK  ,DIAG_K ,
      4                    LT_K  ,NDOF  ,IDDL  ,IKC    ,B     )
 C-----------------------------------------------
@@ -105,7 +103,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -113,9 +110,8 @@ C-----------------------------------------------
       INTEGER WEIGHT(*),LPBY(*),NPBY(NNPBY,*),ISKEW(*),ITAB(*),
      .        NRBYAC,IRBYAC(*),NDDL,IADK(*),JDIK(*),NDOF(*),
      .        IDDL(*),IKC(*),NSS(*) ,ISS(*)
-C     REAL
       my_real
-     .   X(3,*), RBY(NRBY,*), SKEW(LSKEW,*), SENSOR(NSENSR,*),
+     .   X(3,*), RBY(NRBY,*), SKEW(LSKEW,*),
      .   IN(*),MS(*),DIAG_K(*),LT_K(*),B(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -141,21 +137,21 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMP1                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        RBY_IMP0                      source/constraints/general/rbody/rby_imp0.F
-Chd|        RBY_IMPI                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- calls ---------------
-Chd|        GET_KII                       source/implicit/imp_glob_k.F  
-Chd|        GET_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        PRINT_WKIJ                    source/implicit/imp_glob_k.F  
-Chd|        PUT_KII                       source/implicit/imp_glob_k.F  
-Chd|        PUT_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        UPDKB_RB                      source/constraints/general/rbody/rby_imp0.F
-Chd|        UPDKB_RB1                     source/constraints/general/rbody/rby_imp0.F
-Chd|        UPDKB_RB2                     source/constraints/general/rbody/rby_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rby_imp1     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rby_imp0     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    rby_impi     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    get_kii      ../engine/source/implicit/imp_glob_k.F
+!||    get_kij      ../engine/source/implicit/imp_glob_k.F
+!||    print_wkij   ../engine/source/implicit/imp_glob_k.F
+!||    put_kii      ../engine/source/implicit/imp_glob_k.F
+!||    put_kij      ../engine/source/implicit/imp_glob_k.F
+!||    updkb_rb     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    updkb_rb1    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    updkb_rb2    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE RBY_IMP1(X    ,RBY,NOD ,NBY,
      1                   NSC, ISI ,NS ,NODS,
      2                  SKEW,ISKEW,ITAB,WEIGHT,MS ,IN  ,
@@ -168,8 +164,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -177,7 +171,6 @@ C-----------------------------------------------
       INTEGER NOD(*), NBY(*), ISKEW(*),ITAB(*), WEIGHT(*),
      .        NSC,ISI(2,NSC) ,NS(*),NODS(*)
       INTEGER NDDL,IADK(*),JDIK(*),NDOF(*),IDDL(*),IKC(*)
-C     REAL
       my_real
      .   X(3,*), RBY(*), SKEW(LSKEW,*),
      .   IN(*),MS(*),DIAG_K(*),LT_K(*),B(*)
@@ -192,17 +185,17 @@ C     REAL
      .   XS,YS,ZS,XS1,YS1,ZS1, KDD(6,6),BD(6)
 C-----------------------------------------------
       M    =NBY(1)
-C -------main utilise place de premier secnd node (just like change node number)
-      IF (IMACH.EQ.3.AND.M.LT.0) RETURN
+C -------main uses place of first secondary node (just like change node number)
+      IF (M<0) RETURN
        NSN  =NBY(2)
        IMD = IDDL(M)+1
         ND = 6
-C--------boucle secnd nodes--
+C--------secondary nodes loop--
        J1=0
        DO I=1,NSN
 C--------block diagonal Kmm--
         N = NOD(I)
-        IF (NDOF(N).GT.0) THEN
+        IF (NDOF(N)>0) THEN
          XS=X(1,N)-X(1,M)
          YS=X(2,N)-X(2,M)
          ZS=X(3,N)-X(3,M)
@@ -227,22 +220,22 @@ C--------no diag--Kjm=sum(KjsCsm)--
           NI=NODS(J1+J)
           NIDOF=NDOF(NI)
           CALL GET_KIJ(NI,N,IDDL,IADK,JDIK,LT_K,KDD,NIDOF,NDOF(N),IR)
-          IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(N) ,1 )
+          IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(N) ,1 )
           CALL UPDKB_RB1(NIDOF,NDOF(N),XS,YS,ZS,KDD)
 C-------  Update ---
           CALL PUT_KIJ(NI,M,IDDL,IADK,JDIK,LT_K,KDD,NIDOF,ND,IR)
-          IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(M) ,1 )
+          IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(M) ,1 )
          ENDDO
          J1=J1+NS(I)
         ENDIF
        ENDDO
-C-------fin -boucle secnd nodes--
-C--------due au coupled block KIJ--
+C-------end of secondary nodes loop--
+C--------due to coupled block KIJ--
        DO I=1,NSC
         NI =ISI(1,I)
         NJ =ISI(2,I)
         CALL GET_KIJ(NI,NJ,IDDL,IADK,JDIK,LT_K,KDD,NDOF(NI),NDOF(NJ),IR)
-        IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(NJ) ,1 )
+        IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(NJ) ,1 )
         XS=X(1,NI)-X(1,M)
         YS=X(2,NI)-X(2,M)
         ZS=X(3,NI)-X(3,M)
@@ -257,16 +250,16 @@ c        write(*,*)'2 lt_k(2)=',lt_k(2),kdd(1,3),i
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMPM                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        RBY_IMP0                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- calls ---------------
-Chd|        GET_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        PRINT_WKIJ                    source/implicit/imp_glob_k.F  
-Chd|        PUT_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        UPDKB_RB2                     source/constraints/general/rbody/rby_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rby_impm     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rby_imp0     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    get_kij      ../engine/source/implicit/imp_glob_k.F
+!||    print_wkij   ../engine/source/implicit/imp_glob_k.F
+!||    put_kij      ../engine/source/implicit/imp_glob_k.F
+!||    updkb_rb2    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE RBY_IMPM(X    ,NMC   ,IMI   ,ISI  ,SKEW ,
      1                    ISKEW,ITAB  ,WEIGHT,MS   ,IN   ,
      2                    IADK ,JDIK  ,LT_K  ,NDOF ,IDDL )
@@ -277,8 +270,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -305,7 +296,7 @@ C-----------------------------------------------
         M  =IMI(1,I)
         NM =IMI(2,I)
         CALL GET_KIJ(NI,NJ,IDDL,IADK,JDIK,LT_K,KDD,NDOF(NI),NDOF(NJ),IR)
-        IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(NJ) ,1 )
+        IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(NJ) ,1 )
         XS=X(1,NI)-X(1,M)
         YS=X(2,NI)-X(2,M)
         ZS=X(3,NI)-X(3,M)
@@ -315,21 +306,20 @@ C-----------------------------------------------
         CALL UPDKB_RB2(NDOF(NI),NDOF(NJ),XS,YS,ZS,XS1,YS1,ZS1,KDD,0)
 C--------update --
         CALL PUT_KIJ(M ,NM ,IDDL ,IADK,JDIK,LT_K,KDD,ND,ND,IR)
-        IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(M) ,ITAB(NM) ,1 )
+        IF (IR==1) CALL PRINT_WKIJ(ITAB(M) ,ITAB(NM) ,1 )
        ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDKB_RB                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        I2UPDK0                       source/interfaces/interf/i2_imp1.F
-Chd|        I2_FRK0                       source/interfaces/interf/i2_imp1.F
-Chd|        RBE2_IMP1                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBY_FRK                       source/constraints/general/rbody/rby_imp0.F
-Chd|        RBY_IMP1                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updkb_rb    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    i2_frk0     ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2updk0     ../engine/source/interfaces/interf/i2_imp1.F
+!||    rbe2_imp1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rby_frk     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    rby_imp1    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE UPDKB_RB(NDL,XS,YS,ZS,KDD,BD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -381,7 +371,7 @@ C
         ENDDO
         ENDDO
 C
-       IF (NDL.EQ.6) THEN
+       IF (NDL==6) THEN
         DO I=1,3
         DO J=4,6
           K(I,J)=K(I,J)+KDD(I,J)
@@ -422,16 +412,15 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDKB_RB1                     source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        I2UPDK0                       source/interfaces/interf/i2_imp1.F
-Chd|        I2_FRK0                       source/interfaces/interf/i2_imp1.F
-Chd|        RBE2_IMP1                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBY_FRK                       source/constraints/general/rbody/rby_imp0.F
-Chd|        RBY_IMP1                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updkb_rb1   ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    i2_frk0     ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2updk0     ../engine/source/interfaces/interf/i2_imp1.F
+!||    rbe2_imp1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rby_frk     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    rby_imp1    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE UPDKB_RB1(NI,NJ,XS,YS,ZS,KDD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -472,7 +461,7 @@ C
          K(I,6)=K(I,6)-KDD(I,1)*YS+KDD(I,2)*XS
         ENDDO
 C
-       IF (NI.EQ.6) THEN
+       IF (NI==6) THEN
         DO I=4,6
          K(I,4)=K(I,4)-KDD(I,2)*ZS+KDD(I,3)*YS
          K(I,5)=K(I,5)+KDD(I,1)*ZS-KDD(I,3)*XS
@@ -488,15 +477,14 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDKB_RB2                     source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        I2UPDK0                       source/interfaces/interf/i2_imp1.F
-Chd|        I2UPDKM0                      source/interfaces/interf/i2_imp1.F
-Chd|        RBY_IMP1                      source/constraints/general/rbody/rby_imp0.F
-Chd|        RBY_IMPM                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updkb_rb2   ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    i2updk0     ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2updkm0    ../engine/source/interfaces/interf/i2_imp1.F
+!||    rby_imp1    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    rby_impm    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE UPDKB_RB2(NI,NJ,XS,YS,ZS,XS1,YS1,ZS1,KDD,ISYM)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -546,7 +534,7 @@ C
         ENDDO
         ENDDO
 C
-       IF (NI.EQ.6) THEN
+       IF (NI==6) THEN
         DO I=4,6
         DO J=1,3
           K(I,J)=K(I,J)+KDD(I,J)
@@ -567,7 +555,7 @@ C---------FM Rj------------
         ENDDO
         ENDDO
        ENDIF
-       IF (NJ.EQ.6) THEN
+       IF (NJ==6) THEN
         DO I=1,3
         DO J=4,6
           K(I,J)=K(I,J)+KDD(I,J)
@@ -588,7 +576,7 @@ C---------Ri^tMF------------
         ENDDO
         ENDDO
        ENDIF
-       IF (NI.EQ.6.AND.NJ.EQ.6) THEN
+       IF (NI==6.AND.NJ==6) THEN
         DO I=1,3
          MI=I+3
         DO J=1,3
@@ -598,7 +586,7 @@ C---------Ri^tMF------------
         ENDDO
        ENDIF
 C
-       IF (ISYM.EQ.1) THEN
+       IF (ISYM==1) THEN
         DO I=1,6
          DO J=1,6
           KDD(I,J)=K(I,J)+K(J,I)
@@ -614,21 +602,17 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMPF                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        IMP3_A2B                      source/airbag/monv_imp0.F     
-Chd|        UPD_FR                        source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rby_impf   ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    imp3_a2b   ../engine/source/airbag/monv_imp0.F
+!||    upd_fr     ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE RBY_IMPF(X  ,M  ,N   ,NDOF ,A     ,AR  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -643,11 +627,11 @@ C     REAL
       my_real
      .   XS,YS,ZS
 C-----------------------------------------------
-       IF (M.LT.0) RETURN
+       IF (M<0) RETURN
         A(1,M)=A(1,M)+A(1,N)
         A(2,M)=A(2,M)+A(2,N)
         A(3,M)=A(3,M)+A(3,N)
-       IF (NDOF(M).EQ.6) THEN
+       IF (NDOF(M)==6) THEN
         XS=X(1,N)-X(1,M)
         YS=X(2,N)-X(2,M)
         ZS=X(3,N)-X(3,M)
@@ -658,13 +642,12 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDFR_RB                      source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        DIAG_INT                      source/mpi/implicit/imp_fri.F 
-Chd|        I2_FRUP0                      source/interfaces/interf/i2_imp1.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updfr_rb   ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    diag_int   ../engine/source/mpi/implicit/imp_fri.F
+!||    i2_frup0   ../engine/source/interfaces/interf/i2_imp1.F
+!||====================================================================
       SUBROUTINE UPDFR_RB(XS,YS,ZS,KII,K)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -709,16 +692,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMPR1                     source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        IMP_DYKV                      source/implicit/imp_dyna.F    
-Chd|        IMP_DYKV0                     source/implicit/imp_dyna.F    
-Chd|        UPD_RHS                       source/implicit/upd_glob_k.F  
-Chd|        UPD_RHS_FR                    source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        UPDB_RB                       source/constraints/general/rbody/rby_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rby_impr1    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    imp_dykv     ../engine/source/implicit/imp_dyna.F
+!||    imp_dykv0    ../engine/source/implicit/imp_dyna.F
+!||    upd_rhs      ../engine/source/implicit/upd_glob_k.F
+!||    upd_rhs_fr   ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    updb_rb      ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE RBY_IMPR1(X    ,RBY,NOD ,NBY,NDOF  ,
      1                   IDDL    ,B      )
 C-----------------------------------------------
@@ -728,7 +711,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -747,16 +729,16 @@ C     REAL
      .   XS,YS,ZS,BD(6)
 C-----------------------------------------------
       M    =NBY(1)
-C -------main utilise place de premier secnd node (just like change node number)
-      IF ((IMACH.EQ.3.AND.M.LT.0).OR.NDOF(M).EQ.0) RETURN
+C -------main uses place of first secondary node (just like change node number)
+      IF ((M<0).OR.NDOF(M)==0) RETURN
        NSN  =NBY(2)
         ND = 6
-C--------boucle secnd nodes--
+C--------secondary nodes loop--
        J1=0
        DO I=1,NSN
 C--------block diagonal Kmm--
         N = NOD(I)
-        IF (NDOF(N).GT.0) THEN
+        IF (NDOF(N)>0) THEN
          XS=X(1,N)-X(1,M)
          YS=X(2,N)-X(2,M)
          ZS=X(3,N)-X(3,M)
@@ -778,16 +760,15 @@ C-------Update B---
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDB_RB                       source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        I2UPDB0                       source/interfaces/interf/i2_imp1.F
-Chd|        I2UPDB02                      source/interfaces/interf/i2_imp1.F
-Chd|        RBE2_IMPB0                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBY_IMPR1                     source/constraints/general/rbody/rby_imp0.F
-Chd|        RBY_IMPR2                     source/constraints/general/rbody/rby_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updb_rb      ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    i2updb0      ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2updb02     ../engine/source/interfaces/interf/i2_imp1.F
+!||    rbe2_impb0   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rby_impr1    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    rby_impr2    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE UPDB_RB(NDL,XS,YS,ZS,BD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -812,7 +793,7 @@ C-------------produit B'=[CDI]^tB
 c-----with [CDI]=-[[I] [R]]-----
 c----             [[0] [I]]-----
 C
-       IF (NDL.EQ.6) THEN
+       IF (NDL==6) THEN
         B(1)=-BD(2)*ZS+BD(3)*YS
         B(2)= BD(1)*ZS-BD(3)*XS
         B(3)=-BD(1)*YS+BD(2)*XS
@@ -824,16 +805,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMPR2                     source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        IMP_DYKV                      source/implicit/imp_dyna.F    
-Chd|        IMP_DYKV0                     source/implicit/imp_dyna.F    
-Chd|        UPD_RHS                       source/implicit/upd_glob_k.F  
-Chd|        UPD_RHS_FR                    source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        UPDB_RB                       source/constraints/general/rbody/rby_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rby_impr2    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    imp_dykv     ../engine/source/implicit/imp_dyna.F
+!||    imp_dykv0    ../engine/source/implicit/imp_dyna.F
+!||    upd_rhs      ../engine/source/implicit/upd_glob_k.F
+!||    upd_rhs_fr   ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    updb_rb      ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE RBY_IMPR2(X    ,RBY,NOD ,NBY,NDOF  ,
      1                   IDDL   ,B  ,AC  ,ACR    )
 C-----------------------------------------------
@@ -843,7 +824,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -862,16 +842,16 @@ C     REAL
      .   XS,YS,ZS,BD(6),AC(3,*) ,ACR(3,*)
 C-----------------------------------------------
       M    =NBY(1)
-C -------main utilise place de premier secnd node (just like change node number)
-      IF (IMACH.EQ.3.AND.M.LT.0) RETURN
+C -------main uses place of first secondary node (just like change node number)
+      IF (M<0) RETURN
        NSN  =NBY(2)
         ND = 6
-C--------boucle secnd nodes--
+C--------secondary nodes loop--
        J1=0
        DO I=1,NSN
 C--------block diagonal Kmm--
         N = NOD(I)
-        IF (NDOF(N).EQ.0) THEN
+        IF (NDOF(N)==0) THEN
          XS=X(1,N)-X(1,M)
          YS=X(2,N)-X(2,M)
          ZS=X(3,N)-X(3,M)
@@ -881,7 +861,7 @@ C--------block diagonal Kmm--
          ENDDO
          CALL UPDB_RB(ND,XS,YS,ZS,BD)
 C-------Update B---
-         IF (NDOF(M).EQ.0) THEN
+         IF (NDOF(M)==0) THEN
           DO K=1,3
            AC(K,M)=AC(K,M)+BD(K)
            ACR(K,M)=ACR(K,M)+BD(K+3)
@@ -897,16 +877,16 @@ C-------Update B---
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_FRK                       source/constraints/general/rbody/rby_imp0.F
-Chd|-- called by -----------
-Chd|        UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        PUT_KMII                      source/implicit/imp_glob_k.F  
-Chd|        UPDKB_RB                      source/constraints/general/rbody/rby_imp0.F
-Chd|        UPDKB_RB1                     source/constraints/general/rbody/rby_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rby_frk     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_kml     ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_ksl     ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    put_kmii    ../engine/source/implicit/imp_glob_k.F
+!||    updkb_rb    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    updkb_rb1   ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE RBY_FRK(NS   ,M    ,X     ,ITAB ,IKC  ,
      1                    NDOF  ,IDDL ,IDDLM,IADK ,JDIK ,
      2                    DIAG_K,LT_K ,B    ,A    ,KSS  ,
@@ -920,23 +900,16 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IADK(*),JDIK(*),NDOF(*),IDDL(*),IDDLM(*),IKC(*),
      .        M, NS,ITAB(*),IDLM ,ISS,ISM
-C     REAL
       my_real
      .   X(3,*),DIAG_K(*),LT_K(*),B(*),A(3,*),
      .   KSS(6),KSM(3,3),KNM(3,3),KRM(3,3)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, K,ID,NL,NI,NJ,NDOFI,ND,IR,IDM
-C     REAL
-      my_real
-     .   KDD(6,6),BD(6),XS,YS,ZS
+      my_real KDD(6,6),BD(6),XS,YS,ZS
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of the secondary nodes
 C------------------------------------
         I=NS
         NDOFI = 3
@@ -945,7 +918,7 @@ C-----
          XS=X(1,I)-X(1,M)
          YS=X(2,I)-X(2,M)
          ZS=X(3,I)-X(3,M)
-        IF (ISS.GT.0) THEN
+        IF (ISS>0) THEN
          DO K=1,NDOFI
           BD(K) = A(K,I)
           KDD(K,K) = KSS(K)
@@ -959,7 +932,7 @@ C-----
          CALL UPDKB_RB(NDOFI,XS,YS,ZS,KDD,BD)
          CALL PUT_KMII(IDLM,IADK,DIAG_K,LT_K,KDD,ND)
         ENDIF
-        IF (ISM.GT.0) THEN
+        IF (ISM>0) THEN
 C--------no diag--Kjm=sum(KjsCsm)--
           DO K=1,NDOFI
           DO J=1,NDOFI

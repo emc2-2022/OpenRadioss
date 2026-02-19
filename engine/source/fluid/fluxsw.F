@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FLUXSW                        source/fluid/fluxsw.F         
-Chd|-- called by -----------
-Chd|        SORTIE_MAIN                   source/output/sortie_main.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fluxsw        ../engine/source/fluid/fluxsw.F
+!||--- called by ------------------------------------------------------
+!||    sortie_main   ../engine/source/output/sortie_main.F
+!||====================================================================
       SUBROUTINE FLUXSW (NSFLSW,NEFLSW,  NNFLSW,  CRFLSW,  FLSW  ,
      .                   X     ,V     ,ELBUF                )
 C-----------------------------------------------
@@ -43,17 +42,8 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "com10_c.inc"
 #include      "units_c.inc"
-#include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr11_c.inc"
-#include      "scr12_c.inc"
-#include      "scr13_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -200,7 +190,7 @@ C
         FLSW(9,IS) = FLSW(9,IS)/SRT
 C
         FLSW(3,IS) = SQRT( SV2/SRT - (FLVM/SRT)**2 )
-        IF(FLSW(4,IS).EQ.ZERO)THEN
+        IF(FLSW(4,IS)==ZERO)THEN
          FLSW(3,IS)=ZERO         
         ELSE
          FLSW(3,IS)=FLSW(3,IS)/FLSW(4,IS)

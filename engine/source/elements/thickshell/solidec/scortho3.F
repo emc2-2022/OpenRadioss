@@ -1,37 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SCORTHO3                      source/elements/thickshell/solidec/scortho3.F
-Chd|-- called by -----------
-Chd|        SRCOOR3                       source/elements/solid/solide/srcoor3.F
-Chd|        SRCOORK                       source/elements/solid/solide8z/srcoork.F
-Chd|        SREP2GLO                      source/elements/sph/srep2glo.F
-Chd|        TSH_DIR2                      source/output/h3d/h3d_results/h3d_skin_tensor.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    scortho3   ../engine/source/elements/thickshell/solidec/scortho3.F
+!||--- called by ------------------------------------------------------
+!||    srcoor3    ../engine/source/elements/solid/solide/srcoor3.F
+!||    srcoork    ../engine/source/elements/solid/solide8z/srcoork.F
+!||    srep2glo   ../engine/source/elements/sph/srep2glo.F
+!||    tsh_dir2   ../engine/source/output/h3d/h3d_results/h3d_skin_tensor.F
+!||====================================================================
       SUBROUTINE SCORTHO3(
-     .           RX , RY , RZ , SX , SY , SZ , TX , TY , TZ ,
-     .           E1X, E2X, E3X, E1Y, E2Y, E3Y, E1Z, E2Z, E3Z )
+     1   RX,      RY,      RZ,      SX,
+     2   SY,      SZ,      TX,      TY,
+     3   TZ,      E1X,     E2X,     E3X,
+     4   E1Y,     E2Y,     E3Y,     E1Z,
+     5   E2Z,     E3Z,     NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -43,6 +45,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NEL
 C     REAL
       my_real, INTENT(IN),  DIMENSION(MVSIZ) ::
      .   RX, RY, RZ, SX, SY, SZ, TX, TY, TZ
@@ -51,7 +54,6 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -60,14 +62,14 @@ C     REAL
       my_real
      .   DET,C1,C2 
 C-----------------------------------------------
-      DO 100 I=LFT,LLT
+      DO 100 I=1,NEL
 C
        E3X(I) = TY(I) * RZ(I) - TZ(I) * RY(I) 
        E3Y(I) = TZ(I) * RX(I) - TX(I) * RZ(I) 
        E3Z(I) = TX(I) * RY(I) - TY(I) * RX(I) 
 C
        DET = SQRT(E3X(I)*E3X(I) + E3Y(I)*E3Y(I) + E3Z(I)*E3Z(I))
-       IF ( DET.NE.ZERO) DET = ONE / DET
+       IF ( DET/=ZERO) DET = ONE / DET
        E3X(I) = E3X(I) * DET
        E3Y(I) = E3Y(I) * DET
        E3Z(I) = E3Z(I) * DET
@@ -78,7 +80,7 @@ C
        E1Y(I)=TY(I)*C2 +(RZ(I) * E3X(I) - RX(I) * E3Z(I))*C1  
        E1Z(I)=TZ(I)*C2 +(RX(I) * E3Y(I) - RY(I) * E3X(I))*C1
        DET = SQRT(E1X(I)*E1X(I) + E1Y(I)*E1Y(I) + E1Z(I)*E1Z(I))
-       IF ( DET.NE.ZERO) DET = ONE / DET
+       IF ( DET/=ZERO) DET = ONE / DET
        E1X(I) = E1X(I)*DET
        E1Y(I) = E1Y(I)*DET
        E1Z(I) = E1Z(I)*DET

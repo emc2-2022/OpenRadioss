@@ -1,31 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS82C                     source/materials/mat/mat082/sigeps82c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps82c   ../engine/source/materials/mat/mat082/sigeps82c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||====================================================================
               SUBROUTINE SIGEPS82C(
      1      NEL    , NUPARAM, NUVAR   , NFUNC , IFUNC ,
      2      NPF    , NPT0   , IPT , IFLAG  ,
@@ -47,12 +48,10 @@ C-----------------------------------------------
 C   C O M M O N
 C-----------------------------------------------
 #include "param_c.inc"
-#include "scr17_c.inc"
-#include "com01_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
-      INTEGER NEL,NUPARAM, NUVAR,ISMSTR, IPM(NPROPMI,*),MAT(NEL) ,
+      INTEGER NEL,NUPARAM, NUVAR,ISMSTR, IPM(NPROPMI,*) ,
      .         NPT0,IPT,IFLAG(*),NGL(NEL)
       my_real
      .   TIME,TIMESTEP,UPARAM(NUPARAM),THKN(NEL),THKLYL(NEL),
@@ -67,7 +66,7 @@ C----------------------------------------------------------------
       my_real
      .   SIGNXX(NEL),SIGNYY(NEL),SIGNXY(NEL),SIGNYZ(NEL),SIGNZX(NEL),
      .   SIGVXX(NEL),SIGVYY(NEL),SIGVXY(NEL),SIGVYZ(NEL),SIGVZX(NEL),
-     .   SOUNDSP(NEL),VISCMAX(NEL),ET(NEL)
+     .   SOUNDSP(NEL),VISCMAX(NEL)
 C----------------------------------------------------------------
 C  I N P U T  O U T P U T   A R G U M E N T S
 C----------------------------------------------------------------
@@ -77,14 +76,14 @@ C----------------------------------------------------------------
 C  VARIABLES FOR FUNCTION INTERPOLATION
 C----------------------------------------------------------------
       INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
-      my_real FINTER,FINTTE,TF(*),FINT2V
+      my_real FINTER,FINTTE,TF(*)
       EXTERNAL FINTER,FINTTE
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
       INTEGER  I,K,ITER,NORDRE,I_K2
       my_real
-     .   NU,TENSCUT,GMAX,RBULK,FFAC,RVT,PARTT(NEL),PARTP(NEL),SUM,DD,K2
+     .   NU,GMAX,RBULK,RVT,PARTT(NEL),PARTP(NEL),SUM,DD,K2
       my_real
      .   EVV(NEL,3),EV(NEL,3),EVM(NEL,3),RV(NEL),RHO(NEL),DWDL(NEL,3),
      .   DEZZ(NEL),EIGV(NEL,3,2),TRAV(NEL),ROOTV(NEL),T(NEL,3)
@@ -109,7 +108,7 @@ C     principal stretch (def gradient eigenvalues)
         TRAV(I)  = EPSXX(I)+EPSYY(I)                           
         ROOTV(I) = SQRT((EPSXX(I)-EPSYY(I))*(EPSXX(I)-EPSYY(I))
      .           + EPSXY(I)*EPSXY(I))
-	       EVV(I,1) = HALF*(TRAV(I)+ROOTV(I))                  
+                 EVV(I,1) = HALF*(TRAV(I)+ROOTV(I))                  
         EVV(I,2) = HALF*(TRAV(I)-ROOTV(I))                  
         EVV(I,3) = ZERO                                       
       ENDDO

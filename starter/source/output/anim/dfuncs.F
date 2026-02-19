@@ -1,40 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DFUNCS                        source/output/anim/dfuncs.F   
-Chd|-- called by -----------
-Chd|        GENANI1                       source/output/anim/genani1.F  
-Chd|-- calls ---------------
-Chd|        INITBUF                       source/output/anim/initbuf.F  
-Chd|        WRITE_R_C                     source/output/tools/write_routines.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dfuncs         ../starter/source/output/anim/dfuncs.F
+!||--- called by ------------------------------------------------------
+!||    genani1        ../starter/source/output/anim/genani1.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf        ../starter/source/output/anim/initbuf.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE DFUNCS(ELBUF_TAB,FUNC    ,IFUNC   ,IPARG   ,    
      2                IXS     ,PM      ,EL2FA   ,NBF     ,ISPH3D  )                                                                                                                 
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------                        
 C   I m p l i c i t   T y p e s                                         
 C-----------------------------------------------                        
@@ -46,8 +46,6 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"                                            
 #include      "com01_c.inc"                                             
 #include      "com04_c.inc"                                             
-#include      "scr01_c.inc"                                             
-#include      "scr17_c.inc"
 #include      "param_c.inc"                                             
 C-----------------------------------------------                        
 C   D u m m y   A r g u m e n t s                                       
@@ -73,7 +71,7 @@ C     REAL
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
       REAL R4                                                           
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
-C La routine ne fonctionne que pour les IFUNC 3,6,7,14-19 (stress)      
+C La routine ne fonctionne que pour les IFUNC 3,6,7,14-19 (stress)
 C-----------------------------------------------                        
       NN1 = 1                                                           
       NN2 = 1                                                           
@@ -113,9 +111,7 @@ c
 C                                                                       
               IF (IFUNC == 1) THEN                                           
                 DO I=LFT,LLT     
-                  IF (MLW == 10 .OR. MLW == 21) THEN
-                    EVAR(I) = ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)%EPSQ(I)
-                  ELSEIF (GBUF%G_PLA > 0) THEN  
+                  IF (GBUF%G_PLA > 0) THEN
                     EVAR(I) = GBUF%PLA(I)
                   ENDIF
                 ENDDO                         
@@ -136,10 +132,7 @@ C
                 ENDDO                                                   
               ELSEIF (IFUNC == 4) THEN                                       
                 DO I=LFT,LLT                                            
-                  IF (IPARG(1,NG) .EQ. 2 .AND. JTHE .EQ. 0) THEN       
-                    EVAR(I) = PM(54,IXS(1,NFT+I)) + GBUF%EINT(I)*     
-     .                        GBUF%VOL(I) * PM(53,IXS(1,NFT+I))      
-                  ELSEIF (GBUF%G_TEMP > 0) THEN                                                  
+                  IF (GBUF%G_TEMP > 0) THEN                                                  
                     EVAR(I) = GBUF%TEMP(I)
                   ENDIF                                                 
                 ENDDO                                                   
@@ -173,7 +166,7 @@ c-----------
               IF (ISOLNOD == 16) THEN                                        
                 DO I=LFT,LLT                                               
                   N = NN2 + I + NFT                                        
-                  IF(EL2FA(N).NE.0)THEN                                    
+                  IF(EL2FA(N)/=0)THEN                                    
                      FUNC(EL2FA(N))   = EVAR(I)                             
                      FUNC(EL2FA(N)+1) = EVAR(I)                             
                      FUNC(EL2FA(N)+2) = EVAR(I)                             
@@ -183,7 +176,7 @@ c-----------
               ELSE                                                         
                 DO I=LFT,LLT                                               
                   N = NN2 + I + NFT                                         
-                  IF(EL2FA(N).NE.0)THEN                                     
+                  IF(EL2FA(N)/=0)THEN                                     
                     FUNC(EL2FA(N)) = EVAR(I)                                
                   ENDIF                                                     
                 ENDDO                                                      
@@ -198,14 +191,14 @@ C-----------------------------------------------
             IF (IFUNC >= 14 .AND. IFUNC <= 19) THEN                         
               DO I=LFT,LLT                                               
                 N = I + NFT                                              
-                IF (EL2FA(NN3+N).NE.0) THEN                                
+                IF (EL2FA(NN3+N)/=0) THEN                                
                   FUNC(EL2FA(NN3+N)) = GBUF%SIG(II(IFUNC-13) + I)
                 ENDIF                                                    
               ENDDO                                                      
             ELSE                                                         
              DO I=LFT,LLT                                                
               N = I + NFT                                                
-              IF(EL2FA(NN3+N).NE.0)THEN                                  
+              IF(EL2FA(NN3+N)/=0)THEN                                  
                   FUNC(EL2FA(NN3+N)) = ZERO                              
               ENDIF                                                      
              ENDDO                                                       
@@ -213,7 +206,7 @@ C-----------------------------------------------
 C                                                                       
           ENDIF                                                           
 C-----------------------------------------------                        
-C       FIN DE BOUCLE SUR LES OFFSET                                    
+C       END OF LOOP ON OFFSETS
 C-----------------------------------------------                        
        ENDDO                                                            
  900  CONTINUE                                                          

@@ -1,35 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_RTCL_S                   source/materials/fail/rtcl/fail_rtcl_s.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MMAIN8                        source/materials/mat_share/mmain8.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_rtcl_s     ../engine/source/materials/fail/rtcl/fail_rtcl_s.F
+!||--- called by ------------------------------------------------------
+!||    mmain           ../engine/source/materials/mat_share/mmain.F90
+!||    mmain8          ../engine/source/materials/mat_share/mmain8.F
+!||    mulaw           ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8          ../engine/source/materials/mat_share/mulaw8.F90
+!||    usermat_solid   ../engine/source/materials/mat_share/usermat_solid.F
+!||====================================================================
       SUBROUTINE FAIL_RTCL_S (
      1     NEL      ,NUPARAM  ,NUVAR    ,TIME     ,TIMESTEP ,UPARAM   ,
      2     SIGNXX   ,SIGNYY   ,SIGNZZ   ,SIGNXY   ,SIGNYZ   ,SIGNZX   ,
@@ -43,8 +42,6 @@ C!---------+---------+---+---+-------------------
 #include "scr17_c.inc"
 #include "units_c.inc"
 #include "comlock.inc"
-#include "param_c.inc"
-#include "impl1_c.inc"
 C!-----------------------------------------------
       INTEGER NEL, NUPARAM, NUVAR,NGL(NEL)
       my_real TIME,TIMESTEP,UPARAM(*),
@@ -112,7 +109,6 @@ c
             OFF(I)      = FOUR_OVER_5
             NINDX       = NINDX + 1
             INDX(NINDX) = I
-            IDEL7NOK    = 1   
             TDELE(I)    = TIME    
           ENDIF
         ENDIF 

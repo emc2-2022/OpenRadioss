@@ -1,47 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  W_FI                          source/restart/ddsplit/w_fi.F 
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        PLIST_IFRONT                  source/spmd/node/ddtools.F    
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        ID                            source/boundary_conditions/ebcs/hm_read_ebcs_inlet.F
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        I25_FIE_MOD                   share/modules1/i25_fie_mod.F  
-Chd|        I7I10SPLITMOD                 share/modules1/i710split_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    w_fi            ../starter/source/restart/ddsplit/w_fi.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit         ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal          ../starter/source/spmd/node/ddtools.F
+!||    plist_ifront    ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod       ../starter/share/modules1/front_mod.F
+!||    i25_fie_mod     ../starter/share/modules1/i25_fie_mod.F
+!||    i7i10splitmod   ../starter/share/modules1/i710split_mod.F
+!||====================================================================
       SUBROUTINE W_FI(IPARI,PROC,LEN_IA,
      1                INTERCEP ,INTBUF_TAB,ITAB,MULTI_FVM,TAG,
-     2                NINDX_TAG,INDX_TAG  ,NODLOCAL,NUMNOD_L)
+     2                NINDX_TAG,INDX_TAG  ,NODLOCAL,NUMNOD_L,LEN_CEP,CEP)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE I7I10SPLITMOD 
       USE FRONT_MOD
       USE INTBUFDEF_MOD 
@@ -51,7 +48,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 #include      "assert.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -59,7 +55,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "ige3d_c.inc"
 C-----------------------------------------------
       TYPE INTERMASURFEP
         INTEGER, DIMENSION(:), POINTER :: P
@@ -88,9 +83,11 @@ C-----------------------------------------------
 !                       and =0 if the element is not on the current domain
 !       -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 C-----------------------------------------------
-      TYPE(INTERSURFP) :: INTERCEP(3,NINTER)
+      TYPE(INTERSURFP),INTENT(IN) :: INTERCEP(3,NINTER)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
       TYPE(MULTI_FVM_STRUCT), INTENT(IN) :: MULTI_FVM
+      INTEGER, INTENT(in) :: LEN_CEP !< size of cep
+      INTEGER, DIMENSION(LEN_CEP), INTENT(in) :: CEP !< element -> proc connectivity array
 C-----------------------------------------------
 C   F u n c t i o n
 C-----------------------------------------------
@@ -103,11 +100,14 @@ C-----------------------------------------------
      .        N, N1, N2, N3, N4, NRTM_L,
      .        I_STOK, NODFI, E, MULTIMP, IDEB, IFQ,
      .        NISUB, NISUBS, NISUBM, INTTH, NL, N1L, N2L, N3L, N4L,
-     .        NLINS, NLINM, NSNE,  NMNE, NLN, NN,INTFRIC,
-     .        NSNFI(NSPMD), NUMP(NSPMD),NMNFI(NSPMD),
+     .        NLINS, NLINM, NSNE,  NMNE, NLN, NN,INTFRIC,        
      .        WORK(70000),KD(50),JD(50),I,J,IEDGE4,INTNITSCHE,MY_NODE,
      .        CPT1,CPT2,P1,P2,PROC1,PROC2,SE1,PLOC,ND,FLAGREMN,LREMNORMAX
-      INTEGER :: IEDGE,NEDGE,NEDGE_KEPT
+      INTEGER IT,ID
+      INTEGER, DIMENSION(:),ALLOCATABLE :: NSNFI
+      INTEGER, DIMENSION(:),ALLOCATABLE :: NUMP
+      INTEGER, DIMENSION(:),ALLOCATABLE :: NMNFI
+      INTEGER :: IEDGE,NEDGE,NEDGE_KEPT,ILEV
       INTEGER, PARAMETER :: E_IBUF_SIZE = 13
       LOGICAL INACTI_CASE
 
@@ -121,26 +121,35 @@ C-----------------------------------------------
       INTEGER SPLIST
       INTEGER, DIMENSION(:),ALLOCATABLE :: TABZERO
       INTEGER, DIMENSION(:), ALLOCATABLE :: LEDGE_FIE
+      INTEGER :: INTER_LAW151
+      LOGICAL :: INTER18_LAW151
 C-----------------------------------------------
+      CALL MY_ALLOC(NSNFI,NSPMD)
+      CALL MY_ALLOC(NUMP,NSPMD)
+      CALL MY_ALLOC(NMNFI,NSPMD)
 C
 
       DO NI =1, NINTER
         NINDX_TAG = 0
         ITYP = IPARI(7,NI)
+        INACTI = IPARI(22,NI)
+        INTER_LAW151 = IPARI(14,NI)
+        INTER18_LAW151 = .FALSE.
+
+        IF(ITYP==7.AND.INACTI==7.AND.INTER_LAW151==151) INTER18_LAW151 = .TRUE.
 C
-        IF(ITYP.EQ.7.OR.ITYP.EQ.10.OR.ITYP.EQ.11.OR.
-     .    (ITYP.EQ.17.AND.IPARI(33,NI).EQ.0).OR.ITYP.EQ.20.OR.
-     .    ITYP.EQ.22.OR.ITYP.EQ.23.OR.ITYP.EQ.24.OR.ITYP.EQ.25)THEN
-Cel ecriture nsnsi : 0
+        IF(ITYP==7.OR.ITYP==10.OR.ITYP==11.OR.
+     .    (ITYP==17.AND.IPARI(33,NI)==0).OR.ITYP==20.OR.
+     .    ITYP==22.OR.ITYP==23.OR.ITYP==24.OR.ITYP==25)THEN
+C   NSNSI Writing: 0
           DO P = 1, NSPMD
             NSNFI(P) = 0
           END DO
           CALL WRITE_I_C(NSNFI,NSPMD) ! NSNSI at engine
           LEN_IA = LEN_IA + NSPMD
-          INACTI = IPARI(22,NI)
-          IF(((INACTI.NE.5.AND.INACTI.NE.6.AND.INACTI.NE.7).OR.
-     .        ITYP.EQ.10).AND.ITYP.NE.23.AND.INACTI.NE.-1) THEN
-Cel ecriture nsnfi : 0 si inacti # 5, 6 et 7
+          IF(((INACTI/=5.AND.INACTI/=6.AND.INACTI/=7).OR.
+     .        ITYP==10).AND.ITYP/=23.AND.INACTI/=-1) THEN
+C   write nsnfi : 0 if inacti # 5, 6 and 7
             CALL WRITE_I_C(NSNFI,NSPMD) ! nsnfi at engine
             LEN_IA = LEN_IA + NSPMD
           ELSE
@@ -158,15 +167,15 @@ Cel ecriture nsnfi : 0 si inacti # 5, 6 et 7
            NSNE  = 0
            IEDGE4 = 0
 ! +++++++++++++++++++++++++++++++++++++++++++++++
-           IF(ITYP.EQ.7.OR.ITYP.EQ.22.OR.ITYP.EQ.23.OR.ITYP.EQ.24.OR.
-     .        ITYP.EQ.25)THEN
+           IF(ITYP==7.OR.ITYP==22.OR.ITYP==23.OR.ITYP==24.OR.
+     .        ITYP==25)THEN
 
             IF(ITYP==24) THEN
                NSNE  = IPARI(55,NI)
                IEDGE4 = IPARI(59,NI)
             ENDIF
             I_STOK = INTBUF_TAB(NI)%I_STOK(1)
-!            IF (MULTI_FVM%IS_USED .AND. INACTI .EQ. 7) THEN
+!            IF (MULTI_FVM%IS_USED .AND. INACTI == 7) THEN
 !C     Interface type 18 for law151
 !               ALLOCATE(TAG(NUMNOD+NSNE+NUMELS))
 !               TAG(1:NUMNOD+NSNE+NUMELS) = 0
@@ -181,7 +190,7 @@ Cel ecriture nsnfi : 0 si inacti # 5, 6 et 7
             ALLOCATE(ITAFI(NSN))
             ALLOCATE(TAGE(NRTM))
             IF (ITYP==24) ALLOCATE(IRTLMFI(2,NSN))
-            IF (ITYP.EQ.25) THEN
+            IF (ITYP==25) THEN
               ALLOCATE(IRTLMFI(4,NSN))
               IRTLMFI(1:4,1:NSN)=0
             END IF
@@ -197,19 +206,26 @@ C
                DO K=1,NSN
                   N = INTBUF_TAB(NI)%NSV(K)
                   NSNLOCAL(K) = 0
-                  IF(TAG(N).EQ.0) THEN 
+                  IF(TAG(N)==0) THEN 
                      SPLIST=0 
-                     IF(N.LE.NUMNOD) THEN
-                        CALL PLIST_IFRONT(PLIST,N,SPLIST) 
-                        PLOC = 0
-                        IF(NODLOCAL(N)/=0.AND.NODLOCAL(N)<=NUMNOD_L) PLOC = 1
+                     PLOC = 0
+                     IF(INTER18_LAW151) THEN
+                        IF(CEP(N)==PROC) PLOC = 1
+                        SPLIST = 1
+                        PLIST(1) = CEP(N) + 1
                      ELSE
+                         IF(N<=NUMNOD) THEN
+                            CALL PLIST_IFRONT(PLIST,N,SPLIST) 
+                            PLOC = 0
+                            IF(NODLOCAL(N)/=0.AND.NODLOCAL(N)<=NUMNOD_L) PLOC = 1
+                         ELSE
 C     T24 E2E Fictive nodes are only on 1 domain (But they are not nodes
-                        PLOC = 0
-                        SE1 = INTBUF_TAB(NI)%IS2SE(2*(N-NUMNOD-1)+1)
-                        PLIST(1)=INTERCEP(2,NI)%P(SE1)
-                        SPLIST=1
-                        IF(PLIST(1)==PROC+1)PLOC=1
+                            PLOC = 0
+                            SE1 = INTBUF_TAB(NI)%IS2SE(2*(N-NUMNOD-1)+1)
+                            PLIST(1)=INTERCEP(2,NI)%P(SE1)
+                            SPLIST=1
+                            IF(PLIST(1)==PROC+1)PLOC=1
+                         ENDIF
                      ENDIF
                      DO I=1,SPLIST
                         P=PLIST(I)
@@ -234,7 +250,7 @@ C     T24 E2E Fictive nodes are only on 1 domain (But they are not nodes
 
             NRTM_L = 0
             DO K=1,NRTM
-C TAGE flag servant pour inacti
+C Flag tage used for inactive
               TAGE(K) = 0
               IF(INTERCEP(1,NI)%P(K)==PROC+1)THEN
                 NRTM_L = NRTM_L + 1
@@ -249,30 +265,30 @@ C
 C
             DO K = 1, I_STOK
               E = INTBUF_TAB(NI)%CAND_E(K)
-              IF (TAGE(E).NE.0) THEN
+              IF (TAGE(E)/=0) THEN
                 N = INTBUF_TAB(NI)%CAND_N(K)
 C Add boolean in order to treat INACTI=5 Candidates
                 INACTI_CASE = .FALSE.
                 ND = INTBUF_TAB(NI)%NSV(N)
-                IF (ND .LE. NUMNOD)THEN
+                IF (ND <= NUMNOD)THEN
                   MY_NODE = INTBUF_TAB(NI)%NSV(N)
                   IF(NODLOCAL( MY_NODE )==0.OR.NODLOCAL( MY_NODE )>NUMNOD_L ) INACTI_CASE=.TRUE.
                 ELSE
                   SE1 = INTBUF_TAB(NI)%IS2SE(2*(ND-NUMNOD-1)+1)
-                  IF (INTERCEP(2,NI)%P(SE1).NE.(PROC+1) ) INACTI_CASE=.TRUE.
+                  IF (INTERCEP(2,NI)%P(SE1)/=(PROC+1) ) INACTI_CASE=.TRUE.
                 ENDIF 
 c                IF (INTBUF_TAB(NI)%NSV(N) > NUMNOD) CYCLE
                  
                 IF(INACTI_CASE .EQV. .TRUE.) THEN
-C ne traiter qu une seule fois les noeuds
-                  IF(NSNP(N).GT.0) THEN
+C process nodes only once
+                  IF(NSNP(N)>0) THEN
                     P = NSNP(N)
                     NSNP(N) = -P
                     NSNFI(P) = NSNFI(P) + 1
                     NODFI = NODFI + 1
                     NSVFI(NODFI) = NSNLOCAL(N)
                     ND = INTBUF_TAB(NI)%NSV(N)
-                    IF(ND.LE.NUMNOD)THEN
+                    IF(ND<=NUMNOD)THEN
                       ITAFI(NODFI) = ITAB(ND)
                     ELSE
                       ITAFI(NODFI) = INTBUF_TAB(NI)%IS2ID(ND-NUMNOD)
@@ -294,11 +310,11 @@ C ne traiter qu une seule fois les noeuds
             END DO
 C
 
-            IF(NODFI.GT.0) THEN
+            IF(NODFI>0) THEN
               ALLOCATE(INDEX(2*NODFI))
               ALLOCATE(CLEF(2,NODFI))
               IF(ITYP==24)ALLOCATE(IRTLMFI2(2,NODFI))
-              IF(ITYP.EQ.25)ALLOCATE(IRTLMFI2(4,NODFI))
+              IF(ITYP==25)ALLOCATE(IRTLMFI2(4,NODFI))
               ALLOCATE(ITAFI2(NODFI))
               DO K = 1, NODFI
                 CLEF(1,K)=PFI(K)
@@ -334,7 +350,7 @@ C
               DEALLOCATE(INDEX)
               DEALLOCATE(CLEF)
               DEALLOCATE(ITAFI2)
-              IF(ITYP==24.OR.ITYP.EQ.25) DEALLOCATE(IRTLMFI2)
+              IF(ITYP==24.OR.ITYP==25) DEALLOCATE(IRTLMFI2)
             END IF
             DEALLOCATE(PFI)
 C
@@ -345,20 +361,20 @@ C
 
             CALL WRITE_I_C(ITAFI,NODFI) !ITAFI
             LEN_IA = LEN_IA + NODFI
-Cel ecriture bidon kinfi
+C   dummy write kinfi
             CALL WRITE_I_C(NSVFI,NODFI)
             LEN_IA = LEN_IA + NODFI
-Cel Void writing for MATSFI
+C   Void writing for MATSFI
             IF (INTTH>0) THEN
                CALL WRITE_I_C(NSVFI,NODFI)
                LEN_IA = LEN_IA + NODFI
             ENDIF
-Cel Void writing for IPARTFRICSFI
+C   Void writing for IPARTFRICSFI
             IF (INTFRIC>0) THEN
                CALL WRITE_I_C(NSVFI,NODFI)
                LEN_IA = LEN_IA + NODFI
             ENDIF
-            IF(ITYP.EQ.24)THEN
+            IF(ITYP==24)THEN
 C   write dummy irtlm_fi = 2xnodfi 
               CALL WRITE_I_C(IRTLMFI,NODFI*2)
               LEN_IA = LEN_IA + NODFI*2
@@ -395,7 +411,7 @@ C Write dummy IS2SE_FI : 2*NODFI
              IF(INTNITSCHE>0) CALL WRITE_I_C(NSVFI,3*NODFI)
             ENDIF
 
-            IF(ITYP.EQ.25)THEN
+            IF(ITYP==25)THEN
 C   write dummy PMAINFI
               CALL WRITE_I_C(NSVFI,NODFI)
               LEN_IA = LEN_IA + NODFI
@@ -422,10 +438,10 @@ C
             DEALLOCATE(NSVFI)
             DEALLOCATE(ITAFI)
             DEALLOCATE(TAGE)
-            IF (ITYP==24.OR.ITYP.EQ.25)DEALLOCATE(IRTLMFI)
-C fin type 7
+            IF (ITYP==24.OR.ITYP==25)DEALLOCATE(IRTLMFI)
+C end type 7
 ! +++++++++++++++++++++++++++++++++++++++++++++++
-           ELSEIF(ITYP.EQ.11)THEN
+           ELSEIF(ITYP==11)THEN
 
             I_STOK = INTBUF_TAB(NI)%I_STOK(1)
             ALLOCATE(NRTSLOCAL(NRTS))
@@ -483,13 +499,13 @@ C
 C
             DO K = 1, I_STOK
               E = INTBUF_TAB(NI)%CAND_E(K)
-              IF (TAGE(E).NE.0) THEN
+              IF (TAGE(E)/=0) THEN
                 L  = INTBUF_TAB(NI)%CAND_N(K)
                 N1 = INTBUF_TAB(NI)%IRECTS((L-1)*2+1)
                 N2 = INTBUF_TAB(NI)%IRECTS((L-1)*2+2)
                  IF((NODLOCAL( N1 )==0.OR.NODLOCAL( N1 )>NUMNOD_L).AND.
      +             (NODLOCAL( N2 )==0.OR.NODLOCAL( N2 )>NUMNOD_L) ) THEN
-                 IF(NRTSP(L).GT.0)THEN
+                 IF(NRTSP(L)>0)THEN
                    P = NRTSP(L)
                    NRTSP(L) = -P
                    NSNFI(P) = NSNFI(P) + 1
@@ -501,7 +517,7 @@ C
               END IF
             END DO
 C
-            IF(NODFI.GT.0) THEN
+            IF(NODFI>0) THEN
               ALLOCATE(INDEX(2*NODFI))
               ALLOCATE(CLEF(2,NODFI))
               DO K = 1, NODFI
@@ -520,16 +536,16 @@ C
 C
             CALL WRITE_I_C(NSNFI,NSPMD)
             CALL WRITE_I_C(NSVFI,NODFI)
-Cel ecriture bidon itafi n1
+C   dummy write itafi n1
             CALL WRITE_I_C(NSVFI,NODFI)
-Cel ecriture bidon itafi n2
+C   dummy write itafi n2
             CALL WRITE_I_C(NSVFI,NODFI)
-Cel Void writing for MATSFI
+C   Void writing for MATSFI
             IF (INTTH>0) THEN
                CALL WRITE_I_C(NSVFI,NODFI)
                LEN_IA = LEN_IA + NODFI
             ENDIF
-Cel Void writing for IPARTSFI
+C   Void writing for IPARTSFI
             IF (INTFRIC>0) THEN
                CALL WRITE_I_C(NSVFI,NODFI)
                LEN_IA = LEN_IA + NODFI
@@ -539,8 +555,8 @@ C
             DEALLOCATE(NRTSP)
             DEALLOCATE(NSVFI)
             DEALLOCATE(TAGE)
-C fin type 11
-           ELSEIF(ITYP.EQ.20)THEN
+C end type 11
+           ELSEIF(ITYP==20)THEN
 C type 20 (partie non edge)
             IFQ    = IPARI(31,NI)
             NLN    = IPARI(35,NI)
@@ -565,7 +581,7 @@ C
               N = INTBUF_TAB(NI)%NLG(NL)
 C
               NSNLOCAL(K) = 0
-              IF(TAG(N).EQ.0) THEN
+              IF(TAG(N)==0) THEN
                  IF(NODLOCAL( N )/=0.AND.NODLOCAL( N )<=NUMNOD_L) THEN
                  NUMP(PROC+1) = NUMP(PROC+1) + 1
                  NSNLOCAL(K) = NUMP(PROC+1)
@@ -573,9 +589,9 @@ C
                ENDIF
 C
                DO P = 1, NSPMD
-                IF(P.NE.PROC+1.AND.NLOCAL(N,P)==1) THEN
+                IF(P/=PROC+1.AND.NLOCAL(N,P)==1) THEN
                   NUMP(P) = NUMP(P) + 1
-                  IF(NSNLOCAL(K).EQ.0) THEN
+                  IF(NSNLOCAL(K)==0) THEN
                     NSNLOCAL(K) = NUMP(P)
                     NSNP(K) = P
                   END IF
@@ -604,13 +620,13 @@ C
 C
             DO K = 1, I_STOK
               E = INTBUF_TAB(NI)%CAND_E(K)
-              IF (TAGE(E).NE.0) THEN
+              IF (TAGE(E)/=0) THEN
                 N = INTBUF_TAB(NI)%CAND_N(K)
                 NL = INTBUF_TAB(NI)%NSV(N)
                 NN = INTBUF_TAB(NI)%NLG(NL)
                 IF(NODLOCAL( NN )==0.OR.NODLOCAL( NN )>NUMNOD_L) THEN
-C ne traiter qu une seule fois les noeuds
-                  IF(NSNP(N).GT.0) THEN
+C process nodes only once
+                  IF(NSNP(N)>0) THEN
                     P = NSNP(N)
                     NSNP(N) = -P
                     NSNFI(P) = NSNFI(P) + 1
@@ -622,7 +638,7 @@ C ne traiter qu une seule fois les noeuds
               END IF
             END DO
 C
-            IF(NODFI.GT.0) THEN
+            IF(NODFI>0) THEN
               ALLOCATE(INDEX(2*NODFI))
               ALLOCATE(CLEF(2,NODFI))
               DO K = 1, NODFI
@@ -643,16 +659,16 @@ C
             LEN_IA = LEN_IA + NSPMD
             CALL WRITE_I_C(NSVFI,NODFI)
             LEN_IA = LEN_IA + NODFI
-Cel ecriture bidon itafi
+C   dummy write itafi
             CALL WRITE_I_C(NSVFI,NODFI)
             LEN_IA = LEN_IA + NODFI
-Cel ecriture bidon kinfi
+C   dummy write kinfi
             CALL WRITE_I_C(NSVFI,NODFI)
             LEN_IA = LEN_IA + NODFI
-Cel ecriture bidon nbinflfi
+C   dummy write nbinflfi
             CALL WRITE_I_C(NSVFI,NODFI)
             LEN_IA = LEN_IA + NODFI
-Cel Void writing for MATSFI
+C   Void writing for MATSFI
             IF (INTTH>0) THEN
                CALL WRITE_I_C(NSVFI,NODFI)
                LEN_IA = LEN_IA + NODFI
@@ -662,19 +678,19 @@ C
             DEALLOCATE(NSNP)
             DEALLOCATE(NSVFI)
             DEALLOCATE(TAGE)
-           END IF ! fin type20
-C fin interface de contact inacti
+           END IF ! end type20
+C end inactive contact interface
           END IF
-C Type20 ajout pour edge
-          IF (ITYP.EQ.20)THEN
-Cel ecriture nsnsie : 0
+C Type20 added for edge
+          IF (ITYP==20)THEN
+C   NSNSIE Writing: 0
              DO P = 1, NSPMD
                NSNFI(P) = 0
              END DO
              CALL WRITE_I_C(NSNFI,NSPMD)
              INACTI = IPARI(22,NI)
-             IF(INACTI.NE.5.AND.INACTI.NE.6.AND.INACTI.NE.7) THEN
-Cel ecriture nsnfie : 0 si inacti # 5, 6 et 7
+             IF(INACTI/=5.AND.INACTI/=6.AND.INACTI/=7) THEN
+C   write nsnfie : 0 if inacti # 5, 6 and 7
                CALL WRITE_I_C(NSNFI,NSPMD)
              ELSE
                NRTS   = IPARI(3,NI)
@@ -719,9 +735,9 @@ C
                  END IF
 C
                  DO P = 1, NSPMD
-                   IF(P.NE.PROC+1.AND.NLOCAL(N1,P)==1.AND.
+                   IF(P/=PROC+1.AND.NLOCAL(N1,P)==1.AND.
      .                NLOCAL(N2,P)==1) THEN
-                     IF(NRTSLOCAL(K).EQ.0) THEN
+                     IF(NRTSLOCAL(K)==0) THEN
                        NUMP(P) = NUMP(P) + 1
                        NRTSLOCAL(K) = NUMP(P)
                        NRTSP(K) = P
@@ -748,7 +764,7 @@ C
 C
                DO K = 1, I_STOK
                  E = INTBUF_TAB(NI)%LCAND_S(K)
-                 IF (TAGE(E).NE.0) THEN
+                 IF (TAGE(E)/=0) THEN
                    L = INTBUF_TAB(NI)%IXLINS(K)
                    N1L = INTBUF_TAB(NI)%IXLINS((L-1)*2+1)
                    N2L = INTBUF_TAB(NI)%IXLINS((L-1)*2+2)
@@ -756,7 +772,7 @@ C
                    N2 =  INTBUF_TAB(NI)%NLG(N2L)
                  IF( (NODLOCAL( N1 )==0.OR.NODLOCAL( N1 )>NUMNOD_L).AND.
      +               (NODLOCAL( N2 )==0.OR.NODLOCAL( N2 )>NUMNOD_L) ) THEN
-                     IF(NRTSP(L).GT.0)THEN
+                     IF(NRTSP(L)>0)THEN
                        P = NRTSP(L)
                        NRTSP(L) = -P
                        NSNFI(P) = NSNFI(P) + 1
@@ -768,7 +784,7 @@ C
                  END IF
                END DO
 C
-               IF(NODFI.GT.0) THEN
+               IF(NODFI>0) THEN
                  ALLOCATE(INDEX(2*NODFI))
                  ALLOCATE(CLEF(2,NODFI))
                  DO K = 1, NODFI
@@ -787,9 +803,9 @@ C
 C
                CALL WRITE_I_C(NSNFI,NSPMD)
                CALL WRITE_I_C(NSVFI,NODFI)
-Cel ecriture bidon itafi n1
+C   dummy write itafi n1
                CALL WRITE_I_C(NSVFI,NODFI)
-Cel ecriture bidon itafi n2
+C   dummy write itafi n2
                CALL WRITE_I_C(NSVFI,NODFI)
 C
                DEALLOCATE(NRTSLOCAL)
@@ -800,6 +816,7 @@ C
           END IF   ! Type 20 edge
 
           IEDGE = IPARI(58,NI)
+          ILEV  = IPARI(20,NI)
 
           IF( ITYP == 25 .AND. IEDGE /= 0) THEN
             NEDGE = IPARI(68,NI)
@@ -829,19 +846,23 @@ C LEDGE_FIE
                 LEDGE_FIE(E_IBUF_SIZE*(K-1) + 7) = INTBUF_TAB(NI)%LEDGE(6+ (J-1)*NLEDGE) 
                 LEDGE_FIE(E_IBUF_SIZE*(K-1) + 8) = INTBUF_TAB(NI)%LEDGE(7+ (J-1)*NLEDGE) 
                 ! global id node 1
-                LEDGE_FIE(E_IBUF_SIZE*(K-1) + 9) = ITAB(LEDGE_FIE(E_IBUF_SIZE*(K-1) + 7))
+                LEDGE_FIE(E_IBUF_SIZE*(K-1) + 9) = ITAB(LEDGE_FIE(E_IBUF_SIZE*(K-1) + 6))
                 !global id node 2
-                LEDGE_FIE(E_IBUF_SIZE*(K-1) +10) = ITAB(LEDGE_FIE(E_IBUF_SIZE*(K-1) + 8))
+                LEDGE_FIE(E_IBUF_SIZE*(K-1) +10) = ITAB(LEDGE_FIE(E_IBUF_SIZE*(K-1) + 7))
                 ! IM
                 LEDGE_FIE(E_IBUF_SIZE*(K-1) +11) = INTBUF_TAB(NI)%LEDGE(10 + (J-1)*NLEDGE) 
                 ! LocalID
                 LEDGE_FIE(E_IBUF_SIZE*(K-1) +12) = 0         
                 ! BINFLG
-                LEDGE_FIE(E_IBUF_SIZE*(K-1) +13) = INTBUF_TAB(NI)%EBINFLG(J)
+                IF(ILEV == 2) THEN
+                  LEDGE_FIE(E_IBUF_SIZE*(K-1) +13) = INTBUF_TAB(NI)%EBINFLG(J)
+                ELSE
+                  LEDGE_FIE(E_IBUF_SIZE*(K-1) +13) = 0
+                ENDIF
               ENDDO
               NSNE =  E_IBUF_SIZE*NEDGE_KEPT
               CALL WRITE_I_C(LEDGE_FIE,NSNE) ! LEDGE_FIE
-Cel Void writing for IPARTFRIC_FIE
+C   Void writing for IPARTFRIC_FIE
               IF (INTFRIC>0) THEN
                   CALL WRITE_I_C(I25_FIE(NI,PROC+1)%ID(1:NEDGE_KEPT),NEDGE_KEPT)
                ENDIF
@@ -850,8 +871,8 @@ Cel Void writing for IPARTFRIC_FIE
            
           ENDIF ! TYPE25+EDGE
 C
-          IF(IPARI(36,NI).GT.0.AND.ITYP.NE.17) THEN
-C init a 0 des structures de sous interfaces
+          IF(IPARI(36,NI)>0.AND.ITYP/=17) THEN
+C initialize sub-interface structures to 0
             NUMP(1:NSPMD) = 0
             CALL WRITE_I_C(NUMP,NSPMD)
             IF(ITYP == 25 .AND. IPARI(58,NI) > 0) THEN
@@ -863,16 +884,16 @@ C
         END IF
 
 
-        IF(ITYP.EQ.21 ) THEN
+        IF(ITYP==21 ) THEN
           INTTH = IPARI(47,NI)
           IF(INTTH==2.OR.IPARI(95,NI) > 0) THEN
-Cel ecriture NMNSI : 0
+C   write NMNSI : 0
           DO P = 1, NSPMD
             NMNFI(P) = 0
           END DO
           CALL WRITE_I_C(NMNFI,NSPMD)
           LEN_IA = LEN_IA + NSPMD
-Cel ecriture nmnfi : 0
+C   write nmnfi : 0
           CALL WRITE_I_C(NMNFI,NSPMD)
           LEN_IA = LEN_IA + NSPMD
 C
@@ -880,10 +901,21 @@ C
         ENDIF
 !       ----------------------------------
 !       Flush arrays to 0
-        IF(NINDX_TAG>0) TAG(INDX_TAG(1:NINDX_TAG)) = 0
+        ! TAG(INDX_TAG(1:NINDX_TAG)) = 0
+        IF(NINDX_TAG>0)THEN
+           DO IT=1,NINDX_TAG
+              ID=INDX_TAG(IT)
+              TAG(ID)=0
+           ENDDO
+        ENDIF
+      
 !       ----------------------------------
 
       END DO
 C
+      DEALLOCATE(NSNFI)
+      DEALLOCATE(NUMP)
+      DEALLOCATE(NMNFI)
+
       RETURN
       END

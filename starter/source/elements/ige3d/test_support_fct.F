@@ -1,51 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  TEST_SUPPORT_FCT              source/elements/ige3d/test_support_fct.F
-Chd|-- called by -----------
-Chd|        PRERAFIG3D                    source/elements/ige3d/prerafig3d.F
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    test_support_fct   ../starter/source/elements/ige3d/test_support_fct.F
+!||--- called by ------------------------------------------------------
+!||    prerafig3d         ../starter/source/elements/ige3d/prerafig3d.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE TEST_SUPPORT_FCT(IXIG3D, KXIG3D, KNOTLOCPC, DEGTANG1, DEGTANG2, DIR,
      .                            TAB_ELCUT, L_TAB_ELCUT,
      .                            TAB_COINKNOT,L_TAB_COINKNOT,
      .                            TAB_FCTCUT,L_TAB_FCTCUT,DECALGEO,FLAG)
 C----------------------------------------------------------------------
-C   ROUTINE QUI PERMET DE METTRE DE COTE TOUTES LES FONCTIONS D'ONE 
+C   ------------------------>   case of quads  <-----------------------c
 C   ENSEMBLE D'ELEMENTS DU PATCH QUI VONT POTENTIELLEMENT ETRE MODIFIEES 
-C   EN INSERANT LE KNOT DE LA MESHSURF
-C   CETTE ROUTINE UTILISE ONE ALGORITHME DE DETECTION D'INCLUSION
-C   DE SEGMENTS DANS UNE SURFACE (LEGEREMENT MODIFIE)
+C   by inserting the knot of the meshsurf
+C   this routine uses an inclusion detection algorithm
+C   of segments in a surface (slightly modified)
 C----------------------------------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -72,20 +67,23 @@ c
       L_TAB_FCTCUT = 0
       TOL = EM06
 c
-      IF(DIR.EQ.1) THEN
+      IF(DIR==1) THEN
         DIRTANG1 = 2
         DIRTANG2 = 3
-      ELSEIF(DIR.EQ.2) THEN
+      ELSEIF(DIR==2) THEN
         DIRTANG1 = 3
         DIRTANG2 = 1
-      ELSEIF(DIR.EQ.3) THEN
+      ELSEIF(DIR==3) THEN
         DIRTANG1 = 1
         DIRTANG2 = 2
+      ELSE
+        DIRTANG1 = -HUGE(DIRTANG1)
+        DIRTANG2 = -HUGE(DIRTANG2)
       ENDIF
 c
 C----------------------------------------------------------------------
-c  on liste toutes les fonctions a traiter et les trier pour
-c  ne pas traiter deux fois la meme fonction
+c  all functions to be processed are listed and sorted for
+c  Do not treat the same function twice
 C----------------------------------------------------------------------
 c
       SIZ_LIST_FCTTOT = L_TAB_ELCUT*KXIG3D(3,TAB_ELCUT(1))
@@ -117,15 +115,15 @@ c
 c
       DO I=1,SIZ_LIST_FCTTOT
 c
-        IF(I.NE.1) THEN
-          IF(LIST_FCTTRI(I-1).EQ.LIST_FCTTRI(I)) CYCLE
+        IF(I/=1) THEN
+          IF(LIST_FCTTRI(I-1)==LIST_FCTTRI(I)) CYCLE
         ENDIF
 c
         IDFCT = LIST_FCTTRI(I)
         IOUT=0
 c
 C----------------------------------------------------------------------
-c  CREATION DES VARIABLES DE TRAVAIL : COIN DES ETENDUES KNOT DE LA FONCTION
+c  creation of working variables: corner of the knot extents of the function
 c  A TESTER
 C----------------------------------------------------------------------
 c
@@ -142,19 +140,19 @@ c
         YA(5) = YA(1)
 c
 C----------------------------------------------------------------------
-c  1er test : test des 4 points en fonction des 4 coins convexes de la meshsurf
+c  1st test: test of the 4 points according to the 4 convex corners of the meshsurf
 C----------------------------------------------------------------------
 c
-        IF(XA(1).LT.COIN(1,1).OR.YA(1).LT.COIN(2,1)) CYCLE
-        IF(XA(3).GT.COIN(1,2).OR.YA(3).GT.COIN(2,2)) CYCLE
+        IF(XA(1)<COIN(1,1).OR.YA(1)<COIN(2,1)) CYCLE
+        IF(XA(3)>COIN(1,2).OR.YA(3)>COIN(2,2)) CYCLE
 c
 C----------------------------------------------------------------------
-cc 2eme test : test si le segment forme avec un point eloigne intersecte un cote du polygone
+c2nd test: test if the segment formed with a distant point intersects a side of the polygon
 C----------------------------------------------------------------------
 c
-        XB=COIN(1,1)-1000  !  ON PREND LE POINT SUFFISAMMENT ELOIGNE DE LA MESHSURF
+        XB=COIN(1,1)-1000  ! a point far enough from the meshsurf is taken
         YB=COIN(2,1)-2000
-        DO J=1,4  ! BOUCLE SUR LES 4 COINS DE L'ETENDUE
+        DO J=1,4  ! loop over the 4 corners of the extent
           INTERSEC=0
           DO K=1,L_TAB_COINKNOT-1
             XC=TAB_COINKNOT(1,K)
@@ -162,41 +160,41 @@ c
             XD=TAB_COINKNOT(1,K+1)
             YD=TAB_COINKNOT(2,K+1)
             DET = (XB-XA(J))*(YC-YD) - (XC-XD)*(YB-YA(J))
-            IF(DET.EQ.0) THEN
-c             segments paralleles ou colineaires
+            IF(DET==0) THEN
+c             parallel or collinear segments
             ELSE
               T1 = ((XC-XA(J))*(YC-YD)-(XC-XD)*(YC-YA(J)))/DET
               T2 = ((XB-XA(J))*(YC-YA(J))-(XC-XA(J))*(YB-YA(J)))/DET
-              IF(T1.GT.1.OR.T1.LT.0.OR.T2.GT.1.OR.T2.LE.0) THEN ! pas d'intersection
+              IF(T1>1.OR.T1<0.OR.T2>1.OR.T2<=0) THEN ! pas d'intersection
 c                ! pas d'intersection
               ELSE
                 INTERSEC = INTERSEC + 1 
-c                ! intersection : incrementer le compteur de 1
+c                intersection: increment the counter by 1
               ENDIF
             ENDIF
           ENDDO
-          IF(MOD(INTERSEC,2).EQ.0) IOUT=1 ! NOMBRE PAIRE D'INTERSECTION, LE POINT EST EN DEHORS DE LA MESHSURF
+          IF(MOD(INTERSEC,2)==0) IOUT=1 ! even number of intersections, the point is outside the meshsurf
         ENDDO
 c
-        IF(IOUT.EQ.1) CYCLE
+        IF(IOUT==1) CYCLE
 c
 C----------------------------------------------------------------------
-c  3eme test : Pour traiter les polygones concaves, il faut tester les segments forme par les etendus 
+c  3rd test: to handle concave polygons, the segments formed by the extents must be tested
 C----------------------------------------------------------------------
 c
-        DO J=1,4  ! BOUCLE SUR LES 4 COINS DE L'ETENDUE        
+        DO J=1,4  ! loop over the 4 corners of the extent
           DO K=1,L_TAB_COINKNOT-1
             XC=TAB_COINKNOT(1,K)
             YC=TAB_COINKNOT(2,K)
             XD=TAB_COINKNOT(1,K+1)
             YD=TAB_COINKNOT(2,K+1)
             DET = (XA(J+1)-XA(J))*(YC-YD) - (XC-XD)*(YA(J+1)-YA(J))
-            IF(DET.EQ.0) THEN
-c             segments paralleles ou colineaires donc boucler sur un autre segment du polygone
+            IF(DET==0) THEN
+c             parallel or collinear segments, so loop over another segment of the polygon
             ELSE
               T1 = ((XC-XA(J))*(YC-YD)-(XC-XD)*(YC-YA(J)))/DET
               T2 = ((XA(J+1)-XA(J))*(YC-YA(J))-(XC-XA(J))*(YA(J+1)-YA(J)))/DET
-              IF(T1.GT.1.OR.T1.LT.0.OR.T2.GT.1.OR.T2.LE.0) THEN ! pas d'intersection
+              IF(T1>1.OR.T1<0.OR.T2>1.OR.T2<=0) THEN ! pas d'intersection
 c                ! pas d'intersection
               ELSE
                 IOUT=1 ! intersection : fonction a exclure
@@ -207,11 +205,11 @@ c                ! pas d'intersection
         ENDDO
 C
 C----------------------------------------------------------------------
-C  DIMENSIONNEMENT ET STOCKAGE DU TABLEAU DES FONCTIONS A RAFFINER
+C  sizing and storage of the array of functions to be refined
 C----------------------------------------------------------------------
 C
-        IF(IOUT.EQ.0) THEN
-          IF(FLAG.EQ.0) THEN
+        IF(IOUT==0) THEN
+          IF(FLAG==0) THEN
             L_TAB_FCTCUT = L_TAB_FCTCUT + 1
           ELSE
             L_TAB_FCTCUT = L_TAB_FCTCUT + 1 

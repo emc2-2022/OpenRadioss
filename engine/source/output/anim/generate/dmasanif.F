@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DMASANIF                      source/output/anim/generate/dmasanif.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dmasanif       ../engine/source/output/anim/generate/dmasanif.F
+!||--- called by ------------------------------------------------------
+!||    genani         ../engine/source/output/anim/generate/genani.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE DMASANIF(ELBUF_TAB,X   ,D    ,GEO  ,IPARG,
      .                    IXT     ,IXP  ,IXR  ,MAS  ,PM   ,
      .                    EL2FA   ,NBF  )
@@ -34,6 +35,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixt,nixr,nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,33 +43,24 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
-      my_real
-     .   MAS(*) ,PM(NPROPM,*),GEO(NPROPG,*),X(3,*),
-     .   D(3,*)
-      INTEGER IPARG(NPARG,*),
-     .        IXT(NIXT,*),IXP(NIXP,*),IXR(NIXR,*),EL2FA(*),NBF
+      my_real :: MAS(*) ,PM(NPROPM,*),GEO(NPROPG,*),X(3,*), D(3,*)
+      INTEGER IPARG(NPARG,*),IXT(NIXT,*),IXP(NIXP,*),IXR(NIXR,*),EL2FA(*),NBF
 C
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C     REAL
       my_real
      .   OFF, P, VONM2, VONM, S1, S2, S12, S3, VALUE,THK0,A0,AL0,
      .   RHO0,XX1,XX2,XX3,YY1,YY2,YY3,ZZ1,ZZ2,ZZ3
-      INTEGER I, NG, NEL, NFT, IAD, ITY, LFT, NPT, ISS, ISC,
+      INTEGER I, NG, NEL, NFT, IAD, ITY, LFT, 
      .        IADD, N, J, LLT, MLW, NB1, NB2, NB3, NB4, NB5,NB6, 
      .        NB7, NB8, NB9, NB10, NB11, NB12, NB13, NB14, NB15, NB16,
      .        ISTRAIN,NN, K1, K2,JTURB,MT,JALE, IMID, IALEL,IPID,
@@ -75,7 +68,7 @@ C     REAL
      .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,
      .        OFFSET,NEL_OLD,ITY_OLD,NFT_FA,N_FA,
      .        NUVAR
-      REAL R4
+ 
 C
       TYPE(G_BUFEL_) ,POINTER :: GBUF
 C-----------------------------------------------
@@ -97,7 +90,7 @@ C-----------------------------------------------
         NEL   =IPARG(2,NG)
         ITY   =IPARG(5,NG)
         GBUF => ELBUF_TAB(NG)%GBUF
-        IF (IMACH == 3 .AND. ISPMD == 0) THEN
+        IF (ISPMD == 0) THEN
           IF (ITY /= ITY_OLD) THEN
             NEL_OLD = 0
             ITY_OLD= ITY
@@ -109,7 +102,7 @@ C-----------------------------------------------
         IAD   =IPARG(4,NG)
         LFT=1
         LLT=NEL
-        IF (IMACH == 3 .AND. ISPMD == 0) THEN
+        IF (ISPMD == 0) THEN
           NFT_FA = NEL_OLD - NEL 
         ELSE
           NFT_FA = NFT
@@ -128,7 +121,7 @@ C-----------------------------------------------
             XX1 = X(1,N2)-D(1,N2)-X(1,N1)+D(1,N1)
             YY1 = X(2,N2)-D(2,N2)-X(2,N1)+D(2,N1)
             ZZ1 = X(3,N2)-D(3,N2)-X(3,N1)+D(3,N1)
-            AL0  = HALF*SQRT(XX1*XX1 + YY1*YY1 + ZZ1*ZZ1)
+            AL0  = SQRT(XX1*XX1 + YY1*YY1 + ZZ1*ZZ1)
             MAS(EL2FA(NN6+N_FA)) = RHO0*AL0*A0
           ENDDO
 C-----------------------------------------------
@@ -145,14 +138,14 @@ C-----------------------------------------------
             XX1 = X(1,N2)-D(1,N2)-X(1,N1)+D(1,N1)
             YY1 = X(2,N2)-D(2,N2)-X(2,N1)+D(2,N1)
             ZZ1 = X(3,N2)-D(3,N2)-X(3,N1)+D(3,N1)
-            AL0  = HALF*SQRT(XX1*XX1 + YY1*YY1 + ZZ1*ZZ1)
+            AL0  = SQRT(XX1*XX1 + YY1*YY1 + ZZ1*ZZ1)
             MAS(EL2FA(NN7+N_FA)) = RHO0*AL0*A0
           ENDDO
 C-----------------------------------------------
 C       RESSORTS
 C-----------------------------------------------
         ELSEIF (ITY == 6) THEN
-          IF(MLW.EQ.3)THEN
+          IF(MLW==3)THEN
             DO I=LFT,LLT
               N = I + NFT
               N_FA = I + NFT_FA
@@ -192,7 +185,7 @@ cc            MAS(EL2FA(NN8+N_FA)) = BUFEL(NB16+I)
           ENDIF ! IF(MLW)
         ENDIF ! IF (ITY)
 C-----------------------------------------------
-C       FIN DE BOUCLE SUR LES OFFSET
+C       end of loop over offsets
 C-----------------------------------------------
       ENDDO
 C-----------------------------------------------

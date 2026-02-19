@@ -1,113 +1,135 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|-- called by -----------
-Chd|        FORINTC                       source/elements/forintc.F     
-Chd|-- calls ---------------
-Chd|        CBILAN                        source/elements/shell/coque/cbilan.F
-Chd|        CFINT_REG                     source/elements/shell/coque/cfint_reg.F
-Chd|        CMAIN3                        source/materials/mat_share/cmain3.F
-Chd|        CNCOEF3B                      source/elements/sh3n/coquedk/cncoef3.F
-Chd|        CNCOEFORT                     source/elements/sh3n/coquedk/cncoef3.F
-Chd|        CNDT3                         source/elements/sh3n/coquedk/cndt3.F
-Chd|        CRKLAYER4N_ADV                source/elements/xfem/crklayer4n_adv.F
-Chd|        CRKLAYER4N_INI                source/elements/xfem/crklayer4n_ini.F
-Chd|        CRKLEN4N_ADV                  source/elements/xfem/crklen4n_adv.F
-Chd|        CRKOFFC                       source/elements/xfem/precrklay.F
-Chd|        CUPDT3F                       source/elements/shell/coque/cupdt3.F
-Chd|        CUPDTN3                       source/elements/shell/coque/cupdtn3.F
-Chd|        CUPDTN3P                      source/elements/shell/coque/cupdtn3.F
-Chd|        CZCORC1                       source/elements/shell/coquez/czcorc.F
-Chd|        CZCORCHT                      source/elements/shell/coquez/czcorc.F
-Chd|        CZCORCT                       source/elements/shell/coquez/czcorc.F
-Chd|        CZDEF                         source/elements/shell/coquez/czdef.F
-Chd|        CZDEFRZ                       source/elements/shell/coquez/czdef.F
-Chd|        CZDEFRZT                      source/elements/shell/coquez/czdef.F
-Chd|        CZDEFT                        source/elements/shell/coquez/czdef.F
-Chd|        CZDEFTW                       source/elements/shell/coquez/czdef.F
-Chd|        CZFINTCE                      source/elements/shell/coquez/czfintce.F
-Chd|        CZFINTCRZ                     source/elements/shell/coquez/czfintce.F
-Chd|        CZFINTN1                      source/elements/shell/coquez/czfintn.F
-Chd|        CZFINTNM                      source/elements/shell/coquez/czfintn.F
-Chd|        CZFINTNM1                     source/elements/shell/coquez/czfintn.F
-Chd|        CZFINTNRZ                     source/elements/shell/coquez/czfintn.F
-Chd|        CZFINTNRZ_OR                  source/elements/shell/coquez/czfintn.F
-Chd|        CZFINTN_OR                    source/elements/shell/coquez/czfintn.F
-Chd|        CZPROJ1                       source/elements/shell/coquez/czproj.F
-Chd|        CZSTRA3                       source/elements/shell/coquez/czstra3.F
-Chd|        DTTHERM                       source/elements/sh3n/coquedk/cndt3.F
-Chd|        PRECRKLAY                     source/elements/xfem/precrklay.F
-Chd|        SET_FAILWAVE_NOD4             source/materials/fail/failwave/set_failwave_nod4.F
-Chd|        SET_FAILWAVE_SH4N             source/materials/fail/failwave/upd_failwave_sh4n.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        TEMPCG                        source/materials/mat_share/tempcg.F
-Chd|        THERMC                        source/materials/mat_share/thermc.F
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|        DRAPE_MOD                     share/modules/drape_mod.F     
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        FAILWAVE_MOD                  ../common_source/modules/failwave_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
-       SUBROUTINE CZFORC3(ELBUF_STR,
-     1            JFT       ,JLT       ,NFT       ,NPT       ,ITAB       ,
-     2            IPARI     ,MTN       ,IPRI      ,ITHK      ,NELTST     ,
-     3            ISTRAIN   ,IPLA      ,TT        ,DT1       ,DT2T       ,
-     4            PM        ,GEO       ,PARTSAV   ,IXC       ,ITYPTST    ,
-     5            BUFMAT    ,TF        ,NPF       ,IADC      ,FAILWAVE   ,
-     6            X         ,D         ,DR        ,V         ,VR         ,
-     7            F         ,M         ,STIFN     ,STIFR     ,FSKY       ,
-     8            TANI      ,EANI      ,INDXOF    ,ISMSTR    ,GROUP_PARAM,
-     9            IPARTC    ,THKE      ,NVC       ,IOFC      ,IHBE       ,
-     A            F11       ,F12       ,F13       ,F14       ,F21        ,
-     B            F22       ,F23       ,F24       ,F31       ,F32        ,
-     C            F33       ,F34       ,M11       ,M12       ,M13        ,
-     D            M14       ,M21       ,M22       ,M23       ,M24        ,
-     E            M31       ,M32       ,M33       ,M34       ,KFTS       ,
-     F            FZERO     ,IGEO      ,IPM       ,IFAILURE  ,ITASK      ,
-     G            JTHE      ,TEMP      ,FTHE      ,FTHESKY   ,IEXPAN     ,
-     H            GRESAV    ,GRTH      ,IGRTH     ,XEDGE4N   ,MSC        ,
-     I            DMELC     ,JSMS      ,TABLE     ,IPARG     ,MATPARAM_TAB,
-     J            IXFEM     ,KNOD2ELC  ,LSENSOR   ,SENSOR   ,
-     K            ELCUTC    ,INOD_CRK  ,IEL_CRK   ,IBORDNODE ,NODENR   ,
-     L            IADC_CRK  ,NODEDGE   ,CRKNODIAD ,CONDN    ,
-     M            CONDNSKY  ,STACK     ,ISUBSTACK ,XFEM_STR  ,CRKEDGE  ,
-     O            DRAPE_Q4  ,NEL       ,NLOC_DMG )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    czforc3             ../engine/source/elements/shell/coquez/czforc3.F
+!||--- called by ------------------------------------------------------
+!||    forintc             ../engine/source/elements/forintc.F
+!||--- calls      -----------------------------------------------------
+!||    cbilan              ../engine/source/elements/shell/coque/cbilan.F
+!||    cfint_reg           ../engine/source/elements/shell/coque/cfint_reg.F
+!||    cmain3              ../engine/source/materials/mat_share/cmain3.F
+!||    cncoef3b            ../engine/source/elements/sh3n/coquedk/cncoef3.F
+!||    cncoefort           ../engine/source/elements/sh3n/coquedk/cncoef3.F
+!||    cndt3               ../engine/source/elements/sh3n/coquedk/cndt3.F
+!||    crklayer4n_adv      ../engine/source/elements/xfem/crklayer4n_adv.F
+!||    crklayer4n_ini      ../engine/source/elements/xfem/crklayer4n_ini.F
+!||    crklen4n_adv        ../engine/source/elements/xfem/crklen4n_adv.F
+!||    crkoffc             ../engine/source/elements/xfem/precrklay.F
+!||    cupdt3f             ../engine/source/elements/shell/coque/cupdt3.F
+!||    cupdtn3             ../engine/source/elements/shell/coque/cupdtn3.F
+!||    cupdtn3p            ../engine/source/elements/shell/coque/cupdtn3.F
+!||    czcorc1             ../engine/source/elements/shell/coquez/czcorc.F
+!||    czcorcht            ../engine/source/elements/shell/coquez/czcorc.F
+!||    czcorct             ../engine/source/elements/shell/coquez/czcorc.F
+!||    czdef               ../engine/source/elements/shell/coquez/czdef.F
+!||    czdefrz             ../engine/source/elements/shell/coquez/czdef.F
+!||    czdefrzt            ../engine/source/elements/shell/coquez/czdef.F
+!||    czdeft              ../engine/source/elements/shell/coquez/czdef.F
+!||    czdeftw             ../engine/source/elements/shell/coquez/czdef.F
+!||    czfintce            ../engine/source/elements/shell/coquez/czfintce.F
+!||    czfintcrz           ../engine/source/elements/shell/coquez/czfintce.F
+!||    czfintn1            ../engine/source/elements/shell/coquez/czfintn.F
+!||    czfintn_or          ../engine/source/elements/shell/coquez/czfintn.F
+!||    czfintnm            ../engine/source/elements/shell/coquez/czfintn.F
+!||    czfintnm1           ../engine/source/elements/shell/coquez/czfintn.F
+!||    czfintnrz           ../engine/source/elements/shell/coquez/czfintn.F
+!||    czfintnrz_or        ../engine/source/elements/shell/coquez/czfintn.F
+!||    czproj1             ../engine/source/elements/shell/coquez/czproj.F
+!||    czstra3             ../engine/source/elements/shell/coquez/czstra3.F
+!||    czstrah3            ../engine/source/elements/shell/coquez/czstrah3.F
+!||    dttherm             ../engine/source/time_step/dttherm.F90
+!||    precrklay           ../engine/source/elements/xfem/precrklay.F
+!||    set_failwave_nod4   ../engine/source/materials/fail/failwave/set_failwave_nod4.F
+!||    set_failwave_sh4n   ../engine/source/materials/fail/failwave/upd_failwave_sh4n.F
+!||    startime            ../engine/source/system/timer_mod.F90
+!||    stoptime            ../engine/source/system/timer_mod.F90
+!||    tempcg              ../engine/source/materials/mat_share/tempcg.F
+!||    thermc              ../engine/source/materials/mat_share/thermc.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod       ../engine/share/modules/crackxfem_mod.F
+!||    drape_mod           ../engine/share/modules/drape_mod.F
+!||    dt_mod              ../engine/source/modules/dt_mod.F
+!||    dttherm_mod         ../engine/source/time_step/dttherm.F90
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    failwave_mod        ../common_source/modules/failwave_mod.F
+!||    glob_therm_mod      ../common_source/modules/mat_elem/glob_therm_mod.F90
+!||    mat_elem_mod        ../common_source/modules/mat_elem/mat_elem_mod.F90
+!||    nlocal_reg_mod      ../common_source/modules/nlocal_reg_mod.F
+!||    sensor_mod          ../common_source/modules/sensor_mod.F90
+!||    stack_mod           ../engine/share/modules/stack_mod.F
+!||    table_mod           ../engine/share/modules/table_mod.F
+!||    timer_mod           ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE CZFORC3(TIMERS,
+     1   ELBUF_STR,   JFT,         JLT,         NFT,
+     2   NPT,         ITAB,        MTN,
+     3   IPRI,        ITHK,        NELTST,      ISTRAIN,
+     4   IPLA,        DT1,         DT2T,
+     5   PM,          GEO,         PARTSAV,     IXC,
+     6   ITYPTST,     BUFMAT,      TF,          NPF,
+     7   IADC,        FAILWAVE,    X,
+     8   DR,          V,           VR,          F,
+     9   M,           STIFN,       STIFR,       FSKY,
+     A   TANI,        INDXOF,      ISMSTR,
+     B   GROUP_PARAM, IPARTC,      THKE,        NVC,
+     C   IOFC,        IHBE,        F11,         F12,
+     D   F13,         F14,         F21,         F22,
+     E   F23,         F24,         F31,         F32,
+     F   F33,         F34,         M11,         M12,
+     G   M13,         M14,         M21,         M22,
+     H   M23,         M24,         M31,         M32,
+     I   M33,         M34,         KFTS,        FZERO,
+     J   IGEO,        IPM,         IFAILURE,    ITASK,
+     K   JTHE,        TEMP,        FTHE,        FTHESKY,
+     L   IEXPAN,      GRESAV,      GRTH,        IGRTH,
+     M   XEDGE4N,     MSC,         DMELC,       JSMS,
+     N   TABLE,       IPARG,       MAT_ELEM,    IXFEM,
+     O   KNOD2ELC,    SENSORS,     ELCUTC,      INOD_CRK,
+     P   IEL_CRK,     NODENR,      IADC_CRK,
+     Q   NODEDGE,     CRKNODIAD,   CONDN,       CONDNSKY,
+     R   STACK,       ISUBSTACK,   XFEM_STR,    CRKEDGE,
+     S   DRAPE_SH4N,  NEL,         NLOC_DMG,    INDX_DRAPE,
+     T   IGRE,        JTUR,        DT,          NCYCLE,
+     U   SNPC,        STF,         GLOB_THERM,  IDEL7NOK,
+     U   USERL_AVAIL, MAXFUNC,     SBUFMAT,IPART     ,LIPART1)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE TIMER_MOD
       USE TABLE_MOD
-      USE ELBUFDEF_MOD
+      USE MAT_ELEM_MOD
       USE CRACKXFEM_MOD
       USE STACK_MOD
       USE FAILWAVE_MOD
-      USE MATPARAM_DEF_MOD     
       USE NLOCAL_REG_MOD        
       USE DRAPE_MOD       
+      USE SENSOR_MOD
+      USE ELBUFDEF_MOD
+      USE DT_MOD
+      use glob_therm_mod
+      use dttherm_mod
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -121,28 +143,33 @@ C-----------------------------------------------
 C   C O M M O N   B L O C K S
 C-----------------------------------------------
 #include      "com_xfem1.inc"
-#include      "scr01_c.inc"
 #include      "scr14_c.inc"
 #include      "scr18_c.inc"
 #include      "parit_c.inc"
-#include      "scr17_c.inc"
 #include      "timeri_c.inc"
-#include      "warn_c.inc"
 #include      "impl1_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
-      INTEGER JFT,JLT,NFT,NPT,IPARI,MTN,IPRI,ITHK,NELTST,
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS
+      INTEGER , INTENT(IN)  :: NCYCLE      ! Current cycles number
+      INTEGER,INTENT(IN)    :: USERL_AVAIL ! Flag for User libraries availability
+      INTEGER,INTENT(IN)    :: MAXFUNC     ! Maximum number of functions
+      INTEGER,INTENT(INOUT) :: IDEL7NOK    ! Element deletion flag for IDEL flag in contact interfaces
+      INTEGER,INTENT(IN)    :: SBUFMAT     ! Size of BUFMAT
+      INTEGER,INTENT(IN)    :: STF         ! Size of TF
+      INTEGER,INTENT(IN)    :: SNPC        ! Size of NPC
+      INTEGER JFT,JLT,NFT,NPT,MTN,IPRI,ITHK,NELTST,
      .   ITYPTST ,ISTRAIN ,IPLA,NVC,JSMS,ITASK,IEXPAN,IXFEM,
-     .   IOFC,IHBE,KFTS,ISMSTR,IFAILURE,JTHE,ISUBSTACK,NEL,N1,N2,N3,N4
+     . IOFC,IHBE,KFTS,ISMSTR,IFAILURE,JTHE,ISUBSTACK,NEL
       INTEGER IXC(NIXC,*),IADC(4,*),IPARTC(*),NPF(*),IGEO(NPROPGI,*),
      .   IPM(NPROPMI,*),INDXOF(MVSIZ),GRTH(*),IGRTH(*),IPARG(*),ITAB(*),
-     .   KNOD2ELC(*),LSENSOR(NSENSI,*),XEDGE4N(4,*),
-     .   ELCUTC(2,*),INOD_CRK(*),IEL_CRK(*),IBORDNODE(*),
-     .   NODENR(*),IADC_CRK(4,*),NODEDGE(2,*),CRKNODIAD(*)
-C     REAL OU REAL*8
+     .   KNOD2ELC(*),XEDGE4N(4,*),
+     .   ELCUTC(2,*),INOD_CRK(*),IEL_CRK(*),
+     .   NODENR(*),IADC_CRK(4,*),NODEDGE(2,*),CRKNODIAD(*),INDX_DRAPE(SCDRAPE)
+      INTEGER :: IGRE,JTUR
+C     real or real*8
       my_real
      .   F11(MVSIZ), F12(MVSIZ), F13(MVSIZ), F14(MVSIZ),
      .   F21(MVSIZ), F22(MVSIZ), F23(MVSIZ), F24(MVSIZ),
@@ -151,13 +178,11 @@ C     REAL OU REAL*8
      .   M21(MVSIZ), M22(MVSIZ), M23(MVSIZ), M24(MVSIZ),
      .   M31(MVSIZ), M32(MVSIZ), M33(MVSIZ), M34(MVSIZ),
      .   TF(*),   PM(NPROPM,*),GEO(NPROPG,*),PARTSAV(*),
-     .   BUFMAT(*), X(3,*),D(*),DR(*),V(3,*),VR(3,*),F(3,*),M(3,*),
-     .   STIFN(*), STIFR(*),FSKY(*),TANI(6,*),EANI(*),THKE(*),
+     .   BUFMAT(*), X(3,*),DR(*),V(3,*),VR(3,*),F(3,*),M(3,*),
+     .   STIFN(*), STIFR(*),FSKY(*),TANI(6,*),THKE(*),
      .   FZERO(3,4,*),TEMP(*),FTHE(*),FTHESKY(*),GRESAV(*),
-     .   MSC(*), DMELC(*),SENSOR(NSENSR,*),CONDN(*),CONDNSKY(*)
-      my_real    
-     .   TT, DT1, DT2T
-      TARGET :: BUFMAT
+     .   MSC(*), DMELC(*),CONDN(*),CONDNSKY(*)
+      my_real DT1, DT2T
       TYPE(TTABLE) TABLE(*)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
       TYPE (NLOCAL_STR_)  , TARGET :: NLOC_DMG 
@@ -165,21 +190,28 @@ C     REAL OU REAL*8
       TYPE (XFEM_EDGE_)   , DIMENSION(NXLAYMAX) :: CRKEDGE
       TYPE (STACK_PLY)     :: STACK
       TYPE (FAILWAVE_STR_) :: FAILWAVE 
-      TYPE (GRP_PARAM_STRUCT_) :: GROUP_PARAM
-      TYPE (DRAPE_) :: DRAPE_Q4
-      TYPE (MATPARAM_STRUCT_) , DIMENSION(NUMMAT) :: MATPARAM_TAB
+      TYPE (GROUP_PARAM_)  :: GROUP_PARAM
+      TYPE (DRAPE_) , DIMENSION(NUMELC_DRAPE) :: DRAPE_SH4N
+      TYPE (SENSORS_)    ,INTENT(INOUT) :: SENSORS
+      TYPE (MAT_ELEM_)   ,INTENT(INOUT) :: MAT_ELEM
+      TYPE (DT_)         ,INTENT(IN)    :: DT
+      type (glob_therm_) ,intent(inout) :: glob_therm
+      integer, intent(in) :: LIPART1
+ 
+      INTEGER, DIMENSION(LIPART1,NPART), INTENT(IN)     :: IPART
+
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
 C   L O C A L   V A R I A B L E S
 C--------------------------------
       LOGICAL PLAT(MVSIZ)
       INTEGER 
-     .   I,J,IR,IS,MX,NNOD,NUPAR,NLAY,NXLAY,ILAY,NPG,IXEL,IFAILWAVE,
+     . I,J,IR,IS,NNOD,NLAY,NXLAY,ILAY,NPG,IXEL,IFAILWAVE,
      .   IBID,ISROT,NG,IXFEM2,L_DIRA,L_DIRB,J1,J2,IORTH,IGTYP,IGMAT,IXLAY,
-     .   NPTTOT,IREP,IPOUT
+     .   NPTTOT,IREP,IPOUT,IDRAPE,NPTT,IT,ACTIFXFEM,SEDRAPE,NUMEL_DRAPE
       INTEGER  MAT(MVSIZ),PID(MVSIZ),NGL(MVSIZ),FWAVE_EL(NEL)
       PARAMETER (NNOD = 4)
       my_real 
-     .  RH0(MVSIZ),LL(MVSIZ),
+     . LL(MVSIZ),
      .  VL13(MVSIZ,3), VL24(MVSIZ,3), VLHI(MVSIZ,3), RLXYZ(MVSIZ,8),
      .  X13(MVSIZ),  X24(MVSIZ),  Y13(MVSIZ),  Y24(MVSIZ),
      .  MX13(MVSIZ), MX23(MVSIZ), MX34(MVSIZ),
@@ -196,7 +228,7 @@ C--------------------------------
      .  ALPE(MVSIZ),YM(MVSIZ) ,BID,FACN(MVSIZ,2),
      .  LXYZ(MVSIZ,8),DD(MVSIZ,6),DB(MVSIZ,12),AMU(MVSIZ),
      .  GSR(MVSIZ), A11SR(MVSIZ), A12SR(MVSIZ), NUSR(MVSIZ),
-     .  SHFSR(MVSIZ),PX2(MVSIZ),PY1(MVSIZ),PY2(MVSIZ),PX1(MVSIZ),
+     . SHFSR(MVSIZ),PX2(MVSIZ),PY1(MVSIZ),PY2(MVSIZ),
      .  DIE(MVSIZ), TEMPEL(MVSIZ),THEM(MVSIZ,4),
      .  R11(MVSIZ),R12(MVSIZ),R13(MVSIZ),
      .  R21(MVSIZ),R22(MVSIZ),R23(MVSIZ),
@@ -225,36 +257,51 @@ C--------------------------------
      .  MX13T(MVSIZ), MX23T(MVSIZ), MX34T(MVSIZ),
      .  MY13T(MVSIZ), MY23T(MVSIZ), MY34T(MVSIZ), Z1T(MVSIZ),
      .  A_IT(MVSIZ),F_DEF(MVSIZ,8), U13(MVSIZ,2),U24(MVSIZ,2),
-     .  AXYZ(MVSIZ,4),WXY(MVSIZ),FAC58(MVSIZ,2)  
-C--- Variables pour le non-local
+     .  AXYZ(MVSIZ,4),WXY(MVSIZ),FAC58(MVSIZ,2) 
+       my_real , DIMENSION (NEL) :: ZOFFSET
+      my_real :: dtinv,asrate,eps_m2,eps_k2
+      my_real, dimension(nel)   :: epsd_pg
+      my_real, dimension(mvsiz) :: fheat    !  variable for heat transfer
+      my_real, dimension(mvsiz) :: ssp_eq    !  for time step compute
+!
+C--- variables for the non-local
       INTEGER :: NDDL, K, INOD(4),NC1(MVSIZ), NC2(MVSIZ), NC3(MVSIZ), NC4(MVSIZ),
-     .           IPOS(4), L_NLOC, IMAT, INLOC,NUPARAM,IADBUF,IINT
+     .           IPOS(4), L_NLOC, IMAT, INLOC,IINT
       my_real, DIMENSION(:,:), ALLOCATABLE :: VAR_REG
-      my_real, DIMENSION(:), POINTER :: BPRELD,DNL,UVAR
+      my_real, DIMENSION(:), POINTER :: DNL, UVAR
 C---
       INTEGER, DIMENSION(NEL) :: OFFLY
       INTEGER, ALLOCATABLE, DIMENSION(:) :: ELCRKINI
       my_real, ALLOCATABLE, DIMENSION(:) :: DIRA,DIRB,DIR1_CRK,DIR2_CRK
-      my_real, DIMENSION(:) ,POINTER     :: DIR_A,DIR_B,CRKDIR,CRKLEN,DADV,UPARAM
+      my_real, DIMENSION(:) ,POINTER     :: DIR_A,DIR_B,CRKDIR,CRKLEN,DADV
       TARGET :: DIRA,DIRB
 C-----
-      TYPE(BUF_LAY_) ,POINTER :: BUFLY
+ 
       TYPE(G_BUFEL_) ,POINTER :: GBUF
-      TYPE(L_BUFEL_) ,POINTER :: LBUF
+ 
+      TYPE(L_BUFEL_DIR_) ,POINTER :: LBUF_DIR
+      INTEGER SDIR_A    ! Size of DIR_A
+      INTEGER SDIR_B    ! Size of DIR_B
 C------------|---------|------------------------------------------------------
 C     ZCFAC(1) AVERAGE ETAN/E
 C     ZCFAC(2) MIN(ETAN/E)
 C     DEFAULT VALUES SET TO 1.
 C=======================================================================
       GBUF => ELBUF_STR%GBUF
+      IDRAPE = ELBUF_STR%IDRAPE
 C-----
       IBID = 0
       BID  = ZERO
       ISROT = IPARG(41)
       IREP  = IPARG(35)
       INLOC = IPARG(78)
-	  IINT  = IPARG(36)
+      IINT  = IPARG(36)
+      ACTIFXFEM = IPARG(70)
       NLAY  = ELBUF_STR%NLAY
+      SEDRAPE = SCDRAPE
+      NUMEL_DRAPE = NUMELC_DRAPE
+      TEMPEL(:) = ZERO
+      FHEAT(:)  = ZERO
 c
 c      NPT  = MAX(NLAY,NPTT) --> set to = IPARG(6) , keeping it original
 c                                to allow for NPT = 0 (global LAW_3
@@ -271,7 +318,7 @@ C
       ENDDO
       UVAR  => ELBUF_STR%BUFLY(1)%MAT(IR,IS,1)%VAR
 !-------------------------------------------      
-! Tableau pour la variable non-locale
+! array for the non-local variable
       NDDL = NPTTOT
       ALLOCATE(VAR_REG(NEL,NDDL)) 
 !-------------------------------------------
@@ -279,21 +326,51 @@ C
 c-------------------------------------
       L_DIRA = ELBUF_STR%BUFLY(1)%LY_DIRA
       L_DIRB = ELBUF_STR%BUFLY(1)%LY_DIRB
-      ALLOCATE(DIRA(NLAY*NEL*L_DIRA))
-      ALLOCATE(DIRB(NLAY*NEL*L_DIRB))
-      DIRA = ZERO
-      DIRB = ZERO
-      IF (L_DIRA == 0) THEN
-        DIRA = ZERO
-      ELSEIF (IREP == 0) THEN
-        DO J=1,NLAY
-          J1 = 1+(J-1)*L_DIRA*NEL
-          J2 = J*L_DIRA*NEL
-          DIRA(J1:J2) = ELBUF_STR%BUFLY(J)%DIRA(1:NEL*L_DIRA)
-        ENDDO
-      ENDIF
-      DIR_A => DIRA(1:NLAY*NEL*L_DIRA)
-      DIR_B => DIRB(1:NLAY*NEL*L_DIRB)
+      IGTYP = IGEO(11,IXC(6,1))
+      IF(IDRAPE > 0 .AND. (IGTYP == 51 .OR. IGTYP == 52)) THEN
+        ALLOCATE(DIRA(NPTTOT*NEL*L_DIRA))
+        ALLOCATE(DIRB(NPTTOT*NEL*L_DIRB))
+        IF (L_DIRA == 0) THEN
+            CONTINUE
+        ELSEIF (IREP == 0) THEN
+           NPTTOT = 0
+           DO ILAY=1,NLAY
+              NPTT = ELBUF_STR%BUFLY(ILAY)%NPTT
+              DO IT=1,NPTT
+                 J = NPTTOT + IT
+                 LBUF_DIR =>  ELBUF_STR%BUFLY(ILAY)%LBUF_DIR(IT)
+                 J1 = 1+(J-1)*L_DIRA*NEL
+                 J2 = J*L_DIRA*NEL
+                 DIRA(J1:J2) = LBUF_DIR%DIRA(1:NEL*L_DIRA)
+              ENDDO
+              NPTTOT = NPTTOT + NPTT
+            ENDDO 
+        ENDIF
+        SDIR_A=NPTTOT*NEL*L_DIRA
+        SDIR_B=NPTTOT*NEL*L_DIRB
+        DIR_A => DIRA(1:NPTTOT*NEL*L_DIRA)
+        DIR_B => DIRB(1:NPTTOT*NEL*L_DIRB)
+      ELSE ! idrape
+        SDIR_A=NLAY*NEL*L_DIRA
+        SDIR_B=NLAY*NEL*L_DIRB
+        ALLOCATE(DIRA(NLAY*NEL*L_DIRA))
+        ALLOCATE(DIRB(NLAY*NEL*L_DIRB))
+        DIRA=ZERO
+        DIRB=ZERO
+        IF (L_DIRA == 0) THEN
+          CONTINUE
+        ELSEIF (IREP == 0) THEN
+           DO J=1,NLAY
+              J1 = 1+(J-1)*L_DIRA*NEL
+              J2 = J*L_DIRA*NEL
+              DIRA(J1:J2) = ELBUF_STR%BUFLY(J)%DIRA(1:NEL*L_DIRA)
+           ENDDO
+         ENDIF
+         SDIR_A=NLAY*NEL*L_DIRA
+         SDIR_B=NLAY*NEL*L_DIRB
+         DIR_A => DIRA(1:NLAY*NEL*L_DIRA)
+         DIR_B => DIRB(1:NLAY*NEL*L_DIRB)
+      ENDIF ! IDRAPE   
 c-------------------------------------
       DO I=JFT,JLT
         MAT(I) = IXC(1,I)
@@ -309,16 +386,13 @@ c-------------------------------------
 C
       DO I=JFT,JLT                
         FAC1(I) = GEO(17,PID(I))
-        VF(I,1:12) =ZERO		
-        VM(I,1:8) =ZERO		
+        VF(I,1:12) =ZERO
+        VM(I,1:8) =ZERO
       ENDDO
 C      
       IMAT  = IXC(1,JFT)
       IGTYP = IGEO(11,PID(1))
       IGMAT = IGEO(98,PID(1))
-      IADBUF = MAX(1,IPM(7,IMAT))
-      NUPARAM= IPM(9,IMAT)       
-      UPARAM => BUFMAT(IADBUF:IADBUF+NUPARAM)
 c--------------------------------------------
 c     Front wave
 c--------------------------------------------
@@ -359,7 +433,7 @@ c-------------------------------------
         ALLOCATE(DIR2_CRK(0))
       ENDIF  ! IXFEM
 C--------------------
-      CALL CZCORC1(ELBUF_STR,
+      CALL CZCORC1(NUMNOD,NUMELC    ,ELBUF_STR,
      1             JFT     ,JLT     ,X       ,V       ,VR      ,
      2             IXC     ,PM      ,PLAT    ,AREA    ,
      3             A_I     ,VL13    ,VL24    ,VLHI    ,RLXYZ   ,
@@ -393,15 +467,17 @@ C
      6              NPTTOT ,DT1C    ,DT1     ,IHBE    ,AMU     ,
      7              GSR    ,A11SR   ,A12SR   ,NUSR    ,SHFSR   ,
      8              KRZ    ,IGEO    ,A11R , ISUBSTACK , STACK%PM,
-     9              UPARAM ,DIRA    ,DIRB    ,UVAR    ,FAC58   )
+     9              MAT_ELEM%MAT_PARAM(IMAT)%UPARAM ,DIRA    ,DIRB    ,
+     A              UVAR   ,FAC58   ,NEL     ,ZOFFSET )
 C       
       CALL CNCOEFORT(JFT    ,JLT    ,PM        ,MAT     ,GEO     ,
      1               PID    ,MTN    ,NPTTOT    ,HM      ,HF      ,
      2               HC     ,HMFOR  ,IORTH     ,DIR_A   ,IGEO    ,
      3               ISUBSTACK,STACK,ELBUF_STR ,NLAY    ,GBUF%THK,
-     4               DRAPE_Q4  ,NFT  ,NEL       )
+     4               DRAPE_SH4N  ,NFT  ,NEL    ,INDX_DRAPE , THKE,
+     5               SEDRAPE,NUMEL_DRAPE       ,MAT_ELEM )
 C----------------------------------
-C     CALCUL VITESSE DE DEFORMATION 
+C     calculation of strain rate
 C----------------------------------
         CALL CZDEF(JFT     ,JLT   ,AREA ,A_I  ,VL13   ,VL24  ,
      2             VLHI    ,RLXYZ ,VDEF ,DHG  ,X13    ,
@@ -440,7 +516,7 @@ C
      3               Z1  ,WXY)
       END IF !(ISMSTR == 10 ) THEN
 C----------------------------------
-C     CALCUL DES DEFORMATIONS 
+C     calculation of strains
 C----------------------------------
       CALL CZSTRA3(JFT    ,JLT    ,NFT   ,VDEF ,GBUF%STRA,
      2             EXX    ,EYY    ,EXY   ,EXZ  ,EYZ      ,  
@@ -450,6 +526,12 @@ C----------------------------------
      6             Y24    ,PX2    ,PY1   ,PY2  ,AREA     ,
      7             ISMSTR ,MTN    ,WXY   ,F_DEF,GBUF%STRW,
      8             NEL    )
+       IF (GBUF%G_STRPG > GBUF%G_STRA) THEN
+        CALL CZSTRAH3(JFT   ,JLT    ,GBUF%STRPG,DHG    ,A_I   ,
+     3               MX23   ,MX34   ,MY23  ,MY34   ,DT1C  ,
+     4               EXX    ,EYY    ,EXY   ,EXZ    ,EYZ      ,  
+     3               KXX    ,KYY    ,KXY   ,NEL    )
+       END IF 
        IF (NPTTOT == 1 .AND. MTN==58) THEN
           CALL CZCORCHT(ELBUF_STR,
      1               JFT    ,JLT    ,X      ,V      ,VR     ,
@@ -485,60 +567,86 @@ c-------------------------------------------
           ENDDO
         ENDDO
       ENDIF     
-C-----------------
-C     CONTRAINTES
-C-----------------
-      IF (JTHE > 0) THEN
-        CALL TEMPCG(JFT  ,JLT    ,PM     ,MAT    ,IXC     ,
-     .              TEMP ,TEMPEL )
+!-------------------------------------------------------------------------------
+!       global element strain rate (shell energy equivalent)
+!-----------------------------------------------------------
+!       e = 1/t integ[1/2 e (eps_m + k z)^2 dz ]
+!       e = 1/2 e eps_eq^2
+!       eps_eq = sqrt[ eps_m^2 + 1/12 k^2t^2 ]
+!-------------------------------------------------------------------------------
+      dtinv = dt1 / max(dt1**2,em20)  ! inverse of dt
+      asrate = one   ! to be changed for default value
+#include "vectorize.inc"
+      do i = 1,nel
+        eps_k2 = (kxx(i)**2+kyy(i)**2+kxx(i)*kyy(i)+fourth*kxy(i)**2)
+     .         * one_over_9*gbuf%thk(i)**2
+        eps_m2 = four_over_3*(exx(i)**2+eyy(i)**2+exx(i)*eyy(i) + fourth*exy(i)**2)
+        epsd_pg(i) = sqrt(eps_k2 + eps_m2)*dtinv
+      end do
+      gbuf%epsd(1:nel) = asrate * epsd_pg(1:nel) + (one - asrate) * gbuf%epsd(1:nel)      
+!-------------------------------------------------------------------------------
+      ! transfer nodal temperature to gauss points (/heat/mat)
+      IF (JTHE /= 0) THEN      
+        CALL TEMPCG(NUMNOD,NEL   ,IXC  ,TEMP ,TEMPEL )
       ENDIF
 C-----------------------------------------------     
-      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(35,1)
+      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(TIMERS,35)
 C-----------------------------------------------
-       CALL CMAIN3(
+       CALL CMAIN3(TIMERS,
      1      ELBUF_STR ,JFT       ,JLT       ,NFT       ,IPARG      ,
      2      NEL       ,MTN       ,IPLA      ,ITHK      ,GROUP_PARAM,
      3      PM        ,GEO       ,NPF       ,TF        ,BUFMAT     ,
      4      SSP       ,RHO       ,VISCMX    ,DT1C      ,SIGY       ,
      5      AREA      ,EXX       ,EYY       ,EXY       ,EXZ        ,
      6      EYZ       ,KXX       ,KYY       ,KXY       ,NU         ,
-     7      OFF       ,THK0      ,MAT       ,PID       ,MATPARAM_TAB,
+     7      OFF       ,THK0      ,MAT       ,PID       ,MAT_ELEM   ,
      8      GBUF%FOR  ,GBUF%MOM  ,GBUF%STRA ,FAILWAVE  ,FWAVE_EL   ,
      9      GBUF%THK  ,GBUF%EINT ,IOFC      ,
      A      G         ,A11       ,A12       ,VOL0      ,INDXOF     ,
-     B      NGL       ,ZCFAC     ,SHF       ,GS        ,GBUF%EPSD  ,
+     B      NGL       ,ZCFAC     ,SHF       ,GS        ,epsd_pg    ,
      C      KFTS      ,IHBE      ,ALPE      ,
      D      DIR_A     ,DIR_B     ,IGEO      ,
-     E      IPM       ,IFAILURE  ,NPG       ,
+     E      IPM       ,IFAILURE  ,NPG       ,FHEAT     ,
      F      TEMPEL    ,DIE       ,JTHE      ,IEXPAN    ,GBUF%TEMP  ,
      G      IBID      ,BID       ,
      H      BID       ,BID       ,BID       ,BID       ,BID        ,
      I      BID       ,BID       ,BID       ,R11       ,R12        ,
      J      R13       ,R21       ,R22       ,R23       ,R31        ,
      K      R32       ,R33       ,NG        ,TABLE     ,IXFEM      ,
-     L      BID       ,LSENSOR   ,SENSOR    ,BID       ,ELCRKINI   ,
-     M      DIR1_CRK  ,DIR2_CRK  ,LL        ,
+     L      BID       ,SENSORS   ,BID       ,ELCRKINI   ,
+     M      DIR1_CRK  ,DIR2_CRK  ,LL        ,GLOB_THERM%IDT_THERM ,GLOB_THERM%THEACCFACT,
      N      ISMSTR    ,IR        ,IS        ,NLAY      ,NPT        ,
      O      IXLAY     ,IXEL      ,ISUBSTACK ,STACK     ,
-     P      F_DEF     ,ITASK     ,DRAPE_Q4  ,VAR_REG   ,NLOC_DMG   )
+     P      F_DEF     ,ITASK     ,DRAPE_SH4N  ,VAR_REG   ,NLOC_DMG   ,
+     R      INDX_DRAPE,THKE      ,SEDRAPE     ,NUMEL_DRAPE,DT    ,
+     Q      NCYCLE    ,SNPC      ,STF         ,NXLAYMAX  ,IDEL7NOK  ,
+     S      USERL_AVAIL ,MAXFUNC ,NPTTOT      ,SBUFMAT   ,SDIR_A    ,
+     T      SDIR_B   ,GBUF%FOR_G ,SSP_EQ    ,
+     X    IPART      ,LIPART1   ,IPARTC   )
+
 C-----------------------------------------------
 c        
-      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STOPTIME(35,1)
+      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STOPTIME(TIMERS,35)
 C--------------------------
-C     BILANS PAR MATERIAU
+C     balances by material
 C--------------------------
        IPOUT=2
       IF (IPRI == 1)
-     1   CALL CBILAN(JFT     ,JLT      ,PM     ,V       ,IXC      ,
-     2               GBUF%THK,GBUF%EINT,PARTSAV,AREA    ,MAT      ,
-     3               IPARTC  ,X        ,VR     ,BID     ,BID      ,
-     4               BID     ,THK02    ,IPOUT  ,OFF     ,
-     5               NFT     ,GRESAV   ,GRTH   ,IGRTH   ,
-     6               VL1     ,VL2      ,VL3    ,VL4     ,VRL1     ,
-     7               VRL2    ,VRL3     ,VRL4   ,X1G     ,X2G      ,
-     8               X3G     ,X4G      ,Y1G    ,Y2G     ,Y3G      ,
-     9               Y4G     ,Z1G      ,Z2G    ,Z3G     ,Z4G      ,
-     A               IBID    ,IEXPAN   ,GBUF%EINTTH,ITASK)
+     1   CALL CBILAN(
+     1   JFT,        JLT,        PM,         V,
+     2   IXC,        GBUF%THK,   GBUF%EINT,  PARTSAV,
+     3   AREA,       MAT,        IPARTC,     X,
+     4   VR,         BID,        BID,        BID,
+     5   THK02,      IPOUT,      OFF,        NFT,
+     6   GRESAV,     GRTH,       IGRTH,      VL1,
+     7   VL2,        VL3,        VL4,        VRL1,
+     8   VRL2,       VRL3,       VRL4,       X1G,
+     9   X2G,        X3G,        X4G,        Y1G,
+     A   Y2G,        Y3G,        Y4G,        Z1G,
+     B   Z2G,        Z3G,        Z4G,        IBID,
+     C   IEXPAN,     GBUF%EINTTH,ITASK,      GBUF%VOL,
+     D   ACTIFXFEM,  IGRE,       SENSORS,    NEL,
+     E   GBUF%G_WPLA,GBUF%WPLA )
 C
          CALL CNDT3(
      1        JFT    ,JLT    ,OFF    ,DT2T   ,AMU     ,
@@ -547,7 +655,8 @@ C
      4        A11   ,LL   ,ALPE,NGL,ISMSTR,
      5        IOFC  ,NNOD ,AREA,G  ,SHF   ,
      6        MSC   ,DMELC,JSMS,BID , IGTYP ,
-     7        IGMAT ,A11R ,GBUF%G_DT, GBUF%DT)
+     7        IGMAT  ,A11R   ,GBUF%G_DT, GBUF%DT,MTN   ,
+     8        PM     ,MAT(JFT),NEL, ZOFFSET,SSP_EQ )
 c-------------------------------
          CALL CZFINTCE(JFT  ,JLT  ,THK0 ,THK02,A_I     ,X13     ,
      2                 X24  ,Y13  ,Y24  ,Z1   ,MX23    ,MX13    ,
@@ -614,12 +723,13 @@ c     Virtual internal forces of regularized non local ddl
 c--------------------------
       IF (INLOC > 0) THEN
         ! Warning : Y24 = PX1
-        CALL CFINT_REG(NLOC_DMG,VAR_REG ,GBUF%THK,NEL     ,
-     .                 OFF     ,AREA    ,NC1     ,NC2     ,
-     .                 NC3     ,NC4     ,Y24     ,PY1     ,
-     .                 PX2     ,PY2     ,ELBUF_STR%NLOC(1,1), 
-     .                 IMAT    ,NDDL    ,ITASK   ,DT2T    ,
-     .                 LL      )
+        CALL CFINT_REG(
+     1   NLOC_DMG,        VAR_REG,         GBUF%THK,        NEL,
+     2   OFF,             AREA,            NC1,             NC2,
+     3   NC3,             NC4,             Y24,             PY1,
+     4   PX2,             PY2,             ELBUF_STR%NLOC(1,1), IMAT,
+     5   NDDL,            ITASK,           DT2T,            LL,
+     7   GBUF%THK_I,      GBUF%AREA,       NFT)
       ENDIF 
 c-------------------------------
         IF (NPTTOT == 1) THEN
@@ -630,13 +740,13 @@ c-------------------------------
      3                     G    ,RHO  ,AREA ,AMU  ,DT1  ,
      4                     VL13 ,VL24 ,VLHI ,GBUF%HOURG,
      4                     OFF  ,IPARTC,PARTSAV,KFTS  ,NEL )
-	  ELSE
+          ELSE
             CALL CZFINTNM(JFT  ,JLT  ,THK0  ,A_I   ,DHG  ,
      2                    X13  ,X24  ,Y13  ,Y24  ,VF   ,
      3                    G    ,RHO  ,AREA ,AMU  ,DT1  ,
      4                    OFF  ,IPARTC,PARTSAV,KFTS  )
-	  END IF
-	END IF
+          END IF
+        END IF
         CALL CZPROJ1(
      1            JFT    ,JLT    ,VQN    ,VQ     ,VF ,
      2            VM     ,PLAT   ,
@@ -648,20 +758,26 @@ c-------------------------------
      8            Z1     ,LXYZ   ,DD     ,DB     ,LXYZ,
      9            ISROT  ,DIZ    ,VMZ    )
 C-------------------------
-c     Thermique des coques 
+c     shell thermal
 C--------------------------
-        IF (JTHE > 0) THEN  
-          CALL THERMC(JFT    ,JLT     ,PM      ,MAT  ,THK0 ,IXC  ,
-     .                Y24    ,PX2     ,PY1     ,PY2  ,AREA ,DT1C ,
-     .                TEMP   ,TEMPEL  ,DIE     ,THEM )
+        IF (JTHE /= 0) THEN  
+          IF (MAT_ELEM%MAT_PARAM(IMAT)%HEAT_FLAG == 1) THEN
+            CALL THERMC(JFT    ,JLT     ,PM      ,MAT  ,THK0 ,IXC  ,
+     .                  Y24    ,PX2     ,PY1     ,PY2  ,AREA ,DT1C ,
+     .                  TEMP   ,TEMPEL  ,FHEAT   ,THEM ,GLOB_THERM%THEACCFACT)
+          ELSE
+            CALL THERMC(JFT    ,JLT     ,PM      ,MAT  ,THK0 ,IXC  ,
+     .                  Y24    ,PX2     ,PY1     ,PY2  ,AREA ,DT1C ,
+     .                  TEMP   ,TEMPEL  ,DIE    ,THEM  ,GLOB_THERM%THEACCFACT)
+          END IF
         ENDIF 
 c--------------------------
 c     THERMAL TIME STEP
 c--------------------------
-        IF (JTHE > 0 .AND. IDT_THERM == 1) THEN
-           CALL DTTHERM(JFT  ,JLT  ,PM  ,TEMPEL,GBUF%RE  ,
-     2                  RHO  ,GBUF%RK ,VOL0 ,LL,MAT ,
-     3                  DT_THERM,OFF    ,CONDE) 
+        IF (JTHE /= 0 .AND. GLOB_THERM%IDT_THERM == 1) THEN
+           call dttherm(nel     ,pm(1,imat),npropm,glob_therm,mat_elem%mat_param(imat),
+     .                  jtur    ,tempel  ,vol0    ,rho       ,
+     .                  ll      ,off     ,conde   ,gbuf%re   ,gbuf%rk )
         ENDIF
 C
 C--------------------------
@@ -676,7 +792,7 @@ C--------------------------
      6               F33     ,F34  ,M11   ,M12  ,M13      ,
      7               M14     ,M21  ,M22   ,M23  ,M24      ,
      8               M31     ,M32  ,M33   ,M34  ,GBUF%EINT,
-     9               PARTSAV ,MAT  ,IPARTC)
+     9               PARTSAV ,MAT  ,IPARTC,GLOB_THERM%NODADT_THERM)
       ELSEIF (IPARIT == 0) THEN
         CALL CUPDTN3(JFT     ,JLT   ,F     ,M    ,NVC      ,
      2               GBUF%OFF,OFF   ,STI   ,STIR ,STIFN    ,
@@ -687,7 +803,7 @@ C--------------------------
      7               M14     ,M21   ,M22   ,M23  ,M24      ,
      8               M31     ,M32   ,M33   ,M34  ,GBUF%EINT,
      A               PARTSAV ,MAT   ,IPARTC,FACN ,JTHE     ,
-     B               THEM    ,FTHE  ,CONDN ,CONDE)
+     B               THEM    ,FTHE  ,CONDN ,CONDE,GLOB_THERM%NODADT_THERM)
       ELSE 
         CALL CUPDTN3P(JFT      ,JLT     ,GBUF%OFF,OFF   ,STI   ,
      2                STIR     ,FSKY    ,FSKY    ,IADC  ,
@@ -698,10 +814,10 @@ C--------------------------
      8                M31      ,M32     ,M33     ,M34   ,IXC   ,
      A                GBUF%EINT,PARTSAV ,MAT     ,IPARTC,PM    ,
      B                AREA     ,GBUF%THK,FACN    ,JTHE  ,THEM  ,
-     C                FTHESKY  ,CONDNSKY,CONDE   )
+     C                FTHESKY  ,CONDNSKY,CONDE   ,GLOB_THERM%NODADT_THERM)
       ENDIF
 C-------------------------
-c     Fissure des coques 
+c     shell cracking
 C--------------------------
       IF (IXFEM > 0) THEN
         DO ILAY=1,NXLAY

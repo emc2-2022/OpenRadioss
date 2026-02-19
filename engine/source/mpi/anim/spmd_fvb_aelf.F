@@ -1,32 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_FVB_AELF                 source/mpi/anim/spmd_fvb_aelf.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_fvb_aelf         ../engine/source/mpi/anim/spmd_fvb_aelf.F
+!||--- called by ------------------------------------------------------
+!||    genani                ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod             ../engine/share/modules/fvbag_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_FVB_AELF(FVMASS , FVPRES, FVQX  , FVQY  , FVQZ  ,
      .                         FVRHO  , FVENER, FVCSON, FVGAMA, FVVISU,
      .                         FVEL2FA)
@@ -37,13 +39,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -60,7 +61,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
       INTEGER ELOFF, I, PMAIN, J, K, KK, N, NN, IDP, ITAG, MSGOFF,
-     .        NNTR, LEN, IAD, STAT(MPI_STATUS_SIZE), IERR,MSGOFF2
+     .        NNTR, LEN, STAT(MPI_STATUS_SIZE), IERR,MSGOFF2
       my_real
      .        GAMA, SSP, FAC
       my_real
@@ -72,8 +73,8 @@ C
       ELOFF=0
       DO I=1,NFVBAG
          PMAIN=FVSPMD(I)%PMAIN
-         IF (ISPMD.EQ.0) THEN
-            IF (ISPMD.EQ.PMAIN-1) THEN
+         IF (ISPMD==0) THEN
+            IF (ISPMD==PMAIN-1) THEN
                DO J=1,FVDATA(I)%NPOLH
                   GAMA=FVDATA(I)%GPOLH(J)
                   SSP=SQRT((GAMA-ONE)*GAMA*FVDATA(I)%EPOLH(J)/
@@ -84,7 +85,7 @@ C
      .                         FVDATA(I)%IFVTADR(KK+1)-1
                         NN=FVDATA(I)%IFVPOLY(N)
                         FAC=ONE
-                        IF (FVDATA(I)%IFVTRI(4,NN).NE.0) THEN
+                        IF (FVDATA(I)%IFVTRI(4,NN)/=0) THEN
                            IDP=FVDATA(I)%IDPOLH(J)
                            FVVISU(FVEL2FA(ELOFF+NN))=IDP-(IDP/8)*8+1
                         ELSE
@@ -94,7 +95,7 @@ C
                         NN=FVEL2FA(ELOFF+NN)
                         FVMASS(NN)=FVMASS(NN)+FAC*FVDATA(I)%MPOLH(J)
                         FVPRES(NN)=FVPRES(NN)+FAC*FVDATA(I)%PPOLH(J)
-                        IF (FVDATA(I)%MPOLH(J).GT.ZERO) THEN
+                        IF (FVDATA(I)%MPOLH(J)>ZERO) THEN
                            FVQX(NN)=FVQX(NN)+FAC*FVDATA(I)%QPOLH(1,J)/
      .                                           FVDATA(I)%MPOLH(J)
                            FVQY(NN)=FVQY(NN)+FAC*FVDATA(I)%QPOLH(2,J)/
@@ -114,13 +115,13 @@ C
             ELSE
                ITAG=MSGOFF
                CALL MPI_RECV(NNTR, 1, MPI_INTEGER, IT_SPMD(PMAIN),
-     .                       ITAG, MPI_COMM_WORLD, STAT, IERR)
+     .                       ITAG, SPMD_COMM_WORLD, STAT, IERR)
 C
                LEN=10*NNTR
                ALLOCATE(RBUF(LEN))
                ITAG=MSGOFF2
                CALL MPI_RECV(RBUF, LEN, REAL, IT_SPMD(PMAIN),
-     .                       ITAG, MPI_COMM_WORLD, STAT, IERR)
+     .                       ITAG, SPMD_COMM_WORLD, STAT, IERR)
 C
                DO J=1,NNTR
                   NN=FVEL2FA(ELOFF+J)
@@ -139,11 +140,11 @@ C
                DEALLOCATE(RBUF)
             ENDIF
          ELSE
-            IF (ISPMD.EQ.PMAIN-1) THEN
+            IF (ISPMD==PMAIN-1) THEN
                NNTR=FVDATA(I)%NNTR
                ITAG=MSGOFF
                CALL MPI_SEND(NNTR, 1, MPI_INTEGER, IT_SPMD(1),
-     .                       ITAG, MPI_COMM_WORLD, IERR)
+     .                       ITAG, SPMD_COMM_WORLD, IERR)
 C
                LEN=10*NNTR
                ALLOCATE(RBUF(LEN))
@@ -160,7 +161,7 @@ C
      .                         FVDATA(I)%IFVTADR(KK+1)-1
                         NN=FVDATA(I)%IFVPOLY(N)
                         FAC=ONE
-                        IF (FVDATA(I)%IFVTRI(4,NN).NE.0) THEN
+                        IF (FVDATA(I)%IFVTRI(4,NN)/=0) THEN
                            IDP=FVDATA(I)%IDPOLH(J)
                            RBUF(9*NNTR+NN)=IDP-(IDP/8)*8+1
                         ELSE
@@ -170,7 +171,7 @@ C
                         RBUF(NN)=RBUF(NN)+FAC*FVDATA(I)%MPOLH(J)
                         RBUF(NNTR+NN)=RBUF(NNTR+NN)
      .                                +FAC*FVDATA(I)%PPOLH(J)
-                        IF (FVDATA(I)%MPOLH(J).GT.ZERO) THEN
+                        IF (FVDATA(I)%MPOLH(J)>ZERO) THEN
                            RBUF(2*NNTR+NN)=RBUF(2*NNTR+NN)
      .                                    +FAC*FVDATA(I)%QPOLH(1,J)/
      .                                         FVDATA(I)%MPOLH(J)
@@ -193,7 +194,7 @@ C
                ENDDO
                ITAG=MSGOFF2
                CALL MPI_SEND(RBUF, LEN, REAL, IT_SPMD(1),
-     .                       ITAG, MPI_COMM_WORLD, IERR)
+     .                       ITAG, SPMD_COMM_WORLD, IERR)
 C
                DEALLOCATE(RBUF)        
             ENDIF

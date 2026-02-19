@@ -1,38 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_TBUTCHER_C               source/materials/fail/tuler_butcher/fail_tbutcher_c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_tbutcher_c   ../engine/source/materials/fail/tuler_butcher/fail_tbutcher_c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc            ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell     ../engine/source/materials/mat_share/usermat_shell.F
+!||====================================================================
       SUBROUTINE FAIL_TBUTCHER_C(
      1     NEL      ,NUPARAM  ,NUVAR    ,UPARAM   ,UVAR     ,
      2     TIME     ,TIMESTEP ,IPG      ,ILAY     ,IPT      ,
      3     SIGNXX   ,SIGNYY   ,SIGNXY   ,SIGNYZ   ,SIGNZX   ,
-     4     NGL      ,OFF      ,FOFF     ,PTHKF    ,DFMAX    ,
-     5     TDEL     )
+     4     NGL      ,OFF      ,FOFF     ,DFMAX    ,TDEL     )
 C---------+---------+---+---+--------------------------------------------
 c    Tuler Butcher Failure model
 C-----------------------------------------------
@@ -62,7 +60,6 @@ C ...     |         |   |   |
 C---------+---------+---+---+--------------------------------------------
 C OFF     | NEL     | F | R | DELETED ELEMENT FLAG (=1. ON, =0. OFF)
 C FOFF    | NEL     | I |R/W| DELETED INTEGRATION POINT FLAG (=1 ON, =0 OFF)
-C PTHKF   |  1      | F | W | PERCENTAGE OF LAYER THICKNESS TO FAIL
 C DFMAX   | NEL     | F |R/W| MAX DAMAGE FACTOR 
 C TDEL    | NEL     | F | W | FAILURE TIME
 C---------+---------+---+---+--------------------------------------------
@@ -83,26 +80,19 @@ C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
       INTEGER ,DIMENSION(NEL), INTENT(INOUT) :: FOFF
-      my_real ,INTENT(OUT) :: PTHKF
       my_real ,DIMENSION(NEL), INTENT(INOUT) :: DFMAX
       my_real ,DIMENSION(NEL), INTENT(OUT)   :: TDEL
       my_real ,DIMENSION(NEL,NUVAR) ,INTENT(INOUT) :: UVAR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: I,J,IFAIL_SH,NINDX
+      INTEGER :: I,J,NINDX
       INTEGER ,DIMENSION(NEL) ::  INDX
-      my_real :: TBA,TBK,KK,SIGMAX,SIGR_INI,SIG1,SIG2,S1,S2
+      my_real :: TBA,TBK,SIGMAX,SIGR_INI,SIG1,SIG2,S1,S2
 C=======================================================================
       TBA      = UPARAM(1)                           
       TBK      = UPARAM(2)                           
       SIGR_INI = UPARAM(3)                        
-      IFAIL_SH   = INT(UPARAM(4))                     
-      IF (IFAIL_SH == 1) THEN
-        PTHKF = EM06
-      ELSEIF (IFAIL_SH == 2) THEN
-        PTHKF = ONE
-      ENDIF
       NINDX  = 0  
 C-----------------------------------------------
       DO I=1,NEL                                             
@@ -112,7 +102,7 @@ C-----------------------------------------------
           SIG1 = S1 + SQRT(S2**2 + SIGNXY(I)**2)            
           SIG2 = S1 - SQRT(S2**2 + SIGNXY(I)**2)            
           SIGMAX = MAX(SIG1,SIG2)                            
-          IF (SIGMAX > SIGR_INI) UVAR(I,1) = UVAR(I,1)            	 
+          IF (SIGMAX > SIGR_INI) UVAR(I,1) = UVAR(I,1)               
      .        + TIMESTEP(I)*(SIGMAX - SIGR_INI)**TBA         
           IF (UVAR(I,1) >= TBK) THEN                         
             NINDX = NINDX + 1

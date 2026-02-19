@@ -1,41 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2FOR28P_CIN                  source/interfaces/interf/i2for28p_cin.F
-Chd|-- called by -----------
-Chd|        I2FOR28P                      source/interfaces/interf/i2for28p.F
-Chd|-- calls ---------------
-Chd|        I2FORCES                      source/interfaces/interf/i2forces.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2for28p_cin   ../engine/source/interfaces/interf/i2for28p_cin.F
+!||--- called by ------------------------------------------------------
+!||    i2for28p       ../engine/source/interfaces/interf/i2for28p.F
+!||--- calls      -----------------------------------------------------
+!||    i2forces       ../engine/source/interfaces/interf/i2forces.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod        ../engine/share/modules/h3d_mod.F
+!||====================================================================
       SUBROUTINE I2FOR28P_CIN(
      1             NSN      ,NMN     ,A      ,IRECT   ,DPARA   ,
      2             MSR      ,NSV     ,IRTL   ,MS      ,WEIGHT  ,
      3             AR       ,IN      ,X      ,STIFN   ,STIFR   ,
      4             FSKYI2   ,IADI2   ,FSAV   ,DMAST   ,ADM     ,
      5             MMASS    ,I0      ,NIR    ,I2SIZE  ,IDEL2   ,
-     6             SMASS    ,SINER   ,V      ,CRST    ,FNCONT  ,
-     7             INDXC    ,IADX    ,H3D_DATA,FNCONTP,FTCONTP )
+     6             SMASS    ,SINER   ,CRST    ,FNCONT ,INDXC   ,
+     7             IADX    ,H3D_DATA,FNCONTP,FTCONTP )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -52,7 +53,7 @@ C-----------------------------------------------
      .   IADI2(NIR,*),INDXC(*),IADX(*)
 C     REAL
       my_real
-     .   A(3,*),AR(3,*), X(3,*),V(*), FSKYI2(I2SIZE,*),MMASS(*),
+     .   A(3,*),AR(3,*), X(3,*),FSKYI2(I2SIZE,*),MMASS(*),
      .   DPARA(7,*), MS(*), IN(*),STIFN(*),STIFR(*),DMAST,ADM(*),
      .   SMASS(*), SINER(*),FSAV(*), CRST(2,*),FNCONT(3,*),
      .   FNCONTP(3,*) ,FTCONTP(3,*) 
@@ -61,36 +62,34 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K,J1,J2,J3,J4, II, L, JJ, NN,NISKY2,I0BASE
+      INTEGER I, J, K,J1,J2,J3,J4, II, L, NN,I0BASE
 C     REAL
       my_real
      .   H(4),
-     .   S,T,SS, ST, XMSI, FXS, FYS, FZS,SP,SM,TP,TM,
+     .   S,T, XMSI, FS(3),SP,SM,TP,TM,
      .   MX,MY,MZ,DET,FX0,FY0,FZ0,INS,
      .   X0,X1,X2,X3,X4,XS,Y0,Y1,Y2,Y3,Y4,YS,Z0,Z1,Z2,Z3,Z4,ZS,
      .   X12,X22,X32,X42,Y12,Y22,Y32,Y42,Z12,Z22,Z32,Z42,
      .   XX,YY,ZZ,XXX,YYY,ZZZ,XY,YZ,ZX,XY2,YZ2,ZX2,
-     .   A1,A2,A3,B1,B2,B3,C1,C2,C3,MR,MRX,MRY,MRZ,INX,INY,INZ,STF,FACT
+     .   A1,A2,A3,B1,B2,B3,C1,C2,C3,MR,MRX,MRY,MRZ,INX,STF,FACT,
+     .   FX(4),FY(4),FZ(4)
 C=======================================================================
 C
 C------------------------------
-C     DUPPLICATED FROM I2FOMO3P - SPOTFLAG1 FORMULATION
+C     DUPLICATED FROM I2FOMO3P - SPOTFLAG1 FORMULATION
 C------------------------------
 C
       I0BASE = I0
 C
-C Traitement specifique pour DMAS
+C specific processing for dmas
 C
-C MMASS(II) initialise a MS(J) a t=0 dans starter
-      IF(ANIM_N(2)+OUTP_N(2)+H3D_DATA%N_SCAL_DMAS  .GT.0) THEN
+C MMASS(II) initialise a MS(J) a t=0 in starter
+      IF(ANIM_N(2)+OUTP_N(2)+H3D_DATA%N_SCAL_DMAS  >0) THEN
         DO II=1,NMN
           J=MSR(II)
           ADM(J) = ADM(J)*MMASS(II)
@@ -98,21 +97,20 @@ C MMASS(II) initialise a MS(J) a t=0 dans starter
       ENDIF
 C
 C------------------------------
-C     FORCES ET MOMENTS DES NOEUDS SECONDS 
-C     TRANSMIS AUX NOEUDS MAINS SOUS 
-C     FORME DE FORCES 
+C     forces and moments of secondary nodes
+C     TRANSMIS AUX NODES MAINS SOUS 
+C     force shape
 C
-C     MASSES ET INERTIES DES NOEUDS SECONDS 
-C     TRANSMISES AUX NOEUDS MAINS SOUS 
-C     FORME DE MASSES 
+C     masses and inertias of secondary nodes
+C     TRANSMISES AUX NODES MAINS SOUS 
+C     mass shape
 C------------------------------
 C
-#include "vectorize.inc"
       DO II=1,NSN
        K = INDXC(II)                                      
        IF (K == 0) CYCLE                                  
        I = NSV(K)
-       IF(I.GT.0)THEN
+       IF(I>0)THEN
         L=IRTL(II)
 C
         S = CRST(1,II)    
@@ -204,30 +202,30 @@ C
         DPARA(6,II)=C2
         DPARA(7,II)=C3
 C
-        IF (WEIGHT(I).EQ.1) THEN
+        IF (WEIGHT(I)==1) THEN
          XMSI=MS(I)
-         FXS=A(1,I)
-         FYS=A(2,I)
-         FZS=A(3,I) 
-         IF (IRODDL.EQ.1) THEN
+         FS(1)=A(1,I)
+         FS(2)=A(2,I)
+         FS(3)=A(3,I) 
+         IF (IRODDL==1) THEN
            INS=IN(I)
-           MX=AR(1,I) + YS*FZS - ZS*FYS
-           MY=AR(2,I) + ZS*FXS - XS*FZS
-           MZ=AR(3,I) + XS*FYS - YS*FXS
+           MX=AR(1,I) + YS*FS(3) - ZS*FS(2)
+           MY=AR(2,I) + ZS*FS(1) - XS*FS(3)
+           MZ=AR(3,I) + XS*FS(2) - YS*FS(1)
          ELSE
            INS=ZERO
-           MX=YS*FZS - ZS*FYS
-           MY=ZS*FXS - XS*FZS
-           MZ=XS*FYS - YS*FXS
+           MX=YS*FS(3) - ZS*FS(2)
+           MY=ZS*FS(1) - XS*FS(3)
+           MZ=XS*FS(2) - YS*FS(1)
          ENDIF
 C
          A1=DET*(MX*B1+MY*C3+MZ*C2)
          A2=DET*(MY*B2+MZ*C1+MX*C3)
          A3=DET*(MZ*B3+MX*C2+MY*C1)
 C
-         FX0=FXS*FOURTH
-         FY0=FYS*FOURTH
-         FZ0=FZS*FOURTH
+         FX0=FS(1)*FOURTH
+         FY0=FS(2)*FOURTH
+         FZ0=FS(3)*FOURTH
 C
 C------------------------------------------------------
 C     INERTIES => MASSES
@@ -240,13 +238,13 @@ C
          MR=DET*INX*MAX(MRX,MRY,MRZ)
 C
 C------------------------------------------------------
-C     MASSES & FORCES TRANSMISES AUX NOEUDS MAINS
+C     MASSES & FORCES TRANSMISES AUX NODES MAINS
 C------------------------------------------------------
 C
          FACT = ONE
-         IF (IRODDL.EQ.1) THEN
-         IF ((IN(J1).GT.ZERO.AND.IN(J2).GT.ZERO.AND.IN(J3).GT.ZERO.AND.IN(J4).GT.ZERO)) THEN
-C--        Inertie transmise sous forme d'inertie
+         IF (IRODDL==1) THEN
+         IF ((IN(J1)>ZERO.AND.IN(J2)>ZERO.AND.IN(J3)>ZERO.AND.IN(J4)>ZERO)) THEN
+C- inertia transmitted in the form of inertia
            FACT = ZERO
          ENDIF
          ENDIF
@@ -261,9 +259,12 @@ C
 C
          I0 = I0BASE + IADX(K)
          NN = IADI2(1,I0)
-         FSKYI2(1,NN) = FX0 + A2*Z1 - A3*Y1
-         FSKYI2(2,NN) = FY0 + A3*X1 - A1*Z1
-         FSKYI2(3,NN) = FZ0 + A1*Y1 - A2*X1
+         FX(1) = FX0 + A2*Z1 - A3*Y1
+         FY(1) = FY0 + A3*X1 - A1*Z1
+         FZ(1) = FZ0 + A1*Y1 - A2*X1 
+         FSKYI2(1,NN) = FX(1)
+         FSKYI2(2,NN) = FY(1)
+         FSKYI2(3,NN) = FZ(1)
          FSKYI2(4,NN) = XMSI
          FSKYI2(5,NN) = STF
          IF (IRODDL == 1) THEN
@@ -275,9 +276,12 @@ C
          ENDIF
 C
          NN = IADI2(2,I0)
-         FSKYI2(1,NN) = FX0 + A2*Z2 - A3*Y2
-         FSKYI2(2,NN) = FY0 + A3*X2 - A1*Z2
-         FSKYI2(3,NN) = FZ0 + A1*Y2 - A2*X2
+         FX(2) = FX0 + A2*Z2 - A3*Y2
+         FY(2) = FY0 + A3*X2 - A1*Z2
+         FZ(2) = FZ0 + A1*Y2 - A2*X2
+         FSKYI2(1,NN) = FX(2)
+         FSKYI2(2,NN) = FY(2)
+         FSKYI2(3,NN) = FZ(2)
          FSKYI2(4,NN) = XMSI
          FSKYI2(5,NN) = STF
          IF (IRODDL == 1) THEN
@@ -289,9 +293,12 @@ C
          ENDIF
 C
          NN = IADI2(3,I0)
-         FSKYI2(1,NN) = FX0 + A2*Z3 - A3*Y3
-         FSKYI2(2,NN) = FY0 + A3*X3 - A1*Z3
-         FSKYI2(3,NN) = FZ0 + A1*Y3 - A2*X3
+         FX(3) = FX0 + A2*Z3 - A3*Y3
+         FY(3) = FY0 + A3*X3 - A1*Z3
+         FZ(3) = FZ0 + A1*Y3 - A2*X3
+         FSKYI2(1,NN) = FX(3)
+         FSKYI2(2,NN) = FY(3)
+         FSKYI2(3,NN) = FZ(3)
          FSKYI2(4,NN) = XMSI
          FSKYI2(5,NN) = STF
          IF (IRODDL == 1) THEN
@@ -303,9 +310,12 @@ C
          ENDIF  
 C
          NN = IADI2(4,I0)
-         FSKYI2(1,NN) =  FX0 + A2*Z4 - A3*Y4
-         FSKYI2(2,NN) =  FY0 + A3*X4 - A1*Z4
-         FSKYI2(3,NN) =  FZ0 + A1*Y4 - A2*X4
+         FX(4) = FX0 + A2*Z4 - A3*Y4
+         FY(4) = FY0 + A3*X4 - A1*Z4
+         FZ(4) = FZ0 + A1*Y4 - A2*X4
+         FSKYI2(1,NN) = FX(4)
+         FSKYI2(2,NN) = FY(4) 
+         FSKYI2(3,NN) = FZ(4) 
          FSKYI2(4,NN) = XMSI
          FSKYI2(5,NN) = STF
          IF (IRODDL == 1) THEN
@@ -318,7 +328,7 @@ C
 C
          DMAST = DMAST + 4.*XMSI - MS(I)
 C
-         IF (ANIM_N(2)+OUTP_N(2)+H3D_DATA%N_SCAL_DMAS .GT.0) THEN
+         IF (ANIM_N(2)+OUTP_N(2)+H3D_DATA%N_SCAL_DMAS >0) THEN
           ADM(J1) = ADM(J1) + XMSI - FOURTH*MS(I)
           ADM(J2) = ADM(J2) + XMSI - FOURTH*MS(I)
           ADM(J3) = ADM(J3) + XMSI - FOURTH*MS(I)
@@ -326,23 +336,23 @@ C
          ENDIF
         ENDIF
 C
-        IF(IDEL2.NE.0.AND.MS(I).NE.0.)SMASS(II)=MS(I)
+        IF(IDEL2/=0.AND.MS(I)/=0.)SMASS(II)=MS(I)
         MS(I)=ZERO
         STIFN(I)=EM20
 C
-        IF (IRODDL.EQ.1) THEN
-          IF(IDEL2.NE.0.AND.IN(I).NE.0.)SINER(II)=IN(I)
+        IF (IRODDL==1) THEN
+          IF(IDEL2/=0.AND.IN(I)/=0.)SINER(II)=IN(I)
           IN(I)=ZERO
           STIFR(I)=EM20
         ENDIF
 C
-C---    output of tied contact forces
- 	CALL I2FORCES(X      ,V	,A	 ,MS	  ,I	  ,
-     .	              IRECT(1,L),H	,NIR     ,FSAV    ,FNCONT ,
-     .                FNCONTP,FTCONTP ,WEIGHT  ,H3D_DATA)   
+C---    output of tied contact forces 
+        CALL I2FORCES(X       ,FS     ,FX     ,FY      ,FZ     ,
+     .                IRECT(1,L),NIR  ,FSAV   ,FNCONT  ,FNCONTP,
+     .                FTCONTP ,WEIGHT ,H3D_DATA,I      ,H)  
 C----
-C stokage ZERO pour noeuds delete par idel2
-       ELSEIF(WEIGHT(-I).EQ.1) THEN
+C zero storage for nodes deleted by idel2
+       ELSEIF(WEIGHT(-I)==1) THEN
          I0 = I0BASE + IADX(K)
          NN = IADI2(1,I0)
          FSKYI2(1,NN) = ZERO
@@ -401,13 +411,13 @@ C
        ENDIF
       ENDDO
 C
-C Traitement specifique pour ADM
+C specific processing for adm
 C
-      IF(ANIM_N(2)+OUTP_N(2)+H3D_DATA%N_SCAL_DMAS  .GT.0) THEN
+      IF(ANIM_N(2)+OUTP_N(2)+H3D_DATA%N_SCAL_DMAS  >0) THEN
 #include "vectorize.inc"
         DO II=1,NMN
           J=MSR(II)
-          ADM(J) = ADM(J)/MMASS(II)
+          ADM(J) = ADM(J)/MAX(MMASS(II),EM20)
         ENDDO
       ENDIF
 C

@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  INIT_MID_PID_ARRAY            source/spmd/tools/init_mid_pid_array.F
-Chd|-- called by -----------
-Chd|        INITWG                        source/spmd/domain_decomposition/initwg.F
-Chd|-- calls ---------------
-Chd|        MID_PID_MOD                   share/modules1/mid_pid_mod.F  
-Chd|====================================================================
+!||====================================================================
+!||    init_mid_pid_array   ../starter/source/spmd/tools/init_mid_pid_array.F
+!||--- called by ------------------------------------------------------
+!||    initwg               ../starter/source/spmd/domain_decomposition/initwg.F
+!||--- uses       -----------------------------------------------------
+!||    mid_pid_mod          ../starter/share/modules1/mid_pid_mod.F
+!||====================================================================
         SUBROUTINE INIT_MID_PID_ARRAY(MODE           ,TAILLE       ,NUMMAT     ,NPART  ,CONCORDANCE_MAT,
      1                                TAB_UMP        ,PID_SHELL    ,PID_TRI    ,PID_SOL,
      2                                MID_PID_SHELL  ,MID_PID_TRI  ,MID_PID_SOL,
@@ -67,9 +67,6 @@ C-----------------------------------------------
       TYPE(MID_PID_TYPE), DIMENSION(NUMMAT), INTENT(INOUT) :: MID_PID_SHELL,MID_PID_TRI
       TYPE(MID_PID_TYPE), DIMENSION(NUMMAT,7), INTENT(INOUT) :: MID_PID_SOL
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER :: ELM_TYP,MID,PID,IPID,ID,IGTYP,INDI,IGTYP_LOC,ILAW
@@ -82,24 +79,24 @@ C=======================================================================
 
 
 ! ------------------------------------------------------------------------
-!       MODE = 0 : create the mid_pid arraies for each element type that 
+!       MODE = 0 : create the mid_pid arrays for each element type that 
 !                  will be used in INITWG_[X] subroutine (X = SHELL, SOL 
-!                  or TRI). The mid_pid arraies will be initialized with 
+!                  or TRI). The mid_pid arrays will be initialized with 
 !                  the Radioss element cost if MODE = 1 is not used. 
 !                  If MODE = 1 is used, mid_pid will be initialized to 
 !                  the element costs obtained from a previous Radioss run
 !               
-!       MODE = 1 : initialize the mid_pid arraies to the element costs 
+!       MODE = 1 : initialize the mid_pid arrays to the element costs 
 !                  obtained from a previous Radioss run
 !
-!       MODE = 0 : allocate and initialize the mid_pid_1 arraies for 
+!       MODE = 0 : allocate and initialize the mid_pid_1 arrays for 
 !                  each element type :
 !                    * check the number of pid properties 
 !                      per mid ( %NBR_PID )
 !                    * allocate each array(mid)%pid1d ( number of 
 !                      pid ) + %cost1d( number of pid )
 !
-!       MODE = 1 : initialize each aray(mid)%pid1d(pid) + %cost1d(pid)
+!       MODE = 1 : initialize each array(mid)%pid1d(pid) + %cost1d(pid)
 ! ------------------------------------------------------------------------
 
         IF(MODE==0) THEN
@@ -196,7 +193,7 @@ C=======================================================================
 !       mode = 0 --> %cost1d = 0
 !       mode = 1 --> %cost1d = old cost 
 ! -----------------------
-!       initialize each aray(mid)%pid1d(pid) + %cost1d
+!       initialize each array(mid)%pid1d(pid) + %cost1d
 ! -----------------------
         PID_SHELL(1:NUMMAT) = 0
         PID_TRI(1:NUMMAT) = 0
@@ -271,8 +268,8 @@ C=======================================================================
                 ILAW = IPM(2,IPART(1,I))
 ! for /TRIA element, force the IGTYP flag 
 ! -->  not really the best way to define a TRIA element but the TRIA element dev. was not
-! a beatiful dev! TRIA element are solid element but TRIA does not use the solid arraies (too simple!)
-! and use the SHELL3N arraies !!!!!!!! 
+! a beautiful dev! TRIA element are solid element but TRIA does not use the solid arrays (too simple!)
+! and use the SHELL3N arrays !!!!!!!! 
                 IF(ILAW==151.AND.N2D/=0) IGTYP_LOC = 1 
                 IGTYP = IGTYP_LOC
 
@@ -331,6 +328,24 @@ C=======================================================================
                                  ENDDO
                             ENDIF
                         ENDDO
+!               
+                        IF(MID_PID_SHELL(MID)%NBR_PID>0) THEN
+                                DO J=1,MID_PID_SHELL(MID)%NBR_PID
+                                 IF(PID==MID_PID_SHELL(MID)%PID1D(J)) THEN
+                                        POIN_PART_SHELL(1,I)=MID
+                                        POIN_PART_SHELL(2,I) = J
+                                 ENDIF                                
+                                ENDDO
+                        ENDIF
+!               
+                        IF(MID_PID_TRI(MID)%NBR_PID>0) THEN
+                                DO J=1,MID_PID_TRI(MID)%NBR_PID
+                                 IF(PID==MID_PID_TRI(MID)%PID1D(J)) THEN
+                                        POIN_PART_TRI(1,I)=MID
+                                        POIN_PART_TRI(2,I) = J
+                                 ENDIF                                
+                                ENDDO
+                        ENDIF
                 ENDIF
            ENDDO
         ENDIF

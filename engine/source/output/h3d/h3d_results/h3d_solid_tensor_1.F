@@ -1,44 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  H3D_SOLID_TENSOR_1            source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- called by -----------
-Chd|        H3D_SOLID_TENSOR              source/output/h3d/h3d_results/h3d_solid_tensor.F
-Chd|-- calls ---------------
-Chd|        H3D_WRITE_TENSOR              source/output/h3d/h3d_results/h3d_write_tensor.F
-Chd|        H3D_WRITE_TENSOR_CORNER       source/output/h3d/h3d_results/h3d_write_tensor_corner.F
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        S6_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|        S8_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|        SROTA6                        source/output/anim/generate/srota6.F
-Chd|        STRN_TENSCOR3                 source/output/h3d/h3d_results/h3d_strn_tenscor3.F
-Chd|        STRS_TENSCOR3                 source/output/h3d/h3d_results/strs_tenscor3.F
-Chd|        T4_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|        SCHLIEREN_MOD                 share/modules/schlieren_mod.F 
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    h3d_solid_tensor_1        ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- called by ------------------------------------------------------
+!||    h3d_solid_tensor          ../engine/source/output/h3d/h3d_results/h3d_solid_tensor.F
+!||--- calls      -----------------------------------------------------
+!||    h3d_write_tensor          ../engine/source/output/h3d/h3d_results/h3d_write_tensor.F
+!||    h3d_write_tensor_corner   ../engine/source/output/h3d/h3d_results/h3d_write_tensor_corner.F
+!||    initbuf                   ../engine/share/resol/initbuf.F
+!||    s6_tstrain                ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||    s8_tstrain                ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||    srota6                    ../engine/source/output/anim/generate/srota6.F
+!||    strn_tenscor3             ../engine/source/output/h3d/h3d_results/h3d_strn_tenscor3.F
+!||    strs_tenscor3             ../engine/source/output/h3d/h3d_results/strs_tenscor3.F
+!||    t4_tstrain                ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod              ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod               ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod               ../engine/share/resol/initbuf.F
+!||    names_and_titles_mod      ../common_source/modules/names_and_titles_mod.F
+!||    schlieren_mod             ../engine/share/modules/schlieren_mod.F
+!||    stack_mod                 ../engine/share/modules/stack_mod.F
+!||====================================================================
       SUBROUTINE H3D_SOLID_TENSOR_1(
      .                  ELBUF_TAB,SOLID_TENSOR, IPARG   ,ITENS   ,IXS     ,PM       ,
      2                   EL2FA    ,NBF     ,TENS    ,EPSDOT  ,
@@ -52,29 +55,20 @@ C-----------------------------------------------
       USE INITBUF_MOD
       USE ELBUFDEF_MOD    
       USE SCHLIEREN_MOD 
-      USE STACK_MOD               
+      USE STACK_MOD
+      USE NAMES_AND_TITLES_MOD, ONLY: NCHARLINE100
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "chara_c.inc"
-#include      "nchara_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "mvsiz_p.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "rnur_c.inc"
-#include      "task_c.inc"
-#include      "scr03_c.inc"
-#include      "spmd_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -89,49 +83,34 @@ C     REAL
      .   ISPH3D,IGEO(NPROPGI,*),IS_WRITTEN_SOLID(*),ID_ELEM(*),ITY_ELEM(*),
      .   H3D_PART(*),INFO1,LAYER_INPUT,IR_INPUT,IS_INPUT,IT_INPUT,NG,IS_CORNER_DATA,ID  
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
-      CHARACTER*ncharline KEYWORD
+      CHARACTER(NCHARLINE100) :: KEYWORD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C----------------------------------------------- 
       my_real
      .   EVAR(6,MVSIZ),EVAR_CORNER(6,20,MVSIZ)
       my_real
-     .   OFF, P,VONM2,S1,S2,S12,S3,VALUE,DMGMX,FAC,
-     .   DIR1_1,DIR1_2,DIR2_1,DIR2_2,AA,BB,V1,V2,V3,X21,X32,X34,
-     .   X41,Y21,Y32,Y34,Y41,Z21,Z32,Z34,Z41,SUMA,VR,VS,X31,Y31,
-     .   Z31,E11,E12,E13,E21,E22,E23,SUM,AREA,X2L,VAR,
-     .   E1X,E1Y,E1Z,E2X,E2Y,E2Z,E3X,E3Y,E3Z,RX,RY,RZ,SX,SY,SZ,
-     .   VG(5),VLY(5),VE(5),S11,S22,S33,S4,S5,S6,VONM, GAMA(6),EVAR_TMP(6),
-     .   A1
+     .   GAMA(6),EVAR_TMP(6)
       my_real 
      .   XN(8*MVSIZ) , YN(8*MVSIZ) , ZN(8*MVSIZ), 
-     .   DXN(8*MVSIZ) ,DYN(8*MVSIZ) , DZN(8*MVSIZ),STRAIN(6,MVSIZ) 
-      INTEGER I,I1,II,J,NEL,NPTR,NPTS,NPTT,NLAY,L,IFAIL,ILAY,
-     .        IR,IS,IT,IL,MLW, NUVAR,IUS,LENF,PTF,PTM,PTS,NFAIL,
-     .        N,NN,K,K1,K2,JTURB,MT,IMID,IALEL,IPID,ISH3N,NNI,
-     .        NN1,NN2,NN3,NN4,NN5,NN6,NN9,NF,BUF,NVARF,
-     .        IHBE,NPTM,NPG, MPT,IPT,IADD,IADR,IPMAT,IFAILT,
-     .        IIGEO,IADI,ISUBSTACK,ITHK,SWA_L,
-     .        ID_PLY,NB_PLYOFF
-      INTEGER PID(MVSIZ),MAT(MVSIZ),MATLY(MVSIZ*100),FAILG(100,MVSIZ),
-     .        PTE(4),PTP(4),PTMAT(4),PTVAR(4),LENCOM,IOFF,NPT_ALL,IPLY,
-     .        ID_ELEM_TMP(MVSIZ),NIX,ISOLNOD,IVISC,NPTG,TSHELL,TSH_ORT,
-     .        ISTRAIN,KCVT,IOR_TSH,MT1,ICSIG,PTI,IOK,IPRT,IOK_PART(MVSIZ),
+     .   DXN(8*MVSIZ) ,DYN(8*MVSIZ) , DZN(8*MVSIZ) 
+      INTEGER I, II, J, NEL, NPTR, NPTS, NPTT, NLAY, ILAY, 
+     .        IR,IS,IT,IL,MLW, NUVAR,IALEL,IPID,NNI
+      INTEGER PID(MVSIZ), 
+     .        ISOLNOD,IVISC,NPTG,TSHELL,TSH_ORT,IPT,N,
+     .        ISTRAIN,KCVT,IOR_TSH,MT1,ICSIG,IOK,IOK_PART(MVSIZ),
      .        JJ(6),IS_WRITTEN_TENSOR(MVSIZ),KK(8)
 
-      REAL R4
+ 
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
       TYPE(L_BUFEL_)  ,POINTER :: LBUF     
-      TYPE(BUF_LAY_)  ,POINTER :: BUFLY     
-      TYPE(BUF_FAIL_) ,POINTER :: FBUF 
-      my_real,
-     .  DIMENSION(:), POINTER  :: UVAR
-      TYPE(L_BUFEL_) ,POINTER  :: LBUF1,LBUF2,LBUF3,LBUF4
+ 
+ 
         GBUF => ELBUF_TAB(NG)%GBUF
         ISTRAIN = IPARG(44,NG)
         ISOLNOD = IPARG(28,NG)
         IVISC = IPARG(61,NG)
-        CALL INITBUF (IPARG    ,NG      ,                      
+        CALL INITBUF(IPARG    ,NG      ,                      
      2        MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,    
      3        NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,    
      4        JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,    
@@ -149,12 +128,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C       SOLID 8N
 C-----------------------------------------------
+
         IF (ITY == 1) THEN
 
 
           DO  I=1,NEL 
             ID_ELEM(NFT+I) = IXS(NIXS,NFT+I)
             ITY_ELEM(NFT+I) = 1
+            IOK_PART(I) = 0
             IF( H3D_PART(IPARTS(NFT+I)) == 1) IOK_PART(I) = 1
             IS_WRITTEN_TENSOR(I) = 0
           ENDDO
@@ -210,6 +191,11 @@ C-------- LAYER_INPUT not available yet fix in function of JHBE+IJK
              IS = 1
            END IF
           END IF
+! tet10 to have 4 ipt
+          IF(ISOLNOD == 10.OR.(ISOLNOD == 4 .AND. ISROT == 1))THEN
+            NPTS = 2
+            NPTT = 2
+          END IF
 C-----------------------------------------------
           IF (KEYWORD == 'TENS/STRESS') THEN
 C-----------------------------------------------
@@ -227,9 +213,9 @@ c ILAYER=NULL IR=NULL IS=NULL IT=NULL
              ENDDO
              IF(IVISC > 0) THEN
               DO I=1,NEL
-                DO IR=1,NPTR  			    	      
-                  DO IS=1,NPTS        	  
-                    DO IT=1,NPTT	     	  
+                DO IR=1,NPTR                    
+                  DO IS=1,NPTS            
+                    DO IT=1,NPTT           
                       LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)
                       EVAR(1,I) =EVAR(1,I)+ LBUF%VISC(JJ(1) + I)/NPTG
                       EVAR(2,I) =EVAR(2,I)+ LBUF%VISC(JJ(2) + I)/NPTG
@@ -237,45 +223,47 @@ c ILAYER=NULL IR=NULL IS=NULL IT=NULL
                       EVAR(4,I) =EVAR(4,I)+ LBUF%VISC(JJ(4) + I)/NPTG
                       EVAR(5,I) =EVAR(5,I)+ LBUF%VISC(JJ(5) + I)/NPTG
                       EVAR(6,I) =EVAR(6,I)+ LBUF%VISC(JJ(6) + I)/NPTG
-                     ENDDO !IT					         	
-                  ENDDO !IS                	
-                ENDDO !IR              	
+                     ENDDO !IT                   
+                  ENDDO !IS                
+                ENDDO !IR              
               ENDDO
              ENDIF
 c
-             IF( NFILSOL .NE. 0 .AND. GBUF%G_FILL .NE. 0 ) THEN
+             IF( NFILSOL /= 0 .AND. GBUF%G_FILL /= 0 ) THEN
                DO I=1,NEL
-           	 EVAR(1,I) = EVAR(1,I) * GBUF%FILL(I)
-           	 EVAR(2,I) = EVAR(2,I) * GBUF%FILL(I)
-           	 EVAR(3,I) = EVAR(3,I) * GBUF%FILL(I)
-           	 EVAR(4,I) = EVAR(4,I) * GBUF%FILL(I)
-           	 EVAR(5,I) = EVAR(5,I) * GBUF%FILL(I)
-           	 EVAR(6,I) = EVAR(6,I) * GBUF%FILL(I)
+           EVAR(1,I) = EVAR(1,I) * GBUF%FILL(I)
+           EVAR(2,I) = EVAR(2,I) * GBUF%FILL(I)
+           EVAR(3,I) = EVAR(3,I) * GBUF%FILL(I)
+           EVAR(4,I) = EVAR(4,I) * GBUF%FILL(I)
+           EVAR(5,I) = EVAR(5,I) * GBUF%FILL(I)
+           EVAR(6,I) = EVAR(6,I) * GBUF%FILL(I)
                ENDDO
              ENDIF
 c
-             IF (KCVT /= 0 .AND. JHBE .NE. 16) THEN
+             IF (KCVT /= 0 .AND. JHBE /= 16) THEN
 C             STRESS TENSOR IN GLOBAL SYSTEM
               DO I=1,NEL
                N = I + NFT
-C          	pour JHBE=14, valeurs moyennes est dans rep. corota.
-           	IF(KCVT==2.AND.JHBE/=14)THEN
-           	  II = 6*(I-1)
-           	  GAMA(1)=GBUF%GAMA(JJ(1) + I)
-           	  GAMA(2)=GBUF%GAMA(JJ(2) + I)
-           	  GAMA(3)=GBUF%GAMA(JJ(3) + I)
-           	  GAMA(4)=GBUF%GAMA(JJ(4) + I)
-           	  GAMA(5)=GBUF%GAMA(JJ(5) + I)
-           	  GAMA(6)=GBUF%GAMA(JJ(6) + I)
-           	ELSE
-           	  GAMA(1)=ONE
-           	  GAMA(2)=ZERO
-           	  GAMA(3)=ZERO
-           	  GAMA(4)=ZERO
-           	  GAMA(5)=ONE
-           	  GAMA(6)=ZERO
-           	END IF
-           	  CALL SROTA6(X,IXS(1,N),KCVT,EVAR(1,I),GAMA,JHBE,IGTYP)
+C            for jhbe=14, average values are in the corota frame.
+          IF(KCVT==2.AND.JHBE/=14)THEN
+            II = 6*(I-1)
+            GAMA(1)=GBUF%GAMA(JJ(1) + I)
+            GAMA(2)=GBUF%GAMA(JJ(2) + I)
+            GAMA(3)=GBUF%GAMA(JJ(3) + I)
+            GAMA(4)=GBUF%GAMA(JJ(4) + I)
+            GAMA(5)=GBUF%GAMA(JJ(5) + I)
+            GAMA(6)=GBUF%GAMA(JJ(6) + I)
+          ELSE
+            GAMA(1)=ONE
+            GAMA(2)=ZERO
+            GAMA(3)=ZERO
+            GAMA(4)=ZERO
+            GAMA(5)=ONE
+            GAMA(6)=ZERO
+          END IF
+            CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
               ENDDO
              ENDIF !KCVT /= 
             ELSEIF ( ILAY == -1 .AND. IR >= 0 .AND. IR <= NPTR .AND. 
@@ -284,7 +272,7 @@ c IR= IS= IT=
 c-----------
               IF (ISOLNOD ==  8 .AND. IGTYP == 43) THEN
 c-----------
-                DO I=1,NEL					      
+                DO I=1,NEL                
                   EVAR(1,I) = ZERO
                   EVAR(2,I) = ZERO
                   EVAR(3,I) = ZERO
@@ -293,28 +281,30 @@ c-----------
                   EVAR(6,I) = ZERO
                 ENDDO
                 IF(IVISC == 0) THEN
-                 DO I=1,NEL					   
+                 DO I=1,NEL             
                    II = 6*(I-1)
                    LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,1,1)
                    EVAR(3,I) = EVAR(3,I) + LBUF%SIG(JJ(3) + I)
                    EVAR(2,I) = EVAR(2,I) + LBUF%SIG(JJ(5) + I)
                    EVAR(1,I) = EVAR(1,I) + LBUF%SIG(JJ(6) + I)
-                   IS_WRITTEN_TENSOR(I) = 1			    
+                   IS_WRITTEN_TENSOR(I) = 1          
                  ENDDO  
                 ELSE
-                 DO I=1,NEL					 
+                 DO I=1,NEL           
                    II = 6*(I-1)
                    LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,1,1) 
                    EVAR(3,I)= EVAR(3,I)+ LBUF%SIG(JJ(3) + I)+ LBUF%VISC(JJ(3) + I)
                    EVAR(2,I)= EVAR(2,I)+ LBUF%SIG(JJ(5) + I)+ LBUF%VISC(JJ(5) + I)
                    EVAR(1,I)= EVAR(1,I)+ LBUF%SIG(JJ(6) + I)+ LBUF%VISC(JJ(6) + I)
-                   IS_WRITTEN_TENSOR(I) = 1			
+                   IS_WRITTEN_TENSOR(I) = 1
                  ENDDO 
-                ENDIF						       
-                DO I=1,NEL			  
-                  N = I + NFT			    
-                 CALL SROTA6(X,IXS(1,N),KCVT,EVAR(1,I),GAMA,JHBE,IGTYP)
-                ENDDO				      
+                ENDIF                   
+                DO I=1,NEL        
+                  N = I + NFT          
+                 CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                ENDDO              
 c-----------
               ELSEIF (ISOLNOD == 8.AND.NPT == 8.AND.
      .          JHBE /= 14.AND.JHBE /= 24.AND.JHBE /= 15) THEN
@@ -330,27 +320,27 @@ c-----------
                   ENDDO
                 ELSE
                   IPT = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR   
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)	  
-                  IF (IPT <= 8 )THEN	     
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)    
+                  IF (IPT <= 8 )THEN       
                     DO I=1,NEL
-                      II = 6*(I-1)					    
+                      II = 6*(I-1)              
                       EVAR(1,I) = LBUF%SIG(JJ(1) + I)
                       EVAR(2,I) = LBUF%SIG(JJ(2) + I)
                       EVAR(3,I) = LBUF%SIG(JJ(3) + I)
                       EVAR(4,I) = LBUF%SIG(JJ(4) + I)
                       EVAR(5,I) = LBUF%SIG(JJ(5) + I)
                       EVAR(6,I) = LBUF%SIG(JJ(6) + I)
-                      IS_WRITTEN_TENSOR(I) = 1			
+                      IS_WRITTEN_TENSOR(I) = 1
                     ENDDO
                     IF(IVISC > 0) THEN
                       DO I=1,NEL
-                	II = 6*(I-1)		   
-                	EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
-                	EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
-                	EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
-                	EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
-                	EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
-                	EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
+          II = 6*(I-1)       
+          EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
+          EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
+          EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
+          EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
+          EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
+          EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
                       ENDDO
                     ENDIF 
                      
@@ -368,24 +358,25 @@ c-----------
 C                   STRESS TENSOR IN GLOBAL SYSTEM
                     DO I=1,NEL
                       N = I + NFT
-                	IF(KCVT==2)THEN
-                	  II = 6*(I-1)  				      
-                	  GAMA(1)= GBUF%GAMA(JJ(1) + I)
-                	  GAMA(2)= GBUF%GAMA(JJ(2) + I)
-                	  GAMA(3)= GBUF%GAMA(JJ(3) + I)
-                	  GAMA(4)= GBUF%GAMA(JJ(4) + I)
-                	  GAMA(5)= GBUF%GAMA(JJ(5) + I)
-                	  GAMA(6)= GBUF%GAMA(JJ(6) + I)
-                	ELSE
-                	  GAMA(1)=ONE
-                	  GAMA(2)=ZERO
-                	  GAMA(3)=ZERO
-                	  GAMA(4)=ZERO
-                	  GAMA(5)=ONE
-                	  GAMA(6)=ZERO
-                	END IF
-                	CALL SROTA6(X,IXS(1,N),KCVT,
-     .          	  EVAR(1,I),GAMA, JHBE,IGTYP)
+          IF(KCVT==2)THEN
+            II = 6*(I-1)                
+            GAMA(1)= GBUF%GAMA(JJ(1) + I)
+            GAMA(2)= GBUF%GAMA(JJ(2) + I)
+            GAMA(3)= GBUF%GAMA(JJ(3) + I)
+            GAMA(4)= GBUF%GAMA(JJ(4) + I)
+            GAMA(5)= GBUF%GAMA(JJ(5) + I)
+            GAMA(6)= GBUF%GAMA(JJ(6) + I)
+          ELSE
+            GAMA(1)=ONE
+            GAMA(2)=ZERO
+            GAMA(3)=ZERO
+            GAMA(4)=ZERO
+            GAMA(5)=ONE
+            GAMA(6)=ZERO
+          END IF
+          CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                     ENDDO
                   ENDIF
                 ENDIF
@@ -407,27 +398,27 @@ c-----------
                   ENDDO
                 ELSE
                   IPT = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
-                  IF (IPT == 1 )THEN	     
-                    LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1) 	 
+                  IF (IPT == 1 )THEN       
+                    LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)    
                     DO I=1,NEL
-                      II = 6*(I-1)					  
+                      II = 6*(I-1)            
                       EVAR(1,I) = LBUF%SIG(JJ(1) + I)
                       EVAR(2,I) = LBUF%SIG(JJ(2) + I)
                       EVAR(3,I) = LBUF%SIG(JJ(3) + I)
                       EVAR(4,I) = LBUF%SIG(JJ(4) + I)
                       EVAR(5,I) = LBUF%SIG(JJ(5) + I)
                       EVAR(6,I) = LBUF%SIG(JJ(6) + I)
-                      IS_WRITTEN_TENSOR(I) = 1			
+                      IS_WRITTEN_TENSOR(I) = 1
                     ENDDO
                     IF(IVISC > 0) THEN
                       DO I=1,NEL
-                	II = 6*(I-1)		   
-                	EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
-                	EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
-                	EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
-                	EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
-                	EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
-                	EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
+          II = 6*(I-1)       
+          EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
+          EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
+          EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
+          EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
+          EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
+          EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
                       ENDDO
                     ENDIF
                   ELSE
@@ -444,24 +435,25 @@ c-----------
 C                   STRESS TENSOR IN GLOBAL SYSTEM
                     DO I=1,NEL
                       N = I + NFT
-                	IF(KCVT==2)THEN
-                	  II = 6*(I-1)  				      
-                	  GAMA(1)=GBUF%GAMA(JJ(1) + I)
-                	  GAMA(2)=GBUF%GAMA(JJ(2) + I)
-                	  GAMA(3)=GBUF%GAMA(JJ(3) + I)
-                	  GAMA(4)=GBUF%GAMA(JJ(4) + I)
-                	  GAMA(5)=GBUF%GAMA(JJ(5) + I)
-                	  GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                	ELSE
-                	  GAMA(1)=ONE
-                	  GAMA(2)=ZERO
-                	  GAMA(3)=ZERO
-                	  GAMA(4)=ZERO
-                	  GAMA(5)=ONE
-                	  GAMA(6)=ZERO
-                	END IF
-                	CALL SROTA6(X,IXS(1,N),KCVT,
-     .          	  EVAR(1,I),GAMA, JHBE,IGTYP)
+          IF(KCVT==2)THEN
+            II = 6*(I-1)                
+            GAMA(1)=GBUF%GAMA(JJ(1) + I)
+            GAMA(2)=GBUF%GAMA(JJ(2) + I)
+            GAMA(3)=GBUF%GAMA(JJ(3) + I)
+            GAMA(4)=GBUF%GAMA(JJ(4) + I)
+            GAMA(5)=GBUF%GAMA(JJ(5) + I)
+            GAMA(6)=GBUF%GAMA(JJ(6) + I)
+          ELSE
+            GAMA(1)=ONE
+            GAMA(2)=ZERO
+            GAMA(3)=ZERO
+            GAMA(4)=ZERO
+            GAMA(5)=ONE
+            GAMA(6)=ZERO
+          END IF
+          CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                     ENDDO
                   ENDIF
                 ENDIF
@@ -487,7 +479,7 @@ c-----------
                        LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)
                     END IF                       
                     DO I=1,NEL 
-                      II = 6*(I-1)					  
+                      II = 6*(I-1)            
                       EVAR(1,I) = LBUF%SIG(JJ(1) + I)
                       EVAR(2,I) = LBUF%SIG(JJ(2) + I)
                       EVAR(3,I) = LBUF%SIG(JJ(3) + I)
@@ -498,13 +490,13 @@ c-----------
                     ENDDO
                      IF(IVISC > 0) THEN
                       DO I=1,NEL
-                	II = 6*(I-1)		   
-                	EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
-                	EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
-                	EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
-                	EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
-                	EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
-                	EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
+          II = 6*(I-1)       
+          EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
+          EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
+          EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
+          EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
+          EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
+          EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
                       ENDDO
                     ENDIF
                   ELSE  
@@ -517,28 +509,29 @@ c-----------
                       EVAR(6,I) = ZERO
                     ENDDO
                   ENDIF 
-                  IF (KCVT /= 0 .AND. JHBE .NE. 16) THEN
+                  IF (KCVT /= 0 .AND. JHBE /= 16) THEN
 C                   STRESS TENSOR IN GLOBAL SYSTEM
                     DO I=1,NEL
                       N = I + NFT
-                	IF(KCVT==2)THEN
-                	  II = 6*(I-1)  				      
-                	  GAMA(1)=GBUF%GAMA(JJ(1) + I)
-                	  GAMA(2)=GBUF%GAMA(JJ(2) + I)
-                	  GAMA(3)=GBUF%GAMA(JJ(3) + I)
-                	  GAMA(4)=GBUF%GAMA(JJ(4) + I)
-                	  GAMA(5)=GBUF%GAMA(JJ(5) + I)
-                	  GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                	ELSE
-                	  GAMA(1)=ONE
-                	  GAMA(2)=ZERO
-                	  GAMA(3)=ZERO
-                	  GAMA(4)=ZERO
-                	  GAMA(5)=ONE
-                	  GAMA(6)=ZERO
-                	END IF
-                	CALL SROTA6(X,IXS(1,N),KCVT,
-     .          		    EVAR(1,I),GAMA, JHBE,IGTYP)
+          IF(KCVT==2)THEN
+            II = 6*(I-1)                
+            GAMA(1)=GBUF%GAMA(JJ(1) + I)
+            GAMA(2)=GBUF%GAMA(JJ(2) + I)
+            GAMA(3)=GBUF%GAMA(JJ(3) + I)
+            GAMA(4)=GBUF%GAMA(JJ(4) + I)
+            GAMA(5)=GBUF%GAMA(JJ(5) + I)
+            GAMA(6)=GBUF%GAMA(JJ(6) + I)
+          ELSE
+            GAMA(1)=ONE
+            GAMA(2)=ZERO
+            GAMA(3)=ZERO
+            GAMA(4)=ZERO
+            GAMA(5)=ONE
+            GAMA(6)=ZERO
+          END IF
+          CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                     ENDDO
                   ENDIF
                 ENDIF
@@ -558,152 +551,156 @@ c-----------    voir !!!
                     EVAR(6,I) = ZERO
                   ENDDO
                 ELSE 
-             	  IF (IOR_TSH >0) THEN
+            IF (IOR_TSH >0) THEN
                     IF (ICSIG == 10) THEN
-             	      IR=IT_INPUT
-             	      IS=IR_INPUT
-             	      IT=IS_INPUT
+                IR=IT_INPUT
+                IS=IR_INPUT
+                IT=IS_INPUT
                     ELSEIF (ICSIG == 1) THEN
                       IR=IS_INPUT
                       IS=IT_INPUT
                       IT=IR_INPUT
-             	    ELSE
-             	      IR=IR_INPUT
-             	      IS=IS_INPUT
-             	      IT=IT_INPUT
-             	    ENDIF
-             	  ENDIF
+              ELSE
+                IR=IR_INPUT
+                IS=IS_INPUT
+                IT=IT_INPUT
+              ENDIF
+            ENDIF
                     IPT = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
                     IOK = 0
                     IF(IR <= NPTR .AND. IS <= NPTS .AND. IT <= NPTT) THEN
                       LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)
                       IOK = 1
-                    ENDIF	  
+                    ENDIF    
                     IF ( IPT <= NPTG .AND. IOK == 1) THEN
                       DO I=1,NEL 
-                	II = 6*(I-1)					    
-                	EVAR(1,I) = LBUF%SIG(JJ(1) + I)
-                	EVAR(2,I) = LBUF%SIG(JJ(2) + I)
-                	EVAR(3,I) = LBUF%SIG(JJ(3) + I)
-                	EVAR(4,I) = LBUF%SIG(JJ(4) + I)
-                	EVAR(5,I) = LBUF%SIG(JJ(5) + I)
-                	EVAR(6,I) = LBUF%SIG(JJ(6) + I)
-                	IS_WRITTEN_TENSOR(I) = 1
+          II = 6*(I-1)              
+          EVAR(1,I) = LBUF%SIG(JJ(1) + I)
+          EVAR(2,I) = LBUF%SIG(JJ(2) + I)
+          EVAR(3,I) = LBUF%SIG(JJ(3) + I)
+          EVAR(4,I) = LBUF%SIG(JJ(4) + I)
+          EVAR(5,I) = LBUF%SIG(JJ(5) + I)
+          EVAR(6,I) = LBUF%SIG(JJ(6) + I)
+          IS_WRITTEN_TENSOR(I) = 1
                       ENDDO
                        IF(IVISC > 0) THEN
                       DO I=1,NEL
-                	II = 6*(I-1)		   
-                	EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
-                	EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
-                	EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
-                	EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
-                	EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
-                	EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
+          II = 6*(I-1)       
+          EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
+          EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
+          EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
+          EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
+          EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
+          EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
                       ENDDO
                     ENDIF
                   ELSE  
                       DO I=1,NEL
-                	EVAR(1,I) = ZERO
-                	EVAR(2,I) = ZERO
-                	EVAR(3,I) = ZERO
-                	EVAR(4,I) = ZERO
-                	EVAR(5,I) = ZERO
-                	EVAR(6,I) = ZERO
+          EVAR(1,I) = ZERO
+          EVAR(2,I) = ZERO
+          EVAR(3,I) = ZERO
+          EVAR(4,I) = ZERO
+          EVAR(5,I) = ZERO
+          EVAR(6,I) = ZERO
                       ENDDO
                     ENDIF
                     IF (KCVT /= 0) THEN
 C               STRESS TENSOR IN GLOBAL SYSTEM
 C--------------thick shells----only pid21,irep=0--works--------
                     IF (ICSIG >0) THEN
-                    SELECT CASE (ICSIG) 					    
-                    CASE (1)							    
+                    SELECT CASE (ICSIG)               
+                    CASE (1)                  
                     DO I=1,NEL
                       N = I + NFT
-                	IF(KCVT==2)THEN
-                	  II = 6*(I-1)  				      
-                	  GAMA(1)=ZERO
-                	  GAMA(2)=LBUF%GAMA(JJ(1) + I)
-                	  GAMA(3)=LBUF%GAMA(JJ(2) + I)
-                	  GAMA(4)=ZERO
-                	  GAMA(5)=-GAMA(2)
-                	  GAMA(6)=GAMA(1)
-                	ELSE
-                	  GAMA(1)=ONE
-                	  GAMA(2)=ZERO
-                	  GAMA(3)=ZERO
-                	  GAMA(4)=ZERO
-                	  GAMA(5)=ONE
-                	  GAMA(6)=ZERO
-                	END IF
-                	CALL SROTA6(X,IXS(1,N),KCVT,
-     .          	  EVAR(1,I),GAMA, JHBE,IGTYP)
+          IF(KCVT==2)THEN
+            II = 6*(I-1)                
+            GAMA(1)=ZERO
+            GAMA(2)=LBUF%GAMA(JJ(1) + I)
+            GAMA(3)=LBUF%GAMA(JJ(2) + I)
+            GAMA(4)=ZERO
+            GAMA(5)=-GAMA(2)
+            GAMA(6)=GAMA(1)
+          ELSE
+            GAMA(1)=ONE
+            GAMA(2)=ZERO
+            GAMA(3)=ZERO
+            GAMA(4)=ZERO
+            GAMA(5)=ONE
+            GAMA(6)=ZERO
+          END IF
+          CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                     ENDDO
-                    CASE (10)		     
+                    CASE (10)         
                     DO I=1,NEL
                       N = I + NFT
-                	IF(KCVT==2)THEN
-                	  II = 6*(I-1)  				      
-                	  GAMA(1)=LBUF%GAMA(JJ(1) + I)
-                	  GAMA(2)=LBUF%GAMA(JJ(2) + I)
-                	  GAMA(3)=ZERO
-                	  GAMA(4)=-GAMA(2)
-                	  GAMA(5)=GAMA(1)
-                	  GAMA(6)=ZERO
-                	ELSE
-                	  GAMA(1)=ONE
-                	  GAMA(2)=ZERO
-                	  GAMA(3)=ZERO
-                	  GAMA(4)=ZERO
-                	  GAMA(5)=ONE
-                	  GAMA(6)=ZERO
-                	END IF
-                	CALL SROTA6(X,IXS(1,N),KCVT,
-     .          	  EVAR(1,I),GAMA, JHBE,IGTYP)
+          IF(KCVT==2)THEN
+            II = 6*(I-1)                
+            GAMA(1)=LBUF%GAMA(JJ(1) + I)
+            GAMA(2)=LBUF%GAMA(JJ(2) + I)
+            GAMA(3)=ZERO
+            GAMA(4)=-GAMA(2)
+            GAMA(5)=GAMA(1)
+            GAMA(6)=ZERO
+          ELSE
+            GAMA(1)=ONE
+            GAMA(2)=ZERO
+            GAMA(3)=ZERO
+            GAMA(4)=ZERO
+            GAMA(5)=ONE
+            GAMA(6)=ZERO
+          END IF
+          CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                     ENDDO
-                    CASE (100)  						      
+                    CASE (100)                    
                     DO I=1,NEL
                       N = I + NFT
-                	IF(KCVT==2)THEN
-                	  II = 6*(I-1)  				      
-                	  GAMA(1)=LBUF%GAMA(JJ(2) + I)
-                	  GAMA(2)=ZERO
-                	  GAMA(3)=LBUF%GAMA(JJ(1) + I)
-                	  GAMA(4)=GAMA(3)
-                	  GAMA(5)=ZERO
-                	  GAMA(6)=-GAMA(1)
-                	ELSE
-                	  GAMA(1)=ONE
-                	  GAMA(2)=ZERO
-                	  GAMA(3)=ZERO
-                	  GAMA(4)=ZERO
-                	  GAMA(5)=ONE
-                	  GAMA(6)=ZERO
-                	END IF
-                	CALL SROTA6(X,IXS(1,N),KCVT,
-     .          	  EVAR(1,I),GAMA, JHBE,IGTYP)
+          IF(KCVT==2)THEN
+            II = 6*(I-1)                
+            GAMA(1)=LBUF%GAMA(JJ(2) + I)
+            GAMA(2)=ZERO
+            GAMA(3)=LBUF%GAMA(JJ(1) + I)
+            GAMA(4)=GAMA(3)
+            GAMA(5)=ZERO
+            GAMA(6)=-GAMA(1)
+          ELSE
+            GAMA(1)=ONE
+            GAMA(2)=ZERO
+            GAMA(3)=ZERO
+            GAMA(4)=ZERO
+            GAMA(5)=ONE
+            GAMA(6)=ZERO
+          END IF
+          CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                     ENDDO
                     END SELECT 
-                 ELSE								 
+                 ELSE                 
                     DO I=1,NEL
                       N = I + NFT
-                	IF(KCVT==2)THEN
-                	  II = 6*(I-1)  				      
-                	  GAMA(1)=GBUF%GAMA(JJ(1) + I)
-                	  GAMA(2)=GBUF%GAMA(JJ(2) + I)
-                	  GAMA(3)=GBUF%GAMA(JJ(3) + I)
-                	  GAMA(4)=GBUF%GAMA(JJ(4) + I)
-                	  GAMA(5)=GBUF%GAMA(JJ(5) + I)
-                	  GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                	ELSE
-                	  GAMA(1)=ONE
-                	  GAMA(2)=ZERO
-                	  GAMA(3)=ZERO
-                	  GAMA(4)=ZERO
-                	  GAMA(5)=ONE
-                	  GAMA(6)=ZERO
-                	END IF
-                	CALL SROTA6(X,IXS(1,N),KCVT,
-     .          	  EVAR(1,I),GAMA, JHBE,IGTYP)
+          IF(KCVT==2)THEN
+            II = 6*(I-1)                
+            GAMA(1)=GBUF%GAMA(JJ(1) + I)
+            GAMA(2)=GBUF%GAMA(JJ(2) + I)
+            GAMA(3)=GBUF%GAMA(JJ(3) + I)
+            GAMA(4)=GBUF%GAMA(JJ(4) + I)
+            GAMA(5)=GBUF%GAMA(JJ(5) + I)
+            GAMA(6)=GBUF%GAMA(JJ(6) + I)
+          ELSE
+            GAMA(1)=ONE
+            GAMA(2)=ZERO
+            GAMA(3)=ZERO
+            GAMA(4)=ZERO
+            GAMA(5)=ONE
+            GAMA(6)=ZERO
+          END IF
+          CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                     ENDDO
                   ENDIF !(ICSIG >0)
                  ENDIF
@@ -727,9 +724,9 @@ c-----------
                   IF (IR == 1 .AND. IS == 2 .AND. IT == 1) IPT = 3 
                   IF (IR == 1 .AND. IS == 1 .AND. IT == 2) IPT = 4 
                   IF (IPT > 0) THEN
-                    LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)	   
+                    LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)     
                     DO I=1,NEL
-                      II = 6*(I-1)					  
+                      II = 6*(I-1)            
                       EVAR(1,I) = LBUF%SIG(JJ(1) + I)
                       EVAR(2,I) = LBUF%SIG(JJ(2) + I)
                       EVAR(3,I) = LBUF%SIG(JJ(3) + I)
@@ -740,13 +737,13 @@ c-----------
                     ENDDO 
                      IF(IVISC > 0) THEN
                       DO I=1,NEL
-                	II = 6*(I-1)		   
-                	EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
-                	EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
-                	EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
-                	EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
-                	EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
-                	EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
+          II = 6*(I-1)       
+          EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
+          EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
+          EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
+          EVAR(4,I) =EVAR(4,I)+LBUF%VISC(JJ(4) + I)
+          EVAR(5,I) =EVAR(5,I)+LBUF%VISC(JJ(5) + I)
+          EVAR(6,I) =EVAR(6,I)+LBUF%VISC(JJ(6) + I)
                       ENDDO
                     ENDIF
                   ELSE
@@ -763,24 +760,25 @@ c-----------
 C                   STRESS TENSOR IN GLOBAL SYSTEM
                     DO I=1,NEL
                       N = I + NFT
-                	IF(KCVT==2)THEN
-                	  II = 6*(I-1)  				      
-                	  GAMA(1)=GBUF%GAMA(JJ(1) + I)
-                	  GAMA(2)=GBUF%GAMA(JJ(2) + I)
-                	  GAMA(3)=GBUF%GAMA(JJ(3) + I)
-                	  GAMA(4)=GBUF%GAMA(JJ(4) + I)
-                	  GAMA(5)=GBUF%GAMA(JJ(5) + I)
-                	  GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                	ELSE
-                	  GAMA(1)=ONE
-                	  GAMA(2)=ZERO
-                	  GAMA(3)=ZERO
-                	  GAMA(4)=ZERO
-                	  GAMA(5)=ONE
-                	  GAMA(6)=ZERO
-                	END IF
-                	CALL SROTA6(X,IXS(1,N),KCVT,
-     .          	  EVAR(1,I),GAMA, JHBE,IGTYP)
+          IF(KCVT==2)THEN
+            II = 6*(I-1)                
+            GAMA(1)=GBUF%GAMA(JJ(1) + I)
+            GAMA(2)=GBUF%GAMA(JJ(2) + I)
+            GAMA(3)=GBUF%GAMA(JJ(3) + I)
+            GAMA(4)=GBUF%GAMA(JJ(4) + I)
+            GAMA(5)=GBUF%GAMA(JJ(5) + I)
+            GAMA(6)=GBUF%GAMA(JJ(6) + I)
+          ELSE
+            GAMA(1)=ONE
+            GAMA(2)=ZERO
+            GAMA(3)=ZERO
+            GAMA(4)=ZERO
+            GAMA(5)=ONE
+            GAMA(6)=ZERO
+          END IF
+          CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                     ENDDO
                   ENDIF
                 ENDIF
@@ -792,7 +790,7 @@ c-----------
             ELSEIF ( ILAY >= 0 .AND. ILAY <= NLAY .AND. IR >= 0 .AND. IR <= NPTR .AND. 
      .                   IS >= 0 .AND.  IS <= NPTS) THEN
 c-----------
-              IF((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15)THEN
+              IF(((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24))THEN
 c-----------
                 IPT = IS
                 IF ( ILAY <= NPT) THEN
@@ -825,14 +823,14 @@ c-----------
                     EVAR(5,I) = ZERO
                     EVAR(6,I) = ZERO
                   ENDDO
-                ENDIF	
+                ENDIF
                 IF (KCVT /= 0 .AND. ILAY <= NPT) THEN
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1) 	 
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)    
 C                 STRESS TENSOR IN GLOBAL SYSTEM
                   DO I=1,NEL
                     N = I + NFT
                     IF(KCVT==2)THEN
-                      II = 6*(I-1)					  
+                      II = 6*(I-1)            
                       GAMA(1)= GBUF%GAMA(JJ(1) + I)
                       GAMA(2)= GBUF%GAMA(JJ(2) + I)
                       GAMA(3)= ZERO
@@ -847,8 +845,9 @@ C                 STRESS TENSOR IN GLOBAL SYSTEM
                       GAMA(5)=ONE
                       GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .                EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO
                 ENDIF
               ELSEIF (ISOLNOD == 16.OR.(ISOLNOD ==8.AND.(JHBE == 14.OR.JHBE == 17)))THEN
@@ -892,8 +891,8 @@ c-----------
 C               STRESS TENSOR IN GLOBAL SYSTEM
 C--------------thick shells----only pid21,irep=0--works--------
                       IF (ICSIG >0) THEN
-                        SELECT CASE (ICSIG)					      
-                        CASE (1)						      
+                        SELECT CASE (ICSIG)                
+                        CASE (1)                  
                           DO I=1,NEL
                             N = I + NFT
                             IF(KCVT==2.AND.IGTYP == 22)THEN
@@ -918,38 +917,40 @@ C--------------thick shells----only pid21,irep=0--works--------
                               GAMA(5)=ONE
                               GAMA(6)=ZERO
                             END IF
-                            CALL SROTA6(X,IXS(1,N),KCVT,
-     .                        EVAR(1,I),GAMA, JHBE,IGTYP)
+                            CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                           ENDDO
-                        CASE (10)	       
+                        CASE (10)         
                           DO I=1,NEL
                             N = I + NFT
                             IF(KCVT==2.AND.IGTYP == 22)THEN
-                     	      GAMA(1)=LBUF%GAMA(JJ(1) + I)
-                     	      GAMA(2)=LBUF%GAMA(JJ(2) + I)
-                     	      GAMA(3)=ZERO
-                     	      GAMA(4)=-GAMA(2)
-                     	      GAMA(5)=GAMA(1)
-                     	      GAMA(6)=ZERO
+                GAMA(1)=LBUF%GAMA(JJ(1) + I)
+                GAMA(2)=LBUF%GAMA(JJ(2) + I)
+                GAMA(3)=ZERO
+                GAMA(4)=-GAMA(2)
+                GAMA(5)=GAMA(1)
+                GAMA(6)=ZERO
                             ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
-                     	      GAMA(1)=GBUF%GAMA(JJ(1) + I)
-                     	      GAMA(2)=GBUF%GAMA(JJ(2) + I)
-                     	      GAMA(3)=ZERO
-                     	      GAMA(4)=-GAMA(2)
-                     	      GAMA(5)=GAMA(1)
-                     	      GAMA(6)=ZERO
-                     	    ELSE
-                     	      GAMA(1)=ONE
-                     	      GAMA(2)=ZERO
-                     	      GAMA(3)=ZERO
-                     	      GAMA(4)=ZERO
-                     	      GAMA(5)=ONE
-                     	      GAMA(6)=ZERO
-                     	    END IF
-                     	    CALL SROTA6(X,IXS(1,N),KCVT,
-     .               	      EVAR(1,I),GAMA, JHBE,IGTYP)
+                GAMA(1)=GBUF%GAMA(JJ(1) + I)
+                GAMA(2)=GBUF%GAMA(JJ(2) + I)
+                GAMA(3)=ZERO
+                GAMA(4)=-GAMA(2)
+                GAMA(5)=GAMA(1)
+                GAMA(6)=ZERO
+              ELSE
+                GAMA(1)=ONE
+                GAMA(2)=ZERO
+                GAMA(3)=ZERO
+                GAMA(4)=ZERO
+                GAMA(5)=ONE
+                GAMA(6)=ZERO
+              END IF
+              CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                           ENDDO
-                        CASE (100)							
+                        CASE (100)
                           DO I=1,NEL
                             N = I + NFT
                             IF(KCVT==2.AND.IGTYP == 22)THEN
@@ -974,31 +975,33 @@ C--------------thick shells----only pid21,irep=0--works--------
                               GAMA(5)=ONE
                               GAMA(6)=ZERO
                             END IF
-                            CALL SROTA6(X,IXS(1,N),KCVT,
-     .                        EVAR(1,I),GAMA, JHBE,IGTYP)
+                            CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                           ENDDO
                         END SELECT 
-                      ELSE								   
-                     	DO I=1,NEL
-                     	  N = I + NFT
-                     	  IF(KCVT==2)THEN
-                     	    GAMA(1)=GBUF%GAMA(JJ(1) + I)
-                     	    GAMA(2)=GBUF%GAMA(JJ(2) + I)
-                     	    GAMA(3)=GBUF%GAMA(JJ(3) + I)
-                     	    GAMA(4)=GBUF%GAMA(JJ(4) + I)
-                     	    GAMA(5)=GBUF%GAMA(JJ(5) + I)
-                     	    GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                     	  ELSE
-                     	    GAMA(1)=ONE
-                     	    GAMA(2)=ZERO
-                     	    GAMA(3)=ZERO
-                     	    GAMA(4)=ZERO
-                     	    GAMA(5)=ONE
-                     	    GAMA(6)=ZERO
-                     	  END IF
-                     	  CALL SROTA6(X,IXS(1,N),KCVT,
-     .               	    EVAR(1,I),GAMA, JHBE,IGTYP)
-                     	ENDDO
+                      ELSE                   
+          DO I=1,NEL
+            N = I + NFT
+            IF(KCVT==2)THEN
+              GAMA(1)=GBUF%GAMA(JJ(1) + I)
+              GAMA(2)=GBUF%GAMA(JJ(2) + I)
+              GAMA(3)=GBUF%GAMA(JJ(3) + I)
+              GAMA(4)=GBUF%GAMA(JJ(4) + I)
+              GAMA(5)=GBUF%GAMA(JJ(5) + I)
+              GAMA(6)=GBUF%GAMA(JJ(6) + I)
+            ELSE
+              GAMA(1)=ONE
+              GAMA(2)=ZERO
+              GAMA(3)=ZERO
+              GAMA(4)=ZERO
+              GAMA(5)=ONE
+              GAMA(6)=ZERO
+            END IF
+            CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+          ENDDO
                       ENDIF !(ICSIG >0)
                     ENDIF
                   ENDIF
@@ -1010,13 +1013,13 @@ c-----------
 c ILAY= IS= IT=
               EVAR(1:6,1:NEL) = ZERO
 c-----------
-              IF((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15)THEN
+              IF(((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24))THEN
 c-----------
                 IPT = IS
                 IF ( ILAY <= NPT) THEN
                   LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1) 
                   DO I=1,NEL
-                    II = 6*(I-1)					
+                    II = 6*(I-1)
                     EVAR(1,I) = LBUF%SIG(JJ(1) + I)
                     EVAR(2,I) = LBUF%SIG(JJ(2) + I)
                     EVAR(3,I) = LBUF%SIG(JJ(3) + I)
@@ -1027,7 +1030,7 @@ c-----------
                   ENDDO 
                   IF(IVISC > 0) THEN
                     DO I=1,NEL
-                      II = 6*(I-1)		 
+                      II = 6*(I-1)     
                       EVAR(1,I) =EVAR(1,I)+LBUF%VISC(JJ(1) + I)
                       EVAR(2,I) =EVAR(2,I)+LBUF%VISC(JJ(2) + I)
                       EVAR(3,I) =EVAR(3,I)+LBUF%VISC(JJ(3) + I)
@@ -1045,14 +1048,14 @@ c-----------
                     EVAR(5,I) = ZERO
                     EVAR(6,I) = ZERO
                   ENDDO
-                ENDIF	
+                ENDIF
                 IF (KCVT /= 0 .AND. ILAY <= NPT) THEN
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1) 	 
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)    
 C                 STRESS TENSOR IN GLOBAL SYSTEM
                   DO I=1,NEL
                     N = I + NFT
                     IF(KCVT==2)THEN
-                      II = 6*(I-1)					  
+                      II = 6*(I-1)            
                       GAMA(1)= GBUF%GAMA(JJ(1) + I)
                       GAMA(2)= GBUF%GAMA(JJ(2) + I)
                       GAMA(3)= ZERO
@@ -1067,14 +1070,15 @@ C                 STRESS TENSOR IN GLOBAL SYSTEM
                       GAMA(5)=ONE
                       GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .                EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO
                 ENDIF
               ENDIF
             ENDIF
 c
-            IF( NFILSOL .NE. 0 .AND. GBUF%G_FILL .NE. 0 ) THEN
+            IF( NFILSOL /= 0 .AND. GBUF%G_FILL /= 0 ) THEN
               DO I=1,NEL
                 EVAR(1,I) = EVAR(1,I) * GBUF%FILL(I)
                 EVAR(2,I) = EVAR(2,I) * GBUF%FILL(I)
@@ -1091,41 +1095,43 @@ C-----------------------------------------------
 c ILAYER=NULL IR=NULL IS=NULL IT=NULL
             IF( ILAY == -1 .AND. IR == -1 .AND. IS == -1 .AND. IT == -1 )THEN
               DO I=1,NEL
-             	EVAR(1,I) = ZERO
-             	EVAR(2,I) = ZERO
-             	EVAR(3,I) = ZERO
-             	EVAR(4,I) = ZERO
-             	EVAR(5,I) = ZERO
-             	EVAR(6,I) = ZERO
+          EVAR(1,I) = ZERO
+          EVAR(2,I) = ZERO
+          EVAR(3,I) = ZERO
+          EVAR(4,I) = ZERO
+          EVAR(5,I) = ZERO
+          EVAR(6,I) = ZERO
               ENDDO
 c-----------
               IF (ISOLNOD == 8 .AND. IGTYP == 43) THEN
 c-----------
-               DO I=1,NEL					     
+               DO I=1,NEL               
                  II = 3*(I-1)
                  DO IPT= 1,NPTR
-                   LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1) 					  
+                   LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)             
                    EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(1) + I)/NPT
                    EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT
                    EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(3) + I)/NPT
                    IS_WRITTEN_TENSOR(I) = 1
-                 ENDDO  						
-               ENDDO						       
-               DO I=1,NEL			 
-                 N = I + NFT			   
-                 CALL SROTA6(X,IXS(1,N),KCVT,EVAR(1,I),GAMA,JHBE,IGTYP)
-               ENDDO				     
+                 ENDDO  
+               ENDDO                   
+               DO I=1,NEL       
+                 N = I + NFT         
+                 CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+               ENDDO             
 c-----------
               ELSEIF (ISOLNOD == 8 .AND. NPT == 8 .AND. JHBE /= 14.AND.
      .          JHBE /= 24.AND.JHBE /= 15.AND.JHBE /= 17 )THEN
 c-----------
-                NVAUX =IPARG(18,NG)	    
-                IF (MLW.GE.28) THEN
+                NVAUX =IPARG(18,NG)      
+                IF (MLW>=28) THEN
                   DO I=1,NEL
                     II = 6*(I-1)
                     N = I + NFT
                     DO J=1,8
-                      LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,J)					
+                      LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,J)
                       EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)*ONE_OVER_8
                       EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)*ONE_OVER_8
                       EVAR(3,I) = EVAR(3,I) + LBUF%STRA(JJ(3) + I)*ONE_OVER_8
@@ -1140,10 +1146,10 @@ c-----------
               ELSEIF ((ISOLNOD==8.OR.(ISOLNOD==4 .AND. (ISROT==0.OR.ISROT==3))).AND.
      .               NPT==1 .AND. JHBE /= 14 .AND. JHBE /= 15) THEN
 c-----------
-                LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)					     
+                LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)               
                 IF (ISORTH > 0) ISORTHG = 1
 c
-                IF (MLW.GE.28.AND.MLW /= 49) THEN
+                IF (MLW>=28.AND.MLW /= 49) THEN
                   DO I=1,NEL
                     N = I + NFT
                     II = 6*(I-1)
@@ -1158,7 +1164,7 @@ c
                   IF (ISORTH > 0) KCVT = 2
                 ELSEIF (MLW == 12 .OR. MLW == 14)THEN
                   DO I=1,NEL
-                    N = I + NFT 				   
+                    N = I + NFT            
                     II = 3*(I-1)
                     EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)
                     EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)
@@ -1168,7 +1174,7 @@ c
                   IF (ISORTH > 0) KCVT = 2
                 ELSEIF (MLW == 24 .OR. MLW == 25)THEN
                   DO I=1,NEL
-                    N = I + NFT 				   
+                    N = I + NFT            
                     II = 6*(I-1)
                     EVAR(1,I) = LBUF%STRA(JJ(1) + I)
                     EVAR(2,I) = LBUF%STRA(JJ(2) + I)
@@ -1180,7 +1186,7 @@ c
                   ENDDO
                   IF (ISORTH > 0) KCVT = 2
                 ELSEIF (ISTRAIN > 0) THEN
-                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28.OR.
+                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28.OR.
      .                MLW == 49) THEN 
                     DO I=1,NEL
                       N = I + NFT  
@@ -1215,22 +1221,23 @@ C                 STRAIN TENSOR IN GLOBAL SYSTEM
                       GAMA(5)=ONE
                       GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO
                 ENDIF
 c-----------
               ELSEIF(ISOLNOD == 16.OR.ISOLNOD == 20 .OR.
      .            (ISOLNOD == 8.AND.(JHBE == 14.OR.JHBE == 17)))THEN
 c-----------
-                IF (MLW.GE.28.AND.MLW /= 49)THEN	
+                IF (MLW>=28.AND.MLW /= 49)THEN
                   DO I=1,NEL
                    N = I + NFT   
                    II = 6*(I-1)
-                   DO IL=1,NLAY 		    
-                    DO IS=1,NPTS		     
+                   DO IL=1,NLAY         
+                    DO IS=1,NPTS         
                      DO IT=1,NPTT
-                      DO IR=1,NPTR			
+                      DO IR=1,NPTR
                        LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)        
                        EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)/NPT
                        EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)/NPT
@@ -1245,129 +1252,132 @@ c-----------
                    ENDDO
                   ENDDO
                 ELSEIF (MLW == 12 .OR. MLW == 14) THEN
-                  DO I=1,NEL						  
-                   N = I + NFT  					    
-                   II = 3*(I-1) 					    
-                   DO IL=1,NLAY 					    
-                    DO IS=1,NPTS					    
-                     DO IT=1,NPTT					    
-                      DO IR=1,NPTR					    
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)
-                	EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/NPT 	
-                	EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT 	
-                	EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/NPT   
-                	IS_WRITTEN_TENSOR(I) = 1      
-                      ENDDO						    
-                     ENDDO						    
-                    ENDDO						    
-                   ENDDO						    
-                  ENDDO 						    
+                  DO I=1,NEL              
+                   N = I + NFT                
+                   II = 3*(I-1)               
+                   DO IL=1,NLAY               
+                    DO IS=1,NPTS              
+                     DO IT=1,NPTT              
+                      DO IR=1,NPTR              
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)
+          EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/NPT 
+          EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT 
+          EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/NPT   
+          IS_WRITTEN_TENSOR(I) = 1      
+                      ENDDO                
+                     ENDDO                
+                    ENDDO                
+                   ENDDO                
+                  ENDDO                 
                 ELSEIF(MLW == 24 .OR. MLW == 25)THEN
                   DO I=1,NEL
                    N = I + NFT   
                    II = 6*(I-1)
-                   DO IL=1,NLAY 		    
-                    DO IS=1,NPTS		     
+                   DO IL=1,NLAY         
+                    DO IS=1,NPTS         
                      DO IT=1,NPTT
-                      DO IR=1,NPTR			
+                      DO IR=1,NPTR
                        LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)        
                        IF (ELBUF_TAB(NG)%BUFLY(IL)%L_STRA > 0) THEN
-                	EVAR_TMP(1) =  LBUF%STRA(JJ(1) + I)/NPT
-                	EVAR_TMP(2) =  LBUF%STRA(JJ(2) + I)/NPT
-                	EVAR_TMP(3) =  LBUF%STRA(JJ(3) + I)/NPT
-                	EVAR_TMP(4) =  LBUF%STRA(JJ(4) + I)*HALF/NPT
-                	EVAR_TMP(5) =  LBUF%STRA(JJ(5) + I)*HALF/NPT
-                	EVAR_TMP(6) =  LBUF%STRA(JJ(6) + I)*HALF/NPT
-             	  	ICSIG=IPARG(17,NG)  
-             	  	IF (KCVT /= 0 .AND.ICSIG > 0) THEN
-C            	  	  STRAIN TENSOR IN GLOBAL SYSTEM
-             	  	  IF (JHBE == 14) THEN
-             	  	    SELECT CASE (ICSIG) 					   
-             	  	    CASE (1)	   
-             	  	      IF(KCVT==2 .AND. IGTYP ==22)THEN
-             	  	        GAMA(1)= ZERO
-             	  	        GAMA(2)= LBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(3)= LBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(4)= ZERO
-             	  	        GAMA(5)=-GAMA(2)
-             	  	        GAMA(6)= GAMA(1)
-             	  	      ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
-             	  	        GAMA(1)= ZERO
-             	  	        GAMA(2)= GBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(3)= GBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(4)= ZERO
-             	  	        GAMA(5)=-GAMA(2)
-             	  	        GAMA(6)= GAMA(1)
-             	  	      ELSE
-             	  	        GAMA(1)=ONE
-             	  	        GAMA(2)=ZERO
-             	  	        GAMA(3)=ZERO
-             	  	        GAMA(4)=ZERO
-             	  	        GAMA(5)=ONE
-             	  	        GAMA(6)=ZERO
-             	  	      END IF
-             	  	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	          EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	    CASE (10)	    
-             	  	      IF(KCVT==2 .AND. IGTYP ==22)THEN
-             	  	        GAMA(1)= LBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(2)= LBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(3)= ZERO
-             	  	        GAMA(4)=-GAMA(2)
-             	  	        GAMA(5)= GAMA(1)
-             	  	        GAMA(6)= ZERO
-             	  	      ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
-             	  	        GAMA(1)= GBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(2)= GBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(3)= ZERO
-             	  	        GAMA(4)=-GAMA(2)
-             	  	        GAMA(5)= GAMA(1)
-             	  	        GAMA(6)= ZERO
-             	  	      ELSE
-             	  	        GAMA(1)=ONE
-             	  	        GAMA(2)=ZERO
-             	  	        GAMA(3)=ZERO
-             	  	        GAMA(4)=ZERO
-             	  	        GAMA(5)=ONE
-             	  	        GAMA(6)=ZERO
-             	  	      END IF
-             	  	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	          EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	    CASE (100)     
-             	  	      IF(KCVT==2 .AND. IGTYP ==22)THEN
-             	  	        GAMA(1)= LBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(2)= ZERO
-             	  	        GAMA(3)= LBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(4)= GAMA(3)
-             	  	        GAMA(5)= ZERO
-             	  	        GAMA(6)=-GAMA(1)
-             	  	      ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
-             	  	        GAMA(1)= GBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(2)= ZERO
-             	  	        GAMA(3)= GBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(4)= GAMA(3)
-             	  	        GAMA(5)= ZERO
-             	  	        GAMA(6)=-GAMA(1)
-             	  	      ELSE
-             	  	        GAMA(1)=ONE
-             	  	        GAMA(2)=ZERO
-             	  	        GAMA(3)=ZERO
-             	  	        GAMA(4)=ZERO
-             	  	        GAMA(5)=ONE
-             	  	        GAMA(6)=ZERO
-             	  	      END IF
-             	  	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	          EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	    END SELECT  				       
-             	  	  ENDIF
-             	  	ENDIF	    
-                	EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
-                	EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
-                	EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
-                	EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
-                	EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
-                	EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
-                	IS_WRITTEN_TENSOR(I) = 1
+          EVAR_TMP(1) =  LBUF%STRA(JJ(1) + I)/NPT
+          EVAR_TMP(2) =  LBUF%STRA(JJ(2) + I)/NPT
+          EVAR_TMP(3) =  LBUF%STRA(JJ(3) + I)/NPT
+          EVAR_TMP(4) =  LBUF%STRA(JJ(4) + I)*HALF/NPT
+          EVAR_TMP(5) =  LBUF%STRA(JJ(5) + I)*HALF/NPT
+          EVAR_TMP(6) =  LBUF%STRA(JJ(6) + I)*HALF/NPT
+              ICSIG=IPARG(17,NG)  
+              IF (KCVT /= 0 .AND.ICSIG > 0) THEN
+C                    STRAIN TENSOR IN GLOBAL SYSTEM
+                IF (JHBE == 14) THEN
+                  SELECT CASE (ICSIG)              
+                  CASE (1)     
+                    IF(KCVT==2 .AND. IGTYP ==22)THEN
+                      GAMA(1)= ZERO
+                      GAMA(2)= LBUF%GAMA(JJ(1) + I)
+                      GAMA(3)= LBUF%GAMA(JJ(2) + I)
+                      GAMA(4)= ZERO
+                      GAMA(5)=-GAMA(2)
+                      GAMA(6)= GAMA(1)
+                    ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
+                      GAMA(1)= ZERO
+                      GAMA(2)= GBUF%GAMA(JJ(1) + I)
+                      GAMA(3)= GBUF%GAMA(JJ(2) + I)
+                      GAMA(4)= ZERO
+                      GAMA(5)=-GAMA(2)
+                      GAMA(6)= GAMA(1)
+                    ELSE
+                      GAMA(1)=ONE
+                      GAMA(2)=ZERO
+                      GAMA(3)=ZERO
+                      GAMA(4)=ZERO
+                      GAMA(5)=ONE
+                      GAMA(6)=ZERO
+                    END IF
+                    CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                  CASE (10)      
+                    IF(KCVT==2 .AND. IGTYP ==22)THEN
+                      GAMA(1)= LBUF%GAMA(JJ(1) + I)
+                      GAMA(2)= LBUF%GAMA(JJ(2) + I)
+                      GAMA(3)= ZERO
+                      GAMA(4)=-GAMA(2)
+                      GAMA(5)= GAMA(1)
+                      GAMA(6)= ZERO
+                    ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
+                      GAMA(1)= GBUF%GAMA(JJ(1) + I)
+                      GAMA(2)= GBUF%GAMA(JJ(2) + I)
+                      GAMA(3)= ZERO
+                      GAMA(4)=-GAMA(2)
+                      GAMA(5)= GAMA(1)
+                      GAMA(6)= ZERO
+                    ELSE
+                      GAMA(1)=ONE
+                      GAMA(2)=ZERO
+                      GAMA(3)=ZERO
+                      GAMA(4)=ZERO
+                      GAMA(5)=ONE
+                      GAMA(6)=ZERO
+                    END IF
+                    CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                  CASE (100)     
+                    IF(KCVT==2 .AND. IGTYP ==22)THEN
+                      GAMA(1)= LBUF%GAMA(JJ(2) + I)
+                      GAMA(2)= ZERO
+                      GAMA(3)= LBUF%GAMA(JJ(1) + I)
+                      GAMA(4)= GAMA(3)
+                      GAMA(5)= ZERO
+                      GAMA(6)=-GAMA(1)
+                    ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
+                      GAMA(1)= GBUF%GAMA(JJ(2) + I)
+                      GAMA(2)= ZERO
+                      GAMA(3)= GBUF%GAMA(JJ(1) + I)
+                      GAMA(4)= GAMA(3)
+                      GAMA(5)= ZERO
+                      GAMA(6)=-GAMA(1)
+                    ELSE
+                      GAMA(1)=ONE
+                      GAMA(2)=ZERO
+                      GAMA(3)=ZERO
+                      GAMA(4)=ZERO
+                      GAMA(5)=ONE
+                      GAMA(6)=ZERO
+                    END IF
+                    CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                  END SELECT                 
+                ENDIF
+              ENDIF      
+          EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
+          EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
+          EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
+          EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
+          EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
+          EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
+          IS_WRITTEN_TENSOR(I) = 1
                        ENDIF
                       ENDDO 
                      ENDDO
@@ -1375,113 +1385,116 @@ C            	  	  STRAIN TENSOR IN GLOBAL SYSTEM
                    ENDDO
                   ENDDO
                 ELSEIF(ISTRAIN > 0)THEN
-                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28)THEN	       
+                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28)THEN         
                     DO I=1,NEL
                      N = I + NFT   
                      II = 6*(I-1)
-                     DO IL=1,NLAY		      
-                      DO IS=1,NPTS		       
+                     DO IL=1,NLAY          
+                      DO IS=1,NPTS           
                        DO IT=1,NPTT
-                	DO IR=1,NPTR			  
-                	 LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT) 
-                	 EVAR_TMP(1) = LBUF%STRA(JJ(1) + I)/NPT
-                	 EVAR_TMP(2) = LBUF%STRA(JJ(2) + I)/NPT
-                	 EVAR_TMP(3) = LBUF%STRA(JJ(3) + I)/NPT
-                	 EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF/NPT
-                	 EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF/NPT
-                	 EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF/NPT
+          DO IR=1,NPTR        
+           LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT) 
+           EVAR_TMP(1) = LBUF%STRA(JJ(1) + I)/NPT
+           EVAR_TMP(2) = LBUF%STRA(JJ(2) + I)/NPT
+           EVAR_TMP(3) = LBUF%STRA(JJ(3) + I)/NPT
+           EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF/NPT
+           EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF/NPT
+           EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF/NPT
 c
-             	  	 ICSIG=IPARG(17,NG)  
-             	  	 IF (KCVT /= 0 .AND.ICSIG > 0) THEN
-C            	  	   STRAIN TENSOR IN GLOBAL SYSTEM
-             	  	   IF (JHBE == 14) THEN
-             	  	     SELECT CASE (ICSIG)					    
-             	  	     CASE (1)	    
+               ICSIG=IPARG(17,NG)  
+               IF (KCVT /= 0 .AND.ICSIG > 0) THEN
+C                     STRAIN TENSOR IN GLOBAL SYSTEM
+                 IF (JHBE == 14) THEN
+                   SELECT CASE (ICSIG)              
+                   CASE (1)      
                                IF(KCVT==2.AND.IGTYP == 22)THEN
-             	  	         GAMA(1)= ZERO
-             	  	         GAMA(2)= LBUF%GAMA(JJ(1) + I)
-             	  	         GAMA(3)= LBUF%GAMA(JJ(2) + I)
-             	  	         GAMA(4)= ZERO
-             	  	         GAMA(5)=-GAMA(2)
-             	  	         GAMA(6)= GAMA(1)
+                       GAMA(1)= ZERO
+                       GAMA(2)= LBUF%GAMA(JJ(1) + I)
+                       GAMA(3)= LBUF%GAMA(JJ(2) + I)
+                       GAMA(4)= ZERO
+                       GAMA(5)=-GAMA(2)
+                       GAMA(6)= GAMA(1)
                                ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
-             	  	         GAMA(1)= ZERO
-             	  	         GAMA(2)= GBUF%GAMA(JJ(1) + I)
-             	  	         GAMA(3)= GBUF%GAMA(JJ(2) + I)
-             	  	         GAMA(4)= ZERO
-             	  	         GAMA(5)=-GAMA(2)
-             	  	         GAMA(6)= GAMA(1)
-             	  	       ELSE
-             	  	         GAMA(1)=ONE
-             	  	         GAMA(2)=ZERO
-             	  	         GAMA(3)=ZERO
-             	  	         GAMA(4)=ZERO
-             	  	         GAMA(5)=ONE
-             	  	         GAMA(6)=ZERO
-             	  	       END IF
-             	  	       CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	           EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	     CASE (10)       
+                       GAMA(1)= ZERO
+                       GAMA(2)= GBUF%GAMA(JJ(1) + I)
+                       GAMA(3)= GBUF%GAMA(JJ(2) + I)
+                       GAMA(4)= ZERO
+                       GAMA(5)=-GAMA(2)
+                       GAMA(6)= GAMA(1)
+                     ELSE
+                       GAMA(1)=ONE
+                       GAMA(2)=ZERO
+                       GAMA(3)=ZERO
+                       GAMA(4)=ZERO
+                       GAMA(5)=ONE
+                       GAMA(6)=ZERO
+                     END IF
+                     CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                   CASE (10)       
                                IF(KCVT==2.AND.IGTYP == 22)THEN
-             	  	         GAMA(1)= LBUF%GAMA(JJ(1) + I)
-             	  	         GAMA(2)= LBUF%GAMA(JJ(2) + I)
-             	  	         GAMA(3)= ZERO
-             	  	         GAMA(4)=-GAMA(2)
-             	  	         GAMA(5)= GAMA(1)
-             	  	         GAMA(6)= ZERO
+                       GAMA(1)= LBUF%GAMA(JJ(1) + I)
+                       GAMA(2)= LBUF%GAMA(JJ(2) + I)
+                       GAMA(3)= ZERO
+                       GAMA(4)=-GAMA(2)
+                       GAMA(5)= GAMA(1)
+                       GAMA(6)= ZERO
                                ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
-             	  	         GAMA(1)= GBUF%GAMA(JJ(1) + I)
-             	  	         GAMA(2)= GBUF%GAMA(JJ(2) + I)
-             	  	         GAMA(3)= ZERO
-             	  	         GAMA(4)=-GAMA(2)
-             	  	         GAMA(5)= GAMA(1)
-             	  	         GAMA(6)= ZERO
-             	  	       ELSE
-             	  	         GAMA(1)=ONE
-             	  	         GAMA(2)=ZERO
-             	  	         GAMA(3)=ZERO
-             	  	         GAMA(4)=ZERO
-             	  	         GAMA(5)=ONE
-             	  	         GAMA(6)=ZERO
-             	  	       END IF
-             	  	       CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	           EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	     CASE (100)     
+                       GAMA(1)= GBUF%GAMA(JJ(1) + I)
+                       GAMA(2)= GBUF%GAMA(JJ(2) + I)
+                       GAMA(3)= ZERO
+                       GAMA(4)=-GAMA(2)
+                       GAMA(5)= GAMA(1)
+                       GAMA(6)= ZERO
+                     ELSE
+                       GAMA(1)=ONE
+                       GAMA(2)=ZERO
+                       GAMA(3)=ZERO
+                       GAMA(4)=ZERO
+                       GAMA(5)=ONE
+                       GAMA(6)=ZERO
+                     END IF
+                     CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                   CASE (100)     
                                 IF(KCVT==2.AND.IGTYP == 22)THEN
-             	  		  GAMA(1)= LBUF%GAMA(JJ(2) + I)
-             	  		  GAMA(2)= ZERO
-             	  		  GAMA(3)= LBUF%GAMA(JJ(1) + I)
-             	  		  GAMA(4)= GAMA(3)
-             	  		  GAMA(5)= ZERO
-             	  		  GAMA(6)=-GAMA(1)
+                  GAMA(1)= LBUF%GAMA(JJ(2) + I)
+                  GAMA(2)= ZERO
+                  GAMA(3)= LBUF%GAMA(JJ(1) + I)
+                  GAMA(4)= GAMA(3)
+                  GAMA(5)= ZERO
+                  GAMA(6)=-GAMA(1)
                                 ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
-             	  		  GAMA(1)= GBUF%GAMA(JJ(2) + I)
-             	  		  GAMA(2)= ZERO
-             	  		  GAMA(3)= GBUF%GAMA(JJ(1) + I)
-             	  		  GAMA(4)= GAMA(3)
-             	  		  GAMA(5)= ZERO
-             	  		  GAMA(6)=-GAMA(1)
-             	  		ELSE
-             	  		  GAMA(1)=ONE
-             	  		  GAMA(2)=ZERO
-             	  		  GAMA(3)=ZERO
-             	  		  GAMA(4)=ZERO
-             	  		  GAMA(5)=ONE
-             	  		  GAMA(6)=ZERO
-             	  		END IF
-             	  		CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  		    EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	     END SELECT 					
-             	  	   ENDIF
-             	  	 ENDIF       
-                	 EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
-                	 EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
-                	 EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
-                	 EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
-                	 EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
-                	 EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
-                	 IS_WRITTEN_TENSOR(I) = 1
-                	ENDDO 
+                  GAMA(1)= GBUF%GAMA(JJ(2) + I)
+                  GAMA(2)= ZERO
+                  GAMA(3)= GBUF%GAMA(JJ(1) + I)
+                  GAMA(4)= GAMA(3)
+                  GAMA(5)= ZERO
+                  GAMA(6)=-GAMA(1)
+                ELSE
+                  GAMA(1)=ONE
+                  GAMA(2)=ZERO
+                  GAMA(3)=ZERO
+                  GAMA(4)=ZERO
+                  GAMA(5)=ONE
+                  GAMA(6)=ZERO
+                END IF
+                CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                   END SELECT 
+                 ENDIF
+               ENDIF       
+           EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
+           EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
+           EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
+           EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
+           EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
+           EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
+           IS_WRITTEN_TENSOR(I) = 1
+          ENDDO 
                        ENDDO
                       ENDDO
                      ENDDO
@@ -1496,39 +1509,40 @@ c---
                     IF (ISORTH > 0) KCVT = 2
                   ENDIF
                 ENDIF
-                IF (KCVT /= 0 .AND.ICSIG == 0 .AND. JHBE .NE. 16) THEN
+                IF (KCVT /= 0 .AND.ICSIG == 0 .AND. JHBE /= 16) THEN
 C                 STRAIN TENSOR IN GLOBAL SYSTEM
-                  DO I=1,NEL					     
-                    N = I + NFT 				     
-                    IF(KCVT==2)THEN				   
-                      II = 6*(I-1)				   
+                  DO I=1,NEL               
+                    N = I + NFT              
+                    IF(KCVT==2)THEN           
+                      II = 6*(I-1)           
                       GAMA(1)=GBUF%GAMA(JJ(1) + I)
                       GAMA(2)=GBUF%GAMA(JJ(2) + I)
                       GAMA(3)=GBUF%GAMA(JJ(3) + I)
                       GAMA(4)=GBUF%GAMA(JJ(4) + I)
                       GAMA(5)=GBUF%GAMA(JJ(5) + I)
                       GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                    ELSE					   
-                      GAMA(1)=ONE				   
-                      GAMA(2)=ZERO				   
-                      GAMA(3)=ZERO				   
-                      GAMA(4)=ZERO				   
-                      GAMA(5)=ONE				   
-                      GAMA(6)=ZERO				   
-                    END IF					   
-                    CALL SROTA6(X,IXS(1,N),KCVT,		   
-     .                        EVAR(1,I),GAMA, JHBE,IGTYP)	   
+                    ELSE             
+                      GAMA(1)=ONE           
+                      GAMA(2)=ZERO           
+                      GAMA(3)=ZERO           
+                      GAMA(4)=ZERO           
+                      GAMA(5)=ONE           
+                      GAMA(6)=ZERO           
+                    END IF             
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO 
                 ENDIF
 c-----------
               ELSEIF (ISOLNOD==10 .OR. (ISOLNOD==4 .AND. ISROT==1)) THEN
 c-----------
-                IF (MLW.GE.28.AND.MLW /= 49)THEN 
+                IF (MLW>=28.AND.MLW /= 49)THEN 
                   DO I=1,NEL
                     N = I + NFT  
-                    II = 6*(I-1)				 
+                    II = 6*(I-1)         
                     DO IPT=1,NPT
-                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)	   
+                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)     
                       EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/NPT
                       EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/NPT
                       EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/NPT
@@ -1541,21 +1555,21 @@ c-----------
                 ELSEIF(MLW == 12 .OR. MLW == 14)THEN
                   DO I=1,NEL
                     N = I + NFT  
-                    II = 3*(I-1)				 
+                    II = 3*(I-1)         
                     DO IPT=1,NPT
-                	 LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)
-                	 EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/NPT	
-                	 EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT	
-                	 EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/NPT 
-                	 IS_WRITTEN_TENSOR(I) = 1	
+           LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)
+           EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/NPT
+           EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT
+           EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/NPT 
+           IS_WRITTEN_TENSOR(I) = 1
                     ENDDO
                   ENDDO    
                 ELSEIF ((MLW == 24 .OR. MLW == 25) .and. ISTRAIN > 0) THEN
                   DO I=1,NEL
                     N = I + NFT  
-                    II = 6*(I-1)				 
+                    II = 6*(I-1)         
                     DO IPT=1,NPT
-                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)	   
+                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)     
                       EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/NPT
                       EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/NPT
                       EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/NPT
@@ -1566,150 +1580,152 @@ c-----------
                     ENDDO
                   ENDDO
                 ELSEIF(ISTRAIN > 0)THEN
-                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28) THEN		
+                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28) THEN
                     DO I=1,NEL
                       N = I + NFT  
-                      II = 6*(I-1)				   
+                      II = 6*(I-1)           
                       DO IPT=1,NPT
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)	     
-                	EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/NPT
-                	EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/NPT
-                	EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/NPT
-                	EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*HALF/NPT
-                	EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*HALF/NPT
-                	EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*HALF/NPT
-                	IS_WRITTEN_TENSOR(I) = 1
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)       
+          EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/NPT
+          EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/NPT
+          EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/NPT
+          EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*HALF/NPT
+          EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*HALF/NPT
+          EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*HALF/NPT
+          IS_WRITTEN_TENSOR(I) = 1
                       ENDDO
-                    ENDDO		    
-                  ENDIF 			
+                    ENDDO        
+                  ENDIF 
                 ENDIF 
                 IF (KCVT /= 0) THEN
 C                 STRAIN TENSOR IN GLOBAL SYSTEM
-                  DO I=1,NEL				  
-                    N = I + NFT 			      
-                    IF (KCVT==2) THEN			    
-                      II = 6*(I-1)				  
+                  DO I=1,NEL          
+                    N = I + NFT             
+                    IF (KCVT==2) THEN          
+                      II = 6*(I-1)          
                       GAMA(1)=GBUF%GAMA(JJ(1) + I)
                       GAMA(2)=GBUF%GAMA(JJ(2) + I)
                       GAMA(3)=GBUF%GAMA(JJ(3) + I)
                       GAMA(4)=GBUF%GAMA(JJ(4) + I)
                       GAMA(5)=GBUF%GAMA(JJ(5) + I)
                       GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                    ELSE				  
-                      GAMA(1)=ONE			  
-                      GAMA(2)=ZERO			  
-                      GAMA(3)=ZERO			  
-                      GAMA(4)=ZERO			  
-                      GAMA(5)=ONE			  
-                      GAMA(6)=ZERO			  
-                    ENDIF				 
-                    CALL SROTA6(X,IXS(1,N),KCVT,	    
-     .                   EVAR(1,I),GAMA, JHBE,IGTYP)	   
-                  ENDDO 				    
+                    ELSE          
+                      GAMA(1)=ONE        
+                      GAMA(2)=ZERO        
+                      GAMA(3)=ZERO        
+                      GAMA(4)=ZERO        
+                      GAMA(5)=ONE        
+                      GAMA(6)=ZERO        
+                    ENDIF         
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                  ENDDO             
                 ENDIF
 c-----------
-              ELSEIF((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15)THEN
+              ELSEIF(((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24))THEN
 c-----------
-                IF (MLW.GE.28.AND.MLW /= 49.AND.ISTRAIN > 0) THEN
-                  DO I=1,NEL						   
-                    N = I + NFT 					     
-                    II = 6*(I-1)					     
+                IF (MLW>=28.AND.MLW /= 49.AND.ISTRAIN > 0) THEN
+                  DO I=1,NEL               
+                    N = I + NFT                
+                    II = 6*(I-1)               
                     DO IL= 1,NLAY
-                      DO IPT=1,NPTG					       
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)  	
-                	EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)       
-                	EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)       
-                	EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)       
-                	EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
-     .          			      HALF/(NPTG*NLAY)       
-                	EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
-     .          			      HALF/(NPTG*NLAY)       
-                	EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
-     .          			      HALF/(NPTG*NLAY) 
-                	IS_WRITTEN_TENSOR(I) = 1  
-                      ENDDO						       
-                    ENDDO						     
-                  ENDDO 						     
+                      DO IPT=1,NPTG                 
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)  
+          EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)       
+          EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)       
+          EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)       
+          EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
+     .                      HALF/(NPTG*NLAY)       
+          EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
+     .                      HALF/(NPTG*NLAY)       
+          EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
+     .                      HALF/(NPTG*NLAY) 
+          IS_WRITTEN_TENSOR(I) = 1  
+                      ENDDO                   
+                    ENDDO                 
+                  ENDDO                  
                 ELSEIF(MLW == 12 .OR. MLW == 14)THEN
                   DO I=1,NEL
-                    II = 3*(I-1)				 
+                    II = 3*(I-1)         
                     DO IL= 1,NLAY
                       DO IPT=1,NPTG
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)
-                	EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/(NPTG*NLAY)
-                	EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/(NPTG*NLAY)
-                	EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/(NPTG*NLAY)
-                	IS_WRITTEN_TENSOR(I) = 1
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)
+          EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/(NPTG*NLAY)
+          EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/(NPTG*NLAY)
+          EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/(NPTG*NLAY)
+          IS_WRITTEN_TENSOR(I) = 1
                       ENDDO
                     ENDDO
                   ENDDO    
                 ELSEIF ((MLW == 24 .OR. MLW == 25) .and. ISTRAIN > 0)THEN
-                  DO I=1,NEL						   
-                    N = I + NFT 					     
-                    II = 6*(I-1)					     
+                  DO I=1,NEL               
+                    N = I + NFT                
+                    II = 6*(I-1)               
                     DO IL= 1,NLAY
-                      DO IPT=1,NPTG					       
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)  	
-                	EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)
-                	EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)
-                	EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)
-                	EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
-     .          		    HALF/(NPTG*NLAY)      
-                	EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
-     .          		    HALF/(NPTG*NLAY) 
-                	EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
-     .          		    HALF/(NPTG*NLAY)   
-                	IS_WRITTEN_TENSOR(I) = 1
-                      ENDDO						       
-                    ENDDO						     
-                  ENDDO 						     
-                ELSEIF (ISTRAIN > 0) THEN					 
-                  IF(MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28) THEN		 
-                    DO I=1,NEL  					     
-                      N = I + NFT					       
-                      II = 6*(I-1)					       
+                      DO IPT=1,NPTG                 
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)  
+          EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)
+          EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)
+          EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)
+          EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
+     .                  HALF/(NPTG*NLAY)      
+          EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
+     .                  HALF/(NPTG*NLAY) 
+          EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
+     .                  HALF/(NPTG*NLAY)   
+          IS_WRITTEN_TENSOR(I) = 1
+                      ENDDO                   
+                    ENDDO                 
+                  ENDDO                  
+                ELSEIF (ISTRAIN > 0) THEN           
+                  IF(MLW /= 14.AND.MLW /= 24.AND.MLW<28) THEN     
+                    DO I=1,NEL                 
+                      N = I + NFT                 
+                      II = 6*(I-1)                 
                       DO IL= 1,NLAY
-                	DO IPT=1,NPTG						 
-                	 LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1) 	
-                	  EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)	     
-                	  EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)	    
-                	  EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)	  
-                	  EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
-     .          		    HALF/(NPTG*NLAY)
-                	  EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
-     .          		    HALF/(NPTG*NLAY)
-                	  EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
-     .          		    HALF/(NPTG*NLAY)
-                	  IS_WRITTEN_TENSOR(I) = 1
-                	ENDDO							 
-                      ENDDO						       
-                    ENDDO						     
-                  ENDIF 						       
-                ENDIF			       
-                IF (KCVT /= 0) THEN			
-C                 STRAIN TENSOR IN GLOBAL SYSTE 	
-                  DO I=1,NEL			      
-                    N = I + NFT 			  
-                    IF (KCVT==2)THEN		       
-                      II = 6*(I-1)					      
+          DO IPT=1,NPTG             
+           LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1) 
+            EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)       
+            EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)      
+            EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)    
+            EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
+     .                  HALF/(NPTG*NLAY)
+            EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
+     .                  HALF/(NPTG*NLAY)
+            EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
+     .                  HALF/(NPTG*NLAY)
+            IS_WRITTEN_TENSOR(I) = 1
+          ENDDO               
+                      ENDDO                   
+                    ENDDO                 
+                  ENDIF                    
+                ENDIF             
+                IF (KCVT /= 0) THEN
+C                 STRAIN TENSOR IN GLOBAL SYSTEM
+                  DO I=1,NEL            
+                    N = I + NFT         
+                    IF (KCVT==2)THEN           
+                      II = 6*(I-1)                
                       GAMA(1)= GBUF%GAMA(JJ(1) + I)  
                       GAMA(2)= GBUF%GAMA(JJ(2) + I)  
-                      GAMA(3)= ZERO		       
-                      GAMA(4)=-GAMA(2)  	       
-                      GAMA(5)= GAMA(1)  	       
-                      GAMA(6)= ZERO		       
-                    ELSE			       
-                      GAMA(1)=ONE		       
-                      GAMA(2)=ZERO		       
-                      GAMA(3)=ZERO		       
-                      GAMA(4)=ZERO		       
-                      GAMA(5)=ONE		       
-                      GAMA(6)=ZERO		       
-                    END IF			       
-                    CALL SROTA6(X,IXS(1,N),KCVT,       
-     .                   EVAR(1,I),GAMA, JHBE,IGTYP)   
-                  ENDDO 				
-                ENDIF					
+                      GAMA(3)= ZERO           
+                      GAMA(4)=-GAMA(2)           
+                      GAMA(5)= GAMA(1)           
+                      GAMA(6)= ZERO           
+                    ELSE             
+                      GAMA(1)=ONE           
+                      GAMA(2)=ZERO           
+                      GAMA(3)=ZERO           
+                      GAMA(4)=ZERO           
+                      GAMA(5)=ONE           
+                      GAMA(6)=ZERO           
+                    END IF             
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                  ENDDO 
+                ENDIF
 c-----------
               ENDIF  ! ISOLNOD & ......
 
@@ -1748,7 +1764,7 @@ c-----------
               IF (KCVT /= 0) THEN
 C               STRAIN TENSOR IN GLOBAL SYSTEM
                 DO I=1,NEL
-             	  N = I + NFT
+            N = I + NFT
                   IF(KCVT==2)THEN
                     GAMA(1)=GBUF%GAMA(JJ(1) + I)
                     GAMA(2)=GBUF%GAMA(JJ(2) + I)
@@ -1764,8 +1780,9 @@ C               STRAIN TENSOR IN GLOBAL SYSTEM
                     GAMA(5)=ONE
                     GAMA(6)=ZERO
                   END IF
-                  CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                  CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                 ENDDO
               ENDIF
 c-----------
@@ -1776,7 +1793,7 @@ c-----------
               IPT = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
               IF (IPT == 1 ) THEN          
                 LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)          
-                IF (MLW.GE.28.AND.MLW /= 49 .OR. MLW == 24) THEN 
+                IF (MLW>=28.AND.MLW /= 49 .OR. MLW == 24) THEN 
                   DO I=1,NEL
                     EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)
                     EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)
@@ -1794,7 +1811,7 @@ c-----------
                     IS_WRITTEN_TENSOR(I) = 1       
                   ENDDO  
                 ELSEIF (ISTRAIN > 0)THEN 
-                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28.OR.
+                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28.OR.
      .               MLW == 49) THEN                          
                     DO I=1,NEL 
                       EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)
@@ -1812,7 +1829,7 @@ C
               IF (KCVT /= 0) THEN
 C               STRAIN TENSOR IN GLOBAL SYSTEM
                 DO I=1,NEL
-             	   N = I + NFT
+             N = I + NFT
                   IF(KCVT==2)THEN
                     GAMA(1)=GBUF%GAMA(JJ(1) + I)
                     GAMA(2)=GBUF%GAMA(JJ(2) + I)
@@ -1828,8 +1845,9 @@ C               STRAIN TENSOR IN GLOBAL SYSTEM
                     GAMA(5)=ONE
                     GAMA(6)=ZERO
                   END IF
-                  CALL SROTA6(X,IXS(1,N),KCVT,
-     .                 EVAR(1,I),GAMA, JHBE,IGTYP)
+                  CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                 ENDDO
               ENDIF     
 c-----------
@@ -1838,14 +1856,14 @@ c-----------
 c-----------
            ICSIG = IPARG(17,NG) 
            IF (IOR_TSH >0) THEN
-     	     IF (ICSIG == 10) THEN
+               IF (ICSIG == 10) THEN
                IR=IT_INPUT
                IS=IR_INPUT
                IT=IS_INPUT
-     	     ELSEIF (ICSIG == 1) THEN
-     	       IR=IS_INPUT
-     	       IS=IT_INPUT
-     	       IT=IR_INPUT
+               ELSEIF (ICSIG == 1) THEN
+                 IR=IS_INPUT
+                 IS=IT_INPUT
+                 IT=IR_INPUT
              ELSE
                IR=IR_INPUT
                IS=IS_INPUT
@@ -1864,7 +1882,7 @@ c-----------
              ELSE                                               
                LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)   
              ENDIF                                          
-             IF(MLW.GE.28.AND.MLW /= 49)THEN        
+             IF(MLW>=28.AND.MLW /= 49)THEN        
                DO I=1,NEL
 C                3*9*3 points d'integration (r*s*t)    
                   EVAR(1,I) = LBUF%STRA(JJ(1) + I)
@@ -1888,7 +1906,7 @@ C              3*9*3 points d'integration (r*s*t)
 C                   3*9*3 points d'integration (r*s*t)         
                  EVAR(1,I) = LBUF%STRA(JJ(1) + I)
                  EVAR(2,I) = LBUF%STRA(JJ(2) + I)
-                 EVAR(3,I) = LBUF%STRA(JJ(3) + I)		    
+                 EVAR(3,I) = LBUF%STRA(JJ(3) + I)        
                  EVAR(4,I) = LBUF%STRA(JJ(4) + I) * HALF
                  EVAR(5,I) = LBUF%STRA(JJ(5) + I) * HALF
                  EVAR(6,I) = LBUF%STRA(JJ(6) + I) * HALF
@@ -1896,155 +1914,159 @@ C                   3*9*3 points d'integration (r*s*t)
                ENDDO   
              ELSEIF (MLW == 25) THEN
                  DO I=1,NEL 
-                 EVAR(1,I) =  LBUF%STRA(JJ(1) + I)		  
-                 EVAR(2,I) =  LBUF%STRA(JJ(2) + I)		  
-                 EVAR(3,I) =  LBUF%STRA(JJ(3) + I)		  
-                 EVAR(4,I) =  LBUF%STRA(JJ(4) + I) * HALF	  
-                 EVAR(5,I) =  LBUF%STRA(JJ(5) + I) * HALF		   
+                 EVAR(1,I) =  LBUF%STRA(JJ(1) + I)      
+                 EVAR(2,I) =  LBUF%STRA(JJ(2) + I)      
+                 EVAR(3,I) =  LBUF%STRA(JJ(3) + I)      
+                 EVAR(4,I) =  LBUF%STRA(JJ(4) + I) * HALF    
+                 EVAR(5,I) =  LBUF%STRA(JJ(5) + I) * HALF       
                  EVAR(6,I) =  LBUF%STRA(JJ(6) + I) * HALF
-                 IS_WRITTEN_TENSOR(I) = 1	  
-		               ENDDO  
+                 IS_WRITTEN_TENSOR(I) = 1    
+                         ENDDO  
                ELSEIF(ISTRAIN > 0)THEN
-                 IF(MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28)THEN
+                 IF(MLW /= 14.AND.MLW /= 24.AND.MLW<28)THEN
                    DO I=1,NEL 
 C  3*9*3 points d'integration (r*s*t)    
-                    EVAR(1,I) =  LBUF%STRA(JJ(1) + I)			    
-                    EVAR(2,I) =  LBUF%STRA(JJ(2) + I)			    
-                    EVAR(3,I) =  LBUF%STRA(JJ(3) + I)			    
-                    EVAR(4,I) =  LBUF%STRA(JJ(4) + I) * HALF  	    
-                    EVAR(5,I) =  LBUF%STRA(JJ(5) + I) * HALF  	      
+                    EVAR(1,I) =  LBUF%STRA(JJ(1) + I)          
+                    EVAR(2,I) =  LBUF%STRA(JJ(2) + I)          
+                    EVAR(3,I) =  LBUF%STRA(JJ(3) + I)          
+                    EVAR(4,I) =  LBUF%STRA(JJ(4) + I) * HALF        
+                    EVAR(5,I) =  LBUF%STRA(JJ(5) + I) * HALF          
                     EVAR(6,I) =  LBUF%STRA(JJ(6) + I) * HALF 
-                    IS_WRITTEN_TENSOR(I) = 1 	    
+                    IS_WRITTEN_TENSOR(I) = 1       
                    ENDDO 
                  ENDIF
                ENDIF
 C
-               IF (KCVT /= 0 .AND. JHBE .NE. 16) THEN
+               IF (KCVT /= 0 .AND. JHBE /= 16) THEN
 C              STRAIN TENSOR IN GLOBAL SYSTEM
-            	  ICSIG=IPARG(17,NG)  
-            	  IF (JHBE == 14.AND.ICSIG > 0) THEN
-            	   SELECT CASE (ICSIG)  					   
-            	   CASE (1)							   
-            	   DO I=1,NEL
-             	     N = I + NFT
+            ICSIG=IPARG(17,NG)  
+            IF (JHBE == 14.AND.ICSIG > 0) THEN
+             SELECT CASE (ICSIG)               
+             CASE (1)                 
+             DO I=1,NEL
+               N = I + NFT
                      IF(KCVT==2.AND.IGTYP == 22)THEN
-           	       GAMA(1)=ZERO
-       	               GAMA(2)=LBUF%GAMA(JJ(1) + I)
+                 GAMA(1)=ZERO
+                         GAMA(2)=LBUF%GAMA(JJ(1) + I)
                        GAMA(3)=LBUF%GAMA(JJ(2) + I)
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=-GAMA(2)
-            	       GAMA(6)=GAMA(1)
+                 GAMA(4)=ZERO
+                 GAMA(5)=-GAMA(2)
+                 GAMA(6)=GAMA(1)
                      ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
-           	       GAMA(1)=ZERO
-       	               GAMA(2)=GBUF%GAMA(JJ(1) + I)
+                 GAMA(1)=ZERO
+                         GAMA(2)=GBUF%GAMA(JJ(1) + I)
                        GAMA(3)=GBUF%GAMA(JJ(2) + I)
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=-GAMA(2)
-            	       GAMA(6)=GAMA(1)
-            	     ELSE
-            	       GAMA(1)=ONE
-            	       GAMA(2)=ZERO
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=ONE
-            	       GAMA(6)=ZERO
-            	     END IF
-            	     CALL SROTA6(X,IXS(1,N),KCVT,
-     .      	       EVAR(1,I),GAMA, JHBE,IGTYP)
-            	   ENDDO
-            	   CASE (10)							    
-            	   DO I=1,NEL
-            	     N = I + NFT
+                 GAMA(4)=ZERO
+                 GAMA(5)=-GAMA(2)
+                 GAMA(6)=GAMA(1)
+               ELSE
+                 GAMA(1)=ONE
+                 GAMA(2)=ZERO
+                 GAMA(3)=ZERO
+                 GAMA(4)=ZERO
+                 GAMA(5)=ONE
+                 GAMA(6)=ZERO
+               END IF
+               CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+             ENDDO
+             CASE (10)                  
+             DO I=1,NEL
+               N = I + NFT
                      IF(KCVT==2.AND.IGTYP == 22)THEN
                        GAMA(1)=LBUF%GAMA(JJ(1) + I)
                        GAMA(2)=LBUF%GAMA(JJ(2) + I)
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=-GAMA(2)
-            	       GAMA(5)=GAMA(1)
-            	       GAMA(6)=ZERO
+                 GAMA(3)=ZERO
+                 GAMA(4)=-GAMA(2)
+                 GAMA(5)=GAMA(1)
+                 GAMA(6)=ZERO
                      ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
                        GAMA(1)=GBUF%GAMA(JJ(1) + I)
                        GAMA(2)=GBUF%GAMA(JJ(2) + I)
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=-GAMA(2)
-            	       GAMA(5)=GAMA(1)
-            	       GAMA(6)=ZERO
-            	     ELSE
-            	       GAMA(1)=ONE
-            	       GAMA(2)=ZERO
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=ONE
-            	       GAMA(6)=ZERO
-            	     END IF
-            	     CALL SROTA6(X,IXS(1,N),KCVT,
-     .      	       EVAR(1,I),GAMA, JHBE,IGTYP)
-            	   ENDDO
-            	   CASE (100)							     
-            	   DO I=1,NEL
-            	     N = I + NFT
+                 GAMA(3)=ZERO
+                 GAMA(4)=-GAMA(2)
+                 GAMA(5)=GAMA(1)
+                 GAMA(6)=ZERO
+               ELSE
+                 GAMA(1)=ONE
+                 GAMA(2)=ZERO
+                 GAMA(3)=ZERO
+                 GAMA(4)=ZERO
+                 GAMA(5)=ONE
+                 GAMA(6)=ZERO
+               END IF
+               CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+             ENDDO
+             CASE (100)                   
+             DO I=1,NEL
+               N = I + NFT
                      IF(KCVT==2.AND.IGTYP == 22)THEN
                        GAMA(1)=LBUF%GAMA(JJ(2) + I)
-            	       GAMA(2)=ZERO
+                 GAMA(2)=ZERO
                        GAMA(3)=LBUF%GAMA(JJ(1) + I)
-            	       GAMA(4)=GAMA(3)
-            	       GAMA(5)=ZERO
-            	       GAMA(6)=-GAMA(1)
+                 GAMA(4)=GAMA(3)
+                 GAMA(5)=ZERO
+                 GAMA(6)=-GAMA(1)
                      ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
                        GAMA(1)=GBUF%GAMA(JJ(2) + I)
-            	       GAMA(2)=ZERO
+                 GAMA(2)=ZERO
                        GAMA(3)=GBUF%GAMA(JJ(1) + I)
-            	       GAMA(4)=GAMA(3)
-            	       GAMA(5)=ZERO
-            	       GAMA(6)=-GAMA(1)
-            	     ELSE
-            	       GAMA(1)=ONE
-            	       GAMA(2)=ZERO
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=ONE
-            	       GAMA(6)=ZERO
-            	     END IF
-            	     CALL SROTA6(X,IXS(1,N),KCVT,
-     .      	       EVAR(1,I),GAMA, JHBE,IGTYP)
-            	   ENDDO
-            	   END SELECT 
-	    	  ELSE  							
-            	    DO I=1,NEL
-             	      N = I + NFT
-            	      IF(KCVT==2)THEN
-            	        GAMA(1)=GBUF%GAMA(JJ(1) + I)
-            	        GAMA(2)=GBUF%GAMA(JJ(2) + I)
-            	        GAMA(3)=GBUF%GAMA(JJ(3) + I)
-            	        GAMA(4)=GBUF%GAMA(JJ(4) + I)
-            	        GAMA(5)=GBUF%GAMA(JJ(5) + I)
-            	        GAMA(6)=GBUF%GAMA(JJ(6) + I)
-            	      ELSE
-            	        GAMA(1)=ONE
-            	        GAMA(2)=ZERO
-            	        GAMA(3)=ZERO
-            	        GAMA(4)=ZERO
-            	        GAMA(5)=ONE
-            	        GAMA(6)=ZERO
-            	      END IF
-            	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .      	      EVAR(1,I),GAMA, JHBE,IGTYP)
-            	    ENDDO
-            	   ENDIF  !(JHBE == 14.AND.ICSIG > 0)	 
+                 GAMA(4)=GAMA(3)
+                 GAMA(5)=ZERO
+                 GAMA(6)=-GAMA(1)
+               ELSE
+                 GAMA(1)=ONE
+                 GAMA(2)=ZERO
+                 GAMA(3)=ZERO
+                 GAMA(4)=ZERO
+                 GAMA(5)=ONE
+                 GAMA(6)=ZERO
+               END IF
+               CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+             ENDDO
+             END SELECT 
+            ELSE  
+              DO I=1,NEL
+                N = I + NFT
+                IF(KCVT==2)THEN
+                  GAMA(1)=GBUF%GAMA(JJ(1) + I)
+                  GAMA(2)=GBUF%GAMA(JJ(2) + I)
+                  GAMA(3)=GBUF%GAMA(JJ(3) + I)
+                  GAMA(4)=GBUF%GAMA(JJ(4) + I)
+                  GAMA(5)=GBUF%GAMA(JJ(5) + I)
+                  GAMA(6)=GBUF%GAMA(JJ(6) + I)
+                ELSE
+                  GAMA(1)=ONE
+                  GAMA(2)=ZERO
+                  GAMA(3)=ZERO
+                  GAMA(4)=ZERO
+                  GAMA(5)=ONE
+                  GAMA(6)=ZERO
+                END IF
+                CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+              ENDDO
+             ENDIF  !(JHBE == 14.AND.ICSIG > 0)   
                ENDIF 
              ENDIF
 
 c-----------
             ELSEIF (ISOLNOD==10 .OR. (ISOLNOD==4 .AND. ISROT==1)) THEN
 c-----------
-              IPT = IR
-c              IF (IR == 1 .AND. IS == 1 .AND. IT == 1) IPT = 1 
-c              IF (IR == 2 .AND. IS == 1 .AND. IT == 1) IPT = 2 
-c              IF (IR == 1 .AND. IS == 2 .AND. IT == 1) IPT = 3 
-c              IF (IR == 1 .AND. IS == 1 .AND. IT == 2) IPT = 4 
+              IPT = 0
+              IF (IR == 1 .AND. IS == 1 .AND. IT == 1) IPT = 1 
+              IF (IR == 2 .AND. IS == 1 .AND. IT == 1) IPT = 2 
+              IF (IR == 1 .AND. IS == 2 .AND. IT == 1) IPT = 3 
+              IF (IR == 1 .AND. IS == 1 .AND. IT == 2) IPT = 4 
               IF ( IPT > 0) THEN
                 LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)          
-                IF (MLW.GE.28.AND.MLW /= 49 .OR. MLW == 24) THEN 
+                IF (MLW>=28.AND.MLW /= 49 .OR. MLW == 24) THEN 
                   DO I=1,NEL
                     EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)
                     EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)
@@ -2062,7 +2084,7 @@ c              IF (IR == 1 .AND. IS == 1 .AND. IT == 2) IPT = 4
                     IS_WRITTEN_TENSOR(I) = 1      
                   ENDDO 
                 ELSEIF (ISTRAIN > 0) THEN
-                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28) THEN               
+                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28) THEN               
                     DO I=1,NEL
                       EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)
                       EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)
@@ -2094,8 +2116,9 @@ c
                     GAMA(5)=ONE
                     GAMA(6)=ZERO
                   END IF
-                  CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                  CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                 ENDDO
               ENDIF  
 
@@ -2105,11 +2128,11 @@ c-----------
      .                   IS >= 0 .AND.  IS <= NPTS) THEN 
 
               EVAR(1:6,1:NEL) = ZERO
-              IF ((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) THEN
+              IF (((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24)) THEN
 c-----------
                 IF ( ILAY <= NPT ) THEN
                   LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1) 
-                  IF (MLW.GE.28.AND.MLW /= 49 .OR. MLW == 24) THEN
+                  IF (MLW>=28.AND.MLW /= 49 .OR. MLW == 24) THEN
                     DO I=1,NEL
                       EVAR(1,I) =  LBUF%STRA(JJ(1) + I)
                       EVAR(2,I) =  LBUF%STRA(JJ(2) + I)
@@ -2122,28 +2145,28 @@ c-----------
                   ELSEIF(MLW == 12 .OR. MLW == 14)THEN
                     DO I=1,NEL
                       N = I + NFT 
-                      EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)	
-                      EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)	
+                      EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)
+                      EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)
                       EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I) 
                       IS_WRITTEN_TENSOR(I) = 1      
                     ENDDO 
-                  ELSEIF (ISTRAIN > 0) THEN					 
-                    IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28) THEN		    
-                      DO I=1,NEL					      
-                	EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)
-                	EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)
-                	EVAR(3,I) = EVAR(3,I) + LBUF%STRA(JJ(3) + I)
-                	EVAR(4,I) = EVAR(4,I) + LBUF%STRA(JJ(4) + I)*HALF
-                	EVAR(5,I) = EVAR(5,I) + LBUF%STRA(JJ(5) + I)*HALF
-                	EVAR(6,I) = EVAR(6,I) + LBUF%STRA(JJ(6) + I)*HALF
-                	IS_WRITTEN_TENSOR(I) = 1
-                      ENDDO							
-                    ENDIF							
-                  ENDIF 							
-                ENDIF		      
-                IF (KCVT /= 0 .AND. IS <= NPT) THEN		  
+                  ELSEIF (ISTRAIN > 0) THEN           
+                    IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28) THEN        
+                      DO I=1,NEL                
+          EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)
+          EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)
+          EVAR(3,I) = EVAR(3,I) + LBUF%STRA(JJ(3) + I)
+          EVAR(4,I) = EVAR(4,I) + LBUF%STRA(JJ(4) + I)*HALF
+          EVAR(5,I) = EVAR(5,I) + LBUF%STRA(JJ(5) + I)*HALF
+          EVAR(6,I) = EVAR(6,I) + LBUF%STRA(JJ(6) + I)*HALF
+          IS_WRITTEN_TENSOR(I) = 1
+                      ENDDO
+                    ENDIF
+                  ENDIF 
+                ENDIF          
+                IF (KCVT /= 0 .AND. IS <= NPT) THEN      
 C                 STRAIN TENSOR IN GLOBAL SYSTEM  
-c                  LBUF =>  ELBUF_TAB(NG)%BUFLY(IS)%LBUF(1,1,1)  	
+c                  LBUF =>  ELBUF_TAB(NG)%BUFLY(IS)%LBUF(1,1,1)  
                   DO I=1,NEL
                     N = I + NFT
                     IF(KCVT==2)THEN
@@ -2161,8 +2184,9 @@ c                  LBUF =>  ELBUF_TAB(NG)%BUFLY(IS)%LBUF(1,1,1)
                       GAMA(5)=ONE
                       GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO
                 ENDIF  
               ELSEIF (ISOLNOD == 16.OR.ISOLNOD == 20.OR.(ISOLNOD == 8.AND.
@@ -2171,7 +2195,7 @@ c-----------
                IF (TSHELL == 1.AND.IR > 0 .AND. IS > 0 .AND. IT > 0) THEN                              
                   LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,1)  
                   IF (ISOLNOD == 16) LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,1,IT) 
-                IF(MLW.GE.28.AND.MLW /= 49)THEN        
+                IF(MLW>=28.AND.MLW /= 49)THEN        
                   DO I=1,NEL
 C                   3*9*3 points d'integration (r*s*t)    
                      EVAR(1,I) = LBUF%STRA(JJ(1) + I)
@@ -2184,7 +2208,7 @@ C                   3*9*3 points d'integration (r*s*t)
                   ENDDO
                 ELSEIF(MLW == 12 .OR. MLW == 14)THEN
                   DO I=1,NEL
-C                 3*9*3 points d'integration (r*s*t)	   
+C                 3*9*3 points d'integration (r*s*t)     
                     EVAR(1,I) = LBUF%EPE(JJ(1) + I)   
                     EVAR(2,I) = LBUF%EPE(JJ(2) + I)   
                     EVAR(3,I) = LBUF%EPE(JJ(3) + I)   
@@ -2192,10 +2216,10 @@ C                 3*9*3 points d'integration (r*s*t)
                   ENDDO       
                 ELSEIF(MLW == 24 .OR. MLW == 25)THEN
                   DO I=1,NEL
-C                      3*9*3 points d'integration (r*s*t)	  
+C                      3*9*3 points d'integration (r*s*t)    
                     EVAR(1,I) = LBUF%STRA(JJ(1) + I)
                     EVAR(2,I) = LBUF%STRA(JJ(2) + I)
-                    EVAR(3,I) = LBUF%STRA(JJ(3) + I)		       
+                    EVAR(3,I) = LBUF%STRA(JJ(3) + I)           
                     EVAR(4,I) = LBUF%STRA(JJ(4) + I) * HALF
                     EVAR(5,I) = LBUF%STRA(JJ(5) + I) * HALF
                     EVAR(6,I) = LBUF%STRA(JJ(6) + I) * HALF
@@ -2203,141 +2227,145 @@ C                      3*9*3 points d'integration (r*s*t)
                   ENDDO   
                 ELSEIF (MLW == 25) THEN
                   DO I=1,NEL 
-                    EVAR(1,I) =  LBUF%STRA(JJ(1) + I)		     
-                    EVAR(2,I) =  LBUF%STRA(JJ(2) + I)		     
-                    EVAR(3,I) =  LBUF%STRA(JJ(3) + I)		     
+                    EVAR(1,I) =  LBUF%STRA(JJ(1) + I)         
+                    EVAR(2,I) =  LBUF%STRA(JJ(2) + I)         
+                    EVAR(3,I) =  LBUF%STRA(JJ(3) + I)         
                     EVAR(4,I) =  LBUF%STRA(JJ(4) + I) * HALF       
-                    EVAR(5,I) =  LBUF%STRA(JJ(5) + I) * HALF  	      
+                    EVAR(5,I) =  LBUF%STRA(JJ(5) + I) * HALF          
                     EVAR(6,I) =  LBUF%STRA(JJ(6) + I) * HALF
-                    IS_WRITTEN_TENSOR(I) = 1	     
-	          ENDDO  
+                    IS_WRITTEN_TENSOR(I) = 1       
+                    ENDDO  
                 ELSEIF(ISTRAIN > 0)THEN
-                  IF(MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28)THEN
+                  IF(MLW /= 14.AND.MLW /= 24.AND.MLW<28)THEN
                     DO I=1,NEL 
 C  3*9*3 points d'integration (r*s*t)    
-                    EVAR(1,I) =  LBUF%STRA(JJ(1) + I)			    
-                    EVAR(2,I) =  LBUF%STRA(JJ(2) + I)			    
-                    EVAR(3,I) =  LBUF%STRA(JJ(3) + I)			    
-                    EVAR(4,I) =  LBUF%STRA(JJ(4) + I) * HALF  	    
-                    EVAR(5,I) =  LBUF%STRA(JJ(5) + I) * HALF  	      
+                    EVAR(1,I) =  LBUF%STRA(JJ(1) + I)          
+                    EVAR(2,I) =  LBUF%STRA(JJ(2) + I)          
+                    EVAR(3,I) =  LBUF%STRA(JJ(3) + I)          
+                    EVAR(4,I) =  LBUF%STRA(JJ(4) + I) * HALF        
+                    EVAR(5,I) =  LBUF%STRA(JJ(5) + I) * HALF          
                     EVAR(6,I) =  LBUF%STRA(JJ(6) + I) * HALF 
-                    IS_WRITTEN_TENSOR(I) = 1	    
+                    IS_WRITTEN_TENSOR(I) = 1      
                     ENDDO 
                   ENDIF
                 ENDIF
 C
-                IF (KCVT /= 0 .AND. JHBE .NE. 16) THEN
+                IF (KCVT /= 0 .AND. JHBE /= 16) THEN
 C                STRAIN TENSOR IN GLOBAL SYSTEM
-             	  ICSIG=IPARG(17,NG)  
-             	  IF (JHBE == 14.AND.ICSIG > 0) THEN
-             	    SELECT CASE (ICSIG)					     
-             	    CASE (1)							     
-             	      DO I=1,NEL
-             	        N = I + NFT
-             	  	IF(KCVT==2 .AND. IGTYP ==22)THEN
-             	     	  GAMA(1)=ZERO
-       	             	  GAMA(2)=LBUF%GAMA(JJ(1) + I)
-                     	  GAMA(3)=LBUF%GAMA(JJ(2) + I)
-             	     	  GAMA(4)=ZERO
-             	     	  GAMA(5)=-GAMA(2)
-             	     	  GAMA(6)=GAMA(1)
-             	  	ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
-             	     	  GAMA(1)=ZERO
-       	             	  GAMA(2)=GBUF%GAMA(JJ(1) + I)
-                     	  GAMA(3)=GBUF%GAMA(JJ(2) + I)
-             	     	  GAMA(4)=ZERO
-             	     	  GAMA(5)=-GAMA(2)
-             	     	  GAMA(6)=GAMA(1)
-             	     	ELSE
-             	     	  GAMA(1)=ONE
-             	     	  GAMA(2)=ZERO
-             	     	  GAMA(3)=ZERO
-             	     	  GAMA(4)=ZERO
-             	     	  GAMA(5)=ONE
-             	     	  GAMA(6)=ZERO
-             	     	END IF
-             	     	CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	     	  EVAR(1,I),GAMA, JHBE,IGTYP)
-             	      ENDDO
-             	    CASE (10)  						      
-             	      DO I=1,NEL
-             	        N = I + NFT
-             	  	IF(KCVT==2 .AND. IGTYP ==22)THEN
+            ICSIG=IPARG(17,NG)  
+            IF (JHBE == 14.AND.ICSIG > 0) THEN
+              SELECT CASE (ICSIG)               
+              CASE (1)                   
+                DO I=1,NEL
+                  N = I + NFT
+              IF(KCVT==2 .AND. IGTYP ==22)THEN
+                   GAMA(1)=ZERO
+                           GAMA(2)=LBUF%GAMA(JJ(1) + I)
+            GAMA(3)=LBUF%GAMA(JJ(2) + I)
+                   GAMA(4)=ZERO
+                   GAMA(5)=-GAMA(2)
+                   GAMA(6)=GAMA(1)
+              ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
+                   GAMA(1)=ZERO
+                           GAMA(2)=GBUF%GAMA(JJ(1) + I)
+            GAMA(3)=GBUF%GAMA(JJ(2) + I)
+                   GAMA(4)=ZERO
+                   GAMA(5)=-GAMA(2)
+                   GAMA(6)=GAMA(1)
+                 ELSE
+                   GAMA(1)=ONE
+                   GAMA(2)=ZERO
+                   GAMA(3)=ZERO
+                   GAMA(4)=ZERO
+                   GAMA(5)=ONE
+                   GAMA(6)=ZERO
+                 END IF
+                 CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                ENDDO
+              CASE (10)                    
+                DO I=1,NEL
+                  N = I + NFT
+              IF(KCVT==2 .AND. IGTYP ==22)THEN
                           GAMA(1)=LBUF%GAMA(JJ(1) + I)
                           GAMA(2)=LBUF%GAMA(JJ(2) + I)
-             	          GAMA(3)=ZERO
-             	          GAMA(4)=-GAMA(2)
-             	          GAMA(5)=GAMA(1)
-             	          GAMA(6)=ZERO
-             	  	ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
+                    GAMA(3)=ZERO
+                    GAMA(4)=-GAMA(2)
+                    GAMA(5)=GAMA(1)
+                    GAMA(6)=ZERO
+              ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
                           GAMA(1)=GBUF%GAMA(JJ(1) + I)
                           GAMA(2)=GBUF%GAMA(JJ(2) + I)
-             	          GAMA(3)=ZERO
-             	          GAMA(4)=-GAMA(2)
-             	          GAMA(5)=GAMA(1)
-             	          GAMA(6)=ZERO
-             	        ELSE
-             	          GAMA(1)=ONE
-             	          GAMA(2)=ZERO
-             	          GAMA(3)=ZERO
-             	          GAMA(4)=ZERO
-             	          GAMA(5)=ONE
-             	          GAMA(6)=ZERO
-             	        END IF
-             	        CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	          EVAR(1,I),GAMA, JHBE,IGTYP)
-             	      ENDDO
-             	    CASE (100) 						       
-             	      DO I=1,NEL
-             	        N = I + NFT
-             	  	IF(KCVT==2 .AND. IGTYP ==22)THEN
+                    GAMA(3)=ZERO
+                    GAMA(4)=-GAMA(2)
+                    GAMA(5)=GAMA(1)
+                    GAMA(6)=ZERO
+                  ELSE
+                    GAMA(1)=ONE
+                    GAMA(2)=ZERO
+                    GAMA(3)=ZERO
+                    GAMA(4)=ZERO
+                    GAMA(5)=ONE
+                    GAMA(6)=ZERO
+                  END IF
+                  CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                ENDDO
+              CASE (100)                    
+                DO I=1,NEL
+                  N = I + NFT
+              IF(KCVT==2 .AND. IGTYP ==22)THEN
                           GAMA(1)=LBUF%GAMA(JJ(2) + I)
-             	          GAMA(2)=ZERO
+                    GAMA(2)=ZERO
                           GAMA(3)=LBUF%GAMA(JJ(1) + I)
-             	          GAMA(4)=GAMA(3)
-             	          GAMA(5)=ZERO
-             	          GAMA(6)=-GAMA(1)
-             	  	ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
+                    GAMA(4)=GAMA(3)
+                    GAMA(5)=ZERO
+                    GAMA(6)=-GAMA(1)
+              ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
                           GAMA(1)=GBUF%GAMA(JJ(2) + I)
-             	          GAMA(2)=ZERO
+                    GAMA(2)=ZERO
                           GAMA(3)=GBUF%GAMA(JJ(1) + I)
-             	          GAMA(4)=GAMA(3)
-             	          GAMA(5)=ZERO
-             	          GAMA(6)=-GAMA(1)
-             	        ELSE
-             	          GAMA(1)=ONE
-             	          GAMA(2)=ZERO
-             	          GAMA(3)=ZERO
-             	          GAMA(4)=ZERO
-             	          GAMA(5)=ONE
-             	          GAMA(6)=ZERO
-             	        END IF
-             	        CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	          EVAR(1,I),GAMA, JHBE,IGTYP)
-             	      ENDDO
-             	    END SELECT 
-	     	  ELSE							  
-             	    DO I=1,NEL
-             	      N = I + NFT
-             	      IF(KCVT==2)THEN
-             	        GAMA(1)=GBUF%GAMA(JJ(1) + I)
-             	        GAMA(2)=GBUF%GAMA(JJ(2) + I)
-             	        GAMA(3)=GBUF%GAMA(JJ(3) + I)
-             	        GAMA(4)=GBUF%GAMA(JJ(4) + I)
-             	        GAMA(5)=GBUF%GAMA(JJ(5) + I)
-             	        GAMA(6)=GBUF%GAMA(JJ(6) + I)
-             	      ELSE
-             	        GAMA(1)=ONE
-             	        GAMA(2)=ZERO
-             	        GAMA(3)=ZERO
-             	        GAMA(4)=ZERO
-             	        GAMA(5)=ONE
-             	        GAMA(6)=ZERO
-             	      END IF
-             	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	      EVAR(1,I),GAMA, JHBE,IGTYP)
-             	    ENDDO
-             	  ENDIF  !(JHBE == 14.AND.ICSIG > 0)    
+                    GAMA(4)=GAMA(3)
+                    GAMA(5)=ZERO
+                    GAMA(6)=-GAMA(1)
+                  ELSE
+                    GAMA(1)=ONE
+                    GAMA(2)=ZERO
+                    GAMA(3)=ZERO
+                    GAMA(4)=ZERO
+                    GAMA(5)=ONE
+                    GAMA(6)=ZERO
+                  END IF
+                  CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                ENDDO
+              END SELECT 
+            ELSE                
+              DO I=1,NEL
+                N = I + NFT
+                IF(KCVT==2)THEN
+                  GAMA(1)=GBUF%GAMA(JJ(1) + I)
+                  GAMA(2)=GBUF%GAMA(JJ(2) + I)
+                  GAMA(3)=GBUF%GAMA(JJ(3) + I)
+                  GAMA(4)=GBUF%GAMA(JJ(4) + I)
+                  GAMA(5)=GBUF%GAMA(JJ(5) + I)
+                  GAMA(6)=GBUF%GAMA(JJ(6) + I)
+                ELSE
+                  GAMA(1)=ONE
+                  GAMA(2)=ZERO
+                  GAMA(3)=ZERO
+                  GAMA(4)=ZERO
+                  GAMA(5)=ONE
+                  GAMA(6)=ZERO
+                END IF
+                CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+              ENDDO
+            ENDIF  !(JHBE == 14.AND.ICSIG > 0)    
                 ENDIF 
                END IF ! (TSHELL == 1.AND.IR                                        
               ENDIF
@@ -2345,11 +2373,11 @@ C                STRAIN TENSOR IN GLOBAL SYSTEM
             ELSEIF ( ILAY >= 0 .AND. ILAY <= NLAY) THEN 
 c ILAY= IS= IT=
               EVAR(1:6,1:NEL) = ZERO
-              IF ((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) THEN
+              IF (((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24)) THEN
 c-----------
                 IF ( ILAY <= NPT ) THEN
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)  	
-                  IF (MLW.GE.28.AND.MLW /= 49 .OR. MLW == 24) THEN
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)  
+                  IF (MLW>=28.AND.MLW /= 49 .OR. MLW == 24) THEN
                     DO I=1,NEL
                       EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)
                       EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)
@@ -2362,28 +2390,28 @@ c-----------
                   ELSEIF(MLW == 12 .OR. MLW == 14)THEN
                     DO I=1,NEL
                       N = I + NFT 
-                      EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)	
-                      EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)	
+                      EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)
+                      EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)
                       EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I) 
                       IS_WRITTEN_TENSOR(I) = 1      
                     ENDDO 
-                  ELSEIF (ISTRAIN > 0) THEN					 
-                    IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28) THEN		    
-                      DO I=1,NEL					      
-                	EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)
-                	EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)
-                	EVAR(3,I) = EVAR(3,I) + LBUF%STRA(JJ(3) + I)
-                	EVAR(4,I) = EVAR(4,I) + LBUF%STRA(JJ(4) + I)*HALF
-                	EVAR(5,I) = EVAR(5,I) + LBUF%STRA(JJ(5) + I)*HALF
-                	EVAR(6,I) = EVAR(6,I) + LBUF%STRA(JJ(6) + I)*HALF
-                	IS_WRITTEN_TENSOR(I) = 1
-                      ENDDO							
-                    ENDIF							
-                  ENDIF 							
-                ENDIF		      
-                IF (KCVT /= 0 .AND. IS <= NPT) THEN		  
+                  ELSEIF (ISTRAIN > 0) THEN           
+                    IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28) THEN        
+                      DO I=1,NEL                
+          EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)
+          EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)
+          EVAR(3,I) = EVAR(3,I) + LBUF%STRA(JJ(3) + I)
+          EVAR(4,I) = EVAR(4,I) + LBUF%STRA(JJ(4) + I)*HALF
+          EVAR(5,I) = EVAR(5,I) + LBUF%STRA(JJ(5) + I)*HALF
+          EVAR(6,I) = EVAR(6,I) + LBUF%STRA(JJ(6) + I)*HALF
+          IS_WRITTEN_TENSOR(I) = 1
+                      ENDDO
+                    ENDIF
+                  ENDIF 
+                ENDIF          
+                IF (KCVT /= 0 .AND. IS <= NPT) THEN      
 C                 STRAIN TENSOR IN GLOBAL SYSTEM  
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(IS)%LBUF(1,1,1)  	
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(IS)%LBUF(1,1,1)  
                   DO I=1,NEL
                     N = I + NFT
                     IF(KCVT==2)THEN
@@ -2401,14 +2429,15 @@ C                 STRAIN TENSOR IN GLOBAL SYSTEM
                       GAMA(5)=ONE
                       GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO
                 ENDIF  
               ENDIF
             ENDIF
 
-            IF( NFILSOL .NE. 0 .AND. GBUF%G_FILL .NE. 0 ) THEN
+            IF( NFILSOL /= 0 .AND. GBUF%G_FILL /= 0 ) THEN
               DO I=1,NEL
                 EVAR(1,I) = EVAR(1,I) * GBUF%FILL(I)
                 EVAR(2,I) = EVAR(2,I) * GBUF%FILL(I)
@@ -2519,19 +2548,19 @@ C-----------------------------------------------
             IF (MLW == 24 .AND. NINT(PM(56,MT1)) == 1) THEN
 c-----------
               DO I=1,NEL
-             	EVAR(1,I) = ZERO
-             	EVAR(2,I) = ZERO
-             	EVAR(3,I) = ZERO
-             	EVAR(4,I) = ZERO
-             	EVAR(5,I) = ZERO
-             	EVAR(6,I) = ZERO
+          EVAR(1,I) = ZERO
+          EVAR(2,I) = ZERO
+          EVAR(3,I) = ZERO
+          EVAR(4,I) = ZERO
+          EVAR(5,I) = ZERO
+          EVAR(6,I) = ZERO
               ENDDO
 c----------- not work for the moment
               IF (ISOLNOD == 8 .AND.(JHBE == 14 .OR. JHBE == 15)) THEN
 c-----------
                 IF (TSHELL == 1 ) THEN
                    LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,1)
-                  DO I=1,NEL						  
+                  DO I=1,NEL              
                     EVAR(1,I) = LBUF%DGLO(JJ(1) + I)
                     EVAR(2,I) = LBUF%DGLO(JJ(2) + I)
                     EVAR(3,I) = LBUF%DGLO(JJ(3) + I)
@@ -2542,9 +2571,9 @@ c-----------
                   ENDDO
                 ELSE                  
 c----------- avoid crash
-c                 DO IPT=1,NPTG						 
-c                  LBUF =>  ELBUF_TAB(NG)%BUFLY(1)c%LBUF(IPT,1,1) 	 
-c                  DO I=1,NEL						  
+c                 DO IPT=1,NPTG             
+c                  LBUF =>  ELBUF_TAB(NG)%BUFLY(1)c%LBUF(IPT,1,1)    
+c                  DO I=1,NEL              
 c                    EVAR(1,I) = EVAR(1,I)+LBUF%DGLO(JJ(1) + I)/NPTG
 c                    EVAR(2,I) = EVAR(2,I)+LBUF%DGLO(JJ(2) + I)/NPTG
 c                    EVAR(3,I) = EVAR(3,I)+LBUF%DGLO(JJ(3) + I)/NPTG
@@ -2552,64 +2581,65 @@ c                    EVAR(4,I) = EVAR(4,I)+LBUF%DGLO(JJ(4) + I)/NPTG
 c                    EVAR(5,I) = EVAR(5,I)+LBUF%DGLO(JJ(5) + I)/NPTG
 c                    EVAR(6,I) = EVAR(6,I)+LBUF%DGLO(JJ(6) + I)/NPTG
 c                    IS_WRITTEN_TENSOR(I) = 1
-c                  ENDDO 						   
-c                 ENDDO							   
+c                  ENDDO                
+c                 ENDDO                 
                 END IF !(TSHELL == 1 ) THEN
               ELSE
-             	LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)	     
-             	DO I=1,NEL						  
-             	  EVAR(1,I) = EVAR(1,I)+LBUF%DGLO(JJ(1) + I)
-             	  EVAR(2,I) = EVAR(2,I)+LBUF%DGLO(JJ(2) + I)
-             	  EVAR(3,I) = EVAR(3,I)+LBUF%DGLO(JJ(3) + I)
-             	  EVAR(4,I) = EVAR(4,I)+LBUF%DGLO(JJ(4) + I)
-             	  EVAR(5,I) = EVAR(5,I)+LBUF%DGLO(JJ(5) + I)
-             	  EVAR(6,I) = EVAR(6,I)+LBUF%DGLO(JJ(6) + I)
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)       
+          DO I=1,NEL              
+            EVAR(1,I) = EVAR(1,I)+LBUF%DGLO(JJ(1) + I)
+            EVAR(2,I) = EVAR(2,I)+LBUF%DGLO(JJ(2) + I)
+            EVAR(3,I) = EVAR(3,I)+LBUF%DGLO(JJ(3) + I)
+            EVAR(4,I) = EVAR(4,I)+LBUF%DGLO(JJ(4) + I)
+            EVAR(5,I) = EVAR(5,I)+LBUF%DGLO(JJ(5) + I)
+            EVAR(6,I) = EVAR(6,I)+LBUF%DGLO(JJ(6) + I)
                   IS_WRITTEN_TENSOR(I) = 1
-             	ENDDO							   
-	      ENDIF
+          ENDDO                 
+                ENDIF
               IF (KCVT /= 0) THEN
 C               DAMAGE IN GLOBAL SYSTEM
                 DO I=1,NEL
                   N = I + NFT
                     IF (KCVT==2) THEN
-              	      II = 6*(I-1)					    
-              	      GAMA(1)= GBUF%GAMA(JJ(1) + I)
-              	      GAMA(2)= GBUF%GAMA(JJ(2) + I)
-              	      GAMA(3)= ZERO
-              	      GAMA(4)=-GAMA(2)
-              	      GAMA(5)= GAMA(1)
-              	      GAMA(6)= ZERO
+                II = 6*(I-1)              
+                GAMA(1)= GBUF%GAMA(JJ(1) + I)
+                GAMA(2)= GBUF%GAMA(JJ(2) + I)
+                GAMA(3)= ZERO
+                GAMA(4)=-GAMA(2)
+                GAMA(5)= GAMA(1)
+                GAMA(6)= ZERO
                     ELSE
-              	      GAMA(1)=ONE
-              	      GAMA(2)=ZERO
-              	      GAMA(3)=ZERO
-              	      GAMA(4)=ZERO
-              	      GAMA(5)=ONE
-              	      GAMA(6)=ZERO
+                GAMA(1)=ONE
+                GAMA(2)=ZERO
+                GAMA(3)=ZERO
+                GAMA(4)=ZERO
+                GAMA(5)=ONE
+                GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .        	       EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                 ENDDO
               ENDIF
             ELSE
               DO I=1,NEL
-             	EVAR(1,I) = ZERO
-             	EVAR(2,I) = ZERO
-             	EVAR(3,I) = ZERO
-             	EVAR(4,I) = ZERO
-             	EVAR(5,I) = ZERO
-             	EVAR(6,I) = ZERO
+          EVAR(1,I) = ZERO
+          EVAR(2,I) = ZERO
+          EVAR(3,I) = ZERO
+          EVAR(4,I) = ZERO
+          EVAR(5,I) = ZERO
+          EVAR(6,I) = ZERO
               ENDDO
             ENDIF
 
-            IF( NFILSOL .NE. 0 .AND. GBUF%G_FILL .NE. 0 ) THEN
+            IF( NFILSOL /= 0 .AND. GBUF%G_FILL /= 0 ) THEN
               DO I=1,NEL
-            	EVAR(1,I) = EVAR(1,I) * GBUF%FILL(I)
-            	EVAR(2,I) = EVAR(2,I) * GBUF%FILL(I)
-            	EVAR(3,I) = EVAR(3,I) * GBUF%FILL(I)
-            	EVAR(4,I) = EVAR(4,I) * GBUF%FILL(I)
-            	EVAR(5,I) = EVAR(5,I) * GBUF%FILL(I)
-            	EVAR(6,I) = EVAR(6,I) * GBUF%FILL(I)
+          EVAR(1,I) = EVAR(1,I) * GBUF%FILL(I)
+          EVAR(2,I) = EVAR(2,I) * GBUF%FILL(I)
+          EVAR(3,I) = EVAR(3,I) * GBUF%FILL(I)
+          EVAR(4,I) = EVAR(4,I) * GBUF%FILL(I)
+          EVAR(5,I) = EVAR(5,I) * GBUF%FILL(I)
+          EVAR(6,I) = EVAR(6,I) * GBUF%FILL(I)
               ENDDO
             ENDIF
 C-----------------------------------------------
@@ -2618,18 +2648,18 @@ C-----------------------------------------------
 c ILAYER=NULL IR=NULL IS=NULL IT=NULL
             IF( ILAY == -1 .AND. IR == -1 .AND. IS == -1 .AND. IT == -1 )THEN
               DO I=1,NEL
-             	EVAR(1,I) = ZERO
-             	EVAR(2,I) = ZERO
-             	EVAR(3,I) = ZERO
-             	EVAR(4,I) = ZERO
-             	EVAR(5,I) = ZERO
-             	EVAR(6,I) = ZERO
+          EVAR(1,I) = ZERO
+          EVAR(2,I) = ZERO
+          EVAR(3,I) = ZERO
+          EVAR(4,I) = ZERO
+          EVAR(5,I) = ZERO
+          EVAR(6,I) = ZERO
               ENDDO
 c-----------
               IF ((ISOLNOD==8.OR.(ISOLNOD==4 .AND. (ISROT==0.OR.ISROT==3))).AND.
      .               NPT==1 .AND. JHBE /= 14 .AND. JHBE /= 15) THEN
 c-----------
-                LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)					     
+                LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)               
                 IF (ISORTH > 0) ISORTHG = 1
 !
                 IF (MLW == 24) THEN
@@ -2663,8 +2693,9 @@ C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
                       GAMA(5)=ONE
                       GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO
                 ENDIF
 c-----------
@@ -2674,108 +2705,111 @@ c-----------
                 IF (MLW == 24) THEN
                   DO I=1,NEL
                    N = I + NFT   
-                   DO IL=1,NLAY 		    
-                    DO IS=1,NPTS		     
+                   DO IL=1,NLAY         
+                    DO IS=1,NPTS         
                      DO IT=1,NPTT
-                      DO IR=1,NPTR			
+                      DO IR=1,NPTR
                        LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)        
                        IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA > 0) THEN
-                	EVAR_TMP(1) =  LBUF%PLA(JJ(1) + I + NEL)/NPT
-                	EVAR_TMP(2) =  LBUF%PLA(JJ(2) + I + NEL)/NPT
-                	EVAR_TMP(3) =  LBUF%PLA(JJ(3) + I + NEL)/NPT
-                	EVAR_TMP(4) =  LBUF%PLA(JJ(4) + I + NEL)*HALF/NPT
-                	EVAR_TMP(5) =  LBUF%PLA(JJ(5) + I + NEL)*HALF/NPT
-                	EVAR_TMP(6) =  LBUF%PLA(JJ(6) + I + NEL)*HALF/NPT
-             	  	ICSIG=IPARG(17,NG)  
-             	  	IF (KCVT /= 0 .AND.ICSIG > 0) THEN
-C            	  	PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
-             	  	  IF (JHBE == 14) THEN
-             	  	    SELECT CASE (ICSIG) 					   
-             	  	    CASE (1)	   
-             	  	      IF (KCVT == 2.AND.IGTYP == 22) THEN
-             	  	        GAMA(1)= ZERO
-             	  	        GAMA(2)= LBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(3)= LBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(4)= ZERO
-             	  	        GAMA(5)=-GAMA(2)
-             	  	        GAMA(6)= GAMA(1)
-             	  	      ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
-             	  	        GAMA(1)= ZERO
-             	  	        GAMA(2)= GBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(3)= GBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(4)= ZERO
-             	  	        GAMA(5)=-GAMA(2)
-             	  	        GAMA(6)= GAMA(1)
-             	  	      ELSE
-             	  	        GAMA(1)=ONE
-             	  	        GAMA(2)=ZERO
-             	  	        GAMA(3)=ZERO
-             	  	        GAMA(4)=ZERO
-             	  	        GAMA(5)=ONE
-             	  	        GAMA(6)=ZERO
-             	  	      END IF
-             	  	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	          EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	    CASE (10)	    
-             	  	      IF (KCVT == 2.AND.IGTYP == 22) THEN
-             	  	        GAMA(1)= LBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(2)= LBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(3)= ZERO
-             	  	        GAMA(4)=-GAMA(2)
-             	  	        GAMA(5)= GAMA(1)
-             	  	        GAMA(6)= ZERO
-             	  	      ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
-             	  	        GAMA(1)= GBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(2)= GBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(3)= ZERO
-             	  	        GAMA(4)=-GAMA(2)
-             	  	        GAMA(5)= GAMA(1)
-             	  	        GAMA(6)= ZERO
-             	  	      ELSE
-             	  	        GAMA(1)=ONE
-             	  	        GAMA(2)=ZERO
-             	  	        GAMA(3)=ZERO
-             	  	        GAMA(4)=ZERO
-             	  	        GAMA(5)=ONE
-             	  	        GAMA(6)=ZERO
-             	  	      END IF
-             	  	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	          EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	    CASE (100)     
-             	  	      IF (KCVT == 2.AND.IGTYP == 22) THEN
-             	  	        GAMA(1)= LBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(2)= ZERO
-             	  	        GAMA(3)= LBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(4)= GAMA(3)
-             	  	        GAMA(5)= ZERO
-             	  	        GAMA(6)=-GAMA(1)
-             	  	      ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
-             	  	        GAMA(1)= GBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(2)= ZERO
-             	  	        GAMA(3)= GBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(4)= GAMA(3)
-             	  	        GAMA(5)= ZERO
-             	  	        GAMA(6)=-GAMA(1)
-             	  	      ELSE
-             	  	        GAMA(1)=ONE
-             	  	        GAMA(2)=ZERO
-             	  	        GAMA(3)=ZERO
-             	  	        GAMA(4)=ZERO
-             	  	        GAMA(5)=ONE
-             	  	        GAMA(6)=ZERO
-             	  	      END IF
-             	  	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	          EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	    END SELECT  				       
-             	  	  ENDIF
-             	  	ENDIF	    
-                	EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
-                	EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
-                	EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
-                	EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
-                	EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
-                	EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
-                	IS_WRITTEN_TENSOR(I) = 1
+          EVAR_TMP(1) =  LBUF%PLA(JJ(1) + I + NEL)/NPT
+          EVAR_TMP(2) =  LBUF%PLA(JJ(2) + I + NEL)/NPT
+          EVAR_TMP(3) =  LBUF%PLA(JJ(3) + I + NEL)/NPT
+          EVAR_TMP(4) =  LBUF%PLA(JJ(4) + I + NEL)*HALF/NPT
+          EVAR_TMP(5) =  LBUF%PLA(JJ(5) + I + NEL)*HALF/NPT
+          EVAR_TMP(6) =  LBUF%PLA(JJ(6) + I + NEL)*HALF/NPT
+              ICSIG=IPARG(17,NG)  
+              IF (KCVT /= 0 .AND.ICSIG > 0) THEN
+C                  PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
+                IF (JHBE == 14) THEN
+                  SELECT CASE (ICSIG)              
+                  CASE (1)     
+                    IF (KCVT == 2.AND.IGTYP == 22) THEN
+                      GAMA(1)= ZERO
+                      GAMA(2)= LBUF%GAMA(JJ(1) + I)
+                      GAMA(3)= LBUF%GAMA(JJ(2) + I)
+                      GAMA(4)= ZERO
+                      GAMA(5)=-GAMA(2)
+                      GAMA(6)= GAMA(1)
+                    ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
+                      GAMA(1)= ZERO
+                      GAMA(2)= GBUF%GAMA(JJ(1) + I)
+                      GAMA(3)= GBUF%GAMA(JJ(2) + I)
+                      GAMA(4)= ZERO
+                      GAMA(5)=-GAMA(2)
+                      GAMA(6)= GAMA(1)
+                    ELSE
+                      GAMA(1)=ONE
+                      GAMA(2)=ZERO
+                      GAMA(3)=ZERO
+                      GAMA(4)=ZERO
+                      GAMA(5)=ONE
+                      GAMA(6)=ZERO
+                    END IF
+                    CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                  CASE (10)      
+                    IF (KCVT == 2.AND.IGTYP == 22) THEN
+                      GAMA(1)= LBUF%GAMA(JJ(1) + I)
+                      GAMA(2)= LBUF%GAMA(JJ(2) + I)
+                      GAMA(3)= ZERO
+                      GAMA(4)=-GAMA(2)
+                      GAMA(5)= GAMA(1)
+                      GAMA(6)= ZERO
+                    ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
+                      GAMA(1)= GBUF%GAMA(JJ(1) + I)
+                      GAMA(2)= GBUF%GAMA(JJ(2) + I)
+                      GAMA(3)= ZERO
+                      GAMA(4)=-GAMA(2)
+                      GAMA(5)= GAMA(1)
+                      GAMA(6)= ZERO
+                    ELSE
+                      GAMA(1)=ONE
+                      GAMA(2)=ZERO
+                      GAMA(3)=ZERO
+                      GAMA(4)=ZERO
+                      GAMA(5)=ONE
+                      GAMA(6)=ZERO
+                    END IF
+                    CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                  CASE (100)     
+                    IF (KCVT == 2.AND.IGTYP == 22) THEN
+                      GAMA(1)= LBUF%GAMA(JJ(2) + I)
+                      GAMA(2)= ZERO
+                      GAMA(3)= LBUF%GAMA(JJ(1) + I)
+                      GAMA(4)= GAMA(3)
+                      GAMA(5)= ZERO
+                      GAMA(6)=-GAMA(1)
+                    ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
+                      GAMA(1)= GBUF%GAMA(JJ(2) + I)
+                      GAMA(2)= ZERO
+                      GAMA(3)= GBUF%GAMA(JJ(1) + I)
+                      GAMA(4)= GAMA(3)
+                      GAMA(5)= ZERO
+                      GAMA(6)=-GAMA(1)
+                    ELSE
+                      GAMA(1)=ONE
+                      GAMA(2)=ZERO
+                      GAMA(3)=ZERO
+                      GAMA(4)=ZERO
+                      GAMA(5)=ONE
+                      GAMA(6)=ZERO
+                    END IF
+                    CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                  END SELECT                 
+                ENDIF
+              ENDIF      
+          EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
+          EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
+          EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
+          EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
+          EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
+          EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
+          IS_WRITTEN_TENSOR(I) = 1
                        ENDIF
                       ENDDO 
                      ENDDO
@@ -2785,27 +2819,28 @@ C            	  	PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
                 ENDIF ! IF (MLW == 24)
 c---
                 ICSIG=IPARG(17,NG) 
-                IF (KCVT /= 0 .AND.ICSIG == 0 .AND. JHBE .NE. 16) THEN
+                IF (KCVT /= 0 .AND.ICSIG == 0 .AND. JHBE /= 16) THEN
 C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
-                  DO I=1,NEL					     
-                    N = I + NFT 				     
-                    IF (KCVT == 2) THEN				   
+                  DO I=1,NEL               
+                    N = I + NFT              
+                    IF (KCVT == 2) THEN           
                       GAMA(1)=GBUF%GAMA(JJ(1) + I)
                       GAMA(2)=GBUF%GAMA(JJ(2) + I)
                       GAMA(3)=GBUF%GAMA(JJ(3) + I)
                       GAMA(4)=GBUF%GAMA(JJ(4) + I)
                       GAMA(5)=GBUF%GAMA(JJ(5) + I)
                       GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                    ELSE					   
-                      GAMA(1)=ONE				   
-                      GAMA(2)=ZERO				   
-                      GAMA(3)=ZERO				   
-                      GAMA(4)=ZERO				   
-                      GAMA(5)=ONE				   
-                      GAMA(6)=ZERO				   
-                    END IF					   
-                    CALL SROTA6(X,IXS(1,N),KCVT,		   
-     .                        EVAR(1,I),GAMA, JHBE,IGTYP)	   
+                    ELSE             
+                      GAMA(1)=ONE           
+                      GAMA(2)=ZERO           
+                      GAMA(3)=ZERO           
+                      GAMA(4)=ZERO           
+                      GAMA(5)=ONE           
+                      GAMA(6)=ZERO           
+                    END IF             
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO 
                 ENDIF
 c-----------
@@ -2814,7 +2849,7 @@ c-----------
                 IF (MLW == 24 .and. ISTRAIN > 0) THEN
                   DO I=1,NEL
                     DO IPT=1,NPT
-                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)	   
+                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)     
                       EVAR(1,I) = EVAR(1,I)+LBUF%PLA(JJ(1) + I + NEL)/NPT
                       EVAR(2,I) = EVAR(2,I)+LBUF%PLA(JJ(2) + I + NEL)/NPT
                       EVAR(3,I) = EVAR(3,I)+LBUF%PLA(JJ(3) + I + NEL)/NPT
@@ -2827,67 +2862,69 @@ c-----------
                 ENDIF ! IF (MLW == 24 .and. ISTRAIN > 0)
                 IF (KCVT /= 0) THEN
 C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
-                  DO I=1,NEL				  
-                    N = I + NFT 			      
-                    IF (KCVT == 2) THEN			    
+                  DO I=1,NEL          
+                    N = I + NFT             
+                    IF (KCVT == 2) THEN          
                       GAMA(1)=GBUF%GAMA(JJ(1) + I)
                       GAMA(2)=GBUF%GAMA(JJ(2) + I)
                       GAMA(3)=GBUF%GAMA(JJ(3) + I)
                       GAMA(4)=GBUF%GAMA(JJ(4) + I)
                       GAMA(5)=GBUF%GAMA(JJ(5) + I)
                       GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                    ELSE				  
-                      GAMA(1)=ONE			  
-                      GAMA(2)=ZERO			  
-                      GAMA(3)=ZERO			  
-                      GAMA(4)=ZERO			  
-                      GAMA(5)=ONE			  
-                      GAMA(6)=ZERO			  
-                    ENDIF				 
-                    CALL SROTA6(X,IXS(1,N),KCVT,	    
-     .                   EVAR(1,I),GAMA, JHBE,IGTYP)	   
-                  ENDDO 				    
+                    ELSE          
+                      GAMA(1)=ONE        
+                      GAMA(2)=ZERO        
+                      GAMA(3)=ZERO        
+                      GAMA(4)=ZERO        
+                      GAMA(5)=ONE        
+                      GAMA(6)=ZERO        
+                    ENDIF         
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                  ENDDO             
                 ENDIF
 c-----------
-              ELSEIF((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15)THEN
+              ELSEIF(((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24))THEN
 c-----------
                 IF (MLW == 24 .and. ISTRAIN > 0) THEN
-                  DO I=1,NEL						   
+                  DO I=1,NEL               
                       DO IL= 1,NLAY
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(1,1,1)  	
-                	EVAR(1,I) = EVAR(1,I)+LBUF%PLA(JJ(1) + I + NEL)/NLAY
-                	EVAR(2,I) = EVAR(2,I)+LBUF%PLA(JJ(2) + I + NEL)/NLAY
-                	EVAR(3,I) = EVAR(3,I)+LBUF%PLA(JJ(3) + I + NEL)/NLAY
-                	EVAR(4,I) = EVAR(4,I)+LBUF%PLA(JJ(4) + I + NEL)*HALF/NLAY      
-                	EVAR(5,I) = EVAR(5,I)+LBUF%PLA(JJ(5) + I + NEL)*HALF/NLAY 
-                	EVAR(6,I) = EVAR(6,I)+LBUF%PLA(JJ(6) + I + NEL)*HALF/NLAY   
-                	IS_WRITTEN_TENSOR(I) = 1
-                      ENDDO						       
-                  ENDDO 						     
-                ENDIF ! IF (MLW == 24 .and. ISTRAIN > 0)			       
-                IF (KCVT /= 0) THEN			
-C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTE 	
-                  DO I=1,NEL			      
-                    N = I + NFT 			  
-                    IF (KCVT == 2) THEN		       
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(1,1,1)  
+          EVAR(1,I) = EVAR(1,I)+LBUF%PLA(JJ(1) + I + NEL)/NLAY
+          EVAR(2,I) = EVAR(2,I)+LBUF%PLA(JJ(2) + I + NEL)/NLAY
+          EVAR(3,I) = EVAR(3,I)+LBUF%PLA(JJ(3) + I + NEL)/NLAY
+          EVAR(4,I) = EVAR(4,I)+LBUF%PLA(JJ(4) + I + NEL)*HALF/NLAY      
+          EVAR(5,I) = EVAR(5,I)+LBUF%PLA(JJ(5) + I + NEL)*HALF/NLAY 
+          EVAR(6,I) = EVAR(6,I)+LBUF%PLA(JJ(6) + I + NEL)*HALF/NLAY   
+          IS_WRITTEN_TENSOR(I) = 1
+                      ENDDO                   
+                  ENDDO                  
+                ENDIF ! IF (MLW == 24 .and. ISTRAIN > 0)             
+                IF (KCVT /= 0) THEN
+C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
+                  DO I=1,NEL            
+                    N = I + NFT         
+                    IF (KCVT == 2) THEN           
                       GAMA(1)= GBUF%GAMA(JJ(1) + I)  
                       GAMA(2)= GBUF%GAMA(JJ(2) + I)  
-                      GAMA(3)= ZERO		       
-                      GAMA(4)=-GAMA(2)  	       
-                      GAMA(5)= GAMA(1)  	       
-                      GAMA(6)= ZERO		       
-                    ELSE			       
-                      GAMA(1)=ONE		       
-                      GAMA(2)=ZERO		       
-                      GAMA(3)=ZERO		       
-                      GAMA(4)=ZERO		       
-                      GAMA(5)=ONE		       
-                      GAMA(6)=ZERO		       
-                    END IF			       
-                    CALL SROTA6(X,IXS(1,N),KCVT,       
-     .                   EVAR(1,I),GAMA, JHBE,IGTYP)   
-                  ENDDO 				
-                ENDIF					
+                      GAMA(3)= ZERO           
+                      GAMA(4)=-GAMA(2)           
+                      GAMA(5)= GAMA(1)           
+                      GAMA(6)= ZERO           
+                    ELSE             
+                      GAMA(1)=ONE           
+                      GAMA(2)=ZERO           
+                      GAMA(3)=ZERO           
+                      GAMA(4)=ZERO           
+                      GAMA(5)=ONE           
+                      GAMA(6)=ZERO           
+                    END IF             
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                  ENDDO 
+                ENDIF
 c-----------
               ENDIF  ! ISOLNOD & ......
 
@@ -2928,7 +2965,7 @@ C
               IF (KCVT /= 0) THEN
 C             PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
                 DO I=1,NEL
-             	  N = I + NFT
+            N = I + NFT
                   IF(KCVT==2)THEN
                     GAMA(1)=GBUF%GAMA(JJ(1) + I)
                     GAMA(2)=GBUF%GAMA(JJ(2) + I)
@@ -2944,8 +2981,9 @@ C             PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
                     GAMA(5)=ONE
                     GAMA(6)=ZERO
                   END IF
-                  CALL SROTA6(X,IXS(1,N),KCVT,
-     .                 EVAR(1,I),GAMA, JHBE,IGTYP)
+                  CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                 ENDDO
               ENDIF     
 c-----------
@@ -2954,14 +2992,14 @@ c-----------
 c-----------
            ICSIG = IPARG(17,NG) 
            IF (IOR_TSH >0) THEN
-     	     IF (ICSIG == 10) THEN
+               IF (ICSIG == 10) THEN
                IR=IT_INPUT
                IS=IR_INPUT
                IT=IS_INPUT
-     	     ELSEIF (ICSIG == 1) THEN
-     	       IR=IS_INPUT
-     	       IS=IT_INPUT
-     	       IT=IR_INPUT
+               ELSEIF (ICSIG == 1) THEN
+                 IR=IS_INPUT
+                 IS=IT_INPUT
+                 IT=IR_INPUT
              ELSE
                IR=IR_INPUT
                IS=IS_INPUT
@@ -2981,7 +3019,7 @@ c-----------
 C                   3*9*3 points d'integration (r*s*t)         
                  EVAR(1,I) = LBUF%PLA(JJ(1) + I + NEL)
                  EVAR(2,I) = LBUF%PLA(JJ(2) + I + NEL)
-                 EVAR(3,I) = LBUF%PLA(JJ(3) + I + NEL)		    
+                 EVAR(3,I) = LBUF%PLA(JJ(3) + I + NEL)        
                  EVAR(4,I) = LBUF%PLA(JJ(4) + I + NEL) * HALF
                  EVAR(5,I) = LBUF%PLA(JJ(5) + I + NEL) * HALF
                  EVAR(6,I) = LBUF%PLA(JJ(6) + I + NEL) * HALF
@@ -2989,119 +3027,123 @@ C                   3*9*3 points d'integration (r*s*t)
                ENDDO   
              ENDIF ! IF (MLW == 24)
 C
-             IF (KCVT /= 0 .AND. JHBE .NE. 16) THEN
+             IF (KCVT /= 0 .AND. JHBE /= 16) THEN
 C              PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
-            	  ICSIG=IPARG(17,NG)  
-            	  IF (JHBE == 14.AND.ICSIG > 0) THEN
-            	   SELECT CASE (ICSIG)  					   
-            	   CASE (1)							   
-            	   DO I=1,NEL
-             	     N = I + NFT
-             	     IF (KCVT == 2.AND.IGTYP == 22) THEN
-           	       GAMA(1)=ZERO
-       	               GAMA(2)=LBUF%GAMA(JJ(1) + I)
+            ICSIG=IPARG(17,NG)  
+            IF (JHBE == 14.AND.ICSIG > 0) THEN
+             SELECT CASE (ICSIG)               
+             CASE (1)                 
+             DO I=1,NEL
+               N = I + NFT
+               IF (KCVT == 2.AND.IGTYP == 22) THEN
+                 GAMA(1)=ZERO
+                         GAMA(2)=LBUF%GAMA(JJ(1) + I)
                        GAMA(3)=LBUF%GAMA(JJ(2) + I)
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=-GAMA(2)
-            	       GAMA(6)=GAMA(1)
-             	     ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
-           	       GAMA(1)=ZERO
-       	               GAMA(2)=GBUF%GAMA(JJ(1) + I)
+                 GAMA(4)=ZERO
+                 GAMA(5)=-GAMA(2)
+                 GAMA(6)=GAMA(1)
+               ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
+                 GAMA(1)=ZERO
+                         GAMA(2)=GBUF%GAMA(JJ(1) + I)
                        GAMA(3)=GBUF%GAMA(JJ(2) + I)
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=-GAMA(2)
-            	       GAMA(6)=GAMA(1)
-            	     ELSE
-            	       GAMA(1)=ONE
-            	       GAMA(2)=ZERO
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=ONE
-            	       GAMA(6)=ZERO
-            	     END IF
-            	     CALL SROTA6(X,IXS(1,N),KCVT,
-     .      	       EVAR(1,I),GAMA, JHBE,IGTYP)
-            	   ENDDO
-            	   CASE (10)							    
-            	   DO I=1,NEL
-            	     N = I + NFT
-             	     IF (KCVT == 2.AND.IGTYP == 22) THEN
+                 GAMA(4)=ZERO
+                 GAMA(5)=-GAMA(2)
+                 GAMA(6)=GAMA(1)
+               ELSE
+                 GAMA(1)=ONE
+                 GAMA(2)=ZERO
+                 GAMA(3)=ZERO
+                 GAMA(4)=ZERO
+                 GAMA(5)=ONE
+                 GAMA(6)=ZERO
+               END IF
+               CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+             ENDDO
+             CASE (10)                  
+             DO I=1,NEL
+               N = I + NFT
+               IF (KCVT == 2.AND.IGTYP == 22) THEN
                        GAMA(1)=LBUF%GAMA(JJ(1) + I)
                        GAMA(2)=LBUF%GAMA(JJ(2) + I)
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=-GAMA(2)
-            	       GAMA(5)=GAMA(1)
-            	       GAMA(6)=ZERO
-             	     ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
+                 GAMA(3)=ZERO
+                 GAMA(4)=-GAMA(2)
+                 GAMA(5)=GAMA(1)
+                 GAMA(6)=ZERO
+               ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
                        GAMA(1)=GBUF%GAMA(JJ(1) + I)
                        GAMA(2)=GBUF%GAMA(JJ(2) + I)
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=-GAMA(2)
-            	       GAMA(5)=GAMA(1)
-            	       GAMA(6)=ZERO
-            	     ELSE
-            	       GAMA(1)=ONE
-            	       GAMA(2)=ZERO
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=ONE
-            	       GAMA(6)=ZERO
-            	     END IF
-            	     CALL SROTA6(X,IXS(1,N),KCVT,
-     .      	       EVAR(1,I),GAMA, JHBE,IGTYP)
-            	   ENDDO
-            	   CASE (100)							     
-            	   DO I=1,NEL
-            	     N = I + NFT
-             	     IF (KCVT == 2.AND.IGTYP == 22) THEN
+                 GAMA(3)=ZERO
+                 GAMA(4)=-GAMA(2)
+                 GAMA(5)=GAMA(1)
+                 GAMA(6)=ZERO
+               ELSE
+                 GAMA(1)=ONE
+                 GAMA(2)=ZERO
+                 GAMA(3)=ZERO
+                 GAMA(4)=ZERO
+                 GAMA(5)=ONE
+                 GAMA(6)=ZERO
+               END IF
+               CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+             ENDDO
+             CASE (100)                   
+             DO I=1,NEL
+               N = I + NFT
+               IF (KCVT == 2.AND.IGTYP == 22) THEN
                        GAMA(1)=LBUF%GAMA(JJ(2) + I)
-            	       GAMA(2)=ZERO
+                 GAMA(2)=ZERO
                        GAMA(3)=LBUF%GAMA(JJ(1) + I)
-            	       GAMA(4)=GAMA(3)
-            	       GAMA(5)=ZERO
-            	       GAMA(6)=-GAMA(1)
-             	     ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
+                 GAMA(4)=GAMA(3)
+                 GAMA(5)=ZERO
+                 GAMA(6)=-GAMA(1)
+               ELSEIF (KCVT == 2.AND.IGTYP == 21) THEN
                        GAMA(1)=GBUF%GAMA(JJ(2) + I)
-            	       GAMA(2)=ZERO
+                 GAMA(2)=ZERO
                        GAMA(3)=GBUF%GAMA(JJ(1) + I)
-            	       GAMA(4)=GAMA(3)
-            	       GAMA(5)=ZERO
-            	       GAMA(6)=-GAMA(1)
-            	     ELSE
-            	       GAMA(1)=ONE
-            	       GAMA(2)=ZERO
-            	       GAMA(3)=ZERO
-            	       GAMA(4)=ZERO
-            	       GAMA(5)=ONE
-            	       GAMA(6)=ZERO
-            	     END IF
-            	     CALL SROTA6(X,IXS(1,N),KCVT,
-     .      	       EVAR(1,I),GAMA, JHBE,IGTYP)
-            	   ENDDO
-            	   END SELECT 
-	    	  ELSE  							
-            	    DO I=1,NEL
-             	      N = I + NFT
-            	      IF (KCVT == 2) THEN
-            	        GAMA(1)=GBUF%GAMA(JJ(1) + I)
-            	        GAMA(2)=GBUF%GAMA(JJ(2) + I)
-            	        GAMA(3)=GBUF%GAMA(JJ(3) + I)
-            	        GAMA(4)=GBUF%GAMA(JJ(4) + I)
-            	        GAMA(5)=GBUF%GAMA(JJ(5) + I)
-            	        GAMA(6)=GBUF%GAMA(JJ(6) + I)
-            	      ELSE
-            	        GAMA(1)=ONE
-            	        GAMA(2)=ZERO
-            	        GAMA(3)=ZERO
-            	        GAMA(4)=ZERO
-            	        GAMA(5)=ONE
-            	        GAMA(6)=ZERO
-            	      END IF
-            	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .      	      EVAR(1,I),GAMA, JHBE,IGTYP)
-            	    ENDDO
-            	   ENDIF  !(JHBE == 14.AND.ICSIG > 0)	 
-               ENDIF ! IF (KCVT /= 0 .AND. JHBE .NE. 16)
+                 GAMA(4)=GAMA(3)
+                 GAMA(5)=ZERO
+                 GAMA(6)=-GAMA(1)
+               ELSE
+                 GAMA(1)=ONE
+                 GAMA(2)=ZERO
+                 GAMA(3)=ZERO
+                 GAMA(4)=ZERO
+                 GAMA(5)=ONE
+                 GAMA(6)=ZERO
+               END IF
+               CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+             ENDDO
+             END SELECT 
+            ELSE  
+              DO I=1,NEL
+                N = I + NFT
+                IF (KCVT == 2) THEN
+                  GAMA(1)=GBUF%GAMA(JJ(1) + I)
+                  GAMA(2)=GBUF%GAMA(JJ(2) + I)
+                  GAMA(3)=GBUF%GAMA(JJ(3) + I)
+                  GAMA(4)=GBUF%GAMA(JJ(4) + I)
+                  GAMA(5)=GBUF%GAMA(JJ(5) + I)
+                  GAMA(6)=GBUF%GAMA(JJ(6) + I)
+                ELSE
+                  GAMA(1)=ONE
+                  GAMA(2)=ZERO
+                  GAMA(3)=ZERO
+                  GAMA(4)=ZERO
+                  GAMA(5)=ONE
+                  GAMA(6)=ZERO
+                END IF
+                CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+              ENDDO
+             ENDIF  !(JHBE == 14.AND.ICSIG > 0)   
+               ENDIF ! IF (KCVT /= 0 .AND. JHBE /= 16)
              ENDIF
 
 c-----------
@@ -3145,8 +3187,9 @@ c
                     GAMA(5)=ONE
                     GAMA(6)=ZERO
                   END IF
-                  CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                  CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                 ENDDO
               ENDIF  
 
@@ -3155,10 +3198,10 @@ c-----------
             ELSEIF ( ILAY >= 0 .AND. ILAY <= NLAY  .AND. IR >= 0 .AND. IR <= NPTR .AND. 
      .                   IS >= 0 .AND.  IS <= NPTS) THEN 
               EVAR(1:6,1:NEL)=ZERO
-              IF ((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) THEN
+              IF (((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24)) THEN
 c-----------
                 IF ( ILAY <= NPT ) THEN
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)  	
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)  
                   IF (MLW == 24) THEN
                     DO I=1,NEL
                       EVAR(1,I) = EVAR(1,I) + LBUF%PLA(JJ(1) + I + NEL)
@@ -3169,11 +3212,11 @@ c-----------
                       EVAR(6,I) = EVAR(6,I) + LBUF%PLA(JJ(6) + I + NEL)*HALF
                       IS_WRITTEN_TENSOR(I) = 1
                     ENDDO
-                  ENDIF ! IF (MLW == 24)							
-                ENDIF ! IF ( ILAY <= NPT )	      
-                IF (KCVT /= 0 .AND. IS <= NPT) THEN		  
+                  ENDIF ! IF (MLW == 24)
+                ENDIF ! IF ( ILAY <= NPT )        
+                IF (KCVT /= 0 .AND. IS <= NPT) THEN      
 C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM  
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(IS)%LBUF(1,1,1)  	
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(IS)%LBUF(1,1,1)  
                   DO I=1,NEL
                     N = I + NFT
                     IF (KCVT == 2) THEN
@@ -3191,38 +3234,39 @@ C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
                       GAMA(5)=ONE
                       GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO
                 ENDIF  
               ELSEIF (ISOLNOD == 16.OR.ISOLNOD == 20.OR.(ISOLNOD == 8.AND.
      .            (JHBE == 14 .OR. JHBE == 17))) THEN
 c-----------
                 ICSIG = IPARG(17,NG) 
-c             	IF (IOR_TSH >0) THEN
+c               IF (IOR_TSH >0) THEN
 c                  IF (ICSIG == 10) THEN
-c             	    IR=IT_INPUT
-c             	    IS=IR_INPUT
-c             	    IT=IS_INPUT
+c                   IR=IT_INPUT
+c                   IS=IR_INPUT
+c                   IT=IS_INPUT
 c                  ELSEIF (ICSIG == 1) THEN
 c                    IR=IS_INPUT
 c                    IS=IT_INPUT
 c                    IT=IR_INPUT
-c             	  ELSE
-c             	    IR=IR_INPUT
-c             	    IS=IS_INPUT
-c             	    IT=IT_INPUT
-c             	  ENDIF
-c             	ENDIF
+c                 ELSE
+c                   IR=IR_INPUT
+c                   IS=IS_INPUT
+c                   IT=IT_INPUT
+c                 ENDIF
+c               ENDIF
                 IF (TSHELL == 1) THEN                              
                   LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,1)  
                 ENDIF                                          
                 IF (MLW == 24) THEN
                   DO I=1,NEL
-C                      3*9*3 points d'integration (r*s*t)	  
+C                      3*9*3 points d'integration (r*s*t)    
                     EVAR(1,I) = LBUF%PLA(JJ(1) + I + NEL)
                     EVAR(2,I) = LBUF%PLA(JJ(2) + I + NEL)
-                    EVAR(3,I) = LBUF%PLA(JJ(3) + I + NEL)		       
+                    EVAR(3,I) = LBUF%PLA(JJ(3) + I + NEL)           
                     EVAR(4,I) = LBUF%PLA(JJ(4) + I + NEL) * HALF
                     EVAR(5,I) = LBUF%PLA(JJ(5) + I + NEL) * HALF
                     EVAR(6,I) = LBUF%PLA(JJ(6) + I + NEL) * HALF
@@ -3230,128 +3274,132 @@ C                      3*9*3 points d'integration (r*s*t)
                   ENDDO   
                 ENDIF ! IF (MLW == 24)
 C
-                IF (KCVT /= 0 .AND. JHBE .NE. 16) THEN
+                IF (KCVT /= 0 .AND. JHBE /= 16) THEN
 C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
-             	  ICSIG=IPARG(17,NG)  
-             	  IF (JHBE == 14.AND.ICSIG > 0) THEN
-             	    SELECT CASE (ICSIG)					     
-             	    CASE (1)							     
-             	      DO I=1,NEL
-             	        N = I + NFT
-             	     	IF (KCVT == 2.AND. IGTYP==22) THEN
-             	     	  GAMA(1)=ZERO
-       	             	  GAMA(2)=LBUF%GAMA(JJ(1) + I)
-                     	  GAMA(3)=LBUF%GAMA(JJ(2) + I)
-             	     	  GAMA(4)=ZERO
-             	     	  GAMA(5)=-GAMA(2)
-             	     	  GAMA(6)=GAMA(1)
-             	     	ELSEIF (KCVT == 2.AND. IGTYP==21) THEN
-             	     	  GAMA(1)=ZERO
-       	             	  GAMA(2)=GBUF%GAMA(JJ(1) + I)
-                     	  GAMA(3)=GBUF%GAMA(JJ(2) + I)
-             	     	  GAMA(4)=ZERO
-             	     	  GAMA(5)=-GAMA(2)
-             	     	  GAMA(6)=GAMA(1)
-             	     	ELSE
-             	     	  GAMA(1)=ONE
-             	     	  GAMA(2)=ZERO
-             	     	  GAMA(3)=ZERO
-             	     	  GAMA(4)=ZERO
-             	     	  GAMA(5)=ONE
-             	     	  GAMA(6)=ZERO
-             	     	END IF
-             	     	CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	     	  EVAR(1,I),GAMA, JHBE,IGTYP)
-             	      ENDDO
-             	    CASE (10)  						      
-             	      DO I=1,NEL
-             	        N = I + NFT
-             	     	IF (KCVT == 2.AND. IGTYP==22) THEN
+            ICSIG=IPARG(17,NG)  
+            IF (JHBE == 14.AND.ICSIG > 0) THEN
+              SELECT CASE (ICSIG)               
+              CASE (1)                   
+                DO I=1,NEL
+                  N = I + NFT
+                 IF (KCVT == 2.AND. IGTYP==22) THEN
+                   GAMA(1)=ZERO
+                           GAMA(2)=LBUF%GAMA(JJ(1) + I)
+            GAMA(3)=LBUF%GAMA(JJ(2) + I)
+                   GAMA(4)=ZERO
+                   GAMA(5)=-GAMA(2)
+                   GAMA(6)=GAMA(1)
+                 ELSEIF (KCVT == 2.AND. IGTYP==21) THEN
+                   GAMA(1)=ZERO
+                           GAMA(2)=GBUF%GAMA(JJ(1) + I)
+            GAMA(3)=GBUF%GAMA(JJ(2) + I)
+                   GAMA(4)=ZERO
+                   GAMA(5)=-GAMA(2)
+                   GAMA(6)=GAMA(1)
+                 ELSE
+                   GAMA(1)=ONE
+                   GAMA(2)=ZERO
+                   GAMA(3)=ZERO
+                   GAMA(4)=ZERO
+                   GAMA(5)=ONE
+                   GAMA(6)=ZERO
+                 END IF
+                 CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                ENDDO
+              CASE (10)                    
+                DO I=1,NEL
+                  N = I + NFT
+                 IF (KCVT == 2.AND. IGTYP==22) THEN
                           GAMA(1)=LBUF%GAMA(JJ(1) + I)
                           GAMA(2)=LBUF%GAMA(JJ(2) + I)
-             	          GAMA(3)=ZERO
-             	          GAMA(4)=-GAMA(2)
-             	          GAMA(5)=GAMA(1)
-             	          GAMA(6)=ZERO
-             	     	ELSEIF (KCVT == 2.AND. IGTYP==21) THEN
+                    GAMA(3)=ZERO
+                    GAMA(4)=-GAMA(2)
+                    GAMA(5)=GAMA(1)
+                    GAMA(6)=ZERO
+                 ELSEIF (KCVT == 2.AND. IGTYP==21) THEN
                           GAMA(1)=GBUF%GAMA(JJ(1) + I)
                           GAMA(2)=GBUF%GAMA(JJ(2) + I)
-             	          GAMA(3)=ZERO
-             	          GAMA(4)=-GAMA(2)
-             	          GAMA(5)=GAMA(1)
-             	          GAMA(6)=ZERO
-             	        ELSE
-             	          GAMA(1)=ONE
-             	          GAMA(2)=ZERO
-             	          GAMA(3)=ZERO
-             	          GAMA(4)=ZERO
-             	          GAMA(5)=ONE
-             	          GAMA(6)=ZERO
-             	        END IF
-             	        CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	          EVAR(1,I),GAMA, JHBE,IGTYP)
-             	      ENDDO
-             	    CASE (100) 						       
-             	      DO I=1,NEL
-             	        N = I + NFT
-             	     	IF (KCVT == 2.AND. IGTYP==22) THEN
+                    GAMA(3)=ZERO
+                    GAMA(4)=-GAMA(2)
+                    GAMA(5)=GAMA(1)
+                    GAMA(6)=ZERO
+                  ELSE
+                    GAMA(1)=ONE
+                    GAMA(2)=ZERO
+                    GAMA(3)=ZERO
+                    GAMA(4)=ZERO
+                    GAMA(5)=ONE
+                    GAMA(6)=ZERO
+                  END IF
+                  CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                ENDDO
+              CASE (100)                    
+                DO I=1,NEL
+                  N = I + NFT
+                 IF (KCVT == 2.AND. IGTYP==22) THEN
                           GAMA(1)=LBUF%GAMA(JJ(2) + I)
-             	          GAMA(2)=ZERO
+                    GAMA(2)=ZERO
                           GAMA(3)=LBUF%GAMA(JJ(1) + I)
-             	          GAMA(4)=GAMA(3)
-             	          GAMA(5)=ZERO
-             	          GAMA(6)=-GAMA(1)
-             	     	ELSEIF (KCVT == 2.AND. IGTYP==21) THEN
+                    GAMA(4)=GAMA(3)
+                    GAMA(5)=ZERO
+                    GAMA(6)=-GAMA(1)
+                 ELSEIF (KCVT == 2.AND. IGTYP==21) THEN
                           GAMA(1)=GBUF%GAMA(JJ(2) + I)
-             	          GAMA(2)=ZERO
+                    GAMA(2)=ZERO
                           GAMA(3)=GBUF%GAMA(JJ(1) + I)
-             	          GAMA(4)=GAMA(3)
-             	          GAMA(5)=ZERO
-             	          GAMA(6)=-GAMA(1)
-             	        ELSE
-             	          GAMA(1)=ONE
-             	          GAMA(2)=ZERO
-             	          GAMA(3)=ZERO
-             	          GAMA(4)=ZERO
-             	          GAMA(5)=ONE
-             	          GAMA(6)=ZERO
-             	        END IF
-             	        CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	          EVAR(1,I),GAMA, JHBE,IGTYP)
-             	      ENDDO
-             	    END SELECT 
-	     	  ELSE							  
-             	    DO I=1,NEL
-             	      N = I + NFT
-             	      IF (KCVT == 2) THEN
-             	        GAMA(1)=GBUF%GAMA(JJ(1) + I)
-             	        GAMA(2)=GBUF%GAMA(JJ(2) + I)
-             	        GAMA(3)=GBUF%GAMA(JJ(3) + I)
-             	        GAMA(4)=GBUF%GAMA(JJ(4) + I)
-             	        GAMA(5)=GBUF%GAMA(JJ(5) + I)
-             	        GAMA(6)=GBUF%GAMA(JJ(6) + I)
-             	      ELSE
-             	        GAMA(1)=ONE
-             	        GAMA(2)=ZERO
-             	        GAMA(3)=ZERO
-             	        GAMA(4)=ZERO
-             	        GAMA(5)=ONE
-             	        GAMA(6)=ZERO
-             	      END IF
-             	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	      EVAR(1,I),GAMA, JHBE,IGTYP)
-             	    ENDDO
-             	  ENDIF  !(JHBE == 14.AND.ICSIG > 0)    
+                    GAMA(4)=GAMA(3)
+                    GAMA(5)=ZERO
+                    GAMA(6)=-GAMA(1)
+                  ELSE
+                    GAMA(1)=ONE
+                    GAMA(2)=ZERO
+                    GAMA(3)=ZERO
+                    GAMA(4)=ZERO
+                    GAMA(5)=ONE
+                    GAMA(6)=ZERO
+                  END IF
+                  CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                ENDDO
+              END SELECT 
+            ELSE                
+              DO I=1,NEL
+                N = I + NFT
+                IF (KCVT == 2) THEN
+                  GAMA(1)=GBUF%GAMA(JJ(1) + I)
+                  GAMA(2)=GBUF%GAMA(JJ(2) + I)
+                  GAMA(3)=GBUF%GAMA(JJ(3) + I)
+                  GAMA(4)=GBUF%GAMA(JJ(4) + I)
+                  GAMA(5)=GBUF%GAMA(JJ(5) + I)
+                  GAMA(6)=GBUF%GAMA(JJ(6) + I)
+                ELSE
+                  GAMA(1)=ONE
+                  GAMA(2)=ZERO
+                  GAMA(3)=ZERO
+                  GAMA(4)=ZERO
+                  GAMA(5)=ONE
+                  GAMA(6)=ZERO
+                END IF
+                CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+              ENDDO
+            ENDIF  !(JHBE == 14.AND.ICSIG > 0)    
                 ENDIF 
               ENDIF
 
             ELSEIF ( ILAY >= 0 .AND. ILAY <= NLAY) THEN 
 c ILAY= IS= IT=
               EVAR(1:6,1:NEL)=ZERO
-              IF ((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) THEN
+              IF (((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24)) THEN
 c-----------
                 IF ( ILAY <= NPT ) THEN
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)  	
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)  
                   IF (MLW == 24) THEN
                     DO I=1,NEL
                       EVAR(1,I) = EVAR(1,I) + LBUF%PLA(JJ(1) + I + NEL)
@@ -3362,11 +3410,11 @@ c-----------
                       EVAR(6,I) = EVAR(6,I) + LBUF%PLA(JJ(6) + I + NEL)*HALF
                       IS_WRITTEN_TENSOR(I) = 1
                     ENDDO
-                  ENDIF ! IF (MLW == 24)							
-                ENDIF ! IF ( ILAY <= NPT )	      
-                IF (KCVT /= 0 .AND. IS <= NPT) THEN		  
+                  ENDIF ! IF (MLW == 24)
+                ENDIF ! IF ( ILAY <= NPT )        
+                IF (KCVT /= 0 .AND. IS <= NPT) THEN      
 C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM  
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(IS)%LBUF(1,1,1)  	
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(IS)%LBUF(1,1,1)  
                   DO I=1,NEL
                     N = I + NFT
                     IF (KCVT == 2) THEN
@@ -3384,8 +3432,9 @@ C               PLASTIC STRAIN TENSOR IN GLOBAL SYSTEM
                       GAMA(5)=ONE
                       GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO
                 ENDIF  
               ENDIF
@@ -3417,11 +3466,11 @@ c ELEMENT DATA
                ENDDO
             ENDIF
 c
-            IF (KCVT /= 0 .AND. JHBE .NE. 16) THEN
+            IF (KCVT /= 0 .AND. JHBE /= 16) THEN
 C            STRESS TENSOR IN GLOBAL SYSTEM
              DO I=1,NEL
               N = I + NFT
-C              pour JHBE=14, valeurs moyennes est dans rep. corota.
+C              for jhbe=14, average values are in the corota frame.
                IF(KCVT==2.AND.JHBE/=14)THEN
                  II = 6*(I-1)
                  GAMA(1)=GBUF%GAMA(JJ(1) + I)
@@ -3438,11 +3487,13 @@ C              pour JHBE=14, valeurs moyennes est dans rep. corota.
                  GAMA(5)=ONE
                  GAMA(6)=ZERO
                END IF
-                 CALL SROTA6(X,IXS(1,N),KCVT,EVAR(1,I),GAMA,JHBE,IGTYP)
+                 CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
              ENDDO
             ENDIF
 c
-            IF( NFILSOL .NE. 0 .AND. GBUF%G_FILL .NE. 0 ) THEN
+            IF( NFILSOL /= 0 .AND. GBUF%G_FILL /= 0 ) THEN
               DO I=1,NEL
                 EVAR(1,I) = EVAR(1,I) * GBUF%FILL(I)
                 EVAR(2,I) = EVAR(2,I) * GBUF%FILL(I)
@@ -3457,38 +3508,39 @@ c CORNER DATA
      .                         PM        ,KCVT ,NEL ,EVAR_CORNER )
             IF (ISOLNOD <= 10) IS_WRITTEN_TENSOR(1:NEL) = 1
 C-----------------------------------------------
-C-----------------------------------------------
           ELSEIF (KEYWORD == 'TENS/STRAIN/CORNER_DATA') THEN
 C-----------------------------------------------
               EVAR(1:6,1:NEL)=ZERO
 C---- Element Data first
               IF (ISOLNOD == 8 .AND. IGTYP == 43) THEN
 c-----------
-               DO I=1,NEL					     
+               DO I=1,NEL               
                  II = 3*(I-1)
                  DO IPT= 1,NPTR
-                   LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1) 					  
+                   LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)             
                    EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(1) + I)/NPT
                    EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT
                    EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(3) + I)/NPT
                    IS_WRITTEN_TENSOR(I) = 1
-                 ENDDO  						
-               ENDDO						       
-               DO I=1,NEL			 
-                 N = I + NFT			   
-                 CALL SROTA6(X,IXS(1,N),KCVT,EVAR(1,I),GAMA,JHBE,IGTYP)
-               ENDDO				     
+                 ENDDO  
+               ENDDO                   
+               DO I=1,NEL       
+                 N = I + NFT         
+                 CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+               ENDDO             
 c-----------
               ELSEIF (ISOLNOD == 8 .AND. NPT == 8 .AND. JHBE /= 14.AND.
      .          JHBE /= 24.AND.JHBE /= 15.AND.JHBE /= 17 )THEN
 c-----------
-                NVAUX =IPARG(18,NG)	    
-                IF (MLW.GE.28) THEN
+                NVAUX =IPARG(18,NG)      
+                IF (MLW>=28) THEN
                   DO I=1,NEL
                     II = 6*(I-1)
                     N = I + NFT
                     DO J=1,8
-                      LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,J)					
+                      LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,J)
                       EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)*ONE_OVER_8
                       EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)*ONE_OVER_8
                       EVAR(3,I) = EVAR(3,I) + LBUF%STRA(JJ(3) + I)*ONE_OVER_8
@@ -3503,10 +3555,10 @@ c-----------
               ELSEIF ((ISOLNOD==8.OR.(ISOLNOD==4 .AND. (ISROT==0.OR.ISROT==3))).AND.
      .               NPT==1 .AND. JHBE /= 14 .AND. JHBE /= 15) THEN
 c-----------
-                LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)					     
+                LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)               
                 IF (ISORTH > 0) ISORTHG = 1
 c
-                IF (MLW.GE.28.AND.MLW /= 49) THEN
+                IF (MLW>=28.AND.MLW /= 49) THEN
                   DO I=1,NEL
                     N = I + NFT
                     II = 6*(I-1)
@@ -3530,13 +3582,14 @@ C                   STRAIN TENSOR IN GLOBAL SYSTEM
                       GAMA(4) = GBUF%GAMA(JJ(4) + I)
                       GAMA(5) = GBUF%GAMA(JJ(5) + I)
                       GAMA(6) = GBUF%GAMA(JJ(6) + I)
-                      CALL SROTA6(X,IXS(1,N),KCVT,EVAR(1,I),GAMA,
-     .          		  JHBE, IGTYP)
+                      CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                     ENDDO
                   ENDIF
                 ELSEIF (MLW == 12 .OR. MLW == 14)THEN
                   DO I=1,NEL
-                    N = I + NFT 				   
+                    N = I + NFT            
                     II = 3*(I-1)
                     EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)
                     EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)
@@ -3545,7 +3598,7 @@ C                   STRAIN TENSOR IN GLOBAL SYSTEM
                   ENDDO
                 ELSEIF (MLW == 24 .OR. MLW == 25)THEN
                   DO I=1,NEL
-                    N = I + NFT 				   
+                    N = I + NFT            
                     II = 6*(I-1)
                     EVAR(1,I) = LBUF%STRA(JJ(1) + I)
                     EVAR(2,I) = LBUF%STRA(JJ(2) + I)
@@ -3556,7 +3609,7 @@ C                   STRAIN TENSOR IN GLOBAL SYSTEM
                     IS_WRITTEN_TENSOR(I) = 1
                   ENDDO
                 ELSEIF (ISTRAIN > 0) THEN
-                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28.OR.
+                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28.OR.
      .                MLW == 49) THEN 
                     DO I=1,NEL
                       N = I + NFT  
@@ -3591,22 +3644,23 @@ C                 STRAIN TENSOR IN GLOBAL SYSTEM
                       GAMA(5)=ONE
                       GAMA(6)=ZERO
                     END IF
-                    CALL SROTA6(X,IXS(1,N),KCVT,
-     .               EVAR(1,I),GAMA, JHBE,IGTYP)
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO
                 ENDIF
 c-----------
               ELSEIF(ISOLNOD == 16.OR.ISOLNOD == 20 .OR.
      .            (ISOLNOD == 8.AND.(JHBE == 14.OR.JHBE == 17)))THEN
 c-----------
-                IF (MLW.GE.28.AND.MLW /= 49)THEN	
+                IF (MLW>=28.AND.MLW /= 49)THEN
                   DO I=1,NEL
                    N = I + NFT   
                    II = 6*(I-1)
-                   DO IL=1,NLAY 		    
-                    DO IS=1,NPTS		     
+                   DO IL=1,NLAY         
+                    DO IS=1,NPTS         
                      DO IT=1,NPTT
-                      DO IR=1,NPTR			
+                      DO IR=1,NPTR
                        LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)        
                        EVAR(1,I) = EVAR(1,I) + LBUF%STRA(JJ(1) + I)/NPT
                        EVAR(2,I) = EVAR(2,I) + LBUF%STRA(JJ(2) + I)/NPT
@@ -3621,129 +3675,132 @@ c-----------
                    ENDDO
                   ENDDO
                 ELSEIF (MLW == 12 .OR. MLW == 14) THEN
-                  DO I=1,NEL						  
-                   N = I + NFT  					    
-                   II = 3*(I-1) 					    
-                   DO IL=1,NLAY 					    
-                    DO IS=1,NPTS					    
-                     DO IT=1,NPTT					    
-                      DO IR=1,NPTR					    
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)
-                	EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/NPT 	
-                	EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT 	
-                	EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/NPT   
-                	IS_WRITTEN_TENSOR(I) = 1      
-                      ENDDO						    
-                     ENDDO						    
-                    ENDDO						    
-                   ENDDO						    
-                  ENDDO 						    
+                  DO I=1,NEL              
+                   N = I + NFT                
+                   II = 3*(I-1)               
+                   DO IL=1,NLAY               
+                    DO IS=1,NPTS              
+                     DO IT=1,NPTT              
+                      DO IR=1,NPTR              
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)
+          EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/NPT 
+          EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT 
+          EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/NPT   
+          IS_WRITTEN_TENSOR(I) = 1      
+                      ENDDO                
+                     ENDDO                
+                    ENDDO                
+                   ENDDO                
+                  ENDDO                 
                 ELSEIF(MLW == 24 .OR. MLW == 25)THEN
                   DO I=1,NEL
                    N = I + NFT   
                    II = 6*(I-1)
-                   DO IL=1,NLAY 		    
-                    DO IS=1,NPTS		     
+                   DO IL=1,NLAY         
+                    DO IS=1,NPTS         
                      DO IT=1,NPTT
-                      DO IR=1,NPTR			
+                      DO IR=1,NPTR
                        LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)        
                        IF (ELBUF_TAB(NG)%BUFLY(IL)%L_STRA > 0) THEN
-                	EVAR_TMP(1) =  LBUF%STRA(JJ(1) + I)/NPT
-                	EVAR_TMP(2) =  LBUF%STRA(JJ(2) + I)/NPT
-                	EVAR_TMP(3) =  LBUF%STRA(JJ(3) + I)/NPT
-                	EVAR_TMP(4) =  LBUF%STRA(JJ(4) + I)*HALF/NPT
-                	EVAR_TMP(5) =  LBUF%STRA(JJ(5) + I)*HALF/NPT
-                	EVAR_TMP(6) =  LBUF%STRA(JJ(6) + I)*HALF/NPT
-             	  	ICSIG=IPARG(17,NG)  
-             	  	IF (KCVT /= 0 .AND.ICSIG > 0) THEN
-C            	  	  STRAIN TENSOR IN GLOBAL SYSTEM
-             	  	  IF (JHBE == 14) THEN
-             	  	    SELECT CASE (ICSIG) 					   
-             	  	    CASE (1)	   
-             	  	      IF(KCVT==2 .AND. IGTYP ==22)THEN
-             	  	        GAMA(1)= ZERO
-             	  	        GAMA(2)= LBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(3)= LBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(4)= ZERO
-             	  	        GAMA(5)=-GAMA(2)
-             	  	        GAMA(6)= GAMA(1)
-             	  	      ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
-             	  	        GAMA(1)= ZERO
-             	  	        GAMA(2)= GBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(3)= GBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(4)= ZERO
-             	  	        GAMA(5)=-GAMA(2)
-             	  	        GAMA(6)= GAMA(1)
-             	  	      ELSE
-             	  	        GAMA(1)=ONE
-             	  	        GAMA(2)=ZERO
-             	  	        GAMA(3)=ZERO
-             	  	        GAMA(4)=ZERO
-             	  	        GAMA(5)=ONE
-             	  	        GAMA(6)=ZERO
-             	  	      END IF
-             	  	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	          EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	    CASE (10)	    
-             	  	      IF(KCVT==2 .AND. IGTYP ==22)THEN
-             	  	        GAMA(1)= LBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(2)= LBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(3)= ZERO
-             	  	        GAMA(4)=-GAMA(2)
-             	  	        GAMA(5)= GAMA(1)
-             	  	        GAMA(6)= ZERO
-             	  	      ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
-             	  	        GAMA(1)= GBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(2)= GBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(3)= ZERO
-             	  	        GAMA(4)=-GAMA(2)
-             	  	        GAMA(5)= GAMA(1)
-             	  	        GAMA(6)= ZERO
-             	  	      ELSE
-             	  	        GAMA(1)=ONE
-             	  	        GAMA(2)=ZERO
-             	  	        GAMA(3)=ZERO
-             	  	        GAMA(4)=ZERO
-             	  	        GAMA(5)=ONE
-             	  	        GAMA(6)=ZERO
-             	  	      END IF
-             	  	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	          EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	    CASE (100)     
-             	  	      IF(KCVT==2 .AND. IGTYP ==22)THEN
-             	  	        GAMA(1)= LBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(2)= ZERO
-             	  	        GAMA(3)= LBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(4)= GAMA(3)
-             	  	        GAMA(5)= ZERO
-             	  	        GAMA(6)=-GAMA(1)
-             	  	      ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
-             	  	        GAMA(1)= GBUF%GAMA(JJ(2) + I)
-             	  	        GAMA(2)= ZERO
-             	  	        GAMA(3)= GBUF%GAMA(JJ(1) + I)
-             	  	        GAMA(4)= GAMA(3)
-             	  	        GAMA(5)= ZERO
-             	  	        GAMA(6)=-GAMA(1)
-             	  	      ELSE
-             	  	        GAMA(1)=ONE
-             	  	        GAMA(2)=ZERO
-             	  	        GAMA(3)=ZERO
-             	  	        GAMA(4)=ZERO
-             	  	        GAMA(5)=ONE
-             	  	        GAMA(6)=ZERO
-             	  	      END IF
-             	  	      CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	          EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	    END SELECT  				       
-             	  	  ENDIF
-             	  	ENDIF	    
-                	EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
-                	EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
-                	EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
-                	EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
-                	EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
-                	EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
-                	IS_WRITTEN_TENSOR(I) = 1
+          EVAR_TMP(1) =  LBUF%STRA(JJ(1) + I)/NPT
+          EVAR_TMP(2) =  LBUF%STRA(JJ(2) + I)/NPT
+          EVAR_TMP(3) =  LBUF%STRA(JJ(3) + I)/NPT
+          EVAR_TMP(4) =  LBUF%STRA(JJ(4) + I)*HALF/NPT
+          EVAR_TMP(5) =  LBUF%STRA(JJ(5) + I)*HALF/NPT
+          EVAR_TMP(6) =  LBUF%STRA(JJ(6) + I)*HALF/NPT
+              ICSIG=IPARG(17,NG)  
+              IF (KCVT /= 0 .AND.ICSIG > 0) THEN
+C                    STRAIN TENSOR IN GLOBAL SYSTEM
+                IF (JHBE == 14) THEN
+                  SELECT CASE (ICSIG)              
+                  CASE (1)     
+                    IF(KCVT==2 .AND. IGTYP ==22)THEN
+                      GAMA(1)= ZERO
+                      GAMA(2)= LBUF%GAMA(JJ(1) + I)
+                      GAMA(3)= LBUF%GAMA(JJ(2) + I)
+                      GAMA(4)= ZERO
+                      GAMA(5)=-GAMA(2)
+                      GAMA(6)= GAMA(1)
+                    ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
+                      GAMA(1)= ZERO
+                      GAMA(2)= GBUF%GAMA(JJ(1) + I)
+                      GAMA(3)= GBUF%GAMA(JJ(2) + I)
+                      GAMA(4)= ZERO
+                      GAMA(5)=-GAMA(2)
+                      GAMA(6)= GAMA(1)
+                    ELSE
+                      GAMA(1)=ONE
+                      GAMA(2)=ZERO
+                      GAMA(3)=ZERO
+                      GAMA(4)=ZERO
+                      GAMA(5)=ONE
+                      GAMA(6)=ZERO
+                    END IF
+                    CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                  CASE (10)      
+                    IF(KCVT==2 .AND. IGTYP ==22)THEN
+                      GAMA(1)= LBUF%GAMA(JJ(1) + I)
+                      GAMA(2)= LBUF%GAMA(JJ(2) + I)
+                      GAMA(3)= ZERO
+                      GAMA(4)=-GAMA(2)
+                      GAMA(5)= GAMA(1)
+                      GAMA(6)= ZERO
+                    ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
+                      GAMA(1)= GBUF%GAMA(JJ(1) + I)
+                      GAMA(2)= GBUF%GAMA(JJ(2) + I)
+                      GAMA(3)= ZERO
+                      GAMA(4)=-GAMA(2)
+                      GAMA(5)= GAMA(1)
+                      GAMA(6)= ZERO
+                    ELSE
+                      GAMA(1)=ONE
+                      GAMA(2)=ZERO
+                      GAMA(3)=ZERO
+                      GAMA(4)=ZERO
+                      GAMA(5)=ONE
+                      GAMA(6)=ZERO
+                    END IF
+                    CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                  CASE (100)     
+                    IF(KCVT==2 .AND. IGTYP ==22)THEN
+                      GAMA(1)= LBUF%GAMA(JJ(2) + I)
+                      GAMA(2)= ZERO
+                      GAMA(3)= LBUF%GAMA(JJ(1) + I)
+                      GAMA(4)= GAMA(3)
+                      GAMA(5)= ZERO
+                      GAMA(6)=-GAMA(1)
+                    ELSEIF(KCVT==2 .AND. IGTYP ==21)THEN
+                      GAMA(1)= GBUF%GAMA(JJ(2) + I)
+                      GAMA(2)= ZERO
+                      GAMA(3)= GBUF%GAMA(JJ(1) + I)
+                      GAMA(4)= GAMA(3)
+                      GAMA(5)= ZERO
+                      GAMA(6)=-GAMA(1)
+                    ELSE
+                      GAMA(1)=ONE
+                      GAMA(2)=ZERO
+                      GAMA(3)=ZERO
+                      GAMA(4)=ZERO
+                      GAMA(5)=ONE
+                      GAMA(6)=ZERO
+                    END IF
+                    CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                  END SELECT                 
+                ENDIF
+              ENDIF      
+          EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
+          EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
+          EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
+          EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
+          EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
+          EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
+          IS_WRITTEN_TENSOR(I) = 1
                        ENDIF
                       ENDDO 
                      ENDDO
@@ -3751,113 +3808,116 @@ C            	  	  STRAIN TENSOR IN GLOBAL SYSTEM
                    ENDDO
                   ENDDO
                 ELSEIF(ISTRAIN > 0)THEN
-                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28)THEN	       
+                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28)THEN         
                     DO I=1,NEL
                      N = I + NFT   
                      II = 6*(I-1)
-                     DO IL=1,NLAY		      
-                      DO IS=1,NPTS		       
+                     DO IL=1,NLAY          
+                      DO IS=1,NPTS           
                        DO IT=1,NPTT
-                	DO IR=1,NPTR			  
-                	 LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT) 
-                	 EVAR_TMP(1) = LBUF%STRA(JJ(1) + I)/NPT
-                	 EVAR_TMP(2) = LBUF%STRA(JJ(2) + I)/NPT
-                	 EVAR_TMP(3) = LBUF%STRA(JJ(3) + I)/NPT
-                	 EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF/NPT
-                	 EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF/NPT
-                	 EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF/NPT
+          DO IR=1,NPTR        
+           LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT) 
+           EVAR_TMP(1) = LBUF%STRA(JJ(1) + I)/NPT
+           EVAR_TMP(2) = LBUF%STRA(JJ(2) + I)/NPT
+           EVAR_TMP(3) = LBUF%STRA(JJ(3) + I)/NPT
+           EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF/NPT
+           EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF/NPT
+           EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF/NPT
 c
-             	  	 ICSIG=IPARG(17,NG)  
-             	  	 IF (KCVT /= 0 .AND.ICSIG > 0) THEN
-C            	  	   STRAIN TENSOR IN GLOBAL SYSTEM
-             	  	   IF (JHBE == 14) THEN
-             	  	     SELECT CASE (ICSIG)					    
-             	  	     CASE (1)	    
+               ICSIG=IPARG(17,NG)  
+               IF (KCVT /= 0 .AND.ICSIG > 0) THEN
+C                     STRAIN TENSOR IN GLOBAL SYSTEM
+                 IF (JHBE == 14) THEN
+                   SELECT CASE (ICSIG)              
+                   CASE (1)      
                                IF(KCVT==2.AND.IGTYP == 22)THEN
-             	  	         GAMA(1)= ZERO
-             	  	         GAMA(2)= LBUF%GAMA(JJ(1) + I)
-             	  	         GAMA(3)= LBUF%GAMA(JJ(2) + I)
-             	  	         GAMA(4)= ZERO
-             	  	         GAMA(5)=-GAMA(2)
-             	  	         GAMA(6)= GAMA(1)
+                       GAMA(1)= ZERO
+                       GAMA(2)= LBUF%GAMA(JJ(1) + I)
+                       GAMA(3)= LBUF%GAMA(JJ(2) + I)
+                       GAMA(4)= ZERO
+                       GAMA(5)=-GAMA(2)
+                       GAMA(6)= GAMA(1)
                                ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
-             	  	         GAMA(1)= ZERO
-             	  	         GAMA(2)= GBUF%GAMA(JJ(1) + I)
-             	  	         GAMA(3)= GBUF%GAMA(JJ(2) + I)
-             	  	         GAMA(4)= ZERO
-             	  	         GAMA(5)=-GAMA(2)
-             	  	         GAMA(6)= GAMA(1)
-             	  	       ELSE
-             	  	         GAMA(1)=ONE
-             	  	         GAMA(2)=ZERO
-             	  	         GAMA(3)=ZERO
-             	  	         GAMA(4)=ZERO
-             	  	         GAMA(5)=ONE
-             	  	         GAMA(6)=ZERO
-             	  	       END IF
-             	  	       CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	           EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	     CASE (10)       
+                       GAMA(1)= ZERO
+                       GAMA(2)= GBUF%GAMA(JJ(1) + I)
+                       GAMA(3)= GBUF%GAMA(JJ(2) + I)
+                       GAMA(4)= ZERO
+                       GAMA(5)=-GAMA(2)
+                       GAMA(6)= GAMA(1)
+                     ELSE
+                       GAMA(1)=ONE
+                       GAMA(2)=ZERO
+                       GAMA(3)=ZERO
+                       GAMA(4)=ZERO
+                       GAMA(5)=ONE
+                       GAMA(6)=ZERO
+                     END IF
+                     CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                   CASE (10)       
                                IF(KCVT==2.AND.IGTYP == 22)THEN
-             	  	         GAMA(1)= LBUF%GAMA(JJ(1) + I)
-             	  	         GAMA(2)= LBUF%GAMA(JJ(2) + I)
-             	  	         GAMA(3)= ZERO
-             	  	         GAMA(4)=-GAMA(2)
-             	  	         GAMA(5)= GAMA(1)
-             	  	         GAMA(6)= ZERO
+                       GAMA(1)= LBUF%GAMA(JJ(1) + I)
+                       GAMA(2)= LBUF%GAMA(JJ(2) + I)
+                       GAMA(3)= ZERO
+                       GAMA(4)=-GAMA(2)
+                       GAMA(5)= GAMA(1)
+                       GAMA(6)= ZERO
                                ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
-             	  	         GAMA(1)= GBUF%GAMA(JJ(1) + I)
-             	  	         GAMA(2)= GBUF%GAMA(JJ(2) + I)
-             	  	         GAMA(3)= ZERO
-             	  	         GAMA(4)=-GAMA(2)
-             	  	         GAMA(5)= GAMA(1)
-             	  	         GAMA(6)= ZERO
-             	  	       ELSE
-             	  	         GAMA(1)=ONE
-             	  	         GAMA(2)=ZERO
-             	  	         GAMA(3)=ZERO
-             	  	         GAMA(4)=ZERO
-             	  	         GAMA(5)=ONE
-             	  	         GAMA(6)=ZERO
-             	  	       END IF
-             	  	       CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  	           EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	     CASE (100)     
+                       GAMA(1)= GBUF%GAMA(JJ(1) + I)
+                       GAMA(2)= GBUF%GAMA(JJ(2) + I)
+                       GAMA(3)= ZERO
+                       GAMA(4)=-GAMA(2)
+                       GAMA(5)= GAMA(1)
+                       GAMA(6)= ZERO
+                     ELSE
+                       GAMA(1)=ONE
+                       GAMA(2)=ZERO
+                       GAMA(3)=ZERO
+                       GAMA(4)=ZERO
+                       GAMA(5)=ONE
+                       GAMA(6)=ZERO
+                     END IF
+                     CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                   CASE (100)     
                                 IF(KCVT==2.AND.IGTYP == 22)THEN
-             	  		  GAMA(1)= LBUF%GAMA(JJ(2) + I)
-             	  		  GAMA(2)= ZERO
-             	  		  GAMA(3)= LBUF%GAMA(JJ(1) + I)
-             	  		  GAMA(4)= GAMA(3)
-             	  		  GAMA(5)= ZERO
-             	  		  GAMA(6)=-GAMA(1)
+                  GAMA(1)= LBUF%GAMA(JJ(2) + I)
+                  GAMA(2)= ZERO
+                  GAMA(3)= LBUF%GAMA(JJ(1) + I)
+                  GAMA(4)= GAMA(3)
+                  GAMA(5)= ZERO
+                  GAMA(6)=-GAMA(1)
                                 ELSEIF(KCVT==2.AND.IGTYP == 21)THEN
-             	  		  GAMA(1)= GBUF%GAMA(JJ(2) + I)
-             	  		  GAMA(2)= ZERO
-             	  		  GAMA(3)= GBUF%GAMA(JJ(1) + I)
-             	  		  GAMA(4)= GAMA(3)
-             	  		  GAMA(5)= ZERO
-             	  		  GAMA(6)=-GAMA(1)
-             	  		ELSE
-             	  		  GAMA(1)=ONE
-             	  		  GAMA(2)=ZERO
-             	  		  GAMA(3)=ZERO
-             	  		  GAMA(4)=ZERO
-             	  		  GAMA(5)=ONE
-             	  		  GAMA(6)=ZERO
-             	  		END IF
-             	  		CALL SROTA6(X,IXS(1,N),KCVT,
-     .       	  		    EVAR_TMP,GAMA, JHBE,IGTYP)
-             	  	     END SELECT 					
-             	  	   ENDIF
-             	  	 ENDIF       
-                	 EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
-                	 EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
-                	 EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
-                	 EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
-                	 EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
-                	 EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
-                	 IS_WRITTEN_TENSOR(I) = 1
-                	ENDDO 
+                  GAMA(1)= GBUF%GAMA(JJ(2) + I)
+                  GAMA(2)= ZERO
+                  GAMA(3)= GBUF%GAMA(JJ(1) + I)
+                  GAMA(4)= GAMA(3)
+                  GAMA(5)= ZERO
+                  GAMA(6)=-GAMA(1)
+                ELSE
+                  GAMA(1)=ONE
+                  GAMA(2)=ZERO
+                  GAMA(3)=ZERO
+                  GAMA(4)=ZERO
+                  GAMA(5)=ONE
+                  GAMA(6)=ZERO
+                END IF
+                CALL SROTA6(
+     1   X,       IXS(1,N),KCVT,    EVAR_TMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
+                   END SELECT 
+                 ENDIF
+               ENDIF       
+           EVAR(1,I) = EVAR(1,I)+EVAR_TMP(1)
+           EVAR(2,I) = EVAR(2,I)+EVAR_TMP(2)
+           EVAR(3,I) = EVAR(3,I)+EVAR_TMP(3)
+           EVAR(4,I) = EVAR(4,I)+EVAR_TMP(4)
+           EVAR(5,I) = EVAR(5,I)+EVAR_TMP(5)
+           EVAR(6,I) = EVAR(6,I)+EVAR_TMP(6)
+           IS_WRITTEN_TENSOR(I) = 1
+          ENDDO 
                        ENDDO
                       ENDDO
                      ENDDO
@@ -3866,39 +3926,40 @@ C            	  	   STRAIN TENSOR IN GLOBAL SYSTEM
                 ENDIF
 c---
                 ICSIG=IPARG(17,NG) 
-                IF (KCVT /= 0 .AND.ICSIG == 0 .AND. JHBE .NE. 16) THEN
+                IF (KCVT /= 0 .AND.ICSIG == 0 .AND. JHBE /= 16) THEN
 C                 STRAIN TENSOR IN GLOBAL SYSTEM
-                  DO I=1,NEL					     
-                    N = I + NFT 				     
-                    IF(KCVT==2)THEN				   
-                      II = 6*(I-1)				   
+                  DO I=1,NEL               
+                    N = I + NFT              
+                    IF(KCVT==2)THEN           
+                      II = 6*(I-1)           
                       GAMA(1)=GBUF%GAMA(JJ(1) + I)
                       GAMA(2)=GBUF%GAMA(JJ(2) + I)
                       GAMA(3)=GBUF%GAMA(JJ(3) + I)
                       GAMA(4)=GBUF%GAMA(JJ(4) + I)
                       GAMA(5)=GBUF%GAMA(JJ(5) + I)
                       GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                    ELSE					   
-                      GAMA(1)=ONE				   
-                      GAMA(2)=ZERO				   
-                      GAMA(3)=ZERO				   
-                      GAMA(4)=ZERO				   
-                      GAMA(5)=ONE				   
-                      GAMA(6)=ZERO				   
-                    END IF					   
-                    CALL SROTA6(X,IXS(1,N),KCVT,		   
-     .                        EVAR(1,I),GAMA, JHBE,IGTYP)	   
+                    ELSE             
+                      GAMA(1)=ONE           
+                      GAMA(2)=ZERO           
+                      GAMA(3)=ZERO           
+                      GAMA(4)=ZERO           
+                      GAMA(5)=ONE           
+                      GAMA(6)=ZERO           
+                    END IF             
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
                   ENDDO 
                 ENDIF
 c-----------
               ELSEIF (ISOLNOD==10 .OR. (ISOLNOD==4 .AND. ISROT==1)) THEN
 c-----------
-                IF (MLW.GE.28.AND.MLW /= 49)THEN 
+                IF (MLW>=28.AND.MLW /= 49)THEN 
                   DO I=1,NEL
                     N = I + NFT  
-                    II = 6*(I-1)				 
+                    II = 6*(I-1)         
                     DO IPT=1,NPT
-                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)	   
+                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)     
                       EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/NPT
                       EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/NPT
                       EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/NPT
@@ -3911,21 +3972,21 @@ c-----------
                 ELSEIF(MLW == 12 .OR. MLW == 14)THEN
                   DO I=1,NEL
                     N = I + NFT  
-                    II = 3*(I-1)				 
+                    II = 3*(I-1)         
                     DO IPT=1,NPT
-                	 LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)
-                	 EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/NPT	
-                	 EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT	
-                	 EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/NPT 
-                	 IS_WRITTEN_TENSOR(I) = 1	
+           LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)
+           EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/NPT
+           EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/NPT
+           EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/NPT 
+           IS_WRITTEN_TENSOR(I) = 1
                     ENDDO
                   ENDDO    
                 ELSEIF ((MLW == 24 .OR. MLW == 25) .and. ISTRAIN > 0) THEN
                   DO I=1,NEL
                     N = I + NFT  
-                    II = 6*(I-1)				 
+                    II = 6*(I-1)         
                     DO IPT=1,NPT
-                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)	   
+                      LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)     
                       EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/NPT
                       EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/NPT
                       EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/NPT
@@ -3936,150 +3997,152 @@ c-----------
                     ENDDO
                   ENDDO
                 ELSEIF(ISTRAIN > 0)THEN
-                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28) THEN		
+                  IF (MLW /= 14.AND.MLW /= 24.AND.MLW<28) THEN
                     DO I=1,NEL
                       N = I + NFT  
-                      II = 6*(I-1)				   
+                      II = 6*(I-1)           
                       DO IPT=1,NPT
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)	     
-                	EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/NPT
-                	EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/NPT
-                	EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/NPT
-                	EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*HALF/NPT
-                	EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*HALF/NPT
-                	EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*HALF/NPT
-                	IS_WRITTEN_TENSOR(I) = 1
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)       
+          EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/NPT
+          EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/NPT
+          EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/NPT
+          EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*HALF/NPT
+          EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*HALF/NPT
+          EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*HALF/NPT
+          IS_WRITTEN_TENSOR(I) = 1
                       ENDDO
-                    ENDDO		    
-                  ENDIF 			
+                    ENDDO        
+                  ENDIF 
                 ENDIF 
                 IF (KCVT /= 0) THEN
 C                 STRAIN TENSOR IN GLOBAL SYSTEM
-                  DO I=1,NEL				  
-                    N = I + NFT 			      
-                    IF (KCVT==2) THEN			    
-                      II = 6*(I-1)				  
+                  DO I=1,NEL          
+                    N = I + NFT             
+                    IF (KCVT==2) THEN          
+                      II = 6*(I-1)          
                       GAMA(1)=GBUF%GAMA(JJ(1) + I)
                       GAMA(2)=GBUF%GAMA(JJ(2) + I)
                       GAMA(3)=GBUF%GAMA(JJ(3) + I)
                       GAMA(4)=GBUF%GAMA(JJ(4) + I)
                       GAMA(5)=GBUF%GAMA(JJ(5) + I)
                       GAMA(6)=GBUF%GAMA(JJ(6) + I)
-                    ELSE				  
-                      GAMA(1)=ONE			  
-                      GAMA(2)=ZERO			  
-                      GAMA(3)=ZERO			  
-                      GAMA(4)=ZERO			  
-                      GAMA(5)=ONE			  
-                      GAMA(6)=ZERO			  
-                    ENDIF				 
-                    CALL SROTA6(X,IXS(1,N),KCVT,	    
-     .                   EVAR(1,I),GAMA, JHBE,IGTYP)	   
-                  ENDDO 				    
+                    ELSE          
+                      GAMA(1)=ONE        
+                      GAMA(2)=ZERO        
+                      GAMA(3)=ZERO        
+                      GAMA(4)=ZERO        
+                      GAMA(5)=ONE        
+                      GAMA(6)=ZERO        
+                    ENDIF         
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                  ENDDO             
                 ENDIF
 c-----------
-              ELSEIF((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15)THEN
+              ELSEIF(((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24))THEN
 c-----------
-                IF (MLW.GE.28.AND.MLW /= 49.AND.ISTRAIN > 0) THEN
-                  DO I=1,NEL						   
-                    N = I + NFT 					     
-                    II = 6*(I-1)					     
+                IF (MLW>=28.AND.MLW /= 49.AND.ISTRAIN > 0) THEN
+                  DO I=1,NEL               
+                    N = I + NFT                
+                    II = 6*(I-1)               
                     DO IL= 1,NLAY
-                      DO IPT=1,NPTG					       
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)  	
-                	EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)       
-                	EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)       
-                	EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)       
-                	EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
-     .          			      HALF/(NPTG*NLAY)       
-                	EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
-     .          			      HALF/(NPTG*NLAY)       
-                	EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
-     .          			      HALF/(NPTG*NLAY) 
-                	IS_WRITTEN_TENSOR(I) = 1  
-                      ENDDO						       
-                    ENDDO						     
-                  ENDDO 						     
+                      DO IPT=1,NPTG                 
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)  
+          EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)       
+          EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)       
+          EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)       
+          EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
+     .                      HALF/(NPTG*NLAY)       
+          EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
+     .                      HALF/(NPTG*NLAY)       
+          EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
+     .                      HALF/(NPTG*NLAY) 
+          IS_WRITTEN_TENSOR(I) = 1  
+                      ENDDO                   
+                    ENDDO                 
+                  ENDDO                  
                 ELSEIF(MLW == 12 .OR. MLW == 14)THEN
                   DO I=1,NEL
-                    II = 3*(I-1)				 
+                    II = 3*(I-1)         
                     DO IL= 1,NLAY
                       DO IPT=1,NPTG
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)
-                	EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/(NPTG*NLAY)
-                	EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/(NPTG*NLAY)
-                	EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/(NPTG*NLAY)
-                	IS_WRITTEN_TENSOR(I) = 1
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)
+          EVAR(1,I) = EVAR(1,I) + LBUF%EPE(JJ(1) + I)/(NPTG*NLAY)
+          EVAR(2,I) = EVAR(2,I) + LBUF%EPE(JJ(2) + I)/(NPTG*NLAY)
+          EVAR(3,I) = EVAR(3,I) + LBUF%EPE(JJ(3) + I)/(NPTG*NLAY)
+          IS_WRITTEN_TENSOR(I) = 1
                       ENDDO
                     ENDDO
                   ENDDO    
                 ELSEIF ((MLW == 24 .OR. MLW == 25) .and. ISTRAIN > 0)THEN
-                  DO I=1,NEL						   
-                    N = I + NFT 					     
-                    II = 6*(I-1)					     
+                  DO I=1,NEL               
+                    N = I + NFT                
+                    II = 6*(I-1)               
                     DO IL= 1,NLAY
-                      DO IPT=1,NPTG					       
-                	LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)  	
-                	EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)
-                	EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)
-                	EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)
-                	EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
-     .          		    HALF/(NPTG*NLAY)      
-                	EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
-     .          		    HALF/(NPTG*NLAY) 
-                	EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
-     .          		    HALF/(NPTG*NLAY)   
-                	IS_WRITTEN_TENSOR(I) = 1
-                      ENDDO						       
-                    ENDDO						     
-                  ENDDO 						     
-                ELSEIF (ISTRAIN > 0) THEN					 
-                  IF(MLW /= 14.AND.MLW /= 24.AND.MLW.LT.28) THEN		 
-                    DO I=1,NEL  					     
-                      N = I + NFT					       
-                      II = 6*(I-1)					       
+                      DO IPT=1,NPTG                 
+          LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1)  
+          EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)
+          EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)
+          EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)
+          EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
+     .                  HALF/(NPTG*NLAY)      
+          EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
+     .                  HALF/(NPTG*NLAY) 
+          EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
+     .                  HALF/(NPTG*NLAY)   
+          IS_WRITTEN_TENSOR(I) = 1
+                      ENDDO                   
+                    ENDDO                 
+                  ENDDO                  
+                ELSEIF (ISTRAIN > 0) THEN           
+                  IF(MLW /= 14.AND.MLW /= 24.AND.MLW<28) THEN     
+                    DO I=1,NEL                 
+                      N = I + NFT                 
+                      II = 6*(I-1)                 
                       DO IL= 1,NLAY
-                	DO IPT=1,NPTG						 
-                	 LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1) 	
-                	  EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)	     
-                	  EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)	    
-                	  EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)	  
-                	  EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
-     .          		    HALF/(NPTG*NLAY)
-                	  EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
-     .          		    HALF/(NPTG*NLAY)
-                	  EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
-     .          		    HALF/(NPTG*NLAY)
-                	  IS_WRITTEN_TENSOR(I) = 1
-                	ENDDO							 
-                      ENDDO						       
-                    ENDDO						     
-                  ENDIF 						       
-                ENDIF			       
-                IF (KCVT /= 0) THEN			
-C                 STRAIN TENSOR IN GLOBAL SYSTE 	
-                  DO I=1,NEL			      
-                    N = I + NFT 			  
-                    IF (KCVT==2)THEN		       
-                      II = 6*(I-1)					      
+          DO IPT=1,NPTG             
+           LBUF =>  ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IPT,1,1) 
+            EVAR(1,I) = EVAR(1,I)+LBUF%STRA(JJ(1) + I)/(NPTG*NLAY)       
+            EVAR(2,I) = EVAR(2,I)+LBUF%STRA(JJ(2) + I)/(NPTG*NLAY)      
+            EVAR(3,I) = EVAR(3,I)+LBUF%STRA(JJ(3) + I)/(NPTG*NLAY)    
+            EVAR(4,I) = EVAR(4,I)+LBUF%STRA(JJ(4) + I)*
+     .                  HALF/(NPTG*NLAY)
+            EVAR(5,I) = EVAR(5,I)+LBUF%STRA(JJ(5) + I)*
+     .                  HALF/(NPTG*NLAY)
+            EVAR(6,I) = EVAR(6,I)+LBUF%STRA(JJ(6) + I)*
+     .                  HALF/(NPTG*NLAY)
+            IS_WRITTEN_TENSOR(I) = 1
+          ENDDO               
+                      ENDDO                   
+                    ENDDO                 
+                  ENDIF                    
+                ENDIF             
+                IF (KCVT /= 0) THEN
+C                 STRAIN TENSOR IN GLOBAL SYSTEM
+                  DO I=1,NEL            
+                    N = I + NFT         
+                    IF (KCVT==2)THEN           
+                      II = 6*(I-1)                
                       GAMA(1)= GBUF%GAMA(JJ(1) + I)  
                       GAMA(2)= GBUF%GAMA(JJ(2) + I)  
-                      GAMA(3)= ZERO		       
-                      GAMA(4)=-GAMA(2)  	       
-                      GAMA(5)= GAMA(1)  	       
-                      GAMA(6)= ZERO		       
-                    ELSE			       
-                      GAMA(1)=ONE		       
-                      GAMA(2)=ZERO		       
-                      GAMA(3)=ZERO		       
-                      GAMA(4)=ZERO		       
-                      GAMA(5)=ONE		       
-                      GAMA(6)=ZERO		       
-                    END IF			       
-                    CALL SROTA6(X,IXS(1,N),KCVT,       
-     .                   EVAR(1,I),GAMA, JHBE,IGTYP)   
-                  ENDDO 				
-                ENDIF					
+                      GAMA(3)= ZERO           
+                      GAMA(4)=-GAMA(2)           
+                      GAMA(5)= GAMA(1)           
+                      GAMA(6)= ZERO           
+                    ELSE             
+                      GAMA(1)=ONE           
+                      GAMA(2)=ZERO           
+                      GAMA(3)=ZERO           
+                      GAMA(4)=ZERO           
+                      GAMA(5)=ONE           
+                      GAMA(6)=ZERO           
+                    END IF             
+                    CALL SROTA6(
+     1   X,        IXS(1,N), KCVT,     EVAR(1,I),
+     2   GAMA,     JHBE,     IGTYP,    ISORTH)
+                  ENDDO 
+                ENDIF
 c-----------
               ENDIF  ! ISOLNOD & ......
 C---- Corner Data :
@@ -4100,90 +4163,90 @@ C--------------------------------------------------
              !--------
              IF(MLW == 36 .AND. ( ID == -1 .OR. ID == 1)) THEN
                DO I=1,NEL
-                DO IR=1,NPTR  			    	      
-                  DO IS=1,NPTS        	  
-                    DO IT=1,NPTT	     	  
+                DO IR=1,NPTR                    
+                  DO IS=1,NPTS            
+                    DO IT=1,NPTT           
                       LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)
-           	          EVAR(1,I) = EVAR(1,I) + LBUF%SIGB(JJ(1) + I)/NPTG
-           	          EVAR(2,I) = EVAR(2,I) + LBUF%SIGB(JJ(2) + I)/NPTG
-           	          EVAR(3,I) = EVAR(3,I) + LBUF%SIGB(JJ(3) + I)/NPTG
-           	          EVAR(4,I) = EVAR(4,I) + LBUF%SIGB(JJ(4) + I)/NPTG
-           	          EVAR(5,I) = EVAR(5,I) + LBUF%SIGB(JJ(5) + I)/NPTG
-           	          EVAR(6,I) = EVAR(6,I) + LBUF%SIGB(JJ(6) + I)/NPTG
-                    ENDDO !IT					         	
-                  ENDDO !IS                	
-                ENDDO !IR                  	
+                    EVAR(1,I) = EVAR(1,I) + LBUF%SIGB(JJ(1) + I)/NPTG
+                    EVAR(2,I) = EVAR(2,I) + LBUF%SIGB(JJ(2) + I)/NPTG
+                    EVAR(3,I) = EVAR(3,I) + LBUF%SIGB(JJ(3) + I)/NPTG
+                    EVAR(4,I) = EVAR(4,I) + LBUF%SIGB(JJ(4) + I)/NPTG
+                    EVAR(5,I) = EVAR(5,I) + LBUF%SIGB(JJ(5) + I)/NPTG
+                    EVAR(6,I) = EVAR(6,I) + LBUF%SIGB(JJ(6) + I)/NPTG
+                    ENDDO !IT                   
+                  ENDDO !IS                
+                ENDDO !IR                  
                ENDDO 
-               !!IF (KCVT /= 0 .AND. JHBE .NE. 16) THEN ????
+               !!IF (KCVT /= 0 .AND. JHBE /= 16) THEN ????
              !--------                                                                                               
              !  LAW78                                                                                                
              !--------                                                                                               
              ELSEIF (MLW == 78) THEN                                                                                 
                IF(ID == -1) THEN ! sum of all backstresses                                                         
                  DO I=1,NEL
-                  DO IR=1,NPTR  			    	     
-                   DO IS=1,NPTS        	  
-                    DO IT=1,NPTT	     	  
+                  DO IR=1,NPTR                   
+                   DO IS=1,NPTS            
+                    DO IT=1,NPTT           
                       LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)
-           	          EVAR(1,I) = EVAR(1,I) +( LBUF%SIGA(JJ(1) + I) + LBUF%SIGB(JJ(1) + I) )/NPTG
-           	          EVAR(2,I) = EVAR(2,I) +( LBUF%SIGA(JJ(2) + I) + LBUF%SIGB(JJ(2) + I) )/NPTG
-           	          EVAR(3,I) = EVAR(3,I) +( LBUF%SIGA(JJ(3) + I) + LBUF%SIGB(JJ(3) + I) )/NPTG
-           	          EVAR(4,I) = EVAR(4,I) +( LBUF%SIGA(JJ(4) + I) + LBUF%SIGB(JJ(4) + I) )/NPTG
-           	          EVAR(5,I) = EVAR(5,I) +( LBUF%SIGA(JJ(5) + I) + LBUF%SIGB(JJ(5) + I) )/NPTG
-           	          EVAR(6,I) = EVAR(6,I) +( LBUF%SIGA(JJ(6) + I) + LBUF%SIGB(JJ(6) + I) )/NPTG
-                    ENDDO !IT					         	
-                   ENDDO !IS                	
-                  ENDDO !IR                  	
+                    EVAR(1,I) = EVAR(1,I) +( LBUF%SIGA(JJ(1) + I) + LBUF%SIGB(JJ(1) + I) )/NPTG
+                    EVAR(2,I) = EVAR(2,I) +( LBUF%SIGA(JJ(2) + I) + LBUF%SIGB(JJ(2) + I) )/NPTG
+                    EVAR(3,I) = EVAR(3,I) +( LBUF%SIGA(JJ(3) + I) + LBUF%SIGB(JJ(3) + I) )/NPTG
+                    EVAR(4,I) = EVAR(4,I) +( LBUF%SIGA(JJ(4) + I) + LBUF%SIGB(JJ(4) + I) )/NPTG
+                    EVAR(5,I) = EVAR(5,I) +( LBUF%SIGA(JJ(5) + I) + LBUF%SIGB(JJ(5) + I) )/NPTG
+                    EVAR(6,I) = EVAR(6,I) +( LBUF%SIGA(JJ(6) + I) + LBUF%SIGB(JJ(6) + I) )/NPTG
+                    ENDDO !IT                   
+                   ENDDO !IS                
+                  ENDDO !IR                  
                  ENDDO 
 
                ELSEIF(ID ==1 ) THEN                                                                                  
                  DO I=1,NEL
-                  DO IR=1,NPTR  			    	     
-                   DO IS=1,NPTS        	  
-                    DO IT=1,NPTT	     	  
+                  DO IR=1,NPTR                   
+                   DO IS=1,NPTS            
+                    DO IT=1,NPTT           
                       LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)
-           	          EVAR(1,I) = EVAR(1,I) + LBUF%SIGA(JJ(1) + I) /NPTG
-           	          EVAR(2,I) = EVAR(2,I) + LBUF%SIGA(JJ(2) + I) /NPTG
-           	          EVAR(3,I) = EVAR(3,I) + LBUF%SIGA(JJ(3) + I) /NPTG
-           	          EVAR(4,I) = EVAR(4,I) + LBUF%SIGA(JJ(4) + I) /NPTG
-           	          EVAR(5,I) = EVAR(5,I) + LBUF%SIGA(JJ(5) + I) /NPTG
-           	          EVAR(6,I) = EVAR(6,I) + LBUF%SIGA(JJ(6) + I) /NPTG
-                    ENDDO !IT					         	
-                   ENDDO !IS                	
-                  ENDDO !IR                  	
+                    EVAR(1,I) = EVAR(1,I) + LBUF%SIGA(JJ(1) + I) /NPTG
+                    EVAR(2,I) = EVAR(2,I) + LBUF%SIGA(JJ(2) + I) /NPTG
+                    EVAR(3,I) = EVAR(3,I) + LBUF%SIGA(JJ(3) + I) /NPTG
+                    EVAR(4,I) = EVAR(4,I) + LBUF%SIGA(JJ(4) + I) /NPTG
+                    EVAR(5,I) = EVAR(5,I) + LBUF%SIGA(JJ(5) + I) /NPTG
+                    EVAR(6,I) = EVAR(6,I) + LBUF%SIGA(JJ(6) + I) /NPTG
+                    ENDDO !IT                   
+                   ENDDO !IS                
+                  ENDDO !IR                  
                  ENDDO 
 
                ELSEIF(ID ==2 ) THEN                                                                                  
                  DO I=1,NEL
-                  DO IR=1,NPTR  			    	     
-                   DO IS=1,NPTS        	  
-                    DO IT=1,NPTT	     	  
+                  DO IR=1,NPTR                   
+                   DO IS=1,NPTS            
+                    DO IT=1,NPTT           
                       LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)
-           	          EVAR(1,I) = EVAR(1,I) + LBUF%SIGB(JJ(1) + I) /NPTG
-           	          EVAR(2,I) = EVAR(2,I) + LBUF%SIGB(JJ(2) + I) /NPTG
-           	          EVAR(3,I) = EVAR(3,I) + LBUF%SIGB(JJ(3) + I) /NPTG
-           	          EVAR(4,I) = EVAR(4,I) + LBUF%SIGB(JJ(4) + I) /NPTG
-           	          EVAR(5,I) = EVAR(5,I) + LBUF%SIGB(JJ(5) + I) /NPTG
-           	          EVAR(6,I) = EVAR(6,I) + LBUF%SIGB(JJ(6) + I) /NPTG
-                    ENDDO !IT					         	
-                   ENDDO !IS                	
-                  ENDDO !IR                  	
+                    EVAR(1,I) = EVAR(1,I) + LBUF%SIGB(JJ(1) + I) /NPTG
+                    EVAR(2,I) = EVAR(2,I) + LBUF%SIGB(JJ(2) + I) /NPTG
+                    EVAR(3,I) = EVAR(3,I) + LBUF%SIGB(JJ(3) + I) /NPTG
+                    EVAR(4,I) = EVAR(4,I) + LBUF%SIGB(JJ(4) + I) /NPTG
+                    EVAR(5,I) = EVAR(5,I) + LBUF%SIGB(JJ(5) + I) /NPTG
+                    EVAR(6,I) = EVAR(6,I) + LBUF%SIGB(JJ(6) + I) /NPTG
+                    ENDDO !IT                   
+                   ENDDO !IS                
+                  ENDDO !IR                  
                  ENDDO 
                ELSEIF(ID ==3 ) THEN                                                                                  
                  DO I=1,NEL
-                  DO IR=1,NPTR  			    	     
-                   DO IS=1,NPTS        	  
-                    DO IT=1,NPTT	     	  
+                  DO IR=1,NPTR                   
+                   DO IS=1,NPTS            
+                    DO IT=1,NPTT           
                       LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)
-           	          EVAR(1,I) = EVAR(1,I) + LBUF%SIGC(JJ(1) + I) /NPTG
-           	          EVAR(2,I) = EVAR(2,I) + LBUF%SIGC(JJ(2) + I) /NPTG
-           	          EVAR(3,I) = EVAR(3,I) + LBUF%SIGC(JJ(3) + I) /NPTG
-           	          EVAR(4,I) = EVAR(4,I) + LBUF%SIGC(JJ(4) + I) /NPTG
-           	          EVAR(5,I) = EVAR(5,I) + LBUF%SIGC(JJ(5) + I) /NPTG
-           	          EVAR(6,I) = EVAR(6,I) + LBUF%SIGC(JJ(6) + I) /NPTG
-                    ENDDO !IT					         	
-                   ENDDO !IS                	
-                  ENDDO !IR                  	
+                    EVAR(1,I) = EVAR(1,I) + LBUF%SIGC(JJ(1) + I) /NPTG
+                    EVAR(2,I) = EVAR(2,I) + LBUF%SIGC(JJ(2) + I) /NPTG
+                    EVAR(3,I) = EVAR(3,I) + LBUF%SIGC(JJ(3) + I) /NPTG
+                    EVAR(4,I) = EVAR(4,I) + LBUF%SIGC(JJ(4) + I) /NPTG
+                    EVAR(5,I) = EVAR(5,I) + LBUF%SIGC(JJ(5) + I) /NPTG
+                    EVAR(6,I) = EVAR(6,I) + LBUF%SIGC(JJ(6) + I) /NPTG
+                    ENDDO !IT                   
+                   ENDDO !IS                
+                  ENDDO !IR                  
                  ENDDO 
                ENDIF !ID == -1                                                                                       
              ENDIF !(MLW ==                                                                                          
@@ -4208,46 +4271,46 @@ C--------------------------------------------------
                   IF (IR == 2 .AND. IS == 1 .AND. IT == 1) IPT = 2 
                   IF (IR == 1 .AND. IS == 2 .AND. IT == 1) IPT = 3 
                   IF (IR == 1 .AND. IS == 1 .AND. IT == 2) IPT = 4 
-                  IF (IPT > 0)  LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)	   
+                  IF (IPT > 0)  LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPT,1,1)     
               ELSEIF (ISOLNOD == 8 .AND. (JHBE == 14.OR.JHBE == 17) )THEN !idem stress
                 ICSIG = IPARG(17,NG)
                 NPTG = NPTR * NPTS * NPTT * NLAY
                 IPID = IXS(10,1 + NFT) 
-             	  IF (IOR_TSH >0) THEN
+            IF (IOR_TSH >0) THEN
                     IF (ICSIG == 10) THEN
-             	        IR=IT_INPUT
-             	        IS=IR_INPUT
-             	        IT=IS_INPUT
+                  IR=IT_INPUT
+                  IS=IR_INPUT
+                  IT=IS_INPUT
                     ELSEIF (ICSIG == 1) THEN
                       IR=IS_INPUT
                       IS=IT_INPUT
                       IT=IR_INPUT
-             	      ELSE
-             	        IR=IR_INPUT
-             	        IS=IS_INPUT
-             	        IT=IT_INPUT
-             	      ENDIF
-             	  ENDIF
+                ELSE
+                  IR=IR_INPUT
+                  IS=IS_INPUT
+                  IT=IT_INPUT
+                ENDIF
+            ENDIF
                 IPT = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR                                                                                   
                 IF(IR <= NPTR .AND. IS <= NPTS .AND. IT <= NPTT) THEN    
                   LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)
                 ELSE         
                   LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)                                               
-                ENDIF	                                                                      
+                ENDIF                                                                        
               ELSE                                    
-                  LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)	     
+                  LBUF =>  ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,IT)       
               ENDIF !ISOLNOD
               !--------                                                                 
               !  LAW36                                                                  
               !--------                                                                 
               IF(MLW == 36 .AND. ( ID == -1 .OR. ID == 1)) THEN                         
                 DO I=1,NEL                                                              
-           	      EVAR(1,I) = LBUF%SIGB(JJ(1) + I)                                     
-           	      EVAR(2,I) = LBUF%SIGB(JJ(2) + I)                                     
-           	      EVAR(3,I) = LBUF%SIGB(JJ(3) + I)                                     
-           	      EVAR(4,I) = LBUF%SIGB(JJ(4) + I)                                     
-           	      EVAR(5,I) = LBUF%SIGB(JJ(5) + I)                                     
-           	      EVAR(6,I) = LBUF%SIGB(JJ(6) + I)                                     
+                EVAR(1,I) = LBUF%SIGB(JJ(1) + I)                                     
+                EVAR(2,I) = LBUF%SIGB(JJ(2) + I)                                     
+                EVAR(3,I) = LBUF%SIGB(JJ(3) + I)                                     
+                EVAR(4,I) = LBUF%SIGB(JJ(4) + I)                                     
+                EVAR(5,I) = LBUF%SIGB(JJ(5) + I)                                     
+                EVAR(6,I) = LBUF%SIGB(JJ(6) + I)                                     
                   IS_WRITTEN_TENSOR(I) = 1                                             
                 ENDDO                                                                   
               !--------                                                                                               
@@ -4256,42 +4319,42 @@ C--------------------------------------------------
               ELSEIF (MLW == 78) THEN                                                                                 
                 IF(ID == -1) THEN ! somme of all backstresses                                                         
                   DO I=1,NEL                                                             
-           	        EVAR(1,I) = ( LBUF%SIGA(JJ(1) + I) + LBUF%SIGB(JJ(1) + I) )          
-           	        EVAR(2,I) = ( LBUF%SIGA(JJ(2) + I) + LBUF%SIGB(JJ(2) + I) )          
-           	        EVAR(3,I) = ( LBUF%SIGA(JJ(3) + I) + LBUF%SIGB(JJ(3) + I) )          
-           	        EVAR(4,I) = ( LBUF%SIGA(JJ(4) + I) + LBUF%SIGB(JJ(4) + I) )          
-           	        EVAR(5,I) = ( LBUF%SIGA(JJ(5) + I) + LBUF%SIGB(JJ(5) + I) )          
-           	        EVAR(6,I) = ( LBUF%SIGA(JJ(6) + I) + LBUF%SIGB(JJ(6) + I) )          
+                  EVAR(1,I) = ( LBUF%SIGA(JJ(1) + I) + LBUF%SIGB(JJ(1) + I) )          
+                  EVAR(2,I) = ( LBUF%SIGA(JJ(2) + I) + LBUF%SIGB(JJ(2) + I) )          
+                  EVAR(3,I) = ( LBUF%SIGA(JJ(3) + I) + LBUF%SIGB(JJ(3) + I) )          
+                  EVAR(4,I) = ( LBUF%SIGA(JJ(4) + I) + LBUF%SIGB(JJ(4) + I) )          
+                  EVAR(5,I) = ( LBUF%SIGA(JJ(5) + I) + LBUF%SIGB(JJ(5) + I) )          
+                  EVAR(6,I) = ( LBUF%SIGA(JJ(6) + I) + LBUF%SIGB(JJ(6) + I) )          
                     IS_WRITTEN_TENSOR(I) = 1                                             
                   ENDDO                                                                  
                 ELSEIF(ID ==1 ) THEN                                                                                  
                   DO I=1,NEL                                                             
-           	        EVAR(1,I) = LBUF%SIGA(JJ(1) + I)                                     
-           	        EVAR(2,I) = LBUF%SIGA(JJ(2) + I)                                     
-           	        EVAR(3,I) = LBUF%SIGA(JJ(3) + I)                                     
-           	        EVAR(4,I) = LBUF%SIGA(JJ(4) + I)                                     
-           	        EVAR(5,I) = LBUF%SIGA(JJ(5) + I)                                     
-           	        EVAR(6,I) = LBUF%SIGA(JJ(6) + I)                                     
+                  EVAR(1,I) = LBUF%SIGA(JJ(1) + I)                                     
+                  EVAR(2,I) = LBUF%SIGA(JJ(2) + I)                                     
+                  EVAR(3,I) = LBUF%SIGA(JJ(3) + I)                                     
+                  EVAR(4,I) = LBUF%SIGA(JJ(4) + I)                                     
+                  EVAR(5,I) = LBUF%SIGA(JJ(5) + I)                                     
+                  EVAR(6,I) = LBUF%SIGA(JJ(6) + I)                                     
                     IS_WRITTEN_TENSOR(I) = 1                                             
                   ENDDO                                                                  
                 ELSEIF(ID ==2 ) THEN                                                                                  
                   DO I=1,NEL                                                             
-           	        EVAR(1,I) =  LBUF%SIGB(JJ(1) + I)                                    
-           	        EVAR(2,I) =  LBUF%SIGB(JJ(2) + I)                                    
-           	        EVAR(3,I) =  LBUF%SIGB(JJ(3) + I)                                    
-           	        EVAR(4,I) =  LBUF%SIGB(JJ(4) + I)                                    
-           	        EVAR(5,I) =  LBUF%SIGB(JJ(5) + I)                                    
-           	        EVAR(6,I) =  LBUF%SIGB(JJ(6) + I)                                    
+                  EVAR(1,I) =  LBUF%SIGB(JJ(1) + I)                                    
+                  EVAR(2,I) =  LBUF%SIGB(JJ(2) + I)                                    
+                  EVAR(3,I) =  LBUF%SIGB(JJ(3) + I)                                    
+                  EVAR(4,I) =  LBUF%SIGB(JJ(4) + I)                                    
+                  EVAR(5,I) =  LBUF%SIGB(JJ(5) + I)                                    
+                  EVAR(6,I) =  LBUF%SIGB(JJ(6) + I)                                    
                     IS_WRITTEN_TENSOR(I) = 1                                             
                   ENDDO                                                                  
                 ELSEIF(ID ==3 ) THEN                                                                     
                   DO I=1,NEL                                                             
-           	        EVAR(1,I) =  LBUF%SIGC(JJ(1) + I)                                    
-           	        EVAR(2,I) =  LBUF%SIGC(JJ(2) + I)                                    
-           	        EVAR(3,I) =  LBUF%SIGC(JJ(3) + I)                                    
-           	        EVAR(4,I) =  LBUF%SIGC(JJ(4) + I)                                    
-           	        EVAR(5,I) =  LBUF%SIGC(JJ(5) + I)                                    
-           	        EVAR(6,I) =  LBUF%SIGC(JJ(6) + I)                                    
+                  EVAR(1,I) =  LBUF%SIGC(JJ(1) + I)                                    
+                  EVAR(2,I) =  LBUF%SIGC(JJ(2) + I)                                    
+                  EVAR(3,I) =  LBUF%SIGC(JJ(3) + I)                                    
+                  EVAR(4,I) =  LBUF%SIGC(JJ(4) + I)                                    
+                  EVAR(5,I) =  LBUF%SIGC(JJ(5) + I)                                    
+                  EVAR(6,I) =  LBUF%SIGC(JJ(6) + I)                                    
                     IS_WRITTEN_TENSOR(I) = 1                                             
                   ENDDO                                                                  
                 ENDIF !ID == -1                                                                                       
@@ -4315,12 +4378,12 @@ c-----------
               !--------                                                                                                
               IF(MLW == 36 .AND. ( ID == -1 .OR. ID == 1)) THEN                                                        
                 DO I=1,NEL                                                                                             
-           	      EVAR(1,I) = LBUF%SIGB(JJ(1) + I)                                                                    
-           	      EVAR(2,I) = LBUF%SIGB(JJ(2) + I)                                                                    
-           	      EVAR(3,I) = LBUF%SIGB(JJ(3) + I)                                                                    
-           	      EVAR(4,I) = LBUF%SIGB(JJ(4) + I)                                                                    
-           	      EVAR(5,I) = LBUF%SIGB(JJ(5) + I)                                                                    
-           	      EVAR(6,I) = LBUF%SIGB(JJ(6) + I)                                                                    
+                EVAR(1,I) = LBUF%SIGB(JJ(1) + I)                                                                    
+                EVAR(2,I) = LBUF%SIGB(JJ(2) + I)                                                                    
+                EVAR(3,I) = LBUF%SIGB(JJ(3) + I)                                                                    
+                EVAR(4,I) = LBUF%SIGB(JJ(4) + I)                                                                    
+                EVAR(5,I) = LBUF%SIGB(JJ(5) + I)                                                                    
+                EVAR(6,I) = LBUF%SIGB(JJ(6) + I)                                                                    
                   IS_WRITTEN_TENSOR(I) = 1                                                                            
                 ENDDO                                                                                                  
               !--------                                                                                                
@@ -4329,42 +4392,42 @@ c-----------
               ELSEIF (MLW == 78) THEN                                                                                  
                 IF(ID == -1) THEN ! somme of all backstresses                                                          
                   DO I=1,NEL                                                                                            
-           	        EVAR(1,I) = ( LBUF%SIGA(JJ(1) + I) + LBUF%SIGB(JJ(1) + I) )                                         
-           	        EVAR(2,I) = ( LBUF%SIGA(JJ(2) + I) + LBUF%SIGB(JJ(2) + I) )                                         
-           	        EVAR(3,I) = ( LBUF%SIGA(JJ(3) + I) + LBUF%SIGB(JJ(3) + I) )                                         
-           	        EVAR(4,I) = ( LBUF%SIGA(JJ(4) + I) + LBUF%SIGB(JJ(4) + I) )                                         
-           	        EVAR(5,I) = ( LBUF%SIGA(JJ(5) + I) + LBUF%SIGB(JJ(5) + I) )                                         
-           	        EVAR(6,I) = ( LBUF%SIGA(JJ(6) + I) + LBUF%SIGB(JJ(6) + I) )                                         
+                  EVAR(1,I) = ( LBUF%SIGA(JJ(1) + I) + LBUF%SIGB(JJ(1) + I) )                                         
+                  EVAR(2,I) = ( LBUF%SIGA(JJ(2) + I) + LBUF%SIGB(JJ(2) + I) )                                         
+                  EVAR(3,I) = ( LBUF%SIGA(JJ(3) + I) + LBUF%SIGB(JJ(3) + I) )                                         
+                  EVAR(4,I) = ( LBUF%SIGA(JJ(4) + I) + LBUF%SIGB(JJ(4) + I) )                                         
+                  EVAR(5,I) = ( LBUF%SIGA(JJ(5) + I) + LBUF%SIGB(JJ(5) + I) )                                         
+                  EVAR(6,I) = ( LBUF%SIGA(JJ(6) + I) + LBUF%SIGB(JJ(6) + I) )                                         
                     IS_WRITTEN_TENSOR(I) = 1                                                                            
                   ENDDO                                                                                                 
                 ELSEIF(ID ==1 ) THEN                                                                                   
                   DO I=1,NEL                                                                                            
-           	        EVAR(1,I) = LBUF%SIGA(JJ(1) + I)                                                                    
-           	        EVAR(2,I) = LBUF%SIGA(JJ(2) + I)                                                                    
-           	        EVAR(3,I) = LBUF%SIGA(JJ(3) + I)                                                                    
-           	        EVAR(4,I) = LBUF%SIGA(JJ(4) + I)                                                                    
-           	        EVAR(5,I) = LBUF%SIGA(JJ(5) + I)                                                                    
-           	        EVAR(6,I) = LBUF%SIGA(JJ(6) + I)                                                                    
+                  EVAR(1,I) = LBUF%SIGA(JJ(1) + I)                                                                    
+                  EVAR(2,I) = LBUF%SIGA(JJ(2) + I)                                                                    
+                  EVAR(3,I) = LBUF%SIGA(JJ(3) + I)                                                                    
+                  EVAR(4,I) = LBUF%SIGA(JJ(4) + I)                                                                    
+                  EVAR(5,I) = LBUF%SIGA(JJ(5) + I)                                                                    
+                  EVAR(6,I) = LBUF%SIGA(JJ(6) + I)                                                                    
                     IS_WRITTEN_TENSOR(I) = 1                                                                            
                   ENDDO                                                                                                 
                 ELSEIF(ID ==2 ) THEN                                                                                   
                   DO I=1,NEL                                                                                            
-           	        EVAR(1,I) =  LBUF%SIGB(JJ(1) + I)                                                                   
-           	        EVAR(2,I) =  LBUF%SIGB(JJ(2) + I)                                                                   
-           	        EVAR(3,I) =  LBUF%SIGB(JJ(3) + I)                                                                   
-           	        EVAR(4,I) =  LBUF%SIGB(JJ(4) + I)                                                                   
-           	        EVAR(5,I) =  LBUF%SIGB(JJ(5) + I)                                                                   
-           	        EVAR(6,I) =  LBUF%SIGB(JJ(6) + I)                                                                   
+                  EVAR(1,I) =  LBUF%SIGB(JJ(1) + I)                                                                   
+                  EVAR(2,I) =  LBUF%SIGB(JJ(2) + I)                                                                   
+                  EVAR(3,I) =  LBUF%SIGB(JJ(3) + I)                                                                   
+                  EVAR(4,I) =  LBUF%SIGB(JJ(4) + I)                                                                   
+                  EVAR(5,I) =  LBUF%SIGB(JJ(5) + I)                                                                   
+                  EVAR(6,I) =  LBUF%SIGB(JJ(6) + I)                                                                   
                     IS_WRITTEN_TENSOR(I) = 1                                                                            
                   ENDDO                                                                                                 
                 ELSEIF(ID ==3 ) THEN                                                                                   
                   DO I=1,NEL                                                                                            
-           	        EVAR(1,I) =  LBUF%SIGC(JJ(1) + I)                                                                   
-           	        EVAR(2,I) =  LBUF%SIGC(JJ(2) + I)                                                                   
-           	        EVAR(3,I) =  LBUF%SIGC(JJ(3) + I)                                                                   
-           	        EVAR(4,I) =  LBUF%SIGC(JJ(4) + I)                                                                   
-           	        EVAR(5,I) =  LBUF%SIGC(JJ(5) + I)                                                                   
-           	        EVAR(6,I) =  LBUF%SIGC(JJ(6) + I)                                                                   
+                  EVAR(1,I) =  LBUF%SIGC(JJ(1) + I)                                                                   
+                  EVAR(2,I) =  LBUF%SIGC(JJ(2) + I)                                                                   
+                  EVAR(3,I) =  LBUF%SIGC(JJ(3) + I)                                                                   
+                  EVAR(4,I) =  LBUF%SIGC(JJ(4) + I)                                                                   
+                  EVAR(5,I) =  LBUF%SIGC(JJ(5) + I)                                                                   
+                  EVAR(6,I) =  LBUF%SIGC(JJ(6) + I)                                                                   
                     IS_WRITTEN_TENSOR(I) = 1                                                                            
                   ENDDO                                                                                                 
                 ENDIF !ID == -1                                                                                        
@@ -4376,18 +4439,18 @@ c-----------
             ELSEIF ( ILAY >= 0 .AND. ILAY <= NLAY) THEN 
 c-----------
               EVAR(1:6,1:NEL) = ZERO
-              IF((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15)THEN
+              IF(((ISOLNOD == 6.OR.ISOLNOD == 8).AND.JHBE == 15) .OR. ((ISOLNOD == 6).AND.JHBE == 24))THEN
                 IPT = IS                                           
                 IF ( ILAY <= NPT) THEN                             
                   LBUF =>  ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)   
                   IF(MLW == 36 .AND. ( ID == -1 .OR. ID == 1)) THEN                         
                      DO I=1,NEL                                                            
-           	            EVAR(1,I) = LBUF%SIGB(JJ(1) + I)                                   
-           	            EVAR(2,I) = LBUF%SIGB(JJ(2) + I)                                   
-           	            EVAR(3,I) = LBUF%SIGB(JJ(3) + I)                                   
-           	            EVAR(4,I) = LBUF%SIGB(JJ(4) + I)                                   
-           	            EVAR(5,I) = LBUF%SIGB(JJ(5) + I)                                   
-           	            EVAR(6,I) = LBUF%SIGB(JJ(6) + I)                                   
+                      EVAR(1,I) = LBUF%SIGB(JJ(1) + I)                                   
+                      EVAR(2,I) = LBUF%SIGB(JJ(2) + I)                                   
+                      EVAR(3,I) = LBUF%SIGB(JJ(3) + I)                                   
+                      EVAR(4,I) = LBUF%SIGB(JJ(4) + I)                                   
+                      EVAR(5,I) = LBUF%SIGB(JJ(5) + I)                                   
+                      EVAR(6,I) = LBUF%SIGB(JJ(6) + I)                                   
                         IS_WRITTEN_TENSOR(I) = 1                                           
                      ENDDO                                                                 
                   !--------                                                                                            
@@ -4396,43 +4459,43 @@ c-----------
                   ELSEIF (MLW == 78) THEN                                                                              
                     IF(ID == -1) THEN ! somme of all backstresses                                                     
                      DO I=1,NEL                                                             
-           	           EVAR(1,I) = ( LBUF%SIGA(JJ(1) + I) + LBUF%SIGB(JJ(1) + I) )          
-           	           EVAR(2,I) = ( LBUF%SIGA(JJ(2) + I) + LBUF%SIGB(JJ(2) + I) )          
-           	           EVAR(3,I) = ( LBUF%SIGA(JJ(3) + I) + LBUF%SIGB(JJ(3) + I) )          
-           	           EVAR(4,I) = ( LBUF%SIGA(JJ(4) + I) + LBUF%SIGB(JJ(4) + I) )          
-           	           EVAR(5,I) = ( LBUF%SIGA(JJ(5) + I) + LBUF%SIGB(JJ(5) + I) )          
-           	           EVAR(6,I) = ( LBUF%SIGA(JJ(6) + I) + LBUF%SIGB(JJ(6) + I) )          
+                     EVAR(1,I) = ( LBUF%SIGA(JJ(1) + I) + LBUF%SIGB(JJ(1) + I) )          
+                     EVAR(2,I) = ( LBUF%SIGA(JJ(2) + I) + LBUF%SIGB(JJ(2) + I) )          
+                     EVAR(3,I) = ( LBUF%SIGA(JJ(3) + I) + LBUF%SIGB(JJ(3) + I) )          
+                     EVAR(4,I) = ( LBUF%SIGA(JJ(4) + I) + LBUF%SIGB(JJ(4) + I) )          
+                     EVAR(5,I) = ( LBUF%SIGA(JJ(5) + I) + LBUF%SIGB(JJ(5) + I) )          
+                     EVAR(6,I) = ( LBUF%SIGA(JJ(6) + I) + LBUF%SIGB(JJ(6) + I) )          
                        IS_WRITTEN_TENSOR(I) = 1                                             
                      ENDDO                                                                  
                     ELSEIF(ID ==1 ) THEN                                                                              
                      DO I=1,NEL                                                             
-           	           EVAR(1,I) = LBUF%SIGA(JJ(1) + I)                                     
-           	           EVAR(2,I) = LBUF%SIGA(JJ(2) + I)                                     
-           	           EVAR(3,I) = LBUF%SIGA(JJ(3) + I)                                     
-           	           EVAR(4,I) = LBUF%SIGA(JJ(4) + I)                                     
-           	           EVAR(5,I) = LBUF%SIGA(JJ(5) + I)                                     
-           	           EVAR(6,I) = LBUF%SIGA(JJ(6) + I)                                     
+                     EVAR(1,I) = LBUF%SIGA(JJ(1) + I)                                     
+                     EVAR(2,I) = LBUF%SIGA(JJ(2) + I)                                     
+                     EVAR(3,I) = LBUF%SIGA(JJ(3) + I)                                     
+                     EVAR(4,I) = LBUF%SIGA(JJ(4) + I)                                     
+                     EVAR(5,I) = LBUF%SIGA(JJ(5) + I)                                     
+                     EVAR(6,I) = LBUF%SIGA(JJ(6) + I)                                     
                        IS_WRITTEN_TENSOR(I) = 1                                             
                      ENDDO                                                                  
 
                     ELSEIF(ID ==2 ) THEN                                                                              
                      DO I=1,NEL                                                             
-           	           EVAR(1,I) =  LBUF%SIGB(JJ(1) + I)                                    
-           	           EVAR(2,I) =  LBUF%SIGB(JJ(2) + I)                                    
-           	           EVAR(3,I) =  LBUF%SIGB(JJ(3) + I)                                    
-           	           EVAR(4,I) =  LBUF%SIGB(JJ(4) + I)                                    
-           	           EVAR(5,I) =  LBUF%SIGB(JJ(5) + I)                                    
-           	           EVAR(6,I) =  LBUF%SIGB(JJ(6) + I)                                    
+                     EVAR(1,I) =  LBUF%SIGB(JJ(1) + I)                                    
+                     EVAR(2,I) =  LBUF%SIGB(JJ(2) + I)                                    
+                     EVAR(3,I) =  LBUF%SIGB(JJ(3) + I)                                    
+                     EVAR(4,I) =  LBUF%SIGB(JJ(4) + I)                                    
+                     EVAR(5,I) =  LBUF%SIGB(JJ(5) + I)                                    
+                     EVAR(6,I) =  LBUF%SIGB(JJ(6) + I)                                    
                        IS_WRITTEN_TENSOR(I) = 1                                             
                      ENDDO                                                                  
                     ELSEIF(ID ==3 ) THEN                                                                 
                      DO I=1,NEL                                                             
-           	           EVAR(1,I) =  LBUF%SIGC(JJ(1) + I)                                    
-           	           EVAR(2,I) =  LBUF%SIGC(JJ(2) + I)                                    
-           	           EVAR(3,I) =  LBUF%SIGC(JJ(3) + I)                                    
-           	           EVAR(4,I) =  LBUF%SIGC(JJ(4) + I)                                    
-           	           EVAR(5,I) =  LBUF%SIGC(JJ(5) + I)                                    
-           	           EVAR(6,I) =  LBUF%SIGC(JJ(6) + I)                                    
+                     EVAR(1,I) =  LBUF%SIGC(JJ(1) + I)                                    
+                     EVAR(2,I) =  LBUF%SIGC(JJ(2) + I)                                    
+                     EVAR(3,I) =  LBUF%SIGC(JJ(3) + I)                                    
+                     EVAR(4,I) =  LBUF%SIGC(JJ(4) + I)                                    
+                     EVAR(5,I) =  LBUF%SIGC(JJ(5) + I)                                    
+                     EVAR(6,I) =  LBUF%SIGC(JJ(6) + I)                                    
                        IS_WRITTEN_TENSOR(I) = 1                                             
                      ENDDO                                                                  
                     ENDIF !ID == -1                                                                                   
@@ -4481,7 +4544,7 @@ C-----------------------------------------------
               EVAR(3,I) = ZERO
               EVAR(4,I) = ZERO
               EVAR(5,I) = ZERO
-              EVAR(6,I) = ZERO  	   
+              EVAR(6,I) = ZERO       
             ENDDO
           ENDIF
 
@@ -4492,7 +4555,7 @@ C-----------------------------------------------
      .                 SOLID_TENSOR_CORNER,NEL,0,NFT,EVAR_CORNER,MAXNNOD,IS_WRITTEN_TENSOR)
 C
 c-----------
-         ISORTHG = ISORTH   ! pour precaution	
+         ISORTHG = ISORTH   ! as a precaution
 C-----------------------------------------------
         ELSE
 c
@@ -4502,23 +4565,17 @@ C
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  T4_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- called by -----------
-Chd|        H3D_SOLID_TENSOR_1            source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- calls ---------------
-Chd|        T4DERI3                       source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|        U_FROM_F3                     source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|====================================================================
+!||====================================================================
+!||    t4_tstrain           ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- called by ------------------------------------------------------
+!||    h3d_solid_tensor_1   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- calls      -----------------------------------------------------
+!||    t4deri3              ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||    u_from_f3            ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||====================================================================
         SUBROUTINE T4_TSTRAIN(XN,YN,ZN,DX,DY,DZ,STRAIN,NEL)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
-c-----------------------------------------------
-c   g l o b a l   p a r a m e t e r s
-c-----------------------------------------------
-C-----------------------------------------------
-C   D U M M Y   A R G U M E N T S
-C-----------------------------------------------
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
@@ -4531,6 +4588,9 @@ C DY      |  4*NEL  | R | R | Y-Displ ARRAY (4n tetra)
 C DZ      |  4*NEL  | R | R | D-Displ ARRAY (4n tetra)
 C STRAIN  |  6*NEL  | R | W | STRAIN ARRAY
 C---------+---------+---+---+--------------------------------------------
+C-----------------------------------------------
+C   D U M M Y   A R G U M E N T S
+C-----------------------------------------------
       INTEGER NEL
       my_real 
      .   XN(NEL,4) , YN(NEL,4) , ZN(NEL,4), 
@@ -4538,7 +4598,7 @@ C---------+---------+---+---+--------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,J,NNOD
+      INTEGER I, NNOD
       PARAMETER (NNOD = 4)
       my_real 
      .   X0N(NEL,NNOD) , Y0N(NEL,NNOD) , Z0N(NEL,NNOD), 
@@ -4582,23 +4642,17 @@ C---------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  S8_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- called by -----------
-Chd|        H3D_SOLID_TENSOR_1            source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- calls ---------------
-Chd|        T8DERI3                       source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|        U_FROM_F3                     source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|====================================================================
+!||====================================================================
+!||    s8_tstrain           ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- called by ------------------------------------------------------
+!||    h3d_solid_tensor_1   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- calls      -----------------------------------------------------
+!||    t8deri3              ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||    u_from_f3            ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||====================================================================
         SUBROUTINE S8_TSTRAIN(XN,YN,ZN,DX,DY,DZ,STRAIN,NEL)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
-c-----------------------------------------------
-c   g l o b a l   p a r a m e t e r s
-c-----------------------------------------------
-C-----------------------------------------------
-C   D U M M Y   A R G U M E N T S
-C-----------------------------------------------
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
@@ -4611,6 +4665,9 @@ C DY      |  8*NEL  | R | R | Y-Displ ARRAY (8n Hexa)
 C DZ      |  8*NEL  | R | R | D-Displ ARRAY (8n Hexa)
 C STRAIN  |  6*NEL  | R | W | STRAIN ARRAY
 C---------+---------+---+---+--------------------------------------------
+C-----------------------------------------------
+C   D U M M Y   A R G U M E N T S
+C-----------------------------------------------
       INTEGER NEL
       my_real 
      .   XN(NEL,8) , YN(NEL,8) , ZN(NEL,8), 
@@ -4618,7 +4675,7 @@ C---------+---------+---+---+--------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,J,NNOD
+      INTEGER I, NNOD
       PARAMETER (NNOD = 8)
       my_real 
      .   X0N(NEL,NNOD) , Y0N(NEL,NNOD) , Z0N(NEL,NNOD), 
@@ -4683,23 +4740,17 @@ C---------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  S6_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- called by -----------
-Chd|        H3D_SOLID_TENSOR_1            source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- calls ---------------
-Chd|        T6DERI3                       source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|        U_FROM_F3                     source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|====================================================================
+!||====================================================================
+!||    s6_tstrain           ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- called by ------------------------------------------------------
+!||    h3d_solid_tensor_1   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- calls      -----------------------------------------------------
+!||    t6deri3              ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||    u_from_f3            ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||====================================================================
         SUBROUTINE S6_TSTRAIN(XN,YN,ZN,DX,DY,DZ,STRAIN,NEL)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
-c-----------------------------------------------
-c   g l o b a l   p a r a m e t e r s
-c-----------------------------------------------
-C-----------------------------------------------
-C   D U M M Y   A R G U M E N T S
-C-----------------------------------------------
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
@@ -4712,6 +4763,9 @@ C DY      |  6*NEL  | R | R | Y-Displ ARRAY (6n Penta)
 C DZ      |  6*NEL  | R | R | D-Displ ARRAY (6n Penta)
 C STRAIN  |  6*NEL  | R | W | STRAIN ARRAY
 C---------+---------+---+---+--------------------------------------------
+C-----------------------------------------------
+C   D U M M Y   A R G U M E N T S
+C-----------------------------------------------
       INTEGER NEL
       my_real 
      .   XN(NEL,6) , YN(NEL,6) , ZN(NEL,6), 
@@ -4719,7 +4773,7 @@ C---------+---------+---+---+--------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,J,NNOD
+      INTEGER I, NNOD
       PARAMETER (NNOD = 6)
       my_real 
      .   X0N(NEL,NNOD) , Y0N(NEL,NNOD) , Z0N(NEL,NNOD), 
@@ -4781,12 +4835,11 @@ C---------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  T4DERI3                       source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- called by -----------
-Chd|        T4_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    t4deri3      ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- called by ------------------------------------------------------
+!||    t4_tstrain   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||====================================================================
       SUBROUTINE T4DERI3(
      .   X1,  X2,  X3,  X4,  Y1,  Y2,  Y3,  Y4, 
      .   Z1,  Z2,  Z3,  Z4,  PX1, PX2, PX3, PX4,
@@ -4797,16 +4850,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NEL
-C     REAL
       my_real
      .   X1(*), X2(*), X3(*), X4(*),
      .   Y1(*), Y2(*), Y3(*), Y4(*),
@@ -4823,7 +4869,7 @@ C     REAL
       INTEGER I
       my_real
      .   X41, Y41, Z41, X42, Y42, Z42, X43, Y43, Z43,
-     .   A1, A2, A3, A4, D, AREAMX2, 
+     .   D, 
      .   B1(NEL), B2(NEL), B3(NEL), B4(NEL), 
      .   C1(NEL), C2(NEL), C3(NEL), C4(NEL),
      .   D1(NEL), D2(NEL), D3(NEL), D4(NEL)
@@ -4877,12 +4923,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  T8DERI3                       source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- called by -----------
-Chd|        S8_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    t8deri3      ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- called by ------------------------------------------------------
+!||    s8_tstrain   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||====================================================================
       SUBROUTINE T8DERI3(
      .   X1, X2, X3, X4, X5, X6, X7, X8,
      .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
@@ -4896,16 +4941,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NEL
-C     REAL
       my_real
      .   X1(*), X2(*), X3(*), X4(*), X5(*), X6(*), X7(*), X8(*),
      .   Y1(*), Y2(*), Y3(*), Y4(*), Y5(*), Y6(*), Y7(*), Y8(*),  
@@ -4918,7 +4956,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J
+      INTEGER I
 C     REAL
       my_real
      .   AJ1(NEL),AJ2(NEL),AJ3(NEL),
@@ -4978,7 +5016,7 @@ C
         DET(I)=AJ1(I)*JAC_59_68+AJ2(I)*JAC_67_49+AJ3(I)*JAC_48_57
 C        DET(I)=ONE_OVER_64*(AJ1(I)*JAC_59_68+AJ2(I)*JAC_67_49+AJ3(I)*JAC_48_57)
         DETT=1.0/DET(I)
-C       INVERSE DE LA MATRICE JACOBIENNE
+C       inverse of the jacobian matrix
         AJI1=DETT*JAC_59_68
         AJI4=DETT*JAC_67_49
         AJI7=DETT*JAC_48_57
@@ -5013,12 +5051,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  T6DERI3                       source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- called by -----------
-Chd|        S6_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    t6deri3      ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- called by ------------------------------------------------------
+!||    s6_tstrain   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||====================================================================
       SUBROUTINE T6DERI3(
      .   X1, X2, X3, X4, X5, X6, 
      .   Y1, Y2, Y3, Y4, Y5, Y6, 
@@ -5032,16 +5069,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NEL
-C     REAL
       my_real
      .   X1(*), X2(*), X3(*), X4(*), X5(*), X6(*), 
      .   Y1(*), Y2(*), Y3(*), Y4(*), Y5(*), Y6(*),   
@@ -5054,7 +5084,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J
+      INTEGER I
 C     REAL
       my_real
      .   DETT ,  AJ1(NEL), AJ2(NEL) ,AJ3(NEL), 
@@ -5064,8 +5094,7 @@ C     REAL
      .   AJI4, AJI5, AJI6,
      .   AJI7, AJI8, AJI9,
      .   JAC_59_68, JAC_67_49, JAC_48_57,
-     .   AJ12, AJ45, AJ78,
-     .   FAC
+     .   AJ12, AJ45, AJ78
 C-----------------------------------------------
 C
       DO I=1,NEL
@@ -5090,7 +5119,7 @@ C
       DO I=1,NEL
         DETT=1.0/DET(I)
 C
-C     INVERSE DE LA MATRICE JACOBIENNE
+C     inverse of the jacobian matrix
 C
         AJI1=DETT*JAC_59_68
         AJI4=DETT*JAC_67_49
@@ -5123,114 +5152,71 @@ C ----------symtrie(a b c a b c)->P1-P3,anti-symtrie(-1 -1 -1 1 1 1)->P4
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  U_FROM_F3                     source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- called by -----------
-Chd|        S6_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|        S8_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|        T4_TSTRAIN                    source/output/h3d/h3d_results/h3d_solid_tensor_1.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    u_from_f3    ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- called by ------------------------------------------------------
+!||    s6_tstrain   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||    s8_tstrain   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||    t4_tstrain   ../engine/source/output/h3d/h3d_results/h3d_solid_tensor_1.F
+!||--- calls      -----------------------------------------------------
+!||    princ_u1     ../engine/source/materials/mat/mat001/princ_u1.F
+!||====================================================================
       SUBROUTINE U_FROM_F3(F,STRAIN,NEL )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
+#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NEL
-C     REAL
       my_real
      .   F(3,3,NEL), STRAIN(6,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J
-C     REAL
-      DOUBLE PRECISION 
-     .         FMAT(3,3),UM(3,3),IC,I2C,I3C,IU,I2U,I3U,
-     .         C11,C21,C31,C12,C22,C32,C13,C23,C33,DETJ0,DETM1,
-     .         CC11,CC21,CC31,CC12,CC22,CC32,CC13,CC23,CC33,
-     .         A,B,ZZ,A1,A2,A3,A4,X0(8),Y0(8),Z0(8)
+      INTEGER I
+      my_real
+     .   ES1(MVSIZ), ES2(MVSIZ), ES3(MVSIZ), 
+     .   ES4(MVSIZ), ES5(MVSIZ), ES6(MVSIZ),
+     .   EV(MVSIZ,3),DIRPRV(MVSIZ,3,3)
 C-----------------------------------------------
       DO I=1,NEL
-        FMAT(1,1)= F(1,1,I)+1.0
-        FMAT(2,2)= F(2,2,I)+1.0
-        FMAT(3,3)= F(3,3,I)+1.0
-        FMAT(1,2:3)= F(1,2:3,I)
-        FMAT(2:3,1)= F(2:3,1,I)
-        FMAT(2,3)= F(2,3,I)
-        FMAT(3,2)= F(3,2,I)
-        C11 = FMAT(1,1)*FMAT(1,1)+FMAT(2,1)*FMAT(2,1)+FMAT(3,1)*FMAT(3,1)
-        C21 = FMAT(1,2)*FMAT(1,1)+FMAT(2,2)*FMAT(2,1)+FMAT(3,2)*FMAT(3,1)
-        C31 = FMAT(1,3)*FMAT(1,1)+FMAT(2,3)*FMAT(2,1)+FMAT(3,3)*FMAT(3,1)
-        C12 = C21
-        C22 = FMAT(1,2)*FMAT(1,2)+FMAT(2,2)*FMAT(2,2)+FMAT(3,2)*FMAT(3,2)
-        C32 = FMAT(1,3)*FMAT(1,2)+FMAT(2,3)*FMAT(2,2)+FMAT(3,3)*FMAT(3,2)
-        C13 = C31
-        C23 = C32
-        C33 = FMAT(1,3)*FMAT(1,3)+FMAT(2,3)*FMAT(2,3)+FMAT(3,3)*FMAT(3,3)
-        
-        CC11 = C11*C11+C12*C21+C13*C31
-        CC21 = C21*C11+C22*C21+C23*C31
-        CC31 = C31*C11+C32*C21+C33*C31
-        CC12 = CC21
-        CC22 = C21*C12+C22*C22+C23*C32
-        CC32 = C31*C12+C32*C22+C33*C32
-        CC13 = CC31
-        CC23 = CC32
-        CC33 = C31*C13+C32*C23+C33*C33
-        
-        IC = C11+C22+C33
-        I2C = C11*C22+C22*C33+C11*C33-C21*C12-C13*C31-C23*C32
-        I3C = C11*C22*C33+C12*C23*C31+C13*C21*C32
-     .      -(C13*C22*C31+C12*C21*C33+C11*C23*C32)
-     	
-        A = (2.*IC*IC*IC-9.*IC*I2C+27*I3C)*32./27.
-        B = (4*(I2C*I2C*I2C+IC*IC*IC*I3C)-IC*IC*I2C*I2C-18*IC*I2C*I3C
-     .      +27*I3C*I3C)*1024./27.
-        B = MAX(B,ZERO)
-        A1 = A+SQRT(B)
-        A2 = A-SQRT(B)
-        ZZ = -2*IC/3.+SIGN(ABS(A1)**(1/3),A1)+SIGN(ABS(A2)**(1/3),A2)
-        A = 2*IC+ZZ
-        IF (A == ZERO) THEN
-          IU = SQRT(IC+2*SQRT(I2C))
-        ELSE
-          A = SQRT(A)
-          IU = 0.5*(A+SQRT(2*IC-ZZ+16*SQRT(I3C)/A))
-        ENDIF
-        I3U = SQRT(I3C)
-        I2U = 0.5*(IU*IU-IC)
-        A = IU*I2U-I3U
-        B = I3U+IU*IC
-        A1 = IU*A
-        A2 = A*B
-        A3 = I2U*I3U*B+IU*IU*(I2U*I2C+I3C)
-        A4 = ONE/(I3U*I3U*B+IU*IU*(IU*I3C+I3U*I2C))
-        UM(1,1) = A4*(A1*CC11-A2*C11+A3)
-        UM(2,1) = A4*(A1*CC21-A2*C21)
-        UM(3,1) = A4*(A1*CC31-A2*C31)
-        UM(1,2) = A4*(A1*CC12-A2*C12)
-        UM(2,2) = A4*(A1*CC22-A2*C22+A3)
-        UM(3,2) = A4*(A1*CC32-A2*C32)
-        UM(1,3) = A4*(A1*CC13-A2*C13)
-        UM(2,3) = A4*(A1*CC23-A2*C23)
-        UM(3,3) = A4*(A1*CC33-A2*C33+A3)
-        STRAIN(1,I) = UM(1,1)-1.0
-        STRAIN(2,I) = UM(2,2)-1.0
-        STRAIN(3,I) = UM(3,3)-1.0
-        STRAIN(4,I) = 0.5*(UM(1,2)+UM(2,1))
-        STRAIN(5,I) = 0.5*(UM(2,3)+UM(3,2))
-        STRAIN(6,I) = 0.5*(UM(1,3)+UM(3,1))
-       END DO
+        ES1(I)=F(1,1,I)*(TWO+F(1,1,I))+F(1,2,I)*F(1,2,I)+F(1,3,I)*F(1,3,I)
+        ES2(I)=F(2,2,I)*(TWO+F(2,2,I))+F(2,1,I)*F(2,1,I)+F(2,3,I)*F(2,3,I)
+        ES3(I)=F(3,3,I)*(TWO+F(3,3,I))+F(3,1,I)*F(3,1,I)+F(3,2,I)*F(3,2,I)
+        ES4(I)=F(1,2,I)+F(2,1,I)+F(1,1,I)*F(2,1,I)+F(1,2,I)*F(2,2,I)+F(1,3,I)*F(2,3,I)
+        ES6(I)=F(1,3,I)+F(3,1,I)+F(1,1,I)*F(3,1,I)+F(1,2,I)*F(3,2,I)+F(1,3,I)*F(3,3,I)
+        ES5(I)=F(3,2,I)+F(2,3,I)+F(3,1,I)*F(2,1,I)+F(3,2,I)*F(2,2,I)+F(3,3,I)*F(2,3,I)
+      ENDDO
+      CALL PRINC_U1(
+     1             NEL      ,ES1     ,ES2    ,ES3    ,ES4   ,
+     2             ES5      ,ES6     ,EV     ,DIRPRV )
+C
+      DO I=1,NEL
+           STRAIN(1,I)= DIRPRV(I,1,1)*DIRPRV(I,1,1)*EV(I,1)
+     .                + DIRPRV(I,1,2)*DIRPRV(I,1,2)*EV(I,2)
+     .                + DIRPRV(I,1,3)*DIRPRV(I,1,3)*EV(I,3)     
+           STRAIN(2,I)= DIRPRV(I,2,2)*DIRPRV(I,2,2)*EV(I,2)
+     .                + DIRPRV(I,2,3)*DIRPRV(I,2,3)*EV(I,3)
+     .                + DIRPRV(I,2,1)*DIRPRV(I,2,1)*EV(I,1)     
+           STRAIN(3,I)= DIRPRV(I,3,3)*DIRPRV(I,3,3)*EV(I,3)
+     .                + DIRPRV(I,3,1)*DIRPRV(I,3,1)*EV(I,1)
+     .                + DIRPRV(I,3,2)*DIRPRV(I,3,2)*EV(I,2)     
+           STRAIN(4,I)= DIRPRV(I,1,1)*DIRPRV(I,2,1)*EV(I,1)
+     .                + DIRPRV(I,1,2)*DIRPRV(I,2,2)*EV(I,2)
+     .                + DIRPRV(I,1,3)*DIRPRV(I,2,3)*EV(I,3)     
+           STRAIN(5,I)= DIRPRV(I,2,2)*DIRPRV(I,3,2)*EV(I,2)
+     .                + DIRPRV(I,2,3)*DIRPRV(I,3,3)*EV(I,3)
+     .                + DIRPRV(I,2,1)*DIRPRV(I,3,1)*EV(I,1)     
+           STRAIN(6,I)= DIRPRV(I,3,3)*DIRPRV(I,1,3)*EV(I,3)
+     .                + DIRPRV(I,3,1)*DIRPRV(I,1,1)*EV(I,1)
+     .                + DIRPRV(I,3,2)*DIRPRV(I,1,2)*EV(I,2)             
+      ENDDO
 C
       RETURN
       END

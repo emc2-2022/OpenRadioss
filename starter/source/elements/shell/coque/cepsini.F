@@ -1,50 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CEPSINI                       source/elements/shell/coque/cepsini.F
-Chd|-- called by -----------
-Chd|        CINIT3                        source/elements/shell/coque/cinit3.F
-Chd|-- calls ---------------
-Chd|        CDEFOI                        source/elements/shell/coque/cepsini.F
-Chd|        CEVECI                        source/elements/shell/coque/ceveci.F
-Chd|        CMLAWI                        source/elements/shell/coque/cepsini.F
-Chd|        CORTH3                        source/elements/shell/coque/corth3.F
-Chd|        CPXPYI                        source/elements/shell/coque/cepsini.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE CEPSINI(ELBUF_STR,
-     1           JFT    ,JLT   ,ISMSTR,MTN    ,ITHK    ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cepsini        ../starter/source/elements/shell/coque/cepsini.F
+!||--- called by ------------------------------------------------------
+!||    cinit3         ../starter/source/elements/shell/coque/cinit3.F
+!||--- calls      -----------------------------------------------------
+!||    cdefoi         ../starter/source/elements/shell/coque/cepsini.F
+!||    ceveci         ../starter/source/elements/shell/coque/ceveci.F
+!||    cmlawi         ../starter/source/elements/shell/coque/cepsini.F
+!||    corth3         ../starter/source/elements/shell/coque/corth3.F
+!||    cpxpyi         ../starter/source/elements/shell/coque/cepsini.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE CEPSINI(ELBUF_STR,MAT_PARAM,
+     1           JFT    ,JLT   ,ISMSTR,ILAW    ,ITHK    ,
      2           PM     ,GEO   ,IXC   ,X      ,XREFC   ,
      3           FOR    ,THK   ,EINT  ,GSTR   ,NLAY    ,
      4           PX1G   ,PX2G  ,PY1G  ,PY2G   ,X2S     ,
      5           Y2S    ,X3S   ,Y3S   ,X4S    ,Y4S     ,
-     6           UVAR   ,UPARAM,IPM   ,IGEO   ,IMAT    ,
+     6           UVAR   ,IPM   ,IGEO   ,IMAT    ,
      7           SKEW   ,NEL   ,DIR_A ,DIR_B  ,SIGI    ,
      8           NPF    ,TF    ,IREP  )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE MAT_ELEM_MOD            
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -61,20 +62,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JFT, JLT, ISMSTR, MTN, ITHK, NEL, NLAY,IREP,IMAT
+      INTEGER JFT, JLT, ISMSTR, ILAW, ITHK, NEL, NLAY,IREP,IMAT
       INTEGER IXC(NIXC,*),IGEO(NPROPGI,*),IPM(NPROPMI,*),NPF(*)
       my_real
      . PM(NPROPM,*),GEO(NPROPG,*),X(3,*),XREFC(4,3,*),SKEW(LSKEW,*),
      . FOR(NEL,5) ,THK(*)   ,EINT(JLT,2),GSTR(NEL,8),
-     . PX1G(*)  ,PX2G(*)  ,PY1G(*)  ,PY2G(*), UPARAM(*),UVAR(NEL,*),
+     . PX1G(*)  ,PX2G(*)  ,PY1G(*)  ,PY2G(*), UVAR(NEL,*),
      . X2S(*), Y2S(*), X3S(*), Y3S(*), X4S(*), Y4S(*),
      . DIR_A(NEL,*),DIR_B(NEL,*),SIGI(NEL,3),TF(*)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
+      TYPE (MATPARAM_STRUCT_) ,INTENT(IN) :: MAT_PARAM
 C------------------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, NT, I1, I2, I3, I4
-      INTEGER PID(MVSIZ)
+      INTEGER I, NT, I1, I2, I3, I4,IDRAPE,IGTYP
       my_real
      .   FAC
       my_real
@@ -86,19 +87,14 @@ C-----------------------------------------------
      .   E1X(MVSIZ), E1Y(MVSIZ), E1Z(MVSIZ),
      .   E2X(MVSIZ), E2Y(MVSIZ), E2Z(MVSIZ),
      .   E3X(MVSIZ), E3Y(MVSIZ), E3Z(MVSIZ),
-     .   X2I(MVSIZ), Y2I(MVSIZ), Z2I(MVSIZ),
-     .   X3I(MVSIZ), Y3I(MVSIZ), Z3I(MVSIZ),
      .   X4I(MVSIZ), Y4I(MVSIZ), Z4I(MVSIZ),
-     .   X2H(MVSIZ), Y2H(MVSIZ), X3H(MVSIZ), Y3H(MVSIZ),
-     .   X2R(MVSIZ), Y2R(MVSIZ), Z2R(MVSIZ),
-     .   X3R(MVSIZ), Y3R(MVSIZ), Z3R(MVSIZ),
-     .   X4R(MVSIZ), Y4R(MVSIZ), Z4R(MVSIZ),
-     .   X4H(MVSIZ), Y4H(MVSIZ),
      .   EXX(MVSIZ),EYY(MVSIZ),EXY(MVSIZ),EYZ(MVSIZ),EZX(MVSIZ)
       my_real, 
      .   DIMENSION(:) , POINTER :: DIR1, DIR2
 C=======================================================================
 c     initial state - rep global
+      IDRAPE = ELBUF_STR%IDRAPE
+      IGTYP  = ELBUF_STR%IGTYP
       DO I=JFT,JLT
         I1 = IXC(2,I)
         I2 = IXC(3,I)
@@ -204,7 +200,8 @@ c         DIRA, DIRB : rep intermediaire
      .                NLAY     ,IREP ,NEL  ,
      .                X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  ,
      .                Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4  ,
-     .                E1X, E2X, E3X, E1Y, E2Y, E3Y ,E1Z, E2Z, E3Z )
+     .                E1X, E2X, E3X, E1Y, E2Y, E3Y ,E1Z, E2Z, E3Z ,
+     .                IDRAPE, IGTYP)
 c
 c         PX1..PX3, X2S..X3S : rep intermediaire
           CALL CPXPYI(JFT  ,JLT  ,ISMSTR     ,AREA  ,
@@ -220,10 +217,11 @@ c
      .                AREA ,EXX  ,EYY  ,EXY  ,EYZ  ,EZX  ,
      .                E1X  ,E2X  ,E3X  ,E1Y  ,E2Y  ,E3Y  ,E1Z ,E2Z ,E3Z )
 c
-          CALL CMLAWI(JFT   ,JLT  ,MTN   ,ITHK ,PM    ,
+          CALL CMLAWI(MAT_PARAM,
+     .                JFT   ,JLT  ,ILAW  ,ITHK ,PM    ,
      .                FOR   ,THK  ,EINT  ,GSTR ,DIR_A ,
-     .                DIR_B ,UVAR ,UPARAM,IPM  ,IGEO  ,
-     .                NEL   ,SIGI ,ISMSTR,NPF  ,TF    ,
+     .                DIR_B ,UVAR ,IPM  ,
+     .                NEL   ,SIGI ,NPF   ,TF   ,
      .                AREA  ,EXX  ,EYY   ,EXY  ,IMAT  ) 
 C
         ENDDO
@@ -248,10 +246,11 @@ c
      .                AREA ,EXX  ,EYY  ,EXY  ,EYZ  ,EZX  ,                 
      .                E1X  ,E2X  ,E3X  ,E1Y  ,E2Y  ,E3Y  ,E1Z ,E2Z ,E3Z )  
 c
-          CALL CMLAWI(JFT   ,JLT  ,MTN   ,ITHK ,PM    ,                             
+          CALL CMLAWI(MAT_PARAM,
+     .                JFT   ,JLT  ,ILAW  ,ITHK ,PM    ,                             
      .                FOR   ,THK  ,EINT  ,GSTR ,DIR1  ,                          
-     .                DIR2  ,UVAR ,UPARAM,IPM  ,IGEO  ,                       
-     .                NEL   ,SIGI ,ISMSTR,NPF  ,TF    ,                       
+     .                DIR2  ,UVAR ,IPM  ,                    
+     .                NEL   ,SIGI ,NPF   ,TF   ,                
      .                AREA  ,EXX  ,EYY   ,EXY  ,IMAT  )                   
         ENDDO
       ENDIF
@@ -259,28 +258,29 @@ c-----------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  CMLAWI                        source/elements/shell/coque/cepsini.F
-Chd|-- called by -----------
-Chd|        C3EPSINI                      source/elements/sh3n/coque3n/c3epsini.F
-Chd|        CDKEPSINI                     source/elements/sh3n/coquedk/cdkepsini.F
-Chd|        CEPSINI                       source/elements/shell/coque/cepsini.F
-Chd|        CNEPSINI                      source/elements/shell/coqueba/cnepsini.F
-Chd|-- calls ---------------
-Chd|        CM19INI                       source/elements/shell/coque/cepsini.F
-Chd|        CM1INI                        source/elements/shell/coque/cepsini.F
-Chd|        CM58_REFSTA                   source/materials/mat/mat058/cm58_refsta.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE CMLAWI(JFT,JLT,MTN,ITHK,PM,
+!||====================================================================
+!||    cmlawi         ../starter/source/elements/shell/coque/cepsini.F
+!||--- called by ------------------------------------------------------
+!||    c3epsini       ../starter/source/elements/sh3n/coque3n/c3epsini.F
+!||    cdkepsini      ../starter/source/elements/sh3n/coquedk/cdkepsini.F
+!||    cepsini        ../starter/source/elements/shell/coque/cepsini.F
+!||    cnepsini       ../starter/source/elements/shell/coqueba/cnepsini.F
+!||--- calls      -----------------------------------------------------
+!||    cm19ini        ../starter/source/elements/shell/coque/cepsini.F
+!||    cm1ini         ../starter/source/elements/shell/coque/cepsini.F
+!||    cm58_refsta    ../starter/source/materials/mat/mat058/cm58_refsta.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE CMLAWI(MAT_PARAM,
+     1                  JFT,JLT,ILAW,ITHK,PM,
      2                  FOR,THK,EINT,GSTR,DIR1,
-     3                  DIR2,UVAR,UPARAM,IPM,IGEO,
-     4                  NEL ,SIGI,ISMSTR,NPF ,TF ,
+     3                  DIR2,UVAR,IPM,
+     4                  NEL ,SIGI,NPF ,TF ,
      5                  AREA,EXX,EYY,EXY,IMAT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE MAT_ELEM_MOD            
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -289,73 +289,58 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr19_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IGEO(NPROPGI,*),IPM(NPROPMI,*),NPF(*)
-      INTEGER JFT, JLT, ITHK, MTN,NEL,ISMSTR,IMAT
+      INTEGER IPM(NPROPMI,*),NPF(*)
+      INTEGER JFT, JLT, ITHK, ILAW,NEL,IMAT
       my_real
      .   PM(*),FOR(NEL,5),THK(*),EINT(NEL,2),DIR1(NEL,*),DIR2(NEL,*),
-     .   UPARAM(*),UVAR(NEL,*),SIGI(NEL,3), TF(*),GSTR(*),
+     .   UVAR(NEL,*),SIGI(NEL,3), TF(*),GSTR(*),
      .   AREA(NEL),EXX(NEL),EYY(NEL),EXY(NEL)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
+      TYPE (MATPARAM_STRUCT_) ,INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NUVAR,NUPAR,IADB,NBFUNC
-      INTEGER IFUNC(MAXFUNC)
+      INTEGER I,J,NUVAR,NUPARAM,NIPARAM,NBFUNC
+      INTEGER IFUNC(100)
 C=======================================================================
 C   INITIALIZE STRESS,THICKNESS & ENERGY
 C-------------------------------------
-      IF (MTN == 1) THEN
+      IF (ILAW == 1) THEN
          CALL CM1INI(JFT,JLT,ITHK,PM,FOR,
      .               THK,EINT,NEL,IMAT,AREA,
      .               EXX,EYY ,EXY )
-      ELSEIF (MTN == 19) THEN
+      ELSEIF (ILAW == 19) THEN
          CALL CM19INI(JFT,JLT,ITHK,PM,FOR,
      .                THK,EINT,GSTR,DIR1,SIGI,
      .                NEL,IMAT,AREA,EXX,EYY ,EXY )
-      ELSEIF (MTN == 58) THEN
-         IADB  = IPM(7,IMAT)
+      ELSEIF (ILAW == 58) THEN
          NUVAR = IPM(8,IMAT)
-         NUPAR = IPM(9,IMAT)
          NBFUNC= IPM(10,IMAT)
          DO J= 1,NBFUNC
            IFUNC(J) = IPM(10+J,IMAT)
          ENDDO
-         CALL CM58_REFSTA(
-     1        JFT    ,JLT    ,FOR    ,EINT   ,GSTR   ,
-     2        THK    ,DIR1   ,DIR2   ,NUPAR  ,NUVAR  ,
-     3        UVAR   ,UPARAM(IADB)   ,NEL    ,ISMSTR ,
-     4        NBFUNC ,IFUNC  ,NPF    ,TF     ,AREA   ,
-     5        EXX    ,EYY    ,EXY    )
-c
-      ELSEIF (MTN == 98) THEN
-c        IADB  = IPM(7,IMAT)
-c        NUVAR = IPM(8,IMAT)
-c        NUPAR = IPM(9,IMAT)
-c        NBFUNC= IPM(10,IMAT)
-c        DO J= 1,NBFUNC
-c          IFUNC(J) = IPM(10+J,IMAT)
-c        ENDDO
-c        CALL CM98_REFSTA(
-c     1        JFT    ,JLT    ,FOR    ,EINT   ,GSTR   ,
-c     2        THK    ,DIR1   ,DIR2   ,NUPAR  ,NUVAR  ,
-c     3        UVAR   ,UPARAM(IADB)   ,NEL    ,ISMSTR ,
-c     4        NBFUNC ,IFUNC  ,NPF     ,TF)
+         NUPARAM = MAT_PARAM%NUPARAM
+         NIPARAM = MAT_PARAM%NIPARAM
+         CALL CM58_REFSTA(NEL    ,NUPARAM,NIPARAM,MAT_PARAM%UPARAM,MAT_PARAM%IPARAM,
+     1        FOR    ,EINT   ,GSTR   ,
+     2        THK    ,DIR1   ,DIR2   ,NUVAR  ,UVAR   ,
+     3        NBFUNC ,IFUNC  ,NPF    ,TF     ,AREA   ,
+     4        EXX    ,EYY    ,EXY    )
+!
       ENDIF
 c-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  CPXPYI                        source/elements/shell/coque/cepsini.F
-Chd|-- called by -----------
-Chd|        CEPSINI                       source/elements/shell/coque/cepsini.F
-Chd|        CNEPSINI                      source/elements/shell/coqueba/cnepsini.F
-Chd|        FSIGCINI                      source/constraints/fxbody/fsigcini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cpxpyi     ../starter/source/elements/shell/coque/cepsini.F
+!||--- called by ------------------------------------------------------
+!||    cepsini    ../starter/source/elements/shell/coque/cepsini.F
+!||    cnepsini   ../starter/source/elements/shell/coqueba/cnepsini.F
+!||    fsigcini   ../starter/source/constraints/fxbody/fsigcini.F
+!||====================================================================
       SUBROUTINE CPXPYI(JFT  ,JLT  ,ISMSTR,AREA  ,
      .                  PX1G ,PX2G ,PY1G ,PY2G ,
      .                  PX1  ,PX2  ,PY1  ,PY2  ,
@@ -436,13 +421,12 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  CDEFOI                        source/elements/shell/coque/cepsini.F
-Chd|-- called by -----------
-Chd|        CEPSINI                       source/elements/shell/coque/cepsini.F
-Chd|        CNEPSINI                      source/elements/shell/coqueba/cnepsini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cdefoi     ../starter/source/elements/shell/coque/cepsini.F
+!||--- called by ------------------------------------------------------
+!||    cepsini    ../starter/source/elements/shell/coque/cepsini.F
+!||    cnepsini   ../starter/source/elements/shell/coqueba/cnepsini.F
+!||====================================================================
       SUBROUTINE CDEFOI(JFT  ,JLT ,VL  ,GSTR,
      .                  PX1  ,PX2 ,PY1 ,PY2 ,NEL ,
      .                  AREA ,EXX ,EYY ,EXY ,EYZ ,EZX ,
@@ -455,10 +439,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -543,12 +523,11 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  CM1INI                        source/elements/shell/coque/cepsini.F
-Chd|-- called by -----------
-Chd|        CMLAWI                        source/elements/shell/coque/cepsini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cm1ini   ../starter/source/elements/shell/coque/cepsini.F
+!||--- called by ------------------------------------------------------
+!||    cmlawi   ../starter/source/elements/shell/coque/cepsini.F
+!||====================================================================
       SUBROUTINE CM1INI(JFT,JLT,ITHK,PM,FOR,
      .                  THK,EINT,NEL,IMAT,AREA,
      .                  EXX,EYY ,EXY )
@@ -607,14 +586,14 @@ c-----------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  CM19INI                       source/elements/shell/coque/cepsini.F
-Chd|-- called by -----------
-Chd|        CMLAWI                        source/elements/shell/coque/cepsini.F
-Chd|-- calls ---------------
-Chd|        ROTO                          source/elements/shell/coque/cepsini.F
-Chd|        UROTO                         source/elements/shell/coque/cepsini.F
-Chd|====================================================================
+!||====================================================================
+!||    cm19ini   ../starter/source/elements/shell/coque/cepsini.F
+!||--- called by ------------------------------------------------------
+!||    cmlawi    ../starter/source/elements/shell/coque/cepsini.F
+!||--- calls      -----------------------------------------------------
+!||    roto      ../starter/source/elements/shell/coque/cepsini.F
+!||    uroto     ../starter/source/elements/shell/coque/cepsini.F
+!||====================================================================
       SUBROUTINE CM19INI(JFT,JLT,ITHK,PM,FOR,
      .                   THK,EINT,GSTR,DIR,SIGI,
      .                   NEL,IMAT,AREA,EXX,EYY,EXY)
@@ -671,7 +650,7 @@ C
         EPST(5,I)= GSTR(I,5)*HALF
       ENDDO
 C-------------------------------------------------
-C     ROTATIONS DANS LE REPERE D ORTHOTROPIE EPST
+C     rotations in the orthotropy frame epst
 C-------------------------------------------------
       CALL ROTO(JFT,JLT,EPST,5,DIR,NEL)
 C-------------------------------------------------
@@ -687,15 +666,15 @@ C-----------------------------
        FOR(I,2)=A12(I)*EPST(1,I)+A22(I)*EPST(2,I)
        FOR(I,3)=G12(I)*EPST(3,I)*TWO
 C-----------------------------
-C     CONTRAINTES reduites en compression
+C     Reduced compression constraints
 C-----------------------------
        S  = HALF*(FOR(I,1)+FOR(I,2))
        D  = HALF*(FOR(I,1)-FOR(I,2))
        R  = SQRT(FOR(I,3)*FOR(I,3) + D*D)
        P1 = S - R
-       IF(P1.LT.ZERO)THEN
+       IF(P1<ZERO)THEN
          P2 = S + R
-         IF(P2.GT.ZERO)THEN
+         IF(P2>ZERO)THEN
            BETA = HALF*((ONE-DE(I))*S/R + ONE+DE(I))
            FOR(I,1)=BETA*(FOR(I,1)-P2) + P2
            FOR(I,2)=BETA*(FOR(I,2)-P2) + P2
@@ -720,7 +699,7 @@ C-----------------------------------------------------------
         ENDIF
       ENDDO
 C--------------------------------
-C     RETOUR DANS LE REPERE COQUE
+C     return to shell reference frame
 C--------------------------------
       CALL UROTO(JFT,JLT,FOR,5,DIR,NEL)
 C
@@ -737,12 +716,11 @@ C        ENDDO
 C      ENDIF
       RETURN
       END
-Chd|====================================================================
-Chd|  ROTO                          source/elements/shell/coque/cepsini.F
-Chd|-- called by -----------
-Chd|        CM19INI                       source/elements/shell/coque/cepsini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    roto      ../starter/source/elements/shell/coque/cepsini.F
+!||--- called by ------------------------------------------------------
+!||    cm19ini   ../starter/source/elements/shell/coque/cepsini.F
+!||====================================================================
       SUBROUTINE ROTO(JFT,JLT,TAB,LTAB,DIR,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -788,12 +766,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UROTO                         source/elements/shell/coque/cepsini.F
-Chd|-- called by -----------
-Chd|        CM19INI                       source/elements/shell/coque/cepsini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    uroto     ../starter/source/elements/shell/coque/cepsini.F
+!||--- called by ------------------------------------------------------
+!||    cm19ini   ../starter/source/elements/shell/coque/cepsini.F
+!||====================================================================
       SUBROUTINE UROTO(JFT,JLT,TAB,LTAB,DIR,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -838,17 +815,19 @@ C-------------------------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CEPSCHK                       source/elements/shell/coque/cepsini.F
-Chd|-- called by -----------
-Chd|        CBAINIT3                      source/elements/shell/coqueba/cbainit3.F
-Chd|        CINIT3                        source/elements/shell/coque/cinit3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    cepschk       ../starter/source/elements/shell/coque/cepsini.F
+!||--- called by ------------------------------------------------------
+!||    cbainit3      ../starter/source/elements/shell/coqueba/cbainit3.F
+!||    cinit3        ../starter/source/elements/shell/coque/cinit3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE CEPSCHK(JFT,JLT,NFT,PM,GEO,IXC,GSTR,THK,NEL,CPT_ELTENS)
       USE MESSAGE_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -862,7 +841,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -879,11 +857,11 @@ C-------------------------------------------------------------
       DO I=JFT,JLT
         DELT(I)=((GSTR(I,1)+GSTR(I,2))*(GSTR(I,1)+GSTR(I,2)))-FOUR*
      .   (GSTR(I,1)*GSTR(I,2)-FOURTH*GSTR(I,3)*GSTR(I,3))
-       IF(DELT(I).GE.ZERO)THEN
+       IF(DELT(I)>=ZERO)THEN
          X1(I) = (GSTR(I,1)+GSTR(I,2)-SQRT(DELT(I)))/TWO
          X2(I) = (GSTR(I,1)+GSTR(I,2)+SQRT(DELT(I)))/TWO
-         IF((X1(I).GT.ZERO.AND.(X1(I).GT.EM10)).OR.(X2(I).GT.ZERO
-     .    .AND.(X2(I).GT.EM10)))THEN
+         IF((X1(I)>ZERO.AND.(X1(I)>EM10)).OR.(X2(I)>ZERO
+     .    .AND.(X2(I)>EM10)))THEN
            IF(IPRI == 5) THEN
              CALL ANCMSG(MSGID=607,
      .                   MSGTYPE=MSGWARNING,

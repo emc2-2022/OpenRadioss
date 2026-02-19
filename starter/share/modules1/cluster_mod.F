@@ -1,43 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CLUSTER_MOD                   share/modules1/cluster_mod.F  
-Chd|-- called by -----------
-Chd|        APPLYSORT2CLUSTER             source/restart/ddsplit/w_cluster.F
-Chd|        C_CLUSTER                     source/restart/ddsplit/w_cluster.F
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|        DOMETIS                       source/spmd/domain_decomposition/grid2mat.F
-Chd|        HM_READ_CLUSTER               source/output/cluster/hm_read_cluster.F
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|        RGRHEAD                       source/elements/spring/rgrhead.F
-Chd|        RGRTAILS                      source/elements/spring/rgrtails.F
-Chd|        SGRHEAD                       source/elements/solid/solide/sgrhead.F
-Chd|        SGRTAILS                      source/elements/solid/solide/sgrtails.F
-Chd|        ST_QAPRINT_CLUSTERS           source/output/qaprint/st_qaprint_clusters.F
-Chd|        ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|        W_CLUSTER                     source/restart/ddsplit/w_cluster.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cluster_mod           ../starter/share/modules1/cluster_mod.F
+!||--- called by ------------------------------------------------------
+!||    applysort2cluster     ../starter/source/restart/ddsplit/w_cluster.F
+!||    c_cluster             ../starter/source/restart/ddsplit/w_cluster.F
+!||    ddsplit               ../starter/source/restart/ddsplit/ddsplit.F
+!||    dometis               ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||    hm_read_cluster       ../starter/source/output/cluster/hm_read_cluster.F
+!||    lectur                ../starter/source/starter/lectur.F
+!||    rgrhead               ../starter/source/elements/spring/rgrhead.F
+!||    rgrtails              ../starter/source/elements/spring/rgrtails.F
+!||    sgrhead               ../starter/source/elements/solid/solide/sgrhead.F
+!||    sgrtails              ../starter/source/elements/solid/solide/sgrtails.F
+!||    st_qaprint_clusters   ../starter/source/output/qaprint/st_qaprint_clusters.F
+!||    st_qaprint_driver     ../starter/source/output/qaprint/st_qaprint_driver.F
+!||    w_cluster             ../starter/source/restart/ddsplit/w_cluster.F
+!||====================================================================
       MODULE CLUSTER_MOD
 C----------------------------------------------------------------------- 
 #include "my_real.inc"

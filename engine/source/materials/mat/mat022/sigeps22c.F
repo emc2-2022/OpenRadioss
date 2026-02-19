@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS22C                     source/materials/mat/mat022/sigeps22c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        M22CPLR                       source/materials/mat/mat022/m22cplr.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps22c   ../engine/source/materials/mat/mat022/sigeps22c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    m22cplr     ../engine/source/materials/mat/mat022/m22cplr.F
+!||====================================================================
       SUBROUTINE SIGEPS22C(
      1                   JFT      ,JLT    ,PM       ,THK      ,OFF     ,
      2                   SIGY     ,DT1C   ,IPLA     ,NEL      ,OFF_OLD ,
@@ -35,7 +35,7 @@ Chd|====================================================================
      5                   DEPSXX   ,DEPSYY ,DEPSXY   ,DEPSYZ   ,DEPSZX  ,
      6                   SIGOXX   ,SIGOYY ,SIGOXY   ,SIGOYZ   ,SIGOZX  ,
      7                   SIGNXX   ,SIGNYY ,SIGNXY   ,SIGNYZ   ,SIGNZX  ,
-     8                   INLOC    ,DPLANL )
+     8                   INLOC    ,DPLANL ,LOFF     )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,14 +47,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "scr17_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JFT,JLT,IPLA,NEL,NPT,NPTT,IMAT,IPT
+      INTEGER JFT,JLT,IPLA,NEL,NPTT,IMAT,IPT
       INTEGER IOFF_DUCT(MVSIZ),INLOC
 C     REAL
       my_real
@@ -66,10 +63,11 @@ C     REAL
      .   SIGNYZ(NEL),SIGNZX(NEL),DEPSXX(MVSIZ),DEPSYY(MVSIZ),
      .   DEPSXY(MVSIZ),DEPSYZ(MVSIZ),DEPSZX(MVSIZ),EPCHK(MVSIZ),
      .   ALPE(MVSIZ),THKLYL(NEL),DPLANL(NEL)
+      my_real, DIMENSION(NEL), INTENT(IN) :: LOFF
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER ICC(MVSIZ),I,ILAYER,ICC_1,J
+      INTEGER ICC(MVSIZ),I,ICC_1
 C     REAL
       my_real
      .   A1(MVSIZ),YLD(MVSIZ),
@@ -132,13 +130,13 @@ C-----------------------------------------------------------
           ENDDO
         ENDIF
 C----------------------------
-C     TEST DE RUPTURE DUCTILE
+C     Ductile rupture test
 C----------------------------
         DO I=JFT,JLT
           IF (OFF(I) == OFF_OLD(I) .and. OFF(I) > ZERO) THEN
             IF (OFF(I) == ONE .and. EPCHK(I) >= EPMX) THEN
               OFF(I)= FOUR_OVER_5
-              IOFF_DUCT(I) = 1    ! start de la rupture
+              IOFF_DUCT(I) = 1    ! start of the rupture
             ELSE IF (OFF(I) < ONE ) THEN
               OFF(I) = OFF(I)*FOUR_OVER_5
             ENDIF
@@ -149,8 +147,10 @@ C----------------------------
 !---------------------------
       DO I=JFT,JLT
         IF (INLOC > 0) THEN
-          EZZ(I) = -NU(I)*(SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/YOUNG(I)
-          EZZ(I) = EZZ(I) - MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/YLD(I)
+          IF (LOFF(I) == ONE) THEN 
+            EZZ(I) = -NU(I)*(SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/YOUNG(I)
+            EZZ(I) = EZZ(I) - MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/YLD(I)
+          ENDIF
         ELSE
           EZZ(I) = -(DEPSXX(I)+DEPSYY(I))*NU(I)-(ONE - TWO*NU(I))*EZZ(I)
           EZZ(I) = EZZ(I)/(ONE-NU(I))

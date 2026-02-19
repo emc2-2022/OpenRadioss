@@ -1,39 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  weighting_Cell_Nodes          source/interfaces/int22/weighting_cell_nodes.F
-Chd|-- called by -----------
-Chd|        SINIT22_FVM                   source/interfaces/int22/sinit22_fvm.F
-Chd|-- calls ---------------
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    weighting_cell_nodes   ../engine/source/interfaces/int22/weighting_cell_nodes.F
+!||--- called by ------------------------------------------------------
+!||    sinit22_fvm            ../engine/source/interfaces/int22/sinit22_fvm.F
+!||--- uses       -----------------------------------------------------
+!||    i22bufbric_mod         ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
       SUBROUTINE weighting_Cell_Nodes (
      .                    NIN,   IB,   ICELL , IRES, IDEMERGE)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 ! Get Nodes which is the farthest from intersection points
 ! equivalent to calculating mean adjacent surface ratio.
@@ -50,9 +50,7 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "task_c.inc"
-#include      "i22edges.inc"  
+C-----------------------------------------------  
 #include      "inter22.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
@@ -63,8 +61,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER   ::  IsMain, N, IPOS, LEVEL, J, IFAC, I, NumNOD, ListNOD(8),K, NbCut
-      my_real   ::  ALPHA(8),TAG(6),RATIO(6), NFAC(8)
+      INTEGER   ::    J, IFAC, I, NumNOD, ListNOD(8),K, NbCut
+      my_real   ::  ALPHA(8),RATIO(6), NFAC(8)
 C-----------------------------------------------
 C   P r e - C o n d i t i o n
 C----------------------------------------------- 
@@ -89,12 +87,12 @@ C-----------------------------------------------
       DO K=1,NumNOD
        I           = ListNOD(K)
         DO J=1,3
-         IFAC      = iFacesFromNode(I,J)      
+         IFAC      = INT22_BUF%iFacesFromNode(I,J)      
          !IF(RATIO(IFAC)==ZERO)CYCLE
          NFAC(I)   = NFAC(I) + ONE
          ALPHA(I)  = ALPHA(I) + RATIO(IFAC)
         ENDDO!next J
-        IF(NFAC(I).GT.ZERO)ALPHA(I) = ALPHA(I) / NFAC(I)
+        IF(NFAC(I)>ZERO)ALPHA(I) = ALPHA(I) / NFAC(I)
         IF(ALPHA(I)>CritDVol22 .AND. BRICK_LIST(NIN,IB)%NODE(I)%NodWasMain==0)IDEMERGE=1
       ENDDO!next K
       

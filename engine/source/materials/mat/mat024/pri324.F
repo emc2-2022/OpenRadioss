@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PRI324                        source/materials/mat/mat024/pri324.F
-Chd|-- called by -----------
-Chd|        DAMA24                        source/materials/mat/mat024/dama24.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    pri324   ../engine/source/materials/mat/mat024/pri324.F
+!||--- called by ------------------------------------------------------
+!||    dama24   ../engine/source/materials/mat/mat024/dama24.F
+!||====================================================================
       SUBROUTINE PRI324(SIG,EPSTOT,EPS,VEC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -49,7 +48,7 @@ C-----------------------------------------------
       DATA FTPI,TTPI / 4.188790205, 2.094395102 /
       DATA IPERM/2,3,1/
 C=======================================================================
-C       DEVIATEUR PRINCIPAL DE CONTRAINTE
+C       principal deviator of stress
 C . . . . . . . . . . . . . . . . . . .
       DO I=1,6
         VEC(I)=ZERO
@@ -105,6 +104,7 @@ C
         ENDDO
 
         XMAX=ZERO
+        LMAX = 1
         DO L=1,3
           IF (XMAG(L) > XMAX) THEN
             XMAX=XMAG(L)
@@ -203,7 +203,7 @@ C
            V(3,1) = ZERO
            V(1,2) = ZERO
            V(2,2) = ONE
-           V(3,2) = ZERO	   
+           V(3,2) = ZERO     
          ENDIF
       ENDIF
 C

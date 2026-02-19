@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I20DST3                       source/interfaces/inter3d1/i20dst3.F
-Chd|-- called by -----------
-Chd|        I20INI3                       source/interfaces/inter3d1/i20ini3.F
-Chd|-- calls ---------------
-Chd|        I20CGAP0                      source/interfaces/inter3d1/i20dst3.F
-Chd|        I20CGAP1                      source/interfaces/inter3d1/i20dst3.F
-Chd|        BITGET                        source/interfaces/inter3d1/bitget.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i20dst3    ../starter/source/interfaces/inter3d1/i20dst3.F
+!||--- called by ------------------------------------------------------
+!||    i20ini3    ../starter/source/interfaces/inter3d1/i20ini3.F
+!||--- calls      -----------------------------------------------------
+!||    bitget     ../starter/source/interfaces/inter3d1/bitget.F
+!||    bitset     ../starter/source/interfaces/inter3d1/bitget.F
+!||    bitunset   ../starter/source/interfaces/inter3d1/bitget.F
+!||    i20cgap0   ../starter/source/interfaces/inter3d1/i20dst3.F
+!||    i20cgap1   ../starter/source/interfaces/inter3d1/i20dst3.F
+!||====================================================================
       SUBROUTINE I20DST3(IGAP,GAP_SH,CAND_E,CAND_N,GAPV,
      2                   GAP ,GAP_S ,GAP_M ,GAPMAX,GAPMIN,
      3                   IRECT  ,NLN    ,NLG  ,SOLIDN_NORMAL,NSV,
@@ -91,7 +93,7 @@ C     REAL
      .     HLB1(MVSIZ), HLC1(MVSIZ), HLB2(MVSIZ),HLC2(MVSIZ),
      .     HLB3(MVSIZ), HLC3(MVSIZ), HLB4(MVSIZ),HLC4(MVSIZ)
       my_real
-     .     S2,A1,A2,A3,A4,D1,D2,D3,D4,
+     .     S2,
      .     X12,X23,X34,X41,XI0,SX1,SX2,SX3,SX4,SX0,SXI,
      .     Y12,Y23,Y34,Y41,YI0,SY1,SY2,SY3,SY4,SY0,SYI,
      .     Z12,Z23,Z34,Z41,ZI0,SZ1,SZ2,SZ3,SZ4,SZ0,SZI,
@@ -100,27 +102,9 @@ C     REAL
 C-----------------------------------------------
       INTEGER BITUNSET,BITGET,BITSET
       EXTERNAL BITUNSET,BITGET,BITSET
-
-!      EQUIVALENCE (IX1,IV(1,1)) ,(IX2,IV(1,2)) ,(IX3,IV(1,3))
-!      EQUIVALENCE (IX4,IV(1,4)) ,(NSVG,IV(1,5))
-C
-!      EQUIVALENCE (X1,BV(1,1)) ,(Y1,BV(1,2)) ,(Z1,BV(1,3))
-!      EQUIVALENCE (X2,BV(1,4)) ,(Y2,BV(1,5)) ,(Z2,BV(1,6))
-!      EQUIVALENCE (X3,BV(1,7)) ,(Y3,BV(1,8)) ,(Z3,BV(1,9))
-!      EQUIVALENCE (X4,BV(1,10)),(Y4,BV(1,11)),(Z4,BV(1,12))
-!      EQUIVALENCE (XI,BV(1,13)),(YI,BV(1,14)),(ZI,BV(1,15))
-!      EQUIVALENCE (X0,BV(1,31)) ,(Y0,BV(1,32)) ,(Z0,BV(1,33))
-!      EQUIVALENCE (NX1,BV(1,58)),(NY1,BV(1,59)),(NZ1,BV(1,60))
-!      EQUIVALENCE (NX2,BV(1,61)),(NY2,BV(1,62)),(NZ2,BV(1,63))
-!      EQUIVALENCE (NX3,BV(1,64)),(NY3,BV(1,65)),(NZ3,BV(1,66))
-!      EQUIVALENCE (NX4,BV(1,67)),(NY4,BV(1,68)),(NZ4,BV(1,69))
-!      EQUIVALENCE (P1,BV(1,71)) ,(P2,BV(1,72)) ,(P3,BV(1,73))
-!      EQUIVALENCE (P4,BV(1,74)) ,(LB1,BV(1,75)),(LB2,BV(1,76))
-!      EQUIVALENCE (LB3,BV(1,77)),(LB4,BV(1,78)),(LC1,BV(1,79))
-!      EQUIVALENCE (LC2,BV(1,80)),(LC3,BV(1,81)),(LC4,BV(1,82))
 C
 C--------------------------------------------------------
-C  SHIFT DU GAP POUR SOLIDES AVEC GAP NUL
+C  GAP SHIFT FOR SOLIDS WITH NULL GAP
 C--------------------------------------------------------
 c                                    
 c         --------------------------           
@@ -133,7 +117,7 @@ c                                 |   gap_search(search algorithm)
 c                                 |                          
 c                                 |                          
 c                                 |                          
-c                   0 Secnd       |                          
+c                   0 Second |                          
 c                   |             |  ^                       
 c                   | gap_s       |  |                       
 c                   |             |  |                       
@@ -301,7 +285,7 @@ C
              Z4(I) = Z4(I) - SZ4
             ENDIF
            ELSEIF(I3 == I4)THEN
-c            bord de coque3N
+c            edge of shell3N
              X10 = X1(I)
              Y10 = Y1(I)
              Z10 = Z1(I)
@@ -354,7 +338,7 @@ c            bord de coque3N
              Y4(I)=Y3(I)
              Z4(I)=Z3(I)
            ELSE
-c            bord de coque
+c            edge of shell
              X10 = X1(I)
              Y10 = Y1(I)
              Z10 = Z1(I)
@@ -430,7 +414,7 @@ c            bord de coque
       ENDDO
 C
       DO I=LFT,LLT
-       IF(IX3(I).EQ.IX4(I))THEN
+       IF(IX3(I)==IX4(I))THEN
          X0(I) = X3(I)
          Y0(I) = Y3(I)
          Z0(I) = Z3(I)
@@ -551,20 +535,20 @@ C
         Y12 = Y2(I) - Y1(I)
         Z12 = Z2(I) - Z1(I)
         LA = ONE - LB1(I) - LC1(I)
-C       HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X12*X12+Y12*Y12+Z12*Z12)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB1(I).AND.HLA.LE.HLC1(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB1(I).AND.HLA<=HLC1(I))THEN
          LB1(I) = (XI2(I)*X12+YI2(I)*Y12+ZI2(I)*Z12) * AAA
          LB1(I) = MAX(ZERO,MIN(ONE,LB1(I)))
          LC1(I) = ONE - LB1(I)
-        ELSEIF(LB1(I).LT.ZERO.AND.
-     +         HLB1(I).LE.HLC1(I).AND.HLB1(I).LE.HLA)THEN
+        ELSEIF(LB1(I)<ZERO.AND.
+     +         HLB1(I)<=HLC1(I).AND.HLB1(I)<=HLA)THEN
          LB1(I) = ZERO
          LC1(I) = AL2(I)
-        ELSEIF(LC1(I).LT.ZERO.AND.
-     +         HLC1(I).LE.HLA.AND.HLC1(I).LE.HLB1(I))THEN
+        ELSEIF(LC1(I)<ZERO.AND.
+     +         HLC1(I)<=HLA.AND.HLC1(I)<=HLB1(I))THEN
          LC1(I) = ZERO
          LB1(I) = AL1(I)
         ENDIF
@@ -575,20 +559,20 @@ C
         Y23 = Y3(I) - Y2(I)
         Z23 = Z3(I) - Z2(I)
         LA = ONE - LB2(I) - LC2(I)
-C       HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle shapr angle
         AAA = ONE / MAX(EM20,X23*X23+Y23*Y23+Z23*Z23)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB2(I).AND.HLA.LE.HLC2(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB2(I).AND.HLA<=HLC2(I))THEN
          LB2(I) = (XI3(I)*X23+YI3(I)*Y23+ZI3(I)*Z23)*AAA
          LB2(I) = MAX(ZERO,MIN(ONE,LB2(I)))
          LC2(I) = ONE - LB2(I)
-        ELSEIF(LB2(I).LT.ZERO.AND.
-     +         HLB2(I).LE.HLC2(I).AND.HLB2(I).LE.HLA)THEN
+        ELSEIF(LB2(I)<ZERO.AND.
+     +         HLB2(I)<=HLC2(I).AND.HLB2(I)<=HLA)THEN
          LB2(I) = ZERO
          LC2(I) = AL3(I)
-        ELSEIF(LC2(I).LT.ZERO.AND.
-     +         HLC2(I).LE.HLA.AND.HLC2(I).LE.HLB2(I))THEN
+        ELSEIF(LC2(I)<ZERO.AND.
+     +         HLC2(I)<=HLA.AND.HLC2(I)<=HLB2(I))THEN
          LC2(I) = ZERO
          LB2(I) = AL2(I)
         ENDIF
@@ -599,20 +583,20 @@ C
         Y34 = Y4(I) - Y3(I)
         Z34 = Z4(I) - Z3(I)
         LA = ONE - LB3(I) - LC3(I)
-C       HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X34*X34+Y34*Y34+Z34*Z34)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB3(I).AND.HLA.LE.HLC3(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB3(I).AND.HLA<=HLC3(I))THEN
          LB3(I) = (XI4(I)*X34+YI4(I)*Y34+ZI4(I)*Z34)*AAA
          LB3(I) = MAX(ZERO,MIN(ONE,LB3(I)))
          LC3(I) = ONE - LB3(I)
-        ELSEIF(LB3(I).LT.ZERO.AND.
-     +         HLB3(I).LE.HLC3(I).AND.HLB3(I).LE.HLA)THEN
+        ELSEIF(LB3(I)<ZERO.AND.
+     +         HLB3(I)<=HLC3(I).AND.HLB3(I)<=HLA)THEN
          LB3(I) = ZERO
          LC3(I) = AL4(I)
-        ELSEIF(LC3(I).LT.ZERO.AND.
-     +         HLC3(I).LE.HLA.AND.HLC3(I).LE.HLB3(I))THEN
+        ELSEIF(LC3(I)<ZERO.AND.
+     +         HLC3(I)<=HLA.AND.HLC3(I)<=HLB3(I))THEN
          LC3(I) = ZERO
          LB3(I) = AL3(I)
         ENDIF
@@ -623,20 +607,20 @@ C
         Y41 = Y1(I) - Y4(I)
         Z41 = Z1(I) - Z4(I)
         LA = ONE - LB4(I) - LC4(I)
-C       HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X41*X41+Y41*Y41+Z41*Z41)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB4(I).AND.HLA.LE.HLC4(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB4(I).AND.HLA<=HLC4(I))THEN
          LB4(I) = (XI1(I)*X41+YI1(I)*Y41+ZI1(I)*Z41)*AAA
          LB4(I) = MAX(ZERO,MIN(ONE,LB4(I)))
          LC4(I) = ONE - LB4(I)
-        ELSEIF(LB4(I).LT.ZERO.AND.
-     +         HLB4(I).LE.HLC4(I).AND.HLB4(I).LE.HLA)THEN
+        ELSEIF(LB4(I)<ZERO.AND.
+     +         HLB4(I)<=HLC4(I).AND.HLB4(I)<=HLA)THEN
          LB4(I) = ZERO
          LC4(I) = AL1(I)
-        ELSEIF(LC4(I).LT.ZERO.AND.
-     +         HLC4(I).LE.HLA.AND.HLC4(I).LE.HLB4(I))THEN
+        ELSEIF(LC4(I)<ZERO.AND.
+     +         HLC4(I)<=HLA.AND.HLC4(I)<=HLB4(I))THEN
          LC4(I) = ZERO
          LB4(I) = AL4(I)
         ENDIF       
@@ -668,12 +652,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I20CGAP0                      source/interfaces/inter3d1/i20dst3.F
-Chd|-- called by -----------
-Chd|        I20DST3                       source/interfaces/inter3d1/i20dst3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i20cgap0   ../starter/source/interfaces/inter3d1/i20dst3.F
+!||--- called by ------------------------------------------------------
+!||    i20dst3    ../starter/source/interfaces/inter3d1/i20dst3.F
+!||====================================================================
       SUBROUTINE I20CGAP0(X10,Y10,Z10,X20,Y20,Z20,
      .                    X30,Y30,Z30,X40,Y40,Z40,
      .                    X1,Y1,Z1,X2,Y2,Z2,
@@ -683,17 +666,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       my_real
      . X10,Y10,Z10,X20,Y20,Z20,X30,Y30,Z30,X40,Y40,Z40,
      . X1,Y1,Z1,X2,Y2,Z2,X3,Y3,Z3,X4,Y4,Z4,GAP_M
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -748,12 +725,11 @@ C=======================================================================
 
       RETURN
       END
-Chd|====================================================================
-Chd|  I20CGAP1                      source/interfaces/inter3d1/i20dst3.F
-Chd|-- called by -----------
-Chd|        I20DST3                       source/interfaces/inter3d1/i20dst3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i20cgap1   ../starter/source/interfaces/inter3d1/i20dst3.F
+!||--- called by ------------------------------------------------------
+!||    i20dst3    ../starter/source/interfaces/inter3d1/i20dst3.F
+!||====================================================================
       SUBROUTINE I20CGAP1(X10,Y10,Z10,X20,Y20,Z20,
      .                    X40,Y40,Z40,
      .                    X1,Y1,Z1,X2,Y2,Z2,
@@ -763,17 +739,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       my_real
      . X10,Y10,Z10,X20,Y20,Z20,X40,Y40,Z40,
      . X1,Y1,Z1,X2,Y2,Z2,X4,Y4,Z4,GAP_M
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -815,22 +785,21 @@ C=======================================================================
 
       RETURN
       END
-Chd|====================================================================
-Chd|  I20GAP1                       source/interfaces/inter3d1/i20dst3.F
-Chd|-- called by -----------
-Chd|        I20INI3                       source/interfaces/inter3d1/i20ini3.F
-Chd|-- calls ---------------
-Chd|        BITGET                        source/interfaces/inter3d1/bitget.F
-Chd|====================================================================
+!||====================================================================
+!||    i20gap1    ../starter/source/interfaces/inter3d1/i20dst3.F
+!||--- called by ------------------------------------------------------
+!||    i20ini3    ../starter/source/interfaces/inter3d1/i20ini3.F
+!||--- calls      -----------------------------------------------------
+!||    bitget     ../starter/source/interfaces/inter3d1/bitget.F
+!||    bitset     ../starter/source/interfaces/inter3d1/bitget.F
+!||    bitunset   ../starter/source/interfaces/inter3d1/bitget.F
+!||====================================================================
       SUBROUTINE I20GAP1(NRTM,NSN,NLN,GAP_M,GAP_SH,
      2                   GAP_S,NBINFLG,NSV,NLG,TAG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -853,8 +822,8 @@ C=======================================================================
       DO I=1,NRTM
         GAP_M(I) = GAP_M(I)-TWO*GAP_SH(I)
       ENDDO
-c mise a zero du gap secnd sur le bord des coques
-c ici NVS donne encore le noeud global, NSV sera modifie dans I20NLG 
+c zeroing of the second gap on the edge of the shells
+c ici NVS donne encore le node global, NSV sera modifie in I20NLG 
       DO I=1,NLN
         J = NLG(I)
         TAG(J)=I
@@ -867,27 +836,17 @@ c ici NVS donne encore le noeud global, NSV sera modifie dans I20NLG
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I20NORM                       source/interfaces/inter3d1/i20dst3.F
-Chd|-- called by -----------
-Chd|        I20INI3                       source/interfaces/inter3d1/i20ini3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i20norm   ../starter/source/interfaces/inter3d1/i20dst3.F
+!||--- called by ------------------------------------------------------
+!||    i20ini3   ../starter/source/interfaces/inter3d1/i20ini3.F
+!||====================================================================
       SUBROUTINE I20NORM(NRTM,IRECT,NUMNOD,X,SOLIDN_NORMAL,
      .                  NMN ,MSR  ,NLN,NLG,GAP_SH)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-c#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-c#include      "param_c.inc"
-c#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -898,7 +857,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J ,N1,N2,N3,N4
+      INTEGER I  ,N1,N2,N3,N4
       my_real
      .   SURFX,SURFY,SURFZ,X12,Y12,Z12,X23,Y23,Z23,
      .   X34,Y34,Z34,X41,Y41,Z41,AAA,SI,CO
@@ -913,7 +872,7 @@ c          N1 = NLG(MSR(I))
       END DO
 
       DO I=1,NRTM
-c test pour ne prendre en compte que les solides 
+c test to consider only the solids
         IF(GAP_SH(I)/=ZERO)THEN
 c          N1 = NLG(IRECT(1,I))
 c          N2 = NLG(IRECT(2,I))
@@ -1024,12 +983,11 @@ c      END DO
 
       RETURN
       END
-Chd|====================================================================
-Chd|  I20DST3E                      source/interfaces/inter3d1/i20dst3.F
-Chd|-- called by -----------
-Chd|        I20INI3                       source/interfaces/inter3d1/i20ini3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i20dst3e   ../starter/source/interfaces/inter3d1/i20dst3.F
+!||--- called by ------------------------------------------------------
+!||    i20ini3    ../starter/source/interfaces/inter3d1/i20ini3.F
+!||====================================================================
       SUBROUTINE I20DST3E(JLT   ,GAP   ,CAND_S,CAND_M,IRECTS  ,
      .                  IRECTM ,NX,NY,NZ,
      .                  N1,N2,M1,M2,JLT_NEW,
@@ -1053,16 +1011,13 @@ C-----------------------------------------------
      .     GAP,
      . NX(*),NY(*),NZ(*),X(3,*),GAP_S(*),GAP_M(*), GAPV2(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,NLN,NLG(NLN)
       my_real
      .     XS12,YS12,ZS12,XM12,YM12,ZM12,XA,XB,
-     .     XS2,XM2,XSM,XS2M2,YS2,YM2,YSM,YS2M2,ZS2,ZM2,ZSM,ZS2M2,
-     .     XX,YY,ZZ,ALS,ALM,DET,H1S,H2S,H1M,H2M,
+     .     XS2,XM2,XSM,XS2M2,YS2M2,ZS2M2,
+     .     DET,H1S,H2S,H1M,H2M,
      .     GAP2,XXS1,YYS1,ZZS1,XXS2,YYS2,ZZS2,
      .     XXM1,YYM1,ZZM1,XXM2,YYM2,ZZM2,
      .     PENE2(MVSIZ),SOLIDN_NORMAL(3,*),AAA,
@@ -1071,7 +1026,7 @@ C-----------------------------------------------
 C-----------------------------------------------
        GAP2=GAP*GAP
 C
-      IF(IGAP.EQ.0)THEN
+      IF(IGAP==0)THEN
         DO I=1,JLT
           GAPV2(I)=GAP2
         ENDDO
@@ -1187,7 +1142,7 @@ C
        H2S = ONE - H1S
        H2M = ONE - H1M
 C !!!!!!!!!!!!!!!!!!!!!!!
-C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 C!!!!!!!!!!!!!!!!!!!!!!!!
        NX(I) =  H1S*XXS1 + H2S*XXS2
      .        - H1M*XXM1 - H2M*XXM2
@@ -1200,7 +1155,7 @@ C!!!!!!!!!!!!!!!!!!!!!!!!
 C
       ENDDO
       DO I=1,JLT
-        IF(PENE2(I).NE.ZERO)THEN
+        IF(PENE2(I)/=ZERO)THEN
           JLT_NEW = JLT_NEW + 1
           CAND_S(JLT_NEW) = CAND_S(I)
           CAND_M(JLT_NEW) = CAND_M(I)

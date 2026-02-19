@@ -1,44 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INITWG_TRI                    source/spmd/domain_decomposition/initwg_tri.F
-Chd|-- called by -----------
-Chd|        INITWG                        source/spmd/domain_decomposition/initwg.F
-Chd|-- calls ---------------
-Chd|        BIDON                         source/system/machine.F       
-Chd|        INTERLAGRAN                   source/spmd/domain_decomposition/grid2mat.F
-Chd|        DDWEIGHTS_MOD                 share/modules1/ddweights_mod.F
-Chd|        MID_PID_MOD                   share/modules1/mid_pid_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    initwg_tri         ../starter/source/spmd/domain_decomposition/initwg_tri.F
+!||--- called by ------------------------------------------------------
+!||    initwg             ../starter/source/spmd/domain_decomposition/initwg.F
+!||--- calls      -----------------------------------------------------
+!||    bidon              ../starter/source/system/machine.F
+!||    interlagran        ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- uses       -----------------------------------------------------
+!||    ddweights_mod      ../starter/share/modules1/ddweights_mod.F
+!||    mid_pid_mod        ../starter/share/modules1/mid_pid_mod.F
+!||====================================================================
       SUBROUTINE INITWG_TRI(WD,PM,GEO,IXTG,IGEO,NUMELTG,IPM ,SIZE_IRUP,
      .            NUMMAT,NUMGEO,POIN_PART_TRI,MID_PID_TRI,IPARTG,
      .            OFF,BUFMAT,MID_OLD,PID_OLD,MLN_OLD,RECHERCHE,TELT_PRO,
-     .            TABMP_L)
+     .            TABMP_L,MAT_PARAM)
 C-----------------------------------------------
 C            M o d u l e s
 C-----------------------------------------------
       USE DDWEIGHTS_MOD
       USE MID_PID_MOD
+      USE MATPARAM_DEF_MOD
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,12 +51,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "com_xfem1.inc"
-#include      "scr21_c.inc"
-#include      "scr05_c.inc"
 #include      "tablen_c.inc"
-#include      "scr23_c.inc"
-#include      "spmd_c.inc" 
 #include      "ddspmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -63,7 +61,7 @@ C-----------------------------------------------
      .  IPM(NPROPMI,*)
       INTEGER, INTENT(IN) :: SIZE_IRUP
 
-C     REAL OU REAL*8
+C     REAL OR REAL*8
       my_real
      .    PM(NPROPM,*), GEO(NPROPG,*),BUFMAT(*)
 
@@ -74,24 +72,25 @@ C     REAL OU REAL*8
       INTEGER, DIMENSION(*), INTENT(IN) :: IPARTG
       INTEGER, DIMENSION(2,*), INTENT(IN) :: POIN_PART_TRI
       TYPE(MID_PID_TYPE), DIMENSION(*), INTENT(INOUT) :: MID_PID_TRI
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT), INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
-      INTEGER  NPN, MID, PID, JHBE, IGT, MLN,
-     .    ISTRAIN, ITHK, IHBE, IPLA, ISSN, MTN, I, J, K,L,
-     .    NFUNC,MPT,NPTS,NPTT,NPTR,NPTOT,IFLAG,JSROT,
-     .    I_MID,I_PID,I_MID_OLD,I_PID_OLD,PUID,MUID,
-     .    ELM_TYP,ELM_TYP_OLD,ILAW,ILAW_OLD,TEST_MAT,
-     .    I_PRO,ISOL2,MUID_OLD,PUID_OLD,
-     .    TEST,NFUNC1,NFUNC2,IRUP,IRUP2,II,IRUP_TAB(SIZE_IRUP),
+      INTEGER  NPN, MID, PID, MLN,
+     .    ISTRAIN, ITHK, IHBE, IPLA, ISSN, I, J,
+     .    NFUNC,IFLAG,
+     .    
+     .    
+     .    
+     .    NFAIL,IRUP2,II,IRUP_TAB(SIZE_IRUP),
      .    INDI,IAD,INDI2,MULT
       INTEGER :: INDI3,COST_CHECK,POIN_PART,POIN_MID,POIN_PID
       INTEGER :: FLAG_NICE_NEWTON,FLAG_GURSON,FLAG_NON_LOCAL
       INTEGER :: SPECIAL_OPTION,SPE_I_1,SPE_I_2,SPE_I_3
      
       REAL
-     .   WTYPE(9),FWIHBE,FAC8,
-     .   TABMAT(3),TABX(3),TIMMAT,NPT,TELT,POIDS,W,
-     .   BATOZMULT,TMAT,TRUP,TABRUP(3),TRUP_LOCAL,TMATADD,
-     .   WD_LOCAL,MULT_SPE
+     .   WTYPE(9),
+     .   TABMAT(3),TABX(3),TIMMAT,NPT,TELT,POIDS,
+     .   BATOZMULT,TRUP,TABRUP(3),TRUP_LOCAL,TMATADD,
+     .   WD_LOCAL,MULT_SPE,VISC_PRONY
       
       my_real
      .        CC, A,B,A1,A2
@@ -100,6 +99,8 @@ C-----------------------------------------------
        DATA WTYPE /1.6 ,1. ,1. ,.9 ,1.1 ,1.4 ,0.65 ,.9 ,2.0/     
 C-----------------------------------------------
       CALL BIDON()
+      TELT = 0
+      NFUNC = 0
 !     DD_OPTIMIZATION = 0 --> default case, DD optimized for Broadwell processor
 !     DD_OPTIMIZATION = 1 --> DD optimized for Skylake processor 
 !     DD_OPTIMIZATION = 2 --> DD optimized for Sandy Bridge processor   
@@ -147,16 +148,17 @@ C-----------------------------------------------
         SPECIAL_OPTION = 0
         SPE_I_1 = 1
         SPE_I_2 = 1
-        IRUP = IPM(220,ABS(MID))
+        NFAIL = MAT_PARAM(MID)%NFAIL
         IRUP_TAB = 0
-        IF(IRUP/=0) THEN          ! up to 6 failure models per material
-         DO J=1,IRUP
-          IRUP_TAB(J) = IPM(111+15*(J-1),ABS(MID))
+        IF(NFAIL/=0) THEN          ! up to 6 failure models per material
+         DO J=1,NFAIL
+          IRUP_TAB(J) = MAT_PARAM(MID)%FAIL(J)%IRUPT
          ENDDO
         ENDIF
         TIMMAT = 0.
         TRUP = 0.
         TMATADD = 0.
+        VISC_PRONY = 0.
         MULT = 0
         IF((MLN<28).OR.(MLN==32)) THEN
          IRUP2 = 0
@@ -164,43 +166,52 @@ C-----------------------------------------------
          IRUP2 = 3
         ENDIF
 
-        IF (MLN.EQ.2.OR.MLN.EQ.3) THEN
+        IF (MLN==2.OR.MLN==3) THEN
           CC = PM(43,MID)
-          IF (CC.NE.0) THEN
+          IF (CC/=0) THEN
            INDI = 2
           ELSE
            INDI = 1
           ENDIF
-        ELSEIF ((MLN.EQ.25).AND.(ABS(NPN)>0)) THEN
+          IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+            VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+          ENDIF
+        ELSEIF ((MLN==25).AND.(ABS(NPN)>0)) THEN
           IFLAG = NINT( PM(40,MID))
-          IF (IFLAG.NE.0) THEN
+          IF (IFLAG/=0) THEN
            INDI = 2
           ELSE
            INDI = 1
           ENDIF
-C loi 36+86 en fonction des fct
-        ELSEIF (MLN.EQ.36.OR.(MLN.EQ.86).AND.(ABS(NPN)>0)) THEN
+           IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+             VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+           ENDIF
+C Law 36+86 Depending on the FCT
+        ELSEIF (MLN==36.OR.(MLN==86).AND.(ABS(NPN)>0)) THEN
           NFUNC = NINT(PM(40,MID))
-          IF (NFUNC.LE.2) THEN
+          IF (NFUNC<=2) THEN
            INDI = 1
-          ELSEIF (NFUNC.GT.2.AND.NFUNC.LE.7) THEN
+          ELSEIF (NFUNC>2.AND.NFUNC<=7) THEN
            INDI = 2
-          ELSEIF (NFUNC.GT.7) THEN
+          ELSEIF (NFUNC>7) THEN
            INDI = 3
           ENDIF
-        ELSEIF((MLN==42).OR.(MLN==62).OR.(MLN==69)) THEN
-           IAD=IPM(7,ABS(MID))-1
-           IF(MLN==42) NFUNC = NINT(BUFMAT(IAD+16))
-           IF(MLN==62) NFUNC = NINT(BUFMAT(IAD+3))
-           IF(MLN==69) THEN
-            NFUNC = 0
-            IF(IPM(222,ABS(MID)) > 0) THEN 
-             IAD = IPM(223,ABS(MID))
-             NFUNC =  NINT(BUFMAT(IAD +1 ))
-            ENDIF
+           IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+             VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
            ENDIF
+        ELSEIF((MLN==42).OR.(MLN==62).OR.(MLN==69)) THEN  ! check prony option
+           NFUNC = 0   ! NPRONY
+           IF (MLN==42) NFUNC = MAT_PARAM(ABS(MID))%IPARAM(2)
+           IF (MLN==62) THEN
+             IAD=IPM(7,ABS(MID))-1
+             NFUNC = NINT(BUFMAT(IAD+3))
+           END IF
+
            IF(NFUNC==0) THEN
             INDI = 1
+             IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+               VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+             ENDIF
            ELSEIF(NFUNC==1) THEN
             INDI = 2
            ELSEIF(NFUNC==2) THEN
@@ -215,6 +226,9 @@ C loi 36+86 en fonction des fct
            NFUNC=NINT(BUFMAT(IAD+1))
            IF(NFUNC<=1) THEN
             INDI = 1
+            IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+              VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+            ENDIF
            ELSEIF(NFUNC==2) THEN
             INDI = 2
            ELSEIF(NFUNC==3) THEN
@@ -245,9 +259,12 @@ C loi 36+86 en fonction des fct
            ELSEIF(FLAG_GURSON==3) THEN
              SPE_I_2 = 3
            ENDIF           
-           FLAG_NON_LOCAL = IPM(253,ABS(MID))
+           FLAG_NON_LOCAL = MAT_PARAM(ABS(MID))%NLOC
         ELSE
          INDI = 1
+         IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+           VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+         ENDIF
         ENDIF 
 
         MULT_SPE = 0.
@@ -293,8 +310,8 @@ C loi 36+86 en fonction des fct
             ENDIF
 !           --------------
 !           Failure
-            IF(IRUP/=0) THEN
-             DO J=1,IRUP
+            IF(NFAIL/=0) THEN
+             DO J=1,NFAIL
               A1 = RUPTURE_SHELL(IRUP_TAB(J),IRUP2+1)
               A2 = RUPTURE_SHELL(IRUP_TAB(J),IRUP2+3)
               IF (A2 /=ZERO)THEN
@@ -308,17 +325,17 @@ C loi 36+86 en fonction des fct
             ENDIF
 !           --------------
          ELSE
-          IF(ITHK.EQ.2)THEN
+          IF(ITHK==2)THEN
             ITHK = 0
-          ELSEIF(MLN.EQ.32)THEN
+          ELSEIF(MLN==32)THEN
             ITHK = 1
           ENDIF
           ISTRAIN = NINT(GEO(11,PID))
-          IF(MLN.EQ.19.OR.MLN.GE.25)ISTRAIN = 1
+          IF(MLN==19.OR.MLN>=25)ISTRAIN = 1
           ISSN = NINT(GEO(3,PID))
 !       ow test elem delete
-          IF (WD_LOCAL.EQ.0.) THEN
-           IF(ABS(NPN).GT.0) THEN
+          IF (WD_LOCAL==0.) THEN
+           IF(ABS(NPN)>0) THEN
               TABX(1) = 1.
               TABX(2) = 3.
               TABX(3) = 5.
@@ -334,15 +351,15 @@ C loi 36+86 en fonction des fct
               CALL INTERLAGRAN(TABMAT,TABX,3,NPT,TIMMAT)
 !              ----------------
 !               Failure 
-                IF(IRUP/=0) THEN
-                 DO J=1,IRUP
+                IF(NFAIL/=0) THEN
+                 DO J=1,NFAIL
                   DO II=1,3
                    TABRUP(II) = RUPTURE_SHELL(IRUP_TAB(J),IRUP2+II)
                   ENDDO
                   CALL INTERLAGRAN(TABRUP,TABX,3,NPT,TRUP_LOCAL)
                   TRUP = TRUP + TRUP_LOCAL
                  ENDDO
-                ENDIF          !   <--- fin IRUP/=0
+                ENDIF          !   <--- fin NFAIL/=0
 !               ---------------- 
 
             ELSE
@@ -353,15 +370,15 @@ C loi 36+86 en fonction des fct
               TIMMAT =  TRITNL(MIN(MLN,MAXLAW),0,INDI)  + TMATADD
               ! *******--------*******
 !             ----------------
-!             Failure incompatible N=0
-              IF(IRUP/=0) THEN
+!             Incompatible failure n = 0
+              IF(NFAIL/=0) THEN
                TRUP = 0.
-              ENDIF          !   <--- fin IRUP/=0
+              ENDIF          !   <--- fin NFAIL/=0
 !             ----------------  
             ENDIF
           ENDIF
          ENDIF
-         IF(MLN.NE.0)THEN
+         IF(MLN/=0)THEN
               TELT = TRITELT(1) 
          ENDIF
         ENDIF   !   fin TRITNL_OLD(MID,PID)
@@ -369,8 +386,8 @@ C loi 36+86 en fonction des fct
 
         ! --------------------
         IF(RECHERCHE==0) THEN
-         IF((WD_LOCAL.EQ.0.).AND.(MLN.NE.0))THEN
-          POIDS = (TELT + TIMMAT + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3) ) * INVTREF
+         IF((WD_LOCAL==0.).AND.(MLN/=0))THEN
+          POIDS = (TELT + TIMMAT + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + VISC_PRONY) * INVTREF
           WD(I+OFF) = POIDS
 
           POIN_PART = IPARTG(I)

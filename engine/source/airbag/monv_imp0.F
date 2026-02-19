@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MONV_PREM                     source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        DIM_KINMV                     source/airbag/monv_imp0.F     
-Chd|        INI_KINMV                     source/airbag/monv_imp0.F     
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        IMP_MONV                      share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    monv_prem       ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k      ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    dim_kinmv       ../engine/source/airbag/monv_imp0.F
+!||    ini_kinmv       ../engine/source/airbag/monv_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod    ../common_source/modules/groupdef_mod.F
+!||    imp_monv        ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE MONV_PREM(
      1    NMONV     ,IMONV     ,MONVOL    ,IGRSURF   ,
      2    FR_MV     ,ITAG      ,NPBY      ,LPBY      ,NRBYAC    ,
@@ -52,10 +53,8 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "units_c.inc"
-#include      "scr17_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -74,9 +73,9 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, NTYP,NN,K1,IAD,IS,J,N,NOD,NUMN,ID,NMT,IROT,
      .        IERR1,IERR2,IERR3,IERR4,IERR5,IERR6
-C-------IMONV(NMONV)--nb de noeuds dans chaque mv.----------------------
+C-------IMONV(NMONV)--number of nodes in each mv.----------------------
       NMONV = 0
-      IF(NVOLU.GT.0.AND.IMPMV.GT.0) THEN
+      IF(NVOLU>0.AND.IMPMV>0) THEN
        DO N=1,NUMNOD
         ITAG(N) = 0
        ENDDO
@@ -86,16 +85,16 @@ C-------IMONV(NMONV)--nb de noeuds dans chaque mv.----------------------
        DO I=1,NVOLU
         NTYP=MONVOL(K1+1)
         IMONV(I)=0
-        IF(NTYP.EQ.3) THEN
-         IF(IMACH.EQ.3.AND.FR_MV(ISPMD+1,I).EQ.0) GO TO 100
+        IF(NTYP==3) THEN
+         IF(FR_MV(ISPMD+1,I)==0) GO TO 100
          IS   = MONVOL(K1+3)
          NN = IGRSURF(IS)%NSEG
          NUMN = NUMN_MV
-         IF(NN.GT.0) THEN
+         IF(NN>0) THEN
           DO J=1,NN
            DO N=1,4
             NOD = IGRSURF(IS)%NODES(J,N)
-            IF (ITAG(NOD).EQ.0) THEN
+            IF (ITAG(NOD)==0) THEN
              NUMN_MV = NUMN_MV + 1
              ITAG(NOD) = NUMN_MV
             ENDIF
@@ -104,9 +103,9 @@ C-------IMONV(NMONV)--nb de noeuds dans chaque mv.----------------------
           NNMAX_MV = MAX(NNMAX_MV,NN)
          ENDIF
          IMONV(I)=NUMN_MV - NUMN
-         IF (IMONV(I).GT.0) NMONV = NMONV+1
-        ELSEIF (NEIG.EQ.ZERO) THEN
-         IF(IMACH.NE.3.OR.ISPMD.EQ.0) THEN
+         IF (IMONV(I)>0) NMONV = NMONV+1
+        ELSEIF (NEIG==ZERO) THEN
+         IF(ISPMD==0) THEN
           WRITE(IOUT,1001)NTYP
           WRITE(ISTDO,1001)NTYP
          ENDIF
@@ -116,28 +115,28 @@ C-------IMONV(NMONV)--nb de noeuds dans chaque mv.----------------------
        ENDDO
       ENDIF
 C--------allocation------
-      IF (NMONV .EQ. 0) RETURN
+      IF (NMONV == 0) RETURN
 C
       ALLOCATE(IN_MV(NUMN_MV),ID_MV(3,NUMN_MV),STAT=IERR1)
       DO I=1,NUMNOD
        J = ITAG(I)
-       IF (J.GT.0) IN_MV(J) = I
+       IF (J>0) IN_MV(J) = I
       ENDDO
       CALL DIM_KINMV(
      1    NPBY      ,LPBY      ,NRBYAC    ,IRBYAC    ,NINT2     ,
      2    IINT2     ,IPARI     ,INTBUF_TAB,ITAG      ,NRB_MV    ,
      3    NI2_MV    ,IRBE3     ,NRBE3_MV  ,IRBE2     ,LRBE2     ,
      4    NRBE2_MV  )
-      IF (NI2_MV.GT.0) THEN
+      IF (NI2_MV>0) THEN
        ALLOCATE(II2_MV(2,NI2_MV),ID_MVM2(6,4,NI2_MV),STAT=IERR2)
       ENDIF
-      IF (NRB_MV.GT.0) THEN
+      IF (NRB_MV>0) THEN
        ALLOCATE(IRB_MV(2,NRB_MV),ID_MVM(6,NRB_MV),STAT=IERR4)
       ENDIF
-      IF (NRBE3_MV.GT.0) THEN
+      IF (NRBE3_MV>0) THEN
         ALLOCATE(IRBE3_MV(NRBE3_MV),STAT=IERR3)
       ENDIF
-      IF (NRBE2_MV.GT.0) THEN
+      IF (NRBE2_MV>0) THEN
         ALLOCATE(IRBE2_MV(2,NRBE2_MV),ID_MVM4(6,NRBE2_MV),STAT=IERR3)
         ID_MVM4=0
       ENDIF
@@ -147,7 +146,7 @@ C
      3    IRB_MV    ,NI2_MV    ,II2_MV    ,IRBE3     ,NRBE3_MV  ,
      4    IRBE3_MV  ,IRBE2     ,LRBE2     ,NRBE2_MV  ,IRBE2_MV  )
 C-----------ini RBE3
-      IF (NRBE3_MV.GT.0) THEN
+      IF (NRBE3_MV>0) THEN
        IAD=0
        NMT = 0
        IROT=0
@@ -159,27 +158,27 @@ C-----------ini RBE3
          IROT=MAX(IROT,IRBE3(6,N))
         ENDDO
         ALLOCATE(ID_MVM3(6,IAD,NRBE3_MV),STAT=IERR3)
-	 ID_MVM3=0
-	 R3M_MAX=IAD
+           ID_MVM3=0
+           R3M_MAX=IAD
         ALLOCATE(FCDI_MV(18*NMT),STAT=IERR5)
-	 FCDI_MV=ZERO
-        IF (IROT.GT.0) THEN
-	 ALLOCATE(MCDI_MV(18*NMT),STAT=IERR5)
-	 MCDI_MV=ZERO
+           FCDI_MV=ZERO
+        IF (IROT>0) THEN
+           ALLOCATE(MCDI_MV(18*NMT),STAT=IERR5)
+           MCDI_MV=ZERO
         ENDIF
       ENDIF
-      IF (IPREC .GE. 2) THEN
+      IF (IPREC >= 2) THEN
        ALLOCATE(DIAG_MV(3,NUMN_MV),STAT=IERR2)
        DIAG_MV=ZERO
-       IF (NI2_MV.GT.0) ALLOCATE(DIAG_MVM2(6,4,NI2_MV),STAT=IERR5)
-       IF (NRB_MV.GT.0) ALLOCATE(DIAG_MVM(6,NRB_MV),STAT=IERR6)
-       IF (NRBE3_MV.GT.0) THEN
+       IF (NI2_MV>0) ALLOCATE(DIAG_MVM2(6,4,NI2_MV),STAT=IERR5)
+       IF (NRB_MV>0) ALLOCATE(DIAG_MVM(6,NRB_MV),STAT=IERR6)
+       IF (NRBE3_MV>0) THEN
         ALLOCATE(DIAG_MVM3(6,R3M_MAX,NRBE3_MV),STAT=IERR5)
-	 DIAG_MVM3=ZERO
+           DIAG_MVM3=ZERO
        ENDIF
-       IF (NRBE2_MV.GT.0) THEN
+       IF (NRBE2_MV>0) THEN
         ALLOCATE(DIAG_MVM4(6,NRBE2_MV),STAT=IERR5)
-	 DIAG_MVM4=ZERO
+           DIAG_MVM4=ZERO
        ENDIF
       ENDIF
 C
@@ -188,13 +187,13 @@ C
      .       '******  IT WILL BE IGNORED  *****')
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_KINMV                     source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MONV_PREM                     source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_kinmv       ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    monv_prem       ../engine/source/airbag/monv_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_KINMV(
      1    NPBY      ,LPBY      ,NRBYAC    ,IRBYAC    ,NINT2     ,
      2    IINT2     ,IPARI     ,INTBUF_TAB,INLOC     ,LNS       ,
@@ -204,21 +203,16 @@ C-----------------------------------------------
 C   M o d u l e s 
 C-----------------------------------------------
       USE INTBUFDEF_MOD
-C----6---------------------------------------------------------------7---------8
+C----6------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPBY(NNPBY,*),LPBY(*),NRBYAC,IRBYAC(*),
@@ -252,7 +246,7 @@ C------IRTL(NSN)--main el number---
        KFI=K14+NSN
        DO I=1,NSN
         NI=INTBUF_TAB(N)%NSV(I)
-        IF (INLOC(NI).GT.0) THEN
+        IF (INLOC(NI)>0) THEN
          LNS2=LNS2+1
         ENDIF
        ENDDO
@@ -266,9 +260,9 @@ C-----RBE2------
         DO I=1,NSN
          ID = I+K
          NI=LRBE2(ID)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           LNS4=LNS4+1
-          IF (INLOC(M).EQ.0) INLOC(M) = 2
+          IF (INLOC(M)==0) INLOC(M) = 2
          ENDIF
        ENDDO
       ENDDO
@@ -276,8 +270,8 @@ C--------RBE3--------------------
       LNS3=0
       DO N=1,NRBE3
        NI = IRBE3(3,N)
-       IF (NI.EQ.0) CYCLE
-       IF (INLOC(NI).GT.0) THEN
+       IF (NI==0) CYCLE
+       IF (INLOC(NI)>0) THEN
          LNS3=LNS3+1
        ENDIF
       ENDDO
@@ -291,22 +285,22 @@ C-----active rigid body main nodes------
         DO I=1,NSN
          ID = I+K
          NI=LPBY(ID)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           LNS=LNS+1
-          IF (INLOC(M).EQ.0) INLOC(M) = 1
+          IF (INLOC(M)==0) INLOC(M) = 1
          ENDIF
        ENDDO
       ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_KINMV                     source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MONV_PREM                     source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ini_kinmv       ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    monv_prem       ../engine/source/airbag/monv_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE INI_KINMV(
      1    NPBY      ,LPBY      ,NRBYAC    ,IRBYAC    ,NINT2     ,
      2    IINT2     ,IPARI     ,INTBUF_TAB,INLOC     ,NRB_MV    ,
@@ -316,21 +310,16 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INTBUFDEF_MOD
-C----6---------------------------------------------------------------7---------8
+C----6------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPBY(NNPBY,*),LPBY(*),NRBYAC,IRBYAC(*),
@@ -350,7 +339,7 @@ C-----------------------------------------------
      .        JI,K10,K11,K12,K13,K14,KFI,NI2,NRB,NR3,NR2
 c----------------------
       NI2=0
-      IF (NI2_MV.GT.0) THEN
+      IF (NI2_MV>0) THEN
        DO J=1,NINT2
         N=IINT2(J)
         NSN = IPARI(5,N)
@@ -367,27 +356,27 @@ C------IRTL(NSN)--main el number---
         KFI=K14+NSN
         DO I=1,NSN
          NI=INTBUF_TAB(N)%NSV(I)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           NI2=NI2+1
           II2_MV(1,NI2)=N
           II2_MV(2,NI2)=I
          ENDIF
         ENDDO
        ENDDO
-       IF (NI2.NE.NI2_MV) WRITE(*,*)'pb cal NI2_MV'
+       IF (NI2/=NI2_MV) WRITE(*,*)'pb cal NI2_MV'
       ENDIF
 C-----RBE2-----
       NR2=0
-      IF (NRBE2_MV.GT.0) THEN
+      IF (NRBE2_MV>0) THEN
        DO N=1,NRBE2
         K =IRBE2(1,N)
         M =IRBE2(3,N)
-        IF (INLOC(M).GT.0) THEN
+        IF (INLOC(M)>0) THEN
          NSN  =IRBE2(5,N)
          DO I=1,NSN
           ID = I+K
           NI=LRBE2(ID)
-          IF (INLOC(NI).GT.0) THEN
+          IF (INLOC(NI)>0) THEN
            NR2=NR2+1
            IRBE2_MV(1,NR2)=N
            IRBE2_MV(2,NR2)=NI
@@ -395,34 +384,34 @@ C-----RBE2-----
          ENDDO
         ENDIF
        ENDDO
-       IF (NR2.NE.NRBE2_MV) WRITE(*,*)'pb cal NRBE2_MV'
+       IF (NR2/=NRBE2_MV) WRITE(*,*)'pb cal NRBE2_MV'
       ENDIF
 C--------RBE3--------------------
-      IF (NRBE3_MV.GT.0) THEN
+      IF (NRBE3_MV>0) THEN
        NR3=0
        DO N=1,NRBE3
         NI = IRBE3(3,N)
-        IF (NI.EQ.0) CYCLE
-        IF (INLOC(NI).GT.0) THEN
+        IF (NI==0) CYCLE
+        IF (INLOC(NI)>0) THEN
           NR3=NR3+1
           IRBE3_MV(NR3)=N
         ENDIF
        ENDDO
-       IF (NR3.NE.NRBE3_MV) WRITE(*,*)'pb cal NRBE3_MV'
+       IF (NR3/=NRBE3_MV) WRITE(*,*)'pb cal NRBE3_MV'
       ENDIF
 C-----active rigid body main nodes------
       NRB=0
-      IF (NRB_MV.GT.0) THEN
+      IF (NRB_MV>0) THEN
        DO J=1,NRBYAC
         N=IRBYAC(J)
         K=IRBYAC(J+NRBYKIN)
         M  =NPBY(1,N)
-        IF (INLOC(M).GT.0) THEN
+        IF (INLOC(M)>0) THEN
          NSN  =NPBY(2,N)
          DO I=1,NSN
           ID = I+K
           NI=LPBY(ID)
-          IF (INLOC(NI).GT.0) THEN
+          IF (INLOC(NI)>0) THEN
            NRB=NRB+1
            IRB_MV(1,NRB)=M
            IRB_MV(2,NRB)=NI
@@ -430,20 +419,20 @@ C-----active rigid body main nodes------
          ENDDO
         ENDIF
        ENDDO
-       IF (NRB.NE.NRB_MV) WRITE(*,*)'pb cal NRB_MV'
+       IF (NRB/=NRB_MV) WRITE(*,*)'pb cal NRB_MV'
       ENDIF
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  MONV_FVL                      source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MONV_IMP                      source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_MONV                      share/modules/impbufdef_mod.F 
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    monv_fvl   ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    monv_imp   ../engine/source/airbag/monv_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc   ../engine/share/modules/impbufdef_mod.F
+!||    imp_monv   ../engine/share/modules/impbufdef_mod.F
+!||    imp_rwl    ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE MONV_FVL(IBFV      ,LJ      ,ISKEW   ,ICODT  )
 C-----------------------------------------------
 C   M o d u l e s
@@ -458,7 +447,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -479,17 +467,17 @@ C-----------------------------------------------
       ENDDO
       NBC_MV = 0
       DO N=1,NUMNOD
-        IF (ISKEW(N).GT.1.AND.ICODT(N).NE.7) THEN
-         IF (ITAG(N).GT.0)NBC_MV = NBC_MV + 1
+        IF (ISKEW(N)>1.AND.ICODT(N)/=7) THEN
+         IF (ITAG(N)>0)NBC_MV = NBC_MV + 1
         ENDIF
       ENDDO
-      IF (NBC_MV.GT.0) THEN
+      IF (NBC_MV>0) THEN
        IF(ALLOCATED(IBC_MV)) DEALLOCATE(IBC_MV)
        ALLOCATE(IBC_MV(3,NBC_MV),STAT=IERR1)
        NBC_MV = 0
        DO N=1,NUMNOD
-        IF (ISKEW(N).GT.1.AND.ICODT(N).NE.7) THEN
-         IF (ITAG(N).GT.0) THEN
+        IF (ISKEW(N)>1.AND.ICODT(N)/=7) THEN
+         IF (ITAG(N)>0) THEN
            NBC_MV = NBC_MV + 1
            IBC_MV(1,NBC_MV) = N
            IBC_MV(2,NBC_MV) = ISKEW(N)
@@ -501,14 +489,14 @@ C-----------------------------------------------
 C-----AUTOSPC----
       NSPC_MV = 0
       DO N = 1, NSPCL
-       IF (ITAG(N).GT.0)NSPC_MV = NSPC_MV + 1
+       IF (ITAG(N)>0)NSPC_MV = NSPC_MV + 1
       ENDDO
-      IF (NSPC_MV.GT.0) THEN
+      IF (NSPC_MV>0) THEN
        IF(ALLOCATED(ISPC_MV)) DEALLOCATE(ISPC_MV)
        ALLOCATE(ISPC_MV(NSPC_MV),STAT=IERR1)
        NSPC_MV = 0
        DO N=1,NSPCL
-         IF (ITAG(N).GT.0) THEN
+         IF (ITAG(N)>0) THEN
            NSPC_MV = NSPC_MV + 1
            ISPC_MV(NSPC_MV) = N
          ENDIF
@@ -517,19 +505,19 @@ C-----AUTOSPC----
 C
       NFX_MV = 0
       DO J=1,NFXVEL
-        IF (LJ(J).GT.0.AND.LJ(J).LE.3) THEN
+        IF (LJ(J)>0.AND.LJ(J)<=3) THEN
          N=IABS(IBFV(1,J))
-         IF (ITAG(N).GT.0)NFX_MV = NFX_MV + 1
+         IF (ITAG(N)>0)NFX_MV = NFX_MV + 1
         ENDIF
       ENDDO
-      IF (NFX_MV.GT.0) THEN
+      IF (NFX_MV>0) THEN
        IF(ALLOCATED(IFX_MV)) DEALLOCATE(IFX_MV)
        ALLOCATE(IFX_MV(2,NFX_MV),STAT=IERR2)
        NFX_MV = 0
        DO J=1,NFXVEL
-        IF (LJ(J).GT.0.AND.LJ(J).LE.3) THEN
+        IF (LJ(J)>0.AND.LJ(J)<=3) THEN
          N=IABS(IBFV(1,J))
-         IF (ITAG(N).GT.0) THEN
+         IF (ITAG(N)>0) THEN
            NFX_MV = NFX_MV + 1
            IFX_MV(1,NFX_MV) = J
            IFX_MV(2,NFX_MV) = LJ(J)
@@ -540,15 +528,15 @@ C
       NRW_MV = 0
       DO J=1,N_RWL
        N=IN_RWL(J)
-       IF (ITAG(N).GT.0) NRW_MV = NRW_MV + 1
+       IF (ITAG(N)>0) NRW_MV = NRW_MV + 1
       ENDDO
-      IF (NRW_MV.GT.0) THEN
+      IF (NRW_MV>0) THEN
        IF(ALLOCATED(IRW_MV)) DEALLOCATE(IRW_MV)
        ALLOCATE(IRW_MV(NRW_MV),STAT=IERR3)
        NRW_MV = 0
        DO J=1,N_RWL
          N=IN_RWL(J)
-         IF (ITAG(N).GT.0) THEN
+         IF (ITAG(N)>0) THEN
            NRW_MV = NRW_MV + 1
            IRW_MV(NRW_MV) = J
          ENDIF
@@ -557,16 +545,17 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  MONV_IMP                      source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        MONV_FVL                      source/airbag/monv_imp0.F     
-Chd|        MONV_M3                       source/airbag/monv_imp0.F     
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monv_imp        ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    monv_fvl        ../engine/source/airbag/monv_imp0.F
+!||    monv_m3         ../engine/source/airbag/monv_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod    ../common_source/modules/groupdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE MONV_IMP(MONVOL ,VOLMON  ,X      ,IGRSURF  ,
      1                    NMONV  ,IMONV   ,IPARI  ,INTBUF_TAB      ,
      2                    A_MV   ,AR_MV   ,NDOF   ,IDDL    ,IKC    ,
@@ -578,9 +567,6 @@ C   M o d u l e s
 C-----------------------------------------------
       USE INTBUFDEF_MOD
       USE GROUPDEF_MOD
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -608,19 +594,20 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  MONV_M3                       source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MONV_IMP                      source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        ID_MVINI                      source/airbag/monv_imp0.F     
-Chd|        MONV_KD                       source/airbag/monv_imp0.F     
-Chd|        UPDK_MV                       source/airbag/monv_imp0.F     
-Chd|        ZEROR                         source/system/zero.F          
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        IMP_MONV                      share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monv_m3         ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    monv_imp        ../engine/source/airbag/monv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    id_mvini        ../engine/source/airbag/monv_imp0.F
+!||    monv_kd         ../engine/source/airbag/monv_imp0.F
+!||    updk_mv         ../engine/source/airbag/monv_imp0.F
+!||    zeror           ../engine/source/system/zero.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod    ../common_source/modules/groupdef_mod.F
+!||    imp_monv        ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE MONV_M3(MONVOL ,VOLMON  ,X      ,IGRSURF  ,
      1                   NMONV  ,IMONV   ,IPARI  ,INTBUF_TAB,
      2                   A_MV   ,AR_MV   ,NDOF   ,IDDL    ,IKC    ,
@@ -639,10 +626,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -666,14 +651,14 @@ C----------------
       CALL ID_MVINI(IPARI  ,INTBUF_TAB,NDOF   ,IDDL    ,IKC    ,
      1              INLOC  ,X      ,SKEW   ,IRBE3   ,LRBE3  ,
      2              FRBE3  ,IRBE2  ,LRBE2  )
-      IF (IPREC.LT.2) RETURN
+      IF (IPREC<2) RETURN
       CALL ZEROR(A_MV,NUMNOD)
       CALL MONV_KD(MONVOL ,VOLMON  ,X      ,IGRSURF ,
      1             NMONV  ,IMONV   ,A_MV   ,NNMAX_MV)
       NKIN = NRB_MV+NI2_MV+NFX_MV+NBC_MV+NRW_MV+NRBE3_MV+NSPC_MV
      .       +NRBE2_MV
-      IF (NKIN.GT.0) THEN
-       IF ((NRB_MV+NI2_MV+NRBE3_MV+NSPC_MV+NRBE2_MV).GT.0)
+      IF (NKIN>0) THEN
+       IF ((NRB_MV+NI2_MV+NRBE3_MV+NSPC_MV+NRBE2_MV)>0)
      .     CALL ZEROR(AR_MV,NUMNOD)
        CALL UPDK_MV(NDOF    ,IPARI  ,INTBUF_TAB,NI2_MV ,
      .              II2_MV  ,NRB_MV ,IRB_MV  ,NFX_MV,IFX_MV ,
@@ -689,7 +674,7 @@ C-----initialise diag_mv-----------
         N = IN_MV(I)
         DO J = 1, MIN(3,NDOF(N))
          ID = ID_MV(J,I)
-         IF (ID.GT.0) DIAG_MV(J,I)=A_MV(J,N)
+         IF (ID>0) DIAG_MV(J,I)=A_MV(J,N)
         ENDDO
        ENDDO
 C
@@ -697,8 +682,8 @@ C
         N = IRB_MV(1,I)
         DO J = 1, NDOF(N)
          ID = ID_MVM(J,I)
-         IF (ID.GT.0) THEN
-          IF (J.LE.3) THEN
+         IF (ID>0) THEN
+          IF (J<=3) THEN
            DIAG_MVM(J,I)=A_MV(J,N)
           ELSE
            DIAG_MVM(J,I)=AR_MV(J-3,N)
@@ -722,18 +707,18 @@ C------MSR(NMN)-----
          K14=K13+IPARI(6,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C------ SI Main node is also dependent -----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
           DO J = 1, NDOF(NJ)
            ID = ID_MVM2(J,M,I)
-           IF (ID.GT.0) THEN
-            IF (J.LE.3) THEN
+           IF (ID>0) THEN
+            IF (J<=3) THEN
              DIAG_MVM2(J,M,I)=A_MV(J,NJ)
             ELSE
              DIAG_MVM2(J,M,I)=AR_MV(J-3,NJ)
@@ -751,9 +736,9 @@ C-------
          DO M=1,NNOD
           NJ=LRBE3(IAD+M)
           DO J = 1 , NDOF(NJ)
-	   ID = ID_MVM3(J,M,I)
-           IF (ID.GT.0) THEN
-            IF (J.LE.3) THEN
+             ID = ID_MVM3(J,M,I)
+           IF (ID>0) THEN
+            IF (J<=3) THEN
              DIAG_MVM3(J,M,I)=A_MV(J,NJ)
             ELSE
              DIAG_MVM3(J,M,I)=AR_MV(J-3,NJ)
@@ -768,8 +753,8 @@ C--------RBE2----------
         M = IRBE2(3,N)
         DO J = 1, NDOF(M)
          ID = ID_MVM4(J,I)
-         IF (ID.GT.0) THEN
-          IF (J.LE.3) THEN
+         IF (ID>0) THEN
+          IF (J<=3) THEN
            DIAG_MVM4(J,I)=A_MV(J,M)
           ELSE
            DIAG_MVM4(J,I)=AR_MV(J-3,M)
@@ -780,15 +765,16 @@ C--------RBE2----------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ID_MVINI                      source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MONV_M3                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        RBE3CL                        source/constraints/general/rbe3/rbe3f.F
-Chd|        IMP_MONV                      share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    id_mvini        ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    monv_m3         ../engine/source/airbag/monv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    rbe3cl          ../engine/source/constraints/general/rbe3/rbe3f.F
+!||--- uses       -----------------------------------------------------
+!||    imp_monv        ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE ID_MVINI(IPARI  ,INTBUF_TAB,NDOF   ,IDDL    ,IKC    ,
      1                    INLOC  ,X      ,SKEW   ,IRBE3   ,LRBE3  ,
      2                    FRBE3  ,IRBE2  ,LRBE2  )
@@ -804,7 +790,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
@@ -831,21 +816,21 @@ C-----initialise iddl_mv-----------
        IDDLM(I)=IDDL(I)-NKC
        DO J=1,NDOF(I)
         ND = IDDL(I)+J
-        IF (IKC(ND).NE.0) NKC = NKC + 1
+        IF (IKC(ND)/=0) NKC = NKC + 1
        ENDDO
       ENDDO
 C
        DO I = 1, NUMN_MV
          N = IN_MV(I)
-        IF (NDOF(N).EQ.0) THEN
+        IF (NDOF(N)==0) THEN
          DO J = 1 , 3
           ID_MV(J,I) = -7
          ENDDO
         ELSE
          ND = 0
          DO J = 1 , MIN(3,NDOF(N))
-	  ID = IDDL(N) + J
-          IF (IKC(ID).LT.1) THEN
+            ID = IDDL(N) + J
+          IF (IKC(ID)<1) THEN
            ND = ND + 1
            ID_MV(J,I) = IDDLM(N) + ND
           ELSE
@@ -859,8 +844,8 @@ C
          N = IRB_MV(1,I)
          ND = 0
          DO J = 1 , NDOF(N)
-	  ID = IDDL(N) + J
-          IF (IKC(ID).LT.1) THEN
+            ID = IDDL(N) + J
+          IF (IKC(ID)<1) THEN
            ND = ND + 1
            ID_MVM(J,I) = IDDLM(N) + ND
           ELSE
@@ -884,18 +869,18 @@ C------MSR(NMN)-----
          K14=K13+IPARI(6,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C------ SI Main node is also dependent -----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
           ND = 0
           DO J = 1 , NDOF(NJ)
-	   ID = IDDL(NJ) + J
-           IF (IKC(ID).LT.1) THEN
+             ID = IDDL(NJ) + J
+           IF (IKC(ID)<1) THEN
             ND = ND + 1
             ID_MVM2(J,M,I) = IDDLM(NJ) + ND
            ELSE
@@ -905,7 +890,7 @@ C-------si noeud main est dependant aussi-----
          ENDDO
        ENDDO
 C-------RBE3-----------
-       IF (NRBE3_MV.GT.0) THEN
+       IF (NRBE3_MV>0) THEN
         DO I=1,NRBE3_MV
          N=IRBE3_MV(I)
          NNOD=IRBE3(5,N)
@@ -915,8 +900,8 @@ C-------
           NJ=LRBE3(IAD+M)
           ND = 0
           DO J = 1 , NDOF(NJ)
-	     ID = IDDL(NJ) + J
-           IF (IKC(ID).LT.1) THEN
+               ID = IDDL(NJ) + J
+           IF (IKC(ID)<1) THEN
             ND = ND + 1
             ID_MVM3(J,M,I) = IDDLM(NJ) + ND
            ELSE
@@ -933,7 +918,7 @@ C------- init FCDI_MV,MCDI_MV
          NI=IRBE3(3,N)
          NNOD=IRBE3(5,N)
          IAD=IRBE3(1,N)
-	 IROT=IRBE3(6,N)
+           IROT=IRBE3(6,N)
          CALL RBE3CL(LRBE3(IAD+1),LRBE3(NMT+IAD+1),NI     ,X    ,
      .               FRBE3(IAD+1),SKEW    ,NNOD   ,IROT   ,
      .               FCDI_MV(IADS),MCDI_MV(IADS) ,IRBE3(2,N) )
@@ -947,8 +932,8 @@ C---------RBE2------------
          M = IRBE2(3,N)
          ND = 0
          DO J = 1 , NDOF(M)
-	  ID = IDDL(M) + J
-          IF (IKC(ID).LT.1) THEN
+            ID = IDDL(M) + J
+          IF (IKC(ID)<1) THEN
            ND = ND + 1
            ID_MVM4(J,I) = IDDLM(M) + ND
           ELSE
@@ -959,15 +944,16 @@ C---------RBE2------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  MONV_KD                       source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MONV_M3                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        MONV_KEDI                     source/airbag/monv_imp0.F     
-Chd|        MONV_KEDJ                     source/airbag/monv_imp0.F     
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monv_kd        ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    monv_m3        ../engine/source/airbag/monv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    monv_kedi      ../engine/source/airbag/monv_imp0.F
+!||    monv_kedj      ../engine/source/airbag/monv_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||====================================================================
       SUBROUTINE MONV_KD(MONVOL ,VOLMON  ,X      ,IGRSURF ,
      1                   NMONV  ,IMONV   ,K_DIAG ,NNMAX_MV)
 C-----------------------------------------------
@@ -981,10 +967,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1004,13 +988,13 @@ C-----------------------------------------------
       my_real
      .   XX,YY,ZZ,X12,Y12,Z12,X13,Y13,Z13,X24,Y24,Z24,V,
      .   GAMAV2
-C-----IDDL(3,*) est apres upd_k-,si dependant-:comme interface remote---------
+C----- Idddl (3,*) is after UPD_K-, if depending-: as a remote interface --------------------
 C-----------reprend vol,gama------
       NMV = 0
       K1 = 1
       KK1 = 0
       DO I=1,NVOLU
-       IF(IMONV(I).GT.0) THEN
+       IF(IMONV(I)>0) THEN
          NMV = NMV+1
 C-----------VOL-VINC---------
          VOL(NMV) = VOLMON(KK1+16)- VOLMON(KK1+5)
@@ -1023,7 +1007,7 @@ C-----------DIAG_K------
       NMV = 0
       K1 = 1
       DO I=1,NVOLU
-       IF(IMONV(I).GT.0) THEN
+       IF(IMONV(I)>0) THEN
          IS   = MONVOL(K1+3)
          NN = IGRSURF(IS)%NSEG
          NMV = NMV+1
@@ -1064,15 +1048,15 @@ C-----------K-elememtaire J1--Kij(i dans ele J;j dans ele J1 ---)
      3                   GAMAV2 ,DVD1    ,DVD2   ,K_DIAG)
 C-----------K-elememtaire J1--Kij(i dans ele J;j dans ele J1 ---)
           DO J1=1,NN
-           IF (J1.NE.J) THEN
+           IF (J1/=J) THEN
             M1 = IGRSURF(IS)%NODES(J1,1)
             M2 = IGRSURF(IS)%NODES(J1,2)
             M3 = IGRSURF(IS)%NODES(J1,3)
             M4 = IGRSURF(IS)%NODES(J1,4)
-            IF (M1.EQ.N1.OR.M1.EQ.N2.OR.M1.EQ.N3.OR.M1.EQ.N4
-     1      .OR.M2.EQ.N1.OR.M2.EQ.N2.OR.M2.EQ.N3.OR.M2.EQ.N4
-     2      .OR.M3.EQ.N1.OR.M3.EQ.N2.OR.M3.EQ.N3.OR.M3.EQ.N4
-     3      .OR.M4.EQ.N1.OR.M4.EQ.N2.OR.M4.EQ.N3.OR.M4.EQ.N4) THEN
+            IF (M1==N1.OR.M1==N2.OR.M1==N3.OR.M1==N4
+     1      .OR.M2==N1.OR.M2==N2.OR.M2==N3.OR.M2==N4
+     2      .OR.M3==N1.OR.M3==N2.OR.M3==N3.OR.M3==N4
+     3      .OR.M4==N1.OR.M4==N2.OR.M4==N3.OR.M4==N4) THEN
             CALL MONV_KEDJ(N1     ,N2      ,N3     ,N4     ,M1      ,
      1                     M2     ,M3      ,M4   ,NOR(1,J),NOR(1,J1),
      2                     VOL(NMV),GAMAV2 ,DVD1   ,DVD2   ,K_DIAG  )
@@ -1086,12 +1070,11 @@ C-----------K-elememtaire J1--Kij(i dans ele J;j dans ele J1 ---)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  MONV_KEDI                     source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MONV_KD                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    monv_kedi   ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    monv_kd     ../engine/source/airbag/monv_imp0.F
+!||====================================================================
       SUBROUTINE MONV_KEDI(N1     ,N2      ,N3     ,N4     ,XX      ,
      1                     YY     ,ZZ      ,X13    ,Y13    ,Z13     ,
      2                     X24    ,Y24     ,Z24    ,N      ,VOL     ,
@@ -1100,9 +1083,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1120,7 +1100,7 @@ C-----------------------------------------------
      .   KEV1(3),KEV2(3),KEVS(3),FAC,FACV(3)
 C---------DNDX:NX,x,NY,x,NZ,x,------------------------------------
       ND = 3
-      IF (N3.EQ.N4) THEN
+      IF (N3==N4) THEN
        NNOD = 3
       ELSE
        NNOD = 4
@@ -1162,7 +1142,7 @@ C---------K11,K13=-K11-------------------
           KEV1(I) = FACV(I)*DVD1(I)
 C---------K12,K22-------------------
           KEV2(I) = FACV(I)*DVD2(I)
-C---------terme sup pour (xx,xj j=1,2)-------------------
+C---------- SUP term for (xx, xj j = 1,2) ------------------------------------------
           KEVS(I) = FACV(I)*N(I)
         ENDDO
 C---------KE11-------------------
@@ -1178,7 +1158,7 @@ C---------K22-------------------
         K_DIAG(I,N2) = K_DIAG(I,N2)-KEV2(I)-KEVS(I)
        ENDDO
 C---------K44-------------------
-       IF (NNOD.EQ.4) THEN
+       IF (NNOD==4) THEN
         DO I=1,ND
          K_DIAG(I,N4) = K_DIAG(I,N4)+KEV2(I)
         ENDDO
@@ -1186,12 +1166,11 @@ C---------K44-------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  MONV_KEDJ                     source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MONV_KD                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    monv_kedj   ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    monv_kd     ../engine/source/airbag/monv_imp0.F
+!||====================================================================
       SUBROUTINE MONV_KEDJ(N1     ,N2      ,N3     ,N4     ,M1      ,
      1                     M2     ,M3      ,M4     ,N      ,NJ      ,
      2                     VOL    ,GAMAV2  ,DVD1   ,DVD2   ,K_DIAG  )
@@ -1199,9 +1178,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1220,12 +1196,12 @@ C---------DNDX:NX,x,NY,x,NZ,x,------------------------------------
        NM(1) = M1
        NM(2) = M2
        NM(3) = M3
-      IF (N3.EQ.N4) THEN
+      IF (N3==N4) THEN
        NNOD = 3
       ELSE
        NNOD = 4
       ENDIF
-      IF (M3.EQ.M4) THEN
+      IF (M3==M4) THEN
        NNOD1 = 3
       ELSE
        NNOD1 = 4
@@ -1242,19 +1218,19 @@ C---------terme v-------------------
         ENDDO
 C---------KEIJ---J=N1,I=NM(j)----------------
         DO I=1,NNOD1
-         IF (N1.EQ.NM(I)) THEN
+         IF (N1==NM(I)) THEN
           DO J=1,ND
            K_DIAG(J,N1) = K_DIAG(J,N1)-KEV1(J)-KEVS(J)
           ENDDO
-         ELSEIF (N2.EQ.NM(I)) THEN
+         ELSEIF (N2==NM(I)) THEN
           DO J=1,ND
            K_DIAG(J,N2) = K_DIAG(J,N2)-KEV2(J)-KEVS(J)
           ENDDO
-         ELSEIF (N3.EQ.NM(I)) THEN
+         ELSEIF (N3==NM(I)) THEN
           DO J=1,ND
            K_DIAG(J,N3) = K_DIAG(J,N3)+KEV1(J)
           ENDDO
-         ELSEIF (NNOD.EQ.4.AND.N4.EQ.NM(I)) THEN
+         ELSEIF (NNOD==4.AND.N4==NM(I)) THEN
           DO J=1,ND
            K_DIAG(J,N4) = K_DIAG(J,N4)+KEV2(J)
           ENDDO
@@ -1263,25 +1239,26 @@ C---------KEIJ---J=N1,I=NM(j)----------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDK_MV                       source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MONV_M3                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        BCL_IMPKD                     source/constraints/general/bcs/bc_imp0.F
-Chd|        FV_UPDKD                      source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_UPDKD2                     source/constraints/general/bcs/bc_imp0.F
-Chd|        I2_FRUP0                      source/interfaces/interf/i2_imp1.F
-Chd|        I2_FRUP1                      source/interfaces/interf/i2_imp1.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        PRERBE2FR                     source/constraints/general/rbe2/rbe2f.F
-Chd|        PRERBE3FR                     source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE2_IMPKD                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE3_FRUPD                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    updk_mv         ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    monv_m3         ../engine/source/airbag/monv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    bcl_impkd       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    fv_updkd        ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_updkd2       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    i2_frup0        ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2_frup1        ../engine/source/interfaces/interf/i2_imp1.F
+!||    l_dir           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    prerbe2fr       ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    prerbe3fr       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe2_impkd      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe3_frupd      ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE UPDK_MV(NDOF    ,IPARI  ,INTBUF_TAB,NI2_MV ,
      .                   II2_MV  ,NRB_MV ,IRB_MV  ,NFX_MV,IFX_MV ,
      .                   NBC_MV  ,IBC_MV ,NRW_MV  ,IRW_MV,IBFV   ,
@@ -1300,12 +1277,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1357,7 +1330,7 @@ C--------local secnd node-,d'abord independant----
             KJJ(J,M) = ZERO
            ENDDO
           ENDDO
-          IF (ILEV.EQ.1) THEN
+          IF (ILEV==1) THEN
            CALL I2_FRUP1(X   ,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA,
      .                  INTBUF_TAB(N)%NSV ,
      1                  INTBUF_TAB(N)%IRTLM ,NS  ,KSS,KJJ )
@@ -1371,7 +1344,7 @@ C--------local secnd node-,d'abord independant----
            DO J = 1 , 3
             A(J,NJ) = A(J,NJ) + KJJ(J,M)
            ENDDO
-           IF (NDOF(NJ).GT.3) THEN
+           IF (NDOF(NJ)>3) THEN
             DO J = 1 , 3
              AR(J,NJ) = AR(J,NJ) + KJJ(J+3,M)
             ENDDO
@@ -1384,21 +1357,21 @@ C--------RBE2-----------
          M = IRBE2(3,N)
          NS = IRBE2_MV(2,I)
          ISK = IRBE2(7,N)
-	 IRAD =IRBE2(11,N)
-	 IC = IRBE2(4,N)
-	 IC =(IC/512)*512
+           IRAD =IRBE2(11,N)
+           IC = IRBE2(4,N)
+           IC =(IC/512)*512
          CALL PRERBE2FR(IC    ,JT  ,JR   )
          DO K=1,6
           DO J=1,6
            KDD(K,J) = ZERO
           ENDDO
-	  KMM(K)=  ZERO
-	  KSS(K)=  ZERO
+            KMM(K)=  ZERO
+            KSS(K)=  ZERO
          ENDDO
          DO J=1,3
           KDD(J,J) = A(J,NS)
          ENDDO
-         IF (NDOF(NS).GT.3) THEN
+         IF (NDOF(NS)>3) THEN
           DO J = 1 , 3
             KDD(J+3,J+3) = AR(J,NS)
           ENDDO
@@ -1411,12 +1384,12 @@ C--------for the moment, A(J,NS) will be not transfert
           A(J,M) = A(J,M) + KMM(J)
           A(J,NS) = A(J,NS) + KSS(J)
          ENDDO
-         IF (NDOF(M).GT.3) THEN
+         IF (NDOF(M)>3) THEN
           DO J = 1 , 3
             AR(J,M) = AR(J,M) + KMM(J+3)
           ENDDO
          ENDIF
-         IF (NDOF(NS).GT.3) THEN
+         IF (NDOF(NS)>3) THEN
           DO J = 1 , 3
             AR(J,NS) = AR(J,NS) + KSS(J+3)
           ENDDO
@@ -1445,7 +1418,7 @@ C--------
            DO J = 1 , 3
             A(J,NJ) = A(J,NJ) + DIAG_M3(J,M,I)
            ENDDO
-           IF (IROT.GT.0.AND.NDOF(NJ).GT.3) THEN
+           IF (IROT>0.AND.NDOF(NJ)>3) THEN
             DO J = 1 , 3
              AR(J,NJ) = AR(J,NJ) + DIAG_M3(J+3,M,I)
             ENDDO
@@ -1487,14 +1460,14 @@ C
       DO I1 = 1,NSPC_MV
         N = ISPC_MV(I1)
         I = IN_SPC(N)
-	IR = 0
-	IAD = 6*(N-1)+1
-	NN = IC_SPC(N)
-	IF (NN.GT.3) THEN
-	 NN= NN-3
-	 IR = 1
-	ENDIF
-	IF (IR.EQ.0) THEN
+          IR = 0
+          IAD = 6*(N-1)+1
+          NN = IC_SPC(N)
+          IF (NN>3) THEN
+           NN= NN-3
+           IR = 1
+          ENDIF
+          IF (IR==0) THEN
           KII(1,1)=A(1,I)
           KII(2,2)=A(2,I)
           KII(3,3)=A(3,I)
@@ -1504,16 +1477,16 @@ C
           KII(2,1)=KII(1,2)
           KII(3,1)=KII(1,3)
           KII(3,2)=KII(2,3)
-	  IF (NN.EQ.1) THEN
-	   EJ(1)=SKEW_SPC(IAD)
-	   EJ(2)=SKEW_SPC(IAD+1)
-	   EJ(3)=SKEW_SPC(IAD+2)
+            IF (NN==1) THEN
+             EJ(1)=SKEW_SPC(IAD)
+             EJ(2)=SKEW_SPC(IAD+1)
+             EJ(3)=SKEW_SPC(IAD+2)
            CALL L_DIR(EJ,J)
            CALL FV_UPDKD(EJ    ,J    ,KII   ,A(1,I))
-	  ELSEIF (NN.EQ.2) THEN
+            ELSEIF (NN==2) THEN
            CALL FV_UPDKD2(SKEW_SPC(IAD),SKEW_SPC(IAD+3),KII  ,A(1,I))
-	  END IF
-	ELSE
+            END IF
+          ELSE
           KII(1,1)=AR(1,I)
           KII(2,2)=AR(2,I)
           KII(3,3)=AR(3,I)
@@ -1523,16 +1496,16 @@ C
           KII(2,1)=KII(1,2)
           KII(3,1)=KII(1,3)
           KII(3,2)=KII(2,3)
-	  IF (NN.EQ.1) THEN
-	   EJ(1)=SKEW_SPC(IAD)
-	   EJ(2)=SKEW_SPC(IAD+1)
-	   EJ(3)=SKEW_SPC(IAD+2)
+            IF (NN==1) THEN
+             EJ(1)=SKEW_SPC(IAD)
+             EJ(2)=SKEW_SPC(IAD+1)
+             EJ(3)=SKEW_SPC(IAD+2)
            CALL L_DIR(EJ,J)
            CALL FV_UPDKD(EJ    ,J    ,KII   ,AR(1,I))
-	  ELSEIF (NN.EQ.2) THEN
+            ELSEIF (NN==2) THEN
            CALL FV_UPDKD2(SKEW_SPC(IAD),SKEW_SPC(IAD+3),KII  ,AR(1,I))
-	  END IF
-	ENDIF
+            END IF
+          ENDIF
       ENDDO
 C
       DO I1 = 1,NFX_MV
@@ -1542,11 +1515,11 @@ C
           ISK=IBFV(2,N)/10
           IFM = IBFV(9,N)
           J=IBFV(2,N)
-          IF (IFM.LE.1) J=J-10*ISK
+          IF (IFM<=1) J=J-10*ISK
           K1=3*J-2
           K2=3*J-1
           K3=3*J
-            IF (ISK.GT.1) THEN
+            IF (ISK>1) THEN
               EJ(1)=SKEW(K1,ISK)
               EJ(2)=SKEW(K2,ISK)
               EJ(3)=SKEW(K3,ISK)
@@ -1591,15 +1564,15 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  MONV_DIAG                     source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        LIN_SOLVH1                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVIH2                   source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_MONV                      share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monv_diag       ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    lin_solvh1      ../engine/source/implicit/lin_solv.F
+!||    lin_solvih2     ../engine/source/implicit/lin_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_monv        ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE MONV_DIAG(DIAG_K,NDOF,IPARI,INTBUF_TAB,IRBE3,LRBE3,
      .                     IRBE2  ,IFLAG )
 C-----------------------------------------------
@@ -1614,10 +1587,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1634,12 +1604,12 @@ C-----------------------------------------------
       INTEGER I,J,NKC,N,ND,ID,IAD
       INTEGER M,NSN,JI,K10,K11,K12,K13,K14,L,NNOD,NJ,NL,NI
 C---------IFLAG=0: add; IFLAG=1:remove-------
-      IF (IFLAG.EQ.0) THEN
+      IF (IFLAG==0) THEN
        DO I = 1, NUMN_MV
         N = IN_MV(I)
         DO J = 1, MIN(3,NDOF(N))
          ID = ID_MV(J,I)
-         IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MV(J,I)
+         IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MV(J,I)
         ENDDO
        ENDDO
 C
@@ -1647,7 +1617,7 @@ C
         N = IRB_MV(1,I)
         DO J = 1, NDOF(N)
          ID = ID_MVM(J,I)
-         IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MVM(J,I)
+         IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MVM(J,I)
         ENDDO
        ENDDO
 C
@@ -1666,17 +1636,17 @@ C------MSR(NMN)-----
          K14=K13+IPARI(6,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C------ SI Main node is also dependent -----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
           DO J = 1, NDOF(NJ)
            ID = ID_MVM2(J,M,I)
-           IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MVM2(J,M,I)
+           IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MVM2(J,M,I)
           ENDDO
          ENDDO
        ENDDO
@@ -1690,7 +1660,7 @@ C--------
           NJ=LRBE3(IAD+M)
           DO J = 1, NDOF(NJ)
            ID = ID_MVM3(J,M,I)
-           IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MVM3(J,M,I)
+           IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MVM3(J,M,I)
           ENDDO
          ENDDO
         ENDDO
@@ -1700,7 +1670,7 @@ C----------RBE2---maybe the order is important---------
         M = IRBE2(3,N)
         DO J = 1, NDOF(M)
          ID = ID_MVM(J,I)
-         IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MVM4(J,I)
+         IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MVM4(J,I)
         ENDDO
        ENDDO
 C---------on enleve-----
@@ -1709,7 +1679,7 @@ C---------on enleve-----
         N = IN_MV(I)
         DO J = 1, MIN(3,NDOF(N))
          ID = ID_MV(J,I)
-         IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MV(J,I)
+         IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MV(J,I)
         ENDDO
        ENDDO
 C
@@ -1717,7 +1687,7 @@ C
         N = IRB_MV(1,I)
         DO J = 1, NDOF(N)
          ID = ID_MVM(J,I)
-         IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MVM(J,I)
+         IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MVM(J,I)
         ENDDO
        ENDDO
 C
@@ -1736,17 +1706,17 @@ C------MSR(NMN)-----
          K14=K13+IPARI(6,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C------ SI Main node is also dependent -----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
           DO J = 1, NDOF(NJ)
            ID = ID_MVM2(J,M,I)
-           IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MVM2(J,M,I)
+           IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MVM2(J,M,I)
           ENDDO
          ENDDO
        ENDDO
@@ -1760,7 +1730,7 @@ C--------
           NJ=LRBE3(IAD+M)
           DO J = 1, NDOF(NJ)
            ID = ID_MVM3(J,M,I)
-           IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MVM3(J,M,I)
+           IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MVM3(J,M,I)
           ENDDO
          ENDDO
         ENDDO
@@ -1770,30 +1740,31 @@ C----------RBE2------------
         M = IRBE2(3,N)
         DO J = 1, NDOF(M)
          ID = ID_MVM(J,I)
-         IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MVM4(J,I)
+         IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MVM4(J,I)
         ENDDO
        ENDDO
       ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  MV_MATV                       source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MAV_LT2                       source/implicit/produt_v.F    
-Chd|        MAV_LTH                       source/implicit/produt_v.F    
-Chd|        MAV_LTH0                      source/implicit/produt_v.F    
-Chd|        MAV_LTP                       source/implicit/produt_v.F    
-Chd|-- calls ---------------
-Chd|        IMP3_A2B                      source/airbag/monv_imp0.F     
-Chd|        IMP3_U2X                      source/airbag/monv_imp0.F     
-Chd|        IMP_PVGA                      source/airbag/monv_imp0.F     
-Chd|        SPMD_FR_POFF                  source/mpi/kinematic_conditions/spmd_fr_poff.F
-Chd|        ZEROR                         source/system/zero.F          
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        IMP_MONV                      share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    mv_matv         ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    mav_lt2         ../engine/source/implicit/produt_v.F
+!||    mav_lth         ../engine/source/implicit/produt_v.F
+!||    mav_lth0        ../engine/source/implicit/produt_v.F
+!||    mav_ltp         ../engine/source/implicit/produt_v.F
+!||--- calls      -----------------------------------------------------
+!||    imp3_a2b        ../engine/source/airbag/monv_imp0.F
+!||    imp3_u2x        ../engine/source/airbag/monv_imp0.F
+!||    imp_pvga        ../engine/source/airbag/monv_imp0.F
+!||    spmd_fr_poff    ../engine/source/mpi/kinematic_conditions/spmd_fr_poff.F
+!||    zeror           ../engine/source/system/zero.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod    ../common_source/modules/groupdef_mod.F
+!||    imp_monv        ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE MV_MATV(MONVOL ,VOLMON  ,X      ,IGRSURF,
      1                   FR_MV  ,NMONV  ,IMONV   ,U      ,F      ,
      2                   NDOF   ,IPARI  ,INTBUF_TAB,A      ,
@@ -1815,8 +1786,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1848,13 +1817,13 @@ C----------------actualise X---------------------
      .              NSPC_MV,ISPC_MV,IRBE2 ,LRBE2 ,NRBE2_MV,
      .              IRBE2_MV,ID_MVM4)
       CALL ZEROR(A,NUMNOD)
-      IF ((NRB_MV+NI2_MV+NRBE3_MV+NSPC_MV+NRBE2_MV).GT.0)
+      IF ((NRB_MV+NI2_MV+NRBE3_MV+NSPC_MV+NRBE2_MV)>0)
      .   CALL ZEROR(AR,NUMNOD)
 C-----------calcul VOL,PRESS------
       K1 = 1
       KK1 = 1
       DO I=1,NVOLU
-       IF(IMONV(I).GT.0) THEN
+       IF(IMONV(I)>0) THEN
          IS   = MONVOL(K1+3)
          NN = IGRSURF(IS)%NSEG
          VOL = 0
@@ -1877,25 +1846,21 @@ C-----------calcul VOL,PRESS------
           NOR(3,J)=HALF*(X13*Y24-X24*Y13)
           VOL= VOL+THIRD*(NOR(1,J)*XX+NOR(2,J)*YY+NOR(3,J)*ZZ)
          ENDDO
-          IF(IMACH.EQ.3) THEN
-cow51g8+1
-           IF (NSPMD .GT. 1) THEN
-            TEMP = VOL
-            CALL SPMD_FR_POFF(FR_MV(1,I),TEMP,1)
-            VOL = TEMP
-cow51g8+1
-           ENDIF
-          ENDIF
+         IF (NSPMD > 1) THEN
+          TEMP = VOL
+          CALL SPMD_FR_POFF(FR_MV(1,I),TEMP,1)
+          VOL = TEMP
+         ENDIF
          CALL IMP_PVGA(MONVOL(K1),VOLMON(KK1),VOL ,DPRES)
 C-----------noeud independant -> W------
-        IF (DPRES.NE.ZERO) THEN
+        IF (DPRES/=ZERO) THEN
          DO J=1,NN
           N1 = IGRSURF(IS)%NODES(J,1)
           N2 = IGRSURF(IS)%NODES(J,2)
           N3 = IGRSURF(IS)%NODES(J,3)
           N4 = IGRSURF(IS)%NODES(J,4)
           NTY = IGRSURF(IS)%ELTYP(J)
-          IF (NTY.EQ.7) THEN
+          IF (NTY==7) THEN
            DPI = DPRES*THIRD
            DO K = 1,3
             FNI(K)=DPI*NOR(K,J)
@@ -1934,28 +1899,29 @@ C-----------noeud independant -> W------
      .              ID_MVM4)
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP3_U2X                      source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        INT_MATV                      source/implicit/imp_int_k.F   
-Chd|        INT_MATVP                     source/implicit/imp_int_k.F   
-Chd|        MV_MATV                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        BCL_IMPD                      source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPD2D                      source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDD                       source/constraints/general/bcs/bc_imp0.F
-Chd|        FV_IMPD                       source/constraints/general/impvel/fv_imp0.F
-Chd|        I2_FRRD0                      source/interfaces/interf/i2_imp2.F
-Chd|        I2_FRRD1                      source/interfaces/interf/i2_imp2.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        PRERBE2FR                     source/constraints/general/rbe2/rbe2f.F
-Chd|        PRERBE3FR                     source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE2_FRD                      source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE3_FRD                      source/constraints/general/rbe3/rbe3v.F
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp3_u2x        ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    int_matv        ../engine/source/implicit/imp_int_k.F
+!||    int_matvp       ../engine/source/implicit/imp_int_k.F
+!||    mv_matv         ../engine/source/airbag/monv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    bc_upd2d        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updd         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bcl_impd        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    fv_impd         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    i2_frrd0        ../engine/source/interfaces/interf/i2_imp2.F
+!||    i2_frrd1        ../engine/source/interfaces/interf/i2_imp2.F
+!||    l_dir           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    prerbe2fr       ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    prerbe3fr       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe2_frd        ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe3_frd        ../engine/source/constraints/general/rbe3/rbe3v.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IMP3_U2X(X     ,IPARI  ,INTBUF_TAB,NDOF  ,
      .                   LX     ,A      ,AR     ,X_IMP ,NUMN  ,
      .                   INL    ,IDDL   ,NRB    ,IRB   ,IDDLM ,
@@ -1976,13 +1942,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -2008,12 +1969,12 @@ C-----------------------------------------------
      .        NN,L,NNOD,NJ,ND,NL,ISK,IFM,LJFR(NFXVEL),IROT,IRAD,IC
       my_real
      .  XS,YS,ZS,EJ(3)
-C------utilise A,AR pour actualise U------
+C------ Use A, argues U -------
        DO I = 1, NUMN
         N = INL(I)
         DO J = 1, 3
          ND = IDDL(J,I)
-         IF (ND.GT.0) THEN
+         IF (ND>0) THEN
           A(J,N) = LX(ND)
          ELSE
           A(J,N) = ZERO
@@ -2029,7 +1990,7 @@ C------BCS-----------
          CALL BCL_IMPD(IFM  ,ISK   ,SKEW  ,I     ,A     )
        ENDDO
 C
-       IF (NFX.GT.0) THEN
+       IF (NFX>0) THEN
         DO N=1,NFXVEL
          LJFR(N)=0
         ENDDO
@@ -2043,34 +2004,34 @@ C
        DO L=NSPC,1,-1
         N = ISPC(L)
         I = IN_SPC(N)
-	IROT = 0
-	IAD = 6*(N-1)+1
-	NN = IC_SPC(N)
-	IF (NN.GT.3) THEN
-	 NN= NN-3
-	 IROT = 1
-	ENDIF
-	IF (NN.EQ.1) THEN
-	 EJ(1)=SKEW_SPC(IAD)
-	 EJ(2)=SKEW_SPC(IAD+1)
-	 EJ(3)=SKEW_SPC(IAD+2)
+          IROT = 0
+          IAD = 6*(N-1)+1
+          NN = IC_SPC(N)
+          IF (NN>3) THEN
+           NN= NN-3
+           IROT = 1
+          ENDIF
+          IF (NN==1) THEN
+           EJ(1)=SKEW_SPC(IAD)
+           EJ(2)=SKEW_SPC(IAD+1)
+           EJ(3)=SKEW_SPC(IAD+2)
          CALL L_DIR(EJ,J)
-	END IF
-	IF (IROT.EQ.0) THEN
-	 IF (NN.EQ.1) THEN
+          END IF
+          IF (IROT==0) THEN
+           IF (NN==1) THEN
           A(J,I) = ZERO
           CALL BC_UPDD(I     ,EJ   ,J     ,A     )
-	 ELSEIF (NN.EQ.2) THEN
+           ELSEIF (NN==2) THEN
           CALL BC_UPD2D(I     ,SKEW_SPC(IAD),SKEW_SPC(IAD+3),A     )
-	 END IF
-	ELSE
-	 IF (NN.EQ.1) THEN
+           END IF
+          ELSE
+           IF (NN==1) THEN
           AR(J,I) = ZERO
           CALL BC_UPDD(I     ,EJ   ,J     ,A     )
-	 ELSEIF (NN.EQ.2) THEN
+           ELSEIF (NN==2) THEN
           CALL BC_UPD2D(I     ,SKEW_SPC(IAD),SKEW_SPC(IAD+3),AR    )
-	 END IF
-	ENDIF
+           END IF
+          ENDIF
        ENDDO
       DO L = 1,NRW
         I = IRW(L)
@@ -2085,9 +2046,9 @@ C------Rigid bodies-------
        DO I=1,NRB
         M=IRB(1,I)
          DO J = 1 , NDOF(M)
-	  ND = IDDLM(J,I)
-          IF (ND.LE.0) THEN
-           IF (J.LE.3) THEN
+            ND = IDDLM(J,I)
+          IF (ND<=0) THEN
+           IF (J<=3) THEN
             A(J,M)=ZERO
            ELSE
             AR(J-3,M)=ZERO
@@ -2095,16 +2056,16 @@ C------Rigid bodies-------
           ENDIF
          ENDDO
        ENDDO
-C------esperons le hierachic est dans l'ordre
+C------hope the hierarchy is in order
        DO I=NRB,1,-1
         M=IRB(1,I)
          DO J = 1 , MIN(3,NDOF(M))
-	  ND = IDDLM(J,I)
-          IF (ND.GT.0) A(J,M)=LX(ND)
+            ND = IDDLM(J,I)
+          IF (ND>0) A(J,M)=LX(ND)
          ENDDO
          DO J = 4 , NDOF(M)
-	  ND = IDDLM(J,I)
-          IF (ND.GT.0) AR(J-3,M)=LX(ND)
+            ND = IDDLM(J,I)
+          IF (ND>0) AR(J-3,M)=LX(ND)
          ENDDO
         NS=IRB(2,I)
         XS=X(1,NS)-X(1,M)
@@ -2124,9 +2085,9 @@ C--------RBE3-----
           NJ=LRBE3(IAD+M)
            DO J=1,NDOF(NJ)
             ND = IDDLM3(J,M,I)
-            IF (J.LE.3.AND.ND.GT.0) THEN
+            IF (J<=3.AND.ND>0) THEN
              A(J,NJ)=ZERO
-            ELSEIF(ND.GT.0) THEN
+            ELSEIF(ND>0) THEN
              AR(J-3,NJ)=ZERO
             ENDIF
            ENDDO
@@ -2143,9 +2104,9 @@ C--------RBE3-----
           NJ=LRBE3(IAD+M)
            DO J=1,NDOF(NJ)
             ND = IDDLM3(J,M,I)
-            IF (J.LE.3.AND.ND.GT.0) THEN
+            IF (J<=3.AND.ND>0) THEN
              A(J,NJ)=LX(ND)
-            ELSEIF(ND.GT.0) THEN
+            ELSEIF(ND>0) THEN
              AR(J-3,NJ)=LX(ND)
             ENDIF
            ENDDO
@@ -2161,9 +2122,9 @@ C------RBE2---add jt&skew
         N=IR2(1,I)
         M=IRBE2(3,N)
          DO J = 1 , NDOF(M)
-	  ND = IDDLM4(J,I)
-          IF (ND.LE.0) THEN
-           IF (J.LE.3) THEN
+            ND = IDDLM4(J,I)
+          IF (ND<=0) THEN
+           IF (J<=3) THEN
             A(J,M)=ZERO
            ELSE
             AR(J-3,M)=ZERO
@@ -2176,16 +2137,16 @@ C------RBE2---add jt&skew
         M=IRBE2(3,N)
         NS = IR2(2,I)
         ISK = IRBE2(7,N)
-	IRAD =IRBE2(11,N)
-	IC  = IRBE2(4,N)
-	IC =(IC/512)*512
+          IRAD =IRBE2(11,N)
+          IC  = IRBE2(4,N)
+          IC =(IC/512)*512
          DO J = 1 , MIN(3,NDOF(M))
-	  ND = IDDLM4(J,I)
-          IF (ND.GT.0) A(J,M)=LX(ND)
+            ND = IDDLM4(J,I)
+          IF (ND>0) A(J,M)=LX(ND)
          ENDDO
          DO J = 4 , NDOF(M)
-	  ND = IDDLM4(J,I)
-          IF (ND.GT.0) AR(J-3,M)=LX(ND)
+            ND = IDDLM4(J,I)
+          IF (ND>0) AR(J-3,M)=LX(ND)
          ENDDO
           CALL PRERBE2FR(IC    ,JT  ,JR   )
          CALL RBE2_FRD(NS    ,M     ,X     ,A     ,AR    ,
@@ -2198,18 +2159,18 @@ C------int2-------
         NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C------ SI Main node is also dependent -----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
            DO J=1,NDOF(NJ)
             ND = IDDLM2(J,M,I)
-            IF (ND.LE.0) THEN
-             IF (J.LE.3) THEN
+            IF (ND<=0) THEN
+             IF (J<=3) THEN
               A(J,NJ)=ZERO
              ELSE
               AR(J-3,NJ)=ZERO
@@ -2225,26 +2186,26 @@ C
         NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C------ SI Main node is also dependent -----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
            DO J=1,NDOF(NJ)
             ND = IDDLM2(J,M,I)
-            IF (J.LE.3.AND.ND.GT.0) THEN
+            IF (J<=3.AND.ND>0) THEN
              A(J,NJ)=LX(ND)
-            ELSEIF(ND.GT.0) THEN
+            ELSEIF(ND>0) THEN
              AR(J-3,NJ)=LX(ND)
             ENDIF
            ENDDO
          ENDDO
 
         ILEV  =IPARI(20,N)
-        IF (ILEV.EQ.1) THEN
+        IF (ILEV==1) THEN
          CALL I2_FRRD1(X   ,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA ,
      .                INTBUF_TAB(N)%NSV ,
      1                INTBUF_TAB(N)%IRTLM ,A   ,NI    )
@@ -2255,7 +2216,7 @@ C-------si noeud main est dependant aussi-----
         ENDIF
        ENDDO
 C
-C------Actuallise-X(*) dans X_IMP-----
+Cupdate-x(*) in x_imp
        DO I = 1, NUMN
         N = INL(I)
         DO J = 1, 3
@@ -2265,12 +2226,11 @@ C------Actuallise-X(*) dans X_IMP-----
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_PVGA                      source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        MV_MATV                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_pvga   ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    mv_matv    ../engine/source/airbag/monv_imp0.F
+!||====================================================================
       SUBROUTINE IMP_PVGA(IVOLU ,RVOLU   ,VOL     ,DPRES    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -2279,12 +2239,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2316,10 +2271,10 @@ C     P0V0G  =RVOLU(4)
       DEOUT  =RVOLU(22)
       DV     = VOL-VOLD
 C
-      IF(IDEF.EQ.1)THEN
+      IF(IDEF==1)THEN
         PRES  = PEXT
       ELSE
-C       CALCUL DE L ENERGIE PUIS DE LA PRESSION
+C       calculation of energy and then pressure
         FAC  = HALF*(GAMA-ONE)*DV
         ENERGY= ((ONE-FAC/(VOLD-VINC))*ENERG_OLD-DEOUT*DT1 ) /
      .                             (ONE+FAC/(VOL-VINC))
@@ -2327,7 +2282,7 @@ C       CALCUL DE L ENERGIE PUIS DE LA PRESSION
 C
         PRES=(GAMA-ONE)*ENERGY/(VOL-VINC)
 C
-        IF(PRES.GT.PMAX)THEN
+        IF(PRES>PMAX)THEN
           IDEF=1
           PRES = PEXT
         ENDIF
@@ -2339,30 +2294,31 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  IMP3_A2B                      source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        INT_MATV                      source/implicit/imp_int_k.F   
-Chd|        INT_MATVP                     source/implicit/imp_int_k.F   
-Chd|        MV_MATV                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        BC_FI                         source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_FI2                        source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDF                       source/constraints/general/bcs/bc_imp0.F
-Chd|        FV_UPDF                       source/constraints/general/impvel/fv_imp0.F
-Chd|        I2_FRFM0                      source/interfaces/interf/i2_imp1.F
-Chd|        I2_FRFM1                      source/interfaces/interf/i2_imp1.F
-Chd|        KIN_UPDF                      source/constraints/general/impvel/fv_imp0.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        PRERBE2FR                     source/constraints/general/rbe2/rbe2f.F
-Chd|        PRERBE3FR                     source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE2FRF                       source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE3FRF                       source/constraints/general/rbe3/rbe3f.F
-Chd|        RBY_IMPF                      source/constraints/general/rbody/rby_imp0.F
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp3_a2b        ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    int_matv        ../engine/source/implicit/imp_int_k.F
+!||    int_matvp       ../engine/source/implicit/imp_int_k.F
+!||    mv_matv         ../engine/source/airbag/monv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    bc_fi           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_fi2          ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updf         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    fv_updf         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    i2_frfm0        ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2_frfm1        ../engine/source/interfaces/interf/i2_imp1.F
+!||    kin_updf        ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    l_dir           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    prerbe2fr       ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    prerbe3fr       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe2frf         ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe3frf         ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rby_impf        ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IMP3_A2B(IPARI  ,INTBUF_TAB,NDOF  ,X_IMP  ,
      .                    A      ,AR     ,NUMN  ,INL   ,IDDL   ,
      .                    NRB    ,IRB    ,IDDLM ,NI2   ,II2    ,
@@ -2413,7 +2369,7 @@ C------noeuds independants------
        N=INL(I)
        DO J=1,MIN(3,NDOF(N))
         ND = IDDL(J,I)
-        IF (ND.GT.0) LB(ND)=LB(ND)+A(J,N)
+        IF (ND>0) LB(ND)=LB(ND)+A(J,N)
        ENDDO
       ENDDO
 C------int2-------
@@ -2438,7 +2394,7 @@ C------IRTL(NSN)--main el number---
         J12=J11+NPARIR
         J21=J12+2*NSN
         ILEV  =IPARI(20,N)
-        IF (ILEV.EQ.1) THEN
+        IF (ILEV==1) THEN
          CALL I2_FRFM1(X_IMP ,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA ,
      .                INTBUF_TAB(N)%NSV ,
      1                INTBUF_TAB(N)%IRTLM ,A   ,NI   )
@@ -2447,20 +2403,20 @@ C------IRTL(NSN)--main el number---
      .                INTBUF_TAB(N)%NSV ,
      1                INTBUF_TAB(N)%IRTLM ,A   ,AR    ,NI  ,NDOF    )
         ENDIF
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C------ SI Main node is also dependent -----
          DO M=1,NNOD
            NJ=INTBUF_TAB(N)%IRECTM(NL+M)
            DO J=1,NDOF(NJ)
             ND = IDDLM2(J,M,I)
-            IF (J.LE.3.AND.ND.GT.0) THEN
+            IF (J<=3.AND.ND>0) THEN
              LB(ND) = LB(ND)+A(J,NJ)
              A(J,NJ)=ZERO
-            ELSEIF(ND.GT.0) THEN
+            ELSEIF(ND>0) THEN
              LB(ND) = LB(ND)+AR(J-3,NJ)
              AR(J-3,NJ)=ZERO
             ENDIF
@@ -2473,18 +2429,18 @@ C---------RBE2 -------------
         M=IRBE2(3,N)
         NS = IR2(2,I)
         ISK = IRBE2(7,N)
-	IRAD =IRBE2(11,N)
-	IC  = IRBE2(4,N)
-	IC =(IC/512)*512
+          IRAD =IRBE2(11,N)
+          IC  = IRBE2(4,N)
+          IC =(IC/512)*512
          CALL PRERBE2FR(IC    ,JT  ,JR   )
          CALL RBE2FRF(NS    ,M     ,A     ,AR    ,JT    ,
      1                JR    ,X_IMP ,ISK   ,SKEW(1,ISK),IRAD  )
          DO J = 1 , NDOF(M)
-	  ND = IDDLM(J,I)
-          IF (J.LE.3.AND.ND.GT.0) THEN
+            ND = IDDLM(J,I)
+          IF (J<=3.AND.ND>0) THEN
             LB(ND)=LB(ND)+A(J,M)
             A(J,M)=ZERO
-          ELSEIF (ND.GT.0) THEN
+          ELSEIF (ND>0) THEN
             LB(ND)=LB(ND)+AR(J-3,M)
             AR(J-3,M)=ZERO
           ENDIF
@@ -2506,10 +2462,10 @@ C--------RBE3-----
           NJ=LRBE3(IAD+M)
            DO J=1,NDOF(NJ)
             ND = IDDLM3(J,M,I)
-            IF (J.LE.3.AND.ND.GT.0) THEN
+            IF (J<=3.AND.ND>0) THEN
              LB(ND) = LB(ND)+A(J,NJ)
              A(J,NJ)=ZERO
-            ELSEIF(ND.GT.0.AND.IROT.GT.0) THEN
+            ELSEIF(ND>0.AND.IROT>0) THEN
              LB(ND) = LB(ND)+AR(J-3,NJ)
              AR(J-3,NJ)=ZERO
             ENDIF
@@ -2523,52 +2479,52 @@ C------Rigid bodies-------
         CALL RBY_IMPF(X_IMP ,M      ,NS     ,NDOF   ,A     ,
      .                AR    )
          DO J = 1 , NDOF(M)
-	  ND = IDDLM(J,I)
-          IF (J.LE.3.AND.ND.GT.0) THEN
+            ND = IDDLM(J,I)
+          IF (J<=3.AND.ND>0) THEN
             LB(ND)=LB(ND)+A(J,M)
             A(J,M)=ZERO
-          ELSEIF (ND.GT.0) THEN
+          ELSEIF (ND>0) THEN
             LB(ND)=LB(ND)+AR(J-3,M)
             AR(J-3,M)=ZERO
           ENDIF
          ENDDO
        ENDDO
-       IF (NBC.GT.0) THEN
+       IF (NBC>0) THEN
         CALL BC_UPDF(NBC ,IBC ,SKEW  ,A      )
        ENDIF
         DO L=1,NSPC
          N = ISPC(L)
         I = IN_SPC(N)
-	IF (NDOF(I).EQ.0) CYCLE
-	IROT = 0
-	IAD = 6*(N-1)+1
-	NN = IC_SPC(N)
-	IF (NN.GT.3) THEN
-	 NN= NN-3
-	 IROT = 1
-	ENDIF
-	IF (NN.EQ.1) THEN
-	 EJ(1)=SKEW_SPC(IAD)
-	 EJ(2)=SKEW_SPC(IAD+1)
-	 EJ(3)=SKEW_SPC(IAD+2)
+          IF (NDOF(I)==0) CYCLE
+          IROT = 0
+          IAD = 6*(N-1)+1
+          NN = IC_SPC(N)
+          IF (NN>3) THEN
+           NN= NN-3
+           IROT = 1
+          ENDIF
+          IF (NN==1) THEN
+           EJ(1)=SKEW_SPC(IAD)
+           EJ(2)=SKEW_SPC(IAD+1)
+           EJ(3)=SKEW_SPC(IAD+2)
          CALL L_DIR(EJ,J)
-	ENDIF
-	IF (IROT.EQ.0) THEN
-	 IF (NN.EQ.1) THEN
+          ENDIF
+          IF (IROT==0) THEN
+           IF (NN==1) THEN
           CALL BC_FI(I     ,EJ   ,J     ,A     )
-	 ELSE
+           ELSE
           CALL BC_FI2(I   ,SKEW_SPC(IAD),SKEW_SPC(IAD+3),A     )
-	 END IF
-	ELSE
-	 IF (NN.EQ.1) THEN
+           END IF
+          ELSE
+           IF (NN==1) THEN
           CALL BC_FI(I     ,EJ   ,J     ,AR    )
-	 ELSE
+           ELSE
           CALL BC_FI2(I   ,SKEW_SPC(IAD),SKEW_SPC(IAD+3),AR    )
-	 END IF
-	ENDIF
+           END IF
+          ENDIF
        ENDDO
 C
-      IF (NFX.GT.0) THEN
+      IF (NFX>0) THEN
        CALL FV_UPDF(NFX    ,IFX   ,IBFV  ,SKEW  ,XFRAME,
      1              A      )
       ENDIF
@@ -2584,13 +2540,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RECU_KDIS                     source/airbag/monv_imp0.F     
-Chd|-- called by -----------
-Chd|        LIN_SOLV                      source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_MONV                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    recu_kdis   ../engine/source/airbag/monv_imp0.F
+!||--- called by ------------------------------------------------------
+!||    lin_solv    ../engine/source/implicit/lin_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_monv    ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE RECU_KDIS(NDOF   ,D     )
 C-----------------------------------------------
 C   M o d u l e s
@@ -2601,18 +2557,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NDOF(*)
-      my_real
-     .       D(3,*)
+      my_real D(3,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -2622,7 +2570,7 @@ C---------------------------------
         N = IN_MV(I)
         DO J = 1, 3
          ND = ID_MV(J,I)
-         IF (ND.EQ.-1) THEN
+         IF (ND==-1) THEN
           D(J,N) = ZERO
          ENDIF
         ENDDO

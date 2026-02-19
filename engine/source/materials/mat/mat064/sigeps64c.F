@@ -1,47 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS64C                     source/materials/mat/mat064/sigeps64c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps64c   ../engine/source/materials/mat/mat064/sigeps64c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||    vinter      ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS64C(
-     1     NEL0    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC  ,
-     2     NPF    ,NPT0    ,IPT     ,IFLAG   ,
-     2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0   ,
-     3     AREA   ,EINT   ,THKLY   ,
-     4     EPSPXX ,EPSPYY ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
-     5     DEPSXX ,DEPSYY ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
-     6     EPSXX  ,EPSYY  ,EPSXY   ,EPSYZ   ,EPSZX  ,
-     7     SIGOXX ,SIGOYY ,SIGOXY  ,SIGOYZ  ,SIGOZX ,
-     8     SIGNXX ,SIGNYY ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
-     9     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
-     A     SOUNDSP,VISCMAX,THK     ,PLA     ,UVAR   ,
-     B     OFF    ,NGL    ,IPM     ,MAT    ,
-     C     ETSE   ,GS     ,VOL     ,YLD      ,TEMPEL,
-     D     DIE    ,COEF   ,INLOC   ,DPLANL   )
+     1   NEL0,    NUPARAM, NUVAR,   MFUNC,
+     2   KFUNC,   NPF,     NPT0,    IPT,
+     3   IFLAG,   TF,      TIME,    TIMESTEP,
+     4   UPARAM,  RHO0,    AREA,    EINT,
+     5   THKLY,   EPSPXX,  EPSPYY,  EPSPXY,
+     6   EPSPYZ,  EPSPZX,  DEPSXX,  DEPSYY,
+     7   DEPSXY,  DEPSYZ,  DEPSZX,  EPSXX,
+     8   EPSYY,   EPSXY,   EPSYZ,   EPSZX,
+     9   SIGOXX,  SIGOYY,  SIGOXY,  SIGOYZ,
+     A   SIGOZX,  SIGNXX,  SIGNYY,  SIGNXY,
+     B   SIGNYZ,  SIGNZX,  SIGVXX,  SIGVYY,
+     C   SIGVXY,  SIGVYZ,  SIGVZX,  SOUNDSP,
+     D   VISCMAX, THK,     PLA,     UVAR,
+     E   OFF,     NGL,     IPM,     MAT,
+     F   ETSE,    GS,      VOL,     YLD,
+     G   TEMPEL,  DIE,     INLOC,
+     H   DPLANL,  JTHE,    LOFF)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -92,7 +96,7 @@ C SIGVXX  | NEL0    | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL0    | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL0    | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL0    | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL0    | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C THK     | NEL0    | F |R/W| THICKNESS
 C PLA     | NEL0    | F |R/W| PLASTIC STRAIN
@@ -102,15 +106,11 @@ C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-C
+      INTEGER, INTENT(IN) :: JTHE
       INTEGER NEL0, NUPARAM, NUVAR, NPT0, IPT,IFLAG(*),
      .   NGL(NEL0),MAT(NEL0),IPM(NPROPMI,*),INLOC
       my_real TIME,TIMESTEP,UPARAM(*),
@@ -125,7 +125,8 @@ C
      .   SIGOXX(NEL0),SIGOYY(NEL0),
      .   SIGOXY(NEL0),SIGOYZ(NEL0),SIGOZX(NEL0),
      .   GS(*),VOL(NEL0),TEMPEL(NEL0),
-     .   DIE(NEL0),COEF(NEL0),DPLANL(NEL0)
+     .   DIE(NEL0),DPLANL(NEL0)
+      my_real, DIMENSION(NEL0), INTENT(IN) :: LOFF
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -155,7 +156,7 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NRATE(MVSIZ),J1,J2,N,NINDX,
+      INTEGER I,J,N,NINDX,
      .        NMAX,INDEX(MVSIZ), 
      .        IAD1(MVSIZ),IPOS1(MVSIZ),ILEN1(MVSIZ),
      .        IAD2(MVSIZ),IPOS2(MVSIZ),ILEN2(MVSIZ),
@@ -163,17 +164,17 @@ C-----------------------------------------------
       my_real
      .        E,A1,A2,G,G3,
      .        AA(MVSIZ),BB(MVSIZ),PP(MVSIZ),QQ(MVSIZ),H(MVSIZ),
-     .        EPSMAX(MVSIZ),CC(MVSIZ),DD(MVSIZ),
-     .        CN, CM(MVSIZ), K1(MVSIZ),
+     .        
+     .        CN,
      .        V0, TEMP(MVSIZ),VMC,FAC,
      .        VOL0,DVM, VM(MVSIZ),NU,
      .        NNU2,NU1,NU2,NU3,NU4, 
      .        NU5,NU6,SVM(MVSIZ),
      .        DYDX1(MVSIZ),DYDX2(MVSIZ), Y1(MVSIZ),Y2(MVSIZ)
       my_real
-     .        DPLA(MVSIZ),UMR, R, CP, EPS0(MVSIZ),DEZZ,S1, S2,
+     .        DPLA(MVSIZ),UMR, R, CP,DEZZ,S1, S2,
      .        S3, DPLA_J(MVSIZ), YLD_I,DR(MVSIZ), P2,Q2,NNU1,
-     .        S11,S22,PLA_I,
+     .        S11,S22,
      .        S12, VM2, A, B, C, SIGZ, F, DF, P,MD,
      .        CD,YFAC(2),
      .        HL
@@ -200,6 +201,7 @@ C
          CP  = UPARAM(11)
          YFAC(1) = UPARAM(13)
          YFAC(2) = UPARAM(14) 
+         HL  = UPARAM(15)
          G3  = THREE*G
          NNU1 = NU / (ONE - NU)
          NNU2    = NNU1*NNU1
@@ -211,26 +213,9 @@ C
          NU6 = HALF - NNU2 + HALF*NNU1
          DO I=1,NEL0
            TEMP(I)  = UPARAM(12)
-C latent heat            
-           HL  = UPARAM(15)
-           COEF(I)  = ONE
-C
          ENDDO
-C
-       IF (ISIGI.EQ.0) THEN
-       IF(TIME.EQ.0.0)THEN
-         DO I=1,NEL0
-           UVAR(I,1)=ZERO
-           UVAR(I,2)=ZERO
-           UVAR(I,3) = ZERO  
-           UVAR(I,4) = ZERO
-           UVAR(I,5) = ZERO
-           UVAR(I,6) = ZERO
-         ENDDO
-       ENDIF
-       ENDIF
 C-----------------------------------------------
-C  Calcul de la tempurature. (conduction ou adiabatique)
+C  Calculation of temperature. (conduction or adiabatic)
 C--------------------    
         IF(JTHE > 0 ) THEN
          DO I=1,NEL0     
@@ -240,9 +225,7 @@ C--------------------
           DO I=1,NEL0
             VOL0 = VOL(I) * RHO0(I)
             VM(I) = UVAR(I,2)      
-            TEMP(I) = TEMP(I) 
-     .                       + COEF(I)*CP*(EINT(I,1)+ EINT(I,2))/VOL0
-     .                       + CP*VM(I)*HL/VOL0
+            TEMP(I) = TEMP(I) + (EINT(I,1)+ EINT(I,2) + VM(I)*HL) * CP / VOL0
           ENDDO
         ENDIF
 C
@@ -281,7 +264,7 @@ C Yld stress
            FAC   = VM(I)/VMC
            YLD(I) = Y1(I)    + FAC*(Y2(I)-Y1(I))
            YLD(I) = MAX(YLD(I),EM20)
-C ecrouissage 
+C collapse 
            DYDX1(I)=DYDX1(I)*YFAC(1)
            DYDX2(I)=DYDX2(I)*YFAC(2)
            H(I)   = (DYDX1(I) + FAC*(DYDX2(I)-DYDX1(I)))
@@ -291,8 +274,8 @@ C ecrouissage
 C-------------------
 C     PROJECTION
 C-------------------
-       IF(IFLAG(1).EQ.0)THEN
-C projection radiale 
+       IF(IFLAG(1)==0)THEN
+C radial projection 
          DO I=1,NEL0
            SVM(I)=SQRT(SIGNXX(I)*SIGNXX(I)
      .             +SIGNYY(I)*SIGNYY(I)
@@ -312,11 +295,11 @@ cc           DPLA(I) = OFF(I)*SVM(I)*UMR/(G3(I)+H(I))
              DEZZ=-(DEPSXX(I)+DEPSYY(I))*NNU1-NU3*DEZZ
              THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
            ENDIF
-           IF(R.LT.ONE) ETSE(I)= H(I)/(H(I)+E) 
+           IF(R<ONE) ETSE(I)= H(I)/(H(I)+E) 
          ENDDO
-       ELSEIF(IFLAG(1).EQ.1)THEN
+       ELSEIF(IFLAG(1)==1)THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     VON MISES CRITERION
 C-------------------------  
          DO  I=1,NEL0
            H(I) = MAX(ZERO,H(I))
@@ -336,13 +319,13 @@ C     GATHER PLASTIC FLOW
 C-------------------------
          NINDX=0
          DO I=1,NEL0
-           IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+           IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
              NINDX=NINDX+1
              INDEX(NINDX)=I
            ENDIF
          ENDDO
 C         
-         IF(NINDX.NE.0) THEN
+         IF(NINDX/=0) THEN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
@@ -370,7 +353,7 @@ C
      .         *(E-TWO*DR(I)*H(I))/YLD_I
      .         -TWO*H(I)*YLD_I
              DF = SIGN(MAX(ABS(DF),EM20),DF)
-             IF(DPLA(I).GT.ZERO) THEN
+             IF(DPLA(I)>ZERO) THEN
                DPLA_J(I)=MAX(ZERO,DPLA(I)-F/DF)
              ELSE
                DPLA_J(I)=ZERO
@@ -396,11 +379,11 @@ C------------------------------------------
           ENDDO
          ENDIF
 C------------------------------------------
-       ELSEIF(IFLAG(1).EQ.2)THEN
-C projection radial sur le deviateur sur un critere reduit
-C projection elastique en z => sig33 = 0
-C le coef. de reduction du critere est tel que 
-C l'on se trouve sur le critere apres les 2 projections   
+       ELSEIF(IFLAG(1)==2)THEN
+C radial projection on the deviator on a reduced criterion
+C Elastic projection in z => sig33 = 0
+C the coefficient of reduction of the criterion is such that
+C one is on the criterion after the 2 projections
          DO I=1,NEL0
            P   = -(SIGNXX(I)+SIGNYY(I))*THIRD
            S11 = SIGNXX(I)+P
@@ -433,13 +416,13 @@ cc           DPLA(I) = OFF(I)*SVM(I)*UMR/(G3(I)+H(I))
              DEZZ=-(DEPSXX(I)+DEPSYY(I))*NNU1-NU3*DEZZ
              THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
            ENDIF
-           IF(R.LT.ONE) ETSE(I)= H(I)/(H(I)+E)
+           IF(R<ONE) ETSE(I)= H(I)/(H(I)+E)
          ENDDO
        ENDIF
 C calcul de l'effet martensite ----
        DO I=1,NEL0
          DVM = ZERO
-         IF(TEMP(I).LT.MD) THEN
+         IF(TEMP(I)<MD) THEN
           DVM = CN*CD*EXP((CN-ONE)*LOG(MAX(CD*PLA(I),EM20)))
           DVM = DVM*EXP(-(CD*PLA(I))**CN)
           DVM = DVM*V0*LOG(MD - TEMP(I) + ONE)
@@ -447,7 +430,7 @@ C calcul de l'effet martensite ----
          
          VM(I) = VM(I) + MAX(DVM*DPLA(I),ZERO)
          VM(I) = MIN(VM(I), ONE)
-C la chaleur latente dans le terme source.
+C the latent heat in the source term.
          IF(JTHE > 0 ) DIE(I) = (VM(I) - UVAR(I,2))*HL       
          UVAR(I,2) = VM(I)
          UVAR(I,5) = TEMP(I)
@@ -459,11 +442,13 @@ C     NON-LOCAL THICKNESS VARIATION
 C--------------------------------
       IF (INLOC > 0) THEN
         DO I = 1,NEL0 
-          SVM(I) = SQRT(SIGNXX(I)*SIGNXX(I) + SIGNYY(I)*SIGNYY(I)
-     .           - SIGNXX(I)*SIGNYY(I) + THREE*SIGNXY(I)*SIGNXY(I))
-          DEZZ   = MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/MAX(SVM(I),EM20)
-          DEZZ   = -NU*((SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/E) - DEZZ
-          THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)     
+          IF (LOFF(I) == ONE) THEN 
+            SVM(I) = SQRT(SIGNXX(I)*SIGNXX(I) + SIGNYY(I)*SIGNYY(I)
+     .             - SIGNXX(I)*SIGNYY(I) + THREE*SIGNXY(I)*SIGNXY(I))
+            DEZZ   = MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/MAX(SVM(I),EM20)
+            DEZZ   = -NU*((SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/E) - DEZZ
+            THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)     
+          ENDIF
         ENDDO  
       ENDIF
 C

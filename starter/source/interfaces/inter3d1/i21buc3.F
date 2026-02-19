@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21BUC1                       source/interfaces/inter3d1/i21buc3.F
-Chd|-- called by -----------
-Chd|        ININT3_THKVAR                 source/interfaces/inter3d1/inint3_thkvar.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        I21COR3T                      source/interfaces/inter3d1/i21cor3t.F
-Chd|        I21TRI                        source/interfaces/inter3d1/i21tri.F
-Chd|        I7CMP3                        source/interfaces/inter3d1/i7cmp3.F
-Chd|        I7DST3                        source/interfaces/inter3d1/i7dst3.F
-Chd|        I7PEN3                        source/interfaces/inter3d1/i7pen3.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21buc1                ../starter/source/interfaces/inter3d1/i21buc3.F
+!||--- called by ------------------------------------------------------
+!||    inint3_thkvar          ../starter/source/interfaces/inter3d1/inint3_thkvar.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    i21cor3t               ../starter/source/interfaces/inter3d1/i21cor3t.F
+!||    i21tri                 ../starter/source/interfaces/inter3d1/i21tri.F
+!||    i7cmp3                 ../starter/source/interfaces/inter3d1/i7cmp3.F
+!||    i7dst3                 ../starter/source/interfaces/inter3d1/i7dst3.F
+!||    i7pen3                 ../starter/source/interfaces/inter3d1/i7pen3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I21BUC1(
      1   X     ,IRECT ,NSV   ,BUMULT,NSEG    ,
      2   NMN   ,NRTM ,MWA    ,NSN   ,CAND_E  ,
@@ -54,13 +55,11 @@ Chd|====================================================================
      9   LC2 ,LC3    ,LC4    ,PENE   ,PROV_N ,
      1   PROV_E,N11  ,N21    ,N31    ,DGAPLOAD)
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -70,13 +69,9 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr06_c.inc"
-#include      "scr17_c.inc"
 #include      "units_c.inc"
 #include      "vect07_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -92,28 +87,27 @@ C     REAL
      .   MARGEREF
       my_real , INTENT(IN) :: DGAPLOAD ,DRAD
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
-      INTEGER, DIMENSION(MVSIZ), INTENT(IN) ::PROV_N,PROV_E
-      INTEGER, DIMENSION(MVSIZ), INTENT(IN) :: IX1,IX2,IX3,IX4,NSVG
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: X1,X2,X3,X4
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: Y1,Y2,Y3,Y4
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: Z1,Z2,Z3,Z4
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: XI,YI,ZI
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: X0,Y0,Z0,STIF
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: N11,N21,N31,PENE
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: NX1,NY1,NZ1
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: NX2,NY2,NZ2
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: NX3,NY3,NZ3
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: NX4,NY4,NZ4
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: P1,P2,P3,P4
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: LB1,LB2,LB3,LB4
-      my_real, DIMENSION(MVSIZ), INTENT(IN) :: LC1,LC2,LC3,LC4
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      INTEGER, DIMENSION(MVSIZ), INTENT(INOUT) :: PROV_N,PROV_E
+      INTEGER, DIMENSION(MVSIZ), INTENT(INOUT) :: IX1,IX2,IX3,IX4,NSVG
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: X1,X2,X3,X4
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: Y1,Y2,Y3,Y4
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: Z1,Z2,Z3,Z4
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: XI,YI,ZI
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: X0,Y0,Z0,STIF
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: N11,N21,N31,PENE
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: NX1,NY1,NZ1
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: NX2,NY2,NZ2
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: NX3,NY3,NZ3
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: NX4,NY4,NZ4
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: P1,P2,P3,P4
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: LB1,LB2,LB3,LB4
+      my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: LC1,LC2,LC3,LC4
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, L, N1, N2, N3, N4, I_AMAX
-      INTEGER I_ADD, ADESTK, NB_NC, NB_EC, ADNSTK, IBID
+      INTEGER I_ADD, ADESTK, NB_NC, NB_EC, ADNSTK
       INTEGER IP1, IP2, IP21, IP22, IP31,J_STOK,I_BID,NB_N_B
 C     REAL
       my_real
@@ -122,17 +116,15 @@ C     REAL
      .   DX4,DY4,DZ4,
      .   DX6,DY6,DZ6,
      .   DD1,DD2,DD3,DD4,DD,DD0,XMIN,YMIN,ZMIN,
-     .   XMAX,YMAX,ZMAX,TZINF0,MINBOX_ST,MAXBOX_ST,GAPSMAX,
-     .   BID,TZINF_ST,MARGE_ST,GAPV(MVSIZ)
-C
-!      EQUIVALENCE (PROV_N,IV(1,6)) ,(PROV_E,IV(1,7)) 
+     .   XMAX,YMAX,ZMAX,MINBOX_ST,MAXBOX_ST,
+     .   TZINF_ST,MARGE_ST,GAPV(MVSIZ)
 C-----------------------------------------------
 C
-C     1-CALCUL TAILLE DES ZONES INFLUENCES
-C     DD EST LA LONGEUR MOYENNE ELEMENT
+C     1-CALCULATION TAILLE DES ZONES INFLUENCES
+C     DD IS THE AVERAGE ELEMENT LENGTH
       DD=ZERO
       DO 10 L=1,NRTS
-C      CONNECIVITES ELEMENT
+C      ELEMENT CONNECTIVITIES
        N1=IRECTS(1,L)
        N2=IRECTS(2,L)
        N3=IRECTS(3,L)
@@ -168,23 +160,23 @@ C     DD = MAX(DD0,ONEP251*GAP)
       DD = MAX(DD ,ONEP251*DRAD)
 C     TZINF = BUMULT*DD
       MARGEREF = BUMULT*DD
-C calcul de TZINF en fct de la marge et non le contraire
-C   peut etre ameliore pour engine (debut de run) : TZINF = MARGEREF + Sup(gap) !!!
+C calculation of TZINF based on the margin and not the other way around
+C   Maybe ameliore for angina (start of run): tzinf = margeref + sup (gap) !!!
       TZINF = MARGEREF + MAX(DEPTH,DRAD,(GAP+DGAPLOAD))
-C     Depth >= max(Gapv) dans le starter
-C MARGE_ST : marge independante du BUMULT en input pour trouver les memes pene initiales (cas delete ou chgt coord.)
+C     Depth >= max(Gapv) in the starter
+C MARGE_ST: margin independent of BUMULT as input to find the same initial penetrations (delete or coordinate change cases)
       MARGE_ST = BMUL0*DD
       TZINF_ST = MARGE_ST + MAX(DEPTH,DRAD,(GAP+DGAPLOAD))
 C     MAXBOX= ZEP9*(DD - TZINF)
-C DD + 2*TZINF : taille element augmentee de zone influence
+C DD + 2*Tzinfo: Size element increased in influence zone
       MAXBOX= HALF*(DD + 2*TZINF)
       MINBOX= HALF*MAXBOX
       MAXBOX_ST= HALF*(DD + 2*TZINF_ST)
       MINBOX_ST= HALF*MAXBOX_ST
-C     MIS A ZERO POUR FAIRE SEARCH COMPLET CYCLE 0 ENGINE
+C     SET TO ZERO TO PERFORM COMPLETE SEARCH CYCLE 0 ENGINE
       DIST = ZERO     
 C--------------------------------
-C     CALCUL DES BORNES DU DOMAINE
+C     CALCULATION OF THE DOMAIN BOUNDS
 C--------------------------------
       XMIN=EP30
       XMAX=-EP30
@@ -219,12 +211,12 @@ C
  25   CONTINUE
 C
 C
-C-----2- TRI PAR BOITES DES ELEMENTS ET DES NOEUDS
+C-----2- SORTING BY BOXES OF ELEMENTS AND NODES
 C
       NB_N_B = 1
       I_MEM = 0
-C SI ON A PAS ASSEZ DE MEMOIRE POUR LES PILES ON RECOMMENCE LE TRI
-C EN INCREMENTANT LE NB_N_B (NOMBRE DE NOEUDS PAR BOITE FINIE)
+C IF THERE IS NOT ENOUGH MEMORY FOR THE STACKS, WE START THE SORTING AGAIN
+C BY INCREMENTING NB_N_B (NUMBER OF NODES PER FINISHED BOX)
  100  CONTINUE
 C     POINTEUR  NOM                 TAILLE
 C     P1........Elt Bas Pile        NRTM
@@ -233,7 +225,7 @@ C     P21.......BPN                 NSN
 C     P22.......PN                  NSN
 C     P31.......ADDI                2000
 C
-C  POUR ONE MAILLAGE DE TOPOLOGIE CARRE LA TAILLE DE P2 PEUT ETRE ESTIMEE A:
+C  FOR A SQUARE TOPOLOGY MESH, THE SIZE OF P2 CAN BE ESTIMATED AT:
 C 4n:     NUMELC + 6*SQRT(NUMELC) + 8*LOG2(NUMELC) 
 C 3n:     NUMELTG + 6*SQRT(2*NUMELTG) + 8*LOG2(NUMELTG)
 C 
@@ -242,7 +234,7 @@ C 3n:     NUMELTG + 6*SQRT(2*NUMELTG) + 12*LOG(NUMELTG)
 C 
 C NUMELC + NUMELTG + 6*SQRT(NUMELC+2*NUMELTG) + 12*LOG(NUMELC+NUMELTG)
 C 
-C  POUR ONE MAILLAGE DE TOPOLOGIE LINEAIRE LA TAILLE DE P2 PEUT ETRE ESTIMEE A:
+C  FOR A LINEAR TOPOLOGY MESH, THE SIZE OF P2 CAN BE ESTIMATED AT:
 C NUMELC + NUMELTG + (NUMELC+NUMELTG)*(1 + 1/2 + 1/4 +...) + LOG2(NUMELC+NUMELTG)
 C 3*(NUMELC+NUMELTG) + LOG2(NUMELC+NUMELTG)
 C 3*(NUMELC+NUMELTG) + 300
@@ -256,7 +248,7 @@ C      IP21= IP2+2*MAXSIZ
       IP31= IP22+NUMNOD
 C     IFIN= IP22+2000
 C
-C-----INITIALISATION DES ADRESSES ET X,Y,Z
+C-----INITIALIZATION OF ADDRESSES AND X,Y,Z
 C
 C     ADDE     ADDN     X      Y      Z
 C     1        1        XMIN   YMIN   ZMIN
@@ -281,7 +273,7 @@ C
       NB_NC = NSN
       NB_EC = NRTM
 C
-C-----COPIE DES NOS DE SEGMENTS ET DE NOEUDS DANS MWA(IP1) ET IP21
+C-----COPY OF SEGMENT AND NODE NUMBERS INTO MWA(IP1) AND IP21
 C
       DO 120 I=1,NB_EC
         MWA(IP1+I-1) = I
@@ -290,9 +282,9 @@ C
         MWA(IP21+I-1) = I
   140 CONTINUE
 C
-C-----DEBUT DE LA PHASE DE TRI 
+C-----START OF THE SORTING PHASE
 C 
-C     TANT QUE IL RESTE UNE ADRESSE A TRIER
+C     AS LONG AS THERE IS AN ADDRESS LEFT TO SORT
 C------------------
   200 CONTINUE
 C------------------
@@ -320,22 +312,22 @@ C       SEPARER B ET N EN TWO
      2   PROV_E,N11  ,N21    ,N31    ,DGAPLOAD)
 C------------------
 C     I_MEM = 1 ==> PAS ASSEZ DE MEMOIRE PILE
-C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATS
+C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATES
         IF (I_MEM == 2)THEN
           RETURN
         ENDIF
      
-      IF(I_MEM.EQ.1)THEN
+      IF(I_MEM==1)THEN
         NB_N_B = NB_N_B + 1
         I_MEM = 0
         GO TO 100
-      ELSE IF(I_MEM.EQ.2) THEN
+      ELSE IF(I_MEM==2) THEN
         MARGE_ST = THREE_OVER_4*MARGE_ST
         TZINF_ST = MARGE_ST + MAX(DEPTH,DRAD,(GAP+DGAPLOAD))
         MAXBOX_ST= HALF*(DD + 2*TZINF_ST)
         MINBOX_ST= HALF*MAXBOX_ST
         I_MEM = 0
-        IF(MARGE_ST.LT.EM03) THEN
+        IF(MARGE_ST<EM03) THEN
 C             WRITE(ISTDO,*)' ***ERROR INFINITE LOOP DETECTED(I7BUC)'
 C             WRITE(IOUT,*)' **ERROR INFINITE LOOP DETECTED(I7BUC)'
 C             CALL ARRET(2)
@@ -355,10 +347,10 @@ C             CALL ARRET(2)
         ENDIF
         GO TO 100
       ENDIF
-      IF(I_ADD.NE.0) GO TO 200
-C     FIN BOUCLE TANT QUE
+      IF(I_ADD/=0) GO TO 200
+C     END OF WHILE LOOP
 C---------------------------------
-      IF(J_STOK.NE.0)THEN
+      IF(J_STOK/=0)THEN
          LFT = 1
          LLT = J_STOK
          CALL I21COR3T(X    ,IRECT ,NSV  ,PROV_E ,PROV_N,
@@ -376,20 +368,20 @@ C---------------------------------
      5                  NZ2,NX3,NY3,NZ3,NX4,
      6                  NY4,NZ4,P1 ,P2 ,P3 ,
      7                  P4 ,LB1,LB2,LB3,LB4,
-     8                  LC1,LC2,LC3,LC4)
+     8                  LC1,LC2,LC3,LC4,J_STOK)
          CALL I7PEN3(MARGE_ST,GAPV,N11,N21,N31,
      1                  PENE ,NX1 ,NY1,NZ1,NX2,
      2                  NY2  ,NZ2 ,NX3,NY3,NZ3,
      3                  NX4  ,NY4 ,NZ4,P1 ,P2 ,
-     4                  P3   ,P4)
-         IF(I_STOK+J_STOK.LT.MULTIMP*NSN) THEN
+     4                  P3   ,P4,J_STOK)
+         IF(I_STOK+J_STOK<MULTIMP*NSN) THEN
           CALL I7CMP3(I_STOK,CAND_E  ,CAND_N,1,PENE,
      1                  PROV_N,PROV_E)
          ELSE
           I_BID = 0
           CALL I7CMP3(I_BID,CAND_E,CAND_N,0,PENE,
      1                  PROV_N,PROV_E)
-          IF(I_STOK+I_BID.LT.MULTIMP*NSN) THEN
+          IF(I_STOK+I_BID<MULTIMP*NSN) THEN
             CALL I7CMP3(I_STOK,CAND_E,CAND_N,1,PENE,
      1                  PROV_N,PROV_E)
           ELSE
@@ -397,8 +389,8 @@ C---------------------------------
             TZINF_ST = MARGE_ST + MAX(DEPTH,DRAD,(GAP+DGAPLOAD))
             MAXBOX_ST= HALF*(DD + 2*TZINF_ST)
             MINBOX_ST= HALF*MAXBOX_ST
-	    I_MEM = 0
-            IF(MARGE_ST.LT.EM03) THEN
+              I_MEM = 0
+            IF(MARGE_ST<EM03) THEN
 C             WRITE(ISTDO,*)' ***ERROR INFINITE LOOP DETECTED(I7BUC)'
 C             WRITE(IOUT,*)' **ERROR INFINITE LOOP DETECTED(I7BUC)'
 C             CALL ARRET(2)
@@ -420,7 +412,7 @@ C             CALL ARRET(2)
           ENDIF
         ENDIF
       ENDIF
-      IF(NSN.NE.0)THEN
+      IF(NSN/=0)THEN
       WRITE(IOUT,*)' POSSIBLE IMPACT NUMBER:',I_STOK,' (<=',
      . 1+(I_STOK-1)/NSN,'*NSN)'
       ELSE
@@ -431,7 +423,7 @@ C             CALL ARRET(2)
      .             C1=TITR)
       ENDIF
 C
-C     MISE A ZERO DE TAG POUR I21PWR3
+C     ZEROING OF TAG FOR I21PWR3
 C
       DO I=1,NUMNOD
         MWA(I)=0

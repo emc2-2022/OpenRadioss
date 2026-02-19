@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BMULTN                        source/ale/bimat/bmultn.F     
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE BMULTN(FILL,DFILL,IMS,IFILL,NODFT,NODLT)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    bmultn   ../engine/source/ale/bimat/bmultn.F
+!||--- called by ------------------------------------------------------
+!||    resol    ../engine/source/engine/resol.F
+!||====================================================================
+      SUBROUTINE BMULTN(FILL,DFILL,IMS,NODFT,NODLT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -40,7 +39,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IFILL,NODFT,NODLT
+      INTEGER NODFT,NODLT
       INTEGER IMS(NUMNOD,*)
       my_real
      .   FILL(NUMNOD,*), DFILL(NUMNOD,*)
@@ -51,7 +50,7 @@ C-----------------------------------------------
 C-----------------------------------------------
       DO M=1,NMULT
         DO N=NODFT,NODLT
-          IF(IMS(N,M).GT.0)THEN
+          IF(IMS(N,M)>0)THEN
             DFILL(N,M)=DT2*DFILL(N,M)/IMS(N,M)
           ELSE
             DFILL(N,M)=ZERO
@@ -61,7 +60,7 @@ C-----------------------------------------------
 
       DO M=1,NMULT
         DO N=NODFT,NODLT
-          IF(IMS(N,M).NE.0)THEN
+          IF(IMS(N,M)/=0)THEN
             IMS(N,M) = 0
             FILL(N,M)= FILL(N,M)+DFILL(N,M)
             FILL(N,M)= MIN(ONE,FILL(N,M))

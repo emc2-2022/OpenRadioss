@@ -1,44 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SRBILAN                       source/elements/solid/solide/srbilan.F
-Chd|-- called by -----------
-Chd|        S8CFORC3                      source/elements/thickshell/solide8c/s8cforc3.F
-Chd|        S8EFORC3                      source/elements/solid/solide8e/s8eforc3.F
-Chd|        S8SFORC3                      source/elements/solid/solide8s/s8sforc3.F
-Chd|        S8ZFORC3                      source/elements/solid/solide8z/s8zforc3.F
-Chd|        SCFORC3                       source/elements/thickshell/solidec/scforc3.F
-Chd|        SFORC3                        source/elements/solid/solide/sforc3.F
-Chd|        SZFORC3                       source/elements/solid/solidez/szforc3.F
-Chd|-- calls ---------------
-Chd|        GRELEM_SAV                    source/output/th/grelem_sav.F 
-Chd|        SENSOR_ENERGY_BILAN           source/tools/sensor/sensor_energy_bilan.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    srbilan               ../engine/source/elements/solid/solide/srbilan.F
+!||--- called by ------------------------------------------------------
+!||    s8cforc3              ../engine/source/elements/thickshell/solide8c/s8cforc3.F
+!||    s8eforc3              ../engine/source/elements/solid/solide8e/s8eforc3.F
+!||    s8sforc3              ../engine/source/elements/solid/solide8s/s8sforc3.F
+!||    s8zforc3              ../engine/source/elements/solid/solide8z/s8zforc3.F
+!||    scforc3               ../engine/source/elements/thickshell/solidec/scforc3.F
+!||    sforc3                ../engine/source/elements/solid/solide/sforc3.F
+!||    szforc3               ../engine/source/elements/solid/solidez/szforc3.F
+!||--- calls      -----------------------------------------------------
+!||    grelem_sav            ../engine/source/output/th/grelem_sav.F
+!||    sensor_energy_bilan   ../engine/source/tools/sensor/sensor_energy_bilan.F
+!||--- uses       -----------------------------------------------------
+!||    sensor_mod            ../common_source/modules/sensor_mod.F90
+!||====================================================================
       SUBROUTINE SRBILAN(PARTSAV,EINT,RHO,RK,VOL,
      .   VXA, VYA, VZA, VA2, VNEW,IPARTS ,
      .   GRESAV,GRTH,IGRTH,OFF,IEXPAN,EINTTH,
      .   FILL  ,XX, YY, ZZ,
-     .   XX2,YY2,ZZ2,XY,YZ,ZX,ITASK,IPARG)
+     .   XX2,YY2,ZZ2,XY,YZ,ZX,ITASK,IPARG,SENSORS,
+     .   NEL, G_WPLA, WPLA)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE SENSOR_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,7 +58,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -64,8 +70,11 @@ C     REAL
      .  XX(MVSIZ), YY(MVSIZ), ZZ(MVSIZ),
      .  XX2(MVSIZ), YY2(MVSIZ), ZZ2(MVSIZ),
      .  XY(MVSIZ), YZ(MVSIZ), ZX(MVSIZ)
+      INTEGER, INTENT(IN) :: NEL,G_WPLA
+      my_real,DIMENSION(NEL*G_WPLA), INTENT(IN) :: WPLA
       INTEGER IEXPAN,ITASK,
      .  IPARTS(*),GRTH(*),IGRTH(*),IPARG(*)
+      type (sensors_),INTENT(INOUT) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -81,7 +90,7 @@ C     REAL
      .   IXY(MVSIZ), IYZ(MVSIZ), IZX(MVSIZ),
      .   REI(MVSIZ), REK(MVSIZ), OFF_L(MVSIZ)
 C-----------------------------------------------
-      FLAG = IPARG(80) ! Flag pour sorties additionnelles
+      FLAG = IPARG(80) ! flag for additional outputs
 C-----------------------------------------------
 C     CALCUL BILAN SORTIES DEF 
 C-----------------------------------------------
@@ -109,7 +118,8 @@ C
           PARTSAV(3,M)=PARTSAV(3,M) + XM(I)
           PARTSAV(4,M)=PARTSAV(4,M) + YM(I)
           PARTSAV(5,M)=PARTSAV(5,M) + ZM(I)
-          PARTSAV(6,M)=PARTSAV(6,M) + XMAS(I)
+          IF(OFF(I) >= ONE) PARTSAV(6,M)=PARTSAV(6,M) + XMAS(I)
+          IF (G_WPLA > 0)  PARTSAV(29,M)=PARTSAV(29,M) + WPLA(I)
         END DO
       ELSE
         DO I=LFT,LLT
@@ -121,13 +131,14 @@ C
           PARTSAV(4,M)=PARTSAV(4,M) + YM(I)
           PARTSAV(5,M)=PARTSAV(5,M) + ZM(I)
           PARTSAV(6,M)=PARTSAV(6,M) + XMAS(I)
+          IF (G_WPLA > 0)  PARTSAV(29,M)=PARTSAV(29,M) + WPLA(I)
         END DO
       END IF
 C
 C-----------------------------------------------
 C     CALCUL BILAN SORTIES ADDITIONNELLES 
 C-----------------------------------------------
-      IF(FLAG.EQ.1) THEN
+      IF(FLAG==1) THEN
         DO I=LFT,LLT
           XX(I) = XX(I)*ONE_OVER_8
           YY(I) = YY(I)*ONE_OVER_8
@@ -209,14 +220,14 @@ C-----------------------------------------------
       ENDIF
 C-----------------------------------------------
 C
-      IF(JTUR.NE.0)THEN
+      IF(JTUR/=0)THEN
        DO 50 I=LFT,LLT
        M=IPARTS(I)
        PARTSAV(7,M)=PARTSAV(7,M) + RK(I)*VOL(I)
    50  CONTINUE
       ENDIF
 C
-      IF(IEXPAN.NE.0)THEN
+      IF(IEXPAN/=0)THEN
         DO I=LFT,LLT
          M=IPARTS(I)
           PARTSAV(27,M)=PARTSAV(27,M) + EINTTH(I)*VOL(I)
@@ -229,8 +240,15 @@ C
             OFF_L(I) = ONE
           ENDIF
       ENDDO
-
-      CALL SENSOR_ENERGY_BILAN(LFT,LLT,EI,EK,OFF_L,IPARTS,ITASK)    
+C
+      DO I = LFT,LLT
+        M=IPARTS(I)
+        IF (OFF(I) < ONE) THEN 
+          PARTSAV(25,M) = PARTSAV(25,M) + ONE
+        ENDIF
+      ENDDO
+C
+      CALL SENSOR_ENERGY_BILAN(LFT,LLT,EI,EK,OFF_L,IPARTS,ITASK,SENSORS)    
 C
       RETURN
       END

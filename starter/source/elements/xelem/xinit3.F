@@ -1,41 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  XINIT3                        source/elements/xelem/xinit3.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        XINI1U                        source/elements/xelem/xinit3.F
-Chd|        XINI28                        source/elements/xelem/xini28.F
-Chd|        XINI29                        source/elements/xelem/xini29.F
-Chd|        XINI2U                        source/elements/xelem/xinit3.F
-Chd|        XINI30                        source/elements/xelem/xini30.F
-Chd|        XINI31                        source/elements/xelem/xini31.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    xinit3                 ../starter/source/elements/xelem/xinit3.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    xini1u                 ../starter/source/elements/xelem/xinit3.F
+!||    xini28                 ../starter/source/elements/xelem/xini28.F
+!||    xini29                 ../starter/source/elements/xelem/xini29.F
+!||    xini2u                 ../starter/source/elements/xelem/xinit3.F
+!||    xini30                 ../starter/source/elements/xelem/xini30.F
+!||    xini31                 ../starter/source/elements/xelem/xini31.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE XINIT3(ELBUF_STR,KXX    ,IXX    ,X      ,V      ,
      2                  VR       ,XMAS   ,XIN    ,
      3                  SKEW     ,DTELEM ,NEL    ,STIFN  ,STIFR  ,
@@ -48,6 +48,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,8 +59,6 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "scr23_c.inc"
 C-----------------------------------------------
@@ -79,16 +78,15 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, IGTYP, NDEPAR, I1,
-     .   NUVAR, NUVARN, NUPARAM, IADBUF, NFUNC, IADFUN,
-     .   NMAT,IADMAT,NJPID,IADPID,
+     .   NUVAR, NUVARN, NUPARAM, IADBUF,
+     .   
      .   IADNOD, IMAT, IPROP, NX, K, UID,
      .   NAX1D, NAX2D, NAX3D,IPID1,KVAR,KVARN
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE)::TITR
 C
       my_real
-     .   DT, DTC, XK, XC, XKR, XCR, XM, XINE, A,
+     .       
      .   DTE, MASSELE
 C
       TYPE(G_BUFEL_),POINTER :: GBUF
@@ -208,7 +206,7 @@ C
         NANIM2D=NANIM2D+NAX2D
         NANIM3D=NANIM3D+NAX3D
 C-------
-C Element time step
+C Time Step element
         DTELEM(NDEPAR+I)= DTE
 C-------
 C Nodal time step is estimated based upon stiffness only, damping not taken into account
@@ -226,12 +224,11 @@ C Update nodal masses and global variables for TH
 C------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  XINI1U                        source/elements/xelem/xinit3.F
-Chd|-- called by -----------
-Chd|        XINIT3                        source/elements/xelem/xinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    xini1u   ../starter/source/elements/xelem/xinit3.F
+!||--- called by ------------------------------------------------------
+!||    xinit3   ../starter/source/elements/xelem/xinit3.F
+!||====================================================================
       SUBROUTINE XINI1U(X    ,V    ,VR    ,
      2                  OFF  ,KXX  ,IXX   ,ITAB   ,NX    ,
      3                  UID  ,UIX  ,XUSR  ,VUSR   ,VRUSR )
@@ -256,7 +253,7 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, K, I1, IADNOD
+      INTEGER  K, I1, IADNOD
 C-----------------------------------------------
       OFF=ONE
 C
@@ -278,12 +275,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  XINI2U                        source/elements/xelem/xinit3.F
-Chd|-- called by -----------
-Chd|        XINIT3                        source/elements/xelem/xinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    xini2u   ../starter/source/elements/xelem/xinit3.F
+!||--- called by ------------------------------------------------------
+!||    xinit3   ../starter/source/elements/xelem/xinit3.F
+!||====================================================================
       SUBROUTINE XINI2U(KXX,IXX,UMASS,UINER,MS,
      .                  XIN,PARTSAV,X,V,IPART)
 C----------------------------------------------
@@ -306,7 +302,7 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, K, IP, I1, NX, IADNOD
+      INTEGER  K, IP, I1, NX, IADNOD
 C
       my_real
      .   XX,YY,ZZ,XY,YZ,ZX

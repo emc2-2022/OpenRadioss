@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FXBELNUM                      source/constraints/fxbody/fxbelnum.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fxbelnum      ../starter/source/constraints/fxbody/fxbelnum.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE FXBELNUM(
      .              FXBNOD , NSN, IPARG, ITAG  , FXBELM,
      .              IXS    , IXC, IXTG , IPARTS, IPARTC,
      .              IPARTTG, IXT, IXP  , IPARTT, IPARTP)
+      use element_mod , only : nixs,nixc,nixtg,nixt,nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,7 +42,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "scr01_c.inc"
 #include      "param_c.inc"
-#include      "fxbcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -52,8 +52,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,NG,NEL,NFT,ITY,II,NALL,NEL2,J,IAD,MAT,JHBE,
-     .        IT1,IT2,IT3,IT4,IT5,IT6,IT7,IT8,JSROT
+      INTEGER I,NG,NEL,NFT,ITY,II,NALL,NEL2,J,IAD,MAT,JHBE,IT1,IT2,IT3,IT4,IT5,IT6,IT7,IT8
 C=======================================================================
       DO I=1,NUMNOD
          ITAG(I)=0
@@ -82,7 +81,7 @@ C     1. Solid elements
          IT7=MIN(1,ITAG(IXS(8,II)))
          IT8=MIN(1,ITAG(IXS(9,II)))
          NALL = IT1 * IT2 * IT3 * IT4 * IT5 * IT6 * IT7 * IT8 
-         IF (NALL.GT.0) THEN
+         IF (NALL>0) THEN
             MAT=IXS(1,II)
             FXBELM(NEL2+1)=NG
             FXBELM(NEL2+2)=I
@@ -102,7 +101,7 @@ C     3. 4-nodes shell elements
          IT3=MIN(1,ITAG(IXC(4,II)))
          IT4=MIN(1,ITAG(IXC(5,II)))
          NALL = IT1 * IT2 * IT3 * IT4
-         IF (NALL.GT.0) THEN
+         IF (NALL>0) THEN
             FXBELM(NEL2+1)=NG
             FXBELM(NEL2+2)=I
             DO J=1,4
@@ -119,7 +118,7 @@ C     4. Truss elements
          IT1=MIN(1,ITAG(IXT(2,II)))
          IT2=MIN(1,ITAG(IXT(3,II)))
          NALL = IT1 * IT2
-         IF (NALL.GT.0) THEN
+         IF (NALL>0) THEN
             NB1=IAD
             NB2=NB1+NEL
             FXBELM(NEL2+1)=NG
@@ -140,7 +139,7 @@ C     5. Beam elements
          IT1=MIN(1,ITAG(IXP(2,II)))
          IT2=MIN(1,ITAG(IXP(3,II)))
          NALL = IT1 * IT2
-         IF (NALL.GT.0) THEN
+         IF (NALL>0) THEN
             NB1=IAD
             NB2=NB1+NEL
             NB3=NB2+NEL*3
@@ -168,7 +167,7 @@ C     7. 3-nodes shell elements
          IT2=MIN(1,ITAG(IXTG(3,II)))
          IT3=MIN(1,ITAG(IXTG(4,II)))
          NALL = IT1 * IT2 * IT3
-         IF (NALL.GT.0) THEN
+         IF (NALL>0) THEN
             FXBELM(NEL2+1)=NG
             FXBELM(NEL2+2)=I
             DO J=1,3

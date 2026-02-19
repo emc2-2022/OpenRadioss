@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  W_CLUSTER                     source/output/cluster/w_cluster.F
-Chd|-- called by -----------
-Chd|        WRRESTP                       source/output/restart/wrrestp.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/output/tools/write_db.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|        CLUSTER_MOD                   share/modules/cluster_mod.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    w_cluster     ../engine/source/output/cluster/w_cluster.F
+!||--- called by ------------------------------------------------------
+!||    wrrestp       ../engine/source/output/restart/wrrestp.F
+!||--- calls      -----------------------------------------------------
+!||    write_db      ../common_source/tools/input_output/write_db.F
+!||    write_i_c     ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod   ../engine/share/modules/cluster_mod.F
+!||====================================================================
       SUBROUTINE W_CLUSTER(CLUSTER)
 C-----------------------------------------------
 C  Description:
@@ -36,7 +37,6 @@ C        -IN: Array of CLUSTER structures
 C        -OUT: nothing
 C  Writes the structure into the restart file
 C  (reading done READ_CLUSTER)
-C-----------------------------------------------
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -48,9 +48,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -58,8 +56,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J,K, IEL, NEL,NELG, NNOD
-      INTEGER II,IFAIL,ITY,ID,RL,IL
+      INTEGER I, J, NEL, NNOD
+      INTEGER IFAIL,ITY,ID,RL,IL
       INTEGER ILCLUSTER(NCLUSTER),RLCLUSTER(NCLUSTER)
       INTEGER RLCLUSTER_MAX,ILCLUSTER_MAX
       my_real,
@@ -81,12 +79,12 @@ C=======================================================================
         IFAIL = CLUSTER(I)%IFAIL
         ILCLUSTER(I) = 8 + 2 * (NEL + NNOD)
         RLCLUSTER(I) = 1 
-        IF (IFAIL .GT. 0) RLCLUSTER(I) = RLCLUSTER(I) + 4 
-        IF (IFAIL .EQ. 3) RLCLUSTER(I) = RLCLUSTER(I) + 8  
-        IF ( RLCLUSTER_MAX .LT. RLCLUSTER(I) ) THEN 
+        IF (IFAIL > 0) RLCLUSTER(I) = RLCLUSTER(I) + 4 
+        IF (IFAIL == 3) RLCLUSTER(I) = RLCLUSTER(I) + 8  
+        IF ( RLCLUSTER_MAX < RLCLUSTER(I) ) THEN 
           RLCLUSTER_MAX = RLCLUSTER(I)
         ENDIF 
-        IF ( ILCLUSTER_MAX .LT. ILCLUSTER(I) ) THEN 
+        IF ( ILCLUSTER_MAX < ILCLUSTER(I) ) THEN 
           ILCLUSTER_MAX = ILCLUSTER(I)
         ENDIF 
       ENDDO !NCLUSTER

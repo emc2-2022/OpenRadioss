@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I20LAGM                       source/interfaces/int16/i20lagm.F
-Chd|-- called by -----------
-Chd|        I16MAIN                       source/interfaces/int16/i16main.F
-Chd|-- calls ---------------
-Chd|        I20LLL                        source/interfaces/int16/i20lagm.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i20lagm       ../engine/source/interfaces/int16/i20lagm.F
+!||--- called by ------------------------------------------------------
+!||    i16main       ../engine/source/interfaces/int16/i16main.F
+!||--- calls      -----------------------------------------------------
+!||    i20lll        ../engine/source/interfaces/int16/i20lagm.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE I20LAGM(X    ,V     ,LLL     ,JLL   ,SLL   ,
      2                  XLL   ,CANDN ,CANDE   ,I_STOK,IXS   ,
      3                  IXS20 ,IADLL ,EMINX   ,NSV   ,NELEM ,
      4                  N_MUL_MX,ITASK ,A     ,ITIED ,
      5                  NINT  ,NKMAX  ,COMNTAG)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -44,15 +47,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "warn_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "param_c.inc"
-#include      "couple_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -66,17 +62,17 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,IK,IE,IS,IC,NK,III(MVSIZ,21),LLT,NFT,LE,FIRST,LAST,
+      INTEGER I, K, IE, IS, IC, III(MVSIZ, 21), LLT, NFT, LE, FIRST, LAST, 
      .        I20
       my_real
      .   XX(MVSIZ,21),YY(MVSIZ,21),ZZ(MVSIZ,21),
-     .   AA,XMIN,YMIN,ZMIN,XMAX,YMAX,ZMAX,DIST
+     . DIST
 C-----------------------------------------------
 C
 C
 C       | M | Lt| | a    | M ao
 C       |---+---| |    = |
-C       | L | 0 | | la   | bo
+C       | l | 0 | | la   | bo
 C
 C        [M] a + [L]t la = [M] ao
 C        [L] a = bo
@@ -88,12 +84,12 @@ C on pose:
 C        [H] = [L][M]-1[L]t
 C        b  = [L] ao - bo
 C
-C        [H] la = b
+C        [h] la = b
 C
 C        a = ao - [M]-1[L]t la
 C-----------------------------------------------
 C
-C        la              : LAMBDA(NC)
+C        la              : lambda(nc)
 C        ao              : A(NUMNOD)
 C        L               : XLL(NK,NC)
 C        M               : MAS(NUMNOD)
@@ -101,17 +97,17 @@ C        [L][M]-1[L]t la : HLA(NC)
 C        [L] ao - b      : B(NC)
 C        [M]-1[L]t la    : LTLA(NUMNOD)
 C
-C        NC : nombre de contact 
-C        NK : nombre de noeud pour un contact (8+1,16+1,8+8,16+16)
+C        nc: number of contacts
+C        NK: Number of node for contact (8+1.16+1.8+8.16+16)
 C
-C        IC : numero du contact (1,NC)
-C        IK : numero de noeud local a un contact (1,NK)
-C        I  : numero global du noeud (1,NUMNOD)
+C        IC : contact number (1,NC)
+C        IK : local node number for a contact (1,NK)
+C        I  : global node number (1,NUMNOD)
 C
 C        IADLL(NC)        : IAD = IADLL(IC)
 C        LLL(NC*(21,63))  : I  = LLL(IAD+1,2...IADNEXT-1)
 C-----------------------------------------------
-C  evaluation de b:
+C  evaluation of b:
 C
 C         Vs = Somme(Ni Vi)
 C         Vs_ + dt As = Somme(Ni Vi_) + Somme(dt Ni Ai)
@@ -124,7 +120,7 @@ C-----------------------------------------------
 C                 b  = [L] vo+/dt   +   vout
 C-----------------------------------------------
 C-----------------------------------------------------------------------
-C     boucle sur les candidats au contact   
+C     loop over contact candidates
 C-----------------------------------------------------------------------
       FIRST = 1 + I_STOK * ITASK / NTHREAD
       LAST = I_STOK*(ITASK+1) / NTHREAD
@@ -135,7 +131,7 @@ C-----------------------------------------------------------------------
        IE = NELEM(LE)
        I20 = IE - NUMELS8 - NUMELS10
 C-----------------------------------------------------------------------
-C      test si brick 20  
+C      Test Si Brick 20  
 C-----------------------------------------------------------------------
        IF(I20.GE .1.AND.I20.LE .NUMELS20)THEN
         IS = NSV(CANDN(IC))
@@ -146,13 +142,13 @@ C-----------------------------------------------------------------------
      .             X(2,IS)+DT2*(V(2,IS)+DT12*A(2,IS))-EMINX(5,LE),DIST)
         DIST = MAX(EMINX(3,LE)-X(3,IS)-DT2*(V(3,IS)+DT12*A(3,IS)),
      .             X(3,IS)+DT2*(V(3,IS)+DT12*A(3,IS))-EMINX(6,LE),DIST)
-c        IF (DIST.LT.0.) CANDN(I) = -CANDN(I)
+c        IF (DIST<0.) CANDN(I) = -CANDN(I)
 C-----------------------------------------------------------------------
-C       test si dans la boite   
+C       test if inside the box
 C-----------------------------------------------------------------------
         IF(DIST.LE .ZERO)THEN
 c
-c      print *, "dans la boite",XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX
+c      print *, "in la boite",XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX
 c
           LLT = LLT+1
           III(LLT,21)=IS
@@ -167,77 +163,77 @@ c
           ENDDO
           DO K=1,20
             I = III(LLT,K)
-            IF(I.NE.0)THEN	  	    
+            IF(I/=0)THEN          
               XX(LLT,K)=X(1,I)
               YY(LLT,K)=X(2,I)
               ZZ(LLT,K)=X(3,I)
-	    ELSE
-	      IF(K.EQ.9)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,1))+X(1,III(LLT,2)))
+              ELSE
+                IF(K==9)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,1))+X(1,III(LLT,2)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,1))+X(2,III(LLT,2)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,1))+X(3,III(LLT,2)))
-	      ENDIF
-	      IF(K.EQ.10)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,2))+X(1,III(LLT,3)))
+                ENDIF
+                IF(K==10)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,2))+X(1,III(LLT,3)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,2))+X(2,III(LLT,3)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,2))+X(3,III(LLT,3)))
-	      ENDIF
-	      IF(K.EQ.11)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,3))+X(1,III(LLT,4)))
+                ENDIF
+                IF(K==11)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,3))+X(1,III(LLT,4)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,3))+X(2,III(LLT,4)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,3))+X(3,III(LLT,4)))
-	      ENDIF
-	      IF(K.EQ.12)THEN   
-	        XX(LLT,K)=0.500*(X(1,III(LLT,4))+X(1,III(LLT,1)))
+                ENDIF
+                IF(K==12)THEN   
+                  XX(LLT,K)=0.500*(X(1,III(LLT,4))+X(1,III(LLT,1)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,4))+X(2,III(LLT,1)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,4))+X(3,III(LLT,1)))
-	      ENDIF
-	      IF(K.EQ.13)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,1))+X(1,III(LLT,5)))
+                ENDIF
+                IF(K==13)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,1))+X(1,III(LLT,5)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,1))+X(2,III(LLT,5)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,1))+X(3,III(LLT,5)))
-	      ENDIF
-	      IF(K.EQ.14)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,2))+X(1,III(LLT,6)))
+                ENDIF
+                IF(K==14)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,2))+X(1,III(LLT,6)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,2))+X(2,III(LLT,6)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,2))+X(3,III(LLT,6)))
-	      ENDIF
-	      IF(K.EQ.15)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,3))+X(1,III(LLT,7)))
+                ENDIF
+                IF(K==15)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,3))+X(1,III(LLT,7)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,3))+X(2,III(LLT,7)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,3))+X(3,III(LLT,7)))
-	      ENDIF
-	      IF(K.EQ.16)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,4))+X(1,III(LLT,8)))
+                ENDIF
+                IF(K==16)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,4))+X(1,III(LLT,8)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,4))+X(2,III(LLT,8)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,4))+X(3,III(LLT,8)))
-	      ENDIF
-	      IF(K.EQ.17)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,5))+X(1,III(LLT,6)))
+                ENDIF
+                IF(K==17)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,5))+X(1,III(LLT,6)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,5))+X(2,III(LLT,6)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,5))+X(3,III(LLT,6)))
-	      ENDIF
-	      IF(K.EQ.18)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,6))+X(1,III(LLT,7)))
+                ENDIF
+                IF(K==18)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,6))+X(1,III(LLT,7)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,6))+X(2,III(LLT,7)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,6))+X(3,III(LLT,7)))
-	      ENDIF
-	      IF(K.EQ.19)THEN    
-	        XX(LLT,K)=0.500*(X(1,III(LLT,7))+X(1,III(LLT,8)))
+                ENDIF
+                IF(K==19)THEN    
+                  XX(LLT,K)=0.500*(X(1,III(LLT,7))+X(1,III(LLT,8)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,7))+X(2,III(LLT,8)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,7))+X(3,III(LLT,8)))
-	      ENDIF
-	      IF(K.EQ.20)THEN
-	        XX(LLT,K)=0.500*(X(1,III(LLT,5))+X(1,III(LLT,8)))
+                ENDIF
+                IF(K==20)THEN
+                  XX(LLT,K)=0.500*(X(1,III(LLT,5))+X(1,III(LLT,8)))
                 YY(LLT,K)=0.500*(X(2,III(LLT,5))+X(2,III(LLT,8)))
                 ZZ(LLT,K)=0.500*(X(3,III(LLT,5))+X(3,III(LLT,8)))
-	      ENDIF
-	    ENDIF
+                ENDIF
+              ENDIF
           ENDDO
 C-----------------------------------------------------------------------
-C     calcul de  [L] par paquet de mvsiz   
+C     calculation of [l] by mvsiz packet
 C-----------------------------------------------------------------------
-          IF(LLT.EQ.MVSIZ-1)THEN
+          IF(LLT==MVSIZ-1)THEN
             CALL I20LLL(
      1       LLT ,LLL       ,JLL       ,SLL       ,XLL     ,V       ,
      2       XX  ,YY        ,ZZ        ,III       ,IADLL   ,
@@ -253,9 +249,9 @@ c debug
        ENDIF
       ENDDO
 C-----------------------------------------------------------------------
-C     calcul de  [L] pour dernier paquet   
+C     calculation of [l] for the last packet
 C-----------------------------------------------------------------------
-      IF(LLT.NE.0) CALL I20LLL(
+      IF(LLT/=0) CALL I20LLL(
      1       LLT ,LLL       ,JLL       ,SLL       ,XLL     ,V       ,
      2       XX  ,YY        ,ZZ        ,III       ,IADLL   ,
      3       N_MUL_MX ,A    ,X         ,ITIED     ,NINT    ,NKMAX   ,
@@ -264,16 +260,17 @@ C
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I20LLL                        source/interfaces/int16/i20lagm.F
-Chd|-- called by -----------
-Chd|        I20LAGM                       source/interfaces/int16/i20lagm.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        I20RST                        source/interfaces/int16/i20lagm.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i20lll        ../engine/source/interfaces/int16/i20lagm.F
+!||--- called by ------------------------------------------------------
+!||    i20lagm       ../engine/source/interfaces/int16/i20lagm.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||    i20rst        ../engine/source/interfaces/int16/i20lagm.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I20LLL(LLT  ,LLL       ,JLL  ,SLL  ,XLL  ,V     ,
      2                  XX   ,YY        ,ZZ   ,III  ,IADLL ,
      3                  N_MUL_MX,A      ,X    ,ITIED,NINT ,NKMAX ,
@@ -295,7 +292,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com08_c.inc"
-#include      "units_c.inc"
       COMMON /LAGGLOB/N_MULT
       INTEGER N_MULT
 C-----------------------------------------------
@@ -312,7 +308,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,IK,NK,I1,I2,I3,I4,IAD,NN,J1,J2,IIK,
+      INTEGER I, IK, NK, IAD, NN, J1, J2, IIK, 
      .        IPERM1(20),IPERM2(20),COMPTIK
       my_real
      .   VX,VY,VZ,VN,AA
@@ -324,9 +320,9 @@ C-----------------------------------------------
       DATA IPERM1 /0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8,
      .             5,6,7,8/
       DATA IPERM2 /0,0,0,0,0,0,0,0,2,3,4,1,1,2,3,4,
-     .             6,7,8,5/	   
+     .             6,7,8,5/     
 C-----------------------------------------------
-C      calcul de r,s,t
+C      calculation de r,s,t
 C-----------------------------------------------
 c
 c      print *, "XX(1,1),XX(1,9)",XX(1,1),XX(1,9)
@@ -335,15 +331,15 @@ c
      2            NSX   ,NSY   ,NSZ   ,NX    ,NY    ,NZ    ,
      3            XX    ,YY    ,ZZ    )
 C-----------------------------------------------
-C      calcul de [L]
+C      calculation of [l]
 C-----------------------------------------------
-      IF(ITIED.EQ.0)THEN
+      IF(ITIED==0)THEN
        DO I=1,LLT
 C-----------------------------------------------
-C       test si contact
+C       Test if contact
 C-----------------------------------------------
-        IF(R(I).GE.-ONE.AND.S(I).GE.-ONE.AND.T(I).GE.-ONE.AND.
-     .     R(I).LE. ONE.AND.S(I).LE. ONE.AND.T(I).LE. ONE)THEN
+        IF(R(I)>=-ONE.AND.S(I)>=-ONE.AND.T(I)>=-ONE.AND.
+     .     R(I)<= ONE.AND.S(I)<= ONE.AND.T(I)<= ONE)THEN
 C
           NK = 21
           VX = ZERO
@@ -354,28 +350,28 @@ C
             VY = VY - (V(2,III(I,IK))+DT12*A(2,III(I,IK)))*NI(I,IK)
             VZ = VZ - (V(3,III(I,IK))+DT12*A(3,III(I,IK)))*NI(I,IK)
           ENDDO
-	  DO IK=9,21
-	    IF(III(I,IK).NE.0)THEN
-	      VX = VX - (V(1,III(I,IK))+DT12*A(1,III(I,IK)))*NI(I,IK)
+            DO IK=9,21
+              IF(III(I,IK)/=0)THEN
+                VX = VX - (V(1,III(I,IK))+DT12*A(1,III(I,IK)))*NI(I,IK)
               VY = VY - (V(2,III(I,IK))+DT12*A(2,III(I,IK)))*NI(I,IK)
               VZ = VZ - (V(3,III(I,IK))+DT12*A(3,III(I,IK)))*NI(I,IK)
             ELSE
-	       VX=VX
-	       VY=VY
-	       VZ=VZ
-	    ENDIF 
-	   ENDDO 
+                 VX=VX
+                 VY=VY
+                 VZ=VZ
+              ENDIF 
+             ENDDO 
 c
 c      print *, "vx,vy,vz s-m",vx,vy,vz
 c      print *, "nx,ny,nz ", NX(I),NY(I),NZ(I)
 c
           VN = NSX(I)*VX + NSY(I)*VY + NSZ(I)*VZ
 C-----------------------------------------------
-C         test si vitesse entrante en s
+C         Test if incoming velocity in S
 C-----------------------------------------------
-          IF(S(I)*VN.LE.0.0)THEN
+          IF(S(I)*VN<=0.0)THEN
 c
-c      print *, "vitesse entrante",vn
+c      print *, "velocity entrante",vn
 c
 c           AA = DT12/SQRT(NX(I)*NX(I)+NY(I)*NY(I)+NZ(I)*NZ(I))
            AA = ONE/SQRT(NSX(I)*NSX(I)+NSY(I)*NSY(I)+NSZ(I)*NSZ(I))
@@ -384,23 +380,23 @@ c           AA = DT12/SQRT(NX(I)*NX(I)+NY(I)*NY(I)+NZ(I)*NZ(I))
            NSZ(I) = NSZ(I)*AA
 #include "lockon.inc"
             N_MULT=N_MULT+1
-            IF(N_MULT.GT.N_MUL_MX)THEN
+            IF(N_MULT>N_MUL_MX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
             IAD = IADLL(N_MULT) - 1
             IIK=0
-	    COMPTIK=0 
-	    DO IK=1,21
-              IF(III(I,IK).NE.0)THEN	
-	       COMPTIK=COMPTIK+1
-	      ENDIF  
-	    ENDDO
+              COMPTIK=0 
+              DO IK=1,21
+              IF(III(I,IK)/=0)THEN
+                 COMPTIK=COMPTIK+1
+                ENDIF  
+              ENDDO
             DO IK=1,21
-	      IF(III(I,IK).NE.0)THEN	
-	        IIK=IIK+1  
-		LLL(IAD+IIK)    = III(I,IK)
+                IF(III(I,IK)/=0)THEN
+                  IIK=IIK+1  
+          LLL(IAD+IIK)    = III(I,IK)
                 JLL(IAD+IIK)    = 1
                 SLL(IAD+IIK)    = 0
                 XLL(IAD+IIK)    = NSX(I)*NI(I,IK)
@@ -412,46 +408,46 @@ c           AA = DT12/SQRT(NX(I)*NX(I)+NY(I)*NY(I)+NZ(I)*NZ(I))
                 JLL(IAD+(2*COMPTIK)+IIK) = 3
                 SLL(IAD+(2*COMPTIK)+IIK) = 0
                 XLL(IAD+(2*COMPTIK)+IIK) = NSZ(I)*NI(I,IK)
-		NN = LLL(IAD+IIK)
-		COMNTAG(NN) = COMNTAG(NN) + 1
+          NN = LLL(IAD+IIK)
+          COMNTAG(NN) = COMNTAG(NN) + 1
               ELSE
-	        J1=IPERM1(IK)
-	        J2=IPERM2(IK)
-	        XLL(IAD+J1)=XLL(IAD+J1)+0.5*(NSX(I)*NI(I,IK))
-		XLL(IAD+J2)=XLL(IAD+J2)+0.5*(NSX(I)*NI(I,IK))
-		XLL(IAD+COMPTIK+J1)=XLL(IAD+COMPTIK+J1)+
-     .		0.5*(NSY(I)*NI(I,IK))
-		XLL(IAD+COMPTIK+J2)=XLL(IAD+COMPTIK+J2)+
-     .		0.5*(NSY(I)*NI(I,IK))
-		XLL(IAD+(2*COMPTIK)+J1)=XLL(IAD+(2*COMPTIK)+J1)+
-     .		0.5*(NSZ(I)*NI(I,IK))
-		XLL(IAD+(2*COMPTIK)+J2)=XLL(IAD+(2*COMPTIK)+J2)+
-     .		0.5*(NSZ(I)*NI(I,IK))
-	      ENDIF	  	    
+                  J1=IPERM1(IK)
+                  J2=IPERM2(IK)
+                  XLL(IAD+J1)=XLL(IAD+J1)+0.5*(NSX(I)*NI(I,IK))
+          XLL(IAD+J2)=XLL(IAD+J2)+0.5*(NSX(I)*NI(I,IK))
+          XLL(IAD+COMPTIK+J1)=XLL(IAD+COMPTIK+J1)+
+     .    0.5*(NSY(I)*NI(I,IK))
+          XLL(IAD+COMPTIK+J2)=XLL(IAD+COMPTIK+J2)+
+     .    0.5*(NSY(I)*NI(I,IK))
+          XLL(IAD+(2*COMPTIK)+J1)=XLL(IAD+(2*COMPTIK)+J1)+
+     .    0.5*(NSZ(I)*NI(I,IK))
+          XLL(IAD+(2*COMPTIK)+J2)=XLL(IAD+(2*COMPTIK)+J2)+
+     .    0.5*(NSZ(I)*NI(I,IK))
+                ENDIF          
             ENDDO
             IADLL(N_MULT+1)=IADLL(N_MULT)+(3*COMPTIK)
-	    IF(IADLL(N_MULT+1)-1.GT.NKMAX)THEN
+              IF(IADLL(N_MULT+1)-1>NKMAX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
-	    SLL(IAD+COMPTIK) = NINT
+              SLL(IAD+COMPTIK) = NINT
             SLL(IAD+(2*COMPTIK)) = NINT
             SLL(IAD+(3*COMPTIK)) = NINT
 #include "lockoff.inc"
           ENDIF
         ENDIF
        ENDDO
-      ELSEIF(ITIED.EQ.1)THEN
+      ELSEIF(ITIED==1)THEN
 C-----------------------------------------------
 C      ITIED = 1
 C-----------------------------------------------
        DO I=1,LLT
 C-----------------------------------------------
-C       test si contact
+C       Test if contact
 C-----------------------------------------------
-        IF(R(I).GE.-ONE.AND.S(I).GE.-ONE.AND.T(I).GE.-ONE.AND.
-     .     R(I).LE. ONE.AND.S(I).LE. ONE.AND.T(I).LE. ONE)THEN
+        IF(R(I)>=-ONE.AND.S(I)>=-ONE.AND.T(I)>=-ONE.AND.
+     .     R(I)<= ONE.AND.S(I)<= ONE.AND.T(I)<= ONE)THEN
 C
           NK = 21
           VX = ZERO
@@ -462,36 +458,36 @@ C
             VY = VY - (V(2,III(I,IK))+DT12*A(2,III(I,IK)))*NI(I,IK)
             VZ = VZ - (V(3,III(I,IK))+DT12*A(3,III(I,IK)))*NI(I,IK)
           ENDDO
-	  DO IK=9,21
-	    IF(III(I,IK).NE.0)THEN
-	      VX = VX - (V(1,III(I,IK))+DT12*A(1,III(I,IK)))*NI(I,IK)
+            DO IK=9,21
+              IF(III(I,IK)/=0)THEN
+                VX = VX - (V(1,III(I,IK))+DT12*A(1,III(I,IK)))*NI(I,IK)
               VY = VY - (V(2,III(I,IK))+DT12*A(2,III(I,IK)))*NI(I,IK)
               VZ = VZ - (V(3,III(I,IK))+DT12*A(3,III(I,IK)))*NI(I,IK)
             ELSE
-	      VX=VX
-	      VY=VY
-	      VZ=VZ
-	    ENDIF 
-	   ENDDO 
+                VX=VX
+                VY=VY
+                VZ=VZ
+              ENDIF 
+             ENDDO 
 c
 c      print *, "vx,vy,vz s-m",vx,vy,vz
 c      print *, "nx,ny,nz ", NX(I),NY(I),NZ(I)
 c
           VN = NX(I)*VX + NY(I)*VY + NZ(I)*VZ
 C-----------------------------------------------
-C         test si vitesse entrante en r,s ou t
+C         test if incoming velocity in r,
 C-----------------------------------------------
-          IF(VN.LE.ZERO)THEN
+          IF(VN<=ZERO)THEN
 c
-c      print *, "vitesse entrante",vn
+c      print *, "velocity entrante",vn
 c
 #include "lockon.inc"
-            IF(N_MULT+3.GT.N_MUL_MX)THEN
+            IF(N_MULT+3>N_MUL_MX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
-            IF(IADLL(N_MULT+1)-1+21*3.GT.NKMAX)THEN
+            IF(IADLL(N_MULT+1)-1+21*3>NKMAX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
@@ -499,69 +495,69 @@ c
 C
             N_MULT=N_MULT+1
             IAD = IADLL(N_MULT) - 1
-            IIK=0	    
+            IIK=0      
             DO IK=1,21
-	      IF(III(I,IK).NE.0)THEN
-	         IIK=IIK+1
-		 LLL(IAD+IIK) = III(I,IK)
+                IF(III(I,IK)/=0)THEN
+                   IIK=IIK+1
+           LLL(IAD+IIK) = III(I,IK)
                  JLL(IAD+IIK) = 1
                  SLL(IAD+IIK) = 0
                  XLL(IAD+IIK) = NI(I,IK)
-		 NN = LLL(IAD+IIK)
+           NN = LLL(IAD+IIK)
                  COMNTAG(NN) = COMNTAG(NN) + 1
-	      ELSE
-	        J1=IPERM1(IK)
-	        J2=IPERM2(IK)
-	        XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
-		XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
-	      ENDIF
+                ELSE
+                  J1=IPERM1(IK)
+                  J2=IPERM2(IK)
+                  XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
+          XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
+                ENDIF
             ENDDO
             SLL(IAD+IIK) = NINT
-	    IADLL(N_MULT+1)=IADLL(N_MULT) + IIK
+              IADLL(N_MULT+1)=IADLL(N_MULT) + IIK
 C
             N_MULT=N_MULT+1
             IAD = IADLL(N_MULT) - 1
             IIK=0
             DO IK=1,21
-	       IF(III(I,IK).NE.0)THEN
-	         IIK=IIK+1
-		 LLL(IAD+IIK) = III(I,IK)
+                 IF(III(I,IK)/=0)THEN
+                   IIK=IIK+1
+           LLL(IAD+IIK) = III(I,IK)
                  JLL(IAD+IIK) = 2
                  SLL(IAD+IIK) = 0
                  XLL(IAD+IIK) = NI(I,IK)
-		 NN = LLL(IAD+IIK)
+           NN = LLL(IAD+IIK)
                  COMNTAG(NN) = COMNTAG(NN) + 1
                ELSE
-	         J1=IPERM1(IK)
-	         J2=IPERM2(IK)
-	         XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
-		 XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
-	       ENDIF
+                   J1=IPERM1(IK)
+                   J2=IPERM2(IK)
+                   XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
+           XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
+                 ENDIF
             ENDDO
-	    IADLL(N_MULT+1)=IADLL(N_MULT) + IIK
-	    SLL(IAD+IIK) = NINT
+              IADLL(N_MULT+1)=IADLL(N_MULT) + IIK
+              SLL(IAD+IIK) = NINT
 C
             N_MULT=N_MULT+1
             IAD = IADLL(N_MULT) - 1
-	    IIK=0	    
+              IIK=0      
             DO IK=1,21
-	      IF(III(I,IK).NE.0)THEN 
-	        IIK=IIK+1
+                IF(III(I,IK)/=0)THEN 
+                  IIK=IIK+1
                 LLL(IAD+IIK) = III(I,IK)
                 JLL(IAD+IIK) = 3
                 SLL(IAD+IIK) = 0
                 XLL(IAD+IIK) = NI(I,IK)
-		NN = LLL(IAD+IIK)
+          NN = LLL(IAD+IIK)
                 COMNTAG(NN) = COMNTAG(NN) + 1
-	      ELSE
-	      	J1=IPERM1(IK)
-	        J2=IPERM2(IK)
-	        XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
-	        XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
-	      ENDIF
+                ELSE
+          J1=IPERM1(IK)
+                  J2=IPERM2(IK)
+                  XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
+                  XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
+                ENDIF
             ENDDO
-            IADLL(N_MULT+1)=IADLL(N_MULT) + IIK	 
-	    SLL(IAD+IIK) = NINT 
+            IADLL(N_MULT+1)=IADLL(N_MULT) + IIK   
+              SLL(IAD+IIK) = NINT 
 #include "lockoff.inc"
           ENDIF
         ENDIF
@@ -572,90 +568,90 @@ C      ITIED = 2
 C-----------------------------------------------
        DO I=1,LLT
 C-----------------------------------------------
-C       test si contact
+C       Test if contact
 C-----------------------------------------------
-        IF(R(I).GE.-ONE.AND.S(I).GE.-ONE.AND.T(I).GE.-ONE.AND.
-     .     R(I).LE. ONE.AND.S(I).LE. ONE.AND.T(I).LE. ONE)THEN
+        IF(R(I)>=-ONE.AND.S(I)>=-ONE.AND.T(I)>=-ONE.AND.
+     .     R(I)<= ONE.AND.S(I)<= ONE.AND.T(I)<= ONE)THEN
 C
            NK = 21
 C-----------------------------------------------
 c
 #include "lockon.inc"
-            IF(N_MULT+3.GT.N_MUL_MX)THEN
+            IF(N_MULT+3>N_MUL_MX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
-            IF(IADLL(N_MULT+1)-1+21*3.GT.NKMAX)THEN
+            IF(IADLL(N_MULT+1)-1+21*3>NKMAX)THEN
 #include "lockoff.inc"
               CALL ANCMSG(MSGID=84,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
             N_MULT=N_MULT+1
             IAD = IADLL(N_MULT) - 1
-            IIK=0	    
+            IIK=0      
             DO IK=1,21
-	     IF(III(I,IK).NE.0)THEN
-	         IIK=IIK+1
-		 LLL(IAD+IIK) = III(I,IK)
+               IF(III(I,IK)/=0)THEN
+                   IIK=IIK+1
+           LLL(IAD+IIK) = III(I,IK)
                  JLL(IAD+IIK) = 1
                  SLL(IAD+IIK) = 0
                  XLL(IAD+IIK) = NI(I,IK)
                  NN = LLL(IAD+IIK)
                  COMNTAG(NN) = COMNTAG(NN) + 1
               ELSE
-	        J1=IPERM1(IK)
-	        J2=IPERM2(IK)
-	        XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
-		XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
-	      ENDIF
+                  J1=IPERM1(IK)
+                  J2=IPERM2(IK)
+                  XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
+          XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
+                ENDIF
             ENDDO
-	    IADLL(N_MULT+1)=IADLL(N_MULT) + IIK	 
-	    SLL(IAD+IIK) = NINT  
+              IADLL(N_MULT+1)=IADLL(N_MULT) + IIK   
+              SLL(IAD+IIK) = NINT  
 C
             N_MULT=N_MULT+1
             IAD = IADLL(N_MULT) - 1
-            IIK=0	    
+            IIK=0      
             DO IK=1,21
-	     IF(III(I,IK).NE.0)THEN
-	         IIK=IIK+1
-		 LLL(IAD+IIK) = III(I,IK)
+               IF(III(I,IK)/=0)THEN
+                   IIK=IIK+1
+           LLL(IAD+IIK) = III(I,IK)
                  JLL(IAD+IIK) = 2
                  SLL(IAD+IIK) = 0
                  XLL(IAD+IIK) = NI(I,IK)
-		 NN = LLL(IAD+IIK)
+           NN = LLL(IAD+IIK)
                  COMNTAG(NN) = COMNTAG(NN) + 1
               ELSE
-	        J1=IPERM1(IK)
-	        J2=IPERM2(IK)
-	        XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
-		XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
-	      ENDIF
+                  J1=IPERM1(IK)
+                  J2=IPERM2(IK)
+                  XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
+          XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
+                ENDIF
             ENDDO
-	    IADLL(N_MULT+1)=IADLL(N_MULT) + IIK	 
-	    SLL(IAD+IIK) = NINT 
+              IADLL(N_MULT+1)=IADLL(N_MULT) + IIK   
+              SLL(IAD+IIK) = NINT 
 C
             N_MULT=N_MULT+1
             IAD = IADLL(N_MULT) - 1
-            IIK=0	    
+            IIK=0      
             DO IK=1,21
-	     IF(III(I,IK).NE.0)THEN
-	         IIK=IIK+1
-		 LLL(IAD+IIK) = III(I,IK)
+               IF(III(I,IK)/=0)THEN
+                   IIK=IIK+1
+           LLL(IAD+IIK) = III(I,IK)
                  JLL(IAD+IIK) = 3
                  SLL(IAD+IIK) = 0
                  XLL(IAD+IIK) = NI(I,IK)
-	         NN = LLL(IAD+IIK)
+                   NN = LLL(IAD+IIK)
                  COMNTAG(NN) = COMNTAG(NN) + 1
               ELSE
-	        J1=IPERM1(IK)
-	        J2=IPERM2(IK)
-	        XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
-		XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
-	      ENDIF
+                  J1=IPERM1(IK)
+                  J2=IPERM2(IK)
+                  XLL(IAD+J1)=XLL(IAD+J1)+0.5*NI(I,IK)
+          XLL(IAD+J2)=XLL(IAD+J2)+0.5*NI(I,IK)
+                ENDIF
             ENDDO
-	    IADLL(N_MULT+1)=IADLL(N_MULT) + IIK	 
-	    SLL(IAD+IIK) = NINT 
+              IADLL(N_MULT+1)=IADLL(N_MULT) + IIK   
+              SLL(IAD+IIK) = NINT 
 C
 #include "lockoff.inc"
         ENDIF
@@ -667,16 +663,16 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I20RST                        source/interfaces/int16/i20lagm.F
-Chd|-- called by -----------
-Chd|        I20LLL                        source/interfaces/int16/i20lagm.F
-Chd|        I21LLL                        source/interfaces/int17/i21lagm.F
-Chd|-- calls ---------------
-Chd|        I20DERI                       source/interfaces/int16/i20lagm.F
-Chd|        I20NI                         source/interfaces/int16/i20lagm.F
-Chd|        I20RSTN                       source/interfaces/int16/i20lagm.F
-Chd|====================================================================
+!||====================================================================
+!||    i20rst    ../engine/source/interfaces/int16/i20lagm.F
+!||--- called by ------------------------------------------------------
+!||    i20lll    ../engine/source/interfaces/int16/i20lagm.F
+!||    i21lll    ../engine/source/interfaces/int17/i21lagm.F
+!||--- calls      -----------------------------------------------------
+!||    i20deri   ../engine/source/interfaces/int16/i20lagm.F
+!||    i20ni     ../engine/source/interfaces/int16/i20lagm.F
+!||    i20rstn   ../engine/source/interfaces/int16/i20lagm.F
+!||====================================================================
       SUBROUTINE I20RST(LLT,R  ,S     ,T     ,NI    ,
      2            NSX   ,NSY   ,NSZ   ,NX    ,NY    ,NZ  ,
      3            XX    ,YY    ,ZZ    )
@@ -700,14 +696,9 @@ C     REAL
      .   NSX(MVSIZ),NSY(MVSIZ),NSZ(MVSIZ),
      .   NX(MVSIZ),NY(MVSIZ),NZ(MVSIZ)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,IK,NK,ITER,NITERMAX,JTER,NJTERMAX,CONV
-      my_real
-     .   VX,VY,VZ,VN
+      INTEGER I, ITER, NITERMAX, JTER, NJTERMAX, CONV
       my_real
      .   SN, RN, TN,
      .   DRDX(MVSIZ),DRDY(MVSIZ),DRDZ(MVSIZ),
@@ -757,14 +748,14 @@ C
          TT(I) = ZERO
        ENDDO
 C-----------------------------------------------
-C      calcul de r,s,t   et   Ni(r,s,t)
+C      calculation de r,s,t   et   Ni(r,s,t)
 C-----------------------------------------------
        DO ITER=1,NITERMAX
 c
 c      print *, "iter",iter
 c
 C-----------------------------------------------
-C          calcul de Ni(r,s,t); [J]; [J]-1
+C          calculation de Ni(r,s,t); [J]; [J]-1
 C-----------------------------------------------
            CALL I20DERI(LLT,RR ,SS    ,TT    ,NI    ,
      2            DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
@@ -777,7 +768,7 @@ c
 c      print *, "jter",jter
 c
 C-----------------------------------------------
-C            calcul de r,s,t new
+C            calculation de r,s,t new
 C-----------------------------------------------
              CALL I20RSTN(LLT,RR,SS   ,TT    ,NI    ,CONV  ,
      2            DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
@@ -788,11 +779,11 @@ c      print *, "r,s,t",r(1),s(1),t(1)
 c      print *, "rr,ss,tt",rr(1),ss(1),tt(1)
 c
 C-----------------------------------------------
-C            calcul de Ni(-1<r<1 , -1<s<1 , -1<t<1)
+C            calculation de Ni(-1<r<1 , -1<s<1 , -1<t<1)
 C-----------------------------------------------
              CALL I20NI(LLT,RR ,SS ,TT ,NI  )
-C  pb de parith on si conv fonction de mvsiz !!!!!!!
-C             IF(CONV.NE.0)RETURN
+C  parith on problem if conv function of mvsiz !!!!!!
+C             IF(CONV/=0)RETURN
 C
            ENDDO
       ENDDO
@@ -837,12 +828,11 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I20NI                         source/interfaces/int16/i20lagm.F
-Chd|-- called by -----------
-Chd|        I20RST                        source/interfaces/int16/i20lagm.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i20ni    ../engine/source/interfaces/int16/i20lagm.F
+!||--- called by ------------------------------------------------------
+!||    i20rst   ../engine/source/interfaces/int16/i20lagm.F
+!||====================================================================
       SUBROUTINE I20NI(LLT,RR ,SS ,TT ,NI    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -869,7 +859,7 @@ C-----------------------------------------------
      .  UMT_UMR,UMT_UPR,UPT_UMR,UPT_UPR,
      .  A,R05,S05,T05
 C-----------------------------------------------------------------------
-C     calcul de Ni
+C     calculation of ni
 C-----------------------------------------------------------------------
       DO I=1,LLT
 C
@@ -934,12 +924,13 @@ C------------------------------------
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I20RSTN                       source/interfaces/int16/i20lagm.F
-Chd|-- called by -----------
-Chd|        I20RST                        source/interfaces/int16/i20lagm.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i20rstn        ../engine/source/interfaces/int16/i20lagm.F
+!||--- called by ------------------------------------------------------
+!||    i20rst         ../engine/source/interfaces/int16/i20lagm.F
+!||--- uses       -----------------------------------------------------
+!||    constant_mod   ../common_source/modules/constant_mod.F
+!||====================================================================
       SUBROUTINE I20RSTN(LLT,RR,SS    ,TT    ,NI    ,CONV  ,
      2            DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
      3            DTDX  ,DTDY  ,DTDZ  ,XX    ,YY    ,ZZ    ,
@@ -947,13 +938,12 @@ Chd|====================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
-c#include      "implicit_f.inc"
+      use constant_mod, only : ZERO, ONE, TWO, EM4
       implicit none
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "constant.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1020,8 +1010,8 @@ C
         S(I) = SS(I)
         T(I) = TT(I)
 C
-        IF(R(I).GE.-ONE.AND.S(I).GE.-ONE.AND.T(I).GE.-ONE.AND.
-     .     R(I).LE. ONE.AND.S(I).LE. ONE.AND.T(I).LE. ONE)THEN
+        IF(R(I)>=-ONE.AND.S(I)>=-ONE.AND.T(I)>=-ONE.AND.
+     .     R(I)<= ONE.AND.S(I)<= ONE.AND.T(I)<= ONE)THEN
           ERR = MAX(ERR,ABS(DR),ABS(DS),ABS(DT))
         ELSE
           RR(I) = MAX(MIN(RR(I),ONE),-ONE)
@@ -1038,16 +1028,15 @@ c
 C
       ENDDO
 C
-      IF(ERR.LT.EM4) CONV = 1
+      IF(ERR<EM4) CONV = 1
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I20DERI                       source/interfaces/int16/i20lagm.F
-Chd|-- called by -----------
-Chd|        I20RST                        source/interfaces/int16/i20lagm.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i20deri   ../engine/source/interfaces/int16/i20lagm.F
+!||--- called by ------------------------------------------------------
+!||    i20rst    ../engine/source/interfaces/int16/i20lagm.F
+!||====================================================================
       SUBROUTINE I20DERI(LLT,RR,SS ,TT    ,NI    ,
      2   DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
      3   DTDX  ,DTDY  ,DTDZ  ,DXDR  ,DYDR  ,DZDR  ,
@@ -1076,15 +1065,12 @@ C     REAL
      .   XX(MVSIZ,21) ,YY(MVSIZ,21),ZZ(MVSIZ,21),
      .   NI(MVSIZ,21) ,RR(MVSIZ) ,SS(MVSIZ) ,TT(MVSIZ)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,N
+      INTEGER I
       my_real
      .   DNIDR(20),DNIDS(20),DNIDT(20),
-     .   D, AA, BB, DET(MVSIZ),R9 ,R13 ,S9 ,S10 ,S11 ,S12 ,T10 ,T14
+     . D, DET(MVSIZ)
       my_real
      .  U_M_R,U_P_R,U_M_S,U_P_S,U_M_T,U_P_T,
      .  UMS_UMT,UMS_UPT,UPS_UMT,UPS_UPT,
@@ -1387,7 +1373,7 @@ C
      +    + DNIDT(18)*ZZ(I,18) + DNIDT(19)*ZZ(I,19) + DNIDT(20)*ZZ(I,20) 
 C-----------------------------------------------------------------------
 C          -1
-C       [J]          Inversion du jacobien
+C       [j]          jacobian inversion
 C-----------------------------------------------------------------------
         DRDX(I)=DYDS(I)*DZDT(I)-DZDS(I)*DYDT(I)
         DRDY(I)=DZDS(I)*DXDT(I)-DXDS(I)*DZDT(I)
@@ -1416,7 +1402,7 @@ C
       DO I=1,LLT
 C-----------------------------------------------------------------------
 C          -1            
-C       [J]              Inversion du jacobien suite
+C       [J] Inversion of the Jacobian Suite
 C-----------------------------------------------------------------------
         D = ONE/DET(I)
         DRDX(I)=D*DRDX(I)

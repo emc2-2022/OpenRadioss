@@ -1,109 +1,98 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  QGRTAILS                      source/elements/solid_2d/quad/qgrtails.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        ZEROIN                        source/system/zeroin.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INIVOL_ARRAY_MOD              share/modules1/inivol_mod.F   
-Chd|        INIVOL_DEF_MOD                share/modules1/inivol_mod.F   
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    qgrtails               ../starter/source/elements/solid_2d/quad/qgrtails.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    zeroin                 ../starter/source/system/zeroin.F
+!||--- uses       -----------------------------------------------------
+!||    inivol_def_mod         ../starter/share/modules1/inivol_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||====================================================================
       SUBROUTINE QGRTAILS(
      1       IXQ    ,PM      ,IPARG  ,GEO    ,
-     2       EADD   ,ND      ,DD_IAD ,IDX    ,LB_MAX ,
-     3       INUM   ,INDEX   ,CEP    ,IPARTQ ,NELQ   ,
-     4       ITR1   ,IGRSURF ,IGRQUAD,
-     5       IGEO   ,IPM     ,IQUAOFF,INIVOL)
+     2       EADD   ,ND      ,DD_IAD ,IDX    ,
+     3       INUM   ,INDEX   ,CEP    ,IPARTQ ,
+     4       ITR1   ,IGRSURF ,IGRQUAD,MAT_PARAM,
+     5       IGEO   ,IPM     ,IQUAOFF,INIVOL,PRINT_FLAG)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE R2R_MOD
       USE GROUPDEF_MOD
-      USE INIVOL_DEF_MOD
-      USE INIVOL_ARRAY_MOD
-C-----------------------------------------------M
+      USE INIVOL_DEF_MOD , ONLY : INIVOL_STRUCT_, NUM_INIVOL
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE ALE_MOD , ONLY : ALE
+      use element_mod , only : nixq
+C-----------------------------------------------
 C            A R G U M E N T S
 C-----------------------------------------------
 C     IXQ(7,NUMELQ)      TABLEAU CONECS+PID+MID+NOS SOLIDES 4N      E
-C     PM(NPROPM,NUMMAT)  TABLEAU DES CARACS DES MATERIAUX           E
+C     PM(NPROPM,NUMMAT)  ARRAY OF MATERIAL PROPERTIES           E
 C     IPARG(NPARG,NGROUP)TABLEAU DES CARACTERISTIQUES DES GROUPES   E/S
-C     GEO(NPROPG,NUMGEO) TABLEAU DES CARACS DES PID                 E
+C     GEO(NPROPG,NUMGEO) ARRAY OF PID CHARACTERISTICS                 E
 C     EADD(NUMELQ)       TABLEAU DES ADRESEES DANS IDAM CHGT DAMIER E 
-C     DD_IAD             TABLEAU DE LA DD EN SUPER GROUPES          S
+C     DD_IAD             ARRAY OF DD IN SUPER GROUPS          S
 C     INUM(8,NUMELQ)     TABLEAU DE TRAVAIL                         E/S
 C     INDEX(NUMELQ)      TABLEAU DE TRAVAIL                         E/S
 C     CEP(NUMELQ)        TABLEAU DE TRAVAIL                         E/S
 C     IPARTQ(NUMELQ)     TABLEAU DE TRAVAIL                         E/S
-C     NELQ(NUMELQ)       TABLEAU DE TRAVAIL                         E/S
 C     ITR1(NSELQ)        TABLEAU DE TRAVAIL                         E/S
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G L O B A L   P A R A M E T E R S
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C O M M O N   B L O C K S
 C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
 #include      "units_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
-#include      "scr12_c.inc"
-#include      "scr21_c.inc"
 #include      "scr17_c.inc"
 #include      "r2r_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
-      INTEGER ND, IDX, LB_MAX
-      INTEGER IGEO(NPROPGI,*),IPM(NPROPMI,*), IXQ(7,*),IPARG(NPARG,*),
+      INTEGER ND, IDX
+      INTEGER IGEO(NPROPGI,NUMGEO),IPM(NPROPMI,NUMMAT), IXQ(NIXQ,NUMELQ),IPARG(NPARG,*),
      .        EADD(*),DD_IAD(NSPMD+1,*),INUM(9,*),INDEX(*),
-     .        CEP(*),IPARTQ(*),NELQ(*),ITR1(*),
+     .        CEP(*),IPARTQ(*),ITR1(*),
      .        IQUAOFF(*)
-      TYPE (INIVOL_) , DIMENSION(NINIVOL) :: INIVOL
-      MY_REAL
-     .    PM(NPROPM,*), GEO(NPROPG,*)
+      INTEGER, INTENT(IN) :: PRINT_FLAG !< flag to print the element group data
+      TYPE (INIVOL_STRUCT_) , DIMENSION(NUM_INIVOL) :: INIVOL
+      MY_REAL PM(NPROPM,NUMMAT), GEO(NPROPG,NUMGEO)
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRQUAD)  :: IGRQUAD
       TYPE (SURF_)   , DIMENSION(NSURF)    :: IGRSURF
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT),INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
@@ -112,17 +101,18 @@ C-----------------------------------------------
      .   P, NEL_PREC, LB_L, IGT, JHBE, I,
      .   ML1, ML2, MT1, MT2,NB,INEG,IEOS,
      .   MODE, WORK(70000),NN,J,
-     .   IPLAST, IALEL, MT,IFAIL,NFAIL,FAILMODEL,
-     .   NGP(NSPMD+1),ICPRE,NMTV_MAX,IPARTR2R,ISMST,TAG_INVOL
+     .   IPLAST,IFAIL,NFAIL,
+     .   NGP(NSPMD+1),ICPRE,IPARTR2R,ISMST,TAG_INVOL,
+     .   JALE_FROM_MAT,JALE_FROM_PROP
       INTEGER ID,MFT,ILOC,JJ
-      CHARACTER*nchartitle, TITR
+      CHARACTER(LEN=NCHARTITLE)::TITR
       LOGICAL lFOUND
 C--------------------------------------------------------------
-C         BORNAGE DES GROUPES DE MVSIZ
+C         bounding of MVSIZ groups
 C--------------------------------------------------------------
       NGR1 = NGROUP + 1
 C
-C phase 1 : domain decompostition
+C Phase 1: Domain Decomposition
 C
       IDX=IDX+ND*(NSPMD+1)
       CALL ZEROIN(1,ND*(NSPMD+1),DD_IAD(1,NSPGROUP+1))
@@ -135,8 +125,8 @@ C initialisation dd_iad
        END DO
       ENDDO
 C
-C phase 2 : bornage en groupe de mvsiz
-C ngroup est global, iparg est global mais organise en fonction de dd
+C Phase 2: MVSIZ Group Bounds
+C ngroup is global, iparg is global but organized based on dd
 C
       DO N=1,ND
         NEL = EADD(N+1)-EADD(N)
@@ -173,7 +163,7 @@ C dd-iad
         P = CEP(NFT+INDEX(1))
         NB = 1
         DO I = 2, NEL
-          IF (CEP(NFT+INDEX(I)).NE.P) THEN
+          IF (CEP(NFT+INDEX(I))/=P) THEN
             DD_IAD(P+1,NSPGROUP+N) = NB
             NB = 1
             P = CEP(NFT+INDEX(I))
@@ -203,7 +193,7 @@ C
       ENDDO
 
 C
-C RENUMEROTATION POUR SURFACES
+C renumbering for surfaces
 C
       DO I=1,NSURF
         NN=IGRSURF(I)%NSEG
@@ -213,7 +203,7 @@ C
         ENDDO
       ENDDO
 C
-C RENUMEROTATION POUR GROUPES DE SHELL
+C renumbering for shell groups
 C
       DO I=1,NGRQUAD
         NN=IGRQUAD(I)%NENTITY
@@ -230,7 +220,7 @@ C
        DO P = 1, NSPMD
         NGP(P)=0
         NEL = DD_IAD(P+1,NSPGROUP+N)-DD_IAD(P,NSPGROUP+N)
-        IF (NEL.GT.0) THEN
+        IF (NEL>0) THEN
          NEL_PREC = DD_IAD(P,NSPGROUP+N)-DD_IAD(1,NSPGROUP+N)
          NGP(P)=NGROUP
          NG  = (NEL-1)/NVSIZ + 1
@@ -240,17 +230,20 @@ C ngroup global
           II = EADD(N)+NFT
           MID = IXQ(1,II)
           PID = IXQ(6,II)
-          IF (NSUBDOM.GT.0) IPARTR2R = TAG_MAT(MID)
+          IPARTR2R = 0
+          IF (NSUBDOM>0) IPARTR2R = TAG_MAT(MID)
           NPT =1
           JHBE=0
           JPOR=0
           JCVT = 0
           ISORTH=0
-          IPLAST=IPLA_DS-1
+          IPLAST= 1
           ICPRE=0
-          IF(PID.NE.0)THEN
-            IF(IGEO(10,PID).EQ.17 .OR.
-     .         (N2D.EQ.1.AND.IGEO(10,PID).EQ.22)) THEN
+          ISMST = 0
+          IGT = 0
+          IF(PID/=0)THEN
+            IF(IGEO(10,PID)==17 .OR.
+     .         (N2D==1.AND.IGEO(10,PID)==22)) THEN
               NPT = IGEO(4,PID)
               JHBE = IGEO(10,PID)
             ENDIF
@@ -261,28 +254,46 @@ C ngroup global
             ISORTH = IGEO(17,PID)
             ISMST  = IGEO(5,PID)
             IF (IGT /= 15) IPLAST = IGEO(9,PID)
-            IF(IGT.EQ.15) JPOR=2*NINT(GEO(28,PID))
+            IF(IGT==15) JPOR=2*NINT(GEO(28,PID))
           ENDIF
           MLN = NINT(PM(19,ABS(MID)))
-          IF(MID.LT.0)THEN
-            IF(MLN.EQ.6.AND.JPOR.NE.2)MLN=17
-            IF(MLN.EQ.46)MLN=47
+          IF(MID<0)THEN
+            IF(MLN==6.AND.JPOR/=2)MLN=17
+            IF(MLN==46)MLN=47
             MID=ABS(MID)
             IXQ(1,II)=MID
             INEG = 1
           ENDIF
-          JALE=NINT(PM(72,MID))
+          JALE_FROM_MAT = NINT(PM(72,MID))
+          JALE_FROM_PROP = IGEO(62,PID)
+          JALE = MAX(JALE_FROM_MAT, JALE_FROM_PROP) !if inconsistent, error message was displayed in PART reader
           JLAG=0
-          IF(JALE.EQ.0.AND.MLN.NE.18)JLAG=1
+          IF(JALE==0.AND.MLN/=18)JLAG=1
           JEUL=0
-          IF(JALE.EQ.2)THEN
+          IF(JALE==2)THEN
             JALE=0
             JEUL=1
           ENDIF
+
+          !ALE REZONING/REMAPING : number of MAT/EOS variables to treat (used by staggered scheme only : arezon.F)
+          !  With ALE framework, since the Mesh is arbitrary, the variable must be updated to map thei expected location and not follow the arbitrary mesh displacement
+          !  this numbering here will be used in arezon.F to loop over variables to rezon/remap
+          IF(JALE == 1)THEN
+            ALE%REZON%NUM_NUVAR_MAT = MAX(ALE%REZON%NUM_NUVAR_MAT, MAT_PARAM(MID)%REZON%NUM_NUVAR_MAT )
+            ALE%REZON%NUM_NUVAR_EOS = MAX(ALE%REZON%NUM_NUVAR_EOS, MAT_PARAM(MID)%REZON%NUM_NUVAR_EOS )
+          ENDIF
+
+          !ALE UVAR REZONING  (81:MAT,  82:EOS)
+          IF(JALE == 1)THEN
+            IPARG(81,NGROUP) = MAT_PARAM(MID)%REZON%NUM_NUVAR_MAT
+            IPARG(82,NGROUP) = MAT_PARAM(MID)%REZON%NUM_NUVAR_EOS
+          ENDIF
+
           JTUR=NINT(PM(70,MID))
           JTHE=NINT(PM(71,MID))
+                    
           JMULT=0
-          IF(MLN.EQ.20)THEN
+          IF(MLN==20)THEN
             JMULT=NINT(PM(20,MID))
             MT1=NINT(PM(21,MID))
             MT2=NINT(PM(22,MID))
@@ -339,7 +350,7 @@ C--------------------
             IGEO(10,PID) = JHBE
           END IF
 C
-          IF(JCVT.NE.0.AND.(JLAG.EQ.0.OR.MLN.EQ.20))THEN
+          IF(JCVT/=0.AND.(JLAG==0.OR.MLN==20))THEN
             CALL FRETITL2(TITR,
      .                    IGEO(NPROPGI-LTITR+1,PID),LTITR)
             CALL ANCMSG(MSGID=610,
@@ -352,15 +363,8 @@ C
           END IF
           ISRAT=IPM(3,MID)
           IFAIL = 0
-          NFAIL = IPM(220,MID)
-          IF (NFAIL > 0)THEN
-            IFAIL = 1
-            DO J=1,NFAIL
-              FAILMODEL = IPM(111 + 15*(J - 1) ,MID)
-              IF (FAILMODEL == 10 .OR. FAILMODEL == 4 .OR.
-     .            FAILMODEL == 5  .OR. FAILMODEL == 6) ISTRAIN = 1
-            ENDDO
-          ENDIF 
+          NFAIL = MAT_PARAM(MID)%NFAIL
+          ISTRAIN = 1
           IEOS=IPM(4,MID)
 
 C
@@ -368,13 +372,13 @@ C   - initial volume franction -
 C
           lFOUND=.FALSE.
           TAG_INVOL=0
-          IF(NINIVOL > 0)THEN
+          IF(NUM_INIVOL > 0)THEN
           ! Warning : In same group you can have different PArts, A loop over elem in groups has to be introduced to check if INIVOL PART is there.
             MFT = EADD(N)-1 + NFT
             NE1=MIN( NVSIZ, NEL + NEL_PREC - NFT)
             DO ILOC = 1 ,NE1
-              DO JJ=1,NINIVOL
-                IF(INIVOL(JJ)%IPARTFILL == IPARTQ(ILOC+MFT)) THEN
+              DO JJ=1,NUM_INIVOL
+                IF(INIVOL(JJ)%PART_ID == IPARTQ(ILOC+MFT)) THEN
                   TAG_INVOL = 1
                   lFOUND=.TRUE.
                   EXIT
@@ -400,12 +404,16 @@ c          IPARG(4,NGROUP) = LBUFEL+1
           IPARG(7,NGROUP) = JALE
           IPARG(11,NGROUP)= JEUL
           IPARG(12,NGROUP)= JTUR
-          IPARG(13,NGROUP)= JTHE
+          IF(JALE == 0 .AND. JEUL == 0)THEN
+            IPARG(13,NGROUP)=-ABS(JTHE)  ! -1 nodal temperature    +1 centroid temperature
+          ELSE
+            IPARG(13,NGROUP)=+ABS(JTHE)  ! -1 nodal temperature    +1 centroid temperature
+          ENDIF
           IPARG(14,NGROUP)= JLAG
           IPARG(18,NGROUP)= MID
           IPARG(20,NGROUP)= JMULT
           ! Multifluid law, setting NLAY
-          IF (MLN .EQ. 151) IPARG(20, NGROUP) = IPM(20, MID)
+          IF (MLN == 151) IPARG(20, NGROUP) = IPM(20, MID)
           IPARG(10,NGROUP)= ICPRE
           IPARG(23,NGROUP)= JHBE
           IPARG(24,NGROUP)= 0
@@ -413,9 +421,9 @@ c          IPARG(4,NGROUP) = LBUFEL+1
           IPARG(26,NGROUP)= ML2
           IPARG(27,NGROUP)= JPOR
           IPARG(29,NGROUP)= IPLAST
-C reperage groupe/processeur
+C Group/Processor Splition
           IPARG(32,NGROUP)= P-1
-C  attention en toute rigeur >=46
+C  Be careful in all rigor> = 46
           IPARG(34,NGROUP)= NINT(PM(10,MID))
           IPARG(37,NGROUP)= JCVT
           IPARG(38,NGROUP)= IGT
@@ -428,14 +436,14 @@ C  attention en toute rigeur >=46
 C         equation of state
           IPARG(55,NGROUP)= IEOS
           IPARG(62,NGROUP)= PID
-C         flag for group of dupplicated elements in multidomains
-          IF (NSUBDOM.GT.0) IPARG(77,NGROUP)= IPARTR2R 
+C         flag for group of duplicated elements in multidomains
+          IF (NSUBDOM>0) IPARG(77,NGROUP)= IPARTR2R 
           NFT = NFT + NE1
   220    CONTINUE
          NGP(P)=NGROUP-NGP(P)
         ENDIF
        ENDDO
-C DD_IAD => nb groupes par sous domaine
+C Dd_iad => nb groups by sub -domain
        NGP(NSPMD+1)=0
        DO P = 1, NSPMD
          NGP(NSPMD+1)=NGP(NSPMD+1)+NGP(P)
@@ -446,21 +454,22 @@ C
   300 CONTINUE
 C                                      
       NSPGROUP = NSPGROUP + ND
-C Traitement CFD sur MID negatif sur tous les solides si ineg=1
-      IF (INEG.EQ.1) THEN
+C CFD treatment on MID negative on all solids if ineg=1
+      IF (INEG==1) THEN
         DO I = 1, NUMELQ
           IXQ(1,I) = ABS(IXQ(1,I))
         ENDDO
       ENDIF
 C
-      WRITE(IOUT,1000)
-      WRITE(IOUT,1001)(N,IPARG(1,N),IPARG(2,N),IPARG(3,N)+1,
+      IF(PRINT_FLAG>6) THEN
+          WRITE(IOUT,1000)
+          WRITE(IOUT,1001)(N,IPARG(1,N),IPARG(2,N),IPARG(3,N)+1,
      +                IPARG(4,N),IPARG(6,N),IPARG(7,N),IPARG(11,N),    
      +                IPARG(12,N),IPARG(13,N),IPARG(23,N),
      +                IPARG(24,N),IPARG(18,N),IPARG(27,N),
      +                IPARG(29,N)+1,IPARG(43,N),IPARG(55,N),
      +                N=NGR1,NGROUP)
-c      WRITE(IOUT,1002) LBUFEL
+      ENDIF
        CALL ANCMSG(MSGID=1222,
      .                  MSGTYPE=MSGWARNING,
      .                  ANMODE=ANINFO_BLIND_2,
@@ -479,7 +488,6 @@ C
      +'      FLAG      FLAG      FLAG      FLAG     GLASS      FLAG',
      +'       MID    MEDIUM      FLAG      FLAG      TYPE   '/)
  1001 FORMAT(17(I10))
- 1002 FORMAT(' BUFFER LENGTH : ',I10 )
 C
       RETURN
       END

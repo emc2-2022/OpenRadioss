@@ -1,35 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  WRITE_NLOC_STRUCT             source/restart/ddsplit/write_nloc_struct.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    write_nloc_struct   ../starter/source/restart/ddsplit/write_nloc_struct.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit             ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE WRITE_NLOC_STRUCT(NLOC_DMG ,NUMNOD_L ,NODGLOB  ,NODLOC   ,
      .                             CEL      ,CEP      ,PROC     ,IXS      ,
      .                             IXC      ,IXTG     ,NUMELS_L ,NUMELC_L ,
@@ -38,16 +36,15 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE NLOCAL_REG_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
+#include      "r2r_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -61,11 +58,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,ILOC,NNOD,NNOD_L,NG,NL,NN, LNLOC_L,ND,NP,NM,N1,
-     .        N2,NNO,CC,CC_L,NUMG,NUML,PROC_L,K,SHFT,TESTVAL,
-     .        L_NLOC,NDDMAX_L,OFF,LENBIS,LCNENL_L
-      INTEGER, DIMENSION(NUMNOD_L)   :: INDX_L, NDDL, IDXI_L
-      INTEGER, DIMENSION(NUMNOD_L+1) :: POSI
+      INTEGER I,ILOC,NNOD,NNOD_L,NG,NL,NN, LNLOC_L,ND,NP,N1,
+     .        N2,CC,CC_L,NUMG,NUML,PROC_L,K,SHFT,TESTVAL,
+     .        L_NLOC,NDDMAX_L,LCNENL_L,MATSIZE
+      INTEGER, DIMENSION(:),ALLOCATABLE  :: INDX_L, NDDL, IDXI_L
+      INTEGER, DIMENSION(:),ALLOCATABLE  :: POSI
       my_real, DIMENSION(NLOC_DMG%L_NLOC) :: MASS,UNL,MASS0
       my_real, DIMENSION(:), ALLOCATABLE  :: ZERO_VEC
       INTEGER, DIMENSION(8) :: HEAD
@@ -73,7 +70,13 @@ C-----------------------------------------------
      .                                        PROCNE_L
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: IADS,IADC,IADTG
 C=======================================================================
+      CALL MY_ALLOC(INDX_L,NUMNOD_L)
+      CALL MY_ALLOC(NDDL,NUMNOD_L)
+      CALL MY_ALLOC(IDXI_L,NUMNOD_L)
+      CALL MY_ALLOC(POSI,NUMNOD_L+1)
+
       ! Flag for non-local computation 
+      LCNENL_L = 0
       ILOC   = NLOC_DMG%IMOD
 c
       ! Flag = 0, no non-local computation
@@ -171,56 +174,59 @@ c
               PROC_L = CEP(NUMG)+1                                !   Processor of the element
               CC_L   = CC_L + 1                                   !   Local element counter
               PROCNE_L(CC_L) = PROC_L                             !   Processor on which the element is located                                           
-              IF (PROC.EQ.PROC_L) THEN                            !   If the current proc equals the processor of the element, filling the IADX table
-                IF (NUMG.LE.NUMELS) THEN                          !     If the element is solid
+              IF (PROC==PROC_L) THEN                              !   If the current proc equals the processor of the element, filling the IADX table
+                IF (NUMG<=NUMELS) THEN                            !     If the element is solid
                   DO K = 1,8                                      !       Loop over the nodes of the brick
                     SHFT    = ISHFT(1,K-1)                        !         Shift
                     TESTVAL = IAND(SOLTAG(NUMG),SHFT)             !         Testval
-                    IF (IXS(K+1,NUMG).EQ.NG.AND.TESTVAL==0) THEN  !         Filling IADS
+                    IF (IXS(K+1,NUMG)==NG.AND.TESTVAL==0) THEN    !         Filling IADS
                       IADS(K,NUML) = CC_L
                       SOLTAG(NUMG) = SOLTAG(NUMG)+SHFT
+                      GOTO 100
                     ENDIF
                   ENDDO
-                ELSEIF (NUMG.LE.NUMELS+NUMELQ) THEN 
+                ELSEIF (NUMG<=NUMELS+NUMELQ) THEN 
                   ! This case should not occur
                   WRITE(*,*) "Error in non-local decomp"   
                   WRITE(*,*) "Quad element error"
                   STOP 
-                ELSEIF (NUMG.LE.NUMELS+NUMELQ+NUMELC) THEN                  !   If the element is a shell
-                  NUMG = NUMG - (NUMELS+NUMELQ)                             !     Offset on NUMG
-                  DO K=1,4                                                  !     Loop over the nodes of the shell
-                    SHFT    = ISHFT(1,K-1)                                  !       Shift
-                    TESTVAL = IAND(SHTAG(NUMG),SHFT)                        !       Testval
+                ELSEIF (NUMG<=NUMELS+NUMELQ+NUMELC) THEN           !   If the element is a shell
+                  NUMG = NUMG - (NUMELS+NUMELQ)                    !     Offset on NUMG
+                  DO K=1,4                                         !     Loop over the nodes of the shell
+                    SHFT    = ISHFT(1,K-1)                         !       Shift
+                    TESTVAL = IAND(SHTAG(NUMG),SHFT)               !       Testval
                     ! Filling IADC
-                    IF (IXC(K+1,NUMG).EQ.NG.AND.TESTVAL==0) THEN
+                    IF (IXC(K+1,NUMG)==NG.AND.TESTVAL==0) THEN
                       IADC(K,NUML) = CC_L
                       SHTAG(NUMG)  = SHTAG(NUMG)+SHFT
+                      GOTO 100
                     ENDIF
                   ENDDO
-                ELSEIF (NUMG.LE.NUMELS+NUMELQ+NUMELC+NUMELT) THEN
+                ELSEIF (NUMG<=NUMELS+NUMELQ+NUMELC+NUMELT) THEN
                   ! This case should not occur
                   WRITE(*,*) "Error in non-local decomp"
                   WRITE(*,*) "Truss element error"
                   STOP
-                ELSEIF (NUMG.LE.NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP) THEN
+                ELSEIF (NUMG<=NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP) THEN
                   ! This case should not occur
                   WRITE(*,*) "Error in non-local decomp"
                   WRITE(*,*) "Poutre element error"
                   STOP
-                ELSEIF (NUMG.LE.NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP+NUMELR) THEN
+                ELSEIF (NUMG<=NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP+NUMELR) THEN
                   ! This case should not occur
                   WRITE(*,*) "Error in non-local decomp"
                   WRITE(*,*) "Ressort element error"
                   STOP
-                ELSEIF (NUMG.LE.NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP+          !   If the element is a triangle shell
+                ELSEIF (NUMG<=NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP+          !   If the element is a triangle shell
      .            NUMELR+NUMELTG) THEN
                   NUMG = NUMG - (NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP+NUMELR) !     Offset on NUMG
                   DO K=1,3                                                  !     Loop over the nodes of the shell
                     SHFT    = ISHFT(1,K-1)                                  !       Shift
                     TESTVAL = IAND(TGTAG(NUMG),SHFT)                        !       Testval
-                    IF (IXTG(K+1,NUMG).EQ.NG.AND.TESTVAL==0) THEN           !       Filling IADTG 
+                    IF (IXTG(K+1,NUMG)==NG.AND.TESTVAL==0) THEN           !       Filling IADTG 
                       IADTG(K,NUML) = CC_L
                       TGTAG(NUMG)   = TGTAG(NUMG)+SHFT
+                      GOTO 100
                     ENDIF
                   ENDDO
                 ELSE
@@ -229,6 +235,7 @@ c
                   STOP
                 ENDIF
               ENDIF
+100           CONTINUE
             ENDDO
           ENDDO
         ENDIF
@@ -241,23 +248,31 @@ c
         HEAD(6) = NUMELTG_L
         HEAD(7) = NDDMAX_L
         HEAD(8) = LCNENL_L
+C
+        IF (NSUBDOM > 0) THEN
+C--       multidomains - original nummat is used
+          MATSIZE = NUMMAT0 
+        ELSE
+          MATSIZE = NUMMAT 
+        ENDIF
+C
         CALL WRITE_I_C(HEAD,8)
 c
-        CALL WRITE_DB(NLOC_DMG%DENS,NUMMAT)         ! DENS
+        CALL WRITE_DB(NLOC_DMG%DENS,MATSIZE)         ! DENS
 c
-        CALL WRITE_DB(NLOC_DMG%DAMP,NUMMAT)         ! DAMP
+        CALL WRITE_DB(NLOC_DMG%DAMP,MATSIZE)         ! DAMP
 c
-        CALL WRITE_DB(NLOC_DMG%LEN,NUMMAT)          ! LEN
+        CALL WRITE_DB(NLOC_DMG%LEN,MATSIZE)          ! LEN
 c
-        CALL WRITE_DB(NLOC_DMG%LE_MAX,NUMMAT)       ! LEN
+        CALL WRITE_DB(NLOC_DMG%LE_MAX,MATSIZE)       ! LEN
 c
-        CALL WRITE_DB(NLOC_DMG%SSPNL,NUMMAT)        ! SSPNL
+        CALL WRITE_DB(NLOC_DMG%SSPNL,MATSIZE)        ! SSPNL
 c   
-        CALL WRITE_I_C(INDX_L,NNOD_L)               ! INDX_L(NNOD_L)
+        CALL WRITE_I_C(INDX_L,NNOD_L)               ! Indx_l (nnod_l)
 c  
         CALL WRITE_I_C(POSI,NNOD_L+1)               ! POSI(NNOD_L+1)
 c        
-        CALL WRITE_I_C(IDXI_L,NUMNOD_L)             ! IDXI_L(NUMNOD_L)
+        CALL WRITE_I_C(IDXI_L,NUMNOD_L)             ! Idxi_l (Numnod_L)
 c
         ! If PARITH/ON
         IF (IPARI0 == 1) THEN
@@ -295,6 +310,10 @@ c
         IF (ALLOCATED(IADTG))    DEALLOCATE(IADTG)
         IF (ALLOCATED(ZERO_VEC)) DEALLOCATE(ZERO_VEC)
 c
+        DEALLOCATE(INDX_L)
+        DEALLOCATE(NDDL)
+        DEALLOCATE(IDXI_L)
+        DEALLOCATE(POSI)
       ENDIF
 c--------------------------------
       RETURN

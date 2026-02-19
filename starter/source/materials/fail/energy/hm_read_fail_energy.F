@@ -1,65 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_FAIL_ENERGY           source/materials/fail/energy/hm_read_fail_energy.F
-Chd|-- called by -----------
-Chd|        HM_READ_FAIL                  source/materials/fail/hm_read_fail.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_FAIL_ENERGY(
-     .           UPARAM   ,MAXUPARAM,NUPARAM  ,NUVAR  ,IFUNC    ,
-     .           MAXFUNC  ,NFUNC    ,ID     ,FAIL_ID  ,
-     .           LSUBMODEL,UNITAB   )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_fail_energy      ../starter/source/materials/fail/energy/hm_read_fail_energy.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_fail             ../starter/source/materials/fail/hm_read_fail.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_FAIL_ENERGY(FAIL , 
+     .           MAT_ID   ,FAIL_ID  ,IRUPT    ,LSUBMODEL,UNITAB   )
 C-----------------------------------------------
-C   ROUTINE DESCRIPTION :
-C   ===================
-C   READ FAILURE ENERGY (REPLACE LECR11)
-C-----------------------------------------------
-C   DUMMY ARGUMENTS DESCRIPTION:
-C   ===================
-C
-C     NAME            DESCRIPTION                         
-C
-C     UNITAB          UNITS ARRAY
-C     FAIL_ID         FAILURE ID(INTEGER)
-C     TITR            MATERIAL TITLE
-C     LSUBMODEL       SUBMODEL STRUCTURE    
+c    ROUTINE DESCRIPTION :
+c    Read Energy based failure model parameters
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE FAIL_PARAM_MOD
       USE UNITAB_MOD
       USE MESSAGE_MOD 
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD 
-C---s----1---------2---------3---------4---------5---------6---------7->
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -67,50 +55,41 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C INPUT ARGUMENTS
-      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER,INTENT(IN)             ::ID,FAIL_ID
-      TYPE(SUBMODEL_DATA),INTENT(IN) ::LSUBMODEL(*)
-C MODIFIED ARGUMENT
-      INTEGER,INTENT(INOUT)          ::IFUNC(MAXFUNC),NFUNC,MAXFUNC,MAXUPARAM
-      my_real,INTENT(INOUT)          ::UPARAM(MAXUPARAM)
-      INTEGER,INTENT(OUT)            ::NUPARAM,NUVAR
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
+      INTEGER             ,INTENT(IN) :: FAIL_ID       ! failure model ID
+      INTEGER             ,INTENT(IN) :: MAT_ID        ! material law ID
+      INTEGER             ,INTENT(IN) :: IRUPT         ! failure model number
+      TYPE (UNIT_TYPE_)   ,INTENT(IN) :: UNITAB        ! table of input units
+      TYPE (SUBMODEL_DATA),INTENT(IN) :: LSUBMODEL(*) 
+      TYPE (FAIL_PARAM_)  ,INTENT(INOUT) :: FAIL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C     REAL
-C-----------------------------------------------
-      INTEGER     ::     IRFUN,DMG_FLAG
-      my_real     ::     RF1,RF2,RIEF1,RIEF2,SCALE_EPSP,PTHKF
-C-----------------------------------------------
-       LOGICAL    ::     IS_AVAILABLE,IS_CRYPTED
+      INTEGER  :: IRFUN,DMG_FLAG,FAILIP 
+      my_real  :: RIEF1,RIEF2,SCALE_EPSP,PTHK
+C----------------------------------------
+       LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
 C=======================================================================
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C=======================================================================
 c     ENERGY Rupture Criterion
 C=======================================================================
-CARD1     2F_I_F_I) RIEF1,RIEF2,IRFUN,SCALE_EPSP,DMG_FLAG
+Card1
       CALL HM_GET_FLOATV         ('E1'         ,RIEF1      ,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV         ('E2'         ,RIEF2      ,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_INTV           ('fct_ID'     ,IRFUN      ,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_FLOATV         ('xscale'     ,SCALE_EPSP ,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_INTV           ('I_Dam'      ,DMG_FLAG   ,IS_AVAILABLE,LSUBMODEL)
+      CALL HM_GET_INTV           ('FAILIP'       ,FAILIP  ,IS_AVAILABLE,LSUBMODEL) 
+      IF (FAILIP == 0)  FAILIP  = 1
 C=======================================================================
       IF (RIEF1 <= ZERO) RIEF1 = EP30
       IF (RIEF2 <= ZERO) RIEF2 = TWO*EP30      
@@ -118,35 +97,46 @@ C=======================================================================
       IF (DMG_FLAG == 2) DMG_FLAG = 0  ! DMG_FLAG = 2->0 => damage reduces saved stress (old method)
 C=======================================================================
       IF (RIEF1 > RIEF2) THEN
-        CALL ANCMSG(MSGID=618,
-     .              MSGTYPE=MSGERROR,
-     .              ANMODE=ANINFO_BLIND_1,
-     .              I1=ID)
+        CALL ANCMSG(MSGID=618, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,
+     .              I1=MAT_ID)
       ENDIF 
 C
-      PTHKF = EM06
+      PTHK = EM06
       IF(SCALE_EPSP == ZERO) THEN
         CALL HM_GET_FLOATV_DIM('xscale' ,SCALE_EPSP   ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         SCALE_EPSP = ONE * SCALE_EPSP
       ENDIF
-C=============================================  
-      UPARAM(1) = RIEF1
-      UPARAM(2) = RIEF2
-      UPARAM(3) = PTHKF
+c---------------------------
+      FAIL%KEYWORD = 'ENERGY' 
+      FAIL%IRUPT   = IRUPT 
+      FAIL%FAIL_ID = FAIL_ID 
+      FAIL%NUPARAM = 6
+      FAIL%NIPARAM = 0
+      FAIL%NUVAR   = 1
+      FAIL%NFUNC   = 1
+      FAIL%NTABLE  = 0
+      FAIL%NMOD    = 0
+c            
+      FAIL%PTHK    = PTHK
+c            
+      ALLOCATE (FAIL%UPARAM(FAIL%NUPARAM))
+      ALLOCATE (FAIL%IPARAM(FAIL%NIPARAM))
+      ALLOCATE (FAIL%IFUNC (FAIL%NFUNC))
+      ALLOCATE (FAIL%TABLE (FAIL%NTABLE))
 
-      UPARAM(4) = ONE/SCALE_EPSP
-      UPARAM(5) = DMG_FLAG   
-      IFUNC(1)  = IRFUN
+      FAIL%UPARAM(1) = RIEF1
+      FAIL%UPARAM(2) = RIEF2
+      FAIL%UPARAM(3) = PTHK
+      FAIL%UPARAM(4) = ONE/SCALE_EPSP
+      FAIL%UPARAM(5) = DMG_FLAG   
+      FAIL%UPARAM(6)= FAILIP
 C
+      FAIL%IFUNC(1)  = IRFUN
 C=============================================  
-      NUPARAM = 5
-      NUVAR   = 0
-      NFUNC   = 1
-C=============================================  
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT, 1000)
       ELSE       
-       WRITE(IOUT, 2000) RIEF1,RIEF2,IRFUN,SCALE_EPSP
+       WRITE(IOUT, 2000) RIEF1,RIEF2,IRFUN,SCALE_EPSP,FAILIP
       ENDIF
       RETURN
 C=============================================  
@@ -159,7 +149,8 @@ C=============================================
      & 5X,'MAXIMUM SPECIFIC ENERGY 1. . . . . . . =',E12.4/
      & 5X,'MAXIMUM SPECIFIC ENERGY 2. . . . . . . =',E12.4/
      & 5X,'MAXIMUM ENERGIES SCALING FUNCTION. . . =',I8/
-     & 5X,'ABSCISSA SCALE FACTOR FOR FUNCTION . . =',E12.4/)       
+     & 5X,'ABSCISSA SCALE FACTOR FOR FUNCTION . . =',E12.4/,
+     & 5X,'NUMBER OF FAILED INTG. POINTS PRIOR TO ELEM DELETION  .=',I10/)      
 c----------- 
       RETURN
       END

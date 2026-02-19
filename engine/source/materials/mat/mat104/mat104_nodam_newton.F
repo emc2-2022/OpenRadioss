@@ -1,39 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MAT104_NODAM_NEWTON           source/materials/mat/mat104/mat104_nodam_newton.F
-Chd|-- called by -----------
-Chd|        SIGEPS104                     source/materials/mat/mat104/sigeps104.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    mat104_nodam_newton   ../engine/source/materials/mat/mat104/mat104_nodam_newton.F
+!||--- called by ------------------------------------------------------
+!||    sigeps104             ../engine/source/materials/mat/mat104/sigeps104.F
+!||====================================================================
       SUBROUTINE MAT104_NODAM_NEWTON(
-     1     NEL     ,NGL     ,NUPARAM ,NUVAR   , 
+     1     NEL     ,NGL     ,NUPARAM ,NUVAR   ,VOLUME  ,FHEAT   , 
      2     TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFF     ,
      3     RHO0    ,RHO     ,PLA     ,DPLA    ,EPSD    ,SOUNDSP ,
      4     DEPSXX  ,DEPSYY  ,DEPSZZ  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,
      5     SIGOXX  ,SIGOYY  ,SIGOZZ  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
      6     SIGNXX  ,SIGNYY  ,SIGNZZ  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,
-     7     SIGY    ,ET      ,TEMPEL  ,TEMP    ,SEQ     )
+     7     SIGY    ,ET      ,TEMP    ,SEQ     ,INLOC   ,DPLANL  ,
+     8     JLAG    )
       !=======================================================================
       !      Implicit types
       !=======================================================================
@@ -41,20 +41,19 @@ Chd|====================================================================
       !=======================================================================
       !      Common
       !=======================================================================
-#include      "param_c.inc" 
-#include      "com01_c.inc"
-#include      "scr17_c.inc"
       !=======================================================================
       !      Dummy arguments
       !=======================================================================
-      INTEGER NEL,NUPARAM,NUVAR,JTHE
+      INTEGER NEL,NUPARAM,NUVAR,JTHE,INLOC
+      INTEGER ,INTENT(IN) :: JLAG
       INTEGER ,DIMENSION(NEL), INTENT(IN)    :: NGL
       my_real 
      .   TIME,TIMESTEP
       my_real,DIMENSION(NUPARAM), INTENT(IN) :: 
      .   UPARAM
-      my_real,DIMENSION(NEL), INTENT(IN)     :: 
-     .   RHO0,RHO,TEMPEL,
+      my_real ,DIMENSION(NEL), INTENT(IN)    :: VOLUME
+      my_real ,DIMENSION(NEL), INTENT(INOUT) :: FHEAT
+      my_real ,DIMENSION(NEL), INTENT(IN)    :: RHO0,RHO,DPLANL,
      .   DEPSXX,DEPSYY,DEPSZZ,DEPSXY,DEPSYZ,DEPSZX,
      .   SIGOXX,SIGOYY,SIGOZZ,SIGOXY,SIGOYZ,SIGOZX
 c
@@ -75,31 +74,27 @@ c
      .   YOUNG,BULK,LAM,G,G2,NU,CDR,KDR,HARD,YLD0,QVOCE,BVOCE,JCC,
      .   EPSP0,MTEMP,TINI,TREF,ETA,CP,DPIS,DPAD,ASRATE,AFILTR
       my_real 
-     .   H,LDAV,TRDEP,SIGVM,OMEGA,
-     .   DTEMP,FCOSH,FSINH,DPDT,DLAM,DDEP
+     .   LDAV,
+     .   DTEMP,DPDT,DLAM,DDEP
       my_real 
      .   DSDRDJ2,DSDRDJ3,
      .   DJ3DSXX,DJ3DSYY,DJ3DSZZ,DJ3DSXY,DJ3DSYZ,DJ3DSZX,
-     .   DJ2DSXX,DJ2DSYY,DJ2DSZZ,DJ2DSXY,DJ2DSYZ,DJ2DSZX,
-     .   DFDSXX,DFDSYY,DFDSZZ,DFDSXY,DFDSYZ,DFDSZX,
+     .   
+     .   
      .   NORMXX,NORMYY,NORMZZ,NORMXY,NORMYZ,NORMZX,
-     .   SDPLA,DPHI_DTRSIG,SIG_DFDSIG,DFDSIG2,
-     .   DPHI_DSIG,DPHI_DYLD,DPHI_DFDR,DF_DFS,DFS_DFT,DPHI_DFT,
-     .   DPHI_DFS,DFN_DLAM,DFSH_DLAM,DFG_DLAM,DFT_DLAM,
-     .   DFN,DFSH,DFG,DFT,DYLD_DPLA,DYLD_DTEMP,DTEMP_DLAM, NORMSIG
+     .   SIG_DFDSIG,DFDSIG2,
+     .   DPHI_DSIG,DPHI_DYLD,DPHI_DFDR,
+     .   DPDT_NL,
+     .   DYLD_DPLA,DYLD_DTEMP,DTEMP_DLAM,NORMSIG
 c
       my_real, DIMENSION(NEL) ::
-     .   DSIGXX,DSIGYY,DSIGZZ,DSIGXY,DSIGYZ,DSIGZX,TRSIG,
+     .   TRSIG,
      .   SXX,SYY,SZZ,SXY,SYZ,SZX,SIGM,J2,J3,SIGDR,YLD,WEITEMP,
-     .   HARDP,FHARD,FRATE,FTHERM,DTHERM,FDR,DEPXX,DEPYY,DEPZZ,DEPXY,DEPYZ,DEPZX,
-     .   PHI,FT,FS,FG,FN,FSH,DPLA_DLAM,DPHI_DLAM,PHI0,
+     .   HARDP,FHARD,FRATE,FTHERM,FDR,
+     .   PHI,FT,DPLA_DLAM,DPHI_DLAM,
      .   DPXX,DPYY,DPXY,DPYZ,DPZX,DPZZ,SIGDR2,YLD2I
       !=======================================================================
-      !       DRUCKER MATERIAL LAW WITH NO DAMAGE
-      !=======================================================================
-      !-  
-      !DEPIJ     PLASTIC STRAIN TENSOR COMPONENT
-      !DEPSIJ    TOTAL   STRAIN TENSOR COMPONENT (EL+PL)
+      !             DRUCKER - VOCE - JOHNSON-COOK MATERIAL LAW
       !=======================================================================
 c      
       !=======================================================================
@@ -137,20 +132,20 @@ c
 c      
       ! Recovering internal variables
       DO I=1,NEL
-        IF (OFF(I) < 0.1) OFF(I) = ZERO
-        IF (OFF(I) < ONE)  OFF(I) = OFF(I)*FOUR_OVER_5
+        IF (OFF(I) < EM01) OFF(I) = ZERO
+        IF (OFF(I) <  ONE) OFF(I) = OFF(I)*FOUR_OVER_5
         ! Standard inputs
-        DPLA(I)  = ZERO      ! Initialization of the plastic strain increment
-        ET(I)    = ONE        ! Initialization of hourglass coefficient
-        HARDP(I) = ZERO      ! Initialization of hourglass coefficient
+        DPLA(I)  = ZERO    ! Initialization of the plastic strain increment
+        ET(I)    = ONE     ! Initialization of hourglass coefficient
+        HARDP(I) = ZERO    ! Initialization of hardening modulus
       ENDDO
 c      
       ! Initialization of temperature and self-heating weight factor
-      IF (TIME == ZERO) THEN   
+      IF (TIME == ZERO .and. JTHE == 0) THEN   
         TEMP(1:NEL) = TINI 
       ENDIF 
-      IF (CP > ZERO) THEN     
-        IF (JTHE == 0) THEN     
+      IF (CP > ZERO .OR. JTHE /= 0) THEN     
+        IF (INLOC == 0) THEN       
           DO I=1,NEL
             IF (EPSD(I) < DPIS) THEN
               WEITEMP(I) = ZERO
@@ -162,8 +157,6 @@ c
      .                / ((DPAD-DPIS)**3)
             ENDIF
           ENDDO
-        ELSE
-          TEMP(1:NEL) = TEMPEL(1:NEL)
         ENDIF
       ENDIF
 c      
@@ -175,8 +168,7 @@ c
         FRATE(I)  = ONE
         IF (EPSD(I) > EPSP0) FRATE(I) = FRATE(I) + JCC*LOG(EPSD(I)/EPSP0)   
         ! c) - Correction factor for thermal softening      
-        FTHERM(I) = ONE
-        IF (CP > ZERO) FTHERM(I) = ONE - MTEMP * (TEMP(I) - TREF)
+        FTHERM(I) = ONE - MTEMP * (TEMP(I) - TREF)
         ! d) - Computation of the yield function and value check
         YLD(I) = FHARD(I)*FRATE(I)*FTHERM(I)
         ! e) - Checking values
@@ -207,7 +199,7 @@ c
         SZX(I) = SIGNZX(I)
         ! Second deviatoric invariant
         J2(I) = HALF*(SXX(I)**2 + SYY(I)**2 + SZZ(I)**2 )
-     .          +       SXY(I)**2 + SYZ(I)**2 + SZX(I)**2
+     .        +       SXY(I)**2 + SYZ(I)**2 + SZX(I)**2
         ! Third deviatoric invariant
         J3(I) = SXX(I) * SYY(I) * SZZ(I)  
      .        + SXY(I) * SYZ(I) * SZX(I) * TWO
@@ -231,17 +223,17 @@ c
       ! Checking plastic behavior for all elements
       NINDX = 0
       DO I=1,NEL         
-        IF ((PHI(I)>ZERO).AND.(OFF(I) == ONE)) THEN
+        IF ((PHI(I) >= ZERO).AND.(OFF(I) == ONE)) THEN
           NINDX=NINDX+1
           INDEX(NINDX)=I
         ENDIF
       ENDDO
 c      
       !====================================================================
-      ! - PLASTIC CORRECTION WITH BACKWARD EULER METHOD (NEWTON RESOLUTION)
-      !====================================================================       
+      ! - PLASTIC CORRECTION WITH CUTTING PLANE METHOD (SEMI-IMPLICIT)
+      !====================================================================         
 c      
-      ! Number of maximum Newton iterations
+      ! Number of iterations
       NITER = 3
 c
       ! Loop over yielding elements
@@ -267,28 +259,22 @@ c
 #include "vectorize.inc" 
         ! Loop over yielding elements
         DO II=1,NINDX 
-          I = INDEX(II)
-        
-          ! Note     : in this part, the purpose is to compute for each iteration
+          I = INDEX(II)    
+c        
+          ! Note: in this part, the purpose is to compute for each iteration
           ! a plastic multiplier allowing to update internal variables to satisfy
-          ! the consistency condition using the backward Euler implicit method
-          ! with a Newton-Raphson iterative procedure
+          ! the consistency condition using the cutting plane semi-implicit 
+          ! iterative procedure.
           ! Its expression at each iteration is : DLAMBDA = - PHI/DPHI_DLAMBDA
-	  ! -> PHI          : current value of yield function (known)
+          ! -> PHI          : current value of yield function (known)
           ! -> DPHI_DLAMBDA : derivative of PHI with respect to DLAMBDA by taking
           !                   into account of internal variables kinetic : 
           !                   plasticity, temperature and damage (to compute)
 c        
-	  ! 1 - Computation of DPHI_DSIG the normal to the yield surface
+          ! 1 - Computation of DPHI_DSIG the normal to the yield surface
           !-------------------------------------------------------------
 c        
-          ! Computation of the normal to the yield criterion NORM
-          ! flow direction (derivative dPhi / Dsig) 
-          ! HERE WE COMPUTE DPHI/DS with phi = (sigbar/sigy)**2 - 1       
-          ! on note dphi/dS=dF/dS                                        
-          ! Fdr = J2^3 - c*J3^2                                     
-          ! dPhi/dSig = dPhi/dFdr * (dFdr/dJ2 * dJ2/dSig + dFdr/dJ3 * dJ3/dSig)
-          ! dJ2/dSig = S   
+          ! Derivative with respect to the equivalent stress
           YLD2I(I)  = ONE/(YLD(I)**2) 
           DPHI_DSIG = TWO*SIGDR(I)*YLD2I(I)
 c          
@@ -299,6 +285,7 @@ c
      .            + TWO*SIGNXY(I)*SIGNXY(I)
      .            + TWO*SIGNYZ(I)*SIGNYZ(I)
      .            + TWO*SIGNZX(I)*SIGNZX(I))   
+          NORMSIG = MAX(NORMSIG,ONE)
 c        
           ! Derivative with respect to Fdr 
           FDR(I)     =  (J2(I)/(NORMSIG**2))**3 - CDR*((J3(I)/(NORMSIG**3))**2)       
@@ -329,7 +316,7 @@ c
           ! 2 - Computation of DPHI_DLAMBDA
           !---------------------------------------------------------
 c        
-          !   a) Derivative with respect stress increments tensor DSIG			
+          !   a) Derivative with respect stress increments tensor DSIG
           !   --------------------------------------------------------
           DFDSIG2 = NORMXX * NORMXX * G2
      .            + NORMYY * NORMYY * G2
@@ -338,7 +325,7 @@ c
      .            + NORMYZ * NORMYZ * G
      .            + NORMZX * NORMZX * G   
 c     
-          !   b) Derivatives with respect to plastic strain P 			
+          !   b) Derivatives with respect to plastic strain P 
           !   ------------------------------------------------  
 c          
           !     i) Derivative of the yield stress with respect to plastic strain dYLD / dPLA
@@ -358,7 +345,7 @@ c
 c          
           !  c) Derivatives with respect to the temperature TEMP 
           !  ---------------------------------------------------
-          IF (JTHE == 0 .and. CP > ZERO) THEN
+          IF (JTHE == 0 .AND. CP > ZERO .AND. INLOC == 0) THEN
           !    i)  Derivative of the yield stress with respect to temperature dYLD / dTEMP
           !    ---------------------------------------------------------------------------  
             DYLD_DTEMP = -FHARD(I)*FRATE(I)*MTEMP
@@ -379,7 +366,7 @@ c
 c          
           ! Derivative of PHI with respect to DLAM
           DPHI_DLAM(I) = - DFDSIG2 + (DPHI_DYLD*DYLD_DPLA*DPLA_DLAM(I))
-          IF (JTHE == 0 .and. CP > ZERO) THEN
+          IF (JTHE == 0 .AND. CP > ZERO .AND. INLOC == 0) THEN
             DPHI_DLAM(I) = DPHI_DLAM(I) + DPHI_DYLD*DYLD_DTEMP*DTEMP_DLAM
           ENDIF
           DPHI_DLAM(I) = SIGN(MAX(ABS(DPHI_DLAM(I)),EM20) ,DPHI_DLAM(I))
@@ -387,7 +374,7 @@ c
           ! Computation of the plastic multiplier
           DLAM = -PHI(I)/DPHI_DLAM(I)
 c          
-	  ! Plastic strains tensor update
+          ! Plastic strains tensor update
           DPXX(I) = DLAM * NORMXX
           DPYY(I) = DLAM * NORMYY
           DPZZ(I) = DLAM * NORMZZ
@@ -425,11 +412,11 @@ c
           SIGDR(I) = KDR * EXP((ONE/SIX)*LOG(FDR(I)))
 c          
           ! Temperature update
-          IF (JTHE == 0 .AND. CP > ZERO) THEN   
+          IF (JTHE == 0 .AND. CP > ZERO .AND. INLOC == 0) THEN   
             DTEMP     = WEITEMP(I)*YLD(I)*DDEP*ETA/(RHO0(I)*CP)
             TEMP(I)   = TEMP(I) + DTEMP
-            FTHERM(I) = ONE - MTEMP*(TEMP(I) - TREF)
           ENDIF
+          FTHERM(I) = ONE - MTEMP*(TEMP(I) - TREF)
 c
           ! Hardening law update
           FHARD(I) = YLD0 + HARD*PLA(I) + QVOCE*(ONE-EXP(-BVOCE*PLA(I)))
@@ -448,22 +435,54 @@ c
       ENDDO 
       ! End of the loop over the iterations 
       !===================================================================
-      ! - END OF PLASTIC CORRECTION WITH NEWTON IMPLICIT ITERATIVE METHOD
+      ! - END OF PLASTIC CORRECTION WITH CUTTING PLANE ITERATIVE METHOD
       !===================================================================
 c      
       ! Storing new values
       DO I=1,NEL  
         ! USR Outputs
-        SEQ(I)     = SIGDR(I) ! SIGEQ
-        DPDT       = DPLA(I) / MAX(EM20,TIMESTEP)
+        SEQ(I)     = SIGDR(I)
         ! Plastic strain-rate (filtered)
+        DPDT       = DPLA(I) / MAX(EM20,TIMESTEP)
         EPSD(I)    = AFILTR * DPDT + (ONE - AFILTR) * EPSD(I)
         ! Coefficient for hourglass
-        ET(I)      = HARDP(I)*FRATE(I) / (HARDP(I)*FRATE(I) + YOUNG)
+        IF (DPLA(I) > ZERO) THEN 
+          ET(I)    = HARDP(I)*FRATE(I) / (HARDP(I)*FRATE(I) + YOUNG)
+        ELSE
+          ET(I)    = ONE
+        ENDIF
         ! Computation of the sound speed
         SOUNDSP(I) = SQRT((BULK + FOUR_OVER_3*G)/RHO0(I))
         ! Storing the yield stress
         SIGY(I)    = YLD(I)
+        ! Non-local temperature
+        IF (INLOC > 0 .AND. OFF(I) == ONE) THEN 
+          IF (CP > ZERO .AND. JTHE == 0) THEN     
+            ! Computation of the weight factor
+            DPDT_NL = MAX(DPLANL(I),ZERO)/MAX(TIMESTEP,EM20)
+            IF (DPDT_NL < DPIS) THEN
+              WEITEMP(I) = ZERO
+            ELSEIF (DPDT_NL > DPAD) THEN
+              WEITEMP(I) = ONE
+            ELSE
+              WEITEMP(I) = ((DPDT_NL-DPIS)**2 )
+     .                * (THREE*DPAD - TWO*DPDT_NL - DPIS)
+     .                / ((DPAD-DPIS)**3)
+            ENDIF
+            DTEMP   = WEITEMP(I)*DPLANL(I)*YLD(I)*ETA/(RHO0(I)*CP)
+            TEMP(I) = TEMP(I) + DTEMP 
+          ENDIF
+        ENDIF
       ENDDO
 c      
+C-----------------------------------------------
+C     plastic work dissipated as heat - in case of /heat/mat
+C-----------------------------------------------
+      IF (JTHE < 0 .AND. JLAG /= 0) THEN
+        DO I=1,NEL
+          FHEAT(I) = FHEAT(I) + ETA*(ONE-FT(I))*WEITEMP(I)*YLD(I)*DPLA(I)*VOLUME(I)
+        ENDDO
+      END IF
+!-----------
+      RETURN      
       END

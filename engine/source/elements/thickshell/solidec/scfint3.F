@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SCFINT3                       source/elements/thickshell/solidec/scfint3.F
-Chd|-- called by -----------
-Chd|        SCFORC3                       source/elements/thickshell/solidec/scforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    scfint3   ../engine/source/elements/thickshell/solidec/scfint3.F
+!||--- called by ------------------------------------------------------
+!||    scforc3   ../engine/source/elements/thickshell/solidec/scforc3.F
+!||====================================================================
       SUBROUTINE SCFINT3(SIG,
      .   PX1, PX2, PX3, PX4,
      .   PY1, PY2, PY3, PY4,
@@ -42,7 +41,8 @@ Chd|====================================================================
      .   EINT,RHO,Q,EPLAS,EPSD,
      .   EPSDM,SIGM,EINTM,EINTO,RHOM,QM,EPLASM,
      .   NU,ZI,WI,VOLG,MM,OFF,
-     .   VOL0,VOL0G,G_PLA,G_EPSD,NEL)
+     .   VOL0,VOL0G,G_PLA,G_EPSD,NEL,SVIS,
+     .   G_WPLA,L_WPLA,  G_WPLA_FLAG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,13 +51,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect01_c.inc"
-#include      "com01_c.inc"
-#include      "nsvis_c.inc"
-#include      "scr01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -83,10 +76,14 @@ C     REAL
      .   SIGM(NEL,6),EINTM(*),EINTO(*),RHOM(*),QM(*),EPSD(*),EPSDM(*),
      .   NU(*),ZI,WI,VOLG(*),MM(MVSIZ,2),OFF(*),
      +   VOL0(*),VOL0G(*)
+      my_real, DIMENSION(MVSIZ,6), INTENT(INOUT) :: SVIS
+      INTEGER, INTENT(IN) :: G_WPLA_FLAG
+      my_real,DIMENSION(NEL*G_WPLA_FLAG), INTENT(INOUT) :: G_WPLA
+      my_real,DIMENSION(NEL*G_WPLA_FLAG), INTENT(IN) :: L_WPLA
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J
+      INTEGER I
 C     REAL
       my_real
      .   S1(MVSIZ), S2(MVSIZ), S3(MVSIZ),
@@ -95,7 +92,7 @@ C     REAL
      .   SS1,SS2,SS3,SVM0,FINT,FINT1,FINT2,
      .   XH1I,XH2I,YH1I,YH2I,NU1(MVSIZ),FAC(MVSIZ)
 C-----------------------------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
        S1(I)=(SIG(I,1)+SVIS(I,1)-QVIS(I))*VOL(I)
        S2(I)=(SIG(I,2)+SVIS(I,2)-QVIS(I))*VOL(I)
        S3(I)=(SIG(I,3)+SVIS(I,3)-QVIS(I))*VOL(I)
@@ -103,7 +100,7 @@ C-----------------------------------------------
        S5(I)=(SIG(I,5)+SVIS(I,5))*VOL(I)
        S6(I)=(SIG(I,6)+SVIS(I,6))*VOL(I)
       ENDDO
-      DO I=LFT,LLT
+      DO I=1,NEL
         FINT=S1(I)*PX1(I)+S4(I)*PY1(I)+S6(I)*PZ1(I)
         F11(I)=F11(I)-FINT
         F17(I)=F17(I)+FINT
@@ -144,16 +141,16 @@ C
         F34(I)=F34(I)-FINT
         F36(I)=F36(I)+FINT
       ENDDO
-C   +++ non constante part------------
-      DO I=LFT,LLT
+C   +++ non-constant part -----------
+      DO I=1,NEL
         RY1(I)= ZI*RY0(I)
         RX1(I)= ZI*RX0(I)
         SY1(I)= ZI*SY0(I)
         SX1(I)= ZI*SX0(I)
         NU1(I) = NU(I)/(ONE -NU(I))
       ENDDO
-C---- asymetric part of gama------------
-      DO I=LFT,LLT
+C---- asymmetric part of gama------------
+      DO I=1,NEL
 C   ---- I =1--------------
         XH1I =-RY1(I)*PX1H1(I)
         XH2I = SY1(I)*PX1H2(I)
@@ -219,14 +216,14 @@ C   ---- I =4--------------
         F34(I)=F34(I)+FINT
         F36(I)=F36(I)-FINT
       ENDDO
-C---- symetric part of gama------------
+C---- symmetric part of gama------------
 C 1 1 -1 -1 -1 -1 1 1
 C 1 -1 -1 1 -1 1 1 -1
-      DO I=LFT,LLT
+      DO I=1,NEL
         XH1I =-ONE_OVER_8*RY1(I)
         XH2I = ONE_OVER_8*SY1(I)
         YH1I = ONE_OVER_8*RX1(I)
-        YH2I =-ONE_OVER_8*SX1(I)	
+        YH2I =-ONE_OVER_8*SX1(I)
 C   ---- ---------------
         FINT1=(S1(I)-NU(I)*S2(I)-NU(I)*S3(I))*XH1I+S4(I)*YH1I
         FINT2=(S1(I)-NU1(I)*S3(I))*XH2I+S4(I)*YH2I
@@ -264,10 +261,10 @@ C
         F37(I)=F37(I)-FINT1-FINT2
         F38(I)=F38(I)-FINT1+FINT2
       ENDDO
-C   --- non constante part------------
+C   --- not constant part ------------
 C------------------------------------------------   -
 C   - for hourglass yield critiron-----
-      DO I=LFT,LLT
+      DO I=1,NEL
         SS1 =SIG(I,1)-SIG(I,2)
         SS2 =SIG(I,2)-SIG(I,3)
         SS3 =SIG(I,1)-SIG(I,3)
@@ -277,8 +274,8 @@ C   - for hourglass yield critiron-----
         MM(I,2) = MIN(SVM0,MM(I,2))
       ENDDO
 C----------------------------------------------    /
-C   - post-traitement-valeur moyenne au sens a'=(_/  a dv ) /v
-      DO I=LFT,LLT
+C   -Average post-processing in the sense A '= (_ / a dv) / V
+      DO I=1,NEL
          FAC(I) = OFF(I)*VOL(I)/VOLG(I)
          SIGM(I,1) = SIGM(I,1) + FAC(I) * SIG(I,1)
          SIGM(I,2) = SIGM(I,2) + FAC(I) * SIG(I,2)
@@ -288,16 +285,17 @@ C   - post-traitement-valeur moyenne au sens a'=(_/  a dv ) /v
          SIGM(I,6) = SIGM(I,6) + FAC(I) * SIG(I,6)
          RHOM(I)   = RHOM(I)   + FAC(I) * RHO(I)
          EINTM(I)  = EINTM(I)+OFF(I)*VOL0(I)/VOL0G(I)*(EINT(I)-EINTO(I))
+         IF (G_WPLA_FLAG > 0)  G_WPLA(I) = G_WPLA(I) + L_WPLA(I)
          QM(I)     = QM(I)     + FAC(I) * Q(I)
       ENDDO
 c
       IF (G_PLA > 0) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           EPLASM(I)  = EPLASM(I)  + FAC(I) * EPLAS(I)
         ENDDO
       ENDIF
       IF (G_EPSD > 0) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           EPSDM(I) = EPSDM(I) + FAC(I) * EPSD(I)
         ENDDO
       ENDIF

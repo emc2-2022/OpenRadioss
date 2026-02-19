@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ANIMIG3D                      source/output/anim/generate/animig3d.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        PROJECIG3D                    source/elements/ige3d/projecig3d.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    animig3d       ../engine/source/output/anim/generate/animig3d.F
+!||--- called by ------------------------------------------------------
+!||    genani         ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    projecig3d     ../engine/source/elements/ige3d/projecig3d.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ANIMIG3D(ELBUF_TAB,IPARG    ,X     ,D        , V       ,A     ,
      .                    WIGE     ,KXIG3D   ,IXIG3D,IG3DSOLID,NANIM3D_L,X_TEMP,
      .                    D_TEMP   ,V_TEMP   ,A_TEMP,TABSTRESL,IGEO     ,KNOT  ,
@@ -53,15 +54,13 @@ C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "nsvis_c.inc"
 #include      "param_c.inc"
-#include      "fluid_scr_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER KXIG3D(NIXIG3D,*),IXIG3D(*),IGEO(NPROPGI,*),
-     .        NANIM3D_L, IPARG(NPARG,*), ITAB(*)  ! DISCUTER AVEC SEB DE COMMENT RENVOYER NANIM3D_L
+     .        NANIM3D_L, IPARG(NPARG,*), ITAB(*)  ! discuss with Seb how to return NANIM3D_L
       INTEGER IG3DSOLID(8,27,*),IPARTIG3D(*),IPART(LIPART1,*)
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
       my_real
@@ -77,18 +76,18 @@ C-----------------------------------------------
 C----------------------------------------------------------
       NISOELCUT = 0
       NG=1
-      DO WHILE (NG.LE.NGROUP)
+      DO WHILE (NG<=NGROUP)
        NEL_P = 0
        ITEST = 0
-       IF (IPARG(5,NG).EQ.101) THEN 
+       IF (IPARG(5,NG)==101) THEN 
         NFT=IPARG(3,NG)
-        IF (NG.EQ.NGROUP) THEN
+        IF (NG==NGROUP) THEN
          NEL_P = IPARG(2,NG)
         ELSE
          I=NFT+1
          NEL_P=NEL_P+1
-         DO WHILE (I.LT.NUMELIG3D)
-          IF (IPARTIG3D(I+1).EQ.IPARTIG3D(I)) THEN
+         DO WHILE (I<NUMELIG3D)
+          IF (IPARTIG3D(I+1)==IPARTIG3D(I)) THEN
             NEL_P=NEL_P+1
             I=I+1
           ELSE

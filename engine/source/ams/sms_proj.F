@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_INIST                     source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        MAV_MM                        source/implicit/produt_v.F    
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_MAM_NM                    source/ams/sms_proj.F         
-Chd|        SMS_MAV_LT2                   source/ams/sms_pcg.F          
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        SMS_PCG_PROJ                  share/modules/sms_mod.F       
-Chd|====================================================================
-       SUBROUTINE SMS_INIST( 
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_inist      ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg        ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    mav_mm         ../engine/source/implicit/produt_v.F
+!||    my_barrier     ../engine/source/system/machine.F
+!||    sms_mam_nm     ../engine/source/ams/sms_proj.F
+!||    sms_mav_lt2    ../engine/source/ams/sms_pcg.F
+!||    startime       ../engine/source/system/timer_mod.F90
+!||    stoptime       ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    sms_pcg_proj   ../engine/share/modules/sms_mod.F
+!||    timer_mod      ../engine/source/system/timer_mod.F90
+!||====================================================================
+       SUBROUTINE SMS_INIST(TIMERS, 
      1           IADK  ,JDIK  ,DIAG_K ,LT_K  ,ITASK ,
      2           NODFT1_SMS,NODLT1_SMS,INDX1_SMS,NODNX_SMS,IAD_ELEM ,
      3           FR_ELEM   ,WEIGHT    ,JADI_SMS ,JDII_SMS ,LTI_SMS  ,
@@ -43,35 +45,31 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+         USE TIMER_MOD
          USE SMS_PCG_PROJ
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "sms_c.inc"
+#include      "timeri_c.inc"
 #include      "units_c.inc"
-#include      "task_c.inc"
-#include "timeri_c.inc"
+#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS
       INTEGER  NODFT, NODLT, ITASK, IADK(*)  ,JDIK(*),
      .         NODFT1_SMS,NODLT1_SMS,INDX1_SMS(*), NODNX_SMS(*),
      .         IAD_ELEM(2,NSPMD+1) ,FR_ELEM(*),WEIGHT(*),
      .         JADI_SMS(*),JDII_SMS(*),
      .         ISKYI_SMS(LSKYI_SMS,*),FR_SMS(NSPMD+1),FR_RMS(NSPMD+1),
      .         LIST_SMS(*), LIST_RMS(*), IMV(*)
-C     REAL
-      my_real
-     .  DIAG_K(*), LT_K(*)  ,LTI_SMS(*), MSKYI_SMS(*),
-     .  MSKYI_FI_SMS(*), VFI(*), MV(*), MS(*)
+      my_real DIAG_K(*), LT_K(*)  ,LTI_SMS(*), MSKYI_SMS(*),MSKYI_FI_SMS(*), VFI(*), MV(*), MS(*)
       DOUBLE PRECISION MV6(6,3,*), MW6(6,3,*)
 C-----------------------------------------------
 c FUNCTION: initialization of S,T of Projection
@@ -90,11 +88,9 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 #if !defined(WITHOUT_LINALG)
-       CHARACTER          JOBZ, UPLO
-       INTEGER I,J,IT,IP,NLIM,ND,IUPD,IPRI,IERROR,NNZI,M,
-     .         F_DDLI,L_DDLI,INFO,LW,INORM, M_VS1
-       my_real
-     .  WORK(3*M_VS_SMS+9),W(M_VS_SMS+3)
+       CHARACTER JOBZ, UPLO
+       INTEGER I,J,IT,IP,NLIM,ND,IUPD,IPRI,IERROR,NNZI,M,F_DDLI,L_DDLI,INFO,LW,INORM, M_VS1
+       my_real WORK(3*M_VS_SMS+9),W(M_VS_SMS+3)
 C---------------------
       CALL MY_BARRIER
 C---------------------
@@ -108,9 +104,9 @@ C---------------------
 C----------------------
       CALL MY_BARRIER
 C---------------------
-      IF(IMONM.GT.0.AND.ITASK==0)CALL STARTIME(71,1)
+      IF(IMONM>0.AND.ITASK==0)CALL STARTIME(TIMERS,71)
       DO M = 1,M_VS1
-        CALL SMS_MAV_LT2(
+        CALL SMS_MAV_LT2(TIMERS,
      1          NODFT   ,NODLT  ,NUMNOD ,IADK  ,JDIK  ,
      2          ITASK   ,DIAG_K ,LT_K   ,PROJ_S(1,M),PROJ_T(1,M),
      3          NODFT1_SMS,NODLT1_SMS,INDX1_SMS,NODNX_SMS,IAD_ELEM ,
@@ -122,14 +118,14 @@ C----------------------
         CALL MY_BARRIER
 C---------------------
       END DO !M = 1,M_VS1
-      IF(IMONM.GT.0.AND.ITASK==0)CALL STOPTIME(71,1)
+      IF(IMONM>0.AND.ITASK==0)CALL STOPTIME(TIMERS,71)
 C---------------------- 
 C        [k0]=[S]^t[T]
 C---------------------
-      IF(IMONM.GT.0.AND.ITASK==0)CALL STARTIME(72,1)
+      IF(IMONM>0.AND.ITASK==0)CALL STARTIME(TIMERS,72)
       CALL SMS_MAM_NM(NODFT  ,NODLT  ,NUMNOD,M_VS1,PROJ_S ,
      .             PROJ_T ,PROJ_K ,WEIGHT ,ITASK   )
-      IF(IMONM.GT.0.AND.ITASK==0)CALL STOPTIME(72,1)
+      IF(IMONM>0.AND.ITASK==0)CALL STOPTIME(TIMERS,72)
 C----------------------
       CALL MY_BARRIER
 C---------------------
@@ -162,52 +158,49 @@ C---------------------
         ENDDO
 
         if (ncprisms/=0) then
-         write(iout,*)' ** INFO ** EIGENVALUES =',
-     .       (ONE/PROJ_LA_1(I),I=1,M_VS_SMS)
+         write(iout,*)' ** INFO ** EIGENVALUES =',(ONE/PROJ_LA_1(I),I=1,M_VS_SMS)
         endif
 C
       END IF !(ITASK==0) THEN
 #endif
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_INIX                      source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_MAV_MN                    source/ams/sms_proj.F         
-Chd|        SMS_MAV_NM                    source/ams/sms_proj.F         
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        SMS_PCG_PROJ                  share/modules/sms_mod.F       
-Chd|====================================================================
-      SUBROUTINE SMS_INIX(NODFT,NODLT,NUMNOD,X  ,R ,WEIGHT,ITASK ,
+!||====================================================================
+!||    sms_inix       ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg        ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier     ../engine/source/system/machine.F
+!||    sms_mav_mn     ../engine/source/ams/sms_proj.F
+!||    sms_mav_nm     ../engine/source/ams/sms_proj.F
+!||    startime       ../engine/source/system/timer_mod.F90
+!||    stoptime       ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    sms_pcg_proj   ../engine/share/modules/sms_mod.F
+!||    timer_mod      ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE SMS_INIX(TIMERS, NODFT,NODLT,NUMNOD,X  ,R ,WEIGHT,ITASK ,
      .                    DIAG_SMS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+         USE TIMER_MOD
          USE SMS_PCG_PROJ
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "task_c.inc"
 #include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_), intent(inout) :: TIMERS
       INTEGER  NODFT,NODLT,NUMNOD,ITASK,WEIGHT(*)
-C     REAL
-      my_real
-     .  X(3,*), R(3,*), DIAG_SMS(*)
+      my_real X(3,*), R(3,*), DIAG_SMS(*)
 C-----------------------------------------------
 c FUNCTION: initialization of X0=[S][LAMDA]^-1[S]^t{R}
 c
@@ -244,10 +237,10 @@ C----------------------
 C----------------------
 C        {W}=[S]^t{R}
 C---------------------
-      IF(IMONM.GT.0.AND.ITASK==0)CALL STARTIME(72,1)
+      IF(IMONM>0.AND.ITASK==0)CALL STARTIME(TIMERS,72)
       CALL SMS_MAV_NM(NODFT,NODLT,NUMNOD ,NPV   ,PROJ_S ,
      .                R    ,PROJ_W,WEIGHT,ITASK )
-      IF(IMONM.GT.0.AND.ITASK==0)CALL STOPTIME(72,1)
+      IF(IMONM>0.AND.ITASK==0)CALL STOPTIME(TIMERS,72)
 C----------------------
       CALL MY_BARRIER
 C----------------------
@@ -266,9 +259,9 @@ C---------------------
 C---------------------
 C       {X0}=[S]{W}
 C---------------------
-       IF(IMONM.GT.0.AND.ITASK==0)CALL STARTIME(73,1)
+       IF(IMONM>0.AND.ITASK==0)CALL STARTIME(TIMERS,73)
        CALL SMS_MAV_MN(NUMNOD ,NPV   ,PROJ_S ,PROJ_W ,X  ,ITASK )
-       IF(IMONM.GT.0.AND.ITASK==0)CALL STOPTIME(73,1)
+       IF(IMONM>0.AND.ITASK==0)CALL STOPTIME(TIMERS,73)
 C----------------------
       END IF !(ITASK ==0) THEN
 C----------------------
@@ -290,44 +283,42 @@ C----------------------
 C----------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_PRO_P                     source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_MAV_MN                    source/ams/sms_proj.F         
-Chd|        SMS_MAV_NM                    source/ams/sms_proj.F         
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        SMS_PCG_PROJ                  share/modules/sms_mod.F       
-Chd|====================================================================
-      SUBROUTINE SMS_PRO_P(NODFT ,NODLT ,NUMNOD ,P  ,WEIGHT,ITASK ,
+!||====================================================================
+!||    sms_pro_p      ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg        ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier     ../engine/source/system/machine.F
+!||    sms_mav_mn     ../engine/source/ams/sms_proj.F
+!||    sms_mav_nm     ../engine/source/ams/sms_proj.F
+!||    startime       ../engine/source/system/timer_mod.F90
+!||    stoptime       ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    sms_pcg_proj   ../engine/share/modules/sms_mod.F
+!||    timer_mod      ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE SMS_PRO_P(TIMERS, NODFT ,NODLT ,NUMNOD ,P  ,WEIGHT,ITASK ,
      .                     PJ    ,DIAG_SMS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+         USE TIMER_MOD
          USE SMS_PCG_PROJ
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "task_c.inc"
 #include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_), INTENT(inout) :: TIMERS
       INTEGER  NODFT ,NODLT ,NUMNOD ,ITASK,WEIGHT(*)
-C     REAL
-      my_real
-     .  P(3,*) ,PJ(3,*), DIAG_SMS(*)
+      my_real P(3,*) ,PJ(3,*), DIAG_SMS(*)
 C-----------------------------------------------
 c FUNCTION: Projection of {p}={p}-[S][LAMDA]^-1[T]^t{p}
 c
@@ -360,10 +351,10 @@ C----------------------
 C----------------------
 C        {W}=[T]^t{p}
 C---------------------
-      IF(IMONM.GT.0.AND.ITASK==0)CALL STARTIME(73,1)
+      IF(IMONM>0.AND.ITASK==0)CALL STARTIME(TIMERS,73)
       CALL SMS_MAV_NM(NODFT,NODLT,NUMNOD ,NPV  ,PROJ_T ,
      .                P   ,PROJ_W ,WEIGHT,ITASK )
-      IF(IMONM.GT.0.AND.ITASK==0)CALL STOPTIME(73,1)
+      IF(IMONM>0.AND.ITASK==0)CALL STOPTIME(TIMERS,73)
 C----------------------
       CALL MY_BARRIER
 C---------------------
@@ -381,9 +372,9 @@ C---------------------
 C----------------------
 C       {p}=[S]{W}
 C---------------------
-        IF(IMONM.GT.0.AND.ITASK==0)CALL STARTIME(73,1)
+        IF(IMONM>0.AND.ITASK==0)CALL STARTIME(TIMERS,73)
         CALL SMS_MAV_MN(NUMNOD,NPV   ,PROJ_S ,PROJ_W  ,PJ  ,ITASK )
-        IF(IMONM.GT.0.AND.ITASK==0)CALL STOPTIME(73,1)
+        IF(IMONM>0.AND.ITASK==0)CALL STOPTIME(TIMERS,73)
       END IF
 C----------------------
       CALL MY_BARRIER
@@ -405,14 +396,15 @@ C----------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_UPDST                     source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_PCG_PROJ                  share/modules/sms_mod.F       
-Chd|====================================================================
+!||====================================================================
+!||    sms_updst      ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg        ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier     ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    sms_pcg_proj   ../engine/share/modules/sms_mod.F
+!||====================================================================
        SUBROUTINE SMS_UPDST( 
      1           IADK  ,JDIK  ,DIAG_K ,LT_K  ,ITASK ,
      2           NODFT1_SMS,NODLT1_SMS,INDX1_SMS,NODNX_SMS,IAD_ELEM ,
@@ -430,15 +422,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -448,7 +435,6 @@ C-----------------------------------------------
      .         JADI_SMS(*),JDII_SMS(*),
      .         ISKYI_SMS(LSKYI_SMS,*),FR_SMS(NSPMD+1),FR_RMS(NSPMD+1),
      .         LIST_SMS(*), LIST_RMS(*), IMV(*), KINET(*)
-C     REAL
       my_real
      .  DIAG_K(*), LT_K(*)  ,LTI_SMS(*), MSKYI_SMS(*),
      .  MSKYI_FI_SMS(*), VFI(*), MV(*), MS(*), U(3,*), P(3,*), Y(3,*)
@@ -498,17 +484,18 @@ C----------------------
 C---------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_INISI                     source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_INIS                      source/ams/sms_proj.F         
-Chd|        SMS_MORTHO_GS                 source/ams/sms_proj.F         
-Chd|        SPMD_EXCH_SMS                 source/mpi/ams/spmd_exch_sms.F
-Chd|        SMS_PCG_PROJ                  share/modules/sms_mod.F       
-Chd|====================================================================
+!||====================================================================
+!||    sms_inisi       ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg         ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier      ../engine/source/system/machine.F
+!||    sms_inis        ../engine/source/ams/sms_proj.F
+!||    sms_mortho_gs   ../engine/source/ams/sms_proj.F
+!||    spmd_exch_sms   ../engine/source/mpi/ams/spmd_exch_sms.F
+!||--- uses       -----------------------------------------------------
+!||    sms_pcg_proj    ../engine/share/modules/sms_mod.F
+!||====================================================================
       SUBROUTINE SMS_INISI( 
      1           IADK  ,JDIK  ,DIAG_K ,LT_K  ,ITASK ,
      2           NODFT1_SMS,NODLT1_SMS,INDX1_SMS,NODNX_SMS,IAD_ELEM ,
@@ -526,28 +513,22 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER  NODFT, NODLT, ITASK, IADK(*)  ,JDIK(*),
-     .         NODFT1_SMS,NODLT1_SMS,INDX1_SMS(*), NODNX_SMS(*),
-     .         IAD_ELEM(2,NSPMD+1) ,FR_ELEM(*),WEIGHT(*),
-     .         JADI_SMS(*),JDII_SMS(*),
-     .         ISKYI_SMS(LSKYI_SMS,*),FR_SMS(NSPMD+1),FR_RMS(NSPMD+1),
-     .         LIST_SMS(*), LIST_RMS(*), IMV(*), KINET(*)
-C     REAL
-      my_real
-     .  DIAG_K(*), LT_K(*)  ,LTI_SMS(*), MSKYI_SMS(*),
-     .  MSKYI_FI_SMS(*), VFI(*), MV(*), MS(*), PREC_SMS(*)
+      INTEGER NODFT, NODLT, ITASK, IADK(*)  ,JDIK(*),
+     .        NODFT1_SMS,NODLT1_SMS,INDX1_SMS(*), NODNX_SMS(*),
+     .        IAD_ELEM(2,NSPMD+1) ,FR_ELEM(*),WEIGHT(*),
+     .        JADI_SMS(*),JDII_SMS(*),
+     .        ISKYI_SMS(LSKYI_SMS,*),FR_SMS(NSPMD+1),FR_RMS(NSPMD+1),
+     .        LIST_SMS(*), LIST_RMS(*), IMV(*), KINET(*)
+      my_real DIAG_K(*), LT_K(*)  ,LTI_SMS(*), MSKYI_SMS(*),
+     .        MSKYI_FI_SMS(*), VFI(*), MV(*), MS(*), PREC_SMS(*)
       DOUBLE PRECISION MV6(6,3,*), MW6(6,3,*)
 C-----------------------------------------------
 c FUNCTION: initialization of S,by M_VS PCG iterations
@@ -577,7 +558,7 @@ C---------------------
         IF(ITASK==0)THEN
           CALL SMS_INIS(NUMNOD,1 , NUMNOD,1 ,NPV  ,PROJ_S ,
      .                   NODNX_SMS,KINET )
-C projeter PROJ_S sur cond cin. !!!
+C Project Proj_S on Cond Cin.!!!
         END IF
 C----------------------
         CALL MY_BARRIER
@@ -597,7 +578,7 @@ C--------matrix GS orthonalization and normalized
      .                PROJ_S ,WEIGHT  ,ITASK  )
       ELSE
 C
-C projeter PROJ_S sur cond cin. !!!
+C Project Proj_S on Cond Cin.!!!
         DO J=1,NPV
         DO N=NODFT,NODLT
          IF(KINET(N)/=0.OR.NODNX_SMS(N)==0)THEN
@@ -617,37 +598,23 @@ C--------------------
 C--------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_INIS                      source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_INISI                     source/ams/sms_proj.F         
-Chd|-- calls ---------------
-Chd|        ALEAT                         source/system/aleat.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_inis    ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_inisi   ../engine/source/ams/sms_proj.F
+!||====================================================================
       SUBROUTINE SMS_INIS(NUMNOD,NODFT ,NODLT, NPF,   NPL,   S   ,
      .                    NODNX_SMS,KINET )
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NUMNOD, NODFT, NODLT, NPF,   NPL,
      .         NODNX_SMS(*), KINET(*)
-C     REAL
-      my_real
-     .  S(NUMNOD,*)
+      my_real S(NUMNOD,*)
 C-----------------------------------------------
 c FUNCTION: initialization of [S] 
 c
@@ -680,18 +647,18 @@ C
       RETURN
       END
 C-----------Hybrid {x}t{y}-.{Weight}--
-Chd|====================================================================
-Chd|  SMS_PRODUT_H                  source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_MAM_NM                    source/ams/sms_proj.F         
-Chd|        SMS_MORTHO_GS                 source/ams/sms_proj.F         
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_GLOB_DPSUM9              source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_RBCAST                   source/mpi/generic/spmd_rbcast.F
-Chd|        SPMD_SUM_S                    source/mpi/implicit/imp_spmd.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_produt_h       ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_mam_nm         ../engine/source/ams/sms_proj.F
+!||    sms_mortho_gs      ../engine/source/ams/sms_proj.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier         ../engine/source/system/machine.F
+!||    spmd_glob_dpsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_rbcast        ../engine/source/mpi/generic/spmd_rbcast.F
+!||    spmd_sum_s         ../engine/source/mpi/implicit/imp_spmd.F
+!||    sum_6_float        ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE SMS_PRODUT_H(NODFT  ,NODLT ,X   ,Y  ,WEIGHT, R ,ITASK )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -707,25 +674,21 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "parit_c.inc"
-#include      "scr05_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NODFT  ,NODLT ,WEIGHT(*) ,ITASK
-C     REAL
-      my_real
-     .  X(*), Y(*)  ,R
+      my_real X(*), Y(*)  ,R
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I , N, J, K, L, LLT
-      my_real
-     .  RTMP(MVSIZ), RL, RBUF
+      my_real RTMP(MVSIZ), RL, RBUF
       DOUBLE PRECISION R6T(6), DBUF(6)
 C-----------------------------
       IF(IPARIT==0)THEN
-        IF (ITASK.EQ.0) R_N2_SMS = ZERO
+        IF (ITASK==0) R_N2_SMS = ZERO
 C----------------------
       CALL MY_BARRIER
 C---------------------
@@ -806,17 +769,17 @@ C---------------------
       RETURN
       END
 C-----------Hybrid {x}t{y}-.{Weight}--
-Chd|====================================================================
-Chd|  SMS_PRODUT3                   source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_MAV_NM                    source/ams/sms_proj.F         
-Chd|-- calls ---------------
-Chd|        FOAT_TO_6_FLOAT               source/system/parit.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_GLOB_DPSUM9              source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_RBCAST                   source/mpi/generic/spmd_rbcast.F
-Chd|====================================================================
+!||====================================================================
+!||    sms_produt3        ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_mav_nm         ../engine/source/ams/sms_proj.F
+!||--- calls      -----------------------------------------------------
+!||    foat_to_6_float    ../engine/source/system/parit.F
+!||    my_barrier         ../engine/source/system/machine.F
+!||    spmd_glob_dpsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_glob_dsum9    ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_rbcast        ../engine/source/mpi/generic/spmd_rbcast.F
+!||====================================================================
       SUBROUTINE SMS_PRODUT3(NODFT  ,NODLT ,X   ,Y  ,WEIGHT, R ,ITASK )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -832,15 +795,12 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "parit_c.inc"
-#include      "scr05_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NODFT  ,NODLT ,WEIGHT(*) ,ITASK
-C     REAL
-      my_real
-     .  X(*), Y(3,*)  ,R(3)
+      my_real X(*), Y(3,*)  ,R(3)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -850,7 +810,7 @@ C-----------------------------------------------
       DOUBLE PRECISION R6(6,3,MVSIZ), R6T(3,6), DBUF(3,6)
 C-----------------------------
       IF(IPARIT==0)THEN
-        IF (ITASK.EQ.0) THEN
+        IF (ITASK==0) THEN
          R_N2_SMS1 = ZERO
          R_N2_SMS2 = ZERO
          R_N2_SMS3 = ZERO
@@ -977,14 +937,14 @@ C----------------------
 C---------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_MAV_NM                    source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_INIX                      source/ams/sms_proj.F         
-Chd|        SMS_PRO_P                     source/ams/sms_proj.F         
-Chd|-- calls ---------------
-Chd|        SMS_PRODUT3                   source/ams/sms_proj.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_mav_nm    ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_inix      ../engine/source/ams/sms_proj.F
+!||    sms_pro_p     ../engine/source/ams/sms_proj.F
+!||--- calls      -----------------------------------------------------
+!||    sms_produt3   ../engine/source/ams/sms_proj.F
+!||====================================================================
       SUBROUTINE SMS_MAV_NM(NODFT ,NODLT ,NUMNOD,MD  ,A  ,
      .                      B    ,C    ,WEIGHT,ITASK )
 C-----------------------------------------------
@@ -992,17 +952,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NODFT ,NODLT ,NUMNOD ,MD   ,ITASK ,WEIGHT(*)
-C     REAL
-      my_real
-     .  A(NUMNOD,*), B(3,*), C(3,*)  
+      my_real A(NUMNOD,*), B(3,*), C(3,*)  
 C-----------------------------------------------
 c FUNCTION: product {C}=[A]^t{B}
 c
@@ -1026,13 +979,13 @@ C-----------------------------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_MAM_NM                    source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_INIST                     source/ams/sms_proj.F         
-Chd|-- calls ---------------
-Chd|        SMS_PRODUT_H                  source/ams/sms_proj.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_mam_nm     ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_inist      ../engine/source/ams/sms_proj.F
+!||--- calls      -----------------------------------------------------
+!||    sms_produt_h   ../engine/source/ams/sms_proj.F
+!||====================================================================
       SUBROUTINE SMS_MAM_NM(NODFT ,NODLT ,NUMNOD, MD   ,A   ,
      .                      B   ,C  ,WEIGHT,ITASK)
 C-----------------------------------------------
@@ -1040,17 +993,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NODFT ,NODLT ,NUMNOD,MD   ,ITASK,WEIGHT(*)
-C     REAL
-      my_real
-     .  A(NUMNOD,*), B(NUMNOD,*), C(MD,*)  
+      my_real A(NUMNOD,*), B(NUMNOD,*), C(MD,*)  
 C-----------------------------------------------
 c FUNCTION: product {C}=[A]^t[B]
 c
@@ -1077,34 +1023,27 @@ C-----------------------------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_MORTHO_GS                 source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_INISI                     source/ams/sms_proj.F         
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_PRODUT_H                  source/ams/sms_proj.F         
-Chd|        VAXPY_H                       source/implicit/produt_v.F    
-Chd|        VSCAL_H                       source/implicit/produt_v.F    
-Chd|====================================================================
+!||====================================================================
+!||    sms_mortho_gs   ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_inisi       ../engine/source/ams/sms_proj.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier      ../engine/source/system/machine.F
+!||    sms_produt_h    ../engine/source/ams/sms_proj.F
+!||    vaxpy_h         ../engine/source/implicit/produt_v.F
+!||    vscal_h         ../engine/source/implicit/produt_v.F
+!||====================================================================
       SUBROUTINE SMS_MORTHO_GS(NODFT  ,NODLT  ,NUMNOD ,MD_F   ,MD_L   ,
      .                     A      ,WEIGHT ,ITASK  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C----------------------------s-------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NUMNOD ,MD_F,MD_L,NODFT ,NODLT    ,WEIGHT(*), ITASK
-C     REAL
-      my_real
-     .  A(NUMNOD,*)
+      my_real A(NUMNOD,*)
 C-----------------------------------------------
 c FUNCTION: stabilized Gram-Schmidt orthonormalization (from MD_F to MD_L)
 c
@@ -1143,31 +1082,24 @@ C---------------------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_MAV_MN                    source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_INIX                      source/ams/sms_proj.F         
-Chd|        SMS_PRO_P                     source/ams/sms_proj.F         
-Chd|-- calls ---------------
-Chd|        SMS_PRODUT_V_LOC              source/ams/sms_proj.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_mav_mn         ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_inix           ../engine/source/ams/sms_proj.F
+!||    sms_pro_p          ../engine/source/ams/sms_proj.F
+!||--- calls      -----------------------------------------------------
+!||    sms_produt_v_loc   ../engine/source/ams/sms_proj.F
+!||====================================================================
       SUBROUTINE SMS_MAV_MN(ND   ,MD     ,A     ,B     ,C      ,ITASK )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  ND  ,MD   ,ITASK
-C     REAL
-      my_real
-     .  A(ND,*), B(3,*), C(3,*)  
+      my_real A(ND,*), B(3,*), C(3,*)  
 C-----------------------------------------------
 c FUNCTION: product {C}=[A]{B}
 c
@@ -1198,31 +1130,21 @@ C--------------------------------------------
       RETURN
       END
 C---------------------r={x}^t{y}---
-Chd|====================================================================
-Chd|  SMS_PRODUT_V_LOC              source/ams/sms_proj.F         
-Chd|-- called by -----------
-Chd|        SMS_MAV_MN                    source/ams/sms_proj.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_produt_v_loc   ../engine/source/ams/sms_proj.F
+!||--- called by ------------------------------------------------------
+!||    sms_mav_mn         ../engine/source/ams/sms_proj.F
+!||====================================================================
       SUBROUTINE SMS_PRODUT_V_LOC( NDDL  ,X   ,Y  ,R)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "scr05_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL  
-C     REAL
-      my_real
-     .  X(*), Y(3,*)  ,R(3)
+      my_real X(*), Y(3,*)  ,R(3)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------

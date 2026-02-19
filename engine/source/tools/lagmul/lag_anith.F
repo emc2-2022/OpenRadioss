@@ -1,38 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LAG_ANITH                     source/tools/lagmul/lag_anith.F
-Chd|-- called by -----------
-Chd|        LAG_MULT                      source/tools/lagmul/lag_mult.F
-Chd|-- calls ---------------
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE LAG_ANITH(IADLL  ,LLL   ,JLL    ,SLL    ,XLL    ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lag_anith    ../engine/source/tools/lagmul/lag_anith.F
+!||--- called by ------------------------------------------------------
+!||    lag_mult     ../engine/source/tools/lagmul/lag_mult.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod      ../engine/share/modules/h3d_mod.F
+!||    output_mod   ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE LAG_ANITH(OUTPUT,IADLL  ,LLL   ,JLL    ,SLL    ,XLL    ,
      2                     FANI  ,FSAV   ,NC     ,H3D_DATA)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,9 +43,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "lagmult.inc"
 #include      "comlock.inc"
-#include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "scr07_c.inc"
@@ -52,6 +52,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      type(output_), intent(inout) :: output
       INTEGER NC,IADLL(*),LLL(*),JLL(*),SLL(*)
 C     REAL
       my_real
@@ -65,15 +66,15 @@ C======================================================================|
 C---
 C     SAUVEGARDE DES FORCES D'ANIM
 C---
-      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .          (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .              (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))THEN
+      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .          ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .              (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))THEN
 #include "lockon.inc"
           DO IC=1,NC
             DO IK=IADLL(IC),IADLL(IC+1)-1
               I = LLL(IK)
               J = JLL(IK)
-              IF(J.LE.3) FANI(J,I) = FANI(J,I) - XLL(IK)
+              IF(J<=3) FANI(J,I) = FANI(J,I) - XLL(IK)
             ENDDO
           ENDDO
 #include "lockoff.inc"
@@ -85,7 +86,7 @@ C---
         DO IC=1,NC
           DO IK=IADLL(IC),IADLL(IC+1)-1
             NIN = SLL(IK)
-            IF(NIN.NE.0)THEN
+            IF(NIN/=0)THEN
               J = JLL(IK)
               FSAV(J,NIN)=FSAV(J,NIN) + XLL(IK)*DT12
             ENDIF
@@ -97,22 +98,25 @@ C---
       RETURN
       END
 
-C routine SPMD
-Chd|====================================================================
-Chd|  LAG_ANITHP                    source/tools/lagmul/lag_anith.F
-Chd|-- called by -----------
-Chd|        LAG_MULTP                     source/tools/lagmul/lag_mult.F
-Chd|-- calls ---------------
-Chd|        SPMD_SG_FANI                  source/mpi/lag_multipliers/spmd_lag.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE LAG_ANITHP(IADLL  ,LLL   ,JLL  ,SLL     ,XLL    ,
+C SPMD routine
+!||====================================================================
+!||    lag_anithp     ../engine/source/tools/lagmul/lag_anith.F
+!||--- called by ------------------------------------------------------
+!||    lag_multp      ../engine/source/tools/lagmul/lag_mult.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_sg_fani   ../engine/source/mpi/lag_multipliers/spmd_lag.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod        ../engine/share/modules/h3d_mod.F
+!||    output_mod     ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE LAG_ANITHP(OUTPUT, IADLL  ,LLL   ,JLL  ,SLL     ,XLL    ,
      2                      FANI   ,FSAV  ,NC   ,INDEXLAG,FANIG  ,
      3                      FR_LAGF,NBNODL,LLAGF,NLAGF   ,H3D_DATA)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -121,20 +125,18 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "lagmult.inc"
 #include      "comlock.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "spmd_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      type(output_), intent(inout) :: output
       INTEGER NC,IADLL(*),LLL(*),JLL(*),SLL(*),
      .        FR_LAGF(*), LLAGF(*), INDEXLAG(*), NBNODL, NLAGF
 C     REAL
@@ -149,10 +151,10 @@ C======================================================================|
 C---
 C     SAUVEGARDE DES FORCES D'ANIM
 C---
-      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT.GT.0.AND.
-     .          (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .              (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))THEN
-        IF(ISPMD.EQ.0)THEN
+      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT>0.AND.
+     .          ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .              (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))THEN
+        IF(ISPMD==0)THEN
           DO I = 1, NBNODL
             FANIG(1,I) = ZERO
             FANIG(2,I) = ZERO
@@ -163,7 +165,7 @@ C---
 C              I = LLL(IK)
               I = INDEXLAG(LLL(IK))
               J = JLL(IK)
-              IF(J.LE.3) FANIG(J,I) = FANIG(J,I) - XLL(IK)
+              IF(J<=3) FANIG(J,I) = FANIG(J,I) - XLL(IK)
             ENDDO
           ENDDO
         END IF
@@ -185,7 +187,7 @@ C---
         DO IC=1,NC
           DO IK=IADLL(IC),IADLL(IC+1)-1
             NIN = SLL(IK)
-            IF(NIN.NE.0)THEN
+            IF(NIN/=0)THEN
               J = JLL(IK)
               FSAV(J,NIN)=FSAV(J,NIN) + XLL(IK)*DT12
             ENDIF
@@ -196,11 +198,9 @@ C---
       RETURN
       END
 
-Chd|====================================================================
-Chd|  LAGTH_RBY                     source/tools/lagmul/lag_anith.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    lagth_rby   ../engine/source/tools/lagmul/lag_anith.F
+!||====================================================================
       SUBROUTINE LAGTH_RBY(LPBY  ,NPBY  ,FANI  ,FS   ,AF   ,AM   ,X   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s

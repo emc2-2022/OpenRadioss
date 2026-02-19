@@ -1,40 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PARSORS                       source/output/anim/generate/parsors.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_IGET_PARTN               source/mpi/anim/spmd_iget_partn.F
-Chd|        SPMD_IGLOB_PARTN              source/mpi/anim/spmd_iglob_partn.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    parsors            ../engine/source/output/anim/generate/parsors.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_iget_partn    ../engine/source/mpi/anim/spmd_iget_partn.F
+!||    spmd_iglob_partn   ../engine/source/mpi/anim/spmd_iglob_partn.F
+!||    write_i_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE PARSORS(IADD ,IPARG     ,IXS    ,MATER ,IPARTS ,
      2                  EL2FA ,                   DD_IAD, 
      3                  IADG             ,INSPH  ,KXSP  ,IPARTSP,
      4                  IXS10 ,IXS20     ,IXS16  ,NNSPH ,ISPH3D,
      5                  NODGLOB,SHFT16   ,SHFTSPH ,NNSPHG,IPARTIG3D,
      6                  KXIG3D,IGEO,IG3DSOLID)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,10 +49,7 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "task_c.inc"
-#include      "rnur_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -66,16 +66,16 @@ C     REAL
      .        IGEO(NPROPGI,*),IG3DSOLID(8,27,*)
 C-----------------------------------------------
 C     REAL
-      my_real
-     .   OFF
-      INTEGER II(8),IE,NG, ITY, LFT, LLT, KPT, N, I, J, 
-     .        IPID, NEL, IAD, NPAR, NFT, IPRT,IALEL,MTN,
-     .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,
-     .        JJ, K, INOD, ISOLNOD ,NNN,IE1,IDBRICK,
+      INTEGER II(8), IE, NG, ITY, LFT, LLT, N, I, J, 
+     . NEL, IAD, NPAR, NFT, IPRT,
+     . NN1,NN2,NN3,NN4,NN5,
+     . JJ, INOD, ISOLNOD ,NNN,IE1,IDBRICK,
      .        N9,N10,N11,N12,N13,N14,N15,N16,IPROP,PX,PY,PZ
-      INTEGER NP(NUMELS*8+24*NUMELS16+NUMSPH*8),BUF,BUFP,FIRST_NODE,L,M
+      INTEGER BUF, BUFP, L, M
+      INTEGER, DIMENSION(:), ALLOCATABLE :: NP
 C-----------------------------------------------
 C
+      ALLOCATE(NP(NUMELS*8+24*NUMELS16+NUMSPH*8))
       NN1 = 1
       NN2 = 1
       NN3 = NN2 + NUMELS
@@ -90,10 +90,10 @@ C-----------------------------------------------
 C
       DO 100 IPRT = 1 , NPART
 C
-       IF(MATER(IPRT).NE.2) GOTO 100
+       IF(MATER(IPRT)/=2) GOTO 100
        NPAR = NPAR + 1
        DO 90 NG=1,NGROUP
-c        IF(ANIM_K.EQ.0.AND.IPARG(8,NG).EQ.1)GOTO 90
+c        IF(ANIM_K==0.AND.IPARG(8,NG)==1)GOTO 90
         NEL   =IPARG(2,NG)
         NFT   =IPARG(3,NG)
         IAD   =IPARG(4,NG)
@@ -105,27 +105,27 @@ C-----------------------------------------------
 C       SOLID 16N
 C-----------------------------------------------
         NNN = INSPH + ISPH3D*NNSPH
-        IF(ITY.EQ.1.AND.ISOLNOD.EQ.16)THEN
+        IF(ITY==1.AND.ISOLNOD==16)THEN
           DO I=LFT,LLT
            N = I + NFT
            J = N - NUMELS8 - NUMELS10 - NUMELS20
            N9 =IXS16(1,J)
-           IF( N9.EQ.0) N9=IXS(2,N)
+           IF( N9==0) N9=IXS(2,N)
            N10=IXS16(2,J)
-           IF(N10.EQ.0)N10=IXS(3,N)
+           IF(N10==0)N10=IXS(3,N)
            N11=IXS16(3,J)
-           IF(N11.EQ.0)N11=IXS(4,N)
+           IF(N11==0)N11=IXS(4,N)
            N12=IXS16(4,J)
-           IF(N12.EQ.0)N12=IXS(5,N)
+           IF(N12==0)N12=IXS(5,N)
            N13=IXS16(5,J)
-           IF(N13.EQ.0)N13=IXS(6,N)
+           IF(N13==0)N13=IXS(6,N)
            N14=IXS16(6,J)
-           IF(N14.EQ.0)N14=IXS(7,N)
+           IF(N14==0)N14=IXS(7,N)
            N15=IXS16(7,J)
-           IF(N15.EQ.0)N15=IXS(8,N)
+           IF(N15==0)N15=IXS(8,N)
            N16=IXS16(8,J)
-           IF(N16.EQ.0)N16=IXS(9,N)
-           IF(IPARTS(N).EQ.IPRT) THEN
+           IF(N16==0)N16=IXS(9,N)
+           IF(IPARTS(N)==IPRT) THEN
              IF (NSPMD == 1) THEN 
                II(1) = IXS(2,N)    -1
                II(2) = N9   -1
@@ -209,10 +209,10 @@ C
 C-----------------------------------------------
 C       SOLID 8N 4N 10N 20N
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.1)THEN
+        ELSEIF(ITY==1)THEN
           DO 10 I=LFT,LLT
            N = I + NFT
-           IF(IPARTS(N).NE.IPRT) GOTO 10
+           IF(IPARTS(N)/=IPRT) GOTO 10
              IF (NSPMD == 1) THEN 
                II(1) = IXS(2,N)-1
                II(2) = IXS(3,N)-1
@@ -237,13 +237,13 @@ C-----------------------------------------------
              EL2FA(NN2+N) = IE
              JJ = JJ + 8
  10      CONTINUE
-        ELSEIF(ISPH3D.EQ.1.AND.ITY.EQ.51)THEN
+        ELSEIF(ISPH3D==1.AND.ITY==51)THEN
 C-----------------------------------------------
 C TETRAS SPH.
 C-----------------------------------------------
           DO 20 I=LFT,LLT
            N = I + NFT
-           IF(IPARTSP(N).NE.IPRT) GOTO 20
+           IF(IPARTSP(N)/=IPRT) GOTO 20
              INOD=KXSP(3,N)
              IF (NSPMD == 1) THEN 
                II(1) = INSPH+4*(N-1)+1
@@ -269,7 +269,7 @@ C-----------------------------------------------
              EL2FA(NN3+N) = IE
              JJ = JJ + 8
  20      CONTINUE
-        ELSEIF(ITY.EQ.101)THEN
+        ELSEIF(ITY==101)THEN
 C-----------------------------------------------
 C ISO GEO ELEMS
 C-----------------------------------------------
@@ -278,7 +278,7 @@ C-----------------------------------------------
            PX = IGEO(41,IPROP)
            PY = IGEO(42,IPROP)
            PZ = IGEO(43,IPROP)
-           IF(IPARTIG3D(I+NFT).NE.IPRT) GOTO 30
+           IF(IPARTIG3D(I+NFT)/=IPRT) GOTO 30
              IE1 = IE + 1
              IDBRICK = 0
              DO L=1,3
@@ -311,7 +311,7 @@ C-----------------------------------------------
  100  CONTINUE
 C
       IF (NSPMD > 1) THEN
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
           BUFP = NPART
           BUF = NUMELSG*8 + 24*NUMELS16G+NUMSPHG*8 +64*NUMELIG3D
         ELSE
@@ -321,11 +321,12 @@ C
 
         CALL SPMD_IGLOB_PARTN(IADD,NPAR,IADG,BUFP)
         CALL SPMD_IGET_PARTN(8,JJ,NP,NPAR,IADG,BUF,1)
-      ELSE ! remplissage IADG pour compatibilite mono/multi
+      ELSE ! IADG filling for mono/multi compatibility
         DO I = 1, NPART
           IADG(1,I) = IADD(I)
         END DO
       ENDIF
 C-----------------------------------------------
+      DEALLOCATE(NP)
       RETURN
       END

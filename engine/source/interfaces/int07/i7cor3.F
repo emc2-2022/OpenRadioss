@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I7COR3                        source/interfaces/int07/i7cor3.F
-Chd|-- called by -----------
-Chd|        I10MAINF                      source/interfaces/int10/i10mainf.F
-Chd|        I18MAIN_KINE_I                source/interfaces/int18/i18main_kine.F
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|        I7MAIN_LMULT                  source/interfaces/int07/i7main_lmult.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i7cor3           ../engine/source/interfaces/int07/i7cor3.F
+!||--- called by ------------------------------------------------------
+!||    i10mainf         ../engine/source/interfaces/int10/i10mainf.F
+!||    i18main_kine_i   ../engine/source/interfaces/int18/i18main_kine.F
+!||    i7main_lmult     ../engine/source/interfaces/int07/i7main_lmult.F
+!||    i7mainf          ../engine/source/interfaces/int07/i7mainf.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I7COR3(
      1           JLT        ,X           ,IRECT      ,NSV       ,CAND_E   ,
      2           CAND_N     ,STF         ,STFN       ,X1        ,X2       ,
@@ -62,16 +62,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IRECT(4,*), NSV(*), CAND_E(*), CAND_N(*),KINET(*),KINI(*),
-     .        JLT,IDT, NOINT,IGAP , NSN, ITY, NIN, IGSTI,
+     .        JLT,IGAP , NSN, ITY, NIN, IGSTI,
      .        IADM,INTTH,INTFRIC,IORTHFRIC
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
      .        NSVG(MVSIZ),IELEC(*),IELECI(MVSIZ),  NSMS(MVSIZ), 
@@ -95,17 +91,17 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J  ,IL, L, NN, IG,JFT, IX,  NI
+      INTEGER I   , L, NN, IG, IX,  NI
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      IF(IGAP.EQ.0)THEN
+      IF(IGAP==0)THEN
         DO I=1,JLT
           GAPV(I)=GAP
         ENDDO
       ELSE
         DO I=1,JLT
-          IF(CAND_N(I).LE.NSN) THEN
+          IF(CAND_N(I)<=NSN) THEN
             GAPV(I)=GAP_S(CAND_N(I))+GAP_M(CAND_E(I)) 
           ELSE
             GAPV(I)=GAPFI(NIN)%P(CAND_N(I)-NSN)+GAP_M(CAND_E(I))
@@ -113,7 +109,7 @@ C-----------------------------------------------
         ENDDO!next I
         IF(IGAP==3)THEN
           DO I=1,JLT
-            IF(CAND_N(I).LE.NSN) THEN
+            IF(CAND_N(I)<=NSN) THEN
               GAPV(I)=MIN(GAP_S_L(CAND_N(I))+GAP_M_L(CAND_E(I)),GAPV(I))
             ELSE
               GAPV(I)= MIN(GAP_LFI(NIN)%P(CAND_N(I)-NSN)+GAP_M_L(CAND_E(I)),GAPV(I))
@@ -126,12 +122,12 @@ C-----------------------------------------------
         ENDDO      
       ENDIF
 
-      IF(ITY.EQ.7) THEN
+      IF(ITY==7) THEN
         IF(INTTH == 0 )THEN
           DO I=1,JLT
            NI = CAND_N(I)
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IG = NSV(NI)
              NSVG(I) = IG
              KINI(I) = KINET(IG)
@@ -184,7 +180,7 @@ C
           DO I=1,JLT
            NI = CAND_N(I)
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IG = NSV(NI)
              NSVG(I) = IG
              KINI(I) = KINET(IG)
@@ -241,22 +237,22 @@ C
 C
           END DO
         ENDIF 
-        IF(IGSTI.LE.1)THEN
+        IF(IGSTI<=1)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=STF(L)*ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF(I)=STF(L)*ABS(STIFI(NIN)%P(NN))
           END IF
          ENDDO
-        ELSEIF(IGSTI.EQ.2)THEN
+        ELSEIF(IGSTI==2)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
@@ -265,11 +261,11 @@ C
           STIF(I)=HALF*(STF(L)+STIF(I))
           STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-        ELSEIF(IGSTI.EQ.3)THEN
+        ELSEIF(IGSTI==3)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
@@ -278,11 +274,11 @@ C
           STIF(I)=MAX(STF(L),STIF(I))
           STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-        ELSEIF(IGSTI.EQ.4)THEN
+        ELSEIF(IGSTI==4)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
@@ -291,11 +287,11 @@ C
           STIF(I)=MIN(STF(L),STIF(I))
           STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-        ELSEIF(IGSTI.EQ.5)THEN
+        ELSEIF(IGSTI==5)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
@@ -309,7 +305,7 @@ C
           DO I=1,JLT
            NI = CAND_N(I)
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IPARTFRICSI(I)= IPARTFRICS(NI)
            ELSE
              NN = NI - NSN
@@ -330,7 +326,7 @@ C type7 KINET en -
           DO I=1,JLT
            NI = CAND_N(I)
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IG = NSV(NI)
              NSVG(I) = IG
 C             KINI(I) = KINET(IG)
@@ -385,7 +381,7 @@ C
           DO I=1,JLT
            NI = CAND_N(I)
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IG = NSV(NI)
              NSVG(I) = IG
              XI(I) = X(1,IG)
@@ -446,7 +442,7 @@ C
 C
       IF(IDTMINS==2)THEN
        DO I=1,JLT
-        IF(NSVG(I).GT.0)THEN
+        IF(NSVG(I)>0)THEN
           NSMS(I)=NODNX_SMS(NSVG(I))
      .                       +NODNX_SMS(IX1(I))+NODNX_SMS(IX2(I))
      .                       +NODNX_SMS(IX3(I))+NODNX_SMS(IX4(I))
@@ -459,7 +455,7 @@ C
        ENDDO
        IF(IDTMINS_INT/=0)THEN
          DO I=1,JLT
-          IF(NSMS(I).EQ.0)NSMS(I)=-1
+          IF(NSMS(I)==0)NSMS(I)=-1
          ENDDO
        END IF
       ELSEIF(IDTMINS_INT/=0)THEN
@@ -468,7 +464,7 @@ C
         ENDDO
       ENDIF
 C
-      IF(IADM.NE.0)THEN
+      IF(IADM/=0)THEN
         DO I=1,JLT
          L  = CAND_E(I)
          RCURVI(I)=RCURV(L)

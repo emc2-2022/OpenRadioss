@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  TENSORC                       source/output/anim/tensorc.F  
-Chd|-- called by -----------
-Chd|        GENANI1                       source/output/anim/genani1.F  
-Chd|-- calls ---------------
-Chd|        WRITE_R_C                     source/output/tools/write_routines.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    tensorc        ../starter/source/output/anim/tensorc.F
+!||--- called by ------------------------------------------------------
+!||    genani1        ../starter/source/output/anim/genani1.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE TENSORC(ELBUF_TAB,IPARG,ITENS,                            
      2                  INVERT,NELCUT,EL2FA,NBF  ,TENS  ,               
      3                  IADP ,NBF_L,NBPART,                             
@@ -36,6 +35,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------                        
 C   I m p l i c i t   T y p e s                                         
 C-----------------------------------------------                        
@@ -46,8 +46,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"                                             
 #include      "com04_c.inc"                                             
 #include      "param_c.inc"                                             
-#include      "scr01_c.inc"                                             
-#include      "scr05_c.inc"                                             
 C-----------------------------------------------                        
 C   D u m m y   A r g u m e n t s                                       
 C-----------------------------------------------                        
@@ -76,6 +74,7 @@ C=======================================================================
       DO J=1,18                                                      
         R4(J) = ZERO                                                 
       ENDDO                                                         
+      ISTRE = 0
 C                                                                       
       NN1 = 1                                                           
       NN2 = NN1                                                         
@@ -95,7 +94,7 @@ C
         LFT = 1                                                           
         LLT = NEL                                                         
 !
-        DO J=1,8  ! lenght max of GBUF%G_STRA = 8
+        DO J=1,8  ! length max of GBUF%G_STRA = 8
           II(J) = NEL*(J-1)
         ENDDO
 !
@@ -168,7 +167,7 @@ c
           ENDIF ! IF (ITENS == 5)
         ENDIF ! IF(ITY == 2)
 C------------------------                                               
-C         STRAIN RATE (ne fonctionne pas : pas d'EPSDOT)                 
+C         Strain Rate (does not work: no epsdot)                 
 C------------------------                                               
         IF (ITY == 3) THEN                                              
           N0 = 0                                                    
@@ -300,7 +299,7 @@ c
                 TENS(3,EL2FA(NNI+N)) = R4(3)                           
               ENDDO                                                    
             ENDIF ! IF (MLW == 1)
-          ELSEIF (ITENS.GE.101.AND.ITENS.LE.200) THEN                  
+          ELSEIF (ITENS>=101.AND.ITENS<=200) THEN                  
             IF (MLW == 1.OR.MLW == 3.OR.MLW == 23) THEN                  
               DO I=LFT,LLT                                             
                 N = I + NFT                                            
@@ -378,7 +377,7 @@ C-----------------------------------------------
         CALL WRITE_R_C(R4,3)                                            
       ENDDO                                                             
 C-----------------------------------------------                        
-      IF (NELCUT .GT. 0) THEN                                              
+      IF (NELCUT > 0) THEN                                              
         DO I=1,NELCUT                                                   
           CALL WRITE_R_C(R4,3)                                          
         ENDDO                                                           

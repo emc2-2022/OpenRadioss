@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  TITRE2                        source/output/outfile/titre2.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    titre2   ../starter/source/output/outfile/titre2.F
+!||--- called by ------------------------------------------------------
+!||    lectur   ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE TITRE2
 C------------------------------------
 C     MATERIAUX
@@ -89,13 +88,13 @@ C------------------------------------
       TITRE(55)='     BS . . . . . . . . . . . . . . . . . . .'
       TITRE(56)='     AL . . . . . . . . . . . . . . . . . . .'
       TITRE(57)='     BL . . . . . . . . . . . . . . . . . . .'
-      TITRE(58)='     TEMPERATUR LOAD CURVE. . . . . . . . . .'
+      TITRE(58)='     TEMPERATURE LOAD CURVE . . . . . . . . .'
       TITRE(59)='     RK0 INITIAL TURBULENT ENERGY . . . . . .'
       TITRE(60)='     CMU TURBULENT VISCOSITY COEFFICIENT. . .'
       TITRE(61)='     SK  K DIFFUSION COEFFICIENT. . . . . . .'
       TITRE(62)='     SE  EPSILON DIFFUSION COEFFICIENT. . . .'
       TITRE(63)='     PR/PRT LAM./TURB. PRANDT NUMBER RATIO. .'
-      TITRE(64)='     EPS0 SHOULD BE .GT. 0. IF CC .NE. 0.'
+      TITRE(64)='     EPS0 SHOULD BE > 0. IF CC /= 0.'
       TITRE(65)='     BULK MODULUS . . . . . . . . . . . . . .'
 C------------------------------------
 C     MATERIAUX 1
@@ -157,16 +156,16 @@ C
       TITRE(163)='     REFERENCE NODE (VELOCITY) . . . . . . .'
       TITRE(164)='     STAGNATION DENSITY  LOAD CURVE. . . . .'
       TITRE(165)='     STAGNATION PRESSURE LOAD CURVE. . . . .'
-      TITRE(166)='     STAGNATION ENERGYE  LOAD CURVE. . . . .'
+      TITRE(166)='     STAGNATION ENERGY   LOAD CURVE. . . . .'
       TITRE(167)='     DENSITY    LOAD CURVE . . . . . . . . .'
       TITRE(168)='     PRESSURE   LOAD CURVE . . . . . . . . .'
       TITRE(169)='     ENERGY     LOAD CURVE . . . . . . . . .'
-      TITRE(170)='     CARACTERISTIC LENGHT. . . . . . . . . .'
+      TITRE(170)='     CHARACTERISTIC LENGTH . . . . . . . . .'
       TITRE(171)='     FINAL STAGNATION DENSITY. . . . . . . .'
       TITRE(172)='     FINAL STAGNATION PRESSURE(P-PSH). . . .'
       TITRE(173)='     FINAL STAGNATION ENERGY . . . . . . . .'
-      TITRE(174)='     CARACTERISTIC SOUND SPEED . . . . . . .'
-      TITRE(175)='     CARACTERISTIC LENGHT. . . . . . . . . .'
+      TITRE(174)='     CHARACTERISTIC SOUND SPEED. . . . . . .'
+      TITRE(175)='     CHARACTERISTIC LENGTH . . . . . . . . .'
       TITRE(176)='     FINAL DENSITY . . . . . . . . . . . . .'
       TITRE(177)='     FINAL PRESSURE(P-PSH) . . . . . . . . .'
       TITRE(178)='     FINAL ENERGY. . . . . . . . . . . . . .'

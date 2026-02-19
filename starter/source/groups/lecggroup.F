@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECGGROUP                     source/groups/lecggroup.F     
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        HM_GROGRO                     source/groups/hm_grogro.F     
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lecggroup         ../starter/source/groups/lecggroup.F
+!||--- called by ------------------------------------------------------
+!||    lectur            ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    hm_grogro         ../starter/source/groups/hm_grogro.F
+!||    hm_option_start   ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod       ../starter/share/message_module/message_mod.F
+!||    submodel_mod      ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE LECGGROUP(
      .           FLAGG ,
      .           ICOUNT   ,ITER  ,IGRBRIC  ,IGRQUAD  ,IGRSH4N,
@@ -49,14 +49,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -77,7 +71,7 @@ C-----------------------------------------------
       INTEGER IBRIC,IQUAD,ISHEL,ISH3N,ITRUS,IBEAM,ISPRI,IPRT,IFLAG
       SAVE  IBRIC,IQUAD,ISHEL,ISH3N,ITRUS,IBEAM,ISPRI,IPRT,IFLAG
 C-----------------------------------------------
-C     LECTURE DES GROUPES DE GROUPES
+C     READING GROUPS OF GROUPS
 C=======================================================================
       IFLAG = MOD(FLAGG,2)
 C-----------------------------------------------
@@ -132,7 +126,7 @@ C-----------------------------------------------
 C     SH_3N GROUP
 C-----------------------------------------------
       IF (FLAGG == 0) ISH3N = 0
-      IF (NGRSH3N > 0 .AND. N2D.EQ.0)THEN
+      IF (NGRSH3N > 0 .AND. N2D==0)THEN
         CALL HM_OPTION_START('/GRSH3N')
         CALL HM_GROGRO(NUMELTG ,NGRSH3N,IGRSH3N,ISH3N, IFLAG   ,ITER   ,'SH3N' ,LSUBMODEL)
       ENDIF
@@ -140,7 +134,7 @@ C-----------------------------------------------
 C     TRIA GROUP
 C-----------------------------------------------
       IF (FLAGG == 0) ISH3N = 0
-      IF (NGRSH3N > 0 .AND. N2D.NE.0)THEN
+      IF (NGRSH3N > 0 .AND. N2D/=0)THEN
         CALL HM_OPTION_START('/GRTRIA')
         CALL HM_GROGRO(NUMELTG,NGRSH3N,IGRSH3N,ISH3N,IFLAG,ITER,'TRIA' ,LSUBMODEL)  
       ENDIF

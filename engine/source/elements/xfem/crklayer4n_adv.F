@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CRKLAYER4N_ADV                source/elements/xfem/crklayer4n_adv.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        LSINT4                        source/elements/xfem/crklayer4n_adv.F
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    crklayer4n_adv   ../engine/source/elements/xfem/crklayer4n_adv.F
+!||--- called by ------------------------------------------------------
+!||    cforc3           ../engine/source/elements/shell/coque/cforc3.F
+!||    czforc3          ../engine/source/elements/shell/coquez/czforc3.F
+!||--- calls      -----------------------------------------------------
+!||    arret            ../engine/source/system/arret.F
+!||    lsint4           ../engine/source/elements/xfem/crklayer4n_adv.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod    ../engine/share/modules/crackxfem_mod.F
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CRKLAYER4N_ADV(
      .           XFEM_STR  ,NEL       ,NFT       ,IXC       ,ELCUTC    ,
      .           ILAY      ,NLAY      ,IEL_CRK   ,INOD_CRK  ,
@@ -45,23 +47,16 @@ C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
       USE CRACKXFEM_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com_xfem1.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -70,25 +65,25 @@ C-----------------------------------------------
      . ELCUTC(2,*),NODEDGE(2,*),CRKNODIAD(*),KNOD2ELC(*),XEDGE4N(4,*)
       my_real DIR1(NLAY,NEL),DIR2(NLAY,NEL),A_I(NEL),
      .  XL2(NEL),YL2(NEL),XL3(NEL),YL3(NEL),XL4(NEL),YL4(NEL)
-      TYPE (ELBUF_STRUCT_), TARGET          :: ELBUF_STR
+ 
       TYPE (ELBUF_STRUCT_), DIMENSION(NXEL) :: XFEM_STR
       TYPE (XFEM_EDGE_)   , DIMENSION(*)    :: CRKEDGE
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,II,R,IR,P1,P2,PP1,PP2,PP3,NEWCRK,IED,OK,
-     . ICRK,IELCRK,ELCRK,NX1,NX2,NX3,NX4,NM,NP,FAC,IFI1,IFI2,IEDGE,
+      INTEGER I, K, II, R, IR, P1, P2, PP1, PP2, PP3, NEWCRK, IED, OK, 
+     . ICRK,ELCRK,NX1,NX2,NX3,NX4,NM,NP,FAC,IFI1,IFI2,IEDGE,
      . ICUT,SIGBETA,NOD1,NOD2,IE1,IE2,IE10,IE20,ITRI,IAD1,IAD2,IAD3,IAD4
 c
       INTEGER ECUT(2,NEL),EDGEL(4,NEL),IENR0(4,NEL),dd(4),d(8),KPERM(8),
-     . N(4),NN(4),IADC(4),IENR(4),ENR(4),ISIGN(4),EN(2,4)
+     . N(4),NN(4),IADC(4),IENR(4),ISIGN(4)
       INTEGER , DIMENSION(NEL) :: JCT,ELFISS,TIP
 c
       my_real, DIMENSION(2) :: XMI,YMI
       my_real, DIMENSION(2,NEL) :: XIN,YIN
       my_real, DIMENSION(4,NEL) :: LEN,XXL,YYL,FIT,BETA0
       my_real
-     .   XINT,YINT,FI,CROSS,ACD,BCD,DLX,DLY,D12,M12,MM,XINT0,YINT0,BETA,
+     . XINT,YINT,FI,CROSS,ACD,BCD,DLX,DLY,M12,MM,XINT0,YINT0,BETA,
      .   BMIN,BMAX,DIR11,DIR22,X1,Y1,X2,Y2,X3,Y3,X4,Y4,AREA1,AREA2,AREA3
 C----------
       DATA d/1,2,2,3,4,3,1,4/
@@ -99,7 +94,7 @@ C=======================================================================
       NEWCRK = 0
       DO I=1,NEL
         JCT(I) = 0
-        IF (ELCRKINI(ILAY,I) == 1) THEN  ! avancement de fissure
+        IF (ELCRKINI(ILAY,I) == 1) THEN  ! crack propagation
           NEWCRK = NEWCRK + 1
           JCT(NEWCRK) = I
         ENDIF
@@ -145,7 +140,7 @@ c     First intersection (already cut edge)
 C------------------------------------------------
       DO IR=1,NEWCRK ! loop over elems (layers) with advancing cracks
         I = JCT(IR)    
-        ELCRK = IEL_CRK(I+NFT)   ! N  element sys xfem 
+        ELCRK = IEL_CRK(I+NFT)   ! DYE SYS XFEM 
         OK    = 0
         ICUT  = 0
         IED   = 0
@@ -176,12 +171,12 @@ C---
           XIN(1,I) = XXL(p1,I) + BETA*(XXL(p2,I) - XXL(p1,I))                                      
           YIN(1,I) = YYL(p1,I) + BETA*(YYL(p2,I) - YYL(p1,I))
 c                                                                                    
-          ELFISS(I)   = CRKEDGE(ILAY)%EDGEICRK(IEDGE)    ! Id fissure qui avance                  
+          ELFISS(I)   = CRKEDGE(ILAY)%EDGEICRK(IEDGE)    ! ID of crack that propagates
           IENR0(p1,I) = CRKEDGE(ILAY)%EDGEENR(1,IEDGE)   ! enrichissement 1 noeud                 
           IENR0(p2,I) = CRKEDGE(ILAY)%EDGEENR(2,IEDGE)   ! enrichissement 2 noeud                 
-          EDGEL(IED,I) = 1              ! local : premier edge coupe
+          EDGEL(IED,I) = 1              ! Local: First Edge Cup
           IEDGE  = XEDGE4N(IED,ELCRK)    ! N  edge element sys xfem
-          TIP(I) = CRKEDGE(ILAY)%EDGETIP(1,IEDGE)      ! 1 ou 2 , debut ou fin de fissure
+          TIP(I) = CRKEDGE(ILAY)%EDGETIP(1,IEDGE)      ! 1 or 2 , start or end of crack
         ELSE
           WRITE(IOUT,*) 'ERROR IN ADVANCING CRACK --- CHECK CRACK TIP'
           CALL ARRET(2)           
@@ -420,7 +415,7 @@ C
         IEDGE = XEDGE4N(K,ELCRK)                                                              
         ICUT  = CRKEDGE(ILAY)%ICUTEDGE(IEDGE)                                                  
         IF (ICUT > 0) THEN   ! already cut before => edge connecting two cracks               
-          CRKEDGE(ILAY)%ICUTEDGE(IEDGE) = 3   ! 2 cracks sur le meme edge    
+          CRKEDGE(ILAY)%ICUTEDGE(IEDGE) = 3   ! 2 cracks on the same edge    
         ELSE                                                                                  
           CRKEDGE(ILAY)%ICUTEDGE(IEDGE) = 2  ! edge cut                                       
           CRKEDGE(ILAY)%RATIO(IEDGE) = BETA0(K,I)                                             
@@ -432,8 +427,8 @@ C-----------------------
       DO IR=1,NEWCRK
         I = JCT(IR)
         ELCRK = IEL_CRK(I+NFT)        ! n  elem sys xfem
-        ELCUTC(1,I) = 2               ! flag de l'element std coupe  (= 1,2)
-        NUMELCRK = NUMELCRK + 1       ! + 1 element coupe (pour debug/anim par element)
+        ELCUTC(1,I) = 2               ! FLAG of the std cut element (= 1.2)
+        NUMELCRK = NUMELCRK + 1       ! + 1 cut element (for debug/animation by element)
 C
         IADC(1) = IADC_CRK(1,ELCRK)
         IADC(2) = IADC_CRK(2,ELCRK)
@@ -457,7 +452,7 @@ C
         NN(3) = INOD_CRK(N(3))
         NN(4) = INOD_CRK(N(4))
 C
-        ICRK = ELFISS(I)              ! Id fissure qui avance
+        ICRK = ELFISS(I)              ! ID of crack that propagates
 C
         ISIGN(1) = INT(SIGN(ONE,FIT(1,I)))
         ISIGN(2) = INT(SIGN(ONE,FIT(2,I)))
@@ -703,17 +698,16 @@ c
 c-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  LSINT4                        source/elements/xfem/crklayer4n_adv.F
-Chd|-- called by -----------
-Chd|        CRKLAYER3N_ADV                source/elements/xfem/crklayer3n_adv.F
-Chd|        CRKLAYER3N_INI                source/elements/xfem/crklayer3n_ini.F
-Chd|        CRKLAYER4N_ADV                source/elements/xfem/crklayer4n_adv.F
-Chd|        CRKLAYER4N_INI                source/elements/xfem/crklayer4n_ini.F
-Chd|        ENRICHC_INI                   source/elements/xfem/enrichc_ini.F
-Chd|        ENRICHTG_INI                  source/elements/xfem/enrichtg_ini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    lsint4           ../engine/source/elements/xfem/crklayer4n_adv.F
+!||--- called by ------------------------------------------------------
+!||    crklayer3n_adv   ../engine/source/elements/xfem/crklayer3n_adv.F
+!||    crklayer3n_ini   ../engine/source/elements/xfem/crklayer3n_ini.F
+!||    crklayer4n_adv   ../engine/source/elements/xfem/crklayer4n_adv.F
+!||    crklayer4n_ini   ../engine/source/elements/xfem/crklayer4n_ini.F
+!||    enrichc_ini      ../engine/source/elements/xfem/enrichc_ini.F
+!||    enrichtg_ini     ../engine/source/elements/xfem/enrichtg_ini.F
+!||====================================================================
       SUBROUTINE LSINT4(Y1, Z1, Y2, Z2, Y, Z, FI)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s

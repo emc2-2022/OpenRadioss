@@ -1,47 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_SKW                   source/tools/skew/hm_read_skw.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ANODSET                       source/output/analyse/analyse_node.c
-Chd|        EULER_VROT                    source/model/submodel/euler_vrot.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        SUBROTPOINT                   source/model/submodel/subrot.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_skw            ../starter/source/tools/skew/hm_read_skw.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    anodset                ../starter/source/output/analyse/analyse_node.c
+!||    euler_vrot             ../starter/source/model/submodel/euler_vrot.F
+!||    fretitl                ../starter/source/starter/freform.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string          ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    origin                 ../starter/source/model/remesh/build_admesh.F
+!||    subrotpoint            ../starter/source/model/submodel/subrot.F
+!||    udouble                ../starter/source/system/sysfus.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_SKW(SKEW    ,ISKN    ,X       ,ITAB     ,ITABM1  ,
      .                       NSN     ,LSUBMODEL,RTRANS ,NOM_OPT ,UNITAB)
 C-----------------------------------------------
@@ -51,6 +53,8 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY, NCHARFIELD
+      USE FORMAT_MOD , ONLY : LFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -63,26 +67,19 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com10_c.inc"
 #include      "sphcom.inc"
 #include      "units_c.inc"
 #include      "titr_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
+      TYPE (UNIT_TYPE_),INTENT(IN) :: UNITAB
       INTEGER ISKN(LISKN,*), ITAB(*), ITABM1(*), NSN(*)
-C     REAL
-      my_real
-     .   SKEW(LSKEW,*), X(3,*),
-     .   RTRANS(NTRANSF,*)
+      my_real SKEW(LSKEW,*), X(3,*), RTRANS(NTRANSF,*)
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
       INTEGER NOM_OPT(LNOPT1,*)
 C-----------------------------------------------
@@ -92,13 +89,13 @@ C-----------------------------------------------
      .        IUN, SUB_ID,
      .        IDSUB,ITY,L,READPT,J1,J2,NUMSPH_TMP,SUB_LEVEL,CUR_SUBMOD,
      .        IDIR,IFLAGUNIT,ID,UID,CPT
-C     REAL
-      my_real
-     .   P(12), PNOR1, PNOR2, PNORM1, DET1, DET2, DET3, DET, PP,BID,
-     .   X0(3),ROT(9)
-      CHARACTER NOMSG*nchartitle
-      CHARACTER TITR*nchartitle,MESS*40,KEY*ncharkey
-      CHARACTER DIR*ncharfield
+      my_real  P(12), PNOR1, PNOR2, PNORM1, DET1, DET2, DET3, DET, PP,BID,
+     .         X0(3),ROT(9)
+      CHARACTER(LEN=NCHARTITLE)::NOMSG
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARKEY) :: KEY
+      CHARACTER(LEN=NCHARFIELD) :: DIR
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -108,6 +105,7 @@ C-----------------------------------------------
       DATA MESS/'MOVING SKEW SYSTEM DEFINITION           '/
       DATA NOMSG/'global skew system                     '/
 C=======================================================================
+      IDSUB = 0
 C
       DO I=1,LISKN
         ISKN(I,1)=0
@@ -123,7 +121,7 @@ C
       READPT=0
       CALL FRETITL(NOMSG,NOM_OPT(LNOPT1-LTITR+1,1),LTITR)
 C
-      IF(NUMSKW.EQ.0)GOTO 201
+      IF(NUMSKW==0)GOTO 201
 C--------------------------------------------------
 C START BROWSING MODEL PROPERTIES
 C--------------------------------------------------
@@ -149,19 +147,19 @@ C--------------------------------------------------
       IMOV  = 0
 C
       IFLAGUNIT = 0
-      DO J=1,NUNITS
+      DO J=1,UNITAB%NUNITS
         IF (UNITAB%UNIT_ID(J) == UID) THEN                 
           IFLAGUNIT = 1
           EXIT
         ENDIF
       ENDDO
-      IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+      IF (UID/=0.AND.IFLAGUNIT==0) THEN
         CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .              I2=UID,I1=ID,C1='SKEW SYSTEM',C2='SKEW SYSTEM',
      .              C3=TITR)
       ENDIF
 C
-      IF(KEY(1:3).EQ.'FIX')THEN
+      IF(KEY(1:3)=='FIX')THEN
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
 C--------------------------------------------------
@@ -177,7 +175,7 @@ C--------------------------------------------------
         CALL HM_GET_FLOATV('globalzaxisy',P(8),IS_AVAILABLE,LSUBMODEL,UNITAB)
         CALL HM_GET_FLOATV('globalzaxisz',P(9),IS_AVAILABLE,LSUBMODEL,UNITAB)
 
-      ELSEIF (KEY(1:4).EQ.'MOV2')THEN
+      ELSEIF (KEY(1:4)=='MOV2')THEN
         IMOV=2
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
@@ -201,8 +199,8 @@ C--------------------------------------------------
         CALL HM_GET_STRING('DIR',DIR,ncharfield,IS_AVAILABLE)
         DO K = 1,LFIELD
           IF(DIR(K:K) == 'X'.OR.DIR(K:K) == 'x')IDIR = 1
-          IF(DIR(K:K) == 'Y'.OR.DIR(K:K) == 'Y')IDIR = 2
-          IF(DIR(K:K) == 'Z'.OR.DIR(K:K) == 'Z')IDIR = 3
+          IF(DIR(K:K) == 'Y'.OR.DIR(K:K) == 'y')IDIR = 2
+          IF(DIR(K:K) == 'Z'.OR.DIR(K:K) == 'z')IDIR = 3
         ENDDO
         ISKN(6,I+1)=IDIR
   
@@ -229,25 +227,25 @@ C----------------
         P(2)=X(2,N3)-X(2,N1)
         P(3)=X(3,N3)-X(3,N1)
 C-----------------
-C       CALCUL DE Y = Z x X'
+C       CALCULATION OF Y = Z x X'
 C-----------------
         P(4)=P(8)*P(3)-P(9)*P(2)
         P(5)=P(9)*P(1)-P(7)*P(3)
         P(6)=P(7)*P(2)-P(8)*P(1)
 C-----------------
-C       CALCUL DE X = Y x Z
+C       CALCULATION OF X = Y x Z
 C-----------------
         P(1)=P(5)*P(9)-P(6)*P(8)
         P(2)=P(6)*P(7)-P(4)*P(9)
         P(3)=P(4)*P(8)-P(5)*P(7)
 C-----------------
-C       CALCUL DE L'ORIGINE
+C       calculation of the origin
 C-----------------
         P(10) = X(1,N1)
         P(11) = X(2,N1)
         P(12) = X(3,N1)
 C----------------
-C       TESTS DE CONSISTANCE
+C       consistency checks
 C----------------
         PNOR1=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
         IF (PNOR1 < EM20) THEN
@@ -258,7 +256,7 @@ C----------------
      .                I1=N,C1=TITR,
      .                I3=ITAB(N2))
         ENDIF
-C       CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
+C       calculation of collinearity of vectors n1n2 and n1n3
         PNOR2=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
         IF (PNOR2 > EM20) THEN
           PNORM1=ONE/(PNOR1*PNOR2)
@@ -281,9 +279,9 @@ C       CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
           ENDIF
         ENDIF
 C----------------
-C     SKEW MOBILE (CALCUL DE LA POSITION INITIALE)
+C     moving skew (initial position calculation)
 C----------------
-      ELSEIF (IMOV.EQ.1) THEN
+      ELSEIF (IMOV==1) THEN
        N1=USR2SYS(N1,ITABM1,MESS,ID)
        N2=USR2SYS(N2,ITABM1,MESS,ID)
        CALL ANODSET(N1, CHECK_USED)
@@ -292,9 +290,9 @@ C----------------
        ISKN(2,I+1)=N2
        ISKN(5,I+1)=IMOV
 C-----------------
-C     CALCUL DE X' et Y0' (IDIR=1) CALCUL DE Y' et Z0' (IDIR=2) CALCUL DE Z' et X0' (IDIR=3)
+C     calculation of x' and y0' (idir=1) calculation of y' and z0' (idir=2) calculation of z' and x0' (idir=3)
 C-----------------
-       IF(N2D.EQ.0)THEN
+       IF(N2D==0)THEN
 c
         IF (IDIR == 1) THEN
           P(1)=X(1,N2)-X(1,N1)
@@ -342,12 +340,13 @@ C
        P(11) = X(2,N1)
        P(12) = X(3,N1)
 C----------------
-C     TESTS DE CONSISTANCE
+C     consistency checks
 C----------------
+       PNOR1 = ZERO
        IF (IDIR == 1) PNOR1=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
        IF (IDIR == 2) PNOR1=SQRT(P(4)*P(4)+P(5)*P(5)+P(6)*P(6))
        IF (IDIR == 3) PNOR1=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
-       IF(PNOR1.LT.1.E-20) THEN
+       IF(PNOR1<1.E-20) THEN
          CALL ANCMSG(MSGID=162,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO_BLIND_1,
@@ -355,11 +354,11 @@ C----------------
      .               I1=ID,C1=TITR,
      .               I3=ITAB(N2))
        ENDIF
-C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
+C     calculation of collinearity of vectors n1n2 and n1n3
        IF (IDIR == 1) PNOR2=SQRT(P(4)*P(4)+P(5)*P(5)+P(6)*P(6))
        IF (IDIR == 2) PNOR2=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
        IF (IDIR == 3) PNOR2=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
-       IF(PNOR2.GT.1.E-20) THEN
+       IF(PNOR2>1.E-20) THEN
          PNORM1=1./(PNOR1*PNOR2)
          IF (IDIR == 1) THEN
            DET1=ABS((P(1)*P(5)-P(2)*P(4))*PNORM1)
@@ -378,25 +377,25 @@ C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
        ELSE
          DET=ZERO
        ENDIF
-       IF(DET.LT.EM5) THEN
+       IF(DET<EM5) THEN
          CALL ANCMSG(MSGID=163,
      .               MSGTYPE=MSGWARNING,
      .               ANMODE=ANINFO_BLIND_1,
      .               I1=ID,C1=TITR)
          IF (IDIR == 1) THEN
-           IF(ABS(P(2)).GT.EM5) THEN
+           IF(ABS(P(2))>EM5) THEN
              P(4)=ABS(P(1))+TEN
            ELSE
              P(5)=TEN
            ENDIF
          ELSEIF (IDIR == 2) THEN
-           IF(ABS(P(5)).GT.EM5) THEN
+           IF(ABS(P(5))>EM5) THEN
              P(7)=ABS(P(4))+TEN
            ELSE
              P(8)=TEN
            ENDIF
          ELSEIF (IDIR == 3) THEN
-           IF(ABS(P(8)).GT.EM5) THEN
+           IF(ABS(P(8))>EM5) THEN
              P(1)=ABS(P(7))+TEN
            ELSE
              P(2)=TEN
@@ -404,7 +403,7 @@ C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
          ENDIF
        ENDIF
 C-----------------
-C     CALCUL DE Z'(IDIR=1) X'(IDIR=2) Y'(IDIR=3)
+C     CALCULATION OF Z'(IDIR=1) X'(IDIR=2) Y'(IDIR=3)
 C-----------------
         IF (IDIR == 1) THEN
           P(7)=P(2)*P(6)-P(3)*P(5)
@@ -420,7 +419,7 @@ C-----------------
           P(6)=P(7)*P(2)-P(8)*P(1)
         ENDIF
 C-----------------
-C     CALCUL DE Y'(IDIR=1) Z'(IDIR=2) X'(IDIR=3) 
+C     CALCULATION OF Y'(IDIR=1) Z'(IDIR=2) X'(IDIR=3) 
 C-----------------
         IF (IDIR == 1) THEN
           P(4)=P(8)*P(3)-P(9)*P(2)
@@ -445,29 +444,29 @@ C
        ISKN(3,I+1)=0
        ISKN(5,I+1)=0
 C
-       IF(P(4).EQ.ZERO.AND.P(6).EQ.ZERO) P(5)=SIGN(ONE,P(5))
-       IF(P(7).EQ.ZERO.AND.P(8).EQ.ZERO) P(9)=SIGN(ONE,P(9))
+       IF(P(4)==ZERO.AND.P(6)==ZERO) P(5)=SIGN(ONE,P(5))
+       IF(P(7)==ZERO.AND.P(8)==ZERO) P(9)=SIGN(ONE,P(9))
 C-----------------
-C     CALCUL DE X'
+C     calculation of x'
 C-----------------
        P(1)=P(5)*P(9)-P(6)*P(8)
        P(2)=P(6)*P(7)-P(4)*P(9)
        P(3)=P(4)*P(8)-P(5)*P(7)
 C-----------------
-C     CALCUL DE Y'
+C     calculation of y'
 C-----------------
        P(4)=P(8)*P(3)-P(9)*P(2)
        P(5)=P(9)*P(1)-P(7)*P(3)
        P(6)=P(7)*P(2)-P(8)*P(1)
 C
-       IF (SUB_ID .NE. 0)THEN
+       IF (SUB_ID /= 0)THEN
          X0(1:3) = ZERO
          DO J=1,NSUBMOD
            IF (LSUBMODEL(J)%NOSUBMOD == SUB_ID) IDSUB = J
          ENDDO
          CUR_SUBMOD = IDSUB
          SUB_LEVEL = LSUBMODEL(IDSUB)%LEVEL
-         DO WHILE (SUB_LEVEL .NE. 0)
+         DO WHILE (SUB_LEVEL /= 0)
            DO J=1,LSUBMODEL(CUR_SUBMOD)%NBTRANS
              ITY = RTRANS(LSUBMODEL(CUR_SUBMOD)%IDTRANS(J),2)
              IF( ITY == 2 .OR. ITY == 3 ) THEN
@@ -482,7 +481,7 @@ C
            SUB_LEVEL = SUB_LEVEL - 1
            CUR_SUBMOD = LSUBMODEL(CUR_SUBMOD)%IFATHER
          ENDDO
-         IF(LSUBMODEL(IDSUB)%NBTRANS .NE.0)
+         IF(LSUBMODEL(IDSUB)%NBTRANS /=0)
      .      CALL SUBROTPOINT(P(10),P(11),P(12),RTRANS,SUB_ID,LSUBMODEL)
        ENDIF
       ENDIF
@@ -516,7 +515,7 @@ C
       N1=ISKN(1,J)
       N2=ISKN(2,J)
       N3=ISKN(3,J)
-      IF(N1.NE.0)THEN
+      IF(N1/=0)THEN
        N1=ITAB(N1)
        N2=ITAB(N2)
        N3=ITAB(N3)
@@ -535,7 +534,7 @@ C
 C-------------------------------------------------------------
 C   building SKEWS for SPH KINEMATIC CONDITIONS ADDITION.
 C-------------------------------------------------------------
-      IF(NSPCOND.NE.0)THEN
+      IF(NSPCOND/=0)THEN
         DO J=(NUMSKW+1)+1,(NUMSKW+1)+NUMSPH
              DO K=1,LSKEW
               SKEW(K,J)=ZERO
@@ -551,13 +550,13 @@ C          not a user's defined skew.
         ENDDO
       ENDIF
 C-------------------------------------------------------------
-Csv begin   building SKEWS for SUBMODEL (Rotation Transformation)
+C   begin   building SKEWS for SUBMODEL (Rotation Transformation)
 C-------------------------------------------------------------
-      IF(NSUBMOD.NE.0)THEN
+      IF(NSUBMOD/=0)THEN
         WRITE (IOUT,'(A)')TITRE(118)
         WRITE (IOUT,'(A)')TITRE(119)
         WRITE (IOUT,1001)
-        IF (NSPCOND.NE.0) THEN
+        IF (NSPCOND/=0) THEN
           J1 = (NUMSKW+1)+NUMSPH+1
           J2 = (NUMSKW+1)+NUMSPH+NSUBMOD
           NUMSPH_TMP = NUMSPH
@@ -582,7 +581,7 @@ C-------------------------------------------------------------
           SUB_LEVEL = LSUBMODEL(IDSUB)%LEVEL
           X0(1:3) = ZERO
 
-          DO WHILE (SUB_LEVEL .NE. 0)
+          DO WHILE (SUB_LEVEL /= 0)
             DO K=1,LSUBMODEL(CUR_SUBMOD)%NBTRANS
               ITY = RTRANS(LSUBMODEL(CUR_SUBMOD)%IDTRANS(K),2)
               IF( ITY == 2 .OR. ITY == 3 )THEN
@@ -597,10 +596,10 @@ C-------------------------------------------------------------
             SUB_LEVEL = SUB_LEVEL - 1
             CUR_SUBMOD = LSUBMODEL(CUR_SUBMOD)%IFATHER
           ENDDO
-          IF(LSUBMODEL(IDSUB)%NBTRANS .NE.0)
+          IF(LSUBMODEL(IDSUB)%NBTRANS /=0)
      .      CALL SUBROTPOINT(SKEW(10,J),SKEW(11,J),SKEW(12,J),
      .        RTRANS,LSUBMODEL(IDSUB)%NOSUBMOD,LSUBMODEL)
-Csv          not a user's defined skew.
+C            not a user's defined skew.
              ISKN(4,J)=1000000001 + (J-NUMSKW-NUMSPH_TMP-2)
           WRITE(IOUT,'(1X,I10,1X,3F16.7,3F16.7)')ISKN(4,J),
      .                (SKEW(K,J),K=1,3),(SKEW(K,J),K=10,12)
@@ -609,16 +608,14 @@ Csv          not a user's defined skew.
       ENDIF
 C
 C-------------------------------------
-C Recherche des ID doubles
+C search for duplicate ids
 C-------------------------------------
-      IF (NUMSKW.NE.0)
+      IF (NUMSKW/=0)
      .   CALL UDOUBLE(ISKN(4,1),LISKN,
      .        NUMSKW+1+MIN(IUN,NSPCOND)*NUMSPH+NSUBMOD,
      .        MESS,0,BID)
 C-----
       RETURN
-C-----
- 999  CALL FREERR(1)
 C-----
  1000 FORMAT(5X,'NUMBER',8X,'N1',8X,'N2',8X,'N3',10X,'VECTORS',42X,
      .      'ORIGIN')

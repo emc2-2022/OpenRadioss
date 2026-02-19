@@ -1,53 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ST_QAPRINT_GENERAL_CONTROLS   source/output/qaprint/st_qaprint_general_controls.F
-Chd|-- called by -----------
-Chd|        ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    st_qaprint_general_controls   ../starter/source/output/qaprint/st_qaprint_general_controls.F
+!||--- called by ------------------------------------------------------
+!||    st_qaprint_driver             ../starter/source/output/qaprint/st_qaprint_driver.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    defaults_mod                  ../starter/source/modules/defaults_mod.F90
+!||====================================================================
       SUBROUTINE ST_QAPRINT_GENERAL_CONTROLS(NOM_OPT ,INOM_OPT  ,DAMPR  , IRAND, ALEA,
      1                                       XSEED   ,UNITAB    ,QP_IPERTURB,QP_RPERTURB,
-     2                                       EIGIPM  , EIGRPM)
+     2                                       EIGIPM  , EIGRPM   ,DEFAULTS,DAMP_RANGE_PART)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
       USE QA_OUT_MOD
       USE UNITAB_MOD
+      USE ALE_MOD
+      USE DEFAULTS_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
+#include      "com01_c.inc"  
 #include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com07_c.inc"
 #include      "param_c.inc"
 #include      "scr03_c.inc"
 #include      "scr05_c.inc"
@@ -56,15 +56,10 @@ C-----------------------------------------------
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "scr17_c.inc"
-#include      "scr21_c.inc"
 #include      "tabsiz_c.inc"
-#include      "thermal_c.inc"
-#include      "units_c.inc"
 #include      "random_c.inc"
 #include      "sphcom.inc"
-#include      "fluid_scr_c.inc"
 #include      "sms_c.inc"
-#include      "sysunit.inc"
 #include      "eigcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -73,17 +68,42 @@ C-----------------------------------------------
      .                       IRAND(*),QP_IPERTURB(NPERTURB,6),EIGIPM(NEIPM,*)
       my_real, INTENT(IN) :: DAMPR(NRDAMP,*),ALEA(*),XSEED(*),EIGRPM(NERPM,*)
       my_real, INTENT(IN) :: QP_RPERTURB(NPERTURB,4)
+      INTEGER, INTENT(IN) :: DAMP_RANGE_PART(NPART)     !< flag to compute the damping range
       TYPE (UNIT_TYPE_) ::UNITAB
+      TYPE(DEFAULTS_)    , INTENT(IN)     :: DEFAULTS             
 C--------------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,J,IPERT,MY_ID, MY_DAMP, MY_CONSTRAINT,TEMP_INT,
-     .        MY_RAND, MY_UNIT, MY_DEFAULTINTER,LENRNOISE,
+      INTEGER I,II,MY_ID, MY_DAMP,TEMP_INT,
+     .        MY_RAND, MY_UNIT, MY_DEFAULTINTER,
      .        IDS(NPERTURB),IDX(NPERTURB),IDSEIG(NEIG),IDXEIG(NEIG),MY_EIG
-      CHARACTER *nchartitle TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      INTEGER     IHBE_DS,ISST_DS,IFRAME_DS,ITET4_D,ITET10_D,ICPRE_D,IMAS_DS,
+     .            IHBE_D,IPLA_D,ITHK_D,ISHEA_D,ISST_D,
+     .            ISH3N_D, ISTRA_D,NPTS_D,IDRIL_D,DEF_INTER(100)
       CHARACTER (LEN=255) :: VARNAME
       DOUBLE PRECISION TEMP_DOUBLE
       LOGICAL :: OK_QA
+C-----------------------------------------------
+!--- defaults values      
+C-----------------------------------------------
+      IHBE_DS=  DEFAULTS%SOLID%ISOLID
+      ISST_DS=  DEFAULTS%SOLID%ISMSTR
+      ICPRE_D=  DEFAULTS%SOLID%ICPRE
+      ITET4_D=  DEFAULTS%SOLID%ITETRA4
+      ITET10_D= DEFAULTS%SOLID%ITETRA10
+      IMAS_DS=  DEFAULTS%SOLID%IMAS
+      IFRAME_DS= DEFAULTS%SOLID%IFRAME
+      ISTRA_D = 1
+      IHBE_D =  DEFAULTS%SHELL%ishell
+      ISH3N_D=  DEFAULTS%SHELL%ish3n
+      ISST_D =  DEFAULTS%SHELL%ismstr
+      IPLA_D =  DEFAULTS%SHELL%iplas
+      ITHK_D =  DEFAULTS%SHELL%ithick
+      IDRIL_D=  DEFAULTS%SHELL%idrill
+      ISHEA_D = 0
+      NPTS_D = 0
+!
 C-----------------------------------------------
 C     /DAMP
 C-----------------------------------------------
@@ -143,6 +163,43 @@ C
         END DO ! MY_DAMP=1,NDAMP
       END IF
 C-----------------------------------------------
+C     /DAMP/FREQ_RANGE
+C-----------------------------------------------     
+      IF (MYQAKEY('/DAMP/FREQ_RANGE')) THEN
+        DO MY_DAMP=1,NDAMP
+C
+          IF (NINT(DAMPR(31,MY_DAMP))==1) THEN
+            TITR(1:nchartitle)=''
+            MY_ID = NINT(DAMPR(1,MY_DAMP))
+            IF(LEN_TRIM(TITR)/=0)THEN
+              CALL QAPRINT(TITR(1:LEN_TRIM(TITR)),MY_ID,0.0_8)
+            ELSE
+              CALL QAPRINT('A_DAMP_INTER_FAKE_NAME', MY_ID,0.0_8)
+            END IF
+C
+            DO I=1,NRDAMP
+              IF(DAMPR(I,MY_DAMP)/=ZERO)THEN
+C
+C               VARNAME: variable name in ref.extract (without blanks)
+                WRITE(VARNAME,'(A,I0)') 'DAMPR_',I
+                TEMP_DOUBLE = DAMPR(I,MY_DAMP)
+                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+              END IF
+            END DO
+C
+            DO I=1,NPART
+              IF (DAMP_RANGE_PART(I) == MY_DAMP) THEN   
+                WRITE(VARNAME,'(A)') 'PART_'
+                TEMP_INT = I
+                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INT,0.0_8)
+              ENDIF   
+            ENDDO  
+C                     
+          ENDIF    
+C
+        END DO ! MY_DAMP=1,NDAMP
+      END IF
+C-----------------------------------------------
 C     /ANALY
 C-----------------------------------------------
       IF (MYQAKEY('/ANALY')) THEN
@@ -155,10 +212,6 @@ C
 C
         WRITE(VARNAME,'(A)') 'IPARI0'
         TEMP_INT = IPARI0
-        CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INT,0.0_8)
-C
-        WRITE(VARNAME,'(A)') 'MSHSUB'
-        TEMP_INT = MSHSUB
         CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INT,0.0_8)
 C
       END IF
@@ -206,7 +259,7 @@ C     /DEF_SHELL
 C-----------------------------------------------
       IF (MYQAKEY('/DEF_SHELL')) THEN
 C
-        CALL QAPRINT('DEF_SHELL', 0,0.0_8)
+         CALL QAPRINT('DEF_SHELL', 0,0.0_8)
 C
         WRITE(VARNAME,'(A)') 'Ishell'
         TEMP_INT = IHBE_D
@@ -225,7 +278,7 @@ C
         CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INT,0.0_8)
 C
         WRITE(VARNAME,'(A)') 'Istrain'
-        TEMP_INT = ISTR_D
+        TEMP_INT = ISTRA_D
         CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INT,0.0_8)
 C
         WRITE(VARNAME,'(A)') 'Ish3n'
@@ -361,7 +414,7 @@ C
         CALL QAPRINT('CAA',0,0.0_8)
 
         WRITE(VARNAME,'(A,I0)') 'ICAA'
-        TEMP_INT = ICAA
+        TEMP_INT = ALE%GLOBAL%ICAA
         CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INT,0.0_8)
 C
       END IF
@@ -374,10 +427,6 @@ C
 C
         WRITE(VARNAME,'(A,I0)') 'IPRI'
         TEMP_INT = IPRI
-        CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INT,0.0_8)
-C
-        WRITE(VARNAME,'(A,I0)') 'IGFOR0'
-        TEMP_INT = IGFOR0
         CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INT,0.0_8)
 C
         WRITE(VARNAME,'(A,I0)') 'IOUTPUT'
@@ -437,7 +486,7 @@ C     /UNIT
 C-----------------------------------------------
       IF (MYQAKEY('/UNIT')) THEN
 C
-        DO MY_UNIT=1,NUNITS
+        DO MY_UNIT=1,UNITAB%NUNITS
 C
           TITR(1:nchartitle)=''
           MY_ID = UNITAB%UNIT_ID(MY_UNIT)
@@ -468,7 +517,7 @@ C           VARNAME: variable name in ref.extract (without blanks)
             CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
           END IF
 C
-        END DO ! MY_UNIT=1,NUNITS
+        END DO ! MY_UNIT=1,UNITAB%NUNITS
 C
       END IF
 C-----------------------------------------------
@@ -476,6 +525,7 @@ C     /DEFAULT/INTER
 C----------------------------------------------
       IF (MYQAKEY('/DEFAULT/INTER')) THEN
 C
+        DEF_INTER(1:100) = DEFAULTS%interface%DEF_INTER(1:100)
         CALL QAPRINT('/DEFAULT/INTER', 0,0.0_8)
 
         DO MY_DEFAULTINTER=1,100
@@ -507,19 +557,19 @@ C     /ALE/GRID/ *
 C----------------------------------------------
       OK_QA = MYQAKEY('/ALE/GRID')
       IF (OK_QA) THEN
-         TEMP_DOUBLE = ALPHA
+         TEMP_DOUBLE = ALE%GRID%ALPHA
          WRITE(VARNAME,'(A)') 'ALPHA_'
          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
-         TEMP_DOUBLE = GAMMA
+         TEMP_DOUBLE = ALE%GRID%GAMMA
          WRITE(VARNAME,'(A)') 'GAMMA_'
          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
-         TEMP_DOUBLE = VGX
+         TEMP_DOUBLE = ALE%GRID%VGX
          WRITE(VARNAME,'(A)') 'VGX_'
          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
-         TEMP_DOUBLE = VGY
+         TEMP_DOUBLE = ALE%GRID%VGY
          WRITE(VARNAME,'(A)') 'VGY_'
          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
-         TEMP_DOUBLE = VGZ
+         TEMP_DOUBLE = ALE%GRID%VGZ
          WRITE(VARNAME,'(A)') 'VGZ_'
          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
       ENDIF
@@ -541,13 +591,13 @@ C     /UPWIND
 C----------------------------------------------
       OK_QA = MYQAKEY('/UPWIND')
       IF (OK_QA) THEN
-         TEMP_DOUBLE = UPWMG
+         TEMP_DOUBLE = ALE%UPWIND%UPWMG
          WRITE(VARNAME,'(A)') 'UPCOEF1_'
          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
-         TEMP_DOUBLE = UPWOG
+         TEMP_DOUBLE = ALE%UPWIND%UPWOG
          WRITE(VARNAME,'(A)') 'UPCOEF2_'
          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
-         TEMP_DOUBLE = UPWSM
+         TEMP_DOUBLE = ALE%UPWIND%UPWSM
          WRITE(VARNAME,'(A)') 'UPCOEF3_'
          CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
       ENDIF
@@ -559,7 +609,7 @@ C----------------------------------------------
 C       
         IF (NPERTURB > 0) THEN 
 C
-!         Sort by ID to ensure internal order independant output
+!         Sort by ID to ensure internal order independent output
           DO I = 1,NPERTURB 
             IDS(I)    = QP_IPERTURB(I,1)
             IDX(I)    = I
@@ -605,7 +655,7 @@ C     /EIG
 C-----------------------------------------------
       IF (MYQAKEY('/EIG')) THEN
 C          
-!     Sort by ID to ensure internal order independant output
+!     Sort by ID to ensure internal order independent output
           DO I = 1, NEIG
             IDSEIG(I)    = EIGIPM(1,I)
             IDXEIG(I)    = I

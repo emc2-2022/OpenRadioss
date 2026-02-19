@@ -1,31 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS45C                     source/materials/mat/mat045/sigeps45c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps45c   ../engine/source/materials/mat/mat045/sigeps45c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE SIGEPS45C(
      1     NEL0    ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC  ,
      2     NPF    ,NPT0    ,IPT     ,IFLAG   ,
@@ -47,10 +48,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "task_c.inc"
-#include      "com08_c.inc"
-#include      "scr20_c.inc"
-#include      "units_c.inc"
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
@@ -93,7 +90,7 @@ C SIGVXX  | NEL0    | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL0    | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL0    | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL0    | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL0    | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C THK     | NEL0    | F |R/W| THICKNESS
 C PLA     | NEL0    | F |R/W| PLASTIC STRAIN
@@ -192,7 +189,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     USER VARIABLES INITIALIZATION
 C-----------------------------------------------
-      IF(TIME.EQ.ZERO)THEN
+      IF(TIME==ZERO)THEN
         DO I=1,NEL0
            UVAR(I,1)=ZERO
            UVAR(I,2)=ZERO
@@ -209,7 +206,7 @@ C-----------------------------------------------
         NNU1 = ANU / (ONE - ANU)
         NU1 = ONE/(ONE-ANU)
         NU2 = ONE/(ONE+ANU)
-        NU3 = ONE - NNU1	
+        NU3 = ONE - NNU1
 C        NNU2    = NNU1*NNU1
 C        NU4 = 1. + NNU2 + NNU1
 C        NU5 = 1. + NNU2 - 2.*NNU1
@@ -251,21 +248,21 @@ C-------------------
 C     CRITERIA
 C-------------------
        DO I=1,NEL0
-        IF(UVAR(I,1).LE.ZERO) THEN
+        IF(UVAR(I,1)<=ZERO) THEN
          CH1=CA
-        ELSEIF(UVAR(I,1).GT.EPSM) THEN
+        ELSEIF(UVAR(I,1)>EPSM) THEN
          CH1=CA+CB*EPSM**CN
         ELSE
          CH1=CA+CB*UVAR(I,1)**CN
         ENDIF
-        IF(UVAR(I,2).LE.EPS0) THEN
+        IF(UVAR(I,2)<=EPS0) THEN
          CH2=0.
-        ELSEIF(UVAR(I,1).LE.ZERO) THEN
+        ELSEIF(UVAR(I,1)<=ZERO) THEN
          CH2=CC*LOG(UVAR(I,2)/EPS0)
         ELSE
          CH2=(CC-CD*UVAR(I,1)**CM)*LOG(UVAR(I,2)/EPS0)
         ENDIF
-        IF(UVAR(I,2).LE.ZERO) THEN
+        IF(UVAR(I,2)<=ZERO) THEN
          CH3=ZERO
         ELSE
          CH3=CE*UVAR(I,2)**CK
@@ -277,16 +274,16 @@ C------------------------
 C     HARDENING MODULUS
 C------------------------
        DO I=1,NEL0
-        IF(UVAR(I,1).GT.ZERO. AND .CN.GE.ONE) THEN
+        IF(UVAR(I,1)>ZERO. AND .CN>=ONE) THEN
          QH1= CB*CN*UVAR(I,1)**(CN-ONE)
-        ELSEIF(UVAR(I,1).GT.ZERO. AND .CN.LT.ONE)THEN
+        ELSEIF(UVAR(I,1)>ZERO. AND .CN<ONE)THEN
          QH1= CB*CN*UVAR(I,1)**(ONE - CN)
         ELSE
          QH1=ZERO
         ENDIF
-        IF(UVAR(I,1).LE.ZERO. OR .UVAR(I,2).LE.EPS0) THEN
+        IF(UVAR(I,1)<=ZERO. OR .UVAR(I,2)<=EPS0) THEN
          QH2=ZERO
-        ELSEIF(CM.GE.ONE) THEN
+        ELSEIF(CM>=ONE) THEN
          QH2=CD*CM*UVAR(I,1)**(CM- ONE)*LOG(UVAR(I,2)/EPS0)
         ELSE
          QH2=CD*CM*UVAR(I,1)**(ONE -CM)*LOG(UVAR(I,2)/EPS0)
@@ -296,7 +293,7 @@ C------------------------
 C-------------------
 C     PROJECTION
 C-------------------
-       IF(IFLAG(1).EQ.0)THEN
+       IF(IFLAG(1)==0)THEN
 C radial return 
          DO I=1,NEL0
            SVM(I)=SQRT(SIGNXX(I)*SIGNXX(I)
@@ -314,12 +311,12 @@ C radial return
            DEZZ = DPLA_I(I) * HALF*(SIGNXX(I)+SIGNYY(I)) /UVAR(I,3)
            DEZZ=-(DEPSXX(I)+DEPSYY(I))*NNU1-NU3*DEZZ
            THK(I) = THK(I) + DEZZ*THKLY(I)
-C           IF(R.LT.1.) ETSE(I)= H(I)/(H(I)+E(I))
+C           IF(R<1.) ETSE(I)= H(I)/(H(I)+E(I))
          ENDDO
 C
-       ELSEIF(IFLAG(1).EQ.1)THEN
+       ELSEIF(IFLAG(1)==1)THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     VON MISES CRITERION
 C-------------------------
          DO  I=1,NEL0
            UVAR(I,4) = MAX(ZERO,UVAR(I,4))
@@ -337,12 +334,12 @@ C     GATHER PLASTIC FLOW
 C-------------------------
          NINDX=0
          DO I=1,NEL0
-           IF(SVM(I).GT.UVAR(I,3).AND.OFF(I).EQ.ONE) THEN
+           IF(SVM(I)>UVAR(I,3).AND.OFF(I)==ONE) THEN
              NINDX=NINDX+1
              INDEX(NINDX)=I
            ENDIF
          ENDDO
-         IF(NINDX.EQ.0) RETURN
+         IF(NINDX==0) RETURN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
@@ -360,14 +357,14 @@ C#include "vectorize.inc"
              YLD_I =UVAR(I,3)+UVAR(I,4)*DPLA_I(I)
              DR(I) =HALF*YOUNG*DPLA_I(I)/YLD_I
              PP(I)  =ONE/(ONE+DR(I)*NU1)
-             QQ(I)  =ONE/(ONE + THREE*DR(I)*NU2)	     
+             QQ(I)  =ONE/(ONE + THREE*DR(I)*NU2)       
              P2    =PP(I)*PP(I)
              Q2    =QQ(I)*QQ(I)
              F     =AA(I)*P2+BB(I)*Q2-YLD_I*YLD_I
              DF    =-(AA(I)*NU1*P2*PP(I)+THREE*BB(I)*NU2*Q2*QQ(I))
      .         *(YOUNG-TWO*DR(I)*UVAR(I,4))/YLD_I
      .         -TWO*UVAR(I,4)*YLD_I
-             IF(DPLA_I(I).GT.ZERO) THEN
+             IF(DPLA_I(I)>ZERO) THEN
                DPLA_J(I)=MAX(ZERO,DPLA_I(I)-F/DF)
              ELSE
                DPLA_J(I)=ZERO
@@ -393,7 +390,7 @@ C
        ENDIF
 C
        DO I=1,NEL0
-         IF(UVAR(I,1).GT.EPSM.AND.OFF(I).EQ.ONE)OFF(I)=FOUR_OVER_5
+         IF(UVAR(I,1)>EPSM.AND.OFF(I)==ONE)OFF(I)=FOUR_OVER_5
        ENDDO
 C-------------------------
       RETURN

@@ -1,44 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP01                source/properties/shell/hm_read_prop01.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        PINCHTYPE_MOD                 ../common_source/modules/pinchtype_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop01           ../starter/source/properties/shell/hm_read_prop01.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties       ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||--- uses       -----------------------------------------------------
+!||    defaults_mod             ../starter/source/modules/defaults_mod.F90
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP01(GEO       ,IGEO     ,PROP_TAG ,MULTI_FVM,IGTYP    ,
      .                          IG        ,IDTITL   ,
-     .                          UNITAB    ,LSUBMODEL)
+     .                          UNITAB    ,LSUBMODEL,DEFAULTS_SHELL)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
@@ -49,62 +49,52 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
       USE PINCHTYPE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE DEFAULTS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com_xfem1.inc"
-#include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr16_c.inc"
-#include      "scr17_c.inc"
-#include      "scr21_c.inc"
 #include      "tablen_c.inc"
-#include      "fluid_scr_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
-#include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER IGEO(*)
-      INTEGER IGTYP,IG,UID,SUB_ID
+      INTEGER IGTYP,IG
       my_real
      .   GEO(*)
-      CHARACTER IDTITL*nchartitle
+      CHARACTER(LEN=NCHARTITLE)::IDTITL
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
       TYPE(MULTI_FVM_STRUCT) :: MULTI_FVM
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
+      TYPE(SHELL_DEFAULTS_), INTENT(IN)  :: DEFAULTS_SHELL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,  ISMSTR, NIP, J,
-     .   ISHEAR, IP, ISTRAIN,
-     .   IHBE,IPLAST,ITHK,IBID,IHBEOUTP,K,N,
+      INTEGER   ISMSTR, NIP,
+     .   ISHEAR, ISTRAIN,
+     .   IHBE,IPLAST,ITHK,IHBEOUTP,
      .   NSHELL, NSHSUP, NSHINF,
      .   NSST_D, NSST_DS, NPSH,ISEN,ISORTH,
-     .   IHBE_OLD,  ISH3N,ISROT,IPINCH,I1,I2
-     
+     .   IHBE_OLD,  ISH3N,ISROT,IPINCH,IPOS
+      INTEGER     IHBE_D,IPLA_D,ITHK_D,ISHEA_D,ISST_D,
+     .           ISH3N_D, ISTRA_D,NPTS_D,IDRIL_D
+
       my_real
-     .    PUN,CVIS,DN_P,PTHK
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+     .    PUN,CVIS,DN_P,PTHK,ZSHIFT
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
       DATA NSHELL /0/, NSHSUP /0/, NSHINF /0/
 C-----------------------------------------------
       DATA PUN/0.1/
 C=======================================================================
-        IS_CRYPTED = .FALSE.
+        IS_ENCRYPTED = .FALSE.
         IS_AVAILABLE = .FALSE.
 
         IHBE=0
@@ -117,8 +107,18 @@ C=======================================================================
         NSST_D = 0
         NSST_DS= 0
         PTHK = ZERO
+        IPOS =0
 C
-C       Double stockage temporaire - supprimer GEO(12)=IGTYP apres tests
+       IHBE_D =  DEFAULTS_SHELL%ishell
+       ISH3N_D=  DEFAULTS_SHELL%ish3n
+       ISST_D =  DEFAULTS_SHELL%ismstr
+       IPLA_D =  DEFAULTS_SHELL%iplas
+       ITHK_D =  DEFAULTS_SHELL%ithick
+       IDRIL_D=  DEFAULTS_SHELL%idrill
+       ISHEA_D = 0
+       NPTS_D = 0
+       ISTRA_D = 1
+C       Temporary double storage - Delete GEO (12) = Igtyp after tests
         IGEO( 1)=IG
         IGEO(11)=IGTYP
         GEO(12) =IGTYP+PUN
@@ -127,14 +127,14 @@ C HIDDEN FLAGS
 C----------------------
 C ISHEAR NEVER USED
         ISHEAR = 0
-C CVIS USED in coquez routines
+C Cvis used in shell routines
         CVIS = ZERO
 C ISEN USED IN ENGINE call csens3.F routine
         ISEN = 0
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
@@ -147,6 +147,7 @@ C--------------------------------------------------
 C      CALL HM_GET_INTV('ISTRAIN',ISTRAIN,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('ITHICK',ITHK,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('IPLAS',IPLAST,IS_AVAILABLE,LSUBMODEL)
+      CALL HM_GET_INTV('Ipos',IPOS,IS_AVAILABLE,LSUBMODEL)
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
 C--------------------------------------------------
@@ -161,11 +162,13 @@ C--------------------------------------------------
 C----------------------
 C For example : apply submodel offsets units submodel transform to V (VX,VY,VZ) if needed
 C
-c      IF (SUB_INDEX .NE. 0)
+c      IF (SUB_INDEX /= 0)
 c     .         CALL SUBROTVECT(VX,VY,VZ,RTRANS,SUB_INDEX,LSUBMODEL)
 C----------------------
 C
-        PTHK = MIN(PTHK, ONE-EM06)
+        IF (PTHK == ZERO) PTHK = ONE-EM06
+        PTHK = MIN(PTHK, ONE)
+        PTHK = MAX(PTHK,-ONE) 
         GEO(42) = PTHK
 C----------------------
 C fixing flag and removed from input
@@ -221,13 +224,13 @@ C---
 C-------to have DR----  to do it in cgrtais when Ismstr=10 is recommended one day        
         IF (ISMSTR==10.AND.ISROT>0.AND.IDROT==0) IDROT = 1
 C
-        IF (IHBE.GT.11.AND.IHBE.LT.29) THEN
+        IF (IHBE>11.AND.IHBE<29) THEN
           GEO(13)=GEO(17)
           GEO(17)=CVIS
         ENDIF
 C----------------------
         IF(ISMSTR==0)ISMSTR=2
-        IF(ISMSTR==3.AND.IHBE.NE.0.AND.IHBE.NE.2) THEN
+        IF(ISMSTR==3.AND.IHBE/=0.AND.IHBE/=2) THEN
           ISMSTR = 2
           CALL ANCMSG(MSGID=319,
      .                MSGTYPE=MSGWARNING,
@@ -254,7 +257,7 @@ C
           ENDIF
           GEO(38)= ZERO
         ENDIF
-        IF(NIP.GT.10) THEN
+        IF(NIP>10) THEN
           CALL ANCMSG(MSGID=788,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO,
@@ -268,27 +271,27 @@ C
         IF(IPLAST==0) IPLAST=IPLA_D
         IF(IPLA_D==-2) IPLAST=-1
 C        IF(ISTRAIN==0)ISTRAIN=ISTR_D
-        IF(.NOT. IS_CRYPTED)THEN
-          IF (IHBE.GT.11.AND.IHBE.LT.29.OR.
+        IF(.NOT. IS_ENCRYPTED)THEN
+          IF (IHBE>11.AND.IHBE<29.OR.
      .     (IHBE==0.AND.(ISH3N==1.OR.ISH3N==2))) THEN
 C-------not change default dn of DKT with old define (ishel=12)     
             DN_P = GEO(13)
             IF (IHBE==12.AND.DN_P==ZERO) DN_P=EM03
             WRITE(IOUT,1112)IG,NIP,ISTRAIN,GEO(1),ISMSTR,IHBEOUTP,
      .            ISH3N,ISROT,IPINCH,GEO(16),DN_P,GEO(38),
-     .            PTHK,ISHEAR,ITHK,IPLAST
+     .            PTHK,ISHEAR,ITHK,IPLAST,IPOS
           ELSE
             WRITE(IOUT,1110)IG,NIP,ISTRAIN,GEO(1),ISMSTR,IHBEOUTP,
      .            ISH3N,
      .            GEO(13),GEO(14),GEO(15),GEO(16),GEO(38),
-     .            PTHK,ISHEAR,ITHK,IPLAST
+     .            PTHK,ISHEAR,ITHK,IPLAST,IPOS
           ENDIF
         ELSE
           WRITE(IOUT,1199)IG
         ENDIF
         NSHELL = NSHELL + 1
-        IF (GEO(1).GE.9) NSHSUP = NSHSUP +1
-        IF (GEO(1).LT.FOURTH) NSHINF = NSHINF +1
+        IF (GEO(1)>=9) NSHSUP = NSHSUP +1
+        IF (GEO(1)<FOURTH) NSHINF = NSHINF +1
         GEO(6)  =NIP+PUN
         IGEO(4) =NIP
         
@@ -298,7 +301,7 @@ C-------not change default dn of DKT with old define (ishel=12)
 C-----------------------------
 C       IHBE IPLA ISTRAIN
 C-----------------------------
-C       Double stockage temporaire
+C       Temporary double storage
         GEO(171)=IHBE
         IGEO(10)=IHBE
         IF(IHBE==0)THEN
@@ -307,7 +310,7 @@ C       Double stockage temporaire
           GEO(171)=1
         ELSEIF(IHBE==2)THEN
           GEO(171)=0
-        ELSEIF(IHBE.GE.3.AND.IHBE.LT.100.AND.IHBE.NE.4)THEN
+        ELSEIF(IHBE>=3.AND.IHBE<100.AND.IHBE/=4)THEN
           GEO(171)=IHBE-1
         ENDIF
 
@@ -323,8 +326,16 @@ C       Double stockage temporaire
         ENDIF
 
         IGEO(17)=ISORTH ! == 0 Isotropic property
+        IGEO(99) = IPOS
+        ZSHIFT = ZERO
+        IF (IPOS==3) THEN
+          ZSHIFT = -HALF
+        ELSEIF (IPOS==4) THEN
+          ZSHIFT = HALF
+        END IF
+        GEO(199) = ZSHIFT
 C-------------------------------
-C       Double stockage temporaire
+C       Temporary double storage
         IGEO( 5)=NINT(GEO( 3))
         IGEO( 9)=NINT(GEO(39))
 C-----------------------------
@@ -336,6 +347,7 @@ C-----------------------------
         PROP_TAG(IGTYP)%G_THK = 1
         PROP_TAG(IGTYP)%G_EINT= 2
         PROP_TAG(IGTYP)%G_EINS= 0
+        PROP_TAG(IGTYP)%G_AREA= 1
         PROP_TAG(IGTYP)%L_SIG = 5
         PROP_TAG(IGTYP)%L_THK = 0
         PROP_TAG(IGTYP)%L_EINT= 2
@@ -373,10 +385,13 @@ C-----------
      & 5X,'SHELL HOURGLASS ROTATIONAL DAMPING. . .=',1PG20.13/,
      & 5X,'SHELL MEMBRANE DAMPING. . . . . . . . .=',1PG20.13/,
      & 5X,'SHEAR AREA REDUCTION FACTOR . . . . . .=',1PG20.13/,
-     & 5X,'% OF INTEG POINT THICKNESS TO FAIL. . .=',1PG20.13/,
+     & 5X,'ELEMENT DELETION PARAMETER. . . . . . .=',1PG20.13/,
+     & 5X,' > 0.0 : FRACTION OF FAILED THICKNESS   ',/,
+     & 5X,' < 0.0 : FRACTION OF FAILED INTG. POINTS',/,
      & 5X,'SHEAR FORMULATION FLAG. . . . . . . . .=',I10/,
      & 5X,'THICKNESS VARIATION FLAG. . . . . . . .=',I10/,
-     & 5X,'PLASTICITY FORMULATION FLAG . . . . . .=',I10//)
+     & 5X,'PLASTICITY FORMULATION FLAG . . . . . .=',I10/,
+     & 5X,'SHELL OFFSET POSITION FLAG . . . . . . =',I10//)
  1112 FORMAT(
      & 5X,'ISOTROPIC SHELL PROPERTY SET'/,
      & 5X,'PROPERTY SET NUMBER . . . . . . . . . .=',I10/,
@@ -391,10 +406,13 @@ C-----------
      & 5X,'SHELL MEMBRANE DAMPING. . . . . . . . .=',1PG20.13/,
      & 5X,'SHELL NUMERICAL DAMPING . . . . . . . .=',1PG20.13/,
      & 5X,'SHEAR AREA REDUCTION FACTOR . . . . . .=',1PG20.13/,
-     & 5X,'% OF INTEG POINT THICKNESS TO FAIL. . .=',1PG20.13/,
+     & 5X,'ELEMENT DELETION PARAMETER. . . . . . .=',1PG20.13/,
+     & 5X,' > 0.0 : FRACTION OF FAILED THICKNESS   ',/,
+     & 5X,' < 0.0 : FRACTION OF FAILED INTG. POINTS',/,
      & 5X,'SHEAR FORMULATION FLAG. . . . . . . . .=',I10/,
      & 5X,'THICKNESS VARIATION FLAG. . . . . . . .=',I10/,
-     & 5X,'PLASTICITY FORMULATION FLAG . . . . . .=',I10//)
+     & 5X,'PLASTICITY FORMULATION FLAG . . . . . .=',I10/,
+     & 5X,'SHELL OFFSET POSITION FLAG . . . . . . =',I10//)
  1199 FORMAT(
      & 5X,'ISOTROPIC SHELL PROPERTY SET'/,
      & 5X,'PROPERTY SET NUMBER . . . . . . . . . .=',I10/,

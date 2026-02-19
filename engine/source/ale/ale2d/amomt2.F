@@ -1,41 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  AMOMT2                        source/ale/ale2d/amomt2.F     
-Chd|-- called by -----------
-Chd|        QFORC2                        source/elements/solid_2d/quad/qforc2.F
-Chd|-- calls ---------------
-Chd|        UPWIND                        source/elements/solid/solide/upwind.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    amomt2    ../engine/source/ale/ale2d/amomt2.F
+!||--- called by ------------------------------------------------------
+!||    qforc2    ../engine/source/elements/solid_2d/quad/qforc2.F
+!||--- calls      -----------------------------------------------------
+!||    upwind    ../engine/source/elements/solid/solide/upwind.F
+!||--- uses       -----------------------------------------------------
+!||    ale_mod   ../common_source/modules/ale/ale_mod.F
+!||====================================================================
       SUBROUTINE AMOMT2(
-     .   PM , V     , W  ,  RHO,
+     .   PM , W  ,  RHO,
      .   Y1, Y2, Y3, Y4, Z1, Z2, Z3, Z4,
      .   T11, T12   , T13,  T14, T21  , T22, T23 , T24, 
      .   PY1, PY2   , PZ1,  PZ2, AIREM,
      .   VY1, VY2   , VY3,  VY4, VZ1  , VZ2, VZ3 , VZ4,
      .   DYY, DZZ   , DYZ,  DZY,
      .   NC1, NC2   , NC3,  NC4, MAT  , OFF,
-     .   QMV, BUFMAT, DELTAX, VIS)
+     .   QMV, BUFMAT, DELTAX, VIS, IPM,
+     .   first,s_qmv,nv46)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -43,6 +46,10 @@ C This subroutines computes convective term
 C from momentum continuity equation in 2D.
 C it results into a forces F1,F2 computed at cell 
 C centroid.
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE ALE_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -57,23 +64,26 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "vect01_c.inc"
 #include      "param_c.inc"
-#include      "scrupw_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      integer, intent(in) :: first !< first element of the group
+      integer, intent(in) :: s_qmv !< first dimension of qmv array
+      integer, intent(in) :: nv46 !< second dimension of qmv array
       my_real
-     .   PM(NPROPM,NUMMAT), V(3,NUMNOD), W(3,NUMNOD), RHO(*),
+     .   PM(NPROPM,NUMMAT), W(3,NUMNOD), RHO(*),
      .   Y1(*), Y2(*), Y3(*), Y4(*), Z1(*), Z2(*), Z3(*), Z4(*),
      .   T11(*), T12(*), T13(*), T14(*), T21(*), T22(*), T23(*),T24(*), 
      .   PY1(*), PY2(*), PZ1(*), PZ2(*), AIREM(*),
      .   VY1(*), VY2(*), VY3(*), VY4(*), 
      .   VZ1(*), VZ2(*), VZ3(*), VZ4(*),
-     .   DYY(*), DZZ(*), DYZ(*), DZY(*), OFF(*),QMV(8,*),BUFMAT(*), DELTAX(*), VIS(*)
+     .   DYY(*), DZZ(*), DYZ(*), DZY(*), OFF(*),QMV(s_qmv,2*nv46),BUFMAT(*), DELTAX(*), VIS(*)
       INTEGER MAT(*), NC1(*), NC2(*), NC3(*), NC4(*)
+      INTEGER,INTENT(IN) :: IPM(NPROPMI,NUMMAT)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: I,IADBUF,IFLG
+      INTEGER :: I,IADBUF,IFLG,ii
       my_real :: F1(MVSIZ), F2(MVSIZ),A1(MVSIZ), A2(MVSIZ), XMS(MVSIZ), GAMMA(MVSIZ),VDY(MVSIZ), VDZ(MVSIZ)
       my_real :: FAC,AAA,DM,DMY,DMZ
       my_real :: FVY1(MVSIZ), FVZ1(MVSIZ), FVY2(MVSIZ), FVZ2(MVSIZ), FVY3(MVSIZ), FVZ3(MVSIZ), FVY4(MVSIZ), FVZ4(MVSIZ)
@@ -134,39 +144,40 @@ C-----------------------------------------------
       !-----------------------------------------------
       !   LAW51 : convective terme computed like in FVM
       !-----------------------------------------------
-      !   DMi = 0.5*DT1*QMV(i,I)  masse entrant par la face i
-      IF(MTN == 51 .AND. UPWM /= 3) THEN
-        IADBUF = NINT(PM(27,MAT(1)))
+      !   Dmi = 0.5*dt1*QMV (i, i) mass entering by the face i
+      IF(MTN == 51 .AND. ALE%UPWIND%UPWM /= 3) THEN
+        IADBUF = IPM(27,MAT(1))
         IFLG = NINT(BUFMAT(31+IADBUF-1))
         IF(IFLG > 1)RETURN
-        IF(UPWM == 0.)THEN
+        IF(ALE%UPWIND%UPWM == 0.)THEN
          DO I=LFT,LLT
           GAMMA(I)= PM(15,MAT(I))
          ENDDO
         ELSE
          DO I=LFT,LLT
-          GAMMA(I)= CUPWM
+          GAMMA(I)= ALE%UPWIND%CUPWM
          ENDDO
         ENDIF
         DO I=LFT,LLT
-          AAA      = QMV(1,I)+QMV(2,I)+QMV(3,I)+QMV(4,I)
+          ii = i+first
+          AAA      = QMV(ii,1)+QMV(ii,2)+QMV(ii,3)+QMV(ii,4)
           AAA      = FOURTH * AAA
-          QMV(1,I) = FOURTH * (QMV(1,I) - AAA)   
-          QMV(2,I) = FOURTH * (QMV(2,I) - AAA)   
-          QMV(3,I) = FOURTH * (QMV(3,I) - AAA)   
-          QMV(4,I) = FOURTH * (QMV(4,I) - AAA)   
+          QMV(ii,1) = FOURTH * (QMV(ii,1) - AAA)   
+          QMV(ii,2) = FOURTH * (QMV(ii,2) - AAA)   
+          QMV(ii,3) = FOURTH * (QMV(ii,3) - AAA)   
+          QMV(ii,4) = FOURTH * (QMV(ii,4) - AAA)   
           DMY      = ZERO
           DMZ      = ZERO
-          DM       = QMV(4,I)+QMV(1,I)
+          DM       = QMV(ii,4)+QMV(ii,1)
           DMY      = DMY + VY1(I)*DM
           DMZ      = DMZ + VZ1(I)*DM
-          DM       = QMV(1,I)+QMV(2,I)
+          DM       = QMV(ii,1)+QMV(ii,2)
           DMY      = DMY + VY2(I)*DM
           DMZ      = DMZ + VZ2(I)*DM
-          DM       = QMV(2,I)+QMV(3,I)
+          DM       = QMV(ii,2)+QMV(ii,3)
           DMY      = DMY + VY3(I)*DM
           DMZ      = DMZ + VZ3(I)*DM
-          DM       = QMV(3,I)+QMV(4,I)
+          DM       = QMV(ii,3)+QMV(ii,4)
           DMY      = DMY + VY4(I)*DM
           DMZ      = DMZ + VZ4(I)*DM
           DMY      = -FOURTH * DMY
@@ -184,7 +195,7 @@ C-----------------------------------------------
           T23(I)   = T23(I)+(ONE-A1(I))*DMZ
           T24(I)   = T24(I)+(ONE-A2(I))*DMZ
         ENDDO
-      ELSEIF (MTN /= 51 .AND. UPWM /= 3) THEN
+      ELSEIF (MTN /= 51 .AND. ALE%UPWIND%UPWM /= 3) THEN
       !-----------------------------------------------
       !   other material laws
       !-----------------------------------------------
@@ -212,7 +223,7 @@ C-----------------------------------------------
           T24(I)   =  T24(I)+(ONE-A2(I))*F2(I)
         ENDDO
 
-      ELSEIF (UPWM == 3) THEN
+      ELSEIF (ALE%UPWIND%UPWM == 3) THEN
          PC=FOURTH
          PD=ONE_OVER_16
          PS=ONE_OVER_16
@@ -235,13 +246,16 @@ C-----------------------------------------------
             S(2,I)=HALF*(Y12(I)-Y34(I))
             S(3,I)=HALF*(Z12(I)-Z34(I))
             T(2,I)=HALF*(-Y41(I)+Y23(I))
-            T(3,I)=HALF*(-Z41(I)+Z23(I))	 
+            T(3,I)=HALF*(-Z41(I)+Z23(I))   
          ENDDO
          !-----------------------------------------------
          ! SUPG implementation for 2D ALE 
          !       NODE 1
          !-----------------------------------------------
-         CALL UPWIND(RHO,VIS,VY1,VY1,VZ1,S,S,T,DELTAX,GAMMA)
+         CALL UPWIND(
+     1   RHO,     VIS,     VY1,     VY1,
+     2   VZ1,     S,       S,       T,
+     3   DELTAX,  GAMMA,   LLT)
          DO I=LFT,LLT
             TR(I)=(Y41(I)*Z12(I)-Y12(I)*Z41(I))
             DYYP(I)=(-Z24(I)*FVY1(I)-Z41(I)*FVY2(I)-Z12(I)*FVY4(I))
@@ -269,7 +283,10 @@ C-----------------------------------------------
          ! SUPG implementation for 2D ALE 
          !       NODE 2
          !-----------------------------------------------
-         CALL UPWIND(RHO,VIS,VY2,VY2,VZ2,S,S,T,DELTAX,GAMMA)
+         CALL UPWIND(
+     1   RHO,     VIS,     VY2,     VY2,
+     2   VZ2,     S,       S,       T,
+     3   DELTAX,  GAMMA,   LLT)
          DO I=LFT,LLT
             TR(I)=(Y12(I)*Z23(I)-Y23(I)*Z12(I))
             DYYP(I)=(-Z23(I)*FVY1(I)+Z13(I)*FVY2(I)-Z12(I)*FVY3(I))
@@ -296,7 +313,10 @@ C-----------------------------------------------
          ! SUPG implementation for 2D ALE 
          !       NODE 3
          !-----------------------------------------------
-         CALL UPWIND(RHO,VIS,VY3,VY3,VZ3,S,S,T,DELTAX,GAMMA)
+         CALL UPWIND(
+     1   RHO,     VIS,     VY3,     VY3,
+     2   VZ3,     S,       S,       T,
+     3   DELTAX,  GAMMA,   LLT)
          DO I=LFT,LLT
             TR(I)=(Y23(I)*Z34(I)-Y34(I)*Z23(I))
             DYYP(I)=(-Z34(I)*FVY2(I)+Z24(I)*FVY3(I)-Z23(I)*FVY4(I))
@@ -323,7 +343,10 @@ C-----------------------------------------------
          ! SUPG implementation for 2D ALE 
          !       NODE 4
          !-----------------------------------------------
-         CALL UPWIND(RHO,VIS,VY4,VY4,VZ4,S,S,T,DELTAX,GAMMA)
+         CALL UPWIND(
+     1   RHO,     VIS,     VY4,     VY4,
+     2   VZ4,     S,       S,       T,
+     3   DELTAX,  GAMMA,   LLT)
          DO I=LFT,LLT
             TR(I)=(Y34(I)*Z41(I)-Y41(I)*Z34(I))
             DYYP(I)=(-Z34(I)*FVY1(I)-Z41(I)*FVY3(I)-Z13(I)*FVY4(I))

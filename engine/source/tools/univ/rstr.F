@@ -1,35 +1,28 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C     REAL
 #include "my_real.inc"
       my_real
-Chd|====================================================================
-Chd|  RSTR                          source/tools/univ/rstr.F      
-Chd|-- called by -----------
-Chd|        REDSQR                        source/output/tools/redsqr.F  
-Chd|        REDSQRDP                      source/output/tools/redsqr.F  
-Chd|-- calls ---------------
-Chd|====================================================================
      .   FUNCTION RSTR(STR)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -64,11 +57,11 @@ C
       MANT2=MANT21*32+MANT22
       MANT3=MANT31*32+MANT32
 C
-      IF(ISE.EQ.1)IEXP=-IEXP
+      IF(ISE==1)IEXP=-IEXP
       RSTR=MANT3+MANT2*1000+MANT1*1000000
       RSTR=RSTR/EP9
       RSTR=RSTR*TEN**IEXP
-      IF(ISM.EQ.1)RSTR=-RSTR
+      IF(ISM==1)RSTR=-RSTR
 C
       RETURN
       END

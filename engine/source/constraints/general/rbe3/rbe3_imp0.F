@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RBE3_IMP0                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        UPD_GLOB_K                    source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        PRERBE3                       source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE3CL                        source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE3_IMP1                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rbe3_imp0    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_glob_k   ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe3      ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe3_imp1    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3cl       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||====================================================================
       SUBROUTINE RBE3_IMP0(
      1                    IRBE3  ,LRBE3 ,FRBE3  ,X     ,SKEW   ,
      2                    ISS3   ,IKC   ,NDOF   ,IDDL  ,IADK   ,
@@ -42,7 +42,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -68,16 +67,16 @@ C-----------------------------------------------
       IADS = SLRBE3/2
       CALL PRERBE3(IRBE3 ,MAX_M , IROTG,JT  ,JR   )
       ALLOCATE(FDSTNB(18*MAX_M))
-      IF (IROTG.GT.0) ALLOCATE(MDSTNB(18*MAX_M))
+      IF (IROTG>0) ALLOCATE(MDSTNB(18*MAX_M))
       IADJ=1
       DO N=1,NRBE3
         IAD = IRBE3(1,N)
         NS  = IRBE3(3,N)
         NML = IRBE3(5,N)
-	IROT =IRBE3(6,N)
-	NSJ  =IRBE3(8,N)
-       IF (NS.EQ.0.OR.NDOF(NS).EQ.0) CYCLE
-       IF (WEIGHT(NS).NE.0) THEN
+          IROT =IRBE3(6,N)
+          NSJ  =IRBE3(8,N)
+       IF (NS==0.OR.NDOF(NS)==0) CYCLE
+       IF (WEIGHT(NS)/=0) THEN
         CALL RBE3CL(LRBE3(IAD+1),LRBE3(IADS+IAD+1),NS     ,X    ,
      .              FRBE3(6*IAD+1),SKEW    ,NML     ,IROT   ,FDSTNB ,
      .              MDSTNB  ,IRBE3(2,N))
@@ -90,19 +89,19 @@ C-----------------------------------------------
       ENDDO
 C
       DEALLOCATE(FDSTNB)
-      IF (IROTG.GT.0) DEALLOCATE(MDSTNB)
+      IF (IROTG>0) DEALLOCATE(MDSTNB)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_IMPI                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        UPD_INT_K                     source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        PRERBE3                       source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE3CL                        source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE3_IMP1                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_impi   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_int_k   ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe3     ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe3_imp1   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3cl      ../engine/source/constraints/general/rbe3/rbe3f.F
+!||====================================================================
       SUBROUTINE RBE3_IMPI(
      1                    IRBE3  ,LRBE3 ,FRBE3  ,X     ,SKEW   ,
      2                    NSS3   ,ISS3  ,IKC   ,NDOF   ,IDDL   ,
@@ -116,7 +115,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -142,18 +140,18 @@ C-----------------------------------------------
       IADS = SLRBE3/2
       CALL PRERBE3(IRBE3 ,MAX_M , IROTG,JT  ,JR   )
       ALLOCATE(FDSTNB(18*MAX_M))
-      IF (IROTG.GT.0) ALLOCATE(MDSTNB(18*MAX_M))
+      IF (IROTG>0) ALLOCATE(MDSTNB(18*MAX_M))
       IADJ=1
       DO N=1,NRBE3
         IAD = IRBE3(1,N)
         NS  = IRBE3(3,N)
-        IF (NS.EQ.0) CYCLE
+        IF (NS==0) CYCLE
         NML = IRBE3(5,N)
-	IROT =IRBE3(6,N)
-	DO J =1,3
+          IROT =IRBE3(6,N)
+          DO J =1,3
            JR(J,N)=0
-	ENDDO
-       IF (WEIGHT(NS).NE.0.AND.NDOF(NS).GT.0) THEN
+          ENDDO
+       IF (WEIGHT(NS)/=0.AND.NDOF(NS)>0) THEN
         CALL RBE3CL(LRBE3(IAD+1),LRBE3(IADS+IAD+1),NS     ,X    ,
      .              FRBE3(6*IAD+1),SKEW    ,NML     ,IROT   ,FDSTNB ,
      .              MDSTNB  ,IRBE3(2,N))
@@ -166,26 +164,26 @@ C-----------------------------------------------
       ENDDO
 C
       DEALLOCATE(FDSTNB)
-      IF (IROTG.GT.0) DEALLOCATE(MDSTNB)
+      IF (IROTG>0) DEALLOCATE(MDSTNB)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_IMP1                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE3_IMP0                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBE3_IMPI                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- calls ---------------
-Chd|        GET_KII                       source/implicit/imp_glob_k.F  
-Chd|        GET_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        PRINT_WKIJ                    source/implicit/imp_glob_k.F  
-Chd|        PUT_KII                       source/implicit/imp_glob_k.F  
-Chd|        PUT_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        UPDB_CDI                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        UPDK_CDI                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        UPDK_CDII                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        UPDK_CDIJ                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_imp1    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_imp0    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3_impi    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    get_kii      ../engine/source/implicit/imp_glob_k.F
+!||    get_kij      ../engine/source/implicit/imp_glob_k.F
+!||    print_wkij   ../engine/source/implicit/imp_glob_k.F
+!||    put_kii      ../engine/source/implicit/imp_glob_k.F
+!||    put_kij      ../engine/source/implicit/imp_glob_k.F
+!||    updb_cdi     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    updk_cdi     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    updk_cdii    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    updk_cdij    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE RBE3_IMP1(NS    ,NML   ,IML   ,X      ,IROT   ,
      2                     NSJ   ,ISJ   ,JT    ,JR     ,FDSTNB ,
      3                     MDSTNB,IKC   ,NDOF  ,IDDL   ,IADK   ,
@@ -199,13 +197,8 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NS, NML,IML(*),NSJ,ISJ(*) ,JT(3),JR(3),IROT
       INTEGER IADK(*),JDIK(*),NDOF(*),IDDL(*),IKC(*),ITAB(*)
-C     REAL
       my_real
      .   X(3,*),DIAG_K(*),LT_K(*),B(*),FDSTNB(18,*),MDSTNB(18,*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -216,9 +209,9 @@ C     REAL
       my_real
      .   KDD(6,6),BD(6),KII(6,6),KIJ(6,6),BI(6)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of secondary nodes
 C------------------------------------
-       IF (NDOF(NS).LE.0) RETURN
+       IF (NDOF(NS)<=0) RETURN
 C
        IP=4
        I = NS
@@ -249,7 +242,7 @@ C
 C        CALL UPDK_BC(JT,JR,KDD,ISTIF)
 C
 C-------Update K(main node)---
-C	IF (ISTIF.GT.0) THEN
+C  IF (ISTIF>0) THEN
          DO J=1,NML
           NJ=IML(J)
           ND = NDOF(NJ)
@@ -262,10 +255,10 @@ C-------Update CDI^t[KDD]CDJ---
            CALL UPDK_CDIJ(FDSTNB(1,J),MDSTNB(1,J),FDSTNB(1,I1),
      .                    MDSTNB(1,I1),KDD,KIJ,IROT,NDM )
            CALL PUT_KIJ(NJ,NM,IDDL,IADK,JDIK,LT_K,KIJ,ND,NDOF(NM),IR)
-           IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NJ) ,ITAB(NM) ,IP )
+           IF (IR==1) CALL PRINT_WKIJ(ITAB(NJ) ,ITAB(NM) ,IP )
           ENDDO
          ENDDO
-C	END IF
+C  END IF
         DO J=1,NML
           NJ=IML(J)
           ND = NDOF(NJ)
@@ -286,20 +279,20 @@ C--------no diag--Kjm=sum(KjsCsm)--
           ENDDO
           ENDDO
           CALL GET_KIJ(NI,I,IDDL,IADK,JDIK,LT_K,KDD,NIDOF,NDOF(I),IR)
-          IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(I) ,IP )
+          IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(I) ,IP )
 C------- Update ---
 C          CALL UPDK_BC2(JT,JR,KDD,ISTIF)
-C	  IF (ISTIF.GT.0) THEN
+C    IF (ISTIF>0) THEN
            DO J=1,NML
             NJ=IML(J)
             NDJ = NDOF(NJ)
-            IF (NI.EQ.NJ) THEN
+            IF (NI==NJ) THEN
              CALL UPDK_CDI(FDSTNB(1,J),MDSTNB(1,J),KDD,KII,IROT,NDM,1)
              CALL PUT_KII(NJ,IDDL ,IADK,DIAG_K,LT_K ,KII,NDJ)
-	    ELSE
+              ELSE
              CALL UPDK_CDI(FDSTNB(1,J),MDSTNB(1,J),KDD,KII,IROT,NDM,0)
              CALL PUT_KIJ(NI,NJ,IDDL,IADK,JDIK,LT_K,KII,NIDOF,NDJ,IR)
-             IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(NJ) ,IP )
+             IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(NJ) ,IP )
             ENDIF
           ENDDO
 C          ENDIF
@@ -307,18 +300,18 @@ C          ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_IMPR1                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        IMP_DYKV                      source/implicit/imp_dyna.F    
-Chd|        IMP_DYKV0                     source/implicit/imp_dyna.F    
-Chd|        UPD_RHS                       source/implicit/upd_glob_k.F  
-Chd|        UPD_RHS_FR                    source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        PRERBE3                       source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE3CL                        source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE3_IMPB0                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_impr1   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    imp_dykv     ../engine/source/implicit/imp_dyna.F
+!||    imp_dykv0    ../engine/source/implicit/imp_dyna.F
+!||    upd_rhs      ../engine/source/implicit/upd_glob_k.F
+!||    upd_rhs_fr   ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe3      ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe3_impb0   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3cl       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||====================================================================
       SUBROUTINE RBE3_IMPR1(
      1                    IRBE3  ,LRBE3 ,FRBE3  ,X     ,SKEW   ,
      2                    NDOF   ,IDDL  ,B      ,WEIGHT)
@@ -330,7 +323,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -354,14 +346,14 @@ C-----------------------------------------------
       IADS = SLRBE3/2
       CALL PRERBE3(IRBE3 ,MAX_M , IROTG,JT  ,JR   )
       ALLOCATE(FDSTNB(18*MAX_M))
-      IF (IROTG.GT.0) ALLOCATE(MDSTNB(18*MAX_M))
+      IF (IROTG>0) ALLOCATE(MDSTNB(18*MAX_M))
       DO N=1,NRBE3
         IAD = IRBE3(1,N)
         NS  = IRBE3(3,N)
-        IF (NS.EQ.0) CYCLE
+        IF (NS==0) CYCLE
         NML = IRBE3(5,N)
-	IROT =IRBE3(6,N)
-       IF (WEIGHT(NS).NE.0) THEN
+          IROT =IRBE3(6,N)
+       IF (WEIGHT(NS)/=0) THEN
         CALL RBE3CL(LRBE3(IAD+1),LRBE3(IADS+IAD+1),NS     ,X    ,
      .              FRBE3(6*IAD+1),SKEW    ,NML     ,IROT   ,FDSTNB ,
      .              MDSTNB ,IRBE3(2,N) )
@@ -372,17 +364,17 @@ C-----------------------------------------------
       ENDDO
 C
       DEALLOCATE(FDSTNB)
-      IF (IROTG.GT.0) DEALLOCATE(MDSTNB)
+      IF (IROTG>0) DEALLOCATE(MDSTNB)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_IMPB0                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE3_IMPR1                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- calls ---------------
-Chd|        UPDB_CDI                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_impb0   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_impr1   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    updb_cdi     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE RBE3_IMPB0(NS    ,NML   ,IML   ,X      ,IROT   ,
      2                      JT    ,JR     ,FDSTNB ,MDSTNB,NDOF  ,
      3                      IDDL   ,B      )
@@ -394,13 +386,8 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NS, NML,IML(*),JT(3),JR(3),NDOF(*),IDDL(*),IROT
-C     REAL
       my_real
      .   X(3,*),B(*),FDSTNB(18,*),MDSTNB(18,*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -411,9 +398,9 @@ C     REAL
       my_real
      .   BD(6),BI(6)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of secondary nodes
 C------------------------------------
-       IF (NDOF(NS).LE.0) RETURN
+       IF (NDOF(NS)<=0) RETURN
 C
        I = NS
         DO K=1,NDOF(I)
@@ -439,18 +426,18 @@ C-------Update K(main node)---
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_IMPR2                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        IMP_DYKV                      source/implicit/imp_dyna.F    
-Chd|        IMP_DYKV0                     source/implicit/imp_dyna.F    
-Chd|        UPD_RHS                       source/implicit/upd_glob_k.F  
-Chd|        UPD_RHS_FR                    source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        PRERBE3                       source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE3CL                        source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE3_IMPB2                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_impr2   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    imp_dykv     ../engine/source/implicit/imp_dyna.F
+!||    imp_dykv0    ../engine/source/implicit/imp_dyna.F
+!||    upd_rhs      ../engine/source/implicit/upd_glob_k.F
+!||    upd_rhs_fr   ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe3      ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe3_impb2   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3cl       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||====================================================================
       SUBROUTINE RBE3_IMPR2(
      1                    IRBE3  ,LRBE3 ,FRBE3  ,X     ,SKEW   ,
      2                    NDOF   ,IDDL  ,B      ,WEIGHT,A      ,
@@ -463,7 +450,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -487,14 +473,14 @@ C-----------------------------------------------
       IADS = SLRBE3/2
       CALL PRERBE3(IRBE3 ,MAX_M , IROTG,JT  ,JR   )
       ALLOCATE(FDSTNB(18*MAX_M))
-      IF (IROTG.GT.0) ALLOCATE(MDSTNB(18*MAX_M))
+      IF (IROTG>0) ALLOCATE(MDSTNB(18*MAX_M))
       DO N=1,NRBE3
         IAD = IRBE3(1,N)
         NS  = IRBE3(3,N)
-        IF (NS.EQ.0) CYCLE
+        IF (NS==0) CYCLE
         NML = IRBE3(5,N)
-	IROT =IRBE3(6,N)
-       IF (WEIGHT(NS).NE.0) THEN
+          IROT =IRBE3(6,N)
+       IF (WEIGHT(NS)/=0) THEN
         CALL RBE3CL(LRBE3(IAD+1),LRBE3(IADS+IAD+1),NS     ,X    ,
      .              FRBE3(6*IAD+1),SKEW    ,NML     ,IROT   ,FDSTNB ,
      .              MDSTNB  ,IRBE3(2,N))
@@ -505,17 +491,17 @@ C-----------------------------------------------
       ENDDO
 C
       DEALLOCATE(FDSTNB)
-      IF (IROTG.GT.0) DEALLOCATE(MDSTNB)
+      IF (IROTG>0) DEALLOCATE(MDSTNB)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_IMPB2                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE3_IMPR2                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- calls ---------------
-Chd|        UPDB_CDI                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_impb2   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_impr2   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    updb_cdi     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE RBE3_IMPB2(NS    ,NML   ,IML   ,X      ,IROT   ,
      2                      JT    ,JR     ,FDSTNB ,MDSTNB,NDOF  ,
      3                      IDDL   ,B     ,A    ,AR      )
@@ -544,20 +530,20 @@ C     REAL
       my_real
      .   BD(6),BI(6)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of secondary nodes
 C------------------------------------
 C
        I = NS
-      IF (IRODDL.NE.0) THEN
+      IF (IRODDL/=0) THEN
        ND = 6
       ELSE
        ND = 3
       ENDIF
-       IF (NDOF(I).EQ.0) THEN
+       IF (NDOF(I)==0) THEN
         DO K=1,3
          BD(K)=A(K,I)
         ENDDO
-        IF (ND.EQ.3) THEN
+        IF (ND==3) THEN
          DO K=ND+1,6
           BD(K)=ZERO
          ENDDO
@@ -579,7 +565,7 @@ C-------Update K(main node)---
              ID = IDDL(NJ)+K
              B(ID)=BI(K) 
             ENDDO 
-           IF (IROT.GT.0) THEN
+           IF (IROT>0) THEN
             DO K=4,6
              ID = IDDL(NJ)+K
              B(ID)=BI(K) 
@@ -587,7 +573,7 @@ C-------Update K(main node)---
            ENDIF
          END IF 
         ENDDO 
-C	
+C
        ELSE
         DO K=1,NDOF(I)
          ID = IDDL(I)+K
@@ -605,12 +591,12 @@ C
 C-------Update K(main node)---
         DO J=1,NML
           NJ=IML(J)
-         IF (NDOF(NJ).EQ.0) THEN
+         IF (NDOF(NJ)==0) THEN
           CALL UPDB_CDI(FDSTNB(1,J),MDSTNB(1,J),BD,BI,IROT)
             DO K=1,3
              A(K,NJ)=A(K,NJ)+BI(K)
             ENDDO
-           IF (IROT.GT.0) THEN
+           IF (IROT>0) THEN
             DO K=1,3
              AR(K,NJ)=AR(K,NJ)+BI(K+3)
             ENDDO
@@ -620,12 +606,11 @@ C-------Update K(main node)---
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDK_BC                       source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_IMP1                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updk_bc     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_imp1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE UPDK_BC(JT,JR,K ,ISTIF)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -655,26 +640,25 @@ C
           K(I+3,J+3)= K(I+3,J+3)*JR(I)*JR(J)
          ENDDO
         ENDDO
-	R = ZERO
+          R = ZERO
         DO I=1,6
          DO J=1,6
           R=R+ABS(K(I,J))
          ENDDO
         ENDDO
-	IF (R.LT.EM30) THEN
-	 ISTIF = 0
-	ELSE
-	 ISTIF = 1
-	ENDIF
+          IF (R<EM30) THEN
+           ISTIF = 0
+          ELSE
+           ISTIF = 1
+          ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDK_BC2                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_IMP1                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updk_bc2    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_imp1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE UPDK_BC2(JT,JR,K ,ISTIF)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -710,22 +694,21 @@ C
           R=R+ABS(K(I,J))
          ENDDO
         ENDDO
-	IF (R.LT.EM30) THEN
-	 ISTIF = 0
-	ELSE
-	 ISTIF = 1
-	ENDIF
+          IF (R<EM30) THEN
+           ISTIF = 0
+          ELSE
+           ISTIF = 1
+          ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDB_CDI                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE3_IMP1                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBE3_IMPB0                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBE3_IMPB2                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updb_cdi     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_imp1    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3_impb0   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3_impb2   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE UPDB_CDI(FDI,MDI,BD,BI,IROT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -745,32 +728,31 @@ C-----------------------------------------------
 C     REAL
 C-------Update =CDI^t[BD]---
          DO J=1,6
-	  BI(J) = ZERO
+            BI(J) = ZERO
          ENDDO
 C
         DO I=1,3
          DO J=1,6
-	  BI(I)=BI(I)+FDI(I,J)*BD(J)
+            BI(I)=BI(I)+FDI(I,J)*BD(J)
          ENDDO
         ENDDO
-       IF (IROT.GT.0) THEN
+       IF (IROT>0) THEN
         DO I=4,6
          DO J=1,6
-	  BI(I)=BI(I)+MDI(I-3,J)*BD(J)
+            BI(I)=BI(I)+MDI(I-3,J)*BD(J)
          ENDDO
         ENDDO
        END IF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDK_CDII                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE3_FR1                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBE3_FRUPD                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBE3_IMP1                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updk_cdii    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_fr1     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3_frupd   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3_imp1    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE UPDK_CDII(FDI,MDI,KDD,KII,IROT,ND)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -791,7 +773,7 @@ C     REAL
 C-------Update KII=CDI^t[KDD]CDI----FDI=CDI^t
         DO I=1,6
          DO J=I,6
-	  KII(I,J)=ZERO
+            KII(I,J)=ZERO
          ENDDO
         ENDDO
 C----   FDI[KDD]FDI^t------
@@ -799,23 +781,23 @@ C----   FDI[KDD]FDI^t------
          DO J=I,3
           DO K=1,ND
            DO L=1,ND
-	     KII(I,J)=KII(I,J)+FDI(I,K)*KDD(K,L)*FDI(J,L)
+               KII(I,J)=KII(I,J)+FDI(I,K)*KDD(K,L)*FDI(J,L)
            ENDDO
           ENDDO
          ENDDO
         ENDDO
         DO I=1,3
          DO J=I,3
-	   KII(J,I)=KII(I,J)
+             KII(J,I)=KII(I,J)
          ENDDO
         ENDDO
-       IF (IROT.GT.0) THEN
+       IF (IROT>0) THEN
 C----   MDI[KDD]MDI^t------
         DO I=1,3
          DO J=I,3
           DO K=1,ND
            DO L=1,ND
-	     KII(I+3,J+3)=KII(I+3,J+3)+MDI(I,K)*KDD(K,L)*MDI(J,L)
+               KII(I+3,J+3)=KII(I+3,J+3)+MDI(I,K)*KDD(K,L)*MDI(J,L)
            ENDDO
           ENDDO
          ENDDO
@@ -825,32 +807,31 @@ C----   FDI[KDD]MDI^t------
          DO J=1,3
           DO K=1,ND
            DO L=1,ND
-	     KII(I,J+3)=KII(I,J+3)+FDI(I,K)*KDD(K,L)*MDI(J,L)
+               KII(I,J+3)=KII(I,J+3)+FDI(I,K)*KDD(K,L)*MDI(J,L)
            ENDDO
           ENDDO
          ENDDO
         ENDDO
         DO I=1,3
          DO J=1,3
-	    KII(I+3,J)=KII(J,I+3)
+              KII(I+3,J)=KII(J,I+3)
          ENDDO
         ENDDO
         DO I=1,3
          DO J=I,3
-	    KII(J+3,I+3)=KII(I+3,J+3)
+              KII(J+3,I+3)=KII(I+3,J+3)
          ENDDO
         ENDDO
        ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDK_CDIJ                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE3_FR1                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBE3_IMP1                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updk_cdij   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_fr1    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3_imp1   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE UPDK_CDIJ(FDI,MDI,FDJ,MDJ,KDD,KIJ,IROT,ND)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -871,7 +852,7 @@ C     REAL
 C-------Update KII=CDI^t[KDD]CDJ---
         DO I=1,6
          DO J=1,6
-	  KIJ(I,J)=ZERO
+            KIJ(I,J)=ZERO
          ENDDO
         ENDDO
 C----   FDI[KDD]FDJ^t------
@@ -879,18 +860,18 @@ C----   FDI[KDD]FDJ^t------
          DO J=1,3
           DO K=1,ND
            DO L=1,ND
-	     KIJ(I,J)=KIJ(I,J)+FDI(I,K)*KDD(K,L)*FDJ(J,L)
+               KIJ(I,J)=KIJ(I,J)+FDI(I,K)*KDD(K,L)*FDJ(J,L)
            ENDDO
           ENDDO
          ENDDO
         ENDDO
-       IF (IROT.GT.0) THEN
+       IF (IROT>0) THEN
 C----   MDI[KDD]MDJ^t------
         DO I=1,3
          DO J=1,3
           DO K=1,ND
            DO L=1,ND
-	     KIJ(I+3,J+3)=KIJ(I+3,J+3)+MDI(I,K)*KDD(K,L)*MDJ(J,L)
+               KIJ(I+3,J+3)=KIJ(I+3,J+3)+MDI(I,K)*KDD(K,L)*MDJ(J,L)
            ENDDO
           ENDDO
          ENDDO
@@ -900,7 +881,7 @@ C----   FDI[KDD]MDI^t------
          DO J=1,3
           DO K=1,ND
            DO L=1,ND
-	     KIJ(I,J+3)=KIJ(I,J+3)+FDI(I,K)*KDD(K,L)*MDJ(J,L)
+               KIJ(I,J+3)=KIJ(I,J+3)+FDI(I,K)*KDD(K,L)*MDJ(J,L)
            ENDDO
           ENDDO
          ENDDO
@@ -910,7 +891,7 @@ C----   MDI[KDD]MDJ^t------
          DO J=1,3
           DO K=1,ND
            DO L=1,ND
-	     KIJ(I+3,J)=KIJ(I+3,J)+MDI(I,K)*KDD(K,L)*FDJ(J,L)
+               KIJ(I+3,J)=KIJ(I+3,J)+MDI(I,K)*KDD(K,L)*FDJ(J,L)
            ENDDO
           ENDDO
          ENDDO
@@ -919,13 +900,12 @@ C----   MDI[KDD]MDJ^t------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDK_CDI                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE3_FR1                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBE3_IMP1                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updk_cdi    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_fr1    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3_imp1   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE UPDK_CDI(FDI,MDI,KDD,KIJ,IROT,ND,ISYM)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -946,29 +926,29 @@ C     REAL
 C-------Update KIJ=[KDD]CDI---
         DO I=1,6
          DO J=1,6
-	  KIJ(I,J)=ZERO
+            KIJ(I,J)=ZERO
          ENDDO
         ENDDO
 C----   FDI[KDD]------
         DO I=1,ND
          DO J=1,3
           DO K=1,ND
-	     KIJ(I,J)=KIJ(I,J)+KDD(I,K)*FDI(J,K)
+               KIJ(I,J)=KIJ(I,J)+KDD(I,K)*FDI(J,K)
           ENDDO
          ENDDO
         ENDDO
-       IF (IROT.GT.0) THEN
+       IF (IROT>0) THEN
 C----   MDI[KDD]------
         DO I=1,ND
          DO J=1,3
           DO K=1,ND
-	     KIJ(I,J+3)=KIJ(I,J+3)+KDD(I,K)*MDI(J,K)
+               KIJ(I,J+3)=KIJ(I,J+3)+KDD(I,K)*MDI(J,K)
           ENDDO
          ENDDO
         ENDDO
        ENDIF
 C
-       IF (ISYM.EQ.1) THEN
+       IF (ISYM==1) THEN
         DO I=1,6
          DO J=1,6
           KIJ(I,J)=KIJ(I,J)+KIJ(J,I)
@@ -978,12 +958,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDFRK_BC                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE3_FRUPD                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updfrk_bc    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_frupd   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE UPDFRK_BC(JT, K ,ISTIF)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1010,29 +989,29 @@ C
           K(I,J)= K(I,J)*JT(I)*JT(J)
          ENDDO
         ENDDO
-	R = ZERO
+          R = ZERO
         DO I=1,3
          DO J=1,3
           R=R+ABS(K(I,J))
          ENDDO
         ENDDO
-	IF (R.LT.EM30) THEN
-	 ISTIF = 0
-	ELSE
-	 ISTIF = 1
-	ENDIF
+          IF (R<EM30) THEN
+           ISTIF = 0
+          ELSE
+           ISTIF = 1
+          ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_FRUPD                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        DIAG_INT                      source/mpi/implicit/imp_fri.F 
-Chd|        UPDK_MV                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        UPDFRK_BC                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        UPDK_CDII                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_frupd   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    diag_int     ../engine/source/mpi/implicit/imp_fri.F
+!||    updk_mv      ../engine/source/airbag/monv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    updfrk_bc    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    updk_cdii    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE RBE3_FRUPD(NIR   ,IML   ,FDSTNB ,MDSTNB ,NDOF  ,
      1                      JT    ,IROT  ,KSS    ,DIAG_M3)
 C-----------------------------------------------
@@ -1048,10 +1027,6 @@ C     REAL
       my_real
      .   KSS(6),DIAG_M3(6,NIR),FDSTNB(18,NIR),MDSTNB(18,NIR)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J,  JD,  L, JJ,NJ,ND,IROT,NS,ISTIF
@@ -1059,7 +1034,7 @@ C     REAL
       my_real
      .   K0(6,6),KIJ(6,6)
 C-----------------------------------------------
-	ND = 3
+          ND = 3
        DO J = 1,3
         K0(J,J)=KSS(J)
        ENDDO
@@ -1070,27 +1045,27 @@ C-----------------------------------------------
        K0(3,1) = K0(1,3)
        K0(3,2) = K0(2,3)
        CALL UPDFRK_BC(JT,K0 ,ISTIF)
-       IF (ISTIF.GT.0) THEN
+       IF (ISTIF>0) THEN
         DO J=1,NIR
          CALL UPDK_CDII(FDSTNB(1,J),MDSTNB(1,J),
      .                  K0 ,KIJ ,IROT ,ND   )
          DO JJ=1,6
-	  DIAG_M3(JJ,J)=KIJ(JJ,JJ)
-	 ENDDO
+            DIAG_M3(JJ,J)=KIJ(JJ,JJ)
+           ENDDO
         ENDDO
        ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_FR0                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        RBE3CL                        source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE3_FR1                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_fr0   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_kml    ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_ksl    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    rbe3_fr1   ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3cl     ../engine/source/constraints/general/rbe3/rbe3f.F
+!||====================================================================
       SUBROUTINE RBE3_FR0(NS    ,NML   ,IML    ,X     ,IROT   ,
      2                     JT    ,JR    ,FRBE3 ,SKEW  ,IKC    ,
      3                     NDOF  ,IADK  ,JDIK   ,DIAG_K ,LT_K ,
@@ -1111,10 +1086,6 @@ C     REAL
      .   X(3,*),DIAG_K(*),LT_K(*),FRBE3(*),SKEW(*),
      .   KSS(6),KSM(3,3),KNM(3,3,*),KRM(3,3,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J
@@ -1122,9 +1093,9 @@ C     REAL
       my_real
      .   FDSTNB(18,NML),MDSTNB(18,NML)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of secondary nodes
 C------------------------------------
-       IF (NDOF(NS).LE.0) RETURN
+       IF (NDOF(NS)<=0) RETURN
         CALL RBE3CL(IML  ,ISK   ,NS      ,X      ,FRBE3  ,
      .              SKEW ,NML   ,IROT    ,FDSTNB ,MDSTNB ,ID)
         CALL RBE3_FR1(NS    ,NML   ,IML    ,X     ,IROT   ,
@@ -1135,18 +1106,18 @@ C------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_FR1                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- called by -----------
-Chd|        RBE3_FR0                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|-- calls ---------------
-Chd|        PRINT_WKIJ                    source/implicit/imp_glob_k.F  
-Chd|        PUT_KMII                      source/implicit/imp_glob_k.F  
-Chd|        PUT_KMIJ                      source/implicit/imp_glob_k.F  
-Chd|        UPDK_CDI                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        UPDK_CDII                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        UPDK_CDIJ                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_fr1     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_fr0     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    print_wkij   ../engine/source/implicit/imp_glob_k.F
+!||    put_kmii     ../engine/source/implicit/imp_glob_k.F
+!||    put_kmij     ../engine/source/implicit/imp_glob_k.F
+!||    updk_cdi     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    updk_cdii    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    updk_cdij    ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||====================================================================
       SUBROUTINE RBE3_FR1(NS    ,NML   ,IML    ,X     ,IROT   ,
      2                     JT    ,JR    ,FDSTNB ,MDSTNB,IKC    ,
      3                     NDOF  ,IADK  ,JDIK   ,DIAG_K ,LT_K ,
@@ -1162,27 +1133,21 @@ C-----------------------------------------------
       INTEGER NS, NML,IML(*),JT(3),JR(3),IROT
       INTEGER IADK(*),JDIK(*),NDOF(*),ITAB(*),
      .        IDLM(*)  ,ISS  ,ISM,IKC(*)
-C     REAL
       my_real
      .   X(3,*),DIAG_K(*),LT_K(*),FDSTNB(18,*),MDSTNB(18,*),
      .   KSS(6),KSM(3,3),KNM(3,3,*),KRM(3,3,*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NIR, I, J, J1, J2, J3, J4, K, JD, II, L, JJ,
      .        I1,ID,NL,NI,NJ,NIDOF,ND,NDI,NDJ,NDM,NM,L1,NM1,
      .        NIR1,IR,IP,ISTIF,NDOFI
-C     REAL
       my_real
      .   KDD(6,6),KII(6,6)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of secondary nodes
 C------------------------------------
-       IF (NDOF(NS).LE.0) RETURN
+       IF (NDOF(NS)<=0) RETURN
 C
        NDOFI = 3
        IP=4
@@ -1192,7 +1157,7 @@ C
          KDD(K,J)=ZERO
         ENDDO
         ENDDO
-       IF (ISS.GT.0) THEN
+       IF (ISS>0) THEN
         DO K=1,NDOFI
          KDD(K,K) = KSS(K)
         ENDDO
@@ -1205,7 +1170,7 @@ C
 C        CALL UPDFRK_BC(JT,KDD,ISTIF)
 C
 C-------Update K(main node)---
-C        IF (ISTIF.GT.0) THEN
+C        IF (ISTIF>0) THEN
          DO J=1,NML
           NJ=IML(J)
           ND = NDOF(NJ)
@@ -1219,14 +1184,14 @@ C-------Update CDI^t[KDD]CDJ---
      .                    MDSTNB(1,I1),KDD,KII,IROT,NDOFI)
            CALL PUT_KMIJ(IDLM(J) ,IDLM(I1) ,IADK,JDIK,LT_K,
      .                   KII,ND ,ND  ,IR )
-           IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NJ) ,ITAB(NM) ,IP )
+           IF (IR==1) CALL PRINT_WKIJ(ITAB(NJ) ,ITAB(NM) ,IP )
           ENDDO
          ENDDO
         ELSE
         END IF
-C       END IF !(ISS.GT.0) THEN
+C       END IF !(ISS>0) THEN
 C--------no diag--Kjm=sum(KjsCsm)--
-       IF (ISM.GT.0) THEN
+       IF (ISM>0) THEN
 C--------no diag--Kjm=sum(KjsCsm)--
           DO K=1,NDOFI
           DO J=1,NDOFI
@@ -1235,7 +1200,7 @@ C--------no diag--Kjm=sum(KjsCsm)--
           ENDDO
 C------- Update ---
 C          CALL UPDFRK_BC(JT,KDD,ISTIF)
-C	  IF (ISTIF.GT.0) THEN
+C    IF (ISTIF>0) THEN
            DO J=1,NML
             NJ=IML(J)
             CALL UPDK_CDI(FDSTNB(1,J),MDSTNB(1,J),KDD,KII,IROT,NDOFI,0)

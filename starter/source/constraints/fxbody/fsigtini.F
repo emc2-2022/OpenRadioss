@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FSIGTINI                      source/constraints/fxbody/fsigtini.F
-Chd|-- called by -----------
-Chd|        FXBSINI                       source/constraints/fxbody/fxbsini.F
-Chd|-- calls ---------------
-Chd|        C3CURVI                       source/constraints/fxbody/fsigtini.F
-Chd|        C3DEFLI                       source/constraints/fxbody/fsigtini.F
-Chd|        C3EVEC3                       source/elements/sh3n/coque3n/c3evec3.F
-Chd|        C3PXPYI                       source/elements/sh3n/coque3n/c3epsini.F
-Chd|        CCOEFI                        source/constraints/fxbody/fsigcini.F
-Chd|        CM1INIF                       source/elements/shell/coque/cm1inif.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fsigtini      ../starter/source/constraints/fxbody/fsigtini.F
+!||--- called by ------------------------------------------------------
+!||    fxbsini       ../starter/source/constraints/fxbody/fxbsini.F
+!||--- calls      -----------------------------------------------------
+!||    c3curvi       ../starter/source/constraints/fxbody/fsigtini.F
+!||    c3defli       ../starter/source/constraints/fxbody/fsigtini.F
+!||    c3evec3       ../starter/source/elements/sh3n/coque3n/c3evec3.F
+!||    c3pxpyi       ../starter/source/elements/sh3n/coque3n/c3epsini.F
+!||    ccoefi        ../starter/source/constraints/fxbody/fsigcini.F
+!||    cm1inif       ../starter/source/elements/shell/coque/cm1inif.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE FSIGTINI(FXBELM, IPARG , X     , PM, IXTG , 
      .                    GEO   , FXBMOD, FXBSIG, R , NELTG)
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -59,7 +61,6 @@ C-----------------------------------------------
       INTEGER IG,OFFSET,FIRST,LAST,NFT,I,NG,IEL,
      .        N1,N2,N3,ISM,ITHK,NPT,NFS
       INTEGER MAT(MVSIZ), PROP(MVSIZ)
-      INTEGER II,J
       my_real
      .   VL(3,3,MVSIZ), VRL(3,3,MVSIZ)
       my_real
@@ -209,12 +210,11 @@ C
 C
       RETURN
       END SUBROUTINE FSIGTINI
-Chd|====================================================================
-Chd|  C3DEFLI                       source/constraints/fxbody/fsigtini.F
-Chd|-- called by -----------
-Chd|        FSIGTINI                      source/constraints/fxbody/fsigtini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    c3defli    ../starter/source/constraints/fxbody/fsigtini.F
+!||--- called by ------------------------------------------------------
+!||    fsigtini   ../starter/source/constraints/fxbody/fsigtini.F
+!||====================================================================
       SUBROUTINE C3DEFLI (NEL  ,VL   ,GSTR ,
      .                    PX1  ,PY1  ,PY2  ,
      .                    E1X  ,E2X  ,E3X  ,E1Y  ,E2Y  ,E3Y ,E1Z ,E2Z ,E3Z ,
@@ -299,12 +299,11 @@ C
       ENDDO
       RETURN
       END SUBROUTINE C3DEFLI
-Chd|====================================================================
-Chd|  C3CURVI                       source/constraints/fxbody/fsigtini.F
-Chd|-- called by -----------
-Chd|        FSIGTINI                      source/constraints/fxbody/fsigtini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    c3curvi    ../starter/source/constraints/fxbody/fsigtini.F
+!||--- called by ------------------------------------------------------
+!||    fsigtini   ../starter/source/constraints/fxbody/fsigtini.F
+!||====================================================================
       SUBROUTINE C3CURVI(NEL  ,VRL  ,
      .                   PX1  ,PY1  ,PY2  ,
      .                   E1X  ,E2X  ,E3X  ,E1Y  ,E2Y  ,E3Y ,E1Z ,E2Z ,E3Z ,

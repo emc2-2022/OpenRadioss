@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I20STIFN                      source/interfaces/inter3d1/i20stifn.F
-Chd|-- called by -----------
-Chd|        ININTR1                       source/interfaces/interf1/inintr1.F
-Chd|-- calls ---------------
-Chd|        I20STIFN2                     source/interfaces/inter3d1/i20stifn.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i20stifn        ../starter/source/interfaces/inter3d1/i20stifn.F
+!||--- called by ------------------------------------------------------
+!||    inintr1         ../starter/source/interfaces/interf1/inintr1.F
+!||--- calls      -----------------------------------------------------
+!||    i20stifn2       ../starter/source/interfaces/inter3d1/i20stifn.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I20STIFN(IPARI,STIFINT,INTBUF_TAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -38,18 +38,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(*)
-C     REAL
       my_real
      .   STIFINT(*)
 
@@ -61,18 +52,17 @@ C-----------------------------------------------
      .   I, J,
      .   INACTI,IGAP,MULTIMP
 C---------------------------------------------
-C     MISE A JOUR DES RIGIDITES NODALES EQUIVALENTES (COTE SECOND)
+C     SET A JOUR DES RIGIDITES NODALES EQUIVALENTES (COTE SECOND)
 C---------------------------------------------
       CALL I20STIFN2(IPARI(35),INTBUF_TAB%NLG,INTBUF_TAB%STFA,STIFINT)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I20STIFN2                     source/interfaces/inter3d1/i20stifn.F
-Chd|-- called by -----------
-Chd|        I20STIFN                      source/interfaces/inter3d1/i20stifn.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i20stifn2   ../starter/source/interfaces/inter3d1/i20stifn.F
+!||--- called by ------------------------------------------------------
+!||    i20stifn    ../starter/source/interfaces/inter3d1/i20stifn.F
+!||====================================================================
       SUBROUTINE I20STIFN2(NLN,NLG,STFA,STIFINT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -92,7 +82,7 @@ C-----------------------------------------------
 
       DO I=1,NLN
         J=NLG(I)
-        IF(STFA(I).NE.ZERO)STFA(I) = STIFINT(J)
+        IF(STFA(I)/=ZERO)STFA(I) = STIFINT(J)
       ENDDO
 C
       RETURN

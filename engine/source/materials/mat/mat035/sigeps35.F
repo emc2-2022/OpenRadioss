@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS35                      source/materials/mat/mat035/sigeps35.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps35   ../engine/source/materials/mat/mat035/sigeps35.F
+!||--- called by ------------------------------------------------------
+!||    mulaw      ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8     ../engine/source/materials/mat_share/mulaw8.F90
+!||--- calls      -----------------------------------------------------
+!||    finter     ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE SIGEPS35(
      1      NEL    , NUPARAM, NUVAR   , NFUNC , IFUNC , NPF   ,
      2      TF     , TIME   , TIMESTEP, UPARAM, RHO0  , RHO   ,
@@ -52,7 +52,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
@@ -92,26 +91,26 @@ C----------------------------------------------------------------
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
-      INTEGER I,J,KF,IFLAG,ICORRECT
+      INTEGER I,KF,IFLAG,ICORRECT
 
       my_real
      . E,POISSON,A,B,ET,POISSONT,FAC,EPSP
       my_real
      . GT2,BULKT3,RELVEXP
       my_real
-     . VMU,VLAMDA,VMU2,VLAMDA3
+     . VMU2,VLAMDA3
       my_real
      . C1,C2,C3,PMIN,DPDMU(MVSIZ)
       my_real
      . P0,PHI,GAMA0
       my_real
-     . ENEW(MVSIZ),DEDOT(MVSIZ)
+     . ENEW(MVSIZ)
       my_real
-     . DPDGAMA(MVSIZ),GAMA(MVSIZ),AMU(MVSIZ)
+     . GAMA(MVSIZ),AMU(MVSIZ)
       my_real
      . SM(MVSIZ),EM(MVSIZ),DEDTM(MVSIZ)
       my_real
-     . G2(MVSIZ),BULK(MVSIZ),BULK3(MVSIZ)
+     . G2(MVSIZ),BULK3(MVSIZ)
       my_real
      . DSXX(MVSIZ),DSYY(MVSIZ),DSZZ(MVSIZ)
       my_real
@@ -174,9 +173,9 @@ C SET INITIAL MATERIAL CONSTANTS
       BULKT3  = ET/(ONE-TWO*POISSONT)
 
       ICORRECT=0
-      IF(NUPARAM.GE.19) ICORRECT=NINT(UPARAM(19))
+      IF(NUPARAM>=19) ICORRECT=NINT(UPARAM(19))
 C
-      IF(ICORRECT.EQ.0)THEN
+      IF(ICORRECT==0)THEN
         DT05=HALF*TIMESTEP
       ELSE
         DT05=ZERO
@@ -193,7 +192,7 @@ C
 
       DO 200 I=1,NEL
         GAMA(I) = (RHO0(I)/RHO(I)-ONE+GAMA0)
-        IF(ONE+GAMA(I)-PHI.LE.SMALL) GAMA(I)=-(ONE-PHI-SMALL)
+        IF(ONE+GAMA(I)-PHI<=SMALL) GAMA(I)=-(ONE-PHI-SMALL)
         SM(I)=THIRD*(SIGOXX(I)+SIGOYY(I)+SIGOZZ(I))+UVAR(I,1)
         EM(I)=THIRD*(EPSXX(I)+EPSYY(I)+EPSZZ(I))
         DEDTM(I)=THIRD*(EPSPXX(I)+EPSPYY(I)+EPSPZZ(I))
@@ -283,9 +282,9 @@ C COMPUTE DEVIATORIC STRESS RATE INCREMENTS
 
 C COMPUTE PRESSURE
       DO I=1,NEL
-        IF(KF.NE.0) THEN
+        IF(KF/=0) THEN
           AMU(I)=RHO(I)/RHO0(I)-ONE
-          IF(IFLAG.EQ.0) THEN
+          IF(IFLAG==0) THEN
             P(I)=-FAC*FINTER(KF,AMU(I),NPF,TF,DPDMU(I))
           ELSE
             PDOT(I)=( C1*(BULK3(I)*DEDTM(I))
@@ -302,7 +301,7 @@ C COMPUTE PRESSURE
      &             / (ONE+C2*(BULK3(I)+BULKT3)/(VLAMDA3+VMU2)*DT05)
           P(I)=SM(I)+PDOT(I)*TIMESTEP
         ENDIF
-        IF(P(I).LE.PMIN) P(I)=PMIN
+        IF(P(I)<=PMIN) P(I)=PMIN
       ENDDO
 
 C COMPUTE SOUND SPEED 

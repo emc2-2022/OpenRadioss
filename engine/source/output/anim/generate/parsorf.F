@@ -1,35 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PARSORF                       source/output/anim/generate/parsorf.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_IGET_PARTN               source/mpi/anim/spmd_iget_partn.F
-Chd|        SPMD_IGLOB_PARTN              source/mpi/anim/spmd_iglob_partn.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    parsorf            ../engine/source/output/anim/generate/parsorf.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_iget_partn    ../engine/source/mpi/anim/spmd_iget_partn.F
+!||    spmd_iglob_partn   ../engine/source/mpi/anim/spmd_iglob_partn.F
+!||    write_i_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE PARSORF(ELBUF_TAB,
      .                   X      ,D     ,IADD   ,CDG   ,IPARG    ,
      .                   IXT    ,IXP   ,IXR    ,MATER ,EL2FA    ,
@@ -40,6 +42,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixt,nixr,nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,12 +53,8 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "scr17_c.inc"
-#include      "scr23_c.inc"
 #include      "task_c.inc"
-#include      "rnur_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -79,8 +78,8 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   OFF
-      INTEGER II(4),IE,NG, ITY, LFT, LLT, KPT, N, I, J, 
-     .        IPRT, NEL, IAD, NPAR, NFT, IMID,IALEL,MTN,
+      INTEGER II(4),IE,NG, ITY, LFT, LLT, N, I, J, 
+     .        IPRT, NEL, IAD, NPAR, NFT,MTN,
      .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,
      .        JJ,K,NAX1D
       INTEGER NP((NB1D+NANIM1D_L)*2),BUF,GBUF
@@ -103,11 +102,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     PART
 C-----------------------------------------------
-C en spmd il faut envoyer l'info meme qd on a 0 elem local
+C In SPMD you must send the info even qd we have 0 local elem
       IF (NUMELP + NUMELT + NUMELR /= 0 .OR. NSPMD > 1) THEN
         DO IPRT=1,NPART
           IF (MATER(IPRT) /= 3) CYCLE
-C        test scinde car NFACPTX(1,IPRT) peut etre "out of core".
+C        Scinde car test because nfacptx (1, iprt) can be "out of core".
           IF (NUMELXG > 0 . AND. IGEO(11,IPART(2,IPRT)) == 28) CYCLE
 C
           NPAR = NPAR + 1
@@ -267,7 +266,7 @@ C
         ENDIF
 
         CALL SPMD_IGET_PARTN(2,JJ,NP,NPAR,IADG,BUF,1)
-      ELSE ! remplissage IADG pour compatibilite mono/multi
+      ELSE ! IADG filling for mono/multi compatibility
         IF(SIADG>0) THEN
         DO I = 1, NPART
           IF(IADG(1,I)<=0) THEN

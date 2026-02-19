@@ -1,31 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  XFORC31                       source/elements/xelem/xforc31.F
-Chd|-- called by -----------
-Chd|        XFORC3                        source/elements/xelem/xforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    xforc31      ../engine/source/elements/xelem/xforc31.F
+!||--- called by ------------------------------------------------------
+!||    xforc3       ../engine/source/elements/xelem/xforc3.F
+!||--- calls      -----------------------------------------------------
+!||    get_u_func   ../engine/source/user_interface/ufunc.F
+!||    get_u_mid    ../engine/source/user_interface/upidmid.F
+!||    get_u_mnu    ../engine/source/user_interface/upidmid.F
+!||    get_u_pid    ../engine/source/user_interface/upidmid.F
+!||    get_u_pnu    ../engine/source/user_interface/upidmid.F
+!||====================================================================
       SUBROUTINE XFORC31(NX     ,
      2             XEL     ,VEL     ,VREL   ,UIX    ,UID    ,
      3             IOUT    ,IPROP   ,IMAT   ,OFF    ,KEINT  ,
@@ -68,7 +73,7 @@ C VISCM    |   NX    | F | W | NODAL VISCOSITY (TIME STEP)
 C VISCR    |   NX    | F | W | NODAL ROTATION VISCOSITY (TIME STEP)
 C----------+---------+---+---+--------------------------------------------
 C FORC     | 3*NX    | F | W | NODAL FORCES
-C TORQ     | 3*NX    | F | W | NODAL TORQUS
+C TORQ     | 3*NX    | F | W | NODAL TORQUE
 C----------+---------+---+---+--------------------------------------------
 C NUVAR    |  1      | I | R | NUMBER OF USER ELEMENT VARIABLES
 C UVAR     |NUVAR    | F |R/W| USER ELEMENT VARIABLES 
@@ -101,7 +106,7 @@ C         I     :     VARIABLE INDEX(1 for first function)
 C         IM    :     MATERIAL NUMBER
 C         KFUNC :     ONLY FUNCTION ARE YET AVAILABLE.
 C         THIS FUNCTION RETURN THE USER STORED FUNCTION NUMBER(function 
-C         refered by users materials).
+C         referred by users materials).
 C         SEE LECM31 FOR CORRESPONDING ID STORAGE.
 C-------------------------------------------------------------------------
 C my_real PARAMI = GET_U_GEO(I,IP)

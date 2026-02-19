@@ -1,58 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIBOLTPREL                   source/loads/bolt/iniboltprel.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        UEL2SYS                       source/initial_conditions/inista/yctrl.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    iniboltprel   ../starter/source/loads/bolt/iniboltprel.F
+!||--- called by ------------------------------------------------------
+!||    initia        ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||    uel2sys       ../starter/source/initial_conditions/inista/yctrl.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INIBOLTPREL(IXS, IPRELOAD ,PRELOAD  ,VPRELOAD, IFLAG_BPRELOAD)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
 !      USE R2R_MOD
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
-!#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "sysunit.inc"
 #include      "boltpr_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -113,7 +105,7 @@ c
 c
       DO IPL = 1,NUMPRELOAD
         NE = IPRELOAD(3,IPL)  
-C       No systeme dans le D00, de l'elt:
+C       No system in the D00, of the element:
         IE=UEL2SYS(NE,KSYSUSRS,NUMELS)
         IF(IE/=0)THEN
           VPRELOAD(1,IE) = PRELOAD(1,IPL)
@@ -125,7 +117,7 @@ C       No systeme dans le D00, de l'elt:
           VPRELOAD(7,IE) = IPRELOAD(2,IPL)
         ENDIF
       ENDDO 
-!::: Creer l'equivalent de ptsol pour le BPREL
+!Create the equivalent of ptsol for BPREL
       DO IE=1,NUMELS
         NE = IXS(NIXS,IE)
         J=UEL2SYS(NE,KSYSUSRS,NUMELS)

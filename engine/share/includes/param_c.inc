@@ -1,5 +1,5 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
 Copyright>    
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
@@ -26,39 +26,39 @@ C.../PARAM/
      .               NPARI,  LWAMP, LWANMP, NISX,   NIGR,
      .               NISU,   NIMV,  NNPBY,  NRBY   ,NIFV,
      .               NTHVKI, NPSAV, NRCNX,  NR2R   ,NRWLP,
-     .               NRVOLU, NSENSI,NSENSR, NBVELP ,NRIVF,
+     .               NRVOLU, NBVELP ,NRIVF,
      .               NXFRAME,LACTIV,NICBAG ,NRCBAG ,NIBJET, 
      .               NRBJET ,NIBHOL,NRBHOL ,LKJNI  ,LKJNR ,
      .               NGJOINT,NUMMPC,NNPRW  ,NPEBC  ,NPROPGI,
      .               NPROPMI,NPARIR,LFXVELR,LFACCLD,NPEBCR,
      .               NITHGR ,NRDAMP,KSH4TREE,KSH3TREE,KPADMESH,
-     .               KIPADMESH,NIFT,NICONV,LFACTHER,NRBE3L,
-     .               NPLYMAX,NPLYXFE,EPLYXFE,NIRADIA,NRBE2L,
+     .               KIPADMESH,NRBE3L,
+     .               NPLYMAX,NPLYXFE,EPLYXFE,NRBE2L,
      .               NPLYNODG,LSKEW,LISKN,LFACLOAD,NCRKNODG,
      .               NIBSPH ,NALENOVS,LLACCELM,LLGAUGE,NIXIG3D,
      .               NPT_STACK,NS_STACK,LRACTIV,NLEDGE,NIBCLD,
      .               NIGRV, LFACGRV, NSLIPRING, NRETRACTOR,N_ANCHOR_REMOTE,
      .               N_ANCHOR_REMOTE_SEND,NSLIPRING_G,NRETRACTOR_G,N_SEATBELT,
-     .               N_SEATBELT_2D
+     .               N_SEATBELT_2D,SXDP
 
       INTEGER        NPROPM, NVSIZ, NPROPG, NPARG,  LVEUL,
      .               NIXFR1 ,NIXFR2,
      .               NPARI,  LWAMP, LWANMP, NISX,   NIGR,
      .               NISU,   NIMV,  NNPBY,  NRBY   ,NIFV,
      .               NTHVKI, NPSAV, NRCNX,  NR2R   ,NRWLP,
-     .               NRVOLU, NSENSI,NSENSR, NBVELP ,NRIVF,
+     .               NRVOLU, NBVELP ,NRIVF,
      .               NXFRAME,LACTIV,NICBAG ,NRCBAG ,NIBJET,
      .               NRBJET ,NIBHOL,NRBHOL ,LKJNI  ,LKJNR ,
      .               NGJOINT,NUMMPC,NNPRW  ,NPEBC  ,NPROPGI,
      .               NPROPMI,NPARIR,LFXVELR,LFACCLD,NPEBCR,
      .               NITHGR ,NRDAMP,KSH4TREE,KSH3TREE,KPADMESH,
-     .               KIPADMESH,NIFT,NICONV,LFACTHER,NRBE3L,
-     .               NPLYMAX,NPLYXFE,EPLYXFE,NIRADIA,NRBE2L,
+     .               KIPADMESH,NRBE3L,
+     .               NPLYMAX,NPLYXFE,EPLYXFE,NRBE2L,
      .               NPLYNODG,LSKEW,LISKN,LFACLOAD,NCRKNODG,
      .               NIBSPH ,NALENOVS,LLACCELM,LLGAUGE,NIXIG3D,
      .               NPT_STACK,NS_STACK,LRACTIV,NLEDGE,NIBCLD,
      .               NIGRV, LFACGRV, NSLIPRING, NRETRACTOR,N_ANCHOR_REMOTE,
      .               N_ANCHOR_REMOTE_SEND,NSLIPRING_G,NRETRACTOR_G,N_SEATBELT,
-     .               N_SEATBELT_2D
+     .               N_SEATBELT_2D,SXDP
 
 

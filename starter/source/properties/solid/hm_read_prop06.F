@@ -1,44 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP06                source/properties/solid/hm_read_prop06.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        SUBROTVECT                    source/model/submodel/subrot.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop06           ../starter/source/properties/solid/hm_read_prop06.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties       ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    arret                    ../starter/source/system/arret.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    istr                     ../starter/source/tools/univ/istr.F
+!||    subrotvect               ../starter/source/model/submodel/subrot.F
+!||--- uses       -----------------------------------------------------
+!||    defaults_mod             ../starter/source/modules/defaults_mod.F90
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP06(GEO      ,IGEO    ,PROP_TAG,MULTI_FVM ,IGTYP   ,
      .                          IG       ,IDTITL  ,UNITAB  ,LSUBMODEL ,RTRANS  ,
-     .                          SUB_ID   ,ISKN    ,IPART   )
+     .                          SUB_ID   ,ISKN    ,IPART   ,SUB_INDEX,DEFAULTS_SOLID)
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -49,12 +51,20 @@ C   ===================
 C
 C     NAME            DESCRIPTION                         
 C
-C     IGEO            PROPERTY ARRAY(INTEGER)
 C     GEO             PROPERTY ARRAY(REAL)
+C     IGEO            PROPERTY ARRAY(INTEGER)
+C     PROP_TAG        PROPERTY TAGS STRUCTURE
+C     MULTI_FVM       MULTI_FVM STRUCTURE
+C     IGTYP           PROPERTY TYPE
+C     IG              PROPERTY ID
+C     IDTITL          TITLES ARRAY
 C     UNITAB          UNITS ARRAY
-C     IG              PROPERTY ID(INTEGER)
-C     SUB_INDEX       SUBMODEL INDEX(INTEGER)
-C     LSUBMODEL       SUBMODEL STRUCTURE    
+C     LSUBMODEL       SUBMODEL STRUCTURE   
+C     RTRANS          TRANSFORMATION ARRAY(REAL)
+C     SUB_ID          SUBMODEL ID
+C     ISKN            SKEW ARRAY(INTEGER)
+C     IPART           PART ARRAY(INTEGER)
+C     SUB_INDEX       SUBMODEL INDEX
 C-----------------------------------------------
 C============================================================================
 C-----------------------------------------------
@@ -65,13 +75,12 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
       USE MULTI_FVM_MOD
+      USE DEFAULTS_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -79,47 +88,61 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
-#include      "scr21_c.inc"
-#include      "submod_c.inc"
 #include      "sphcom.inc"
 #include      "tablen_c.inc"
+#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER,INTENT(INOUT) :: IGEO(NPROPGI)
+      INTEGER,INTENT(IN) :: IG
+      INTEGER,INTENT(IN) :: ISKN(LISKN,SISKWN/LISKN)
+      INTEGER,INTENT(IN) :: IPART(LIPART1,NPART+NTHPART) 
+      INTEGER,INTENT(IN) :: IGTYP
+      INTEGER,INTENT(IN) :: SUB_ID 
+      INTEGER,INTENT(IN) :: SUB_INDEX 
+C
+      my_real,INTENT(INOUT) :: GEO(NPROPG)
+      my_real,INTENT(IN) :: RTRANS(NTRANSF,NRTRANS)
+C
+      CHARACTER(LEN=NCHARTITLE),INTENT(IN) :: IDTITL
+C
+      TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP),INTENT(INOUT) :: PROP_TAG
+      TYPE(MULTI_FVM_STRUCT),INTENT(IN) :: MULTI_FVM
+      TYPE(SUBMODEL_DATA),INTENT(IN) :: LSUBMODEL(NSUBMOD)
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER IGEO(NPROPGI),IG,SUB_ID,ISKN(LISKN,*),
-     .        IPART(LIPART1,*),IGTYP
-C     REAL
-      my_real
-     .   GEO(NPROPG),RTRANS(NTRANSF,*)
-      TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
-      TYPE(SUBMODEL_DATA) LSUBMODEL(*)
-      CHARACTER IDTITL*nchartitle
-      TYPE(MULTI_FVM_STRUCT) :: MULTI_FVM
+      TYPE(SOLID_DEFAULTS_), INTENT(IN) :: DEFAULTS_SOLID
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER IHBE,ISMSTR,IPLAS,ICPRE,ICSTR,IINT,IP,ISK,IREP,JCVT,
      .    NPT,NPTR,NPTS,NPTT,ITET4,IET,ISTR,IHBE_OLD,ITET10,
-     .    ISHEAR,ISORTH
-C     REAL
+     .    ISORTH,ICONTROL_D,ICONTROL
       my_real
-     .    CVIS,QA,QB,QH,VX,VY,VZ,ANGLE,DTMIN,PX,PY,PZ,VN
+     .    CVIS,QA,QB,QH,VX,VY,VZ,ANGLE,DTMIN,PX,PY,PZ,VN,
+     .    VDEFMIN,VDEFMAX,ASPMAX,ASPTET
       INTEGER K,NSPHDIR,ID_PARTSPH,IPARTSPH,J
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+      INTEGER     IHBE_DS,ISST_DS,IFRAME_DS,
+     .            ITET4_D,ITET10_D,ICPRE_D
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
 C-----------------------------------------------
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 
       ISORTH=1
       ISMSTR=0
       IHBE=0
+!--- defaults values      
+      IHBE_DS=  DEFAULTS_SOLID%ISOLID
+      ISST_DS=  DEFAULTS_SOLID%ISMSTR
+      ICPRE_D=  DEFAULTS_SOLID%ICPRE
+      ITET4_D=  DEFAULTS_SOLID%ITETRA4
+      ITET10_D= DEFAULTS_SOLID%ITETRA10
+      IFRAME_DS= DEFAULTS_SOLID%IFRAME
+      ICONTROL_D=DEFAULTS_SOLID%ICONTROL
 C======================================================================|
 C
-C  double stockage temporaire - supprimer GEO(12,I)=IGTYP apres tests
       GEO(3)=ISMSTR
 
       IGEO( 1)=IG
@@ -132,7 +155,7 @@ C
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
@@ -156,6 +179,7 @@ c      CALL HM_GET_INTV('Istrain',ISTR,IS_AVAILABLE,LSUBMODEL)
 c      CALL HM_GET_INTV('IHKT',IET,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('Ndir',NSPHDIR,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('SPHPART_ID',ID_PARTSPH,IS_AVAILABLE,LSUBMODEL)
+      CALL HM_GET_INTV('Icontrol',ICONTROL,IS_AVAILABLE,LSUBMODEL)
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
 C--------------------------------------------------
@@ -168,9 +192,15 @@ C--------------------------------------------------
       CALL HM_GET_FLOATV('qb',QB,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('h',QH,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('deltaT_min',DTMIN,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('vdef_min',VDEFMIN,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('vdef_max',VDEFMAX,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('ASP_max',ASPMAX,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('COL_min',ASPTET,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('Px',PX,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('Py',PY,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('Pz',PZ,IS_AVAILABLE,LSUBMODEL,UNITAB)
+C--------------------------------------------------
+      IF(ISK == 0 .AND. SUB_INDEX /= 0 ) ISK = LSUBMODEL(SUB_INDEX)%SKEW
 C-----removed flags:
       ISTR=1 
       IPLAS = 2
@@ -180,13 +210,13 @@ C----------------------
       IF(ITET10 == 0) ITET10 = ITET10_D
 C
 C
-      IF (SUB_ID .NE. 0)
+      IF (SUB_ID /= 0)
      .         CALL SUBROTVECT(VX,VY,VZ,RTRANS,SUB_ID,LSUBMODEL)
 c
       IPARTSPH=0
       IF(ID_PARTSPH > 0) THEN
         DO J=1,NPART
-          IF(IPART(4,J).EQ.ID_PARTSPH) THEN
+          IF(IPART(4,J)==ID_PARTSPH) THEN
            IPARTSPH=J
            GOTO 175
           ENDIF
@@ -290,7 +320,7 @@ C
       IF (ICPRE == 0) ICPRE = ICPRE_D      
       IF((N2D > 0 .AND. IHBE == 17) ) THEN
         IF(ICPRE/=1 .AND. ICPRE/=2) ICPRE=0
-C------ no effet for Axi Isolid17 for the moment	
+C------ no effet for Axi Isolid17 for the moment
         IF(N2D == 1 .AND. IHBE == 17) ICPRE=0
       ELSE
         IF (IHBE /= 14 .AND. IHBE /= 24 .AND. IHBE /= 17 .AND. IHBE /= 18) ICPRE = 0
@@ -399,6 +429,8 @@ C---- error-out if Vj=0+IP=23,24
       ENDIF
 C   Istrain
 c      IF (ISTR == 0)ISTR =ISTRA_D
+      IF (ICONTROL==0) ICONTROL=ICONTROL_D
+      IF (ICONTROL>1) ICONTROL=0
 C----
       IGEO(2)  = IP
       IGEO(4)  = NPT
@@ -413,6 +445,7 @@ C----
       IGEO(16) = JCVT-1
       IGEO(37) = NSPHDIR
       IGEO(38) = IPARTSPH
+      IGEO(97) = ICONTROL
 C
       GEO(1)  = ANGLE
       GEO(7)  = VX
@@ -424,15 +457,24 @@ C
       GEO(33)  = PX
       GEO(34)  = PY
       GEO(35)  = PZ
+      GEO(190)= VDEFMIN
+      GEO(191)= VDEFMAX
+      GEO(192)= ASPMAX
+      GEO(193)= ASPTET
 C----
-      IF(.NOT. IS_CRYPTED)THEN
+      IF(.NOT. IS_ENCRYPTED)THEN
         IF(IGEO(31) == 1)THEN
           WRITE(IOUT,1100)IG,IHBE,ISMSTR,IPLAS,NPT,JCVT,ITET4,ITET10,
-     .                ICPRE,ICSTR,CVIS,QA,QB,QH,DTMIN,IREP,ISTR
+     .                ICPRE,ICSTR,CVIS,QA,QB,QH,DTMIN,IREP,ISTR,ICONTROL
         ELSE
           WRITE(IOUT,1000)IG,IHBE,ISMSTR,IPLAS,NPT,JCVT,ITET4,ITET10,
-     .                ICPRE,ICSTR,CVIS,QA,QB,QH,DTMIN,IREP,ISTR
+     .                ICPRE,ICSTR,CVIS,QA,QB,QH,DTMIN,IREP,ISTR,ICONTROL
         ENDIF
+        IF((VDEFMIN+VDEFMAX+ASPMAX+ASPTET)>ZERO) THEN
+          IF (VDEFMAX==ZERO) VDEFMAX=EP10
+          IF (ASPMAX==ZERO) ASPMAX=EP10
+          WRITE(IOUT,3000) VDEFMIN,VDEFMAX,ASPMAX,ASPTET 
+        END IF          
        IF(IP < 0) THEN
          WRITE(IOUT,1001) ISKN(4,ISK)
        ELSEIF(IP == 1 .OR. IP == 2 .OR. IP == 3) THEN
@@ -473,7 +515,7 @@ C
 C
       PROP_TAG(IGTYP)%G_FILL = 1
       PROP_TAG(IGTYP)%L_STRA = 6 
-      IF (N2D .NE. 0 .AND. MULTI_FVM%IS_USED) THEN
+      IF (N2D /= 0 .AND. MULTI_FVM%IS_USED) THEN
 !     2D analysis
         PROP_TAG(IGTYP)%G_AREA = 1
       ENDIF
@@ -484,8 +526,6 @@ C
       ENDIF 
 
 C-------------------------------
-C  Double stockage temporaire : GEO() / IGEO() : a supprimer a terme
-C
       IGEO(1) =IG
       IGEO(11)=IGTYP
       IGEO(17)=ISORTH
@@ -514,7 +554,8 @@ C---
      & 5X,'HOURGLASS VISCOSITY . . . . . . . . . .=',1PG20.13/,
      & 5X,'BRICK MINIMUM TIME STEP................=',1PG20.13/,
      & 5X,'LOCAL ORTHOTROPY SYSTEM FORMULATION . .=',I10/,
-     & 5X,'POST PROCESSING STRAIN FLAG . . . . . .=',I10/)
+     & 5X,'POST PROCESSING STRAIN FLAG . . . . . .=',I10/,
+     & 5X,'SOLID DISTORTION CONTROL FLAG . . . . .=',I10/)
  1099 FORMAT(
      & 5X,'ORTHOTROPIC SOLID PROPERTY SET'/,
      & 5X,'PROPERTY SET NUMBER . . . . . . . . . .=',I8/,
@@ -541,7 +582,8 @@ C---
      & 5X,'HOURGLASS VISCOSITY . . . . . . . . . .=',1PG20.13/,
      & 5X,'BRICK MINIMUM TIME STEP................=',1PG20.13/,
      & 5X,'LOCAL ORTHOTROPY SYSTEM FORMULATION . .=',I10/,
-     & 5X,'POST PROCESSING STRAIN FLAG . . . . . .=',I10/)
+     & 5X,'POST PROCESSING STRAIN FLAG . . . . . .=',I10/,
+     & 5X,'SOLID DISTORTION CONTROL FLAG . . . . .=',I10/)
  1001 FORMAT(
      & 5X,'ORTHOTROPIC SKEW FRAME. . . . . . . . .=',I10)
  1002 FORMAT(
@@ -580,5 +622,10 @@ C---
      & 5X,'REFERENCE VECTOR VX . . . . . . . . . .=',1PG20.13/,
      & 5X,'REFERENCE VECTOR VY . . . . . . . . . .=',1PG20.13/,
      & 5X,'REFERENCE VECTOR VZ . . . . . . . . . .=',1PG20.13)
+ 3000 FORMAT(
+     & 5X,'SOLID MINIMUM VOLUMETRIC STRAIN........=',1PG20.13/,
+     & 5X,'SOLID MAXIMUM VOLUMETRIC STRAIN........=',1PG20.13/,
+     & 5X,'SOLID MAXIMUM ASPECT RATIO.............=',1PG20.13/,
+     & 5X,'SOLID MINIMUM COLLAPSE RATIO...........=',1PG20.13/)
 C---
       END SUBROUTINE 

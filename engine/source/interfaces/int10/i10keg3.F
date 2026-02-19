@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I10KEG3                       source/interfaces/int10/i10keg3.F
-Chd|-- called by -----------
-Chd|        I10KE3                        source/interfaces/int10/i10ke3.F
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i10keg3    ../engine/source/interfaces/int10/i10keg3.F
+!||--- called by ------------------------------------------------------
+!||    i10ke3     ../engine/source/interfaces/int10/i10ke3.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE I10KEG3(JLT    ,A      ,V      ,MS    ,FRIC   ,
      1                  NX1    ,NX2    ,NX3    ,NX4   ,NY1    ,
      2                  NY2    ,NY3    ,NY4    ,NZ1   ,NZ2    ,
@@ -56,7 +56,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com08_c.inc"
 #include      "impl1_c.inc"
@@ -84,7 +83,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, J, K,IG,ISF,NN,NS,JLTF,NE,II
+      INTEGER I, J, K, ISF, NN, NS, JLTF, NE, II
       my_real
      .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
      .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
@@ -93,15 +92,15 @@ C-----------------------------------------------
      .   T1X(MVSIZ),T1Y(MVSIZ),T1Z(MVSIZ),
      .   T2X(MVSIZ),T2Y(MVSIZ),T2Z(MVSIZ),NORMINV,
      .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ), 
-     .   S2,FAC,FACF, H0, LA1, LA2, LA3, LA4,FACT(MVSIZ),
-     .   D1,D2,D3,D4,A1,A2,A3,A4,KN(4,MVSIZ),Q(3,3,MVSIZ),FAC10
+     . FAC,FACF, H0, LA1, LA2, LA3, LA4,FACT(MVSIZ),
+     . D1,D2,D3,D4,KN(4,MVSIZ),Q(3,3,MVSIZ),FAC10
       my_real
-     .   PREC,Q11,Q12,Q13,Q22,Q23,Q33,H00,VTX,VTY,VTZ,VT,
+     . Q11,Q12,Q13,Q22,Q23,Q33,H00,
      .   KT1,KT2,KT3,KT4,Q1,Q2
 C-----------------------------------------------
        FRIC =ONE
        FAC10 = TEN
-      IF (IMP_INT7.EQ.3) THEN
+      IF (IMP_INT7==3) THEN
        DO I=1,JLT
         D1 = SQRT(P1(I))
         P1(I) = FOURTH*GAPV(I) 
@@ -127,10 +126,10 @@ C
         D4 = SQRT(P4(I))
         P4(I) = MAX(ZERO, GAPV(I) - D4)
        ENDDO
-      ENDIF !(IMP_INT7.EQ.3) 
+      ENDIF !(IMP_INT7==3) 
 C
        DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
          PENE(I) = MAX(P1(I),P2(I),P3(I),P4(I))
 C
          LA1 = ONE - LB1(I) - LC1(I)
@@ -171,7 +170,7 @@ C        ENDDO
 C
       DO I=1,JLT
 C       correction hourglass
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           H0 = -FOURTH*(H1(I) - H2(I) + H3(I) - H4(I))
           H0 = MIN(H0,H2(I),H4(I))
           H0 = MAX(H0,-H1(I),-H3(I))
@@ -184,11 +183,11 @@ C       correction hourglass
 C-------------------------------------------
       DO I=1,JLT
        II = INDEX(I)
-       IF(CAND_F(1,II).EQ.ZERO)THEN
+       IF(CAND_F(1,II)==ZERO)THEN
 C------------------------------------
-C       1ER IMPACT ou PAS d'IMPACT
+C       1st  or no impact
 C------------------------------------
-C   c'est fait dans i10for3.F        CAND_F(4,II) = H1(I)
+C   It's done in i10for3.f cand_f (4, II) = H1 (i)
 C          CAND_F(5,II) = H2(I)
 C          CAND_F(6,II) = H3(I)
        ELSE
@@ -242,7 +241,7 @@ C
       ENDDO
 C
       DO I=1,JLT
-      IF(PENE(I).EQ.ZERO.AND.CAND_F(1,INDEX(I)).EQ.ZERO)THEN
+      IF(PENE(I)==ZERO.AND.CAND_F(1,INDEX(I))==ZERO)THEN
 C------------------------------------
 C       PAS ENCORE D'IMPACT OU REBOND
 C------------------------------------
@@ -258,8 +257,8 @@ C
       ENDDO
 C
       DO 100 I=1,JLT
-      IF(ITIED.EQ.0)THEN
-          IF(CAND_F(1,INDEX(I))*FNI(I).LT.ZERO)THEN
+      IF(ITIED==0)THEN
+          IF(CAND_F(1,INDEX(I))*FNI(I)<ZERO)THEN
 C------------------------------------
 C           REBOND
 C------------------------------------
@@ -278,9 +277,9 @@ C
  100  CONTINUE
 C
 C---------------------------------
-C    ----sans frottement d'abord--- 
+C    ---- Without friction first --- 
       DO I=1,JLT
-        IF (ABS(VT1(I)).GT.ZERO.OR.ABS(VT2(I)).GT.ZERO) THEN
+        IF (ABS(VT1(I))>ZERO.OR.ABS(VT2(I))>ZERO) THEN
          Q(1,1,I)=T1X(I)
          Q(1,2,I)=T1Y(I)
          Q(1,3,I)=T1Z(I)
@@ -295,17 +294,17 @@ C    ----sans frottement d'abord---
          FACT(I)=ZERO
         ENDIF
       ENDDO
-      IF (SCALK.LT.0) THEN
+      IF (SCALK<0) THEN
        ISF=1
       ELSE
        ISF=0
       ENDIF
       FACF=FAC10*ABS(SCALK)
-      IF (ISF.EQ.1) THEN
+      IF (ISF==1) THEN
        DO I=1,JLT
-        IF (VN(I).GT.ZERO) THEN
+        IF (VN(I)>ZERO) THEN
          FAC=STIF(I)*FACF
-        ELSEIF (VN(I).LT.ZERO) THEN
+        ELSEIF (VN(I)<ZERO) THEN
          FAC=STIF(I)/FACF
         ELSE
          FAC=STIF(I)
@@ -358,11 +357,11 @@ C    ----sans frottement d'abord---
        KL11(2,3,I)=KN(4,I)*Q23
        KL11(3,3,I)=KN(4,I)*Q33
       ENDDO
-C    ----avec frottement --- 
+C    ----with friction ---
        DO J=1,3 
         DO K=J,3 
          DO I=1,JLT
-          IF (FACT(I).GT.ZERO) THEN
+          IF (FACT(I)>ZERO) THEN
            Q1 =Q(1,J,I)*Q(1,K,I)
            Q2 =Q(2,J,I)*Q(2,K,I)
            FAC=FACT(I)*(Q1+Q2)
@@ -403,58 +402,58 @@ C
        DO I=1,JLT
         OFF(I)=ONE
        ENDDO
-       IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
-       IF ((INTP_D).GT.0) THEN
+       IF (NSPMD>1) THEN
+       IF ((INTP_D)>0) THEN
         DO I=1,JLT
-         IF(NSVG(I).LT.0) THEN
-	  NN=-NSVG(I)
-	  NS=IND_INT(NIN)%P(NN)
-C---------pour diag_ss---
-	  FFI(1,NS)=ZERO
-	  FFI(2,NS)=ZERO
-	  FFI(3,NS)=ZERO
-	  DFI(1,NS)=ZERO
-	  DFI(2,NS)=ZERO
-	  DFI(3,NS)=ZERO
-	 ENDIF
+         IF(NSVG(I)<0) THEN
+            NN=-NSVG(I)
+            NS=IND_INT(NIN)%P(NN)
+C---------for diag_ss---
+            FFI(1,NS)=ZERO
+            FFI(2,NS)=ZERO
+            FFI(3,NS)=ZERO
+            DFI(1,NS)=ZERO
+            DFI(2,NS)=ZERO
+            DFI(3,NS)=ZERO
+           ENDIF
         ENDDO
        ELSE
         JLTF = 0
         DO I=1,JLT
-         IF(NSVG(I).LT.0) THEN
-	  NN=-NSVG(I)
+         IF(NSVG(I)<0) THEN
+            NN=-NSVG(I)
           JLTF = JLTF + 1
-	  NE=SHF_INT(NIN) + JLTF +LREM
-	  NS=IND_INT(NIN)%P(NN)
-	  STIFS(NE)=STIF(I)
-	  H_E(1,NE)=H1(I)
-	  H_E(2,NE)=H2(I)
-	  H_E(3,NE)=H3(I)
-	  H_E(4,NE)=H4(I)
-	  N_E(1,NE)=NX(I)
-	  N_E(2,NE)=NY(I)
-	  N_E(3,NE)=NZ(I)
-C---------pour temporairement diag_ss---
-	  FFI(1,NS)=ZERO
-	  FFI(2,NS)=ZERO
-	  FFI(3,NS)=ZERO
-	  DFI(1,NS)=ZERO
-	  DFI(2,NS)=ZERO
-	  DFI(3,NS)=ZERO
-	 ENDIF
+            NE=SHF_INT(NIN) + JLTF +LREM
+            NS=IND_INT(NIN)%P(NN)
+            STIFS(NE)=STIF(I)
+            H_E(1,NE)=H1(I)
+            H_E(2,NE)=H2(I)
+            H_E(3,NE)=H3(I)
+            H_E(4,NE)=H4(I)
+            N_E(1,NE)=NX(I)
+            N_E(2,NE)=NY(I)
+            N_E(3,NE)=NZ(I)
+C---------temporarily for diag_ss---
+            FFI(1,NS)=ZERO
+            FFI(2,NS)=ZERO
+            FFI(3,NS)=ZERO
+            DFI(1,NS)=ZERO
+            DFI(2,NS)=ZERO
+            DFI(3,NS)=ZERO
+           ENDIF
         ENDDO
        ENDIF 
        ENDIF 
 C
        RETURN
       END
-Chd|====================================================================
-Chd|  I10FRF3                       source/interfaces/int10/i10keg3.F
-Chd|-- called by -----------
-Chd|        I10FORCF3                     source/interfaces/int10/i10ke3.F
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    i10frf3     ../engine/source/interfaces/int10/i10keg3.F
+!||--- called by ------------------------------------------------------
+!||    i10forcf3   ../engine/source/interfaces/int10/i10ke3.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE I10FRF3(JLT    ,A      ,V      ,MS     ,FRIC   ,
      1                   N1     ,N2     ,N3     ,T1X    ,T1Y    ,
      2                   T1Z    ,H1     ,H2     ,H3     ,H4     ,
@@ -475,12 +474,9 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JLT, INACTI,NIN
+      INTEGER JLT, NIN
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
      .        INDEX(MVSIZ)
       my_real
@@ -494,17 +490,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, J, K,IG,ISF,NN,NS,NI
+      INTEGER I, ISF, NI
       my_real
      .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ), 
      .   DX(MVSIZ), DY(MVSIZ), DZ(MVSIZ), DN(MVSIZ), 
      .   DNI(MVSIZ),D1T(MVSIZ),D2T(MVSIZ), DTI1(MVSIZ), 
-     .   DTI2(MVSIZ),S2,FACN(MVSIZ),FACF, FACT(MVSIZ),FAC10
+     . DTI2(MVSIZ),FACN(MVSIZ),FACF, FACT(MVSIZ),FAC10
       my_real
-     .   FX,FY,FZ,FN,FT1,FT2,FNI,FTI1,FTI2,VTX,VTY,VTZ,VT,
-     .   T2X(MVSIZ), T2Y(MVSIZ), T2Z(MVSIZ),
-     .   KT1,KT2,KT3,KT4,Q1,Q2
-
+     . FX,FY,FZ,FN,FT1,FT2,FNI,FTI1,FTI2,
+     .   T2X(MVSIZ), T2Y(MVSIZ), T2Z(MVSIZ)
 C-----------------------------------------------
 C
       FAC10 = TEN
@@ -535,17 +529,17 @@ C-------------------------------------------
         DTI1(I) = T1X(I)*DXI(I) + T1Y(I)*DYI(I) + T1Z(I)*DZI(I)
         DTI2(I) = T2X(I)*DXI(I) + T2Y(I)*DYI(I) + T2Z(I)*DZI(I)
       ENDDO
-      IF (SCALK.LT.0) THEN
+      IF (SCALK<0) THEN
        ISF=1
       ELSE
        ISF=0
       ENDIF
       FACF=FAC10*ABS(SCALK)
-      IF (ISF.EQ.1) THEN
+      IF (ISF==1) THEN
        DO I=1,JLT
-        IF (VN(I).GT.ZERO) THEN
+        IF (VN(I)>ZERO) THEN
          FACN(I)=STIF(I)*FACF
-        ELSEIF (VN(I).LT.ZERO) THEN
+        ELSEIF (VN(I)<ZERO) THEN
          FACN(I)=STIF(I)/FACF
         ELSE
          FACN(I)=STIF(I)
@@ -558,7 +552,7 @@ C-------------------------------------------
         FACT(I)=FACN(I)*FRIC
        ENDDO
       ENDIF
-C--------partie NML-------
+C-------- part nml --------
       DO I=1,JLT
         FN = -FACN(I)*DNI(I)
         FX=FN*N1(I)
@@ -582,7 +576,7 @@ C--------partie NML-------
         A(3,IX3(I))=A(3,IX3(I))+FZ*H3(I)
         A(3,IX4(I))=A(3,IX4(I))+FZ*H4(I)
       ENDDO
-C--------partie NSL-------
+C-------- part nsl --------
       DO I=1,JLT
         FNI = FACN(I)*DN(I)
         FX=FNI*N1(I)
@@ -601,13 +595,13 @@ C--------partie NSL-------
 C
        RETURN
       END
-Chd|====================================================================
-Chd|  I10KFOR3                      source/interfaces/int10/i10keg3.F
-Chd|-- called by -----------
-Chd|        I10FKU3                       source/interfaces/int10/i10ke3.F
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    i10kfor3   ../engine/source/interfaces/int10/i10keg3.F
+!||--- called by ------------------------------------------------------
+!||    i10fku3    ../engine/source/interfaces/int10/i10ke3.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE I10KFOR3(JLT    ,A      ,V      ,MS    ,CAND_F ,
      1                    STIF   ,ITIED  ,X1     ,X2    ,X3    ,
      2                    X4     ,Y1     ,Y2     ,Y3    ,Y4    ,
@@ -637,13 +631,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "units_c.inc"
-#include      "param_c.inc"
-#include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -668,13 +655,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, IG, II , K0,NBINTER,K1S,K,J,NN,JG
-      INTEGER JJ,KK,IN,IE,NSUB,IBID,NI,NS
+      INTEGER I, IG, II, NN
+      INTEGER NS
       my_real
      .   FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ), FNI(MVSIZ),
-     .   FX1(MVSIZ), FX2(MVSIZ), FX3(MVSIZ), FX4(MVSIZ),
-     .   FY1(MVSIZ), FY2(MVSIZ), FY3(MVSIZ), FY4(MVSIZ),
-     .   FZ1(MVSIZ), FZ2(MVSIZ), FZ3(MVSIZ), FZ4(MVSIZ),
+     .
+     .
+     .
      .   FT1(MVSIZ), FT2(MVSIZ),
      .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
      .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ), 
@@ -682,10 +669,10 @@ C-----------------------------------------------
      .   NX(MVSIZ), NY(MVSIZ), NZ(MVSIZ),
      .   T1X(MVSIZ),T1Y(MVSIZ),T1Z(MVSIZ),
      .   T2X(MVSIZ),T2Y(MVSIZ),T2Z(MVSIZ),
-     .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ), 
+     .
      .   DX(MVSIZ), DY(MVSIZ), DZ(MVSIZ), DN(MVSIZ),
-     .   S2,D1,D2,D3,D4,A1,A2,A3,A4,LA1,LA2,LA3,LA4,H0,
-     .   NORMINV,BID,GAP2,PENE2,FAC,FX,FY,FZ
+     . D1,D2,D3,D4,LA1,LA2,LA3,LA4,H0,
+     . NORMINV,GAP2,PENE2,FAC,FX,FY,FZ
       my_real
      .   FXN(MVSIZ), FYN(MVSIZ), FZN(MVSIZ), 
      .   FXT(MVSIZ), FYT(MVSIZ), FZT(MVSIZ) 
@@ -700,10 +687,10 @@ C
         D3 = MAX(ZERO, GAP2 - P3(I))
         D4 = MAX(ZERO, GAP2 - P4(I))
         PENE2 = MAX(D1,D2,D3,D4)
-        IF (PENE2.LE.ZERO) STIF(I) = ZERO
+        IF (PENE2<=ZERO) STIF(I) = ZERO
        ENDDO
 C--------------------------------------------------------
-C  CAS DES PAQUETS MIXTES
+C  CASE OF MIXED GROUPS
 C--------------------------------------------------------
        DO I=1,JLT
         D1 = SQRT(P1(I))
@@ -720,7 +707,7 @@ C
        ENDDO
 C
        DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
          PENE(I) = MAX(P1(I),P2(I),P3(I),P4(I))
 C
          LA1 = ONE - LB1(I) - LC1(I)
@@ -754,7 +741,7 @@ C
 C      
       DO I=1,JLT
 C       correction hourglass
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           H0 = -FOURTH*(H1(I) - H2(I) + H3(I) - H4(I))
           H0 = MIN(H0,H2(I),H4(I))
           H0 = MAX(H0,-H1(I),-H3(I))
@@ -776,9 +763,9 @@ C
 C       
       DO I=1,JLT
        II = INDEX(I)
-       IF(CAND_F(1,II).EQ.ZERO)THEN
+       IF(CAND_F(1,II)==ZERO)THEN
 C------------------------------------
-C       1ER IMPACT ou PAS d'IMPACT
+C       1st  or no impact
 C------------------------------------
        ELSE
 C------------------------------------
@@ -826,7 +813,7 @@ C
        ENDDO
 C
       DO I=1,JLT
-       IF(PENE(I).EQ.ZERO.AND.CAND_F(1,INDEX(I)).EQ.ZERO)THEN
+       IF(PENE(I)==ZERO.AND.CAND_F(1,INDEX(I))==ZERO)THEN
 C------------------------------------
 C       PAS ENCORE D'IMPACT OU REBOND
 C------------------------------------
@@ -842,8 +829,8 @@ C
       ENDDO
 C
       DO 100 I=1,JLT
-      IF(ITIED.EQ.0)THEN
-          IF(CAND_F(1,INDEX(I))*FNI(I).LT.ZERO)THEN
+      IF(ITIED==0)THEN
+          IF(CAND_F(1,INDEX(I))*FNI(I)<ZERO)THEN
 C------------------------------------
 C           REBOND
 C------------------------------------
@@ -889,31 +876,22 @@ C--------main part-------
         A(3,IX3(I))=A(3,IX3(I))+FZ*H3(I)
         A(3,IX4(I))=A(3,IX4(I))+FZ*H4(I)
        ENDDO
-C--------secnd part-------
-      IF(IMACH.NE.3) THEN
-        DO I=1,JLT
-          IG=NSVG(I)
+C------- Secondary part --------
+       DO I=1,JLT
+         IG=NSVG(I)
+         IF(IG>0)THEN
           A(1,IG)=A(1,IG)-FXI(I)
           A(2,IG)=A(2,IG)-FYI(I)
           A(3,IG)=A(3,IG)-FZI(I)
-        ENDDO
-       ELSE 
-        DO I=1,JLT
-          IG=NSVG(I)
-          IF(IG.GT.0)THEN
-           A(1,IG)=A(1,IG)-FXI(I)
-           A(2,IG)=A(2,IG)-FYI(I)
-           A(3,IG)=A(3,IG)-FZI(I)
-	  ELSE
-	   NN=-IG
-	   NS=IND_INT(NIN)%P(NN)
-C---------
-	   FFI(1,NS)=FFI(1,NS)-FXI(I)
-	   FFI(2,NS)=FFI(2,NS)-FYI(I)
-	   FFI(3,NS)=FFI(3,NS)-FZI(I)
-          ENDIF
-        ENDDO
-       END IF
+           ELSE
+            NN=-IG
+            NS=IND_INT(NIN)%P(NN)
+            FFI(1,NS)=FFI(1,NS)-FXI(I)
+            FFI(2,NS)=FFI(2,NS)-FYI(I)
+            FFI(3,NS)=FFI(3,NS)-FZI(I)
+         ENDIF
+       ENDDO
+
 C
       RETURN
       END

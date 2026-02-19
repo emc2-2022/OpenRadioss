@@ -1,42 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PARSOR_PLY                    source/output/anim/generate/parsor_ply.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_IGET_PARTN_PLY           source/mpi/anim/spmd_iget_partn_ply.F
-Chd|        SPMD_IGLOB_PARTN              source/mpi/anim/spmd_iglob_partn.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|        GET_PLY_NOD                   source/output/anim/generate/anin_ply_init.F
-Chd|        GET_PLY_NODID                 source/output/anim/generate/anin_ply_init.F
-Chd|        PLYXFEM_MOD                   share/modules/plyxfem_mod.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    parsor_ply            ../engine/source/output/anim/generate/parsor_ply.F
+!||--- called by ------------------------------------------------------
+!||    genani                ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    get_ply_nod           ../engine/source/output/anim/generate/anin_ply_init.F
+!||    get_ply_nodid         ../engine/source/output/anim/generate/anin_ply_init.F
+!||    spmd_iget_partn_ply   ../engine/source/mpi/anim/spmd_iget_partn_ply.F
+!||    spmd_iglob_partn      ../engine/source/mpi/anim/spmd_iglob_partn.F
+!||    write_i_c             ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod          ../common_source/tools/memory/my_alloc.F90
+!||    plyxfem_mod           ../engine/share/modules/plyxfem_mod.F
+!||====================================================================
       SUBROUTINE PARSOR_PLY(NEL_PLY, X,       D,       XNORM,  CDG,
      .                      IPARG,   IXC,     IXTG,    INVERT, EL2FA,
      .                      MATER,   IPARTC,  NODGLOB, IDPLY,  IADPLY,
      .                      IADPLYG, PLYNUMC, NBF_PXFEMG)
       USE PLYXFEM_MOD
+      USE my_alloc_mod
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,12 +52,7 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "task_c.inc"
-#include      "rnur_c.inc"
-#include      "spmd_c.inc"
-#include      "scr01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -71,18 +71,20 @@ C-----------------------------------------------
       EXTERNAL GET_PLY_NOD
 C-----------------------------------------------
 C     REAL
-      my_real
-     * OFF
-      INTEGER II(4),IE,NG, ITY, LFT, LLT, N, I, J, 
-     .        IPRT, NEL, IAD, NPAR, NFT, IMID,IALEL,MTN,
-     .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,
-     .        JJ, K, SH_IH,BUF,ISHPLYXFEM,
-     .        PLYELEMS(NUMELC),IPT,ELC,PLYS,IPLY,IE_EL2FA,
+      INTEGER II(4), IE, NG, ITY, LFT, LLT, N, I, 
+     . NEL, IAD, NPAR, NFT,MTN,
+     . NN90,
+     . JJ,BUF,ISHPLYXFEM,
+     .        IPT,ELC,PLYS,IPLY,IE_EL2FA,
      .        NPCC,IDPLYN
-      INTEGER NP(PLYNUMC*4),EMPL
+      INTEGER EMPL
+      INTEGER,DIMENSION(:),ALLOCATABLE::NP
+      INTEGER,DIMENSION(:),ALLOCATABLE::PLYELEMS
 C-----------------------------------------------
 C     PLY ELEMS INIT
 C-----------------------------------------------
+      CALL MY_ALLOC(PLYELEMS, NUMELC)
+      CALL MY_ALLOC(NP, PLYNUMC*4)
       NPCC = 0
       DO PLYS = 1,NPLYPART
         IPLY = INDX_PLY(PLYS)
@@ -104,7 +106,7 @@ C-----------------------------------------------
         IE_EL2FA=0
         NPAR = 0
 C
-C en spmd il faut envoyer l'info meme qd on a 0 elem local
+C In SPMD you must send the info even qd we have 0 local elem
          DO 490 NG=1,NGROUP
           MTN   =IPARG(1,NG)
           NEL   =IPARG(2,NG)
@@ -119,7 +121,7 @@ C-----------------------------------------------
 C       COQUES
 C-----------------------------------------------
           IF(ISHPLYXFEM > 0) THEN
-             IF(ITY.EQ.3)THEN
+             IF(ITY==3)THEN
 c               KPT   =IPARG(6,NG)
 c               IHBE = IPARG(23,NG)
 c               ISTRAIN=IPARG(44,NG)
@@ -163,7 +165,7 @@ c                  CALL FACNOR(X,D,II,XNORM,CDG,INVERT(IE))
 C-----------------------------------------------
 C             COQUES 3 NOEUDS
 C-----------------------------------------------
-              ELSEIF(ITY.EQ.7)THEN
+              ELSEIF(ITY==7)THEN
               ENDIF
           ENDIF
  490   CONTINUE
@@ -174,9 +176,9 @@ C
       ENDDO
 
       IF (NSPMD > 1) THEN
-Cel construction tableau global des parts sur p0
+C   build global part array on proc 0
 
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
          CALL SPMD_IGLOB_PARTN(IADPLY,NPLYPART,IADPLYG,NPLYPART)
          BUF = NBF_PXFEMG*4
          IDPLYN = IDPLY - 1
@@ -189,6 +191,8 @@ Cel construction tableau global des parts sur p0
         ENDIF
 
       ENDIF
+      DEALLOCATE(PLYELEMS)
+      DEALLOCATE(NP)
 C-----------------------------------------------
       RETURN
       END

@@ -1,33 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_FVB_AVEC                 source/mpi/anim/spmd_fvb_avec.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_fvb_avec         ../engine/source/mpi/anim/spmd_fvb_avec.F
+!||--- called by ------------------------------------------------------
+!||    genani                ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    write_r_c             ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod             ../engine/share/modules/fvbag_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_FVB_AVEC()
 C-----------------------------------------------
 C   M o d u l e s 
@@ -36,20 +38,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -69,8 +67,8 @@ C
 C
       DO I=1,NFVBAG
          PMAIN=FVSPMD(I)%PMAIN
-         IF (ISPMD.EQ.0) THEN
-            IF (ISPMD.EQ.PMAIN-1) THEN
+         IF (ISPMD==0) THEN
+            IF (ISPMD==PMAIN-1) THEN
                NNS_ANIM=FVDATA(I)%NNS_ANIM
                NNTR=FVDATA(I)%NNTR
                ALLOCATE(VTR(3,NNTR), VV(3,NNS_ANIM), NPTR(NNTR),
@@ -89,7 +87,7 @@ C
                   VV(3,J)=ZERO
                ENDDO
                DO J=1,FVDATA(I)%NPOLH
-                  IF (FVDATA(I)%MPOLH(J).EQ.ZERO) CYCLE
+                  IF (FVDATA(I)%MPOLH(J)==ZERO) CYCLE
                   DO K=FVDATA(I)%IFVPADR(J),FVDATA(I)%IFVPADR(J+1)-1
                      KK=FVDATA(I)%IFVPOLH(K)
                      DO L=FVDATA(I)%IFVTADR(KK),
@@ -112,7 +110,7 @@ C
                   NPN(N1)=NPN(N1)+1
                   NPN(N2)=NPN(N2)+1
                   NPN(N3)=NPN(N3)+1
-                  IF (NPTR(J).NE.0) THEN
+                  IF (NPTR(J)/=0) THEN
                      VVT(1)=VTR(1,J)/NPTR(J)
                      VVT(2)=VTR(2,J)/NPTR(J)
                      VVT(3)=VTR(3,J)/NPTR(J)
@@ -145,13 +143,13 @@ C
             ELSE
                ITAG=MSGOFF
                CALL MPI_RECV(NNS_ANIM, 1, MPI_INTEGER, IT_SPMD(PMAIN),
-     .                       ITAG, MPI_COMM_WORLD, STAT, IERR)
+     .                       ITAG, SPMD_COMM_WORLD, STAT, IERR)
 C
                ALLOCATE(VV(3,NNS_ANIM))
                ITAG=MSGOFF2
                LEN=3*NNS_ANIM
                CALL MPI_RECV(VV, LEN, REAL, IT_SPMD(PMAIN),
-     .                       ITAG, MPI_COMM_WORLD, STAT, IERR)
+     .                       ITAG, SPMD_COMM_WORLD, STAT, IERR)
 C
                DO J=1,NNS_ANIM
                   R4 = VV(1,J)
@@ -165,11 +163,11 @@ C
                DEALLOCATE(VV)
             ENDIF
          ELSE
-            IF (ISPMD.EQ.PMAIN-1) THEN
+            IF (ISPMD==PMAIN-1) THEN
                NNS_ANIM=FVDATA(I)%NNS_ANIM
                ITAG=MSGOFF
                CALL MPI_SEND(NNS_ANIM, 1, MPI_INTEGER, IT_SPMD(1),
-     .                       ITAG, MPI_COMM_WORLD, IERR)
+     .                       ITAG, SPMD_COMM_WORLD, IERR)
 C
                NNTR=FVDATA(I)%NNTR
                ALLOCATE(VTR(3,NNTR), VV(3,NNS_ANIM), NPTR(NNTR),
@@ -188,7 +186,7 @@ C
                   VV(3,J)=ZERO
                ENDDO
                DO J=1,FVDATA(I)%NPOLH
-                  IF (FVDATA(I)%MPOLH(J).EQ.ZERO) CYCLE
+                  IF (FVDATA(I)%MPOLH(J)==ZERO) CYCLE
                   DO K=FVDATA(I)%IFVPADR(J),FVDATA(I)%IFVPADR(J+1)-1
                      KK=FVDATA(I)%IFVPOLH(K)
                      DO L=FVDATA(I)%IFVTADR(KK),
@@ -211,7 +209,7 @@ C
                   NPN(N1)=NPN(N1)+1
                   NPN(N2)=NPN(N2)+1
                   NPN(N3)=NPN(N3)+1
-                  IF (NPTR(J).NE.0) THEN
+                  IF (NPTR(J)/=0) THEN
                      VVT(1)=VTR(1,J)/NPTR(J)
                      VVT(2)=VTR(2,J)/NPTR(J)
                      VVT(3)=VTR(3,J)/NPTR(J)
@@ -239,14 +237,14 @@ C
                ITAG=MSGOFF2
                LEN=3*NNS_ANIM
                CALL MPI_SEND(VV, LEN, REAL, IT_SPMD(1),
-     .                       ITAG, MPI_COMM_WORLD,  IERR)
+     .                       ITAG, SPMD_COMM_WORLD,  IERR)
 C
                DEALLOCATE(VTR, VV, NPTR, NPN)
             ENDIF
          ENDIF
       ENDDO  
 C
-      IF (ISPMD.EQ.0) THEN
+      IF (ISPMD==0) THEN
          R4=ZERO
          DO I=1,3
             CALL WRITE_R_C(R4,1)

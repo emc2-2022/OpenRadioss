@@ -1,42 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I18FOR3                       source/interfaces/int18/i18for3.F
-Chd|-- called by -----------
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|-- calls ---------------
-Chd|        I7ASS0                        source/interfaces/int07/i7ass3.F
-Chd|        I7ASS2                        source/interfaces/int07/i7ass3.F
-Chd|        I7ASS3                        source/interfaces/int07/i7ass3.F
-Chd|        MULTI_I18_FORCE_POFF          source/interfaces/int18/multi_i18_force_poff.F
-Chd|        MULTI_I18_FORCE_PON           source/interfaces/int18/multi_i18_force_pon.F
-Chd|        ALEANIM_MOD                   share/modules/aleanim_mod.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE I18FOR3(JLT      ,A          ,V         ,IBCC      ,ICODT         ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i18for3_mod   ../engine/source/interfaces/int18/i18for3.F
+!||--- called by ------------------------------------------------------
+!||    i7mainf       ../engine/source/interfaces/int07/i7mainf.F
+!||====================================================================
+      MODULE I18FOR3_MOD
+      CONTAINS
+!||====================================================================
+!||    i18for3                ../engine/source/interfaces/int18/i18for3.F
+!||--- called by ------------------------------------------------------
+!||    i7mainf                ../engine/source/interfaces/int07/i7mainf.F
+!||--- calls      -----------------------------------------------------
+!||    i7ass0                 ../engine/source/interfaces/int07/i7ass3.F
+!||    i7ass2                 ../engine/source/interfaces/int07/i7ass3.F
+!||    i7ass3                 ../engine/source/interfaces/int07/i7ass3.F
+!||    multi_i18_force_poff   ../engine/source/interfaces/int18/multi_i18_force_poff.F
+!||    multi_i18_force_pon    ../engine/source/interfaces/int18/multi_i18_force_pon.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    h3d_mod                ../engine/share/modules/h3d_mod.F
+!||    multi_fvm_mod          ../common_source/modules/ale/multi_fvm_mod.F90
+!||    output_mod             ../common_source/modules/output/output_mod.F90
+!||    tri7box                ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE I18FOR3(OUTPUT, JLT      ,A          ,V         ,IBCC      ,ICODT         ,
      2                  FSAV      ,GAP        ,FRIC      ,MS        ,VISC          ,
      3                  VISCF     ,NOINT      ,STFN      ,ITAB      ,CN_LOC        ,
      4                  STFVAL    ,STIFN      ,STIF      ,FSKYI     ,ISKY          ,
@@ -47,15 +56,15 @@ Chd|====================================================================
      A                  P1        ,P2         ,P3        ,P4        ,FCONT         ,
      B                  IX1       ,IX2        ,IX3       ,IX4       ,NSVG          ,
      C                  IVIS2     ,NELTST     ,ITYPTST   ,DT2T      ,IXS           ,
-     D                  GAPV      ,INACTI     ,CAND_P    ,INDEX     ,NISKYFI       ,
+     D                  GAPV      ,CAND_P     ,INDEX     ,NISKYFI   ,
      E                  KINET     ,NEWFRONT   ,ISECIN    ,NSTRF     ,SECFCUM       ,
      F                  X         ,IRECT      ,CE_LOC    ,MFROT     ,IFQ           ,
-     G                  FROT_P    ,CAND_FX    ,CAND_FY   ,CAND_FZ   ,ALPHA0        ,
-     H                  IFPEN     ,IPRES      ,ICONTACT  ,IGROUPS   ,IPARG         ,
+     G                  FROT_P    ,CAND_FX    ,CAND_FY   ,CAND_FZ   ,
+     H                  IFPEN     ,ICONTACT   ,IGROUPS   ,IPARG     ,
      J                  VISCN     ,VXI        ,VYI       ,VZI       ,MSI           ,
      K                  KINI      ,NIN        ,NISUB     ,LISUB     ,ADDSUBS       ,
      L                  ADDSUBM   ,LISUBS     ,LISUBM    ,FSAVSUB   ,CAND_N        ,
-     M                  ILAGM     ,ICURV      ,PRES      ,FNCONT    ,MS0           ,
+     M                  ILAGM     ,ICURV      ,FNCONT    ,MS0           ,
      N                  JTASK     ,ISENSINT   ,FSAVPARIT ,NFT       ,MULTI_FVM     ,
      O                  H3D_DATA  ,ELBUF_TAB  ,IDIR      )
 C-----------------------------------------------
@@ -63,7 +72,7 @@ C   D e s c r i p t i o n
 C-----------------------------------------------
 C This subroutine is computing reaction forces
 C for fluid structure interaction /INTER/TYPE18
-C It also ouputs contour and time histories.
+C It also outputs contour and time histories.
 C
 C   I=1:JLT : local loop (JLT<=128)
 C   INDEX(I) is Node id (internal)
@@ -74,8 +83,9 @@ C-----------------------------------------------
       USE TRI7BOX
       USE MULTI_FVM_MOD
       USE H3D_MOD
-      USE ALEANIM_MOD !FANI_CELL   
-      USE ELBUFDEF_MOD       
+      USE ELBUFDEF_MOD   
+      USE OUTPUT_MOD    
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -92,28 +102,21 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
-#include      "scr11_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "scr18_c.inc"
 #include      "units_c.inc"
 #include      "parit_c.inc"
-#include      "warn_c.inc"
-#include      "couple_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 #include      "kincod_c.inc"
-#include      "inter18.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
       INTEGER, INTENT(IN) :: IDIR
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP) :: ELBUF_TAB
-      INTEGER NELTST,ITYPTST,JLT,IBCC,IVIS2,INACTI,IPRES,NIN,
+      INTEGER NELTST,ITYPTST,JLT,IBCC,IVIS2,NIN,
      .        ICODT(*), ITAB(*), ISKY(*), KINET(*),
      .        MFROT, IFQ, NOINT,NEWFRONT,ISECIN, NSTRF(*),
      .        IRECT(4,*),IFPEN(*) ,ICONTACT(*), CAND_N(*),
@@ -126,7 +129,7 @@ C-----------------------------------------------
       my_real
      .   STFVAL,CAND_P(*),FROT_P(*), X(3,*),MS0(*),
      .   A(3,*), MS(*), V(3,*), FSAV(*),FCONT(3,*),
-     .   CAND_FX(*),CAND_FY(*),CAND_FZ(*),ALPHA0,
+     .   CAND_FX(*),CAND_FY(*),CAND_FZ(*),
      .   GAP, FRIC,VISC,VISCF,VIS,DT2T,STFN(*),STIFN(*),
      .   FSKYI(LSKYI,NFSKYI),FSAVSUB(NTHVKI,*),FNCONT(3,*),
      .   FSAVPARIT(NISUB+1,11,*)
@@ -141,13 +144,13 @@ C-----------------------------------------------
      .     SECFCUM(7,NUMNOD,NSECT), TMP(MVSIZ),
      .     STIFSAV(MVSIZ), VISCN(*),
      .     VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(2*MVSIZ),
-     .     PRES(*), RSTIF  
+     .     RSTIF
       TYPE(MULTI_FVM_STRUCT), INTENT(INOUT) :: MULTI_FVM
       TYPE(H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, IG, J, JG , K0,NBINTER,K1S,K,IL,IE, NN, NI,
+      INTEGER I, J, JG, K0, NBINTER, K1S, K, IE, NN, NI, 
      .        NA1,NA2
       my_real
      .   FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ), FNI(MVSIZ),
@@ -182,13 +185,11 @@ C-----------------------------------------------
      .   CS(MVSIZ),C1(MVSIZ),C2(MVSIZ),C3(MVSIZ),C4(MVSIZ),
      .   CX,CY,CFI,AUX,PHI1(MVSIZ), PHI2(MVSIZ), PHI3(MVSIZ),
      .   PHI4(MVSIZ),DX, DTI
-      INTEGER JSUB,KSUB,JJ,KK,IN,NSUB,IBID,IDX,ILEN,IPOS,ITASK,NELFT,NELLT
-      my_real
-     .   FSAVSUB1(15,NISUB),IMPX,IMPY,IMPZ,PP1,PP2,PP3,PP4,BID
+      INTEGER JSUB, KSUB, JJ, KK, IN, NSUB, IBID, ITASK
+      my_real FSAVSUB1(15,NISUB),IMPX,IMPY,IMPZ,PP1,PP2,PP3,PP4,BID
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-#include "sync_dir.inc"
 
       IBID   = 0
       BID    = ZERO      
@@ -319,7 +320,7 @@ C-----------------------------------------------
       !      DTI = MIN(RDIST,DTI)
       !  ENDDO
       !ENDIF
-      !IF(DTI.LT.DT2T)THEN  
+      !IF(DTI<DT2T)THEN  
       !  DT2T    = DTI      
       !  NELTST  = NOINT    
       !  ITYPTST = 10       
@@ -380,13 +381,6 @@ C-----------------------------------------------
        FSAV10=FSAV10+ABS(IMPZ)
        FSAV11=FSAV11+FNI(I)*DT12
       ENDDO
-      IF (IPRES /= 0)THEN
-#include "lockon.inc"
-        DO I=1,JLT
-          PRES(CE_LOC(I)) = PRES(CE_LOC(I)) + FNI(I)
-        ENDDO
-#include "lockoff.inc"
-      END IF
 #include "lockon.inc"
         FSAV(1)=FSAV(1)+FSAV1
         FSAV(2)=FSAV(2)+FSAV2
@@ -417,9 +411,9 @@ C-----------------------------------------------
            IE=CE_LOC(I)
            JJ  =ADDSUBS(IN)
            KK  =ADDSUBM(IE)
-           DO WHILE(JJ.LT.ADDSUBS(IN+1))
+           DO WHILE(JJ<ADDSUBS(IN+1))
              JSUB=LISUBS(JJ)
-             DO WHILE(KK.LT.ADDSUBM(IE+1))
+             DO WHILE(KK<ADDSUBM(IE+1))
                KSUB=LISUBM(KK)   
                IF(KSUB == JSUB)THEN
                  IMPX=FXI(I)*DT12
@@ -438,7 +432,7 @@ C-----------------------------------------------
                  FSAVSUB1(11,JSUB)=FSAVSUB1(11,JSUB)+FNI(I)*DT12
                  KK=KK+1
                  EXIT             
-               ELSE IF(KSUB.LT.JSUB)THEN
+               ELSE IF(KSUB<JSUB)THEN
                  KK=KK+1
                ELSE
                  EXIT
@@ -451,9 +445,9 @@ C-----------------------------------------------
            IE=CE_LOC(I)
            JJ  =ADDSUBSFI(NIN)%P(NN)
            KK  =ADDSUBM(IE)
-           DO WHILE(JJ.LT.ADDSUBSFI(NIN)%P(NN+1))
+           DO WHILE(JJ<ADDSUBSFI(NIN)%P(NN+1))
              JSUB=LISUBSFI(NIN)%P(JJ)
-             DO WHILE(KK.LT.ADDSUBM(IE+1))
+             DO WHILE(KK<ADDSUBM(IE+1))
                KSUB=LISUBM(KK)   
                IF(KSUB == JSUB)THEN
                  IMPX=FXI(I)*DT12
@@ -469,14 +463,14 @@ C-----------------------------------------------
                  FSAVSUB1(11,JSUB)=FSAVSUB1(11,JSUB)+FNI(I)*DT12
                  KK=KK+1
                  EXIT            
-               ELSE IF(KSUB.LT.JSUB)THEN
+               ELSE IF(KSUB<JSUB)THEN
                  KK=KK+1
                ELSE
                  EXIT
                END IF
-             END DO! WHILE (KK.LT.ADDSUBM(IE+1))
+             END DO! WHILE (KK<ADDSUBM(IE+1))
              JJ=JJ+1
-           END DO! WHILE (JJ.LT.ADDSUBSFI(NIN)%P(NN+1))
+           END DO! WHILE (JJ<ADDSUBSFI(NIN)%P(NN+1))
           END IF
          END DO !NEXT I=1,JLT
       END IF
@@ -491,9 +485,9 @@ C-----------------------------------------------
            IE=CE_LOC(I)
            JJ  =ADDSUBS(IN)
            KK  =ADDSUBM(IE)
-           DO WHILE(JJ.LT.ADDSUBS(IN+1))
+           DO WHILE(JJ<ADDSUBS(IN+1))
              JSUB=LISUBS(JJ)
-             DO WHILE(KK.LT.ADDSUBM(IE+1))
+             DO WHILE(KK<ADDSUBM(IE+1))
                KSUB=LISUBM(KK)   
                IF(KSUB == JSUB)THEN
                  !CURRENTLY NO TANGENTIAL FORCE IN INTER18
@@ -512,22 +506,22 @@ C-----------------------------------------------
                  FSAVSUB1(15,JSUB)= FSAVSUB1(15,JSUB) + SQRT(IMPX*IMPX+IMPY*IMPY+IMPZ*IMPZ)
                  KK=KK+1
                  EXIT             
-               ELSE IF(KSUB.LT.JSUB)THEN
+               ELSE IF(KSUB<JSUB)THEN
                  KK=KK+1
                ELSE
                  EXIT
                END IF
-             END DO!WHILE (KK.LT.ADDSUBM(IE+1))
+             END DO!WHILE (KK<ADDSUBM(IE+1))
            JJ=JJ+1
-           END DO! WHILE (JJ.LT.ADDSUBS(IN+1))
+           END DO! WHILE (JJ<ADDSUBS(IN+1))
           ELSE
            NN = -NN
            IE=CE_LOC(I)
            JJ  =ADDSUBSFI(NIN)%P(NN)
            KK  =ADDSUBM(IE)
-           DO WHILE(JJ.LT.ADDSUBSFI(NIN)%P(NN+1))
+           DO WHILE(JJ<ADDSUBSFI(NIN)%P(NN+1))
              JSUB=LISUBSFI(NIN)%P(JJ)
-             DO WHILE(KK.LT.ADDSUBM(IE+1))
+             DO WHILE(KK<ADDSUBM(IE+1))
                KSUB=LISUBM(KK)   
                IF(KSUB == JSUB)THEN
                  !CURRENTLY NO TANGENTIAL FORCE IN INTER18
@@ -547,14 +541,14 @@ C-----------------------------------------------
                  FSAVSUB1(15,JSUB)= FSAVSUB1(15,JSUB)+SQRT(IMPX*IMPX+IMPY*IMPY+IMPZ*IMPZ)
                  KK=KK+1
                  EXIT             
-               ELSE IF(KSUB.LT.JSUB)THEN
+               ELSE IF(KSUB<JSUB)THEN
                  KK=KK+1
                ELSE
                  EXIT
                END IF
-             END DO!DO WHILE(KK.LT.ADDSUBM(IE+1))
+             END DO!DO WHILE(KK<ADDSUBM(IE+1))
              JJ=JJ+1
-           END DO!WHILE(JJ.LT.ADDSUBSFI(NIN)%P(NN+1))
+           END DO!WHILE(JJ<ADDSUBSFI(NIN)%P(NN+1))
           END IF
          END DO !NEXT I=1,JLT
 #include "lockon.inc"
@@ -580,15 +574,15 @@ C---------------------------------
        DO I=1,JLT                                 
          DTMI(I) = EP20                   
          MAS2  = TWO * MSI(I)   
-         IF(MAS2.GT.ZERO.AND.STIF(I).GT.ZERO .AND. IRB(KINI(I)).EQ.0.AND.IRB2(KINI(I)).EQ.0)THEN
+         IF(MAS2>ZERO.AND.STIF(I)>ZERO .AND. IRB(KINI(I))==0.AND.IRB2(KINI(I))==0)THEN
            DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/STIF(I)))
          ENDIF                                
          MAS2  = TWO* MS(IX1(I))       
-         IF(MAS2.GT.ZERO.AND.H1(I)*STIF(I).GT.ZERO .AND. IRB(KINET(IX1(I))).EQ.0.AND.IRB2(KINET(IX1(I))).EQ.0)THEN
+         IF(MAS2>ZERO.AND.H1(I)*STIF(I)>ZERO .AND. IRB(KINET(IX1(I)))==0.AND.IRB2(KINET(IX1(I)))==0)THEN
            DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(H1(I)*STIF(I))))
          ENDIF                                                       
          MAS2  = TWO * MS(IX2(I))                            
-         IF(MAS2.GT.ZERO.AND.H2(I)*STIF(I).GT.ZERO .AND. IRB(KINET(IX2(I))).EQ.0.AND.IRB2(KINET(IX2(I))).EQ.0)THEN
+         IF(MAS2>ZERO.AND.H2(I)*STIF(I)>ZERO .AND. IRB(KINET(IX2(I)))==0.AND.IRB2(KINET(IX2(I)))==0)THEN
            DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(H2(I)*STIF(I))))
          ENDIF                     
          MAS2  = TWO* MS(IX3(I))                  
@@ -601,9 +595,9 @@ C---------------------------------
          ENDIF                                
          DTMI0 = MIN(DTMI0,DTMI(I))
        ENDDO          
-       IF(DTMI0.LE.DTMIN1(10))THEN
+       IF(DTMI0<=DTMIN1(10))THEN
         DO I=1,JLT
-         IF(DTMI(I).LE.DTMIN1(10))THEN
+         IF(DTMI(I)<=DTMIN1(10))THEN
            JG = NSVG(I)
            IF(JG > 0)THEN
              NI = ITAB(JG)
@@ -700,12 +694,12 @@ C---------------------------------
        !FZI(I)=ZERO
       ENDDO    
                    
-      !SPMD : identification des noeuds interf. utiles a envoyer
+      !SPMD: Identification of interf nodes.useful to send
       IF (NSPMD > 1) THEN
         DO I = 1,JLT
           NN = NSVG(I)
-          IF(NN.LT.0)THEN
-            ! tag temporaire de NSVFI a -
+          IF(NN<0)THEN
+            ! temporary tag of nsvfi a -
             NSVFI(NIN)%P(-NN) = -ABS(NSVFI(NIN)%P(-NN))
           ENDIF
         ENDDO
@@ -744,7 +738,7 @@ C---------------------------------
      4           FX3   ,FY3  ,FZ3  ,FX4  ,FY4    ,FZ4  ,
      5          FXI   ,FYI  ,FZI  ,A    ,STIFN  ,NIN  ,
      6           IBID  ,BID  ,BID  ,BID  ,BID    ,BID  ,
-     7           BID   ,BID  ,BID  ,JTASK,IBID   ) 
+     7           BID   ,BID  ,BID  ,JTASK,IBID   ,IBID   ) 
          ELSE
             CALL I7ASS2(JLT   ,IX1   ,IX2  ,IX3  ,IX4  ,
      2           NSVG  ,H1    ,H2   ,H3   ,H4   ,STIF   ,
@@ -753,7 +747,7 @@ C---------------------------------
      5           FXI   ,FYI   ,FZI  ,FSKYI,ISKY ,NISKYFI,
      6           NIN   ,NOINT ,IBID ,BID  ,BID  ,BID    ,
      7           BID   ,BID   ,BID  ,BID  ,BID  ,
-     A           IBID )
+     A           IBID  ,IBID  )
          ENDIF
       ENDIF
       IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT  > 0)THEN
@@ -778,16 +772,12 @@ C---------------------------------
            !   /H3D/ELEM/VECT/CONT WITH LAW151 (COLOCATED SCHEME)                       
            IF (MULTI_FVM%IS_USED) THEN 
              IF(H3D_DATA%N_VECT_CONT  > 0)THEN                                                 
-               IDX=NUMELS*(ANIM_SE(10)+ANIM_SE(4960)+ANIM_SE(4961)) !skip vorticity data  
-               ILEN=NUMELS+NUMELQ                                                         
-               DO I=1,JLT                                                                 
-                 IPOS=NSVG(I)
-                 IF(IPOS>0) THEN ! local cell
-                      IPOS=IPOS-NUMNOD                                                         
-                      IPOS = IDX+3*(IPOS-1)                                                    
-                      FANI_CELL(IPOS+1)=FANI_CELL(IPOS+1)-FXI(I)                               
-                      FANI_CELL(IPOS+2)=FANI_CELL(IPOS+2)-FYI(I)                               
-                      FANI_CELL(IPOS+3)=FANI_CELL(IPOS+3)-FZI(I)                               
+               DO I=1,JLT
+                 JG=NSVG(I)-NUMNOD
+                 IF(JG>0) THEN ! local cell
+                    OUTPUT%DATA%FANI_CELL%F18(1,JG)=OUTPUT%DATA%FANI_CELL%F18(1,JG)-FXI(I)
+                    OUTPUT%DATA%FANI_CELL%F18(2,JG)=OUTPUT%DATA%FANI_CELL%F18(2,JG)-FYI(I)
+                    OUTPUT%DATA%FANI_CELL%F18(3,JG)=OUTPUT%DATA%FANI_CELL%F18(3,JG)-FZI(I)
                   ENDIF
                ENDDO     
              ENDIF                                                                 
@@ -796,7 +786,7 @@ C---------------------------------
              DO I=1,JLT                                                               
               JG = NSVG(I)                                                              
               IF(JG > 0) THEN                                                          
-                ! en SPMD : traitement a refaire apres reception noeud remote si JG < 0 
+                ! SPMD : reprocess required after receiving a remote node if JG < 0
                 FCONT(1,JG)=FCONT(1,JG)- FXI(I)                                         
                 FCONT(2,JG)=FCONT(2,JG)- FYI(I)                                         
                 FCONT(3,JG)=FCONT(3,JG)- FZI(I)
@@ -805,9 +795,10 @@ C---------------------------------
            ENDIF                                                                        
 #include "lockoff.inc"
       ENDIF
-      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT > 0 .AND.
-     .    (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D .OR.
-     .    (MANIM.GE.4.AND.MANIM.LE.15).OR.H3D_DATA%MH3D /= 0))THEN
+      IF((ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT > 0 .AND.
+     .    ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP) .OR.
+     .    (MANIM>=4.AND.MANIM<=15).OR.H3D_DATA%MH3D /= 0))
+     .   .OR.H3D_DATA%N_VECT_PCONT_MAX>0)THEN
 #include "lockon.inc"
            DO I=1,JLT
             FNCONT(1,IX1(I)) =FNCONT(1,IX1(I)) + FXI(I)*H1(I)
@@ -837,8 +828,8 @@ C-----------------------------------------------------
                IF(ISECUT /= 0)THEN
 #include "lockon.inc"
                  DO K=1,JLT
-                   ! attention aux signes pour le cumul des efforts
-                   ! a rendre conforme avec CFORC3
+                   ! Be careful with sign conventions during force accumulation
+                   ! Ensure consistency with CFORC3 implementation
                    IF(SECFCUM(4,IX1(K),I) == ONE)THEN
                     SECFCUM(1,IX1(K),I)=SECFCUM(1,IX1(K),I)-FX1(K)
                     SECFCUM(2,IX1(K),I)=SECFCUM(2,IX1(K),I)-FY1(K)
@@ -861,7 +852,7 @@ C-----------------------------------------------------
                    ENDIF
                    JG = NSVG(K)
                    IF(JG > 0) THEN
-                     ! en SPMD : traitement a refaire apres reception noeud remote si JG < 0
+                     ! SPMD : reprocess required after receiving a remote node if JG < 0
                      IF(SECFCUM(4,JG,I) == 1.)THEN
                        SECFCUM(1,JG,I)=SECFCUM(1,JG,I)+FXI(K)
                        SECFCUM(2,JG,I)=SECFCUM(2,JG,I)+FYI(K)
@@ -880,4 +871,6 @@ C-----------------------------------------------------
       ENDIF!(ISECIN > 0)
 C-----------------------------------------------------
       RETURN
-      END
+      END SUBROUTINE I18FOR3
+C-----------------------------------------------------
+      END MODULE I18FOR3_MOD

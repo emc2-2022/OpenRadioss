@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  OPEN_INTERF_TIME              source/system/timer_interf.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        METRIC_MOD                    ../common_source/modules/metric_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    open_interf_time   ../engine/source/system/timer_interf.F
+!||--- uses       -----------------------------------------------------
+!||    metric_mod         ../common_source/modules/interfaces/metric_mod.F
+!||====================================================================
       SUBROUTINE OPEN_INTERF_TIME(ISPMD)
       USE METRIC_MOD
 C-----------------------------------------------
@@ -39,7 +38,6 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER :: ISPMD
 C-----------------------------------------------
-      INTEGER I, J
       CHARACTER FILNAM*100
       CHARACTER PROCNAM*4
 C-----------------------------------------------
@@ -50,12 +48,11 @@ C-----------------------------------------------
      .         FORM='FORMATTED',STATUS='UNKNOWN')
       END SUBROUTINE
 
-Chd|====================================================================
-Chd|  CLOSE_INTERF_TIME             source/system/timer_interf.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        METRIC_MOD                    ../common_source/modules/metric_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    close_interf_time   ../engine/source/system/timer_interf.F
+!||--- uses       -----------------------------------------------------
+!||    metric_mod          ../common_source/modules/interfaces/metric_mod.F
+!||====================================================================
       SUBROUTINE CLOSE_INTERF_TIME()
       USE METRIC_MOD
 C-----------------------------------------------
@@ -65,27 +62,23 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER I, J
-      CHARACTER FILNAM*100
-C-----------------------------------------------
       CLOSE(unit=FILE_ID)
       END SUBROUTINE
 
-Chd|====================================================================
-Chd|  INT_STARTIME                  source/system/timer_interf.F  
-Chd|-- called by -----------
-Chd|        INTER_SORT                    source/interfaces/generic/inter_sort.F
-Chd|        INTFOP2                       source/interfaces/interf/intfop2.F
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        METRIC_MOD                    ../common_source/modules/metric_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    int_startime   ../engine/source/system/timer_interf.F
+!||--- called by ------------------------------------------------------
+!||    inter_sort     ../engine/source/interfaces/generic/inter_sort.F
+!||    intfop2        ../engine/source/interfaces/interf/intfop2.F
+!||    inttri         ../engine/source/interfaces/intsort/inttri.F
+!||--- uses       -----------------------------------------------------
+!||    metric_mod     ../common_source/modules/interfaces/metric_mod.F
+!||====================================================================
       SUBROUTINE INT_STARTIME(THIS,EVENT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE METRIC_MOD
-C     routine d'incrementation du timer event
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -93,9 +86,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -110,19 +101,19 @@ C-----------------------------------------------
       tic = MPI_WTIME()
       THIS%TIME(EVENT,2)=tic
 #else
-      THIS%TIME(EVENT,2)=0.0D0
+      THIS%TIME(EVENT,1:2)=0.0D0
 #endif
       RETURN
       END SUBROUTINE
-Chd|====================================================================
-Chd|  INT_STOPTIME                  source/system/timer_interf.F  
-Chd|-- called by -----------
-Chd|        INTER_SORT                    source/interfaces/generic/inter_sort.F
-Chd|        INTFOP2                       source/interfaces/interf/intfop2.F
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        METRIC_MOD                    ../common_source/modules/metric_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    int_stoptime   ../engine/source/system/timer_interf.F
+!||--- called by ------------------------------------------------------
+!||    inter_sort     ../engine/source/interfaces/generic/inter_sort.F
+!||    intfop2        ../engine/source/interfaces/interf/intfop2.F
+!||    inttri         ../engine/source/interfaces/intsort/inttri.F
+!||--- uses       -----------------------------------------------------
+!||    metric_mod     ../common_source/modules/interfaces/metric_mod.F
+!||====================================================================
       SUBROUTINE INT_STOPTIME(THIS,EVENT)
 C-----------------------------------------------
 C   M o d u l e s
@@ -135,9 +126,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -157,16 +146,17 @@ C
 #endif
       RETURN
       END SUBROUTINE
-Chd|====================================================================
-Chd|  PRINTIME_INTERF               source/system/timer_interf.F  
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        SPMD_DGATHER                  source/mpi/output/spmd_gather.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        METRIC_MOD                    ../common_source/modules/metric_mod.F
-Chd|====================================================================
-      SUBROUTINE PRINTIME_INTERF(INTBUF_TAB,IPARI,INTLIST,NBINTC)
+!||====================================================================
+!||    printime_interf   ../engine/source/system/timer_interf.F
+!||--- called by ------------------------------------------------------
+!||    resol             ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_dgather      ../engine/source/mpi/output/spmd_gather.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod     ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    metric_mod        ../common_source/modules/interfaces/metric_mod.F
+!||====================================================================
+      SUBROUTINE PRINTIME_INTERF(INTBUF_TAB,IPARI,INTLIST,NBINTC,TRESHOLD)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -181,7 +171,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include        "units_c.inc"
+#include      "units_c.inc"
 #include      "task_c.inc"
 #include      "timerr_c.inc"
 #include      "param_c.inc"
@@ -191,6 +181,7 @@ C-----------------------------------------------
       INTEGER, INTENT(IN) :: NBINTC
       INTEGER, INTENT(IN) :: INTLIST(NBINTC),IPARI(NPARI,NINTER)
       TYPE(INTBUF_STRUCT_),DIMENSION(NINTER), INTENT(IN) :: INTBUF_TAB
+      DOUBLE PRECISION :: TRESHOLD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -199,17 +190,17 @@ C-----------------------------------------------
       INTEGER ::  I,J,N,P
       DOUBLE PRECISION, DIMENSION(:), ALLOCATABLE :: RATIO
       DOUBLE PRECISION,DIMENSION(:,:,:), ALLOCATABLE :: SUMMARY
-      DOUBLE PRECISION :: TRESHOLD,PMAX,TOTAL_TIME
+      DOUBLE PRECISION ::PMAX,TOTAL_TIME
       INTEGER :: NB_PRINTED_INTERF 
       
 
-      TRESHOLD = 0.01D0 * REALTIME(1,1)
 
       IF(NSPMD > 0) THEN
         ALLOCATE(SENDBUF(SIZE_METRIC * NBINTC))
         SENDBUF(1:SIZE_METRIC*NBINTC) = 0
         IF(ISPMD == 0) THEN
           ALLOCATE(RECVBUF(SIZE_METRIC*NBINTC,NSPMD))
+          RECVBUF(1:SIZE_METRIC*NBINTC,1:NSPMD) = 0
           ALLOCATE(RATIO(NBINTC))
           ALLOCATE(SUMMARY(SIZE_METRIC,3,NBINTC))
         ELSE
@@ -231,7 +222,11 @@ C-----------------------------------------------
           SENDBUF(J + I_NSNR         )=DBLE(INTBUF_TAB(N)%METRIC%NSNR    )
           SENDBUF(J + I_NCONT        )=DBLE(INTBUF_TAB(N)%METRIC%NCONT   )
         ENDDO
-        CALL SPMD_DGATHER(SENDBUF,SIZE_METRIC*NBINTC,RECVBUF,0)
+        IF(NSPMD > 1) THEN
+          CALL SPMD_DGATHER(SENDBUF,SIZE_METRIC*NBINTC,RECVBUF,0)
+        ELSE
+          RECVBUF(1:SIZE_METRIC*NBINTC,1) = SENDBUF(1:SIZE_METRIC*NBINTC)
+        ENDIF
 
 C=================== PRINT ON PROC 0        
         IF( ISPMD == 0) THEN
@@ -265,6 +260,7 @@ C ===========  MAX OVER PROCESSORS
      .                   + RECVBUF(I_MAIN_CRIT_TRI+J,P)             
      .                   + RECVBUF(I_MAIN_TRI+J,P) 
      .                   + RECVBUF(I_MAIN_FORCES+J,P) 
+
               IF(TOTAL_TIME  > PMAX) THEN
                 SUMMARY(I_MAIN_OPT_TRI,2,I) =  RECVBUF(J + I_MAIN_OPT_TRI,P)
                 SUMMARY(I_MAIN_CRIT_TRI,2,I)=  RECVBUF(J + I_MAIN_CRIT_TRI,P)

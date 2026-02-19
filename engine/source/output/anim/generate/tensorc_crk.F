@@ -1,48 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  TENSORC_CRK                   source/output/anim/generate/tensorc_crk.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SIGROTA_XFE                   source/output/anim/generate/sigrota_xfe.F
-Chd|        SPMD_R4GET_PARTN              source/mpi/anim/spmd_r4get_partn.F
-Chd|        UROTOV                        source/airbag/uroto.F         
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    tensorc_crk        ../engine/source/output/anim/generate/tensorc_crk.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    sigrota_xfe        ../engine/source/output/anim/generate/sigrota_xfe.F
+!||    spmd_r4get_partn   ../engine/source/mpi/anim/spmd_r4get_partn.F
+!||    urotov             ../engine/source/airbag/uroto.F
+!||    write_r_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod      ../engine/share/modules/crackxfem_mod.F
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    matparam_def_mod   ../common_source/modules/mat_elem/matparam_def_mod.F90
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE TENSORC_CRK(ELBUF_TAB,XFEM_TAB,IPARG     ,IPM     ,
      1                       ITENS    ,INVERT  ,EL2FA     ,NBF     ,
      2                       LEN      ,EPSDOT  ,IADP      ,NBF_L   ,
      3                       NBPART   ,IADG    ,X         ,IXC     ,
      4                       IGEO     ,IXTG    ,IEL_CRK   ,IADC_CRK,
-     5                       CRKEDGE  ,INDX_CRK)
+     5                       CRKEDGE  ,INDX_CRK,MAT_PARAM )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE CRACKXFEM_MOD
       USE ELBUFDEF_MOD
+      USE MATPARAM_DEF_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -56,11 +63,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com_xfem1.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "spmd_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -76,28 +78,31 @@ C     REAL
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP,NXEL), TARGET :: XFEM_TAB
       TYPE (XFEM_EDGE_)   , DIMENSION(*) :: CRKEDGE
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 C     REAL
       my_real
-     .   A1,A2,A3,THK,SIGE(MVSIZ,5),TENS(3,LEN)
+     .   A1,A2,A3,THK,SIGE(MVSIZ,5)
+      my_real, DIMENSION(:,:),ALLOCATABLE :: TENS
       REAL R4(18)
       INTEGER I,NI,NG,NEL,NFT,ITY,LFT,NPT,IPT,
      .        N,J,LLT,MLW,ISTRAIN,
-     .        IPID,I1,I2,ISTRE,NNI,N0,
-     .        KK,IHBE,IREP,BUF,NEL_CRK,
-     .        NLAY,NPTT,IXEL,ILAY,NUVARV,IVISC,
+     . IPID,ISTRE,NNI,N0,
+     . IHBE,IREP,BUF,NEL_CRK,
+     . NLAY,IXEL,ILAY,NUVARV,IVISC,
      .        IPMAT,IGTYP,MATLY,NLEVXF,NPG,ICRK,JJ(8)
 C
-      INTEGER IXFEM,K,CRKS,ITG,IA,NN1,NN2,
+      INTEGER IXFEM, CRKS, ITG, NN1, NN2, 
      .        NN3,NN4,NN5,NN6
-      REAL WA(3,NBF_L)
+      REAL, DIMENSION(:,:), ALLOCATABLE :: WA
+      INTEGER, DIMENSION(:), ALLOCATABLE  :: NELCRK
+      INTEGER, DIMENSION(:), ALLOCATABLE  :: IE
       INTEGER ILAYCRK,ELCRK,NPT0
-      INTEGER NELCRK(NCRKPART),IE(NCRKPART)
       INTEGER PID(MVSIZ),MAT(MVSIZ)
 C---
-      TYPE(BUF_LAY_) ,POINTER :: BUFLY
+ 
       TYPE(G_BUFEL_) ,POINTER :: GBUF
       TYPE(L_BUFEL_) ,POINTER :: LBUF
 C---
@@ -108,6 +113,11 @@ C
      .   DIMENSION(:), POINTER :: DIR_A
 C=======================================================================
 !
+      CALL MY_ALLOC(TENS,3,LEN)
+      CALL MY_ALLOC(WA,3,NBF_L)
+      CALL MY_ALLOC(NELCRK,NCRKPART)
+      CALL MY_ALLOC(IE,NCRKPART)
+
       NEL_CRK = 0
       ITG = 1 + 4*ECRKXFEC
       TENS = ZERO
@@ -145,7 +155,7 @@ C
           LFT=1
           LLT=NEL
 !
-          DO I=1,8  ! lenght max of GBUF%G_STRA = 8
+          DO I=1,8  ! length max of GBUF%G_STRA = 8
             JJ(I) = NEL*(I-1)
           ENDDO
 !
@@ -304,7 +314,7 @@ C------------------------
             A1 = ONE
             A2 = -HALF
           ELSEIF (ITENS >= 301 .AND. ITENS <= 400) THEN
-            IF (NPT /= 0) THEN	
+            IF (NPT /= 0) THEN
               ISTRE = 2
               IPT = MIN(NPT,ITENS - 300)  
               A1 = ONE
@@ -369,7 +379,7 @@ c
                     IPMAT = 100                                     
                     DO I=1,NEL
                       MATLY = IGEO(IPMAT+ILAY,PID(I))
-                      IF (IPM(222,MATLY) > 0 ) IVISC = 1
+                      IF (MAT_PARAM(MATLY)%IVISC > 0 ) IVISC = 1
                     ENDDO
 c                  ELSEIF (IGTYP == 9 .OR. IGTYP == 10) THEN
 c                  ELSEIF (IGTYP == 17) THEN
@@ -659,5 +669,9 @@ C
         CALL SPMD_R4GET_PARTN(3,3*NBF_L,NCRKPART,IADG,WA,BUF)
       ENDIF
 C---
+      IF (ALLOCATED(TENS)) DEALLOCATE(TENS)
+      IF (ALLOCATED(WA)) DEALLOCATE(WA)
+      IF (ALLOCATED(NELCRK)) DEALLOCATE(NELCRK)
+      IF (ALLOCATED(IE)) DEALLOCATE(IE)
       RETURN
       END

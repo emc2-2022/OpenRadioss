@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  M11LAW                        source/materials/mat/mat011/m11law.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|-- calls ---------------
-Chd|        M11VS2                        source/materials/mat/mat011/m11vs2.F
-Chd|        M11VS3                        source/materials/mat/mat011/m11vs3.F
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    m11law                 ../engine/source/materials/mat/mat011/m11law.F
+!||--- called by ------------------------------------------------------
+!||    mmain                  ../engine/source/materials/mat_share/mmain.F90
+!||--- calls      -----------------------------------------------------
+!||    finter                 ../engine/source/tools/curve/finter.F
+!||    m11vs2                 ../engine/source/materials/mat/mat011/m11vs2.F
+!||    m11vs3                 ../engine/source/materials/mat/mat011/m11vs3.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    alefvm_mod             ../common_source/modules/ale/alefvm_mod.F
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE M11LAW(PM   ,OFF ,SIG   ,EINT     ,RHO    ,
      2                  T    ,RK  ,RE    ,VO       ,
      3                  ALE_CONNECT,IX  ,IPARG ,ELBUF_TAB,V      ,
@@ -43,6 +45,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD            
       USE ALE_CONNECTIVITY_MOD
+      USE ALEFVM_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,9 +61,6 @@ C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "vect01_c.inc"
 #include      "param_c.inc"
-#include      "scrupw_c.inc"
-#include      "task_c.inc"
-#include      "alefvm.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -100,7 +100,7 @@ C=======================================================================
       !-----------------------------------!
       !  READING USER INPUTS              !
       !-----------------------------------!      
-      MX          = MAT(LFT)
+      MX          = MAT(1)
       RHO0_1      = PM( 1,MX)
       GAM_1       = PM(25,MX)
       P0_1        = PM(31,MX)
@@ -135,7 +135,7 @@ C=======================================================================
       !-----------------------------------!
       !  ELEM INIT. FROM USER INPUTS      !
       !-----------------------------------!       
-      DO I=LFT,LLT
+      DO I=1,NEL
         RHO0(I)   = RHO0_1
         GAM(I)    = GAM_1
         P0(I)     = P0_1
@@ -145,39 +145,40 @@ C=======================================================================
         Vx0(I)    = Vx_1
         Vy0(I)    = Vy_1
         Vz0(I)    = Vz_1     
-        TV(I) = ZERO
+        TV(I)     = T0      ! Consequently, if the adjacent material does not have an allocated temperature, 
+                            ! it will retain its initial value.
       ENDDO
 
-      DO I=LFT,LLT
+      DO I=1,NEL
         STIF(I)   = ZERO
         EIS(I)    = EIS(I) + EINT(I) / VOL(I)
       ENDDO
 
-      IF(IALEFVM==1)THEN
+      IF(ALEFVM_Param%IEnabled == 1)THEN
         IF(ITYP /= 3)THEN        
-          DO I=LFT,LLT
-            IF(IVxFUN.GT.0)THEN
+          DO I=1,NEL
+            IF(IVxFUN>0)THEN
               VxN(I) = Vx0(I)*FINTER(IVxFUN,TSCAL,NPF,TF,DYDX)
             ELSE
               VxN(I) = Vx0(I)
             ENDIF      
-            IF(IVyFUN.GT.0)THEN
+            IF(IVyFUN>0)THEN
               VyN(I) = Vy0(I)*FINTER(IVyFUN,TSCAL,NPF,TF,DYDX)
             ELSE
               VyN(I) = Vy0(I)          
             ENDIF    
-            IF(IVzFUN.GT.0)THEN
+            IF(IVzFUN>0)THEN
               VzN(I) = Vz0(I)*FINTER(IVzFUN,TSCAL,NPF,TF,DYDX)
             ELSE
               VzN(I) = Vz0(I)          
             ENDIF                    
           ENDDO
         ELSE!IF(ITYP /= 3)  
-          DO I=LFT,LLT
+          DO I=1,NEL
             MASS   = RHO(I) * VOL(I)
             VxN(I) = MOM(I,1) / MASS
             VyN(I) = MOM(I,2) / MASS
-            VzN(I) = MOM(I,3) / MASS			
+            VzN(I) = MOM(I,3) / MASS
           ENDDO          
         ENDIF
       ELSE
@@ -189,7 +190,7 @@ C=======================================================================
       !-----------------------------------!
       !  GET ADJACENT VALUES              !
       !-----------------------------------!  
-      IF(N2D.EQ.0) THEN
+      IF(N2D==0) THEN
        CALL M11VS3(PM    ,IPARG ,IX    ,ALE_CONNECT       ,ELBUF_TAB   ,V  ,
      2             X     ,DVP   ,VN    ,W           ,VEL         ,VD2,
      3             VDX   ,VDY   ,VDZ   ,MAT         ,RHOV        ,PV ,
@@ -209,8 +210,8 @@ C=======================================================================
        FAC=FOUR
       ENDIF
 
-      MX          = MAT(LFT)
-      DO I=LFT,LLT
+      MX          = MAT(1)
+      DO I=1,NEL
         CART      = PM(34,MX)
         QVIS(I)   = ZERO
         EXPT(I)   = EXP(CART*TT**2)
@@ -220,16 +221,16 @@ C=======================================================================
       !-----------------------------------!
       ! LOOP ON ELEMENTS                  !
       !-----------------------------------!
-      DO I=LFT,LLT    
+      DO I=1,NEL    
         
-        IF(INOD.NE.0)THEN
+        IF(INOD/=0)THEN
          VEL(I)   = V(1,INOD)**2+V(2,INOD)**2+V(3,INOD)**2
         ENDIF
 
         !---------------------------------!
         !  IMPOSED STATE ITYP=0,1         !
         !---------------------------------! 
-        IF(ITYP.LT.2)THEN
+        IF(ITYP<2)THEN
           RHOV(I) = RHO0(I)
           PV(I)   = P0(I)
           EIV(I)  = E0
@@ -239,86 +240,86 @@ C=======================================================================
         !---------------------------------!
         !  OUTGOING FLUX ITYP=ALL         !
         !---------------------------------!                             
-        ELSEIF(VN(I).LT.ZERO)THEN
+        ELSEIF(VN(I)<ZERO)THEN
           RHOV(I) = RHO(I)
           EIV(I)  = EINT(I)/VOL(I)
           RKV(I)  = RK(I)/VOL(I)
           REV(I)  = RE(I)/VOL(I)
           TV(I)   = T(I)
-          IF(IALEFVM == 1)THEN !otherwise %MOM is not allocated
+          IF(ALEFVM_Param%IEnabled == 1)THEN !otherwise %MOM is not allocated
             MASS    = RHO(I) * VOL(I)
             VxV(I)  = MOM(I,1)/MASS
             VyV(I)  = MOM(I,2)/MASS
             VzV(I)  = MOM(I,3)/MASS 
             XmomV(I)= MOM(I,1)
             YmomV(I)= MOM(I,2)
-            ZmomV(I)= MOM(I,3)  			     
+            ZmomV(I)= MOM(I,3)             
           ENDIF
         ENDIF
 
-        IF(IRFUN.GT.0)THEN
+        IF(IRFUN>0)THEN
           RHON    = RHO0(I)*FINTER(IRFUN,TSCAL,NPF,TF,DYDX)
-        ELSEIF(IRFUN.LT.0)THEN
+        ELSEIF(IRFUN<0)THEN
           RHON    = RHOF+(RHO0(I)-RHOF)*EXPT(I)
         ELSE
           RHON   = RHOV(I)
         ENDIF
 
-        IF(IPFUN.GT.0)THEN
+        IF(IPFUN>0)THEN
           PN     = P0(I)*FINTER(IPFUN,TSCAL,NPF,TF,DYDX)
-        ELSEIF(IPFUN.LT.0)THEN
+        ELSEIF(IPFUN<0)THEN
           PN     = PF+(P0(I)-PF)*EXPT(I)
         ELSE
           PN     = PV(I)
         ENDIF
 
-        IF(ITYP.EQ.5 .OR. ITYP.EQ.6 )THEN
-          IF(IPFUN.GT.0)THEN
+        IF(ITYP==5 .OR. ITYP==6 )THEN
+          IF(IPFUN>0)THEN
             VIMP = P0(I)*FINTER(IPFUN,TSCAL,NPF,TF,DYDX)
           ELSE
             VIMP(I)=P0(I)
           ENDIF
         ENDIF
         
-        IF(IEFUN.GT.0)THEN
+        IF(IEFUN>0)THEN
           EN = E0*FINTER(IEFUN,TSCAL,NPF,TF,DYDX)
-        ELSEIF(IEFUN.LT.0)THEN
+        ELSEIF(IEFUN<0)THEN
           EN     =EF+(E0-EF)*EXPT(I)
         ELSE
           EN     =EIV(I)
         ENDIF
 
-        IF(JTUR.NE.0)THEN
-          IF(IKFUN.GT.0)THEN
+        IF(JTUR/=0)THEN
+          IF(IKFUN>0)THEN
            RK(I) = RHO0(I)*FINTER(IKFUN,TSCAL,NPF,TF,DYDX)
           ELSE
            RK(I) = RKV(I)
           ENDIF
-          IF(ISFUN.GT.0)THEN
+          IF(ISFUN>0)THEN
            RE(I) = RHO0(I)*FINTER(ISFUN,TSCAL,NPF,TF,DYDX)
           ELSE
            RE(I) = REV(I)
           ENDIF
         ENDIF
 
-        IF(ITFUN.GT.0)THEN
+        IF(ITFUN>0)THEN
           T(I) = T0*FINTER(ITFUN,TSCAL,NPF,TF,DYDX)
         ELSE
-          T(I)   =TV(I)
+          T(I) = TV(I)
         ENDIF
         
-      IF(IALEFVM==1)THEN   
-        IF(IVxFUN.GT.0)THEN
+      IF(ALEFVM_Param%IEnabled==1)THEN   
+        IF(IVxFUN>0)THEN
           XmomN = Vx0(I)*FINTER(IVxFUN,TSCAL,NPF,TF,DYDX)*RHON*VOL(I)
         ELSE
           XmomN = XmomV(I)
         ENDIF      
-        IF(IVyFUN.GT.0)THEN
+        IF(IVyFUN>0)THEN
           YmomN = Vy0(I)*FINTER(IVyFUN,TSCAL,NPF,TF,DYDX)*RHON*VOL(I)
         ELSE
           YmomN = YmomV(I)          
         ENDIF    
-        IF(IVzFUN.GT.0)THEN
+        IF(IVzFUN>0)THEN
           ZmomN = Vz0(I)*FINTER(IVzFUN,TSCAL,NPF,TF,DYDX)*RHON*VOL(I)
         ELSE
           ZmomN = ZmomV(I)          
@@ -326,15 +327,15 @@ C=======================================================================
       ENDIF        
         
         !-------------------------------------------!
-        ! CAS   0 et 1     STAGNATION POINT         !
+        ! Case 0 and 1 stagnation point!
         !-------------------------------------------!
         !ALEFVM no yet implemented
-        IF(ITYP.EQ.0)THEN
+        IF(ITYP==0)THEN
 C        GAZ
          VEL(I) = MIN(VEL(I),VCRT(I))
          DC=PM(99,MX)
          GV  = DC*GAMRP(I)*RHON*VEL(I)/(PN+PSH)
-         IF(GV.GT.EM4)THEN
+         IF(GV>EM4)THEN
           RSR    = (ONE - GV)**GAM1(I)
           P(I)   = (PN+PSH)*RSR**GAM(I)-PSH
          ELSE
@@ -346,7 +347,7 @@ C        GAZ
          P(I)   = P(I) + TWO_THIRD*RK(I)
          EINT(I)= GAM1(I)*(P(I)+PSH)
          SSP_EQ(I) = SQRT(GAM1(I)*(PN+PSH)/RHON)
-        ELSEIF(ITYP.EQ.1)THEN
+        ELSEIF(ITYP==1)THEN
 C        LIQUIDE
          DC        = PM(99,MX)
          C1        = PM(32,MX)
@@ -354,41 +355,41 @@ C        LIQUIDE
          P(I)      = PN-HALF*DC*RHO(I)*VEL(I)
          EINT(I)   = (ONE - RHO(I)/RHON)*(P(I)+PSH)+EN
          SSP_EQ(I) = SQRT(C1/RHON)
-         IF(IPFUN.NE.0.AND.JTUR.NE.0)P(I)=P(I)+ TWO_THIRD*RK(I)
+         IF(IPFUN/=0.AND.JTUR/=0)P(I)=P(I)+ TWO_THIRD*RK(I)
          
         !-------------------------------------------!
         ! CAS   2    IMPOSED STATE                  !
         !-------------------------------------------!
-        ELSEIF(ITYP.EQ.2.OR.ITYP.EQ.8)THEN
+        ELSEIF(ITYP==2.OR.ITYP==8)THEN
          RHO(I)     = RHON
          P(I)       = PN
          EINT(I)    = EN
          SSP_EQ(I)  = EP20
-         IF(IPFUN.NE.0.AND.JTUR.NE.0)P(I)=P(I)+TWO_THIRD*RK(I)
-         IF(IALEFVM==1)THEN
+         IF(IPFUN/=0.AND.JTUR/=0)P(I)=P(I)+TWO_THIRD*RK(I)
+         IF(ALEFVM_Param%IEnabled==1)THEN
            MOM(I,1)   = XmomN
            MOM(I,2)   = YmomN
-           MOM(I,3)   = ZmomN			    
+           MOM(I,3)   = ZmomN          
          ENDIF
          
         !-------------------------------------------!
         ! CAS   3   NON REFLECTING BOUNDARY         !
         !-------------------------------------------!
-        ELSEIF(ITYP.EQ.3 .OR. ITYP.EQ.7)THEN
+        ELSEIF(ITYP==3 .OR. ITYP==7)THEN
          RHO(I)    = RHON
          EINT(I)   = EN
          RHOC      = PM(97,MX)
          ALP       = PM(98,MX)*DT1
-         IF(IPFUN.NE.0.AND.JTUR.NE.0)PN=PN + TWO_THIRD*RK(I)
-         IF(IPFUN.NE.0 .AND. VN(I).LE.0)PN=PN - HALF*RHON*VN(I)**2
-         IF(IALEFVM==1)THEN
+         IF(IPFUN/=0.AND.JTUR/=0)PN=PN + TWO_THIRD*RK(I)
+         IF(IPFUN/=0 .AND. VN(I)<=0)PN=PN - HALF*RHON*VN(I)**2
+         IF(ALEFVM_Param%IEnabled==1)THEN
            MOM(I,1) = XmomN
            MOM(I,2) = YmomN
-           MOM(I,3) = ZmomN		    
+           MOM(I,3) = ZmomN        
          ENDIF         
 C
-         IF(TT.GT.ZERO)THEN
-          IF(IPFUN.EQ.0 .OR. VN(I).LE.ZERO .OR. ITYP.EQ.3)THEN
+         IF(TT>ZERO)THEN
+          IF(IPFUN==0 .OR. VN(I)<=ZERO .OR. ITYP==3)THEN
             DU     = (ONE-ALP)*RHOC*(VN(I)-VO(I))
            ELSE
             DU     = (ONE - ALP)*RHOC*((VN(I)-VO(I))-VN(I)*DVP(I))
@@ -400,21 +401,21 @@ C
          DP        = ALP*(SIG(I,1)+PN)
          VO(I)     = VN(I)
          P(I)      = -SIG(I,1)+DP+DU
-         SSP_EQ(I) = RHOC / RHO0(I) !adjacent value can also be output but recquires SPMD treatment.
+         SSP_EQ(I) = RHOC / RHO0(I) !adjacent value can also be output but requires SPMD treatment.
          
         !-------------------------------------------!
         ! CAS   4  NON REFLECTING BOUNDARY          !
         !           + TRANSVERSE RIGIDITY           !
         !-------------------------------------------!
-        ELSEIF(ITYP.EQ.4)THEN
+        ELSEIF(ITYP==4)THEN
          RHO(I) = RHON
          EINT(I)= EN
          RHOC=PM(97,MX)
          RHOC2=RHON*(RHOC/RHO0(I))**2
          ALP=PM(98,MX)*DT1
-         IF(IPFUN.NE.0.AND.JTUR.NE.0)PN=PN + TWO_THIRD*RK(I)
-         IF(IPFUN.NE.0 .AND. VN(I).LE.ZERO)PN=PN - HALF*RHON*VN(i)**2
-         IF(TT.GT.ZERO)THEN
+         IF(IPFUN/=0.AND.JTUR/=0)PN=PN + TWO_THIRD*RK(I)
+         IF(IPFUN/=0 .AND. VN(I)<=ZERO)PN=PN - HALF*RHON*VN(i)**2
+         IF(TT>ZERO)THEN
           DU=(ONE - ALP)*(RHOC*(VN(I)-VO(I))-RHOC2*DVP(I))
          ELSE
           DU=ZERO
@@ -429,8 +430,8 @@ C
         ! CAS  5   IMPOSED VELOCITY                !
         !           + NON REFLECTING                !
         !-------------------------------------------!
-        ELSEIF(ITYP.EQ.5)THEN
-         IF(TT.EQ.ZERO)VO(I) = PV(I)
+        ELSEIF(ITYP==5)THEN
+         IF(TT==ZERO)VO(I) = PV(I)
          RHO(I)    = RHON
          EINT(I)   = EN
          ALP       = PM(98,MX)*DT1
@@ -445,20 +446,20 @@ C
         !           + CONSTANT SSP                  !
         !           + RHO = RO_ADJACENT             !
         !-------------------------------------------!
-        ELSEIF(ITYP.EQ.6)THEN
-         IF(TT.EQ.ZERO)VO(I) = PV(I)
+        ELSEIF(ITYP==6)THEN
+         IF(TT==ZERO)VO(I) = PV(I)
          RHO(I)    = RHON
          EINT(I)   = EN
          ALP       = PM(98,MX)*DT1
          SSP       = PM(97,MX)/RHO0(I)
          VO(I)     = VO(I)+ALP*(PV(I)-VO(I))
          P(I)      = SSP*(RHOV(I)*VN(I)-VIMP(I))+VO(I)
-         SSP_EQ(I) = SSP !adjacent value can also be output but recquires SPMD treatment.
+         SSP_EQ(I) = SSP !adjacent value can also be output but requires SPMD treatment.
         ENDIF
       ENDDO !next I
 
 C-----------
-      DO I=LFT,LLT
+      DO I=1,NEL
         EIS(I)   = EIS(I) - EINT(I) 
         SIG(I,1) = -P(I)
         SIG(I,2) = -P(I)

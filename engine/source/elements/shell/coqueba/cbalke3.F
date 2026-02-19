@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CBALKE3                       source/elements/shell/coqueba/cbalke3.F
-Chd|-- called by -----------
-Chd|        CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- calls ---------------
-Chd|        CBALKEORFM                    source/elements/shell/coqueba/cbalke3.F
-Chd|        CBALKEORFM1                   source/elements/shell/coqueba/cbalke3.F
-Chd|        CBALKEORMF                    source/elements/shell/coqueba/cbalke3.F
-Chd|        CBALKEORMF1                   source/elements/shell/coqueba/cbalke3.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbalke3       ../engine/source/elements/shell/coqueba/cbalke3.F
+!||--- called by ------------------------------------------------------
+!||    cbake3        ../engine/source/elements/shell/coqueba/cbake3.F
+!||--- calls      -----------------------------------------------------
+!||    cbalkeorfm    ../engine/source/elements/shell/coqueba/cbalke3.F
+!||    cbalkeorfm1   ../engine/source/elements/shell/coqueba/cbalke3.F
+!||    cbalkeormf    ../engine/source/elements/shell/coqueba/cbalke3.F
+!||    cbalkeormf1   ../engine/source/elements/shell/coqueba/cbalke3.F
+!||====================================================================
         SUBROUTINE CBALKE3(JFT,JLT,CDET,THK0,THK2,HM,HF,HC,HZ,
      1                      BM,BMF,BF,BC,TC,BZZ,NPLAT,IPLAT,VOL,
      2                      IKGEO,FOR  ,MOM  ,
@@ -83,11 +83,11 @@ C-----------------------------------------------
      .    FXX(MVSIZ),FYY(MVSIZ),DM5(MVSIZ),DM6(MVSIZ),DF5(MVSIZ),
      .    FXY(MVSIZ),FXY2(MVSIZ),KM12,KM21,
      .    DF6(MVSIZ),DM5_2(MVSIZ),DM6_2(MVSIZ),DF5_2(MVSIZ),
-     .    DF6_2(MVSIZ),DMF(3,3,MVSIZ),FAC2Z,CBR1(4,MVSIZ),
-     .    CBR2(4,MVSIZ),CBR3(4,MVSIZ),BB0(2,2,MVSIZ),T0IJ(2,2,MVSIZ),
+     .    DF6_2(MVSIZ),DMF(3,3,MVSIZ),
+     .    BB0(2,2,MVSIZ),T0IJ(2,2,MVSIZ),
      .    T1IJ(2,2,MVSIZ)
        DATA IN/2,1/
-C-----------Attention Matrice sym Kii ne calcul que la moitie---------72
+C----------- CAPTE Matrix Sym KII only calculates half ---------- 72
 #include "vectorize.inc"
        DO M=JFT,JLT 
         EP=IPLAT(M)
@@ -248,7 +248,7 @@ C
        ENDDO
        ENDDO
 C ----add shear part with drilling dof-----
-      IF (IDRIL.GT.0) THEN
+      IF (IDRIL>0) THEN
        DO I=1,2
         I1 = IN(I)
        DO J=I,2
@@ -303,13 +303,13 @@ C
        ENDDO
        ENDDO
       END IF
-C ----ajoute termes sup. due au orthotrope-----
-       IF (IORTH.GT.0) THEN
+C ---- Add terms sup.due to orthotropic -----
+       IF (IORTH>0) THEN
 C ----add mem-bending coupling terms of orthotrope--coplanar first---
 #include "vectorize.inc"
         DO M=JFT,JLT 
          EP=IPLAT(M)
- 	 C2=VOL(EP)*THK0(EP)
+           C2=VOL(EP)*THK0(EP)
          DMF(1,1,M)=HMFOR(EP,1)*C2
          DMF(2,2,M)=HMFOR(EP,2)*C2
          DMF(1,2,M)=HMFOR(EP,3)*C2
@@ -654,53 +654,53 @@ C
          KM12       =T11(1,1,EP)*DF5(EP)+T11(2,2,EP)*DF6(EP)
          M11(1,2,EP)=M11(1,2,EP)-KM12
          M11(2,2,EP)=M11(2,2,EP)+T11(1,2,EP)*DF5_2(EP)
-	 
-         M12(1,1,EP)=M12(1,1,EP)+T12(1,2,EP)*DF6_2(EP)	 
+           
+         M12(1,1,EP)=M12(1,1,EP)+T12(1,2,EP)*DF6_2(EP)   
          KM12       =T12(1,1,EP)*DF5(EP)+T12(2,2,EP)*DF6(EP)
          M12(1,2,EP)=M12(1,2,EP)-KM12
          M12(2,1,EP)=M12(2,1,EP)-KM12
          M12(2,2,EP)=M12(2,2,EP)+T12(1,2,EP)*DF5_2(EP)
-	 
-         M13(1,1,EP)=M13(1,1,EP)+T13(1,2,EP)*DF6_2(EP)	 
+           
+         M13(1,1,EP)=M13(1,1,EP)+T13(1,2,EP)*DF6_2(EP)   
          KM12       =T13(1,1,EP)*DF5(EP)+T13(2,2,EP)*DF6(EP)
          M13(1,2,EP)=M13(1,2,EP)-KM12
          M13(2,1,EP)=M13(2,1,EP)-KM12
          M13(2,2,EP)=M13(2,2,EP)+T13(1,2,EP)*DF5_2(EP)
-	 
+           
          M14(1,1,EP)=M14(1,1,EP)+T14(1,2,EP)*DF6_2(EP)
          KM12       =T14(1,1,EP)*DF5(EP)+T14(2,2,EP)*DF6(EP)
          M14(1,2,EP)=M14(1,2,EP)-KM12
          M14(2,1,EP)=M14(2,1,EP)-KM12
          M14(2,2,EP)=M14(2,2,EP)+T14(1,2,EP)*DF5_2(EP)
-	 
-         M22(1,1,EP)=M22(1,1,EP)+T22(1,2,EP)*DF6_2(EP)	 
+           
+         M22(1,1,EP)=M22(1,1,EP)+T22(1,2,EP)*DF6_2(EP)   
          KM12       =T22(1,1,EP)*DF5(EP)+T22(2,2,EP)*DF6(EP)
          M22(1,2,EP)=M22(1,2,EP)-KM12
          M22(2,2,EP)=M22(2,2,EP)+T22(1,2,EP)*DF5_2(EP)
-	 
+           
          M23(1,1,EP)=M23(1,1,EP)+T23(1,2,EP)*DF6_2(EP)
          KM12       =T23(1,1,EP)*DF5(EP)+T23(2,2,EP)*DF6(EP)
          M23(1,2,EP)=M23(1,2,EP)-KM12
          M23(2,1,EP)=M23(2,1,EP)-KM12
          M23(2,2,EP)=M23(2,2,EP)+T23(1,2,EP)*DF5_2(EP)
-	 
+           
          M24(1,1,EP)=M24(1,1,EP)+T24(1,2,EP)*DF6_2(EP)
          KM12       =T24(1,1,EP)*DF5(EP)+T24(2,2,EP)*DF6(EP)
          M24(1,2,EP)=M24(1,2,EP)-KM12
          M24(2,1,EP)=M24(2,1,EP)-KM12
          M24(2,2,EP)=M24(2,2,EP)+T24(1,2,EP)*DF5_2(EP)
-	 
+           
          M33(1,1,EP)=M33(1,1,EP)+T33(1,2,EP)*DF6_2(EP)
          KM12       =T33(1,1,EP)*DF5(EP)+T33(2,2,EP)*DF6(EP)
          M33(1,2,EP)=M33(1,2,EP)-KM12
          M33(2,2,EP)=M33(2,2,EP)+T33(1,2,EP)*DF5_2(EP)
-	 
+           
          M34(1,1,EP)=M34(1,1,EP)+T34(1,2,EP)*DF6_2(EP)
          KM12       =T34(1,1,EP)*DF5(EP)+T34(2,2,EP)*DF6(EP)
          M34(1,2,EP)=M34(1,2,EP)-KM12
          M34(2,1,EP)=M34(2,1,EP)-KM12
          M34(2,2,EP)=M34(2,2,EP)+T34(1,2,EP)*DF5_2(EP)
-	 
+           
          M44(1,1,EP)=M44(1,1,EP)+T44(1,2,EP)*DF6_2(EP)
          KM12       =T44(1,1,EP)*DF5(EP)+T44(2,2,EP)*DF6(EP)
          M44(1,2,EP)=M44(1,2,EP)-KM12
@@ -869,8 +869,8 @@ C
      2                BBC(2,1,4,EP)*DC(2,2,EP)*BBC(2,J1,3,EP)
         ENDDO
        ENDDO
-C------ Mzz  pour tous----x:1,3,5,7;y:2,4,6,8---
-      IF (IDRIL.EQ.0) THEN
+C------ Mzz for all ---- x: 1.3,5,7; Y: 2.4,6,8 ---
+      IF (IDRIL==0) THEN
         DO EP=JFT,JLT
           M11(3,3,EP)=M11(3,3,EP)+DHZ(EP)
      1                *(BZZ(EP,1)*BZZ(EP,1)+BZZ(EP,2)*BZZ(EP,2))
@@ -894,7 +894,7 @@ C------ Mzz  pour tous----x:1,3,5,7;y:2,4,6,8---
      1                *(BZZ(EP,7)*BZZ(EP,7)+BZZ(EP,8)*BZZ(EP,8))
        ENDDO
 C------ renforce positive  ----------
-       IF (NEIG.EQ.0) THEN
+       IF (NEIG==0) THEN
        DO EP=JFT,JLT
         C1 = EM8*M11(3,3,EP)
         C2 = EM8*M22(3,3,EP)
@@ -906,7 +906,7 @@ C------ renforce positive  ----------
         M44(3,3,EP)=M44(3,3,EP)+C4
        ENDDO
        ENDIF 
-      END IF !(IDRIL.EQ.0) THEN
+      END IF !(IDRIL==0) THEN
 C---+----1----+----2----+warped elements----+----5----+----6----+----7----+----8
 #include "vectorize.inc"
        DO M=NF,JLT
@@ -1065,7 +1065,7 @@ C---+----1----+----2----+shear contribution-+----5----+----6----+----7----+----8
        ENDDO
        ENDDO
 C
-C---+----1----+----2----+couplage part--[MF](3x2)[FM](2x3)-6----+----7----+----8
+C---+---- 1 ----+---- 2 ----+Part coupling-[MF] (3x2) [FM] (2x3) -6 ----+---- 7 ----+---- 8
        DO I=1,3
        DO J=1,2
         J1=J+3
@@ -1134,7 +1134,7 @@ C
         ENDDO
        ENDDO
        ENDDO
-       IF (IORTH.EQ.1) THEN
+       IF (IORTH==1) THEN
         L=3
         K=1
         DO I=1,3
@@ -1314,7 +1314,7 @@ C
          ENDDO
         ENDDO
         ENDDO
-C	
+C
         DO I=1,2
         DO J=I,2
          DO EP=NF,JLT
@@ -1493,9 +1493,9 @@ C
        ENDDO
        ENDDO
 C       
-       ENDIF !(IORTH.EQ.1)
+       ENDIF !(IORTH==1)
 C
-       IF (IKGEO.EQ.1) THEN
+       IF (IKGEO==1) THEN
 #include "vectorize.inc"
         DO M=JFT,JLT 
          EP=IPLAT(M)
@@ -1546,7 +1546,7 @@ C
           T34(1,2,EP)=FXX(EP)*T34(1,1,EP)+FYY(EP)*T34(2,2,EP)
         ENDDO
 C
-        IF (IDRIL.GT.0) THEN
+        IF (IDRIL>0) THEN
 #include "vectorize.inc"
         DO M=JFT,JLT
          EP=IPLAT(M)
@@ -1608,7 +1608,7 @@ C
          ENDDO
         ENDDO
 C------ renforce positive  ----------
-        IF (NEIG.EQ.0.AND.IDRIL==0.AND. IORTH >0 ) THEN
+        IF (NEIG==0.AND.IDRIL==0.AND. IORTH >0 ) THEN
          DO EP=JFT,JLT
           C1 = MIN(T11(1,2,EP),T22(1,2,EP),T33(1,2,EP),T44(1,2,EP))
           IF (C1 < ZERO) THEN
@@ -1622,16 +1622,15 @@ C------ renforce positive  ----------
          ENDDO
         ENDIF
 C        
-       END IF !IF (IKGEO.EQ.1)
+       END IF !IF (IKGEO==1)
 C    
       RETURN
       END
-Chd|====================================================================
-Chd|  CBALKEC3                      source/elements/shell/coqueba/cbalke3.F
-Chd|-- called by -----------
-Chd|        CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbalkec3   ../engine/source/elements/shell/coqueba/cbalke3.F
+!||--- called by ------------------------------------------------------
+!||    cbake3     ../engine/source/elements/shell/coqueba/cbake3.F
+!||====================================================================
         SUBROUTINE CBALKEC3(JFT,JLT, VOL  ,X13  ,X24  ,Y13  ,Y24,HM,
      1                      K11,K12,K13,K14,K22,K23,K24,K33,K34,K44,
      2                      NPLAT,IPLAT,IKGEO,FOR ,M11,M22,M33,M44,
@@ -1704,7 +1703,7 @@ C
         ENDDO
        ENDDO
        ENDDO
-       IF (IKGEO.EQ.1) THEN
+       IF (IKGEO==1) THEN
 #include "vectorize.inc"
         DO M=JFT,JLT 
          EP=IPLAT(M)
@@ -1750,12 +1749,11 @@ C------ renforce positive  ----------
 C
        RETURN
        END
-Chd|====================================================================
-Chd|  CBALKERZ                      source/elements/shell/coqueba/cbalke3.F
-Chd|-- called by -----------
-Chd|        CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbalkerz   ../engine/source/elements/shell/coqueba/cbalke3.F
+!||--- called by ------------------------------------------------------
+!||    cbake3     ../engine/source/elements/shell/coqueba/cbake3.F
+!||====================================================================
         SUBROUTINE CBALKERZ(JFT ,JLT   ,VOL  ,THK0 ,
      2                     HM   ,HZ   ,BM   ,
      6                    K11,K12,K13,K14,K22,K23,K24,K33,K34,K44,
@@ -1771,7 +1769,6 @@ C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "mvsiz_p.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -1802,14 +1799,14 @@ C-----------------------------------------------
      .    T11(3,3,MVSIZ),T12(3,3,MVSIZ),T13(3,3,MVSIZ),T14(3,3,MVSIZ),
      .    T22(3,3,MVSIZ),T23(3,3,MVSIZ),T24(3,3,MVSIZ),T33(3,3,MVSIZ),
      .    T44(3,3,MVSIZ),T34(3,3,MVSIZ),
-     .    BB(2,4,MVSIZ),GM(MVSIZ),BMRZ1(MVSIZ,4,4),BMRZ2(MVSIZ,4,4),
+     .    BB(2,4,MVSIZ),BMRZ1(MVSIZ,4,4),BMRZ2(MVSIZ,4,4),
      .    BMRZ3(MVSIZ,4,4),DHZ(MVSIZ),
      .    DM(3,3,MVSIZ),DPRZ(4,MVSIZ),PX(4,MVSIZ),PY(4,MVSIZ),
-     .    C1,C2,CBRX(4,MVSIZ),CBRY(4,MVSIZ),CBRZ(4,MVSIZ),FRZV(MVSIZ)
+     .    C2,CBRX(4,MVSIZ),CBRY(4,MVSIZ),CBRZ(4,MVSIZ),FRZV(MVSIZ)
       my_real
      .   PRX(4,MVSIZ),PRY(4,MVSIZ),PRXY(4,MVSIZ),PRZ(4,MVSIZ),
      .   DMF(3,3,MVSIZ),CBR1(4,MVSIZ),CBR2(4,MVSIZ),CBR3(4,MVSIZ)
-C-----------Attention Matrice sym Kii ne calcul que la moitie---------72
+C----------- CAPTE Matrix Sym KII only calculates half ---------- 72
         NF =NPLAT+1
 #include "vectorize.inc"
        DO M=JFT,JLT
@@ -1823,7 +1820,7 @@ C-----------Attention Matrice sym Kii ne calcul que la moitie---------72
         DM(1,3,M)=ZERO
         DM(2,3,M)=ZERO
        ENDDO
-       IF (IORTH.GT.0) THEN
+       IF (IORTH>0) THEN
         DO M=JFT,JLT
          EP=IPLAT(M)
          C2=VOL(EP)
@@ -1963,12 +1960,12 @@ C
         FM34(3,1,EP)=FM34(3,1,EP)+ BMRZ1(EP,4,3)
         FM34(3,2,EP)=FM34(3,2,EP)+ BMRZ2(EP,4,3)
        ENDDO
-       IF (IORTH.GT.0) THEN
+       IF (IORTH>0) THEN
 C ----add mem-bending coupling terms of orthotrope--coplanar first---
 #include "vectorize.inc"
         DO M=JFT,JLT 
          EP=IPLAT(M)
- 	 C2=VOL(EP)*THK0(EP)
+           C2=VOL(EP)*THK0(EP)
          DMF(1,1,M)=HMFOR(EP,1)*C2
          DMF(2,2,M)=HMFOR(EP,2)*C2
          DMF(1,2,M)=HMFOR(EP,3)*C2
@@ -2066,7 +2063,7 @@ C
           M34(3,2,EP)=M34(3,2,EP)
      .                +PX(4,EP)*CBR1(3,EP)+PY(4,EP)*CBR3(3,EP)
          ENDDO
-       ENDIF !IF (IORTH.EQ.1)
+       ENDIF !IF (IORTH==1)
 C--------warped elements--------
        DO I=1,3
        DO J=I,3
@@ -2334,7 +2331,7 @@ C------ Mzz  ----------
      .              PRY(4,M)*CBRY(4,M)+PRXY(4,M)*CBRZ(4,M)
        ENDDO
 C       
-       IF (IORTH.GT.0) THEN
+       IF (IORTH>0) THEN
 C ----add Rz-bending coupling terms of orthotrope--warped element---
 C     MIJ(i,3)=BF(I)^t*CBRi(J) 
 C     MIJ(3,i)=BF(J)^t*CBRi(I)
@@ -2455,9 +2452,9 @@ C
      .               +BMF(EP,3,I,4)*CBR3(3,EP)
          ENDDO
         END DO !I=1,3
-       END IF !(IORTH.EQ.1) THEN
+       END IF !(IORTH==1) THEN
 C------ Geometrical stiffness associated w/ Rz  ----------
-       IF (IKGEO.EQ.1) THEN
+       IF (IKGEO==1) THEN
 #include "vectorize.inc"
         DO M=JFT,JLT 
          EP=IPLAT(M)
@@ -2504,12 +2501,11 @@ C
 C
        RETURN
        END
-Chd|====================================================================
-Chd|  CBALKEORMF                    source/elements/shell/coqueba/cbalke3.F
-Chd|-- called by -----------
-Chd|        CBALKE3                       source/elements/shell/coqueba/cbalke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbalkeormf   ../engine/source/elements/shell/coqueba/cbalke3.F
+!||--- called by ------------------------------------------------------
+!||    cbalke3      ../engine/source/elements/shell/coqueba/cbalke3.F
+!||====================================================================
         SUBROUTINE CBALKEORMF(JFT    ,JLT   ,KMFIJ    ,DMF   ,TIJ   )
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
@@ -2555,12 +2551,11 @@ C
 C
        RETURN
        END
-Chd|====================================================================
-Chd|  CBALKEORFM                    source/elements/shell/coqueba/cbalke3.F
-Chd|-- called by -----------
-Chd|        CBALKE3                       source/elements/shell/coqueba/cbalke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbalkeorfm   ../engine/source/elements/shell/coqueba/cbalke3.F
+!||--- called by ------------------------------------------------------
+!||    cbalke3      ../engine/source/elements/shell/coqueba/cbalke3.F
+!||====================================================================
         SUBROUTINE CBALKEORFM(JFT    ,JLT   ,KFMIJ    ,DMF   ,TIJ   )
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
@@ -2607,12 +2602,11 @@ C
 C
        RETURN
        END
-Chd|====================================================================
-Chd|  CBALKEORMF1                   source/elements/shell/coqueba/cbalke3.F
-Chd|-- called by -----------
-Chd|        CBALKE3                       source/elements/shell/coqueba/cbalke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbalkeormf1   ../engine/source/elements/shell/coqueba/cbalke3.F
+!||--- called by ------------------------------------------------------
+!||    cbalke3       ../engine/source/elements/shell/coqueba/cbalke3.F
+!||====================================================================
         SUBROUTINE CBALKEORMF1(JFT  ,JLT  ,KMFIJ  ,DMF   ,TIJ  ,T0IJ )
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
@@ -2658,12 +2652,11 @@ C
 C
        RETURN
        END
-Chd|====================================================================
-Chd|  CBALKEORFM1                   source/elements/shell/coqueba/cbalke3.F
-Chd|-- called by -----------
-Chd|        CBALKE3                       source/elements/shell/coqueba/cbalke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbalkeorfm1   ../engine/source/elements/shell/coqueba/cbalke3.F
+!||--- called by ------------------------------------------------------
+!||    cbalke3       ../engine/source/elements/shell/coqueba/cbalke3.F
+!||====================================================================
         SUBROUTINE CBALKEORFM1(JFT  ,JLT  ,KFMIJ  ,DMF  ,TIJ  ,T0IJ )
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S

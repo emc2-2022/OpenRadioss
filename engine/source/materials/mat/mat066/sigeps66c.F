@@ -1,50 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS66C                     source/materials/mat/mat066/sigeps66c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        PRONY_MODELC                  source/materials/mat/mat066/prony_modelc.F
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps66c          ../engine/source/materials/mat/mat066/sigeps66c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc             ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter             ../engine/source/tools/curve/finter.F
+!||    finter2            ../engine/source/tools/curve/vinter.F
+!||    vinter             ../engine/source/tools/curve/vinter.F
+!||--- uses       -----------------------------------------------------
+!||    matparam_def_mod   ../common_source/modules/mat_elem/matparam_def_mod.F90
+!||====================================================================
       SUBROUTINE SIGEPS66C(
-     1     NEL    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC  ,
-     2     NPF    ,NPT0    ,IPT     ,IFLAG   ,
-     2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0   ,
-     3     AREA   ,EINT   ,THKLY   ,
-     4     EPSPXX ,EPSPYY ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
-     5     DEPSXX ,DEPSYY ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
-     6     EPSXX  ,EPSYY  ,EPSXY   ,EPSYZ   ,EPSZX  ,
-     7     SIGOXX ,SIGOYY ,SIGOXY  ,SIGOYZ  ,SIGOZX ,
-     8     SIGNXX ,SIGNYY ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
-     9     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
-     A     SOUNDSP,VISCMAX,THK     ,PLA     ,UVAR   ,
-     B     OFF    ,NGL    ,IPM     ,MAT     ,ETSE   ,
-     C     GS     ,YLD    ,EPSP    ,ISRATE  ,INLOC  ,
-     D     DPLANL )
-
+     1     NEL    ,NUPARAM  ,NUVAR   ,MFUNC   ,KFUNC  ,
+     2     NPF    ,NPT0     ,IPT     ,IFLAG   ,
+     2     TF     ,TIME     ,TIMESTEP,UPARAM  ,RHO0   ,
+     3     AREA   ,EINT     ,THKLY   ,ISRATE  ,ASRATE ,
+     4     EPSPXX ,EPSPYY   ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
+     5     DEPSXX ,DEPSYY   ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
+     6     EPSXX  ,EPSYY    ,EPSXY   ,EPSYZ   ,EPSZX  ,
+     7     SIGOXX ,SIGOYY   ,SIGOXY  ,SIGOYZ  ,SIGOZX ,
+     8     SIGNXX ,SIGNYY   ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
+     9     SIGVXX ,SIGVYY   ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
+     A     SOUNDSP,VISCMAX  ,THK     ,PLA     ,UVAR   ,
+     B     OFF    ,NGL      ,IPM     ,MAT     ,ETSE   ,
+     C     GS     ,YLD      ,EPSD_PG ,EPSP    ,INLOC  ,
+     D     DPLANL ,MAT_PARAM,NUVARV  ,UVARV   ,LOFF   )
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE MATPARAM_DEF_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -91,7 +96,7 @@ C SIGVXX  | NEL    | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL    | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL    | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL    | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL    | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C THK     | NEL    | F |R/W| THICKNESS
 C PLA     | NEL    | F |R/W| PLASTIC STRAIN
@@ -101,16 +106,16 @@ C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-C
+      INTEGER ,INTENT(IN) :: NUVARV
       INTEGER NEL, NUPARAM, NUVAR, NPT0, IPT,IFLAG(*),
      .   NGL(NEL),MAT(NEL),ISRATE,IPM(NPROPMI,*),INLOC
+      my_real ,INTENT(IN) :: ASRATE
+      my_real ,DIMENSION(NEL) ,INTENT(IN)    :: EPSD_PG !< global element strain rate in Gauss pt
+      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: EPSP    !< local strain rate used in equations
       my_real
      .   TIME,TIMESTEP(NEL),UPARAM(*),
      .   AREA(NEL),RHO0(NEL),EINT(NEL,2),
@@ -123,7 +128,9 @@ C
      .   EPSXY(NEL) ,EPSYZ(NEL) ,EPSZX(NEL) ,
      .   SIGOXX(NEL),SIGOYY(NEL),
      .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL),
-     .   GS(*),EPSP(NEL),DPLANL(NEL)
+     .   GS(*),DPLANL(NEL)
+      TYPE(MATPARAM_STRUCT_) ,INTENT(IN) :: MAT_PARAM
+      my_real, DIMENSION(NEL), INTENT(IN) :: LOFF
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -137,8 +144,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
-      my_real
-     .    UVAR(NEL,NUVAR), OFF(NEL),THK(NEL),YLD(NEL)
+      my_real ,DIMENSION(NEL,NUVARV) ,INTENT(INOUT) :: UVARV
+      my_real ,INTENT(INOUT) :: UVAR(NEL,NUVAR), OFF(NEL),THK(NEL),YLD(NEL)
 C-----------------------------------------------
 C   VARIABLES FOR FUNCTION INTERPOLATION 
 C-----------------------------------------------
@@ -157,25 +164,28 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,N,NINDX,NMAX,IRATE,NCC,NCT,NFUNC,
-     .        J1,J2,NPRONY,NV,IADBUF,NUVARV,
+     .        J1,J2,IADBUF,
      .        IAD1(NEL),IPOS1(NEL),ILEN1(NEL),
      .        IAD2(NEL),IPOS2(NEL),ILEN2(NEL),
      .        INDEX(NEL),JJC(NEL),JJT(NEL),IFUNC(MFUNC)
-      my_real E,E1,A1,A2,A11,A21,G,G1,YFACC,YFACT,CP,EDP,
-     .        NUX,PC,PT,EPSPO,NNU11,EPSP0,G31,DSXX,DSYY,DSXY,
-     .        DEXX,DEYY,DEXY,SIGPXX,SIGPYY,SIGPXY,KV,VP,SIGY,
-     .        G13,FAC,EPD,NU31,R,UMR,DEZZ,S2,S3,NU11,S1,NU21,
+      my_real EC, E1T,A11T,A21T,G1T,
+     .        CP,FISOKIN,
+     .        NU,PC,PT,RPCT,NNU11,EPSP0,DSXX,DSYY,DSXY,
+     .        DEXX,DEYY,DEXY,SIGPXX,SIGPYY,SIGPXY,VP,SIGY,
+     .        FAC,EPD,NU31,R,UMR,DEZZ,S2,S3,NU11,S1,NU21,
      .        NU110,NU210,P2,Q2,F,DF,A,YLD_I,YRATE,HKIN,ALPHA,
      .        DTINV
-      my_real SIGEXX(NEL),SIGEYY(NEL),SIGEXY(NEL),  
-     .        DYDX1(NEL),DYDX2(NEL),SVM(NEL),
-     .        YC(NEL),YT(NEL),P(NEL),H(NEL),
-     .        HK(NEL),NNU1(NEL),HI(NEL),DPLA_J(NEL),
-     .        AA(NEL),BB(NEL),DR(NEL),PP(NEL),QQ(NEL),
-     .        SVM2(NEL),YLD2(NEL),YFAC(MFUNC),Y1(NEL),
-     .        Y2(NEL),HT(NEL),RATE(NEL),HC(NEL),FISOKIN,
-     .        RATE0(MFUNC),GV(100),BETA(100),EPSPZZ(NEL)
-
+      my_real 
+     .        RATE0(MFUNC),YFAC(MFUNC)
+      my_real ,DIMENSION(NEL)  :: 
+     .        E, A11 , A21, G,G3, SIGEXX ,SIGEYY ,SIGEXY ,  
+     .        DYDX1 ,DYDX2 ,SVM ,
+     .        YC ,YT ,P ,H ,
+     .        HK  ,HI ,DPLA_J ,
+     .        AA ,BB ,DR ,PP ,QQ ,
+     .        SVM2 ,YLD2 ,Y1 ,
+     .        Y2 ,HT ,RATE ,HC  
+ 
       DATA NMAX/3/
 C-----------------------------------------------
 C     USER VARIABLES INITIALIZATION
@@ -183,18 +193,19 @@ C-----------------------------------------------
        IADBUF = IPM(7,MAT(1)) 
 C       
        IRATE = NINT(UPARAM(IADBUF ))
-       E1   = UPARAM(IADBUF +1)
-       A11  = UPARAM(IADBUF +2)
-       A21  = UPARAM(IADBUF +3)
-       G1   = UPARAM(IADBUF +4)
-       NUX  = UPARAM(IADBUF +5)
-       PC  = UPARAM(IADBUF +6)
-       PT = UPARAM(IADBUF +7)
+       E1T   = UPARAM(IADBUF +1)
+       A11T  = UPARAM(IADBUF +2)
+       A21T  = UPARAM(IADBUF +3)
+       G1T   = UPARAM(IADBUF +4)
+       NU    = UPARAM(IADBUF +5)
+       PC    = UPARAM(IADBUF +6)
+       PT    = UPARAM(IADBUF +7)
        EPSP0 = UPARAM(IADBUF +8)
-       CP= UPARAM(IADBUF +9)
-       NCC = NINT(UPARAM(IADBUF +10))
-       NCT = NINT(UPARAM(IADBUF +11))
+       CP    = UPARAM(IADBUF +9)
+       NCC   = NINT(UPARAM(IADBUF +10))
+       NCT   = NINT(UPARAM(IADBUF +11))
        FISOKIN = UPARAM(IADBUF + 12)
+
        NFUNC = IPM(10,MAT(1))
 C               
        DO I=1,NFUNC
@@ -205,14 +216,16 @@ C
 C    
        SIGY = UPARAM(IADBUF + 13 + 2*MFUNC) 
        VP   = UPARAM(IADBUF + 14 + 2*MFUNC)
+c       
+       EC   = UPARAM(IADBUF + 15 + 2*MFUNC)
+       RPCT = UPARAM(IADBUF + 16 + 2*MFUNC)
 C
        IF(VP /=0 .AND .IFLAG(1) /= 1) VP = 0
 C       
-       NNU11 = NUX / (ONE - NUX)
-       G31  = THREE*G1
+       NNU11 = NU / (ONE - NU)
 C       
-       IF (ISIGI.EQ.0) THEN
-        IF(TIME.EQ.ZERO)THEN
+       IF (ISIGI==0) THEN
+        IF(TIME==ZERO)THEN
          DO I=1,NEL
            UVAR(I,1)=ZERO
            UVAR(I,2)=ZERO
@@ -225,16 +238,49 @@ C
         ENDIF
        ENDIF
 C------------------------------------------
+c      IF ESTIMATE MODE Compression
+C------------------------------------------
+      DO I=1,NEL        
+         SIGNXX(I)=SIGOXX(I) - UVAR(I,2)  + A11T*DEPSXX(I)+A21T*DEPSYY(I)
+         SIGNYY(I)=SIGOYY(I) - UVAR(I,3)  + A21T*DEPSXX(I)+A11T*DEPSYY(I)
+         P(I) = -THIRD*(SIGNXX(I) + SIGNYY(I) )
+      ENDDO
+      E(1:NEL) = E1T   
+      G(1:NEL) = G1T   
+      IF(EC > ZERO)THEN
+        DO I=1,NEL  
+          IF(PC == ZERO .and. PT == ZERO .AND. ABS(P(I)) < EM10) THEN
+            E(I)   = EC
+          ELSEIF(P(I) <=  - RPCT * PT) THEN
+            E(I)   = E1T
+          ELSEIF(P(I) >= RPCT *PC) THEN
+            E(I)   = EC
+          ELSE
+            FAC =  RPCT *(PC + PT)
+            FAC = (RPCT * PC - P(I))/FAC
+            E(I) = FAC*E1T + (ONE -FAC)*EC
+          ENDIF  
+        ENDDO
+      ENDIF
+      DO I=1,NEL  
+        G(I)   = HALF*E(I)/( ONE + NU)
+        A11(I) = E(I)/(ONE - NU*NU)
+        A21(I) = NU * A11(I)                          
+        G3(I)  = THREE*G(I)                         
+      ENDDO
+
+
+C------------------------------------------
 C   estiamte stress
 C------------------------------------------
        DO I=1,NEL 
 C
-C  en cas d'   crouissage cinematique
+C  In case of cinematic crumbling
 C       
        
-         SIGNXX(I)=SIGOXX(I) - UVAR(I,2)  + A11*DEPSXX(I)+A21*DEPSYY(I)
-         SIGNYY(I)=SIGOYY(I) - UVAR(I,3)  + A21*DEPSXX(I)+A11*DEPSYY(I)
-         SIGNXY(I)=SIGOXY(I) - UVAR(I,4)  + G1 *DEPSXY(I)
+         SIGNXX(I)=SIGOXX(I) - UVAR(I,2)  + A11(I)*DEPSXX(I)+A21(I)*DEPSYY(I)
+         SIGNYY(I)=SIGOYY(I) - UVAR(I,3)  + A21(I)*DEPSXX(I)+A11(I)*DEPSYY(I)
+         SIGNXY(I)=SIGOXY(I) - UVAR(I,4)  + G(I) *DEPSXY(I)
          SIGNYZ(I)=SIGOYZ(I)  + GS(I) *DEPSYZ(I)
          SIGNZX(I)=SIGOZX(I)  + GS(I) *DEPSZX(I)
 C 
@@ -244,16 +290,19 @@ C
          
          P(I) = -THIRD*(SIGNXX(I) + SIGNYY(I) )
 C
-         SOUNDSP(I) = SQRT(A11/RHO0(I))
+         SOUNDSP(I) = SQRT(A11T/RHO0(I))
          VISCMAX(I) = ZERO
-         ETSE(I) = ONE
+         ETSE(I)    = ONE
 C-------------------
 C     STRAIN RATE
 C-------------------
-        IF (ISRATE == 0) EPSP(I) = 
-     .     HALF*( ABS(EPSPXX(I)+EPSPYY(I))
-     .   + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
-     .                 + EPSPXY(I)*EPSPXY(I) ) )
+        IF (ISRATE == 0) THEN
+          EPSP(I) = HALF*( ABS(EPSPXX(I)+EPSPYY(I))
+     .            + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
+     .            + EPSPXY(I)*EPSPXY(I) ) )
+         ELSE
+           EPSP(I) = ASRATE*EPSD_PG(I) + (ONE-ASRATE)*EPSP(I)
+         ENDIF
           JJC(I) = 1
           JJT(I) = NCC + 1
        ENDDO
@@ -480,7 +529,10 @@ c traction
          ENDIF
 C interpolation entre (tracation & compression         
         DO I=1,NEL   
-          IF(P(I) <=  -PT) THEN
+         IF(PC == ZERO .AND. PT == ZERO .AND. ABS(P(I)) < EM10) THEN
+            YLD(I) = MAX(YC(I), EM20)
+            H(I)   = HC(I)
+          ELSEIF(P(I) <=  -PT) THEN
             YLD(I) = MAX(YT(I),EM20)
             H(I)   = HT(I)
           ELSEIF(P(I) >= PC) THEN
@@ -518,12 +570,9 @@ C 1 + cp*ln(epep/epsp0)
 C-------------------
 C     PROJECTION
 C-------------------
-C-------------------
-C     PROJECTION
-C-------------------
        IF(IFLAG(1) == 0)THEN
          NU31 = ONE-NNU11
-C projection radiale 
+C radial projection 
          DO I=1,NEL
            SVM(I)=SQRT(SIGNXX(I)*SIGNXX(I)
      .             +SIGNYY(I)*SIGNYY(I)
@@ -534,7 +583,7 @@ C projection radiale
            SIGNYY(I)=SIGNYY(I)*R
            SIGNXY(I)=SIGNXY(I)*R
            UMR = ONE - R
-           DPLA_I(I) = OFF(I)*SVM(I)*UMR/(G31+H(I))
+           DPLA_I(I) = OFF(I)*SVM(I)*UMR/(G3(I)+H(I))
            PLA(I) = PLA(I) + DPLA_I(I)
            S1=HALF*(SIGNXX(I)+SIGNYY(I))
            IF (INLOC ==0) THEN
@@ -542,12 +591,12 @@ C projection radiale
              DEZZ=-(DEPSXX(I)+DEPSYY(I))*NNU11-NU31*DEZZ
              THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
            ENDIF
-           IF(R.LT.ONE) ETSE(I)= H(I)/(H(I)+E1)
+           IF(R<ONE) ETSE(I)= H(I)/(H(I)+E(I))
          ENDDO
 C
-       ELSEIF(IFLAG(1).EQ.1)THEN
+       ELSEIF(IFLAG(1)==1)THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     von mises criterion
 C-------------------------
          DO I=1,NEL
            H(I) = MAX(ZERO,H(I))
@@ -567,20 +616,20 @@ C     GATHER PLASTIC FLOW
 C-------------------------
          NINDX=0
          DO I=1,NEL
-           IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+           IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
              NINDX=NINDX+1
              INDEX(NINDX)=I
            ENDIF
          ENDDO
 C
-         IF(NINDX.NE.0) THEN
+         IF(NINDX/=0) THEN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
           DO J=1,NINDX
            I=INDEX(J)
-           DPLA_J(I)=(SVM(I)-YLD(I))/(G31+H(I))
-           ETSE(I)= H(I)/(H(I)+E1)
+           DPLA_J(I)=(SVM(I)-YLD(I))/(G3(I)+H(I))
+           ETSE(I)= H(I)/(H(I)+E(I))
            HI(I) = H(I)*(ONE-FISOKIN)
            HK(I) = TWO_THIRD*H(I)*FISOKIN
           ENDDO
@@ -602,8 +651,8 @@ C
             ENDDO 
           ENDIF
 C          
-          NU11 = ONE/(ONE-NUX)
-          NU21 = ONE/(ONE+NUX)
+          NU11 = ONE/(ONE-NU)
+          NU21 = ONE/(ONE+NU)
           NU31 = ONE-NNU11
           DO N=1,NMAX
 #include "vectorize.inc"
@@ -611,19 +660,19 @@ C
              I=INDEX(J)
              DPLA_I(I)=DPLA_J(I)
              YLD_I =YLD(I)+HI(I)*DPLA_I(I)
-             DR(I) =HALF*E1*DPLA_I(I)/YLD_I
-             NU110 = NU11+THREE*HK(I)/E1
-             NU210 = NU21+HK(I)/E1
+             DR(I) =HALF*E(I)*DPLA_I(I)/YLD_I
+             NU110 = NU11+THREE*HK(I)/E(I)
+             NU210 = NU21+HK(I)/E(I)
              PP(I)  =ONE/(ONE+DR(I)*NU110)
              QQ(I)  =ONE/(ONE+THREE*DR(I)*NU210)     
              P2    =PP(I)*PP(I)
              Q2    =QQ(I)*QQ(I)
              F     =AA(I)*P2+BB(I)*Q2-YLD_I*YLD_I
              DF    =-(AA(I)*NU110*P2*PP(I)+THREE*BB(I)*NU210*Q2*QQ(I))
-     .         *(E1-TWO*DR(I)*HI(I))/YLD_I
+     .         *(E(I)-TWO*DR(I)*HI(I))/YLD_I
      .         -TWO*HI(I)*YLD_I
              DF = SIGN(MAX(ABS(DF),EM20),DF)
-             IF(DPLA_I(I).GT.ZERO) THEN
+             IF(DPLA_I(I)>ZERO) THEN
                DPLA_J(I)=MAX(ZERO,DPLA_I(I)-F/DF)
              ELSE
                DPLA_J(I)=ZERO
@@ -643,15 +692,15 @@ C------------------------------------------
            SIGNYY(I)=HALF*(S1-S2) 
            SIGNXY(I)=SIGNXY(I)*QQ(I)
            IF (INLOC == 0) THEN
-             DEZZ = - NU31*DR(I)*S1/E1
+             DEZZ = - NU31*DR(I)*S1/E(I)
              THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
            ENDIF
           ENDDO
          ENDIF
 C-------------------------------------------
-       ELSEIF(IFLAG(1).EQ.2)THEN
+       ELSEIF(IFLAG(1)==2)THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     von mises criterion
 C-------------------------
          DO I=1,NEL
            H(I) = MAX(ZERO,H(I))
@@ -671,15 +720,15 @@ C-------------------------
          NINDX=0
          DO I=1,NEL
            YLD2(I)=YLD(I)*YLD(I)
-           IF(SVM2(I).GT.YLD2(I).AND.OFF(I).EQ.ONE) THEN
+           IF(SVM2(I)>YLD2(I).AND.OFF(I)==ONE) THEN
              NINDX=NINDX+1
              INDEX(NINDX)=I
            ENDIF
          ENDDO
 C
-         IF(NINDX.NE.0) THEN
+         IF(NINDX/=0) THEN
 C-------------
-C   PROJ NORMALE AU CRITERE AVEC CALCUL APPROCHE DE LA NORMALE + RETOUR RADIAL
+C   normal projection to the criterion with approximate calculation of the normal + radial return
 C-------------
           NU31 = ONE-NNU11
           DO J=1,NINDX
@@ -692,7 +741,7 @@ C-------------
            SIGNXX(I)=S1
            SIGNYY(I)=S2
            SIGNXY(I)=S3
-           DPLA_I(I) = OFF(I)*(SVM(I)-YLD(I))/(G31+H(I))
+           DPLA_I(I) = OFF(I)*(SVM(I)-YLD(I))/(G3(I)+H(I))
 C
            HK(I) = H(I)*(ONE-FISOKIN)
            YLD(I)= YLD(I)+HK(I)*DPLA_I(I)
@@ -714,7 +763,7 @@ C
                 DEZZ = -NU31*DEZZ
                 THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
               ENDIF
-              ETSE(I)= H(I)/(H(I)+E1)
+              ETSE(I)= H(I)/(H(I)+E(I))
             ENDIF
           END DO
          END IF
@@ -729,12 +778,12 @@ C------------------------------------------
           DSXX = SIGEXX(I) - SIGNXX(I)
           DSYY = SIGEYY(I) - SIGNYY(I)
           DSXY = SIGEXY(I) - SIGNXY(I)
-          DEXX = (DSXX - NUX*DSYY) 
-          DEYY = (DSYY - NUX*DSXX)
+          DEXX = (DSXX - NU*DSYY) 
+          DEYY = (DSYY - NU*DSXX)
 C
-          DEXY = TWO*(ONE+NUX)*DSXY
-	         HKIN = TWO_THIRD*FISOKIN*H(I)
-          ALPHA = HKIN/(E1+HKIN)
+          DEXY = TWO*(ONE+NU)*DSXY
+                   HKIN = TWO_THIRD*FISOKIN*H(I)
+          ALPHA = HKIN/(E(I)+HKIN)
           SIGPXX = ALPHA*(TWO*DEXX+DEYY)
           SIGPYY = ALPHA*(TWO*DEYY+DEXX)
           SIGPXY = ALPHA*DEXY*HALF
@@ -748,39 +797,20 @@ C
         ENDDO
        ENDIF       
 C
-C  visco elastic model 
+C  visco elastic model (prony) moved to mulawc
 C             
-       IF(IPM(222,MAT(1)) > 0) THEN   
-         IADBUF = IPM(223,MAT(1))
-         NUVARV = IPM(225,MAT(1))
-C         
-         KV =  UPARAM(IADBUF )
-         NPRONY =  UPARAM(IADBUF + 1)
-c              
-        DO I=1,NPRONY
-         GV(I)    = UPARAM(IADBUF + 1 + I)
-         BETA(I)  = UPARAM(IADBUF + 1 + NPRONY + I)
-        ENDDO
-C
-        NV =  NUVAR - NUVARV
-        CALL PRONY_MODELC( 
-     1     NEL    ,NUPARAM,NUVAR   , NV,TIME   ,TIMESTEP , 
-     2     NPRONY    , KV   , GV    ,BETA  ,RHO0   ,   
-     3     EPSPXX ,EPSPYY ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
-     4     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
-     5     VISCMAX,SOUNDSP,UVAR    ,OFF)        
-        ENDIF
-C
 C--------------------------------
 C     NON-LOCAL THICKNESS VARIATION
 C--------------------------------
       IF (INLOC > 0) THEN
         DO I = 1,NEL
-          SVM(I) = SQRT(SIGNXX(I)*SIGNXX(I) + SIGNYY(I)*SIGNYY(I)
-     .           - SIGNXX(I)*SIGNYY(I) + THREE*SIGNXY(I)*SIGNXY(I))
-          DEZZ   = MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/MAX(SVM(I),EM20)
-          DEZZ   = -NUX*((SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/E1) - DEZZ
-          THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)     
+          IF (LOFF(I) == ONE) THEN 
+            SVM(I) = SQRT(SIGNXX(I)*SIGNXX(I) + SIGNYY(I)*SIGNYY(I)
+     .             - SIGNXX(I)*SIGNYY(I) + THREE*SIGNXY(I)*SIGNXY(I))
+            DEZZ   = MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/MAX(SVM(I),EM20)
+            DEZZ   = -NU*((SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/E(I)) - DEZZ
+            THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)   
+          ENDIF  
         ENDDO  
       ENDIF
 C -----------------------------------------        

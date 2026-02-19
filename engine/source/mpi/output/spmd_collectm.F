@@ -1,47 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  SPMD_COLLECTM                 source/mpi/output/spmd_collectm.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    spmd_collectm         ../engine/source/mpi/output/spmd_collectm.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    my_orders             ../common_source/tools/sort/my_orders.c
+!||--- uses       -----------------------------------------------------
+!||    inoutfile_mod         ../common_source/modules/inoutfile_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_COLLECTM(NODNX_SMS, ITAB, WEIGHT,NODGLOB,SIZP0)
       USE INOUTFILE_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -52,16 +52,14 @@ C-----------------------------------------------
 #include      "chara_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ITAB(*),WEIGHT(*),NODGLOB(*),SIZP0,NODNX_SMS(*)
-C     REAL
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER MSGOFF,MSGOFF0,MSGTYP,INFO,I,K,NG,N,M,NK,
+      INTEGER MSGOFF,MSGOFF0,MSGTYP,I,K,N,M,NK,
      .        EMPL,SDNODG(NUMNODM),FILEN
       INTEGER STATUS(MPI_STATUS_SIZE),IERROR
       INTEGER IGLOB(2,NUMNODM),RECGLOB(2,SIZP0),RTRI(2,SIZP0),
@@ -87,10 +85,10 @@ C-----------------------------------------------
      .                  FORM='FORMATTED',STATUS='UNKNOWN')
 
       FILEN = ROOTLEN+17
-      IF (ISPMD.NE.0) THEN
+      IF (ISPMD/=0) THEN
         N = 0
         DO I = 1, NUMNOD
-         IF (WEIGHT(I).EQ.1) THEN
+         IF (WEIGHT(I)==1) THEN
            N = N+1
            SDNODG(N) = NODGLOB(I)
            IGLOB(1,N) = ITAB(I)
@@ -100,14 +98,14 @@ C-----------------------------------------------
         MSGTYP=MSGOFF0
         CALL MPI_SEND(SDNODG,N,MPI_INTEGER,
      .                IT_SPMD(1),MSGTYP,
-     .                MPI_COMM_WORLD,IERROR)
+     .                SPMD_COMM_WORLD,IERROR)
         MSGTYP=MSGOFF
         CALL MPI_SEND(IGLOB,2*N,MPI_INTEGER,
      .                IT_SPMD(1),MSGTYP,
-     .                MPI_COMM_WORLD,IERROR)
+     .                SPMD_COMM_WORLD,IERROR)
       ELSE
         DO I=1,NUMNOD
-          IF (WEIGHT(I).EQ.1) THEN
+          IF (WEIGHT(I)==1) THEN
             EMPL = NODGLOB(I)
             RTRI(1,EMPL) = ITAB(I)
             RTRI(2,EMPL) = NODNX_SMS(I)
@@ -118,14 +116,14 @@ C-----------------------------------------------
             MSGTYP=MSGOFF0
             CALL MPI_RECV(SDNODG,NUMNODM,MPI_INTEGER,
      .                    IT_SPMD(K),MSGTYP,
-     .                    MPI_COMM_WORLD,STATUS,IERROR)
+     .                    SPMD_COMM_WORLD,STATUS,IERROR)
 
             CALL MPI_GET_COUNT(STATUS,MPI_INTEGER,N,ierror)
 
             MSGTYP=MSGOFF
             CALL MPI_RECV(IGLOB,2*N,MPI_INTEGER,
      .                    IT_SPMD(K),MSGTYP,
-     .                    MPI_COMM_WORLD,STATUS,IERROR)
+     .                    SPMD_COMM_WORLD,STATUS,IERROR)
 
             DO I=1,N
               EMPL = SDNODG(I)

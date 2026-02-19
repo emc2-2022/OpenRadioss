@@ -1,37 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SBILAN                        source/elements/solid/solide/sbilan.F
-Chd|-- called by -----------
-Chd|        S8CFORC3                      source/elements/thickshell/solide8c/s8cforc3.F
-Chd|        S8EFORC3                      source/elements/solid/solide8e/s8eforc3.F
-Chd|        S8SFORC3                      source/elements/solid/solide8s/s8sforc3.F
-Chd|        S8ZFORC3                      source/elements/solid/solide8z/s8zforc3.F
-Chd|        SFORC3                        source/elements/solid/solide/sforc3.F
-Chd|-- calls ---------------
-Chd|        GRELEM_SAV                    source/output/th/grelem_sav.F 
-Chd|        SENSOR_ENERGY_BILAN           source/tools/sensor/sensor_energy_bilan.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sbilan                ../engine/source/elements/solid/solide/sbilan.F
+!||--- called by ------------------------------------------------------
+!||    s8cforc3              ../engine/source/elements/thickshell/solide8c/s8cforc3.F
+!||    s8eforc3              ../engine/source/elements/solid/solide8e/s8eforc3.F
+!||    s8sforc3              ../engine/source/elements/solid/solide8s/s8sforc3.F
+!||    s8zforc3              ../engine/source/elements/solid/solide8z/s8zforc3.F
+!||    sforc3                ../engine/source/elements/solid/solide/sforc3.F
+!||--- calls      -----------------------------------------------------
+!||    grelem_sav            ../engine/source/output/th/grelem_sav.F
+!||    sensor_energy_bilan   ../engine/source/tools/sensor/sensor_energy_bilan.F
+!||--- uses       -----------------------------------------------------
+!||    sensor_mod            ../common_source/modules/sensor_mod.F90
+!||====================================================================
       SUBROUTINE SBILAN(PARTSAV,EINT,RHO,RK,VOL,
      .   VX1, VX2, VX3, VX4, VX5, VX6, VX7, VX8,
      .   VY1, VY2, VY3, VY4, VY5, VY6, VY7, VY8,
@@ -41,7 +43,11 @@ Chd|====================================================================
      .   X1, X2, X3, X4, X5, X6, X7, X8,
      .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
      .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8,
-     .   ITASK,IPARG)
+     .   ITASK,IPARG,SENSORS,G_WPLA,WPLA)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE SENSOR_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,9 +60,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
 #include      "vect01_c.inc"
-#include      "parit_c.inc"
 #include      "inter22.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -71,9 +75,12 @@ C-----------------------------------------------
      .  X1(*), X2(*), X3(*), X4(*), X5(*), X6(*), X7(*), X8(*),
      .  Y1(*), Y2(*), Y3(*), Y4(*), Y5(*), Y6(*), Y7(*), Y8(*),
      .  Z1(*), Z2(*), Z3(*), Z4(*), Z5(*), Z6(*), Z7(*), Z8(*)
+      INTEGER, INTENT(IN) :: G_WPLA
+      my_real,DIMENSION(NEL*G_WPLA), INTENT(IN) :: WPLA
       INTEGER IEXPAN,ITASK,
      .  IPARTS(*),GRTH(*),IGRTH(*),IPARG(*),NEL
       INTEGER,INTENT(IN) :: IFVM22
+      type (sensors_),INTENT(INOUT) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -92,16 +99,15 @@ C     REAL
      .   IXX(MVSIZ), IYY(MVSIZ), IZZ(MVSIZ),
      .   IXY(MVSIZ), IYZ(MVSIZ), IZX(MVSIZ),
      .   REI(MVSIZ), REK(MVSIZ), OFF_L(MVSIZ)
-      INTEGER IC, II, J, JST(MVSIZ+1)
 C-----------------------------------------------
-      FLAG = IPARG(80) ! Flag pour sorties additionnelles
+      FLAG = IPARG(80) ! flag for additional outputs
 C-----------------------------------------------
 C     CALCUL BILAN SORTIES DEF 
 C-----------------------------------------------
       !ELEM VELOCITIES
       IF(INT22==0 .OR. IFVM22==0)THEN
         !FEM : from nodes
-        DO I=LFT,LLT
+        DO I=1,NEL
          VXA(I)=VX1(I)+VX2(I)+VX3(I)+VX4(I)+VX5(I)+VX6(I)+VX7(I)+VX8(I)
          VYA(I)=VY1(I)+VY2(I)+VY3(I)+VY4(I)+VY5(I)+VY6(I)+VY7(I)+VY8(I)
          VZA(I)=VZ1(I)+VZ2(I)+VZ3(I)+VZ4(I)+VZ5(I)+VZ6(I)+VZ7(I)+VZ8(I)
@@ -112,7 +118,7 @@ C-----------------------------------------------
      4         +VZ1(I)**2+VZ2(I)**2+VZ3(I)**2+VZ4(I)**2
      5         +VZ5(I)**2+VZ6(I)**2+VZ7(I)**2+VZ8(I)**2
         ENDDO
-        DO I=LFT,LLT
+        DO I=1,NEL
           VXA(I)=VXA(I)*ONE_OVER_8
           VYA(I)=VYA(I)*ONE_OVER_8
           VZA(I)=VZA(I)*ONE_OVER_8
@@ -120,7 +126,7 @@ C-----------------------------------------------
         ENDDO
       ELSE
         !FVM - from centroid
-        DO I=LFT,LLT
+        DO I=1,NEL
           VXA(I)  = MOM(I,1)/RHO(I)/VOL(I)
           VYA(I)  = MOM(I,2)/RHO(I)/VOL(I)
           VZA(I)  = MOM(I,3)/RHO(I)/VOL(I)
@@ -128,7 +134,7 @@ C-----------------------------------------------
         ENDDO
       ENDIF
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         XMAS(I)= FILL(I)*RHO(I)*VNEW(I)
         EI(I)  = FILL(I)*EINT(I)*VOL(I)
         EK(I)  = XMAS(I)*VA2(I)*HALF     
@@ -137,18 +143,19 @@ C
         ZM(I)  = XMAS(I)*VZA(I)
       ENDDO
 C
-      M=IPARTS(LFT)
+      M=IPARTS(1)
       IF(IPARTSPH==0)THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           PARTSAV(1,M)=PARTSAV(1,M) + EI(I)
           PARTSAV(2,M)=PARTSAV(2,M) + EK(I)
           PARTSAV(3,M)=PARTSAV(3,M) + XM(I)
           PARTSAV(4,M)=PARTSAV(4,M) + YM(I)
           PARTSAV(5,M)=PARTSAV(5,M) + ZM(I)
-          PARTSAV(6,M)=PARTSAV(6,M) + XMAS(I)
+          IF (OFF(I) >= ONE) PARTSAV(6,M)=PARTSAV(6,M) + XMAS(I)
+          IF (G_WPLA > 0)  PARTSAV(29,M)=PARTSAV(29,M) + WPLA(I)
         ENDDO
       ELSE
-        DO I=LFT,LLT
+        DO I=1,NEL
           IF(OFF(I) < ONE)CYCLE
             PARTSAV(1,M)=PARTSAV(1,M) + EI(I)
             PARTSAV(2,M)=PARTSAV(2,M) + EK(I)
@@ -156,16 +163,17 @@ C
             PARTSAV(4,M)=PARTSAV(4,M) + YM(I)
             PARTSAV(5,M)=PARTSAV(5,M) + ZM(I)
             PARTSAV(6,M)=PARTSAV(6,M) + XMAS(I)
+            IF (G_WPLA > 0)  PARTSAV(29,M)=PARTSAV(29,M) + WPLA(I)
         ENDDO
       END IF
 C
 C-----------------------------------------------
 C     CALCUL BILAN SORTIES ADDITIONNELLES 
 C-----------------------------------------------
-      IF(FLAG.EQ.1) THEN
+      IF(FLAG==1) THEN
         IF(INT22==0 .OR. IFVM22==0)THEN
           !FEM : from nodes
-          DO I=LFT,LLT
+          DO I=1,NEL
            XX(I)=X1(I)+X2(I)+X3(I)+X4(I)+X5(I)+X6(I)+X7(I)+X8(I)
            YY(I)=Y1(I)+Y2(I)+Y3(I)+Y4(I)+Y5(I)+Y6(I)+Y7(I)+Y8(I)
            ZZ(I)=Z1(I)+Z2(I)+Z3(I)+Z4(I)+Z5(I)+Z6(I)+Z7(I)+Z8(I)
@@ -182,7 +190,7 @@ C-----------------------------------------------
            ZX(I)=Z1(I)*X1(I)+Z2(I)*X2(I)+Z3(I)*X3(I)+Z4(I)*X4(I)
      .          +Z5(I)*X5(I)+Z6(I)*X6(I)+Z7(I)*X7(I)+Z8(I)*X8(I)
           ENDDO
-          DO I=LFT,LLT
+          DO I=1,NEL
             XX(I)=XX(I)*ONE_OVER_8
             YY(I)=YY(I)*ONE_OVER_8
             ZZ(I)=ZZ(I)*ONE_OVER_8
@@ -195,7 +203,7 @@ C-----------------------------------------------
           ENDDO
         ELSE
           !FVM - from centroid
-          DO I=LFT,LLT
+          DO I=1,NEL
             XX(I)   = X1(I)+X2(I)+X3(I)+X4(I)+X5(I)+X6(I)+X7(I)+X8(I)
             YY(I)   = Y1(I)+Y2(I)+Y3(I)+Y4(I)+Y5(I)+Y6(I)+Y7(I)+Y8(I)
             ZZ(I)   = Z1(I)+Z2(I)+Z3(I)+Z4(I)+Z5(I)+Z6(I)+Z7(I)+Z8(I)
@@ -212,7 +220,7 @@ C-----------------------------------------------
             ZX(I)=Z1(I)*X1(I)+Z2(I)*X2(I)+Z3(I)*X3(I)+Z4(I)*X4(I)
      .           +Z5(I)*X5(I)+Z6(I)*X6(I)+Z7(I)*X7(I)+Z8(I)*X8(I)
           ENDDO
-          DO I=LFT,LLT
+          DO I=1,NEL
             XX(I)=XX(I)*ONE_OVER_8
             YY(I)=YY(I)*ONE_OVER_8
             ZZ(I)=ZZ(I)*ONE_OVER_8
@@ -225,7 +233,7 @@ C-----------------------------------------------
           ENDDO
         ENDIF
 C
-        DO I=LFT,LLT
+        DO I=1,NEL
           XCG(I)= XMAS(I)*XX(I)
           YCG(I)= XMAS(I)*YY(I)
           ZCG(I)= XMAS(I)*ZZ(I)
@@ -242,9 +250,9 @@ C
           REK(I)= ZERO
         ENDDO
 C
-        M=IPARTS(LFT)
+        M=IPARTS(1)
         IF(IPARTSPH==0)THEN
-          DO I=LFT,LLT
+          DO I=1,NEL
             PARTSAV(9,M) =PARTSAV(9,M)  + XCG(I)
             PARTSAV(10,M)=PARTSAV(10,M) + YCG(I)
             PARTSAV(11,M)=PARTSAV(11,M) + ZCG(I)
@@ -261,7 +269,7 @@ C
             PARTSAV(22,M)=PARTSAV(22,M) + REK(I) 
           ENDDO
         ELSE
-          DO I=LFT,LLT
+          DO I=1,NEL
             IF(OFF(I) < ONE)CYCLE
               PARTSAV(9,M) =PARTSAV(9,M)  + XCG(I)
               PARTSAV(10,M)=PARTSAV(10,M) + YCG(I)
@@ -283,7 +291,7 @@ C
 C
 C-----------------------------------------------
       IF (IGRE /= 0) THEN
-          CALL GRELEM_SAV(LFT   ,LLT   ,GRESAV,IGRTH ,GRTH  ,
+          CALL GRELEM_SAV(1   ,NEL   ,GRESAV,IGRTH ,GRTH  ,
      2                    OFF   ,EI    ,EK    ,XM    ,YM    ,
      3                    ZM    ,XMAS  ,XCG   ,YCG   ,ZCG   ,
      4                    XXM   ,YYM   ,ZZM   ,IXX   ,IYY   ,
@@ -293,27 +301,34 @@ C-----------------------------------------------
 C-----------------------------------------------
 C
       IF (JTUR /= 0) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           M=IPARTS(I)
           PARTSAV(7,M)=PARTSAV(7,M) + RK(I)*VOL(I)
         ENDDO
       ENDIF
 C
-      IF(IEXPAN.NE.0)THEN
-        DO I=LFT,LLT
+      IF(IEXPAN/=0)THEN
+        DO I=1,NEL
          M=IPARTS(I)
          PARTSAV(27,M)=PARTSAV(27,M) + EINTTH(I)*VOL(I)
         ENDDO
       ENDIF
-      DO I=LFT,LLT
+      DO I=1,NEL
           IF(OFF(I) < ONE) THEN
             OFF_L(I) = ZERO
           ELSE
             OFF_L(I) = ONE
           ENDIF
       ENDDO
-
-      CALL SENSOR_ENERGY_BILAN(LFT,LLT,EI,EK,OFF_L,IPARTS,ITASK)      
+C
+      DO I = 1,NEL
+        M=IPARTS(I)
+        IF (OFF(I) < ONE) THEN 
+          PARTSAV(25,M) = PARTSAV(25,M) + ONE
+        ENDIF
+      ENDDO
+C
+      CALL SENSOR_ENERGY_BILAN(1,NEL,EI,EK,OFF_L,IPARTS,ITASK,SENSORS)      
 C
 C-----------
       RETURN

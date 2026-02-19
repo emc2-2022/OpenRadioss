@@ -1,40 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_SAHRAEI_S                source/materials/fail/sahraei/fail_sahraei_s.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_sahraei_s   ../engine/source/materials/fail/sahraei/fail_sahraei_s.F
+!||--- called by ------------------------------------------------------
+!||    mmain            ../engine/source/materials/mat_share/mmain.F90
+!||    mulaw            ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8           ../engine/source/materials/mat_share/mulaw8.F90
+!||    usermat_solid    ../engine/source/materials/mat_share/usermat_solid.F
+!||--- calls      -----------------------------------------------------
+!||    finter           ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE FAIL_SAHRAEI_S(
      1     NEL   ,NFUNC ,IFUNC ,NPF   ,TF     ,
-     2     TIME  ,NGL   ,IPM   ,MAT   ,UPARAM ,
+     2     TIME  ,NGL   ,UPARAM ,
      3     EPSXX ,EPSYY ,EPSZZ ,EPSXY ,EPSYZ  ,
-     4     EPSZX ,OFF   ,IP    ,DFMAX ,TDELE  , 
+     4     EPSZX ,OFF   ,DFMAX ,TDELE  , 
      5     DELTAX,NUVAR ,UVAR  )
 C-----------------------------------------------
 C   MIT Wierzbicki Sahraei electric battery failure
@@ -70,15 +70,13 @@ C---------+---------+---+---+--------------------------------------------
 #include "units_c.inc"
 #include "param_c.inc"
 #include "scr17_c.inc"
-#include "scr19_c.inc"
-#include "impl1_c.inc"
 #include "comlock.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
 C
-      INTEGER NEL, NUPARAM,IP,NUVAR
-      INTEGER NGL(NEL),IPM(NPROPMI,*),MAT(NEL)
+      INTEGER NEL,NUVAR
+      INTEGER NGL(NEL)
       INTEGER, INTENT(IN) :: NFUNC 
       INTEGER, DIMENSION(NFUNC), INTENT(IN) ::  IFUNC    
       my_real TIME,UPARAM(*),
@@ -104,14 +102,14 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-        INTEGER I,II,J,IFAIL,NINDX1,NINDX2,NUM,DEN,
+        INTEGER I,II,J,NINDX1,NINDX2,NUM,DEN,
      .          FAIL_ORT,ORDI,COMP_DIR,NINDXOFF,IDEL
         my_real
      .          VOL_STRAIN_LIMIT,MAX_COMP_STRAIN,RATIO_2,EL_REF,DAMAGE_SP(NEL)
         DOUBLE PRECISION          
      .          I1,I2,I3,E11,E22,E33,EXX,EYY,EZZ,EXY,EZX,EYZ,
      .          Q,R,R_INTER,PHI,RATIO(NEL),DAMAGE(NEL),E00,FAC,
-     .          VOL_STRAIN,NUMERATOR,DENOMINATOR,ORDINATE,
+     .          VOL_STRAIN,NUMERATOR,DENOMINATOR,
      .          LAMBDA,PLAMAX(NEL)
         INTEGER,DIMENSION(NEL) :: INDX1,INDX2,INDX3,INDXOFF
 C-----------------------------------------------
@@ -188,7 +186,7 @@ c
         ENDIF
       END DO
 c
-      ! Initialization of couter
+      ! Initialization of counter
       NINDX1   = 0  
       NINDX2   = 0  
       NINDXOFF = 0
@@ -225,7 +223,7 @@ C
         I2 = EXX*EYY + EYY*EZZ + EZZ*EXX - EXY*EXY - EZX*EZX - EYZ*EYZ
         I3 = EXX*EYY*EZZ - EXX*EYZ*EYZ - EYY*EZX*EZX - EZZ*EXY*EXY + TWO*EXY*EZX*EYZ
         Q  = (THREE*I2 - I1*I1)/NINE
-        R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/CINQUANTE4
+        R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/FIFTY4
         R_INTER = MIN(R/SQRT(MAX(EM20,(-Q**3))),ONE)
         PHI     = ACOS(MAX(R_INTER,-ONE))
         ! Computation of principal strain
@@ -268,7 +266,7 @@ C
             NUMERATOR = E11
           ELSEIF (NUM == 5) THEN
             NUMERATOR = E22
-          ELSEIF (NUM == 6) THEN
+          ELSE !IF (NUM == 6) THEN
             NUMERATOR = E33
           ENDIF
 C
@@ -283,7 +281,7 @@ C
             DENOMINATOR = E11 
           ELSEIF (DEN == 5) THEN
             DENOMINATOR = E22
-          ELSEIF (DEN == 6) THEN
+          ELSE !IF (DEN == 6) THEN
             DENOMINATOR = E33      
           ENDIF
 C
@@ -456,7 +454,6 @@ c
       !=======================================================================        
       ! Volumetric strain failure
       IF (NINDX1 > 0)THEN 
-        IDEL7NOK = 1
         DO J=1,NINDX1
           I = INDX1(J)
 #include "lockon.inc"
@@ -467,7 +464,6 @@ c
       ENDIF
       ! Compression limit failure
       IF (NINDX2 > 0)THEN 
-        IDEL7NOK = 1
         DO J=1,NINDX2
           I = INDX2(J)
           IF (MAX_COMP_STRAIN > ZERO) THEN

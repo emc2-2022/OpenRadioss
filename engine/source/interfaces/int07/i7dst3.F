@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I7DST3                        source/interfaces/int07/i7dst3.F
-Chd|-- called by -----------
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|        I7MAIN_LMULT                  source/interfaces/int07/i7main_lmult.F
-Chd|-- calls ---------------
-Chd|        I7CMAJ                        source/interfaces/int07/i7curv.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i7dst3         ../engine/source/interfaces/int07/i7dst3.F
+!||--- called by ------------------------------------------------------
+!||    i7main_lmult   ../engine/source/interfaces/int07/i7main_lmult.F
+!||    i7mainf        ../engine/source/interfaces/int07/i7mainf.F
+!||--- calls      -----------------------------------------------------
+!||    i7cmaj         ../engine/source/interfaces/int07/i7curv.F
+!||====================================================================
       SUBROUTINE I7DST3(
      1                  JLT    ,CAND_N ,CAND_E ,CN_LOC ,CE_LOC ,
      2                  X1     ,X2     ,X3     ,X4     ,Y1     ,
@@ -57,9 +57,7 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "com01_c.inc"
 #include      "sms_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -76,8 +74,8 @@ C-----------------------------------------------
      .     NZ1(MVSIZ), NZ2(MVSIZ), NZ3(MVSIZ), NZ4(MVSIZ),
      .     LB1(MVSIZ), LB2(MVSIZ), LB3(MVSIZ), LB4(MVSIZ),
      .     LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
-     .     KB1(MVSIZ), KB2(MVSIZ), KB3(MVSIZ), KB4(MVSIZ),
-     .     KC1(MVSIZ), KC2(MVSIZ), KC3(MVSIZ), KC4(MVSIZ),
+     .        
+     .        
      .     X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), X4(MVSIZ),
      .     Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), Y4(MVSIZ),
      .     Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ),
@@ -96,14 +94,9 @@ C-----------------------------------------------
      .    RCURVI(MVSIZ), ANGLMI(MVSIZ),CMAJ(*)
       my_real , INTENT(IN) :: DRAD2, DGAPLOAD
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG, J, K, KEEP(MVSIZ), IPERM,IORTHFRIC_LOC
+      INTEGER I, J, KEEP(MVSIZ), IPERM,IORTHFRIC_LOC
       my_real
      .     X0(MVSIZ), Y0(MVSIZ), Z0(MVSIZ),
      .     AL1(MVSIZ),  AL2(MVSIZ),  AL3(MVSIZ), AL4(MVSIZ),
@@ -118,23 +111,23 @@ C-----------------------------------------------
      .     HLB3(MVSIZ), HLC3(MVSIZ), HLB4(MVSIZ),HLC4(MVSIZ)
       my_real
      .     S2,D1,D2,D3,D4,
-     .     X12,X23,X34,X41,XI0,SX1,SX2,SX3,SX4,SX0,
-     .     Y12,Y23,Y34,Y41,YI0,SY1,SY2,SY3,SY4,SY0,
-     .     Z12,Z23,Z34,Z41,ZI0,SZ1,SZ2,SZ3,SZ4,SZ0,
+     .     X12,X23,X34,X41,SX1,SX2,SX3,SX4,SX0,
+     .     Y12,Y23,Y34,Y41,SY1,SY2,SY3,SY4,SY0,
+     .     Z12,Z23,Z34,Z41,SZ1,SZ2,SZ3,SZ4,SZ0,
 C 
-     .     GAP2, DS2,T1,T2,T3,XXX,YYY,ZZZ,
-     .     AL1NUM,AL2NUM,AL3NUM,AL4NUM,AL1DEN,AL2DEN,AL3DEN,AL4DEN,
-     .     X23D,Y23D,Z23D,X34D,Y34D,Z34D,X41D,Y41D,Z41D,
-     .     X12D,Y12D,Z12D,GAP2D,XI0D,YI0D,ZI0D,S2D, LA, HLA, AAA,
+     .     GAP2,XXX,YYY,ZZZ,
+     .     
+     .     
+     .      LA, HLA, AAA,
      .     XI0V(MVSIZ),  YI0V(MVSIZ),  ZI0V(MVSIZ)
       my_real
      .     RPERM
       LOGICAL ITERATE
 C--------------------------------------------------------
-C  CAS DES PAQUETS MIXTES
+C  case of mixed packets
 C--------------------------------------------------------
        DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
          X0(I) = FOURTH*(X1(I)+X2(I)+X3(I)+X4(I))
          Y0(I) = FOURTH*(Y1(I)+Y2(I)+Y3(I)+Y4(I))
          Z0(I) = FOURTH*(Z1(I)+Z2(I)+Z3(I)+Z4(I)) 
@@ -146,10 +139,10 @@ C--------------------------------------------------------
        ENDDO
 C  
 C--------------------------------------------------------
-C  UNIQUEMENT POUR PAQUET DE TRIANGLE
+C  only for triangle packet
 C--------------------------------------------------------
 C--------------------------------------------------------
-C  CAS DES PAQUETS MIXTES OU QUADRANGLE
+C  case of mixed packets or quadrangle
 C--------------------------------------------------------
 C
        DO I=1,JLT
@@ -271,20 +264,20 @@ C
         Y12 = Y2(I) - Y1(I)
         Z12 = Z2(I) - Z1(I)
         LA = ONE - LB1(I) - LC1(I)
-Cel     HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X12*X12+Y12*Y12+Z12*Z12)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB1(I).AND.HLA.LE.HLC1(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB1(I).AND.HLA<=HLC1(I))THEN
          LB1(I) = (XI2(I)*X12+YI2(I)*Y12+ZI2(I)*Z12) * AAA
          LB1(I) = MAX(ZERO,MIN(ONE,LB1(I)))
          LC1(I) = ONE - LB1(I)
-        ELSEIF(LB1(I).LT.ZERO.AND.
-     +         HLB1(I).LE.HLC1(I).AND.HLB1(I).LE.HLA)THEN
+        ELSEIF(LB1(I)<ZERO.AND.
+     +         HLB1(I)<=HLC1(I).AND.HLB1(I)<=HLA)THEN
          LB1(I) = ZERO
          LC1(I) = AL2(I)
-        ELSEIF(LC1(I).LT.ZERO.AND.
-     +         HLC1(I).LE.HLA.AND.HLC1(I).LE.HLB1(I))THEN
+        ELSEIF(LC1(I)<ZERO.AND.
+     +         HLC1(I)<=HLA.AND.HLC1(I)<=HLB1(I))THEN
          LC1(I) = ZERO
          LB1(I) = AL1(I)
         ENDIF
@@ -296,20 +289,20 @@ C
         Y23 = Y3(I) - Y2(I)
         Z23 = Z3(I) - Z2(I)
         LA = ONE - LB2(I) - LC2(I)
-Cel     HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X23*X23+Y23*Y23+Z23*Z23)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB2(I).AND.HLA.LE.HLC2(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB2(I).AND.HLA<=HLC2(I))THEN
          LB2(I) = (XI3(I)*X23+YI3(I)*Y23+ZI3(I)*Z23)*AAA
          LB2(I) = MAX(ZERO,MIN(ONE,LB2(I)))
          LC2(I) = ONE - LB2(I)
-        ELSEIF(LB2(I).LT.ZERO.AND.
-     +         HLB2(I).LE.HLC2(I).AND.HLB2(I).LE.HLA)THEN
+        ELSEIF(LB2(I)<ZERO.AND.
+     +         HLB2(I)<=HLC2(I).AND.HLB2(I)<=HLA)THEN
          LB2(I) = ZERO
          LC2(I) = AL3(I)
-        ELSEIF(LC2(I).LT.ZERO.AND.
-     +         HLC2(I).LE.HLA.AND.HLC2(I).LE.HLB2(I))THEN
+        ELSEIF(LC2(I)<ZERO.AND.
+     +         HLC2(I)<=HLA.AND.HLC2(I)<=HLB2(I))THEN
          LC2(I) = ZERO
          LB2(I) = AL2(I)
         ENDIF
@@ -321,20 +314,20 @@ C
         Y34 = Y4(I) - Y3(I)
         Z34 = Z4(I) - Z3(I)
         LA = ONE - LB3(I) - LC3(I)
-Cel     HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X34*X34+Y34*Y34+Z34*Z34)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB3(I).AND.HLA.LE.HLC3(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB3(I).AND.HLA<=HLC3(I))THEN
          LB3(I) = (XI4(I)*X34+YI4(I)*Y34+ZI4(I)*Z34)*AAA
          LB3(I) = MAX(ZERO,MIN(ONE,LB3(I)))
          LC3(I) = ONE - LB3(I)
-        ELSEIF(LB3(I).LT.ZERO.AND.
-     +         HLB3(I).LE.HLC3(I).AND.HLB3(I).LE.HLA)THEN
+        ELSEIF(LB3(I)<ZERO.AND.
+     +         HLB3(I)<=HLC3(I).AND.HLB3(I)<=HLA)THEN
          LB3(I) = ZERO
          LC3(I) = AL4(I)
-        ELSEIF(LC3(I).LT.ZERO.AND.
-     +         HLC3(I).LE.HLA.AND.HLC3(I).LE.HLB3(I))THEN
+        ELSEIF(LC3(I)<ZERO.AND.
+     +         HLC3(I)<=HLA.AND.HLC3(I)<=HLB3(I))THEN
          LC3(I) = ZERO
          LB3(I) = AL3(I)
         ENDIF
@@ -346,26 +339,26 @@ C
         Y41 = Y1(I) - Y4(I)
         Z41 = Z1(I) - Z4(I)
         LA = ONE - LB4(I) - LC4(I)
-Cel     HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X41*X41+Y41*Y41+Z41*Z41)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB4(I).AND.HLA.LE.HLC4(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB4(I).AND.HLA<=HLC4(I))THEN
          LB4(I) = (XI1(I)*X41+YI1(I)*Y41+ZI1(I)*Z41)*AAA
          LB4(I) = MAX(ZERO,MIN(ONE,LB4(I)))
          LC4(I) = ONE - LB4(I)
-        ELSEIF(LB4(I).LT.ZERO.AND.
-     +         HLB4(I).LE.HLC4(I).AND.HLB4(I).LE.HLA)THEN
+        ELSEIF(LB4(I)<ZERO.AND.
+     +         HLB4(I)<=HLC4(I).AND.HLB4(I)<=HLA)THEN
          LB4(I) = ZERO
          LC4(I) = AL1(I)
-        ELSEIF(LC4(I).LT.ZERO.AND.
-     +         HLC4(I).LE.HLA.AND.HLC4(I).LE.HLB4(I))THEN
+        ELSEIF(LC4(I)<ZERO.AND.
+     +         HLC4(I)<=HLA.AND.HLC4(I)<=HLB4(I))THEN
          LC4(I) = ZERO
          LB4(I) = AL4(I)
         ENDIF
        ENDDO
 c---------------------------------------------------------
-c      courbure cubique
+c      cubic curvature
 c---------------------------------------------------------
        IF(ICURV == 3)THEN
          CALL I7CMAJ(JLT    ,CMAJ   ,IRECT  ,NOD_NORMAL,CAND_E,
@@ -422,7 +415,7 @@ c      write(*,*) ' P1(I)  P2(I)  P3(I)  P4(I)   ',P1(I) , P2(I) , P3(I) , P4(I)
 c      PAUSE
 c      ENDIF
 C !!!!!!!!!!!!!!!!!!!!!!!
-C  PENE2 = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE2 = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 C!!!!!!!!!!!!!!!!!!!!!!!!
         PENE2(I) = MAX(D1,D2,D3,D4)
 C
@@ -432,33 +425,32 @@ C      PENE INITIALE
 C---------------------
       KEEP(1:JLT)=0
       IF(ITIED == 0)THEN
-       IF(INACTI.EQ.5.OR.INACTI.EQ.6)THEN
+       IF(INACTI==5.OR.INACTI==6)THEN
         DO I=1,JLT
-          IF(PENE2(I).EQ.ZERO.OR.STIF(I).EQ.ZERO)THEN
+          IF(PENE2(I)==ZERO.OR.STIF(I)==ZERO)THEN
             CAND_P(INDEX(I))=ZERO
           ENDIF
         ENDDO
        ENDIF
 #include   "vectorize.inc"
        DO I=1,JLT
-         IF( PENE2(I).NE.ZERO .AND. STIF(I).NE.ZERO)THEN
+         IF( PENE2(I)/=ZERO .AND. STIF(I)/=ZERO)THEN
            KEEP(I) =1
          END IF
        ENDDO
       ELSE
-       IF(INACTI.EQ.5.OR.INACTI.EQ.6)THEN
+       IF(INACTI==5.OR.INACTI==6)THEN
         DO I=1,JLT
-          IF((PENE2(I).EQ.ZERO.AND.CAND_F(1,INDEX(I)).EQ.ZERO).OR.
-     .        STIF(I).EQ.ZERO)THEN
+          IF((PENE2(I)==ZERO.AND.CAND_F(1,INDEX(I))==ZERO).OR.
+     .        STIF(I)==ZERO)THEN
             CAND_P(INDEX(I))=ZERO
           ENDIF
         ENDDO
        ENDIF
-#include   "vectorize.inc"
        DO I=1,JLT
-         IF( (PENE2(I).NE.ZERO.OR.CAND_F(1,INDEX(I)).NE.ZERO) .AND.
-     .       STIF(I).NE.ZERO)THEN
-           IF( CAND_F(1,INDEX(I)).NE.ZERO )THEN
+         IF( (PENE2(I)/=ZERO.OR.CAND_F(1,INDEX(I))/=ZERO) .AND.
+     .       STIF(I)/=ZERO)THEN
+           IF( CAND_F(1,INDEX(I))/=ZERO )THEN
              JLT_TIED =JLT_TIED+1
              KEEP(I)  =2
            ELSE
@@ -476,10 +468,9 @@ c----copy IORTHFRIC in local flag
 C
        IF(INTFRIC == 0) THEN
         IF(INTTH == 0 ) THEN
-         IF(ICURV.EQ.0.AND.IADM.EQ.0 )THEN
-#include   "vectorize.inc"
+         IF(ICURV==0.AND.IADM==0 )THEN
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -544,9 +535,8 @@ C
            ENDIF
           ENDDO
          ELSE    ! 
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -612,9 +602,8 @@ C
          ENDIF
         ELSE
          IF(IADM == 0 )THEN
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -684,9 +673,8 @@ C
            ENDIF
           ENDDO
          ELSE    ! 
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -759,10 +747,9 @@ C
        ELSE ! INTFRIC
 
         IF(INTTH == 0 ) THEN
-         IF(ICURV.EQ.0.AND.IADM.EQ.0 )THEN
-#include   "vectorize.inc"
+         IF(ICURV==0.AND.IADM==0 )THEN
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -833,9 +820,8 @@ C
            ENDIF
           ENDDO
          ELSE    ! 
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -908,9 +894,8 @@ C
          ENDIF
         ELSE
          IF(IADM == 0 )THEN
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -986,9 +971,8 @@ C
            ENDIF
           ENDDO
          ELSE    ! 
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -1073,10 +1057,9 @@ C ---------
 C
        IF(INTFRIC == 0) THEN
         IF(INTTH == 0 ) THEN
-         IF(ICURV.EQ.0.AND.IADM.EQ.0 )THEN
-#include   "vectorize.inc"
+         IF(ICURV==0.AND.IADM==0 )THEN
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -1142,9 +1125,8 @@ C
            ENDIF
           ENDDO
          ELSE    ! 
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -1213,9 +1195,8 @@ C
          ENDIF
         ELSE
          IF(IADM == 0 )THEN
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -1286,9 +1267,8 @@ C
            ENDIF
           ENDDO
          ELSE    ! 
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -1361,10 +1341,9 @@ C
         ENDIF
        ELSE ! INTFRIC
         IF(INTTH == 0 ) THEN
-         IF(ICURV.EQ.0.AND.IADM.EQ.0 )THEN
-#include   "vectorize.inc"
+         IF(ICURV==0.AND.IADM==0 )THEN
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -1437,9 +1416,8 @@ C
            ENDIF
           ENDDO
          ELSE    ! 
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -1515,9 +1493,8 @@ C
          ENDIF
         ELSE
          IF(IADM == 0 )THEN
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -1593,9 +1570,8 @@ C
            ENDIF
           ENDDO
          ELSE    ! 
-#include   "vectorize.inc"
           DO I=1,JLT
-           IF(KEEP(I).NE.0)THEN
+           IF(KEEP(I)/=0)THEN
             JLT_NEW = JLT_NEW + 1
             CN_LOC(JLT_NEW) = CAND_N(I)
             CE_LOC(JLT_NEW) = CAND_E(I)
@@ -1690,218 +1666,218 @@ C---------------------------------------------
                KEEP(J)   =KEEP(J+1)
                KEEP(J+1) =IPERM
 
-               IPERM	  =CN_LOC(J)
+               IPERM    =CN_LOC(J)
                CN_LOC(J)  =CN_LOC(J+1)
                CN_LOC(J+1)=IPERM
-               IPERM	  =CE_LOC(J)
+               IPERM    =CE_LOC(J)
                CE_LOC(J)  =CE_LOC(J+1)
                CE_LOC(J+1)=IPERM
-               IPERM	  =IX1(J)
-               IX1(J)	  =IX1(J+1)
+               IPERM    =IX1(J)
+               IX1(J)    =IX1(J+1)
                IX1(J+1)   =IPERM
-               IPERM	  =IX2(J)
-               IX2(J)	  =IX2(J+1)
+               IPERM    =IX2(J)
+               IX2(J)    =IX2(J+1)
                IX2(J+1)   =IPERM
-               IPERM	  =IX3(J)
-               IX3(J)	  =IX3(J+1)
+               IPERM    =IX3(J)
+               IX3(J)    =IX3(J+1)
                IX3(J+1)   =IPERM
-               IPERM	  =IX4(J)
-               IX4(J)	  =IX4(J+1)
+               IPERM    =IX4(J)
+               IX4(J)    =IX4(J+1)
                IX4(J+1)   =IPERM
-               IPERM	  =NSVG(J)
+               IPERM    =NSVG(J)
                NSVG(J)    =NSVG(J+1)
                NSVG(J+1)  =IPERM
-               RPERM	  =NX1(J)
-               NX1(J)	  =NX1(J+1)
+               RPERM    =NX1(J)
+               NX1(J)    =NX1(J+1)
                NX1(J+1)   =RPERM
-               RPERM	  =NX2(J)
-               NX2(J)	  =NX2(J+1)
+               RPERM    =NX2(J)
+               NX2(J)    =NX2(J+1)
                NX2(J+1)   =RPERM
-               RPERM	  =NX3(J)
-               NX3(J)	  =NX3(J+1)
+               RPERM    =NX3(J)
+               NX3(J)    =NX3(J+1)
                NX3(J+1)   =RPERM
-               RPERM	  =NX4(J)
-               NX4(J)	  =NX4(J+1)
+               RPERM    =NX4(J)
+               NX4(J)    =NX4(J+1)
                NX4(J+1)   =RPERM
-               RPERM	  =NY1(J)
-               NY1(J)	  =NY1(J+1)
+               RPERM    =NY1(J)
+               NY1(J)    =NY1(J+1)
                NY1(J+1)   =RPERM
-               RPERM	  =NY2(J)
-               NY2(J)	  =NY2(J+1)
+               RPERM    =NY2(J)
+               NY2(J)    =NY2(J+1)
                NY2(J+1)   =RPERM
-               RPERM	  =NY3(J)
-               NY3(J)	  =NY3(J+1)
+               RPERM    =NY3(J)
+               NY3(J)    =NY3(J+1)
                NY3(J+1)   =RPERM
-               RPERM	  =NY4(J)
-               NY4(J)	  =NY4(J+1)
+               RPERM    =NY4(J)
+               NY4(J)    =NY4(J+1)
                NY4(J+1)   =RPERM
-               RPERM	  =NZ1(J)
-               NZ1(J)	  =NZ1(J+1)
+               RPERM    =NZ1(J)
+               NZ1(J)    =NZ1(J+1)
                NZ1(J+1)   =RPERM
-               RPERM	  =NZ2(J)
-               NZ2(J)	  =NZ2(J+1)
+               RPERM    =NZ2(J)
+               NZ2(J)    =NZ2(J+1)
                NZ2(J+1)   =RPERM
-               RPERM	  =NZ3(J)
-               NZ3(J)	  =NZ3(J+1)
+               RPERM    =NZ3(J)
+               NZ3(J)    =NZ3(J+1)
                NZ3(J+1)   =RPERM
-               RPERM	  =NZ4(J)
-               NZ4(J)	  =NZ4(J+1)
+               RPERM    =NZ4(J)
+               NZ4(J)    =NZ4(J+1)
                NZ4(J+1)   =RPERM
-               RPERM	  =P1(J)
-               P1(J)	  =P1(J+1)
+               RPERM    =P1(J)
+               P1(J)    =P1(J+1)
                P1(J+1)    =RPERM
-               RPERM	  =P2(J)
-               P2(J)	  =P2(J+1)
+               RPERM    =P2(J)
+               P2(J)    =P2(J+1)
                P2(J+1)    =RPERM
-               RPERM	  =P3(J)
-               P3(J)	  =P3(J+1)
+               RPERM    =P3(J)
+               P3(J)    =P3(J+1)
                P3(J+1)    =RPERM
-               RPERM	  =P4(J)
-               P4(J)	  =P4(J+1)
+               RPERM    =P4(J)
+               P4(J)    =P4(J+1)
                P4(J+1)    =RPERM
-               RPERM	  =LB1(J)
-               LB1(J)	  =LB1(J+1)
+               RPERM    =LB1(J)
+               LB1(J)    =LB1(J+1)
                LB1(J+1)   =RPERM
-               RPERM	  =LB2(J)
-               LB2(J)	  =LB2(J+1)
+               RPERM    =LB2(J)
+               LB2(J)    =LB2(J+1)
                LB2(J+1)   =RPERM
-               RPERM	  =LB3(J)
-               LB3(J)	  =LB3(J+1)
+               RPERM    =LB3(J)
+               LB3(J)    =LB3(J+1)
                LB3(J+1)   =RPERM
-               RPERM	  =LB4(J)
-               LB4(J)	  =LB4(J+1)
+               RPERM    =LB4(J)
+               LB4(J)    =LB4(J+1)
                LB4(J+1)   =RPERM
-               RPERM	  =LC1(J)
-               LC1(J)	  =LC1(J+1)
+               RPERM    =LC1(J)
+               LC1(J)    =LC1(J+1)
                LC1(J+1)   =RPERM
-               RPERM	  =LC2(J)
-               LC2(J)	  =LC2(J+1)
+               RPERM    =LC2(J)
+               LC2(J)    =LC2(J+1)
                LC2(J+1)   =RPERM
-               RPERM	  =LC3(J)
-               LC3(J)	  =LC3(J+1)
+               RPERM    =LC3(J)
+               LC3(J)    =LC3(J+1)
                LC3(J+1)   =RPERM
-               RPERM	  =LC4(J)
-               LC4(J)	  =LC4(J+1)
+               RPERM    =LC4(J)
+               LC4(J)    =LC4(J+1)
                LC4(J+1)   =RPERM
 
-               RPERM	  =STIF(J)
+               RPERM    =STIF(J)
                STIF(J)    =STIF(J+1)
                STIF(J+1)  =RPERM
-               RPERM	  =GAPV(J)
+               RPERM    =GAPV(J)
                GAPV(J)    =GAPV(J+1)
                GAPV(J+1)  =RPERM
 
-               IPERM	  =INDEX(J)
+               IPERM    =INDEX(J)
                INDEX(J)   =INDEX(J+1)
                INDEX(J+1) =IPERM
-               IPERM	  =KINI(J)
+               IPERM    =KINI(J)
                KINI(J)    =KINI(J+1)
                KINI(J+1)  =IPERM
                
-               RPERM	  =VXI(J)
-               VXI(J)	  =VXI(J+1)
+               RPERM    =VXI(J)
+               VXI(J)    =VXI(J+1)
                VXI(J+1)   =RPERM
-               RPERM	  =VYI(J)
-               VYI(J)	  =VYI(J+1)
+               RPERM    =VYI(J)
+               VYI(J)    =VYI(J+1)
                VYI(J+1)   =RPERM
-               RPERM	  =VZI(J)
-               VZI(J)	  =VZI(J+1)
+               RPERM    =VZI(J)
+               VZI(J)    =VZI(J+1)
                VZI(J+1)   =RPERM
-               RPERM	  =MSI(J)
-               MSI(J)	  =MSI(J+1)
+               RPERM    =MSI(J)
+               MSI(J)    =MSI(J+1)
                MSI(J+1)   =RPERM
-               RPERM	  =XI(J)
-               XI(J)	  =XI(J+1)
+               RPERM    =XI(J)
+               XI(J)    =XI(J+1)
                XI(J+1)    =RPERM
-               RPERM	  =YI(J)
-               YI(J)	  =YI(J+1)
+               RPERM    =YI(J)
+               YI(J)    =YI(J+1)
                YI(J+1)    =RPERM
-               RPERM	  =ZI(J)
-               ZI(J)	  =ZI(J+1)
+               RPERM    =ZI(J)
+               ZI(J)    =ZI(J+1)
                ZI(J+1)    =RPERM
-               RPERM	  =X1(J)
-               X1(J)	  =X1(J+1)
+               RPERM    =X1(J)
+               X1(J)    =X1(J+1)
                X1(J+1)    =RPERM
-               RPERM	  =Y1(J)
-               Y1(J)	  =Y1(J+1)
+               RPERM    =Y1(J)
+               Y1(J)    =Y1(J+1)
                Y1(J+1)    =RPERM
-               RPERM	  =Z1(J)
-               Z1(J)	  =Z1(J+1)
+               RPERM    =Z1(J)
+               Z1(J)    =Z1(J+1)
                Z1(J+1)    =RPERM
-               RPERM	  =X2(J)
-               X2(J)	  =X2(J+1)
+               RPERM    =X2(J)
+               X2(J)    =X2(J+1)
                X2(J+1)    =RPERM
-               RPERM	  =Y2(J)
-               Y2(J)	  =Y2(J+1)
+               RPERM    =Y2(J)
+               Y2(J)    =Y2(J+1)
                Y2(J+1)    =RPERM
-               RPERM	  =Z2(J)
-               Z2(J)	  =Z2(J+1)
+               RPERM    =Z2(J)
+               Z2(J)    =Z2(J+1)
                Z2(J+1)    =RPERM
-               RPERM	  =X3(J)
-               X3(J)	  =X3(J+1)
+               RPERM    =X3(J)
+               X3(J)    =X3(J+1)
                X3(J+1)    =RPERM
-               RPERM	  =Y3(J)
-               Y3(J)	  =Y3(J+1)
+               RPERM    =Y3(J)
+               Y3(J)    =Y3(J+1)
                Y3(J+1)    =RPERM
-               RPERM	  =Z3(J)
-               Z3(J)	  =Z3(J+1)
+               RPERM    =Z3(J)
+               Z3(J)    =Z3(J+1)
                Z3(J+1)    =RPERM
-               RPERM	  =X4(J)
-               X4(J)	  =X4(J+1)
+               RPERM    =X4(J)
+               X4(J)    =X4(J+1)
                X4(J+1)    =RPERM
-               RPERM	  =Y4(J)
-               Y4(J)	  =Y4(J+1)
+               RPERM    =Y4(J)
+               Y4(J)    =Y4(J+1)
                Y4(J+1)    =RPERM
-               RPERM	  =Z4(J)
-               Z4(J)	  =Z4(J+1)
+               RPERM    =Z4(J)
+               Z4(J)    =Z4(J+1)
                Z4(J+1)    =RPERM 
 C
 C
                IF(ICURV/=0.OR.IADM/=0)THEN
-                 RPERM	     =RCURVI(J)
+                 RPERM       =RCURVI(J)
                  RCURVI(J)   =RCURVI(J+1)
                  RCURVI(J+1) =RPERM
-                 RPERM	     =ANGLMI(J)
+                 RPERM       =ANGLMI(J)
                  ANGLMI(J)   =ANGLMI(J+1)
                  ANGLMI(J+1) =RPERM
                END IF
 
                IF(INTTH/=0)THEN
-                 RPERM	     =TEMPI(J)
+                 RPERM       =TEMPI(J)
                  TEMPI(J)    =TEMPI(J+1)
                  TEMPI(J+1)  =RPERM
 C                PHI(J)      = ZERO
-                 RPERM	     =AREASI(J)
+                 RPERM       =AREASI(J)
                  AREASI(J)   =AREASI(J+1)
                  AREASI(J+1) =RPERM
-                 IPERM	     =IELECI(J)
+                 IPERM       =IELECI(J)
                  IELECI(J)   =IELECI(J+1)
                  IELECI(J+1) =IPERM
                END IF
 
 C
                IF(INTFRIC/=0)THEN
-                 IPERM	          =IPARTFRICSI(J)
+                 IPERM            =IPARTFRICSI(J)
                  IPARTFRICSI(J)   =IPARTFRICSI(J+1)
                  IPARTFRICSI(J+1) =IPERM
-                 IPERM	          =IPARTFRICMI(J)
+                 IPERM            =IPARTFRICMI(J)
                  IPARTFRICMI(J)   =IPARTFRICMI(J+1)
                  IPARTFRICMI(J+1) =IPERM
                  IF(IORTHFRIC_LOC >0) THEN
-                    IPERM	  =IREP_FRICMI(J)
+                    IPERM    =IREP_FRICMI(J)
                     IREP_FRICMI(J) = IREP_FRICMI(J+1)
                     IREP_FRICMI(J+1)= IPERM
-                    RPERM	  = DIR_FRICMI(J,1)
+                    RPERM    = DIR_FRICMI(J,1)
                     DIR_FRICMI(J,1)  = DIR_FRICMI(J+1,1)
                     DIR_FRICMI(J+1,1)= RPERM
-                    RPERM	  = DIR_FRICMI(J,2)
+                    RPERM    = DIR_FRICMI(J,2)
                     DIR_FRICMI(J,2)  = DIR_FRICMI(J+1,2)
                     DIR_FRICMI(J+1,2)= RPERM
                  ENDIF
                END IF
 
                IF(IDTMINS==2)THEN
-                 IPERM	     =NSMS(J)
+                 IPERM       =NSMS(J)
                  NSMS(J)     =NSMS(J+1)
                  NSMS(J+1)   =IPERM
                END IF

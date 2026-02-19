@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 CCgw|============================================================       
-Chd|====================================================================
-Chd|  INITBUF                       source/output/anim/initbuf.F  
-Chd|-- called by -----------
-Chd|        DFUNCS                        source/output/anim/dfuncs.F   
-Chd|        DMASANIS                      source/output/anim/dmasanis.F 
-Chd|        TENSORS                       source/output/anim/tensors.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    initbuf    ../starter/source/output/anim/initbuf.F
+!||--- called by ------------------------------------------------------
+!||    dfuncs     ../starter/source/output/anim/dfuncs.F
+!||    dmasanis   ../starter/source/output/anim/dmasanis.F
+!||    tensors    ../starter/source/output/anim/tensors.F
+!||====================================================================
       SUBROUTINE INITBUF (IPARG    ,NG      ,                           
      2   MTN     ,LLT     ,NFT     ,IAD     ,ITY     ,                  
      3   NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,                  
@@ -63,9 +62,9 @@ C======================================================================
       JALE    = IPARG(7,NG)                                             
                                                                         
       ISMSTR  = IPARG(9,NG)                                             
-      IF(ITY.EQ.1.OR.ITY.EQ.2)THEN                                      
+      IF(ITY==1.OR.ITY==2)THEN                                      
         JEUL    = IPARG(11,NG)                                          
-      ELSE             ! attention dkt9_s3 utilise ce flag              
+      ELSE             ! Attention dkt9_s3 uses this flag              
         JEUL    = 0                                                     
       END IF                                                            
       JTUR    = IPARG(12,NG)                                            

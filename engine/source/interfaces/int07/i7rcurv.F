@@ -1,46 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I7NORMN                       source/interfaces/int07/i7rcurv.F
-Chd|-- called by -----------
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i7normn   ../engine/source/interfaces/int07/i7rcurv.F
+!||--- called by ------------------------------------------------------
+!||    i7mainf   ../engine/source/interfaces/int07/i7mainf.F
+!||====================================================================
       SUBROUTINE I7NORMN(NRTM,IRECT,NUMNOD,X,NOD_NORMAL,
      .                   NMN ,MSR  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -51,12 +41,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J ,N1,N2,N3,N4
+      INTEGER I  ,N1,N2,N3,N4
       my_real
      .   SURFX,SURFY,SURFZ,X13,Y13,Z13,X24,Y24,Z24,AAA
 C-----------------------------------------------
 
-C optimisable en spmd si ajout flag pour routine de comm, spmd_exchange_n
+C Optimizable in SPMD If Addition Flag for comm, SPMD_exchange_n
       DO N1=1,NUMNOD
         NOD_NORMAL(1,N1) = ZERO
         NOD_NORMAL(2,N1) = ZERO
@@ -103,14 +93,14 @@ C optimisable en spmd si ajout flag pour routine de comm, spmd_exchange_n
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I7NORMNP                      source/interfaces/int07/i7rcurv.F
-Chd|-- called by -----------
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|-- calls ---------------
-Chd|        MYQSORT                       ../common_source/tools/sort/myqsort.F
-Chd|        SPMD_I7CURVCOM                source/mpi/interfaces/spmd_i7curvcom.F
-Chd|====================================================================
+!||====================================================================
+!||    i7normnp         ../engine/source/interfaces/int07/i7rcurv.F
+!||--- called by ------------------------------------------------------
+!||    i7mainf          ../engine/source/interfaces/int07/i7mainf.F
+!||--- calls      -----------------------------------------------------
+!||    myqsort          ../common_source/tools/sort/myqsort.F
+!||    spmd_i7curvcom   ../engine/source/mpi/interfaces/spmd_i7curvcom.F
+!||====================================================================
       SUBROUTINE I7NORMNP(NRTM  ,IRECT   ,NUMNOD ,X    ,NOD_NORMAL,
      .                   NMN   ,MSR     ,LENT   ,MAXCC,ISDSIZ    ,
      .                   IRCSIZ,IAD_ELEM,FR_ELEM,ITAG )
@@ -119,17 +109,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 ctmp+1
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -203,31 +186,31 @@ C-----------------------------------------------
         FSKYT(3,IAD) =  SURFZ
       END DO
 C
-      IF(NSPMD.GT.1) THEN
+      IF(NSPMD>1) THEN
         LENR = IRCSIZ(NSPMD+1)*3+IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
         LENS = ISDSIZ(NSPMD+1)*3+IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
         CALL SPMD_I7CURVCOM(IAD_ELEM,FR_ELEM,ADSKYT,FSKYT,
      .                      ISDSIZ,IRCSIZ,ITAG  ,LENR    ,LENS   )
       END IF
 C
-C     tri par packet des normales
+C     sorting normals by packet
 C
       DO N1 = 1, NUMNOD
         N2 = ADSKYT(N1-1)
         N3 = ADSKYT(N1)-1
         N4 = N3-N2+1
-        IF(N4.GT.1)THEN        ! cas N contribution => tri
+        IF(N4>1)THEN        ! cas N contribution => tri
           DO J = 1, 3
             DO CC = N2, N3
               FSKYT2(CC-N2+1) = FSKYT(J,CC)
             END DO
-C            IF(N4.GT.MAXCC)print*,'error cc:',n4,maxcc
+C            IF(N4>MAXCC)print*,'error cc:',n4,maxcc
             CALL MYQSORT(N4,FSKYT2,PERM,ERROR)
             DO CC = N2, N3
               NOD_NORMAL(J,N1) = NOD_NORMAL(J,N1) + FSKYT2(CC-N2+1)
             END DO
           END DO
-        ELSEIF(N4.EQ.1)THEN    ! cas 1 seule contribution => direct
+        ELSEIF(N4==1)THEN    ! Case 1 single contribution => direct
           NOD_NORMAL(1,N1) = FSKYT(1,N2)
           NOD_NORMAL(2,N1) = FSKYT(2,N2)
           NOD_NORMAL(3,N1) = FSKYT(3,N2)
@@ -237,26 +220,16 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I7NORME                       source/interfaces/int07/i7rcurv.F
-Chd|-- called by -----------
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i7norme   ../engine/source/interfaces/int07/i7rcurv.F
+!||--- called by ------------------------------------------------------
+!||    i7mainf   ../engine/source/interfaces/int07/i7mainf.F
+!||====================================================================
       SUBROUTINE I7NORME(NMNFT, NMNLT, NOD_NORMAL, MSR  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -273,30 +246,29 @@ C-----------------------------------------------
 C-----------------------------------------------
 
       DO I=NMNFT,NMNLT
-     	N1 = MSR(I)
-     	SURFX = NOD_NORMAL(1,N1)
-     	SURFY = NOD_NORMAL(2,N1)
-     	SURFZ = NOD_NORMAL(3,N1)
+          N1 = MSR(I)
+          SURFX = NOD_NORMAL(1,N1)
+          SURFY = NOD_NORMAL(2,N1)
+          SURFZ = NOD_NORMAL(3,N1)
 
         AAA=ONE/MAX(EM30,SQRT(SURFX*SURFX+SURFY*SURFY+SURFZ*SURFZ))
         SURFX = SURFX * AAA
         SURFY = SURFY * AAA
         SURFZ = SURFZ * AAA
 
-     	NOD_NORMAL(1,N1) = SURFX
-     	NOD_NORMAL(2,N1) = SURFY
-     	NOD_NORMAL(3,N1) = SURFZ
+          NOD_NORMAL(1,N1) = SURFX
+          NOD_NORMAL(2,N1) = SURFY
+          NOD_NORMAL(3,N1) = SURFZ
       END DO
 
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I7RCURV                       source/interfaces/int07/i7rcurv.F
-Chd|-- called by -----------
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i7rcurv   ../engine/source/interfaces/int07/i7rcurv.F
+!||--- called by ------------------------------------------------------
+!||    i7mainf   ../engine/source/interfaces/int07/i7mainf.F
+!||====================================================================
       SUBROUTINE I7RCURV(NRTMFT,NRTMLT ,X ,NOD_NORMAL ,IRECT ,
      .                   RCURV ,NRADM  ,ANGLM ,ANGLT )
 C-----------------------------------------------
@@ -304,14 +276,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -332,7 +296,7 @@ C-----------------------------------------------
      .   NNZ1, NNZ2, NNZ3, NNZ4,
      .   SURFX, SURFY, SURFZ, 
      .   ERX, ERY, ERZ, DNX, DNY, DNZ, DNT, LL, AAA, RR,
-     .   X13, Y13, Z13, X24, Y24, Z24, NX, NY, NZ, CC
+     .   X13, Y13, Z13, X24, Y24, Z24, CC
 C-----------------------------------------------
       RCURV(NRTMFT:NRTMLT) = EP30
       ANGLM(NRTMFT:NRTMLT) = EP30
@@ -380,7 +344,7 @@ C-------
         ERY = (Y2+Y3)-(Y1+Y4)
         ERZ = (Z2+Z3)-(Z1+Z4)
 
-C       Longueur vraie = LL/2
+C       True length = ll/2
         LL  = SQRT(ERX*ERX+ERY*ERY+ERZ*ERZ)
         AAA = ONE / LL
         ERX = ERX*AAA
@@ -401,7 +365,7 @@ C-------
         ERY = (Y4+Y3)-(Y1+Y2)
         ERZ = (Z4+Z3)-(Z1+Z2)
 
-C       Longueur vraie = LL/2
+C       True length = ll/2
         LL  = SQRT(ERX*ERX+ERY*ERY+ERZ*ERZ)
         AAA = ONE / LL
         ERX = ERX*AAA

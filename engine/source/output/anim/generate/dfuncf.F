@@ -1,34 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DFUNCF                        source/output/anim/generate/dfuncf.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_R4GET_PARTN              source/mpi/anim/spmd_r4get_partn.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dfuncf             ../engine/source/output/anim/generate/dfuncf.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_r4get_partn   ../engine/source/mpi/anim/spmd_r4get_partn.F
+!||    write_r_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE DFUNCF(ELBUF_TAB ,FUNC  ,IFUNC  ,IPARG    ,GEO  ,
      .                  IXT       ,IXP   ,IXR    ,MASS     ,PM   ,
      .                  EL2FA     ,NBF   ,IADP   ,NBPART   ,EHOUR,
@@ -37,6 +40,8 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      USE my_alloc_mod
+      use element_mod , only : nixt,nixr,nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,11 +52,8 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
-#include      "scr23_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
 #include      "task_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
@@ -66,7 +68,6 @@ C     REAL
      .        IADP(*),NBPART,IADG(NSPMD,*),NANIM1D_L,NBF2,
      .        IGEO(NPROPGI,*)
       INTEGER BUF
-      REAL WAL(NBF+NANIM1D_L)
 C
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
 C-----------------------------------------------
@@ -77,19 +78,22 @@ C     REAL
      .   EVAR(MVSIZ),
      .   OFF, P, VONM2, VONM, S1, S2, S12, S3, VALUE,
      .   A1,B1,B2,B3,YEQ,F1,M1,M2,M3, XM,     
-     .   FOR, AREA, FEQ, EPLAS    
-      INTEGER I, II, NG, NEL, NFT, IAD, ITY, LFT, NPT, ISS, ISC,
+     .   FOR, AREA, FEQ, EPLAS,DAMMX   
+      INTEGER I, NG, NEL, NFT, ITY, LFT, NPT, 
      .        IADD, N, J, LLT, MLW, NB1, NB2, NB3, NB4, NB5, 
      .        NB6, NB7, NB8, NB9, NB10, NB11, NB12, NB13, NB14, NB15,
-     .        NB16, LLL,NUVAR,IGTYP,
+     .        NB16, LLL,NUVAR,IGTYP,IFAIL,
      .        ISTRAIN,NN, K1, K2,JTURB,MT,JALE, IMID, IALEL,IPID,
      .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,NF,
      .        OFFSET,K,INC,KK,IHBE,ISROT,ILAYER,IR,IS,JJ(6),IPT
+      INTEGER LPLA    ! Used for size of PL Buffer
       REAL R4
+      REAL,DIMENSION(:),ALLOCATABLE:: WAL
 C
       TYPE(G_BUFEL_) ,POINTER :: GBUF
       TYPE(L_BUFEL_),POINTER :: LBUF
 C-----------------------------------------------
+      CALL MY_ALLOC(WAL,NBF+NANIM1D_L)
 C
       NN1 = 1
       NN3 = 1
@@ -106,6 +110,7 @@ C
         NEL   =IPARG(2,NG)
         ITY   =IPARG(5,NG)
         IGTYP =IPARG(38,NG)
+        IFAIL =IPARG(43,NG)
 C---
         GBUF => ELBUF_TAB(NG)%GBUF
 C---
@@ -121,13 +126,17 @@ C---
 C-----------------------------------------------
 C       TRUSS
 C-----------------------------------------------
-        IF(ITY.EQ.4)THEN
-          IF(IFUNC.EQ.1)THEN
-           IF(MLW.NE.1)THEN
+        IF(ITY==4)THEN
+          IF(IFUNC==1)THEN
+           IF(MLW/=1)THEN
             DO  I=LFT,LLT
               N = I + NFT
               OFF = GBUF%OFF(I)
-              FUNC(EL2FA(NN6+N)) = GBUF%PLA(I)
+              IF(GBUF%G_PLA > 0) THEN
+                FUNC(EL2FA(NN6+N)) = GBUF%PLA(I)
+              ELSE
+                FUNC(EL2FA(NN6+N)) = 0
+              ENDIF
             ENDDO
            ELSE
             DO  I=LFT,LLT
@@ -135,13 +144,13 @@ C-----------------------------------------------
               FUNC(EL2FA(NN6+N)) = ZERO
             ENDDO
            ENDIF
-          ELSEIF(IFUNC.EQ.3)THEN
+          ELSEIF(IFUNC==3)THEN
             DO I=LFT,LLT
              N = I + NFT
              FUNC(EL2FA(NN6+N))=GBUF%EINT(I)/
      .            MAX(EM30,MASS(EL2FA(NN6+N)))
             ENDDO
-          ELSEIF(IFUNC.EQ.7)THEN
+          ELSEIF(IFUNC==7)THEN
             DO I=LFT,LLT
              N = I + NFT
              FOR = GBUF%FOR(I)
@@ -149,19 +158,19 @@ C-----------------------------------------------
              FEQ = FOR*FOR
              FUNC(EL2FA(NN6+N)) = SQRT(FEQ)/AREA
             ENDDO
-          ELSEIF(IFUNC.EQ.14)THEN  
+          ELSEIF(IFUNC==14)THEN  
             DO I=LFT,LLT
              N = I + NFT                   
              FUNC(EL2FA(NN6+N)) = GBUF%FOR(I) / GBUF%AREA(I)
             ENDDO
-          ELSEIF(IFUNC.EQ.20)THEN 
+          ELSEIF(IFUNC==20)THEN 
             IF(GBUF%G_DT>0)THEN                      
               DO I=LFT,LLT
                 N = I + NFT
                 FUNC(EL2FA(NN6+N)) = GBUF%DT(I)
              ENDDO 
             ENDIF
-          ELSEIF ((IFUNC.EQ.21).AND.(GBUF%G_ISMS>0)) THEN                       
+          ELSEIF ((IFUNC==21).AND.(GBUF%G_ISMS>0)) THEN                       
               DO I=LFT,LLT
                 N = I + NFT
                 FUNC(EL2FA(NN6+N)) = GBUF%ISMS(I)
@@ -191,97 +200,106 @@ C-----------------------------------------------
             ENDDO
           ENDIF
 C-----------------------------------------------
-C       POUTRES
+C       BEAM
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.5)THEN
+        ELSEIF(ITY==5)THEN
           IF (IFUNC == 1) THEN
-           IF (MLW /= 1) THEN
-             IF (IGTYP == 18) THEN
-               NPT  = IPARG(6,NG)
-               DO  I=LFT,LLT
-                 N = I + NFT
-                 EPLAS = ZERO
-                 DO K = 1,NPT
-                   ILAYER=1
-                   IR = 1
-                   IS = 1
-                   LBUF => ELBUF_TAB(NG)%BUFLY(ILAYER)%LBUF(IR,IS,K)
-                   EPLAS = EPLAS + LBUF%PLA(I)
+             IF (MLW /= 1) THEN
+               IF (IGTYP == 18) THEN
+                 NPT  = IPARG(6,NG)
+                 DO  I=LFT,LLT
+                   N = I + NFT
+                   EPLAS = ZERO
+                   IF (MLW /= 0)THEN
+                     DO K = 1,NPT
+                       ILAYER=1
+                       IR = 1
+                       IS = 1
+                       LPLA = ELBUF_TAB(NG)%BUFLY(ILAYER)%L_PLA
+                       IF ( LPLA /= 0)THEN
+                         LBUF => ELBUF_TAB(NG)%BUFLY(ILAYER)%LBUF(IR,IS,K)
+                         EPLAS = EPLAS + LBUF%PLA(I)
+                       ENDIF
+                     ENDDO
+                   ENDIF
+                   FUNC(EL2FA(NN7+N)) = EPLAS/NPT
                  ENDDO
-                 FUNC(EL2FA(NN7+N)) = EPLAS/NPT
+               ELSE    ! IF (IGTYP == 18) THEN
+                 DO  I=LFT,LLT
+                     N = I + NFT
+                     OFF = GBUF%OFF(I)
+                     IF(GBUF%G_PLA > 0) THEN
+                        FUNC(EL2FA(NN7+N)) = GBUF%PLA(I)
+                     ELSE
+                        FUNC(EL2FA(NN7+N)) = 0
+                     ENDIF
+                 ENDDO
+               ENDIF
+             ELSE           ! IF (MLW /= 1) THEN
+               DO  I=LFT,LLT
+                  N = I + NFT
+                  FUNC(EL2FA(NN7+N)) = ZERO
                ENDDO
-             ELSE
-            DO  I=LFT,LLT
-              N = I + NFT
-              OFF = GBUF%OFF(I)
-              FUNC(EL2FA(NN7+N)) = GBUF%PLA(I)
-            ENDDO
              ENDIF
-           ELSE
-            DO  I=LFT,LLT
+          ELSEIF(IFUNC==3)THEN
+            DO I=LFT,LLT
+               N = I + NFT
+               FUNC(EL2FA(NN7+N)) = (GBUF%EINT(I) + GBUF%EINT(I+LLT)) / MAX(EM30,MASS(EL2FA(NN7+N)))
+            ENDDO
+          ELSEIF(IFUNC==7)THEN
+            DO I=LFT,LLT
               N = I + NFT
-              FUNC(EL2FA(NN7+N)) = ZERO
-            ENDDO
-           ENDIF
-          ELSEIF(IFUNC.EQ.3)THEN
-            DO I=LFT,LLT
-             N = I + NFT
-             FUNC(EL2FA(NN7+N)) = (GBUF%EINT(I) + GBUF%EINT(I+LLT)) / MAX(EM30,MASS(EL2FA(NN7+N)))
-            ENDDO
-          ELSEIF(IFUNC.EQ.7)THEN
-            DO I=LFT,LLT
-             N = I + NFT
-             A1 = GEO(1,IXP(5,N))
-             B1 = GEO(2,IXP(5,N))
-             B2 = GEO(18,IXP(5,N))
-             B3 = GEO(4,IXP(5,N))
-             F1 = GBUF%FOR(JJ(1)+I)
-             M1 = GBUF%MOM(JJ(1) + I)
-             M2 = GBUF%MOM(JJ(2) + I)
-             M3 = GBUF%MOM(JJ(3) + I)
-             YEQ= F1*F1 + THREE* A1 *
+              A1 = GEO(1,IXP(5,N))
+              B1 = GEO(2,IXP(5,N))
+              B2 = GEO(18,IXP(5,N))
+              B3 = GEO(4,IXP(5,N))
+              F1 = GBUF%FOR(JJ(1)+I)
+              M1 = GBUF%MOM(JJ(1) + I)
+              M2 = GBUF%MOM(JJ(2) + I)
+              M3 = GBUF%MOM(JJ(3) + I)
+              YEQ= F1*F1 + THREE* A1 *
      +                  ( M1*M1 / MAX(B3,EM30)
      +                  + M2*M2 / MAX(B1,EM30)
      +                  + M3*M3 / MAX(B2,EM30) )
-             FUNC(EL2FA(NN7+N)) = SQRT(YEQ)/A1
+              FUNC(EL2FA(NN7+N)) = SQRT(YEQ)/A1
             ENDDO
-          ELSEIF(IFUNC.EQ.14)THEN
+          ELSEIF(IFUNC==14)THEN
             DO I=LFT,LLT
-             N = I + NFT
-             FUNC(EL2FA(NN7+N)) = GBUF%FOR(JJ(1)+I) / GEO(1,IXP(5,N))
+               N = I + NFT
+               FUNC(EL2FA(NN7+N)) = GBUF%FOR(JJ(1)+I) / GEO(1,IXP(5,N))
             ENDDO
-          ELSEIF(IFUNC.EQ.17)THEN
+          ELSEIF(IFUNC==17)THEN
             DO I=LFT,LLT
-             N = I + NFT
-             FUNC(EL2FA(NN7+N)) = GBUF%FOR(JJ(2)+I) / GEO(1,IXP(5,N))
+               N = I + NFT
+               FUNC(EL2FA(NN7+N)) = GBUF%FOR(JJ(2)+I) / GEO(1,IXP(5,N))
             ENDDO
-          ELSEIF(IFUNC.EQ.19)THEN
+          ELSEIF(IFUNC==19)THEN
             DO I=LFT,LLT
-             N = I + NFT
+               N = I + NFT
              FUNC(EL2FA(NN7+N)) = GBUF%FOR(JJ(3)+I) / GEO(1,IXP(5,N))
             ENDDO
-          ELSEIF(IFUNC.EQ.20)THEN                       
+          ELSEIF(IFUNC==20)THEN                       
             DO I=LFT,LLT
               N = I + NFT
               FUNC(EL2FA(NN7+N)) = GBUF%DT(I)
             ENDDO
-          ELSEIF ((IFUNC.EQ.21).AND.(GBUF%G_ISMS>0)) THEN                       
-              DO I=LFT,LLT
+          ELSEIF ((IFUNC==21).AND.(GBUF%G_ISMS>0)) THEN                       
+            DO I=LFT,LLT
                 N = I + NFT
                 FUNC(EL2FA(NN7+N)) = GBUF%ISMS(I)
-              ENDDO        
+            ENDDO        
           ELSEIF (IFUNC == 22) THEN 
             DO I=LFT,LLT
-              N = I + NFT
-              IF (GBUF%G_OFF > 0) THEN
-                IF(GBUF%OFF(I) > ONE) THEN
-                  FUNC(EL2FA(NN7+N)) = GBUF%OFF(I) - ONE
-                ELSEIF((GBUF%OFF(I) >= ZERO .AND. GBUF%OFF(I) <= ONE)) THEN
-                  FUNC(EL2FA(NN7+N)) = GBUF%OFF(I)
-                ELSE
-                  FUNC(EL2FA(NN7+N)) = -ONE
-                ENDIF
-              ENDIF
+               N = I + NFT
+               IF (GBUF%G_OFF > 0) THEN
+                  IF(GBUF%OFF(I) > ONE) THEN
+                    FUNC(EL2FA(NN7+N)) = GBUF%OFF(I) - ONE
+                  ELSEIF((GBUF%OFF(I) >= ZERO .AND. GBUF%OFF(I) <= ONE)) THEN
+                    FUNC(EL2FA(NN7+N)) = GBUF%OFF(I)
+                  ELSE
+                    FUNC(EL2FA(NN7+N)) = -ONE
+                  ENDIF
+               ENDIF
             ENDDO              
           ELSEIF (IFUNC >= 23 .AND. IFUNC <= 122) THEN   
             IPT = MOD((IFUNC - 22), 100)
@@ -306,6 +324,27 @@ C-----------------------------------------------
                 ENDIF ! IF (IPT <= NPT)
               ENDIF ! IF (IGTYP == 18)
             ENDIF ! IF (MLW /= 1)
+          ELSEIF(IFUNC == 124 .AND. (GBUF%G_EPSD>0))THEN                       
+            DO I=LFT,LLT
+              N = I + NFT
+              FUNC(EL2FA(NN7+N)) = GBUF%EPSD(I)
+            ENDDO          
+          ELSEIF(IFUNC == 125 .and. IFAIL > 0) THEN                       
+            IF (IGTYP == 18) THEN
+              DO I=LFT,LLT
+                N = I + NFT
+                DAMMX = ZERO
+                DO J = 1,ELBUF_TAB(NG)%BUFLY(1)%NPTT
+                  DAMMX = MAX(DAMMX,ELBUF_TAB(NG)%BUFLY(1)%FAIL(1,1,J)%FLOC(1)%DAMMX(I))
+                ENDDO
+                FUNC(EL2FA(NN7+N)) = DAMMX
+              ENDDO
+            ELSE IF (IGTYP == 3) THEN
+              DO I=LFT,LLT
+                N = I + NFT
+                FUNC(EL2FA(NN7+N)) = GBUF%FAIL(1)%DAMMX(I)
+              ENDDO
+            END IF         
           ELSE
             DO I=LFT,LLT
              N = I + NFT
@@ -315,79 +354,79 @@ C-----------------------------------------------
 C-----------------------------------------------
 C       RESSORTS
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.6)THEN
-          IF(IFUNC.EQ.3)THEN
-           IF (MLW.EQ.1) THEN
+        ELSEIF(ITY==6)THEN
+          IF(IFUNC==3)THEN
+           IF (MLW==1) THEN
             XM = ONE/GEO(1,IXR(1,1+NFT))
             DO  I=LFT,LLT
               N = I + NFT
 C             XM cannot be zero (was checked in starter).
               FUNC(EL2FA(NN8+N)) = GBUF%EINT(I)*XM
             ENDDO
-           ELSEIF (MLW.EQ.2) THEN
+           ELSEIF (MLW==2) THEN
             XM = ONE/GEO(1,IXR(1,1+NFT))
             DO  I=LFT,LLT
               N = I + NFT
 C             XM cannot be zero (was checked in starter).
               FUNC(EL2FA(NN8+N)) = GBUF%EINT(I)*XM
             ENDDO
-           ELSEIF (MLW.EQ.3) THEN
+           ELSEIF (MLW==3) THEN
             XM = ONE/GEO(1,IXR(1,1+NFT))
             DO  I=LFT,LLT
               N = I + NFT
 C             XM cannot be zero (was checked in starter).
               FUNC(EL2FA(NN8+N)) = GBUF%EINT(I)*XM
             ENDDO
-           ELSEIF (MLW.EQ.4) THEN
+           ELSEIF (MLW==4) THEN
             XM = ONE/GEO(1,IXR(1,1+NFT))
             DO  I=LFT,LLT
               N = I + NFT
 C             XM cannot be zero (was checked in starter).
               FUNC(EL2FA(NN8+N)) = GBUF%EINT(I)*XM
             ENDDO
-           ELSEIF (MLW.EQ.5) THEN
+           ELSEIF (MLW==5) THEN
 C           user springs.
             DO  I=LFT,LLT
               N = I + NFT
               FUNC(EL2FA(NN8+N)) = GBUF%EINT(I)/MAX(EM30,GBUF%MASS(I))
             ENDDO
-           ELSEIF (MLW.EQ.6) THEN
+           ELSEIF (MLW==6) THEN
             XM = ONE/GEO(1,IXR(1,1+NFT))
             DO  I=LFT,LLT
               N = I + NFT
 C             XM cannot be zero (was checked in starter).
               FUNC(EL2FA(NN8+N)) = GBUF%EINT(I)*XM
             ENDDO
-           ELSEIF (MLW.EQ.7) THEN
+           ELSEIF (MLW==7) THEN
             XM = ONE/GEO(1,IXR(1,1+NFT))
             DO  I=LFT,LLT
               N = I + NFT
               FUNC(EL2FA(NN8+N)) = GBUF%EINT(I)*XM
             ENDDO
            ENDIF
-          ELSEIF(IFUNC.EQ.11)THEN
+          ELSEIF(IFUNC==11)THEN
             DO  I=LFT,LLT
               N = I + NFT
               FUNC(EL2FA(NN8+N)) = ANIM(N)
             ENDDO
-          ELSEIF(IFUNC.EQ.12)THEN
+          ELSEIF(IFUNC==12)THEN
             KK = NUMELR * ANIM_FE(11)
             DO  I=LFT,LLT
               N = I + NFT
               FUNC(EL2FA(NN8+N)) = ANIM(N+KK)
             ENDDO
-          ELSEIF(IFUNC.EQ.13)THEN
+          ELSEIF(IFUNC==13)THEN
             KK = NUMELR * (ANIM_FE(11)+ANIM_FE(12))
             DO  I=LFT,LLT
               N = I + NFT
               FUNC(EL2FA(NN8+N)) = ANIM(N+KK)
             ENDDO
-          ELSEIF(IFUNC.EQ.20 .AND. GBUF%G_DT.NE.0)THEN                       
+          ELSEIF(IFUNC==20 .AND. GBUF%G_DT/=0)THEN                       
             DO I=LFT,LLT
               N = I + NFT
               FUNC(EL2FA(NN8+N)) = GBUF%DT(I)
             ENDDO
-          ELSEIF ((IFUNC.EQ.21).AND.(GBUF%G_ISMS>0)) THEN                       
+          ELSEIF ((IFUNC==21).AND.(GBUF%G_ISMS>0)) THEN                       
               DO I=LFT,LLT
                 N = I + NFT
                 FUNC(EL2FA(NN8+N)) = GBUF%ISMS(I)
@@ -411,7 +450,7 @@ C             XM cannot be zero (was checked in starter).
              FUNC(EL2FA(NN8+N)) = 0.
             ENDDO
           ENDIF
-          IF(MLW.EQ.3)THEN
+          IF(MLW==3)THEN
             DO I=LFT,LLT
              N = I + NFT
              FUNC(EL2FA(NN8+N)+1) = FUNC(EL2FA(NN8+N))
@@ -420,7 +459,7 @@ C             XM cannot be zero (was checked in starter).
 C
         ENDIF
 C-----------------------------------------------
-C       FIN DE BOUCLE SUR LES OFFSET
+C       end of loop over offsets
 C-----------------------------------------------
        END DO
       ENDDO ! DO NG=1,NGROUP
@@ -431,7 +470,7 @@ C-----------------------------------------------
            CALL WRITE_R_C(R4,1)
         ENDDO
 C + X-ELEMENTS
-        IF (IFUNC.EQ.3) THEN
+        IF (IFUNC==3) THEN
          DO N=1,NANIM1D
            VALUE  = XFUNC1(1,N)
            R4 = VALUE
@@ -447,7 +486,7 @@ C + X-ELEMENTS
         DO N = 1, NBF
           WAL(N) = FUNC(N)
         ENDDO
-        IF (IFUNC.EQ.3) THEN
+        IF (IFUNC==3) THEN
          DO N=1,NANIM1D_L
            VALUE  = XFUNC1(1,N)
            WAL(NBF+N)=VALUE
@@ -458,7 +497,7 @@ C + X-ELEMENTS
          ENDDO
         ENDIF
         NBF2=NBF+NANIM1D_L
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
           BUF = NB1DG+NANIM1D
         ELSE
           BUF=1
@@ -466,17 +505,20 @@ C + X-ELEMENTS
           CALL SPMD_R4GET_PARTN(1,NBF2,NBPART,IADG,WAL,BUF)
       ENDIF
  
+      DEALLOCATE(WAL)
       RETURN
       END
-Chd|====================================================================
-Chd|  DFUNGPS1                      source/output/anim/generate/dfuncf.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+!||====================================================================
+!||    dfungps1       ../engine/source/output/anim/generate/dfuncf.F
+!||--- called by ------------------------------------------------------
+!||    genani         ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf        ../engine/share/resol/initbuf.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod    ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE DFUNGPS1(ELBUF_TAB ,FUNC     ,IFUNC   ,IPARG   ,GEO     ,
      .                    IXS       ,IXS10    ,IXS16   ,IXS20   ,IXQ     ,
      .                    IXC       ,IXTG     ,IXT     ,IXP     ,IXR     ,
@@ -485,7 +527,8 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixs,nixq,nixc,nixtg,nixr,nixt,nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -497,10 +540,6 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -521,13 +560,13 @@ C     REAL
      .   EVAR(MVSIZ),
      .   OFF, P, VONM2, VONM, S1, S2, S12, S3, VALUE,
      .   A1,B1,B2,B3,YEQ,F1,M1,M2,M3,FOR,AREA
-      INTEGER I,J,K,II,N,NN, NG, NEL, ISC,MLW,NN1,  
+      INTEGER I, J, N, NG, NEL, MLW, NN1, 
      .        INOD, ISOLNOD, IPRT, LIAD, NPTR, NPTS, NPTT, IPT,
      .        IS, IR, IT, NPTG,NC(20,MVSIZ),NNOD,IHBE,MPT,JJ(6)
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C=======================================================================
       DO 900 NG=1,NGROUP
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -546,7 +585,7 @@ C=======================================================================
 C-----------------------------------------------
 C       SOLID 8N
 C-----------------------------------------------
-          IF (ITY.EQ.1) THEN
+          IF (ITY==1) THEN
             NNOD = ISOLNOD
             GBUF => ELBUF_TAB(NG)%GBUF
             DO I=LFT,LLT
@@ -555,7 +594,7 @@ C-----------------------------------------------
      .              +  GBUF%SIG(JJ(2) + I)
      .              +  GBUF%SIG(JJ(3) + I)) * THIRD
                 VALUE = P
-                IF (IFUNC.EQ.2) THEN
+                IF (IFUNC==2) THEN
                   S1 = GBUF%SIG(JJ(1) + I)+P
                   S2 = GBUF%SIG(JJ(2) + I)+P
                   S3 = GBUF%SIG(JJ(3) + I)+P
@@ -567,46 +606,46 @@ C-----------------------------------------------
                   VALUE = VONM
                 ENDIF
                 EVAR(I) = VALUE
-                IF(ISOLNOD.EQ.8)THEN
-	                 DO J = 1,ISOLNOD
-	                   NC(J,I) = IXS(J+1,N)
+                IF(ISOLNOD==8)THEN
+                           DO J = 1,ISOLNOD
+                             NC(J,I) = IXS(J+1,N)
                   ENDDO
-                ELSEIF(ISOLNOD.EQ.4)THEN
+                ELSEIF(ISOLNOD==4)THEN
                   NC(1,I)=IXS(2,N)
                   NC(2,I)=IXS(4,N)
                   NC(3,I)=IXS(7,N)
                   NC(4,I)=IXS(6,N)
-                ELSEIF(ISOLNOD.EQ.6)THEN
+                ELSEIF(ISOLNOD==6)THEN
                   NC(1,I)=IXS(2,N)
                   NC(2,I)=IXS(3,N)
                   NC(3,I)=IXS(4,N)
                   NC(4,I)=IXS(6,N)
                   NC(5,I)=IXS(7,N)
                   NC(6,I)=IXS(8,N)
-                ELSEIF(ISOLNOD.EQ.10)THEN
+                ELSEIF(ISOLNOD==10)THEN
                   NC(1,I)=IXS(2,N)
                   NC(2,I)=IXS(4,N)
                   NC(3,I)=IXS(7,N)
                   NC(4,I)=IXS(6,N)
-		                NN1 = N - NUMELS8
+                          NN1 = N - NUMELS8
                   DO J=1,6
-C                   IF (IXS10(J,NN1).GT.0) THEN
+C                   IF (IXS10(J,NN1)>0) THEN
                     NC(J+4,I) = IXS10(J,NN1)
 C                   ENDIF
                   ENDDO
-                ELSEIF(ISOLNOD.EQ.16)THEN
-	                 DO J = 1,8
-	                   NC(J,I) = IXS(J+1,N)
+                ELSEIF(ISOLNOD==16)THEN
+                           DO J = 1,8
+                             NC(J,I) = IXS(J+1,N)
                   ENDDO
-		                NN1 = N - (NUMELS8+NUMELS10+NUMELS20)
+                          NN1 = N - (NUMELS8+NUMELS10+NUMELS20)
                   DO J=1,8
                    NC(J+8,I) = IXS16(J,NN1)
                   ENDDO
-                ELSEIF(ISOLNOD.EQ.20)THEN
-	                 DO J = 1,8
-	                  NC(J,I) = IXS(J+1,N)
+                ELSEIF(ISOLNOD==20)THEN
+                           DO J = 1,8
+                            NC(J,I) = IXS(J+1,N)
                   ENDDO
-		                NN1 = N - (NUMELS8+NUMELS10)
+                          NN1 = N - (NUMELS8+NUMELS10)
                   DO J=1,12
                     NC(J+8,I) = IXS20(J,NN1)
                   ENDDO
@@ -616,7 +655,7 @@ C
 C-----------------------------------------------
 C             QUAD
 C-----------------------------------------------
-          ELSEIF(ITY.EQ.2)THEN
+          ELSEIF(ITY==2)THEN
             GBUF => ELBUF_TAB(NG)%GBUF
             NNOD = 4
             DO I=LFT,LLT
@@ -625,7 +664,7 @@ C-----------------------------------------------
      .             + GBUF%SIG(JJ(2) + I)
      .             + GBUF%SIG(JJ(3) + I) ) * THIRD
               VALUE = P
-              IF (IFUNC.EQ.2) THEN
+              IF (IFUNC==2) THEN
                 S1 = GBUF%SIG(JJ(1) + I) + P
                 S2 = GBUF%SIG(JJ(2) + I) + P
                 S3 = GBUF%SIG(JJ(3) + I) + P
@@ -644,13 +683,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C         COQUES 3 N 4 N
 C-----------------------------------------------
-          ELSEIF(ITY.EQ.3.OR.ITY.EQ.7)THEN
+          ELSEIF(ITY==3.OR.ITY==7)THEN
             GBUF => ELBUF_TAB(NG)%GBUF
 c
             DO I=LFT,LLT
               P = - (GBUF%FOR(JJ(1)+I) + GBUF%FOR(JJ(2)+I))*THIRD  
               VALUE = P
-              IF (IFUNC.EQ.2) THEN
+              IF (IFUNC==2) THEN
                 S1 = GBUF%FOR(JJ(1)+I)                             
                 S2 = GBUF%FOR(JJ(2)+I)                             
                 S12= GBUF%FOR(JJ(3)+I)                             
@@ -660,7 +699,7 @@ c
               EVAR(I) = VALUE
             ENDDO 
 c
-            IF (ITY.EQ.7) THEN
+            IF (ITY==7) THEN
               NNOD=3
               DO I=LFT,LLT
                 N = I + NFT
@@ -668,7 +707,7 @@ c
                   NC(J,I) = IXTG(J+1,N)
                 ENDDO
               ENDDO 
-            ELSEIF(ITY.EQ.3)THEN
+            ELSEIF(ITY==3)THEN
               NNOD=4
               DO I=LFT,LLT
                 N = I + NFT
@@ -726,7 +765,7 @@ C-----------------------
             EVAR(I) = VALUE
           ENDDO
         ENDIF ! IF (ITY)
-C	
+C
         DO I=LFT,LLT
           DO J=1,NNOD
             N = NC(J,I)
@@ -741,15 +780,17 @@ C
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  DFUNGPS2                      source/output/anim/generate/dfuncf.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+!||====================================================================
+!||    dfungps2       ../engine/source/output/anim/generate/dfuncf.F
+!||--- called by ------------------------------------------------------
+!||    genani         ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf        ../engine/share/resol/initbuf.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod    ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE DFUNGPS2(ELBUF_TAB ,FUNC    ,IFUNC   ,IPARG   ,GEO     ,
      .                    IXS       ,IXS10   ,IXS16   ,IXS20   ,IXQ     ,
      .                    IXC       ,IXTG    ,IXT     ,IXP     ,IXR     ,
@@ -758,7 +799,8 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixs,nixq,nixc,nixtg,nixr,nixt,nixp 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -770,10 +812,6 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -795,7 +833,7 @@ C     REAL
      .   OFF, P, VONM2, VONM, S1, S2, S12, S3, VALUE,
      .   A1,B1,B2,B3,YEQ,F1,M1,M2,M3,FOR,AREA,
      .   XX1,XX2,XX3,YY1,YY2,YY3,ZZ1,ZZ2,ZZ3,THK0,AL0
-      INTEGER I,II, NG, NEL, ISC,
+      INTEGER I, NG, NEL, 
      .        IADD, N, J,K, MLW,  
      .        NN, MT, IMID, IALEL,IPID,
      .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,NF,
@@ -803,11 +841,11 @@ C     REAL
      .        INOD, ISOLNOD, IPRT, LIAD, NPTR, NPTS, NPTT, IPT,
      .        IS, IR, IT, NPTG,NC(20,MVSIZ),NNOD,IEXPAN,IHBE,MPT,
      .        N1,N2,N3,N4,JJ(6)
-      INTEGER MLW2                
+ 
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C=======================================================================
       DO 900 NG=1,NGROUP
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -826,7 +864,7 @@ C=======================================================================
 C-----------------------------------------------
 C       SOLID 8N
 C-----------------------------------------------
-          IF(ITY.EQ.1)THEN
+          IF(ITY==1)THEN
             NNOD = ISOLNOD
             GBUF => ELBUF_TAB(NG)%GBUF
             DO I=LFT,LLT
@@ -835,7 +873,7 @@ C-----------------------------------------------
      .               + GBUF%SIG(JJ(2) + I)
      .               + GBUF%SIG(JJ(3) + I)) * THIRD
                 VALUE = P
-                IF (IFUNC.EQ.2) THEN
+                IF (IFUNC==2) THEN
                   S1 = GBUF%SIG(JJ(1) + I)+P
                   S2 = GBUF%SIG(JJ(2) + I)+P
                   S3 = GBUF%SIG(JJ(3) + I)+P
@@ -849,34 +887,34 @@ C-----------------------------------------------
                 EVAR(I) = VALUE
                 OFF    = MIN(GBUF%OFF(I),ONE)
                 VOL(I) = GBUF%VOL(I)*OFF
-                IF(ISOLNOD.EQ.8)THEN
-	                DO J = 1,ISOLNOD
-	                  NC(J,I) = IXS(J+1,N)
+                IF(ISOLNOD==8)THEN
+                          DO J = 1,ISOLNOD
+                            NC(J,I) = IXS(J+1,N)
                  ENDDO
-                ELSEIF(ISOLNOD.EQ.4)THEN
+                ELSEIF(ISOLNOD==4)THEN
                   NC(1,I)=IXS(2,N)
                   NC(2,I)=IXS(4,N)
                   NC(3,I)=IXS(7,N)
                   NC(4,I)=IXS(6,N)
-                ELSEIF(ISOLNOD.EQ.6)THEN
+                ELSEIF(ISOLNOD==6)THEN
                   NC(1,I)=IXS(2,N)
                   NC(2,I)=IXS(3,N)
                   NC(3,I)=IXS(4,N)
                   NC(4,I)=IXS(6,N)
                   NC(5,I)=IXS(7,N)
                   NC(6,I)=IXS(8,N)
-                ELSEIF(ISOLNOD.EQ.10)THEN
+                ELSEIF(ISOLNOD==10)THEN
                   NC(1,I)=IXS(2,N)
                   NC(2,I)=IXS(4,N)
                   NC(3,I)=IXS(7,N)
                   NC(4,I)=IXS(6,N)
-		                NN1 = N - NUMELS8
+                          NN1 = N - NUMELS8
                   DO J=1,6
-C                   IF (IXS10(J,NN1).GT.0) THEN
+C                   IF (IXS10(J,NN1)>0) THEN
                     NC(J+4,I) = IXS10(J,NN1)
 C                   ENDIF
                   ENDDO
-                ELSEIF(ISOLNOD.EQ.16)THEN
+                ELSEIF(ISOLNOD==16)THEN
                  DO J = 1,8
                   NC(J,I) = IXS(J+1,N)
                  ENDDO
@@ -884,7 +922,7 @@ C                   ENDIF
                   DO J=1,8
                    NC(J+8,I) = IXS16(J,NN1)
                   ENDDO
-                ELSEIF(ISOLNOD.EQ.20)THEN
+                ELSEIF(ISOLNOD==20)THEN
                   DO J = 1,8
                     NC(J,I) = IXS(J+1,N)
                   ENDDO
@@ -898,7 +936,7 @@ C
 C-----------------------------------------------
 C         QUAD
 C-----------------------------------------------
-          ELSEIF(ITY.EQ.2)THEN
+          ELSEIF(ITY==2)THEN
             NNOD = 4
             GBUF => ELBUF_TAB(NG)%GBUF
             DO I=LFT,LLT
@@ -907,7 +945,7 @@ C-----------------------------------------------
      .               + GBUF%SIG(JJ(2) + I)
      .               + GBUF%SIG(JJ(3) + I)) * THIRD
                 VALUE = P
-                IF (IFUNC.EQ.2) THEN
+                IF (IFUNC==2) THEN
                   S1 = GBUF%SIG(JJ(1) + I) + P
                   S2 = GBUF%SIG(JJ(2) + I) + P
                   S3 = GBUF%SIG(JJ(3) + I) + P
@@ -921,19 +959,19 @@ C-----------------------------------------------
                 EVAR(I) = VALUE
                 OFF = MIN(GBUF%OFF(I),ONE)
                 VOL(I) = GBUF%VOL(I)*OFF
-	               DO J = 1,NNOD
-	                 NC(J,I) = IXQ(J+1,N)
+                         DO J = 1,NNOD
+                           NC(J,I) = IXQ(J+1,N)
                 ENDDO
             ENDDO 
 C-----------------------------------------------
 C       COQUES 3 N 4 N
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.3.OR.ITY.EQ.7)THEN
+        ELSEIF(ITY==3.OR.ITY==7)THEN
            GBUF => ELBUF_TAB(NG)%GBUF
             DO I=LFT,LLT
                P = -(GBUF%FOR(JJ(1)+I)+ GBUF%FOR(JJ(2)+I)) * THIRD      
                 VALUE = P
-                IF(IFUNC.EQ.2) THEN
+                IF(IFUNC==2) THEN
                  S1 = GBUF%FOR(JJ(1)+I)               
                  S2 = GBUF%FOR(JJ(2)+I)               
                  S12= GBUF%FOR(JJ(3)+I)               
@@ -943,8 +981,8 @@ C-----------------------------------------------
                 EVAR(I) = VALUE
             ENDDO 
 c
-           IF(ITY.EQ.7)THEN
-	           NNOD=3
+           IF(ITY==7)THEN
+                     NNOD=3
             DO I=LFT,LLT
                 N = I + NFT
                 DO J = 1,NNOD
@@ -967,12 +1005,12 @@ c
                 OFF = MIN(GBUF%OFF(I),ONE)
                 VOL(I) = THK0*AREA*OFF
             ENDDO 
-           ELSEIF(ITY.EQ.3)THEN
+           ELSEIF(ITY==3)THEN
             NNOD=4
             DO I=LFT,LLT
                 N = I + NFT
-	               DO J = 1,NNOD
-	                 NC(J,I) = IXC(J+1,N)
+                         DO J = 1,NNOD
+                           NC(J,I) = IXC(J+1,N)
                 ENDDO
                 THK0 = GEO(1,IXC(6,N))
                 N1 = IXC(2,N)
@@ -1059,7 +1097,7 @@ C-----------------------
             EVAR(I) = VALUE
           ENDDO
         ENDIF ! IF (ITY)
-C	
+C
         DO I=LFT,LLT
           DO J=1,NNOD
             N = NC(J,I)

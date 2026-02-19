@@ -1,38 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ST_QAPRINT_PROPERTIES         source/output/qaprint/st_qaprint_properties.F
-Chd|-- called by -----------
-Chd|        ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|-- calls ---------------
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    st_qaprint_properties   ../starter/source/output/qaprint/st_qaprint_properties.F
+!||--- called by ------------------------------------------------------
+!||    st_qaprint_driver       ../starter/source/output/qaprint/st_qaprint_driver.F
+!||--- calls      -----------------------------------------------------
+!||    fretitl2                ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE ST_QAPRINT_PROPERTIES(IGEO      ,GEO       ,BUFGEO    ,
      .                                 PM_STACK  ,GEO_STACK ,IGEO_STACK)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
       USE QA_OUT_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -40,24 +42,21 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "scr17_c.inc"
-#include      "tabsiz_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER, INTENT(IN) :: IGEO(NPROPGI,NUMGEO),IGEO_STACK(3* NPT_STACK+2,*)
-      my_real, INTENT(IN) :: GEO(NPROPG,NUMGEO),GEO_STACK(6*NPT_STACK+1,*),
-     .                       PM_STACK(20,*),BUFGEO(*)
+      INTEGER, INTENT(IN) :: IGEO(NPROPGI,NUMGEO),IGEO_STACK(4* NPT_STACK+2,NS_STACK)
+      my_real, INTENT(IN) :: GEO(NPROPG,NUMGEO),GEO_STACK(6*NPT_STACK+1,NS_STACK),
+     .                       PM_STACK(20,NS_STACK),BUFGEO(*)
 C--------------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, MY_ID, MY_PID, 
      .        IADBUF, NUPARAM, IADMAT, NJMAT, IADPID, NJPID, IADFUN, NJFUN, IADTAB, NJTAB
-      CHARACTER *nchartitle TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       CHARACTER (LEN=255) :: VARNAME
       DOUBLE PRECISION TEMP_DOUBLE
 C=======================================================================
@@ -67,14 +66,12 @@ C=======================================================================
         DO MY_PID=1,NUMGEO
         CALL FRETITL2(TITR,IGEO(NPROPGI-LTITR+1,MY_PID),LTITR) 
 C
-C         Le Titr de la PID sert de nom de la variable dans le ref.extract , suivi de l'ID de la PID 
-C         2 PIDs peuvent avoir le meme titre
           IF(LEN_TRIM(TITR)/=0)THEN
             CALL QAPRINT(TITR(1:LEN_TRIM(TITR)),IGEO(1,MY_PID),0.0_8)
           ELSE
             CALL QAPRINT('A_PID_FAKE_NAME',IGEO(1,MY_PID),0.0_8)
           END IF
-          DO I=1,NPROPGI-LTITR ! si on ne peut pas tester une chaine de caracteres, do i=1,npropgi
+          DO I=1,NPROPGI-LTITR 
             IF(IGEO(I,MY_PID)/=0)THEN
 C
 C             VARNAME: variable name in ref.extract (without blanks)

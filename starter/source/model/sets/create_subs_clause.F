@@ -1,38 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CREATE_SUBS_CLAUSE            source/model/sets/create_subs_clause.F
-Chd|-- called by -----------
-Chd|        HM_SET                        source/model/sets/hm_set.F    
-Chd|-- calls ---------------
-Chd|        CREATE_SUBS_LIST              source/model/sets/create_subs_clause.F
-Chd|        CREATE_SUBS_LIST_G            source/model/sets/create_subs_clause.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    create_subs_clause   ../starter/source/model/sets/create_subs_clause.F
+!||--- called by ------------------------------------------------------
+!||    hm_set               ../starter/source/model/sets/hm_set.F
+!||--- calls      -----------------------------------------------------
+!||    create_subs_list     ../starter/source/model/sets/create_subs_clause.F
+!||    create_subs_list_g   ../starter/source/model/sets/create_subs_clause.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod   ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod          ../starter/share/message_module/message_mod.F
+!||    submodel_mod         ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SUBS_CLAUSE(
      .                        CLAUSE   ,ISUBSM  ,JCLAUSE ,OPT_G ,IS_AVAILABLE ,
      .                        LSUBMODEL,SUBSET  )
@@ -71,7 +70,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -95,22 +93,20 @@ C-----------------------------------------------
         ENDIF
 C-----------------------------------------------
       END
-Chd|====================================================================
-Chd|  CREATE_SUBS_LIST              source/model/sets/create_subs_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_SUBS_CLAUSE            source/model/sets/create_subs_clause.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_INT_ARRAY_2INDEXES     source/devtools/hm_reader/hm_get_int_array_2indexes.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        SET_USRTOS                    source/model/sets/ipartm1.F   
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    create_subs_list            ../starter/source/model/sets/create_subs_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_subs_clause          ../starter/source/model/sets/create_subs_clause.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                      ../starter/source/output/message/message.F
+!||    hm_get_int_array_2indexes   ../starter/source/devtools/hm_reader/hm_get_int_array_2indexes.F
+!||    hm_get_int_array_index      ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    set_usrtos                  ../starter/source/model/sets/ipartm1.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                 ../starter/share/message_module/message_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SUBS_LIST(
      .               CLAUSE,  ISUBSM  ,JCLAUSE ,IS_AVAILABLE ,LSUBMODEL,
      .               SUBSET)
@@ -147,8 +143,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -283,21 +277,19 @@ C-------------------------
 C-------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  CREATE_SUBS_LIST_G            source/model/sets/create_subs_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_SUBS_CLAUSE            source/model/sets/create_subs_clause.F
-Chd|-- calls ---------------
-Chd|        HM_GET_INT_ARRAY_2INDEXES     source/devtools/hm_reader/hm_get_int_array_2indexes.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        SET_USRTOS_NEAREST            source/model/sets/ipartm1.F   
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    create_subs_list_g          ../starter/source/model/sets/create_subs_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_subs_clause          ../starter/source/model/sets/create_subs_clause.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_int_array_2indexes   ../starter/source/devtools/hm_reader/hm_get_int_array_2indexes.F
+!||    hm_get_int_array_index      ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    set_usrtos_nearest          ../starter/source/model/sets/ipartm1.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                 ../starter/share/message_module/message_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SUBS_LIST_G(
      .               CLAUSE,  ISUBSM  ,JCLAUSE ,IS_AVAILABLE ,LSUBMODEL,
      .               SUBSET)
@@ -333,8 +325,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -348,7 +338,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,IDS,LIST_SIZE,IDS_MAX,PARTM,GENE_MAX,K,S,S1,
+      INTEGER I,LIST_SIZE,PARTM,GENE_MAX,K,S,S1,
      . NINDX,IP,ISET
       INTEGER START_GENE,END_GENE,INCR_GENE,SSTART,SSTOP,STACK,STACK_ONE,NB_RESULT
 !-

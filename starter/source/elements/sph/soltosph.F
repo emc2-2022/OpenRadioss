@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SOLTOSPHX8                    source/elements/sph/soltosph.F
-Chd|-- called by -----------
-Chd|        HM_READ_SPHCEL                source/elements/reader/hm_read_sphcel.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    soltosphx8       ../starter/source/elements/sph/soltosph.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_sphcel   ../starter/source/elements/reader/hm_read_sphcel.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SOLTOSPHX8(
      .   NSPHDIR ,NCELL   ,INOD    ,IDS     ,IDMAX  ,
      .   X       ,IXS     ,KXSP    ,IPARTSP ,NOD2SP ,
@@ -35,6 +35,7 @@ C-----------------------------------------------
 C    M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -44,10 +45,7 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com06_c.inc"
-#include      "param_c.inc"
 #include      "sphcom.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -176,13 +174,15 @@ C
 C-----------------------------------------------
       RETURN
       END SUBROUTINE SOLTOSPHX8
-Chd|====================================================================
-Chd|  SOLTOSPHX4                    source/elements/sph/soltosph.F
-Chd|-- called by -----------
-Chd|        HM_READ_SPHCEL                source/elements/reader/hm_read_sphcel.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    soltosphx4       ../starter/source/elements/sph/soltosph.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_sphcel   ../starter/source/elements/reader/hm_read_sphcel.F
+!||--- calls      -----------------------------------------------------
+!||    checkvolume_4n   ../starter/source/elements/solid/solide/checksvolume.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SOLTOSPHX4(
      .   NSPHDIR ,NCELL   ,INOD    ,IDS     ,IDMAX  ,
      .   X       ,IXS     ,KXSP    ,IPARTSP ,NOD2SP ,
@@ -191,6 +191,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -200,10 +201,7 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com06_c.inc"
-#include      "param_c.inc"
 #include      "sphcom.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -324,15 +322,16 @@ C
 C-----------------------------------------------
       RETURN
       END SUBROUTINE SOLTOSPHX4
-Chd|====================================================================
-Chd|  SOLTOSPHV8                    source/elements/sph/soltosph.F
-Chd|-- called by -----------
-Chd|        S8ZINIT3                      source/elements/solid/solide8z/s8zinit3.F
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    soltosphv8    ../starter/source/elements/sph/soltosph.F
+!||--- called by ------------------------------------------------------
+!||    s8zinit3      ../starter/source/elements/solid/solide8z/s8zinit3.F
+!||    sinit3        ../starter/source/elements/solid/solide/sinit3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SOLTOSPHV8(
      .   NSPHDIR ,RHO     ,NCELL   ,X      ,SPBUF   ,
      .   IXS     ,KXSP    ,IPARTSP ,IRST   )
@@ -340,6 +339,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -349,10 +349,7 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com06_c.inc"
-#include      "param_c.inc"
 #include      "sphcom.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -565,7 +562,7 @@ C
 C
        DET=ONE_OVER_512*(JAC1*JAC_59_68+JAC2*JAC_67_49+JAC3*JAC_48_57)
        VOL= WI*DET
-       IF(DET.LT.ZERO)
+       IF(DET<ZERO)
      . CALL ANCMSG(MSGID=1038,
      .             MSGTYPE=MSGERROR,
      .             ANMODE=ANINFO,
@@ -579,35 +576,29 @@ C
 C-----------------------------------------------
       RETURN
       END SUBROUTINE SOLTOSPHV8
-Chd|====================================================================
-Chd|  SOLTOSPHV4                    source/elements/sph/soltosph.F
-Chd|-- called by -----------
-Chd|        S4INIT3                       source/elements/solid/solide4/s4init3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    soltosphv4    ../starter/source/elements/sph/soltosph.F
+!||--- called by ------------------------------------------------------
+!||    s4init3       ../starter/source/elements/solid/solide4/s4init3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SOLTOSPHV4(
      .   NSPHDIR ,RHO     ,NCELL   ,X      ,SPBUF   ,
      .   IXS     )
 C-----------------------------------------------
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com06_c.inc"
-#include      "param_c.inc"
 #include      "sphcom.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -675,7 +666,7 @@ C
        WI = ONE/(SIX*NP)
 C
        VOL= WI*DET
-       IF(DET.LT.ZERO)
+       IF(DET<ZERO)
      . CALL ANCMSG(MSGID=1038,
      .             MSGTYPE=MSGERROR,
      .             ANMODE=ANINFO,

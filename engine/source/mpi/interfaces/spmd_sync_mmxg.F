@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  SPMD_SYNC_MMXG                source/mpi/interfaces/spmd_sync_mmxg.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_sync_mmxg        ../engine/source/mpi/interfaces/spmd_sync_mmxg.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPMD_SYNC_MMXG(
      1    ISENDTO,IRCVFROM,NEWFRONT,XSLV_L,XMSR_L,
      2    VSLV_L ,VMSR_L  ,INTLIST ,NINTC ,TZINF ,
@@ -34,19 +33,14 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
@@ -63,8 +57,8 @@ C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
       INTEGER LOC_PROC,IERROR,I_LEN,myop,
-     .        KK, L, J, NIN, REQ,
-     .        STATUS(MPI_STATUS_SIZE),type_reduc
+     .        KK, L, J, NIN,
+     .        type_reduc
       PARAMETER (I_LEN = 46)
       my_real
      .        SBUF(NINTC*I_LEN), RBUF(NINTC*I_LEN)
@@ -75,8 +69,8 @@ C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
       LOC_PROC = ISPMD+1
-      IF(IRCVFROM(NINTER+1,LOC_PROC).GT.0.OR.
-     +   ISENDTO(NINTER+1,LOC_PROC).GT.0) THEN
+      IF(IRCVFROM(NINTER+1,LOC_PROC)>0.OR.
+     +   ISENDTO(NINTER+1,LOC_PROC)>0) THEN
 
 !      need to define I_LEN contiguous blocks to avoid that intel mpi splits
 !      the buffers
@@ -110,10 +104,10 @@ C
           SBUF(L+J) = VMSR_L(J,NIN)
         END DO
         L = L + 6
-        IF(IPARI(7,NIN).NE.17)THEN
+        IF(IPARI(7,NIN)/=17)THEN
 C NEWFRONT
           SBUF(L+1) = NEWFRONT(NIN)
-        ELSE     ! interface 17 avec courbure
+        ELSE     ! interface 17 with curvature
 C SIZE
           SBUF(L+1) = SIZE_T(NIN)
         END IF
@@ -148,8 +142,8 @@ C Unpack results
        L = 0
        DO KK=1,NINTC
          NIN = INTLIST(KK)
-         IF(IRCVFROM(NIN,LOC_PROC).NE.0.OR.
-     +        ISENDTO(NIN,LOC_PROC).NE.0)THEN
+         IF(IRCVFROM(NIN,LOC_PROC)/=0.OR.
+     +        ISENDTO(NIN,LOC_PROC)/=0)THEN
            DO J=1,18
             XSLV_L(J,NIN) = RBUF(L+J)
            END DO
@@ -166,9 +160,9 @@ C Unpack results
             VMSR_L(J,NIN) = RBUF(L+J)
            END DO
            L = L + 6
-           IF(IPARI(7,NIN).NE.17)THEN
+           IF(IPARI(7,NIN)/=17)THEN
              NEWFRONT(NIN) = NINT(RBUF(L+1))
-           ELSE     ! interface 17 avec courbure
+           ELSE     ! interface 17 with curvature
              SIZE_T(NIN) = RBUF(L+1)
            END IF
            L = L + 1

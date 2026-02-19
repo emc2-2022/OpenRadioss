@@ -1,36 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ANI_FASOLFR1                  source/output/anim/ani_fasolfr.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ani_fasolfr1   ../starter/source/output/anim/ani_fasolfr.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    arret          ../starter/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE ANI_FASOLFR1(IXS ,IXC     ,IXTG    ,FASTAG, ISOLNOD)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -40,7 +39,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -69,7 +67,7 @@ C     REAL
 C-----------------------------------------------
 C
       ALLOCATE(NODTAG(NUMNOD), STAT=IERROR)
-      IF (IERROR.NE.0) THEN
+      IF (IERROR/=0) THEN
         WRITE(ISTDO,'(A)') ' ANIM ...'
         WRITE(ISTDO,'(A)')
      .    ' UNABLE TO ALLOCATE MEMORY FOR WORK ARRAY'
@@ -79,7 +77,7 @@ C
         CALL ARRET(2)
       END IF
       ALLOCATE(NODTAG_1(NUMNOD), STAT=IERROR)
-      IF (IERROR.NE.0) THEN
+      IF (IERROR/=0) THEN
         WRITE(ISTDO,'(A)') ' ANIM ...'
         WRITE(ISTDO,'(A)')
      .    ' UNABLE TO ALLOCATE MEMORY FOR WORK ARRAY'
@@ -89,7 +87,7 @@ C
         CALL ARRET(2)
       END IF
       ALLOCATE(NELENOD(3,NUMNOD+1), STAT=IERROR)
-      IF (IERROR.NE.0) THEN
+      IF (IERROR/=0) THEN
         WRITE(ISTDO,'(A)') ' ANIM ...'
         WRITE(ISTDO,'(A)')
      .    ' UNABLE TO ALLOCATE MEMORY FOR WORK ARRAY'
@@ -99,7 +97,7 @@ C
         CALL ARRET(2)
       END IF
       ALLOCATE(ELSNOD(8*NUMELS), STAT=IERROR)
-      IF (IERROR.NE.0) THEN
+      IF (IERROR/=0) THEN
         WRITE(ISTDO,'(A)') ' ANIM ...'
         WRITE(ISTDO,'(A)')
      .     ' UNABLE TO ALLOCATE MEMORY FOR WORK ARRAY'
@@ -109,7 +107,7 @@ C
         CALL ARRET(2)
       END IF
       ALLOCATE(ELCNOD(4*NUMELC), STAT=IERROR)
-      IF (IERROR.NE.0) THEN
+      IF (IERROR/=0) THEN
         WRITE(ISTDO,'(A)') ' ANIM ...'
         WRITE(ISTDO,'(A)')
      .     ' UNABLE TO ALLOCATE MEMORY FOR WORK ARRAY'
@@ -119,7 +117,7 @@ C
         CALL ARRET(2)
       END IF
       ALLOCATE(ELTGNOD(3*NUMELTG), STAT=IERROR)
-      IF (IERROR.NE.0) THEN
+      IF (IERROR/=0) THEN
         WRITE(ISTDO,'(A)') ' ANIM ...'
         WRITE(ISTDO,'(A)')
      .     ' UNABLE TO ALLOCATE MEMORY FOR WORK ARRAY'
@@ -230,9 +228,9 @@ C
         DO J=NELENOD(1,N)+1,NELENOD(1,N+1)
           JS=ELSNOD(J)
           DO K=NELENOD(1,N)+1,NELENOD(1,N+1)
-           IF(K.NE.J)THEN
+           IF(K/=J)THEN
             DO II=1,8
-              IF(IXS(II+1,JS).NE.0) NODTAG(IXS(II+1,JS))=0
+              IF(IXS(II+1,JS)/=0) NODTAG(IXS(II+1,JS))=0
             END DO
             KS=ELSNOD(K)
             DO II=1,8
@@ -249,14 +247,14 @@ C
             NN=0
             DO JJ=1,6
               LL=FASTAG(JS)
-              IF(MOD(LL,PWR(JJ+1))/PWR(JJ).EQ.0)THEN
+              IF(MOD(LL,PWR(JJ+1))/PWR(JJ)==0)THEN
                 NN=0
                 DO KK=1,4
-          	  IF(IXS(FACES(KK,JJ)+1,JS).NE.0) 
+            IF(IXS(FACES(KK,JJ)+1,JS)/=0) 
      .              NN=NN+NODTAG(IXS(FACES(KK,JJ)+1,JS))
                 END DO
                 IF(NN == 4)THEN
-C                 FACTAG(JS) moins face jj
+C                 Factag (JS) Less Face JJ
                   FASTAG(JS)=FASTAG(JS)+PWR(JJ)
                 END IF
               END IF
@@ -266,24 +264,24 @@ C                 FACTAG(JS) moins face jj
 C
           DO K=NELENOD(2,N)+1,NELENOD(2,N+1)
             DO II=1,8
-              IF(IXS(II+1,JS).NE.0) NODTAG(IXS(II+1,JS))=0
+              IF(IXS(II+1,JS)/=0) NODTAG(IXS(II+1,JS))=0
             END DO
             KS=ELCNOD(K)
             DO II=1,4
-              IF(IXC(II+1,KS).NE.0) 
+              IF(IXC(II+1,KS)/=0) 
      .          NODTAG(IXC(II+1,KS))=NODTAG(IXC(II+1,KS))+1
             END DO
             NN=0
             DO JJ=1,6
               LL=FASTAG(JS)
-              IF(MOD(LL,PWR(JJ+1))/PWR(JJ).EQ.0)THEN
+              IF(MOD(LL,PWR(JJ+1))/PWR(JJ)==0)THEN
                 NN=0
                 DO KK=1,4
-          	  IF(IXS(FACES(KK,JJ)+1,JS).NE.0) 
+            IF(IXS(FACES(KK,JJ)+1,JS)/=0) 
      .              NN=NN+NODTAG(IXS(FACES(KK,JJ)+1,JS))
                 END DO
-                IF(NN.EQ.4)THEN
-C                 FACTAG(JS) moins face jj
+                IF(NN==4)THEN
+C                 Factag (JS) Less Face JJ
                   FASTAG(JS)=FASTAG(JS)+PWR(JJ)
                 END IF
               END IF
@@ -292,24 +290,24 @@ C                 FACTAG(JS) moins face jj
 C
           DO K=NELENOD(3,N)+1,NELENOD(3,N+1)
             DO II=1,8
-              IF(IXS(II+1,JS).NE.0) NODTAG(IXS(II+1,JS))=0
+              IF(IXS(II+1,JS)/=0) NODTAG(IXS(II+1,JS))=0
             END DO
             KS=ELTGNOD(K)
             DO II=1,4
-              IF(IXTG(II+1,KS).NE.0) 
+              IF(IXTG(II+1,KS)/=0) 
      .          NODTAG(IXTG(II+1,KS))=NODTAG(IXTG(II+1,KS))+1
             END DO
             NN=0
             DO JJ=1,6
               LL=FASTAG(JS)
-              IF(MOD(LL,PWR(JJ+1))/PWR(JJ).EQ.0)THEN
+              IF(MOD(LL,PWR(JJ+1))/PWR(JJ)==0)THEN
                 NN=0
                 DO KK=1,4
-          	  IF(IXS(FACES(KK,JJ)+1,JS).NE.0) 
+            IF(IXS(FACES(KK,JJ)+1,JS)/=0) 
      .              NN=NN+NODTAG(IXS(FACES(KK,JJ)+1,JS))
                 END DO
-                IF(NN.EQ.4)THEN
-C                 FACTAG(JS) moins face jj
+                IF(NN==4)THEN
+C                 Factag (JS) Less Face JJ
                   FASTAG(JS)=FASTAG(JS)+PWR(JJ)
                 END IF
               END IF
@@ -322,7 +320,7 @@ C
       DO N=1,NUMELS
         LL=FASTAG(N)
         DO JJ=1,6
-          IF(MOD(LL,PWR(JJ+1))/PWR(JJ).EQ.0)THEN
+          IF(MOD(LL,PWR(JJ+1))/PWR(JJ)==0)THEN
             NFASOLFR=NFASOLFR+1
 C            FASOLFR(1,NFASOLFR)=N
 C            FASOLFR(2,NFASOLFR)=JJ
@@ -333,16 +331,12 @@ C            FASOLFR(2,NFASOLFR)=JJ
 C     
       RETURN
       END
-Chd|====================================================================
-Chd|  ANI_FASOLFR2                  source/output/anim/ani_fasolfr.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ani_fasolfr2   ../starter/source/output/anim/ani_fasolfr.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE ANI_FASOLFR2(FASTAG  ,FASOLFR, ISOLNOD )
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -352,8 +346,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -373,7 +365,7 @@ C
       DO N=1,NUMELS
        LL=FASTAG(N)
         DO JJ=1,6
-          IF(MOD(LL,PWR(JJ+1))/PWR(JJ).EQ.0)THEN
+          IF(MOD(LL,PWR(JJ+1))/PWR(JJ)==0)THEN
             NFASOLFR=NFASOLFR+1
             FASOLFR(1,NFASOLFR)=N
             FASOLFR(2,NFASOLFR)=JJ

@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CZFINTN1                      source/elements/shell/coquez/czfintn.F
-Chd|-- called by -----------
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    czfintn1      ../engine/source/elements/shell/coquez/czfintn.F
+!||--- called by ------------------------------------------------------
+!||    czforc3       ../engine/source/elements/shell/coquez/czforc3.F
+!||    czforc3_crk   ../engine/source/elements/xfem/czforc3_crk.F
+!||====================================================================
         SUBROUTINE CZFINTN1(JFT   ,JLT   ,THK  ,C1   ,AA   ,VHG  ,
      2                      X13   ,X24   ,Y13  ,Y24  ,Z1   ,MX23 ,
      3                      MX13  ,MX34  ,MY13 ,MY23 ,MY34 ,VGLAS,
@@ -39,10 +38,10 @@ C elasto-plastic hourglass stresses+linear damping
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C        CALCUL VF(3,4),VM(2,4) : FORCES INTERNES GENERALISEES
 C        ENTREES : THK,1/AREA,PME,X13,X24,Y13,Y24,MX13,MX34,MY13,MY34
-C                  DHG(6)  : INCREMENT DE LA DEF HOURGLASS GENERALISEE    
+C                  dhg(6): increment of the generalized hourglass deformation
 C                  VGLAS(12): DEF HOURGLASS GENERALISEE 
 C                  VGLAS(1-6)->ETA; VGLAS(7-12)->KSI;
-C                  FAC=Et/E    
+C                  fac=et/e
 C        SORTIES : VF,VM
 C                  VF(3,4),VM(2,4) : 
 C                  J=1,2 STOCK LA PARTIE ANTISYM (F(1)=-F(3),F(2)=-F(4))                                  
@@ -51,7 +50,6 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include "implicit_f.inc"
 #include "param_c.inc"
 #include "mvsiz_p.inc"
-#include "parit_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -71,16 +69,16 @@ C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
         INTEGER I,MX, IC, II, J, JST(MVSIZ+1)
         my_real 
-     .  STIER,C2,C3,C4,C5,C7,C8,HSURA,SXX,SYY,SVM,SVMN,
+     .  STIER,C2,C3,C4,C5,C7,C8,HSURA,SVM,
      .  SS1,SS2,SS3,SC6,SC5,CXX_K,CYY_K,HXX,HYY,SF1,SF2,B13,B24,
      .  CXX,CYY,Y13S,X13S,Y34S6,Y23S5,X23S5,X34S6,HXX_K,HYY_K,
      .  BXX,BYY,BXX_K,BYY_K,
-     .  C1M,C2M,C1B,C2B,CMM,CNN,UFAC,TOL,COEF,EH1,EH2,
+     .  C1M,C2M,CMM,CNN,UFAC,TOL,COEF,EH1,EH2,
      .  CNNX,CNNY,CNNX_K,CNNY_K,CMMX,CMMY,CMMX_K,CMMY_K,SXY0,MXY0,
-     .  SVMC,SIGY2,SVM0,SVMC_K,A_BK,A_B,A_K,UNDOUZSR,AUX,
+     .  SIGY2,UNDOUZSR,AUX,
      .  SSV0,SSV1,SSV2,SSV3,SC6_V,SC5_V,CXX_V,CYY_V,CXY_V,CXZ_V,CYZ_V,
      .  HXX_V,HYY_V,HXY_V,SS1_V,SS2_V,SS3_V,SF1_V,SF2_V,HVL,
-     .  EMY,ECX,ECY,ESY,COEF1,COEFH,FBEND,FBEND_V,C12,
+     .  EMY,ESY,COEF1,COEFH,FBEND,FBEND_V,C12,
      .  C6(MVSIZ),DGLAS(MVSIZ,12),
      .  ESX(MVSIZ),TESY(MVSIZ),EMX(MVSIZ),DHG(MVSIZ,6),ETMP(MVSIZ,2)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
@@ -91,12 +89,12 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
       TOL= EM18 
       FBEND_V =THREEP464
 C
-      IF (NPT.EQ.0) THEN
+      IF (NPT==0) THEN
        COEF1=SIXTEEN
       ELSE
        COEF1=TWENTY5
       ENDIF
-      IF (NPT.EQ.1) THEN
+      IF (NPT==1) THEN
        FBEND =ZERO
        FBEND_V =ZERO
       ELSE
@@ -124,7 +122,7 @@ C
           CYY=HYY*VGLAS(I,12)
           CXX_K=HXX_K*VGLAS(I,11)
           CYY_K=HYY_K*VGLAS(I,12)
-		  C2 = A11(I)*FAC1(I)
+            C2 = A11(I)*FAC1(I)
           C1M=C2*FAC58(I,1)
           C2M=C2*FAC58(I,2)
           C12 = EM02*MIN(C1M,C2M)
@@ -133,8 +131,8 @@ C
           DGLAS(I,7) =C1M*CXX_K-C12*CYY_K
           DGLAS(I,8) =C2M*CYY_K-C12*CXX_K
          END DO
-c       if (mod(ncycle,10)==0) print *,'FAC58(I,1-2)=',FAC58(nel,1),FAC58(nel,2)	   
-		ELSE
+c       if (mod(ncycle,10)==0) print *,'FAC58(I,1-2)=',FAC58(nel,1),FAC58(nel,2)     
+          ELSE
          DO I=JFT,JLT
           C3=FOUR*AA(I)
           HXX=C3*MY34(I)
@@ -149,7 +147,7 @@ c       if (mod(ncycle,10)==0) print *,'FAC58(I,1-2)=',FAC58(nel,1),FAC58(nel,2)
           BYY=HYY*DHG(I,4)
           BXX_K=HXX_K*DHG(I,3)
           BYY_K=HYY_K*DHG(I,4)
-		  C2 = A11(I)*FAC1(I)
+            C2 = A11(I)*FAC1(I)
           C1M=C2*FAC58(I,1)
           C2M=C2*FAC58(I,2)
           C12 = EM02*MIN(C1M,C2M)
@@ -279,7 +277,7 @@ C      -----------for energy calculation-Mean_value--------
 C       ----viscous energy is removed to hourglass energy----
         TESY(I)= (SS1_V*DHG(I,1)+SS2_V*DHG(I,2))*THK(I)
        ENDDO
-	  ELSE
+            ELSE
       DO I=JFT,JLT
 C      ---------elstic increament----------
         VGLAS(I,1) =VGLAS(I,1) +DGLAS(I,1)
@@ -290,7 +288,7 @@ C      ---------elstic increament----------
         VGLAS(I,8) =VGLAS(I,8) +DGLAS(I,8)
         VGLAS(I,9) =VGLAS(I,9) +DGLAS(I,9)
         VGLAS(I,10)=VGLAS(I,10)+DGLAS(I,10)
-C  -----------/4 par rapport formulation-------	  
+C  -----------/4 compared to formulation-------
         VGLAS(I,5) =VGLAS(I,5) +DGLAS(I,5)
         VGLAS(I,6) =VGLAS(I,6) +DGLAS(I,6)
         VGLAS(I,11)=VGLAS(I,11)+DGLAS(I,11)
@@ -301,12 +299,12 @@ C-------------enint------------------
       END DO
 C
       DO I=JFT,JLT
-        IF (SIGY(I).LT.ZEP9EP30) THEN
+        IF (SIGY(I)<ZEP9EP30) THEN
           UFAC=ABS(MIN(FAC(I,1),FAC(I,2))-ONE)
           SIGY2 = SIGY(I)*SIGY(I)
           SVM =ZERO
           SXY0=ZERO   
-          IF (UFAC.LT.TOL) THEN
+          IF (UFAC<TOL) THEN
             SXY0= VSTRE(I,1)*VSTRE(I,1)+VSTRE(I,2)*VSTRE(I,2)
      .           -VSTRE(I,1)*VSTRE(I,2)+THREE*VSTRE(I,3)*VSTRE(I,3)
             MXY0= MSTRE(I,1)*MSTRE(I,1)+MSTRE(I,2)*MSTRE(I,2)
@@ -332,12 +330,12 @@ C
             SVM =  SXY0+COEF1*MXY0
           ENDIF 
 C-----------ELASTIC-PLASTIC global yield criterion------------
-          IF (UFAC.GE.TOL.OR.SVM.GT.SIGY2) THEN
+          IF (UFAC>=TOL.OR.SVM>SIGY2) THEN
             EH1=MIN(SXY0/MAX(SIGY2,TOL),ONE)
             EH1=MAX(COEFH*EH1,(ONE-FAC(I,1)))
             EH2=MAX(COEFH,(ONE-FAC(I,2)))
-            IF (ESX(I).LT.ZERO) EH1=ZERO
-            IF (EMX(I).LT.ZERO) EH2=ZERO
+            IF (ESX(I)<ZERO) EH1=ZERO
+            IF (EMX(I)<ZERO) EH2=ZERO
 C-------------MEMBRANE------------------------
             VGLAS(I,1)=VGLAS(I,1)-EH1*DGLAS(I,1)
             VGLAS(I,2)=VGLAS(I,2)-EH1*DGLAS(I,2)
@@ -456,26 +454,23 @@ C
       IC=1
       JST(IC)=JFT
       DO J=JFT+1,JLT
-         IF (IPARTC(J).NE.IPARTC(J-1)) THEN
+         IF (IPARTC(J)/=IPARTC(J-1)) THEN
             IC=IC+1
             JST(IC)=J
          ENDIF
       ENDDO
       JST(IC+1)=JLT+1
-      IF(IC.EQ.1) THEN
+      IF(IC==1) THEN
         MX = IPARTC(JFT)
-#include "simd.inc"
         DO I=JFT,JLT
           EVIS(8,MX)=EVIS(8,MX) + TESY(I)
         ENDDO
-      ELSEIF(IC.EQ.2.AND.KFTS.GT.0)THEN
+      ELSEIF(IC==2.AND.KFTS>0)THEN
         MX = IPARTC(JFT)
-#include "simd.inc"
         DO I=JFT, KFTS-1
           EVIS(8,MX)=EVIS(8,MX) + TESY(I)
         ENDDO
         MX = IPARTC(JLT)
-#include "simd.inc"
         DO I=KFTS,JLT
           EVIS(8,MX)=EVIS(8,MX) + TESY(I)
         ENDDO
@@ -483,8 +478,7 @@ C
       ELSE
         DO II=1,IC
            MX=IPARTC(JST(II))
-           IF (JST(II+1)-JST(II).GT.15) THEN
-#include "simd.inc"
+           IF (JST(II+1)-JST(II)>15) THEN
               DO J=JST(II),JST(II+1)-1
                 EVIS(8,MX)=EVIS(8,MX) + TESY(J)
               ENDDO
@@ -498,15 +492,13 @@ C
       RETURN
       END
 
-C   -------nouvelle routine----------------------
-Chd|====================================================================
-Chd|  CZFINTNM                      source/elements/shell/coquez/czfintn.F
-Chd|-- called by -----------
-Chd|        CZFINTNM1                     source/elements/shell/coquez/czfintn.F
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    czfintnm      ../engine/source/elements/shell/coquez/czfintn.F
+!||--- called by ------------------------------------------------------
+!||    czfintnm1     ../engine/source/elements/shell/coquez/czfintn.F
+!||    czforc3       ../engine/source/elements/shell/coquez/czforc3.F
+!||    czforc3_crk   ../engine/source/elements/xfem/czforc3_crk.F
+!||====================================================================
         SUBROUTINE CZFINTNM(JFT  ,JLT  ,THK  ,AA   ,VHG  ,
      2                      X13  ,X24  ,Y13  ,Y24  ,VF   ,
      3                      G    ,RHO  ,AREA ,AMU  ,DT1  ,
@@ -517,7 +509,6 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
 #include      "param_c.inc"
 #include      "mvsiz_p.inc"
-#include      "parit_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -532,7 +523,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I,MX, IC, II, J, JST(MVSIZ+1)
+        INTEGER I,MX
         my_real 
      .  C2,HSURA,MX23,MY23,MX34,MY34,
      .  SC6_V,SC5_V,CXZ_V,CYZ_V,SS3_V,HVL,
@@ -559,19 +550,17 @@ C--------NOEUDS 2,4-------
        ENDDO 
 C
        MX = IPARTC(JFT)
-#include "simd.inc"
        DO I=JFT,JLT
            EVIS(8,MX)=EVIS(8,MX) + TESY(I)
        ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CZFINTNRZ                     source/elements/shell/coquez/czfintn.F
-Chd|-- called by -----------
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    czfintnrz   ../engine/source/elements/shell/coquez/czfintn.F
+!||--- called by ------------------------------------------------------
+!||    czforc3     ../engine/source/elements/shell/coquez/czforc3.F
+!||====================================================================
         SUBROUTINE CZFINTNRZ(JFT  ,JLT  ,THK  ,C1   ,AA   ,VHG  ,
      2                      X13  ,X24  ,Y13  ,Y24  ,Z1   ,MX23 ,
      3                      MX13 ,MX34 ,MY13 ,MY23 ,MY34 ,VGLAS,
@@ -585,12 +574,12 @@ C elasto-plastic hourglass stresses+linear damping
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C        CALCUL VF(3,4),VM(2,4) : FORCES INTERNES GENERALISEES
 C        ENTREES : THK,1/AREA,PME,X13,X24,Y13,Y24,MX13,MX34,MY13,MY34
-C                  DHG(6)  : INCREMENT DE LA DEF HOURGLASS GENERALISEE    
+C                  dhg(6): increment of the generalized hourglass deformation
 C                  VGLAS(12): DEF HOURGLASS GENERALISEE 
 C                  VGLAS(1-6)->ETA; VGLAS(7-12)->KSI;
 C                  -shear: VGLAS(13-14)->ETA; VGLAS(15-16)->KSI; 
 C                  -Sig_rz: VGLAS(17)->ETA; VGLAS(18)->KSI; VGLAS(19)->const
-C                  FAC=Et/E    
+C                  fac=et/e
 C        SORTIES : VF,VM
 C                  VF(3,4),VM(2,4) : 
 C                  J=1,2 STOCK LA PARTIE ANTISYM (F(1)=-F(3),F(2)=-F(4))                                  
@@ -599,7 +588,6 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
 #include      "param_c.inc"
 #include      "mvsiz_p.inc"
-#include      "parit_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -613,7 +601,7 @@ C-----------------------------------------------
      .       FAC1(*) ,RHO(*) ,AREA(*), DT1,OFF(*),EINT(JLT,2),AMU(*) ,
      .       EVIS(NPSAV,*),VMZ(MVSIZ,4),
      .       VHGZK(MVSIZ,5),VHGZE(MVSIZ,5),KRZ(*),
-     .       BM0RZ(MVSIZ,4,4),BMKRZ(MVSIZ,4,4),BMERZ(MVSIZ,4,4),
+     .       BMKRZ(MVSIZ,4,4),BMERZ(MVSIZ,4,4),
      .       GSR(*), A11SR(*), A12SR(*), NUSR(*), SHFSR(*)
          INTEGER KFTS
 C-----------------------------------------------
@@ -621,16 +609,16 @@ C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
         INTEGER I,MX, IC, II, J, JST(MVSIZ+1)
         my_real 
-     .  STIER,C2,C3,C4,C5,C7,C8,HSURA,SXX,SYY,SVM,SVMN,
+     .  STIER,C2,C3,C4,C5,C7,C8,HSURA,SVM,
      .  SS1,SS2,SS3,SC6,SC5,CXX_K,CYY_K,HXX,HYY,SF1,SF2,B13,B24,
      .  CXX,CYY,Y13S,X13S,Y34S6,Y23S5,X23S5,X34S6,HXX_K,HYY_K,
      .  BXX,BYY,BXX_K,BYY_K,
-     .  C1M,C2M,C1B,C2B,CMM,CNN,UFAC,TOL,COEF,EH1,EH2,
+     .  C1M,C2M,CMM,CNN,UFAC,TOL,COEF,EH1,EH2,
      .  CNNX,CNNY,CNNX_K,CNNY_K,CMMX,CMMY,CMMX_K,CMMY_K,SXY0,MXY0,
-     .  SVMC,SIGY2,SVM0,SVMC_K,A_BK,A_B,A_K,UNDOUZSR,AUX,
+     .  SIGY2,UNDOUZSR,AUX,
      .  SSV0,SSV1,SSV2,SSV3,SC6_V,SC5_V,CXX_V,CYY_V,CXY_V,CXZ_V,CYZ_V,
      .  HXX_V,HYY_V,HXY_V,SS1_V,SS2_V,SS3_V,SF1_V,SF2_V,HVL,CRZ,
-     .  EMY,ECX,ECY,ESY,COEF1,COEFH,FBEND,FBEND_V,
+     .  EMY,ESY,COEF1,COEFH,FBEND,FBEND_V,
      .  CNNXY,CNNXY_K,CMMXY,CMMXY_K,SSZ1,SSZ2,C3M,ERZ,
      .  C6(MVSIZ), ESX(MVSIZ), TESY(MVSIZ), EMX(MVSIZ),
      .  DGLAS(MVSIZ,18),
@@ -642,12 +630,12 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
       STIER  = FIVEP333  
       TOL= EM18 
       FBEND_V =THREEP464
-      IF (NPT.EQ.0) THEN
+      IF (NPT==0) THEN
        COEF1=SIXTEEN
       ELSE
        COEF1=TWENTY5
       ENDIF
-      IF (NPT.EQ.1) THEN
+      IF (NPT==1) THEN
        FBEND =ZERO
        FBEND_V =ZERO
       ELSE
@@ -755,7 +743,7 @@ C      ---------elstic increament----------
         VGLAS(I,9) =VGLAS(I,9) +DGLAS(I,9)
         VGLAS(I,10)=VGLAS(I,10)+DGLAS(I,10)
         VGLAS(I,11)=VGLAS(I,11)+DGLAS(I,11)
-        VGLAS(I,12)=VGLAS(I,12)+DGLAS(I,12)	  
+        VGLAS(I,12)=VGLAS(I,12)+DGLAS(I,12)    
         VGLAS(I,13)=VGLAS(I,13)+DGLAS(I,13)
         VGLAS(I,14)=VGLAS(I,14)+DGLAS(I,14)
         VGLAS(I,15)=VGLAS(I,15)+DGLAS(I,15)
@@ -768,12 +756,12 @@ C      ---------enint----------
       END DO
 C
       DO I=JFT,JLT
-        IF (SIGY(I).LT.ZEP9EP30) THEN
+        IF (SIGY(I)<ZEP9EP30) THEN
            UFAC=ABS(MIN(FAC(I,1),FAC(I,2))-ONE)
            SIGY2 = SIGY(I)*SIGY(I)
            SVM =ZERO
            SXY0=ZERO   
-           IF (UFAC.LT.TOL) THEN
+           IF (UFAC<TOL) THEN
             SXY0= VSTRE(I,1)*VSTRE(I,1)+VSTRE(I,2)*VSTRE(I,2)
      .           -VSTRE(I,1)*VSTRE(I,2)+THREE*VSTRE(I,3)*VSTRE(I,3)
             MXY0= MSTRE(I,1)*MSTRE(I,1)+MSTRE(I,2)*MSTRE(I,2)
@@ -805,12 +793,12 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
      1                    +CMMY*(TWO*CMMY_K-CMMX_K))     
             SVM =  SXY0+COEF1*MXY0
            ENDIF 
-           IF (UFAC.GE.TOL.OR.SVM.GT.SIGY2) THEN
+           IF (UFAC>=TOL.OR.SVM>SIGY2) THEN
               EH1=MIN(SXY0/MAX(SIGY2,TOL),ONE)
               EH1=MAX(COEFH*EH1,(ONE-FAC(I,1)))
               EH2=MAX(COEFH,(ONE-FAC(I,2)))
-              IF (ESX(I).LT.ZERO) EH1=ZERO
-              IF (EMX(I).LT.ZERO) EH2=ZERO
+              IF (ESX(I)<ZERO) EH1=ZERO
+              IF (EMX(I)<ZERO) EH2=ZERO
 C-------------MEMBRANE------------------------
              VGLAS(I,1)=VGLAS(I,1)-EH1*DGLAS(I,1)
              VGLAS(I,2)=VGLAS(I,2)-EH1*DGLAS(I,2)
@@ -923,7 +911,7 @@ C
         C2=Z1(I)*HSURA
         VF(I,3,1)=VF(I,3,1)+C2*(SSZ1*Y24(I)-SSZ2*X24(I))
         VF(I,3,2)=VF(I,3,2)+C2*(-SSZ1*Y13(I)+SSZ2*X13(I))
-C-----------non const mz----17,18--
+C---------- No Const Mz ---- 17,18--
         C2=THK(I)*ONE_OVER_6*OFF(I)
         C3=THK(I)*THIRD*OFF(I)
 C
@@ -977,35 +965,31 @@ C
       IC=1
       JST(IC)=JFT
       DO J=JFT+1,JLT
-         IF (IPARTC(J).NE.IPARTC(J-1)) THEN
+         IF (IPARTC(J)/=IPARTC(J-1)) THEN
             IC=IC+1
             JST(IC)=J
          ENDIF
       ENDDO
       JST(IC+1)=JLT+1
 
-      IF(IC.EQ.1) THEN
+      IF(IC==1) THEN
         MX = IPARTC(JFT)
-#include "simd.inc"
         DO I=JFT,JLT
           EVIS(8,MX)=EVIS(8,MX) + TESY(i)
         ENDDO
-      ELSEIF(IC.EQ.2.AND.KFTS.GT.0)THEN
+      ELSEIF(IC==2.AND.KFTS>0)THEN
         MX = IPARTC(JFT)
-#include "simd.inc"
         DO I=JFT, KFTS-1
           EVIS(8,MX)=EVIS(8,MX) + TESY(i)
         ENDDO
         MX = IPARTC(JLT)
-#include "simd.inc"
         DO I=KFTS,JLT
           EVIS(8,MX)=EVIS(8,MX) + TESY(i)
         ENDDO
       ELSE
         DO II=1,IC
            MX=IPARTC(JST(II))
-           IF (JST(II+1)-JST(II).GT.15) THEN
-#include "simd.inc"
+           IF (JST(II+1)-JST(II)>15) THEN
               DO J=JST(II),JST(II+1)-1
                 EVIS(8,MX)=EVIS(8,MX) + TESY(J)
               ENDDO
@@ -1018,15 +1002,15 @@ C
       ENDIF
       RETURN
       END      
-Chd|====================================================================
-Chd|  CZFINTN_OR                    source/elements/shell/coquez/czfintn.F
-Chd|-- called by -----------
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|-- calls ---------------
-Chd|        CZEHOURV                      source/elements/shell/coquez/czfintn.F
-Chd|        CZHOUREP_OR                   source/elements/shell/coquez/czfintn.F
-Chd|====================================================================
+!||====================================================================
+!||    czfintn_or    ../engine/source/elements/shell/coquez/czfintn.F
+!||--- called by ------------------------------------------------------
+!||    czforc3       ../engine/source/elements/shell/coquez/czforc3.F
+!||    czforc3_crk   ../engine/source/elements/xfem/czforc3_crk.F
+!||--- calls      -----------------------------------------------------
+!||    czehourv      ../engine/source/elements/shell/coquez/czfintn.F
+!||    czhourep_or   ../engine/source/elements/shell/coquez/czfintn.F
+!||====================================================================
         SUBROUTINE CZFINTN_OR(JFT  ,JLT  ,THK  ,C1   ,AA   ,VHG  ,
      2                      X13  ,X24  ,Y13  ,Y24  ,Z1   ,MX23 ,
      3                      MX13 ,MX34 ,MY13 ,MY23 ,MY34 ,VGLAS,
@@ -1040,10 +1024,10 @@ C orthotropic elasto-plastic hourglass stresses+linear damping
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C        CALCUL VF(3,4),VM(2,4) : FORCES INTERNES GENERALISEES
 C        ENTREES : THK,1/AREA,PME,X13,X24,Y13,Y24,MX13,MX34,MY13,MY34
-C                  DHG(6)  : INCREMENT DE LA DEF HOURGLASS GENERALISEE    
+C                  dhg(6): increment of the generalized hourglass deformation
 C                  VGLAS(12): DEF HOURGLASS GENERALISEE 
 C                  VGLAS(1-6)->ETA; VGLAS(7-12)->KSI;
-C                  FAC=Et/E    
+C                  fac=et/e
 C        SORTIES : VF,VM
 C                  VF(3,4),VM(2,4) : 
 C                  J=1,2 STOCK LA PARTIE ANTISYM (F(1)=-F(3),F(2)=-F(4))                                  
@@ -1070,15 +1054,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I,MX, IC, II, J
+        INTEGER I, J
         my_real 
-     .  STIER,C2,C3,C4,C7,B13,B24,C3M,
+     .  STIER,C2,C3,C4,C7,B13,B24,
      .  Y13S,X13S,Y34S6,Y23S5,X23S5,X34S6,
      .  DGLAS(MVSIZ,12),
-     .  C1B,C2B,CMM,CNN,A_BK,A_B,A_K,UNDOUZSR,AUX,
+     .  UNDOUZSR,AUX,
      .  SSV0,SSV1,SSV2,SSV3,SC6_V,SC5_V,CXX_V,CYY_V,CXY_V,CXZ_V,CYZ_V,
-     .  HXX_V,HYY_V,HXY_V,SS1_V,SS2_V,SS3_V,SF1_V,SF2_V,HVL,CRZ,
-     .  EMY,ECX,ECY,ESY,FBEND,FBEND_V,ERZ,FACM(MVSIZ),FACF(MVSIZ)
+     .  HXX_V,HYY_V,HXY_V,SS1_V,SS2_V,SS3_V,SF1_V,SF2_V,HVL,
+     .  FBEND,FBEND_V,FACM(MVSIZ),FACF(MVSIZ)
         my_real 
      .  C5(MVSIZ),CXX_K(MVSIZ),CYY_K(MVSIZ),HXX(MVSIZ),HYY(MVSIZ),
      .  CXX(MVSIZ),CYY(MVSIZ),HXX_K(MVSIZ),HYY_K(MVSIZ),
@@ -1091,7 +1075,7 @@ C-----------------------------------------------
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
        C7=FOUR_OVER_3
        STIER  = FIVEP333  
-      IF (NPT.EQ.1) THEN
+      IF (NPT==1) THEN
        FBEND =ZERO
        FBEND_V =ZERO
       ELSE
@@ -1177,7 +1161,7 @@ cc         A12SR(I)=SQRT(HM(3,I))
 C    VGLAS(1-6)->ETA (x:+ y-); VGLAS(7-12)->KSI  (x:- y+);
 C-----part iso-commun
         DO I=JFT,JLT
-C----- x_ETA, signe +     
+C----- x_eta, sign +     
           DGLAS(I,1) =CM(I,1,1)*CXX(I)-CM(I,1,2)*CYY(I)
 C----- y_ETA, signe -     
           DGLAS(I,2) =CM(I,2,2)*CYY(I)-CM(I,1,2)*CXX(I)
@@ -1185,7 +1169,7 @@ C----- x_ETA, signe+ bending
           DGLAS(I,3) =CF(I,1,1)*BXX(I)-CF(I,1,2)*BYY(I)
 C----- y_ETA, signe - bending    
           DGLAS(I,4) =CF(I,2,2)*BYY(I)-CF(I,1,2)*BXX(I)
-C----- x_Ksi, signe -     
+C----- x_ksi, sign-     
           DGLAS(I,7) =CM(I,1,1)*CXX_K(I)-CM(I,1,2)*CYY_K(I)
 C----- y_Ksi, signe +     
           DGLAS(I,8) =CM(I,2,2)*CYY_K(I)-CM(I,1,2)*CXX_K(I)
@@ -1202,7 +1186,7 @@ C------------
           DGLAS(I,11)=C3*HXX_K(I)*VHG(I,6)
           DGLAS(I,12)=C3*HYY_K(I)*VHG(I,6)
         END DO
-C-----part C(1,3),C(2,3)
+C---- Part C (1,3), C (2,3)
 C-------finally after crash-box tets, constant in-plane shear strain and stress
 C--------- like QBAT is used to avoid instability     
        DO I=JFT,JLT
@@ -1214,7 +1198,7 @@ C--------- like QBAT is used to avoid instability
 C-----part CMF
        IF (IORTH>1) THEN
        DO I=JFT,JLT
-         C2=FAC1(I)*DT1
+         C2=EM01*FAC1(I)*DT1
          CMF(I,1,1)=C2*HMFOR(I,1)
          CMF(I,2,2)=C2*HMFOR(I,2)
          CMF(I,1,2)=C2*HMFOR(I,3)
@@ -1389,20 +1373,18 @@ C
       CALL CZEHOURV(JFT  ,JLT  ,IPARTC,EVIS,KFTS  ,TESY ) 
       RETURN
       END      
-Chd|====================================================================
-Chd|  CZEHOURV                      source/elements/shell/coquez/czfintn.F
-Chd|-- called by -----------
-Chd|        CZFINTNRZ_OR                  source/elements/shell/coquez/czfintn.F
-Chd|        CZFINTN_OR                    source/elements/shell/coquez/czfintn.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    czehourv       ../engine/source/elements/shell/coquez/czfintn.F
+!||--- called by ------------------------------------------------------
+!||    czfintn_or     ../engine/source/elements/shell/coquez/czfintn.F
+!||    czfintnrz_or   ../engine/source/elements/shell/coquez/czfintn.F
+!||====================================================================
         SUBROUTINE CZEHOURV(JFT  ,JLT  ,IPARTC,EVIS,KFTS  ,
      8                      TESY ) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include "implicit_f.inc"
 #include "param_c.inc"
 #include "mvsiz_p.inc"
-#include "parit_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -1418,27 +1400,24 @@ C-----------------------------------------------
       IC=1
       JST(IC)=JFT
       DO J=JFT+1,JLT
-         IF (IPARTC(J).NE.IPARTC(J-1)) THEN
+         IF (IPARTC(J)/=IPARTC(J-1)) THEN
             IC=IC+1
             JST(IC)=J
          ENDIF
       ENDDO
       JST(IC+1)=JLT+1
-      IF(IC.EQ.1) THEN
+      IF(IC==1) THEN
         MX = IPARTC(JFT)
-#include "simd.inc"
         DO I=JFT,JLT
           EVIS(8,MX)=EVIS(8,MX) + TESY(I)
         ENDDO
 
-      ELSEIF(IC.EQ.2.AND.KFTS.GT.0)THEN
+      ELSEIF(IC==2.AND.KFTS>0)THEN
         MX = IPARTC(JFT)
-#include "simd.inc"
         DO I=JFT, KFTS-1
           EVIS(8,MX)=EVIS(8,MX) + TESY(I)
         ENDDO
         MX = IPARTC(JLT)
-#include "simd.inc"
         DO I=KFTS,JLT
           EVIS(8,MX)=EVIS(8,MX) + TESY(I)
         ENDDO
@@ -1447,8 +1426,7 @@ C-----------------------------------------------
 C
            DO II=1,IC
               MX=IPARTC(JST(II))
-              IF (JST(II+1)-JST(II).GT.15) THEN
-#include "simd.inc"
+              IF (JST(II+1)-JST(II)>15) THEN
                  DO J=JST(II),JST(II+1)-1
                    EVIS(8,MX)=EVIS(8,MX) + TESY(J)
                  ENDDO
@@ -1462,15 +1440,15 @@ C
 C      
       RETURN
       END      
-Chd|====================================================================
-Chd|  CZFINTNRZ_OR                  source/elements/shell/coquez/czfintn.F
-Chd|-- called by -----------
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|-- calls ---------------
-Chd|        CZEHOURV                      source/elements/shell/coquez/czfintn.F
-Chd|        CZHOUREPRZ_OR                 source/elements/shell/coquez/czfintn.F
-Chd|====================================================================
+!||====================================================================
+!||    czfintnrz_or    ../engine/source/elements/shell/coquez/czfintn.F
+!||--- called by ------------------------------------------------------
+!||    czforc3         ../engine/source/elements/shell/coquez/czforc3.F
+!||    czforc3_crk     ../engine/source/elements/xfem/czforc3_crk.F
+!||--- calls      -----------------------------------------------------
+!||    czehourv        ../engine/source/elements/shell/coquez/czfintn.F
+!||    czhoureprz_or   ../engine/source/elements/shell/coquez/czfintn.F
+!||====================================================================
         SUBROUTINE CZFINTNRZ_OR(JFT  ,JLT  ,THK  ,C1   ,AA   ,VHG  ,
      2                      X13  ,X24  ,Y13  ,Y24  ,Z1   ,MX23 ,
      3                      MX13 ,MX34 ,MY13 ,MY23 ,MY34 ,VGLAS,
@@ -1485,12 +1463,12 @@ C orthotropic elasto-plastic hourglass stresses+linear damping with drilling dof
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C        CALCUL VF(3,4),VM(2,4) : FORCES INTERNES GENERALISEES
 C        ENTREES : THK,1/AREA,PME,X13,X24,Y13,Y24,MX13,MX34,MY13,MY34
-C                  DHG(6)  : INCREMENT DE LA DEF HOURGLASS GENERALISEE    
+C                  dhg(6): increment of the generalized hourglass deformation
 C                  VGLAS(12): DEF HOURGLASS GENERALISEE 
 C                  VGLAS(1-6)->ETA; VGLAS(7-12)->KSI;
 C                  -shear: VGLAS(13-14)->ETA; VGLAS(15-16)->KSI; 
 C                  -Sig_rz: VGLAS(17)->ETA; VGLAS(18)->KSI; VGLAS(19)->const
-C                  FAC=Et/E    
+C                  fac=et/e
 C        SORTIES : VF,VM
 C                  VF(3,4),VM(2,4) : 
 C                  J=1,2 STOCK LA PARTIE ANTISYM (F(1)=-F(3),F(2)=-F(4))                                  
@@ -1499,7 +1477,6 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
 #include      "param_c.inc"
 #include      "mvsiz_p.inc"
-#include      "units_c.inc"
 
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
@@ -1514,22 +1491,22 @@ C-----------------------------------------------
      .       FAC1(*) ,RHO(*) ,AREA(*), DT1,OFF(*),EINT(JLT,2),AMU(*) ,
      .       EVIS(NPSAV,*),VMZ(MVSIZ,4),
      .       VHGZK(MVSIZ,5),VHGZE(MVSIZ,5),KRZ(*),
-     .       BM0RZ(MVSIZ,4,4),BMKRZ(MVSIZ,4,4),BMERZ(MVSIZ,4,4),
+     .       BMKRZ(MVSIZ,4,4),BMERZ(MVSIZ,4,4),
      .       GSR(*), A11SR(*), A12SR(*), NUSR(*), SHFSR(*),
      .       HM(MVSIZ,6),HF(MVSIZ,6),HC(MVSIZ,2),HMFOR(MVSIZ,6)
          INTEGER KFTS
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I,MX, IC, II, J
+        INTEGER I, J
         my_real 
      .  STIER,C2,C3,C4,C7,B13,B24,C3M,
      .  Y13S,X13S,Y34S6,Y23S5,X23S5,X34S6,
      .  DGLAS(MVSIZ,18),FACM(MVSIZ),FACF(MVSIZ),
-     .  C1B,C2B,CMM,CNN,A_BK,A_B,A_K,UNDOUZSR,AUX,
+     .  UNDOUZSR,AUX,
      .  SSV0,SSV1,SSV2,SSV3,SC6_V,SC5_V,CXX_V,CYY_V,CXY_V,CXZ_V,CYZ_V,
      .  HXX_V,HYY_V,HXY_V,SS1_V,SS2_V,SS3_V,SF1_V,SF2_V,HVL,CRZ,
-     .  EMY,ECX,ECY,ESY,FBEND,FBEND_V,ERZ
+     .  FBEND,FBEND_V,ERZ
         my_real 
      .  C5(MVSIZ),CXX_K(MVSIZ),CYY_K(MVSIZ),HXX(MVSIZ),HYY(MVSIZ),
      .  CXX(MVSIZ),CYY(MVSIZ),HXX_K(MVSIZ),HYY_K(MVSIZ),
@@ -1542,7 +1519,7 @@ C-----------------------------------------------
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
        C7=FOUR_OVER_3
        STIER  = FIVEP333  
-      IF (NPT.EQ.1) THEN
+      IF (NPT==1) THEN
        FBEND =ZERO
        FBEND_V =ZERO
       ELSE
@@ -1648,7 +1625,7 @@ C-------Modified modulas for damping---
 C    VGLAS(1-6)->ETA (x:+ y-); VGLAS(7-12)->KSI  (x:- y+);
 C-----part iso-commun
         DO I=JFT,JLT
-C----- x_ETA, signe +     
+C----- x_eta, sign +     
           DGLAS(I,1) =CM(I,1,1)*CXX(I)-CM(I,1,2)*CYY(I)
 C----- y_ETA, signe -     
           DGLAS(I,2) =CM(I,2,2)*CYY(I)-CM(I,1,2)*CXX(I)
@@ -1656,7 +1633,7 @@ C----- x_ETA, signe + bending
           DGLAS(I,3) =CF(I,1,1)*BXX(I)-CF(I,1,2)*BYY(I)
 C----- y_ETA, signe - bending    
           DGLAS(I,4) =CF(I,2,2)*BYY(I)-CF(I,1,2)*BXX(I)
-C----- x_Ksi, signe -     
+C----- x_ksi, sign-     
           DGLAS(I,7) =CM(I,1,1)*CXX_K(I)-CM(I,1,2)*CYY_K(I)
 C----- y_Ksi, signe +     
           DGLAS(I,8) =CM(I,2,2)*CYY_K(I)-CM(I,1,2)*CXX_K(I)
@@ -1687,7 +1664,7 @@ C    --------add  srz dof--------
           DGLAS(I,17)=CRZ*VHGZE(I,5)
           DGLAS(I,18)=CRZ*VHGZK(I,5)
         END DO
-C-----part C(1,3),C(2,3)
+C---- Part C (1,3), C (2,3)
        DO I=JFT,JLT
 C    
         DGLAS(I,1) =DGLAS(I,1)-CM(I,1,3)*CMH(I)
@@ -1834,7 +1811,7 @@ C--------
          SC6(I)=SC6(I)*C2
          SS3(I)=SC5(I)+SC6(I)
       END DO !I=JFT,JLT
-C-----------non const mz----17,18--
+C---------- No Const Mz ---- 17,18--
        DO I=JFT,JLT
         C2=THK(I)*ONE_OVER_6*OFF(I)
         C3=THK(I)*THIRD*OFF(I)
@@ -1934,19 +1911,17 @@ C
       CALL CZEHOURV(JFT  ,JLT  ,IPARTC,EVIS,KFTS  ,TESY ) 
       RETURN
       END      
-Chd|====================================================================
-Chd|  CZHOUREP_OR                   source/elements/shell/coquez/czfintn.F
-Chd|-- called by -----------
-Chd|        CZFINTN_OR                    source/elements/shell/coquez/czfintn.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    czhourep_or   ../engine/source/elements/shell/coquez/czfintn.F
+!||--- called by ------------------------------------------------------
+!||    czfintn_or    ../engine/source/elements/shell/coquez/czfintn.F
+!||====================================================================
         SUBROUTINE CZHOUREP_OR(JFT   ,JLT  ,SIGY ,VSTRE ,MSTRE ,
      1                         THK   ,FAC  ,ESX  ,EMX   ,NPT   ,
      2                         DGLAS ,VGLAS,NEL  ) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include "implicit_f.inc"
 #include "mvsiz_p.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -1957,17 +1932,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I,MX, IC, II, J,NPT1
+        INTEGER I,NPT1
         my_real 
-     .  SVM,SVMN,C1B,C2B,CMM,CNN,UFAC,TOL,COEF,EH1,EH2,
+     .  SVM,CMM,CNN,UFAC,TOL,COEF,EH1,EH2,
      .  CNNX,CNNY,CNNX_K,CNNY_K,CMMX,CMMY,CMMX_K,CMMY_K,SXY0,MXY0,
-     .  SVMC,SIGY2,SVM0,SVMC_K,A_BK,A_B,A_K,UNDOUZSR,AUX,
+     .  SIGY2,
      .  COEF1,COEFH,SIGY0,SXYH,MXYH,SIGYH,FACM,FACF,FACT
 C-----------------------------------------------
        COEFH= ZEP99
        COEF= ZEP85
        TOL= EM18 
-      IF (NPT.EQ.0) THEN
+      IF (NPT==0) THEN
        COEF1=SIXTEEN
       ELSE
        COEF1=TWENTY5
@@ -1976,10 +1951,10 @@ C---- FAC(1,I)= mean value of Et/G; FAC(2,I)= min(Et_ip/G ), negative value when
 C---- en Elastic FAC(1,I)=0;FAC(2,I)= 1   
       DO I=JFT,JLT
           IF (ESX(I)<ZERO.AND.EMX(I)<ZERO) CYCLE
-          IF (SIGY(I).LT.ZEP9EP30) THEN
+          IF (SIGY(I)<ZEP9EP30) THEN
            UFAC=ABS(MIN(FAC(I,1),ABS(FAC(I,2)))-ONE)
 C---------elastic inc on quadrature-----------           
-           IF (UFAC.LT.TOL) THEN
+           IF (UFAC<TOL) THEN
             SIGY2 = SIGY(I)*SIGY(I)
             SXY0= VSTRE(I,1)*VSTRE(I,1)+VSTRE(I,2)*VSTRE(I,2)
      .           -VSTRE(I,1)*VSTRE(I,2)+THREE*VSTRE(I,3)*VSTRE(I,3)
@@ -2021,8 +1996,8 @@ C
             EH1=ONE-FAC(I,1)
             EH2=ONE-ABS(FAC(I,2))
            END IF
-           IF (ESX(I).LT.ZERO) EH1=ZERO
-           IF (EMX(I).LT.ZERO) EH2=ZERO
+           IF (ESX(I)<ZERO) EH1=ZERO
+           IF (EMX(I)<ZERO) EH2=ZERO
 C-------------MEMBRANE------------------------
              VGLAS(I,1)=VGLAS(I,1)-EH1*DGLAS(I,1)
              VGLAS(I,2)=VGLAS(I,2)-EH1*DGLAS(I,2)
@@ -2035,13 +2010,13 @@ C-------------FLEXION------------------------
              VGLAS(I,10)=VGLAS(I,10)-EH2*DGLAS(I,10)
           ENDIF 
       END DO !I=JFT,JLT
-C-----taking into accound failing in the layers(law25 first)----
+C-----taking into account failing in the layers(law25 first)----
        NPT1=MIN(8,NPT)
        FACM = ZEP85  +ZEP015*(NPT1-2)
        FACF = ZEP7 +ZEP015*(NPT1-2)
        FACT = ZEP9999
        DO I=JFT,JLT
-          IF (FAC(I,2).LT.ZERO) THEN
+          IF (FAC(I,2)<ZERO) THEN
             VGLAS(I,1)=FACM*VGLAS(I,1)
             VGLAS(I,2)=FACM*VGLAS(I,2)
             VGLAS(I,7)=FACM*VGLAS(I,7)
@@ -2059,12 +2034,11 @@ C-----taking into accound failing in the layers(law25 first)----
 C      
       RETURN
       END      
-Chd|====================================================================
-Chd|  CZHOUREPRZ_OR                 source/elements/shell/coquez/czfintn.F
-Chd|-- called by -----------
-Chd|        CZFINTNRZ_OR                  source/elements/shell/coquez/czfintn.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    czhoureprz_or   ../engine/source/elements/shell/coquez/czfintn.F
+!||--- called by ------------------------------------------------------
+!||    czfintnrz_or    ../engine/source/elements/shell/coquez/czfintn.F
+!||====================================================================
         SUBROUTINE CZHOUREPRZ_OR(JFT   ,JLT   ,SIGY ,VSTRE ,MSTRE ,
      1                           THK   ,FAC   ,ESX  ,EMX   ,NPT   ,
      2                           DGLAS ,VGLAS ,NEL  ) 
@@ -2081,29 +2055,29 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I,MX, IC, II, J,NPT1
+        INTEGER I,NPT1
         my_real 
-     .  SVM,SVMN,C1B,C2B,CMM,CNN,UFAC,TOL,COEF,EH1,EH2,
+     .  SVM,CMM,CNN,UFAC,TOL,COEF,EH1,EH2,
      .  CNNX,CNNY,CNNX_K,CNNY_K,CMMX,CMMY,CMMX_K,CMMY_K,SXY0,MXY0,
-     .  SVMC,SIGY2,SVM0,SVMC_K,A_BK,A_B,A_K,UNDOUZSR,AUX,
+     .  SIGY2,
      .  COEF1,COEFH,CNNXY,CNNXY_K,CMMXY,CMMXY_K,FACM,FACF,FACT,SIGY0
 C-----------------------------------------------
        COEFH= ZEP99
        COEF= ZEP85
        TOL= EM18 
-      IF (NPT.EQ.0) THEN
+      IF (NPT==0) THEN
        COEF1=SIXTEEN
       ELSE
        COEF1=TWENTY5
       ENDIF
       DO I=JFT,JLT
           IF (ESX(I)<ZERO.AND.EMX(I)<ZERO) CYCLE
-          IF (SIGY(I).LT.ZEP9EP30) THEN
+          IF (SIGY(I)<ZEP9EP30) THEN
            UFAC=ABS(MIN(FAC(I,1),ABS(FAC(I,2)))-ONE)
            SIGY2 = SIGY(I)*SIGY(I)
            SVM =ZERO
            SXY0=ZERO   
-           IF (UFAC.LT.TOL) THEN
+           IF (UFAC<TOL) THEN
 c            CYCLE
             SXY0= VSTRE(I,1)*VSTRE(I,1)+VSTRE(I,2)*VSTRE(I,2)
      .           -VSTRE(I,1)*VSTRE(I,2)+THREE*VSTRE(I,3)*VSTRE(I,3)
@@ -2148,8 +2122,8 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
             EH1=ONE-FAC(I,1)
             EH2=ONE-ABS(FAC(I,2))
            END IF
-              IF (ESX(I).LT.ZERO) EH1=ZERO
-              IF (EMX(I).LT.ZERO) EH2=ZERO
+              IF (ESX(I)<ZERO) EH1=ZERO
+              IF (EMX(I)<ZERO) EH2=ZERO
 C-------------MEMBRANE------------------------
              VGLAS(I,1)=VGLAS(I,1)-EH1*DGLAS(I,1)
              VGLAS(I,2)=VGLAS(I,2)-EH1*DGLAS(I,2)
@@ -2166,13 +2140,13 @@ C-------------FLEXION------------------------
              VGLAS(I,16)=VGLAS(I,16)-EH1*DGLAS(I,16)
           ENDIF 
       END DO !I=JFT,JLT
-C-----taking into accound failing in the layers(law25 first)----
+C-----taking into account failing in the layers(law25 first)----
        NPT1=MIN(8,NPT)
        FACM = ZEP85  +ZEP015*(NPT1-2)
        FACF = ZEP7 +ZEP015*(NPT1-2)
        FACT = ZEP9999
        DO I=JFT,JLT
-          IF (FAC(I,2).LT.ZERO) THEN
+          IF (FAC(I,2)<ZERO) THEN
             VGLAS(I,1)=FACM*VGLAS(I,1)
             VGLAS(I,2)=FACM*VGLAS(I,2)
             VGLAS(I,7)=FACM*VGLAS(I,7)
@@ -2194,13 +2168,13 @@ C-----taking into accound failing in the layers(law25 first)----
 C      
       RETURN
       END      
-Chd|====================================================================
-Chd|  CZFINTNM1                     source/elements/shell/coquez/czfintn.F
-Chd|-- called by -----------
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|-- calls ---------------
-Chd|        CZFINTNM                      source/elements/shell/coquez/czfintn.F
-Chd|====================================================================
+!||====================================================================
+!||    czfintnm1   ../engine/source/elements/shell/coquez/czfintn.F
+!||--- called by ------------------------------------------------------
+!||    czforc3     ../engine/source/elements/shell/coquez/czforc3.F
+!||--- calls      -----------------------------------------------------
+!||    czfintnm    ../engine/source/elements/shell/coquez/czfintn.F
+!||====================================================================
         SUBROUTINE CZFINTNM1(JFT  ,JLT  ,THK  ,AA   ,VHG  ,
      2                       X13  ,X24  ,Y13  ,Y24  ,VF   ,
      3                       MX13 ,MX23 ,MY13 ,MY23 ,
@@ -2213,9 +2187,6 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
 #include      "mvsiz_p.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "units_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -2231,10 +2202,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I,MX, IC, II, J, JST(MVSIZ+1)
+        INTEGER I,MX
         my_real 
-     .  C2,HSURA,MX34,MY34,FV,GV(MVSIZ),
-     .  SC6_V,SC5_V,CXZ_V,CYZ_V,SS3_V,HVL,HVZ(MVSIZ),
+     .  C2,GV(MVSIZ),
+     .  HVL,
      .   GAMA1(MVSIZ), GAMA2(MVSIZ), GAMA3(MVSIZ), GAMA4(MVSIZ),
      .   GAMAVZ(MVSIZ),PX1(MVSIZ), PX2(MVSIZ), PY1(MVSIZ), PY2(MVSIZ),
      .   PX1V, PX2V, PY1V, PY2V, TESY(MVSIZ),HX(MVSIZ),HY(MVSIZ),HXA,HYA,FAC
@@ -2245,69 +2216,68 @@ c gama_i=1/4(h_i-hx*bx_i-hy*byi); bx_i=(y24 -y13 -y24 y13)/A;by_i=(-x24 x13 x24 
         PX2(I)  = -Y13(I)
         PY1(I)  = -X24(I)
         PY2(I)  =  X13(I)
-C----1/4*hx		
-	    HX(I) = HALF*(-X13(I)+X24(I))+(MX13(I)-MX23(I))
-	    HY(I) = HALF*(-Y13(I)+Y24(I))+(MY13(I)-MY23(I))
+C----1/4*hx
+              HX(I) = HALF*(-X13(I)+X24(I))+(MX13(I)-MX23(I))
+              HY(I) = HALF*(-Y13(I)+Y24(I))+(MY13(I)-MY23(I))
       ENDDO
 c gama_i*vz_i = vhi-hx*(y24*v13-y13*v24)-hy*(-x24*v13+x13*v24)
       DO I=JFT,JLT
-		GAMAVZ(I) = VHI(I,3)-HX(I)*(PX1(I)*V13(I,3)+PX2(I)*V24(I,3))
+          GAMAVZ(I) = VHI(I,3)-HX(I)*(PX1(I)*V13(I,3)+PX2(I)*V24(I,3))
      .                      -HY(I)*(PY1(I)*V13(I,3)+PY2(I)*V24(I,3))
       ENDDO
       DO I=JFT,JLT
-	    HXA =HX(I)*AA(I) 
-	    HYA =HY(I)*AA(I) 
+              HXA =HX(I)*AA(I) 
+              HYA =HY(I)*AA(I) 
         PX1V    = PX1(I)*HXA
         PX2V    = PX2(I)*HXA
         PY1V    = PY1(I)*HYA
         PY2V    = PY2(I)*HYA
-C        J=1,2 STOCK LA PARTIE ANTISYM (F(1)=-F(3),F(2)=-F(4))                                  
+C        J=1,2 STOCK LA PARTIE ANTISYM (F(1)=-F(3),F(2)=-F(4))
 C        J=3,4 STOCK LA PARTIE SYM (F(1)=F(3),F(2)=F(4))
         GAMA1(I)= - PX1V-PY1V
         GAMA3(I)= FOURTH
         GAMA2(I)= - PX2V-PY2V
         GAMA4(I)= -FOURTH
       ENDDO
-C----fixing fac as Q4, can be changed w/ G(i) 	  
-	  FAC = 0.83*EM02
-C--- same as Q4, no more daming but elatic w/ FAC*G 	  
+C----fixing fac as Q4, can be changed w/ G(i)
+            FAC = 0.83*EM02
+C--- same as Q4, no more damping but elastic w/ FAC*G
       DO I=JFT,JLT
         HVL=FAC*G(I)*THK(I)*OFF(I)*DT1
         VGLAS(I,10)=VGLAS(I,10)+HVL*GAMAVZ(I)
-		C2 = FOUR*VGLAS(I,10)
+          C2 = FOUR*VGLAS(I,10)
         VF(I,3,1)=VF(I,3,1)+C2*GAMA1(I)
         VF(I,3,2)=VF(I,3,2)+C2*GAMA2(I)
         VF(I,3,3)=VF(I,3,3)+C2*GAMA3(I)
         VF(I,3,4)=VF(I,3,4)+C2*GAMA4(I)
-C		
-		TESY(I) = AREA(I)*VGLAS(I,10)*DT1*(
+C
+          TESY(I) = AREA(I)*VGLAS(I,10)*DT1*(
      .           (GAMA1(I)+GAMA2(I))*V13(I,3)+(GAMA3(I)+GAMA4(I))*V24(I,3))
-	  ENDDO
+            ENDDO
        MX = IPARTC(JFT)
-#include "simd.inc"
        DO I=JFT,JLT
           EVIS(8,MX)=EVIS(8,MX) + TESY(I)
        ENDDO
 C---- damping 
-c      FAC=0.01	  
-cc      FAC=0.5	  
+c      FAC=0.01    
+cc      FAC=0.5    
 c      DO I=JFT,JLT
 c        HVZ(I)=FOURTH*FAC*RHO(I)*THK(I)*SQRT(AREA(I))
-c	  ENDDO       
-cC---- mode Z1+Z2-(Z3+Z4) 	  
+c    ENDDO       
+cC---- mode Z1+Z2-(Z3+Z4)     
 c      DO I=JFT,JLT
 c        FV=HVZ(I)*(V13(I,3)+V24(I,3))
 c        VF(I,3,1)=VF(I,3,1)+FV
 c        VF(I,3,2)=VF(I,3,2)+FV
-c	  ENDDO       
-cC---- mode Z1+Z4-(Z2+Z3) 	  
+c    ENDDO       
+cC---- mode Z1+Z4-(Z2+Z3)     
 c      DO I=JFT,JLT
 c        FV=HVZ(I)*(V13(I,3)-V24(I,3))
 c        VF(I,3,1)=VF(I,3,1)+FV
 c        VF(I,3,2)=VF(I,3,2)-FV
-c	  ENDDO       
+c    ENDDO       
 
-	   GV(JFT:JLT) = 0.001*G(JFT:JLT)
+             GV(JFT:JLT) = 0.001*G(JFT:JLT)
        CALL CZFINTNM(JFT  ,JLT  ,THK  ,AA   ,VHG  ,
      2               X13  ,X24  ,Y13  ,Y24  ,VF   ,
      3               GV   ,RHO  ,AREA ,AMU  ,DT1  ,

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LAG_MPC                       source/tools/lagmul/lag_mpc.F 
-Chd|-- called by -----------
-Chd|        LAG_MULT                      source/tools/lagmul/lag_mult.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lag_mpc    ../engine/source/tools/lagmul/lag_mpc.F
+!||--- called by ------------------------------------------------------
+!||    lag_mult   ../engine/source/tools/lagmul/lag_mult.F
+!||====================================================================
       SUBROUTINE LAG_MPC(
      1   RBMPC     ,IMPCNC    ,IMPCNN    ,IMPCDL    ,IMPCSK    ,
      2   SKEW      ,IADLL     ,LLL       ,JLL       ,SLL       ,
@@ -36,8 +35,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -59,18 +56,22 @@ C-----------------------------------------------
       INTEGER I, J, JJ, LL, IK, NK, KF, ISK, NN, NDL, IDL, NUMC, IC
       my_real COEF,HH,R,S1,S2,S3
 C-----------------------------------------------
-C        NC : nombre de condition cinematique
-C        IC : numero de la condition cinematique (1,NC)
+C        NC : number of kinematic condition
+C        ic: number of the kinematic condition (1,nc)
 C        IK :
-C        I  : numero global du noeud (1,NUMNOD)
-C        J  : direction 1,2,3,4,5,6
+C        I  : global node number (1,NUMNOD)
+C        J ': direction 1,2,3,4,5,6
 C------
 C        IADLL(NC)        : IAD = IADLL(IC)
 C        IK = IAD,IAD+1,IAD+2,...
 C        LLL(LAG_NKF)  : I = LLL(IK)
 C        JLL(LAG_NKF)  : J = JLL(IK)
 C======================================================================|
+      S1 = 0
+      S2 = 0
       KF = 0
+      NN = 0
+      S3 = -HUGE(S3)
       DO I=1,NUMMPC
         HH = ZERO
         R  = ZERO
@@ -85,14 +86,14 @@ C======================================================================|
           ISK = IMPCSK(KF)
           COEF= RBMPC(KF)
 C---
-          IF(ISK.EQ.1)THEN
+          IF(ISK==1)THEN
             NK = NK + 1
             IK = IK + 1
             LLL(IK) = NN
             JLL(IK) = NDL
             SLL(IK) = 0
             XLL(IK) = COEF
-            IF (NDL.GT.3) THEN
+            IF (NDL>3) THEN
               NDL = NDL - 3
               HH = HH + COEF*COEF / IN(NN)
               R  = R  + COEF*(VR(NDL,NN) / DT12 + AR(NDL,NN))
@@ -102,22 +103,22 @@ C---
             ENDIF
           ELSE
             IDL = NDL
-            IF (NDL.GT.3) IDL = NDL - 3
-            IF (IDL.EQ.1) THEN
+            IF (NDL>3) IDL = NDL - 3
+            IF (IDL==1) THEN
               S1 = COEF*SKEW(1,ISK)
               S2 = COEF*SKEW(2,ISK)
               S3 = COEF*SKEW(3,ISK)
-            ELSEIF (IDL.EQ.2) THEN
+            ELSEIF (IDL==2) THEN
               S1 = COEF*SKEW(4,ISK)
               S2 = COEF*SKEW(5,ISK)
               S3 = COEF*SKEW(6,ISK)
-            ELSEIF (IDL.EQ.3) THEN
+            ELSEIF (IDL==3) THEN
               S1 = COEF*SKEW(7,ISK)
               S2 = COEF*SKEW(8,ISK)
               S3 = COEF*SKEW(9,ISK)
             ENDIF
             NK = NK + 3
-            IF (NDL.GT.3) THEN
+            IF (NDL>3) THEN
               IK = IK + 1
               LLL(IK) = NN
               JLL(IK) = 4
@@ -163,18 +164,18 @@ C---
         IADLL(NC+1) = IADLL(NC) + NK
 C
 C---    Solving local Lagrange multipliers
-        IF (HH.NE.ZERO) R = R / HH
+        IF (HH/=ZERO) R = R / HH
         DO IK=IADLL(NC),IADLL(NC+1)-1
           JJ = JLL(IK)
           LL = LLL(IK)
-          IF (JJ.GT.3) THEN
+          IF (JJ>3) THEN
             JJ = JJ - 3
             AR(JJ,LL) = AR(JJ,LL) - XLL(IK)*R / IN(LL)
           ELSE
             A(JJ,LL)  = A(JJ,LL)  - XLL(IK)*R / MS(LL)
           ENDIF
         ENDDO
-        IF (COMNTAG(NN).EQ.1) THEN
+        IF (COMNTAG(NN)==1) THEN
           ISKIP = ISKIP + 1
           NC = NC - 1
         ELSE
@@ -187,13 +188,11 @@ C---
       RETURN
       END
 C
-C nouvelle routine MPC SPMD
-Chd|====================================================================
-Chd|  LAG_MPCP                      source/tools/lagmul/lag_mpc.F 
-Chd|-- called by -----------
-Chd|        LAG_MULTP                     source/tools/lagmul/lag_mult.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    lag_mpcp    ../engine/source/tools/lagmul/lag_mpc.F
+!||--- called by ------------------------------------------------------
+!||    lag_multp   ../engine/source/tools/lagmul/lag_mult.F
+!||====================================================================
       SUBROUTINE LAG_MPCP(
      1   RBMPC     ,IMPCNC    ,IMPCNN    ,IMPCDL    ,IMPCSK    ,
      2   SKEW      ,LAGCOMC   ,LAGCOMK   ,NC        ,IK        )
@@ -202,11 +201,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com08_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -220,20 +216,20 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, JJ, LL, NK, KF, ISK, NN, NDL, IDL, NUMC, IC
-      my_real COEF,HH,R,S1,S2,S3
+      INTEGER I, J, NK, KF, ISK, NN, NDL, NUMC
+      my_real COEF
 C-----------------------------------------------
-C        NC : nombre de condition cinematique
-C        IC : numero de la condition cinematique (1,NC)
+C        NC: number of cinematic condition
+C        ic: number of the kinematic condition (1,nc)
 C        IK :
-C        I  : numero global du noeud (1,NUMNOD)
-C        J  : direction 1,2,3,4,5,6
+C        I  : global node number (1,NUMNOD)
+C        J ': direction 1,2,3,4,5,6
 C------
-C        BLL => LAGCOMC(2)
-C        IADLL => LAGCOMC(1)
-C        LLL => LAGCOMK(1)
-C        JLL => LAGCOMK(2)
-C        SLL => LAGCOMK(3)
+C        BLL => Lagcomc (2)
+C        Iadll => lagcomc (1)
+C        LLL => Lagcomk (1)
+C        JLL => LAGCOMK (2)
+C        SLL => LAGCOMK (3)
 C        XLL => LAGCOMK(4)
 C======================================================================|
       KF = 0
@@ -248,7 +244,7 @@ C======================================================================|
           ISK = IMPCSK(KF)
           COEF= RBMPC(KF)
 C---
-          IF(ISK.EQ.1)THEN
+          IF(ISK==1)THEN
             NK = NK + 1
             IK = IK + 1
             LAGCOMK(1,IK) = NN
@@ -257,7 +253,7 @@ C---
             LAGCOMK(4,IK) = COEF
           ELSE
             NK = NK + 3
-            IF (NDL.EQ.1) THEN
+            IF (NDL==1) THEN
               IK = IK + 1
               LAGCOMK(1,IK) = NN
               LAGCOMK(2,IK) = 1
@@ -273,7 +269,7 @@ C---
               LAGCOMK(2,IK) = 3
               LAGCOMK(3,IK) = 0
               LAGCOMK(4,IK) = COEF*SKEW(3,ISK)
-            ELSEIF (NDL.EQ.2) THEN
+            ELSEIF (NDL==2) THEN
               IK = IK + 1
               LAGCOMK(1,IK) = NN
               LAGCOMK(2,IK) = 1
@@ -289,7 +285,7 @@ C---
               LAGCOMK(2,IK) = 3
               LAGCOMK(3,IK) = 0
               LAGCOMK(4,IK) = COEF*SKEW(6,ISK)
-            ELSEIF (NDL.EQ.3) THEN
+            ELSEIF (NDL==3) THEN
               IK = IK + 1
               LAGCOMK(1,IK) = NN
               LAGCOMK(2,IK) = 1
@@ -305,7 +301,7 @@ C---
               LAGCOMK(2,IK) = 3
               LAGCOMK(3,IK) = 0
               LAGCOMK(4,IK) = COEF*SKEW(9,ISK)
-            ELSEIF (NDL.EQ.4) THEN
+            ELSEIF (NDL==4) THEN
               IK = IK + 1
               LAGCOMK(1,IK) = NN
               LAGCOMK(2,IK) = 4
@@ -321,7 +317,7 @@ C---
               LAGCOMK(2,IK) = 6
               LAGCOMK(3,IK) = 0
               LAGCOMK(4,IK) = COEF*SKEW(3,ISK)
-            ELSEIF (NDL.EQ.5) THEN
+            ELSEIF (NDL==5) THEN
               IK = IK + 1
               LAGCOMK(1,IK) = NN
               LAGCOMK(2,IK) = 4
@@ -337,7 +333,7 @@ C---
               LAGCOMK(2,IK) = 6
               LAGCOMK(3,IK) = 0
               LAGCOMK(4,IK) = COEF*SKEW(6,ISK)
-            ELSEIF (NDL.EQ.6) THEN
+            ELSEIF (NDL==6) THEN
               IK = IK + 1
               LAGCOMK(1,IK) = NN
               LAGCOMK(2,IK) = 4
@@ -358,8 +354,8 @@ C---
         ENDDO
         LAGCOMC(1,NC)=NK
         LAGCOMC(2,NC)=ZERO   ! a verifier
-C voir si utile
-c        IF (COMNTAG(NN).EQ.1) THEN
+C See so useful
+c        IF (COMNTAG(NN)==1) THEN
 c          ISKIP = ISKIP + 1
 c          NC = NC - 1
 c        ELSE

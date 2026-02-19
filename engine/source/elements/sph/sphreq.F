@@ -1,63 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C-----------------------------------------------
 C     Build buckets from segments & particles.
 C-----------------------------------------------
-Chd|====================================================================
-Chd|  SPHREQS                       source/elements/sph/sphreq.F  
-Chd|-- called by -----------
-Chd|        SPONOF1                       source/elements/sph/sponof1.F 
-Chd|        SPONOF2                       source/elements/sph/sponof2.F 
-Chd|-- calls ---------------
-Chd|        SPH_NODSEG                    source/elements/sph/sph_nodseg.F
-Chd|====================================================================
+!||====================================================================
+!||    sphreqs      ../engine/source/elements/sph/sphreq.F
+!||--- called by ------------------------------------------------------
+!||    sponof1      ../engine/source/elements/sph/sponof1.F
+!||    sponof2      ../engine/source/elements/sph/sponof2.F
+!||--- calls      -----------------------------------------------------
+!||    sph_nodseg   ../engine/source/elements/sph/sph_nodseg.F
+!||====================================================================
       SUBROUTINE SPHREQS(NSEG ,ISEG ,X    ,NCEL ,IXP     ,
      2                LONFSPH ,KXSP ,NSX  ,ISX  ,NSY     ,
      3                ISY     ,NSZ  ,ISZ  ,NPX  ,IPX     ,
      4                NPY     ,IPY  ,NPZ  ,IPZ  ,DPS     ,
      5                WNORMAL ,DT_OLD,MASS_CUM,V,SPBUF   ,
      6                ITYPE)
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSEG,ISEG(NIBSPH,*),NCEL,IXP(*),
      .        LONFSPH(*),KXSP(NISP,*),
      .        NSX(0:*),ISX(*),NSY(0:*),ISY(*),NSZ(0:*),ISZ(*),
      .        NPX(0:*),IPX(*),NPY(0:*),IPY(*),NPZ(0:*),IPZ(*),ITYPE
-C     REAL
       my_real
      .   X(3,*),DPS(*),WNORMAL(3,*),DT_OLD,MASS_CUM,V(3,*),SPBUF(NSPBUF,*)
 C-----------------------------------------------
@@ -71,6 +66,7 @@ C-----------------------------------------------
       my_real
      .       DBOITEX,DBOITEY,DBOITEZ,XI,YI,ZI,NN,XX(12),DPS_OLD
 C-----------------------------------------------
+      DPS_OLD = -HUGE(DPS_OLD)
 C     if more than 1 box, each box size >= DBUCS
 C     NBOX=MAX(IUN,INT((XBMAX-XBMIN)/DBUCS))
 C     NBOY=MAX(IUN,INT((YBMAX-YBMIN)/DBUCS))
@@ -87,8 +83,8 @@ C     all points inside (0<=NBX<=NBOX,0<=NBY<=NBOY,0<=NBZ<=NBOZ)
        IN=KXSP(3,LONFSPH(IXP(N)))
        XI =X(1,IN)
        NBX=INT((XI-XBMIN)/DBOITEX)+1
-C      bande NBX uniquement.
-       IF(NBX.GE.1.AND.NBX.LE.NBOX+1)THEN
+C      NBX strip only.
+       IF(NBX>=1.AND.NBX<=NBOX+1)THEN
          NPX(NBX)=NPX(NBX)+1
        ENDIF
       ENDDO
@@ -102,8 +98,8 @@ C      bande NBX uniquement.
        IN=KXSP(3,LONFSPH(IXP(N)))
        XI =X(1,IN)
        NBX=INT((XI-XBMIN)/DBOITEX)+1
-C      bande NBX uniquement.
-       IF(NBX.GE.1.AND.NBX.LE.NBOX+1)THEN
+C      NBX strip only.
+       IF(NBX>=1.AND.NBX<=NBOX+1)THEN
         NPX(NBX)=NPX(NBX)+1
         IPX(NPX(NBX))=N
        ENDIF
@@ -129,7 +125,7 @@ C     all points inside (0<=NBX<=NBOX,0<=NBY<=NBOY,0<=NBZ<=NBOZ)
 C      bandes NBX1,NBX2,NBX3,NBX4 & bandes adjacentes.
        DO NBAUX=MIN(NBX1,NBX2,NBX3,NBX4)-1,
      .          MAX(NBX1,NBX2,NBX3,NBX4)+1
-        IF(NBAUX.GE.1.AND.NBAUX.LE.NBOX+1)THEN
+        IF(NBAUX>=1.AND.NBAUX<=NBOX+1)THEN
          NSX(NBAUX)=NSX(NBAUX)+1
         ENDIF
        ENDDO
@@ -156,7 +152,7 @@ C      bandes NBX1,NBX2,NBX3,NBX4 & bandes adjacentes.
 C      bandes NBX1,NBX2,NBX3,NBX4 & bandes adjacentes.
        DO NBAUX=MIN(NBX1,NBX2,NBX3,NBX4)-1,
      .          MAX(NBX1,NBX2,NBX3,NBX4)+1
-        IF(NBAUX.GE.1.AND.NBAUX.LE.NBOX+1)THEN
+        IF(NBAUX>=1.AND.NBAUX<=NBOX+1)THEN
          NSX(NBAUX)=NSX(NBAUX)+1
          ISX(NSX(NBAUX))=N
         ENDIF
@@ -172,8 +168,8 @@ C-----
         IN=KXSP(3,LONFSPH(IXP(N)))
         YI =X(2,IN)
         NBY=INT((YI-YBMIN)/DBOITEY)+1
-C       bande NBY uniquement.
-        IF(NBY.GE.1.AND.NBY.LE.NBOY+1)THEN
+C       NBY band only.
+        IF(NBY>=1.AND.NBY<=NBOY+1)THEN
           NPY(NBY)=NPY(NBY)+1
         ENDIF
        ENDDO
@@ -188,8 +184,8 @@ C       bande NBY uniquement.
         IN=KXSP(3,LONFSPH(IXP(N)))
         YI =X(2,IN)
         NBY=INT((YI-YBMIN)/DBOITEY)+1
-C       bande NBY uniquement.
-        IF(NBY.GE.1.AND.NBY.LE.NBOY+1)THEN
+C       NBY band only.
+        IF(NBY>=1.AND.NBY<=NBOY+1)THEN
          NPY(NBY)=NPY(NBY)+1
          IPY(NPY(NBY))=N
         ENDIF
@@ -215,7 +211,7 @@ C------
 C       bande NBY & bandes adjacentes.
         DO NBAUY=MIN(NBY1,NBY2,NBY3,NBY4)-1,
      .           MAX(NBY1,NBY2,NBY3,NBY4)+1
-         IF(NBAUY.GE.1.AND.NBAUY.LE.NBOY+1)THEN
+         IF(NBAUY>=1.AND.NBAUY<=NBOY+1)THEN
           NSY(NBAUY)=NSY(NBAUY)+1
          ENDIF
         ENDDO
@@ -245,7 +241,7 @@ C------
 C       bande NBY & bandes adjacentes.
         DO NBAUY=MIN(NBY1,NBY2,NBY3,NBY4)-1,
      .           MAX(NBY1,NBY2,NBY3,NBY4)+1
-         IF(NBAUY.GE.1.AND.NBAUY.LE.NBOY+1)THEN
+         IF(NBAUY>=1.AND.NBAUY<=NBOY+1)THEN
           NSY(NBAUY)=NSY(NBAUY)+1
           ISY(NSY(NBAUY))=N
          ENDIF
@@ -262,8 +258,8 @@ C-------
          IN=KXSP(3,LONFSPH(IXP(N)))
          ZI =X(3,IN)
          NBZ=INT((ZI-ZBMIN)/DBOITEZ)+1
-C        bande NBZ uniquement.
-         IF(NBZ.GE.1.AND.NBZ.LE.NBOZ+1)THEN
+C        NBZ band only.
+         IF(NBZ>=1.AND.NBZ<=NBOZ+1)THEN
            NPZ(NBZ)=NPZ(NBZ)+1
          ENDIF
         ENDDO
@@ -278,8 +274,8 @@ C        bande NBZ uniquement.
          IN=KXSP(3,LONFSPH(IXP(N)))
          ZI =X(3,IN)
          NBZ=INT((ZI-ZBMIN)/DBOITEZ)+1
-C        bande NBZ uniquement.
-         IF(NBZ.GE.1.AND.NBZ.LE.NBOZ+1)THEN
+C        NBZ band only.
+         IF(NBZ>=1.AND.NBZ<=NBOZ+1)THEN
           NPZ(NBZ)=NPZ(NBZ)+1
           IPZ(NPZ(NBZ))=N
          ENDIF
@@ -305,7 +301,7 @@ C-------
 C        bande NBZ & bandes adjacentes.
          DO NBAUZ=MIN(NBZ1,NBZ2,NBZ3,NBZ4)-1,
      .            MAX(NBZ1,NBZ2,NBZ3,NBZ4)+1
-          IF(NBAUZ.GE.1.AND.NBAUZ.LE.NBOZ+1)THEN
+          IF(NBAUZ>=1.AND.NBAUZ<=NBOZ+1)THEN
            NSZ(NBAUZ)=NSZ(NBAUZ)+1
           ENDIF
          ENDDO
@@ -333,7 +329,7 @@ C        bande NBZ & bandes adjacentes.
 C        bande NBZ & bandes adjacentes.
          DO NBAUZ=MIN(NBZ1,NBZ2,NBZ3,NBZ4)-1,
      .            MAX(NBZ1,NBZ2,NBZ3,NBZ4)+1
-          IF(NBAUZ.GE.1.AND.NBAUZ.LE.NBOZ+1)THEN
+          IF(NBAUZ>=1.AND.NBAUZ<=NBOZ+1)THEN
            NSZ(NBAUZ)=NSZ(NBAUZ)+1
            ISZ(NSZ(NBAUZ))=N
           ENDIF
@@ -344,7 +340,7 @@ C-------
          DO KP=NPZ(IBZ-1)+1,NPZ(IBZ)
           NP =IPZ(KP)
 C
-          IF (ITYPE.GT.1) THEN
+          IF (ITYPE>1) THEN
             DPS(NP)= 1.E+20
             WNORMAL(1,LONFSPH(IXP(NP)))=ZERO
             WNORMAL(2,LONFSPH(IXP(NP)))=ZERO
@@ -353,7 +349,7 @@ C
             XI =X(1,IN)-DT_OLD*V(1,IN)
             YI =X(2,IN)-DT_OLD*V(2,IN)
             ZI =X(3,IN)-DT_OLD*V(3,IN)
-C	  
+C
             DO KS=NSZ(IBZ-1)+1,NSZ(IBZ)
               NS=ISZ(KS)
               DO J=1,4
@@ -362,7 +358,7 @@ C
                 XX(3*(J-1)+2)=X(2,IN)-DT_OLD*V(2,IN)
                 XX(3*(J-1)+3)=X(3,IN)-DT_OLD*V(3,IN)
               END DO
-              IF (ISEG(3,NS).NE.ISEG(4,NS)) THEN
+              IF (ISEG(3,NS)/=ISEG(4,NS)) THEN
                TFLAG = 0
               ELSE
                TFLAG = 1
@@ -380,7 +376,7 @@ C
           XI =X(1,IN)
           YI =X(2,IN)
           ZI =X(3,IN)
-C	  
+C
           DO KS=NSZ(IBZ-1)+1,NSZ(IBZ)
             NS=ISZ(KS)
             DO J=1,4
@@ -389,7 +385,7 @@ C
               XX(3*(J-1)+2)=X(2,IN)
               XX(3*(J-1)+3)=X(3,IN)
             END DO
-            IF (ISEG(3,NS).NE.ISEG(4,NS)) THEN
+            IF (ISEG(3,NS)/=ISEG(4,NS)) THEN
               TFLAG = 0
             ELSE
               TFLAG = 1
@@ -397,15 +393,15 @@ C
             CALL SPH_NODSEG(XI,YI,ZI,XX,TFLAG,NP,LONFSPH,IXP,DPS,WNORMAL,0)
           END DO    
 C
-          IF (ITYPE.GT.1) THEN
+          IF (ITYPE>1) THEN
 C       detection if the particle is crossing the surface
-             IF (DPS_OLD*DPS(NP).LT.ZERO) THEN
-C       pur outlet/silent boundaries on permute le sens de comptage
-               IF (ITYPE.NE.4) DPS_OLD = -DPS_OLD
-C       la particule a traverse la surface dans le sens +
-               IF (DPS_OLD.GT.ZERO) MASS_CUM = MASS_CUM-SPBUF(12,N)
-C       la particule a traverse la surface dans le sens -
-               IF (DPS_OLD.LT.ZERO) MASS_CUM = MASS_CUM+SPBUF(12,N)
+             IF (DPS_OLD*DPS(NP)<ZERO) THEN
+C       Pure outlet/Silent Boundaries we swap the counting direction
+               IF (ITYPE/=4) DPS_OLD = -DPS_OLD
+C       the particle has crossed the surface in the + direction
+               IF (DPS_OLD>ZERO) MASS_CUM = MASS_CUM-SPBUF(12,N)
+C       the particle has crossed the surface in the - direction
+               IF (DPS_OLD<ZERO) MASS_CUM = MASS_CUM+SPBUF(12,N)
              ENDIF
           ENDIF   
 C

@@ -1,39 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I11OPTCD                      source/interfaces/intsort/i11optcd.F
-Chd|-- called by -----------
-Chd|        I11MAIN_OPT_TRI               source/interfaces/intsort/i11main_opt_tri.F
-Chd|-- calls ---------------
-Chd|        SYNC_DATA                     source/system/machine.F       
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i11optcd          ../engine/source/interfaces/intsort/i11optcd.F
+!||--- called by ------------------------------------------------------
+!||    i11main_opt_tri   ../engine/source/interfaces/intsort/i11main_opt_tri.F
+!||--- calls      -----------------------------------------------------
+!||    sync_data         ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box           ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I11OPTCD(CAND_M,CAND_S,X   ,I_STOK,IRECTS  ,
      2                    IRECTM,GAP   ,NIN ,V     ,GAP_S   ,
      3                    GAP_M ,IGAP  ,STFS,ITASK ,NRTS    ,
      4                    STFM  ,GAP_S_L,GAP_M_L,COUNT_REMSLV,
      5                    IFPEN ,CAND_FX,CAND_FY,CAND_FZ,IFORM,
-     6                    DRAD  ,DGAPLOAD)
+     6                    DRAD  ,DGAPLOAD,LSKYI_SMS_NEW)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
@@ -57,31 +58,26 @@ C-----------------------------------------------
      .        X(3,*),GAP,GAP_S(*),GAP_M(*),V(3,*),STFS(*), STFM(*),
      .        GAP_S_L(*),GAP_M_L(*),CAND_FX(*),CAND_FY(*),CAND_FZ(*)
       my_real , INTENT(IN) :: DGAPLOAD,DRAD
+      INTEGER,INTENT(INOUT) :: LSKYI_SMS_NEW
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
 #include      "com01_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "couple_c.inc"
 #include      "parit_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I , L, NN1, NN2
       my_real
-     .        XI,X1,X2,X3,X4,YI,Y1,Y2,Y3,Y4,ZI,Z1,Z2,Z3,Z4,
+     .        X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,
      .        XMINS,XMAXS,YMINS,YMAXS,ZMINS,ZMAXS,
      .        XMINM,XMAXM,YMINM,YMAXM,ZMINM,ZMAXM,
-     .        V12,V22,V32,V42,VV,GAPVD
+     .        GAPVD
       INTEGER MSEG,CT
       my_real
-     .        GAPV(MVSIZ),DTTI(MVSIZ)
+     .        GAPV(MVSIZ)
       INTEGER LIST(MVSIZ), LISTI(MVSIZ)
       INTEGER IS,JS,LS,NLS,NLT,NSEG,NLF,II,NLS2
       INTEGER N1(MVSIZ),N2(MVSIZ),M1(MVSIZ),M2(MVSIZ)
@@ -96,7 +92,7 @@ C-----------------------------------------------
       DO SG = FIRST,LAST,MSEG
        NSEG = MIN(MSEG,LAST-JS)
        NLS=0
-       IF(NSPMD.GT.1) THEN
+       IF(NSPMD>1) THEN
 C
 C Partage cand_n local / frontiere
 C
@@ -104,7 +100,7 @@ C
          NLS2 = NSEG+1
          DO IS = 1, NSEG
            I=JS+IS
-           IF(CAND_S(I).LE.NRTS)THEN
+           IF(CAND_S(I)<=NRTS)THEN
              NLS=NLS+1
              LISTI(NLS)=IS
            ELSE
@@ -112,7 +108,7 @@ C
              LISTI(NLS2) = IS
            ENDIF
          ENDDO
-         IF(IGAP.EQ.0)THEN
+         IF(IGAP==0)THEN
            DO LS = 1, NLS
              IS = LISTI(LS)
              GAPV(IS)=GAP
@@ -130,7 +126,7 @@ C
          ENDIF
        ELSE
          NLS = NSEG
-         IF(IGAP.EQ.0)THEN
+         IF(IGAP==0)THEN
           DO IS=1,NSEG
             GAPV(IS)=GAP
             LISTI(IS)=IS
@@ -151,18 +147,17 @@ C
        NLF = 1
        NLT = NLS
        NLS=0
-#include      "vectorize.inc"
        DO LS = NLF, NLT
          IS = LISTI(LS)
          I=JS+IS
          L  = CAND_S(I)
-         IF (STFS(L).NE.ZERO) THEN
+         IF (STFS(L)/=ZERO) THEN
            N1(IS)=IRECTS(1,L)
            Z1=X(3,N1(IS))
            N2(IS)=IRECTS(2,L)
            Z2=X(3,N2(IS))
            L  = CAND_M(I)
-           IF (STFM(L).NE.ZERO) THEN
+           IF (STFM(L)/=ZERO) THEN
 
             M1(IS)=IRECTM(1,L)
             Z3=X(3,M1(IS))
@@ -173,7 +168,7 @@ C
             ZMAXS = MAX(Z1,Z2)+GAPVD
             ZMINM = MIN(Z3,Z4)-GAPVD
             ZMAXM = MAX(Z3,Z4)+GAPVD
-            IF (ZMAXS.GE.ZMINM.AND.ZMAXM.GE.ZMINS) THEN
+            IF (ZMAXS>=ZMINM.AND.ZMAXM>=ZMINS) THEN
              NLS=NLS+1
              LIST(NLS)=IS
             ENDIF
@@ -183,7 +178,6 @@ C
 C
        NLT=NLS
        NLS=0
-#include      "vectorize.inc"
        DO LS=NLF,NLT
           IS=LIST(LS)
           I=JS+IS
@@ -202,13 +196,12 @@ C
           YMAXS = MAX(Y1,Y2)+GAPVD
           YMINM = MIN(Y3,Y4)-GAPVD
           YMAXM = MAX(Y3,Y4)+GAPVD
-          IF (YMAXS.GE.YMINM.AND.YMAXM.GE.YMINS) THEN
+          IF (YMAXS>=YMINM.AND.YMAXM>=YMINS) THEN
             NLS=NLS+1
             LIST(NLS)=IS
           ENDIF
        ENDDO
 C
-#include      "vectorize.inc"
        DO LS=NLF,NLS
           IS=LIST(LS)
           I=JS+IS
@@ -227,16 +220,16 @@ C
           XMAXS = MAX(X1,X2)+GAPVD
           XMINM = MIN(X3,X4)-GAPVD
           XMAXM = MAX(X3,X4)+GAPVD
-          IF (XMAXS.GE.XMINM.AND.XMAXM.GE.XMINS) THEN
+          IF (XMAXS>=XMINM.AND.XMAXM>=XMINS) THEN
             CAND_S(I) = -CAND_S(I)
             COUNT_CAND = COUNT_CAND+1
           ENDIF
        ENDDO
 C
-       IF(NSPMD.GT.1)THEN
+       IF(NSPMD>1)THEN
          NLF = NLS2
          NLT = NSEG
-         IF(IGAP.EQ.0)THEN
+         IF(IGAP==0)THEN
           DO LS=NLF, NLT
             IS = LISTI(LS)
             GAPV(IS)=GAP
@@ -255,19 +248,18 @@ C
          ENDIF
 C
          NLS=0
-#include      "vectorize.inc"
          DO LS = NLF, NLT
-Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
+C   keep LISTI and LIST to optimize generated code (IA64)
           IS = LISTI(LS)
           I=JS+IS
           II = CAND_S(I)-NRTS
-          IF (STIFI(NIN)%P(II).NE.ZERO) THEN
+          IF (STIFI(NIN)%P(II)/=ZERO) THEN
            NN1 = 2*(II-1)+1
            NN2 = 2*II
            Z1=XFI(NIN)%P(3,NN1)
            Z2=XFI(NIN)%P(3,NN2)
            L  = CAND_M(I)
-           IF (STFM(L).NE.ZERO) THEN
+           IF (STFM(L)/=ZERO) THEN
             M1(IS)=IRECTM(1,L)
             Z3=X(3,M1(IS))
             M2(IS)=IRECTM(2,L)
@@ -277,7 +269,7 @@ Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
             ZMAXS = MAX(Z1,Z2)+GAPVD
             ZMINM = MIN(Z3,Z4)-GAPVD
             ZMAXM = MAX(Z3,Z4)+GAPVD
-            IF (ZMAXS.GE.ZMINM.AND.ZMAXM.GE.ZMINS) THEN
+            IF (ZMAXS>=ZMINM.AND.ZMAXM>=ZMINS) THEN
              NLS=NLS+1
              LIST(NLS)=IS
             ENDIF
@@ -288,7 +280,6 @@ C
         NLF=1
         NLT=NLS
         NLS=0
-#include      "vectorize.inc"
         DO LS=NLF,NLT
           IS=LIST(LS)
           I=JS+IS
@@ -307,13 +298,12 @@ C
           YMAXS = MAX(Y1,Y2)+GAPVD
           YMINM = MIN(Y3,Y4)-GAPVD
           YMAXM = MAX(Y3,Y4)+GAPVD
-          IF (YMAXS.GE.YMINM.AND.YMAXM.GE.YMINS) THEN
+          IF (YMAXS>=YMINM.AND.YMAXM>=YMINS) THEN
             NLS=NLS+1
             LIST(NLS)=IS
           ENDIF
         ENDDO
 C
-#include      "vectorize.inc"
         DO LS=NLF,NLS
           IS=LIST(LS)
           I=JS+IS
@@ -332,7 +322,7 @@ C
           XMAXS = MAX(X1,X2)+GAPVD
           XMINM = MIN(X3,X4)-GAPVD
           XMAXM = MAX(X3,X4)+GAPVD
-          IF (XMAXS.GE.XMINM.AND.XMAXM.GE.XMINS) THEN
+          IF (XMAXS>=XMINM.AND.XMAXM>=XMINS) THEN
             CAND_S(I) = -CAND_S(I)
             COUNT_CAND = COUNT_CAND+1
             CT = CT+1
@@ -356,6 +346,7 @@ C
 #include "lockon.inc"
       LSKYI_COUNT=LSKYI_COUNT+COUNT_CAND*5
       COUNT_REMSLV(NIN)=COUNT_REMSLV(NIN)+CT
+      LSKYI_SMS_NEW = LSKYI_SMS_NEW + COUNT_CAND
 #include "lockoff.inc"
 
 C

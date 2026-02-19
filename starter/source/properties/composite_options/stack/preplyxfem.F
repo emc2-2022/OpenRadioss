@@ -1,56 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PREPLYXFEM                    source/properties/composite_options/stack/preplyxfem.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    preplyxfem    ../starter/source/properties/composite_options/stack/preplyxfem.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PREPLYXFEM(
      1      MS_PLY0,ZI_PLY0,IEL, INOD , IXC ,MS_PLY,ZI_PLY,ADDCNE ,
      2      MSZ20,MSZ2)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr12_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr15_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "scr23_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -62,12 +50,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,K,N1,J,N
+      INTEGER I,II,K,J,N
       my_real
      .  MSZ
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -82,7 +67,7 @@ C-----------------------------------------------
               DO J=1,NPLYMAX
                  MS_PLY(II,J) = MS_PLY0(I,J)
                  ZI_PLY(II,J) = ZI_PLY0(I,J)
-Celementary compute
+C  ementary compute
 cc                 MSZ2(II) = MSZ20(I)  
 c nodale compute                 
                  MSZ2(II) = MSZ2(II) + 
@@ -107,42 +92,31 @@ C
 C          
           RETURN
           END
-Chd|====================================================================
-Chd|  FILLCNE_PXFEM                 source/properties/composite_options/stack/preplyxfem.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|====================================================================
+!||====================================================================
+!||    fillcne_pxfem   ../starter/source/properties/composite_options/stack/preplyxfem.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE FILLCNE_PXFEM(
      1   IEL , INOD, IXC,CEP, ADDCNE, CNE,CEL   )
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXC(NIXC,*),ADDCNE(0:*), CNE(*),IEL(*),INOD(*),
      .        CEP(*),CEL(*)
-c      my_real 
-c     .        GEO(NPROPG,*)
-C-----------------------------------------------
-C   F u n c t i o n
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -152,15 +126,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-C-----------------------------------------------
-C   CALCUL DE CNE ADDCNE 
+C   CALCULATION OF CNE ADDCNE
 C-----------------------------------------------
       DO I = 0, NPLYXFE + 1
         ADSKY(I) = ADDCNE(I)
       ENDDO
 C
 C
-C tri des elements locaux suivants num user
+C sorting the following local elements Num User
 C
       DO I = 1, NUMELC
         ITRI(I) = IXC(7,I)

@@ -1,58 +1,65 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DOMETIS                       source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        C_IDDCONNECT                  source/spmd/node/ddtools.F    
-Chd|        DD_BFS                        source/spmd/domain_decomposition/grid2mat.F
-Chd|        FIND_NODES                    source/spmd/domain_decomposition/grid2mat.F
-Chd|        FVBAG_VERTEX                  source/spmd/domain_decomposition/grid2mat.F
-Chd|        IDDCONNECTPLUS                source/spmd/node/frontplus.F  
-Chd|        INITWG                        source/spmd/domain_decomposition/initwg.F
-Chd|        INI_IDDCONNECT                source/spmd/node/ddtools.F    
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        PLIST_BFS                     source/spmd/node/ddtools.F    
-Chd|        PLIST_IDDCONNECT              source/spmd/node/ddtools.F    
-Chd|        STAT_DOMDEC                   source/spmd/domain_decomposition/grid2mat.F
-Chd|        CLUSTER_MOD                   share/modules1/cluster_mod.F  
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        FVMBAG_MESHCONTROL_MOD        ../common_source/modules/fvmbag_meshcontrol_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MID_PID_MOD                   share/modules1/mid_pid_mod.F  
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        REORDER_MOD                   share/modules1/reorder_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dometis                         ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    lectur                          ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                          ../starter/source/output/message/message.F
+!||    c_enforce_constraints           ../starter/source/spmd/domain_decomposition/c_domain_decomposition.cpp
+!||    c_enforce_constraints_rbody     ../starter/source/spmd/domain_decomposition/c_domain_decomposition_rbody.cpp
+!||    c_iddconnect                    ../starter/source/spmd/node/ddtools.F
+!||    c_prevent_decomposition_rbody   ../starter/source/spmd/domain_decomposition/c_domain_decomposition_rbody.cpp
+!||    consider_edge                   ../starter/source/spmd/domain_decomposition/consider_edge.F
+!||    dd_bfs                          ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||    find_nodes                      ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||    fvbag_vertex                    ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||    iddconnectplus                  ../starter/source/spmd/node/frontplus.F
+!||    ini_iddconnect                  ../starter/source/spmd/node/ddtools.F
+!||    initwg                          ../starter/source/spmd/domain_decomposition/initwg.F
+!||    plist_bfs                       ../starter/source/spmd/node/ddtools.F
+!||    plist_iddconnect                ../starter/source/spmd/node/ddtools.F
+!||    sort_descending                 ../starter/source/spmd/domain_decomposition/consider_edge.F
+!||    stat_domdec                     ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod                     ../starter/share/modules1/cluster_mod.F
+!||    consider_edge_mod               ../starter/source/spmd/domain_decomposition/consider_edge.F
+!||    format_mod                      ../starter/share/modules1/format_mod.F90
+!||    front_mod                       ../starter/share/modules1/front_mod.F
+!||    inter_cand_mod                  ../starter/share/modules1/inter_cand_mod.F
+!||    message_mod                     ../starter/share/message_module/message_mod.F
+!||    metis_mod                       ../starter/source/spmd/domain_decomposition/metis_mod.F90
+!||    mid_pid_mod                     ../starter/share/modules1/mid_pid_mod.F
+!||    monvol_struct_mod               ../starter/share/modules1/monvol_struct_mod.F
+!||    r2r_mod                         ../starter/share/modules1/r2r_mod.F
+!||    reorder_mod                     ../starter/share/modules1/reorder_mod.F
+!||====================================================================
       SUBROUTINE DOMETIS(
      1  IXS    ,IXQ    ,IXC    ,IXT     ,IXP     ,
-     2  IXR    ,IXUR   ,IXTG   ,CEP     ,GEO     ,
+     2  IXR    ,IXTG   ,CEP     ,GEO     ,
      3  ITRI1  ,ITRI2  ,INDEX1 ,INDEX2  ,NUM     ,
      4  WD     ,IWCONT ,NELEM  ,IDDLEVEL,NELEMINT,
-     5  IXINT  ,PM     ,X      ,KXX     ,IXX     ,
+     5  INTER_CAND,PM     ,X      ,KXX     ,IXX     ,
      6  ADSKY  ,IGEO   ,ISOLNOD,IWCIN2  ,DSDOF   ,
      7  ISOLOFF,ISHEOFF,ITRIOFF,ITRUOFF ,IPOUOFF ,
      8  IRESOFF,IELEM21,IPM    ,IXS10   ,IKINE   , 
@@ -62,12 +69,15 @@ Chd|====================================================================
      3  NSNT, NMNT,TABMP_L,IQUAOFF,
      4  IGRSURF,FVMAIN,
      5  ITAB  ,IPART  ,IPARTC  ,IPARTG ,IPARTS  ,
+     6  IPARTT, IPARTP  ,IPARTR   ,IPARTX   ,
      6  POIN_PART_SHELL,POIN_PART_TRI,POIN_PART_SOL,
      7  MID_PID_SHELL,MID_PID_TRI,MID_PID_SOL,T_MONVOL,
-     8  EBCS_TAG_CELL_SPMD,NPBY,LPBY)
+     8  EBCS_TAG_CELL_SPMD,NPBY,LPBY,MAT_PARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE METIS_MOD
+      USE CONSIDER_EDGE_MOD , ONLY : CONSIDER_EDGE, MAX_NB_NODES_PER_ELT, SORT_DESCENDING
       USE MESSAGE_MOD
       USE R2R_MOD
       USE CLUSTER_MOD
@@ -77,16 +87,14 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE MID_PID_MOD
       USE MONVOL_STRUCT_MOD
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
+      USE INTER_CAND_MOD
+      USE MATPARAM_DEF_MOD
+      USE FORMAT_MOD , ONLY : FMW_A_I
+      use element_mod , only : nixs,nixq,nixc,nixp,nixt,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -94,7 +102,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr12_c.inc"
-#include      "rnur_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
 #include      "scr15_c.inc"
@@ -109,31 +116,29 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXS(NIXS,*), IXQ(NIXQ,*), IXC(NIXC,*), IXT(NIXT,*),
-     .        IXP(NIXP,*), IXR(NIXR,*), IXUR(NIXUR,*), IXTG(NIXTG,*),
+     .        IXP(NIXP,*), IXR(NIXR,*), IXTG(NIXTG,*),
      .        CEP(*), ITRI1(*), ITRI2(*), INDEX1(*),INDEX2(*),
-     .        NUM(*), NELEM,IDDLEVEL, NELEMINT, IXINT(6,*),
-     .        KXX(NIXX,NUMELX),IXX(*), ADSKY(0:*),IGEO(NPROPGI,*),
+     .        NUM(*), NELEM,IDDLEVEL, NELEMINT,
+     .        KXX(NIXX,NUMELX),IXX(*), ADSKY(0:*),IGEO(NPROPGI,NUMGEO),
      .        ISOLNOD(*), IWCONT(5,*), IWCIN2(2,*), DSDOF(*),
      .        ISOLOFF(*), ISHEOFF(*), ITRIOFF(*), IKINE(*),
      .        ITRUOFF(*), IPOUOFF(*), IRESOFF(*), IELEM21(*),
-     .        IPM(NPROPMI,*),IXS10(6,*),KXIG3D(NIXIG3D,NUMELIG3D),
+     .        IPM(NPROPMI,NUMMAT),IXS10(6,*),KXIG3D(NIXIG3D,NUMELIG3D),
      .        IQUAOFF(*),
      .        IXIG3D(*),NSNT, NMNT,TABMP_L,
      .        FVMAIN(NVOLU)
       INTEGER :: ITAB(*)
       INTEGER, DIMENSION(LIPART1,*), INTENT(IN) :: IPART
       INTEGER, DIMENSION(*), INTENT(IN) :: IPARTC,IPARTG,IPARTS
+      INTEGER, DIMENSION(*), INTENT(IN) :: IPARTT,IPARTP,IPARTR,IPARTX
       TYPE (CLUSTER_) ,DIMENSION(*) :: CLUSTERS
-      my_real 
-     .        GEO(NPROPG,*),  PM(NPROPM,*), X(3,*), COST_R2R,
-     .        BUFMAT(*)
+      my_real GEO(NPROPG,NUMGEO),  PM(NPROPM,NUMMAT), X(3,*), COST_R2R,BUFMAT(*)
       REAL    WD(*)
       INTEGER TAILLE
       INTEGER, DIMENSION(NUMMAT_OLD) :: POIN_UMP_OLD
       INTEGER, DIMENSION(7,TAILLE_OLD) :: TAB_UMP_OLD
       INTEGER, DIMENSION(NUMMAT) :: POIN_UMP
       INTEGER, DIMENSION(7,TAILLE) :: TAB_UMP
-C     REAL OU REAL*8
       my_real, DIMENSION(TAILLE_OLD) :: CPUTIME_MP_OLD
       INTEGER, DIMENSION(2,NPART), INTENT(IN) :: POIN_PART_SHELL,POIN_PART_TRI
       INTEGER, DIMENSION(2,NPART,7), INTENT(IN) :: POIN_PART_SOL
@@ -144,6 +149,8 @@ C     REAL OU REAL*8
       INTEGER,INTENT(IN) :: EBCS_TAG_CELL_SPMD(NUMELQ+NUMELTG+NUMELS)
       INTEGER, DIMENSION(NNPBY,*), INTENT(in) :: NPBY
       INTEGER, DIMENSION(*), INTENT(in) :: LPBY
+      TYPE(INTER_CAND_), INTENT(in) :: INTER_CAND
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT), INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -157,22 +164,25 @@ C-----------------------------------------------
      .        WORK(70000), NUML, IERROR,
      .        ELEMD, IMMNUL, NEDDEL, ITYPINT, IWARN1,
      .        MAXI, MAXJ, MAX, I1, I2, I3, N1, N2, NUMG3, NUMG4,
-     .        NELX,ADDX,MID,JALE,MLN,NSHIFT,NNODE, NN,
+     .        NELX,ADDX,MID,PID,JALE,MLN,NSHIFT,NNODE, NN,
      .        OPTIONS(40),NCOND,NFLAG,IWFLG,NODC,ICUR,IERR1,NEC,
      .        INWDCOUNT,ICCAND,ICNOD_SMS,ISOLBAR, ICKIN, NK, NKI,
      .        ICELEM, ICINTS, ICINTM, ICINT2, ICDDL, ICFSI, ICDEL, ICSOL,
-     .        IWKIN(NUMNOD),ICR2R,NUMEL_R2R, CEPCLUSTER,
+     .        ICR2R,NUMEL_R2R, CEPCLUSTER,
      .        NCONNX, CURR, PREV, NEXT, I1OLD, I2OLD, INC, IDB_METIS,
      .        NELIG3D,NCOND2,LSMS,  
      .        OFFC,OFFTG,K0,ITYP,                     
-     .        NN_L,IS,IAD,ITY,KAD
+     .        NN_L,IS,IAD,ITY,KAD,JALE_FROM_MAT, JALE_FROM_PROP
       INTEGER, DIMENSION(:),ALLOCATABLE :: XADJ, ADJNCY,IWD,IWD2, 
      .        IENDT,ITRI,INDEX,DOMCLUSTER,ELEMCLUST,
      .        XADJ_OLD, ADJNCY_OLD, COLORS, ROOTS,
-     .        POINTER_NEIB,CONNECT_WEIGHT,TAGELEM,CNE,
+     .        POINTER_NEIGH,CONNECT_WEIGHT,TAGELEM,CNE,
      .        IWD_COPY
+      INTEGER, DIMENSION(:), ALLOCATABLE :: IWKIN ! NUMNOD
       INTEGER TAILLE_LOCAL,PREV_NEIGH,C_NEIGH,POINT_DELETE,
-     .        ELEMNODES(20),OFFELEM(10),WGHT 
+     .        ELEMNODES(MAX_NB_NODES_PER_ELT),OFFELEM(10),WGHT 
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: CONNECTIVITY
+      INTEGER, DIMENSION(:), ALLOCATABLE :: NB_NODES_MINI 
       REAL, DIMENSION(:),ALLOCATABLE :: RWD,WD_COPY
       CHARACTER FILNAM*109, KEYA*80, CHLEVEL*1
       REAL    FAC, UBVEC(15), SCAL
@@ -184,9 +194,8 @@ C-----------------------------------------------
       DOUBLE PRECISION :: WS, WD_MAX,WD_MAX0
 C metis5 null pointers
 
-      INTEGER METIS_PartGraphKway, METIS_PartGraphRecursive,
-     .        METIS_SetDefaultOptions,Wrap_METIS_PartGraphKway,
-     .        WRAP_METIS_PARTGRAPHRECURSIVE
+      INTEGER 
+     .        METIS_SetDefaultOptions
       INTEGER NNO,NNS,NTG,NNI,NTGT,NTGI
       INTEGER NELMIN
       INTEGER NFVMBAG,NB_FVMBAG_TRIM,DD_FVMBAG_TRY
@@ -207,7 +216,7 @@ C metis5 null pointers
       INTEGER :: CEP_MIN
       INTEGER :: C1,C2
       INTEGER :: OFFSET
-
+      integer, dimension(:), allocatable :: part_id
 
 C ---- statistics for edges added for contact interface
         INTEGER :: number_of_added_edges
@@ -227,12 +236,12 @@ C ---- statistics for edges added for contact interface
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      EXTERNAL METIS_PartGraphKway, METIS_PartGraphRecursive,
-     .         METIS_SetDefaultOptions,Wrap_METIS_PartGraphKway,
-     .         WRAP_METIS_PARTGRAPHRECURSIVE
+      EXTERNAL
+     .         METIS_SetDefaultOptions
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
+      ALLOCATE(IWKIN(NUMNOD))
       number_of_added_edges = 0
       refused_numg = 0
       refused_numg0 = 0
@@ -251,12 +260,12 @@ C-----------------------------------------------
       NNODE = NSPMD
 
 C----------------------------------
-C comptage NEDGE global
+C global NEDGE counting
 C----------------------------------
       DO I=1,NUMNOD+1
         ADSKY(I) = 0
       END DO
-C.....memoire necessaire
+C.....necessary memory
       DO 110 K=2,9
         DO 110 I=1,NUMELS
           N = IXS(K,I) + 1
@@ -264,7 +273,7 @@ C.....memoire necessaire
  110  CONTINUE
  
 C add Tetra10
-      IF(NUMELS10.GT.0) THEN
+      IF(NUMELS10>0) THEN
         DO J=1,NUMELS10
           DO K=1,6
             N = IXS10(K,J) + 1
@@ -297,7 +306,7 @@ C
           ADSKY(N) = ADSKY(N) + 1
  150  CONTINUE
 C
-Cel traitement a part du 3eme noeud optionnel sauf type 12
+C   separate treatment of optional 3rd node except type 12
       DO K=2,3
         DO I=1,NUMELR
           N = IXR(K,I) + 1
@@ -306,7 +315,7 @@ Cel traitement a part du 3eme noeud optionnel sauf type 12
       ENDDO
       DO I=1,NUMELR
         N = IXR(4,I) + 1
-        IF(NINT(GEO(12,IXR(1,I))).EQ.12) THEN
+        IF(NINT(GEO(12,IXR(1,I)))==12) THEN
           ADSKY(N) = ADSKY(N) + 1
         ENDIF
       ENDDO
@@ -317,13 +326,6 @@ C
           ADSKY(N) = ADSKY(N) + 1
  170  CONTINUE
 
-C
-      DO K=2,5
-        DO I=1,NUMELUR
-          N = IXUR(K,I) + 1
-          ADSKY(N) = ADSKY(N) + 1
-        ENDDO
-      ENDDO
 C
 C Elements Multibrins
       DO I=1,NUMELX
@@ -353,15 +355,15 @@ C
       LCNE = ADSKY(NUMNOD+1)
       ALLOCATE(CNE(LCNE),STAT=IERR1)
 C
-      IF(IERR1.NE.0)THEN
+      IF(IERR1/=0)THEN
         CALL ANCMSG(MSGID=268,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                         C1='DOMDEC')
       END IF
 C
 C-----------------------------------------------
-C Optimisation sur elements deletes du _0001.rad
+C Optimization on deleted elements from _0001.rad
 C-----------------------------------------------
-C poids sous forme reel pour compatibilite RSB ancienne
+C weights in real format for old RSB compatibility
       DO I = 1, NELEM
         WD(I) = 0.
       ENDDO
@@ -370,31 +372,31 @@ C poids sous forme reel pour compatibilite RSB ancienne
       OPEN(UNIT=71,FILE=FILNAM(1:ROOTLEN+9),
      .   ACCESS='SEQUENTIAL',STATUS='OLD',IOSTAT=IO_ERR1)
 C
-      IF (IO_ERR1.NE.0) THEN
+      IF (IO_ERR1/=0) THEN
          FILNAM=ROOTNAM(1:ROOTLEN)//'D01'
          OPEN(UNIT=71,FILE=FILNAM(1:ROOTLEN+3),
      .      ACCESS='SEQUENTIAL',STATUS='OLD',IOSTAT=IO_ERR1)
       ENDIF
 C
-      IF (IO_ERR1.EQ.0) THEN
+      IF (IO_ERR1==0) THEN
          OPEN(UNIT=72,FORM='FORMATTED',STATUS='SCRATCH')
          ELEMD = 0
  10      READ(71,'(A)',END=20) KEYA
  11      CONTINUE
-           IF(KEYA(1:12).EQ.'/DEL/SHELL/1') THEN
+           IF(KEYA(1:12)=='/DEL/SHELL/1') THEN
  30          READ(71,'(A)',END=20) KEYA
-             IF(KEYA(1:1).EQ.'#')GOTO 30
-             IF(KEYA(1:1).EQ.'$')GOTO 30
-               IF(KEYA(1:1).EQ.'/')GOTO 11
-Cel ko sur cray               READ(KEYA,*,END=20)ISH1,ISH2
+             IF(KEYA(1:1)=='#')GOTO 30
+             IF(KEYA(1:1)=='$')GOTO 30
+               IF(KEYA(1:1)=='/')GOTO 11
+C   ko sur cray               READ(KEYA,*,END=20)ISH1,ISH2
              REWIND(72)
              WRITE(72,'(A)')KEYA
              REWIND(72)
              READ(72,*,END=20)ISH1,ISH2
              DO I = 1, NUMELC
-               IF(IXC(NIXC,I).GE.ISH1.AND.IXC(NIXC,I).LE.ISH2) THEN
+               IF(IXC(NIXC,I)>=ISH1.AND.IXC(NIXC,I)<=ISH2) THEN
                  DO J = ISH1, ISH2
-                   IF(IXC(NIXC,I).EQ.J) THEN
+                   IF(IXC(NIXC,I)==J) THEN
                      WD(I+NUMELS+NUMELQ) = 0.0001
                      ELEMD = ELEMD + 1
                      GOTO 35
@@ -404,20 +406,20 @@ Cel ko sur cray               READ(KEYA,*,END=20)ISH1,ISH2
  35            CONTINUE
              ENDDO
              GOTO 30
-           ELSEIF(KEYA(1:12).EQ.'/DEL/BRICK/1') THEN
+           ELSEIF(KEYA(1:12)=='/DEL/BRICK/1') THEN
  60          READ(71,'(A)',END=20) KEYA
-             IF(KEYA(1:1).EQ.'#')GOTO 60
-             IF(KEYA(1:1).EQ.'$')GOTO 60
-             IF(KEYA(1:1).EQ.'/')GOTO 11
-Cel ko sur cray               READ(KEYA,*,END=20)ISH1,ISH2
+             IF(KEYA(1:1)=='#')GOTO 60
+             IF(KEYA(1:1)=='$')GOTO 60
+             IF(KEYA(1:1)=='/')GOTO 11
+C   ko sur cray               READ(KEYA,*,END=20)ISH1,ISH2
              REWIND(72)
              WRITE(72,'(A)')KEYA
              REWIND(72)
              READ(72,*,END=20)ISH1,ISH2
              DO I = 1, NUMELS
-               IF(IXS(NIXS,I).GE.ISH1.AND.IXS(NIXS,I).LE.ISH2) THEN
+               IF(IXS(NIXS,I)>=ISH1.AND.IXS(NIXS,I)<=ISH2) THEN
                  DO J = ISH1, ISH2
-                   IF(IXS(NIXS,I).EQ.J) THEN
+                   IF(IXS(NIXS,I)==J) THEN
                      WD(I) = 0.0001
                      ELEMD = ELEMD + 1
                      GOTO 65
@@ -428,21 +430,21 @@ Cel ko sur cray               READ(KEYA,*,END=20)ISH1,ISH2
              ENDDO
              GOTO 60
 C
-           ELSEIF(KEYA(1:12).EQ.'/DEL/SH_3N/1') THEN
+           ELSEIF(KEYA(1:12)=='/DEL/SH_3N/1') THEN
  90          READ(71,'(A)',END=20) KEYA
-             IF(KEYA(1:1).EQ.'#')GOTO 90
-             IF(KEYA(1:1).EQ.'$')GOTO 90
-             IF(KEYA(1:1).EQ.'/')GOTO 11
-Cel ko sur cray               READ(KEYA,*,END=20)ISH1,ISH2
+             IF(KEYA(1:1)=='#')GOTO 90
+             IF(KEYA(1:1)=='$')GOTO 90
+             IF(KEYA(1:1)=='/')GOTO 11
+C   ko sur cray               READ(KEYA,*,END=20)ISH1,ISH2
              REWIND(72)
              WRITE(72,'(A)')KEYA
              REWIND(72)
              READ(72,*,END=20)ISH1,ISH2
              DO I = 1, NUMELTG
-               IF(IXTG(NIXTG,I).GE.ISH1
-     .            .AND.IXTG(NIXTG,I).LE.ISH2) THEN
+               IF(IXTG(NIXTG,I)>=ISH1
+     .            .AND.IXTG(NIXTG,I)<=ISH2) THEN
                  DO J = ISH1, ISH2
-                   IF(IXTG(NIXTG,I).EQ.J) THEN
+                   IF(IXTG(NIXTG,I)==J) THEN
                      WD(I+NUMELS+NUMELQ+NUMELC+NUMELT
      .                   +NUMELP+NUMELR) = 0.0001
                      ELEMD = ELEMD + 1
@@ -458,16 +460,16 @@ Cel ko sur cray               READ(KEYA,*,END=20)ISH1,ISH2
  20      CONTINUE
          CLOSE(71)
          CLOSE(72)
-C msg sur D01 lu (delete optimise)
-         IF(IDDLEVEL.EQ.0) THEN
+C message on D01 read (delete optimized)
+         IF(IDDLEVEL==0) THEN
             WRITE(IOUT,*)' '
             WRITE(IOUT,'(A)')
      .   ' SPMD IS CHECKING FOR ELEMENT DELETION IN : ',' '//FILNAM
          ENDIF
 C
       ELSE
-C msg sur D01 non lu (delete non optimise)
-         IF(IDDLEVEL.EQ.0) THEN
+C message on D01 not read (delete not optimized)
+         IF(IDDLEVEL==0) THEN
             WRITE(IOUT,*)' '
             WRITE(IOUT,'(A)')
      .   ' SPMD IS NOT ABLE TO CHECK FOR ELEMENT DELETION IN'//
@@ -476,80 +478,83 @@ C msg sur D01 non lu (delete non optimise)
       ENDIF
 
 C-----------------------------------------------
-C Optimisation sur RBYON du _0000.rad
+C Optimization on RBYON from _0000.rad
 C-----------------------------------------------
       ELEMD_OLD = ELEMD
       ISOLBAR=0
       DO II = 1, NUMELS
-        IF((ISOLOFF(II).EQ.1.OR.ISOLOFF(II).EQ.3).AND.
-     *      WD(II).NE.0.0001)THEN
+        IF((ISOLOFF(II)==1.OR.ISOLOFF(II)==3).AND.
+     *      WD(II)/=0.0001)THEN
           WD(II) = 0.0001
           ELEMD = ELEMD + 1
         END IF
 C additional test for barrier
         MID = ABS(IXS(1,II))
-        JALE = NINT(PM(72,MID))
+        PID = ABS(IXS(10,II))
+        JALE_FROM_MAT = NINT(PM(72,MID)) !old way to enable ALE/EULER framework (backward compatibility)
+        JALE_FROM_PROP = IGEO(62,PID)    !new way to enable ALE/EULER framework
+        JALE = MAX(JALE_FROM_MAT, JALE_FROM_PROP) !if inconsistent, error message was displayed in PART reader
         MLN = NINT(PM(19,MID))
-        IF(JALE.EQ.0.AND.(MLN.EQ.28.OR.MLN.EQ.68))THEN
+        IF(JALE==0.AND.(MLN==28.OR.MLN==68))THEN
           ISOLBAR=ISOLBAR+1
         ENDIF
       END DO
 C
       DO II = 1, NUMELQ
-        IF((IQUAOFF(II).EQ.1.OR.IQUAOFF(II).EQ.3).AND.
-     *      WD(II+NUMELS).NE.0.0001)THEN
+        IF((IQUAOFF(II)==1.OR.IQUAOFF(II)==3).AND.
+     *      WD(II+NUMELS)/=0.0001)THEN
           WD(II+NUMELS) = 0.0001
           ELEMD = ELEMD + 1
         END IF
       END DO
 C
       DO II = 1, NUMELC
-        IF((ISHEOFF(II).EQ.1.OR.ISHEOFF(II).EQ.3).AND.
-     *      WD(II+NUMELS+NUMELQ).NE.0.0001)THEN
+        IF((ISHEOFF(II)==1.OR.ISHEOFF(II)==3).AND.
+     *      WD(II+NUMELS+NUMELQ)/=0.0001)THEN
           WD(II+NUMELS+NUMELQ) = 0.0001
           ELEMD = ELEMD + 1
         END IF
       END DO
 C
       DO II = 1, NUMELT
-        IF((ITRUOFF(II).EQ.3 ).AND.
-     *      WD(II+NUMELS+NUMELQ+NUMELC).NE.0.0001 )THEN
+        IF((ITRUOFF(II)==3 ).AND.
+     *      WD(II+NUMELS+NUMELQ+NUMELC)/=0.0001 )THEN
           WD(II+NUMELS+NUMELQ+NUMELC) = 0.0001
           ELEMD = ELEMD + 1
         END IF
       END DO
 C
       DO II = 1, NUMELP
-        IF((IPOUOFF(II).EQ.3 ).AND.
-     *      WD(II+NUMELS+NUMELQ+NUMELC+NUMELT).NE.0.0001 )THEN
+        IF((IPOUOFF(II)==3 ).AND.
+     *      WD(II+NUMELS+NUMELQ+NUMELC+NUMELT)/=0.0001 )THEN
           WD(II+NUMELS+NUMELQ+NUMELC+NUMELT) = 0.0001
           ELEMD = ELEMD + 1
         END IF
       END DO
 C
       DO II = 1, NUMELR
-        IF((IRESOFF(II).EQ.3 ).AND.
-     *      WD(II+NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP).NE.0.0001 )THEN
+        IF((IRESOFF(II)==3 ).AND.
+     *      WD(II+NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP)/=0.0001 )THEN
           WD(II+NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP) = 0.0001
           ELEMD = ELEMD + 1
         END IF
       END DO
 C
       DO II = 1, NUMELTG
-        IF(ITRIOFF(II).EQ.1.AND.WD(II+NUMELS+NUMELQ+NUMELC+NUMELT
-     .                               +NUMELP+NUMELR).NE.0.0001)THEN
+        IF(ITRIOFF(II)==1.AND.WD(II+NUMELS+NUMELQ+NUMELC+NUMELT
+     .                               +NUMELP+NUMELR)/=0.0001)THEN
           WD(II+NUMELS+NUMELQ+NUMELC+NUMELT
      .         +NUMELP+NUMELR) = 0.0001
           ELEMD = ELEMD + 1
         END IF
       END DO
 C
-Cel test pour by-passer la creation du niveau "elem deletes" et eviter cas de plantage si elemd=1
+C   test to bypass creation of "deleted elem" level and avoid crash cases if elemd=1
 C
-      IF (NELEM .GT. 0) THEN
-       IF(FLOAT(NELEM-ELEMD)/FLOAT(NELEM).GT.ZEP95) ELEMD = 0
+      IF (NELEM > 0) THEN
+       IF(FLOAT(NELEM-ELEMD)/FLOAT(NELEM)>ZEP95) ELEMD = 0
       END IF
-      IF(IDDLEVEL.EQ.0.AND.ELEMD.GT.ELEMD_OLD) THEN
+      IF(IDDLEVEL==0.AND.ELEMD>ELEMD_OLD) THEN
             WRITE(IOUT,*)' '
             WRITE(IOUT,'(A)')
      .   ' DOMAIN DECOMPOSITION OPTIMIZED FOR ELEMENT DEACTIVATION'//
@@ -557,7 +562,7 @@ C
       ENDIF
 C
 C-----------------------------------------------
-      IF (IDDLEVEL.EQ.1) THEN        
+      IF (IDDLEVEL==1) THEN        
         WRITE(IOUT,'(A)')' '
         WRITE(IOUT,'(A)')
      .  ' --------------------------------------'
@@ -568,22 +573,22 @@ C-----------------------------------------------
       ENDIF
       WRITE(ISTDO,'(A)')' .. DOMAIN DECOMPOSITION'
       WRITE(IOUT,'(A)')' '
-      IF(DECTYP.EQ.3)THEN
+      IF(DECTYP==3)THEN
         WRITE(IOUT,'(A)')
      .  ' DOMAIN DECOMPOSITION USING MULTILEVEL KWAY'
-      ELSEIF(DECTYP.EQ.4)THEN
+      ELSEIF(DECTYP==4)THEN
         WRITE(IOUT,'(A)')
      .  ' DOMAIN DECOMPOSITION USING MULTILEVEL RSB'
-      ELSEIF(DECTYP.EQ.5)THEN
+      ELSEIF(DECTYP==5)THEN
         WRITE(IOUT,'(A)')
      .  ' DOMAIN DECOMPOSITION USING MULTILEVEL KWAY FOR IMPLICIT AND AMS'
-      ELSEIF(DECTYP.EQ.4)THEN
+      ELSEIF(DECTYP==4)THEN
         WRITE(IOUT,'(A)')
      .  ' DOMAIN DECOMPOSITION USING MULTILEVEL RSB FOR IMPLICIT'
       END IF
       WRITE(IOUT,'(A)')
      .  ' ------------------------------------------'
-      IF (IPARI0.EQ.1) THEN
+      IF (IPARI0==1) THEN
           WRITE(IOUT,'(A)')
      .    ' DOMAIN DECOMPOSITION OPTIMIZED FOR PARALLEL ARITHMETIC ON'
       ELSE
@@ -596,15 +601,18 @@ C-----------------------------------------------
      .  ' ADDITIONAL OPTIMIZATION OF DOMAIN DECOMPOSITION FOR AMS (DOMDEC=7)'
       END IF
 C-----------------------------------------------
-C   CALCUL DE CNE
+C   CNE CALCULATION
 C-----------------------------------------------
 C We have to tag elements for know theirs number of nodes
       ALLOCATE(TAGELEM(NELEM))
+      ALLOCATE(PART_ID(NELEM))
+      PART_ID = -1
       DO I = 1,NELEM
         TAGELEM(I)=0
       END DO 
       DO I=1,NUMELS
         TAGELEM(I)=1
+        PART_ID(I)=IPARTS(I)
         DO K=1,8
           N = IXS(K+1,I)
           IF(N /= 0) THEN
@@ -614,7 +622,7 @@ C We have to tag elements for know theirs number of nodes
         ENDDO 
       ENDDO
 C add Tetra10
-      IF(NUMELS10.GT.0) THEN
+      IF(NUMELS10>0) THEN
         DO J=1,NUMELS10
           TAGELEM(ABS(-(NUMELS8+J)))=2
           DO K=1,6
@@ -634,6 +642,7 @@ C
 C
       DO I = 1, NUMELQ
         TAGELEM(I+OFF)=3
+        !PART_ID(I+OFF)=IPARTQ(I)
         DO K=1,4
           N = IXQ(K+1,I)
           CNE(ADSKY(N)) = I+OFF
@@ -646,6 +655,7 @@ C
 C
       DO I = 1, NUMELC
         TAGELEM(I+OFF)=4
+        PART_ID(I+OFF) = IPARTC(I)
         DO K=1,4
           N = IXC(K+1,I)
           CNE(ADSKY(N)) = I+OFF
@@ -659,6 +669,7 @@ C
 C
       DO I = 1, NUMELT
         TAGELEM(I+OFF)=5
+        PART_ID(I+OFF)=IPARTT(I)
         DO K=1,2
           N = IXT(K+1,I)
           CNE(ADSKY(N)) = I+OFF
@@ -671,6 +682,7 @@ C
 C
       DO I = 1, NUMELP
         TAGELEM(I+OFF)=6
+        PART_ID(I+OFF) = IPARTP(I)
         DO K=1,2
           N = IXP(K+1,I)
           CNE(ADSKY(N)) = I+OFF
@@ -683,12 +695,13 @@ C
 C     
       DO I = 1, NUMELR
         TAGELEM(I+OFF)=7
+        PART_ID(I+OFF) = IPARTR(I)
         DO K=1,2
           N = IXR(K+1,I)
           CNE(ADSKY(N)) = I+OFF
           ADSKY(N) = ADSKY(N) + 1
         ENDDO
-        IF(NINT(GEO(12,IXR(1,I))).EQ.12) THEN
+        IF(NINT(GEO(12,IXR(1,I)))==12) THEN
           N = IXR(4,I)
           CNE(ADSKY(N)) = I+OFF
           ADSKY(N) = ADSKY(N) + 1
@@ -700,6 +713,7 @@ C
 C
       DO I = 1, NUMELTG
         TAGELEM(I+OFF)=8  
+        PART_ID(I+OFF) = IPARTG(I)
         DO K=1,3
           N = IXTG(K+1,I)
           CNE(ADSKY(N)) = I+OFF
@@ -709,21 +723,13 @@ C
 C
       OFFELEM(7)=NUMELTG
       OFF = OFF + NUMELTG
-C
-      DO I = 1, NUMELUR
-        TAGELEM(I+OFF)=9
-        DO K=1,4
-          N = IXUR(K+1,I)
-          CNE(ADSKY(N)) = I+OFF
-          ADSKY(N) = ADSKY(N) + 1
-        ENDDO
-      ENDDO
-C
-      OFFELEM(8)=NUMELUR
-      OFF = OFF + NUMELUR
+
+C     Old obsolete & removed element
+      OFFELEM(8) = 0
 C
       DO I=1, NUMELX
         TAGELEM(I+OFF)=10
+        PART_ID(I+OFF)=IPARTX(I)
         NELX=KXX(3,I)
         DO K=1,NELX
           ADDX = KXX(4,I)+K-1
@@ -750,13 +756,13 @@ C
       OFFELEM(10)=NUMELIG3D
       OFF = OFF + NUMELIG3D
 C
-C     remise au debut des adresses
+C     reset addresses to beginning
       DO I=NUMNOD+1,2,-1
         ADSKY(I) = ADSKY(I-1)
       END DO
 
       ADSKY(1) = 1
-Calcul des poids en prennant en compte le ratio connectivite
+C Weight calculation taking into account connectivity ratio
 
       ICELEM=1
       ICINTS=0
@@ -773,7 +779,7 @@ Calcul des poids en prennant en compte le ratio connectivite
       NCOND=1
 C
       DO I = 1, NELEMINT
-        ITYPINT=ABS(IXINT(6,I))
+        ITYPINT=ABS(INTER_CAND%IXINT(6,I))
         IF(ITYPINT == 2)THEN
           ICINT2 = ICINT2+1
         ELSEIF(ITYPINT == 7 .OR. ITYPINT == 11)THEN
@@ -794,41 +800,48 @@ C
         ICNOD_SMS=0
       END IF
 C 
-      IF((ICINTS+ICINTM>100) .AND.
-     +   (NELEM < ICINTS+ICINTM .OR.
-     +    FLOAT(NELEM-ICINTS-ICINTM)/FLOAT(NELEM).LE.ZEP95)) THEN
-        NCOND=NCOND+1
-        ICINTS=NCOND
-        NCOND=NCOND+1
-        ICINTM=NCOND
-      ELSE
-        IF(NSNT+NMNT>100) THEN
-         NCOND=NCOND+1
-         ICINTS=NCOND
-         NCOND=NCOND+1
-         ICINTM=NCOND
-        ELSE         
-         ICINTS=0           
-         ICINTM=0           
-        ENDIF
-      END IF
-      IF((ICINT2>100) .AND.
-     +   (NELEM < ICINT2 .OR.
-     +    FLOAT(NELEM-ICINT2)/FLOAT(NELEM).LE.ZEP98)) THEN
-        NCOND=NCOND+1
-        ICINT2=NCOND
-      ELSE
-        ICINT2=0
-      END IF
-C test bypass contact for small test cases
-      IF((ICCAND>100) .AND.
-     +   (NELEM < ICCAND .OR.
-     +    FLOAT(NELEM-ICCAND)/FLOAT(NELEM).LE.ZEP95)) THEN
-        NCOND=NCOND+1
-        ICCAND=NCOND
-      ELSE
-        ICCAND=0
-      END IF
+      IF(NELEM > 0) THEN
+        IF((ICINTS+ICINTM>100) .AND.
+     +     (NELEM < ICINTS+ICINTM .OR.
+     +      FLOAT(NELEM-ICINTS-ICINTM)/FLOAT(NELEM)<=ZEP95)) THEN
+          NCOND=NCOND+1
+          ICINTS=NCOND
+          NCOND=NCOND+1
+          ICINTM=NCOND
+        ELSE
+          IF(NSNT+NMNT>100) THEN
+           NCOND=NCOND+1
+           ICINTS=NCOND
+           NCOND=NCOND+1
+           ICINTM=NCOND
+          ELSE         
+           ICINTS=0           
+           ICINTM=0           
+          ENDIF
+        END IF
+        IF((ICINT2>100) .AND.
+     +     (NELEM < ICINT2 .OR.
+     +      FLOAT(NELEM-ICINT2)/FLOAT(NELEM)<=ZEP98)) THEN
+          NCOND=NCOND+1
+          ICINT2=NCOND
+        ELSE
+          ICINT2=0
+        END IF
+C test   bypass contact for small test cases
+        IF((ICCAND>100) .AND.
+     +     (NELEM < ICCAND .OR.
+     +      FLOAT(NELEM-ICCAND)/FLOAT(NELEM)<=ZEP95)) THEN
+          NCOND=NCOND+1
+          ICCAND=NCOND
+        ELSE
+          ICCAND=0
+        END IF
+      ELSE ! nelem = 0 (full sph)
+        ICINTS = 0
+        ICINTM = 0
+        ICINT2 = 0
+        ICCAND = 0
+      ENDIF
 C
       NK=0
 c      IF(NK > 0) THEN ! Test To bypass load-balancing of Kin.Cond. temporarily
@@ -846,33 +859,35 @@ c          NK = NK+NKI
           NK = NK+MIN(NKI,1)
         END DO
 c        print *,'n cond=',NK,FLOAT(NUMNOD-NK)/FLOAT(NUMNOD)
-        IF(FLOAT(NUMNOD-NK)/FLOAT(NUMNOD).GT.ZEP95) NK = 0   
+        IF(FLOAT(NUMNOD-NK)/FLOAT(NUMNOD)>ZEP95) NK = 0   
         IF(NK > 20000) THEN ! needs a sufficient number of kin.cond.
           NCOND = NCOND+1
           ICKIN = NCOND
         END IF
       END IF
 C      
-      IF(DECTYP.EQ.5.OR.DECTYP.EQ.6)THEN
-C permutation poids element <=> ddl
+      IF(DECTYP==5.OR.DECTYP==6)THEN
+C weight permutation element <=> dof
         NCOND = NCOND+1
         ICDDL=1
         ICELEM=NCOND
-        IF(ELEMD.GT.0) THEN
+        IF(ELEMD>0) THEN
           NCOND = NCOND+1
           ICDEL = NCOND
         END IF
 
       ELSE
-        IF(ILAG.EQ.1.AND.(IALE.EQ.1.OR.IEULER.EQ.1))THEN
+        IF(ILAG==1.AND.(IALE==1.OR.IEULER==1))THEN
 C if FSI 
           NCOND = NCOND+1
           NB_ELEM_ALE = 0
           DO I = 1, NUMELS
             MID = ABS(IXS(1,I))
-            JALE = NINT(PM(72,MID))
-            MLN = NINT(PM(19,MID))
-            IF(JALE.EQ.0.AND.MLN.NE.18)THEN
+            PID = ABS(IXS(10,I))
+            JALE_FROM_MAT = NINT(PM(72,MID)) !old way to enable ALE/EULER framework (backward compatibility)
+            JALE_FROM_PROP = IGEO(62,PID)    !new way to enable ALE/EULER framework
+            JALE = MAX(JALE_FROM_MAT, JALE_FROM_PROP) !if inconsistent, error message was displayed in PART reader            MLN = NINT(PM(19,MID))
+            IF(JALE==0.AND.MLN/=18)THEN
 
             ELSE
               NB_ELEM_ALE = NB_ELEM_ALE + 1
@@ -919,19 +934,19 @@ C Priority is  ELEM then FSI
         END IF
         IF(ISOLBAR > 10000 .AND. ICFSI == 0 .AND. NUMELC > NUMELS)THEN
 C if more than 10K solid law28/LAW68, decompose solid like there is a barrier
-C          IF(IDDLEVEL.EQ.1.) THEN
+C          IF(IDDLEVEL==1.) THEN
               WRITE(IOUT,'(A)')
      .     ' DOMAIN DECOMPOSITION OPTIMIZED FOR BARRIER '
 C          ENDIF
           NCOND = NCOND+1
           ICSOL=NCOND
         END IF
-        IF(ELEMD.GT.0) THEN
+        IF(ELEMD>0) THEN
           NCOND = NCOND+1
           ICDEL = NCOND
         END IF
       END IF        
-      IF(NSUBDOM.GT.0)THEN
+      IF(NSUBDOM>0)THEN
         NUMEL_R2R = 0
         DO I = 1, NUMELS
           IF (TAG_ELSF(I) /= 0)  NUMEL_R2R =  NUMEL_R2R+1
@@ -939,7 +954,7 @@ C          ENDIF
         DO I = 1, NUMELC
           IF (TAG_ELCF(I) /= 0)  NUMEL_R2R =  NUMEL_R2R+1
         END DO
-        IF (NUMEL_R2R.GE.NSPMD) THEN         
+        IF (NUMEL_R2R>=NSPMD) THEN         
           WRITE(IOUT,'(A)')
      .     ' DOMAIN DECOMPOSITION OPTIMIZED FOR MULTIDOMAINS '
           NCOND = NCOND+1
@@ -948,31 +963,36 @@ C          ENDIF
       END IF     
 C
       ALLOCATE(RWD(NELEM*NCOND),STAT=IERR1)
-C poids Metis suivant 
+C Metis weights following 
       DO I = 1, NCOND*NELEM
         RWD(I) = 0
       ENDDO
-Cel optimisation des poids par defaut
+C   default weight optimization
       CALL INITWG(WD,PM,GEO,IXS,IXQ,
      .            IXC,IXT,IXP,IXR,IXTG,
-     .            IXUR,KXX,IGEO,ISOLNOD,IARCH,
+     .            KXX,IGEO,ISOLNOD,IARCH,
      .             NUMELS,NUMELQ,NUMELC,NUMELT,NUMELP,
-     .             NUMELR,NUMELTG,NUMELUR,NUMELX,IPM,
+     .             NUMELR,NUMELTG,NUMELX,IPM,
      .             BUFMAT,NUMMAT,NUMGEO,TAILLE,POIN_UMP,
      .             TAB_UMP,POIN_UMP_OLD,TAB_UMP_OLD,CPUTIME_MP_OLD,
      .             TABMP_L,IPART,IPARTC,IPARTG,
      .             IPARTS,NPART,POIN_PART_SHELL,POIN_PART_TRI,POIN_PART_SOL,
-     .             MID_PID_SHELL,MID_PID_TRI,MID_PID_SOL,IDDLEVEL)
+     .             MID_PID_SHELL,MID_PID_TRI,MID_PID_SOL,IDDLEVEL,
+     .             MAT_PARAM)
 C
-      IF(NSUBDOM.GT.0)THEN
+      IF(NSUBDOM>0)THEN
         COST_R2R = ZERO
         DO I=1,NELEM
           SCAL = ONE
-          IF (I.LE.NUMELS) THEN
-              JALE = NINT(PM(72,MID))
+          IF (I<=NUMELS) THEN             
+              MID = ABS(IXS(1,I))
+              PID = ABS(IXS(10,I))
+              JALE_FROM_MAT = NINT(PM(72,MID)) !new way to enable ALE/EULER framework (backward compatibility)
+              JALE_FROM_PROP = IGEO(62,PID)    !old way to enable ALE/EULER framework
+              JALE = MAX(JALE_FROM_MAT, JALE_FROM_PROP) !if inconsistent, error message was displayed in PART reader
               MLN = NINT(PM(19,MID))
-              IF (JALE.NE.0) SCAL = 2.5
-              IF (MLN.EQ.51) SCAL = 4.5
+              IF (JALE/=0) SCAL = 2.5
+              IF (MLN==51) SCAL = 4.5
           ENDIF
           COST_R2R = COST_R2R + WD(I)
         END DO
@@ -989,7 +1009,7 @@ C
        IF(ISOLNOD(I)==4.OR.ISOLNOD(I)==10)THEN
          DO K=1,8
            N = IXS(K+1,I)
-           IF(N.NE.0)THEN
+           IF(N/=0)THEN
              FAC=ONE/(ADSKY(N+1)-ADSKY(N))
              NNC = NNC+ADSKY(N+1)-ADSKY(N)
              IF(ICDDL/=0)RWD(NCOND*(I-1)+ICDDL)=RWD(NCOND*(I-1)+ICDDL)
@@ -1013,7 +1033,7 @@ C
            II = I-NUMELS8
            DO K=1,6
              N = IXS10(K,II)
-             IF(N.NE.0)THEN
+             IF(N/=0)THEN
 C take care of non connected node
                FAC=ONE/MAX(ADSKY(N+1)-ADSKY(N),1)
                NNC = NNC+ADSKY(N+1)-ADSKY(N)
@@ -1034,14 +1054,14 @@ C take care of non connected node
      +                                                     +MIN(DSDOF(N),1)*FAC
              ENDIF
            ENDDO
-cc           IF(ICNOD /= 0) RWD(NCOND*(I-1)+ICNOD) = ONE ! a definir si besoin
+cc           IF(ICNOD /= 0) RWD(NCOND*(I-1)+ICNOD) = ONE ! to define if needed
          ELSE
-cc           IF(ICNOD /= 0) RWD(NCOND*(I-1)+ICNOD) = ONE/FIVE ! a definir si besoin
+cc           IF(ICNOD /= 0) RWD(NCOND*(I-1)+ICNOD) = ONE/FIVE ! to define if needed
          ENDIF
        ELSE
         DO K=1,8
           N = IXS(K+1,I)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
 C take care of non connected node
             FAC=ONE/MAX(ADSKY(N+1)-ADSKY(N),1)
             NNC = NNC+ADSKY(N+1)-ADSKY(N)
@@ -1069,7 +1089,7 @@ C
 C-----------------------------------------------
 C
       OFF = NUMELS
-Cel poids interface = 0 en 2D
+C   interface weight = 0 in 2D
 C
       OFF = OFF + NUMELQ
 C
@@ -1082,7 +1102,7 @@ C
         ENDIF
         DO K=1,4
           N = IXC(K+1,I)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             FAC=ONE/(ADSKY(N+1)-ADSKY(N))
             NNC = NNC+ADSKY(N+1)-ADSKY(N)
             IF(ICDDL/=0)RWD(NCOND*(I+OFF-1)+ICDDL) =
@@ -1111,7 +1131,7 @@ C
         NNC=0
         DO K=1,2
           N = IXT(K+1,I)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             FAC=ONE/(ADSKY(N+1)-ADSKY(N))
             NNC = NNC+ADSKY(N+1)-ADSKY(N)
             IF(ICDDL/=0)RWD(NCOND*(I+OFF-1)+ICDDL)  = 
@@ -1140,7 +1160,7 @@ C
         NNC=0
         DO K=1,2
           N = IXP(K+1,I)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             FAC=ONE/(ADSKY(N+1)-ADSKY(N))
             NNC = NNC+ADSKY(N+1)-ADSKY(N)
             IF(ICDDL/=0)RWD(NCOND*(I+OFF-1)+ICDDL) = 
@@ -1169,7 +1189,7 @@ C
         NNC=0
         DO K=1,2
           N = IXR(K+1,I)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             FAC=ONE/(ADSKY(N+1)-ADSKY(N))
             NNC = NNC+ADSKY(N+1)-ADSKY(N)
             IF(ICDDL/=0)RWD(NCOND*(I+OFF-1)+ICDDL) =
@@ -1189,9 +1209,9 @@ C
      +                                                      +MIN(DSDOF(N),1)*FAC
           END IF
         ENDDO
-        IF(NINT(GEO(12,IXR(1,I))).EQ.12) THEN
+        IF(NINT(GEO(12,IXR(1,I)))==12) THEN
           N = IXR(4,I)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             FAC=ONE/(ADSKY(N+1)-ADSKY(N))
             NNC = NNC+ADSKY(N+1)-ADSKY(N)
             IF(ICDDL/=0)RWD(NCOND*(I+OFF-1)+ICDDL) =
@@ -1220,7 +1240,7 @@ C
         NNC=0
         DO K=1,3
           N = IXTG(K+1,I)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             FAC=ONE/(ADSKY(N+1)-ADSKY(N))
             NNC = NNC+ADSKY(N+1)-ADSKY(N)
             IF(ICDDL/=0)RWD(NCOND*(I+OFF-1)+ICDDL) =
@@ -1246,42 +1266,13 @@ cc     +    RWD(NCOND*(I+OFF-1)+ICNOD) = (ONE/TWO)*(SIX*THREE)/NNC
 C
       OFF = OFF + NUMELTG
 C
-      DO I = 1, NUMELUR
-        NNC=0
-        DO K=1,4
-          N = IXUR(K+1,I)
-          IF(N.NE.0)THEN
-            FAC=ONE/(ADSKY(N+1)-ADSKY(N))
-            NNC = NNC+ADSKY(N+1)-ADSKY(N)
-            IF(ICDDL/=0)RWD(NCOND*(I+OFF-1)+ICDDL) =
-     +                  RWD(NCOND*(I+OFF-1)+ICDDL) + DSDOF(N)*FAC
-            IF(ICINTS/=0)
-     +        RWD(NCOND*(I+OFF-1)+ICINTS) = RWD(NCOND*(I+OFF-1)+ICINTS)
-     +                                    + IWCONT(1,N)*FAC
-            IF(ICINTM/=0)
-     +        RWD(NCOND*(I+OFF-1)+ICINTM) = RWD(NCOND*(I+OFF-1)+ICINTM)
-     +                                    + IWCONT(2,N)*FAC
-            IF(ICINT2/=0)
-     +        RWD(NCOND*(I+OFF-1)+ICINT2) = RWD(NCOND*(I+OFF-1)+ICINT2) 
-     +                                    + (IWCIN2(1,N)+IWCIN2(2,N))*FAC
-            IF(ICKIN/=0)RWD(NCOND*(I+OFF-1)+ICKIN)=
-     +                  RWD(NCOND*(I+OFF-1)+ICKIN) + IWKIN(N)*FAC             
-            IF(ICNOD_SMS/=0)RWD(NCOND*(I+OFF-1)+ICNOD_SMS)=RWD(NCOND*(I+OFF-1)+ICNOD_SMS)
-     +                                                      +MIN(DSDOF(N),1)*FAC
-          END IF
-        ENDDO
-cc        IF(ICNOD /= 0) RWD(NCOND*(I+OFF-1)+ICNOD)=ONE
-      ENDDO
-C
-      OFF = OFF + NUMELUR
-C
       DO I=1, NUMELX
         NELX=KXX(3,I)
         NNC=0
         DO K=1,NELX
           ADDX = KXX(4,I)+K-1
           N=IXX(ADDX)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             FAC=ONE/(ADSKY(N+1)-ADSKY(N))
             NNC = NNC+ADSKY(N+1)-ADSKY(N)
             IF(ICDDL/=0)RWD(NCOND*(I+OFF-1)+ICDDL) =
@@ -1301,12 +1292,12 @@ C
      +                                                      +MIN(DSDOF(N),1)*FAC
           END IF
         ENDDO
-cc        IF(ICNOD /= 0) RWD(NCOND*(I+OFF-1)+ICNOD) = ONE   ! a definir si besoin
+cc        IF(ICNOD /= 0) RWD(NCOND*(I+OFF-1)+ICNOD) = ONE   ! to be defined if needed
       ENDDO
 C
       OFF = OFF + NUMELX
       
-C normalisation des poids interface & dof
+C interface & dof weight normalization
 
       ALLOCATE(IWD(NELEM*NCOND),STAT=IERR1)
 
@@ -1314,7 +1305,7 @@ C normalisation des poids interface & dof
         IWD(I) = 0
       ENDDO
       DO I = 1, NELEM
-C plus besoin de normalisation a 1
+C no longer need normalization to 1
         IF(ICINTS/=0)
      .    IWD(NCOND*(I-1)+ICINTS) = NINT(RWD(NCOND*(I-1)+ICINTS))
         IF(ICINTM/=0)
@@ -1339,7 +1330,7 @@ c     .    IWD(NCOND*(I-1)+ICNOD)= NINT(RWD(NCOND*(I-1)+ICNOD)*10)
 
       DEALLOCATE(RWD)
 
-C.....construction des couples Ei Ej connectes par un point
+C.....construction of Ei Ej pairs connected by a point
 
       NEDGES = 0
       DO N = 1, NUMNOD
@@ -1356,7 +1347,7 @@ C.....construction des couples Ei Ej connectes par un point
         ENDDO
       ENDDO
 C
-      IF (IDDLEVEL.EQ.1) NEDGES = NEDGES+NELEMINT
+      IF (IDDLEVEL==1) NEDGES = NEDGES+NELEMINT
 C
 C----------------------------------------------
 !     SIDDCONNECT minimum size NELEM. Value set to 10*NELEM
@@ -1375,7 +1366,7 @@ C----------------------------------------------
 !     allocation IDDCONNECT % PDOM et % IENTRYDOM
       ALLOCATE(IDDCONNECT%PDOM(2,SIDDCONNECT),STAT=IERR1)
       ALLOCATE(IDDCONNECT%IENTRYDOM(2,NELEM),STAT=IERR1)    
-!     initialisation de IDDCONNECT%IENTRYDOM
+! initialization of IDDCONNECT%IENTRYDOM
       CALL INI_IDDCONNECT(NELEM)
 C
       NEDGES_OLD = NEDGES
@@ -1383,32 +1374,42 @@ C
       IF(EDGE_FILTERING == 1 .AND. (NUMELS > NELEM / 3 .OR. ICFSI > 0 )) THEN 
         WRITE(IOUT,'(A)') "** INFO: SIMPLIFIED DOMAIN DECOMPOSITION" 
 C+------------------------------------------------------------+
-C| Domain decomposition for very big models                   |
-C|      dectivated via Domdec = -3 in /SPMD card               |
+C| Domain decomposition for models with solids                |
+C|      dectivated via Domdec = -3 in /SPMD card              |
 C+------------------------------------------------------------+
+        ALLOCATE(CONNECTIVITY(MAX_NB_NODES_PER_ELT,NELEM))
+        ALLOCATE(NB_NODES_MINI(NELEM)) ! minimum number of shared nodes to consider the edge
+        CONNECTIVITY(1:MAX_NB_NODES_PER_ELT,1:NELEM) = 0
+        NB_NODES_MINI(1:NELEM) = 3
+        DO I = 1 , NELEM
+          CALL FIND_NODES(I     ,CONNECTIVITY(1,I),TAGELEM,IXS,IXS10,
+     1                    IXQ   ,IXC      ,IXT    ,IXP,IXR,
+     2                    IXTG  ,KXX    ,IXX,KXIG3D,
+     3                    IXIG3D,GEO      ,OFFELEM,NB_NODES_MINI(I))
+          CALL SORT_DESCENDING(CONNECTIVITY(1,I))
+        ENDDO
+
         ALLOCATE(CONNECT_WEIGHT(NELEM))
-        ALLOCATE(POINTER_NEIB(NELEM))
+        ALLOCATE(POINTER_NEIGH(NELEM))
         DO I =1,NELEM
            CONNECT_WEIGHT(I)=0
-           POINTER_NEIB(I)=0
+           POINTER_NEIGH(I)=0
         ENDDO
         NELMIN = 0
         DO I = 1 , NELEM
-          CALL FIND_NODES(I     ,ELEMNODES,TAGELEM,IXS,IXS10,
-     1                    IXQ   ,IXC      ,IXT    ,IXP,IXR,
-     2                    IXTG  ,IXUR     ,KXX    ,IXX,KXIG3D,
-     3                    IXIG3D,GEO      ,OFFELEM,NELMIN)
+          NELMIN = NB_NODES_MINI(I)
+          ELEMNODES(1:MAX_NB_NODES_PER_ELT) = CONNECTIVITY(1:MAX_NB_NODES_PER_ELT,I)
           PREV_NEIGH = 0
           C_NEIGH = 0
           J = 0 
-          DO K=1,20
+          DO K=1,MAX_NB_NODES_PER_ELT
             IF ( ELEMNODES(K)/=0 ) THEN
               DO L=ADSKY(ELEMNODES(K)), ADSKY(ELEMNODES(K)+1)-1
-                IF( CNE(L)  > 0) THEN
+                IF( CNE(L)  > 0 .AND. CNE(L) > I) THEN
                   CONNECT_WEIGHT(CNE(L)) =
      .            CONNECT_WEIGHT(CNE(L)) + 1
                   IF( CONNECT_WEIGHT(CNE(L)) == 1 ) THEN
-                    POINTER_NEIB(CNE(L))=PREV_NEIGH
+                    POINTER_NEIGH(CNE(L))=PREV_NEIGH
                     C_NEIGH = C_NEIGH + 1
                     PREV_NEIGH = CNE(L)
                   ENDIF  
@@ -1420,25 +1421,26 @@ C+------------------------------------------------------------+
           ! if NELMIN is not defined by FIND_NODES, we keep edges 
           ! between elements that have 3 or more nodes in common
           IF(NELMIN == 0) NELMIN = 3 
-C         C_NEIGH_MAX = MAX(C_NEIGH_MAX,C_NEIGH)
           IF (C_NEIGH > 0 ) THEN 
             DO J=1,C_NEIGH
-              IF(I .NE. PREV_NEIGH) THEN
-c              WRITE(6,*) I,"--",PREV_NEIGH,"=",CONNECT_WEIGHT(PREV_NEIGH)
-                IF(CONNECT_WEIGHT(PREV_NEIGH).GE.NELMIN) THEN
+              IF(I /= PREV_NEIGH) THEN
+                IF(CONSIDER_EDGE(CONNECTIVITY,NB_NODES_MINI,NELEM,I,PREV_NEIGH)) THEN
                   CALL IDDCONNECTPLUS(I,PREV_NEIGH,NELEM)
                   CALL IDDCONNECTPLUS(PREV_NEIGH,I,NELEM)
                 ENDIF
               ENDIF
               POINT_DELETE=PREV_NEIGH
-              PREV_NEIGH = POINTER_NEIB(PREV_NEIGH)
-              POINTER_NEIB(POINT_DELETE) = 0
+              PREV_NEIGH = POINTER_NEIGH(PREV_NEIGH)
+              POINTER_NEIGH(POINT_DELETE) = 0
               CONNECT_WEIGHT(POINT_DELETE) = 0
             ENDDO
           ENDIF
         ENDDO
         DEALLOCATE(CONNECT_WEIGHT)
-        DEALLOCATE(POINTER_NEIB)
+        DEALLOCATE(POINTER_NEIGH)
+        DEALLOCATE(NB_NODES_MINI)
+        DEALLOCATE(CONNECTIVITY)
+
       ELSE                                               
 C+------------------------------------------------------------+
 C| Classical domain decomposition without edge filtering      |
@@ -1470,19 +1472,19 @@ C+------------------------------------------------------------+
 
        
 C     DEALLOCATE(TAGELEM)
-      IF (IDDLEVEL.EQ.1) THEN
+      IF (IDDLEVEL==1) THEN
 C-----------------------------------------------
-C by pass des elements outils
+C by pass of tools tools
 C-----------------------------------------------
         IWARN1 = 0
         DO I = 1, NELEM
-          IF(IELEM21(I).EQ.1)THEN
-            IF(WD(I).GT.0.01)THEN
+          IF(IELEM21(I)==1)THEN
+            IF(WD(I)>0.01)THEN
               IWARN1 = 1
             END IF
           END IF
         END DO
-        IF(IWARN1.NE.0)THEN
+        IF(IWARN1/=0)THEN
             WRITE(IOUT,*)' '
             WRITE(IOUT,'(A)')
      .  '  ONE OR MORE ELEMENT OF MAIN SIDE OF INTERF. TYPE21',
@@ -1503,36 +1505,34 @@ C-----------------------------------------------
 C CONNECTIVITES INTERFACES
 C-----------------------------------------------
 C
-C seulement rajouter une connectivite entre noeud et facette
+C only add a connectivity between node and facet
 C
-C eviter conflit entre type 2 et type 7
+C Avoid conflict between type 2 and type 7
 C
-C cep temporairement utilise comme flag
+C CEP temporarily used as flag
         DO I = 1, NELEM
           CEP(I) = 0
         ENDDO
 C
-Cel hierarchy : type 2 now, contacts after (type 7 & others)
-        DO I = 1, NELEMINT
-          N=IXINT(5,I)
-          IF (N.LE.NUMNOD) THEN  !  POUR LES ELEMENTS ISOGEOMETRIQUES (PARTIE FICTIVE A NE PAS CONSIDERER)
-            NUMG1=ABS(CNE(ADSKY(N)))
-Cel initialisation numg2 pour cas ou facette non trouvee (erreur)
-            NUMG2=NUMG1
-            ITYPINT=ABS(IXINT(6,I))
-            IF(ITYPINT.EQ.2) THEN
-             IF(ADSKY(N+1)-ADSKY(N).GT.0)THEN
-              N=IXINT(1,I)
-              N1=IXINT(2,I)
-              N2=IXINT(3,I)
-              DO I1 = ADSKY(N), ADSKY(N+1)-1
-                NUMG2=ABS(CNE(I1))
-                DO I2 = ADSKY(N1), ADSKY(N1+1)-1
+        DO I = 1, NELEMINT ! Loop over the the pair of candidates
+          N=INTER_CAND%IXINT(5,I) !N is the secondary node
+          IF (N<=NUMNOD) THEN  !  
+            NUMG1=ABS(CNE(ADSKY(N))) ! NUMG1 is the first element found connected to node N
+            NUMG2=NUMG1 
+            ITYPINT=ABS(INTER_CAND%IXINT(6,I)) 
+            IF(ITYPINT==2) THEN ! Type 2 interface (tied contact)
+             IF(ADSKY(N+1)-ADSKY(N)>0)THEN ! number of elements connected to node N
+              N=INTER_CAND%IXINT(1,I) ! 1st node of the main segment
+              N1=INTER_CAND%IXINT(2,I) ! 2nd node of the main segment
+              N2=INTER_CAND%IXINT(3,I) ! 3td ode of the main segment
+              DO I1 = ADSKY(N), ADSKY(N+1)-1 ! loop over the elements connected to node N
+                NUMG2=ABS(CNE(I1)) ! NUMG2 = id of the current element connected to node N
+                DO I2 = ADSKY(N1), ADSKY(N1+1)-1 ! loop over elts connected to N1 
                   NUMG3=ABS(CNE(I2))
-                  IF(NUMG3.EQ.NUMG2) THEN
+                  IF(NUMG3==NUMG2) THEN 
                     DO I3 = ADSKY(N2), ADSKY(N2+1)-1
                       NUMG4=ABS(CNE(I3))
-                      IF(NUMG4.EQ.NUMG2) GOTO 100
+                      IF(NUMG4==NUMG2) GOTO 100 !Found one element connected to N,N1,N2 
                     ENDDO
                   ENDIF
                 ENDDO
@@ -1568,26 +1568,19 @@ Cel initialisation numg2 pour cas ou facette non trouvee (erreur)
 
 C sorting of NELEMINT : negative value for IXINT(6) means that distance is small
         DO I=1,NELEMINT
-            ISORT(I)=(-IXINT(6,I)) + 100
+            ISORT(I)=(-INTER_CAND%IXINT(6,I)) + 100
             INDEX_SORT(I)=I
-            ITYPINT=ABS(IXINT(6,I))
-C             IF(ITYPINT.EQ.7 .OR. ITYPINT == 25 .AND IXINT(6,I) < 0) THEN
-CC Add even more priority on edges connecting different colors
-C             IF(COLORS(CNE(ADSKY(IXINT(5,I)))) .NE.
-C      .           COLORS(CNE(ADSKY(IXINT(1,I))))) THEN
-C                 ISORT(I) = ISORT(I) - 1 
-C             ENDIF
-C             ENDIF
+            ITYPINT=ABS(INTER_CAND%IXINT(6,I))
         ENDDO
          CALL MY_ORDERS(0,WORK,ISORT,INDEX_SORT,NELEMINT,1)
 
 
 C
-Cel hierarchy : type 2 before, contact now
+C   hierarchy : type 2 before, contact now
         DO II = 1, NELEMINT
           I = INDEX_SORT(II)
-          N=IXINT(5,I)
-          IF (N.LE.NUMNOD) THEN  !  POUR LES ELEMENTS ISOGEOMETRIQUES (PARTIE FICTIVE A NE PAS CONSIDERER)
+          N=INTER_CAND%IXINT(5,I)
+          IF (N<=NUMNOD) THEN  !  FOR ISOGEOMETRIC ELEMENTS (FICTITIOUS PART NOT TO BE CONSIDERED)
             NUMG1=-1
 C searching for the first connected element not seen
             CEP_MIN = HUGE(CEP_MIN)
@@ -1599,15 +1592,15 @@ C searching for the first connected element not seen
               ENDIF
               IF(CEP_MIN == 0) EXIT
             END DO
-Cel initialisation numg2 pour cas ou facette non trouvee (erreur)
+C   initialization numg2 for case where facet not found (error)
             NUMG2=-1
-            ITYPINT=ABS(IXINT(6,I))
-            IF(ITYPINT.EQ.7) THEN
-             IF(ADSKY(N+1)-ADSKY(N).GT.0)THEN
-              N=IXINT(1,I)
-              N1=IXINT(2,I)
-              N2=IXINT(3,I)
-              IF (N.LE.NUMNOD) THEN !  POUR LES ELEMENTS ISOGEOMETRIQUES (PARTIE FICTIVE A NE PAS CONSIDERER)
+            ITYPINT=ABS(INTER_CAND%IXINT(6,I))
+            IF(ITYPINT==7) THEN
+             IF(ADSKY(N+1)-ADSKY(N)>0)THEN
+              N=INTER_CAND%IXINT(1,I)
+              N1=INTER_CAND%IXINT(2,I)
+              N2=INTER_CAND%IXINT(3,I)
+              IF (N<=NUMNOD) THEN !  FOR ISOGEOMETRIC ELEMENTS (FICTITIOUS PART NOT TO BE CONSIDERED)
                DO I1 = ADSKY(N), ADSKY(N+1)-1
                  NUMG2=ABS(CNE(I1))
                  IF(NUMG2 == NUMG1) THEN
@@ -1617,11 +1610,11 @@ Cel initialisation numg2 pour cas ou facette non trouvee (erreur)
                    DO I2 = ADSKY(N1), ADSKY(N1+1)-1
                      NUMG3=ABS(CNE(I2))
                      IF(NUMG3 == NUMG1)  GOTO 107
-                     IF(NUMG3.EQ.NUMG2) THEN
+                     IF(NUMG3==NUMG2) THEN
                        DO I3 = ADSKY(N2), ADSKY(N2+1)-1
                          NUMG4=ABS(CNE(I3))
                          IF(NUMG4 == NUMG1) GOTO 107
-                         IF(NUMG4.EQ.NUMG2) GOTO 107
+                         IF(NUMG4==NUMG2) GOTO 107
                        ENDDO
                      ENDIF
                    ENDDO
@@ -1631,18 +1624,15 @@ Cel initialisation numg2 pour cas ou facette non trouvee (erreur)
  107          CONTINUE
 
               IF(NUMG1 /= NUMG2 .AND. (NUMG1 >0 ) .AND. (NUMG2 > 0)) THEN
-                IF(CEP(NUMG1).EQ.0.OR.CEP(NUMG2).EQ.0) THEN
+                IF(CEP(NUMG1)==0.OR.CEP(NUMG2)==0) THEN
                   number_of_added_edges = number_of_added_edges + 1
 C test to limit number of edges added for contact interfaces
-                  CALL IDDCONNECTPLUS(NUMG1,NUMG2,NELEM)
-                  CALL IDDCONNECTPLUS(NUMG2,NUMG1,NELEM)
-Cel                  IF(IXINT(6,I)<0)THEN   
-Cel                    EDGEWT(NEWEDGE) = 1   ! near contact
-Cel                  ELSE
-Cel                    EDGEWT(NEWEDGE) = 1   ! candidate only
-Cel                  END IF
-                  CEP(NUMG1) = CEP(NUMG1) +  1
-                  CEP(NUMG2) = CEP(NUMG2) +  1
+                  IF(CEP(NUMG1) < 100 .AND. CEP(NUMG2) < 100) THEN
+                    CALL IDDCONNECTPLUS(NUMG1,NUMG2,NELEM)
+                    CALL IDDCONNECTPLUS(NUMG2,NUMG1,NELEM)
+                    CEP(NUMG1) = CEP(NUMG1) +  1
+                    CEP(NUMG2) = CEP(NUMG2) +  1
+                  END IF
                 ELSE 
                   refused_cep0 = refused_cep0 + 1
                 ENDIF
@@ -1654,7 +1644,7 @@ Cel                  END IF
               IF(ICCAND > 0 .AND. NUMG2 > 0) THEN
 C load-balancing contact force -- incremental needed for multiple interface
 cc                  IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
-                IF(IXINT(6,I)<0)THEN
+                IF(INTER_CAND%IXINT(6,I)<0)THEN
 C 5:1 ratio between potential impact and just candidat 
                   IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+5
                 ELSE
@@ -1663,29 +1653,30 @@ C 5:1 ratio between potential impact and just candidat
               END IF
 
              ENDIF
-            ELSEIF(ITYPINT.EQ.11) THEN
-             IF(ADSKY(N+1)-ADSKY(N).GT.0)THEN
-              N1=IXINT(3,I)
-              N2=IXINT(4,I)
+            ELSEIF(ITYPINT==11) THEN
+             IF(ADSKY(N+1)-ADSKY(N)>0)THEN
+              N1=INTER_CAND%IXINT(3,I)
+              N2=INTER_CAND%IXINT(4,I)
               DO I1 = ADSKY(N1), ADSKY(N1+1)-1
                 NUMG2=ABS(CNE(I1))
                 IF(NUMG2 /= NUMG1) THEN
                   DO I2 = ADSKY(N2), ADSKY(N2+1)-1
                     NUMG3=ABS(CNE(I2))
-                    IF(NUMG3.EQ.NUMG2) GOTO 111
+                    IF(NUMG3==NUMG2) GOTO 111
                   ENDDO
                 END IF
               ENDDO
  111          CONTINUE
               IF(NUMG1 /= NUMG2 .AND.(NUMG1>0 .AND. NUMG2 > 0)) THEN
-                IF(CEP(NUMG1).EQ.0.OR.CEP(NUMG2).EQ.0) THEN
+                IF(CEP(NUMG1)==0.OR.CEP(NUMG2)==0) THEN
 C test to limit number of edges added for contact interfaces
                   number_of_added_edges = number_of_added_edges + 1
-
-                  CALL IDDCONNECTPLUS(NUMG1,NUMG2,NELEM)
-                  CALL IDDCONNECTPLUS(NUMG2,NUMG1,NELEM)
-                  CEP(NUMG1) = CEP(NUMG1) +  1
-                  CEP(NUMG2) = CEP(NUMG2) +  1
+                  IF(CEP(NUMG1) < 100 .AND. CEP(NUMG2) < 100) THEN
+                    CALL IDDCONNECTPLUS(NUMG1,NUMG2,NELEM)
+                    CALL IDDCONNECTPLUS(NUMG2,NUMG1,NELEM)
+                    CEP(NUMG1) = CEP(NUMG1) +  1
+                    CEP(NUMG2) = CEP(NUMG2) +  1
+                  END IF
                 ELSE 
                   refused_cep0 = refused_cep0 + 1
                 ENDIF
@@ -1695,8 +1686,7 @@ C test to limit number of edges added for contact interfaces
               ENDIF
               IF(ICCAND > 0 .AND. NUMG2 > 0) THEN
 C load-balancing contact force -- incremental needed for multiple interface
-cc                  IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
-                IF(IXINT(6,I)<0)THEN
+                IF(INTER_CAND%IXINT(6,I)<0)THEN
                   IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
                 ELSE
                   IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
@@ -1704,11 +1694,11 @@ cc                  IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
               END IF
 
              ENDIF
-            ELSEIF(ITYPINT.EQ.24.OR.ITYPINT.EQ.25)THEN
-             IF(ADSKY(N+1)-ADSKY(N).GT.0)THEN
-              N=IXINT(1,I)
-              N1=IXINT(2,I)
-              N2=IXINT(3,I)
+            ELSEIF(ITYPINT==24.OR.ITYPINT==25)THEN
+             IF(ADSKY(N+1)-ADSKY(N)>0)THEN
+              N=INTER_CAND%IXINT(1,I)
+              N1=INTER_CAND%IXINT(2,I)
+              N2=INTER_CAND%IXINT(3,I)
               DO I1 = ADSKY(N), ADSKY(N+1)-1
                 NUMG2=ABS(CNE(I1))
                IF(NUMG2 == NUMG1) GOTO 124
@@ -1716,11 +1706,11 @@ cc                  IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
                   DO I2 = ADSKY(N1), ADSKY(N1+1)-1
                     NUMG3=ABS(CNE(I2))
                     IF(NUMG3 == NUMG1) GOTO 124
-                    IF(NUMG3.EQ.NUMG2) THEN
+                    IF(NUMG3==NUMG2) THEN
                       DO I3 = ADSKY(N2), ADSKY(N2+1)-1
                         NUMG4=ABS(CNE(I3))
                         IF(NUMG4 == NUMG1) GOTO 124
-                        IF(NUMG4.EQ.NUMG2) GOTO 124
+                        IF(NUMG4==NUMG2) GOTO 124
                       ENDDO
                     ENDIF
                   ENDDO
@@ -1728,22 +1718,14 @@ cc                  IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
               ENDDO
  124          CONTINUE
               IF(NUMG1 /= NUMG2 .AND. (NUMG1>0 .AND. NUMG2 > 0)) THEN
-                IF(CEP(NUMG1).EQ.0.OR.CEP(NUMG2).EQ.0) THEN
+                IF(CEP(NUMG1)==0.OR.CEP(NUMG2)==0) THEN
                   number_of_added_edges = number_of_added_edges + 1
-
-                  CALL IDDCONNECTPLUS(NUMG1,NUMG2,NELEM)
-                  CALL IDDCONNECTPLUS(NUMG2,NUMG1,NELEM)
-C test to limit number of edges added for contact interfaces
-Cel                  IF(IXINT(6,I)<0 .AND. ICCAND > 0)THEN
-Cel                    IWD(NCOND*(NUMG2-1)+ICCAND)=1
-Cel     +              IWD(NCOND*(NUMG2-1)+ICCAND)+2 ! contact proche effectif
-Cel                  ELSEIF(ICCAND > 0)THEN
-Cel                    IWD(NCOND*(NUMG2-1)+ICCAND)=1
-Cel     +              IWD(NCOND*(NUMG2-1)+ICCAND)+1 ! contact potentiel
-C les autres elt sont a 1
-Cel                  END IF
-                  CEP(NUMG1) = CEP(NUMG1) +  1
-                  CEP(NUMG2) = CEP(NUMG2) +  1
+                  IF(CEP(NUMG1) < 100 .AND. CEP(NUMG2) < 100) THEN
+                    CALL IDDCONNECTPLUS(NUMG1,NUMG2,NELEM)
+                    CALL IDDCONNECTPLUS(NUMG2,NUMG1,NELEM)
+                    CEP(NUMG1) = CEP(NUMG1) +  1
+                    CEP(NUMG2) = CEP(NUMG2) +  1
+                  ENDIF
                 ELSE 
                   refused_cep0 = refused_cep0 + 1
                 ENDIF
@@ -1752,8 +1734,7 @@ Cel                  END IF
                 if(NUMG1<=0 .OR. NUMG2<=0) refused_numg0 = refused_numg0 + 1
               ENDIF
               IF(ICCAND > 0 .AND. NUMG2 > 0) THEN
-cc                IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
-                IF(IXINT(6,I)<0)THEN
+                IF(INTER_CAND%IXINT(6,I)<0)THEN
                   IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+5 
                 ELSE
                   IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
@@ -1762,7 +1743,7 @@ cc                IWD(NCOND*(NUMG2-1)+ICCAND)=IWD(NCOND*(NUMG2-1)+ICCAND)+1
 
              ENDIF            
             ENDIF
-          ENDIF ! si element isogeometrique
+          ENDIF ! if isogeometric element
         ENDDO
 
 C ================================================================
@@ -1779,7 +1760,7 @@ C           according to the distance
 
           CALL FIND_NODES(ROOTS(I)   ,ELEMNODES,TAGELEM,IXS,IXS10,
      1                    IXQ   ,IXC      ,IXT    ,IXP,IXR,
-     2                    IXTG  ,IXUR     ,KXX    ,IXX,KXIG3D,
+     2                    IXTG  ,KXX    ,IXX,KXIG3D,
      3                    IXIG3D,GEO      ,OFFELEM,NELMIN)
 
           IF(ELEMNODES(1) /= 0) THEN
@@ -1807,7 +1788,7 @@ C           according to the distance
             NUMG2 = ROOTS(J)
             IF(NUMG1 /= NUMG2 .AND. MIN_DIST(J) < 2.0*DIST) THEN
 C connectivity added between roots of the distance is < 2 x the minimum
-C distance between the current root, and its closest neighboor
+C distance between the current root, and its closest neighbor
               CALL IDDCONNECTPLUS(NUMG1,NUMG2,NELEM)
               CALL IDDCONNECTPLUS(NUMG2,NUMG1,NELEM)
               K = K + 1
@@ -1826,7 +1807,7 @@ C    .                        " refused_cep0: ",refused_cep0,
 C    .                        " switch_tried: ",switch_tried,
 C    .                        " switch_done: ",switch_done
 C
-!       nombre de edge 
+! number of edge
         NEDGES = 0
         NEDGES_8 = 0
         DO I=1,NELEM
@@ -1853,7 +1834,7 @@ C
       BOOL_RBODY=.FALSE.
 
       IF(IDDLEVEL/=0) THEN
-        NUMEL   = NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP+NUMELR+NUMELUR
+        NUMEL   = NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP+NUMELR
      .        + NUMELTG+NUMELX+NUMSPH+NUMELIG3D
 
 !       ------------------------
@@ -1890,7 +1871,7 @@ C
                     I = LPBY(J+K)
                     DO IJK = ADSKY(I),ADSKY(I+1)-1
                         CC2 = IJK
-                        NUMG2 = CNE(CC2)
+                        NUMG2 = ABS(CNE(CC2))
                         NUMBER_OF_ELEMENT_RBODY = NUMBER_OF_ELEMENT_RBODY + 1
                         LIST_ELEMENT_RBODY( NUMBER_OF_ELEMENT_RBODY ) = NUMG2
                         BOOL_RBODY=.TRUE.
@@ -1900,7 +1881,7 @@ C
                 !   main node
                 DO IJK = ADSKY(M),ADSKY(M+1)-1
                     CC2 = IJK
-                    NUMG2 = CNE(CC2)
+                    NUMG2 = ABS(CNE(CC2))
                     NUMBER_OF_ELEMENT_RBODY = NUMBER_OF_ELEMENT_RBODY + 1
                     LIST_ELEMENT_RBODY( NUMBER_OF_ELEMENT_RBODY ) = NUMG2
                 ENDDO
@@ -1918,21 +1899,21 @@ C
        ENDIF
 !   ----------------------------------------------------------------
 
-      IF (NEDGES.GT.0 .AND. NSPMD .GT. 1) THEN      
-!       structures Metis 1/2
+      IF (NEDGES>0 .AND. NSPMD > 1) THEN      
+!       Metis structures 1/2
         ALLOCATE(XADJ(NELEM+1),STAT=IERR1)
 !       init XADJ
         XADJ(1:NELEM+1)=0
-!       deallocation de CNE
+! deallocation of CNE
         DEALLOCATE(CNE)
-!       Nombre de edges
+! Number of edges
         NEDGES = 0
         DO I=1,NELEM
           CALL C_IDDCONNECT(I,TAILLE_LOCAL)
           NEDGES = NEDGES + TAILLE_LOCAL
         ENDDO
         NEDGES = NEDGES/2
-!       structures Metis 2/2
+!       Metis structures 2/2
         ALLOCATE(ADJNCY(2*NEDGES),STAT=IERR1)
 
         XADJ(1) = 1
@@ -1943,7 +1924,7 @@ C
            CALL PLIST_IDDCONNECT(ADJNCY,XADJ,I)
           ENDIF
         ENDDO
-!       deallocation de IDDCONNECT % PDOM et % IENTRYDOM
+! deallocation of IDDCONNECT % PDOM and % IENTRYDOM
         DEALLOCATE(IDDCONNECT%PDOM)
         DEALLOCATE(IDDCONNECT%IENTRYDOM)
 
@@ -2051,7 +2032,6 @@ C 2) recompute connexity to verify it is ok now
         NFLAG=1
 C old metis option kept for compatibility
         OPTIONS(1)=0
-#if defined(METIS5)
 C new Metis5 Definition
         IERROR = METIS_SetDefaultOptions(options)
 c         DO I = 1, 40
@@ -2073,7 +2053,7 @@ C        OPTIONS(4)=2 ! 0 => GROW ; 1 => RANDOM to try ; 2 => EDGE ; 3 => NODE
 C        OPTIONS(METIS OPTION IRTYPE) = 1 ! ignore
 C        OPTIONS(5)=0 ! 0 => FM ; 1 => Greedy to try ; 2 => 1 S NODE ; 3 => 2 S NODE
 C        OPTIONS(METIS OPTION NITER) = 10 (default) !
-C        OPTIONS(7)=20 ! 20 tres leger mieux
+C        Options (7) = 20!20 very slight better
 C        OPTIONS(METIS MIN CONN) = 0 (default) !
 C        OPTIONS(11)=1 ! 1 minimize max connectivity
 C        OPTIONS(METIS NO2HOP) = 0 (default) !
@@ -2083,21 +2063,23 @@ C        OPTIONS(17)=1 ! ignore
 C        OPTIONS(METIS NCUTS) = 1 (default) !
 C         OPTIONS(8) = 4              
 C        OPTIONS(8)=1 
-#endif
-C Domain decomposition CRASH ou FSI
-        IF(ICFSI.EQ.0)THEN
+C Domain Decomposition Crash or FSI
+        IF(ICFSI==0)THEN
           DO I = 1, NELEM
-C normalisation des poids (elem delete a 0)
+C weight normalization (deleted elem to 0)
             IWD(NCOND*(I-1)+ICELEM) = NINT(WD(I)*100)
-C poids interface deja calcul
+C interface weight already calculated
           END DO
         ELSE
           DO I = 1, NELEM
-            IF(I.LE.NUMELS)THEN
+            IF(I<=NUMELS)THEN
               MID = ABS(IXS(1,I))
-              JALE = NINT(PM(72,MID))
+              PID = ABS(IXS(10,I))
+              JALE_FROM_MAT = NINT(PM(72,MID)) !old way to enable ALE/EULER framework (backward compatibility)
+              JALE_FROM_PROP = IGEO(62,PID)    !new way to enable ALE/EULER framework
+              JALE = MAX(JALE_FROM_MAT, JALE_FROM_PROP) !if inconsistent, error message was displayed in PART reader            MLN = NINT(PM(19,MID))              
               MLN = NINT(PM(19,MID))
-              IF(JALE.EQ.0.AND.MLN.NE.18)THEN
+              IF(JALE==0.AND.MLN/=18)THEN
                 IWD(NCOND*(I-1)+ICELEM) = NINT(WD(I)*100)
                 IWD(NCOND*(I-1)+ICFSI) = 0
               ELSE
@@ -2105,21 +2087,21 @@ C poids interface deja calcul
                 IWD(NCOND*(I-1)+ICFSI) = NINT(WD(I)*100)
               END IF
             ELSE
-C normalisation des poids (elem delete a 0)
+C weight normalization (deleted elem to 0)
               IWD(NCOND*(I-1)+ICELEM) = NINT(WD(I)*100)
             END IF
-C poids interface deja calcul
+C interface weight already calculated
           END DO 
         END IF
-        IF(ICDEL.GT.0)THEN
+        IF(ICDEL>0)THEN
           DO I = 1, NELEM
-Celem delete
-            IF(WD(I).EQ.0.0001)THEN
+C  em delete
+            IF(WD(I)==0.0001)THEN
               IWD(NCOND*(I-1)+ICDEL) = 1
             ELSE
               IWD(NCOND*(I-1)+ICDEL) = 0
             END IF
-C poids interface deja calcul
+C interface weight already calculated
           END DO
         END IF
 
@@ -2143,7 +2125,7 @@ C In case of cluster, transfer the weight to the first cluster element
 
 
 C
-C Traitement specifique debordement poids entier
+C Specific treatment for integer weight overflow
 C 
         DO I = 1, NCOND
  1024     CONTINUE
@@ -2151,7 +2133,7 @@ C
           DO J = 1, NELEM
             WS = WS + IWD(NCOND*(J-1)+I)
           END DO
-          IF(WS.GT.2*EP9)THEN
+          IF(WS>2*EP9)THEN
             WRITE(IOUT,'(A,I4)')
      .      ' WEIGHT PRECISION DECREASED TO ENABLE CRITERION',I
             DO J = 1, NELEM
@@ -2173,20 +2155,19 @@ C
         IF(ICDEL/=0)  UBVEC(ICDEL)  = 1.10
         IF(ICCAND/=0) UBVEC(ICCAND) = 1.10
         IF(ICKIN/=0)  UBVEC(ICKIN)  = 1.10
-        IF(ICR2R/=0)  UBVEC(ICR2R) = 1.30  ! weird !!!
+        IF(ICR2R/=0)  UBVEC(ICR2R) = 1.30  
         IF(ICNOD_SMS/=0) UBVEC(ICNOD_SMS) = 1.05
 c        i=0
 c        call METIS_EstimateMemory(NELEM,XADJ,ADJNCY,0,2,I)
 c        print *,'estimate memory=',i,nelem,XADJ(NELEM+1)
  1999    CONTINUE
-         IF(DECTYP.EQ.3.OR.DECTYP.EQ.5)THEN
+         IF(DECTYP==3.OR.DECTYP==5)THEN
 C KWAY METIS
-#if defined(METIS5)
       
-          IERR1 = Wrap_METIS_PartGraphKway(
+          IERR1 = Wrap_METIS_PartGraphKway_part(
      1      NELEM,NCOND,XADJ,ADJNCY,
      2      IWD,NNODE,
-     3      UBVEC,OPTIONS,NEC,CEP)
+     3      UBVEC,OPTIONS,NEC,CEP, part_id)
           IDB_METIS = 0
 
           IF(IDB_METIS == 1) THEN
@@ -2204,25 +2185,13 @@ C weight only on vertices
             print *,'writing graph with check:',it,'/',nedges*2
             CLOSE(99)
           END IF     
-#elif 1
-          CALL METIS_mCPartGraphKway(
-     1      NELEM,NCOND,XADJ,ADJNCY,IWD,0,
-     2      IWFLG,NFLAG,NNODE,UBVEC,OPTIONS,NEC,CEP)
-#endif
-         ELSEIF(DECTYP.EQ.4.OR.DECTYP.EQ.6)THEN
+         ELSEIF(DECTYP==4.OR.DECTYP==6)THEN
 C RSB METIS
-#if defined(METIS5)
-          IERR1 = Wrap_METIS_PartGraphRecursive(
+          IERR1 = Wrap_METIS_PartGraphRecursive_part(
      1      NELEM,NCOND,XADJ,ADJNCY,
      2      IWD,NNODE,
-     3      UBVEC,OPTIONS,NEC,CEP)
-#elif 1
-          CALL METIS_mCPartGraphRecursive(
-     1      NELEM,NCOND,XADJ,ADJNCY,IWD,0,
-     2      IWFLG,NFLAG,NNODE,OPTIONS,NEC,CEP)
-#endif
+     3      UBVEC,OPTIONS,NEC,CEP, part_id)
         END IF
-C       1234567123456789012345123456789012345123456789012345123456789012345
             CALL STAT_DOMDEC(
      1           WIS      ,WI2     ,WFSI      ,WDEL      ,WDDL     ,
      2           WCAND    ,WSOL    ,WR2R      ,WKIN      ,IWD      ,
@@ -2233,10 +2202,8 @@ C       1234567123456789012345123456789012345123456789012345123456789012345
      7           NCRITMAX ,WNOD_SMS,ICNOD_SMS)
       
 
-    
-
       IF(ICFSI > 0 .AND.  ICFSI < ICELEM) THEN 
-! the order in DMIN,DMAX is independant of the orther of the constrains
+! the order in DMIN,DMAX is independent of the order of constraints
         MAIN_TARGET = 7
       ELSE
         MAIN_TARGET = 1
@@ -2244,7 +2211,7 @@ C       1234567123456789012345123456789012345123456789012345123456789012345
 
 C     CHECK Quality of Domain Decomp on elements
 C If ( ALE .or. first domdec) .and. (first try)) then check load balance
-        IF( ( MAIN_TARGET == 7 .OR. IDDLEVEL.EQ.1) .AND. (DECTYP==3 .OR. DECTYP==5) )THEN
+        IF( ( MAIN_TARGET == 7 .OR. IDDLEVEL==1) .AND. (DECTYP==3 .OR. DECTYP==5) )THEN
           IF(DMIN(MAIN_TARGET) < AVERAGE(MAIN_TARGET)*0.90  )THEN
             WRITE(IOUT,'(A)')
      .      '** INFO: DECOMPOSITION UNBALANCING DETECTED'
@@ -2289,9 +2256,8 @@ c           ENDIF
 C---------------------------------------------------------------------
 C    Loop over domain decomposition until satisfactory load balancing for element
 C---------------------------------------------------------------------
-       MAX_TRY       = 3
-       WD_MAX_FACTOR = 2
-#if defined(METIS5)
+        MAX_TRY       = 3
+        WD_MAX_FACTOR = 2
         ALLOCATE(IWD_COPY(NCOND*NELEM))
         ALLOCATE(WD_COPY(NELEM))
         IF((DECTYP==4 .OR. DECTYP==6) .AND. IDDLEVEL==1 .AND. NELEM>10*NSPMD )THEN
@@ -2319,7 +2285,7 @@ C---------------------------------------------------------------------
             DD_UNBALANCED = DD_UNBALANCED .OR.  (DMAX(MAIN_TARGET) >  AVERAGE(MAIN_TARGET)*1.1)
             WD_MAX0 = 0.0
             DO N = 1, NVOLU 
-              IF(FVM_ELEM(N) .NE. 0) THEN  
+              IF(FVM_ELEM(N) /= 0) THEN  
                 WD_MAX0= MAX(WD_MAX0,DBLE(WD(FVM_ELEM(N))))
               ENDIF
             ENDDO
@@ -2344,7 +2310,7 @@ C      CHECK Quality of Domain Decomp on elements
             IF(FVM_DOMDEC .AND. DD_FVMBAG_TRY <= MAX_TRY) THEN
               WD_MAX = WD_MAX / (0.1D0 * WD_MAX_FACTOR)
               DO N = 1, NVOLU 
-                IF(FVM_ELEM(N) .NE. 0) THEN  
+                IF(FVM_ELEM(N) /= 0) THEN  
                   IF(WD(FVM_ELEM(N)) > WD_MAX) THEN
                      WD(FVM_ELEM(N)) = WD_MAX
                      IWD(NCOND*(FVM_ELEM(N)-1)+ICELEM) = NINT(WD_MAX*100)
@@ -2355,11 +2321,11 @@ C      CHECK Quality of Domain Decomp on elements
             ENDIF 
             IF(NB_FVMBAG_TRIM > 0) THEN 
               ! Try to reduce the weight of the FVMBAG vertex
-              ! before reducing the number of constrains
+              ! before reducing the number of constraints
               DD_FVMBAG_TRY = DD_FVMBAG_TRY + 1
             ELSE
-              ! Reducing the number of constrains
-              ! Reseting weights
+              ! Reducing the number of constraints
+              ! Resetting weights
               NCOND2= NCOND2 - 1
               DD_FVMBAG_TRY = 0
               MAX_TRY = MAX_TRY + 1
@@ -2380,10 +2346,10 @@ C      CHECK Quality of Domain Decomp on elements
               ENDDO
             ENDDO 
 C  KWAY METIS
-            IERR1 = WRAP_METIS_PartGraphKway(
+            IERR1 = WRAP_METIS_PartGraphKway_part(
      1      NELEM,NCOND2,XADJ,ADJNCY,
      2      IWD2,NNODE,
-     3      UBVEC,OPTIONS,NEC,CEP)    
+     3      UBVEC,OPTIONS,NEC,CEP, part_id)    
             CALL STAT_DOMDEC(
      1           WIS      ,WI2     ,WFSI      ,WDEL      ,WDDL     ,
      2           WCAND    ,WSOL    ,WR2R      ,WKIN      ,IWD      ,
@@ -2410,10 +2376,10 @@ C  KWAY METIS
 
 C  RSB METIS
 
-              IERR1 = WRAP_METIS_PartGraphRecursive(
+              IERR1 = WRAP_METIS_PartGraphRecursive_part(
      1        NELEM,NCOND2,XADJ,ADJNCY,
      2        IWD2,NNODE,
-     3        UBVEC,OPTIONS,NEC,CEP)
+     3        UBVEC,OPTIONS,NEC,CEP, part_id)
               CALL STAT_DOMDEC(
      1             WIS      ,WI2     ,WFSI      ,WDEL      ,WDDL     ,
      2             WCAND    ,WSOL    ,WR2R      ,WKIN      ,IWD      ,
@@ -2435,8 +2401,6 @@ C  RSB METIS
         ENDIF 
         DEALLOCATE(IWD_COPY)
         DEALLOCATE(WD_COPY)
-
-#endif
 C---------------------------------------------------------------------
 C       End of loop over domain decomposition                                             
 C---------------------------------------------------------------------
@@ -2511,31 +2475,31 @@ C
         ENDDO         
         !---------------------!       
 C
-        IF(DECTYP.EQ.5.OR.DECTYP.EQ.6)THEN
+        IF(DECTYP==5.OR.DECTYP==6)THEN
            IF(DDNOD_SMS==0)THEN
              WRITE(IOUT,1000)
            ELSE
              WRITE(IOUT,1100)
            END IF
-        ELSEIF(ICFSI.EQ.0) THEN
-          IF(ICSOL.EQ.0.AND.ICDEL.EQ.0)THEN
+        ELSEIF(ICFSI==0) THEN
+          IF(ICSOL==0.AND.ICDEL==0)THEN
             WRITE(IOUT,2000)
-          ELSEIF(ICSOL.NE.0.AND.ICDEL.EQ.0)THEN
+          ELSEIF(ICSOL/=0.AND.ICDEL==0)THEN
             WRITE(IOUT,3000)
-          ELSEIF(ICSOL.NE.0.AND.ICDEL.NE.0)THEN
+          ELSEIF(ICSOL/=0.AND.ICDEL/=0)THEN
             WRITE(IOUT,4000)
-          ELSEIF(ICSOL.EQ.0.AND.ICDEL.NE.0)THEN
+          ELSEIF(ICSOL==0.AND.ICDEL/=0)THEN
             WRITE(IOUT,5000)
           END IF
-        ELSEIF(ICFSI.NE.0)THEN
-          IF(ICDEL.EQ.0)THEN
+        ELSEIF(ICFSI/=0)THEN
+          IF(ICDEL==0)THEN
             WRITE(IOUT,6000)
           ELSE
             WRITE(IOUT,7000)
           END IF
         END IF
         DO I = 1, NSPMD
-          IF(DECTYP.EQ.5.OR.DECTYP.EQ.6)THEN
+          IF(DECTYP==5.OR.DECTYP==6)THEN
             IF(DDNOD_SMS==0)THEN
               WRITE(IOUT,'(I4,8F15.0)')
      .        I,W(I),WIS(I),WIM(I),WCAND(I),WI2(I),WDDL(I)
@@ -2543,24 +2507,24 @@ C
               WRITE(IOUT,'(I4,8F15.0)')
      .        I,W(I),WIS(I),WIM(I),WCAND(I),WI2(I),WDDL(I),WNOD_SMS(I)
             END IF
-          ELSEIF(ICFSI.EQ.0)THEN
-            IF(ICSOL.EQ.0.AND.ICDEL.EQ.0)THEN
+          ELSEIF(ICFSI==0)THEN
+            IF(ICSOL==0.AND.ICDEL==0)THEN
               WRITE(IOUT,'(I4,8F15.0)')
      .        I,W(I),WIS(I),WIM(I),WCAND(I),WI2(I),WKIN(I)
-            ELSEIF(ICSOL.NE.0.AND.ICDEL.EQ.0)THEN
+            ELSEIF(ICSOL/=0.AND.ICDEL==0)THEN
               WRITE(IOUT,'(I4,8F15.0)')
      .        I,W(I),WIS(I),WIM(I),WCAND(I),WI2(I),WSOL(I),WKIN(I)
-            ELSEIF(ICSOL.NE.0.AND.ICDEL.NE.0)THEN
+            ELSEIF(ICSOL/=0.AND.ICDEL/=0)THEN
               WRITE(IOUT,'(I4,8F15.0)')
      .        I,W(I),WIS(I),WIM(I),WCAND(I),WI2(I),WSOL(I),WDEL(I),WKIN(I)
-            ELSEIF(ICSOL.EQ.0.AND.ICDEL.NE.0)THEN
+            ELSEIF(ICSOL==0.AND.ICDEL/=0)THEN
               WRITE(IOUT,'(I4,8F15.0)')
      .        I,W(I),WIS(I),WIM(I),WCAND(I),WI2(I),WDEL(I),WKIN(I)
             ENDIF
-          ELSEIF(ICFSI.NE.0.AND.ICDEL.EQ.0)THEN
+          ELSEIF(ICFSI/=0.AND.ICDEL==0)THEN
             WRITE(IOUT,'(I4,8F15.0)')
      .      I,W(I),WIS(I),WIM(I),WCAND(I),WI2(I),WFSI(I)
-          ELSEIF(ICFSI.NE.0.AND.ICDEL.NE.0)THEN
+          ELSEIF(ICFSI/=0.AND.ICDEL/=0)THEN
             WRITE(IOUT,'(I4,8F15.0)')
      .      I,W(I),WIS(I),WIM(I),WCAND(I),WI2(I),WFSI(I),WDEL(I)
           ENDIF
@@ -2628,7 +2592,7 @@ C
      .    NINT(DMIN(12)),NINT(DMAX(12)),
      .    NINT(AVERAGE(12)),NINT(DEVIATION(12))
       ELSE
-Cel un seul element ou elements non connectes ou un seul proc
+C   a single element or unconnected elements or a single processor
         DEALLOCATE(CNE)
         DEALLOCATE(IDDCONNECT%PDOM)
         DEALLOCATE(IDDCONNECT%IENTRYDOM) 
@@ -2636,6 +2600,8 @@ Cel un seul element ou elements non connectes ou un seul proc
           CEP(I) = 0
         ENDDO
       ENDIF
+      DEALLOCATE(IWKIN)
+      IF(ALLOCATED(PART_ID)) DEALLOCATE(PART_ID)
 C
  1000 FORMAT('#PROC    ELEMENT W.    SECND NOD W.   MAST NOD W.    CONT ELT W.',
      .       '        INT2 W.         DOF W.') 
@@ -2659,437 +2625,20 @@ C
 C
       RETURN
       END
-C
-Chd|====================================================================
-Chd|  I7NINTDD                      source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        I20INI3                       source/interfaces/inter3d1/i20ini3.F
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ZEROIN                        source/system/zeroin.F        
-Chd|====================================================================
-      SUBROUTINE I7NINTDD(NELEMINT,IXINT ,IRECT ,NSV  ,CAND_E ,
-     2                    CAND_N  ,I_STOK,IFIEND,X    ,GAP    ,
-     3                    DRAD    ,IGAP  ,GAP_S ,GAP_M,GAP_S_L,
-     4                    GAP_M_L ,GAPMIN,GAPMAX,DGAPLOAD)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NELEMINT, IXINT(6,*), IRECT(4,*),NSV(*),
-     .   CAND_E(*),CAND_N(*),I_STOK ,IFIEND, IGAP
-      my_real , INTENT(IN) :: DGAPLOAD ,DRAD
-      my_real
-     .   GAP, X(3,*), GAPMAX, GAPMIN,
-     .   GAP_M(*), GAP_S(*), GAP_S_L(*), GAP_M_L(*)
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER N, L, I,a,b,
-     .   IG,IX1,IX2,IX3,IX4
-      my_real
-     .   XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,SEUIL,
-     .   XI,X1,X2,X3,X4,YI,Y1,Y2,Y3,Y4,ZI,Z1,Z2,Z3,Z4
-C-----------------------------------------------
-      IFIEND = IFIEND + I_STOK*6
-      CALL ZEROIN (1,I_STOK*6,IXINT)
-C calcul du facteur de poids relatif
-      SEUIL = MAX(GAP+DGAPLOAD,DRAD)
-      DO I = 1, I_STOK
-          IG = NSV(CAND_N(I))
-          L  = CAND_E(I)
-          IXINT(1,I)=IRECT(1,L)
-          IXINT(2,I)=IRECT(2,L)
-          IXINT(3,I)=IRECT(3,L)
-          IXINT(4,I)=IRECT(4,L)
-          IXINT(5,I)=IG
-          IXINT(6,I)=7
-          IX1=IRECT(1,L)
-          IX2=IRECT(2,L)
-          IX3=IRECT(3,L)
-          IX4=IRECT(4,L)
-          ZI = X(3,IG)
-          Z1=X(3,IX1)
-          Z2=X(3,IX2)
-          Z3=X(3,IX3)
-          Z4=X(3,IX4)
-          IF(IGAP==0)THEN
-            SEUIL = GAP
-          ELSE
-            SEUIL=GAP_S(CAND_N(I))+GAP_M(CAND_E(I))
-            IF(IGAP==3)
-     .        SEUIL=MIN(SEUIL,
-     .             GAP_S_L(CAND_N(I))+GAP_M_L(CAND_E(I)))
-            SEUIL=MIN(SEUIL,GAPMAX)
-            SEUIL=MAX(SEUIL,GAPMIN)
-          ENDIF
-          SEUIL = MAX(SEUIL+DGAPLOAD,DRAD)
- 
-          ZMIN = MIN(Z1,Z2,Z3,Z4)-SEUIL
-          ZMAX = MAX(Z1,Z2,Z3,Z4)+SEUIL
-          IF (ZMIN.LE.ZI.AND.ZMAX.GE.ZI) THEN
-            YI = X(2,IG)
-            Y1 = X(2,IX1)
-            Y2 = X(2,IX2)
-            Y3 = X(2,IX3)
-            Y4 = X(2,IX4)
-            YMIN = MIN(Y1,Y2,Y3,Y4)-SEUIL
-            YMAX = MAX(Y1,Y2,Y3,Y4)+SEUIL
-            IF (YMIN.LE.YI.AND.YMAX.GE.YI) THEN
-              XI = X(1,IG)
-              X1 = X(1,IX1)
-              X2 = X(1,IX2)
-              X3 = X(1,IX3)
-              X4 = X(1,IX4)
-              XMIN = MIN(X1,X2,X3,X4)-SEUIL
-              XMAX = MAX(X1,X2,X3,X4)+SEUIL
-              IF (XMIN.LE.XI.AND.XMAX.GE.XI) THEN
-                IXINT(6,I)=-7
-              ENDIF
-            ENDIF
-          ENDIF          
-      ENDDO
-C
-      NELEMINT=NELEMINT+I_STOK
-C
-      RETURN
-      END
-Chd|====================================================================
-Chd|  I11NINTDD                     source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ZEROIN                        source/system/zeroin.F        
-Chd|====================================================================
-      SUBROUTINE I11NINTDD(NELEMINT,IXINT ,IRECTS ,IRECTM,CAND_S,
-     .                     CAND_M   ,I_STOK,IFIEND,X     ,GAP   ,
-     .                     DRAD     ,DGAPLOAD)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NELEMINT, IXINT(6,*), IRECTS(2,*), IRECTM(2,*),
-     .   CAND_S(*), CAND_M(*),I_STOK ,IFIEND
-
-      my_real
-     .   GAP, X(3,*)
-      my_real , INTENT(IN) :: DGAPLOAD ,DRAD
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER N, L, I,a,b,
-     .   IG,IX1,IX2,IX3,IX4
-      my_real
-     .   XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,SEUIL,
-     .   XI,X1,X2,X3,X4,YI,Y1,Y2,Y3,Y4,ZI,Z1,Z2,Z3,Z4
-C-----------------------------------------------
-      IFIEND = IFIEND + I_STOK*6
-      CALL ZEROIN (1,I_STOK*6,IXINT)
-C calcul du facteur de poids relatif
-      SEUIL = MAX(GAP+DGAPLOAD,DRAD)
-      DO I = 1, I_STOK
-        IXINT(1,I)=IRECTS(1,CAND_S(I))
-        IXINT(2,I)=IRECTS(2,CAND_S(I))
-        IXINT(3,I)=IRECTM(1,CAND_M(I))
-        IXINT(4,I)=IRECTM(2,CAND_M(I))
-        IXINT(5,I)=IRECTS(1,CAND_S(I)) ! 1er noeud retenu arbitrairement
-        IXINT(6,I)=11
-      ENDDO
-C
-      NELEMINT=NELEMINT+I_STOK
-C
-      RETURN
-      END
-      
-Chd|====================================================================
-Chd|  I24NINTDD                     source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ZEROIN                        source/system/zeroin.F        
-Chd|====================================================================
-      SUBROUTINE I24NINTDD(NELEMINT,IXINT ,IRECT ,NSV,CAND_E,
-     .                     CAND_N  ,I_STOK,IFIEND,X  ,GAP   ,
-     .                     DRAD    ,GAP_S ,GAP_M ,DGAPLOAD)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NELEMINT, IXINT(6,*), IRECT(4,*),NSV(*),
-     .   CAND_E(*),CAND_N(*),I_STOK ,IFIEND
-
-      my_real
-     .   GAP, X(3,*), GAP_M(*), GAP_S(*)
-      my_real , INTENT(IN) :: DGAPLOAD , DRAD
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER N, L, I,IG,IX1,IX2,IX3,IX4,II
-      my_real
-     .   XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,SEUIL,
-     .   XI,X1,X2,X3,X4,YI,Y1,Y2,Y3,Y4,ZI,Z1,Z2,Z3,Z4
-C-----------------------------------------------
-C      IFIEND = IFIEND + I_STOK*6
-      CALL ZEROIN (1,I_STOK*6,IXINT)
-C calcul du facteur de poids relatif
-c      SEUIL = MAX(GAP +DGAPLOAD,DRAD)
-      II = 0
-      DO I = 1, I_STOK
-          IG = NSV(CAND_N(I))
-          L  = CAND_E(I)
-          if (IG >NUMNOD) CYCLE
-          II = II +1
-          IXINT(1,II)=IRECT(1,L)
-          IXINT(2,II)=IRECT(2,L)
-          IXINT(3,II)=IRECT(3,L)
-          IXINT(4,II)=IRECT(4,L)
-          IXINT(5,II)=IG
-          IXINT(6,II)=24
-          IX1=IRECT(1,L)
-          IX2=IRECT(2,L)
-          IX3=IRECT(3,L)
-          IX4=IRECT(4,L)
-          ZI = X(3,IG)
-          Z1=X(3,IX1)
-          Z2=X(3,IX2)
-          Z3=X(3,IX3)
-          Z4=X(3,IX4)
-          SEUIL=GAP_S(CAND_N(I))+GAP_M(CAND_E(I))+DGAPLOAD
-          ZMIN = MIN(Z1,Z2,Z3,Z4)-SEUIL
-          ZMAX = MAX(Z1,Z2,Z3,Z4)+SEUIL
-          IF (ZMIN.LE.ZI.AND.ZMAX.GE.ZI) THEN
-            YI = X(2,IG)
-            Y1 = X(2,IX1)
-            Y2 = X(2,IX2)
-            Y3 = X(2,IX3)
-            Y4 = X(2,IX4)
-            YMIN = MIN(Y1,Y2,Y3,Y4)-SEUIL
-            YMAX = MAX(Y1,Y2,Y3,Y4)+SEUIL
-            IF (YMIN.LE.YI.AND.YMAX.GE.YI) THEN
-              XI = X(1,IG)
-              X1 = X(1,IX1)
-              X2 = X(1,IX2)
-              X3 = X(1,IX3)
-              X4 = X(1,IX4)
-              XMIN = MIN(X1,X2,X3,X4)-SEUIL
-              XMAX = MAX(X1,X2,X3,X4)+SEUIL
-              IF (XMIN.LE.XI.AND.XMAX.GE.XI) THEN
-                IXINT(6,II)=-24
-              ENDIF
-            ENDIF
-          ENDIF          
-      ENDDO
-C
-      IFIEND = IFIEND + II*6
-      NELEMINT=NELEMINT+II
-C
-      RETURN
-      END
-
-      
-Chd|====================================================================
-Chd|  I25NINTDD                     source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ZEROIN                        source/system/zeroin.F        
-Chd|====================================================================
-      SUBROUTINE I25NINTDD(NELEMINT,IXINT ,IRECT ,NSV,CAND_E,
-     .                     CAND_N  ,I_STOK,IFIEND,X  ,GAP   ,
-     .                     DRAD    ,GAP_S ,GAP_M ,DGAPLOAD)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NELEMINT, IXINT(6,*), IRECT(4,*),NSV(*),
-     .   CAND_E(*),CAND_N(*),I_STOK ,IFIEND
-
-      my_real
-     .   GAP, X(3,*), GAP_M(*), GAP_S(*) 
-      my_real , INTENT(IN) :: DGAPLOAD , DRAD
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER N, L, I,IG,IX1,IX2,IX3,IX4,II
-      my_real
-     .   XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,SEUIL,
-     .   XI,X1,X2,X3,X4,YI,Y1,Y2,Y3,Y4,ZI,Z1,Z2,Z3,Z4
-C-----------------------------------------------
-C      IFIEND = IFIEND + I_STOK*6
-      CALL ZEROIN (1,I_STOK*6,IXINT)
-C calcul du facteur de poids relatif
-C      SEUIL = MAX(GAP+DGAPLOAD,DRAD)
-      II = 0
-      DO I = 1, I_STOK
-          IG = NSV(CAND_N(I))
-          L  = CAND_E(I)
-          if (IG >NUMNOD) CYCLE
-          II = II +1
-          IXINT(1,II)=IRECT(1,L)
-          IXINT(2,II)=IRECT(2,L)
-          IXINT(3,II)=IRECT(3,L)
-          IXINT(4,II)=IRECT(4,L)
-          IXINT(5,II)=IG
-          IXINT(6,II)=25
-          IX1=IRECT(1,L)
-          IX2=IRECT(2,L)
-          IX3=IRECT(3,L)
-          IX4=IRECT(4,L)
-          ZI = X(3,IG)
-          Z1=X(3,IX1)
-          Z2=X(3,IX2)
-          Z3=X(3,IX3)
-          Z4=X(3,IX4)
-          SEUIL=GAP_S(CAND_N(I))+GAP_M(CAND_E(I))+DGAPLOAD
-          ZMIN = MIN(Z1,Z2,Z3,Z4)-SEUIL
-          ZMAX = MAX(Z1,Z2,Z3,Z4)+SEUIL
-          IF (ZMIN.LE.ZI.AND.ZMAX.GE.ZI) THEN
-            YI = X(2,IG)
-            Y1 = X(2,IX1)
-            Y2 = X(2,IX2)
-            Y3 = X(2,IX3)
-            Y4 = X(2,IX4)
-            YMIN = MIN(Y1,Y2,Y3,Y4)-SEUIL
-            YMAX = MAX(Y1,Y2,Y3,Y4)+SEUIL
-            IF (YMIN.LE.YI.AND.YMAX.GE.YI) THEN
-              XI = X(1,IG)
-              X1 = X(1,IX1)
-              X2 = X(1,IX2)
-              X3 = X(1,IX3)
-              X4 = X(1,IX4)
-              XMIN = MIN(X1,X2,X3,X4)-SEUIL
-              XMAX = MAX(X1,X2,X3,X4)+SEUIL
-              IF (XMIN.LE.XI.AND.XMAX.GE.XI) THEN
-                IXINT(6,II)=-25
-              ENDIF
-            ENDIF
-          ENDIF          
-      ENDDO
-C
-      IFIEND = IFIEND + II*6
-      NELEMINT=NELEMINT+II
-C
-      RETURN
-      END
-
-Chd|====================================================================
-Chd|  I2NINTDD                      source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE I2NINTDD(NELEMINT,IXINT,IRECT,NSV,IRTL,
-     .                    NSN,IFIEND)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NELEMINT, IXINT(6,*), IRECT(4,*),NSV(*),
-     .   IRTL(*),NSN ,IFIEND, IFITMP, NN    
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER N, L, I, JJ, NIR 
-C-----------------------------------------------
-C
-      IFITMP = IFIEND + NSN*6
-C
-      NIR=2
-      IF(N2D.EQ.0)NIR=4
-C
-      NN = 0
-      DO N = 1, NSN
-        I = NSV(N)
-        L = IRTL(N)
-        IF(L.NE.0)THEN         ! cas erreur segment non trouve
-          NN = NN + 1
-          IXINT(1,NN)=IRECT(1,L)
-          IXINT(2,NN)=IRECT(2,L)
-          IF (NIR.EQ.2) THEN
-            IXINT(3,NN)=IRECT(1,L)
-            IXINT(4,NN)=IRECT(2,L)
-          ELSE
-            IXINT(3,NN)=IRECT(3,L)
-            IXINT(4,NN)=IRECT(4,L)                
-          END IF
-          IXINT(5,NN)=I
-          IXINT(6,NN)=2
-        END IF
-      ENDDO
-      NELEMINT = NELEMINT+NN
-      IFIEND   = IFIEND + NN*6
-C
-      RETURN
-      END
-      
-Chd|====================================================================
-Chd|  SPDOMETIS                     source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|====================================================================
+!||====================================================================
+!||    spdometis    ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    lectur       ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    format_mod   ../starter/share/modules1/format_mod.F90
+!||    metis_mod    ../starter/source/spmd/domain_decomposition/metis_mod.F90
+!||====================================================================
       SUBROUTINE SPDOMETIS(KXSP, IXSP, NOD2SP, CEPSP, RESERVEP,
      .                     SPH2SOL, CEP)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
+
+        USE METIS_MOD
+        USE FORMAT_MOD , ONLY : FMW_A_I
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -3100,7 +2649,6 @@ C-----------------------------------------------
 #include      "units_c.inc"
 #include      "sphcom.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "scr12_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
@@ -3111,9 +2659,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NEDGES, CC, N, N1, N2, NI, I, J, IW, ADDX,
+      INTEGER NEDGES, CC, N, N1, N2, NI, I, J,  ADDX,
      .        NUMSPHA, P, NCOND, NNODE, NEC, IERR1, MODE, NOD1, NOD2,
      .        IWFLG, NFLAG, NEWEDGE
+      INTEGER(kind=8) :: IW
       INTEGER IWD(NUMSPH), RESERVEP(NBPARTINLET),
      .        WORK(70000), OPTIONS(40), CEPSL(NUMSPH)
       INTEGER, DIMENSION(:),ALLOCATABLE :: IEND, XADJ, ADJNCY,
@@ -3122,22 +2671,19 @@ C-----------------------------------------------
 C metis5 null pointers
       INTEGER, POINTER :: adjwgt(:)=>null(),vsize(:)=>null()
       REAL, POINTER :: tpwgts(:)=>null()
-      INTEGER METIS_PartGraphKway, METIS_PartGraphRecursive,
-     .        METIS_SetDefaultOptions,Wrap_METIS_PartGraphKway,
-     .        Wrap_METIS_PartGraphRecursive
+      INTEGER METIS_SetDefaultOptions
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      EXTERNAL METIS_PartGraphKway, METIS_PartGraphRecursive,
-     .         METIS_SetDefaultOptions,Wrap_METIS_PartGraphKway,
-     .         Wrap_METIS_PartGraphRecursive
+      EXTERNAL 
+     .         METIS_SetDefaultOptions
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
-C Connectivite cellules SPH
+C Connectivitis cells SPH
 C
-c NUMSPH ACTIVE less SPH2SOL/=0
+c Numsph Active Less Sph2sol/= 0
       NUMSPHA = NUMSPH - NSPHRES - NSPHSOL
 
       NEDGES = 0
@@ -3153,7 +2699,7 @@ c NUMSPH ACTIVE less SPH2SOL/=0
       END DO
 C
 
-      IF (NEDGES.GT.0) THEN
+      IF (NEDGES>0) THEN
         ALLOCATE(IEND(2*NEDGES))
         NI = 0
         DO N = 1, NUMSPHA
@@ -3193,7 +2739,7 @@ C
           IEND(2*I)  = ITRIM(2*INDEXM(I))
         ENDDO
  
-C structures Metis 1/2
+C Metis structures 1/2
         ALLOCATE(XADJ(NUMSPHA+1),STAT=IERR1)
 C init XADJ
         XADJ(1:NUMSPHA+1)=0
@@ -3206,7 +2752,7 @@ C first node
         xadj(nod2+1)=xadj(nod2+1)+1
         DO I = 2, NEDGES
 C test to suppress duplicate entry
-          IF (NOD1.NE.IEND(2*I-1).OR.NOD2.NE.IEND(2*I)) THEN
+          IF (NOD1/=IEND(2*I-1).OR.NOD2/=IEND(2*I)) THEN
             NEWEDGE = NEWEDGE + 1
             IEND(2*NEWEDGE-1) = IEND(2*I-1)
             IEND(2*NEWEDGE) = IEND(2*I)
@@ -3223,7 +2769,7 @@ C count xadj
 C
         NEDGES = NEWEDGE
 
-C structures Metis 2/2
+C Metis structures 2/2
         ALLOCATE(ADJNCY(2*NEDGES),STAT=IERR1)
 
 C build xadj & adjcny in a simple pass
@@ -3253,12 +2799,17 @@ C reset XADJ
       ENDIF
 C----------------------    
 C
-C Init poids uniformes
+C Initialize uniform weights
 c init for every SPH cells
 C
       DO N = 1, NUMSPHA
         IWD(N) = 1
       END DO
+      IF(NUMSPH > NUMSPHA) THEN
+        DO N = NUMSPHA+1, NUMSPH
+          IWD(N) = 0
+        END DO
+      END IF
 C
       IWFLG=2
       NFLAG=1
@@ -3267,40 +2818,26 @@ C old metis option kept for compatibility
       NCOND=1
       NNODE=NSPMD
       UBVEC(1)=1.01 ! tolerance on loadbalancing SPH cell
-#if defined(METIS5)
 C new Metis5 Definition
       IERR1 = METIS_SetDefaultOptions(options)
 C     OPTIONS(METIS_OPTION_NUMBERING) = 1 ! Fortran numbering -- position 17 en 5.0.2 et 18 en 5.1
       OPTIONS(18)=1
-#endif
 C
 C Proc attribution on NUMSPA cells
 C
       IF (NEDGES > 0 .AND. NSPMD > 1) THEN
 C KWAY METIS
-        IF(DECTYP.EQ.3.OR.DECTYP.EQ.5)THEN
-#if defined(METIS5)
+        IF(DECTYP==3.OR.DECTYP==5)THEN
           IERR1 = Wrap_METIS_PartGraphKway(
      1      NUMSPHA,NCOND,XADJ,ADJNCY,
      2      IWD,NNODE,
      3      UBVEC,OPTIONS,NEC,CEPSL)
-#elif 1
-          CALL METIS_mCPartGraphKway(
-     1      NUMSPHA,NCOND,XADJ,ADJNCY,IWD,0,
-     2      IWFLG,NFLAG,NNODE,UBVEC,OPTIONS,NEC,CEPSL)
-#endif
-        ELSEIF(DECTYP.EQ.4.OR.DECTYP.EQ.6)THEN
+        ELSEIF(DECTYP==4.OR.DECTYP==6)THEN
 C RSB METIS
-#if defined(METIS5)
           IERR1 = Wrap_METIS_PartGraphRecursive(
      1      NUMSPHA,NCOND,XADJ,ADJNCY,
      2      IWD,NNODE,
      3      UBVEC,OPTIONS,NEC,CEPSL)
-#elif 1
-          CALL METIS_mCPartGraphRecursive(
-     1      NUMSPHA,NCOND,XADJ,ADJNCY,IWD,0,
-     2      IWFLG,NFLAG,NNODE,OPTIONS,NEC,CEPSL)
-#endif
         END IF
 C
         DO N = 1, NUMSPHA
@@ -3338,10 +2875,10 @@ C SPH generated from solids are enforced on the same proc as the solid
       END DO
 C
       WRITE(IOUT,'(A)')' '
-      IF(DECTYP.EQ.3.OR.DECTYP.EQ.5)THEN
+      IF(DECTYP==3.OR.DECTYP==5)THEN
         WRITE(IOUT,'(A)')
      .  ' SPH DOMAIN DECOMPOSITION USING MULTILEVEL KWAY'
-      ELSEIF(DECTYP.EQ.4.OR.DECTYP.EQ.6)THEN
+      ELSEIF(DECTYP==4.OR.DECTYP==6)THEN
         WRITE(IOUT,'(A)')
      .  ' SPH DOMAIN DECOMPOSITION USING MULTILEVEL RSB'
       END IF
@@ -3355,7 +2892,7 @@ C
       DO I = 1, NSPMD
         IW = 0
         DO J = 1, NUMSPH
-          IF (CEPSP(J)+1.EQ.I) THEN
+          IF (CEPSP(J)+1==I .AND. IWD(J) > 0) THEN
             IW = IW + IWD(J)
           ENDIF
         ENDDO
@@ -3366,14 +2903,12 @@ C
       RETURN
       END
       
-C NOUVELLE ROUTINE
-Chd|====================================================================
-Chd|  INTERLAGRAN                   source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        INITWG_SHELL                  source/spmd/domain_decomposition/initwg_shell.F
-Chd|        INITWG_TRI                    source/spmd/domain_decomposition/initwg_tri.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    interlagran    ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    initwg_shell   ../starter/source/spmd/domain_decomposition/initwg_shell.F
+!||    initwg_tri     ../starter/source/spmd/domain_decomposition/initwg_tri.F
+!||====================================================================
       SUBROUTINE INTERLAGRAN(TAB,LX,LTAB,X,Y)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -3391,13 +2926,13 @@ C-----------------------------------------------
       REAL MUL,ALPHA
       Y = 0
 
-      IF (X.LE.10)THEN
+      IF (X<=10)THEN
 
         DO I=1,LTAB
 
         MUL = 1.
         DO J=1,LTAB
-          IF (I.NE.J) THEN
+          IF (I/=J) THEN
             MUL= MUL * (X-LX(J))/(LX(I)-LX(J))
           ENDIF
         ENDDO
@@ -3406,29 +2941,22 @@ C-----------------------------------------------
 
         ENDDO
       ENDIF
-      IF(X.GT.10.or.Y.LE.0)THEN
+      IF(X>10.or.Y<=0)THEN
         Alpha = (TAB(3)-TAB(1))/(LX(3)-LX(1))
         Y = X*ALPHA + TAB(3)-ALPHA*LX(3)
       ENDIF
       END
 C
-Chd|====================================================================
-Chd|  I2WCONTDD                     source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2wcontdd   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    inint3      ../starter/source/interfaces/inter3d1/inint3.F
+!||====================================================================
       SUBROUTINE I2WCONTDD(NSV,MSR,NSN,NMN,IWCONT,NSNT,NMNT)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3454,23 +2982,16 @@ C        IWCONT(1,N) = IWCONT(1,N)+1
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IWCONTDD_NEW                  source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        ININTR                        source/interfaces/interf1/inintr.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    iwcontdd_new   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    inintr         ../starter/source/interfaces/interf1/inintr.F
+!||====================================================================
       SUBROUTINE IWCONTDD_NEW(NSV,MSR,NSN,NMN,IWCONT,COST)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3494,23 +3015,16 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  IWCONTDD                      source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    iwcontdd   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    inint3     ../starter/source/interfaces/inter3d1/inint3.F
+!||====================================================================
       SUBROUTINE IWCONTDD(NSV,MSR,NSN,NMN,IWCONT,NSNT,NMNT)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3535,24 +3049,70 @@ C        IWCONT(1,N) = IWCONT(1,N)+1
 C
       RETURN
       END
-C
-Chd|====================================================================
-Chd|  I20WCONTDD                    source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        I20INI3                       source/interfaces/inter3d1/i20ini3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE I20WCONTDD(NSV,MSR,NSN,NMN,IWCONT,NSNT,NMNT)
+
+
+
+!||====================================================================
+!||    iwcontdd_151   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    inint3         ../starter/source/interfaces/inter3d1/inint3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE IWCONTDD_151(BUFBRIC,NBRIC,MSR,NMN,IWCONT,NSNT,NMNT,NUMNOD,IXS,NUMELS,NALE)
+      use element_mod , only : nixs
 C-----------------------------------------------
-C            A r g u m e n t s
+C   D e s c r i p t i o n
 C-----------------------------------------------
+C Equivalent treatment than IWCONTDD() BUT FOR SPECIFIC CASE OF INTER18+LAW151 (COLLOCATED SCHEME)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
+C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER,INTENT(IN) :: NMN, NUMNOD,NUMELS
+      INTEGER,INTENT(IN) :: MSR(NMN),IXS(NIXS,NUMELS),NALE(NUMNOD)
+      INTEGER,INTENT(INOUT) :: IWCONT(5,NUMNOD),NSNT, NMNT
+      INTEGER,INTENT(IN) :: NBRIC
+      INTEGER,INTENT(IN) :: BUFBRIC(NBRIC)
+C-----------------------------------------------
+C   L o c a l   V a r i a b l e s
+C-----------------------------------------------
+      INTEGER I, N, IELEM, INOD, J
+C-----------------------------------------------
+
+      DO I = 1, NBRIC
+        IELEM = BUFBRIC(I)
+        DO J=2,9
+          INOD = IXS(J,IELEM)
+          IF(NALE(INOD) /= 0 .AND. INOD > 0)THEN
+            IWCONT(1,INOD) = IWCONT(1,INOD)+1
+            NSNT = NSNT + 1
+          ENDIF!NALE(node_i)==0 <=> lagrangian node_i
+        ENDDO
+      ENDDO
+
+      DO I = 1, NMN
+        N = MSR(I)
+        IWCONT(2,N) = IWCONT(2,N)+1
+        NMNT = NMNT + 1
+      ENDDO
+C
+      RETURN
+      END
+
+C
+!||====================================================================
+!||    i20wcontdd   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    i20ini3      ../starter/source/interfaces/inter3d1/i20ini3.F
+!||====================================================================
+      SUBROUTINE I20WCONTDD(NSV,MSR,NSN,NMN,IWCONT,NSNT,NMNT)
+C-----------------------------------------------
+C   I m p l i c i t   T y p e s
+C-----------------------------------------------
+#include      "implicit_f.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3577,23 +3137,16 @@ C        IWCONT(1,N) = IWCONT(1,N)+2
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  DD_BFS                        source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        DOMETIS                       source/spmd/domain_decomposition/grid2mat.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    dd_bfs    ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    dometis   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||====================================================================
       SUBROUTINE DD_BFS(XADJ,ADJNCY,NELEM,NEDGES,NCONNX,COLORS,ROOTS)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3604,9 +3157,10 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NVISIT, N, I
-      INTEGER FILE_V(NELEM), FILE_NEXT, ROOT, CURRENT
+      INTEGER FILE_NEXT, ROOT, CURRENT
+      INTEGER, DIMENSION(:), ALLOCATABLE :: FILE_V
 C-----------------------------------------------
-      
+      ALLOCATE(FILE_V(NELEM)) 
       DO N = 1, NELEM
         COLORS(N)=0
       END DO
@@ -3643,20 +3197,22 @@ c        END IF
           END DO            
         END DO
       END DO
-      
+      DEALLOCATE(FILE_V) 
       RETURN
       END
 
-Chd|====================================================================
-Chd|  PRELEC_DDW                    source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prelec_ddw       ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    reader_old_mod   ../starter/share/modules1/reader_old_mod.F90
+!||====================================================================
       SUBROUTINE PRELEC_DDW(FILNAM,LEN_FILNAM,MARQUEUR3)
 C-----------------------------------------------
-C            A r g u m e n t s
+C   M o d u l e s
 C-----------------------------------------------
+        USE READER_OLD_MOD , ONLY : LINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -3689,7 +3245,7 @@ C-----------------------------------------------
 
       IF(MARQUEUR3) THEN
          TEST_POIDS = 1
-C        Nombre de lignes
+C        Number of lines
          OPEN(UNIT=30,FILE=FILNAM(1:LEN_FILNAM),FORM='FORMATTED')
          DO WHILE(LINE(1:12) /= '     POINTER')
           MARQUEUR2=MARQUEUR2+1
@@ -3699,7 +3255,7 @@ C        Nombre de lignes
          MARQUEUR2 = MARQUEUR2 - 3
 
          MARQUEUR = 0       
-C        Prelecture des poids couple Mat/Prop
+C        Pre-reading of Mat/Prop coupled weights
          OPEN(UNIT=30,FILE=FILNAM(1:LEN_FILNAM),FORM='FORMATTED',
      .     POSITION='REWIND')
          LINE = ' '
@@ -3717,16 +3273,18 @@ C        Prelecture des poids couple Mat/Prop
       ENDIF   
        RETURN
        END
-Chd|====================================================================
-Chd|  LEC_DDW                       source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    lec_ddw          ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    reader_old_mod   ../starter/share/modules1/reader_old_mod.F90
+!||====================================================================
       SUBROUTINE LEC_DDW(FILNAM,LEN_FILNAM,TAB_UMP_OLD,CPUTIME_MP_OLD)
 C-----------------------------------------------
-C            A r g u m e n t s
+C   M o d u l e s
 C-----------------------------------------------
+        USE READER_OLD_MOD , ONLY : LINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -3734,9 +3292,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
-#include      "scr15_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -3751,7 +3307,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER J
 C-----------------------------------------------       
-C     Lecture des poids couple Mat/Prop
+C     Reading of Mat/Prop coupled weights
       OPEN(UNIT=30,FILE=FILNAM(1:LEN_FILNAM),FORM='FORMATTED')
         LINE = ' '
        DO WHILE(LINE(1:12) /= '    LAW_NUMB')
@@ -3769,16 +3325,18 @@ C     Lecture des poids couple Mat/Prop
       CLOSE(UNIT=30)
       RETURN
       END
-Chd|====================================================================
-Chd|  PRELEC_DDW_POIN               source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prelec_ddw_poin   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    lectur            ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    reader_old_mod    ../starter/share/modules1/reader_old_mod.F90
+!||====================================================================
       SUBROUTINE PRELEC_DDW_POIN(FILNAM,LEN_FILNAM)
 C-----------------------------------------------
-C            A r g u m e n t s
+C   M o d u l e s
 C-----------------------------------------------
+        USE READER_OLD_MOD , ONLY : LINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -3786,9 +3344,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
-#include      "scr15_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -3799,7 +3355,7 @@ C Dynamical User Library
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------   
-C     Lecture du pointer
+C     Reading the pointer
       OPEN(UNIT=30,FILE=FILNAM(1:LEN_FILNAM),FORM='FORMATTED')
          LINE = ' '
          DO WHILE(LINE(1:12) /= '     POINTER')
@@ -3810,16 +3366,18 @@ C     Lecture du pointer
       CLOSE(UNIT=30)
       RETURN
       END 
-Chd|====================================================================
-Chd|  LEC_DDW_POIN                  source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    lec_ddw_poin     ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    reader_old_mod   ../starter/share/modules1/reader_old_mod.F90
+!||====================================================================
       SUBROUTINE LEC_DDW_POIN(FILNAM,LEN_FILNAM,POIN_UMP_OLD)
 C-----------------------------------------------
-C            A r g u m e n t s
+C   M o d u l e s
 C-----------------------------------------------
+        USE READER_OLD_MOD , ONLY : LINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -3827,9 +3385,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
-#include      "scr15_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -3843,7 +3399,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------   
       INTEGER I
 C-----------------------------------------------   
-C     Lecture du pointer 
+C     Reading the pointer
       OPEN(UNIT=30,FILE=FILNAM(1:LEN_FILNAM),FORM='FORMATTED')
          LINE = ' '
          DO WHILE(LINE(1:12) /= '     POINTER')
@@ -3857,17 +3413,15 @@ C     Lecture du pointer
       CLOSE(UNIT=30)
       RETURN
       END      
-Chd|====================================================================
-Chd|  REINI_MATPROP                 source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reini_matprop   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE REINI_MATPROP(TAILLE,TAILLE2,TAB_UMP_LOC,TAB_UMP_LOC2,
      .           IXS,IXQ,IXC,IXT,IXP,IXR,IXTG,ISOLNOD,POIN_UMP)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
+      use element_mod , only : nixs,nixq,nixc,nixp,nixt,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -3876,7 +3430,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4072,18 +3625,14 @@ C
       RETURN
       END
       
-Chd|====================================================================
-Chd|  REINI_MATPROP2                source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reini_matprop2   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE REINI_MATPROP2(TAILLE,TAILLE2,
      .           TAB_UMP_LOC,TAB_UMP_LOC2,TAB_UMP,TAB_SOL,
      .           POIN_UMP)
-C-----------------------------------------------
-C            A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -4092,7 +3641,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4144,12 +3692,11 @@ C-----------------------------------------------
 
       RETURN
       END                    
-Chd|====================================================================
-Chd|  STAT_DOMDEC                   source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        DOMETIS                       source/spmd/domain_decomposition/grid2mat.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    stat_domdec   ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    dometis       ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||====================================================================
       SUBROUTINE  STAT_DOMDEC(WIS   ,WI2     ,WFSI      ,WDEL   ,WDDL     ,
      2                        WCAND ,WSOL    ,WR2R      ,WKIN   ,IWD      ,
      3                        NCOND ,ICELEM  ,ICINTS    ,ICINT2 ,ICCAND   ,
@@ -4280,20 +3827,22 @@ C
               DEVIATION(I)=SQRT(DEVIATION(I)/NSPMD)
             END DO
         END
-Chd|====================================================================
-Chd|  FIND_NODES                    source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        DOMETIS                       source/spmd/domain_decomposition/grid2mat.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    find_nodes          ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    dometis             ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- uses       -----------------------------------------------------
+!||    consider_edge_mod   ../starter/source/spmd/domain_decomposition/consider_edge.F
+!||====================================================================
       SUBROUTINE FIND_NODES(ELEMN0,ELEMNODES,TAGELEM,IXS, IXS10 ,
      2                      IXQ   ,IXC      ,IXT    ,IXP, IXR   , 
-     3                      IXTG  ,IXUR     ,KXX    ,IXX, KXIG3D,
+     3                      IXTG  ,KXX    ,IXX, KXIG3D,
      4                      IXIG3D,GEO      ,OFFELEM,NELMIN)
 C-----------------------------------------------
 C            M o d u l e s
 C-----------------------------------------------
-     
+       USE CONSIDER_EDGE_MOD , ONLY : MAX_NB_NODES_PER_ELT
+       use element_mod , only : nixs,nixq,nixc,nixp,nixt,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -4301,26 +3850,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr12_c.inc"
-#include      "rnur_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr15_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
 #include      "scr23_c.inc"
-#include      "sms_c.inc"
-#include      "r2r_c.inc"
-#include      "kincod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXS(NIXS,*), IXQ(NIXQ,*), IXC(NIXC,*), IXT(NIXT,*),
-     .        IXP(NIXP,*), IXR(NIXR,*), IXUR(NIXUR,*), IXTG(NIXTG,*),
+     .        IXP(NIXP,*), IXR(NIXR,*), IXTG(NIXTG,*),
      .        KXX(NIXX,NUMELX),IXX(*),IXS10(6,*),KXIG3D(NIXIG3D,NUMELIG3D),
-     .        IXIG3D(*),ELEMNODES(20),TAGELEM(*),OFFELEM(10)
+     .        IXIG3D(*),ELEMNODES(MAX_NB_NODES_PER_ELT),TAGELEM(*),OFFELEM(10)
       INTEGER ELEMN0,NELMIN
       my_real  GEO(NPROPG,*)
 C----------------------------------------------
@@ -4329,7 +3868,7 @@ C---------------------------------------------
       INTEGER K,N,ADDX,NELX,J,NELIG3D,I,ELEM
 C---------------------------------------------
       NELMIN = 3
-      DO I=1,20 
+      DO I=1,MAX_NB_NODES_PER_ELT 
         ELEMNODES(I)=0
       ENDDO
 
@@ -4390,7 +3929,7 @@ C---------------------------------------------
           N = IXR(K+1,ELEM)
           ELEMNODES(K) = N
         ENDDO
-        IF(NINT(GEO(12,IXR(1,ELEM))).EQ.12) THEN
+        IF(NINT(GEO(12,IXR(1,ELEM)))==12) THEN
           N = IXR(4,ELEM)
           ELEMNODES(3) = N
         ENDIF
@@ -4408,17 +3947,13 @@ C---------------------------------------------
         DO I=1,7
            ELEM = ELEM - OFFELEM(I)
         ENDDO
-        DO K=1,4
-          N = IXUR(K+1,ELEM)
-          ELEMNODES(K) = N
-        ENDDO
       CASE(10)
         NELMIN = 1
         DO I=1,8
            ELEM = ELEM - OFFELEM(I)
         ENDDO
         NELX=KXX(3,ELEM)
-        DO K=1,NELX
+        DO K=1,MIN(NELX,10)
           ADDX = KXX(4,ELEM)+K-1
           N=IXX(ADDX)
           ELEMNODES(K) = N
@@ -4428,40 +3963,31 @@ C---------------------------------------------
            ELEM = ELEM - OFFELEM(I)
         ENDDO
         NELIG3D=KXIG3D(3,ELEM)
-        DO K=1,NELIG3D
+        DO K=1,MIN(NELIG3D,10)
           ADDX = KXIG3D(4,ELEM)+K-1
           N=IXIG3D(ADDX)
           ELEMNODES(K) = N
         ENDDO
       END SELECT
-C     TRI ELEMNODES + UNIQ 
-
-      DO K=2,20 
-      DO I=1,K-1
+C     Duplicate set to 0                     
+      DO K=2,MAX_NB_NODES_PER_ELT 
+        DO I=1,K-1
          IF(ELEMNODES(K) == ELEMNODES(I)) ELEMNODES(K) = 0
-      ENDDO
+        ENDDO
       ENDDO
 
       END
 
-
-
-
-
-
-
-
-Chd|====================================================================
-Chd|  FVBAG_VERTEX                  source/spmd/domain_decomposition/grid2mat.F
-Chd|-- called by -----------
-Chd|        DOMETIS                       source/spmd/domain_decomposition/grid2mat.F
-Chd|-- calls ---------------
-Chd|        FVELSURF                      source/airbag/fvelsurf.F      
-Chd|        FVMBAG_MESHCONTROL_MOD        ../common_source/modules/fvmbag_meshcontrol_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    fvbag_vertex             ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- called by ------------------------------------------------------
+!||    dometis                  ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||--- calls      -----------------------------------------------------
+!||    fvelsurf                 ../starter/source/airbag/fvelsurf.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod        ../starter/share/modules1/monvol_struct_mod.F
+!||====================================================================
       SUBROUTINE FVBAG_VERTEX(IXC   ,IXTG    , NELEM, WD,
      .                        WD_MAX,FVM_ELEM, FVM_DOMDEC, ITAB, 
      .     IGRSURF, T_MONVOL)
@@ -4478,6 +4004,7 @@ C-----------------------------------------------
       USE FVMBAG_MESHCONTROL_MOD
       USE GROUPDEF_MOD
       USE MONVOL_STRUCT_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -4487,14 +4014,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr12_c.inc"
-#include      "rnur_c.inc"
-#include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr15_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "scr23_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4542,7 +4062,7 @@ C In order to be able to compute a partition
              WD_MAX = WD_MAX + (1.0D0*WD(N)) / (1.0D0 * NSPMD)
           ENDDO
 C================================================================================
-C Arbitrary: limit the weight of one FVMBAG to 25% of the weight of one subdoamin
+C Arbitrary: limit the weight of one FVMBAG to 25% of the weight of one subdomain
           WD_MAX = WD_MAX / 4.0D0
 C================================================================================
                     
@@ -4596,7 +4116,7 @@ C===============================================================================
                   TAGGED_ELEM(K0) = .TRUE.
                   DO I=2,NTGT
                      J = ELTG(I)! ELTG 
-                     IF (J.LE.NUMELC) THEN
+                     IF (J<=NUMELC) THEN
                        K = OFFC + J
                          ! The weight of the super element is incremented
                         IF(.NOT.(TAGGED_ELEM(K))) THEN
@@ -4605,7 +4125,7 @@ c                        CALL IDDCONNECTPLUS(K,K0,NELEM)
                          WD(K0) = WD(K0) +1.0d0* WD(K)
                          TAGGED_ELEM(K) = .TRUE.
                        ENDIF
-                     ELSEIF (J.GT.NUMELC) THEN
+                     ELSEIF (J>NUMELC) THEN
                        K = OFFTG+ (J-NUMELC)
                          ! The weight of the super element is incremented
                        IF(.NOT.(TAGGED_ELEM(K))) THEN

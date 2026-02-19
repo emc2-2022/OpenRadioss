@@ -1,54 +1,56 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT26                 source/materials/mat/mat026/hm_read_mat26.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        MINTP_RE                      ../common_source/eos/mintp_re.F
-Chd|        MINTP_RT                      ../common_source/eos/mintp_rt.F
-Chd|        MRDSE2                        source/materials/mat/mat026/mrdse2.F
-Chd|        MRDSE3                        source/materials/mat/mat026/mrdse3.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat26            ../starter/source/materials/mat/mat026/hm_read_mat26.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_string            ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||    mrdse2                   ../starter/source/materials/mat/mat026/mrdse2.F
+!||    mrdse3                   ../starter/source/materials/mat/mat026/mrdse3.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT26(
-     .              MTAG     ,PM     ,MAT_ID   ,TITR  ,IPM     ,
-     .              JTHE     ,BUFMAT ,MFI      ,IDF   ,LSUBMODEL,
-     .              UNITAB   )
+     .              MTAG     ,PM      ,MAT_ID   ,TITR  ,IPM     ,
+     .              JTHE     ,BUFMAT  ,MFI      ,IDF   ,LSUBMODEL,
+     .              UNITAB   ,MATPARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFTAG_MOD            
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
+      USE MATPARAM_DEF_MOD          
+      USE UNITAB_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,42 +60,39 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER, INTENT(INOUT)                       :: JTHE,MFI,IDF
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
-      INTEGER, INTENT(IN)                          :: MAT_ID
-      INTEGER, DIMENSION(NPROPMI) ,INTENT(INOUT)   :: IPM
-      my_real, DIMENSION(NPROPM)  ,INTENT(INOUT)   :: PM
-      my_real, DIMENSION(LUNIT,NUNITS) ,INTENT(IN) :: UNITAB
-      TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
-      TYPE(MLAW_TAG_), INTENT(OUT)                 :: MTAG
-      my_real ,DIMENSION(*), INTENT(INOUT)         :: BUFMAT
+      INTEGER, INTENT(INOUT) :: JTHE,MFI,IDF
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN) :: TITR
+      INTEGER, INTENT(IN) :: MAT_ID
+      INTEGER, DIMENSION(NPROPMI) ,INTENT(INOUT) :: IPM
+      my_real, DIMENSION(NPROPM)  ,INTENT(INOUT) :: PM
+      TYPE(UNIT_TYPE_), INTENT(IN) :: UNITAB
+      TYPE(SUBMODEL_DATA), DIMENSION(NSUBMOD),INTENT(IN) :: LSUBMODEL
+      TYPE(MLAW_TAG_), INTENT(INOUT) :: MTAG
+      my_real ,DIMENSION(*), INTENT(INOUT) :: BUFMAT
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I1, MAT, NR, NT, IDR, IDT, IDP, IDE, IDQ,ILAW
       my_real
      .   YOUNG, ANU, CA, CB, CN, EPSM, SIGM, E0, CC, EPS0, CM, TMELT,
-     .   TMAX, G, C1, RHO, UNIT, STATUS, FORM, XNR, XNT, T0, P0, DPDR,
+     .   TMAX, G, C1, XNR, XNT, T0, P0, DPDR,
      .   XKL, XLAMB, ATOM, SIG, XKMAX, RHO0, DYDZ,RHOR,EPS0_UNIT
 
       CHARACTER(ncharline) ::  FILE, VIDE
 !
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
 C=======================================================================
       ILAW = 26
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED   = .FALSE.
       IS_AVAILABLE = .FALSE.
 !-----------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 !-----------------------
-C License Flag
-      LIDFS = 0
       VIDE=
      .'                                                                '
 !     LINE 1
@@ -194,13 +193,12 @@ C
 C
       WRITE(IOUT,1100) TRIM(TITR),MAT_ID,ILAW
       WRITE(IOUT,1000)
-      IF (IS_CRYPTED) THEN
+      IF (IS_ENCRYPTED) THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
         WRITE(IOUT,1200) RHO0,RHOR
         WRITE(IOUT,1300) YOUNG,ANU,G
         WRITE(IOUT,1400) CA,CB,CN,EPSM,SIGM
-!!        WRITE(IOUT,1500) TRIM(FILE),P0,T0,E0
         WRITE(IOUT,1500) FILE(1:LEN(TRIM(FILE))),P0,T0,E0
         WRITE(IOUT,1600) CC,EPS0,CM,TMELT,TMAX
       ENDIF
@@ -297,8 +295,8 @@ C
         CALL MRDSE3(BUFMAT(IDR),NR,BUFMAT(IDT),NT,BUFMAT(IDQ))
         CLOSE(31)
        ENDIF
-!!       IF (JTHE /= 0 .AND. .not. IS_CRYPTED) WRITE(IOUT,1800)TRIM(FILE),SIG
-       IF (JTHE /= 0 .AND. .not. IS_CRYPTED) WRITE(IOUT,1800)FILE(1:LEN(TRIM(FILE))),SIG
+!!       IF (JTHE /= 0 .AND. .not. IS_ENCRYPTED) WRITE(IOUT,1800)TRIM(FILE),SIG
+       IF (JTHE /= 0 .AND. .not. IS_ENCRYPTED) WRITE(IOUT,1800)FILE(1:LEN(TRIM(FILE))),SIG
 C
       PM(51)=SIG
       PM(52)=XKMAX
@@ -308,7 +306,7 @@ C
 !----------------------
 !
 c
-C---- Definition des variables internes (stockage elementaire)
+C---- Definition of internal variables (Elementary storage)
 c
       MTAG%G_PLA   = 1    
       MTAG%G_TEMP  = 1    
@@ -318,7 +316,17 @@ c
       MTAG%L_TEMP  = 1
       MTAG%L_EPSD  = 1
       MTAG%L_SSP   = 1
-      MTAG%L_Z     = 1    ! taux ionisation
+      MTAG%L_Z     = 1    ! ionization rate
+c
+      ! MATPARAM keywords
+      CALL INIT_MAT_KEYWORD(MATPARAM,"INCOMPRESSIBLE")
+
+      ! EOS/Thermo keyword for pressure treatment in elements
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HYDRO_EOS")
+
+c
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")
 c-----------
       RETURN
 c-----------       
@@ -342,7 +350,7 @@ c-----------
      & 5X,'MATERIAL LAW. . . . . . . . . . . . . .=',I10/)
  1200 FORMAT(
      & 5X,'INITIAL DENSITY . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'EOS REFERENCE DENSITY . . . . . . . . .=',1PG20.13/)
+     & 5X,'REFERENCE DENSITY . . . . . . . . . . .=',1PG20.13/)
  1300 FORMAT(
      & 5X,40HYOUNG'S MODULUS . . . . . . . . . . . .=,E12.4/,
      & 5X,40HPOISSON'S RATIO . . . . . . . . . . . .=,E12.4/,
@@ -377,8 +385,6 @@ c-----------
      & 5X,'---------',/,
      & 5X,'SESAME ROSSELAND OPACITY TABLE :',A/,
      & 5X,40HSTEFAN-BOLTZMANN CONSTANT . . . . . . .=,E12.4//)
-c-----------
- 999  CALL FREERR(3)
 c-----------
       RETURN
       END

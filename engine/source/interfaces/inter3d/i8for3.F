@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I8FOR3                        source/interfaces/inter3d/i8for3.F
-Chd|-- called by -----------
-Chd|        INTVO8                        source/interfaces/inter3d/intvo8.F
-Chd|-- calls ---------------
-Chd|        IBCOFF                        source/interfaces/interf/ibcoff.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE I8FOR3(LFT   ,LLT   ,NFT   ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i8for3       ../engine/source/interfaces/inter3d/i8for3.F
+!||--- called by ------------------------------------------------------
+!||    intvo8       ../engine/source/interfaces/inter3d/intvo8.F
+!||--- calls      -----------------------------------------------------
+!||    ibcoff       ../engine/source/interfaces/interf/ibcoff.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod      ../engine/share/modules/h3d_mod.F
+!||    output_mod   ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE I8FOR3(OUTPUT,LFT   ,LLT   ,NFT   ,
      2                  E     ,MSR   ,NSV   ,IRTL  ,STF   ,
      .                  NSVGLO,NSV2   ,ILOC,
      3                  STFN  ,IBC   ,ICODT ,FSAV  ,IGIMP ,
@@ -50,28 +52,24 @@ Chd|====================================================================
      J                  FX4   ,FY4   ,FZ4,
      K                  THK   ,H3D_DATA,NINSKID,
      L                  NINTERSKID,PSKIDS,IRECT,NIN,
-     M                  TAGNCONT ,KLOADPINTER,LOADPINTER ,LOADP_HYD_INTER)
+     M                  TAGNCONT ,KLOADPINTER,LOADPINTER ,LOADP_HYD_INTER,
+     O                  IFLINEAR ,FRIC_LAST,FNOR_LAST,DISTLIN)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD, ONLY: OUTPUT_
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
@@ -81,7 +79,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IBC, IGIMP, NSN,LFT, LLT, NFT, IFORM,IFT0,NINSKID ,NINTERSKID,NIN 
+      INTEGER IBC, IGIMP, NSN,LFT, LLT, NFT, IFORM,IFT0,NINSKID ,NINTERSKID,NIN
       INTEGER MSR(*), NSV(*), IRTL(*), ICODT(*), ISKY(*),ITAB(*)
       INTEGER NSVGLO(*),NSV2(*),ILOC(*),IRECT(4,*)
 C     REAL
@@ -89,6 +87,7 @@ C     REAL
      .  TAGNCONT(NLOADP_HYD_INTER,NUMNOD),
      .  KLOADPINTER(NINTER+1),LOADPINTER(NINTER*NLOADP_HYD),
      .  LOADP_HYD_INTER(NLOADP_HYD)
+      INTEGER  , INTENT(IN) :: IFLINEAR
       my_real 
      .  E(*), STF(*), STFN(*), FSAV(*), X(3,*),V(3,*),MS(*),
      .  FSKYI(LSKYI,NFSKYI),FCONT(3,*),FMAX, RCONTACT(*),
@@ -100,42 +99,32 @@ C     REAL
      .   TTC(*), THK(*), H1(*), H2(*), H3(*), H4(*), XFACE(*), STIF(*),
      .   FXI(*), FYI(*), FZI(*), FNI(*), FX1(*), FX2(*), FX3(*), FX4(*),
      .   FY1(*), FY2(*), FY3(*), FY4(*), FZ1(*), FZ2(*), FZ3(*), FZ4(*)
+      my_real  , INTENT(IN) :: FRIC_LAST,FNOR_LAST,DISTLIN(NSN)
       TYPE(H3D_DATABASE) :: H3D_DATA
+      TYPE(OUTPUT_), INTENT(inout) :: OUTPUT
 
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, IL, L, J3, J2, J1, IG,
-     .   I3, I2, I1,JL,JG,J,NN, PP, PPL,K
+     .   I3, I2, I1,J,NN, PP, PPL,K
       INTEGER NISKYL
       my_real
      .   NX,NY,NZ,LX,LY,LZ,NX2,CC2,ST,LI2(NSN),
-     .   VX(NSN),VY(NSN),VZ(NSN),VV(NSN),VN(NSN),
-     .   NN1(NSN),NN2(NSN),NN3(NSN),FNNI(NSN),NNX, 
+     .   VX(NSN),VY(NSN),VZ(NSN),VV(NSN),
+     .   NN1(NSN),NN2(NSN),NN3(NSN),FNNI(NSN), 
      .   FELAST, FTRY, DELTAG, DT1INV, VIS2,PEN(NSN),FFAC,
+     .   FNLIM, FTLIM,
      .   FNXI(NSN),FNYI(NSN),FNZI(NSN),FNX1(NSN),FNY1(NSN),
      .   FNZ1(NSN),FNX2(NSN),FNY2(NSN),FNZ2(NSN),FNX3(NSN),
      .   FNY3(NSN),FNZ3(NSN),FNX4(NSN),FNY4(NSN),FNZ4(NSN),
      .   FTXI(NSN),FTYI(NSN),FTZI(NSN),FTX1(NSN),FTY1(NSN),
      .   FTZ1(NSN),FTX2(NSN),FTY2(NSN),FTZ2(NSN),FTX3(NSN),
      .   FTY3(NSN),FTZ3(NSN),FTX4(NSN),FTY4(NSN),FTZ4(NSN)
-C-----------------------------------------------
-C     EQUIVALENCE (IX1,IV(1,1)) ,(IX2,IV(1,2)) ,(IX3,IV(1,3))
-C     EQUIVALENCE (IX4,IV(1,4))
-C
-C     EQUIVALENCE (XI,BV(1,13)),(YI,BV(1,14)),(ZI,BV(1,15))
-C     EQUIVALENCE (N1,BV(1,19)) ,(N2,BV(1,20)) ,(N3,BV(1,21))
-C     EQUIVALENCE (ANS,BV(1,22)),(SSC,BV(1,23)),(TTC,BV(1,24))
-C     EQUIVALENCE (H1,BV(1,25)) ,(H2,BV(1,26)) ,(H3,BV(1,27))
-C     EQUIVALENCE (H4,BV(1,28)) ,(XFACE,BV(1,29)),(STIF,BV(1,30))
-C     EQUIVALENCE (FNI,BV(1,40))
-C     EQUIVALENCE (FXI,BV(1,41)),(FYI,BV(1,42)),(FZI,BV(1,43))
-C     EQUIVALENCE (FX1,BV(1,44)),(FY1,BV(1,45)),(FZ1,BV(1,46))
-C     EQUIVALENCE (FX2,BV(1,47)),(FY2,BV(1,48)),(FZ2,BV(1,49))
-C     EQUIVALENCE (FX3,BV(1,50)),(FY3,BV(1,51)),(FZ3,BV(1,52))
-C     EQUIVALENCE (FX4,BV(1,53)),(FY4,BV(1,54)),(FZ4,BV(1,55))
-C     EQUIVALENCE (THK,BV(1,70))
-C
+C---------------------------------------------
+      FTLIM = FMAX
+      FNLIM = FNOR
+
 C--------------Before Nj change----       
        IF(FNOR /=ZERO) THEN 
          DO I=LFT,LLT
@@ -224,7 +213,7 @@ c
           NY = N3(I)*LX - N1(I)*LZ
           NZ = N1(I)*LY - N2(I)*LX
 c
-c (vitesse SECONDARY = 0)
+c (velocity SECONDARY = 0)
           VX(I) =  V(1,IX1(I))*H1(I) + V(1,IX2(I))*H2(I)
      .         + V(1,IX3(I))*H3(I) + V(1,IX4(I))*H4(I)  
           VY(I) =  V(2,IX1(I))*H1(I) + V(2,IX2(I))*H2(I)
@@ -232,7 +221,7 @@ c (vitesse SECONDARY = 0)
           VZ(I) =  V(3,IX1(I))*H1(I) + V(3,IX2(I))*H2(I)
      .         + V(3,IX3(I))*H3(I) + V(3,IX4(I))*H4(I)  
           VV(I) = VX(I)*NX + VY(I)*NY + VZ(I)*NZ
-          IF(VV(I).LT.ZERO)THEN
+          IF(VV(I)<ZERO)THEN
             NX=-NX
             NY=-NY
             NZ=-NZ
@@ -248,15 +237,18 @@ C
       DO 150 I=LFT,LLT
         IF(PEN(I)>ZERO) THEN    
           IL=I+NFT
-          IG=NSV(IL)
+          IG=NSV2(IL)
           L=IRTL(IL)
           CC2 = STF(L)
      .  *FOURTH*( MS(IX1(I))+MS(IX2(I))+MS(IX3(I))+MS(IX4(I)) )
           NX2 = MAX(EM20,N1(I)*N1(I)+N2(I)*N2(I)+N3(I)*N3(I))
           LI2(I)=NX2
           FNI(I)= VV(I)*SQRT(CC2/NX2)*ABS(XFACE(I))
-          IF(FNI(I).GT.FMAX)THEN
-            FNI(I)= FMAX
+          IF(FRIC_LAST/= ZERO) THEN
+             FTLIM = FMAX + (DISTLIN(IG)/DISTLIN(NSN))*(FRIC_LAST-FMAX)
+          ENDIF
+          IF(FNI(I)>FTLIM)THEN
+            FNI(I)= FTLIM
           ENDIF
 C  
           FNI(I)= - FNI(I)
@@ -271,7 +263,7 @@ C
 C-------------------
 C     INCREMENTAL FORMULATION FOR TANGENTIAL FORCE
 C-------------------
-      ! A Reecrire pour le parallele
+      ! to be rewritten for parallel
       DO I=LFT,LLT
         IL=I+NFT
         IG=NSV(IL)
@@ -288,7 +280,7 @@ c
         NY = N3(I)*LX - N1(I)*LZ
         NZ = N1(I)*LY - N2(I)*LX
 c
-c (vitesse SECONDARY = 0)
+c (velocity SECONDARY = 0)
         VX(I) = V(1,IX1(I))*H1(I) + V(1,IX2(I))*H2(I)
      .        + V(1,IX3(I))*H3(I) + V(1,IX4(I))*H4(I)  
         VY(I) = V(2,IX1(I))*H1(I) + V(2,IX2(I))*H2(I)
@@ -297,7 +289,7 @@ c (vitesse SECONDARY = 0)
      .        + V(3,IX3(I))*H3(I) + V(3,IX4(I))*H4(I)  
 C
         VV(I) = VX(I)*NX + VY(I)*NY + VZ(I)*NZ
-        IF(VV(I).LT.ZERO)THEN
+        IF(VV(I)<ZERO)THEN
           NX=-NX
           NY=-NY
           NZ=-NZ
@@ -310,7 +302,7 @@ C
         ENDIF
       ENDDO
 C
-      IF(DT1.GT.ZERO)THEN
+      IF(DT1>ZERO)THEN
         DT1INV = ONE/DT1
       ELSE
         DT1INV =ZERO
@@ -339,7 +331,11 @@ C
 C         
           FTRY   =FELAST+SQRT(CC2*NX2)*VV(I)*ABS(XFACE(I))
 
-          FNI(I) =SIGN(MIN(ABS(FTRY),FMAX),FTRY)
+          IF(FRIC_LAST/= ZERO) THEN
+             FTLIM = FMAX + (DISTLIN(IG)/DISTLIN(NSN))*(FRIC_LAST-FMAX)
+          ENDIF
+
+          FNI(I) =SIGN(MIN(ABS(FTRY),FTLIM),FTRY)
 
 C         
 C slidinnng (per unit length)  
@@ -383,8 +379,11 @@ c
           IF(IRTL(IL) > 0) THEN 
 c            PEN(I) = (DEPTH - DIST(I) + GAPN(L))*ABS(XFACE(I))
 C    
+            IF(FNOR_LAST/= ZERO) THEN
+               FNLIM = FNOR + (DISTLIN(IG)/DISTLIN(NSN))*(FNOR_LAST-FNOR)
+            ENDIF
             IF(PEN(I)>=DEPTH) THEN
-              FNNI(I)= FNOR*SQRT(LI2(I))
+              FNNI(I)= FNLIM*SQRT(LI2(I))
             ELSEIF(PEN(I)>ZERO) THEN
               FNNI(I)= SLOPEN(IG)*PEN(I)*SQRT(LI2(I))
 C----restraining force reducing              
@@ -496,7 +495,7 @@ C
 
  160  CONTINUE
 C
-      IF(IPARIT.EQ.0)THEN
+      IF(IPARIT==0)THEN
         DO 180 I=LFT,LLT
         J3=3*IX1(I)
         J2=J3-1
@@ -548,7 +547,7 @@ C
          NISKY = NISKY + 5 * LLT
 #include "lockoff.inc"
 C
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
          DO 190 I=LFT,LLT
           NISKYL = NISKYL + 1
           FSKYI(NISKYL,1)=FX1(I)
@@ -636,9 +635,9 @@ C
 #include "lockoff.inc"
       END IF
 C
-      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT.GT.0.AND.
-     .    (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))THEN
+      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT>0.AND.
+     .    ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))THEN
 #include "lockon.inc"
            DO I=1,LLT
             FCONT(1,IX1(I)) =FCONT(1,IX1(I)) + FX1(I)
@@ -660,9 +659,10 @@ C
            ENDDO
 #include "lockoff.inc"
         ENDIF
-      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT.GT.0.AND.
-     .    (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR.H3D_DATA%MH3D.NE.0))THEN
+      IF((ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT>0.AND.
+     .    ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .   (MANIM>=4.AND.MANIM<=15).OR.H3D_DATA%MH3D/=0))
+     .   .OR.H3D_DATA%N_VECT_PCONT_MAX>0)THEN
 #include "lockon.inc"
            DO I=1,LLT
             FNCONT(1,IX1(I)) =FNCONT(1,IX1(I)) + FNX1(I)
@@ -702,9 +702,9 @@ C
 #include "lockoff.inc"
       ENDIF
 C
-      IF(IBC.EQ.0) RETURN
+      IF(IBC==0) RETURN
        DO 200 I=LFT,LLT
-       IF(IBC.EQ.0.OR.XFACE(I).EQ.ZERO)GOTO 200
+       IF(IBC==0.OR.XFACE(I)==ZERO)GOTO 200
        IL=I+NFT
        IG=NSV(IL)
        CALL IBCOFF(IBC,ICODT(IG))

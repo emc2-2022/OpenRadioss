@@ -1,41 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_PREREAD_BCSCYC             source/constraints/general/bcs/lecbcscyc.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_preread_bcscyc      ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl                ../starter/source/starter/freform.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_PREREAD_BCSCYC(IGRNOD  ,NOM_OPT ,LSUBMODEL,NBCSCYNN)
 C-----------------------------------------------
 C   M o d u l e s
@@ -44,6 +44,7 @@ C-----------------------------------------------
       USE GROUPDEF_MOD    
       USE SUBMODEL_MOD        
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -52,13 +53,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "submod_c.inc"
-#include      "titr_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -71,7 +66,8 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,IGR1,IGR2,IGRS1,IGRS2,NBCS_CY_N,ID,SUB_INDEX
-      CHARACTER KEY*ncharkey,TITR*nchartitle
+      CHARACTER(LEN=NCHARKEY) :: KEY
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -129,15 +125,16 @@ c
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_BCSCYC                    source/constraints/general/bcs/lecbcscyc.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        INIBCS_CY                     source/constraints/general/bcs/lecbcscyc.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ini_bcscyc    ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||    inibcs_cy     ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INI_BCSCYC(IBCSCYC,LBCSCYC,SKEW,X,ITAB,ICODE,IBFV,ITAGCYC)
 C-----------------------------------------------
 C   M o d u l e s
@@ -148,13 +145,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -254,16 +247,16 @@ C------ok for NF1=0,NF2=0; NF1=NF2=ISK
 C
       RETURN
       END SUBROUTINE INI_BCSCYC
-Chd|====================================================================
-Chd|  INIBCS_CY                     source/constraints/general/bcs/lecbcscyc.F
-Chd|-- called by -----------
-Chd|        INI_BCSCYC                    source/constraints/general/bcs/lecbcscyc.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        CAR2CYLIN                     source/constraints/general/bcs/lecbcscyc.F
-Chd|        MYQSORT                       ../common_source/tools/sort/myqsort.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    inibcs_cy     ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||--- called by ------------------------------------------------------
+!||    ini_bcscyc    ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||    car2cylin     ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INIBCS_CY(NBCY_N,IXCYCL,ISK,SKEW,X  ,ITAB,ID)
 C-----------------------------------------------
 C   M o d u l e s
@@ -274,13 +267,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -290,13 +279,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J ,N1(NBCY_N),N2(NBCY_N),INDEX(NBCY_N),NN(NBCY_N),IER1
+      INTEGER I, J ,N1(NBCY_N),N2(NBCY_N),INDEX(NBCY_N),IER1
 C
       my_real
      .     CY_X1(3,NBCY_N), CY_X2(3,NBCY_N),DIS1(NBCY_N),DIS2(NBCY_N),LMIN,
      .     CY_TMP(3,NBCY_N),RI,ZI,TOL,ERR_TH,ERMAX
 C========================================================================|
-C-----for each cut-section nodes, compute cylindrical co-ordinates and dis
+C-----for each cut-section nodes, compute cylindrical coordinates and dis
       DO I=1,NBCY_N
         N1(I) = IXCYCL(1,I)
         N2(I) = IXCYCL(2,I)
@@ -316,7 +305,7 @@ C------sorting by dis
         J = INDEX(I)
         N1(I) = IXCYCL(1,J)
         CY_X1(1:3,I)=CY_TMP(1:3,J)
-      ENDDO 
+      ENDDO
       LMIN = EP20     
       DO I=2,NBCY_N
         RI = ABS(CY_X1(1,I)-CY_X1(1,I-1))
@@ -354,7 +343,6 @@ C------sorting by dis
          J = I
         END IF
       ENDDO
-c      print *,'ERMAX , n1,n2 =',ERMAX ,ITAB(N1(J)),ITAB(N2(J))
       IF (ERMAX>TOL ) THEN 
           CALL ANCMSG(MSGID=1763,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                I1=ID,I2=ITAB(N1(J)),I3=ITAB(N2(J)))
@@ -366,24 +354,16 @@ c      print *,'ERMAX , n1,n2 =',ERMAX ,ITAB(N1(J)),ITAB(N2(J))
 C
       RETURN
       END SUBROUTINE INIBCS_CY
-Chd|====================================================================
-Chd|  CAR2CYLIN                     source/constraints/general/bcs/lecbcscyc.F
-Chd|-- called by -----------
-Chd|        INIBCS_CY                     source/constraints/general/bcs/lecbcscyc.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    car2cylin   ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||--- called by ------------------------------------------------------
+!||    inibcs_cy   ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||====================================================================
       SUBROUTINE CAR2CYLIN(NBCY_N,IX,X,CY_X,DIS,SKEW,XYZ0,TOL,IER)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -393,13 +373,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J 
-C
-      my_real
-     .     XX,YY,ZZ,XL,YL,ZL,R2,TH_MEAN,TH_MAX
+      INTEGER I
+      my_real XX,YY,ZZ,XL,YL,ZL,R2,TH_MEAN,TH_MAX,ZL_MIN
 C========================================================================|
-C----- compute cylindrical co-ordinates(r,cos(theta),z) and dis=r*r+z*z
+C----- compute cylindrical coordinates(r,cos(theta),z) and dis=r*r+z*z
       TH_MEAN =ZERO
+      ZL_MIN = EP20
       DO I=1,NBCY_N
         XX = X(1,IX(I))-XYZ0(1)
         YY = X(2,IX(I))-XYZ0(2)
@@ -411,8 +390,13 @@ C----- compute cylindrical co-ordinates(r,cos(theta),z) and dis=r*r+z*z
         CY_X(1,I) = SQRT(R2)
         CY_X(2,I) = XL/CY_X(1,I)
         CY_X(3,I) = ZL
-        DIS(I) = ZL*ZL+R2
+        DIS(I) = R2
         TH_MEAN = TH_MEAN + CY_X(2,I)
+        ZL_MIN = MIN(ZL_MIN,ZL)
+      ENDDO
+      DO I=1,NBCY_N
+        CY_X(3,I) = CY_X(3,I)-ZL_MIN
+        DIS(I) = DIS(I) + CY_X(3,I)*CY_X(3,I)
       ENDDO
       TH_MEAN =TH_MEAN/NBCY_N
       IER = 0
@@ -427,21 +411,23 @@ C--- numeric
 C
       RETURN
       END SUBROUTINE CAR2CYLIN
-Chd|====================================================================
-Chd|  INT2CY_CHK                    source/constraints/general/bcs/lecbcscyc.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    int2cy_chk             ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||--- called by ------------------------------------------------------
+!||    inintr2                ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    intab                  ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INT2CY_CHK(IPARI,INTBUF_TAB,ITAGCYC,ITAB)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE MESSAGE_MOD
-      USE INTBUFDEF_MOD 
+      USE INTBUFDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -449,12 +435,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "param_c.inc"
-#include      "scr17_c.inc"
 #include      "com04_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -468,10 +450,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,N,NTY,NSN,NMN,ISL,NKIN,NOINT,IMODI,II,N1,N2,ND
-      INTEGER K,ILEV,NUVAR,IDEL7N,INTTH,IPR,IML,ICOM
-      CHARACTER*nchartitle, TITR
-      LOGICAL IS1,IS2,ISD
+      INTEGER I,N,NTY,NSN,ISL,NOINT
+      INTEGER ILEV
 C=======================================================================
        DO N=1,NINTER
         NTY  = IPARI(7,N)

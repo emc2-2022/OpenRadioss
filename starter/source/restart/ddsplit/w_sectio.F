@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  W_SECTIO                      source/restart/ddsplit/w_sectio.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|====================================================================
+!||====================================================================
+!||    w_sectio    ../starter/source/restart/ddsplit/w_sectio.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit     ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal      ../starter/source/spmd/node/ddtools.F
+!||====================================================================
       SUBROUTINE W_SECTIO(NSTRF  ,CEP   ,CEL,PROC,
      2                    NSTRF_L,NODLOCAL,LEN_IA)
 C-----------------------------------------------
@@ -39,12 +38,10 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -98,7 +95,7 @@ C        LEN = 30 + NSINT_S + NNOD_S
         DO J = 1, LEN
           NSTR_L(IP_L+J) = NSTRF(IP+J)
         ENDDO
-        IF(N1.NE.0) THEN
+        IF(N1/=0) THEN
           IF(NLOCAL(N1,PROC+1)==1)THEN
             N1 = NODLOCAL(N1)
             NSTR_L(IP_L+4) = N1
@@ -106,7 +103,7 @@ C        LEN = 30 + NSINT_S + NNOD_S
             NSTR_L(IP_L+4) = -N1
           END IF
         END IF
-        IF(N2.NE.0) THEN
+        IF(N2/=0) THEN
           IF(NLOCAL(N2,PROC+1)==1)THEN
             N2 = NODLOCAL(N2)
             NSTR_L(IP_L+5) = N2
@@ -114,7 +111,7 @@ C        LEN = 30 + NSINT_S + NNOD_S
             NSTR_L(IP_L+5) = -N2
           END IF
         END IF
-        IF(N3.NE.0) THEN
+        IF(N3/=0) THEN
           IF(NLOCAL(N3,PROC+1)==1)THEN
             N3 = NODLOCAL(N3)
             NSTR_L(IP_L+6) = N3
@@ -124,7 +121,7 @@ C        LEN = 30 + NSINT_S + NNOD_S
         END IF
         IP = IP + LEN
         IP_L = IP_L + LEN
-C noeuds
+C nodes
         NNOD_S_L = 0
         DO J = 1, NNOD_S
           K = NSTRF(IP + J)
@@ -138,10 +135,10 @@ C noeuds
         IP_L = IP_L + NNOD_S_L
 C
         OFF = 0
-C solides
+C solids
         DO J = 1, NSELS_S
           K = NSTRF(IP + J*2 - 1)
-          IF(CEP(K+OFF).EQ.PROC) THEN
+          IF(CEP(K+OFF)==PROC) THEN
             NSELS_S_L = NSELS_S_L + 1
             NSTR_L(IP_L+NSELS_S_L*2-1) = CEL(K+OFF)
             NSTR_L(IP_L+NSELS_S_L*2) = NSTRF(IP+J*2)
@@ -154,7 +151,7 @@ C solides
 C quad
         DO J = 1, NSELQ_S
           K = NSTRF(IP + J*2 - 1)
-          IF(CEP(K+OFF).EQ.PROC) THEN
+          IF(CEP(K+OFF)==PROC) THEN
             NSELQ_S_L = NSELQ_S_L + 1
             NSTR_L(IP_L+NSELQ_S_L*2-1) = CEL(K+OFF)
             NSTR_L(IP_L+NSELQ_S_L*2) = NSTRF(IP+J*2)
@@ -167,7 +164,7 @@ C quad
 C shell
         DO J = 1, NSELC_S
           K = NSTRF(IP + J*2 - 1)
-          IF(CEP(K+OFF).EQ.PROC) THEN
+          IF(CEP(K+OFF)==PROC) THEN
             NSELC_S_L = NSELC_S_L + 1
             NSTR_L(IP_L+NSELC_S_L*2-1) = CEL(K+OFF)
             NSTR_L(IP_L+NSELC_S_L*2) = NSTRF(IP+J*2)
@@ -180,7 +177,7 @@ C shell
 C truss
         DO J = 1, NSELT_S
           K = NSTRF(IP + J*2 - 1)
-          IF(CEP(K+OFF).EQ.PROC) THEN
+          IF(CEP(K+OFF)==PROC) THEN
             NSELT_S_L = NSELT_S_L + 1
             NSTR_L(IP_L+NSELT_S_L*2-1) = CEL(K+OFF)
             NSTR_L(IP_L+NSELT_S_L*2) = NSTRF(IP+J*2)
@@ -190,10 +187,10 @@ C truss
         IP_L = IP_L + 2*NSELT_S_L
         IP = IP + 2*NSELT_S
         OFF = OFF + NUMELT
-C poutre
+C beam
         DO J = 1, NSELP_S
           K = NSTRF(IP + J*2 - 1)
-          IF(CEP(K+OFF).EQ.PROC) THEN
+          IF(CEP(K+OFF)==PROC) THEN
             NSELP_S_L = NSELP_S_L + 1
             NSTR_L(IP_L+NSELP_S_L*2-1) = CEL(K+OFF)
             NSTR_L(IP_L+NSELP_S_L*2) = NSTRF(IP+J*2)
@@ -203,10 +200,10 @@ C poutre
         IP_L = IP_L + 2*NSELP_S_L
         IP = IP + 2*NSELP_S
         OFF = OFF + NUMELP
-Cel ressort
+C   spring
         DO J = 1, NSELR_S
           K = NSTRF(IP + J*2 - 1)
-          IF(CEP(K+OFF).EQ.PROC) THEN
+          IF(CEP(K+OFF)==PROC) THEN
             NSELR_S_L = NSELR_S_L + 1
             NSTR_L(IP_L+NSELR_S_L*2-1) = CEL(K+OFF)
             NSTR_L(IP_L+NSELR_S_L*2) = NSTRF(IP+J*2)
@@ -216,10 +213,10 @@ Cel ressort
         IP_L = IP_L + 2*NSELR_S_L
         IP = IP + 2*NSELR_S
         OFF = OFF + NUMELR
-Cel triangle
+C   triangle
         DO J = 1, NSELTG_S
           K = NSTRF(IP + J*2 - 1)
-          IF(CEP(K+OFF).EQ.PROC) THEN
+          IF(CEP(K+OFF)==PROC) THEN
             NSELTG_S_L = NSELTG_S_L + 1
             NSTR_L(IP_L+NSELTG_S_L*2-1) = CEL(K+OFF)
             NSTR_L(IP_L+NSELTG_S_L*2) = NSTRF(IP+J*2)
@@ -234,9 +231,9 @@ C K0NEXT
      +                    2*(NSELS_S_L+NSELQ_S_L+NSELC_S_L+NSELT_S_L+
      +                       NSELP_S_L+NSELR_S_L+NSELTG_S_L)+1
         NSTR_L(K0_L+26) = KR0_L+10
-        IF(TYP_S.GE.100) NSTR_L(K0_L+26)=NSTR_L(K0_L+26)+12*NNOD_S_L
-        IF(TYP_S.GE.101) NSTR_L(K0_L+26)=NSTR_L(K0_L+26)+12*NNOD_S_L
-        IF(TYP_S.GE.102) NSTR_L(K0_L+26)=NSTR_L(K0_L+26)+6*NNOD_S_L
+        IF(TYP_S>=100) NSTR_L(K0_L+26)=NSTR_L(K0_L+26)+12*NNOD_S_L
+        IF(TYP_S>=101) NSTR_L(K0_L+26)=NSTR_L(K0_L+26)+12*NNOD_S_L
+        IF(TYP_S>=102) NSTR_L(K0_L+26)=NSTR_L(K0_L+26)+6*NNOD_S_L
         KR0_L = NSTR_L(K0_L+26)
       ENDDO
 C

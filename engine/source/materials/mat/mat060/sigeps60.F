@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS60                      source/materials/mat/mat060/sigeps60.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|-- calls ---------------
-Chd|        INTER_RAT                     source/materials/mat/mat060/sigeps60c.F
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|        VINTER2                       source/tools/curve/vinter.F   
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        FINTER2                       source/tools/curve/vinter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps60    ../engine/source/materials/mat/mat060/sigeps60.F
+!||--- called by ------------------------------------------------------
+!||    mulaw       ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8      ../engine/source/materials/mat_share/mulaw8.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||    finter2     ../engine/source/tools/curve/vinter.F
+!||    inter_rat   ../engine/source/materials/mat/mat060/sigeps60c.F
+!||    vinter      ../engine/source/tools/curve/vinter.F
+!||    vinter2     ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS60(
      1     NEL    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC   ,NPF    ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0    ,RHO    ,
@@ -93,7 +93,7 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -101,7 +101,6 @@ C---------+---------+---+---+--------------------------------------------
 #include      "param_c.inc"
 #include      "parit_c.inc"
 #include      "scr17_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com08_c.inc"
 #include      "units_c.inc"
@@ -157,11 +156,11 @@ C-----------------------------------------------
      .        ILEN1(MVSIZ),IAD2(MVSIZ),ILEN2(MVSIZ),
      .        IFUNC(100),NFUNCV,PFUN,
      .        IPOSP(MVSIZ),IADP(MVSIZ),ILENP(MVSIZ),NFUNCM,NRATEM,
-     .        IPFLAG,IPARAM,NPAR,IPOS3(MVSIZ),IPOS4(MVSIZ),IAD3(MVSIZ),
+     .        IPFLAG,IPOS3(MVSIZ),IPOS4(MVSIZ),IAD3(MVSIZ),
      .        ILEN3(MVSIZ),IAD4(MVSIZ),ILEN4(MVSIZ),J1, J2, J3, J4,
      .        NINDX,INDX(MVSIZ), NN,OPTE,IFUNCE,MX
       my_real
-     .        E(MVSIZ),NU,P,DAV,VM,R,FAC,EPST,EP1,EP2,EP3,EP4,EP5,EP6,
+     .        E(MVSIZ),NU,P,DAV,VM,R,FAC,EPST,
      .        E1,E2,E3,E4,E5,E6,C,CC,D,Y,YP,E42,E52,E62,EPST2,
      .        C1(MVSIZ),G(MVSIZ),G2(MVSIZ),G3(MVSIZ),
      .        EPSMAX,RATE(MVSIZ,4),YFAC(MVSIZ,4),
@@ -175,7 +174,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     USER VARIABLES INITIALIZATION
 C-----------------------------------------------
-      IF (IVECTOR.NE.1) THEN
+      IF (IVECTOR/=1) THEN
        MX = MAT(1)
        NFUNC  = IPM(10,MX)
        DO J=1,NFUNC
@@ -190,7 +189,7 @@ C ivector = 1 only
        NFUNCV = IPM(10,MX)
        NFUNCM = MAX(NFUNCM,NFUNCV)
        DO J=1,NFUNCM
-            IF(NFUNCV.GE.J) THEN
+            IF(NFUNCV>=J) THEN
               IFUNC(J)=IPM(10+J,MX)
             ENDIF
        ENDDO
@@ -208,8 +207,8 @@ C
       NRATEM = MAX(NRATEM,NRATE)
      
       EPSMAX=UPARAM(IADBUFV+6+2*NRATE+1)
-      IF(EPSMAX.EQ.ZERO)THEN
-       IF(TF(NPF(IFUNC(1)+1)-1).EQ.ZERO)THEN
+      IF(EPSMAX==ZERO)THEN
+       IF(TF(NPF(IFUNC(1)+1)-1)==ZERO)THEN
          EPSMAX=TF(NPF(IFUNC(1)+1)-2)
        ELSE
          EPSMAX= EP30
@@ -220,9 +219,9 @@ c ---
       EINF    = UPARAM(IADBUFV+2*NRATE+19)
       CE      = UPARAM(IADBUFV+2*NRATE+20)
       EPSR1 =UPARAM(IADBUFV+6+2*NRATE+2)
-      IF(EPSR1.EQ.ZERO)EPSR1= EP30
+      IF(EPSR1==ZERO)EPSR1= EP30
       EPSR2 =UPARAM(IADBUFV+6+2*NRATE+3)
-      IF(EPSR2.EQ.ZERO)EPSR2= TWOEP30
+      IF(EPSR2==ZERO)EPSR2= TWOEP30
       DO I=1,NEL
         E(I)   = UPARAM(IADBUFV+2)
         G(I)   = UPARAM(IADBUFV+5)
@@ -262,20 +261,20 @@ C +++
       IPFLAG = 0
       DO I=1,NEL
         PFAC(I) = ONE
-          IF (PFUN.GT.0) IPFLAG = IPFLAG + 1
+          IF (PFUN>0) IPFLAG = IPFLAG + 1
       ENDDO
 C ---
 C
 C
-      IF (ISIGI.EQ.0) THEN
-      IF(TIME.EQ.0.0)THEN
+      IF (ISIGI==0) THEN
+      IF(TIME==0.0)THEN
         DO I=1,NEL
          UVAR(I,1)=ZERO
          UVAR(I,2)=ZERO
          DO J=1,NRATE
            UVAR(I,J+2)=0
          ENDDO
-         IF (PFUN.GT.0) UVAR(I,NRATE+5)=0
+         IF (PFUN>0) UVAR(I,NRATE+5)=0
         ENDDO
       ENDIF
       ENDIF
@@ -326,24 +325,24 @@ c         yp= 3 x^2 + c
         EPST = SQRT(-CC)
         EPST2 = EPST * EPST
         Y = (EPST2 + C)* EPST + D
-        IF(ABS(Y).GT.EM08)THEN
+        IF(ABS(Y)>EM08)THEN
           EPST = ONEP75 * EPST
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
         ENDIF
           EPST = EPST + DAV
 C-------------------
@@ -358,30 +357,30 @@ C-------------------
       DO I=1,NEL
             JJ(I) = 1
       ENDDO
-      IF (IVECTOR.NE.1) THEN
+      IF (IVECTOR/=1) THEN
        DO I=1,NEL
         DO J=2,NRATE-1
-          IF(EPSP(I).GE.UPARAM(IADBUFV+6+J)) JJ(I) = J
+          IF(EPSP(I)>=UPARAM(IADBUFV+6+J)) JJ(I) = J
         ENDDO
        ENDDO
 C
       ELSE
         DO J=2,NRATEM-1
           DO I=1,NEL
-            IF(NRATE-1.GE.J) THEN
-              IF(EPSP(I).GE.UPARAM(IADBUFV+6+J)) JJ(I) = J
+            IF(NRATE-1>=J) THEN
+              IF(EPSP(I)>=UPARAM(IADBUFV+6+J)) JJ(I) = J
             ENDIF
           ENDDO
         ENDDO
       ENDIF
 C
       DO I=1,NEL   
-         IF(JJ(I).EQ.1)THEN 
+         IF(JJ(I)==1)THEN 
            J1 = JJ(I)
            J2 = J1+1
            J3 = J2+1
            J4 = J3+1 
-          ELSEIF(JJ(I).EQ.(NRATE-1))THEN
+          ELSEIF(JJ(I)==(NRATE-1))THEN
            J1 = JJ(I) - 2
            J2 = J1+1 
            J3 = J2+1 
@@ -405,12 +404,12 @@ C
 C
 
       DO I=1,NEL 
-         IF(JJ(I).EQ.1)THEN 
+         IF(JJ(I)==1)THEN 
            J1 = JJ(I)
            J2 = J1+1
            J3 = J2+1
            J4 = J3+1 
-          ELSEIF(JJ(I).EQ.(NRATE-1))THEN
+          ELSEIF(JJ(I)==(NRATE-1))THEN
            J1 = JJ(I) - 2
            J2 = J1+1 
            J3 = J2+1 
@@ -443,9 +442,9 @@ C
 C
 C
 C---  PRESSURE DEPENDENT YIELD FUNCTION FACTOR
-      IF (IPFLAG.EQ.NEL.AND.(IMACH.NE.3.OR.IPARIT.EQ.0)) THEN
+      IF (IPFLAG==NEL.AND.(IPARIT==0)) THEN
 C------- to optimize in SPMD & PARIT/ON case add a global flag 
-C        in a case of homogenuous element groups (to do if needed)
+C        in a case of homogeneous element groups (to do if needed)
         DO I=1,NEL
           IPOSP(I) = NINT(UVAR(I,NRATE+5))
           IADP(I)  = NPF(PFUN) / 2 + 1
@@ -455,9 +454,9 @@ C        in a case of homogenuous element groups (to do if needed)
         DO I=1,NEL
           UVAR(I,NRATE+5) = IPOSP(I)
         ENDDO
-      ELSEIF (IPFLAG.GT.0) THEN
+      ELSEIF (IPFLAG>0) THEN
         DO I=1,NEL
-          IF (PFUN.GT.0) THEN
+          IF (PFUN>0) THEN
             IPOSP(I) = NINT(UVAR(I,NRATE+5))
             IADP(I)  = NPF(PFUN) / 2 + 1
             ILENP(I) = NPF(PFUN+1) / 2 - IADP(I)-IPOSP(I)
@@ -469,7 +468,7 @@ C        in a case of homogenuous element groups (to do if needed)
       ENDIF
 C---
       DO I=1,NEL
-        IF(JJ(I).EQ.1)THEN 
+        IF(JJ(I)==1)THEN 
          J1 = JJ(I)
          J2 = J1+1
          J3 = J2+1
@@ -478,7 +477,7 @@ C---
          DYDX2 (I) = DYDX2(I)*YFAC(I,2)          
          FAC   = (EPSP(I) - RATE(I,1))/(RATE(I,2) - RATE(I,1)) 
          H(I)   = FAIL(I)*(DYDX1(I) + FAC*(DYDX2(I)-DYDX1(I)))
-        ELSEIF(JJ(I).EQ.(NRATE-1))THEN
+        ELSEIF(JJ(I)==(NRATE-1))THEN
          J1 = JJ(I) - 2
          J2 = J1+1 
          J3 = J2+1 
@@ -527,7 +526,7 @@ C
 C-------------------
 C     PROJECTION
 C-------------------
-      IF(IPLA.EQ.0)THEN
+      IF(IPLA==0)THEN
        DO I=1,NEL
         VM =HALF*(SIGNXX(I)**2+SIGNYY(I)**2+SIGNZZ(I)**2)
      1          +SIGNXY(I)**2+SIGNYZ(I)**2+SIGNZX(I)**2
@@ -545,7 +544,7 @@ c        P = C1(I) * (RHO(I)/RHO0(I) - ONE)
         UVAR(I,1)=PLA(I)
         DPLA(I) =   (ONE - R)*VM/MAX(G3(I)+H(I),EM20)       
        ENDDO
-      ELSEIF(IPLA.EQ.2)THEN
+      ELSEIF(IPLA==2)THEN
        DO I=1,NEL
         VM =HALF*(SIGNXX(I)**2+SIGNYY(I)**2+SIGNZZ(I)**2)
      1          +SIGNXY(I)**2+SIGNYZ(I)**2+SIGNZX(I)**2
@@ -563,7 +562,7 @@ c        P = C1(I) * (RHO(I)/RHO0(I)- ONE)
         UVAR(I,1)=PLA(I)
         DPLA(I) = (ONE - R)*VM/MAX(G3(I),EM20)        
        ENDDO
-      ELSEIF(IPLA.EQ.1)THEN
+      ELSEIF(IPLA==1)THEN
        DO I=1,NEL
         VM =HALF*(SIGNXX(I)**2+SIGNYY(I)**2+SIGNZZ(I)**2)
      1          +SIGNXY(I)**2+SIGNYZ(I)**2+SIGNZX(I)**2
@@ -571,7 +570,7 @@ c        P = C1(I) * (RHO(I)/RHO0(I)- ONE)
         R = MIN(ONE,YLD(I)/ MAX(VM,EM20))
 C     plastic strain increment.
        DPLA(I) = (ONE - R)*VM/MAX(G3(I)+H(I),EM20)
-C     actual yeld stress.
+C     actual yield stress.
          YLD(I)= MAX(YLD(I)+DPLA(I)*H(I),ZERO)
         R = MIN(ONE,YLD(I)/ MAX(VM,EM20))
 C
@@ -591,22 +590,21 @@ C---
 C-------------------
 
       DO I=1,NEL
-        IF(OFF(I).LT.EM01) OFF(I)=ZERO
-        IF(OFF(I).LT.ONE) OFF(I)=OFF(I)*FOUR_OVER_5
+        IF(OFF(I)<EM01) OFF(I)=ZERO
+        IF(OFF(I)<ONE) OFF(I)=OFF(I)*FOUR_OVER_5
       ENDDO
 C
 C
 C
       NINDX=0
       DO I=1,NEL
-        IF(PLA(I).GT.EPSMAX.AND.OFF(I).EQ.ONE) THEN
+        IF(PLA(I)>EPSMAX.AND.OFF(I)==ONE) THEN
           OFF(I)= FOUR_OVER_5
           NINDX=NINDX+1
           INDX(NINDX)=I
-          IDEL7NOK = 1
         ENDIF
       ENDDO
-      IF(NINDX.GT.0)THEN
+      IF(NINDX>0)THEN
         DO J=1,NINDX
 #include "lockon.inc"
         WRITE(IOUT, 1000) NGL(INDX(J))

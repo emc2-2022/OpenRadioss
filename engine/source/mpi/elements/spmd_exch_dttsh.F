@@ -1,32 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_EXCH_TAG_TSH             source/mpi/elements/spmd_exch_dttsh.F
-Chd|-- called by -----------
-Chd|        TSHCDCOM_DIM                  source/elements/thickshell/solidec/scdtdc3.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_exch_tag_tsh     ../engine/source/mpi/elements/spmd_exch_dttsh.F
+!||--- called by ------------------------------------------------------
+!||    tshcdcom_dim          ../engine/source/elements/thickshell/solidec/tshcdcom_dim.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_TAG_TSH(IAD_ELEM ,FR_ELEM ,ISEND,IRECV ,LEN)
 C-----------------------------------------------
 C   M o d u l e s
@@ -35,19 +37,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"     
-#include      "com04_c.inc"     
 #include      "task_c.inc"      
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -59,10 +58,10 @@ C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-       INTEGER LENCOM,MSGOFF ,MSGTYP
+       INTEGER MSGOFF ,MSGTYP
        INTEGER STATUS(MPI_STATUS_SIZE),REQ_R(NSPMD),REQ_S(NSPMD)
        INTEGER IERROR
-       INTEGER I,P,J,NOD,SIZ,L,IAD
+       INTEGER I,SIZ,L
 C-----------------------------------------------
        DATA MSGOFF/430/    
        
@@ -73,7 +72,7 @@ C-----------------------------------------------
           L = IAD_ELEM(1,I)
           CALL MPI_IRECV(
      +      IRECV(L),SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     +      MPI_COMM_WORLD,REQ_R(I),IERROR)
+     +      SPMD_COMM_WORLD,REQ_R(I),IERROR)
         ENDIF
       END DO
 C
@@ -86,7 +85,7 @@ C
           L = IAD_ELEM(1,I)
           CALL MPI_ISEND(
      +      ISEND(L),SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     +      MPI_COMM_WORLD,REQ_S(I),IERROR)
+     +      SPMD_COMM_WORLD,REQ_S(I),IERROR)
        ENDIF
       ENDDO
 C
@@ -105,15 +104,17 @@ C
 #endif
        
        END SUBROUTINE SPMD_EXCH_TAG_TSH
-Chd|====================================================================
-Chd|  SPMD_EXCH_VMAX                source/mpi/elements/spmd_exch_dttsh.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_vmax        ../engine/source/mpi/elements/spmd_exch_dttsh.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_VMAX(IAD_STSH ,FR_STSH ,IAD_RTSH ,FR_RTSH ,V_MAX )
 C-----------------------------------------------
 C   M o d u l e s
@@ -122,14 +123,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -156,9 +155,9 @@ C-----------------------------------------------
        
        LENCOM = IAD_STSH(NSPMD+1) - IAD_STSH(1) 
 
-C Allocation des Buffers           
+C Buffer allocation
        ALLOCATE(SEND_BUF(LENCOM),STAT=IERROR)
-       IF(IERROR.NE.0) THEN
+       IF(IERROR/=0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
        ENDIF
@@ -166,7 +165,7 @@ C Allocation des Buffers
        LENCOM = IAD_RTSH(NSPMD+1) - IAD_RTSH(1) 
        
        ALLOCATE(REC_BUF(LENCOM),STAT=IERROR)
-       IF(IERROR.NE.0) THEN
+       IF(IERROR/=0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
        ENDIF   
@@ -180,7 +179,7 @@ C ----------
           IF(SIZ > 0) THEN 
            CALL MPI_IRECV(
      S      REC_BUF(L),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(P),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(P),IERROR)
             L=L+SIZ
           ENDIF
        ENDDO
@@ -201,13 +200,13 @@ C -----------------
          
            CALL MPI_ISEND(
      S       SEND_BUF(IAD),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     G       MPI_COMM_WORLD,REQ_S(P),IERROR)
+     G       SPMD_COMM_WORLD,REQ_S(P),IERROR)
      
          ENDIF
        ENDDO
 
 C ------------
-C END RECIEVE
+C END RECEIVE
 C ------------
        L=1
        DO P=1,NSPMD 
@@ -227,7 +226,7 @@ C ------------
 C END SEND
 C ------------
       DO P = 1, NSPMD
-        IF(IAD_STSH(P+1)-IAD_STSH(P).GT.0)THEN
+        IF(IAD_STSH(P+1)-IAD_STSH(P)>0)THEN
           CALL MPI_WAIT(REQ_S(P),STATUS,IERROR)
         ENDIF
       ENDDO
@@ -237,15 +236,17 @@ C ------------
 #endif
        
        END SUBROUTINE SPMD_EXCH_VMAX
-Chd|====================================================================
-Chd|  SPMD_EXCH_FA                  source/mpi/elements/spmd_exch_dttsh.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_fa          ../engine/source/mpi/elements/spmd_exch_dttsh.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_FA(IAD_STSH ,FR_STSH ,IAD_RTSH ,FR_RTSH ,A  )
 C-----------------------------------------------
 C   M o d u l e s
@@ -254,14 +255,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -288,16 +287,16 @@ C-----------------------------------------------
        
        LENCOM = IAD_STSH(NSPMD+1) - IAD_STSH(1) 
 
-C Allocation des Buffers           
+C Buffer allocation
        ALLOCATE(SEND_BUF(3*LENCOM),STAT=IERROR)
-       IF(IERROR.NE.0) THEN
+       IF(IERROR/=0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
        ENDIF
        LENCOM = IAD_RTSH(NSPMD+1) - IAD_RTSH(1) 
        
        ALLOCATE(REC_BUF(3*LENCOM),STAT=IERROR)
-       IF(IERROR.NE.0) THEN
+       IF(IERROR/=0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
        ENDIF   
@@ -311,7 +310,7 @@ C ----------
           IF(SIZ > 0) THEN 
            CALL MPI_IRECV(
      S      REC_BUF(L),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(P),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(P),IERROR)
             L=L+SIZ
           ENDIF
        ENDDO
@@ -334,13 +333,13 @@ C -----------------
          
            CALL MPI_ISEND(
      S       SEND_BUF(IAD),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     G       MPI_COMM_WORLD,REQ_S(P),IERROR)
+     G       SPMD_COMM_WORLD,REQ_S(P),IERROR)
      
          ENDIF
        ENDDO
 
 C ------------
-C END RECIEVE
+C END RECEIVE
 C ------------
        L=1
        DO P=1,NSPMD 
@@ -362,7 +361,7 @@ C ------------
 C END SEND
 C ------------
       DO P = 1, NSPMD
-        IF(IAD_STSH(P+1)-IAD_STSH(P).GT.0)THEN
+        IF(IAD_STSH(P+1)-IAD_STSH(P)>0)THEN
           CALL MPI_WAIT(REQ_S(P),STATUS,IERROR)
         ENDIF
       ENDDO

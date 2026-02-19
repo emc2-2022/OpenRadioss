@@ -1,46 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_FRICTION_ORIENTATIONS source/interfaces/friction/reader/hm_read_friction_orientations.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRICTION_PARTS_SEARCH         source/interfaces/inter3d1/i7sti3.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        SUBROTVECT                    source/model/submodel/subrot.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        INTBUF_FRIC_MOD               share/modules1/intbuf_fric_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_friction_orientations   ../starter/source/interfaces/friction/reader/hm_read_friction_orientations.F
+!||--- called by ------------------------------------------------------
+!||    lectur                          ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                          ../starter/source/output/message/message.F
+!||    friction_parts_search           ../starter/source/interfaces/inter3d1/i7sti3.F
+!||    hm_get_float_array_index        ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_int_array_index          ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                     ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key              ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start                 ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    subrotvect                      ../starter/source/model/submodel/subrot.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod              ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                     ../starter/share/message_module/message_mod.F
+!||    r2r_mod                         ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod                    ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_FRICTION_ORIENTATIONS (
      1        INTBUF_FRIC_TAB,NPFRICORTH,IGRPART ,IPART     ,PFRICORTH  ,
      2        IREPFORTH ,ISKN       ,PHIFORTH    ,VFORTH    ,SKEW       ,
@@ -56,29 +54,18 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE UNITAB_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------      
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com02_c.inc"
-#include      "com03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
 #include      "scr17_c.inc"
-#include      "sysunit.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -102,8 +89,7 @@ C-----------------------------------------------
      .      FLAGP ,FLAGGRP ,GRPART ,IDPART ,N ,KK ,IDTGRS ,IPL ,J ,IP ,
      .      IPG ,SUB_ID ,NINPUT ,NL 
       my_real AN ,VX ,VY ,VZ ,PHI 
-      CHARACTER*nchartitle,
-     .   TITR 
+      CHARACTER(LEN=NCHARTITLE) :: TITR 
       LOGICAL IS_AVAILABLE        
 C
 C=======================================================================
@@ -164,7 +150,7 @@ C EXTRACT DATAS (REAL VALUES) :
           CALL HM_GET_FLOAT_ARRAY_INDEX('vz',VZ,NL,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOAT_ARRAY_INDEX('phi',PHI,NL,IS_AVAILABLE,LSUBMODEL,UNITAB)
 C--------------------
-          IF (SUB_ID .NE. 0)
+          IF (SUB_ID /= 0)
      .           CALL SUBROTVECT(VX,VY,VZ,RTRANS,SUB_ID,LSUBMODEL)
 
 C
@@ -192,7 +178,7 @@ C
               ENDIF
           ENDIF
 C
-C----CHECK PARTS group
+C--- CHECK PARTS Group
 C
           IF(GRPART/=0)THEN
              FLAGGRP = 0
@@ -221,7 +207,7 @@ C
 C   Vect orhotrope
 
           AN=SQRT(VX*VX+VY*VY+VZ*VZ)
-          IF(AN .LT. EM10)THEN
+          IF(AN < EM10)THEN
              VX=ONE
              VY=ZERO
              VZ=ZERO
@@ -232,7 +218,7 @@ C   Vect orhotrope
           ENDIF
 
           ISK = 0
-          IF (IDSK.NE.0) THEN
+          IF (IDSK/=0) THEN
               IERRR = 0
               DO J=0,NUMSKW+NSUBMOD
                  IF(IDSK == ISKN(4,J+1)) THEN
@@ -254,7 +240,7 @@ C   Vect orhotrope
           ENDIF
 
 C
-C COUNTING AND STORAGE IN TEMPARY TABLES
+C COUNTING AND STORAGE IN TEMPORARY TABLES
 C
             
           IF(FLAGP > 0) THEN
@@ -338,8 +324,6 @@ C
       ENDDO !NIN=1,NFRIC_ORIENT
 C
 C=======================================================================
-      RETURN
- 999  CALL FREERR(3)
       RETURN
 C-----
  1000 FORMAT(    /1X,'   FRICTION ORIENTATIONS      ' /

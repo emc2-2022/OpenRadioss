@@ -1,42 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LAW119_UPD                    source/materials/mat/mat119/law119_upd.F
-Chd|-- called by -----------
-Chd|        UPDMAT                        source/materials/updmat.F     
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        TABLE_INTERS                  source/tools/curve/func_inters.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TABLE_MOD                     share/modules1/table_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    law119_upd             ../starter/source/materials/mat/mat119/law119_upd.F
+!||--- called by ------------------------------------------------------
+!||    updmat                 ../starter/source/materials/updmat.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    table_inters           ../starter/source/tools/curve/func_inters.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    table_mod              ../starter/share/modules1/table_mod.F
+!||====================================================================
       SUBROUTINE LAW119_UPD(NUPARAM ,NUMTABL ,ITABLE ,TABLE  ,TABLE_ID ,
      .                      UPARAM  ,PM      ,TITR   ,MAT_ID )          
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE TABLE_MOD
-      USE MESSAGE_MOD   
+      USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,9 +48,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -57,13 +56,13 @@ C-----------------------------------------------
       my_real ,DIMENSION(NPROPM)  :: PM
       my_real ,DIMENSION(NUPARAM), INTENT(INOUT) :: UPARAM
       TYPE(TTABLE) ,DIMENSION(NTABLE) ::  TABLE
-      CHARACTER*nchartitle  :: TITR
+      CHARACTER(LEN=NCHARTITLE)  :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER :: I,J,FUNC,FUND,NDIM,NPOINT
-      my_real :: E11,N12,N21,NU,C1,SSP,KMAX,KINI,DX,DY,SLOPE,RHO,
-     .           FSCALE1,FSCALE2,FSCALET,DET,A11,A12,A22,XINT,YINT
+      my_real :: N12,KMAX,KINI,DX,DY,SLOPE,
+     .           FSCALE1,FSCALE2,FSCALET,XINT,YINT
 c=======================================================================
       FUNC = ITABLE(1)
       FUND = ITABLE(2)
@@ -102,11 +101,11 @@ c
             KMAX  = MAX(KMAX, SLOPE)
           END DO
 c
-c         check intersection with loading curve
+c         check intersection with loading curve        
           CALL TABLE_INTERS(TABLE,FUNC,FUND,FSCALE1,FSCALE2,XINT,YINT)
 c
           IF (XINT == ZERO .or. YINT == ZERO) THEN
-            CALL ANCMSG(MSGID=1716 ,MSGTYPE=MSGERROR,ANMODE=ANINFO_BLIND_2,
+            CALL ANCMSG(MSGID=3081 ,MSGTYPE=MSGERROR,ANMODE=ANINFO_BLIND_2,
      .                  I1 = MAT_ID,
      .                  I2 = TABLE_ID(1),                                               
      .                  I3 = TABLE_ID(2),                                              
@@ -116,8 +115,9 @@ c
           UPARAM(19) = YINT
         END IF
 C
-        UPARAM(1) = KMAX                 ! E11
-C       other material paramters are recomputed in create_seatbelt when section is available
+        UPARAM(1)  = KINI ! E11
+        UPARAM(22) = KMAX             
+C       other material parameters are recomputed in create_seatbelt when section is available
 C  
       END IF      
 c-----------

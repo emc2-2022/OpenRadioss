@@ -1,67 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  GLOBMAT                       source/materials/globmat.F    
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE GLOBMAT( IGEO       ,GEO      ,PM, PM_STACK,GEO_STACK,
-     .                    IGEO_STACK)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    globmat            ../starter/source/materials/globmat.F
+!||--- called by ------------------------------------------------------
+!||    lectur             ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    submodel_mod       ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE GLOBMAT( IGEO ,GEO ,PM, PM_STACK,GEO_STACK,
+     .                    IGEO_STACK,MAT_PARAM)
 C
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE SUBMODEL_MOD
-!!      USE STACK_MOD
+      USE MATPARAM_DEF_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "remesh_c.inc"
-#include      "sphcom.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IGEO(NPROPGI,*),IGEO_STACK(3* NPT_STACK+2,*)
+      INTEGER IGEO(NPROPGI,*),IGEO_STACK(4* NPT_STACK+2,*)
       my_real
      .       GEO(NPROPG,*),PM(NPROPM,*),GEO_STACK(6*NPT_STACK+1,*),
      .       PM_STACK(20,*)
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -78,7 +69,7 @@ C=======================================================================
 C    For Shell
 C----------------------------------------------- 
 C
-C stockage de Geo
+C storage of Geo
 C 
        ICRYPT = 0
        DO I=1,NUMGEO
@@ -120,10 +111,10 @@ C
              GTHK  =  PM(22,MATLY)*THKLY
              A1THK = PM(24,MATLY)*THKLY
              A12THK = PM(25,MATLY)*THKLY
-             C1THK = PM(32,MATLY)*THKLY
-             RHOG = RHOG + PM(1,MATLY)*THKLY 
-             RHOG0 = RHOG0 + PM(89,MATLY)*THKLY 
-             RHOCPG = RHOCPG + PM(69,MATLY)*THKLY 
+             C1THK  = PM(32,MATLY)*THKLY
+             RHOG   = RHOG   + MAT_PARAM(MATLY)%RHO  * THKLY 
+             RHOG0  = RHOG0  + MAT_PARAM(MATLY)%RHO0 * THKLY 
+             RHOCPG = RHOCPG + MAT_PARAM(MATLY)%THERM%RHOCP* THKLY 
              A11   =  A11 + A1THK
              B1T2 = B1T2 + A1THK*POSLY
              A11R   = A11R + A1THK*(THKLY*THKLY*ONE_OVER_12 + POSLY*POSLY)
@@ -138,8 +129,7 @@ C
           RHO0 = RHOG0/MAX(EM20,THICKT)
           RHOCP = RHOCPG/MAX(EM20,THICKT)
           E = E/MAX(EM20,THICKT)
-          A11 = A11/MAX(EM20,THICKT) 
-          IF(IPOS > 0)A11 = TWO*A11
+          A11 = A11/MAX(EM20,THICKT)
           A12 = A12/MAX(EM20,THICKT)
           IZ = ONE_OVER_12*THICKT**3
           A11R =A11R/MAX(EM20, IZ)
@@ -165,7 +155,7 @@ C used for QEPH
           GEO(IPGMAT +14,I) = RHO0
           GEO(IPGMAT +15,I) = RHOCP
 C          
-          IF(ICRYPT.NE.0)THEN
+          IF(ICRYPT/=0)THEN
              WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
           ELSE
              WRITE(IOUT,100)IGEO(1,I),RHO,E,NU,G
@@ -173,7 +163,7 @@ C
         ELSEIF(IGTYP == 52 .OR. 
      .         ((IGTYP == 17 .OR. IGTYP == 51) .AND. IGMAT > 0)) THEN
            DO IS = 1,NS_STACK 
-C initialisation of parameters
+C initialization of parameters
             PIDS = IGEO_STACK(2,IS)
             IF(PIDS == I) THEN
              A11   = ZERO
@@ -208,9 +198,9 @@ C
                A1THK  = PM(24,MATLY)*THKLY
                A12THK = PM(25,MATLY)*THKLY
                C1THK  = PM(32,MATLY)*THKLY
-               RHOG = RHOG + PM(1,MATLY)*THKLY 
-               RHOG0 = RHOG0 + PM(89,MATLY)*THKLY 
-               RHOCPG = RHOCPG + PM(69,MATLY)*THKLY 
+               RHOG   = RHOG   + MAT_PARAM(MATLY)%RHO  * THKLY 
+               RHOG0  = RHOG0  + MAT_PARAM(MATLY)%RHO0 * THKLY 
+               RHOCPG = RHOCPG + MAT_PARAM(MATLY)%THERM%RHOCP* THKLY 
                A11   =  A11 + A1THK
                B1T2 = B1T2 + A1THK*POSLY
                A11R   = A11R + A1THK*(THKLY*THKLY*ONE_OVER_12 + POSLY*POSLY)
@@ -226,7 +216,6 @@ C
               RHOCP = RHOCPG/MAX(EM20,THICKT)
               E = E/MAX(EM20,THICKT)
               A11 = A11/MAX(EM20,THICKT) 
-              IF(IPOS > 0)A11 = TWO*A11
               A12 = A12/MAX(EM20,THICKT)
               IZ = ONE_OVER_12*THICKT**3
               A11R =A11R/MAX(EM20, IZ)
@@ -244,14 +233,14 @@ C
               PM_STACK (7 ,IS) = A11R
               PM_STACK(8 ,IS) = C1  
               PM_STACK (9 ,IS) = SSP
-C used fo    r QEPH     
+C used for QEPH     
               PM_STACK(10,IS) = SQRT(G)
               PM_STACK(11,IS) = SQRT(A11)
               PM_STACK(12,IS) = SQRT(A12)
               PM_STACK(13,IS) = SQRT(NU)
               PM_STACK(14,IS)  = RHO0
               PM_STACK(15,IS)  = RHOCP
-              IF(ICRYPT.NE.0)THEN
+              IF(ICRYPT/=0)THEN
                  WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
               ELSE
                  WRITE(IOUT,100)IGEO(1,I),RHO,E,NU,G

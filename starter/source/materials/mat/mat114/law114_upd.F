@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LAW114_UPD                    source/materials/mat/mat114/law114_upd.F
-Chd|-- called by -----------
-Chd|        UPDMAT                        source/materials/updmat.F     
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TABLE_MOD                     share/modules1/table_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    law114_upd             ../starter/source/materials/mat/mat114/law114_upd.F
+!||--- called by ------------------------------------------------------
+!||    updmat                 ../starter/source/materials/updmat.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    table_mod              ../starter/share/modules1/table_mod.F
+!||====================================================================
       SUBROUTINE LAW114_UPD(IOUT   ,TITR   ,UPARAM ,NPC    ,PLD    ,  
      .                     NFUNC  ,IFUNC  ,MAT_ID ,FUNC_ID,
      .                     PM     )
@@ -38,6 +39,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE TABLE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,11 +49,10 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      CHARACTER*nchartitle  :: TITR
+      CHARACTER(LEN=NCHARTITLE)  :: TITR
       INTEGER MAT_ID,IOUT,NFUNC
       INTEGER NPC(*), FUNC_ID(*),IFUNC(NFUNC)
       my_real UPARAM(*),PLD(*),PM(NPROPM)
@@ -63,7 +64,7 @@ C-----------------------------------------------
       my_real
      .        XK,HARD,X1,X2,Y1,Y2,LSCALE,XK_INI,DERI,H,E_OFFSET,
      .        X1_UL,X2_UL,Y1_UL,Y2_UL,DERI_UL,Y,Y_UL,EPS,Y_EPS
-      CHARACTER*nchartitle  :: TITR1
+      CHARACTER(LEN=NCHARTITLE)  :: TITR1
 C=======================================================================
 c     Transform FUNC_ID ->  Function number , leakmat only
 C
@@ -86,6 +87,15 @@ c---------------------------------------------------------------
       FUNC = IFUNC(1)
       IF (FUNC > 0 ) THEN     
         NPT=(NPC(FUNC+1)-NPC(FUNC))/2
+
+        IF ( NPC(2*NFUNCT+FUNC+1) < 0) THEN
+          CALL ANCMSG(MSGID=3079, ! incompatible with python functions 
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO_BLIND_1,
+     .                  I1=MAT_ID,
+     .                  C1=TITR,
+     .                  I2=NPC(NFUNCT+FUNC+1))
+        ENDIF
         DO  J=2,NPT
            J1 =2*(J-2)
            X1 = PLD(NPC(FUNC)  + J1)
@@ -120,6 +130,15 @@ C
       IF3 = 12
       FUNC_UL = IFUNC(IF3+1)
       IF (FUNC_UL  > 0 ) THEN     
+        IF ( NPC(2*NFUNCT+FUNC_UL+1) < 0) THEN
+          CALL ANCMSG(MSGID=3079, ! incompatible with python functions 
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO_BLIND_1,
+     .                  I1=MAT_ID,
+     .                  C1=TITR,
+     .                  I2=NPC(NFUNCT+FUNC_UL+1))
+        ENDIF
+
         NPT=(NPC(FUNC_UL +1)-NPC(FUNC_UL ))/2
         DO  J=2,NPT
            J1 =2*(J-2)
@@ -143,7 +162,7 @@ C
       ENDIF
 C
       IF (IFUNC(1) > 0) THEN
-        IF ((XK_INI.LT.XK).AND.(XK_INI > ZERO)) THEN
+        IF ((XK_INI<XK).AND.(XK_INI > ZERO)) THEN
           CALL ANCMSG(MSGID=1640, ! 
      .                  MSGTYPE=MSGWARNING,
      .                  ANMODE=ANINFO_BLIND_1,

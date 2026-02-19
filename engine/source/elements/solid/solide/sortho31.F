@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SORTHO31                      source/elements/solid/solide/sortho31.F
-Chd|-- called by -----------
-Chd|        SROTA6                        source/output/anim/generate/srota6.F
-Chd|        SROTORTH                      source/elements/solid/srotorth.F
-Chd|        THSOL                         source/output/th/thsol.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sortho31   ../engine/source/elements/solid/solide/sortho31.F
+!||--- called by ------------------------------------------------------
+!||    srota6     ../engine/source/output/anim/generate/srota6.F
+!||    srotorth   ../engine/source/elements/solid/srotorth.F
+!||    thsol      ../engine/source/output/th/thsol.F
+!||====================================================================
       SUBROUTINE SORTHO31(
      .   X1, X2, X3, X4, X5, X6, X7, X8,
      .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
@@ -38,12 +37,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
       my_real
      .   X1, X2, X3, X4, X5, X6, X7, X8,
      .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,  
@@ -52,14 +47,9 @@ C     REAL
      .   E2X, E2Y, E2Z,
      .   E3X, E3Y, E3Z
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N,NITER
-C     REAL
-C                                                                     12
       my_real
      .   X17 , X28 , X35 , X46,
      .   Y17 , Y28 , Y35 , Y46,
@@ -105,17 +95,17 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 c     norme r s t
 c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       aa = sqrt(rx*rx + ry*ry + rz*rz)
-      if ( aa.ne.ZERO) aa = ONE / aa
+      if ( aa/=ZERO) aa = ONE / aa
       rx = rx * aa
       ry = ry * aa
       rz = rz * aa
       aa = sqrt(sx*sx + sy*sy + sz*sz)
-      if ( aa.ne.ZERO) aa = ONE / aa
+      if ( aa/=ZERO) aa = ONE / aa
       sx = sx * aa
       sy = sy * aa
       sz = sz * aa
       aa = sqrt(tx*tx + ty*ty + tz*tz)
-      if ( aa.ne.ZERO) aa = ONE / aa
+      if ( aa/=ZERO) aa = ONE / aa
       tx = tx * aa
       ty = ty * aa
       tz = tz * aa
@@ -139,25 +129,25 @@ c
        e3z = rx * sy - ry * sx + tz
 c
        bb = sqrt(e1x*e1x + e1y*e1y + e1z*e1z)
-       if ( bb.ne.ZERO) bb = ONE / bb
+       if ( bb/=ZERO) bb = ONE / bb
        rx = e1x * bb
        ry = e1y * bb
        rz = e1z * bb
 c
        bb = sqrt(e2x*e2x + e2y*e2y + e2z*e2z)
-       if ( bb.ne.ZERO) bb = ONE / bb
+       if ( bb/=ZERO) bb = ONE / bb
        sx = e2x * bb
        sy = e2y * bb
        sz = e2z * bb
 c
        bb = sqrt(e3x*e3x + e3y*e3y + e3z*e3z)
-       if ( bb.ne.ZERO) bb = ONE / bb
+       if ( bb/=ZERO) bb = ONE / bb
        tx = e3x * bb
        ty = e3y * bb
        tz = e3z * bb
 c
-      IF (N.LT.NITER) GOTO 111
-c     norme et orthogonalisation
+      IF (N<NITER) GOTO 111
+c     norm and orthogonalization
 c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       e1x = rx
       e1y = ry
@@ -168,7 +158,7 @@ c
       e3z = e1x * sy - e1y * sx
 c
       aa = sqrt(e3x*e3x + e3y*e3y + e3z*e3z)
-      if ( aa.ne.ZERO) aa = ONE / aa
+      if ( aa/=ZERO) aa = ONE / aa
       e3x = e3x * aa
       e3y = e3y * aa
       e3z = e3z * aa

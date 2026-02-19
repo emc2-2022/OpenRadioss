@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MASS_FLUID_TG                 source/fluid/mass-fluid_tg.F  
-Chd|-- called by -----------
-Chd|        HM_READ_BEM                   source/loads/bem/hm_read_bem.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        INTANL_TG                     source/fluid/intanl_tg.F      
-Chd|        INTGTG                        source/fluid/inte_tg.F        
-Chd|        INTHTG                        source/fluid/inte_tg.F        
-Chd|        INVERT                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    mass_fluid_tg   ../starter/source/fluid/mass-fluid_tg.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_bem     ../starter/source/loads/bem/hm_read_bem.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../starter/source/output/message/message.F
+!||    intanl_tg       ../starter/source/fluid/intanl_tg.F
+!||    intgtg          ../starter/source/fluid/inte_tg.F
+!||    inthtg          ../starter/source/fluid/inte_tg.F
+!||    invert          ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE MASS_FLUID_TG(IFORM, ILVOUT, NNO, NEL, IBUF, ELEM, X, 
      .                         NORMAL, AF, MFLE, RHO)
 C-----------------------------------------------
@@ -54,17 +55,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IN, JN, KN, N1, N2, N3, NN1, NN2, NN3, NNJ, IEL, JEL, ERR
-      my_real X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3, XQ, YQ, ZQ, R2,
-     .        XP, YP, ZP, X12, Y12, Z12, X13, Y13, Z13,	  
+      INTEGER IN, JN, KN, N1, N2, N3, NN1, NN2, NN3, IEL, JEL, ERR
+      my_real X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3, XQ, YQ, ZQ,
+     .        XP, YP, ZP,    
      .        NRX, NRY, NRZ, D2, AREA, RVAL, RVLH, RVLG
-      my_real MASSX, MASSY, MASSZ, NORM
+      my_real MASSX, MASSY, MASSZ
       my_real, DIMENSION(:,:), ALLOCATABLE :: BBEM, CBEM, EBEM 
       INTEGER :: AERR
 C-------------------------------------------------------------------
 C 1- Compute Bij Cij
 C-------------------------------------------------------------------
-      IF (ILVOUT.GE.1) WRITE(ISTDO,'(A)') ' .. FLUID MASS MATRIX : ASSEMBLY OF INTEGRAL OPERATORS'
+      IF (ILVOUT>=1) WRITE(ISTDO,'(A)') ' .. FLUID MASS MATRIX : ASSEMBLY OF INTEGRAL OPERATORS'
 
       ALLOCATE(BBEM(NEL,NEL), STAT = AERR)
       IF (AERR /= 0) THEN
@@ -83,7 +84,7 @@ C-------------------------------------------------------------------
       IF(IFORM == 1) THEN
 C Collocation BEM - Gauss integration
         DO IEL=1,NEL
-C           IF (ILVOUT.GE.2) CALL PROGBAR_C(IEL,NEL)
+C           IF (ILVOUT>=2) CALL PROGBAR_C(IEL,NEL)
            N1=ELEM(1,IEL)
            N2=ELEM(2,IEL)
            N3=ELEM(3,IEL)
@@ -99,7 +100,7 @@ C           IF (ILVOUT.GE.2) CALL PROGBAR_C(IEL,NEL)
            Z1=X(3,NN1)
            Z2=X(3,NN2)
            Z3=X(3,NN3)
-C Control point P
+C Control Point P
            XP=THIRD*(X1+X2+X3)
            YP=THIRD*(Y1+Y2+Y3)    
            ZP=THIRD*(Z1+Z2+Z3)
@@ -131,7 +132,7 @@ C Control point P
                 Z2=X(3,NN2)
                 Z3=X(3,NN3)
                 AREA=AF(JEL)
-C Point source Q
+C Source point Q
                 XQ=THIRD*(X1+X2+X3)
                 YQ=THIRD*(Y1+Y2+Y3)    
                 ZQ=THIRD*(Z1+Z2+Z3)
@@ -152,7 +153,7 @@ C Point source Q
       ELSEIF(IFORM == 2) THEN
 C Analytical integration
         DO IEL=1,NEL
-C           IF (ILVOUT.GE.2) CALL PROGBAR_C(IEL,NEL)
+C           IF (ILVOUT>=2) CALL PROGBAR_C(IEL,NEL)
            N1=ELEM(1,IEL)
            N2=ELEM(2,IEL)
            N3=ELEM(3,IEL)
@@ -207,7 +208,7 @@ C Matrice B=G
         ENDDO
       ENDIF
 
-      IF(ILVOUT.GE.3) THEN
+      IF(ILVOUT>=3) THEN
         WRITE (*,'(//,A)') ' BBEM MATRIX'
         IF(NEL < 11) THEN
           DO IN = 1,NEL
@@ -237,7 +238,7 @@ C Matrice B=G
 C---------------------------------------------------
 C 2- Compute fluid mass matrix MFLE
 C---------------------------------------------------
-      IF (ILVOUT.GE.1) WRITE(ISTDO,'(A)') ' .. FLUID MASS MATRIX'
+      IF (ILVOUT>=1) WRITE(ISTDO,'(A)') ' .. FLUID MASS MATRIX'
       ALLOCATE(EBEM(NEL,NEL), STAT = AERR)
       IF (AERR /= 0) THEN
          CALL ANCMSG(MSGID = 1710, ANMODE=ANINFO, MSGTYPE = MSGERROR) 
@@ -260,7 +261,7 @@ C-----------------------------------------
             ENDDO
          ENDDO
       ENDDO
-      IF(ILVOUT.GE.3) THEN
+      IF(ILVOUT>=3) THEN
         WRITE (*,'(//,A)') ' EBEM MATRIX = BBEM*CBEM-1'
         IF(NEL < 11) THEN
           DO IN = 1,NEL
@@ -280,9 +281,9 @@ C-----------------------------------------
             MFLE(IN,JN)=HALF*RHO*AF(IN)*(CBEM(IN,JN)+CBEM(JN,IN))
             BBEM(IN,JN)=MFLE(IN,JN)
          ENDDO
-      ENDDO	
+      ENDDO
 
-      IF(ILVOUT.GE.3) THEN
+      IF(ILVOUT>=3) THEN
         WRITE (*,'(//,A)') ' FLUID MASS MATRIX'
         IF(NEL < 11) THEN
           DO IN = 1,NEL
@@ -307,8 +308,8 @@ C-----------------------------------------
             MASSX=MASSX+NORMAL(1,IN)*MFLE(IN,JN)*NORMAL(1,JN)
             MASSY=MASSY+NORMAL(2,IN)*MFLE(IN,JN)*NORMAL(2,JN)
             MASSZ=MASSZ+NORMAL(3,IN)*MFLE(IN,JN)*NORMAL(3,JN)
-         ENDDO	  
-      ENDDO	  
+         ENDDO    
+      ENDDO    
       WRITE (IOUT,'(/7X,A,E13.5)')  'DAA : RIGID BODY FLUID MASS XX', MASSX
       WRITE (IOUT,'( 7X,A,E13.5)')  'DAA : RIGID BODY FLUID MASS YY', MASSY
       WRITE (IOUT,'( 7X,A,E13.5)')  'DAA : RIGID BODY FLUID MASS ZZ', MASSZ
@@ -322,7 +323,7 @@ C---------------------------------------------------
       ENDDO
       CALL INVERT(BBEM,EBEM,NEL,ERR)
 C
-      IF(ILVOUT.GE.3) THEN
+      IF(ILVOUT>=3) THEN
         WRITE (*,'(//,A)') ' INVERSE FLUID MASS MATRIX'
         IF(NEL < 11) THEN
           DO IN = 1,NEL
@@ -345,9 +346,9 @@ C
       ENDDO
 
       IF (ALLOCATED(BBEM)) DEALLOCATE(BBEM)
-      IF (ALLOCATED(EBEM)) DEALLOCATE(EBEM)	  
+      IF (ALLOCATED(EBEM)) DEALLOCATE(EBEM)    
       IF (ALLOCATED(CBEM)) DEALLOCATE(CBEM)
-	  
+            
       RETURN
       END
 

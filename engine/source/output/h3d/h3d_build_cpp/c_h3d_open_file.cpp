@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //    
 #include <stdio.h>
 #include <string.h>
@@ -144,7 +144,11 @@ void ReportErrorMsg(H3DFileInfo* h3d_file, const char* error)
 {
     FILE* errorFile = (FILE*)h3d_file->client_data1;
     if( !errorFile ) {
+#ifdef _WIN64
+        fopen_s(&errorFile,"export_error_messages", "a");
+#else
         errorFile = fopen("export_error_messages", "a");
+#endif
         h3d_file->client_data1 = (void*)errorFile;
     }
 
@@ -236,12 +240,20 @@ void c_h3d_open_file_(char *name, int *size, my_real *percentage_error, int *com
     // define pool names that will be used
     char* creating_application;
     creating_application=(char*) malloc(sizeof(char)*(*LEN_RADVERS+1));
+#ifdef _WIN64
+    strncpy_s(creating_application, *LEN_RADVERS+1, RADVERS, *LEN_RADVERS);
+#else
     strncpy(creating_application, RADVERS, *LEN_RADVERS);
+#endif
     creating_application[*LEN_RADVERS] = '\0';
 //
     char* solver_name;
     solver_name=(char*) malloc(sizeof(char)*(*LEN_RADVERS+1));
+#ifdef _WIN64
+    strncpy_s(solver_name, *LEN_RADVERS+1 , RADVERS, *LEN_RADVERS);
+#else
     strncpy(solver_name, RADVERS, *LEN_RADVERS);
+#endif
     solver_name[*LEN_RADVERS] = '\0';
 //
     char   file_creation_date[] = __DATE__;
@@ -440,7 +452,7 @@ void c_h3d_reopen_file_(char *name, int *size, my_real *percentage_error, int *c
         rc = Hyper3DAddString(h3d_file, SH3NPOOL, &sh3n_poolname_id);
         if( !rc ) throw rc;
 
-        char SH4NPOOL[] = "SH4N";
+        char SH4NPOOL[] = "SHELL";
         rc = Hyper3DAddString(h3d_file, SH4NPOOL, &sh4n_poolname_id);
         if( !rc ) throw rc;
 
@@ -552,8 +564,6 @@ void h3d_write_toc ()
 {c_h3d_write_toc_ ();}
 
 
-
-/*==================================
 /*=================================================================*/
 }
 /*=================================================================*/

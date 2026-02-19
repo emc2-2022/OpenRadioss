@@ -1,50 +1,54 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ADMINI                        source/model/remesh/admini.F  
-Chd|-- called by -----------
-Chd|        RESOL_INIT                    source/engine/resol_init.F    
-Chd|-- calls ---------------
-Chd|        ADMMAP3                       source/model/remesh/admmap3.F 
-Chd|        ADMMAP4                       source/model/remesh/admmap4.F 
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    admini         ../engine/source/model/remesh/admini.F
+!||--- called by ------------------------------------------------------
+!||    resol_init     ../engine/source/engine/resol_init.F
+!||--- calls      -----------------------------------------------------
+!||    admmap3        ../engine/source/model/remesh/admmap3.F
+!||    admmap4        ../engine/source/model/remesh/admmap4.F
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||    remesh_mod     ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE ADMINI(IXC ,IPARTC ,IXTG    ,IPARTTG  ,IPART ,
      .                  IGEO,IPM    ,IPARG   ,X        ,MS    ,
      .                  IN  ,ELBUF_TAB,SH4TREE ,IPADMESH ,MSC   ,
      .                  INC ,SH3TREE,MSTG    ,INTG     ,PTG   ,
      .                  SH4TRIM ,SH3TRIM ,MSCND ,INCND ,PM    ,
-     .                  MCP ,MCPC   ,MCPTG   ,TAGTRIMC,TAGTRIMTG)
+     .                  MCP ,MCPC   ,MCPTG   ,TAGTRIMC,TAGTRIMTG,
+     .                  ITHERM_FE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE REMESH_MOD
       USE MESSAGE_MOD
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixc,nixtg 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,13 +62,8 @@ C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-#include      "scr01_c.inc"
 #include      "scr17_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -74,6 +73,7 @@ C-----------------------------------------------
      .        SH4TREE(KSH4TREE,*), IPADMESH(KIPADMESH,*),
      .        SH3TREE(KSH3TREE,*), SH4TRIM(*), SH3TRIM(*),
      .        TAGTRIMC(*), TAGTRIMTG(*)
+      INTEGER ,INTENT(IN) :: ITHERM_FE
       my_real
      .        X(3,*), MS(*), IN(*), MSC(*), INC(*),
      .        MSTG(*), INTG(*), PTG(3,*), MSCND(*), INCND(*),
@@ -336,7 +336,7 @@ C             goes to sleep
 
             ELSE  
 C
-C             mapping et descente au niveau suivant
+C             mapping and descent at the next level
 C
               IF(ITRIM==-1)THEN
               NG   =SH4TREE(4,N)
@@ -359,7 +359,7 @@ C               wake up the son
 #include "lockon.inc"
                 NSH4ACT=NSH4ACT+1
                 LSH4ACT(NSH4ACT)=M
-C	    
+C      
 C               1/4 of the element mass has been stored
                 IF(ISTATCND==0)THEN          
                   MS(N1)=MS(N1)+MSC(M)
@@ -461,12 +461,12 @@ C             goes to sleep
 C
           IDEL7NOK=1
 C
-C         compactage de LSH4ACT
+C         compaction of LSH4ACT
           NTMP   =NSH4ACT
           NSH4ACT=0
           DO NN=1,NTMP
             N=LSH4ACT(NN)
-            IF(N.NE.0)THEN
+            IF(N/=0)THEN
               NSH4ACT=NSH4ACT+1
               LSH4ACT(NSH4ACT)=N
             END IF
@@ -490,7 +490,7 @@ C-----------------------------------------------
         MYLEV=SH4TREE(3,N)
         IP=IPARTC(N)
         INILEV=IPADMESH(1,IP)
-        IF(MYLEV.LT.INILEV)THEN
+        IF(MYLEV<INILEV)THEN
           IADMESH=1
           KINILEV=1
  
@@ -508,7 +508,7 @@ C           wake up the son
 #include "lockon.inc"
             NSH4ACT=NSH4ACT+1
             LSH4ACT(NSH4ACT)=M
-C	  
+C    
 C           1/4 of the element mass has been stored
             IF(ISTATCND==0)THEN          
               MS(N1)=MS(N1)+MSC(M)
@@ -596,12 +596,12 @@ C         goes to sleep
 
       IF(KINILEV/=0)THEN
 C
-C     compactage de LSH4ACT
+C     compaction of LSH4ACT
         NTMP   =NSH4ACT
         NSH4ACT=0
         DO NN=1,NTMP
           N=LSH4ACT(NN)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             NSH4ACT=NSH4ACT+1
             LSH4ACT(NSH4ACT)=N
           END IF
@@ -662,7 +662,7 @@ C             goes to sleep
 
             ELSE  
 C
-C             mapping et descente au niveau suivant
+C             mapping and descent at the next level
 
               DO IB=1,4
 
@@ -677,7 +677,7 @@ C               wake up the son
 #include "lockon.inc"
                 NSH3ACT=NSH3ACT+1
                 LSH3ACT(NSH3ACT)=M
-C	    
+C      
 C             1/4 of the element mass has been stored
                 IF(ISTATCND==0)THEN          
                   MS(N1)=MS(N1)+MSTG(M)*PTG(1,M)
@@ -762,12 +762,12 @@ C             goes to sleep
 C
           IDEL7NOK=1
 C
-C         compactage de LSH4ACT
+C         compaction of LSH4ACT
           NTMP   =NSH3ACT
           NSH3ACT=0
           DO NN=1,NTMP
             N=LSH3ACT(NN)
-            IF(N.NE.0)THEN
+            IF(N/=0)THEN
               NSH3ACT=NSH3ACT+1
               LSH3ACT(NSH3ACT)=N
             END IF
@@ -790,7 +790,7 @@ C-----------------------------------------------
         MYLEV=SH3TREE(3,N)
         IP   =IPARTTG(N)
         INILEV=IPADMESH(1,IP)
-        IF(MYLEV.LT.INILEV)THEN
+        IF(MYLEV<INILEV)THEN
           IADMESH=1
           KINILEV=1
 
@@ -807,7 +807,7 @@ C           wake up the son
 #include "lockon.inc"
             NSH3ACT=NSH3ACT+1
             LSH3ACT(NSH3ACT)=M
-C	  
+C    
 C           1/4 of the element mass has been stored
             IF(ISTATCND==0)THEN          
               MS(N1)=MS(N1)+MSTG(M)*PTG(1,M)
@@ -879,12 +879,12 @@ C         goes to sleep
 
       IF(KINILEV/=0)THEN
 C
-C     compactage de LSH4ACT
+C     compaction of LSH4ACT
         NTMP   =NSH3ACT
         NSH3ACT=0
         DO NN=1,NTMP
           N=LSH3ACT(NN)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             NSH3ACT=NSH3ACT+1
             LSH3ACT(NSH3ACT)=N
           END IF
@@ -893,10 +893,11 @@ C     compactage de LSH4ACT
       END IF
 C
 C     Tag element that are inactifs and one of its sons is actif for Idel in interface
-       IF(NADMESH.NE.0.AND.IDEL7NG.GE.1)THEN
+       IF(NADMESH/=0.AND.IDEL7NG>=1.AND.(LSH4TRIM>0.OR.LSH3TRIM>0))THEN
          TAGTRIMC(1:NUMELC) = 0 
          TAGTRIMTG(1:NUMELTG) = 0 
-         DO N=1,NUMELC
+         IF(LSH4TRIM>0)THEN
+          DO N=1,NUMELC
 
            IF(IPART(10,IPARTC(N)) > 0)THEN
              LEVEL = SH4TREE(3,N)
@@ -930,7 +931,7 @@ C     Tag element that are inactifs and one of its sons is actif for Idel in int
                 LELT1 =LELT2
                 LELT2 =LELT
                ENDDO
-c            ELSEIF (LEVEL==(-LEVELMAX-1)) THEN
+C            ELSEIF (LEVEL==(-LEVELMAX-1)) THEN
             ELSEIF (LEVEL <0.AND.ITRIM == -1) THEN
                 TAGTRIMC(N) = 1
                 NG   =SH4TREE(4,N)
@@ -940,8 +941,11 @@ c            ELSEIF (LEVEL==(-LEVELMAX-1)) THEN
             ENDIF
           ENDIF
 
-        ENDDO
-        DO N=1,NUMELTG
+         ENDDO
+        ENDIF
+
+        IF(LSH3TRIM>0)THEN
+         DO N=1,NUMELTG
 
           IF(IPART(10,IPARTTG(N)) > 0)THEN
             LEVEL = SH3TREE(3,N)
@@ -981,10 +985,11 @@ c            ELSEIF (LEVEL==(-LEVELMAX-1)) THEN
                 ELBUF_TAB(NG)%GBUF%OFF(I) = ZERO ! off
              ENDIF
           ENDIF
-        ENDDO
+         ENDDO
+       ENDIF 
       ENDIF
 C
-C     tableaux de travail.
+C     working arrays.
       ALLOCATE(TAGNOD(NUMNOD),STAT=IERR)
       IF (IERR /= 0) CALL ARRET(2)
 

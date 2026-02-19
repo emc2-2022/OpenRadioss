@@ -1,38 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  SPMD_INT18_LAW151_PON         source/mpi/forces/spmd_int18_law151_pon.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_int18_law151_pon   ../engine/source/mpi/forces/spmd_int18_law151_pon.F
+!||--- called by ------------------------------------------------------
+!||    resol                   ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                  ../engine/source/output/message/message.F
+!||    arret                   ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod           ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod             ../engine/share/message_module/message_mod.F
+!||    multi_fvm_mod           ../common_source/modules/ale/multi_fvm_mod.F90
+!||    spmd_comm_world_mod     ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box                 ../engine/share/modules/tri7box.F
+!||====================================================================
         SUBROUTINE SPMD_INT18_LAW151_PON(     
      1   IPARI   ,ISLEN7  ,IRLEN7  ,IFLAG   ,INTBUF_TAB,
      2   MULTI_FVM)
@@ -42,7 +44,7 @@ Chd|====================================================================
 !       phantom nodes 
 !       
 !       SPMD_INT18_LAW151_PON organization :
-!           part 1 = received part & send part :
+!           Part 1 = Receed Part & Send Part:
 !                    - 6*3 values per phantom nodes
 !                    - 1 value for the number of send values (=nb)
 !
@@ -64,30 +66,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "i25edge_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "scr18_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "timeri_c.inc"
-#include      "warn_c.inc"
-#include      "spmd_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -102,7 +93,7 @@ C-----------------------------------------------
 #ifdef MPI
         INTEGER :: P,LOC_PROC
         INTEGER :: IBRIC
-        INTEGER :: L,II,IJ,LL,LL0,N,NI
+        INTEGER :: L,II,IJ,LL,LL0,N
         INTEGER :: ADD,NB,LEN,LENI,SIZ,IDEB
         INTEGER :: NIN,NTY,NB_INT18
         INTEGER :: IERROR,IALLOCS, IALLOCR
@@ -125,7 +116,7 @@ C
         !   1 value for the 
         LEN = 3*6 + 1  
 
-        IF(IFLAG.EQ.1)THEN
+        IF(IFLAG==1)THEN
 C
 C Partie 1 envoi et preparation buffer reception
 C
@@ -138,9 +129,9 @@ C Init
             ENDDO
             IALLOCS = LEN*IRLEN7
             IERROR=0
-            IF(IALLOCS.GT.0)
-     +      ALLOCATE(BBUFS(IALLOCS+NB_INT18*NSPMD*2),STAT=IERROR) ! nbintc*NSPMD*2 majorant place supplementaire bufs
-            IF(IERROR.NE.0) THEN
+            IF(IALLOCS>0)
+     +      ALLOCATE(BBUFS(IALLOCS+NB_INT18*NSPMD*2),STAT=IERROR) ! NBINTC*NSPMD*2 Majoring supplemental place BUFS
+            IF(IERROR/=0) THEN
                 CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                 CALL ARRET(2)
             END IF
@@ -148,9 +139,9 @@ C
             IALLOCR = LEN*ISLEN7
 
             IERROR=0
-            IF(IALLOCR.GT.0)
-     +      ALLOCATE(BBUFR(IALLOCR+NB_INT18*NSPMD*2),STAT=IERROR) ! nbintc*NSPMD*2 majorant place supplementaire bufs
-            IF(IERROR.NE.0) THEN
+            IF(IALLOCR>0)
+     +      ALLOCATE(BBUFR(IALLOCR+NB_INT18*NSPMD*2),STAT=IERROR) ! NBINTC*NSPMD*2 Majoring supplemental place BUFS
+            IF(IERROR/=0) THEN
                 CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                 CALL ARRET(2)
             END IF
@@ -162,23 +153,23 @@ C
                 ADD = L+1
                 ADDR(P) = ADD
                 SIZ = 0
-                IF(P.NE.LOC_PROC)THEN
-Cel test en plus pour savoir si com globale necessaire entre les 2 procs
+                IF(P/=LOC_PROC)THEN
+C   In addition test to know if global compartment required between the 2 procs
                     DO II=1,MULTI_FVM%NUMBER_INT18
                         NIN = MULTI_FVM%INT18_LIST(II)
                         NB = NSNSI(NIN)%P(P)
                         NTY = IPARI(7,NIN)
                         LENI = LEN
 
-                        IF(NB.GT.0) THEN
+                        IF(NB>0) THEN
                             L = L + 1 + NB*LENI
                         ENDIF
                     ENDDO
                     SIZ = L+1-ADD
-                    IF(SIZ.GT.0)THEN
+                    IF(SIZ>0)THEN
                         MSGTYP = MSGOFF
                         CALL MPI_IRECV( BBUFR(ADD),SIZ,MPI_DOUBLE_PRECISION,
-     .                                  IT_SPMD(P),MSGTYP,MPI_COMM_WORLD,REQ_RI(P),IERROR )
+     .                                  IT_SPMD(P),MSGTYP,SPMD_COMM_WORLD,REQ_RI(P),IERROR )
                     ENDIF
                 ENDIF
             ENDDO
@@ -191,27 +182,32 @@ C
                 ADD = L+1
                 ADDS(P) = ADD
                 SIZ = 0
-                IF(P.NE.LOC_PROC)THEN
+                IF(P/=LOC_PROC)THEN
                     DO II=1,MULTI_FVM%NUMBER_INT18
                         NIN = MULTI_FVM%INT18_LIST(II)
                         IDEB = DEBUT(NIN)
                         NB = NSNFI(NIN)%P(P)
                         NTY  = IPARI(7,NIN)
                         LENI = LEN
-                        IF(NB.GT.0) THEN
+                        IF(NB>0) THEN
                             LL = L+1
                             L = L + 1
                             LL0 = LL
                             DO N = 1, NB
-                                IF(NSVFI(NIN)%P(IDEB+N).LT.0)THEN
+                                IF(NSVFI(NIN)%P(IDEB+N)<0)THEN
                                     L = L + 1
                                     BBUFS(L) = -NSVFI(NIN)%P(IDEB+N)
+                                    NSVFI(NIN)%P(IDEB+N) = -NSVFI(NIN)%P(IDEB+N)
                                     DO IJ=1,6
                                        BBUFS(L+IJ)  = MULTI_FVM%R_AFI(NIN)%R_FORCE_INT(1,IJ,IDEB+N)
                                        BBUFS(L+6+IJ)  = MULTI_FVM%R_AFI(NIN)%R_FORCE_INT(2,IJ,IDEB+N)
                                        BBUFS(L+12+IJ) = MULTI_FVM%R_AFI(NIN)%R_FORCE_INT(3,IJ,IDEB+N)
                                     ENDDO
-                                    MULTI_FVM%R_AFI(NIN)%R_FORCE_INT(1:3,1:6,IDEB+N) = 0.d+00   
+                                    DO IJ = 1,6
+                                      MULTI_FVM%R_AFI(NIN)%R_FORCE_INT(1,IJ,IDEB+N) = 0
+                                      MULTI_FVM%R_AFI(NIN)%R_FORCE_INT(2,IJ,IDEB+N) = 0
+                                      MULTI_FVM%R_AFI(NIN)%R_FORCE_INT(3,IJ,IDEB+N) = 0
+                                    ENDDO
                                     L = L + 18
                                 ENDIF
                             ENDDO
@@ -221,29 +217,29 @@ C
                     ENDDO ! ni = 1,ninter
 
                     SIZ = L+1-ADD
-                    IF(SIZ.GT.0)THEN
+                    IF(SIZ>0)THEN
                         MSGTYP = MSGOFF
                         CALL MPI_ISEND( BBUFS(ADD),SIZ,MPI_DOUBLE_PRECISION,IT_SPMD(P),
-     .                                 MSGTYP,MPI_COMM_WORLD,REQ_SI(P),IERROR )
+     .                                 MSGTYP,SPMD_COMM_WORLD,REQ_SI(P),IERROR )
                     ENDIF ! siz > 0
                 ENDIF ! p /= proc
             ENDDO ! p=1,nspmd
             ADDS(NSPMD+1)=ADDS(NSPMD)+SIZ
 C
-C Attente reception buffer et decompactage
+C Buffer reception and decompacting
 C
-        ELSEIF(IFLAG.EQ.2)THEN
+        ELSEIF(IFLAG==2)THEN
 C
 C Attente IRECV
 C
             DO P = 1, NSPMD
-                IF(ADDR(P+1)-ADDR(P).GT.0) THEN
+                IF(ADDR(P+1)-ADDR(P)>0) THEN
                     CALL MPI_WAIT(REQ_RI(P),STATUS,IERROR)
                     L = ADDR(P)
                     DO II=1,MULTI_FVM%NUMBER_INT18
                         NIN = MULTI_FVM%INT18_LIST(II)
                         NTY   =IPARI(7,NIN)
-                        IF(NSNSI(NIN)%P(P).GT.0)THEN
+                        IF(NSNSI(NIN)%P(P)>0)THEN
                             NB = NINT(BBUFR(L))                   
                             L = L + 1
                             DO IJ=1,NB
@@ -263,7 +259,7 @@ C
             ENDDO ! NSPMD
 
 C Deallocation R
-            IF(IALLOCR.GT.0) THEN
+            IF(IALLOCR>0) THEN
                 DEALLOCATE(BBUFR)
                 IALLOCR=0
             END IF
@@ -271,12 +267,12 @@ C
 C Attente ISEND
 C
             DO P = 1, NSPMD
-                IF(ADDS(P+1)-ADDS(P).GT.0) THEN
+                IF(ADDS(P+1)-ADDS(P)>0) THEN
                     CALL MPI_WAIT(REQ_SI(P),STATUS,IERROR)
                 ENDIF
             ENDDO
 C Deallocation S
-            IF(IALLOCS.GT.0) THEN
+            IF(IALLOCS>0) THEN
                 DEALLOCATE(BBUFS)
                 IALLOCS=0
             END IF

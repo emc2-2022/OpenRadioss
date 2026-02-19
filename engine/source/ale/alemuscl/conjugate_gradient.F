@@ -1,31 +1,28 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CG                            source/ale/alemuscl/conjugate_gradient.F
-Chd|-- called by -----------
-Chd|        GRADIENT_RECONSTRUCTION       source/ale/alemuscl/gradient_reconstruction.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cg   ../engine/source/ale/alemuscl/conjugate_gradient.F
+!||====================================================================
       SUBROUTINE CG (dim, mat, rhs, sol, max_iter, tol) 
 C-----------------------------------------------
 C   D e s c r i p t i o n
@@ -44,7 +41,7 @@ C-----------------------------------------------
       INTEGER, INTENT(IN) ::  dim  ! system dimension
       my_real, INTENT(INOUT) ::  mat(dim, dim)  ! matrix
       my_real, INTENT(INOUT) :: rhs(dim)  ! right hand side
-      my_real, INTENT(OUT) :: sol(dim)  ! solution vector
+      my_real, INTENT(OUT) :: sol(dim)  ! Vector solution
       INTEGER, INTENT(IN) :: max_iter
       my_real, INTENT(IN) :: tol
 C-----------------------------------------------

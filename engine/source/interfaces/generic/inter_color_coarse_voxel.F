@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.  
-Chd|====================================================================
-Chd|  INTER_COLOR_COARSE_VOXEL      source/interfaces/generic/inter_color_coarse_voxel.F
-Chd|-- called by -----------
-Chd|        INTER_PREPARE_SORT            source/interfaces/generic/inter_prepare_sort.F
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTER_SORTING_MOD             share/modules/inter_sorting_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inter_color_coarse_voxel   ../engine/source/interfaces/generic/inter_color_coarse_voxel.F
+!||--- called by ------------------------------------------------------
+!||    inter_prepare_sort         ../engine/source/interfaces/generic/inter_prepare_sort.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier                 ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod              ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    inter_sorting_mod          ../engine/share/modules/inter_sorting_mod.F
+!||====================================================================
         SUBROUTINE INTER_COLOR_COARSE_VOXEL(ITASK,NB_INTER_SORTED,LIST_INTER_SORTED,IPARI,INTBUF_TAB,
      .                                      X,SORT_COMM)
 !$COMMENT
@@ -51,25 +52,12 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "warn_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "timeri_c.inc"
-#include      "impl1_c.inc"
-#include      "ige3d_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -88,8 +76,6 @@ C-----------------------------------------------
         INTEGER :: IX,IY,IZ
         INTEGER :: NSN
         INTEGER :: FIRST,LAST
-        INTEGER :: ADRESS,ESHIFT,SHIFT
-        INTEGER, DIMENSION(:,:), ALLOCATABLE :: INDEX_CELL
         my_real :: VALUE
         my_real :: XMINB,YMINB,ZMINB
         my_real :: XMAXB,YMAXB,ZMAXB
@@ -97,8 +83,8 @@ C-----------------------------------------------
         ! ------------------
         ! allocation of global omp array 
         IF(ITASK==0) THEN
-            ALLOCATE(CELL_BOOL(4,4,4))
-            CELL_BOOL(1:4,1:4,1:4) = .FALSE.
+            ALLOCATE(CELL_BOOL(NB_BOX_COARSE_GRID,NB_BOX_COARSE_GRID,NB_BOX_COARSE_GRID))
+            CELL_BOOL(1:NB_BOX_COARSE_GRID,1:NB_BOX_COARSE_GRID,1:NB_BOX_COARSE_GRID) = .FALSE.
         ENDIF
         CALL MY_BARRIER()
         ! ------------------
@@ -117,7 +103,7 @@ C-----------------------------------------------
                 XMINB = BOX_LIMIT(4)
                 YMINB = BOX_LIMIT(5)
                 ZMINB = BOX_LIMIT(6)
-                IF(ITASK==0) CELL_BOOL(1:4,1:4,1:4) = .FALSE.
+                IF(ITASK==0) CELL_BOOL(1:NB_BOX_COARSE_GRID,1:NB_BOX_COARSE_GRID,1:NB_BOX_COARSE_GRID) = .FALSE.
                 CALL MY_BARRIER()
                 ! ------------------
                 !   loop over the secondary node to color the coarse grid
@@ -143,9 +129,9 @@ C-----------------------------------------------
                     ENDIF
                     SORT_COMM(NIN)%COARSE_GRID(1:NB_BOX_COARSE_GRID**3 + 1) = 0
                     NEXT = 0
-                    DO IZ=1,4
-                        DO IY=1,4
-                            DO IX=1,4
+                    DO IZ=1,NB_BOX_COARSE_GRID
+                        DO IY=1,NB_BOX_COARSE_GRID
+                            DO IX=1,NB_BOX_COARSE_GRID
                                 IF(CELL_BOOL(IX,IY,IZ)) THEN
                                     NEXT = NEXT + 1
                                     SORT_COMM(NIN)%COARSE_GRID(NEXT) = 

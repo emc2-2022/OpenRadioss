@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  THQUAD_COUNT                  source/output/th/thquad_count.F
-Chd|-- called by -----------
-Chd|        INIT_TH                       source/output/th/init_th.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    thquad_count   ../engine/source/output/th/thquad_count.F
+!||--- called by ------------------------------------------------------
+!||    init_th        ../engine/source/output/th/init_th.F
+!||====================================================================
       SUBROUTINE THQUAD_COUNT(NTHGRP2 ,ITHGRP,WA_SIZE,INDEX_WA_QUAD,
-     1                        IPARG,ITHBUF  )
+     1                        IPARG,ITHBUF,SITHBUF  )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------      
@@ -40,15 +39,13 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "com01_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER,INTENT(IN) :: SITHBUF
       INTEGER IPARG(NPARG,NGROUP),ITHBUF(SITHBUF)
       INTEGER, INTENT(inout) :: WA_SIZE,NTHGRP2
       INTEGER, DIMENSION(2*NTHGRP2+1), INTENT(inout) :: INDEX_WA_QUAD
@@ -56,9 +53,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER II, KRK, LL, I, J, K, L ,N, IH, IP, NG, MTE, NUVAR,
-     .   NC1, NC2, NC3, NC4,  NEL, MTN1,KK(6),IJ,NPTR,NPTS,
-     .   IR,IS
+      INTEGER II, I, J, K, N, IH, IP, NG, MTE, NUVAR, 
+     . NEL
       LOGICAL :: BOOL
       INTEGER :: J_FIRST,NITER,IADB,NN,IADV,NVAR,ITYP,IJK
       INTEGER, DIMENSION(NTHGRP2) :: INDEX_QUAD
@@ -84,11 +80,11 @@ C--------------------------------------------
       IF(ITYP == 117) ITYP = 7
 
 C decalage IH
-      DO WHILE((ITHBUF(IH+NN).NE.ISPMD).AND.(IH.LT.IADB+NN))
+      DO WHILE((ITHBUF(IH+NN)/=ISPMD).AND.(IH<IADB+NN))
           IH = IH + 1
         ENDDO
 C----
-        IF (IH.GE.IADB+NN) GOTO 666 
+        IF (IH>=IADB+NN) GOTO 666 
 C----
 c
       DO NG=1,NGROUP
@@ -106,13 +102,11 @@ C
 C
             IF (K==N)THEN
                 IH=IH+1
-                IF (IMACH==3) THEN
-C recherche du ii correct
-                    II = ((IH-1) - IADB)*NVAR
-                    DO WHILE((ITHBUF(IH+NN).NE.ISPMD).AND.(IH.LT.IADB+NN))
-                        IH = IH + 1
-                    ENDDO
-                ENDIF
+C search for the correct ii
+                II = ((IH-1) - IADB)*NVAR
+                DO WHILE((ITHBUF(IH+NN)/=ISPMD).AND.(IH<IADB+NN))
+                    IH = IH + 1
+                ENDDO
                 IF (IH > IADB+NN) GOTO 666
                 WA_SIZE = WA_SIZE + NVAR + 1
             ENDIF

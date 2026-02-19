@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SURFTAG                       source/groups/surftag.F       
-Chd|-- called by -----------
-Chd|        HM_READ_LINES                 source/groups/hm_read_lines.F 
-Chd|        HM_READ_SURF                  source/groups/hm_read_surf.F  
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        SURF_MOD                      share/modules1/surf_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    surftag         ../starter/source/groups/surftag.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_lines   ../starter/source/groups/hm_read_lines.F
+!||    hm_read_surf    ../starter/source/groups/hm_read_surf.F
+!||--- uses       -----------------------------------------------------
+!||    surf_mod        ../starter/share/modules1/surf_mod.F
+!||====================================================================
       SUBROUTINE SURFTAG(NUMEL,IX,NIX,NIX1,NIX2,IELTYP,IPARTE,
      .                   TAGBUF,ISU,NSEG,FLAG,NINDX,
      .                   INDX,SURF_ELM)
@@ -41,7 +40,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -52,14 +50,14 @@ C-----------------------------------------------
       TYPE(PART_TYPE), DIMENSION(*) :: SURF_ELM
 !
       TYPE (SURF_) :: ISU
-!       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*       
+!       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 !       ----------------
-!       NINDX : number of tagged part 
-!       INDX  : tagged part     
+!       NINDX : number of tagged part
+!       INDX  : tagged part
 !       ----------------
-!       SURF_ELM : PART_TYPE structur 
+!       SURF_ELM : PART_TYPE structure
 !                  %NSHELL or %NTRI : number of element per part
-!                  %SHELL_PART or %TRI_PART : ID of the element 
+!                  %SHELL_PART or %TRI_PART : ID of the element
 !       ----------------
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 C-----------------------------------------------
@@ -127,13 +125,12 @@ C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SURFTAGADM                    source/groups/surftag.F       
-Chd|-- called by -----------
-Chd|        HM_READ_SURF                  source/groups/hm_read_surf.F  
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    surftagadm     ../starter/source/groups/surftag.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_surf   ../starter/source/groups/hm_read_surf.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SURFTAGADM(NUMEL,IX,NIX,NIX1,NIX2,IELTYP,IPARTE,
      .                      TAGBUF,IGRSURF,NSEG,IPART,
      .                      KSHTREE,SHTREE,FLAG)
@@ -148,15 +145,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "remesh_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NIX,IX(NIX,*),NIX1,NIX2,NUMEL,IELTYP,
-     1      TAGBUF(*),IPARTE(*),IADPART,NSEG,FLAG,
+     1      TAGBUF(*),IPARTE(*),NSEG,FLAG,
      2      IPART(LIPART1,*),KSHTREE,SHTREE(KSHTREE,*)
 !
       TYPE (SURF_) :: IGRSURF
@@ -204,13 +198,12 @@ CC-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SURFTAGX                      source/groups/surftag.F       
-Chd|-- called by -----------
-Chd|        HM_READ_LINES                 source/groups/hm_read_lines.F 
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    surftagx        ../starter/source/groups/surftag.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_lines   ../starter/source/groups/hm_read_lines.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SURFTAGX(NUMEL,IXX,KXX,NIXX,IELTYP,IPARTE,
      .                    TAGBUF,IGRSLIN,NSEG,FLAG)
 C-----------------------------------------------
@@ -225,7 +218,7 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NUMEL,IXX(*),KXX(NIXX,*),IELTYP,NIXX,
-     .      TAGBUF(*),IPARTE(*),IADPART,NSEG,FLAG
+     .      TAGBUF(*),IPARTE(*),NSEG,FLAG
 !
       TYPE (SURF_) :: IGRSLIN
 C-----------------------------------------------

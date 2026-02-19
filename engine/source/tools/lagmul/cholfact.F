@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CHOLFACT                      source/tools/lagmul/cholfact.F
-Chd|-- called by -----------
-Chd|        LAG_MULT_SOLV                 source/tools/lagmul/lag_mult_solv.F
-Chd|        LAG_MULT_SOLVP                source/tools/lagmul/lag_mult_solv.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cholfact         ../engine/source/tools/lagmul/cholfact.F
+!||--- called by ------------------------------------------------------
+!||    lag_mult_sdp     ../engine/source/tools/lagmul/lag_mult_solv.F
+!||    lag_mult_solv    ../engine/source/tools/lagmul/lag_mult_solv.F
+!||    lag_mult_solvp   ../engine/source/tools/lagmul/lag_mult_solv.F
+!||====================================================================
       INTEGER FUNCTION CHOLFACT(N,DIAG,H,IADH,JCIH,WCOL,IROW,JCOL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -57,17 +57,17 @@ C---
           IROW(IC) = 1
         ENDDO
 C---
-        IF (DIAG(K).LE.0.) GOTO 999
+        IF (DIAG(K)<=0.) GOTO 999
         DIAG(K) = SQRT(DIAG(K))
 C---
         J = JCOL(K)
 100     CONTINUE
-        IF (J.EQ.0) GOTO 200
+        IF (J==0) GOTO 200
           ISJ = IROW(J)
           IEJ = IADH(J+1)-1
           LVAL = H(ISJ)
           ISJ = ISJ + 1
-          IF (ISJ.LT.IEJ) THEN
+          IF (ISJ<IEJ) THEN
             IROW(J) = ISJ
             IPTR = J
             J = JCOL(J)
@@ -78,14 +78,14 @@ C---
           ENDIF
           DO I = ISJ, IEJ
             IC = JCIH(I)
-            IF (IROW(IC).NE.0) THEN
+            IF (IROW(IC)/=0) THEN
               WCOL(IC) = WCOL(IC) - LVAL*H(I)
             ENDIF
           ENDDO
         GOTO 100
 200     CONTINUE
 C---
-        IF (ISK.LT.IEK) THEN
+        IF (ISK<IEK) THEN
           IPTR = JCIH(ISK)
           JCOL(K) = JCOL(IPTR)
           JCOL(IPTR) = K
@@ -109,13 +109,12 @@ C-----------------------------------------------
       RETURN
       END
       
-Chd|====================================================================
-Chd|  PRECHOL                       source/tools/lagmul/cholfact.F
-Chd|-- called by -----------
-Chd|        LAG_MULT_SOLV                 source/tools/lagmul/lag_mult_solv.F
-Chd|        LAG_MULT_SOLVP                source/tools/lagmul/lag_mult_solv.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prechol          ../engine/source/tools/lagmul/cholfact.F
+!||--- called by ------------------------------------------------------
+!||    lag_mult_solv    ../engine/source/tools/lagmul/lag_mult_solv.F
+!||    lag_mult_solvp   ../engine/source/tools/lagmul/lag_mult_solv.F
+!||====================================================================
       SUBROUTINE PRECHOL(Z,D,L,R,NC,IADH,JCIH)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s

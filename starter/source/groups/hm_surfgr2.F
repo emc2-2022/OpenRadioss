@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_SURFGR2                    source/groups/hm_surfgr2.F    
-Chd|-- called by -----------
-Chd|        HM_READ_LINES                 source/groups/hm_read_lines.F 
-Chd|        HM_READ_SURF                  source/groups/hm_read_surf.F  
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        GROUPS_GET_ELEM_LIST          source/groups/groups_get_elem_list.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_surfgr2             ../starter/source/groups/hm_surfgr2.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_lines          ../starter/source/groups/hm_read_lines.F
+!||    hm_read_surf           ../starter/source/groups/hm_read_surf.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    groups_get_elem_list   ../starter/source/groups/groups_get_elem_list.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_SURFGR2(NGRELE  ,ELCHAR ,NUMEL ,ID   ,
      .                   IGRELEM ,TAGBUF ,TITR  ,TITR1,
      .                   INDX    ,NINDX  ,FLAG  ,NINDX_SOL,NINDX_SOL10,
@@ -44,6 +44,7 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE HM_OPTION_READ_MOD
       USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -52,12 +53,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -65,8 +60,7 @@ C-----------------------------------------------
      .      NEMAX,ID,TAGBUF(*),
      .      FLAG
       CHARACTER ELCHAR*(*)
-      CHARACTER*nchartitle,
-     .   TITR,TITR1
+      CHARACTER(LEN=NCHARTITLE) :: TITR,TITR1
       LOGICAL :: FLAG_GRBRIC
       INTEGER :: NINDX_SOL, NINDX_SOL10
       INTEGER, DIMENSION(*) :: INDX_SOL, INDX_SOL10
@@ -74,16 +68,16 @@ C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRELE) :: IGRELEM
       TYPE(SUBMODEL_DATA) LSUBMODEL(NSUBMOD)
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*       
-!       FLAG_GRBRIC : flag to initialize the INDX_SOL(10) arraies
+!       FLAG_GRBRIC : flag to initialize the INDX_SOL(10) arrays
 !                     and optimize an old and expensive treatment in SSURFTAG      
 !       NINDX_SOL(10) : number of the tagged solid(10) element
 !                      --> need to split solid and solid10 
 !                      for a treatment in the SSURFTAG routine
-!                      only usefull for /SURF/GRBRIC
+!                      only useful for /SURF/GRBRIC
 !       INDX_SOL(10) : ID of the tagged solid(10) element
 !                      --> need to split solid and solid10 
 !                      for a treatment in the SSURFTAG routine
-!                      only usefull for /SURF/GRBRIC
+!                      only useful for /SURF/GRBRIC
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -96,7 +90,6 @@ C-----------------------------------------------
       INTERFACE
        SUBROUTINE GROUPS_GET_ELEM_LIST(arg1,arg2,arg3)
         USE SUBMODEL_MOD
-#include      "submod_c.inc"
         INTEGER,DIMENSION(:),ALLOCATABLE       :: arg1
         INTEGER,INTENT(INOUT)                  :: arg2
         TYPE(SUBMODEL_DATA)                    :: arg3(NSUBMOD)
@@ -108,7 +101,7 @@ C=======================================================================
         CALL GROUPS_GET_ELEM_LIST(LIST_ENTITY, NENTITY, LSUBMODEL)       
         DO KK=1,NENTITY                                                              
           JJ=LIST_ENTITY(KK)      
-          IF(JJ.NE.0)THEN
+          IF(JJ/=0)THEN
             ISU=0
             DO K=1,NGRELE
               IF (JJ == IGRELEM(K)%ID) ISU=K

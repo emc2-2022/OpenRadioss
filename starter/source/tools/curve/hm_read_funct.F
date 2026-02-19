@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_FUNCT                 source/tools/curve/hm_read_funct.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|        TABLE_MOD                     share/modules1/table_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_funct              ../starter/source/tools/curve/hm_read_funct.F
+!||--- called by ------------------------------------------------------
+!||    lectur                     ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    fretitl                    ../starter/source/starter/freform.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_count            ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_is_encrypted     ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    hm_option_read_key         ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start            ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||    table_mod                  ../starter/share/modules1/table_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_FUNCT(NPC     ,PLD      ,NFUNCT ,TABLE    ,NPTS_ALLOC,
      .                         NOM_OPT ,FUNCRYPT ,UNITAB ,LSUBMODEL)
 C-----------------------------------------------
@@ -48,44 +49,36 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE UNITAB_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
+C   C o m m o n   B l o c k s
 C-----------------------------------------------
+#include      "scr17_c.inc"
+#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NFUNCT, NPTS_ALLOC
       INTEGER NPC(*),FUNCRYPT(*)
-C     REAL
-      my_real
-     .   PLD(NPTS_ALLOC)
+      my_real PLD(NPTS_ALLOC)
       TYPE(TTABLE) TABLE(*)
       INTEGER NOM_OPT(LNOPT1,*)
       TYPE(SUBMODEL_DATA), DIMENSION(NSUBMOD), INTENT(IN) :: LSUBMODEL
-      my_real, INTENT(IN) :: UNITAB(LUNIT, NUNITS)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
+      TYPE(UNIT_TYPE_), INTENT(IN) :: UNITAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,L,FUNC_ID,NPTS,STAT,N,II,ISMOOTH
-C     REAL
-      my_real
-     .   TIME, FUNCT, BID, F5(5)
-      my_real
-     .   XSCALE,YSCALE,XSHIFT,YSHIFT
-      CHARACTER TITR*nchartitle,MESS*40,KEY*20
+      INTEGER I,L,FUNC_ID,NPTS,STAT,N,ISMOOTH
+      INTEGER :: IPYTHON ! is it a FUNCT_PYTHON
+      my_real TIME, FUNCT
+      my_real XSCALE,YSCALE,XSHIFT,YSHIFT
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER MESS*40,KEY*20
       DATA MESS/' FUNCTION & TABLES DEFINITION           '/
       LOGICAL :: IS_ENCRYPTED, IS_AVAILABLE
       INTEGER :: NB_FUNCT, NB_FUNCT_SMOOTH, IPT, NPT
@@ -105,7 +98,7 @@ C--------------------------------------------------
       NPC(1)=1
       L     =0
 C--------------------------------------------------
-C READING /FUNCT ( ISMOOTH = 0)
+C READING /FUNCT ( ISMOOTH = 0, IPYTHON = 0)
 C--------------------------------------------------
       CALL HM_OPTION_COUNT('/FUNCT', NB_FUNCT)
       CALL HM_OPTION_COUNT('/FUNCT_SMOOTH', NB_FUNCT_SMOOTH)
@@ -119,10 +112,12 @@ c
      .                              KEYWORD1 = KEY)
 c 
             ISMOOTH = 0
+            IPYTHON = 0
             IF(KEY(6:12) == '_SMOOTH') ISMOOTH = 1
-c
-            IF(ISMOOTH == 0)THEN
-              CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)   
+            IF(KEY(6:12) == '_PYTHON') IPYTHON = 1
+            
+            IF(ISMOOTH == 0 .AND. IPYTHON == 0 ) THEN
+              CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)   
               L = L + 1   
               CALL FRETITL(TITR,NOM_OPT(LNOPT1-LTITR+1,L),LTITR)                         
               NOM_OPT(1, L) = FUNC_ID
@@ -172,7 +167,7 @@ c
               IF (STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,
      .             MSGTYPE=MSGERROR,
      .             C1='TABLE')
-              ALLOCATE(TABLE(L)%Y,STAT=stat)
+              ALLOCATE(TABLE(L)%Y,STAT=stat) ! Y or Y(1) ?
               IF (STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,
      .             MSGTYPE=MSGERROR,
      .             C1='TABLE')
@@ -204,7 +199,7 @@ c
      .                              OPTION_ID = FUNC_ID,
      .                              KEYWORD1 = KEY)
 c
-            CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)  
+            CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)  
             ISMOOTH = 1
             L = L + 1 
             CALL FRETITL(TITR,NOM_OPT(LNOPT1-LTITR+1,L),LTITR)                           
@@ -250,7 +245,7 @@ c
                   ENDIF
                ENDIF     
                NPC(L + 1) = NPC(L + 1) + 1                                      
-               PLD(NPC(L + 1)) = FUNCT 	                                       
+               PLD(NPC(L + 1)) = FUNCT                                          
                NPC(L + 1) = NPC(L + 1) + 1
             ENDDO
 c

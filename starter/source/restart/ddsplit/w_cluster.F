@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  W_CLUSTER                     source/restart/ddsplit/w_cluster.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        CLUSTER_MOD                   share/modules1/cluster_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    w_cluster     ../starter/source/restart/ddsplit/w_cluster.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit       ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod   ../starter/share/modules1/cluster_mod.F
+!||====================================================================
       SUBROUTINE W_CLUSTER(CLUSTER,IPARG,NODLOCAL,
      .                     NCLUSTER_L,CEP,PROC,
      .                     NUMLOCGROUP, LEN_IA,LEN_AM )
@@ -46,7 +45,6 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -68,11 +66,11 @@ C=======================================================================
       ESHIFT(2) = NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP  ! spring cluster
       ESHIFT(3) = NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP  ! spring cluster special 
       ALLOCATE(INDX(NCLUSTER_L)) ! INDeXes of local clusters 
-      ALLOCATE(ILCLUSTER(NCLUSTER_L)) ! Integer Lengthes of local CLUSTERs
-      ALLOCATE(RLCLUSTER(NCLUSTER_L)) ! Real Lengthes of local CLUSTERs
+      ALLOCATE(ILCLUSTER(NCLUSTER_L)) ! Integer Lengths of local CLUSTERs
+      ALLOCATE(RLCLUSTER(NCLUSTER_L)) ! Real Lengths of local CLUSTERs
       J = 0
       ILCLUSTER(1:NCLUSTER_L)  = 0 
-      RLCLUSTER(1:NCLUSTER_L) =  ZERO
+      RLCLUSTER(1:NCLUSTER_L) =  0
       RLCLUSTER_MAX = 0
       ILCLUSTER_MAX = 0
 
@@ -85,13 +83,13 @@ C=======================================================================
           IFAIL = CLUSTER(I)%IFAIL
           ILCLUSTER(J) = 8 + 2 * (NEL + NNOD)
           RLCLUSTER(J) = 1 
-          IF (IFAIL .GT. 0) RLCLUSTER(J) = RLCLUSTER(J) + 4 
-          IF (IFAIL .EQ. 3) RLCLUSTER(J) = RLCLUSTER(J) + 8  
+          IF (IFAIL > 0) RLCLUSTER(J) = RLCLUSTER(J) + 4 
+          IF (IFAIL == 3) RLCLUSTER(J) = RLCLUSTER(J) + 8  
           INDX(J) = I
-          IF ( RLCLUSTER_MAX .LT. RLCLUSTER(J) ) THEN 
+          IF ( RLCLUSTER_MAX < RLCLUSTER(J) ) THEN 
             RLCLUSTER_MAX = RLCLUSTER(J)
           ENDIF 
-          IF ( ILCLUSTER_MAX .LT. ILCLUSTER(J) ) THEN 
+          IF ( ILCLUSTER_MAX < ILCLUSTER(J) ) THEN 
             ILCLUSTER_MAX = ILCLUSTER(J)
           ENDIF 
         ENDIF
@@ -128,16 +126,17 @@ c-----
 c
         DO J = 1,NEL
           ID = CLUSTER(II)%ELEM(J)
+          K = 0
           DO NG = 1,NGROUP
             NELG = IPARG(2,NG)
             NFT  = IPARG(3,NG)
             ITY  = IPARG(5,NG)
             IF (ITY == 1 .AND. CLUSTER(II)%TYPE == 1) THEN
               K = ID - NFT
-              IF (K .LE. NELG) GOTO 100
+              IF (K <= NELG) GOTO 100
             ELSEIF (ITY == 6 .AND. CLUSTER(II)%TYPE == 2) THEN
               K = ID - NFT
-              IF (K .LE. NELG) GOTO 100
+              IF (K <= NELG) GOTO 100
             ENDIF 
           ENDDO  ! NG = 1,NGROUP
  100      CONTINUE
@@ -193,13 +192,13 @@ C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  C_CLUSTER                     source/restart/ddsplit/w_cluster.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        CLUSTER_MOD                   share/modules1/cluster_mod.F  
-Chd|====================================================================
+!||====================================================================
+!||    c_cluster     ../starter/source/restart/ddsplit/w_cluster.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit       ../starter/source/restart/ddsplit/ddsplit.F
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod   ../starter/share/modules1/cluster_mod.F
+!||====================================================================
       SUBROUTINE C_CLUSTER(CLUSTERS,PROC,CEP,NCLUSTER_L,CLUSTERS_ID_L)
 C Count the number of clusters per PROC
 C-----------------------------------------------
@@ -213,10 +212,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -232,7 +228,7 @@ C=======================================================================
       CLUSTERS_ID_L(1:NCLUSTER) = 0
       DO I = 1,NCLUSTER 
         OFF = 0
-        IF (CLUSTERS(I)%TYPE .NE. 1) THEN
+        IF (CLUSTERS(I)%TYPE /= 1) THEN
           OFF = NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP 
         END IF
         IF (CEP(CLUSTERS(I)%ELEM(1)+OFF) == PROC) THEN
@@ -243,12 +239,11 @@ c    Local ID of the Ith global cluster
       END DO
       RETURN
       END
-Chd|====================================================================
-Chd|  APPLYSORT2CLUSTER             source/restart/ddsplit/w_cluster.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        CLUSTER_MOD                   share/modules1/cluster_mod.F  
-Chd|====================================================================
+!||====================================================================
+!||    applysort2cluster   ../starter/source/restart/ddsplit/w_cluster.F
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod         ../starter/share/modules1/cluster_mod.F
+!||====================================================================
       SUBROUTINE APPLYSORT2CLUSTER(CLUSTERS,PERMUTATIONS)
 C Apply the new numbering (given in permutations) to the elements of clusters
 C-----------------------------------------------
@@ -262,10 +257,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -279,7 +271,7 @@ C=======================================================================
 
       DO I = 1, NCLUSTER 
         OFFSET = 0
-        IF (CLUSTERS(I)%TYPE .NE. 1) THEN
+        IF (CLUSTERS(I)%TYPE /= 1) THEN
           OFFSET = NUMELS+NUMELQ+NUMELC+NUMELT+NUMELP 
         END IF
         DO J = 1, CLUSTERS(I)%NEL

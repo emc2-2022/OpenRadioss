@@ -1,46 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25COMP_1                     source/interfaces/int25/i25comp_1.F
-Chd|-- called by -----------
-Chd|        I25MAIN_SLID                  source/interfaces/int25/i25main_slid.F
-Chd|-- calls ---------------
-Chd|        I25COR3_1                     source/interfaces/int25/i25cor3.F
-Chd|        I25DST3_1                     source/interfaces/int25/i25dst3_1.F
-Chd|        I25GLOB_1                     source/interfaces/int25/i25dst3_1.F
-Chd|        I25PREP_SLID_1                source/interfaces/int25/i25slid.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25comp_1        ../engine/source/interfaces/int25/i25comp_1.F
+!||--- called by ------------------------------------------------------
+!||    i25main_slid     ../engine/source/interfaces/int25/i25main_slid.F
+!||--- calls      -----------------------------------------------------
+!||    i25cor3_1        ../engine/source/interfaces/int25/i25cor3.F
+!||    i25dst3_1        ../engine/source/interfaces/int25/i25dst3_1.F
+!||    i25glob_1        ../engine/source/interfaces/int25/i25dst3_1.F
+!||    i25prep_slid_1   ../engine/source/interfaces/int25/i25slid.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod    ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    sensor_mod       ../common_source/modules/sensor_mod.F90
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25COMP_1(
      1                   IPARI   ,INTBUF_TAB ,X      ,ITAB   ,NIN        ,
-     2                   KINET      ,JTASK  ,NB_DST1,V       ,SENSOR     )
+     2                   KINET      ,JTASK  ,NB_DST1,V       ,NSENSOR    ,
+     3                   SENSOR_TAB )
 C=======================================================================
-C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INTBUFDEF_MOD
       USE TRI7BOX
+      USE SENSOR_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -53,32 +56,26 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
 #include      "warn_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NSENSOR
       INTEGER NIN, NB_DST1, JTASK
       INTEGER IPARI(NPARI,NINTER), ITAB(*), KINET(*)
 C     REAL
-      my_real 
-     .   X(3,*), V(3,*), SENSOR(NSENSR,*)
+      my_real :: X(3,*), V(3,*)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) :: SENSOR_TAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER 
-     .        I, J, L, H, I_STOK_RTLM, I_STOK, JLT , NFT,
+     .        I_STOK_RTLM, I_STOK, JLT , NFT,
      .        INACTI, NADMSR, NB_LOC, DEBUT, IGAP,
      .        MG, N, NSN, NSNR, IVIS2, ISENS
       INTEGER  LENT, MAXCC
@@ -109,27 +106,27 @@ C-----------------------------------------------
 C
         STARTT=INTBUF_TAB%VARIABLES(3)
         STOPT =INTBUF_TAB%VARIABLES(11)
-        IF(STARTT.GT.TT) RETURN ! dont look for sliding
-        IF(TT.GT.STOPT)  RETURN
+        IF(STARTT>TT) RETURN ! don't look for sliding
+        IF(TT>STOPT)  RETURN
 C
 C       Look if interface is activated 
         ISENS = IPARI(64,NIN)  
-        IF(ISENS.NE.0)  THEN         ! Interface activated by sensor
-           TS = SENSOR(2,ISENS)
+        IF (ISENS > 0)  THEN         ! Interface activated by sensor
+           TS = SENSOR_TAB(ISENS)%TSTART
         ELSE
            TS = TT
         ENDIF
-        IF(TT.LT.TS) RETURN
+        IF(TT<TS) RETURN
 C
         I_STOK_RTLM=INTBUF_TAB%I_STOK(3) ! IRTLM/=0 was stored at the beginning of CAND_OPT
         NB_LOC = I_STOK_RTLM / NTHREAD
-        IF (JTASK.EQ.NTHREAD) THEN
+        IF (JTASK==NTHREAD) THEN
           I_STOK = I_STOK_RTLM-NB_LOC*(NTHREAD-1)
         ELSE
           I_STOK = NB_LOC
         ENDIF
 C-----------------------------------------------------------------------
-        IF (DEBUG(3).GE.1) THEN
+        IF (DEBUG(3)>=1) THEN
           NB_DST1  = NB_DST1  + I_STOK
         ENDIF
         DO NFT = 0 , I_STOK - 1 , NVSIZ

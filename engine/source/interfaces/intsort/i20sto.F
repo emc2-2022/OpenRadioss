@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I20STO                        source/interfaces/intsort/i20sto.F
-Chd|-- called by -----------
-Chd|        I20TRI                        source/interfaces/intsort/i20tri.F
-Chd|-- calls ---------------
-Chd|        I20COR3T                      source/interfaces/int20/i20cor3t.F
-Chd|        I7PEN3                        source/interfaces/intsort/i7pen3.F
-Chd|        BITGET                        source/interfaces/intsort/i20sto.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i20sto     ../engine/source/interfaces/intsort/i20sto.F
+!||--- called by ------------------------------------------------------
+!||    i20tri     ../engine/source/interfaces/intsort/i20tri.F
+!||--- calls      -----------------------------------------------------
+!||    bitget     ../engine/source/interfaces/intsort/i20sto.F
+!||    i20cor3t   ../engine/source/interfaces/int20/i20cor3t.F
+!||    i7pen3     ../engine/source/interfaces/intsort/i7pen3.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box    ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I20STO(
      1      J_STOK,IRECT  ,XA    ,NSV   ,II_STOK,
      2      CAND_N,CAND_E ,MULNSN,NOINT ,MARGE  ,
@@ -51,14 +52,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -86,8 +79,6 @@ C     REAL
       INTEGER BITGET
       EXTERNAL BITGET
 C-----------------------------------------------
-#include "sync_dir.inc"
-C-----------------------------------------------
         CALL I20COR3T(J_STOK ,XA    ,IRECT ,NSV   ,PROV_E  ,
      1                PROV_N ,IGAP  ,GAP   ,X1    ,X2      ,
      2                X3     ,X4    ,Y1    ,Y2   ,Y3       ,
@@ -103,7 +94,7 @@ C-----------------------------------------------
      .               YI    ,ZI    ,PENE  ,IX1    ,IX2  ,
      .               IX3   ,IX4   ,IGAP  ,GAP    ,GAPV )
 C-----------------------------------------------
-C SUPPRESSION DES CANDIDATS AUTOIMPACTES S1 OU S2
+C removal of self-ed candidates s1 or s2
 C-----------------------------------------------
        IF(ISYM==1)THEN
          DO I=1,J_STOK
@@ -125,21 +116,21 @@ C-----------------------------------------------
          ENDDO
        ENDIF
 C-----------------------------------------------
-C SUPPRESSION DES ANCIENS CANDIDATS DEJA STOCKES (PENE INITIALE)
+C SUPPRESSION DES ANCIENS CANDIDATES DEJA STOCKES (PENE INITIALE)
 C-----------------------------------------------
-       IF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7.OR.IFQ.GT.0)THEN
+       IF(INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.IFQ>0)THEN
             DO I=1,J_STOK
-              IF(PENE(I).NE.ZERO)THEN
+              IF(PENE(I)/=ZERO)THEN
                 N  = PROV_N(I)
                 NE = PROV_E(I)+ESHIFT
-                IF(N.GT.NSN) THEN
-C numerotation tris precedent pour les noeuds non locaux (SPMD)
+                IF(N>NSN) THEN
+C previous sorting numbering for non-local nodes (spmd)
                  N = OLDNUM(N-NSN)+NSN
-                  IF(N.EQ.NSN) N = NSN+NSNROLD+1
+                  IF(N==NSN) N = NSN+NSNROLD+1
                 END IF
                 J = CAND_A(N)
-                DO WHILE(J.LE.CAND_A(N+1)-1)
-                  IF(CAND_E(J).EQ.NE)THEN
+                DO WHILE(J<=CAND_A(N+1)-1)
+                  IF(CAND_E(J)==NE)THEN
                     PENE(I)=ZERO
                     J=CAND_A(N+1)
                   ELSE
@@ -152,13 +143,13 @@ C numerotation tris precedent pour les noeuds non locaux (SPMD)
 C-----------------------------------------------
         K_STOK = 0
         DO I=1,J_STOK
-          IF(PENE(I).NE.ZERO) K_STOK = K_STOK + 1
+          IF(PENE(I)/=ZERO) K_STOK = K_STOK + 1
         ENDDO
-        IF(K_STOK.EQ.0)RETURN
+        IF(K_STOK==0)RETURN
 C
 #include "lockon.inc"
           I_STOK = II_STOK
-          IF(I_STOK+K_STOK.GT.MULNSN) THEN
+          IF(I_STOK+K_STOK>MULNSN) THEN
             I_MEM = 2
 #include "lockoff.inc"
             RETURN
@@ -169,7 +160,7 @@ C-----------------------------------------------
       IF(IFQ > 0 .AND. 
      .   (INACTI == 5 .OR. INACTI ==6 .OR. INACTI ==7))THEN
         DO I=1,J_STOK
-          IF(PENE(I).NE.0.0)THEN
+          IF(PENE(I)/=0.0)THEN
             I_STOK = I_STOK + 1
             CAND_N(I_STOK) = PROV_N(I)
             CAND_E(I_STOK) = PROV_E(I)+ESHIFT
@@ -179,16 +170,16 @@ C-----------------------------------------------
         ENDDO
       ELSEIF(IFQ > 0)THEN
         DO I=1,J_STOK
-          IF(PENE(I).NE.ZERO)THEN
+          IF(PENE(I)/=ZERO)THEN
             I_STOK = I_STOK + 1
             CAND_N(I_STOK) = PROV_N(I)
             CAND_E(I_STOK) = PROV_E(I)+ESHIFT
             IFPEN(I_STOK) = 0
           ENDIF
         ENDDO
-      ELSEIF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7)THEN
+      ELSEIF(INACTI==5.OR.INACTI==6.OR.INACTI==7)THEN
         DO I=1,J_STOK
-          IF(PENE(I).NE.ZERO)THEN
+          IF(PENE(I)/=ZERO)THEN
             I_STOK = I_STOK + 1
             CAND_N(I_STOK) = PROV_N(I)
             CAND_E(I_STOK) = PROV_E(I)+ESHIFT
@@ -197,7 +188,7 @@ C-----------------------------------------------
         ENDDO
       ELSE
         DO I=1,J_STOK
-          IF(PENE(I).NE.ZERO)THEN
+          IF(PENE(I)/=ZERO)THEN
             I_STOK = I_STOK + 1
             CAND_N(I_STOK) = PROV_N(I)
             CAND_E(I_STOK) = PROV_E(I)+ESHIFT
@@ -207,13 +198,13 @@ C-----------------------------------------------
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I20STO_EDGE                   source/interfaces/intsort/i20sto.F
-Chd|-- called by -----------
-Chd|        I20TRI_EDGE                   source/interfaces/intsort/i20tri.F
-Chd|-- calls ---------------
-Chd|        I20PEN3_EDGE                  source/interfaces/intsort/i20sto.F
-Chd|====================================================================
+!||====================================================================
+!||    i20sto_edge    ../engine/source/interfaces/intsort/i20sto.F
+!||--- called by ------------------------------------------------------
+!||    i20tri_edge    ../engine/source/interfaces/intsort/i20tri.F
+!||--- calls      -----------------------------------------------------
+!||    i20pen3_edge   ../engine/source/interfaces/intsort/i20sto.F
+!||====================================================================
       SUBROUTINE I20STO_EDGE(
      1      J_STOK,IXLINS,IXLINM,XA    ,II_STOKE,
      2      CAND_S,CAND_M,NSN4  ,NOINT ,TZINF ,
@@ -228,14 +219,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -255,24 +238,24 @@ C     REAL
       my_real
      .   PENE(MVSIZ)
 C-----------------------------------------------
-#include "sync_dir.inc"
         CALL I20PEN3_EDGE(J_STOK ,PROV_S,PROV_M,TZINF ,XA    ,
      .               IXLINS,IXLINM,PENE  ,NLINSA ,NIN   )
 C-----------------------------------------------
-C il faut un lock sur toute la boucle (modification de chaine)
+C need a lock on the entire loop (chain modification)
 #include "lockon.inc"
         K_STOK = 0
 C-----------------------------------------------
-C elimination des couples deja trouves dans 1 boite precedente
+C elimination of pairs already found in 1 previous box
 C-----------------------------------------------
         I_STOK = II_STOKE
+        IAD0 = 0
         DO I=1,J_STOK
-          IF(PENE(I).GT.ZERO)THEN
+          IF(PENE(I)>ZERO)THEN
             IAD=ADDCM(PROV_M(I))
             J=0
-            DO WHILE(IAD.NE.0.AND.J.LT.NSN4)
+            DO WHILE(IAD/=0.AND.J<NSN4)
               J=J+1
-              IF(CHAINE(1,IAD).EQ.PROV_S(I))THEN
+              IF(CHAINE(1,IAD)==PROV_S(I))THEN
                 PENE(I) = ZERO
                 IAD=0
               ELSE
@@ -280,10 +263,10 @@ C-----------------------------------------------
                 IAD=CHAINE(2,IAD)
               ENDIF
             ENDDO
-            IF(PENE(I).GT.ZERO)THEN
+            IF(PENE(I)>ZERO)THEN
               K_STOK = K_STOK + 1
                 IADFIN=II_STOKE+1
-                IF(IADFIN.GT.NSN4) THEN
+                IF(IADFIN>NSN4) THEN
                   I_MEM = 2
 #include "lockoff.inc"
                   RETURN
@@ -291,7 +274,7 @@ C-----------------------------------------------
                 II_STOKE   = IADFIN
               CHAINE(1,IADFIN)=PROV_S(I)
               CHAINE(2,IADFIN)=0
-              IF(ADDCM(PROV_M(I)).EQ.0)THEN
+              IF(ADDCM(PROV_M(I))==0)THEN
                 ADDCM(PROV_M(I))=IADFIN
               ELSE
                 CHAINE(2,IAD0)=IADFIN
@@ -300,13 +283,13 @@ C-----------------------------------------------
           ENDIF
         ENDDO
 C
-        IF(K_STOK.EQ.0) THEN
+        IF(K_STOK==0) THEN
 #include "lockoff.inc"
           RETURN
         ENDIF
 C-----------------------------------------------
         DO 200 I=1,J_STOK
-          IF(PENE(I).GT.ZERO)THEN
+          IF(PENE(I)>ZERO)THEN
             I_STOK = I_STOK + 1
             CAND_S(I_STOK) = PROV_S(I)
             CAND_M(I_STOK) = PROV_M(I)+ESHIFT
@@ -318,13 +301,13 @@ C
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I20PEN3_EDGE                  source/interfaces/intsort/i20sto.F
-Chd|-- called by -----------
-Chd|        I20STO_EDGE                   source/interfaces/intsort/i20sto.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i20pen3_edge   ../engine/source/interfaces/intsort/i20sto.F
+!||--- called by ------------------------------------------------------
+!||    i20sto_edge    ../engine/source/interfaces/intsort/i20sto.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box        ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I20PEN3_EDGE(JLT   ,CAND_N,CAND_E,GAP   ,XA    ,
      .                        IXLINS,IXLINM,PENE  ,NLINSA,NIN   )
 C-----------------------------------------------
@@ -342,8 +325,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -354,15 +335,12 @@ C-----------------------------------------------
       my_real
      .     XA(3,*), PENE(MVSIZ)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG,N1,N2,M1,M2,NI,L
+      INTEGER I,N1,N2,M1,M2,NI,L
       my_real
      .     XS12,YS12,ZS12,XM12,YM12,ZM12,XXA,XXB,
-     .     XS2,XM2,XSM,XS2M2,YS2,YM2,YSM,YS2M2,ZS2,ZM2,ZSM,ZS2M2,
+     .     XS2,XM2,XSM,XS2M2,YS2M2,ZS2M2,
      .     XX,YY,ZZ,ALS,ALM,DET,
      .     GAP2, X11, X12, X13, X21, X22, X23,
      .     XMAX1,YMAX1,ZMAX1,XMAX2,YMAX2,ZMAX2,
@@ -397,78 +375,10 @@ C       B*(XM2*XS2 - XSM*XSM) = -XB*XS2+XA*XSM
 C       B = (XA*XSM-XB*XS2) / (XM2*XS2 - XSM*XSM)
 C       A = (XB*XSM-XA*XM2) / (XM2*XS2 - XSM*XSM)
 C--------------------------------------------------------
-      IF(IMACH /= 3)THEN
-        DO I=1,JLT
-          N1=IXLINS(1,CAND_N(I))
-          N2=IXLINS(2,CAND_N(I))
-          M1=IXLINM(1,CAND_E(I))
-          M2=IXLINM(2,CAND_E(I))
-
-c         calcul d'un minorant de la distance
-
-          XMAX1 = MAX(XA(1,N1),XA(1,N2))
-          YMAX1 = MAX(XA(2,N1),XA(2,N2))
-          ZMAX1 = MAX(XA(3,N1),XA(3,N2))
-          XMAX2 = MAX(XA(1,M1),XA(1,M2))
-          YMAX2 = MAX(XA(2,M1),XA(2,M2))
-          ZMAX2 = MAX(XA(3,M1),XA(3,M2))
-          XMIN1 = MIN(XA(1,N1),XA(1,N2))
-          YMIN1 = MIN(XA(2,N1),XA(2,N2))
-          ZMIN1 = MIN(XA(3,N1),XA(3,N2))
-          XMIN2 = MIN(XA(1,M1),XA(1,M2))
-          YMIN2 = MIN(XA(2,M1),XA(2,M2))
-          ZMIN2 = MIN(XA(3,M1),XA(3,M2))
-          DD = MAX(XMIN1-XMAX2,YMIN1-YMAX2,ZMIN1-ZMAX2,
-     .             XMIN2-XMAX1,YMIN2-YMAX1,ZMIN2-ZMAX1)
-          IF(DD > GAP)THEN
-            PENE(I) = ZERO
-            CYCLE
-          ENDIF
-
-c         calcul de la distance^2
-
-          XS12 = XA(1,N2)-XA(1,N1)
-          YS12 = XA(2,N2)-XA(2,N1)
-          ZS12 = XA(3,N2)-XA(3,N1)
-          XS2 = XS12*XS12 + YS12*YS12 + ZS12*ZS12
-          XM12 = XA(1,M2)-XA(1,M1)
-          YM12 = XA(2,M2)-XA(2,M1)
-          ZM12 = XA(3,M2)-XA(3,M1)
-          XM2 = XM12*XM12 + YM12*YM12 + ZM12*ZM12
-          XSM = - (XS12*XM12 + YS12*YM12 + ZS12*ZM12)
-          XS2M2 = XA(1,M2)-XA(1,N2)
-          YS2M2 = XA(2,M2)-XA(2,N2)
-          ZS2M2 = XA(3,M2)-XA(3,N2)
-          XXA =  XS12*XS2M2 + YS12*YS2M2 + ZS12*ZS2M2
-          XXB = -XM12*XS2M2 - YM12*YS2M2 - ZM12*ZS2M2 
-          DET = XM2*XS2 - XSM*XSM
-          DET = MAX(EM20,DET)
-
-          ALM = (XXA*XSM-XXB*XS2) / DET
-          XS2 = MAX(XS2,EM20)
-          XM2 = MAX(XM2,EM20)
-          ALM=MIN(ONE,MAX(ZERO,ALM))
-          ALS = -(XXA + ALM*XSM) / XS2
-          ALS=MIN(ONE,MAX(ZERO,ALS))
-          ALM = -(XXB + ALS*XSM) / XM2
-          ALM=MIN(ONE,MAX(ZERO,ALM))
-
-C         PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
-
-          XX =  ALS*XA(1,N1) + (ONE-ALS)*XA(1,N2)
-     .        - ALM*XA(1,M1) - (ONE-ALM)*XA(1,M2)
-          YY =  ALS*XA(2,N1) + (ONE-ALS)*XA(2,N2)
-     .        - ALM*XA(2,M1) - (ONE-ALM)*XA(2,M2)
-          ZZ =  ALS*XA(3,N1) + (ONE-ALS)*XA(3,N2)
-     .        - ALM*XA(3,M1) - (ONE-ALM)*XA(3,M2)
-          PENE(I) = GAP2 - XX*XX - YY*YY - ZZ*ZZ
-C
-        ENDDO
-      ELSE
 C
         DO I=1,JLT
           L = CAND_N(I)
-          IF(L.LE.NLINSA) THEN
+          IF(L<=NLINSA) THEN
             N1=IXLINS(1,CAND_N(I))
             N2=IXLINS(2,CAND_N(I))
             X11 = XA(1,N1)
@@ -489,7 +399,7 @@ C
           M1=IXLINM(1,CAND_E(I))
           M2=IXLINM(2,CAND_E(I))
 
-c         calcul d'un minorant de la distance
+c         calculation of a distance lower bound
 
           XMAX1 = MAX(X11,X21)
           YMAX1 = MAX(X12,X22)
@@ -510,7 +420,7 @@ c         calcul d'un minorant de la distance
             CYCLE
           ENDIF
 
-c         calcul de la distance^2
+c         calculation of distance^2
 
           XS12 = X21-X11
           YS12 = X22-X12
@@ -533,18 +443,18 @@ C
           ALM = (XXA*XSM-XXB*XS2) / DET
           XS2 = MAX(XS2,EM20)
           XM2 = MAX(XM2,EM20)
-          IF(ALM.LT.ZERO)THEN
+          IF(ALM<ZERO)THEN
             ALM = ZERO
             ALS = -XXA / XS2
-          ELSEIF(ALM.GT.ONE)THEN
+          ELSEIF(ALM>ONE)THEN
             ALM = ONE
             ALS = -(XXA + XSM) / XS2
           ENDIF
 C
-          IF(ALS.LT.ZERO)THEN
+          IF(ALS<ZERO)THEN
             ALS = ZERO
             ALM = -XXB / XM2
-          ELSEIF(ALS.GT.ONE)THEN
+          ELSEIF(ALS>ONE)THEN
             ALS = ONE
             ALM = -(XXB + XSM) / XM2
           ENDIF
@@ -552,7 +462,7 @@ C
           ALM = MIN(ONE,ALM)
           ALM = MAX(ZERO,ALM)
 
-C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 
           XX =  ALS*X11 + (ONE-ALS)*X21
      .        - ALM*XA(1,M1) - (ONE-ALM)*XA(1,M2)
@@ -563,30 +473,21 @@ C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
           PENE(I) = GAP2- XX*XX - YY*YY - ZZ*ZZ
 C
         END DO
-      END IF
 C
       RETURN
       END
 C===============================================================================
 
-Chd|====================================================================
-Chd|  BITGET                        source/interfaces/intsort/i20sto.F
-Chd|-- called by -----------
-Chd|        I11FOR3                       source/interfaces/int11/i11for3.F
-Chd|        I20DST3                       source/interfaces/int20/i20dst3.F
-Chd|        I20STO                        source/interfaces/intsort/i20sto.F
-Chd|        I24DST3E                      source/interfaces/int24/i24dst3e.F
-Chd|        I24EDGT                       source/interfaces/intsort/i24sto.F
-Chd|        I24FOR3                       source/interfaces/int24/i24for3.F
-Chd|        I24S1S2                       source/interfaces/intsort/i24sto.F
-Chd|        I25FOR3                       source/interfaces/int25/i25for3.F
-Chd|        I25FOR3E                      source/interfaces/int25/i25for3e.F
-Chd|        I25FOR3_E2S                   source/interfaces/int25/i25for3_e2s.F
-Chd|        I25S1S2                       source/interfaces/intsort/i25sto.F
-Chd|        I25TRIVOX_EDG                 source/interfaces/intsort/i25trivox_edg.F
-Chd|        I7FOR3                        source/interfaces/int07/i7for3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    bitget     ../engine/source/interfaces/intsort/i20sto.F
+!||--- called by ------------------------------------------------------
+!||    i20dst3    ../engine/source/interfaces/int20/i20dst3.F
+!||    i20sto     ../engine/source/interfaces/intsort/i20sto.F
+!||    i24dst3e   ../engine/source/interfaces/int24/i24dst3e.F
+!||    i24edgt    ../engine/source/interfaces/intsort/i24sto.F
+!||    i24for3    ../engine/source/interfaces/int24/i24for3.F
+!||    i24s1s2    ../engine/source/interfaces/intsort/i24sto.F
+!||====================================================================
       INTEGER FUNCTION BITGET(I,N)
       INTEGER I,N
       INTEGER S,I2P(0:12)! limite a 23 (cast reel pour spmd)

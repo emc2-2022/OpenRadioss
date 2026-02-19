@@ -1,68 +1,72 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I22MAIN_TRI                   source/interfaces/intsort/i22main_tri.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        I22BUCE                       source/interfaces/intsort/i22buce.F
-Chd|        I22SHELL_GETMINMAX            source/interfaces/intsort/i22main_tri.F
-Chd|        I22SOLID_GETMINMAX            source/interfaces/intsort/i22main_tri.F
-Chd|        I22XSAVE                      source/interfaces/intsort/i22xsave.F
-Chd|        IMP_RNUMCD                    source/implicit/imp_int_k.F   
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_LAGBOUNDS_EXCH_I22       source/mpi/interfaces/spmd_lagbounds_exch_i22.F
-Chd|        SPMD_TRI22VOX                 source/mpi/interfaces/spmd_tri22vox.F
-Chd|        SPMD_TRI22VOX0                source/mpi/interfaces/spmd_tri22vox0.F
-Chd|        SPMD_TRI7GAT                  source/mpi/interfaces/spmd_int.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        UPGRADE_MULTIMP               ../common_source/interf/upgrade_multimp.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFMOD                     share/modules/restart_mod.F   
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE I22MAIN_TRI(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i22main_tri                  ../engine/source/interfaces/intsort/i22main_tri.F
+!||--- called by ------------------------------------------------------
+!||    inttri                       ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                       ../engine/source/output/message/message.F
+!||    arret                        ../engine/source/system/arret.F
+!||    check_sorting_criteria       ../engine/source/interfaces/intsort/check_sorting_criteria.F90
+!||    i22buce                      ../engine/source/interfaces/intsort/i22buce.F
+!||    i22shell_getminmax           ../engine/source/interfaces/intsort/i22main_tri.F
+!||    i22solid_getminmax           ../engine/source/interfaces/intsort/i22main_tri.F
+!||    i22xsave                     ../engine/source/interfaces/intsort/i22xsave.F
+!||    imp_rnumcd                   ../engine/source/implicit/imp_int_k.F
+!||    my_barrier                   ../engine/source/system/machine.F
+!||    spmd_lagbounds_exch_i22      ../engine/source/mpi/interfaces/spmd_lagbounds_exch_i22.F
+!||    spmd_tri22vox                ../engine/source/mpi/interfaces/spmd_tri22vox.F
+!||    spmd_tri22vox0               ../engine/source/mpi/interfaces/spmd_tri22vox0.F
+!||    spmd_tri7gat                 ../engine/source/mpi/interfaces/spmd_int.F
+!||    startime                     ../engine/source/system/timer_mod.F90
+!||    stoptime                     ../engine/source/system/timer_mod.F90
+!||    upgrade_multimp              ../common_source/interf/upgrade_multimp.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod         ../common_source/modules/ale/ale_connectivity_mod.F
+!||    check_sorting_criteria_mod   ../engine/source/interfaces/intsort/check_sorting_criteria.F90
+!||    element_mod                  ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod                 ../common_source/modules/groupdef_mod.F
+!||    h3d_mod                      ../engine/share/modules/h3d_mod.F
+!||    i22bufbric_mod               ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod                   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    intbufdef_mod                ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod                  ../engine/share/message_module/message_mod.F
+!||    multi_fvm_mod                ../common_source/modules/ale/multi_fvm_mod.F90
+!||    timer_mod                    ../engine/source/system/timer_mod.F90
+!||    tri7box                      ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE I22MAIN_TRI(TIMERS,
      1                  IPARI   ,X       ,V       ,
      2                  MS      ,NIN     ,ITASK   ,MWAG    ,WEIGHT    ,
      3                  ISENDTO ,IRCVFROM,RETRI   ,IAD_ELEM,FR_ELEM   ,
      4                  ITAB    ,KINET   ,TEMP    ,NRTM_T  ,RENUM     ,
      5                  NSNFIOLD,ESHIFT  ,NUM_IMP ,IND_IMP ,NODNX_SMS ,
      6                  IXS     ,IGRBRIC ,ALE_CONNECTIVITY,INTBUF_TAB, 
-     7                  COUNT_REMSLV ,H3D_DATA,MULTI_FVM)
+     7                  COUNT_REMSLV ,H3D_DATA,MULTI_FVM,NODADT_THERM)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
-      USE INTBUFMOD
+      USE TIMER_MOD
       USE TRI7BOX
       USE I22TRI_MOD
       USE MESSAGE_MOD
@@ -72,15 +76,13 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE MULTI_FVM_MOD
       USE ALE_CONNECTIVITY_MOD
+      use check_sorting_criteria_mod , only : check_sorting_criteria
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -88,27 +90,22 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "warn_c.inc"
 #include      "task_c.inc"
 #include      "parit_c.inc"
 #include      "timeri_c.inc"
 #include      "inter22.inc"
-C common pour variable globale en memoire partagee
+C Common for global variable in memory shared
       COMMON /I22MAINC/BMINMA_LAG,BMINMA_FLU,RESULT,NSNR,NSNROLD,I_MEMG,
      .                 CURV_MAX_MAX 
       INTEGER RESULT,NSNR,NSNROLD,I_MEMG
       my_real 
-     .        BMINMA_LAG(6), !dimensions domaine lagrangien local
-     .        BMINMA_FLU(6), !dimensions domaine fluide local
+     .        BMINMA_LAG(6), !Local Lagrangian domain dimensions
+     .        BMINMA_FLU(6), !Local fluid domain dimensions
      .        CURV_MAX_MAX
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_) :: TIMERS
       INTEGER NIN ,ITASK, RETRI, NRTM_T,ESHIFT,
      .        NUM_IMP ,IND_IMP(*),
      .        ITAB(*), KINET(*),
@@ -117,6 +114,7 @@ C-----------------------------------------------
      .        WEIGHT(*), IAD_ELEM(2,*) ,FR_ELEM(*),
      .        RENUM(NUMNOD), NSNFIOLD(NSPMD), NODNX_SMS(*),
      .        IXS(NIXS,*),NSHELL,  COUNT_REMSLV(*)
+      INTEGER , INTENT(IN) :: NODADT_THERM
       my_real 
      .   X(3,*), V(3,*), MS(*),TEMP(*)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
@@ -134,13 +132,13 @@ C-----------------------------------------------
      .        ADD1, NB_N_B, NOINT, INACTI, MULTIMP, IGAP, IFQ,
      .        IAD, J, NF, NL, I1, I2, REM_P(NSPMD-1)
       INTEGER ::
-     .        NBRIC_G,  !Nombre de brique dans tout le modele
-     .        NBRIC_L,  !Nombre de brique du domaine (non fragmentate sur les thread)
-     .        NSHEL_G,  !Nombre de facettes dans tout le modele
-     .        NSHEL_L,  !Nombre de facettes du domaine
-     .        NSHEL_T,  !Nombre de facettes du domaine associe au THREAD concerne
-     .        NSHELR_L !Nombre de facettes remote du domaine 
-!     .        NSHELR_T  !Nombre de facettes remote du domaine (pour le thread courant)
+     .        NBRIC_G,  !number of bricks in the whole model
+     .        NBRIC_L,  !number of bricks in the domain (not split across threads)
+     .        NSHEL_G,  !number of facets in the whole model
+     .        NSHEL_L,  !number of facets in the domain
+     .        NSHEL_T,  !number of facets in the domain associated with the relevant thread
+     .        NSHELR_L !number of remote facets in the domain
+! number of remote facets in the domain (for the current thread)
       INTEGER 
      .        ILD, NCONT, NCONTACT, INACTII, INACIMP, INTTH,
      .        I_MEM,CAND_N_OLD,IDUM1(1),
@@ -148,31 +146,31 @@ C-----------------------------------------------
       LOGICAL ::
      .        IS_CONTACT
       my_real
-     .   STARTT,GAP,MAXBOX,MINBOX,STOPT,DIST,TZINF,
+     .   GAP,MAXBOX,MINBOX,TZINF,
      .   XMAXL, YMAXL, ZMAXL, XMINL, YMINL, ZMINL, GAPMIN, GAPMAX,
      .   C_MAXL,BID,
      .   CURV_MAX(NRTM_T),RDUM1(1), STFE, 
      .   BMINMA_AND_R(6), !intersection fluid in local domain and remote lag faces
      .   BMINMA_AND(6),  !intersection fluid in local domain and all faces
      .   vel(4), vel_max
+      INTEGER :: NRTM,NSN,NTY,NMN
+      logical :: need_computation
 C-----------------------------------------------
-#include "sync_dir.inc"
-C-----------------------------------------------
-    !  if(itask==0.and.ibug22_tri==1)print *, 
-    ! .        "entree subroutine i22main_tri.F"
+
+      ! --------------
+      ! check if the current interface needs to be sorted
+      call check_sorting_criteria( need_computation,nin,npari,nspmd,  
+     .                             itask,ipari(1,nin),tt,intbuf_tab )
+      if( .not.need_computation ) return
+      ! --------------
+
       I_MEMG = 0
       I_MEM = 0
       IS_CONTACT=.FALSE.
-      STARTT=INTBUF_TAB%VARIABLES(3)
-      STOPT =INTBUF_TAB%VARIABLES(11)
-      IF(STARTT.GT.TT) RETURN
-      IF(TT.GT.STOPT)  RETURN
 
 C -------------------------------------------------------------
-C     CRITERE DE RETRI
+C     retri criterion
 C -------------------------------------------------------------
-      DIST = INTBUF_TAB%VARIABLES(5)
-      !IF (DIST.GT.ZERO) RETURN
       RETRI = 1
 C
 C -------------------------------------------------------------
@@ -194,9 +192,9 @@ C -------------------------------------------------------------
       GAP =INTBUF_TAB%VARIABLES(2)
       GAPMIN=INTBUF_TAB%VARIABLES(13)
       GAPMAX=INTBUF_TAB%VARIABLES(16)
-      INTBUF_TAB%I_STOK(1)=0     !initialisation du nombre de condidat (II_STOK = INTBUF_TAB%I_STOK(1) )
+      INTBUF_TAB%I_STOK(1)=0     !initialization of the number of candidates (II_STOK = INTBUF_TAB%I_STOK(1))
 
-      !nombre d elements pour l interface (total, domaine, thread)
+      !number of elements for the interface (total, domain, thread)
       !---BRIQUES---!
       NBRIC_G = IPARI(32,NIN)
       ISU1    = IPARI(45,NIN)
@@ -213,7 +211,7 @@ C -------------------------------------------------------------
       NSHELR_L = 0
       !NSHELR_T = NSNR
   
-      NIRECT_L = NSHEL_G !est un majorant de NSHEL_L+NSHELR_L
+      NIRECT_L = NSHEL_G !is an upper bound of NSHEL_L+NSHELR_L
 
 C -------------------------------------------------------------
 C     ALLOCATIONS
@@ -261,9 +259,9 @@ C -------------------------------------------------------------
       TZINF  = INTBUF_TAB%VARIABLES(8)
 
 C -------------------------------------------------------------
-C     CALCUL BORNE DU DOMAINE LAGRANGIEN DU THREAD
+C     calculation of the lagrangian domain bounds of the thread
 C -------------------------------------------------------------
-C eshift : decalage du groupe de facette, passage de NSHEL_T(thread)  NSHEL_L(local)
+C eshift: shift of the facet group, from NSHEL_T (thread) to NSHEL_L (local)
       CALL I22XSAVE(
      1       X             ,INTBUF_TAB%NSV                ,INTBUF_TAB%MSR ,NSN    ,NMN      ,
      2       ITASK         ,INTBUF_TAB%XSAV               ,XMINL          ,YMINL  ,ZMINL    ,
@@ -279,22 +277,22 @@ C eshift : decalage du groupe de facette, passage de NSHEL_T(thread)  NSHEL_L(lo
       BMINMA_LAG(6) = MIN(BMINMA_LAG(6),ZMINL)
 #include "lockoff.inc"
       RESULT = 0
-C BARRIER II_STOK et RESULT
-      CALL MY_BARRIER  !les bornes BMINMA doivent etre dans SPMD_TRI22VOX0 CELLE DU DOMAIN ET NON CELLE DU THREAD
-                       !attendre les contributions de chaque thread
+C barrier II_STOK and RESULT
+      call MY_BARRIER! the BMINMA bounds must be in SPMD_TRI22VOX0, those of the domain and not those of the thread
+                       !wait for the contributions of each thread
 
-C a conserver pour cas inacti est modifie sur p0
+C to keep for the case where inacti is modified on p0
       INACTI=IPARI(22,NIN)
-      IF(ITASK.EQ.0)THEN
-        IF(ABS(BMINMA_LAG(6)-BMINMA_LAG(3)).GT.2*EP30.OR.
-     +     ABS(BMINMA_LAG(5)-BMINMA_LAG(2)).GT.2*EP30.OR.
-     +     ABS(BMINMA_LAG(4)-BMINMA_LAG(1)).GT.2*EP30)THEN
+      IF(ITASK==0)THEN
+        IF(ABS(BMINMA_LAG(6)-BMINMA_LAG(3))>2*EP30.OR.
+     +     ABS(BMINMA_LAG(5)-BMINMA_LAG(2))>2*EP30.OR.
+     +     ABS(BMINMA_LAG(4)-BMINMA_LAG(1))>2*EP30)THEN
           CALL ANCMSG(MSGID=87,ANMODE=ANINFO,
      .            I1=NOINT,C1='(I22BUCE)')
           CALL ARRET(2)
         END IF
 
-        !extension du domaine lagrangien avec TZINF (verifier calcul de TZINF)
+        !extension of the lagrangian domain with TZINF (check calculation of TZINF)
         if(itask==0.and.ibug22_tri==1)print *, 
      .         "applying TZINF extension to lag domain", TZINF
 
@@ -318,16 +316,19 @@ C     COMMUNICATION BORNES DES DOMAINES LAGRANGIENS
 C       BMINMA_LAG_G(1:6) is global model data
 C -------------------------------------------------------------
       IF(NSPMD > 1) THEN
-        IF(ITASK.EQ.0)THEN
+        IF(ITASK==0)THEN
           ALLOCATE(BMINMA_LAG_SPMD(6,NSPMD))
+          IF(IMONM > 0) CALL STARTIME(TIMERS,25)
           CALL SPMD_LAGBOUNDS_EXCH_I22(
      .            BMINMA_LAG_SPMD, BMINMA_LAG, ISENDTO  ,IRCVFROM , NIN)
+           IF(IMONM > 0) CALL STOPTIME(TIMERS,25)
+
           if(itask==0.and.ibug22_tri==1)print *, "BMINMA=", 
      .                          BMINMA_LAG(4:6),BMINMA_LAG(1:3)
           J=1
           !listing all remote proc in REM_P(1:NSPMD-1)
 C -------------------------------------------------------------
-C     CALCUL DES DIMENSIONS DES DOMAINES  :
+C     calculation of the domain dimensions
 C       + LAGRANGIENS REMOTES : BMINMA_LAG_R
 C       + LAGRANGIEN GLOBAL   : BMINMA_LAG_G
 C -------------------------------------------------------------
@@ -381,9 +382,9 @@ C -------------------------------------------------------------
       END IF
 
 C -------------------------------------------------------------
-C     CALCUL DES DIMENSIONS DU DOMAINE FLUIDE LOCAL (multi-threading)
+C     calculation of the local fluid domain dimensions (multi-threading)
 C -------------------------------------------------------------
-      !Initialisation des bornes du domaine Fluide
+      !initialization of the fluid domain bounds
       BMINMA_FLU(1) = -EP30
       BMINMA_FLU(2) = -EP30
       BMINMA_FLU(3) = -EP30
@@ -400,7 +401,7 @@ C -------------------------------------------------------------
 
       CALL MY_BARRIER        
 
-      !Calcul des bornes du domaine Fluide
+      !calculation of the fluid domain bounds
 #include "lockon.inc"
       BMINMA_FLU(1) = MAX(BMINMA_FLU(1),MAXVAL(XMAXS))
       BMINMA_FLU(2) = MAX(BMINMA_FLU(2),MAXVAL(YMAXS))
@@ -410,7 +411,7 @@ C -------------------------------------------------------------
       BMINMA_FLU(6) = MIN(BMINMA_FLU(6),MINVAL(ZMINS))
 #include "lockoff.inc"
 
-      CALL MY_BARRIER ! wating for fluid local domain bounds definition (multi-threading)
+      CALL MY_BARRIER ! waiting for fluid local domain bounds definition (multi-threading)
 
       IF(ITASK==0) THEN
        BMINMA_FLU(1) = BMINMA_FLU(1)+TZINF
@@ -430,7 +431,7 @@ C -------------------------------------------------------------
       END IF
 
 C -------------------------------------------------------------
-C     CALCUL DES MIN/MAX DES FACETTES DE CHAQUE THREAD DU DOMAINE
+C     calculation of the min/max of the facets of each thread in the domain
 C -------------------------------------------------------------
 
       !computing MIN/MAX for 2D elems
@@ -442,15 +443,15 @@ C -------------------------------------------------------------
 
 
 C -------------------------------------------------------------
-C     RECHERCHE DANS LES AUTRES DOMAINES DES FACETTES A PROXIMITE
-C     DU DOMAINE FLUIDE LOCAL (REMOTE). ALLOCATION DE XREM
+C     search in the other domains for nearby facets
+C     of the local fluid domain (remote). allocation of XREM
 C -------------------------------------------------------------
  
       IF(NSPMD > 1) THEN
 
-        IF(ITASK.EQ.0) CRVOXEL(0:LRVOXEL,0:LRVOXEL,LOC_PROC)=0
+        IF(ITASK==0) CRVOXEL(0:LRVOXEL,0:LRVOXEL,LOC_PROC)=0
         CALL MY_BARRIER ! waiting for crvoxel init.
-        IF (IMONM > 0 .AND. ITASK == 0) CALL STARTIME(26,1)
+        IF (IMONM > 0 .AND. ITASK == 0) CALL STARTIME(TIMERS,26)
 
         CALL SPMD_TRI22VOX0(
      1        X, BMINMA_FLU  , NBRIC_L,     IXS, IGRBRIC(ISU1)%ENTITY,
@@ -460,23 +461,25 @@ C -------------------------------------------------------------
 
         CALL MY_BARRIER ! all thread has to mark local domain Voxel before reading it above.
 
-        IF (IMONM > 0 .AND. ITASK == 0) CALL STOPTIME(26,1)
-        IF(ITASK.EQ.0)THEN
-      
-        !CONTACT=TRUE si intersection non nulle entre domaine FLUIDE LOCAL / LAG DISTANTS    
+        IF (IMONM > 0 .AND. ITASK == 0) CALL STOPTIME(TIMERS,26)
+        IF(ITASK==0)THEN
+          IF (IMONM > 0 ) CALL STARTIME(TIMERS,25)
+        !Contact = True if intersection not zero between local fluid field / distant lag    
         IF(IS_CONTACT) CALL SPMD_TRI22VOX(
-     1      INTBUF_TAB%IRECTM ,NSHEL_L ,X        ,V          ,BMINMA_AND_R,  !envoyer les shell du domaine.
+     1      INTBUF_TAB%IRECTM ,NSHEL_L ,X        ,V          ,BMINMA_AND_R,  !send the shells of the domain
      2      INTBUF_TAB%STFM   ,NIN     ,ISENDTO  ,IRCVFROM   ,IAD_ELEM  , 
      3      FR_ELEM           ,NSNR    ,ITAB     ,ITASK      )
            
-        NIRECT_L = NSHEL_L + NSNR !on avait un majorant de NSHEL_L+NSHELR_L, on connait mainteannt la taille exacte car NSHELR_L=NSNR (nb candidat remote)
+          IF (IMONM > 0) CALL STOPTIME(TIMERS,25)
+
+        NIRECT_L = NSHEL_L + NSNR !We had an upper one of nshel_l+nshelr_l, we know maintain the exact size because nshelr_l = nsnr (nb candidate remote)
 
        ELSE 
-       !verifier si contact avec intersection des domaines
+       !check if there is contact with the intersection of the domains
 
       END IF
 
-        CALL MY_BARRIER ! attendre l'allocation et le remplissage de XREM pour remplir IRECT_L
+        call MY_BARRIER! wait for the allocation and filling of XREM to fill IRECT_L
         NSHELR_L = NSNR
         !NSHELR_T = NSNR
 
@@ -484,15 +487,15 @@ C -------------------------------------------------------------
 
 
 C -------------------------------------------------------------
-C     DEFINITION DU TABLEAU GLOBAL DE COQUES (LOCAL + REMOTES)
+C     definition of the global shell array (local + remotes)
 C -------------------------------------------------------------
-C      IRECT_L( 1: 4, :)                         : Four Node ITAB( ID) : numero glolocal pour unicit avec XREM
+C      Irect_l (1: 4, :): oven node itab (id): Numero Glolocal for Unicit with Xrem
 C      IRECT_L( 5: 8, :)                         : X-coordinates
 C      IRECT_L( 9:12, :)                         : Y-coordinates
 C      IRECT_L(13:16, :)                         : Z-coordinates
 C      IRECT_L(17:19, :)                         : Minimum X,Y,Z
 C      IRECT_L(20:22, :)                         : Maximum X,Y,Z
-C      IRECT_L(23   , :)                         : Stiffness
+C      Irect_l (23, :): Stiffness
 C      IRECT_L(24:26, :)                         : Lagrangian Velocity (mean)
 C      IRECT_L(    :,1+4*ESHIFT:4*ESHIFT+NRTM_T) : element data on current Thread
 C      IRECT_L(    :,NRTM+1:NRTM + NSNR)         : remotes elements data
@@ -501,7 +504,7 @@ C      IRECT_L(    :,NRTM+1:NRTM + NSNR)         : remotes elements data
       DO I=0,NSHEL_T-1
         IP1=I+1
         J = ESHIFT + IP1      !numero global (local+remote)
-        STFE = INTBUF_TAB%STFM(1+ESHIFT+I) ! rigidite dans le groupe de shell du thread
+        STFE = INTBUF_TAB%STFM(1+ESHIFT+I) ! stiffness in the shell group of the thread
         IRECT_L(23   , J) = STFE                               ! Stiffness
         !IF(STFE==ZERO) CYCLE  
         I1 = 1+4*ESHIFT+4*I
@@ -540,7 +543,7 @@ C      IRECT_L(    :,NRTM+1:NRTM + NSNR)         : remotes elements data
         IRECT_L(13:16 , J) = XREM(13:16,I) ! Z-coordinates
         IRECT_L(17:19 , J) = XREM(17:19,I) ! Minimum X,Y,Z
         IRECT_L(20:22 , J) = XREM(20:22,I) ! Maximum X,Y,Z
-        IRECT_L(23    , J) = XREM(   23,I) ! Stiffness (forcemment non nul)
+        IRECT_L(23    , J) = XREM(   23,I) ! Stiffness (necessarily not zero)
         IRECT_L(24:26 , J) = XREM(24:26,I) ! XYZ-Velocity (mean)
 
         !missing SPMD cinematic time step       
@@ -577,9 +580,9 @@ C -------------------------------------------------------------
       BMINMA_AND(5) = MAX(BMINMA_FLU(5),BMINMA_LAG_G(5))
       BMINMA_AND(6) = MAX(BMINMA_FLU(6),BMINMA_LAG_G(6))
       
-      if(itask==0.and.ibug22_tri==1)print *, 
-     .  "Faire test si dimension negative ",
-     .  "=>candidat=0 ! ici ou dans i22trivox"
+c     if(itask==0.and.ibug22_tri==1)print *, 
+c    .  "Faire test si dimension negative ",
+c    .  "=>candidat=0 ! here or in i22trivox
 
        
  50   CALL MY_BARRIER
@@ -591,10 +594,10 @@ C -------------------------------------------------------------
       ISKIP22 = 0
 
 C -------------------------------------------------------------
-C     RECHERCHE DES COUPLES CANDIDATS POUR L'INTERACTION
+C     search for candidate pairs for the interaction
 C -------------------------------------------------------------
  
-      IF (IMONM > 0) CALL STARTIME(30,1)
+      IF (IMONM > 0) CALL STARTIME(TIMERS,30)
       CALL I22BUCE(
      1 X                ,INTBUF_TAB%IRECTM(1+4*ESHIFT) ,INTBUF_TAB%NSV            ,INACTI            ,ISKIP22            ,
      2 NMN              ,NSHEL_T                       ,NSN                       ,INTBUF_TAB%CAND_E ,INTBUF_TAB%CAND_N  ,
@@ -627,11 +630,11 @@ C New barrier needed for Dynamic MultiMP
         INTBUF_TAB%i_STOK(1) = CAND_N_OLD
         MULTIMP              = IPARI(23,NIN)
         NCONTACT             = MULTIMP*NCONT
-C eshift : decalage sur cand_e
+C eshift: shift on cand_e
         GOTO 40
       ENDIF
 
-      IF (IMONM > 0) CALL STOPTIME(30,1)
+      IF (IMONM > 0) CALL STOPTIME(TIMERS,30)
 C
        COUNT_CAND = INTBUF_TAB%I_STOK(1)
        CT         = INTBUF_TAB%I_STOK(1)
@@ -650,9 +653,9 @@ C
 C--------------------------------------------------------------
 C--------------------------------------------------------------
       CALL MY_BARRIER
-      IF (RESULT.NE.0) THEN
+      IF (RESULT/=0) THEN
         CALL MY_BARRIER
-        IF (ITASK.EQ.0) THEN
+        IF (ITASK==0) THEN
 C utile si on revient
           INTBUF_TAB%I_STOK(1) = I_SK_OLD
           RESULT = 0
@@ -664,11 +667,11 @@ C utile si on revient
         TZINF  = INTBUF_TAB%VARIABLES(8)
         GOTO 50
       ENDIF
-C mise a - de dist temporairement pour reperage dans partie frontiere
-      IF(NSPMD.GT.1)THEN
+C temporarily set dist to - for identification in the boundary part
+      IF(NSPMD>1)THEN
 C mono tache
 !$OMP SINGLE
-        IF (IMONM > 0) CALL STARTIME(26,1)
+        IF (IMONM > 0) CALL STARTIME(TIMERS,26)
         INTBUF_TAB%VARIABLES(5) = -INTBUF_TAB%VARIABLES(5)
 C
         INTFRIC = 0
@@ -676,13 +679,13 @@ C
      1      RESULT       ,NSN ,INTBUF_TAB%CAND_N,INTBUF_TAB%I_STOK(1),NIN,
      2      IPARI(21,NIN),NSNR,MULTIMP      ,NTY,IPARI(47,NIN),
      3      IDUM1   ,NSNFIOLD, IPARI, H3D_DATA,INTFRIC,
-     4      MULTI_FVM)
+     4      MULTI_FVM,NODADT_THERM)
         IPARI(24,NIN) = NSNR
 C
-        IF (NUM_IMP.GT.0) 
+        IF (NUM_IMP>0) 
      .     CALL IMP_RNUMCD(INTBUF_TAB%CAND_N,NIN,NSN,NUM_IMP,IND_IMP )
 C
-        IF (IMONM > 0) CALL STOPTIME(26,1)
+        IF (IMONM > 0) CALL STOPTIME(TIMERS,26)
 !$OMP END SINGLE
       END IF
 
@@ -714,14 +717,15 @@ C--------------------------------------------------------------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  I22SOLID_GETMINMAX            source/interfaces/intsort/i22main_tri.F
-Chd|-- called by -----------
-Chd|        I22MAIN_TRI                   source/interfaces/intsort/i22main_tri.F
-Chd|-- calls ---------------
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i22solid_getminmax   ../engine/source/interfaces/intsort/i22main_tri.F
+!||--- called by ------------------------------------------------------
+!||    i22main_tri          ../engine/source/interfaces/intsort/i22main_tri.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod          ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod           ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
       SUBROUTINE I22SOLID_GETMINMAX(
      1                                  X,   IXS, BUFBRIC, NBRIC, 
      2                               ITAB,  ITASK, NIN       )
@@ -731,6 +735,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE I22BUFBRIC_MOD  
       USE I22TRI_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -738,8 +743,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
-#include      "param_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -808,14 +811,14 @@ C-----------------------------------------------
       END SUBROUTINE
 C-----------------------------------------------
 
-Chd|====================================================================
-Chd|  I22SHELL_GETMINMAX            source/interfaces/intsort/i22main_tri.F
-Chd|-- called by -----------
-Chd|        I22MAIN_TRI                   source/interfaces/intsort/i22main_tri.F
-Chd|-- calls ---------------
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i22shell_getminmax   ../engine/source/interfaces/intsort/i22main_tri.F
+!||--- called by ------------------------------------------------------
+!||    i22main_tri          ../engine/source/interfaces/intsort/i22main_tri.F
+!||--- uses       -----------------------------------------------------
+!||    i22tri_mod           ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    tri7box              ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I22SHELL_GETMINMAX(
      1                                X, IRECT,    NRTM,   STFE, ITASK,
      2                             ITAB, ESHIFT, BMINMA, MARGE  )
@@ -828,16 +831,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-#include      "param_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -888,7 +881,7 @@ C-----------------------------------------------
 !      print *, "  ...write OK"
 !---------------debug---------------
 
-      ! On verifie au passage que les face locales sont a proximit (marge) du domaine local fluide (bminma)
+      ! we check in passing that the local faces are near (margin) the local fluid domain (bminma)
       XMIN = BMINMA(4)-MARGE
       YMIN = BMINMA(5)-MARGE
       ZMIN = BMINMA(6)-MARGE

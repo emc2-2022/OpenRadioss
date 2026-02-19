@@ -1,64 +1,66 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CBAINIT3                      source/elements/shell/coqueba/cbainit3.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        C1BUF3                        source/elements/shell/coque/c1buf3.F
-Chd|        CBUFXFE                       source/elements/xfem/cbufxfe.F
-Chd|        CCOORI                        source/elements/shell/coque/ccoori.F
-Chd|        CDERII                        source/elements/shell/coque/cderii.F
-Chd|        CEPSCHK                       source/elements/shell/coque/cepsini.F
-Chd|        CFAILINI                      source/elements/shell/coque/cfailini.F
-Chd|        CFAILINI4                     source/elements/shell/coque/cfailini.F
-Chd|        CINMAS                        source/elements/shell/coque/cinmas.F
-Chd|        CM35IN3                       source/materials/mat/mat035/cm35in3.F
-Chd|        CMAINI3                       source/elements/sh3n/coquedk/cmaini3.F
-Chd|        CMATINI                       source/materials/mat_share/cmatini.F
-Chd|        CMATINI4                      source/materials/mat_share/cmatini4.F
-Chd|        CNDLENI                       source/elements/shell/coqueba/cndleni.F
-Chd|        CNEPSINI                      source/elements/shell/coqueba/cnepsini.F
-Chd|        CNEVECI                       source/elements/shell/coqueba/cneveci.F
-Chd|        CORTH3                        source/elements/shell/coque/corth3.F
-Chd|        CSIGINI4                      source/elements/shell/coqueba/scigini4.F
-Chd|        CSMS11_INI                    source/elements/shell/coque/cinit3.F
-Chd|        CUSERINI                      source/elements/shell/coque/cuserini.F
-Chd|        CUSERINI4                     source/elements/shell/coqueba/cuserini4.F
-Chd|        CVEOK3                        source/elements/shell/coque/cveok3.F
-Chd|        FAIL_WINDSHIELD_INIT          source/materials/fail/windshield_alter/fail_windshield_init.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        LAYINI1                       source/elements/shell/coqueba/layini1.F
-Chd|        THICKINI                      source/elements/shell/coqueba/thickini.F
-Chd|        DRAPE_MOD                     share/modules1/drape_mod.F    
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|        STACK_MOD                     share/modules1/stack_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbainit3                  ../starter/source/elements/shell/coqueba/cbainit3.F
+!||--- called by ------------------------------------------------------
+!||    initia                    ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                    ../starter/source/output/message/message.F
+!||    c1buf3                    ../starter/source/elements/shell/coque/c1buf3.F
+!||    cbufxfe                   ../starter/source/elements/xfem/cbufxfe.F
+!||    ccoori                    ../starter/source/elements/shell/coque/ccoori.F
+!||    cderii                    ../starter/source/elements/shell/coque/cderii.F
+!||    cepschk                   ../starter/source/elements/shell/coque/cepsini.F
+!||    cfailini                  ../starter/source/elements/shell/coque/cfailini.F
+!||    cfailini4                 ../starter/source/elements/shell/coque/cfailini.F
+!||    cinmas                    ../starter/source/elements/shell/coque/cinmas.F
+!||    cm35in3                   ../starter/source/materials/mat/mat035/cm35in3.F
+!||    cmaini3                   ../starter/source/elements/sh3n/coquedk/cmaini3.F
+!||    cmatini                   ../starter/source/materials/mat_share/cmatini.F
+!||    cmatini4                  ../starter/source/materials/mat_share/cmatini4.F
+!||    cndleni                   ../starter/source/elements/shell/coqueba/cndleni.F
+!||    cnepsini                  ../starter/source/elements/shell/coqueba/cnepsini.F
+!||    cneveci                   ../starter/source/elements/shell/coqueba/cneveci.F
+!||    corth3                    ../starter/source/elements/shell/coque/corth3.F
+!||    csigini4                  ../starter/source/elements/shell/coqueba/scigini4.F
+!||    csms11_ini                ../starter/source/elements/shell/coque/cinit3.F
+!||    cstraini4                 ../starter/source/elements/shell/coqueba/cstraini4.F
+!||    cuserini                  ../starter/source/elements/shell/coque/cuserini.F
+!||    cuserini4                 ../starter/source/elements/shell/coqueba/cuserini4.F
+!||    cveok3                    ../starter/source/elements/shell/coque/cveok3.F
+!||    fail_windshield_init      ../starter/source/materials/fail/windshield_alter/fail_windshield_init.F
+!||    fractal_dmg_init          ../starter/source/materials/fail/fractal/fractal_dmg_init.F90
+!||    fretitl2                  ../starter/source/starter/freform.F
+!||    initemp_shell             ../starter/source/materials/therm/initemp_shell.F90
+!||    layini1                   ../starter/source/elements/shell/coqueba/layini1.F
+!||    thickini                  ../starter/source/elements/shell/coqueba/thickini.F
+!||--- uses       -----------------------------------------------------
+!||    drape_mod                 ../starter/share/modules1/drape_mod.F
+!||    fractal_dmg_init_mod      ../starter/source/materials/fail/fractal/fractal_dmg_init.F90
+!||    initemp_shell_mod         ../starter/source/materials/therm/initemp_shell.F90
+!||    message_mod               ../starter/share/message_module/message_mod.F
+!||    stack_mod                 ../starter/share/modules1/stack_mod.F
+!||====================================================================
       SUBROUTINE CBAINIT3(
      1           ELBUF_STR,IXC      ,PM       ,X       ,GEO     ,
      2           XMAS     ,IN       ,NVC      ,DTELEM  ,IGRSH4N ,
@@ -72,19 +74,28 @@ Chd|====================================================================
      A           MS_LAYERC,ZI_LAYERC,PART_AREA,CPT_ELTENS,
      B           MSZ2C    ,ZPLY     ,ITAGN    ,ITAGE   ,IXFEM   ,
      C           NPF      ,TF       ,XFEM_STR ,ISUBSTACK,STACK  ,
-     D           RNOISE   ,DRAPE    ,SH4ANG  ,GEO_STACK,
+     D           RNOISE   ,DRAPE    ,SH4ANG   ,IDDLEVEL,GEO_STACK,
      E           IGEO_STACK,STRC    ,PERTURB  ,IYLDINI ,ELE_AREA,
-     F           NLOC_DMG ,NG       ,GROUP_PARAM)
+     F           NLOC_DMG ,NG       ,GROUP_PARAM, IDRAPE , DRAPEG,
+     G           MAT_PARAM,FAIL_FRACTAL,FAIL_BROKMANN,GLOB_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE MY_ALLOC_MOD
+      USE MAT_ELEM_MOD            
       USE MESSAGE_MOD
       USE STACK_MOD
       USE GROUPDEF_MOD
       USE NLOCAL_REG_MOD
-      USE MATPARAM_DEF_MOD      
+      USE GROUP_PARAM_MOD      
       USE DRAPE_MOD        
+      USE RANDOM_WALK_DEF_MOD
+      USE FRACTAL_DMG_INIT_mod
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use brokmann_random_def_mod
+      use glob_therm_mod
+      use initemp_shell_mod
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -101,21 +112,19 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com_xfem1.inc"
 #include      "vect01_c.inc"
-#include      "units_c.inc"
-#include      "scr01_c.inc"
 #include      "scr03_c.inc"
-#include      "warn_c.inc"
 #include      "scry_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NVC,NEL,ITHK,IHBE,ISIGSH,IXFEM,NSIGSH,IUSER,IYLDINI,
-     .        ISUBSTACK,NG
+     .        ISUBSTACK,NG,IDRAPE
       INTEGER IXC(NIXC,*),IPART(*),PTSHEL(*),ITAG(*),ITAGEL(*), 
      .        IGEO(NPROPGI,*), IPM(NPROPMI,*), NSHNOD(*),NPF(*),
      .        SH4TREE(*),IPARG(*),CPT_ELTENS,ITAGN(*),ITAGE(*),
      .        IGEO_STACK(*),PERTURB(NPERTURB)
+      INTEGER ,INTENT(IN) :: IDDLEVEL
       INTEGER *8 I8MI(6,*)
       my_real
      .   PM(NPROPM,*), X(3,*), GEO(NPROPG,*), XMAS(*), IN(*),
@@ -129,9 +138,14 @@ C-----------------------------------------------
       TYPE (ELBUF_STRUCT_), TARGET ,DIMENSION(NGROUP,*):: XFEM_STR
       !   when XFEM is ON, XFEM_STR's dimension = NGROUP,NXEL
       TYPE (STACK_PLY) :: STACK
-      TYPE (NLOCAL_STR_) :: NLOC_DMG
-      TYPE (GRP_PARAM_STRUCT_)  :: GROUP_PARAM
-      TYPE (DRAPE_) ::  DRAPE(*)
+      TYPE (NLOCAL_STR_)   :: NLOC_DMG
+      TYPE (GROUP_PARAM_)  :: GROUP_PARAM
+      TYPE (DRAPE_)  ::  DRAPE(NUMELC_DRAPE + NUMELTG_DRAPE)
+      TYPE (DRAPEG_) ::  DRAPEG
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
+      TYPE (FAIL_FRACTAL_)  ,INTENT(IN) :: FAIL_FRACTAL
+      TYPE (FAIL_BROKMANN_) ,INTENT(IN) :: FAIL_BROKMANN
+      TYPE(glob_therm_)     ,intent(in) :: glob_therm
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRSHEL) :: IGRSH4N
       TYPE (GROUP_)  , DIMENSION(NGRSH3N) :: IGRSH3N
@@ -151,20 +165,23 @@ c
      .                              E1X,E2X,E3X,E1Y,E2Y,E3Y,E1Z,E2Z,E3Z,
      .                              X2S,Y2S,X3S,Y3S,X4S,Y4S,
      .                              X2L,X3L,X4L,Y2L,Y3L,Y4L
-      CHARACTER*nchartitle, TITR
+      CHARACTER(LEN=NCHARTITLE)::TITR
 c
       my_real, ALLOCATABLE, DIMENSION(:) :: DIR_A,DIR_B
       my_real , DIMENSION(:) ,POINTER   :: UVAR
       PARAMETER (LAYNPT_MAX = 10)
       PARAMETER (LAY_MAX = 100)
-      INTEGER MATLY(MVSIZ*LAY_MAX)
-      my_real
-     .   POSLY(MVSIZ,LAY_MAX*LAYNPT_MAX)
+      INTEGER, DIMENSION(:),ALLOCATABLE::MATLY
+      my_real, DIMENSION(:,:),ALLOCATABLE :: POSLY
 C-----------------------------------------------
       TYPE(BUF_LAY_) ,POINTER :: BUFLY
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
 C=======================================================================
+      ! Allocate buffers
+      CALL MY_ALLOC(MATLY,MVSIZ*LAY_MAX)
+      CALL MY_ALLOC(POSLY,MVSIZ,LAY_MAX*LAYNPT_MAX)
+
       GBUF => ELBUF_STR%GBUF
 c
       IMAT  = IXC(1,1+NFT)         ! mat N   
@@ -201,14 +218,30 @@ C
 C
       LENS = NEL*GBUF%G_STRPG/NPG
     
-      ALLOCATE(DIR_A(NLAY*NEL*2))
-      ALLOCATE(DIR_B(NLAY*NEL*2))
-      DIR_A = ZERO
-      DIR_B = ZERO
+      NPT_ALL = 0
+      DO IL=1,NLAY
+           NPT_ALL = NPT_ALL + ELBUF_STR%BUFLY(IL)%NPTT
+      ENDDO   
+      MPT  = MAX(1,NPT_ALL)
+      IF(NPT_ALL == 0 ) NPT_ALL = NLAY
+      IF (IPARG(6) == 0.OR.NPT==0) MPT=0
+      IF((IGTYP == 51 .OR. IGTYP == 52) .AND. IDRAPE > 0) THEN
+         ALLOCATE(DIR_A(NPT_ALL*NEL*2))
+         ALLOCATE(DIR_B(NPT_ALL*NEL*2))
+         DIR_A = ZERO
+         DIR_B = ZERO
+      ELSE
+         ALLOCATE(DIR_A(NLAY*NEL*2))
+         ALLOCATE(DIR_B(NLAY*NEL*2))
+         DIR_A = ZERO
+         DIR_B = ZERO
+         NPT_ALL = NLAY 
+      ENDIF
 !
-      DO I=1,9  ! lenght max of GBUF%G_SMSTR = 9
+      DO I=1,9  ! length max of GBUF%G_SMSTR = 9
         JJ(I) = NEL*(I-1)
       ENDDO
+      NPT_ALL = MAX(NLAY, NPT_ALL)
 !
 C
       IF (ISHXFEM_PLY > 0) THEN
@@ -252,8 +285,16 @@ C------------
           J = IPART(I+NFT)
 C         PART_AREA(J) = PART_AREA(J) + AREA(I)
           ELE_AREA(I+NFT) = AREA(I)
+          IF (GBUF%G_AREA > 0) GBUF%AREA(I) = AREA(I)
         ENDDO
       ENDIF
+C------------
+!
+!     Initialize element temperature from /initemp
+!      
+      IF (JTHE == 0 .and. GLOB_THERM%NINTEMP > 0) THEN
+        CALL INITEMP_SHELL(ELBUF_STR,TEMP,NEL,NUMNOD,NUMELC,4,NIXC,IXC)    
+      END IF
 C------------
       CALL CINMAS(X,XREFC(1,1,NFT+1),IXC,GEO,PM,
      .            XMAS,IN,THKE,IHBE,PARTSAV,
@@ -262,16 +303,11 @@ C------------
      .            SH4TREE ,MCP  , MCPS(NFT+1)  ,TEMP    ,
      .            MS_LAYER, ZI_LAYER,MS_LAYERC,ZI_LAYERC,
      .            MSZ2C,ZPLY,ISUBSTACK,NLAY,ELBUF_STR,STACK,
-     .            GBUF%THK_I,RNOISE   ,DRAPE       ,
-     .            PERTURB,IX1     ,IX2      ,IX3     ,IX4      )
+     .            GBUF%THK_I,RNOISE   ,DRAPE       ,GLOB_THERM%NINTEMP,
+     .            PERTURB,IX1     ,IX2      ,IX3     ,IX4     ,
+     .            IDRAPE  ,DRAPEG%INDX)
 C-----------------------------------------------
-      IF (MTN == 1 .OR. MTN == 3 .OR. MTN == 23 .OR. MTN == 91) NPT = 0
-      NPT_ALL = 0
-      DO IL=1,NLAY
-        NPT_ALL = NPT_ALL + ELBUF_STR%BUFLY(IL)%NPTT
-      ENDDO
-      MPT  = MAX(1,NPT_ALL)
-      IF (IPARG(6) == 0.OR.NPT==0) MPT=0
+      IF (MTN == 1 .OR. MTN == 91 .AND. NPT/=1) NPT = 0
 C---------------------------
       CALL CDERII(PX1G,PX2G,PY1G,PY2G,
      .            X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  , 
@@ -302,12 +338,13 @@ c---------------------------
      .               NPTR,NPTS,NPTT,IGTYP)
       ENDIF
 C      
-       IF (( ISIGSH.NE.0 .OR. ITHKSHEL == 2) .and. MPT>0) THEN
+       IF (( ISIGSH/=0 .OR. ITHKSHEL == 2) .and. MPT>0) THEN
            CALL LAYINI1(
      .        ELBUF_STR  ,LFT        ,LLT        ,GEO        ,IGEO      ,
      .        MAT        ,PID        ,MATLY      ,POSLY      ,IGTYP     ,
-     .        NLAY       ,MPT        ,ISUBSTACK  ,STACK      ,DRAPE      ,
-     .        NFT        ,GBUF%THK   ,NEL        )
+     .        NLAY       ,MPT        ,ISUBSTACK  ,STACK      ,DRAPE     ,
+     .        NFT        ,GBUF%THK   ,NEL        ,IDRAPE     ,SCDRAPE    ,
+     .        DRAPEG%INDX)
         END IF
 c---------------------------
 c     Loop over Gauss points
@@ -319,24 +356,27 @@ c---------------------------
           PTM = (IPG-1)*LENM
           PTS = (IPG-1)*LENS
 c
+
           CALL CMAINI3(ELBUF_STR,PM       ,GEO      ,NEL       ,NLAY     ,
      .                 SKEW     ,IGEO     ,IXC(1,NFT+1),NIXC   ,NUMELC   ,
      .                 NSIGSH   ,SIGSH    ,PTSHEL   ,IGTYP     ,IORTHLOC ,
-     .                 IPM      ,PROPID   ,ALDT     ,BUFMAT    ,
+     .                 IPM      ,PROPID   ,ALDT     ,MAT_PARAM,
      .                 IR       ,IS       ,ISUBSTACK,STACK     ,IREP     ,
-     .                 DRAPE   ,SH4ANG(NFT+1),GEO_STACK,IGEO_STACK,
-     .                 IGMAT    ,IMAT     ,IPROP   ,
+     .                 DRAPE    ,SH4ANG(NFT+1),GEO_STACK,IGEO_STACK,
+     .                 IGMAT    ,IMAT     ,IPROP   ,NUMMAT,
      .                 X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  ,
      .                 Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4  ,
-     .                 E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z ,X )
+     .                 E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z ,X ,
+     .                 NPT_ALL,IDRAPE ,SCDRAPE , DRAPEG%INDX,LTITR )
 c
-          IF (( ISIGSH.NE.0 .OR. ITHKSHEL == 2) .and. IHBE == 11) THEN
+          IF (( ISIGSH/=0 .OR. ITHKSHEL == 2) .and. IHBE == 11) THEN
             IF (MPT>0) 
      .       CALL CORTH3(ELBUF_STR,DIR_A   ,DIR_B   ,LFT    ,LLT    ,
      .             NLAY     ,IREP    ,NEL     ,
      .             X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  ,
      .             Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4  ,
-     .             E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z )
+     .             E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z ,
+     .             IDRAPE, IGTYP)
            CALL CSIGINI4(ELBUF_STR,IHBE     ,
      1          LFT      ,LLT      ,NFT      ,MPT      ,ISTRAIN,
      2          GBUF%THK ,GBUF%EINT,GBUF%STRPG(PTS+1),GBUF%HOURG,
@@ -346,13 +386,24 @@ c
      6          GBUF%PLA,THKE    ,IGTYP    ,NEL   ,ISIGSH  ,
      7          E1X   ,E2X      ,E3X      ,E1Y   ,E2Y  ,E3Y,
      8          E1Z   ,E2Z      ,E3Z     ,DIR_A  ,DIR_B,POSLY )
+           IF (MPT == 0) THEN
+             DO I=LFT,LLT
+               GBUF%FORPG_G(PTF+I+JJ(1:5))=GBUF%FORPG(PTF+I+JJ(1:5))
+             END DO
+           END IF 
+           IF (ITHKSHEL == 2) THEN
+             DO I=LFT,LLT
+               GBUF%STRA(I+JJ(1:8))=GBUF%STRA(I+JJ(1:8))+
+     .                              FOURTH*GBUF%STRPG(PTS+I+JJ(1:8))
+             END DO
+           END IF 
           ELSEIF ( ITHKSHEL == 1 .AND. IHBE == 11 ) THEN
            CALL THICKINI(LFT     ,LLT   ,NFT    ,PTSHEL,NUMELC,
      2                   GBUF%THK,THKE  ,IXC    ,NIXC  ,NSIGSH,
      3                   SIGSH   )
           ENDIF
 c
-          IF (IUSER == 1. AND. MTN.GE.28 .AND. IHBE == 11) THEN
+          IF (IUSER == 1. AND. MTN>=28 .AND. IHBE == 11) THEN
             NPG = 4
             CALL CUSERINI4(ELBUF_STR,
      1                   LFT     ,LLT    ,NFT   ,NEL    ,ISTRAIN  ,
@@ -373,30 +424,36 @@ c
         ENDDO  ! IR = 1,NPTR
       ENDDO   ! IS = 1,NPTS
 c-----------------------------------------------------------------------
-c     tag edge elements in local UVAR for /FAIL/ALTER (XFEM)
-      IF (IFAIL > 0 .and. IHBE > 20 .AND. IHBE < 29) THEN
-        CALL FAIL_WINDSHIELD_INIT(
-     .       ELBUF_STR,NEL      ,NFT      ,ITY      ,NGL      ,
-     .       IPM      ,BUFMAT   ,IGRSH4N  ,IGRSH3N  )
+c     Failure model initialisation
+c-----------------------------------------------------------------------
+c     set element damage initialized in /FAIL/FRACTAL_DMG
+      IF (FAIL_FRACTAL%NFAIL > 0) THEN
+        CALL FRACTAL_DMG_INIT(ELBUF_STR,MAT_PARAM,FAIL_FRACTAL,
+     .       NUMMAT ,NUMELC  ,NEL      ,NFT      ,NGL    ,ITY      )
+      ENDIF
+c     tag edge elements in local UVAR for /FAIL/ALTER
+      IF (IFAIL > 0 .and. IDDLEVEL == 1) THEN
+        CALL FAIL_WINDSHIELD_INIT(ELBUF_STR,MAT_PARAM,FAIL_BROKMANN,
+     .       NEL      ,NFT      ,ITY      ,IGRSH4N  ,IGRSH3N  ,
+     .       ALDT     ,THKE     ,NGL      )
       ENDIF
 c
       IF (IHBE == 11) THEN
 C to be checked for IGTYP = 51
-        CALL CFAILINI4(ELBUF_STR,IXC     ,NIXC    ,NPTR    ,NPTS    ,
-     .                 NPTT     ,NLAY    ,IPM     ,SIGSH   ,NSIGSH  ,
-     .                 NUMELC   ,PTSHEL  ,RNOISE  ,PERTURB ,BUFMAT  ,
-     .                 ALDT    ,THKE    )
+        CALL CFAILINI4(ELBUF_STR,NPTR    ,NPTS    ,NPTT    ,NLAY    ,
+     .                 SIGSH    ,NSIGSH  ,PTSHEL  ,RNOISE  ,PERTURB ,
+     .                 MAT_PARAM,ALDT    ,THKE    )
       ELSEIF (IHBE > 20 .AND. IHBE < 29) THEN
 C to be checked for IGTYP = 51
-        CALL CFAILINI(ELBUF_STR,IXC     ,NIXC    ,NPTT    ,NLAY    ,
-     .                IPM      ,SIGSH   ,NSIGSH  ,NUMELC  ,PTSHEL  ,
-     .                RNOISE   ,PERTURB ,BUFMAT  ,ALDT    ,THKE    )
+        CALL CFAILINI(ELBUF_STR,MAT_PARAM,
+     .                NPTT     ,NLAY     ,SIGSH   ,NSIGSH  ,PTSHEL  ,
+     .                RNOISE   ,PERTURB  ,ALDT    ,THKE    )
       ENDIF
 c
 C-----------------------------------------------------------------------
 C     CALCUL DES DEFORMATIONS INITIALES (MEMBRANE)
 c-----------------------------------------------------------------------
-      IF (IHBE > 20 .AND. IHBE < 29) THEN   !   1 Gauss point
+      IF (IHBE > 20 .AND. IHBE < 29) THEN   !   1 Gauss Point
 c
         IR  = 1
         IS  = 1
@@ -405,23 +462,23 @@ c----
         IF (ISTRAIN == 1 .AND. NXREF > 0) THEN
 c         REFERENCE STATE, QEPH
 c
-          UVAR => ELBUF_STR%BUFLY(1)%MAT(1,1,1)%VAR  ! 
-          CALL CNEPSINI(ELBUF_STR,
+          UVAR => ELBUF_STR%BUFLY(1)%MAT(1,1,1)%VAR  !
+          CALL CNEPSINI(ELBUF_STR,MAT_PARAM(IMAT),
      .        LFT      ,LLT     ,ISMSTR     ,MTN      ,ITHK   ,
      .        PM       ,GEO     ,IXC(1,NFT+1),X ,XREFC(1,1,NFT+1),
      .        NLAY     ,GBUF%FOR ,GBUF%THK,GBUF%EINT  ,GBUF%STRA,
      .        PX1G     ,PX2G    ,PY1G       ,PY2G     ,X2S      ,
      .        Y2S      ,X3S     ,Y3S        ,X4S      ,Y4S      ,
-     .        GBUF%OFF ,UVAR    ,BUFMAT     ,IPM      ,IMAT     ,
+     .        GBUF%OFF ,UVAR    ,IPM      ,IMAT     ,
      .        IGEO     ,NEL     ,DIR_A      ,DIR_B    ,GBUF%SIGI,
      .        NPF      ,TF      ,IREP       )
 c
           CALL CEPSCHK(LFT, LLT,NFT, PM, GEO,IXC(1,NFT+1),
      .                 GBUF%STRA,THKE,NEL     ,CPT_ELTENS)
           IF (ISMSTR == 1 .AND. MTN==19) IPARG(9)=11
-          IF (MTN==58) THEN
-C-------IINT to say NXREF > 0		  
-		    IPARG(36)=1
+          IF (MTN==58 .AND. NPT_ALL==1) THEN
+C-------IINT to say NXREF > 0      
+              IPARG(36)=1
             DO I=LFT,LLT                          
               II = NFT + I            
               ELBUF_STR%GBUF%HOURG(JJ(1)+I) = XREFC(2,1,II)-XREFC(1,1,II)  
@@ -434,7 +491,7 @@ C-------IINT to say NXREF > 0
               ELBUF_STR%GBUF%HOURG(JJ(8)+I) = XREFC(4,2,II)-XREFC(1,2,II)  
               ELBUF_STR%GBUF%HOURG(JJ(9)+I) = XREFC(4,3,II)-XREFC(1,3,II)  
             ENDDO                                 
-		  END IF
+           END IF
 c
         ELSEIF (ISMSTR == 11 .OR. (ISMSTR==1 .AND. MTN==19) ) THEN
 c
@@ -467,14 +524,15 @@ c----
           ENDDO                                 
         ENDIF
 c---
-        IF (ISIGSH.NE.0 .OR. ITHKSHEL == 2) THEN
+        IF (ISIGSH/=0 .OR. ITHKSHEL == 2) THEN
           IPG = 0
             IF (MPT>0) 
      .       CALL CORTH3(ELBUF_STR,DIR_A   ,DIR_B   ,LFT    ,LLT    ,
      .             NLAY     ,IREP    ,NEL     ,
      .             X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  ,
      .             Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4  ,
-     .             E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z )
+     .             E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z ,
+     .             IDRAPE, IGTYP)
           CALL CSIGINI4(ELBUF_STR,IHBE   ,
      1         LFT     ,LLT    ,NFT      ,MPT      ,ISTRAIN,
      2         GBUF%THK,GBUF%EINT,GBUF%STRA,GBUF%HOURG,
@@ -484,7 +542,19 @@ c---
      6         GBUF%PLA,THKE    ,IGTYP    ,NEL   ,ISIGSH  ,
      7          E1X   ,E2X      ,E3X      ,E1Y   ,E2Y  ,E3Y,
      8          E1Z   ,E2Z      ,E3Z     ,DIR_A  ,DIR_B,POSLY )
-          ELSEIF ( ITHKSHEL == 1 ) THEN
+           IF (MPT == 0) THEN
+             DO I=LFT,LLT
+               GBUF%FOR_G(I+JJ(1:5))=GBUF%FOR(I+JJ(1:5))
+             END DO
+           END IF 
+C--------to fill GBUF%STRPG     
+         IF (ITHKSHEL == 2.AND.GBUF%G_STRPG>GBUF%G_STRA) 
+     1     CALL CSTRAINI4(LFT   ,LLT    ,NFT    ,NEL    ,NUMSHEL,
+     2           ISTRAIN,GBUF%STRPG,SIGSH ,NSIGSH ,NUMELC ,
+     4           IXC    ,NIXC   ,PTSHEL   ,THKE   ,GBUF%STRA,
+     7           E1X    ,E2X   ,E3X   ,E1Y   ,E2Y  ,E3Y,
+     8           E1Z    ,E2Z   ,E3Z   )
+        ELSEIF ( ITHKSHEL == 1 ) THEN
            CALL THICKINI(LFT     ,LLT   ,NFT    ,PTSHEL,NUMELC,
      2                   GBUF%THK,THKE  ,IXC    ,NIXC  ,NSIGSH,
      3                   SIGSH   )
@@ -517,13 +587,13 @@ c
 c         using only one pt, suppose constant  
           UVAR => ELBUF_STR%BUFLY(1)%MAT(1,1,1)%VAR  ! loi 58 => nlay=1
 c
-          CALL CNEPSINI(ELBUF_STR,
+          CALL CNEPSINI(ELBUF_STR,MAT_PARAM(IMAT),
      .       LFT     ,LLT      ,ISMSTR     ,MTN      ,ITHK      ,
      .       PM      ,GEO      ,IXC(1,NFT+1),X       ,XREFC(1,1,NFT+1),
      .       NLAY    ,GBUF%FOR ,GBUF%THK   ,GBUF%EINT,GBUF%STRA ,
      .       PX1G    ,PX2G     ,PY1G       ,PY2G     ,X2S       ,
      .       Y2S     ,X3S      ,Y3S        ,X4S      ,Y4S       ,
-     .       GBUF%OFF,UVAR     ,BUFMAT     ,IPM      ,IMAT      ,
+     .       GBUF%OFF,UVAR     ,IPM        ,IMAT      ,
      .       IGEO    ,NEL      ,DIR_A      ,DIR_B    ,GBUF%SIGI ,
      .       NPF     ,TF       ,IREP      )
 c          
@@ -606,7 +676,7 @@ C to be checked for IGTYP = 51
 c
       ENDIF  ! IHBE
 C-------------------------------------------
-c     CALCUL DES DT ELEMENTAIRES
+c     calculation of elementary dt
 C-------------------------------------------
          IF (IGTYP /= 1  .AND. IGTYP /= 7  .AND.
      .       IGTYP /= 9  .AND. IGTYP /= 10 .AND.
@@ -632,8 +702,24 @@ c-----------
      .               PID      ,NPT      ,NPTT     ,NLAY     ,IR      ,
      .               IS       ,IXFEM    ,MTN      ,NG)
       ENDIF
+C------------
+      ! Compute the initial volume
+      DO I=LFT,LLT
+        IF (GBUF%G_VOL > 0) GBUF%VOL(I) = AREA(I)*GBUF%THK(I)
+      ENDDO
+      IF (IXFEM > 0) THEN
+        DO IXEL=1,NXEL
+          DO I=LFT,LLT
+            IF (XFEM_STR(NG,IXEL)%GBUF%G_VOL > 0) 
+     .      XFEM_STR(NG,IXEL)%GBUF%VOL(I) = AREA(I)*GBUF%THK(I)
+          END DO
+        ENDDO
+      ENDIF
 c-----------
       DEALLOCATE(DIR_A)
-      DEALLOCATE(DIR_B)
+      DEALLOCATE(DIR_B)      
+      DEALLOCATE(MATLY)
+      DEALLOCATE(POSLY)
+
       RETURN
       END

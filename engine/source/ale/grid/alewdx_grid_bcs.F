@@ -1,33 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALEWDX_GRID_BCS               source/ale/grid/alewdx_grid_bcs.F
-Chd|-- called by -----------
-Chd|        ALEW5                         source/ale/grid/alew5.F       
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE ALEWDX_GRID_BCS(
-     1     SKEW, ISKEW,  ICODT, VEC, NALE, ITASK, NODE_ID)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    alewdx_grid_bcs   ../engine/source/ale/grid/alewdx_grid_bcs.F
+!||--- called by ------------------------------------------------------
+!||    alew5             ../engine/source/ale/grid/alew5.F
+!||====================================================================
+      SUBROUTINE ALEWDX_GRID_BCS( SKEW, ISKEW,  ICODT, VEC, NALE, NODE_ID)
 C-----------------------------------------------
 C     D e s c r i p t i o n
 C-----------------------------------------------
@@ -42,11 +40,11 @@ C     C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "timeri_c.inc"
 C-----------------------------------------------
 C     D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER,INTENT(INOUT) :: ISKEW(*),ICODT(*),NALE(NUMNOD),ITASK,NODE_ID
+      INTEGER,INTENT(IN) :: NODE_ID
+      INTEGER,INTENT(INOUT) :: ISKEW(*),ICODT(*),NALE(NUMNOD)
       my_real,INTENT(INOUT) :: SKEW(LSKEW,*),VEC(3)
 C-----------------------------------------------
 C     L o c a l   V a r i a b l e s
@@ -57,7 +55,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     S o u r c e   L i n e s
 C-----------------------------------------------
-
+      LCOD1 = 0
+      LCOD2 = 0
 C----------------------------------------
 C     BOUNDARY CONDITIONS (MESH)
 C----------------------------------------  
@@ -96,7 +95,7 @@ C----------------------------------------
       IF (NINDX /= 0 )THEN                                                                            
           ISK  = ISKEW(N)                                                                                                                                                           
           IF(ISK == 1) THEN                                                                            
-           !=====REPERE GLOBAL
+           !=====GLOBAL REFERENCE FRAME
            IF(TAG(1))VEC(1)=ZERO                                                                         
            IF(TAG(2))VEC(2)=ZERO
            IF(TAG(3))VEC(3)=ZERO                                                                                            

@@ -1,39 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  AIRBAGB                       source/airbag/airbag2.F       
-Chd|-- called by -----------
-Chd|        MONVOL0                       source/airbag/monvol0.F       
-Chd|-- calls ---------------
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|        GET_U_FUNC                    source/user_interface/ufunc.F 
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    airbagb         ../engine/source/airbag/airbag2.F
+!||--- called by ------------------------------------------------------
+!||    monvol0         ../engine/source/airbag/monvol0.F
+!||--- calls      -----------------------------------------------------
+!||    get_u_func      ../engine/source/user_interface/ufunc.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||    sum_6_float     ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod    ../common_source/modules/groupdef_mod.F
+!||====================================================================
       SUBROUTINE AIRBAGB(
      1                 IVOLU   ,ICBAG   ,NJET    ,IBAGJET ,NVENT   ,
      2                 IBAGHOL ,RVOLU   ,RVOLUV  ,RCBAG   ,RBAGJET ,
-     3                 RBAGHOL ,FSAV    ,N       ,NN      ,
+     3                 RBAGHOL ,FSAV    ,NORMAL  ,NN      ,
      4                 IGRSURF ,PORO    ,IVOLUV  ,RBAGVJET,
      4                 FR_MV   )
 C-----------------------------------------------
@@ -54,10 +55,7 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -67,7 +65,7 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   RVOLU(*), RVOLUV(NRVOLU,*),RCBAG(NRCBAG,*),PORO(*),
-     .   RBAGJET(NRBJET,*),RBAGHOL(NRBHOL,*),FSAV(*),N(3,*),RBAGVJET(*)
+     .   RBAGJET(NRBJET,*),RBAGHOL(NRBHOL,*),FSAV(*),NORMAL(3,*),RBAGVJET(*)
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -129,7 +127,7 @@ C
        ENDDO
        HSPEC=HSPEC/MAX(EM20,AMTOT)
 C--------------------------------
-C      FLUX SORTANT PAR LES TROUS
+C      outgoing flux through the holes
 C--------------------------------
        AISENT=ZERO
        ACHEMK=ZERO
@@ -152,84 +150,84 @@ C
         RBAGHOL(21,IV)=ZERO
         RBAGHOL(22,IV)=ZERO
 C
-        IF(ITTF.EQ.11.OR.ITTF.EQ.12.OR.ITTF.EQ.13) THEN
-        IF(IDEF.EQ.0.AND.P.GT.PDEF+PEXT.
-     .               AND.DTPDEFC.GT.DTPDEFI.
-     .               AND.VOL.GT.EM3*AREA**THREE_HALF.
-     .               AND.TT.LT.TSTOPE+TTF
-     .              .AND.IDTPDEF.EQ.0) THEN
+        IF(ITTF==11.OR.ITTF==12.OR.ITTF==13) THEN
+        IF(IDEF==0.AND.P>PDEF+PEXT.
+     .               AND.DTPDEFC>DTPDEFI.
+     .               AND.VOL>EM3*AREA**THREE_HALF.
+     .               AND.TT<TSTOPE+TTF
+     .              .AND.IDTPDEF==0) THEN
          IDEF=1
-         IF(ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
           WRITE(IOUT,*)' *** AIRBAG VENT HOLES MEMBRANE IS DEFLATED ***'
           WRITE(IOUT,*)' *** MONITORED VOLUME ',IVOLU(1),
      .                 ' VENT HOLES MEMBRANE NUMBER ',IV,' ***'
           WRITE(ISTDO,*)' *** VENT HOLES MEMBRANE IS DEFLATED ***'
          ENDIF
         ENDIF
-        IF(IDEF.EQ.0.AND.DTPDEFC.GT.DTPDEFI.
-     .               AND.TT.LT.TSTOPE+TTF
-     .              .AND.IDTPDEF.EQ.1) THEN
+        IF(IDEF==0.AND.DTPDEFC>DTPDEFI.
+     .               AND.TT<TSTOPE+TTF
+     .              .AND.IDTPDEF==1) THEN
          IDEF=1
           WRITE(IOUT,*)' *** AIRBAG VENT HOLES MEMBRANE IS DEFLATED ***'
           WRITE(IOUT,*)' *** MONITORED VOLUME ',IVOLU(1),
      .                 ' VENT HOLES MEMBRANE NUMBER ',IV,' ***'
           WRITE(ISTDO,*)' *** VENT HOLES MEMBRANE IS DEFLATED ***'
         ENDIF
-        IF(IDEF.EQ.0 .AND. TT.GT.TVENT+TTF
-     .               .AND. TT.LT.TSTOPE+TTF) THEN
+        IF(IDEF==0 .AND. TT>TVENT+TTF
+     .               .AND. TT<TSTOPE+TTF) THEN
          IDEF=1
-         IF(ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
           WRITE(IOUT,*) ' *** AIRBAG VENTING STARTS ***'
           WRITE(IOUT,*) ' *** MONITORED VOLUME ',IVOLU(1),
      .                ' VENT HOLES MEMBRANE NUMBER ',IV,' ***'
           WRITE(ISTDO,*)' *** VENTING STARTS ***'
          ENDIF
         ENDIF
-        IF(IDEF.EQ.1 .AND. TT.GE.TSTOPE+TTF) THEN
+        IF(IDEF==1 .AND. TT>=TSTOPE+TTF) THEN
          IDEF=0
-         IF(IMACH.NE.3.OR.ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
           WRITE(IOUT,*) ' *** AIRBAG VENTING STOPS ***'
           WRITE(IOUT,*) ' *** MONITORED VOLUME ',IVOLU(1),
      .                ' VENT HOLES MEMBRANE NUMBER ',IV,' ***'
           WRITE(ISTDO,*)' *** VENTING STOPS ***'
          END IF
         END IF
-        ELSE IF(ITTF.EQ.0) THEN
-        IF(IDEF.EQ.0.AND.P.GT.PDEF+PEXT.
-     .               AND.DTPDEFC.GT.DTPDEFI.
-     .               AND.VOL.GT.EM3*AREA**THREE_HALF.
-     .               AND.TT.LT.TSTOPE
-     .              .AND.IDTPDEF.EQ.0) THEN
+        ELSE IF(ITTF==0) THEN
+        IF(IDEF==0.AND.P>PDEF+PEXT.
+     .               AND.DTPDEFC>DTPDEFI.
+     .               AND.VOL>EM3*AREA**THREE_HALF.
+     .               AND.TT<TSTOPE
+     .              .AND.IDTPDEF==0) THEN
          IDEF=1
-         IF(ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
           WRITE(IOUT,*)' *** AIRBAG VENT HOLES MEMBRANE IS DEFLATED ***'
           WRITE(IOUT,*)' *** MONITORED VOLUME ',IVOLU(1),
      .                 ' VENT HOLES MEMBRANE NUMBER ',IV,' ***'
           WRITE(ISTDO,*)' *** VENT HOLES MEMBRANE IS DEFLATED ***'
          ENDIF
         ENDIF
-        IF(IDEF.EQ.0.AND.DTPDEFC.GT.DTPDEFI.
-     .               AND.TT.LT.TSTOPE
-     .              .AND.IDTPDEF.EQ.1) THEN
+        IF(IDEF==0.AND.DTPDEFC>DTPDEFI.
+     .               AND.TT<TSTOPE
+     .              .AND.IDTPDEF==1) THEN
          IDEF=1
           WRITE(IOUT,*)' *** AIRBAG VENT HOLES MEMBRANE IS DEFLATED ***'
           WRITE(IOUT,*)' *** MONITORED VOLUME ',IVOLU(1),
      .                 ' VENT HOLES MEMBRANE NUMBER ',IV,' ***'
           WRITE(ISTDO,*)' *** VENT HOLES MEMBRANE IS DEFLATED ***'
         ENDIF
-        IF(IDEF.EQ.0 .AND. TT.GT.TVENT
-     .               .AND. TT.LT.TSTOPE) THEN
+        IF(IDEF==0 .AND. TT>TVENT
+     .               .AND. TT<TSTOPE) THEN
          IDEF=1
-         IF(ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
           WRITE(IOUT,*) ' *** AIRBAG VENTING STARTS ***'
           WRITE(IOUT,*) ' *** MONITORED VOLUME ',IVOLU(1),
      .                ' VENT HOLES MEMBRANE NUMBER ',IV,' ***'
           WRITE(ISTDO,*)' *** VENTING STARTS ***'
          ENDIF
         ENDIF
-        IF(IDEF.EQ.1 .AND. TT.GE.TSTOPE) THEN
+        IF(IDEF==1 .AND. TT>=TSTOPE) THEN
          IDEF=0
-         IF(IMACH.NE.3.OR.ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
           WRITE(IOUT,*) ' *** AIRBAG VENTING STOPS ***'
           WRITE(IOUT,*) ' *** MONITORED VOLUME ',IVOLU(1),
      .                ' VENT HOLES MEMBRANE NUMBER ',IV,' ***'
@@ -238,31 +236,31 @@ C
         END IF
         END IF
 C
-        IF(IPVENT.NE.0)THEN
-           IF(INTBAG.EQ.0)THEN
+        IF(IPVENT/=0)THEN
+           IF(INTBAG==0)THEN
              NNC=IGRSURF(IPVENT)%NSEG
              DO KK=1,NNC
-               IF(IGRSURF(IPVENT)%ELTYP(KK).EQ.3)THEN
+               IF(IGRSURF(IPVENT)%ELTYP(KK)==3)THEN
                  K=IGRSURF(IPVENT)%ELEM(KK)
-               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK).EQ.7)THEN
+               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK)==7)THEN
                  K=IGRSURF(IPVENT)%ELEM(KK) + NUMELC
                ELSE
                  K=IGRSURF(IPVENT)%ELEM(KK) + NUMELC + NUMELTG
                ENDIF
-               F1(KK) = SQRT( N(1,K)**2+N(2,K)**2+N(3,K)**2 )
+               F1(KK) = SQRT( NORMAL(1,K)**2+NORMAL(2,K)**2+NORMAL(3,K)**2 )
                F2(KK) = ZERO
              ENDDO
            ELSE
              NNC=IGRSURF(IPVENT)%NSEG
              DO KK=1,NNC
-               IF(IGRSURF(IPVENT)%ELTYP(KK).EQ.3)THEN
+               IF(IGRSURF(IPVENT)%ELTYP(KK)==3)THEN
                  K=IGRSURF(IPVENT)%ELEM(KK)
-               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK).EQ.7)THEN
+               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK)==7)THEN
                  K=IGRSURF(IPVENT)%ELEM(KK) + NUMELC
                ELSE
                  K=IGRSURF(IPVENT)%ELEM(KK) + NUMELC + NUMELTG
                ENDIF
-               AA   = SQRT( N(1,K)**2+N(2,K)**2+N(3,K)**2 )
+               AA   = SQRT( NORMAL(1,K)**2+NORMAL(2,K)**2+NORMAL(3,K)**2 )
                F1(KK) = (ONE - PORO(K))*AA
                F2(KK) =  PORO(K)*AA
              ENDDO
@@ -291,8 +289,8 @@ C
            AOUT1=ZERO
         ENDIF
 C
-        IF(IDEF.EQ.1 .AND. P.GT.PEXT.
-     .               AND.VOL.GT.EM3*AREA**THREE_HALF)THEN
+        IF(IDEF==1 .AND. P>PEXT.
+     .               AND.VOL>EM3*AREA**THREE_HALF)THEN
          IPORT =IBAGHOL(3,IV)
          IPORP =IBAGHOL(4,IV)
          IPORA =IBAGHOL(5,IV)
@@ -305,41 +303,40 @@ C
          FPORT1= RBAGHOL(10,IV)     
          FPORP1= RBAGHOL(11,IV)     
          FPORA1= RBAGHOL(12,IV)     
-         IF(IPORA.NE.0.AND.IPVENT.NE.0)THEN
+         IF(IPORA/=0.AND.IPVENT/=0)THEN
            AOUT=FPORA*AVENT*GET_U_FUNC(IPORA,AOUT*SCALS,DERI)
          ELSE
            AOUT=AVENT*AOUT
          ENDIF
          TT1=TT
-         IF (ITTF.EQ.12) TT1=TT-TTF
-         IF (ITTF.EQ.13) TT1=TT-TTF-TVENT
-         IF(IPORT.NE.0)AOUT=FPORT*AOUT*
+         IF (ITTF==12) TT1=TT-TTF
+         IF (ITTF==13) TT1=TT-TTF-TVENT
+         IF(IPORT/=0)AOUT=FPORT*AOUT*
      .                 GET_U_FUNC(IPORT,TT1*SCALT,DERI)
-         IF(IPORP.NE.0)AOUT=FPORP*AOUT*
+         IF(IPORP/=0)AOUT=FPORP*AOUT*
      .                 GET_U_FUNC(IPORP,(P-PEXT)*SCALP,DERI)
-         IF(IPORA1.NE.0.AND.IPVENT.NE.0)THEN
+         IF(IPORA1/=0.AND.IPVENT/=0)THEN
            AOUT1=FPORA*BVENT*GET_U_FUNC(IPORA1,AOUT1*SCALS,DERI)
          ELSE
            AOUT1=BVENT*AOUT1
          ENDIF
-         IF(IPORT1.NE.0)AOUT1=FPORT*AOUT1*
+         IF(IPORT1/=0)AOUT1=FPORT*AOUT1*
      .                  GET_U_FUNC(IPORT1,TT1*SCALT,DERI)
-         IF(IPORP1.NE.0)AOUT1=FPORP*AOUT1*
+         IF(IPORP1/=0)AOUT1=FPORP*AOUT1*
      .                  GET_U_FUNC(IPORP1,(P-PEXT)*SCALP,DERI)
-         IF(ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
            RBAGHOL(16,IV)=AOUT
            RBAGHOL(17,IV)=AOUT1
          END IF
          IVDP=IBAGHOL(9,IV)
-         IF(IVDP.EQ.0)THEN
+         IF(IVDP==0)THEN
           AISENT=AISENT+AOUT+AOUT1
          ELSE
           ACHEMK=ACHEMK+AOUT+AOUT1
           FVDP=RBAGHOL(13,IV)
           U=FVDP*GET_U_FUNC(IVDP,(P-PEXT)*SCALP,DERI)
           FCHEMK= FCHEMK+(AOUT+AOUT1)*U
-          IF(IMACH.NE.3.OR.ISPMD+1.EQ.PMAIN)
-     .      RBAGHOL(18,IV)=U
+          IF(ISPMD+1==PMAIN) RBAGHOL(18,IV)=U
          ENDIF
         ENDIF
         IBAGHOL(1,IV)=IDEF
@@ -349,13 +346,13 @@ C-------
        UISENT=ZERO
        FLOUT =ZERO
        DMOUT =ZERO
-       IF(AOUTOT.GT.ZERO)THEN
+       IF(AOUTOT>ZERO)THEN
         ROEX =RO*(PEXT/P)**(ONE/GAMA)
         VMAX  =HALF*(P-PEXT)*VOL/(GAMA-ONE)
      .  /MAX(EM20,HSPEC*(ROEX*AISENT+RO*ACHEMK)*DT1)
         VMAX  =MIN(VMAX,HALF*VOL/MAX(EM20,AOUTOT*DT1))
 C
-        IF(AISENT.GT.ZERO)THEN
+        IF(AISENT>ZERO)THEN
          PEXT = MAX(PEXT,PCRIT)
          ROEX =RO*(PEXT/P)**(ONE/GAMA)
          UISENT=TWO*GAMA/(GAMA-ONE)*P/RO*(ONE-(PEXT/P)**((GAMA-ONE)/GAMA))
@@ -366,17 +363,17 @@ C
          DMOUT=FLOUT*ROEX
         ENDIF
 C
-        IF(ACHEMK.GT.ZERO)THEN
+        IF(ACHEMK>ZERO)THEN
          FCHEMK=MIN(FCHEMK,VMAX*ACHEMK)
          FLOUT =FLOUT +FCHEMK
          DMOUT =DMOUT +RO*FCHEMK
         ENDIF
-        IF(ISPMD+1.EQ.PMAIN)THEN
+        IF(ISPMD+1==PMAIN)THEN
           DO IV=1,NVENT
             IDEF=IBAGHOL(1,IV)
             IVDP=IBAGHOL(9,IV)
-            IF(IDEF.EQ.1)THEN
-              IF(IVDP.EQ.0)THEN
+            IF(IDEF==1)THEN
+              IF(IVDP==0)THEN
                 RBAGHOL(18,IV)=UISENT
                 RBAGHOL(21,IV)= ROEX*UISENT
      .                         *(RBAGHOL(16,IV)+RBAGHOL(17,IV))
@@ -395,7 +392,7 @@ C---------------------------------------------
        RNM  =RVOLU(14)
        CV   =RNM/AMTOT/(GAMA-ONE)
        CP   =GAMA*CV
-       IF(ISPMD+1.EQ.PMAIN) THEN
+       IF(ISPMD+1==PMAIN) THEN
          FSAV(1) =AMTOT
          FSAV(2) =VOL
          FSAV(3) =P
@@ -414,7 +411,7 @@ C---------------------------------------------
          ENDDO
        ENDIF
 C---------------------------------------------
-C      MASSE et TRAVAIL par GAZ
+C      mass and work by gas
 C---------------------------------------------
        RMWI=RVOLU(10)
        RNMI=GMI*RMWI
@@ -455,11 +452,11 @@ C---------------------------------------------
          PVOIS=RVOLUV(12,II)
          VVOIS=RVOLUV(16,II)
          IF(ITTF==0.OR.ITTF==11.OR.ITTF==12.OR.ITTF==13)THEN
-           IF(IDEF.EQ.0.AND.P.GT.PDEF+PVOIS
-     .               .AND.DTPDEFC.GT.DTPDEFI
-     .               .AND.VOL.GT.EM3*AREA**THREE_HALF)THEN
+           IF(IDEF==0.AND.P>PDEF+PVOIS
+     .               .AND.DTPDEFC>DTPDEFI
+     .               .AND.VOL>EM3*AREA**THREE_HALF)THEN
              IDEF=1
-             IF(ISPMD+1.EQ.PMAIN) THEN
+             IF(ISPMD+1==PMAIN) THEN
                WRITE(IOUT,*) 
      .          ' *** CHAMBER VENT HOLES MEMBRANE IS DEFLATED ***'
                WRITE(IOUT,*)
@@ -468,9 +465,9 @@ C---------------------------------------------
      .          ' *** CHAMBER VENT HOLES MEMBRANE IS DEFLATED ***'
              ENDIF
            ENDIF
-           IF(IDEF.EQ.0 .AND. TT.GT.TVENT+TTF) THEN
+           IF(IDEF==0 .AND. TT>TVENT+TTF) THEN
              IDEF=1
-             IF(ISPMD+1.EQ.PMAIN) THEN
+             IF(ISPMD+1==PMAIN) THEN
                WRITE(IOUT,*) ' *** CHAMBER COMMUNICATION STARTS ***'
                WRITE(IOUT,*) ' *** MONITORED VOLUME ',IVOLU(1),' ***'
                WRITE(ISTDO,*)' *** COMMUNICATION STARTS ***'
@@ -478,17 +475,17 @@ C---------------------------------------------
            ENDIF
          ENDIF
 C 
-         IF(IPVENT.NE.0)THEN
+         IF(IPVENT/=0)THEN
              NNC=IGRSURF(IPVENT)%NSEG
              DO KK=1,NNC
-               IF(IGRSURF(IPVENT)%ELTYP(KK).EQ.3)THEN
+               IF(IGRSURF(IPVENT)%ELTYP(KK)==3)THEN
                  K=IGRSURF(IPVENT)%ELEM(KK)
-               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK).EQ.7)THEN
+               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK)==7)THEN
                  K=IGRSURF(IPVENT)%ELEM(KK) + NUMELC
                ELSE
                  K=IGRSURF(IPVENT)%ELEM(KK) + NUMELC + NUMELTG
                ENDIF
-               F1(KK) = SQRT( N(1,K)**2+N(2,K)**2+N(3,K)**2 )
+               F1(KK) = SQRT( NORMAL(1,K)**2+NORMAL(2,K)**2+NORMAL(3,K)**2 )
              ENDDO
 C
 C Sommation p/on
@@ -509,8 +506,8 @@ C comm si necessaire
 C
          AOUT=AVENT*APVENT
 C
-         IF(IDEF.EQ.1 .AND. P.GT.PVOIS.
-     .                 AND.VOL.GT.EM3*AREA**THREE_HALF)THEN
+         IF(IDEF==1 .AND. P>PVOIS.
+     .                 AND.VOL>EM3*AREA**THREE_HALF)THEN
            PVOIS = MAX(PVOIS,PCRIT)
            U=TWO*GAMA/(GAMA-ONE)*P/RO*(ONE-(PVOIS/P)**((GAMA-ONE)/GAMA))
            U=SQRT(U)
@@ -526,7 +523,7 @@ C
          ENDIF
          ICBAG(3,I) = IDEF
 C---------------------------------------------
-C        MASSE et TRAVAIL par GAZ
+C        mass and work by gas
 C---------------------------------------------
 C        VOLG/VOL=fraction molaire=RNMG/RNM
          DGMOUT=RNMI/MAX(EM20,RNM)*DMOUT
@@ -560,12 +557,12 @@ C IN
      .       RBAGVJET(RADVOIS+NRBJET*(IJ-1)+10)-DGEOUT
 C
          ENDDO
-         IF(ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
            FSAV(8)=FSAV(8)+AOUT
            FSAV(9)=FSAV(9)+FLOUT
          ENDIF
       ENDDO
-      IF(ISPMD+1.EQ.PMAIN) THEN
+      IF(ISPMD+1==PMAIN) THEN
         FSAV(9)=FSAV(9)/MAX(EM20,FSAV(8))
       ENDIF
 C---------------------------------------------

@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIGRAV_M51                   source/initial_conditions/inigrav/inigrav_m51.F
-Chd|-- called by -----------
-Chd|        INIGRAV_LOAD                  source/initial_conditions/inigrav/inigrav_load.F
-Chd|-- calls ---------------
-Chd|        POLYSOLVE                     source/initial_conditions/inigrav/inigrav_m51.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inigrav_m51            ../starter/source/initial_conditions/inigrav/inigrav_m51.F
+!||--- called by ------------------------------------------------------
+!||    inigrav_load           ../starter/source/initial_conditions/inigrav/inigrav_load.F
+!||--- calls      -----------------------------------------------------
+!||    polysolve              ../starter/source/initial_conditions/inigrav/inigrav_m51.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE INIGRAV_M51(NELG, NEL , NG   , MATID, IPM, GRAV0, DEPTH, PM,     BUFMAT, ELBUF_TAB,
      .                       PSURF,LIST, ALE_CONNECTIVITY, NV46 , IX , NIX  , NFT  , BUFMATG, IPARG)
 C-----------------------------------------------
@@ -36,14 +35,11 @@ C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
       USE ALE_CONNECTIVITY_MOD
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -51,7 +47,6 @@ C-----------------------------------------------
 #include      "param_c.inc"
 !     NGROUP
 #include      "com01_c.inc"
-#include      "mmale51_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -64,13 +59,13 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER :: I, K1, K2, K3, K4, NUVAR,K,J,IFORM,IFORMv,NV46,IV,IADBUF,ML,NGv,KTY,KLT,N,MFT,IS,NELGv
-      my_real ::  PGRAV, RHO, GAM, RHO0, 
+      my_real ::  PGRAV, RHO0, 
      .     ALPHA1, ALPHA2, ALPHA3, ALPHA4, 
      .     C01, C11, C21, C31, C41, C51, 
      .     C02, C12, C22, C32, C42, C52, 
      .     C03, C13, C23, C33, C43, C53, 
      .     C04, PEXT,
-     .     RHO10, RHO20, RHO30, RHO40, RHO1, RHO2, RHO3, RHO4, MU, 
+     .     RHO10, RHO20, RHO30, RHO40, RHO1, RHO2, RHO3, MU, 
      .     EINT1, EINT2, EINT3, EINT4, VOL, VOL1, VOL2, VOL3,
      .     EINT10, EINT20, EINT30, EINT40
       TYPE(G_BUFEL_), POINTER :: GBUF
@@ -90,13 +85,13 @@ C NELG IS SIZE OF ORIGINAL GROUP : needed to shift indexes in GBUF%SIG & MBUF%VA
       MBUF  => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)
 
       IFORM = NINT(BUFMAT(31))
-      K1 = N0PHAS + (1 - 1) * NVPHAS
-      K2 = N0PHAS + (2 - 1) * NVPHAS
-      K3 = N0PHAS + (3 - 1) * NVPHAS
-      K4 = N0PHAS + (4 - 1) * NVPHAS
+      K1 = M51_N0PHAS + (1 - 1) * M51_NVPHAS
+      K2 = M51_N0PHAS + (2 - 1) * M51_NVPHAS
+      K3 = M51_N0PHAS + (3 - 1) * M51_NVPHAS
+      K4 = M51_N0PHAS + (4 - 1) * M51_NVPHAS
       NUVAR = IPM(8, MATID)
       PEXT  = BUFMAT(8)
-      IF(IFORM.NE.6)THEN
+      IF(IFORM /= 6)THEN
       !all value are in UPARAM=>BUFMAT()
         !Initial densities
         RHO10 = BUFMAT(9)
@@ -139,11 +134,7 @@ C NELG IS SIZE OF ORIGINAL GROUP : needed to shift indexes in GBUF%SIG & MBUF%VA
       ENDIF
       DO K = 1, NEL
          I = LIST(K)
-         EINT1 = EINT10
-         EINT2 = EINT20
-         EINT3 = EINT30
-         EINT4 = EINT40
-         IF(IFORM.EQ.6)THEN
+         IF(IFORM==6)THEN
          !value are not in buffer UPARAM=>BUFMAT but are cell dependent
            ML     = 0
            IFORMv = 0
@@ -151,18 +142,18 @@ C NELG IS SIZE OF ORIGINAL GROUP : needed to shift indexes in GBUF%SIG & MBUF%VA
            DO J=1,ALE_CONNECTIVITY%ee_connect%iad_connect(I + NFT + 1) - ALE_CONNECTIVITY%ee_connect%iad_connect(I + NFT)
              IV = ALE_CONNECTIVITY%ee_connect%connected(IAD + J - 1)
              IFORMv = 1000
-             IF(IV.NE.0)            ML     = NINT(PM(19,IX(1,IV)))  !ix is here local I and not IV
-             IF(IV.NE.0)            IADBUF = IPM(7,IX(1,IV))      
-             IF(IV.NE.0.AND.ML==51) IFORMv  = BUFMATG(IADBUF+31-1)     
+             IF(IV/=0)            ML     = NINT(PM(19,IX(1,IV)))  !ix is here local I and not IV
+             IF(IV/=0)            IADBUF = IPM(7,IX(1,IV))      
+             IF(IV/=0.AND.ML==51) IFORMv  = BUFMATG(IADBUF+31-1)     
              IF(ML==51.AND.IFORMv<=1)EXIT                             
            ENDDO
            DO N=1,NGROUP                                    
               KTY = IPARG(5,N)                              
               KLT = IPARG(2,N)                              
               MFT = IPARG(3,N)                              
-              IF (KTY.EQ.1 .AND. IV.LE.KLT+MFT) EXIT      
+              IF (KTY==1 .AND. IV<=KLT+MFT) EXIT      
            ENDDO                                            
-           IF (KTY.NE.1 .OR. IV.GT.KLT+MFT) CYCLE 
+           IF (KTY/=1 .OR. IV>KLT+MFT) CYCLE 
            NGv   = N
            MBUFv => ELBUF_TAB(NGv)%BUFLY(1)%MAT(1,1,1)
            NELGv = KLT
@@ -205,6 +196,10 @@ C NELG IS SIZE OF ORIGINAL GROUP : needed to shift indexes in GBUF%SIG & MBUF%VA
            ALPHA3 = MBUFv%VAR(IS + (K3 + 23 - 1) * NELGv)
            ALPHA4 = MBUFv%VAR(IS + (K4 + 23 - 1) * NELGv)
          ELSE
+           EINT1 = EINT10
+           EINT2 = EINT20
+           EINT3 = EINT30
+           EINT4 = EINT40
            !Volumic fractions
            ALPHA1 = MBUF%VAR(I + (K1 + 23 - 1) * NELG)
            ALPHA2 = MBUF%VAR(I + (K2 + 23 - 1) * NELG)
@@ -244,21 +239,21 @@ C
          MBUF%VAR(I + (K3 + 18 - 1) * NELG) = PGRAV
          MBUF%VAR(I + (K4 + 18 - 1) * NELG) = PGRAV
       !Internal energies
-         IF (RHO10 .NE. ZERO) THEN
+         IF (RHO10 /= ZERO) THEN
             MBUF%VAR(I + (K1 + 08 - 1) * NELG) = EINT1 * RHO1 / RHO10 !rho.e(t)
             MBUF%VAR(I + (K1 + 21 - 1) * NELG) = EINT1 * RHO1 / RHO10 !rho0.e0
          ELSE
             MBUF%VAR(I + (K1 + 08 - 1) * NELG) = ZERO
             MBUF%VAR(I + (K1 + 21 - 1) * NELG) = ZERO
          ENDIF
-         IF (RHO20 .NE. ZERO) THEN
+         IF (RHO20 /= ZERO) THEN
             MBUF%VAR(I + (K2 + 08 - 1) * NELG) = EINT2 * RHO2 / RHO20 !rho.e(t)
             MBUF%VAR(I + (K2 + 21 - 1) * NELG) = EINT2 * RHO2 / RHO20 !rho0.e0
          ELSE
             MBUF%VAR(I + (K2 + 08 - 1) * NELG) = ZERO 
             MBUF%VAR(I + (K2 + 21 - 1) * NELG) = ZERO
          ENDIF
-         IF (RHO30 .NE. ZERO) THEN
+         IF (RHO30 /= ZERO) THEN
             MBUF%VAR(I + (K3 + 08 - 1) * NELG) = EINT3 * RHO3 / RHO30 !rho.e(t)
             MBUF%VAR(I + (K3 + 21 - 1) * NELG) = EINT3 * RHO3 / RHO30 !rho0.e0
          ELSE
@@ -279,12 +274,11 @@ C
       
       END SUBROUTINE INIGRAV_M51
 
-Chd|====================================================================
-Chd|  POLYSOLVE                     source/initial_conditions/inigrav/inigrav_m51.F
-Chd|-- called by -----------
-Chd|        INIGRAV_M51                   source/initial_conditions/inigrav/inigrav_m51.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    polysolve     ../starter/source/initial_conditions/inigrav/inigrav_m51.F
+!||--- called by ------------------------------------------------------
+!||    inigrav_m51   ../starter/source/initial_conditions/inigrav/inigrav_m51.F
+!||====================================================================
       SUBROUTINE POLYSOLVE(C0, C1, C2, C3, C4, C5, PRES, EINT, MU, RHO0, VOL0, PEXT, UID)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -300,7 +294,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      my_real :: TOL, ERROR, FUNC, DFUNC, INCR, VOL, VOL_prev,PP
+      my_real :: TOL, ERROR, FUNC, DFUNC, INCR, VOL, VOL_prev
       INTEGER :: ITER, MAX_ITER
       LOGICAL :: CONT
 C-----------------------------------------------
@@ -312,33 +306,33 @@ C-----------------------------------------------
       CONT        = .TRUE.
       VOL         = VOL0
       VOL_prev    = VOL0
-      IF(VOL0.EQ.ZERO)VOL0=ONE
+      IF(VOL0==ZERO)VOL0=ONE
       !Initial guess for MU
       MU          = ZERO
-      DO WHILE (CONT .AND. ITER .LT. MAX_ITER)
+      DO WHILE (CONT .AND. ITER < MAX_ITER)
          !pressure difference
          FUNC     = (C0 + C1 * MU + C2 * MAX(ZERO, MU)*MU + C3 * MAX(ZERO, MU)*MU*MU + (C4 + C5 * MU) * EINT) - PRES
          !total derivative
          DFUNC    = C1 + TWO * C2 * MAX(ZERO, MU) + THREE * C3 * MU*MAX(MU,ZERO) + C5 * EINT 
          DFUNC   = DFUNC + (PEXT+FUNC+PRES)/(ONE+MU)/(ONE+MU)*(C4+C5*MU)
-         IF(DFUNC.EQ.ZERO)EXIT   !iform=6 cell with no adj elem (not automatically initialized)
+         IF(DFUNC==ZERO)EXIT   !iform=6 cell with no adj elem (not automatically initialized)
          ! MU INCREMENT
          INCR     = - FUNC / DFUNC
-         If(INCR.EQ.ZERO)EXIT  !P(mu=0)=PRES nothing to do
+         If(INCR==ZERO)EXIT  !P(mu=0)=PRES nothing to do
          ERROR    = ABS(FUNC)
-         IF(ABS(MU+INCR).GT.EM20) ERROR = MAX(ERROR, ABS(INCR / (MU + INCR)))
+         IF(ABS(MU+INCR)>EM20) ERROR = MAX(ERROR, ABS(INCR / (MU + INCR)))
          MU       = MU + INCR
          !ENERGY INCREMENT
          VOL      = VOL0/(ONE+MU)
          EINT     = EINT - (PEXT+FUNC+PRES)*(VOL-VOL_prev)/VOL0 
          VOL_prev = VOL
          ITER     = ITER + 1
-         IF (ERROR .LT. TOL) THEN
+         IF (ERROR < TOL) THEN
            CONT   = .FALSE.
          ENDIF
       ENDDO
-      !IF(UID.EQ.16866)print *,"16866,  P=", (C0 + C1 * MU + C2 * MAX(ZERO, MU) ** 2 + C3 * MU ** 3 + (C4 + C5 * MU) * EINT) 
-      !IF(UID.EQ.16866)print *,"16866,  E=",  EINT
-      !IF(UID.EQ.16866)print *,"16866, MU=", MU
-      !IF(UID.EQ.16866)print *, "ITER=", ITER
+      !IF(UID==16866)print *,"16866,  P=", (C0 + C1 * MU + C2 * MAX(ZERO, MU) ** 2 + C3 * MU ** 3 + (C4 + C5 * MU) * EINT) 
+      !IF(UID==16866)print *,"16866,  E=",  EINT
+      !IF(UID==16866)print *,"16866, MU=", MU
+      !IF(UID==16866)print *, "ITER=", ITER
       END SUBROUTINE POLYSOLVE

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVBRIC3                       source/airbag/fvbric3.F       
-Chd|-- called by -----------
-Chd|        INIT_MONVOL                   source/airbag/init_monvol.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvbric3       ../starter/source/airbag/fvbric3.F
+!||--- called by ------------------------------------------------------
+!||    init_monvol   ../starter/source/airbag/init_monvol.F
+!||====================================================================
       SUBROUTINE FVBRIC3(IBUF,  IBUFA,  NNT,   NBRIC, NNA,
      .                   TBRIC, BRNA,   NCONA, ITAB,  
      .                   ILVOUT,NB_NODE,IVINI, VINI,  KMESH, V  )
@@ -36,8 +35,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -67,7 +64,7 @@ C
          ENDDO
       ENDDO
 C
-C Solides connectes au noeud N
+C Solid connects to node n
 C
       DO I=1,NBRIC
          NTYPE=TBRIC(2,I)
@@ -80,7 +77,7 @@ C
              N=BRNA(REDIR(J),I)
              JJ=IBRCO(1,N)
              JJ=JJ+1
-             IF(JJ.GT.30) CYCLE
+             IF(JJ>30) CYCLE
              IBRCO(1,N)=JJ
              IBRCO(JJ+1,N)=I         
            ENDDO
@@ -95,7 +92,7 @@ C
              N=BRNA(REDIR(J),I)
              JJ=IBRCO(1,N)
              JJ=JJ+1
-             IF(JJ.GT.12) CYCLE
+             IF(JJ>12) CYCLE
              IBRCO(1,N)=JJ
              IBRCO(JJ+1,N)=I         
            ENDDO
@@ -104,7 +101,7 @@ C
              N=BRNA(J,I)
              JJ=IBRCO(1,N)
              JJ=JJ+1
-             IF(JJ.GT.12) CYCLE
+             IF(JJ>12) CYCLE
              IBRCO(1,N)=JJ
              IBRCO(JJ+1,N)=I         
            ENDDO
@@ -113,7 +110,7 @@ C
              N=BRNA(J,I)
              JJ=IBRCO(1,N)
              JJ=JJ+1
-             IF(JJ.GT.12) CYCLE
+             IF(JJ>12) CYCLE
              IBRCO(1,N)=JJ
              IBRCO(JJ+1,N)=I         
            ENDDO
@@ -130,7 +127,7 @@ C
         ENDDO
       ENDIF
 C
-C  Noeud solide appartenant a des coques airbag ou internes => lagrangien
+C  Solid node belonging to airbag or internal shells => Lagrangian
 C
       DO I=1,NB_NODE
         JTAG(I)=0
@@ -140,14 +137,14 @@ C
       ENDDO
       DO I=1,NNA
         J=IBUFA(I)
-        IF(JTAG(J).EQ.1) NCONA(2,I)=1
+        IF(JTAG(J)==1) NCONA(2,I)=1
       ENDDO
 C
-C  Noeuds voisins pour calcul de la vitesse de grille
+C  Neighboring nodes for grid velocity calculation
 C
       NNAI=0
       DO I=1,NNA
-         IF(NCONA(2,I).NE.0) CYCLE
+         IF(NCONA(2,I)/=0) CYCLE
          NNAI=NNAI+1
          II=IBRCO(1,I)
          DO N=1,NNA
@@ -195,12 +192,12 @@ C
             IMAX=TAG(II)
          ENDIF
          DO N=1,NNA
-         IF(N.EQ.I) CYCLE
-         IF(ITAG(N).GE.IMAX) THEN
-C  Le noeud N appartient a au moins IMAX solides voisins
+         IF(N==I) CYCLE
+         IF(ITAG(N)>=IMAX) THEN
+C  The node does not belong to at least Imax Solid Voisins
            NN=NCONA(1,I)
            NN=NN+1
-           IF(NN.GT.14) GO TO 100
+           IF(NN>14) GO TO 100
            NCONA(1,I)=NN
            NCONA(NN+2,I)=N
          ENDIF
@@ -216,8 +213,8 @@ C Initial velocity of internal gas nodes
          DO I=1,NNT
             J=IBUF(I)
             VEL=V(1,J)*V(1,J)+V(2,J)*V(2,J)+V(3,J)*V(3,J)
-            IF(VEL .GT. VMAX) VMAX=VEL
-            IF(VEL .LT. VMIN) VMIN=VEL		 
+            IF(VEL > VMAX) VMAX=VEL
+            IF(VEL < VMIN) VMIN=VEL     
          ENDDO
          IF(VMIN == VMAX) THEN
             IF(VMIN > ZERO) THEN
@@ -244,20 +241,20 @@ C
 C Set to zero initial velocity of internal brick nodes (kmesh=1)
       IF(NNAI > 0 .AND. IVINI == 1 .AND. KMESH == 1) THEN
         DO I=1,NNA
-          IF(NCONA(2,I).NE.0) CYCLE
+          IF(NCONA(2,I)/=0) CYCLE
           J=IBUFA(I)
           V(1,J)=ZERO
           V(2,J)=ZERO
           V(3,J)=ZERO
-        ENDDO	  
+        ENDDO    
       ENDIF
 C
       WRITE(IOUT,3000) NBRIC,NNA,NNAI
       IF(ILVOUT >= 3) THEN
         WRITE(IOUT,1000)
         DO I=1,NNA
-          IF(NCONA(2,I).NE.0) CYCLE
-C Noeud interne
+          IF(NCONA(2,I)/=0) CYCLE
+C Internal node
           N=ITAB(IBUFA(I))
           K=NCONA(1,I)
           WRITE(IOUT,'(15I10)') N,(ITAB(IBUFA(NCONA(L+2,I))),L=1,K)

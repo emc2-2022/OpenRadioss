@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HORIEDGE                      source/airbag/horipoly.F      
-Chd|-- called by -----------
-Chd|        FVMESH1                       source/airbag/fvmesh.F        
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    horiedge   ../starter/source/airbag/horipoly.F
+!||--- called by ------------------------------------------------------
+!||    fvmesh1    ../starter/source/airbag/fvmesh.F
+!||====================================================================
       SUBROUTINE HORIEDGE(IPOLY  , RPOLY , NX    , NY  , NZ  ,
      .                    NBNEDGE, INEDGE, RNEDGE, X0  , Y0  ,
      .                    Z0     , INZ   , NNS3  , NREF, AREF,
@@ -34,9 +33,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -50,13 +46,16 @@ C-----------------------------------------------
       my_real
      .        X1, Y1, Z1, X2, Y2, Z2, ZL1, ZL2, TOLE, DD 
 C
-*      TOLE=DLAMCH('Epsmach')
+#ifdef MYREAL8
       TOLE=EM10   
+#else
+      TOLE=EM5
+#endif
       NN=IPOLY(2)
       NNSP=0
       DO I=1,NN
          II=I+1
-         IF (I.EQ.NN) II=1
+         IF (I==NN) II=1
          X1=RPOLY(4+3*(I-1)+1)
          Y1=RPOLY(4+3*(I-1)+2)
          Z1=RPOLY(4+3*(I-1)+3)
@@ -66,7 +65,7 @@ C
          DD=(X1-X2)**2+(Y1-Y2)**2+(Z1-Z2)**2
          ZL1=(X1-X0)*NX+(Y1-Y0)*NY+(Z1-Z0)*NZ
          ZL2=(X2-X0)*NX+(Y2-Y0)*NY+(Z2-Z0)*NZ
-         IF (ZL1.EQ.ZERO.AND.ZL2.EQ.ZERO.AND.DD.GE.TOLE) THEN
+         IF (ZL1==ZERO.AND.ZL2==ZERO.AND.DD>=TOLE) THEN
             NBNEDGE=NBNEDGE+1
 C
             NNSP=NNSP+1
@@ -102,12 +101,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  HORIPOLY                      source/airbag/horipoly.F      
-Chd|-- called by -----------
-Chd|        FVMESH1                       source/airbag/fvmesh.F        
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    horipoly   ../starter/source/airbag/horipoly.F
+!||--- called by ------------------------------------------------------
+!||    fvmesh1    ../starter/source/airbag/fvmesh.F
+!||====================================================================
       SUBROUTINE HORIPOLY(INEDGE, RNEDGE, LEDGE , NEDGE, IPOLY,
      .                    RPOLY , IZ    , IELNOD, NPOLY, NX   ,
      .                    NY    , NZ    , INZ   , IBRIC, NEL  ,
@@ -116,9 +114,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -144,15 +139,16 @@ C-----------------------------------------------
      .        SS, VVX, VVY, VVZ, SS1, X2, Y2, Z2, YLMIN, YLMAX, XSMIN1,
      .        XSMIN2, XX, YY, ZZ, YLSEC, XS, YS, LMAX, LL
 C
-      my_real
-     .        DLAMCH
-      EXTERNAL DLAMCH
 C
-*      TOLE=DLAMCH('Epsmach')
+#ifdef MYREAL8
       TOLE=EM10   
-C Creation de la liste des noeuds
+#else
+      TOLE=EM5
+#endif
+C Creation of the node list
       NN=0
       LMAX=ZERO
+      KSMIN = 0
       DO I=1,NEDGE
          II=LEDGE(I)
          NN=NN+1
@@ -178,7 +174,7 @@ C Creation de la liste des noeuds
          LMAX=MAX(LMAX,LL)
       ENDDO
 *      TOLE=TOLE*LMAX
-C Elimination des noeuds doubles
+C Elimination of double nodes
       DO I=1,2*NEDGE
          REDIR1(I)=0
          REDIR2(I)=0
@@ -196,9 +192,9 @@ C Elimination des noeuds doubles
             YY2=XNOD(2,JJ)
             ZZ2=XNOD(3,JJ)
             DD=SQRT((XX1-XX2)**2+(YY1-YY2)**2+(ZZ1-ZZ2)**2)
-            IF (DD.LE.TOLE) JFOUND=J
+            IF (DD<=TOLE) JFOUND=J
          ENDDO
-         IF (JFOUND.EQ.0) THEN
+         IF (JFOUND==0) THEN
             NN=NN+1
             REDIR1(NN)=I
             REDIR2(I)=NN
@@ -213,7 +209,7 @@ C
          TSEG(1,I)=REDIR2(N1)
          TSEG(2,I)=REDIR2(N2)
       ENDDO
-C Elimination des segments de longueur nulle
+C Elimination of zero-length segments
       NEDGE_OLD=NEDGE
       NEDGE=0
       DO I=1,NEDGE_OLD
@@ -222,7 +218,7 @@ C Elimination des segments de longueur nulle
          TSEG_OLD(3,I)=TSEG(3,I)
       ENDDO
       DO I=1,NEDGE_OLD
-         IF (TSEG_OLD(1,I).NE.TSEG_OLD(2,I)) THEN
+         IF (TSEG_OLD(1,I)/=TSEG_OLD(2,I)) THEN
             NEDGE=NEDGE+1
             TSEG(1,NEDGE)=TSEG_OLD(1,I)
             TSEG(2,NEDGE)=TSEG_OLD(2,I)
@@ -241,7 +237,7 @@ C Mise des segments internes en tete
          J=J+1
          REDIR(J)=I
       ENDDO
-C Construction des polygones
+C Construction of polygons
       DO I=1,NN
          ITAG(I)=0
          JTAG(I)=0
@@ -259,12 +255,12 @@ C Construction des polygones
       ITAGSEG(NEDGE+1)=0
       NPOLY=1
       ISTOP=0
-      DO WHILE (ISTOP.EQ.0)
+      DO WHILE (ISTOP==0)
          I=1
-         DO WHILE (ITAGSEG(I).EQ.1.AND.I.LE.NEDGE)
+         DO WHILE (ITAGSEG(I)==1.AND.I<=NEDGE)
             I=I+1
          ENDDO
-         IF (I.EQ.NEDGE+1) THEN
+         IF (I==NEDGE+1) THEN
             ISTOP=1
             CYCLE
          ENDIF
@@ -280,16 +276,16 @@ C
          IN=N2
          NNP=1
          POLY(1,NPOLY)=REDIR1(N1)
-         DO WHILE (ICLOSE.EQ.0)
+         DO WHILE (ICLOSE==0)
             IFOUND=0
             I=0
-            DO WHILE (IFOUND.EQ.0)
+            DO WHILE (IFOUND==0)
                I=I+1
                IF (ITAGSEG(I) == 1) CYCLE
                J=REDIR(I)
                N1=TSEG(1,J)
                N2=TSEG(2,J)
-               IF (N1.EQ.IN) THEN
+               IF (N1==IN) THEN
                   IFOUND=1
                   IF (ITAG(N2) == 1) ICLOSE=1
                   ISEG=I
@@ -297,7 +293,7 @@ C
                   NNP=NNP+1
                   POLY(NNP,NPOLY)=REDIR1(N1)
                   ITAG(N2)=1
-               ELSEIF (N2.EQ.IN) THEN
+               ELSEIF (N2==IN) THEN
                   IFOUND=1
                   IF (ITAG(N1) == 1) ICLOSE=1
                   ISEG=I
@@ -310,7 +306,7 @@ C
             ITAGSEG(ISEG)=1
          ENDDO
 C
-         IF (ICLOSE.EQ.1) THEN
+         IF (ICLOSE==1) THEN
             LENPOLY(NPOLY)=NNP
             NPOLY=NPOLY+1
             DO I=1,NEDGE
@@ -330,7 +326,7 @@ C
          ENDIF
       ENDDO
       NPOLY=NPOLY-1
-C Creation des tableaux de sortie
+C Creation of output tables
       DO I=1,NPOLY
          IPOLY(1,I)=2
          IPOLY(2,I)=LENPOLY(I)
@@ -357,7 +353,7 @@ C
          IZ(3,I)=INZ+1
       ENDDO
 C---------------------------------------
-C Recherche des trous dans les polygones
+C Searching for holes in polygons
 C---------------------------------------
       DO I=1,NPOLY
 C
@@ -367,14 +363,14 @@ C
          ENDDO
 C
          DO J=1,NPOLY
-            IF (I.EQ.J) CYCLE
+            IF (I==J) CYCLE
             ALPHA=ZERO
             X1=RPOLY(5,J)
             Y1=RPOLY(6,J)
             Z1=RPOLY(7,J)
             DO K=1,LENPOLY(I)
                KK=K+1
-               IF (K.EQ.LENPOLY(I)) KK=1
+               IF (K==LENPOLY(I)) KK=1
                XX1=RPOLY(4+3*(K-1)+1,I)
                YY1=RPOLY(4+3*(K-1)+2,I)
                ZZ1=RPOLY(4+3*(K-1)+3,I)
@@ -410,17 +406,17 @@ C
                SS1=NX*VVX+NY*VVY+NZ*VVZ
                IF(SS < -ONE) SS=-ONE
                IF(SS >  ONE) SS= ONE
-               IF (SS1.GE.ZERO) THEN
+               IF (SS1>=ZERO) THEN
                   ALPHA=ALPHA+ACOS(SS)
                ELSE
                   ALPHA=ALPHA-ACOS(SS)
                ENDIF
             ENDDO
 C
-            IF (ABS(ALPHA).GE.TWO*PI) THEN
+            IF (ABS(ALPHA)>=TWO*PI) THEN
 C---------------------------------------------------------------
-C Le premier point du polygone j est a l'interieur du polygone i
-C On teste tous les autres
+C The first point of polygon j is inside polygon i
+C We test all the others
 C---------------------------------------------------------------
                IPOUT=0
                DO K=2,LENPOLY(J)
@@ -430,7 +426,7 @@ C---------------------------------------------------------------
                   ALPHA=ZERO
                   DO M=1,LENPOLY(I)
                      MM=M+1
-                     IF (M.EQ.LENPOLY(I)) MM=1
+                     IF (M==LENPOLY(I)) MM=1
                      XX1=RPOLY(4+3*(M-1)+1,I)
                      YY1=RPOLY(4+3*(M-1)+2,I)
                      ZZ1=RPOLY(4+3*(M-1)+3,I)
@@ -466,18 +462,18 @@ C---------------------------------------------------------------
                      SS1=NX*VVX+NY*VVY+NZ*VVZ
                      IF(SS < -ONE) SS=-ONE
                      IF(SS >  ONE) SS= ONE
-                     IF (SS1.GE.ZERO) THEN
+                     IF (SS1>=ZERO) THEN
                         ALPHA=ALPHA+ACOS(SS)
                      ELSE
                         ALPHA=ALPHA-ACOS(SS)
                      ENDIF
                   ENDDO
-                  IF (ABS(ALPHA).LT.TWO*PI) IPOUT=1
+                  IF (ABS(ALPHA)<TWO*PI) IPOUT=1
                ENDDO
 C
-               IF (IPOUT.EQ.1) CYCLE
+               IF (IPOUT==1) CYCLE
 C---------------------------------------------
-C Le polygone j est un trou dans le polygone i
+C Polygon j is a hole in polygon i
 C---------------------------------------------
                IPOLY(1,J)=-1
                NHOL=NHOL+1
@@ -493,7 +489,7 @@ C---------------------------------------------
      .                                   RPOLY(4+3*(K-1)+3,J)
                ENDDO
                LENPOLY(I)=LENPOLY(I)+LENPOLY(J)
-C Point interieur polygone j
+C Polygone interior j.
                VX1=RPOLY(5,J)-RPOLY(8,J)
                VY1=RPOLY(6,J)-RPOLY(9,J)
                VZ1=RPOLY(7,J)-RPOLY(10,J)
@@ -520,27 +516,27 @@ C Point interieur polygone j
                   VVZ=ZZ-Z1
                   XLOC(1,K)=VVX*VX1+VVY*VY1+VVZ*VZ1
                   XLOC(2,K)=VVX*VX2+VVY*VY2+VVZ*VZ2
-                  IF (XLOC(2,K).LT.YLMIN) YLMIN=XLOC(2,K)
-                  IF (XLOC(2,K).GT.YLMAX) YLMAX=XLOC(2,K)
+                  IF (XLOC(2,K)<YLMIN) YLMIN=XLOC(2,K)
+                  IF (XLOC(2,K)>YLMAX) YLMAX=XLOC(2,K)
                ENDDO
                YLSEC=HALF*(YLMIN+YLMAX)
 C
                NSEC=0
                DO K=1,LENPOLY(J)
                   KK=K+1
-                  IF (K.EQ.LENPOLY(J)) KK=1
+                  IF (K==LENPOLY(J)) KK=1
                   X1=XLOC(1,K)
                   Y1=XLOC(2,K)
                   X2=XLOC(1,KK)
                   Y2=XLOC(2,KK)
-                  IF (Y1-Y2.NE.ZERO) THEN
+                  IF (Y1-Y2/=ZERO) THEN
                      ALPHA=(YLSEC-Y2)/(Y1-Y2)
-                     IF (ALPHA.GE.ZERO.AND.ALPHA.LE.ONE) THEN
+                     IF (ALPHA>=ZERO.AND.ALPHA<=ONE) THEN
                         NSEC=NSEC+1
                         XSEC(NSEC)=ALPHA*X1+(ONE-ALPHA)*X2
                      ENDIF
                   ELSE
-                     IF (Y1.EQ.YLSEC) THEN
+                     IF (Y1==YLSEC) THEN
                         NSEC=NSEC+1
                         XSEC(NSEC)=X1
                         NSEC=NSEC+1
@@ -551,15 +547,15 @@ C
 C
                XSMIN1=EP30
                DO K=1,NSEC
-                  IF (XSEC(K).LT.XSMIN1) THEN
+                  IF (XSEC(K)<XSMIN1) THEN
                      XSMIN1=XSEC(K)
                      KSMIN=K
                   ENDIF
                ENDDO
                XSMIN2=EP30
                DO K=1,NSEC
-                  IF (K.EQ.KSMIN) CYCLE
-                  IF (XSEC(K).LT.XSMIN2) XSMIN2=XSEC(K)
+                  IF (K==KSMIN) CYCLE
+                  IF (XSEC(K)<XSMIN2) XSMIN2=XSEC(K)
                ENDDO
 C
                XS=HALF*(XSMIN1+XSMIN2)

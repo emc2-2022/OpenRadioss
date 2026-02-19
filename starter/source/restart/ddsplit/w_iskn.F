@@ -1,49 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 CCgw|============================================================
-Chd|====================================================================
-Chd|  W_ISKN                        source/restart/ddsplit/w_iskn.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|====================================================================
+!||====================================================================
+!||    w_iskn         ../starter/source/restart/ddsplit/w_iskn.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit        ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal         ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    submodel_mod   ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE W_ISKN(ISKN,NUMSKW,NSPH  ,IFRAME,NUMFRAM,NODLOCAL,
      2                  P   ,NUMNOD,CEPSP  ,LEN_IA  )
 C-----------------------------------------------
 C   M o d u l e s
-C-----------------------------------------------  
+C-----------------------------------------------
+       USE SUBMODEL_MOD , ONLY : NSUBMOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "sphcom.inc"
-#include      "submod_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -78,17 +78,17 @@ C
         N5 = ISKN(5,I+1)
         N6 = ISKN(6,I+1)
 C
-        IF(N1.NE.0)THEN
+        IF(N1/=0)THEN
           IF(NLOCAL(N1,P)==1) N1 = NODLOCAL(N1)
 C
         END IF
 C
-        IF(N2.NE.0)THEN
+        IF(N2/=0)THEN
           IF(NLOCAL(N2,P)==1) N2 = NODLOCAL(N2)
 C
         END IF
 C
-        IF(N3.NE.0) THEN
+        IF(N3/=0) THEN
           IF(NLOCAL(N3,P)==1) N3 = NODLOCAL(N3)
 C
         END IF
@@ -102,10 +102,10 @@ C
 C
       IDEB = 1+NUMSKW
 C
-      IF(NSPCOND.GT.0)THEN
+      IF(NSPCOND>0)THEN
         N_L = 0
         DO I = 1, NUMSPH
-          IF(CEPSP(I)+1.EQ.P)THEN
+          IF(CEPSP(I)+1==P)THEN
             N_L = N_L + 1
             ISKN_L(1,IDEB+N_L) = ISKN(1,I+IDEB)
             ISKN_L(2,IDEB+N_L) = ISKN(2,I+IDEB)
@@ -119,7 +119,7 @@ C NSPH = MIN(IUN,NSPCOND)*NUMSPH_L
         IDEB = IDEB + NSPH
       END IF
 C submodel skew
-      IF(NSUBMOD.GT.0)THEN
+      IF(NSUBMOD>0)THEN
         N_L = 0
         DO I = 1, NSUBMOD
           N_L = N_L + 1
@@ -137,13 +137,13 @@ C
         N1 = IFRAME(1,I)
         N2 = IFRAME(2,I)
         N3 = IFRAME(3,I)
-        IF(N1.NE.0)THEN
+        IF(N1/=0)THEN
           IF(NLOCAL(N1,P)==1) N1 = NODLOCAL(N1)
         END IF
-        IF(N2.NE.0)THEN
+        IF(N2/=0)THEN
           IF(NLOCAL(N2,P)==1) N2 = NODLOCAL(N2)
         END IF
-        IF(N3.NE.0) THEN
+        IF(N3/=0) THEN
           IF(NLOCAL(N3,P)==1) N3 = NODLOCAL(N3)
         END IF
         ISKN_L(1,I+IDEB) = N1

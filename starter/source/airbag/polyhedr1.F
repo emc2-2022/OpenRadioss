@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  POLYHEDR1                     source/airbag/polyhedr1.F     
-Chd|-- called by -----------
-Chd|        FVMESH1                       source/airbag/fvmesh.F        
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        C_TRICALL                     stub/fvmbags_stub.F           
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    polyhedr1   ../starter/source/airbag/polyhedr1.F
+!||--- called by ------------------------------------------------------
+!||    fvmesh1     ../starter/source/airbag/fvmesh.F
+!||--- calls      -----------------------------------------------------
+!||    arret       ../starter/source/system/arret.F
+!||    c_tricall   ../starter/stub/fvmbags_stub.F
+!||====================================================================
       SUBROUTINE POLYHEDR1(IPOLY, RPOLY   , POLB  , NPOLB, POLH,
      .                     NPOLH, NRPMAX  , NPHMAX, IBRIC, LMIN,
      .                     INFO , NPOLHMAX, NPPMAX, NEL,   INZ ,
@@ -52,9 +52,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, ICMAX, ICUR, II, J, JJ, K, KK, IEL, M
-      INTEGER L, LL, ICUR_OLD, ITY, JMIN, PMIN, POLD, NEDGE, NVERTEX
-      INTEGER IMIN, IMAX, I1, I2, I3, I4, N1, N2, N3, K1, K2
+      INTEGER I, ICMAX, II, J, JJ, K, KK, IEL
+      INTEGER L, LL, ITY, JMIN, PMIN, POLD, NEDGE, NVERTEX
+      INTEGER IMIN, IMAX, I1, I2, I3, I4, N1, N2, K1, K2
       INTEGER M1, M2, L1, L2
       INTEGER ITAG(2,NPOLB), POLEDG(NPOLB,NPPMAX+1), ITYP(NPOLB) 
       INTEGER NTYP(3), REDIR(4), TEMP1(4), TEMP2(4)
@@ -65,7 +65,7 @@ C-----------------------------------------------
       INTEGER, ALLOCATABLE :: PSEG(:,:),PTRI(:,:)
       my_real
      .        X1, Y1, Z1, X2, Y2, Z2, XX1, YY1, ZZ1, XX2, YY2, ZZ2,
-     .        DD11, DD12, DD13, DD21, DD22, TOLE
+     .        DD11, DD12, DD21, DD22, TOLE
       my_real
      .        TST12, TST13, TST21, TST32, TST14,
      .        NX, NY, NZ, NX1, NY1, NZ1
@@ -79,15 +79,16 @@ C-----------------------------------------------
 C
       TOLE=EPSILON(ZERO)*0.5*LMIN*LMIN
 C--------------------------------
-C Triangularisation des polygones
+C Triangulation of polygons
 C--------------------------------
       DO II=1,NPOLB
          I=POLB(II)
          NNP=IPOLY(2,I)
          NHOL=0
          ALLOCATE(PNODES(2,NNP), PSEG(2,NNP),PTRI(3,2*NNP),PHOLES(2,1))
+         PTRI(1:3,1:2*NNP) = 0
 C
-C Coordonnees des sommets dans le plan du polygone
+C Coordinates of vertices in the polygon's plane
          NX=RPOLY(2,I)
          NY=RPOLY(3,I)
          NZ=RPOLY(4,I)
@@ -124,6 +125,7 @@ C
          PSEG(2,NNP)=1
          NSEG=NNP
 C
+         NELP = 0
          CALL C_TRICALL(PNODES, PSEG, PHOLES, PTRI, NNP,
      .                  NSEG,   NHOL, NELP  )
 CFA         IF(NELP > NNP) THEN
@@ -134,7 +136,7 @@ CFA               WRITE(IOUT,'(4I5)') J,PTRI(1,J),PTRI(2,J),PTRI(3,J)
 CFA            ENDDO
 CFA         ENDIF
 C--------------------------------------------------------------------------------
-C Calcul pour chaque arete du 3eme noeud du triangle associe, stockage dans NTRI3
+C Calculation for each edge of the 3rd node of the associated triangle, stored in NTRI3
 C--------------------------------------------------------------------------------
          DO J=1,NNP
            N1=J
@@ -160,10 +162,10 @@ C
       ENDDO
 C--------------------------------------------------------------
 C Construction polygone-arete
-C POLEDG(i,1) donne le nombre d'aretes connectees au polygone i
-C POLEDG(i,j+1) donne le numero de la jeme arete
-C EDGVER(i,1) numero du premier sommet de l'arete i
-C EDGVER(i,2) numero du deuxieme sommet de l'arete i
+C Poledg (I, 1) gives the number of areas connected to the polygon I
+C POLEDG(i,j+1) gives the number of the j-th edge
+C Edgver (I, 1) NUMERO of the first summit of the edge I
+C Edgver (I, 2) number of the second summit of the edge I
 C--------------------------------------------------------------
       ALLOCATE (XX(NPOLB*NPPMAX*2))
       ALLOCATE (YY(NPOLB*NPPMAX*2))
@@ -202,7 +204,7 @@ C--------------------------------------------------------------
             YY(NVERTEX)=Y2
             ZZ(NVERTEX)=Z2
             DO K=1,NPOLB
-               IF (K.EQ.I) CYCLE
+               IF (K==I) CYCLE
                KK=POLB(K)
                DO L=1,IPOLY(2,KK)
                   LL=L+1
@@ -217,8 +219,8 @@ C--------------------------------------------------------------
                   DD21=(XX2-X1)**2+(YY2-Y1)**2+(ZZ2-Z1)**2
                   DD12=(XX1-X2)**2+(YY1-Y2)**2+(ZZ1-Z2)**2
                   DD22=(XX2-X2)**2+(YY2-Y2)**2+(ZZ2-Z2)**2
-                  IF ((DD11.LE.TOLE.AND.DD22.LE.TOLE).OR.
-     .                (DD21.LE.TOLE.AND.DD12.LE.TOLE)) THEN
+                  IF ((DD11<=TOLE.AND.DD22<=TOLE).OR.
+     .                (DD21<=TOLE.AND.DD12<=TOLE)) THEN
                       POLEDG(K,L+1)=NEDGE
                   ENDIF
                ENDDO               
@@ -227,9 +229,9 @@ C--------------------------------------------------------------
       ENDDO
 C---------------------------------------------------------------
 C Construction arete-polygone
-C EDGPOL(i,1) donne le nombre de polygones connectes a l'arete i
+C Edgpol (I, 1) gives the number of polygons connected to the ARETE I
 C EDGPOL(i,j+1) donne le numero du jeme polygone
-C EDGLOC(i,k) donne la position de l'arete i dans POLEDG
+C EDGLOC(i,k) gives the position of edge i in POLEDG
 C---------------------------------------------------------------
       ALLOCATE(EDGPOL(NEDGE,5))
       ALLOCATE(EDGLOC(NEDGE,4))
@@ -338,7 +340,7 @@ C-------
          ENDIF
       ENDDO ! J=1,NEDGE
 C---------------------------------------------------
-C Mettre les polygones internes en premiere position
+C Put the internal polygons in the first position
 C---------------------------------------------------
       DO J=1,NEDGE
          IF(EDGPOL(J,1) == 2 ) CYCLE
@@ -367,9 +369,9 @@ C---------------------------------------------------
             ENDDO
       ENDDO ! J=1,NEDGE
 C--------------------------------------------------------------------
-C Construction des polyedres
-C   ITAG(1,i) le polyedre est du cote oppose a la normale au polygone
-C   ITAG(2,i) le polyedre est du cote de la normale au polygone
+C Construction of polyhedra
+C   ITAG(1,i) the polyhedron is on the side opposite to the polygon's normal
+C   ITAG(2,i) the polyhedron is on the side of the polygon's normal
 C--------------------------------------------------------------------
       ICMAX=0
 C------------------------------
@@ -438,7 +440,7 @@ C
           Y2=RPOLY(4+3*(JJ-1)+2,II)
           Z2=RPOLY(4+3*(JJ-1)+3,II)
           TST21=NX*(X2-X1)+NY*(Y2-Y1)+NZ*(Z2-Z1)
-C			 
+C       
           IF(TST12*TST21 < ZERO) THEN
             N2=EDGVER(J,2)
             WRITE(IOUT,'(/2(A,I5),2A,2(/A,1P3G20.13,A))') 
@@ -506,7 +508,7 @@ C---------------------------------------
 C Arete connectee a 3 polygones internes
 C---------------------------------------
       DO J=1,NEDGE
-          IF(EDGPOL(J,1) /= 3) CYCLE		  
+          IF(EDGPOL(J,1) /= 3) CYCLE      
           I1=EDGPOL(J,2)
           I2=EDGPOL(J,3)
           IF(ITYP(I2) /= 3) CYCLE
@@ -515,7 +517,7 @@ C---------------------------------------
           X1=XX(N1)
           Y1=YY(N1)
           Z1=ZZ(N1)
-C Position du polygone I2 par rapport au polygone I1
+C Position of polygon I2 relative to polygon I1
           II=POLB(I1)
           NX=RPOLY(2,II)
           NY=RPOLY(3,II)
@@ -534,7 +536,7 @@ C Position du polygone I2 par rapport au polygone I1
              K1=2
              K2=1
           ENDIF
-C Position du polygone I1 par rapport au polygone I2
+C Position of polygon I1 relative to polygon I2
           II=POLB(I2)
           NX=RPOLY(2,II)
           NY=RPOLY(3,II)
@@ -553,7 +555,7 @@ C Position du polygone I1 par rapport au polygone I2
              L1=2
              L2=1
           ENDIF
-C Position du polygone I2 par rapport au polygone I3
+C Position of polygon I2 relative to polygon I3
           II=POLB(I3)
           NX=RPOLY(2,II)
           NY=RPOLY(3,II)
@@ -572,11 +574,11 @@ C Position du polygone I2 par rapport au polygone I3
              M1=2
              M2=1
           ENDIF
-C Premier polyedre
+C First polyhedron
           IF (ITAG(K1,I1) == 0 .AND. ITAG(L1,I2) == 0) THEN
             ICMAX=ICMAX+1
             ITAG(K1,I1)=ICMAX
-            ITAG(L1,I2)=ICMAX						
+            ITAG(L1,I2)=ICMAX
           ELSEIF(ITAG(K1,I1) == 0 .AND. ITAG(L1,I2) /= 0) THEN
             ITAG(K1,I1)=ITAG(L1,I2)
           ELSEIF(ITAG(K1,I1) /= 0. AND. ITAG(L1,I2) == 0) THEN
@@ -590,9 +592,9 @@ C Premier polyedre
                  IF(ITYP(I) /= 3) CYCLE
                  IF(ITAG(2,I) == IMAX) ITAG(2,I)=IMIN
                ENDDO
-            ENDIF			
+            ENDIF
           ENDIF 
-C Deuxieme polyedre
+C Second polyedron
           IF(ITAG(M1,I3) == 0 .AND. ITAG(L2,I2) == 0) THEN
             ICMAX=ICMAX+1
             ITAG(M1,I3)=ICMAX
@@ -600,7 +602,7 @@ C Deuxieme polyedre
           ELSEIF(ITAG(M1,I3) /= 0 .AND. ITAG(L2,I2) == 0) THEN
             ITAG(L2,I2)=ITAG(M1,I3)
           ELSEIF(ITAG(M1,I3) == 0 .AND. ITAG(L2,I2) /= 0) THEN
-            ITAG(M1,I3)=ITAG(L2,I2)			
+            ITAG(M1,I3)=ITAG(L2,I2)
           ELSEIF(ITAG(M1,I3) /= 0 .AND. ITAG(L2,I2) /= 0) THEN
             IF(ITAG(M1,I3) /= ITAG(L2,I2)) THEN
                IMIN=MIN(ITAG(M1,I3),ITAG(L2,I2))
@@ -612,7 +614,7 @@ C Deuxieme polyedre
                ENDDO
             ENDIF
           ENDIF
-C Troisieme polyedre
+C Third polyedron
           IF(ITAG(M2,I3) == 0 .AND. ITAG(K2,I1) == 0) THEN
             ICMAX=ICMAX+1
             ITAG(M2,I3)=ICMAX
@@ -620,7 +622,7 @@ C Troisieme polyedre
           ELSEIF(ITAG(M2,I3) /= 0 .AND. ITAG(K2,I1) == 0) THEN
             ITAG(K2,I1)=ITAG(M2,I3)
           ELSEIF(ITAG(M2,I3) == 0 .AND. ITAG(K2,I1) /= 0) THEN
-            ITAG(M2,I3)=ITAG(K2,I1)			
+            ITAG(M2,I3)=ITAG(K2,I1)
           ELSEIF(ITAG(M2,I3) /= 0 .AND. ITAG(K2,I1) /= 0) THEN
             IF(ITAG(M2,I3) /= ITAG(K2,I1)) THEN
                IMIN=MIN(ITAG(M2,I3),ITAG(K2,I1))
@@ -631,13 +633,13 @@ C Troisieme polyedre
                  IF(ITAG(2,I) == IMAX) ITAG(2,I)=IMIN
                ENDDO
             ENDIF
-          ENDIF		  
+          ENDIF      
       ENDDO ! J=1,NEDGE
 C-------------------------------------------------------
 C Arete connectee a 3 polygones (1 interne + 2 externes)
 C-------------------------------------------------------
       DO J=1,NEDGE
-          IF(EDGPOL(J,1) /= 3) CYCLE		  
+          IF(EDGPOL(J,1) /= 3) CYCLE      
           I1=EDGPOL(J,2)
           I2=EDGPOL(J,3)
           IF(ITYP(I2) == 3) CYCLE
@@ -718,11 +720,11 @@ C-------------------------------------------------------
                  IF(ITAG(2,I) == IMAX) ITAG(2,I)=IMIN
                ENDDO
             ENDIF 
-          ENDIF 		  
+          ENDIF       
       ENDDO ! J=1,NEDGE
 C------------------------------------------------
-C Arete connectee a 2 polygones
-C Les 2 polygones appartiennent au meme polyedre
+C Edge connected to two polygons
+C The 2 polygons belong to the same polyedron
 C------------------------------------------------
       DO J=1,NEDGE
           IF(EDGPOL(J,1) > 2) CYCLE
@@ -767,7 +769,7 @@ C
                  IF(ITAG(2,I) == IMAX) ITAG(2,I)=IMIN
               ENDDO
             ENDIF
-          ENDIF			
+          ENDIF
       ENDDO  ! J=1,NEDGE
 C
       DEALLOCATE (EDGPOL)
@@ -781,9 +783,9 @@ C
          DO J=1,NPOLB
             IF (ITAG(1,J) == I .OR. ITAG(2,J) == I) II=II+1
          ENDDO
-         IF (II.NE.0) NPOLH=NPOLH+1
+         IF (II/=0) NPOLH=NPOLH+1
       ENDDO
-      IF (NPOLH.GT.NPOLHMAX) THEN
+      IF (NPOLH>NPOLHMAX) THEN
          INFO=1
          NPOLHMAX=NPOLH
          RETURN
@@ -795,7 +797,7 @@ C
          DO J=1,NPOLB
             IF (ITAG(1,J) == I .OR. ITAG(2,J) == I) II=II+1
          ENDDO
-         IF (II.NE.0) THEN
+         IF (II/=0) THEN
             NPOLH=NPOLH+1
             POLH(1,NPOLH)=II
             POLH(2,NPOLH)=IBRIC
@@ -809,7 +811,7 @@ C
                   IF (ITY == 1) THEN
                      IPOLY(5,JJ)=NPOLH
                   ELSEIF(ITY == 2) THEN
-                    IF (IPOLY(5,JJ).EQ.0) THEN
+                    IF (IPOLY(5,JJ)==0) THEN
                        IPOLY(5,JJ)=NPOLH
                     ELSE
                        IPOLY(6,JJ)=NPOLH
@@ -824,13 +826,13 @@ C
                ENDIF
             ENDDO
 C-------------------------------------------------------
-C Tri de POLH par ordre croissant de numero de polygones
+C Sorting POLH in ascending order of polygon number
 C-------------------------------------------------------
             DO J=1,POLH(1,NPOLH)
                JMIN=J
                PMIN=POLH(2+J,NPOLH)
                DO K=J+1,POLH(1,NPOLH)
-                  IF (POLH(2+K,NPOLH).LT.PMIN) THEN
+                  IF (POLH(2+K,NPOLH)<PMIN) THEN
                      JMIN=K
                      PMIN=POLH(2+K,NPOLH)
                   ENDIF

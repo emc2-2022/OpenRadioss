@@ -1,39 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  H3D_SOL_SKIN_TENSOR           source/output/h3d/h3d_results/h3d_sol_skin_tensor.F
-Chd|-- called by -----------
-Chd|        H3D_SKIN_TENSOR               source/output/h3d/h3d_results/h3d_skin_tensor.F
-Chd|-- calls ---------------
-Chd|        GPSSTRAIN_SKIN                source/output/anim/generate/tensgpstrain.F
-Chd|        H3D_SOL_SKIN_IXSKIN           source/output/h3d/h3d_results/h3d_sol_skin_ixskin.F
-Chd|        SPMD_EXCH_NODAREA2            source/mpi/anim/spmd_exch_nodarea2.F
-Chd|        SPMD_EXCH_NODAREAI            source/mpi/anim/spmd_exch_nodareai.F
-Chd|        TENS3DTO2D                    source/output/h3d/h3d_results/h3d_skin_tensor.F
-Chd|        TENSGPS_SKIN                  source/output/anim/generate/tensor6.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    h3d_sol_skin_tensor    ../engine/source/output/h3d/h3d_results/h3d_sol_skin_tensor.F
+!||--- called by ------------------------------------------------------
+!||    h3d_skin_tensor        ../engine/source/output/h3d/h3d_results/h3d_skin_tensor.F
+!||--- calls      -----------------------------------------------------
+!||    gpsstrain_skin         ../engine/source/output/anim/generate/tensgpstrain.F
+!||    h3d_sol_skin_ixskin    ../engine/source/output/h3d/h3d_results/h3d_sol_skin_ixskin.F
+!||    spmd_exch_nodarea2     ../engine/source/mpi/anim/spmd_exch_nodarea2.F
+!||    spmd_exch_nodareai     ../engine/source/mpi/anim/spmd_exch_nodareai.F
+!||    tens3dto2d             ../engine/source/output/h3d/h3d_results/h3d_skin_tensor.F
+!||    tensgps_skin           ../engine/source/output/anim/generate/tensor6.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod            ../engine/share/resol/initbuf.F
+!||    names_and_titles_mod   ../common_source/modules/names_and_titles_mod.F
+!||====================================================================
       SUBROUTINE H3D_SOL_SKIN_TENSOR(
      .                   ELBUF_TAB,SKIN_TENSOR, IPARG   ,IXS     ,X     ,PM  ,
      4                   IPARTS  ,IPM     ,IGEO    ,IXS10 ,IXS16 , IXS20  ,
@@ -43,29 +46,20 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD    
+      USE ELBUFDEF_MOD
+      USE NAMES_AND_TITLES_MOD, ONLY: NCHARLINE100
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "chara_c.inc"
-#include      "nchara_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "rnur_c.inc"
-#include      "task_c.inc"
-#include      "scr03_c.inc"
-#include      "spmd_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -78,20 +72,20 @@ C     REAL
      .   IGEO(NPROPGI,*),IS_WRITTEN_SKIN(*),
      .   H3D_PART(*),INFO1,NSKIN,TAG_SKINS6(*),IAD_ELEM(2,*),FR_ELEM(*),WEIGHT(*)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
-      CHARACTER*ncharline KEYWORD
+      CHARACTER(LEN=NCHARLINE100):: KEYWORD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C----------------------------------------------- 
       my_real
      .   EVAR(3,MVSIZ)
-      INTEGER I,I1,II,J,LENR,NEL,NFT,N
-      INTEGER IOK_PART(MVSIZ),IS_WRITTEN_TENSOR(MVSIZ),TAG_SKIN_ND(NUMNOD)
+      INTEGER I, II, J, LENR, NEL, NFT, N
+      INTEGER IOK_PART(MVSIZ), TAG_SKIN_ND(NUMNOD)
 
-      INTEGER IXSKIN(7,NUMSKIN),ISKIN(MVSIZ),IXSK(5,MVSIZ),IDEB,ie
-      INTEGER JJ,N1,N2
-      TYPE(G_BUFEL_)  ,POINTER :: GBUF     
-      TYPE(L_BUFEL_)  ,POINTER :: LBUF     
-      TYPE(BUF_LAY_)  ,POINTER :: BUFLY     
+      INTEGER IXSKIN(7, NUMSKIN), IXSK(5, MVSIZ), IDEB
+      INTEGER JJ
+ 
+ 
+ 
       INTEGER, DIMENSION(:), ALLOCATABLE :: ITAGPS    
       my_real
      .       , DIMENSION(:,:), ALLOCATABLE :: AFLU, VFLU,VALUE
@@ -125,9 +119,9 @@ C------TAG_SKIN_ND only the big seg(mid-node of S10 not include)
         END DO
        IOK_PART(1:MVSIZ)=0
        IF (KEYWORD == 'TENS/STRESS/OUTER') THEN
-         CALL TENSGPS_SKIN(ELBUF_TAB,VFLU	 ,AFLU    ,IPARG   ,
-     .  	       IXS	,IXS10   ,IXS16   ,IXS20   ,
-     .  	       X	,ITAGPS  ,PM	  ,TAG_SKIN_ND)
+         CALL TENSGPS_SKIN(ELBUF_TAB,VFLU   ,AFLU    ,IPARG   ,
+     .           IXS  ,IXS10   ,IXS16   ,IXS20   ,
+     .           X  ,ITAGPS  ,PM    ,TAG_SKIN_ND)
 
          IF(NSPMD > 1)THEN
            LENR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
@@ -139,12 +133,12 @@ C------TAG_SKIN_ND only the big seg(mid-node of S10 not include)
          ENDIF
          DO J=1,3
            DO N=1,NUMNOD
-             IF (ITAGPS(N).GT.0) VALUE(J,N)=VFLU(J,N)/ITAGPS(N)
+             IF (ITAGPS(N)>0) VALUE(J,N)=VFLU(J,N)/ITAGPS(N)
            ENDDO
          ENDDO
          DO J=4,6
            DO N=1,NUMNOD
-             IF (ITAGPS(N).GT.0) VALUE(J,N)=AFLU(J-3,N)/ITAGPS(N)
+             IF (ITAGPS(N)>0) VALUE(J,N)=AFLU(J-3,N)/ITAGPS(N)
            ENDDO
          ENDDO
        ELSEIF (KEYWORD == 'TENS/STRAIN/OUTER') THEN
@@ -161,13 +155,13 @@ C------TAG_SKIN_ND only the big seg(mid-node of S10 not include)
          ENDIF
          DO J=1,3
            DO N=1,NUMNOD
-             IF (ITAGPS(N).GT.0) VALUE(J,N)=VFLU(J,N)/ITAGPS(N)
+             IF (ITAGPS(N)>0) VALUE(J,N)=VFLU(J,N)/ITAGPS(N)
            ENDDO
          ENDDO
 C------------change shear to eij         
          DO J=4,6
            DO N=1,NUMNOD
-             IF (ITAGPS(N).GT.0) VALUE(J,N)=HALF*AFLU(J-3,N)/ITAGPS(N)
+             IF (ITAGPS(N)>0) VALUE(J,N)=HALF*AFLU(J-3,N)/ITAGPS(N)
            ENDDO
          ENDDO
        END IF 

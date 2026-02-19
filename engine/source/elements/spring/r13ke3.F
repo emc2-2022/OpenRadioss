@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R13KE3                        source/elements/spring/r13ke3.F
-Chd|-- called by -----------
-Chd|        IMP_GLOB_K                    source/implicit/imp_glob_k.F  
-Chd|        IMP_GLOB_K0                   source/implicit/imp_glob_k.F  
-Chd|-- calls ---------------
-Chd|        ASSEM_P                       source/implicit/assem_p.F     
-Chd|        PEOFF                         source/elements/beam/peoff.F  
-Chd|        PKEG3                         source/elements/beam/pke3.F   
-Chd|        R13MAT3                       source/elements/spring/r13mat3.F
-Chd|        R13SUMG3                      source/elements/spring/r13sumg3.F
-Chd|        R4COORK3                      source/elements/spring/r4coork3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r13ke3         ../engine/source/elements/spring/r13ke3.F
+!||--- called by ------------------------------------------------------
+!||    imp_glob_k     ../engine/source/implicit/imp_glob_k.F
+!||    imp_glob_k0    ../engine/source/implicit/imp_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    assem_p        ../engine/source/implicit/assem_p.F
+!||    peoff          ../engine/source/elements/beam/peoff.F
+!||    pkeg3          ../engine/source/elements/beam/pke3.F
+!||    r13mat3        ../engine/source/elements/spring/r13mat3.F
+!||    r13sumg3       ../engine/source/elements/spring/r13sumg3.F
+!||    r4coork3       ../engine/source/elements/spring/r4coork3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE R13KE3(JFT    ,JLT   ,NEL   ,MTN    ,PM    ,
      1                  GEO    ,IXR   ,X     ,ELBUF_TAB,NPF   ,
      2                  TF  ,SKEW  ,OFFSET,FR_WAVE,IKGEO  ,IGEO,
@@ -44,6 +46,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -82,12 +85,12 @@ C     REAL
      .    R21(MVSIZ),R22(MVSIZ),R23(MVSIZ),
      .    R31(MVSIZ),R32(MVSIZ),R33(MVSIZ)
       INTEGER  PID(MVSIZ),NGL(MVSIZ)
-      INTEGER NB1, NB2, NB3, NB4, NB5, NB6, NB7, NB8, NB9, NB10,
-     .   NB11, NB2A, NB2B, NB4A, NB4B, NB5A, NB5B, NB6A, NB6B, NB7A,
-     .   NB7B, NB8A, NB8B, NB9A, NB9B, NB10A, NB10B, NB11A, NB11B,
-     .   NB12, NB12A, NB12B, NB13, NB13A, NB13B, NB14, NEL3, NEL4,
-     .   NB15, NB15A, NB15B, NB15C, NB15D, NB15E, NB15F, NB16,
-     .   NB8C, NB8D,OFFSET3,OFFSET4,NBFI,IGTYP,I0,I,II(3)
+      INTEGER         
+     .            
+     .       
+     .           
+     .          
+     .    I,II(3)
 C
       TYPE(G_BUFEL_)  ,POINTER :: GBUF
 C-----------------------------------------------
@@ -109,12 +112,12 @@ c      OFFSET3 = 3 * OFFSET
 c      OFFSET4 = 4 * OFFSET
 C
 C=======================================================================
-C      IF(IGTYP.EQ.13)THEN
+C      IF(IGTYP==13)THEN
 C=======================================================================
 c       NB3 =NB2  + NEL3
 c       NB4 =NB3  + NEL
 c       NB5 =NB4  + NEL3
-c       IF (SCODVER.LT.101) THEN
+c       IF (SCODVER<101) THEN
 c         NB6 =NB5  + NEL3
 c       ELSE
 c         NB6 =NB5  + 2*NEL3
@@ -127,7 +130,7 @@ c       NB11=NB10 + NEL3
 c       NB12=NB11 + NEL3
 c       NB13=NB12 + NEL3
 c       NB14=NB13 + NEL3
-c       IF (SCODVER.LT.101) THEN
+c       IF (SCODVER<101) THEN
 c         NB15 = NB14 + NEL3
 c       ELSE
 c         NB15 = NB14 + 2*NEL3
@@ -224,18 +227,18 @@ C    RLOC           -> NB14
      6             GBUF%POSX,GBUF%POSY,GBUF%POSZ,GBUF%POSXX,GBUF%POSYY,
      7             GBUF%POSZZ,IGEO  )
 C-------------------------
-C     MATRICE de RIGIDITE
+C     STIFFNESS MATRIX
 C-------------------------
       CALL R13SUMG3(JFT    ,JLT    ,AL      ,KX      ,KY     ,
      2              KZ     ,MX     ,MY      ,MZ      ,R11    ,
      3              R12    ,R13    ,R21     ,R22     ,R23    ,
      4              R31    ,R32    ,R33     ,KE11    ,KE12   ,
      5              KE22   )
-      IF (IKGEO.EQ.1) CALL PKEG3(JFT    ,JLT    ,
+      IF (IKGEO==1) CALL PKEG3(JFT    ,JLT    ,
      1                GBUF%FOR(II(1))  ,AL      ,KE11    ,KE12    ,KE22   )
 
 
-              IF (NEIG.GT.0) CALL PEOFF(
+              IF (NEIG>0) CALL PEOFF(
      1                   NIXR, JFT, JLT, IXR, ETAG,
      2                   OFF )
               CALL ASSEM_P(NIXR,6   ,

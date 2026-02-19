@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS66                      source/materials/mat/mat066/sigeps66.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps66   ../engine/source/materials/mat/mat066/sigeps66.F
+!||--- called by ------------------------------------------------------
+!||    mulaw      ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    finter     ../engine/source/tools/curve/finter.F
+!||    finter2    ../engine/source/tools/curve/vinter.F
+!||    vinter     ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS66(
      1     NEL    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC   ,
      2     NPF    ,TF     ,TIME    ,TIMESTEP,UPARAM  ,
@@ -46,12 +47,7 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr17_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
-#include      "com08_c.inc"
-#include      "units_c.inc"
 #include      "impl1_c.inc"
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
@@ -92,7 +88,7 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -141,20 +137,21 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,J1,J2,IYLDC,IYLDT,IRATE,NCC,NCT,NFUNC,VP,IADBUF
+      INTEGER I,J,J1,J2,IRATE,NCC,NCT,NFUNC,VP,IADBUF
       INTEGER IPOS1(NEL),IAD1(NEL), ILEN1(NEL),
      .   IPOS2(NEL),IAD2(NEL), ILEN2(NEL),IFUNC(MFUNC),
      .   JJC(NEL),JJT(NEL)
-      my_real E,C1,G,G2,G3,NU,CP,PC,PT,EPSP0,
+      my_real ET, EC, C1T, GT,NU, CP, PC,PT,RPCT,EPSP0,
      .        DAV,DPLA,FAC,EPD,VM,
-     .        R,FISOKIN,YRATE,HKIN ,ALPHA,SIGPXX,SIGPYY,
+     .        R,FISOKIN,YRATE,HKIN ,SIGPXX,SIGPYY,
      .        SIGPZZ,SIGPXY,SIGPYZ,SIGPZX,DSXX,DSYY,DSZZ,
-     .        DSXY,DSYZ,DSZX,DF,SIGY,DTINV
-      my_real YC(NEL),YT(NEL),H(NEL),DYDX2(NEL),DPLA1(NEL),
-     .        DYDX1(NEL),P0(NEL),P(NEL),YFAC(MFUNC),
-     .        HC(NEL),HT(NEL),Y1(NEL),Y2(NEL),
-     .        RATE(NEL),SIGEXX(NEL),SIGEYY(NEL),SIGEZZ(NEL),
-     .        SIGEXY(NEL),SIGEYZ(NEL),SIGEZX(NEL),RATE0(MFUNC)
+     .        DSXY,DSYZ,DSZX,DF,SIGY,DTINV 
+      my_real ,DIMENSION(MFUNC)::     YFAC,RATE0
+      my_real ,DIMENSION(NEL)  :: 
+     .        YC ,YT ,H ,DYDX2 ,DYDX1 ,DPLA1 ,
+     .        P0 ,P  ,HC    ,HT ,RATE ,ALPHA,
+     .        Y1   ,Y2  ,E ,C1    ,G  , G2 ,G3,
+     .        SIGEXX ,SIGEYY ,SIGEZZ ,SIGEXY ,SIGEYZ ,SIGEZX      
 C======================================================================= 
 C     USER VARIABLES INITIALIZATION
 C-----------------------------------------------
@@ -165,20 +162,18 @@ C-----------------------------------------------
 C       
       IADBUF = IPM(7,MAT(1))       
       IRATE  = NINT(UPARAM(IADBUF ))   
-      E   = UPARAM(IADBUF +1)                         
-      G   = UPARAM(IADBUF +4)        
-      NU  = UPARAM(IADBUF +5)                 
-      PC  = UPARAM(IADBUF +6)                         
-      PT = UPARAM(IADBUF +7)                     
+      ET    = UPARAM(IADBUF +1)                         
+      GT    = UPARAM(IADBUF +4)  
+
+      NU    = UPARAM(IADBUF +5)                 
+      PC    = UPARAM(IADBUF +6)                         
+      PT    = UPARAM(IADBUF +7)                     
       EPSP0 = UPARAM(IADBUF +8)                      
-      CP= UPARAM(IADBUF +9) 
-      NCC = NINT(UPARAM(IADBUF + 10))
-      NCT = NINT(UPARAM(IADBUF + 11))
-      FISOKIN = UPARAM(IADBUF +12)  
+      CP    = UPARAM(IADBUF +9) 
+      NCC   = NINT(UPARAM(IADBUF + 10))
+      NCT   = NINT(UPARAM(IADBUF + 11))
+      FISOKIN = UPARAM(IADBUF + 12)  
 C                                              
-      G2  = TWO*G                            
-      G3  = THREE*G                          
-      C1  = E/THREE/(ONE - TWO*NU)
 C      
       NFUNC = IPM(10,MAT(1))
       DO I=1,NFUNC
@@ -187,11 +182,13 @@ C
         RATE0(I) = UPARAM(IADBUF + 12 + NFUNC + I )
       ENDDO
 C    
-      SIGY = UPARAM(IADBUF +13 + 2*MFUNC) 
-      VP   = NINT(UPARAM(IADBUF +14 + 2*MFUNC))
+      SIGY = UPARAM(IADBUF + 13 + 2*MFUNC) 
+      VP   = NINT(UPARAM(IADBUF + 14 + 2*MFUNC))
+      EC   = UPARAM(IADBUF + 15 + 2*MFUNC)
+      RPCT = UPARAM(IADBUF + 16 + 2*MFUNC)
 C
-      IF (ISIGI.EQ.0) THEN
-        IF(TIME.EQ.ZERO)THEN
+      IF (ISIGI==0) THEN
+        IF(TIME==ZERO)THEN
           DO I=1,NEL
             UVAR(I,1)=ZERO
             UVAR(I,2)=ZERO
@@ -206,6 +203,36 @@ C
           ENDDO
         ENDIF
       ENDIF
+c------------------------------------------------
+c------------------------------------------------   
+      E(1:NEL) = ET   
+      G(1:NEL) = GT   
+      C1T = ET/THREE/(ONE - TWO*NU)
+      IF(EC > ZERO)THEN
+        DO I=1,NEL  
+c         P(I) = C1 * (RHO(I)/RHO0(I)- ONE)
+          P(I) = C1T * AMU(I)
+          C1T  = MAX(C1T,EC/THREE/(ONE - TWO*NU))
+          IF(PC == ZERO .and. PT == ZERO .AND. ABS(P(I)) < EM10) THEN
+            E(I)   = EC
+          ELSEIF(P(I) <=  - RPCT * PT) THEN
+            E(I)   = ET
+          ELSEIF(P(I) >= RPCT *PC) THEN
+            E(I)   = EC
+          ELSE
+            FAC =  RPCT *(PC + PT)
+            FAC = (RPCT * PC - P(I))/FAC
+            E(I) = FAC*ET + (ONE -FAC)*EC
+          ENDIF  
+        ENDDO
+      ENDIF
+      DO I=1,NEL  
+        G(I)   = HALF*E(I)/( ONE + NU)
+        G2(I)  = TWO*G(I)                            
+        G3(I)  = THREE*G(I)                         
+        C1(I)  = E(I)/THREE/(ONE - TWO*NU)
+      ENDDO
+
 C------------------------------------------
 C     estiamte stresse CINE
 C------------------------------------------ 
@@ -220,19 +247,18 @@ C------------------------------------------
         ENDDO
       ENDIF 
 C       
-      DO I=1,NEL
-        
+      DO I=1,NEL        
         PLA(I) = UVAR(I,1)
-        P0(I) = -(SIGOXX(I)+SIGOYY(I)+SIGOZZ(I))*THIRD
-        DAV = (DEPSXX(I)+DEPSYY(I)+DEPSZZ(I))*THIRD
-        SIGNXX(I)=SIGOXX(I) + P0(I) + G2*(DEPSXX(I)-DAV)
-        SIGNYY(I)=SIGOYY(I) + P0(I) + G2*(DEPSYY(I)-DAV)
-        SIGNZZ(I)=SIGOZZ(I) + P0(I) + G2*(DEPSZZ(I)-DAV)
-        SIGNXY(I)=SIGOXY(I) + G *DEPSXY(I)
-        SIGNYZ(I)=SIGOYZ(I) + G *DEPSYZ(I)
-        SIGNZX(I)=SIGOZX(I) + G *DEPSZX(I)
+        P0(I)  = -(SIGOXX(I)+SIGOYY(I)+SIGOZZ(I))*THIRD
+        DAV    = (DEPSXX(I)+DEPSYY(I)+DEPSZZ(I))*THIRD
+        SIGNXX(I)=SIGOXX(I) + P0(I) + G2(I)*(DEPSXX(I)-DAV)
+        SIGNYY(I)=SIGOYY(I) + P0(I) + G2(I)*(DEPSYY(I)-DAV)
+        SIGNZZ(I)=SIGOZZ(I) + P0(I) + G2(I)*(DEPSZZ(I)-DAV)
+        SIGNXY(I)=SIGOXY(I) + G(I) *DEPSXY(I)
+        SIGNYZ(I)=SIGOYZ(I) + G(I) *DEPSYZ(I)
+        SIGNZX(I)=SIGOZX(I) + G(I) *DEPSZX(I)
 C
-        SOUNDSP(I) = SQRT((C1+FOUR*G/THREE)/RHO0(I))
+        SOUNDSP(I) = SQRT((C1T + FOUR*G(I)/THREE)/RHO0(I))
         VISCMAX(I) = ZERO 
 C         
         SIGEXX(I) = SIGNXX(I)
@@ -297,7 +323,7 @@ C              ECROUISSAGE CINEMATIQUE
                YT(I) = (ONE - FISOKIN) * YT(I) + FISOKIN * Y2(I)
             ENDDO
         ENDIF
-      ELSE   ! IRATE =4 => multiples curves (tracation & compression)
+      ELSE   ! Irate = 4 => multiple curves (traction and compression)
 C----------------------------------------------------------------------
 C       compression
 C------------------------------------------------------------------------ 
@@ -323,8 +349,8 @@ C
           UVAR(I,7+J1) = IPOS1(I)                                  
           UVAR(I,7+J2) = IPOS2(I)                                  
         END DO                                                     
-         CALL VINTER(TF,IAD1,IPOS1,ILEN1,NEL,PLA,DYDX1,Y1)         
-         CALL VINTER(TF,IAD2,IPOS2,ILEN2,NEL,PLA,DYDX2,Y2)         
+        CALL VINTER(TF,IAD1,IPOS1,ILEN1,NEL,PLA,DYDX1,Y1)         
+        CALL VINTER(TF,IAD2,IPOS2,ILEN2,NEL,PLA,DYDX2,Y2)         
 C                                                                  
         IF (FISOKIN == ZERO) THEN                                 
           DO I=1,NEL                                                
@@ -464,8 +490,11 @@ c traction
 C interpolation entre (tracation & compression
          DO I=1,NEL  
 c          P(I) = C1 * (RHO(I)/RHO0(I)- ONE)
-          P(I) = C1 * AMU(I)
-          IF(P(I) <=  -PT) THEN
+          P(I) = C1(I) * AMU(I)
+          IF(PC == ZERO .AND. PT == ZERO .AND. ABS(P(I)) < EM10) THEN
+            YLD(I) = MAX(YC(I), EM20)
+            H(I)   = HC(I)
+          ELSEIF(P(I) <=  -PT) THEN
             YLD(I) = MAX(YT(I),EM20)
             H(I)   = HT(I)
           ELSEIF(P(I) >= PC) THEN
@@ -506,7 +535,7 @@ C 1 + cp*ln(epep/epsp0)
 C-------------------
 C     PROJECTION
 C-------------------
-      IF(IPLA.EQ.0)THEN
+      IF(IPLA==0)THEN
 C
         IF(VP > 0 ) THEN
           DTINV = TIMESTEP/MAX(EM20, TIMESTEP**2)
@@ -515,7 +544,7 @@ C
      1            +SIGNXY(I)**2+SIGNYZ(I)**2+SIGNZX(I)**2
             VM =SQRT(THREE*VM)
             R = MIN(ONE,YLD(I)/ MAX(VM,EM20))
-            EPD = (ONE - R)*VM/MAX(G3+H(I),EM20)
+            EPD = (ONE - R)*VM/MAX(G3(I)+H(I),EM20)
             EPD = EPD*DTINV
             EPD = MAX(EM20,EPD/EPSP0)
             YRATE  = ONE + EXP(CP*LOG(EPD))
@@ -539,11 +568,11 @@ C
         SIGNXY(I)=SIGNXY(I)*R
         SIGNYZ(I)=SIGNYZ(I)*R
         SIGNZX(I)=SIGNZX(I)*R
-        PLA(I)=PLA(I) + (ONE - R)*VM/MAX(G3 + H(I),EM20)
+        PLA(I)=PLA(I) + (ONE - R)*VM/MAX(G3(I) + H(I),EM20)
         UVAR(I,1)=PLA(I)
-        DPLA1(I) = (ONE - R)*VM/MAX(G3+H(I),EM20)         
+        DPLA1(I) = (ONE - R)*VM/MAX(G3(I)+H(I),EM20)         
        ENDDO
-      ELSEIF(IPLA.EQ.2)THEN
+      ELSEIF(IPLA==2)THEN
 C
          IF(VP > 0 ) THEN
           DTINV = TIMESTEP/MAX(EM20, TIMESTEP**2)
@@ -552,7 +581,7 @@ C
      1          +SIGNXY(I)**2+SIGNYZ(I)**2+SIGNZX(I)**2
             VM =SQRT(THREE*VM)
             R = MIN(ONE,YLD(I)/ MAX(VM,EM20))
-            EPD =  (ONE-R)*VM/MAX(G3,EM20)
+            EPD =  (ONE-R)*VM/MAX(G3(I),EM20)
             EPD = EPD*DTINV
             EPD = MAX(EM20,EPD/EPSP0)
             YRATE  = ONE + EXP(CP*LOG(EPD))
@@ -575,9 +604,9 @@ C
         SIGNXY(I)=SIGNXY(I)*R
         SIGNYZ(I)=SIGNYZ(I)*R
         SIGNZX(I)=SIGNZX(I)*R
-        PLA(I)=PLA(I) + (ONE-R)*VM/MAX(G3,EM20)
+        PLA(I)=PLA(I) + (ONE-R)*VM/MAX(G3(I),EM20)
         UVAR(I,1)=PLA(I)
-        DPLA1(I) =  (ONE-R)*VM/MAX(G3,EM20)       
+        DPLA1(I) =  (ONE-R)*VM/MAX(G3(I),EM20)       
        ENDDO
       ELSEIF (IPLA == 1) THEN
 CC Viscoplatic        
@@ -589,7 +618,7 @@ CC Viscoplatic
             VM = SQRT(THREE*VM)
             R  = MIN(ONE,YLD(I)/ MAX(VM,EM20))
 C 
-            EPD = (ONE - R)*VM/MAX(G3+H(I),EM20) 
+            EPD = (ONE - R)*VM/MAX(G3(I)+H(I),EM20) 
             EPD = EPD*DTINV
             EPD = MAX(EM20,EPD/EPSP0)
             YRATE  = ONE + EXP(CP*LOG(EPD))
@@ -609,8 +638,8 @@ C
             VM = SQRT(VM)
             R  = YLD(I) / VM
 c           plastic strain increment
-            DPLA = (ONE - R)*VM / MAX(G3+H(I),EM20) 
-c           actualized yeld stress with kinematic hardening
+            DPLA = (ONE - R)*VM / MAX(G3(I)+H(I),EM20) 
+c           actualized yield stress with kinematic hardening
             YLD(I) = MAX(YLD(I) + (ONE-FISOKIN)*DPLA*H(I), ZERO)
             R = MIN(ONE, YLD(I) / VM)
 C
@@ -648,13 +677,13 @@ C
           DSZX = SIGEZX(I) - SIGNZX(I)
 CC         
           HKIN = TWO_THIRD*FISOKIN*H(I)
-          ALPHA = HKIN/(G2+HKIN)  
-          SIGPXX = ALPHA*DSXX 
-          SIGPYY = ALPHA*DSYY
-          SIGPZZ = ALPHA*DSZZ 
-          SIGPXY = ALPHA*DSXY
-          SIGPYZ = ALPHA*DSYZ
-          SIGPZX = ALPHA*DSZX
+          ALPHA(I) = HKIN/(G2(I)+HKIN)  
+          SIGPXX = ALPHA(I)*DSXX 
+          SIGPYY = ALPHA(I)*DSYY
+          SIGPZZ = ALPHA(I)*DSZZ 
+          SIGPXY = ALPHA(I)*DSXY
+          SIGPYZ = ALPHA(I)*DSYZ
+          SIGPZX = ALPHA(I)*DSZX
 C         
           UVAR(I,  2) = UVAR(I,  2) + SIGPXX 
           UVAR(I,  3) = UVAR(I,  3) + SIGPYY
@@ -674,7 +703,7 @@ C
 C   
       IF (IMPL_S > ZERO) THEN
        DO I=1,NEL
-         IF(DPLA1(I) > ZERO) ETSE(I)= H(I)/G2
+         IF(DPLA1(I) > ZERO) ETSE(I)= H(I)/G2(I)
        ENDDO
       ENDIF
 C-----------       

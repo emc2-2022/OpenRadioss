@@ -1,37 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 #define TO1D(i,j,k,s1,s2) i+(j-1)*s1+(k-1)*s1*s2
-Chd|====================================================================
-Chd|  SPMD_I25FRONT_INIT            source/mpi/interfaces/spmd_i25front.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        I25FREE_BOUND                 source/interfaces/int25/i25free_bound.F
-Chd|        SPMD_COMM_SPLIT               source/mpi/generic/spmd_comm_split.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_i25front_init    ../engine/source/mpi/interfaces/spmd_i25front.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    i25free_bound         ../engine/source/interfaces/int25/i25free_bound.F
+!||    spmd_comm_split       ../engine/source/mpi/generic/spmd_comm_split.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod         ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_I25FRONT_INIT(ITAB,MAIN_PROC,INTBUF_TAB,IPARI)
 C============================================================================
 C   M o d u l e s
@@ -42,30 +44,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-C #include      "scr04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr18_c.inc"
-#include      "warn_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "spmd_c.inc"
-#include      "impl1_c.inc"
 #include      "assert.inc"
 #include      "macro.inc"
 C-----------------------------------------------
@@ -74,16 +65,15 @@ C-----------------------------------------------
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
       INTEGER, INTENT(IN) :: ITAB(NUMNOD),MAIN_PROC(NUMNOD)
       INTEGER, INTENT(IN) :: IPARI(NPARI,NINTER)
-C     INTEGER, INTENT(IN) :: IRECVFROM(NINTER+1,*),ISENDTO(NINTER+1,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       TYPE(int_pointer), DIMENSION(NINTER,NSPMD) :: SEND_BUF,RECV_BUF
       INTEGER, DIMENSION(NINTER,NSPMD) :: SIZ_SEND_BUF,SIZ_RECV_BUF
-      INTEGER :: I,J,K,L,II,NIN,ITY,P,UID
+      INTEGER :: I,K,L,II,NIN,ITY,P,UID
       INTEGER :: IERROR
       INTEGER :: COLOR,KEY,NEDGE
-      INTEGER :: IED,IE,JE,WGT,NRTM,NSN
+      INTEGER :: IED,IE,NRTM,NSN
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: TAB
 #ifdef MPI
       INTEGER :: STATUS(MPI_STATUS_SIZE), MSGTYP, REQ_S(NSPMD),REQ_R(NSPMD)
@@ -94,6 +84,8 @@ C-----------------------------------------------
       NINTER25E = 0
       DO NIN = 1,NINTER
         INTBUF_TAB(NIN)%MPI_COMM = MPI_COMM_NULL
+        INTBUF_TAB(NIN)%RANK = -1
+        INTBUF_TAB(NIN)%NSPMD = 0
         INTBUF_TAB(NIN)%NB_INTERNAL_EDGES = 0
         INTBUF_TAB(NIN)%NB_BOUNDARY_EDGES_LOCAL = 0
         INTBUF_TAB(NIN)%NB_BOUNDARY_EDGES_REMOTE = 0
@@ -114,7 +106,6 @@ C Split communicator
 
             KEY = ISPMD
             COLOR = 0 
-C           IF(IRECVFROM(NIN,ISPMD+1) > 0 .OR. ISENDTO(NIN,ISPMD+1) > 0) THEN
             NSN = IPARI(MACRO_NSN,NIN)
             NEDGE = IPARI(MACRO_NEDGE,NIN)
             IF(IPARI(MACRO_IEDGE,NIN) > 0) NINTER25E = NINTER25E + 1
@@ -133,19 +124,14 @@ C           IF(IRECVFROM(NIN,ISPMD+1) > 0 .OR. ISENDTO(NIN,ISPMD+1) > 0) THEN
               IED = COUNT(TAB(1:NEDGE,1) >= 0 .AND. TAB(1:NEDGE,2) >= 0)              
               INTBUF_TAB(NIN)%NB_INTERNAL_EDGES = IED
 
-C             WRITE(6,*) "Internal edges:", INTBUF_TAB(NIN)%NB_INTERNAL_EDGES
 
               IED = COUNT(.NOT. (TAB(1:NEDGE,1) >= 0 .AND. TAB(1:NEDGE,2) >= 0)
      .           .AND. TAB(1:NEDGE,3) == 1)    
               INTBUF_TAB(NIN)%NB_BOUNDARY_EDGES_LOCAL = IED 
 
-C             WRITE(6,*) "local boundary edges:", INTBUF_TAB(NIN)%NB_BOUNDARY_EDGES_LOCAL
-
               INTBUF_TAB(NIN)%NB_BOUNDARY_EDGES_REMOTE = NEDGE 
      .               - INTBUF_TAB(NIN)%NB_BOUNDARY_EDGES_LOCAL 
      .               - INTBUF_TAB(NIN)%NB_INTERNAL_EDGES
-C             WRITE(6,*) "remote boundary edges:", INTBUF_TAB(NIN)%NB_BOUNDARY_EDGES_REMOTE
-
 
               DEALLOCATE(TAB)
             ENDIF
@@ -165,7 +151,7 @@ C     sizes of send buffers
       DO NIN = 1,NINTER
         ITY = IPARI(MACRO_ITY,NIN)
         NSN = IPARI(MACRO_NSN,NIN)
-        IF( ITY==25) THEN
+        IF( ITY == 25) THEN
           DO I = 1,NSN
             P = MAIN_PROC(INTBUF_TAB(NIN)%NSV(I))
             SIZ_SEND_BUF(NIN,P) = SIZ_SEND_BUF(NIN,P) + 1
@@ -175,13 +161,13 @@ C     sizes of send buffers
 
       CALL MPI_ALLTOALL(SIZ_SEND_BUF, NINTER, MPI_INTEGER,
      .                  SIZ_RECV_BUF, NINTER, MPI_INTEGER,
-     .                  MPI_COMM_WORLD,IERROR)
+     .                  SPMD_COMM_WORLD,IERROR)
 
 C     allocation of buffers
       DO NIN = 1,NINTER
         ITY=IPARI(MACRO_ITY,NIN)
         NSN = IPARI(MACRO_NSN,NIN)
-        IF( ITY==25 ) THEN
+        IF( ITY == 25 ) THEN
           DO P=1,NSPMD
 c           WRITE(6,*) ISPMD+1,P, SIZ_SEND_BUF(NIN,P),SIZ_RECV_BUF(NIN,P)
             ALLOCATE(SEND_BUF(NIN,P)%P(SIZ_SEND_BUF(NIN,P))) 
@@ -195,7 +181,7 @@ C     sizes of send buffers
       DO NIN = 1,NINTER
         ITY=IPARI(MACRO_ITY,NIN)
         NSN = IPARI(MACRO_NSN,NIN)
-        IF( ITY==25) THEN
+        IF( ITY == 25) THEN
           DO I = 1,NSN
             P = MAIN_PROC(INTBUF_TAB(NIN)%NSV(I))
             SIZ_SEND_BUF(NIN,P) = SIZ_SEND_BUF(NIN,P) + 1
@@ -212,28 +198,28 @@ C     sizes of send buffers
       MSGTYP = 1000
       DO NIN = 1, NINTER
         DO P = 1, NSPMD
-          IF(P .NE. ISPMD + 1 .AND. SIZ_SEND_BUF(NIN,P) > 0) THEN
+          IF(P /= ISPMD + 1 .AND. SIZ_SEND_BUF(NIN,P) > 0) THEN
              K = SIZ_SEND_BUF(NIN,P)
 c            WRITE(6,*) "SEND ->",P,SEND_BUF(NIN,P)%P(1:k)
              CALL MPI_ISEND(
      .       SEND_BUF(NIN,P)%P(1),K,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .       MPI_COMM_WORLD,REQ_S(P),IERROR)
+     .       SPMD_COMM_WORLD,REQ_S(P),IERROR)
           ENDIF
-          IF(P .NE. ISPMD + 1 .AND. SIZ_RECV_BUF(NIN,P) > 0) THEN
+          IF(P /= ISPMD + 1 .AND. SIZ_RECV_BUF(NIN,P) > 0) THEN
              K = SIZ_RECV_BUF(NIN,P)
              CALL MPI_IRECV(
      .       RECV_BUF(NIN,P)%P(1),K,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .       MPI_COMM_WORLD,REQ_R(P),IERROR)
+     .       SPMD_COMM_WORLD,REQ_R(P),IERROR)
           ENDIF
         ENDDO
 c       CALL FLUSH(6)
-c       CALL MPI_BARRIER(MPI_COMM_WORLD,IERR)
+c       CALL MPI_BARRIER(SPMD_COMM_WORLD,IERR)
       
         DO P = 1,NSPMD
-          IF(P .NE. ISPMD + 1 .AND. SIZ_SEND_BUF(NIN,P) > 0) THEN
+          IF(P /= ISPMD + 1 .AND. SIZ_SEND_BUF(NIN,P) > 0) THEN
              CALL MPI_WAIT(REQ_S(P),STATUS,IERROR)
           ENDIF
-          IF(P .NE. ISPMD + 1 .AND. SIZ_RECV_BUF(NIN,P) > 0) THEN
+          IF(P /= ISPMD + 1 .AND. SIZ_RECV_BUF(NIN,P) > 0) THEN
              CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
           ENDIF
         ENDDO
@@ -241,13 +227,13 @@ C ----------------------------------------------------------------
 C                     RESOLVE UID to LOCAL NODE
         DO P = 1, NSPMD
 c         WRITE(6,*) __FILE__,__LINE__, P,SIZ_RECV_BUF(NIN,P) 
-          IF(P .NE. ISPMD +1) THEN
+          IF(P /= ISPMD +1) THEN
             DO L = 1, SIZ_RECV_BUF(NIN,P)
               K = 1
               UID = RECV_BUF(NIN,P)%P(L)
 c             WRITE(6,*) "looking for UID",UID
               NSN = IPARI(MACRO_NSN,NIN)
-              DO WHILE (K<NSN .AND. UID .NE. ITAB(INTBUF_TAB(NIN)%NSV(K)))
+              DO WHILE (K<NSN .AND. UID /= ITAB(INTBUF_TAB(NIN)%NSV(K)))
                 K = K + 1 
               ENDDO  
               IF(ITAB(INTBUF_TAB(NIN)%NSV(K))==UID) THEN
@@ -261,24 +247,24 @@ c                WRITE(6,*) "found at ",K
         ENDDO
 
         DO P = 1, NSPMD
-          IF(P .NE. ISPMD + 1 .AND. SIZ_RECV_BUF(NIN,P) > 0) THEN
+          IF(P /= ISPMD + 1 .AND. SIZ_RECV_BUF(NIN,P) > 0) THEN
              K = SIZ_RECV_BUF(NIN,P)
              CALL MPI_ISEND(
      .       RECV_BUF(NIN,P)%P(1),K,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .       MPI_COMM_WORLD,REQ_S(P),IERROR)
+     .       SPMD_COMM_WORLD,REQ_S(P),IERROR)
           ENDIF
-          IF(P .NE. ISPMD + 1 .AND. SIZ_SEND_BUF(NIN,P) > 0) THEN
+          IF(P /= ISPMD + 1 .AND. SIZ_SEND_BUF(NIN,P) > 0) THEN
              K = SIZ_SEND_BUF(NIN,P)
              CALL MPI_IRECV(
      .       SEND_BUF(NIN,P)%P(1),K,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .       MPI_COMM_WORLD,REQ_R(P),IERROR)
+     .       SPMD_COMM_WORLD,REQ_R(P),IERROR)
           ENDIF
         ENDDO
         DO P = 1,NSPMD
-          IF(P .NE. ISPMD + 1 .AND. SIZ_RECV_BUF(NIN,P) > 0) THEN
+          IF(P /= ISPMD + 1 .AND. SIZ_RECV_BUF(NIN,P) > 0) THEN
              CALL MPI_WAIT(REQ_S(P),STATUS,IERROR)
           ENDIF
-          IF(P .NE. ISPMD + 1 .AND. SIZ_SEND_BUF(NIN,P) > 0) THEN
+          IF(P /= ISPMD + 1 .AND. SIZ_SEND_BUF(NIN,P) > 0) THEN
              CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
           ENDIF
         ENDDO
@@ -289,7 +275,7 @@ c                WRITE(6,*) "found at ",K
       DO NIN = 1,NINTER
         ITY=IPARI(MACRO_ITY,NIN)
         NSN = IPARI(MACRO_NSN,NIN)
-        IF( ITY==25) THEN
+        IF( ITY == 25) THEN
           ALLOCATE(INTBUF_TAB(NIN)%NSV_ON_PMAIN(NSN))
           DO I = 1, NSN
             P = MAIN_PROC(INTBUF_TAB(NIN)%NSV(I))
@@ -297,22 +283,36 @@ c                WRITE(6,*) "found at ",K
             II = SIZ_SEND_BUF(NIN,P) 
             INTBUF_TAB(NIN)%NSV_ON_PMAIN(I) = SEND_BUF(NIN,P)%P(II) 
            ENDDO
+
+        ENDIF
+      ENDDO
+
+      DO NIN = 1,NINTER
+        ITY=IPARI(MACRO_ITY,NIN)
+        NSN = IPARI(MACRO_NSN,NIN)
+        IF( ITY == 25 ) THEN
+          DO P=1,NSPMD
+            DEALLOCATE(SEND_BUF(NIN,P)%P)
+            DEALLOCATE(RECV_BUF(NIN,P)%P)
+          ENDDO
         ENDIF
       ENDDO
 #endif
       RETURN
       END
-Chd|====================================================================
-Chd|  SPMD_I25FRONT_NOR             source/mpi/interfaces/spmd_i25front.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MPI_COMMOD                    share/modules/mpi_comm_mod.F  
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_i25front_nor     ../engine/source/mpi/interfaces/spmd_i25front.F
+!||--- called by ------------------------------------------------------
+!||    inttri                ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod         ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    mpi_commod            ../engine/share/modules/mpi_comm_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri25ebox             ../engine/share/modules/tri25ebox.F
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_I25FRONT_NOR(IPARI,
      . INTBUF_TAB,
      . INTLIST25,
@@ -337,30 +337,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "macro.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "scr18_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
-#include      "spmd_c.inc"
-#include      "units_c.inc"
 #include      "i25edge_c.inc"
-#include      "assert.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -386,7 +376,7 @@ C-----------------------------------------------
       INTEGER :: IM,M1,M2
       INTEGER :: NEDGE_LOCAL
       INTEGER :: IGLOB,IBEGIN
-      INTEGER :: N1,N2,N3,N4,NN1,NN2,PP
+      INTEGER :: N1,N2,N3,N4,NN1,NN2,PP,TYPEDG
       INTEGER :: NRTM
       REAL *4 :: SP
 #ifdef WITH_ASSERT
@@ -454,7 +444,7 @@ C           CALL FLUSH(6)
      .          MPI_REAL4,
      .          IT_SPMD(P),
      .          MSGTYP,
-     .          MPI_COMM_WORLD,
+     .          SPMD_COMM_WORLD,
      .          BUFFERS(NI25)%RECV_RQ(P),
      .          IERROR)
             ENDIF
@@ -485,12 +475,17 @@ C             ASSERT(IED <= NEDGE)
               M2 = INTBUF_TAB(N)%LEDGE(6+(IED-1)*NLEDGE)
               IM = INTBUF_TAB(N)%LEDGE(10+(IED-1)*NLEDGE)
 C             ASSERT( (IM == 1 .OR. IM == -1) )
-
-              NN1 = INTBUF_TAB(N)%ADMSR(JE+(IE-1)*4)
-              NN2 = INTBUF_TAB(N)%ADMSR(MOD(JE,4)+1+(IE-1)*4)
+              TYPEDG = INTBUF_TAB(N)%LEDGE((IED-1)*NLEDGE+7)
+              IF(TYPEDG == 1 .AND. IE > 0) THEN 
+                 NN1 = INTBUF_TAB(N)%ADMSR(JE+(IE-1)*4)
+                 NN2 = INTBUF_TAB(N)%ADMSR(MOD(JE,4)+1+(IE-1)*4)
+              ELSE
+                 NN1 = 0
+                 NN2 = 0
+              ENDIF
 
 C C====================================================
-C               IF( IM .NE. 1 .AND. IM .NE. -1) THEN
+C               IF( IM /= 1 .AND. IM /= -1) THEN
 C                 WRITE(6,*) "IM=",IM 
 C                 CALL FLUSH(6)
 C                 ASSERT(.FALSE.)
@@ -525,7 +520,7 @@ C               ELSE
 C                 WRITE(6,*) "IM=",IM 
 C                 CALL FLUSH(6)
 C                 ASSERT(.FALSE.)
-C C               STOP
+C c'estop
 C               END IF
 C C====================================================
 
@@ -701,7 +696,9 @@ C             WRITE(6,*) "Out:",INTBUF_TAB(N)%LEDGE((IED-1)*NLEDGE+8),L
 #endif
               ENDIF
 
-C Send Normal of nodes of second edge : 
+C Send Normal of nodes of second edge : edge solid
+
+              IF(TYPEDG == 1 .AND. NN1 > 0) THEN 
 
                 BUFFERS(NI25)%SEND_BUF(L+PP+1)  = INTBUF_TAB(N)%E2S_NOD_NORMAL(3*(NN1-1)+1)
                 BUFFERS(NI25)%SEND_BUF(L+PP+2)  = INTBUF_TAB(N)%E2S_NOD_NORMAL(3*(NN1-1)+2)
@@ -710,6 +707,15 @@ C Send Normal of nodes of second edge :
                 BUFFERS(NI25)%SEND_BUF(L+PP+4)  = INTBUF_TAB(N)%E2S_NOD_NORMAL(3*(NN2-1)+1)
                 BUFFERS(NI25)%SEND_BUF(L+PP+5)  = INTBUF_TAB(N)%E2S_NOD_NORMAL(3*(NN2-1)+2)
                 BUFFERS(NI25)%SEND_BUF(L+PP+6)  = INTBUF_TAB(N)%E2S_NOD_NORMAL(3*(NN2-1)+3)
+              ELSE
+                BUFFERS(NI25)%SEND_BUF(L+PP+1)  = 0
+                BUFFERS(NI25)%SEND_BUF(L+PP+2)  = 0
+                BUFFERS(NI25)%SEND_BUF(L+PP+3)  = 0
+
+                BUFFERS(NI25)%SEND_BUF(L+PP+4)  = 0
+                BUFFERS(NI25)%SEND_BUF(L+PP+5)  = 0
+                BUFFERS(NI25)%SEND_BUF(L+PP+6)  = 0
+              ENDIF
 
 C             EID = INTBUF_TAB(N)%LEDGE((IED-1)*NLEDGE+8)
 
@@ -728,7 +734,7 @@ C           CALL FLUSH(6)
      .          MPI_REAL4,
      .          IT_SPMD(P),
      .          MSGTYP,
-     .          MPI_COMM_WORLD,
+     .          SPMD_COMM_WORLD,
      .          BUFFERS(NI25)%SEND_RQ(P),
      .          IERROR)
             ENDIF
@@ -776,12 +782,12 @@ C           CALL FLUSH(6)
 C           WRITE(6,*) "Go into wait"
             CALL FLUSH(6)
             CALL MPI_WAITANY(NSPMD,BUFFERS(NI25)%RECV_RQ,P,MPI_STATUS_IGNORE,IERROR)
-C           WRITE(6,*) "RECIEVE FROM",P-1
+C           WRITE(6,*) "RECEIVE FROM",P-1
             L0 = (BUFFERS(NI25)%IAD_RECV(P) - 1)*NB_VALUES 
             IBEGIN = 0
             IF( P > 1) THEN
               DO L = 1,P-1 
-                IF( L - 1 .ne. ISPMD)  IBEGIN = IBEGIN + NSNFIE(N)%P(L) 
+                IF( L - 1 /= ISPMD)  IBEGIN = IBEGIN + NSNFIE(N)%P(L) 
               ENDDO
             ENDIF
             DO I =1,NSNFIE(N)%P(P) 
@@ -909,7 +915,7 @@ C debug mode
 #endif
 
 
-C --------------- Free Send rquest SEND wait 
+C --------------- Free Send request SEND wait
       DO NI25=1,NINTER25
         N = INTLIST25(NI25)
         IEDGE = IPARI(58,N)

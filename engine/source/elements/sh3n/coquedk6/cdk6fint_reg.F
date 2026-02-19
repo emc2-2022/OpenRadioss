@@ -1,38 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CDK6FINT_REG                  source/elements/sh3n/coquedk6/cdk6fint_reg.F
-Chd|-- called by -----------
-Chd|        CDK6FORC3                     source/elements/sh3n/coquedk6/cdk6forc3.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
-      SUBROUTINE CDK6FINT_REG(NLOC_DMG,VAR_REG ,THK     ,NEL     ,
-     .                        OFF     ,AREA    ,NC1     ,NC2     ,
-     .                        NC3     ,PX2     ,PY2     ,PX3     ,
-     .                        PY3     ,BUFNL   ,IMAT    ,NDDL    ,
-     .                        ITASK   ,DT2T    ,LE      )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cdk6fint_reg     ../engine/source/elements/sh3n/coquedk6/cdk6fint_reg.F
+!||--- called by ------------------------------------------------------
+!||    cdk6forc3        ../engine/source/elements/sh3n/coquedk6/cdk6forc3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    nlocal_reg_mod   ../common_source/modules/nlocal_reg_mod.F
+!||====================================================================
+      SUBROUTINE CDK6FINT_REG(
+     1   NLOC_DMG,VAR_REG, THK,     NEL,
+     2   OFF,     AREA,    NC1,     NC2,
+     3   NC3,     PX2,     PY2,     PX3,
+     4   PY3,     BUFNL,   IMAT,    NDDL,
+     5   ITASK,   DT2T,    LE,      THK0,
+     6   AREA0,   NFT)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
@@ -45,9 +47,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "parit_c.inc"
-#include      "vect01_c.inc"
 #include      "com20_c.inc"
 #include      "com08_c.inc"
 #include      "scr02_c.inc"
@@ -55,12 +55,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NFT
       INTEGER                                    :: NEL,IMAT,NDDL,ITASK
       INTEGER, DIMENSION(NEL)                    :: NC1,NC2,NC3
       my_real, DIMENSION(NEL,NDDL), INTENT(INOUT):: 
      .  VAR_REG
       my_real, DIMENSION(NEL), INTENT(IN)        :: 
-     .  AREA,OFF,PX2,PY2,PX3,PY3,THK,LE
+     .  AREA,OFF,PX2,PY2,PX3,PY3,THK,LE,THK0,AREA0
       my_real, INTENT(INOUT)                     ::
      .  DT2T
       TYPE(NLOCAL_STR_), TARGET                  :: NLOC_DMG 
@@ -87,11 +88,6 @@ C-----------------------------------------------
      .  MASSTH,UNLTH,VNLTH,FNLTH
       my_real, DIMENSION(:,:), ALLOCATABLE :: 
      .  STIFNLTH,DTN
-      ! Safety coefficient for non-local stability vs mechanical stability
-      ! (it has been slightly increased vs nloc_dmg_init.F)
-      my_real, PARAMETER :: CSTA  = 40.0D0
-      ! Coefficient for non-local stability to take into account damping
-      my_real, PARAMETER :: CDAMP = 0.7D0
 c-----------------------------------------------------------------------
 c     VAR_REG :  variable a regulariser (local cumulated plastic strain)
 c     NTVAR  =  NT * VAR_REG
@@ -183,9 +179,9 @@ c
 c
         DO K = 1,NDNOD
           DO I = 1,NEL
-            ! Reseting non-local forces
+            ! Resetting non-local forces
             FNLTH(I,K) = ZERO
-            ! Reseting non-local nodal stiffness
+            ! Resetting non-local nodal stiffness
             IF (NODADT > 0) THEN
               STIFNLTH(I,K) = EM20
             ENDIF
@@ -279,8 +275,8 @@ C
                   ENDIF
                 ENDDO
               ENDDO
+              DTNOD = DTMIN1(11)*(SQRT(CSTA))
             ENDIF
-            DTNOD = DTMIN1(11)*(SQRT(CSTA))
           ENDIF
 C
           ! Classical nodal timestep check
@@ -353,9 +349,9 @@ c
             ! Computing the product XDAMP*NtN*VNL
             NTN_VNL = (VNL(POS1(I)+K-1) + VNL(POS2(I)+K-1) + VNL(POS3(I)+K-1))/NTN
             IF (NODADT > 0) THEN
-              NTN_VNL = (SQRT(MASS(POS1(I)+K-1)/MASS0(POS1(I)+K-1))*VNL(POS1(I)+K-1) + 
-     +                   SQRT(MASS(POS2(I)+K-1)/MASS0(POS2(I)+K-1))*VNL(POS2(I)+K-1) + 
-     +                   SQRT(MASS(POS3(I)+K-1)/MASS0(POS3(I)+K-1))*VNL(POS3(I)+K-1))/NTN
+              NTN_VNL = MIN(SQRT(MASS(POS1(I)+K-1)/MASS0(POS1(I)+K-1)),
+     .                      SQRT(MASS(POS2(I)+K-1)/MASS0(POS2(I)+K-1)),
+     .                      SQRT(MASS(POS3(I)+K-1)/MASS0(POS3(I)+K-1)))*NTN_VNL
             ENDIF
 c          
             ! Multiplication by the volume of the element
@@ -386,11 +382,11 @@ c
             IF (NODADT > 0) THEN 
               ! Non-local absorbing forces
               F1(I,K) = WF(K,NDDL)*SQRT(MASS(POS1(I)+K-1)/MASS0(POS1(I)+K-1))*ZETA*SSPNL*
-     .            HALF*(VNL(POS1(I)+K-1)+VNL0(POS1(I)+K-1))*SQRT((FOUR/SQRT(THREE))*(LE_MAX**2))*THK(I)
+     .            HALF*(VNL(POS1(I)+K-1)+VNL0(POS1(I)+K-1))*SQRT((FOUR/SQRT(THREE))*(AREA0(I)))*THK0(I)
               F2(I,K) = WF(K,NDDL)*SQRT(MASS(POS2(I)+K-1)/MASS0(POS2(I)+K-1))*ZETA*SSPNL*
-     .            HALF*(VNL(POS2(I)+K-1)+VNL0(POS2(I)+K-1))*SQRT((FOUR/SQRT(THREE))*(LE_MAX**2))*THK(I) 
+     .            HALF*(VNL(POS2(I)+K-1)+VNL0(POS2(I)+K-1))*SQRT((FOUR/SQRT(THREE))*(AREA0(I)))*THK0(I) 
               F3(I,K) = WF(K,NDDL)*SQRT(MASS(POS3(I)+K-1)/MASS0(POS3(I)+K-1))*ZETA*SSPNL*
-     .            HALF*(VNL(POS3(I)+K-1)+VNL0(POS3(I)+K-1))*SQRT((FOUR/SQRT(THREE))*(LE_MAX**2))*THK(I)            
+     .            HALF*(VNL(POS3(I)+K-1)+VNL0(POS3(I)+K-1))*SQRT((FOUR/SQRT(THREE))*(AREA0(I)))*THK0(I)            
               ! Computing nodal equivalent stiffness
               STI1(I,K) = EM20
               STI2(I,K) = EM20
@@ -398,11 +394,11 @@ c
             ELSE
               ! Non-local absorbing forces
               F1(I,K) = WF(K,NDDL)*ZETA*SSPNL*HALF*(VNL(POS1(I)+K-1)+VNL0(POS1(I)+K-1))*
-     .                         SQRT((FOUR/SQRT(THREE))*(LE_MAX**2))*THK(I)
+     .                         SQRT((FOUR/SQRT(THREE))*(AREA0(I)))*THK0(I)
               F2(I,K) = WF(K,NDDL)*ZETA*SSPNL*HALF*(VNL(POS2(I)+K-1)+VNL0(POS2(I)+K-1))*
-     .                         SQRT((FOUR/SQRT(THREE))*(LE_MAX**2))*THK(I) 
+     .                         SQRT((FOUR/SQRT(THREE))*(AREA0(I)))*THK0(I) 
               F3(I,K) = WF(K,NDDL)*ZETA*SSPNL*HALF*(VNL(POS3(I)+K-1)+VNL0(POS3(I)+K-1))*
-     .                         SQRT((FOUR/SQRT(THREE))*(LE_MAX**2))*THK(I)
+     .                         SQRT((FOUR/SQRT(THREE))*(AREA0(I)))*THK0(I)
             ENDIF
           ENDIF
         ENDDO

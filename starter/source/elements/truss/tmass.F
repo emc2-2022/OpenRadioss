@@ -1,39 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  TMASS                         source/elements/truss/tmass.F 
-Chd|-- called by -----------
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        TINIT3                        source/elements/truss/tinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    tmass         ../starter/source/elements/truss/tmass.F
+!||--- called by ------------------------------------------------------
+!||    inivoid       ../starter/source/elements/initia/inivoid.F
+!||    tinit3        ../starter/source/elements/truss/tinit3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE TMASS(X      ,NC      ,GEO  ,PM   ,MS ,
      .     STIFN  ,PARTSAV ,V    ,IPART,MST,
      .     STIFINT,STT     ,AREA , MXT, NC1, NC2,
      .     X1, X2, Y1, Y2, Z1, Z2)
 C----------------------------------------------
-C     INITIALISATION DES MASSES NODALES
+C     initialization of nodal masses
 C----------------------------------------------
+      use element_mod , only : nixt
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,7 +48,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
 #include      "scr12_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -60,13 +60,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,IP,I1,I2,J,K
+      INTEGER I, IP, I1, I2
       my_real
      .   XX,YY,ZZ,XY,YZ,ZX
       my_real
      .   AL(MVSIZ),
      .   RHO(MVSIZ),EMS(MVSIZ),
-     .   E,STI(MVSIZ),DX,DY,DZ
+     .   STI(MVSIZ)
 C
 C---------------------------------------------------------------------
       DO I=LFT,LLT
@@ -82,22 +82,15 @@ C----------------------------------------------
        EMS(I)=RHO(I)*AL(I)*AREA(I)*HALF
       ENDDO
 C----------------------------------------------
-C     INITIALISATION DES MASSES NODALES
+C     initialization of nodal masses
 C----------------------------------------------
 C     mass init parith/on spmd
-      IF (IMACH /= 3) THEN
-        DO I=LFT,LLT
-          MS(NC1(I))=MS(NC1(I))+EMS(I)
-          MS(NC2(I))=MS(NC2(I))+EMS(I)
-        ENDDO
-      ELSE
-        DO I=LFT,LLT
-          MST(I)=EMS(I)
-        ENDDO
-      ENDIF
+      DO I=LFT,LLT
+        MST(I)=EMS(I)
+      ENDDO
 C----------------------------------------------
-C     INITIALISATION DES RIGIDITES NODALES
-C     et RIGIDITES NODALES POUR INTERFACES
+C     initialization of nodal stiffnesses
+C     and nodal stiffnesses for interfaces
 C----------------------------------------------
       DO I=LFT,LLT
        STI(I) = PM (20,MXT(I)) * AREA(I) / AL(I)
@@ -105,16 +98,9 @@ C----------------------------------------------
        STIFN(NC2(I))=STIFN(NC2(I))+STI(I)
       ENDDO
       IF (I7STIFS /= 0) THEN
-        IF (IMACH /= 3) THEN
-          DO I=LFT,LLT
-           STIFINT(NC1(I))=STIFINT(NC1(I))+STI(I)
-           STIFINT(NC2(I))=STIFINT(NC2(I))+STI(I)
-          ENDDO
-        ELSE
-          DO I=LFT,LLT
-           STT(I)=STI(I)
-          ENDDO
-        ENDIF
+        DO I=LFT,LLT
+         STT(I)=STI(I)
+        ENDDO
       ENDIF
 C
       DO I=LFT,LLT

@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CDT3                          source/elements/shell/coque/cdt3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cdt3          ../engine/source/elements/shell/coque/cdt3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3        ../engine/source/elements/shell/coque/cforc3.F
+!||    cforc3_crk    ../engine/source/elements/xfem/cforc3_crk.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CDT3(JFT   ,JLT    ,YM   ,OFF  ,DT2T,
      2                NELTST,ITYPTST,STI  ,STIR ,OFFG,
      3                DTC   ,NDT    ,DT2C ,IXC  ,SSP ,
@@ -34,6 +35,7 @@ Chd|====================================================================
      5                VOL0  ,VOL00  ,RHO  ,ALDT ,ALPE,
      6                INDXOF,NGL    ,ISMSTR,IOFC,MSC ,
      7                DMELC ,JSMS   ,G_DT ,DTEL)
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,18 +48,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "scr02_c.inc"
-#include      "scr06_c.inc"
 #include      "scr07_c.inc"
 #include      "scr17_c.inc"
 #include      "scr18_c.inc"
 #include      "sms_c.inc"
 #include      "units_c.inc"
-#include      "couple_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -74,7 +72,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER  J, I, II,IDT
+      INTEGER  J, I, IDT
       my_real
      .   DT(MVSIZ)     
       my_real DIVM,MAS 
@@ -90,7 +88,7 @@ c dt = 2/w = sqrt( 2*(m+dmelc)/k)
      .                (DTMINS/DTFACS)**2 * STI(I) - TWO*MSC(I))
           DT(I)  = DTFACS*
      .             SQRT((TWO*MSC(I)+DMELC(I))/MAX(EM20,STI(I)))
-          IF(DT(I).LT.DT2T)THEN
+          IF(DT(I)<DT2T)THEN
             DT2T    = DT(I)
             NELTST  = NGL(I)
             ITYPTST = 3
@@ -104,7 +102,7 @@ C
           ENDDO
         END IF
 C
-      ELSEIF(IDT1SH.EQ.1.OR.IDTMINS==2)THEN
+      ELSEIF(IDT1SH==1.OR.IDTMINS==2)THEN
           DO I=JFT,JLT
            MAS   = VOL00(I)*RHO(I)
            DT(I) = DTFAC1(3)*SQRT(HALF*MAS/MAX(EM20,STI(I)))
@@ -118,69 +116,42 @@ C
       ENDIF
       
 C------------------------------
-      IF(NODADT.EQ.0)THEN
-        IF(ISUB.EQ.1)THEN
-C         DTC(1) = 1.E6
-          DTC(1) = DT2C(1)
-          DO I=JFT,JLT
-           IF(IXC(4,I).EQ.IXC(5,I))THEN
-C             DTC(1)=MIN(DTC(1),0.5*DT(I),DT2C(1))
-             DTC(1)=MIN(DTC(1),HALF*DT(I))
-           ELSE
-C             DTC(1)=MIN(DTC(1),DT(I),DT2C(1))
-             DTC(1)=MIN(DTC(1),DT(I))
-           ENDIF
-          ENDDO
-        ELSEIF(ISUB.EQ.2)THEN
-          DO I=JFT,JLT
-           IF(NDT(I).NE.0)THEN
-             IF(IXC(4,I).EQ.IXC(5,I))THEN
-               DTC(I)=MIN(0.5*DT(I),DT2C(I))
-             ELSE
-               DTC(I)=MIN(DT(I),DT2C(1))
-             ENDIF
-           ELSE
-             DT(I)=EP06
-           ENDIF
-          ENDDO
-        ENDIF
-        IF(IDTMIN(3).EQ.0)RETURN
+      IF(NODADT == 0)THEN
+        IF(IDTMIN(3) == 0)RETURN
       ENDIF
 C------------------------------
-        IF(G_DT.NE.ZERO)THEN
+        IF(G_DT /= ZERO)THEN
            DO I=JFT,JLT
              DTEL(I) = DT(I)
            ENDDO
         ENDIF
 C------------------------------
-      IF(IDTMIN(3).EQ.1)THEN
+      IF(IDTMIN(3) == 1)THEN
         NINDX=IOFC
-        DO 95 I=JFT,JLT
-        IF(DT(I).GT.DTMIN1(3).OR.
-     .     OFF(I).LT.ONE.OR.OFFG(I).EQ.TWO.OR.OFFG(I).LT.ZERO) GO TO 95
+        DO I=JFT,JLT
+        IF(DT(I) > DTMIN1(3) .OR. OFF(I) < ONE .OR. OFFG(I) == TWO .OR. OFFG(I) < ZERO) CYCLE
          NINDX=NINDX+1
          INDXOF(NINDX)=I
-  95    CONTINUE
+        ENDDO
 C
-        DO 100 J=IOFC+1,NINDX
+        DO J=IOFC+1,NINDX
          I = INDXOF(J)
          TSTOP = TT
 #include "lockon.inc"
          WRITE(IOUT,1000)  NGL(I)
          WRITE(ISTDO,1000) NGL(I)
 #include "lockoff.inc"
-  100   CONTINUE
+        ENDDO
         NINDX=IOFC
-      ELSEIF(IDTMIN(3).EQ.2)THEN
+      ELSEIF(IDTMIN(3)==2)THEN
         NINDX=IOFC
-        DO 120 I=JFT,JLT
-        IF(DT(I).GT.DTMIN1(3).OR.OFF(I).LT.ONE
-     .     .OR.OFFG(I).LT.ZERO) GO TO 120
+        DO I=JFT,JLT
+        IF(DT(I)>DTMIN1(3).OR.OFF(I)<ONE .OR.OFFG(I)<ZERO) CYCLE
          NINDX=NINDX+1
          INDXOF(NINDX)=I
-  120   CONTINUE
+        ENDDO
 C
-        DO 125 J=IOFC+1,NINDX
+        DO J=IOFC+1,NINDX
          I = INDXOF(J)
          OFF(I)=0.
          IDEL7NOK = 1         
@@ -188,57 +159,55 @@ C
          WRITE(IOUT,1200)  NGL(I)
          WRITE(ISTDO,1300) NGL(I),TT
 #include "lockoff.inc"
-  125   CONTINUE
+        ENDDO
         IOFC = NINDX
-      ELSEIF(IDTMIN(3).EQ.3.AND.ISMSTR.EQ.2)THEN
+      ELSEIF(IDTMIN(3)==3.AND.ISMSTR==2)THEN
         NINDX=IOFC
-        DO 130 I=JFT,JLT
-        IF(DT(I).GT.DTMIN1(3).OR.
-     .     OFF(I).LT.ONE.OR.OFFG(I).EQ.TWO.OR.OFFG(I).LT.ZERO)GO TO 130
+        DO I=JFT,JLT
+        IF(DT(I)>DTMIN1(3).OR.OFF(I)<ONE.OR.OFFG(I)==TWO.OR.OFFG(I)<ZERO)CYCLE
          NINDX=NINDX+1
          INDXOF(NINDX)=I
-  130   CONTINUE
+       ENDDO
 C
-        DO 140 J=IOFC+1,NINDX
+        DO J=IOFC+1,NINDX
          I = INDXOF(J)
          OFFG(I)=2.
 #include "lockon.inc"
          WRITE(IOUT,1400)  NGL(I)
          WRITE(ISTDO,1400) NGL(I)
 #include "lockoff.inc"
-  140   CONTINUE
+        ENDDO
         NINDX=IOFC
-      ELSEIF(IDTMIN(3).EQ.5)THEN
+      ELSEIF(IDTMIN(3)==5)THEN
         NINDX=IOFC
-        DO 155 I=JFT,JLT
-        IF(DT(I).GT.DTMIN1(3).OR.
-     .     OFF(I).LT.ONE.OR.OFFG(I).EQ.TWO.OR.OFFG(I).LT.ZERO)GO TO 155
+        DO I=JFT,JLT
+        IF(DT(I)>DTMIN1(3).OR.OFF(I)<ONE.OR.OFFG(I)==TWO.OR.OFFG(I)<ZERO)CYCLE
          NINDX=NINDX+1
          INDXOF(NINDX)=I
- 155    CONTINUE
+       ENDDO
 C
-        DO 160 J=IOFC+1,NINDX
+        DO J=IOFC+1,NINDX
          I = INDXOF(J)
          MSTOP = 2
 #include "lockon.inc"
          WRITE(IOUT,1000)  NGL(I)
          WRITE(ISTDO,1000) NGL(I)
 #include "lockoff.inc"
-  160   CONTINUE
+        ENDDO
         NINDX=IOFC
       ENDIF
 C
-      IF (NODADT.NE.0.OR.(IDTMINS==2.AND.JSMS/=0)) RETURN
+      IF (NODADT/=0.OR.(IDTMINS==2.AND.JSMS/=0)) RETURN
 C-------------------------------------------------------------------
 C-    VECTOR
       IDT=0
       DO I=JFT,JLT
-       IF(OFFG(I).GT.ZERO.AND.OFF(I).NE.ZERO.AND.DT(I).LT.DT2T)IDT=1
+       IF(OFFG(I)>ZERO.AND.OFF(I)/=ZERO.AND.DT(I)<DT2T)IDT=1
       ENDDO
 C-    NON VECTOR
-      IF(IDT.EQ.1)THEN
+      IF(IDT==1)THEN
        DO I=JFT,JLT
-       IF(OFFG(I).GT.ZERO.AND.OFF(I).NE.ZERO.AND.DT(I).LT.DT2T)THEN
+       IF(OFFG(I)>ZERO.AND.OFF(I)/=ZERO.AND.DT(I)<DT2T)THEN
          DT2T    = DT(I)
          NELTST  = NGL(I)
          ITYPTST = 3
@@ -248,7 +217,7 @@ C-    NON VECTOR
 C
       IF (IDTMINS==2) RETURN
 C-------------------------------------------------------------------
-      IF(IDT1SH.EQ.1)THEN
+      IF(IDT1SH==1)THEN
        DO I=JFT,JLT
          STI(I) = STI(I) * OFF(I)
          STIR(I)= ZERO

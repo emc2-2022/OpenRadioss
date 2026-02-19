@@ -1,59 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INSOLT10                      source/interfaces/inter3d1/insolt10.F
-Chd|-- called by -----------
-Chd|        I12SOL3                       source/interfaces/inter3d1/insol3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    insolt10               ../starter/source/interfaces/inter3d1/insolt10.F
+!||--- called by ------------------------------------------------------
+!||    i12sol3                ../starter/source/interfaces/inter3d1/insol3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INSOLT10(IXS,IXS10,IRECT,NOINT,NRTM,ITAB,
      .                    KNOD2ELS,NOD2ELS,NTY,NSV ,MSEGTYP,ID,TITR)
 C
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only :nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "nchar_c.inc"
-#include      "units_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXS(NIXS,*),IXS10(6,*),IRECT(4,*),NOINT,NRTM,
      .        ITAB(*), KNOD2ELS(*), NOD2ELS(*),NTY,NSV(*),MSEGTYP(*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -94,11 +90,11 @@ C
      .                (I2==IXS(IPERM1(K),N10).AND.
      .                 I1==IXS(IPERM2(K),N10)))THEN
                        I3=IXS10(IPERM3(K),J)
-                     IF(I3.NE.0)THEN
+                     IF(I3/=0)THEN
                IXS10(IPERM3(K),N10)=-ABS(IXS10(IPERM3(K),N10))
                      END IF
-        	   END IF
-        	 END DO
+             END IF
+           END DO
                END IF
              END DO
            END IF
@@ -115,24 +111,24 @@ C
             IXS10(IPERM3(K),J)=0
           END IF
         ENDDO 
-        IF(IW.EQ.1)THEN
+        IF(IW==1)THEN
              IDEGEN=0
-             IF(IXS10(1,J).NE.0)THEN
+             IF(IXS10(1,J)/=0)THEN
               IDEGEN(1)=ITAB(IXS10(1,J))
              ENDIF
-             IF(IXS10(2,J).NE.0)THEN
+             IF(IXS10(2,J)/=0)THEN
               IDEGEN(2)=ITAB(IXS10(2,J))
              ENDIF
-             IF(IXS10(3,J).NE.0)THEN
+             IF(IXS10(3,J)/=0)THEN
               IDEGEN(3)=ITAB(IXS10(3,J))
              ENDIF
-             IF(IXS10(4,J).NE.0)THEN
+             IF(IXS10(4,J)/=0)THEN
               IDEGEN(4)=ITAB(IXS10(4,J))
              ENDIF
-             IF(IXS10(5,J).NE.0)THEN
+             IF(IXS10(5,J)/=0)THEN
               IDEGEN(5)=ITAB(IXS10(5,J))
              ENDIF
-             IF(IXS10(6,J).NE.0)THEN
+             IF(IXS10(6,J)/=0)THEN
               IDEGEN(6)=ITAB(IXS10(6,J))
              ENDIF
              CALL ANCMSG(MSGID=344,

@@ -1,124 +1,119 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SGRHEAD                       source/elements/solid/solide/sgrhead.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        CLUSTER_MOD                   share/modules1/cluster_mod.F  
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        REORDER_MOD                   share/modules1/reorder_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sgrhead                ../starter/source/elements/solid/solide/sgrhead.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod            ../starter/share/modules1/cluster_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||    reorder_mod            ../starter/share/modules1/reorder_mod.F
+!||====================================================================
       SUBROUTINE SGRHEAD(
-     1       IXS        ,PM       ,GEO       ,INUM    ,ISEL   ,
-     2       ITR1       ,EADD     ,INDEX     ,ITRI    ,IPARTS ,      
-     3       ND         ,IGRSURF  ,IGRBRIC   ,ISOLNOD ,
-     4       CEP        ,XEP      ,IXS10     ,IXS20   ,IXS16  ,
-     5       IGEO     ,IPM       ,NOD2ELS ,ISOLOFF,
-     6       TAGPRT_SMS,SPH2SOL ,SOL2SPH,
-     7       SOL2SPH_TYP,IFLAG_BPRELOAD,CLUSTERS,RNOISE)
+     1       IXS        ,PM            ,GEO       ,INUM    ,ISEL   ,
+     2       ITR1       ,EADD          ,INDEX     ,ITRI    ,IPARTS ,      
+     3       ND         ,IGRSURF       ,IGRBRIC   ,ISOLNOD ,
+     4       CEP        ,XEP           ,IXS10     ,IXS20   ,IXS16  ,
+     5       IGEO       ,IPM           ,NOD2ELS   ,ISOLOFF ,
+     6       TAGPRT_SMS ,SPH2SOL       ,SOL2SPH   ,MAT_PARAM,
+     7       SOL2SPH_TYP,IFLAG_BPRELOAD,CLUSTERS  ,RNOISE  ,
+     8       DAMP_RANGE_PART,TRIMAT)
 C-----------------------------------------------
 C            A R G U M E N T S
 C-----------------------------------------------
-C     IXS(11,NUMELS)     TABLEAU CONECS+PID+MID+NOS SOLIDES        E
-C     PM(NPROPM,NUMMAT) TABLEAU DES CARACS DES MATERIAUX           E
-C     GEO(NPROPG,NUMGEO)TABLEAU DES CARACS DES PID                 E
-C     INUM(13,NUMELS)   TABLEAU DE TRAVAIL                         E/S
-C     ISEL(NSELS)       TABLEAU DES SOLIDES CHOISIS POUR TH        E/S
-C     ITR1(NSELS)       TABLEAU DE TRAVAIL                         E/S
-C     EADD(NUMELS)      TABLEAU DES ADRESEES DANS IDAM CHGT DAMIER   S
-C     INDEX(NUMELS)     TABLEAU DE TRAVAIL                         E/S
-C     ITRI(6,NUMELS)    TABLEAU DE TRAVAIL                         E/S
-C     IPARTS(NUMELS)    TABLEAU PART                               E/S
-C     CEP(NUMELS)       TABLEAU DE TRAVAIL                         E/S
-C     XEP(NUMELS)       TABLEAU DE TRAVAIL                         E/S
-C     NOD2ELS(8*NUMELS+6*NUMELS10+12*NUMELS20+16*NUMELS16)         E/S
-C     ISOLOFF(NUMELS)   FLAG ELEM RBY ON/OFF                       E/S
+C     IXS(11,NUMELS)       ARRAY: CONECS+PID+MID+NOS SOLIDS          E
+C     PM(NPROPM,NUMMAT)    ARRAY: MATERIAL PARAMETERS (real)         E
+C     IPM(NPROPMI,NUMMAT)  ARRAY: MATERIAL PARAMETERS (integer)      E
+C     GEO(NPROPG,NUMGEO)   ARRAY: PROPERTY PARAMETERS (real)         E
+C     IGEO(NPROPGI,NUMGEO) ARRAY: PROPERTY PARAMETERS (integer)      E
+C     INUM(13,NUMELS)      ARRAY: WORKING                            E/S
+C     ISEL(NSELS)          ARRAY: SELECTED SOLIDS FOR TH            E/S
+C     ITR1(NSELS)          ARRAY: WORKING                            E/S
+C     EADD(NUMELS)         ARRAY: IDAM INDEXES / checkboard            S
+C     INDEX(NUMELS)        ARRAY: WORKING                            E/S
+C     ITRI(8,NUMELS)       ARRAY: WORKING                            E/S
+C     IPARTS(NUMELS)       ARRAY: PART                               E/S
+C     CEP(NUMELS)          ARRAY: WORKING                            E/S
+C     XEP(NUMELS)          ARRAY: WORKING                            E/S
+C     NOD2ELS(8*NUMELS+6*NUMELS10+12*NUMELS20+16*NUMELS16)           E/S
+C     ISOLOFF(NUMELS)      FLAG ELEM RBY ON/OFF                      E/S
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE R2R_MOD
       USE REORDER_MOD
       USE GROUPDEF_MOD
       USE CLUSTER_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G L O B A L   P A R A M E T E R S
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C O M M O N   B L O C K S
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr21_c.inc"
 #include      "sms_c.inc"
-#include      "scr17_c.inc"
 #include      "r2r_c.inc"
 #include      "sphcom.inc"
 #include      "boltpr_c.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
-      INTEGER IXS(NIXS,*),ISEL(*),INUM(16,*),IPARTS(*),IGEO(NPROPGI,*),
-     .        EADD(*),ITR1(*),INDEX(*),ITRI(7,*),
+      INTEGER IXS(NIXS,NUMELS),ISEL(*),INUM(16,*),IPARTS(*),
+     .        EADD(*),ITR1(*),INDEX(*),ITRI(8,*),
      .        ND, ISOLNOD(*), CEP(*),
      .        XEP(*),IXS10(6,*),IXS20(12,*),IXS16(8,*),
-     .        IPM(NPROPMI,*), NOD2ELS(*), ISOLOFF(*),
+     .        NOD2ELS(*), ISOLOFF(*),
      .        TAGPRT_SMS(*), SPH2SOL(*), 
      .        SOL2SPH(2,*),SOL2SPH_TYP(*),IFLAG_BPRELOAD(*)
-      my_real
-     .    PM(NPROPM,*), GEO(NPROPG,*), RNOISE(NPERTURB,NUMELS)
+      INTEGER,INTENT(IN) :: IPM(NPROPMI,NUMMAT)
+      INTEGER,INTENT(INOUT) :: IGEO(NPROPGI,NUMGEO)
+      INTEGER, INTENT(IN)   :: DAMP_RANGE_PART(NPART)   ! < flag to compute the damping range
+      my_real,INTENT(IN) :: PM(NPROPM,NUMMAT), GEO(NPROPG,NUMGEO)
+      my_real,INTENT(INOUT) ::  RNOISE(NPERTURB,NUMELS)
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRBRIC) :: IGRBRIC
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
       TYPE (CLUSTER_) ,DIMENSION(NCLUSTER) :: CLUSTERS
+      TYPE(MATPARAM_STRUCT_) , TARGET, DIMENSION(NUMMAT),INTENT(IN) :: MAT_PARAM
+      INTEGER,INTENT(INOUT) :: TRIMAT
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
       INTEGER 
      .        I,J,K,L,IL,MLN, NG, ISSN, NPN, NN, N, MID, PID ,IREP,
      .        II,II0,JJ0,II1,JJ1,II2,JJ2,JJ,II3,JJ3,II4,JJ4,II5,JJ5,
-     .        JHBE,ISO,IGT,IINT,MODE,IEOS,IVISC,IVISC0,TSHELL, 
+     .        II6,JJ6,JHBE,ISO,IGT,IINT,MODE,IEOS,IVISC,IVISC0,TSHELL, 
      .        IPLAST, IALEL,MT,NFAIL,NFAIL0,ITET4,ICPRE,ICSTR,IRB ,
      .        NLAY,NPTR,NPTS,NPTT,IMAT,INUM_R2R(1+R2R_SIU*NUMELS),
      .        NSPHDIR,IPARTSPH,NUVAR,ISVIS,IBOLTP,ITET10,NLOC_FAIL,
@@ -126,20 +121,19 @@ C-----------------------------------------------
       INTEGER WORK(70000)
       EXTERNAL MY_SHIFTL,MY_SHIFTR,MY_AND
       INTEGER MY_SHIFTL,MY_SHIFTR,MY_AND
-      INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      INTEGER ID, JALE_FROM_MAT, JALE_FROM_PROP
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX2
       INTEGER :: CLUSTER_TYP,CLUSTER_NEL
       INTEGER, DIMENSION(:), ALLOCATABLE :: SAVE_CLUSTER
-C     REAL OU REAL*8
       my_real, DIMENSION(:,:), ALLOCATABLE :: XNUM_RNOISE
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
-C   TRI GLOBAL SUR TOUS LES CRITERES POUR TOUS LES ELEMENTS
-C----------------------------------------------------------C
+C-----------------------------------------------
+C   S O U R C E   L I N E S
+C-----------------------------------------------
+
+C   GLOBAL SORTING ON ALL CRITERIA FOR ALL ELEMENTS
   
-      MY_ALLOCATE(INDEX2,NUMELS) 
+      CALL MY_ALLOC(INDEX2,NUMELS) 
 C
       IF (NPERTURB > 0) THEN
         ALLOCATE(XNUM_RNOISE(NPERTURB,NUMELS),STAT=stat)
@@ -151,7 +145,6 @@ C
       DO I=1,NUMELS
         INDEX2(I)=PERMUTATION%SOLID(I)
         EADD(I)=1
-Clef 5---------------------------------
         ITRI(5,I)=I
         INDEX(I)=I
         INUM(1,I)=IPARTS(I)
@@ -167,7 +160,7 @@ Clef 5---------------------------------
         INUM(11,I)=IXS(10,I)
         INUM(12,I)=IXS(11,I)
         INUM(13,I)=ISOLNOD(I)
-        IF (NSUBDOM.GT.0) INUM_R2R(I) = TAG_ELSF(I)
+        IF (NSUBDOM>0) INUM_R2R(I) = TAG_ELSF(I)
         IF (NPERTURB > 0) THEN
           DO IPERT = 1, NPERTURB
             XNUM_RNOISE(IPERT,I) = RNOISE(IPERT,I) 
@@ -182,24 +175,23 @@ Clef 5---------------------------------
         ENDDO
       END IF
 C
-      IF (IMACH.EQ.3) THEN
-        DO I=1,NUMELS
-          XEP(I)=CEP(I)
-        ENDDO
-      ENDIF
+      DO I=1,NUMELS
+        XEP(I)=CEP(I)
+      ENDDO
 C
       DO I = 1, NUMELS
         II = I
         NPN = 1
-        JHBE=IHBE_D
+        JHBE= 1
         JPOR=0
         MID = IXS(1,II)
         MLN = NINT(PM(19,ABS(MID)))
+        IF(MLN == 51)TRIMAT=4
         IF (MID < 0) THEN
-          IF (MLN.EQ.6.AND.JPOR.NE.2) MLN=17
-          IF (MLN.EQ.46) MLN=47
+          IF (MLN==6.AND.JPOR/=2) MLN=17
+          IF (MLN==46) MLN=47
           MID = IABS(MID)
-        ENDIF	
+        ENDIF
         IF (MLN == 36 .or. MLN == 47) THEN
           NUVAR = IPM(8,MID)
         ELSE
@@ -207,19 +199,19 @@ C
         ENDIF
         PID= IXS(10,II)
         ISO= ISOLNOD(II)
-        IPLAST=IPLA_DS-1
+        IPLAST= 1
         ICPRE = 0
         ICSTR = 0
         IREP = 0
         ISTRAIN = 0        
-        NFAIL0    = IPM(220 , MID)
-        NLOC_FAIL = IPM(253 , MID)
+        NFAIL0    = MAT_PARAM(MID)%NFAIL
+        NLOC_FAIL = MAT_PARAM(MID)%NLOC
         IEOS = 0
         IVISC0 = 0
         NLAY  = 1
         TSHELL = 0
         ISVIS = 0
-        IF (PID.NE.0) THEN
+        IF (PID/=0) THEN
           NPN  = IGEO(4,PID)
           ISSN = IABS(IGEO(5,PID))
           IREP = IGEO(6,PID)
@@ -236,45 +228,46 @@ C
             NLAY = IGEO(30,PID)                 
             DO IL=1,NLAY                        
               IMAT = IGEO(100+IL,PID)           
-              NFAIL0 = MAX(NFAIL0,IPM(220, IMAT))
-              IF (IPM(222,IMAT) > 0) IVISC0 = 1
+              NFAIL0 = MAX(NFAIL0,MAT_PARAM(IMAT)%NFAIL)
+              IF (MAT_PARAM(IMAT)%IVISC > 0) IVISC0 = 1
             ENDDO
-          ELSEIF (IPM(222,MID) > 0) THEN
+          ELSEIF (MAT_PARAM(MID)%IVISC > 0) THEN
             IVISC0 = 1
           ENDIF
 C IVISCO0 cannot put in the PID because is for MID (it can be used in IGEO)
           IGEO(34,PID) = IVISC0
 c----------            
           IF (IGT /= 15) IPLAST = IGEO(9,PID)
-          IF (IGT.EQ.15) JPOR=2*NINT(GEO(28,PID))
+          IF (IGT==15) JPOR=2*NINT(GEO(28,PID))
           JCLOS=0
-          IF (GEO(130,PID).GT.0.) JCLOS=1
+          IF (GEO(130,PID)>0.) JCLOS=1
 C--------------Navier Storks Vis          
           IF (GEO(16,PID)/=ZERO.OR.GEO(17,PID)/=ZERO) ISVIS=1
         ENDIF
         IF((JHBE == 14 .OR. JHBE == 222).AND.ISO==8) NUMELS8A=NUMELS8A+1
         IF (JHBE == 12)  JHBE = 4
-        IF (JHBE.EQ.2)   JHBE = 0
+        IF (JHBE==2)   JHBE = 0
 c        
-        JALE=NINT(PM(72,MID))
+        JALE_FROM_MAT = NINT(PM(72,MID))
+        JALE_FROM_PROP = IGEO(62,PID)
+        JALE = MAX(JALE_FROM_MAT, JALE_FROM_PROP) !if inconsistent, error message was displayed in PART reader
         JLAG=0
-        IF(JALE.EQ.0.AND.MLN.NE.18)JLAG=1
+        IF(JALE == 0 .AND. MLN /= 18)JLAG=1
         JEUL=0
-        IF(JALE.EQ.2)THEN
+        IF(JALE==2)THEN
           JALE=0
           JEUL=1
         ELSEIF(JALE == 3) THEN
           JLAG = 1
           JALE = 1
         ENDIF
-        IF(MLN.NE.50)JTUR=NINT(PM(70,MID))
+        IF(MLN/=50)JTUR=NINT(PM(70,MID))
         JTHE=NINT(PM(71,MID))
-        JTHE = ABS(JTHE)
-        IF (JLAG==0 .AND. PID.NE.0) ISSN=4
-C tri sur elem delete des rigidbody
-C IRB = 0 : elem actif
-C IRB = 1 : elem inactif et optimise pour en SPMD
-C IRB = 2 : elem inactif mais optimise pour etre actif en SPMD
+        IF (JLAG==0 .AND. PID/=0) ISSN=4
+C sorting on elem delete for rigidbody
+C IRB = 0 : active elem
+C IRB = 1 : inactive elem and optimized for SPMD
+C IRB = 2 : inactive elem but optimized to be active in SPMD
         IRB = ISOLOFF(I)
 C
         JSMS=0
@@ -297,19 +290,19 @@ C Bolt preloading flag
         ENDIF
         
 C
-Clef 1---------------------------------
+C    1---------------------------------
 C
-C     classer les shell16 apres les brick20
-        IF(ISO.EQ.16)ISO=21
+C     classify shell16 after brick20
+        IF(ISO==16)ISO=21
 C       IGT =MY_SHIFTL(IGT,0)
         JSMS=MY_SHIFTL(JSMS,26)
         ISO =MY_SHIFTL(ISO,27)
-C       attention ISO doit rester en poids le plus fort
+C       CAUTION ISO must remain in the strongest weight
         ITRI(1,I)=ISO+JSMS+IGT
-Clef 2---------------------------------
+C    2---------------------------------
 C       IPARTSPH=MY_SHIFTL(IPARTSPH,0)
         ITRI(2,I)=IPARTSPH ! must remain alone for this key (part index)
-Clef 3---------------------------------
+C    3---------------------------------
 C       JTHE=MY_SHIFTL(JTHE,0)
         JTUR=MY_SHIFTL(JTUR,1)
         JEUL=MY_SHIFTL(JEUL,2)
@@ -322,8 +315,7 @@ C       JTHE=MY_SHIFTL(JTHE,0)
         MLN =MY_SHIFTL(MLN,22)
         ITRI(3,I)=MLN+JHBE+ISSN+JALE+JLAG+JEUL+JTUR+JTHE+JPOR+IRB
 C
-Clef 4---------------------------------
-C       JCLOS=MY_SHIFTL(JCLOS,0)
+C    4---------------------------------
         NPN   =MY_SHIFTL(NPN,3)
         IPLAST=MY_SHIFTL(IPLAST,13)
         ICPRE =MY_SHIFTL(ICPRE,16)
@@ -335,45 +327,45 @@ C       JCLOS=MY_SHIFTL(JCLOS,0)
         ISTRAIN=MY_SHIFTL(ISTRAIN,26)
         ITET4=MY_SHIFTL(ITET4,27)
         NFAIL  =  MY_SHIFTL(NFAIL0,29) 
-C       next=MY_SHIFTL(next,32) ---> pas de place disp
         ITRI(4,I)=JCLOS+NPN+IPLAST+ICPRE+ICSTR+IREP+IINT+JCVT+ISTRAIN
      .           +ITET4+NFAIL
-Clef 5---------------------------------
+C    5---------------------------------
         ITRI(5,I)=MID
-Clef 6---------------------------------
+C    6---------------------------------
         ITRI(6,I)=PID
-Clef 7---------------------------------
+C    7---------------------------------
         IEOS      = MY_SHIFTL(IEOS,0) 
         IVISC     = MY_SHIFTL(IVISC0,4)
         NUVAR     = MY_SHIFTL(NUVAR,5) 
         ISVIS     = MY_SHIFTL(ISVIS,15) 
         IBOLTP    = MY_SHIFTL(IBOLTP,16)
         ITET10    = MY_SHIFTL(ITET10,17)
-        NLOC_FAIL = MY_SHIFTL(ITET10,19)
+        NLOC_FAIL = MY_SHIFTL(NLOC_FAIL,19)
 C       next  = MY_SHIFTL(next,21)
         ITRI(7,I)=IEOS+IVISC+NUVAR+ISVIS+IBOLTP+ITET10+NLOC_FAIL
-c        
+C    8---------------------------------        
+        ITRI(8,I )= DAMP_RANGE_PART(IPARTS(II))        
       ENDDO
 C
       MODE=0
-      CALL MY_ORDERS( MODE, WORK, ITRI, INDEX, NUMELS , 7)
+      CALL MY_ORDERS( MODE, WORK, ITRI, INDEX, NUMELS , 8)
 C
       DO I=1,NUMELS
         IPARTS(I) =INUM(1,INDEX(I))
         ISOLNOD(I)=INUM(13,INDEX(I))
-        IF (NSUBDOM.GT.0) TAG_ELSF(I)=INUM_R2R(INDEX(I))
+        IF (NSUBDOM>0) TAG_ELSF(I)=INUM_R2R(INDEX(I))
         IF (NPERTURB > 0) THEN
           DO IPERT = 1, NPERTURB
             RNOISE(IPERT,I) = XNUM_RNOISE(IPERT,INDEX(I)) 
           ENDDO
         ENDIF
       ENDDO
-c     IF (IMACH.EQ.3) THEN
-        DO I=1,NUMELS
-          CEP(I)=XEP(INDEX(I))
-          PERMUTATION%SOLID(I)=INDEX2(INDEX(I))
-        ENDDO
-c     ENDIF
+
+      DO I=1,NUMELS
+        CEP(I)=XEP(INDEX(I))
+        PERMUTATION%SOLID(I)=INDEX2(INDEX(I))
+      ENDDO
+      
       DO  K=1,11
         DO  I=1,NUMELS
           IXS(K,I)=INUM(K+1,INDEX(I))
@@ -482,13 +474,13 @@ C
 C      
       ENDIF
 C
-C INVERSION DE INDEX (DANS ITR1)
+C INDEX INVERSION (IN ITR1)
 C
       DO I=1,NUMELS
         ITR1(INDEX(I))=I
       ENDDO
 C
-C RENUMEROTATION POUR SURFACES
+C RENUMBERING FOR SURFACES
 C
       DO I=1,NSURF
         NN=IGRSURF(I)%NSEG
@@ -498,7 +490,7 @@ C
         ENDDO
       ENDDO
 C
-C RENUMEROTATION POUR GROUPES DE SOLIDES
+C RENUMBERING FOR SOLID GROUPS
 C
       DO I=1,NGRBRIC
         NN=IGRBRIC(I)%NENTITY
@@ -507,7 +499,7 @@ C
         ENDDO
       ENDDO
 C
-C RENUMEROTATION POUR SPH CONVERSION
+C RENUMBERING FOR SPH CONVERSION
 C
       IF(NSPHSOL /= 0)THEN
         DO I=1,NUMSPH
@@ -522,7 +514,7 @@ C rebuild SOL2SPH
         END DO
       END IF
 C
-C renumerotation CONNECTIVITE INVERSE
+C renumbering INVERSE CONNECTIVITY
 C
       DO I=1,8*NUMELS+6*NUMELS10+12*NUMELS20+8*NUMELS16
         IF(NOD2ELS(I) /= 0)NOD2ELS(I)=ITR1(NOD2ELS(I))
@@ -545,7 +537,7 @@ C
 !   -----------------------
 C
 C--------------------------------------------------------------
-C         DETERMINATION DES SUPER_GROUPES
+C         SUPER_GROUPS DETERMINATION
 C--------------------------------------------------------------
       ND=1
       DO I=2,NUMELS
@@ -563,8 +555,11 @@ C--------------------------------------------------------------
         JJ4=ITRI(6,INDEX(I-1))
         II5=ITRI(7,INDEX(I))
         JJ5=ITRI(7,INDEX(I-1))
-        IF(II0.NE.JJ0.OR.II.NE.JJ.OR.II1.NE.JJ1.OR.II2.NE.JJ2.OR.
-     .     II5.NE.JJ5.OR.II3.NE.JJ3.OR.II4.NE.JJ4) THEN
+        II6=ITRI(8,INDEX(I))
+        JJ6=ITRI(8,INDEX(I-1))
+        IF(II0/=JJ0.OR.II/=JJ.OR.II1/=JJ1.OR.II2/=JJ2.OR.
+     .     II5/=JJ5.OR.II3/=JJ3.OR.II4/=JJ4.OR.
+     .     II6/=JJ6) THEN
           ND=ND+1
           EADD(ND)=I
         ENDIF

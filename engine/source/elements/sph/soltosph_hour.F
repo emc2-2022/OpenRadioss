@@ -1,39 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Cbm|====================================================================
-Cbm|  SZSIGPARA                     src/solidez/szhour3.F         
-Cbm|-- called by -----------
-Cbm|        TENSGPS3                      src/anim/tensor6.F            
-Cbm|-- calls ---------------
-Cbm|====================================================================
-Chd|====================================================================
-Chd|  SIG_HEPH1                     source/elements/sph/soltosph_hour.F
-Chd|-- called by -----------
-Chd|        SOLTOSPHP                     source/elements/sph/soltosph.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE SIG_HEPH1(JR0     ,JS0  ,JT0  ,GSIG, FHOUR  , 
-     .                     SIG_HEPH,PM   ,IXS  ,II  , NEL    )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sig_heph1     ../engine/source/elements/sph/soltosph_hour.F
+!||--- called by ------------------------------------------------------
+!||    soltosphp     ../engine/source/elements/sph/soltosph.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
+      SUBROUTINE SIG_HEPH1(
+     1   JR0,     JS0,     JT0,     GSIG,
+     2   FHOUR,   SIG_HEPH,PM,      IXS,
+     3   II,      NEL,     LFT,     LLT)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,10 +44,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: LFT
+      INTEGER, INTENT(INOUT) :: LLT
       INTEGER IXS(NIXS,*),II(6),NEL
       my_real
      .   GSIG(*),FHOUR(NEL,3,4),JR0(*),JS0(*),JT0(*) ,
@@ -57,9 +56,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,  J
+      INTEGER I
       my_real
-     .   COEF,NU1,NU2,NU3,SXX,SYY,SZZ,SXY,SXZ,SYZ
+     .   NU1,NU2,NU3
 C-----------------------------------------------
 
 C-----------------------------------------------

@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGROTA_XFE                   source/output/anim/generate/sigrota_xfe.F
-Chd|-- called by -----------
-Chd|        TENSORC_CRK                   source/output/anim/generate/tensorc_crk.F
-Chd|-- calls ---------------
-Chd|        UROTOV                        source/airbag/uroto.F         
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigrota_xfe     ../engine/source/output/anim/generate/sigrota_xfe.F
+!||--- called by ------------------------------------------------------
+!||    tensorc_crk     ../engine/source/output/anim/generate/tensorc_crk.F
+!||--- calls      -----------------------------------------------------
+!||    urotov          ../engine/source/airbag/uroto.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod   ../engine/share/modules/crackxfem_mod.F
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE SIGROTA_XFE(ELBUF_STR,XFEM_STR,
      1               JFT   ,JLT    ,NFT     ,ILAY     ,NEL  ,
      2               ITY   ,IEL_CRK,IADC_CRK,IADTG_CRK,IXFEM,
@@ -47,8 +48,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
-#include      "scr01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -63,7 +62,7 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,J,N,I1,ELCRK,ILAYCRK,
+      INTEGER I, J, N, ELCRK, ILAYCRK, 
      .        IADC1,IADC2,IADC3,IADC4,JJ(5)
       my_real
      .   X1(MVSIZ),  X2(MVSIZ),  X3(MVSIZ), X4(MVSIZ),
@@ -72,7 +71,7 @@ C-----------------------------------------------
      .   X21(MVSIZ), Y21(MVSIZ), Z21(MVSIZ), 
      .   X31(MVSIZ), Y31(MVSIZ), Z31(MVSIZ), 
      .   X32(MVSIZ), Y32(MVSIZ), Z32(MVSIZ), 
-     .   X42(MVSIZ), Y42(MVSIZ), Z42(MVSIZ),
+     .
      .   E1X(MVSIZ), E1Y(MVSIZ), E1Z(MVSIZ), 
      .   E2X(MVSIZ), E2Y(MVSIZ), E2Z(MVSIZ), 
      .   E3X(MVSIZ), E3Y(MVSIZ), E3Z(MVSIZ), 
@@ -81,7 +80,7 @@ C-----------------------------------------------
      .   V1,V2,V3,VR,VS,AA,BB,SUMA
       my_real, 
      .   DIMENSION(:) ,POINTER :: DIR10,DIR1
-      TYPE(G_BUFEL_)  ,POINTER :: GBUF   
+ 
       TYPE(L_BUFEL_)  ,POINTER :: LBUF
 c
       TYPE(L_BUFEL_)  ,POINTER :: XLBUF

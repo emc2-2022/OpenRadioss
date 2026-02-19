@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_RGWALS_IMPACT             source/ams/sms_rgwals.F       
-Chd|-- called by -----------
-Chd|        SMS_RGWAL_0                   source/ams/sms_rgwal0.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_rgwals_impact   ../engine/source/ams/sms_rgwals.F
+!||--- called by ------------------------------------------------------
+!||    sms_rgwal_0         ../engine/source/ams/sms_rgwal0.F
+!||====================================================================
       SUBROUTINE SMS_RGWALS_IMPACT(X    ,A    ,V      ,RWL  ,NSW   ,
      1                             NSN  ,ITIED,MSR    ,MS   ,WEIGHT,
      2                             NIMPACT,IMPACT ,NSMS ,NRWL_SMS)
@@ -37,34 +36,27 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN, ITIED, MSR, NIMPACT, NSMS
       INTEGER NSW(*), WEIGHT(*), IMPACT(*), NRWL_SMS(*)
-C     REAL
-      my_real
-     .   X(*), A(*), V(*), RWL(*), MS(*)
+      my_real X(*), A(*), V(*), RWL(*), MS(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, N3, N2, N1, K, J, M1, M2, M3
-C     REAL
+      INTEGER I, N, N3, N2, N1, J, M1, M2, M3
       my_real
      .   RA2, XWL, YWL, ZWL, VXW, VYW, VZW,
-     .   TFXT, VX, VY, VZ, UX, UY, UZ, XC, YC, ZC, DP,
-     .   XX, XN, YN, ZN, DV, DA, DVT, 
+     .   VX, VY, VZ, UX, UY, UZ, XC, YC, ZC, DP,
+     .      
      .   XWL0, YWL0, ZWL0
 C-----------------------------------------------
       RA2=(HALF*RWL(7))**2
 C
-      IF(MSR.EQ.0)THEN
+      IF(MSR==0)THEN
        XWL0=RWL(4)
        YWL0=RWL(5)
        ZWL0=RWL(6)
@@ -107,7 +99,7 @@ C
         YC=UY-YWL
         ZC=UZ-ZWL
         DP=XC**2+YC**2+ZC**2
-        IF(DP.GT.RA2)GOTO 20
+        IF(DP>RA2)GOTO 20
         NIMPACT = NIMPACT+1
         IMPACT(NIMPACT) = I
  20   CONTINUE
@@ -116,17 +108,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_RGWALS_FRIC               source/ams/sms_rgwals.F       
-Chd|-- called by -----------
-Chd|        SMS_RGWAL_0                   source/ams/sms_rgwal0.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_rgwals_fric   ../engine/source/ams/sms_rgwals.F
+!||--- called by ------------------------------------------------------
+!||    sms_rgwal_0       ../engine/source/ams/sms_rgwal0.F
+!||====================================================================
       SUBROUTINE SMS_RGWALS_FRIC
-     1                 (X     ,A     ,V     ,RWL    ,NSW   ,
-     2                  NSN   ,ITIED ,MSR    ,MS     ,WEIGHT ,
-     3                  NIMPACT,IMPACT ,NSMS  ,NRWL_SMS,FSAV ,
-     4                  FOPT   ,RES    ,R     ,FREA    )
+     1                 (X      ,A      ,V      ,RWL      ,NSW    ,
+     2                  NSN    ,ITIED  ,MSR    ,MS       ,WEIGHT ,
+     3                  NIMPACT,IMPACT ,NSMS   ,NRWL_SMS ,FSAV   ,
+     4                  FOPT   ,RES    ,R      ,FREA     )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -135,36 +126,26 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN, ITIED, MSR, NIMPACT, NSMS
       INTEGER NSW(*), WEIGHT(*), IMPACT(*), NRWL_SMS(*)
-C     REAL
-      my_real
-     .   X(*), A(*), V(*), RWL(*), MS(*), FSAV(*), 
-     .   FOPT(*), RES(*), FREA(*), R(*)
+      my_real X(*), A(*), V(*), RWL(*), MS(*), FSAV(*), FOPT(*), RES(*), FREA(*), R(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, N3, N2, N1, J, K, M1, M2, M3
-
-C     REAL
-      my_real
-     .   XWL, YWL, ZWL, VXW, VYW, VZW,
-     .   XWL0, YWL0, ZWL0, 
-     .   XC, YC, ZC, XX, XN, YN, ZN,
-     .   TFXT, DV, DA, DVT, FN,
-     .   FNXN, FNYN, FNZN, FNXT, FNYT, FNZT, FNDFN, FTDFT, FRIC, FRIC2,
-     .   FCOE, FAC, ALPHA, ALPHI, FXT, FYT, FZT
+      INTEGER I, N, N3, N2, N1, J, M1, M2, M3
+      my_real XWL, YWL, ZWL, VXW, VYW, VZW,
+     .        XWL0, YWL0, ZWL0,
+     .        XC, YC, ZC, XX, XN, YN, ZN,
+     .          FN,
+     .        FNXN, FNYN, FNZN, FNXT, FNYT, FNZT, FNDFN, FTDFT, FRIC, FRIC2,
+     .        FCOE, FAC, FXT, FYT, FZT
 C-----------------------------------------------
 C
-      IF(MSR.EQ.0)THEN
+      IF(MSR==0)THEN
        XWL0=RWL(4)
        YWL0=RWL(5)
        ZWL0=RWL(6)
@@ -178,7 +159,7 @@ C
        M3=3*MSR
        M2=M3-1
        M1=M2-1
-Cel changement formulation : plus d'impasse sur contribution force
+C   Change Formulation: More dead end on Force Contribution
        VXW=V(M1)+A(M1)*DT12
        VYW=V(M2)+A(M2)*DT12
        VZW=V(M3)+A(M3)*DT12
@@ -189,9 +170,7 @@ Cel changement formulation : plus d'impasse sur contribution force
        YWL=X(M2)+VYW*DT2
        ZWL=X(M3)+VZW*DT2
       ENDIF
-C
-      TFXT=ZERO     
-C
+
       IF(ITIED == 2)THEN
 C
 C---     no friction filtering
@@ -254,12 +233,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_RGWALS_BCS_0              source/ams/sms_rgwals.F       
-Chd|-- called by -----------
-Chd|        SMS_RGWAL_0                   source/ams/sms_rgwal0.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_rgwals_bcs_0   ../engine/source/ams/sms_rgwals.F
+!||--- called by ------------------------------------------------------
+!||    sms_rgwal_0        ../engine/source/ams/sms_rgwal0.F
+!||====================================================================
       SUBROUTINE SMS_RGWALS_BCS_0
      1                 (X     ,A     ,V     ,RWL    ,NSW   ,
      2                  NSN   ,ITIED ,MSR    ,MS     ,WEIGHT ,
@@ -272,11 +250,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -288,17 +262,17 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, N3, N2, N1, J, K, M1, M2, M3
+      INTEGER I, N, N3, N2, N1, J, M1, M2, M3
 
 C     REAL
       my_real
      .   XWL, YWL, ZWL, VXW, VYW, VZW,
      .   XWL0, YWL0, ZWL0, 
      .   XC, YC, ZC, XX, XN, YN, ZN,
-     .   DV, DA, DVT
+     .   DV, DA
 C-----------------------------------------------
 C
-      IF(MSR.EQ.0)THEN
+      IF(MSR==0)THEN
        XWL0=RWL(4)
        YWL0=RWL(5)
        ZWL0=RWL(6)
@@ -323,7 +297,7 @@ C
        ZWL=X(M3)+VZW*DT2
       ENDIF
 C     
-      IF(ITIED.EQ.0)THEN
+      IF(ITIED==0)THEN
 C
        DO 40 J = 1,NIMPACT
         I = IMPACT(J)
@@ -348,7 +322,7 @@ C
         A(N3)=A(N3)-DA*ZN
  40    CONTINUE
 C
-      ELSEIF(ITIED.EQ.1)THEN
+      ELSEIF(ITIED==1)THEN
 C
        DO 60 J = 1,NIMPACT
         I = IMPACT(J)
@@ -399,12 +373,11 @@ C glissement
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_RGWALS_BCS_1              source/ams/sms_rgwals.F       
-Chd|-- called by -----------
-Chd|        SMS_RGWAL_0                   source/ams/sms_rgwal0.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_rgwals_bcs_1   ../engine/source/ams/sms_rgwals.F
+!||--- called by ------------------------------------------------------
+!||    sms_rgwal_0        ../engine/source/ams/sms_rgwal0.F
+!||====================================================================
       SUBROUTINE SMS_RGWALS_BCS_1
      1                 (X     ,A     ,V     ,RWL    ,NSW   ,
      2                  NSN   ,ITIED ,MSR    ,MS     ,WEIGHT ,
@@ -417,11 +390,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -443,7 +412,7 @@ C     REAL
      .   DA
 C-----------------------------------------------
 C
-      IF(MSR.EQ.0)THEN
+      IF(MSR==0)THEN
        XWL0=RWL(4)
        YWL0=RWL(5)
        ZWL0=RWL(6)
@@ -468,7 +437,7 @@ C
        ZWL=X(M3)+VZW*DT2
       ENDIF
 C
-      IF(ITIED.EQ.0)THEN
+      IF(ITIED==0)THEN
 C
        DO 40 J = 1,NIMPACT
         I = IMPACT(J)
@@ -491,7 +460,7 @@ C
         A(N3)=A(N3)-DA*ZN
  40    CONTINUE
 C
-      ELSEIF(ITIED.EQ.1)THEN
+      ELSEIF(ITIED==1)THEN
 C
        DO 60 J = 1,NIMPACT
         I = IMPACT(J)
@@ -539,18 +508,18 @@ C glissement
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_RGWALS_BILAN              source/ams/sms_rgwals.F       
-Chd|-- called by -----------
-Chd|        SMS_RGWAL_0                   source/ams/sms_rgwal0.F       
-Chd|-- calls ---------------
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_rgwals_bilan   ../engine/source/ams/sms_rgwals.F
+!||--- called by ------------------------------------------------------
+!||    sms_rgwal_0        ../engine/source/ams/sms_rgwal0.F
+!||--- calls      -----------------------------------------------------
+!||    sum_6_float        ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE SMS_RGWALS_BILAN
-     1                 (X     ,FREA  ,V     ,RWL    ,NSW   ,
-     2                  NSN   ,ITIED ,MSR    ,MS     ,WEIGHT ,
-     3                  NIMPACT,IMPACT ,NSMS  ,NRWL_SMS,FSAV ,
-     4                  FOPT   ,FRWL6  ,A     )
+     1                 (X     ,FREA    ,V      ,RWL    ,NSW   ,
+     2                  NSN   ,ITIED   ,MSR    ,MS     ,WEIGHT ,
+     3                  NIMPACT,IMPACT ,NSMS   ,NRWL_SMS,FSAV ,
+     4                  FOPT   ,FRWL6  ,A      ,WFEXT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -559,38 +528,30 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN, ITIED, MSR, NIMPACT, NSMS
       INTEGER NSW(*), WEIGHT(*), IMPACT(*), NRWL_SMS(*)
-C     REAL
-      my_real
-     .   X(*), V(*), RWL(*), MS(*), FSAV(*), FREA(3,*),
-     .   FOPT(*), A(*)
-      DOUBLE PRECISION 
-     .   FRWL6(7,6)
+      my_real X(*), V(*), RWL(*), MS(*), FSAV(*), FREA(3,*), FOPT(*), A(*)
+      DOUBLE PRECISION  FRWL6(7,6)
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, N3, N2, N1, J, K, M1, M2, M3
-
-C     REAL
+      INTEGER I, N, N3, N2, N1, J, M1, M2, M3
       my_real
      .   VXW, VYW, VZW, VX, VY, VZ, XWL0, YWL0, ZWL0,
      .   XC, YC, ZC, XX, XN, YN, ZN,
-     .   TFXT, 
-     .   FNXN, FNYN, FNZN, FNXT, FNYT, FNZT, FN,
+     .   WFEXTT,
+     .       FN,
      .   FXN, FYN, FZN, FXT, FYT, FZT,
      .   F1(NSN), F2(NSN), F3(NSN), F4(NSN), F5(NSN), F6(NSN), F7(NSN)
 C-----------------------------------------------
 C
-      IF(MSR.EQ.0)THEN
+      IF(MSR==0)THEN
        XWL0=RWL(4)
        YWL0=RWL(5)
        ZWL0=RWL(6)
@@ -601,7 +562,7 @@ C
        M3=3*MSR
        M2=M3-1
        M1=M2-1
-C TFEXT only <=> dt12/2.
+C WFEXT only <=> dt12/2.
        VXW=V(M1)+HALF*A(M1)*DT12
        VYW=V(M2)+HALF*A(M2)*DT12
        VZW=V(M3)+HALF*A(M3)*DT12
@@ -610,9 +571,9 @@ C TFEXT only <=> dt12/2.
        ZWL0=X(M3)
       ENDIF
 C
-      TFXT=ZERO
+      WFEXTT=ZERO
 C     
-      IF(ITIED.EQ.0)THEN
+      IF(ITIED==0)THEN
 C
        DO 40 J = 1,NIMPACT
         I = IMPACT(J)
@@ -643,11 +604,11 @@ C
         F6(J) = ZERO
         F7(J) = ZERO
 C
-C 1er impact (Tfext avec decalage 1/2 cycle)
+C 1st impact (wfext with 1/2 cycle decal)
 c        VX=V(N1)+HALF*A(N1)*DT12
 c        VY=V(N2)+HALF*A(N2)*DT12
 c        VZ=V(N3)+HALF*A(N3)*DT12
-c        TFXT = TFXT -DT12*((VX-VXW)*FXN+(VY-VYW)*FYN+(VZ-VZW)*FZN)
+c        WFEXTT = WFEXTT -DT12*((VX-VXW)*FXN+(VY-VYW)*FYN+(VZ-VZW)*FZN)
  40    CONTINUE
 C
       ELSE
@@ -681,8 +642,8 @@ C
         VX=V(N1)+HALF*A(N1)*DT12
         VY=V(N2)+HALF*A(N2)*DT12
         VZ=V(N3)+HALF*A(N3)*DT12
-C 1er impact (Tfext avec decalage 1/2 cycle)
-c       TFXT = TFXT -DT12*((VX-VXW)*FXN+(VY-VYW)*FYN+(VZ-VZW)*FZN)
+C 1st impact (wfext with 1/2 cycle decal)
+c       WFEXTT = WFEXTT -DT12*((VX-VXW)*FXN+(VY-VYW)*FYN+(VZ-VZW)*FZN)
 C
         FXT=WEIGHT(N)*FREA(1,N)-FXN
         FYT=WEIGHT(N)*FREA(2,N)-FYN
@@ -690,16 +651,14 @@ C
         F5(J) = FXT
         F6(J) = FYT
         F7(J) = FZT
-        TFXT = TFXT -DT12*((VX-VXW)*FXT+(VY-VYW)*FYT+(VZ-VZW)*FZT)
+        WFEXTT = WFEXTT -DT12*((VX-VXW)*FXT+(VY-VYW)*FYT+(VZ-VZW)*FZT)
  60    CONTINUE
       ENDIF
 C
 #include "lockon.inc"
-c!$OMP ATOMIC ne marche pas
-      TFEXT=TFEXT+TFXT
+      WFEXT=WFEXT+WFEXTT
 #include "lockoff.inc"
 C
-C     IF (MSR.NE.0) THEN
       CALL SUM_6_FLOAT(1, NIMPACT, F1, FRWL6(1,1), 7)
       CALL SUM_6_FLOAT(1, NIMPACT, F2, FRWL6(2,1), 7)
       CALL SUM_6_FLOAT(1, NIMPACT, F3, FRWL6(3,1), 7)

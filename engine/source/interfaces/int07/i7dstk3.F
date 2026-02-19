@@ -1,36 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I7DSTK3                       source/interfaces/int07/i7dstk3.F
-Chd|-- called by -----------
-Chd|        I10FKU3                       source/interfaces/int10/i10ke3.F
-Chd|        I10KE3                        source/interfaces/int10/i10ke3.F
-Chd|        I7FKU3                        source/interfaces/int07/i7ke3.F
-Chd|        I7KE3                         source/interfaces/int07/i7ke3.F
-Chd|        IMP_I10MAINF                  source/interfaces/int10/i10ke3.F
-Chd|        IMP_I7MAINF                   source/interfaces/int07/i7ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i7dstk3        ../engine/source/interfaces/int07/i7dstk3.F
+!||--- called by ------------------------------------------------------
+!||    i10fku3        ../engine/source/interfaces/int10/i10ke3.F
+!||    i10ke3         ../engine/source/interfaces/int10/i10ke3.F
+!||    i7fku3         ../engine/source/interfaces/int07/i7ke3.F
+!||    i7ke3          ../engine/source/interfaces/int07/i7ke3.F
+!||    imp_i10mainf   ../engine/source/interfaces/int10/i10ke3.F
+!||    imp_i7mainf    ../engine/source/interfaces/int07/i7ke3.F
+!||====================================================================
       SUBROUTINE I7DSTK3(
      1                  JLT    ,CAND_N ,CAND_E ,
      2                  X1     ,X2     ,X3     ,X4     ,Y1     ,
@@ -54,7 +53,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JLT, JLT_NEW,INACTI, CAND_N(*),CAND_E(*)
+      INTEGER JLT,INACTI, CAND_N(*),CAND_E(*)
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
      .        NSVG(MVSIZ),INDEX(MVSIZ),I3N
       my_real
@@ -63,8 +62,8 @@ C-----------------------------------------------
      .     NZ1(MVSIZ), NZ2(MVSIZ), NZ3(MVSIZ), NZ4(MVSIZ),
      .     LB1(MVSIZ), LB2(MVSIZ), LB3(MVSIZ), LB4(MVSIZ),
      .     LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
-     .     KB1(MVSIZ), KB2(MVSIZ), KB3(MVSIZ), KB4(MVSIZ),
-     .     KC1(MVSIZ), KC2(MVSIZ), KC3(MVSIZ), KC4(MVSIZ),
+     .        
+     .        
      .     X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), X4(MVSIZ),
      .     Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), Y4(MVSIZ),
      .     Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ),
@@ -72,14 +71,9 @@ C-----------------------------------------------
      .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ), 
      .     GAPV(MVSIZ), CAND_P(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG, J
+      INTEGER I
       my_real
      .     X0(MVSIZ), Y0(MVSIZ), Z0(MVSIZ),
      .     AL1(MVSIZ),  AL2(MVSIZ),  AL3(MVSIZ), AL4(MVSIZ),
@@ -92,19 +86,19 @@ C-----------------------------------------------
      .     HLB1(MVSIZ), HLC1(MVSIZ), HLB2(MVSIZ),HLC2(MVSIZ),
      .     HLB3(MVSIZ), HLC3(MVSIZ), HLB4(MVSIZ),HLC4(MVSIZ)
       my_real
-     .     S2,D1,D2,D3,D4,
-     .     X12,X23,X34,X41,XI0,SX1,SX2,SX3,SX4,SX0,
-     .     Y12,Y23,Y34,Y41,YI0,SY1,SY2,SY3,SY4,SY0,
-     .     Z12,Z23,Z34,Z41,ZI0,SZ1,SZ2,SZ3,SZ4,SZ0,
-     .     DS2,T1,T2,T3,LA, HLA, AAA,
+     .     S2,
+     .     X12,X23,X34,X41,SX1,SX2,SX3,SX4,SX0,
+     .     Y12,Y23,Y34,Y41,SY1,SY2,SY3,SY4,SY0,
+     .     Z12,Z23,Z34,Z41,SZ1,SZ2,SZ3,SZ4,SZ0,
+     .     LA, HLA, AAA,
      .     XI0V(MVSIZ),  YI0V(MVSIZ),  ZI0V(MVSIZ)
 C-----------------------------------------------
 C--------------------------------------------------------
-C  CAS DES PAQUETS MIXTES
+C  case of mixed packets
 C--------------------------------------------------------
        I3N=2
        DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
          X0(I) = FOURTH*(X1(I)+X2(I)+X3(I)+X4(I))
          Y0(I) = FOURTH*(Y1(I)+Y2(I)+Y3(I)+Y4(I))
          Z0(I) = FOURTH*(Z1(I)+Z2(I)+Z3(I)+Z4(I)) 
@@ -115,7 +109,7 @@ C--------------------------------------------------------
         ENDIF
        ENDDO
 C--------------------------------------------------------
-C  CAS DES PAQUETS MIXTES OU QUADRANGLE
+C  case of mixed packets or quadrangle
 C--------------------------------------------------------
 C
        DO I=1,JLT
@@ -234,86 +228,86 @@ C
         LA = ONE - LB1(I) - LC1(I)
         AAA = ONE / MAX(EM20,X12*X12+Y12*Y12+Z12*Z12)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB1(I).AND.HLA.LE.HLC1(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB1(I).AND.HLA<=HLC1(I))THEN
          LB1(I) = (XI2(I)*X12+YI2(I)*Y12+ZI2(I)*Z12) * AAA
          LB1(I) = MAX(ZERO,MIN(ONE,LB1(I)))
          LC1(I) = ONE - LB1(I)
-        ELSEIF(LB1(I).LT.ZERO.AND.
-     +         HLB1(I).LE.HLC1(I).AND.HLB1(I).LE.HLA)THEN
+        ELSEIF(LB1(I)<ZERO.AND.
+     +         HLB1(I)<=HLC1(I).AND.HLB1(I)<=HLA)THEN
          LB1(I) = ZERO
          LC1(I) = AL2(I)
-        ELSEIF(LC1(I).LT.ZERO.AND.
-     +         HLC1(I).LE.HLA.AND.HLC1(I).LE.HLB1(I))THEN
+        ELSEIF(LC1(I)<ZERO.AND.
+     +         HLC1(I)<=HLA.AND.HLC1(I)<=HLB1(I))THEN
          LC1(I) = ZERO
          LB1(I) = AL1(I)
         ENDIF
        ENDDO
 C
        DO I=1,JLT
-	X23 = X3(I) - X2(I)
-	Y23 = Y3(I) - Y2(I)
-	Z23 = Z3(I) - Z2(I)
+          X23 = X3(I) - X2(I)
+          Y23 = Y3(I) - Y2(I)
+          Z23 = Z3(I) - Z2(I)
         LA = ONE - LB2(I) - LC2(I)
         AAA = ONE / MAX(EM20,X23*X23+Y23*Y23+Z23*Z23)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB2(I).AND.HLA.LE.HLC2(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB2(I).AND.HLA<=HLC2(I))THEN
          LB2(I) = (XI3(I)*X23+YI3(I)*Y23+ZI3(I)*Z23)*AAA
          LB2(I) = MAX(ZERO,MIN(ONE,LB2(I)))
          LC2(I) = ONE - LB2(I)
-        ELSEIF(LB2(I).LT.ZERO.AND.
-     +         HLB2(I).LE.HLC2(I).AND.HLB2(I).LE.HLA)THEN
+        ELSEIF(LB2(I)<ZERO.AND.
+     +         HLB2(I)<=HLC2(I).AND.HLB2(I)<=HLA)THEN
          LB2(I) = ZERO
          LC2(I) = AL3(I)
-        ELSEIF(LC2(I).LT.ZERO.AND.
-     +         HLC2(I).LE.HLA.AND.HLC2(I).LE.HLB2(I))THEN
+        ELSEIF(LC2(I)<ZERO.AND.
+     +         HLC2(I)<=HLA.AND.HLC2(I)<=HLB2(I))THEN
          LC2(I) = ZERO
          LB2(I) = AL2(I)
         ENDIF
        ENDDO
 C
        DO I=1,JLT
-	X34 = X4(I) - X3(I)
-	Y34 = Y4(I) - Y3(I)
-	Z34 = Z4(I) - Z3(I)
+          X34 = X4(I) - X3(I)
+          Y34 = Y4(I) - Y3(I)
+          Z34 = Z4(I) - Z3(I)
         LA = ONE - LB3(I) - LC3(I)
         AAA = ONE / MAX(EM20,X34*X34+Y34*Y34+Z34*Z34)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB3(I).AND.HLA.LE.HLC3(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB3(I).AND.HLA<=HLC3(I))THEN
          LB3(I) = (XI4(I)*X34+YI4(I)*Y34+ZI4(I)*Z34)*AAA
          LB3(I) = MAX(ZERO,MIN(ONE,LB3(I)))
          LC3(I) = ONE - LB3(I)
-        ELSEIF(LB3(I).LT.ZERO.AND.
-     +         HLB3(I).LE.HLC3(I).AND.HLB3(I).LE.HLA)THEN
+        ELSEIF(LB3(I)<ZERO.AND.
+     +         HLB3(I)<=HLC3(I).AND.HLB3(I)<=HLA)THEN
          LB3(I) = ZERO
          LC3(I) = AL4(I)
-        ELSEIF(LC3(I).LT.ZERO.AND.
-     +         HLC3(I).LE.HLA.AND.HLC3(I).LE.HLB3(I))THEN
+        ELSEIF(LC3(I)<ZERO.AND.
+     +         HLC3(I)<=HLA.AND.HLC3(I)<=HLB3(I))THEN
          LC3(I) = ZERO
          LB3(I) = AL3(I)
         ENDIF
        ENDDO
 C
        DO I=1,JLT
-	X41 = X1(I) - X4(I)
-	Y41 = Y1(I) - Y4(I)
-	Z41 = Z1(I) - Z4(I)
+          X41 = X1(I) - X4(I)
+          Y41 = Y1(I) - Y4(I)
+          Z41 = Z1(I) - Z4(I)
         LA = ONE - LB4(I) - LC4(I)
         AAA = ONE / MAX(EM20,X41*X41+Y41*Y41+Z41*Z41)
         HLA= LA*ABS(LA) * AAA
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB4(I).AND.HLA.LE.HLC4(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB4(I).AND.HLA<=HLC4(I))THEN
          LB4(I) = (XI1(I)*X41+YI1(I)*Y41+ZI1(I)*Z41)*AAA
          LB4(I) = MAX(ZERO,MIN(ONE,LB4(I)))
          LC4(I) = ONE - LB4(I)
-        ELSEIF(LB4(I).LT.ZERO.AND.
-     +         HLB4(I).LE.HLC4(I).AND.HLB4(I).LE.HLA)THEN
+        ELSEIF(LB4(I)<ZERO.AND.
+     +         HLB4(I)<=HLC4(I).AND.HLB4(I)<=HLA)THEN
          LB4(I) = ZERO
          LC4(I) = AL1(I)
-        ELSEIF(LC4(I).LT.ZERO.AND.
-     +         HLC4(I).LE.HLA.AND.HLC4(I).LE.HLB4(I))THEN
+        ELSEIF(LC4(I)<ZERO.AND.
+     +         HLC4(I)<=HLA.AND.HLC4(I)<=HLB4(I))THEN
          LC4(I) = ZERO
          LB4(I) = AL4(I)
         ENDIF
@@ -348,13 +342,12 @@ C---------------------
       RETURN
       END
 C===============================================================================
-Chd|====================================================================
-Chd|  I7DSTR3                       source/interfaces/int07/i7dstk3.F
-Chd|-- called by -----------
-Chd|        IMP_I10MAINF                  source/interfaces/int10/i10ke3.F
-Chd|        IMP_I7MAINF                   source/interfaces/int07/i7ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i7dstr3        ../engine/source/interfaces/int07/i7dstk3.F
+!||--- called by ------------------------------------------------------
+!||    imp_i10mainf   ../engine/source/interfaces/int10/i10ke3.F
+!||    imp_i7mainf    ../engine/source/interfaces/int07/i7ke3.F
+!||====================================================================
       SUBROUTINE I7DSTR3(
      1                  JLT    ,CAND_N ,CAND_E ,CN_LOC ,CE_LOC ,
      2                  P1     ,P2     ,P3     ,P4     ,STIF   ,
@@ -376,20 +369,14 @@ C-----------------------------------------------
      .     STIF(MVSIZ),GAPV(MVSIZ), CAND_P(*),
      .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG, J
+      INTEGER I
       my_real
      .     FAC,GAP2,D1,D2,D3,D4,PENE2(MVSIZ)
 C-----------------------------------------------
        JLT_NEW = 0
        FAC = ZEP97*ZEP97
-Ctmp       FAC = (ONE +HALF)*(ONE +HALF)
        DO I=1,JLT
         GAP2=FAC*GAPV(I)*GAPV(I)
 C
@@ -402,16 +389,15 @@ C
 C---------------------
 C      PENE INITIALE
 C---------------------
-       IF(INACTI.EQ.5.OR.INACTI.EQ.6)THEN
+       IF(INACTI==5.OR.INACTI==6)THEN
         DO I=1,JLT
-          IF(PENE2(I).GT.ZERO.OR.STIF(I).EQ.ZERO)THEN
+          IF(PENE2(I)>ZERO.OR.STIF(I)==ZERO)THEN
             CAND_P(INDEX(I))=0
           ENDIF
         ENDDO
        ENDIF
-#include  "vectorize.inc"
         DO I=1,JLT
-         IF(PENE2(I).GT.ZERO.AND.STIF(I).NE.ZERO)THEN
+         IF(PENE2(I)>ZERO.AND.STIF(I)/=ZERO)THEN
           JLT_NEW = JLT_NEW + 1
           CN_LOC(JLT_NEW) = CAND_N(I)
           CE_LOC(JLT_NEW) = CAND_E(I)

@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MERGE_BUCKET_SEARCH           source/elements/nodes/merge_bucket_search.F
-Chd|-- called by -----------
-Chd|        MERGE_NODE                    source/elements/nodes/merge_node.F
-Chd|-- calls ---------------
-Chd|        DECODE_MERGE                  source/elements/nodes/merge_bucket_search.F
-Chd|        USRTOS                        source/system/sysfus.F        
-Chd|        USRTOSC                       source/model/submodel/merge.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    merge_bucket_search   ../starter/source/elements/nodes/merge_bucket_search.F
+!||--- called by ------------------------------------------------------
+!||    merge_node            ../starter/source/elements/nodes/merge_node.F
+!||--- calls      -----------------------------------------------------
+!||    decode_merge          ../starter/source/elements/nodes/merge_bucket_search.F
+!||    usrtos                ../starter/source/system/sysfus.F
+!||    usrtosc               ../starter/source/model/submodel/merge.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE MERGE_BUCKET_SEARCH(X,ITAB,ITABM1,IMERGE0,CMERGE,
      .                               DBUC,NN1,NN2,LIST1,LIST2,
      .                               DDD,FLAG,LIST1_IDMERGE,LIST1_NBMERGE,LIST2_IDMERGE,
@@ -43,11 +44,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "com04_c.inc"
-#include      "scr06_c.inc"
-#include      "scr03_c.inc"
-#include      "titr_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -64,10 +61,11 @@ C-----------------------------------------------
      .      IBZ,IBY,IBX,KS,
      .      NBOX,NBOY,NBOZ,NBX,NBY,NBZ,NBAND,IBOITE
 C
-      INTEGER 
-     .    NOBX(NUMNOD),NOBY(NUMNOD),NOBZ(NUMNOD),
-     .    NOBCX(NN2),NOBCY(NN2),NOBCZ(NN2),NUMNOD1,
-     .    TABS(NB_MERGE_NODE),TABC(NB_MERGE_NODE),TAG
+    ! Declaration of integer scalar variables
+      INTEGER :: NUMNOD1, TAG
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: NOBX, NOBY, NOBZ
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: NOBCX, NOBCY, NOBCZ
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: TABS, TABC
 C 
       INTEGER, DIMENSION(:),POINTER     :: ITABC
       INTEGER, DIMENSION(:),ALLOCATABLE :: 
@@ -87,10 +85,18 @@ C - BUCKET SEARCH FOR MERGING OF NODES
 C - --> FLAG = 1 : merging of nodes with cnodes
 C - --> FLAG = 2 : merging of nodes with modes (/MERGE/NODE)
 C
-C - --> LIST1 / NN1 : list of nodes candiate for merging
+C - --> LIST1 / NN1 : list of nodes candidate for merging
 C - --> LIST2 / NN2 : list of destinations
 C=======================================================================
 C 
+      ALLOCATE(NOBX(NUMNOD))
+      ALLOCATE(NOBY(NUMNOD))
+      ALLOCATE(NOBZ(NUMNOD))
+      ALLOCATE(NOBCX(NN2))
+      ALLOCATE(NOBCY(NN2))
+      ALLOCATE(NOBCZ(NN2))
+      ALLOCATE(TABS(NB_MERGE_NODE))
+      ALLOCATE(TABC(NB_MERGE_NODE))
       DBUC = TWO*DBUC
       EPS=EM3*DBUC 
       XMIN=EP30
@@ -129,30 +135,31 @@ C
       DO I=1,NN1   
         N = LIST1(I)
         NN  = USRTOS(ITAB(N),ITABM1)
-        NOBX(I) = (X(1,NN)-XMIN)/DBUC
-        NOBY(I) = (X(2,NN)-YMIN)/DBUC
-        NOBZ(I) = (X(3,NN)-ZMIN)/DBUC
+        NOBX(I) = INT( (X(1,NN)-XMIN)/DBUC)
+        NOBY(I) = INT( (X(2,NN)-YMIN)/DBUC)
+        NOBZ(I) = INT( (X(3,NN)-ZMIN)/DBUC)
       ENDDO
 C  
       IF (FLAG == 1) THEN
-C--     destinations are cnodes (NN2 = NUMCNOD)
+C- ARE CNODES destinations (NN2 = NUMCNOD)
         NUMNOD1 = NUMNOD0-NUMCNOD
         ITABC => ITAB(NUMNOD1+1:NUMNOD0)
         DO I=1,NN2
-          N = LIST2(I)       
+          N = LIST2(I)   
           NN  = USRTOSC(ITABC(N),ITABM1)
-          NOBCX(N) = (X(1,NN)-XMIN)/DBUC
-          NOBCY(N) = (X(2,NN)-YMIN)/DBUC
-          NOBCZ(N) = (X(3,NN)-ZMIN)/DBUC
+          NOBCX(N) =INT( (X(1,NN)-XMIN)/DBUC)
+          NOBCY(N) =INT( (X(2,NN)-YMIN)/DBUC)
+          NOBCZ(N) =INT( (X(3,NN)-ZMIN)/DBUC)
         ENDDO
       ELSE
-C--     destinations are nodes
-        DO I=1,NN2
+        ITABC => NULL()
+C- Are Nodes
+        DO I=1,NN2 
           N = LIST2(I)       
           NN  = USRTOS(ITAB(N),ITABM1)
-          NOBCX(I) = (X(1,NN)-XMIN)/DBUC
-          NOBCY(I) = (X(2,NN)-YMIN)/DBUC
-          NOBCZ(I) = (X(3,NN)-ZMIN)/DBUC
+          NOBCX(I) = INT( (X(1,NN)-XMIN)/DBUC)
+          NOBCY(I) = INT( (X(2,NN)-YMIN)/DBUC)
+          NOBCZ(I) = INT( (X(3,NN)-ZMIN)/DBUC)
         ENDDO
       ENDIF 
 C  
@@ -166,10 +173,10 @@ C
      .         IPCY(NN2+NBAND)   , IPCZ(NN2+NBAND))
 
 C--------------------------------------------------
-C     CLASSEMENT DES BUCKETS X
+C     sorting of x buckets
 C--------------------------------------------------
 C 
-C---      bande NBX uniquement. 
+C--- NBX strip only. 
 C 
       DO IB=0,NBX+1
        NPX(IB)=0
@@ -188,7 +195,7 @@ C
       ENDDO
       DO N=1,NN1
         NBOX=NOBX(N)+1
-C      bande NBX uniquement.
+C      NBX strip only.
         IF(NBOX >= 1.AND.NBOX <= NBX+1)THEN
            NPX(NBOX)=NPX(NBOX)+1
            IPX(NPX(NBOX))=N       
@@ -214,7 +221,7 @@ C
       ENDDO
       DO N=1,NN2
          NBOX=NOBCX(N)+1
-C      bande NBX uniquement.
+C      NBX strip only.
          IF(NBOX >= 1.AND.NBOX <= NBX+1)THEN
            NPCX(NBOX)=NPCX(NBOX)+1
            IPCX(NPCX(NBOX))=N               
@@ -234,7 +241,7 @@ C
               DO KS=NPX(MAX(IBX-2,0))+1,NPX(MIN(IBX+1,NBX+1))
                  N  =IPX(KS)
                  NBOY=NOBY(N)+1           
-C       bande NBY uniquement.
+C       NBY band only.
                  IF(NBOY >= 1 .AND. NBOY <= NBY+1)THEN
                      NPY(NBOY)=NPY(NBOY)+1
                  ENDIF
@@ -248,7 +255,7 @@ C       bande NBY uniquement.
              DO KS=NPX(MAX(IBX-2,0))+1,NPX(MIN(IBX+1,NBX+1))
                   N  =IPX(KS)      
                   NBOY=NOBY(N)+1
-C       bande NBY uniquement.
+C       NBY band only.
                   IF(NBOY >= 1 .AND. NBOY <= NBY+1)THEN
                        NPY(NBOY)=NPY(NBOY)+1
                        IPY(NPY(NBOY))=N 
@@ -263,7 +270,7 @@ C
              DO KS=NPCX(IBX-1)+1,NPCX(IBX)
                  N  =IPCX(KS)      
                  NBOY=NOBCY(N)+1
-C       bande NBY uniquement.
+C       NBY band only.
                  IF(NBOY >= 1.AND.NBOY <= NBY+1)THEN
                      NPCY(NBOY)=NPCY(NBOY)+1
                  ENDIF
@@ -279,14 +286,14 @@ C
              DO KS=NPCX(IBX-1)+1,NPCX(IBX)
                   N  =IPCX(KS)      
                   NBOY=NOBCY(N)+1
-C       bande NBY uniquement.
+C       NBY band only.
                   IF(NBOY >= 1.AND. NBOY <= NBY+1)THEN
                      NPCY(NBOY)=NPCY(NBOY)+1
                      IPCY(NPCY(NBOY))=N         
                   ENDIF
              ENDDO
 C        
-C -- les boites suivantes z
+C -- the following boxes z
 C 
              DO IBY=1,NBY+1   
                 IBOITE = 0   
@@ -301,7 +308,7 @@ C
                   DO KS=NPY(MAX(IBY-2,0))+1,NPY(MIN(IBY+1, NBY+1))
                       N  =IPY(KS) 
                       NBOZ=NOBZ(N)+1
-C        bande NBZ uniquement.
+C        NBZ band only.
                       IF(NBOZ >= 1.AND.NBOZ <= NBZ+1)THEN
                            NPZ(NBOZ)=NPZ(NBOZ)+1
                       ENDIF
@@ -315,7 +322,7 @@ C        bande NBZ uniquement.
                   DO KS=NPY(MAX(IBY-2,0))+1,NPY(MIN(IBY+1, NBY+1))
                       N  =IPY(KS)
                       NBOZ=NOBZ(N)+1
-C        bande NBZ uniquement.
+C        NBZ band only.
                       IF(NBOZ >= 1 .AND. NBOZ <= NBZ+1)THEN
                            NPZ(NBOZ)=NPZ(NBOZ)+1
                            IPZ(NPZ(NBOZ))=N   
@@ -351,6 +358,7 @@ C
 C
 C ---recherche cnode par boite tt d'abord
 C
+                  DVOIS = HUGE(DVOIS)
                   DO IBZ=1,NBZ+1
                      DO KP= NPCZ(IBZ-1)+1,NPCZ(IBZ) 
                        IF(IPCZ(KP) > 0) THEN
@@ -385,7 +393,7 @@ C-------------------------------------------------------------------------------
 C--                           Merging with nodes - node with lowest user id is the destination
 C---------------------------------------------------------------------------------------------
                               NC = LIST2(IPCZ(KP))
-                              NS = LIST1(IPZ(KS))       
+                              NS = LIST1(IPZ(KS))  
                               IG=USRTOS(ITAB(NC),ITABM1)
                               XI =X(1,IG)
                               YI =X(2,IG)
@@ -403,78 +411,80 @@ C
                               DMERGE = ZERO
                               DO J=1,LIST2_NBMERGE(IPCZ(KP))
                                 DO K=1,LIST1_NBMERGE(IPZ(KS))
-                                  IF (TABC(J) == TABS(K)) THEN
-C--                                 candidate is retianed only if refered by same merge/node
-                                    TAG = 1
+                                  IF (ABS(TABC(J)) == TABS(K)) THEN
+C--                                 pair is retained only if referred by same merge/node
+C--                                 tabc < 0 if merge_type = 2 - criteria itab(ns) < itab(nc) not used
                                     DMERGE = CMERGE(TABS(K))*CMERGE(TABS(K))
+                                    IF ((ITAB(NS)>ITAB(NC)).OR.((TABC(J)<0).AND.(NS/=NC))) THEN
+                                      IF (DIST2<=DMERGE) THEN
+                                        IF(IMERGE0(IPZ(KS)) == 0) THEN
+                                          IMERGE0(IPZ(KS)) = ITAB(NC)
+                                          DDD(IPZ(KS)) = DIST2
+                                        ELSEIF(IMERGE0(IPZ(KS)) > ITAB(NC))THEN
+                                          IMERGE0(IPZ(KS)) = ITAB(NC)
+                                          DDD(IPZ(KS)) = DIST2
+                                        ENDIF
+                                      ENDIF  
+                                    ENDIF
                                   ENDIF
                                 ENDDO
-                              ENDDO
-C                          
-                              IF((ITAB(NS) > ITAB(NC)).AND.(DIST2<=DMERGE).AND.(TAG==1)) THEN
-                                IF(IMERGE0(IPZ(KS)) == 0) THEN
-                                   IMERGE0(IPZ(KS)) = ITAB(NC)
-                                   DDD(IPZ(KS)) = DIST2
-                                ELSEIF(IMERGE0(IPZ(KS)) > ITAB(NC))THEN
-                                   IMERGE0(IPZ(KS)) = ITAB(NC)
-                                   DDD(IPZ(KS)) = DIST2
-                                ENDIF
-C
-                              ENDIF      
+                              ENDDO                             
+C                             
                             ENDIF
                           ENDDO   
                         ENDIF           
                       ENDDO 
-                      
                     ENDDO
-                   
                 ENDIF          
               ENDDO
             ENDIF 
           ENDDO
-
+       DEALLOCATE(NOBX)
+       DEALLOCATE(NOBY)
+       DEALLOCATE(NOBZ)
+       DEALLOCATE(NOBCX)
+       DEALLOCATE(NOBCY)
+       DEALLOCATE(NOBCZ)
+       DEALLOCATE(TABS)
+       DEALLOCATE(TABC)
 C--------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  DECODE_MERGE                  source/elements/nodes/merge_bucket_search.F
-Chd|-- called by -----------
-Chd|        MERGE_BUCKET_SEARCH           source/elements/nodes/merge_bucket_search.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE DECODE_MERGE(CODE,NVAL,TAB,BASE)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
+!||====================================================================
+!||    decode_merge          ../starter/source/elements/nodes/merge_bucket_search.F
+!||--- called by ------------------------------------------------------
+!||    merge_bucket_search   ../starter/source/elements/nodes/merge_bucket_search.F
+!||====================================================================
+      SUBROUTINE DECODE_MERGE(CODE,NVAL,TAB,NB_MERGE)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER CODE,NVAL,TAB(*),BASE
+      INTEGER CODE,NVAL,TAB(*),NB_MERGE
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,CODE_TEMP
+      INTEGER I,CODE_TEMP,BASE
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
 C
 C--   decode id merge
 C
-      TAB(1:BASE) = 0 
+      BASE = 2*NB_MERGE
+C
+      TAB(1:NB_MERGE) = 0 
 C   
       CODE_TEMP = CODE
       DO I=1,NVAL
         TAB(I) = CODE_TEMP / (BASE**(NVAL-I))
 C        TAB(I) = FLOOR(DIV)
         CODE_TEMP = CODE_TEMP - (BASE**(NVAL-I))*TAB(I)
+        IF (TAB(I) > NB_MERGE) TAB(I) = -(TAB(I)-NB_MERGE)
       ENDDO                   
 C
       END SUBROUTINE DECODE_MERGE

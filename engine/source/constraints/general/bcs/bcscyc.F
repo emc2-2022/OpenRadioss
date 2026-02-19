@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BCSCYC                        source/constraints/general/bcs/bcscyc.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ACC_CYCON                     source/constraints/general/bcs/bcscyc.F
-Chd|        CHKV0_CY                      source/constraints/general/bcs/bcscyc.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    bcscyc      ../engine/source/constraints/general/bcs/bcscyc.F
+!||--- called by ------------------------------------------------------
+!||    resol       ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    acc_cycon   ../engine/source/constraints/general/bcs/bcscyc.F
+!||    chkv0_cy    ../engine/source/constraints/general/bcs/bcscyc.F
+!||====================================================================
       SUBROUTINE BCSCYC(IBCSCYC,LBCSCYC,SKEW,X,V,A,ITAB)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -39,7 +39,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -50,9 +49,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J ,ISK,IAD,NN,N1,N2,ID
+      INTEGER I, ISK, IAD, NN, ID
       my_real
-     .   AX, AY, AZ
+     .   VDT
 C-----------------------------------------------
 C---Check Ncycle=0 V(,N1)=V(,N2) in c.s.
       IF (NCYCLE==0) THEN
@@ -76,16 +75,17 @@ C----case AMS done before in sms_pcg
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ACC_CYCON                     source/constraints/general/bcs/bcscyc.F
-Chd|-- called by -----------
-Chd|        BCSCYC                        source/constraints/general/bcs/bcscyc.F
-Chd|        SMS_BCSCYC                    source/ams/sms_bcscyc.F       
-Chd|-- calls ---------------
-Chd|        V_C2CYLIN                     source/constraints/general/bcs/bcscyc.F
-Chd|        V_CYC2C                       source/constraints/general/bcs/bcscyc.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    acc_cycon     ../engine/source/constraints/general/bcs/bcscyc.F
+!||--- called by ------------------------------------------------------
+!||    bcscyc        ../engine/source/constraints/general/bcs/bcscyc.F
+!||    sms_bcscyc    ../engine/source/ams/sms_bcscyc.F
+!||--- calls      -----------------------------------------------------
+!||    v_c2cylin     ../engine/source/constraints/general/bcs/bcscyc.F
+!||    v_cyc2c       ../engine/source/constraints/general/bcs/bcscyc.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ACC_CYCON(NBCY_N,IXCYCL,ISK,SKEW,X  ,A)
 C-----------------------------------------------
 C   M o d u l e s
@@ -95,9 +95,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -111,7 +108,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J ,N1(NBCY_N),N2(NBCY_N)
+      INTEGER I, N1(NBCY_N), N2(NBCY_N)
 C
       my_real
      .   CCOS1(NBCY_N),CSIN1(NBCY_N),CCOS2(NBCY_N),CSIN2(NBCY_N),
@@ -136,25 +133,17 @@ C--- mean(A")-> A'(x',y',z')->A (SKEW^t)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  V_C2CYLIN                     source/constraints/general/bcs/bcscyc.F
-Chd|-- called by -----------
-Chd|        ACC_CYCON                     source/constraints/general/bcs/bcscyc.F
-Chd|        CHKV0_CY                      source/constraints/general/bcs/bcscyc.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    v_c2cylin   ../engine/source/constraints/general/bcs/bcscyc.F
+!||--- called by ------------------------------------------------------
+!||    acc_cycon   ../engine/source/constraints/general/bcs/bcscyc.F
+!||    chkv0_cy    ../engine/source/constraints/general/bcs/bcscyc.F
+!||====================================================================
       SUBROUTINE V_C2CYLIN(NBCY,IX,X,V,SKEW,XYZ0,CCOS,CSIN,V_C)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -165,7 +154,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J 
+      INTEGER I
 C
       my_real
      .     XX,YY,ZZ,XL,YL,ZL,R2,CR(NBCY),CZ(NBCY)
@@ -198,24 +187,16 @@ C----- compute v to v_cylin
 C
       RETURN
       END SUBROUTINE V_C2CYLIN
-Chd|====================================================================
-Chd|  V_CYC2C                       source/constraints/general/bcs/bcscyc.F
-Chd|-- called by -----------
-Chd|        ACC_CYCON                     source/constraints/general/bcs/bcscyc.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    v_cyc2c     ../engine/source/constraints/general/bcs/bcscyc.F
+!||--- called by ------------------------------------------------------
+!||    acc_cycon   ../engine/source/constraints/general/bcs/bcscyc.F
+!||====================================================================
       SUBROUTINE V_CYC2C(NBCY,SKEW,CCOS,CSIN,V_C,VC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -225,7 +206,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J 
+      INTEGER I
 C
       my_real
      .     XX,YY,ZZ,XL,YL,ZL
@@ -245,15 +226,16 @@ C----- compute v_cylin to v
 C
       RETURN
       END SUBROUTINE V_CYC2C
-Chd|====================================================================
-Chd|  CHKV0_CY                      source/constraints/general/bcs/bcscyc.F
-Chd|-- called by -----------
-Chd|        BCSCYC                        source/constraints/general/bcs/bcscyc.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        V_C2CYLIN                     source/constraints/general/bcs/bcscyc.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    chkv0_cy      ../engine/source/constraints/general/bcs/bcscyc.F
+!||--- called by ------------------------------------------------------
+!||    bcscyc        ../engine/source/constraints/general/bcs/bcscyc.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    v_c2cylin     ../engine/source/constraints/general/bcs/bcscyc.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE CHKV0_CY(NBCY_N,IXCYCL,ISK,SKEW,X  ,V ,ID ,ITAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -264,13 +246,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -286,7 +264,7 @@ C
      .    CCOS(NBCY_N),CSIN(NBCY_N),V_C1(3,NBCY_N),V_C2(3,NBCY_N),
      .    DV,DVMAX,DVMEAN
 C========================================================================|
-C-----for each cut-section nodes, compute cylindrical co-ordinates and vel
+C-----for each cut-section nodes, compute cylindrical coordinates and vel
       DO I=1,NBCY_N
         N1(I) = IXCYCL(1,I)
         N2(I) = IXCYCL(2,I)

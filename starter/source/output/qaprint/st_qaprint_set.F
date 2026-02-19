@@ -1,42 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ST_QAPRINT_SET                source/output/qaprint/st_qaprint_set.F
-Chd|-- called by -----------
-Chd|        ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|-- calls ---------------
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_2INDEXES     source/devtools/hm_reader/hm_get_int_array_2indexes.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_GET_STRING_INDEX           source/devtools/hm_reader/hm_get_string_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    st_qaprint_set              ../starter/source/output/qaprint/st_qaprint_set.F
+!||--- called by ------------------------------------------------------
+!||    st_qaprint_driver           ../starter/source/output/qaprint/st_qaprint_driver.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_int_array_2indexes   ../starter/source/devtools/hm_reader/hm_get_int_array_2indexes.F
+!||    hm_get_int_array_index      ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                 ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string               ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_get_string_index         ../starter/source/devtools/hm_reader/hm_get_string_index.F
+!||    hm_option_read_key          ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start             ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE ST_QAPRINT_SET(SET    ,LSUBMODEL,ITAB     ,IGRNOD ,IGRPART,
      .                          IPART  ,IGRBRIC  ,IGRSH4N  ,IGRSH3N,IGRQUAD,
      .                          IGRBEAM,IGRTRUSS ,IGRSPRING,IGRSURF,IGRSLIN,
@@ -50,6 +49,8 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD, NCHARKEY, NCHARLINE
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -57,14 +58,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "scr17_c.inc"
-#include      "tabsiz_c.inc"
-#include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -88,11 +83,11 @@ C-----------------------------------------------
 C--------------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,N,ID,IGS,CLAUSES_MAX,ISET_TYPE,ITMP,ICODE,IDS_MAX,IDS,
-     .        OPT_,OPT_D,OPT_O,OPT_G,OPT_B,OPT_A,OPT_E,OPT_I,OPT_C,
+      INTEGER J,K,N,ID,IGS,CLAUSES_MAX,ISET_TYPE,ITMP,ICODE,IDS_MAX,IDS,
+     .        OPT_D,OPT_O,OPT_G,OPT_B,OPT_A,OPT_E,OPT_I,OPT_C,
      .        IGR,NOD,NB_NODE,NB_PART,IP,IE,NB_SOLID,NB_SH4N,NB_SH3N,
      .        NB_QUAD,NB_TRIA,NB_BEAM,NB_TRUSS,NB_SPRING,NB_SURF_SEG,
-     .        NB_LINE_SEG,ISEG
+     .        NB_LINE_SEG,NB_NODENS
       CHARACTER(LEN = nchartitle) :: TITLE
       CHARACTER(LEN = ncharfield) :: KEYSET,SET_TYPE
       CHARACTER(LEN = ncharkey)   :: KEY
@@ -113,17 +108,14 @@ C-----------------------------------------------
 !
           DO IGS = 1, NSETS
 !---
-            CALL HM_OPTION_READ_KEY(LSUBMODEL,
-     .                              OPTION_ID   = ID,
-     .                              OPTION_TITR = TITLE,
-     .                              KEYWORD2    = KEY)
+            CALL HM_OPTION_READ_KEY(LSUBMODEL,OPTION_ID=ID,OPTION_TITR=TITLE,KEYWORD2=KEY)
             WRITE(VARNAME,'(A)') TRIM(TITLE)
             CALL QAPRINT(TITLE(1:LEN_TRIM(VARNAME)), ID, 0.0_8)
 !---
             CALL HM_GET_STRING('set_Type', SET_TYPE ,ncharfield, IS_AVAILABLE)
 !-----------------------
 ! issue 'SET_TYPE'  ---> read one more character than the SET_TYPE
-! ===> workarround
+! ===> workaround
             ITMP = LEN(TRIM(SET_TYPE))
             IF (ITMP > 0) THEN
               ICODE = IACHAR(SET_TYPE(ITMP:ITMP))
@@ -143,7 +135,7 @@ C-----------------------------------------------
               CALL HM_GET_STRING_INDEX('KEY_type', KEYSET, J, ncharline, IS_AVAILABLE)
 !-----------------------
 ! issue 'KEYSET'  ---> read one more character than the KEYSET
-! ===> workarround
+! ===> workaround
               ITMP = LEN(TRIM(KEYSET))
               ICODE = IACHAR(KEYSET(ITMP:ITMP))
               IF (ICODE == 0)  KEYSET(ITMP:ITMP)=' '
@@ -209,7 +201,7 @@ C-----------------------------------------------
 !---
 !
 !---
-!           --- New /SET grnod --
+!           --- New /SET grnod of NODES--
 !---
             IF( SET(IGS)%SET_ACTIV == 0 ) CYCLE
 
@@ -227,6 +219,25 @@ C-----------------------------------------------
                 CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(NOD),0.0_8)
               ENDDO
             ENDIF ! IF (NB_NODE > 0)
+!---
+!           --- New /SET grnod of NODENS --
+!---
+            IF( SET(IGS)%SET_ACTIV == 0 ) CYCLE
+
+            NB_NODENS = SET(IGS)%NB_NODENS
+
+            IF (NB_NODENS > 0) THEN
+              IGR = SET(IGS)%SET_GRNOD_ID
+              WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'GRNOD'
+              CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),IGRNOD(IGR)%ID,0.0_8)
+              WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'GRNOD_NB_NODENS'
+              CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),NB_NODENS,0.0_8)
+              DO N = 1,NB_NODENS
+                NOD = IGRNOD(IGR)%ENTITY(N)
+                WRITE(VARNAME,'(A,I0,A,I0)') 'SET_',ID,'_'//'NODENS'//'_',N
+                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(NOD),0.0_8)
+              ENDDO
+            ENDIF ! IF (NB_NODENS > 0)
 !---
 !           --- New /SET grpart --
 !---
@@ -377,24 +388,74 @@ C-----------------------------------------------
               WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'SURFACE_NB_SEG'
               CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),NB_SURF_SEG,0.0_8)
               DO N = 1,NB_SURF_SEG
-                WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_NODE_1'
-                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(IGRSURF(IGR)%NODES(N,1)),0.0_8)
-                WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_NODE_2'
-                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(IGRSURF(IGR)%NODES(N,2)),0.0_8)
-                WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_NODE_3'
-                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(IGRSURF(IGR)%NODES(N,3)),0.0_8)
-                WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_NODE_4'
-                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(IGRSURF(IGR)%NODES(N,4)),0.0_8)
-                WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_ELTYP'
-                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),IGRSURF(IGR)%ELTYP(N),0.0_8)
-                WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_ELEM'
-                IF (IGRSURF(IGR)%ELTYP(N) == 3 ) THEN ! SH4N
-                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),IXC(NIXC,IGRSURF(IGR)%ELEM(N)),0.0_8)
-                ELSEIF (IGRSURF(IGR)%ELTYP(N) == 7 ) THEN ! SH3N
-                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),IXTG(NIXTG,IGRSURF(IGR)%ELEM(N)),0.0_8)
-                ELSEIF (IGRSURF(IGR)%ELTYP(N) == 1 ) THEN ! SOLID
-                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),IXS(NIXS,IGRSURF(IGR)%ELEM(N)),0.0_8)
-                ENDIF ! IF (IGRSURF(IGR)%ELTYP(N) == 3 )
+                IF(SET(IGS)%NB_ELLIPSE == 0 .AND. SET(IGS)%NB_PLANE== 0)THEN
+                  WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_NODE_1'
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(IGRSURF(IGR)%NODES(N,1)),0.0_8)
+                  WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_NODE_2'
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(IGRSURF(IGR)%NODES(N,2)),0.0_8)
+                  IF(IGRSURF(IGR)%NODES(N,3) > 0)THEN
+                    WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_NODE_3'
+                    CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(IGRSURF(IGR)%NODES(N,3)),0.0_8)
+                  ENDIF
+                  IF(IGRSURF(IGR)%NODES(N,4) > 0)THEN
+                    WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_NODE_4'
+                    CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),ITAB(IGRSURF(IGR)%NODES(N,4)),0.0_8)
+                  ENDIF
+                  WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_ELTYP'
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),IGRSURF(IGR)%ELTYP(N),0.0_8)
+                  WRITE(VARNAME,'(A,I0,A,I0,A)') 'SET_',ID,'_'//'SURFACE_SEG_',N,'_ELEM'
+                  IF (IGRSURF(IGR)%ELTYP(N) == 3 ) THEN ! SH4N
+                    CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),IXC(NIXC,IGRSURF(IGR)%ELEM(N)),0.0_8)
+                  ELSEIF (IGRSURF(IGR)%ELTYP(N) == 7 ) THEN ! SH3N
+                    CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),IXTG(NIXTG,IGRSURF(IGR)%ELEM(N)),0.0_8)
+                  ELSEIF (IGRSURF(IGR)%ELTYP(N) == 1 ) THEN ! SOLID
+                    CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),IXS(NIXS,IGRSURF(IGR)%ELEM(N)),0.0_8)
+                  ENDIF ! IF (IGRSURF(IGR)%ELTYP(N) == 3 )
+
+                ELSE IF(SET(IGS)%NB_ELLIPSE == 1)THEN
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'Ellipse_Xc = '
+                  TEMP_DOUBLE = SET(IGS)%ELLIPSE_XC
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'Ellipse_Yc = '
+                  TEMP_DOUBLE = SET(IGS)%ELLIPSE_YC
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'Ellipse_Zc = '
+                  TEMP_DOUBLE = SET(IGS)%ELLIPSE_ZC
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'Ellipse_a = '
+                  TEMP_DOUBLE = SET(IGS)%ELLIPSE_A
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'Ellipse_b = '
+                  TEMP_DOUBLE = SET(IGS)%ELLIPSE_B
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'Ellipse_c = '
+                  TEMP_DOUBLE = SET(IGS)%ELLIPSE_C
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'Ellipse_N'
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SET(IGS)%ELLIPSE_N,0.0_8)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'Ellipse_Skew_ID'
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SET(IGS)%ELLIPSE_ID_MADYMO,0.0_8)
+                ELSE IF(SET(IGS)%NB_PLANE == 1)THEN
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'Plane_XM = '
+                  TEMP_DOUBLE = SET(IGS)%PLANE_XM
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'PLANE_YM = '
+                  TEMP_DOUBLE = SET(IGS)%PLANE_YM
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'PLANE_ZM = '
+                  TEMP_DOUBLE = SET(IGS)%PLANE_ZM
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'PLANE_XM1 = '
+                  TEMP_DOUBLE = SET(IGS)%PLANE_XM1
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'PLANE_YM1 = '
+                  TEMP_DOUBLE = SET(IGS)%PLANE_YM1
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                  WRITE(VARNAME,'(A,I0,A)') 'SET_',ID,'_'//'PLANE_ZM1 = '
+                  TEMP_DOUBLE = SET(IGS)%PLANE_ZM1
+                  CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+                ENDIF
+
               ENDDO
             ENDIF ! IF (NB_SURF_SEG > 0)
 !---

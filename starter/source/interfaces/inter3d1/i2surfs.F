@@ -1,67 +1,62 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2SURFS                       source/interfaces/inter3d1/i2surfs.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        NORMA1                        source/interfaces/inter3d1/norma1.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2surfs                ../starter/source/interfaces/inter3d1/i2surfs.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    norma1                 ../starter/source/interfaces/inter3d1/norma1.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I2SURFS(
      .      X        ,NSV      ,AREA     ,NSN      ,ITAB     ,
      .      IXC      ,IXTG     ,IXS      ,KNOD2ELS ,NOD2ELS  ,
      .      KNOD2ELC ,NOD2ELC  ,KNOD2ELTG,NOD2ELTG ,ILEV     ,
-     .      ID,TITR  ,INTTH    )
+     .      ID,TITR      )
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only :nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "param_c.inc"
-#include      "scr07_c.2.inc"
-#include      "scr17_c.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NSN,ILEV,INTTH
+      INTEGER NSN,ILEV
       INTEGER NSV(*),IXC(NIXC,*),IXTG(NIXTG,*),IXS(NIXS,*),ITAB(*),
      .   KNOD2ELC(*),KNOD2ELTG(*),KNOD2ELS(*),NOD2ELC(*),
      .   NOD2ELTG(*),NOD2ELS(*)
-C     REAL
       my_real
      .   X(3,*),AREA(*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K, N, IAD, IS, IEL, ICOQ, ISOL,
+      INTEGER I, K, N, IAD, IS, IEL, ICOQ, ISOL,
      .   N1,N2,N3,N4,N5,N6,N7,N8
 C     REAL
       my_real
@@ -70,6 +65,7 @@ C     REAL
      .   X12,Y12,Z12,X13,Y13,Z13,X24,Y24,Z24,I1,I2,I3,AREA0
       my_real
      .   FACE(6)
+      my_real ::  XX1(4), XX2(4),XX3(4)
 C=======================================================================
       ICOQ = 1
       ISOL = 1 
@@ -80,7 +76,7 @@ C=======================================================================
         AREA(I) = ZERO
         IS = NSV(I)
         IF (ICOQ == 1) THEN
-C--       Cooques 4n
+C- 4n coats
           DO IAD = KNOD2ELC(IS)+1,KNOD2ELC(IS+1)
             IEL  = NOD2ELC(IAD)
             N1   = IXC(2,IEL)                                            
@@ -113,7 +109,7 @@ C--       Cooques 4n
             EZ  = X13*Y24 - Y13*X24                                      
             AREA(I) = AREA(I) + SQRT(EX*EX+EY*EY+EZ*EZ)*HALF*FOURTH  
           ENDDO 
-C--       Cooques 3n
+C- 3N coats
           DO IAD = KNOD2ELTG(IS)+1,KNOD2ELTG(IS+1)
             IEL  = NOD2ELTG(IAD)
             N1  = IXTG(2,IEL)                                            
@@ -190,7 +186,7 @@ c           face 1234
             XX1(4)=X4                    
             XX2(4)=Y4                    
             XX3(4)=Z4                    
-            CALL NORMA1(I1,I2,I3,FACE(1))  
+            CALL NORMA1(I1,I2,I3,FACE(1),XX1,XX2,XX3)  
 c           face 5678
             XX1(1)=X5
             XX2(1)=Y5
@@ -204,7 +200,7 @@ c           face 5678
             XX1(4)=X8
             XX2(4)=Y8
             XX3(4)=Z8
-            CALL NORMA1(I1,I2,I3,FACE(2))
+            CALL NORMA1(I1,I2,I3,FACE(2),XX1,XX2,XX3)
 c           face 2376
             XX1(1)=X2
             XX2(1)=Y2
@@ -218,7 +214,7 @@ c           face 2376
             XX1(4)=X6
             XX2(4)=Y6
             XX3(4)=Z6
-            CALL NORMA1(I1,I2,I3,FACE(3))
+            CALL NORMA1(I1,I2,I3,FACE(3),XX1,XX2,XX3)
 c           face 1485
             XX1(1)=X1
             XX2(1)=Y1
@@ -232,7 +228,7 @@ c           face 1485
             XX1(4)=X5
             XX2(4)=Y5
             XX3(4)=Z5
-            CALL NORMA1(I1,I2,I3,FACE(4))
+            CALL NORMA1(I1,I2,I3,FACE(4),XX1,XX2,XX3)
 c           face 1265
             XX1(1)=X1
             XX2(1)=Y1
@@ -246,7 +242,7 @@ c           face 1265
             XX1(4)=X5
             XX2(4)=Y5
             XX3(4)=Z5
-            CALL NORMA1(I1,I2,I3,FACE(5))
+            CALL NORMA1(I1,I2,I3,FACE(5),XX1,XX2,XX3)
 c           face 4378
             XX1(1)=X4
             XX2(1)=Y4
@@ -260,7 +256,7 @@ c           face 4378
             XX1(4)=X8
             XX2(4)=Y8
             XX3(4)=Z8
-            CALL NORMA1(I1,I2,I3,FACE(6))
+            CALL NORMA1(I1,I2,I3,FACE(6),XX1,XX2,XX3)
 C----
             DO K=1,8
               N = IXS(K+1,IEL)

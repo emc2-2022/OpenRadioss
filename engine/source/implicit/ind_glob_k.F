@@ -1,50 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DIM_ELEMS1                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_I                     source/implicit/ind_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dim_elems1     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k     ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_i      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE DIM_ELEMS1(
      1    IGEO      ,ELBUF     ,IPARG     ,IXS       ,IXQ       ,
      2    IXC       ,IXT       ,IXP       ,IXR       ,IXTG      ,
-     3    IXTG1     ,IXS10     ,IXS20     ,IXS16     ,IXUR      ,
+     3    IXTG1     ,IXS10     ,IXS20     ,IXS16     ,
      4    NDOF      ,NROW      ,ELBUF_TAB )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD          
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg  
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -57,7 +56,7 @@ C-----------------------------------------------
       INTEGER IPARG(NPARG,*),IGEO(NPROPGI,*)
       INTEGER 
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),NDOF(*),NROW(*)
 C     REAL
       my_real
@@ -70,10 +69,10 @@ C-----------------------------------------------
      .        I,J,K,N,M,EP,L,IGTYP,NNOD,K1,IHBE,EP1,IAD0,NPT,IDRIL
       my_real
      .   IOF
-C--------NROW(NUMNOD) : number of connnected nodes (sym)
+C--------NROW(NUMNOD) : number of connected nodes (sym)
 C----6---------------------------------------------------------------7---------8
       DO 100 NG=1,NGROUP
-       IF (IPARG(8,NG).NE.1) THEN
+       IF (IPARG(8,NG)/=1) THEN
         ITY=IPARG(5,NG)
         NEL=IPARG(2,NG)
         NFT=IPARG(3,NG)
@@ -90,19 +89,19 @@ C----------------deformable
 C-----------------------
 C     1. ELEMENTS SOLIDES
 C-----------------------
-       IF (ITY.EQ.1) THEN
+       IF (ITY==1) THEN
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          NNOD=8
          EP=I+NFT
-         IF (ISNOD.EQ.4) THEN
+         IF (ISNOD==4) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
           NC(3)=IXS(7,EP)
           NC(4)=IXS(6,EP)
-         ELSEIF (ISNOD.EQ.6) THEN
+         ELSEIF (ISNOD==6) THEN
           NNOD=6
           NC(1)=IXS(2,EP)
           NC(2)=IXS(3,EP)
@@ -110,7 +109,7 @@ C-----------------------
           NC(4)=IXS(6,EP)
           NC(5)=IXS(7,EP)
           NC(6)=IXS(8,EP)
-         ELSEIF (ISNOD.EQ.10) THEN
+         ELSEIF (ISNOD==10) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
@@ -118,17 +117,17 @@ C-----------------------
           NC(4)=IXS(6,EP)
           EP1=EP-NUMELS8
           DO J=1,6
-           IF (IXS10(J,EP1).GT.0) THEN
+           IF (IXS10(J,EP1)>0) THEN
             NNOD = NNOD + 1
             NC(NNOD) = IXS10(J,EP1)
            ENDIF
           ENDDO
-         ELSEIF (ISNOD.EQ.8) THEN
+         ELSEIF (ISNOD==8) THEN
           NNOD=8
          DO J=1,NNOD
           NC(J)=IXS(J+1,EP)
          ENDDO 
-         ELSEIF (ISNOD.EQ.20) THEN
+         ELSEIF (ISNOD==20) THEN
           NNOD=20
          DO J=1,8
           NC(J)=IXS(J+1,EP)
@@ -146,7 +145,7 @@ C-----------------------
           N=NC(J)
           NDOF(N)=MAX(3,NDOF(N))
           DO L=J+1,NNOD
-           IF (N.NE.NC(L)) NROW(N)=NROW(N)+1
+           IF (N/=NC(L)) NROW(N)=NROW(N)+1
           ENDDO
          ENDDO
         ENDIF
@@ -154,14 +153,14 @@ C-----------------------
 C-----------------------
 C     2. ELEMENTS 2D
 C-----------------------
-       ELSEIF(ITY.EQ.2)THEN
+       ELSEIF(ITY==2)THEN
         DO I=1,NEL
           IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
 C
          NNOD=4
          EP=I+NFT
-C        IF (ISNOD.EQ.4) THEN
+C        IF (ISNOD==4) THEN
 C         NNOD=4
           DO J=1,NNOD
            NC(J)=IXQ(J+1,EP)
@@ -175,7 +174,7 @@ C
           N=NC(J)
           NDOF(N)=MAX(3,NDOF(N)) !3
           DO L=J+1,NNOD
-           IF (N.NE.NC(L)) NROW(N)=NROW(N)+1
+           IF (N/=NC(L)) NROW(N)=NROW(N)+1
           ENDDO
          ENDDO
 C
@@ -184,10 +183,10 @@ C
 C-----------------------
 C     3. ELEMENTS COQUES
 C-----------------------
-       ELSEIF(ITY.EQ.3)THEN
+       ELSEIF(ITY==3)THEN
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          NNOD=4
          EP=I+NFT
          DO J=1,NNOD
@@ -202,7 +201,7 @@ C-----------------------
            NDOF(N)=6
           END IF
           DO L=J+1,NNOD
-           IF (N.NE.NC(L)) NROW(N)=NROW(N)+1
+           IF (N/=NC(L)) NROW(N)=NROW(N)+1
           ENDDO
          ENDDO
         ENDIF
@@ -210,11 +209,11 @@ C-----------------------
 C-----------------------
 C     4. ELEMENTS TIGES
 C-----------------------
-       ELSEIF(ITY.EQ.4)THEN
+       ELSEIF(ITY==4)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXT(2,EP)
          NC(2)=IXT(3,EP)
@@ -223,7 +222,7 @@ C-----------------------
           N=NC(J)
           NDOF(N)=MAX(3,NDOF(N))
           DO L=1,NNOD
-           IF (N.NE.NC(L)) NROW(N)=NROW(N)+1
+           IF (N/=NC(L)) NROW(N)=NROW(N)+1
           ENDDO
          ENDDO
         ENDIF
@@ -231,11 +230,11 @@ C-----------------------
 C-----------------------
 C     5. ELEMENTS POUTRES
 C-----------------------
-       ELSEIF(ITY.EQ.5)THEN
+       ELSEIF(ITY==5)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXP(2,EP)
          NC(2)=IXP(3,EP)
@@ -244,7 +243,7 @@ C-----------------------
           N=NC(J)
           NDOF(N)=6
           DO L=J+1,NNOD
-           IF (N.NE.NC(L)) NROW(N)=NROW(N)+1
+           IF (N/=NC(L)) NROW(N)=NROW(N)+1
           ENDDO
          ENDDO
         ENDIF
@@ -252,16 +251,16 @@ C-----------------------
 C-----------------------
 C     6. ELEMENTS RESSORTS
 C-----------------------
-       ELSEIF(ITY.EQ.6)THEN
+       ELSEIF(ITY==6)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXR(2,EP)
          NC(2)=IXR(3,EP)
          IGTYP = IGEO(11,IXR(1,EP))
-         IF (IGTYP.EQ.12) THEN
+         IF (IGTYP==12) THEN
           NNOD=3
           NC(3)=IXR(4,EP)
          ENDIF 
@@ -269,14 +268,14 @@ C-----------------------
          DO J=1,NNOD
           N=NC(J)
           DO L=J+1,NNOD
-           IF (N.NE.NC(L)) NROW(N)=NROW(N)+1
+           IF (N/=NC(L)) NROW(N)=NROW(N)+1
           ENDDO
          ENDDO
-         IF (IGTYP.EQ.8.OR.IGTYP.EQ.13) THEN
+         IF (IGTYP==8.OR.IGTYP==13) THEN
           DO J=1,NNOD
            NDOF(NC(J))=6
           ENDDO
-         ELSEIF (IGTYP.EQ.4.OR.IGTYP.EQ.12.OR.IGTYP.EQ.32) THEN
+         ELSEIF (IGTYP==4.OR.IGTYP==12.OR.IGTYP==32) THEN
           DO J=1,NNOD
            NDOF(NC(J))=MAX(3,NDOF(NC(J)))
           ENDDO 
@@ -286,11 +285,11 @@ C-----------------------
 C-----------------------
 C     7. ELEMENTS COQUES 3N
 C-----------------------
-       ELSEIF(ITY.EQ.7.AND.ICNOD.NE.6)THEN
+       ELSEIF(ITY==7.AND.ICNOD/=6)THEN
         NNOD=3
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          DO J=1,NNOD
           NC(J)=IXTG(J+1,EP)
@@ -304,7 +303,7 @@ C-----------------------
            NDOF(N)=6
           END IF
           DO L=J+1,NNOD
-           IF (N.NE.NC(L)) NROW(N)=NROW(N)+1
+           IF (N/=NC(L)) NROW(N)=NROW(N)+1
           ENDDO
          ENDDO
         ENDIF
@@ -317,33 +316,32 @@ C
       RETURN
       END
 C------version \\-----
-Chd|====================================================================
-Chd|  DIM_ELEMS3                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_ELEMAX                    source/implicit/ind_glob_k.F  
-Chd|        DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_elems3     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_elemax     ../engine/source/implicit/ind_glob_k.F
+!||    dim_kinmax     ../engine/source/implicit/ind_glob_k.F
+!||    ind_glob_k     ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE DIM_ELEMS3(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROW      ,
      4    INLOC     ,NKMAX     ,ICOK      ,IGEO      ,ELBUF_TAB )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -356,7 +354,7 @@ C-----------------------------------------------
       INTEGER IPARG(NPARG,*),NKMAX,IGEO(NPROPGI,*)
       INTEGER 
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),NROW(*),ICOK(NKMAX,*),INLOC(*)
 C     REAL
       my_real
@@ -369,10 +367,10 @@ C-----------------------------------------------
      .        I,J,K,N,M,EP,L,IGTYP,NNOD,K1,IHBE,NK,EP1,IAD0
       my_real
      .  IOF
-C--------NROW(NUMNOD) : number of connnected nodes (non sym)
+C--------NROW(NUMNOD) : number of connected nodes (non sym)
 C----6---------------------------------------------------------------7---------8
       DO 100 NG=1,NGROUP
-       IF (IPARG(8,NG).NE.1) THEN
+       IF (IPARG(8,NG)/=1) THEN
         ITY=IPARG(5,NG)
         NEL=IPARG(2,NG)
 C----------void, rigid mat        
@@ -385,19 +383,19 @@ C----------void, rigid mat
 C-----------------------
 C     1. ELEMENTS SOLIDES
 C-----------------------
-       IF (ITY.EQ.1) THEN
+       IF (ITY==1) THEN
         NNOD=8
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
-         IF (ISNOD.EQ.4) THEN
+         IF (ISNOD==4) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
           NC(3)=IXS(7,EP)
           NC(4)=IXS(6,EP)
-         ELSEIF (ISNOD.EQ.6) THEN
+         ELSEIF (ISNOD==6) THEN
           NNOD=6
           NC(1)=IXS(2,EP)
           NC(2)=IXS(3,EP)
@@ -405,7 +403,7 @@ C-----------------------
           NC(4)=IXS(6,EP)
           NC(5)=IXS(7,EP)
           NC(6)=IXS(8,EP)
-         ELSEIF (ISNOD.EQ.10) THEN
+         ELSEIF (ISNOD==10) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
@@ -413,19 +411,19 @@ C-----------------------
           NC(4)=IXS(6,EP)
           EP1=EP-NUMELS8
           DO J=1,6
-           IF (IXS10(J,EP1).GT.0) THEN
+           IF (IXS10(J,EP1)>0) THEN
             NNOD = NNOD + 1
             NC(NNOD) = IXS10(J,EP1)
            ENDIF
           ENDDO
-         ELSEIF (ISNOD.EQ.8) THEN
+         ELSEIF (ISNOD==8) THEN
           NNOD=8
          DO J=1,NNOD
           NC(J)=IXS(J+1,EP)
          ENDDO 
          
-Czg add solid element 20
-         ELSEIF (ISNOD.EQ.20) THEN
+C   add solid element 20
+         ELSEIF (ISNOD==20) THEN
           NNOD=20
          DO J=1,8
           NC(J)=IXS(J+1,EP)
@@ -441,9 +439,9 @@ Czg add solid element 20
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -454,14 +452,14 @@ Czg add solid element 20
 C-----------------------
 C     2. ELEMENTS 2D
 C-----------------------
-       ELSEIF(ITY.EQ.2)THEN
+       ELSEIF(ITY==2)THEN
         NNOD=4
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
 C
           EP=I+NFT
-C         IF (ISNOD.EQ.4) THEN
+C         IF (ISNOD==4) THEN
 C           NNOD=4
             DO J=1,NNOD
               NC(J)=IXQ(J+1,EP)
@@ -473,9 +471,9 @@ C
           DO J=1,NNOD
            N=NC(J)
            NK=INLOC(N)
-           IF (NK.GT.0) THEN
+           IF (NK>0) THEN
             DO L=1,NNOD
-             IF (N.NE.NC(L)) THEN
+             IF (N/=NC(L)) THEN
               CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L))
              ENDIF
             ENDDO
@@ -487,11 +485,11 @@ C
 C-----------------------
 C     3. ELEMENTS COQUES
 C-----------------------
-       ELSEIF(ITY.EQ.3)THEN
+       ELSEIF(ITY==3)THEN
         NNOD=4
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          DO J=1,NNOD
           NC(J)=IXC(J+1,EP)
@@ -499,9 +497,9 @@ C-----------------------
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -512,20 +510,20 @@ C-----------------------
 C-----------------------
 C     4. ELEMENTS TIGES
 C-----------------------
-       ELSEIF(ITY.EQ.4)THEN
+       ELSEIF(ITY==4)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXT(2,EP)
          NC(2)=IXT(3,EP)
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -536,20 +534,20 @@ C-----------------------
 C-----------------------
 C     5. ELEMENTS POUTRES
 C-----------------------
-       ELSEIF(ITY.EQ.5)THEN
+       ELSEIF(ITY==5)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXP(2,EP)
          NC(2)=IXP(3,EP)
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -560,25 +558,25 @@ C-----------------------
 C-----------------------
 C     6. ELEMENTS RESSORTS
 C-----------------------
-       ELSEIF(ITY.EQ.6)THEN
+       ELSEIF(ITY==6)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXR(2,EP)
          NC(2)=IXR(3,EP)
          IGTYP = IGEO(11,IXR(1,EP))
-         IF (IGTYP.EQ.12) THEN
+         IF (IGTYP==12) THEN
           NNOD=3
           NC(3)=IXR(4,EP)
          ENDIF 
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -589,11 +587,11 @@ C-----------------------
 C-----------------------
 C     7. ELEMENTS COQUES 3N
 C-----------------------
-       ELSEIF(ITY.EQ.7.AND.ICNOD.NE.6)THEN
+       ELSEIF(ITY==7.AND.ICNOD/=6)THEN
         NNOD=3
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          DO J=1,NNOD
           NC(J)=IXTG(J+1,EP)
@@ -601,9 +599,9 @@ C-----------------------
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -617,32 +615,31 @@ C
   100 CONTINUE
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_ELEMS2                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_elems2     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_kinmax     ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE DIM_ELEMS2(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROW      ,
      4    INLOC     ,NNMAX     ,ICOK      ,NKMAX     ,ICOKM     ,
      5    INK       ,IGEO      ,ELBUF_TAB )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD        
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg    
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -655,7 +652,7 @@ C-----------------------------------------------
       INTEGER IPARG(NPARG,*),NNMAX,NKMAX,IGEO(NPROPGI,*)
       INTEGER 
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),
      .    NROW(*),ICOK(NNMAX,*),ICOKM(NKMAX,*),INLOC(*),INK
 C     REAL
@@ -671,7 +668,7 @@ C-----------------------------------------------
      .   IOF
 C----6---------------------------------------------------------------7---------8
       DO 100 NG=1,NGROUP
-       IF (IPARG(8,NG).NE.1) THEN
+       IF (IPARG(8,NG)/=1) THEN
         ITY=IPARG(5,NG)
         NEL=IPARG(2,NG)
 C----------void, rigid mat        
@@ -684,19 +681,19 @@ C----------void, rigid mat
 C-----------------------
 C     1. ELEMENTS SOLIDES
 C-----------------------
-       IF (ITY.EQ.1) THEN
+       IF (ITY==1) THEN
         NNOD=8
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
-         IF (ISNOD.EQ.4) THEN
+         IF (ISNOD==4) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
           NC(3)=IXS(7,EP)
           NC(4)=IXS(6,EP)
-         ELSEIF (ISNOD.EQ.6) THEN
+         ELSEIF (ISNOD==6) THEN
           NNOD=6
           NC(1)=IXS(2,EP)
           NC(2)=IXS(3,EP)
@@ -704,7 +701,7 @@ C-----------------------
           NC(4)=IXS(6,EP)
           NC(5)=IXS(7,EP)
           NC(6)=IXS(8,EP)
-         ELSEIF (ISNOD.EQ.10) THEN
+         ELSEIF (ISNOD==10) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
@@ -712,19 +709,19 @@ C-----------------------
           NC(4)=IXS(6,EP)
           EP1=EP-NUMELS8
           DO J=1,6
-           IF (IXS10(J,EP1).GT.0) THEN
+           IF (IXS10(J,EP1)>0) THEN
             NNOD = NNOD + 1
             NC(NNOD) = IXS10(J,EP1)
            ENDIF
           ENDDO
-         ELSEIF (ISNOD.EQ.8) THEN
+         ELSEIF (ISNOD==8) THEN
           NNOD=8
          DO J=1,NNOD
           NC(J)=IXS(J+1,EP)
          ENDDO 
          
-Czg add solid element 20
-         ELSEIF (ISNOD.EQ.20) THEN
+C   add solid element 20
+         ELSEIF (ISNOD==20) THEN
           NNOD=20
          DO J=1,8
           NC(J)=IXS(J+1,EP)
@@ -738,15 +735,15 @@ Czg add solid element 20
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -757,14 +754,14 @@ Czg add solid element 20
 C-----------------------
 C     2. ELEMENTS 2D
 C-----------------------
-       ELSEIF(ITY.EQ.2)THEN
+       ELSEIF(ITY==2)THEN
         NNOD=4
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
 C
          EP=I+NFT
-C        IF (ISNOD.EQ.4) THEN
+C        IF (ISNOD==4) THEN
 C         NNOD=4
           DO J=1,NNOD
            NC(J)=IXQ(J+1,EP)
@@ -776,15 +773,15 @@ C
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L))
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK),NC(L))
             ENDIF
            ENDDO
@@ -796,11 +793,11 @@ C
 C-----------------------
 C     3. ELEMENTS COQUES
 C-----------------------
-       ELSEIF(ITY.EQ.3)THEN
+       ELSEIF(ITY==3)THEN
         NNOD=4
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          DO J=1,NNOD
           NC(J)=IXC(J+1,EP)
@@ -808,15 +805,15 @@ C-----------------------
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -827,26 +824,26 @@ C-----------------------
 C-----------------------
 C     4. ELEMENTS TIGES
 C-----------------------
-       ELSEIF(ITY.EQ.4)THEN
+       ELSEIF(ITY==4)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXT(2,EP)
          NC(2)=IXT(3,EP)
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -857,26 +854,26 @@ C-----------------------
 C-----------------------
 C     5. ELEMENTS POUTRES
 C-----------------------
-       ELSEIF(ITY.EQ.5)THEN
+       ELSEIF(ITY==5)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXP(2,EP)
          NC(2)=IXP(3,EP)
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -887,31 +884,31 @@ C-----------------------
 C-----------------------
 C     6. ELEMENTS RESSORTS
 C-----------------------
-       ELSEIF(ITY.EQ.6)THEN
+       ELSEIF(ITY==6)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXR(2,EP)
          NC(2)=IXR(3,EP)
          IGTYP = IGEO(11,IXR(1,EP))
-         IF (IGTYP.EQ.12) THEN
+         IF (IGTYP==12) THEN
           NNOD=3
           NC(3)=IXR(4,EP)
          ENDIF 
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -922,11 +919,11 @@ C-----------------------
 C-----------------------
 C     7. ELEMENTS COQUES 3N
 C-----------------------
-       ELSEIF(ITY.EQ.7.AND.ICNOD.NE.6)THEN
+       ELSEIF(ITY==7.AND.ICNOD/=6)THEN
         NNOD=3
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          DO J=1,NNOD
           NC(J)=IXTG(J+1,EP)
@@ -934,15 +931,15 @@ C-----------------------
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -957,32 +954,31 @@ C
       RETURN
       END
 C------version \\-----
-Chd|====================================================================
-Chd|  DIM_ELEMS4                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_elems4     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k     ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE DIM_ELEMS4(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROW      ,
      4    INLOC     ,NNMAX     ,ICOK      ,NKMAX     ,ICOKM     ,
      5    INK       ,IGEO      ,ELBUF_TAB )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD      
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg      
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -995,7 +991,7 @@ C-----------------------------------------------
       INTEGER IPARG(NPARG,*),NNMAX,NKMAX,IGEO(NPROPGI,*)
       INTEGER 
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),
      .    NROW(*),ICOK(NNMAX,*),ICOKM(NKMAX,*),INLOC(*),INK
 C     REAL
@@ -1009,10 +1005,10 @@ C-----------------------------------------------
      .        I,J,K,N,M,EP,L,IGTYP,NNOD,K1,IHBE,NK,NK1,EP1,IAD0
       my_real
      .   IOF
-C--------NROW(NUMNOD) : number of connnected nodes (non sym)
+C--------NROW(NUMNOD) : number of connected nodes (non sym)
 C----6---------------------------------------------------------------7---------8
       DO 100 NG=1,NGROUP
-       IF (IPARG(8,NG).NE.1) THEN
+       IF (IPARG(8,NG)/=1) THEN
         ITY=IPARG(5,NG)
         NEL=IPARG(2,NG)
 C----------void, rigid mat        
@@ -1025,19 +1021,19 @@ C----------void, rigid mat
 C-----------------------
 C     1. ELEMENTS SOLIDES
 C-----------------------
-       IF (ITY.EQ.1) THEN
+       IF (ITY==1) THEN
         NNOD=8
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
-         IF (ISNOD.EQ.4) THEN
+         IF (ISNOD==4) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
           NC(3)=IXS(7,EP)
           NC(4)=IXS(6,EP)
-         ELSEIF (ISNOD.EQ.6) THEN
+         ELSEIF (ISNOD==6) THEN
           NNOD=6
           NC(1)=IXS(2,EP)
           NC(2)=IXS(3,EP)
@@ -1045,7 +1041,7 @@ C-----------------------
           NC(4)=IXS(6,EP)
           NC(5)=IXS(7,EP)
           NC(6)=IXS(8,EP)
-         ELSEIF (ISNOD.EQ.10) THEN
+         ELSEIF (ISNOD==10) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
@@ -1053,19 +1049,19 @@ C-----------------------
           NC(4)=IXS(6,EP)
           EP1=EP-NUMELS8
           DO J=1,6
-           IF (IXS10(J,EP1).GT.0) THEN
+           IF (IXS10(J,EP1)>0) THEN
             NNOD = NNOD + 1
             NC(NNOD) = IXS10(J,EP1)
            ENDIF
           ENDDO
-         ELSEIF (ISNOD.EQ.8) THEN
+         ELSEIF (ISNOD==8) THEN
           NNOD=8
          DO J=1,NNOD
           NC(J)=IXS(J+1,EP)
          ENDDO 
          
-Czg add solid element 20
-         ELSEIF (ISNOD.EQ.20) THEN
+C   add solid element 20
+         ELSEIF (ISNOD==20) THEN
           NNOD=20
          DO J=1,8
           NC(J)=IXS(J+1,EP)
@@ -1081,16 +1077,16 @@ Czg add solid element 20
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
             NK1=NK-INK
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK1),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -1101,14 +1097,14 @@ Czg add solid element 20
 C-----------------------
 C     2. ELEMENTS 2D
 C-----------------------
-       ELSEIF(ITY.EQ.2)THEN
+       ELSEIF(ITY==2)THEN
         NNOD=4
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
 C
           EP=I+NFT
-C          IF (ISNOD.EQ.4) THEN
+C          IF (ISNOD==4) THEN
 C           NNOD=4
             DO J=1,NNOD
               NC(J)=IXQ(J+1,EP)
@@ -1120,16 +1116,16 @@ C
           DO J=1,NNOD
             N=NC(J)
             NK=INLOC(N)
-            IF (NK.GT.INK) THEN
+            IF (NK>INK) THEN
               NK1=NK-INK
               DO L=1,NNOD
-              IF (N.NE.NC(L)) THEN
+              IF (N/=NC(L)) THEN
                 CALL REORDER_A(NROW(NK),ICOKM(1,NK1),NC(L))
               ENDIF
               ENDDO
-            ELSEIF (NK.GT.0) THEN
+            ELSEIF (NK>0) THEN
               DO L=1,NNOD
-              IF (N.NE.NC(L)) THEN
+              IF (N/=NC(L)) THEN
                 CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L))
               ENDIF
               ENDDO
@@ -1141,11 +1137,11 @@ C
 C-----------------------
 C     3. ELEMENTS COQUES
 C-----------------------
-       ELSEIF(ITY.EQ.3)THEN
+       ELSEIF(ITY==3)THEN
         NNOD=4
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          DO J=1,NNOD
           NC(J)=IXC(J+1,EP)
@@ -1153,16 +1149,16 @@ C-----------------------
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
             NK1=NK-INK
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK1),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -1173,27 +1169,27 @@ C-----------------------
 C-----------------------
 C     4. ELEMENTS TIGES
 C-----------------------
-       ELSEIF(ITY.EQ.4)THEN
+       ELSEIF(ITY==4)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXT(2,EP)
          NC(2)=IXT(3,EP)
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
             NK1=NK-INK
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK1),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -1204,27 +1200,27 @@ C-----------------------
 C-----------------------
 C     5. ELEMENTS POUTRES
 C-----------------------
-       ELSEIF(ITY.EQ.5)THEN
+       ELSEIF(ITY==5)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXP(2,EP)
          NC(2)=IXP(3,EP)
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
             NK1=NK-INK
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK1),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -1235,32 +1231,32 @@ C-----------------------
 C-----------------------
 C     6. ELEMENTS RESSORTS
 C-----------------------
-       ELSEIF(ITY.EQ.6)THEN
+       ELSEIF(ITY==6)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXR(2,EP)
          NC(2)=IXR(3,EP)
          IGTYP = IGEO(11,IXR(1,EP))
-         IF (IGTYP.EQ.12) THEN
+         IF (IGTYP==12) THEN
           NNOD=3
           NC(3)=IXR(4,EP)
          ENDIF 
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
             NK1=NK-INK
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK1),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -1271,11 +1267,11 @@ C-----------------------
 C-----------------------
 C     7. ELEMENTS COQUES 3N
 C-----------------------
-       ELSEIF(ITY.EQ.7.AND.ICNOD.NE.6)THEN
+       ELSEIF(ITY==7.AND.ICNOD/=6)THEN
         NNOD=3
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          DO J=1,NNOD
           NC(J)=IXTG(J+1,EP)
@@ -1283,16 +1279,16 @@ C-----------------------
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.INK) THEN
+          IF (NK>INK) THEN
             NK1=NK-INK
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOKM(1,NK1),NC(L)) 
             ENDIF
            ENDDO
-          ELSEIF (NK.GT.0) THEN
+          ELSEIF (NK>0) THEN
            DO L=1,NNOD
-            IF (N.NE.NC(L)) THEN
+            IF (N/=NC(L)) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),NC(L)) 
             ENDIF
            ENDDO
@@ -1307,33 +1303,32 @@ C
       RETURN
       END
 C------version \\-----
-Chd|====================================================================
-Chd|  DIM_ELEMSP                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        IND_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        INI_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_elemsp     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE DIM_ELEMSP(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROW      ,
      4    INLOC     ,NKMAX     ,ICOK      ,IGEO      ,ELBUF_TAB )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg            
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1346,7 +1341,7 @@ C-----------------------------------------------
       INTEGER IPARG(NPARG,*),NKMAX,IGEO(NPROPGI,*)
       INTEGER 
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),NROW(*),ICOK(NKMAX,*),INLOC(*)
 C     REAL
       my_real
@@ -1359,10 +1354,10 @@ C-----------------------------------------------
      .        I,J,K,N,M,EP,L,IGTYP,NNOD,K1,IHBE,NK,NJ,EP1,IAD0
       my_real
      .  IOF
-C--------NROW(NUMNOD) : number of connnected nodes (non sym)
+C--------NROW(NUMNOD) : number of connected nodes (non sym)
 C----6---------------------------------------------------------------7---------8
       DO 100 NG=1,NGROUP
-       IF (IPARG(8,NG).NE.1) THEN
+       IF (IPARG(8,NG)/=1) THEN
         ITY=IPARG(5,NG)
         NEL=IPARG(2,NG)
 C----------void, rigid mat        
@@ -1375,19 +1370,19 @@ C----------void, rigid mat
 C-----------------------
 C     1. ELEMENTS SOLIDES
 C-----------------------
-       IF (ITY.EQ.1) THEN
+       IF (ITY==1) THEN
         NNOD=8
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
-         IF (ISNOD.EQ.4) THEN
+         IF (ISNOD==4) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
           NC(3)=IXS(7,EP)
           NC(4)=IXS(6,EP)
-         ELSEIF (ISNOD.EQ.6) THEN
+         ELSEIF (ISNOD==6) THEN
           NNOD=6
           NC(1)=IXS(2,EP)
           NC(2)=IXS(3,EP)
@@ -1395,7 +1390,7 @@ C-----------------------
           NC(4)=IXS(6,EP)
           NC(5)=IXS(7,EP)
           NC(6)=IXS(8,EP)
-         ELSEIF (ISNOD.EQ.10) THEN
+         ELSEIF (ISNOD==10) THEN
           NNOD=4
           NC(1)=IXS(2,EP)
           NC(2)=IXS(4,EP)
@@ -1403,19 +1398,19 @@ C-----------------------
           NC(4)=IXS(6,EP)
           EP1=EP-NUMELS8
           DO J=1,6
-           IF (IXS10(J,EP1).GT.0) THEN
+           IF (IXS10(J,EP1)>0) THEN
             NNOD = NNOD + 1
             NC(NNOD) = IXS10(J,EP1)
            ENDIF
           ENDDO
-         ELSEIF (ISNOD.EQ.8) THEN
+         ELSEIF (ISNOD==8) THEN
           NNOD=8
          DO J=1,NNOD
           NC(J)=IXS(J+1,EP)
          ENDDO 
          
-Czg add solid element 20
-         ELSEIF (ISNOD.EQ.20) THEN
+C   add solid element 20
+         ELSEIF (ISNOD==20) THEN
           NNOD=20
          DO J=1,8
           NC(J)=IXS(J+1,EP)
@@ -1431,10 +1426,10 @@ Czg add solid element 20
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
             NJ=NC(L)
-            IF (N.NE.NJ.AND.INLOC(NJ).GT.0) THEN
+            IF (N/=NJ.AND.INLOC(NJ)>0) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),INLOC(NJ)) 
             ENDIF
            ENDDO
@@ -1445,14 +1440,14 @@ Czg add solid element 20
 C-----------------------
 C     2. ELEMENTS 2D
 C-----------------------
-       ELSEIF(ITY.EQ.2)THEN
+       ELSEIF(ITY==2)THEN
         NNOD=4
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
 C
          EP=I+NFT
-C        IF (ISNOD.EQ.4) THEN
+C        IF (ISNOD==4) THEN
 C         NNOD=4
           DO J=1,NNOD
            NC(J)=IXQ(J+1,EP)
@@ -1464,10 +1459,10 @@ C
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
             NJ=NC(L)
-            IF (N.NE.NJ.AND.INLOC(NJ).GT.0) THEN
+            IF (N/=NJ.AND.INLOC(NJ)>0) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),INLOC(NJ))
             ENDIF
            ENDDO
@@ -1479,11 +1474,11 @@ C
 C-----------------------
 C     3. ELEMENTS COQUES
 C-----------------------
-       ELSEIF(ITY.EQ.3)THEN
+       ELSEIF(ITY==3)THEN
         NNOD=4
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          DO J=1,NNOD
           NC(J)=IXC(J+1,EP)
@@ -1491,10 +1486,10 @@ C-----------------------
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
             NJ=NC(L)
-            IF (N.NE.NJ.AND.INLOC(NJ).GT.0) THEN
+            IF (N/=NJ.AND.INLOC(NJ)>0) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),INLOC(NJ)) 
             ENDIF
            ENDDO
@@ -1505,21 +1500,21 @@ C-----------------------
 C-----------------------
 C     4. ELEMENTS TIGES
 C-----------------------
-       ELSEIF(ITY.EQ.4)THEN
+       ELSEIF(ITY==4)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXT(2,EP)
          NC(2)=IXT(3,EP)
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
             NJ=NC(L)
-            IF (N.NE.NJ.AND.INLOC(NJ).GT.0) THEN
+            IF (N/=NJ.AND.INLOC(NJ)>0) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),INLOC(NJ)) 
             ENDIF
            ENDDO
@@ -1530,21 +1525,21 @@ C-----------------------
 C-----------------------
 C     5. ELEMENTS POUTRES
 C-----------------------
-       ELSEIF(ITY.EQ.5)THEN
+       ELSEIF(ITY==5)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXP(2,EP)
          NC(2)=IXP(3,EP)
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
             NJ=NC(L)
-            IF (N.NE.NJ.AND.INLOC(NJ).GT.0) THEN
+            IF (N/=NJ.AND.INLOC(NJ)>0) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),INLOC(NJ)) 
             ENDIF
            ENDDO
@@ -1555,26 +1550,26 @@ C-----------------------
 C-----------------------
 C     6. ELEMENTS RESSORTS
 C-----------------------
-       ELSEIF(ITY.EQ.6)THEN
+       ELSEIF(ITY==6)THEN
         NNOD=2
         DO I=1,NEL
         IOF=ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          NC(1)=IXR(2,EP)
          NC(2)=IXR(3,EP)
          IGTYP = IGEO(11,IXR(1,EP))
-         IF (IGTYP.EQ.12) THEN
+         IF (IGTYP==12) THEN
           NNOD=3
           NC(3)=IXR(4,EP)
          ENDIF 
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
             NJ=NC(L)
-            IF (N.NE.NJ.AND.INLOC(NJ).GT.0) THEN
+            IF (N/=NJ.AND.INLOC(NJ)>0) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),INLOC(NJ)) 
             ENDIF
            ENDDO
@@ -1585,11 +1580,11 @@ C-----------------------
 C-----------------------
 C     7. ELEMENTS COQUES 3N
 C-----------------------
-       ELSEIF(ITY.EQ.7.AND.ICNOD.NE.6)THEN
+       ELSEIF(ITY==7.AND.ICNOD/=6)THEN
         NNOD=3
         DO I=1,NEL
         IOF = ELBUF_TAB(NG)%GBUF%OFF(I)
-        IF(IOF.GT.ZERO)THEN
+        IF(IOF>ZERO)THEN
          EP=I+NFT
          DO J=1,NNOD
           NC(J)=IXTG(J+1,EP)
@@ -1597,10 +1592,10 @@ C-----------------------
          DO J=1,NNOD
           N=NC(J)
           NK=INLOC(N)
-          IF (NK.GT.0) THEN
+          IF (NK>0) THEN
            DO L=1,NNOD
             NJ=NC(L)
-            IF (N.NE.NJ.AND.INLOC(NJ).GT.0) THEN
+            IF (N/=NJ.AND.INLOC(NJ)>0) THEN
              CALL REORDER_A(NROW(NK),ICOK(1,NK),INLOC(NJ)) 
             ENDIF
            ENDDO
@@ -1614,32 +1609,31 @@ C
   100 CONTINUE
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_ELEMAX                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        DIM_ELEMS3                    source/implicit/ind_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_elemax     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k     ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    dim_elems3     ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE DIM_ELEMAX(
      1    IXS       ,IXQ       ,IXC       ,IXT       ,IXP       ,
      2    IXR       ,IXTG      ,IXTG1     ,IXS10     ,IXS20     ,
-     3    IXS16     ,IXUR      ,IPARG     ,ELBUF     ,NDOF      ,
+     3    IXS16     ,IPARG     ,ELBUF     ,NDOF      ,
      4    NROW      ,INLOC     ,NNMAX     ,L_MAX     ,C_MAX     ,
      5    IGEO      ,ELBUF_TAB )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg          
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1652,7 +1646,7 @@ C-----------------------------------------------
       INTEGER IPARG(NPARG,*),IGEO(NPROPGI,*)
       INTEGER 
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),NDOF(*),NROW(*),INLOC(*),
      .   NNMAX,L_MAX,C_MAX
 C     REAL
@@ -1678,27 +1672,27 @@ C-----------------------------------------------
        CALL DIM_ELEMS3(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW(NFT+1) ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROW(NFT+1) ,
      4    INLOC     ,L_MAX     ,ICOL      ,IGEO      ,ELBUF_TAB )
        DO NK=1,JLT
         N=NK+NFT
         INLOC(N)=0
         NNMAX=MAX(NNMAX,NROW(N))
        ENDDO
-      ENDDO	   
+      ENDDO     
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_KINE_P                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_kine_p      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_kinmax      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_KINE_P(
      1    IGEO      ,NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,
-     2    SENSOR    ,IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
+     2    IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
      3    NDOF      ,NSI2      ,NSRB      ,NKINE     ,
      7    INLOC     ,IRBE3     ,IRBE2     ,LRBE2     ,NKINM     ,
      8    INTBUF_TAB )
@@ -1712,18 +1706,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPBY(NNPBY,*),LPBY(*),ITAB(*),NRBYAC,IRBYAC(*)
@@ -1731,9 +1718,6 @@ C-----------------------------------------------
      .        NDOF(*),NKINE,INLOC(*),IGEO(*),IRBE3(NRBE3L,*),
      .        IRBE2(NRBE2L,*),LRBE2(*),NKINM
 C     REAL
-      my_real
-     .   SENSOR(NSENSR,*)
-
       TYPE (INTBUF_STRUCT_) INTBUF_TAB(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -1745,7 +1729,7 @@ C----- main of rigid body first------
       DO I=1,NRBYAC
        N=IRBYAC(I)
        M=NPBY(1,N)
-       IF (INLOC(M).EQ.0) THEN
+       IF (INLOC(M)==0) THEN
         NKINE=NKINE+1
         INLOC(M)=-NKINE
        ENDIF
@@ -1754,14 +1738,14 @@ C----- rbe2 main------
       DO I=1,NRBE2
        K = IRBE2(1,I)
        M = IRBE2(3,I)
-       IF (INLOC(M).EQ.0) THEN
+       IF (INLOC(M)==0) THEN
          NKINE=NKINE+1
          INLOC(M)=NKINE
        ENDIF
       ENDDO
-C-----will be stored in ICOKM(NKMAX,*)	  
+C-----will be stored in ICOKM(NKMAX,*)    
       NKINM=NKINE
-C-----pour IND_GLOB_K, passer NKINM par include ou module, modifier dans IND_KINE_	  
+C-----for IND_GLOB_K, pass NKINM via include or module, modify in IND_KINE_-----
 C      K=0
 C------interface 2-------------- 
       DO I=1,NINT2
@@ -1769,7 +1753,7 @@ C------interface 2--------------
        NSN = IPARI(5,N)
        DO J=1,NSN
         NS=INTBUF_TAB(N)%NSV(J)
-        IF (INLOC(NS).EQ.0.AND.NDOF(NS).GT.0) THEN
+        IF (INLOC(NS)==0.AND.NDOF(NS)>0) THEN
          NKINE=NKINE+1
          INLOC(NS)=NKINE
         ENDIF
@@ -1778,8 +1762,8 @@ C------interface 2--------------
 C----- rbe3 ------
       DO I=1,NRBE3
        NS=IRBE3(3,I)
-       IF (NS.EQ.0) CYCLE
-       IF (INLOC(NS).EQ.0.AND.NDOF(NS).GT.0) THEN
+       IF (NS==0) CYCLE
+       IF (INLOC(NS)==0.AND.NDOF(NS)>0) THEN
          NKINE=NKINE+1
          INLOC(NS)=NKINE
        ENDIF
@@ -1791,7 +1775,7 @@ C----- rbe2 ------
        NSN = IRBE2(5,I)
        DO J=1,NSN
         NS=LRBE2(K+J)
-        IF (INLOC(NS).EQ.0.AND.NDOF(NS).GT.0) THEN
+        IF (INLOC(NS)==0.AND.NDOF(NS)>0) THEN
          NKINE=NKINE+1
          INLOC(NS)=NKINE
         ENDIF
@@ -1804,7 +1788,7 @@ C----- rigid body ------
        NSN  =NPBY(2,N)
        DO J=1,NSN
         NS=LPBY(K+J)
-        IF (INLOC(NS).EQ.0.AND.NDOF(NS).GT.0) THEN
+        IF (INLOC(NS)==0.AND.NDOF(NS)>0) THEN
          NKINE=NKINE+1
          INLOC(NS)=NKINE
         ENDIF
@@ -1813,18 +1797,19 @@ C----- rigid body ------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_NDOF_I                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        I2_PREM                       source/interfaces/interf/i2_prem.F
-Chd|        RBYAC_IMP                     source/constraints/general/rbody/rbyac_imp.F
-Chd|        INTAB                         source/implicit/ind_glob_k.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_ndof_i      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k      ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    i2_prem         ../engine/source/interfaces/interf/i2_prem.F
+!||    intab           ../engine/source/implicit/ind_glob_k.F
+!||    rbyac_imp       ../engine/source/constraints/general/rbody/rbyac_imp.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_NDOF_I(
-     1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,SENSOR    ,
+     1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,
      2    IRBYAC    ,NDOF      ,NSRB      ,IPARI     ,
      3    NINT2     ,IINT2     ,NSI2      ,NPRW      ,IRBE3     ,
      4    IRBE2     ,NSRB2     ,FR_ELEM   ,IAD_ELEM  ,INTBUF_TAB)
@@ -1836,10 +1821,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1856,9 +1837,6 @@ C-----------------------------------------------
       INTEGER NSRB,NDOF(*),NPRW(*),IRBE3(NRBE3L,*),IRBE2(NRBE2L,*),
      .        NSRB2,FR_ELEM(*),IAD_ELEM(2,*)
 C     REAL
-      my_real
-     .   SENSOR(NSENSR,*)
-
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
 C-----------------------------------------------
 C   External function
@@ -1878,7 +1856,7 @@ C-----------------------------------------------
        CALL I2_PREM(IPARI,K,NINT2,IINT2,NSI2)
       ENDDO 
 C------rigid body main------------- 
-      CALL RBYAC_IMP(NPBY,ITAB,SENSOR,NRBYAC,IRBYAC,NSRB)
+      CALL RBYAC_IMP(NPBY,ITAB,NRBYAC,IRBYAC,NSRB)
       DO I=1,NRBYAC
        N=IRBYAC(I)
        M=NPBY(1,N)
@@ -1886,13 +1864,13 @@ C------rigid body main-------------
       ENDDO
 C      
       NDOFI=3
-      IF (IRODDL.GT.0) NDOFI=6
+      IF (IRODDL>0) NDOFI=6
       DO I=1,NRWALL
        N = I + 2*NRWALL
        M = NPRW(N)
-       IF (M.GT.0) NDOF(M)=NDOFI
+       IF (M>0) NDOF(M)=NDOFI
       ENDDO
-C--------temporaly to avoid issue w/ contact +spmd
+C--------temporarily to avoid issue w/ contact +spmd
       IF (NSPMD > 1 .AND.NINTER > 0) THEN
        DO I=1,NRBE3
         N=IRBE3(3,I)
@@ -1900,10 +1878,10 @@ C--------temporaly to avoid issue w/ contact +spmd
          DO NIN=1,NINTER
            NSN   =IPARI(5,NIN)
            NTY   =IPARI(7,NIN)
-           IF (ISPMD.NE.0.AND.(NTY.LT.7.OR.NTY.EQ.8
-     .                     .OR.NTY.EQ.14.OR.NTY.EQ.15)) CYCLE
-              IF(NTY.EQ.5.OR.NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.11
-     .           .OR.NTY.EQ.24) THEN
+           IF (ISPMD/=0.AND.(NTY<7.OR.NTY==8
+     .                     .OR.NTY==14.OR.NTY==15)) CYCLE
+              IF(NTY==5.OR.NTY==7.OR.NTY==10.OR.NTY==11
+     .           .OR.NTY==24) THEN
 C
                 IF (INTAB(NSN,INTBUF_TAB(NIN)%NSV(1),N)) INS(I)=1
               ENDIF
@@ -1911,18 +1889,18 @@ C
        ENDDO !
        DO I=1,NRBE3
         N  = IRBE3(3,I)
-        IF (N.EQ.0.OR.INS(I).EQ.0) CYCLE
+        IF (N==0.OR.INS(I)==0) CYCLE
         IC = IRBE3(4,I)
         ICT=IC/512
         ICR=(IC-512*ICT)/64
-        IF (ICR.GT.0) THEN
+        IF (ICR>0) THEN
          NDOF(N) = 6
         ELSE
          NDOF(N) = 3
         ENDIF
        ENDDO
       END IF !(NSPMD > 1 .AND.NINTER > 0) THEN
-C-----if m is secnd of rb
+C-----if m is second of rb
       NSRB2=0
       DO N=1,NRBE2
        M=IRBE2(3,N)
@@ -1934,13 +1912,13 @@ C--------case NSN=1 is treated in DIM_NDOF_II
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_NDOF_II                   source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_ndof_ii     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_NDOF_II(
      1    NINT2     ,IINT2     ,IPARI     ,NDOF      ,
      2    NRBE3     ,IRBE3     ,LRBE3     ,NRBE2     ,IRBE2     ,
@@ -1954,16 +1932,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
-#include      "com09_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NINT2,IINT2(*),IPARI(NPARI,*),NDOF(*),
@@ -1978,7 +1950,7 @@ C-----------------------------------------------
       INTEGER NMN,J,K
       INTEGER I,N,M,L,NS,ID,NM,NSN,IAD,ILEV,NDOFM,IROT,IC
 C-----------------------------------------------
-C------interface 2---au cas surface main est deactive----------- 
+C------ interface 2 --- In case main surface is deactivated ------------ 
       DO I=1,NINT2
        N=IINT2(I)
        NSN = IPARI(5,N)
@@ -1989,12 +1961,12 @@ C------IRTL(NSN)--main el number---
        IF (ILEV == 0) NDOFM=6
        DO J=1,NSN
         NS=INTBUF_TAB(N)%NSV(J)  
-        IF (NDOF(NS).GT.0) THEN
+        IF (NDOF(NS)>0) THEN
          L=INTBUF_TAB(N)%IRTLM(J)
          ID=4*(L-1)
          DO M=1,4
           NM=INTBUF_TAB(N)%IRECTM(ID+M)
-          IF (NDOF(NM).LE.0) NDOF(NM)=MIN(NDOF(NM),-NDOFM)
+          IF (NDOF(NM)<=0) NDOF(NM)=MIN(NDOF(NM),-NDOFM)
          ENDDO
         ENDIF 
        ENDDO
@@ -2007,12 +1979,12 @@ C
 C------IRTL(NSN)--main el number---
        DO J=1,NSN
         NS=INTBUF_TAB(N)%NSV(J) 
-        IF (NDOF(NS).GT.0) THEN
+        IF (NDOF(NS)>0) THEN
          L=INTBUF_TAB(N)%IRTLM(J) 
          ID=4*(L-1)
          DO M=1,4
           NM=INTBUF_TAB(N)%IRECTM(ID+M)
-          IF (NDOF(NM).LT.0) NDOF(NM)=-NDOF(NM)
+          IF (NDOF(NM)<0) NDOF(NM)=-NDOF(NM)
          ENDDO
         ENDIF 
        ENDDO
@@ -2022,24 +1994,24 @@ C
        IAD=IRBE3(1,I)
        NS =IRBE3(3,I)
        IROT =IRBE3(6,I)
-       IF (NS.EQ.0.OR.NDOF(NS).EQ.0) CYCLE
+       IF (NS==0.OR.NDOF(NS)==0) CYCLE
        NDOFM=3
        IF (IROT > 0) NDOFM=6
        NMN=IRBE3(5,I)
        DO J=1,NMN
          NM=LRBE3(IAD+J)
-         IF (NDOF(NM).LE.0) NDOF(NM)=MIN(NDOF(NM),-NDOFM)
+         IF (NDOF(NM)<=0) NDOF(NM)=MIN(NDOF(NM),-NDOFM)
        ENDDO
       ENDDO
 C      
       DO I=1,NRBE3
        IAD=IRBE3(1,I)
        NS =IRBE3(3,I)
-       IF (NS.EQ.0.OR.NDOF(NS).EQ.0) CYCLE
+       IF (NS==0.OR.NDOF(NS)==0) CYCLE
        NMN=IRBE3(5,I)
        DO J=1,NMN
          NM=LRBE3(IAD+J)
-         IF (NDOF(NM).LE.0) NDOF(NM)=-NDOF(NM)
+         IF (NDOF(NM)<=0) NDOF(NM)=-NDOF(NM)
        ENDDO
       ENDDO
 C      
@@ -2058,13 +2030,13 @@ C--------case NSN=1 -------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_NDOF_D                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        SPMD_I2D                      source/mpi/implicit/imp_spmd.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_ndof_d   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_i2d     ../engine/source/mpi/implicit/imp_spmd.F
+!||====================================================================
       SUBROUTINE DIM_NDOF_D(
      1    NPBY      ,LPBY      ,NRBYAC    ,IRBYAC    ,NDOF      ,
      2    IAD_RBY   ,FR_RBY    )
@@ -2073,16 +2045,12 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPBY(NNPBY,*),LPBY(*),NRBYAC,IRBYAC(*)
@@ -2093,7 +2061,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,N,M,NSN,NS,IE,NN
 C-----------------------------------------------
-      IF (NRBYAC.EQ.0) RETURN
+      IF (NRBYAC==0) RETURN
       DO I=1,NRBYAC
        N=IRBYAC(I)
        K=IRBYAC(I+NRBYKIN)
@@ -2102,22 +2070,22 @@ C-----------------------------------------------
        IE = 0
        DO J=1,NSN
         NS=LPBY(K+J)
-        IF (NDOF(NS).GT.0) IE = 1
+        IF (NDOF(NS)>0) IE = 1
        ENDDO 
-       IF (IE.EQ.0) THEN
+       IF (IE==0) THEN
         NDOF(M) = 0
        ENDIF 
       ENDDO
-      IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
+      IF (NSPMD>1) THEN
        NN=IAD_RBY(NSPMD+1)-IAD_RBY(1)
-       IF (NN.GT.0) CALL SPMD_I2D(NDOF,FR_RBY,IAD_RBY,NN)
+       IF (NN>0) CALL SPMD_I2D(NDOF,FR_RBY,IAD_RBY,NN)
       ENDIF 
 C-------actualise NRBYAC,IRBYAC-------
       IE = 0
       DO I=1,NRBYAC
        N=IRBYAC(I)
        M=NPBY(1,N)
-       IF (NDOF(M).GT.0) THEN
+       IF (NDOF(M)>0) THEN
         IE = IE + 1
         IRBYAC(IE) = IRBYAC(I)
         IRBYAC(IE+NRBYKIN) = IRBYAC(I+NRBYKIN)
@@ -2127,14 +2095,15 @@ C-------actualise NRBYAC,IRBYAC-------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_KINE_S                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        INTAB                         source/implicit/ind_glob_k.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_kine_s      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_kinmax      ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    intab           ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_KINE_S(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,NDOF      ,
@@ -2149,18 +2118,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX
@@ -2183,9 +2145,9 @@ C-----------------------------------------------
       INTEGER NKS,NKM
       INTEGER NSN,NMN,I,J,K,N,M,EP,L,NI,NJ,K12,ID,NS,NK,NM,NNOD,N1,L1,NL1,NL,J1,NM1,
      .        JI1,L10,L11,L12,L13,L14,NNOD1,I1,NSN1,M1,NKE,IAD,IC
-C     NROW(NUMNOD) :nombre of connected nodes (non sym)
-C     NROWI(NKINE) :INDICE LOCALE <=NNMAX (NROW peut eventuellement depasse NNMAX)
-C     INLOC(NUMNOD) :indice locale des "kinematic nodes"
+C     NROW(NUMNOD) :number of connected nodes (non sym)
+C     Nrow (Kine): Local index <= nnmax (Nrow can possibly exceed nnmax)
+C     INLOC (NUMNOD): Local index of "Kinematic Nodes"
 C-----------------------------------------------
 C------interface 2-------------- 
       DO I=1,NINT2
@@ -2194,23 +2156,23 @@ C------interface 2--------------
        NMN = IPARI(6,N)
        DO 20 J=1,NSN
         NS=INTBUF_TAB(N)%NSV(J)
-        IF (NDOF(NS).GT.0) THEN
+        IF (NDOF(NS)>0) THEN
          L=INTBUF_TAB(N)%IRTLM(J) 
          ID=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(ID+3).EQ.INTBUF_TAB(N)%IRECTM(ID+4)) THEN 
+         IF (INTBUF_TAB(N)%IRECTM(ID+3)==INTBUF_TAB(N)%IRECTM(ID+4)) THEN 
           NNOD=3
          ELSE
           NNOD=4
          ENDIF 
          DO M=1,NNOD
           NM=INTBUF_TAB(N)%IRECTM(ID+M)
-          IF (NDOF(NM).GT.0)NROW(NM)=NROW(NM)+NNOD-1
+          IF (NDOF(NM)>0)NROW(NM)=NROW(NM)+NNOD-1
          ENDDO
          NKS=INLOC(NS)
          DO NK=1,NROWI(NKS)
           NJ=ICOK(NK,NKS)
           IF (.NOT.INTAB(NSN,INTBUF_TAB(N)%NSV(1) ,NJ)) THEN
-           IF (INLOC(NJ).EQ.0.AND.NDOF(NJ).GT.0) THEN
+           IF (INLOC(NJ)==0.AND.NDOF(NJ)>0) THEN
             NKINE=NKINE+1
             INLOC(NJ)=NKINE
            ENDIF
@@ -2225,14 +2187,14 @@ C-----with Kij block-(i,j have the same M)-----
          DO N1=J+1,NSN
           NJ=INTBUF_TAB(N)%NSV(N1)  
           L1=INTBUF_TAB(N)%IRTLM(N1)  
-          IF (NDOF(NJ).GT.0.AND.L.NE.L1) THEN
+          IF (NDOF(NJ)>0.AND.L/=L1) THEN
            IF (INTAB(NROWI(NKS),ICOK(1,NKS),NJ)) THEN
             NL1=4*(L1-1)
             DO M=1,NNOD
              NM=INTBUF_TAB(N)%IRECTM(ID+M)
              DO J1=1,4
               NM1=INTBUF_TAB(N)%IRECTM(NL1+J1)
-              IF (NM.NE.NM1) THEN
+              IF (NM/=NM1) THEN
                NROW(NM)=NROW(NM)+1
                NROW(NM1)=NROW(NM1)+1
               ENDIF
@@ -2245,14 +2207,14 @@ C-----with Kij block-(i,j have the same M)-----
  20    CONTINUE 
        DO J=1,NMN
         NM=INTBUF_TAB(N)%MSR(J)
-        IF (INLOC(NM).EQ.0.AND.NDOF(NM).GT.0) THEN
+        IF (INLOC(NM)==0.AND.NDOF(NM)>0) THEN
          NKINE=NKINE+1
          INLOC(NM)=NKINE
         ENDIF
        ENDDO 
       ENDDO
-C+++couplage entre int2----
-      IF (NINT2.GT.1) THEN
+C+++ coupling between int2 ----
+      IF (NINT2>1) THEN
        DO J=1,NINT2
         N=IINT2(J)
         NSN = IPARI(5,N)
@@ -2267,23 +2229,23 @@ C+++couplage entre int2----
          L14=L13+IPARI(6,N1)
          DO I=1,NSN
           NI=INTBUF_TAB(N)%NSV(I)
-          IF (NDOF(NI).GT.0) THEN
+          IF (NDOF(NI)>0) THEN
            NKE=INLOC(NI) 
-C------cherche-secnd pairs-entre int2---
+C------search for second pairs-entre int2---
            DO I1=1,NSN1
             NJ=INTBUF_TAB(N1)%NSV(I1)
-            IF (NDOF(NJ).GT.0.AND.
+            IF (NDOF(NJ)>0.AND.
      .          INTAB(NROWI(NKE),ICOK(1,NKE),NJ)) THEN
              L=INTBUF_TAB(N)%IRTLM(I)
              NL=4*(L-1)
-             IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN 
+             IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN 
               NNOD=3
              ELSE
               NNOD=4
              ENDIF
              L1=INTBUF_TAB(N1)%IRTLM(I1)
              NL1=4*(L1-1)
-             IF (INTBUF_TAB(N1)%IRECTM(NL1+3).EQ.INTBUF_TAB(N1)%IRECTM(NL1+4)) THEN 
+             IF (INTBUF_TAB(N1)%IRECTM(NL1+3)==INTBUF_TAB(N1)%IRECTM(NL1+4)) THEN 
               NNOD1=3
              ELSE
               NNOD1=4
@@ -2292,17 +2254,17 @@ C------cherche-secnd pairs-entre int2---
               NM=INTBUF_TAB(N)%IRECTM(NL+M)
               DO M1=1,NNOD1
                NM1=INTBUF_TAB(N1)%IRECTM(NL1+M1)
-               IF (NDOF(NM).GT.0.AND.NDOF(NM1).GT.0) THEN
+               IF (NDOF(NM)>0.AND.NDOF(NM1)>0) THEN
                 NROW(NM)=NROW(NM)+1
                 NROW(NM1)=NROW(NM1)+1
                ENDIF 
               ENDDO 
              ENDDO 
-C----------endif NDOF(NJ).GT.0---- 
+C----------endif NDOF(NJ)>0---- 
             ENDIF 
 C----------enddo DO I1=1,NSN1---- 
            ENDDO
-C----------endif NDOF(NI).GT.0---- 
+C----------endif NDOF(NI)>0---- 
           ENDIF 
 C----------enddo DO I=1,NSN---- 
          ENDDO 
@@ -2318,14 +2280,14 @@ C----- Rbe2 ------
        IC = 7*512+7*64-IRBE2(4,I)
        DO J=1,NSN
         NS=LRBE2(K+J)
-        IF (NDOF(NS).GT.0) THEN
+        IF (NDOF(NS)>0) THEN
          NKS=INLOC(NS)
          DO NK=1,NROWI(NKS)
           NJ=ICOK(NK,NKS)
-          IF (NDOF(NJ).GT.0) THEN
+          IF (NDOF(NJ)>0) THEN
            NROW(M)=NROW(M)+1
            NROW(NJ)=NROW(NJ)+1+NHRBE2
-           IF (INLOC(NJ).EQ.0) THEN
+           IF (INLOC(NJ)==0) THEN
             NKINE=NKINE+1
             INLOC(NJ)=NKINE
            ENDIF
@@ -2334,29 +2296,29 @@ C----- Rbe2 ------
 C-----Due to hierarchy----         
          IF (NROW(NS)>NROWI(NKS)) NROW(M)=NROW(M)+ NROW(NS)-NROWI(NKS)
 C+++++++Knsns -> Kmns      
-          IF (IC.GT.0) THEN
-	       NROW(M)=NROW(M)+1
-	       NROW(NS)=NROW(NS)+1
+          IF (IC>0) THEN
+                 NROW(M)=NROW(M)+1
+                 NROW(NS)=NROW(NS)+1
           ENDIF 
          ENDIF 
        ENDDO 
-C+++estimation de couplage ----
+C+++coupling estimation ----
        NROW(M)=NROW(M)+1
       ENDDO
 C------RBE3-------------- 
       DO I=1,NRBE3
        NS  = IRBE3(3,I)
-       IF (NS.EQ.0.OR.NDOF(NS).EQ.0) CYCLE
+       IF (NS==0.OR.NDOF(NS)==0) CYCLE
        IAD = IRBE3(1,I)
        NNOD = IRBE3(5,I)
         NKS=INLOC(NS)
          DO M=1,NNOD
           NM=LRBE3(IAD+M)
-          IF (NDOF(NM).GT.0)NROW(NM)=NROW(NM)+NNOD-1
+          IF (NDOF(NM)>0)NROW(NM)=NROW(NM)+NNOD-1
          ENDDO
          DO NK=1,NROWI(NKS)
           NJ=ICOK(NK,NKS)
-           IF (INLOC(NJ).EQ.0.AND.NDOF(NJ).GT.0) THEN
+           IF (INLOC(NJ)==0.AND.NDOF(NJ)>0) THEN
             NKINE=NKINE+1
             INLOC(NJ)=NKINE
            ENDIF
@@ -2371,19 +2333,13 @@ C-----Due to hierarchy----
            K12 = NROW(NS)-NROWI(NKS)
            DO M=1,NNOD
             NM=LRBE3(IAD+M)
-C  ----          not sufficient
             NROW(NM)=NROW(NM)+ K12 + K12
            ENDDO
-C-----------bug fixing Pi_215563,216361          
-C           DO NK=1,NROWI(NKS)
-C            NJ=ICOK(NK,NKS)
-C            NROW(NJ)=NROW(NJ)+ K12
-C           END DO
          END IF
 C-----with Kij (i,j -> NSi,NSj-----
         DO I1=I+1,NRBE3
          NJ=IRBE3(3,I1)
-         IF (NJ.EQ.0.OR.NDOF(NJ).EQ.0) CYCLE
+         IF (NJ==0.OR.NDOF(NJ)==0) CYCLE
          IF (INTAB(NROWI(NKS),ICOK(1,NKS),NJ)) THEN
             M1 = IRBE3(1,I1)
             N1 = IRBE3(5,I1)
@@ -2391,7 +2347,7 @@ C-----with Kij (i,j -> NSi,NSj-----
              NM=LRBE3(IAD+M)
              DO J1=1,N1
               NM1=LRBE3(M1+J1)
-              IF (NM.NE.NM1) THEN
+              IF (NM/=NM1) THEN
                NROW(NM)=NROW(NM)+1
                NROW(NM1)=NROW(NM1)+1
               ENDIF
@@ -2399,10 +2355,10 @@ C-----with Kij (i,j -> NSi,NSj-----
             ENDDO
          ENDIF
         ENDDO
-C	
+C
         DO M=1,NNOD
          NM=LRBE3(IAD+M)
-         IF (INLOC(NM).EQ.0.AND.NDOF(NM).GT.0) THEN
+         IF (INLOC(NM)==0.AND.NDOF(NM)>0) THEN
           NKINE=NKINE+1
           INLOC(NM)=NKINE
          ENDIF
@@ -2413,20 +2369,20 @@ C----- rigid body ------
        N=IRBYAC(I)
        K=IRBYAC(I+NRBYKIN)
        M=NPBY(1,N)
-       IF (INLOC(M).LT.0) INLOC(M)=-INLOC(M)
+       IF (INLOC(M)<0) INLOC(M)=-INLOC(M)
        NSN  =NPBY(2,N)
-       IF (NDOF(M).GT.0) THEN
+       IF (NDOF(M)>0) THEN
        DO J=1,NSN
         NS=LPBY(K+J)
-        IF (NDOF(NS).GT.0) THEN
+        IF (NDOF(NS)>0) THEN
          NKS=INLOC(NS)
          DO NK=1,NROWI(NKS)
           NJ=ICOK(NK,NKS)
-          IF (NDOF(NJ).GT.0) THEN
+          IF (NDOF(NJ)>0) THEN
           IF (.NOT.INTAB(NSN,LPBY(K+1),NJ)) THEN
            NROW(M)=NROW(M)+1
            NROW(NJ)=NROW(NJ)+1
-           IF (INLOC(NJ).EQ.0) THEN
+           IF (INLOC(NJ)==0) THEN
             NKINE=NKINE+1
             INLOC(NJ)=NKINE
            ENDIF
@@ -2434,25 +2390,26 @@ C----- rigid body ------
           ENDIF
          ENDDO 
          IF (NROW(NS)>NROWI(NKS)) NROW(M)=NROW(M)+ NROW(NS)-NROWI(NKS)
-         END IF !IF (NDOF(NS).GT.0)
+         END IF !IF (NDOF(NS)>0)
        ENDDO 
        ENDIF 
-C+++estimation de couplage ----
+C+++coupling estimation ----
        NROW(M)=NROW(M)+NSN
       ENDDO
 C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_KINE_T                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        INTAB                         source/implicit/ind_glob_k.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_kine_t      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_kinmax      ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    intab           ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a       ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_KINE_T(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,NDOF      ,
@@ -2469,18 +2426,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX
@@ -2506,7 +2456,7 @@ C-----------------------------------------------
      .        K14,KFI,ID,NS,NK,NM,NNOD,N1,L1,NL1,NL,J1,NM1,N2,
      .        JI1,L10,L11,L12,L13,L14,NNOD1,I1,NSN1,M1,IAD,IC
 C     NROWI(NKINE) :INDICE LOCALE <=NNMAX 
-C     INLOC(NUMNOD) :indice locale des "kinematic nodes"
+C     INLOC (NUMNOD): Local index of "Kinematic Nodes"
 C-----------------------------------------------
 C------interface 2-------------- 
       NSS2=0
@@ -2528,34 +2478,34 @@ C------IRTL(NSN)--main el number---
        KFI=K14+NSN
        DO 20 J=1,NSN
         NS=INTBUF_TAB(N)%NSV(J)  
-        IF (NDOF(NS).GT.0) THEN
+        IF (NDOF(NS)>0) THEN
          L=INTBUF_TAB(N)%IRTLM(J)
          ID=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(ID+3).EQ.INTBUF_TAB(N)%IRECTM(ID+4)) THEN 
+         IF (INTBUF_TAB(N)%IRECTM(ID+3)==INTBUF_TAB(N)%IRECTM(ID+4)) THEN 
           NNOD=3
          ELSE
           NNOD=4
          ENDIF 
          DO M=1,NNOD
           NM=INTBUF_TAB(N)%IRECTM(ID+M)
-          IF (NDOF(NM).GT.0) THEN
+          IF (NDOF(NM)>0) THEN
            NKE1=INLOC(NM) 
            DO J1=1,NNOD
             NM1=INTBUF_TAB(N)%IRECTM(ID+J1)
-            IF (NM.NE.NM1) CALL REORDER_A(NROWI(NKE1),ICOK(1,NKE1),NM1) 
+            IF (NM/=NM1) CALL REORDER_A(NROWI(NKE1),ICOK(1,NKE1),NM1) 
            ENDDO
           ENDIF 
          ENDDO
          NKS=INLOC(NS)
          DO NK=1,NROWI(NKS)
           NJ=ICOK(NK,NKS)
-          IF (NDOF(NJ).GT.0.AND.
+          IF (NDOF(NJ)>0.AND.
      .        (.NOT.INTAB(NSN,INTBUF_TAB(N)%NSV(1),NJ))) THEN
            NSS2=NSS2+1
            NKE2=INLOC(NJ) 
            DO M=1,NNOD
              NM=INTBUF_TAB(N)%IRECTM(ID+M)
-             IF (NDOF(NM).GT.0) THEN
+             IF (NDOF(NM)>0) THEN
               NKE1=INLOC(NM) 
               CALL REORDER_A(NROWI(NKE1),ICOK(1,NKE1),NJ) 
               CALL REORDER_A(NROWI(NKE2),ICOK(1,NKE2),NM) 
@@ -2567,18 +2517,18 @@ C-----with Kij block-(i,j have the same M)-----
          DO N1=J+1,NSN
           NJ=INTBUF_TAB(N)%NSV(N1)
           L1=INTBUF_TAB(N)%IRTLM(N1)
-           IF (NDOF(NJ).GT.0.AND.
+           IF (NDOF(NJ)>0.AND.
      .         INTAB(NROWI(NKS),ICOK(1,NKS),NJ)) THEN
             NSIJ2=NSIJ2+2
-            IF (L.NE.L1) THEN
+            IF (L/=L1) THEN
              NL1=4*(L1-1)
              DO M=1,NNOD
               NM=INTBUF_TAB(N)%IRECTM(ID+M)
-              IF (NDOF(NM).GT.0) THEN
+              IF (NDOF(NM)>0) THEN
               NKE1=INLOC(NM) 
               DO J1=1,4
                NM1=INTBUF_TAB(N)%IRECTM(NL1+J1)
-                IF (NM.NE.NM1.AND.NDOF(NM1).GT.0) THEN
+                IF (NM/=NM1.AND.NDOF(NM1)>0) THEN
                  NKE2=INLOC(NM1) 
                  CALL REORDER_A(NROWI(NKE1),ICOK(1,NKE1),NM1) 
                  CALL REORDER_A(NROWI(NKE2),ICOK(1,NKE2),NM) 
@@ -2602,7 +2552,7 @@ C------Rbe2------
        IC = 7*512+7*64-IRBE2(4,N)
        DO J=1,NSN
         NS=LRBE2(K+J)
-        IF (NDOF(NS).GT.0) THEN
+        IF (NDOF(NS)>0) THEN
          NKS=INLOC(NS)
          DO NK=1,NROWI(NKS)
           IF (NKS >INK) THEN
@@ -2611,24 +2561,24 @@ C------Rbe2------
            NJ=ICOKM(NK,NKS)
           END IF
           NKE2=INLOC(NJ) 
-          IF (NDOF(NJ).GT.0.AND.NJ.NE.NS) THEN
+          IF (NDOF(NJ)>0.AND.NJ/=NS) THEN
             NSB2=NSB2+1
             CALL REORDER_A(NROWI(NKE1),ICOKM(1,NKE1),NJ) 
-            IF (NKE2.GT.INK) THEN
+            IF (NKE2>INK) THEN
                CALL REORDER_A(NROWI(NKE2),ICOK(1,NKE2),M) 
-            ELSEIF (NKE2.GT.0) THEN
+            ELSEIF (NKE2>0) THEN
                CALL REORDER_A(NROWI(NKE2),ICOKM(1,NKE2),M) 
             ENDIF         
           ENDIF
          ENDDO 
-         IF (IC.GT.0) THEN
-	      CALL REORDER_A(NROWI(NKE1),ICOKM(1,NKE1),NS)
+         IF (IC>0) THEN
+                CALL REORDER_A(NROWI(NKE1),ICOKM(1,NKE1),NS)
           IF (NKS > INK) THEN
            CALL REORDER_A(NROWI(NKS),ICOK(1,NKS),M)
-          ELSEIF (NKS > 0) THEN		   
+          ELSEIF (NKS > 0) THEN       
            CALL REORDER_A(NROWI(NKS),ICOKM(1,NKS),M)
           END IF
-	     ENDIF
+               ENDIF
         ENDIF 
        ENDDO 
       ENDDO
@@ -2637,27 +2587,27 @@ C------RBE3--------------
       DO I=1,NRBE3
        IAD=IRBE3(1,I)
        NS =IRBE3(3,I)
-       IF (NS.EQ.0) CYCLE
+       IF (NS==0) CYCLE
        NNOD=IRBE3(5,I)
-        IF (NDOF(NS).GT.0) THEN
+        IF (NDOF(NS)>0) THEN
 C
          DO M=1,NNOD
           NM=LRBE3(IAD+M)
-          IF (NDOF(NM).GT.0) THEN
+          IF (NDOF(NM)>0) THEN
            NKE1=INLOC(NM) 
            DO J1=M+1,NNOD
             NM1=LRBE3(IAD+J1)
-            IF (NKE1.GT.INK.AND.NM.NE.NM1) THEN
+            IF (NKE1>INK.AND.NM/=NM1) THEN
              CALL REORDER_A(NROWI(NKE1),ICOK(1,NKE1),NM1) 
-	        ELSEIF (NKE1.GT.0.AND.NM.NE.NM1) THEN
+                  ELSEIF (NKE1>0.AND.NM/=NM1) THEN
              CALL REORDER_A(NROWI(NKE1),ICOKM(1,NKE1),NM1) 
-	        ENDIF
+                  ENDIF
             NKE2=INLOC(NM1) 
-            IF (NKE2.GT.INK) THEN
+            IF (NKE2>INK) THEN
              CALL REORDER_A(NROWI(NKE2),ICOK(1,NKE2),NM) 
-	        ELSEIF (NKE2.GT.0) THEN
+                  ELSEIF (NKE2>0) THEN
              CALL REORDER_A(NROWI(NKE2),ICOKM(1,NKE2),NM)              
-	        ENDIF
+                  ENDIF
            ENDDO
           ENDIF 
          ENDDO
@@ -2669,33 +2619,33 @@ C-----due to change of RBE2- (M used ICOKM now) --
           ELSE
            NJ=ICOKM(NK,NKS)
           END IF
-          IF (NDOF(NJ).GT.0 ) THEN
+          IF (NDOF(NJ)>0 ) THEN
            NSS3=NSS3+1
            NKE2=INLOC(NJ) 
            DO M=1,NNOD
             NM=LRBE3(IAD+M)
-             IF (NDOF(NM).GT.0) THEN
+             IF (NDOF(NM)>0) THEN
               NKE1=INLOC(NM)
-	       
-              IF (NKE1.GT.INK) THEN
+                 
+              IF (NKE1>INK) THEN
                CALL REORDER_A(NROWI(NKE1),ICOK(1,NKE1),NJ) 
-	          ELSEIF (NKE1.GT.0) THEN
+                    ELSEIF (NKE1>0) THEN
                CALL REORDER_A(NROWI(NKE1),ICOKM(1,NKE1),NJ) 
-	          ENDIF
-	      
-              IF (NKE2.GT.INK) THEN
+                    ENDIF
+                
+              IF (NKE2>INK) THEN
                CALL REORDER_A(NROWI(NKE2),ICOK(1,NKE2),NM) 
-              ELSEIF (NKE2.GT.0) THEN
+              ELSEIF (NKE2>0) THEN
                CALL REORDER_A(NROWI(NKE2),ICOKM(1,NKE2),NM) 
               ENDIF 
-	              
+                        
              ENDIF 
            ENDDO
           ENDIF
          ENDDO
         ENDIF 
       ENDDO
-C+++couplage entre int2----
+C+++ coupling between int2 ----
       NMIJ2=0
 C
       NSS=0
@@ -2705,11 +2655,11 @@ C
        K=IRBYAC(I+NRBYKIN)
        M=NPBY(1,N)
        NSN  =NPBY(2,N)
-       IF (NDOF(M).GT.0) THEN
+       IF (NDOF(M)>0) THEN
         NKE1=INLOC(M) 
        DO J=1,NSN
         NS=LPBY(K+J)
-        IF (NDOF(NS).GT.0) THEN
+        IF (NDOF(NS)>0) THEN
          NKS=INLOC(NS)
          DO NK=1,NROWI(NKS)
           IF (NKS > INK) THEN         
@@ -2718,27 +2668,27 @@ C
            NJ=ICOKM(NK,NKS)
           END IF
           NKE2=INLOC(NJ) 
-          IF (NDOF(NJ).GT.0.AND.
+          IF (NDOF(NJ)>0.AND.
      .         (.NOT.INTAB(NSN,LPBY(K+1),NJ))) THEN
             NSS=NSS+1
            CALL REORDER_A(NROWI(NKE1),ICOKM(1,NKE1),NJ) 
-           IF (NKE2.GT.INK) THEN
+           IF (NKE2>INK) THEN
             CALL REORDER_A(NROWI(NKE2),ICOK(1,NKE2),M) 
-           ELSEIF (NKE2.GT.0) THEN
+           ELSEIF (NKE2>0) THEN
             CALL REORDER_A(NROWI(NKE2),ICOKM(1,NKE2),M) 
            ENDIF         
           ENDIF
          ENDDO 
-C-----create rigid body secnd nodes with Kij block-(i,j have the same M)-----
+C-----create rigid body second nodes with Kij block-(i,j have the same M)-----
          DO N1=J+1,NSN
            NJ=LPBY(K+N1)
           IF (NKS > INK) THEN         
-           IF (NDOF(NJ).GT.0.AND.
+           IF (NDOF(NJ)>0.AND.
      .         (INTAB(NROWI(NKS),ICOK(1,NKS),NJ))) THEN
              NSIJ=NSIJ+2
            ENDIF
           ELSE
-           IF (NDOF(NJ).GT.0.AND.
+           IF (NDOF(NJ)>0.AND.
      .         (INTAB(NROWI(NKS),ICOKM(1,NKS),NJ))) THEN
              NSIJ=NSIJ+2
            ENDIF
@@ -2748,15 +2698,15 @@ C-----create rigid body secnd nodes with Kij block-(i,j have the same M)-----
        ENDDO 
        ENDIF 
       ENDDO
-C+++couplage entre rigid bodies----
+C+++ Coupling between Rigid Bodies ----
       NMIJ=0
-      IF (NRBYAC.GT.1) THEN
+      IF (NRBYAC>1) THEN
        DO J=1,NRBYAC
         N=IRBYAC(J)
         K=IRBYAC(J+NRBYKIN)
         M  =NPBY(1,N)
         NS=NPBY(2,N)
-        IF (NDOF(M).GT.0) THEN
+        IF (NDOF(M)>0) THEN
          NKE1=INLOC(M) 
         DO J1=J+1,NRBYAC
          N1=IRBYAC(J1)
@@ -2767,14 +2717,14 @@ C+++couplage entre rigid bodies----
            DO I=1,NSN
             ID = I+L1
             NI=LPBY(ID)
-            IF (NDOF(NI).GT.0) THEN
+            IF (NDOF(NI)>0) THEN
              NKS=INLOC(NI) 
              IF (NKS > INK) THEN         
               IF (INTAB(NROWI(NKS),ICOK(1,NKS),M)) THEN
-C------cherche-secnd pairs----
+C------search for second pairs----
               DO N1=1,NS
                N2=LPBY(K+N1)
-               IF (NDOF(N2).GT.0.AND.
+               IF (NDOF(N2)>0.AND.
      .             INTAB(NROWI(NKS),ICOK(1,NKS),N2)) THEN
                 NMIJ=NMIJ+2
                ENDIF 
@@ -2782,10 +2732,10 @@ C------cherche-secnd pairs----
               ENDIF
              ELSE
               IF (INTAB(NROWI(NKS),ICOKM(1,NKS),M)) THEN
-C------cherche-secnd pairs----
+C------search for second pairs----
               DO N1=1,NS
                N2=LPBY(K+N1)
-               IF (NDOF(N2).GT.0.AND.
+               IF (NDOF(N2)>0.AND.
      .             INTAB(NROWI(NKS),ICOKM(1,NKS),N2)) THEN
                 NMIJ=NMIJ+2
                ENDIF 
@@ -2803,16 +2753,17 @@ C------cherche-secnd pairs----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_KINE_K                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        RMIND_IMP                     source/model/remesh/rm_imp0.F 
-Chd|        INTAB                         source/implicit/ind_glob_k.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ind_kine_k      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k      ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    intab           ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a       ../engine/source/implicit/ind_glob_k.F
+!||    rmind_imp       ../engine/source/model/remesh/rm_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IND_KINE_K(NPBY,LPBY,
      1    ITAB      ,NRBYAC    ,IRBYAC    ,NSC       ,ISIJ      ,
      2    NMC       ,IMIJ      ,NSS       ,ISS       ,NINT2     ,
@@ -2831,18 +2782,12 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "remesh_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX,NKMAX
@@ -2893,28 +2838,28 @@ C------IRTL(NSN)--main el number---
         ID = I+K
         NSS2(ID)=0
         NI=INTBUF_TAB(N)%NSV(I)
-        IF (NDOF(NI).GT.0) THEN
+        IF (NDOF(NI)>0) THEN
          L=INTBUF_TAB(N)%IRTLM(I)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
          DO M=1,NNOD
           NM=INTBUF_TAB(N)%IRECTM(NL+M)
-          IF (NDOF(NM).GT.0) THEN
+          IF (NDOF(NM)>0) THEN
            NKE1=INLOC(NM) 
            DO J1=1,NNOD
             NM1=INTBUF_TAB(N)%IRECTM(NL+J1)
-           IF (NM.NE.NM1) CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NM1) 
+           IF (NM/=NM1) CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NM1) 
            ENDDO
           ENDIF  
          ENDDO
          NKE=INLOC(NI) 
          DO N1=1,NROWK(NKE)
           NJ=ICOK(N1,NKE)
-          IF (NDOF(NJ).GT.0.AND.
+          IF (NDOF(NJ)>0.AND.
      .        (.NOT.INTAB(NSN,INTBUF_TAB(N)%NSV(1),NJ))) THEN
            J1=NS+NSS2(ID)+1
            ISS2(J1)=NJ
@@ -2922,7 +2867,7 @@ C------IRTL(NSN)--main el number---
            NKE2=INLOC(NJ) 
            DO M=1,NNOD
             NM=INTBUF_TAB(N)%IRECTM(NL+M)
-            IF (NDOF(NM).GT.0) THEN
+            IF (NDOF(NM)>0) THEN
              NKE1=INLOC(NM) 
              CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NJ) 
              CALL REORDER_A(NROWK(NKE2),ICOK(1,NKE2),NM) 
@@ -2931,25 +2876,25 @@ C------IRTL(NSN)--main el number---
           ENDIF 
          ENDDO
          NS=NS+NSS2(ID)
-C-----with Kij block-(i,j secnd)-----
+C-----with Kij block-(i,j second)-----
          DO N1=I+1,NSN
           NJ=INTBUF_TAB(N)%NSV(N1)
           L1=INTBUF_TAB(N)%IRTLM(N1)
-           IF (NDOF(NJ).GT.0.AND.
+           IF (NDOF(NJ)>0.AND.
      .         INTAB(NROWK(NKE),ICOK(1,NKE),NJ)) THEN
             NSC2(J)=NSC2(J)+1
             ID =NK+2*(NSC2(J)-1)
             ISIJ2(ID)=I
             ISIJ2(ID+1)=N1
-            IF(L.NE.L1) THEN
+            IF(L/=L1) THEN
              NL1=4*(L1-1)
              DO M=1,NNOD
               NM=INTBUF_TAB(N)%IRECTM(NL+M)
-              IF (NDOF(NM).GT.0) THEN
+              IF (NDOF(NM)>0) THEN
                NKE1=INLOC(NM) 
                DO J1=1,4
                 NM1=INTBUF_TAB(N)%IRECTM(NL1+J1)
-                IF (NM.NE.NM1.AND.NDOF(NM1).GT.0) THEN
+                IF (NM/=NM1.AND.NDOF(NM1)>0) THEN
                  NKE2=INLOC(NM1) 
                  CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NM1) 
                  CALL REORDER_A(NROWK(NKE2),ICOK(1,NKE2),NM) 
@@ -2965,7 +2910,7 @@ C-----with Kij block-(i,j secnd)-----
        K=K+NSN
        NK=NK+2*NSC2(J)
       ENDDO
-C+++couplage entre int2----
+C+++ coupling between int2 ----
       NMC2=0
 C-----RBE2------
       K=0
@@ -2979,7 +2924,7 @@ C-----RBE2------
         DO I=1,NSN
          NI=LRBE2(I+K1)
          NSRB2(I+K1)=0
-         IF (NDOF(NI).GT.0) THEN
+         IF (NDOF(NI)>0) THEN
           NKE=INLOC(NI) 
           DO N1=1,NROWK(NKE)
            IF (NKE <= INK) THEN
@@ -2988,7 +2933,7 @@ C-----RBE2------
             NJ=ICOKM(N1,NKE-INK)
            END IF
            NKE2=INLOC(NJ) 
-           IF (NDOF(NJ).GT.0.AND.NJ.NE.NI) THEN
+           IF (NDOF(NJ)>0.AND.NJ/=NI) THEN
             CALL REORDER_A(NROWK(NKE1),ICOKM(1,NKE1-INK),NJ) 
             IF (NKE2<=INK) THEN
              CALL REORDER_A(NROWK(NKE2),ICOK(1,NKE2),M) 
@@ -3001,14 +2946,14 @@ C-----RBE2------
              NS=NS+1
            ENDIF 
           ENDDO 
-          IF (IC.GT.0) THEN
-	       CALL REORDER_A(NROWK(NKE1),ICOKM(1,NKE1-INK),NI)
+          IF (IC>0) THEN
+                 CALL REORDER_A(NROWK(NKE1),ICOKM(1,NKE1-INK),NI)
            IF (NKE <= INK) THEN
             CALL REORDER_A(NROWK(NKE),ICOK(1,NKE),M)
-           ELSEIF (NKE > 0) THEN		   
+           ELSEIF (NKE > 0) THEN       
             CALL REORDER_A(NROWK(NKE),ICOKM(1,NKE-INK),M)
            END IF
-	      ENDIF
+                ENDIF
          ENDIF
         ENDDO
        IRBE2(8,N) = NS
@@ -3018,19 +2963,19 @@ C------------RBE3-----
       DO I=1,NRBE3
        IAD=IRBE3(1,I)
        NI =IRBE3(3,I)
-       IF (NI.EQ.0) CYCLE
+       IF (NI==0) CYCLE
        NNOD=IRBE3(5,I)
         NS=0
-        IF (NDOF(NI).GT.0) THEN
+        IF (NDOF(NI)>0) THEN
          DO M=1,NNOD
           NM=LRBE3(IAD+M)
-          IF (NDOF(NM).GT.0) THEN
+          IF (NDOF(NM)>0) THEN
            NKE1=INLOC(NM) 
            DO J1=1,NNOD
             NM1=LRBE3(IAD+J1)
-            IF (NKE1.LE.INK.AND.NM.NE.NM1) THEN
+            IF (NKE1<=INK.AND.NM/=NM1) THEN
              CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NM1) 
-            ELSEIF (NM.NE.NM1) THEN
+            ELSEIF (NM/=NM1) THEN
              CALL REORDER_A(NROWK(NKE1),ICOKM(1,NKE1-INK),NM1) 
             ENDIF
            ENDDO
@@ -3043,28 +2988,28 @@ C------------RBE3-----
           ELSE
            NJ=ICOKM(N1,NKE-INK)
           END IF
-          IF (NDOF(NJ).GT.0.AND.NI.NE.NJ) THEN
+          IF (NDOF(NJ)>0.AND.NI/=NJ) THEN
            NS=NS+1
            K = K + 1   
            ISS3(K)=NJ
            NKE2=INLOC(NJ) 
            DO M=1,NNOD
             NM=LRBE3(IAD+M)
-            IF (NDOF(NM).GT.0) THEN
+            IF (NDOF(NM)>0) THEN
              NKE1=INLOC(NM)
-	      
-             IF (NKE1.LE.INK) THEN
+                
+             IF (NKE1<=INK) THEN
               CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NJ) 
-	         ELSE
+                   ELSE
               CALL REORDER_A(NROWK(NKE1),ICOKM(1,NKE1-INK),NJ) 
-	         ENDIF
-	     
-             IF (NKE2.LE.INK) THEN
+                   ENDIF
+               
+             IF (NKE2<=INK) THEN
               CALL REORDER_A(NROWK(NKE2),ICOK(1,NKE2),NM) 
-	         ELSE
+                   ELSE
               CALL REORDER_A(NROWK(NKE2),ICOKM(1,NKE2-INK),NM) 
-	         ENDIF
-	     
+                   ENDIF
+               
             ENDIF 
            ENDDO
           ENDIF 
@@ -3082,14 +3027,14 @@ C-----active rigid body main nodes------
        M  =NPBY(1,N)
        NSN  =NPBY(2,N)
        NSC(J)=0
-       IF (NDOF(M).GT.0) THEN
+       IF (NDOF(M)>0) THEN
         NKE1=INLOC(M) 
         NKM1=NKE1-INK 
         DO I=1,NSN
          ID = I+K
          NI=LPBY(I+K1)
          NSS(ID)=0
-         IF (NDOF(NI).GT.0) THEN
+         IF (NDOF(NI)>0) THEN
           NKE=INLOC(NI) 
           DO N1=1,NROWK(NKE)
            IF (NKE <= INK) THEN         
@@ -3098,10 +3043,10 @@ C-----active rigid body main nodes------
             NJ=ICOKM(N1,NKE-INK)
            END IF
            NKE2=INLOC(NJ) 
-           IF (NDOF(NJ).GT.0.AND.
+           IF (NDOF(NJ)>0.AND.
      .         (.NOT.INTAB(NSN,LPBY(K1+1),NJ))) THEN
             CALL REORDER_A(NROWK(NKE1),ICOKM(1,NKM1),NJ) 
-           IF (NKE2.LE.INK) THEN
+           IF (NKE2<=INK) THEN
              CALL REORDER_A(NROWK(NKE2),ICOK(1,NKE2),M) 
              J1=NS+NSS(ID)+1
              ISS(J1)=NJ
@@ -3112,11 +3057,11 @@ C-----active rigid body main nodes------
            ENDIF 
           ENDDO 
           NS=NS+NSS(ID)
-C-----create rigid body secnd nodes with Kij block-(i,j have the same M)-----
+C-----create rigid body second nodes with Kij block-(i,j have the same M)-----
           DO N1=I+1,NSN
            NJ=LPBY(K1+N1)
            IF (NKE <= INK) THEN         
-            IF (NDOF(NJ).GT.0.AND.
+            IF (NDOF(NJ)>0.AND.
      .         (INTAB(NROWK(NKE),ICOK(1,NKE),NJ))) THEN
              NSC(J)=NSC(J)+1
              ID =NK+2*(NSC(J)-1)
@@ -3124,7 +3069,7 @@ C-----create rigid body secnd nodes with Kij block-(i,j have the same M)-----
              ISIJ(ID+1)=NJ
             ENDIF
            ELSE
-            IF (NDOF(NJ).GT.0.AND.
+            IF (NDOF(NJ)>0.AND.
      .         (INTAB(NROWK(NKE),ICOKM(1,NKE-INK),NJ))) THEN
              NSC(J)=NSC(J)+1
              ID =NK+2*(NSC(J)-1)
@@ -3139,16 +3084,16 @@ C-----create rigid body secnd nodes with Kij block-(i,j have the same M)-----
        K=K+NSN
        NK=NK+2*NSC(J)
       ENDDO
-C+++couplage entre rigid bodies----
+C+++ Coupling between Rigid Bodies ----
       NMC=0
-      IF (NRBYAC.GT.1) THEN
+      IF (NRBYAC>1) THEN
        DO J=1,NRBYAC
         N=IRBYAC(J)
         K=IRBYAC(J+NRBYKIN)
         M  =NPBY(1,N)
         NS=NPBY(2,N)
 C
-        IF (NDOF(M).GT.0) THEN
+        IF (NDOF(M)>0) THEN
          NKE1=INLOC(M) 
          NKM1=NKE1-INK 
         DO J1=J+1,NRBYAC
@@ -3161,15 +3106,15 @@ C
            DO I=1,NSN
             ID = I+L1
             NI=LPBY(ID)
-            IF (NDOF(NI).GT.0) THEN
+            IF (NDOF(NI)>0) THEN
              NKE=INLOC(NI) 
              IF (NKE <= INK) THEN         
               IF (INTAB(NROWK(NKE),ICOK(1,NKE),M)) THEN
               NJ=0
-C------cherche-secnd pairs----
+C------search for second pairs----
               DO N1=1,NS
                N2=LPBY(K+N1)
-               IF (NDOF(N2).GT.0.AND.
+               IF (NDOF(N2)>0.AND.
      .             INTAB(NROWK(NKE),ICOK(1,NKE),N2)) THEN
                 NJ=N2
                 NMC=NMC+1
@@ -3184,10 +3129,10 @@ C------cherche-secnd pairs----
              ELSE
               IF (INTAB(NROWK(NKE),ICOKM(1,NKE-INK),M)) THEN
               NJ=0
-C------cherche-secnd pairs----
+C------search for second pairs----
               DO N1=1,NS
                N2=LPBY(K+N1)
-               IF (NDOF(N2).GT.0.AND.
+               IF (NDOF(N2)>0.AND.
      .             INTAB(NROWK(NKE),ICOKM(1,NKE-INK),N2)) THEN
                 NJ=N2
                 NMC=NMC+1
@@ -3215,29 +3160,31 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C------computation for NNMAX,NKMAX------
-Chd|====================================================================
-Chd|  DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        DIM_ELEMS2                    source/implicit/ind_glob_k.F  
-Chd|        DIM_ELEMS3                    source/implicit/ind_glob_k.F  
-Chd|        DIM_KINE_P                    source/implicit/ind_glob_k.F  
-Chd|        DIM_KINE_S                    source/implicit/ind_glob_k.F  
-Chd|        DIM_KINE_T                    source/implicit/ind_glob_k.F  
-Chd|        KIN_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|        KIN_NRMAX0                    source/mpi/implicit/imp_fri.F 
-Chd|        RMDIM_IMP                     source/model/remesh/rm_imp0.F 
-Chd|        SPMD_MAX_I                    source/mpi/implicit/imp_spmd.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_kinmax      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k      ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    dim_elems2      ../engine/source/implicit/ind_glob_k.F
+!||    dim_elems3      ../engine/source/implicit/ind_glob_k.F
+!||    dim_kine_p      ../engine/source/implicit/ind_glob_k.F
+!||    dim_kine_s      ../engine/source/implicit/ind_glob_k.F
+!||    dim_kine_t      ../engine/source/implicit/ind_glob_k.F
+!||    kin_nrmax       ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_nrmax0      ../engine/source/mpi/implicit/imp_fri.F
+!||    rmdim_imp       ../engine/source/model/remesh/rm_imp0.F
+!||    spmd_max_i      ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_KINMAX(
      1    IGEO      ,NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,
-     2    SENSOR    ,IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
+     2    IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
      3    INTBUF_TAB,IXS       ,IXQ       ,IXC       ,IXT       ,
      4    IXP       ,IXR       ,IXTG      ,IXTG1     ,IXS10     ,
-     5    IXS20     ,IXS16     ,IXUR      ,IPARG     ,NDOF      ,     
+     5    IXS20     ,IXS16     ,IPARG     ,NDOF      ,     
      6    NSI2      ,NSRB      ,ELBUF     ,NKINE     ,INLOC     ,
      7    NROW      ,NNMAX     ,NKMAX     ,NSS       ,NSIJ      ,
      8    NMIJ      ,NSS2      ,NSIJ2     ,NMIJ2     ,FR_ELEM   ,
@@ -3248,24 +3195,20 @@ C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD    
       USE INTBUFDEF_MOD
-C----6---------------------------------------------------------------7---------8
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "impl1_c.inc"
 #include      "remesh_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARG(NPARG,*),IGEO(*),IRBE3(*),LRBE3(*)
@@ -3274,13 +3217,12 @@ C-----------------------------------------------
       INTEGER FR_ELEM(*),IAD_ELEM(2,*),SH4TREE(*),SH3TREE(*)
       INTEGER 
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),NDOF(*),NROW(*),NNMAX,NKINE,
      .   INLOC(*),NKMAX,NSS,NSIJ,NMIJ,NSS2,NSIJ2,NMIJ2,NSS3,
      .   IRBE2(*),LRBE2(*),NSB2
 C     REAL
-      my_real
-     .   SENSOR(NSENSR,*),ELBUF(*)
+      my_real ELBUF(*)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP) :: ELBUF_TAB
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
 C-----------------------------------------------
@@ -3292,17 +3234,17 @@ C-----------------------------------------------
       DO N =1,NUMNOD
        INLOC(N)=0
       ENDDO
-c-----2. pepare icol for secnd nodes using ikine;
+c-----2. prepare icol for second nodes using ikine;
       CALL DIM_KINE_P(
      1    IGEO      ,NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,
-     2    SENSOR    ,IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
+     2    IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
      3    NDOF      ,NSI2      ,NSRB      ,NKINE     ,
      7    INLOC     ,IRBE3     ,IRBE2     ,LRBE2     ,LNK       ,
      8    INTBUF_TAB       )
-C----- pass for IND_GLOB_K, including RBE2 main	 
+C----- pass for IND_GLOB_K, including RBE2 main   
       LCOKM=LNK
       NKINE0=NKINE
-      IF (NKINE0.GT.0) THEN
+      IF (NKINE0>0) THEN
        ALLOCATE(ICOK(NKINE*NNMAX))
        ALLOCATE(NROWI(NKINE))
       ENDIF
@@ -3312,9 +3254,9 @@ C----- pass for IND_GLOB_K, including RBE2 main
       CALL DIM_ELEMS3(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROWI     ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROWI     ,
      4    INLOC     ,NNMAX     ,ICOK      ,IGEO      ,ELBUF_TAB )
-      IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
+      IF (NSPMD>1) THEN
          CALL KIN_NRMAX(
      1    NNMAX     ,NNMAX     ,NROWI     ,ICOK      ,ICOK      ,
      2    INLOC     ,NUMNOD    ,FR_ELEM   ,IAD_ELEM  )
@@ -3323,13 +3265,13 @@ C----- pass for IND_GLOB_K, including RBE2 main
        NK=INLOC(N)
        IF (NK > 0) NROW(N) = MAX(NROW(N),NROWI(NK))
       ENDDO
-c-----3. calcul NNMAX,NKMAX and creating INLOC,NKINE;
+c-----3. calculation NNMAX,NKMAX and creating INLOC,NKINE;
       CALL DIM_KINE_S(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,NDOF      ,
      3    NNMAX     ,NROW      ,NROWI     ,NKINE     ,INLOC     , 
      4    ICOK      ,IRBE3     ,LRBE3     ,IRBE2     ,LRBE2     )
-      IF (NKINE0.GT.0) THEN
+      IF (NKINE0>0) THEN
        DEALLOCATE(ICOK)
        DEALLOCATE(NROWI)
       ENDIF
@@ -3338,9 +3280,9 @@ C
       NNMAX0=NNMAX
       DO N =1,NUMNOD
        NK=INLOC(N)
-       IF (NK.GT.LNK) THEN
+       IF (NK>LNK) THEN
         NNMAX=MAX(NNMAX,NROW(N))
-       ELSEIF (NK.GT.0) THEN
+       ELSEIF (NK>0) THEN
         NKMAX=MAX(NKMAX,NROW(N))
        ENDIF 
       ENDDO
@@ -3350,7 +3292,7 @@ C----for some special case (hierarchy kinematic RBE2/RBE3),NKMAX is underestimat
         IF (NSPMD>1)CALL SPMD_MAX_I(NKMAX)
 C
       NKINE0=NKINE
-      IF (NKINE0.GT.0) THEN
+      IF (NKINE0>0) THEN
        NK = LNK*NKMAX+NKINE*NNMAX
        ALLOCATE(ICOK(NK))
        ALLOCATE(NROWI(NKINE))
@@ -3363,16 +3305,16 @@ C
          CALL DIM_ELEMS2(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROWI     ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROWI     ,
      4    INLOC     ,NNMAX     ,ICOK(L2)  ,NKMAX     ,ICOK(L1)  ,
      5    LNK       ,IGEO      ,ELBUF_TAB )
 c
-      IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
+      IF (NSPMD>1) THEN
          CALL KIN_NRMAX0(
      1    NNMAX     ,NKMAX     ,NROWI     ,ICOK(L2)  ,ICOK(L1)  ,
      2    INLOC     ,LNK       ,FR_ELEM   ,IAD_ELEM  )
       ENDIF 
-c-----3. calcul NNMAX,NKMAX and creating INLOC,NKINE;
+c-----3. calculation NNMAX,NKMAX and creating INLOC,NKINE;
       CALL DIM_KINE_T(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,NDOF      ,
@@ -3384,17 +3326,17 @@ c-----3. calcul NNMAX,NKMAX and creating INLOC,NKINE;
       NNMAX=NNMAX0
       DO N =1,NUMNOD
        NK=INLOC(N)
-       IF (NK.GT.LNK) THEN
+       IF (NK>LNK) THEN
         NNMAX=MAX(NNMAX,NROWI(NK))
-       ELSEIF (NK.GT.0) THEN
+       ELSEIF (NK>0) THEN
         NKMAX=MAX(NKMAX,NROWI(NK))
        ENDIF 
       ENDDO
       DO N =1,NUMNOD
        NK=INLOC(N)
-       IF (NK.GT.0)NROW(N)=NROWI(NK)
+       IF (NK>0)NROW(N)=NROWI(NK)
       ENDDO
-      IF (NKINE0.GT.0) THEN
+      IF (NKINE0>0) THEN
        DEALLOCATE(ICOK)
        DEALLOCATE(NROWI)
       ENDIF
@@ -3404,33 +3346,35 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C------estimation for NNMAX,NKMAX,NNZK, prepare data for IND_GLOB_K
-Chd|====================================================================
-Chd|  DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_SOL_INIT                  source/implicit/imp_sol_init.F
-Chd|-- calls ---------------
-Chd|        DIM_ELEMAX                    source/implicit/ind_glob_k.F  
-Chd|        DIM_ELEMS1                    source/implicit/ind_glob_k.F  
-Chd|        DIM_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|        DIM_NDOF_D                    source/implicit/ind_glob_k.F  
-Chd|        DIM_NDOF_I                    source/implicit/ind_glob_k.F  
-Chd|        DIM_NDOF_II                   source/implicit/ind_glob_k.F  
-Chd|        DIM_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|        MONV_PREM                     source/airbag/monv_imp0.F     
-Chd|        NDOF_FV                       source/implicit/ind_glob_k.F  
-Chd|        SET_IKIN2G                    source/mpi/implicit/imp_fri.F 
-Chd|        SPMD_NDOF                     source/mpi/implicit/imp_spmd.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_glob_k      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_sol_init    ../engine/source/implicit/imp_sol_init.F
+!||--- calls      -----------------------------------------------------
+!||    dim_elemax      ../engine/source/implicit/ind_glob_k.F
+!||    dim_elems1      ../engine/source/implicit/ind_glob_k.F
+!||    dim_fr_k        ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_kinmax      ../engine/source/implicit/ind_glob_k.F
+!||    dim_ndof_d      ../engine/source/implicit/ind_glob_k.F
+!||    dim_ndof_i      ../engine/source/implicit/ind_glob_k.F
+!||    dim_ndof_ii     ../engine/source/implicit/ind_glob_k.F
+!||    dim_nrmax       ../engine/source/mpi/implicit/imp_fri.F
+!||    monv_prem       ../engine/source/airbag/monv_imp0.F
+!||    ndof_fv         ../engine/source/implicit/ind_glob_k.F
+!||    set_ikin2g      ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_ndof       ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod    ../common_source/modules/groupdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_GLOB_K(
      1    GEO       ,NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,
-     2    SENSOR    ,IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
+     2    IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
      3    IXS       ,IXQ       ,IXC       ,IXT       ,
      4    IXP       ,IXR       ,IXTG      ,IXTG1     ,IXS10     ,
-     5    IXS20     ,IXS16     ,IXUR      ,IPARG     ,NDOF      ,     
+     5    IXS20     ,IXS16     ,IPARG     ,NDOF      ,     
      6    IDDL      ,NDDL      ,NNZK      ,ELBUF     ,INLOC     ,
      7    LSIZE     ,FR_ELEM   ,IAD_ELEM  ,FR_I2M    ,IAD_I2M   ,
      8    NPRW      ,NMONV     ,IMONV     ,MONVOL    ,IGRSURF   ,
@@ -3444,25 +3388,20 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD            
       USE INTBUFDEF_MOD
       USE GROUPDEF_MOD
-C----6---------------------------------------------------------------7---------8
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "impl1_c.inc"
-#include      "scr17_c.inc"
 #include      "task_c.inc" 
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARG(NPARG,*),FR_ELEM(*)  ,IAD_ELEM(2,*)
@@ -3474,13 +3413,13 @@ C-----------------------------------------------
       INTEGER IPM(NPROPMI,*),IGEO(NPROPGI,*),IFRAME(LISKN,*)
       INTEGER 
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),IDDL(*),NDOF(*),IRBE3(*),LRBE3(*),
      .   NDDL ,NNZK,INLOC(*),LSIZE(*),SH4TREE(*), SH3TREE(*),
      .   IRBE2(*),LRBE2(*),IBFV(*)
 C     REAL
       my_real
-     .   GEO(NPROPG,*),SENSOR(NSENSR,*),ELBUF(*),VEL(*)
+     .   GEO(NPROPG,*),ELBUF(*),VEL(*)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP) :: ELBUF_TAB
       TYPE (INTBUF_STRUCT_) INTBUF_TAB(*)
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
@@ -3499,23 +3438,23 @@ C  ICOL(NKMAX,NRBYAC) for main nodes
 C  ICOL(NNMAX,NKINE-NRBYAC) for kine. nodes
 C  ICOL(NNMAX,NNSIZ) for other nodes
 C  NROW(NUMNOD) number of connected nodes use the mem. of iddl
-C----pour spmd on ne distinque plus nodes kine ---------------------------------------
+C---- For SPMD we no longer distinguish node Kine ------------------------------------------------------------------------------
 C   et INLOC(NUMNOD) : local(pi) numnod in order of IDDL
-C   actuel order : nodes fontieres avec pj(j<i); nodes; nodes fontieres avec pj(j>i)
+C   Current order: fountry nodes with pj (j <i);nodes;fountry nodes with pj (j> i)
 c-----1. calcule NNMAX,NDOF;
       DO N =1,NUMNOD
        IDDL(N)=0
        NDOF(N)=0
       ENDDO
       CALL DIM_NDOF_I(
-     1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,SENSOR    ,
+     1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,
      2    IRBYAC    ,NDOF      ,NSRB      ,IPARI     ,
      3    NINT2     ,IINT2     ,NSI2      ,NPRW      ,IRBE3     ,
      4    IRBE2     ,NSRB2     ,FR_ELEM   ,IAD_ELEM  ,INTBUF_TAB  )
       CALL DIM_ELEMS1(
      1    IGEO      ,ELBUF     ,IPARG     ,IXS       ,IXQ       ,
      2    IXC       ,IXT       ,IXP       ,IXR       ,IXTG      ,
-     3    IXTG1     ,IXS10     ,IXS20     ,IXS16     ,IXUR      ,
+     3    IXTG1     ,IXS10     ,IXS20     ,IXS16     ,
      4    NDOF      ,IDDL      ,ELBUF_TAB )
       CALL DIM_NDOF_II(
      1    NINT2     ,IINT2     ,IPARI     ,NDOF      ,
@@ -3523,12 +3462,12 @@ c-----1. calcule NNMAX,NDOF;
      3    LRBE2     ,INTBUF_TAB )
 C+++ not allowing imposed rotations on solid element..---
       CALL NDOF_FV(IBFV  ,VEL   ,NDOF  ,IFRAME )
-      IF (IMP_RBY.EQ.1) CALL DIM_NDOF_D(
+      IF (IMP_RBY==1) CALL DIM_NDOF_D(
      1    NPBY      ,LPBY      ,NRBYAC    ,IRBYAC    ,NDOF      ,
      2    IAD_RBY   ,FR_RBY    )
-      IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
+      IF (NSPMD>1) THEN
        NNMAX=IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
-       IF (NNMAX.GT.0) CALL SPMD_NDOF(NDOF,FR_ELEM,IAD_ELEM,NNMAX)
+       IF (NNMAX>0) CALL SPMD_NDOF(NDOF,FR_ELEM,IAD_ELEM,NNMAX)
       ENDIF 
       CALL MONV_PREM(
      1    NMONV     ,IMONV     ,MONVOL    ,IGRSURF   ,
@@ -3537,11 +3476,11 @@ C+++ not allowing imposed rotations on solid element..---
      4    NDOF      ,IPREC     ,IRBE3     ,IRBE2     ,LRBE2     )
       NNMAX=0
       DO N =1,NUMNOD
-       IF (NDOF(N).GT.0) NNMAX=MAX(NNMAX,IDDL(N))
+       IF (NDOF(N)>0) NNMAX=MAX(NNMAX,IDDL(N))
       ENDDO
 c-----raffine NNMAX;
       NKINE0=2*NNMAX
-      IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
+      IF (NSPMD>1) THEN
         NPP=IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
         M = IAD_I2M(NSPMD+1)-IAD_I2M(1)+
      .      IAD_RBE3M(NSPMD+1)-IAD_RBE3M(1)
@@ -3555,7 +3494,7 @@ C
        CALL DIM_FR_K(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NDOF      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NDOF      ,
      4    NKINE0    ,INLOC     ,FR_ELEM   ,IAD_ELEM  ,NPP       ,
      5    IGEO      ,FR_M      ,IAD_M     ,ELBUF_TAB )
        DEALLOCATE(FR_M)
@@ -3563,29 +3502,29 @@ C
       CALL DIM_ELEMAX(
      1    IXS       ,IXQ       ,IXC       ,IXT       ,IXP       ,
      2    IXR       ,IXTG      ,IXTG1     ,IXS10     ,IXS20     ,
-     3    IXS16     ,IXUR      ,IPARG     ,ELBUF     ,NDOF      ,
+     3    IXS16     ,IPARG     ,ELBUF     ,NDOF      ,
      4    IDDL      ,INLOC     ,NNMAX     ,NKINE0    ,NNSIZ     ,
      5    IGEO      ,ELBUF_TAB )
-      IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN 
+      IF (NSPMD>1) THEN 
          CALL DIM_NRMAX(IDDL    ,FR_ELEM   ,IAD_ELEM ,NNMAX  )
       ENDIF 
 C
       CALL DIM_KINMAX(
      1    IGEO      ,NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,
-     2    SENSOR    ,IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
+     2    IRBYAC    ,NINT2     ,IINT2     ,IPARI     ,
      3    INTBUF_TAB,IXS       ,IXQ       ,IXC       ,IXT       ,
      4    IXP       ,IXR       ,IXTG      ,IXTG1     ,IXS10     ,
-     5    IXS20     ,IXS16     ,IXUR      ,IPARG     ,NDOF      ,     
+     5    IXS20     ,IXS16     ,IPARG     ,NDOF      ,     
      6    NSI2      ,NSRB      ,ELBUF     ,NKINE     ,INLOC     ,
      7    IDDL      ,NNMAX     ,NKMAX     ,NSS       ,NSIJ      ,
      8    NMIJ      ,NSS2      ,NSIJ2     ,NMIJ2     ,FR_ELEM   ,
      9    IAD_ELEM  ,SH4TREE   ,SH3TREE   ,IRBE3     ,LRBE3     ,
      A    NSS3      ,IRBE2     ,LRBE2     ,NSB2      ,ELBUF_TAB )
-c-----4. calcul NNZK,;
-      IF (IRODDL.EQ.0) THEN
+c-----4. calculation NNZK,;
+      IF (IRODDL==0) THEN
        NDOFJ=3
       ELSE
-C-------cela sur-dimensioner kij en cas du model mix (solide +coque) mais pas trop grace
+C------ This over-dimensioner Kij in case of the Mix Model (solid +shell) but not too thanks
        NDOFJ=6
       ENDIF
       NNZK = 0
@@ -3593,7 +3532,7 @@ C-------cela sur-dimensioner kij en cas du model mix (solide +coque) mais pas tr
         DO K=1,NDOF(N)
 C-------termes knn-------
          DO J=1,NDOF(N)
-          IF (J.NE.K) NNZK = NNZK+1
+          IF (J/=K) NNZK = NNZK+1
 c          NNZK = NNZK+NDOF(N)-1
          ENDDO
 C-------termes kn,nj-------
@@ -3608,29 +3547,29 @@ c           NNZK = NNZK+NDOFJ*IDDL(N)
       NNZK = NNZK/2+1
        NPN=0
        NPP=0
-      IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
+      IF (NSPMD>1) THEN
        CALL SET_IKIN2G(NKINE,INLOC)
        J=0
        L=0
        DO N =1,NUMNOD
         IDDL(N)=0
        ENDDO
-C------d'abord frontieres avec precedent procs j<i
+C------d'abord frontieres with precedent procs j<i
        DO IP =1,ISPMD
         DO M=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
          N=FR_ELEM(M)
-         IF (IDDL(N).EQ.0) THEN
+         IF (IDDL(N)==0) THEN
           J=J+1
           INLOC(J)=N
           IDDL(N)=J
          ENDIF
         ENDDO
        ENDDO
-C------frontieres avec procs derierre a la fin j>i
+C------boundaries with procs behind at the end j>i------
        DO IP =ISPMD+2,NSPMD
         DO M=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
          N=FR_ELEM(M)
-         IF (IDDL(N).EQ.0) THEN
+         IF (IDDL(N)==0) THEN
           L=L+1
           IDDL(N)=-L
          ENDIF
@@ -3639,23 +3578,23 @@ C------frontieres avec procs derierre a la fin j>i
        NPN=J
        NPP=L
        DO N =1,NUMNOD
-        IF (IDDL(N).EQ.0) THEN
+        IF (IDDL(N)==0) THEN
           J=J+1
           INLOC(J)=N
-        ELSEIF (IDDL(N).LT.0) THEN
+        ELSEIF (IDDL(N)<0) THEN
           K=NUMNOD-L-IDDL(N)
           INLOC(K)=N
         ENDIF
        ENDDO
       ELSE
-C---------set INLOC; pour kine. nodes---
+C--------- Set INLOC;For Kine.Nodes ---
        DO N =1,NUMNOD
         IDDL(N)=INLOC(N)
        ENDDO
-       IF (IKPAT.LE.1) THEN
+       IF (IKPAT<=1) THEN
         J=0
         DO N =1,NUMNOD
-         IF (IDDL(N).EQ.0) THEN
+         IF (IDDL(N)==0) THEN
           J=J+1
           INLOC(J)=N
          ELSE
@@ -3666,7 +3605,7 @@ C---------set INLOC; pour kine. nodes---
        ELSE
         J=NKINE
         DO N =1,NUMNOD
-         IF (IDDL(N).EQ.0) THEN
+         IF (IDDL(N)==0) THEN
           J=J+1
           INLOC(J)=N
          ELSE
@@ -3676,13 +3615,13 @@ C---------set INLOC; pour kine. nodes---
         ENDDO
        ENDIF 
       ENDIF 
-c-----4. calcul IDDL,;
+c-----4. calculation IDDL,;
       NDDL =0
       DO J=1,NUMNOD
        N=INLOC(J)
        IDDL(N)=NDDL
        NDOFI = NDOF(N) 
-       IF (NDOFI.GT.0) NDDL = NDDL + NDOFI
+       IF (NDOFI>0) NDDL = NDDL + NDOFI
       ENDDO 
 c-----dimensions divers;
       LSIZE(1)=NSRB
@@ -3705,27 +3644,20 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- stockage M.C.R.S + SYM- ----- 
-Chd|====================================================================
-Chd|  SET_IND_K                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|        IND_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    set_ind_k    ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k   ../engine/source/implicit/ind_glob_k.F
+!||    ind_int_k    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE SET_IND_K(
      1    IDDL      ,NDOF      ,IADK      ,JDIK      ,NDDL      ,     
      2    NNZK      ,NROW      ,ICOL      ,N         ,IKPAT     )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER 
@@ -3735,11 +3667,11 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,L,NL,NJ,NDOFI
-c----- calcul IADK,JDIK,NNZK-----
+c----- calculation IADK,JDIK,NNZK-----
           NDOFI = NDOF(N)
           DO K=1,NDOFI
 C-------termes knn-------
-           IF (IKPAT.EQ.0) THEN
+           IF (IKPAT==0) THEN
             DO J=K+1,NDOFI
              NNZK = NNZK+1
              JDIK(NNZK) = IDDL(N)+J
@@ -3773,30 +3705,32 @@ C
       RETURN
       END
 C   --------- stockage M.C.R.S + SYM- ----- 
-Chd|====================================================================
-Chd|  IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|        IMP_SOL_INIT                  source/implicit/imp_sol_init.F
-Chd|-- calls ---------------
-Chd|        DIM_ELEMS3                    source/implicit/ind_glob_k.F  
-Chd|        DIM_ELEMS4                    source/implicit/ind_glob_k.F  
-Chd|        GET_IKIN2G                    source/mpi/implicit/imp_fri.F 
-Chd|        IND_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        IND_KINE_K                    source/implicit/ind_glob_k.F  
-Chd|        IND_KINE_KP                   source/mpi/implicit/imp_fri.F 
-Chd|        IND_NRFR                      source/mpi/implicit/imp_fri.F 
-Chd|        INI_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        KIN_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|        REORDER_J                     source/implicit/ind_glob_k.F  
-Chd|        REORDER_L                     source/implicit/ind_glob_k.F  
-Chd|        SET_IND_K                     source/implicit/ind_glob_k.F  
-Chd|        SPC_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        ZERO_IKIN2G                   source/mpi/implicit/imp_fri.F 
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ind_glob_k      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_buck        ../engine/source/implicit/imp_buck.F
+!||    imp_sol_init    ../engine/source/implicit/imp_sol_init.F
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    dim_elems3      ../engine/source/implicit/ind_glob_k.F
+!||    dim_elems4      ../engine/source/implicit/ind_glob_k.F
+!||    get_ikin2g      ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_fr_k        ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_kine_k      ../engine/source/implicit/ind_glob_k.F
+!||    ind_kine_kp     ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_nrfr        ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_fr_k        ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_nrmax       ../engine/source/mpi/implicit/imp_fri.F
+!||    reorder_j       ../engine/source/implicit/ind_glob_k.F
+!||    reorder_l       ../engine/source/implicit/ind_glob_k.F
+!||    set_ind_k       ../engine/source/implicit/ind_glob_k.F
+!||    spc_fr_k        ../engine/source/mpi/implicit/imp_fri.F
+!||    zero_ikin2g     ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IND_GLOB_K(NPBY,LPBY,
      1    ITAB      ,NRBYAC    ,IRBYAC    ,NSC       ,ISIJ      ,
      2    NMC       ,IMIJ      ,NSS       ,ISS       ,NINT2     ,
@@ -3804,7 +3738,7 @@ Chd|====================================================================
      4    NSS2      ,ISS2      ,IPARG     ,ELBUF     ,ELBUF_TAB ,
      5    IXS       ,IXQ       ,IXC       ,IXT       ,IXP       ,
      6    IXR       ,IXTG      ,IXTG1     ,IXS10     ,IXS20     ,
-     7    IXS16     ,IXUR      ,IDDL      ,NDOF      ,IADK      ,     
+     7    IXS16     ,IDDL      ,NDOF      ,IADK      ,     
      8    JDIK      ,NDDL      ,NNZK      ,NNMAX     ,NKINE     ,
      9    INLOC     ,NKMAX     ,NROWK     ,ICOK      ,ICOKM     ,
      A    NMC2      ,IMIJ2     ,IRK       ,NPN       ,NPP       ,
@@ -3816,23 +3750,19 @@ C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD   
       USE INTBUFDEF_MOD
-C----6---------------------------------------------------------------7---------8
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "impl1_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARG(NPARG,*),NNMAX,IRK,NKMAX
@@ -3843,7 +3773,7 @@ C-----------------------------------------------
       INTEGER IPM(NPROPMI,*),IGEO(NPROPGI,*)
       INTEGER 
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),IDDL(*),NDOF(*),IADK(*),JDIK(*),
      .   NDDL ,NNZK,NKINE,INLOC(*),NMC2,IMIJ2(*),NPN ,NPP,
      .   FR_ELEM(*),IAD_ELEM(2,*),IRBE3(*),LRBE3(*),ISS3(*),
@@ -3855,11 +3785,11 @@ C-----------------------------------------------
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
 C=======================================================================
 C     stockage M.C.R.S (Modified Compressed Row Stockage)
-C     stockage creux : diagonale + trangle en lignes: IKPAT=0:triang_sup IKPAT=1: inf
+C     Hollow storage: Diagonal + Trangle in lines: Ikpat = 0: Triang_sup Ikpat = 1: Inf
 C        [K](id,jd)     -> DIAG(ND)+LT(IK)(exclue diag)
 C        id = 1..nddl        : ID = IADK(ID)...IADK(ID+1)-1
 C        jd = 1..NNZK        : JD = JDIK(IK)
-C        NDOF(NUMNOD)        : nombre de ddl
+C        NDOF(NUMNOD)        : number de ddl
 C     DIAG(NDDL)
 C     IADK(NDDL+1)
 C     JDIK(NNZK)
@@ -3872,13 +3802,13 @@ C-----------------------------------------------
       INTEGER IAD_M(NSPMD+1)
       INTEGER, DIMENSION(:),ALLOCATABLE :: FR_M
       INTEGER, DIMENSION(:,:),ALLOCATABLE :: ICOKFR
-C     m:main,s:secnd NSS(NRBYAC):nombre de j: Kjm= sum(KjsCsm)
-C     NSC(NRBYAC):nombre de "secnd line": ISIJ(2,NSC,NRBYAC)--
+C     M: Main, S: send nss (nrbyac): number of J: kjm = sum (kjscsm)
+C     NSC (NRBYAC): Number of "send lines": ISIJ (2, NSC, NRBYAC)-
 C     nrowk(NKINE), icok size: NNMAX*(NKINE-NRBYAC)+NKMAX*NRBYAC:icok,icokm
-C------eventuellment actualiser NDOF due au OFF d'element-
-C-----1. calcul IADK,JDIK,par each NNSIZ using INLOC.
-C-----IRK=0, calcul des tableux kinematiques est dispense-----
-      IF (NSPMD.GT.1) THEN
+C-----
+C-----1. calculation IADK,JDIK,par each NNSIZ using INLOC.
+C-----IRK=0, calculation of kinematic tables is skipped-----
+      IF (NSPMD>1) THEN
        DO N = 1 , NUMNOD
          ILOC(N)=0
        ENDDO 
@@ -3891,19 +3821,19 @@ C-----IRK=0, calcul des tableux kinematiques est dispense-----
        DO IP =1,NSPMD
         IAD_M(IP+1)=M+1
        ENDDO 
-       IF (NKINE.GT.0) THEN
+       IF (NKINE>0) THEN
 C-------cree ILOC()------
         INK=NKINE-LCOKM
 c        INK=NKINE-NRBYAC
         CALL GET_IKIN2G(NKINE,INK,ILOC)
-        IF (IRK .EQ. 1) THEN
+        IF (IRK == 1) THEN
          DO NK =1,NKINE
           NROWK(NK)=0
          ENDDO 
          CALL DIM_ELEMS4(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROWK     ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROWK     ,
      4    ILOC      ,NNMAX     ,ICOK      ,NKMAX     ,ICOKM     ,
      5    INK       ,IGEO      ,ELBUF_TAB )
          CALL KIN_NRMAX(
@@ -3928,7 +3858,7 @@ C
        CALL INI_FR_K(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NDOF      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NDOF      ,
      4    NNMAX     ,ILOC      ,FR_ELEM   ,IAD_ELEM  ,N_FR      ,
      5    IGEO      ,FR_M      ,IAD_M     ,ELBUF_TAB ,NRMAX     )
        DEALLOCATE(FR_M)
@@ -3949,7 +3879,7 @@ C
         CALL DIM_ELEMS3(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROW      ,
      4    ILOC      ,NNMAX     ,ICOL      ,IGEO      ,ELBUF_TAB )
         CALL IND_NRFR(
      1    NFT       ,JLT       ,NPN       ,NPP       ,NNMAX     ,     
@@ -3960,24 +3890,24 @@ C
          K=INLOC(N)
          ILOC(K)=0
         ENDDO
-        IF (NKINE.GT.0) THEN
+        IF (NKINE>0) THEN
          CALL GET_IKIN2G(NKINE,INK,ILOC)
           DO NK=1,JLT
            N=NK+NFT
            J=INLOC(N)
-           IF (NDOF(J).GT.0) THEN
+           IF (NDOF(J)>0) THEN
             K=ILOC(J)
-            IF (K.GT.INK) THEN
+            IF (K>INK) THEN
              NJ=K-INK
              CALL SET_IND_K(
      1       IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
      2       LENK      ,NROWK(K)  ,ICOKM(1,NJ),J        ,IKPAT     )
-            ELSEIF (K.GT.0) THEN
+            ELSEIF (K>0) THEN
              CALL SET_IND_K(
      1       IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
      2       LENK      ,NROWK(K)  ,ICOK(1,K) ,J        ,IKPAT     )
             ELSE
-             IF (IKPAT.EQ.0) THEN
+             IF (IKPAT==0) THEN
               CALL REORDER_J(NROW(NK),ICOL(1,NK),J,IDDL)
              ELSE
               CALL REORDER_L(NROW(NK),ICOL(1,NK),J,IDDL)
@@ -3990,12 +3920,12 @@ C
           ENDDO
          CALL ZERO_IKIN2G(NKINE,ILOC)
         ELSE
-         IF (IKPAT.EQ.0) THEN
+         IF (IKPAT==0) THEN
           DO NK=1,JLT
            N=NK+NFT
            J=INLOC(N)
            CALL REORDER_J(NROW(NK),ICOL(1,NK),J,IDDL)
-           IF (NDOF(J).GT.0) THEN
+           IF (NDOF(J)>0) THEN
             CALL SET_IND_K(
      1     IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
      2     LENK      ,NROW(NK)  ,ICOL(1,NK),J         ,IKPAT     )
@@ -4006,7 +3936,7 @@ C
            N=NK+NFT
            J=INLOC(N)
            CALL REORDER_L(NROW(NK),ICOL(1,NK),J,IDDL)
-           IF (NDOF(J).GT.0) THEN
+           IF (NDOF(J)>0) THEN
             CALL SET_IND_K(
      1     IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
      2     LENK      ,NROW(NK)  ,ICOL(1,NK),J         ,IKPAT     )
@@ -4019,10 +3949,10 @@ C
        CALL IND_FR_K(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NDOF      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NDOF      ,
      4    NNMAX     ,ILOC      ,FR_ELEM   ,IAD_ELEM  ,N_FR      ,
      5    IGEO      ,ELBUF_TAB )
-       IF(IAUTSPC.GT.0) THEN
+       IF(IAUTSPC>0) THEN
          CALL SPC_FR_K(
      1    IADK     ,JDIK     ,NDOF      ,IDDL     ,FR_ELEM  ,
      2    IAD_ELEM )
@@ -4039,7 +3969,7 @@ C----------mono-domaine-------------
       NL = 1
       IADK(NL) = 1
 C
-      IF (IKPAT.LE.1) THEN
+      IF (IKPAT<=1) THEN
       JLT1=NUMNOD-NKINE
       DO NFT = 0 , JLT1-1 , NNSIZ
        JLT = MIN( NNSIZ, JLT1 - NFT )
@@ -4052,13 +3982,13 @@ C
        CALL DIM_ELEMS3(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROW      ,
      4    ILOC      ,NNMAX     ,ICOL      ,IGEO      ,ELBUF_TAB )
-       IF (IKPAT.EQ.0) THEN
+       IF (IKPAT==0) THEN
         DO NK=1,JLT
          N=NK+NFT
          J=INLOC(N)
-         IF (NDOF(J).GT.0) THEN
+         IF (NDOF(J)>0) THEN
           CALL REORDER_J(NROW(NK),ICOL(1,NK),J,IDDL)
           CALL SET_IND_K(
      1     IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
@@ -4069,7 +3999,7 @@ C
         DO NK=1,JLT
          N=NK+NFT
          J=INLOC(N)
-         IF (NDOF(J).GT.0) THEN
+         IF (NDOF(J)>0) THEN
           CALL REORDER_L(NROW(NK),ICOL(1,NK),J,IDDL)
           CALL SET_IND_K(
      1     IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
@@ -4085,7 +4015,7 @@ C
       ENDDO 
 c-----2. if irk=1 create nrow,icol for all kine. nodes using INLOC()=-INLOC()
 c        modifies nrow,icol . 
-      IF (NKINE.EQ.0) GOTO 100
+      IF (NKINE==0) GOTO 100
       NFT=NUMNOD-NKINE
       JLT=NKINE
       INK=NKINE-LCOKM
@@ -4095,14 +4025,14 @@ C      INK=NKINE-NRBYAC
        K=INLOC(N)
        ILOC(K)=NK
       ENDDO 
-      IF (IRK .EQ. 1) THEN
+      IF (IRK == 1) THEN
        DO NK =1,JLT
         NROWK(NK)=0
        ENDDO 
        CALL DIM_ELEMS4(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROWK     ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROWK     ,
      4    ILOC      ,NNMAX     ,ICOK      ,NKMAX     ,ICOKM     ,
      5    INK       ,IGEO      ,ELBUF_TAB )
 C
@@ -4115,11 +4045,11 @@ C
      6    NMC2      ,IMIJ2     ,INK       ,IRBE3     ,LRBE3     ,
      7    ISS3      ,IRBE2     ,LRBE2     ,ISB2      ,NSRB2     )
 C
-       IF (IKPAT.EQ.0) THEN
+       IF (IKPAT==0) THEN
         DO NK =1,JLT
          N=NK+NFT
          J=INLOC(N)
-         IF (NK.GT.INK.AND.NKMAX>0) THEN
+         IF (NK>INK.AND.NKMAX>0) THEN
           NJ=NK-INK
           CALL REORDER_J(NROWK(NK),ICOKM(1,NJ),J,IDDL)
          ELSE
@@ -4130,7 +4060,7 @@ C
         DO NK =1,JLT
          N=NK+NFT
          J=INLOC(N)
-         IF (NK.GT.INK.AND.NKMAX>0) THEN
+         IF (NK>INK.AND.NKMAX>0) THEN
           NJ=NK-INK
           CALL REORDER_L(NROWK(NK),ICOKM(1,NJ),J,IDDL)
          ELSEIF (NNMAX>0) THEN
@@ -4143,7 +4073,7 @@ C---main nodes of rbodies at last----
       DO NK=1,INK
         N=NK+NFT
         J=INLOC(N)
-        IF (NDOF(J).GT.0) THEN
+        IF (NDOF(J)>0) THEN
           CALL SET_IND_K(
      1    IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
      2    LENK      ,NROWK(NK) ,ICOK(1,NK),J         ,IKPAT     )
@@ -4152,7 +4082,7 @@ C---main nodes of rbodies at last----
       DO NK=1+INK,JLT
         N=NK+NFT
         J=INLOC(N)
-        IF (NDOF(J).GT.0) THEN
+        IF (NDOF(J)>0) THEN
          NJ=NK-INK
          CALL SET_IND_K(
      1    IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
@@ -4161,7 +4091,7 @@ C---main nodes of rbodies at last----
       ENDDO
 C--------IKPAT=2, rigid body main first----------
       ELSE 
-       IF (NKINE.GT.0) THEN
+       IF (NKINE>0) THEN
         NFT=0
         JLT=NKINE
         INK=NKINE-LCOKM
@@ -4176,14 +4106,14 @@ C        INK=NKINE-NRBYAC
          K=INLOC(N)
          ILOC(K)=NK-LCOKM
         ENDDO 
-        IF (IRK .EQ. 1) THEN
+        IF (IRK == 1) THEN
          DO NK =1,JLT
           NROWK(NK)=0
          ENDDO 
         CALL DIM_ELEMS4(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROWK     ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROWK     ,
      4    ILOC      ,NNMAX     ,ICOK      ,NKMAX     ,ICOKM     ,
      5    INK       ,IGEO      ,ELBUF_TAB )
 C
@@ -4199,7 +4129,7 @@ C
           N=NK+NFT
           J=INLOC(N)
           ILOC(J)=0
-          IF (NK.GT.LCOKM) THEN
+          IF (NK>LCOKM) THEN
            NJ=NK-LCOKM
            CALL REORDER_L(NROWK(NJ),ICOK(1,NJ),J,IDDL)
           ELSEIF( NKMAX>0) THEN
@@ -4212,7 +4142,7 @@ C---main nodes of rbodies first----
           N=NK+NFT
           J=INLOC(N)
           ILOC(J)=0
-          IF (NDOF(J).GT.0) THEN
+          IF (NDOF(J)>0) THEN
            CALL SET_IND_K(
      1     IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
      2     LENK      ,NROWK(NK+INK) ,ICOKM(1,NK),J    ,IKPAT     )
@@ -4222,7 +4152,7 @@ C---main nodes of rbodies first----
           N=NK+NFT
           J=INLOC(N)
           ILOC(J)=0
-          IF (NDOF(J).GT.0) THEN
+          IF (NDOF(J)>0) THEN
            NJ=NK-LCOKM
            CALL SET_IND_K(
      1      IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
@@ -4241,13 +4171,13 @@ C---main nodes of rbodies first----
         CALL DIM_ELEMS3(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NROW      ,
      4    ILOC      ,NNMAX     ,ICOL      ,IGEO      ,ELBUF_TAB )
         DO NK=1,JLT
          N=NK+NFT
          J=INLOC(N)
          CALL REORDER_L(NROW(NK),ICOL(1,NK),J,IDDL)
-         IF (NDOF(J).GT.0) THEN
+         IF (NDOF(J)>0) THEN
           CALL SET_IND_K(
      1     IDDL      ,NDOF      ,IADK      ,JDIK      ,NL        ,     
      2     LENK      ,NROW(NK)  ,ICOL(1,NK),J         ,IKPAT     )
@@ -4261,19 +4191,18 @@ C---main nodes of rbodies first----
        ENDDO 
       ENDIF 
  100  IADK(NDDL+1) = LENK+1
-        IF (LENK.GT.NNZK.OR.NL.NE.(NDDL+1)) 
+        IF (LENK>NNZK.OR.NL/=(NDDL+1)) 
      .    WRITE(*,*)'--MEMERY PROBLEM 2--:',LENK,NL,NNZK,NDDL+1
-C---remet positive----
+C--- Postive put back ----
       NNZK = LENK
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  REORDER_I                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_ELEMS1                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reorder_i    ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_elems1   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE REORDER_I(N,IC)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -4288,12 +4217,12 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,IMIN,IT,II
 C
-      IF (N.LE.0) RETURN
+      IF (N<=0) RETURN
       DO I =1,N
        IMIN=IC(I)
        II=I
        DO J =I+1,N
-        IF (IC(J).LT.IMIN) THEN
+        IF (IC(J)<IMIN) THEN
          IMIN=IC(J)
          II=J
         ENDIF
@@ -4305,7 +4234,7 @@ C
 C----delete doubles----------------------------
       II=1
       DO I =2,N
-       IF (IC(I).NE.IC(I-1)) THEN
+       IF (IC(I)/=IC(I-1)) THEN
         II =II +1
         IC(II)=IC(I)
        ENDIF
@@ -4314,46 +4243,45 @@ C----delete doubles----------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_ELEMS2                    source/implicit/ind_glob_k.F  
-Chd|        DIM_ELEMS3                    source/implicit/ind_glob_k.F  
-Chd|        DIM_ELEMS4                    source/implicit/ind_glob_k.F  
-Chd|        DIM_ELEMSP                    source/implicit/ind_glob_k.F  
-Chd|        DIM_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        DIM_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|        DIM_KINE_T                    source/implicit/ind_glob_k.F  
-Chd|        DIM_KTOT                      source/implicit/ind_glob_k.F  
-Chd|        DIM_SPA2                      source/implicit/ind_glob_k.F  
-Chd|        DIM_SPAN                      source/implicit/ind_glob_k.F  
-Chd|        IND_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        IND_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|        IND_KINE_K                    source/implicit/ind_glob_k.F  
-Chd|        IND_KINFRK                    source/mpi/implicit/imp_fri.F 
-Chd|        IND_NRFR                      source/mpi/implicit/imp_fri.F 
-Chd|        IND_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|        IND_SPA2                      source/implicit/ind_glob_k.F  
-Chd|        IND_SPAN                      source/implicit/ind_glob_k.F  
-Chd|        INI_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        KIN_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|        KIN_NRMAX0                    source/mpi/implicit/imp_fri.F 
-Chd|        RMDIM_IMP                     source/model/remesh/rm_imp0.F 
-Chd|        RMIND_IMP                     source/model/remesh/rm_imp0.F 
-Chd|        ROWFR_IND                     source/mpi/implicit/imp_fri.F 
-Chd|        ROWFR_IND11                   source/mpi/implicit/imp_fri.F 
-Chd|        ROWFR_IND24                   source/mpi/implicit/imp_fri.F 
-Chd|        ROW_ADDS                      source/implicit/ind_glob_k.F  
-Chd|        ROW_INT1                      source/implicit/ind_glob_k.F  
-Chd|        ROW_INT111                    source/implicit/ind_glob_k.F  
-Chd|        ROW_INT2                      source/implicit/ind_glob_k.F  
-Chd|        ROW_INT241                    source/implicit/ind_glob_k.F  
-Chd|        ROW_INT242                    source/implicit/ind_glob_k.F  
-Chd|        ROW_INT51                     source/implicit/ind_glob_k.F  
-Chd|        ROW_INT52                     source/implicit/ind_glob_k.F  
-Chd|        SPMD_ICOL                     source/mpi/implicit/imp_spmd.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reorder_a     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_elems2    ../engine/source/implicit/ind_glob_k.F
+!||    dim_elems3    ../engine/source/implicit/ind_glob_k.F
+!||    dim_elems4    ../engine/source/implicit/ind_glob_k.F
+!||    dim_elemsp    ../engine/source/implicit/ind_glob_k.F
+!||    dim_fr_k      ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_kine_i    ../engine/source/implicit/ind_glob_k.F
+!||    dim_kine_t    ../engine/source/implicit/ind_glob_k.F
+!||    dim_ktot      ../engine/source/implicit/ind_glob_k.F
+!||    dim_spa2      ../engine/source/implicit/ind_glob_k.F
+!||    dim_span      ../engine/source/implicit/ind_glob_k.F
+!||    ind_fr_k      ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_kine_i    ../engine/source/implicit/ind_glob_k.F
+!||    ind_kine_k    ../engine/source/implicit/ind_glob_k.F
+!||    ind_kinfrk    ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_nrfr      ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_nrmax     ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_spa2      ../engine/source/implicit/ind_glob_k.F
+!||    ind_span      ../engine/source/implicit/ind_glob_k.F
+!||    ini_fr_k      ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_nrmax     ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_nrmax0    ../engine/source/mpi/implicit/imp_fri.F
+!||    rmdim_imp     ../engine/source/model/remesh/rm_imp0.F
+!||    rmind_imp     ../engine/source/model/remesh/rm_imp0.F
+!||    row_adds      ../engine/source/implicit/ind_glob_k.F
+!||    row_int1      ../engine/source/implicit/ind_glob_k.F
+!||    row_int111    ../engine/source/implicit/ind_glob_k.F
+!||    row_int2      ../engine/source/implicit/ind_glob_k.F
+!||    row_int241    ../engine/source/implicit/ind_glob_k.F
+!||    row_int242    ../engine/source/implicit/ind_glob_k.F
+!||    row_int51     ../engine/source/implicit/ind_glob_k.F
+!||    row_int52     ../engine/source/implicit/ind_glob_k.F
+!||    rowfr_ind     ../engine/source/mpi/implicit/imp_fri.F
+!||    rowfr_ind11   ../engine/source/mpi/implicit/imp_fri.F
+!||    rowfr_ind24   ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_icol     ../engine/source/mpi/implicit/imp_spmd.F
+!||====================================================================
       SUBROUTINE REORDER_A(N,IC,ID)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -4370,18 +4298,16 @@ C-----------------------------------------------
 C
 C----add ID--at end--------------------------
       DO I =1,N
-       IF (IC(I).EQ.ID) RETURN
+       IF (IC(I)==ID) RETURN
       ENDDO
       N =N+1
       IC(N)=ID
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  REORDER_A1                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reorder_a1   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE REORDER_A1(N,IC,ID)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -4399,20 +4325,20 @@ C
 C----add ID--in right order--------------------------
       IT =N+1
       DO I =1,N
-       IF (IC(I).EQ.ID) THEN
+       IF (IC(I)==ID) THEN
         RETURN
-       ELSEIF (IC(I).GT.ID) THEN
+       ELSEIF (IC(I)>ID) THEN
         IT =I
         GOTO 10
        ENDIF
       ENDDO
- 10   IF (IT.EQ.1) THEN
+ 10   IF (IT==1) THEN
        DO I =N,IT,-1
         IC(I+1)=IC(I)
        ENDDO
        IC(IT)=ID
        N = N+1
-      ELSEIF (ID.NE.IC(IT-1)) THEN
+      ELSEIF (ID/=IC(IT-1)) THEN
        DO I =N,IT,-1
         IC(I+1)=IC(I)
        ENDDO
@@ -4422,11 +4348,9 @@ C----add ID--in right order--------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  REORDER_J1                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reorder_j1   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE REORDER_J1(N,IC,NI)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -4443,7 +4367,7 @@ C-----------------------------------------------
 C
       II=0
       DO I =1,N
-       IF (IC(I).GT.NI) THEN
+       IF (IC(I)>NI) THEN
         II =II +1
         IC(II)=IC(I)
        ENDIF
@@ -4452,14 +4376,13 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  REORDER_J                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|        IND_INT_K                     source/implicit/ind_glob_k.F  
-Chd|        IND_KINE_KP                   source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reorder_j     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k    ../engine/source/implicit/ind_glob_k.F
+!||    ind_int_k     ../engine/source/implicit/ind_glob_k.F
+!||    ind_kine_kp   ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE REORDER_J(N,IC,NI,IDDL)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -4478,25 +4401,25 @@ C
       IT=IDDL(NI)
       DO I =1,N
        IIC=IDDL(IC(I))
-       IF (IIC.GT.IT) THEN
+       IF (IIC>IT) THEN
         II =II +1
         IC(II)=IC(I)
         IDIC(II)=IIC
        ENDIF
       ENDDO
       N = II
-      IF (N.EQ.0) RETURN
-C-----en ordre iddl croisante-----
+      IF (N==0) RETURN
+C---- In an increasing iddl order -----
       DO I =1,N
        IMIN=IDIC(I)
        II=I
        DO J =I+1,N
-        IF (IDIC(J).LT.IMIN) THEN
+        IF (IDIC(J)<IMIN) THEN
          IMIN=IDIC(J)
          II=J
         ENDIF
        ENDDO
-       IF (II.NE.I) THEN
+       IF (II/=I) THEN
         IT=IC(I)
         IC(I)=IC(II)
         IC(II)=IT
@@ -4508,7 +4431,7 @@ C-----en ordre iddl croisante-----
 C----delete doubles----------------------------
 C      II=1
 C      DO I =2,N
-C       IF (IC(I).NE.IC(I-1)) THEN
+C       IF (IC(I)/=IC(I-1)) THEN
 C        II =II +1
 C        IC(II)=IC(I)
 C       ENDIF
@@ -4517,15 +4440,14 @@ C      N = II
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  REORDER_L                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_FR_K0                     source/mpi/implicit/imp_fri.F 
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|        IND_INT_K                     source/implicit/ind_glob_k.F  
-Chd|        IND_KINE_KP                   source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reorder_l     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_fr_k0     ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_glob_k    ../engine/source/implicit/ind_glob_k.F
+!||    ind_int_k     ../engine/source/implicit/ind_glob_k.F
+!||    ind_kine_kp   ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE REORDER_L(N,IC,NI,IDDL)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -4544,25 +4466,25 @@ C
       IT=IDDL(NI)
       DO I =1,N
        IIC=IDDL(IC(I))
-       IF (IIC.LT.IT) THEN
+       IF (IIC<IT) THEN
         II =II +1
         IC(II)=IC(I)
         IDIC(II)=IIC
        ENDIF
       ENDDO
       N = II
-      IF (N.EQ.0) RETURN
-C-----en ordre iddl croisante-----
+      IF (N==0) RETURN
+C---- In an increasing iddl order -----
       DO I =1,N
        IMIN=IDIC(I)
        II=I
        DO J =I+1,N
-        IF (IDIC(J).LT.IMIN) THEN
+        IF (IDIC(J)<IMIN) THEN
          IMIN=IDIC(J)
          II=J
         ENDIF
        ENDDO
-       IF (II.NE.I) THEN
+       IF (II/=I) THEN
         IT=IC(I)
         IC(I)=IC(II)
         IC(II)=IT
@@ -4574,21 +4496,21 @@ C-----en ordre iddl croisante-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INTAB                         source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DEGENES8                      source/elements/solid/solide/sdlen3.F
-Chd|        DIM_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        DIM_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|        DIM_KINE_S                    source/implicit/ind_glob_k.F  
-Chd|        DIM_KINE_T                    source/implicit/ind_glob_k.F  
-Chd|        DIM_NDOF_I                    source/implicit/ind_glob_k.F  
-Chd|        IMP_ICOMCRIT                  source/implicit/imp_int_k.F   
-Chd|        IND_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|        IND_KINE_K                    source/implicit/ind_glob_k.F  
-Chd|        INI_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    intab          ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    degenes8       ../engine/source/elements/solid/solide/degenes8.F
+!||    dim_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_kine_i     ../engine/source/implicit/ind_glob_k.F
+!||    dim_kine_s     ../engine/source/implicit/ind_glob_k.F
+!||    dim_kine_t     ../engine/source/implicit/ind_glob_k.F
+!||    dim_ndof_i     ../engine/source/implicit/ind_glob_k.F
+!||    imp_icomcrit   ../engine/source/implicit/imp_int_k.F
+!||    ind_kine_i     ../engine/source/implicit/ind_glob_k.F
+!||    ind_kine_k     ../engine/source/implicit/ind_glob_k.F
+!||    ini_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||    intabfr        ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       LOGICAL FUNCTION INTAB(NIC,IC,N)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -4605,7 +4527,7 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
        INTAB=.FALSE.
        DO I =1,NIC
-        IF (N.EQ.IC(I)) THEN
+        IF (N==IC(I)) THEN
          INTAB=.TRUE.
          RETURN
         ENDIF
@@ -4613,19 +4535,20 @@ C----6---------------------------------------------------------------7---------8
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_INT7                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_SOL_INIT                  source/implicit/imp_sol_init.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        IMP_INTBUF_INI                source/implicit/imp_solv.F    
-Chd|        INTBUF_TAB_C_INI              ../common_source/interf/copy_intbuf_tab.F
-Chd|        IMP_INTBUF                    share/modules/imp_mod_def.F   
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_int7           ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_sol_init       ../engine/source/implicit/imp_sol_init.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../engine/source/output/message/message.F
+!||    arret              ../engine/source/system/arret.F
+!||    imp_intbuf_ini     ../engine/source/implicit/imp_solv.F
+!||    intbuf_tab_c_ini   ../common_source/interf/copy_intbuf_tab.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intbuf         ../engine/share/modules/imp_mod_def.F90
+!||    intbufdef_mod      ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod        ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE DIM_INT7(
      1    NINTER    ,IPARI     ,INTBUF_TAB  ,NNMAX)
 C-----------------------------------------------
@@ -4639,18 +4562,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-#include      "tabsiz_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -4675,7 +4591,7 @@ C------interface --------------
        NIMP(NIN) = 0
 C----------deleted int NTY->0       
        IF (NTY ==0 ) CYCLE
-	   IF (NTY ==2 ) THEN
+             IF (NTY ==2 ) THEN
         ILEV   =IPARI(20,NIN)
         NOINT =IPARI(15,NIN)
         IF (ILEV>=10.AND.ILEV<=25) THEN
@@ -4686,22 +4602,22 @@ C----------deleted int NTY->0
      .         .AND. NTY/=11 .AND. NTY/=24) THEN
        STARTT=INTBUF_TAB(NIN)%VARIABLES(3)
        STOPT =INTBUF_TAB(NIN)%VARIABLES(11)
-       IF(STARTT.LT.TSTOP) 
+       IF(STARTT<TSTOP) 
      .   CALL ANCMSG(MSGID=232,ANMODE=ANINFO,I1=NTY )
-	   END IF
-C-----as int5 uses only ISPMD=0	; some values are not initialized w/ ISPMD/=0   
-       IF (ISPMD.NE.0.AND.(NTY.LT.7.OR.NTY.EQ.8
-     .                     .OR.NTY.EQ.14.OR.NTY.EQ.15)) CYCLE
+             END IF
+C-----as int5 uses only ISPMD=0  ; some values are not initialized w/ ISPMD/=0   
+       IF (ISPMD/=0.AND.(NTY<7.OR.NTY==8
+     .                     .OR.NTY==14.OR.NTY==15)) CYCLE
        STARTT=INTBUF_TAB(NIN)%VARIABLES(3)
        STOPT =INTBUF_TAB(NIN)%VARIABLES(11)
-       IF(STARTT.LE.TSTOP) THEN
-        IF(NTY.EQ.3)THEN
-        ELSEIF(NTY.EQ.4)THEN
-        ELSEIF(NTY.EQ.5)THEN
+       IF(STARTT<=TSTOP) THEN
+        IF(NTY==3)THEN
+        ELSEIF(NTY==4)THEN
+        ELSEIF(NTY==5)THEN
          NNMAX=NNMAX+NSN
-        ELSEIF(NTY.EQ.6)THEN
+        ELSEIF(NTY==6)THEN
 
-        ELSEIF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.24)THEN
+        ELSEIF(NTY==7.OR.NTY==10.OR.NTY==24)THEN
          NUM_IMP  = IPARI(18,NIN)*IPARI(23,NIN)
          NNMAX=NNMAX+NUM_IMP
 C--------exceptionaly to deactivate kg         
@@ -4709,9 +4625,9 @@ C--------exceptionaly to deactivate kg
           IIKGOFF = 1
          END IF
 C-------dispense i24disk---         
-         IF(NTY.EQ.24) NIMP(NIN) = NUM_IMP
+         IF(NTY==24) NIMP(NIN) = NUM_IMP
 C
-        ELSEIF(NTY.EQ.11)THEN
+        ELSEIF(NTY==11)THEN
          NUM_IMP  = IPARI(18,NIN)*IPARI(23,NIN)
          NNMAX=NNMAX+NUM_IMP
 C
@@ -4727,21 +4643,22 @@ C-----------Allocate IMP_INTBUF_TAB for implicit
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        DIM_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|        NDDL_LOC                      source/implicit/ind_glob_k.F  
-Chd|        ROW_INT                       source/implicit/ind_glob_k.F  
-Chd|        ROW_INT11                     source/implicit/ind_glob_k.F  
-Chd|        ROW_INT24                     source/implicit/ind_glob_k.F  
-Chd|        ROW_INT5                      source/implicit/ind_glob_k.F  
-Chd|        IMP_INTBUF                    share/modules/imp_mod_def.F   
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_int_k       ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_chkm        ../engine/source/implicit/imp_solv.F
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    dim_kine_i      ../engine/source/implicit/ind_glob_k.F
+!||    nddl_loc        ../engine/source/implicit/ind_glob_k.F
+!||    row_int         ../engine/source/implicit/ind_glob_k.F
+!||    row_int11       ../engine/source/implicit/ind_glob_k.F
+!||    row_int24       ../engine/source/implicit/ind_glob_k.F
+!||    row_int5        ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intbuf      ../engine/share/modules/imp_mod_def.F90
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_INT_K(
      1    IPARI     ,INTBUF_TAB,NUM_IMP   ,NS_IMP    ,NE_IMP    ,
      2    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
@@ -4760,13 +4677,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------------------------
@@ -4804,9 +4716,9 @@ C
       DO NIN=1,NINTER
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
         CALL ROW_INT5(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),INTBUF_TAB(NIN)%IRECTM,
      .               INTBUF_TAB(NIN)%NSV, INTBUF_TAB(NIN)%MSR,IDDL  ,ILOCI ,NDOFI,N_IMP ,
      .               NSN   ,NSREM  )
@@ -4818,18 +4730,18 @@ C      IAD=1
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
 C       MULTIMP=MAX(MULTIMP,IPARI(23,NIN))
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
-       ELSEIF(NTY.EQ.6)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
+       ELSEIF(NTY==6)THEN
 
-       ELSEIF(NTY.EQ.7.OR.NTY.EQ.10)THEN
+       ELSEIF(NTY==7.OR.NTY==10)THEN
 C
         CALL ROW_INT(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),INTBUF_TAB(NIN)%IRECTM,
      .               INTBUF_TAB(NIN)%NSV, IDDL     ,ILOCI   ,NDOFI,N_IMP  ,
      .               NSN   ,NSREM  )
         IAD=IAD+NUM_IMP(NIN)
-       ELSEIF(NTY.EQ.24)THEN
+       ELSEIF(NTY==24)THEN
 C
 c        CALL ROW_INT24(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),INTBUF_TAB(NIN)%IRECTM,
 c     .               INTBUF_TAB(NIN)%NSV, IDDL     ,ILOCI   ,NDOFI,N_IMP  ,
@@ -4840,7 +4752,7 @@ c     .               NSN   ,NSREM  ,IND_SUBT,INTBUF_TAB(NIN)%NVOISIN)
      .               NSN   ,NSREM  ,INTBUF_TAB_IMP(NIN)%INDSUBT,
      .               INTBUF_TAB(NIN)%NVOISIN)
         IAD=IAD+NUM_IMP(NIN)
-       ELSEIF(NTY.EQ.11)THEN
+       ELSEIF(NTY==11)THEN
 C
         NRTS   =IPARI(3,NIN)
         CALL ROW_INT11(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
@@ -4851,12 +4763,12 @@ C
       ENDDO
       NNMAX=0
       DO N =1,NUMNOD
-       IF (ILOCI(N).GT.0) THEN
+       IF (ILOCI(N)>0) THEN
         NNMAX=MAX(NNMAX,IDDL(N))
         IDDL(N)=0
        ENDIF
       ENDDO
-C-----couplage avec cond. kine ------
+C-----coupling with kinematic conditions ------
       N_IMPM=N_IMP
       CALL DIM_KINE_I(
      1    NUM_IMP   ,NS_IMP    ,NE_IMP    ,NPBY      ,LPBY      ,
@@ -4870,8 +4782,8 @@ c-----1. calcule NNMAX,NKMAX;
       NNMAX=0
       NKMAX=0
       DO N =1,NUMNOD
-       IF (ILOCI(N).GT.0) THEN
-        IF (ILOCI(N).GT.N_IMPN) THEN
+       IF (ILOCI(N)>0) THEN
+        IF (ILOCI(N)>N_IMPN) THEN
          NKMAX=MAX(NKMAX,IDDL(N))
         ELSE
          NNMAX=MAX(NNMAX,IDDL(N))
@@ -4882,11 +4794,11 @@ c-----1. calcule NNMAX,NKMAX;
 c-----2. calcule NNZK;
       NNZK = 0
       DO N =1,NUMNOD
-       IF (ILOCI(N).GT.0) THEN
+       IF (ILOCI(N)>0) THEN
         DO K=1,NDOF1(N)
 C-------termes knn-------
          DO J=1,NDOF1(N)
-          IF (J.NE.K) NNZK = NNZK+1
+          IF (J/=K) NNZK = NNZK+1
          ENDDO
 C-------termes kn,nj-------
          DO J=1,IDDL(N)
@@ -4899,29 +4811,30 @@ C-------termes kn,nj-------
       ENDDO
       NNZK = NNZK/2+1
 c      write(*,*)'int NNMAX,NKMAX,N_IMP=',NNMAX,NKMAX,N_IMP
-c-----3. calcul NDDL,IDDL;
+c-----3. calculation NDDL,IDDL;
       CALL NDDL_LOC(NDDL,IDDL,ILOCI,N_IMP,NDOF1)
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- stockage M.C.R.S + SYM- ----- 
-Chd|====================================================================
-Chd|  IND_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IND_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|        REORDER_J                     source/implicit/ind_glob_k.F  
-Chd|        REORDER_L                     source/implicit/ind_glob_k.F  
-Chd|        ROW_INT112                    source/implicit/ind_glob_k.F  
-Chd|        ROW_INT2                      source/implicit/ind_glob_k.F  
-Chd|        ROW_INT242                    source/implicit/ind_glob_k.F  
-Chd|        ROW_INT52                     source/implicit/ind_glob_k.F  
-Chd|        SET_IND_K                     source/implicit/ind_glob_k.F  
-Chd|        IMP_INTBUF                    share/modules/imp_mod_def.F   
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ind_int_k       ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_chkm        ../engine/source/implicit/imp_solv.F
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    ind_kine_i      ../engine/source/implicit/ind_glob_k.F
+!||    reorder_j       ../engine/source/implicit/ind_glob_k.F
+!||    reorder_l       ../engine/source/implicit/ind_glob_k.F
+!||    row_int112      ../engine/source/implicit/ind_glob_k.F
+!||    row_int2        ../engine/source/implicit/ind_glob_k.F
+!||    row_int242      ../engine/source/implicit/ind_glob_k.F
+!||    row_int52       ../engine/source/implicit/ind_glob_k.F
+!||    set_ind_k       ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intbuf      ../engine/share/modules/imp_mod_def.F90
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IND_INT_K(
      1    IPARI     ,INTBUF_TAB,NUM_IMP   ,NS_IMP    ,NE_IMP      ,
      2    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC      ,
@@ -4941,19 +4854,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
 #include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
-#include      "task_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -4972,7 +4876,7 @@ C     REAL
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
 C=======================================================================
 C     stockage M.C.R.S (Modified Compressed Row Stockage)
-C     [K] pour interfaces : diagonale + trangle sup en lignes:
+C     [K] For interfaces: diagonal + trangle sup in lines:
 C        [K](id,jd)     -> DIAG(NDDL)+LT(IK)(exclue diag)
 C        id = 1..nddl        : ID = IADI(ID)...IADI(ID+1)-1
 C        jd = 1..NNZI        : JD = JDII(IK)
@@ -4988,14 +4892,14 @@ C-----------------------------------------------
      .        NTY,NL,NJ,NIN,LENK,IAD,ILOC(N_IMPN+N_IMPM),
      .        NSN,NRTS
 C-----------------------------------------------
-C------ILOCI est ILOC dans IND_GLOB_K -------------- 
+C------ILOCI is ILOC in IND_GLOB_K --------------
 C
       IKP=IKPAT
       NDOFI=3
       ND=0
       N_IMPT=N_IMPN+N_IMPM
       DO N =1,NUMNOD
-       IF (ILOCI(N).GT.0) THEN
+       IF (ILOCI(N)>0) THEN
         I=ILOCI(N)
         ILOC(I)=N
         NDOF1(I)=NDOFI
@@ -5009,9 +4913,9 @@ C
       DO NIN=1,NINTER
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
         CALL ROW_INT52(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                INTBUF_TAB(NIN)%IRECTM,INTBUF_TAB(NIN)%NSV,
      .                INTBUF_TAB(NIN)%MSR,NROW  ,
@@ -5024,19 +4928,19 @@ C      IAD=1
       DO NIN=1,NINTER
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
-       ELSEIF(NTY.EQ.6)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
+       ELSEIF(NTY==6)THEN
 
-       ELSEIF(NTY.EQ.7.OR.NTY.EQ.10)THEN
+       ELSEIF(NTY==7.OR.NTY==10)THEN
 C
         CALL ROW_INT2(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                INTBUF_TAB(NIN)%IRECTM,INTBUF_TAB(NIN)%NSV,NROW   ,N_IMPN,
      .                ILOCI   ,ICOL     ,NNMAX   ,ICOK   ,NKMAX ,
      .                NSN     )
         IAD=IAD+NUM_IMP(NIN)
-       ELSEIF(NTY.EQ.24)THEN
+       ELSEIF(NTY==24)THEN
 C
 c        CALL ROW_INT242(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
 c     .                INTBUF_TAB(NIN)%IRECTM,INTBUF_TAB(NIN)%NSV,NROW   ,N_IMPN,
@@ -5049,7 +4953,7 @@ c     .                NSN     ,IND_SUBT,INTBUF_TAB(NIN)%NVOISIN)
      .                NSN     ,INTBUF_TAB_IMP(NIN)%INDSUBT,
      .               INTBUF_TAB(NIN)%NVOISIN)
         IAD=IAD+NUM_IMP(NIN)
-       ELSEIF(NTY.EQ.11)THEN
+       ELSEIF(NTY==11)THEN
 C
         NRTS   =IPARI(3,NIN)
         CALL ROW_INT112(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
@@ -5067,7 +4971,7 @@ C
      5    NDOF      ,NDOF1     ,IAINT2    ,IRBE3     ,LRBE3     ,
      6    NSS3      ,ISS3      ,IRBE2     ,LRBE2     ,NSB2      ,
      7    ISB2      )
-      IF (IKP.EQ.0) THEN
+      IF (IKP==0) THEN
        DO I =1,N_IMPN
         N=ILOC(I)
         CALL REORDER_J(NROW(I),ICOL(1,I),N,IDDLI) 
@@ -5121,28 +5025,24 @@ C-----revinir ndof---
      1     IDDLI     ,ILOCI     ,IADI      ,JDII      ,NL        ,     
      2     LENK      ,NROW(I)  ,ICOK(1,NJ) ,N         ,IKP       )
       ENDDO 
-        IF (LENK.GT.NNZI.OR.NL.NE.(NDDLI+1)) 
+        IF (LENK>NNZI.OR.NL/=(NDDLI+1)) 
      .        WRITE(*,*)'--MEMERY PROBLEM 5-- :',LENK,NNZI,NL,NDDLI+1
       NNZI = LENK
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ---- 
-Chd|====================================================================
-Chd|  NDDL_LOC                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    nddl_loc    ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_int_k   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE NDDL_LOC(
      1    NDDL      ,IDDL      ,ILOC      ,NLOC        ,NDOF       )
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -5159,7 +5059,7 @@ C-----------------------------------------------
 C-----------------------------------------------
       NDDL=0
       DO N = 1, NUMNOD
-       IF (ILOC(N).GT.0) THEN
+       IF (ILOC(N)>0) THEN
         I=ILOC(N)
         LOCI(I)=N
        ENDIF
@@ -5174,12 +5074,11 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ---- 
-Chd|====================================================================
-Chd|  ROW_INT                       source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    row_int     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_int_k   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT    ,NSV       ,
      2    NROW      ,ILOC      ,NDOFI       ,N_IMPN   ,NSN       ,
@@ -5189,12 +5088,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NS_IMP(*),NE_IMP(*),IRECT(4,*),NSV(*),NROW(*),
@@ -5206,11 +5099,11 @@ C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG
 C-----------------------------------------------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = NSV(IG)
-        IF (ILOC(N1).EQ.0) THEN
+        IF (ILOC(N1)==0) THEN
          N_IMPN=N_IMPN+1
          ILOC(N1)=N_IMPN
         ENDIF
@@ -5221,33 +5114,33 @@ C--------secnd node-----
         NE=NE_IMP(I)
         DO J=1,3
          N=IRECT(J,NE)
-         IF (ILOC(N).EQ.0) THEN
+         IF (ILOC(N)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(N)=N_IMPN
          ENDIF
          NROW(N)=NROW(N)+1
         ENDDO
-        IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+        IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
          N=IRECT(4,NE)
-         IF (ILOC(N).EQ.0) THEN
+         IF (ILOC(N)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(N)=N_IMPN
          ENDIF
          NROW(N)=NROW(N)+1
-         IF (IG.LE.NSN) NROW(N1)=NROW(N1)+1
+         IF (IG<=NSN) NROW(N1)=NROW(N1)+1
         ENDIF
        ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ---- 
-Chd|====================================================================
-Chd|  ROW_INT1                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_int1     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_kine_i   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT1(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NSV        ,
      2    NROW      ,N_IMPN    ,ILOC      ,ICOL        ,NNMAX      ,
@@ -5257,13 +5150,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX
@@ -5277,9 +5163,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C---------ICOL : LOCAL NODE NUMBER--------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = NSV(IG)
         NE=NE_IMP(I)
         NI=ILOC(N1)
@@ -5289,7 +5175,7 @@ C--------secnd node-----
           CALL REORDER_A(NROW(N1),ICOL(1,NI),N) 
           CALL REORDER_A(NROW(N),ICOL(1,N2),N1)
          ENDDO
-         IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+         IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
           N=IRECT(4,NE)
           N2 =ILOC(N)
           CALL REORDER_A(NROW(N1),ICOL(1,NI),N) 
@@ -5301,13 +5187,13 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ---- 
-Chd|====================================================================
-Chd|  ROW_INT2                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_int2    ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_int_k   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT2(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NSV        ,
      2    NROW      ,N_IMPN    ,ILOC      ,ICOL        ,NNMAX      ,
@@ -5317,13 +5203,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX,NKMAX
@@ -5337,29 +5216,29 @@ C-----------------------------------------------
 C-----------------------------------------------
 C---------ICOL : LOCAL NODE NUMBER--------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = NSV(IG)
         NE=NE_IMP(I)
         NI=ILOC(N1)
-        IF (NI.LE.N_IMPN) THEN
+        IF (NI<=N_IMPN) THEN
          DO J=1,3
           N=IRECT(J,NE)
           N2=ILOC(N)
           CALL REORDER_A(NROW(NI),ICOL(1,NI),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
            CALL REORDER_A(NROW(N2),ICOK(1,NM),N1)
           ENDIF
          ENDDO
-         IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+         IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
           N=IRECT(4,NE)
           N2 =ILOC(N)
           CALL REORDER_A(NROW(NI),ICOL(1,NI),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
@@ -5372,18 +5251,18 @@ C--------secnd node-----
           N=IRECT(J,NE)
           N2=ILOC(N)
           CALL REORDER_A(NROW(NI),ICOK(1,NIM),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
            CALL REORDER_A(NROW(N2),ICOK(1,NM),N1)
           ENDIF
          ENDDO
-         IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+         IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
           N=IRECT(4,NE)
           N2 =ILOC(N)
           CALL REORDER_A(NROW(NI),ICOK(1,NIM),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
@@ -5397,12 +5276,11 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ---- 
-Chd|====================================================================
-Chd|  ROW_INT5                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    row_int5    ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_int_k   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT5(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT    ,NSV       ,
      2    MSR       ,NROW      ,ILOC      ,NDOFI       ,N_IMPN   ,
@@ -5412,12 +5290,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NS_IMP(*),NE_IMP(*),IRECT(4,*),NSV(*),NROW(*),
@@ -5429,10 +5301,10 @@ C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG
 C-----------------------------------------------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
         N1 = NSV(IG)
-        IF (ILOC(N1).EQ.0) THEN
+        IF (ILOC(N1)==0) THEN
          N_IMPN=N_IMPN+1
          ILOC(N1)=N_IMPN
         ENDIF
@@ -5440,33 +5312,33 @@ C--------secnd node-----
         NE=NE_IMP(I)
         DO J=1,3
          N=MSR(IRECT(J,NE))
-         IF (ILOC(N).EQ.0) THEN
+         IF (ILOC(N)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(N)=N_IMPN
          ENDIF
          NROW(N)=NROW(N)+1
         ENDDO
-        IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+        IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
          N=MSR(IRECT(4,NE))
-         IF (ILOC(N).EQ.0) THEN
+         IF (ILOC(N)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(N)=N_IMPN
          ENDIF
          NROW(N)=NROW(N)+1
-         IF (IG.LE.NSN) NROW(N1)=NROW(N1)+1
+         IF (IG<=NSN) NROW(N1)=NROW(N1)+1
         ENDIF
        ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ---- 
-Chd|====================================================================
-Chd|  ROW_INT51                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_int51    ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_kine_i   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT51(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NSV        ,
      2    MSR       ,NROW      ,N_IMPN    ,ILOC       ,ICOL        ,
@@ -5476,13 +5348,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX
@@ -5496,7 +5361,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C---------ICOL : LOCAL NODE NUMBER--------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
         N1 = NSV(IG)
         NE=NE_IMP(I)
@@ -5507,7 +5372,7 @@ C--------secnd node-----
           CALL REORDER_A(NROW(N1),ICOL(1,NI),N) 
           CALL REORDER_A(NROW(N),ICOL(1,N2),N1)
          ENDDO
-         IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+         IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
           N=MSR(IRECT(4,NE))
           N2 =ILOC(N)
           CALL REORDER_A(NROW(N1),ICOL(1,NI),N) 
@@ -5518,13 +5383,13 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ---- 
-Chd|====================================================================
-Chd|  ROW_INT52                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_int52   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_int_k   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT52(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NSV        ,
      2    MSR       ,NROW      ,N_IMPN    ,ILOC        ,ICOL       ,
@@ -5534,13 +5399,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX,NKMAX
@@ -5554,28 +5412,28 @@ C-----------------------------------------------
 C-----------------------------------------------
 C---------ICOL : LOCAL NODE NUMBER--------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
         N1 = NSV(IG)
         NE=NE_IMP(I)
         NI=ILOC(N1)
-        IF (NI.LE.N_IMPN) THEN
+        IF (NI<=N_IMPN) THEN
          DO J=1,3
           N=MSR(IRECT(J,NE))
           N2=ILOC(N)
           CALL REORDER_A(NROW(NI),ICOL(1,NI),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
            CALL REORDER_A(NROW(N2),ICOK(1,NM),N1)
           ENDIF
          ENDDO
-         IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+         IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
           N=MSR(IRECT(4,NE))
           N2 =ILOC(N)
           CALL REORDER_A(NROW(NI),ICOL(1,NI),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
@@ -5588,18 +5446,18 @@ C--------secnd node-----
           N=MSR(IRECT(J,NE))
           N2=ILOC(N)
           CALL REORDER_A(NROW(NI),ICOK(1,NIM),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
            CALL REORDER_A(NROW(N2),ICOK(1,NM),N1)
           ENDIF
          ENDDO
-         IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+         IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
           N=MSR(IRECT(4,NE))
           N2 =ILOC(N)
           CALL REORDER_A(NROW(NI),ICOK(1,NIM),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
@@ -5611,13 +5469,13 @@ C--------secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROW_INT24                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        I24MSEGV                      source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_int24   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_int_k   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    i24msegv    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT24(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT    ,NSV       ,
      2    NROW      ,ILOC      ,NDOFI       ,N_IMPN   ,NSN       ,
@@ -5627,13 +5485,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NS_IMP(*),NE_IMP(*),IRECT(4,*),NSV(*),NROW(*),
@@ -5645,11 +5496,11 @@ C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG,IRTLM(4),NEI
 C-----------------------------------------------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = NSV(IG)
-        IF (ILOC(N1).EQ.0) THEN
+        IF (ILOC(N1)==0) THEN
          N_IMPN=N_IMPN+1
          ILOC(N1)=N_IMPN
         ENDIF
@@ -5667,35 +5518,35 @@ C
         END IF
         DO J=1,3
          N=IRTLM(J)
-         IF (ILOC(N).EQ.0) THEN
+         IF (ILOC(N)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(N)=N_IMPN
          ENDIF
          NROW(N)=NROW(N)+1
         ENDDO
-        IF (IRTLM(3).NE.IRTLM(4)) THEN
+        IF (IRTLM(3)/=IRTLM(4)) THEN
          N=IRTLM(4)
-         IF (ILOC(N).EQ.0) THEN
+         IF (ILOC(N)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(N)=N_IMPN
          ENDIF
          NROW(N)=NROW(N)+1
  
-         IF (IG.LE.NSN) NROW(N1)=NROW(N1)+1
+         IF (IG<=NSN) NROW(N1)=NROW(N1)+1
         ENDIF
        ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ---- 
-Chd|====================================================================
-Chd|  ROW_INT241                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        I24MSEGV                      source/implicit/ind_glob_k.F  
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_int241   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_kine_i   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    i24msegv     ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT241(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NSV        ,
      2    NROW      ,N_IMPN    ,ILOC      ,ICOL        ,NNMAX      ,
@@ -5705,13 +5556,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX
@@ -5725,9 +5569,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C---------ICOL : LOCAL NODE NUMBER--------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = NSV(IG)
         NE=NE_IMP(I)
         IF (NE<0) THEN
@@ -5743,7 +5587,7 @@ C--------secnd node-----
           CALL REORDER_A(NROW(N1),ICOL(1,NI),N) 
           CALL REORDER_A(NROW(N),ICOL(1,N2),N1)
          ENDDO
-         IF (IRTLM(3).NE.IRTLM(4)) THEN
+         IF (IRTLM(3)/=IRTLM(4)) THEN
           N=IRTLM(4)
           N2 =ILOC(N)
           CALL REORDER_A(NROW(N1),ICOL(1,NI),N) 
@@ -5755,14 +5599,14 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ---- 
-Chd|====================================================================
-Chd|  ROW_INT242                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        I24MSEGV                      source/implicit/ind_glob_k.F  
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_int242   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_int_k    ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    i24msegv     ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT242(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NSV        ,
      2    NROW      ,N_IMPN    ,ILOC      ,ICOL        ,NNMAX      ,
@@ -5772,13 +5616,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX,NKMAX
@@ -5793,9 +5630,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C---------ICOL : LOCAL NODE NUMBER--------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = NSV(IG)
         NE=NE_IMP(I)
         NI=ILOC(N1)
@@ -5805,23 +5642,23 @@ C--------secnd node-----
         ELSE
          IRTLM(1:4) = IRECT(1:4,NE)
         END IF
-        IF (NI.LE.N_IMPN) THEN
+        IF (NI<=N_IMPN) THEN
          DO J=1,3
           N=IRTLM(J)
           N2=ILOC(N)
           CALL REORDER_A(NROW(NI),ICOL(1,NI),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
            CALL REORDER_A(NROW(N2),ICOK(1,NM),N1)
           ENDIF
          ENDDO
-         IF (IRTLM(3).NE.IRTLM(4)) THEN
+         IF (IRTLM(3)/=IRTLM(4)) THEN
           N=IRTLM(4)
           N2 =ILOC(N)
           CALL REORDER_A(NROW(NI),ICOL(1,NI),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
@@ -5834,18 +5671,18 @@ C--------secnd node-----
           N=IRTLM(J)
           N2=ILOC(N)
           CALL REORDER_A(NROW(NI),ICOK(1,NIM),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
            CALL REORDER_A(NROW(N2),ICOK(1,NM),N1)
           ENDIF
          ENDDO
-         IF (IRTLM(3).NE.IRTLM(4)) THEN
+         IF (IRTLM(3)/=IRTLM(4)) THEN
           N=IRTLM(4)
           N2 =ILOC(N)
           CALL REORDER_A(NROW(NI),ICOK(1,NIM),N) 
-          IF (N2.LE.N_IMPN) THEN
+          IF (N2<=N_IMPN) THEN
            CALL REORDER_A(NROW(N2),ICOL(1,N2),N1)
           ELSE
            NM=N2- N_IMPN
@@ -5858,20 +5695,21 @@ C--------secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        ROW_INT1                      source/implicit/ind_glob_k.F  
-Chd|        ROW_INT111                    source/implicit/ind_glob_k.F  
-Chd|        ROW_INT241                    source/implicit/ind_glob_k.F  
-Chd|        ROW_INT51                     source/implicit/ind_glob_k.F  
-Chd|        INTAB                         source/implicit/ind_glob_k.F  
-Chd|        IMP_INTBUF                    share/modules/imp_mod_def.F   
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_kine_i      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_int_k       ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    intab           ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a       ../engine/source/implicit/ind_glob_k.F
+!||    row_int1        ../engine/source/implicit/ind_glob_k.F
+!||    row_int111      ../engine/source/implicit/ind_glob_k.F
+!||    row_int241      ../engine/source/implicit/ind_glob_k.F
+!||    row_int51       ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intbuf      ../engine/share/modules/imp_mod_def.F90
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_KINE_I(
      1    NUM_IMP   ,NS_IMP    ,NE_IMP    ,NPBY      ,LPBY      ,
      2    ITAB      ,NRBYAC    ,IRBYAC    ,NINT2     ,IINT2     ,
@@ -5889,18 +5727,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX,NKINE,N_IMPM
@@ -5930,7 +5761,7 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:,:),ALLOCATABLE :: ICOK,ICOK1
 C-----------------------------------------------
       NKINE0 = NKINE
-      IF (NKINE0.GT.0) ALLOCATE(ICOK(NNMAX,NKINE0))
+      IF (NKINE0>0) ALLOCATE(ICOK(NNMAX,NKINE0))
 C
       DO I=1,NUMNOD
        NROW1(I) = 0
@@ -5940,9 +5771,9 @@ C
       DO NIN=1,NINTER
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
         CALL ROW_INT51(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                INTBUF_TAB(NIN)%IRECTM,INTBUF_TAB(NIN)%NSV,
      .                INTBUF_TAB(NIN)%MSR,NROW ,
@@ -5953,18 +5784,18 @@ C
       DO NIN=1,NINTER
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
-       ELSEIF(NTY.EQ.6)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
+       ELSEIF(NTY==6)THEN
 
-       ELSEIF(NTY.EQ.7.OR.NTY.EQ.10)THEN
+       ELSEIF(NTY==7.OR.NTY==10)THEN
 C
         CALL ROW_INT1(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                INTBUF_TAB(NIN)%IRECTM,INTBUF_TAB(NIN)%NSV,NROW   ,NKINE ,
      .                INLOC   ,ICOK     ,NNMAX   ,NSN     )
         IAD=IAD+NUM_IMP(NIN)
-       ELSEIF(NTY.EQ.24)THEN
+       ELSEIF(NTY==24)THEN
 C
 c        CALL ROW_INT241(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
 c     .                INTBUF_TAB(NIN)%IRECTM,INTBUF_TAB(NIN)%NSV,NROW   ,NKINE ,
@@ -5976,7 +5807,7 @@ c     .                INTBUF_TAB(NIN)%NVOISIN)
      .                INLOC   ,ICOK     ,NNMAX   ,NSN     ,
      .                INTBUF_TAB_IMP(NIN)%INDSUBT,INTBUF_TAB(NIN)%NVOISIN)
         IAD=IAD+NUM_IMP(NIN)
-       ELSEIF(NTY.EQ.11)THEN
+       ELSEIF(NTY==11)THEN
 C
         NRTS   =IPARI(3,NIN)
         CALL ROW_INT111(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
@@ -6005,11 +5836,11 @@ C------IRTL(NSN)--main el number---
        DO I=1,NSN
         ID = I+K
         NI=INTBUF_TAB(N)%NSV(I)
-        IF (INLOC(NI).GT.0.AND.INLOC(NI).LE.NKINE0) THEN
+        IF (INLOC(NI)>0.AND.INLOC(NI)<=NKINE0) THEN
          IAINT2(J)=1
          L=INTBUF_TAB(N)%IRTLM(I)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN 
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN 
           NNOD=3
          ELSE
           NNOD=4
@@ -6017,7 +5848,7 @@ C------IRTL(NSN)--main el number---
          DO M=1,NNOD
           NM=INTBUF_TAB(N)%IRECTM(NL+M)
           NDOFI(NM)=NDOF(NM)
-          IF (INLOC(NM).EQ.0) THEN
+          IF (INLOC(NM)==0) THEN
             NKINE=NKINE+1
             INLOC(NM)=NKINE
             NROW1(NM)=NROW1(NM)+ NNOD + NNOD 
@@ -6026,14 +5857,14 @@ C------IRTL(NSN)--main el number---
          NKE=INLOC(NI)
          DO N1=1,NROW(NI)
           NJ=ICOK(N1,NKE)
-          IF (INLOC(NJ).GT.0 ) THEN
+          IF (INLOC(NJ)>0 ) THEN
            LNSS2=LNSS2+1
            NKE2=INLOC(NJ) 
            DO M=1,NNOD
             NM=INTBUF_TAB(N)%IRECTM(NL+M)
-            IF (INLOC(NM).GT.0) THEN
+            IF (INLOC(NM)>0) THEN
              NROW1(NM)=NROW1(NM)+1 
-             IF (NKE2.GT.0) NROW1(NJ)=NROW1(NJ)+1 
+             IF (NKE2>0) NROW1(NJ)=NROW1(NJ)+1 
             ELSE
              NKINE=NKINE+1
              INLOC(NM)=NKINE
@@ -6057,39 +5888,39 @@ C-----RBE2------
        IC = 7*512+7*64-IRBE2(4,J)
         DO I=1,NSN
          NI=LRBE2(I+K)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           NKE=INLOC(NI) 
           DO N1=1,NROW(NI)
            NJ=ICOK(N1,NKE)
            IF (INLOC(NJ)>0.AND.NJ/=NI) NROW1(NJ)=NROW1(NJ)+1+NHRBE2 
            LNSB2= LNSB2+1
           ENDDO
-	      IF (INLOC(M).EQ.0) THEN
+                IF (INLOC(M)==0) THEN
            NKINE=NKINE+1
            INLOC(M)=NKINE
-	      ENDIF
+                ENDIF
           NROW1(M)=NROW1(M)+NROW(NI)+NROW1(NI)
-          IF (IC.GT.0) THEN
+          IF (IC>0) THEN
            NROW1(M)=NROW1(M)+1
            NROW1(NI)=NROW1(NI)+1
           END IF
          ENDIF
-C---------for the case with main node--------	 
+C---------for the case with main node--------   
          LNSB2= LNSB2+1
         ENDDO
-        IF (INLOC(M).GT.0) NDOFI(M)=NDOF(M)
+        IF (INLOC(M)>0) NDOFI(M)=NDOF(M)
       ENDDO
 C------------RBE3-------------
       DO N=1,NRBE3
         IAD = IRBE3(1,N)
         NI  = IRBE3(3,N)
-        IF (NI.EQ.0.OR.NDOFI(NI).EQ.0) CYCLE
+        IF (NI==0.OR.NDOFI(NI)==0) CYCLE
         NNOD = IRBE3(5,N)
-        IF (INLOC(NI).GT.0) THEN
+        IF (INLOC(NI)>0) THEN
          DO M=1,NNOD
           NM=LRBE3(IAD+M)
           NDOFI(NM)=NDOF(NM)
-          IF (INLOC(NM).EQ.0) THEN
+          IF (INLOC(NM)==0) THEN
             NKINE=NKINE+1
             INLOC(NM)=NKINE
             NROW1(NM)=NROW1(NM)+ NNOD  
@@ -6098,24 +5929,24 @@ C------------RBE3-------------
          NKE=INLOC(NI)
          DO N1=1,NROW(NI)
           NJ=ICOK(N1,NKE)
-          IF (INLOC(NJ).GT.0.AND.
+          IF (INLOC(NJ)>0.AND.
      .         (.NOT.INTAB(NNOD,LRBE3(IAD+1),NJ))) THEN
            NKE2=INLOC(NJ) 
            DO M=1,NNOD
             NM=LRBE3(IAD+M)
             NROW1(NM)=NROW1(NM)+1 
-            IF (NKE2.GT.0) NROW1(NJ)=NROW1(NJ)+1 
+            IF (NKE2>0) NROW1(NJ)=NROW1(NJ)+1 
            ENDDO
           ENDIF 
          ENDDO
         ENDIF 
       ENDDO
 C--------------------
-      IF (NKINE.GT.NKINE0) THEN
+      IF (NKINE>NKINE0) THEN
        NMAX = NNMAX
        ALLOCATE(ICOK1(NNMAX,NKINE0))
        DO I=1,NUMNOD
-        IF (INLOC(I).GT.0) THEN
+        IF (INLOC(I)>0) THEN
          NMAX=MAX(NMAX,(NROW1(I)+NROW(I)))
          NKE = INLOC(I)
          DO J =1,NROW(I)
@@ -6127,7 +5958,7 @@ C--------------------
        DEALLOCATE(ICOK)
        ALLOCATE(ICOK(NMAX,NKINE))
        DO I=1,NUMNOD
-        IF (INLOC(I).GT.0.AND.NROW(I).GT.0) THEN
+        IF (INLOC(I)>0.AND.NROW(I)>0) THEN
          NKE = INLOC(I)
          DO J =1,NROW(I)
           ICOK(J,NKE) = ICOK1(J,NKE)
@@ -6137,7 +5968,7 @@ C--------------------
        DEALLOCATE(ICOK1)
        LNSS2=0
        DO J=1,NINT2
-        IF(IAINT2(J).EQ.1) THEN
+        IF(IAINT2(J)==1) THEN
          N=IINT2(J)
          NSN = IPARI(5,N)
          JI=IPARI(1,N)
@@ -6153,10 +5984,10 @@ C------IRTL(NSN)--main el number---
          KFI=K14+NSN
          DO I=1,NSN
           NI=INTBUF_TAB(N)%NSV(I)
-          IF (INLOC(NI).GT.0) THEN
+          IF (INLOC(NI)>0) THEN
            L=INTBUF_TAB(N)%IRTLM(I)
            NL=4*(L-1)
-           IF(INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4))THEN 
+           IF(INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4))THEN 
             NNOD=3
            ELSE
             NNOD=4
@@ -6174,12 +6005,12 @@ C------IRTL(NSN)--main el number---
            NKE=INLOC(NI) 
            DO N1=1,NROW(NI)
             NJ=ICOK(N1,NKE)
-            IF (INLOC(NJ).GT.0) THEN
+            IF (INLOC(NJ)>0) THEN
              LNSS2=LNSS2+1
              NKE2=INLOC(NJ) 
              DO M=1,NNOD
               NM=INTBUF_TAB(N)%IRECTM(NL+M)
-              IF (INLOC(NM).GT.0) THEN
+              IF (INLOC(NM)>0) THEN
                NKE1=INLOC(NM) 
                CALL REORDER_A(NROW(NM),ICOK(1,NKE1),NJ) 
                CALL REORDER_A(NROW(NJ),ICOK(1,NKE2),NM) 
@@ -6202,21 +6033,21 @@ C-----RBE2------
        NKE1=INLOC(M) 
         DO I=1,NSN
          NI=LRBE2(I+K)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           NKE=INLOC(NI) 
           DO N1=1,NROW(NI)
            NJ=ICOK(N1,NKE)
            NKE2=INLOC(NJ) 
 C------------case hierarchy w/ RBE3----           
-           IF (NKE2.GT.0.AND.NJ.NE.NI) THEN
+           IF (NKE2>0.AND.NJ/=NI) THEN
             CALL REORDER_A(NROW(M),ICOK(1,NKE1),NJ) 
             CALL REORDER_A(NROW(NJ),ICOK(1,NKE2),M) 
            END IF
           ENDDO
-	      IF (IC.GT.0) THEN
-	       CALL REORDER_A(NROW(M),ICOK(1,NKE1),NI)
+                IF (IC>0) THEN
+                 CALL REORDER_A(NROW(M),ICOK(1,NKE1),NI)
            CALL REORDER_A(NROW(NI),ICOK(1,NKE),M) 
-	      END IF
+                END IF
          ENDIF
         ENDDO
       ENDDO
@@ -6225,9 +6056,9 @@ C------------RBE3-------------
       DO N=1,NRBE3
         IAD = IRBE3(1,N)
         NI  = IRBE3(3,N)
-        IF (NI.EQ.0.OR.NDOFI(NI).EQ.0) CYCLE
+        IF (NI==0.OR.NDOFI(NI)==0) CYCLE
         NNOD = IRBE3(5,N)
-        IF (INLOC(NI).GT.0) THEN
+        IF (INLOC(NI)>0) THEN
            NKE1=INLOC(NM) 
            DO M=1,NNOD
              NM=LRBE3(IAD+M)
@@ -6241,7 +6072,7 @@ C------------RBE3-------------
          NKE=INLOC(NI)
          DO N1=1,NROW(NI)
           NJ=ICOK(N1,NKE)
-          IF (INLOC(NJ).GT.0.AND.
+          IF (INLOC(NJ)>0.AND.
      .         (.NOT.INTAB(NNOD,LRBE3(IAD+1),NJ))) THEN
            LNSS3=LNSS3+1
            NKE2=INLOC(NJ) 
@@ -6264,30 +6095,30 @@ C-----active rigid body main nodes------
 C
        K=IRBYAC(J+NRBYKIN)
        NSN  =NPBY(2,N)
-       IF (INLOC(M).GT.0) IA(J)=1
+       IF (INLOC(M)>0) IA(J)=1
         DO I=1,NSN
          ID = I+K
          NI=LPBY(ID)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           IA(J)=1
           NKE=INLOC(NI) 
           DO N1=1,NROW(NI)
            NJ=ICOK(N1,NKE)
-           IF (INLOC(NJ).GT.0) NROW1(NJ)=NROW1(NJ)+1 
+           IF (INLOC(NJ)>0) NROW1(NJ)=NROW1(NJ)+1 
            LNSS= LNSS+1
           ENDDO 
          ENDIF
         ENDDO
       ENDDO
-C-----main nodes traitement spec.------
+C---- Main node treatment spect .------
       DO J=1,NRBYAC
-       IF (IA(J).EQ.1) THEN
+       IF (IA(J)==1) THEN
         N=IRBYAC(J)
         M  =NPBY(1,N)
-        IF (INLOC(M).GT.0) THEN
+        IF (INLOC(M)>0) THEN
          NKINE=NKINE-1
          DO I=1,NUMNOD
-          IF (INLOC(I).GT.INLOC(M)) INLOC(I)=INLOC(I)-1
+          IF (INLOC(I)>INLOC(M)) INLOC(I)=INLOC(I)-1
          ENDDO         
         ENDIF
        ENDIF
@@ -6303,33 +6134,34 @@ C
        K=IRBYAC(J+NRBYKIN)
        M  =NPBY(1,N)
        NSN  =NPBY(2,N)
-       IF (IA(J).EQ.1) THEN
+       IF (IA(J)==1) THEN
         NDOFI(M)=NDOF(M)
         NKINE=NKINE+1
         INLOC(M)=NKINE
         DO I=1,NSN
          ID = I+K
          NI=LPBY(ID)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           NROW(M)=NROW(M)+NROW(NI) 
          ENDIF
         ENDDO
        ENDIF
       ENDDO
       N_IMPM=NKINE-N_IMPM
-      IF (NKINE0.GT.0) DEALLOCATE(ICOK)
+      IF (NKINE0>0) DEALLOCATE(ICOK)
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        INTAB                         source/implicit/ind_glob_k.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ind_kine_i      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_int_k       ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    intab           ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a       ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IND_KINE_I(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NSS       ,ISS       ,NINT2     ,IINT2     ,IPARI     ,
@@ -6347,17 +6179,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX,NKMAX,LRB       ,LI2
@@ -6389,7 +6215,7 @@ c----------------------
       K=0
       NS= 0
       DO J=1,NINT2
-       IF(IAINT2(J).EQ.1) THEN
+       IF(IAINT2(J)==1) THEN
        N=IINT2(J)
        NSN = IPARI(5,N)
        JI=IPARI(1,N)
@@ -6407,10 +6233,10 @@ C------IRTL(NSN)--main el number---
         ID = I+K
         NSS2(ID)=0
         NI=INTBUF_TAB(N)%NSV(I)
-        IF (INLOC(NI).GT.0) THEN
+        IF (INLOC(NI)>0) THEN
          L=INTBUF_TAB(N)%IRTLM(I)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
@@ -6429,7 +6255,7 @@ C------IRTL(NSN)--main el number---
          NKE=INLOC(NI) 
          DO N1=1,NROWK(NKE)
           NJ=ICOK(N1,NKE)
-          IF (INLOC(NJ).GT.0.AND.
+          IF (INLOC(NJ)>0.AND.
      .        (.NOT.INTAB(NSN,INTBUF_TAB(N)%NSV(1),NJ)).
      .   AND.(.NOT.INTAB(NNOD,INTBUF_TAB(N)%IRECTM(NL+1),NJ))) THEN
            J1=NS+NSS2(ID)+1
@@ -6438,7 +6264,7 @@ C------IRTL(NSN)--main el number---
            NKE2=INLOC(NJ) 
            DO M=1,NNOD
             NM=INTBUF_TAB(N)%IRECTM(NL+M)
-            IF (INLOC(NM).GT.0) THEN
+            IF (INLOC(NM)>0) THEN
              NKE1=INLOC(NM) 
              CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NJ) 
              CALL REORDER_A(NROWK(NKE2),ICOK(1,NKE2),NM) 
@@ -6459,7 +6285,7 @@ C-----RBE2------
        M  =IRBE2(3,N)
        NSN  =IRBE2(5,N)
        IC = 7*512+7*64-IRBE2(4,N)
-       IF (INLOC(M).GT.0) THEN
+       IF (INLOC(M)>0) THEN
         NKE1=INLOC(M) 
         NDOF1(NKE1)=NDOF(M)
         NKM1=NKE1 
@@ -6467,14 +6293,14 @@ C-----RBE2------
          ID = I+K1
          NI=LRBE2(ID)
          NSB2(ID)=0
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           NKE=INLOC(NI) 
           DO N1=1,NROWK(NKE)
            NJ=ICOK(N1,NKE)
            NKE2=INLOC(NJ) 
-           IF (INLOC(NJ).GT.0.AND.NJ.NE.NI) THEN
+           IF (INLOC(NJ)>0.AND.NJ/=NI) THEN
             CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NJ) 
-            IF (NKE2.LE.INK) THEN
+            IF (NKE2<=INK) THEN
              CALL REORDER_A(NROWK(NKE2),ICOK(1,NKE2),M) 
             ELSE
              CALL REORDER_A(NROWK(NKE2),ICOKM(1,NKE2-INK),M) 
@@ -6484,10 +6310,10 @@ C-----RBE2------
              NSB2(ID)=NSB2(ID)+1
            END IF
           END DO
-	      IF (IC.GT.0) THEN
-	       CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NI)
+                IF (IC>0) THEN
+                 CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NI)
            CALL REORDER_A(NROWK(NKE),ICOK(1,NKE),M) 
-	      END IF
+                END IF
          END IF
         END DO
        END IF
@@ -6498,9 +6324,9 @@ c---------RBE3-------------
         IAD = IRBE3(1,N)
         NI  = IRBE3(3,N)
         NSS3(N)= 0
-        IF (NI.EQ.0) CYCLE
+        IF (NI==0) CYCLE
         NNOD = IRBE3(5,N)
-        IF (INLOC(NI).GT.0) THEN
+        IF (INLOC(NI)>0) THEN
          DO M=1,NNOD
           NM=LRBE3(IAD+M)
           NKE1=INLOC(NM) 
@@ -6508,13 +6334,13 @@ c---------RBE3-------------
              DO M1=M+1,NNOD
               NM1=LRBE3(IAD+M1)
                NKM1=INLOC(NM1) 
-               IF (NKE1.LE.INK) THEN
+               IF (NKE1<=INK) THEN
                 CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NM1) 
                ELSE
                 CALL REORDER_A(NROWK(NKE1),ICOKM(1,NKE1-INK),NM1) 
                ENDIF
                
-               IF (NKM1.LE.INK) THEN
+               IF (NKM1<=INK) THEN
                 CALL REORDER_A(NROWK(NKM1),ICOK(1,NKM1),NM) 
                ELSE
                 CALL REORDER_A(NROWK(NKM1),ICOKM(1,NKM1-INK),NM) 
@@ -6523,12 +6349,12 @@ c---------RBE3-------------
          ENDDO 
          NKE=INLOC(NI)
          DO N1=1,NROWK(NKE)
-          IF (NKE.LE.INK) THEN
+          IF (NKE<=INK) THEN
            NJ=ICOK(N1,NKE)
           ELSE
            NJ=ICOKM(N1,NKE-INK)
           END IF
-          IF (INLOC(NJ).GT.0.AND.
+          IF (INLOC(NJ)>0.AND.
      .         (.NOT.INTAB(NNOD,LRBE3(IAD+1),NJ))) THEN
            NSS3(N)= NSS3(N)+1
            K= K+1
@@ -6536,19 +6362,19 @@ c---------RBE3-------------
            NKE2=INLOC(NJ) 
            DO M=1,NNOD
             NM=LRBE3(IAD+M)
-            IF (INLOC(NM).GT.0) THEN
+            IF (INLOC(NM)>0) THEN
              NKE1=INLOC(NM) 
-             IF (NKE1.LE.INK) THEN
+             IF (NKE1<=INK) THEN
               CALL REORDER_A(NROWK(NKE1),ICOK(1,NKE1),NJ) 
-	         ELSE
+                   ELSE
               CALL REORDER_A(NROWK(NKE1),ICOKM(1,NKE1-INK),NJ) 
-	         ENDIF
-	     
-             IF (NKE2.LE.INK) THEN
+                   ENDIF
+               
+             IF (NKE2<=INK) THEN
               CALL REORDER_A(NROWK(NKE2),ICOK(1,NKE2),NM) 
-	         ELSE
+                   ELSE
               CALL REORDER_A(NROWK(NKE2),ICOKM(1,NKE2-INK),NM) 
-	         ENDIF
+                   ENDIF
             ENDIF 
            ENDDO
           ENDIF 
@@ -6563,7 +6389,7 @@ C-----active rigid body main nodes------
        K1=IRBYAC(J+NRBYKIN)
        M  =NPBY(1,N)
        NSN  =NPBY(2,N)
-       IF (INLOC(M).GT.0) THEN
+       IF (INLOC(M)>0) THEN
         NKE1=INLOC(M) 
         NDOF1(NKE1)=NDOF(M)
         NKM1=NKE1-INK 
@@ -6571,15 +6397,15 @@ C-----active rigid body main nodes------
          ID = I+K
          NI=LPBY(I+K1)
          NSS(ID)=0
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           NKE=INLOC(NI) 
           DO N1=1,NROWK(NKE)
            NJ=ICOK(N1,NKE)
            NKE2=INLOC(NJ) 
-           IF (INLOC(NJ).GT.0.AND.
+           IF (INLOC(NJ)>0.AND.
      .         (.NOT.INTAB(NSN,LPBY(K1+1),NJ))) THEN
             CALL REORDER_A(NROWK(NKE1),ICOKM(1,NKM1),NJ) 
-            IF (NKE2.LE.INK) THEN
+            IF (NKE2<=INK) THEN
              CALL REORDER_A(NROWK(NKE2),ICOK(1,NKE2),M) 
              J1=NS+NSS(ID)+1
              ISS(J1)=NJ
@@ -6598,12 +6424,11 @@ C-----active rigid body main nodes------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROW_INT11                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    row_int11   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_int_k   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT11(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECTS   ,IRECTM    ,
      2    NROW      ,ILOC      ,NDOFI       ,N_IMPN   ,NSN       ,
@@ -6613,34 +6438,27 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NS_IMP(*),NE_IMP(*),IRECTS(2,*),IRECTM(2,*),NROW(*),
      .        ILOC(*),NDOFI,N_IMPN,NSN,NSREM
-C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG,M1,M2
 C-----------------------------------------------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = IRECTS(1,IG)
         N2 = IRECTS(2,IG)
-        IF (ILOC(N1).EQ.0) THEN
+        IF (ILOC(N1)==0) THEN
          N_IMPN=N_IMPN+1
          ILOC(N1)=N_IMPN
         ENDIF
         NROW(N1)=NROW(N1)+2
-        IF (ILOC(N2).EQ.0) THEN
+        IF (ILOC(N2)==0) THEN
          N_IMPN=N_IMPN+1
          ILOC(N2)=N_IMPN
         ENDIF
@@ -6651,12 +6469,12 @@ C--------secnd node-----
         NE=NE_IMP(I)
         M1 = IRECTM(1,NE)
         M2 = IRECTM(2,NE)
-        IF (ILOC(M1).EQ.0) THEN
+        IF (ILOC(M1)==0) THEN
          N_IMPN=N_IMPN+1
          ILOC(M1)=N_IMPN
         ENDIF
         NROW(M1)=NROW(M1)+2
-        IF (ILOC(M2).EQ.0) THEN
+        IF (ILOC(M2)==0) THEN
          N_IMPN=N_IMPN+1
          ILOC(M2)=N_IMPN
         ENDIF
@@ -6665,13 +6483,13 @@ C--------secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROW_INT111                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_KINE_I                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_int111   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_kine_i   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT111(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECTS    ,IRECTM     ,
      2    NROW      ,N_IMPN    ,ILOC        ,ICOL      ,NNMAX      ,
@@ -6681,13 +6499,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX
@@ -6701,9 +6512,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C---------ICOL : LOCAL NODE NUMBER--------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = IRECTS(1,IG)
         N2 = IRECTS(2,IG)
         NE=NE_IMP(I)
@@ -6726,13 +6537,13 @@ C--------secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROW_INT112                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IND_INT_K                     source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        ROW_ADDS                      source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_int112   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ind_int_k    ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    row_adds     ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_INT112(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECTS    ,IRECTM    ,
      2    NROW      ,N_IMPN    ,ILOC        ,ICOL      ,NNMAX      ,
@@ -6742,13 +6553,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX,NKMAX
@@ -6762,9 +6566,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C---------ICOL : LOCAL NODE NUMBER--------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = IRECTS(1,IG)
         N2 = IRECTS(2,IG)
         NE=NE_IMP(I)
@@ -6783,13 +6587,13 @@ C--------secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROW_ADDS                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        ROW_INT112                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    row_adds     ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    row_int112   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE ROW_ADDS(NS    ,NM    ,ILOC  ,ISHF    ,ICOL   ,
      1                    ICOK  ,NROW  ,NNMAX ,NKMAX )
 C----6---------------------------------------------------------------7---------8
@@ -6809,13 +6613,13 @@ C
 C----6---------------------------------------------------------------7---------8
        N1 =ILOC(NS)
        N2 =ILOC(NM)
-       IF (N1.LE.ISHF) THEN
+       IF (N1<=ISHF) THEN
         CALL REORDER_A(NROW(N1),ICOL(1,N1),NM)
        ELSE
         N=N1- ISHF
         CALL REORDER_A(NROW(N1),ICOK(1,N),NM)
        ENDIF
-       IF (N2.LE.ISHF) THEN
+       IF (N2<=ISHF) THEN
         CALL REORDER_A(NROW(N2),ICOL(1,N2),NS)
        ELSE
         N=N2- ISHF
@@ -6823,17 +6627,18 @@ C----6---------------------------------------------------------------7---------8
        ENDIF
       RETURN
       END
-Chd|====================================================================
-Chd|  IDEL_INT                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        NDOF_INT                      source/implicit/ind_glob_k.F  
-Chd|        NDOF_INT11                    source/implicit/ind_glob_k.F  
-Chd|        NDOF_INT5                     source/implicit/ind_glob_k.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    idel_int        ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_chkm        ../engine/source/implicit/imp_solv.F
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    ndof_int        ../engine/source/implicit/ind_glob_k.F
+!||    ndof_int11      ../engine/source/implicit/ind_glob_k.F
+!||    ndof_int5       ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IDEL_INT(
      1    IPARI     ,INTBUF_TAB,NUM_IMP   ,NS_IMP    ,NE_IMP    ,
      2    IND_IMP   ,NDOF      ,NT_IMP    )
@@ -6846,17 +6651,12 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc" 
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(NPARI,*),NUM_IMP(*),IND_IMP(*),
@@ -6868,10 +6668,9 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NIN,NTY,NSN
-      INTEGER I,J,K,L,NDOFI,N,IAD,N_IMP,
-     .        NRTS,IDEL(NT_IMP),NEW_IAD
-C--------ramener NDOF des secnds remotes-----------------------------------
-      IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
+      INTEGER I,J,K,L,NDOFI,N,IAD,N_IMP,NRTS,IDEL(NT_IMP),NEW_IAD
+C--------ramener NDOF des seconds remotes-----------------------------------
+      IF (NSPMD>1) THEN
       ENDIF 
 C
       IAD=1
@@ -6881,9 +6680,9 @@ C      MULTIMP=1
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
 C       MULTIMP=MAX(MULTIMP,IPARI(23,NIN))
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
        CALL NDOF_INT5(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),INTBUF_TAB(NIN)%IRECTM,
      .                 INTBUF_TAB(NIN)%NSV,NSN        ,NDOF       ,IDEL(IAD)   ,
      .                 INTBUF_TAB(NIN)%MSR)
@@ -6894,17 +6693,17 @@ C       MULTIMP=MAX(MULTIMP,IPARI(23,NIN))
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
 C       MULTIMP=MAX(MULTIMP,IPARI(23,NIN))
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
-       ELSEIF(NTY.EQ.6)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
+       ELSEIF(NTY==6)THEN
 
-       ELSEIF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.24)THEN
+       ELSEIF(NTY==7.OR.NTY==10.OR.NTY==24)THEN
 C
         CALL NDOF_INT(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),INTBUF_TAB(NIN)%IRECTM,
      .                 INTBUF_TAB(NIN)%NSV,NSN        ,NDOF       ,IDEL(IAD)   )
         IAD=IAD+NUM_IMP(NIN)
-       ELSEIF(NTY.EQ.11)THEN
+       ELSEIF(NTY==11)THEN
 C
         NRTS   =IPARI(3,NIN)
         CALL NDOF_INT11(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
@@ -6920,9 +6719,9 @@ C-------int5 first------
       DO NIN=1,NINTER
        N_IMP=0
        NTY   =IPARI(7,NIN)
-       IF (NTY.EQ.5) THEN
+       IF (NTY==5) THEN
         DO I= 1,NUM_IMP(NIN)
-         IF (IDEL(IAD+I).GT.0) THEN
+         IF (IDEL(IAD+I)>0) THEN
           NEW_IAD = NEW_IAD + 1
           NS_IMP(NEW_IAD)=NS_IMP(IAD+I)
           NE_IMP(NEW_IAD)=NE_IMP(IAD+I)
@@ -6936,9 +6735,9 @@ C-------int5 first------
       ENDDO
       DO NIN=1,NINTER
        N_IMP=0
-       IF (NTY.NE.5) THEN
+       IF (NTY/=5) THEN
         DO I= 1,NUM_IMP(NIN)
-        IF (IDEL(IAD+I).GT.0) THEN
+        IF (IDEL(IAD+I)>0) THEN
          NEW_IAD = NEW_IAD + 1
          NS_IMP(NEW_IAD)=NS_IMP(IAD+I)
          NE_IMP(NEW_IAD)=NE_IMP(IAD+I)
@@ -6953,12 +6752,11 @@ C-------int5 first------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  NDOF_INT                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IDEL_INT                      source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ndof_int   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    idel_int   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE NDOF_INT(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT    ,NSV       ,
      2    NSN       ,NDOF      ,IDEL_INT  )
@@ -6967,12 +6765,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NS_IMP(*),NE_IMP(*),IRECT(4,*),NSV(*),
@@ -6984,9 +6776,9 @@ C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG
 C-----------------------------------------------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = NSV(IG)
         IDEL_INT(I) = NDOF(N1)
        ELSE
@@ -6996,7 +6788,7 @@ C--------secnd node-----
          N=IRECT(J,NE)
          IDEL_INT(I) = MIN(IDEL_INT(I),NDOF(N))
         ENDDO
-        IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+        IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
          N=IRECT(4,NE)
          IDEL_INT(I) = MIN(IDEL_INT(I),NDOF(N))
         ENDIF
@@ -7004,12 +6796,11 @@ C--------secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  NDOF_INT11                    source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IDEL_INT                      source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ndof_int11   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    idel_int     ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE NDOF_INT11(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECTS   ,IRECTM    ,
      2    NSN       ,NDOF      ,IDEL_INT  )
@@ -7018,12 +6809,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NS_IMP(*),NE_IMP(*),IRECTS(2,*),IRECTM(2,*),
@@ -7035,9 +6820,9 @@ C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG,M1,M2
 C-----------------------------------------------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = IRECTS(1,IG)
         IDEL_INT(I) = NDOF(N1)
         N2 = IRECTS(2,IG)
@@ -7053,12 +6838,11 @@ C--------secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  NDOF_INT5                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IDEL_INT                      source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ndof_int5   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    idel_int    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE NDOF_INT5(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT    ,NSV       ,
      2    NSN       ,NDOF      ,IDEL_INT    ,MSR      )
@@ -7067,12 +6851,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NS_IMP(*),NE_IMP(*),IRECT(4,*),NSV(*),
@@ -7084,7 +6862,7 @@ C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG
 C-----------------------------------------------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
         N1 = NSV(IG)
         IDEL_INT(I) = NDOF(N1)
@@ -7093,7 +6871,7 @@ C--------secnd node-----
          N=MSR(IRECT(J,NE))
          IDEL_INT(I) = MIN(IDEL_INT(I),NDOF(N))
         ENDDO
-        IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+        IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
          N=MSR(IRECT(4,NE))
          IDEL_INT(I) = MIN(IDEL_INT(I),NDOF(N))
         ENDIF
@@ -7101,23 +6879,17 @@ C--------secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_SPA2                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    dim_spa2    ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int      ../engine/source/implicit/produt_v.F
+!||    reorder_a   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE DIM_SPA2(NDDL,IADK,JDIK,L_NZ)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7126,7 +6898,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER  I,J,K,JD,ICOL(NDDL),NRI
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
       L_NZ = 0
       DO I = 1,NDDL
        NRI = IADK(I+1)-IADK(I)
@@ -7142,35 +6914,28 @@ C----6---------------------------------------------------------------7---------8
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_SPA2                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        K_BAND                        source/implicit/imp_solv.F    
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        REORDER_M                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    ind_spa2    ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int      ../engine/source/implicit/produt_v.F
+!||    k_band      ../engine/source/implicit/imp_solv.F
+!||    reorder_a   ../engine/source/implicit/ind_glob_k.F
+!||    reorder_m   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE IND_SPA2(NDDL,IADK,JDIK,IADM,JDIM,L_MAX)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL,IADK(*),JDIK(*),IADM(*),JDIM(*),L_MAX
-C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER  I,J,K,ICOL(NDDL),L_NZ,NRI,JD
-C----6--------opt. envisager-creer a partir de tableux nodales--,iadm,jdim+upd_(chaque isetk)
+C---- 6 ------- OPT.Consider-Creer from nodal arrays-, IADM, JDIM+UPD_ (Each ISETK)
       L_NZ = 0
       IADM(L_NZ+1) = L_NZ+1
       DO I = 1,NDDL
@@ -7193,14 +6958,13 @@ C----6--------opt. envisager-creer a partir de tableux nodales--,iadm,jdim+upd_(
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  REORDER_M                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_SPAN                      source/implicit/ind_glob_k.F  
-Chd|        IND_SPA2                      source/implicit/ind_glob_k.F  
-Chd|        IND_SPAN                      source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reorder_m   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_span    ../engine/source/implicit/ind_glob_k.F
+!||    ind_spa2    ../engine/source/implicit/ind_glob_k.F
+!||    ind_span    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE REORDER_M(N,IC)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -7215,18 +6979,18 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,II,IT,IMIN
 C
-      IF (N.EQ.0) RETURN
-C-----en ordre croisante-----
+      IF (N==0) RETURN
+C----- In increasing order -----
       DO I =1,N
        IMIN=IC(I)
        II=I
        DO J =I+1,N
-        IF (IC(J).LT.IMIN) THEN
+        IF (IC(J)<IMIN) THEN
          IMIN=IC(J)
          II=J
         ENDIF
        ENDDO
-       IF (II.NE.I) THEN
+       IF (II/=I) THEN
         IT=IC(I)
         IC(I)=IC(II)
         IC(II)=IT
@@ -7235,17 +6999,18 @@ C-----en ordre croisante-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_SPAN                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_SOL_INIT                  source/implicit/imp_sol_init.F
-Chd|        INI_K0H                       source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        REORDER_M                     source/implicit/ind_glob_k.F  
-Chd|        IMP_PPAT                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    dim_span       ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_sol_init   ../engine/source/implicit/imp_sol_init.F
+!||    ini_k0h        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int         ../engine/source/implicit/produt_v.F
+!||    reorder_a      ../engine/source/implicit/ind_glob_k.F
+!||    reorder_m      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_ppat       ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE DIM_SPAN(NN,NDDL,IADK,JDIK,L_NZ,NDMAX)
 C-----------------------------------------------
 C   M o d u l e s
@@ -7255,12 +7020,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7301,12 +7060,12 @@ C
       L_NZ = 0
       DO I = 1,NDDL
        NRI = IADK(I+1)-IADK(I)
-       IF (ICRI(I).EQ.1) THEN
+       IF (ICRI(I)==1) THEN
         CALL CP_INT(NRI,JDIK(IADK(I)),ICOL)
         DO J=IADK(I),IADK(I+1)-1
          JD = JDIK(J)
          DO K = IADK0(JD),IADK0(JD+1)-1
-          IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+          IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
          ENDDO
         ENDDO
        ENDIF 
@@ -7324,15 +7083,15 @@ C-----------L->K^2----------
        DO I = 1,NDDL
         NRI = IADK(I+1)-IADK(I)
         CALL CP_INT(NRI,JDIK(IADK(I)),ICOL)
-        IF (ICRI(I).EQ.1) THEN
+        IF (ICRI(I)==1) THEN
          NR0 = NRI
          DO J=IADK(I),IADK(I+1)-1
           JD = JDIK(J)
           DO K = IADK0(JD),IADK0(JD+1)-1
-           IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+           IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
           ENDDO
          ENDDO
-         IF (NRI.GT.NR0) CALL REORDER_M(NRI,ICOL)
+         IF (NRI>NR0) CALL REORDER_M(NRI,ICOL)
         ENDIF 
         DO J=1,NRI
          L_NZ = L_NZ + 1
@@ -7345,12 +7104,12 @@ C---- ---------*K0------------
        L_NZ = 0
        DO I = 1,NDDL
         NRI = IADL(I+1)-IADL(I)
-        IF (ICRI(I).EQ.1) THEN
+        IF (ICRI(I)==1) THEN
          CALL CP_INT(NRI,JDIL(IADL(I)),ICOL)
          DO J=IADL(I),IADL(I+1)-1
           JD = JDIL(J)
           DO K = IADK0(JD),IADK0(JD+1)-1
-           IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+           IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
           ENDDO
          ENDDO
         ENDIF 
@@ -7366,15 +7125,15 @@ C-----------L->K^2----------
        DO I = 1,NDDL
         NRI = IADK(I+1)-IADK(I)
         CALL CP_INT(NRI,JDIK(IADK(I)),ICOL)
-        IF (ICRI(I).EQ.1) THEN
+        IF (ICRI(I)==1) THEN
          NR0 = NRI
          DO J=IADK(I),IADK(I+1)-1
           JD = JDIK(J)
           DO K = IADK0(JD),IADK0(JD+1)-1
-           IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+           IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
           ENDDO
          ENDDO
-         IF (NRI.GT.NR0) CALL REORDER_M(NRI,ICOL)
+         IF (NRI>NR0) CALL REORDER_M(NRI,ICOL)
         ENDIF 
         DO J=1,NRI
          L_NZ = L_NZ + 1
@@ -7382,7 +7141,7 @@ C-----------L->K^2----------
         ENDDO 
         IADL(I+1) = L_NZ+1
        ENDDO
-C-----------K0-> K^2-complet---------
+C-----------K0-> K^2-complete---------
        DEALLOCATE(JDIK0)
        ALLOCATE(JDIK0(2*L_NZ))
        DO I = 1, NDDL
@@ -7412,11 +7171,11 @@ C-----------* K^2----------
        DO I = 1,NDDL
         NRI = IADL(I+1)-IADL(I)
         CALL CP_INT(NRI,JDIL(IADL(I)),ICOL)
-        IF (ICRI(I).EQ.1) THEN
+        IF (ICRI(I)==1) THEN
          DO J=IADL(I),IADL(I+1)-1
           JD = JDIL(J)
           DO K = IADK0(JD),IADK0(JD+1)-1
-           IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+           IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
           ENDDO
          ENDDO
         ENDIF 
@@ -7429,17 +7188,18 @@ c      print *,'DIM_NZ,nddl=',L_NZ,nddl
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_SPAN                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        LIN_SOLVIH2                   source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        K_BAND                        source/implicit/imp_solv.F    
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        REORDER_M                     source/implicit/ind_glob_k.F  
-Chd|        IMP_PPAT                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    ind_span      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    lin_solvih2   ../engine/source/implicit/lin_solv.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int        ../engine/source/implicit/produt_v.F
+!||    k_band        ../engine/source/implicit/imp_solv.F
+!||    reorder_a     ../engine/source/implicit/ind_glob_k.F
+!||    reorder_m     ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_ppat      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE IND_SPAN(NN,NDF,NDDL,IADK,JDIK,IADM,JDIM,L_MAX,NDMAX)
 C-----------------------------------------------
 C   M o d u l e s
@@ -7449,12 +7209,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7466,7 +7220,7 @@ C-----------------------------------------------
       INTEGER  I,J,K,ICOL(NDDL),ICRI(NDDL),L_NZ,NRI,JD,NR0
       INTEGER, DIMENSION(:),ALLOCATABLE :: IADK0,JDIK0
       INTEGER, DIMENSION(:),ALLOCATABLE :: IADL,JDIL
-C----6--opt. envisager-creer a partir de tableux nodales--,iadm,jdim+upd_(chaque isetk)
+C---- 6--Opt.Consider-Creer from nodal arrays-, IADM, JDIM+UPD_ (Each ISETK)
       L_NZ = 2*(IADK(NDDL+1)-IADK(1))
 C       
       ALLOCATE(IADK0(NDDL+1),JDIK0(L_NZ))
@@ -7509,16 +7263,16 @@ C
        DO I = NDF+1,NDDL
         NRI = IADK(I+1)-IADK(I)
         CALL CP_INT(NRI,JDIK(IADK(I)),ICOL)
-	IF (ICRI(I).EQ.1) THEN
+          IF (ICRI(I)==1) THEN
          NR0 = NRI
          DO J=IADK(I),IADK(I+1)-1
           JD = JDIK(J)
           DO K = IADK0(JD),IADK0(JD+1)-1
-           IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+           IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
           ENDDO
          ENDDO
-         IF (NRI.GT.NR0) CALL REORDER_M(NRI,ICOL)
-	ENDIF 
+         IF (NRI>NR0) CALL REORDER_M(NRI,ICOL)
+          ENDIF 
         DO J=1,NRI
          L_NZ = L_NZ + 1
          JDIM(L_NZ) = ICOL(J)
@@ -7540,16 +7294,16 @@ C
        DO I = NDF+1,NDDL
         NRI = IADK(I+1)-IADK(I)
         CALL CP_INT(NRI,JDIK(IADK(I)),ICOL)
-	IF (ICRI(I).EQ.1) THEN
+          IF (ICRI(I)==1) THEN
          NR0 = NRI
          DO J=IADK(I),IADK(I+1)-1
           JD = JDIK(J)
           DO K = IADK0(JD),IADK0(JD+1)-1
-           IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+           IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
           ENDDO
          ENDDO
-         IF (NRI.GT.NR0) CALL REORDER_M(NRI,ICOL)
-	ENDIF 
+         IF (NRI>NR0) CALL REORDER_M(NRI,ICOL)
+          ENDIF 
         DO J=1,NRI
          L_NZ = L_NZ + 1
          JDIM(L_NZ) = ICOL(J)
@@ -7564,16 +7318,16 @@ C
         DO I = NDF+1,NDDL
          NRI = IADL(I+1)-IADL(I)
          CALL CP_INT(NRI,JDIL(IADL(I)),ICOL)
-	 IF (ICRI(I).EQ.1) THEN
+           IF (ICRI(I)==1) THEN
           NR0 = NRI
           DO J=IADL(I),IADL(I+1)-1
            JD = JDIL(J)
            DO K = IADK0(JD),IADK0(JD+1)-1
-           IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+           IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
            ENDDO
           ENDDO
-          IF (NRI.GT.NR0) CALL REORDER_M(NRI,ICOL)
-	 ENDIF 
+          IF (NRI>NR0) CALL REORDER_M(NRI,ICOL)
+           ENDIF 
          DO J=1,NRI
            L_NZ = L_NZ + 1
            JDIM(L_NZ) = ICOL(J)
@@ -7588,16 +7342,16 @@ C
        DO I = 1,NDDL
         NRI = IADK(I+1)-IADK(I)
         CALL CP_INT(NRI,JDIK(IADK(I)),ICOL)
-	IF (ICRI(I).EQ.1) THEN
+          IF (ICRI(I)==1) THEN
          NR0 = NRI
          DO J=IADK(I),IADK(I+1)-1
           JD = JDIK(J)
           DO K = IADK0(JD),IADK0(JD+1)-1
-           IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+           IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
           ENDDO
          ENDDO
-         IF (NRI.GT.NR0) CALL REORDER_M(NRI,ICOL)
-	ENDIF 
+         IF (NRI>NR0) CALL REORDER_M(NRI,ICOL)
+          ENDIF 
         DO J=1,NRI
          L_NZ = L_NZ + 1
          JDIM(L_NZ) = ICOL(J)
@@ -7607,7 +7361,7 @@ C
         ALLOCATE(IADL(NDDL+1),JDIL(L_NZ))
         CALL CP_INT(NDDL+1,IADM,IADL)
         CALL CP_INT(L_NZ,JDIM,JDIL)
-C-----------K0-> K^2-complet---------
+C-----------K0-> K^2-complete---------
         DEALLOCATE(JDIK0)
         ALLOCATE(JDIK0(2*L_NZ))
         DO I = 1, NDDL
@@ -7644,16 +7398,16 @@ C
         DO I = NDF+1,NDDL
          NRI = IADL(I+1)-IADL(I)
          CALL CP_INT(NRI,JDIL(IADL(I)),ICOL)
-	 IF (ICRI(I).EQ.1) THEN
+           IF (ICRI(I)==1) THEN
           NR0 = NRI
           DO J=IADL(I),IADL(I+1)-1
            JD = JDIL(J)
            DO K = IADK0(JD),IADK0(JD+1)-1
-           IF (JDIK0(K).LT.I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
+           IF (JDIK0(K)<I) CALL REORDER_A(NRI,ICOL,JDIK0(K))
            ENDDO
           ENDDO
-          IF (NRI.GT.NR0) CALL REORDER_M(NRI,ICOL)
-	 ENDIF 
+          IF (NRI>NR0) CALL REORDER_M(NRI,ICOL)
+           ENDIF 
          DO J=1,NRI
            L_NZ = L_NZ + 1
            JDIM(L_NZ) = ICOL(J)
@@ -7667,13 +7421,13 @@ C
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  FIL_SPAN0                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_SOL_INIT                  source/implicit/imp_sol_init.F
-Chd|-- calls ---------------
-Chd|        IMP_PPAT                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    fil_span0      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_sol_init   ../engine/source/implicit/imp_sol_init.F
+!||--- uses       -----------------------------------------------------
+!||    imp_ppat       ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE FIL_SPAN0(NRBYAC,IRBYAC,NPBY,IDDL,NDOF,NDDL)
 C-----------------------------------------------
 C   M o d u l e s
@@ -7683,8 +7437,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -7713,13 +7465,13 @@ C
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  FIL_SPAN1                     source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_PPAT                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    fil_span1   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv    ../engine/source/implicit/imp_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_ppat    ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE FIL_SPAN1(NRBYAC,IRBYAC,NPBY,IDDL,NDDL,IKC,NDOF,INLOC)
 C-----------------------------------------------
 C   M o d u l e s
@@ -7729,8 +7481,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -7758,7 +7508,7 @@ C
          IDDLM(I)=IDDL(I)-IFIX
          DO J=1,NDOF(I)
           ID = IDDL(I)+J
-          IF (IKC(ID).NE.0) IFIX=IFIX+1
+          IF (IKC(ID)/=0) IFIX=IFIX+1
          ENDDO
        ENDDO
       DO I=1,NRBYAC
@@ -7768,8 +7518,8 @@ C
        IDM = IDDLM(M)
        IFIX=0
        DO J=1,NDOF(M)
-        IF (IKC(ID+J).EQ.0) THEN
-	 IFIX=IFIX+1
+        IF (IKC(ID+J)==0) THEN
+           IFIX=IFIX+1
          PRE_FPAT(IDM+IFIX) = 0
         ENDIF 
        ENDDO
@@ -7777,25 +7527,19 @@ C
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_KTOT                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        L2G_KLOC                      source/implicit/ind_glob_k.F  
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    dim_ktot    ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int      ../engine/source/implicit/produt_v.F
+!||    l2g_kloc    ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE DIM_KTOT(NDDL  ,IADK  ,JDIK  ,IADI  ,JDII  ,
      1                    ITOK  ,NDDLI ,L_NZ  ,LT_I  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7820,7 +7564,7 @@ C
       L_NZ = 0
       DO I = 1,NDDL
        NRI = IADK(I+1)-IADK(I)
-       IF (K2I(I).GT.0) THEN
+       IF (K2I(I)>0) THEN
         CALL CP_INT(NRI,JDIK(IADK(I)),ICOL)
         K = K2I(I)
         DO J=IADI(K),IADI(K+1)-1
@@ -7834,14 +7578,14 @@ C
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_KTOT                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ind_ktot      ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IND_KTOT(NDDL  ,IADK  ,JDIK  ,IADI  ,JDII  ,
      1                    ITOK  ,NDDLI ,IADT  ,JDIT  ,LT_K  ,
      2                    LT_I  ,LT_T  ,NZL   )
@@ -7853,12 +7597,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7878,13 +7616,13 @@ C
       DO I = 1,NDDLI
        J = ITOK(I)
        K2I(J) = I
-       IF (IADI(I).EQ.IADI(I+1)) K2I(J) = 0
+       IF (IADI(I)==IADI(I+1)) K2I(J) = 0
       ENDDO 
 C
       NZ = 0
       IADT(1) = NZ + 1
       DO I = 1,NDDL
-       IF (K2I(I).EQ.0) THEN
+       IF (K2I(I)==0) THEN
         DO J=IADK(I),IADK(I+1)-1
          NZ = NZ + 1
          JDIT(NZ) = JDIK(J)
@@ -7901,13 +7639,13 @@ C---- first for [k]----
          JD = JDII(K)
          JK = ITOK(JD)
          DO J=IFT,IADK(I+1)-1
-          IF (JK.EQ.JDIK(J)) THEN
+          IF (JK==JDIK(J)) THEN
            NZ = NZ + 1
            JDIT(NZ) = JDIK(J)
            LT_T(NZ) = LT_K(J)+LT_I(K)
            IFT = J + 1
            GOTO 100
-          ELSEIF (JK.LT.JDIK(J)) THEN
+          ELSEIF (JK<JDIK(J)) THEN
            NZ = NZ + 1
            JDIT(NZ) = JK
            LT_T(NZ) = LT_I(K)
@@ -7921,13 +7659,13 @@ C---- first for [k]----
          ENDDO
 C---- end of insert-----
          J = IADK(I+1)-1
-         IF (JK.GT.JDIK(J)) THEN
+         IF (JK>JDIK(J)) THEN
            NZ = NZ + 1
            JDIT(NZ) = JK
            LT_T(NZ) = LT_I(K)
          ENDIF
  100     CONTINUE
-         IF (K.EQ.(IADI(N+1)-1)) THEN
+         IF (K==(IADI(N+1)-1)) THEN
           DO J=IFT,IADK(I+1)-1
            NZ = NZ + 1
            JDIT(NZ) = JDIK(J)
@@ -7938,26 +7676,27 @@ C---- end of insert-----
        ENDIF
        IADT(I+1) = NZ + 1
       ENDDO 
-      IF (NZ.NE.NZL) THEN
+      IF (NZ/=NZL) THEN
          CALL ANCMSG(MSGID=80,ANMODE=ANINFO,
      .               C1='ASSEMBLY')
-         IF (NZ.GT.NZL) CALL ARRET(2)
+         IF (NZ>NZL) CALL ARRET(2)
       ENDIF
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  L2G_KLOC                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_KTOT                      source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|        REORDER_KIJ                   source/implicit/ind_glob_k.F  
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    l2g_kloc      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_ktot      ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||    cp_int        ../engine/source/implicit/produt_v.F
+!||    cp_real       ../engine/source/implicit/produt_v.F
+!||    reorder_kij   ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE L2G_KLOC(NDDLI ,IADI  ,JDII  ,ITOK  ,LT_I  )
 C-----------------------------------------------
 C   M o d u l e s
@@ -7968,12 +7707,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include "impl1_c.inc"
-#include "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -8024,14 +7760,14 @@ C -------------[K0]-locale complete----------
 C
        NZ = 0
        IADI(1) = NZ + 1
-      IF (IKPAT.EQ.0 )THEN      
+      IF (IKPAT==0 )THEN      
 C -------------trang_sup----------    
        DO I = 1, NDDLI
         GI = ITOK(I)
         DO J = IADK0(I),IADK0(I+1)-1
          JD = JDIK0(J)
          GJ = ITOK(JD)
-         IF (GJ.GT.GI)THEN      
+         IF (GJ>GI)THEN      
           NZ = NZ + 1
           JDII(NZ) = JD
           LT_I(NZ) = LT_K0(J)
@@ -8046,7 +7782,7 @@ C -------------trang_inf----------
         DO J = IADK0(I),IADK0(I+1)-1
          JD = JDIK0(J)
          GJ = ITOK(JD)
-         IF (GJ.LT.GI)THEN      
+         IF (GJ<GI)THEN      
           NZ = NZ + 1
           JDII(NZ) = JD
           LT_I(NZ) = LT_K0(J)
@@ -8056,7 +7792,7 @@ C -------------trang_inf----------
        ENDDO
       ENDIF      
       DEALLOCATE(IADK0,JDIK0,LT_K0)
-      IF (NZ.GT.L_NZ/2) THEN
+      IF (NZ>L_NZ/2) THEN
         CALL ANCMSG(MSGID=80,ANMODE=ANINFO,
      .              C1='TRANSLATION')
         CALL ARRET(2)
@@ -8070,12 +7806,11 @@ C -------------in order----------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  REORDER_KIJ                   source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        L2G_KLOC                      source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reorder_kij   ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    l2g_kloc      ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE REORDER_KIJ(N,IC,RC,IDDL)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -8097,18 +7832,18 @@ C
       DO I =1,N
        IDIC(I)=IDDL(IC(I))
       ENDDO
-      IF (N.EQ.0) RETURN
-C-----en ordre iddl croisante-----
+      IF (N==0) RETURN
+C---- In an increasing iddl order -----
       DO I =1,N
        IMIN=IDIC(I)
        II=I
        DO J =I+1,N
-        IF (IDIC(J).LT.IMIN) THEN
+        IF (IDIC(J)<IMIN) THEN
          IMIN=IDIC(J)
          II=J
         ENDIF
        ENDDO
-       IF (II.NE.I) THEN
+       IF (II/=I) THEN
         IT=IC(I)
         S =RC(I)
         IC(I)=IC(II)
@@ -8123,15 +7858,16 @@ C-----en ordre iddl croisante-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  NDOF_FV                       source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ndof_fv       ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k    ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE NDOF_FV(IBFV  ,VEL   ,NDOF  ,IFRAME)
       USE MESSAGE_MOD
 C-----------------------------------------------
@@ -8142,7 +7878,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
@@ -8166,15 +7901,15 @@ C-------------------------------
       IDEB = 0
 C----is there is Du in [TT,TSTOP] TT-> Tstart
       DO NN=1,NFXVEL,NVSIZ
-        IF (IBFV(8,NN).EQ.1) GOTO 100
+        IF (IBFV(8,NN)==1) GOTO 100
         IC = 0
-C        IF (NSENSOR.GT.0) : by sensor will be ignoned (if not activated)
+C        IF (NSENSOR>0) : by sensor will be ignoned (if not activated)
           DO 20 II = 1, MIN(NFXVEL-IDEB,NVSIZ)
             N = II+IDEB
             STARTT = VEL(2,N)
             STOPT  = VEL(3,N)
-            IF(TSTOP.LE.STARTT)GOTO 20
-            IF(TT.GE.STOPT) GOTO 20
+            IF(TSTOP<=STARTT)GOTO 20
+            IF(TT>=STOPT) GOTO 20
             I=IABS(IBFV(1,N))
             IC = IC + 1
             INDEX(IC) = N
@@ -8187,10 +7922,10 @@ C
           ISK=IBFV(2,N)/10
           IFM = IBFV(9,N)
           J=IBFV(2,N)
-          IF (IFM.LE.1) J=J-10*ISK
-          IF(J.LE.3)THEN
+          IF (IFM<=1) J=J-10*ISK
+          IF(J<=3)THEN
             IF (NDOF(I)==0) NDOF(I)=3
-          ELSEIF(J.LE.6)THEN
+          ELSEIF(J<=6)THEN
             IF (NDOF(I)==0) NDOF(I)=6
 C        stop erroring out            
            IF (NDOF(I) <=3) THEN
@@ -8210,29 +7945,20 @@ C          END IF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I24MSEGV                      source/implicit/ind_glob_k.F  
-Chd|-- called by -----------
-Chd|        ROWFR_DIM24                   source/mpi/implicit/imp_fri.F 
-Chd|        ROWFR_IND24                   source/mpi/implicit/imp_fri.F 
-Chd|        ROW_INT24                     source/implicit/ind_glob_k.F  
-Chd|        ROW_INT241                    source/implicit/ind_glob_k.F  
-Chd|        ROW_INT242                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i24msegv      ../engine/source/implicit/ind_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    row_int24     ../engine/source/implicit/ind_glob_k.F
+!||    row_int241    ../engine/source/implicit/ind_glob_k.F
+!||    row_int242    ../engine/source/implicit/ind_glob_k.F
+!||    rowfr_dim24   ../engine/source/mpi/implicit/imp_fri.F
+!||    rowfr_ind24   ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE I24MSEGV(IE    ,IRTLMV  ,SUBTRIA,IRTLM ,NVOISIN)
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

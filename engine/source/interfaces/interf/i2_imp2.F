@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INT2_IMP2                     source/interfaces/interf/i2_imp2.F
-Chd|-- called by -----------
-Chd|        I2_IMPD                       source/interfaces/interf/i2_impd.F
-Chd|-- calls ---------------
-Chd|        I2RECU0                       source/interfaces/interf/i2_imp2.F
-Chd|        I2RECU1                       source/interfaces/interf/i2_imp2.F
-Chd|        I2RECU2                       source/interfaces/interf/i2_imp2.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    int2_imp2       ../engine/source/interfaces/interf/i2_imp2.F
+!||--- called by ------------------------------------------------------
+!||    i2_impd         ../engine/source/interfaces/interf/i2_impd.F
+!||--- calls      -----------------------------------------------------
+!||    i2recu0         ../engine/source/interfaces/interf/i2_imp2.F
+!||    i2recu1         ../engine/source/interfaces/interf/i2_imp2.F
+!||    i2recu2         ../engine/source/interfaces/interf/i2_imp2.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE INT2_IMP2(IPARI,INTBUF_TAB,X    ,
      .                   MS  ,IN   ,WEIGHT  ,NDOF ,D    ,DR  )
 C-----------------------------------------------
@@ -51,12 +52,6 @@ C     REAL
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "scr05_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER
@@ -68,14 +63,9 @@ C-----------------------------------------------
       NMN   =IPARI(6)
       ILEV  =IPARI(20)
 C
-C  version spmd avec plus d'un proc nsn = nsn_loc & nmn = nmn_loc
-c      IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
-c        NSN = IPARI(16)
-c        NMN = IPARI(18)
-c      ENDIF
-C
-      IF(ILEV.EQ.1)THEN
-        if( IMP_LR .GT. 0)THEN
+C  SPMD version with more than one proc nsn = nsn_loc & nmn = nmn_loc
+      IF(ILEV==1)THEN
+        if( IMP_LR > 0)THEN
           CALL I2RECU2(NSN       ,NMN       ,INTBUF_TAB%IRECTM,
      1      INTBUF_TAB%DPARA,INTBUF_TAB%MSR,INTBUF_TAB%NSV,
      .      INTBUF_TAB%IRTLM,
@@ -98,14 +88,14 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I2RECU0                       source/interfaces/interf/i2_imp2.F
-Chd|-- called by -----------
-Chd|        INT2_IMP2                     source/interfaces/interf/i2_imp2.F
-Chd|-- calls ---------------
-Chd|        VELROT                        source/constraints/general/rbe2/rbe2v.F
-Chd|        ZERO1                         source/system/zero.F          
-Chd|====================================================================
+!||====================================================================
+!||    i2recu0     ../engine/source/interfaces/interf/i2_imp2.F
+!||--- called by ------------------------------------------------------
+!||    int2_imp2   ../engine/source/interfaces/interf/i2_imp2.F
+!||--- calls      -----------------------------------------------------
+!||    velrot      ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    zero1       ../engine/source/system/zero.F
+!||====================================================================
       SUBROUTINE I2RECU0(NSN,NMN,IRECT,CRST,MSR ,
      1                  NSV,IRTL,MS    ,X  ,WEIGHT,
      2                  NDOF, D  ,DR  )
@@ -123,10 +113,6 @@ C     REAL
       my_real
      .    CRST(2,*), D(3,*),MS(*),DR(3,*),X(3,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NIR, I, J, J1, J2, J3, J4, K, JD, II, L, JJ,
@@ -136,9 +122,9 @@ C     REAL
      .   H(4), SS, TT, SP,SM,TP,TM,DR1(3),XS,YS,ZS,XS0,YS0,ZS0,NUN,
      .   DS(3), LSM(3)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of secondary nodes
 C------------------------------------
-C-------pour simplement etre coherent avec INTTI2, on ne distinque pas 3n,4n
+C------- To simply be coherent with inti2, we do not distinguish 3n, 4n
       NUN=-ONE
       DO II=1,NSN
         I=NSV(II)
@@ -152,7 +138,7 @@ C
         TT = MAX(NUN,TT)
        SP=ONE + SS
        SM=ONE - SS
-       IF (IRECT(3,L).EQ.IRECT(4,L)) THEN
+       IF (IRECT(3,L)==IRECT(4,L)) THEN
          NIR=3
          TP=THIRD*(ONE + TT)
          TM=THIRD*(ONE - TT)
@@ -174,7 +160,7 @@ C
          ND = MAX(ND,NDOF(NJ))
        ENDDO
 C-------NDOF(M)> 3 comme rigid body---
-        IF (ND.EQ.6) THEN
+        IF (ND==6) THEN
          XS0=ZERO
          YS0=ZERO
          ZS0=ZERO
@@ -197,7 +183,7 @@ C-------NDOF(M)> 3 comme rigid body---
          D(K,I)=D(K,I)+H(J)*D(K,NJ)
         ENDDO
        ENDDO 
-       IF (ND.EQ.6) THEN 
+       IF (ND==6) THEN 
         DO K =1,3
           DR(K,I)=ZERO
         ENDDO
@@ -207,7 +193,7 @@ C-------NDOF(M)> 3 comme rigid body---
           DR(K,I)=DR(K,I)+H(J)*DR(K,NJ)
          ENDDO
         ENDDO
-        IF( IMP_LR .GT. 0)THEN
+        IF( IMP_LR > 0)THEN
           CALL ZERO1(DS,3)
           LSM(1) = XS
           LSM(2) = YS
@@ -226,13 +212,13 @@ C-------NDOF(M)> 3 comme rigid body---
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I2RECU1                       source/interfaces/interf/i2_imp2.F
-Chd|-- called by -----------
-Chd|        INT2_IMP2                     source/interfaces/interf/i2_imp2.F
-Chd|-- calls ---------------
-Chd|        I2MATC                        source/interfaces/interf/i2_imp1.F
-Chd|====================================================================
+!||====================================================================
+!||    i2recu1     ../engine/source/interfaces/interf/i2_imp2.F
+!||--- called by ------------------------------------------------------
+!||    int2_imp2   ../engine/source/interfaces/interf/i2_imp2.F
+!||--- calls      -----------------------------------------------------
+!||    i2matc      ../engine/source/interfaces/interf/i2_imp1.F
+!||====================================================================
       SUBROUTINE I2RECU1(NSN,NMN,IRECT,DPARA,MSR ,
      1                  NSV,IRTL,MS    ,X  ,WEIGHT,
      2                  NDOF, D  ,DR  )
@@ -249,10 +235,6 @@ C     REAL
       my_real
      .    DPARA(7,*), D(3,*),MS(*),DR(3,*),X(3,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J,  K,  II, L, NIR(NSN),NJ
@@ -260,7 +242,7 @@ C     REAL
       my_real
      .   RJ(3,3,4,NSN),RJT(3,3,4,NSN)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of secondary nodes
 C------------------------------------
       CALL I2MATC(NSN,IRECT,DPARA,NSV,IRTL,X  ,
      1                            NIR,RJ ,RJT  )
@@ -270,7 +252,7 @@ C------------------------------------
        DO K =1,3
         D(K,I)=ZERO
        ENDDO
-       IF (NDOF(I).GT.3) THEN
+       IF (NDOF(I)>3) THEN
         DO K =1,3
          DR(K,I)=ZERO
         ENDDO
@@ -282,7 +264,7 @@ C-------recupere salve dis : in function of main's translation--
           D(K,I)=D(K,I)+RJT(K,1,J,II)*D(1,NJ)+
      .           RJT(K,2,J,II)*D(2,NJ)+RJT(K,3,J,II)*D(3,NJ)
          ENDDO 
-         IF (NDOF(I).GT.3) THEN
+         IF (NDOF(I)>3) THEN
           DO K=1,3
            DR(K,I)=DR(K,I)+RJ(K,1,J,II)*D(1,NJ)+
      .           RJ(K,2,J,II)*D(2,NJ)+RJ(K,3,J,II)*D(3,NJ)
@@ -293,14 +275,15 @@ C-------recupere salve dis : in function of main's translation--
 C
       RETURN
       END      
-Chd|====================================================================
-Chd|  I2RECU2                       source/interfaces/interf/i2_imp2.F
-Chd|-- called by -----------
-Chd|        INT2_IMP2                     source/interfaces/interf/i2_imp2.F
-Chd|-- calls ---------------
-Chd|        I2MATC                        source/interfaces/interf/i2_imp1.F
-Chd|        VELROT                        source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+!||====================================================================
+!||    i2recu2     ../engine/source/interfaces/interf/i2_imp2.F
+!||--- called by ------------------------------------------------------
+!||    int2_imp2   ../engine/source/interfaces/interf/i2_imp2.F
+!||--- calls      -----------------------------------------------------
+!||    i2matc      ../engine/source/interfaces/interf/i2_imp1.F
+!||    velrot      ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    zero1       ../engine/source/system/zero.F
+!||====================================================================
       SUBROUTINE I2RECU2(NSN,NMN,IRECT,DPARA,MSR ,
      1                  NSV,IRTL,MS    ,X  ,WEIGHT,
      2                  NDOF, D  ,DR  )
@@ -317,10 +300,6 @@ C     REAL
       my_real
      .    DPARA(7,*), D(3,*),MS(*),DR(3,*),X(3,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J,  K,  II, L, NIR(NSN),NJ,NIRI
@@ -329,7 +308,7 @@ C     REAL
      .   RJ(3,3,4,NSN),RJT(3,3,4,NSN),FACM,X0,Y0,Z0,
      .   LSM(3),DR2(3),DS(3),XM(4),YM(4),ZM(4),DT(3)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of secondary nodes
 C------------------------------------
       CALL I2MATC(NSN,IRECT,DPARA,NSV,IRTL,X  ,
      1                            NIR,RJ ,RJT  )
@@ -343,7 +322,7 @@ C------------------------------------
         YM(J)=X(2,NJ)
         ZM(J)=X(3,NJ)
        ENDDO 
-       IF(IRECT(3,L).EQ.IRECT(4,L)) THEN
+       IF(IRECT(3,L)==IRECT(4,L)) THEN
         NIRI=3
         XM(4)=ZERO
         YM(4)=ZERO
@@ -351,18 +330,18 @@ C------------------------------------
        ENDIF
        FACM = ONE / NIRI
 C----------------------------------------------------
-C       VITESSE DE ROTATION MOYENNE DU SEGMENT MAIN
+C       average rotation velocity of the main segment
 C----------------------------------------------------
         X0=FACM*(XM(1)+XM(2)+XM(3)+XM(4))
         Y0=FACM*(YM(1)+YM(2)+YM(3)+YM(4))
-        Z0=FACM*(ZM(1)+ZM(2)+ZM(3)+ZM(4))	   
+        Z0=FACM*(ZM(1)+ZM(2)+ZM(3)+ZM(4))     
         LSM(1)=X(1,I)-X0
         LSM(2)=X(2,I)-Y0
         LSM(3)=X(3,I)-Z0             
        DO K =1,3
         D(K,I)=ZERO
        ENDDO
-       IF (NDOF(I).GT.3) THEN
+       IF (NDOF(I)>3) THEN
         DO K =1,3
          DR(K,I)=ZERO
         ENDDO
@@ -378,7 +357,7 @@ C-------recupere salve dis : in function of main's translation--
            DT(K) = DT(K) + FACM*D(K,NJ)
           END DO
           
-         IF (NDOF(I).GT.3) THEN
+         IF (NDOF(I)>3) THEN
           DO K=1,3
            DR(K,I)=DR(K,I)+RJ(K,1,J,II)*D(1,NJ)+
      .           RJ(K,2,J,II)*D(2,NJ)+RJ(K,3,J,II)*D(3,NJ)
@@ -394,13 +373,12 @@ C-------recupere salve dis : in function of main's translation--
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I2_FRRD1                      source/interfaces/interf/i2_imp2.F
-Chd|-- called by -----------
-Chd|        FR_U2DD                       source/mpi/implicit/imp_fri.F 
-Chd|        IMP3_U2X                      source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2_frrd1   ../engine/source/interfaces/interf/i2_imp2.F
+!||--- called by ------------------------------------------------------
+!||    fr_u2dd    ../engine/source/mpi/implicit/imp_fri.F
+!||    imp3_u2x   ../engine/source/airbag/monv_imp0.F
+!||====================================================================
       SUBROUTINE I2_FRRD1(X   ,IRECT,DPARA ,NSV ,IRTL ,
      1                    D   ,II   )
 C-----------------------------------------------
@@ -415,10 +393,6 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   D(3,*),X(3,*),DPARA(7,*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -493,13 +467,12 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I2_FRRD0                      source/interfaces/interf/i2_imp2.F
-Chd|-- called by -----------
-Chd|        FR_U2DD                       source/mpi/implicit/imp_fri.F 
-Chd|        IMP3_U2X                      source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2_frrd0   ../engine/source/interfaces/interf/i2_imp2.F
+!||--- called by ------------------------------------------------------
+!||    fr_u2dd    ../engine/source/mpi/implicit/imp_fri.F
+!||    imp3_u2x   ../engine/source/airbag/monv_imp0.F
+!||====================================================================
       SUBROUTINE I2_FRRD0(X   ,IRECT,CRST  ,NSV  ,IRTL ,
      1                    D   ,DR   ,II    ,NDOF )
 C-----------------------------------------------
@@ -514,10 +487,6 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   X(3,*),D(3,*),DR(3,*), CRST(2,*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -547,7 +516,7 @@ C
         ND = MAX(ND,NDOF(NJ))
        ENDDO
 C-------NDOF(M)> 3 comme rigid body---
-        IF (ND.EQ.6) THEN
+        IF (ND==6) THEN
          XS0=ZERO
          YS0=ZERO
          ZS0=ZERO
@@ -571,7 +540,7 @@ C-------Update K(main node),B---
          D(K,I)=D(K,I)+H(J)*D(K,NJ)
         ENDDO
        ENDDO 
-       IF (ND.EQ.6) THEN 
+       IF (ND==6) THEN 
         DO K =1,3
           DR1(K)=ZERO
         ENDDO

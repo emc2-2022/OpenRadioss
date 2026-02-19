@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //    
 #include <stdio.h>
 #include <string.h>
@@ -94,7 +94,9 @@ void c_h3d_update_solid_tensor_(my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, i
         unsigned int       max_sims = 10;
         unsigned int      sub_count = 1;
         float elem_result[6] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
-        float elem_result1[6*NNOD]; 
+        float* elem_result1 = nullptr;
+        elem_result1 = new float[6 * NNOD];
+
         for( i = 0; i < 6*NNOD; i++ ) 
         {
              elem_result1[i] = 0.0f;
@@ -114,7 +116,7 @@ void c_h3d_update_solid_tensor_(my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, i
              {
                   rc = Hyper3DDatasetBegin(h3d_file, *NUMELS, sim_idx, subcase_id, H3D_DS_ELEM, 
                                               H3D_DS_TENSOR3D, NNOD  , num_modes, *CPT_DATATYPE, 
-                                              NULL, solid_poolname_id, complex); 
+                                              0, solid_poolname_id, complex); 
                   if( !rc ) throw rc;
 
                   for( i = 0; i < *NUMELS; i++ ) 
@@ -220,7 +222,7 @@ void c_h3d_update_solid_tensor_(my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, i
         {
             rc = Hyper3DDatasetBegin(h3d_file, *NUMELS, sim_idx, subcase_id, H3D_DS_ELEM, 
                                         H3D_DS_TENSOR3D, num_corners, num_modes, *CPT_DATATYPE, 
-                                        NULL, solid_poolname_id, complex); 
+                                        0, solid_poolname_id, complex); 
             if( !rc ) throw rc;
 
      	    for( i = 0; i < *NUMELS; i++ ) 
@@ -242,6 +244,9 @@ void c_h3d_update_solid_tensor_(my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, i
      	    if( !rc ) throw rc;
         }
 
+        // When done, deallocate the memory
+        delete[] elem_result1;
+        elem_result1 = nullptr; // Optional: set pointer to nullptr after deletion
 
     } // end of try
 

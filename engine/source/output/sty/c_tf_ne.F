@@ -1,47 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C_TF_NE                       source/output/sty/c_tf_ne.F   
-Chd|-- called by -----------
-Chd|        OUTP_C_TF                     source/output/sty/outp_c_t.F  
-Chd|-- calls ---------------
-Chd|        LAYINI                        source/elements/shell/coque/layini.F
-Chd|        DRAPE_MOD                     share/modules/drape_mod.F     
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c_tf_ne        ../engine/source/output/sty/c_tf_ne.F
+!||--- called by ------------------------------------------------------
+!||    outp_c_tf      ../engine/source/output/sty/outp_c_t.F
+!||--- calls      -----------------------------------------------------
+!||    layini         ../engine/source/elements/shell/coque/layini.F
+!||--- uses       -----------------------------------------------------
+!||    drape_mod      ../engine/share/modules/drape_mod.F
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    stack_mod      ../engine/share/modules/stack_mod.F
+!||====================================================================
       SUBROUTINE C_TF_NE(ELBUF_STR,IHBE     ,NEL  ,NPT   ,MLW   ,
      .                   ITY      ,ISTRAIN  ,JJ   ,WA    ,IW    ,
      .                   NLAY     ,NPTR     ,NPTS ,ITHK  ,NFT   ,
      .                   THKE     ,NPG      ,IGTYP,GEO   ,IGEO  ,
-     .                   IXFEM    ,ISUBSTACK,STACK,DRAPE_Q4, DRAPE_T3,
-     .                   IXC      ,IXTG     ,MPT  )
+     .                   IXFEM    ,ISUBSTACK,STACK,DRAPE_SH4N, DRAPE_SH3N,
+     .                   IXC      ,IXTG     ,MPT ,DRAPEG )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
       USE STACK_MOD
       USE DRAPE_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,14 +53,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
 #include      "scr16_c.inc"
 C
-#include "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -66,26 +66,29 @@ C-----------------------------------------------
      .  IXFEM,ISUBSTACK,IXC(NIXC,*),
      .  IXTG(NIXTG,*),MPT
       my_real
-     .   WA(*),THKE(*),GEO(NPROPG,*),
-     .   THK_LY(NEL,MPT)
+     .   WA(*),THKE(*),GEO(NPROPG,*)
+       !
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
       TYPE (STACK_PLY) :: STACK
-      TYPE(DRAPE_) :: DRAPE_Q4, DRAPE_T3
+      TYPE(DRAPE_) :: DRAPE_SH4N(NUMELC_DRAPE), DRAPE_SH3N(NUMELTG_DRAPE)
+      TYPE(DRAPEG_) :: DRAPEG
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,IPT,I1,I2,I3,I4,I5,II(12),
-     .        PTF,PTM,PTEP,PTS,NG,IR,IS,LENF,LENM,
-     .        LENS,MAT_1,PID_1,LAYNPT_MAX,LAY_MAX,IXLAY,IPT_ALL,
-     .        JPOS,IT,NPTT,ILAY,SHIFT
-      INTEGER MAT(MVSIZ),PID(MVSIZ),MATLY(MVSIZ*NPT)
-      my_real
-     .   THKLY(MVSIZ*MPT),POSLY(MVSIZ,MPT)
+      INTEGER I,J,K,IPT,II(12),
+     .        PTF,PTM,PTS,NG,IR,IS,LENF,LENM,
+     .        LENS,MAT_1,PID_1,LAYNPT_MAX,NLAY_MAX,IXLAY,IPT_ALL,
+     .        IT,NPTT,ILAY,SHIFT,SEDRAPE,NUMEL_DRAPE
+      INTEGER MAT(MVSIZ),PID(MVSIZ)
       my_real
      .   FUNC(6),QPG(2,4),PG,MPG,
      .   SIG0(6,MVSIZ),EPS(MVSIZ),MOM0(3,MVSIZ),
      .   SK(2,MVSIZ),ST(2,MVSIZ),MK(2,MVSIZ),MT(2,MVSIZ),
      .   SHK(2,MVSIZ),SHT(2,MVSIZ),Z01(11,11),ZZ
+      !
+      INTEGER, DIMENSION(:)   , ALLOCATABLE :: MATLY   
+      my_real, DIMENSION(:)   , ALLOCATABLE :: THKLY    
+      my_real, DIMENSION(:,:) , ALLOCATABLE :: POSLY,THK_LY  
       PARAMETER (PG = .577350269189626)
       PARAMETER (MPG=-.577350269189626)
       DATA QPG/MPG,MPG,PG,MPG,PG,PG,MPG,PG/
@@ -119,10 +122,24 @@ C
 C-----------------------------------------------
       GBUF => ELBUF_STR%GBUF
 !
-      DO I=1,12  ! lenght max of GBUF%G_HOURG = 12
+      DO I=1,12  ! length max of GBUF%G_HOURG = 12
         II(I) = NEL*(I-1)
       ENDDO
 !
+      ! Npt_max
+      LAYNPT_MAX = 1
+      IF(IGTYP == 51 .OR. IGTYP == 52) THEN
+        DO ILAY=1,NLAY
+           LAYNPT_MAX = MAX(LAYNPT_MAX , ELBUF_STR%BUFLY(ILAY)%NPTT)
+        ENDDO  
+      ENDIF
+      NLAY_MAX   = MAX(NLAY,NPT, ELBUF_STR%NLAY)
+      ALLOCATE(MATLY(MVSIZ*NLAY_MAX), THKLY(MVSIZ*NLAY_MAX*LAYNPT_MAX),
+     .         POSLY(MVSIZ,NLAY_MAX*LAYNPT_MAX),THK_LY(NEL,NLAY_MAX*LAYNPT_MAX))
+       MATLY  = 0
+       THKLY  = ZERO
+       POSLY  = ZERO
+       THK_LY = ZERO 
 C
       SHIFT = 1+NFT
       IF (ITY == 7) SHIFT = SHIFT + NUMELC
@@ -142,19 +159,23 @@ C
       IXLAY = 0
 C
       IF(ITY == 7) THEN
+         NUMEL_DRAPE = NUMELTG_DRAPE
+         SEDRAPE = STDRAPE
         CALL LAYINI(
      .      ELBUF_STR,1    ,NEL             ,GEO              ,IGEO    ,
      .      MAT      ,PID  ,THKLY           ,MATLY            ,POSLY   ,
      .      IGTYP    ,IXFEM,IXLAY           ,NLAY             ,NPT     ,
-     .      ISUBSTACK,STACK,DRAPE_T3        ,NFT              ,GBUF%THK,
-     .      NEL      ,THK_LY   )
+     .      ISUBSTACK,STACK,DRAPE_SH3N        ,NFT            ,THKE    ,
+     .      NEL      ,THK_LY  ,DRAPEG%INDX_SH3N ,SEDRAPE,NUMEL_DRAPE   )
       ELSE
+        NUMEL_DRAPE = NUMELC_DRAPE  
+        SEDRAPE = SCDRAPE
        CALL LAYINI(
      .      ELBUF_STR,1    ,NEL             ,GEO              ,IGEO    ,
      .      MAT      ,PID  ,THKLY           ,MATLY            ,POSLY   ,
      .      IGTYP    ,IXFEM,IXLAY           ,NLAY             ,NPT     ,
-     .      ISUBSTACK,STACK,DRAPE_Q4        ,NFT              ,GBUF%THK,
-     .      NEL      ,THK_LY   )      
+     .      ISUBSTACK,STACK,DRAPE_SH4N        ,NFT            ,THKE    ,
+     .      NEL      ,THK_LY  ,DRAPEG%INDX_SH4N,SEDRAPE,NUMEL_DRAPE     )      
       ENDIF  
 C------------------------
 C        STRESS
@@ -481,7 +502,7 @@ C
       ELSE  ! IF (IW == 1)
 C---QEPH:------
         IF (IHBE == 23) THEN
-C---Transfert to QBAT------
+C---Transfer to QBAT------
           IF (MPT == 0) THEN
             DO I=1,NEL
               SIG0(1,I) = GBUF%FOR(II(1)+I)  
@@ -714,6 +735,7 @@ c---
 C----error message------
         ENDIF ! IF (IHBE == 23)
       ENDIF ! IF (IW == 0)
+      DEALLOCATE(MATLY, THKLY, POSLY, THK_LY)
 C-----------
       RETURN
       END

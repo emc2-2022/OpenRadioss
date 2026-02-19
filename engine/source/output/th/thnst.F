@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  THNST                         source/output/th/thnst.F      
-Chd|-- called by -----------
-Chd|        ABFHIST2                      source/output/abf/abfhist2.F  
-Chd|        HIST2                         source/output/th/hist2.F      
-Chd|-- calls ---------------
-Chd|        XTH                           source/output/th/thnst.F      
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    thnst          ../engine/source/output/th/thnst.F
+!||--- called by ------------------------------------------------------
+!||    hist2          ../engine/source/output/th/hist2.F
+!||--- calls      -----------------------------------------------------
+!||    xth            ../engine/source/output/th/thnst.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE THNST(ELBUF_TAB,IPARG,NTHGRP2, ITHGRP,ITHBUF,
      .                 GEO ,KXX, WA  )
 C-----------------------------------------------
@@ -43,7 +43,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "param_c.inc"
 #include      "scr23_c.inc"
@@ -60,9 +59,9 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER II, I, J, N, IH, NG, ITY, MTE, NB0, NB1, NB2, NB3,
-     .   NB4, NB5, NNB3, MB1, MB2, MB3, MB4, MB5, K, IST, IP, L,
-     .   LWA, IMAT, IPROP, NX, IGTYP, NUVAR, NUVARN,NEL,NFT,
+      INTEGER II, I, J, N, IH, NG, ITY, NB1, NB2, NB3,
+     .      MB1, MB2, MB3, MB4, MB5, K, IST, L,
+     .    IPROP, NX, NUVAR, NUVARN,NEL,NFT,
      .   KVAR,KVARN
       INTEGER :: NITER,IAD,NN,IADV,NVAR,ITYP,IJK
       my_real
@@ -111,7 +110,7 @@ C       multi-purpose elements are nstrands elements only (to be modified).
                                 KVAR  = NUVAR*(I-1)+1
                                 KVARN = NUVARN*NX*(I-1)+1
 C
-C                               initial total lenght UVAR(NB1:NB1)
+C                               initial total length UVAR(NB1:NB1)
                                 NB1=1
 C                               previous elongation  UVAR(NB2:NB2)
                                 NB2=NB1+1
@@ -121,7 +120,7 @@ C                               initial nodes masses UVARN(MB1:MB1+NX-1)
                                 MB1=1
 C                               forces into strands UVARN(MB2:MB2+NX-1)
                                 MB2=MB1+NX
-C                               strands initial lenght UVARN(MB3:MB3+NX-1)
+C                               strands initial length UVARN(MB3:MB3+NX-1)
                                 MB3=MB2+NX
 C                               strands elongations UVARN(MB4:MB4+NX-1)
                                 MB4=MB3+NX
@@ -181,12 +180,11 @@ C
 
 
 
-Chd|====================================================================
-Chd|  XTH                           source/output/th/thnst.F      
-Chd|-- called by -----------
-Chd|        THNST                         source/output/th/thnst.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    xth     ../engine/source/output/th/thnst.F
+!||--- called by ------------------------------------------------------
+!||    thnst   ../engine/source/output/th/thnst.F
+!||====================================================================
       SUBROUTINE XTH(NUVAR ,UVAR  ,NUVARN ,UVARN ,WWA,
      .               NX    ,II    ,IST    )
 C-----------------------------------------------
@@ -204,7 +202,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NB1,NB2,NB3,MB1,MB2,MB3,MB4,MB5
 C-----------------------------------------------
-C       initial total lenght UVAR(NB1:NB1)
+C       initial total length UVAR(NB1:NB1)
       NB1=1
 C       previous elongation  UVAR(NB2:NB2)
       NB2=NB1+1
@@ -215,7 +213,7 @@ C       initial nodes masses UVARN(MB1:MB1+NX-1)
 C       forces into strands UVARN(MB2:MB2+NX-1)
 C       using UVARN(MB2:MB2+NX-2) only.
       MB2=MB1+NX
-C       strands initial lenght UVARN(MB3:MB3+NX-1)
+C       strands initial length UVARN(MB3:MB3+NX-1)
 C       using UVARN(MB3:MB3+NX-2) only.
       MB3=MB2+NX
 C       strands elongations UVARN(MB4:MB4+NX-1)

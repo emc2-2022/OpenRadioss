@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INT2POFF                      source/interfaces/interf/int2poff.F
-Chd|-- called by -----------
-Chd|        INTTI1                        source/interfaces/interf/intti1.F
-Chd|-- calls ---------------
-Chd|        I2IPOFF                       source/interfaces/interf/int2poff.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    int2poff        ../engine/source/interfaces/interf/int2poff.F
+!||--- called by ------------------------------------------------------
+!||    intti1          ../engine/source/interfaces/interf/intti1.F
+!||--- calls      -----------------------------------------------------
+!||    i2ipoff         ../engine/source/interfaces/interf/int2poff.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE INT2POFF(IPARI,X    ,V     ,
      .                   A     ,VR   ,AR   ,MS   ,IN    ,
      .                   WEIGHT,STIFN,STIFR,MCP  ,CONDN  ,
-     .                   FTHE,INTBUF_TAB)
+     .                   FTHE,INTBUF_TAB,ITHERM_FE,NODADT_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -44,6 +45,8 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(*), WEIGHT(*)
+      INTEGER ,INTENT(IN) :: ITHERM_FE
+      INTEGER ,INTENT(IN) :: NODADT_THERM
 C     REAL
       my_real
      .   X(*), V(*), A(*), 
@@ -54,9 +57,6 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -87,19 +87,20 @@ C
       CALL I2IPOFF(
      1   NMN       ,A      ,INTBUF_TAB%MSR   ,MS       ,WEIGHT    ,
      2   AR        ,IN     ,STIFN            ,STIFR    ,ILEV      ,
-     3   MCP       ,CONDN  ,INTBUF_TAB%NMAS  ,FTHE)
+     3   MCP       ,CONDN  ,INTBUF_TAB%NMAS  ,FTHE,ITHERM_FE,NODADT_THERM)
 C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  INT2POFFH                     source/interfaces/interf/int2poff.F
-Chd|-- called by -----------
-Chd|        INTTI1                        source/interfaces/interf/intti1.F
-Chd|-- calls ---------------
-Chd|        I2IPOFFH                      source/interfaces/interf/int2poff.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    int2poffh       ../engine/source/interfaces/interf/int2poff.F
+!||--- called by ------------------------------------------------------
+!||    intti1          ../engine/source/interfaces/interf/intti1.F
+!||--- calls      -----------------------------------------------------
+!||    i2ipoffh        ../engine/source/interfaces/interf/int2poff.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE INT2POFFH(IPARI,X     ,V     ,
      .                   A     ,VR   ,AR    ,MS    ,IN    ,
      .                   WEIGHT,STIFN,STIFR ,TAGNOD,INTBUF_TAB)
@@ -122,13 +123,6 @@ C     REAL
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER
@@ -148,15 +142,14 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  I2IPOFF                       source/interfaces/interf/int2poff.F
-Chd|-- called by -----------
-Chd|        INT2POFF                      source/interfaces/interf/int2poff.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2ipoff    ../engine/source/interfaces/interf/int2poff.F
+!||--- called by ------------------------------------------------------
+!||    int2poff   ../engine/source/interfaces/interf/int2poff.F
+!||====================================================================
       SUBROUTINE I2IPOFF(NMN  ,A     ,MSR   ,MS    ,WEIGHT,
      2                   AR   ,IN    ,STIFN ,STIFR ,ILEV  ,
-     3                   MCP  ,CONDN ,MMASS ,FTHE  )
+     3                   MCP  ,CONDN ,MMASS ,FTHE  ,ITHERM_FE,NODADT_THERM)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -164,6 +157,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: ITHERM_FE
+      INTEGER ,INTENT(IN) :: NODADT_THERM
       INTEGER NMN,ILEV,
      .        MSR(*), WEIGHT(*)
 C     REAL
@@ -175,9 +170,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
 #include      "scr18_c.inc"
 
 C-----------------------------------------------
@@ -185,7 +177,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, II
 C-----------------------------------------------
-      IF((ILEV == 1.OR.ILEV == 3).AND.IRODDL.NE.0)THEN
+      IF((ILEV == 1.OR.ILEV == 3).AND.IRODDL/=0)THEN
 #include "vectorize.inc"
         DO II=1,NMN
           I=MSR(II)
@@ -336,7 +328,7 @@ C-----------------------------------------------
 C---
       ENDIF
 C-----------------------------------------------
-C  Thermal Analysis (quelque soit ILEV et IRODDL)
+C  Thermal analysis (whatever Ilev and Iroddl)
 C-----------------------------------------------
       IF(ITHERM_FE > 0) THEN
         DO II=1,NMN
@@ -354,12 +346,11 @@ C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  I2IPOFFH                      source/interfaces/interf/int2poff.F
-Chd|-- called by -----------
-Chd|        INT2POFFH                     source/interfaces/interf/int2poff.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2ipoffh    ../engine/source/interfaces/interf/int2poff.F
+!||--- called by ------------------------------------------------------
+!||    int2poffh   ../engine/source/interfaces/interf/int2poff.F
+!||====================================================================
       SUBROUTINE I2IPOFFH(NMN  ,A    ,MSR  ,MS    ,WEIGHT,
      2                   AR   ,IN   ,STIFN,STIFR ,ILEV  ,
      3                   MMASS,TAGNOD )
@@ -380,15 +371,12 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, II
 C-----------------------------------------------
-      IF((ILEV == 1.OR.ILEV == 3).AND.IRODDL.NE.0)THEN
+      IF((ILEV == 1.OR.ILEV == 3).AND.IRODDL/=0)THEN
 #include "vectorize.inc"
         DO II=1,NMN
           I=MSR(II)

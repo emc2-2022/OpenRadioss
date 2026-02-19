@@ -1,41 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALLOC_SURF_STR                source/groups/alloc_surf_str.F
-Chd|-- called by -----------
-Chd|        SURF_INI                      source/groups/surf_ini.F      
-Chd|-- calls ---------------
-Chd|        FRETITL2                      source/input/freform.F        
-Chd|        READ_I_C                      source/output/tools/sortie_c.c
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    alloc_surf_str         ../engine/source/groups/alloc_surf_str.F
+!||--- called by ------------------------------------------------------
+!||    surf_ini               ../engine/source/groups/surf_ini.F
+!||--- calls      -----------------------------------------------------
+!||    fretitl2               ../engine/source/input/freform.F
+!||    read_i_c               ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod           ../common_source/modules/groupdef_mod.F
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    names_and_titles_mod   ../common_source/modules/names_and_titles_mod.F
+!||====================================================================
       SUBROUTINE ALLOC_SURF_STR(IGRSURF)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
+      USE NAMES_AND_TITLES_MOD, ONLY: NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,7 +48,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
-#include      "my_allocate.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -54,21 +56,22 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER ISU,I,J,K,L_SURF,ID,NSEG,TYPE,ID_MADYMO,IAD_BUFR,
+      INTEGER ISU,J,K,L_SURF,ID,NSEG,TYPE,ID_MADYMO,IAD_BUFR,
      .        NB_MADYMO,TYPE_MADYMO,LEVEL,TH_SURF,ISH4N3N,NSEG_R2R_ALL,
      .        NSEG_R2R_SHARE,NODE,ELTYP,ELEM,ERR,ITITLE(LTITR),LEN
-      CHARACTER(LEN=LTITR) :: TITR,NEW_TITLE(NSURF)
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       INTEGER, ALLOCATABLE, DIMENSION (:)  ::  ISURFI
 !
 !=======================================================================
       DO ISU=1,NSURF
+        TITR(1:NCHARTITLE) = ' '
         CALL READ_I_C(ITITLE,LTITR)
         CALL FRETITL2(TITR,ITITLE,LTITR)
         LEN = 0
         DO J=1,LTITR
           IF (TITR(J:J) /= ' ') LEN = J
         ENDDO
-        NEW_TITLE(ISU) = TITR(1:LEN)
+        IGRSURF(ISU)%TITLE = TITR
       ENDDO ! DO ISU=1,NSURF
 !!------  Allocate and read subset data from restart
 !
@@ -121,9 +124,9 @@ C-----------------------------------------------
 !
 ! SURF ENTITIES (NODES, ELTYP, ELEM)
 !
-       MY_ALLOCATE2D(IGRSURF(ISU)%NODES,NSEG,4)
-       MY_ALLOCATE(IGRSURF(ISU)%ELTYP,NSEG)
-       MY_ALLOCATE(IGRSURF(ISU)%ELEM,NSEG)
+       ALLOCATE(IGRSURF(ISU)%NODES(NSEG,4))
+       ALLOCATE(IGRSURF(ISU)%ELTYP(NSEG))
+       ALLOCATE(IGRSURF(ISU)%ELEM(NSEG))
 !
         DO J=1,NSEG
           DO K=1,4

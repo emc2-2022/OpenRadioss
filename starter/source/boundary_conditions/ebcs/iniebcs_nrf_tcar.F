@@ -1,48 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIEBCS_NRF_TCAR              source/boundary_conditions/ebcs/iniebcs_nrf_tcar.F
-Chd|-- called by -----------
-Chd|        INIEBCSP0                     source/boundary_conditions/ebcs/iniebcsp0.F
-Chd|-- calls ---------------
-Chd|        EBCS_SET_TCARP                source/boundary_conditions/ebcs/iniebcs_nrf_tcar.F
-Chd|        EBCS_MOD                      ../common_source/modules/ebcs_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INIGRAV                       share/modules1/inigrav_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    iniebcs_nrf_tcar   ../starter/source/boundary_conditions/ebcs/iniebcs_nrf_tcar.F
+!||--- called by ------------------------------------------------------
+!||    iniebcsp0          ../starter/source/boundary_conditions/ebcs/iniebcsp0.F
+!||--- calls      -----------------------------------------------------
+!||    ebcs_set_tcarp     ../starter/source/boundary_conditions/ebcs/iniebcs_nrf_tcar.F
+!||--- uses       -----------------------------------------------------
+!||    inigrav            ../starter/share/modules1/inigrav_mod.F
+!||====================================================================
       SUBROUTINE INIEBCS_NRF_TCAR(EBCS_TAB, 
-     .                    IPARG,X, IXS,IXQ,IXTG,
-     .                    IPARTS,IPARTQ,IPARTTG,
-     .                    PM, IPM)
-C-----------------------------------------------
-C   D e s c r i p t i o n
-C-----------------------------------------------
+     .                    X, IXS,IXQ,IXTG,
+     .                    PM, IPM,MAT_PARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD    
       USE INIGRAV 
       USE EBCS_MOD
+      USE MATPARAM_DEF_MOD, ONLY : MATPARAM_STRUCT_
+      use element_mod , only : nixs,nixq,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,19 +55,17 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(t_ebcs_tab), INTENT(INOUT) :: EBCS_TAB
-      INTEGER                       :: IPARG(NPARG,NGROUP)
       INTEGER,INTENT(IN),TARGET     :: IXS(NIXS,NUMELS),IXQ(NIXQ,NUMELQ), IXTG(NIXTG,NUMELTG)
-      INTEGER, INTENT(IN)           :: IPARTS(NUMELS), IPARTQ(NUMELQ), IPARTTG(NUMELTG)      
       my_real, INTENT(IN)           :: X(3,NUMNOD)
       my_real,INTENT(IN)            :: PM(NPROPM,NUMMAT)
-      INTEGER,INTENT(IN)            :: IPM(NPROPMI,NUMMAT)      
-      TYPE (ELBUF_STRUCT_), TARGET  :: ELBUF_STR      
+      INTEGER,INTENT(IN)            :: IPM(NPROPMI,NUMMAT)
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER :: IMAT,MLN,IADBUF,IMAT_SUB,NIX,NELS,NBPHASE
-      INTEGER :: TAGMAT(NUMMAT+1),II, IFORM, NBMAT, KK
-      my_real :: TCP_REF,Xmin,Ymin,Zmin,Xmax,Ymax,Zmax,TMP,SSP0,SSP0MAX,LC,LC0MAX
+      INTEGER :: TAGMAT(NUMMAT+1),II, NBMAT, KK
+      my_real :: TCP_REF,Xmin,Ymin,Zmin,Xmax,Ymax,Zmax,SSP0,SSP0MAX,LC,LC0MAX
       INTEGER, DIMENSION(:, :), POINTER  :: IX      
 C-----------------------------------------------
 C   S o u r c e   L i n e s
@@ -78,7 +73,9 @@ C-----------------------------------------------
 
        SSP0 = ZERO
        TAGMAT(1:NUMMAT) = 0
-       
+       NELS = -HUGE(NELS)
+       NIX = -HUGE(NIX)        
+       IX => NULL()
        IF(NUMELS>0)THEN
          NELS = NUMELS
          NIX=NIXS
@@ -90,11 +87,11 @@ C-----------------------------------------------
        ELSEIF(N2D /=0 .AND. NUMELTG >0)THEN
          NELS = NUMELTG
          NIX=NIXTG
-         IX => IXTG(1:NIX, 1:NELS)         
+         IX => IXTG(1:NIX, 1:NELS)    
        ENDIF
        
        !-----------------------------!
-       ! CALCUL DE SSP0MAX           !
+       ! CALCULATION OF SSP0MAX           !
        !-----------------------------!
        NBPHASE = 0
        DO II=1,NELS                                                                                                 
@@ -104,24 +101,16 @@ C-----------------------------------------------
          TAGMAT(IMAT)=1                                                                                            
          MLN    = IPM(2,IMAT)                                                                                         
          IADBUF = IPM(7,IMAT)                                                                                         
-         IF(MLN == 51)THEN                                                                                           
-           !UPRM => BUFMAT(IADBUF:IADBUF+275)                                                                            
-           !TMP  = UPRM(31)                                                                                              
-           !IFORM = NINT(TMP)                                                                                            
-           !IF(IFORM.GT.1)CYCLE                                                                                          
-           !SSP0 = UPRM(124) 
-           !SSP0 = MAX(SSP0,UPRM(174))                                                                                   
-           !SSP0 = MAX(SSP0,UPRM(224))                                                                                   
-           !SSP0 = MAX(SSP0,UPRM(273)) 
+         IF(MLN == 51)THEN
            SSP0=PM(27,IMAT)
            NBPHASE=MAX(NBPHASE,4)
          ELSEIF(MLN == 151)THEN
-           NBMAT = IPM(20,IMAT)
+           NBMAT =  MAT_PARAM(IMAT)%MULTIMAT%NB
            NBPHASE = MAX(NBPHASE,NBMAT)
-           IMAT_SUB = IPM(20+1,IMAT)
+           IMAT_SUB =  MAT_PARAM(IMAT)%MULTIMAT%MID(1)
            SSP0 = IPM(27,IMAT_SUB)
            DO KK=2,NBMAT
-             IMAT_SUB = IPM(20+KK,IMAT)
+             IMAT_SUB = MAT_PARAM(IMAT)%MULTIMAT%MID(KK)
              SSP0=MAX(SSP0,PM(27,IMAT_SUB))
            ENDDO
          ELSE
@@ -131,7 +120,7 @@ C-----------------------------------------------
        SSP0MAX = SSP0                                                                                                 
  
        !-----------------------------!
-       ! ESTIMATEUR DE LC            !
+       ! LC ESTIMATOR            !
        !-----------------------------!
         Xmin   = X(1,1)
         Ymin   = X(2,1)
@@ -153,7 +142,7 @@ C-----------------------------------------------
         LC0MAX = LC   
 
        !-----------------------------!
-       ! CALCUL ET AFFECTATION : Tcp !
+       ! CALCULATION AND ASSIGNMENT : Tcp !
        !-----------------------------!  
        IF(SSP0MAX == ZERO)THEN
          TCP_REF = EP20
@@ -198,13 +187,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 
       
-Chd|====================================================================
-Chd|  EBCS_SET_TCARP                source/boundary_conditions/ebcs/iniebcs_nrf_tcar.F
-Chd|-- called by -----------
-Chd|        INIEBCS_NRF_TCAR              source/boundary_conditions/ebcs/iniebcs_nrf_tcar.F
-Chd|-- calls ---------------
-Chd|        EBCS_MOD                      ../common_source/modules/ebcs_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ebcs_set_tcarp     ../starter/source/boundary_conditions/ebcs/iniebcs_nrf_tcar.F
+!||--- called by ------------------------------------------------------
+!||    iniebcs_nrf_tcar   ../starter/source/boundary_conditions/ebcs/iniebcs_nrf_tcar.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE EBCS_SET_TCARP(EBCS,TCAR_P)
       USE EBCS_MOD
 #include      "implicit_f.inc"

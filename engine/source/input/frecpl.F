@@ -1,41 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FRECPL                        source/input/frecpl.F         
-Chd|-- called by -----------
-Chd|        FREFORM                       source/input/freform.F        
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        ERRMSG                        source/input/errmsg.F         
-Chd|        WRIUSC2                       source/input/wriusc2.F        
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    frecpl                 ../engine/source/input/frecpl.F
+!||--- called by ------------------------------------------------------
+!||    freform                ../engine/source/input/freform.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../engine/source/output/message/message.F
+!||    arret                  ../engine/source/system/arret.F
+!||    errmsg                 ../engine/source/input/errmsg.F
+!||    wriusc2                ../engine/source/input/wriusc2.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    names_and_titles_mod   ../common_source/modules/names_and_titles_mod.F
+!||====================================================================
       SUBROUTINE FRECPL(IKAD,KEY0,KCPL)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD, ONLY: NCHARLINE100
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,35 +52,24 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "couple_c.inc"
-#include      "nchara_c.inc"
-#include      "chara_c.inc"
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
-C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER J, NBC, K, IKEY, NBCCON
-      my_real
-     .       ULENGTH,UTIME,UMASS,
-     .       TRAX,TRAY,TRAZ,ROTXX,ROTYY,ROTZZ,ROTXY,ROTXZ,ROTYZ
-      CHARACTER KEY2*5,CARTE*ncharline,ONCOD*5
+      my_real ULENGTH,UTIME,UMASS,TRAX,TRAY,TRAZ,ROTXX,ROTYY,ROTZZ,ROTXY,ROTXZ,ROTYZ
+      CHARACTER KEY2*5,ONCOD*5
+      CHARACTER(LEN=NCHARLINE100):: CARTE
       PARAMETER (NBCCON=1)
       DATA ONCOD/'ONOFF'/
 C-----------------------------------------------
       IKEY=KCPL
       K=0
- 100  READ(IUSC1,REC=IKAD(IKEY)+K,FMT='(7X,A,37X,I10)',
-     .        ERR=9990) KEY2,NBC
+      READ(IUSC1,REC=IKAD(IKEY)+K,FMT='(7X,A,37X,I10)',ERR=9990) KEY2,NBC
       K=K+1
 C-----------------------------------------------
-      IF (KEY2.EQ.'ON'.OR.KEY2.EQ.'ON2'.OR.KEY2.EQ.'MPP') THEN
-        IF (NBC.NE.NBCCON) THEN
-          CALL ANCMSG(MSGID=73,ANMODE=ANINFO,
-     .                C1=KEY0(IKEY))
+      IF (KEY2=='ON'.OR.KEY2=='ON2'.OR.KEY2=='MPP') THEN
+        IF (NBC/=NBCCON) THEN
+          CALL ANCMSG(MSGID=73,ANMODE=ANINFO,C1=KEY0(IKEY))
           CALL ARRET(0)
         ELSE
          WRITE(IIN,'(A5)') ONCOD
@@ -90,7 +82,6 @@ C-----------------------------------------------
          GOTO 9990
       END IF
 C
- 9999 CONTINUE
       RETURN
 C
  9990 CONTINUE

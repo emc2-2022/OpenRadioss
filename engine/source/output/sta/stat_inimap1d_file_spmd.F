@@ -1,48 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_INIMAP1D_FILE_SPMD       source/output/sta/stat_inimap1d_file_spmd.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        CLOSE_C                       source/output/tools/sortie_c.c
-Chd|        CUR_FIL_C                     source/output/tools/sortie_c.c
-Chd|        OPEN_C                        source/output/tools/sortie_c.c
-Chd|        SPMD_STATE_INIMAP1D_EXCH_DATA source/output/sta/spmd_state_inimap1d_exch_data.F
-Chd|        SPMD_STATE_INIMAP_EXCH_SIZ    source/output/sta/spmd_state_inimap_exch_siz.F
-Chd|        WRITE_DB                      source/output/tools/write_db.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        STATE_INIMAP_MOD              share/modules/state_inimap_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_inimap1d_file_spmd         ../engine/source/output/sta/stat_inimap1d_file_spmd.F
+!||--- called by ------------------------------------------------------
+!||    genstat                         ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                          ../engine/source/output/message/message.F
+!||    close_c                         ../common_source/tools/input_output/write_routines.c
+!||    cur_fil_c                       ../common_source/tools/input_output/write_routines.c
+!||    open_c                          ../common_source/tools/input_output/write_routines.c
+!||    quicksort                       ../common_source/tools/sort/quicksort.F
+!||    spmd_state_inimap1d_exch_data   ../engine/source/output/sta/spmd_state_inimap1d_exch_data.F
+!||    spmd_state_inimap_exch_siz      ../engine/source/output/sta/spmd_state_inimap_exch_siz.F
+!||    write_db                        ../common_source/tools/input_output/write_db.F
+!||    write_i_c                       ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod                    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod                     ../common_source/modules/elements/element_mod.F90
+!||    inoutfile_mod                   ../common_source/modules/inoutfile_mod.F
+!||    matparam_def_mod                ../common_source/modules/mat_elem/matparam_def_mod.F90
+!||    message_mod                     ../engine/share/message_module/message_mod.F
+!||    multi_fvm_mod                   ../common_source/modules/ale/multi_fvm_mod.F90
+!||    multimat_param_mod              ../common_source/modules/multimat_param_mod.F90
+!||    state_inimap_mod                ../engine/share/modules/state_inimap_mod.F
+!||====================================================================
       SUBROUTINE STAT_INIMAP1D_FILE_SPMD(
-     .                        X        , V        , ITAB  , IPART_STATE, NODTAG,
-     .                        IPART    , IPARTS   , IPARTQ, IPARTTG    ,
-     .                        IGEO     , IPARG    , IXS   , IXQ        , IXTG  , 
+     .                        X        , V        , ITAB  , IPART_STATE, NODTAG    ,
+     .                        IPART    , IPARTS   , IPARTQ, IPARTTG    , MAT_PARAM ,
+     .                        IGEO     , IPARG    , IXS   , IXQ        , IXTG      ,
      .                        ELBUF_TAB, MULTI_FVM, BUFMAT, IPM)
 C-----------------------------------------------
 C   Description
@@ -59,7 +64,10 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD 
       USE STATE_INIMAP_MOD
       USE MULTI_FVM_MOD
-      USE INOUTFILE_MOD      
+      USE INOUTFILE_MOD
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
+      USE MATPARAM_DEF_MOD, ONLY : MATPARAM_STRUCT_
+      use element_mod , only : nixs,nixq,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -71,16 +79,11 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "remesh_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr16_c.inc"
 #include      "scr17_c.inc"
-#include      "spmd_c.inc"
 #include      "task_c.inc"
 #include      "units_c.inc"
 #include      "chara_c.inc"
-#include      "mmale51_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -92,15 +95,15 @@ C-----------------------------------------------
       my_real,INTENT(IN) :: X(3,NUMNOD),V(3,NUMNOD)
       my_real, INTENT(IN), TARGET :: BUFMAT(*)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET, INTENT(IN) :: ELBUF_TAB
-      TYPE(MULTI_FVM_STRUCT), INTENT(IN) :: MULTI_FVM      
+      TYPE(MULTI_FVM_STRUCT), INTENT(IN) :: MULTI_FVM
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, JJ,J, IPRT0, IPRT, K, STAT_NUMELS_1, KK, INOD
-      INTEGER NG, NEL, NFT, LFT, LLT, ITY, ISOLNOD, IOFF,NPT
-      INTEGER NP(24*(NUMELS+NUMELQ+NUMELTG))
-      INTEGER NUM_CENTROIDS, IPOS,MLW,IFORM,NBMAT,NB2,ISUBMAT,NNOD,NNOD2
-      INTEGER NUVAR,NUM_CELL
+      INTEGER I, N, JJ,J, IPRT, K, KK
+      INTEGER NG, NEL, NFT, LFT, LLT, ITY, ISOLNOD,NPT
+      INTEGER NUM_CENTROIDS, IPOS,MLW,NBMAT,NB2,ISUBMAT,NNOD,NNOD2
+      INTEGER NUVAR
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
       my_real P0(3),P0_INF(3),P0_SUP(3),SHIFT_C,SHIFT_N,LENGTH
       my_real MAX_XC,MAX_YC,MAX_ZC,MIN_XC,MIN_YC,MIN_ZC
@@ -123,10 +126,6 @@ C-----------------------------------------------
       INTEGER :: LEN, LEN_TMP_NAME
       CHARACTER :: TMP_NAME*2048
       INTEGER :: IFILNAM(2048)
-C-----------------------------------------------
-C   P r e - C o n d i t i o n
-C-----------------------------------------------
-      !IF(NUMELS+NUMELQ+NUMELTG == 0)RETURN
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
@@ -151,7 +150,7 @@ C-----------------------------------------------
       !---ALLOCATIONS
       !
       IF(.NOT.(ALLOCATED(STATE_INIMAP_BUF))) THEN
-        IF(ISPMD.NE.0)THEN
+        IF(ISPMD/=0)THEN
           ALLOCATE(STATE_INIMAP_BUF(1))                                                                      
         ELSE
           ALLOCATE(STATE_INIMAP_BUF(NSPMD))  !process 0 will gather all data
@@ -174,7 +173,7 @@ C-----------------------------------------------
           !---bricks                                                                                                          
           IS_ITY_1=1                                                                                                          
           NPT=ISOLNOD                                                                                                         
-          IPART_PTR => IPARTS(1:NUMELS)                                                                                       
+          IPART_PTR => IPARTS(1:NUMELS)
         ELSEIF(ITY == 2)THEN                                                                                                  
           !---quads                                                                                                           
           IS_ITY_2=1                                                                                                          
@@ -253,7 +252,7 @@ C-----------------------------------------------
       ENDIF
   
       IF(NUM_CENTROIDS > 0)THEN
-        !---BOX CONTAING USER-1D-DOMAIN  &  BUILDING 1D AXIS  
+        !---BOX CONTAINING USER-1D-DOMAIN  &  BUILDING 1D AXIS  
         !    use centroids otherwise with spmd decomposition 1d portion may be smaller than orthogonal directions. (S >> dl) 
         LX=MAX_XC-MIN_XC                                                                                                          
         LY=MAX_YC-MIN_YC                                                                                                          
@@ -443,13 +442,13 @@ C-----------------------------------------------
               N  = I + NFT  
               IPRT=IPART_PTR(N) 
               IMAT =IPART(1,IPRT)  
-              IF(IPM(20+ISUBMAT,IMAT) == 0)EXIT   !submaterial not defined. 
+              IF(MAT_PARAM(IMAT)%MULTIMAT%MID(ISUBMAT) == 0)EXIT   !submaterial not defined.
               NB2=MAX(NB2,IPM(5,IMAT))
               IADBUF = IPM(7,IMAT)                                                                                            
               NPAR = IPM(9,IMAT)                                                                                              
               NUVAR = IPM(8,IMAT)                                                                                             
-              UPARAM => BUFMAT(IADBUF:IADBUF+NPAR)             
-              KK = N0PHAS + (UPARAM(276+ISUBMAT)-1)*NVPHAS  
+              UPARAM => BUFMAT(IADBUF:IADBUF+NPAR-1)
+              KK = M51_N0PHAS + (UPARAM(276+ISUBMAT)-1)*M51_NVPHAS  
               MBUF => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)  
               STATE_INIMAP_BUF(1)%SUBMAT(ISUBMAT)%VFRAC(K) = MBUF%VAR(NEL*(01+KK-1)+I)
               STATE_INIMAP_BUF(1)%SUBMAT(ISUBMAT)%RHO(K) = MBUF%VAR(NEL*(12+KK-1)+I)
@@ -475,7 +474,7 @@ C-----------------------------------------------
       !   law 51 only 
       !
       ! MAP_NODES(1,...) : node_id
-      ! MAP_NODES(2,...) : 1d-position
+      ! MAP_NODS (2, ...): 1D-Position
       ! MAP_NODES(3,...) : vel_1d-value            
       !
       IF(NUM_CENTROIDS > 0)THEN
@@ -496,7 +495,7 @@ C-----------------------------------------------
           DO K=1,NNOD ; IDX(K)=K; ENDDO
           CALL QUICKSORT(MAP_NODES(2,:), IDX, 1, NNOD) 
           TOL=EM10*LENGTH
-          !---check dupplicates and remove
+          !---check duplicates and remove
           NNOD2=NNOD
           DO I=2,NNOD
             DIST = ABS(MAP_NODES(2,I)-MAP_NODES(2,I-1))
@@ -597,7 +596,7 @@ C-----------------------------------------------
         TOL=EM10*LEN_TOT
         WORK_INDX(1:NPTS_TOT) = 0
         !
-        !---remove duplicates (possible common nodes on adjacent domains)
+        !--- Remove duplicates (possible Common Nodes on Adjacent Domains)
         ! STAGGERED SCHEME ONLY
         !
         IF(MLW /= 151)THEN

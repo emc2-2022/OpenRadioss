@@ -1,46 +1,60 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  M12LAW                        source/materials/mat/mat012/m12law.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|-- calls ---------------
-Chd|        EOSMAIN                       ../common_source/eos/eosmain.F
-Chd|        M14AMA                        source/materials/mat/mat014/m14ama.F
-Chd|        M14FTG                        source/materials/mat/mat014/m14ftg.F
-Chd|        M14GTF                        source/materials/mat/mat014/m14gtf.F
-Chd|====================================================================
-      SUBROUTINE M12LAW (PM   ,OFF  ,SIG   ,EINT ,PLA  ,
-     2                   SIGF ,EPSF ,DAM   ,EPE  ,EPC  ,
-     3                   A    ,VOL  ,RX    ,RY   ,RZ   ,
-     4                   SX   ,SY   ,SZ    ,MAT  ,VNEW ,
-     5                   DVOL ,SSP  ,D1    ,D2   ,D3   , 
-     6                   D4   ,D5   ,D6    ,SOLD1,SOLD2,
-     7                   SOLD3,SOLD4,SOLD5 ,SOLD6,SIGY ,
-     8                   DEFP ,NGL  ,SEQ_OUTPUT  ,NEL  ,EOSTYP,
-     9                   RHO0 ,AMU  ,AMU2  ,ESPE ,DF   ,
-     A                   PSH  ,PNEW ,DPDM  ,DPDE ,RHO  ,
-     B                   TEMP ,ECOLD,BUFMAT,NPC  ,TF)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    m12law             ../engine/source/materials/mat/mat012/m12law.F
+!||--- called by ------------------------------------------------------
+!||    mmain              ../engine/source/materials/mat_share/mmain.F90
+!||--- calls      -----------------------------------------------------
+!||    eosmain            ../common_source/eos/eosmain.F
+!||    m14ama             ../engine/source/materials/mat/mat014/m14ama.F
+!||    m14ftg             ../engine/source/materials/mat/mat014/m14ftg.F
+!||    m14gtf             ../engine/source/materials/mat/mat014/m14gtf.F
+!||--- uses       -----------------------------------------------------
+!||    eosmain_mod        ../common_source/eos/eosmain.F
+!||    matparam_def_mod   ../common_source/modules/mat_elem/matparam_def_mod.F90
+!||====================================================================
+      SUBROUTINE M12LAW(
+     1   PM,        OFF,        SIG,       EINT,
+     2   PLA,       SIGF,       EPSF,      DAM,
+     3   EPE,       EPC,        A,         VOL,
+     4   RX,        RY,         RZ,        SX,
+     5   SY,        SZ,         MAT,       VNEW,
+     6   DVOL,      SSP,        D1,        D2,
+     7   D3,        D4,         D5,        D6,
+     8   SOLD1,     SOLD2,      SOLD3,     SOLD4,
+     9   SOLD5,     SOLD6,      SIGY,      DEFP,
+     A   NGL,       SEQ_OUTPUT, NEL,       EOSTYP,
+     B   RHO0,      AMU,        AMU2,      ESPE,
+     C   DF,        PSH,        PNEW,      DPDM,
+     D   DPDE,      RHO,        TEMP,
+     E   BUFMAT,    NPC,        TF,        TSAIWU,
+     F   VAREOS,    NVAREOS,    JCVT,      JSPH,
+     G   MAT_PARAM, NVARTMP_EOS,VARTMP_EOS)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE MATPARAM_DEF_MOD , ONLY : MATPARAM_STRUCT_
+      USE EOSMAIN_MOD , ONLY : EOSMAIN
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -55,7 +69,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "param_c.inc"
-#include      "vect01_c.inc"
 #include      "com08_c.inc"
 #include      "scr17_c.inc"
 #include      "units_c.inc"
@@ -64,7 +77,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(MATPARAM_STRUCT_), INTENT(IN) :: MAT_PARAM !material data structure
+      INTEGER, INTENT(IN) :: JCVT
+      INTEGER, INTENT(IN) :: JSPH
       INTEGER MAT(MVSIZ),NGL(MVSIZ),NEL,EOSTYP
+      INTEGER,INTENT(IN) :: NVAREOS
       my_real
      .   PM(NPROPM,*), OFF(*), SIG(NEL,6), EINT(*), PLA(*), SIGF(*),
      .   RX(*), RY(*), RZ(*), SX(*), SY(*), SZ(*),
@@ -72,28 +89,31 @@ C-----------------------------------------------
      .   VNEW(MVSIZ), DVOL(MVSIZ), SSP(MVSIZ), 
      .   D1(MVSIZ), D2(MVSIZ), D3(MVSIZ),D4(MVSIZ),D5(MVSIZ),D6(MVSIZ),
      .   SOLD1(MVSIZ), SOLD2(MVSIZ), SOLD3(MVSIZ), SOLD4(MVSIZ),
-     .   SOLD5(MVSIZ), SOLD6(MVSIZ),SIGY(*),DEFP(*),SEQ_OUTPUT(*)
+     .   SOLD5(MVSIZ), SOLD6(MVSIZ),SIGY(*),DEFP(*),SEQ_OUTPUT(*),
+     .   TSAIWU(MVSIZ),VAREOS(NVAREOS*NEL)
       my_real
      .   RHO0(NEL), AMU(NEL)  , AMU2(NEL), ESPE(NEL), DF(NEL) ,
      .   PSH(NEL) , PNEW(NEL) , DPDM(NEL), DPDE(NEL), RHO(NEL),
-     .   TEMP(NEL), ECOLD(NEL), BUFMAT(*),MUOLD(NEL)
+     .   TEMP(NEL), BUFMAT(*),MUOLD(NEL)
       INTEGER,INTENT(IN)::NPC(SNPC)
       my_real,INTENT(IN)::TF(STF)
+      INTEGER,INTENT(IN) :: NVARTMP_EOS
+      INTEGER,INTENT(INOUt) :: VARTMP_EOS(NEL,NVARTMP_EOS)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER KD1(MVSIZ), KD2(MVSIZ), KD3(MVSIZ), 
      .   KD4(MVSIZ),ICC(MVSIZ),
      .   I, IDAM, KDX, MX, NINDX, INDEX(MVSIZ), J, ICC_1
-C     REAL
+      my_real BID(1) !bfrac argument not used in this context
       my_real
      .   AX(MVSIZ), AY(MVSIZ), AZ(MVSIZ), BX(MVSIZ), BY(MVSIZ), 
      .   BZ(MVSIZ), CX(MVSIZ), CY(MVSIZ),CZ(MVSIZ),
-     .   WVEC(MVSIZ),S1(MVSIZ), S2(MVSIZ), S3(MVSIZ),
+     .   WVEC(MVSIZ),
      .   T1(MVSIZ), T2(MVSIZ), T3(MVSIZ),T4(MVSIZ),T5(MVSIZ),T6(MVSIZ),
      .   E1(MVSIZ), E2(MVSIZ), E3(MVSIZ),E4(MVSIZ),E5(MVSIZ),E6(MVSIZ), 
-     .   HARD(MVSIZ), SIGMY(MVSIZ), ALPHA(MVSIZ), EFIB(MVSIZ),
-     .   EPSFT(MVSIZ), EPSFC(MVSIZ), SIGEQ(MVSIZ), P(MVSIZ),
+     .    SIGMY(MVSIZ), ALPHA(MVSIZ), EFIB(MVSIZ),
+     .   EPSFT(MVSIZ), EPSFC(MVSIZ),
      .   D11(MVSIZ), D12(MVSIZ), D13(MVSIZ), D22(MVSIZ),
      .   D23(MVSIZ), D33(MVSIZ), G12(MVSIZ), G23(MVSIZ), G31(MVSIZ),
      .   C11(MVSIZ), C22(MVSIZ), C33(MVSIZ), C12(MVSIZ), C23(MVSIZ),
@@ -122,15 +142,15 @@ C     REAL
      .   G23_1,G31_1,WPLAREF,DWPLA
 C=======================================================================
      
-      IF(NCYCLE.EQ.0 .AND. IRUN.EQ.1) THEN
-        DO  I=LFT,LLT
+      IF(NCYCLE==0 .AND. IRUN==1) THEN
+        DO  I=1,NEL
          KD1(I) = 0
          KD2(I) = 0
          KD3(I) = 0
          KD4(I) = 0
        ENDDO
       ELSE
-        DO  I=LFT,LLT
+        DO  I=1,NEL
           IDAM=INT(DAM(I,5))-10000
           KD1(I) = IDAM/1000
           KDX    = IDAM - KD1(I)*1000
@@ -145,9 +165,9 @@ C------------------
 C     FIBER CONTENT
 C------------------
       FIB=ZERO
-      MX      =MAT(LFT)
+      MX      =MAT(1)
       ALPHA_1 =PM(39,MX)
-      DO I=LFT,LLT
+      DO I=1,NEL
         ALPHA(I)=ALPHA_1
         FIB=FIB+ALPHA_1
       ENDDO
@@ -155,9 +175,12 @@ C
 C--------------------------------------------
 C     STRESS TRANSFORMATION (GLOBAL -> FIBER)
 C--------------------------------------------
-        CALL M14AMA(PM, A,  RX, RY, RZ, SX, 
-     2              SY, SZ, AX, AY, AZ, BX,
-     3              BY, BZ, CX, CY, CZ)
+        CALL M14AMA(
+     1   PM,      A,       RX,      RY,
+     2   RZ,      SX,      SY,      SZ,
+     3   AX,      AY,      AZ,      BX,
+     4   BY,      BZ,      CX,      CY,
+     5   CZ,      NEL,     JCVT,    JSPH)
         CALL M14GTF(SIG,AX ,AY ,AZ ,BX ,BY,  
      2              BZ ,CX ,CY ,CZ ,D1 ,D2,
      3              D3 ,D4 ,D5 ,D6 ,T1 ,T2,
@@ -168,14 +191,14 @@ C     MATERIAL PROPERTIES
 C---------------------------------
 C
       NINDX=0
-      MX     = MAT(LFT)
+      MX     = MAT(1)
       CA_1   = PM(25,MX)
       CB_1   = PM(26,MX)
       CN_1   = PM(27,MX)
       CC_1   = PM(50,MX)
       EPDR_1 = PM(51,MX)
       ICC_1  = NINT(PM(52,MX))
-      DO  I=LFT,LLT
+      DO  I=1,NEL
          CA      = CA_1
          CB(I)   = CB_1
          CN(I)   = CN_1
@@ -184,27 +207,26 @@ C
          ICC(I)  = ICC_1
          EPSP = MAX(ABS(E1(I)),ABS(E2(I)),ABS(E3(I)),
      .              HALF*ABS(E4(I)),HALF*ABS(E5(I)),HALF*ABS(E6(I)))
-         IF(EPSP.GT.EPDR(I).AND.CC(I).NE.ZERO) THEN
+         IF(EPSP>EPDR(I).AND.CC(I)/=ZERO) THEN
            EPSP = ONE + CC(I) * LOG(EPSP/EPDR(I))
          ELSE
            EPSP = ONE
          ENDIF
-         IF(ICC(I).EQ.1)THEN
+         IF(ICC(I)==1)THEN
            SIGMX   =PM(28,MX)*EPSP
-         ELSEIF(ICC(I).EQ.2)THEN
+         ELSEIF(ICC(I)==2)THEN
            SIGMX   =PM(28,MX)
-         ELSEIF(ICC(I).EQ.3)THEN
+         ELSEIF(ICC(I)==3)THEN
            SIGMX   =PM(28,MX)*EPSP
-         ELSEIF(ICC(I).EQ.4)THEN
+         ELSEIF(ICC(I)==4)THEN
            SIGMX   =PM(28,MX)
          ENDIF
          CB(I)   =CB(I)*EPSP
          CA      =CA*EPSP
          SIGMY(I)= MIN(SIGMX,CA+CB(I)*PLA(I)**CN(I))
-         IF(SIGMY(I).EQ.SIGMX .AND. OFF(I).EQ.ONE) THEN
+         IF(SIGMY(I)==SIGMX .AND. OFF(I)==ONE) THEN
            OFF(I)=ZEP99
            KD4(I)=2
-           IDEL7NOK = 1
 C
            NINDX=NINDX+1
            INDEX(NINDX)=I
@@ -216,7 +238,7 @@ C
          DELTA(I)= PM(79,MX) 
       ENDDO
 C
-      IF(NINDX.NE.0)THEN
+      IF(NINDX/=0)THEN
          DO J=1,NINDX
             I=INDEX(J)
 #include "lockon.inc"
@@ -225,7 +247,7 @@ C
           END DO
         END IF
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
         E1(I)=E1(I)*DT1
         E2(I)=E2(I)*DT1
         E3(I)=E3(I)*DT1
@@ -234,13 +256,13 @@ C
         E6(I)=E6(I)*DT1
       ENDDO
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
          EPE(I,1)=EPE(I,1)+E1(I)
          EPE(I,2)=EPE(I,2)+E2(I)
          EPE(I,3)=EPE(I,3)+E3(I)
       ENDDO
 C
-      MX      =MAT(LFT)
+      MX      =MAT(1)
       F1_1  =PM(53,MX)
       F2_1  =PM(54,MX)
       F3_1  =PM(55,MX)
@@ -274,7 +296,7 @@ C
       G23_1 =PM(47,MX)
       G31_1 =PM(48,MX)
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
 C
          F1(I)  = F1_1
          F2(I)  = F2_1
@@ -312,7 +334,7 @@ C
 C-------------------------
 C     NEW ELASTIC STRESSES
 C-------------------------
-      DO  I=LFT,LLT
+      DO  I=1,NEL
          SO1(I)=T1(I)
          SO2(I)=T2(I)
          SO3(I)=T3(I)
@@ -321,8 +343,8 @@ C-------------------------
          SO6(I)=T6(I)
       ENDDO
 C
-      IF(EOSTYP == 0) THEN
-        DO  I=LFT,LLT
+      IF (EOSTYP == 18) THEN   ! linear EOS by default
+        DO  I=1,NEL
           T1(I)=T1(I)+D11(I)*E1(I)+D12(I)*E2(I)+D13(I)*E3(I)
           T2(I)=T2(I)+D12(I)*E1(I)+D22(I)*E2(I)+D23(I)*E3(I)
           T3(I)=T3(I)+D13(I)*E1(I)+D23(I)*E2(I)+D33(I)*E3(I)
@@ -331,43 +353,42 @@ C
           T6(I)=T6(I)+G31(I)*E6(I)
         ENDDO
       ELSE
-        DO  I=LFT,LLT
+        DO  I=1,NEL
           DAV(I)  = THIRD*(E1(I)+E2(I)+E3(I))
           POLD(I) = THIRD*(T1(I)+T2(I)+T3(I))
           ENER(I) = EINT(I)
         ENDDO
-        DO  I=LFT,LLT
+        DO  I=1,NEL
           DEVE1(I)  = E1(I) - DAV(I)
           DEVE2(I)  = E2(I) - DAV(I)
           DEVE3(I)  = E3(I) - DAV(I)
         ENDDO
-        DO  I=LFT,LLT
+        DO  I=1,NEL
           T1(I)=T1(I)+D11(I)*DEVE1(I)+D12(I)*DEVE2(I)+D13(I)*DEVE3(I)-POLD(I)
           T2(I)=T2(I)+D12(I)*DEVE1(I)+D22(I)*DEVE2(I)+D23(I)*DEVE3(I)-POLD(I)
           T3(I)=T3(I)+D13(I)*DEVE1(I)+D23(I)*DEVE2(I)+D33(I)*DEVE3(I)-POLD(I)
         ENDDO
-C     
-        PNEW(:)        = ZERO
+C
         MUOLD(1:NEL)   =( RHO(1:NEL)/RHO0)-ONE
         SIG(1:NEL,1:6) = ZERO
         CALL EOSMAIN(0       ,NEL     ,EOSTYP ,PM    ,OFF  , ENER ,
      2               RHO     ,RHO0    ,AMU    ,AMU2  ,ESPE ,
      3               DVOL    ,DF      ,VNEW   ,MAT   ,PSH  ,
-     4               PNEW    ,DPDM    ,DPDE   ,TEMP  ,ECOLD,
-     5               BUFMAT  ,SIG     ,MUOLD  ,12    ,POLD,
-     6               NPC     ,TF)
+     4               PNEW    ,DPDM    ,DPDE   ,TEMP  ,
+     5               BUFMAT  ,SIG     ,MUOLD  ,12    ,
+     6               NPC     ,TF      ,VAREOS ,NVAREOS, MAT_PARAM, BID, NVARTMP_EOS,VARTMP_EOS)
         CALL EOSMAIN(1       ,NEL     ,EOSTYP ,PM    ,OFF  , ENER ,
      2               RHO     ,RHO0    ,AMU    ,AMU2  ,ESPE ,
      3               DVOL    ,DF      ,VNEW   ,MAT   ,PSH  ,
-     4               PNEW    ,DPDM    ,DPDE   ,TEMP  ,ECOLD,
-     5               BUFMAT  ,SIG     ,MUOLD  ,12    ,POLD,
-     6               NPC     ,TF)
-        DO  I=LFT,LLT
+     4               PNEW    ,DPDM    ,DPDE   ,TEMP  ,
+     5               BUFMAT  ,SIG     ,MUOLD  ,12    ,
+     6               NPC     ,TF      ,VAREOS ,NVAREOS, MAT_PARAM, BID, NVARTMP_EOS,VARTMP_EOS)
+        DO  I=1,NEL
           T1(I)=T1(I)-PNEW(I)
           T2(I)=T2(I)-PNEW(I)
           T3(I)=T3(I)-PNEW(I)
         ENDDO
-        DO  I=LFT,LLT
+        DO  I=1,NEL
           SSP(I) = SQRT(ABS(DPDM(I))/RHO0(I))
         ENDDO
 
@@ -375,13 +396,13 @@ C
 C------------------
 C     FIBERS STRESS
 C------------------
-      IF (FIB.GT.0) THEN
-        MX = MAT(LFT)
-        DO  I=LFT,LLT
+      IF (FIB>0) THEN
+        MX = MAT(1)
+        DO  I=1,NEL
           EFIB(I) =PM(38,MX)
           EPSFT(I)=PM(84,MX)
-	      EPSFC(I)=PM(85,MX) 
-	      EPSF(I) = EPSF(I)+ E1(I)
+                EPSFC(I)=PM(85,MX) 
+                EPSF(I) = EPSF(I)+ E1(I)
           SIGF(I) = EFIB(I)*EPSF(I)
         ENDDO 
 C
@@ -391,14 +412,14 @@ C
 C-------------------------
 C     GENERAL FAILURE TEST
 C-------------------------
-      DO  I=LFT,LLT
+      DO  I=1,NEL
         IF(OFF(I) < EM01) OFF(I)=ZERO
         IF(OFF(I) < ONE) OFF(I)=OFF(I)*FOUR_OVER_5
       ENDDO
 C-------------------
 C     TENSION DAMAGE
 C-------------------
-      DO  I=LFT,LLT
+      DO  I=1,NEL
 C------------------------
 C     DIRECTION 1 (FIBER)
 C------------------------
@@ -414,11 +435,11 @@ C
           T1(I)=WVEC(I)
           T2(I)=T2(I)-D12(I)*E1(I)*DAM(I,1)
           T3(I)=T3(I)-D13(I)*E1(I)*DAM(I,1)
-          IF(KD1(I).EQ.0) THEN
+          IF(KD1(I)==0) THEN
              KD1(I)=1
           ENDIF
           DAM(I,1)= MIN((DAM(I,1)+DELTA(I)),ONE)
-          IF(DAM(I,1).GE.ONE .AND. KD1(I).NE.2) THEN
+          IF(DAM(I,1)>=ONE .AND. KD1(I)/=2) THEN
             KD1(I)=2
           ENDIF
          ENDIF
@@ -431,7 +452,7 @@ C----------------
          WVEC(I)=(ONE-DAM(I,2))*SIGT2(I)
          IF(T2(I) > WVEC(I)) THEN
 C
-           IF(EPC(I,2).EQ.ZERO) THEN
+           IF(EPC(I,2)==ZERO) THEN
              EPC(I,2)= MAX(EPE(I,2),ZERO)
            ELSE
              EPC(I,2)= MAX(EPC(I,2)+E2(I),ZERO)
@@ -457,7 +478,7 @@ C----------------
          WVEC(I)=(ONE-DAM(I,3))*SIGT3(I)
          IF(T3(I) > WVEC(I)) THEN
 C
-           IF(EPC(I,3).EQ.ZERO) THEN
+           IF(EPC(I,3)==ZERO) THEN
              EPC(I,3)= MAX(EPE(I,3),ZERO)
            ELSE
              EPC(I,3)= MAX(EPC(I,3)+E3(I),ZERO)
@@ -466,7 +487,7 @@ C
            T1(I)=T1(I)-D13(I)*E3(I)*DAM(I,3)
            T2(I)=T2(I)-D23(I)*E3(I)*DAM(I,3)
            T3(I)=WVEC(I)
-           IF(KD3(I).EQ.0) THEN
+           IF(KD3(I)==0) THEN
               KD3(I)=1
            ENDIF
            DAM(I,3)= MIN((DAM(I,3)+DELTA(I)),ONE)
@@ -475,14 +496,14 @@ C
            ENDIF
          ENDIF
 C
-         IF(E3(I).LT.ZERO .AND. DAM(I,3).GT.ZERO)
+         IF(E3(I)<ZERO .AND. DAM(I,3)>ZERO)
      .       EPC(I,3)= MAX(EPC(I,3)+E3(I),ZERO)
 C
       ENDDO
 C-----------------------------------
 C     CRACK OPEN --> NO COMPRESSION
 C-----------------------------------
-      DO  I=LFT,LLT
+      DO  I=1,NEL
          IF(T1(I) < ZERO.AND. EPC(I,1) > ZERO) THEN
            T1(I)=ZERO
            T2(I)=T2(I)-D12(I)*E1(I)*DAM(I,1)
@@ -502,28 +523,29 @@ C-----------------------------------
 C---------------------
 C     PLASTICITY START
 C---------------------
-      DO  I=LFT,LLT
+      DO  I=1,NEL
         WVEC(I)= F1(I)*T1(I) + F2(I)*T2(I) + F3(I)*T3(I)
      .    + F11(I)*T1(I)*T1(I) + F22(I)*T2(I)*T2(I) + F33(I)*T3(I)*T3(I)
      .    + F55(I)*T5(I)*T5(I) + F44(I)*T4(I)*T4(I) + F66(I)*T6(I)*T6(I)
      .    + TWO*F12(I)*T1(I)*T2(I) + TWO*F13(I)*T1(I)*T3(I)
      .    + TWO*F23(I)*T2(I)*T3(I)
          DAM(I,4)=WVEC(I)
+         TSAIWU(I)=MAX(MIN(WVEC(I)/SIGMY(I),ONE),TSAIWU(I))
 !!        CRITERION / (EQUIVALENT STRESS) FOR OUTPUT - TSAI-WU -
 !!         SEQ_OUTPUT(I) = WVEC(I)
       ENDDO
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
        COEF(I)= ZERO
         IF (WVEC(I) > SIGMY(I) .AND .OFF(I) == ONE) THEN
           COEF(I)=ONE
-          IF(KD4(I).EQ.0) THEN
+          IF(KD4(I)==0) THEN
             KD4(I)=1
           ENDIF
          ENDIF
       ENDDO
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
         DP1(I)=F1(I)  + TWO*F11(I)*SO1(I) + TWO*F12(I)*SO2(I)
      .                                     + TWO*F13(I)*SO3(I)
         DP2(I)=F2(I)  + TWO*F22(I)*SO2(I) + TWO*F12(I)*SO1(I)
@@ -535,10 +557,8 @@ C
         DP6(I)=TWO*F66(I)*SO6(I)
       ENDDO
 
- 3101 FORMAT(/' 205 WVEC SIGMY T1-T6 ',2E11.4/6E11.4)
- 3102 FORMAT(' F1 F2 F11 F22 F12 F23 F44 F55',3E11.4/5E11.4)
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
          DS1(I)=T1(I)-SO1(I)
          DS2(I)=T2(I)-SO2(I)
          DS3(I)=T3(I)-SO3(I)
@@ -547,20 +567,19 @@ C
          DS6(I)=T6(I)-SO6(I)
       ENDDO
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
          LAMDA(I)=(DP1(I)*DS1(I)+DP2(I)*DS2(I)+DP3(I)*DS3(I)
      .        +DP4(I)*DS4(I)+DP5(I)*DS5(I)+DP6(I)*DS6(I))*COEF(I)
       ENDDO
 C ***********      
- 3103 FORMAT(' 207 LAMDA DS1-DS6 ',E11.4/6E11.4)
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
         CNN(I)=CN(I)-ONE
         PLAS(I)= ONE
         IF(PLA(I) > ZERO) PLAS(I)=PLA(I)**CNN(I)
       ENDDO
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
         IF(LAMDA(I)/= ZERO) THEN
            LAMDA(I)=LAMDA(I)*COEF(I)/
      .        (DP1(I)*(D11(I)*DP1(I)+D12(I)*DP2(I)+D13(I)*DP3(I))+
@@ -576,9 +595,8 @@ C
          ENDIF
       ENDDO
 c************
- 3104 FORMAT(' 208 LAMDA ',E11.4)
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
          DP1(I)=LAMDA(I)*DP1(I)
          DP2(I)=LAMDA(I)*DP2(I)
          DP3(I)=LAMDA(I)*DP3(I)
@@ -586,15 +604,14 @@ C
          DP5(I)=LAMDA(I)*DP5(I)
          DP6(I)=LAMDA(I)*DP6(I)
       ENDDO
- 3105 FORMAT(' 209 PLA DP1-DP6',E11.4/6E11.4)
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
         EPE(I,1)=EPE(I,1)-DP1(I)
         EPE(I,2)=EPE(I,2)-DP2(I)
         EPE(I,3)=EPE(I,3)-DP3(I)
       ENDDO
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
           T1(I)=T1(I)-D11(I)*DP1(I)-D12(I)*DP2(I)-D13(I)*DP3(I)
           T2(I)=T2(I)-D12(I)*DP1(I)-D22(I)*DP2(I)-D23(I)*DP3(I)
           T3(I)=T3(I)-D13(I)*DP1(I)-D23(I)*DP2(I)-D33(I)*DP3(I)
@@ -603,9 +620,9 @@ C
           T6(I)=T6(I)-G31(I)*DP6(I)*TWO
       ENDDO
 C
-      MX  = MAT(LFT)
+      MX  = MAT(1)
       WPLAREF  = PM(68 ,MX)
-      DO  I=LFT,LLT
+      DO  I=1,NEL
        DWPLA = HALF*
      .        (DP1(I)*(T1(I)+SO1(I))+
      .         DP2(I)*(T2(I)+SO2(I))+
@@ -627,7 +644,7 @@ C--------------------------------------------
      2              BZ ,CX ,CY ,CZ ,T1 ,T2 ,
      3              T3 ,T4 ,T5 ,T6 ,NEL)
 C
-      DO  I=LFT,LLT
+      DO  I=1,NEL
         SIG(I,1)=SIG(I,1)*OFF(I)
         SIG(I,2)=SIG(I,2)*OFF(I)
         SIG(I,3)=SIG(I,3)*OFF(I)
@@ -639,7 +656,7 @@ C--------------------
 C     INTERNAL ENERGY
 C--------------------
       DT5=HALF*DT1
-      DO I=LFT,LLT
+      DO I=1,NEL
         EINT(I)=EINT(I)+DT5*VNEW(I)*
      .           ( D1(I)*(SOLD1(I)+SIG(I,1))
      .           + D2(I)*(SOLD2(I)+SIG(I,2))
@@ -651,13 +668,12 @@ C--------------------
         DAM(I,5)=KD1(I)*1000 + KD2(I)*100 + KD3(I)*10 + KD4(I) + 10000
       ENDDO
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
        SIGYM = MAX(EM20,HALF*(ONE/F11(I)+ONE/F22(I)))
        SIGY(I)=SIGMY(I)*SQRT(SIGYM)
        DEFP(I)=PLA(I)
       ENDDO 
 C------------------------------------------------------------------------
  1000 FORMAT(1X,'RUPTURE OF SOLID ELEMENT NUMBER ',I10)
- 6001 FORMAT(I6,' FAIL(14)   E(',I5,')   M(',A3,')   T(',6E10.3,')')
       RETURN
       END

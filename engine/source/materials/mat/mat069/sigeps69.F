@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS69                      source/materials/mat/mat069/sigeps69.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        VALPVECDP_V                   source/materials/mat/mat033/sigeps33.F
-Chd|        VALPVEC_V                     source/materials/mat/mat033/sigeps33.F
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps69      ../engine/source/materials/mat/mat069/sigeps69.F
+!||--- called by ------------------------------------------------------
+!||    mulaw         ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    finter        ../engine/source/tools/curve/finter.F
+!||    valpvec_v     ../engine/source/materials/mat/mat033/sigeps33.F
+!||    valpvecdp_v   ../engine/source/materials/mat/mat033/sigeps33.F
+!||====================================================================
       SUBROUTINE SIGEPS69(
      1           NEL    , NUPARAM, NUVAR   , NFUNC  , IFUNC   , NPF    ,
      2           TF     , TIME   , TIMESTEP, UPARAM , RHO0    , RHO    ,
-     3           VOLUME , EINT   , IVISC   , NUPARV , UPARVIS ,
+     3           VOLUME , EINT   , 
      4           EPSPXX , EPSPYY , EPSPZZ  , EPSPXY , EPSPYZ  , EPSPZX ,
      5           DEPSXX , DEPSYY , DEPSZZ  , DEPSXY , DEPSYZ  , DEPSZX ,
      6           EPSXX  , EPSYY  , EPSZZ   , EPSXY  , EPSYZ   , EPSZX  ,
@@ -57,15 +57,12 @@ C-----------------------------------------------
 #include "scr05_c.inc"
 #include "scr17_c.inc"
 #include "impl1_c.inc"
-#include "com01_c.inc"
-#include "param_c.inc"
-#include "scr18_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
-      INTEGER :: NEL,NUPARAM,NUVAR,ISMSTR,IHET,NUVARV,NUPARV,IVISC,IEXPAN
+      INTEGER :: NEL,NUPARAM,NUVAR,ISMSTR,IHET,NUVARV,IEXPAN
       my_real
-     .      TIME       , TIMESTEP   , UPARAM(NUPARAM),UPARVIS(NUPARV),
+     .      TIME       , TIMESTEP   , UPARAM(NUPARAM),
      .      RHO   (NEL), RHO0  (NEL), VOLUME(NEL), EINT(NEL),
      .      EPSPXX(NEL), EPSPYY(NEL), EPSPZZ(NEL),
      .      EPSPXY(NEL), EPSPYZ(NEL), EPSPZX(NEL),
@@ -99,20 +96,22 @@ C----------------------------------------------------------------
 C  VARIABLES FOR FUNCTION INTERPOLATION 
 C----------------------------------------------------------------
       INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
-      my_real FINTER,FINTTE,TF(*),FINT2V
+      my_real FINTER,FINTTE,TF(*)
       EXTERNAL FINTER,FINTTE
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
-      INTEGER    I,J,K,KFP,NORDRE,II,NPRONY
+      INTEGER    I,J,K,KFP,NORDRE,II
       my_real
-     .   TENSCUT,GMAX,FSCALE,RVT,SUMDWDL,EFAC,DWDRV,RBULK,DPDMU,AMAX,ETI(MVSIZ),ETH
+     .   TENSCUT,GMAX,FSCALE,RVT,SUMDWDL,DWDRV,RBULK,DPDMU,AMAX,ETI(MVSIZ)
       my_real
      .   EVV(MVSIZ,3),EV(MVSIZ,3),EVM1(MVSIZ),EVM2(MVSIZ),EVM3(MVSIZ),P(MVSIZ),
      .   MU(5),AL(5),DWDL(3),T(MVSIZ,3),RV(MVSIZ),AV(MVSIZ,6),DIRPRV(MVSIZ,3,3)
        my_real  
-     .   GI(100),BETA(100),H0(100),H(100),C0(MVSIZ,6),C1(MVSIZ,6),AA,SV(MVSIZ,6),
-     .   CC,FAC,INVDT,FFT(3)
+     .   
+     .   P_FAC(NEL),NU_1,AMIN,LAM_AL(3),GTMAX(NEL)
+      my_real, DIMENSION(NEL,3) :: CII
+      DOUBLE PRECISION AMAX1
 C----------------------------------------------------------------
 C SET INITIAL MATERIAL CONSTANTS
       MU(1)  = UPARAM(1)
@@ -137,47 +136,6 @@ C
         GMAX  = GMAX  + MU(I)*AL(I)
       ENDDO
 C
-C add viscosity using /visc/prony
-      IF (IVISC > 0) THEN 
-         NPRONY = INT(UPARVIS(1))
-c             
-         DO I=1,NPRONY
-          GI(I)    = UPARVIS(1 + I)
-          BETA(I)  = UPARVIS(1 + NPRONY + I)
-          GMAX = GMAX + GI(I)
-         ENDDO 
-       ENDIF             
-C
-cC     ([F]=[M_F]+[1]) -----
-c      IF (ISMSTR == 10) THEN
-cC--------- [B]=[F][F]^t strain-----
-c        DO I=1,NEL
-c         EPSXX(I) = MFXX(I)*(TWO+MFXX(I))
-c     .            + MFXY(I)*MFXY(I)+MFXZ(I)*MFXZ(I)
-c         EPSYY(I) = MFYY(I)*(TWO+MFYY(I))
-c     .            + MFYX(I)*MFYX(I)+MFYZ(I)*MFYZ(I)
-c         EPSZZ(I) = MFZZ(I)*(TWO+MFZZ(I))
-c     .            + MFZX(I)*MFZX(I)+MFZY(I)*MFZY(I)
-c         EPSXY(I) = TWO*(MFXY(I)+MFYX(I)+MFXX(I)*MFYX(I)
-c     .            +       MFXY(I)*MFYY(I)+MFXZ(I)*MFYZ(I))
-c         EPSZX(I) = TWO*(MFXZ(I)+MFZX(I)+MFXX(I)*MFZX(I)
-c     .            +       MFXY(I)*MFZY(I)+MFXZ(I)*MFZZ(I))
-c         EPSYZ(I) = TWO*(MFZY(I)+MFYZ(I)+MFZX(I)*MFYX(I)
-c     .            +       MFZY(I)*MFYY(I)+MFZZ(I)*MFYZ(I))
-c        ENDDO
-c        IF(IDTMIN(1)==3)THEN
-c         DO I=1,NEL
-c	  IF (OFFG(I) <=ONE) CYCLE
-c           EPSXX(I)=MFXX(I)
-c           EPSYY(I)=MFYY(I)
-c           EPSZZ(I)=MFZZ(I)
-c           EPSXY(I)=MFXY(I)+MFYX(I)
-c           EPSZX(I)=MFXZ(I)+MFZX(I)
-c           EPSYZ(I)=MFZY(I)+MFYZ(I)
-c         ENDDO
-c	END IF
-c      ENDIF
-C
       DO I=1,NEL
         AV(I,1)=EPSXX(I)
         AV(I,2)=EPSYY(I)
@@ -186,7 +144,7 @@ C
         AV(I,5)=EPSYZ(I) * HALF
         AV(I,6)=EPSZX(I) * HALF
       ENDDO
-C         Eigenvalues needed to be calcultated in double precision
+C         Eigenvalues needed to be calculated in double precision
 C         for a simple precision executing
       IF (IRESP == 1) THEN
         CALL VALPVECDP_V(AV,EVV,DIRPRV,NEL)
@@ -206,7 +164,7 @@ C     Strain definition
           EV(I,1)=SQRT(EVV(I,1)+ ONE)
           EV(I,2)=SQRT(EVV(I,2)+ ONE)
           EV(I,3)=SQRT(EVV(I,3)+ ONE)
-	ELSE
+          ELSE
          EV(I,1)=EVV(I,1)+ ONE
          EV(I,2)=EVV(I,2)+ ONE
          EV(I,3)=EVV(I,3)+ ONE
@@ -226,7 +184,7 @@ C        ET(I) = ZERO
           ETI(1:NEL)  = ZERO
           DO K=1,NORDRE
             DO I  = 1,NEL
-	     AMAX = EV(I,J)
+               AMAX = EV(I,J)
              IF(AMAX>ZERO) THEN
               IF((Al(K)-ONE)==ZERO) THEN
                  ETI(I)  = ETI(I) + MU(K)*Al(K)
@@ -242,6 +200,15 @@ C        ET(I) = ZERO
           ET(I) = MAX(ONE,ET(I)/GMAX)
         ENDDO
       ENDIF
+c--- avoid buckling
+      P_FAC(1:NEL) = ONE
+      IF (RBULK > 24*GMAX) THEN
+        NU_1 = FORTY*(HALF-(3*RBULK-GMAX)/(6*RBULK+GMAX))
+        DO I=1,NEL
+          AMIN = MIN(EV(I,1),EV(I,2),EV(I,3))
+          IF (AMIN<ZEP2) P_FAC(I) = MAX(ONE,NU_1/MAX(EM20,AMIN))
+        ENDDO
+      END IF 
 C----------------
       DO I=1,NEL
         RV(I) = EV(I,1)*EV(I,2)*EV(I,3)
@@ -269,10 +236,33 @@ C----THERM STRESS COMPUTATION-----
           P(I) = RBULK*FSCALE*FINTER(KFP,RV(I),NPF,TF,DPDMU)
         ELSE
 *         BULK MODULE IS CONSTANT
-          P(I)=RBULK
+          P(I)=P_FAC(I)*RBULK
         ENDIF
       ENDDO
 c
+      ! For HEPH Hourglass treatment and soundspeed computation
+      GTMAX(1:NEL) = GMAX
+      ETI(1:NEL) = ZERO
+      CII(1:NEL,1:3) = ZERO
+      DO II = 1,NORDRE
+        IF (MU(II)*AL(II) /= ZERO) THEN
+          DO I=1,NEL
+            LAM_AL(1) = EXP(AL(II)*LOG(EVM1(I)))
+            LAM_AL(2) = EXP(AL(II)*LOG(EVM2(I)))
+            LAM_AL(3) = EXP(AL(II)*LOG(EVM3(I)))
+            AMAX = THIRD*(LAM_AL(1)+LAM_AL(2)+LAM_AL(3))
+            CII(I,1:3) = CII(I,1:3) + MU(II)*AL(II)*(LAM_AL(1:3)+AMAX)
+          ENDDO
+        ENDIF
+      ENDDO
+      ! Note: 2GT=3/2 Cii (factor 3 already inside CII)      
+      AMAX1 = 0.81*HALF/GMAX
+      DO I = 1,NEL
+        AMAX = AMAX1*MAX(CII(I,1),CII(I,2),CII(I,3))
+        ETI(I) = MAX(ONE,AMAX) 
+        GTMAX(I) = GMAX*ETI(I)
+        ET(I) = ETI(I)
+      ENDDO
       DO I=1,NEL
         DWDL(1) = ZERO                             
         DWDL(2) = ZERO                                
@@ -317,7 +307,6 @@ c     tension cut
            T(I,1) = ZERO                                                   
            T(I,2) = ZERO                                                   
            T(I,3) = ZERO                                                   
-           IF (OFF(I) /= ZERO) IDEL7NOK = 1                                 
            OFF(I) = ZERO                                                     
         ENDIF
       ENDDO
@@ -342,88 +331,10 @@ C     transform principal Cauchy stress to global directions
      .            + DIRPRV(I,3,1)*DIRPRV(I,1,1)*T(I,1)
      .            + DIRPRV(I,3,2)*DIRPRV(I,1,2)*T(I,2)
       ENDDO
-C        Viscous model
-      IF(IVISC > 0) THEN
-        DO I=1,NEL 
-C            
-             C0(I,1) = UVAR(I,4)
-             C0(I,2) = UVAR(I,5)
-             C0(I,3) = UVAR(I,6)  
-             C0(I,4) = UVAR(I,7)
-             C0(I,5) = UVAR(I,8)
-             C0(I,6) = UVAR(I,9)
-C              
-              CC = THIRD*(EVM1(I)**2 +  EVM2(I)**2 + EVM3(I)**2)
-              FFT(1) =  EVM1(I)**2 - CC
-              FFT(2) =  EVM2(I)**2 - CC
-              FFT(3) =  EVM3(I)**2 - CC   
-C the strain at t_n and t_n+1 must be in the same frame  (GLOBAL DIRECTIONS)     
-              C1(I,1) = DIRPRV(I,1,1)*DIRPRV(I,1,1)*FFT(1)
-     .              + DIRPRV(I,1,2)*DIRPRV(I,1,2)*FFT(2)
-     .              + DIRPRV(I,1,3)*DIRPRV(I,1,3)*FFT(3)
-c     
-              C1(I,2) = DIRPRV(I,2,2)*DIRPRV(I,2,2)*FFT(2)
-     .              + DIRPRV(I,2,3)*DIRPRV(I,2,3)*FFT(3)
-     .              + DIRPRV(I,2,1)*DIRPRV(I,2,1)*FFT(1)
-c     
-              C1(I,3) = DIRPRV(I,3,3)*DIRPRV(I,3,3)*FFT(3)
-     .              + DIRPRV(I,3,1)*DIRPRV(I,3,1)*FFT(1)
-     .              + DIRPRV(I,3,2)*DIRPRV(I,3,2)*FFT(2)
-c     
-              C1(I,4) = DIRPRV(I,1,1)*DIRPRV(I,2,1)*FFT(1)
-     .              + DIRPRV(I,1,2)*DIRPRV(I,2,2)*FFT(2)
-     .              + DIRPRV(I,1,3)*DIRPRV(I,2,3)*FFT(3)
-c     
-              C1(I,5) = DIRPRV(I,2,2)*DIRPRV(I,3,2)*FFT(2)
-     .              + DIRPRV(I,2,3)*DIRPRV(I,3,3)*FFT(3)
-     .              + DIRPRV(I,2,1)*DIRPRV(I,3,1)*FFT(1)
-c     
-              C1(I,6) = DIRPRV(I,3,3)*DIRPRV(I,1,3)*FFT(3)
-     .              + DIRPRV(I,3,1)*DIRPRV(I,1,1)*FFT(1)
-     .              + DIRPRV(I,3,2)*DIRPRV(I,1,2)*FFT(2)  
-C              
-              UVAR(I,4) = C1(I,1)    
-              UVAR(I,5) = C1(I,2)
-              UVAR(I,6) = C1(I,3) 
-              UVAR(I,7) = C1(I,4)  
-              UVAR(I,8) = C1(I,5)
-              UVAR(I,9) = C1(I,6) 
-        ENDDO   
-C
-C  compute krchoff visco stress
-C              
-        DO J=1,6
-              SV(1:NEL,J) = ZERO
-              DO II= 1,NPRONY 
-                FAC= -TIMESTEP*BETA(II) 
-                DO I=1,NEL
-                     H0(II) = UVARV((II-1)*6*NEL + NEL*(J-1) + I)     
-                     H(II)  = EXP(FAC)*H0(II) +
-     .                  EXP(HALF*FAC)*(C1(I,J) - C0(I,J))
-                     UVARV((II-1)*6*NEL + NEL*(J-1) + I) =  H(II)
-                ENDDO
-              ENDDO                 
-              DO II = 1,NPRONY
-                DO I=1,NEL
-                      SV(I,J) = SV(I,J) + GI(II)*H(II)
-                ENDDO                           
-              ENDDO         
-        ENDDO   
-C *  Add VISCO CAUCHY STRESSES TO GLOBAL DIRECTIONS         
-C
-        DO I=1,NEL              
-            SIGNXX(I) = SIGNXX(I) + SV(I,1)/RV(I)
-            SIGNYY(I) = SIGNYY(I) + SV(I,2)/RV(I)
-            SIGNZZ(I) = SIGNZZ(I) + SV(I,3)/RV(I)
-            SIGNXY(I) = SIGNXY(I) + SV(I,4)/RV(I)
-            SIGNYZ(I) = SIGNYZ(I) + SV(I,5)/RV(I)
-            SIGNZX(I) = SIGNZX(I) + SV(I,6)/RV(I) 
-        ENDDO
-      ENDIF      
 C-----------------------------------------------------------
 C     set sound speed & viscosity
       DO I=1,NEL
-        SOUNDSP(I) = SQRT((TWO_THIRD*GMAX+P(I))/RHO(I))
+        SOUNDSP(I) = SQRT((TWO_THIRD*GTMAX(I)+P(I))/RHO(I))
         VISCMAX(I) = ZERO
       ENDDO
 C-----------      

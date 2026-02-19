@@ -1,44 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_CLUSTER               source/output/cluster/hm_read_cluster.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        ITRIMHPSORT                   source/output/cluster/itrimhpsort.F
-Chd|        CLUSTER_MOD                   share/modules1/cluster_mod.F  
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_cluster        ../starter/source/output/cluster/hm_read_cluster.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl                ../starter/source/starter/freform.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    itrimhpsort            ../starter/source/output/cluster/itrimhpsort.F
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod            ../starter/share/modules1/cluster_mod.F
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    reader_old_mod         ../starter/share/modules1/reader_old_mod.F90
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_CLUSTER(CLUSTERS,UNITAB ,ISKN    ,IGRBRIC,IGRSPRING,
      .                           IXS     ,IXR    ,NOM_OPT ,LSUBMODEL)
 C-----------------------------------------------
@@ -48,32 +48,28 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE CLUSTER_MOD
       USE GROUPDEF_MOD
-      USE SUBMODEL_MOD
-      USE HM_OPTION_READ_MOD 
+      USE SUBMODEL_MOD , ONLY : NSUBMOD, SUBMODEL_DATA
+      USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD
+      USE READER_OLD_MOD , ONLY : LINE, KLINE, KEY0, KCUR
+      use element_mod , only : nixs,nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "sysunit.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "submod_c.inc"
 #include      "scr17_c.inc"
 #include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER ISKN(LISKN,*),
-     .   IXS(NIXS,NUMELS),IXR(NIXR,NUMELR),NOM_OPT(LNOPT1,*)
+      INTEGER ISKN(LISKN,*),IXS(NIXS,NUMELS),IXR(NIXR,NUMELR),NOM_OPT(LNOPT1,*)
       TYPE (CLUSTER_) ,DIMENSION(NCLUSTER) :: CLUSTERS
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(NSUBMOD)
 C-----------------------------------------------
@@ -82,13 +78,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,II,JJ,KK,N,CLID,UID,ICLUS,IAD,IG,IGR,ISK,IFAIL,
-     .   IEL,NEL,NNOD,IFLAGUNIT,VAL,NNOD0,ITY,NELMAX
+      INTEGER I, J, K, II, JJ, KK, CLID, UID, IG, IGR, ISK, IFAIL, IEL, NEL, NNOD, IFLAGUNIT, NNOD0, NELMAX
       INTEGER NOD1(2000),NOD2(2000),SUB_INDEX,ISK_L
-      my_real
-     .   BID(1),AX(4),NX(4),FMAX(2),MMAX(2)
-      CHARACTER TITR*nchartitle
-      CHARACTER KEY *ncharfield
+      my_real BID(1),AX(4),NX(4),FMAX(2),MMAX(2)
+      CHARACTER(LEN=NCHARTITLE)::TITR
+      CHARACTER(LEN=NCHARFIELD) :: KEY
       PARAMETER (NELMAX = 500)
       LOGICAL :: IS_AVAILABLE,FOUND
 C=======================================================================
@@ -117,7 +111,7 @@ c
 c
         IFLAGUNIT = 0                             
         IF (UID > 0) THEN                         
-          DO J=1,NUNITS                           
+          DO J=1,UNITAB%NUNITS                           
             IF (UNITAB%UNIT_ID(J) == UID) THEN    
               IFLAGUNIT = 1                       
               EXIT                                
@@ -125,10 +119,7 @@ c
           ENDDO                                   
         ENDIF
         IF (UID / = 0 .and. IFLAGUNIT == 0) THEN                        
-          CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,      
-     .                I1=CLID,I2=UID,C1='CLUSTER',                  
-     .                C2='CLUSTER',                               
-     .                C3=TITR)                                       
+          CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,I1=CLID,I2=UID,C1='CLUSTER',C2='CLUSTER',C3=TITR)
         ENDIF                                                        
 c----------------------------
 Card1
@@ -172,12 +163,7 @@ c----------------------------
             ENDIF
           ENDDO
           IF (.NOT.FOUND) THEN
-            CALL ANCMSG(MSGID=137,ANMODE=ANINFO,MSGTYPE=MSGERROR,     
-     .              C1='CLUSTER',
-     .              C2='CLUSTER',
-     .              I2=ISK,
-     .              I1=CLID,
-     .              C3=TITR)       
+            CALL ANCMSG(MSGID=137,ANMODE=ANINFO,MSGTYPE=MSGERROR,C1='CLUSTER',C2='CLUSTER',I2=ISK,I1=CLID,C3=TITR)
           ENDIF
         ENDIF
         NOD1 = 0
@@ -194,11 +180,7 @@ c----------------------------
             IF (IGR == IGRBRIC(IG)%ID .and. IGRBRIC(IG)%GRTYPE == 1) THEN
               NEL = IGRBRIC(IG)%NENTITY
               IF (NEL > NELMAX) THEN
-                CALL ANCMSG(MSGID=1055,       
-     .                      ANMODE=ANINFO,    
-     .                      MSGTYPE=MSGERROR, 
-     .                      I1=CLID,          
-     .                      I2=NEL)  
+                CALL ANCMSG(MSGID=1055, ANMODE=ANINFO, MSGTYPE=MSGERROR, I1=CLID, I2=NEL)
                 EXIT
               ENDIF
               CLUSTERS(I)%ID = CLID                                          
@@ -380,17 +362,6 @@ C-------------------------------------
      & 10X,'FAILURE EXPONENT N3 . . . . . . . . . . .=',1PG20.13/,
      & 10X,'FAILURE EXPONENT N4 . . . . . . . . . . .=',1PG20.13)
  9000 FORMAT(10X/)
-C-----------
-      RETURN
-  998 CALL ANCMSG(MSGID=55,
-     .            ANMODE=ANINFO,
-     .            MSGTYPE=MSGERROR,
-     .            C1=KEY0(KCUR),
-     .            C2=KLINE,
-     .            C3=LINE)
-C-----------
-      RETURN
- 999  CALL FREERR(1)
 C-----------
       RETURN
       END

@@ -1,51 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  GLOBVARS                      source/spmd/globvars.F        
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    globvars      ../starter/source/spmd/globvars.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal        ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE GLOBVARS(IGEO,IXR,NSTRF)
 C-----------------------------------------------
 C   M o d u l e s
-C-----------------------------------------------    
+C-----------------------------------------------   
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "spmd_c.inc"
 #include      "com01_c.inc"
-#include      "rnur_c.inc"
 #include      "param_c.inc"
 #include      "sphcom.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -61,14 +60,13 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,P,NNOD,NSEGC,NSEGTG,NSEGS,K0
 
-C   Variable Globale NUMNODG nombre global des noeuds
+C   Global variable NUMNODG - global number of nodes
       NUMNODG = NUMNOD
 
-C   Variable globale NUMELTGG,NUMELCG, nombre global de triangles
+C   Global variables NUMELTGG,NUMELCG - global number of triangles
       NUMELQG = NUMELQ
       NUMELCG = NUMELC
       NUMELTGG = NUMELTG
-      NUMELURG = NUMELUR
       NUMELSG = NUMELS
       NUMELPG = NUMELP
       NUMELRG = NUMELR
@@ -78,11 +76,11 @@ C   Variable globale NUMELTGG,NUMELCG, nombre global de triangles
       NUMELS20G = NUMELS20
       NUMSPHG = NUMSPH
       NUMELXG = NUMELX
-C   Variable globales NUMNODM (MAX des NUMNOD_L)
+C   Global variable NUMNODM (MAX of NUMNOD_L)
       NUMNODM = 0
-C Nombre global des RBE2
+C Global number of RBE2
       NRBE2G = NRBE2
-C Nombre global des RBE3
+C Global number of RBE3
       NRBE3G = NRBE3
 
       DO P = 1,NSPMD
@@ -95,35 +93,35 @@ C Nombre global des RBE3
        NUMNODM = MAX(NUMNODM,NNOD)
        ENDDO
 C
-C   calcul nu nombre Elts 1D pour animations.
+C   naked calculation and 1D number for animations.
 
         NB1DG = NUMELT + NUMELR + NUMELP
         NSKEWAG = NUMELP + NUMELT + NUMSKW
 
         DO I=1,NUMELR
-          IF(IGEO(11,IXR(1,I)).EQ.4 .OR.
-     .       IGEO(11,IXR(1,I)).EQ.26.OR.
-     .       IGEO(11,IXR(1,I)).EQ.13.OR.
-     .       IGEO(11,IXR(1,I)).EQ.25.OR.
-     .       IGEO(11,IXR(1,I)).EQ.45.OR.     
-     .         IGEO(11,IXR(1,I)).GE.29.AND.
-     .         IGEO(11,IXR(1,I)).LE.33 .OR.
-     .       IGEO(11,IXR(1,I)).EQ.23)THEN
+          IF(IGEO(11,IXR(1,I))==4 .OR.
+     .       IGEO(11,IXR(1,I))==26.OR.
+     .       IGEO(11,IXR(1,I))==13.OR.
+     .       IGEO(11,IXR(1,I))==25.OR.
+     .       IGEO(11,IXR(1,I))==45.OR.     
+     .         IGEO(11,IXR(1,I))>=29.AND.
+     .         IGEO(11,IXR(1,I))<=33 .OR.
+     .       IGEO(11,IXR(1,I))==23)THEN
 
             NSKEWAG=NSKEWAG+1
 
-          ELSEIF(IGEO(11,IXR(1,I)).EQ.12)THEN
+          ELSEIF(IGEO(11,IXR(1,I))==12)THEN
 
             NSKEWAG=NSKEWAG+2
             NB1DG =NB1DG+1
           ENDIF
 
         ENDDO    
-C   pour les sections et pour le proc0 on calcule le max
-C   des nombres d'elements coques pour toutes les sections
+C   for sections and for proc0 we calculate the max
+C   of the number of shell elements for all sections
 cow
       SECTIOM = 0
-      IF (NSECT.GT.0) THEN
+      IF (NSECT>0) THEN
         K0 = NSTRF(25)
 
         DO I=1,NSECT

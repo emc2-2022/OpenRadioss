@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PREINICRK4N                   source/elements/xfem/preinicrk4N.F
-Chd|-- called by -----------
-Chd|        LSLOCAL                       source/elements/xfem/lslocal.F
-Chd|-- calls ---------------
-Chd|        LSINTX                        source/elements/xfem/preinicrk4N.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        XFEM2DEF_MOD                  ../common_source/modules/xfem2def_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    preinicrk4n    ../starter/source/elements/xfem/preinicrk4N.F
+!||--- called by ------------------------------------------------------
+!||    lslocal        ../starter/source/elements/xfem/lslocal.F
+!||--- calls      -----------------------------------------------------
+!||    lsintx         ../starter/source/elements/xfem/preinicrk4N.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PREINICRK4N(ELBUF_STR,XFEM_STR,
      .               X1L     ,Y1L     ,X2L     ,Y2L      ,X3L     ,
      .               Y3L     ,X4L     ,Y4L     ,LFT      ,LLT     ,
@@ -41,6 +40,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE XFEM2DEF_MOD
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -53,7 +53,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c K s
 C-----------------------------------------------
 #include      "com_xfem1.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -74,7 +73,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,K,II,R,ELCRK,IED,p1,p2,dd(4),d1(4),d2(4),IFI(2),
-     . ICUT,IEDGE,IC1,IC2,ICRK,ILEV(NXEL),IL,ILAY,N(4),ISIGN0(4),
+     . IEDGE,ICRK,ILEV(NXEL),IL,ILAY,N(4),ISIGN0(4),
      . NOD1,NOD2,IXEL,IENR0(4),IENR(4),NTAG(4)
       my_real
      .   FIT(4,MVSIZ),XN(4),YN(4),XMI(2),YMI(2),BETA(2,MVSIZ),
@@ -88,6 +87,7 @@ C
       DATA d1/2,3,4,5/
       DATA d2/3,4,5,2/
 C=======================================================================
+      P2 = 0
       DO I=LFT,LLT
         XN(1)=X1L(I)
         YN(1)=Y1L(I)
@@ -146,8 +146,8 @@ c
           ELCRK = IELCRKC(I+NFT)
           IF (ELCUT(I+NFT) > 0) THEN
             ICRK = CRKSHELL(ILEV(1))%PHANTOMG(ELCRK)  ! global xfem element N
-            CRKLVSET(ILEV(1))%ELCUT(ELCRK) =  ICRK ! virer
-            CRKLVSET(ILEV(2))%ELCUT(ELCRK) = -ICRK ! virer
+            CRKLVSET(ILEV(1))%ELCUT(ELCRK) =  ICRK
+            CRKLVSET(ILEV(2))%ELCUT(ELCRK) = -ICRK
 c
             XFEM_PHANTOM(ILAY)%ELCUT(ELCRK) = ICRK
             CRKEDGE(ILAY)%LAYCUT(ELCRK) = 2
@@ -214,7 +214,7 @@ C
 C
                 CRKEDGE(ILAY)%EDGETIP(1,IEDGE) = MAX(IED,
      .                                     CRKEDGE(ILAY)%EDGETIP(1,IEDGE))
-                CRKEDGE(ILAY)%EDGETIP(2,IEDGE) = 
+                CRKEDGE(ILAY)%EDGETIP(2,IEDGE) =
      .                        CRKEDGE(ILAY)%EDGETIP(2,IEDGE) + 1
 C
 c               add check if BETA (0:1)
@@ -224,6 +224,9 @@ C
 C
                 NOD1 = NODEDGE(1,IEDGE)
                 NOD2 = NODEDGE(2,IEDGE)
+                IFI(1:2) = 0
+                p1 = 0
+                p2 = 0  
                 IF(NOD1 == N(r) .and. NOD2 == N(dd(r)))THEN
                   IFI(1) = ISIGN0(r)
                   IFI(2) = ISIGN0(dd(r))
@@ -267,7 +270,7 @@ C------------------------------------------------------
         DO IXEL=1,NXEL
           GBUF => XFEM_STR(IXEL)%GBUF
           DO I=LFT,LLT
-           IF(ELCUT(I+NFT) > 0)THEN
+            IF(ELCUT(I+NFT) > 0)THEN
               OFF_PHANTOM = GBUF%OFF(I)
               GBUF%OFF(I) = - OFF_PHANTOM
             ENDIF
@@ -299,13 +302,12 @@ C-----------
       RETURN
       END
 c
-Chd|====================================================================
-Chd|  LSINTX                        source/elements/xfem/preinicrk4N.F
-Chd|-- called by -----------
-Chd|        PREINICRK3N                   source/elements/xfem/preinicrk3N.F
-Chd|        PREINICRK4N                   source/elements/xfem/preinicrk4N.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    lsintx        ../starter/source/elements/xfem/preinicrk4N.F
+!||--- called by ------------------------------------------------------
+!||    preinicrk3n   ../starter/source/elements/xfem/preinicrk3N.F
+!||    preinicrk4n   ../starter/source/elements/xfem/preinicrk4N.F
+!||====================================================================
       my_real FUNCTION LSINTX(Y1, Z1, Y2, Z2, Y, Z)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s

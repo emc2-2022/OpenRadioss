@@ -1,36 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RECONNECT                     source/elements/nodes/reconnect.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    reconnect      ../starter/source/elements/nodes/reconnect.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE RECONNECT(
      .           IXS      ,IXS10    ,IXS20    ,IXS16    ,IXQ      ,
      .           IXC      ,IXT      ,IXP      ,IXR      ,IXTG     ,
-     .           IXUR     ,IGRNOD   ,IGRSURF  ,IGRSLIN  ,
+     .           IGRNOD   ,IGRSURF  ,IGRSLIN  ,
      .           ISKN     ,IMERGE   ,NMERGE_TOT)
 C--------------------------------------------------------
 C     RENITIALISE ELEMENT CONNECTIVITIES AFTER NODE MERGE
@@ -38,6 +37,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,14 +47,12 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "rnur_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXS(NIXS,*),IXS10(6,*),IXS16(8,*),IXS20(12,*),IXQ(NIXQ,*),
      .   IXC(NIXC,*),IXT(NIXT,*),IXP(NIXP,*),IXR(NIXR,*),IXTG(NIXTG,*),
-     .   IXUR(6,*),ISKN(LISKN,*),IMERGE(*),NMERGE_TOT
+     .   ISKN(LISKN,*),IMERGE(*),NMERGE_TOT
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD)  :: IGRNOD
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
@@ -62,7 +60,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,L,IAD,IPT,ITYP,NN,TAGNO(NUMNOD),NM
+      INTEGER I,J,K,L,ITYP,NN,TAGNO(NUMNOD),NM
 C=======================================================================
 C-----------------------------------
 C     ELEMENTS
@@ -80,7 +78,7 @@ C
 C
       DO I = 1, NUMELS10
         DO J=1,6
-          IF(IXS10(J,I).NE.0)THEN
+          IF(IXS10(J,I)/=0)THEN
             DO K = 1,NMERGED
               IF(IXS10(J,I) == IMERGE(K)) IXS10(J,I) = IMERGE(NMERGE_TOT+K)
             ENDDO
@@ -90,7 +88,7 @@ C
 C
       DO I = 1, NUMELS20
         DO J=1,12
-          IF(IXS20(J,I).NE.0)THEN
+          IF(IXS20(J,I)/=0)THEN
             DO K = 1,NMERGED
               IF(IXS20(J,I) == IMERGE(K)) IXS20(J,I) = IMERGE(NMERGE_TOT+K)
             ENDDO
@@ -100,7 +98,7 @@ C
 C
       DO I = 1, NUMELS16
         DO J=1,8
-          IF(IXS16(J,I).NE.0)THEN
+          IF(IXS16(J,I)/=0)THEN
             DO K = 1,NMERGED
               IF(IXS16(J,I) == IMERGE(K)) IXS16(J,I) = IMERGE(NMERGE_TOT+K)
             ENDDO
@@ -170,16 +168,6 @@ C
           ENDDO
         ENDDO
       ENDDO
-C
-C---  RNUR elements
-C
-      DO I = 1, NUMELUR
-        DO J=2,5
-          DO K = 1,NMERGED
-            IF (IXUR(J,I) == IMERGE(K)) IXUR(J,I) = IMERGE(NMERGE_TOT+K)
-          ENDDO
-        ENDDO
-      ENDDO
 C-----------------------------------
 C     GROUPS
 C-----------------------------------
@@ -212,7 +200,7 @@ C
         ENDDO
       ENDDO
 C
-C---  Node groups
+C--- Node Groups
 C
       DO I=1,NGRNOD
         ITYP = IGRNOD(I)%GRTYPE

@@ -1,31 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS62C                     source/materials/mat/mat062/sigeps62c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps62c   ../engine/source/materials/mat/mat062/sigeps62c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||====================================================================
               SUBROUTINE SIGEPS62C(
      1      NEL    , NUPARAM, NUVAR   , NFUNC , IFUNC , NPF   ,
      2      NPT0   , ILAYER , IFLAG   ,
@@ -47,12 +48,10 @@ C-----------------------------------------------
 C   C O M M O N
 C-----------------------------------------------
 #include "param_c.inc"
-#include "scr17_c.inc"
-#include "com01_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
-      INTEGER NEL,NUPARAM, NUVAR,ISMSTR, IPM(NPROPMI,*),MAT(NEL),
+      INTEGER NEL,NUPARAM, NUVAR,ISMSTR, IPM(NPROPMI,*),
      .        NPT0,ILAYER, IFLAG(*),NGL(NEL)
       my_real
      .   TIME,TIMESTEP,UPARAM(NUPARAM),THKN(NEL),THKLYL(NEL),
@@ -67,7 +66,7 @@ C----------------------------------------------------------------
       my_real
      .   SIGNXX(NEL),SIGNYY(NEL),SIGNXY(NEL),SIGNYZ(NEL),SIGNZX(NEL),
      .   SIGVXX(NEL),SIGVYY(NEL),SIGVXY(NEL),SIGVYZ(NEL),SIGVZX(NEL),
-     .   SOUNDSP(NEL),VISCMAX(NEL),ET(NEL)
+     .   SOUNDSP(NEL),VISCMAX(NEL)
 C----------------------------------------------------------------
 C  I N P U T  O U T P U T   A R G U M E N T S
 C----------------------------------------------------------------
@@ -77,28 +76,28 @@ C----------------------------------------------------------------
 C  VARIABLES FOR FUNCTION INTERPOLATION
 C----------------------------------------------------------------
       INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
-      my_real FINTER,FINTTE,TF(*),FINT2V
+      my_real FINTER,FINTTE,TF(*)
       EXTERNAL FINTER,FINTTE
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
       INTEGER  I,J,K,NORDRE,NPRONY,ITER,IVISC,JNV
       my_real
-     .   NU,GMAX,RBULK,BETA,GAMAINF,DVISC,SUM,FAC,RVT,EVL,
+     .   NU,GMAX,RBULK,BETA(100),GAMAINF,DVISC,FAC,RVT,
      .   EV1,EV2,EV3,KT3(NEL),INVR(NEL),DSDEV(NEL),DSVOL(NEL),
      .   DQ1(NEL),DQ2(NEL),DQ3(NEL),SDH01(NEL),
      .   SDH02(NEL),SDH03(NEL),SDH1(NEL),SDH2(NEL),SDH3(NEL),
      .   DQDEV(NEL),DQIDEV,INV31,INV32(NEL),INV33(NEL),
-     .   RVD(NEL),H10,H20,H30,H1,H2,H3,HP1,HP2,HP3,HD1,HD2,HD3,A11,
+     .   RVD(NEL),H10,H20,H30,H1,H2,H3,HP1,HP2,HD1,HD2,HD3,A11,
      .   EMAX,SDHP1,SDHP2,INV11,INV21
       my_real
-     .   EVV(NEL,3),EV(NEL,3),EVM(NEL),DWDL(3),EC(NEL,3),
-     .   RHO(NEL),GAMA(NEL),PRES(NEL),RV(NEL),P,SP(NEL,3),
-     .   T(NEL,3),SV(NEL,3),S(NEL,3),S0(NEL,3),SD(NEL,3),SD0(NEL,3),
+     .   EVV(NEL,3),EV(NEL,3),EC(NEL,3),
+     .   RHO(NEL),GAMA(NEL),RV(NEL),P,SP(NEL,3),
+     .   T(NEL,3),S(NEL,3),SD(NEL,3),
      .   TRAV(NEL),ROOTV(NEL),EIGV(NEL,3,2),DEZZ(NEL),
      .   EV1_SAV(NEL,100),EV2_SAV(NEL,100)
       my_real     
-     .   MU(100),AL(100),D(100),
+     .   MU(100),AL(100),
      .   TAUX(100)
 C=======================================================================
 C SET INITIAL MATERIAL CONSTANTS
@@ -108,11 +107,11 @@ C SET INITIAL MATERIAL CONSTANTS
       GAMAINF = UPARAM(4)
       RBULK   = UPARAM(5)
       DVISC   = UPARAM(6)
-      BETA    = NU/(ONE - TWO*NU)
       GMAX    = ZERO
       DO I= 1,NORDRE
         MU(I) = UPARAM(6 + I)
         AL(I) = UPARAM(6 + NORDRE + I)
+        BETA(I) = UPARAM(2*NORDRE + 2*NPRONY + 7 + I)
         GMAX  = GMAX + MU(I)
       ENDDO
       IVISC = 0
@@ -138,7 +137,7 @@ C     principal stretch (def gradient eigenvalues)
         TRAV(I)  = EPSXX(I)+EPSYY(I)
         ROOTV(I) = SQRT((EPSXX(I)-EPSYY(I))*(EPSXX(I)-EPSYY(I))
      .           + EPSXY(I)*EPSXY(I))
-	       EVV(I,1) = HALF*(TRAV(I)+ROOTV(I))
+                 EVV(I,1) = HALF*(TRAV(I)+ROOTV(I))
         EVV(I,2) = HALF*(TRAV(I)-ROOTV(I))
         EVV(I,3) = ZERO
       ENDDO
@@ -216,7 +215,7 @@ C
                  RVT = ZERO
                  IF(RV(I) > ZERO) THEN
                    RVT = ONE
-                   IF(AL(K)/= ZERO) RVT = EXP((-BETA*AL(K))*LOG(RV(I)))
+                   IF(AL(K)/= ZERO) RVT = EXP((-BETA(K)*AL(K))*LOG(RV(I)))
                  ENDIF
 C             
                  FAC = TWO*MU(K)/AL(K) 
@@ -225,7 +224,7 @@ C----       cauchy stress
                
                  KT3(I) = KT3(I) + 
      .                  (-FAC       *(EV3 - RVT) + 
-     .                    TWO*MU(K)*(EV3 + BETA*RVT))/EV(I,3)/RV(I)
+     .                    TWO*MU(K)*(EV3 + BETA(K)*RVT))/EV(I,3)/RV(I)
                 ENDDO
             ENDDO   ! Ordre
 !          -----------------------      
@@ -255,7 +254,7 @@ C
               RVT = ZERO
               IF(RV(I) > ZERO) THEN
               RVT = ONE
-                IF(AL(K)/= ZERO) RVT = EXP((-BETA*AL(K))*LOG(RV(I)))
+                IF(AL(K)/= ZERO) RVT = EXP((-BETA(K)*AL(K))*LOG(RV(I)))
               ENDIF
             
               FAC = TWO*MU(K)/AL(K)
@@ -311,7 +310,7 @@ C
               RVT = ZERO          
               IF(RV(I) > ZERO) THEN
                 RVT = ONE
-                IF(AL(K)/= ZERO) RVT = EXP((-BETA*AL(K))*LOG(RV(I)))
+                IF(AL(K)/= ZERO) RVT = EXP((-BETA(K)*AL(K))*LOG(RV(I)))
               ENDIF
 C             
               FAC = TWO*MU(K)/AL(K) 
@@ -320,9 +319,9 @@ C----       cauchy stress
               T(I,2) = T(I,2) + FAC*(EV2 -  RVT)*INVR(I) 
               T(I,3) = T(I,3) + FAC*(EV3 -  RVT)*INVR(I) 
 C              
-              DSVOL(I) = DSVOL(I) - TWO_THIRD*FAC*(EV1 + EV2 + EV3) + 
+              DSVOL(I) = DSVOL(I) - TWO_THIRD*FAC*(EV1 + EV2 + EV3)
      .                      + TWO*FAC*RVT + TWO_THIRD*MU(K)*EV3 
-     .                      + TWO*BETA*MU(K)*RVT
+     .                      + TWO*BETA(K)*MU(K)*RVT
 C     
               DSDEV(I) = DSDEV(I) - TWO*FAC*(TWO_THIRD*EV3 - THIRD*(EV1 + EV2))
      .                      + FOUR_OVER_3*MU(K)*EV3
@@ -431,7 +430,7 @@ C  update of lam_3
    
 C stocked value           
         UVAR(1:NEL,4) = EV(1:NEL,3)
-Commpute stress after convergency           
+Compute stress after convergency           
            ! RVT = RV(I)**(-BETA*AL(K))
 ! if rv > 0 --> pui = exp(-beta * ln(ev))
 ! else pui = 0 
@@ -448,7 +447,7 @@ C
               RVT = ZERO          
               IF(RV(I) > ZERO) THEN
                 RVT = ONE
-                IF(AL(K)/= ZERO) RVT = EXP((-BETA*AL(K))*LOG(RV(I)))
+                IF(AL(K)/= ZERO) RVT = EXP((-BETA(K)*AL(K))*LOG(RV(I)))
               ENDIF
 C             
               EV3  = ZERO

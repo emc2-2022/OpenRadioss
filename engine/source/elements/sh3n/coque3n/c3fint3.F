@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3FINT3                       source/elements/sh3n/coque3n/c3fint3.F
-Chd|-- called by -----------
-Chd|        C3FORC3                       source/elements/sh3n/coque3n/c3forc3.F
-Chd|        C3FORC3_CRK                   source/elements/xfem/c3forc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3fint3       ../engine/source/elements/sh3n/coque3n/c3fint3.F
+!||--- called by ------------------------------------------------------
+!||    c3forc3       ../engine/source/elements/sh3n/coque3n/c3forc3.F
+!||    c3forc3_crk   ../engine/source/elements/xfem/c3forc3_crk.F
+!||====================================================================
       SUBROUTINE C3FINT3(JFT  ,JLT  ,FOR  ,MOM  ,THK,
      2                   PX1  ,PY1  ,PY2  ,FX1  ,FX2,
      3                   FX3  ,FY1  ,FY2  ,FY3  ,FZ1,
@@ -54,12 +53,9 @@ C     REAL
      .   MX1(MVSIZ), MX2(MVSIZ), MX3(MVSIZ),
      .   MY1(MVSIZ), MY2(MVSIZ), MY3(MVSIZ)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J
+      INTEGER I
 C     REAL
       my_real
      .   F1, F2, F3, F4, F5, M1, M2, M3, M4, M5, TH2
@@ -118,13 +114,12 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  C3FINTRZ                      source/elements/sh3n/coque3n/c3fint3.F
-Chd|-- called by -----------
-Chd|        C3FORC3                       source/elements/sh3n/coque3n/c3forc3.F
-Chd|        C3FORC3_CRK                   source/elements/xfem/c3forc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    c3fintrz      ../engine/source/elements/sh3n/coque3n/c3fint3.F
+!||--- called by ------------------------------------------------------
+!||    c3forc3       ../engine/source/elements/sh3n/coque3n/c3forc3.F
+!||    c3forc3_crk   ../engine/source/elements/xfem/c3forc3_crk.F
+!||====================================================================
         SUBROUTINE C3FINTRZ(JFT  ,JLT  ,THK  ,AREA ,PX1  ,
      2                      PY1  ,PY2  ,F11  ,F12  ,F13  ,
      3                      F21  ,F22  ,F23  ,WXY  ,VSTRE,
@@ -178,7 +173,7 @@ C-----------------------------------------------
         INTEGER I ,J ,NG,NPG
        PARAMETER (NPG = 3)
         my_real
-     .     S1, C2, ERZ,OFF05(MVSIZ),BRZ(MVSIZ,3),VRLZ(MVSIZ),
+     .      C2, ERZ,OFF05(MVSIZ),BRZ(MVSIZ,3),VRLZ(MVSIZ),
      .     FX1,FX2,FY1,SRZM(MVSIZ),A_HAMMER(NPG,2),A05(MVSIZ),
      .     THK_6(MVSIZ),BN1RZ,BN2RZ,BN3RZ
       DATA A_HAMMER /
@@ -227,7 +222,7 @@ C
         ENDDO
       END DO !NG =1,NPG
 C-------------------------------------------------
-C        constant part PX2=-PX1
+C        Constant Part PX2 = -PX1
 C-------------------------------------------------
         DO I=JFT,JLT
           C2=THK(I)*SRZM(I)*ONE_OVER_6

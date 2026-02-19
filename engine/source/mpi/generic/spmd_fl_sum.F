@@ -1,48 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
 C
-Chd|====================================================================
-Chd|  SPMD_FL_SUM                   source/mpi/generic/spmd_fl_sum.F
-Chd|-- called by -----------
-Chd|        BEMSOLVP                      source/fluid/bemsolvp.F       
-Chd|        DAAACC                        source/fluid/daaacc.F         
-Chd|        DAASOLVP                      source/fluid/daasolvp.F       
-Chd|        INCPFLOW                      source/fluid/incpflow.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_fl_sum           ../engine/source/mpi/generic/spmd_fl_sum.F
+!||--- called by ------------------------------------------------------
+!||    bemsolvp              ../engine/source/fluid/bemsolvp.F
+!||    daaacc                ../engine/source/fluid/daaacc.F
+!||    daasolvp              ../engine/source/fluid/daasolvp.F
+!||    incpflow              ../engine/source/fluid/incpflow.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_FL_SUM(LSUM, LEN, LSUMT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -67,14 +67,14 @@ C
       DATA MSGOFF/186/
       DATA MSGOFF2/187/
 C
-      IF (ISPMD.NE.0) THEN
+      IF (ISPMD/=0) THEN
          ITAG=MSGOFF
          CALL MPI_ISEND(LSUM, LEN, REAL, IT_SPMD(1), ITAG,
-     .                  MPI_COMM_WORLD, REQ(1), IERR)
+     .                  SPMD_COMM_WORLD, REQ(1), IERR)
 C
          ITAG=MSGOFF2
          CALL MPI_IRECV(LSUMT, LEN, REAL, IT_SPMD(1), ITAG,
-     .                  MPI_COMM_WORLD, REQ(2), IERR)
+     .                  SPMD_COMM_WORLD, REQ(2), IERR)
 C
          CALL MPI_WAITALL(2, REQ, TSTAT, IERR)
       ELSE
@@ -86,7 +86,7 @@ C
             II=I+1
             ITAG=MSGOFF
             CALL MPI_IRECV(LSUMC, LEN, REAL, IT_SPMD(II), ITAG,
-     .                     MPI_COMM_WORLD, REQ1(1), IERR)
+     .                     SPMD_COMM_WORLD, REQ1(1), IERR)
             CALL MPI_WAIT(REQ1(1), STAT1(1,1), IERR)
 C
             DO J=1,LEN
@@ -98,7 +98,7 @@ C
             II=I+1
             ITAG=MSGOFF2
             CALL MPI_ISEND(LSUMT, LEN, REAL, IT_SPMD(II), ITAG,
-     .                     MPI_COMM_WORLD, REQ1(I), IERR)
+     .                     SPMD_COMM_WORLD, REQ1(I), IERR)
          ENDDO
 C
          CALL MPI_WAITALL(NSPMD-1, REQ1, STAT1, IERR)

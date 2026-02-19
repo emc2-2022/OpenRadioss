@@ -1,53 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SROTA6                        source/output/anim/srota6.F   
-Chd|-- called by -----------
-Chd|        TENSORS                       source/output/anim/tensors.F  
-Chd|-- calls ---------------
-Chd|        SORTHO31                      source/output/anim/sortho31.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    srota6        ../starter/source/output/anim/srota6.F
+!||--- called by ------------------------------------------------------
+!||    tensors       ../starter/source/output/anim/tensors.F
+!||--- calls      -----------------------------------------------------
+!||    sortho31      ../starter/source/output/anim/sortho31.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SROTA6(X,IXS,KCVT,                                     
-     .                   TENS,GAMA)                                     
+     .                   TENS,GAMA)   
+      use element_mod , only : nixs
 C-----------------------------------------------                        
 C   I m p l i c i t   T y p e s                                         
 C-----------------------------------------------                        
 #include      "implicit_f.inc"                                          
 C-----------------------------------------------                        
-C   C o m m o n   B l o c k s                                           
-C-----------------------------------------------                        
-#include      "param_c.inc"                                             
-C-----------------------------------------------                        
 C   D u m m y   A r g u m e n t s                                       
 C-----------------------------------------------                        
-C     REAL                                                    
       my_real                                                           
      .   X(3,*),TENS(6),GAMA(6)                                         
       INTEGER IXS(NIXS), KCVT                                           
 C-----------------------------------------------                        
 C   L o c a l   V a r i a b l e s                                       
 C-----------------------------------------------                        
-C     REAL                                                    
       my_real                                                           
      .   X1, X2, X3, X4,                                                
      .   X5, X6, X7, X8,                                                
@@ -99,7 +95,7 @@ C----------------------------
         Y8=X(2,NC8)                                                     
         Z8=X(3,NC8)                                                     
 C-----------                                                            
-C     REPERE CONVECTE.                                                  
+C     convected frame.                                                  
 C-----------                                                            
       CALL SORTHO31(                                                    
      .   X1, X2, X3, X4, X5, X6, X7, X8,                                
@@ -107,9 +103,9 @@ C-----------
      .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8,                                
      .   R11, R12, R13, R21, R22, R23, R31, R32, R33)                   
 C-----------                                                            
-C     REPERE ORTHOTROPE.                                                
+C     ORTHOTROPIC FRAME.                                                
 C-----------                                                            
-      IF (KCVT.EQ.2) THEN                                               
+      IF (KCVT==2) THEN                                               
         G11=GAMA(1)                                                     
         G21=GAMA(2)                                                     
         G31=GAMA(3)                                                     

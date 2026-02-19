@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DAMA24                        source/materials/mat/mat024/dama24.F
-Chd|-- called by -----------
-Chd|        CONC24                        source/materials/mat/mat024/conc24.F
-Chd|-- calls ---------------
-Chd|        PRI224                        source/materials/mat/mat024/pri224.F
-Chd|        PRI324                        source/materials/mat/mat024/pri324.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dama24   ../engine/source/materials/mat/mat024/dama24.F
+!||--- called by ------------------------------------------------------
+!||    conc24   ../engine/source/materials/mat/mat024/conc24.F
+!||--- calls      -----------------------------------------------------
+!||    pri224   ../engine/source/materials/mat/mat024/pri224.F
+!||    pri324   ../engine/source/materials/mat/mat024/pri324.F
+!||====================================================================
       SUBROUTINE DAMA24(NEL    ,NINDX  ,INDX   ,NGL    ,PM     ,SCLE2  ,
      .                  SIG    ,DAM    ,ANG    ,EPS_F  ,CRAK   ,CDAM   ,
      .                  S01    ,S02    ,S03    ,S04    ,S05    ,S06    ,
@@ -42,8 +42,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "vect01_c.inc"
-#include      "com08_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -120,7 +118,7 @@ c---------------------
           CALL PRI324(SIGO,EPSTOT,EPS,DIR)
         ENDIF
 c
-c       SAUVE LA DEFORMATION A RUPTURE
+c       SAVE THE STRAIN AT RUPTURE
 c
         SFTRY = MIN(EPSTOT(IDIR),EPSTOT(IDIR)-SCLE2(I)*EPS(IDIR),EPST)
         SFTRY = MAX(SFTRY,FOURTH*EPST)
@@ -144,7 +142,7 @@ c
            CYCLE
         ENDIF
 c
-c       SAUVE LES DIRECTIONS DE DOMMAGE
+c       saves the damage directions
 c
         IF (IDIR == 1) THEN
           ANG(I,1:6) = DIR(1:6)
@@ -152,7 +150,7 @@ c
           ANG(I,4:6) = DIR(4:6)
         ENDIF
 c
-c       CALCULE LE DOMMAGE
+c       computes the damage
 c
         DO K=1,3
           CRAK(I,K) = EPSTOT(K)
@@ -190,7 +188,7 @@ c            SCAL(K)= ZERO
           ENDIF
         ENDDO   ! next K
 c
-c       CALCULE LA MATRICE DE HOOKE ET LES CONTRAINTES (rotation repere !)
+c       computes the hooke matrix and the stresses (rotation of the frame!)
 c
         DEN = ONE - NU**2
      .      * (SCAL(1)*SCAL(2) + SCAL(2)*SCAL(3) + SCAL(3)*SCAL(1)

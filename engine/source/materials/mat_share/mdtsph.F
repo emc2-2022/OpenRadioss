@@ -1,46 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MDTSPH                        source/materials/mat_share/mdtsph.F
-Chd|-- called by -----------
-Chd|        M1LAW                         source/materials/mat/mat001/m1law.F
-Chd|        M1LAWI                        source/materials/mat/mat001/m1law.F
-Chd|        M1LAWTOT                      source/materials/mat/mat001/m1law.F
-Chd|        M22LAW                        source/materials/mat/mat022/m22law.F
-Chd|        M24LAW                        source/materials/mat/mat024/m24law.F
-Chd|        M2LAW                         source/materials/mat/mat002/m2law.F
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        SBOLTLAW                      source/elements/solid/solide/sboltlaw.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE MDTSPH(PM ,OFF     ,RHO     ,RK      ,T       ,
-     2             RE      ,STI     ,DT2T    ,NELTST  ,ITYPTST ,
-     3             OFFG    ,GEO     ,PID     ,MUMAX   ,SSP     ,
-     4             VOL     ,VD2     ,DELTAX  ,VIS     ,D1      ,
-     5             D2      ,D3      ,PNEW    ,PSH     ,MAT     ,
-     6             NGL     ,QVIS    ,SSP_EQ  ,G_DT    ,DTSPH)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    mdtsph          ../engine/source/materials/mat_share/mdtsph.F
+!||--- called by ------------------------------------------------------
+!||    m1law           ../engine/source/materials/mat/mat001/m1law.F
+!||    m1lawi          ../engine/source/materials/mat/mat001/m1lawi.F
+!||    m1lawtot        ../engine/source/materials/mat/mat001/m1lawtot.F
+!||    m22law          ../engine/source/materials/mat/mat022/m22law.F
+!||    m24law          ../engine/source/materials/mat/mat024/m24law.F
+!||    m2law           ../engine/source/materials/mat/mat002/m2law.F
+!||    mmain           ../engine/source/materials/mat_share/mmain.F90
+!||    mulaw           ../engine/source/materials/mat_share/mulaw.F90
+!||    sboltlaw        ../engine/source/elements/solid/solide/sboltlaw.F
+!||    usermat_solid   ../engine/source/materials/mat_share/usermat_solid.F
+!||====================================================================
+      SUBROUTINE MDTSPH(
+     1   PM,      OFF,     RHO,     RK,
+     2   T,       RE,      STI,     DT2T,
+     3   NELTST,  ITYPTST, OFFG,    GEO,
+     4   PID,     MUMAX,   SSP,     VOL,
+     5   VD2,     DELTAX,  VIS,     D1,
+     6   D2,      D3,      PNEW,    PSH,
+     7   MAT,     NGL,     QVIS,    SSP_EQ,
+     8   G_DT,    DTSPH,   NEL,     ITY,
+     9   JTUR,    JTHE)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -53,9 +56,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "scr02_c.inc"
 #include      "scr18_c.inc"
@@ -66,6 +66,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NEL
+      INTEGER, INTENT(IN) :: ITY
+      INTEGER, INTENT(IN) :: JTUR
+      INTEGER, INTENT(IN) :: JTHE
       INTEGER NELTST,ITYPTST,PID(*),MAT(*), NGL(*)
       my_real :: DT2T
 
@@ -75,12 +79,12 @@ C-----------------------------------------------
      .   VOL(*), VD2(*), DELTAX(*), SSP(*), VIS(*),
      .   PSH(*), PNEW(*),QVIS(*) ,SSP_EQ(*), D1(*),
      .   D2(*), D3(*)
-      my_real, INTENT(INOUT) :: DTSPH(LFT:LLT)
+      my_real, INTENT(INOUT) :: DTSPH(1:NEL)
       INTEGER,INTENT(IN)     :: G_DT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J, MT
+      INTEGER I, MT
       my_real
      .   AL(MVSIZ),DTX(MVSIZ), QX(MVSIZ), CX(MVSIZ), QXMATER(MVSIZ),
      .   QA, QB, VISI, FACQ,
@@ -89,14 +93,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u  r c e   L  i n e s
 C-----------------------------------------------
-      IF(IMPL.EQ.ZERO)THEN
-       DO I=LFT,LLT
+      IF(IMPL==ZERO)THEN
+       DO I=1,NEL
          CX(I)=SSP(I)+SQRT(VD2(I))
        ENDDO
        VISI=ONE
        FACQ=ONE
       ELSE
-       DO I=LFT,LLT
+       DO I=1,NEL
          CX(I)=SQRT(VD2(I))
        ENDDO
        VISI=ZERO
@@ -105,14 +109,14 @@ C-----------------------------------------------
       
       !not a bug : only law 24 uses CNS1 & CNS2 
       !(they are not yet available with SPH).
-      DO I=LFT,LLT
+      DO I=1,NEL
         AL(I)=ZERO
-        IF(OFF(I).LT.1.) CYCLE
+        IF(OFF(I)<1.) CYCLE
         AL(I)=VOL(I)**THIRD
       ENDDO
 
-      MT = MAT(LFT)
-      DO I=LFT,LLT
+      MT = MAT(1)
+      DO I=1,NEL
         QA =FACQ*GEO(14,PID(I))
         QB =FACQ*GEO(15,PID(I))
         CNS1=GEO(16,PID(I))
@@ -124,27 +128,27 @@ C-----------------------------------------------
         QVIS(I)=ZERO
       ENDDO
 
-      DO I=LFT,LLT
+      DO I=1,NEL
        DTX(I)=DELTAX(I)/MAX(EM20,QX(I)+SQRT(QX(I)*QX(I)+CX(I)*CX(I)))
       !preparing material sound speed for nodal time step computation: 
        SSP_EQ(I) = MAX(EM20,QXMATER(I)+SQRT(QXMATER(I)*QXMATER(I)+CX(I)*CX(I)))
       ENDDO            
 
-      IF(JTHE.NE.0)THEN
-        MT  = MAT(LFT)
+      IF(JTHE/=0)THEN
+        MT  = MAT(1)
         SPH = PM(69,MT)
         AK1 = PM(75,MT)
         BK1 = PM(76,MT)
         AK2 = PM(77,MT)
         BK2 = PM(78,MT)
         TLI = PM(80,MT)
-        DO I=LFT,LLT
-         IF(T(I).LT.TLI)THEN
+        DO I=1,NEL
+         IF(T(I)<TLI)THEN
           AKK=AK1+BK1*T(I)
          ELSE
           AKK=AK2+BK2*T(I)
          ENDIF
-         IF(JTUR.NE.0)THEN
+         IF(JTUR/=0)THEN
           XMU = RHO(I)*PM(24,MT)
           TMU = PM(81,MT)
           RPR = PM(95,MT)
@@ -155,44 +159,44 @@ C-----------------------------------------------
         ENDDO       
       ENDIF
 
-      DO I=LFT,LLT
+      DO I=1,NEL
         STI(I) = ZERO
-        IF(OFF(I).EQ.ZERO) CYCLE
+        IF(OFF(I)==ZERO) CYCLE
         STI(I) = TWO*RHO(I) * VOL(I) / (DTX(I)*DTX(I))
         DTX(I)= DTFAC1(ITY)*DTX(I)
-        !dt2 remplace par dt2t
-        IF(NODADT.EQ.0)DT2T= MIN(DTX(I),DT2T)
+        !dt2 replaced by dt2t
+        IF(NODADT==0)DT2T= MIN(DTX(I),DT2T)
       ENDDO
       
-      IF(G_DT.NE.ZERO)THEN
-        DO I=LFT,LLT
+      IF(G_DT/=ZERO)THEN
+        DO I=1,NEL
           DTSPH(I) = DTX(I)
         ENDDO
       ENDIF
       
 
-      IF(NODADT.EQ.0)THEN
-       IF(IDTMIN(ITY).EQ.1)THEN
-        DO 170 I=LFT,LLT
-        IF(DTX(I).GT.DTMIN1(ITY).OR.OFF(I).EQ.ZERO) GO TO 170
+      IF(NODADT==0)THEN
+       IF(IDTMIN(ITY)==1)THEN
+        DO 170 I=1,NEL
+        IF(DTX(I)>DTMIN1(ITY).OR.OFF(I)==ZERO) GO TO 170
           TSTOP = TT
 #include "lockon.inc"
           WRITE(IOUT,*) ' **ERROR : TIME STEP LESS OR EQUAL DTMIN FOR SPH PARTICLE'
           WRITE(ISTDO,*)' **ERROR : TIME STEP LESS OR EQUAL DTMIN FOR SPH PARTICLE'
 #include "lockoff.inc"
  170     CONTINUE
-       ELSEIF(IDTMIN(ITY).EQ.2)THEN
-        DO 270 I=LFT,LLT
-        IF(DTX(I).GT.DTMIN1(ITY).OR.OFF(I).EQ.ZERO) GO TO 270
+       ELSEIF(IDTMIN(ITY)==2)THEN
+        DO 270 I=1,NEL
+        IF(DTX(I)>DTMIN1(ITY).OR.OFF(I)==ZERO) GO TO 270
           OFF(I) = ZERO
 #include "lockon.inc"
           WRITE(IOUT,*) ' -- DELETE SPH PARTICLE',NGL(I)
           WRITE(ISTDO,*)' -- DELETE SPH PARTICLE',NGL(I)
 #include "lockoff.inc"
  270    CONTINUE
-       ELSEIF(IDTMIN(ITY).EQ.5)THEN
-        DO 570 I=LFT,LLT
-        IF(DTX(I).GT.DTMIN1(ITY).OR.OFF(I).EQ.0.) GO TO 570
+       ELSEIF(IDTMIN(ITY)==5)THEN
+        DO 570 I=1,NEL
+        IF(DTX(I)>DTMIN1(ITY).OR.OFF(I)==0.) GO TO 570
           MSTOP = 2
 #include "lockon.inc"
           WRITE(IOUT,*)
@@ -203,9 +207,9 @@ C-----------------------------------------------
  570    CONTINUE
        ENDIF
        
-       DO I=LFT,LLT
-         IF(DTX(I).GT.DT2T.OR.OFF(I).EQ.ZERO) CYCLE
-         !nelts et itypts remplaces par neltst et itypst
+       DO I=1,NEL
+         IF(DTX(I)>DT2T.OR.OFF(I)==ZERO) CYCLE
+         !nelts and itypts replaced by neltst and itypst
          NELTST =NGL(I)
          ITYPTST=ITY
        ENDDO

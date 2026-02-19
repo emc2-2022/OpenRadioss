@@ -1,31 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  XINI29                        source/elements/xelem/xini29.F
-Chd|-- called by -----------
-Chd|        XINIT3                        source/elements/xelem/xinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    xini29       ../starter/source/elements/xelem/xini29.F
+!||--- called by ------------------------------------------------------
+!||    xinit3       ../starter/source/elements/xelem/xinit3.F
+!||--- calls      -----------------------------------------------------
+!||    get_u_func   ../starter/source/user_interface/uaccess.F
+!||    get_u_geo    ../starter/source/user_interface/uaccess.F
+!||    get_u_mat    ../starter/source/user_interface/uaccess.F
+!||    get_u_mid    ../starter/source/user_interface/uaccess.F
+!||    get_u_mnu    ../starter/source/user_interface/uaccess.F
+!||    get_u_pid    ../starter/source/user_interface/uaccess.F
+!||    get_u_pnu    ../starter/source/user_interface/uaccess.F
+!||====================================================================
       SUBROUTINE XINI29(NX    ,NAX1D  ,NAX2D ,NAX3D ,
      2                  XEL   ,VEL    ,VREL  ,
      2                  IOUT  ,IPROP  ,IMAT  ,
@@ -87,7 +94,7 @@ C         I     :     VARIABLE INDEX(1 for first function)
 C         IM    :     MATERIAL NUMBER
 C         KFUNC :     ONLY FUNCTION ARE YET AVAILABLE.
 C         THIS FUNCTION RETURN THE USER STORED FUNCTION NUMBERS(function 
-C         refered by users materials).
+C         referred by users materials).
 C         SEE LECM29 FOR CORRESPONDING ID STORAGE.
 C-------------------------------------------------------------------------
 C my_real PARAMI = GET_U_GEO(I,IP)
@@ -128,16 +135,13 @@ C----------------------------------------------------------
      .        STIFR(NX),VISCM(NX) ,VISCR(NX) ,UVAR(NUVAR) ,
      .        UVARN(NUVARN*NX), DTE,
      .        GET_U_MAT,GET_U_GEO,GET_U_FUNC
-c jbm024
       EXTERNAL GET_U_PNU,GET_U_MNU,GET_U_MAT,GET_U_GEO,GET_U_PID,
      .         GET_U_MID,GET_U_FUNC
       PARAMETER (KFUNC=29)
       PARAMETER (KMAT=31)
       PARAMETER (KPROP=33)
-C=======================================================================
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
 C-----------------------------------------------
       RETURN
       END

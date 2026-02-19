@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MERGE                         source/model/submodel/merge.F 
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        MERGE_CNOD_CNOD               source/model/submodel/merge_cnod_cnod.F
-Chd|        USRTOS                        source/system/sysfus.F        
-Chd|        USRTOSC                       source/model/submodel/merge.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    merge             ../starter/source/model/submodel/merge.F
+!||--- called by ------------------------------------------------------
+!||    lectur            ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    merge_cnod_cnod   ../starter/source/model/submodel/merge_cnod_cnod.F
+!||    usrtos            ../starter/source/system/sysfus.F
+!||    usrtosc           ../starter/source/model/submodel/merge.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod       ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE MERGE(X      ,ITAB   ,ITABM1 ,CMERGE ,IMERGE,
      .                 IMERGE2,IADMERGE2,NMERGE_TOT)
       USE MESSAGE_MOD
@@ -42,8 +43,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "units_c.inc"
 #include      "com04_c.inc"
-#include      "scr06_c.inc"
-#include      "scr03_c.inc"
 #include      "titr_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -56,21 +55,23 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,M,N,I1,IB,IG,JG,J1,JK,KK,KP,N1,N2,NC,NS,NN,NM,
-     .      IBZ1,IBZ,IBY1,IBY,IBX1,IBX,KS,NUMNOD1,NUMCNOD1,
+      INTEGER I,J,N,IB,IG,JG,KP,NC,NS,NN,NM,
+     .      IBZ,IBY,IBX,KS,NUMNOD1,
      .      NBOX,NBOY,NBOZ,NBX,NBY,NBZ,NBAND,IBOITE
-C
-      INTEGER 
-     .    NOBX(NUMNOD),NOBY(NUMNOD),NOBZ(NUMNOD),
-     .    NOBCX(NUMCNOD),NOBCY(NUMCNOD),NOBCZ(NUMCNOD),
-     .    LBUF(NUMNOD),IADMERGE2TMP(NUMNOD+1)
 C 
       INTEGER, DIMENSION(:),POINTER     :: ITABC
       INTEGER, DIMENSION(:),ALLOCATABLE :: 
      .    NPX,IPX,NPY,IPY,NPZ,IPZ,NPCX,IPCX,NPCY,IPCY,NPCZ,IPCZ,IMERGE0
-C 
+      INTEGER,DIMENSION(:), ALLOCATABLE :: NOBX
+      INTEGER,DIMENSION(:), ALLOCATABLE :: NOBY
+      INTEGER,DIMENSION(:), ALLOCATABLE :: NOBZ
+      INTEGER,DIMENSION(:), ALLOCATABLE :: NOBCX
+      INTEGER,DIMENSION(:), ALLOCATABLE :: NOBCY
+      INTEGER,DIMENSION(:), ALLOCATABLE :: NOBCZ
+      INTEGER,DIMENSION(:), ALLOCATABLE :: LBUF
+      INTEGER,DIMENSION(:), ALLOCATABLE :: IADMERGE2TMP
       my_real
-     .        XI, YI, ZI, XJ, YJ, ZJ, DK,
+     .        XI, YI, ZI, XJ, YJ, ZJ,
      .        DIST2,DVOIS,DBUC,EPS,XMIN,XMAX,YMIN,YMAX,ZMIN,
      .        ZMAX,DMX,DMY,DMZ,DMERGE,DDD(NUMCNOD)
 C-----------------------------------------------
@@ -79,6 +80,14 @@ C-----------------------------------------------
       EXTERNAL USRTOS,USRTOSC
 C=======================================================================
 
+      ALLOCATE(NOBX(NUMNOD))
+      ALLOCATE(NOBY(NUMNOD))
+      ALLOCATE(NOBZ(NUMNOD))
+      ALLOCATE(NOBCX(NUMCNOD))
+      ALLOCATE(NOBCY(NUMCNOD))
+      ALLOCATE(NOBCZ(NUMCNOD))
+      ALLOCATE(LBUF(NUMNOD))
+      ALLOCATE(IADMERGE2TMP(NUMNOD+1))
 C-------    dbuc------------------------------
       DO  N=1,2*NUMCNOD
         IMERGE(N) = 0
@@ -155,10 +164,10 @@ C
      .         IMERGE0(NUMCNOD))
       IMERGE0(1:NUMCNOD) = 0
 C--------------------------------------------------
-C     CLASSEMENT DES BUCKETS X
+C     BUCKETS X SORTING
 C--------------------------------------------------
 C 
-C---      bande NBX uniquement. 
+C--- NBX strip only. 
 C 
       DO IB=0,NBX+1
        NPX(IB)=0
@@ -177,7 +186,7 @@ C
       ENDDO
       DO N=1,NUMNOD1
         NBOX=NOBX(N)+1
-C      bande NBX uniquement.
+C      NBX strip only.
         IF(NBOX >= 1.AND.NBOX <= NBX+1)THEN
            NPX(NBOX)=NPX(NBOX)+1
            IPX(NPX(NBOX))=N       
@@ -203,7 +212,7 @@ C
       ENDDO
       DO N=1,NUMCNOD
          NBOX=NOBCX(N)+1
-C      bande NBX uniquement.
+C      NBX strip only.
          IF(NBOX >= 1.AND.NBOX <= NBX+1)THEN
            NPCX(NBOX)=NPCX(NBOX)+1
            IPCX(NPCX(NBOX))=N               
@@ -223,7 +232,7 @@ C
               DO KS=NPX(MAX(IBX-2,0))+1,NPX(MIN(IBX+1,NBX+1))
                  N  =IPX(KS)
                  NBOY=NOBY(N)+1           
-C       bande NBY uniquement.
+C       NBY band only.
                  IF(NBOY >= 1 .AND. NBOY <= NBY+1)THEN
                      NPY(NBOY)=NPY(NBOY)+1
                  ENDIF
@@ -237,7 +246,7 @@ C       bande NBY uniquement.
              DO KS=NPX(MAX(IBX-2,0))+1,NPX(MIN(IBX+1,NBX+1))
                   N  =IPX(KS)      
                   NBOY=NOBY(N)+1
-C       bande NBY uniquement.
+C       NBY band only.
                   IF(NBOY >= 1 .AND. NBOY <= NBY+1)THEN
                        NPY(NBOY)=NPY(NBOY)+1
                        IPY(NPY(NBOY))=N 
@@ -252,7 +261,7 @@ C
              DO KS=NPCX(IBX-1)+1,NPCX(IBX)
                  N  =IPCX(KS)      
                  NBOY=NOBCY(N)+1
-C       bande NBY uniquement.
+C       NBY band only.
                  IF(NBOY >= 1.AND.NBOY <= NBY+1)THEN
                      NPCY(NBOY)=NPCY(NBOY)+1
                  ENDIF
@@ -268,14 +277,14 @@ C
              DO KS=NPCX(IBX-1)+1,NPCX(IBX)
                   N  =IPCX(KS)      
                   NBOY=NOBCY(N)+1
-C       bande NBY uniquement.
+C       NBY band only.
                   IF(NBOY >= 1.AND. NBOY <= NBY+1)THEN
                      NPCY(NBOY)=NPCY(NBOY)+1
                      IPCY(NPCY(NBOY))=N         
                   ENDIF
              ENDDO
 C        
-C -- les boites suivantes z
+C -- the following boxes z
 C 
              DO IBY=1,NBY+1   
                 IBOITE = 0   
@@ -290,7 +299,7 @@ C
                   DO KS=NPY(MAX(IBY-2,0))+1,NPY(MIN(IBY+1, NBY+1))
                       N  =IPY(KS) 
                       NBOZ=NOBZ(N)+1
-C        bande NBZ uniquement.
+C        NBZ band only.
                       IF(NBOZ >= 1.AND.NBOZ <= NBZ+1)THEN
                            NPZ(NBOZ)=NPZ(NBOZ)+1
                       ENDIF
@@ -304,7 +313,7 @@ C        bande NBZ uniquement.
                   DO KS=NPY(MAX(IBY-2,0))+1,NPY(MIN(IBY+1, NBY+1))
                       N  =IPY(KS)
                       NBOZ=NOBZ(N)+1
-C        bande NBZ uniquement.
+C        NBZ band only.
                       IF(NBOZ >= 1 .AND. NBOZ <= NBZ+1)THEN
                            NPZ(NBOZ)=NPZ(NBOZ)+1
                            IPZ(NPZ(NBOZ))=N   
@@ -340,6 +349,7 @@ C
 C
 C ---recherche cnode par boite tt d'abord
 C
+                  DVOIS = HUGE(DVOIS)
                   DO IBZ=1,NBZ+1
                      DO KP= NPCZ(IBZ-1)+1,NPCZ(IBZ) 
                        NC =IPCZ(KP) 
@@ -440,21 +450,28 @@ C--------
       CALL MERGE_CNOD_CNOD(X      ,ITAB     ,ITABM1 ,CMERGE ,IMERGE,
      .                     IMERGE2,IADMERGE2,IMERGE0,NMERGE_TOT)
       DEALLOCATE(IMERGE0)
-C--------
+      DEALLOCATE(NOBX)
+      DEALLOCATE(NOBY)
+      DEALLOCATE(NOBZ)
+      DEALLOCATE(NOBCX)
+      DEALLOCATE(NOBCY)
+      DEALLOCATE(NOBCZ)
+      DEALLOCATE(LBUF)
+      DEALLOCATE(IADMERGE2TMP)
       RETURN
       END
 C------------------------------------------------------------
-Chd|====================================================================
-Chd|  USRTOSC                       source/model/submodel/merge.F 
-Chd|-- called by -----------
-Chd|        MERGE                         source/model/submodel/merge.F 
-Chd|        MERGE_BUCKET_SEARCH           source/elements/nodes/merge_bucket_search.F
-Chd|        MERGE_CNOD_CNOD               source/model/submodel/merge_cnod_cnod.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    usrtosc               ../starter/source/model/submodel/merge.F
+!||--- called by ------------------------------------------------------
+!||    merge                 ../starter/source/model/submodel/merge.F
+!||    merge_bucket_search   ../starter/source/elements/nodes/merge_bucket_search.F
+!||    merge_cnod_cnod       ../starter/source/model/submodel/merge_cnod_cnod.F
+!||    merge_node            ../starter/source/elements/nodes/merge_node.F
+!||====================================================================
       INTEGER FUNCTION USRTOSC(IU,ITABM1)
-C      IDENTIQUE A USR2SYS, SANS GENERER D'ERREUR
-C      FONCTION DONNE N0 SYSTEME DU NOEUD USER IU
+C      IDENTICAL TO USR2SYS, WITHOUT GENERATING ERROR
+C      FUNCTION GIVES SYSTEM NUMBER OF USER NODE IU
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -475,15 +492,15 @@ C-----------------------------------------------
       JINF=1
       JSUP=NUMNOD0
       J=MAX(1,NUMCNOD/2)
-   10 IF(JSUP.LE.JINF.AND.(IU-ITABM1(J)).NE.0) THEN
+   10 IF(JSUP<=JINF.AND.(IU-ITABM1(J))/=0) THEN
         USRTOSC=0
         RETURN
       ENDIF
-      IF((IU-ITABM1(J)).EQ.0)THEN
-C     >CAS IU=TABM FIN DE LA RECHERCHE
+      IF((IU-ITABM1(J))==0)THEN
+C     >CASE IU=TABM END OF SEARCH
          USRTOSC=ITABM1(J+NUMNOD0)
          RETURN
-      ELSE IF (IU-ITABM1(J).LT.0) THEN
+      ELSE IF (IU-ITABM1(J)<0) THEN
 C     >CAS IU<TABM
          JSUP=J-1
       ELSE

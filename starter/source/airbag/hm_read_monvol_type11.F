@@ -1,60 +1,73 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MONVOL_TYPE11         source/airbag/hm_read_monvol_type11.F
-Chd|-- called by -----------
-Chd|        READ_MONVOL                   source/airbag/read_monvol.F   
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_GET_STRING_INDEX           source/devtools/hm_reader/hm_get_string_index.F
-Chd|        MONVOL_CHECK_SURFCLOSE        share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_CHECK_VENTHOLE_SURF    share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_COMPUTE_VOLUME         share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_ORIENT_SURF            share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_REVERSE_NORMALS        share/modules1/monvol_struct_mod.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_monvol_type11_mod   ../starter/source/airbag/hm_read_monvol_type11.F
+!||--- called by ------------------------------------------------------
+!||    read_monvol                 ../starter/source/airbag/read_monvol.F
+!||====================================================================
+      MODULE HM_READ_MONVOL_TYPE11_MOD
+      CONTAINS
+!||====================================================================
+!||    hm_read_monvol_type11        ../starter/source/airbag/hm_read_monvol_type11.F
+!||--- called by ------------------------------------------------------
+!||    read_monvol                  ../starter/source/airbag/read_monvol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                       ../starter/source/output/message/message.F
+!||    freerr                       ../starter/source/starter/freform.F
+!||    hm_get_float_array_index     ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv                ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_int_array_index       ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                  ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string_index          ../starter/source/devtools/hm_reader/hm_get_string_index.F
+!||    monvol_check_surfclose       ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_check_venthole_surf   ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_compute_volume        ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_orient_surf           ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_reverse_normals       ../starter/share/modules1/monvol_struct_mod.F
+!||    usr2sys                      ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod                  ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod            ../starter/share/modules1/monvol_struct_mod.F
+!||    submodel_mod                 ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MONVOL_TYPE11(T_MONVOLN, IPM, IGEO, ITABM1, 
-     .     LSENSOR, SENSOR, NPT, PLD, IFRAME, XFRAME, IGRBRIC,
+     .     SENSORS, XFRAME, IGRBRIC,
      .     UNITAB, LUID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG, 
      .     LSUBMODEL)
+C-----------------------------------------------
+C   D e s c r i p t i o n
+C-----------------------------------------------
+C Reader for options "/MONVOL/FVMBAG2"
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE UNITAB_MOD
-      USE GROUPDEF_MOD
+      USE GROUPDEF_MOD , only:GROUP_,SURF_
       USE MESSAGE_MOD
       USE MONVOL_STRUCT_MOD
       USE SUBMODEL_MOD
+      USE SENSOR_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -64,30 +77,25 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 C     NSURF
 #include      "com04_c.inc"
-C     KMONVO, IREC
-#include      "scr17_c.inc"
 C     NIMV, NRVOLU
 #include      "param_c.inc"
 C     IIN
 #include      "units_c.inc"
-C     LUNIT
-#include      "sysunit.inc"
 C     IPRI
-#include      "scr03_c.inc"  
-C     NSUBMOD
-#include      "submod_c.inc"
+#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(UNIT_TYPE_), INTENT(IN) :: UNITAB
-      INTEGER, INTENT(IN) :: LUID, IPM(NPROPMI, *), IGEO(NPROPGI, *), ITABM1(*), IFRAME(LISKN,*), NPT(*)
-      INTEGER, INTENT(IN) :: NPC(*), ITAB(*), IXC(NIXC, *), IXTG(NIXTG, *), LSENSOR(NSENSI, *)
-      my_real, INTENT(IN) :: X(3, *), GEO(NPROPG, *), PM(NPROPM, *), SENSOR(NSENSR, *), 
-     .     XFRAME(NXFRAME, *), PLD(2, *)
+      INTEGER, INTENT(IN) :: LUID, IPM(NPROPMI, NUMMAT), IGEO(NPROPGI, NUMGEO), ITABM1(NUMNOD)
+      INTEGER, INTENT(IN) :: NPC(*), ITAB(NUMNOD), IXC(NIXC, NUMELC), IXTG(NIXTG, NUMELTG)
+      my_real, INTENT(IN) :: X(3, NUMNOD), GEO(NPROPG, NUMGEO), PM(NPROPM, NUMMAT),
+     .     XFRAME(NXFRAME, NUMFRAM+1)
       TYPE (SURF_), INTENT(INOUT), DIMENSION(NSURF) :: IGRSURF
       TYPE(MONVOL_STRUCT_), INTENT(INOUT) :: T_MONVOLN
       TYPE (GROUP_)  , DIMENSION(NGRBRIC), INTENT(IN) :: IGRBRIC
       TYPE(SUBMODEL_DATA), DIMENSION(NSUBMOD), INTENT(IN) :: LSUBMODEL
+      TYPE (SENSORS_) ,INTENT(IN) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -117,13 +125,13 @@ C-----------------------------------------------
       my_real :: MI, RHOI, TI2, ESPECI, CPA, CPB, CPC, CPD, CPE, CPF, MW_TMP, RMWG, 
      .     CPG, CVG, GAMA, SHOL
       LOGICAL lFOUND
-      INTEGER KFRAME, IMESH_ALL, NSWITCH, AUTO_UP_SWITCH, NBX, NBY, NBZ, IBRIC
+      INTEGER IMESH_ALL, NSWITCH, ISWITCH, NBX, NBY, NBZ, IBRIC
       INTEGER IREF, IGMERG, ILVOUT, NLAYER, NFACMAX, NPPMAX, IFVANI
-      INTEGER I1,I2,I3, I4, IGBRIC, NBRIC, NN, ISH34
-      my_real TSWITCH, PARAM, LX, LY, LZ, CNMERG, QA, QB, PTOLE,HMIN, CFL_COEF, DTMIN, SJET, CGMERG
+      INTEGER I1,I2,I3, I4, NBRIC, NN, ISH34
+      my_real TSWITCH, PSWITCH, LX, LY, LZ, CNMERG, QA, QB, PTOLE,HMIN, CFL_COEF, DTMIN, SJET, CGMERG
       my_real NX, NY, NZ, XX, YY, ZZ, X13, Y13, Z13, X24, Y24, Z24
-      my_real ORIGX, ORIGY, ORIGZ, DIR2X, DIR2Y, DIR2Z, DIR, DS, DIRX, DIRY, DIRZ, TMP
-      INTEGER :: KMESH
+      my_real ORIGX, ORIGY, ORIGZ, DIR2X, DIR2Y, DIR2Z, DIR, DS, DIRX, DIRY, DIRZ
+      INTEGER :: KMESH,ID_DT_OPTION, IH3D_FLAG
       LOGICAL :: IS_AVAILABLE
 C-----------------------------------------------
 C     E x t e r n a l   F u n c t i o n s
@@ -135,6 +143,9 @@ C     B e g i n n i n g   o f   s o u r c e
 C-----------------------------------------------
       MESS = 'MONITORED VOLUME DEFINITION             '        
       lFOUND=.FALSE.
+      ID_DT_OPTION=2
+      RMWI = ZERO
+
 C     =======
 C     Reading
 C     =======
@@ -142,13 +153,16 @@ C     =======
       CALL HM_GET_INTV('surf_IDex', SURFID, IS_AVAILABLE, LSUBMODEL)
       CALL HM_GET_INTV('surf_IDin', SURFID_INT, IS_AVAILABLE, LSUBMODEL)
       CALL HM_GET_FLOATV('HEAT_T0',HCONV, IS_AVAILABLE, LSUBMODEL, UNITAB)
+      CALL HM_GET_INTV('IH3D', IH3D_FLAG, IS_AVAILABLE, LSUBMODEL)
+
 !     Line 2
       CALL HM_GET_INTV('mat_ID', MID_INI, IS_AVAILABLE, LSUBMODEL)
       CALL HM_GET_FLOATV('Pext', PEXT, IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('T0', TI, IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_INTV('Ittf', ITTF, IS_AVAILABLE, LSUBMODEL)
 !     Injectors
-      CALL HM_GET_INTV('Njet', NJET, IS_AVAILABLE, LSUBMODEL)      
+      CALL HM_GET_INTV('Njet', NJET, IS_AVAILABLE, LSUBMODEL) 
+           
       T_MONVOLN%NJET = NJET
       T_MONVOLN%IVOLU(8) = NJET
       IF (NJET > 0) THEN
@@ -196,7 +210,7 @@ C     =======
          ALLOCATE(T_MONVOLN%RBAGHOL(NRBHOL, NVENT))
          T_MONVOLN%RBAGHOL(1:NRBHOL, 1:NVENT) = ZERO
       ENDIF
-      IF (NVENT > 0) THEN
+!     IF (NVENT > 0) THEN
          ALLOCATE(IPVENT(NVENT), IFVENT(NVENT), AVENT(NVENT), BVENT(NVENT))
          ALLOCATE(TVENT(NVENT), TSTOPE(NVENT), DPDEF(NVENT), DTPDEF(NVENT),
      .        IDTPDEF(NVENT))
@@ -206,7 +220,7 @@ C     =======
      .        FPORP1(NVENT), FPORA1(NVENT))
          ALLOCATE(IBLOCKAGE(NVENT), CLEAK(NVENT))
          ALLOCATE(IVDP(NVENT), FVDP(NVENT))
-      ENDIF
+!     ENDIF
       IF (NVENTHOLES > 0) THEN
          DO II = 1, NVENTHOLES
             VENTTITLE = ''
@@ -286,8 +300,8 @@ C     =======
       IMESH_ALL = 0
       CALL HM_GET_FLOATV('Cgmerg', CGMERG, IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Tswitch', TSWITCH, IS_AVAILABLE, LSUBMODEL, UNITAB)
-      CALL HM_GET_INTV('Iswitch', AUTO_UP_SWITCH, IS_AVAILABLE, LSUBMODEL)
-      CALL HM_GET_FLOATV('Pswitch', PARAM, IS_AVAILABLE, LSUBMODEL, UNITAB)
+      CALL HM_GET_INTV('Iswitch', ISWITCH, IS_AVAILABLE, LSUBMODEL)
+      CALL HM_GET_FLOATV('Pswitch', PSWITCH, IS_AVAILABLE, LSUBMODEL, UNITAB)
 
       CALL HM_GET_FLOATV('Dtsca', CFL_COEF, IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Dtmin', DTMIN, IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -431,7 +445,13 @@ C     internal surface check
       IF(T_MONVOLN%INT_SURFID/=0) SURFID_INT=IGRSURF(T_MONVOLN%INT_SURFID)%ID
                       
    !-----------------------------------------------   
- 
+
+      !IH3D_FLAG
+      IF(IH3D_FLAG /= 0)THEN
+        IF(IH3D_FLAG /= -1 .AND. IH3D_FLAG /= 1)THEN
+          IH3D_FLAG = -1
+        ENDIF
+      ENDIF    
 
 C     ==============
 C     Default values
@@ -443,7 +463,7 @@ C     ==============
       SCAL_D = ONE
       AMU = EM02
       IF (PEXT == ZERO) THEN
-         PEXT = 101325.D0 * (FAC_L_WORK * FAC_T_WORK * FAC_T_WORK) / FAC_M_WORK
+         PEXT = 101325.D0 * (UNITAB%FAC_L_WORK * UNITAB%FAC_T_WORK * UNITAB%FAC_T_WORK) / UNITAB%FAC_M_WORK
       ENDIF
       PINI = PEXT
       LX = ZERO
@@ -478,8 +498,8 @@ C     ==============
                FPA(II) = ONE
                FPZ(II) = ONE
             ENDIF
-            IVEL(II) = ZERO
-            FVEL(II) = THREE100 * FAC_T_WORK / FAC_L_WORK
+            IVEL(II) = 0
+            FVEL(II) = THREE100 * UNITAB%FAC_T_WORK / UNITAB%FAC_L_WORK
          ENDDO
       ENDIF
 !     Ventholes
@@ -508,7 +528,7 @@ C     ==============
               EXIT
            ENDIF
         ENDDO
-        IJET(II)=0
+        IJET(II) = 0
         IF(.NOT.lFOUND)CALL ANCMSG(MSGID=847,ANMODE=ANINFO,MSGTYPE=MSGERROR,I2=IJET(II),I1=T_MONVOLN%ID,C1=T_MONVOLN%TITLE)
         DO JJ=1,NFUNCT
            IF (IVEL(II)==NPC(JJ)) T_MONVOLN%IBAGJET(11, II)=JJ
@@ -516,7 +536,7 @@ C     ==============
         IF (FVEL(II) == ZERO)  FVEL(II) = ONE 
       ENDDO 
 
-      IF(TSWITCH == ZERO) TSWITCH=EP30
+      IF(TSWITCH == ZERO) TSWITCH=EP20
       
       IF (NBX==0) NBX=1
       IF (NBY==0) NBY=1
@@ -528,7 +548,11 @@ C     ==============
       IF (PTOLE==ZERO) PTOLE=EM5 
       IF (NLAYER ==0) NLAYER =10
       IF (NFACMAX==0) NFACMAX=20
-      IF (NPPMAX ==0) NPPMAX =20            
+      IF (NPPMAX ==0) NPPMAX =20    
+      
+      IF(CFL_COEF/=ZERO .AND. DTMIN/=ZERO)ID_DT_OPTION=1
+      IF(CFL_COEF==ZERO)CFL_COEF=ZEP9        
+      IF(DTMIN==ZERO)DTMIN=EM20       
 
          !------------------------------------------------------!  
 C     =====
@@ -539,6 +563,7 @@ C     =====
       IEQUI = 1
       T_MONVOLN%IVOLU(15) = IEQUI
       T_MONVOLN%IVOLU(17) = ITTF
+      T_MONVOLN%IVOLU(27) = ID_DT_OPTION
       T_MONVOLN%IVOLU(30) = KMESH
       T_MONVOLN%IVOLU(35)=NBX*NBY
       T_MONVOLN%IVOLU(37) = NSWITCH
@@ -551,7 +576,8 @@ C     =====
       T_MONVOLN%IVOLU(59)=IREF
       T_MONVOLN%IVOLU(60)=IGMERG 
       T_MONVOLN%IVOLU(65)=NBZ
-      T_MONVOLN%IVOLU(74) = AUTO_UP_SWITCH !Parameter for autoswitching to uniform pressure airbag
+      T_MONVOLN%IVOLU(74) = ISWITCH !Parameter for autoswitching to uniform pressure airbag
+      T_MONVOLN%IVOLU(75) = IH3D_FLAG
 
       T_MONVOLN%RVOLU(19) = HCONV
       T_MONVOLN%RVOLU(26) = ONE / SCAL_T
@@ -580,7 +606,7 @@ C     =====
       T_MONVOLN%RVOLU(70) = TSWITCH
       T_MONVOLN%RVOLU(71) = CFL_COEF
       T_MONVOLN%RVOLU(72) = DTMIN
-      T_MONVOLN%RVOLU(73) = PARAM 
+      T_MONVOLN%RVOLU(73) = PSWITCH 
 
                      
       MID_INISYS = T_MONVOLN%IVOLU(66)
@@ -712,10 +738,10 @@ C     =====
          ENDIF
          IF (ISENS(II) > 0) THEN
             FOUND = .FALSE.
-            DO JJ = 1, NSENSOR
-               IF (ISENS(II) == LSENSOR(1, JJ)) THEN
+            DO JJ = 1, SENSORS%NSENSOR
+               IF (ISENS(II) == SENSORS%SENSOR_TAB(JJ)%SENS_ID) THEN
                   T_MONVOLN%IBAGJET(4, II) = JJ
-                  IF (SENSOR(2, JJ) < TTFIRE) TTFIRE = SENSOR(2, JJ)
+                  IF (SENSORS%SENSOR_TAB(JJ)%TCRIT < TTFIRE) TTFIRE = SENSORS%SENSOR_TAB(JJ)%TCRIT
                   FOUND = .TRUE.
                   EXIT
                ENDIF
@@ -969,10 +995,15 @@ C     =========
       ENDIF
       WRITE(IOUT,1415) MWI, GAMAI, CPAI, CPBI, CPCI, CPDI, CPEI, CPFI
       WRITE(IOUT,1700)
-      WRITE(IOUT,2703) TSWITCH
-      IF (AUTO_UP_SWITCH > 0) THEN
-         WRITE (IOUT, 1789) AUTO_UP_SWITCH, PARAM, TSWITCH, PARAM, TSWITCH
+      
+      IF(ISWITCH /= 0 .OR. TSWITCH /= ZERO .OR. PSWITCH /= ZERO)THEN      
+        WRITE(IOUT,1789) ISWITCH
+        WRITE(IOUT,1790)
+        WRITE(IOUT,1791)        
+        WRITE(IOUT,2703) TSWITCH
+        WRITE(IOUT,2704) PSWITCH 
       ENDIF
+              
       IF (T_MONVOLN%IMESH_ALL > 0) THEN
          WRITE(IOUT, 1706) T_MONVOLN%IMESH_ALL
       ENDIF
@@ -1047,6 +1078,7 @@ C     =========
          ENDIF
          DO JJ = 1, 20
             TITREVENT(JJ) = T_MONVOLN%IBAGHOL(JJ + 14, II)
+            VENTTITLE(JJ:JJ) = ACHAR(TITREVENT(JJ))
          ENDDO
          WRITE(IOUT,1476) VENTTITLE
          IF (IPVENT(II)==0) THEN                      
@@ -1086,6 +1118,12 @@ C     =========
             ENDIF
          ENDIF
       ENDDO
+      
+      IF(T_MONVOLN%IVOLU(75) == 1)THEN
+        WRITE(IOUT,3001)1
+      ENDIF
+      
+            
 C     ===================
 C     Memory deallocation
 C     ===================
@@ -1102,7 +1140,6 @@ C     ===================
       IF (ALLOCATED(FPA)) DEALLOCATE(FPA)     
       IF (ALLOCATED(FPZ)) DEALLOCATE(FPZ)     
       IF (ALLOCATED(I_INJSYS)) DEALLOCATE(I_INJSYS)  
-      IF (NVENT > 0) THEN
          DEALLOCATE(IPVENT, IFVENT, AVENT, BVENT)
          DEALLOCATE(TVENT, TSTOPE, DPDEF, DTPDEF,
      .        IDTPDEF)
@@ -1112,7 +1149,6 @@ C     ===================
      .        FPORP1, FPORA1)
          DEALLOCATE(IBLOCKAGE, CLEAK)
          DEALLOCATE(IVDP, FVDP)
-      ENDIF
 C-----------------------------------------------
 C     E n d   o f   s o u r c e
 C-----------------------------------------------
@@ -1140,9 +1176,6 @@ C-----------------------------------------------
  1401 FORMAT(
      .     5X,'INITIAL THERMODYNAMIC EQUILIBRIUM IS SET AT TIME 0'
      .     /5X,'--------------------------------------------------'/)
- 1402 FORMAT(
-     .     5X,'INITIAL THERMODYNAMIC EQUILIBRIUM IS SET AT INJECTION TIME'
-     .     /5X,'----------------------------------------------------------'/)
  1404 FORMAT(
      .     5X,'THERMODYNAMIC EQUILIBRIUM IS SET EVERY CYCLE UP TO INJECTION TIME'/)
  1405 FORMAT(
@@ -1168,8 +1201,6 @@ C-----------------------------------------------
      .     5X,'INJECTOR. . . . . . . . . . . . . . . .=',I10,
      .     /10X,'INJECTOR NUMBER . . . . . . . . . . . .=',I10,
      .     /10X,'SENSOR NUMBER . . . . . . . . . . . . .=',I10)
- 1435 FORMAT(15X,'TIME FUNCTION FOR INCOMING GAS VELOCITY=',I10,
-     .     /15X,'SCALE FACTOR FOR INCOMING GAS VELOCITY.=',1PG20.13)
  1442 FORMAT(
      .     /15X,'MIXTURE CHARACTERISTICS                 ',
      .     /15X,'AT BEGINNING OF INJECTION               ',
@@ -1185,44 +1216,11 @@ C-----------------------------------------------
  1445 FORMAT(
      .     15X,'INFLATOR SURFACE ID . . . . . . . . . .=',I10,
      .     /15X,'INITIAL SURFACE OF INFLATOR . . . . . .=',1PG20.13)
- 1455 FORMAT(
-     .     /10X,'JETTING OPTION. . . . . . . . . . . . .=',I10,
-     .     /10X,'----------------------------------------')
- 1460 FORMAT(
-     .     15X,'CONICAL JET . . . . . . . . . . . . . .',
-     .     /15X,'NODE NUMBER DEFINING INJECTION CENTER .=',I10,
-     .     /15X,'NODE NUMBER DEFINING INJECTION AXIS . .=',I10,
-     .     /15X,'JETTING PRESSURE TIME CURVE NUMBER. . .=',I10,
-     .     /15X,'JETTING PRESSURE THETA CURVE NUMBER . .=',I10,
-     .     /15X,'JETTING PRESSURE DIST. CURVE NUMBER . .=',I10,
-     .     /15X,'TIME FUNCTION SCALE FACTOR          . .=',1PG20.13,
-     .     /15X,'THETA FUNCTION SCALE FACTOR         . .=',1PG20.13,
-     .     /15X,'DIST FUNCTION SCALE FACTOR          . .=',1PG20.13/)
- 1461 FORMAT(
-     .     15X,'DIHEDRAL JET. . . . . . . . . . . . . .',
-     .     /15X,'NODE NUMBER DEFINING INJECTION CENTER .=',I10,
-     .     /15X,'NODE NUMBER DEFINING INJECTION AXIS . .=',I10,
-     .     /15X,'NODE NUMBER DEFINING BASE LINE. . . . .=',I10,
-     .     /15X,'JETTING PRESSURE TIME CURVE NUMBER. . .=',I10,
-     .     /15X,'JETTING PRESSURE THETA CURVE NUMBER . .=',I10,
-     .     /15X,'JETTING PRESSURE DIST. CURVE NUMBER . .=',I10,
-     .     /15X,'TIME FUNCTION SCALE FACTOR          . .=',1PG20.13, 
-     .     /15X,'THETA FUNCTION SCALE FACTOR         . .=',1PG20.13,
-     .     /15X,'DIST FUNCTION SCALE FACTOR          . .=',1PG20.13)
  1470 FORMAT(
      .     /5X,'VENT HOLES AND POROUS FABRIC SURFACES   ',
      .     /5X,'-------------------------------------   ',
      .     /5X,'NUMBER OF VENT HOLES AND POROUS SURFACES . .=',I10,
      .     /5X,'INJECTION TIME TINJ. . . . . . . . . . . . .=',1PG20.13)
- 1471 FORMAT(
-     .     5X,'VENTING START TIME SHIFT . . . . . . . . . .=',I10,
-     .     /5X,'  0 : NO SHIFT',
-     .     /5X,'  1 : JETTING FUNCTIONS ARE SHIFTED BY INJECTION TIME',
-     .     /5X,'  2 : JETTING AND VENTING FUNCTIONS ARE SHIFTED BY',
-     .     /5X,'      INJECTION TIME TINJ',
-     .     /5X,'  3 : JETTING AND VENTING FUNCTIONS ARE SHIFTED',
-     .     /5X,'      BY TINJ FOR JETTING FUNCTIONS',
-     .     /5X,'      BY TINJ+TSTART FOR VENTING FUNCTIONS')
  1472 FORMAT(
      .     / 5X,'VENT HOLE NUMBER. . . . . . . . . . . .=',I10,
      .     /15X,'VENT HOLE SURFACE ID. . . . . . . . . .=',I10)
@@ -1315,50 +1313,13 @@ C-----------------------------------------------
      .     /15X,'        SCALE FACTOR. . . . . . . . . .=',1PG20.13)
  1700 FORMAT(5X,'FVMBAG PARAMETERS                       ',
      .     /5X,'-----------------                       ')
- 1704 FORMAT(15X,'AIRBAG CUTTING FRAME:                   ')
- 1705 FORMAT(15X,'FRAME NUMBER. . . . . . . . . . . . . .=',I10)
  1706 FORMAT(15X,'MESH HOLES. . . . . . . . . . . . . . .=',I10)
- 1710 FORMAT(15X,'   ORIGIN X COORDINATE. . . . . . . . .=',1PG20.13,
-     .     /15X,'   ORIGIN Y COORDINATE. . . . . . . . .=',1PG20.13,
-     .     /15X,'   ORIGIN Z COORDINATE. . . . . . . . .=',1PG20.13,
-     .     /15X,'   DIRECTION 1 X COORDINATE . . . . . .=',1PG20.13,
-     .     /15X,'   DIRECTION 1 Y COORDINATE . . . . . .=',1PG20.13,
-     .     /15X,'   DIRECTION 1 Z COORDINATE . . . . . .=',1PG20.13,
-     .     /15X,'   DIRECTION 3 X COORDINATE . . . . . .=',1PG20.13,
-     .     /15X,'   DIRECTION 3 Y COORDINATE . . . . . .=',1PG20.13,
-     .     /15X,'   DIRECTION 3 Z COORDINATE . . . . . .=',1PG20.13,
-     .     /15X,'CUTTING LENGTH IN LOCAL DIRECTION 1 . .=',1PG20.13,
-     .     /15X,'CUTTING LENGTH IN LOCAL DIRECTION 2 . .=',1PG20.13,
-     .     /15X,'CUTTING LENGTH IN LOCAL DIRECTION 3 . .=',1PG20.13,
-     .     /15X,'NUMBER OF CELLS IN LOCAL DIRECTION 1. .=',I10,
-     .     /15X,'NUMBER OF CELLS IN LOCAL DIRECTION 2. .=',I10,
-     .     /15X,'NUMBER OF CELLS IN LOCAL DIRECTION 3. .=',I10,
-     .     /15X,'ADDITIONAL BRICK GROUP NUMBER . . . . .=',I10,
-     .     /15X,'INTERNAL SURFACE ID. .  . . . . . . . .=',I10,
-     .     /15X,'FLAG FOR MESH ON REFERENCE METRICS. . .=',I10,
-     .     /15X,'CELL MERGING STRATEGY:                  ',
-     .     /15X,'   GLOBAL MERGING TYPE. . . . . . . . .=',I10,
-     .     /15X,'   GLOBAL MERGING COEFFICIENT . . . . .=',1PG20.13,
-     .     /15X,'   NEIGHBORHOOD MERGING COEFFICIENT . .=',1PG20.13,
-     .     /15X,'TOLERANCE FOR SMALL SEGMENT REMOVAL . .=',1PG20.13,
-     .     /15X,'QUADRATIC BULK VISCOSITY. . . . . . . .=',1PG20.13,
-     .     /15X,'LINEAR BULK VISCOSITY . . . . . . . . .=',1PG20.13,
-     .     /15X,'MINIMUM HEIGHT. . . . . . . . . . . . .=',1PG20.13,
-     .     /15X,'DT SCALE FACTOR . . . . . . . . . . . .=',1PG20.13,
-     .     /15X,'MINIMUM TIMESTEP. . . . . . . . . . . .=',1PG20.13,
-     .     /15X,'OUTPUT LEVEL. . . . . . . . . . . . . .=',I10,
-     .     /15X,'MEMORY PARAMETERS:                      ',
-     .     /15X,'   ESTIMATED NUMBER OF AIRBAG LAYERS. .=',I10,
-     .     /15X,'   ESTIMATED MAXIMUM NUMBER OF AIRBAG   ',
-     .     /15X,'       FACETS PER CUTTING CELL. . . . .=',I10,
-     .     /15X,'   ESTIMATED MAXIMUM NUMBER OF POINTS   ',
-     .     /15X,'       PER POLYGON. . . . . . . . . . .=',I10,
-     .     /15X,'FLAG FOR ANIMATION FILE A000. . . . . .=',I10)
- 1789 FORMAT(15X,'AUTOSWITCH TO UNIFORM PRESSURE OPTION .=',I10,
-     .     /15X,'       = 1 DISPERSION BASED WITH ', 1PG20.13, ' TOLERANCE AROUND AVERAGE OR TIME > ', 1PG20.13,
-     .     /15X,'       = 2 DISPERSION BASED WITH ', 1PG20.13, ' TOLERANCE AROUND AVERAGE AND TIME > ', 1PG20.13)
- 2703 FORMAT(15X,'TIME TO SWITCH TO UNIFORM PRESSURE. . .=',1PG20.13)
- 1711 FORMAT(/15X,'INTERNAL SURFACE ID. .  . . . . . . . .=',I10,
+ 1789 FORMAT(15X, 'SWITCH OPTION (ISWITCH). . . . . . . . =',I10)
+ 1790 FORMAT(15X, '       = 1 SWITCH TO UNIFORM PRESSURE')
+ 1791 FORMAT(15X, '       = 2 MERGE TO SINGLE FV INSIDE EACH CHAMBER') 
+ 2703 FORMAT(15X, '   TIME (TSWITCH) . . . . . . .  . . . =',1PG20.13)
+ 2704 FORMAT(15X, '   PRESSURE DEVIATION RATIO (PSWITCH)  =',1PG20.13)
+ 1711 FORMAT(/15X,'INTERNAL SURFACE ID .  . . . . . . . =',I10,
      .     /15X,'CELL MERGING STRATEGY:                  ',
      .     /15X,'   GLOBAL MERGING TYPE. . . . . . . . .=',I10,
      .     /15X,'   GLOBAL MERGING COEFFICIENT . . . . .=',1PG20.13,
@@ -1366,4 +1327,10 @@ C-----------------------------------------------
      .     /15X,'DT SCALE FACTOR . . . . . . . . . . . .=',1PG20.13,
      .     /15X,'MINIMUM TIMESTEP. . . . . . . . . . . .=',1PG20.13)      
  2435 FORMAT(15X,'INCOMING GAS VELOCITY. . . . . . . . .=',1PG20.13)
+ 3001 FORMAT(
+     .     /5X,'DEBUG OPTIONS',
+     .     /5X,'-------------',
+     .     /5X,'   IH3D_FLAG (H3D OUTPUT). . . . . . . .=', I10)
+      
       END SUBROUTINE HM_READ_MONVOL_TYPE11
+      END MODULE HM_READ_MONVOL_TYPE11_MOD

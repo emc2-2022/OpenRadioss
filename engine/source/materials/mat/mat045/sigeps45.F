@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS45                      source/materials/mat/mat045/sigeps45.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps45   ../engine/source/materials/mat/mat045/sigeps45.F
+!||--- called by ------------------------------------------------------
+!||    mulaw      ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8     ../engine/source/materials/mat_share/mulaw8.F90
+!||--- calls      -----------------------------------------------------
+!||    finter     ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE SIGEPS45 (
      1     NEL0   ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC  ,
      2     NPF    ,
@@ -47,11 +48,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
-#include      "task_c.inc"
-#include      "com08_c.inc"
-#include      "scr20_c.inc"
-#include      "units_c.inc"
 #include      "scr17_c.inc"
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
@@ -92,7 +88,7 @@ C SIGVXX  | NEL0    | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL0    | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL0    | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL0    | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL0    | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL0*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL0    | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -183,7 +179,7 @@ c jbm035
 C-----------------------------------------------
 C     USER VARIABLES INITIALIZATION
 C-----------------------------------------------
-      IF(TIME.EQ.ZERO)THEN
+      IF(TIME==ZERO)THEN
         DO I=1,NEL0
            UVAR(I,1)=ZERO
            UVAR(I,2)=ZERO
@@ -252,21 +248,21 @@ C-------------------
 C     CRITERIA
 C-------------------
        DO I=1,NEL0
-        IF(UVAR(I,1).LE.ZERO) THEN
+        IF(UVAR(I,1)<=ZERO) THEN
          CH1=CA
-        ELSEIF(UVAR(I,1).GT.EPSM) THEN
+        ELSEIF(UVAR(I,1)>EPSM) THEN
          CH1=CA+CB*EPSM**CN
         ELSE
          CH1=CA+CB*UVAR(I,1)**CN
         ENDIF
-        IF(UVAR(I,2).LE.EPS0) THEN
+        IF(UVAR(I,2)<=EPS0) THEN
          CH2=ZERO
-        ELSEIF(UVAR(I,1).LE.ZERO) THEN
+        ELSEIF(UVAR(I,1)<=ZERO) THEN
          CH2=CC*LOG(UVAR(I,2)/EPS0)
         ELSE
          CH2=(CC-CD*UVAR(I,1)**CM)*LOG(UVAR(I,2)/EPS0)
         ENDIF
-        IF(UVAR(I,2).LE.ZERO) THEN
+        IF(UVAR(I,2)<=ZERO) THEN
          CH3=ZERO
         ELSE
          CH3=CE*UVAR(I,2)**CK
@@ -274,22 +270,22 @@ C-------------------
 c jbm033        UVAR(I,3)=MIN(SIGM,CH1+CH2+CH3)
         UVAR(I,3)=MIN(SIGM+CH3,CH1+CH2+CH3)
         SIGY(I)=UVAR(I,3)
-        IF(UVAR(I,1).GT.EPSM) UVAR(I,3)=ZERO
+        IF(UVAR(I,1)>EPSM) UVAR(I,3)=ZERO
        ENDDO
 C------------------------
 C     HARDENING MODULUS
 C------------------------
        DO I=1,NEL0
-        IF(UVAR(I,1).GT.ZERO. AND .CN.GE.ONE) THEN
+        IF(UVAR(I,1)>ZERO. AND .CN>=ONE) THEN
          QH1= CB*CN*UVAR(I,1)**(CN- ONE)
-        ELSEIF(UVAR(I,1).GT.ZERO. AND .CN.LT.ONE)THEN
+        ELSEIF(UVAR(I,1)>ZERO. AND .CN<ONE)THEN
          QH1= CB*CN*UVAR(I,1)**(ONE - CN)
         ELSE
          QH1=ZERO
         ENDIF
-        IF(UVAR(I,1).LE.ZERO. OR .UVAR(I,2).LE.EPS0) THEN
+        IF(UVAR(I,1)<=ZERO. OR .UVAR(I,2)<=EPS0) THEN
          QH2=ZERO
-        ELSEIF(CM.GE.ONE) THEN
+        ELSEIF(CM>=ONE) THEN
          QH2=CD*CM*UVAR(I,1)**(CM- ONE)*LOG(UVAR(I,2)/EPS0)
         ELSE
          QH2=CD*CM*UVAR(I,1)**(ONE - CM)*LOG(UVAR(I,2)/EPS0)
@@ -334,9 +330,6 @@ c         AMU = ONE /DF - ONE
        ENDDO
 C-----------------------------
 C  A VOIR .....
-      DO I=1,NEL0
-        IF(OFF(I).LT.ONE) IDEL7NOK = 1
-      ENDDO
       DO I=1,NEL0
         DEFP(I)=UVAR(I,1)
       ENDDO

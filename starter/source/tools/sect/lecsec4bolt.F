@@ -1,54 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECSEC4BOLT                   source/tools/sect/lecsec4bolt.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ANODSET                       source/output/analyse/analyse_node.c
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        SECSTRI                       source/tools/sect/hm_read_sect.F
-Chd|        SEC_NODES_SOL                 source/tools/sect/hm_read_sect.F
-Chd|        SUBROTPOINT                   source/model/submodel/subrot.F
-Chd|        SUBROTVECT                    source/model/submodel/subrot.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        ZERORE                        source/system/zerore.F        
-Chd|        ELEGROR                       source/groups/elegror.F       
-Chd|        NODGRNR5                      source/starter/freform.F      
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lecsec4bolt              ../starter/source/tools/sect/lecsec4bolt.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    anodset                  ../starter/source/output/analyse/analyse_node.c
+!||    elegror                  ../starter/source/groups/elegror.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string            ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    nodgrnr5                 ../starter/source/starter/freform.F
+!||    sec_nodes_sol            ../starter/source/tools/sect/hm_read_sect.F
+!||    secstri                  ../starter/source/tools/sect/hm_read_sect.F
+!||    subrotpoint              ../starter/source/model/submodel/subrot.F
+!||    subrotvect               ../starter/source/model/submodel/subrot.F
+!||    udouble                  ../starter/source/system/sysfus.F
+!||    usr2sys                  ../starter/source/system/sysfus.F
+!||    zerore                   ../starter/source/system/zerore.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    r2r_mod                  ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE LECSEC4BOLT(IXS   ,IXQ   ,IXC    ,IXT    ,IXP    ,IXR    ,
      2                       IXTG  ,X0    ,NSTRF  ,ITAB   ,ITABM1 ,
      3                       IGRNOD,SECBUF ,
@@ -64,6 +63,8 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE GROUPDEF_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARLINE, NCHARFIELD
+      use element_mod , only : nixs,nixq,nixc,nixp,nixt,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -75,18 +76,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "sysunit.inc"
 #include      "sphcom.inc"
-#include      "r2r_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -110,20 +103,21 @@ C-----------------------------------------------
       INTEGER ,DIMENSION(NSECT) :: SECTIDS
       INTEGER K1, I, J, L, KK, K2, K,LREC,
      .   NNOD, NBINTER,K0,K3,K4,K5,K6,K7,K8,K9,KR0,
-     .   NSEGQ,NSEGS,NSEGC,NSEGT,NSEGP,NSEGR,NSEGTG,I0,ID,
+     .   NSEGQ,NSEGS,NSEGC,NSEGT,NSEGP,NSEGR,NSEGTG,ID,
      .   IGU,IGS,IGUS,IGUQ,IGUC,IGUT,IGUP,IGUR,IGUTG,IFRAM,
-     .   NNSK1,NNSK2,NNSK3,UID,IFLAGUNIT,IE,IADV,
-     .   TAGNODES(NUMNOD*2+NPART),ISU,NFRAM,JJ,IUN,
-     .   TAGELEM1,TAGELEM2,TAGELEM3,
-     .   TAGNDOUBL(NUMNOD),N1,CPT,
-     .   TAGELEMS(1+NUMELC+NUMELS+NUMELT+NUMELQ+NUMELP+
-     .   NUMELR+NUMELTG),NG,NOPRINT,ILEN
-      INTEGER FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,L0,ISTYP,SUB_ID,
-     .   NODTAG(NUMNOD)
+     .   NNSK1,NNSK2,NNSK3,UID,IFLAGUNIT,
+     .   NFRAM,JJ,IUN,
+     .   
+     .   N1,CPT,
+     .   NG,NOPRINT,ILEN
+      INTEGER FLAG_FMT, L0, ISTYP, SUB_ID
+      INTEGER, DIMENSION(:), ALLOCATABLE :: NODTAG,TAGELEMS
       my_real
-     .   DELTAT,ALPHA,FAC_T,A,B,C,D,E,F,POS,R
-      CHARACTER MESS*40,TITR*nchartitle,CHAR8*ncharline
-      CHARACTER KEY2*ncharfield
+     .   DELTAT,ALPHA,FAC_T,A,B,C,D,E,F,R
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARLINE) ::CHAR8
+      CHARACTER(LEN=NCHARFIELD) :: KEY2
       my_real
      .   BID, XM, YM, ZM, X1, Y1, Z1, X2, Y2, Z2, NORM,
      .   X3, Y3, Z3, N3, PNOR1, PNOR2, PNORM1, DET, DET1, DET2, DET3
@@ -138,6 +132,9 @@ C
       DATA MESS/'SECTION DEFINITION                      '/
       DATA IUN/1/
 C=======================================================================
+      ALLOCATE(TAGELEMS(1+NUMELC+NUMELS+NUMELT+NUMELQ+NUMELP+NUMELR+NUMELTG))
+      ALLOCATE(NODTAG(NUMNOD))
+
       NOPRINT = 1
       FLAG_FMT = 0
       NFRAM = 0
@@ -153,7 +150,7 @@ C file run number
       NSTRF(4)=1
 C file next run number
       NSTRF(5)=2
-C file rec length
+C File Rec Length
       LREC=0
 C file record flip/flop
       NSTRF(7)=0
@@ -169,6 +166,7 @@ C
       CALL HM_OPTION_START('/SECT')
       
       DO I=1,NSECT
+        IGU = 0
         ISTYP = 0
         NG=NG+1
         LREC = LREC+3
@@ -216,14 +214,14 @@ C
         ENDIF                                                    
                 
         IFLAGUNIT = 0                                            
-        DO J=1,NUNITS  
+        DO J=1,UNITAB%NUNITS  
             IF (UNITAB%UNIT_ID(J) == UID) THEN    
               FAC_T = UNITAB%FAC_T(J)
               IFLAGUNIT = 1                                        
               EXIT                                                 
             ENDIF                                                  
         ENDDO                                                    
-        IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN                    
+        IF (UID/=0.AND.IFLAGUNIT==0) THEN                    
           CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,I2=UID,I1=ID,C1='SECTION',C2='SECTION',C3=TITR) 
         ENDIF                                                    
 
@@ -240,16 +238,6 @@ C
         DO J=1,ncharline
           NOM_SECT((I-1)*ncharline+J) = ICHAR(CHAR8(J:J))
         ENDDO
-
-
-
-        IF((IGUS.EQ.0))THEN                                                                                
-          CALL ANCMSG(MSGID=600,                                                                           
-     .                MSGTYPE=MSGWARNING,                                                                  
-     .                ANMODE=ANINFO_BLIND_1,                                                               
-     .                I1=ID,                                                                               
-     .                C1=TITR)                                                                             
-        END IF     
         
         DO J=1,NBINTER
           CALL HM_GET_INT_ARRAY_INDEX('int_id' ,NSTRF(K1-1+J) ,J ,IS_AVAILABLE, LSUBMODEL) 
@@ -259,17 +247,17 @@ C
           CALL HM_GET_FLOATV('XTail', XM, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('YTail', YM, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('ZTail', ZM, IS_AVAILABLE, LSUBMODEL, UNITAB)                                                 
-          IF(SUB_ID .NE. 0)CALL SUBROTPOINT(XM,YM,ZM,RTRANS,SUB_ID,LSUBMODEL)                                          
+          IF(SUB_ID /= 0)CALL SUBROTPOINT(XM,YM,ZM,RTRANS,SUB_ID,LSUBMODEL)                                          
 
           CALL HM_GET_FLOATV('cnode1_x', X1, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('cnode1_y', Y1, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('cnode1_z', Z1, IS_AVAILABLE, LSUBMODEL, UNITAB)                                                  
-          IF(SUB_ID .NE. 0) CALL SUBROTPOINT(X1,Y1,Z1,RTRANS,SUB_ID,LSUBMODEL)                                          
+          IF(SUB_ID /= 0) CALL SUBROTPOINT(X1,Y1,Z1,RTRANS,SUB_ID,LSUBMODEL)                                          
 
           CALL HM_GET_FLOATV('cnode2_x', X2, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('cnode2_y', Y2, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('cnode2_z', Z2, IS_AVAILABLE, LSUBMODEL, UNITAB)                                                   
-          IF(SUB_ID .NE. 0)CALL SUBROTPOINT(X2,Y2,Z2,RTRANS,SUB_ID,LSUBMODEL)                                          
+          IF(SUB_ID /= 0)CALL SUBROTPOINT(X2,Y2,Z2,RTRANS,SUB_ID,LSUBMODEL)                                          
                                                                                     
           D = XM                                                                                           
           E = YM                                                                                           
@@ -286,12 +274,12 @@ C
           CALL HM_GET_FLOATV('XTail', XM, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('YTail', YM, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('ZTail', ZM, IS_AVAILABLE, LSUBMODEL, UNITAB)                                                 
-          IF(SUB_ID .NE. 0)CALL SUBROTPOINT(XM,YM,ZM,RTRANS,SUB_ID,LSUBMODEL)
+          IF(SUB_ID /= 0)CALL SUBROTPOINT(XM,YM,ZM,RTRANS,SUB_ID,LSUBMODEL)
           
           CALL HM_GET_FLOATV('Normal_x', A, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('Normal_y', B, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('Normal_z', C, IS_AVAILABLE, LSUBMODEL, UNITAB)                                                 
-          IF(SUB_ID .NE. 0)CALL SUBROTVECT(A,B,C,RTRANS,SUB_ID,LSUBMODEL)
+          IF(SUB_ID /= 0)CALL SUBROTVECT(A,B,C,RTRANS,SUB_ID,LSUBMODEL)
 
           CALL HM_GET_FLOATV('Radius', R, IS_AVAILABLE, LSUBMODEL, UNITAB)
                                                                                       
@@ -306,33 +294,33 @@ C
 
         DO J=1,NBINTER                                                                                     
          DO L=1,NINTER                                                                                     
-          IF(NSTRF(K1-1+J).EQ.IPARI(15,L))THEN                                                             
+          IF(NSTRF(K1-1+J)==IPARI(15,L))THEN                                                             
             IPARI(28,L) = IPARI(28,L) + 1                                                                  
-C numero interne      NSTRF(K1-1+J) = L
+C internal number      NSTRF(K1-1+J) = L
           ENDIF 
          ENDDO  
         ENDDO   
 C
-C Noeuds concernes par la section (si NFRAM /= 0)
-C Noeuds concerns :
-C au dessus du plan N2N3 du frame (suivant la direction +Z)
-C & dans le plan N2N3 du frame
+C nodes concerned by the section (if nfram /= 0)
+C Knots concerns:
+C above the n2n3 plane of the frame (along the +z direction)
+C & in the n2n3 plane of the frame
 C
         IF (ISTYP >= 1 .OR. NFRAM > 0) THEN                              
           IF(ISTYP == 0) THEN                                            
            DO K=1,NUMFRAM                                                
              J=K+1                                                       
              JJ=(NUMSKW+1)+NSUBMOD+MIN(IUN,NSPCOND)*NUMSPH+K+1           
-             IF(NFRAM.EQ.ISKN(4,JJ)) THEN                                
-	       A = XFRAME(7,J)                                           
-	       B = XFRAME(8,J)                                           
-	       C = XFRAME(9,J)                                           
+             IF(NFRAM==ISKN(4,JJ)) THEN                                
+                 A = XFRAME(7,J)                                           
+                 B = XFRAME(8,J)                                           
+                 C = XFRAME(9,J)                                           
                D = XFRAME(10,J)                                          
                E = XFRAME(11,J)                                          
                F = XFRAME(12,J)                                          
-	       N1 = ISKN(1,JJ)                                           
+                 N1 = ISKN(1,JJ)                                           
                IF (NSTRF(K0+3) == 0 ) THEN                               
-                 IF (ISKN(1,JJ) .NE. 0) THEN                             
+                 IF (ISKN(1,JJ) /= 0) THEN                             
                    NSTRF(K0+3) = ITAB(ISKN(1,JJ))                        
                  ELSE                                                    
                    CALL ANCMSG(MSGID=742,                                
@@ -345,7 +333,7 @@ C
                  ENDIF                                                   
                ENDIF                                                     
                IF (NSTRF(K0+4) == 0 ) THEN                               
-                 IF (ISKN(2,JJ) .NE. 0) THEN                             
+                 IF (ISKN(2,JJ) /= 0) THEN                             
                    NSTRF(K0+4) = ITAB(ISKN(2,JJ))                        
                  ELSE                                                    
                    CALL ANCMSG(MSGID=742,                                
@@ -358,7 +346,7 @@ C
                  ENDIF                                                   
                ENDIF                                                     
                IF (NSTRF(K0+5) == 0 ) THEN                               
-                 IF (ISKN(3,JJ) .NE. 0) THEN                             
+                 IF (ISKN(3,JJ) /= 0) THEN                             
                    NSTRF(K0+5) = ITAB(ISKN(3,JJ))                        
                  ELSE                                                    
                    CALL ANCMSG(MSGID=742,                                
@@ -374,11 +362,11 @@ C
            ENDDO                                                         
           ENDIF                                                          
           KK=1+NGRNOD                                                    
-	  NNOD = 0                                                       
-	  CPT = 1                                                        
-	  CALL SEC_NODES_SOL(IGUS,ISTYP,NGRBRIC,IGRBRIC,X0,A,            
-     2                  B,C,D,E,F,ITAB,IXS,IXS10,IXS16,IXS20,            
-     3                  NIXS,KK,NNOD,NSTRF,NBINTER,N1 ,K1,               
+            NNOD = 0                                                       
+            CPT = 1                                                        
+            CALL SEC_NODES_SOL(IGUS,ISTYP,IGRBRIC,X0,A,            
+     2                  B,C,D,E,F,IXS,IXS10,IXS16,IXS20,            
+     3                  NIXS,NNOD,NSTRF,NBINTER,K1,               
      4                  CPT,NODTAG,ISOLNOD,TAGELEMS,                     
      5                  X1,Y1,Z1,X2,Y2,Z2,R)                             
 
@@ -406,14 +394,6 @@ C
         K9=K8+2*NSEGR                                                                            
         NSEGTG=0                                                                                 
 C
-        IF(NSEGS+NSEGQ+NSEGC+NSEGT+NSEGP+NSEGR+NSEGTG==0)THEN
-          CALL ANCMSG(MSGID=1813,
-     .                MSGTYPE=MSGWARNING,
-     .                ANMODE=ANINFO,
-     .                I1= ID,
-     .                C1= TITR)
-        END IF
-C
         NSTRF(K0+6)=NNOD
         NSTRF(K0+7)=NSEGS
         NSTRF(K0+8)=NSEGQ
@@ -424,7 +404,7 @@ C
         NSTRF(K0+13) = NSEGTG
         NSTRF(K0+26) = IFRAM
           DO L=K0+3,K0+5
-            IF (NSTRF(L).NE.0) THEN
+            IF (NSTRF(L)/=0) THEN
               NSTRF(L)=USR2SYS(NSTRF(L),ITABM1,MESS,ID)
               CALL ANODSET(NSTRF(L), CHECK_USED)
             ENDIF
@@ -473,12 +453,12 @@ C
 C-------------------------------------------------------------------------
 C      SOLIDES
 C--------------------------------------------------------------
-       CALL SECSTRI(NSEGS,NSTRF(K3),IXS,IXS10,IXS16,IXS20,NSTRF(K2),NNOD,ITAB,I,NOPRINT)
-       IF(NSTRF(K0).GE.102)THEN
+       CALL SECSTRI(NSEGS,NSTRF(K3),IXS,IXS10,IXS16,IXS20,NSTRF(K2),NNOD,NOPRINT)
+       IF(NSTRF(K0)>=102)THEN
          CALL ZERORE(1,10+30*NNOD,SECBUF(KR0))
-       ELSEIF(NSTRF(K0).GE.101)THEN
+       ELSEIF(NSTRF(K0)>=101)THEN
          CALL ZERORE(1,10+24*NNOD,SECBUF(KR0))
-       ELSEIF(NSTRF(K0).GE.100)THEN
+       ELSEIF(NSTRF(K0)>=100)THEN
          CALL ZERORE(1,10+12*NNOD,SECBUF(KR0))
        ELSE
          CALL ZERORE(1,10,SECBUF(KR0))
@@ -488,8 +468,8 @@ C--------------------------------------------------------------
        SECBUF(KR0+2) = ALPHA
        SECBUF(KR0+3) = ZERO
 
-       IF(NSTRF(K0).EQ.1.OR.NSTRF(K0).EQ.2)THEN
-         IF(SECBUF(1).EQ.ZERO)THEN
+       IF(NSTRF(K0)==1.OR.NSTRF(K0)==2)THEN
+         IF(SECBUF(1)==ZERO)THEN
            SECBUF(1) = DELTAT
           ELSEIF(ABS((SECBUF(1)-DELTAT)/SECBUF(1)) > EM06 )THEN
             CALL ANCMSG(MSGID=356,
@@ -500,81 +480,40 @@ C--------------------------------------------------------------
          ENDIF
        ENDIF
 
-       IF(NSTRF(K0).GE.1.AND.NSTRF(K0).LE.10)THEN
+       IF(NSTRF(K0)>=1.AND.NSTRF(K0)<=10)THEN
          NSTRF(1)=NSTRF(1)+1
-       ELSEIF(NSTRF(K0).GE.100.AND.NSTRF(K0).LE.200)THEN
+       ELSEIF(NSTRF(K0)>=100.AND.NSTRF(K0)<=200)THEN
          NSTRF(2)=NSTRF(2)+1
          DO J=1,8
            NSTRF(15+J)=NSTRF(K0+14+J)
          ENDDO
        ENDIF
-       IF(NSTRF(K0).EQ.1)THEN
+       IF(NSTRF(K0)==1)THEN
          LREC = LREC+6*NNOD
-       ELSEIF(NSTRF(K0).EQ.2)THEN
+       ELSEIF(NSTRF(K0)==2)THEN
          LREC = LREC+12*NNOD
        ENDIF
 
        NSTRF(K0+23) = ID
        NSTRF(K0+24) = K9+2*NSEGTG
        NSTRF(K0+25) = KR0+10
-       IF(NSTRF(K0).GE.100)NSTRF(K0+25) = NSTRF(K0+25)+12*NNOD
-       IF(NSTRF(K0).GE.101)NSTRF(K0+25) = NSTRF(K0+25)+12*NNOD
-       IF(NSTRF(K0).GE.102)NSTRF(K0+25) = NSTRF(K0+25)+6*NNOD
+       IF(NSTRF(K0)>=100)NSTRF(K0+25) = NSTRF(K0+25)+12*NNOD
+       IF(NSTRF(K0)>=101)NSTRF(K0+25) = NSTRF(K0+25)+12*NNOD
+       IF(NSTRF(K0)>=102)NSTRF(K0+25) = NSTRF(K0+25)+6*NNOD
 
        KR0 = NSTRF(K0+25)
        K0  = NSTRF(K0+24)
 C-------------------------------------------------------------
-        !IF (FLAG_FMT /= 0) THEN
-        !  CALL FMT_DEF(INVERS_INIT,IFIX_INIT)
-        !ENDIF
         NODTAG = 0
         TAGELEMS  = 0
       ENDDO
       CALL UDOUBLE(SECTIDS,1,NSECT,MESS,0,BID)
 
-C file rec length
+C File Rec Length
       NSTRF(6)=LREC*4
       
 C-------------------------------------------------------------
- 2900 FORMAT(/' SECTION',I10,' ID',I10/
-     +        ' ---------------'/
-     + '        TYPE . . . . . . . . . . . . . . .',I10/
-     + '        FILENAME . . . . . . . . . . . . .',A/
-     + '        DELTAT . . . . . . . . . . . . . .',1PG20.13/
-     + '        ALPHA. . . . . . . . . . . . . . .',1PG20.13/
-     + '        FRAME TYPE . . . . . . . . . . . .',I10/
-     + '        NUMBER OF INTERFACES . . . . . . .',I10/
-     + '        INTERFACES:')
- 2901 FORMAT(/' SECTION',I10,' ID',I10/
-     +        ' ---------------'/
-     + '        TYPE . . . . . . . . . . . . . . .',I8/
-     + '        FRAME TYPE . . . . . . . . . . . .',I8/)
- 3000 FORMAT(/
-     + '        NUMBER OF NODES. . . . . . . . . .',I10/
-     + '        NODES:')
- 3100 FORMAT(/
-     + '        NUMBER OF SHELL ELEMENTS . . . . .',I10/
-     + '   SHELL      N1      N2      N3      N4')
- 3200 FORMAT(/
-     + '        NUMBER OF 3 NODES SHELL ELEMENTS .',I10/
-     + '   SHELL      N1      N2      N3')
- 3300 FORMAT(/
-     + '        NUMBER OF BRICK ELEMENTS . . . . .',I10/
-     + '   BRICK      N1      N2      N3      N4',
-     + '     N5      N6      N7      N8')
- 3400 FORMAT(/
-     + '        NUMBER OF QUAD ELEMENTS . . . . .',I10/
-     + '   QUAD      N1      N2      N3      N4')
- 3500 FORMAT(/
-     + '        NUMBER OF TRUSS ELEMENTS . . . . .',I10/
-     + '   TRUSS      N1      N2')
- 3600 FORMAT(/
-     + '        NUMBER OF BEAM ELEMENTS . . . . .',I10/
-     + '   BEAM      N1      N2')
- 3700 FORMAT(/
-     + '        NUMBER OF SPRING ELEMENTS . . . . .',I8/
-     + '   SPRING      N1      N2')
-C
+      DEALLOCATE(NODTAG)  
+      DEALLOCATE(TAGELEMS)
       RETURN
- 999  CALL FREERR(3)
       END

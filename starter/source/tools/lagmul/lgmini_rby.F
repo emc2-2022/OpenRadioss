@@ -1,44 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LGMINI_RBY                    source/tools/lagmul/lgmini_rby.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lgmini_rby             ../starter/source/tools/lagmul/lgmini_rby.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LGMINI_RBY(NPBYL  ,LPBYL  ,RBYL   ,MASS   ,INER   ,
      .                      X      ,V      ,VR     ,ITAB   ,NOM_OPT)
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C----------------------------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -50,18 +49,15 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPBYL(NNPBY,*), LPBYL(*), ITAB(*)
-      my_real
-     .        RBYL(NRBY,*),MASS(*),INER(*),X(3,*), V(3,*), VR(3,*)
+      my_real RBYL(NRBY,*),MASS(*),INER(*),X(3,*), V(3,*), VR(3,*)
       INTEGER NOM_OPT(LNOPT1,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,N,NN,M,IK,IC,MSL,NSL,TNSL,ICDG
-      my_real
-     .        RX,RY,RZ,MASRB
+      INTEGER I, J, N, NN, M, MSL, NSL, TNSL, ICDG
+      my_real MASRB
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C======================================================================|
       TNSL = 0
       DO N=1,NRBYLAG
@@ -72,19 +68,18 @@ C======================================================================|
         MASS(M) = MASS(M) + RBYL(1,N)
         INER(M) = INER(M) + RBYL(2,N)
         ID=NOM_OPT(1,NRBYKIN+N)
-        CALL FRETITL2(TITR,
-     .                NOM_OPT(LNOPT1-LTITR+1,NRBYKIN+N),LTITR)
-        IF(MASS(M).EQ.ZERO.OR.INER(M).EQ.ZERO) THEN
+        CALL FRETITL2(TITR, NOM_OPT(LNOPT1-LTITR+1,NRBYKIN+N),LTITR)
+        IF(MASS(M)==ZERO.OR.INER(M)==ZERO) THEN
            CALL ANCMSG(MSGID=273,
      .                 MSGTYPE=MSGWARNING,
      .                 ANMODE=ANINFO_BLIND_1,
      .                 I1=ID,
      .                 C1=TITR)
         ENDIF
-        IF(MASS(M).EQ.ZERO) MASS(M)= EM15
-        IF(INER(M).EQ.ZERO) INER(M)= EM15
-C-----  CORRECTION DE LA CENTRE DE GRAVITE DU MAIN
-        IF(ICDG.EQ.1)THEN
+        IF(MASS(M)==ZERO) MASS(M)= EM15
+        IF(INER(M)==ZERO) INER(M)= EM15
+C----- correction of the center of gravity of the main
+        IF(ICDG==1)THEN
 C-----    CDG TOTAL
           MASRB = MASS(M)
           DO J=1,3
@@ -97,7 +92,7 @@ C-----    CDG TOTAL
             ENDDO
             MASRB   = MASRB+MASS(NN)
           ENDDO
-          IF(MASRB.LE.EM30) THEN
+          IF(MASRB<=EM30) THEN
             CALL ANCMSG(MSGID=273,
      .                  MSGTYPE=MSGWARNING,
      .                  ANMODE=ANINFO_BLIND_1,
@@ -108,8 +103,8 @@ C-----    CDG TOTAL
           DO J=1,3
             X(J,M)=X(J,M)/MASRB
           ENDDO
-        ELSEIF(ICDG.EQ.2)THEN
-C-----    CDG DES NOEUDS SECONDS
+        ELSEIF(ICDG==2)THEN
+C----- center of gravity of the secondary nodes
           MASRB=ZERO
           DO J=1,3
             X(J,M)=ZERO
@@ -122,7 +117,7 @@ C-----    CDG DES NOEUDS SECONDS
             MASRB   = MASRB+MASS(NN)
           ENDDO
 C
-          IF(MASRB.LE.EM30) THEN
+          IF(MASRB<=EM30) THEN
             CALL ANCMSG(MSGID=273,
      .                  MSGTYPE=MSGWARNING,
      .                  ANMODE=ANINFO_BLIND_1,
@@ -135,7 +130,7 @@ C
           ENDDO
           MASRB=MASRB+MASS(M)
         ENDIF
-        IF(MASS(M).EQ.ZERO.OR.INER(M).EQ.ZERO) THEN
+        IF(MASS(M)==ZERO.OR.INER(M)==ZERO) THEN
            CALL ANCMSG(MSGID=679,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,

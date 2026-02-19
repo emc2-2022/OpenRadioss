@@ -1,40 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  VOLINT                        source/interfaces/inter3d1/volint.F
-Chd|-- called by -----------
-Chd|        I11STI3                       source/interfaces/inter3d1/i11sti3.F
-Chd|        I20STI3                       source/interfaces/inter3d1/i20sti3.F
-Chd|        I20STI3E                      source/interfaces/inter3d1/i20sti3.F
-Chd|        I24GAPM                       source/interfaces/inter3d1/i24sti3.F
-Chd|        I24LL_KG                      source/interfaces/inter3d1/i24sti3.F
-Chd|        I25GAPM                       source/interfaces/inter3d1/i25sti3.F
-Chd|        I2BUC1                        source/interfaces/inter3d1/i2buc1.F
-Chd|        I2COR3                        source/interfaces/inter3d1/i2cor3.F
-Chd|        I3STI3                        source/interfaces/inter3d1/i3sti3.F
-Chd|        I7STI3                        source/interfaces/inter3d1/i7sti3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    volint     ../starter/source/interfaces/inter3d1/volint.F
+!||--- called by ------------------------------------------------------
+!||    i11sti3    ../starter/source/interfaces/inter3d1/i11sti3.F
+!||    i20sti3    ../starter/source/interfaces/inter3d1/i20sti3.F
+!||    i20sti3e   ../starter/source/interfaces/inter3d1/i20sti3.F
+!||    i24gapm    ../starter/source/interfaces/inter3d1/i24sti3.F
+!||    i24ll_kg   ../starter/source/interfaces/inter3d1/i24sti3.F
+!||    i25gapm    ../starter/source/interfaces/inter3d1/i25sti3.F
+!||    i2buc1     ../starter/source/interfaces/inter3d1/i2buc1.F
+!||    i2cor3     ../starter/source/interfaces/inter3d1/i2cor3.F
+!||    i3sti3     ../starter/source/interfaces/inter3d1/i3sti3.F
+!||    i7sti3     ../starter/source/interfaces/inter3d1/i7sti3.F
+!||====================================================================
       SUBROUTINE VOLINT(VOL)
 C-----------------------------------------------
 C   COMPUTE HEXAHEDRON VOLUME
@@ -42,9 +41,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -59,7 +55,9 @@ C-----------------------------------------------
       my_real X17, X28, X35, X46,
      .        Y17, Y28, Y35, Y46,
      .        Z17, Z28, Z35, Z46
+      my_real A17, A28, B17, B28, C17, C28 
       my_real JAC1, JAC2, JAC3, JAC4, JAC5, JAC6, JAC7, JAC8, JAC9 
+      my_real JAC_59_68, JAC_67_49, JAC_48_57 
 C-------------------------------------------------------
       X17 = XC(7)-XC(1)
       X28 = XC(8)-XC(2)
@@ -76,22 +74,29 @@ C
       Z35 = ZC(5)-ZC(3)
       Z46 = ZC(6)-ZC(4)
 C
-      JAC1 = X17 + X28 - X35 - X46 
-      JAC2 = Y17 + Y28 - Y35 - Y46 
-      JAC3 = Z17 + Z28 - Z35 - Z46 
+      JAC4 = X17 + X28 - X35 - X46 
+      JAC5 = Y17 + Y28 - Y35 - Y46 
+      JAC6 = Z17 + Z28 - Z35 - Z46 
 C
-      JAC4 = X17 + X46 + X28 + X35 
-      JAC5 = Y17 + Y46 + Y28 + Y35 
-      JAC6 = Z17 + Z46 + Z28 + Z35 
+      A17 = X17 + X46 
+      A28 = X28 + X35 
+      B17 = Y17 + Y46 
+      B28 = Y28 + Y35 
+      C17 = Z17 + Z46 
+      C28 = Z28 + Z35 
 C
-      JAC7 = X17 + X46 - X28 - X35 
-      JAC8 = Y17 + Y46 - Y28 - Y35 
-      JAC9 = Z17 + Z46 - Z28 - Z35 
+      JAC7 = A17 + A28 
+      JAC8 = B17 + B28 
+      JAC9 = C17 + C28 
+      JAC1 = A17 - A28 
+      JAC2 = B17 - B28 
+      JAC3 = C17 - C28 
 C
-      VOL = JAC1 * (JAC5 * JAC9 - JAC8 * JAC6) + 
-     .      JAC2 * (JAC6 * JAC7 - JAC4 * JAC9) + 
-     .      JAC3 * (JAC4 * JAC8 - JAC7 * JAC5)
-      VOL = ZEP015625*VOL
+      JAC_59_68 = JAC5 * JAC9 - JAC6 * JAC8 
+      JAC_67_49 = JAC6 * JAC7 - JAC4 * JAC9 
+      JAC_48_57 = JAC4 * JAC8 - JAC5 * JAC7 
 C
+      VOL =  ZEP015625 * (JAC1 * JAC_59_68 + JAC2 * JAC_67_49 + JAC3 * JAC_48_57)
+
       RETURN
       END

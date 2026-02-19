@@ -1,50 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_LECGRE                     source/groups/hm_lecgre.F     
-Chd|-- called by -----------
-Chd|        LECGROUP                      source/groups/lecgroup.F      
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        GROUPS_GET_ELEM_LIST          source/groups/groups_get_elem_list.F
-Chd|        GROUPS_GET_NENTITY            source/groups/groups_get_nentity.F
-Chd|        HM_ADMLCNT                    source/groups/hm_admlistcnt.F 
-Chd|        HM_ADMLIST                    source/groups/hm_admlist.F    
-Chd|        HM_BIGBOX2                    source/model/box/hm_bigbox2.F 
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SUBMODGRE                  source/groups/hm_submodgr.F   
-Chd|        HM_TAGPART                    source/groups/hm_tagpart.F    
-Chd|        UDOUBLE_IGR                   source/system/sysfus.F        
-Chd|        NINTLSTN                      source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_lecgre                ../starter/source/groups/hm_lecgre.F
+!||--- called by ------------------------------------------------------
+!||    lecgroup                 ../starter/source/groups/lecgroup.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    groups_get_elem_list     ../starter/source/groups/groups_get_elem_list.F
+!||    groups_get_nentity       ../starter/source/groups/groups_get_nentity.F
+!||    hm_admlcnt               ../starter/source/groups/hm_admlistcnt.F
+!||    hm_admlist               ../starter/source/groups/hm_admlist.F
+!||    hm_bigbox2               ../starter/source/model/box/hm_bigbox2.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_submodgre             ../starter/source/groups/hm_submodgr.F
+!||    hm_tagpart               ../starter/source/groups/hm_tagpart.F
+!||    nintlst                  ../starter/source/system/nintrr.F
+!||    nintlstn                 ../starter/source/system/nintrr.F
+!||    udouble_igr              ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_LECGRE(
      1           IGRELEM ,IX       ,
      2           NIX1    ,NIX      ,NUMEL   ,NGRELE  ,IELT     ,
@@ -56,12 +56,14 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
       USE OPTIONDEF_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -72,13 +74,7 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
-#include      "submod_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "sysunit.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -109,12 +105,11 @@ C-----------------------------------------------
       MY_REAL
      .        XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,BID,FAC_L,
      .        DIAM,XP1,YP1,ZP1,XP2,YP2,ZP2
-      CHARACTER TITR*nchartitle,KEY*ncharkey,MES*40,KEY2*ncharkey,
-     .          TYPE*nchartitle
+      CHARACTER(LEN=NCHARTITLE) :: TITR,TITR1
+      CHARACTER(LEN=NCHARKEY) :: KEY, KEY2
+      CHARACTER MES*40
       INTEGER, DIMENSION(:),ALLOCATABLE :: BUFTMP
       INTEGER, DIMENSION(:),ALLOCATABLE :: BUFBOX
-      CHARACTER*nchartitle,
-     .   TITR1
       LOGICAL IS_AVAILABLE,IS_ENCRYPTED
 C-----------------------------------------------
       INTEGER, DIMENSION(:), POINTER :: ELEM
@@ -124,7 +119,6 @@ C-----------------------------------------------
       INTERFACE
        SUBROUTINE GROUPS_GET_ELEM_LIST(arg1,arg2,arg3)
         USE SUBMODEL_MOD
-#include      "submod_c.inc"
         INTEGER,DIMENSION(:),ALLOCATABLE       :: arg1
         INTEGER,INTENT(INOUT)                  :: arg2
         TYPE(SUBMODEL_DATA)                    :: arg3(NSUBMOD)
@@ -138,9 +132,9 @@ C-----------------------------------------------
 C    IGRELEM(IGS)%ID : GROUP identifier
 C    IGRELEM(IGS)%TITLE : GROUP title
 C    IGRELEM(IGS)%NENTITY : Entities (elements) number of the GROUP
-C    IGRELEM(IGS)%GRTYPE : TYPE ( 0-NOEUDS, 1-BRIC, 2-QUAD,   3-SHELL_4N,
+C    IGRELEM(IGS)%GRTYPE : TYPE ( 0-NODES, 1-BRIC, 2-QUAD,   3-SHELL_4N,
 !                                 4-TRUSS,  5-BEAM, 6-SPRINGS,7-SHELL_3N)
-!!                   GRTYPE --- > OBSOLETTE
+!!                   GRTYPE --- > OBSOLETE
 C    IGRELEM(IGS)%SORTED  : FLAG for sorted/unsorted elements
 !                    = 0 -> sorted
 !                    = 1 -> unsorted
@@ -150,7 +144,7 @@ C    IGRELEM(IGS)%GRPGRP : TYPE of element GROUP
 !                                 = 3 SUBSET,PART,MAT,PROP
 !                                 = 4 BOX,GENE
 !                                 = 5 SUBMOD
-C    IGRELEM(IGS)%LEVEL  : Hierachy level
+C    IGRELEM(IGS)%LEVEL  : Hierarchy level
 !                             (FLAG 'SUBLEVEL DONE' FOR GROUPS OF GROUPS)
 !                            = 0 ---> not yet initialized
 !                            = 1 ---> done
@@ -172,11 +166,11 @@ C=======================================================================
           CALL ANCMSG(MSGID=268,ANMODE=ANINFO,MSGTYPE=MSGERROR,C1='BUFTMP')
         ENDIF
 C-------------------------
-C groupes d' elements + init IGRN(1,IGS)
+C Elements groups + Init igrn (1, IGS)
 C-------------------------
       IGS=0
       CALL HM_OPTION_START(TRIM(STARTKEY))      
-      DO I=1,NGRELE  !NGRBRIC, NGRQUAD, etc...
+      DO I=1,NGRELE  !Ngrbric, Ngrquad, etc ...
 
         CALL HM_OPTION_READ_KEY(LSUBMODEL,
      .                          OPTION_ID   = ID,
@@ -205,20 +199,20 @@ C-------------------------
             IGRELEM(IGS)%TITLE=TITR
 C
             IF(KEY(1:6) == STARTKEY(2:7))THEN
-C             groupes de groupes
+C             groups of groups
               IGRELEM(IGS)%NENTITY=-1
               IGRELEM(IGS)%GRPGRP=2
               IGRELEM(IGS)%LEVEL=0
               IT0=IT0+1
             ELSEIF(KEY(1:4) == ELKEY)THEN
-C             groupe d'elements
+C             Group of elements
               IT1=IT1+1
               IF (FLAG == 0) THEN
                 IGRELEM(IGS)%NENTITY=0
                 IGRELEM(IGS)%GRPGRP=1
               ENDIF
             ELSEIF(KEY(1:4) == 'PART' .OR. KEY(1:6) == 'SUBSET' .OR. KEY(1:3) == 'MAT' .OR. KEY(1:4) == 'PROP') THEN
-C             groupe de SUBSET PART MAT OU PROP
+C             group of SUBSET PART MAT OR PROP
               IT2=IT2+1
               IF (FLAG == 0) THEN
                 IGRELEM(IGS)%NENTITY=0
@@ -226,14 +220,14 @@ C             groupe de SUBSET PART MAT OU PROP
               ENDIF
             ELSEIF((KEY(1:3) == 'BOX' .AND. NBBOX == 0 .AND.(KEY2(1:5) /= 'RECTA'.AND.
      .              KEY2(1:5) /= 'CYLIN'.AND.KEY2(1:5) /= 'SPHER')).OR.KEY(1:4) == 'GENE')THEN
-C             groupe d'elements dans un box (old/obsolete/not supported with new reader) OR  GENE
+C             group of elements in a box (old/obsolete/not supported with new reader) OR  GENE
               IT3=IT3+1
               IF (FLAG == 0) THEN
                 IGRELEM(IGS)%NENTITY=0
                 IGRELEM(IGS)%GRPGRP=4
               ENDIF
             ELSEIF(KEY(1:6) == 'SUBMOD')THEN
-C             groupe d'elements dans un submodel
+C             group of elements in a submodel
               IT4=IT4+1
               IF (FLAG  == 0) THEN
                 IGRELEM(IGS)%NENTITY=0
@@ -242,7 +236,7 @@ C             groupe d'elements dans un submodel
             ELSEIF(KEY(1:3) == 'BOX'.AND.(KEY2(1:5) == 'RECTA'.OR.
      .        KEY2(1:5) == 'CYLIN'.OR.KEY2(1:5) == 'SPHER'))THEN
 C             old /grnod/box (not /BOX/BOX)
-C             groupe de noeuds dans un box (clasical box, parallelepiped,
+C             group of nodes in a box (classical box, parallelepiped,
 C                              cylindrical, spherical)
               IT5=IT5+1
               IF (FLAG == 0) THEN
@@ -253,7 +247,7 @@ C                              cylindrical, spherical)
 C             multi box (box de box)
               IT6=IT6+1
             ELSEIF(KEY(1:8) == 'GEN_INCR')THEN
-C             groupe d'elements gen_inc first last offset
+C             group of elements gen_inc first last offset
 C       
               IT7=IT7+1
               IF (FLAG == 0) THEN
@@ -265,7 +259,7 @@ C
       ENDDO !next I
 
 C-------------------------------------
-C Recherche des ID doubles
+C Search for double IDs
 C-------------------------------------
       IF (FLAG == 0) THEN
         DO IGS=1,NGRELE
@@ -275,7 +269,7 @@ C-------------------------------------
       ENDIF
 
 C-------------------------------------
-C Remplacement des n0 d'elements user par systeme
+C Replacement of user element n0 by system n0
 C-------------------------------------
 
       IGS=0
@@ -286,7 +280,7 @@ C-------------------------------------
         BUFTMP = 0
         IF(NADMESH==0.OR.(ELKEY(1:4)/='SHEL'.AND.ELKEY(1:4)/='SH3N'))THEN
           CALL HM_OPTION_START(TRIM(STARTKEY))
-          DO I=1,NGRELE !NGRBRIC, NGRQUAD, etc...
+          DO I=1,NGRELE !Ngrbric, Ngrquad, etc ...
             CALL HM_OPTION_READ_KEY(LSUBMODEL,
      .                              OPTION_ID   = ID,
      .                              OPTION_TITR = TITR  ,
@@ -300,7 +294,7 @@ C-------------------------------------
                 IF(FLAG == 0)THEN
                   CALL GROUPS_GET_NENTITY(NEL,LSUBMODEL)
                   IGRELEM(IGS)%NENTITY=NEL
-                  MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                  CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                   IGRELEM(IGS)%ENTITY = 0
                 ELSEIF (FLAG == 1) THEN
                   
@@ -331,7 +325,7 @@ C-------------------------------------
           ENDDO!next I
         ELSE
           CALL HM_OPTION_START(TRIM(STARTKEY))        
-          DO I=1,NGRELE !NGRBRIC, NGRQUAD, etc ...
+          DO I=1,NGRELE !Ngrbric, Ngrquad, etc ...
               NEL=0
               IGS=IGS+1
               CALL HM_OPTION_READ_KEY(LSUBMODEL,
@@ -350,7 +344,7 @@ C-------------------------------------
      .                         KK       ,NEL     ,ELKEY  ,IGRELEM(IGS)%ID,TITR,LSUBMODEL)
                   KK=1
                   IGRELEM(IGS)%NENTITY=NEL
-                  MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                  CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                   IGRELEM(IGS)%ENTITY = 0
                 ELSEIF (FLAG == 1) THEN
                   NEL = IGRELEM(IGS)%NENTITY
@@ -403,7 +397,7 @@ C-------------------------
                   CALL HM_GET_INT_ARRAY_INDEX        ('Ifirst'    ,N1    ,KK,IS_AVAILABLE,LSUBMODEL)    
                   CALL HM_GET_INT_ARRAY_INDEX        ('Ilast'     ,N2    ,KK,IS_AVAILABLE,LSUBMODEL)    
                   IF(N2>N1)THEN                                         
-                   !tag des elements                                                                 
+                   !tag of elements
                    DO K=1,NUMEL                                                                      
                      IF (IX(NIX,K) >= N1 .AND. IX(NIX,K) <= N2) BUFTMP(K)=1                            
                    ENDDO!next K                                                                           
@@ -417,7 +411,7 @@ C-------------------------
                     IF (BUFTMP(J) == 1) NEL=NEL+1
                   ENDDO!next J
                   IGRELEM(IGS)%NENTITY=NEL
-                  MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                  CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                   IGRELEM(IGS)%ENTITY = 0
                 ELSEIF (FLAG == 1) THEN
                   DO J=1,NUMEL
@@ -440,7 +434,7 @@ C-------------------------
                     END IF
                   ENDDO!next J
                   IGRELEM(IGS)%NENTITY=NEL
-                  MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                  CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                   IGRELEM(IGS)%ENTITY = 0
                 ELSEIF (FLAG == 1) THEN
                   DO J=1,NUMEL
@@ -502,14 +496,14 @@ C
               IADBOX = 1
               IFLAGUNIT = 0
               ID = IGRELEM(IGS)%ID
-              DO J=1,NUNITS
+              DO J=1,UNITAB%NUNITS
                 IF (UNITAB%UNIT_ID(J) == UID) THEN
                   FAC_L = UNITAB%FAC_L(J)
                   IFLAGUNIT = 1
                   EXIT
                 ENDIF
               ENDDO
-              IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+              IF (UID/=0.AND.IFLAGUNIT==0) THEN
                 CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                      I2=UID,I1=ID,C1='ELEMENT GROUP',
      .                      C2='ELEMENT GROUP',
@@ -527,7 +521,7 @@ C---
              IADBOXMAX = MAX(IADBOX,IADBOXMAX)
               IF(FLAG == 0)THEN
                 IGRELEM(IGS)%NENTITY=NEL
-                MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                 IGRELEM(IGS)%ENTITY = 0
               ELSE IF(FLAG == 1)THEN
                 IGRELEM(IGS)%NENTITY=NEL
@@ -539,7 +533,7 @@ C---
         IF(ALLOCATED(BUFBOX))DEALLOCATE(BUFBOX)
       ENDIF ! IF(IT6 /= 0)
 C-------------------------
-C groupes de SUBSETS,PART,MAT,PROP
+C groups of subsets, share, mat, prop
 C-------------------------
 
       IGS=0
@@ -566,7 +560,7 @@ C---
                     IF (BUFTMP(IPARTE(J)) == 1) NEL=NEL+1
                   ENDDO
                   IGRELEM(IGS)%NENTITY=NEL
-                  MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                  CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                   IGRELEM(IGS)%ENTITY = 0
                 ELSEIF (FLAG == 1) THEN
                   DO J=1,NUMEL
@@ -588,7 +582,7 @@ C---
                     END IF
                   ENDDO
                   IGRELEM(IGS)%NENTITY=NEL
-                  MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                  CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                   IGRELEM(IGS)%ENTITY = 0
                 ELSEIF (FLAG == 1) THEN
                   DO J=1,NUMEL
@@ -610,7 +604,7 @@ C---
         ENDDO
       ENDIF
 C-------------------------
-C groupes de SUBMODELS
+C groups of SUBMODELS
 C-------------------------
 
       IGS=0
@@ -634,7 +628,7 @@ C-------------------------
      .             NN      ,IGS     )
               IF (FLAG == 0) THEN
                 IGRELEM(IGS)%NENTITY=NEL
-                MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                 IGRELEM(IGS)%ENTITY = 0
               ENDIF
             ENDIF
@@ -680,7 +674,7 @@ C-------------------------
                     IF (BUFTMP(J) == 1) NEL=NEL+1
                   ENDDO
                   IGRELEM(IGS)%NENTITY=NEL
-                  MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                  CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                   IGRELEM(IGS)%ENTITY = 0
                 ELSEIF (FLAG == 1) THEN
                   DO J=1,NUMEL
@@ -703,7 +697,7 @@ C-------------------------
                     END IF
                   ENDDO
                   IGRELEM(IGS)%NENTITY=NEL
-                  MY_ALLOCATE(IGRELEM(IGS)%ENTITY,NEL)
+                  CALL MY_ALLOC(IGRELEM(IGS)%ENTITY,NEL)
                   IGRELEM(IGS)%ENTITY = 0
                 ELSEIF (FLAG == 1) THEN
                   DO J=1,NUMEL

@@ -1,41 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_TBUTCHER_S               source/materials/fail/tuler_butcher/fail_tbutcher_s.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MMAIN8                        source/materials/mat_share/mmain8.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_tbutcher_s   ../engine/source/materials/fail/tuler_butcher/fail_tbutcher_s.F
+!||--- called by ------------------------------------------------------
+!||    mmain             ../engine/source/materials/mat_share/mmain.F90
+!||    mmain8            ../engine/source/materials/mat_share/mmain8.F
+!||    mulaw             ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8            ../engine/source/materials/mat_share/mulaw8.F90
+!||    usermat_solid     ../engine/source/materials/mat_share/usermat_solid.F
+!||====================================================================
       SUBROUTINE FAIL_TBUTCHER_S(
-     1     NEL    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC   ,
-     2     NPF    ,TF     ,TIME   ,TIMESTEP ,UPARAM  ,
-     3     NGL    , IPM    ,MAT,
-     4     SIGNXX ,SIGNYY ,SIGNZZ  ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
-     5     UVAR    ,OFF    ,IP     ,DFMAX   ,TDELE   )
+     1     NEL    ,NUPARAM,NUVAR   ,
+     2     TIME   ,TIMESTEP ,UPARAM  ,NGL    ,
+     3     SIGNXX ,SIGNYY ,SIGNZZ  ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
+     4     UVAR    ,OFF    ,DFMAX   ,TDELE   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,10 +47,7 @@ C NEL     |  1      | I | R | SIZE OF THE ELEMENT GROUP NEL
 C NUPARAM |  1      | I | R | SIZE OF THE USER PARAMETER ARRAY
 C NUVAR   |  1      | I | R | NUMBER OF USER ELEMENT VARIABLES
 C---------+---------+---+---+--------------------------------------------
-C MFUNC   |  1      | I | R | NUMBER FUNCTION USED FOR THIS USER LAW not used
-C KFUNC   | NFUNC   | I | R | FUNCTION INDEX not used
-C NPF     |  *      | I | R | FUNCTION ARRAY   
-C TF      |  *      | F | R | FUNCTION ARRAY 
+
 C---------+---------+---+---+--------------------------------------------
 C TIME    |  1      | F | R | CURRENT TIME
 C TIMESTEP|  1      | F | R | CURRENT TIME STEP
@@ -77,7 +72,7 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -87,13 +82,12 @@ C---------+---------+---+---+--------------------------------------------
 #include "units_c.inc"
 #include  "comlock.inc"
 #include  "param_c.inc"
-#include      "impl1_c.inc"
+#include  "impl1_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
 C
-      INTEGER NEL, NUPARAM, NUVAR,NGL(NEL),IPM(NPROPMI,*),
-     .        MAT(NEL),IP
+      INTEGER NEL, NUPARAM, NUVAR,NGL(NEL)
       my_real 
      .   TIME,TIMESTEP,UPARAM(*),
      .   SIGNXX(NEL),SIGNYY(NEL),SIGNZZ(NEL),
@@ -107,11 +101,6 @@ C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
       my_real UVAR(NEL,NUVAR), OFF(NEL),DFMAX(NEL),TDELE(NEL)
-C-----------------------------------------------
-C   VARIABLES FOR FUNCTION INTERPOLATION 
-C-----------------------------------------------
-      INTEGER NPF(*), MFUNC, KFUNC(MFUNC)
-      my_real TF(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -128,36 +117,31 @@ c=======================================================================
       SIGR  = UPARAM(3)
       IFLAG = INT(UPARAM(5))
 
-      IF(TIME == ZERO)THEN
-        DO I=1,NEL
-         TDELE(I)  = ZERO
-        ENDDO   
-      ENDIF 
 C-----------------------------------------------
       IDEL=0
       IDEV=0
       SCALE = ZERO
-      IF(IFLAG.EQ.1)THEN
+      IF(IFLAG==1)THEN
          IDEL=1
-      ELSEIF(IFLAG.EQ.2)THEN
+      ELSEIF(IFLAG==2)THEN
          IDEV =1
       END IF
 C...
-      IF(IDEL.EQ.1)THEN
+      IF(IDEL==1)THEN
         DO I=1,NEL
-          IF(OFF(I).LT.0.1) OFF(I)=0.0
-          IF(OFF(I).LT.1.0) OFF(I)=OFF(I)*0.8
+          IF(OFF(I)<0.1) OFF(I)=0.0
+          IF(OFF(I)<1.0) OFF(I)=OFF(I)*0.8
         END DO
       END IF
 C      
-      IF(IDEL.EQ.1)THEN
+      IF(IDEL==1)THEN
        NINDX=0 
 C-------------------------------
 C     RUPTURE DUCTILE
 C-------------------------------
 C      Tuler Butcher
        DO I=1,NEL
-        IF(IFLAG.EQ.1.AND.OFF(I).EQ.1.)THEN
+        IF(IFLAG==1.AND.OFF(I)==1.)THEN
 C-------------------
 C     STREES principal 1, 4 newton iterations 
 C-------------------
@@ -184,39 +168,38 @@ c         yp= 3 x^2 + c
          SIGMAX = SQRT(-CC1)
          EPST2 = SIGMAX * SIGMAX
          Y = (EPST2 + C)* SIGMAX + D
-         IF(ABS(Y).GT.EM8)THEN
+         IF(ABS(Y)>EM8)THEN
           SIGMAX = 1.75 * SIGMAX
           EPST2 = SIGMAX * SIGMAX
           Y = (EPST2 + C)* SIGMAX + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)SIGMAX = SIGMAX - Y/YP
+          IF(YP/=ZERO)SIGMAX = SIGMAX - Y/YP
           EPST2 = SIGMAX * SIGMAX
           Y = (EPST2 + C)* SIGMAX + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)SIGMAX = SIGMAX - Y/YP
+          IF(YP/=ZERO)SIGMAX = SIGMAX - Y/YP
           EPST2 = SIGMAX * SIGMAX
           Y = (EPST2 + C)* SIGMAX + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)SIGMAX = SIGMAX - Y/YP
+          IF(YP/=ZERO)SIGMAX = SIGMAX - Y/YP
           EPST2 = SIGMAX * SIGMAX
           Y = (EPST2 + C)* SIGMAX + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)SIGMAX = SIGMAX - Y/YP
+          IF(YP/=ZERO)SIGMAX = SIGMAX - Y/YP
          ENDIF 
          SIGMAX = SIGMAX + P  
-         IF(SIGMAX.GE.SIGR)            	 
+         IF(SIGMAX>=SIGR)               
      .    UVAR(I,1)=UVAR(I,1) + TIMESTEP*(SIGMAX - SIGR)**TBA  
 cc          UVAR(I,2)=UVAR(I,2) + TIMESTEP  
-         IF (UVAR(I,1).GT.TBK) THEN
+         IF (UVAR(I,1)>TBK) THEN
           OFF(I) = FOUR_OVER_5
-          IDEL7NOK = 1
           NINDX=NINDX+1
           INDX(NINDX)=I
           TDELE(I) = TIME  
          ENDIF
-	ENDIF
+          ENDIF
        ENDDO
-       IF(NINDX.GT.0.AND.IMCONV.EQ.1)THEN
+       IF(NINDX>0.AND.IMCONV==1)THEN
         DO J=1,NINDX
          I=INDX(J)
 #include "lockon.inc"
@@ -229,11 +212,11 @@ C      end Tuler Butcher
       END IF
 
 Cc deviatoric will be vanished      
-      IF(IDEV.EQ.1)THEN
+      IF(IDEV==1)THEN
        NINDX=0 
        DO I=1,NEL
-        IF(IFLAG.EQ.2.AND.OFF(I).EQ.1.)THEN 
-         IF(UVAR(I,1).LT.TBK)THEN
+        IF(IFLAG==2.AND.OFF(I)==1.)THEN 
+         IF(UVAR(I,1)<TBK)THEN
           P = THIRD*(SIGNXX(I) + SIGNYY(I) + SIGNZZ(I))
           E1 = SIGNXX(I) - P
           E2 = SIGNYY(I) - P
@@ -257,30 +240,30 @@ c         yp= 3 x^2 + c
           SIGMAX = SQRT(-CC1)
           EPST2 = SIGMAX * SIGMAX
           Y = (EPST2 + C)* SIGMAX + D
-          IF(ABS(Y).GT.EM8)THEN
+          IF(ABS(Y)>EM8)THEN
            SIGMAX = 1.75 * SIGMAX
            EPST2 = SIGMAX * SIGMAX
            Y = (EPST2 + C)* SIGMAX + D
            YP = THREE*EPST2 + C
-           IF(YP.NE.ZERO)SIGMAX = SIGMAX - Y/YP
+           IF(YP/=ZERO)SIGMAX = SIGMAX - Y/YP
            EPST2 = SIGMAX * SIGMAX
            Y = (EPST2 + C)* SIGMAX + D
            YP = THREE*EPST2 + C
-           IF(YP.NE.ZERO)SIGMAX = SIGMAX - Y/YP
+           IF(YP/=ZERO)SIGMAX = SIGMAX - Y/YP
            EPST2 = SIGMAX * SIGMAX
            Y = (EPST2 + C)* SIGMAX + D
            YP = THREE*EPST2 + C
-           IF(YP.NE.ZERO)SIGMAX = SIGMAX - Y/YP
+           IF(YP/=ZERO)SIGMAX = SIGMAX - Y/YP
            EPST2 = SIGMAX * SIGMAX
            Y = (EPST2 + C)* SIGMAX + D
            YP = THREE*EPST2 + C
-           IF(YP.NE.ZERO)SIGMAX = SIGMAX - Y/YP
+           IF(YP/=ZERO)SIGMAX = SIGMAX - Y/YP
           ENDIF   
           SIGMAX = SIGMAX + P          
-          IF(SIGMAX.GE.SIGR)            	 
+          IF(SIGMAX>=SIGR)               
      .     UVAR(I,1)=UVAR(I,1) + TIMESTEP*(SIGMAX - SIGR)**TBA    
 cc          UVAR(I,2)=UVAR(I,2) + TIMESTEP  
-          IF(UVAR(I,1).GT.TBK) THEN	  
+          IF(UVAR(I,1)>TBK) THEN    
            NINDX=NINDX+1
            INDX(NINDX)=I
            SIGNXX(I) =   P
@@ -302,7 +285,7 @@ C uvar> tbk
          ENDIF
         ENDIF 
        ENDDO
-       IF(NINDX.GT.0.AND.IMCONV.EQ.1)THEN
+       IF(NINDX>0.AND.IMCONV==1)THEN
         DO J=1,NINDX
          I = INDX(J)
 #include "lockon.inc"

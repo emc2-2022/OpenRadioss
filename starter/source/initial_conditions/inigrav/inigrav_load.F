@@ -1,49 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIGRAV_LOAD                  source/initial_conditions/inigrav/inigrav_load.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        CHECK_IS_ON_SEGMENT           source/initial_conditions/inigrav/inigrav_load.F
-Chd|        INIGRAV_EOS                   source/initial_conditions/inigrav/inigrav_eos.F
-Chd|        INIGRAV_M37                   source/initial_conditions/inigrav/inigrav_m37.F
-Chd|        INIGRAV_M51                   source/initial_conditions/inigrav/inigrav_m51.F
-Chd|        INIGRAV_PART_LIST             source/initial_conditions/inigrav/inigrav_part_list.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        EBCS_MOD                      ../common_source/modules/ebcs_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INIGRAV                       share/modules1/inigrav_mod.F  
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inigrav_load           ../starter/source/initial_conditions/inigrav/inigrav_load.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    check_is_on_segment    ../starter/source/initial_conditions/inigrav/inigrav_load.F
+!||    inigrav_eos            ../starter/source/initial_conditions/inigrav/inigrav_eos.F
+!||    inigrav_m37            ../starter/source/initial_conditions/inigrav/inigrav_m37.F
+!||    inigrav_m51            ../starter/source/initial_conditions/inigrav/inigrav_m51.F
+!||    inigrav_part_list      ../starter/source/initial_conditions/inigrav/inigrav_part_list.F
+!||--- uses       -----------------------------------------------------
+!||    inigrav                ../starter/share/modules1/inigrav_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INIGRAV_LOAD(ELBUF_TAB ,IPART  ,IGRPART ,IPARG  ,IPARTTG  ,
      1                        IPARTS    ,IPARTQ ,X       ,IXS    ,IXQ      ,
      2                        IXTG      ,PM     ,IPM     ,BUFMAT ,MULTI_FVM,
      3                        ALE_CONNECTIVITY ,NV46   ,IGRSURF ,ITAB   ,EBCS_TAB,
-     4                        NPF       ,TF)
+     4                        NPF       ,TF    ,MAT_PARAM)
 C-----------------------------------------------
 C   Description
 C-----------------------------------------------
@@ -75,6 +71,8 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE EBCS_MOD
       USE ALE_CONNECTIVITY_MOD
+      USE MATPARAM_DEF_MOD
+      use element_mod , only : nixs,nixc,nixq,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -88,7 +86,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "param_c.inc"
-#include      "inigrav_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
@@ -111,14 +108,15 @@ C-----------------------------------------------
       TYPE(t_ale_connectivity), INTENT(INOUT) :: ALE_CONNECTIVITY
       INTEGER,INTENT(IN)::NPF(SNPC)
       my_real,INTENT(IN)::TF(STF)      
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT), INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       my_real :: GRAV0,BX,BY,BZ,NX,NY,NZ,DOTPROD,DOTP,RHO0,NGX,NGY,NGZ,ALPHA,INTERP(3),ValA,ValB,NORM
       my_real :: Z(3), DEPTH(MVSIZ), N(3,8),VEC(3), DELTA_P(MVSIZ),PSURF,PGRAV(MVSIZ),VFRAC,P(3,1:4)
-      my_real :: LAMBDA,DIAG1(3),DIAG2(3),TOL,DIST,B(3),VOLFRAC
+      my_real :: LAMBDA,DIAG1(3),DIAG2(3),TOL,DIST,B(3),VOLFRAC,DEPT
       my_real,ALLOCATABLE,DIMENSION(:,:) :: MIN_COOR, MAX_COOR, N_SURF, ZF
-      INTEGER :: K,KK,IGRP,ISURF,IGRAV,NP,MLW,NG,IAD0,II,NEL,J,IE,I,IERROR,IMAT,M(MVSIZ),Q,NSEG,ISEG
+      INTEGER :: K,KK,IGRP,ISURF,IGRAV,NPART_IN_GROUP,MLW,NG,IAD0,II,NEL,J,IE,I,IERROR,IMAT,M(MVSIZ),Q,NSEG,ISEG
       INTEGER :: USERID
       INTEGER :: NOD(8), MATID, IADBUF,IFORM,NEL2,LIST(MVSIZ),NBMAT,MATLAW,NIX,UID,SURF_TYPE,IELTYP
       INTEGER, ALLOCATABLE, DIMENSION(:) :: IP
@@ -149,25 +147,25 @@ C-----------------------------------------------
         NGY     = LINIGRAV(09,K)
         NGZ     = LINIGRAV(10,K) 
         PSURF   = LINIGRAV(11,K)        
-        IF (GRAV0.EQ.ZERO)CYCLE          !nothing to do if g=0 at time=0 => Delta_P=0 => P=P(t=0)=P0
+        IF (GRAV0==ZERO)CYCLE          !nothing to do if g=0 at time=0 => Delta_P=0 => P=P(t=0)=P0
         !READING GRPART DATA
-        IF(IGRP.NE.0)THEN
-         NP       = IGRPART(IGRP)%NENTITY
-         ALLOCATE(IP(NP),STAT=IERROR)
+        IF(IGRP/=0)THEN
+         NPART_IN_GROUP = IGRPART(IGRP)%NENTITY
+         ALLOCATE(IP(NPART_IN_GROUP),STAT=IERROR)
          IF(IERROR/=0)CALL ANCMSG(MSGID   = 268,
      .                            ANMODE  = ANINFO,
      .                            MSGTYPE = MSGERROR,
      .                            C1      = 'INIGRAV')
-         IP(1:NP) =  IPART(4,IGRPART(IGRP)%ENTITY(1:NP))
+         IP(1:NPART_IN_GROUP) = IPART(4,IGRPART(IGRP)%ENTITY(1:NPART_IN_GROUP))
         ELSE
          !by default treat all parts
-         IAD0   = 0
-         NP     = 0
+         IAD0 = 0
+         NPART_IN_GROUP = 0
         ENDIF
         l_PLANAR_SURF = .FALSE.
         l_USER_SURF   = .FALSE.
         SURF_TYPE=-1   !-1:unaffected
-        IF(ISURF.GT.0)SURF_TYPE=IGRSURF(ISURF)%TYPE
+        IF(ISURF>0)SURF_TYPE=IGRSURF(ISURF)%TYPE
         IF(SURF_TYPE==200 .OR. SURF_TYPE == -1)THEN
           l_PLANAR_SURF=.TRUE.
         ELSEIF(SURF_TYPE == 0) THEN  
@@ -178,10 +176,8 @@ C-----------------------------------------------
           DO ISEG=1,NSEG
             lTRIA=.FALSE.
             IF(IGRSURF(ISURF)%NODES(ISEG,4)==0)lTRIA=.TRUE.
-            NP=4
             IF(lTRIA)THEN
-              NP=3
-              P(1:3,4)=P(1:3,3)
+                  P(1:3,4)=P(1:3,3)
             ENDIF
             !face coordinates
             P(1,1:4)=X(1,IGRSURF(ISURF)%NODES(ISEG,1:4))
@@ -248,15 +244,15 @@ C-----------------------------------------------
             !check if PART must be treated or not
             LIST(1:MVSIZ) = 0
             NEL2 = 0
-            !il peut y avoir plusieurs PARTS par groupe. Tous les elements ont meme mat et meme PROP.
-            ! creation dune list LIST(1:NEL2) c  1:NEL  avec les elements des parts a traiter
+            !There may be several shares per group.All the elements have even mat and even prop.
+            ! Creation of a list list (1: nel 2) c'1: nel with the elements of the shares to be treated
             !===================================================================!
-            !                     SELECTION DES ELEMENTS                        !
+            ! ELEMENT SELECTION
             !===================================================================! 
-            IF(IGRP.NE.0)THEN
+            IF(IGRP/=0)THEN
               lCYCLE = .TRUE.
               DO I=1,NEL
-                DO Q=1,NP
+                DO Q=1,NPART_IN_GROUP
                   IF(IPART(4,M(I))==IP(Q))THEN
                     NEL2 = NEL2+1
                     LIST(NEL2) = I
@@ -272,12 +268,13 @@ C-----------------------------------------------
                LIST(I) = I !(/1:NEL/) !identite
               ENDDO
             ENDIF
-            ! LIST est la sous liste de 1:NEL des elements dont la PART est a traiter avec INIGRAV
+            ! LIST is the sublist of 1:NEL of elements whose PART is to be processed with INIGRAV
 
             ! This group is going to be treated since PART_ID in GRPART_ID
             !===================================================================!
-            !                     CALCUL DES CENTROIDES                         !
+            ! CENTROID CALCULATION
             !===================================================================! 
+            DEPTH(:) = EP20
             DO KK=1,NEL2
               I = LIST(KK)
               IE                    = I + NFT
@@ -317,7 +314,7 @@ C-----------------------------------------------
               !===================================================================! 
               IF(l_PLANAR_SURF)THEN
               !===================================================================!
-              !                 --- CALCUL DES DISTANCES ---                      !
+              ! --- DISTANCE CALCULATION ---
               !-PLANAR SURFACE :          IGRSURF(ISURF)%TYPE = 200 OR ISURF=0    !
               !===================================================================!               
               !---NORMAL : NX,NY,NZ 
@@ -325,9 +322,9 @@ C-----------------------------------------------
                  !intersection point such as INTERP = Z + ALPHA . NG   et   <B-INTERP,N> = 0, donc :
                  ALPHA                 = (BX-Z(1))*NX+(BY-Z(2))*NY+(BZ-Z(3))*NZ / (NGX*NX+NGY*NY+NGZ*NZ)  !non nul car verification a la lecture
                  INTERP(1)             = Z(1) + ALPHA*NGX
-	         INTERP(2)             = Z(2) + ALPHA*NGY
-	         INTERP(3)             = Z(3) + ALPHA*NGZ
-                 ! profondeur = <INTERP_P , N>
+                   INTERP(2)             = Z(2) + ALPHA*NGY
+                   INTERP(3)             = Z(3) + ALPHA*NGZ
+                 ! Depth = <perf_P, n>
                  !DEPTH(I) = (INTERP(1)-Z(1))*(INTERP(1)-Z(1))+(INTERP(2)-Z(2))*(INTERP(2)-Z(2))+(INTERP(3)-Z(3))*(INTERP(3)-Z(3))
                  !DEPTH(I) = SQRT(DEPTH(I))
                  DEPTH(KK)= (INTERP(1)-Z(1))*NGX+(INTERP(2)-Z(2))*NGY+(INTERP(3)-Z(3))*NGZ
@@ -336,25 +333,25 @@ C-----------------------------------------------
                  lFOUND_PROJ=.TRUE.
               ELSEIF(l_USER_SURF) THEN             
               !===================================================================!
-              !                 --- CALCUL DES DISTANCES ---                      !
+              ! --- DISTANCE CALCULATION ---
               !-USER SURFACE :              IGRSURF(ISURF)%TYPE=0 ,   ISURF/=0    !
               !===================================================================!
-                 !LOOP ON CELL, THEN LOOP ON FACE :  complexity is O(NCELL*NFACE), can be optimized with space partitionning              
+                 !LOOP ON CELL, THEN LOOP ON FACE :  complexity is O(NCELL*NFACE), can be optimized with space partitioning
                  lERROR=.FALSE.
                  lFOUND_PROJ=.FALSE.
                  DO ISEG=1,NSEG
                 
-                   IF(NGX.EQ.ZERO)THEN
+                   IF(NGX==ZERO)THEN
                      IF(Z(1)+TOL < MIN_COOR(1,ISEG)  .OR. Z(1)-TOL > MAX_COOR(1,ISEG))CYCLE
                    ENDIF
-                   IF(NGY.EQ.ZERO)THEN
+                   IF(NGY==ZERO)THEN
                      IF(Z(2)+TOL < MIN_COOR(2,ISEG)  .OR. Z(2)-TOL > MAX_COOR(2,ISEG))CYCLE
                    ENDIF
-                   IF(NGZ.EQ.ZERO)THEN
+                   IF(NGZ==ZERO)THEN
                      IF(Z(3)+TOL < MIN_COOR(3,ISEG)  .OR. Z(3)-TOL > MAX_COOR(3,ISEG))CYCLE 
                    ENDIF                                     
                    DOTP = N_SURF(1,ISEG)*NGX + N_SURF(2,ISEG)*NGY + N_SURF(3,ISEG)*NGZ
-                   IF(ABS(DOTP).LE.EM04)THEN
+                   IF(ABS(DOTP)<=EM04)THEN
                      CALL ANCMSG(MSGID   = 90,
      .                           ANMODE  = ANINFO,
      .                           MSGTYPE = MSGERROR,
@@ -373,7 +370,7 @@ C-----------------------------------------------
                    !  => INTERP = ...
                    B(1:3)=ZF(1:3,ISEG)
                    DIST=(B(1)-Z(1))*(B(1)-Z(1)) + (B(2)-Z(2))*(B(2)-Z(2)) + (B(3)-Z(3))*(B(3)-Z(3))
-                   IF(DIST.LE.TOL*TOL)THEN
+                   IF(DIST<=TOL*TOL)THEN
                      !use another basis point if face centroid superimposed with cell centroid
                      B(1:3)=P(1:3,1)                                         
                    ENDIF
@@ -385,8 +382,10 @@ C-----------------------------------------------
                    !CHECK INTERP IS INSIDE FACE, OTHERWISE SKIP IT
                    CALL CHECK_IS_ON_SEGMENT(P(1:3,1:4),B,INTERP,lTRIA,lTEST)
                    IF(.NOT.lTEST)CYCLE
-                   DEPTH(KK)= (INTERP(1)-Z(1))*NGX+(INTERP(2)-Z(2))*NGY+(INTERP(3)-Z(3))*NGZ
-                   DEPTH(KK) = -DEPTH(KK)
+                   DEPT = -((INTERP(1)-Z(1))*NGX+(INTERP(2)-Z(2))*NGY+(INTERP(3)-Z(3))*NGZ)
+                   IF(ABS(DEPT) < ABS(DEPTH(KK)))THEN
+                     DEPTH(KK) = DEPT
+                   ENDIF
                    lFOUND_PROJ=.TRUE.                                     
                  ENDDO           
                  IF(lERROR)EXIT
@@ -408,7 +407,7 @@ C-----------------------------------------------
           !===================================================================!
           !                 INITIALISATION DE L'ETAT INITIAL                  !
           !===================================================================! 
-           IF (N2D .EQ. 0) THEN
+           IF (N2D == 0) THEN
               MATID = IXS(1, 1 + NFT)
            ELSEIF(ITY==2)THEN
               MATID = IXQ(1, 1 + NFT)
@@ -424,7 +423,7 @@ C-----------------------------------------------
            CASE (3, 4, 6, 10, 49)      !Material law defined with Equations Of States 
               RHO0 = PM(1,MATID)                  
               CALL INIGRAV_EOS(NEL,NEL2, NG, MATID, IPM, GRAV0, RHO0, DEPTH, PM, BUFMAT(IADBUF), 
-     .                         ELBUF_TAB, PSURF, LIST , PGRAV, 0 ,MLW, NPF, TF)
+     .                         ELBUF_TAB, PSURF, LIST , PGRAV, 0 ,MLW, NPF, TF ,NUMMAT,MAT_PARAM)
           !=======================================!
           !     MM-ALE 37                         !
           !=======================================! 
@@ -434,18 +433,18 @@ C-----------------------------------------------
           !     MM-ALE 51                         !
           !=======================================! 
            CASE (51)
-              IF (N2D .EQ. 0) THEN ! HEXA
+              IF (N2D == 0) THEN ! HEXA
                  IX => IXS(1:NIXS, 1:NUMELS)
                  NIX = NIXS
-              ELSEIF (ITY .EQ. 2) THEN! QUADS
+              ELSEIF (ITY == 2) THEN! QUADS
                  IX => IXQ(1:NIXQ, 1:NUMELQ)
                  NIX = NIXQ
-              ELSEIF (ITY .EQ. 7) THEN! TRIAS
+              ELSEIF (ITY == 7) THEN! TRIAS
                  IX => IXTG(1:NIXTG, 1:NUMELTG)
                  NIX = NIXTG                 
               ENDIF
               IFORM = BUFMAT(IADBUF + 31 - 1)
-              IF (IFORM .NE. 3) THEN
+              IF (IFORM /= 3) THEN
                  CALL INIGRAV_M51(NEL  , NEL2,     NG, MATID,  IPM, GRAV0, DEPTH, PM,    BUFMAT(IADBUF), ELBUF_TAB, 
      .                            PSURF, LIST,  ALE_CONNECTIVITY,   NV46, IX , NIX  , NFT  , BUFMAT, IPARG)
               ELSE
@@ -458,28 +457,29 @@ C-----------------------------------------------
           !     MULTI-FLUID 151                   !
           !=======================================! 
            CASE(151)
-            NBMAT = IPARG(20, NG)
-            IF (N2D .EQ. 0) THEN ! HEXA
+
+            IF (N2D == 0) THEN ! HEXA
                IX => IXS(1:NIXS, LFT + NFT:LLT + NFT)
-            ELSEIF (ITY .EQ. 2) THEN! QUADS
+            ELSEIF (ITY == 2) THEN! QUADS
                IX => IXQ(1:NIXQ, LFT + NFT:LLT + NFT)
-            ELSEIF (ITY .EQ. 7) THEN ! TRIAS
+            ELSEIF (ITY == 7) THEN ! TRIAS
                IX => IXTG(1:NIXTG, LFT + NFT:LLT + NFT)
             ENDIF
+            NBMAT = MAT_PARAM(IX(1, 1))%MULTIMAT%NB
               !mixture density : in case of inigrav with (water+vapor) vapor eos must use mixture density
               RHO0=ZERO
               DO IMAT=1,NBMAT           
-                MATID  = IPM(20 + IMAT, IX(1, 1)) 
-                VOLFRAC=  PM(20 + IMAT, IX(1, 1))
+                MATID  = MAT_PARAM(IX(1, 1))%MULTIMAT%MID(IMAT)
+                VOLFRAC=  MAT_PARAM(IX(1, 1))%MULTIMAT%VFRAC(IMAT)
                 MATLAW = IPM(2, MATID)
                 RHO0   = RHO0+PM(1,MATID)*VOLFRAC 
               ENDDO           
 
               DO IMAT=1,NBMAT
-                MATID  = IPM(20 + IMAT, IX(1, 1))  
+                MATID  = MAT_PARAM(IX(1, 1))%MULTIMAT%MID(IMAT)
                 MATLAW = IPM(2, MATID)            
                 CALL INIGRAV_EOS(NEL,   NEL2 , NG   , MATID, IPM, GRAV0, RHO0, DEPTH, PM, BUFMAT(IADBUF), ELBUF_TAB, 
-     .                           PSURF, LIST , PGRAV, IMAT , MLW, NPF, TF)
+     .                           PSURF, LIST , PGRAV, IMAT , MLW, NPF,TF,NUMMAT,MAT_PARAM)
               ENDDO
               ! GLOBAL STATE
               DO KK=1,NEL2
@@ -510,13 +510,13 @@ C-----------------------------------------------
           !              DEFAULT                  !
           !=======================================! 
            CASE DEFAULT  
-              IF (N2D .EQ. 0) THEN ! HEXA
+              IF (N2D == 0) THEN ! HEXA
                  IX => IXS(1:NIXS, 1:NUMELS)
                  NIX = NIXS
-              ELSEIF (ITY .EQ. 2) THEN! QUADS
+              ELSEIF (ITY == 2) THEN! QUADS
                  IX => IXQ(1:NIXQ, 1:NUMELQ)
                  NIX = NIXQ
-              ELSEIF (ITY .EQ. 7) THEN! TRIAS
+              ELSEIF (ITY == 7) THEN! TRIAS
                  IX => IXTG(1:NIXTG, 1:NUMELTG)
                  NIX = NIXTG                 
               ENDIF            
@@ -536,7 +536,7 @@ C-----------------------------------------------
         IF(ALLOCATED(MIN_COOR))DEALLOCATE(MIN_COOR)
         IF(ALLOCATED(N_SURF))DEALLOCATE(N_SURF)
         IF(ALLOCATED(ZF))DEALLOCATE(ZF)
-        IF(IGRP.NE.0)THEN
+        IF(IGRP/=0)THEN
           IF(ALLOCATED(IP))DEALLOCATE(IP)  
         ENDIF
 
@@ -548,12 +548,11 @@ C-----------------------------------------------
 
 
 
-Chd|====================================================================
-Chd|  CHECK_IS_ON_SEGMENT           source/initial_conditions/inigrav/inigrav_load.F
-Chd|-- called by -----------
-Chd|        INIGRAV_LOAD                  source/initial_conditions/inigrav/inigrav_load.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    check_is_on_segment   ../starter/source/initial_conditions/inigrav/inigrav_load.F
+!||--- called by ------------------------------------------------------
+!||    inigrav_load          ../starter/source/initial_conditions/inigrav/inigrav_load.F
+!||====================================================================
       SUBROUTINE CHECK_IS_ON_SEGMENT(P,Z,H,lTRIA,lTEST)
 C-----------------------------------------------
 C   Description
@@ -579,8 +578,8 @@ C using triangulation with midpoint Z(:)
 !                   +
 !                   A =  P(:,3)
 
-!Il s'agit de savoir avec cette fonction s'il est a l'interieur
-! ou a l'exterieur.
+!This function determines if it is inside
+! or outside.
 !  ANCIEN CRITERE
 !                   1 :interieur
 !                   0 :exterieur
@@ -593,8 +592,8 @@ C using triangulation with midpoint Z(:)
 !              |/           \ V=AH
 !             A+
 !
-! NOUVEAU CRITERE (bien meilleure performance CPU) :
-!     Coordonnes de H dans le repere (ZA,ZB) doit etre
+! New criterion (much better CPU performance):
+! Coordinates of H in the (ZA,ZB) frame must be
 !        -TOL < x < 1+ TOL
 !        -TOL < y < 1+ TOL
 
@@ -636,10 +635,13 @@ C-----------------------------------------------
       NTRIA=4
       IF(lTRIA)NTRIA=1
       ISONTRIA(1:4)=0
-        TOLCRIT = EM06
-        TOL = TOLCRIT      
+      TOLCRIT = EM06
+      TOL = TOLCRIT
       IA=0
       IB=1
+      ZH(1) = H(1) - Z(1)
+      ZH(2) = H(2) - Z(2)
+      ZH(3) = H(3) - Z(3)
       
       DO I=1,NTRIA
         IA=IA+1
@@ -656,15 +658,9 @@ C-----------------------------------------------
         NORM_ZA_2 = (ZA(1)*ZA(1)+ZA(2)*ZA(2)+ZA(3)*ZA(3))
         NORM_ZB_2 = (ZB(1)*ZB(1)+ZB(2)*ZB(2)+ZB(3)*ZB(3))
 
-        ZH(1) = H(1) - Z(1)
-        ZH(2) = H(2) - Z(2)
-        ZH(3) = H(3) - Z(3)      
-
         PS1 =  ZA(1)*ZH(1)+ZA(2)*ZH(2)+ZA(3)*ZH(3)
-      
         PS2 =  ZB(1)*ZH(1)+ZB(2)*ZH(2)+ZB(3)*ZH(3)
-
-        PS3 =  ZB(1)*ZH(1)+ZB(2)*ZA(2)+ZB(3)*ZA(3)
+        PS3 =  ZB(1)*ZA(1)+ZB(2)*ZA(2)+ZB(3)*ZA(3)
       
         COEF = ONE-PS3*PS3/NORM_ZA_2/NORM_ZB_2
         COEF = ONE / COEF
@@ -678,9 +674,9 @@ C-----------------------------------------------
         !  write(*,fmt='(A12,3F30.16)')"*createnode ",H(1:3)
         !ENDIF
   
-        IF(t.GE.-TOL)THEN
-          IF(s.GE.-TOL )THEN
-            IF(s+t.LE.ONE+TOL)THEN
+        IF(t>=-TOL)THEN
+          IF(s>=-TOL )THEN
+            IF(s+t<=ONE+TOL)THEN
               ISONTRIA(I) = 1
             ENDIF
           ENDIF       
@@ -688,7 +684,7 @@ C-----------------------------------------------
       
       ENDDO
       
-      lTEST=.FALSE.
-      IF(SUM(ISONTRIA(1:NTRIA))>=1)lTEST=.TRUE.
+      lTEST = .FALSE.
+      IF(SUM(ISONTRIA(1:NTRIA)) >= 1) lTEST = .TRUE.
       
       END SUBROUTINE CHECK_IS_ON_SEGMENT

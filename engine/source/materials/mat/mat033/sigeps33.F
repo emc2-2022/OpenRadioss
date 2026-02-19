@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS33                      source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|-- calls ---------------
-Chd|        DREH                          source/materials/mat/mat033/sigeps33.F
-Chd|        JACOBIEW                      source/materials/mat/mat033/sigeps33.F
-Chd|        VALPVECDP_V                   source/materials/mat/mat033/sigeps33.F
-Chd|        VALPVEC_V                     source/materials/mat/mat033/sigeps33.F
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps33      ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- called by ------------------------------------------------------
+!||    mulaw         ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8        ../engine/source/materials/mat_share/mulaw8.F90
+!||--- calls      -----------------------------------------------------
+!||    dreh          ../engine/source/materials/mat/mat033/sigeps33.F
+!||    finter        ../engine/source/tools/curve/finter.F
+!||    jacobiew      ../engine/source/materials/mat/mat033/sigeps33.F
+!||    valpvec_v     ../engine/source/materials/mat/mat033/sigeps33.F
+!||    valpvecdp_v   ../engine/source/materials/mat/mat033/sigeps33.F
+!||====================================================================
       SUBROUTINE SIGEPS33(
      1      NEL    , NUPARAM, NUVAR   , NFUNC , IFUNC , NPF   ,
      2      TF     , TIME   , TIMESTEP, UPARAM, RHO0  , RHO   ,
@@ -95,25 +95,13 @@ C----------------------------------------------------------------
       INTEGER VPVEC,ICASE
       my_real 
      . EY,C1,C2,ET,VMU,VMU0
-     . , A,B,C,D,VAR
-     . , AXX,BXX,CXX,AYY,BYY,CYY,AZZ,BZZ,CZZ
-     . , AXY,BXY,CXY,AYZ,BYZ,CYZ,AZX,BZX,CZX
-     . , C1XX,C2XX,ETXX,VMUXX, C1YY,C2YY,ETYY,VMUYY
-     . , C1XY,C2XY,GTXY,VMUXY, C1YZ,C2YZ,GTYZ,VMUYZ
-     . , C1ZX,C2ZX,GTZX,VMUZX, P0,PHI,GAMA0,FAC,FAC1
+     . , A,B,C,VAR
+     . , P0,PHI,GAMA0,FAC,FAC1
      . , S(3,3),SIGPR(3),DIRPR(3,3)
-     . , C1ZZ,C2ZZ,ETZZ,VMUZZ,SIGT_CUTOFF,SIGC_CUTOFF
+     . ,SIGT_CUTOFF,SIGC_CUTOFF
       my_real  
      .   E(MVSIZ),EDOT(MVSIZ),DAV,E1,E2,E3,E4,E5,E6,EPSP
      . , EPET(MVSIZ),EMET(MVSIZ),EPETS(MVSIZ),EMETS(MVSIZ)
-     . , EMXX(MVSIZ),EMYY(MVSIZ),EMZZ(MVSIZ)
-     . , GMXY(MVSIZ),GMYZ(MVSIZ),GMZX(MVSIZ) 
-     . , EPETXX(MVSIZ),EPETYY(MVSIZ),EPETZZ(MVSIZ)
-     . , EMETXX(MVSIZ),EMETYY(MVSIZ),EMETZZ(MVSIZ)
-     . , GPGTXY(MVSIZ),GPGTYZ(MVSIZ),GPGTZX(MVSIZ)
-     . , GMGTXY(MVSIZ),GMGTYZ(MVSIZ),GMGTZX(MVSIZ)
-     . , SYXX(MVSIZ),SYYY(MVSIZ),SYZZ(MVSIZ)
-     . , SYXY(MVSIZ),SYYZ(MVSIZ),SYZX(MVSIZ)
      . , SIGAIR(MVSIZ),GAMA(MVSIZ),SYIELD(MVSIZ)
      . , SIGSXX(MVSIZ),SIGSYY(MVSIZ),SIGSZZ(MVSIZ)
      . , SIGSXY(MVSIZ),SIGSYZ(MVSIZ),SIGSZX(MVSIZ)
@@ -132,7 +120,7 @@ C----------------------------------------------------------------
 
 C INITIALIZATION
       IF(ISIGI == 0) THEN
-      IF(TIME.EQ.ZERO) THEN
+      IF(TIME==ZERO) THEN
         DO 1000 J=1,NUVAR
            DO 1000 I=1,NEL
              UVAR(I,J)=ZERO
@@ -165,12 +153,12 @@ C----------------------------------
          FAC1 = UPARAM(10)
 
          DO 100 I=1,NEL
-           IF(IFUNC(1).NE.0) THEN
+           IF(IFUNC(1)/=0) THEN
              SYIELD(I)=FAC*FINTER(IFUNC(1),GAMA(I),NPF,TF,B*C)
            ELSE
              SYIELD(I) = ABS(A+B*(ONE+C*GAMA(I)))
            ENDIF
-           IF(IFUNC(2).NE.0)THEN
+           IF(IFUNC(2)/=0)THEN
               DAV = (EPSPXX(I)+EPSPYY(I)+EPSPZZ(I))*THIRD
               E1 = EPSPXX(I) - DAV
               E2 = EPSPYY(I) - DAV
@@ -202,8 +190,8 @@ C COMP    UTE TRIAL STRESSES
             SIGSYZ(I)=SIGSYZ(I)+EY*EPSPYZ(I)*TIMESTEP*HALF
             SIGSZX(I)=SIGSZX(I)+EY*EPSPZX(I)*TIMESTEP*HALF
   120     CONTINUE
-C si ancienne methode alors ....
-          IF (VPVEC.EQ.1) THEN
+C If old method then ....
+          IF (VPVEC==1) THEN
            DO 130 I=1,NEL
             S(1,1)=SIGSXX(I)
             S(2,1)=SIGSXY(I)
@@ -224,7 +212,7 @@ C TRANSFORM PRINCIPAL STRESSES (SIGMA_K) TO GLOBAL STRESSES (SIGMA_IJ)
             DO 131 K=1,3
               DO 131 L=1,3
                 S(K,L)=ZERO
-                IF(K.EQ.L) S(K,L)= SIGPR(K)
+                IF(K==L) S(K,L)= SIGPR(K)
   131       CONTINUE
             CALL DREH(S,DIRPR,1,1,1)
    
@@ -247,7 +235,7 @@ C sino    n
               SIGV(I,6) = SIGSZX(I)
             ENDDO
 C   for a simple precision executing
-            IF (IRESP.EQ.1) THEN
+            IF (IRESP==1) THEN
               CALL VALPVECDP_V(SIGV,SIGPRV,DIRPRV,NEL)
             ELSE
               CALL VALPVEC_V(SIGV,SIGPRV,DIRPRV,NEL)
@@ -317,12 +305,12 @@ C COMPUTE YOUNG MODULUS, ETC.
 
 C COMPUTE YIELD STRESS
          DO 210 I=1,NEL
-           IF(IFUNC(1).NE.0) THEN
+           IF(IFUNC(1)/=0) THEN
              SYIELD(I)=FAC*FINTER(IFUNC(1),GAMA(I),NPF,TF,B*C)
            ELSE
              SYIELD(I) = ABS(A+B*(ONE+C*GAMA(I)))
            ENDIF
-           IF(IFUNC(2).NE.0)THEN
+           IF(IFUNC(2)/=0)THEN
               DAV = (EPSPXX(I)+EPSPYY(I)+EPSPZZ(I))*THIRD
               E1 = EPSPXX(I) - DAV
               E2 = EPSPYY(I) - DAV
@@ -377,10 +365,10 @@ C COMPUTE TRIAL STRESSES
            SIGSYZ(I)=SIGSYZ(I)+DSDTYZ(I)*TIMESTEP
            SIGSZX(I)=SIGSZX(I)+DSDTZX(I)*TIMESTEP
   240    CONTINUE
-         IF(KEN.LT.0)GOTO 255
+         IF(KEN<0)GOTO 255
 C
-C si ancienne methode alors ....
-         IF (VPVEC.EQ.1) THEN
+C If old method then ....
+         IF (VPVEC==1) THEN
           DO 250 I=1,NEL
            S(1,1)=SIGSXX(I)
            S(2,1)=SIGSXY(I)
@@ -401,7 +389,7 @@ C TRANSFORM PRINCIPAL STRESSES (SIGMA_K) TO GLOBAL STRESSES (SIGMA_IJ)
            DO 251 K=1,3
              DO 251 L=1,3
                S(K,L)=ZERO
-               IF(K.EQ.L) S(K,L)= SIGPR(K)
+               IF(K==L) S(K,L)= SIGPR(K)
   251      CONTINUE
            CALL DREH(S,DIRPR,1,1,1)
    
@@ -470,13 +458,12 @@ C--------------------------
        SIGT_CUTOFF = UPARAM(11)
        SIGC_CUTOFF = SIGT_CUTOFF
        DO  I=1,NEL
-         IF(IFUNC(1).NE.0) THEN
+         IF(IFUNC(1)/=0) THEN
            SYIELD(I)=FAC*FINTER(IFUNC(1),GAMA(I),NPF,TF,B*C)
          ELSE
            SYIELD(I) = ABS(A+B*(ONE+C*GAMA(I)))
          ENDIF
-         IF(GAMA(I) > ZERO .AND. (GAMA(I)-UVAR(I,1)) < ZERO) SIGC_CUTOFF = ZERO
-         IF(IFUNC(2).NE.0)THEN
+         IF(IFUNC(2)/=0)THEN
             DAV = (EPSPXX(I)+EPSPYY(I)+EPSPZZ(I))*THIRD
             E1 = EPSPXX(I) - DAV
             E2 = EPSPYY(I) - DAV
@@ -504,9 +491,9 @@ C COMPUTE TRIAL STRESSES
           SIGSXX(I)=SIGSXX(I)+EY*EPSPXX(I)*TIMESTEP
           SIGSYY(I)=SIGSYY(I)+EY*EPSPYY(I)*TIMESTEP
           SIGSZZ(I)=SIGSZZ(I)+EY*EPSPZZ(I)*TIMESTEP
-          SIGSXY(I)=SIGSXY(I)+EY*EPSPXY(I)*TIMESTEP*FOURTH
-          SIGSYZ(I)=SIGSYZ(I)+EY*EPSPYZ(I)*TIMESTEP*FOURTH
-          SIGSZX(I)=SIGSZX(I)+EY*EPSPZX(I)*TIMESTEP*FOURTH
+          SIGSXY(I)=SIGSXY(I)+EY*EPSPXY(I)*TIMESTEP*HALF
+          SIGSYZ(I)=SIGSYZ(I)+EY*EPSPYZ(I)*TIMESTEP*HALF
+          SIGSZX(I)=SIGSZX(I)+EY*EPSPZX(I)*TIMESTEP*HALF
         ENDDO
         DO I = 1, NEL
             SIGV(I,1) = SIGSXX(I)
@@ -517,7 +504,7 @@ C COMPUTE TRIAL STRESSES
             SIGV(I,6) = SIGSZX(I)
         ENDDO
 C           for a simple precision executing
-          IF (IRESP.EQ.1) THEN
+          IF (IRESP==1) THEN
             CALL VALPVECDP_V(SIGV,SIGPRV,DIRPRV,NEL)
           ELSE
             CALL VALPVEC_V(SIGV,SIGPRV,DIRPRV,NEL)
@@ -595,15 +582,14 @@ C
 
       END
 
-Chd|====================================================================
-Chd|  JACOBIEW                      source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|        FAIL_ORTHSTRAIN               source/materials/fail/orthstrain/fail_orthstrain_s.F
-Chd|        HENCKY_STRAIN                 source/tools/seatbelts/shell_reactivation.F
-Chd|        SIGEPS33                      source/materials/mat/mat033/sigeps33.F
-Chd|        SIGEPS38                      source/materials/mat/mat038/sigeps38.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    jacobiew          ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- called by ------------------------------------------------------
+!||    fail_orthstrain   ../engine/source/materials/fail/orthstrain/fail_orthstrain_s.F
+!||    hencky_strain     ../engine/source/tools/seatbelts/shell_reactivation.F
+!||    sigeps33          ../engine/source/materials/mat/mat033/sigeps33.F
+!||    sigeps38          ../engine/source/materials/mat/mat038/sigeps38.F
+!||====================================================================
       SUBROUTINE  JACOBIEW(A,N,EW,EV,NROT)
 C-------------------------------------------------------KK141189-
 C COMPUTATION OF ALL EIGENVALUES AND EIGENVECTORS OF A SYMMETRIC
@@ -613,7 +599,7 @@ C A(N,N)      EIGENWERTPROBLEM
 C N           DIMENSION OF A
 C EW(N)       EIGENVALUES
 C EV(N,N)     EIGENVEKTORS
-C NROT        NUMBER OF ROTAIONS
+C NROT        NUMBER OF ROTATIONS
 C MAXA        MAXIMUM ELEMENT OF A
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -633,7 +619,7 @@ C----------------------------------------------------------------
       DO 130 IZ=1,N
         DO 120 IS=1,N
 C PRACTICAL FOR RADIOSS (PASS ONLY LOWER DIAGONAL MATRIX)
-          IF(IZ.GT.IS) A(IS,IZ) = A(IZ,IS) 
+          IF(IZ>IS) A(IS,IZ) = A(IZ,IS) 
           EV(IZ,IS)=ZERO
   120   CONTINUE
         B(IZ)=A(IZ,IZ)
@@ -656,8 +642,8 @@ C SUM OF THE OFF DIAGONALS
   140     CONTINUE
   150   CONTINUE
  
-        IF (SUMRS .EQ.ZERO) GOTO 9000
-        IF (ITER .GT. 4)   THEN
+        IF (SUMRS ==ZERO) GOTO 9000
+        IF (ITER > 4)   THEN
           EPS = ZERO
         ELSE
           EPS = ONE_FIFTH*SUMRS/N**2
@@ -666,17 +652,17 @@ C SUM OF THE OFF DIAGONALS
         DO 220 IZ=1,N-1
           DO 210 IS=IZ+1,N
             G = 100. * ABS(A(IZ,IS))
-            IF (ITER.GT.4 .AND. ABS(EW(IZ))+G.EQ.ABS(EW(IZ))
-     &      .AND. ABS(EW(IS))+G.EQ.ABS(EW(IS))) THEN
+            IF (ITER>4 .AND. ABS(EW(IZ))+G==ABS(EW(IZ))
+     &      .AND. ABS(EW(IS))+G==ABS(EW(IS))) THEN
               A(IZ,IS)=ZERO
-            ELSE IF (ABS(A(IZ,IS)) .GT. EPS) THEN
+            ELSE IF (ABS(A(IZ,IS)) > EPS) THEN
               H = EW(IS)-EW(IZ)
-              IF (ABS(H)+G.EQ.ABS(H)) THEN
+              IF (ABS(H)+G==ABS(H)) THEN
                 T = A(IZ,IS)/H
               ELSE
                 THETA = HALF*H/A(IZ,IS)
                 T=ONE/(ABS(THETA)+SQRT(ONE+THETA**2))
-                IF (THETA .LT. ZERO) T=-T
+                IF (THETA < ZERO) T=-T
               ENDIF
               C=ONE/SQRT(ONE+T**2)
               S=T*C
@@ -730,13 +716,12 @@ C SUM OF THE OFF DIAGONALS
       END
  
       
-Chd|====================================================================
-Chd|  DREH                          source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|        SIGEPS33                      source/materials/mat/mat033/sigeps33.F
-Chd|        SIGEPS38                      source/materials/mat/mat038/sigeps38.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    dreh       ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- called by ------------------------------------------------------
+!||    sigeps33   ../engine/source/materials/mat/mat033/sigeps33.F
+!||    sigeps38   ../engine/source/materials/mat/mat038/sigeps38.F
+!||====================================================================
       SUBROUTINE DREH(B,TR,II,JJ,KEN) 
 C-------------------------------------------------------KK010587-
 C KEN=0 -> ROTATION OF MATRIX B BY TR = TR(T)*B*TR
@@ -752,19 +737,19 @@ C-----------------------------------------------
       INTEGER KEN,II,JJ
       INTEGER I,J,K,I1,J1
 C----------------------------------------------------------------
-      IF(II.LE.0) II=1
-      IF(JJ.LE.0) JJ=1
+      IF(II<=0) II=1
+      IF(JJ<=0) JJ=1
                        
       DO 20 I=1,3                                                               
         DO 20 J=1,3                                                               
           J1=JJ+J-1                                                                 
           X=0.0                                                                     
           DO 10 K=1,3                                                               
-C          IF(TR(K,I).EQ.ZERO) GOTO 10                                               
+C          IF(TR(K,I)==ZERO) GOTO 10                                               
            I1=K+II-1                                                                 
-C          IF(B(I1,J1).EQ.ZERO) GOTO 10                                             
-           IF(KEN.NE.1) X=X+TR(K,I)*B(I1,J1)                                                   
-           IF(KEN.EQ.1) X=X+TR(I,K)*B(I1,J1) 
+C          IF(B(I1,J1)==ZERO) GOTO 10                                             
+           IF(KEN/=1) X=X+TR(K,I)*B(I1,J1)                                                   
+           IF(KEN==1) X=X+TR(I,K)*B(I1,J1) 
  10       CONTINUE                                                                  
  20   LK(I,J)=X
                                                                  
@@ -772,10 +757,10 @@ C          IF(B(I1,J1).EQ.ZERO) GOTO 10
         DO 40 J=1,3                                                               
           X=ZERO                                                       
           DO 30 K=1,3                                                               
-C          IF(TR(K,J).EQ.ZERO) GOTO 30                                               
-C          IF(LK(I,K).EQ.ZERO) GOTO 30                                                
-           IF(KEN.NE.1) X=X+LK(I,K)*TR(K,J)                                                      
-           IF(KEN.EQ.1) X=X+LK(I,K)*TR(J,K)                                                      
+C          IF(TR(K,J)==ZERO) GOTO 30                                               
+C          IF(LK(I,K)==ZERO) GOTO 30                                                
+           IF(KEN/=1) X=X+LK(I,K)*TR(K,J)                                                      
+           IF(KEN==1) X=X+LK(I,K)*TR(J,K)                                                      
  30       CONTINUE                                                                  
  40   B(II+I-1,JJ+J-1)=X
                                                       
@@ -783,15 +768,14 @@ C          IF(LK(I,K).EQ.ZERO) GOTO 30
                                                                     
       END 
 C
-Chd|====================================================================
-Chd|  VALPVEC                       source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|        EPSF2U                        source/materials/mat/mat033/sigeps33.F
-Chd|        SIGEPS88                      source/materials/mat/mat088/sigeps88.F
-Chd|        SIGEPS90                      source/materials/mat/mat090/sigeps90.F
-Chd|-- calls ---------------
-Chd|        FLOATMIN                      ../common_source/tools/math/precision.c
-Chd|====================================================================
+!||====================================================================
+!||    valpvec    ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- called by ------------------------------------------------------
+!||    alew7      ../engine/source/ale/grid/alew7.F
+!||    epsf2u     ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- calls      -----------------------------------------------------
+!||    floatmin   ../common_source/tools/math/precision.c
+!||====================================================================
       SUBROUTINE VALPVEC(SIG,VAL,VEC,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -810,28 +794,28 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, L, N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
+      INTEGER   N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
      .        NINDEX1, NINDEX2, INDEX1(MVSIZ), INDEX2(MVSIZ)
       my_real
      .   CS(6), STR(3,MVSIZ), A(3,3,MVSIZ), V(3,3,MVSIZ), B(3,3,MVSIZ),
      .   XMAG(3,MVSIZ), PR, AA, BB, AAA(MVSIZ),
      .   CC, ANGP, DD, FTPI, TTPI, STRMAX,
      .   TOL1(MVSIZ), TOL2(MVSIZ), XMAXV(MVSIZ), NORMINF(MVSIZ), 
-     .   VMAG, S11,
-     .   S21, S31, S12, S22, S32, S13, S23, S33, A11, A12, A13, A21,
-     .   A22, A23, A31, A32, A33,
+     .   VMAG,
+     .      
+     .       
      .   MDEMI, XMAXINV, FLM
       REAL FLMIN
 C-----------------------------------------------
 C     DATA FTPI,TTPI / 4.188790205, 2.094395102 /
 C     FTPI=(4/3)*PI, TTPI=(2/3)*PI
 C
-C     DEVIATEUR PRINCIPAL DE CONTRAINTE
+C     principal deviator of stress
 C . . . . . . . . . . . . . . . . . . .
       MDEMI = -HALF
       TTPI = ACOS(MDEMI)
       FTPI = TWO*TTPI
-C precision minimum dependant du type REAL ou DOUBLE
+C minimum precision depending on the type real or double
       CALL FLOATMIN(CS(1),CS(2),FLMIN)
       FLM = TWO*SQRT(FLMIN)
       NINDEX3=0  
@@ -871,9 +855,9 @@ C
         VAL(1,NN) = STR(1,NN)-PR
         VAL(2,NN) = STR(2,NN)-PR
         VAL(3,NN) = STR(3,NN)-PR
-C renforcement de precision en compression----
-        IF(ABS(STR(3,NN)).GT.ABS(STR(1,NN))
-     &     .AND.AAA(NN).GT.NORMINF(NN)) THEN
+C accuracy reinforcement in compression ----
+        IF(ABS(STR(3,NN))>ABS(STR(1,NN))
+     &     .AND.AAA(NN)>NORMINF(NN)) THEN
          AA=STR(1,NN)
          STR(1,NN)=STR(3,NN)
          STR(3,NN)=AA
@@ -924,14 +908,14 @@ C
       NINDEX2 = 0
       DO NN = 1, NEL
         XMAXV(NN)=MAX(XMAG(1,NN),XMAG(2,NN),XMAG(3,NN))
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
         ENDIF
-        IF(AAA(NN).LT.NORMINF(NN)) THEN
+        IF(AAA(NN)<NORMINF(NN)) THEN
           VAL(1,NN) = SIG(1,NN)
           VAL(2,NN) = SIG(2,NN)
           VAL(3,NN) = SIG(3,NN)
@@ -942,7 +926,7 @@ C
           V(2,2,NN) = ONE
           V(3,2,NN) = ZERO
 
-        ELSEIF(XMAXV(NN).GT.TOL1(NN)) THEN
+        ELSEIF(XMAXV(NN)>TOL1(NN)) THEN
           NINDEX1 = NINDEX1 + 1
           INDEX1(NINDEX1) = NN
         ELSE
@@ -982,9 +966,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX1
         NN = INDEX1(N)
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -992,7 +976,7 @@ C
 C
         VMAG=SQRT(V(1,1,NN)**2+V(2,1,NN)**2)
         LMAX = LMAXV(NN)
-        IF(XMAXV(NN).GT.TOL2(NN))THEN
+        IF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,3,NN)=B(1,LMAX,NN)*XMAXINV
           V(2,3,NN)=B(2,LMAX,NN)*XMAXINV
@@ -1004,7 +988,7 @@ C
           V(1,2,NN)=V(1,2,NN)*VMAG
           V(2,2,NN)=V(2,2,NN)*VMAG
           V(3,2,NN)=V(3,2,NN)*VMAG
-        ELSEIF(VMAG.GT.TOL2(NN))THEN
+        ELSEIF(VMAG>TOL2(NN))THEN
           V(1,2,NN)=-V(2,1,NN)/VMAG
           V(2,2,NN)=V(1,1,NN)/VMAG
           V(3,2,NN)=ZERO
@@ -1029,9 +1013,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX2
         NN = INDEX2(N)
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -1039,7 +1023,7 @@ C
 C
         LMAX = LMAXV(NN)
         IF(MAX(ABS(A(3,1,NN)),ABS(A(3,2,NN)),ABS(A(3,3,NN)))
-     &       .LT.TOL2(NN))THEN
+     &       <TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,1,NN)= ZERO
           V(2,1,NN)= ZERO
@@ -1048,7 +1032,7 @@ C
           V(2,2,NN)= A(1,LMAX,NN)*XMAXINV
           V(3,2,NN)= ZERO
 C
-        ELSEIF(XMAXV(NN).GT.TOL2(NN))THEN
+        ELSEIF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,1,NN)=-A(2,LMAX,NN)*XMAXINV
           V(2,1,NN)= A(1,LMAX,NN)*XMAXINV
@@ -1066,7 +1050,7 @@ C
           V(3,1,NN) = ZERO
           V(1,2,NN) = ZERO
           V(2,2,NN) = ONE
-          V(3,2,NN) = ZERO	  
+          V(3,2,NN) = ZERO    
         ENDIF
       ENDDO
 C
@@ -1081,10 +1065,10 @@ C
         VEC(8,NN)=VEC(3,NN)*VEC(4,NN)-VEC(1,NN)*VEC(6,NN)
         VEC(9,NN)=VEC(1,NN)*VEC(5,NN)-VEC(2,NN)*VEC(4,NN)
       ENDDO
-C reecriture pour contourner probleme sur itanium2 comp 9. + latency=16
+C Rewriting to bypass problem on itanium2 comp 9. + latency = 16
       DO N = 1, NINDEX3
         NN = INDEX3(N)
-C str utilise com tableau temporaire au lieu de scalaires temporaires
+C Str uses temporary table instead of temporary scalars
         STR(1,NN)=VEC(7,NN)
         STR(2,NN)=VEC(8,NN)
         STR(3,NN)=VEC(9,NN)
@@ -1102,15 +1086,13 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  VALPVECDP                     source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|        EPSF2U                        source/materials/mat/mat033/sigeps33.F
-Chd|        SIGEPS88                      source/materials/mat/mat088/sigeps88.F
-Chd|        SIGEPS90                      source/materials/mat/mat090/sigeps90.F
-Chd|-- calls ---------------
-Chd|        FLOATMIN                      ../common_source/tools/math/precision.c
-Chd|====================================================================
+!||====================================================================
+!||    valpvecdp   ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- called by ------------------------------------------------------
+!||    epsf2u      ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- calls      -----------------------------------------------------
+!||    floatmin    ../common_source/tools/math/precision.c
+!||====================================================================
       SUBROUTINE VALPVECDP(SIG,VAL,VEC,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1129,16 +1111,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, L, N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
+      INTEGER   N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
      .        NINDEX1, NINDEX2, INDEX1(MVSIZ), INDEX2(MVSIZ)
       DOUBLE PRECISION
      .   CS(6), STR(3,MVSIZ), A(3,3,MVSIZ), V(3,3,MVSIZ), B(3,3,MVSIZ),
      .   XMAG(3,MVSIZ), PR, AA, BB, AAA(MVSIZ),
      .   CC, ANGP, DD, FTPI, TTPI, STRMAX,
      .   TOL1(MVSIZ), TOL2(MVSIZ), XMAXV(MVSIZ), NORMINF(MVSIZ), 
-     .   VMAG, S11,
-     .   S21, S31, S12, S22, S32, S13, S23, S33, A11, A12, A13, A21,
-     .   A22, A23, A31, A32, A33,
+     .   VMAG,
+     .      
+     .       
      .   MDEMI, XMAXINV, FLM,
      .   VALDP(3,MVSIZ),VECDP(9,MVSIZ)
       REAL FLMIN
@@ -1146,12 +1128,12 @@ C-----------------------------------------------
 C     DATA FTPI,TTPI / 4.188790205, 2.094395102 /
 C     FTPI=(4/3)*PI, TTPI=(2/3)*PI
 C
-C     DEVIATEUR PRINCIPAL DE CONTRAINTE
+C     principal deviator of stress
 C . . . . . . . . . . . . . . . . . . .
       MDEMI = -HALF
       TTPI = ACOS(MDEMI)
       FTPI = TWO*TTPI
-C precision minimum dependant du type REAL ou DOUBLE
+C minimum precision depending on the type real or double
       CALL FLOATMIN(CS(1),CS(2),FLMIN)
       FLM = TWO*SQRT(FLMIN)
       NINDEX3=0  
@@ -1191,9 +1173,9 @@ C
         VALDP(1,NN) = STR(1,NN)-PR
         VALDP(2,NN) = STR(2,NN)-PR
         VALDP(3,NN) = STR(3,NN)-PR
-C renforcement de precision en compression simple----
-        IF(ABS(STR(3,NN)).GT.ABS(STR(1,NN))
-     &     .AND.AAA(NN).GT.NORMINF(NN)) THEN
+C precision reinforcement in simple compression ----
+        IF(ABS(STR(3,NN))>ABS(STR(1,NN))
+     &     .AND.AAA(NN)>NORMINF(NN)) THEN
          AA=STR(1,NN)
          STR(1,NN)=STR(3,NN)
          STR(3,NN)=AA
@@ -1244,14 +1226,14 @@ C
       NINDEX2 = 0
       DO NN = 1, NEL
         XMAXV(NN)=MAX(XMAG(1,NN),XMAG(2,NN),XMAG(3,NN))
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
         ENDIF
-        IF(AAA(NN).LT.NORMINF(NN)) THEN
+        IF(AAA(NN)<NORMINF(NN)) THEN
           VALDP(1,NN) = SIG(1,NN)
           VALDP(2,NN) = SIG(2,NN)
           VALDP(3,NN) = SIG(3,NN)
@@ -1260,8 +1242,8 @@ C
           V(3,1,NN) = ZERO
           V(1,2,NN) = ZERO
           V(2,2,NN) = ONE
-          V(3,2,NN) = ZERO	  
-        ELSEIF(XMAXV(NN).GT.TOL1(NN)) THEN
+          V(3,2,NN) = ZERO    
+        ELSEIF(XMAXV(NN)>TOL1(NN)) THEN
           NINDEX1 = NINDEX1 + 1
           INDEX1(NINDEX1) = NN
         ELSE
@@ -1301,9 +1283,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX1
         NN = INDEX1(N)
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -1311,7 +1293,7 @@ C
 C
         VMAG=SQRT(V(1,1,NN)**2+V(2,1,NN)**2)
         LMAX = LMAXV(NN)
-        IF(XMAXV(NN).GT.TOL2(NN))THEN
+        IF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,3,NN)=B(1,LMAX,NN)*XMAXINV
           V(2,3,NN)=B(2,LMAX,NN)*XMAXINV
@@ -1323,7 +1305,7 @@ C
           V(1,2,NN)=V(1,2,NN)*VMAG
           V(2,2,NN)=V(2,2,NN)*VMAG
           V(3,2,NN)=V(3,2,NN)*VMAG
-        ELSEIF(VMAG.GT.TOL2(NN))THEN
+        ELSEIF(VMAG>TOL2(NN))THEN
           V(1,2,NN)=-V(2,1,NN)/VMAG
           V(2,2,NN)=V(1,1,NN)/VMAG
           V(3,2,NN)=ZERO
@@ -1348,9 +1330,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX2
         NN = INDEX2(N)
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -1358,7 +1340,7 @@ C
 C
         LMAX = LMAXV(NN)
         IF(MAX(ABS(A(3,1,NN)),ABS(A(3,2,NN)),ABS(A(3,3,NN)))
-     &       .LT.TOL2(NN))THEN
+     &       <TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,1,NN)= ZERO
           V(2,1,NN)= ZERO
@@ -1367,7 +1349,7 @@ C
           V(2,2,NN)= A(1,LMAX,NN)*XMAXINV
           V(3,2,NN)= ZERO
 C
-        ELSEIF(XMAXV(NN).GT.TOL2(NN))THEN
+        ELSEIF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,1,NN)=-A(2,LMAX,NN)*XMAXINV
           V(2,1,NN)= A(1,LMAX,NN)*XMAXINV
@@ -1385,7 +1367,7 @@ C
           V(3,1,NN) = ZERO
           V(1,2,NN) = ZERO
           V(2,2,NN) = ONE
-          V(3,2,NN) = ZERO	  
+          V(3,2,NN) = ZERO    
         ENDIF
       ENDDO
 C
@@ -1415,10 +1397,10 @@ C
         VEC(8,NN)=VECDP(8,NN)
         VEC(9,NN)=VECDP(9,NN)
       ENDDO
-C reecriture pour contourner probleme sur itanium2 comp 9. + latency=16
+C Rewriting to bypass problem on itanium2 comp 9. + latency = 16
       DO N = 1, NINDEX3
         NN = INDEX3(N)
-C str utilise com tableau temporaire au lieu de scalaires temporaires
+C Str uses temporary table instead of temporary scalars
         STR(1,NN)=VEC(7,NN)
         STR(2,NN)=VEC(8,NN)
         STR(3,NN)=VEC(9,NN)
@@ -1434,15 +1416,15 @@ C str utilise com tableau temporaire au lieu de scalaires temporaires
       ENDDO
       RETURN
       END
-Chd|====================================================================
-Chd|  EPSF2U                        source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|        VALPVEC                       source/materials/mat/mat033/sigeps33.F
-Chd|        VALPVECDP                     source/materials/mat/mat033/sigeps33.F
-Chd|====================================================================
+!||====================================================================
+!||    epsf2u          ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- called by ------------------------------------------------------
+!||    mulaw           ../engine/source/materials/mat_share/mulaw.F90
+!||    usermat_solid   ../engine/source/materials/mat_share/usermat_solid.F
+!||--- calls      -----------------------------------------------------
+!||    valpvec         ../engine/source/materials/mat/mat033/sigeps33.F
+!||    valpvecdp       ../engine/source/materials/mat/mat033/sigeps33.F
+!||====================================================================
               SUBROUTINE EPSF2U(
      1      NEL    ,FXX    , FXY  , FXZ  , FYX  ,    
      2      FYY    ,FYZ    , FZX  , FZY  , FZZ  , 
@@ -1459,7 +1441,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C O M M O N 
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "scr05_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
@@ -1481,7 +1462,7 @@ C----------------------------------------------------------------
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
-      INTEGER    I,J,K
+      INTEGER    I
       my_real
      .        EV(3,MVSIZ),AV(6,MVSIZ),EVV(3,MVSIZ),DIRPRV(3,3,MVSIZ)
 C----------------------------------------------------------------
@@ -1495,7 +1476,7 @@ C--------- [C]=[F]^t[F] strain-----
        AV(5,I)=FXZ(I)*FXY(I)+FYZ(I)*FYY(I)+FZZ(I)*FZY(I)
       ENDDO
 C         for a simple precision executing
-      IF (IRESP.EQ.1) THEN
+      IF (IRESP==1) THEN
         CALL VALPVECDP(AV,EVV,DIRPRV,NEL)
       ELSE
         CALL VALPVEC(AV,EVV,DIRPRV,NEL)
@@ -1535,12 +1516,11 @@ c
 C      
       RETURN
       END
-Chd|====================================================================
-Chd|  VALPVECOP                     source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        FLOATMIN                      ../common_source/tools/math/precision.c
-Chd|====================================================================
+!||====================================================================
+!||    valpvecop   ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- calls      -----------------------------------------------------
+!||    floatmin    ../common_source/tools/math/precision.c
+!||====================================================================
       SUBROUTINE VALPVECOP(SIG,VAL,VEC,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1559,16 +1539,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, L, N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
+      INTEGER   N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
      .        NINDEX1, NINDEX2, INDEX1(MVSIZ), INDEX2(MVSIZ)
       DOUBLE PRECISION
      .   CS(6), STR(3,MVSIZ), A(3,3,MVSIZ), V(3,3,MVSIZ), B(3,3,MVSIZ),
      .   XMAG(3,MVSIZ), PR, AA, BB, AAA(MVSIZ),
      .   CC, ANGP, DD, FTPI, TTPI, STRMAX,
      .   TOL1(MVSIZ), TOL2(MVSIZ), XMAXV(MVSIZ), NORMINF(MVSIZ), 
-     .   VMAG, S11,
-     .   S21, S31, S12, S22, S32, S13, S23, S33, A11, A12, A13, A21,
-     .   A22, A23, A31, A32, A33,
+     .   VMAG,
+     .      
+     .       
      .   MDEMI, XMAXINV, FLM,
      .   VALDP(3,MVSIZ),VECDP(9,MVSIZ),S4_2,S5_2,S6_2,C1,C2,SQ_AA
       REAL FLMIN
@@ -1576,12 +1556,12 @@ C-----------------------------------------------
 C     DATA FTPI,TTPI / 4.188790205, 2.094395102 /
 C     FTPI=(4/3)*PI, TTPI=(2/3)*PI
 C
-C     DEVIATEUR PRINCIPAL DE CONTRAINTE
+C     principal deviator of stress
 C . . . . . . . . . . . . . . . . . . .
       MDEMI = -HALF
       TTPI = ACOS(MDEMI)
       FTPI = TWO*TTPI
-C precision minimum dependant du type REAL ou DOUBLE
+C minimum precision depending on the type real or double
       CALL FLOATMIN(CS(1),CS(2),FLMIN)
       FLM = TWO*SQRT(FLMIN)
       NINDEX3=0 
@@ -1598,9 +1578,9 @@ C precision minimum dependant du type REAL ou DOUBLE
         CS(1) = CS(1) + PR
         CS(2) = CS(2) + PR
         CS(3) = CS(3) + PR
-	S4_2 = CS(4)*CS(4)
-	S5_2 = CS(5)*CS(5)
-	S6_2 = CS(6)*CS(6)
+          S4_2 = CS(4)*CS(4)
+          S5_2 = CS(5)*CS(5)
+          S6_2 = CS(6)*CS(6)
         AAA(NN)=S4_2 + S5_2 + S6_2 - CS(1)*CS(2)
      &         - CS(2)*CS(3) - CS(1)*CS(3)
         NORMINF(NN) = MAX(ABS(CS(1)),ABS(CS(2)),ABS(CS(3)),
@@ -1627,9 +1607,9 @@ C
         VALDP(1,NN) = STR(1,NN)-PR
         VALDP(2,NN) = STR(2,NN)-PR
         VALDP(3,NN) = STR(3,NN)-PR
-C renforcement de precision en compression simple----
-        IF(ABS(STR(3,NN)).GT.ABS(STR(1,NN))
-     &     .AND.AAA(NN).GT.NORMINF(NN)) THEN
+C precision reinforcement in simple compression ----
+        IF(ABS(STR(3,NN))>ABS(STR(1,NN))
+     &     .AND.AAA(NN)>NORMINF(NN)) THEN
          AA=STR(1,NN)
          STR(1,NN)=STR(3,NN)
          STR(3,NN)=AA
@@ -1673,9 +1653,9 @@ C
         XMAG(1,NN)=B(1,1,NN)*B(1,1,NN)+B(2,1,NN)*B(2,1,NN)+
      .             B(3,1,NN)*B(3,1,NN)
         XMAG(2,NN)=B(1,2,NN)*B(1,2,NN)+B(2,2,NN)*B(2,2,NN)+
-     .             	B(3,2,NN)*B(3,2,NN)
+     .               B(3,2,NN)*B(3,2,NN)
         XMAG(3,NN)=B(1,3,NN)*B(1,3,NN)+B(2,3,NN)*B(2,3,NN)+
-     .             	B(3,3,NN)*B(3,3,NN)
+     .               B(3,3,NN)*B(3,3,NN)
 
       ENDDO
 C 
@@ -1683,14 +1663,14 @@ C
       NINDEX2 = 0
       DO NN = 1, NEL
         XMAXV(NN)=MAX(XMAG(1,NN),XMAG(2,NN),XMAG(3,NN))
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
         ENDIF
-        IF(AAA(NN).LT.NORMINF(NN)) THEN
+        IF(AAA(NN)<NORMINF(NN)) THEN
           VALDP(1,NN) = SIG(1,NN)
           VALDP(2,NN) = SIG(2,NN)
           VALDP(3,NN) = SIG(3,NN)
@@ -1699,8 +1679,8 @@ C
           V(3,1,NN) = ZERO
           V(1,2,NN) = ZERO
           V(2,2,NN) = ONE
-          V(3,2,NN) = ZERO	  
-        ELSEIF(XMAXV(NN).GT.TOL1(NN)*TOL1(NN)) THEN
+          V(3,2,NN) = ZERO    
+        ELSEIF(XMAXV(NN)>TOL1(NN)*TOL1(NN)) THEN
           NINDEX1 = NINDEX1 + 1
           INDEX1(NINDEX1) = NN
         ELSE
@@ -1733,9 +1713,9 @@ C
         XMAG(1,NN)=B(1,1,NN)*B(1,1,NN)+B(2,1,NN)*B(2,1,NN)+
      .             B(3,1,NN)*B(3,1,NN)
         XMAG(2,NN)=B(1,2,NN)*B(1,2,NN)+B(2,2,NN)*B(2,2,NN)+
-     .             	B(3,2,NN)*B(3,2,NN)
+     .               B(3,2,NN)*B(3,2,NN)
         XMAG(3,NN)=B(1,3,NN)*B(1,3,NN)+B(2,3,NN)*B(2,3,NN)+
-     .             	B(3,3,NN)*B(3,3,NN)
+     .               B(3,3,NN)*B(3,3,NN)
 C
         XMAXV(NN)=MAX(XMAG(1,NN),XMAG(2,NN),XMAG(3,NN))
       ENDDO
@@ -1743,9 +1723,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX1
         NN = INDEX1(N)
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -1754,7 +1734,7 @@ C
         VMAG=SQRT(V(1,1,NN)**2+V(2,1,NN)**2)
         LMAX = LMAXV(NN)
         XMAXV(NN)=SQRT(XMAXV(NN))
-        IF(XMAXV(NN).GT.TOL2(NN))THEN
+        IF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,3,NN)=B(1,LMAX,NN)*XMAXINV
           V(2,3,NN)=B(2,LMAX,NN)*XMAXINV
@@ -1762,13 +1742,13 @@ C
           V(1,2,NN)=V(2,3,NN)*V(3,1,NN)-V(2,1,NN)*V(3,3,NN)
           V(2,2,NN)=V(3,3,NN)*V(1,1,NN)-V(3,1,NN)*V(1,3,NN)
           V(3,2,NN)=V(1,3,NN)*V(2,1,NN)-V(1,1,NN)*V(2,3,NN)
-	  C1 = V(1,2,NN)*V(1,2,NN)+V(2,2,NN)*V(2,2,NN)+
+            C1 = V(1,2,NN)*V(1,2,NN)+V(2,2,NN)*V(2,2,NN)+
      &         V(3,2,NN)*V(3,2,NN)
           VMAG=ONE/SQRT(C1)
           V(1,2,NN)=V(1,2,NN)*VMAG
           V(2,2,NN)=V(2,2,NN)*VMAG
           V(3,2,NN)=V(3,2,NN)*VMAG
-        ELSEIF(VMAG.GT.TOL2(NN))THEN
+        ELSEIF(VMAG>TOL2(NN))THEN
           V(1,2,NN)=-V(2,1,NN)/VMAG
           V(2,2,NN)=V(1,1,NN)/VMAG
           V(3,2,NN)=ZERO
@@ -1793,9 +1773,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX2
         NN = INDEX2(N)
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -1804,7 +1784,7 @@ C
         LMAX = LMAXV(NN)
         XMAXV(NN)=SQRT(XMAXV(NN))
         IF(MAX(ABS(A(3,1,NN)),ABS(A(3,2,NN)),ABS(A(3,3,NN)))
-     &       .LT.TOL2(NN))THEN
+     &       <TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,1,NN)= ZERO
           V(2,1,NN)= ZERO
@@ -1813,7 +1793,7 @@ C
           V(2,2,NN)= A(1,LMAX,NN)*XMAXINV
           V(3,2,NN)= ZERO
 C
-        ELSEIF(XMAXV(NN).GT.TOL2(NN))THEN
+        ELSEIF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,1,NN)=-A(2,LMAX,NN)*XMAXINV
           V(2,1,NN)= A(1,LMAX,NN)*XMAXINV
@@ -1821,7 +1801,7 @@ C
           V(1,2,NN)=-A(3,LMAX,NN)*V(2,1,NN)
           V(2,2,NN)= A(3,LMAX,NN)*V(1,1,NN)
           V(3,2,NN)= A(1,LMAX,NN)*V(2,1,NN)-A(2,LMAX,NN)*V(1,1,NN)
-	  C1 = V(1,2,NN)*V(1,2,NN)+V(2,2,NN)*V(2,2,NN)+
+            C1 = V(1,2,NN)*V(1,2,NN)+V(2,2,NN)*V(2,2,NN)+
      &         V(3,2,NN)*V(3,2,NN)
           VMAG=ONE/SQRT(C1)
           V(1,2,NN)=V(1,2,NN)*VMAG
@@ -1833,7 +1813,7 @@ C
           V(3,1,NN) = ZERO
           V(1,2,NN) = ZERO
           V(2,2,NN) = ONE
-          V(3,2,NN) = ZERO	  
+          V(3,2,NN) = ZERO    
         ENDIF
       ENDDO
 C
@@ -1863,10 +1843,10 @@ C
         VEC(8,NN)=VECDP(8,NN)
         VEC(9,NN)=VECDP(9,NN)
       ENDDO
-C reecriture pour contourner probleme sur itanium2 comp 9. + latency=16
+C Rewriting to bypass problem on itanium2 comp 9. + latency = 16
       DO N = 1, NINDEX3
         NN = INDEX3(N)
-C str utilise com tableau temporaire au lieu de scalaires temporaires
+C Str uses temporary table instead of temporary scalars
         STR(1,NN)=VEC(7,NN)
         STR(2,NN)=VEC(8,NN)
         STR(3,NN)=VEC(9,NN)
@@ -1884,21 +1864,27 @@ C str utilise com tableau temporaire au lieu de scalaires temporaires
       END
 
 
-Chd|====================================================================
-Chd|  VALPVEC_V                     source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|        SIGEPS33                      source/materials/mat/mat033/sigeps33.F
-Chd|        SIGEPS38                      source/materials/mat/mat038/sigeps38.F
-Chd|        SIGEPS42                      source/materials/mat/mat042/sigeps42.F
-Chd|        SIGEPS62                      source/materials/mat/mat062/sigeps62.F
-Chd|        SIGEPS69                      source/materials/mat/mat069/sigeps69.F
-Chd|        SIGEPS71                      source/materials/mat/mat071/sigeps71.F
-Chd|        SIGEPS82                      source/materials/mat/mat082/sigeps82.F
-Chd|        SIGEPS92                      source/materials/mat/mat092/sigeps92.F
-Chd|        SIGEPS94                      source/materials/mat/mat094/sigeps94.F
-Chd|-- calls ---------------
-Chd|        FLOATMIN                      ../common_source/tools/math/precision.c
-Chd|====================================================================
+!||====================================================================
+!||    valpvec_v   ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- called by ------------------------------------------------------
+!||    sigeps124   ../engine/source/materials/mat/mat124/sigeps124.F
+!||    sigeps130   ../engine/source/materials/mat/mat130/sigeps130.F90
+!||    sigeps163   ../engine/source/materials/mat/mat163/sigeps163.F90
+!||    sigeps190   ../engine/source/materials/mat/mat190/sigeps190.F
+!||    sigeps33    ../engine/source/materials/mat/mat033/sigeps33.F
+!||    sigeps38    ../engine/source/materials/mat/mat038/sigeps38.F
+!||    sigeps42    ../engine/source/materials/mat/mat042/sigeps42.F
+!||    sigeps62    ../engine/source/materials/mat/mat062/sigeps62.F
+!||    sigeps69    ../engine/source/materials/mat/mat069/sigeps69.F
+!||    sigeps71    ../engine/source/materials/mat/mat071/sigeps71.F
+!||    sigeps82    ../engine/source/materials/mat/mat082/sigeps82.F
+!||    sigeps88    ../engine/source/materials/mat/mat088/sigeps88.F90
+!||    sigeps90    ../engine/source/materials/mat/mat090/sigeps90.F
+!||    sigeps92    ../engine/source/materials/mat/mat092/sigeps92.F
+!||    sigeps94    ../engine/source/materials/mat/mat094/sigeps94.F
+!||--- calls      -----------------------------------------------------
+!||    floatmin    ../common_source/tools/math/precision.c
+!||====================================================================
       SUBROUTINE VALPVEC_V(SIG,VAL,VEC,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1917,28 +1903,28 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, L, N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
+      INTEGER   N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
      .        NINDEX1, NINDEX2, INDEX1(MVSIZ), INDEX2(MVSIZ)
       my_real
      .   CS(6), STR(MVSIZ,3), A(MVSIZ,3,3), V(MVSIZ,3,3), B(MVSIZ,3,3),
      .   XMAG(MVSIZ,3), PR, AA, BB, AAA(MVSIZ),
      .   CC, ANGP, DD, FTPI, TTPI, STRMAX,
      .   TOL1(MVSIZ), TOL2(MVSIZ), XMAXV(MVSIZ), NORMINF(MVSIZ), 
-     .   VMAG, S11,
-     .   S21, S31, S12, S22, S32, S13, S23, S33, A11, A12, A13, A21,
-     .   A22, A23, A31, A32, A33,
+     .   VMAG,
+     .      
+     .       
      .   MDEMI, XMAXINV, FLM
       REAL FLMIN
 C-----------------------------------------------
 C     DATA FTPI,TTPI / 4.188790205, 2.094395102 /
 C     FTPI=(4/3)*PI, TTPI=(2/3)*PI
 C
-C     DEVIATEUR PRINCIPAL DE CONTRAINTE
+C     principal deviator of stress
 C . . . . . . . . . . . . . . . . . . .
       MDEMI = -HALF
       TTPI = ACOS(MDEMI)
       FTPI = TWO*TTPI
-C precision minimum dependant du type REAL ou DOUBLE
+C minimum precision depending on the type real or double
       CALL FLOATMIN(CS(1),CS(2),FLMIN)
       FLM = TWO*SQRT(FLMIN)
       NINDEX3=0  
@@ -1978,9 +1964,9 @@ C
         VAL(NN,1) = STR(NN,1)-PR
         VAL(NN,2) = STR(NN,2)-PR
         VAL(NN,3) = STR(NN,3)-PR
-C renforcement de precision en compression----
-        IF(ABS(STR(NN,3)).GT.ABS(STR(NN,1))
-     &     .AND.AAA(NN).GT.NORMINF(NN)) THEN
+C accuracy reinforcement in compression ----
+        IF(ABS(STR(NN,3))>ABS(STR(NN,1))
+     &     .AND.AAA(NN)>NORMINF(NN)) THEN
          AA=STR(NN,1)
          STR(NN,1)=STR(NN,3)
          STR(NN,3)=AA
@@ -2031,14 +2017,14 @@ C
       NINDEX2 = 0
       DO NN = 1, NEL
         XMAXV(NN)=MAX(XMAG(NN,1),XMAG(NN,2),XMAG(NN,3))
-        IF(XMAG(NN,1).EQ.XMAXV(NN)) THEN
+        IF(XMAG(NN,1)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(NN,2).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(NN,2)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
         ENDIF
-        IF(AAA(NN).LT.NORMINF(NN)) THEN
+        IF(AAA(NN)<NORMINF(NN)) THEN
           VAL(NN,1) = SIG(NN,1)
           VAL(NN,2) = SIG(NN,2)
           VAL(NN,3) = SIG(NN,3)
@@ -2049,7 +2035,7 @@ C
           V(NN,2,2) = ONE
           V(NN,3,2) = ZERO
 
-        ELSEIF(XMAXV(NN).GT.TOL1(NN)) THEN
+        ELSEIF(XMAXV(NN)>TOL1(NN)) THEN
           NINDEX1 = NINDEX1 + 1
           INDEX1(NINDEX1) = NN
         ELSE
@@ -2089,9 +2075,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX1
         NN = INDEX1(N)
-        IF(XMAG(NN,1).EQ.XMAXV(NN)) THEN
+        IF(XMAG(NN,1)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(NN,2).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(NN,2)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -2099,7 +2085,7 @@ C
 C
         VMAG=SQRT(V(NN,1,1)**2+V(NN,2,1)**2)
         LMAX = LMAXV(NN)
-        IF(XMAXV(NN).GT.TOL2(NN))THEN
+        IF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(NN,1,3)=B(NN,1,LMAX)*XMAXINV
           V(NN,2,3)=B(NN,2,LMAX)*XMAXINV
@@ -2111,7 +2097,7 @@ C
           V(NN,1,2)=V(NN,1,2)*VMAG
           V(NN,2,2)=V(NN,2,2)*VMAG
           V(NN,3,2)=V(NN,3,2)*VMAG
-        ELSEIF(VMAG.GT.TOL2(NN))THEN
+        ELSEIF(VMAG>TOL2(NN))THEN
           V(NN,1,2)=-V(NN,2,1)/VMAG
           V(NN,2,2)=V(NN,1,1)/VMAG
           V(NN,3,2)=ZERO
@@ -2136,9 +2122,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX2
         NN = INDEX2(N)
-        IF(XMAG(NN,1).EQ.XMAXV(NN)) THEN
+        IF(XMAG(NN,1)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(NN,2).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(NN,2)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -2146,7 +2132,7 @@ C
 C
         LMAX = LMAXV(NN)
         IF(MAX(ABS(A(NN,3,1)),ABS(A(NN,3,2)),ABS(A(NN,3,3)))
-     &       .LT.TOL2(NN))THEN
+     &       <TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(NN,1,1)= ZERO
           V(NN,2,1)= ZERO
@@ -2155,7 +2141,7 @@ C
           V(NN,2,2)= A(NN,1,LMAX)*XMAXINV
           V(NN,3,2)= ZERO
 C
-        ELSEIF(XMAXV(NN).GT.TOL2(NN))THEN
+        ELSEIF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(NN,1,1)=-A(NN,2,LMAX)*XMAXINV
           V(NN,2,1)= A(NN,1,LMAX)*XMAXINV
@@ -2173,7 +2159,7 @@ C
           V(NN,3,1) = ZERO
           V(NN,1,2) = ZERO
           V(NN,2,2) = ONE
-          V(NN,3,2) = ZERO	  
+          V(NN,3,2) = ZERO    
         ENDIF
       ENDDO
 C
@@ -2188,10 +2174,10 @@ C
         VEC(NN,8)=VEC(NN,3)*VEC(NN,4)-VEC(NN,1)*VEC(NN,6)
         VEC(NN,9)=VEC(NN,1)*VEC(NN,5)-VEC(NN,2)*VEC(NN,4)
       ENDDO
-C reecriture pour contourner probleme sur itanium2 comp 9. + latency=16
+C Rewriting to bypass problem on itanium2 comp 9. + latency = 16
       DO N = 1, NINDEX3
         NN = INDEX3(N)
-C str utilise com tableau temporaire au lieu de scalaires temporaires
+C Str uses temporary table instead of temporary scalars
         STR(NN,1)=VEC(NN,7)
         STR(NN,2)=VEC(NN,8)
         STR(NN,3)=VEC(NN,9)
@@ -2208,21 +2194,28 @@ C str utilise com tableau temporaire au lieu de scalaires temporaires
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  VALPVECDP_V                   source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|        SIGEPS33                      source/materials/mat/mat033/sigeps33.F
-Chd|        SIGEPS38                      source/materials/mat/mat038/sigeps38.F
-Chd|        SIGEPS42                      source/materials/mat/mat042/sigeps42.F
-Chd|        SIGEPS62                      source/materials/mat/mat062/sigeps62.F
-Chd|        SIGEPS69                      source/materials/mat/mat069/sigeps69.F
-Chd|        SIGEPS71                      source/materials/mat/mat071/sigeps71.F
-Chd|        SIGEPS82                      source/materials/mat/mat082/sigeps82.F
-Chd|        SIGEPS92                      source/materials/mat/mat092/sigeps92.F
-Chd|        SIGEPS94                      source/materials/mat/mat094/sigeps94.F
-Chd|-- calls ---------------
-Chd|        FLOATMIN                      ../common_source/tools/math/precision.c
-Chd|====================================================================
+!||====================================================================
+!||    valpvecdp_v       ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- called by ------------------------------------------------------
+!||    fail_spalling_s   ../engine/source/materials/fail/spalling/fail_spalling_s.F90
+!||    sigeps124         ../engine/source/materials/mat/mat124/sigeps124.F
+!||    sigeps130         ../engine/source/materials/mat/mat130/sigeps130.F90
+!||    sigeps163         ../engine/source/materials/mat/mat163/sigeps163.F90
+!||    sigeps190         ../engine/source/materials/mat/mat190/sigeps190.F
+!||    sigeps33          ../engine/source/materials/mat/mat033/sigeps33.F
+!||    sigeps38          ../engine/source/materials/mat/mat038/sigeps38.F
+!||    sigeps42          ../engine/source/materials/mat/mat042/sigeps42.F
+!||    sigeps62          ../engine/source/materials/mat/mat062/sigeps62.F
+!||    sigeps69          ../engine/source/materials/mat/mat069/sigeps69.F
+!||    sigeps71          ../engine/source/materials/mat/mat071/sigeps71.F
+!||    sigeps82          ../engine/source/materials/mat/mat082/sigeps82.F
+!||    sigeps88          ../engine/source/materials/mat/mat088/sigeps88.F90
+!||    sigeps90          ../engine/source/materials/mat/mat090/sigeps90.F
+!||    sigeps92          ../engine/source/materials/mat/mat092/sigeps92.F
+!||    sigeps94          ../engine/source/materials/mat/mat094/sigeps94.F
+!||--- calls      -----------------------------------------------------
+!||    floatmin          ../common_source/tools/math/precision.c
+!||====================================================================
       SUBROUTINE VALPVECDP_V(SIG,VAL,VEC,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -2241,16 +2234,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, L, N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
+      INTEGER   N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
      .        NINDEX1, NINDEX2, INDEX1(MVSIZ), INDEX2(MVSIZ)
       DOUBLE PRECISION
      .   CS(6), STR(MVSIZ,3), A(MVSIZ,3,3), V(MVSIZ,3,3), B(MVSIZ,3,3),
      .   XMAG(MVSIZ,3), PR, AA, BB, AAA(MVSIZ),
      .   CC, ANGP, DD, FTPI, TTPI, STRMAX,
      .   TOL1(MVSIZ), TOL2(MVSIZ), XMAXV(MVSIZ), NORMINF(MVSIZ), 
-     .   VMAG, S11,
-     .   S21, S31, S12, S22, S32, S13, S23, S33, A11, A12, A13, A21,
-     .   A22, A23, A31, A32, A33,
+     .   VMAG,
+     .      
+     .       
      .   MDEMI, XMAXINV, FLM,
      .   VALDP(MVSIZ,3),VECDP(MVSIZ,9)
       REAL FLMIN
@@ -2258,12 +2251,12 @@ C-----------------------------------------------
 C     DATA FTPI,TTPI / 4.188790205, 2.094395102 /
 C     FTPI=(4/3)*PI, TTPI=(2/3)*PI
 C
-C     DEVIATEUR PRINCIPAL DE CONTRAINTE
+C     principal deviator of stress
 C . . . . . . . . . . . . . . . . . . .
       MDEMI = -HALF
       TTPI = ACOS(MDEMI)
       FTPI = TWO*TTPI
-C precision minimum dependant du type REAL ou DOUBLE
+C minimum precision depending on the type real or double
       CALL FLOATMIN(CS(1),CS(2),FLMIN)
       FLM = TWO*SQRT(FLMIN)
       NINDEX3=0  
@@ -2303,9 +2296,9 @@ C
         VALDP(NN,1) = STR(NN,1)-PR
         VALDP(NN,2) = STR(NN,2)-PR
         VALDP(NN,3) = STR(NN,3)-PR
-C renforcement de precision en compression simple----
-        IF(ABS(STR(NN,3)).GT.ABS(STR(NN,1))
-     &     .AND.AAA(NN).GT.NORMINF(NN)) THEN
+C precision reinforcement in simple compression ----
+        IF(ABS(STR(NN,3))>ABS(STR(NN,1))
+     &     .AND.AAA(NN)>NORMINF(NN)) THEN
          AA=STR(NN,1)
          STR(NN,1)=STR(NN,3)
          STR(NN,3)=AA
@@ -2356,14 +2349,14 @@ C
       NINDEX2 = 0
       DO NN = 1, NEL
         XMAXV(NN)=MAX(XMAG(NN,1),XMAG(NN,2),XMAG(NN,3))
-        IF(XMAG(NN,1).EQ.XMAXV(NN)) THEN
+        IF(XMAG(NN,1)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(NN,2).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(NN,2)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
         ENDIF
-        IF(AAA(NN).LT.NORMINF(NN)) THEN
+        IF(AAA(NN)<NORMINF(NN)) THEN
           VALDP(NN,1) = SIG(NN,1)
           VALDP(NN,2) = SIG(NN,2)
           VALDP(NN,3) = SIG(NN,3)
@@ -2372,8 +2365,8 @@ C
           V(NN,3,1) = ZERO
           V(NN,1,2) = ZERO
           V(NN,2,2) = ONE
-          V(NN,3,2) = ZERO	  
-        ELSEIF(XMAXV(NN).GT.TOL1(NN)) THEN
+          V(NN,3,2) = ZERO    
+        ELSEIF(XMAXV(NN)>TOL1(NN)) THEN
           NINDEX1 = NINDEX1 + 1
           INDEX1(NINDEX1) = NN
         ELSE
@@ -2413,9 +2406,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX1
         NN = INDEX1(N)
-        IF(XMAG(NN,1).EQ.XMAXV(NN)) THEN
+        IF(XMAG(NN,1)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(NN,2).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(NN,2)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -2423,7 +2416,7 @@ C
 C
         VMAG=SQRT(V(NN,1,1)**2+V(NN,2,1)**2)
         LMAX = LMAXV(NN)
-        IF(XMAXV(NN).GT.TOL2(NN))THEN
+        IF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(NN,1,3)=B(NN,1,LMAX)*XMAXINV
           V(NN,2,3)=B(NN,2,LMAX)*XMAXINV
@@ -2435,7 +2428,7 @@ C
           V(NN,1,2)=V(NN,1,2)*VMAG
           V(NN,2,2)=V(NN,2,2)*VMAG
           V(NN,3,2)=V(NN,3,2)*VMAG
-        ELSEIF(VMAG.GT.TOL2(NN))THEN
+        ELSEIF(VMAG>TOL2(NN))THEN
           V(NN,1,2)=-V(NN,2,1)/VMAG
           V(NN,2,2)=V(NN,1,1)/VMAG
           V(NN,3,2)=ZERO
@@ -2448,6 +2441,7 @@ C
 C . . . . . . . . . . . . .
 C    SOLUTION DOUBLE
 C . . . . . . . . . . . . .
+#include      "vectorize.inc"
       DO N = 1, NINDEX2
         NN = INDEX2(N)
         XMAG(NN,1)=SQRT(A(NN,1,1)**2+A(NN,2,1)**2)
@@ -2460,9 +2454,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX2
         NN = INDEX2(N)
-        IF(XMAG(NN,1).EQ.XMAXV(NN)) THEN
+        IF(XMAG(NN,1)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(NN,2).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(NN,2)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -2470,7 +2464,7 @@ C
 C
         LMAX = LMAXV(NN)
         IF(MAX(ABS(A(NN,3,1)),ABS(A(NN,3,2)),ABS(A(NN,3,3)))
-     &       .LT.TOL2(NN))THEN
+     &       <TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(NN,1,1)= ZERO
           V(NN,2,1)= ZERO
@@ -2479,7 +2473,7 @@ C
           V(NN,2,2)= A(NN,1,LMAX)*XMAXINV
           V(NN,3,2)= ZERO
 C
-        ELSEIF(XMAXV(NN).GT.TOL2(NN))THEN
+        ELSEIF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(NN,1,1)=-A(NN,2,LMAX)*XMAXINV
           V(NN,2,1)= A(NN,1,LMAX)*XMAXINV
@@ -2497,7 +2491,7 @@ C
           V(NN,3,1) = ZERO
           V(NN,1,2) = ZERO
           V(NN,2,2) = ONE
-          V(NN,3,2) = ZERO	  
+          V(NN,3,2) = ZERO    
         ENDIF
       ENDDO
 C
@@ -2527,14 +2521,16 @@ C
         VEC(NN,8)=VECDP(NN,8)
         VEC(NN,9)=VECDP(NN,9)
       ENDDO
-C reecriture pour contourner probleme sur itanium2 comp 9. + latency=16
+C Rewriting to bypass problem on itanium2 comp 9. + latency = 16
+#include      "vectorize.inc"
       DO N = 1, NINDEX3
         NN = INDEX3(N)
-C str utilise com tableau temporaire au lieu de scalaires temporaires
+C Str uses temporary table instead of temporary scalars
         STR(NN,1)=VEC(NN,7)
         STR(NN,2)=VEC(NN,8)
         STR(NN,3)=VEC(NN,9)
       ENDDO
+#include      "vectorize.inc"
       DO N = 1, NINDEX3
         NN = INDEX3(N)
         VEC(NN,7)=VEC(NN,1)
@@ -2546,18 +2542,14 @@ C str utilise com tableau temporaire au lieu de scalaires temporaires
       ENDDO
       RETURN
       END
-
-
-
-
-Chd|====================================================================
-Chd|  VALPVECOP_V                   source/materials/mat/mat033/sigeps33.F
-Chd|-- called by -----------
-Chd|        PRINC_U                       source/materials/mat/mat001/m1law.F
-Chd|        PRINC_U1                      source/materials/mat/mat001/m1law.F
-Chd|-- calls ---------------
-Chd|        FLOATMIN                      ../common_source/tools/math/precision.c
-Chd|====================================================================
+!||====================================================================
+!||    valpvecop_v   ../engine/source/materials/mat/mat033/sigeps33.F
+!||--- called by ------------------------------------------------------
+!||    princ_u       ../engine/source/materials/mat/mat001/princ_u.F
+!||    princ_u1      ../engine/source/materials/mat/mat001/princ_u1.F
+!||--- calls      -----------------------------------------------------
+!||    floatmin      ../common_source/tools/math/precision.c
+!||====================================================================
       SUBROUTINE VALPVECOP_V(SIG,VAL,VEC,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -2576,7 +2568,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, L, N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
+      INTEGER   N, NN, LMAX, LMAXV(MVSIZ),NINDEX3, INDEX3(MVSIZ),
      .        NINDEX1, NINDEX2, INDEX1(MVSIZ), INDEX2(MVSIZ)
       DOUBLE PRECISION
      .   CS1,CS2,CS3,CS4,CS5,CS6,
@@ -2584,10 +2576,10 @@ C-----------------------------------------------
      .   PR, AA, BB, AAA(MVSIZ),
      .   CC, ANGP, DD, FTPI, TTPI, STRMAX,
      .   TOL1(MVSIZ), TOL2(MVSIZ), XMAXV(MVSIZ), NORMINF(MVSIZ), 
-     .   VMAG, S11,
-     .   S21, S31, S12, S22, S32, S13, S23, S33, A11, A12, A13, A21,
+     .   VMAG,
+     .      
      .   S1,S2,S3,
-     .   A22, A23, A31, A32, A33,
+     .       
      .   MDEMI, XMAXINV, FLM,
      .   S4_2,S5_2,S6_2,C1,C2,SQ_AA,
      .   VALDP1(MVSIZ),VALDP2(MVSIZ),VALDP3(MVSIZ),
@@ -2605,15 +2597,16 @@ C-----------------------------------------------
 C     DATA FTPI,TTPI / 4.188790205, 2.094395102 /
 C     FTPI=(4/3)*PI, TTPI=(2/3)*PI
 C
-C     DEVIATEUR PRINCIPAL DE CONTRAINTE
+C     principal deviator of stress
 C . . . . . . . . . . . . . . . . . . .
       MDEMI = -HALF
       TTPI = ACOS(MDEMI)
       FTPI = TWO*TTPI
-C precision minimum dependant du type REAL ou DOUBLE
+C minimum precision depending on the type real or double
       CALL FLOATMIN(CS1,CS2,FLMIN)
       FLM = TWO*SQRT(FLMIN)
       NINDEX3=0 
+      INDEX3(1:NEL) =0
       C1 = HALF*SQRT(TWENTY7)      
       C2 = TWO*SQRT(THIRD)      
       DO NN = 1, NEL
@@ -2652,27 +2645,26 @@ c        CC=-SQRT(TWENTY7/MAX(EM20,AA))*BB*HALF/MAX(EM20,AA)
 
         COS_ANGP = COS(ANGP)
         SIN_ANGP = SIN(ANGP)
-        STR1(NN)=DD*COS_ANGP
-        STR2(NN)=DD*((-HALF*COS_ANGP) - (SIN_ANGP*SQRT3DMI))
-        STR3(NN)=DD*((-HALF*COS_ANGP) + (SIN_ANGP*SQRT3DMI))
-
-c       STR1(NN)=DD*COS(ANGP)
-c       STR2(NN)=DD*COS(ANGP+FTPI)
-c       STR3(NN)=DD*COS(ANGP+TTPI)
+c        STR1(NN)=DD*COS_ANGP
+c        STR2(NN)=DD*((-HALF*COS_ANGP) - (SIN_ANGP*SQRT3DMI))
+c        STR3(NN)=DD*((-HALF*COS_ANGP) + (SIN_ANGP*SQRT3DMI))
+        STR3(NN)=DD*COS_ANGP
+        STR1(NN)=DD*((-HALF*COS_ANGP) - (SIN_ANGP*SQRT3DMI))
+        STR2(NN)=-(STR1(NN)+STR3(NN))
 C
         VALDP1(NN) = STR1(NN)-PR
         VALDP2(NN) = STR2(NN)-PR
         VALDP3(NN) = STR3(NN)-PR
-C renforcement de precision en compression simple----
-        IF(ABS(STR3(NN)).GT.ABS(STR1(NN))
-     &     .AND.AAA(NN).GT.NORMINF(NN)) THEN
+C precision reinforcement in simple compression ----
+        IF(ABS(STR3(NN))>ABS(STR1(NN))
+     &     .AND.AAA(NN)>NORMINF(NN)) THEN
          AA=STR1(NN)
          STR1(NN)=STR3(NN)
          STR3(NN)=AA
          INDEX3(NN) = 1
-        ELSE
-         INDEX3(NN) = 0
+         NINDEX3 = 1
         ENDIF
+      
 C . . . . . . . . . . .
 C      VECTEURS PROPRES
 C . . . . . . . . . . .
@@ -2720,14 +2712,14 @@ C
       NINDEX2 = 0
       DO NN = 1, NEL
         XMAXV(NN)=MAX(XMAG1(NN),XMAG2(NN),XMAG3(NN))
-        IF(XMAG1(NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG1(NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG2(NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG2(NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
         ENDIF
-        IF(AAA(NN).LT.NORMINF(NN)) THEN
+        IF(AAA(NN)<NORMINF(NN)) THEN
           VALDP1(NN) = SIG(NN,1)
           VALDP2(NN) = SIG(NN,2)
           VALDP3(NN) = SIG(NN,3)
@@ -2737,7 +2729,7 @@ C
           V(NN,1,2) = ZERO
           V(NN,2,2) = ONE
           V(NN,3,2) = ZERO        
-        ELSEIF(XMAXV(NN).GT.TOL1(NN)*TOL1(NN)) THEN
+        ELSEIF(XMAXV(NN)>TOL1(NN)*TOL1(NN)) THEN
           NINDEX1 = NINDEX1 + 1
           INDEX1(NINDEX1) = NN
         ELSE
@@ -2780,9 +2772,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX1
         NN = INDEX1(N)
-        IF(XMAG1(NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG1(NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG2(NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG2(NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -2791,7 +2783,7 @@ C
         VMAG=SQRT(V(NN,1,1)**2+V(NN,2,1)**2)
         LMAX = LMAXV(NN)
         XMAXV(NN)=SQRT(XMAXV(NN))
-        IF(XMAXV(NN).GT.TOL2(NN))THEN
+        IF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(NN,1,3)=B(NN,1,LMAX)*XMAXINV
           V(NN,2,3)=B(NN,2,LMAX)*XMAXINV
@@ -2805,7 +2797,7 @@ C
           V(NN,1,2)=V(NN,1,2)*VMAG
           V(NN,2,2)=V(NN,2,2)*VMAG
           V(NN,3,2)=V(NN,3,2)*VMAG
-        ELSEIF(VMAG.GT.TOL2(NN))THEN
+        ELSEIF(VMAG>TOL2(NN))THEN
           V(NN,1,2)=-V(NN,2,1)/VMAG
           V(NN,2,2)=V(NN,1,1)/VMAG
           V(NN,3,2)=ZERO
@@ -2831,9 +2823,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX2
         NN = INDEX2(N)
-        IF(XMAG1(NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG1(NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG2(NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG2(NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -2842,7 +2834,7 @@ C
         LMAX = LMAXV(NN)
         XMAXV(NN)=SQRT(XMAXV(NN))
         IF(MAX(ABS(A(NN,3,1)),ABS(A(NN,3,2)),ABS(A(NN,3,3)))
-     &       .LT.TOL2(NN))THEN
+     &       <TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(NN,1,1)= ZERO
           V(NN,2,1)= ZERO
@@ -2851,7 +2843,7 @@ C
           V(NN,2,2)= A(NN,1,LMAX)*XMAXINV
           V(NN,3,2)= ZERO
 C
-        ELSEIF(XMAXV(NN).GT.TOL2(NN))THEN
+        ELSEIF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(NN,1,1)=-A(NN,2,LMAX)*XMAXINV
           V(NN,2,1)= A(NN,1,LMAX)*XMAXINV
@@ -2905,21 +2897,23 @@ C
         VEC(NN,8)=VECDP8(NN)
         VEC(NN,9)=VECDP9(NN)
       ENDDO
-C reecriture pour contourner probleme sur itanium2 comp 9. + latency=16
-      DO NN = 1, NEL
-        IF(INDEX3(NN) == 1) THEN
-C str utilise com tableau temporaire au lieu de scalaires temporaires
-          S1=VEC(NN,7)
-          S2=VEC(NN,8)
-          S3=VEC(NN,9)
-          VEC(NN,7)=VEC(NN,1)
-          VEC(NN,8)=VEC(NN,2)
-          VEC(NN,9)=VEC(NN,3)
-          VEC(NN,1)=-S1
-          VEC(NN,2)=-S2
-          VEC(NN,3)=-S3
-        ENDIF
-      ENDDO
+C Rewriting to bypass problem on itanium2 comp 9. + latency = 16
+      IF (NINDEX3 > 0) THEN
+        DO NN = 1, NEL
+          IF(INDEX3(NN) == 1) THEN
+C Structilis com temporary table instead of temporary scalars
+            S1=VEC(NN,7)
+            S2=VEC(NN,8)
+            S3=VEC(NN,9)
+            VEC(NN,7)=VEC(NN,1)
+            VEC(NN,8)=VEC(NN,2)
+            VEC(NN,9)=VEC(NN,3)
+            VEC(NN,1)=-S1
+            VEC(NN,2)=-S2
+            VEC(NN,3)=-S3
+          ENDIF
+        ENDDO
+      END IF !(NINDEX3 > 0) THEN
       RETURN
       END
  

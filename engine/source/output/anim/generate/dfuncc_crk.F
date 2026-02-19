@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DFUNCC_CRK                    source/output/anim/generate/dfuncc_crk.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_R4GET_PARTN              source/mpi/anim/spmd_r4get_partn.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dfuncc_crk         ../engine/source/output/anim/generate/dfuncc_crk.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf            ../engine/share/resol/initbuf.F
+!||    spmd_r4get_partn   ../engine/source/mpi/anim/spmd_r4get_partn.F
+!||    write_r_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod      ../engine/share/modules/crackxfem_mod.F
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod        ../engine/share/resol/initbuf.F
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE DFUNCC_CRK(
      .             ELBUF_TAB   ,LEN        , IFUNC  ,IPARG  ,GEO     ,
      .             IXC         ,IXTG       , MASS   ,PM     ,EL2FA   ,
@@ -45,6 +48,8 @@ C-----------------------------------------------
       USE INITBUF_MOD
       USE CRACKXFEM_MOD
       USE ELBUFDEF_MOD
+      USE my_alloc_mod
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -57,14 +62,8 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com_xfem1.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
 #include      "task_c.inc"
-#include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -77,7 +76,6 @@ C     REAL
      .   MASS(*),GEO(NPROPG,*),
      .   EHOUR(*),ANIM(*),PM(NPROPM,*),THKE(*),
      .   ERR_THK_SH4(*), ERR_THK_SH3(*)
-      REAL WAL(NBF_L)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP,NXEL), TARGET :: XFEM_TAB
       TYPE (XFEM_EDGE_)   , DIMENSION(*) :: CRKEDGE
@@ -85,30 +83,34 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 C     REAL
+      REAL,DIMENSION(:),ALLOCATABLE:: WAL
+      INTEGER,DIMENSION(:),ALLOCATABLE::MATLY
       my_real
      .   EVAR(MVSIZ),FUNC(LEN), 
      .   OFF, P, VONM2, VONM, S1, S2, S12, S3, VALUE,
      .   A1,B1,B2,B3,YEQ,F1,M1,M2,M3, FAC, DAM1(MVSIZ),DAM2(MVSIZ),
      .   WPLA(MVSIZ), DMAX(MVSIZ),WPMAX(MVSIZ),
      .   FAIL(MVSIZ),THK0,THKE0(MVSIZ)
-      INTEGER I,NG,NEL,ISC,N,J,MLW,NUVAR,
+      INTEGER I, NG, NEL, N, MLW, NUVAR, 
      .        ISTRAIN,NN,K1,K2,MT,IMID,IPID,
      .        NN1,NN2,NN3,NN4,NN5,NN6,NF,
      .        OFFSET,K,II,KK,IHBE,I1,MPT,IPT,BUF,NUVARR,
-     .        IPMAT,PID(MVSIZ),MAT(MVSIZ),MATLY(MVSIZ*100),
+     .        IPMAT,PID(MVSIZ),MAT(MVSIZ),
      .        IEXPAN,NEL_CRK,NLEVXF,NI,JTURB,
      .        NLAY,NPTT,IXEL,ILAY,IL,IUS,JJ(5)
-      INTEGER IXFEM,IP,JPID,CRKS,ICRK,ILAYCRK,ELCRK,NPT0
+      INTEGER IXFEM, CRKS, ICRK, ILAYCRK, ELCRK, NPT0
       INTEGER NELCRK(NCRKPART),IE(NCRKPART)
       REAL R4
 C
-      TYPE(BUF_LAY_) ,POINTER :: BUFLY
+ 
       TYPE(G_BUFEL_) ,POINTER :: GBUF
       TYPE(L_BUFEL_) ,POINTER :: LBUF
 C
       TYPE(G_BUFEL_) ,POINTER :: XGBUF
       TYPE(L_BUFEL_) ,POINTER :: XLBUF
 C=======================================================================
+      CALL MY_ALLOC(WAL,NBF_L)
+      CALL MY_ALLOC(MATLY,MVSIZ*100)
       NEL_CRK = 0
       FUNC(1:LEN) = ZERO
 c
@@ -130,7 +132,7 @@ C---
         IXFEM  = IPARG(54,NG)
         IF (IXFEM /= 1 .AND. IXFEM /= 2) CYCLE
 C---
-        CALL INITBUF (IPARG    ,NG      ,                    
+        CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTURB   ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -566,7 +568,7 @@ C----------------------
                   ENDDO
 C-------------------
                 ELSEIF (IFUNC == 3) THEN
-C energie specifique
+C Specific energy
 C-------------------
                   IF (ITY == 3) THEN
                     DO I=LFT,LLT
@@ -612,7 +614,7 @@ C-------------------
                   ENDDO
                 ENDIF  ! IFUNC
 C-----------------------------------------------
-C       FIN DE BOUCLE SUR LES OFFSET
+C       end of loop over offsets
 C-----------------------------------------------
               ENDDO  !  DO ILAY=1,NLAY
             ENDDO  !  DO IXEL=1,NXEL
@@ -648,5 +650,7 @@ C
           CALL SPMD_R4GET_PARTN(1,NBF_L,NBPART,IADG,WAL,BUF)
       ENDIF
 C
+      DEALLOCATE(MATLY)
+      DEALLOCATE(WAL)
       RETURN
       END

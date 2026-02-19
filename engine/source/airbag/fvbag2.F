@@ -1,50 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVBAG2                        source/airbag/fvbag2.F        
-Chd|-- called by -----------
-Chd|        FVBAG0                        source/airbag/fvbag.F         
-Chd|-- calls ---------------
-Chd|        SPMD_IBCAST_SUBCOMM           source/mpi/generic/spmd_ibcast_subcomm.F
-Chd|        SPMD_RBCAST_SUBCOMM           source/mpi/generic/spmd_rbcast_subcomm.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|        FVMBAG_MESHCONTROL_MOD        ../common_source/modules/fvmbag_meshcontrol_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvbag2                   ../engine/source/airbag/fvbag2.F
+!||--- called by ------------------------------------------------------
+!||    fvbag0                   ../engine/source/airbag/fvbag0.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_ibcast_subcomm      ../engine/source/mpi/generic/spmd_ibcast_subcomm.F
+!||    spmd_rbcast_subcomm      ../engine/source/mpi/generic/spmd_rbcast_subcomm.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod             ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    fvbag_mod                ../engine/share/modules/fvbag_mod.F
+!||    fvmbag_meshcontrol_mod   ../common_source/modules/airbag/fvmbag_meshcontrol_mod.F
+!||    h3d_mod                  ../engine/share/modules/h3d_mod.F
+!||    message_mod              ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE FVBAG2(IFV,   ITYP, NNA,  NVENT, NJET, IVOLU, IBAGHOL, RBAGHOL,
      .                  X,    RVOLU, XXXA, NCONA, RBAGJET ,
      .                  A,    LGAUGE , GAUGE , NNT   ,FEXT   , NSKIP,
-     .                  H3D_DATA     ) 
+     .                  H3D_DATA, WEIGHT) 
 C
-C Boardcast data from PMAIN to other processors
-C Arrays sended:
+C Broadcast data from PMAIN to other processors
+C Arrays sent:
 C - GGG, GGA
 C - AAA
 C - XXXA
 C - IVOLU(49) (number of volumes, needed to switch to UP 
-C - RVOLU, RBAGJET, IBAGHOL(1,:) boardcasted if switch to UP
+C - RVOLU, RBAGJET, IBAGHOL(1,:) broadcasted if switch to UP
 C-----------------------------------------------
 C   M o d u l e s 
 C-----------------------------------------------
@@ -62,19 +63,13 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr07_c.inc"
-#include      "scr18_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "warn_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "scr17_c.inc"
+#include      "parit_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -82,6 +77,7 @@ C-----------------------------------------------
       my_real RVOLU(*), X(3,*), XXXA(3,*), RBAGJET(NRBJET,*), RBAGHOL(NRBHOL,*)
       INTEGER NNT,LGAUGE(3,*) 
       INTEGER NSKIP          
+      INTEGER, INTENT(IN) :: WEIGHT(NUMNOD) !< 0: current mpi process does not own the node, 1: current mpi process owns the node
       my_real
      .        A(3,*),
      .        FEXT(3,*), 
@@ -115,13 +111,13 @@ C
 
        DO I=1,NBGAUGE
           IF(LGAUGE(1,I) > 0 .OR. LGAUGE(1,I) < -NUMELS) CYCLE
-          IF(LGAUGE(1,I) == 0) THEN
+          IF(LGAUGE(1,I) == 0 . AND. LGAUGE(3,I) > 0) THEN
 C Node input
             N1=LGAUGE(3,I)
             DO J=1,FVSPMD(IFV)%NN_L+FVSPMD(IFV)%NNI_L
               N21=FVSPMD(IFV)%IBUF_L(1,J)
               N22=FVSPMD(IFV)%IBUF_L(2,J)
-              IF(N22.NE.N1) CYCLE
+              IF(N22/=N1) CYCLE
               GAUGE(30,I)=FVSPMD(IFV)%GGG(1,N21)
               GAUGE(31,I)=FVSPMD(IFV)%GGG(2,N21)
               GAUGE(32,I)=FVSPMD(IFV)%GGG(3,N21)
@@ -130,7 +126,7 @@ C Node input
             DO J=1,FVSPMD(IFV)%NNA_L
               N21=FVSPMD(IFV)%IBUFA_L(1,J)
               N22=FVSPMD(IFV)%IBUFA_L(2,J)
-              IF(N22.NE.N1) CYCLE
+              IF(N22/=N1) CYCLE
               GAUGE(30,I)=FVSPMD(IFV)%GGA(1,N21)
               GAUGE(31,I)=FVSPMD(IFV)%GGA(2,N21)
               GAUGE(32,I)=FVSPMD(IFV)%GGA(3,N21)
@@ -139,8 +135,10 @@ C Node input
             GAUGE(30,I)=ZERO
             GAUGE(31,I)=ZERO
             GAUGE(32,I)=ZERO
-          ELSE
-C Shell input
+          ELSEIF( LGAUGE(3,I) < 0 )THEN
+C Shell input -not available
+          ELSEIF(LGAUGE(1,I) == 0 . AND. LGAUGE(3,I) == 0)THEN
+C Point input (by coordinates) -not available
           ENDIF
   800  CONTINUE
        ENDDO
@@ -157,14 +155,16 @@ C Shell input
       DO I=1,FVSPMD(IFV)%NN_L+FVSPMD(IFV)%NNI_L
          I1=FVSPMD(IFV)%IBUF_L(1,I)
          I2=FVSPMD(IFV)%IBUF_L(2,I)
-         A(1,I2)=A(1,I2)+FVSPMD(IFV)%AAA(1,I1)
-         A(2,I2)=A(2,I2)+FVSPMD(IFV)%AAA(2,I1)
-         A(3,I2)=A(3,I2)+FVSPMD(IFV)%AAA(3,I1)
+         IF(WEIGHT(I2) > 0 .OR. IPARIT .NE. 0) THEN
+           A(1,I2)=A(1,I2)+FVSPMD(IFV)%AAA(1,I1)  
+           A(2,I2)=A(2,I2)+FVSPMD(IFV)%AAA(2,I1)
+           A(3,I2)=A(3,I2)+FVSPMD(IFV)%AAA(3,I1)
+         ENDIF
          IF(ANIM_V(5)+OUTP_V(5)+H3D_DATA%N_VECT_FINT
-     .     +ANIM_V(6)+OUTP_V(6)+H3D_DATA%N_VECT_FEXT .GT.0) THEN
-           FEXT(1,I2) = FEXT(1,I2)+FVSPMD(IFV)%AAA(1,I1)
-           FEXT(2,I2) = FEXT(2,I2)+FVSPMD(IFV)%AAA(2,I1)
-           FEXT(3,I2) = FEXT(3,I2)+FVSPMD(IFV)%AAA(3,I1)
+     .       +ANIM_V(6)+OUTP_V(6)+H3D_DATA%N_VECT_FEXT >0) THEN
+             FEXT(1,I2) = FEXT(1,I2)+FVSPMD(IFV)%AAA(1,I1)
+             FEXT(2,I2) = FEXT(2,I2)+FVSPMD(IFV)%AAA(2,I1)
+             FEXT(3,I2) = FEXT(3,I2)+FVSPMD(IFV)%AAA(3,I1)
          ENDIF
       ENDDO     
 
@@ -175,14 +175,14 @@ C----------------------------
 C POSITION FOR VISUALISATION
 C----------------------------
       IF( FVSPMD(IFV)%NNA_L_GLOB > 0) THEN
-      ! The BCAST is necessery if at least one proc. has NNA_L > 0
+      ! The BCAST is necessary if at least one proc. has NNA_L > 0
         IF(NSPMD > 1 .AND. FVSPMD(IFV)%RANK > -1 )THEN
      
           CALL SPMD_RBCAST_SUBCOMM(XXXA,3*NNA,0,
      .         FVSPMD(IFV)%MPI_COMM)
      
         ENDIF 
-        IF (KMESH(IFV) .LT. 2) THEN
+        IF (KMESH(IFV) < 2) THEN
            DO I=1,FVSPMD(IFV)%NNA_L
               I1=FVSPMD(IFV)%IBUFA_L(1,I)
               IF(NCONA(2,I1) /= 0) CYCLE
@@ -212,12 +212,27 @@ C -------------------
       ENDIF
       IF (IVOLU(74) > 0) THEN
 C     Automatic switch to uniform pressure when dispersion of pressure is low
-         AUTO_SWITCH = (FVDATA(IFV)%PDISP .LT. FVDATA(IFV)%PDISP_OLD) .AND. 
-     .        (FVDATA(IFV)%PDISP .LT. RVOLU(73))
+         AUTO_SWITCH = (FVDATA(IFV)%PDISP < FVDATA(IFV)%PDISP_OLD) .AND. 
+     .        (FVDATA(IFV)%PDISP < RVOLU(73))
          UP_SWITCH = TT-TTF >= RVOLU(70)
          UP_SWITCH = UP_SWITCH .OR. AUTO_SWITCH
          FVDATA(IFV)%PDISP_OLD = FVDATA(IFV)%PDISP
       ENDIF
+      
+      IF (UP_SWITCH .AND. IVOLU(74)==2)THEN
+        !Iswitch=2 : full merging request on Tswitch/Pswitch criteria
+        IVOLU(74) = 0  ! Iswitch reset to 0
+        IVOLU(60) = -1 ! Igmerg/Ivmin => VOLUMIN=EP20 in fvupd.F => merge everything     
+        RVOLU(70) = EP20 ! TSWITCH=infinity to prevent from any switch to Uniform Pressure
+        RVOLU(73) = ZERO ! PSWITCH RATIO=0 to prevent from any switch to Uniform Pressure
+        UP_SWITCH = .FALSE.
+        IF(ISPMD+1 == FVSPMD(IFV)%PMAIN) THEN
+               WRITE(IOUT,'(A,I10,A,E12.4/)') 
+     .              ' ** MONITORED VOLUME ID: ',IVOLU(1),
+     .              ' ALL POLYHEDRA ARE GOING TO BE MERGED ',TT
+        ENDIF
+      ENDIF
+            
       IF (UP_SWITCH) THEN
          IF (IVOLU(74) == 0 .OR. IVOLU(74) == 1) THEN
             DO I=1,NVENT

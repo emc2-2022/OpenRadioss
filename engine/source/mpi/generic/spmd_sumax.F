@@ -1,47 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  SPMD_SUMAX                    source/mpi/generic/spmd_sumax.F
-Chd|-- called by -----------
-Chd|        SENSOR0                       source/tools/sensor/sensor0.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_sumax            ../engine/source/mpi/generic/spmd_sumax.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_SUMAX(V,LEN1,LEN)
-C gather tableau V de taille LEN de type my_real
-C max des valeurs absolues sur LEN1
-C somme des valeurs sur LEN2 = LEN - LEN1
+C gather table V of size LEN of type my_real
+C max of absolute values over LEN1
+C sum of values over LEN2 = LEN - LEN1
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -63,20 +61,19 @@ C-----------------------------------------------
       my_real
      .        VTMP(LEN)
 C-----------------------------------------------
-C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-      IF (ISPMD.NE.0) THEN
+      IF (ISPMD/=0) THEN
         MSGTYP=MSGOFF
         CALL MPI_SEND(V,LEN,REAL,IT_SPMD(1),MSGTYP,
-     .                MPI_COMM_WORLD,IERROR)
+     .                SPMD_COMM_WORLD,IERROR)
       ELSE
         DO K=2,NSPMD
           MSGTYP=MSGOFF
           CALL MPI_RECV(VTMP,LEN,REAL,IT_SPMD(K),MSGTYP,
-     .                  MPI_COMM_WORLD,STATUS,IERROR)
+     .                  SPMD_COMM_WORLD,STATUS,IERROR)
           DO I=1,LEN1
-            IF(ABS(V(I)).LT.ABS(VTMP(I))) THEN
+            IF(ABS(V(I))<ABS(VTMP(I))) THEN
               V(I) = VTMP(I)
             ENDIF
           ENDDO

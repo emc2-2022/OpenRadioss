@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PRESEARCHIGEO3D               source/elements/ige3d/searchigeo3d.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        MYQSORT3D                     source/elements/ige3d/searchigeo3d.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    presearchigeo3d   ../starter/source/elements/ige3d/searchigeo3d.F
+!||--- called by ------------------------------------------------------
+!||    lectur            ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    myqsort3d         ../starter/source/elements/ige3d/searchigeo3d.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PRESEARCHIGEO3D(IGRSURF,xigetmp, permige)
 C-----------------------------------------------
 C   M o d u l e s
@@ -41,32 +41,24 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER PERMIGE(*)
-C     REAL
-      my_real 
-     .  xigetmp(*)
-      TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
+      INTEGER :: PERMIGE(*)
+      my_real :: xigetmp(*)
+      TYPE (SURF_), DIMENSION(NSURF) :: IGRSURF
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IGS,J,NBTABIGE,IADTABIGE
+      INTEGER IGS,NBTABIGE,IADTABIGE
 C-----------------------------------------------
-c      NBTABIGE=0
       IADTABIGE = 0
 c
       DO IGS=1,NSURF
-        IF(IGRSURF(IGS)%NSEG_IGE.GT.0) THEN !! on est sur une surface o   on a des elements isogeometriques
-c          NBTABIGE=NBTABIGE+16*IGRSURF(IGS)%NSEG_IGE ! nombre de points non tries de cette surface
-          NBTABIGE=16*IGRSURF(IGS)%NSEG_IGE/9 ! nombre de points non tries de cette surface
-
+        IF(IGRSURF(IGS)%NSEG_IGE>0) THEN !we are on a surface where there are isogeometric elements
+          NBTABIGE=16*IGRSURF(IGS)%NSEG_IGE/9 ! number of unsorted points on this surface
           CALL MYQSORT3D(NBTABIGE,XIGETMP(3*(IADTABIGE)+1),PERMIGE(IADTABIGE+1))
-
           IADTABIGE = IADTABIGE + NBTABIGE
-
         ENDIF
       ENDDO
 
@@ -75,13 +67,12 @@ c
       RETURN
       END
       
-Chd|====================================================================
-Chd|  SEARCHIGEO3D                  source/elements/ige3d/searchigeo3d.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    searchigeo3d   ../starter/source/elements/ige3d/searchigeo3d.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SEARCHIGEO3D(IGRSURF,IADTABIGEINI, PERM, 
      .                  NIGETMP, NIGE, RIGETMP, RIGE,
      .                  XIGETMP, XIGE, VIGETMP, VIGE,
@@ -98,7 +89,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -127,28 +117,28 @@ c
       IADTABIGE=0      
       DO ITSURF=1,NSURF
       
-        IF(IGRSURF(ITSURF)%NSEG_IGE.GT.0) THEN !! on est sur une surface o   on a des elements isogeometriques
+        IF(IGRSURF(ITSURF)%NSEG_IGE>0) THEN !we are on a surface where there are isogeometric elements
        
           IGRSURF(ITSURF)%IAD_IGE = I-1
           DECALSURF=I+NDOUBLONSTOT-1
-          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE/9 ! nombre de points non tries de cette surface
+          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE/9 ! number of unsorted points on this surface
           IADTABIGE = IADTABIGE + NBTABIGE
           NDOUBLONS=0
 
-          DO WHILE(I+NDOUBLONSTOT+NDOUBLONS.LE.IADTABIGE)
+          DO WHILE(I+NDOUBLONSTOT+NDOUBLONS<=IADTABIGE)
             NVALEURS = 0
-            NIGE(I)   = NIGETMP(PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF) ! + decalage dans le perm
+            NIGE(I)   = NIGETMP(PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF) ! + offset in the perm
             RIGE(:,I) = RIGETMP(:,PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF)
             XIGE(:,I) = XIGETMP(:,I+NDOUBLONSTOT+NDOUBLONS)
             VIGE(:,I) = VIGETMP(:,PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF)
             PERMUTE(PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF) = I - IGRSURF(ITSURF)%IAD_IGE
-            DO WHILE (((I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1).LE.DECALSURF+NBTABIGE)!-1)
+            DO WHILE (((I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)<=DECALSURF+NBTABIGE)!-1)
      .         .AND. (ABS(XIGETMP(1,I+NDOUBLONSTOT+NDOUBLONS)-
-     .                    XIGETMP(1,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) .LE. TOL)
+     .                    XIGETMP(1,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) <= TOL)
      .         .AND. (ABS(XIGETMP(2,I+NDOUBLONSTOT+NDOUBLONS)-
-     .                    XIGETMP(2,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) .LE. TOL)
+     .                    XIGETMP(2,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) <= TOL)
      .         .AND. (ABS(XIGETMP(3,I+NDOUBLONSTOT+NDOUBLONS)-
-     .                    XIGETMP(3,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) .LE. TOL))
+     .                    XIGETMP(3,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) <= TOL))
               NVALEURS = NVALEURS + 1
               PERMUTE(PERM(I+NDOUBLONSTOT+NDOUBLONS+NVALEURS)+DECALSURF) = I - IGRSURF(ITSURF)%IAD_IGE
             ENDDO
@@ -171,12 +161,10 @@ c
       RETURN
       END
       
-Chd|====================================================================
-Chd|  SEARCHIGEO3DOLD               source/elements/ige3d/searchigeo3d.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    searchigeo3dold   ../starter/source/elements/ige3d/searchigeo3d.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SEARCHIGEO3DOLD(IGRSURF,IADTABIGEINI, PERM, 
      .                  NIGETMP, NIGE, RIGETMP, RIGE,
      .                  XIGETMP, XIGE, VIGETMP, VIGE,
@@ -193,7 +181,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -223,24 +210,24 @@ c
 
         DECALSURF=I+NDOUBLONSTOT-1
 
-        IF(IGRSURF(ITSURF)%NSEG_IGE.GT.0) THEN !! on est sur une surface o   on a des elements isogeometriques
-          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE/9! nombre de points non tries de cette surface
+        IF(IGRSURF(ITSURF)%NSEG_IGE>0) THEN !we are on a surface where there are isogeometric elements
+          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE/9! number of unsorted points on this surface
           NDOUBLONS=0
 
-          DO WHILE(I+NDOUBLONSTOT+NDOUBLONS.LE.DECALSURF+NBTABIGE)
+          DO WHILE(I+NDOUBLONSTOT+NDOUBLONS<=DECALSURF+NBTABIGE)
             NVALEURS = 0
-            NIGE(I)   = NIGETMP(PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF) ! + decalage dans le perm
+            NIGE(I)   = NIGETMP(PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF) ! + offset in the perm
             RIGE(:,I) = RIGETMP(:,PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF)
             XIGE(:,I) = XIGETMP(:,I+NDOUBLONSTOT+NDOUBLONS)
             VIGE(:,I) = VIGETMP(:,PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF)
             PERMUTE(PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF) = I!+DECALSURF
-            DO WHILE (((I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1).LE.DECALSURF+NBTABIGE)!-1)
+            DO WHILE (((I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)<=DECALSURF+NBTABIGE)!-1)
      .         .AND. (ABS(XIGETMP(1,I+NDOUBLONSTOT+NDOUBLONS)-
-     .                    XIGETMP(1,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) .LE. TOL)
+     .                    XIGETMP(1,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) <= TOL)
      .         .AND. (ABS(XIGETMP(2,I+NDOUBLONSTOT+NDOUBLONS)-
-     .                    XIGETMP(2,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) .LE. TOL)
+     .                    XIGETMP(2,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) <= TOL)
      .         .AND. (ABS(XIGETMP(3,I+NDOUBLONSTOT+NDOUBLONS)-
-     .                    XIGETMP(3,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) .LE. TOL))
+     .                    XIGETMP(3,I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)) <= TOL))
               NVALEURS = NVALEURS + 1
               PERMUTE(PERM(I+NDOUBLONSTOT+NDOUBLONS+NVALEURS)+DECALSURF) = I!+DECALSURF
             ENDDO
@@ -254,13 +241,13 @@ c
 c
       IADTABIGE=0
       DO ITSURF=1,NSURF
-        IF(IGRSURF(ITSURF)%NSEG_IGE.GT.0) THEN !! on est sur une surface o   on a des elements isogeometriques
+        IF(IGRSURF(ITSURF)%NSEG_IGE>0) THEN !we are on a surface where there are isogeometric elements
           DO I=1,IGRSURF(ITSURF)%NSEG_IGE!NSEGIGE
            DO J=1,4
             IGRSURF(ITSURF)%NODES_IGE(I,J)=PERMUTE(IGRSURF(ITSURF)%NODES_IGE(I,J)-NUMNOD)+NUMNOD
            ENDDO
           ENDDO
-          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE/9 ! nombre de points non tries de cette surface
+          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE/9 ! number of unsorted points on this surface
           IADTABIGE = IADTABIGE + NBTABIGE
         ENDIF
         
@@ -271,12 +258,10 @@ c
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SEARCHIGEO3D3                 source/elements/ige3d/searchigeo3d.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    searchigeo3d3   ../starter/source/elements/ige3d/searchigeo3d.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SEARCHIGEO3D3(IGRSURF,N, PERM, 
 c      SUBROUTINE SEARCHIGEO3D(IGRSURF,N, NSEGIGE ,PERM, 
      .                        NIGETMP, NIGE, RIGETMP, RIGE,
@@ -295,7 +280,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -310,18 +294,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NVALEURS, PERMUTE(N-1),NDOUBLONS,NBTABIGE,IADTABIGE,
-     .        IADTABIGEINI
-      INTEGER I,J,ITSURF,DECALSURF,DECAL
-C     REAL
-      my_real
-     .     TOL
+      INTEGER :: NVALEURS, PERMUTE(N-1),NDOUBLONS,NBTABIGE, IADTABIGEINI
+      INTEGER :: I,J,ITSURF,DECALSURF,DECAL
+      my_real :: TOL
 C-----------------------------------------------
       TOL=EM06
-c      IADTABIGEINI=N-1
-
       IADTABIGEINI=N
-c
       ITSURF=1
       NDOUBLONSTOT=0
       I=1
@@ -334,33 +312,33 @@ c
         DECAL = DECAL+NBTABIGE
         I=1
 
-c on attaque ici les groupes de surface mais on a aussi les tableaux NIGE RIGE ET XIGE qui sont globaux
+c here we start the surface groups but we also have the NIGE, RIGE and XIGE arrays which are global
 
-        IF(IGRSURF(ITSURF)%NSEG_IGE.GT.0) THEN !! on est sur une surface o   on a des elements isogeometriques
-          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE/9! nombre de points non tries de cette surface
+        IF(IGRSURF(ITSURF)%NSEG_IGE>0) THEN !we are on a surface where there are isogeometric elements
+          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE/9! number of unsorted points on this surface
 
-c          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE ! nombre de points non tries de cette surface
-c          IADTABIGE=ISURF(13,ITSURF) ! adresse des points non tries de cette surface dans NIGE
-c          ISURF(13,ITSURF)=I ! nouvelle adresse des points tries de cette surface dans NIGE
+c          NBTABIGE=16*IGRSURF(ITSURF)%NSEG_IGE ! number of unsorted points on this surface
+c          IADTABIGE=ISURF(13,ITSURF) ! address of the unsorted points of this surface in NIGE
+c          ISURF(13,ITSURF)=I ! new address of the sorted points of this surface in NIGE
           NDOUBLONS=0
 
-          DO WHILE(I+NDOUBLONS.LE.NBTABIGE) !   a devrait etre tout les points, pas qu'une seule surface
-c          DO WHILE(I+NDOUBLONSTOT+NDOUBLONS.LE.IADTABIGE+NBTABIGE-1)
+          DO WHILE(I+NDOUBLONS<=NBTABIGE) !   A should be all the points, not just one surface
+c          DO WHILE(I+NDOUBLONSTOT+NDOUBLONS<=IADTABIGE+NBTABIGE-1)
             NVALEURS = 0
-            NIGE(I+DECALSURF)   = NIGETMP(PERM(I+NDOUBLONS+DECAL)) ! + decalage dans le perm
+            NIGE(I+DECALSURF)   = NIGETMP(PERM(I+NDOUBLONS+DECAL)) ! + offset in the perm
             RIGE(:,I+DECALSURF) = RIGETMP(:,PERM(I+NDOUBLONS+DECAL))
             XIGE(:,I+DECALSURF) = XIGETMP(:,I+DECALSURF+NDOUBLONS)
             VIGE(:,I+DECALSURF) = VIGETMP(:,PERM(I+NDOUBLONS+DECAL))
             PERMUTE(PERM(I+NDOUBLONS+DECAL)) = I+DECALSURF
 c            PERMUTE(PERM(I+NDOUBLONSTOT+NDOUBLONS)+DECALSURF) = I-ISURF(13,ITSURF)+1
-            DO WHILE (((I+NDOUBLONS+NVALEURS+1).LE.NBTABIGE)
-c            DO WHILE (((I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1).LE.IADTABIGE+NBTABIGE-1)
+            DO WHILE (((I+NDOUBLONS+NVALEURS+1)<=NBTABIGE)
+c            DO WHILE (((I+NDOUBLONSTOT+NDOUBLONS+NVALEURS+1)<=IADTABIGE+NBTABIGE-1)
      .         .AND. (ABS(XIGETMP(1,I+DECALSURF+NDOUBLONS)-
-     .                    XIGETMP(1,I+DECALSURF+NDOUBLONS+NVALEURS+1)) .LE. TOL)
+     .                    XIGETMP(1,I+DECALSURF+NDOUBLONS+NVALEURS+1)) <= TOL)
      .         .AND. (ABS(XIGETMP(2,I+DECALSURF+NDOUBLONS)-
-     .                    XIGETMP(2,I+DECALSURF+NDOUBLONS+NVALEURS+1)) .LE. TOL)
+     .                    XIGETMP(2,I+DECALSURF+NDOUBLONS+NVALEURS+1)) <= TOL)
      .         .AND. (ABS(XIGETMP(3,I+DECALSURF+NDOUBLONS)-
-     .                    XIGETMP(3,I+DECALSURF+NDOUBLONS+NVALEURS+1)) .LE. TOL))
+     .                    XIGETMP(3,I+DECALSURF+NDOUBLONS+NVALEURS+1)) <= TOL))
               NVALEURS = NVALEURS + 1
               PERMUTE(PERM(I+NDOUBLONS+NVALEURS+DECAL)) = I+DECALSURF
 c              PERMUTE(PERM(I+NDOUBLONSTOT+NDOUBLONS+NVALEURS)+DECALSURF) = I-ISURF(13,ITSURF)+1
@@ -374,7 +352,7 @@ c              PERMUTE(PERM(I+NDOUBLONSTOT+NDOUBLONS+NVALEURS)+DECALSURF) = I-IS
       ENDDO
 c
       DO ITSURF=1,NSURF
-        IF(IGRSURF(ITSURF)%NSEG_IGE.GT.0) THEN !! on est sur une surface o   on a des elements isogeometriques
+        IF(IGRSURF(ITSURF)%NSEG_IGE>0) THEN !we are on a surface where there are isogeometric elements
           DO I=1,IGRSURF(ITSURF)%NSEG_IGE!NSEGIGE
            DO J=1,4
             IGRSURF(ITSURF)%NODES_IGE(I,J)=PERMUTE(IGRSURF(ITSURF)%NODES_IGE(I,J)-NUMNOD)+NUMNOD
@@ -392,12 +370,10 @@ c
       END
 c
 
-Chd|====================================================================
-Chd|  SEARCHIGEO3D2                 source/elements/ige3d/searchigeo3d.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    searchigeo3d2   ../starter/source/elements/ige3d/searchigeo3d.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SEARCHIGEO3D2(IGRSURF,IADTABIGE, PERM, 
      .                        NIGETMP, NIGE, RIGETMP, RIGE,
      .                        XIGETMP, XIGE, VIGETMP, VIGE,
@@ -414,7 +390,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -440,23 +415,23 @@ c
       I=1
       NDOUBLONS=0
 
-      DO WHILE(I+NDOUBLONS.LE.IADTABIGE)
+      DO WHILE(I+NDOUBLONS<=IADTABIGE)
         NVALEURS = 0
-        NIGE(I)   = NIGETMP(PERM(I+NDOUBLONS)) ! + decalage dans le perm
+        NIGE(I)   = NIGETMP(PERM(I+NDOUBLONS)) ! + offset in the perm
         RIGE(:,I) = RIGETMP(:,PERM(I+NDOUBLONS))
         XIGE(:,I) = XIGETMP(:,I+NDOUBLONS)
         VIGE(:,I) = VIGETMP(:,PERM(I+NDOUBLONS))
         PERMUTE(PERM(I+NDOUBLONS)) = I!+1
-        DO WHILE (((I+NDOUBLONS+NVALEURS+1).LE.IADTABIGE))
-          IF(ABS(XIGETMP(3,I+NDOUBLONS)-XIGETMP(3,I+NDOUBLONS+NVALEURS+1)) .GT. TOL) EXIT
-          IF(ABS(XIGETMP(2,I+NDOUBLONS)-XIGETMP(2,I+NDOUBLONS+NVALEURS+1)) .GT. TOL) EXIT
-          IF(ABS(XIGETMP(1,I+NDOUBLONS)-XIGETMP(1,I+NDOUBLONS+NVALEURS+1)) .GT. TOL) EXIT
+        DO WHILE (((I+NDOUBLONS+NVALEURS+1)<=IADTABIGE))
+          IF(ABS(XIGETMP(3,I+NDOUBLONS)-XIGETMP(3,I+NDOUBLONS+NVALEURS+1)) > TOL) EXIT
+          IF(ABS(XIGETMP(2,I+NDOUBLONS)-XIGETMP(2,I+NDOUBLONS+NVALEURS+1)) > TOL) EXIT
+          IF(ABS(XIGETMP(1,I+NDOUBLONS)-XIGETMP(1,I+NDOUBLONS+NVALEURS+1)) > TOL) EXIT
 c     .     .AND. (ABS(XIGETMP(1,I+NDOUBLONS)-
-c     .                XIGETMP(1,I+NDOUBLONS+NVALEURS+1)) .LE. TOL)
+c     .                XIGETMP(1,I+NDOUBLONS+NVALEURS+1)) <= TOL)
 c     .     .AND. (ABS(XIGETMP(2,I+NDOUBLONS)-
-c     .                XIGETMP(2,I+NDOUBLONS+NVALEURS+1)) .LE. TOL)
+c     .                XIGETMP(2,I+NDOUBLONS+NVALEURS+1)) <= TOL)
 c     .     .AND. (ABS(XIGETMP(3,I+NDOUBLONS)-
-c     .                XIGETMP(3,I+NDOUBLONS+NVALEURS+1)) .LE. TOL))
+c     .                XIGETMP(3,I+NDOUBLONS+NVALEURS+1)) <= TOL))
            NVALEURS = NVALEURS + 1
            PERMUTE(PERM(I+NDOUBLONS+NVALEURS)) = I!+1
         ENDDO
@@ -465,7 +440,7 @@ c     .                XIGETMP(3,I+NDOUBLONS+NVALEURS+1)) .LE. TOL))
       ENDDO
 
       DO ITSURF=1,NSURF
-        IF(IGRSURF(ITSURF)%NSEG_IGE.GT.0) THEN !! on est sur une surface o   on a des elements isogeometriques
+        IF(IGRSURF(ITSURF)%NSEG_IGE>0) THEN !we are on a surface where there are isogeometric elements
           DO I=1,IGRSURF(ITSURF)%NSEG_IGE
            DO J=1,4
             IGRSURF(ITSURF)%NODES_IGE(I,J)=PERMUTE(IGRSURF(ITSURF)%NODES_IGE(I,J)-NUMNOD)+NUMNOD
@@ -480,25 +455,22 @@ c
       RETURN
       END
 c
-Chd|====================================================================
-Chd|  MYQSORT3D                     source/elements/ige3d/searchigeo3d.F
-Chd|-- called by -----------
-Chd|        PRESEARCHIGEO3D               source/elements/ige3d/searchigeo3d.F
-Chd|        REORDER_IG3D                  source/elements/ige3d/reorder_ig3d.F
-Chd|-- calls ---------------
-Chd|        MYQSORT                       ../common_source/tools/sort/myqsort.F
-Chd|====================================================================
+!||====================================================================
+!||    myqsort3d         ../starter/source/elements/ige3d/searchigeo3d.F
+!||--- called by ------------------------------------------------------
+!||    presearchigeo3d   ../starter/source/elements/ige3d/searchigeo3d.F
+!||    reorder_ig3d      ../starter/source/elements/ige3d/reorder_ig3d.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE MYQSORT3D(n, X, perm)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER n,perm (n)
-C     REAL
       my_real 
      .  X (3,n)
 C-----------------------------------------------

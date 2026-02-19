@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS35                      source/materials/mat/mat035/sigeps35.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps35   ../starter/source/materials/mat/mat035/sigeps35.F
+!||--- called by ------------------------------------------------------
+!||    mulaw      ../starter/source/materials/mat_share/mulaw.F
+!||--- calls      -----------------------------------------------------
+!||    finter     ../starter/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE SIGEPS35(
      1      NEL    , NUPARAM, NUVAR   , NFUNC , IFUNC , NPF   ,
      2      TF     , TIME   , TIMESTEP, UPARAM, RHO0  , RHO   ,
@@ -50,7 +50,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
@@ -90,7 +89,7 @@ C----------------------------------------------------------------
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
-      INTEGER I,J,KF,IFLAG,ICORRECT
+      INTEGER I, KF, IFLAG
 
       my_real
      . E,POISSON,A,B,ET,POISSONT,FAC
@@ -187,7 +186,7 @@ C
 
       DO 200 I=1,NEL
         GAMA(I) = (RHO0(I)/RHO(I)-ONE+GAMA0)
-        IF(ONE+GAMA(I)-PHI.LE.SMALL) GAMA(I)=-(ONE-PHI-SMALL)
+        IF(ONE+GAMA(I)-PHI<=SMALL) GAMA(I)=-(ONE-PHI-SMALL)
         SM(I)=THIRD*(SIGOXX(I)+SIGOYY(I)+SIGOZZ(I))+UVAR(I,1)
         EM(I)=THIRD*(EPSXX(I)+EPSYY(I)+EPSZZ(I))
         DEDM(I)=THIRD*(DEPSXX(I)+DEPSYY(I)+DEPSZZ(I))
@@ -274,9 +273,9 @@ C       delta_sigma  = ...
 
 C COMPUTE PRESSURE
       DO I=1,NEL
-        IF(KF.NE.0) THEN
+        IF(KF/=0) THEN
           AMU(I)=RHO(I)/RHO0(I)-ONE
-          IF(IFLAG.EQ.0) THEN
+          IF(IFLAG==0) THEN
             P(I)=-FAC*FINTER(KF,AMU(I),NPF,TF,DPDMU)
           ELSE
             PDELT(I)=( C1*(BULK3(I)*DEDM(I))*(VLAMDA3+VMU2)+
@@ -293,7 +292,7 @@ C COMPUTE PRESSURE
      &           / ((VLAMDA3+VMU2)+C2*(BULK3(I)+BULKT3)*HALF)
           P(I)=SM(I)+PDELT(I)
         ENDIF
-        IF(P(I).LE.PMIN) P(I)=PMIN
+        IF(P(I)<=PMIN) P(I)=PMIN
       ENDDO
 
 C COMPUTE SOUND SPEED 

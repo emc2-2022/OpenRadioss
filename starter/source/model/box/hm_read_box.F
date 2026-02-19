@@ -1,52 +1,54 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_BOX                   source/model/box/hm_read_box.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        READ_BOX_BOX                  source/model/box/read_box_box.F
-Chd|        READ_BOX_CYL                  source/model/box/read_box_cyl.F
-Chd|        READ_BOX_RECT                 source/model/box/read_box_rect.F
-Chd|        READ_BOX_SPHER                source/model/box/read_box_spher.F
-Chd|        UDOUBLE_IGR                   source/system/sysfus.F        
-Chd|        NBOXLST                       source/model/box/nboxlist.F   
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_box            ../starter/source/model/box/hm_read_box.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    hm_option_count        ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    nboxlst                ../starter/source/model/box/nboxlist.F
+!||    read_box_box           ../starter/source/model/box/read_box_box.F
+!||    read_box_cyl           ../starter/source/model/box/read_box_cyl.F
+!||    read_box_rect          ../starter/source/model/box/read_box_rect.F
+!||    read_box_spher         ../starter/source/model/box/read_box_spher.F
+!||    udouble_igr            ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_BOX(IBOX    ,UNITAB  ,ITABM1   ,ISKN    ,SKEW    ,
      .                       X       ,RTRANS  ,LSUBMODEL)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
       USE OPTIONDEF_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -55,12 +57,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -81,7 +78,7 @@ C-----------------------------------------------
       INTEGER :: IWORK(70000)
       INTEGER INDEX(NBBOX*3),IX1(NBBOX),IX2(NBBOX)
       INTEGER, DIMENSION(:)   ,ALLOCATABLE :: BUFTMP,IBOXTMP
-      CHARACTER(ncharkey)    :: KEY,KEY2
+      CHARACTER(LEN=NCHARKEY)    :: KEY,KEY2
       CHARACTER(nchartitle)  :: TITR,MESS
       LOGICAL :: IS_AVAILABLE
 c
@@ -125,7 +122,7 @@ c
 c-----------------------------------------------
       IAD = 0
       LEN = 5*NBBOX
-      MY_ALLOCATE(BUFTMP  ,LEN)
+      CALL MY_ALLOC(BUFTMP  ,LEN)
 c--------------------------------------------------
 c
       CALL READ_BOX_SPHER(
@@ -143,9 +140,9 @@ c
       CALL READ_BOX_BOX(IBOX     ,IAD      ,NBOX_BOX  ,LSUBMODEL)
 c
 c--------------------------------------------------
-c     Recherche des ID doubles
+c     Search for double IDs
 c
-      MY_ALLOCATE (IBOXTMP  ,NBOX )
+      CALL MY_ALLOC (IBOXTMP  ,NBOX )
       IBOXTMP(1:NBOX) = IBOX(1:NBOX)%ID
       CALL UDOUBLE_IGR(IBOXTMP,NBOX,MESS,0,ZERO)
 c

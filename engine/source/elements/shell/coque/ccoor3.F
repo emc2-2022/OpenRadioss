@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CCOOR3                        source/elements/shell/coque/ccoor3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ccoor3        ../engine/source/elements/shell/coque/ccoor3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3        ../engine/source/elements/shell/coque/cforc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CCOOR3(JFT ,JLT ,X   ,IXC ,GEO ,OFFG  ,
      2                  OFF ,SIGY,PID,V,VR,VL1,VL2,VL3,VL4,
      3                  VRL1,VRL2,VRL3,VRL4,MAT,DT1C,THKE,THK0,NGL,
      4                  X1  ,X2  ,X3  ,X4  ,Y1  ,Y2    ,
      5                  Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4    )
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -44,11 +46,10 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com08_c.inc"
-#include      "parit_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JFT, JLT, J
+      INTEGER JFT, JLT
       INTEGER NGL(MVSIZ), IXC(NIXC,*),MAT(MVSIZ), PID(MVSIZ)
 C     REAL
       my_real
@@ -118,16 +119,15 @@ C----------------------------
       END DO
 C
       OFF_L = ZERO
-#include      "simd.inc"
       DO I=JFT,JLT
         DT1C(I) = DT1
         OFF(I) = MIN(ONE,ABS(OFFG(I)))
         OFF_L  = MIN(OFF_L,OFFG(I))
         SIGY(I) = EP30
       ENDDO
-      IF(OFF_L.LT.0.)THEN
+      IF(OFF_L<0.)THEN
         DO I=JFT,JLT
-         IF(OFFG(I).LT.0.)THEN
+         IF(OFFG(I)<0.)THEN
            VL1(I,1)=ZERO
            VL1(I,2)=ZERO
            VL1(I,3)=ZERO
@@ -158,18 +158,20 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CCOORT3                       source/elements/shell/coque/ccoor3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ccoort3       ../engine/source/elements/shell/coque/ccoor3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3        ../engine/source/elements/shell/coque/cforc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CCOORT3(JFT     ,JLT   ,X     ,IXC    ,OFFG   ,
      1                    DR     ,PX1   ,PX2   ,PY1    ,PY2    ,
      2                    E1X    ,E1Y   ,E1Z   ,E2X    ,E2Y    ,
      3                    E2Z    ,E3X   ,E3Y   ,E3Z    ,AREA   , 
      4                    V13X   ,V24X  ,V13Y  ,V24Y   ,SMSTR  ,
      5                    NEL    )
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -178,11 +180,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com08_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -197,8 +194,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, II(9),NN(4)
-C     REAL
+      INTEGER I, II(9),NN(4)
       my_real 
      .   X0G2(MVSIZ),X0G3(MVSIZ),X0G4(MVSIZ),Y0G2(MVSIZ),
      .   Y0G3(MVSIZ),Y0G4(MVSIZ),Z0G2(MVSIZ),Z0G3(MVSIZ),Z0G4(MVSIZ),
@@ -206,7 +202,6 @@ C     REAL
      .   XL2(MVSIZ),XL3(MVSIZ),XL4(MVSIZ),YL2(MVSIZ),YL3(MVSIZ),
      .   YL4(MVSIZ),UXYZ(MVSIZ,3,4),A_I(MVSIZ)
 C-----------------------------------------------
-C=======================================================================
       DO I=1,9
         II(I) = NEL*(I-1)
       ENDDO
@@ -260,7 +255,7 @@ C
             SMSTR(II(9)+I)= Z0G4(I)
           ENDIF
         ENDDO
-C		
+C
       DO I=JFT,JLT
         XL2(I)=E1X(I)*X0G2(I)+E1Y(I)*Y0G2(I)+E1Z(I)*Z0G2(I)
         XL3(I)=E1X(I)*X0G3(I)+E1Y(I)*Y0G3(I)+E1Z(I)*Z0G3(I)
@@ -290,7 +285,7 @@ C
         V24X(I)=E1X(I)*VG24(1)+E1Y(I)*VG24(2)+E1Z(I)*VG24(3)
         V13Y(I)=E2X(I)*VG13(1)+E2Y(I)*VG13(2)+E2Z(I)*VG13(3)
         V24Y(I)=E2X(I)*VG24(1)+E2Y(I)*VG24(2)+E2Z(I)*VG24(3)
-C	
+C
        PX1(I)=A_I(I)*PX1(I) 
        PY1(I)=A_I(I)*PY1(I)
        PX2(I)=A_I(I)*PX2(I)

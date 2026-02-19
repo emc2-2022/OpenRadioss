@@ -1,46 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  KINCHK                        source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    kinchk                 ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE KINCHK(IKINE,RWL,ITAB,NPRW,LPRW,KINET,
      1                  NPBY, LPBY,IRBE2,LRBE2,IRBE3,LRBE3,
      2                  NOM_OPT,PTR_NOPT_RWALL,PTR_NOPT_RBE2,
      3                  PTR_NOPT_RBE3,ITAGCYC)
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE FORMAT_MOD, ONLY : FMW_A_I_A, FMW_10I
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -51,7 +52,6 @@ C-----------------------------------------------
 #include      "scr17_c.inc"
 #include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -67,18 +67,19 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, K, L, N, KK, IKK, IKK2, NK, JWARN, ITYP, NE, NSL,
-     .        IK(10), RBWARN, RB2WARN, KRB, NSLRB, NKIN(NUMNOD),
-     .        NKINDOUBLE(NUMNOD),MARQUEUR(8192),
+     .        IK(10), RBWARN, RB2WARN, KRB, NSLRB,
+     .        MARQUEUR(8192),
      .        MARQUEURDOUBLE(13),J1,FLAG_IKCOND,MARQ2,MARQM2,
-     .        NS,NM,M,IAD,NUN,JJ,IKRW(NUMNOD),NIKRW
+     .        NS,NM,M,IAD,NUN,JJ,NIKRW,IPEN,NHIER
+      INTEGER, DIMENSION(:), ALLOCATABLE :: NKINDOUBLE,NKIN,IKRW
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------------------------
+      ALLOCATE(NKINDOUBLE(NUMNOD),NKIN(NUMNOD),IKRW(NUMNOD))
       MARQ2  = 0
       MARQM2 = 0
 C=======================================================================
-C  CORRECTIONS AUTOMATIQUES INTERFACE 1,2,9 OU RBODY AVEC RWALL
+C  AUTOMATIC CORRECTIONS INTERFACE 1,2,9 OR RBODY WITH RWALL
 C=======================================================================
       K=0
       KK=0
@@ -89,19 +90,21 @@ C=======================================================================
         JWARN = 0
         NSL=NPRW(N)
         ITYP=NPRW(N+3*NRWALL)
+        IPEN=NPRW(N+8*NRWALL)
+        IF (IPEN>0) CYCLE 
         J=0
         DO L=1,NSL
           I=LPRW(K+L)
           IKK=IABS(IKINE(I))
-          IF(IRB(IKK).NE.0.OR.ITF(IKK).NE.0)THEN
+          IF(IRB(IKK)/=0.OR.ITF(IKK)/=0)THEN
             RBWARN = RBWARN + 1
             JWARN = JWARN+1
-            IF(IRB(IKK).NE.0 .AND. MARQ2 == 0) MARQ2 = 1
-            IF(ITF(IKK).NE.0 .AND. MARQM2 == 0) MARQM2 = 1
+            IF(IRB(IKK)/=0 .AND. MARQ2 == 0) MARQ2 = 1
+            IF(ITF(IKK)/=0 .AND. MARQM2 == 0) MARQM2 = 1
             IF(IWL(IKINE(I))==1)IKINE(I) = IKINE(I) - 4
 
          ELSE
-            IF (IRB2(IKK).NE.0) RB2WARN = RB2WARN + 1
+            IF (IRB2(IKK)/=0) RB2WARN = RB2WARN + 1
             J=J+1
             LPRW(KK+J)=LPRW(K+L)
           ENDIF
@@ -110,7 +113,7 @@ C=======================================================================
         NSL=J
         KK = KK+NSL
         NPRW(N)=NSL
-        IF(ITYP.LT.0)THEN
+        IF(ITYP<0)THEN
           NE=NINT(RWL(8,N))
           DO I=1,NE
             LPRW(KK+I)=LPRW(K+I)
@@ -118,7 +121,7 @@ C=======================================================================
           K  = K+NE
           KK = KK+NE
         ENDIF
-        IF (JWARN.GT.0) THEN
+        IF (JWARN>0) THEN
            ID=NOM_OPT(1,PTR_NOPT_RWALL+N)
            CALL FRETITL2(TITR,
      .                   NOM_OPT(LNOPT1-LTITR+1,PTR_NOPT_RWALL+N),LTITR)
@@ -133,46 +136,69 @@ C=======================================================================
 C
 c      CALL ANCHECK(71)
 C----------------------------------------------------------
-C - no-autorised hierarchy :Check des noeuds mains des RBE3 sont SECONDARY de RBE2,or INT2
+C - unauthorized hierarchy: check that the main nodes of rbe3 are secondary to rbe2 or int2
 C----------------------------------------------------------
+! look at compatibility w/ BCS,RBODY and compute nrbe3_gp, ini penealty
       NUN=0
       DO I=1,NRBE3
         IAD = IRBE3(1,I)
+        IPEN= IRBE3(9,I)
+        IF (IPEN>0) CYCLE 
         NM = IRBE3(5,I)
         DO J =1,NM
         M = LRBE3(IAD+J)
         ID=NOM_OPT(1,PTR_NOPT_RBE3+I)
         CALL FRETITL2(TITR,
      .                NOM_OPT(LNOPT1-LTITR+1,PTR_NOPT_RBE3+I),LTITR)
-          IF (IKRBE2(IKINE(M)).EQ.1) THEN
-           CALL ANCMSG(MSGID=805,
+          IF (IKRBE2(IKINE(M))==1) THEN  
+            IF (IPEN<0) THEN  !error out
+              CALL ANCMSG(MSGID=805,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
      .                 I1=ID,
      .                 C1=TITR,
      .                 I2=ITAB(M))
-           RETURN
+              RETURN
+            ELSE !switch to penalty
+              CALL ANCMSG(MSGID=3100,
+     .                 MSGTYPE=MSGWARNING,
+     .                 ANMODE=ANINFO_BLIND_1,
+     .                 I1=ID,
+     .                 C1=TITR,
+     .                 I2=ITAB(M))
+              IRBE3(9,I) = 1
+            END IF !(IPEN<0)
           ENDIF
-          IF (ITF(IKINE(M)).EQ.1) THEN
-           CALL ANCMSG(MSGID=1035,
+          IF (ITF(IKINE(M))==1) THEN
+            IF (IPEN<0) THEN  !error out
+              CALL ANCMSG(MSGID=1035,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
      .                 I1=ID,
      .                 C1=TITR,
      .                 I2=ITAB(M))
-           RETURN
+              RETURN
+            ELSE !switch to penalty
+              CALL ANCMSG(MSGID=3096,
+     .                 MSGTYPE=MSGWARNING,
+     .                 ANMODE=ANINFO_BLIND_1,
+     .                 I1=ID,
+     .                 C1=TITR,
+     .                 I2=ITAB(M))
+              IRBE3(9,I) = 1
+            END IF !(IPEN<0)
           ENDIF
         ENDDO
       ENDDO
 C----------------------------------------------------------
-C - no-autorised hierarchy :Check des noeuds mains des RBE2 SECONDARY de INT2
+C - unauthorized hierarchy: check that the main nodes of rbe2 are secondary to int2
 C----------------------------------------------------------
       DO I=1,NRBE2
-	     M = IRBE2(3,I)
+               M = IRBE2(3,I)
          ID=NOM_OPT(1,PTR_NOPT_RBE2+I)
            CALL FRETITL2(TITR,
      .                   NOM_OPT(LNOPT1-LTITR+1,PTR_NOPT_RBE2+I),LTITR)
-          IF (ITF(IKINE(M)).EQ.1) THEN
+          IF (ITF(IKINE(M))==1) THEN
            CALL ANCMSG(MSGID=1036,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -183,11 +209,11 @@ C----------------------------------------------------------
           ENDIF
       ENDDO
 C----------------------------------------------------------
-C - no-autorised hierarchy :Check des noeuds mains des RBODY sont SECONDARY de RBE2
+C - unauthorized hierarchy: check that the main nodes of rbody are secondary to rbe2
 C----------------------------------------------------------
       DO I=1,NRBODY
         M=NPBY(1,I)
-         IF (IKRBE2(IKINE(M)).EQ.1) THEN
+         IF (IKRBE2(IKINE(M))==1) THEN
 C           CALL ANCWARN(806,ANINFO_BLIND_1)
 C           NUN=NUN+1
            ID=NOM_OPT(1,I)
@@ -203,30 +229,50 @@ C           NUN=NUN+1
          ENDIF
       ENDDO
 C----------------------------------------------------------
-C - no-autorised hierarchy :Check des noeuds mains des RBODY sont SECONDARY de RBE3
+C - unauthorized hierarchy: check that the main nodes of rbody are secondary to rbe3
 C----------------------------------------------------------
-      DO I=1,NRBODY
+      DO I=1,NRBODY          
         M=NPBY(1,I)
-         IF (IKRBE3(IKINE(M)).EQ.1) THEN
-           ID=NOM_OPT(1,I)
-           CALL FRETITL2(TITR,
-     .                   NOM_OPT(LNOPT1-LTITR+1,I),LTITR)
-           CALL ANCMSG(MSGID=810,
-     .                 MSGTYPE=MSGERROR,
-     .                 ANMODE=ANINFO_BLIND_1,
-     .                 I1=ID,
-     .                 C1=TITR,
-     .                 I2=ITAB(M))
-           RETURN
-         ENDIF
+          IF (IKRBE3(IKINE(M))==1) THEN   ! add here the case of switching to penalty of RBE3
+            DO N=1,NRBE3
+              NSL= IRBE3(3,N)
+              IPEN= IRBE3(9,N)
+              IF (IPEN>0) CYCLE 
+              IF (NSL==M) THEN
+                IF (IPEN<0) THEN 
+                  ID=NOM_OPT(1,I)
+                  CALL FRETITL2(TITR,
+     .                          NOM_OPT(LNOPT1-LTITR+1,I),LTITR)
+                  CALL ANCMSG(MSGID=810,
+     .                        MSGTYPE=MSGERROR,
+     .                        ANMODE=ANINFO_BLIND_1,
+     .                        I1=ID,
+     .                        C1=TITR,
+     .                        I2=ITAB(M))
+                  RETURN
+                ELSE ! switch to penalty of RBE3
+                  ID = IRBE3(2,N)
+                  CALL FRETITL2(TITR,
+     .                NOM_OPT(LNOPT1-LTITR+1,PTR_NOPT_RBE3+N),LTITR)
+                  CALL ANCMSG(MSGID=3104,
+     .                     MSGTYPE=MSGWARNING,
+     .                     ANMODE=ANINFO_BLIND_1,
+     .                     I1=ID,
+     .                     C1=TITR,
+     .                     I2=ITAB(M))
+                  IRBE3(9,N) = 1
+                END IF ! (IPEN<0) THEN 
+              END IF
+            END DO
+          END IF 
       ENDDO
 C----------------------------------------------------------
-C - Check des noeuds mains des RBE2 sont mains de RBODY
+C - Check that the main nodes of rbe2 are mains of rbody
 C----------------------------------------------------------
       DO I=1,NRBE2
-	     M = IRBE2(3,I)
-	     DO J =1,NRBODY
-          IF(NPBY(1,J).EQ.M)THEN
+               M = IRBE2(3,I)
+               DO J =1,NRBODY
+          IF(NPBY(1,J)==M)THEN
            ID=NOM_OPT(1,PTR_NOPT_RBE2+I)
            CALL FRETITL2(TITR,
      .                   NOM_OPT(LNOPT1-LTITR+1,PTR_NOPT_RBE2+I),LTITR)
@@ -241,8 +287,13 @@ C----------------------------------------------------------
          ENDDO
       ENDDO
 C----------------------------------------------------------
-C - Check des noeuds mains des Rbody SECONDARY d'autres Rbodies
+C - Check main nodes of Rbody SECONDARY to other Rbodies
 C----------------------------------------------------------
+      NHIER = 0
+      DO N=1,NRBYKIN
+        NHIER = MAX(NHIER,NPBY(20,N))
+      END DO
+      IF (NHIER==0) THEN
        KRB = 0
        DO N=1,NRBYKIN
          NSLRB = NPBY(2,N)
@@ -256,7 +307,7 @@ C----------------------------------------------------------
          ID=NOM_OPT(1,N)
          CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,N),LTITR)
           DO I=1,KRB
-          IF(NPBY(1,N).EQ.LPBY(I))THEN
+          IF(NPBY(1,N)==LPBY(I))THEN
             CALL ANCMSG(MSGID=555,
      .                  MSGTYPE=MSGWARNING,
      .                  ANMODE=ANINFO_BLIND_2,
@@ -266,6 +317,7 @@ C----------------------------------------------------------
           ENDIF
         ENDDO
        ENDDO
+      END IF !(NHIER==0) THEN
 C----------------------------------------------------------
 C - Check incompatibility /BCS/CYCLIC
 C----------------------------------------------------------
@@ -305,7 +357,7 @@ C-------  RBE2
           ENDDO
         END IF 
 C-------  RBE3      
-        IF (IKRBE3(IKINE(I))/=0 ) THEN
+        IF (IKRBE3(IKINE(I))/=0 ) THEN ! will be looked after
           DO N=1,NRBE3
             NSL= IRBE3(3,N)
             ID = IRBE3(2,N)
@@ -322,37 +374,43 @@ C-------  RLINK
         END IF 
        ENDDO
       END IF !(NBCSCYC>0) THEN
+! remove ik of penalty RBE3
+      DO I=1,NRBE3
+        NSL= IRBE3(3,I)
+        IPEN = IRBE3(9,I)  
+        IF (IPEN>0) IKRBE3(IKINE(NSL)) = 0
+      END DO
 C=======================================================================
-      IF(IPRI.GE.6)THEN
+      IF(IPRI>=6)THEN
         WRITE(IOUT,*)' NODES WITH KINEMATIC CONDITIONS:'
         WRITE(IOUT,*)' --------------------------------'
         K = 0
         DO I=1,NUMNOD
-          IF(IKINE(I).NE.0)THEN
+          IF(IKINE(I)/=0)THEN
             K = K + 1
             IK(K) = ITAB(I)
-            IF(K.EQ.10)THEN
+            IF(K==10)THEN
               WRITE(IOUT,FMT=FMW_10I)(IK(J),J=1,K)
               K = 0
             ENDIF
           ENDIF
         ENDDO
-        IF(K.NE.10) WRITE(IOUT,FMT=FMW_10I)(IK(J),J=1,K)
+        IF(K/=10) WRITE(IOUT,FMT=FMW_10I)(IK(J),J=1,K)
       ENDIF
 C
 C---------------------------------------------------------------
-C LISTE CONDITIONS INCOMPATIBLES PAR TYPE
-C LISTE DES NOEUDS CONCERNES
+C LIST OF INCOMPATIBLE CONDITIONS BY TYPE
+C LIST OF AFFECTED NODES
 C
-C NKIN(I) >= 2     => POSSIBLE CONDITIONS INCOMPATIBLES SUR LE NOEUD I
-C FLAG_IKCOND = 1  => CONDITIONS INCOMPATIBLES DANS LE MODELE
-C MARQUEURDOUBLE(I) = 1 => CONDITIONS INCOMPATIBLES ENTRE CONDITIONS
-C                         DE MEME TYPE SUR LE NOEUD I
-C MARQUEUR(I) != 0 => CONDITIONS INCOMPATIBLES ENTRE CONDITIONS
-C                         DE TYPES DIFFERENTS SUR LE NOEUD I
-C MARQUEUR(I) = 2 => CAS RBODY + RWALL
-C MARQUEUR(I) =-2 => CAS INTERFACES TYPE 1,2,9  + RWALL
-C MARQUEUR(I) = 3 => CAS INTERFACES TYPE 1,2,9 + RBODY + RWALL
+C NKIN(I) >= 2     => POSSIBLE INCOMPATIBLE CONDITIONS ON NODE I
+C FLAG_IKCOND = 1  => INCOMPATIBLE CONDITIONS IN THE MODEL
+C MARQUEURDOUBLE(I) = 1 => INCOMPATIBLE CONDITIONS BETWEEN CONDITIONS
+C                         OF THE SAME TYPE ON NODE I
+C MARQUEUR(I) != 0 => INCOMPATIBLE CONDITIONS BETWEEN CONDITIONS
+C                         OF DIFFERENT TYPES ON NODE I
+C MARQUEUR(I) = 2 => CASE RBODY + RWALL
+C MARQUEUR(I) =-2 => CASE INTERFACES TYPE 1,2,9  + RWALL
+C MARQUEUR(I) = 3 => CASE INTERFACES TYPE 1,2,9 + RBODY + RWALL
 C---------------------------------------------------------------
       DO I=1,NUMNOD
         NKIN(I) = 0
@@ -381,69 +439,69 @@ C---------------------------------------------------------------
         MARQUEURDOUBLE(I) = 0
       ENDDO
       DO I=1,NUMNOD
-        IF(NKIN(I).GE.2)THEN
-          IF (IBC(IKINE(I)).EQ. 1
-     .        .AND. IBC(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+        IF(NKIN(I)>=2)THEN
+          IF (IBC(IKINE(I))== 1
+     .        .AND. IBC(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(1) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (ITF(IKINE(I)).EQ. 1
-     .        .AND. ITF(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (ITF(IKINE(I))== 1
+     .        .AND. ITF(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(2) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IWL(IKINE(I)).EQ. 1
-     .        .AND. IWL(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IWL(IKINE(I))== 1
+     .        .AND. IWL(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(3) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IRB(IKINE(I)).EQ. 1
-     .        .AND. IRB(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IRB(IKINE(I))== 1
+     .        .AND. IRB(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(4) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IRB2(IKINE(I)).EQ. 1
-     .        .AND. IRB2(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IRB2(IKINE(I))== 1
+     .        .AND. IRB2(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(5) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IVF(IKINE(I)).EQ. 1
-     .        .AND. IVF(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IVF(IKINE(I))== 1
+     .        .AND. IVF(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(6) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IRV(IKINE(I)).EQ. 1
-     .        .AND. IRV(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IRV(IKINE(I))== 1
+     .        .AND. IRV(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(7) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IJO(IKINE(I)).EQ. 1
-     .        .AND. IJO(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IJO(IKINE(I))== 1
+     .        .AND. IJO(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(8) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IRBM(IKINE(I)).EQ. 1
-     .        .AND. IRBM(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IRBM(IKINE(I))== 1
+     .        .AND. IRBM(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(9) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (ILMULT(IKINE(I)).EQ. 1
-     .        .AND. ILMULT(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (ILMULT(IKINE(I))== 1
+     .        .AND. ILMULT(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(10) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IRLK(IKINE(I)).EQ. 1
-     .        .AND. IRLK(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IRLK(IKINE(I))== 1
+     .        .AND. IRLK(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(11) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IKRBE2(IKINE(I)).EQ. 1
-     .        .AND. IKRBE2(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IKRBE2(IKINE(I))== 1
+     .        .AND. IKRBE2(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(12) = 1
             FLAG_IKCOND = 1
           ENDIF
-          IF (IKRBE3(IKINE(I)).EQ. 1
-     .        .AND. IKRBE3(IKINE(I+3*NUMNOD)).EQ. 1) THEN
+          IF (IKRBE3(IKINE(I))== 1
+     .        .AND. IKRBE3(IKINE(I+3*NUMNOD))== 1) THEN
             MARQUEURDOUBLE(13) = 1
             FLAG_IKCOND = 1
           ENDIF
@@ -452,30 +510,30 @@ C---------------------------------------------------------------
 C---------------------------------------------------------------
       NIKRW = 0
       DO I = 1,NUMNOD
-        IF ( IKINE(I) .NE. 0 .AND. IKINE(I).NE.1 .AND. IKINE(I).NE.2
-     .     .AND. IKINE(I).NE.4 .AND. IKINE(I).NE.8 .AND. IKINE(I).NE.16
-     .     .AND. IKINE(I).NE.32 .AND. IKINE(I).NE.64
-     .     .AND. IKINE(I).NE.128 .AND. IKINE(I).NE.256
-     .     .AND. IKINE(I).NE.512 .AND. IKINE(I).NE.1024
-     .     .AND. IKINE(I).NE.2048 .AND. IKINE(I).NE.4096
-     .     .AND. IKINE(I+4*NUMNOD) .NE. 0          ) THEN
-          IF(IWL(IKINE(I)).EQ. 1 .AND. IRB(IKINE(I)).EQ. 1
-     .     .AND. ITF(IKINE(I)).EQ. 1 )THEN
-            IF (IKINE(I).GT.14) THEN
+        IF ( IKINE(I) /= 0 .AND. IKINE(I)/=1 .AND. IKINE(I)/=2
+     .     .AND. IKINE(I)/=4 .AND. IKINE(I)/=8 .AND. IKINE(I)/=16
+     .     .AND. IKINE(I)/=32 .AND. IKINE(I)/=64
+     .     .AND. IKINE(I)/=128 .AND. IKINE(I)/=256
+     .     .AND. IKINE(I)/=512 .AND. IKINE(I)/=1024
+     .     .AND. IKINE(I)/=2048 .AND. IKINE(I)/=4096
+     .     .AND. IKINE(I+4*NUMNOD) /= 0          ) THEN
+          IF(IWL(IKINE(I))== 1 .AND. IRB(IKINE(I))== 1
+     .     .AND. ITF(IKINE(I))== 1 )THEN
+            IF (IKINE(I)>14) THEN
               MARQUEUR(IKINE(I)) = 3
               FLAG_IKCOND = 1
             ELSE
               MARQUEUR(IKINE(I)) = 0
             ENDIF
-          ELSEIF(IWL(IKINE(I)).EQ. 1 .AND. IRB(IKINE(I)).EQ. 1)THEN
-            IF (IKINE(I).GT.12) THEN
+          ELSEIF(IWL(IKINE(I))== 1 .AND. IRB(IKINE(I))== 1)THEN
+            IF (IKINE(I)>12) THEN
               MARQUEUR(IKINE(I)) = 2
               FLAG_IKCOND = 1
             ELSE
               MARQUEUR(IKINE(I)) = 0
             ENDIF
-          ELSEIF(IWL(IKINE(I)).EQ. 1 .AND. ITF(IKINE(I)).EQ. 1)THEN
-            IF (IKINE(I).GT.6) THEN
+          ELSEIF(IWL(IKINE(I))== 1 .AND. ITF(IKINE(I))== 1)THEN
+            IF (IKINE(I)>6) THEN
               MARQUEUR(IKINE(I)) = -2
               FLAG_IKCOND = 1
             ELSE
@@ -490,7 +548,7 @@ C---------------------------------------------------------------
         ENDIF
       ENDDO
 C---------------------------------------------------------------
-      IF (IPRI.GE.6 .AND. FLAG_IKCOND.EQ.1) THEN
+      IF (IPRI>=6 .AND. FLAG_IKCOND==1) THEN
       WRITE(IOUT,*)'                                 '
       WRITE(IOUT,*)
      .       'LIST OF POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS :'
@@ -507,17 +565,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IBC(IKINE(J)).EQ. 1
-     .          .AND. IBC(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IBC(IKINE(J))== 1
+     .          .AND. IBC(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
               WRITE(IOUT,*)'                                           '
@@ -530,17 +588,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (ITF(IKINE(J)).EQ. 1
-     .          .AND. ITF(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (ITF(IKINE(J))== 1
+     .          .AND. ITF(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
             WRITE(IOUT,*)'                                            '
@@ -553,17 +611,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IWL(IKINE(J)).EQ. 1
-     .          .AND. IWL(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IWL(IKINE(J))== 1
+     .          .AND. IWL(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
             WRITE(IOUT,*)'                                            '
@@ -576,17 +634,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IRB(IKINE(J)).EQ. 1
-     .          .AND. IRB(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IRB(IKINE(J))== 1
+     .          .AND. IRB(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
             WRITE(IOUT,*)'                                            '
@@ -600,17 +658,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IVF(IKINE(J)).EQ. 1
-     .          .AND. IVF(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IVF(IKINE(J))== 1
+     .          .AND. IVF(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
             WRITE(IOUT,*)'                                            '
@@ -623,17 +681,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IRV(IKINE(J)).EQ. 1
-     .          .AND. IRV(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IRV(IKINE(J))== 1
+     .          .AND. IRV(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
             WRITE(IOUT,*)'                                            '
@@ -646,17 +704,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IJO(IKINE(J)).EQ. 1
-     .          .AND. IJO(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IJO(IKINE(J))== 1
+     .          .AND. IJO(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
             WRITE(IOUT,*)'                                            '
@@ -669,17 +727,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (ILMULT(IKINE(J)).EQ. 1
-     .          .AND. ILMULT(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (ILMULT(IKINE(J))== 1
+     .          .AND. ILMULT(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
             WRITE(IOUT,*)'                                            '
@@ -692,17 +750,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IBC(IKINE(J)).EQ. 1
-     .          .AND. IBC(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IBC(IKINE(J))== 1
+     .          .AND. IBC(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
             WRITE(IOUT,*)'                                            '
@@ -715,17 +773,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IRLK(IKINE(J)).EQ. 1
-     .          .AND. IRLK(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IRLK(IKINE(J))== 1
+     .          .AND. IRLK(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
               WRITE(IOUT,*)'                                           '
@@ -738,17 +796,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IKRBE2(IKINE(J)).EQ. 1
-     .          .AND. IKRBE2(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IKRBE2(IKINE(J))== 1
+     .          .AND. IKRBE2(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
               WRITE(IOUT,*)'                                           '
@@ -761,17 +819,17 @@ C---------------------------------------------------------------
             WRITE(IOUT,*)'NODES :'
               K = 0
               DO J = 1,NUMNOD
-                IF (IKRBE3(IKINE(J)).EQ. 1
-     .          .AND. IKRBE3(IKINE(J+3*NUMNOD)).EQ. 1) THEN
+                IF (IKRBE3(IKINE(J))== 1
+     .          .AND. IKRBE3(IKINE(J+3*NUMNOD))== 1) THEN
                   K = K + 1
                   IK(K) = ITAB(J)
-                  IF(K.EQ.10)THEN
+                  IF(K==10)THEN
                     WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                     K = 0
                   ENDIF
                 ENDIF
               ENDDO
-              IF(K.NE.0)THEN
+              IF(K/=0)THEN
                 WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
               ENDIF
               WRITE(IOUT,*)'                                           '
@@ -780,79 +838,79 @@ C---------------------------------------------------------------
       ENDDO
 C                                      '
       DO I=1,8192
-        IF ( MARQUEUR(I) .NE. 0 )THEN
+        IF ( MARQUEUR(I) /= 0 )THEN
           WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
           DO J=1,ABS(MARQUEUR(I))
 C cas RBODY & RWALL, INTER 1_2_9 & RWALL, RBODY & INTER 1_2_9 & RWALL
-            IF (J.EQ.1 .AND. ABS(MARQUEUR(I)) == 2 ) IWL(I)=IWL(I)-1
-            IF (J.EQ.1 .AND. ABS(MARQUEUR(I)) == 3 ) THEN
+            IF (J==1 .AND. ABS(MARQUEUR(I)) == 2 ) IWL(I)=IWL(I)-1
+            IF (J==1 .AND. ABS(MARQUEUR(I)) == 3 ) THEN
               IWL(I)=IWL(I)-1
               ITF(I) = ITF(I) - 1
             ENDIF
-            IF (J.EQ.2 .AND. MARQUEUR(I) == 2 ) THEN
+            IF (J==2 .AND. MARQUEUR(I) == 2 ) THEN
               WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
               IWL(I) = IWL(I) + 1
               IRB(I) = IRB(I) - 1
             ENDIF
-            IF (J.EQ.2 .AND. MARQUEUR(I) == -2 ) THEN
+            IF (J==2 .AND. MARQUEUR(I) == -2 ) THEN
               WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
               IWL(I) = IWL(I) + 1
               ITF(I) = ITF(I) - 1
             ENDIF
-            IF (J.EQ.2 .AND. MARQUEUR(I) == 3 ) THEN
+            IF (J==2 .AND. MARQUEUR(I) == 3 ) THEN
               WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
               IWL(I) = IWL(I) + 1
               IRB(I) = IRB(I) - 1
             ENDIF
-            IF (J.EQ.3 .AND. MARQUEUR(I) == 3 ) THEN
+            IF (J==3 .AND. MARQUEUR(I) == 3 ) THEN
               WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
               IWL(I) = IWL(I) - 1
               ITF(I) = ITF(I) +1
             ENDIF
 C
-            IF (IBC(I).EQ. 1) THEN
+            IF (IBC(I)== 1) THEN
               WRITE(IOUT,*)'    BOUNDARY CONDITION'
             ENDIF
-            IF (ITF(I).EQ. 1) THEN
+            IF (ITF(I)== 1) THEN
               WRITE(IOUT,*)'    INTERFACE TYPE 1 2 12 OR 9'
             ENDIF
-            IF (IWL(I).EQ. 1) THEN
+            IF (IWL(I)== 1) THEN
               WRITE(IOUT,*)'    RIGID WALL'
             ENDIF
-            IF (IRB(I).EQ. 1) THEN
+            IF (IRB(I)== 1) THEN
               WRITE(IOUT,*)'    RIGID BODY'
             ENDIF
-            IF (IRB2(I).EQ. 1) THEN
+            IF (IRB2(I)== 1) THEN
               WRITE(IOUT,*)'    RIGID BODY'
             ENDIF
-            IF (IVF(I).EQ. 1) THEN
-              WRITE(IOUT,*)'    IMPOSED ACCELERATION, IMPOSED DEPLACEMEN
-     .T, IMPOSED VELOCITY'
+            IF (IVF(I)== 1) THEN
+              WRITE(IOUT,*)'    IMPOSED ACCELERATION, IMPOSED DISPLACEMENT
+     ., IMPOSED VELOCITY'
             ENDIF
-            IF (IRV(I).EQ. 1) THEN
+            IF (IRV(I)== 1) THEN
               WRITE(IOUT,*)'    RIVET'
             ENDIF
-            IF (IJO(I).EQ. 1) THEN
+            IF (IJO(I)== 1) THEN
               WRITE(IOUT,*)'    CYLINDRICAL JOINT'
             ENDIF
-            IF (IRBM(I).EQ. 1) THEN
+            IF (IRBM(I)== 1) THEN
               WRITE(IOUT,*)'    IMPOSED BODY VELOCITY'
             ENDIF
-            IF (ILMULT(I).EQ. 1) THEN
+            IF (ILMULT(I)== 1) THEN
               WRITE(IOUT,*)'    LAGRANGE MULTIPLIERS'
             ENDIF
-            IF (IRLK(I).EQ. 1) THEN
+            IF (IRLK(I)== 1) THEN
               WRITE(IOUT,*)'    RIGID LINK'
             ENDIF
-            IF (IKRBE2(I).EQ. 1) THEN
+            IF (IKRBE2(I)== 1) THEN
               WRITE(IOUT,*)'    RBE2'
             ENDIF
-            IF (IKRBE3(I).EQ. 1) THEN
+            IF (IKRBE3(I)== 1) THEN
               WRITE(IOUT,*)'    RBE3'
             ENDIF
             WRITE(IOUT,*)
@@ -863,19 +921,19 @@ C
               IF (IKINE(J1) == I) THEN
                  K = K + 1
                  IK(K) = ITAB(J1)
-                 IF(K.EQ.10)THEN
+                 IF(K==10)THEN
                    WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
                    K = 0
                  ENDIF
               ENDIF
             ENDDO
-            IF(K.NE.0)THEN
+            IF(K/=0)THEN
               WRITE(IOUT,FMT=FMW_10I)(IK(L),L=1,K)
             ENDIF
             WRITE(IOUT,*)'                                 '
-            IF (J.EQ.2 .AND.MARQUEUR(I) == 2 )IRB(I) = IRB(I) + 1
-            IF (J.EQ.2 .AND.MARQUEUR(I) == -2 )ITF(I) = ITF(I) + 1
-            IF (J.EQ.3 .AND.MARQUEUR(I) == 3 ) THEN
+            IF (J==2 .AND.MARQUEUR(I) == 2 )IRB(I) = IRB(I) + 1
+            IF (J==2 .AND.MARQUEUR(I) == -2 )ITF(I) = ITF(I) + 1
+            IF (J==3 .AND.MARQUEUR(I) == 3 ) THEN
               IRB(I) = IRB(I) + 1
               IWL(I) = IWL(I) + 1
             ENDIF
@@ -884,7 +942,7 @@ C
       ENDDO
       ENDIF
 C---------------------------------------------------------------
-      IF(KWARN.GT.0)THEN
+      IF(KWARN>0)THEN
          CALL ANCMSG(MSGID=312,ANMODE=ANINFO,MSGTYPE=MSGWARNING,
      .               I1=KWARN)
             WRITE(IOUT,*)'                                            '
@@ -893,14 +951,14 @@ c         WRITE(IOUT,FMT=FMW_10I)(IKRW(L),L=1,KWARN)
 c
       ENDIF
 C---------------------------------------------------------------
-C RESUME CONDITIONS INCOMPATIBLES PAR TYPE
+C SUMMARY OF INCOMPATIBLE CONDITIONS BY TYPE
 C---------------------------------------------------------------
       WRITE(IOUT,*)'SUMMARY OF POSSIBLE INCOMPATIBLE KINEMATIC CONDITION
      .S :'
       WRITE(IOUT,*)'--------------------------------------------------
      .---'
       WRITE(IOUT,*)'                                 '
-      IF (FLAG_IKCOND.EQ.0) THEN
+      IF (FLAG_IKCOND==0) THEN
         WRITE(IOUT,*)'NO TRUE INCOMPATIBLE KINEMATIC CONDITION'
         IF (MARQ2 == 1) THEN
           WRITE(IOUT,*)' - AFTER SECONDARY NODES OF RIGID BODIES WERE SUPPRE
@@ -1004,87 +1062,87 @@ C---------------------------------------------------------------
       ENDDO
 C                                      '
       DO I=1,8192
-        IF ( MARQUEUR(I) .NE. 0 )THEN
+        IF ( MARQUEUR(I) /= 0 )THEN
           WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
           DO J=1,ABS(MARQUEUR(I))
-            IF (J.EQ.1 .AND. ABS(MARQUEUR(I)) == 2 ) IWL(I)=IWL(I)-1
-            IF (J.EQ.1 .AND. ABS(MARQUEUR(I)) == 3 ) THEN
+            IF (J==1 .AND. ABS(MARQUEUR(I)) == 2 ) IWL(I)=IWL(I)-1
+            IF (J==1 .AND. ABS(MARQUEUR(I)) == 3 ) THEN
               IWL(I )= IWL(I) - 1
               ITF(I) = ITF(I) - 1
             ENDIF
-            IF (J.EQ.2 .AND. MARQUEUR(I) == 2 ) THEN
+            IF (J==2 .AND. MARQUEUR(I) == 2 ) THEN
               WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
               IWL(I) = IWL(I) + 1
               IRB(I) = IRB(I) - 1
             ENDIF
-            IF (J.EQ.2 .AND. MARQUEUR(I) == -2 ) THEN
+            IF (J==2 .AND. MARQUEUR(I) == -2 ) THEN
               WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
               IWL(I) = IWL(I) + 1
               ITF(I) = ITF(I) - 1
             ENDIF
-            IF (J.EQ.2 .AND. MARQUEUR(I) == 3 ) THEN
+            IF (J==2 .AND. MARQUEUR(I) == 3 ) THEN
               WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
               IWL(I) = IWL(I) + 1
               IRB(I) = IRB(I) - 1
             ENDIF
-            IF (J.EQ.3 .AND. MARQUEUR(I) == 3 ) THEN
+            IF (J==3 .AND. MARQUEUR(I) == 3 ) THEN
               WRITE(IOUT,*)
      .       '- POSSIBLE INCOMPATIBLE KINEMATIC CONDITIONS BETWEEN:'
               IWL(I) = IWL(I) - 1
               ITF(I) = ITF(I) + 1
             ENDIF
 C
-            IF (IBC(I).EQ. 1) THEN
+            IF (IBC(I)== 1) THEN
               WRITE(IOUT,*)'    BOUNDARY CONDITION'
             ENDIF
-            IF (ITF(I).EQ. 1) THEN
+            IF (ITF(I)== 1) THEN
               WRITE(IOUT,*)'    INTERFACE TYPE 1 2 12 OR 9'
             ENDIF
-            IF (IWL(I).EQ. 1) THEN
+            IF (IWL(I)== 1) THEN
               WRITE(IOUT,*)'    RIGID WALL'
             ENDIF
-            IF (IRB(I).EQ. 1) THEN
+            IF (IRB(I)== 1) THEN
               WRITE(IOUT,*)'    RIGID BODY'
             ENDIF
-            IF (IRB2(I).EQ. 1) THEN
+            IF (IRB2(I)== 1) THEN
               WRITE(IOUT,*)'    RIGID BODY'
             ENDIF
-            IF (IVF(I).EQ. 1) THEN
-              WRITE(IOUT,*)'    IMPOSED ACCELERATION, IMPOSED DEPLACEMEN
-     .T, IMPOSED VELOCITY'
+            IF (IVF(I)== 1) THEN
+              WRITE(IOUT,*)'    IMPOSED ACCELERATION, IMPOSED DISPLACEMENT
+     ., IMPOSED VELOCITY'
             ENDIF
-            IF (IRV(I).EQ. 1) THEN
+            IF (IRV(I)== 1) THEN
               WRITE(IOUT,*)'    RIVET'
             ENDIF
-            IF (IJO(I).EQ. 1) THEN
+            IF (IJO(I)== 1) THEN
               WRITE(IOUT,*)'    CYLINDRICAL JOINT'
             ENDIF
-            IF (IRBM(I).EQ. 1) THEN
+            IF (IRBM(I)== 1) THEN
               WRITE(IOUT,*)'    IMPOSED BODY VELOCITY'
             ENDIF
-            IF (ILMULT(I).EQ. 1) THEN
+            IF (ILMULT(I)== 1) THEN
               WRITE(IOUT,*)'    LAGRANGE MULTIPLIERS'
             ENDIF
-            IF (IRLK(I).EQ. 1) THEN
+            IF (IRLK(I)== 1) THEN
               WRITE(IOUT,*)'    RIGID LINK'
             ENDIF
-            IF (IKRBE2(I).EQ. 1) THEN
+            IF (IKRBE2(I)== 1) THEN
               WRITE(IOUT,*)'    RBE2'
             ENDIF
-            IF (IKRBE3(I).EQ. 1) THEN
+            IF (IKRBE3(I)== 1) THEN
               WRITE(IOUT,*)'    RBE3'
             ENDIF
-            IF (J.EQ.2 .AND.MARQUEUR(I) == 2 )IRB(I) = IRB(I) + 1
-            IF (J.EQ.2 .AND.MARQUEUR(I) == -2 )ITF(I) = ITF(I) + 1
-            IF (J.EQ.3 .AND.MARQUEUR(I) == 3 ) THEN
+            IF (J==2 .AND.MARQUEUR(I) == 2 )IRB(I) = IRB(I) + 1
+            IF (J==2 .AND.MARQUEUR(I) == -2 )ITF(I) = ITF(I) + 1
+            IF (J==3 .AND.MARQUEUR(I) == 3 ) THEN
               IRB(I) = IRB(I) + 1
               IWL(I) = IWL(I) + 1
             ENDIF
-            IF(KWARN.GT.0.AND.IPRI.GE.3)THEN
+            IF(KWARN>0.AND.IPRI>=3)THEN
                WRITE(IOUT,*)'NODES :'
                WRITE(IOUT,FMT=FMW_10I)(IKRW(L),L=1,NIKRW)
             ENDIF
@@ -1093,12 +1151,24 @@ C
           ENDDO
         ENDIF
       ENDDO
+!
+      NUN=0
+      DO I=1,NRBE3
+        IPEN = IRBE3(9,I)  ! add warning for added mass+pen
+        IF (IPEN>0) NUN = NUN + 1
+        IF (IPEN <0) IRBE3(9,I) =0
+      END DO
+      IF (NUN>0) THEN
+        WRITE(IOUT,'(/I8,X,A)')NUN,'OF RBE3 HAVE BEEN SWITCHED TO PENALTY METHOD'
+      ENDIF
 C---------------------------------------------------------------
       DO I=1,NUMNOD
 C reset flag impact / wall
 ccc        IF(IWL(IKINE(I))==1)IKINE(I) = IKINE(I) - 4
         KINET(I)=IKINE(I)
       ENDDO
+      DEALLOCATE(NKINDOUBLE,NKIN,IKRW)
+
 C
 Cls
 Cls
@@ -1113,35 +1183,35 @@ Cls
         NK = IBC(IKINE(I))+ITF(IKINE(I))+IWL(IKINE(I))+
      .       IRB(IKINE(I))+IRB2(IKINE(I))+
      .       IVF(IKINE(I))+IRV(IKINE(I))+IJO(IKINE(I))
-        IF(NK.GE.2)THEN
+        IF(NK>=2)THEN
           JWARN = JWARN+1
           WRITE(IOUT,*)
      .     '    -',NK,' KINEMATIC CONDITIONS ON NODE',ITAB(I),':'
-          IF(IBC(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(IBC(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - BOUNDARY CONDITION'
-          IF(ITF(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(ITF(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - INTERFACE TYPE 1 2 12 OR 9'
-          IF(IWL(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(IWL(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - RIGID WALL'
-          IF(IRB(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(IRB(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - RIGID BODY'
-          IF(IRB2(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(IRB2(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - RIGID BODY'
-          IF(IVF(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(IVF(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - FIXED VELOCITY'
-          IF(IRV(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(IRV(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - RIVET'
-          IF(IJO(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(IJO(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - CYLINDRICAL JOINT'
-          IF(IRBM(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(IRBM(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - IMPOSED BODY VELOCITY'
-          IF(ILMULT(IKINE(I)).EQ.1) WRITE(IOUT,*)
+          IF(ILMULT(IKINE(I))==1) WRITE(IOUT,*)
      .     '             - LAGRANGE MULTIPLIERS'
         ENDIF
  100  CONTINUE
 C
       IWARN = IWARN + JWARN
-      IF(JWARN.NE.0)THEN
+      IF(JWARN/=0)THEN
         WRITE(ISTDO,'(A,I8,A)') ' ** WARNING',JWARN,
      .    ' NODES WITH INCOMPATIBLE KINEMATIC CONDITIONS'
         WRITE(IOUT,FMT=FMW_A_I_A) ' ** WARNING',JWARN,
@@ -1150,12 +1220,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  KINREM                        source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    kinrem   ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    lectur   ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE KINREM(IKINE,IKINEW,RWL,ITAB,NPRW,LPRW,
      1                   NPBY, LPBY)
 C-----------------------------------------------
@@ -1163,18 +1232,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "kincod_c.inc"
 #include      "param_c.inc"
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1187,12 +1249,12 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, K, L, N, KK, IKK, ITYP, NE, NSL
 C-----------------------------------------------------------------
-C  Recopie dans tableau de travail
+C  Copy to work table
       DO N=1,NUMNOD
         IKINEW(N)=IKINE(N)
       END DO
 C=======================================================================
-C  CORRECTIONS AUTOMATIQUES INTERFACE 1,2,9 OU RBODY AVEC RWALL
+C  AUTOMATIC CORRECTIONS INTERFACE 1,2,9 OR RBODY WITH RWALL
 C=======================================================================
       K=0
       KK=0
@@ -1205,7 +1267,7 @@ C=======================================================================
         DO L=1,NSL
           I=LPRW(K+L)
           IKK=IABS(IKINEW(I))
-          IF(IRB(IKK).NE.0.OR.ITF(IKK).NE.0)THEN
+          IF(IRB(IKK)/=0.OR.ITF(IKK)/=0)THEN
             IF(IWL(IKINEW(I))==1)IKINEW(I) = IKINEW(I) - 4
           ELSE
             J=J+1
@@ -1216,7 +1278,7 @@ C=======================================================================
         NSL=J
         KK = KK+NSL
         NPRW(N)=NSL
-        IF(ITYP.LT.0)THEN
+        IF(ITYP<0)THEN
           NE=NINT(RWL(8,N))
           DO I=1,NE
             LPRW(KK+I)=LPRW(K+I)
@@ -1228,15 +1290,15 @@ C=======================================================================
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INIVCHK                       source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        RBE2_IMPD                     source/constraints/general/kinchk.F
-Chd|        RBE3_IMPD                     source/constraints/general/kinchk.F
-Chd|        RBY_V0                        source/constraints/general/kinchk.F
-Chd|====================================================================
+!||====================================================================
+!||    inivchk     ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    lectur      ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    rbe2_impd   ../starter/source/constraints/general/kinchk.F
+!||    rbe3_impd   ../starter/source/constraints/general/kinchk.F
+!||    rby_v0      ../starter/source/constraints/general/kinchk.F
+!||====================================================================
       SUBROUTINE INIVCHK(IKINE,RWL,ITAB,NPRW,LPRW,KINET,
      1                   NPBY, LPBY,IRBE2,LRBE2,IRBE3,LRBE3,
      2                   FRBE3,X   ,SKEW ,V   ,VR   )
@@ -1245,19 +1307,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "kincod_c.inc"
 #include      "lagmult.inc"
 #include      "param_c.inc"
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1273,7 +1327,7 @@ C-----------------------------------------------
      .        IK(10), RBWARN, RB2WARN, KRB, NSLRB,ICDG,ISEN,M
 C-----------------------------------------------------------------
 C=======================================================================
-C  CORRECTIONS AUTOMATIQUES INITIAL VELOCITIES
+C  AUTOMATIC CORRECTIONS FOR INITIAL VELOCITIES
 C=======================================================================
 C should be done in hierarchy order: RBODY,RBE3,RBE2,int2...
 C-----------------------------------------------------------------
@@ -1283,7 +1337,7 @@ C-----------------------------------------------------------------
         NSL=NPBY(2,I)
         ICDG=NPBY(3,I)
         ISEN=NPBY(4,I)
-        IF (ISEN.EQ.0) THEN
+        IF (ISEN==0) THEN
           CALL RBY_V0(X  ,LPBY(K)  ,M   ,NSL  ,V     ,VR  )
          ENDIF
          K = K + NSL
@@ -1294,18 +1348,18 @@ C-----------------------------------------------------------------
         NSL=NPBY(2,I)
         ICDG=NPBY(3,I)
         ISEN=NPBY(4,I)
-        IF (ISEN.EQ.0) THEN
+        IF (ISEN==0) THEN
           CALL RBY_V0(X  ,LPBY(K)  ,M   ,NSL  ,V     ,VR  )
          ENDIF
          K = K + 3*NSL
       ENDDO
 C-----------------------------------------------------------------
-      IF(NRBE3.GT.0)THEN
+      IF(NRBE3>0)THEN
        CALL RBE3_IMPD(IRBE3 ,LRBE3 ,X    ,V     ,VR    ,
      1                FRBE3  ,SKEW  )
       ENDIF
 C-----------------------------------------------------------------
-      IF(NRBE2.GT.0)THEN
+      IF(NRBE2>0)THEN
        CALL RBE2_IMPD(IRBE2 ,LRBE2 ,X    ,V     ,VR    ,
      1                SKEW  )
       ENDIF
@@ -1313,12 +1367,11 @@ C-----------------------------------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_V0                        source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        INIVCHK                       source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rby_v0    ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    inivchk   ../starter/source/constraints/general/kinchk.F
+!||====================================================================
       SUBROUTINE RBY_V0(X  ,NOD  ,M   ,NSN  ,D     ,DR  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1331,9 +1384,6 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   X(3,*), D(3,*),DR(3,*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -1357,14 +1407,14 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3_IMPD                     source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        INIVCHK                       source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|        PRERBE3                       source/constraints/general/kinchk.F
-Chd|        RBE3CL                        source/constraints/general/kinchk.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3_impd   ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    inivchk     ../starter/source/constraints/general/kinchk.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe3     ../starter/source/constraints/general/kinchk.F
+!||    rbe3cl      ../starter/source/constraints/general/kinchk.F
+!||====================================================================
       SUBROUTINE RBE3_IMPD(IRBE3 ,LRBE3 ,X    ,D     ,DR    ,
      1                     FRBE3 ,SKEW  )
 C-----------------------------------------------
@@ -1372,17 +1422,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -1407,73 +1450,68 @@ C======================================================================|
       IADS = SLRBE3/2
       CALL PRERBE3(IRBE3 ,MAX_M , IROTG,JT  ,JR   )
       ALLOCATE(FDSTNB(3,6,MAX_M))
-      IF (IROTG.GT.0) ALLOCATE(MDSTNB(3,6,MAX_M))
+      IF (IROTG>0) ALLOCATE(MDSTNB(3,6,MAX_M))
       DO N=1,NRBE3
         IAD = IRBE3(1,N)
         NS  = IRBE3(3,N)
-        IF (NS.EQ.0) CYCLE
+        IF (NS==0) CYCLE
         NML = IRBE3(5,N)
-	IROT =MIN(IRBE3(6,N),IRODDL)
+          IROT =MIN(IRBE3(6,N),IRODDL)
         CALL RBE3CL(LRBE3(IAD+1),LRBE3(IADS+IAD+1),NS     ,X    ,
      .              FRBE3(6*IAD+1),SKEW    ,NML     ,IROT   ,FDSTNB ,
      .              MDSTNB  )
         DO J = 1,3
-	 VS(J) = ZERO
-	 VRS(J) = ZERO
-	ENDDO
+           VS(J) = ZERO
+           VRS(J) = ZERO
+          ENDDO
         DO I=1,NML
          M = LRBE3(IAD+I)
          DO J = 1,3
           DO K = 1,3
-	   VS(J) = VS(J)+FDSTNB(K,J,I)*D(K,M)
-	   VRS(J) = VRS(J)+FDSTNB(K,J+3,I)*D(K,M)
-	  ENDDO
-	 ENDDO
+             VS(J) = VS(J)+FDSTNB(K,J,I)*D(K,M)
+             VRS(J) = VRS(J)+FDSTNB(K,J+3,I)*D(K,M)
+            ENDDO
+           ENDDO
         ENDDO
-        IF (IROT.GT.0) THEN
+        IF (IROT>0) THEN
          DO I=1,NML
           M = LRBE3(IAD+I)
           DO J = 1,3
            DO K = 1,3
-	    VS(J) = VS(J)+MDSTNB(K,J,I)*DR(K,M)
-	    VRS(J) = VRS(J)+MDSTNB(K,J+3,I)*DR(K,M)
-	   ENDDO
-	  ENDDO
+              VS(J) = VS(J)+MDSTNB(K,J,I)*DR(K,M)
+              VRS(J) = VRS(J)+MDSTNB(K,J+3,I)*DR(K,M)
+             ENDDO
+            ENDDO
          ENDDO
         ENDIF
         DO J = 1,3
-	 D(J,NS) = VS(J) *JT(J,N)
-	ENDDO
-        IF ((JR(1,N)+JR(2,N)+JR(3,N)).GT.0) THEN
+           D(J,NS) = VS(J) *JT(J,N)
+          ENDDO
+        IF ((JR(1,N)+JR(2,N)+JR(3,N))>0) THEN
          DO J = 1,3
-	  DR(J,NS) = VRS(J) *JR(J,N)
-	 ENDDO
+            DR(J,NS) = VRS(J) *JR(J,N)
+           ENDDO
         ENDIF
       ENDDO
 C
       DEALLOCATE(FDSTNB)
-      IF (IROTG.GT.0) DEALLOCATE(MDSTNB)
+      IF (IROTG>0) DEALLOCATE(MDSTNB)
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  PRERBE3                       source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        RBE3_IMPD                     source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prerbe3     ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_impd   ../starter/source/constraints/general/kinchk.F
+!||====================================================================
       SUBROUTINE PRERBE3(IRBE3 ,MAX_M , IROTG,JT  ,JR   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -1489,17 +1527,17 @@ C======================================================================|
       MAX_M=0
       IROTG=0
       DO N=1,NRBE3
-	NML = IRBE3(5,N)
-	IROT =IRBE3(6,N)
+          NML = IRBE3(5,N)
+          IROT =IRBE3(6,N)
         MAX_M=MAX(MAX_M,NML)
         IROTG=MAX(IROTG,IROT)
-	IC=IRBE3(4,N)
+          IC=IRBE3(4,N)
         ICT=IC/512
         ICR=(IC-512*(ICT))/64
-	DO J =1,3
+          DO J =1,3
            JT(J,N)=0
            JR(J,N)=0
-	ENDDO
+          ENDDO
         SELECT CASE (ICT)
           CASE(1)
            JT(3,N)=1
@@ -1546,17 +1584,17 @@ C======================================================================|
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3CL                        source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        RBE3_IMPD                     source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        INVERT                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        RBE3UF                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        RBE3UM                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        ZERO1                         source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3cl      ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    rbe3_impd   ../starter/source/constraints/general/kinchk.F
+!||--- calls      -----------------------------------------------------
+!||    arret       ../starter/source/system/arret.F
+!||    invert      ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    rbe3uf      ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    rbe3um      ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    zero1       ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||====================================================================
       SUBROUTINE RBE3CL(INRBE3  ,ILRBE3  ,NS     ,XYZ    ,FRBE3   ,
      .                  SKEW    ,NG      ,IROT   ,FDSTNB ,MDSTNB  )
 C-----------------------------------------------
@@ -1564,13 +1602,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "com01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1607,7 +1641,7 @@ C
 C     INITIALIZATION
 C
       CALL ZERO1(FDSTNB,3*NG*6)
-      IF (IROT.GT.0) CALL ZERO1(MDSTNB,3*NG*6)
+      IF (IROT>0) CALL ZERO1(MDSTNB,3*NG*6)
       CALL ZERO1(A,36)
       CALL ZERO1(C,36)
       CALL ZERO1(CGMX,3)
@@ -1629,7 +1663,7 @@ C     ERROR OUT IF RBE3 ELEMENT HAS TWO INDEPENDENT NODES WITH
 C     NO ROTATIONAL WEIGHTS SET (THIS MEANS THE ELEMENT CANNOT
 C     SUPPORT A MOMENT ALONG ITS AXIS)
 C
-      IF (NG .EQ. 2.AND.IROT.EQ.0) THEN
+      IF (NG == 2.AND.IROT==0) THEN
             IERR = 322
             GOTO 999
       ENDIF
@@ -1638,7 +1672,7 @@ C     CALCULATE DIRECTION COSINES OF LOCAL COORDINATE SYSTEMS, IF ANY
 C
         DO K = 1, NG
             IELSUB = ILRBE3(K)
-            IF (IELSUB .GT. 0) THEN
+            IF (IELSUB > 0) THEN
                DO I = 1, 3
                      EL(I,1,K) = SKEW(I,IELSUB)
                      EL(I,2,K) = SKEW(I+3,IELSUB)
@@ -1657,7 +1691,7 @@ C
       DO 70 K = 1, NG
          KG = INRBE3(K)
          IELSUB = ILRBE3(K)
-         IF (IELSUB .GT. 0) THEN
+         IF (IELSUB > 0) THEN
 C
 C           IF GRID POINT HAS A LOCAL COORDINATE SYSTEM
 C
@@ -1677,20 +1711,20 @@ C
      *                              (XYZ(3,KG) - REFPT(3))**2 )
  70   CONTINUE
 C
-      IF (ABS(DENFX) .LE. EM20) THEN
+      IF (ABS(DENFX) <= EM20) THEN
          IERR = 326
       ENDIF
 C
-      IF (ABS(DENFY) .LE. EM20) THEN
+      IF (ABS(DENFY) <= EM20) THEN
          IERR = 327
       ENDIF
 C
-      IF (ABS(DENFZ) .LE. EM20) THEN
+      IF (ABS(DENFZ) <= EM20) THEN
          IERR = 328
       ENDIF
-      IF (IERR .NE. 0) GOTO 999
+      IF (IERR /= 0) GOTO 999
          AVEREF = AVEREF/NG
-         IF (AVEREF .EQ. ZERO) AVEREF = ONE
+         IF (AVEREF == ZERO) AVEREF = ONE
 C
 C     CALCULATE 3 CENTERS OF GRAVITY (CGMX, CGMY AND CGMZ) AND
 C     DENOMINATORS FOR DISTRIBUTING MOMENTS (DENMX, DENMY AND DENMZ)
@@ -1698,7 +1732,7 @@ C
       DO 40 K = 1, NG
          KG = INRBE3(K)
          IELSUB = ILRBE3(K)
-         IF (IELSUB .GT. 0) THEN
+         IF (IELSUB > 0) THEN
 C
 C           IF THERE IS A LOCAL COORDINATE SYSTEM AT THE GRID POINT
 C
@@ -1750,7 +1784,7 @@ C              WEIGHTS WITH THE SQUARE OF THE AVERAGE DISTANCE OF THE
 C              INDEPENDENT GRID POINTS FROM THE REFERENCE POINT TO
 C              RENDER THE RBE3 CALCULATIONS UNIT INDEPENDENT
 C
-         IF (IELSUB .GT. 0) THEN
+         IF (IELSUB > 0) THEN
 C
 C           IF GRID POINT HAS A LOCAL COORDINATE SYSTEM
 C
@@ -1785,19 +1819,19 @@ C     PERFORM SOME CHECKS ON WEIGHTS, TO MAKE SURE THAT THE RBE3
 C     ELEMENT HAS NO UNCONSTRAINED DEGREES OF FREEDOM
 C
 C
-      IF (ABS(DENMX) .LE. EM20) THEN
+      IF (ABS(DENMX) <= EM20) THEN
          IERR = 329
       ENDIF
 C
-      IF (ABS(DENMY) .LE. EM20) THEN
+      IF (ABS(DENMY) <= EM20) THEN
          IERR = 330
       ENDIF
 C
-      IF (ABS(DENMZ) .LE. EM20) THEN
+      IF (ABS(DENMZ) <= EM20) THEN
          IERR = 331
       ENDIF
 C
-      IF (IERR .NE. 0) GOTO 999
+      IF (IERR /= 0) GOTO 999
 C
 C     CALCULATE 3 FORCE DISTRIBUTIONS THAT CREATE NET X, Y AND Z FORCES
 C     OF 1 (BESIDES OTHER NONZERO FORCES/MOMENTS IN ALL THE DIRECTIONS)
@@ -1857,7 +1891,7 @@ C     INVERT THE 6X6 MATRIX
 C
       NSNGLR  = 0
       CALL INVERT(A,C,6,NSNGLR)
-      IF (NSNGLR .NE. 0) THEN
+      IF (NSNGLR /= 0) THEN
         IERR = 332
          GOTO 999
       ENDIF
@@ -1871,7 +1905,7 @@ C
          ENDDO
        ENDDO
       ENDDO
-      IF (IROT.GT.0) THEN
+      IF (IROT>0) THEN
        DO I = 1, 3
         DO J = 1, 6
          DO K = 1, NG
@@ -1883,7 +1917,7 @@ C
       END IF
 C
  999  CONTINUE
-      IF (IERR.GT.0) THEN
+      IF (IERR>0) THEN
              WRITE(ISTDO,'(A,I10)')
      .        ' ** ERROR IN RBE3 CALCULATION ID=',IERR
              WRITE(IOUT,'(A,I10)')
@@ -1895,28 +1929,23 @@ C     DIAGNOSTIC INFORMATION
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_IMPD                     source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        INIVCHK                       source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/kinchk.F
-Chd|        RBE2D0                        source/constraints/general/kinchk.F
-Chd|        RBE2DL                        source/constraints/general/kinchk.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_impd   ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    inivchk     ../starter/source/constraints/general/kinchk.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2     ../starter/source/constraints/general/kinchk.F
+!||    rbe2d0      ../starter/source/constraints/general/kinchk.F
+!||    rbe2dl      ../starter/source/constraints/general/kinchk.F
+!||====================================================================
       SUBROUTINE RBE2_IMPD(IRBE2 ,LRBE2 ,X    ,D     ,DR    ,SKEW )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -1939,7 +1968,7 @@ C======================================================================|
         M  = IRBE2(3,N)
         NSL = IRBE2(5,N)
         ISK = IRBE2(7,N)
-	IF (ISK.GT.1) THEN
+          IF (ISK>1) THEN
             CALL RBE2DL(NSL   ,LRBE2(IAD+1),X     ,D     ,DR    ,
      1                  JT(1,N),JR(1,N),M     ,SKEW(1,ISK))
         ELSE
@@ -1950,20 +1979,16 @@ C======================================================================|
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  PRERBE2                       source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPD                     source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prerbe2     ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impd   ../starter/source/constraints/general/kinchk.F
+!||====================================================================
       SUBROUTINE PRERBE2(IRBE2 ,JT  ,JR   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1981,14 +2006,14 @@ C-----------------------------------------------
       INTEGER I, J, N,NML,IC,ICT,ICR,IROT
 C======================================================================|
       DO N=1,NRBE2
-	IC=IRBE2(4,N)
+          IC=IRBE2(4,N)
         ICT=IC/512
         ICR=(IC-512*(ICT))/64
-	IF (IRODDL.EQ.0) ICR =0
-	DO J =1,3
+          IF (IRODDL==0) ICR =0
+          DO J =1,3
            JT(J,N)=0
            JR(J,N)=0
-	ENDDO
+          ENDDO
         SELECT CASE (ICT)
           CASE(1)
            JT(3,N)=1
@@ -2035,28 +2060,17 @@ C======================================================================|
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2D0                        source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPD                     source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rbe2d0      ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impd   ../starter/source/constraints/general/kinchk.F
+!||====================================================================
       SUBROUTINE RBE2D0(NSL   ,ISL   ,X     ,V     ,VR    ,
      1                  JT    ,JR    ,M     )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2073,22 +2087,22 @@ C     REAL
      .     XS, YS, ZS,VRM(3)
 C======================================================================|
         DO J = 1,3
-	 IF (JT(J).NE.0) THEN
+           IF (JT(J)/=0) THEN
           DO I=1,NSL
            NS = ISL(I)
-	   V(J,NS)= V(J,M)
-	  ENDDO
+             V(J,NS)= V(J,M)
+            ENDDO
          ENDIF
         ENDDO
-       IF ((JR(1)+JR(2)+JR(3)).GT.0) THEN
+       IF ((JR(1)+JR(2)+JR(3))>0) THEN
         DO J = 1,3
-	 IF (JR(J).NE.0) THEN
+           IF (JR(J)/=0) THEN
           DO I=1,NSL
            NS = ISL(I)
-	   VR(J,NS)= VR(J,M)
-	  ENDDO
+             VR(J,NS)= VR(J,M)
+            ENDDO
          ENDIF
-	 VRM(J)= VR(J,M)*JR(J)
+           VRM(J)= VR(J,M)*JR(J)
         ENDDO
         DO I=1,NSL
          NS = ISL(I)
@@ -2103,28 +2117,17 @@ C======================================================================|
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2DL                        source/constraints/general/kinchk.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPD                     source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rbe2dl      ../starter/source/constraints/general/kinchk.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impd   ../starter/source/constraints/general/kinchk.F
+!||====================================================================
       SUBROUTINE RBE2DL(NSN   ,ISL   ,X     ,V     ,VR    ,
      1                  JT    ,JR    ,M     ,SKEW  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2153,7 +2156,7 @@ C======================================================================|
         V(2,NS) =V(2,NS)-VVX*SKEW(2)-VVY*SKEW(5)-VVZ*SKEW(8)
         V(3,NS) =V(3,NS)-VVX*SKEW(3)-VVY*SKEW(6)-VVZ*SKEW(9)
       ENDDO
-      IF ((JR(1)+JR(2)+JR(3)).GT.0) THEN
+      IF ((JR(1)+JR(2)+JR(3))>0) THEN
        DO I=1,NSN
         NS = ISL(I)
         XS=X(1,NS)-X(1,M)

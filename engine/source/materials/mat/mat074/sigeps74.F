@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS74                      source/materials/mat/mat074/sigeps74.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        TABLE_VINTERP                 source/tools/curve/table_tools.F
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        INTERFACE_TABLE_MOD           share/modules/table_mod.F     
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps74              ../engine/source/materials/mat/mat074/sigeps74.F
+!||--- called by ------------------------------------------------------
+!||    mulaw                 ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    finter                ../engine/source/tools/curve/finter.F
+!||    finter2               ../engine/source/tools/curve/vinter.F
+!||    table_vinterp         ../engine/source/tools/curve/table_tools.F
+!||--- uses       -----------------------------------------------------
+!||    interface_table_mod   ../engine/share/modules/table_mod.F
+!||    table_mod             ../engine/share/modules/table_mod.F
+!||====================================================================
       SUBROUTINE SIGEPS74(
      1     NEL    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC   ,NPF    ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0    ,RHO    ,
-     3     VOLUME ,EINT   ,
+     3     VOLUME ,EINT   ,FHEAT   ,JLAG    ,
      4     EPSPXX ,EPSPYY ,EPSPZZ  ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
      5     DEPSXX ,DEPSYY ,DEPSZZ  ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
      6     EPSXX  ,EPSYY  ,EPSZZ   ,EPSXY   ,EPSYZ   ,EPSZX  ,
@@ -42,7 +44,7 @@ Chd|====================================================================
      9     SIGVXX ,SIGVYY ,SIGVZZ  ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
      A     SOUNDSP,VISCMAX,UVAR    ,OFF     ,NGL     ,IPT    ,
      B     IPM    ,MAT    ,EPSP    ,IPLA    ,YLD     ,PLA    ,
-     C     DPLA   ,ETSE   ,JTHE    ,TEMPEL  ,TABLE   ,SEQ_OUTPUT,
+     C     DPLA   ,ETSE   ,JTHE    ,TEMP    ,TABLE   ,SEQ_OUTPUT,
      D     AMU    ,ISEQ   )
 C-----------------------------------------------
       USE TABLE_MOD
@@ -95,7 +97,7 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -104,13 +106,12 @@ C---------+---------+---+---+--------------------------------------------
 #include      "com08_c.inc"
 #include      "impl1_c.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
 #include      "scr17_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
 C=======================================================================
       INTEGER NEL, NUPARAM, NUVAR,IPT,IPLA, JTHE,
      .   NGL(NEL),MAT(NEL),IPM(NPROPMI,*),ISEQ
+      INTEGER ,INTENT(IN) :: JLAG
       my_real
      .   TIME,TIMESTEP,UPARAM(*),
      .   RHO(NEL),RHO0(NEL),VOLUME(NEL),EINT(NEL),
@@ -122,7 +123,7 @@ C=======================================================================
      .   EPSXY(NEL) ,EPSYZ(NEL) ,EPSZX(NEL) ,
      .   SIGOXX(NEL),SIGOYY(NEL),SIGOZZ(NEL),
      .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL),
-     .   EPSP(NEL),ETSE(NEL), TEMPEL(NEL),SEQ_OUTPUT(NEL),
+     .   EPSP(NEL),ETSE(NEL), TEMP(NEL),SEQ_OUTPUT(NEL),
      .   AMU(NEL)
       TYPE(TTABLE) TABLE(*)
 C-----------------------------------------------
@@ -137,8 +138,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
-      my_real 
-     .        UVAR(NEL,NUVAR), OFF(NEL),  YLD(NEL), PLA(NEL)
+      my_real :: UVAR(NEL,NUVAR), OFF(NEL),  YLD(NEL), PLA(NEL)
+      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: FHEAT
 C-----------------------------------------------
 C   VARIABLES FOR FUNCTION INTERPOLATION 
 C-----------------------------------------------
@@ -157,24 +158,23 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,IADBUF,J1,J2,ITABLE,
-     .        IPARAM,NPAR,OPTE,IFUNCE,
+      INTEGER I,J,IADBUF,ITABLE,
+     .        OPTE,IFUNCE,
      .        NINDX,INDX(MVSIZ)
       my_real
-     .        E,NU,P,DAV,R,FAC,EPST,EP1,EP2,EP3,EP4,EP5,EP6,
+     .        E,NU,P,DAV,R,EPST,
      .        E1,E2,E3,E4,E5,E6,C,CC,D,Y,YP,E42,E52,E62,EPST2,
-     .        C1,G,G2,G3,FF,GG,HH,NN,LL,MM,
+     .        C1,G,G2,G3,FF,GG,HH,NN,LL,MM, RHOCP,
      .        EPSMAX,H(MVSIZ),CRI(MVSIZ),
      .        FAIL(MVSIZ),EPSR1,EPSR2,P0(MVSIZ),HKIN,
      .       FISOKIN,SIGEXX(MVSIZ),SIGEYY(MVSIZ),SIGEZZ(MVSIZ),
      .       SIGEXY(MVSIZ),SIGEYZ(MVSIZ),SIGEZX(MVSIZ),
-     .       DEXX,DEYY,DEXY,DEZZ,DEYZ,DEZX,DSXX,DSYY,DSZZ,DSXY,DSYZ,
+     .       DSXX,DSYY,DSZZ,DSXY,DSYZ,
      .       DSZX,SIGPXX,SIGPYY,SIGPXY,SIGPYZ,SIGPZX,SIGPZZ,ALPHA,
      .       XFAC, YFAC,E0(MVSIZ), G1(MVSIZ), G21(MVSIZ), G31(MVSIZ), 
      .       C11(MVSIZ),ESCALE(MVSIZ),EINF,DYDXE(MVSIZ),CE
       my_real 
-     .        YK(MVSIZ), DYDX(MVSIZ),
-     .        COEF(MVSIZ), TEMP(MVSIZ), VOL0, RHOCP
+     .        YK(MVSIZ), DYDX(MVSIZ)
       my_real,
      .        DIMENSION(NEL,3) :: XX3
       my_real,
@@ -192,9 +192,10 @@ C
       ITABLE = IPM(227,MAT(1))
       IADBUF = IPM(7,MAT(1))-1
       FISOKIN=UPARAM(IADBUF+1)
-      OPTE    = UPARAM(IADBUF+25)
-      CE    = UPARAM(IADBUF+27)
-      EINF  = UPARAM(IADBUF+26)
+      RHOCP  = UPARAM(IADBUF+23)
+      OPTE   = UPARAM(IADBUF+25)
+      CE     = UPARAM(IADBUF+27)
+      EINF   = UPARAM(IADBUF+26)
 
       IF (OPTE==1.OR. CE > ZERO)THEN
        DO I=1,NEL     
@@ -206,9 +207,9 @@ C
        ENDDO
        NU  = UPARAM(IADBUF+6)
        EPSMAX= UPARAM(IADBUF+15)
-       IF(EPSMAX.EQ.ZERO)THEN
+       IF(EPSMAX==ZERO)THEN
 c      NXK=SIZE(TABLE(ITABLE)%X(1)%VALUES)
-c      IF(TABLE(ITABLE)%Y%VALUES(NXK).EQ.ZERO)THEN
+c      IF(TABLE(ITABLE)%Y%VALUES(NXK)==ZERO)THEN
 c       EPSMAX = TABLE(ITABLE)%X(1)%VALUES(NXK)
 c      ELSE
         EPSMAX = EP30
@@ -244,9 +245,9 @@ C
        YFAC  =UPARAM(IADBUF+14)
 C
        EPSR1 =UPARAM(IADBUF+16)
-       IF(EPSR1.EQ.ZERO)EPSR1=EP30
+       IF(EPSR1==ZERO)EPSR1=EP30
        EPSR2 =UPARAM(IADBUF+17)
-       IF(EPSR2.EQ.ZERO)EPSR2=TWOEP30
+       IF(EPSR2==ZERO)EPSR2=TWOEP30
 C
       FF        = UPARAM(IADBUF+7)
       GG        = UPARAM(IADBUF+8)
@@ -255,15 +256,16 @@ C
       MM        = UPARAM(IADBUF+11)
       NN        = UPARAM(IADBUF+12)
 C
-      IF (ISIGI.EQ.0) THEN
-        IF(TIME.EQ.ZERO)THEN
+      IF (TIME == ZERO) THEN
+        TEMP(1:NEL) = UPARAM(IADBUF + 22)
+        IF (ISIGI==0) THEN
           DO I=1,NEL
-            UVAR(I,1)=ZERO
-            UVAR(I,2)=ZERO
-            UVAR(I,3)=ZERO
-            UVAR(I,4)=ZERO
+            UVAR(I,1)= ZERO
+            UVAR(I,2)= ZERO
+            UVAR(I,3)= ZERO
+            UVAR(I,4)= ZERO
             DO J=1,6
-             UVAR(I,4 + J ) = ZERO
+              UVAR(I,4 + J) = ZERO
             ENDDO
           ENDDO
         ENDIF
@@ -271,7 +273,7 @@ C
 C------------------------------------------
 C     ECROUISSAGE CINE
 C------------------------------------------
-      IF (FISOKIN.NE.ZERO) THEN
+      IF (FISOKIN/=ZERO) THEN
         DO I=1,NEL
           SIGOXX(I) = SIGOXX(I) - UVAR(I,5)
           SIGOYY(I) = SIGOYY(I) - UVAR(I,6)
@@ -335,24 +337,24 @@ c         yp= 3 x^2 + c
         EPST = SQRT(-CC)
         EPST2 = EPST * EPST
         Y = (EPST2 + C)* EPST + D
-        IF(ABS(Y).GT.EM8)THEN
+        IF(ABS(Y)>EM8)THEN
           EPST = ONEP75 * EPST
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
         ENDIF
         EPST = EPST + DAV
 C-------------------
@@ -373,7 +375,7 @@ C
           XX2(I,2)=EPSP(I)*XFAC
         END DO      
 C
-        CALL TABLE_VINTERP(TABLE(ITABLE),NEL,IPOS2,XX2,YLD,DYDX)
+        CALL TABLE_VINTERP(TABLE(ITABLE),NEL,NEL,IPOS2,XX2,YLD,DYDX)
 C
         DO I=1,NEL
           YLD(I) = YFAC*YLD(I)
@@ -390,7 +392,7 @@ C
            XX2(I,1)=ZERO
            XX2(I,2)=EPSP(I)*XFAC
          END DO      
-         CALL TABLE_VINTERP(TABLE(ITABLE),NEL,IPOS2,XX2,YK,DYDX)
+         CALL TABLE_VINTERP(TABLE(ITABLE),NEL,NEL,IPOS2,XX2,YK,DYDX)
 
          DO I=1,NEL
 C          ECROUISSAGE CINEMATIQUE
@@ -401,36 +403,17 @@ C          ECROUISSAGE CINEMATIQUE
         END IF
       ELSE
 C-----------------------------------------------
-C  Calcul de la tempurature. (conduction ou adiabatique)
-C--------------------    
-        DO I=1,NEL    
-          COEF(I) = ONE
-        END DO
-C
-        IF(JTHE < 0 ) THEN
-         DO I=1,NEL     
-           TEMP(I) = TEMPEL(I)
-         ENDDO
-        ELSE
-         RHOCP=UPARAM(IADBUF+23)
-         DO I=1,NEL
-           TEMP(I) = UPARAM(IADBUF + 22)
-           TEMP(I) = TEMP(I) 
-     .             + COEF(I)*RHOCP*EINT(I)/MAX(EM15,VOLUME(I))
-         ENDDO
-        ENDIF
-C
         DO I=1,NEL
           IPOS3(I,1) = NINT(UVAR(I,2))
           IPOS3(I,2) = NINT(UVAR(I,3))
           IPOS3(I,3) = NINT(UVAR(I,4))
 C
-          XX3(I,1)=PLA (I)
-          XX3(I,2)=EPSP(I)*XFAC
-          XX3(I,3)=TEMP(I)
+          XX3(I,1) = PLA (I)
+          XX3(I,2) = EPSP(I)*XFAC
+          XX3(I,3) = TEMP(I)
         END DO      
 C
-        CALL TABLE_VINTERP(TABLE(ITABLE),NEL,IPOS3,XX3,YLD,DYDX)
+        CALL TABLE_VINTERP(TABLE(ITABLE),NEL,NEL,IPOS3,XX3,YLD,DYDX)
 C
         DO I=1,NEL
           YLD(I) = YFAC*YLD(I)
@@ -449,7 +432,7 @@ C
            XX3(I,2)=EPSP(I)*XFAC
            XX3(I,3)=TEMP(I)
          END DO      
-         CALL TABLE_VINTERP(TABLE(ITABLE),NEL,IPOS3,XX3,YK,DYDX)
+         CALL TABLE_VINTERP(TABLE(ITABLE),NEL,NEL,IPOS3,XX3,YK,DYDX)
 
          DO I=1,NEL
 C          ECROUISSAGE CINEMATIQUE
@@ -462,7 +445,7 @@ C          ECROUISSAGE CINEMATIQUE
 C-------------------
 C     PROJECTION
 C-------------------
-      IF(IPLA.EQ.0)THEN
+      IF(IPLA==0)THEN
        DO I=1,NEL
         CRI(I) = 
      .    FF*(SIGNYY(I) - SIGNZZ(I))**2 + GG*(SIGNZZ(I) - SIGNXX(I))**2
@@ -482,7 +465,7 @@ c        P = C11(I) * (RHO(I)/RHO0(I)- ONE)
         UVAR(I,1)=PLA(I)
         DPLA(I) = (ONE - R)*CRI(I)/MAX(G31(I)+H(I),EM20)         
        ENDDO
-      ELSEIF(IPLA.EQ.2)THEN
+      ELSEIF(IPLA==2)THEN
        DO I=1,NEL
         CRI(I) = 
      .    FF*(SIGNYY(I) - SIGNZZ(I))**2 + GG*(SIGNZZ(I) - SIGNXX(I))**2
@@ -502,7 +485,7 @@ c        P = C11(I) * (RHO(I)/RHO0(I)-ONE)
         UVAR(I,1)=PLA(I)
         DPLA(I) =  (ONE-R)*CRI(I)/MAX(G31(I),EM20)       
        ENDDO
-      ELSEIF(IPLA.EQ.1)THEN
+      ELSEIF(IPLA==1)THEN
        DO I=1,NEL
         CRI(I) = 
      .    FF*(SIGNYY(I) - SIGNZZ(I))**2 + GG*(SIGNZZ(I) - SIGNXX(I))**2
@@ -512,7 +495,7 @@ c        P = C11(I) * (RHO(I)/RHO0(I)-ONE)
         R = MIN(ONE,YLD(I)/ MAX(CRI(I),EM20))
 C       plastic strain increment.
         DPLA(I)=(ONE - R)*CRI(I)/MAX(G31(I)+H(I),EM20)
-C       actual yeld stress.
+C       actual yield stress.
         YLD(I)=MAX(YLD(I)+(ONE - FISOKIN)*DPLA(I)*H(I),ZERO)
         R = MIN(ONE,YLD(I)/ MAX(CRI(I),EM20))
 C
@@ -531,7 +514,7 @@ c        P = C11(I) * (RHO(I)/RHO0(I)-ONE)
 C------------------------------------------
 C     ECROUISSAGE CINE
 C------------------------------------------
-      IF (FISOKIN.NE.ZERO) THEN
+      IF (FISOKIN/=ZERO) THEN
         DO I=1,NEL
 c         P = C11(I) * (RHO(I)/RHO0(I)-ONE)
          P = C11(I) * AMU(I)
@@ -567,15 +550,15 @@ C
        ENDDO
       ENDIF
 
-      IF (IMPL_S.GT.0) THEN
+      IF (IMPL_S>0) THEN
        DO I=1,NEL
-         IF(DPLA(I).GT.0) ETSE(I)= H(I)/G21(I)
+         IF(DPLA(I)>0) ETSE(I)= H(I)/G21(I)
        ENDDO
-c       IF (IKT.EQ.4)
+c       IF (IKT==4)
 c     .     CALL PUT_SIGE0(NEL,SIGEXX,SIGEYY,SIGEZZ,SIGEXY,
 c     .                   SIGEYZ,SIGEZX,DPLA,G   ,H     )
       ENDIF
-      ELSE !opte==1 CE/=0
+      ELSE !else if (opte==1) ce/=0
       ITABLE = IPM(227,MAT(1))
       IADBUF = IPM(7,MAT(1))-1
       FISOKIN=UPARAM(IADBUF+1)
@@ -587,9 +570,9 @@ c     .                   SIGEYZ,SIGEZX,DPLA,G   ,H     )
       NU  = UPARAM(IADBUF+6)
       C1  = UPARAM(IADBUF+20)
       EPSMAX= UPARAM(IADBUF+15)
-      IF(EPSMAX.EQ.ZERO)THEN
+      IF(EPSMAX==ZERO)THEN
 c      NXK=SIZE(TABLE(ITABLE)%X(1)%VALUES)
-c      IF(TABLE(ITABLE)%Y%VALUES(NXK).EQ.ZERO)THEN
+c      IF(TABLE(ITABLE)%Y%VALUES(NXK)==ZERO)THEN
 c       EPSMAX = TABLE(ITABLE)%X(1)%VALUES(NXK)
 c      ELSE
         EPSMAX = EP30
@@ -600,9 +583,9 @@ C
       YFAC  =UPARAM(IADBUF+14)
 C
       EPSR1 =UPARAM(IADBUF+16)
-      IF(EPSR1.EQ.ZERO)EPSR1=EP30
+      IF(EPSR1==ZERO)EPSR1=EP30
       EPSR2 =UPARAM(IADBUF+17)
-      IF(EPSR2.EQ.ZERO)EPSR2=TWOEP30
+      IF(EPSR2==ZERO)EPSR2=TWOEP30
 C
       FF        = UPARAM(IADBUF+7)
       GG        = UPARAM(IADBUF+8)
@@ -611,8 +594,8 @@ C
       MM        = UPARAM(IADBUF+11)
       NN        = UPARAM(IADBUF+12)
 C
-      IF (ISIGI.EQ.0) THEN
-        IF(TIME.EQ.ZERO)THEN
+      IF (ISIGI==0) THEN
+        IF(TIME==ZERO)THEN
           DO I=1,NEL
             UVAR(I,1)=ZERO
             UVAR(I,2)=ZERO
@@ -627,7 +610,7 @@ C
 C------------------------------------------
 C     ECROUISSAGE CINE
 C------------------------------------------
-      IF (FISOKIN.NE.ZERO) THEN
+      IF (FISOKIN/=ZERO) THEN
         DO I=1,NEL
           SIGOXX(I) = SIGOXX(I) - UVAR(I,5)
           SIGOYY(I) = SIGOYY(I) - UVAR(I,6)
@@ -691,24 +674,24 @@ c         yp= 3 x^2 + c
         EPST = SQRT(-CC)
         EPST2 = EPST * EPST
         Y = (EPST2 + C)* EPST + D
-        IF(ABS(Y).GT.EM8)THEN
+        IF(ABS(Y)>EM8)THEN
           EPST = ONEP75 * EPST
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
         ENDIF
         EPST = EPST + DAV
 C-------------------
@@ -729,7 +712,7 @@ C
           XX2(I,2)=EPSP(I)*XFAC
         END DO      
 C
-        CALL TABLE_VINTERP(TABLE(ITABLE),NEL,IPOS2,XX2,YLD,DYDX)
+        CALL TABLE_VINTERP(TABLE(ITABLE),NEL,NEL,IPOS2,XX2,YLD,DYDX)
 C
         DO I=1,NEL
           YLD(I) = YFAC*YLD(I)
@@ -746,7 +729,7 @@ C
            XX2(I,1)=ZERO
            XX2(I,2)=EPSP(I)*XFAC
          END DO      
-         CALL TABLE_VINTERP(TABLE(ITABLE),NEL,IPOS2,XX2,YK,DYDX)
+         CALL TABLE_VINTERP(TABLE(ITABLE),NEL,NEL,IPOS2,XX2,YK,DYDX)
 
          DO I=1,NEL
 C          ECROUISSAGE CINEMATIQUE
@@ -755,26 +738,8 @@ C          ECROUISSAGE CINEMATIQUE
            YLD(I) = MAX(YLD(I),EM20)
          ENDDO
         END IF
+c
       ELSE
-C-----------------------------------------------
-C  Calcul de la tempurature. (conduction ou adiabatique)
-C--------------------    
-        DO I=1,NEL    
-          COEF(I) = ONE
-        END DO
-C
-        IF(JTHE < 0 ) THEN
-         DO I=1,NEL     
-           TEMP(I) = TEMPEL(I)
-         ENDDO
-        ELSE
-         RHOCP=UPARAM(IADBUF+23)
-         DO I=1,NEL
-           TEMP(I) = UPARAM(IADBUF + 22)
-           TEMP(I) = TEMP(I) 
-     .             + COEF(I)*RHOCP*EINT(I)/MAX(EM15,VOLUME(I))
-         ENDDO
-        ENDIF
 C
         DO I=1,NEL
           IPOS3(I,1) = NINT(UVAR(I,2))
@@ -786,7 +751,7 @@ C
           XX3(I,3)=TEMP(I)
         END DO      
 C
-        CALL TABLE_VINTERP(TABLE(ITABLE),NEL,IPOS3,XX3,YLD,DYDX)
+        CALL TABLE_VINTERP(TABLE(ITABLE),NEL,NEL,IPOS3,XX3,YLD,DYDX)
 C
         DO I=1,NEL
           YLD(I) = YFAC*YLD(I)
@@ -805,7 +770,7 @@ C
            XX3(I,2)=EPSP(I)*XFAC
            XX3(I,3)=TEMP(I)
          END DO      
-         CALL TABLE_VINTERP(TABLE(ITABLE),NEL,IPOS3,XX3,YK,DYDX)
+         CALL TABLE_VINTERP(TABLE(ITABLE),NEL,NEL,IPOS3,XX3,YK,DYDX)
 
          DO I=1,NEL
 C          ECROUISSAGE CINEMATIQUE
@@ -818,7 +783,7 @@ C          ECROUISSAGE CINEMATIQUE
 C-------------------
 C     PROJECTION
 C-------------------
-      IF(IPLA.EQ.0)THEN
+      IF(IPLA==0)THEN
        DO I=1,NEL
         CRI(I) = 
      .    FF*(SIGNYY(I) - SIGNZZ(I))**2 + GG*(SIGNZZ(I) - SIGNXX(I))**2
@@ -838,7 +803,7 @@ c        P = C1 * (RHO(I)/RHO0(I)- ONE)
         UVAR(I,1)=PLA(I)
         DPLA(I) = (ONE - R)*CRI(I)/MAX(G3+H(I),EM20)         
        ENDDO
-      ELSEIF(IPLA.EQ.2)THEN
+      ELSEIF(IPLA==2)THEN
        DO I=1,NEL
         CRI(I) = 
      .    FF*(SIGNYY(I) - SIGNZZ(I))**2 + GG*(SIGNZZ(I) - SIGNXX(I))**2
@@ -858,7 +823,7 @@ c        P = C1 * (RHO(I)/RHO0(I)-ONE)
         UVAR(I,1)=PLA(I)
         DPLA(I) =  (ONE-R)*CRI(I)/MAX(G3,EM20)       
        ENDDO
-      ELSEIF(IPLA.EQ.1)THEN
+      ELSEIF(IPLA==1)THEN
        DO I=1,NEL
         CRI(I) = 
      .    FF*(SIGNYY(I) - SIGNZZ(I))**2 + GG*(SIGNZZ(I) - SIGNXX(I))**2
@@ -868,7 +833,7 @@ c        P = C1 * (RHO(I)/RHO0(I)-ONE)
         R = MIN(ONE,YLD(I)/ MAX(CRI(I),EM20))
 C       plastic strain increment.
         DPLA(I)=(ONE - R)*CRI(I)/MAX(G3+H(I),EM20)
-C       actual yeld stress.
+C       actual yield stress.
         YLD(I)=MAX(YLD(I)+(ONE - FISOKIN)*DPLA(I)*H(I),ZERO)
         R = MIN(ONE,YLD(I)/ MAX(CRI(I),EM20))
 C
@@ -887,7 +852,7 @@ c        P = C1 * (RHO(I)/RHO0(I)-ONE)
 C------------------------------------------
 C     ECROUISSAGE CINE
 C------------------------------------------
-      IF (FISOKIN.NE.ZERO) THEN
+      IF (FISOKIN/=ZERO) THEN
         DO I=1,NEL
          P = C1 * (RHO(I)/RHO0(I)-ONE)
          DSXX = SIGEXX(I) - SIGNXX(I) - P 
@@ -922,32 +887,44 @@ C
        ENDDO
       ENDIF
 
-      IF (IMPL_S.GT.0) THEN
+      IF (IMPL_S>0) THEN
        DO I=1,NEL
-         IF(DPLA(I).GT.0) ETSE(I)= H(I)/G2
+         IF(DPLA(I)>0) ETSE(I)= H(I)/G2
        ENDDO
-c       IF (IKT.EQ.4)
+c       IF (IKT==4)
 c     .     CALL PUT_SIGE0(NEL,SIGEXX,SIGEYY,SIGEZZ,SIGEXY,
 c     .                   SIGEYZ,SIGEZX,DPLA,G   ,H     )
       ENDIF
 c
-      ENDIF ! opte==1 CE/=0
+      ENDIF ! end if (opte==1) ce/=0
+C-----------------------------------------------
+C     Update temperature due to plastic work
+C--------------------    
+      IF (JTHE < 0 .AND. JLAG /= 0) THEN
+        DO I=1,NEL
+          FHEAT(I) = FHEAT(I) + YLD(I)*DPLA(I)*VOLUME(I)
+        ENDDO
+      ELSE IF (RHOCP > ZERO) THEN
+        DO I=1,NEL
+          TEMP(I) = TEMP(I) + YLD(I)*DPLA(I)*RHOCP/MAX(EM15,VOLUME(I))
+        ENDDO
+      ENDIF
+C
 C-------------------
       DO I=1,NEL
-        IF(OFF(I).LT.EM01) OFF(I)=ZERO
-        IF(OFF(I).LT.ONE) OFF(I)=OFF(I)*FOUR_OVER_5
+        IF(OFF(I)<EM01) OFF(I)=ZERO
+        IF(OFF(I)<ONE) OFF(I)=OFF(I)*FOUR_OVER_5
       ENDDO
 C
       NINDX=0
       DO I=1,NEL
-        IF(PLA(I).GT.EPSMAX.AND.OFF(I).EQ.ONE) THEN
+        IF(PLA(I)>EPSMAX.AND.OFF(I)==ONE) THEN
           OFF(I)=FOUR_OVER_5
           NINDX=NINDX+1
           INDX(NINDX)=I
-          IDEL7NOK = 1
         ENDIF
       ENDDO
-      IF(NINDX.GT.0.AND.IMCONV.EQ.1)THEN
+      IF(NINDX>0.AND.IMCONV==1)THEN
         DO J=1,NINDX
 #include "lockon.inc"
         WRITE(IOUT, 1000) NGL(INDX(J))

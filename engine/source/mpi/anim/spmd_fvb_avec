@@ -1136,7 +1136,7 @@ C-----------------------------------------------
             MSGTYP=MSGOFF
 
             IF(RLEN > 0 ) THEN
-              ! Even though Recieve of length = 0 can cost nothing
+              ! Even though Receive of length = 0 can cost nothing
               ! SRBUF(LRECV+1) must exist
               CALL MPI_RECV(SRBUF(LRECV+1),RLEN,MPI_INTEGER,
      .                    IT_SPMD(I),MSGTYP,
@@ -5392,7 +5392,7 @@ C a conversion array from Global Node ID to Internal PLYNOD ID
 
       DO I=1,NPLYMAX
         IF (ISPMD==0)THEN
-C PROC 0, RECIEVE NODES NUM for each ply
+C PROC 0, RECEIVE NODES NUM for each ply
            DO P=2,NSPMD
               ITAG=MSGOFF
               CALL MPI_RECV(RECSZ,1, MPI_INTEGER, IT_SPMD(P),
@@ -6544,7 +6544,7 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
 !       MODE = 0 --> collect the index array for each proc   
-!       MODE = 1 --> collect all the buffer arraies
+!       MODE = 1 --> collect all the buffer arrays
 !       SIZE_BUFFER_S is the size of the local sended array
         INTEGER, INTENT(IN) :: MODE,SIZE_BUFFER_S
 !       SIZE_BUFFER_R is the size of the global received array, proc 0 
@@ -6570,10 +6570,10 @@ C-----------------------------------------------
 C-----------------------------------------------
         
         IF(MODE==0) THEN
-        !       collect the local index arraies on the master processor
+        !       collect the local index arrays on the master processor
                 CALL MPI_GATHER(SINDEX,3*(NSECT+1),MPI_INTEGER,
      .                   RINDEX_PROC,3*(NSECT+1),MPI_INTEGER,0,MPI_COMM_WORLD,ierror)  
-        !       sum all the size of local sended arraies in order to get the size 
+        !       sum all the size of local sended arrays in order to get the size 
         !       of the global array on proc 0                  
                 IF(ISPMD==0) THEN
                         NB_ELEM_R(1:NSPMD) = RINDEX_PROC(NSECT+1,1,1:NSPMD)

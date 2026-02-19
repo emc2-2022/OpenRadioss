@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CBASUMG3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- calls ---------------
-Chd|        CBAPROJK                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CBATRAN2                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CBATRAN223                    source/elements/shell/coqueba/cbasumg3.F
-Chd|        CBATRAN232                    source/elements/shell/coqueba/cbasumg3.F
-Chd|        CBATRAN233                    source/elements/shell/coqueba/cbasumg3.F
-Chd|        CBATRAN3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbasumg3     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    cbake3       ../engine/source/elements/shell/coqueba/cbake3.F
+!||--- calls      -----------------------------------------------------
+!||    cbaprojk     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cbatran2     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cbatran223   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cbatran232   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cbatran233   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cbatran3     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||====================================================================
       SUBROUTINE CBASUMG3(
      1            JFT    ,JLT    ,VQN    ,VQ     ,NPLAT   ,IPLAT   ,
      2                     K11,K12,K13,K14,K22,K23,K24,K33,K34,K44,
@@ -93,7 +93,7 @@ C---------------------------------------
         CALL CBATRAN2(JFT,NPLAT,Q,K23,Q,IAS)
         CALL CBATRAN2(JFT,NPLAT,Q,K24,Q,IAS)
         CALL CBATRAN2(JFT,NPLAT,Q,K34,Q,IAS)
-       IF (IORTH .GT.0 .AND.IDRIL.GT.0) THEN
+       IF (IORTH >0 .AND.IDRIL>0) THEN
         CALL CBATRAN3(JFT,NPLAT,Q,M11,Q,IS)
         CALL CBATRAN3(JFT,NPLAT,Q,M22,Q,IS)
         CALL CBATRAN3(JFT,NPLAT,Q,M33,Q,IS)
@@ -115,9 +115,9 @@ C---------------------------------------
         CALL CBATRAN2(JFT,NPLAT,Q,M23,Q,IAS)
         CALL CBATRAN2(JFT,NPLAT,Q,M24,Q,IAS)
         CALL CBATRAN2(JFT,NPLAT,Q,M34,Q,IAS)
-       END IF !(IORTH .GT.0.AND.IDRIL.GT.0)
+       END IF !(IORTH >0.AND.IDRIL>0)
 C        
-       IF (IORTH .GT.0) THEN
+       IF (IORTH >0) THEN
         CALL CBATRAN3(JFT,NPLAT,Q,MF11,Q,IAS)
         CALL CBATRAN3(JFT,NPLAT,Q,MF12,Q,IAS)
         CALL CBATRAN3(JFT,NPLAT,Q,MF13,Q,IAS)
@@ -134,7 +134,7 @@ C
         CALL CBATRAN3(JFT,NPLAT,Q,FM23,Q,IAS)
         CALL CBATRAN3(JFT,NPLAT,Q,FM24,Q,IAS)
         CALL CBATRAN3(JFT,NPLAT,Q,FM34,Q,IAS)
-       ELSEIF (IDRIL.GT.0) THEN
+       ELSEIF (IDRIL>0) THEN
         CALL CBATRAN233(JFT,NPLAT,Q,MF11,Q)
         CALL CBATRAN233(JFT,NPLAT,Q,MF12,Q)
         CALL CBATRAN233(JFT,NPLAT,Q,MF13,Q)
@@ -370,15 +370,14 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CBATRAN3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        C3SUMG3                       source/elements/sh3n/coque3n/c3sumg3.F
-Chd|        CBASUMG3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CZSUMG3                       source/elements/shell/coquez/czsumg3.F
-Chd|        MSTIFORTH                     source/elements/solid/solide8z/mmats.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbatran3    ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    c3sumg3     ../engine/source/elements/sh3n/coque3n/c3sumg3.F
+!||    cbasumg3    ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    czsumg3     ../engine/source/elements/shell/coquez/czsumg3.F
+!||    mstiforth   ../engine/source/elements/solid/solide8z/mstiforth.F
+!||====================================================================
       SUBROUTINE CBATRAN3(JFT   ,JLT    ,VQI   ,KK,VQJ,ISYM) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
@@ -396,7 +395,7 @@ C-----------------------------------------------
       my_real
      .    K(3,3,MVSIZ)
 C-----------------------------------------------
-       IF (ISYM.EQ.1) THEN
+       IF (ISYM==1) THEN
         DO I=1,3 
         DO J=I,3 
          DO EP=JFT,JLT 
@@ -441,14 +440,13 @@ C
        ENDIF
       RETURN
       END
-Chd|====================================================================
-Chd|  CBATRAN2                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        C3SUMG3                       source/elements/sh3n/coque3n/c3sumg3.F
-Chd|        CBASUMG3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CZSUMG3                       source/elements/shell/coquez/czsumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbatran2   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    c3sumg3    ../engine/source/elements/sh3n/coque3n/c3sumg3.F
+!||    cbasumg3   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    czsumg3    ../engine/source/elements/shell/coquez/czsumg3.F
+!||====================================================================
       SUBROUTINE CBATRAN2(JFT   ,JLT    ,VQI   ,KK,VQJ,ISYM) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
@@ -466,7 +464,7 @@ C-----------------------------------------------
       my_real
      .    K(3,3,MVSIZ)
 C-----------------------------------------------
-       IF (ISYM.EQ.1) THEN
+       IF (ISYM==1) THEN
         DO I=1,3 
         DO J=I,3 
          DO EP=JFT,JLT 
@@ -509,12 +507,11 @@ C
        ENDIF
       RETURN
       END
-Chd|====================================================================
-Chd|  CBATRAN32                     source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        CZSUMG3                       source/elements/shell/coquez/czsumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbatran32   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    czsumg3     ../engine/source/elements/shell/coquez/czsumg3.F
+!||====================================================================
       SUBROUTINE CBATRAN32(JFT   ,JLT    ,VQI   ,KK,VQJ) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
@@ -554,12 +551,11 @@ C
         ENDDO
       RETURN
       END
-Chd|====================================================================
-Chd|  CBATRAN23                     source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        CZSUMG3                       source/elements/shell/coquez/czsumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbatran23   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    czsumg3     ../engine/source/elements/shell/coquez/czsumg3.F
+!||====================================================================
       SUBROUTINE CBATRAN23(JFT   ,JLT    ,VQI   ,KK,VQJ) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
@@ -598,14 +594,13 @@ C
         ENDDO
       RETURN
       END
-Chd|====================================================================
-Chd|  CBATRAN232                    source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        C3SUMG3                       source/elements/sh3n/coque3n/c3sumg3.F
-Chd|        CBASUMG3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CZSUMG3                       source/elements/shell/coquez/czsumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbatran232   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    c3sumg3      ../engine/source/elements/sh3n/coque3n/c3sumg3.F
+!||    cbasumg3     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    czsumg3      ../engine/source/elements/shell/coquez/czsumg3.F
+!||====================================================================
       SUBROUTINE CBATRAN232(JFT   ,JLT    ,VQI   ,KK,VQJ) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
@@ -641,14 +636,13 @@ C
         ENDDO
       RETURN
       END
-Chd|====================================================================
-Chd|  CBATRAN223                    source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        C3SUMG3                       source/elements/sh3n/coque3n/c3sumg3.F
-Chd|        CBASUMG3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CZSUMG3                       source/elements/shell/coquez/czsumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbatran223   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    c3sumg3      ../engine/source/elements/sh3n/coque3n/c3sumg3.F
+!||    cbasumg3     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    czsumg3      ../engine/source/elements/shell/coquez/czsumg3.F
+!||====================================================================
       SUBROUTINE CBATRAN223(JFT   ,JLT    ,VQI   ,KK,VQJ) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
@@ -685,14 +679,13 @@ C
         ENDDO
       RETURN
       END
-Chd|====================================================================
-Chd|  CBATRAN233                    source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        C3SUMG3                       source/elements/sh3n/coque3n/c3sumg3.F
-Chd|        CBASUMG3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CZSUMG3                       source/elements/shell/coquez/czsumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbatran233   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    c3sumg3      ../engine/source/elements/sh3n/coque3n/c3sumg3.F
+!||    cbasumg3     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    czsumg3      ../engine/source/elements/shell/coquez/czsumg3.F
+!||====================================================================
       SUBROUTINE CBATRAN233(JFT   ,JLT    ,VQI   ,KK,VQJ) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
@@ -732,14 +725,14 @@ C
         ENDDO
       RETURN
       END
-Chd|====================================================================
-Chd|  CBAPROJK                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        CBASUMG3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- calls ---------------
-Chd|        SETPROJKBA                    source/elements/shell/coqueba/cbasumg3.F
-Chd|        SET_RSJ1                      source/elements/shell/coqueba/cbasumg3.F
-Chd|====================================================================
+!||====================================================================
+!||    cbaprojk     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    cbasumg3     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- calls      -----------------------------------------------------
+!||    set_rsj1     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    setprojkba   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||====================================================================
       SUBROUTINE CBAPROJK(
      1                    JFT    ,JLT    ,VQN    ,VQ     ,
      3                     K11,K12,K13,K14,K22,K23,K24,K33,K34,K44,
@@ -769,7 +762,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I, J, K,L,EP,IS,IAS,NF,MI,MJ,M,ND
+      INTEGER I
       my_real
      .    DR(3,3,MVSIZ),
      .    R1(3,3,MVSIZ),R2(3,3,MVSIZ),R3(3,3,MVSIZ),R4(3,3,MVSIZ),
@@ -834,14 +827,14 @@ C -----------PROJECTION---------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SET_RSJ1                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        CBAPROJK                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CZPROJKR                      source/elements/shell/coquez/czsumg3.F
-Chd|-- calls ---------------
-Chd|        SET_RI33                      source/elements/shell/coqueba/cbasumg3.F
-Chd|====================================================================
+!||====================================================================
+!||    set_rsj1   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    cbaprojk   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    czprojkr   ../engine/source/elements/shell/coquez/czsumg3.F
+!||--- calls      -----------------------------------------------------
+!||    set_ri33   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||====================================================================
       SUBROUTINE SET_RSJ1(R1     ,R2     ,R3     ,R4    ,Z1    ,
      .                    JFT    ,JLT    ,CORELV)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
@@ -859,7 +852,7 @@ C   LOCAL  A R G U M E N T S
 C-----------------------------------------------
       INTEGER J,M,L
       my_real
-     .    S,XI(MVSIZ),YI(MVSIZ),ZI(MVSIZ)
+     . XI(MVSIZ),YI(MVSIZ),ZI(MVSIZ)
 C-------------------------------------------------------------
         DO M=JFT,JLT
          DO L=1,3
@@ -899,14 +892,13 @@ C
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  SET_RI33                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        S6CCUMG3                      source/elements/thickshell/solide6c/s6ccumg3.F
-Chd|        SET_RSJ1                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        SET_RSJ2                      source/elements/shell/coquez/czsumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    set_ri33   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    s6ccumg3   ../engine/source/elements/thickshell/solide6c/s6ccumg3.F
+!||    set_rsj1   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    set_rsj2   ../engine/source/elements/shell/coquez/czsumg3.F
+!||====================================================================
       SUBROUTINE SET_RI33(XI ,YI, ZI  ,RI  ,JFT,JLT)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
@@ -919,7 +911,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   LOCAL  A R G U M E N T S
 C-----------------------------------------------
-      INTEGER I,J,L
+      INTEGER I
          DO I=JFT,JLT
           RI(1,2,I)=ZI(I)
           RI(1,3,I)=-YI(I)
@@ -931,17 +923,17 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SETPROJKBA                    source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        CBAPROJK                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- calls ---------------
-Chd|        TRANKL1                       source/elements/shell/coquez/czsumg3.F
-Chd|        TRANKLQ                       source/elements/shell/coquez/czsumg3.F
-Chd|        TRANQIKQJ                     source/elements/shell/coquez/czsumg3.F
-Chd|        TRANQIKQJ33                   source/elements/shell/coqueba/cbasumg3.F
-Chd|        TRANQNKQ                      source/elements/shell/coqueba/cbasumg3.F
-Chd|====================================================================
+!||====================================================================
+!||    setprojkba    ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    cbaprojk      ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- calls      -----------------------------------------------------
+!||    trankl1       ../engine/source/elements/shell/coquez/czsumg3.F
+!||    tranklq       ../engine/source/elements/shell/coquez/czsumg3.F
+!||    tranqikqj     ../engine/source/elements/shell/coquez/czsumg3.F
+!||    tranqikqj33   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    tranqnkq      ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||====================================================================
       SUBROUTINE SETPROJKBA(DR    ,R1     ,R2     ,R3     ,R4    ,
      3                     K11,K12,K13,K14,K22,K23,K24,K33,K34,K44,
      4                     M11,M12,M13,M14,M22,M23,M24,M33,M34,M44,
@@ -981,7 +973,7 @@ C-----------------------------------------------
 C-------------------------------------------------------------
         ALLOCATE(P(24,24,MVSIZ))
         ALLOCATE(KE(24,24,MVSIZ))
-C	
+C
         DO I=1,3 
         DO J=1,3 
          DO EP=JFT,JLT 
@@ -1422,17 +1414,15 @@ C-----------
         DEALLOCATE(KE)
       RETURN
       END
-Chd|====================================================================
-Chd|  TRANQIKQJ33                   source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        SETPROJKBA                    source/elements/shell/coqueba/cbasumg3.F
-Chd|        SETPROJKZ1                    source/elements/shell/coquez/czsumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    tranqikqj33   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    setprojkba    ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    setprojkz1    ../engine/source/elements/shell/coquez/czsumg3.F
+!||====================================================================
       SUBROUTINE TRANQIKQJ33(JFT   ,JLT    ,RI  ,RD , RJ,KD ,ISYM)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -1447,7 +1437,7 @@ C-----------------------------------------------
      .    K(3,3)
 C--------------[KD]=|RI| |RD| |RJ|^t---------------------------------
 C--------------     | I|      |I |---------------------------------
-       IF (ISYM.EQ.1) THEN
+       IF (ISYM==1) THEN
         DO I=1,3
         DO J=I,3
          DO EP=JFT,JLT
@@ -1535,12 +1525,11 @@ C
        ENDIF
       RETURN
       END
-Chd|====================================================================
-Chd|  TRANQNKQ                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        SETPROJKBA                    source/elements/shell/coqueba/cbasumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    tranqnkq     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    setprojkba   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||====================================================================
       SUBROUTINE TRANQNKQ(JFT   ,JLT    ,VQN   ,KQ   ) 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
@@ -1548,13 +1537,13 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
-      INTEGER JFT,JLT,IT
+      INTEGER JFT, JLT
       my_real 
      .   VQN(3,3,*), KQ(6,6,*)
 C-----------------------------------------------
 C   LOCAL  A R G U M E N T S
 C-----------------------------------------------
-      INTEGER I,J,EP,K,L,J1,I1
+      INTEGER I, J, EP, K, J1, I1
       my_real 
      .   KD(3,3,MVSIZ),KK(3,3,MVSIZ)
 C--------------KQ<-VQ*KQ----VQ=|I   0 |
@@ -1569,7 +1558,7 @@ C------------------------------|0 VQN|---------------------
         ENDDO
 C        
         DO J=1,3 
-	 J1=J+3
+           J1=J+3
         DO I=1,3 
          DO EP=JFT,JLT 
           DO K=1,3 
@@ -1579,11 +1568,11 @@ C
          ENDDO
         ENDDO
         ENDDO
-C	
+C
         DO I=1,3 
-	 I1=I+3
+           I1=I+3
         DO J=1,3 
-	 J1=J+3
+           J1=J+3
          DO EP=JFT,JLT 
             KQ(I1,J,EP)=KD(I,J,EP)
             KQ(I1,J1,EP)=KK(I,J,EP)
@@ -1593,11 +1582,9 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CN4SUMG3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cn4sumg3   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||====================================================================
       SUBROUTINE CN4SUMG3(
      1                     JFT    ,JLT    ,IPLAT   ,
      2                     K11,K12,K13,K14,K22,K23,K24,K33,K34,K44,
@@ -1608,7 +1595,6 @@ Chd|====================================================================
      7                     KE24,KE34)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -1630,7 +1616,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I, J, K,EP,M,MI,MJ
+      INTEGER I, J, EP, M, MI, MJ
 C---------KII -------- 
        DO I=1,3 
         MI=I+3
@@ -1714,12 +1700,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMPKCTMP                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        WRITEKC4                      source/elements/shell/coqueba/cbasumg3.F
-Chd|====================================================================
+!||====================================================================
+!||    impkctmp   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- calls      -----------------------------------------------------
+!||    writekc4   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||====================================================================
       SUBROUTINE IMPKCTMP( JFT,JLT,IUGEO,
      1                    KE11   ,KE12   ,KE13   ,KE14   ,KE22 ,
      2                    KE23   ,KE24   ,KE33   ,KE34   ,KE44 )
@@ -1728,7 +1713,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "param_c.inc"
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1742,7 +1726,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,N,NT,IG(MVSIZ)
+ 
 C=======================================================================
 C     SHELL
 C=======================================================================
@@ -1759,12 +1743,11 @@ C=======================================================================
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  WRITEKC4                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- called by -----------
-Chd|        IMPKCTMP                      source/elements/shell/coqueba/cbasumg3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    writekc4   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||--- called by ------------------------------------------------------
+!||    impkctmp   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||====================================================================
       SUBROUTINE WRITEKC4( IN,JFT,JLT,CH,KIJ)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1781,7 +1764,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,N,NT
+      INTEGER I, J, N
       CHARACTER KEY*10,KEY1*23
 C-----------------------------------------------
        KEY='/SHELL_'//CH

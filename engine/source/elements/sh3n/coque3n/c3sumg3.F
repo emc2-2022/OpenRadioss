@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3SUMG3                       source/elements/sh3n/coque3n/c3sumg3.F
-Chd|-- called by -----------
-Chd|        C3KE3                         source/elements/sh3n/coque3n/c3ke3.F
-Chd|-- calls ---------------
-Chd|        CBATRAN2                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CBATRAN223                    source/elements/shell/coqueba/cbasumg3.F
-Chd|        CBATRAN232                    source/elements/shell/coqueba/cbasumg3.F
-Chd|        CBATRAN233                    source/elements/shell/coqueba/cbasumg3.F
-Chd|        CBATRAN3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3sumg3      ../engine/source/elements/sh3n/coque3n/c3sumg3.F
+!||--- called by ------------------------------------------------------
+!||    c3ke3        ../engine/source/elements/sh3n/coque3n/c3ke3.F
+!||--- calls      -----------------------------------------------------
+!||    cbatran2     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cbatran223   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cbatran232   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cbatran233   ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cbatran3     ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||====================================================================
       SUBROUTINE C3SUMG3(JFT ,JLT ,
      1                     R11,R12,R13,R21,R22,R23,R31,R32,R33,
      2                     K11,K12,K13,K22,K23,K33,
@@ -89,7 +89,7 @@ C-----      CBATRAN233     QI^tKQJ K(1,3)>0,K(2,3)>0,K(3,1)>0,K(3,2)>0-------
        CALL CBATRAN2(JFT,JLT,Q,K12,Q,IAS)
        CALL CBATRAN2(JFT,JLT,Q,K13,Q,IAS)
        CALL CBATRAN2(JFT,JLT,Q,K23,Q,IAS)
-       IF (IORTH .GT.0 .AND.IDRIL.GT.0) THEN
+       IF (IORTH >0 .AND.IDRIL>0) THEN
         CALL CBATRAN3(JFT,JLT,Q,M11,Q,IS)
         CALL CBATRAN3(JFT,JLT,Q,M22,Q,IS)
         CALL CBATRAN3(JFT,JLT,Q,M33,Q,IS)
@@ -103,8 +103,8 @@ C-----      CBATRAN233     QI^tKQJ K(1,3)>0,K(2,3)>0,K(3,1)>0,K(3,2)>0-------
         CALL CBATRAN2(JFT,JLT,Q,M12,Q,IAS)
         CALL CBATRAN2(JFT,JLT,Q,M13,Q,IAS)
         CALL CBATRAN2(JFT,JLT,Q,M23,Q,IAS)
-       END IF !(IORTH .GT.0.AND.IDRIL.GT.0)
-       IF (IORTH .GT.0) THEN
+       END IF !(IORTH >0.AND.IDRIL>0)
+       IF (IORTH >0) THEN
        CALL CBATRAN3(JFT,JLT,Q,MF11,Q,IAS)
        CALL CBATRAN3(JFT,JLT,Q,MF12,Q,IAS)
        CALL CBATRAN3(JFT,JLT,Q,MF13,Q,IAS)
@@ -114,7 +114,7 @@ C-----      CBATRAN233     QI^tKQJ K(1,3)>0,K(2,3)>0,K(3,1)>0,K(3,2)>0-------
        CALL CBATRAN3(JFT,JLT,Q,FM12,Q,IAS)
        CALL CBATRAN3(JFT,JLT,Q,FM13,Q,IAS)
        CALL CBATRAN3(JFT,JLT,Q,FM23,Q,IAS)
-       ELSEIF (IDRIL.GT.0) THEN
+       ELSEIF (IDRIL>0) THEN
         CALL CBATRAN233(JFT,JLT,Q,MF11,Q)
         CALL CBATRAN233(JFT,JLT,Q,MF12,Q)
         CALL CBATRAN233(JFT,JLT,Q,MF13,Q)

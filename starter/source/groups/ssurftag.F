@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SSURFTAG                      source/groups/ssurftag.F      
-Chd|-- called by -----------
-Chd|        HM_READ_SURF                  source/groups/hm_read_surf.F  
-Chd|-- calls ---------------
-Chd|        SSURF10                       source/groups/ssurftag.F      
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        SURF_MOD                      share/modules1/surf_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ssurftag               ../starter/source/groups/ssurftag.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_surf           ../starter/source/groups/hm_read_surf.F
+!||--- calls      -----------------------------------------------------
+!||    ssurf10                ../starter/source/groups/ssurftag.F
+!||--- uses       -----------------------------------------------------
+!||    surf_mod               ../starter/share/modules1/surf_mod.F
+!||====================================================================
       SUBROUTINE SSURFTAG(IXS     ,IPARTS  ,NSEG0    ,IGRSURF ,TAGBUF,
      .                    NSEG    ,KNOD2ELS,NOD2ELS  ,IEXT    ,FLAG  ,
      .                    IXS10   ,IXS16   ,IXS20    ,IFRE    ,KEY   ,
@@ -41,13 +41,13 @@ C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SURF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARKEY
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -57,14 +57,14 @@ C-----------------------------------------------
      .        KNOD2ELC(*),NOD2ELC(*),KNOD2ELTG(*),NOD2ELTG(*),
      .        IXC(NIXC,*),IXTG(NIXTG,*),IPARTC(*),IPARTTG(*)
       INTEGER IEXT,NSEG,FLAG,IFRE,NSEG0
-      CHARACTER KEY*ncharkey
+      CHARACTER(LEN=NCHARKEY) :: KEY
       INTEGER :: NINDX, NINDX_SOL, NINDX_SOL10
       INTEGER, DIMENSION(*) :: INDX,INDX_SOL, INDX_SOL10
       TYPE(PART_TYPE), DIMENSION(*) :: SURF_ELM
 !
       TYPE (SURF_) :: IGRSURF
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*       
-!       FLAG_GRBRIC : flag to initialize the INDX_SOL(10) arraies
+!       FLAG_GRBRIC : flag to initialize the INDX_SOL(10) arrays
 !                     and optimize an old and expensive treatment in SSURFTAG
 !                     = true for /SURF/GCBRIC
 !                     = false  if /SURF/XXX is different from  /SURF/GCBRIC
@@ -77,14 +77,14 @@ C-----------------------------------------------
 !       NINDX_SOL(10) : number of the tagged solid(10) element
 !                      --> need to split solid and solid10 
 !                      for a treatment in the SSURFTAG routine
-!                      only usefull for /SURF/GRBRIC
+!                      only useful for /SURF/GRBRIC
 !       INDX_SOL(10) : ID of the tagged solid(10) element
 !                      --> need to split solid and solid10 
 !                      for a treatment in the SSURFTAG routine
-!                      only usefull for /SURF/GRBRIC
-!       SURF_ELM : PART_TYPE structur 
+!                      only useful for /SURF/GRBRIC
+!       SURF_ELM : PART_TYPE structure
 !                  %NSOL(10) : number of element per part
-!                  %SOL(10)_PART : ID of the element 
+!                  %SOL(10)_PART : ID of the element
 !       ----------------
 !       *-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 C-----------------------------------------------
@@ -92,8 +92,9 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N,J,K,JS,KS,II,JJ,K1,K2,LL,FACE(4),FC10(3),NN,KK,I1,
      .        NI(4),NS(4),MI(4),MS(4),NMIN,MMIN,NF,MF,IPERM,N1,N2,I
-      INTEGER NODTAG(NUMNOD),FASTAG(NUMELS),FACES(4,6),PWR(7),
+      INTEGER FACES(4,6),PWR(7),
      .        FACES10(3,6),NNS,ISHEL,ISEG
+      INTEGER, DIMENSION(:), ALLOCATABLE :: NODTAG,FASTAG
 !     FLAG_PART : check for tagged part
       LOGICAL :: FLAG_PART      
 !     NUM_PART : number of tagged part 
@@ -114,6 +115,8 @@ C-----------------------------------------------
      .             4,5,1/
       DATA PWR/1,2,4,8,16,32,64/
 C=======================================================================
+      ALLOCATE(NODTAG(NUMNOD),FASTAG(NUMELS))
+
       FASTAG=0
 C
       IF(IEXT==1)THEN
@@ -130,7 +133,7 @@ C       External surface only.
               NS(II)=IXS(FACES(II,JJ)+1,JS)
             END DO
 C
-C           keep only 1 occurence of each node (triangles, degenerated cases...)
+C           keep only 1 occurrence of each node (triangles, degenerated cases...)
             DO K1=1,3
               DO K2=K1+1,4
                 IF(NS(K2)==NS(K1))NS(K2)=0
@@ -140,8 +143,8 @@ C           keep only 1 occurence of each node (triangles, degenerated cases...)
             DO K1=1,4
               N1=NS(K1)
               IF(N1/=0)THEN
-        	    NF=NF+1
-        	    NS(NF)=N1
+              NF=NF+1
+              NS(NF)=N1
               END IF
             END DO
             IF (NF < 3)CYCLE
@@ -165,7 +168,7 @@ C           looks for an elt sharing the face.
             DO K=KNOD2ELS(NI(1))+1,KNOD2ELS(NI(1)+1)
               KS=NOD2ELS(K)
               IF(KS==JS .OR. KS > NUMELS8+NUMELS10)CYCLE
-              IF (KEY(1:6)=='GRBRIC'.AND.TAGBUF(KS)==0.AND.IFRE==0)CYCLE ! if IFRE=0 on cherche la connectivite uniquement avec les elements du marques du groupe (cycle), sinon si IFRE=1 on cherche la connectivité avec tout le monde
+              IF (KEY(1:6)=='GRBRIC'.AND.TAGBUF(KS)==0.AND.IFRE==0)CYCLE ! if IFRE=0 we only look for connectivity with the elements marked by the group (cycle), otherwise if IFRE=1 we look for connectivity with everyone
               IF (KEY(1:6)/='GRBRIC'.AND.TAGBUF(IPARTS(KS))==0)CYCLE     
               DO II=1,NF
                 NODTAG(NI(II))=0
@@ -179,42 +182,42 @@ C           looks for an elt sharing the face.
               END DO
               IF(NN==NF)THEN
                 DO KK=1,6
-            	  DO II=1,4
-            	    MS(II)=IXS(FACES(II,KK)+1,KS)
-            	  END DO
+            DO II=1,4
+              MS(II)=IXS(FACES(II,KK)+1,KS)
+            END DO
 C
-C                 keep only 1 occurence of each node (triangles, degenerated cases...)
-            	  DO K1=1,3
-            	    DO K2=K1+1,4
-            	      IF(MS(K2)==MS(K1))MS(K2)=0
-            	    END DO
-            	  END DO
-            	  MF=0
-            	  DO K1=1,4
-            	    N1=MS(K1)
-            	    IF(N1/=0)THEN
-              	      MF=MF+1
-              	      MS(MF)=N1
-            	    END IF
-            	  END DO
-            	  IF(MF /= NF)CYCLE
+C                 keep only 1 occurrence of each node (triangles, degenerated cases...)
+            DO K1=1,3
+              DO K2=K1+1,4
+                IF(MS(K2)==MS(K1))MS(K2)=0
+              END DO
+            END DO
+            MF=0
+            DO K1=1,4
+              N1=MS(K1)
+              IF(N1/=0)THEN
+                MF=MF+1
+                MS(MF)=N1
+              END IF
+            END DO
+            IF(MF /= NF)CYCLE
 C
 C                 permute
-           	      MMIN=MS(1)
-           	      DO II=2,MF
-           	        MMIN=MIN(MMIN,MS(II))
-           	      END DO
-            	  DO IPERM=1,MF
-            	    IF(MMIN==MS(IPERM).AND.
+                MMIN=MS(1)
+                DO II=2,MF
+                  MMIN=MIN(MMIN,MS(II))
+                END DO
+            DO IPERM=1,MF
+              IF(MMIN==MS(IPERM).AND.
      .                 MS(MOD(IPERM,MF)+1)/=MS(IPERM))THEN
-            	      DO II=1,MF
-            	  	    MI(II)=MS(MOD(II+IPERM-2,MF)+1)
-            	      END DO
-            	      EXIT
-            	    END IF
-            	  END DO
+                DO II=1,MF
+                  MI(II)=MS(MOD(II+IPERM-2,MF)+1)
+                END DO
+                EXIT
+              END IF
+            END DO
                   IF(MI(1)==NI(1).AND.MI(NF)==NI(2))THEN
-C                    FACTAG(JS) moins face jj
+C                    Factag (JS) Less Face JJ
                      FASTAG(JS)=FASTAG(JS)+PWR(JJ)
                      GO TO 300
                   END IF
@@ -262,18 +265,18 @@ C           still needs to filter degenerated faces
             DO K1=1,4
               N1=FACE(K1)
               DO K2=1,4
-        	IF(K2/=K1)THEN
-        	  N2=FACE(K2)
-        	  IF(N2==N1)FACE(K2)=0
-        	END IF
+          IF(K2/=K1)THEN
+            N2=FACE(K2)
+            IF(N2==N1)FACE(K2)=0
+          END IF
               END DO
             END DO
             NN=0
             DO K1=1,4
               N1=FACE(K1)
               IF(N1/=0)THEN
-        	    NN=NN+1
-        	    FACE(NN)=N1
+              NN=NN+1
+              FACE(NN)=N1
               END IF
             END DO
 C---   find shells SURF/PART/EXT
@@ -293,7 +296,7 @@ C---   find shells SURF/PART/EXT
               ENDDO
               IF(KS == 0)THEN
                 NSEG = NSEG + 1
-              ELSEIF (IABS(TAGBUF(IPARTTG(KS))) .NE. 1) THEN
+              ELSEIF (IABS(TAGBUF(IPARTTG(KS))) /= 1) THEN
                 NSEG = NSEG + 1
               ENDIF
             ELSEIF(FLAG == 0 .and. NN == 4) THEN 
@@ -312,7 +315,7 @@ C---   find shells SURF/PART/EXT
               ENDDO
               IF(KS == 0)THEN
                 NSEG = NSEG + 1
-              ELSEIF (IABS(TAGBUF(IPARTC(KS))) .NE. 1)THEN
+              ELSEIF (IABS(TAGBUF(IPARTC(KS))) /= 1)THEN
                 NSEG = NSEG + 1
               ENDIF
             ELSEIF(NN==3)THEN
@@ -334,7 +337,7 @@ C---   find shells SURF/PART/EXT
                 ISEG = NSEG
                 CALL SSURF10(FACE(1),FACE(2),FACE(3),FACE(3),JS,
      .                   NSEG0 ,ISEG ,IGRSURF%NODES,IGRSURF%ELTYP,IGRSURF%ELEM)
-              ELSEIF (IABS(TAGBUF(IPARTTG(KS))) .NE. 1)THEN
+              ELSEIF (IABS(TAGBUF(IPARTTG(KS))) /= 1)THEN
                 NSEG = NSEG + 1
                 ISEG = NSEG
                 CALL SSURF10(FACE(1),FACE(2),FACE(3),FACE(3),JS,
@@ -359,7 +362,7 @@ C---   find shells SURF/PART/EXT
                ISEG = NSEG
                CALL SSURF10(FACE(1),FACE(2),FACE(3),FACE(4),JS,
      .                   NSEG0 ,ISEG ,IGRSURF%NODES,IGRSURF%ELTYP,IGRSURF%ELEM)
-              ELSEIF (IABS(TAGBUF(IPARTC(KS))) .NE. 1 ) THEN
+              ELSEIF (IABS(TAGBUF(IPARTC(KS))) /= 1 ) THEN
                NSEG = NSEG + 1
                ISEG = NSEG
                CALL SSURF10(FACE(1),FACE(2),FACE(3),FACE(4),JS,
@@ -505,28 +508,21 @@ C---
         ENDDO   !       end of JS_ELM=1,NUM_ELM
       ENDDO     !       end JS_PART=1,NUM_PART
 C-----------
+      DEALLOCATE(NODTAG,FASTAG)
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SSURF10                       source/groups/ssurftag.F      
-Chd|-- called by -----------
-Chd|        SSURFTAG                      source/groups/ssurftag.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ssurf10    ../starter/source/groups/ssurftag.F
+!||--- called by ------------------------------------------------------
+!||    ssurftag   ../starter/source/groups/ssurftag.F
+!||====================================================================
       SUBROUTINE SSURF10(N1    ,N2   ,N3        ,N4        ,JS       ,
      .                   NSEG0 ,ISEG ,SURF_NODES,SURF_ELTYP,SURF_ELEM)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -544,23 +540,19 @@ C-----------------------------------------------
 !---
       RETURN
       END
-Chd|====================================================================
-Chd|  SURFEXT_TAGN                  source/groups/ssurftag.F      
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    surfext_tagn   ../starter/source/groups/ssurftag.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SURFEXT_TAGN(IXS    ,KNOD2ELS,NOD2ELS  ,IXS10   ,FASTAG,itab)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -571,8 +563,9 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N,J,K,JS,KS,II,JJ,K1,K2,LL,FACE(4),FC10(3),NN,KK,I1,
      .        NI(4),NS(4),MI(4),MS(4),NMIN,MMIN,NF,MF,IPERM,N1,N2,I
-      INTEGER NODTAG(NUMNOD),FACES(4,6),PWR(7),
-     .        FACES10(3,6),NNS
+      INTEGER FACES(4,6),PWR(7)
+      INTEGER, DIMENSION(:), ALLOCATABLE :: NODTAG
+      INTEGER ::  FACES10(3,6),NNS
       DATA FACES/4,3,2,1,
      .           5,6,7,8,
      .           1,2,6,5,
@@ -586,8 +579,9 @@ C-----------------------------------------------
      .             1,2,3,
      .             4,5,1/
       DATA PWR/1,2,4,8,16,32,64/
-C=======================================================================
-      FASTAG=0
+Co=======================================================================
+        ALLOCATE(NODTAG(NUMNOD))
+        FASTAG=0
 C       Tag nodes External surface (solid)
         DO JS=1,NUMELS
           DO JJ=1,6
@@ -595,7 +589,7 @@ C       Tag nodes External surface (solid)
               NS(II)=IXS(FACES(II,JJ)+1,JS)
             END DO
 C
-C           keep only 1 occurence of each node (triangles, degenerated cases...)
+C           keep only 1 occurrence of each node (triangles, degenerated cases...)
             DO K1=1,3
               DO K2=K1+1,4
                 IF(NS(K2)==NS(K1))NS(K2)=0
@@ -605,8 +599,8 @@ C           keep only 1 occurence of each node (triangles, degenerated cases...)
             DO K1=1,4
               N1=NS(K1)
               IF(N1/=0)THEN
-        	    NF=NF+1
-        	    NS(NF)=N1
+              NF=NF+1
+              NS(NF)=N1
               END IF
             END DO
             IF (NF < 3)CYCLE
@@ -642,42 +636,42 @@ C           looks for an elt sharing the face.
               END DO
               IF(NN==NF)THEN
                 DO KK=1,6
-            	  DO II=1,4
-            	    MS(II)=IXS(FACES(II,KK)+1,KS)
-            	  END DO
+            DO II=1,4
+              MS(II)=IXS(FACES(II,KK)+1,KS)
+            END DO
 C
-C                 keep only 1 occurence of each node (triangles, degenerated cases...)
-            	  DO K1=1,3
-            	    DO K2=K1+1,4
-            	      IF(MS(K2)==MS(K1))MS(K2)=0
-            	    END DO
-            	  END DO
-            	  MF=0
-            	  DO K1=1,4
-            	    N1=MS(K1)
-            	    IF(N1/=0)THEN
-              	      MF=MF+1
-              	      MS(MF)=N1
-            	    END IF
-            	  END DO
-            	  IF(MF /= NF)CYCLE
+C                 keep only 1 occurrence of each node (triangles, degenerated cases...)
+            DO K1=1,3
+              DO K2=K1+1,4
+                IF(MS(K2)==MS(K1))MS(K2)=0
+              END DO
+            END DO
+            MF=0
+            DO K1=1,4
+              N1=MS(K1)
+              IF(N1/=0)THEN
+                MF=MF+1
+                MS(MF)=N1
+              END IF
+            END DO
+            IF(MF /= NF)CYCLE
 C
 C                 permute
-           	      MMIN=MS(1)
-           	      DO II=2,MF
-           	        MMIN=MIN(MMIN,MS(II))
-           	      END DO
-            	  DO IPERM=1,MF
-            	    IF(MMIN==MS(IPERM).AND.
+                MMIN=MS(1)
+                DO II=2,MF
+                  MMIN=MIN(MMIN,MS(II))
+                END DO
+            DO IPERM=1,MF
+              IF(MMIN==MS(IPERM).AND.
      .                 MS(MOD(IPERM,MF)+1)/=MS(IPERM))THEN
-            	      DO II=1,MF
-            	  	    MI(II)=MS(MOD(II+IPERM-2,MF)+1)
-            	      END DO
-            	      EXIT
-            	    END IF
-            	  END DO
+                DO II=1,MF
+                  MI(II)=MS(MOD(II+IPERM-2,MF)+1)
+                END DO
+                EXIT
+              END IF
+            END DO
                   IF(MI(1)==NI(1).AND.MI(NF)==NI(2))THEN
-C                    FACTAG(JS) moins face jj
+C                    Factag (JS) Less Face JJ
                      FASTAG(JS)=FASTAG(JS)+PWR(JJ)
                      GO TO 300
                   END IF
@@ -688,6 +682,7 @@ C                    FACTAG(JS) moins face jj
           END DO
         END DO
 C-----------
+      DEALLOCATE(NODTAG)
       RETURN
       END
 

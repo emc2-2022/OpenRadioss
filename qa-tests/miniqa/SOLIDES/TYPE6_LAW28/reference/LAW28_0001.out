@@ -1,41 +1,41 @@
- FORDL28_0001.out
+ LAW28_0001.out
 ************************************************************************
 **                                                                    **
 **                                                                    **
-**                      RADIOSS ENGINE MAINLINE                       **
+**                         OpenRadioss Engine                         **
 **                                                                    **
 **            Non-linear Finite Element Analysis Software             **
-**                   from Altair Engineering, Inc.                    **
-**                                                                    **
-**                                                                    **
-**              Linux 64 bits, Intel compiler, Intel MPI              **
 **                                                                    **
 **                                                                    **
 **                                                                    **
-** Build tag: 0742056_087sesevot__2070_0032401_10                     **
+**                    Linux 64 bits, GNU compiler                     **
+**                      Double Precision Version                      **
+**                                                                    **
+**                                                                    **
+**                                                                    **
 ************************************************************************
-**  COPYRIGHT (C) 1986-2014                 Altair Engineering, Inc.  **
-** All Rights Reserved.  Copyright notice does not imply publication. **
-** Contains trade secrets of Altair Engineering Inc.                  **
-** Decompilation or disassembly of this software strictly prohibited. **
+** OpenRadioss Software                                               **
+** COPYRIGHT (C) 1986-2025 Altair Engineering, Inc.                   **
+** Licensed under GNU Affero General Public License.                  **
+** See License file.                                                  **
 ************************************************************************
  
- NUMBER OF SPMD DOMAINS           4
+ NUMBER OF SPMD DOMAINS           1
  NUMBER OF THREADS PER DOMAIN     1
- NUMBER OF HMPP PROCESSES         4
+ NUMBER OF HMPP PROCESSES         1
   
  COMPUTATION HARDWARE DESCRIPTION
   
- CPU#  HOSTNAME     CPU TYPE, FREQUENCY AND MEMORY
-   1   fradf-mariner1.europe.altair.com   Intel(R) Xeon(R) CPU E5-4640 0 @ 2.40GHz (x86_64), 2400 MHz,  16080 MB RAM,  16383 MB swap
-   2   fradf-mariner1.europe.altair.com   Intel(R) Xeon(R) CPU E5-4640 0 @ 2.40GHz (x86_64), 2400 MHz,  16080 MB RAM,  16383 MB swap
-   3   fradf-mariner1.europe.altair.com   Intel(R) Xeon(R) CPU E5-4640 0 @ 2.40GHz (x86_64), 2400 MHz,  16080 MB RAM,  16383 MB swap
-   4   fradf-mariner1.europe.altair.com   Intel(R) Xeon(R) CPU E5-4640 0 @ 2.40GHz (x86_64), 2400 MHz,  16080 MB RAM,  16383 MB swap
+ HOSTNAME     CPU TYPE, FREQUENCY AND MEMORY
+ fr-lap281-1.europe.altair.com   Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz (x86_64), 2592 MHz,  16016 MB RAM,      0 MB swap
   
+ STACKSIZE  . . . . . . . . . . . . . . . . . . . . 16 MB
+ THREAD STACKSIZE . . . . . . . . . . . . . . . . . 400 mB
+ 
 ************************************************************************
 
 
- FORDL28D01                                                                      
+ LAW28D01                                                                        
 
 
  FINAL TIME . . . . . . . . . . . . . . . . . . .   50.00000    
@@ -75,24 +75,23 @@
  AIRBAG MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
  MIN. TIME FLAG (1:STOP). . . . . . . . . . . . .     0
 
- INTERFACE TYPE 7 TIME STEP SCALE FACTOR. . . . .  0.5000000    
- INTERFACE TYPE 7 MINIMUM TIME STEP . . . . . . .   0.000000    
+ CONTACT TIME STEP SCALE FACTOR . . . . . . . . .  0.5000000    
+ CONTACT MINIMUM TIME STEP. . . . . . . . . . . .   0.000000    
  MIN. TIME FLAG(1:STOP, 2:REMOVE NODE FROM INTERF)    0
-
- FVMBAG TIME STEP SCALE FACTOR. . . . . . . . . .  0.5000000    
- FVMBAG MINIMUM TIME STEP . . . . . . . . . . . .   0.000000    
 
  PRINTOUT CYCLE FREQUENCY . . . . . . . . . . . .  -100
 
- RESTART CYCLE FREQUENCY. . . . . . . . . . . . .       5000
+ RESTART CYCLE FREQUENCY. . . . . . . . . . . . .   10000000
 
  MAXIMUM RESTART WRITE BEFORE OVERWRITE . . . . .     0
 
- INVERS: INPUT DECK VERSION . . . . . . . . . . .    41
+ INVERS: INPUT DECK VERSION . . . . . . . . . . .  2019
  ITTYP : FLAG FOR TYPE OF T-FILE. . . . . . . . .     4
+
 
  TIME FOR FIRST ANIMATION-FILE PLOT . . . . . . .   0.000000    
  TIME INTERVAL FOR ANIMATION-FILE PLOTS . . . . .   5.000000    
+ TIME TO STOP ANIMATION-FILE PLOTS. . . . . . . .  0.1000000E+21
  SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . .          0
  TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. .   0.000000    
 
@@ -108,6 +107,10 @@
       TURBULENT ENERGY (FLUID).     0
       TURBULENT VISCOSITY(FLUID)    0
       VORTICITY (FLUID) . . . .     0
+ NODAL VALUES SAVED ON ANIMATION FILES (1: YES) :
+      PRESSURE. . . . . . . . .     0
+      DENSITY . . . . . . . . .     0
+      TEMPERATURE . . . . . . .     0
  VECTOR SAVED ON ANIMATION FILES (1: YES) :
       VELOCITY VECTOR . . . . .     1
       DISPLACEMENT VECTOR . . .     0
@@ -135,9 +138,6 @@
  MAXIMUM TIME STEP. . . . . . . . . . . . . . . .  0.1000000E+31
 
  PARALLEL ARITHMETIC ON
-
- ALE GRID FORMULATION                    
- --------------------                    
  NUMBER OF INTERFACES TO BE ELIMINATED. . . . . .        0
 
  NUMBER OF SOLID  ELEMENT BLOCKS TO BE ELIMINATED        0
@@ -158,79 +158,82 @@
 
  NUMBER OF RIGID LINKS. . . . . . . . . . . . . .        0
 
- NUMBER OF ALE LINKS. . . . . . . . . . . . . . .        0
-
  NUMBER OF NEW BOUNDARY CONDITIONS. . . . . . . .        0
 
- 19/11/2014
- CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK MAS.ERR
-     0   0.000      0.1657     SOLID          1   0.0%   0.000      0.2500E+07   0.000       0.000       0.000    
-     ANIMATION FILE: FORDL28A001 WRITTEN
-     ANIMATION FILE: FORDL28A002 WRITTEN
-     ANIMATION FILE: FORDL28A003 WRITTEN
-   100   11.35      0.7898E-01 SOLID          1   0.8%  0.1079E+07  0.1444E+07   0.000       1830.       0.000    
-     ANIMATION FILE: FORDL28A004 WRITTEN
-   200   17.39      0.4865E-01 SOLID          1   0.4%  0.2200E+07  0.3163E+06   0.000       5964.       0.000    
-     ANIMATION FILE: FORDL28A005 WRITTEN
-   300   21.98      0.4447E-01 SOLID          1   0.2%  0.2509E+07   7303.       0.000       9988.       0.000    
-     ANIMATION FILE: FORDL28A006 WRITTEN
-   400   26.76      0.5472E-01 SOLID          1   0.1%  0.2005E+07  0.5132E+06   0.000      0.1406E+05   0.000    
-     ANIMATION FILE: FORDL28A007 WRITTEN
-   500   33.78      0.9335E-01 SOLID          1   0.4%  0.8183E+06  0.1710E+07   0.000      0.1755E+05   0.000    
-     ANIMATION FILE: FORDL28A008 WRITTEN
-     ANIMATION FILE: FORDL28A009 WRITTEN
-     ANIMATION FILE: FORDL28A010 WRITTEN
-   600   46.66      0.1489     SOLID          1   1.0%  0.3214E+06  0.2222E+07   0.000      0.1817E+05   0.000    
+ 24/03/2025
+   CYCLE    TIME      TIME-STEP  ELEMENT          ERROR  I-ENERGY    K-ENERGY T  K-ENERGY R  EXT-WORK     MAS.ERR     TOTAL MASS  MASS ADDED
+       0   0.000      0.1657     SOLID          1   0.0%   0.000      0.2500E+07   0.000       0.000       0.000      0.2001E+06   0.000    
+     ANIMATION FILE: LAW28A001 WRITTEN
+     ANIMATION FILE: LAW28A002 WRITTEN
+     ANIMATION FILE: LAW28A003 WRITTEN
+     100   11.32      0.7921E-01 SOLID          1   0.8%  0.1061E+07  0.1461E+07   0.000       1799.       0.000      0.2001E+06   0.000    
+     ANIMATION FILE: LAW28A004 WRITTEN
+     200   17.23      0.4716E-01 SOLID          1   0.4%  0.2175E+07  0.3427E+06   0.000       5719.       0.000      0.2001E+06   0.000    
+     ANIMATION FILE: LAW28A005 WRITTEN
+     300   21.78      0.4440E-01 SOLID          1   0.3%  0.2512E+07   4931.       0.000       9625.       0.000      0.2001E+06   0.000    
+     ANIMATION FILE: LAW28A006 WRITTEN
+     400   26.50      0.5373E-01 SOLID          1   0.2%  0.2049E+07  0.4688E+06   0.000      0.1369E+05   0.000      0.2001E+06   0.000    
+     ANIMATION FILE: LAW28A007 WRITTEN
+     500   33.32      0.8989E-01 SOLID          1   0.4%  0.8765E+06  0.1651E+07   0.000      0.1724E+05   0.000      0.2001E+06   0.000    
+     ANIMATION FILE: LAW28A008 WRITTEN
+     ANIMATION FILE: LAW28A009 WRITTEN
+     ANIMATION FILE: LAW28A010 WRITTEN
+     600   45.91      0.1469     SOLID          1   1.0%  0.3198E+06  0.2225E+07   0.000      0.1798E+05   0.000      0.2001E+06   0.000    
 
-     RESTART FILES: FORDL28_0001_[0001-0004].rst WRITTEN
+     RESTART FILES: LAW28_0001_[0001-0001].rst WRITTEN
      -------------
 
   
                            ** CPU USER TIME **
   
- #PROC  CONT.SORT  CONT. F   ELEMENT  KIN.COND.  INTEGR.    I/O     TASK0     ASSEMB.   RESOL  
-   1   .0000E+00 .0000E+00 .5099E-01 .5998E-02 .5999E-02 .9399E-01 .2099E-01 .4000E-02 .2000E+00
-   2   .0000E+00 .0000E+00 .0000E+00 .0000E+00 .0000E+00 .3099E-01 .1600E+00 .0000E+00 .2990E+00
-   3   .0000E+00 .0000E+00 .0000E+00 .1000E-02 .1000E-02 .3100E-01 .1430E+00 .0000E+00 .2990E+00
-   4   .0000E+00 .0000E+00 .0000E+00 .0000E+00 .0000E+00 .3399E-01 .1510E+00 .0000E+00 .3050E+00
   
-                          ** SPMD COMM. TIME **
+                        ** SUMMARY **
   
- #PROC  FORCES    RBY.FOR.  RBY.VEL.  VELOCITIES   TOTAL   % CPU
-   1   .1000E-02 .0000E+00 .0000E+00 .0000E+00 .1000E-02    0.50
-   2   .0000E+00 .0000E+00 .0000E+00 .0000E+00 .0000E+00    0.00
-   3   .0000E+00 .0000E+00 .0000E+00 .0000E+00 .0000E+00    0.00
-   4   .0000E+00 .0000E+00 .0000E+00 .0000E+00 .0000E+00    0.00
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .6718E-02 .4043E-02 .2991E-02 .2213E-01 .2489E-02 .1863E-02 .5619E-01
   
+ 
                    ** CUMULATIVE CPU TIME SUMMARY **
   
  CONTACT SORTING.............: .0000E+00     0.00 % 
- CONTACT FORCES..............: .0000E+00     0.00 % 
- ELEMENT FORCES..............: .5099E-01     4.62 % 
- KINEMATIC COND..............: .6998E-02     0.63 % 
- INTEGRATION.................: .6999E-02     0.63 % 
- ASSEMBLING..................: .4000E-02     0.36 % 
- OTHERS (including I/O)......: .1034E+01    93.74 % 
- TOTAL.......................: .1103E+01   100.00 % 
+ CONTACT FORCES..............: .3000E-03     0.53 % 
+ ELEMENT FORCES..............: .6718E-02    11.96 % 
+ KINEMATIC COND..............: .4043E-02     7.20 % 
+ INTEGRATION.................: .2991E-02     5.32 % 
+ ASSEMBLING..................: .1863E-02     3.32 % 
+ OTHERS (including I/O)......: .4027E-01    71.67 % 
+ TOTAL.......................: .5619E-01   100.00 % 
   
+  
+                           ** ELAPSED TIME **
+  
+  
+                        ** SUMMARY **
+  
+ #PROC  ELEMENT   KINCOND   INTEG     IO        T0        ASM       RESOL    
+   1   .1275E-01 .7795E-02 .5219E-02 .3780E-01 .4526E-02 .3330E-02 .9899E-01
   
                    ** MEMORY USAGE STATISTICS **
   
- TOTAL MEMORY USED .........................:      565 MB
- MAXIMUM MEMORY PER PROCESSOR...............:      142 MB
- MINIMUM MEMORY PER PROCESSOR...............:      141 MB
- AVERAGE MEMORY PER PROCESSOR...............:      141 MB
+ TOTAL MEMORY USED .........................:       46 MB
+ MAXIMUM MEMORY PER PROCESSOR...............:       46 MB
+ MINIMUM MEMORY PER PROCESSOR...............:       46 MB
+ AVERAGE MEMORY PER PROCESSOR...............:       46 MB
   
                    ** DISK USAGE STATISTICS **
   
- TOTAL DISK SPACE USED .....................:      438 KB
- ANIMATION/TH/OUTP SIZE ....................:       41 KB
- RESTART FILE SIZE .........................:      397 KB
+ TOTAL DISK SPACE USED .....................:          0 MB
+ ANIMATION/H3D/TH/OUTP SIZE ................:          0 MB
+ RESTART FILE SIZE .........................:          0 MB
   
- ELAPSED TIME     =          0.49 s
+                   ** COMPUTE TIME INFORMATION **
+                        ** CURRENT ENGINE **
+  
+ EXECUTION STARTED .........................:      2025/03/24  18:49:52
+ EXECUTION COMPLETED .......................:      2025/03/24  18:49:52
+  
+ ELAPSED TIME     =          0.12 s
                           0:00:00
- ESTIMATED SPEEDUP=          2.24
-  
 
 
 
@@ -238,5 +241,13 @@
 
 
 
-     TOTAL NUMBER OF CYCLES  :     623
+     TOTAL NUMBER OF CYCLES  :     628
 
+  
+                   ** COMPUTE RUNTIME INFORMATION SUMMARY **
+  
+        STARTER RUNTIME =          0.47s (00:00:00)
+ # 001   ENGINE RUNTIME =          0.12s (00:00:00)
+ ------------------------------ 
+ STARTER+ENGINE RUNTIME =          0.59s (00:00:00)
+  

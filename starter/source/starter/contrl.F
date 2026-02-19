@@ -1,87 +1,86 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CONTRL                        source/starter/contrl.F       
-Chd|-- called by -----------
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        CONTRBE2                      source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|        FIND_DT1BRICK_ENGINE          source/starter/contrl.F       
-Chd|        FMT_DEF                       source/starter/fmt_def.F      
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_ELEM_COUNT                 source/devtools/hm_reader/hm_elem_count.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        HM_OPTION_NEXT                source/devtools/hm_reader/hm_option_next.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_PRELCE16S                  source/elements/reader/hm_read_solid.F
-Chd|        HM_PREREAD_INIVEL             source/initial_conditions/general/inivel/hm_read_inivel.F
-Chd|        HM_PREREAD_NODE               source/elements/reader/hm_preread_node.F
-Chd|        HM_PREREAD_PART               source/model/assembling/hm_read_part.F
-Chd|        HM_PREREAD_PROPERTIES         source/properties/hm_preread_properties.F
-Chd|        HM_READ_ALE_GRID              source/general_controls/ale_grid/hm_read_ale_grid.F
-Chd|        HM_READ_ALE_MUSCL             source/general_controls/ale_cfd/hm_read_ale_muscl.F
-Chd|        HM_READ_ALE_SOLVER            source/general_controls/ale_cfd/hm_read_ale_solver.F
-Chd|        HM_READ_ANALY                 source/general_controls/computation/hm_read_analy.F
-Chd|        HM_READ_CAA                   source/general_controls/computation/hm_read_caa.F
-Chd|        HM_READ_DEFINTER              source/general_controls/default_values/hm_read_definter.F
-Chd|        HM_READ_DEFSHELL              source/general_controls/default_values/hm_read_defshell.F
-Chd|        HM_READ_DEFSOLID              source/general_controls/default_values/hm_read_defsolid.F
-Chd|        HM_READ_IMPLICIT              source/general_controls/computation/hm_read_implicit.F
-Chd|        HM_READ_INISTA                source/initial_conditions/inista/hm_read_inista.F
-Chd|        HM_READ_IOFLAG                source/general_controls/inputoutput/hm_read_ioflag.F
-Chd|        HM_READ_LAGMUL                source/tools/lagmul/hm_read_lagmul.F
-Chd|        HM_READ_REFSTA                source/loads/reference_state/refsta/hm_read_refsta.F
-Chd|        HM_READ_SMS                   source/general_controls/computation/hm_read_sms.F
-Chd|        HM_READ_SPHGLO                source/general_controls/computation/hm_read_sphglo.F
-Chd|        HM_READ_SPMD                  source/general_controls/computation/hm_read_spmd.F
-Chd|        HM_READ_UNIT                  source/general_controls/computation/hm_read_unit.F
-Chd|        HM_READ_UPWIND                source/general_controls/computation/hm_read_upwind.F
-Chd|        NBADIGEMESH                   source/elements/ige3d/nbadigemesh.F
-Chd|        NBADMESH                      source/model/remesh/nbadmesh.F
-Chd|        NBSPH                         source/elements/sph/nbsph.F   
-Chd|        ID                            source/boundary_conditions/ebcs/hm_read_ebcs_inlet.F
-Chd|        ALE_EBCS_MOD                  ../common_source/modules/ale_ebcs_mod.F
-Chd|        CHECK_MOD                     ../common_source/modules/check_mod.F
-Chd|        DETONATORS_MOD                share/modules1/detonators_mod.F
-Chd|        GRP_SIZE_MOD                  share/modules1/grp_size_mod.F 
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        INIVOL_ARRAY_MOD              share/modules1/inivol_mod.F   
-Chd|        INIVOL_DEF_MOD                share/modules1/inivol_mod.F   
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        PINCHTYPE_MOD                 ../common_source/modules/pinchtype_mod.F
-Chd|        REFSTA_MOD                    share/modules1/refsta_mod.F   
-Chd|        RESTMOD                       share/modules1/restart_mod.F  
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE CONTRL(MULTI_FVM,LSUBMODEL,IS_DYNA,DETONATORS)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    contrl                         ../starter/source/starter/contrl.F
+!||--- called by ------------------------------------------------------
+!||    starter0                       ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                         ../starter/source/output/message/message.F
+!||    arret                          ../starter/source/system/arret.F
+!||    ascii_encoding_mu_letter       ../starter/source/starter/ascii_encoding_mu_letter.F90
+!||    contrbe2                       ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||    contrbe3                       ../starter/source/constraints/general/rbe3/contrbe3.F
+!||    find_dt1brick_engine           ../starter/source/starter/contrl.F
+!||    hm_elem_count                  ../starter/source/devtools/hm_reader/hm_elem_count.F
+!||    hm_get_intv                    ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string                  ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_count                ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_next                 ../starter/source/devtools/hm_reader/hm_option_next.F
+!||    hm_option_read_key             ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start                ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_prelce16s                   ../starter/source/elements/reader/hm_read_solid.F
+!||    hm_preread_node                ../starter/source/elements/reader/hm_preread_node.F
+!||    hm_preread_part                ../starter/source/model/assembling/hm_read_part.F
+!||    hm_preread_properties          ../starter/source/properties/hm_preread_properties.F
+!||    hm_read_ale_grid               ../starter/source/general_controls/ale_grid/hm_read_ale_grid.F
+!||    hm_read_ale_muscl              ../starter/source/general_controls/ale_cfd/hm_read_ale_muscl.F
+!||    hm_read_ale_solver             ../starter/source/general_controls/ale_cfd/hm_read_ale_solver.F
+!||    hm_read_analy                  ../starter/source/general_controls/computation/hm_read_analy.F
+!||    hm_read_caa                    ../starter/source/general_controls/computation/hm_read_caa.F
+!||    hm_read_definter               ../starter/source/general_controls/default_values/hm_read_definter.F
+!||    hm_read_defshell               ../starter/source/general_controls/default_values/hm_read_defshell.F
+!||    hm_read_defsolid               ../starter/source/general_controls/default_values/hm_read_defsolid.F
+!||    hm_read_implicit               ../starter/source/general_controls/computation/hm_read_implicit.F
+!||    hm_read_inista                 ../starter/source/initial_conditions/inista/hm_read_inista.F
+!||    hm_read_ioflag                 ../starter/source/general_controls/inputoutput/hm_read_ioflag.F
+!||    hm_read_lagmul                 ../starter/source/tools/lagmul/hm_read_lagmul.F
+!||    hm_read_refsta                 ../starter/source/loads/reference_state/refsta/hm_read_refsta.F
+!||    hm_read_sms                    ../starter/source/general_controls/computation/hm_read_sms.F
+!||    hm_read_sphglo                 ../starter/source/general_controls/computation/hm_read_sphglo.F
+!||    hm_read_spmd                   ../starter/source/general_controls/computation/hm_read_spmd.F
+!||    hm_read_unit                   ../starter/source/general_controls/computation/hm_read_unit.F
+!||    hm_read_upwind                 ../starter/source/general_controls/computation/hm_read_upwind.F
+!||    init_def_elem                  ../starter/source/modules/defaults_mod.F90
+!||    init_def_zero                  ../starter/source/modules/defaults_mod.F90
+!||    istr                           ../starter/source/tools/univ/istr.F
+!||    nbadigemesh                    ../starter/source/elements/ige3d/nbadigemesh.F
+!||    nbadmesh                       ../starter/source/model/remesh/nbadmesh.F
+!||    nbsph                          ../starter/source/elements/sph/nbsph.F
+!||--- uses       -----------------------------------------------------
+!||    ascii_encoding_mu_letter_mod   ../starter/source/starter/ascii_encoding_mu_letter.F90
+!||    defaults_mod                   ../starter/source/modules/defaults_mod.F90
+!||    detonators_mod                 ../starter/share/modules1/detonators_mod.F
+!||    format_mod                     ../starter/share/modules1/format_mod.F90
+!||    grp_size_mod                   ../starter/share/modules1/grp_size_mod.F
+!||    hm_option_read_mod             ../starter/share/modules1/hm_option_read_mod.F
+!||    inivol_def_mod                 ../starter/share/modules1/inivol_mod.F
+!||    message_mod                    ../starter/share/message_module/message_mod.F
+!||    refsta_mod                     ../starter/share/modules1/refsta_mod.F
+!||    restmod                        ../starter/share/modules1/restart_mod.F
+!||    submodel_mod                   ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE CONTRL(MULTI_FVM,LSUBMODEL,IS_DYNA,DETONATORS,USER_WINDOWS,MAT_ELEM,
+     .           NAMES_AND_TITLES,LIPART1,DEFAULTS,GLOB_THERM,PBLAST,OUTPUT)
 C----------------------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -94,24 +93,36 @@ C-----------------------------------------------
       USE INOUTFILE_MOD
       USE SETDEF_MOD
       USE DETONATORS_MOD
-      USE INIVOL_DEF_MOD
-      USE INIVOL_ARRAY_MOD
+      USE INIVOL_DEF_MOD , ONLY : NUM_INIVOL
       USE REFSTA_MOD
       USE ALE_EBCS_MOD
       USE RESTMOD
       USE GRP_SIZE_MOD
+      USE OUTPUT_MOD
+      USE ALEMUSCL_MOD , only:ALEMUSCL_Param
+      USE ALEFVM_MOD , only:ALEFVM_Param
+      USE USER_WINDOWS_MOD
+      USE ALE_MOD
+      USE MAT_ELEM_MOD
+      USE NAMES_AND_TITLES_MOD
+      USE BCS_MOD , only : BCS
+      USE DEFAULTS_MOD
+      USE FORMAT_MOD
+      use glob_therm_mod
+      USE PBLAST_MOD
+      USE OUTPUT_MOD , ONLY : OUTPUT_
+      use ascii_encoding_mu_letter_mod, only : ascii_encoding_mu_letter
+      USE EOS_PARAM_MOD , ONLY : ANALY_TEMP
+      use element_mod , only : nixs
+      use SEATBELT_MOD, only : NGUIDED_CABLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -119,9 +130,7 @@ C-----------------------------------------------
 #include      "warn_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com05_c.inc"
 #include      "com06_c.inc"
-#include      "com07_c.inc"
 #include      "com08_c.inc"
 #include      "com09_c.inc"
 #include      "com10_c.inc"
@@ -135,18 +144,13 @@ C-----------------------------------------------
 #include      "scr12_c.inc"
 #include      "scr15_c.inc"
 #include      "scr16_c.inc"
-#include      "scr21_c.inc"
 #include      "scr22_c.inc"
 #include      "scr23_c.inc"
 #include      "titr_c.inc"
-#include      "lon_c.inc"
-#include      "rnur_c.inc"
 #include      "param_c.inc"
-#include      "ale_param.inc"
 #include      "sphcom.inc"
 #include      "lagmult.inc"
 #include      "fxbcom.inc"
-#include      "fluid_scr_c.inc"
 #include      "scr14_c.inc"
 #include      "remesh_c.inc"
 #include      "sysunit.inc"
@@ -154,49 +158,61 @@ C-----------------------------------------------
 #include      "r2r_c.inc"
 #include      "userlib.inc"
 #include      "spmd_c.inc"
-#include      "alefvm.inc"
 #include      "drape_c.inc"
-#include      "thermal_c.inc"
 #include      "inter22.inc"
-#include      "alesolver.inc"
-#include      "alemuscl.inc"
 #include      "boltpr_c.inc"
 #include      "ige3d_c.inc"
-#include      "submod_c.inc"
 #include      "com_engcards_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(MULTI_FVM_STRUCT), INTENT(IN) :: MULTI_FVM
-      TYPE(SUBMODEL_DATA) LSUBMODEL(*)
+      TYPE(SUBMODEL_DATA) LSUBMODEL(NSUBMOD)
       INTEGER,INTENT(IN)::IS_DYNA
-      TYPE(DETONATOR_STRUCT_) :: DETONATORS
+      TYPE(DETONATORS_STRUCT_) :: DETONATORS
+      TYPE(USER_WINDOWS_), INTENT(INOUT) :: USER_WINDOWS
+      TYPE(MAT_ELEM_), INTENT(INOUT)     :: MAT_ELEM
+      TYPE(NAMES_AND_TITLES_),INTENT(INOUT) :: NAMES_AND_TITLES   !< NAMES_AND_TITLES host the input deck names and titles for outputs
+      INTEGER,INTENT(IN) ::  LIPART1                              !< Number of variables of IPART
+      TYPE(DEFAULTS_), INTENT(INOUT)      :: DEFAULTS             !< Defaults mod
+      type (glob_therm_) ,intent(inout)   :: glob_therm
+      TYPE(PBLAST_), INTENT(INOUT)        :: PBLAST               !< PBLAST load type
+      TYPE(OUTPUT_),INTENT(INOUT) :: OUTPUT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, N, ISFIL, IPCT, IBID,INSH,
      .        IHBE_DD,IPARITH,JALE,JEUL,
      .        IUN,NSHFRAM,JUPW,IMAT,IG,ISH3N_DD,IFRAME_DDS,
-     .   IPLA_DDS,NPTS_DD,UID,IHBE,ISMSTR,IPLAS,ICPRE,ICSTR,NPT,
-     .   ISROT,L1,NPTS, NIMPDISP,NIMPVEL,NIMPACC,ICR,
-     .   STAT,IERROR,ID,IDX,IDY,IDZ,NCTRL,BID,NSH3NFRAM,NS17_OLD,
+     .        IPLA_DDS,NPTS_DD,UID,IHBE,ISMSTR,IPLAS,ICPRE,ICSTR,NPT,
+     .        ISROT,L1,NPTS, NIMPDISP,NIMPVEL,NIMPACC,ICR,
+     .        STAT,IERROR,ID,IDX,IDY,IDZ,NCTRL,BID,NSH3NFRAM,NS17_OLD,
      .        IGNORE_SPMD,IGNORE_THREADS,GOT_VARIABLE,KROT,OLD_RSB,
-     .        NRAFX,NRAFY,NRAFZ,NFUNCT0,NTABLE0,NTABLE1,
-     .        IRFE,IRFL, HM_NINTER_DEF,NB_AMS,NUMNUSR,NPERTURB_HM
+     .        NRAFX,NRAFY,NRAFZ,NFUNCT0,NTABLE0,NTABLE1,NSENSOR,
+     .        IRFE,IRFL, HM_NINTER_DEF,NB_AMS,NUMNUSR,NPERTURB_HM,ICR3,
+     .        NPYFUN
       INTEGER IARCHS(8)
       INTEGER IS_BEGIN,SCHAR
-      my_real
-     .   DTINI, DTX ,RBID
-      CHARACTER CART*ncharline, XRFILE*ncharline,
-     .   KEY*ncharline,KEY2*ncharline,TMPLINE*ncharline
-      CHARACTER TITR*nchartitle,MESS*40, ERRMSG*40
+      INTEGER :: NPROP,NALEMAT,NEULERMAT
+      INTEGER     IHBE_DS,ISST_DS,IPLA_DS,IFRAME_DS,ITET4_D,ITET10_D,ICPRE_D,IMAS_DS,ICONTROL_D,
+     .            IHBE_D,IPLA_D,ISTR_D,ITHK_D,ISHEA_D,ISST_D,
+     .            ISH3N_D, ISTRA_D,NPTS_D,IDRIL_D,IOFFSET_D,DEF_INTER(100)
+      my_real DTINI, DTX ,RBID
+      CHARACTER (LEN=NCHARLINE) :: CART
+      CHARACTER (LEN=NCHARLINE) :: XRFILE      ! NCHARLINE as #define is set to 500 in Starter
+      CHARACTER (LEN=NCHARLINE) :: KEY
+      CHARACTER (LEN=NCHARLINE) :: KEY2
+      CHARACTER (LEN=NCHARLINE) :: TMPLINE
+      CHARACTER (LEN=NCHARLINE) :: LINE
+      CHARACTER (LEN=NCHARTITLE) :: TITR
       CHARACTER (LEN=255) :: STR_NBTHREADS
-
+      CHARACTER MESS*40, ERRMSG*40
+      CHARACTER*3 :: LABEL_DEF,LABEL_ROT
+C-----------------------------------------------
 C OpenMP specific
 #if defined(_OPENMP)
-       INTEGER OMP_GET_THREAD_NUM, OMP_GET_NUM_THREADS,
-     .NTHREAD1
+       INTEGER OMP_GET_THREAD_NUM, OMP_GET_NUM_THREADS,NTHREAD1
        EXTERNAL OMP_GET_THREAD_NUM, OMP_GET_NUM_THREADS
        CHARACTER (LEN=255) :: STR
 #endif
@@ -213,12 +229,13 @@ C
       INTEGER :: NUMTITLE, NGRTRIA, IDUMMY, NANIM_VERS
       INTEGER :: NALEMUSCL
       INTEGER :: NB_INISHE,NB_INISH3,NB_INIBRI,NB_INIQUAD,
-     .           NB_INIBEAM,NB_INITRUSS,NB_INISPRIG
+     .           NB_INIBEAM,NB_INITRUSS,NB_INISPRIG,NB_INISPHCEL
+      INTEGER :: LEN_LINE
       CHARACTER*20 UNIT_NAME
       INTEGER IS_U_STRING
-C----------------------------------------------------------
+C-----------------------------------------------
 C   E x t e r n a l  F u n c t i o n
-C----------------------------------------------------------
+C-----------------------------------------------
       INTEGER  NBCS_LAGM
       EXTERNAL NBCS_LAGM
 C-----------------------------------------------
@@ -227,6 +244,11 @@ C-----------------------------------------------
       DATA S0FILE/'                '/
       DATA XRFILE/'                '/
       DATA IUN/1/
+
+C-----------------------------------------------
+C   S o u r c e   L i n e s
+C-----------------------------------------------
+
 C=======================================================================
 C     Read title
 C=======================================================================
@@ -240,30 +262,31 @@ C=======================================================================
       ENDIF
 !     Standard output
       WRITE(ISTDO,'(A)') LINE(1:LEN_TRIM(LINE))
-!     For 0.out title writing
-      READ(LINE(1:LEN_TRIM(LINE)),'(20A4)') TEXT
+
+      ! Store the input deck title in Structure
+      LEN_LINE= MIN(LEN_TRIM(LINE),LTITLE)   ! Truncate to LTITLE
+      NAMES_AND_TITLES%TITLE(1:LEN_LINE)=LINE(1:LEN_LINE)
+
       IMOT=0
       REEL=ZEP66  
 C=======================================================================
-C     LECTURE DES SYSTEMES D'UNITES
-C     Cette option doit rester la premiere lue car elle sert a convertir
-C     les valeurs par defaut de toutes les options dans le systeme
-C     d'unites defini par l'utilisateur
+C     UNIT SYSTEM READER
+C     First option to be read in order to convert other options.
 C=======================================================================
       WRITE(ISTDO,'(A)')TITRE(12)
       CALL HM_OPTION_COUNT('/UNIT',NUNIT0)
+      UNITAB%NUNIT0 = NUNIT0
 c
       CALL HM_OPTION_COUNT('/BEGIN',IS_BEGIN)
 
       SCHAR = 20
-      IF (IS_BEGIN .NE. 0) THEN
+      IF (IS_BEGIN /= 0) THEN
         CALL HM_OPTION_START('/BEGIN')
         CALL HM_OPTION_NEXT()
 
         CALL HM_GET_INTV('INVERS', INVERS, IS_AVAILABLE, LSUBMODEL)
         INVERS_SRC = INVERS
         INVERS_INIT = INVERS
-        CALL FMT_DEF(INVERS,0)
 
         CALL HM_GET_STRING('length_inputunit_code',KEYLI,SCHAR,IS_AVAILABLE)
         CALL HM_GET_STRING('mass_inputunit_code',KEYMI,SCHAR,IS_AVAILABLE)
@@ -271,13 +294,17 @@ c
         CALL HM_GET_STRING('length_workunit_code',KEYL,SCHAR,IS_AVAILABLE)
         CALL HM_GET_STRING('mass_workunit_code',KEYM,SCHAR,IS_AVAILABLE)
         CALL HM_GET_STRING('time_workunit_code',KEYT,SCHAR,IS_AVAILABLE)
-C
+
+        !convert into ascci format specific encoding of greek letter \mu
+        CALL ASCII_ENCODING_MU_LETTER(KEYLI, KEYMI, KEYTI, KEYL, KEYM, KEYT)
+
         IF(INVERS <= 90)THEN
+          ! /UNIT/LENGTH/[value]
+          ! /UNIT/MASS/[value]
+          ! /UNIT/TIME/[value]
           CALL HM_OPTION_START('/UNIT')
-C     
           DO N=1,NUNIT0
-            CALL HM_OPTION_READ_KEY(LSUBMODEL,
-     .                         OPTION_ID = ID)
+            CALL HM_OPTION_READ_KEY(LSUBMODEL,OPTION_ID = ID)
             UNIT_NAME = ''
             CALL HM_GET_STRING('UNIT_NAME',UNIT_NAME,2*ncharfield,IS_AVAILABLE)
 c
@@ -290,9 +317,9 @@ c
             IF(UNIT_NAME == 'TIME') THEN
               CALL HM_GET_STRING('TYPE_UNIT',KEYT,2*ncharfield,IS_AVAILABLE)
             ENDIF
-c
           ENDDO
-        ENDIF
+        ENDIF !(INVERS <= 90)
+
       ENDIF
       CALL HM_READ_UNIT(UNITAB,LSUBMODEL)
 C=======================================================================
@@ -306,13 +333,13 @@ C-------------------------------------------------------------------
 C
       IGNORE_SPMD=0
       IF (GOT_NCPU ==1) THEN
-        IF (NSPMD.NE.0) THEN
+        IF (NSPMD/=0) THEN
           IGNORE_SPMD=1
         END IF
         NSPMD = NCPU
       ENDIF
 C
-C Calcul du nombre de threads
+C thread number
 C
       IGNORE_THREADS=0
       GOT_VARIABLE=0
@@ -320,32 +347,31 @@ C
       STR = ' '
       CALL  GETENV('OMP_NUM_THREADS',STR)
       NTHREAD1=0
-C nthread1 : nombre de threads fixe par la variable environnememt
+C nthread1 : thread number determined by environment variable
       READ(STR,'(I10)',ERR=999)NTHREAD1
       IF(NTHREAD1>0)THEN
         NTHREAD = NTHREAD1
       ENDIF
       IF (GOT_NTH ==1) THEN
-        IF (NTHREAD.NE.0) THEN
+        IF (NTHREAD/=0) THEN
           IGNORE_THREADS=1
         END IF
         NTHREAD = NTH
-C       CALL OMP_SET_NUM_THREADS(NTHREAD)
       ELSE
         IF(NTHREAD1>0)THEN
           GOT_VARIABLE=1
         END IF
       ENDIF
-C cas ou ni -nt, ni OMP_NUM_THREADS, ni /SPMD sont renseignes
+C case no -nt, no OMP_NUM_THREADS, no /SPMD 
       NTHREAD = MAX(NTHREAD,1)
       NTHREAD_S = NTHREAD
       NTHREAD_R2R = NTHREAD
       CALL OMP_SET_NUM_THREADS(NTHREAD_S)
 
-c else (open mp non defined)
+c else (open mp not defined)
 #elif 1
       IF (GOT_NTH ==1) THEN
-        IF (NTHREAD.NE.0) THEN
+        IF (NTHREAD/=0) THEN
           IGNORE_THREADS=1
         END IF
         NTHREAD = NTH
@@ -353,7 +379,7 @@ c else (open mp non defined)
       NTHREAD_S = 1
 #endif
 C-------------------------------------------------------------------
-C Option /ARCH non presente, IARCH= IBUILTIN et Grpsiz = ARCHINFO(IBUILTIN)
+C  /ARCH option not defined, IARCH= IBUILTIN & Grpsiz = ARCHINFO(IBUILTIN)
         IARCH = IBUILTIN
         NVSIZ = ARCHINFO(IBUILTIN,1)
         IVECTOR = ARCHINFO(IBUILTIN,2)
@@ -371,10 +397,9 @@ C-------------------------------------------------------------------
 C-------------------------------------------------------------------
 C     READING OF /ANALY
 C-------------------------------------------------------------------
-      ISUB  = 0
       IPARI0= 1
       INTEG8= 0
-      CALL HM_READ_ANALY(NANALY,IPARITH,ISUB,IPARI0,MSHSUB,LSUBMODEL)
+      CALL HM_READ_ANALY(NANALY,IPARITH,IPARI0,LSUBMODEL)
       N2D   = NANALY
 C-------------------------------------------------------------------
 C     READING OF /IMPLICIT
@@ -398,7 +423,6 @@ C     READING OF /LAGMUL
 C-------------------------------------------------------------------
       CALL HM_READ_LAGMUL(LSUBMODEL)
 C-------------------------------------------------------------------
-C-------------------------------------------------------------------
       CALL HM_OPTION_COUNT('/PRIVATE/METADATA/FATXML',IPRIVATE)
       IF(IPRIVATE > 0 ) IPRIVATE = 1
 C-------------------------------------------------------------------
@@ -407,60 +431,37 @@ C-------------------------------------------------------------------
       CALL HM_OPTION_COUNT('/STAMPING',ISTAMPING)
       IF(ISTAMPING > 0 ) ISTAMPING = 1
 C-------------------------------------------------------------------
-C-------------------------------------------------------------------
       ICRASH = 0
 C-------------------------------------------------------------------
 C     READING DEFAULT VALUES FOR SHELLS, SOLIDS, INTERFACES ...
 C-------------------------------------------------------------------
-C
-      IHBE_D=0
-      IHBE_DS=0
-      ISST_D=0
-      ISST_DS=0
-      ITHK_D=0
-      IPLA_D=0
-      IPLA_DDS=2 
-      IPLA_DS =2 
-      ISTRA_D =1
-      ISTR_D=0
+!--- remove first /DEF/SOLID in src21_c.inc
+      CALL init_def_zero(DEFAULTS)
+!---- obsolet flag values fixed here
+      IPLA_DS =2  ! obsolet
+      ISTR_D=1  ! istrain
       ISHEA_D=0 ! Old hidden flag in /DEF_SHELL
       INER_9_12 = ZERO
       INSH = 0 ! Old hidden flag in /DEF_SHELL
-      IHBE_DD=1
-      ISH3N_D =0
-      ISH3N_DD=2
-      IFRAME_DS  = 0
-      IFRAME_DDS = 1
       NPTS_D    = -1 ! Old hidden flag in /DEF_SHELL
-      NPTS_DD   = 0
-      IDRIL_D=0
-      IMAS_DS = 0
-      ICPRE_D =0 
 C-------------------------------------------------------------------
 C     READING OF SHELL PROPERTIES DEFAULT VALUES
 C-------------------------------------------------------------------
-      CALL HM_READ_DEFSHELL(LSUBMODEL)
+      CALL HM_READ_DEFSHELL(LSUBMODEL,DEFAULTS%SHELL)
 C-------------------------------------------------------------------
 C     READING OF SOLID PROPERTIES DEFAULT VALUES
 C-------------------------------------------------------------------
-      CALL HM_READ_DEFSOLID(IPLA_DDS,LSUBMODEL)
-      IF(IIMPLICIT == 1) THEN
-        IF (IPLA_D == 0) IPLA_D = 1
-        IF (IHBE_DS == 0) IHBE_DS = 14
-        IF (IHBE_D == 0)  IHBE_D  = 24
-        IF (IDRIL_D == 0) IDRIL_D = 1
-      ENDIF
+      CALL HM_READ_DEFSOLID(LSUBMODEL,DEFAULTS%SOLID)
 C----------------------------------------------
-      IF(IFRAME_DS == 0) IFRAME_DS = IFRAME_DDS  
       IS17OLD = 1 ! To be cleaned
 C-----
-      IF(IHBE_D.EQ.0)IHBE_D = IHBE_DD
-      IF(ISH3N_D.EQ.0)ISH3N_D = ISH3N_DD
-      IF(INSH.EQ.1)INER_9_12 = TWELVE      
-      IF(INSH.EQ.2)INER_9_12 = SIXTEEN      
-      IF(INSH.EQ.3)INER_9_12 = FOURTY8  
-      IF(INSH.EQ.4)INER_9_12 = THIRTY     
-      IF(INSH.EQ.5)INER_9_12 = NINE       
+      IF(INSH==1)INER_9_12 = TWELVE      
+      IF(INSH==2)INER_9_12 = SIXTEEN      
+      IF(INSH==3)INER_9_12 = FORTY8  
+      IF(INSH==4)INER_9_12 = THIRTY     
+      IF(INSH==5)INER_9_12 = NINE 
+!   default values in def_solid/def_shell      
+      CALL init_def_elem(N2D,IIMPLICIT,DEFAULTS)
 C-------------------------------------------------------------------
 C     READING OF INTERFACES DEFAULT VALUES
 C-------------------------------------------------------------------
@@ -468,14 +469,11 @@ C-------------------------------------------------------------------
       DEF_INTER(1:100) = 0
       CALL HM_OPTION_COUNT('/DEFAULT/INTER',HM_NINTER_DEF)
       CALL HM_READ_DEFINTER(HM_NINTER_DEF,DEF_INTER,LSUBMODEL)
-C-------------------------------------------------------------------
+      DEFAULTS%interface%DEF_INTER(1:100) = DEF_INTER(1:100)
 C-------------------------------------------------------------------
       CALL HM_OPTION_COUNT('/INTTHICK/V5',IINTTHICK)
       IF (IINTTHICK > 1) THEN
-        CALL ANCMSG(MSGID=725,
-     .              MSGTYPE=MSGERROR,
-     .              ANMODE=ANINFO,
-     .              I1=IINTTHICK)
+        CALL ANCMSG(MSGID=725,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=IINTTHICK)
       ENDIF
 C-------------------------------------------------------------------
 C     READGING OF /SHFRAM
@@ -485,10 +483,7 @@ C-------------------------------------------------------------------
       IF (NSHFRAM == 1) THEN
         ISHFRAM = 2
       ELSEIF (NSHFRAM > 1) THEN
-        CALL ANCMSG(MSGID=546,
-     .              MSGTYPE=MSGERROR,
-     .              ANMODE=ANINFO,
-     .              I1=NSHFRAM)
+        CALL ANCMSG(MSGID=546,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=NSHFRAM)
       ENDIF      
 C-------------------------------------------------------------------
 C     READGING OF /SH_3NFR
@@ -497,7 +492,7 @@ C-------------------------------------------------------------------
 C=======================================================================
 C     Initialisations vs DOMDEC (Must stay after reading the control cards, because of output to STDO)
 C=======================================================================
-      IF(DECNEQ.EQ.0) DECNEQ = 100
+      IF(DECNEQ==0) DECNEQ = 100
       IF(DECTYP < 0) THEN
         DECTYP = - DECTYP
         EDGE_FILTERING = 0
@@ -509,7 +504,7 @@ C=======================================================================
          DECTYP=0
          OLD_RSB=1
       ENDIF
-      IF(DECTYP.EQ.0)THEN
+      IF(DECTYP==0)THEN
         IF(NB_AMS==0.AND.IIMPLICIT==0) THEN
           DECTYP = 3
         ELSE
@@ -535,47 +530,21 @@ C maximum number of SMP threads equal to NTHMAX
       IF(NTHREAD > NTHMAX) NTHREAD=NTHMAX
 C
       IF (GOT_INSPIRE_ALM == 1)THEN
-        IF (NTHREAD_S.EQ.1)THEN
-          WRITE(ISTDO,'(A,I4,A)')' .. SOLVER RUNNING ON ',NTHREAD_S,
-     .    ' THREAD'
+        IF (NTHREAD_S==1)THEN
+          WRITE(ISTDO,'(A,I4,A)')' .. SOLVER RUNNING ON ',NTHREAD_S,' THREAD'
         ELSE
-          WRITE(ISTDO,'(A,I4,A)')' .. SOLVER RUNNING ON ',NTHREAD_S,
-     .    ' THREADS'
+          WRITE(ISTDO,'(A,I4,A)')' .. SOLVER RUNNING ON ',NTHREAD_S,' THREADS'
         ENDIF
       ELSE
-        IF (NTHREAD_S.EQ.1)THEN
-          WRITE(ISTDO,'(A,I4,A)')' .. STARTER RUNNING ON ',NTHREAD_S,
-     .    ' THREAD'
+        IF (NTHREAD_S==1)THEN
+          WRITE(ISTDO,'(A,I4,A)')' .. STARTER RUNNING ON ',NTHREAD_S,' THREAD'
         ELSE
-          WRITE(ISTDO,'(A,I4,A)')' .. STARTER RUNNING ON ',NTHREAD_S,
-     .    ' THREADS'
+          WRITE(ISTDO,'(A,I4,A)')' .. STARTER RUNNING ON ',NTHREAD_S,' THREADS'
         ENDIF
       ENDIF
     
-c warning if stacksize value lower than 512 M
-      IF (STACKSIZ.GT.0 .AND. STACKSIZ.LE.512)THEN
-          CALL ANCMSG(MSGID=1032,
-     .        MSGTYPE=MSGWARNING,
-     .        ANMODE=ANINFO_BLIND_1)
-      ENDIF
-
-c warning if KMP_STACKSIZE value not set
-      IF (NTHREAD_S > 1 .AND. KMP_SET == 1)THEN
-          CALL ANCMSG(MSGID=1004,
-     .        MSGTYPE=MSGWARNING,
-     .        ANMODE=ANINFO_BLIND_1)
-
-      ENDIF
-
-c warning if KMP_STACKSIZE value lower than default value
-      IF (NTHREAD_S > 1 .AND. KMP_SET == 2)THEN
-          CALL ANCMSG(MSGID=1005,
-     .        MSGTYPE=MSGWARNING,
-     .        ANMODE=ANINFO_BLIND_1)
-
-      ENDIF
 C=======================================================================
-C     DENOMBREMENT DES OPTIONS
+C     OPTIONS NUMBERING
 C=======================================================================
 C     WRITE(ISTDO,'(/,A)')' .. OPTIONS COUNTING'
 C-------------------------------------------------------------------
@@ -589,9 +558,7 @@ C     Pre-read Nodes & Cnodes and compute NUMNOD taking into account that some n
 C------
 C     numnod=0 : ask user to provide relevant input file.
       IF(NUMNOD==0)THEN
-          CALL ANCMSG(MSGID=3,
-     .                MSGTYPE=MSGERROR,
-     .                ANMODE=ANINFO)
+          CALL ANCMSG(MSGID=3,MSGTYPE=MSGERROR,ANMODE=ANINFO)
           CALL ARRET(2)
       ENDIF
 C-------------------------------------------------------------------
@@ -624,7 +591,7 @@ C---------------------------------------------------
       LENGRVR=0
 C---  Xfem -------------------------------------------------------
 C---
-C   ATTENTION:    NUMNOD, NUMELC, NUMELTG ==> will be changed (by xfem)
+C   WARNING: NUMNOD, NUMELC, NUMELTG ==> will be changed (by xfem)
 C---
       NLEVMAX     = 0                    
       CALL HM_OPTION_COUNT('/INICRACK',NINICRACK)
@@ -704,15 +671,15 @@ C---------------------------------------------------
       NUMELTG0 = NUMELTG
       ISTATCND = 0
       IADMERRT = 0
-      IF(NADMESH.NE.0)THEN
+      IF(NADMESH/=0)THEN
 C
 C       NUMNOD, NUMELC, NUMELTG will be changed
         CALL NBADMESH(LSUBMODEL,NUMNUSR,UNITAB)
       END IF
 C-----
       IF(NSPMD > 1)THEN
-C       Tests option non disponible en SPMD (ie NSPMD > 1)
-        IF(NADMESH.NE.0)THEN
+C       Option tests not available in SPMD (IE NSPMD> 1)
+        IF(NADMESH/=0)THEN
           CALL ANCMSG(MSGID=704,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO)
@@ -723,7 +690,7 @@ C     LOOKING FOR IGE REFINEMENT and COUNTING ADDITIONAL NODES & ELEMENTS
 C---------------------------------------------------
       NUMNODIGE0 = NUMNOD
       NUMELIG3D0 = NUMELIG3D
-      IF(NRAFMAX.NE.0)THEN
+      IF(NRAFMAX/=0)THEN
 C
 C       NUMNOD, NUMELIG3D will be changed, SIXIG3D and KXIG3D too
         CALL NBADIGEMESH(LSUBMODEL,NUMNUSR)
@@ -734,6 +701,7 @@ C---------------------------------------------------
       HM_NUMMAT = 0
       CALL HM_OPTION_COUNT('MATERIAL',HM_NUMMAT)
       NUMMAT      = HM_NUMMAT + 1
+      MAT_ELEM%NUMMAT = NUMMAT
 C---------------------------------------------------
 C     PROPERTIES
 C---------------------------------------------------
@@ -757,10 +725,13 @@ C-----
 C-----
       CALL HM_OPTION_COUNT('/CLUSTER',NCLUSTER)
 C-----
+      CALL HM_OPTION_COUNT('/PYTHON_FUNCT'  , NPYFUN)
+
       CALL HM_OPTION_COUNT('/FUNCT'  , NFUNCT0)
+
       CALL HM_OPTION_COUNT('/TABLE/0', NTABLE0)
       CALL HM_OPTION_COUNT('/TABLE/1', NTABLE1)
-      NFUNCT = NFUNCT0 + NTABLE0 + NTABLE1 
+      NFUNCT = NFUNCT0 + NTABLE0 + NTABLE1 + NPYFUN 
       NTABLE = NFUNCT
 C-----
       CALL HM_OPTION_COUNT('/FUNC_2D', NFUNC2D)
@@ -782,19 +753,25 @@ C---------------------------------------------------
       CALL HM_OPTION_COUNT('/PLOAD',NPRELD)
       CALL HM_OPTION_COUNT('/LOAD/CENTRI',NLOADC)
       CALL HM_OPTION_COUNT('/LOAD/PFLUID',NLOADP_F)
-      CALL HM_OPTION_COUNT('/LOAD/PBLAST',NLOADP_B)
+      CALL HM_OPTION_COUNT('/LOAD/PBLAST',PBLAST%NLOADP_B)
       CALL HM_OPTION_COUNT('/LOAD/PRESSURE',NLOADP_HYD)
-C-----
+C---------------------------------------------------
+C     GRAVITY
+C---------------------------------------------------
       CALL HM_OPTION_COUNT('/GRAV',NGRAV)
 C---------------------------------------------------
-C     KINEMATIC CONDITIONS
+C     BOUNDARY CONDITIONS
 C---------------------------------------------------
       CALL HM_OPTION_COUNT('/BCS/LAGMUL',NBCSLAG)
       CALL HM_OPTION_COUNT('/BCS/CYCLIC',NBCSCYC)
       CALL HM_OPTION_COUNT('/BCS',NUMBCS)
       CALL HM_OPTION_COUNT('/NBCS',NUMBCSN)
       NBCSKIN = NUMBCS - NBCSLAG
-C-----
+      CALL HM_OPTION_COUNT('/BCS/WALL',BCS%NUM_WALL)
+      CALL HM_OPTION_COUNT('/BCS/NRF',BCS%NUM_NRF)
+C---------------------------------------------------
+C     KINEMATIC CONDITIONS
+C---------------------------------------------------
       CALL HM_OPTION_COUNT('/IMPDISP',NIMPDISP)
       CALL HM_OPTION_COUNT('/IMPVEL' ,NIMPVEL)
       CALL HM_OPTION_COUNT('/IMPACC' ,NIMPACC)
@@ -825,6 +802,7 @@ C     SEATBELT TOOLS
 C---------------------------------------------------
       CALL HM_OPTION_COUNT('/SLIPRING', NSLIPRING)
       CALL HM_OPTION_COUNT('/RETRACTOR', NRETRACTOR)
+      CALL HM_OPTION_COUNT('/GUIDED_CABLE', NGUIDED_CABLE)
 C---------------------------------------------------
 C     MONITORED VOLUMES
 C---------------------------------------------------
@@ -838,7 +816,7 @@ C---------------------------------------------------
 C-----      
       CALL HM_OPTION_COUNT('/INTER/TYPE22',INT22)
       IF(INT22>0)NSUB22=2
-      IF(INT22>0)IALEFVM=1 !AUTOMATICALLY ENABLING ALE FVM SCHEME FOR FSI INTER22
+      IF(INT22>0)ALEFVM_Param%IEnabled=1 !AUTOMATICALLY ENABLING ALE FVM SCHEME FOR FSI INTER22
 C-----      
       CALL HM_OPTION_COUNT('/INTER/SUB',NINTSUB)
       NINTER = HM_NINTER - NINTSUB
@@ -853,7 +831,7 @@ C---------------------------------------------------
       CALL HM_OPTION_COUNT('/SECT',NSECT)
 C---------------------------------------------------
 C---------------------------------------------------
-C     Box, Groups, Lines, Surfaces, Sets
+C     Box, groups, lines, surfaces, sets
 C---------------------------------------------------
       CALL HM_OPTION_COUNT('/BOX' ,NBBOX)
       CALL HM_OPTION_COUNT('/SURF',NSURF)
@@ -871,8 +849,7 @@ C---------------------------------------------------
       CALL HM_OPTION_COUNT('/GRSPRI',NGRSPRI)
       NSETS = 0
       CALL HM_OPTION_COUNT('/SET',NSETS)
-      NGPE    = NGRNOD + NGRBRIC + NGRQUAD + NGRSHEL + NGRSH3N +
-     .          NGRTRUS + NGRBEAM + NGRSPRI + NGRPART
+      NGPE    = NGRNOD + NGRBRIC + NGRQUAD + NGRSHEL + NGRSH3N + NGRTRUS + NGRBEAM + NGRSPRI + NGRPART
 C---------------------------------------------------
 C     Initial conditions
 C---------------------------------------------------
@@ -888,16 +865,13 @@ C-----
       CALL HM_OPTION_COUNT('/EREF',NEREF)
 C
 C---- READING OF /INISTA
-      CALL HM_READ_INISTA(S0FILE   ,ISIGI    ,IOUTP_FMT,
-     .                    IROOTYY_R,LSUBMODEL)
+      CALL HM_READ_INISTA(S0FILE, ISIGI, IOUTP_FMT, IROOTYY_R, LSUBMODEL)
 C
       IRFE=IRFORM/5
       IRFL=IRFORM-5*IRFE
       IRFORM=5*IRFE+IRFL
       IF (IRFORM /= 12) THEN     
-        CALL ANCMSG(MSGID=636,
-     .              MSGTYPE=MSGWARNING,
-     .              ANMODE=ANINFO_BLIND_1)
+        CALL ANCMSG(MSGID=636,MSGTYPE=MSGWARNING,ANMODE=ANINFO_BLIND_1)
         IRFORM = 12
       ENDIF
 C
@@ -909,15 +883,15 @@ C-----
       CALL HM_OPTION_COUNT('/INIMAP1D', NINIMAP1D)
       CALL HM_OPTION_COUNT('/INIMAP2D', NINIMAP2D)
 C-----
-      CALL HM_OPTION_COUNT('/INIVOL' ,NINIVOL)
+      CALL HM_OPTION_COUNT('/INIVOL' ,NUM_INIVOL)
 C---------------------------------------------------
 C     Thermal FE options 
 C---------------------------------------------------
-      CALL HM_OPTION_COUNT('/INITEMP',NINTEMP)
-      CALL HM_OPTION_COUNT('/IMPTEMP',NIMTEMP)
-      CALL HM_OPTION_COUNT('/IMPFLUX',NIMPFLUX)
-      CALL HM_OPTION_COUNT('/CONVEC',NCONVEC)
-      CALL HM_OPTION_COUNT('/RADIATION',NRADIA)
+      CALL HM_OPTION_COUNT('/INITEMP'  ,GLOB_THERM%NINTEMP)
+      CALL HM_OPTION_COUNT('/IMPTEMP'  ,GLOB_THERM%NIMTEMP)
+      CALL HM_OPTION_COUNT('/IMPFLUX'  ,GLOB_THERM%NIMPFLUX)
+      CALL HM_OPTION_COUNT('/CONVEC'   ,GLOB_THERM%NCONVEC)
+      CALL HM_OPTION_COUNT('/RADIATION',GLOB_THERM%NRADIA)
 C---------------------------------------------------
 C     SPH
 C---------------------------------------------------
@@ -944,9 +918,7 @@ C---------------------------------------------------
       NCONX =0
       CALL HM_OPTION_COUNT('/MADYMO/EXFEM', NEXMAD)
       CALL HM_OPTION_COUNT('/MADYMO/LINK', NCONX)
-      IF (NCONX > 0)  CALL ANCMSG(MSGID   = 2023    ,
-     .                            MSGTYPE = MSGERROR,
-     .                             ANMODE  = ANINFO  )       
+      IF (NCONX > 0)  CALL ANCMSG(MSGID=2023, MSGTYPE=MSGERROR, ANMODE=ANINFO)
 C---------------------------------------------------
       NEIG = 0
       CALL HM_OPTION_COUNT('/EIG',NEIG)
@@ -961,69 +933,79 @@ C---------------------------------------------------
 C     DFS, ALE, EULER
 C---------------------------------------------------
       FLG_FSI = 0    
-      IS_BOUNDARY_MATERIAL = .FALSE.  
+      ALE%GLOBAL%IS_BOUNDARY_MATERIAL = .FALSE.  
 C-----
       CALL HM_OPTION_COUNT('/EBCS',NEBCS)
 C---------------------------------------------------
 ! Counting /DFS
 C---------------------------------------------------
-      DETONATORS%NDETPS   = 0
-      DETONATORS%NDETSG   = 0
-      DETONATORS%NECRAN   = 0
-      DETONATORS%NDETPL   = 0
-      DETONATORS%NDETCORD = 0
-      CALL HM_OPTION_COUNT('/DFS/DETPOIN',DETONATORS%NDETPS) 
-      CALL HM_OPTION_COUNT('/DFS/DETLINE',DETONATORS%NDETSG)   
-      CALL HM_OPTION_COUNT('/DFS/WAV_SHA',DETONATORS%NECRAN)
-      CALL HM_OPTION_COUNT('/DFS/DETPLAN',DETONATORS%NDETPL)   
-      CALL HM_OPTION_COUNT('/DFS/DETCORD',DETONATORS%NDETCORD)
-      DETONATORS%NDET=DETONATORS%NDETPS+DETONATORS%NDETSG+DETONATORS%NECRAN+DETONATORS%NDETPL+DETONATORS%NDETCORD
+      CALL HM_OPTION_COUNT('/DFS/DETPOIN',DETONATORS%N_DET_POINT) 
+      CALL HM_OPTION_COUNT('/DFS/DETLINE',DETONATORS%N_DET_LINE)   
+      CALL HM_OPTION_COUNT('/DFS/WAV_SHA',DETONATORS%N_DET_WAVE_SHAPER)
+      CALL HM_OPTION_COUNT('/DFS/DETPLAN',DETONATORS%N_DET_PLANE)   
+      CALL HM_OPTION_COUNT('/DFS/DETCORD',DETONATORS%N_DET_CORD)
+      DETONATORS%N_DET=DETONATORS%N_DET_POINT
+     .                +DETONATORS%N_DET_LINE
+     .                +DETONATORS%N_DET_WAVE_SHAPER
+     .                +DETONATORS%N_DET_PLANE
+     .                +DETONATORS%N_DET_CORD
 C---------------------------------------------------
 ! /DFS/LASER
 C---------------------------------------------------
       NLASER = 0
       CALL HM_OPTION_COUNT('/DFS/LASER',NLASER)
 C---------------------------------------------------
-      JEUL=0
-      CALL HM_OPTION_COUNT('/EULER/MAT', JEUL)
-      JEUL=MIN(JEUL,1)
-      LVEUL=32
-      IF(INTEG8.EQ.1)LVEUL=52
+!  DETECT ALE OR EULER FRAMEWORK
 C---------------------------------------------------
-      JALE=0
-      CALL HM_OPTION_COUNT('/ALE/MAT', JALE)
-      JALE=MIN(JALE,1)
+      CALL HM_OPTION_COUNT('/ALE/MAT',NALEMAT)
+      CALL HM_OPTION_COUNT('/EULER/MAT',NEULERMAT)
+      IF(NALEMAT > 0)  ALE%GLOBAL%IS_DEFINED_ALE = 1
+      IF(NEULERMAT > 0)ALE%GLOBAL%IS_DEFINED_EULER = 1
+      CALL HM_OPTION_COUNT('/PROP', NPROP)
+      DO I=1,NPROP
+        CALL HM_OPTION_START('/PROP')
+        CALL HM_OPTION_NEXT()
+        CALL HM_GET_INTV('Iale',JALE,IS_AVAILABLE,LSUBMODEL)
+        IF(JALE == 1) ALE%GLOBAL%IS_DEFINED_ALE = 1
+        IF(JALE == 2) ALE%GLOBAL%IS_DEFINED_EULER = 1
+        IF(ALE%GLOBAL%IS_DEFINED_EULER == 1 .AND. ALE%GLOBAL%IS_DEFINED_EULER == 1)EXIT
+      ENDDO
+      JEUL = ALE%GLOBAL%IS_DEFINED_EULER ! =1 : if /EULER/MAT or /PROP/SOLID (IALE=2) is defined within the input file
+      JALE = ALE%GLOBAL%IS_DEFINED_ALE   ! =1 : if /ALE/MAT or /PROP/SOLID (IALE=1) is defined within the input file
+      LVEUL=32
+      IF(INTEG8==1)LVEUL=52
 C---------------------------------------------------
       NALEBCS = 0
       CALL HM_OPTION_COUNT('/ALE/BCS', NALEBCS)
-      IF(ICAA == 1) NWALE = -1
+      IF(ALE%GLOBAL%ICAA == 1) ALE%GRID%NWALE = -1
       DT_INPUT = ZERO
-!     *******************************     !
-!     /ALE/GRID: ALE grid formulation     !
-!     *******************************     !
-      CALL HM_READ_ALE_GRID(DT_INPUT, ALPHA, GAMMA, VGX, VGY, VGZ, VOLMIN, LSUBMODEL, UNITAB)
+      !********************************
+      ! /ALE/GRID: ALE grid formulation
+      !********************************
+      CALL HM_READ_ALE_GRID(DT_INPUT, ALE%GRID%ALPHA, ALE%GRID%GAMMA, ALE%GRID%VGX, ALE%GRID%VGY, ALE%GRID%VGZ, 
+     .                      VOLMIN, LSUBMODEL, UNITAB)
 
-!     ******************************************************************     !
-!     /ALE/MUSCL: activation of second order methods for LAW51 or LAW151     !
-!     ******************************************************************     !
+      !*******************************************************************
+      ! /ALE/MUSCL: activation of second order methods for LAW51 or LAW151
+      !*******************************************************************
       CALL HM_READ_ALE_MUSCL(LSUBMODEL, UNITAB)
 
-!     ***********************     !
-!     /ALE/LINK/VEL: counting     !
-!     ***********************     !
+      !************************
+      ! /ALE/LINK/VEL: counting
+      !************************
       CALL HM_OPTION_COUNT('/ALE/LINK/VEL', NALELK)
 
-!     ****************     !
-!     /ALE/SOLVER/FINT     !
-!     ****************     !
-      CALL HM_READ_ALE_SOLVER(LSUBMODEL, UNITAB, ICAA, ISFINT)
+      !*****************
+      ! /ALE/SOLVER/FINT
+      !*****************
+      CALL HM_READ_ALE_SOLVER(LSUBMODEL, UNITAB, ALE%GLOBAL%ICAA, ALE%GLOBAL%ISFINT)
 
-!     -------     !
-!     /UPWIND     !
-!     -------     !
-      CALL HM_READ_UPWIND(JUPW, UPWMG, UPWOG, UPWSM, LSUBMODEL, UNITAB)
+      !********
+      ! /UPWIND
+      !********
+      CALL HM_READ_UPWIND(JUPW, ALE%UPWIND%UPWMG, ALE%UPWIND%UPWOG, ALE%UPWIND%UPWSM, LSUBMODEL, UNITAB)
 C---------------------------------------------------
-C   OPTIONS DE L'ENGINE LUES DANS LE STARTER
+C   ENGINE OPTIONS READ IN THE STARTER
 C---------------------------------------------------
       CALL HM_OPTION_COUNT('/RUN',NRUN_ENG)
       CALL HM_OPTION_COUNT('/ANIM',NANIM_ENG)
@@ -1032,8 +1014,7 @@ C---------------------------------------------------
       CALL HM_OPTION_COUNT('/DT',NDT_ENG)
       CALL HM_OPTION_COUNT('/STOP',NSTOP_ENG)
       CALL HM_OPTION_COUNT('/VERS',NVERS_ENG)
-      NGINE=NRUN_ENG+NANIM_ENG+NTFILE_ENG+NRFILE_ENG+
-     +      NDT_ENG+NSTOP_ENG+NVERS_ENG
+      NGINE=NRUN_ENG+NANIM_ENG+NTFILE_ENG+NRFILE_ENG+NDT_ENG+NSTOP_ENG+NVERS_ENG
 C---------------------------------------------------
       NDSOLV=0
 C----------------------------------------------------------
@@ -1046,12 +1027,10 @@ C     Anim version 5 non encore supporte
         CALL HM_OPTION_NEXT()
         CALL HM_GET_INTV('Anim_vers', ANIM_VERS, IS_AVAILABLE, LSUBMODEL)
       ENDIF
-C----------------------------------------------------------
 C=======================================================================
 C     Some initializations ... (some flags / values need a 1st pre-reading of some options)
 C=======================================================================
       IFORM8 = 2
-      DTDES = ZERO
       DTINI = ZERO
       DTFAC = ZERO
       DTHIS = ZERO
@@ -1065,10 +1044,11 @@ C=======================================================================
         DTHIS1(I)= 0
       ENDDO
 C----------------------------------------------------------
-C     solide avec rotation
+C     solids with rotation
 C----------------------------------------------------------
       KROT = 0
-      CALL HM_PREREAD_INIVEL(KROT,LSUBMODEL)
+      CALL HM_OPTION_COUNT('/INIVEL/NODE',I)
+      IF(I > 0)KROT=1
       IRODDL=MIN(1,NUMELC+NUMELP+NRBODY+NUMELR+NUMELTG+NGJOINT+NUMMPC+NFXBODY+NUMELX+KROT)
       IRODDL0 = 0
       IISROT = 0
@@ -1076,18 +1056,22 @@ C----------------------------------------------------------
       CALL HM_OPTION_START('MATERIAL')
       DO I = 1, HM_NUMMAT
          MAT_NUMBER    = I 
-         CALL HM_OPTION_READ_KEY(LSUBMODEL,KEYWORD2    = KEY   )
-         IF (KEY(1:5) == 'LAW13' .OR. KEY(1:5) == 'RIGID') IRODDL0 = 1
+         CALL HM_OPTION_READ_KEY(LSUBMODEL,KEYWORD2    = KEY)
+         IF ((KEY(1:5) == 'LAW13'  .AND. KEY(1:6) /= 'LAW130' .AND.
+     .        KEY(1:6) /= 'LAW131' .AND. KEY(1:6) /= 'LAW132' .AND. 
+     .        KEY(1:6) /= 'LAW133' .AND. KEY(1:6) /= 'LAW134' .AND.
+     .        KEY(1:6) /= 'LAW135' .AND. KEY(1:6) /= 'LAW136' .AND.
+     .        KEY(1:6) /= 'LAW137' .AND. KEY(1:6) /= 'LAW138' .AND.
+     .        KEY(1:6) /= 'LAW139' ) 
+     .                           .OR. KEY(1:5) == 'RIGID') IRODDL0 = 1
          IF (KEY(1:5) == 'LAW68' .OR. KEY(1:5) == 'COSSE') IISROT = 1
       ENDDO
 C--------------------------------------------
-C     PRELECTURE DES PIDS pour triangles SH3N6 et rotation solides 
-C     PRELECTURE DES PIDS, PARTS & SOLIDS pour Solids TO SPH
+C     PRE-READ OF Prop IDS for triangles SH3N6 & solid rotations 
+C     PRE-READ OF Prop IDS , PARTS & SOLIDSfor sol to SPH
 C--------------------------------------------
       ALLOCATE(IGEO(NPROPGI*NUMGEO),STAT=stat)
-      IF (STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,
-     .                           MSGTYPE=MSGERROR,
-     .                           C1='IGEO')
+      IF (STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,MSGTYPE=MSGERROR,C1='IGEO')
       IGEO=0
       NUMELTG6 = 0
       NSPHSOL  = 0
@@ -1095,22 +1079,17 @@ C--------------------------------------------
       ALLOCATE(NISUB(NUMGEO + NUMSTACK) ,STAT=stat)
       ALLOCATE(NPLY (NUMGEO + NUMSTACK) ,STAT=stat)
 c      
-      CALL HM_PREREAD_PROPERTIES(IGEO,NSPHSOL,NPLY,NSUB,NISUB,LSUBMODEL)
+      CALL HM_PREREAD_PROPERTIES(IGEO,NSPHSOL,NPLY,NSUB,NISUB,LSUBMODEL,DEFAULTS)
 
       IF(NSPHSOL/=0.AND.NUMELS8/=0)THEN
         ALLOCATE(IPART(LIPART1*NPART),STAT=stat)
-        IF (STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,
-     .                             MSGTYPE=MSGERROR,
-     .                             C1='IPART')
+        IF (STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,MSGTYPE=MSGERROR,C1='IPART')
         IPART=0
         CALL HM_PREREAD_PART(IPART,IGEO,LSUBMODEL)
 C
         ALLOCATE(IXS(NIXS*NUMELS8),STAT=stat)
-        IF (STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,
-     .                             MSGTYPE=MSGERROR,
-     .                             C1='IPART')
-        CALL HM_PRELCE16S(IPART,IGEO,IXS,NSPHSOL,LSUBMODEL,
-     .                    IS_DYNA   )
+        IF (STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,MSGTYPE=MSGERROR,C1='IPART')
+        CALL HM_PRELCE16S(IPART,IGEO,IXS,NSPHSOL,LSUBMODEL,IS_DYNA)
 C
         IREST_MSELT=1
 C
@@ -1118,17 +1097,18 @@ C
       NUMNOD=NUMNOD+NSPHSOL
       NUMSPH=NUMSPH+NSPHSOL
 C-----
-      IF(NUMSPH.NE.0)THEN
+      IF(NUMSPH/=0)THEN
         CALL HM_READ_SPHGLO(LSUBMODEL)
       ENDIF
 C----------------------------------------------------------
       CALL CONTRBE2(ICR,LSUBMODEL)
-      IF(IISROT.EQ.1.OR.ICR.GT.0)IRODDL = 1
+      CALL CONTRBE3(ICR3,LSUBMODEL)
+      IF(IISROT==1.OR.ICR>0.OR.ICR3>0)IRODDL = 1
 C----------------------------------------------------------
-      CALL HM_OPTION_COUNT('/USERWI',   IUSERWI)
+      CALL HM_OPTION_COUNT('/USERWI',USER_WINDOWS%HAS_USER_WINDOW)
       NCPRI=1
-      IF(DTINI.EQ.ZERO)DTINI=EP06
-      IF(VOLMIN.EQ.ZERO)VOLMIN=-EP30
+      IF(DTINI==ZERO)DTINI=EP06
+      IF(VOLMIN==ZERO)VOLMIN=-EP20
       DT2OLD=DTINI/ONEP1
       TT=ZERO
       DT1=ZERO
@@ -1139,31 +1119,23 @@ C
 C
       DTX=ZERO
       TSTOP=ZERO
-      TDES=ZERO
-      TPAT=ZERO
-      DTPAT = ZERO
-      DTANIM = ZERO
-      TANIM=ZERO
+      OUTPUT%DTANIM = ZERO
+      OUTPUT%TANIM=ZERO
+      OUTPUT%TANIM_STOP = EP20
       DTOUTP = ZERO
       TOUTP=ZERO
       THIS=ZERO
       TABFIS=ZERO
       TABFWR=ZERO
       ECONTV = ZERO
-      TFEXT = ZERO
+      OUTPUT%TH%WFEXT = ZERO
       REINT = ZERO
       UREINT = ZERO
-      HEAT_STORED = ZERO
-      HEAT_MECA   = ZERO
-      HEAT_CONV   = ZERO
-      HEAT_RADIA  = ZERO
-      HEAT_FFLUX  = ZERO
       ECONTD = ZERO
       ECONT_CUMU = ZERO
 
       IRUN=0
       IGER=0
-      IPAT=0
       IANIM=0
       IH3D=0
 C
@@ -1172,75 +1144,57 @@ C
       ENDDO
 C      
       N2D = NANALY
-      IF(DTFAC.EQ.ZERO.AND.N2D.NE.0)DTFAC=0.67 !0.67 => 0.670000016689301     !ZEP67 => 0.670000000000000     
-      IF(DTFAC.EQ.ZERO.AND.N2D.EQ.0)DTFAC=0.90 !0.90 => 0.899999976158142     !ZEP9  => 0.900000000000000 
+      IF(DTFAC==ZERO.AND.N2D/=0)DTFAC=0.67 !0.67 => 0.670000016689301     !ZEP67 => 0.670000000000000     
+      IF(DTFAC==ZERO.AND.N2D==0)DTFAC=0.90 !0.90 => 0.899999976158142     !ZEP9  => 0.900000000000000 
 C=======================================================================
 C     Opening of some input files (.sty, etc...)
 C=======================================================================
-      IF(ISIGI.EQ.1.OR.ISIGI.EQ.2) THEN
-C--     Lecture fichier S00 supprimee
-      ELSEIF(ISIGI.EQ.3.OR.ISIGI.EQ.4.OR.ISIGI.EQ.5) THEN
-C--     Lecture fichier Y00/Ynn
-        IF(S0FILE.EQ.' ') THEN
+      IF(ISIGI==1.OR.ISIGI==2) THEN
+C- Reading file S00 deleted
+      ELSEIF(ISIGI==3.OR.ISIGI==4.OR.ISIGI==5) THEN
+C- Reading file y00/ynn
+        IF(S0FILE==' ') THEN
           ISIGI=-ISIGI
         ELSE
           J = 0
-          IF(IROOTYY_R.EQ.2)THEN
+          IF(IROOTYY_R==2)THEN
            DO  I=1,ncharline
-            IF(S0FILE(I:I).NE.' ')J = J + 1
+            IF(S0FILE(I:I)/=' ')J = J + 1
            ENDDO
            N = J - 3
            TMP_NAME=INFILE_NAME(1:INFILE_NAME_LEN)//S0FILE(1:len_trim(S0FILE))    
            LEN_TMP_NAME = INFILE_NAME_LEN+len_trim(S0FILE)
-           IF(S0FILE(N:N).EQ.'Y')THEN
-            OPEN(UNIT=IIN4,FILE=TMP_NAME(1:LEN_TMP_NAME),ACCESS='SEQUENTIAL',
-     .       FORM='FORMATTED',STATUS='OLD')
+           IF(S0FILE(N:N)=='Y')THEN
+            OPEN(UNIT=IIN4,FILE=TMP_NAME(1:LEN_TMP_NAME),ACCESS='SEQUENTIAL',FORM='FORMATTED',STATUS='OLD')
 
             TMP_NAME=INFILE_NAME(1:INFILE_NAME_LEN)//S0FILE(1:N)//'000'    
             LEN_TMP_NAME = INFILE_NAME_LEN+N+3
-            OPEN(UNIT=IIN5,FILE=TMP_NAME(1:LEN_TMP_NAME),
-     .       ACCESS='SEQUENTIAL',FORM='FORMATTED',STATUS='OLD')
+            OPEN(UNIT=IIN5,FILE=TMP_NAME(1:LEN_TMP_NAME),ACCESS='SEQUENTIAL',FORM='FORMATTED',STATUS='OLD')
            ELSE
-            OPEN(UNIT=IIN4,FILE=TMP_NAME(1:LEN_TMP_NAME),ERR=100,ACCESS='SEQUENTIAL',
-     .        FORM='FORMATTED',STATUS='OLD')
-            CALL ANCMSG(MSGID=169,
-     .                  MSGTYPE=MSGERROR,
-     .                  ANMODE=ANINFO,
-     .                  C1=S0FILE)
-100         CALL ANCMSG(MSGID=2062,
-     .                  MSGTYPE=MSGERROR,
-     .                  ANMODE=ANINFO,
-     .                  C1=S0FILE)
+            OPEN(UNIT=IIN4,FILE=TMP_NAME(1:LEN_TMP_NAME),ERR=100,ACCESS='SEQUENTIAL',FORM='FORMATTED',STATUS='OLD')
+            CALL ANCMSG(MSGID=169,MSGTYPE=MSGERROR,ANMODE=ANINFO,C1=S0FILE)
+100         CALL ANCMSG(MSGID=2062,MSGTYPE=MSGERROR,ANMODE=ANINFO,C1=S0FILE)
            ENDIF 
           ELSE
             J = 0
             I = 1
-            DO WHILE(S0FILE(I:I).NE.' ')
+            DO WHILE(S0FILE(I:I)/=' ')
              J = J + 1
              I = I + 1
             ENDDO
             N = J-3
             TMP_NAME=INFILE_NAME(1:INFILE_NAME_LEN)//S0FILE(1:len_trim(S0FILE))    
             LEN_TMP_NAME = INFILE_NAME_LEN+len_trim(S0FILE)
-            IF(S0FILE(N:N+4).EQ.'.sty')THEN
-              OPEN(UNIT=IIN4,FILE=TMP_NAME(1:LEN_TMP_NAME),ACCESS='SEQUENTIAL',
-     .        FORM='FORMATTED',STATUS='OLD')
+            IF(S0FILE(N:N+4)=='.sty')THEN
+              OPEN(UNIT=IIN4,FILE=TMP_NAME(1:LEN_TMP_NAME),ACCESS='SEQUENTIAL',FORM='FORMATTED',STATUS='OLD')
 
               TMP_NAME=INFILE_NAME(1:INFILE_NAME_LEN)//S0FILE(1:N-6)//'_0000.sty'
               LEN_TMP_NAME = INFILE_NAME_LEN+N-6+9
-              OPEN(UNIT=IIN5,FILE=TMP_NAME(1:LEN_TMP_NAME),
-     .        ACCESS='SEQUENTIAL',FORM='FORMATTED',STATUS='OLD')    
+              OPEN(UNIT=IIN5,FILE=TMP_NAME(1:LEN_TMP_NAME),ACCESS='SEQUENTIAL',FORM='FORMATTED',STATUS='OLD')
             ELSE
-              OPEN(UNIT=IIN4,FILE=TMP_NAME(1:LEN_TMP_NAME),ERR=200,ACCESS='SEQUENTIAL',
-     .          FORM='FORMATTED',STATUS='OLD')
-              CALL ANCMSG(MSGID=169,
-     .                    MSGTYPE=MSGERROR,
-     .                    ANMODE=ANINFO,
-     .                    C1=S0FILE)
-200           CALL ANCMSG(MSGID=2062,
-     .                    MSGTYPE=MSGERROR,
-     .                    ANMODE=ANINFO,
-     .                    C1=S0FILE)
+              OPEN(UNIT=IIN4,FILE=TMP_NAME(1:LEN_TMP_NAME),ERR=200,ACCESS='SEQUENTIAL',FORM='FORMATTED',STATUS='OLD')
+              CALL ANCMSG(MSGID=169,MSGTYPE=MSGERROR,ANMODE=ANINFO,C1=S0FILE)
+200           CALL ANCMSG(MSGID=2062,MSGTYPE=MSGERROR,ANMODE=ANINFO,C1=S0FILE)
             ENDIF  
           ENDIF
         ENDIF
@@ -1255,15 +1209,17 @@ C---------------------------------------------------
       CALL HM_OPTION_COUNT('/INIBEAM',  NB_INIBEAM)
       CALL HM_OPTION_COUNT('/INITRUSS', NB_INITRUSS)
       CALL HM_OPTION_COUNT('/INISPRI',  NB_INISPRIG)
-      IF(ISIGI.EQ.0.AND.
+      CALL HM_OPTION_COUNT('/INISPHCEL',  NB_INISPHCEL)
+
+      IF(ISIGI==0.AND.
      .   (NB_INISHE+NB_INISH3
      .   +NB_INIBRI+NB_INIQUAD
      .   +NB_INIBEAM+NB_INITRUSS
-     .   +NB_INISPRIG).NE.0) ISIGI=-3
+     .   +NB_INISPRIG+NB_INISPHCEL)/=0) ISIGI=-3
 C=======================================================================
 C     Writing to 0000.out FILE
 C=======================================================================
-      WRITE (IOUT,'(//,1X,20A4)')TEXT
+      WRITE (IOUT,'(A)') TRIM(NAMES_AND_TITLES%TITLE)
       WRITE (IOUT,'(//A/A/,(A,1PG20.13))')TITRE(110),TITRE(111)
       WRITE (IOUT,'(A,I10)')  TITRE(117)(1:57),IPRI,
      .      TITRE(120)(1:57),INVERS_SRC
@@ -1296,27 +1252,22 @@ C=======================================================================
      .'    NUMSPH : NUMBER OF SMOOTH PARTICLES (SPH CELLS) . . .',
      .                                                      NUMSPH
       WRITE (IOUT,'(A,I10)')
-     .'    NSPHBCS: NUMBER OF SPH SYMETRY CONDITIONS . . . . . .',
+     .'    NSPHBCS: NUMBER OF SPH SYMMETRY CONDITIONS. . . . . .',
      .                                                     NSPCOND
       WRITE (IOUT,'(A,I10)')
      .'    NSPHIO : NUMBER OF SPH INLET/OUTLET CONDITIONS. . . .',
      .                                                      NSPHIO
-      IF(NSPHRES.NE.0)THEN
+      IF(NSPHRES/=0)THEN
        WRITE (IOUT,'(A,/,A,I10)')
      .'    NSPHRES:NUMBER OF PARTICLES FROM SPH RESERVES AMONG NUMSPH,',
      .'            NUMBER OF NODES FROM SPH RESERVES AMONG NUMNOD. . .',
      .  NSPHRES
       ENDIF
-      IF(NSPHSOL.NE.0)THEN
+      IF(NSPHSOL/=0)THEN
        WRITE (IOUT,'(A,/,A,I10)')
      .'    NSPHSOL:NUMBER OF PARTICLES & NODES CREATED FROM SOLIDS .',
      .'            (AMONG NUMSPH & NUMNOD) . . . . . . . . . . . . .',
      .  NSPHSOL
-      ENDIF
-      IF(NUMELUR.GT.0) THEN
-        WRITE (IOUT,'(A,I10)')
-     .  '    NUMELUR: NUMBER OF USER ELEMENTS. . . . . . . . . . .',
-     .  NUMELUR
       ENDIF
       WRITE (IOUT,'(/(A,I10))')  TITRE(138)(1:57),NFUNCT,
      .'    NGRAV:  NUMBER OF GRAVITY LOADS . . . . . . . . . . .',
@@ -1335,17 +1286,17 @@ C=======================================================================
      .NINIMAP1D,
      .'    NINIMAP2D: NUMBER OF INITIAL 2D MAPPING.. . . . . . .',
      .NINIMAP2D     
-      IF(NPRELOAD.GT.0) THEN
+      IF(NPRELOAD>0) THEN
         WRITE (IOUT,'(A,I10)')
      .  '    NPRELOAD: NUMBER OF BOLT PRELOADINGS. . . . . . . . .',
      .  NPRELOAD
       ENDIF
-      IF(DETONATORS%NDET > 0)THEN
-        WRITE (IOUT,'(/(A,I10))') TITRE(141)(1:57),DETONATORS%NDETPS,
-     .                            TITRE(171)(1:57),DETONATORS%NDETSG,
-     .                            TITRE(172)(1:57),DETONATORS%NECRAN,
-     .                            TITRE(187)(1:57),DETONATORS%NDETCORD,
-     .                            TITRE(188)(1:57),DETONATORS%NDETPL
+      IF(DETONATORS%N_DET > 0)THEN
+        WRITE (IOUT,'(/(A,I10))') TITRE(141)(1:57),DETONATORS%N_DET_POINT,
+     .                            TITRE(171)(1:57),DETONATORS%N_DET_LINE,
+     .                            TITRE(172)(1:57),DETONATORS%N_DET_WAVE_SHAPER,
+     .                            TITRE(187)(1:57),DETONATORS%N_DET_CORD,
+     .                            TITRE(188)(1:57),DETONATORS%N_DET_PLANE
       ENDIF
       IF(NLASER > 0) WRITE (IOUT,'((A,I10))') TITRE(178)(1:57),NLASER
       WRITE (IOUT,'(4X,A,I10)') 
@@ -1380,9 +1331,6 @@ C
      .'    NEIG:   NUMBER OF EIGEN AND STATIC MODES PROBLEMS . .',
      .NEIG
       WRITE(IOUT,'(A,I10)')
-     .'    NGRAPH: GRAPH DEFINITION FOR MULT-LEVEL CONDENSATION.',
-     .NDSOLV
-      WRITE(IOUT,'(A,I10)')
      .'    NBEM:   NUMBER OF BEM SOLVED PROBLEMS . . . . . . . .',
      .NFLOW
       WRITE(IOUT,'(A,I10)')
@@ -1395,7 +1343,7 @@ C
      . '                                          FLAG ISIGI. . .',
      . ISIGI
 C
-      IF (IREFSTA.NE.0) THEN
+      IF (IREFSTA/=0) THEN
        WRITE (IOUT,'(2A/A,I10/A,I10)')
      . '    REFERENCE METRIC FILE =',XRFILE,
      . '                                          FLAG IREFSTA. .',
@@ -1404,100 +1352,120 @@ C
      . NITRS
       ENDIF
       
-      IF(JALE+JEUL.NE.0)THEN         
-        WRITE(IOUT,'(A,I10)')
-     . '    ISFINT: ALE/EULER MOMENTUM INTEGRATION FORMULATION. .',
-     . ISFINT
+      IF(JALE+JEUL/=0)THEN         
+        WRITE(IOUT,'(A,I10)')'    ISFINT: ALE/EULER MOMENTUM INTEGRATION FORMULATION. .',ALE%GLOBAL%ISFINT
       ENDIF 
-      IF(ICAA.EQ.1)THEN
+      IF(ALE%GLOBAL%ICAA==1)THEN
         WRITE(IOUT,5380)
       END IF            
-      IF(JALE.NE.0)THEN
-        WRITE (IOUT,5100)NWALE
-        SELECT CASE (NWALE)
-          CASE(0);WRITE (IOUT,5199) ALPHA,GAMMA, VGX,VGY,VGZ,VOLMIN
-          CASE(1);WRITE (IOUT,5200) ALPHA,VGX,VGY,VGZ,VOLMIN
-          CASE(2);WRITE (IOUT,5300) DT_INPUT, ALPHA,GAMMA,VGX,VGY,VOLMIN
+      IF(JALE/=0)THEN
+        WRITE (IOUT,5100)ALE%GRID%NWALE
+        SELECT CASE (ALE%GRID%NWALE)
+          CASE(0);WRITE (IOUT,5199) ALE%GRID%ALPHA,ALE%GRID%GAMMA,ALE%GRID%VGX,ALE%GRID%VGY,ALE%GRID%VGZ,VOLMIN
+          CASE(1);WRITE (IOUT,5200) ALE%GRID%ALPHA,VOLMIN
+          CASE(2);WRITE (IOUT,5300) DT_INPUT, ALE%GRID%ALPHA,ALE%GRID%GAMMA,ALE%GRID%VGX,ALE%GRID%VGY,VOLMIN
           CASE(3);WRITE (IOUT,5350) 
-          CASE(4);WRITE (IOUT,5351) ALPHA,GAMMA,VGX,VGY 
-          CASE(5);WRITE (IOUT,5353) ALPHA,NINT(VGX)               
+          CASE(4);WRITE (IOUT,5351) ALE%GRID%ALPHA,ALE%GRID%GAMMA,ALE%GRID%VGX,ALE%GRID%VGY 
+          CASE(5);WRITE (IOUT,5353) ALE%GRID%ALPHA,NINT(ALE%GRID%VGX)               
+          CASE(6);WRITE (IOUT,5354)
+          CASE(7);
+            LABEL_DEF = ' NO'
+            IF(INT(ALE%GRID%VGX) == 1)LABEL_DEF = 'YES'
+            LABEL_ROT = ' NO'
+            IF(INT(ALE%GRID%VGY) == 1)LABEL_ROT = 'YES'
+            WRITE (IOUT,5355) LABEL_DEF,LABEL_ROT,ALE%GRID%ALPHA,ALE%GRID%GAMMA
         END SELECT
       ENDIF
 
-      IF(I_ALE_SOLVER /= 0)IALEMUSCL=0 !muscl not compatible with FVM solver for int22
-      CALL HM_OPTION_COUNT('/ALE/MUSCL', NALEMUSCL)     
-      IF( UPWSM.NE.ONE)THEN
-       IF(NALEMUSCL>0 .OR. IALEMUSCL>0)THEN
-         NALEMUSCL=0 
-         IALEMUSCL=0     
-         !ignore muscl et utiliser upwsm3  (backward compatibility)
+      IF(ALEFVM_Param%ISOLVER /= 0)ALEMUSCL_Param%IALEMUSCL=0 !muscl not compatible with FVM solver for int22
+      CALL HM_OPTION_COUNT('/ALE/MUSCL', NALEMUSCL)
+      IF(ALE%UPWIND%UPWSM/=ONE)THEN
+       IF(NALEMUSCL>0 .OR. ALEMUSCL_Param%IALEMUSCL>0)THEN
+         NALEMUSCL=0
+         ALEMUSCL_Param%IALEMUSCL=0
+         !ignore muscl & use upwsm3  (backward compatibility)
          !double check engine file with /ALE/MUSCL/OFF
         ENDIF
       ENDIF
-            
-      IF(JALE+JEUL.NE.0)THEN
-        IF(IALEMUSCL .EQ. 1 .AND. JUPW.NE.0 ) THEN   !eta3 + muscl(law51) : conflict
+
+      IF(JALE+JEUL/=0)THEN
+        IF(ALEMUSCL_Param%IALEMUSCL == 1 .AND. JUPW/=0 ) THEN   !eta3 + muscl(law51) : conflict
            CALL ANCMSG(MSGID=1564, MSGTYPE=MSGWARNING, ANMODE=ANINFO)
-        ELSEIF(IALEMUSCL .EQ. 0 .OR. JUPW.NE.0)THEN
-          WRITE (IOUT,5360)UPWMG,UPWOG !,UPWSM
+        ELSEIF(ALEMUSCL_Param%IALEMUSCL == 0 .OR. JUPW/=0)THEN
+          WRITE (IOUT,5360)ALE%UPWIND%UPWMG,ALE%UPWIND%UPWOG !,UPWSM
         END IF
-        IF (IALEMUSCL .EQ. 1 .OR. IALEMUSCL.EQ.2) THEN
-           WRITE (IOUT, 5504) I_BETA,IALEMUSCL-1
+        IF (ALEMUSCL_Param%IALEMUSCL == 1 .OR. ALEMUSCL_Param%IALEMUSCL==2) THEN
+           WRITE (IOUT, 5504) ALEMUSCL_Param%BETA,ALEMUSCL_Param%IALEMUSCL-1
         ENDIF
       ENDIF
-      
+
       WRITE (IOUT,'(//,A,I10)')  TITRE(130)(1:57),NANALY
-      
-      IF(IHBE_DS.EQ.0) IHBE_DS = IHBE_DD
-      IF(N2D.NE.0) IHBE_DS = 2
-      IF(N2D.EQ.0)THEN
-        IF(NUMELQ.NE.0. OR. (NUMELTG.NE.0.AND.N2D.NE.0) )THEN
-          CALL ANCMSG(MSGID   = 286,
-     .                MSGTYPE = MSGERROR,
-     .                ANMODE  = ANINFO)
+
+! for print out 
+      IHBE_DS= DEFAULTS%SOLID%ISOLID
+      ISST_DS= DEFAULTS%SOLID%ISMSTR
+      ICPRE_D= DEFAULTS%SOLID%ICPRE
+      ITET4_D= DEFAULTS%SOLID%ITETRA4
+      ITET10_D= DEFAULTS%SOLID%ITETRA10
+      IFRAME_DS = DEFAULTS%SOLID%IFRAME      
+      IMAS_DS= DEFAULTS%SOLID%IMAS
+!
+      IOFFSET_D= DEFAULTS%SHELL%ioffset    !< offset support contact 
+      IHBE_D =  DEFAULTS%SHELL%ishell     
+      ISH3N_D=  DEFAULTS%SHELL%ish3n      
+      ISST_D =  DEFAULTS%SHELL%ismstr     
+      IPLA_D =  DEFAULTS%SHELL%iplas      
+      ITHK_D =  DEFAULTS%SHELL%ithick     
+      IDRIL_D=  DEFAULTS%SHELL%idrill     
+
+      ICONTROL_D= DEFAULTS%SOLID%ICONTROL
+      IF(N2D==0)THEN
+        IF(NUMELQ/=0. OR. (NUMELTG/=0.AND.N2D/=0) )THEN
+          CALL ANCMSG(MSGID   = 286,MSGTYPE = MSGERROR,ANMODE  = ANINFO)
         ENDIF
       ENDIF
 C                                                                    012
-      WRITE(IOUT,5500)INTEG8,IPARITH,ISUB,MSHSUB,IUSERWI,IHBE_DS,
-     .      ITET4_D,ITET10_D,ISST_DS,ICPRE_D,IHBE_D,ISST_D,ITHK_D,
-     .      IPLA_D,ISTR_D,ISHEA_D,INSH,ISH3N_D, NPTS_D, IFRAME_DS
+      WRITE(IOUT,5500)INTEG8,IPARITH,USER_WINDOWS%HAS_USER_WINDOW,IHBE_DS,
+     .                ITET4_D,ITET10_D,ISST_DS,ICPRE_D,IHBE_D,ISST_D,ITHK_D,
+     .                IPLA_D,ISTR_D,ISHEA_D,INSH,ISH3N_D, NPTS_D, IFRAME_DS,
+     .                IOFFSET_D,
+     .                ICONTROL_D
       WRITE(IOUT,5501)ISHFRAM
+      IF(ANALY_TEMP /= 0)WRITE(IOUT,5505)ANALY_TEMP
       IF(ISH3NFRAM>0)WRITE(IOUT,5901)ISH3NFRAM
-      IF(JALE.NE.0 .AND. IALEFVM.NE.0)WRITE(IOUT,5502)I_ALE_SOLVER
-      IF(JALE.NE.0 .AND. ISFINT.NE.0) WRITE(IOUT,5503)ISFINT      
+      IF(JALE/=0 .AND. ALEFVM_Param%IEnabled/=0)WRITE(IOUT,5502)ALEFVM_Param%ISOLVER
+      IF(JALE/=0 .AND. ALE%GLOBAL%ISFINT/=0) WRITE(IOUT,5503)ALE%GLOBAL%ISFINT
       WRITE(IOUT,5700)LAGM_TOL
       WRITE(IOUT,5800)IMAS_DS
-      IF ((NUMSPH.GT.0).AND.(NSPHSOL.EQ.0)) WRITE (IOUT,5600) SPASORT,LVOISPH,KVOISPH
-      IF ((NUMSPH.GT.0).AND.(NSPHSOL.GT.0)) THEN
-        IF (ITSOL2SPH.EQ.1) WRITE (IOUT,5610) SPASORT,LVOISPH,KVOISPH,ITSOL2SPH
-        IF (ITSOL2SPH.EQ.2) WRITE (IOUT,5620) SPASORT,LVOISPH,KVOISPH,ITSOL2SPH
+      IF ((NUMSPH>0).AND.(NSPHSOL==0)) WRITE (IOUT,5600) SPASORT,LVOISPH,KVOISPH
+      IF ((NUMSPH>0).AND.(NSPHSOL>0)) THEN
+        IF (ITSOL2SPH==1) WRITE (IOUT,5610) SPASORT,LVOISPH,KVOISPH,ITSOL2SPH
+        IF (ITSOL2SPH==2) WRITE (IOUT,5620) SPASORT,LVOISPH,KVOISPH,ITSOL2SPH
       ENDIF
 C-------------------------------------------------------------------
       WRITE(IOUT,1000)
-      IF(IEXPM.EQ.1) THEN
-      ELSE IF(IMOT.NE.0) THEN
+      IF(IEXPM==1) THEN
+      ELSE IF(IMOT/=0) THEN
         WRITE(IOUT,*)'MEMORY REQUEST NOT EFFICIENT ON THIS COMPUTER'
       ENDIF
-      IF(ICRAY.LT.2) THEN
-C 
+      IF(ICRAY<2) THEN
+C
         IPCT=NINT(REEL*100)
 c        WRITE(IOUT,3000) LMA,LAM,IPCT
-      ELSE IF(ICRAY.EQ.2) THEN
+      ELSE IF(ICRAY==2) THEN
 C       MasPar Special
 c        WRITE(IOUT,3002) LMA,LAM
       ENDIF
 
-      IF(NTHREAD_S.GT.1)THEN
+      IF(NTHREAD_S>1)THEN
         STR_NBTHREADS = 'THREADS'
       ELSE
         STR_NBTHREADS = 'THREAD'
       ENDIF
       IF(GOT_INSPIRE_ALM == 1)THEN
-        WRITE(IOUT,4001) NTHREAD_S,STR_NBTHREADS,NSPMD,NTHREAD,IARCH,
-     .                 ARCHN(IARCH),NVSIZ 
+        WRITE(IOUT,4001) NTHREAD_S,STR_NBTHREADS,NSPMD,NTHREAD,IARCH,ARCHN(IARCH),NVSIZ
       ELSE
-        WRITE(IOUT,4000) NTHREAD_S,STR_NBTHREADS,NSPMD,NTHREAD,IARCH,
-     .                 ARCHN(IARCH),NVSIZ 
+        WRITE(IOUT,4000) NTHREAD_S,STR_NBTHREADS,NSPMD,NTHREAD,IARCH,ARCHN(IARCH),NVSIZ
       ENDIF
 C
       IF(IGNORE_SPMD==1.OR.IGNORE_THREADS==1)THEN
@@ -1521,9 +1489,9 @@ C
       IF (USERL_AVAIL==1)THEN
         WRITE(IOUT,4500)
         IF(GOT_INSPIRE_ALM == 1)THEN
-	  WRITE(IOUT,4601) DLIBFILE(1:DLIBFILE_SIZE),DLIBTKVERS
+            WRITE(IOUT,4601) DLIBFILE(1:DLIBFILE_SIZE),DLIBTKVERS
         ELSE
-	  WRITE(IOUT,4600) DLIBFILE(1:DLIBFILE_SIZE),DLIBTKVERS
+            WRITE(IOUT,4600) DLIBFILE(1:DLIBFILE_SIZE),DLIBTKVERS
         ENDIF
       ENDIF
 C
@@ -1533,7 +1501,7 @@ C--------------------------------------------------------------------
       IF(ALLOCATED(IXS))  DEALLOCATE(IXS)
       IF(ALLOCATED(IGEO)) DEALLOCATE(IGEO)
       IF(ALLOCATED(IPART))DEALLOCATE(IPART)
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--            
+C--------------------------------------------------------------------
  1000 FORMAT(//
      & 4X,'SPEED PARAMETERS  '/
      & 4X,'----------------  '/)
@@ -1572,7 +1540,7 @@ c     & 4X,'MEMORY AVAILABLE FOR REALS. . . . . . . . . . . . . .',I10)
  4601 FORMAT(
      & 4X,'LIBRARY NAME  . . . . . . . . . . . . . . . . . . . . ',A/
      & 4X,'SOLVER USERS CODE INTERFACE VERSION . . . . . . . . .',I10)
-      
+
 
  5000 FORMAT(
      & '    NVOLU:  NUMBER OF MONITORED VOLUMES . . . . . . . . .',I10)
@@ -1587,13 +1555,13 @@ c     & 4X,'MEMORY AVAILABLE FOR REALS. . . . . . . . . . . . . .',I10)
  5054 FORMAT(
      & '    NUMMPC: NUMBER OF MULTI-POINT CONSTRAINTS . . . . . .',I10)
  5055 FORMAT(
-     & '    NSUBDOM: NUMBER OF SUBDOMAINS . . . . . .. . . . . . ',I10)     
+     & '    NSUBDOM: NUMBER OF SUBDOMAINS . . . . . .. . . . . . ',I10)
  5100 FORMAT(/
-     & 4X,'NWALE : CHOICE OF ALE GRID VELOCITY FORMULATION . . .',I10)
+     & 4X,'NWALE : ALE GRID VELOCITY FORMULATION  . . . . . . . .',I10)
  5199 FORMAT(//
-     & 4X,'ALE GRID FORMULATION                           '/
-     & 4X,'--------------------                           '/
-     & 5X,'DONEA GRID VELOCITY COMPUTATION METHOD         '/
+     & 4X,'ALE GRID SMOOTHING FORMULATION'/
+     & 4X,'------------------------------'/
+     & 5X,'DONEA GRID VELOCITY COMPUTATION METHOD         '//
      & 5X,'ALPHA   : DONEA COEFFICIENT. . . . . . . . . . ',1PG20.13/
      & 5X,'GAMMA   : GRID VELOCITY LIMITATION FACTOR. . . ',1PG20.13/
      & 5X,'FscaleX : X-GRID VELOCITY SCALE FACTOR . . . . ',1PG20.13/
@@ -1601,18 +1569,15 @@ c     & 4X,'MEMORY AVAILABLE FOR REALS. . . . . . . . . . . . . .',I10)
      & 5X,'FscaleZ : Z-GRID VELOCITY SCALE FACTOR . . . . ',1PG20.13/
      & 5X,'VOLMIN  : MINIMUM VOLUME FOR ELEMENT DELETION. ',1PG20.13)
  5200 FORMAT(//
-     & 4X,'ALE GRID FORMULATION                           '/
-     & 4X,'--------------------                           '/
-     & 5X,'ALTAIR AVERAGE DISPLACEMENT GRID FORMULATION   '/
+     & 4X,'ALE GRID SMOOTHING FORMULATION'/
+     & 4X,'------------------------------'/
+     & 5X,'ALTAIR AVERAGE DISPLACEMENT GRID FORMULATION   '//
      & 5X,'UMAX  : MAXIMUM ABSOLUTE GRID VELOCITY . . . . ',1PG20.13/
-     & 5X,'CWX   : X GRID VELOCITY SCALE FACTOR . . . . . ',1PG20.13/
-     & 5X,'CWY   : Y GRID VELOCITY SCALE FACTOR . . . . . ',1PG20.13/
-     & 5X,'CWZ   : Z GRID VELOCITY SCALE FACTOR . . . . . ',1PG20.13/
      & 5X,'VMIN  : MINIMUM VOLUME FOR ELEMENT DELETION. . ',1PG20.13)
  5300 FORMAT(//
-     & 4X,'ALE GRID FORMULATION                           '/
-     & 4X,'--------------------                           '/
-     &5X,'ALTAIR SPRING METHOD FOR GRID VELOCITY COMPUTATION    '/
+     & 4X,'ALE GRID SMOOTHING FORMULATION'/
+     & 4X,'------------------------------'/
+     &5X,'ALTAIR SPRING METHOD FOR GRID VELOCITY COMPUTATION    '//
      &5X,'DT0   : TYPICAL TIME STEP  . . . . . . . . . . . . ',1PG20.13/
      &5X,'DT0*  : EFFECTIVE TIME STEP. . . . . . . . . . . . ',1PG20.13/
      &5X,'GAMMA : NON LINEARITY FACTOR . . . . . . . . . . . ',1PG20.13/
@@ -1620,43 +1585,48 @@ c     & 4X,'MEMORY AVAILABLE FOR REALS. . . . . . . . . . . . . .',I10)
      &5X,'NU    : SHEAR FACTOR . . . . . . . . . . . . . . . ',1PG20.13/
      &5X,'VOLMIN: MINIMUM VOLUME FOR ELEMENT DELETION. . . . ',1PG20.13)
  5350 FORMAT(//
-     & 4X,'ALE GRID FORMULATION                           '/
-     & 4X,'--------------------                           '/
+     & 4X,'ALE GRID SMOOTHING FORMULATION'/
+     & 4X,'------------------------------'/
      & 5X,'GRID VELOCITY IS NOT COMPUTED (QUASI EULER) ')
  5351 FORMAT(//
-     & 4X,'ALE GRID FORMULATION                           '/
-     & 4X,'--------------------                           '/
-     & 5X,'ALTAIR STANDARD METHOD FOR GRID VELOCITY COMPUTATION '/
+     & 4X,'ALE GRID SMOOTHING FORMULATION'/
+     & 4X,'------------------------------'/
+     & 5X,'ALTAIR STANDARD METHOD FOR GRID VELOCITY COMPUTATION '//
      & 5X,'ALPHA : STABILITY FACTOR . . . . . . . . . . . . ',1PG20.13/
      & 5X,'GAMMA : NON LINEARITY FACTOR . . . . . . . . . . ',1PG20.13/
      & 5X,'BETA  : DAMPING COEFFICIENT. . . . . . . . . . . ',1PG20.13/
      & 5X,'LC    : CHARACTERISTIC LENGTH. . . . . . . . . . ',1PG20.13)
  5353 FORMAT(//
-     & 4X,'ALE GRID FORMULATION                           '/
-     & 4X,'--------------------                           '/
-     & 5X,'LAPLACIAN SMOOTHING '/
+     & 4X,'ALE GRID SMOOTHING FORMULATION'/
+     & 4X,'------------------------------'/
+     & 5X,'LAPLACIAN SMOOTHING '//
      & 5X,'LAMBDA:. . . . . . . . . . . . . . . . . . . . . ',1PG20.13/
-     & 5X,'NITER :. . . . . . . . . . . . . . . . . . . . . ',I10)          
+     & 5X,'NITER :. . . . . . . . . . . . . . . . . . . . . ',I10)
+ 5354 FORMAT(//
+     & 4X,'ALE GRID SMOOTHING FORMULATION'/
+     & 4X,'------------------------------'/
+     & 5X,'VOLUME SMOOTHING ')
+ 5355 FORMAT(//
+     & 4X,'ALE GRID SMOOTHING FORMULATION'/
+     & 4X,'------------------------------'/
+     & 5X,'FLOW-TRACKING (MASS WEIGHTED AVERAGED VELOCITY)'//
+     & 5X,'DEFORMATION ENABLED :  . . . . . . . . . . . . . ',A3/
+     & 5X,'ROTATION ENABLED : . . . . . . . . . . . . . . . ',A3/
+     & 5X,'DEFORMATION SCALE FACTOR : . . . . . . . . . . . ',1PG20.13/
+     & 5X,'ROTATION SCALE FACTOR: . . . . . . . . . . . . . ',1PG20.13/)
+
+
  5360 FORMAT(//
-     & 4X,'ALE UPWIND PARAMETERS                   '/
-     & 4X,'---------------------                   '/
+     & 4X,'ALE UPWIND PARAMETERS'/
+     & 4X,'---------------------'/
      & 5X,'UPWIND FOR MOMENTUM TRANSPORT . . . . .=',1PG20.13/,
      & 5X,'UPWIND FOR OTHER TRANSPORT. . . . . . .=',1PG20.13/)
  5380 FORMAT(/
-     & 4X,'CAA FLUID FORMULATION ACTIVATED         ')
- 5400 FORMAT(
-     & 4X,'alpha M + beta K DAMPING                    '/,
-     & 4X,'------------------------                    '/,
-     . 4X,'NODE GROUP ID (=0 ALL NODES). . . . . . ',I5/,
-     & 5X,'ALPHA . . . . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'BETA. . . . . . . . . . . . . . . . . .=',1PG20.13)
+     & 4X,'CAA FLUID FORMULATION ACTIVATED')
  5500 FORMAT(//4X,'ANALYSIS OPTIONS'/
      &         4X,'----------------'//
      & 4X,'INTEG8 : 8 GAUSS POINT CONDENSED INTEGRATION . . . . .',I10/
      & 4X,'IPARITH: PARALLEL ARITHMETIC FLAG (2 OFF, 1 0N). . . .',I10/
-     & 4X,'ISUB   : (OLD) SUBCYCLING (1:YES 0:NO) . . . . . . . .',I10/
-     & 4X,'MSHSUB : MEMORY ALLOCATION FOR (NEW) SHELLS SUBCYCLING',/
-     & 4X,'                                     (1:YES 0:NO). . .',I10/
      & 4X,'IUSERW : GENERAL USER WINDOW FLAG. . . . . . . . . . .',I10/
      & 4X,'ISOLID : DEFAULT BRICK FORMULATION FLAG. . . . . . . .',I10/
      & 4X,'ITET4  : DEFAULT TETRA4 FORMULATION FLAG . . . . . . .',I10/
@@ -1673,7 +1643,9 @@ c     & 4X,'MEMORY AVAILABLE FOR REALS. . . . . . . . . . . . . .',I10)
      & 4X,'ISH3N  : DEFAULT 3 NODE SHELL FORMULATION FLAG . . . .',I10/
      & 4X,'NPTS   : SHELL PROPERTIES DEFAULT NUMBER OF           ',/  
      & 4X,'         INTEGRATION POINTS OR LAYERS. . . . . . . . .',I10/
-     & 4X,'IFRAME : DEFAULT SOLID FRAME FORMULATION FLAG . . . . ',I10)
+     & 4X,'IFRAME : DEFAULT SOLID FRAME FORMULATION FLAG . . . . ',I10/
+     & 4X,'IOFFSET: DEFAULT SHELL OFFSET FLAG. . . . . . . . . . ',I10/
+     & 4X,'ICONTROL:DEFAULT SOLID DISTORTION CONTROL FLAG. . . . ',I10)
  5501 FORMAT(
      & 4X,'ISHFRAM: LOCAL SHELL FRAME DEFINITION. . . . . . . . .',I10)
  5502 FORMAT(
@@ -1681,14 +1653,16 @@ c     & 4X,'MEMORY AVAILABLE FOR REALS. . . . . . . . . . . . . .',I10)
  5503 FORMAT(
      & 4X,'ISFINT : INTERNAL FORCES FORMULATION . . . . . . . . .',I10)  
  5504 FORMAT(//
-     & 4X,'ALEMUSCL                   '/
-     & 4X,'---------------------                   '/
+     & 4X,'MUSCL (MONOTONIC UPSTREAM-CENTERED SCHEME FOR CONSERVATION LAWS)'/
+     & 4X,'----------------------------------------------------------------'/
      & 5X,'COMPRESSION COEFFICIENT (BETA). . . . . . . . . . . : ',1PG20.13/  
      & 5X,'FORMULATION FLAG (IFLAG). . . . . . . . . . . . . . : ',I10)
+ 5505 FORMAT(
+     & 4X,'ITEMP  : TEMPERATURE CUTOFF FLAG . . . . . . . . . . .',I10)
  5700 FORMAT(//
      & 4X,'LAGRANGE MULTIPLIER OPTIONS'/
      & 4X,'---------------------------'/
-     & 4X,'LAGM_TOL:CONVERGENCE CRITERIUM. . . . . . . . . . . .',
+     & 4X,'LAGM_TOL:CONVERGENCE CRITERION. . . . . . . . . . . .',
      &                                                        1PG20.13)
       RETURN
  5600 FORMAT(//4X,'SPH GLOBAL PARAMETERS'/
@@ -1720,15 +1694,15 @@ c     & 4X,'MEMORY AVAILABLE FOR REALS. . . . . . . . . . . . . .',I10)
  999  CALL FREERR(1)
       RETURN
       END
-Chd|====================================================================
-Chd|  FIND_DT1BRICK_ENGINE          source/starter/contrl.F       
-Chd|-- called by -----------
-Chd|        CONTRL                        source/starter/contrl.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    find_dt1brick_engine   ../starter/source/starter/contrl.F
+!||--- called by ------------------------------------------------------
+!||    contrl                 ../starter/source/starter/contrl.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE FIND_DT1BRICK_ENGINE()
 C-----------------------------------------------
 C   M o d u l e s
@@ -1746,9 +1720,6 @@ C-----------------------------------------------
 #include      "scr15_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER IO_ERR1, NITER
@@ -1760,7 +1731,7 @@ C-----------------------------------------------
       IO_ERR1=0
       IDTTSH=0
 C-----------------------------------------------
-C     Lecture des donnees dans le fichier engine
+C     Reading data from the engine file
 C-----------------------------------------------   
       FILNAM=ROOTNAM(1:ROOTLEN)//'_0001.rad'
 
@@ -1769,7 +1740,7 @@ C-----------------------------------------------
       OPEN(UNIT=71,FILE=TMP_NAME(1:LEN_TMP_NAME),
      .        ACCESS='SEQUENTIAL',STATUS='OLD',IOSTAT=IO_ERR1)
 C
-      IF (IO_ERR1.NE.0) THEN
+      IF (IO_ERR1/=0) THEN
          FILNAM=ROOTNAM(1:ROOTLEN)//'D01'
          TMP_NAME=INFILE_NAME(1:INFILE_NAME_LEN)//FILNAM(1:ROOTLEN+3)
          LEN_TMP_NAME = INFILE_NAME_LEN+ROOTLEN+3
@@ -1777,19 +1748,19 @@ C
      .        ACCESS='SEQUENTIAL',STATUS='OLD',IOSTAT=IO_ERR1)
       ENDIF      
 
-      IF (IO_ERR1.EQ.0) THEN
+      IF (IO_ERR1==0) THEN
 C
  10     READ(71,'(A)',END=20) KEYA
 C
-        IF(KEYA(1:10).EQ.'/DT1/BRICK') THEN
+        IF(KEYA(1:10)=='/DT1/BRICK') THEN
           IDT1SOL=1
-        ELSEIF(KEYA(1:9).EQ.'/DT1TET10') THEN
+        ELSEIF(KEYA(1:9)=='/DT1TET10') THEN
           NITER=0
           READ(KEYA(11:20),'(I10)',ERR=30) NITER
  30       CONTINUE
           IF(NITER == 0)NITER=1
           IDT1TET10=NITER+1
-        ELSEIF(KEYA(1:6).EQ.'/DTTSH') THEN
+        ELSEIF(KEYA(1:6)=='/DTTSH') THEN
           IDTTSH=1
         ENDIF
 C
@@ -1817,16 +1788,15 @@ C
 C------------------------------------------- 
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_H3DTMAX_ENGINE            source/starter/contrl.F       
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        READ_H3DTMAX_KEY              source/starter/contrl.F       
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OUTMAX_MOD                    ../common_source/modules/outmax_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ini_h3dtmax_engine     ../starter/source/starter/contrl.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    read_h3dtmax_key       ../starter/source/starter/contrl.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INI_H3DTMAX_ENGINE(IPARG,IPART,IPARTS,IPARTC,IPARTG,IDDLEVEL)
 C-----------------------------------------------
 C   M o d u l e s
@@ -1834,6 +1804,7 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE INOUTFILE_MOD
       USE OUTMAX_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1861,8 +1832,8 @@ C-----------------------------------------------
       INTEGER I, J, K, N ,NELC , NELTG , IP , NPRT , IPRT
       INTEGER IH3D,NG,ITY,NFT,IKEY,K_LEN
 
-      INTEGER :: TMAX_IPART(NPART),NKPART(NPART,NKEYMAX+1)
-      CHARACTER CARTE*ncharline
+      INTEGER :: TMAX_IPART(NPART),NKPART(NPART+1,NKEYMAX+1)
+      CHARACTER(LEN=NCHARLINE) :: CARTE
 C-----------------------------------------------
       IF (ALLOCATED(IKEYMAX)) DEALLOCATE(IKEYMAX)
       IF (ALLOCATED(IPART_OK)) DEALLOCATE(IPART_OK)
@@ -1873,9 +1844,9 @@ C-----------------------------------------------
       LMAX_VEL = 0
       LMAX_NSIG = 0
       LMAX_NSTRA = 0
-      NKPART(1:NPART,1:NKEYMAX+1) = 0
+      NKPART(1:NPART+1,1:NKEYMAX+1) = 0
 C-----------------------------------------------
-C     Lecture des donnees dans le fichier engine
+C     Reading data from the engine file
 C-----------------------------------------------
       IH3D=1
       K_LEN = 19 
@@ -2021,20 +1992,20 @@ C
 C------------------------------------------- 
       RETURN
       END
-Chd|====================================================================
-Chd|  READ_H3DTMAX_KEY              source/starter/contrl.F       
-Chd|-- called by -----------
-Chd|        INI_H3DTMAX_ENGINE            source/starter/contrl.F       
-Chd|-- calls ---------------
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    read_h3dtmax_key       ../starter/source/starter/contrl.F
+!||--- called by ------------------------------------------------------
+!||    ini_h3dtmax_engine     ../starter/source/starter/contrl.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE READ_H3DTMAX_KEY(KEY_TM,KEY_LEN,IFUND,NTM_PART,IPART)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE INOUTFILE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -2055,19 +2026,22 @@ C-----------------------------------------------
       INTEGER ,DIMENSION(LIPART1,NPART),INTENT(IN):: IPART
       INTEGER, INTENT(OUT):: IFUND
       INTEGER ,DIMENSION(NPART),INTENT(INOUT):: NTM_PART
+C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, K, N ,NELC , NELTG , IP , NPRT , IPRT
       INTEGER IH3D,NG,ITY,NFT,IO_ERR1,LEN_C,IC
-      CHARACTER FILNAM*109, KEYA*80, KEYA2*80,CARTE*ncharline
+      CHARACTER FILNAM*109, KEYA*80, KEYA2*80
+      CHARACTER(LEN=NCHARLINE) :: CARTE
 
       INTEGER :: LEN_TMP_NAME,TMAX_IPART(NPART)
       CHARACTER(len=4096) :: TMP_NAME
 C-----------------------------------------------
       IFUND=0
       IO_ERR1 = 0
+      NPRT = 0
 C-----------------------------------------------
-C     Lecture des donnees dans le fichier engine
+C     Reading data from the engine file
 C-----------------------------------------------   
       FILNAM=ROOTNAM(1:ROOTLEN)//'_0001.rad'
 
@@ -2089,15 +2063,17 @@ C---- read ipart_id if there are
              IF(CARTE(1:1) == '#' .OR. CARTE(1:1) == '$') CYCLE
              IC = 0
              LEN_C = LEN_TRIM(CARTE)
+             IF(CARTE(LEN_C:LEN_C)==CHAR(13)) LEN_C = LEN_C - 1
              IF (CARTE(1:1) == '/' .OR. LEN_C==0) THEN
              ELSE
                J=1
                NPRT = 0
-               DO WHILE(CARTE(1:1) /= '/' .AND. LEN_C /= 0) 
+               DO WHILE(CARTE(1:1) /= '/' .AND. CARTE(1:1) /= '#' .AND. 
+     .                  CARTE(1:1) /= '$' .AND. LEN_C /= 0) 
                  DO WHILE (J <= LEN_C)
                   IF(CARTE(J:J) /= ' ') THEN
                     K=J
-                    DO WHILE(CARTE(K:K) /= ' ' .AND. K <= LEN_C)
+                    DO WHILE(CARTE(K:K) /= ' ' .AND. K < LEN_C)
                       K=K+1
                     ENDDO
                     NPRT = NPRT + 1
@@ -2109,13 +2085,14 @@ C---- read ipart_id if there are
                  END DO
                  READ(71,FMT='(A)',ERR=20,END=20) CARTE
                  LEN_C = LEN_TRIM(CARTE)
+                 IF(CARTE(LEN_C:LEN_C)==CHAR(13)) LEN_C = LEN_C - 1
                END DO
-     	       IF (NPRT==0) THEN
+                   IF (NPRT==0) THEN
                  NPRT = NPART
                  NTM_PART(1:NPRT) = 1
                END IF
              END IF
-           END DO !(IC == 1) remove comments
+           END DO !(CI == 1) Remove Comments
         END IF        
 C
       END DO
@@ -2127,17 +2104,17 @@ C
         IF (IFUND>0 .AND. (NPRT == NPART .OR.NPRT ==0)) THEN   
           NTM_PART(1:NPRT) = 1
         ELSEIF (IFUND>0) THEN   
-    	  DO I=1,NPRT
+            DO I=1,NPRT
              IP=0
              IPRT = TMAX_IPART(I)
-     	     DO J=1,NPART
-     	        IF(IPART(4,J)==IPRT)IP=J
-     	     END DO
-     	     IF (IP > 0) NTM_PART(IP)=1
+               DO J=1,NPART
+                  IF(IPART(4,J)==IPRT)IP=J
+               END DO
+               IF (IP > 0) NTM_PART(IP)=1
              IP = 0
-     	     DO J=1,NPART
-     	       IP = IP +NTM_PART(J)
-     	     END DO
+               DO J=1,NPART
+                 IP = IP +NTM_PART(J)
+               END DO
              IF (IP==0) NTM_PART(1:NPART) = 1 
           ENDDO
         END IF 

@@ -1,41 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT112                source/materials/mat/mat112/hm_read_mat112.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat112           ../starter/source/materials/mat/mat112/hm_read_mat112.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT112(
      .           UPARAM   ,MAXUPARAM,NUPARAM  ,NUVAR    ,NTABL    ,
      .           MTAG     ,PARMAT   ,UNITAB   ,PM       ,LSUBMODEL,
@@ -49,6 +49,7 @@ C-----------------------------------------------
       USE SUBMODEL_MOD 
       USE ELBUFTAG_MOD
       USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e sXM
 C-----------------------------------------------
@@ -56,10 +57,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C
 C-----------------------------------------------
@@ -68,34 +66,34 @@ C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN)                 :: UNITAB 
       INTEGER, INTENT(IN)                          :: MAT_ID,MAXUPARAM,MAXTABL
       my_real, DIMENSION(NPROPM) ,INTENT(INOUT)    :: PM     
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
       INTEGER, INTENT(INOUT)                       :: ISRATE,ITABLE(MAXTABL)
-      INTEGER, INTENT(OUT)                         :: NUPARAM,NUVAR,NTABL,NVARTMP
-      my_real, DIMENSION(MAXUPARAM) ,INTENT(OUT)   :: UPARAM
+      INTEGER, INTENT(INOUT)                         :: NUPARAM,NUVAR,NTABL,NVARTMP
+      my_real, DIMENSION(MAXUPARAM) ,INTENT(INOUT)   :: UPARAM
       my_real, DIMENSION(100),INTENT(INOUT)        :: PARMAT
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
-      TYPE(MLAW_TAG_), INTENT(OUT)                 :: MTAG
-      TYPE(MATPARAM_STRUCT_) ,INTENT(OUT)          :: MATPARAM
+      TYPE(MLAW_TAG_), INTENT(INOUT)               :: MTAG
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT)        :: MATPARAM
 C     
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-       INTEGER I, J, ILAW, Ires, Itab, Ismooth
+       INTEGER ILAW, Ires, Itab, Ismooth
        INTEGER TAB_YLD1,TAB_YLD2,TAB_YLD3,TAB_YLD4,TAB_YLD5,
      .         TAB_YLDC,TAB_YLDS
 C     REAL
       my_real
      .   RHO0,RHOR,
      .   YOUNG1,YOUNG2,YOUNG3,NU12,NU21,G12,G23,G31,
-     .   FCUT,C1,SSP,A11,A12,A21,A22,XI1,XI2,
+     .   SSP,A11,A12,A21,A22,
      .   DMIN,DMAX,K,E3C,CC,NU1P,NU2P,NU4P,NU5P,
      .   S01,A01,B01,C01,S02,A02,B02,C02,
      .   S03,A03,B03,C03,S04,A04,B04,C04,
      .   S05,A05,B05,C05,ASIG,BSIG,CSIG,
-     .   TAU0,ATAU,BTAU,DETC,
+     .   TAU0,ATAU,BTAU,
      .   XSCALE1,YSCALE1,XSCALE2,YSCALE2,XSCALE3,YSCALE3,
      .   XSCALE4,YSCALE4,XSCALE5,YSCALE5,XSCALEC,YSCALEC,
-     .   XSCALES,YSCALES,XSCALE_UNIT,YSCALE_UNIT,ASRATE,TREF
+     .   XSCALES,YSCALES,XSCALE_UNIT,YSCALE_UNIT,ASRATE
 C     
       LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
 C=======================================================================
@@ -103,7 +101,7 @@ C=======================================================================
       IS_AVAILABLE = .FALSE.
       ILAW         = 112
 c------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 c------------------------------------------
 c
 card1 - Density
@@ -117,7 +115,7 @@ card2 - Young moduli - Flags
       CALL HM_GET_INTV  ('MAT_ITAB'  ,Itab     ,IS_AVAILABLE, LSUBMODEL)
       CALL HM_GET_INTV  ('MAT_SMOOTH',Ismooth  ,IS_AVAILABLE, LSUBMODEL)
       IF (Ismooth == 0) Ismooth = 1
-card3 - Coulomb moduli - Poissson's ratio  
+cArd3 - Coulomb Moduli - Poissson's'Ratio  
       CALL HM_GET_FLOATV('MAT_NU21'  ,NU21     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MAT_G12'   ,G12      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MAT_G23'   ,G23      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -324,39 +322,22 @@ c     Default values
 c---------------------
       ! Default algorithm : Cutting plane
       IF (Ires == 0)  Ires = 2
-      ! Poisson's ratio
-      IF (NU21 < ZERO .OR. NU21 >= HALF) THEN
-         CALL ANCMSG(MSGID=2057,
-     .               MSGTYPE=MSGERROR,
-     .               ANMODE=ANINFO_BLIND_2,
-     .               R1=NU21,
-     .               I1=MAT_ID,
-     .               C1=TITR)
-      ENDIF
+      !Checking Poisson's ratio
       NU12 = NU21*YOUNG1/YOUNG2
-      IF (NU12 < ZERO .OR. NU12 >= HALF) THEN
-         CALL ANCMSG(MSGID=2058,
-     .               MSGTYPE=MSGERROR,
-     .               ANMODE=ANINFO_BLIND_2,
-     .               R1=NU12,
-     .               I1=MAT_ID,
-     .               C1=TITR)
+      IF(NU12*NU21 >= ONE ) then
+        CALL ANCMSG(MSGID=3068,                        
+     .             MSGTYPE=MSGERROR,                    
+     .             ANMODE=ANINFO_BLIND_2,               
+     .             I1=MAT_ID ,                          
+     .             C1=TITR)
       ENDIF
-      ! Checking Poisson's ratio 
-      DETC = ONE - NU12*NU21
-      IF (DETC <= ZERO) THEN
-        CALL ANCMSG(MSGID=307,
-     .              MSGTYPE=MSGERROR,
-     .              ANMODE=ANINFO,
-     .              I1=MAT_ID,
-     .              C1=TITR)
-      ENDIF 
 c
       ! Strain-rate and filtering
       ISRATE    = 0
       PARMAT(4) = ZERO
       PARMAT(5) = ZERO
-      IF (ITAB > 0) ASRATE = 10000.0D0*FAC_T_WORK
+      ASRATE = ZERO
+      IF (ITAB > 0) ASRATE = 10000.0D0*UNITAB%FAC_T_WORK
 c
       ! Elasticity parameter
       !  Plane stress elastic constant
@@ -512,6 +493,12 @@ c
       CALL INIT_MAT_KEYWORD(MATPARAM ,"ELASTO_PLASTIC")
       CALL INIT_MAT_KEYWORD(MATPARAM ,"INCREMENTAL"   )
       CALL INIT_MAT_KEYWORD(MATPARAM ,"LARGE_STRAIN"  )
+      CALL INIT_MAT_KEYWORD(MATPARAM ,"HOOK")
+      CALL INIT_MAT_KEYWORD(MATPARAM ,"ORTHOTROPIC")
+c
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ORTHOTROPIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ORTHOTROPIC")
 c
 c--------------------------
 c     Parameters printout
@@ -521,7 +508,7 @@ c--------------------------
       IF (IS_ENCRYPTED) THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
-        WRITE(IOUT,1200) RHO0,RHOR
+        WRITE(IOUT,1200) RHO0
         WRITE(IOUT,1300) YOUNG1,YOUNG2,YOUNG3,NU12,NU21,G12,G23,G31
         WRITE(IOUT,1350) Ires
         WRITE(IOUT,1400) K,E3C,CC,NU1P,NU2P,NU4P,NU5P
@@ -545,8 +532,7 @@ c-----------------------------------------------------------------------
      &(5X,'MATERIAL MODEL : PAPERBOARD (XIA,2002)',/,
      & 5X,'--------------------------------------',/)
  1200 FORMAT(
-     & 5X,'INITIAL DENSITY . . . . . . . . . . . .=',1PG20.13/
-     & 5X,'REFERENCE DENSITY . . . . . . . . . . .=',1PG20.13/) 
+     & 5X,'INITIAL DENSITY . . . . . . . . . . . .=',1PG20.13/) 
  1300 FORMAT(
      & 5X,'YOUNG MODULUS IN DIRECTION 1. . . . . .=',1PG20.13/
      & 5X,'YOUNG MODULUS IN DIRECTION 2. . . . . .=',1PG20.13/
@@ -564,10 +550,10 @@ c-----------------------------------------------------------------------
      & 5X,'YIELD CRITERION EXPONENT K  . . . . . .=',1PG20.13/
      & 5X,'ELASTIC COMPRESSION PARAMETER . . . . .=',1PG20.13/
      & 5X,'ELASTIC COMPRESSION EXPONENT  . . . . .=',1PG20.13/
-     & 5X,'TENSILE PLASTIC POISSON RATION IN DIR 1=',1PG20.13/
-     & 5X,'COMPRES PLASTIC POISSON RATION IN DIR 1=',1PG20.13/
-     & 5X,'TENSILE PLASTIC POISSON RATION IN DIR 2=',1PG20.13/
-     & 5X,'COMPRES PLASTIC POISSON RATION IN DIR 2=',1PG20.13/)
+     & 5X,'TENSILE PLASTIC POISSON RATIO IN DIR 1.=',1PG20.13/
+     & 5X,'COMPRES PLASTIC POISSON RATIO IN DIR 1.=',1PG20.13/
+     & 5X,'TENSILE PLASTIC POISSON RATIO IN DIR 2.=',1PG20.13/
+     & 5X,'COMPRES PLASTIC POISSON RATIO IN DIR 2.=',1PG20.13/)
  1500 FORMAT(
      & 5X,'-----------------------------------------------',/,
      & 5X,'YIELD STRESS IN TENSION IN DIRECTION 1 (MD)    ',/,

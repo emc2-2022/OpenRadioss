@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SDET43                        source/elements/solid/sconnect/sdet43.F
-Chd|-- called by -----------
-Chd|        SCOOR43                       source/elements/solid/sconnect/scoor43.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sdet43    ../engine/source/elements/solid/sconnect/sdet43.F
+!||--- called by ------------------------------------------------------
+!||    scoor43   ../engine/source/elements/solid/sconnect/scoor43.F
+!||====================================================================
       SUBROUTINE SDET43(
      .         NEL  ,X    ,Y    ,Z    ,AREA ,AREAP,OFF  ,SOLID_ID,
      .         E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y  ,E3Z  )
@@ -47,7 +46,7 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   AREA(NEL),AREAP(MVSIZ,4),OFF(NEL),
-     .   X(NEL,8) ,Y(NEL,8),Z(NEL,8),RXX(NEL),RYY(NEL),
+     .   X(NEL,8) ,Y(NEL,8),Z(NEL,8),
      .   E1X(*),E2X(*),E3X(*),E1Y(*),E2Y(*),E3Y(*),E1Z(*),E2Z(*),E3Z(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -56,8 +55,8 @@ C-----------------------------------------------
       INTEGER INDX(NEL)
 C     REAL
       my_real
-     .   PG, XX1,XX2,XX3,XX4,YY1,YY2,YY3,YY4,ZZ1,ZZ2,ZZ3,ZZ4,
-     .   L1,L2,XL1,XL2,XL3,XL4,YL2,YL3,YL4,
+     .   PG, XX1,XX3,XX4,YY1,YY3,YY4,ZZ1,ZZ3,ZZ4,
+     .   L1,L2,XL2,XL3,XL4,YL2,YL3,YL4,
      .   MX13,MY13,MX23,MX34,MY23,MY34,J0,J1,J2
       my_real 
      .   VCX(4),VCY(4),

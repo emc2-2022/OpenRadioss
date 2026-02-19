@@ -1,39 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I22FOR3                       source/interfaces/int22/i22for3.F
-Chd|-- called by -----------
-Chd|        I22MAINF                      source/interfaces/int22/i22mainf.F
-Chd|-- calls ---------------
-Chd|        I22ASS0                       source/interfaces/int22/i22assembly.F
-Chd|        I22ASS2                       source/interfaces/int22/i22assembly.F
-Chd|        I7ASS3                        source/interfaces/int07/i7ass3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
-      SUBROUTINE I22FOR3(JLT       ,A        ,V         ,IBC      ,ICODT  ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i22for3          ../engine/source/interfaces/int22/i22for3.F
+!||--- called by ------------------------------------------------------
+!||    i22mainf         ../engine/source/interfaces/int22/i22mainf.F
+!||--- calls      -----------------------------------------------------
+!||    i22aera          ../engine/source/interfaces/int22/i22subvol.F
+!||    i22ass0          ../engine/source/interfaces/int22/i22assembly.F
+!||    i22ass2          ../engine/source/interfaces/int22/i22assembly.F
+!||    i7ass3           ../engine/source/interfaces/int07/i7ass3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||    h3d_mod          ../engine/share/modules/h3d_mod.F
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    output_mod       ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE I22FOR3(OUTPUT, JLT       ,A        ,V         ,IBC      ,ICODT  ,
      2                   FSAV      ,GAP      ,FRIC      ,MS       ,VISC   ,
      3                   VISCF     ,NOINT    ,STFN      ,ITAB     ,CB_LOC ,
      4                   STIGLO    ,STIFN    ,STIF      ,FSKYI    ,ISKY   ,
@@ -62,7 +66,7 @@ C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C-----------------------------------------------
 C   M o d u l e s
@@ -71,6 +75,8 @@ C-----------------------------------------------
       USE I22TRI_MOD
       USE I22BUFBRIC_MOD  
       USE H3D_MOD 
+      USE OUTPUT_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -87,23 +93,16 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "scr11_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
 #include      "parit_c.inc"
-#include      "warn_c.inc"
-#include      "couple_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
       
       INTEGER NELTST,ITYPTST,JLT,IBC,IBCM,IBCS,IVIS2,INACTI,IBAG,NIN,
@@ -200,8 +199,6 @@ C-----------------------------------------------
         END FUNCTION
       END INTERFACE     
 C-----------------------------------------------
-#include "sync_dir.inc"
-C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------  
       ECONTT = ZERO
@@ -217,7 +214,7 @@ C-----------------------------------------------
 !      !---------------------------------!
 !      !       PRESSURE CORRECTION       !
 !      !---------------------------------!
-!      IF (IBAG.NE.0)THEN
+!      IF (IBAG/=0)THEN
 !#include "lockon.inc"
 !        DO I=1,JLT
 !          PRES(CE_LOC(I)) = PRES(CE_LOC(I)) + FNI(I)
@@ -236,7 +233,7 @@ C
       !       PARAMETER INIT.           !
       !---------------------------------! 
       DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           NP_RECT(I) = 4  
           W(1:4,I) = FOURTH
          ELSE
@@ -293,7 +290,7 @@ c        IF(NBCUT==0) print *, "     C Y C L E"
 
         DO ICUT=1,NBCUT
 
-          IF(CAND_E(I).LT.0) CYCLE   !ICUT=1,8 do not project shell which do not intersect
+          IF(CAND_E(I)<0) CYCLE   !ICUT=1,8 do not project shell which do not intersect
           !
           ! +------------+------------+
           ! +        |   +       |    +      20 with facette 1 + ( + : intersection)
@@ -319,7 +316,7 @@ c        IF(NBCUT==0) print *, "     C Y C L E"
           ! +  IX      /II+   I   | IX +
           ! +---------/---+-------|----+
           !                       |
-          !                       | <------ face of this edge must not be projected on vitual cut surface from cell 20
+          !                       | <------ face of this edge must not be projected on virtual cut surface from cell 20
           !                                 this case is not treated (lagrangian face too complex or multiple surface, self-impact, etc...)
           !                                 Use a simple surface : smooth and without holes
 
@@ -339,7 +336,7 @@ c        IF(NBCUT==0) print *, "     C Y C L E"
           IF(IEM1==IE)THEN
             IBM1 = IB
           ELSE
-            IF(JM1.LE.NV46)THEN
+            IF(JM1<=NV46)THEN
               IBM1 = BRICK_LIST(NIN,IB)%Adjacent_Brick(JM1,4)
             ELSE
               J1   = JM1/10
@@ -351,7 +348,7 @@ c        IF(NBCUT==0) print *, "     C Y C L E"
           IF(IEM2==IE)THEN
             IBM2 = IB
           ELSE
-            IF(JM2.LE.NV46)THEN
+            IF(JM2<=NV46)THEN
               IBM2 = BRICK_LIST(NIN,IB)%Adjacent_Brick(JM2,4)
             ELSE
               J1   = JM2/10
@@ -396,11 +393,11 @@ c        IF(NBCUT==0) print *, "     C Y C L E"
           FFO   = DP(I) * Swet(ICUT,I)
           IF(Q<ZERO) FFO = -FFO   !sign change to adjust normal direction (non oriented surface)
 
-          !force au CoG
+          !force at cog
           FF(:) = FFO * N_SURF(:,iabs(CAND_E(I)))
           !rint *, "F_cog=", FF(:)
           
-          !distributed forces using weigthing coefficients
+          !distributed forces using weighting coefficients
           FX1(I)= FX1(I) + delta(1,ICUT,I) * FF(1)
           FY1(I)= FY1(I) + delta(1,ICUT,I) * FF(2) 
           FZ1(I)= FZ1(I) + delta(1,ICUT,I) * FF(3) 
@@ -460,10 +457,10 @@ C          print *, "FF=", FF(1), ITAB(IRECT(1:4,CE_LOC(I)))
         
         DO J=1,6
           NP = BRICK_LIST(NIN,IB)%PCUT(8+J)%NP
-          IF(NP.LE.0)CYCLE
+          IF(NP<=0)CYCLE
           ICELL1        = 9          
           FACE          = BRICK_LIST(NIN,IB)%POLY(9)%FACE(J)%Surf
-          IF(FACE.LE.ZERO) CYCLE
+          IF(FACE<=ZERO) CYCLE
           !-------------------------------!
           !     GET RELATIVE PRESSURE.    !
           ! FROM BOTH SIDE OF CUT SURFACE !
@@ -488,8 +485,8 @@ C          print *, "FF=", FF(1), ITAB(IRECT(1:4,CE_LOC(I)))
           IF(IEM1==IE)THEN
             IBM1 = IB
           ELSE
-            IF(JM1.LE.NV46)THEN !1<= direct <=6   ;  indirect >= 10
-C              if (jm1.eq.0)then
+            IF(JM1<=NV46)THEN !1<= direct <=6   ;  indirect >= 10
+C              if (jm1==0)then
 C                print *, "i22for3.F:issue"
 C                pause
 C              endif
@@ -504,7 +501,7 @@ C              endif
           IF(IEM2 == IEv)THEN
             IBM2       = IBv
           ELSE
-            IF(JM2.LE.NV46)THEN
+            IF(JM2<=NV46)THEN
               IBM2     = BRICK_LIST(NIN,IBv)%Adjacent_Brick(JM2,4)
             ELSE
               J1       = JM2/10
@@ -548,14 +545,14 @@ C              endif
           FFO          = DP(I) * Swet(8+J,I)
           IF(Q<ZERO) FFO = -FFO   !sign change to adjust normal direction (non oriented surface)
 
-          !force au CoG
+          !force at cog
           FF(:)        = FFO * N_SURF(:,iabs(CAND_E(I)))
           !rint *, "F_cog=", FF(:)
-          
-          !distributed forces using weigthing coefficients
+
+          !distributed forces using weighting coefficients
           FX1(I)       = FX1(I) + delta(1,8+J,I) * FF(1)
-          FY1(I)       = FY1(I) + delta(1,8+J,I) * FF(2) 
-          FZ1(I)       = FZ1(I) + delta(1,8+J,I) * FF(3) 
+          FY1(I)       = FY1(I) + delta(1,8+J,I) * FF(2)
+          FZ1(I)       = FZ1(I) + delta(1,8+J,I) * FF(3)
 
           FX2(I)       = FX2(I) + delta(2,8+J,I) * FF(1)
           FY2(I)       = FY2(I) + delta(2,8+J,I) * FF(2)
@@ -674,8 +671,8 @@ C
 
       !---------------------------------!
       !       ASSEMBLY PARITH ON/OFF    !
-      !---------------------------------!     
-      !these array could be removed from inter22 later during source cleaing
+      !---------------------------------!
+      !these array could be removed from inter22 later during source cleaning
       H1 = ZERO
       H2 = ZERO
       H3 = ZERO
@@ -717,7 +714,7 @@ C
       !---------------------------------!
       !       /ANIM/VECT/CONT           !
       !---------------------------------!
-      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT.GT.0)THEN
+      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT>0)THEN
 #include "lockon.inc"
            DO I=1,JLT  
              IB    = CB_LOC(I)
@@ -760,9 +757,10 @@ C
       !---------------------------------!
       !       /ANIM/VECT/PCONT          !
       !---------------------------------!   
-      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT.GT.0.AND.
-     .          (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .              (MANIM.GE.4.AND.MANIM.LE.15).OR.H3D_DATA%MH3D.NE.0))THEN
+      IF((ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT>0.AND.
+     .          ((TT>=OUTPUT%TANIM.AND.TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .              (MANIM>=4.AND.MANIM<=15).OR.H3D_DATA%MH3D/=0))
+     .   .OR.H3D_DATA%N_VECT_PCONT_MAX>0)THEN
 #include "lockon.inc"
            DO I=1,JLT
              FNCONT(1,IX1(I)) =FNCONT(1,IX1(I)) + FXI(I)

@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGROTA                       source/output/anim/generate/sigrota.F
-Chd|-- called by -----------
-Chd|        DFUNCC_PLY                    source/output/anim/generate/dfuncc_ply.F
-Chd|        H3D_SHELL_TENSOR              source/output/h3d/h3d_results/h3d_shell_tensor.F
-Chd|        TENSORC                       source/output/anim/generate/tensorc.F
-Chd|        TENSORC_PLY                   source/output/anim/generate/tensorc_ply.F
-Chd|-- calls ---------------
-Chd|        UROTOV                        source/airbag/uroto.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigrota        ../engine/source/output/anim/generate/sigrota.F
+!||--- called by ------------------------------------------------------
+!||    dfuncc_ply     ../engine/source/output/anim/generate/dfuncc_ply.F
+!||    tensorc_ply    ../engine/source/output/anim/generate/tensorc_ply.F
+!||--- calls      -----------------------------------------------------
+!||    urotov         ../engine/source/airbag/uroto.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE SIGROTA(JFT     ,JLT     ,NFT     ,IPT      ,NEL      ,
      2                   NS1     ,X       ,IXC     ,ELBUF_STR,
      3                   SIG     ,ITY     ,IXTG    ,IHBE     ,ISTRAIN  ,
@@ -39,6 +39,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,8 +48,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
-#include      "scr01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -59,7 +58,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,J,K,N,I1,NLAY,NPTR,NPTS,NPG,IR,IS,JJ(5),DIM
+      INTEGER I, J, N, NLAY, NPTR, NPTS, NPG, IR, IS, JJ(5), IDRAPE, IGTYP
       my_real
      .   X1(NEL),  X2(NEL),  X3(NEL), X4(NEL),
      .   Y1(NEL),  Y2(NEL),  Y3(NEL), Y4(NEL),
@@ -67,28 +66,39 @@ C-----------------------------------------------
      .   X21(NEL), Y21(NEL), Z21(NEL), 
      .   X31(NEL), Y31(NEL), Z31(NEL), 
      .   X32(NEL), Y32(NEL), Z32(NEL), 
-     .   X42(NEL), Y42(NEL), Z42(NEL),
+     .
      .   E1X(NEL), E1Y(NEL), E1Z(NEL), 
      .   E2X(NEL), E2Y(NEL), E2Z(NEL), 
      .   E3X(NEL), E3Y(NEL), E3Z(NEL), 
      .   E11(NEL),E12(NEL),E13(NEL),
      .   E21(NEL),E22(NEL),E23(NEL), DIR(NEL,2),
-     .   PHI,CSP,SNP,U(3,NEL),
+     .
      .   V1,V2,V3,VR,VS,AA,BB,SUMA
       my_real, 
      .   DIMENSION(:) , POINTER :: DIR1
-      TYPE(G_BUFEL_)  , POINTER :: GBUF   
+ 
       TYPE(L_BUFEL_)  , POINTER :: LBUF   
+ 
 C=======================================================================
       NPTR = ELBUF_STR%NPTR
       NPTS = ELBUF_STR%NPTS
       NLAY = ELBUF_STR%NLAY
       NPG  = NPTR*NPTS
-      IF (NLAY > 1) THEN
-        DIR1 => ELBUF_STR%BUFLY(IPT)%DIRA
+      IDRAPE =  ELBUF_STR%IDRAPE
+      IGTYP =  ELBUF_STR%IGTYP
+      IF(IDRAPE > 0 .AND. (IGTYP == 51 .OR. IGTYP == 52))THEN
+       IF (NLAY > 1) THEN
+        DIR1 => ELBUF_STR%BUFLY(IPT)%LBUF_DIR(1)%DIRA
+       ELSE
+        DIR1 => ELBUF_STR%BUFLY(1)%LBUF_DIR(1)%DIRA
+       ENDIF      
       ELSE
+       IF (NLAY > 1) THEN
+        DIR1 => ELBUF_STR%BUFLY(IPT)%DIRA
+       ELSE
         DIR1 => ELBUF_STR%BUFLY(1)%DIRA
-      ENDIF
+       ENDIF
+      ENDIF 
 c
 !
       DO I=1,5

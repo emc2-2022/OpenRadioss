@@ -1,51 +1,54 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-C calcul des forces sur un groupe d'elements multi-purpose.
-Chd|====================================================================
-Chd|  XFORC3                        source/elements/xelem/xforc3.F
-Chd|-- called by -----------
-Chd|        FORINTS                       source/elements/forints.F     
-Chd|-- calls ---------------
-Chd|        SAV_BUF_POINT                 source/user_interface/eng_callback_c.c
-Chd|        XBILAN3                       source/elements/xelem/xbilan3.F
-Chd|        XCOOR3                        source/elements/xelem/xcoor3.F
-Chd|        XCUM3                         source/elements/xelem/xcum3.F 
-Chd|        XCUM3P                        source/elements/xelem/xcum3.F 
-Chd|        XDEFO3                        source/elements/xelem/xdefo3.F
-Chd|        XFORC28                       source/elements/xelem/xforc28.F
-Chd|        XFORC29                       source/elements/xelem/xforc29.F
-Chd|        XFORC30                       source/elements/xelem/xforc30.F
-Chd|        XFORC31                       source/elements/xelem/xforc31.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE XFORC3( NFT   ,NEL   ,GEO    ,PM      ,ITAB  ,
-     2                   KXX   ,IXX   ,X      ,V       ,VR    ,
-     3                   F     ,AR    ,EV     ,NPC     ,PLD   ,
-     4                   SKEW  ,DT2T  ,NELTST ,ITYPTST ,
-     5                   STIFN ,STIFR ,MS     ,IN      ,
-     6                   FSKYI ,ISKY  ,PARTSAV,IPARTX  ,
-     7                   BUFMAT,BUFGEO,SENSOR ,LSENSOR ,
-     8                   GRESAV ,GRTH  ,IGRTH,ELBUF_STR)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+C calculation of forces on a group of multi-purpose elements
+!||====================================================================
+!||    xforc3          ../engine/source/elements/xelem/xforc3.F
+!||--- called by ------------------------------------------------------
+!||    forints         ../engine/source/elements/forints.F
+!||--- calls      -----------------------------------------------------
+!||    sav_buf_point   ../engine/source/user_interface/eng_callback_c.c
+!||    xbilan3         ../engine/source/elements/xelem/xbilan3.F
+!||    xcoor3          ../engine/source/elements/xelem/xcoor3.F
+!||    xcum3           ../engine/source/elements/xelem/xcum3.F
+!||    xcum3p          ../engine/source/elements/xelem/xcum3.F
+!||    xdefo3          ../engine/source/elements/xelem/xdefo3.F
+!||    xforc28         ../engine/source/elements/xelem/xforc28.F
+!||    xforc29         ../engine/source/elements/xelem/xforc29.F
+!||    xforc30         ../engine/source/elements/xelem/xforc30.F
+!||    xforc31         ../engine/source/elements/xelem/xforc31.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
+      SUBROUTINE XFORC3(
+     1   NFT,      NEL,      GEO,      PM,
+     2   ITAB,     KXX,      IXX,      X,
+     3   V,        VR,       F,        AR,
+     4   EV,       NPC,      PLD,      SKEW,
+     5   DT2T,     NELTST,   ITYPTST,  STIFN,
+     6   STIFR,    MS,       IN,       FSKYI,
+     7   ISKY,     PARTSAV,  IPARTX,   BUFMAT,
+     8   BUFGEO,   GRESAV,   GRTH,     IGRTH,
+     9   ELBUF_STR,IGRE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -56,13 +59,8 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
@@ -71,15 +69,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: IGRE
       INTEGER NFT,NEL,KXX(NIXX,*),IXX(*), NPC(*),ISKY(*),
-     .        LSENSOR(NSENSI,*),IPARTX(*),NELTST ,ITYPTST,
+     .        IPARTX(*),NELTST ,ITYPTST,
      .        ITAB(*),GRTH(*),IGRTH(*)
 C     REAL
       my_real DT2T ,
      .   GEO(NPROPG,*), PM(*), X(3,*),VR(3,*), V(3,*), F(3,*), AR(3,*),
      .   EV(*),PLD(*),SKEW(LSKEW,*),FSKYI(*),
-     .   STIFN(*),STIFR(*),MS(*), IN(*),
-     .   SENSOR(NSENSR,*),PARTSAV(*),
+     .   STIFN(*),STIFR(*),MS(*), IN(*),PARTSAV(*),
      .   BUFMAT(*),BUFGEO(*) ,GRESAV(*)
 C
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
@@ -89,10 +87,10 @@ C-----------------------------------------------
 C     REAL
       my_real
      .     DT1U,
-     .     DTE, DTC, XKM, XCM, XKR, XCR, XM, XINE, EUSR
-      INTEGER I, J, K, IPROP, IMAT, ISENS, NX,
-     .   NB1, NB2, NB3, NB4, NB5, NBFI, UID,
-     .   IGTYP,NUVAR,NUVARN,NUPARAM,
+     .     DTE, EUSR
+      INTEGER I, J, K, IPROP, IMAT, NX,
+     .         UID,
+     .   IGTYP,NUVAR,NUVARN,
      .   NISKYL,KEUSR,
      .   UIX(MAXNX),KVAR,KVARN
        my_real
@@ -234,7 +232,7 @@ C         NSTRAND ELEMENTS.
      6         NUVAR  ,GBUF%VAR(KVAR) ,NUVARN ,GBUF%VARN(KVARN) ,DT1U , DTE)
         ENDIF ! IF (IGTYP == 28)
 C-------
-C       CALCUL DE DT ELEMENTAIRE.
+C       calculation of elementary dt
         IF (GBUF%OFF(I) /= ZERO) THEN
           IF (DTE < DT2T) THEN
            DT2T=DTE
@@ -256,10 +254,12 @@ C       CALCUL DE DT ELEMENTAIRE.
           ENDDO
         ENDIF
 C-------
-        CALL XBILAN3(NX     ,KXX(1,J),IXX   ,X       ,V      ,
-     2               VR     ,UMASS   ,UINER ,UFORC   ,UMOMT  ,
-     3               KEUSR  ,EUSR    ,GBUF%EINT(I),PARTSAV,IPARTX(J),
-     4               GRESAV ,GRTH    ,IGRTH(J))
+        CALL XBILAN3(
+     1   NX,          KXX(1,J),    IXX,         X,
+     2   V,           VR,          UMASS,       UINER,
+     3   UFORC,       UMOMT,       KEUSR,       EUSR,
+     4   GBUF%EINT(I),PARTSAV,     IPARTX(J),   GRESAV,
+     5   GRTH,        IGRTH(J),    IGRE)
 C-------
         IF (IPARIT == 0) THEN
           CALL XCUM3(NX,KXX(1,J),IXX,UFORC ,USTIFM,

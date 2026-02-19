@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I7SMS2                        source/interfaces/int07/i7sms2.F
-Chd|-- called by -----------
-Chd|        I20FOR3                       source/interfaces/int20/i20for3.F
-Chd|        I23FOR3                       source/interfaces/int23/i23for3.F
-Chd|        I7ASS33                       source/interfaces/int07/i7ass3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i7sms2        ../engine/source/interfaces/int07/i7sms2.F
+!||--- called by ------------------------------------------------------
+!||    i20for3       ../engine/source/interfaces/int20/i20for3.F
+!||    i23for3       ../engine/source/interfaces/int23/i23for3.F
+!||    i7ass33       ../engine/source/interfaces/int07/i7ass3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||    tri7box       ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I7SMS2(JLT   ,IX1   ,IX2  ,IX3  ,IX4   ,
      2                  NSVG  ,H1    ,H2   ,H3   ,H4    ,STIF   ,
      3                  NIN   ,NOINT ,MSKYI_SMS ,ISKYI_SMS,NSMS ,
@@ -53,14 +54,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "parit_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-#include      "com01_c.inc"
 #include      "sms_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -81,22 +77,22 @@ C
       NISKYL1 = 0
       DO I=1,JLT
        IF(NSMS(I)==0.OR.STIF(I)==ZERO) CYCLE
-       IF (H1(I).NE.ZERO) NISKYL1 = NISKYL1 + 1
-       IF (H2(I).NE.ZERO) NISKYL1 = NISKYL1 + 1
-       IF (H3(I).NE.ZERO) NISKYL1 = NISKYL1 + 1
-       IF (H4(I).NE.ZERO) NISKYL1 = NISKYL1 + 1
+       IF (H1(I)/=ZERO) NISKYL1 = NISKYL1 + 1
+       IF (H2(I)/=ZERO) NISKYL1 = NISKYL1 + 1
+       IF (H3(I)/=ZERO) NISKYL1 = NISKYL1 + 1
+       IF (H4(I)/=ZERO) NISKYL1 = NISKYL1 + 1
       ENDDO
 #include "lockon.inc"
       NISKYL     = NISKY_SMS
       NISKY_SMS  = NISKY_SMS + NISKYL1
 #include "lockoff.inc"
 C
-      IF (NISKYL+NISKYL1 .GT. LSKYI_SMS) THEN
+      IF (NISKYL+NISKYL1 > LSKYI_SMS) THEN
          CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
          CALL ARRET(2)
       ENDIF
 C
-      IF (DTMINI.GT.ZERO) THEN 
+      IF (DTMINI>ZERO) THEN 
         DTM_INT=DTMINI
       ELSE 
         DTM_INT=DTMINS_INT
@@ -118,28 +114,28 @@ C
 C
        IG =NSVG(I)
        IF(IG >  0)THEN
-        IF(H1(I).NE.ZERO)THEN
+        IF(H1(I)/=ZERO)THEN
          NISKYL=NISKYL+1
          MSKYI_SMS(NISKYL)=ABS(H1(I))*MAS
          ISKYI_SMS(NISKYL,1)=IG
          ISKYI_SMS(NISKYL,2)=IX1(I)
          ISKYI_SMS(NISKYL,3)=ISPMD+1
         END IF
-        IF(H2(I).NE.ZERO)THEN
+        IF(H2(I)/=ZERO)THEN
          NISKYL=NISKYL+1
          MSKYI_SMS(NISKYL)=ABS(H2(I))*MAS
          ISKYI_SMS(NISKYL,1)=IG
          ISKYI_SMS(NISKYL,2)=IX2(I)
          ISKYI_SMS(NISKYL,3)=ISPMD+1
         END IF
-        IF(H3(I).NE.ZERO)THEN
+        IF(H3(I)/=ZERO)THEN
          NISKYL=NISKYL+1
          MSKYI_SMS(NISKYL)=ABS(H3(I))*MAS
          ISKYI_SMS(NISKYL,1)=IG
          ISKYI_SMS(NISKYL,2)=IX3(I)
          ISKYI_SMS(NISKYL,3)=ISPMD+1
         END IF
-        IF(H4(I).NE.ZERO)THEN
+        IF(H4(I)/=ZERO)THEN
          NISKYL=NISKYL+1
          MSKYI_SMS(NISKYL)=ABS(H4(I))*MAS
          ISKYI_SMS(NISKYL,1)=IG
@@ -148,28 +144,28 @@ C
         END IF
        ELSE
         NN = -IG
-        IF(H1(I).NE.ZERO)THEN
+        IF(H1(I)/=ZERO)THEN
          NISKYL=NISKYL+1
          MSKYI_SMS(NISKYL)=ABS(H1(I))*MAS
          ISKYI_SMS(NISKYL,1)=NODAMSFI(NIN)%P(NN)
          ISKYI_SMS(NISKYL,2)=IX1(I)
          ISKYI_SMS(NISKYL,3)=PROCAMSFI(NIN)%P(NN)
         END IF
-        IF(H2(I).NE.ZERO)THEN
+        IF(H2(I)/=ZERO)THEN
          NISKYL=NISKYL+1
          MSKYI_SMS(NISKYL)=ABS(H2(I))*MAS
          ISKYI_SMS(NISKYL,1)=NODAMSFI(NIN)%P(NN)
          ISKYI_SMS(NISKYL,2)=IX2(I)
          ISKYI_SMS(NISKYL,3)=PROCAMSFI(NIN)%P(NN)
         END IF
-        IF(H3(I).NE.ZERO)THEN
+        IF(H3(I)/=ZERO)THEN
          NISKYL=NISKYL+1
          MSKYI_SMS(NISKYL)=ABS(H3(I))*MAS
          ISKYI_SMS(NISKYL,1)=NODAMSFI(NIN)%P(NN)
          ISKYI_SMS(NISKYL,2)=IX3(I)
          ISKYI_SMS(NISKYL,3)=PROCAMSFI(NIN)%P(NN)
         END IF
-        IF(H4(I).NE.ZERO)THEN
+        IF(H4(I)/=ZERO)THEN
          NISKYL=NISKYL+1
          MSKYI_SMS(NISKYL)=ABS(H4(I))*MAS
          ISKYI_SMS(NISKYL,1)=NODAMSFI(NIN)%P(NN)

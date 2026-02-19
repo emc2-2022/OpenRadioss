@@ -1,44 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_GJOINT                source/constraints/general/gjoint/hm_read_gjoint.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SZ_R2R                     source/coupling/rad2rad/routines_r2r.F
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_gjoint         ../starter/source/constraints/general/gjoint/hm_read_gjoint.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    fretitl                ../starter/source/starter/freform.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_sz_r2r              ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    kinset                 ../starter/source/constraints/general/kinset.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_GJOINT
      1              (GJBUFI  ,GJBUFR  ,ITAB    ,ITABM   ,X       ,
      2               MASS    ,INER    ,LAG_NCF ,LAG_NKF ,LAG_NHF ,
@@ -50,23 +50,18 @@ C-----------------------------------------------
       USE R2R_MOD
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
-      USE HM_OPTION_READ_MOD 
+      USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "sysunit.inc"
 #include      "r2r_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -82,10 +77,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,JJ,KK,ID,UID,JTYP,N1,N2,N3,N0,NG,SUB_ID
+      INTEGER I, J, ID, UID, JTYP, N1, N2, N3, N0, NG, SUB_ID
       my_real R1(3),R2(3),R3(3),
      .        ALPHA,MS0,MS1,MS2,MS3,IN0,IN1,IN2,IN3,L1,L2,L3
-      CHARACTER TITR*nchartitle,KEY*ncharkey,MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY) :: KEY
+      CHARACTER MESS*40
       DATA MESS/'GEAR JOINTS DEFINITION          '/
       LOGICAL :: IS_AVAILABLE
 C-----------------------------------------------
@@ -117,8 +114,8 @@ C
       DO I=1,NGJOINT
         NG=NG+1
 C----------Multidomaines --> on ignore les gjoint non tages--------
-        IF(NSUBDOM.GT.0)THEN
-	  IF(TAGJOIN(NG).EQ.0)CALL HM_SZ_R2R(TAGJOIN,NG,LSUBMODEL)
+        IF(NSUBDOM>0)THEN
+            IF(TAGJOIN(NG)==0)CALL HM_SZ_R2R(TAGJOIN,NG,LSUBMODEL)
         END IF
 C-----------------------------------------------------------------      
         CALL HM_OPTION_READ_KEY(LSUBMODEL,
@@ -157,7 +154,7 @@ C
         CALL HM_GET_FLOATV('r2y',R2(2),IS_AVAILABLE,LSUBMODEL,UNITAB)
         CALL HM_GET_FLOATV('r2z',R2(3),IS_AVAILABLE,LSUBMODEL,UNITAB)
 C
-        IF(KEY(1:4).EQ.'DIFF') THEN
+        IF(KEY(1:4)=='DIFF') THEN
           CALL HM_GET_FLOATV('Mass3',MS3,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('Inertia3',IN3,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('r3x',R3(1),IS_AVAILABLE,LSUBMODEL,UNITAB)
@@ -174,27 +171,27 @@ C------
         INER(N0) =  INER(N0) + IN0   
         INER(N1) =  INER(N1) + IN1   
         INER(N2) =  INER(N2) + IN2  
-        IF (ALPHA.EQ.0) ALPHA = 1.0
-        IF(R1(1).EQ.ZERO.AND.R1(2).EQ.ZERO.AND.R1(3).EQ.ZERO) R1(1)=1.
-        IF(R2(1).EQ.ZERO.AND.R2(2).EQ.ZERO.AND.R2(3).EQ.ZERO) R2(1)=1.
+        IF (ALPHA==0) ALPHA = 1.0
+        IF(R1(1)==ZERO.AND.R1(2)==ZERO.AND.R1(3)==ZERO) R1(1)=1.
+        IF(R2(1)==ZERO.AND.R2(2)==ZERO.AND.R2(3)==ZERO) R2(1)=1.
         CALL KINSET(512,ITAB(N0),IKINE(N0),7,0,IKINE1LAG(N0))
         CALL KINSET(512,ITAB(N1),IKINE(N1),7,0,IKINE1LAG(N1))
         CALL KINSET(512,ITAB(N2),IKINE(N2),7,0,IKINE1LAG(N2))
 C---       
-        IF(KEY(1:4).EQ.'GEAR') THEN
+        IF(KEY(1:4)=='GEAR') THEN
           JTYP = 1
           N3 = 0
           R3(1) = ONE
           R3(2) = ZERO
           R3(3) = ZERO
-        ELSEIF(KEY(1:4).EQ.'DIFF') THEN
+        ELSEIF(KEY(1:4)=='DIFF') THEN
           JTYP = 2
           N3 = USR2SYS(N3,ITABM,MESS,ID) 
           CALL KINSET(512,ITAB(N3),IKINE(N3),7,0,IKINE1LAG(N3))
-          IF(R3(1).EQ.ZERO.AND.R3(2).EQ.ZERO.AND.R3(3).EQ.ZERO) R3(1)=1.
+          IF(R3(1)==ZERO.AND.R3(2)==ZERO.AND.R3(3)==ZERO) R3(1)=1.
           MASS(N3) =  MASS(N3) + MS3
           INER(N3) =  INER(N3) + IN3   
-        ELSEIF(KEY(1:4).EQ.'RACK') THEN
+        ELSEIF(KEY(1:4)=='RACK') THEN
           JTYP = 3
           N3 = 0
           R3(1) = ONE
@@ -242,21 +239,21 @@ C
         GJBUFR(19,I) = R3(3)
 C
 C---
-        IF (JTYP.EQ.1) THEN
+        IF (JTYP==1) THEN
           LAG_NHF = LAG_NHF + 55
           LAG_NCF = LAG_NCF + 11
           LAG_NKF = LAG_NKF + 60
           WRITE(IOUT,1101)ID,JTYP,ITAB(N1),ITAB(N2),ITAB(N0),
      .          ALPHA,MS1,MS2,MS0,IN1,IN2,IN0,
      .          R1(1),R1(2),R1(3),R2(1),R2(2),R2(3)
-        ELSEIF (JTYP.EQ.2) THEN
+        ELSEIF (JTYP==2) THEN
           LAG_NHF = LAG_NHF + 78
           LAG_NCF = LAG_NCF + 13
           LAG_NKF = LAG_NKF + 108
           WRITE(IOUT,1102)ID,JTYP,ITAB(N1),ITAB(N2),ITAB(N3),ITAB(N0),
      .          ALPHA,MS1,MS2,MS3,MS0,IN1,IN2,IN3,IN0,
      .          R1(1),R1(2),R1(3),R2(1),R2(2),R2(3),R3(1),R3(2),R3(3)
-        ELSEIF (JTYP.EQ.3) THEN
+        ELSEIF (JTYP==3) THEN
           LAG_NHF = LAG_NHF + 36
           LAG_NCF = LAG_NCF + 9
           LAG_NKF = LAG_NKF + 48
@@ -268,7 +265,6 @@ C---
       ENDDO
 C---        
       RETURN
- 999  CALL FREERR(3)
  1000 FORMAT(//
      .'       COMPLEX JOINTS  (GEAR TYPE) '/
      . '      --------------------------- ')

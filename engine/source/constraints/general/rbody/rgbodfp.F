@@ -1,55 +1,54 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RGBODFP                       source/constraints/general/rbody/rgbodfp.F
-Chd|-- called by -----------
-Chd|        RBYFOR                        source/constraints/general/rbody/rbyfor.F
-Chd|-- calls ---------------
-Chd|        ROTBMR                        source/tools/skew/rotbmr.F    
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rgbodfp        ../engine/source/constraints/general/rbody/rgbodfp.F
+!||--- called by ------------------------------------------------------
+!||    rbyfor         ../engine/source/constraints/general/rbody/rbyfor.F
+!||--- calls      -----------------------------------------------------
+!||    rotbmr         ../engine/source/tools/skew/rotbmr.F
+!||    sum_6_float    ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    my_alloc_mod   ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE RGBODFP(AF   ,AM    ,X      ,FS   ,RBY  ,
      2                   NOD  ,M     ,IN     ,VR   ,STIFN,
      3                   STIFR,FOPTA ,WEIGHT ,MS   ,V    ,
      4                   IFLAG,ICODR ,ISKEW  ,SKEW ,RBF6 ,
      5                   NSN  ,NATIV_SMS,FBSAV6,IPARSENS,
-     6                   NODREAC,FTHREAC,CPTREAC)
+     6                   NODREAC,FTHREAC,CPTREAC,ISPHER)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE MY_ALLOC_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "scr11_c.inc"
 #include      "impl1_c.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
@@ -57,10 +56,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER , INTENT(IN   ) :: ISPHER
       INTEGER NOD(*), WEIGHT(*), ICODR(*), ISKEW(*),
      .        IFLAG,NSN,M, NATIV_SMS(*),IPARSENS,
      .        NODREAC(*),CPTREAC
-C     REAL
       my_real
      .   AF(3,*), AM(3,*), X(3,*), FS(*), RBY(*), VR(3,*), SKEW(LSKEW,*),
      .   STIFN(*),STIFR(*),FOPTA(6),IN(*),MS(*), V(3,*),
@@ -75,20 +74,35 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   WA1, WA2, WA3, DD, VI(3),II1,II2,II3,II4,II5,II6,II7,II8,II9,
-     .   ENROTT,ENCINT,XMASST,XMOMTT,YMOMTT,ZMOMTT,MAS,AFM1,AFM2,AFM3,
-     .   ARM1,ARM2,ARM3,STFM,STFRM,
-     .   DET, IL1,IL2,IL3,IL4,IL5,IL6,IL7,IL8,IL9,
-     .   F1(NSN), F2(NSN), F3(NSN), F4(NSN),
-     .   F5(NSN), F6(NSN), F7(NSN), F8(NSN)
+     .   AFM1,AFM2,AFM3,
+     .   ARM1,ARM2,ARM3,
+     .   DET, IL1,IL2,IL3,IL4,IL5,IL6,IL7,IL8,IL9
+      my_real,DIMENSION(:), ALLOCATABLE :: F1
+      my_real,DIMENSION(:), ALLOCATABLE :: F2
+      my_real,DIMENSION(:), ALLOCATABLE :: F3
+      my_real,DIMENSION(:), ALLOCATABLE :: F4
+      my_real,DIMENSION(:), ALLOCATABLE :: F5
+      my_real,DIMENSION(:), ALLOCATABLE :: F6
+      my_real,DIMENSION(:), ALLOCATABLE :: F7
+      my_real,DIMENSION(:), ALLOCATABLE :: F8
+C-----------------------------------------------
+      CALL MY_ALLOC(F1,NSN)
+      CALL MY_ALLOC(F2,NSN)
+      CALL MY_ALLOC(F3,NSN)
+      CALL MY_ALLOC(F4,NSN)
+      CALL MY_ALLOC(F5,NSN)
+      CALL MY_ALLOC(F6,NSN)
+      CALL MY_ALLOC(F7,NSN)
+      CALL MY_ALLOC(F8,NSN)
 C-----------------------------------------------
 C
 c      M   =NBY(1)
-C rajout optimisation pour spmd
-      IF (M.LT.0) RETURN
-Cel premiere passe : calcul de force sur tous les r.b.
-      IF (IFLAG.EQ.1) THEN
+C added optimization for spmd
+      IF (M<0) RETURN
+C   first pass: force calculation on all rigid bodies
+      IF (IFLAG==1) THEN
 
-C CORRECTION DE L'INERTIE DU RIGID BODY POUR DT NODAL
+C correction of the inertia of the rigid body for nodal dt
        RBY(10) = MAX(RBY(10),IN(M))
        RBY(11) = MAX(RBY(11),IN(M))
        RBY(12) = MAX(RBY(12),IN(M))
@@ -96,7 +110,6 @@ C
 c       NSN =NBY(2)
 C
        IF(IDTMINS/=2)THEN
-c#include "simd.inc"
         DO I=1,NSN
          N = NOD(I)
          IF(WEIGHT(N) == 1)THEN
@@ -124,7 +137,6 @@ c#include "simd.inc"
          END IF
         ENDDO
        ELSE ! IF(IDTMINS/=2)THEN
-c#include "simd.inc"
          DO I=1,NSN
           N = NOD(I)
           IF(WEIGHT(N) == 1)THEN
@@ -154,7 +166,7 @@ C
          ENDDO
        END IF
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
        DO K = 1, 6
          RBF6(1,K) = ZERO
@@ -192,10 +204,10 @@ c
 C
 C phase 2 : sauvegarde anim + rby
 C
-      ELSEIF (IFLAG.EQ.2) THEN
+      ELSEIF (IFLAG==2) THEN
 c       NSN =NBY(2)
 C
-C Traitement Parith/ON apres echange
+C Parith/ON processing after exchange
 C
        STIFN(M) = STIFN(M)+
      +            RBF6(1,1)+RBF6(1,2)+RBF6(1,3)+
@@ -236,8 +248,7 @@ c
      +            RBF6(8,1)+RBF6(8,2)+RBF6(8,3)+
      +            RBF6(8,4)+RBF6(8,5)+RBF6(8,6)
 C
-CGW      IF(NBY(3).EQ.1)THEN
-      IF(IMCONV.EQ.1)THEN
+      IF(IMCONV==1)THEN
        !---
        ! reaction forces/moments in rbody TH/RBODY
        !---
@@ -264,7 +275,6 @@ CGW      IF(NBY(3).EQ.1)THEN
          ENDIF
        ENDIF ! IF (CPTREAC . and. NODREAC(M) > 0)
       ENDIF
-CGW      ENDIF
 C
 C
        !---
@@ -283,7 +293,7 @@ C
        FOPTA(5)=ARM2*WEIGHT(M)
        FOPTA(6)=ARM3*WEIGHT(M)
 C
-       IF (IPARSENS .NE. 0)THEN
+       IF (IPARSENS /= 0)THEN
           DO I=1,6
             FBSAV6(1,I) = RBF6(3,I)*WEIGHT(M)
             FBSAV6(2,I) = RBF6(4,I)*WEIGHT(M)
@@ -302,9 +312,9 @@ C
 c
       ISK =ISKEW(M)
       LCOD=ICODR(M)
-      IF(LCOD.NE.0.AND.IMCONV.EQ.1)THEN
+      IF(LCOD/=0.AND.IMCONV==1)THEN
 C
-C      rotation de la matrice d'orientation (directions principales)
+C      rotation of the orientation matrix (principal directions)
        IF(N2D==0) THEN
           VI(1)=RBY(1)*VR(1,M)+RBY(2)*VR(2,M)+RBY(3)*VR(3,M)
           VI(2)=RBY(4)*VR(1,M)+RBY(5)*VR(2,M)+RBY(6)*VR(3,M)
@@ -350,7 +360,7 @@ C      ajout des termes [Iglobal] vr ^ vr
           WA3=RBY(23)*VR(1,M)+RBY(24)*VR(2,M)+RBY(25)*VR(3,M)
 C
        ELSEIF(N2D==1) THEN
-C        ANALYSE 2D : Axisymetry  
+C        ANALYSE 2D : Axisymmetry  
 C             I= A 0 0
 C                0 A 0
 C                0 0 B 
@@ -387,16 +397,16 @@ C      ajout des termes [Iglobal] vr ^ vr
           WA3=ZERO
        ENDIF
 C
-       IF (IMPL_S.EQ.0) THEN
+       IF (IMPL_S==0) THEN
           AM(1,M)=AM(1,M)+(WA2*VR(3,M)-WA3*VR(2,M))
           AM(2,M)=AM(2,M)+(WA3*VR(1,M)-WA1*VR(3,M))
           AM(3,M)=AM(3,M)+(WA1*VR(2,M)-WA2*VR(1,M))
        END IF
 
 C
-       IF(ISK.EQ.1)THEN
+       IF(ISK==1)THEN
 C------------------
-C       REPERE GLOBAL :
+C       GLOBAL REFERENCE FRAME :
 C       Resolution [Iglobal] gama = M, compte-tenu des conditions aux limites
 C       Ex : gamaz=0
 C           | Ixx Ixy Ixz | { gamax }   { Mx }
@@ -405,42 +415,42 @@ C           | Izx Izy Izz | {   0   }   { Mz + DMz }  DMz inconnue
 C       equivaut a
 C           | Ixx Ixy | { gamax }   { Mx }
 C           | Iyx Iyy | { gamay } = { My }
-C           et gamaz=0
+C           and gamaz=0
 C------------------
-        IF(LCOD.EQ.1)THEN
+        IF(LCOD==1)THEN
           DET=ONE/(RBY(17)*RBY(21)-RBY(18)*RBY(20))
           WA1=AM(1,M)
           WA2=AM(2,M)
           AM(1,M)=( RBY(21)*WA1-RBY(20)*WA2)*DET
           AM(2,M)=(-RBY(18)*WA1+RBY(17)*WA2)*DET
           AM(3,M)=ZERO
-        ELSEIF(LCOD.EQ.2)THEN
+        ELSEIF(LCOD==2)THEN
           DET=ONE/(RBY(17)*RBY(25)-RBY(19)*RBY(23))
           WA1=AM(1,M)
           WA2=AM(3,M)
           AM(1,M)=( RBY(25)*WA1-RBY(23)*WA2)*DET
           AM(2,M)=ZERO
           AM(3,M)=(-RBY(19)*WA1+RBY(17)*WA2)*DET
-        ELSEIF(LCOD.EQ.3)THEN
+        ELSEIF(LCOD==3)THEN
           AM(1,M)=AM(1,M)/RBY(17)
           AM(2,M)=ZERO
           AM(3,M)=ZERO
-        ELSEIF(LCOD.EQ.4)THEN
+        ELSEIF(LCOD==4)THEN
           DET=ONE/(RBY(21)*RBY(25)-RBY(22)*RBY(24))
           WA1=AM(2,M)
           WA2=AM(3,M)
           AM(1,M)=ZERO
           AM(2,M)=( RBY(25)*WA1-RBY(24)*WA2)*DET
           AM(3,M)=(-RBY(22)*WA1+RBY(21)*WA2)*DET
-        ELSEIF(LCOD.EQ.5)THEN
+        ELSEIF(LCOD==5)THEN
           AM(1,M)=ZERO
           AM(2,M)=AM(2,M)/RBY(21)
           AM(3,M)=ZERO
-        ELSEIF(LCOD.EQ.6)THEN
+        ELSEIF(LCOD==6)THEN
           AM(1,M)=ZERO
           AM(2,M)=ZERO
           AM(3,M)=AM(3,M)/RBY(25)
-        ELSEIF(LCOD.EQ.7)THEN
+        ELSEIF(LCOD==7)THEN
           AM(1,M)=ZERO
           AM(2,M)=ZERO
           AM(3,M)=ZERO
@@ -450,7 +460,7 @@ C-------------------
 C       REPERE OBLIQUE
 C------------------
 C
-C       Passage dans le skew : (vitesse), moments, matrice d'inertie.
+C       conversion to skew: (velocity), moments, inertia matrix.
 C
 C       WA1=VR(1,M)
 C       WA2=VR(2,M)
@@ -476,13 +486,13 @@ C           | IL1 IL2 IL3 | { gama1 }   { M1 }          | IL1 IL2 IL3 | { 0 }
 C           | IL4 IL5 IL6 | { gama2 } = { M2 }        + | IL4 IL5 IL6 | { 0 }
 C           | IL7 IL8 IL9 | { 0     }   { M3 + DM3  }   | IL7 IL8 IL9 | { v3/dt12 }
 C
-C       pas de solution => gama3=0, v'3=0 (reimpose dans la condition limite)
+C       no solution => gama3=0, v'3=0 (reimposed in the boundary condition)
 C
 C           | IL1 IL2 IL3 | { gama1 }   { M1 }            | IL1 IL2 IL3 | { gama1 }   { M1 }
 C           | IL4 IL5 IL6 | { gama2 } = { M2 }       <==> | IL4 IL5 IL6 | { gama2 } = { M2 }
 C           | IL7 IL8 IL9 | { 0     }   { M3 + DM3  }
 C
-        IF(LCOD.EQ.1)THEN
+        IF(LCOD==1)THEN
 C12345678901234567890123456789012345678901234567890123456789012345678901
          II1=RBY(17)*SKEW(1,ISK)+RBY(18)*SKEW(2,ISK)+RBY(19)*SKEW(3,ISK)
          II2=RBY(17)*SKEW(4,ISK)+RBY(18)*SKEW(5,ISK)+RBY(19)*SKEW(6,ISK)
@@ -502,7 +512,7 @@ C
          AM(2,M)=(-IL2*WA1+IL1*WA2)*DET
          AM(3,M)=ZERO
 C        VL(3)=ZERO
-        ELSEIF(LCOD.EQ.2)THEN
+        ELSEIF(LCOD==2)THEN
          II1=RBY(17)*SKEW(1,ISK)+RBY(18)*SKEW(2,ISK)+RBY(19)*SKEW(3,ISK)
          II3=RBY(17)*SKEW(7,ISK)+RBY(18)*SKEW(8,ISK)+RBY(19)*SKEW(9,ISK)
          II4=RBY(20)*SKEW(1,ISK)+RBY(21)*SKEW(2,ISK)+RBY(22)*SKEW(3,ISK)
@@ -521,7 +531,7 @@ C
          AM(2,M)=ZERO
          AM(3,M)=(-IL3*WA1+IL1*WA2)*DET
 C        VL(2)=ZERO
-        ELSEIF(LCOD.EQ.3)THEN
+        ELSEIF(LCOD==3)THEN
          II1=RBY(17)*SKEW(1,ISK)+RBY(18)*SKEW(2,ISK)+RBY(19)*SKEW(3,ISK)
          II4=RBY(20)*SKEW(1,ISK)+RBY(21)*SKEW(2,ISK)+RBY(22)*SKEW(3,ISK)
          II7=RBY(23)*SKEW(1,ISK)+RBY(24)*SKEW(2,ISK)+RBY(25)*SKEW(3,ISK)
@@ -532,7 +542,7 @@ C
          AM(3,M)=ZERO
 C        VL(2)=ZERO
 C        VL(3)=ZERO
-        ELSEIF(LCOD.EQ.4)THEN
+        ELSEIF(LCOD==4)THEN
          II2=RBY(17)*SKEW(4,ISK)+RBY(18)*SKEW(5,ISK)+RBY(19)*SKEW(6,ISK)
          II3=RBY(17)*SKEW(7,ISK)+RBY(18)*SKEW(8,ISK)+RBY(19)*SKEW(9,ISK)
          II5=RBY(20)*SKEW(4,ISK)+RBY(21)*SKEW(5,ISK)+RBY(22)*SKEW(6,ISK)
@@ -551,7 +561,7 @@ C
          AM(2,M)=( IL9*WA1-IL8*WA2)*DET
          AM(3,M)=(-IL6*WA1+IL5*WA2)*DET
 C        VL(1)=ZERO
-        ELSEIF(LCOD.EQ.5)THEN
+        ELSEIF(LCOD==5)THEN
          II2=RBY(17)*SKEW(4,ISK)+RBY(18)*SKEW(5,ISK)+RBY(19)*SKEW(6,ISK)
          II5=RBY(20)*SKEW(4,ISK)+RBY(21)*SKEW(5,ISK)+RBY(22)*SKEW(6,ISK)
          II8=RBY(23)*SKEW(4,ISK)+RBY(24)*SKEW(5,ISK)+RBY(25)*SKEW(6,ISK)
@@ -562,7 +572,7 @@ C
          AM(3,M)=ZERO
 C        VL(1)=ZERO
 C        VL(3)=ZERO
-        ELSEIF(LCOD.EQ.6)THEN
+        ELSEIF(LCOD==6)THEN
          II3=RBY(17)*SKEW(7,ISK)+RBY(18)*SKEW(8,ISK)+RBY(19)*SKEW(9,ISK)
          II6=RBY(20)*SKEW(7,ISK)+RBY(21)*SKEW(8,ISK)+RBY(22)*SKEW(9,ISK)
          II9=RBY(23)*SKEW(7,ISK)+RBY(24)*SKEW(8,ISK)+RBY(25)*SKEW(9,ISK)
@@ -573,7 +583,7 @@ C
          AM(3,M)=AM(3,M)/IL9
 C        VL(1)=ZERO
 C        VL(2)=ZERO
-        ELSEIF(LCOD.EQ.7)THEN
+        ELSEIF(LCOD==7)THEN
          AM(1,M)=ZERO
          AM(2,M)=ZERO
          AM(3,M)=ZERO
@@ -589,83 +599,92 @@ C        VL(3)=ZERO
         AM(3,M)=SKEW(3,ISK)*WA1+SKEW(6,ISK)*WA2+SKEW(9,ISK)*WA3
        ENDIF
 C
-C      CALCUL D'ONE PSEUDO MOMENT:
-C      EN FAIT L'ACCELERATION DE ROTATION * INERTIE DU NOEUD MAIN (IMIN DU RB)
+C      COMPUTATION OF A PSEUDO MOMENT:
+C      actually the rotational acceleration * inertia of the main node (imin of the rigid body)
        AM(1,M)=IN(M)*AM(1,M)
        AM(2,M)=IN(M)*AM(2,M)
        AM(3,M)=IN(M)*AM(3,M)
 C
-      ELSEIF (IMCONV.EQ.1) THEN
+      ELSEIF (IMCONV==1) THEN
        IF(N2D==0) THEN
-         WA1=AM(1,M)
-         WA2=AM(2,M)
-         WA3=AM(3,M)
+          IF(ISPHER==1) THEN 
+!  do it just if this principal base is used somewhere else
+            VI(1)=RBY(1)*VR(1,M)+RBY(2)*VR(2,M)+RBY(3)*VR(3,M)
+            VI(2)=RBY(4)*VR(1,M)+RBY(5)*VR(2,M)+RBY(6)*VR(3,M)
+            VI(3)=RBY(7)*VR(1,M)+RBY(8)*VR(2,M)+RBY(9)*VR(3,M)
+            CALL ROTBMR(VI,RBY,DT1)
+          ELSE
+            WA1=AM(1,M)
+            WA2=AM(2,M)
+            WA3=AM(3,M)
+C the contributions of vr are only added on the main processor
+            VI(1)=RBY(1)*VR(1,M)+RBY(2)*VR(2,M)+RBY(3)*VR(3,M)
+            VI(2)=RBY(4)*VR(1,M)+RBY(5)*VR(2,M)+RBY(6)*VR(3,M)
+            VI(3)=RBY(7)*VR(1,M)+RBY(8)*VR(2,M)+RBY(9)*VR(3,M)
+C Update of skew of principal inerties - VI is the rotation vector so it is unchanged              
+            CALL ROTBMR(VI,RBY,DT1)
 C repere globale -> repere d'inertie principale
-         AM(1,M)=RBY(1)*WA1+RBY(2)*WA2+RBY(3)*WA3
-         AM(2,M)=RBY(4)*WA1+RBY(5)*WA2+RBY(6)*WA3
-         AM(3,M)=RBY(7)*WA1+RBY(8)*WA2+RBY(9)*WA3
-C les contributions des vr ne sont ajoutees que sur le processeur main
-         VI(1)=RBY(1)*VR(1,M)+RBY(2)*VR(2,M)+RBY(3)*VR(3,M)
-         VI(2)=RBY(4)*VR(1,M)+RBY(5)*VR(2,M)+RBY(6)*VR(3,M)
-         VI(3)=RBY(7)*VR(1,M)+RBY(8)*VR(2,M)+RBY(9)*VR(3,M)
-         CALL ROTBMR(VI,RBY,DT1)
-         IF (IMPL_S.EQ.0) THEN
-           AM(1,M) = AM(1,M) + (RBY(11)-RBY(12))*VI(2)*VI(3)
-           AM(2,M) = AM(2,M) + (RBY(12)-RBY(10))*VI(3)*VI(1)
-           AM(3,M) = AM(3,M) + (RBY(10)-RBY(11))*VI(1)*VI(2)
-         END IF
+            AM(1,M)=RBY(1)*WA1+RBY(2)*WA2+RBY(3)*WA3
+            AM(2,M)=RBY(4)*WA1+RBY(5)*WA2+RBY(6)*WA3
+            AM(3,M)=RBY(7)*WA1+RBY(8)*WA2+RBY(9)*WA3            
+            IF (IMPL_S==0) THEN
+              AM(1,M) = AM(1,M) + (RBY(11)-RBY(12))*VI(2)*VI(3)
+              AM(2,M) = AM(2,M) + (RBY(12)-RBY(10))*VI(3)*VI(1)
+              AM(3,M) = AM(3,M) + (RBY(10)-RBY(11))*VI(1)*VI(2)
+            END IF
 C
-C CALCUL D'ONE PSEUDO MOMENT:
-C EN FAIT L'ACCELERATION DE ROTATION * INERTIE DU NOEUD MAIN (IMIN DU RB)
+C COMPUTATION OF A PSEUDO MOMENT:
+C actually the rotational acceleration * inertia of the main node (imin of the rigid body)
 C
-         IF (IMPL_S.EQ.0) THEN
-           WA1 = AM(1,M)*IN(M)/RBY(10)
-           WA2 = AM(2,M)*IN(M)/RBY(11)
-           WA3 = AM(3,M)*IN(M)/RBY(12)
-         ELSE
-           WA1 = AM(1,M)
-           WA2 = AM(2,M)
-           WA3 = AM(3,M)
-         END IF
+            IF (IMPL_S==0) THEN
+              WA1 = AM(1,M)*IN(M)/RBY(10)
+              WA2 = AM(2,M)*IN(M)/RBY(11)
+              WA3 = AM(3,M)*IN(M)/RBY(12)
+            ELSE
+              WA1 = AM(1,M)
+              WA2 = AM(2,M)
+              WA3 = AM(3,M)
+            END IF
 C repere d'inertie principale -> repere globale
-         AM(1,M)=RBY(1)*WA1+RBY(4)*WA2+RBY(7)*WA3
-         AM(2,M)=RBY(2)*WA1+RBY(5)*WA2+RBY(8)*WA3
-         AM(3,M)=RBY(3)*WA1+RBY(6)*WA2+RBY(9)*WA3
+            AM(1,M)=RBY(1)*WA1+RBY(4)*WA2+RBY(7)*WA3
+            AM(2,M)=RBY(2)*WA1+RBY(5)*WA2+RBY(8)*WA3
+            AM(3,M)=RBY(3)*WA1+RBY(6)*WA2+RBY(9)*WA3
 C MATRICE d'inertie -> repere globale
-         II1=RBY(10)*RBY(1)
-         II2=RBY(10)*RBY(2)
-         II3=RBY(10)*RBY(3)
-         II4=RBY(11)*RBY(4)
-         II5=RBY(11)*RBY(5)
-         II6=RBY(11)*RBY(6)
-         II7=RBY(12)*RBY(7)
-         II8=RBY(12)*RBY(8)
-         II9=RBY(12)*RBY(9)
-C
-         RBY(17)=RBY(1)*II1 + RBY(4)*II4 + RBY(7)*II7
-         RBY(18)=RBY(1)*II2 + RBY(4)*II5 + RBY(7)*II8
-         RBY(19)=RBY(1)*II3 + RBY(4)*II6 + RBY(7)*II9
-         RBY(20)=RBY(2)*II1 + RBY(5)*II4 + RBY(8)*II7
-         RBY(21)=RBY(2)*II2 + RBY(5)*II5 + RBY(8)*II8
-         RBY(22)=RBY(2)*II3 + RBY(5)*II6 + RBY(8)*II9
-         RBY(23)=RBY(3)*II1 + RBY(6)*II4 + RBY(9)*II7
-         RBY(24)=RBY(3)*II2 + RBY(6)*II5 + RBY(9)*II8
-         RBY(25)=RBY(3)*II3 + RBY(6)*II6 + RBY(9)*II9
+            II1=RBY(10)*RBY(1)
+            II2=RBY(10)*RBY(2)
+            II3=RBY(10)*RBY(3)
+            II4=RBY(11)*RBY(4)
+            II5=RBY(11)*RBY(5)
+            II6=RBY(11)*RBY(6)
+            II7=RBY(12)*RBY(7)
+            II8=RBY(12)*RBY(8)
+            II9=RBY(12)*RBY(9)
+C          
+            RBY(17)=RBY(1)*II1 + RBY(4)*II4 + RBY(7)*II7
+            RBY(18)=RBY(1)*II2 + RBY(4)*II5 + RBY(7)*II8
+            RBY(19)=RBY(1)*II3 + RBY(4)*II6 + RBY(7)*II9
+            RBY(20)=RBY(2)*II1 + RBY(5)*II4 + RBY(8)*II7
+            RBY(21)=RBY(2)*II2 + RBY(5)*II5 + RBY(8)*II8
+            RBY(22)=RBY(2)*II3 + RBY(5)*II6 + RBY(8)*II9
+            RBY(23)=RBY(3)*II1 + RBY(6)*II4 + RBY(9)*II7
+            RBY(24)=RBY(3)*II2 + RBY(6)*II5 + RBY(9)*II8
+            RBY(25)=RBY(3)*II3 + RBY(6)*II6 + RBY(9)*II9
+          END IF !(ISPHER==1) THEN 
 C
         ELSEIF(N2D==1) THEN
 C
-C CALCUL D'ONE PSEUDO MOMENT:
-C EN FAIT L'ACCELERATION DE ROTATION * INERTIE DU NOEUD MAIN (IMIN DU RB)
+C COMPUTATION OF A PSEUDO MOMENT:
+C actually the rotational acceleration * inertia of the main node (imin of the rigid body)
 C
-         IF (IMPL_S.EQ.0) THEN
-           WA1 = ZERO
-           WA2 = ZERO
-           WA3 = AM(3,M)*IN(M)/RBY(12)
-         ELSE
-           WA1 = ZERO
-           WA2 = ZERO
-           WA3 = AM(3,M)
-         END IF
+          IF (IMPL_S==0) THEN
+            WA1 = ZERO
+            WA2 = ZERO
+            WA3 = AM(3,M)*IN(M)/RBY(12)
+          ELSE
+            WA1 = ZERO
+            WA2 = ZERO
+            WA3 = AM(3,M)
+          END IF
 C MATRICE d'inertie -> repere globale
 C
           RBY(17)=RBY(10)
@@ -673,35 +692,35 @@ C
           RBY(25)=RBY(12)
 C
         ELSEIF(N2D==2) THEN
-         WA1=AM(1,M)
-         WA2=ZERO
-         WA3=ZERO
+          WA1=AM(1,M)
+          WA2=ZERO
+          WA3=ZERO
 C repere globale -> repere d'inertie principale
-         AM(1,M)=RBY(1)*WA1
-         AM(2,M)=ZERO
-         AM(3,M)=ZERO
-C les contributions des vr ne sont ajoutees que sur le processeur main
+          AM(1,M)=RBY(1)*WA1
+          AM(2,M)=ZERO
+          AM(3,M)=ZERO
+C the contributions of vr are only added on the main processor
           VI(1)=RBY(1)*VR(1,M)
           VI(2)=ZERO
           VI(3)=ZERO
-         CALL ROTBMR(VI,RBY,DT1)
+          CALL ROTBMR(VI,RBY,DT1)
 C
-C CALCUL D'ONE PSEUDO MOMENT:
-C EN FAIT L'ACCELERATION DE ROTATION * INERTIE DU NOEUD MAIN (IMIN DU RB)
+C COMPUTATION OF A PSEUDO MOMENT:
+C actually the rotational acceleration * inertia of the main node (imin of the rigid body)
 C
-         IF (IMPL_S.EQ.0) THEN
-           WA1 = AM(1,M)*IN(M)/RBY(10)
-           WA2 = ZERO
-           WA3 = ZERO
-         ELSE
-           WA1 = AM(1,M)
-           WA2 = AM(2,M)
-           WA3 = AM(3,M)
-         END IF
+          IF (IMPL_S==0) THEN
+            WA1 = AM(1,M)*IN(M)/RBY(10)
+            WA2 = ZERO
+            WA3 = ZERO
+          ELSE
+            WA1 = AM(1,M)
+            WA2 = AM(2,M)
+            WA3 = AM(3,M)
+          END IF
 C repere d'inertie principale -> repere globale
-         AM(1,M)=RBY(1)*WA1
-         AM(2,M)=RBY(2)*WA1
-         AM(3,M)=RBY(3)*WA1
+          AM(1,M)=RBY(1)*WA1
+          AM(2,M)=RBY(2)*WA1
+          AM(3,M)=RBY(3)*WA1
 C MATRICE d'inertie -> repere globale
           II1=RBY(10)*RBY(1)
           II5=RBY(11)*RBY(5)
@@ -736,6 +755,15 @@ C
        ENDDO
       ENDIF
 C
+      DEALLOCATE(F1)
+      DEALLOCATE(F2)
+      DEALLOCATE(F3)
+      DEALLOCATE(F4)
+      DEALLOCATE(F5)
+      DEALLOCATE(F6)
+      DEALLOCATE(F7)
+      DEALLOCATE(F8)
+
       RETURN
       END
 

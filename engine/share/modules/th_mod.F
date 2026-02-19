@@ -1,35 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  TH_MOD                        share/modules/th_mod.F        
-Chd|-- called by -----------
-Chd|        ABFHIST2                      source/output/abf/abfhist2.F  
-Chd|        HIST2                         source/output/th/hist2.F      
-Chd|        INIT_TH                       source/output/th/init_th.F    
-Chd|        INIT_TH0                      source/output/th/init_th0.F   
-Chd|        WRITE_TH                      source/output/th/write_th.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    th_mod                       ../engine/share/modules/th_mod.F
+!||--- called by ------------------------------------------------------
+!||    freform                      ../engine/source/input/freform.F
+!||    hist1                        ../engine/source/output/th/hist1.F
+!||    hist2                        ../engine/source/output/th/hist2.F
+!||    init_th                      ../engine/source/output/th/init_th.F
+!||    init_th0                     ../engine/source/output/th/init_th0.F
+!||    output_allocate_noda_pext    ../common_source/modules/output/output_mod.F90
+!||    pblast_1                     ../engine/source/loads/pblast/pblast_1.F
+!||    pblast_2                     ../engine/source/loads/pblast/pblast_2.F
+!||    pblast_3                     ../engine/source/loads/pblast/pblast_3.F
+!||    rdcomi                       ../engine/source/output/restart/rdcomm.F
+!||    sortie_main                  ../engine/source/output/sortie_main.F
+!||    spmd_exch_output_noda_pext   ../engine/source/mpi/output/spmd_exch_output_noda_pext.F
+!||    thnod                        ../engine/source/output/th/thnod.F
+!||    wrcomi                       ../engine/source/output/restart/wrcomm.F
+!||    write_th                     ../engine/source/output/th/write_th.F
+!||====================================================================
         MODULE TH_MOD
 C-----------------------------------------------
 C   m y _ r e a l
@@ -57,6 +66,8 @@ C-----------------------------------------------
         TYPE TH_PROC_TYPE
             TYPE(TH_EL_TYPE), DIMENSION(:), ALLOCATABLE :: TH_PROC
         END TYPE TH_PROC_TYPE
+!   -------------------------
+        INTEGER TH_TITLES
 !   -------------------------
         INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX_WA_ELTYPE
 
@@ -106,5 +117,7 @@ C-----------------------------------------------
         TYPE(TH_PROC_TYPE), DIMENSION(10), TARGET :: NST_STRUCT       
         TYPE(TH_COMM), DIMENSION(10), TARGET :: WA_NST_COMM
         TYPE(TH_WA_REAL), DIMENSION(10), TARGET :: WA_NST_P0,WA_NST
+
+        INTEGER :: TH_HAS_NODA_PEXT
 C
         END MODULE TH_MOD

@@ -1,5 +1,5 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
 Copyright>    
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
@@ -29,14 +29,14 @@ C
      .               NPARI,  LWAMP, LWANMP, NISX,
      .               NISU,   NIMV,  NNPBY,  NRBY   ,NIFV,
      .               NTHVKI, NPSAV, NRCNX,  NR2R   ,NRWLP,
-     .               NRVOLU, NSENSI,NSENSR, NBVELP ,NRIVF,
+     .               NRVOLU, NBVELP ,NRIVF,
      .               NXFRAME,LACTIV,NICBAG ,NRCBAG ,NIBJET, 
      .               NRBJET ,NIBHOL,NRBHOL ,LKJNI  ,LKJNR ,
      .               NGJOINT,NUMMPC,NNPRW  ,NPEBC  ,NPROPGI,
      .               NPROPMI,NPARIR,LFXVELR,LFACCLD,NPEBCR ,
      .               NITHGR ,NRDAMP,LIPART,KSH4TREE,KSH3TREE,
-     .               KPADMESH,KIPADMESH,NIFT,NICONV,LFACTHER,
-     .               NRBE3L, NPLYMAX,NPLYXFE,EPLYXFE,NIRADIA,
+     .               KPADMESH,KIPADMESH,
+     .               NRBE3L, NPLYMAX,NPLYXFE,EPLYXFE,
      .               NRBE2L, NPLYNODG,LSKEW,LISKN,LFACLOAD,
      .               NCRKNODG, NIBSPH,NALENOVS,LLACCELM,
      .               LLGAUGE,NIXIG3D,NPT_STACK,NS_STACK,NUMMAT_OLD,
@@ -49,14 +49,14 @@ C
      .               NPARI,  LWAMP, LWANMP, NISX,
      .               NISU,   NIMV,  NNPBY,  NRBY   ,NIFV,
      .               NTHVKI, NPSAV, NRCNX,  NR2R   ,NRWLP,
-     .               NRVOLU, NSENSI,NSENSR, NBVELP ,NRIVF,
+     .               NRVOLU, NBVELP ,NRIVF,
      .               NXFRAME,LACTIV,NICBAG ,NRCBAG ,NIBJET,
      .               NRBJET ,NIBHOL,NRBHOL ,LKJNI  ,LKJNR ,
      .               NGJOINT,NUMMPC,NNPRW  ,NPEBC  ,NPROPGI,
      .               NPROPMI,NPARIR,LFXVELR,LFACCLD,NPEBCR ,
      .               NITHGR ,NRDAMP,LIPART,KSH4TREE,KSH3TREE,
-     .               KPADMESH,KIPADMESH,NIFT,NICONV,LFACTHER,
-     .               NRBE3L, NPLYMAX,NPLYXFE,EPLYXFE,NIRADIA,
+     .               KPADMESH,KIPADMESH,
+     .               NRBE3L, NPLYMAX,NPLYXFE,EPLYXFE,
      .               NRBE2L, NPLYNODG,LSKEW,LISKN,LFACLOAD,
      .               NCRKNODG, NIBSPH,NALENOVS,LLACCELM,
      .               LLGAUGE,NIXIG3D,NPT_STACK,NS_STACK,NUMMAT_OLD,

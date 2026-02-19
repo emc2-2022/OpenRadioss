@@ -1,38 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FLOW0                         source/fluid/flow0.F          
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        DAASOLV                       source/fluid/daasolv.F        
-Chd|        DAASOLVP                      source/fluid/daasolvp.F       
-Chd|        INCPFLOW                      source/fluid/incpflow.F       
-Chd|====================================================================
-      SUBROUTINE FLOW0(IFLOW  , RFLOW  , WIFLOW , WRFLOW, X      ,
-     .                 V      , A      , NPC    , TF    , SENSOR ,
-     .                 NBGAUGE, LGAUGE , GAUGE  ,NSENSOR, LSENSOR,
-     .                 IGRV   , AGRV   , NFUNCT )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    flow0              ../engine/source/fluid/flow0.F
+!||--- called by ------------------------------------------------------
+!||    resol              ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    daasolv            ../engine/source/fluid/daasolv.F
+!||    daasolvp           ../engine/source/fluid/daasolvp.F
+!||    incpflow           ../engine/source/fluid/incpflow.F
+!||--- uses       -----------------------------------------------------
+!||    output_mod         ../common_source/modules/output/output_mod.F90
+!||    python_funct_mod   ../common_source/modules/python_mod.F90
+!||    sensor_mod         ../common_source/modules/sensor_mod.F90
+!||====================================================================
+      SUBROUTINE FLOW0(OUTPUT,IFLOW  , RFLOW  , WIFLOW , WRFLOW, X      ,
+     .                 V      , A      , NPC    , TF    , SENSOR_TAB,
+     .                 NBGAUGE, LGAUGE , GAUGE  , NSENSOR, 
+     .                 IGRV   , AGRV   , NFUNCT , PYTHON, WFEXT)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------  
+      USE SENSOR_MOD
+      USE OUTPUT_MOD
+      USE PYTHON_FUNCT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,22 +51,21 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "flowcom.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NBGAUGE, NSENSOR, NFUNCT
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
+      INTEGER ,INTENT(IN) :: NSENSOR,NBGAUGE,NFUNCT
       INTEGER IFLOW(*), WIFLOW(*), NPC(*),LGAUGE(3,*)
-      INTEGER LSENSOR(NSENSI,*), IGRV(NIGRV,*)
-      my_real
-     .        RFLOW(*), WRFLOW(*), X(3,*), V(3,*), A(3,*), TF(*),
-     .        SENSOR(NSENSR,*), GAUGE(LLGAUGE,*), AGRV(LFACGRV,*)
+      INTEGER IGRV(NIGRV,*)
+      my_real RFLOW(*), WRFLOW(*), X(3,*), V(3,*), A(3,*), TF(*), GAUGE(LLGAUGE,*), AGRV(LFACGRV,*)
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) :: SENSOR_TAB
+      TYPE (PYTHON_), INTENT(INOUT) :: PYTHON
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -65,43 +74,43 @@ C-----------------------------------------------
      .        IR5, IR6, IR7, IR8, IR9, IR10, IR11, II8, II9, II10, II11, IADIP, IADH, IADG, 
      .        II12, II13, II14, IPINT, NDIM, JFORM, FREESURF
 C-----------------------------------------------------------------------------------
-C Description des tableaux ITYP=1
-C     II1  -> IFLOW   : parametres entiers
-C     II2  -> IBUF    : correspondances local-global noeuds surface
-C     II3  -> ELEM    : connectivite locale des triangles
-C     II4  -> IINOUT  : variables entieres pour les surfaces entrees-sorties
-C     II5  -> IBUFI   : correspondance local-global noeuds internes
-C     II6  -> ITAGEL  : tag des elements des surfaces d'entrees-sorties
-C----- tableaux SPMD
-C     II7  -> IBUFR   : indice ligne noeud local (0 si pas sur ce proc)
-C     II8  -> IBUFC   : indice colonne noeud local (0 si pas sur ce proc)
-C     II9  -> IBUFL   : liste noeuds surface sur processeur courant pour X, V, A
-C     II10 -> CNP     : attribution processeur pour noeuds surface pour X, V, A
-C     II11 -> IBUFIL  : liste noeuds internes sur processeur courant pour X, V, A
-C     II12 -> CNPI    : attribution processeur pour noeuds internes pour X, V, A
-C     II13 -> IBUFELR : indice ligne elem local (0 si pas sur ce proc)
-C     II14 -> IBUFELC : indice colonne elem local (0 si pas sur ce proc)
+C Description of arrays ITYP=1
+C     II1 -> IFLOW: integer parameters
+C     II2  -> IBUF    : local-global surface node correspondences
+C     II3 -> Elem: Local Connectivitis of the Triangles
+C     II4  -> IINOUT  : integer variables for inlet-outlet surfaces
+C     II5  -> IBUFI   : local-global internal node correspondences
+C     II6  -> ITAGEL  : tag of elements on inlet-outlet surfaces
+C---- SPMD tables
+C     II7  -> IBUFR   : local node row index (0 if not on this proc)
+C     II8  -> IBUFC   : local node column index (0 if not on this proc)
+C     II9 -> IBUFL: List Noes surface on current processor for x, v, a
+C     II10 -> CNP: Procedure processor for nodes surface for x, v, a
+C     II11 -> Ibufil: Internal noded list on current processor for x, v, a
+C     II12 -> CNPI: Award processor for internal nodes for x, v, a
+C     II13 -> IBUFELR : local elem row index (0 if not on this proc)
+C     II14 -> IBUFELC : local elem column index (0 if not on this proc)
 C
 C     IR1  -> RFLOW  : parametres reels
 C     IR2  -> PHI    : potentiel
 C     IR3  -> PRES   : pression
-C     IR4  -> U      : vitesse
-C     IR5  -> RINOUT : variables reelles pour les surfaces entrees-sorties
+C     IR4 -> U: velocity
+C     IR5  -> RINOUT : real variables for inlet-outlet surfaces
 C-----------------------------------------------------------------------------------
-C Description des tableaux ITYP=3
-C     II1  -> IFLOW   : parametres entiers
-C     II2  -> IBUF    : correspondances local-global noeuds surface
-C     II3  -> ELEM    : connectivite locale des triangles/quadrangles+flag
-C     II4  -> IBUF_L  : correspondances local-global noeuds surface (a supprimer en SPMD)
-C     II5  -> SHELL_GA: correspondances local shell-gauge
-C     II6  -> CNP     : SPMD nombre de processeur pour chaque noeud
+C Description of arrays ITYP=3
+C     II1 -> IFLOW: integer parameters
+C     II2  -> IBUF    : local-global surface node correspondences
+C     II3 -> Elem: Local connectivitis of triangles/quadrangles+flag
+C     II4  -> IBUF_L  : local-global surface node correspondences (to be removed in SPMD)
+C     II5  -> SHELL_GA: local shell-gauge correspondences
+C     II6  -> CNP     : SPMD number of processors for each node
 C engine
 C     II7  -> IPIV    : lapack resolution nel > nelmax
 C     II8  -> IBUFELR : SPMD
 C     II9  -> IBUFELC : SPMD
 C
-C     IR1  -> RFLOW  : parametres reels
-C     IR2  -> NORMAL : normale
+C     IR1  -> RFLOW  : real parameters
+C     IR2  -> NORMAL : normal
 C     IR3  -> TA     : arrival time
 C     IR4  -> AREA   : element area
 C     IR5  -> COSG   : direction cosine
@@ -113,12 +122,21 @@ C     IR9  -> PS     : scattered pressure
 C     IR10 -> PTI    : incident pressure time integral
 C     IR11 -> CMAT   : Matrice C (nel >= nelmax)
 C-----------------------------------------------------------------------------------
+      II1 = 1
+      II2 = 1
+      II3 = 1
+      II4 = 1
+      II5 = 1
+      II6 = 1
+      II7 = 1
+      II8 = 1
+      II9 = 1
+      II10= 1
       IPINT=0
-      IF (TT.GE.TANIM.OR.
-     .   MANIM.EQ.4 .OR.MANIM.EQ.5 .OR.MANIM.EQ.6 .OR.MANIM.EQ.7.OR.
-     .   MANIM.EQ.12.OR.MANIM.EQ.13.OR.MANIM.EQ.14.OR.MANIM.EQ.15) 
+      IF ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.
+     .   MANIM==4 .OR.MANIM==5 .OR.MANIM==6 .OR.MANIM==7.OR.
+     .   MANIM==12.OR.MANIM==13.OR.MANIM==14.OR.MANIM==15) 
      .   IPINT=1
-C
       IADI=0
       IADR=0
       DO I=1,NFLOW
@@ -130,10 +148,9 @@ C
          II3=II2+NNO
          IR1=IADR+1
          IR2=IR1+NRFLOW
-         IF (ITYP.EQ.1) THEN
+         IF (ITYP==1) THEN
             NINOUT=IFLOW(IADI+4)
             NNN=IFLOW(IADI+7)
-C
             II4=II3+3*NEL
             II5=II4+NINOUT*NIIOFLOW
             II6=II5+NNN
@@ -159,20 +176,21 @@ C
             IR3=IR2+NNO+NNN
             IR4=IR3+NNO+NNN
             IR5=IR4+3*(NNO+NNN)
-C
+
             IADIP=IFLOW(IADI+10)
             IADH=IFLOW(IADI+11)
             IADG=IFLOW(IADI+20)
-C
+
             CALL INCPFLOW(
      .      NNO,         NEL,         NINOUT,      NNN,         IFLOW(II1),
      .      IFLOW(II2),  IFLOW(II3),  IFLOW(II4),  IFLOW(II5),  IFLOW(II7),
      .      IFLOW(II8),  IFLOW(II9),  RFLOW(IR1),  RFLOW(IR2),  RFLOW(IR3),
      .      RFLOW(IR4),  RFLOW(IR5),  X,           V,           A,        
-     .      NPC,         TF,          SENSOR,
+     .      NPC,         TF        ,  NSENSOR    , SENSOR_TAB ,
      .      IFLOW(II10), IFLOW(II6),  IFLOW(II13), IFLOW(II14), WIFLOW(IADIP), 
-     .      WRFLOW(IADH),WRFLOW(IADG),IFLOW(II11), IFLOW(II12), IPINT        ) 
-C
+     .      WRFLOW(IADH),WRFLOW(IADG),IFLOW(II11), IFLOW(II12), IPINT,
+     .      PYTHON      ,WFEXT)
+
          ELSEIF(ITYP == 3) THEN
             JFORM    = IFLOW(IADI+4)
             FREESURF = IFLOW(IADI+25)
@@ -204,8 +222,8 @@ C
      .                     IFLOW(II1), IFLOW(II2), IFLOW(II3), IFLOW(II5), 
      .                     RFLOW(IR1), RFLOW(IR2), RFLOW(IR3), RFLOW(IR4), RFLOW(IR5), RFLOW(IR6), 
      .                     RFLOW(IR7), RFLOW(IR8), RFLOW(IR9), RFLOW(IR10),X, V, A, NPC, TF,  
-     .                     NBGAUGE, LGAUGE, GAUGE, NSENSOR, SENSOR, LSENSOR, IGRV, AGRV,
-     .                     RFLOW(IR11),IFLOW(II7), NFUNCT)
+     .                     NBGAUGE, LGAUGE, GAUGE, NSENSOR, SENSOR_TAB, IGRV, AGRV,
+     .                     RFLOW(IR11),IFLOW(II7), NFUNCT, PYTHON, WFEXT)
             ELSE
               II7=II6+NNO
               II8=II7+NEL
@@ -217,15 +235,15 @@ C
      .                      IFLOW(II1), IFLOW(II2), IFLOW(II3), IFLOW(II4), IFLOW(II5), IFLOW(II6), 
      .                      RFLOW(IR1), RFLOW(IR2), RFLOW(IR3), RFLOW(IR4), RFLOW(IR5), RFLOW(IR6), 
      .                      RFLOW(IR7), RFLOW(IR8), RFLOW(IR9), RFLOW(IR10),X, V, A, NPC, TF,  
-     .                      NBGAUGE, LGAUGE, GAUGE, NSENSOR, SENSOR, LSENSOR, IGRV, AGRV,
+     .                      NBGAUGE, LGAUGE, GAUGE, NSENSOR, SENSOR_TAB, IGRV, AGRV,
      .                      RFLOW(IR11),WIFLOW(IADIP), WRFLOW(IADH), IFLOW(II8), IFLOW(II9),
-     .                      NFUNCT)
+     .                      NFUNCT, PYTHON, WFEXT)
             ENDIF
          ENDIF
          IADR=IADR+IFLOW(IADI+15)
          IADI=IADI+IFLOW(IADI+14)
       ENDDO
-C
+
       RETURN
       END
       

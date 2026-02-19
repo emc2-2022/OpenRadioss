@@ -1,47 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S10COOR3                      source/elements/solid/solide10/s10coor3.F
-Chd|-- called by -----------
-Chd|        S10INIT3                      source/elements/solid/solide10/s10init3.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s10coor3         ../starter/source/elements/solid/solide10/s10coor3.F
+!||--- called by ------------------------------------------------------
+!||    s10init3         ../starter/source/elements/solid/solide10/s10init3.F
+!||--- calls      -----------------------------------------------------
+!||    checkvolume_4n   ../starter/source/elements/solid/solide/checksvolume.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE S10COOR3(
      1                    X      ,V     ,IXS   ,IXS10 ,XX  ,
      2                    YY     ,ZZ    ,VX    ,VY    ,VZ  ,
      3                    NC     ,NGL   ,MXT   ,NGEO  ,MASS,
      4                    DTELEM ,STI   ,SIGG  ,EINTG ,RHOG,
-     5                    QG     ,TEMP0 ,TEMP  ,SAV   ,NEL )
+     5                    QG     ,TEMP0 ,TEMP  ,SAV   ,NEL ,
+     6                    NINTEMP)
 C-----------------------------------------------
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -50,12 +51,12 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "param_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NEL
+      INTEGER ,INTENT(IN) :: NINTEMP
 C     REAL
       DOUBLE PRECISION
      .  XX(MVSIZ,10), YY(MVSIZ,10), ZZ(MVSIZ,10),SAV(NEL,30)
@@ -98,12 +99,12 @@ C
          NC(I,9) =IXS10(5,I)
          NC(I,10)=IXS10(6,I)
         ELSE
-         NC(I,5) =ZERO
-         NC(I,6) =ZERO
-         NC(I,7) =ZERO
-         NC(I,8) =ZERO
-         NC(I,9) =ZERO
-         NC(I,10)=ZERO
+         NC(I,5) = 0
+         NC(I,6) = 0
+         NC(I,7) = 0
+         NC(I,8) = 0
+         NC(I,9) = 0
+         NC(I,10)= 0
         ENDIF
         DTELEM(I)=EP30
         STI(I)=ZERO
@@ -165,20 +166,20 @@ C
         N1=IPERM1(N)
         N2=IPERM2(N)
         DO I=LFT,LLT
-          IF(NC(I,N).EQ.0)THEN
+          IF(NC(I,N)==0)THEN
             XX(I,N) = HALF*(XX(I,N1)+XX(I,N2))
             YY(I,N) = HALF*(YY(I,N1)+YY(I,N2))
             ZZ(I,N) = HALF*(ZZ(I,N1)+ZZ(I,N2))
             VX(I,N) = HALF*(VX(I,N1)+VX(I,N2))
             VY(I,N) = HALF*(VY(I,N1)+VY(I,N2))
-            VZ(I,N) = HALF*(VZ(I,N1)+VZ(I,N2))	    
+            VZ(I,N) = HALF*(VZ(I,N1)+VZ(I,N2))      
           ENDIF
         ENDDO
       ENDDO
 C
-C   initial nodal tempurature
+C   initial nodal temperature
 C
-        IF(JTHE < 0 ) THEN
+        IF (JTHE < 0 .or. NINTEMP > 0) THEN             
          IF(NINTEMP > 0 ) THEN
           DO N =1,10
             DO I=LFT,LLT  
@@ -195,7 +196,7 @@ C
           ENDDO
          ENDIF   
         ENDIF
-C	
+C
         IF(ISMSTR>=10.AND.ISMSTR<=12)THEN
           DO N=1,10
            DO I=LFT,LLT
@@ -209,27 +210,27 @@ C
 CC        
       RETURN
       END
-Chd|====================================================================
-Chd|  S10COOR3_OLD                  source/elements/solid/solide10/s10coor3.F
-Chd|-- called by -----------
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    s10coor3_old     ../starter/source/elements/solid/solide10/s10coor3.F
+!||--- called by ------------------------------------------------------
+!||    inirig_mat       ../starter/source/elements/initia/inirig_mat.F
+!||--- calls      -----------------------------------------------------
+!||    checkvolume_4n   ../starter/source/elements/solid/solide/checksvolume.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE S10COOR3_OLD(X,V, IXS,IXS10,
      .   XX, YY, ZZ, VX, VY, VZ,NC,
      .   NGL,MXT,NGEO,MASS,DTELEM,STI,
      .   SIGG,EINTG,RHOG,QG, TEMP0,
-     .   TEMP,NEL)
+     .   TEMP,NEL,NINTEMP)
 C-----------------------------------------------
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -238,12 +239,11 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "param_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL
+      INTEGER NEL,NINTEMP
 C     REAL
       DOUBLE PRECISION
      .  XX(MVSIZ,10), YY(MVSIZ,10), ZZ(MVSIZ,10)
@@ -286,12 +286,12 @@ C
          NC(I,9) =IXS10(5,I)
          NC(I,10)=IXS10(6,I)
         ELSE
-         NC(I,5) =ZERO
-         NC(I,6) =ZERO
-         NC(I,7) =ZERO
-         NC(I,8) =ZERO
-         NC(I,9) =ZERO
-         NC(I,10)=ZERO
+         NC(I,5) = 0
+         NC(I,6) = 0
+         NC(I,7) = 0
+         NC(I,8) = 0
+         NC(I,9) = 0
+         NC(I,10)= 0
         ENDIF
         DTELEM(I)=EP30
         STI(I)=ZERO
@@ -353,20 +353,20 @@ C
         N1=IPERM1(N)
         N2=IPERM2(N)
         DO I=LFT,LLT
-          IF(NC(I,N).EQ.0)THEN
+          IF(NC(I,N)==0)THEN
             XX(I,N) = HALF*(XX(I,N1)+XX(I,N2))
             YY(I,N) = HALF*(YY(I,N1)+YY(I,N2))
             ZZ(I,N) = HALF*(ZZ(I,N1)+ZZ(I,N2))
             VX(I,N) = HALF*(VX(I,N1)+VX(I,N2))
             VY(I,N) = HALF*(VY(I,N1)+VY(I,N2))
-            VZ(I,N) = HALF*(VZ(I,N1)+VZ(I,N2))	    
+            VZ(I,N) = HALF*(VZ(I,N1)+VZ(I,N2))      
           ENDIF
         ENDDO
       ENDDO
 C
-C   initial nodal tempurature
+C   initial nodal temperature
 C
-        IF(JTHE < 0 ) THEN
+        IF (JTHE < 0 .or. NINTEMP > 0) THEN             
          IF(NINTEMP > 0 ) THEN
           DO N =1,10
             DO I=LFT,LLT  

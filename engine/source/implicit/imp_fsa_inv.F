@@ -1,47 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SP_STAT0                      source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        IMP_FSA_INV2                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH2                 source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP2                 source/implicit/imp_fsa_inv.F 
-Chd|        M_LNZ                         source/implicit/imp_solv.F    
-Chd|        SMS_FSA_INVH                  source/ams/sms_fsa_inv.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sp_stat0        ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    imp_fsa_inv2    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh2   ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp2   ../engine/source/implicit/imp_fsa_inv.F
+!||    m_lnz           ../engine/source/implicit/imp_solv.F
+!||    sms_fsa_invh    ../engine/source/ams/sms_fsa_inv.F
+!||====================================================================
        SUBROUTINE SP_STAT0(IL ,IADK  ,JDIK  ,NC     ,JM    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -62,14 +56,14 @@ C-----------------------------------------------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SP_STATIC                     source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        IMP_PC_INV                    source/implicit/imp_pc_inv.F  
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        SP_A2                         source/implicit/imp_fsa_inv.F 
-Chd|====================================================================
+!||====================================================================
+!||    sp_static    ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    imp_pc_inv   ../engine/source/implicit/imp_pc_inv.F
+!||--- calls      -----------------------------------------------------
+!||    arret        ../engine/source/system/arret.F
+!||    sp_a2        ../engine/source/implicit/imp_fsa_inv.F
+!||====================================================================
       SUBROUTINE SP_STATIC(NDDL  ,IADK  ,JDIK  ,DIAG_K ,LT_K  ,
      .                     IADM  ,JDIM  ,NNZM  ,NC     ,JM    ,
      .                     MAXC  ,PSI   ,IP    )
@@ -78,14 +72,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C--IP:0 standard; unpaire:avec pre-filtre; 2,3 level 2; >4 fsai(ip-4 : 6,7:level 2)
+C--IP: 0 standard;Apaire: with pre-filter;2.3 Level 2;> 4 FSAI (IP-4: 6.7: Level 2)
       INTEGER  NDDL  ,MAXC,IADK(*)  ,JDIK(*)
       INTEGER  NNZM,IADM(*) ,JDIM(*),NC(*),JM(MAXC,*),IP
 C     REAL
@@ -98,7 +87,7 @@ C-----------------------------------------------
       my_real
      .  PSR
 C-----------------------------------------------
-      IF (IP.GE.4) THEN
+      IF (IP>=4) THEN
        IFSAI=1
        IOPT=IP-4
       ELSE
@@ -108,14 +97,14 @@ C-----------------------------------------------
 C------define sparse static pattern:----
       NNZM = 0
       IADM(1)=1
-C-------symetry firstly---
-      IF (MOD(IOPT,2).GT.0) THEN
+C-------symmetry firstly---
+      IF (MOD(IOPT,2)>0) THEN
 C-------pre-filtrage----
        DO I=1,NDDL
         DO K =IADK(I),IADK(I+1)-1
          J=JDIK(K)
          PSR = PSI*SQRT(DIAG_K(I)*DIAG_K(J))
-         IF (ABS(LT_K(K)).GE.PSR) THEN
+         IF (ABS(LT_K(K))>=PSR) THEN
           NNZM = NNZM+1
           JDIM(NNZM)=J
          ENDIF
@@ -136,9 +125,9 @@ C
        NC(I)=0
       ENDDO 
 C
-      IF (IOPT.GT.1) THEN
+      IF (IOPT>1) THEN
        DO I=1,NDDL
-C------------avec diag----
+C------------with diag----
         NC(I) = NC(I)+1
         JM(NC(I),I)=I
         DO K =IADM(I),IADM(I+1)-1
@@ -151,7 +140,7 @@ C------------avec diag----
        ENDDO 
        CALL SP_A2(NDDL,NC,JM,MAXC,IFSAI)
       ELSE
-       IF (IFSAI.EQ.1) THEN
+       IF (IFSAI==1) THEN
         DO I=1,NDDL
          NC(I) = NC(I)+1
          JM(NC(I),I)=I
@@ -160,7 +149,7 @@ C------------avec diag----
           NC(J) = NC(J)+1
           JM(NC(J),J)=I
          ENDDO 
-         IF (NC(I).GT.MAXC) THEN
+         IF (NC(I)>MAXC) THEN
           WRITE(*,*)'N>MAXB',NC(I),MAXC,I
           CALL ARRET(2)
          ENDIF 
@@ -176,7 +165,7 @@ C------------avec diag----
           NC(I) = NC(I)+1
           JM(NC(I),I)=J
          ENDDO 
-         IF (NC(I).GT.MAXC) THEN
+         IF (NC(I)>MAXC) THEN
           WRITE(*,*)'N>MAXB',NC(I),MAXC,I
           CALL ARRET(2)
          ENDIF 
@@ -186,24 +175,19 @@ C------------avec diag----
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SP_A2                         source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        SP_STATIC                     source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        INTAB2                        source/implicit/imp_fsa_inv.F 
-Chd|====================================================================
+!||====================================================================
+!||    sp_a2       ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    sp_static   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    arret       ../engine/source/system/arret.F
+!||    intab2      ../engine/source/implicit/imp_fsa_inv.F
+!||====================================================================
       SUBROUTINE SP_A2(NDDL,NC,JM,MAXC,IFSAI)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -227,15 +211,15 @@ C-----------------------------------------------
         JN(J,I)=JM(J,I)
        ENDDO 
       ENDDO 
-      IF (IFSAI.EQ.1) THEN
+      IF (IFSAI==1) THEN
        DO I=1,NDDL
         NC(I) = NC(I)+1
         JM(NC(I),I)=I
         DO J=I+1,NDDL
-         IF(INTAB2(NN(I),JN(1,I),NN(J),JN(1,J)).GT.0) THEN
+         IF(INTAB2(NN(I),JN(1,I),NN(J),JN(1,J))>0) THEN
           NC(J) = NC(J)+1
           JM(NC(J),J)=I
-          IF (NC(J).GT.MAXC) THEN
+          IF (NC(J)>MAXC) THEN
            WRITE(*,*)'N>MAXB',NC(J),MAXC,J
            CALL ARRET(2)
           ENDIF 
@@ -247,12 +231,12 @@ C-----------------------------------------------
         NC(I) = NC(I)+1
         JM(NC(I),I)=I
         DO J=I+1,NDDL
-         IF(INTAB2(NN(I),JN(1,I),NN(J),JN(1,J)).GT.0) THEN
+         IF(INTAB2(NN(I),JN(1,I),NN(J),JN(1,J))>0) THEN
           NC(I) = NC(I)+1
           JM(NC(I),I)=J
           NC(J) = NC(J)+1
           JM(NC(J),J)=I
-          IF (NC(I).GT.MAXC) THEN
+          IF (NC(I)>MAXC) THEN
            WRITE(*,*)'N>MAXB',NC(I),MAXC,I
            CALL ARRET(2)
           ENDIF 
@@ -264,31 +248,26 @@ C--------------------------------------------
       RETURN
       END
 C-------------resol A(N,N).MJ=B  ---B=MJ(input)-
-Chd|====================================================================
-Chd|  IMP_FSAI                      source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        FSA_SOLV                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INV2                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH2                 source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP2                 source/implicit/imp_fsa_inv.F 
-Chd|        SMS_FSA_INVH                  source/ams/sms_fsa_inv.F      
-Chd|-- calls ---------------
-Chd|        IMP_FAC_ICJ                   source/implicit/imp_fac_ic.F  
-Chd|        PREC0_SOLV                    source/implicit/prec_solv.F   
-Chd|====================================================================
+!||====================================================================
+!||    imp_fsai        ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    fsa_solv        ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_inv2    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh2   ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp2   ../engine/source/implicit/imp_fsa_inv.F
+!||    sms_fsa_invh    ../engine/source/ams/sms_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_fac_icj     ../engine/source/implicit/imp_fac_ic.F
+!||    prec0_solv      ../engine/source/implicit/prec_solv.F
+!||====================================================================
       SUBROUTINE IMP_FSAI(N     ,IADA  ,JDIA  ,DIAG_A ,LT_A,
      .                    MAXA  ,MJ    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -320,14 +299,14 @@ C--------------------------------------------
       RETURN
       END
 C-------------set submatrix A(N,N) Format m.c.c.s. for FSAI ----
-Chd|====================================================================
-Chd|  GET_SUBS0                     source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        IMP_FSA_INV2                  source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|        IND_LT2LN                     source/implicit/imp_fsa_inv.F 
-Chd|        INTAB0                        source/implicit/imp_fsa_inv.F 
-Chd|====================================================================
+!||====================================================================
+!||    get_subs0      ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    imp_fsa_inv2   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ind_lt2ln      ../engine/source/implicit/imp_fsa_inv.F
+!||    intab0         ../engine/source/implicit/imp_fsa_inv.F
+!||====================================================================
       SUBROUTINE GET_SUBS0(NDDL  ,IADK  ,JDIK  ,DIAG_K ,LT_K  ,
      .                     NC    ,IADA  ,JDIA  ,DIAG_A ,LT_A  ,   
      .                     JM    ,MAXA  )
@@ -335,11 +314,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -366,7 +340,7 @@ C--------------------------------------------
         DO K=IADK(J),IADK(J+1)-1
          JJ=JDIK(K)
          N=INTAB0(NC,JM,JJ)
-         IF (N.GT.0) THEN
+         IF (N>0) THEN
           NNZA=NNZA+1
           JDIA(NNZA)=N
           LT_A(NNZA)=LT_K(K)
@@ -379,18 +353,18 @@ C
       RETURN
       END
 C----------version spmd---set submatrix A(N,N) Format m.c.c.s. for FSAI ----
-Chd|====================================================================
-Chd|  GET_SUBSP                     source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        FSA_SOLV                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH2                 source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP2                 source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|        IND_LT2LN                     source/implicit/imp_fsa_inv.F 
-Chd|        INTAB0                        source/implicit/imp_fsa_inv.F 
-Chd|====================================================================
+!||====================================================================
+!||    get_subsp       ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    fsa_solv        ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh2   ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp2   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ind_lt2ln       ../engine/source/implicit/imp_fsa_inv.F
+!||    intab0          ../engine/source/implicit/imp_fsa_inv.F
+!||====================================================================
       SUBROUTINE GET_SUBSP(NDDL  ,IADK  ,JDIK  ,DIAG_K ,LT_K  ,
      .                     NC    ,IADA  ,JDIA  ,DIAG_A ,LT_A  ,   
      .                     JM    ,MAXA  ,IDLFT0,IDLFT1 ,DIAG_C,
@@ -399,11 +373,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -429,24 +398,24 @@ C--------------------------------------------
 #include      "vectorize.inc"
       DO I=1,NC
        J=JM(I)
-       IF (J.LE.IDLFT0) THEN
+       IF (J<=IDLFT0) THEN
         DIAG_A(I)=DIAG_M(J)
         DO K=IADK(J),IADK(J+1)-1
          JJ=JDIK(K)
          N=INTAB0(NC,JM,JJ)
-         IF (N.GT.0) THEN
+         IF (N>0) THEN
           NNZA=NNZA+1
           JDIA(NNZA)=N
           LT_A(NNZA)=LT_M(K)
          ENDIF
         ENDDO
-       ELSEIF (J.GT.IDLFT1) THEN
+       ELSEIF (J>IDLFT1) THEN
         DIAG_A(I)=DIAG_C(J-IDLFT1)
         DO K=IADK(J),IADK(J+1)-1
          JJ=JDIK(K)
-C         IF (JJ.GT.IDLFT1) THEN
+C         IF (JJ>IDLFT1) THEN
           N=INTAB0(NC,JM,JJ)
-          IF (N.GT.0) THEN
+          IF (N>0) THEN
            NNZA=NNZA+1
            JDIA(NNZA)=N
            LT_A(NNZA)=LT_C(K-K0)
@@ -458,7 +427,7 @@ C         ENDIF
         DO K=IADK(J),IADK(J+1)-1
          JJ=JDIK(K)
          N=INTAB0(NC,JM,JJ)
-         IF (N.GT.0) THEN
+         IF (N>0) THEN
           NNZA=NNZA+1
           JDIA(NNZA)=N
           LT_A(NNZA)=LT_K(K)
@@ -473,12 +442,11 @@ C
       RETURN
       END
 C-------------set submatrix A(N,N) Format m.c.r.s. for FSAI ----
-Chd|====================================================================
-Chd|  GET_SUBSA                     source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        INTAB0                        source/implicit/imp_fsa_inv.F 
-Chd|====================================================================
+!||====================================================================
+!||    get_subsa   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    intab0      ../engine/source/implicit/imp_fsa_inv.F
+!||====================================================================
       SUBROUTINE GET_SUBSA(NDDL  ,IADK  ,JDIK  ,DIAG_K ,LT_K  ,
      .                     NC    ,IADA  ,JDIA  ,DIAG_A ,LT_A  ,   
      .                     JM    )
@@ -486,11 +454,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -517,7 +480,7 @@ C--------------------------------------------
         DO K=IADK(J),IADK(J+1)-1
          JJ=JDIK(K)
          N=INTAB0(NC,JM,JJ)
-         IF (N.GT.0) THEN
+         IF (N>0) THEN
           NNZA=NNZA+1
           JDIA(NNZA)=N
           LT_A(NNZA)=LT_K(K)
@@ -528,21 +491,20 @@ C--------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INTAB0                        source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        DIM_SUBNZ                     source/implicit/imp_solv.F    
-Chd|        GET_KIJS                      source/implicit/imp_pc_inv.F  
-Chd|        GET_SUBS0                     source/implicit/imp_fsa_inv.F 
-Chd|        GET_SUBSA                     source/implicit/imp_fsa_inv.F 
-Chd|        GET_SUBSN                     source/implicit/imp_fsa_inv.F 
-Chd|        GET_SUBSP                     source/implicit/imp_fsa_inv.F 
-Chd|        GET_SUBSP_SMS                 source/ams/sms_fsa_inv.F      
-Chd|        SPC_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        UPD_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        INTAB2                        source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    intab0          ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    dim_subnz       ../engine/source/implicit/imp_solv.F
+!||    get_kijs        ../engine/source/implicit/imp_pc_inv.F
+!||    get_subs0       ../engine/source/implicit/imp_fsa_inv.F
+!||    get_subsa       ../engine/source/implicit/imp_fsa_inv.F
+!||    get_subsn       ../engine/source/implicit/imp_fsa_inv.F
+!||    get_subsp       ../engine/source/implicit/imp_fsa_inv.F
+!||    get_subsp_sms   ../engine/source/ams/sms_fsa_inv.F
+!||    intab2          ../engine/source/implicit/imp_fsa_inv.F
+!||    spc_fr_k        ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_fr_k        ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       INTEGER FUNCTION INTAB0(NIC,IC,N)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -556,19 +518,19 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J
-C----6-----IC est deja en ordre croissante---------------------------7---------8
+C---- 6 ----- IC is already in an increasing order ----------------------------------- 7 -------- 8
       INTAB0=0
-      IF (N.LT.IC(1).OR.N.GT.IC(NIC)) RETURN
-      IF (N.LT.NIC/2) THEN
+      IF (N<IC(1).OR.N>IC(NIC)) RETURN
+      IF (N<NIC/2) THEN
        DO I =1,NIC
-        IF (N.EQ.IC(I)) THEN
+        IF (N==IC(I)) THEN
          INTAB0=I
          RETURN
         ENDIF
        ENDDO 
       ELSE
        DO I =NIC,1,-1
-        IF (N.EQ.IC(I)) THEN
+        IF (N==IC(I)) THEN
          INTAB0=I
          RETURN
         ENDIF
@@ -577,14 +539,14 @@ C----6-----IC est deja en ordre croissante---------------------------7---------8
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INTAB2                        source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        GET_SUBA                      source/implicit/imp_pc_inv.F  
-Chd|        SP_A2                         source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|        INTAB0                        source/implicit/imp_fsa_inv.F 
-Chd|====================================================================
+!||====================================================================
+!||    intab2     ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    get_suba   ../engine/source/implicit/imp_pc_inv.F
+!||    sp_a2      ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    intab0     ../engine/source/implicit/imp_fsa_inv.F
+!||====================================================================
       INTEGER FUNCTION INTAB2(NIC1,IC1,NIC2,IC2)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -603,29 +565,29 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J
-C----6-----ICi est deja en ordre croissante--return indice dans IC1--7---------8
+C----6-----ICi est deja en ordre croissante--return indice in IC1--7---------8
       INTAB2=0
-      IF (IC1(NIC1).LT.IC2(1).OR.IC2(NIC2).LT.IC1(1)) RETURN
-C      IF (NIC1.GT.NIC2) THEN
+      IF (IC1(NIC1)<IC2(1).OR.IC2(NIC2)<IC1(1)) RETURN
+C      IF (NIC1>NIC2) THEN
        DO I =1,NIC2
         INTAB2=INTAB0(NIC1,IC1,IC2(I))
-        IF (INTAB2.GT.0) RETURN
+        IF (INTAB2>0) RETURN
        ENDDO 
       RETURN
       END
 C  ------factorized sparse approximate inverse version spmd------- 
-Chd|====================================================================
-Chd|  IMP_FSA_INVP                  source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GET_SUBSP                     source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSAI                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_PCG1                      source/implicit/imp_fsa_inv.F 
-Chd|        SP_STAT0                      source/implicit/imp_fsa_inv.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_fsa_invp   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    get_subsp      ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsai       ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_pcg1       ../engine/source/implicit/imp_fsa_inv.F
+!||    sp_stat0       ../engine/source/implicit/imp_fsa_inv.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IMP_FSA_INVP(
      1                    NDDL  ,NNZ   ,IADK  ,JDIK  ,DIAG_K ,   
      2                    LT_K  ,DIAG_M ,LT_M  ,MAXC  ,MAX_A ,
@@ -639,12 +601,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc" 
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL ,NNZ ,IADK(*),JDIK(*),MAXC ,MAX_A ,NNE,
@@ -655,7 +611,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
+C--- M->A^-1 LT_M  strictly lower in m.c.r.s. format
       INTEGER I,J,K,M,N,NC,IADA(MAXC+1),JDIA(MAX_A),JM(MAXC+1)
       INTEGER MAX_L,IERR,I_CHK
       my_real
@@ -664,12 +620,12 @@ C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
       my_real, DIMENSION(:),ALLOCATABLE :: LT_A
 C-----------------------------
        ALLOCATE(LT_A(MAX_A),STAT=IERR)
-        IF (IERR.NE.0) THEN
+        IF (IERR/=0) THEN
           CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
      .                C1='FOR IMPLICIT PRECONDITION')
           CALL ARRET(2)
         ENDIF 
-C--------------copy la partie utile------
+C--------------copy the useful part------
        I_CHK = NNE
        NNE = 0
        K=IADK(IDLFT1+1)-1
@@ -689,21 +645,21 @@ C--------------copy la partie utile------
          MJ(J)=ZERO
         ENDDO
         MJ(NC)=ONE
-        IF (NC.GT.10000) THEN
+        IF (NC>10000) THEN
           MAX_L=MAX_A
           CALL IMP_PCG1( 
      1                    NC    ,MAX_L  ,IADA  ,JDIA  ,DIAG_A ,   
      2                    LT_A  ,MJ     ,IERR  )
-         IF (I_CHK.GT.0.AND.IERR.LT.0) NNE = I
+         IF (I_CHK>0.AND.IERR<0) NNE = I
         ELSE
         MAX_L=1+(NC*(NC-1))/2
         CALL IMP_FSAI(NC    ,IADA  ,JDIA  ,DIAG_A ,LT_A  ,
      .               MAX_L ,MJ    )
         ENDIF 
-C------------filtrage----Diagonal est dans LT_M (last one)--
+C------------filtering----Diagonal is in LT_M (last one)--
          DIAG_M(I)=MJ(NC)
-         IF (DIAG_M(I).LT.EM20) THEN
-          IF (NNE.EQ.0.AND.I_CHK.EQ.0) NNE = I
+         IF (DIAG_M(I)<EM20) THEN
+          IF (NNE==0.AND.I_CHK==0) NNE = I
           DIAG_M(I)=ABS(DIAG_M(I))
           DIAG_M(I)=MAX(EM20,DIAG_M(I))
          ENDIF
@@ -711,26 +667,26 @@ C------------filtrage----Diagonal est dans LT_M (last one)--
           M=IADK(I)+K-1
           LT_M(M)=MJ(K)/DIAG_M(I)
          ENDDO
-         IF (I_CHK.GT.0.AND.MJ(NC).LT.EM20) DIAG_M(I)=MJ(NC)
+         IF (I_CHK>0.AND.MJ(NC)<EM20) DIAG_M(I)=MJ(NC)
        ENDDO
        DEALLOCATE(LT_A)
 C 
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_PCG1                      source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        FSA_SOLV                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INV2                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH2                 source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP2                 source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|        MAV_LT                        source/implicit/produt_v.F    
-Chd|        PRODUT_V0                     source/implicit/produt_v.F    
-Chd|        CRIT_STOP                     source/implicit/imp_pcg.F     
-Chd|====================================================================
+!||====================================================================
+!||    imp_pcg1        ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    fsa_solv        ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_inv2    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh2   ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp2   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    crit_stop       ../engine/source/implicit/imp_pcg.F
+!||    mav_lt          ../engine/source/implicit/produt_v.F
+!||    produt_v0       ../engine/source/implicit/produt_v.F
+!||====================================================================
       SUBROUTINE IMP_PCG1( 
      1                    NDDL  ,NNZ   ,IADK  ,JDIK  ,DIAG_K ,   
      2                    LT_K  ,R     ,ISP   )
@@ -739,11 +695,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "impl2_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -803,10 +756,10 @@ C------X(I)=ZERO--------
        CALL PRODUT_V0(NDDL,P,Y,S)
        ALPHA = G0/S
        TOLS2=TOLS*TOLS
-       IF (ITOL.EQ.1) THEN
+       IF (ITOL==1) THEN
         CALL PRODUT_V0(NDDL,R,R,R02)
         R2 =R02
-       ELSEIF (ITOL.EQ.3) THEN
+       ELSEIF (ITOL==3) THEN
 C------ R2<TOL*TOL*ANORM2*XNORM2------
         R02=ABS(G0)
         R2 =R02
@@ -818,7 +771,7 @@ C        L_B2=R02
         A_OLD=L_A
         B_OLD=ZERO
         OLDB   = SQRT(R02)
-       ELSEIF (ITOL.EQ.4) THEN
+       ELSEIF (ITOL==4) THEN
         R02=ALPHA*ALPHA*ABS(G0)
         EPS(1)=R02
         R2=R02
@@ -826,9 +779,9 @@ C        L_B2=R02
         R02=ABS(G0)
         R2 =R02
        ENDIF
-       IF (R02.EQ.ZERO) GOTO 200
+       IF (R02==ZERO) GOTO 200
        TOLN=R02*TOLS2
-C-------pour etre coherent avec lanzos for linear
+C-------to be consistent with lanzos for linear
        IT=1
        DO I=1,NDDL
          X(I) = X(I) + ALPHA*P(I)
@@ -839,9 +792,9 @@ C-------pour etre coherent avec lanzos for linear
         ENDDO 
        CALL PRODUT_V0(NDDL,R,Z,G1)
        BETA=G1/G0
-       IF (ITOL.EQ.1) THEN
+       IF (ITOL==1) THEN
         CALL PRODUT_V0(NDDL,R,R,R2)
-       ELSEIF (ITOL.EQ.3) THEN
+       ELSEIF (ITOL==3) THEN
 C------ R2<TOL*TOL*ANORM2*XNORM2------
         R2=ABS(G1)
         L_B2=ABS(BETA)*A_OLD*A_OLD
@@ -857,15 +810,15 @@ C*     INITIALIZE OTHER QUANTITIES.
         GMIN   = GMAX
         OLDB2   = L_B2
         OLDB   = L_B
-       ELSEIF (ITOL.EQ.4) THEN
+       ELSEIF (ITOL==4) THEN
         R2=R02
        ELSE
         R2=ABS(G1)
        ENDIF
        G0 = G1
-       IF (ITOL.EQ.3) TOLN=TOLN*ANORM2
+       IF (ITOL==3) TOLN=TOLN*ANORM2
        ISTOP=CRIT_STOP(IT,R2,NLIM,TOLN)
-       DO WHILE (ISTOP.EQ.1)
+       DO WHILE (ISTOP==1)
         DO I=1,NDDL
          P(I) = Z(I) + BETA*P(I)
         ENDDO 
@@ -884,9 +837,9 @@ C*     INITIALIZE OTHER QUANTITIES.
         CALL PRODUT_V0(NDDL,R,Z,G1)
         BETA=G1/G0
         G0 = G1
-        IF (ITOL.EQ.1) THEN
+        IF (ITOL==1) THEN
          CALL PRODUT_V0(NDDL,R,R,R2)
-        ELSEIF (ITOL.EQ.3) THEN
+        ELSEIF (ITOL==3) THEN
          R2 =ABS(G1)
          S=ONE/ALPHA
          L_A=S+B_OLD*A_OLD
@@ -913,9 +866,9 @@ C----------L_B2 : beta(j-1)^2-A_OLD :1/alpha(j-1)-------
          TOLN=TOLS2*ANORM2*XNORM2
          OLDB2   = L_B2
          OLDB   = L_B
-        ELSEIF (ITOL.EQ.4) THEN
+        ELSEIF (ITOL==4) THEN
          TMP=ALPHA*ALPHA*ABS(G1)
-         IF (IT.GE.ND) THEN
+         IF (IT>=ND) THEN
           DO J=1,ND-1
            EPS(J)=EPS(J+1)
           ENDDO
@@ -935,7 +888,7 @@ C----------L_B2 : beta(j-1)^2-A_OLD :1/alpha(j-1)-------
         IT = IT +1
        ENDDO
  200   CONTINUE
-       IF(IT.GE.NLIM)THEN
+       IF(IT>=NLIM)THEN
         ISP =-1
        ELSE
         ISP = 0
@@ -947,26 +900,21 @@ C--------X->R--------
         R(I) = X(I) 
        ENDDO 
 C--------------------------------------------
- 1002 FORMAT(3X,'TOTAL C.G. ITERATION=',I8,5X,
-     .          ' RELATIVE RESIDUAL NORM=',E11.4)
- 1003 FORMAT(5X,
-     . '---WARNING : THE ITERATION LIMIT NUMBER WAS REACHED',
-     . 1X,'IN PRECONDITIONER')
        RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FSA_INV2                  source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GET_SUBS0                     source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSAI                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_KFILTR                    source/implicit/imp_fsa_inv.F 
-Chd|        IMP_PCG1                      source/implicit/imp_fsa_inv.F 
-Chd|        SP_STAT0                      source/implicit/imp_fsa_inv.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_fsa_inv2   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    get_subs0      ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsai       ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_kfiltr     ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_pcg1       ../engine/source/implicit/imp_fsa_inv.F
+!||    sp_stat0       ../engine/source/implicit/imp_fsa_inv.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IMP_FSA_INV2(
      1                    NDDL   ,IADK   ,JDIK   ,DIAG_K ,LT_K  ,   
      2                    IADM   ,JDIM   ,DIAG_M ,LT_M   ,MAXC  ,
@@ -980,12 +928,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc" 
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL ,IADK(*),JDIK(*),MAXC ,MAX_A ,NNE,
@@ -996,7 +938,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
+C--- M->A^-1 LT_M  strictly lower in m.c.r.s. format
       INTEGER I,J,K,M,N,NC,IERR
       INTEGER MAX_L,I_CHK
       INTEGER, DIMENSION(:),ALLOCATABLE :: IADA,JDIA,JM
@@ -1010,7 +952,7 @@ C-----------------------------
        ALLOCATE(DIAG_A(MAXC))
        ALLOCATE(MJ(MAXC))
        ALLOCATE(LT_A(MAX_A),STAT=IERR)
-         IF (IERR.NE.0) THEN
+         IF (IERR/=0) THEN
            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
      .                 C1='FOR IMPLICIT PRECONDITION')
            CALL ARRET(2)
@@ -1024,12 +966,12 @@ C-----------------------------
          MJ(J)=ZERO
         ENDDO
         MJ(NC)=ONE
-        IF (NC.GT.10000) THEN
+        IF (NC>10000) THEN
           MAX_L=MAX_A
           CALL IMP_PCG1( 
      1                    NC    ,MAX_L  ,IADA  ,JDIA  ,DIAG_A ,   
      2                    LT_A  ,MJ     ,IERR  )
-         IF (I_CHK.GT.0.AND.IERR.LT.0) NNE = I
+         IF (I_CHK>0.AND.IERR<0) NNE = I
         ELSE
          MAX_L=1+(NC*(NC-1))/2
          CALL IMP_FSAI(NC    ,IADA  ,JDIA  ,DIAG_A ,LT_A  ,
@@ -1037,8 +979,8 @@ C-----------------------------
         ENDIF
 C-----------------
          DIAG_M(I)=MJ(NC)
-         IF (DIAG_M(I).LT.EM20) THEN
-          IF (NNE.EQ.0.AND.I_CHK.EQ.0) NNE = I
+         IF (DIAG_M(I)<EM20) THEN
+          IF (NNE==0.AND.I_CHK==0) NNE = I
           DIAG_M(I)=ABS(DIAG_M(I))
           DIAG_M(I)=MAX(EM20,DIAG_M(I))
          ENDIF
@@ -1046,7 +988,7 @@ C-----------------
           M=IADM(I)+K-1
           LT_M(M)=MJ(K)/DIAG_M(I)
          ENDDO
-         IF (I_CHK.GT.0.AND.MJ(NC).LT.EM20) DIAG_M(I)=MJ(NC)
+         IF (I_CHK>0.AND.MJ(NC)<EM20) DIAG_M(I)=MJ(NC)
        ENDDO
 C
        DEALLOCATE(IADA,JDIA)
@@ -1054,25 +996,25 @@ C
        DEALLOCATE(DIAG_A,LT_A)
        DEALLOCATE(MJ)
        K = 1
-       IF (D_TOL.GT.ZERO)
+       IF (D_TOL>ZERO)
      .  CALL IMP_KFILTR(K     ,NDDL  ,IADM  ,JDIM  ,DIAG_M ,
      .                  LT_M  ,D_TOL ,P_MACH,DIAG_K)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FSA_INVP2                 source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GET_SUBSP                     source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSAI                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_KFILTR                    source/implicit/imp_fsa_inv.F 
-Chd|        IMP_PCG1                      source/implicit/imp_fsa_inv.F 
-Chd|        SP_STAT0                      source/implicit/imp_fsa_inv.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_fsa_invp2   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../engine/source/output/message/message.F
+!||    arret           ../engine/source/system/arret.F
+!||    get_subsp       ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsai        ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_kfiltr      ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_pcg1        ../engine/source/implicit/imp_fsa_inv.F
+!||    sp_stat0        ../engine/source/implicit/imp_fsa_inv.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IMP_FSA_INVP2(
      1                    NDDL   ,IADK   ,JDIK   ,DIAG_K ,LT_K   ,   
      2                    IADM   ,JDIM   ,DIAG_M ,LT_M   ,MAXC   ,
@@ -1087,12 +1029,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc" 
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL ,NNZ ,IADK(*),JDIK(*),MAXC ,MAX_A ,NNE,
@@ -1103,7 +1039,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
+C--- M->A^-1 LT_M  strictly lower in m.c.r.s. format
       INTEGER I,J,K,M,N,NC,IADA(MAXC+1),JDIA(MAX_A),JM(MAXC+1)
       INTEGER MAX_L,IERR,I_CHK
       my_real
@@ -1112,12 +1048,12 @@ C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
       my_real, DIMENSION(:),ALLOCATABLE :: LT_A
 C-----------------------------
         ALLOCATE(LT_A(MAX_A),STAT=IERR)
-        IF (IERR.NE.0) THEN
+        IF (IERR/=0) THEN
           CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
      .                 C1='FOR IMPLICIT PRECONDITION')
           CALL ARRET(2)
         ENDIF 
-C--------------copy la partie utile------
+C--------------copy the useful part------
        I_CHK = NNE
        NNE = 0
        K=IADK(IDLFT1+1)-1
@@ -1137,21 +1073,21 @@ C--------------copy la partie utile------
          MJ(J)=ZERO
         ENDDO
         MJ(NC)=ONE
-        IF (NC.GT.10000) THEN
+        IF (NC>10000) THEN
           MAX_L=MAX_A
           CALL IMP_PCG1( 
      1                    NC    ,MAX_L  ,IADA  ,JDIA  ,DIAG_A ,   
      2                    LT_A  ,MJ     ,IERR  )
-         IF (I_CHK.GT.0.AND.IERR.LT.0) NNE = I
+         IF (I_CHK>0.AND.IERR<0) NNE = I
         ELSE
          MAX_L=1+(NC*(NC-1))/2
          CALL IMP_FSAI(NC    ,IADA  ,JDIA  ,DIAG_A ,LT_A  ,
      .               MAX_L ,MJ    )
         ENDIF 
-C------------Diagonal est dans LT_M (last one)--
+C------------Diagonal is in LT_M (last one)--
          DIAG_M(I)=MJ(NC)
-         IF (DIAG_M(I).LT.EM20) THEN
-          IF (NNE.EQ.0.AND.I_CHK.EQ.0) NNE = I
+         IF (DIAG_M(I)<EM20) THEN
+          IF (NNE==0.AND.I_CHK==0) NNE = I
           DIAG_M(I)=ABS(DIAG_M(I))
           DIAG_M(I)=MAX(EM20,DIAG_M(I))
          ENDIF
@@ -1159,31 +1095,32 @@ C------------Diagonal est dans LT_M (last one)--
           M=IADM(I)+K-1
           LT_M(M)=MJ(K)/DIAG_M(I)
          ENDDO
-         IF (I_CHK.GT.0.AND.MJ(NC).LT.EM20) DIAG_M(I)=MJ(NC)
+         IF (I_CHK>0.AND.MJ(NC)<EM20) DIAG_M(I)=MJ(NC)
        ENDDO
 C
        DEALLOCATE(LT_A)
        K = IDLFT0+1
-       IF (D_TOL.GT.ZERO)
+       IF (D_TOL>ZERO)
      .  CALL IMP_KFILTR(K     ,NDDL  ,IADM  ,JDIM  ,DIAG_M ,
      .                  LT_M  ,D_TOL ,P_MACH,DIAG_K)
 C 
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_KFILTR                    source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        IMP_FSA_INV2                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INV2HP                source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH2                 source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP2                 source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_kfiltr       ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    imp_fsa_inv2     ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_inv2hp   ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh2    ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp2    ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg           ../engine/source/output/message/message.F
+!||    arret            ../engine/source/system/arret.F
+!||    cp_int           ../engine/source/implicit/produt_v.F
+!||    cp_real          ../engine/source/implicit/produt_v.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IMP_KFILTR(NDF   ,ND    ,IADA  ,JDIA  ,DIAG_A ,
      .                      LT_A  ,TOL   ,E_PS  ,DIAG_K )
 C-----------------------------------------------
@@ -1194,12 +1131,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc" 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1219,16 +1150,16 @@ C-----------------------------
        print *,'D_tol,p_mach=',tol,e_ps
        NZ = IADA(ND+1)-IADA(1)
        DO I  = 1, NDF-1
-	    DIAG_A(I) = ZERO
+              DIAG_A(I) = ZERO
         DO J  = IADA(I), IADA(I+1)-1
-	     LT_A(J) = ZERO
+               LT_A(J) = ZERO
         ENDDO
         IADA(I+1) = 1
        ENDDO
-      IF (NZ.GT.0.AND.TOL.GT.ZERO) THEN
+      IF (NZ>0.AND.TOL>ZERO) THEN
        ALLOCATE(IADL(ND+1))
        ALLOCATE(JDIL(NZ),LT_L(NZ),STAT=IERR)
-         IF (IERR.NE.0) THEN
+         IF (IERR/=0) THEN
            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
      .                 C1='FOR IMPLICIT PRECONDITION')
            CALL ARRET(2)
@@ -1243,7 +1174,7 @@ C-----------------------------------------------
         MAX_D = MAX(MAX_D,DIAG_A(I))
         MIN_D = MIN(MIN_D,DIAG_A(I))
        ENDDO
-	print *,'max_d,min_d=',max_d,min_d
+          print *,'max_d,min_d=',max_d,min_d
 c       MTOL = TOL*MIN_D
 c       MTOL = MAX(E_PS,MTOL)
 C------post-filtration------
@@ -1252,41 +1183,40 @@ C------post-filtration------
         DO J  = IADL(I), IADL(I+1)-1
          MTOL = TOL*MIN(DIAG_A(JDIL(J)),DIAG_A(I))
          MTOL = MAX(E_PS,MTOL)
-         IF (ABS(LT_L(J)).GT.MTOL) THEN
-	      MNZ = MNZ + 1
-	      JDIA(MNZ) = JDIL(J)
-	      LT_A(MNZ) = LT_L(J)
-	     ENDIF
+         IF (ABS(LT_L(J))>MTOL) THEN
+                MNZ = MNZ + 1
+                JDIA(MNZ) = JDIL(J)
+                LT_A(MNZ) = LT_L(J)
+               ENDIF
         ENDDO
-	    IADA(I+1) = MNZ + 1
+              IADA(I+1) = MNZ + 1
        ENDDO
        DEALLOCATE(IADL,JDIL)
        DEALLOCATE(LT_L)
        TAUX = ONE*MNZ/NZ
-c	print *,'mnz,nz=',mnz,nz,mtol
+c  print *,'mnz,nz=',mnz,nz,mtol
         print *,'filtrage factor=',TAUX
 C------retrun from M normalized------
       ENDIF 
       INORM = 0
-      IF (INORM.GT.ZERO) THEN
+      IF (INORM>ZERO) THEN
        DO I  = NDF, ND
-	    DIAG_A(I) = DIAG_A(I)/DIAG_K(I)
+              DIAG_A(I) = DIAG_A(I)/DIAG_K(I)
         DO J  = IADA(I), IADA(I+1)-1
-	     DD = SQRT(DIAG_K(I)/DIAG_K(JDIA(J)))
-	     LT_A(J) = DD*LT_A(J)
+               DD = SQRT(DIAG_K(I)/DIAG_K(JDIA(J)))
+               LT_A(J) = DD*LT_A(J)
         ENDDO
        ENDDO
       ENDIF 
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  GET_SUBSN                     source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        IND_LT2LN                     source/implicit/imp_fsa_inv.F 
-Chd|        INTAB0                        source/implicit/imp_fsa_inv.F 
-Chd|====================================================================
+!||====================================================================
+!||    get_subsn   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ind_lt2ln   ../engine/source/implicit/imp_fsa_inv.F
+!||    intab0      ../engine/source/implicit/imp_fsa_inv.F
+!||====================================================================
       SUBROUTINE GET_SUBSN(NDDL  ,IADK  ,JDIK  ,DIAG_K ,LT_K  ,
      .                     NC    ,IADA  ,JDIA  ,DIAG_A ,LT_A  ,   
      .                     JM    ,MAXA  )
@@ -1294,11 +1224,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1327,8 +1252,8 @@ C--------------------------------------------
         DO K=IADK(J),IADK(J+1)-1
          JJ=JDIK(K)
          N=INTAB0(NC,JM,JJ)
-         IF (N.GT.0) THEN
-	  DD = SQRT(DIAG_K(J)*DIAG_K(JJ))
+         IF (N>0) THEN
+            DD = SQRT(DIAG_K(J)*DIAG_K(JJ))
           NNZA=NNZA+1
           JDIA(NNZA)=N
           LT_A(NNZA)=LT_K(K)/DD
@@ -1340,29 +1265,23 @@ C--------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_LT2LN                     source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        GET_SUBS0                     source/implicit/imp_fsa_inv.F 
-Chd|        GET_SUBSN                     source/implicit/imp_fsa_inv.F 
-Chd|        GET_SUBSP                     source/implicit/imp_fsa_inv.F 
-Chd|        GET_SUBSP_SMS                 source/ams/sms_fsa_inv.F      
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|====================================================================
+!||====================================================================
+!||    ind_lt2ln       ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    get_subs0       ../engine/source/implicit/imp_fsa_inv.F
+!||    get_subsn       ../engine/source/implicit/imp_fsa_inv.F
+!||    get_subsp       ../engine/source/implicit/imp_fsa_inv.F
+!||    get_subsp_sms   ../engine/source/ams/sms_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int          ../engine/source/implicit/produt_v.F
+!||    cp_real         ../engine/source/implicit/produt_v.F
+!||====================================================================
        SUBROUTINE IND_LT2LN(NDDL,IADK  ,JDIK  ,LT_K, MAXL   )
 C-------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1409,19 +1328,19 @@ C--------------------------------------------
       RETURN
       END
 C  ------factorized sparse approximate inverse version hybrid------- 
-Chd|====================================================================
-Chd|  IMP_FSA_INVH                  source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GET_SUBSP                     source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSAI                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_PCG1                      source/implicit/imp_fsa_inv.F 
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SP_STAT0                      source/implicit/imp_fsa_inv.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_fsa_invh   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    get_subsp      ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsai       ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_pcg1       ../engine/source/implicit/imp_fsa_inv.F
+!||    my_barrier     ../engine/source/system/machine.F
+!||    sp_stat0       ../engine/source/implicit/imp_fsa_inv.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IMP_FSA_INVH(
      1                    NDDL  ,NNZ   ,IADK  ,JDIK  ,DIAG_K ,   
      2                    LT_K  ,DIAG_M ,LT_M  ,MAXC  ,MAX_A ,
@@ -1435,13 +1354,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc" 
-#include      "task_c.inc" 
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL ,NNZ ,IADK(*),JDIK(*),MAXC ,MAX_A ,NNE,
@@ -1452,7 +1364,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
+C--- M->A^-1 LT_M  strictly lower in m.c.r.s. format
       INTEGER I,J,K,M,N,NC,MAX_L,IERR,I_CHK,IER1,
      .        JM(MAXC+1)
       my_real
@@ -1462,12 +1374,12 @@ C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
 C-----------------------------
        I_CHK = NNE
        NNE = 0
-       IF ((IDLFT0+1).GT.NDDL) RETURN
+       IF ((IDLFT0+1)>NDDL) RETURN
 C
        ALLOCATE(IADA(MAXC+1),DIAG_A(MAXC),MJ(MAXC),STAT=IER1)
        ALLOCATE(LT_A(MAX_A),JDIA(MAX_A),STAT=IERR)
  
-        IF ((IERR+IER1).NE.0) THEN
+        IF ((IERR+IER1)/=0) THEN
          IF (ITASK == 0 ) THEN
            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
      .                 C1='FOR IMPLICIT PRECONDITION')
@@ -1475,7 +1387,7 @@ C
          END IF !(ITASK == 0 ) THEN
         ENDIF 
 
-C--------------copy la partie utile------
+C--------------copy the useful part------
        K=IADK(IDLFT1+1)-1
        DO I=IDLFT1+1,NDDL
          DIAG_C(I-IDLFT1) = DIAG_M(I)
@@ -1487,7 +1399,7 @@ C----------------------
       CALL MY_BARRIER
 C---------------------
 C
-C Boucle parallele dynamique SMP
+C SMP dynamic parallel loop
 C
 !$OMP DO SCHEDULE(DYNAMIC,1)
       DO I=IDLFT0+1,NDDL
@@ -1501,13 +1413,13 @@ C
         ENDDO
         MJ(NC)=ONE
 C
-        IF (NC.GT.10000) THEN
+        IF (NC>10000) THEN
           MAX_L=MAX_A
           CALL IMP_PCG1( 
      1                    NC    ,MAX_L  ,IADA  ,JDIA  ,DIAG_A ,   
      2                    LT_A  ,MJ     ,IERR  )
 C
-         IF (I_CHK.GT.0.AND.IERR.LT.0) NNE = I
+         IF (I_CHK>0.AND.IERR<0) NNE = I
         ELSE
 C
          MAX_L=1+(NC*(NC-1))/2
@@ -1515,10 +1427,10 @@ C
      .                 MAX_L ,MJ    )
 C
         ENDIF 
-C------------filtrage----Diagonal est dans LT_M (last one)--
+C------------filtering----Diagonal is in LT_M (last one)--
          DIAG_M(I)=MJ(NC)
-         IF (DIAG_M(I).LT.EM20) THEN
-          IF (NNE.EQ.0.AND.I_CHK.EQ.0) NNE = I
+         IF (DIAG_M(I)<EM20) THEN
+          IF (NNE==0.AND.I_CHK==0) NNE = I
           DIAG_M(I)=ABS(DIAG_M(I))
           DIAG_M(I)=MAX(EM20,DIAG_M(I))
          ENDIF
@@ -1527,7 +1439,7 @@ C------------filtrage----Diagonal est dans LT_M (last one)--
           LT_M(M)=MJ(K)/DIAG_M(I)
          ENDDO
 C
-         IF (I_CHK.GT.0.AND.MJ(NC).LT.EM20) DIAG_M(I)=MJ(NC)
+         IF (I_CHK>0.AND.MJ(NC)<EM20) DIAG_M(I)=MJ(NC)
        ENDDO
 
 !$OMP END DO
@@ -1537,20 +1449,20 @@ C
 C 
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FSA_INVH2                 source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GET_SUBSP                     source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSAI                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_KFILTR                    source/implicit/imp_fsa_inv.F 
-Chd|        IMP_PCG1                      source/implicit/imp_fsa_inv.F 
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SP_STAT0                      source/implicit/imp_fsa_inv.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_fsa_invh2   ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../engine/source/output/message/message.F
+!||    arret           ../engine/source/system/arret.F
+!||    get_subsp       ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsai        ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_kfiltr      ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_pcg1        ../engine/source/implicit/imp_fsa_inv.F
+!||    my_barrier      ../engine/source/system/machine.F
+!||    sp_stat0        ../engine/source/implicit/imp_fsa_inv.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IMP_FSA_INVH2(
      1                    NDDL   ,IADK   ,JDIK   ,DIAG_K ,LT_K   ,   
      2                    IADM   ,JDIM   ,DIAG_M ,LT_M   ,MAXC   ,
@@ -1565,12 +1477,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc" 
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL ,NNZ ,IADK(*),JDIK(*),MAXC ,MAX_A ,NNE,
@@ -1581,7 +1487,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
+C--- M->A^-1 LT_M  strictly lower in m.c.r.s. format
       INTEGER I,J,K,M,N,NC,MAX_L,IERR,I_CHK,IER1,
      .        JM(MAXC+1)
       my_real
@@ -1591,19 +1497,19 @@ C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
 C-----------------------------
        I_CHK = NNE
        NNE = 0
-       IF ((IDLFT0+1).GT.NDDL) RETURN
+       IF ((IDLFT0+1)>NDDL) RETURN
 C       
        ALLOCATE(IADA(MAXC+1),DIAG_A(MAXC),MJ(MAXC),STAT=IER1)
        ALLOCATE(LT_A(MAX_A),JDIA(MAX_A),STAT=IERR)
 C-------- 
-        IF ((IERR+IER1).NE.0) THEN
+        IF ((IERR+IER1)/=0) THEN
          IF (ITASK == 0 ) THEN
            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
      .                 C1='FOR IMPLICIT PRECONDITION')
            CALL ARRET(2)
          END IF !(ITASK == 0 ) THEN
         ENDIF 
-C--------------copy la partie utile------
+C--------------copy the useful part------
        K=IADK(IDLFT1+1)-1
        DO I=IDLFT1+1,NDDL
          DIAG_C(I-IDLFT1) = DIAG_M(I)
@@ -1614,7 +1520,7 @@ C--------------copy la partie utile------
 C----------------------
       CALL MY_BARRIER
 C---------------------
-C Boucle parallele dynamique SMP
+C SMP dynamic parallel loop
 C
 !$OMP DO SCHEDULE(DYNAMIC,1)
        DO I=IDLFT0+1,NDDL
@@ -1627,21 +1533,21 @@ C
          MJ(J)=ZERO
         ENDDO
         MJ(NC)=ONE
-        IF (NC.GT.10000) THEN
+        IF (NC>10000) THEN
           MAX_L=MAX_A
           CALL IMP_PCG1( 
      1                    NC    ,MAX_L  ,IADA  ,JDIA  ,DIAG_A ,   
      2                    LT_A  ,MJ     ,IERR  )
-         IF (I_CHK.GT.0.AND.IERR.LT.0) NNE = I
+         IF (I_CHK>0.AND.IERR<0) NNE = I
         ELSE
          MAX_L=1+(NC*(NC-1))/2
          CALL IMP_FSAI(NC    ,IADA  ,JDIA  ,DIAG_A ,LT_A  ,
      .                MAX_L ,MJ    )
         ENDIF 
-C------------Diagonal est dans LT_M (last one)--
+C------------Diagonal is in LT_M (last one)--
          DIAG_M(I)=MJ(NC)
-         IF (DIAG_M(I).LT.EM20) THEN
-          IF (NNE.EQ.0.AND.I_CHK.EQ.0) NNE = I
+         IF (DIAG_M(I)<EM20) THEN
+          IF (NNE==0.AND.I_CHK==0) NNE = I
           DIAG_M(I)=ABS(DIAG_M(I))
           DIAG_M(I)=MAX(EM20,DIAG_M(I))
          ENDIF
@@ -1650,7 +1556,7 @@ C------------Diagonal est dans LT_M (last one)--
           LT_M(M)=MJ(K)/DIAG_M(I)
          ENDDO
 C
-         IF (I_CHK.GT.0.AND.MJ(NC).LT.EM20) DIAG_M(I)=MJ(NC)
+         IF (I_CHK>0.AND.MJ(NC)<EM20) DIAG_M(I)=MJ(NC)
        ENDDO
 C
 !$OMP END DO
@@ -1660,30 +1566,24 @@ C
 C
       IF (ITASK == 0 ) THEN
         K = IDLFT0+1
-       IF (D_TOL.GT.ZERO)
+       IF (D_TOL>ZERO)
      .  CALL IMP_KFILTR(K     ,NDDL  ,IADM  ,JDIM  ,DIAG_M ,
      .                  LT_M  ,D_TOL ,P_MACH,DIAG_K)
       END IF 
 C 
       RETURN
       END
-Chd|====================================================================
-Chd|  SP_DIM                        source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        IMP_FSA_INV2HP                source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVHP                 source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sp_dim           ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    imp_fsa_inv2hp   ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invhp    ../engine/source/implicit/imp_fsa_inv.F
+!||====================================================================
        SUBROUTINE SP_DIM(IL ,IADK  ,JDIK  ,NC  ,MAX_A ,MAX_L )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1708,16 +1608,16 @@ C------MAX_L<- MAX_A
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  FSA_SOLV                      source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        IMP_FSA_INV2HP                source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVHP                 source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|        GET_SUBSP                     source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSAI                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_PCG1                      source/implicit/imp_fsa_inv.F 
-Chd|====================================================================
+!||====================================================================
+!||    fsa_solv         ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    imp_fsa_inv2hp   ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invhp    ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    get_subsp        ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsai         ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_pcg1         ../engine/source/implicit/imp_fsa_inv.F
+!||====================================================================
       SUBROUTINE FSA_SOLV(
      1                    NDDL  ,NC    ,IADK  ,JDIK  ,DIAG_K ,   
      2                    LT_K  ,DIAG_M,LT_M  ,DIAG_C,LT_C   ,
@@ -1727,13 +1627,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc" 
-#include      "task_c.inc" 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1745,7 +1638,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
+C--- M->A^-1 LT_M  strictly lower in m.c.r.s. format
       INTEGER J,K,M,N,MAX_L,IERR,IER1,IADA(NC+1),JM(NC)
 c     .        IADA(NC+1),JDIA(MAX_A),JM(NC)
 c      my_real
@@ -1780,7 +1673,7 @@ C
      1                    NC    ,MAX_L  ,IADA  ,JDIA  ,DIAG_A ,   
      2                    LT_A  ,MJ     ,IERR  )
 C
-         IF (I_CHK.GT.0.AND.IERR.LT.0) NNE = I
+         IF (I_CHK>0.AND.IERR<0) NNE = I
         ELSE
 C
          MAX_L=1+(NC*(NC-1))/2
@@ -1788,10 +1681,10 @@ C
      .                 MAX_L ,MJ    )
 C
         ENDIF 
-C------------filtrage----Diagonal est dans LT_M (last one)--
+C------------filtering----Diagonal is in LT_M (last one)--
          DIAG_M(I)=MJ(NC)
-         IF (DIAG_M(I).LT.EM20) THEN
-          IF (NNE.EQ.0.AND.I_CHK.EQ.0) NNE = I
+         IF (DIAG_M(I)<EM20) THEN
+          IF (NNE==0.AND.I_CHK==0) NNE = I
           DIAG_M(I)=ABS(DIAG_M(I))
           DIAG_M(I)=MAX(EM20,DIAG_M(I))
          ENDIF
@@ -1799,23 +1692,25 @@ C------------filtrage----Diagonal est dans LT_M (last one)--
           M=IADM(I)+K-1
           LT_M(M)=MJ(K)/DIAG_M(I)
          ENDDO
-         IF (I_CHK.GT.0.AND.MJ(NC).LT.EM20) DIAG_M(I)=MJ(NC)
+         IF (I_CHK>0.AND.MJ(NC)<EM20) DIAG_M(I)=MJ(NC)
 C 
        DEALLOCATE(DIAG_A,MJ)
        DEALLOCATE(LT_A,JDIA)
       RETURN
       END
 C  ------factorized sparse approximate inverse version hybrid SMP inside
-Chd|====================================================================
-Chd|  IMP_FSA_INVHP                 source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        LIN_SOLVH1                    source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        FSA_SOLV                      source/implicit/imp_fsa_inv.F 
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SP_DIM                        source/implicit/imp_fsa_inv.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_fsa_invhp        ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    lin_solvh1           ../engine/source/implicit/lin_solv.F
+!||--- calls      -----------------------------------------------------
+!||    fsa_solv             ../engine/source/implicit/imp_fsa_inv.F
+!||    my_barrier           ../engine/source/system/machine.F
+!||    omp_get_thread_num   ../engine/source/engine/openmp_stub.F90
+!||    sp_dim               ../engine/source/implicit/imp_fsa_inv.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod          ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IMP_FSA_INVHP(
      1                    NDDL  ,NNZ   ,IADK  ,JDIK  ,DIAG_K ,   
      2                    LT_K  ,DIAG_M ,LT_M  ,MAXC  ,MAX_A ,
@@ -1829,11 +1724,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc" 
 #include      "task_c.inc" 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1846,7 +1738,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
+C--- M->A^-1 LT_M  strictly lower in m.c.r.s. format
       INTEGER I,J,K,M,N,NC,MAX_L,IERR,I_CHK,IER1,
      .        ITSK,F_DDL,L_DDL,N1
       my_real
@@ -1856,9 +1748,9 @@ C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
 C-----------------------------
        I_CHK = NNE
        NNE = 0
-       IF ((IDLFT0+1).GT.NDDL) RETURN
+       IF ((IDLFT0+1)>NDDL) RETURN
 C
-C--------------copy la partie utile------
+C--------------copy the useful part------
        K=IADK(IDLFT1+1)-1
 !$OMP PARALLEL PRIVATE(ITSK,F_DDL,L_DDL,NC,MAX_L,I,J,N1)
         ITSK = OMP_GET_THREAD_NUM()
@@ -1879,7 +1771,7 @@ C----------------------
       CALL MY_BARRIER
 C---------------------
 C
-C Boucle parallele dynamique SMP
+C SMP dynamic parallel loop
 C
 !$OMP DO SCHEDULE(DYNAMIC,1)
       DO I=IDLFT0+1,NDDL
@@ -1896,17 +1788,19 @@ C
 C 
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FSA_INV2HP                source/implicit/imp_fsa_inv.F 
-Chd|-- called by -----------
-Chd|        LIN_SOLVIH2                   source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        FSA_SOLV                      source/implicit/imp_fsa_inv.F 
-Chd|        IMP_KFILTR                    source/implicit/imp_fsa_inv.F 
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SP_DIM                        source/implicit/imp_fsa_inv.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_fsa_inv2hp       ../engine/source/implicit/imp_fsa_inv.F
+!||--- called by ------------------------------------------------------
+!||    lin_solvih2          ../engine/source/implicit/lin_solv.F
+!||--- calls      -----------------------------------------------------
+!||    fsa_solv             ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_kfiltr           ../engine/source/implicit/imp_fsa_inv.F
+!||    my_barrier           ../engine/source/system/machine.F
+!||    omp_get_thread_num   ../engine/source/engine/openmp_stub.F90
+!||    sp_dim               ../engine/source/implicit/imp_fsa_inv.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod          ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IMP_FSA_INV2HP(
      1                    NDDL   ,IADK   ,JDIK   ,DIAG_K ,LT_K   ,   
      2                    IADM   ,JDIM   ,DIAG_M ,LT_M   ,MAXC   ,
@@ -1921,11 +1815,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc" 
 #include      "task_c.inc" 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1938,7 +1829,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
+C--- M->A^-1 LT_M  strictly lower in m.c.r.s. format
       INTEGER I,J,K,M,N,NC,MAX_L,IERR,I_CHK,IER1,
      .        ITSK,F_DDL,L_DDL,N1
       my_real
@@ -1948,9 +1839,9 @@ C--- M->A^-1 LT_M  stricly lower in m.c.r.s. format
 C-----------------------------
        I_CHK = NNE
        NNE = 0
-       IF ((IDLFT0+1).GT.NDDL) RETURN
+       IF ((IDLFT0+1)>NDDL) RETURN
 C       
-C--------------copy la partie utile------
+C--------------copy the useful part------
        K=IADK(IDLFT1+1)-1
 !$OMP PARALLEL PRIVATE(ITSK,F_DDL,L_DDL,NC,MAX_L,N1,J,I)
         ITSK = OMP_GET_THREAD_NUM()
@@ -1966,7 +1857,7 @@ C--------------copy la partie utile------
 C----------------------
       CALL MY_BARRIER
 C---------------------
-C Boucle parallele dynamique SMP
+C SMP dynamic parallel loop
 C
 !$OMP DO SCHEDULE(DYNAMIC,1)
        DO I=IDLFT0+1,NDDL
@@ -1983,7 +1874,7 @@ C
 C
 Citask0      IF (ITASK == 0 ) THEN
         K = IDLFT0+1
-       IF (D_TOL.GT.ZERO)
+       IF (D_TOL>ZERO)
      .  CALL IMP_KFILTR(K     ,NDDL  ,IADM  ,JDIM  ,DIAG_M ,
      .                  LT_M  ,D_TOL ,P_MACH,DIAG_K)
 Citask0      END IF 

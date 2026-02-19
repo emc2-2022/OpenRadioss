@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  M22CPLR                       source/materials/mat/mat022/m22cplr.F
-Chd|-- called by -----------
-Chd|        SIGEPS22C                     source/materials/mat/mat022/sigeps22c.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    m22cplr     ../engine/source/materials/mat/mat022/m22cplr.F
+!||--- called by ------------------------------------------------------
+!||    sigeps22c   ../engine/source/materials/mat/mat022/sigeps22c.F
+!||====================================================================
       SUBROUTINE M22CPLR(JFT    ,JLT    ,EZZ    ,OFF    ,EPSEQ ,
      2                   IPLA   ,GS     ,YLD    ,A1     ,CA    ,
      3                   CB     ,CN     ,YMAX   ,NU     ,DPLA  ,
@@ -60,9 +59,6 @@ C     REAL
      .   DEPSXX(MVSIZ),DEPSYY(MVSIZ),DEPSXY(MVSIZ),DEPSYZ(MVSIZ),DEPSZX(MVSIZ)
       INTEGER ICC(MVSIZ)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,N,NINDX,INDEX(MVSIZ),NMAX
@@ -70,11 +66,11 @@ C     REAL
       my_real
      .   A(MVSIZ),B(MVSIZ),DPLA_I(MVSIZ),DPLA_J(MVSIZ),DR(MVSIZ),
      .   H(MVSIZ),NU1(MVSIZ),NU2(MVSIZ),P(MVSIZ),Q(MVSIZ),
-     .   SVM(MVSIZ),DK(MVSIZ),FF(MVSIZ),G(MVSIZ),
-     .   PLAEF(MVSIZ),PLAXX(MVSIZ),PLAYY(MVSIZ),PLAXY(MVSIZ),
-     .   EPMAX(MVSIZ),DEPSL,ALPEI,GI,A1I,A2I,EPSP,S11,S22,S12,
+     .   SVM(MVSIZ),DK(MVSIZ),G(MVSIZ),
+     .   
+     .   DEPSL,ALPEI,GI,A1I,A2I,EPSP,S11,S22,S12,
      .   S1S2,S122,VM2,PLA_I,YLD_I,F,DF,P2,Q2,NNU1,
-     .   NNU2,NU3,NU4,NU5,NU6,R,UMR,AA,BB,C,EE,SIGZ,PP,QQ,S1,S2,S3,
+     .   NNU2,NU4,NU6,R,UMR,AA,BB,C,PP,QQ,S1,S2,S3,
      .   SMALL
       DATA NMAX/3/
 C-----------------------------------------------
@@ -109,7 +105,7 @@ C
         SIGNZX(I)= SIGNZX(I)+ALPEI*GS(I)*DEPSZX(I)
       ENDDO
 C-------------------
-C     CONTRAINTE VM
+C     VM STRESS
 C-------------------
 #include "vectorize.inc"
       DO I=JFT,JLT
@@ -119,7 +115,7 @@ C-------------------
      .        + THREE*SIGNXY(I)*SIGNXY(I))
       ENDDO
 C----------------------------
-C     VITESSE DE DEFORMATION
+C     strain rate
 C----------------------------
       DO I=JFT,JLT
         EPSP  = MAX( ABS(DEPSXX(I)), ABS(DEPSYY(I)), HALF*ABS(DEPSXY(I)))
@@ -128,10 +124,10 @@ C----------------------------
         IF (ICC(I) == 2) YLD(I) = MIN(YLD(I),YMAX(I))
       ENDDO
 C------------------------------------------
-C     CONTRAINTES PLASTIQUEMENT ADMISSIBLES
+C     PLASTICALLY ADMISSIBLE STRESSES
 C------------------------------------------
       IF (IPLA == 0) THEN
-C projection radiale
+C radial projection
 #include "vectorize.inc"
         DO I=JFT,JLT
           DK(I) = MIN(ONE,YLD(I)/MAX(SVM(I),EM30))
@@ -147,7 +143,7 @@ C projection radiale
 C------------------------------------------------------------------------
       ELSEIF (IPLA == 1) THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     von mises criterion
 C-------------------------
 #include "vectorize.inc"
         DO  I=JFT,JLT
@@ -173,7 +169,7 @@ C
 C
       IF (NINDX == 0) GOTO 800
 C---------------------------
-C    DEP EN CONTRAINTE PLANE
+C    DEP IN PLANE STRESS
 C---------------------------
 #include "vectorize.inc"
       DO J=1,NINDX
@@ -210,7 +206,7 @@ C
         ENDDO
       ENDDO
 C------------------------------------------
-C     CONTRAINTES PLASTIQUEMENT ADMISSIBLES
+C     PLASTICALLY ADMISSIBLE STRESSES
 C------------------------------------------
 #include "vectorize.inc" 
       DO J=1,NINDX
@@ -227,10 +223,10 @@ C------------------------------------------
       ENDDO
       ELSEIF (IPLA == 2) THEN
 C---
-C projection radial sur le deviateur sur un critere reduit
-C projection elastique en z => sig33 = 0
-C le coef. de reduction du critere est tel que 
-C l'on se trouve sur le critere apres les 2 projections
+C radial projection on the deviator on a reduced criterion
+C Elastic projection in z => sig33 = 0
+C the criterion reduction coefficient is such that
+C one is on the criterion after the 2 projections
 C---
 #include "vectorize.inc"
         DO I=JFT,JLT

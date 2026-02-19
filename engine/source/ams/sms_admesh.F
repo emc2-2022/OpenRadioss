@@ -1,38 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_ADMESH_0                  source/ams/sms_admesh.F       
-Chd|-- called by -----------
-Chd|        SMS_MASS_SCALE_2              source/ams/sms_mass_scale_2.F 
-Chd|-- calls ---------------
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_admesh_0       ../engine/source/ams/sms_admesh.F
+!||--- called by ------------------------------------------------------
+!||    sms_mass_scale_2   ../engine/source/ams/sms_mass_scale_2.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||    remesh_mod         ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE SMS_ADMESH_0(A    ,DIAG_SMS, IXC, IXTG,SH4TREE  ,
      .                        SH3TREE  )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE REMESH_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,20 +53,19 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, NN, LEVEL, IP, NLEV
-      INTEGER SON,M1,M2,M3,M4,MC,N1,N2,N3,N4,J,K
-      INTEGER LKINNOD(NUMNOD)
+      INTEGER N, NN, LEVEL
+      INTEGER SON,M1,M2,M3,M4,MC,N1,N2,N3,N4
+      INTEGER,DIMENSION(:),ALLOCATABLE :: LKINNOD
       my_real
      .        A1,A2,A3,A4,AC
 C-----------------------------------------------
+      CALL MY_ALLOC(LKINNOD,NUMNOD)
       LKINNOD=0
       DO LEVEL=LEVELMAX-1,0,-1
 
@@ -163,22 +167,27 @@ C
         END DO
 
       END DO
-
+      DEALLOCATE(LKINNOD)
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_ADMESH_1                  source/ams/sms_admesh.F       
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+!||====================================================================
+!||    sms_admesh_1   ../engine/source/ams/sms_admesh.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg        ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod   ../common_source/tools/memory/my_alloc.F90
+!||    remesh_mod     ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE SMS_ADMESH_1(A    ,DIAG_SMS, IXC, IXTG,SH4TREE  ,
      .                        SH3TREE  ,NODNX_SMS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE REMESH_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -194,20 +203,20 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, NN, LEVEL, IP, NLEV
-      INTEGER SON,M1,M2,M3,M4,MC,N1,N2,N3,N4,J,K
-      INTEGER LKINNOD(NUMNOD)
+      INTEGER N, NN, LEVEL
+      INTEGER SON,M1,M2,M3,M4,MC,N1,N2,N3,N4,J
+      INTEGER,DIMENSION(:),ALLOCATABLE :: LKINNOD
+
       my_real
      .        A1,A2,A3,A4,AC
 C-----------------------------------------------
+      CALL MY_ALLOC(LKINNOD,NUMNOD)
       LKINNOD=0
       DO LEVEL=LEVELMAX-1,0,-1
 
@@ -324,22 +333,26 @@ C
         END DO
 
       END DO
+      DEALLOCATE(LKINNOD)
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_ADMESH_2                  source/ams/sms_admesh.F       
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+!||====================================================================
+!||    sms_admesh_2   ../engine/source/ams/sms_admesh.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg        ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier     ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    remesh_mod     ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE SMS_ADMESH_2(A    ,DIAG_SMS, IXC, IXTG,SH4TREE  ,
      .                        SH3TREE  ,ITASK)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE REMESH_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -355,21 +368,19 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, NN, LEVEL, IP, NLEV
-      INTEGER SON,M1,M2,M3,M4,MC,N1,N2,N3,N4,J,K,NA,NB
+      INTEGER N, NN, LEVEL
+      INTEGER SON,M1,M2,M3,M4,MC,N1,N2,N3,N4,J,NA,NB
       INTEGER LL, SH4FT, SH4LT, SH3FT, SH3LT
 C-----------------------------------------------
 C
 C     allocation tag
-      IF(ITASK.EQ.0)THEN
+      IF(ITASK==0)THEN
         TAGNOD=0
       END IF
 C
@@ -393,7 +404,7 @@ C-------
           N4=IXC(5,N)
 C
           MC=IXC(4,SON)
-          IF(TAGNOD(MC).EQ.0)THEN
+          IF(TAGNOD(MC)==0)THEN
             TAGNOD(MC)=1
             DO J=1,3
               A(J,MC)= FOURTH*(A(J,N1)+A(J,N2)+A(J,N3)+A(J,N4))

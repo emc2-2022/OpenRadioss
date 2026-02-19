@@ -1,44 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_NBCS                  source/constraints/general/bcs/hm_read_nbcs.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_nbcs             ../starter/source/constraints/general/bcs/hm_read_nbcs.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    fretitl                  ../starter/source/starter/freform.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    kinset                   ../starter/source/constraints/general/kinset.F
+!||    ngr2usr                  ../starter/source/system/nintrr.F
+!||    usr2sys                  ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_NBCS(ICODE     ,ISKEW   ,ITAB    ,ITABM1 ,IKINE  ,
      .                        IGRNOD    ,IBCSLAG ,LAG_NCF ,LAG_NKF,LAG_NHF,
      .                        IKINE1LAG ,ISKN    ,NOM_OPT ,LSUBMODEL)
@@ -49,6 +49,7 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE GROUPDEF_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -59,12 +60,7 @@ C-----------------------------------------------
 #include      "scr17_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "submod_c.inc"
-#include      "titr_c.inc"
 #include      "param_c.inc"
-#include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -81,13 +77,17 @@ C-----------------------------------------------
       INTEGER I,JJ(12), IC, NC, N, NUSR, IS, IC1, IC2, IC3, IC4,
      .        NOSYS, J,J10(10),IGR,IGRS,ISU,IBCALE,J6(6),K,
      .        IC0, IC01, IC02, IC03, IC04, ID ,ILAGM, NBCSLAG,
-     .        FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,IKINE1(3*NUMNOD),SUB_ID,
+     .        FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,SUB_ID,
      .        CHKCOD,ISERR,NOD,SUB_INDEX,NNOD
       INTEGER IUN
-      CHARACTER MESS*40,KEY*ncharkey,STRING*ncharfield,CODE*7,
-     .        KEY2*ncharkey
-      CHARACTER TITR*nchartitle,OPT*8
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARKEY) :: KEY,KEY2
+      CHARACTER :: CODE*7
+      CHARACTER(LEN=NCHARFIELD) :: STRING
+      CHARACTER(LEN=NCHARTITLE) ::  TITR
+      CHARACTER :: OPT*8
       LOGICAL IS_AVAILABLE
+      INTEGER, DIMENSION(:), ALLOCATABLE :: IKINE1
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -105,6 +105,7 @@ C
       IS_AVAILABLE = .FALSE.
       FLAG_FMT = 0
 C
+      ALLOCATE(IKINE1(3*NUMNOD))
       DO I=1,3*NUMNOD
         IKINE1(I) = 0
       ENDDO
@@ -142,7 +143,7 @@ C
           CALL HM_GET_INT_ARRAY_INDEX('OmegaZ',J6(6),K,IS_AVAILABLE,LSUBMODEL)
 C
           CALL HM_GET_INT_ARRAY_INDEX('Skew_ID',IS,K,IS_AVAILABLE,LSUBMODEL)
-          IF(IS == 0 .AND. SUB_INDEX .NE. 0 ) IS = LSUBMODEL(SUB_INDEX)%SKEW
+          IF(IS == 0 .AND. SUB_INDEX /= 0 ) IS = LSUBMODEL(SUB_INDEX)%SKEW
 C
           CALL HM_GET_INT_ARRAY_INDEX('node_ID',NOD,K,IS_AVAILABLE,LSUBMODEL)
 C
@@ -172,7 +173,7 @@ C
 C
           CHKCOD = 0
           DO J=1,6
-            IF (J6(J) .GE. 2) THEN
+            IF (J6(J) >= 2) THEN
               CHKCOD = 1
             ENDIF
           ENDDO
@@ -184,9 +185,9 @@ c
           IC2=J6(4)*4 +J6(5)*2 +J6(6)
           IC =IC1*512+IC2*64
 c
-          IF(NOSYS .NE. 0) THEN
+          IF(NOSYS /= 0) THEN
             ICODE(NOSYS)=MY_OR(IC,ICODE(NOSYS))
-             IF(ISKEW(NOSYS).EQ.-1.OR.ISKEW(NOSYS).EQ.IS)THEN
+             IF(ISKEW(NOSYS)==-1.OR.ISKEW(NOSYS)==IS)THEN
                CHECK_NEW=IS
              ELSE
                CALL ANCMSG(MSGID=148,ANMODE=ANINFO,MSGTYPE=MSGERROR,
@@ -195,7 +196,7 @@ c
              ISKEW(NOSYS)=CHECK_NEW
             
              DO J=1,6
-               IF(J6(J).NE.0)
+               IF(J6(J)/=0)
      .         CALL KINSET(1,ITAB(NOSYS),IKINE(NOSYS),J,ISKEW(NOSYS)
      .                    ,IKINE1(NOSYS))
              ENDDO
@@ -205,8 +206,6 @@ C
 C
       ENDDO
    
-
-      RETURN
- 999  CALL FREERR(1)
+      DEALLOCATE(IKINE1)
       RETURN
       END

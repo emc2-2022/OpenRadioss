@@ -1,40 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_NXT_C                    source/materials/fail/nxt/fail_nxt_c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_nxt_c      ../engine/source/materials/fail/nxt/fail_nxt_c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc          ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell   ../engine/source/materials/mat_share/usermat_shell.F
+!||--- calls      -----------------------------------------------------
+!||    finter          ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE FAIL_NXT_C(
      1     NEL       ,NUPARAM   ,NUVAR     ,UPARAM    ,UVAR      ,
      2     TIME      ,NPF       ,TF        ,NFUNC     ,IFUNC     ,
      3     NGL       ,IPG       ,ILAY      ,IPT       ,HARDM     ,
      4     SIGNXX    ,SIGNYY    ,SIGNXY    ,SIGNYZ    ,SIGNZX    ,  
-     5     OFF       ,FOFF      ,PTHKF     ,DFMAX     ,TDEL      ,
-     6     DAM       )
+     5     OFF       ,FOFF      ,DFMAX     ,TDEL      ,LF_DAMMX  )
 C-----------------------------------------------
 c     NXT Failure
 C-----------------------------------------------
@@ -63,7 +62,6 @@ C ...     |         |   |   |
 C---------+---------+---+---+--------------------------------------------
 C OFF     | NEL     | F | R | DELETED ELEMENT FLAG (=1. ON, =0. OFF)
 C FOFF    | NEL     | I |R/W| DELETED INTEGRATION POINT FLAG (=1 ON, =0 OFF)
-C PTHKF   |  1      | F | W | PERCENTAGE OF LAYER THICKNESS TO FAIL
 C DFMAX   | NEL     | F |R/W| MAX DAMAGE FACTOR 
 C TDEL    | NEL     | F | W | FAILURE TIME
 C---------+---------+---+---+--------------------------------------------
@@ -74,7 +72,7 @@ C IPT                         CURRENT INTEGRATION POINT IN THE LAYER
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ,INTENT(IN) :: NEL,NFUNC,NUPARAM,NUVAR,IPG,ILAY,IPT
+      INTEGER ,INTENT(IN) :: NEL,NFUNC,NUPARAM,NUVAR,IPG,ILAY,IPT,LF_DAMMX
       INTEGER, DIMENSION(NFUNC), INTENT(IN) :: IFUNC
       INTEGER ,DIMENSION(NEL) ,INTENT(IN) :: NGL
       my_real ,INTENT(IN) :: TIME
@@ -85,10 +83,9 @@ C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
       INTEGER ,DIMENSION(NEL) ,INTENT(INOUT) :: FOFF
-      my_real ,INTENT(OUT) :: PTHKF
-      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: DFMAX,DAM
       my_real ,DIMENSION(NEL) ,INTENT(OUT)   :: TDEL
       my_real ,DIMENSION(NEL,NUVAR) ,INTENT(INOUT) :: UVAR
+      my_real ,DIMENSION(NEL,LF_DAMMX),INTENT(INOUT) :: DFMAX
 C-----------------------------------------------
 C   VARIABLES FOR FUNCTION INTERPOLATION 
 C-----------------------------------------------
@@ -105,9 +102,9 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: I,J,IFAIL_SH,NINDX,CHECK
+      INTEGER :: I,J,NINDX,CHECK
       INTEGER ,DIMENSION(NEL) :: INDX
-      my_real :: S1,S2,SS,S12,DYDX1,DYDX2,S2DYDX1,SIGSR,SIG3D
+      my_real :: S1,S2,SS,S12,DYDX1,DYDX2,SIGSR,SIG3D
       my_real ,DIMENSION(NEL)  :: SIG1,SIG2,LAMBDANXT
 C=======================================================================
       DO I=1,NEL
@@ -123,13 +120,6 @@ C-------- ZERO VALUE for deleted element
           UVAR(I,2)= ZERO
         END IF
       ENDDO    
-c-----------------------------
-      IFAIL_SH = INT(UPARAM(1))
-      IF (IFAIL_SH == 1) THEN
-        PTHKF = EM06
-      ELSEIF (IFAIL_SH == 2) THEN
-        PTHKF = ONE
-      ENDIF
 C-------------------------------------------------------
 C     SIGMA1 and SIGMA2 computing: Principal stresses
 C-------------------------------------------------------
@@ -139,7 +129,7 @@ C-------------------------------------------------------
           S1 = HALF*(SIGNXX(I) + SIGNYY(I))
           S2 = HALF*(SIGNXX(I) - SIGNYY(I))
           SIG1(I) = S1  + SQRT(S2**2 + S12**2)
-          SS   = S1  - SQRT(S2**2 + S12**2)
+          SS   = S1 - SQRT(S2**2 + S12**2)
           SIG2(I) = SS
 
           IF(SS >= SIG1(I))THEN
@@ -147,7 +137,7 @@ C-------------------------------------------------------
             SIG1(I) = SS
           ENDIF
           CHECK = 1
-          IF (SIG2(I).NE.ZERO) THEN
+          IF (SIG2(I)/=ZERO) THEN
             SS = SIG1(I)/SIG2(I)
             IF ((SS < -ONE .AND. SS < ZERO) .OR.
      .          (SIG1(I) < ZERO .AND. SIG2(I) < ZERO)) THEN
@@ -189,7 +179,7 @@ c-----------------------
             FOFF(I) = 0
             TDEL(I) = TIME
           ENDIF
-	       ENDIF
+                 ENDIF
       ENDDO
 c-----------------------
       IF (NINDX > 0) THEN
@@ -205,10 +195,10 @@ c-----------------------
 c     SAVE USER VARIABLES
 c-----------------------
       DO I=1,NEL                          
-        DAM(I)    = MAX(DAM(I),LAMBDANXT(I))                                     
-        UVAR(I,1) = SIG1(I)                                                      
-        UVAR(I,2) = SIG2(I)                                                      
-        DFMAX(I)  = MIN(ONE, DAM(I)/TWO) ! Maximum Dmg for output : 0 < DFMAX < 1  
+        DFMAX(I,2) = MAX(DFMAX(I,2),LAMBDANXT(I))                                     
+        UVAR(I,1)  = SIG1(I)                                                      
+        UVAR(I,2)  = SIG2(I)                                                      
+        DFMAX(I,1) = MIN(ONE, DFMAX(I,2)/TWO) ! Maximum Dmg for output : 0 < DFMAX < 1  
       ENDDO                                                                      
 C-----------------------------------------------
  2000 FORMAT(1X,'(NXT FAILURE) FOR SHELL ELEMENT ',I10,1X,

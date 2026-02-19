@@ -1,43 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  SPMD_FXB_FOR                  source/mpi/kinematic_conditions/spmd_fxb_for.F
-Chd|-- called by -----------
-Chd|        FXBYFOR                       source/constraints/fxbody/fxbyfor.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_fxb_for          ../engine/source/mpi/kinematic_conditions/spmd_fxb_for.F
+!||--- called by ------------------------------------------------------
+!||    fxbyfor               ../engine/source/constraints/fxbody/fxbyfor.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_FXB_FOR(FXBIPM, MFEXTP)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -69,15 +70,15 @@ C
          LEN=NME+NMOD
          AVAR=FXBIPM(13,NFX)
          PMAIN=FXBIPM(39,NFX)
-         IF (ISPMD.EQ.PMAIN) THEN
+         IF (ISPMD==PMAIN) THEN
             ALLOCATE(FF(LEN,NSPMD-1))
             II=0
             DO I=1,NSPMD
-               IF (ISPMD.EQ.I-1) CYCLE
+               IF (ISPMD==I-1) CYCLE
                II=II+1
                ITAG=MSGOFF
                CALL MPI_IRECV(FF(1,II), LEN, REAL, IT_SPMD(I), ITAG,
-     .                        MPI_COMM_WORLD, REQ(II), IERR)
+     .                        SPMD_COMM_WORLD, REQ(II), IERR)
             ENDDO
 C
             CALL MPI_WAITALL(NSPMD-1, REQ, STAT, IERR)
@@ -90,7 +91,7 @@ C
          ELSE
             ITAG=MSGOFF
             CALL MPI_ISEND(MFEXTP(AVAR), LEN, REAL, IT_SPMD(PMAIN+1),
-     .                     ITAG, MPI_COMM_WORLD, REQ(1), IERR)
+     .                     ITAG, SPMD_COMM_WORLD, REQ(1), IERR)
 C
             CALL MPI_WAIT(REQ, STAT, IERR)
          ENDIF

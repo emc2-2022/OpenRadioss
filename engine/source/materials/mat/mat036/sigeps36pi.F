@@ -1,40 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS36PI                    source/materials/mat/mat036/sigeps36pi.F
-Chd|-- called by -----------
-Chd|        MULAWP                        source/elements/beam/mulawp.F 
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps36pi   ../engine/source/materials/mat/mat036/sigeps36pi.F
+!||--- called by ------------------------------------------------------
+!||    mulaw_ib     ../engine/source/elements/beam/mulaw_ib.F
+!||--- calls      -----------------------------------------------------
+!||    finter       ../engine/source/tools/curve/finter.F
+!||    vinter       ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS36PI(
      1               NEL     ,KFUNC   ,IPT     ,NPF     ,TF      ,        
      2               NGL     ,TIME    ,TIMESTEP,UPARAM  ,IPM     ,       
-     3               MAT     ,E       ,G       ,OFF     ,DEPSXX  ,      
+     3               IMAT    ,E       ,G       ,OFF     ,DEPSXX  ,      
      4               DEPSXY  ,DEPSXZ  ,SIGOXX  ,SIGOXY  ,SIGOXZ  ,      
      5               SIGNXX  ,SIGNXY  ,SIGNXZ  ,ETSE    ,PLA     ,
-     6               EPSP    ,NVARTMP ,VARTMP)      
+     6               EPSP    ,NVARTMP ,VARTMP  ,SIGY)      
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
@@ -74,14 +74,13 @@ C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: IMAT
       INTEGER NEL,NUPARAM,IPT,NVARTMP
-      INTEGER MAT(NEL),NGL(NEL),NPF(*),IPM(NPROPMI,*),KFUNC(*)
+      INTEGER NGL(NEL),NPF(*),IPM(NPROPMI,*),KFUNC(*)
       my_real
      . TIME,TIMESTEP,UPARAM(*),PLA(NEL),EPSP(NEL),
      .   DEPSXX(NEL),DEPSXY(NEL),DEPSXZ(NEL),
@@ -94,6 +93,7 @@ C-----------------------------------------------
      .    SIGNXX(NEL),SIGNXY(NEL),SIGNXZ(NEL),ETSE(NEL),
      .    OFF(NEL)
       INTEGER, INTENT(INOUT) :: VARTMP(NEL,NVARTMP)
+      my_real, INTENT(INOUT) :: SIGY(NEL)
 C-----------------------------------------------
 C   E X T E R N A L   F u n c t i o n s
 C-----------------------------------------------
@@ -103,13 +103,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
+      INTEGER I,J,J1,J2,N,NINDX,IADBUF,NFUNC,IPLAS,IFAIL,MFUNCE,ISMOOTH
       INTEGER NRATE(NEL),IAD1(NEL),IPOS1(NEL),ILEN1(NEL),
      .        IAD2(NEL),IPOS2(NEL),ILEN2(NEL),JJ(NEL),
-     .        IFUNC(NEL,100),OPTE(NEL),MFUNCE
-      INTEGER I,J,J1,J2,N,NINDX,IADBUF,NFUNC,IPLAS,IFAIL
-      my_real 
-     .        G3(NEL),
-     .        DYDX1(NEL),DYDX2(NEL),RATE(NEL,2),
+     .        IFUNC(NEL,100),OPTE(NEL)
+      my_real :: G3(NEL),DYDX1(NEL),DYDX2(NEL),RATE(NEL,2),
      .        Y1(NEL),Y2(NEL),DR(NEL),YFAC(NEL,2),
      .        PP(NEL),QQ(NEL),FAIL(NEL),SVM(NEL),H(NEL),
      .        EPSMAX(NEL),EPSR1(NEL),EPSR2(NEL),
@@ -117,21 +115,21 @@ C-----------------------------------------------
      .        HK(NEL),NU(NEL),NU1(NEL),EPSF(NEL),YLD(NEL),
      .        AA(NEL),BB(NEL),CC(NEL),EINF(NEL),CE(NEL),
      .        ESCALE(NEL),DYDXE(NEL)
-      my_real
-     .        R,UMR,FAC,GS,SVM1,SHFACT
+      my_real :: R,UMR,FAC,GS,SVM1,SHFACT,EPSP1,EPSP2,RFAC
 C=======================================================================
       IPLAS  = 1                        
       SHFACT = FIVE_OVER_6
       DO I=1,NEL                            
-        NFUNC  = IPM(10,MAT(I))   
+        NFUNC  = IPM(10,IMAT)   
         DO J=1,NFUNC                         
-          IFUNC(I,J)=IPM(10+J,MAT(I))   
+          IFUNC(I,J)=IPM(10+J,IMAT)   
         ENDDO                                
         FAIL(I) = ONE                            
       ENDDO                                  
 C
+      IADBUF = IPM(7,IMAT)-1                
+      IFAIL = 0
       DO I=1,NEL                                
-        IADBUF = IPM(7,MAT(I))-1                
         E(I)   = UPARAM(IADBUF+2)                
         G(I)   = UPARAM(IADBUF+5)                
         G3(I)  = THREE*G(I)                      
@@ -142,7 +140,8 @@ c---------------------
         OPTE(I) = UPARAM(IADBUF+2*NRATE(I) + 23) 
         EINF(I) = UPARAM(IADBUF+2*NRATE(I) + 24) 
         CE(I)   = UPARAM(IADBUF+2*NRATE(I) + 25) 
-        IFAIL   = NINT(UPARAM(2*NRATE(I) + 27))    ! flag for failure
+        IFAIL   = NINT(UPARAM(IADBUF+2*NRATE(I) + 27))    ! flag for failure
+        ISMOOTH = NINT(UPARAM(IADBUF+2*NRATE(I) + 29))    ! strain rate interpolation flag
 c--------------------
         IF (OPTE(I) == 1)THEN                                                     
            IF(PLA(I) > ZERO)THEN             
@@ -163,7 +162,7 @@ c--------------------
 C
 C-------------------
 c       DO I=1,NEL
-C---     Module Cisaillement Transverse
+C--- Transverse shear module
 c         SH  = FIVE_OVER_6*G(I)                        
 c         YMA = TWELVE*E(I)/AL(I)**2              
 c         SH1 = YMA*IYY(I)                       
@@ -172,7 +171,7 @@ C        shf = ishear   ( no shear = 1, shear = 0 = default)
 c         SH0 = (ONE - SHF(I))*SH              
 c         GS1 = SH0*SH1/(SH+SH1) + SHF(I)*SH1 
 c         GS2 = SH0*SH2/(SH+SH2) + SHF(I)*SH2 
-C---     Contraintes Elastiques
+C--- Elastic constraints
 C---      CONTRAINTES PLASTIQUEMENT ADMISSIBLES
       DO I=1,NEL                              
         GS = SHFACT*G(I)                         
@@ -186,18 +185,18 @@ C     Yield Stress
 C-------------------
       JJ(1:NEL) = 1 
       DO I=1,NEL                                     
-        IADBUF = IPM(7,MAT(I))-1
+        IADBUF = IPM(7,IMAT)-1
         DO J=2,NRATE(I)-1                             
           IF (EPSP(I) > UPARAM(IADBUF+6+J)) JJ(I) = J 
         ENDDO                                         
       ENDDO                                           
       DO I=1,NEL                                               
-        IADBUF = IPM(7,MAT(I))-1
-        RATE(I,1)=UPARAM(IADBUF+6+JJ(I))                        
-        YFAC(I,1)=UPARAM(IADBUF+6+NRATE(I)+JJ(I))   
-        IF ( NRATE(I) > 1)THEN         
-          RATE(I,2)=UPARAM(IADBUF+6+JJ(I)+1)                      
-          YFAC(I,2)=UPARAM(IADBUF+6+NRATE(I)+JJ(I)+1)  
+        IADBUF = IPM(7,IMAT)-1
+        RATE(I,1) = UPARAM(IADBUF+6+JJ(I))                        
+        YFAC(I,1) = UPARAM(IADBUF+6+NRATE(I)+JJ(I))   
+        IF (NRATE(I) > 1) THEN         
+          RATE(I,2) = UPARAM(IADBUF+6+JJ(I)+1)                      
+          YFAC(I,2) = UPARAM(IADBUF+6+NRATE(I)+JJ(I)+1)  
         ENDIF           
       ENDDO                                                     
 C
@@ -210,7 +209,7 @@ C
         IPOS1(I) = VARTMP(I,J1)                                         
         IAD1(I)  = NPF(IFUNC(I,J1)) / 2 + 1                    
         ILEN1(I) = NPF(IFUNC(I,J1)+1) / 2 - IAD1(I) - IPOS1(I) 
-        IF ( NRATE(I) > 1)THEN         
+        IF (NRATE(I) > 1) THEN         
           IPOS2(I) = VARTMP(I,J2)                                           
           IAD2(I)  = NPF(IFUNC(I,J2)) / 2 + 1                    
           ILEN2(I) = NPF(IFUNC(I,J2)+1) / 2 - IAD2(I) - IPOS2(I) 
@@ -231,16 +230,25 @@ C
           J1 = JJ(I)                                              
           J2 = J1+1                                               
           Y1(I) = Y1(I)*YFAC(I,1)                                 
-          Y2(I) = Y2(I)*YFAC(I,2)                                 
-          FAC   = (EPSP(I) - RATE(I,1))/(RATE(I,2) - RATE(I,1))   
-          YLD(I)  = FAIL(I)*(Y1(I)    + FAC*(Y2(I)-Y1(I)))        
+          Y2(I) = Y2(I)*YFAC(I,2)
+          IF (ISMOOTH == 2) THEN       ! log_n  based interpolation of strain rate
+            EPSP1 = MAX(RATE(I,1), EM20)
+            EPSP2 = RATE(I,2)
+            FAC   = LOG(MAX(EPSP(I),EM20)/EPSP1) / LOG(EPSP2/EPSP1)   
+          ELSE                         ! linear interpolation of strain rate
+            EPSP1 = RATE(I,1)
+            EPSP2 = RATE(I,2)
+            FAC   = (EPSP(I) - EPSP1) / (EPSP2 - EPSP1)   
+          END IF
+          YLD(I)  = FAIL(I)*(Y1(I) + FAC*(Y2(I)-Y1(I)))        
           YLD(I)  = MAX(YLD(I),EM20)                              
           DYDX1(I)= DYDX1(I)*YFAC(I,1)                            
           DYDX2(I)= DYDX2(I)*YFAC(I,2)                            
           H(I)    = FAIL(I)*(DYDX1(I) + FAC*(DYDX2(I)-DYDX1(I)))  
           VARTMP(I,J1) = IPOS1(I)                                 
           VARTMP(I,J2) = IPOS2(I)
-        END IF                              
+        END IF        
+        SIGY(I) = YLD(I)                      
       ENDDO                                                     
 C-------------------
 C     PROJECTION
@@ -269,12 +277,12 @@ ctmp        ENDDO
 ctmpC       plastic flow                                                
 ctmp        NINDX=0                                                     
 ctmp        DO I=1,NEL                                                 
-ctmp          IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.1.) THEN                
+ctmp          IF(SVM(I)>YLD(I).AND.OFF(I)==1.) THEN                
 ctmp            NINDX = NINDX+1                                         
 ctmp            INDEX(NINDX) = I                                        
 ctmp          ENDIF                                                     
 ctmp        ENDDO                                                       
-ctmpC       def plastiques en contrainte uniaxiale                      
+cTMPC DEF Plastics in uniaxial constraint                      
 ctmp        DO J=1,NINDX                                                
 ctmp          I=INDEX(J)                                                
 ctmp          DPLA_J(I) = (SVM(I)-YLD(I))/(G3(I)+H(I))                  
@@ -303,7 +311,7 @@ ctmp              DPLA_J(I) = ZERO
 ctmp            ENDIF                                                   
 ctmp          ENDDO                                                     
 ctmp        ENDDO                                                       
-ctmpC       Contraintes plastiquement admissibles                       
+cTMPC plastically eligible stresses                       
 ctmp        DO J=1,NINDX                                                
 ctmp          I=INDEX(J)                                                
 ctmp          PLA(I) = PLA(I) + DPLA_I(I)                               
@@ -319,14 +327,15 @@ C---
           IF (PLA(I) > EPSMAX(I) .AND. OFF(I)==ONE) THEN
             OFF(I) = FOUR_OVER_5
 #include "lockon.inc"
-            WRITE(IOUT, 1000) NGL(I),PLA(I),EPSP(I)
+            WRITE(IOUT, 1000) NGL(I),IPT,PLA(I),EPSP(I)
+            WRITE(ISTDO,1000) NGL(I),IPT,PLA(I),EPSP(I)
 #include "lockoff.inc"
           END IF
         ENDDO
       END IF                                         
 c---------------------------------------------------------
- 1000 FORMAT(5X,'FAILURE BEAM ELEMENT NUMBER ',I10,
-     .          ' PLASTIC STRAIN =',1PE16.9,' STRAIN RATE =',1PE16.9)
+ 1000 FORMAT(5X,'FAILURE BEAM ELEMENT NUMBER',I3,',  INTEGRATION POINT NUMBER',I3,
+     .          ',  PLASTIC STRAIN = ',1PE16.9,',  STRAIN RATE = ',1PE16.9)
 c---------------------------------------------------------
       RETURN
       END

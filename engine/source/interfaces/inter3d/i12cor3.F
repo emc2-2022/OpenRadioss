@@ -1,37 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I12COR3                       source/interfaces/inter3d/i12cor3.F
-Chd|-- called by -----------
-Chd|        INTTI12A                      source/interfaces/interf/intti12.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE I12COR3(XS  ,XM  ,IRECT,MSR ,IRTL ,
-     1                   ILEV,X   ,TETS ,IX1 ,IX2  ,
-     2                   IX3 ,IX4 ,X1   ,X2  ,X3   ,
-     3                   X4  ,XI  ,Y1   ,Y2  ,Y3   ,
-     4                   Y4  ,YI  ,Z1   ,Z2  ,Z3   ,
-     5                   Z4  ,ZI  ,XFACE)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i12cor3    ../engine/source/interfaces/inter3d/i12cor3.F
+!||--- called by ------------------------------------------------------
+!||    intti12a   ../engine/source/interfaces/interf/intti12.F
+!||====================================================================
+      SUBROUTINE I12COR3(
+     1   XS,      XM,      IRECT,   MSR,
+     2   IRTL,    ILEV,    X,       TETS,
+     3   IX1,     IX2,     IX3,     IX4,
+     4   X1,      X2,      X3,      X4,
+     5   XI,      Y1,      Y2,      Y3,
+     6   Y4,      YI,      Z1,      Z2,
+     7   Z3,      Z4,      ZI,      XFACE,
+     8   LFT,     LLT,     NFT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -43,6 +45,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: LFT
+      INTEGER, INTENT(INOUT) :: LLT
+      INTEGER, INTENT(INOUT) :: NFT
       INTEGER IRECT(4,*), MSR(*), IRTL(*),ILEV
       my_real
      .   XS(3,*),XM(3,*),X(3,*),TETS(*)
@@ -54,22 +59,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect07_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IL, IG, L, NN
+      INTEGER I, IL, L, NN
       my_real
      .   DEUPI,TETMIN,TETMAX,RMIN
 C-----------------------------------------------
-!      EQUIVALENCE (IX1,IV(1,1)) ,(IX2,IV(1,2)) ,(IX3,IV(1,3))
-!      EQUIVALENCE (IX4,IV(1,4))
-!      EQUIVALENCE (X1,BV(1,1)) ,(Y1,BV(1,2)) ,(Z1,BV(1,3))
-!      EQUIVALENCE (X2,BV(1,4)) ,(Y2,BV(1,5)) ,(Z2,BV(1,6))
-!      EQUIVALENCE (X3,BV(1,7)) ,(Y3,BV(1,8)) ,(Z3,BV(1,9))
-!      EQUIVALENCE (X4,BV(1,10)),(Y4,BV(1,11)),(Z4,BV(1,12))
-!      EQUIVALENCE (XI,BV(1,13)),(YI,BV(1,14)),(ZI,BV(1,15))
-!      EQUIVALENCE (XFACE,BV(1,29))
 
       DEUPI=TWO*PI
 
@@ -107,31 +103,31 @@ C-----------------------------------------------
         Z4(I)=XM(3,NN)
       ENDDO
       
-      IF(ILEV.EQ.1)THEN
+      IF(ILEV==1)THEN
       !--------------------------------------------------!
       !   CORRECTION DES TET SI A CHEVAL AXE Y NEGATIF   !
       !--------------------------------------------------!
         DO I=LFT,LLT
           TETMIN=MIN(Z1(I),Z2(I),Z3(I),Z4(I),ZI(I))
           TETMAX=MAX(Z1(I),Z2(I),Z3(I),Z4(I),ZI(I))
-          IF(TETMAX-TETMIN .GE. PI)THEN
-            IF(Z1(I).LT.ZERO)Z1(I)=Z1(I)+DEUPI
-            IF(Z2(I).LT.ZERO)Z2(I)=Z2(I)+DEUPI
-            IF(Z3(I).LT.ZERO)Z3(I)=Z3(I)+DEUPI
-            IF(Z4(I).LT.ZERO)Z4(I)=Z4(I)+DEUPI
-            IF(ZI(I).LT.ZERO)ZI(I)=ZI(I)+DEUPI
+          IF(TETMAX-TETMIN >= PI)THEN
+            IF(Z1(I)<ZERO)Z1(I)=Z1(I)+DEUPI
+            IF(Z2(I)<ZERO)Z2(I)=Z2(I)+DEUPI
+            IF(Z3(I)<ZERO)Z3(I)=Z3(I)+DEUPI
+            IF(Z4(I)<ZERO)Z4(I)=Z4(I)+DEUPI
+            IF(ZI(I)<ZERO)ZI(I)=ZI(I)+DEUPI
           ENDIF
-        ENDDO	
+        ENDDO
 
         !--------------------------------------------------!
         !   CAS D'UNE FACETTE CENTRALE                     !
         !--------------------------------------------------!
         DO I=LFT,LLT
           RMIN=MIN(Y1(I),Y2(I),Y3(I),Y4(I))
-          IF(YI(I).LT.RMIN)THEN
+          IF(YI(I)<RMIN)THEN
             TETMIN=MIN(Z1(I),Z2(I),Z3(I),Z4(I))
             TETMAX=MAX(Z1(I),Z2(I),Z3(I),Z4(I))
-            IF(TETMAX-TETMIN .GE. PI)THEN
+            IF(TETMAX-TETMIN >= PI)THEN
               IL=I+NFT
               L=IRTL(IL)
               NN=MSR(IRECT(1,L))
@@ -161,7 +157,7 @@ C-----------------------------------------------
             ENDIF          
           ENDIF
         ENDDO !I=LFT,LLT
-      ENDIF !(ILEV.EQ.1)
+      ENDIF !(ILEV==1)
 
       RETURN
       END

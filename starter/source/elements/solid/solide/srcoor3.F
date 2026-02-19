@@ -1,40 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SRCOOR3                       source/elements/solid/solide/srcoor3.F
-Chd|-- called by -----------
-Chd|        INISOLDIST                    source/initial_conditions/inivol/inisoldist.F
-Chd|        MULTIFLUID_INIT3              source/multifluid/multifluid_init3.F
-Chd|        S8CINIT3                      source/elements/thickshell/solide8c/s8cinit3.F
-Chd|        S8ZINIT3                      source/elements/solid/solide8z/s8zinit3.F
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|        SUINIT3                       source/elements/elbuf_init/suinit3.F
-Chd|-- calls ---------------
-Chd|        MOD_CLOSE                     source/elements/solid/solide/mod_close.F
-Chd|        SORTHO3                       source/elements/solid/solide/sortho3.F
-Chd|        SREPISO3                      source/elements/solid/solide/srepiso3.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    srcoor3            ../starter/source/elements/solid/solide/srcoor3.F
+!||--- called by ------------------------------------------------------
+!||    inisoldist         ../starter/source/initial_conditions/inivol/inisoldist.F
+!||    multifluid_init3   ../starter/source/multifluid/multifluid_init3.F
+!||    s8cinit3           ../starter/source/elements/thickshell/solide8c/s8cinit3.F
+!||    s8zinit3           ../starter/source/elements/solid/solide8z/s8zinit3.F
+!||    sinit3             ../starter/source/elements/solid/solide/sinit3.F
+!||    suinit3            ../starter/source/elements/elbuf_init/suinit3.F
+!||--- calls      -----------------------------------------------------
+!||    checkvolume_8n     ../starter/source/elements/solid/solide/checksvolume.F
+!||    mod_close          ../starter/source/elements/solid/solide/mod_close.F
+!||    sortho3            ../starter/source/elements/solid/solide/sortho3.F
+!||    srepiso3           ../starter/source/elements/solid/solide/srepiso3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SRCOOR3(
      .         X    ,XREFS,IXS  ,GEO  ,MXT  ,NGEO ,NGL  ,JHBE  ,
      .         IX1  ,IX2  ,IX3  ,IX4  ,IX5  ,IX6  ,IX7  ,IX8 ,
@@ -43,18 +45,16 @@ Chd|====================================================================
      .         Z1   ,Z2   ,Z3   ,Z4   ,Z5   ,Z6   ,Z7   ,Z8  ,   
      .         RX   ,RY   ,RZ   ,SX   ,SY   ,SZ   ,TX   ,TY   ,TZ   ,
      .         E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y  ,E3Z  ,
-     .         F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0, TEMP,
+     .         F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0, TEMP,NINTEMP,
      .         XD1  ,XD2  ,XD3  ,XD4  ,XD5  ,XD6  ,XD7  ,XD8   ,
      .         YD1  ,YD2  ,YD3  ,YD4  ,YD5  ,YD6  ,YD7  ,YD8   ,
      .         ZD1  ,ZD2  ,ZD3  ,ZD4  ,ZD5  ,ZD6  ,ZD7  ,ZD8   )
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -63,7 +63,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "param_c.inc"
 #include      "scr03_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
@@ -71,6 +70,7 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXS(NIXS,*),MXT(*),NGL(*),NGEO(*),JHBE,
      .   IX1(*),IX2(*),IX3(*),IX4(*),IX5(*),IX6(*),IX7(*),IX8(*)        
+      INTEGER ,INTENT(IN) :: NINTEMP
 C     REAL
       my_real
      .   X(3,*),GEO(*),
@@ -91,7 +91,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J
+      INTEGER I
       DOUBLE PRECISION 
      .   XL,YL,ZL
 C-----------------------------------------------
@@ -100,7 +100,7 @@ C-----------------------------------------------
       my_real
      .    CHECKVOLUME_8N
 C=======================================================================
-C     CONNECTIVITES ET NUMERO DE MATERIAU ET PID
+C     CONNECTIVITIES AND MATERIAL NUMBER AND PID
 C--------------------------------------------------
       DO I=LFT,LLT
         MXT(I)=IXS(1,I)
@@ -272,12 +272,12 @@ C
           ZD8(I) = Z8(I)
         ENDDO
 C
-       IF(JCLOS.NE.0) CALL MOD_CLOSE(GEO,NGEO,
+       IF(JCLOS/=0) CALL MOD_CLOSE(GEO,NGEO,
      .   X1, X2, X3, X4, X5, X6, X7, X8,
      .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
      .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8)
 C
-C     Repere isoparametrique conforme manuel pour les briques
+C     Isoparametric reference frame according to the manual for bricks
       CALL SREPISO3(
      .       X1, X2, X3, X4, X5, X6, X7, X8,
      .       Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
@@ -285,7 +285,7 @@ C     Repere isoparametrique conforme manuel pour les briques
      .       RX, RY, RZ, SX, SY, SZ, TX, TY,
      .       TZ ,F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z   )
 C-----------
-C     REPERE CONVECTE
+C     convected frame
 C-----------
       IF (JHBE == 14 .OR. JHBE == 24) THEN
 C       HA8 / HEPH
@@ -381,7 +381,7 @@ C-----------
         ENDDO
       END IF !(JHBE==14 .OR. JHBE==24 .OR. JHBE==17 ) THEN
 C
-        IF(JTHE < 0 ) THEN             
+        IF (JTHE < 0 .or. NINTEMP > 0) THEN             
            IF(NINTEMP > 0 ) THEN  
             DO I= LFT,LLT
               IF(TEMP(IX1(I))== ZERO) TEMP(IX1(I)) = TEMP0(I)

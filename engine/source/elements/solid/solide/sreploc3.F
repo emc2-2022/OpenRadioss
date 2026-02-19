@@ -1,42 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SREPLOC3                      source/elements/solid/solide/sreploc3.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        S10FORC3                      source/elements/solid/solide10/s10forc3.F
-Chd|        S10KE3                        source/elements/solid/solide10/s10ke3.F
-Chd|        S20KE3                        source/elements/solid/solide20/s20ke3.F
-Chd|        S4FORC3                       source/elements/solid/solide4/s4forc3.F
-Chd|        S4KE3                         source/elements/solid/solide4/s4ke3.F
-Chd|        SCOOR3                        source/elements/solid/solide/scoor3.F
-Chd|        SCOOR3_FVM                    source/ale/alefvm/scoor3_fvm.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sreploc3        ../engine/source/elements/solid/solide/sreploc3.F
+!||--- called by ------------------------------------------------------
+!||    mulaw           ../engine/source/materials/mat_share/mulaw.F90
+!||    s10forc3        ../engine/source/elements/solid/solide10/s10forc3.F
+!||    s10ke3          ../engine/source/elements/solid/solide10/s10ke3.F
+!||    s20ke3          ../engine/source/elements/solid/solide20/s20ke3.F
+!||    s4forc3         ../engine/source/elements/solid/solide4/s4forc3.F
+!||    s4ke3           ../engine/source/elements/solid/solide4/s4ke3.F
+!||    scoor3          ../engine/source/elements/solid/solide/scoor3.F
+!||    scoor3_fvm      ../engine/source/ale/alefvm/scoor3_fvm.F
+!||    usermat_solid   ../engine/source/materials/mat_share/usermat_solid.F
+!||====================================================================
       SUBROUTINE SREPLOC3(
-     .   RX , RY , RZ,  SX,  SY , SZ , TX , TY , TZ  ,
-     .   E1X, E2X, E3X, E1Y, E2Y, E3Y, E1Z, E2Z, E3Z )
+     1   RX,      RY,      RZ,      SX,
+     2   SY,      SZ,      TX,      TY,
+     3   TZ,      E1X,     E2X,     E3X,
+     4   E1Y,     E2Y,     E3Y,     E1Z,
+     5   E2Z,     E3Z,     NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,6 +50,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NEL
 C     REAL
       my_real, INTENT(IN),  DIMENSION(MVSIZ) ::
      .   RX, RY, RZ, SX, SY, SZ, TX, TY, TZ
@@ -56,7 +59,6 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -65,10 +67,10 @@ C     REAL
       my_real
      .  SUMA
 C=======================================================================
-C     Orthogonalisation du repere
+C     Orthogonalization of the reference frame
 C       E1=R, E3=R^S, E2=E3^E1                            
 C--------------------------------
-      DO I=LFT,LLT                                      
+      DO I=1,NEL                                      
         SUMA = SQRT(RX(I)**2+RY(I)**2+RZ(I)**2)          
         IF (SUMA > ZERO) SUMA=ONE/SUMA                      
         E1X(I) = RX(I)*SUMA                              

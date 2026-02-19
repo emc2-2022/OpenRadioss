@@ -1,47 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-C|============================================================
-C|  CBALYDEF                          /coqueba/cbalydef.F
-C|------------------------------------------------------------
-C|-- appelee par -----------
-C|         CBAFORC3                         /coqueba/cbaforc3.F
-C|============================================================
-C|---
-Chd|====================================================================
-Chd|  CBADEF_PLY                    source/properties/composite_options/stack/cbadef_ply.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbadef_ply   ../engine/source/properties/composite_options/stack/cbadef_ply.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3     ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBADEF_PLY(JFT,JLT,NG, NPT,NPLAT,IPLAT,VQ,
      1                  VXYZ,VETA,VKSI,BM,BC,TC,DT1C,
      2                  EXX, EYY , EYZ, EZX)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C       CALCUL DES DEFORMATIONS GENERALISEES AUX POINTS DE GAUSS ET [B]
+C       CALCULATION OF GENERALIZED STRAINS AT GAUSS POINTS AND [B]
 C       ENTREES :  NEL,NG,VQN,VXYZ,VASM,VASTN
 C       SORTIES : VDEF,BM (MEMBRANE),BMF(COUPLAGE MEM-FLEXION),BF (FLEXION),BC(C.T)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C-----------------------------------------------
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -67,7 +58,7 @@ C      PARAMETER (NPG = 4)
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER PT,PT00,PT0,I,J,EP,IUN,NG1,K,NPLAT0
+      INTEGER I, J, EP, IUN, NPLAT0
       MY_REAL 
      .   THK,DETJ,DET,
      .   TFN(3,2),BCX,BCY,
@@ -83,7 +74,6 @@ C     INITIALISATION
 C--------------------------
       DATA IUN/1/
 C      
-!!       NPLAT0 = JLT
         NPLAT0 = NPLAT
        DO J= 1, NPT
 #include "vectorize.inc"
@@ -209,7 +199,7 @@ C---------DEF MEMBRANE------
             EXX(EP,J)= EXX(EP,J)+ C1*VT1
             EYY(EP,J)= EYY(EP,J)+ C2*VT2
 C---------DEF DE FLEXION ASSOCIEE AUX U,V,W ([BMF]=2H[B0]+[B01])------
-C----------SEULEMENT LA PARTIE DE [B01]---------
+C----------ONLY THE [B01] PART---------
 c         VDEF(6,EP)= VDEF(6,EP)+ BC1*VT1
 c         VDEF(7,EP)= VDEF(7,EP)+ BC2*VT2
 c         VDEF(8,EP)= VDEF(8,EP)+ BC1*VT2+BC2*VT1
@@ -260,13 +250,11 @@ C
        RETURN
        END
 C
-C ----nouvelle routine ---
-Chd|====================================================================
-Chd|  CBADEFSH_PLY                  source/properties/composite_options/stack/cbadef_ply.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbadefsh_ply   ../engine/source/properties/composite_options/stack/cbadef_ply.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3       ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
         SUBROUTINE CBADEFSH_PLY(JFT,JLT,NPT ,NPLAT, IPLAT,X13 ,X24 ,
      .                        Y13 ,Y24, VXYZ,DT1C, EXY )
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8

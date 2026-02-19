@@ -1,33 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I22WETSURF                    source/interfaces/int22/i22wetsurf.F
-Chd|-- called by -----------
-Chd|        I22MAINF                      source/interfaces/int22/i22mainf.F
-Chd|-- calls ---------------
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i22wetsurf                 ../engine/source/interfaces/int22/i22wetsurf.F
+!||--- called by ------------------------------------------------------
+!||    i22mainf                   ../engine/source/interfaces/int22/i22mainf.F
+!||--- calls      -----------------------------------------------------
+!||    getprojectedfacetype       ../engine/source/interfaces/int22/i22wetsurf.F
+!||    polygonalclipping          ../engine/source/interfaces/int22/i22clip_tools.F
+!||    setcounterclockwisepolyg   ../engine/source/interfaces/int22/i22clip_tools.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod                ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod             ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod                 ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
       SUBROUTINE I22WETSURF(
      1                  JLT    ,CAND_B ,CAND_E  ,CB_LOC ,CE_LOC ,
      2                  X1     ,X2     ,X3      ,X4     ,Y1     ,
@@ -48,32 +53,25 @@ C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE I22BUFBRIC_MOD
-      USE I22TRI_MOD      
+      USE I22TRI_MOD
+      use element_mod , only : nixs      
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 #include      "inter22.inc"
-#include      "i22edges.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -116,12 +114,12 @@ C      INTEGER :: TAG_EL(NBCUT_MAX)
       INTEGER :: HULL_PT, HULL_IDX(24)
       INTEGER :: NP_INTER, NP_LAG, NP_SURF, NODE_NUM,brickID, ListP(4), NBCUT_ADD
       my_real :: NODE_XY(2,24), NODE_XYZ(3,24), PS, MARGE
-      my_real :: DIST_PCUT(NBCUT_MAX, 4,I_STOK)  !2 PCUT, 4 POINTS, NCANDE couples
+      my_real :: DIST_PCUT(NBCUT_MAX, 4,I_STOK)  !2 pcuts, 4 points, ncande couples
       my_real :: DMIN
       my_real :: NORMAL(3), BASIS(3), PH(3,NBCUT_MAX,4),P(3,4),  A,B,C,D , A2,B2,C2 ,A2B2, L2, DIST(4), PPh(3,4)
       my_real :: distance(4), edge(4), Area_tria(4)
       my_real :: SH(3,NBCUT_MAX,8), S(3,8)
-      my_real :: SCUT_Pts(3,6) !Scut points
+      my_real :: SCUT_Pts(3,6) !Scut Points
       my_real :: K1(2),K2(2),K3(2),K4(2)
       my_real :: POINT(3),RATIO,COG3,P_Grav(3,NBCUT_MAX,MVSIZ),ss2(4), s2, Sel(MVSIZ)
       my_real
@@ -139,7 +137,7 @@ C      INTEGER :: TAG_EL(NBCUT_MAX)
      .     NNZ1(MVSIZ), NNZ2(MVSIZ), NNZ3(MVSIZ), NNZ4(MVSIZ)
       my_real
      .     VAL1,VAL2,VAL3, V1(3), V2(3), V3(3), M(3,3,NBCUT_MAX),VEC(3), ! basis vector for each intersectionp plane
-     .     POSj, POS, VAL,        !position sur le segment : produit scalaire non normalise
+     .     POSj, POS, VAL,        !position on the segment: unnormalized dot product
      .     InterP(2), WET_RATIO(0:4), Z(3), Stria(4),  Dsum, NumGrav, Pgrav(3),
      .     Cumul_VAL1, Cumul_VAL2
 
@@ -161,7 +159,7 @@ C      INTEGER :: TAG_EL(NBCUT_MAX)
       
 !      INTEGER IDX(7,6)
       INTEGER IAD1,ILAG0,ISCUT0,ILAGk,ISCUTk,IIB,NTRIA,
-     .        JPOS(6) !index des poitsions non nulles sur IADD(id_lagrangian_edge,:)
+     .        JPOS(6) !index of nonzero positions on iadd(id_lagrangian_edge,:)
     
       TYPE(POLYGON) :: PolySCUT, PolyTria(4), POLYresult
      
@@ -270,7 +268,7 @@ C  REFERENCE POINT : QUADRAGLE CENTROID OR TRIA THIRD NODE
 C--------------------------------------------------------
 
        DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
          NP_RECT(I) = 4
          X0(I) = FOURTH*(X1(I)+X2(I)+X3(I)+X4(I))
          Y0(I) = FOURTH*(Y1(I)+Y2(I)+Y3(I)+Y4(I))
@@ -283,7 +281,7 @@ C--------------------------------------------------------
         ENDIF
        ENDDO
 C--------------------------------------------------------
-C  CALCUL DES NORMALES SUR LES FACETTES LAGRANGIENNE
+C  calculation of normals on lagrangian facets
 C--------------------------------------------------------
 C
        DO I=1,JLT
@@ -406,8 +404,8 @@ C--------------------------------------------------------
        !SUBROUTINE OUTPUT
 C--------------------------------------------------------
 c      DO I=1,JLT
-c        IF(IX3(I).NE.IX4(I))THEN
-c          !moyenne issue des 4 triangles
+c        IF(IX3(I)/=IX4(I))THEN
+c          ! Average from the 4 triangles
 c          NX1(I)  = FOURTH*(NNX1(I)+NNX2(I)+NNX3(I)+NNX4(I))
 c          NY1(I)  = FOURTH*(NNY1(I)+NNY2(I)+NNY3(I)+NNY4(I))          
 c          NZ1(I)  = FOURTH*(NNZ1(I)+NNZ2(I)+NNZ3(I)+NNZ4(I))          
@@ -426,12 +424,12 @@ c      ENDDO
 !          write (*,FMT='(A,I10)')              "    N_CAND_E       =",NCANDE           
 !          write (*,FMT='(A,I10)')              "    #COUPLES       =",I_STOK        
 !          write (*,FMT='(A,I10)')              "    NB             =",NB     
-!        do I=1, JLT ! en bouclant sur NB il faut utiliser les tableaux globaux (moins performant, mais cest pour le post/debug)
+!        Do I = 1, JLT!By curling on NB you must use global tables (less efficient, but it is for post/debug)
 !          IB  = CB_LOC(I)
 !          IFT = BRICK_LIST(NIN,IB)%Seg_add_LFT
 !          ILT = BRICK_LIST(NIN,IB)%Seg_add_LLT
 !          ILT = MIN(ILT, JLT) !boucle MVSIZ
-!!          IF(ILT<IFT)CYCLE  !on boucle ici sur les brique pas sur les candidats ne devrait pas arriver
+!if(ilt<ift)cycle  !looping here on bricks not on candidates, should not happen
 !          
 !          !IFT : [1,NBRIC] |-> 1st    :si =I_stok alors pas candidate
 !          !ILT : [1,NBRIC] |-> last   :si =0      alors idem
@@ -458,7 +456,7 @@ c      ENDDO
 !                         +  \                                 +
 !                         +   \                                +
 !                         +    \                               +             8 real cuts from polyedra
-!                         +     \ ICUT=1                       +            +6 fictious cuts from closed surface hypothesis
+!                         +     \ ICUT=1                       +            +6 fictitious cuts from closed surface hypothesis
 !                         +      \                             +
 !                         +       \                            +
 !                         +        \                           +
@@ -476,7 +474,7 @@ c      ENDDO
 
       DO I=1,JLT 
 C--------------------------------------------------------
-       !PROJECTION DES NOEUDS SUR LE PLAN DE COUPE
+       !projection of nodes onto the cutting plane
 C--------------------------------------------------------      
         IB                      = CB_LOC(I)                                       
         IFT                     = BRICK_LIST(NIN,IB)%Seg_add_LFT                                                  
@@ -495,7 +493,7 @@ C--------------------------------------------------------
           NORMAL(1:3)           =  BRICK_LIST(NIN,IB)%PCUT(ICUT)%N(1:3)                                        
           BASIS(1:3)            =  BRICK_LIST(NIN,IB)%PCUT(ICUT)%B(1:3)                                      
           N_SCUT(1:3,ICUT,I)    =  NORMAL(1:3)                                                                
-          !(/a,b,c,d/) = (/ NORMAL(1:3), -NORMAL(1:3)*BASIS(1:3) /)  !Equation du plan de section (Pcut)   
+          !(/a, b, c, d/) = (/normal (1: 3), -normal (1: 3)*Basis (1: 3)/)! Equation of the section plan (PCUT)   
           a                     = NORMAL(1)                                                                                   
           b                     = NORMAL(2)                                                                                   
           c                     = NORMAL(3)                                                                                   
@@ -532,13 +530,13 @@ C--------------------------------------------------------
         DO ICUT = 8+1,8+6
           J                     =  ICUT - 8
           NP                    = BRICK_LIST(NIN,IB)%PCUT(ICUT)%NP 
-          IF(NP.LE.0)CYCLE 
+          IF(NP<=0)CYCLE 
           NBCUT_ADD             =  NBCUT_ADD + 1
           delta(1:4,ICUT,I)     =  ZERO
           NORMAL(1:3)           =  BRICK_LIST(NIN,IB)%PCUT(ICUT)%N(1:3)                                        
           BASIS(1:3)            =  BRICK_LIST(NIN,IB)%PCUT(ICUT)%B(1:3)                                      
           N_SCUT(1:3,ICUT,I)    =  NORMAL(1:3)                                                                  
-          !(/a,b,c,d/) = (/ NORMAL(1:3), -NORMAL(1:3)*BASIS(1:3) /)  !Equation du plan de section (Pcut)   
+          !(/a, b, c, d/) = (/normal (1: 3), -normal (1: 3)*Basis (1: 3)/)! Equation of the section plan (PCUT)   
           a                     = NORMAL(1)                                                                 
           b                     = NORMAL(2)                                                                 
           c                     = NORMAL(3)                                                                 
@@ -578,7 +576,7 @@ C          ICUT                  = 1
 C          VAL                   =  DIST_PCUT(ICUT,J,I)
 C          !loop on cut planes in current cut cell IB = CB_LOC(I)
 C          DO ICUT=1,NBCUT                                                                                   
-C            IF(DIST_PCUT(ICUT,J,I) .LE. VAL)THEN                                                           
+C            IF(DIST_PCUT(ICUT,J,I) <= VAL)THEN                                                           
 C              TAG_NOD(J, ICUT)  = 1                                                                       
 C              VAL               =   DIST_PCUT(ICUT,J,I)                                                                
 C            ENDIF                                                                                            
@@ -592,7 +590,7 @@ C            ICUT                = 8+1
 C            VAL                 =  DIST_PCUT(ICUT,J,I)
 C            !loop on cut planes in current cut cell IB = CB_LOC(I)
 C            DO ICUT=8+1,8+NBCUT_ADD
-C              IF(DIST_PCUT(ICUT,J,I) .LE. VAL)THEN                                                           
+C              IF(DIST_PCUT(ICUT,J,I) <= VAL)THEN                                                           
 C                TAG_NOD(J, ICUT)= 1                                                                       
 C                VAL             =   DIST_PCUT(ICUT,J,I)                                                                
 C              ENDIF                                                                                           
@@ -600,27 +598,27 @@ C            ENDDO!next ICUT
 C          ENDDO !next J                            
 C        ENDIF!(NBCUT_ADD > 0)
 
-        !TAG DES ELEMENTS LAGRANGIENS                                                                           
+        !tag of lagrangian elements
 C        TAG_EL(1:NBCUT_MAX) = 0  
 C        IF(NBCUT>0)THEN                                                                                  
 C          DO ICUT=1,NBCUT                                                                                                                                                     
 C            TAG_EL(ICUT) = SUM(TAG_NOD(:,ICUT)) 
 C               if(IBUG22_Swet==-1 .AND. INT22>0 )write (*,FMT='(A,I10,A)')   "   |---COUPLE:",I,"-----------|"             
-C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT.LE.1)print *, "   TAG_EL(ICUT=1)=" ,TAG_EL(1)
-C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT.LE.2)print *, "   TAG_EL(ICUT=2)=" ,TAG_EL(2)     
-C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT.LE.3)print *, "   TAG_EL(ICUT=3)=" ,TAG_EL(3)
-C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT.LE.4)print *, "   TAG_EL(ICUT=4)=" ,TAG_EL(4)
-C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT.LE.5)print *, "   TAG_EL(ICUT=5)=" ,TAG_EL(5)
-C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT.LE.6)print *, "   TAG_EL(ICUT=6)=" ,TAG_EL(6)
-C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT.LE.7)print *, "   TAG_EL(ICUT=7)=" ,TAG_EL(7)
-C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT.LE.8)print *, "   TAG_EL(ICUT=8)=" ,TAG_EL(8)                                                                                          
+C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT<=1)print *, "   TAG_EL(ICUT=1)=" ,TAG_EL(1)
+C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT<=2)print *, "   TAG_EL(ICUT=2)=" ,TAG_EL(2)     
+C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT<=3)print *, "   TAG_EL(ICUT=3)=" ,TAG_EL(3)
+C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT<=4)print *, "   TAG_EL(ICUT=4)=" ,TAG_EL(4)
+C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT<=5)print *, "   TAG_EL(ICUT=5)=" ,TAG_EL(5)
+C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT<=6)print *, "   TAG_EL(ICUT=6)=" ,TAG_EL(6)
+C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT<=7)print *, "   TAG_EL(ICUT=7)=" ,TAG_EL(7)
+C               if(IBUG22_Swet==-1 .AND. INT22>0 .AND. NBCUT<=8)print *, "   TAG_EL(ICUT=8)=" ,TAG_EL(8)                                                                                          
 C          ENDDO!next ICUT 
 C       ENDIF
 
                                                                              
        
 C--------------------------------------------------------
-       !INJECTION DANS LESPACE PROPRE DU PLAN DE PROJECTION (IE PLAN DINTERSECTION) 
+       !injection into the proper space of the projection plane (i.e. intersection plane)
 C-------------------------------------------------------- 
 
         !DIM = 2
@@ -644,7 +642,7 @@ C          if(TAG_EL(ICUT)==0)CYCLE
             V1               = (/ ZERO,ONE,ZERO /)
             V2               = (/ ZERO,ZERO,ONE /) 
           ELSE
-           IF(a.NE.ZERO)THEN
+           IF(a/=ZERO)THEN
              V1              = (/ -b, a   , ZERO /)
              V2              = (/ -c, ZERO, a    /)       
            ELSE
@@ -663,7 +661,7 @@ C          if(TAG_EL(ICUT)==0)CYCLE
           V3                 = NORMAL / SQRT(SUM(NORMAL*NORMAL)) 
           !BASIS SWITCH
           !third direction is Pcut normal
-          !matrice de changement de base
+          !change of basis matrix
           M(1:3,1,ICUT)      = V1
           M(1:3,2,ICUT)      = V2
           M(1:3,3,ICUT)      = V3
@@ -673,20 +671,24 @@ C          if(TAG_EL(ICUT)==0)CYCLE
             write (*,FMT='(A,F20.10,A1,F20.10,A1,F20.10)')"     V2=", V2(1),",",V2(2),",",V2(3)
             write (*,FMT='(A,F20.10,A1,F20.10,A1,F20.10)')"     V3=", V3(1),",",V3(2),",",V3(3)        
           endif  
-          !nouvelles coordonnees dans le plan de projection (dim=2)
-          !Inutile dinverser la matrice car elle est orthogonale
+          !new coordinates in the projection plane (dim=2)
+          !no need to invert the matrix because it is orthogonal
           DO J=1,4
             VAL1             = M(1,1,ICUT)*Ph(1,ICUT,J) + M(2,1,ICUT)*Ph(2,ICUT,J) + M(3,1,ICUT)*Ph(3,ICUT,J)
             VAL2             = M(1,2,ICUT)*Ph(1,ICUT,J) + M(2,2,ICUT)*Ph(2,ICUT,J) + M(3,2,ICUT)*Ph(3,ICUT,J)
             VAL3             = ZERO 
-            Ph(1:3,ICUT,J)   = (/VAL1,VAL2,VAL3/)
+            Ph(1,ICUT,J)   = VAL1
+            Ph(2,ICUT,J)   = VAL2
+            Ph(3,ICUT,J)   = VAL3
           ENDDO
           NP                 = BRICK_LIST(NIN,IB)%PCUT(ICUT)%NP
           DO J=1,NP
             VAL1             = M(1,1,ICUT)*Sh(1,ICUT,J) + M(2,1,ICUT)*Sh(2,ICUT,J) + M(3,1,ICUT)*Sh(3,ICUT,J)
             VAL2             = M(1,2,ICUT)*Sh(1,ICUT,J) + M(2,2,ICUT)*Sh(2,ICUT,J) + M(3,2,ICUT)*Sh(3,ICUT,J)
             VAL3             = ZERO 
-            Sh(1:3,ICUT,J)   = (/VAL1,VAL2,VAL3/)
+            SH(1,ICUT,J)     = VAL1
+            SH(2,ICUT,J)     = VAL2
+            Sh(3,ICUT,J)     = VAL3
           ENDDO!next NP
         ENDDO!next ICUT
 
@@ -695,7 +697,7 @@ C          if(TAG_EL(ICUT)==0)CYCLE
           DO ICUT=8+1,8+6
             J                  =  ICUT - 8
             NP                 = BRICK_LIST(NIN,IB)%PCUT(ICUT)%NP         
-            IF(NP.LE.0)CYCLE 
+            IF(NP<=0)CYCLE 
 C            if(TAG_EL(ICUT)==0)CYCLE
             IB                 = CB_LOC(I)
             NORMAL(1:3)        = BRICK_LIST(NIN,IB)%PCUT(ICUT)%N(1:3) 
@@ -712,7 +714,7 @@ C            if(TAG_EL(ICUT)==0)CYCLE
               V1               = (/ ZERO,ONE,ZERO /)
               V2               = (/ ZERO,ZERO,ONE /) 
             ELSE
-             IF(a.NE.ZERO)THEN
+             IF(a/=ZERO)THEN
                V1              = (/ -b, a   , ZERO /)
                V2              = (/ -c, ZERO, a    /)       
              ELSE
@@ -731,7 +733,7 @@ C            if(TAG_EL(ICUT)==0)CYCLE
             V3                 = NORMAL / SQRT(SUM(NORMAL*NORMAL)) 
             !BASIS SWITCH
             !third direction is Pcut normal
-            !matrice de changement de base
+            !change of basis matrix
             M(1:3,1,ICUT)      = V1
             M(1:3,2,ICUT)      = V2
             M(1:3,3,ICUT)      = V3
@@ -741,8 +743,8 @@ C            if(TAG_EL(ICUT)==0)CYCLE
               write (*,FMT='(A,F20.10,A1,F20.10,A1,F20.10)')"     V2=", V2(1),",",V2(2),",",V2(3)
               write (*,FMT='(A,F20.10,A1,F20.10,A1,F20.10)')"     V3=", V3(1),",",V3(2),",",V3(3)        
             endif  
-            !nouvelles coordonnees dans le plan de projection (dim=2)
-            !Inutile dinverser la matrice car elle est orthogonale
+            !new coordinates in the projection plane (dim=2)
+            !no need to invert the matrix because it is orthogonal
             DO J=1,4
               VAL1             = M(1,1,ICUT)*Ph(1,ICUT,J) + M(2,1,ICUT)*Ph(2,ICUT,J) + M(3,1,ICUT)*Ph(3,ICUT,J)
               VAL2             = M(1,2,ICUT)*Ph(1,ICUT,J) + M(2,2,ICUT)*Ph(2,ICUT,J) + M(3,2,ICUT)*Ph(3,ICUT,J)
@@ -765,7 +767,7 @@ C--------------------------------------------------------
        !POLYGONAL CLIPPING (SCUT with projected segment)
 C-------------------------------------------------------- 
 ! Projected Segment might be non convex. In this case it is decomposed into 2 triangles (hourglass shape)
-! If projected segment is convex then it is splitted into 4 triangles (recquired for parith on)
+! If projected segment is convex then it is splitted into 4 triangles (required for parith on)
 !
         DO ICUT = 1, NBCUT                                                                                        
           SEFF(ICUT,I)              = ZERO 
@@ -779,11 +781,11 @@ C          if(TAG_EL(ICUT)==0)CYCLE
           ENDDO
           PolySCUT%node(NP+1,:)     = PolySCUT%node(1,:)
           CALL SetCounterClockWisePolyg( PolySCUT, VAL2 )
-          IF(VAL2.EQ.ZERO)CYCLE
+          IF(VAL2==ZERO)CYCLE
           ITYP                      = GetProjectedFaceType( 
      .                                 Ph(1:2,ICUT,1), Ph(1:2,ICUT,2), Ph(1:2,ICUT,3), Ph(1:2,ICUT,4), InterP, ListP    ) 
           NTRIA                     = 4
-          IF(ITYP.NE.0)NTRIA        = 2 
+          IF(ITYP/=0)NTRIA        = 2 
           IF(NP_RECT(I)==3) THEN
             ITYP                    = 0
             NTRIA                   = 1
@@ -901,7 +903,7 @@ c                P_Grav(2,ICUT,I) = P_Grav(2,ICUT,I) + POLYresult%node(k,2)
             P_Grav(2,ICUT,I) = P_Grav(2,ICUT,I) + PGrav(2)            
             NumGrav          = Numgrav + ONE
            
-            IF(POLYresult%NumNodes > 0 .AND. STria(J).NE.ZERO)THEN          
+            IF(POLYresult%NumNodes > 0 .AND. STria(J)/=ZERO)THEN          
               pt1(1:2)   = PolyTria(J)%node(1,1:2) ; pt1(3)=ZERO
               pt2(1:2)   = PolyTria(J)%node(2,1:2) ; pt2(3)=ZERO
               pt3(1:2)   = PolyTria(J)%node(3,1:2) ; pt3(3)=ZERO          
@@ -915,7 +917,7 @@ c                P_Grav(2,ICUT,I) = P_Grav(2,ICUT,I) + POLYresult%node(k,2)
               
               !post-condition testing
               WET_RATIO(J) = VAL/Stria(J)
-              IF(WET_RATIO(J).LT.-EM06 .OR. WET_RATIO(J)-ONE.GT.EM06)THEN
+              IF(WET_RATIO(J)<-EM06 .OR. WET_RATIO(J)-ONE>EM06)THEN
                 print *, "***error: inter22 topology issue while computing wet surface",WET_RATIO(J),VAL1,VAL2
               ENDIF   
             ENDIF
@@ -923,7 +925,7 @@ c                P_Grav(2,ICUT,I) = P_Grav(2,ICUT,I) + POLYresult%node(k,2)
 
           WET_RATIO(0) = Cumul_VAL1 !sum of wet surfaces for all triangles composing the lagrangian face.
                    
-          IF(WET_RATIO(0) == ZERO .OR. Cumul_VAL2.EQ.ZERO)THEN
+          IF(WET_RATIO(0) == ZERO .OR. Cumul_VAL2==ZERO)THEN
             SEFF(ICUT,I) = ZERO
             CYCLE
           ELSE
@@ -1066,7 +1068,7 @@ c          write (*,FMT='(A,4E30.16)')  "delta= ", delta(1:4,ICUT,I)
           SEFF(ICUT,I)       = ZERO 
 C          print *, "I=", I, "  ICUT= ",ICUT  
           NP                 = BRICK_LIST(NIN,IB)%PCUT(ICUT)%NP 
-          IF(NP.LE.0)CYCLE           
+          IF(NP<=0)CYCLE           
           P_Grav(1:3,ICUT,I) = ZERO 
           NumGrav            = ZERO
             
@@ -1078,12 +1080,12 @@ C          if(TAG_EL(ICUT)==0)CYCLE
           PolySCUT%node(NP+1,:)  = PolySCUT%node(1,:)
           CALL SetCounterClockWisePolyg( PolySCUT, VAL2 )
           
-          IF(VAL2.EQ.ZERO)CYCLE
+          IF(VAL2==ZERO)CYCLE
 
           ITYP = GetProjectedFaceType(Ph(1:2,ICUT,1), Ph(1:2,ICUT,2), Ph(1:2,ICUT,3), Ph(1:2,ICUT,4), InterP, ListP) 
           
           NTRIA              = 4
-          IF(ITYP.NE.0)NTRIA = 2 
+          IF(ITYP/=0)NTRIA = 2 
           IF(NP_RECT(I)==3) THEN
             ITYP  = 0
             NTRIA = 1
@@ -1201,7 +1203,7 @@ C          if(TAG_EL(ICUT)==0)CYCLE
             P_Grav(2,ICUT,I) = P_Grav(2,ICUT,I) + PGrav(2)            
             NumGrav          = Numgrav + ONE
            
-            IF(POLYresult%NumNodes > 0 .AND. STria(J).NE.ZERO)THEN          
+            IF(POLYresult%NumNodes > 0 .AND. STria(J)/=ZERO)THEN          
               pt1(1:2)   = PolyTria(J)%node(1,1:2) ; pt1(3)=ZERO
               pt2(1:2)   = PolyTria(J)%node(2,1:2) ; pt2(3)=ZERO
               pt3(1:2)   = PolyTria(J)%node(3,1:2) ; pt3(3)=ZERO          
@@ -1215,7 +1217,7 @@ C          if(TAG_EL(ICUT)==0)CYCLE
               
               !post-condition testing
               WET_RATIO(J) = VAL/Stria(J)
-              IF(WET_RATIO(J).LT.-EM06 .OR. WET_RATIO(J)-ONE.GT.EM06)THEN
+              IF(WET_RATIO(J)<-EM06 .OR. WET_RATIO(J)-ONE>EM06)THEN
                 print *, "***error: inter22 topology issue while computing wet surface",WET_RATIO(J),VAL1,VAL2
               ENDIF   
             ENDIF
@@ -1223,7 +1225,7 @@ C          if(TAG_EL(ICUT)==0)CYCLE
 
           WET_RATIO(0) = Cumul_VAL1 !sum of wet surfaces for all triangles composing the lagrangian face.
                    
-          IF(WET_RATIO(0) == ZERO .OR. Cumul_VAL2.EQ.ZERO)THEN
+          IF(WET_RATIO(0) == ZERO .OR. Cumul_VAL2==ZERO)THEN
             SEFF(ICUT,I) = ZERO
             CYCLE
           ELSE
@@ -1359,9 +1361,9 @@ C           write (*,FMT='(A,4E30.16,A,I2,A,I6)')  "delta= ", delta(1:4,ICUT,I),
                      
 C--------------------------------------------------------     
 C COMMENTAIRES
-C  -2- Dans le cas ou NBCUT > 1 (SCUT non connexe) il faut traiter les elements qui nont pas de projection directed mais sont dans la continuite de la surface.(celle ci a en general une partie connexe dans lelement voisin)
-C      Solution : etendre SCUT par continuite en fermant la facette
-C      (Inutile si taille de maille similaire entre lagrane et euler : example SMAES ciculaire)
+C  -2- in the case where nbcut > 1 (scut not connected) need to handle elements that do not have a directed projection but are in the continuity of the surface (generally there is a connected part in the neighboring element)
+C      solution: extend scut by continuity by closing the facet
+C      (Useless if similar mesh size between Lagrane and Euler: Cicular Smaes)
 C--------------------------------------------------------     
       
             
@@ -1371,6 +1373,13 @@ C
 C===============================================================================
 
 
+!||====================================================================
+!||    getprojectedfacetype   ../engine/source/interfaces/int22/i22wetsurf.F
+!||--- called by ------------------------------------------------------
+!||    i22wetsurf             ../engine/source/interfaces/int22/i22wetsurf.F
+!||--- calls      -----------------------------------------------------
+!||    intersectp             ../engine/source/interfaces/int22/i22clip_tools.F
+!||====================================================================
       FUNCTION GetProjectedFaceType(P1,P2,P3,P4,I,ListP)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1425,12 +1434,12 @@ C-----------------------------------------------
        PA(1:2)               = intersectP( P1, P2, P3, P4 ,0) ! [P1P2] & (P3P4)    
        PB(1:2)               = intersectP( P1, P4, P2, P3 ,0) ! [P1P4] & (P2P3)  
              
-       IF    (PA(1).NE.EP30 .AND. PB(1).EQ.EP30)THEN
+       IF    (PA(1)/=EP30 .AND. PB(1)==EP30)THEN
         GetProjectedFaceType = 2
         I(:)                 = PA(:)
         ListP(1:2)           = (/1,4/) !defining tiangles
         ListP(3:4)           = (/2,3/)        
-       ELSEIF(PA(1).EQ.EP30 .AND. PB(1).NE.EP30)THEN
+       ELSEIF(PA(1)==EP30 .AND. PB(1)/=EP30)THEN
         GetProjectedFaceType = 1
         I(:)                 = PB(:) 
         ListP(1:2)           = (/1,2/) !defining tiangles

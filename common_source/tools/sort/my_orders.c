@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,19 +15,17 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 #include <stdio.h>
 #include <stdlib.h>
 
 #define _FCALL
 
-void tri_direct(data,iwork,index,n,irecl,inds)
-int n,irecl;
-unsigned data[],index[],inds[],iwork[];
+void tri_direct(unsigned *data,unsigned *iwork, unsigned *index,int n,int irecl,unsigned *inds)
 {
     /* tri a adressage direct                               */
     /*  0 <= x <= 2^16 - 1                                  */
@@ -63,9 +61,7 @@ unsigned data[],index[],inds[],iwork[];
     }
 
 }
-void my_orders_(mode,iwork,data,index,n,irecl)
-int *mode,*n,*irecl;
-unsigned *iwork,*data,*index;
+void my_orders_(int *mode,unsigned *iwork,unsigned *data,unsigned *index,int *n,int *irecl)
 {
     int i;
     if(*mode == 0){
@@ -80,15 +76,12 @@ unsigned *iwork,*data,*index;
         *mode = -1;
     }
 }
-void _FCALL MY_ORDERS(mode,iwork,data,index,n,irecl)
-int *mode,*iwork,*data,*index,*n,*irecl;
-{my_orders_(mode,iwork,data,index,n,irecl);}
+void _FCALL MY_ORDERS(int *mode,int *iwork,int *data,int *index,int *n,int *irecl)
+{my_orders_(mode,(unsigned*)iwork,(unsigned*)data,(unsigned*)index,n,irecl);}
 
-void my_orders(mode,iwork,data,index,n,irecl)
-int *mode,*iwork,*data,*index,*n,*irecl;
-{my_orders_(mode,iwork,data,index,n,irecl);}
+void my_orders(int *mode,int *iwork,int *data,int *index,int *n,int *irecl)
+{my_orders_(mode,(unsigned*)iwork,(unsigned*)data,(unsigned*)index,n,irecl);}
 
-void my_orders__(mode,iwork,data,index,n,irecl)
-int *mode,*iwork,*data,*index,*n,*irecl;
-{my_orders_(mode,iwork,data,index,n,irecl);}
+void my_orders__(int *mode,int *iwork,int *data,int *index,int *n,int *irecl)
+{my_orders_(mode,(unsigned*)iwork,(unsigned*)data,(unsigned*)index,n,irecl);}
 

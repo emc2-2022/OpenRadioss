@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS92                      source/materials/mat/mat092/sigeps92.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        VALPVECDP_V                   source/materials/mat/mat033/sigeps33.F
-Chd|        VALPVEC_V                     source/materials/mat/mat033/sigeps33.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps92      ../engine/source/materials/mat/mat092/sigeps92.F
+!||--- called by ------------------------------------------------------
+!||    mulaw         ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    finter        ../engine/source/tools/curve/finter.F
+!||    valpvec_v     ../engine/source/materials/mat/mat033/sigeps33.F
+!||    valpvecdp_v   ../engine/source/materials/mat/mat033/sigeps33.F
+!||====================================================================
        SUBROUTINE SIGEPS92(
      1      NEL    , NUPARAM, NUVAR   , NFUNC , IFUNC , NPF   ,
      2      TF     , TIME   , TIMESTEP, UPARAM, RHO0  , RHO   ,
@@ -48,14 +49,11 @@ C-----------------------------------------------
 C   G L O B A L   P A R A M E T E R S
 C-----------------------------------------------
 #include "mvsiz_p.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   C O M M O N 
 C-----------------------------------------------
 #include "scr05_c.inc"
 #include "impl1_c.inc"
-#include      "units_c.inc"
-#include "com01_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
@@ -90,7 +88,7 @@ C----------------------------------------------------------------
 C  VARIABLES FOR FUNCTION INTERPOLATION 
 C----------------------------------------------------------------
       INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
-      my_real FINTER,FINTTE,TF(*),FINT2V
+      my_real FINTER,FINTTE,TF(*)
       EXTERNAL FINTER,FINTTE
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
@@ -119,8 +117,8 @@ C material parameters
         C(4)     = UPARAM(9)
         C(5)     = UPARAM(10)   
         MULLINS  = INT(UPARAM(13)) ! computed in updmat 
-C iniialisation des variabesl users 
-      IF(TIME.EQ.ZERO)THEN
+C initialization of user variables
+      IF(TIME==ZERO)THEN
        DO J = 1,NUVAR
         DO  I = 1, NEL
          UVAR(I,J) = ZERO
@@ -136,9 +134,9 @@ C
        AV(I,5)=EPSYZ(I)/2
        AV(I,6)=EPSZX(I)/2
       ENDDO       
-CEigenvalues needed to be calcultated in double precision
+CEigenvalues needed to be calculated in double precision
 C        for a simple precision executing
-      IF (IRESP.EQ.1) THEN
+      IF (IRESP==1) THEN
         CALL VALPVECDP_V(AV,EVV,DIRPRV,NEL)
       ELSE
        CALL VALPVEC_V(AV,EVV,DIRPRV,NEL)
@@ -147,7 +145,7 @@ C-ISMSTR=0-NO SMALL STRAIN OPTION:STRAINS ARE LOGARITHMIC, STRESS IS CAUCHY
 C-ISMSTR=1-SMALL STRAIN OPTION:STRAINS ARE ENGINEERING, STRESS IS CAUCHY
 C-ISMSTR=2-SMALL STRAIN OPTION:STRAINS ARE ENGINEERING, STRESS IS BIOT
 C-ISMSTR=3-NO SMALL STRAIN OPTION:STRESS IS BIOT
-      IF(ISMSTR.EQ.0.OR.ISMSTR.EQ.2.OR.ISMSTR.EQ.4) THEN
+      IF(ISMSTR==0.OR.ISMSTR==2.OR.ISMSTR==4) THEN
         DO I=1,NEL
 C ---- (STRAIN IS LOGARITHMIC)
          EV(I,1)=EXP(EVV(I,1))
@@ -233,7 +231,7 @@ C
       DO J=1,5
           BB = ONE/LAM**(2*J - 2)
           AA = J*C(J)
-		  CLAM(J) = BB*C(J)
+            CLAM(J) = BB*C(J)
           DO I=1,NEL
               CC = AA*BB*TRACE(I)**(J-1)
               T1(I) = T1(I) + CC*DI1LAM1(I)
@@ -243,7 +241,7 @@ C
       ENDDO
 C RBilk = 2/D
       DO I=1,NEL
-         RV_1(I) = ONE/RV(I)	  
+         RV_1(I) = ONE/RV(I)    
          P = RV_1(I)*RBULK*(RV(I)**2 - ONE)/TWO
          T1(I) = (MU*T1(I) + P)*RV_1(I)
          T2(I) = (MU*T2(I) + P)*RV_1(I)
@@ -270,16 +268,16 @@ c----compute GT_MAX
              LAM_2(1:3) = EVM(I,1:3)**2
              LAM_4(1:3) = LAM_2(1:3)**2
              AA = ONE_OVER_9*II*TRACE(I)**II
-			 BB = ZERO
-			 CC = ZERO
-			 IF (II>1) BB =THIRD*(3-II)*TRACE(I)**(II-1)
-			 IF (II>2) CC =(II-1)*TRACE(I)**(II-2)
+           BB = ZERO
+           CC = ZERO
+           IF (II>1) BB =THIRD*(3-II)*TRACE(I)**(II-1)
+           IF (II>2) CC =(II-1)*TRACE(I)**(II-2)
              CII(I,1:3) = CII(I,1:3) +CLP*(AA+BB*LAM_2(1:3) +CC*LAM_4(1:3))
             ENDDO
           ENDDO
           DO I=1,NEL
            AMAX= MAX(CII(I,1),CII(I,2),CII(I,3))
-C---------reduce old result change		   
+C---------reduce old result change       
            ETI(I) = MAX(ONE,AMAX*0.81) 
            GTMAX(I) = G*ETI(I)
            RKMAX(I) = RKMAX(I)*(ONE+RV_1(I)*RV_1(I))

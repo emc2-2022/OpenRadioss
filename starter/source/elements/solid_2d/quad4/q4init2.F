@@ -1,56 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  Q4INIT2                       source/elements/solid_2d/quad4/q4init2.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ATHERI                        source/ale/atheri.F           
-Chd|        ATURI2                        source/ale/ale2d/aturi2.F     
-Chd|        DTMAIN                        source/materials/time_step/dtmain.F
-Chd|        EDLEN2                        source/ale/ale2d/edlen2.F     
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MATINI                        source/materials/mat_share/matini.F
-Chd|        Q4DERI2                       source/elements/solid_2d/quad4/q4deri2.F
-Chd|        Q4RCOOR2                      source/elements/solid_2d/quad4/q4coor2.F
-Chd|        Q4VOLI2                       source/elements/solid_2d/quad4/q4voli2.F
-Chd|        QCOOR2                        source/elements/solid_2d/quad/qcoor2.F
-Chd|        QDLEN2                        source/elements/solid_2d/quad/qdlen2.F
-Chd|        QMASI2                        source/elements/solid_2d/quad/qmasi2.F
-Chd|        QMORTH2                       source/elements/solid_2d/quad/qmorth2.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        DETONATORS_MOD                share/modules1/detonators_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    q4init2                ../starter/source/elements/solid_2d/quad4/q4init2.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    atheri                 ../starter/source/ale/atheri.F
+!||    aturi2                 ../starter/source/ale/ale2d/aturi2.F
+!||    dtmain                 ../starter/source/materials/time_step/dtmain.F
+!||    edlen2                 ../starter/source/ale/ale2d/edlen2.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    matini                 ../starter/source/materials/mat_share/matini.F
+!||    q4deri2                ../starter/source/elements/solid_2d/quad4/q4deri2.F
+!||    q4rcoor2               ../starter/source/elements/solid_2d/quad4/q4coor2.F
+!||    q4voli2                ../starter/source/elements/solid_2d/quad4/q4voli2.F
+!||    qcoor2                 ../starter/source/elements/solid_2d/quad/qcoor2.F
+!||    qdlen2                 ../starter/source/elements/solid_2d/quad/qdlen2.F
+!||    qmasi2                 ../starter/source/elements/solid_2d/quad/qmasi2.F
+!||    qmorth2                ../starter/source/elements/solid_2d/quad/qmorth2.F
+!||--- uses       -----------------------------------------------------
+!||    detonators_mod         ../starter/share/modules1/detonators_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE Q4INIT2(ELBUF_STR  ,MS       ,IXQ          ,PM         ,X     ,
      2                  DETONATORS  ,GEO      ,VEUL         ,ALE_CONNECTIVITY  ,IPARG ,
-     3                  DTELEM      ,SIGI       ,IGEO  ,
+     3                  DTELEM      ,SIGI     ,IGEO  ,
      4                  NEL         ,SKEW     ,MSQ          ,IPART      ,IPARTQ,
      5                  IPM         ,NSIGS    ,WMA          ,PTQUAD     ,BUFMAT,
      6                  NPF         ,TF       ,IPARGG       ,ILOADP     ,FACLOAD,
-     7                  PARTSAV     ,V        )
+     7                  PARTSAV     ,V        ,MAT_PARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -58,13 +57,13 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE DETONATORS_MOD
       USE ALE_CONNECTIVITY_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE MATPARAM_DEF_MOD
+      use element_mod , only : nixq
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -73,15 +72,9 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scry_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -96,8 +89,9 @@ C-----------------------------------------------
       TYPE(ELBUF_STRUCT_), TARGET :: ELBUF_STR
       INTEGER,INTENT(IN) :: ILOADP(SIZLOADP,*)
       my_real,INTENT(IN) :: FACLOAD(LFACLOAD,*)
-      TYPE(DETONATOR_STRUCT_) :: DETONATORS
+      TYPE(DETONATORS_STRUCT_) :: DETONATORS
       TYPE(t_ale_connectivity), INTENT(INOUT) :: ALE_CONNECTIVITY
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
 C-----------------------------------------------
 C FUNCTION:
 C ARGUMENTS:  (I: input, O: output, IO: input & output, W: workspace)
@@ -107,7 +101,7 @@ C  I   PM(NPROPM,*)       - MATERIAL DATA (REAL)
 C  I   X(3,*)             - NODAL COORDINATES
 C  I   GEO(NPROPG,*)      - GEOMETRICAL PROPERTY DATA (REAL)
 C  I   IPARG(*)           - PART PROPERTY DATA OF ELEMENT GROUP
-C  O   DTELEM(*)          - ELEMETN TIME STEP
+C  O   DTELEM(*)          - ELEMENT TIME STEP
 C  I   SIGI(NSIGS,*)      - (1~6,*): INITIAL STRESS
 C                           (7~10,*): NUMBER, DENSITY, PLASTIC STRAIN, INTERNAL ENERGY
 C  I   IGEO(NPROPGI,*)    - GEOMETRICAL PROPERTY DATA (INTEGER)
@@ -125,28 +119,24 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER MAT(MVSIZ), PID(MVSIZ), NGL(MVSIZ)
-      INTEGER NF1, IELVS, IX, I, IGTYP, IHBE, IP
+      INTEGER NF1, I, IGTYP, IHBE, IP
       INTEGER IR,IS,NPTR,NPTS,IBID, IPID1
-      my_real
-     +   X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), X4(MVSIZ),
-     +   Y1(MVSIZ),Y2(MVSIZ),Y3(MVSIZ),Y4(MVSIZ),
-     +   Z1(MVSIZ),Z2(MVSIZ),Z3(MVSIZ),Z4(MVSIZ),
-     +   Y12(MVSIZ),Y34(MVSIZ),Y13(MVSIZ),Y24(MVSIZ),
-     +   Y14(MVSIZ),Y23(MVSIZ),
-     +   Z12(MVSIZ),Z34(MVSIZ),Z13(MVSIZ),Z24(MVSIZ),
-     +   Z14(MVSIZ),Z23(MVSIZ),YAVG(MVSIZ),AREA(MVSIZ),
-     +   VOLU(MVSIZ),DET(MVSIZ),BID(1),AA(MVSIZ), DTX(MVSIZ),
-     +   SY(MVSIZ) ,SZ(MVSIZ) ,TY(MVSIZ) ,TZ(MVSIZ),
-     .   E1Y(MVSIZ),E1Z(MVSIZ),E2Y(MVSIZ),E2Z(MVSIZ)
-      my_real
-     +   QN1,QN2,QN3,QN4,YAVG1,WI,KSI,ETA,FV
-      my_real
-     .     DELTAX(MVSIZ),Y234(MVSIZ),Y124(MVSIZ)
+      my_real Y1(MVSIZ),Y2(MVSIZ),Y3(MVSIZ),Y4(MVSIZ),
+     +        Z1(MVSIZ),Z2(MVSIZ),Z3(MVSIZ),Z4(MVSIZ),
+     +        Y12(MVSIZ),Y34(MVSIZ),Y13(MVSIZ),Y24(MVSIZ),
+     +        Y14(MVSIZ),Y23(MVSIZ),
+     +        Z12(MVSIZ),Z34(MVSIZ),Z13(MVSIZ),Z24(MVSIZ),
+     +        Z14(MVSIZ),Z23(MVSIZ),YAVG(MVSIZ),AREA(MVSIZ),
+     +        BID(1),DTX(MVSIZ),
+     +        SY(MVSIZ) ,SZ(MVSIZ) ,TY(MVSIZ) ,TZ(MVSIZ),
+     .        E1Y(MVSIZ),E1Z(MVSIZ),E2Y(MVSIZ),E2Z(MVSIZ)
+      my_real WI,KSI,ETA,FV
+      my_real DELTAX(MVSIZ),Y234(MVSIZ),Y124(MVSIZ)
+      my_real :: TEMPEL(NEL)
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ)
 
 C-----------------------------------------------
-      CHARACTER*nchartitle,
-     .   TITR1
+      CHARACTER(LEN=NCHARTITLE)::TITR1
 C-----------------------------------------------
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
@@ -224,9 +214,10 @@ c
       ISORTH = 0
       IBID = 0
       BID = ZERO
+      TEMPEL(:) = ZERO
 C
       NF1 = NFT+1
-      IF(JCVT.EQ.0)THEN
+      IF(JCVT==0)THEN
         CALL QCOOR2(X,IXQ(1,NF1),NGL,MAT, 
      .        PID, IX1, IX2, IX3, IX4, 
      .        Y1, Y2, Y3, Y4,
@@ -256,7 +247,7 @@ C
      .     AREA, DELTAX, 
      .     Y1, Y2, Y3, Y4,
      .     Z1, Z2, Z3, Z4)
-      IF(JEUL.NE.0) CALL EDLEN2(VEUL(1,NF1), AREA, DELTAX)
+      IF(JEUL/=0) CALL EDLEN2(VEUL(1,NF1), AREA, DELTAX)
       DO I=LFT,LLT
         Y12(I) = Y1(I) - Y2(I)
         Y34(I) = Y3(I) - Y4(I)
@@ -281,7 +272,7 @@ C
      .            MAT       ,IPM      ,NSIGS      ,NUMQUAD      ,PTQUAD  ,
      .            IP        ,NGL      ,NPF        ,TF           ,BUFMAT  ,
      .            GBUF      ,LBUF     ,MBUF       ,ELBUF_STR    ,ILOADP  ,
-     .            FACLOAD   ,DELTAX)
+     .            FACLOAD   ,DELTAX   ,TEMPEL     ,MAT_PARAM )
 
 C     ENTER THE INTEGRATION POINTS LOOP -->
       NPTR = 2
@@ -301,12 +292,6 @@ C
      3             Z12,Z34,Z13,Z24,Z14,Z23,
      4             Y1,Y2,Y3,Y4,YAVG,IHBE,NGL)
 C
-Ccw<<<
-c      DO I=LFT,LLT
-c        AA(I) = AA(I) + EV(NB6+I-1)
-c      ENDDO
-Ccw>>>
-C
           CALL MATINI(
      .            PM      ,IXQ     ,NIXQ       ,X            ,
      .            GEO     ,ALE_CONNECTIVITY   ,DETONATORS ,IPARG        ,
@@ -315,40 +300,33 @@ C
      .            MAT     ,IPM     ,NSIGS      ,NUMQUAD      ,PTQUAD  ,
      .            IP      ,NGL     ,NPF        ,TF           ,BUFMAT  ,
      .            GBUF    ,LBUF    ,MBUF       ,ELBUF_STR    ,ILOADP  ,
-     .            FACLOAD, DELTAX)  
+     .            FACLOAD, DELTAX  ,TEMPEL     ,MAT_PARAM )
 C
         ENDDO
       ENDDO
 C     EXIT THE INTEGRATION POINTS LOOP <--
-C
-Ccw<<<
-c      DO I=LFT,LLT
-c        WRITE(*, *) EV(NB06+I-1),AA(I)
-c      ENDDO
-Ccw>>>
-C
 C----------------------------------------
-C     INITIALISATION DE LA THERMIQUE ET TURBULENCE
+C     initialization of thermal and turbulence
 C----------------------------------------
-      IF(JTHE.NE.0)CALL ATHERI(MAT ,PM  ,LBUF%TEMP)
-      IF(JTUR.NE.0)CALL ATURI2(IPARGG   ,LBUF%RHO,PM,IXQ,X,
+      IF(JTHE/=0)CALL ATHERI(MAT ,PM  ,LBUF%TEMP)
+      IF(JTUR/=0)CALL ATURI2(IPARGG   ,LBUF%RHO,PM,IXQ,X,
      .                         LBUF%RK  ,LBUF%RE, AREA)
 C------------------------------------------
-C     INITIALISATION DE LA MATRICE DE MASSE
+C     initialization of the mass matrix
 C------------------------------------------
-      IF(JLAG+JALE+JEUL.NE.0)
+      IF(JLAG+JALE+JEUL/=0)
      .  CALL QMASI2(PM,MAT,MS,GBUF%VOL,MSQ(NF1),WMA,IPARTQ(NFT+1),PARTSAV,
      .     IX1, IX2, IX3, IX4,X ,V)
 C-------------------------------------------
-C      CALCUL DES DT ELEMENTAIRES
+C      calculation of elementary timesteps (dt)
 C-------------------------------------------
        CALL DTMAIN(GEO       ,PM        ,IPM         ,PID     ,MAT     ,FV    ,
      .     GBUF%EINT ,GBUF%TEMP ,GBUF%DELTAX ,GBUF%RK ,GBUF%RE ,BUFMAT, DELTAX, AREA, 
-     .     GBUF%VOL, DTX, IGEO)
+     .     GBUF%VOL, DTX, IGEO,IGTYP)
        DO 10 I=LFT,LLT
-        IF(IXQ(6,I+NFT).NE.0) THEN
-          IF(IGTYP.NE.0 .AND. IGTYP.NE.6 .AND.
-     .       IGTYP.NE.14.AND.IGTYP.NE.15)THEN
+        IF(IXQ(6,I+NFT)/=0) THEN
+          IF(IGTYP/=0 .AND. IGTYP/=6 .AND.
+     .       IGTYP/=14.AND.IGTYP/=15)THEN
              IPID1=IXQ(NIXQ-1,I+NFT)
              CALL FRETITL2(TITR1,IGEO(NPROPGI-LTITR+1,IPID1),LTITR)
              CALL ANCMSG(MSGID=226,

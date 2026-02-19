@@ -1,51 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_VGATH_ERR                source/mpi/anim/spmd_vgath_err.F
-Chd|-- called by -----------
-Chd|        SORTIE_ERROR                  source/output/sortie_error.F  
-Chd|-- calls ---------------
-Chd|        SPMD_OUTPITAB                 source/mpi/interfaces/spmd_outp.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_vgath_err        ../engine/source/mpi/anim/spmd_vgath_err.F
+!||--- called by ------------------------------------------------------
+!||    sortie_error          ../engine/source/output/sortie_error.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_outpitab         ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
        SUBROUTINE SPMD_VGATH_ERR(X,MS,MSINI,NODGLOB,WEIGHT,NUM,IFLAG,
      .                           ITAB,LENG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "scr18_c.inc"
 #include      "task_c.inc"
-#include      "spmd_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -64,7 +62,7 @@ C-----------------------------------------------
      .                                      MAXV_RES1, MAXV_RES2
 
       INTEGER STATUS(MPI_STATUS_SIZE),IERROR,MSGOFF,FLAG,ITABG(LENG)
-      INTEGER SIZ,MSGTYP,I,J,K,NG,NREC,MSGOFF2,
+      INTEGER SIZ,MSGTYP,I,J,K,MSGOFF2,
      .        L,ISMASSCHANGE,MSGOFF3,MSGOFF4
       INTEGER, DIMENSION(:) , ALLOCATABLE :: IDNOD0, IDNOD, IDNOD_RES
 
@@ -107,13 +105,13 @@ c
            V(I)=(MS(I)-MSINI(I))/MAX(EM20,MSINI(I))
          ENDDO
        ENDIF
-       IF (ISPMD.NE.0) THEN
+       IF (ISPMD/=0) THEN
 
          DO I=1,NUMNOD
-           IF (WEIGHT(I).EQ.1) THEN
+           IF (WEIGHT(I)==1) THEN
              FLAG = 0
              DO J=1,NUM
-               IF(V(I) .GT. MAXV0(J) .AND. FLAG == 0) THEN
+               IF(V(I) > MAXV0(J) .AND. FLAG == 0) THEN
                  DO K=1,NUM-J
                    IDNOD0(NUM-K+1) = IDNOD0(NUM-K)
                    MAXV0(NUM-K+1) = MAXV0(NUM-K) 
@@ -130,32 +128,32 @@ c
            END IF
          END DO
 
-Csv a cause de la version simple precision, on ne peux pas metre l'entier
-Csv dans le buffer flottant car on n a que 2puiss 24 bits dispo ~ 16 Million
-Csv de noeuds au max
+C   Because of the simple precision version, we cannot put the integer
+C   In the floating buffer because there are only 2 24 bits available ~ 16 million
+C   of nodes at most
 
          MSGTYP = MSGOFF
          CALL MPI_SEND(IDNOD0,SIZ,MPI_INTEGER,IT_SPMD(1),MSGTYP,
-     .     MPI_COMM_WORLD,ierror)
+     .     SPMD_COMM_WORLD,ierror)
 
          MSGTYP = MSGOFF2
          CALL MPI_SEND(MAXV0,SIZ,MPI_REAL,IT_SPMD(1),MSGTYP,
-     .     MPI_COMM_WORLD,ierror)
+     .     SPMD_COMM_WORLD,ierror)
 
          MSGTYP = MSGOFF3
          CALL MPI_SEND(MAXV1,SIZ,MPI_REAL,IT_SPMD(1),MSGTYP,
-     .     MPI_COMM_WORLD,ierror)
+     .     SPMD_COMM_WORLD,ierror)
 
          MSGTYP = MSGOFF4 
          CALL MPI_SEND(MAXV2,SIZ,MPI_REAL,IT_SPMD(1),MSGTYP,
-     .     MPI_COMM_WORLD,ierror)
+     .     SPMD_COMM_WORLD,ierror)
 
        ELSE ! ISPMD == 0
           DO I=1,NUMNOD
-            IF (WEIGHT(I).EQ.1) THEN
+            IF (WEIGHT(I)==1) THEN
               FLAG = 0
               DO J=1,NUM
-                IF(V(I) .GT. MAXV(J) .AND. FLAG == 0) THEN
+                IF(V(I) > MAXV(J) .AND. FLAG == 0) THEN
                   DO K=1,NUM-J
                     IDNOD(NUM-K+1) = IDNOD(NUM-K)
                     MAXV(NUM-K+1) = MAXV(NUM-K) 
@@ -175,43 +173,43 @@ Csv de noeuds au max
 
           DO I=2,NSPMD
 
-Csv Reception 
+C   Reception 
             MSGTYP = MSGOFF
 
             CALL MPI_PROBE(IT_SPMD(I),MSGTYP,
-     .                    MPI_COMM_WORLD,STATUS,ierror)
-	    CALL MPI_GET_COUNT(STATUS,MPI_INTEGER,SIZ,ierror)
+     .                    SPMD_COMM_WORLD,STATUS,ierror)
+              CALL MPI_GET_COUNT(STATUS,MPI_INTEGER,SIZ,ierror)
 
             CALL MPI_RECV(IDNOD0,SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     .                  MPI_COMM_WORLD,STATUS,ierror)
+     .                  SPMD_COMM_WORLD,STATUS,ierror)
 
-Csv Reception
+C   Reception
 
             MSGTYP = MSGOFF2 
             CALL MPI_RECV(MAXV0,SIZ,MPI_REAL,IT_SPMD(I),MSGTYP,
-     .                  MPI_COMM_WORLD,STATUS,ierror)
+     .                  SPMD_COMM_WORLD,STATUS,ierror)
 
             MSGTYP = MSGOFF3
             CALL MPI_RECV(MAXV1,SIZ,MPI_REAL,IT_SPMD(I),MSGTYP,
-     .                  MPI_COMM_WORLD,STATUS,ierror)
+     .                  SPMD_COMM_WORLD,STATUS,ierror)
 
             MSGTYP = MSGOFF4 
             CALL MPI_RECV(MAXV2,SIZ,MPI_REAL,IT_SPMD(I),MSGTYP,
-     .                  MPI_COMM_WORLD,STATUS,ierror)
+     .                  SPMD_COMM_WORLD,STATUS,ierror)
 
 
             J = 1
             K = 1
             L = 1
             DO WHILE( J <= SIZ .AND. K <= SIZ .AND. L <= SIZ)
-                IF(MAXV(J) .GT. MAXV0(K))THEN
+                IF(MAXV(J) > MAXV0(K))THEN
                   MAXV_RES0(L) = MAXV(J)
                   IDNOD_RES(L) = IDNOD(J)
                   MAXV_RES1(L) = MAXV_1(J)
                   MAXV_RES2(L) = MAXV_2(J)
                   J = J + 1
                   L = L + 1
-                ELSEIF(MAXV0(K) .GT. MAXV(J))THEN
+                ELSEIF(MAXV0(K) > MAXV(J))THEN
                   MAXV_RES0(L) = MAXV0(K)
                   IDNOD_RES(L) = IDNOD0(K)
                   MAXV_RES1(L) = MAXV1(K)
@@ -242,7 +240,7 @@ Csv Reception
             WRITE(IOUT,2000)
             WRITE(IOUT,1001)
             DO I=1,NUM
-              IF(MAXV_RES0(I) .NE. ZERO)THEN
+              IF(MAXV_RES0(I) /= ZERO)THEN
                 WRITE(IOUT,1100) ITABG(IDNOD_RES(I)),MAXV_RES0(I),
      .               HALF*(MAXV_RES1(I))*MAXV_RES0(I)**2,
      .               MAXV_RES1(I),MAXV_RES2(I),
@@ -268,15 +266,15 @@ Csv Reception
           ELSEIF(IFLAG == 4 .AND. (IDTMIN(11) == 3 .OR.IDTMIN(11)==8))THEN
             ISMASSCHANGE = 0
             DO I=1,NUM
-              IF(MAXV_RES0(I) .NE.ZERO) ISMASSCHANGE = 1
+              IF(MAXV_RES0(I) /=ZERO) ISMASSCHANGE = 1
             ENDDO
-            IF(ISMASSCHANGE .NE. 0)THEN
+            IF(ISMASSCHANGE /= 0)THEN
               WRITE(IOUT,2000)
               WRITE(IOUT,1600)
               WRITE(IOUT,2000)
               WRITE(IOUT,1601)
               DO I=1,NUM
-               IF(MAXV_RES0(I) .NE. ZERO)
+               IF(MAXV_RES0(I) /= ZERO)
      .         WRITE(IOUT,1700) ITABG(IDNOD_RES(I)),MAXV_RES1(I),
      .                          MAXV_RES2(I),MAXV_RES0(I)
               ENDDO

@@ -1,44 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CREATE_LINE_FROM_SURFACE_EXT  source/model/sets/create_line_from_surface_ext.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    create_line_from_surface_ext   ../starter/source/model/sets/create_line_from_surface_ext.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod                    ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE CREATE_LINE_FROM_SURFACE_EXT(CLAUSE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE SETDEF_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -46,8 +44,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,K,J1,J2,SIZEMAX,NSEG,IEXT,NSEG_EDGE_EXT,
-     .        NSEG_EDGE_ALL,NSEG_SURF,LINE_NENTITY
+      INTEGER I,K,J1,J2,SIZEMAX,NSEG,NSEG_EDGE_EXT,
+     .        NSEG_SURF,LINE_NENTITY
       INTEGER IWORK(70000),IPERM(4)
 !
       DATA IPERM /2,3,4,1/
@@ -99,15 +97,15 @@ C=======================================================================
         DO I=1,NSEG_SURF
           DO J1=1,4
             J2=IPERM(J1)
-            IF (CLAUSE%SURF_NODES(I,J2) .NE. 0 .AND.
-     .          CLAUSE%SURF_NODES(I,J1) .GT. CLAUSE%SURF_NODES(I,J2)) THEN
+            IF (CLAUSE%SURF_NODES(I,J2) /= 0 .AND.
+     .          CLAUSE%SURF_NODES(I,J1) > CLAUSE%SURF_NODES(I,J2)) THEN
               K=K+1
               IW1(K)=CLAUSE%SURF_NODES(I,J2)
               IW2(K)=CLAUSE%SURF_NODES(I,J1)
               IW5(K)=CLAUSE%SURF_ELTYP(I)  
               IW6(K)=CLAUSE%SURF_ELEM(I)
-            ELSEIF (CLAUSE%SURF_NODES(I,J1) .NE. 0 .AND.
-     .              CLAUSE%SURF_NODES(I,J1) .LT. CLAUSE%SURF_NODES(I,J2)) THEN
+            ELSEIF (CLAUSE%SURF_NODES(I,J1) /= 0 .AND.
+     .              CLAUSE%SURF_NODES(I,J1) < CLAUSE%SURF_NODES(I,J2)) THEN
               K=K+1
               IW1(K)=CLAUSE%SURF_NODES(I,J1)
               IW2(K)=CLAUSE%SURF_NODES(I,J2)
@@ -129,8 +127,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C       REMOVE INTERNAL SEGMENTS (EXCEPT BOUNDARY)
 C-----------------------------------------------
-          IF (IW1(INDEX(1)) .NE. IW1(INDEX(2)).OR.
-     .        IW2(INDEX(1)) .NE. IW2(INDEX(2)))THEN
+          IF (IW1(INDEX(1)) /= IW1(INDEX(2)).OR.
+     .        IW2(INDEX(1)) /= IW2(INDEX(2)))THEN
             NSEG=NSEG+1
             LINE_ORD(1,NSEG) = IW1(INDEX(1))
             LINE_ORD(2,NSEG) = IW2(INDEX(1))
@@ -138,10 +136,10 @@ C-----------------------------------------------
             LINE_ORD(4,NSEG) = IW6(INDEX(1))
           ENDIF
           DO I=2,K-1
-            IF ((IW1(INDEX(I-1)) .NE. IW1(INDEX(I)).OR.
-     .           IW2(INDEX(I-1)) .NE. IW2(INDEX(I))).AND.
-     .          (IW1(INDEX(I+1)) .NE. IW1(INDEX(I)).OR.
-     .           IW2(INDEX(I+1)) .NE. IW2(INDEX(I)))) THEN
+            IF ((IW1(INDEX(I-1)) /= IW1(INDEX(I)).OR.
+     .           IW2(INDEX(I-1)) /= IW2(INDEX(I))).AND.
+     .          (IW1(INDEX(I+1)) /= IW1(INDEX(I)).OR.
+     .           IW2(INDEX(I+1)) /= IW2(INDEX(I)))) THEN
               NSEG=NSEG+1
               LINE_ORD(1,NSEG) = IW1(INDEX(I))
               LINE_ORD(2,NSEG) = IW2(INDEX(I))
@@ -149,8 +147,8 @@ C-----------------------------------------------
               LINE_ORD(4,NSEG) = IW6(INDEX(I))
             ENDIF
           ENDDO
-          IF (IW1(INDEX(K-1)) .NE. IW1(INDEX(K)).OR.
-     .        IW2(INDEX(K-1)) .NE. IW2(INDEX(K))) THEN
+          IF (IW1(INDEX(K-1)) /= IW1(INDEX(K)).OR.
+     .        IW2(INDEX(K-1)) /= IW2(INDEX(K))) THEN
             NSEG=NSEG+1
             LINE_ORD(1,NSEG) = IW1(INDEX(K))
             LINE_ORD(2,NSEG) = IW2(INDEX(K))
@@ -181,9 +179,9 @@ C-----------------------------------------------
       IF (ALLOCATED(CLAUSE%LINE_ELEM))  DEALLOCATE(CLAUSE%LINE_ELEM)
 !
       CLAUSE%NB_LINE_SEG = NSEG
-      MY_ALLOCATE2D(CLAUSE%LINE_NODES,NSEG,2)
-      MY_ALLOCATE(CLAUSE%LINE_ELTYP,NSEG)
-      MY_ALLOCATE(CLAUSE%LINE_ELEM,NSEG)
+      CALL MY_ALLOC(CLAUSE%LINE_NODES,NSEG,2)
+      CALL MY_ALLOC(CLAUSE%LINE_ELTYP,NSEG)
+      CALL MY_ALLOC(CLAUSE%LINE_ELEM,NSEG)
 !
       DO I=1,NSEG
         CLAUSE%LINE_NODES(I,1) = LINE_ORD(1,INDEX(I))

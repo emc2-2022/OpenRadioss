@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 c jbm036
-Chd|====================================================================
-Chd|  SIGEPS40                      source/materials/mat/mat040/sigeps40.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sigeps40   ../engine/source/materials/mat/mat040/sigeps40.F
+!||--- called by ------------------------------------------------------
+!||    mulaw      ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8     ../engine/source/materials/mat_share/mulaw8.F90
+!||--- calls      -----------------------------------------------------
+!||    finter     ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE SIGEPS40 (
      1     NEL    ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC   ,NPF    ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0    ,RHO    ,
@@ -46,7 +47,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "r4r8_p.inc"
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
@@ -86,7 +86,7 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -138,7 +138,7 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,M
+      INTEGER I,J,K
       my_real
      .  AK,G0,G(5),BETA(5),
      .  EV,EDXX,EDYY,EDZZ,EDXY,EDYZ,EDZX,      
@@ -170,8 +170,8 @@ C=======================================================================
         G(2) =  TWO*UPARAM(4)
         G(3) =  TWO*UPARAM(5)
         G(4) =  TWO*UPARAM(6)
-        G(5) =  TWO*UPARAM(7)	
-	
+        G(5) =  TWO*UPARAM(7)
+
         BETA(1) =  UPARAM(8) 
         BETA(2) =  UPARAM(9) 
         BETA(3) =  UPARAM(10) 
@@ -183,7 +183,7 @@ C=======================================================================
 C-----------------------------------------------
 C     USER VARIABLES INITIALIZATION
 C-----------------------------------------------
-      IF(TIME.LE.EM20)THEN
+      IF(TIME<=EM20)THEN
         DO 100 J=1,NUVAR
         DO 100 I=1,NEL
            UVAR(I,J)=ZERO
@@ -512,7 +512,7 @@ C
 C
 C       WRITE (6,*) SIGNXX(I),SIGNYY(I),SIGNZZ(I),SIGNXY(I)
 c       WRITE (6,*) SOUNDSP(I),AK,RHO0(I),GT
-C CRITERES DE STASSI ET DE TYPE VON MISES
+C STASSI AND VON MISES TYPE CRITERIA
 C
       SSIG1=SIGNXX(I)+SIGNYY(I)+SIGNZZ(I)
       SSIG2=HALF*(SXX**2+SYY**2+SZZ**2)+SXY**2+SYZ**2+SZX**2

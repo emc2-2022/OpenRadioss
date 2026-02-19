@@ -1,42 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_IMPVEL                source/constraints/general/impvel/hm_read_impvel.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        READ_IMPDISP                  source/constraints/general/impvel/read_impdisp.F
-Chd|        READ_IMPDISP_FGEO             source/constraints/general/impvel/read_impdisp_fgeo.F
-Chd|        READ_IMPVEL                   source/constraints/general/impvel/read_impvel.F
-Chd|        READ_IMPVEL_FGEO              source/constraints/general/impvel/read_impvel_fgeo.F
-Chd|        READ_IMPVEL_LAGMUL            source/constraints/general/impvel/read_impvel_lagmul.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_impvel       ../starter/source/constraints/general/impvel/hm_read_impvel.F
+!||--- called by ------------------------------------------------------
+!||    lectur               ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    hm_option_count      ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    read_impdisp         ../starter/source/constraints/general/impvel/read_impdisp.F
+!||    read_impdisp_fgeo    ../starter/source/constraints/general/impvel/read_impdisp_fgeo.F
+!||    read_impvel          ../starter/source/constraints/general/impvel/read_impvel.F
+!||    read_impvel_fgeo     ../starter/source/constraints/general/impvel/read_impvel_fgeo.F
+!||    read_impvel_lagmul   ../starter/source/constraints/general/impvel/read_impvel_lagmul.F
+!||    udouble              ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod   ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod          ../starter/share/message_module/message_mod.F
+!||    submodel_mod         ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_IMPVEL(
      .           FBFVEL   ,IBFVEL   ,IKINE    ,IKINE1LAG,
      .           ITAB     ,ITABM1   ,IGRNOD   ,X0       ,IXR      ,
@@ -49,6 +49,8 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE UNITAB_MOD
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -56,15 +58,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "param_c.inc"
-#include      "my_allocate.inc"
-#include      "submod_c.inc"
-#include      "units_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -76,14 +72,14 @@ C-----------------------------------------------
       INTEGER ,DIMENSION(LNOPT1,*)          ,INTENT(OUT) :: NOM_OPT
       INTEGER ,DIMENSION(NIFV,NFXVEL)       ,INTENT(OUT) :: IBFVEL
       my_real ,DIMENSION(LFXVELR,NFXVEL)    ,INTENT(OUT) :: FBFVEL
-      my_real ,DIMENSION(LUNIT,*)           ,INTENT(IN)  :: UNITAB
+      TYPE(UNIT_TYPE_),INTENT(IN)  :: UNITAB
       my_real ,DIMENSION(3,NUMNOD)          ,INTENT(IN)  :: X0
       TYPE (GROUP_)      ,DIMENSION(NGRNOD) ,INTENT(IN)  :: IGRNOD
       TYPE(SUBMODEL_DATA),DIMENSION(*)      ,INTENT(IN)  :: LSUBMODEL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,IOPT,INUM,NOPT,NFDISP,NFVEL,FGEOD,FGEOV,NIMPDISP_0,LAGMULV
+      INTEGER IOPT,INUM,NOPT,NFDISP,NFVEL,FGEOD,FGEOV,NIMPDISP_0,LAGMULV
       INTEGER ,DIMENSION(:), ALLOCATABLE  :: OPTID
       CHARACTER(nchartitle)  :: MESS
 C-----------------------------------------------
@@ -164,7 +160,8 @@ c
           CALL READ_IMPVEL_LAGMUL(
      .              LAGMULV  ,INUM     ,IOPT     ,FBFVEL   ,IBFVEL   ,
      .              ITAB     ,ITABM1   ,IGRNOD   ,NOM_OPT  ,X0       ,
-     .              IXR      ,IPART    ,IPARTR   ,ISKN     ,IKINE    ,UNITAB   ,LSUBMODEL)
+     .              IXR      ,IPART    ,IPARTR   ,ISKN     ,IKINE    ,
+     .              UNITAB   ,LSUBMODEL)
         END IF
 c
 c       TEST DOUBLE IDs of IMPVEL

@@ -1,94 +1,87 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP26                source/properties/spring/hm_read_prop26.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX_DIM  source/devtools/hm_reader/hm_get_float_array_index_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop26                 ../starter/source/properties/spring/hm_read_prop26.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties             ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                         ../starter/source/output/message/message.F
+!||    fretitl2                       ../starter/source/starter/freform.F
+!||    hm_get_float_array_index       ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_float_array_index_dim   ../starter/source/devtools/hm_reader/hm_get_float_array_index_dim.F
+!||    hm_get_floatv                  ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim              ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index         ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                    ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted         ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod                   ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod                    ../starter/share/message_module/message_mod.F
+!||    submodel_mod                   ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP26(GEO     , IGEO  , UNITAB   , IG   , IGTYP,
-     .                          PROP_TAG, IDTITL, LSUBMODEL)
+     .                          PROP_TAG, LSUBMODEL)
 C-----------------------------------------------
       USE UNITAB_MOD
       USE ELBUFTAG_MOD    
       USE MESSAGE_MOD
-      USE SUBMODEL_MOD     
+      USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
 #include      "tablen_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER  IGEO(NPROPGI),IG,IGTYP,FLAG_FMT
+      INTEGER  IGEO(NPROPGI),IG,IGTYP
 C     REAL
       my_real
      .   GEO(NPROPG)
-      CHARACTER IDTITL*nchartitle
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-       INTEGER I,J,NFUNC,NFUND,IFUN,IAD,ISENS,IFL,ILENG,IRTYP
+       INTEGER I,NFUNC,NFUND,IFUN,IAD,ISENS,IFL,ILENG,IRTYP
 C     REAL
       my_real
      .   MASS,KMAX,DMAX,XFAC,YFAC,RATE,ALPHA,DMIN,
      .   PUN,YFAC_DIM,XFAC_DIM
-      CHARACTER*nchartitle,
-     .   TITR
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
 C=======================================================================
       PUN = EM01
 C
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 C
       IGEO( 1)=IG
@@ -98,7 +91,7 @@ C
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
@@ -243,7 +236,7 @@ C
       GEO(80)=IFL                                                     
       GEO(93)=ILENG                                                   
 C
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,1000)IG
       ELSE
         WRITE(IOUT,1500)IG,MASS,KMAX,NFUNC,NFUND,DMIN,DMAX,ALPHA,XFAC,ILENG
@@ -266,6 +259,7 @@ C
       PROP_TAG(IGTYP)%G_POSX = 5  !  just temp - not really used - 
       PROP_TAG(IGTYP)%G_LENGTH_ERR = 1
       PROP_TAG(IGTYP)%G_DV = 1
+      PROP_TAG(IGTYP)%G_RUPTCRIT = 1
 C
 C-----------
       RETURN
@@ -298,8 +292,7 @@ C-----------
      & 5X,'UNLOADING FUNCTION NUMBER . . . . . . . =',I10/
      & 7X,'SCALE FACTOR. . . . . . . . . . . . . . =',1PG20.13/
      & 7X,'STRAIN RATE . . . . . . . . . . . . . . =',1PG20.13)
-c      sensor and sensor flag not used    
- 999  CALL FREERR(1)
+c      sensor and sensor flag not used  
 C-----------
       RETURN
       END SUBROUTINE HM_READ_PROP26

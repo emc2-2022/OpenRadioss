@@ -1,39 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP27                source/properties/spring/hm_read_prop27.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop27           ../starter/source/properties/spring/hm_read_prop27.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties       ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP27(GEO      ,IGEO     ,PROP_TAG ,IGTYP    ,IG       ,
      .                          UNITAB   ,LSUBMODEL)
 C-----------------------------------------------
@@ -47,21 +48,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sphcom.inc"
 #include      "tablen_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -75,23 +66,23 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IFUNC,IFUNC2,ISENS,IFL,IFAIL,J,ILENG,ITENS,Fsmooth
+      INTEGER IFUNC,IFUNC2,ISENS,IFL,IFAIL,ILENG,ITENS,Fsmooth
 C     REAL
       my_real
      .   MASS,STIFF,DAMP,GAP,MIN_RUP,MAX_RUP,
      .   ASCALE1,ASCALE2,FSCALE1,FSCALE2,
      .   ASCALE1_UNIT,ASCALE2_UNIT,FSCALE1_UNIT,
      .   FSCALE2_UNIT,NEXP,FCUT 
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
 C=======================================================================
 C
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED   = .FALSE.
       IS_AVAILABLE = .FALSE.
 C
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
@@ -159,12 +150,12 @@ C
       IF (MAX_RUP == ZERO) MAX_RUP = INFINITY
       ! Filtering frequency
       IF (FCUT /= ZERO) THEN
-        ! If a flitering frequency is given by the user
+        ! If a filtering frequency is given by the user
         Fsmooth = 1
       ELSE
         ! If no filtering frequency is given but the flag is activated
         IF (Fsmooth /= 0) THEN
-          FCUT  = 100000.0D0*FAC_T_WORK  
+          FCUT  = 100000.0D0*UNITAB%FAC_T_WORK  
         ! If no filtering frequency and no flag is activated => no filtering
         ELSE
           FCUT  = ZERO
@@ -218,18 +209,19 @@ C-----------------------------
       PROP_TAG(IGTYP)%G_LENGTH      = 1  ! X0 (AL0) - total length
       PROP_TAG(IGTYP)%G_TOTDEPL     = 1  ! DX - total deformation (translation)
       PROP_TAG(IGTYP)%G_DEP_IN_TENS = 1  ! DPX  (DPY,DPZ) - max displacement in tension
-      PROP_TAG(IGTYP)%G_DEP_IN_COMP = 1  ! DPX2 (DPY2,DPZ2) - max displacelent in compresion
+      PROP_TAG(IGTYP)%G_DEP_IN_COMP = 1  ! DPX2 (DPY2, DPZ2) - Max Displacement in Compression
       PROP_TAG(IGTYP)%G_POSX        = 5
       PROP_TAG(IGTYP)%G_LENGTH_ERR  = 1
-      PROP_TAG(IGTYP)%G_NUVAR       = MAX(PROP_TAG(IGTYP)%G_NUVAR,NINT(GEO(25))) ! addtional internal variables for h=6
+      PROP_TAG(IGTYP)%G_NUVAR       = MAX(PROP_TAG(IGTYP)%G_NUVAR,NINT(GEO(25))) ! additional internal variables for h=6
       PROP_TAG(IGTYP)%G_DEFINI      = 1
       PROP_TAG(IGTYP)%G_FORINI      = 1
+      PROP_TAG(IGTYP)%G_RUPTCRIT = 1
 C
 C-----------------------------
 C       PRINTING OUT DATA
 C-----------------------------
       WRITE(IOUT,2000)
-      IF (.NOT. IS_CRYPTED) THEN
+      IF (.NOT. IS_ENCRYPTED) THEN
         ! Property and spring mass
         IF (ILENG == 0) THEN
           WRITE(IOUT,1400) IG,MASS

@@ -1,62 +1,66 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVBRIC1                       source/airbag/fvbric1.F       
-Chd|-- called by -----------
-Chd|        INIT_MONVOL                   source/airbag/init_monvol.F   
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FVNORMAL                      source/airbag/fvmbag1.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|====================================================================
-      SUBROUTINE FVBRIC1(T_MONVOLN, IBUF , ELEM  , IXS    , IBRIC,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvbric1_mod   ../starter/source/airbag/fvbric1.F
+!||--- called by ------------------------------------------------------
+!||    init_monvol   ../starter/source/airbag/init_monvol.F
+!||====================================================================
+      MODULE FVBRIC1_MOD
+      CONTAINS
+!||====================================================================
+!||    fvbric1                ../starter/source/airbag/fvbric1.F
+!||--- called by ------------------------------------------------------
+!||    init_monvol            ../starter/source/airbag/init_monvol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fvnormal               ../starter/source/airbag/fvmbag1.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod      ../starter/share/modules1/monvol_struct_mod.F
+!||====================================================================
+      SUBROUTINE FVBRIC1(T_MONVOLN, IBUF , ELEM  , IXS    ,
      .                   TBRIC, NEL   , NELA   , NBRIC, 
      .                   TFAC , TAGELS, MONVID , NELI,
      .                   NNA   , ILVOUT ,
      .                   ELTG , X     , TITR, NB_NODE)
       USE MESSAGE_MOD
       USE MONVOL_STRUCT_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs      
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(MONVOL_STRUCT_), INTENT(INOUT) :: T_MONVOLN
       INTEGER IXS(NIXS,*),
-     .        IBRIC, NEL, NELA, NBRIC, 
+     .        NEL, NELA, NBRIC,
      .        MONVID, NNA, ILVOUT,
      .        NELI, NB_NODE
       INTEGER, DIMENSION(T_MONVOLN%NNS + T_MONVOLN%NNI), INTENT(IN) :: IBUF
@@ -65,15 +69,13 @@ C-----------------------------------------------
       INTEGER, DIMENSION(2, NBRIC), INTENT(IN) :: TBRIC
       INTEGER, DIMENSION(12, NBRIC), INTENT(INOUT) :: TFAC
       INTEGER, DIMENSION(NEL + NELI), INTENT(IN) :: ELTG
-      my_real
-     .        X(3,*)
-      CHARACTER*nchartitle,
-     .        TITR
+      my_real X(3,*)
+      CHARACTER(len=nchartitle) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, ITAG(NB_NODE), IAD, J, NG, NNO, NFAC, NV, NG2, NALL, 
-     .        NC, NNO2, K, KK, L, JJ, II,
+      INTEGER I, ITAG(NB_NODE), IAD, J, NFAC, NV, NALL,
+     .        K, KK, L, JJ, II,
      .        ITAG2(NB_NODE), NALL2, LL, N1, N2, N3, N4,
      .        INFO, NFAC2, NN1, NN2, NN3, NN4,
      .        IERROR, ISPLIT, IFOUND, NTYPE, NTYPE2, NELT
@@ -108,12 +110,16 @@ C
       DATA NOD5 /3,3,3,3,4/
       DATA NFACE/6,4,5,5/
       INTEGER, DIMENSION(:), ALLOCATABLE :: ADSKY, ADDCNET, CNT
-      INTEGER :: IAD1, IAD2, IP1(4), IP2(4), NODEID, TRIID, NOD1(4), NOD2(4), IS
-      LOGICAL :: FOUND
-      INTEGER :: FNOD1(4), NID(4), NID2(3)
+      INTEGER :: IAD1, IAD2, NODEID, TRIID
+      INTEGER :: NID(4), NID2(3)
       INTEGER, DIMENSION(:, :), POINTER :: FAC
       INTEGER, DIMENSION(:), POINTER :: NOD
 
+
+      !Initialize 
+      FAC => NULL()
+      NOD => NULL()
+      NALL = 0
       ALLOCATE(ADDCNET(NB_NODE + 1), ADSKY(NB_NODE + 1))
       DO I=1,NB_NODE
          ADDCNET(I) = 0
@@ -172,6 +178,10 @@ C
             FAC => FAC5(1:4, 1:5)
             NOD => NOD5(1:5)
          CASE DEFAULT
+            FAC => FAC5(1:4, 1:5)
+            NOD => NOD5(1:5)
+ 
+            
 C     ERROR
          END SELECT
          DO J=1,NFAC
@@ -183,8 +193,8 @@ C     ERROR
                NID(K) = IXS(1+KK,II)
             ENDDO
 C
-            IF (TFAC(2*(J-1)+1,I).EQ.0) THEN
-               IF (NALL.EQ.1) THEN
+            IF (TFAC(2*(J-1)+1,I)==0) THEN
+               IF (NALL==1) THEN
                   TFAC(2*(J-1)+1,I)=2
                   DO K = 1, NOD(J)
                      KK = FAC(K, J)
@@ -206,12 +216,12 @@ C     the face have to be considered
                            NID2(KK) = IBUF(ELEM(KK, TRIID))
                            NALL2 = NALL2 * ITAG2(NID2(KK))
                         ENDDO
-                        IF (NALL2 .EQ. 1) THEN
+                        IF (NALL2 == 1) THEN
                            IFOUND = IFOUND + 1
                            TAGELS(TRIID) = I
                            CALL FVNORMAL(X,NID2(1),NID2(2),NID2(3),0,NEX,NEY,NEZ)
                            SS=NSX*NEX+NSY*NEY+NSZ*NEZ
-                           IF (SS.LE.ZERO) THEN
+                           IF (SS<=ZERO) THEN
                               CALL ANCMSG(MSGID=634,
      .                             MSGTYPE=MSGERROR,
      .                             ANMODE=ANINFO_BLIND_1,
@@ -257,8 +267,8 @@ C
                   ENDIF
                ENDIF
 C
-            ELSEIF (TFAC(2*(J-1)+1,I).EQ.-2) THEN
-               IF (NALL.EQ.1) THEN
+            ELSEIF (TFAC(2*(J-1)+1,I)==-2) THEN
+               IF (NALL==1) THEN
                   DO K = 1, NOD(J)
                      KK = FAC(K, J)
                      ITAG2(IXS(1+KK,II))=1
@@ -270,7 +280,7 @@ C
                         LL=IBUF(ELEM(L,K))
                         NALL2=NALL2*ITAG2(LL)
                      ENDDO
-                     IF (NALL2.EQ.1) THEN
+                     IF (NALL2==1) THEN
                         IF (TAGELS(2*K-NEL-1) == 0) THEN
                            TAGELS(2*K-NEL-1)=I
                         ELSE 
@@ -330,20 +340,20 @@ C
         ENDDO
       ENDIF
 C
-C Verification de l'orientation des briques totalement internes
+C Verification of the orientation of totally internal bricks
 C
-      IF (INFO.EQ.0) THEN
+      IF (INFO==0) THEN
          DO I=1,NB_NODE
             ITAG(I)=0
          ENDDO
 C
          DO I=1,NBRIC
-CFA Une brique appuye sur l'airbag a des faces internes
+CA brick pressed against the airbag has internal faces
             II=TBRIC(1,I)
             NTYPE=TBRIC(2,I)
             NFAC=NFACE(NTYPE)
             DO J=1,NFAC
-               IF (TFAC(2*(J-1)+1,I).NE.1) CYCLE
+               IF (TFAC(2*(J-1)+1,I)/=1) CYCLE
                NV=TFAC(2*(J-1)+2,I)
 C
                IF (NTYPE==2) THEN
@@ -351,7 +361,7 @@ C
                      KK=FAC4(K,J)
                      ITAG(IXS(1+KK,II))=1
                   ENDDO
-C Normale a la facette solide
+C Normal to the solid facet
                   N1=IXS(1+FAC4(1,J),II)
                   N2=IXS(1+FAC4(2,J),II)
                   N3=IXS(1+FAC4(3,J),II)
@@ -362,11 +372,11 @@ C Normale a la facette solide
                      KK=FAC6(K,J)
                      ITAG(IXS(1+KK,II))=1
                   ENDDO
-C Normale a la facette solide
+C Normal to the solid facet
                   N1=IXS(1+FAC6(1,J),II)
                   N2=IXS(1+FAC6(2,J),II)
                   N3=IXS(1+FAC6(3,J),II)
-                  IF(NOD6(J).EQ.4) THEN
+                  IF(NOD6(J)==4) THEN
                      N4=IXS(1+FAC6(4,J),II)
                   ELSE
                      N4=0
@@ -377,11 +387,11 @@ C Normale a la facette solide
                      KK=FAC5(K,J)
                      ITAG(IXS(1+KK,II))=1
                   ENDDO
-C Normale a la facette solide
+C Normal to the solid facet
                   N1=IXS(1+FAC5(1,J),II)
                   N2=IXS(1+FAC5(2,J),II)
                   N3=IXS(1+FAC5(3,J),II)
-                  IF(NOD5(J).EQ.4) THEN
+                  IF(NOD5(J)==4) THEN
                      N4=IXS(1+FAC5(4,J),II)
                   ELSE
                      N4=0
@@ -392,7 +402,7 @@ C Normale a la facette solide
                      KK=FAC8(K,J)
                      ITAG(IXS(1+KK,II))=1
                   ENDDO
-C Normale a la facette solide
+C Normal to the solid facet
                   N1=IXS(1+FAC8(1,J),II)
                   N2=IXS(1+FAC8(2,J),II)
                   N3=IXS(1+FAC8(3,J),II)
@@ -428,8 +438,8 @@ C
                         NALL=NALL*ITAG(IXS(1+LL,TBRIC(1,NV)))
                      ENDDO
                   ENDIF
-                  IF (NALL.EQ.0) CYCLE
-C Normale a la facette du voisin
+                  IF (NALL==0) CYCLE
+C Normal to the neighbor facet
                   IF (NTYPE2==2) THEN
                      NN1=IXS(1+FAC4(1,K),TBRIC(1,NV))
                      NN2=IXS(1+FAC4(2,K),TBRIC(1,NV))
@@ -440,7 +450,7 @@ C Normale a la facette du voisin
                      NN1=IXS(1+FAC6(1,K),TBRIC(1,NV))
                      NN2=IXS(1+FAC6(2,K),TBRIC(1,NV))
                      NN3=IXS(1+FAC6(3,K),TBRIC(1,NV))
-                     IF(NOD6(K).EQ.4) THEN
+                     IF(NOD6(K)==4) THEN
                         NN4=IXS(1+FAC6(4,K),TBRIC(1,NV))
                      ELSE
                         NN4=0
@@ -450,7 +460,7 @@ C Normale a la facette du voisin
                      NN1=IXS(1+FAC5(1,K),TBRIC(1,NV))
                      NN2=IXS(1+FAC5(2,K),TBRIC(1,NV))
                      NN3=IXS(1+FAC5(3,K),TBRIC(1,NV))
-                     IF(NOD5(K).EQ.4) THEN
+                     IF(NOD5(K)==4) THEN
                         NN4=IXS(1+FAC5(4,K),TBRIC(1,NV))
                      ELSE
                         NN4=0
@@ -465,7 +475,7 @@ C Normale a la facette du voisin
                   ENDIF
 C
                   SS=NSX*NSX2+NSY*NSY2+NSZ*NSZ2
-                  IF (SS.GE.ZERO) THEN
+                  IF (SS>=ZERO) THEN
                      CALL ANCMSG(MSGID=634,
      .                           MSGTYPE=MSGERROR,
      .                           ANMODE=ANINFO_BLIND_1,
@@ -502,17 +512,17 @@ C
          ENDDO
       ENDIF
 C
-C Ajout des triangles airbag et interne non appuye sur une brique
+C Addition of airbag triangles and internal triangles not pressed against a brick
 C
       DO I=1,NELT
-         IF (TAGELS(I).EQ.0) NELA=NELA+1
+         IF (TAGELS(I)==0) NELA=NELA+1
       ENDDO
 C
       IF(NELA > 0) THEN
         WRITE(IOUT,'(/5X,A,I10/)') 'NUMBER OF AIRBAG TRIANGLES NOT CONNECTED TO A SOLID ELEMENT . .=',NELA
-      ENDIF	  
+      ENDIF    
 C
-C Noeuds auxiliaires
+C Auxiliary nodes
 C
       DO I=1,NB_NODE
          ITAG(I)=0
@@ -546,7 +556,7 @@ C
       ENDDO
       NNA=0
       DO I=1,NB_NODE
-         IF (ITAG(I).EQ.1) THEN
+         IF (ITAG(I)==1) THEN
             NNA=NNA+1
          ENDIF
       ENDDO
@@ -568,7 +578,7 @@ C
 
       NNA=0
       DO I=1,NB_NODE
-         IF (ITAG(I).EQ.1) THEN
+         IF (ITAG(I)==1) THEN
             NNA=NNA+1
             T_MONVOLN%IBUFA(NNA)=I
          ENDIF
@@ -578,5 +588,6 @@ C
       IF (ALLOCATED(ADSKY)) DEALLOCATE(ADSKY)
       IF (ALLOCATED(CNT)) DEALLOCATE(CNT)
       RETURN
-      END
+      END SUBROUTINE FVBRIC1
+      END MODULE FVBRIC1_MOD
 

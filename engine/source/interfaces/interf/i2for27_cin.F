@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2FOR27_CIN                   source/interfaces/interf/i2for27_cin.F
-Chd|-- called by -----------
-Chd|        I2FOR27                       source/interfaces/interf/i2for27.F
-Chd|-- calls ---------------
-Chd|        I2CIN_ROT27                   ../common_source/interf/i2cin_rot27.F
-Chd|        I2FORCES                      source/interfaces/interf/i2forces.F
-Chd|        I2LOCEQ_27                    ../common_source/interf/i2loceq.F
-Chd|        I2REP                         ../common_source/interf/i2rep.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2for27_cin   ../engine/source/interfaces/interf/i2for27_cin.F
+!||--- called by ------------------------------------------------------
+!||    i2for27       ../engine/source/interfaces/interf/i2for27.F
+!||--- calls      -----------------------------------------------------
+!||    i2cin_rot27   ../common_source/interf/i2cin_rot27.F
+!||    i2forces      ../engine/source/interfaces/interf/i2forces.F
+!||    i2loceq_27    ../common_source/interf/i2loceq.F
+!||    i2rep         ../common_source/interf/i2rep.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod       ../engine/share/modules/h3d_mod.F
+!||====================================================================
       SUBROUTINE I2FOR27_CIN(NSN    ,NMN    ,A      ,IRECT  ,CRST   ,
      2                   MSR    ,NSV    ,IRTL   ,MS     ,WEIGHT ,
      3                   STIFN  ,MMASS  ,IDEL2  ,SMASS  ,X      ,
@@ -60,10 +61,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "impl1_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
@@ -73,7 +70,7 @@ C-----------------------------------------------
      .        IX1,IX2,IX3,IX4
 C     REAL
       my_real
-     .   H(4),XMSJ, SS, ST, XMSI, FXI, FYI, FZI,SP,SM,TP,TM,
+     .   H(4), SS, ST, XMSI,FS(3),SP,SM,TP,TM,
      .   E1X,E1Y,E1Z,E2X,E2Y,E2Z,E3X,E3Y,E3Z,
      .   X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,X0,Y0,Z0,XS(3),XM(3),
      .   STIFM,FMX(4),FMY(4),FMZ(4),FX(4),FY(4),FZ(4),
@@ -81,20 +78,20 @@ C     REAL
      .   MXS,MYS,MZS,STIFMR,DWDU,RM(3),BETAX,BETAY,H2(4),MXI,MYI,MZI
 C=======================================================================
       NIR=2
-      IF(N2D.EQ.0)NIR=4
+      IF(N2D==0)NIR=4
 C
-      IF(IMPL_S.GT.0) THEN
+      IF(IMPL_S>0) THEN
       DO II=1,NSN
        K = INDXC(II)
        IF (K == 0) CYCLE
        I = NSV(K)
-       IF(I.GT.0)THEN
+       IF(I>0)THEN
         L=IRTL(II)
 C
         XMSI=MS(I)*WEIGHT(I)
-        FXI=A(1,I)*WEIGHT(I)
-        FYI=A(2,I)*WEIGHT(I)
-        FZI=A(3,I)*WEIGHT(I)
+        FS(1)=A(1,I)*WEIGHT(I)
+        FS(2)=A(2,I)*WEIGHT(I)
+        FS(3)=A(3,I)*WEIGHT(I)
 C
         IF (IRODDL == 1) THEN
           MXI=AR(1,I)*WEIGHT(I)
@@ -156,19 +153,19 @@ C
             X1  = X(1,IX1)                                       
             Y1  = X(2,IX1)                                          
             Z1  = X(3,IX1)                                          
-            X2  = X(1,IX2)					     
-            Y2  = X(2,IX2)					     
-            Z2  = X(3,IX2)					     
-            X3  = X(1,IX3)					     
-            Y3  = X(2,IX3)					     
-            Z3  = X(3,IX3)					     
-            X4  = X(1,IX4)					     
-            Y4  = X(2,IX4)					     
-            Z4  = X(3,IX4)					     
+            X2  = X(1,IX2)               
+            Y2  = X(2,IX2)               
+            Z2  = X(3,IX2)               
+            X3  = X(1,IX3)               
+            Y3  = X(2,IX3)               
+            Z3  = X(3,IX3)               
+            X4  = X(1,IX4)               
+            Y4  = X(2,IX4)               
+            Z4  = X(3,IX4)               
             XS(1)  = X(1,I)                                          
             XS(2)  = X(2,I)                                         
             XS(3)  = X(3,I)                                           
-C								
+C
             CALL I2REP(X1     ,X2     ,X3     ,X4     ,
      .               Y1     ,Y2     ,Y3     ,Y4     ,
      .               Z1     ,Z2     ,Z3     ,Z4     ,
@@ -245,9 +242,9 @@ C---- computation of kinematic parameters and stbrk - local coordinates
 C               
 C---- computation of force in local skew
 C
-            FLX = FXI*E1X + FYI*E1Y + FZI*E1Z
-            FLY = FXI*E2X + FYI*E2Y + FZI*E2Z
-            FLZ = FXI*E3X + FYI*E3Y + FZI*E3Z
+            FLX = FS(1)*E1X + FS(2)*E1Y + FS(3)*E1Z
+            FLY = FS(1)*E2X + FS(2)*E2Y + FS(3)*E2Z
+            FLZ = FS(1)*E3X + FS(2)*E3Y + FS(3)*E3Z
 C
             DO J=1,4
               FMX(J) = H(J)*FLX
@@ -261,7 +258,7 @@ C---- update main forces (moment balance) - local coordinates RX
               MYS = MXI*E2X + MYI*E2Y + MZI*E2Z
               MZS = MXI*E3X + MYI*E3Y + MZI*E3Z
               
-C--           moment balance + moment transfer
+C- Balance time + Transfer moment
               CALL I2LOCEQ_27(NIR    ,RS     ,RX     ,RY     ,RZ      ,    
      .                        FMX    ,FMY    ,FMZ    ,H      ,STIFM   ,
      .                        MXS    ,MYS    ,MZS    ,STIFMR ,BETAX   ,
@@ -271,7 +268,7 @@ C--           moment balance + moment transfer
               MYS = ZERO
               MZS = ZERO
 
-C--           moment balance
+C- Balance moment
               CALL I2LOCEQ_27(NIR    ,RS     ,RX     ,RY     ,RZ      ,    
      .                        FMX    ,FMY    ,FMZ    ,H      ,STIFM   ,
      .                        MXS    ,MYS    ,MZS    ,STIFMR ,BETAX   ,
@@ -298,9 +295,9 @@ C
             DWDU=ZERO 
 C
             DO J=1,4
-              FX(J) = FXI*H(J)
-              FY(J) = FYI*H(J)
-              FZ(J) = FZI*H(J)
+              FX(J) = FS(1)*H(J)
+              FY(J) = FS(2)*H(J)
+              FZ(J) = FS(3)*H(J)
             ENDDO
 C
         ENDIF
@@ -326,12 +323,12 @@ C
         END IF
 C 
 C---    output of tied contact forces
- 	CALL I2FORCES(X      ,V	,A	 ,MS	  ,I	  ,
-     .	              IRECT(1,L),H	,NIR     ,FSAV    ,FNCONT ,
-     .                FNCONTP,FTCONTP ,WEIGHT  ,H3D_DATA)
+        CALL I2FORCES(X       ,FS     ,FX     ,FY      ,FZ     ,
+     .                IRECT(1,L),NIR  ,FSAV   ,FNCONT  ,FNCONTP,
+     .                FTCONTP ,WEIGHT ,H3D_DATA,I      ,H)
 C      
-        IF(IRODDL.EQ.0)THEN
-          IF(IDEL2.NE.0.AND.MS(I).NE.0.)SMASS(II)=MS(I)
+        IF(IRODDL==0)THEN
+          IF(IDEL2/=0.AND.MS(I)/=0.)SMASS(II)=MS(I)
           MS(I)=ZERO
           STIFN(I)=EM20
           A(1,I)=ZERO
@@ -350,13 +347,13 @@ c
        K = INDXC(II)
        IF (K == 0) CYCLE
        I = NSV(K)
-       IF(I.GT.0)THEN
+       IF(I>0)THEN
         L=IRTL(II)
 C
         XMSI=MS(I)*WEIGHT(I)
-        FXI=A(1,I)*WEIGHT(I)
-        FYI=A(2,I)*WEIGHT(I)
-        FZI=A(3,I)*WEIGHT(I)
+        FS(1)=A(1,I)*WEIGHT(I)
+        FS(2)=A(2,I)*WEIGHT(I)
+        FS(3)=A(3,I)*WEIGHT(I)
 C
         IF (IRODDL == 1) THEN
           MXI=AR(1,I)*WEIGHT(I)
@@ -418,19 +415,19 @@ C
             X1  = X(1,IX1)                                       
             Y1  = X(2,IX1)                                          
             Z1  = X(3,IX1)                                          
-            X2  = X(1,IX2)					     
-            Y2  = X(2,IX2)					     
-            Z2  = X(3,IX2)					     
-            X3  = X(1,IX3)					     
-            Y3  = X(2,IX3)					     
-            Z3  = X(3,IX3)					     
-            X4  = X(1,IX4)					     
-            Y4  = X(2,IX4)					     
-            Z4  = X(3,IX4)					     
+            X2  = X(1,IX2)               
+            Y2  = X(2,IX2)               
+            Z2  = X(3,IX2)               
+            X3  = X(1,IX3)               
+            Y3  = X(2,IX3)               
+            Z3  = X(3,IX3)               
+            X4  = X(1,IX4)               
+            Y4  = X(2,IX4)               
+            Z4  = X(3,IX4)               
             XS(1)  = X(1,I)                                          
             XS(2)  = X(2,I)                                         
             XS(3)  = X(3,I)                                           
-C								
+C
             CALL I2REP(X1     ,X2     ,X3     ,X4     ,
      .               Y1     ,Y2     ,Y3     ,Y4     ,
      .               Z1     ,Z2     ,Z3     ,Z4     ,
@@ -507,9 +504,9 @@ C---- computation of kinematic parameters and stbrk - local coordinates
 C               
 C---- computation of force in local skew
 C
-            FLX = FXI*E1X + FYI*E1Y + FZI*E1Z
-            FLY = FXI*E2X + FYI*E2Y + FZI*E2Z
-            FLZ = FXI*E3X + FYI*E3Y + FZI*E3Z
+            FLX = FS(1)*E1X + FS(2)*E1Y + FS(3)*E1Z
+            FLY = FS(1)*E2X + FS(2)*E2Y + FS(3)*E2Z
+            FLZ = FS(1)*E3X + FS(2)*E3Y + FS(3)*E3Z
 C
             DO J=1,4
               FMX(J) = H(J)*FLX
@@ -523,7 +520,7 @@ C---- update main forces (moment balance)
               MYS = MXI*E2X + MYI*E2Y + MZI*E2Z
               MZS = MXI*E3X + MYI*E3Y + MZI*E3Z
               
-C--           moment balance + moment transfer
+C- Balance time + Transfer moment
               CALL I2LOCEQ_27(NIR    ,RS     ,RX     ,RY     ,RZ      ,    
      .                        FMX    ,FMY    ,FMZ    ,H      ,STIFM   ,
      .                        MXS    ,MYS    ,MZS    ,STIFMR ,BETAX   ,
@@ -533,7 +530,7 @@ C--           moment balance + moment transfer
               MYS = ZERO
               MZS = ZERO
 
-C--           moment balance
+C- Balance moment
               CALL I2LOCEQ_27(NIR    ,RS     ,RX     ,RY     ,RZ      ,    
      .                        FMX    ,FMY    ,FMZ    ,H      ,STIFM   ,
      .                        MXS    ,MYS    ,MZS    ,STIFMR ,BETAX   ,
@@ -560,9 +557,9 @@ C
             DWDU=ZERO  
 C
             DO J=1,4
-              FX(J) = FXI*H(J)
-              FY(J) = FYI*H(J)
-              FZ(J) = FZI*H(J)
+              FX(J) = FS(1)*H(J)
+              FY(J) = FS(2)*H(J)
+              FZ(J) = FS(3)*H(J)
             ENDDO
 C
         ENDIF
@@ -593,12 +590,12 @@ C----   For AMS scaling factor on stiffness is stored - only used for solid main
         ENDIF
 C
 C---    output of tied contact forces
- 	CALL I2FORCES(X      ,V	,A	 ,MS	  ,I	  ,
-     .	              IRECT(1,L),H	,NIR     ,FSAV    ,FNCONT ,
-     .                FNCONTP,FTCONTP ,WEIGHT  ,H3D_DATA)
+        CALL I2FORCES(X       ,FS     ,FX     ,FY      ,FZ     ,
+     .                IRECT(1,L),NIR  ,FSAV   ,FNCONT  ,FNCONTP,
+     .                FTCONTP ,WEIGHT ,H3D_DATA,I      ,H)
 C
-        IF(IRODDL.EQ.0)THEN
-          IF(IDEL2.NE.0.AND.MS(I).NE.0.) SMASS(II)=MS(I)
+        IF(IRODDL==0)THEN
+          IF(IDEL2/=0.AND.MS(I)/=0.) SMASS(II)=MS(I)
           MS(I)=ZERO
           STIFN(I)=EM20
           A(1,I)=ZERO

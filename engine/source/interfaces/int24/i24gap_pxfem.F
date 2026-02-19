@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I24GAP_PXFEM                  source/interfaces/int24/i24gap_pxfem.F
-Chd|-- called by -----------
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|-- calls ---------------
-Chd|        PLYXFEM_MOD                   share/modules/plyxfem_mod.F   
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i24gap_pxfem   ../engine/source/interfaces/int24/i24gap_pxfem.F
+!||--- called by ------------------------------------------------------
+!||    i24mainf       ../engine/source/interfaces/int24/i24main.F
+!||--- uses       -----------------------------------------------------
+!||    plyxfem_mod    ../engine/share/modules/plyxfem_mod.F
+!||    tri7box        ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24GAP_PXFEM(
      1                  NRTM     ,IRECT,CAND_E ,GAP_NM , 
      2                  MVOISIN ,NVOISIN , MSEGTYP ,INOD_PXFEM ,
@@ -46,12 +46,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "com01_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "task_c.inc"
-#include      "impl1_c.inc"
 #include      "comlock.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -64,41 +58,35 @@ C-----------------------------------------------
      .     GAP_NM(12,*),WAGAP(2,*),MS_PLY(NPLYXFE,*),X(3,*),
      .     STFM(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com08_c.inc"
-#include      "parit_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER ITAG(MVSIZ),ISEG(NRTM), IXX(NRTM,13),INDX(NRTM)
-      INTEGER I,J1,J2,J3,J4,J5,J6,NN,ILY,IJ6,J7,J8,J9,J10,J11,J12,J,IX,
-     .        IDX, NINDX,II
+      INTEGER ISEG(NRTM), IXX(NRTM,13),INDX(NRTM)
+      INTEGER I,J1,J2,J3,J4,J5,J6,NN,ILY,J7,J8,J9,J10,J11,J12,J,IX,
+     .         NINDX,II
       my_real
      .     XO16, XO17, XO15, XO14, X163, X153, X152, X142, X141, 
      .     YO16, YO17, YO15, YO14, Y163, Y153, Y152, Y142, Y141, 
      .     ZO16, ZO17, ZO15, ZO14, Z163, Z153, Z152, Z142, Z141,
      .     X51 , Y51,Z51,X52,Y52,Z52,X53,Y53,Z53,X54,Y54,Z54  ,
      .     X164,Y164,Z164,X174,Y174,Z174,X171,Y171,Z171,NX1,
-     .     NY1,NZ1,AAA,GAPN,NX2,NY2,NZ2,NX3,NY3,NZ3,DX,DY,DZ,
+     .     NY1,NZ1,AAA,GAPN,NX2,NY2,NZ2,NX3,NY3,NZ3,
      .     NX4,NY4,NZ4,
-     .     SX125(NRTM),SX235(NRTM),SX345(NRTM),SX415(NRTM),
-     .     SY125(NRTM),SY235(NRTM),SY345(NRTM),SY415(NRTM),
-     .     SZ125(NRTM),SZ235(NRTM),SZ345(NRTM),SZ415(NRTM),
+     .     
+     .     
+     .     
      .     SX1250(NRTM),SX2350(NRTM),SX3450(NRTM),SX4150(NRTM),
      .     SY1250(NRTM),SY2350(NRTM),SY3450(NRTM),SY4150(NRTM),
      .     SZ1250(NRTM),SZ2350(NRTM),SZ3450(NRTM),SZ4150(NRTM),
-     .     SX2114(NRTM),SX3215(NRTM),SX4316(NRTM),SX1417(NRTM),
-     .     SY2114(NRTM),SY3215(NRTM),SY4316(NRTM),SY1417(NRTM),
-     .     SZ2114(NRTM),SZ3215(NRTM),SZ4316(NRTM),SZ1417(NRTM),
+     .     
+     .     
+     .     
      .     SX21140(NRTM),SX32150(NRTM),SX43160(NRTM),SX14170(NRTM),
      .     SY21140(NRTM),SY32150(NRTM),SY43160(NRTM),SY14170(NRTM),
      .     SZ21140(NRTM),SZ32150(NRTM),SZ43160(NRTM),SZ14170(NRTM),
      .     NXX(NRTM,17),NYY(NRTM,17),NZZ(NRTM,17),BBB,
      .     XX0(NRTM,17),YY0(NRTM,17),ZZ0(NRTM,17),DN
 C --------------------------------------------------------------------- 
-C  all cordinate of segment
+C  all coordinates of segment
 C
 C initiailisation
       NINDX =0
@@ -291,7 +279,7 @@ C
 C       
 C--------------------------------------------------------
 C
-C  for update of gap when main segement is ply-xfem formulation
+C  for update of gap when main segment is ply-xfem formulation
 C           <
          DO II=1,NINDX
           I = INDX(II) 

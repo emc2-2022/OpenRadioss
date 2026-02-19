@@ -1,45 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  A22CONV3                      source/ale/alefvm/cut_cells/a22conv3.F
-Chd|-- called by -----------
-Chd|        ACONVE                        source/ale/aconve.F           
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
-      SUBROUTINE A22CONV3(            PHI  ,  FLUX ,   FLU1,
-     .                    IOFF ,  QMV  ,   IFLG,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    a22conv3             ../engine/source/ale/alefvm/cut_cells/a22conv3.F
+!||--- called by ------------------------------------------------------
+!||    aconve               ../engine/source/ale/aconve.F90
+!||--- calls      -----------------------------------------------------
+!||    my_barrier           ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    alefvm_mod           ../common_source/modules/ale/alefvm_mod.F
+!||    elbufdef_mod         ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod          ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod           ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    multimat_param_mod   ../common_source/modules/multimat_param_mod.F90
+!||====================================================================
+      SUBROUTINE A22CONV3(PHI  ,
+     .                    IFLG      ,
      .                    ITRIMAT   , NVAR ,  ITASK,
-     .                    ELBUF_TAB , IXS  ,  IPARG)
+     .                    ELBUF_TAB , IXS  ,  IPARG,brick_add)
 C-----------------------------------------------
 C   D e s c r i p  t i o n
 C-----------------------------------------------
 C 'alefvm' is related to a collocated scheme (built from FVM and based on Godunov scheme)
 C  which was temporarily introduced for experimental option /INTER/TYPE22 (FSI coupling with cut cell method)
-C This cut cell method is not completed, abandonned, and is not an official option.
+C This cut cell method is not completed, abandoned, and is not an official option.
 C There is no other use for this scheme which is automatically enabled when /INTER/TYPE22 is defined (INT22>0 => IALEFVM=1).
 C
 C  This subroutine is handling transportation with 
@@ -58,7 +62,10 @@ C   M o d u l e s
 C-----------------------------------------------
       USE I22TRI_MOD
       USE ELBUFDEF_MOD
-      USE I22BUFBRIC_MOD             
+      USE I22BUFBRIC_MOD
+      USE ALEFVM_MOD , only:ALEFVM_Param
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -67,47 +74,48 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IOFF, IFLG,ITASK,NVAR, IXS(NIXS,*),IPARG(NPARG,*)
-      my_real
-     .    PHI(*), FLUX(6,*), FLU1(*), QMV(12,*)
+      integer, intent(in) :: brick_add !< address offset for cut-cell brick data
+      INTEGER IFLG,ITASK,NVAR, IXS(NIXS,*),IPARG(NPARG,*)
+      my_real PHI(*)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB     
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "vect01_c.inc"
 #include      "task_c.inc"
 #include      "inter22.inc"
 #include      "param_c.inc"
 #include      "comlock.inc"
-#include      "alefvm.inc"
-!#include      "mmale51_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IE, IV,J,ITRIMAT,NIN,NBF,NBL,IB,IADJ,IFACE, NG,IDLOC,
-     . IBV,JV,ICELL,ICELLv,NCELL,NUM, MCELL,MLW, NADJ, LLT_
-      my_real
-     .   VALVOIS,VALEL,VL, dPHI
-      INTEGER               , POINTER      :: pNum     
+      INTEGER IE, IV,J,ITRIMAT,NIN,NBF,NBL,IB,IADJ,NG,IDLOC,IBV,JV,ICELL,ICELLv,NCELL,NUM, MCELL,MLW, NADJ, LLT_
+      my_real VALVOIS,VALEL,VL, dPHI
       TYPE(L_BUFEL_)        , POINTER      :: LBUF     
       TYPE(BUF_MAT_)        , POINTER      :: MBUF 
-      my_real,  DIMENSION(:), POINTER      :: VAR, pRHO , pVOL , pEINT ,pIAD22
+      my_real,  DIMENSION(:), POINTER      :: VAR, pRHO , pEINT
       INTEGER                              :: ADD, ADD0 ,K    
       INTEGER,DIMENSION(:,:),  POINTER     :: pAdjBRICK                  
-      LOGICAL :: debug_outp              
-      my_real, TARGET                      :: tmpVAR(MVSIZ)      
+      my_real, target :: nothing(2)
+      integer, target :: inothing(2,2)
+      LOGICAL :: debug_outp
 C-----------------------------------------------
 
       !---------------------------------------------------------!
       ! INITIALIZATION                                          !
       !---------------------------------------------------------!
+      valvois = 0
       NIN     = 1
       NBF     = 1+ITASK*NB/NTHREAD
       NBL     = (ITASK+1)*NB/NTHREAD
       NBL     = MIN(NBL,NB)
+      nothing = 0
+      inothing = 0
+      VAR => nothing
+      pRHO => nothing
+      pEINT => nothing
+      pAdjBRICK => inothing
       
       !---------------------------------------------------------!
       ! SECONDARY CELLS : GET MATERIAL BUFFER VALUE  (%PHI)         !
@@ -119,12 +127,12 @@ C-----------------------------------------------
       !---------------------------------------------------------!
       !INTERFACE 22 ONLY - OUTPUT---------------!
        debug_outp = .false.
-       if(ibug22_convec.ne.0)then
+       if(ibug22_convec/=0)then
          debug_outp = .false.
-         if(ibug22_convec.GT.0)then
+         if(ibug22_convec>0)then
            do ib=nbf,nbl
            ie=brick_list(nin,ib)%id
-             if(ixs(11,ie).eq.ibug22_convec)then
+             if(ixs(11,ie)==ibug22_convec)then
                debug_outp=.true.
                exit
              endif
@@ -132,10 +140,9 @@ C-----------------------------------------------
          elseif(ibug22_convec==-1)then
            debug_outp = .true.
          endif
-         if(((itrimat>0) .and. (ibug22_itrimat.ne.trimat)))debug_outp=.false.
+         if(((itrimat>0) .and. (ibug22_itrimat/=trimat)))debug_outp=.false.
          if(((itrimat>0) .and. (ibug22_itrimat==-1)))debug_outp=.true.
        endif
-
 
 
       !---------------------------------------------------------!
@@ -148,38 +155,37 @@ C-----------------------------------------------
         ICELL             =  0 
         dPHI              =  ZERO 
         MLW               = BRICK_LIST(NIN,IB)%MLW
-        IF(ITRIMAT.NE.0 .AND. MLW.NE.51)CYCLE
-        DO WHILE (ICELL.LE.NCELL) ! loop on polyhedron {1:NCELL} U {9}
+        IF(ITRIMAT/=0 .AND. MLW/=51)CYCLE
+        DO WHILE (ICELL<=NCELL) ! loop on polyhedron {1:NCELL} U {9}
           ICELL = ICELL +1
-          IF (ICELL>NCELL .AND. NCELL.NE.0)ICELL=9 
+          IF (ICELL>NCELL .AND. NCELL/=0)ICELL=9 
           BRICK_LIST(NIN,IB)%POLY(ICELL)%dPHI = ZERO !init
           pAdjBRICK => BRICK_LIST(NIN,IB)%Adjacent_Brick(1:6,1:5)          
           DO J=1,6
             NADJ = BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%NAdjCell
-            DO IADJ=1,NADJ   !plusieurs voisins possible par face.                                                                     
+            DO IADJ=1,NADJ   !Several neighbors possible by face.                                                                     
               IV     = pAdjBRICK(J,1)                                                          
               IBV    = pAdjBRICK(J,4)                                                          
               JV     = pAdjBRICK(J,5)                                                           
               ICELLv = BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_Cell(IADJ)                                                     
-              IF(IV.GT.0)THEN                                                                   
+              IF(IV>0)THEN                                                                   
                 IF(IBv==0)THEN                                                                  
                   VALVOIS      = PHI(IV)
                 ELSE 
                   !IBv>0                                                                           
-                  VALVOIS = BRICK_LIST(NIN,IBv)%POLY(ICELLv)%PHI                                    
+                  VALVOIS = BRICK_LIST(NIN,IBv)%POLY(ICELLv)%PHI_(brick_add)                                  
                 ENDIF                                                                           
-              ELSEIF(IV.EQ.0)THEN                                                               
+              ELSEIF(IV==0)THEN                                                               
                 VALVOIS = PHI(IE)                                                               
               !ELSE                                                                             
               !  VALVOIS = PHI(-IV+IOFF)                                                        
               ENDIF  
 !              dPHI = dPHI + (VALVOIS * BRICK_LIST(NIN,IB)%upwFLUX(J,ICELL))       
-              dPHI = dPHI + (VALVOIS * BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_upwFLUX(IADJ))
+              dPHI = dPHI + (VALVOIS * BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_UpwFLUX_mat(IADJ,itrimat))
             ENDDO!next IADJ 
           ENDDO!next J      
-          VALEL = BRICK_LIST(NIN,IB)%POLY(ICELL)%PHI
-!          dPHI = dPHI + VALEL* BRICK_LIST(NIN,IB)%upwFLU1(ICELL)
-          dPHI = dPHI + VALEL* BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1
+          VALEL = BRICK_LIST(NIN,IB)%POLY(ICELL)%PHI_(brick_add)
+          dPHI = dPHI + VALEL* BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1_mat(itrimat)
           dPHI = -HALF * DT1 * dPHI
           BRICK_LIST(NIN,IB)%POLY(ICELL)%dPHI = dPHI 
           dPHI = ZERO             
@@ -201,16 +207,16 @@ C-----------------------------------------------
           MCELL = BRICK_LIST(NIN,IB)%mainID      
           dPHI  = ZERO        
           MLW   = BRICK_LIST(NIN,IB)%MLW
-          IF(ITRIMAT.NE.0 .AND. MLW.NE.51)CYCLE                
+          IF(ITRIMAT/=0 .AND. MLW/=51)CYCLE                
           DO K=1,NUM                                                        
             IBV    = BRICK_LIST(NIN,IB)%SecndList%IBV(K)                    
             ICELLv = BRICK_LIST(NIN,IB)%SecndList%ICELLv(K)                 
             dPHI   = dPHI + BRICK_LIST(NIN,IBv)%POLY(ICELLv)%dPHI != PHI(J)                        
           ENDDO                                                             
           dPHI = dPHI + BRICK_LIST(NIN,IB)%POLY(MCELL)%dPHI
-          BRICK_LIST(NIN,IB)%POLY(MCELL)%dPHI = dPHI                        
+          BRICK_LIST(NIN,IB)%POLY(MCELL)%dPHI = dPHI                                 
         ENDDO!next IB                                                        
-      ENDIF                                                                 
+      ENDIF                                                         
 
       !---------------------------------------------------------!
       ! MAIN CELL CONVECTION                                  !
@@ -226,17 +232,16 @@ C-----------------------------------------------
         MBUF  => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)
         LLT_  =  IPARG(2,NG)
         MLW   = BRICK_LIST(NIN,IB)%MLW
-        IF(ITRIMAT.NE.0 .AND. MLW.NE.51)CYCLE
-
+        IF(ITRIMAT/=0 .AND. MLW/=51)CYCLE
         !----------------------------!
         !        N V A R = 1         !
         !----------------------------!
         IF (NVAR == 1) THEN
-           IF(ITRIMAT==0 .OR. MLW.NE.51)THEN
+           IF(ITRIMAT==0 .OR. MLW/=51)THEN
              pRHO => LBUF%RHO(1:LLT_) 
            ELSE
              !USE PHASIS DATA
-             ADD0 =  N0PHAS + (ITRIMAT-1)*NVPHAS                
+             ADD0 =  M51_N0PHAS + (ITRIMAT-1)*M51_NVPHAS                
              ADD  =  ADD0 + 9                                   ! ADD+9 => RHO
              K    =  LLT_*(ADD-1)                                ! UVAR(I,ADD) = UVAR(K+I)
              pRHO => MBUF%VAR(K+1:K+LLT_)
@@ -246,11 +251,11 @@ C-----------------------------------------------
         !        N V A R = 2         !
         !----------------------------!
         ELSEIF (NVAR == 2) THEN
-           IF(ITRIMAT==0 .OR. MLW.NE.51)THEN
+           IF(ITRIMAT==0 .OR. MLW/=51)THEN
              pEINT=> LBUF%EINT(1:LLT_) 
            ELSE
              !USE PHASIS DATA
-             ADD0 =  N0PHAS + (ITRIMAT-1)*NVPHAS                
+             ADD0 =  M51_N0PHAS + (ITRIMAT-1)*M51_NVPHAS                
              ADD  =  ADD0 + 8                                   ! ADD+9 => RHO
              K    =  LLT_*(ADD-1)                                ! UVAR(I,ADD) = UVAR(K+I)
              pEINT => MBUF%VAR(K+1:K+LLT_)
@@ -275,21 +280,21 @@ C-----------------------------------------------
         !        N V A R = 6         !
         !----------------------------!
         ELSEIF (NVAR == 6) THEN
-          IF(IALEFVM>0)THEN
+          IF(ALEFVM_Param%IEnabled>0)THEN
               VAR => ELBUF_TAB(NG)%GBUF%MOM( 1 : LLT_ )       
           ENDIF
         !----------------------------!
         !        N V A R = 7         !
         !----------------------------!
         ELSEIF (NVAR == 7) THEN
-          IF(IALEFVM>0)THEN
+          IF(ALEFVM_Param%IEnabled>0)THEN
               VAR => ELBUF_TAB(NG)%GBUF%MOM( LLT_*1+1 : LLT_*1+LLT_ )       
           ENDIF
         !----------------------------!
         !        N V A R = 8         !
         !----------------------------!
         ELSEIF (NVAR == 8) THEN
-          IF(IALEFVM>0)THEN
+          IF(ALEFVM_Param%IEnabled>0)THEN
               VAR => ELBUF_TAB(NG)%GBUF%MOM( LLT_*2+1 : LLT_*2+LLT_ )         
           ENDIF
         !----------------------------!
@@ -301,22 +306,19 @@ C-----------------------------------------------
         !----------------------------!
         !   TRANSPORTS CONVECTIFS    !
         !----------------------------!
-         IF(MLW/=51.AND.ITRIMAT.GT.0)THEN !si law51 dans jdd TRIMAT=4 
+         IF(MLW/=51.AND.ITRIMAT>0)THEN !si law51 dans jdd TRIMAT=4 
            CYCLE
          ELSE
-           VAR(IDLOC) = VAR(IDLOC) + dPHI   !transport convectif des voisins additionels
-
-             
+           VAR(IDLOC) = VAR(IDLOC) + dPHI   !Convective transport of additions             
          ENDIF         
       
       ENDDO!next IB
 
 
-
            !INTERFACE 22 ONLY------------------------!
            
             !INTERFACE 22 ONLY------------------------!
-            if(debug_outp .AND. nvar.eq.IBUG22_NVAR)then
+            if(debug_outp .AND. nvar==IBUG22_NVAR)then
               call my_barrier
               if(itask==0)then
                 print *, "    |--------a22conv3.F--------|"
@@ -334,18 +336,18 @@ C-----------------------------------------------
                   LBUF   => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
                   MBUF   => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)
                   LLT_   =  IPARG(2,NG)   
-                  if(itrimat>0 .and. mlw.ne.51)cycle  
+                  if(itrimat>0 .and. mlw/=51)cycle  
                   ie     = brick_list(nin,ib)%id  
                   IF(ITRIMAT==0)THEN
                     pRHO => LBUF%RHO(1:LLT_) 
                   ELSE
                     !USE PHASIS DATA
-                    ADD0 =  N0PHAS + (ITRIMAT-1)*NVPHAS                
+                    ADD0 =  M51_N0PHAS + (ITRIMAT-1)*M51_NVPHAS                
                     ADD  =  ADD0 + 9                                   ! ADD+9 => RHO
                     K    =  LLT_*(ADD-1)                                ! UVAR(I,ADD) = UVAR(K+I)
                     pRHO => MBUF%VAR(K+1:K+LLT_)
                   END IF
-                  if(ibug22_convec .gt. 0 .and. brick_list(nin,ib)%id.eq.ibug22_convec )cycle
+                  if(ibug22_convec > 0 .and. brick_list(nin,ib)%id==ibug22_convec )cycle
                   if(nvar==1)then
                   VAR => pRHO           
                   else
@@ -368,11 +370,11 @@ C-----------------------------------------------
       !----------------------------!
       !   MOMENTUM DATA            !
       !----------------------------!      
-      IF(TRIMAT.GT.0.AND.IFLG.EQ.1)THEN
+      IF(TRIMAT>0.AND.IFLG==1)THEN
       !A TRAITER
           !QMV(6,I) = QMV(6,I) - VL(6,I) - VALEL(I)*QMV(12,I)  
       ENDIF
 C-----------
       RETURN
-      END
+      END      
 C

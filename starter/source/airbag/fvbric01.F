@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVBRIC01                      source/airbag/fvbric01.F      
-Chd|-- called by -----------
-Chd|        INIT_MONVOL                   source/airbag/init_monvol.F   
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvbric01       ../starter/source/airbag/fvbric01.F
+!||--- called by ------------------------------------------------------
+!||    init_monvol    ../starter/source/airbag/init_monvol.F
+!||--- calls      -----------------------------------------------------
+!||    arret          ../starter/source/system/arret.F
+!||    iface          ../starter/source/ale/ale3d/iface.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE FVBRIC01(IBUF, ELEM, NTGI, NB_NODE, NBRIC, IXS, 
      .     TBRIC, TFAC)
 C-----------------------------------------------  
@@ -39,6 +40,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
+      use element_mod , only : nixs      
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,9 +49,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 C     NIXS
-#include      "param_c.inc"
 C     NUMELS
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -59,8 +59,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: II, KK, KKK, KKKK, JJ, CONNECT_MAX, NODEID, COUNT, ELID, ELID1, NODE_LIST(8), SURFELE
-      INTEGER :: NSEG, IFACE, ITYPE, NNODE, NSURFNODE, SUM, NNF
+      INTEGER :: II, KK, KKK, KKKK, JJ, CONNECT_MAX, NODEID, COUNT, ELID, ELID1
+      INTEGER :: NSEG, IFACE, ITYPE, NNODE, NSURFNODE, SUM
       INTEGER, DIMENSION(:), ALLOCATABLE :: IFLAG
       INTEGER, DIMENSION(:, :), ALLOCATABLE :: N_E_CONNECT, N_E_CONNECT_LOCID
       INTEGER, TARGET :: REDIRT(4), REDIRP(6), REDIRB(8), REDIRPY(5), 
@@ -95,9 +95,15 @@ C-----------------------------------------------
       DATA NFACE/6,4,5,5/
       
       LOGICAL :: FACE_OK
+      INTEGER, TARGET :: nothing(1,1)
+     
 C-----------------------------------------------
 C     S o u r c e  l i n e s
 C-----------------------------------------------
+      REDIR => nothing(:,1)
+      NOD => nothing(:,1)
+      FAC => nothing
+      NNODE = 0
 C     TETRA indirection
       REDIRT(1)=1
       REDIRT(2)=3
@@ -148,6 +154,8 @@ C     Pyramide
             NNODE = 5
             REDIR => REDIRPY(1:5)
          CASE DEFAULT
+            NNODE = -HUGE(NNODE)
+            REDIR => NULL()
             CALL ARRET(2)
          END SELECT
          DO KK = 1, NNODE
@@ -202,7 +210,7 @@ C     Reset IFLAG to 0
 C     Find bricks connected to surface element
       DO II = 1, NSEG
          NSURFNODE = 3
-C     Flag surface element nodes
+C     Flag surface nodes
          DO KK = 1, NSURFNODE
             KKK = IBUF(ELEM(KK, II))
             IFLAG(KKK) = 1
@@ -270,7 +278,7 @@ C     Find the corresponding face
                ENDIF
             ENDDO
          ENDDO
-C     Unflag surface element nodes
+C     Unflag surface nodes element
          DO KK = 1, NSURFNODE
             KKK = IBUF(ELEM(KK, II))
             IFLAG(KKK) = 0               

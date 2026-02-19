@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PARSOR0                       source/output/anim/generate/parsor0.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_IGET_PARTN               source/mpi/anim/spmd_iget_partn.F
-Chd|        SPMD_IGLOB_PARTN              source/mpi/anim/spmd_iglob_partn.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    parsor0            ../engine/source/output/anim/generate/parsor0.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_iget_partn    ../engine/source/mpi/anim/spmd_iget_partn.F
+!||    spmd_iglob_partn   ../engine/source/mpi/anim/spmd_iglob_partn.F
+!||    write_i_c          ../common_source/tools/input_output/write_routines.c
+!||====================================================================
       SUBROUTINE PARSOR0(IADD ,IPARG   ,MATER   ,EL2FA   , 
      2                DD_IAD,IADG               ,
      3                KXSP    ,IPARTSP ,NODGLOB)
@@ -43,10 +43,7 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "task_c.inc"
-#include      "rnur_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -60,11 +57,9 @@ C     REAL
      .        NODGLOB(*)
 C-----------------------------------------------
 C     REAL
-      my_real
-     .   OFF
-      INTEGER II, IE, NG, ITY, LFT, LLT, KPT, N, I,
+      INTEGER II, IE, NG, ITY, LFT, LLT, N, I, 
      .        NEL, IAD, NPAR, NFT, IPRT,
-     .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,
+     . NN1,NN2,
      .        JJ, INOD,
      .        NP(NUMSPH),BUF,BUFP
 C-----------------------------------------------
@@ -80,7 +75,7 @@ C-----------------------------------------------
 C
       DO 100 IPRT = 1 , NPART
 C
-       IF(MATER(IPRT).NE.4) GOTO 100
+       IF(MATER(IPRT)/=4) GOTO 100
        NPAR = NPAR + 1
        DO 90 NG=1,NGROUP
         NEL   =IPARG(2,NG)
@@ -89,13 +84,13 @@ C
         ITY   =IPARG(5,NG)
         LFT=1
         LLT=NEL
-        IF(ITY.EQ.51)THEN
+        IF(ITY==51)THEN
 C-----------------------------------------------
 C         PARTICULES SPH.
 C-----------------------------------------------
           DO 20 I=LFT,LLT
            N = I + NFT
-           IF(IPARTSP(N).NE.IPRT) GOTO 20
+           IF(IPARTSP(N)/=IPRT) GOTO 20
              INOD=KXSP(3,N)
              IF (NSPMD == 1) THEN 
                II = INOD-1
@@ -117,7 +112,7 @@ C-----------------------------------------------
  100  CONTINUE
 C
       IF (NSPMD > 1) THEN
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
           BUFP = NPART
           BUF = NUMSPHG
         ELSE
@@ -127,7 +122,7 @@ C
 
           CALL SPMD_IGLOB_PARTN(IADD,NPAR,IADG,BUFP)
           CALL SPMD_IGET_PARTN(1,JJ,NP,NPAR,IADG,BUF,1)
-      ELSE ! remplissage IADG pour compatibilite mono/multi
+      ELSE ! IADG filling for mono/multi compatibility
         DO I = 1, NPART
           IADG(1,I) = IADD(I)
         END DO

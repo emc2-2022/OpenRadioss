@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CBAPROJ                       source/elements/shell/coqueba/cbaproj.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbaproj    ../engine/source/elements/shell/coqueba/cbaproj.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBAPROJ(
      1            JFT    ,JLT    ,VQN    ,VQ     ,VF    ,
      2            VM     ,NPLAT   ,IPLAT   ,
@@ -60,10 +59,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I, J, K,EP
+      INTEGER  J, K,EP
       my_real 
      .     MM(3,4),FL(3,4),ML(2,4),C1,Z1,
-     .     AR(3),AD(4),ALR(3),ALD(4),DBAD(3),MLZ(MVSIZ,3,4)
+     .     AR(3),ALR(3),MLZ(MVSIZ,3,4)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include "vectorize.inc"
        DO EP=JFT,NPLAT 
@@ -144,7 +143,7 @@ C        I=3
 C
        ENDDO
 C--------------QBAT has not simplification w/ wi -> don't need drilling dof projection        
-       IF (ISROT.GT.0) THEN
+       IF (ISROT>0) THEN
 #include "vectorize.inc"
         DO EP=JFT,NPLAT
          K =IPLAT(EP)
@@ -181,7 +180,7 @@ C
          MLZ(EP,3,J)= ZERO
         ENDDO
         ENDDO
-       END IF !(ISROT.GT.0) THEN
+       END IF !(ISROT>0) THEN
 C       
        DO EP=NPLAT+1,JLT 
         K=IPLAT(EP)

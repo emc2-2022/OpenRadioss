@@ -1,49 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DTSPH                         source/materials/time_step/dtsph.F
-Chd|-- called by -----------
-Chd|        DT105LAW                      source/materials/time_step/dt105law.F
-Chd|        DT10LAW                       source/materials/time_step/dt10law.F
-Chd|        DT14LAW                       source/materials/time_step/dt14law.F
-Chd|        DT1LAW                        source/materials/time_step/dt1law.F
-Chd|        DT21LAW                       source/materials/time_step/dt21law.F
-Chd|        DT34LAW                       source/materials/time_step/dt34law.F
-Chd|        DT37LAW                       source/materials/time_step/dt37law.F
-Chd|        DT38LAW                       source/materials/time_step/dt138aw.F
-Chd|        DT3LAW                        source/materials/time_step/dt3law.F
-Chd|        DT42LAW                       source/materials/time_step/dt42law.F
-Chd|        DT51LAW                       source/materials/time_step/dt51law.F
-Chd|        DT5LAW                        source/materials/time_step/dt5law.F
-Chd|        DT6LAW                        source/materials/time_step/dt6law.F
-Chd|        DT70LAW                       source/materials/time_step/dt70law.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dtsph      ../starter/source/materials/time_step/dtsph.F
+!||--- called by ------------------------------------------------------
+!||    dt105law   ../starter/source/materials/time_step/dt105law.F
+!||    dt10law    ../starter/source/materials/time_step/dt10law.F
+!||    dt14law    ../starter/source/materials/time_step/dt14law.F
+!||    dt1law     ../starter/source/materials/time_step/dt1law.F
+!||    dt21law    ../starter/source/materials/time_step/dt21law.F
+!||    dt34law    ../starter/source/materials/time_step/dt34law.F
+!||    dt37law    ../starter/source/materials/time_step/dt37law.F
+!||    dt38law    ../starter/source/materials/time_step/dt138aw.F
+!||    dt3law     ../starter/source/materials/time_step/dt3law.F
+!||    dt42law    ../starter/source/materials/time_step/dt42law.F
+!||    dt51law    ../starter/source/materials/time_step/dt51law.F
+!||    dt5law     ../starter/source/materials/time_step/dt5law.F
+!||    dt6law     ../starter/source/materials/time_step/dt6law.F
+!||    dt70law    ../starter/source/materials/time_step/dt70law.F
+!||====================================================================
       SUBROUTINE DTSPH(SSP,PM,GEO,PID,MAT, 
      .     RHO0, VIS, 
      .     DELTAX, VOL, DTX)
 C------------------------
-C     CALCUL DT ELEMENT
+C     CALCULATION OF ELEMENT DT
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -55,8 +54,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "com01_c.inc"
 #include      "vect01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------

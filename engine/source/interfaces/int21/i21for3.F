@@ -1,60 +1,60 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21FOR3                       source/interfaces/int21/i21for3.F
-Chd|-- called by -----------
-Chd|        I21MAINF                      source/interfaces/int21/i21mainf.F
-Chd|-- calls ---------------
-Chd|        IBCOFF                        source/interfaces/interf/ibcoff.F
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        STRI                          source/tools/univ/stri.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21for3    ../engine/source/interfaces/int21/i21for3.F
+!||--- called by ------------------------------------------------------
+!||    i21mainf   ../engine/source/interfaces/int21/i21mainf.F
+!||--- calls      -----------------------------------------------------
+!||    finter     ../engine/source/tools/curve/finter.F
+!||    ibcoff     ../engine/source/interfaces/interf/ibcoff.F
+!||====================================================================
       SUBROUTINE I21FOR3(JLT    ,NIN    ,NOINT  ,IBCC   ,ICODT  ,
-     2                  FSAV    ,GAP    ,STIGLO ,FRIC   ,VISC   ,
-     3                  INACTI  ,MFROT  ,IFQ    ,IBAG   ,IADM   ,
-     4                  ICURV   ,STIF    ,GAPV  ,ITAB   ,
-     5                  PENI    ,FROT_P ,ALPHA0 ,IFPEN  ,
-     6                  ICONTACT,RCONTACT,ACONTACT,PCONTACT,
-     7                  NSVG    ,X1     ,Y1     ,Z1     ,X2     ,
-     8                  Y2      ,Z2     ,X3     ,Y3     ,Z3     ,
-     9                  X4      ,Y4     ,Z4     ,XI     ,YI     ,
-     A                  ZI     ,VXI    ,VYI    ,VZI     ,MSI    ,
-     B                  VXM    ,VYM    ,VZM    ,NX      ,NY     ,
-     C                  NZ     ,PENE   ,FXT    ,FYT    ,FZT     ,
-     D                  FXN    ,FYN    ,FZN    ,RCURVI ,ANGLMI  ,
-     E                  PADM   ,CAND_N_N, WEIGHT,IGAP   ,GAP0   ,
-     F                  AREA0   ,PMAX   ,IROT   ,XG     ,MXI    ,
-     G                  MYI     ,MZI    ,STRI   ,WXM    ,WYM    ,
-     H                  WZM     ,XP     ,YP     ,ZP     ,KT     ,
-     I                  C       ,ILEV   ,FNI    ,INTTH  ,FHEAT  ,
-     J                  EFRICT  ,QFRIC  ,IFRIC  ,XFRIC  ,TEMPI  , 
-     k                  TEMPM   ,NPC    ,TF     ,IX1    ,IX2    ,
-     L                  IX3     ,IX4    ,DT2T   ,NELTST ,ITYPTST,
-     M                  KINET   ,NISUB  ,ISENSINT,FSAVPARIT,NFT ,
-     N                  IFTLIM  ,PSKIDFLAG,PRATIO,PMAXSKID )
+     2                  FSAV    ,GAP    ,STIGLO ,VISC   ,INACTI  ,
+     3                  MFROT   ,IFQ    ,IBAG   ,IADM   ,ICURV   ,
+     4                  STIF    ,GAPV   ,ITAB   ,PENI   ,ALPHA0  ,
+     5                  IFPEN   ,ICONTACT,RCONTACT,ACONTACT,PCONTACT,
+     6                  NSVG    ,X1     ,Y1     ,Z1     ,X2     ,
+     7                  Y2      ,Z2     ,X3     ,Y3     ,Z3     ,
+     8                  X4      ,Y4     ,Z4     ,XI     ,YI     ,
+     9                  ZI     ,VXI    ,VYI    ,VZI     ,MSI    ,
+     A                  VXM    ,VYM    ,VZM    ,NX      ,NY     ,
+     B                  NZ     ,PENE   ,FXT    ,FYT    ,FZT     ,
+     C                  FXN    ,FYN    ,FZN    ,RCURVI ,ANGLMI  ,
+     D                  PADM   ,CAND_N_N, WEIGHT,IGAP   ,GAP0   ,
+     E                  AREA0   ,PMAX   ,IROT   ,XG     ,MXI    ,
+     F                  MYI     ,MZI    ,STRI   ,WXM    ,WYM    ,
+     G                  WZM     ,XP     ,YP     ,ZP     ,KT     ,
+     H                  C       ,ILEV   ,FNI    ,INTTH  ,FHEAT  ,
+     I                  EFRICT  ,QFRIC  ,IFRIC  ,XFRIC  ,TEMPI  , 
+     J                  TEMPM   ,NPC    ,TF     ,IX1    ,IX2    ,
+     K                  IX3     ,IX4    ,DT2T   ,NELTST ,ITYPTST,
+     L                  KINET   ,NISUB  ,ISENSINT,FSAVPARIT,NFT ,
+     M                  IFTLIM  ,PSKIDFLAG,PRATIO,PMAXSKID,INTEREFRIC,
+     N                  EFRIC_L ,FRICC  ,FRIC_COEFS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -68,17 +68,13 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "param_c.inc"
 #include      "scr05_c.inc"
 #include      "scr11_c.inc"
 #include      "sms_c.inc"
 #include      "scr18_c.inc"
 #include      "units_c.inc"
-#include      "couple_c.inc"
-#include      "scr07_c.inc"
 #include      "kincod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -90,10 +86,10 @@ C-----------------------------------------------
       INTEGER NSVG(MVSIZ),CAND_N_N(MVSIZ), WEIGHT(*),
      .        IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ), NISUB, 
      .        ISENSINT(*),NFT,PSKIDFLAG
-
+      INTEGER  , INTENT(IN) :: INTEREFRIC
       my_real
-     .   STIGLO, PENI(*), FROT_P(*), FSAV(*), TF(*),
-     .   ALPHA0, GAP, FRIC, VISC,DT2T,PMAXSKID ,
+     .   STIGLO, PENI(*), FSAV(*), TF(*),
+     .   ALPHA0, GAP, VISC,DT2T,PMAXSKID ,
      .   FNI(MVSIZ),
      .   FXN(MVSIZ), FYN(MVSIZ), FZN(MVSIZ), 
      .   FXT(MVSIZ), FYT(MVSIZ), FZT(MVSIZ)
@@ -114,44 +110,45 @@ C-----------------------------------------------
      .   PCONTACT(*), PADM, ANGLMI(*),
      .   XG(3), MXI(MVSIZ), MYI(MVSIZ), MZI(MVSIZ), STRI(MVSIZ),
      .   KT(MVSIZ), C(MVSIZ), FHEAT,EFRICT(MVSIZ),QFRIC,
-     .   TEMPI(MVSIZ),TEMPM(MVSIZ),XFRIC,DYDX,
+     .   TEMPI(MVSIZ),TEMPM(MVSIZ),XFRIC,
      .   FSAVPARIT(NISUB+1,11,*),PRATIO(MVSIZ)
+      my_real  , INTENT(INOUT) :: EFRIC_L(MVSIZ)
+      my_real  , INTENT(IN) :: FRIC_COEFS(MVSIZ,10), FRICC(MVSIZ)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, IG, J, JG , K0,NBINTER,K1S,K,IL,IE, NN, NI,
-     .        NA1,NA2,IBCM,IBCS
+      INTEGER I, IG, JG , NI,
+     .        IBCM,IBCS
       my_real
      .   FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ),
      .   XMU(MVSIZ),
      .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ), DTMI(MVSIZ), 
-     .   VNX, VNY, VNZ, AA, S2,
-     .   V2, FF, ALPHA, BETA,
-     .   FX, FY, FZ, FT, FN, FMAX, FTN,
+     .      AA,
+     .   V2, ALPHA, BETA,
+     .   FX, FY, FZ, FT, FN, FTN,
      .   ECONTT, ECONVT, FS2,ECONTDT,
-     .   FSAV1, FSAV2, FSAV3, FSAV4, FSAV5, FSAV6, FSAV7, FSAV8, 
+     .   FSAV1, FSAV2, FSAV3, FSAV4, FSAV5, FSAV6, FSAV8, 
      .   FSAV9, FSAV10, FSAV11, FSAV12, FSAV13, FSAV14, FSAV15,FSAV25,
-     .   VV,AX1,AX2,AY1,AY2,AZ1,AZ2,AX,AY,AZ,AREA,P,VV1,VV2,DMU,
-     .   DT1INV, VIS, PA, PLIN, FS, QFRICT, DTI,DTI2,DTMI0, MAS2,BETA1
+     .   VV,AREA,P,VV1,VV2,DMU,
+     .   DT1INV, VIS, PA, PLIN, FS, QFRICT,DTMI0, MAS2,BETA1
       my_real
      .   PREC
       my_real
-     .   ST1(MVSIZ),ST2(MVSIZ),ST3(MVSIZ),ST4(MVSIZ),STV(MVSIZ),
-     .   PENX(MVSIZ),STIF0(MVSIZ),FRICT(MVSIZ)
+     .   
+     .   PENX(MVSIZ),STIF0(MVSIZ)
       my_real
-     .   IMPX,IMPY,IMPZ,XX,YY,ZZ,TH
+     .   IMPX,IMPY,IMPZ,XX,YY,ZZ
       my_real 
      .   FINTER 
       EXTERNAL FINTER
 C
 C-----------------------------------------------
-#include "sync_dir.inc"
-      IF (IRESP.EQ.1) THEN
+      IF (IRESP==1) THEN
            PREC = FIVEEM4
       ELSE
            PREC = EM10
       ENDIF
-      IF(DT1.GT.ZERO)THEN
+      IF(DT1>ZERO)THEN
         DT1INV = ONE/DT1
       ELSE
         DT1INV =ZERO
@@ -161,97 +158,99 @@ C-----------------------------------------------
             PRATIO(I) =  ZERO
          ENDDO
       ENDIF
+      EFRIC_L(1:JLT) =  ZERO
+      EFRICT(1:JLT) =  ZERO
 C---------------------
 C      PENE INITIALE
 C---------------------
       IF(ILEV==0)THEN
        IF(IGAP<=1)THEN
-        IF(INACTI.EQ.5)THEN
+        IF(INACTI==5)THEN
          DO I=1,JLT
-C REDUCTION DE LA PENE INITIALE
+C REDUCTION OF THE INITIAL PENETRATION 
            PENI(CAND_N_N(I))=MIN(PENI(CAND_N_N(I)),
      .            ((ONE-FIVEEM2)*PENI(CAND_N_N(I))+FIVEEM2*PENE(I))  )
-C SOUSTRACTION DE LA PENE INITIALE A LA PENE ET AU GAP
+C SUBTRACTION OF THE INITIAL PENALTY FROM THE PENALTY AND THE GAP
            PENE(I)=MAX(ZERO,PENE(I)-PENI(CAND_N_N(I)))
-           IF( PENE(I).EQ.ZERO )  STIF(I) = ZERO
+           IF( PENE(I)==ZERO )  STIF(I) = ZERO
            GAPV(I)=GAPV(I)-PENI(CAND_N_N(I))
          ENDDO
-        ELSEIF(INACTI.EQ.6)THEN
+        ELSEIF(INACTI==6)THEN
          DO I=1,JLT
-C REDUCTION DE LA PENE INITIALE
+C REDUCTION OF THE INITIAL PENALTY
            PENI(CAND_N_N(I))=MIN(PENI(CAND_N_N(I)),
      .        ( (ONE-FIVEEM2)*PENI(CAND_N_N(I))
      .          +FIVEEM2*(PENE(I)+FIVEEM2*(GAPV(I)-PENE(I))))  )
-C SOUSTRACTION DE LA PENE INITIALE A LA PENE ET AU GAP
+C SUBTRACTION OF THE INITIAL PENALTY FROM THE PENALTY AND THE GAP
            PENE(I)=MAX(ZERO,PENE(I)-PENI(CAND_N_N(I)))
-           IF( PENE(I).EQ.ZERO )  STIF(I) = ZERO
+           IF( PENE(I)==ZERO )  STIF(I) = ZERO
            GAPV(I)=GAPV(I)-PENI(CAND_N_N(I))
          ENDDO
         ELSE
          DO I=1,JLT
-           IF( PENE(I).EQ.ZERO )  STIF(I) = ZERO
+           IF( PENE(I)==ZERO )  STIF(I) = ZERO
          ENDDO
         ENDIF
        ELSE
-        IF(INACTI.EQ.5)THEN
+        IF(INACTI==5)THEN
          DO I=1,JLT
-C REDUCTION DE LA PENE INITIALE
+C REDUCTION OF THE INITIAL PENALTY
            PENX(I)=PENE(I)
            IF(PENX(I) > MAX(GAPV(I)-GAP0(I),ZERO))
      .        PENX(I) = PENX(I)-MAX(GAPV(I)-GAP0(I),ZERO)
            PENI(CAND_N_N(I))=MIN(PENI(CAND_N_N(I)),
      .            ((ONE-FIVEEM2)*PENI(CAND_N_N(I))+FIVEEM2*PENX(I))  )
-C SOUSTRACTION DE LA PENE INITIALE A LA PENE ET AU GAP
+C SUBTRACTION OF THE INITIAL PENALTY FROM THE PENALTY AND THE GAP
            PENE(I)=MAX(ZERO,PENE(I)-PENI(CAND_N_N(I)))
-           IF( PENE(I).EQ.ZERO )  STIF(I) = ZERO
+           IF( PENE(I)==ZERO )  STIF(I) = ZERO
            GAPV(I)=GAPV(I)-PENI(CAND_N_N(I))
            GAP0(I)=GAP0(I)-PENI(CAND_N_N(I))
          ENDDO
-        ELSEIF(INACTI.EQ.6)THEN
+        ELSEIF(INACTI==6)THEN
          DO I=1,JLT
-C REDUCTION DE LA PENE INITIALE
+C REDUCTION OF THE INITIAL PENALTY
            PENX(I)=PENE(I)
            IF(PENX(I) > MAX(GAPV(I)-GAP0(I),ZERO))
      .        PENX(I) = PENX(I)-MAX(GAPV(I)-GAP0(I),ZERO)
            PENI(CAND_N_N(I))=MIN(PENI(CAND_N_N(I)),
      .        ( (ONE-FIVEEM2)*PENI(CAND_N_N(I))
      .          +FIVEEM2*(PENX(I)+FIVEEM2*(GAP0(I)-PENX(I))))  )
-C SOUSTRACTION DE LA PENE INITIALE A LA PENE ET AU GAP
+C SUBTRACTION OF THE INITIAL PENALTY FROM THE PENALTY AND THE GAP
            PENE(I)=MAX(ZERO,PENE(I)-PENI(CAND_N_N(I)))
-           IF( PENE(I).EQ.ZERO )  STIF(I) = ZERO
+           IF( PENE(I)==ZERO )  STIF(I) = ZERO
            GAPV(I)=GAPV(I)-PENI(CAND_N_N(I))
            GAP0(I)=GAP0(I)-PENI(CAND_N_N(I))
          ENDDO
         ELSE
          DO I=1,JLT
-           IF( PENE(I).EQ.ZERO )  STIF(I) = ZERO
+           IF( PENE(I)==ZERO )  STIF(I) = ZERO
          ENDDO
         ENDIF
        END IF
       ELSE
 C
 C----  ILEV=1
-       IF(INACTI.EQ.6)THEN
+       IF(INACTI==6)THEN
         DO I=1,JLT
-C REDUCTION DE LA PENE INITIALE
+C REDUCTION OF THE INITIAL PENALTY
           PENI(CAND_N_N(I))=MIN(PENI(CAND_N_N(I)),
      .       ( (ONE-FIVEEM2)*PENI(CAND_N_N(I))
      .         +FIVEEM2*(PENE(I)+FIVEEM2*ABS(GAPV(I)-PENE(I))))  )
-C SOUSTRACTION DE LA PENE INITIALE A LA PENE ET AU GAP
+C SUBTRACTION OF THE INITIAL PENALTY FROM THE PENALTY AND THE GAP
           PENE(I)=MAX(ZERO,PENE(I)-PENI(CAND_N_N(I)))
-          IF( PENE(I).EQ.ZERO .AND. 
-     .        ( IFPEN(CAND_N_N(I))/=1 .OR.TT.EQ.ZERO ) )  STIF(I) = ZERO
+          IF( PENE(I)==ZERO .AND. 
+     .        ( IFPEN(CAND_N_N(I))/=1 .OR.TT==ZERO ) )  STIF(I) = ZERO
         ENDDO
        ELSE
         DO I=1,JLT
-C REDUCTION DE LA PENE INITIALE
+C REDUCTION OF THE INITIAL PENALTY
           PENI(CAND_N_N(I))=MIN(PENI(CAND_N_N(I)),
      .           ((ONE-FIVEEM2)*PENI(CAND_N_N(I))+FIVEEM2*PENE(I))  )
-C SOUSTRACTION DE LA PENE INITIALE A LA PENE ET AU GAP
+C SUBTRACTION OF THE INITIAL PENALTY FROM THE PENALTY AND THE GAP
           PENE(I)=MAX(ZERO,PENE(I)-PENI(CAND_N_N(I)))
-          IF( PENE(I).EQ.ZERO .AND. 
+          IF( PENE(I)==ZERO .AND. 
      .        (IFPEN(CAND_N_N(I))/=1 .OR.
-     .          (INACTI.EQ.5.AND.TT.EQ.ZERO) ) ) STIF(I) = ZERO
+     .          (INACTI==5.AND.TT==ZERO) ) ) STIF(I) = ZERO
         ENDDO
 
        END IF
@@ -268,15 +267,15 @@ C---------------------------------
       ECONVT = ZERO
       QFRICT = ZERO
       ECONTDT = ZERO
-      IF(IGAP.LE.1)THEN
+      IF(IGAP<=1)THEN
         DO I=1,JLT
          IG=NSVG(I)
-         IF(STIGLO.LE.ZERO)THEN
+         IF(STIGLO<=ZERO)THEN
            ECONTT  = ECONTT - HALF*STIGLO*STIF(I)*PENE(I)**2 
      .                              * WEIGHT(IG)
            STIF(I) = -STIGLO*STIF(I)
 
-         ELSEIF(STIF(I).NE.ZERO)THEN
+         ELSEIF(STIF(I)/=ZERO)THEN
            ECONTT = ECONTT + STIGLO**PENE(I)**2 * WEIGHT(IG)
            STIF(I) = STIGLO
          ENDIF
@@ -285,9 +284,9 @@ C---------------------------------
        ELSE
         DO I=1,JLT
          IG=NSVG(I)
-         IF(STIGLO.LE.ZERO)THEN
+         IF(STIGLO<=ZERO)THEN
            STIF(I) = -STIGLO*STIF(I)
-         ELSEIF(STIF(I).NE.ZERO)THEN
+         ELSEIF(STIF(I)/=ZERO)THEN
            STIF(I) = STIGLO
          ENDIF
          PA = AREA0(I)*PMAX
@@ -317,7 +316,7 @@ C---------------------------------
       ENDDO
 C-------------------------------------------------
 C
-C     IF(KDTINT.EQ.0.AND.IDTMINS/=2)THEN
+C     IF(KDTINT==0.AND.IDTMINS/=2)THEN
       IF(IDTMINS/=2.AND.IDTMINS_INT==0)THEN
         DO I=1,JLT
           VIS = VISC * SQRT(TWO * STIF(I) * MSI(I))
@@ -337,7 +336,7 @@ C     IF(KDTINT.EQ.0.AND.IDTMINS/=2)THEN
         ENDDO
       END IF
 C---------------------------------
-C     CALCUL DE LA FORCE NORMALE
+C     CALCULATION OF THE NORMAL FORCE
 C---------------------------------
       DO I=1,JLT
        FXN(I)=FNI(I)*NX(I)
@@ -389,26 +388,16 @@ c
 C---------------------------------
 C     NEW FRICTION MODELS
 C---------------------------------
-      IF (IFRIC.NE.0) THEN ! Friction coef = f(Temp)
-        DO I=1,JLT
-          TH = XFRIC *(TEMPI(I)+TEMPM(I))/2
-          FRICT(I)  = FRIC*FINTER(IFRIC,TH,NPC,TF,DYDX)     
-        ENDDO
-      ELSE
-        DO I=1,JLT
-          FRICT(I)  = FRIC 
-        ENDDO    
 
-      ENDIF
-      IF (MFROT.EQ.0) THEN
+      IF (MFROT==0) THEN
 C---    Coulomb friction
         DO I=1,JLT
-          XMU(I) = FRICT(I)
+          XMU(I) = FRICC(I)
         ENDDO
-      ELSEIF (MFROT.EQ.1) THEN
+      ELSEIF (MFROT==1) THEN
 C---    Viscous friction
         DO I=1,JLT
-C attention : normale <> normale a l'elt
+C attention : normal <> normal to the elt
           AA = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
           V2 = (VX(I) - NX(I)*AA)**2 
      .       + (VY(I) - NY(I)*AA)**2 
@@ -418,14 +407,13 @@ C
 C should be the current nodal surface instead of the initial one.
           AREA = AREA0(I)
           P = -FNI(I)/AREA
-          XMU(I) = FRICT(I) + (FROT_P(1) + FROT_P(4)*P ) * P 
-     .           +(FROT_P(2) + FROT_P(3)*P) * VV + FROT_P(5)*V2
+          XMU(I) = FRICC(I)+ (FRIC_COEFS(I,1) + FRIC_COEFS(I,4)*P ) * P 
+     .           +(FRIC_COEFS(I,2) + FRIC_COEFS(I,3)*P) * VV + FRIC_COEFS(I,5)*V2
           XMU(I) = MAX(XMU(I),EM30)
         ENDDO
-      ELSEIF(MFROT.EQ.2)THEN
-C---    Loi Darmstad
+      ELSEIF(MFROT==2)THEN
+C---    Darmstad LAW
         DO I=1,JLT
-C attention : normale <> normale a l'elt
           AA = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
           V2 = (VX(I) - NX(I)*AA)**2 
      .       + (VY(I) - NY(I)*AA)**2 
@@ -435,35 +423,46 @@ C
 C should be the current nodal surface instead of the initial one.
           AREA = AREA0(I)
           P = -FNI(I)/AREA
-          XMU(I) = FRICT(I)
-     .           + FROT_P(1)*EXP(FROT_P(2)*VV)*P*P
-     .           + FROT_P(3)*EXP(FROT_P(4)*VV)*P
-     .           + FROT_P(5)*EXP(FROT_P(6)*VV)
+          XMU(I) = FRICC(I)
+     .           + FRIC_COEFS(I,1)*EXP(FRIC_COEFS(I,2)*VV)*P*P
+     .           + FRIC_COEFS(I,3)*EXP(FRIC_COEFS(I,4)*VV)*P
+     .           + FRIC_COEFS(I,5)*EXP(FRIC_COEFS(I,6)*VV)
           XMU(I) = MAX(XMU(I),EM30)
         ENDDO
-      ELSEIF (MFROT.EQ.3) THEN
-C---    Loi Renard
+      ELSEIF (MFROT==3) THEN
+C---    Renard LAW
         DO I=1,JLT
-C attention : normale <> normale a l'elt
           AA = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
           V2 = (VX(I) - NX(I)*AA)**2 
      .       + (VY(I) - NY(I)*AA)**2 
      .       + (VZ(I) - NZ(I)*AA)**2
           VV = SQRT(MAX(EM30,V2))
-          IF(VV.GE.0.AND.VV.LE.FROT_P(5)) THEN
-            DMU = FROT_P(3)-FROT_P(1)
-            VV1 = VV / FROT_P(5)
-            XMU(I) = FROT_P(1)+ DMU*VV1*(TWO-VV1)
-          ELSEIF(VV.GT.FROT_P(5).AND.VV.LT.FROT_P(6)) THEN
-            DMU = FROT_P(4)-FROT_P(3) 
-            VV1 = (VV - FROT_P(5))/(FROT_P(6)-FROT_P(5))
-            XMU(I) = FROT_P(3)+ DMU * (THREE-TWO*VV1)*VV1**2
+          IF(VV>=0.AND.VV<=FRIC_COEFS(I,5)) THEN
+            DMU = FRIC_COEFS(I,3)-FRIC_COEFS(I,1)
+            VV1 = VV / FRIC_COEFS(I,5)
+            XMU(I) = FRIC_COEFS(I,1)+ DMU*VV1*(TWO-VV1)
+          ELSEIF(VV>FRIC_COEFS(I,5).AND.VV<FRIC_COEFS(I,6)) THEN
+            DMU = FRIC_COEFS(I,4)-FRIC_COEFS(I,3) 
+            VV1 = (VV - FRIC_COEFS(I,5))/(FRIC_COEFS(I,6)-FRIC_COEFS(I,5))
+            XMU(I) = FRIC_COEFS(I,3)+ DMU * (THREE-TWO*VV1)*VV1**2
           ELSE
-            DMU = FROT_P(2)-FROT_P(4)
-            VV2 = (VV - FROT_P(6))**2
-            XMU(I) = FROT_P(2) - DMU / (ONE + DMU*VV2)
+            DMU = FRIC_COEFS(I,2)-FRIC_COEFS(I,4)
+            VV2 = (VV - FRIC_COEFS(I,6))**2
+            XMU(I) = FRIC_COEFS(I,2) - DMU / (ONE + DMU*VV2)
           ENDIF
           XMU(I) = MAX(XMU(I),EM30)
+        ENDDO
+      ELSEIF(MFROT==4)THEN
+C---        Exponential decay model
+        DO I=1,JLT
+          AA = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
+          V2 = (VX(I) - NX(I)*AA)**2 
+     .       + (VY(I) - NY(I)*AA)**2 
+     .       + (VZ(I) - NZ(I)*AA)**2
+           VV = SQRT(MAX(EM30,V2))
+           XMU(I) = FRIC_COEFS(I,1)
+     .            + (FRIC_COEFS(I,1)-FRICC(I))*EXP(-FRIC_COEFS(I,2)*VV)
+           XMU(I) = MAX(XMU(I),EM30)
         ENDDO
       ENDIF
 C------------------
@@ -480,7 +479,7 @@ C------------------
 C---------------------------------
 C     INCREMENTAL (STIFFNESS) FORMULATION
 C---------------------------------
-      IF (IFQ.EQ.13) THEN
+      IF (IFQ==13) THEN
         ALPHA = MAX(ONE,ALPHA0*DT12)
       ELSE
         ALPHA = ALPHA0
@@ -539,20 +538,17 @@ C-------    total force
 C---------------------------------
 C       CONTACT ENERGY CALCULATION
 C---------------------------------
-        EFRICT(I) = ZERO
-        IF( INTTH > 0 .AND.BETA.NE.ZERO) THEN
+        EFRIC_L(I) = DT1*(VX(I)*FXT(I)+VY(I)*FYT(I)+VZ(I)*FZT(I)) 
+     .              * WEIGHT(IG)
+        ECONVT = ECONVT   + EFRIC_L(I)
+
+        IF( INTTH > 0 .AND.BETA/=ZERO) THEN
           EFRICT(I) = (FX-FXT(I))*FXT(I) + (FY-FYT(I))*FYT(I) + 
      .                (FZ-FZT(I))*FZT(I) ! FRICTIONAL ENERGY
           EFRICT(I) = EFRICT(I)/STIF0(I)
           QFRICT   =  QFRICT + EFRICT(I)
         ENDIF
-
-        ECONVT = ECONVT 
-     .         + DT1*(VX(I)*FXT(I)+VY(I)*FYT(I)+VZ(I)*FZT(I)) 
-     .              * WEIGHT(IG)
-        
-      ENDDO
-       
+      ENDDO    
 C---------------------------------
       DO I=1,JLT
        IG=NSVG(I)
@@ -596,9 +592,9 @@ c
 C---------------------------------
 #include "lockon.inc"
       ECONTV = ECONTV + ECONVT  ! Frictional Energy
-      ECONT  = ECONT + ECONTT   ! Elatic Energy
+      ECONT  = ECONT + ECONTT   ! Elastic Energy
       ECONTD = ECONTD + ECONTDT ! Damping Energy
-      IF (INTTH.NE.0) THEN
+      IF (INTTH/=0) THEN
          QFRIC = QFRIC + FHEAT*QFRICT ! FRICTIONAL HEAT ADDED TO INTERNAL ENERGY
          ECONTV = ECONTV - FHEAT*QFRICT ! FRICTIONAL HEAT REMOVED FROM CONTACT ENERGY
       ENDIF
@@ -617,27 +613,27 @@ C---------------------------------
       END IF
 C---------------------------------
 C
-c      IF(IDTMIN(10).EQ.1.OR.IDTMIN(10).EQ.2.OR.
-c     .   IDTMIN(10).EQ.5.OR.IDTMIN(10).EQ.6)THEN
-      IF(IDTMIN(10).EQ.1)THEN
+c      IF(IDTMIN(10)==1.OR.IDTMIN(10)==2.OR.
+c     .   IDTMIN(10)==5.OR.IDTMIN(10)==6)THEN
+      IF(IDTMIN(10)==1)THEN
        DTMI0 = EP20
         DO I=1,JLT
          DTMI(I) = EP20
          MAS2  = TWO * MSI(I)
          JG = NSVG(I)
-         IF(MAS2.GT.ZERO.AND.STIF(I).GT.ZERO.AND.
-     .     IRB(KINET(JG)).EQ.0.AND.IRB2(KINET(JG)).EQ.0)THEN
+         IF(MAS2>ZERO.AND.STIF(I)>ZERO.AND.
+     .     IRB(KINET(JG))==0.AND.IRB2(KINET(JG))==0)THEN
            DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/STIF(I)))
          ENDIF
          DTMI0 = MIN(DTMI0,DTMI(I))
         ENDDO
 
-       IF(DTMI0.LE.DTMIN1(10))THEN
+       IF(DTMI0<=DTMIN1(10))THEN
         DO I=1,JLT
-         IF(DTMI(I).LE.DTMIN1(10))THEN
+         IF(DTMI(I)<=DTMIN1(10))THEN
            JG = NSVG(I)
            NI = ITAB(JG)
-           IF(IDTMIN(10).EQ.1)THEN
+           IF(IDTMIN(10)==1)THEN
 #include "lockon.inc"
              WRITE(IOUT,'(A,E12.4,A,I10,A,E12.4,A)')
      .       ' **WARNING MINIMUM TIME STEP ',DTMI(I),
@@ -665,15 +661,15 @@ c     .         ITAB(IX1(I)),ITAB(IX2(I)),ITAB(IX3(I)),ITAB(IX4(I))
        ENDIF
       ENDIF
 C-----------------------------------------------------
-      IF(IBAG.NE.0.OR.IADM.NE.0)THEN
+      IF(IBAG/=0.OR.IADM/=0)THEN
        DO I=1,JLT
-        IF(PENE(I).NE.ZERO)THEN
+        IF(PENE(I)/=ZERO)THEN
           JG = NSVG(I)
           ICONTACT(JG)=1
         ENDIF
        ENDDO
       ENDIF
-      IF(IADM.NE.0)THEN
+      IF(IADM/=0)THEN
        DO I=1,JLT
          JG = NSVG(I)
 #include "lockon.inc"
@@ -681,7 +677,7 @@ C-----------------------------------------------------
 #include "lockoff.inc"
        END DO
       END IF
-      IF(IADM.GE.2)THEN
+      IF(IADM>=2)THEN
        DO I=1,JLT
          JG = NSVG(I)
 #include "lockon.inc"
@@ -691,13 +687,13 @@ C-----------------------------------------------------
        END DO
       END IF
 C
-      IF(IBCC.EQ.0) RETURN
+      IF(IBCC==0) RETURN
 C
       DO 400 I=1,JLT
-        IF(PENE(I).EQ.ZERO)GOTO 400
+        IF(PENE(I)==ZERO)GOTO 400
         IBCM = IBCC / 8
         IBCS = IBCC - 8 * IBCM
-        IF(IBCS.GT.0) THEN
+        IF(IBCS>0) THEN
           IG=NSVG(I)
           CALL IBCOFF(IBCS,ICODT(IG))
         ENDIF

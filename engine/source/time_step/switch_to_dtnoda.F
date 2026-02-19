@@ -1,36 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SWITCH_TO_DTNODA              source/time_step/switch_to_dtnoda.F
-Chd|-- called by -----------
-Chd|        RADIOSS2                      source/engine/radioss2.F      
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    switch_to_dtnoda      ../engine/source/time_step/switch_to_dtnoda.F
+!||--- called by ------------------------------------------------------
+!||    radioss2              ../engine/source/engine/radioss2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod          ../common_source/modules/groupdef_mod.F
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    my_alloc_mod          ../common_source/tools/memory/my_alloc.F90
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SWITCH_TO_DTNODA(
      .                  IXR      ,GEO      ,PM       ,IPARG    ,ELBUF_TAB,
      .                  MS       ,IN       ,ITAB     ,IGEO     ,IPM    ,
@@ -41,9 +45,12 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD            
       USE GROUPDEF_MOD
       USE MESSAGE_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixr
+      USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
-C-----------------------------------------------
+C-----------------------------------------------      
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
@@ -52,18 +59,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr02_c.inc"
-#include      "rnur_c.inc"
 #include      "scr17_c.inc"
 #include      "scr18_c.inc"
 #include      "sms_c.inc"
@@ -91,12 +94,18 @@ C-----------------------------------------------
      .        K1,K11,K12,K13,K14,
      .        IOK,IDTGRX,NG
       INTEGER I15ATH,I15A,I15B,I15C,I15D,I15E,I15F,I15G,I15H,I15I,I15J,I15K
-      INTEGER TAGN(NUMNOD), TAGR(NUMELR),TAGPRT_SMS(NPART)
 C     REAL
       my_real
      .   XKM, XCM, XKR, XCR, XIN(MVSIZ)
       TYPE(G_BUFEL_) ,POINTER :: GBUF
       INTEGER, DIMENSION(:), POINTER :: IPARTR
+      INTEGER, DIMENSION(:), ALLOCATABLE :: TAGN
+      INTEGER, DIMENSION(:), ALLOCATABLE :: TAGR
+      INTEGER, DIMENSION(:), ALLOCATABLE :: TAGPRT_SMS
+C-----------------------------------------------------
+      CALL MY_ALLOC(TAGN,NUMNOD)
+      CALL MY_ALLOC(TAGR,NUMELR)
+      CALL MY_ALLOC(TAGPRT_SMS,NPART)
 C-----------------------------------------------------
 C     Check for springs with stiffness but no mass
 C     ... Switch for cohesive elements should also be done here ...
@@ -109,7 +118,7 @@ C-----------------------------------------------------
       I15E=I15D+NUMELT
       I15F=I15E+NUMELP
       I15G=I15F+NUMELR
-      I15H=I15G+NUMELUR
+      I15H=I15G+0
       I15I=I15H+NUMELTG
       I15J=I15I+NUMELX
       I15K=I15J+NUMSPH
@@ -117,13 +126,13 @@ C
       IPARTR => IPART(I15F:I15G-1)
 C-----------------------------------------------------
       IF(NODADT/=0)THEN
-        IF(IDTGR(11).EQ.0)THEN
+        IF(IDTGR(11)==0)THEN
           TAGN(1:NUMNOD)=1                                          
         ELSE
           TAGN(1:NUMNOD)=0
           IOK = 0
           DO N=1,NGRNOD
-            IF (IABS(IDTGR(11)).EQ.IGRNOD(N)%ID) THEN
+            IF (IABS(IDTGR(11))==IGRNOD(N)%ID) THEN
               IDTGRX= N
               IOK   = 1
             ENDIF
@@ -159,7 +168,6 @@ C
               GO TO 120
             END IF
            END DO
- 100       CONTINUE
            CALL ANCMSG(MSGID=21,ANMODE=ANINFO_BLIND,
      .                 I1=-IDTGRS)
            CALL ARRET(2)
@@ -172,12 +180,12 @@ C
           END DO
         END IF
 C-----------------------------------------------------
-        IF (ISMS_SELEC.EQ.1) THEN
+        IF (ISMS_SELEC==1) THEN
 C-- Full AMS
           DO I=1,NUMELR
             TAGR(I)=1
           END DO
-        ELSEIF (ISMS_SELEC.EQ.2) THEN
+        ELSEIF (ISMS_SELEC==2) THEN
 C-- AMS by parts    
           DO I=1,NUMELR
             IF(TAGPRT_SMS(IPARTR(I))==0)THEN
@@ -186,7 +194,7 @@ C-- AMS by parts
               TAGR(I)=1
             END IF
           END DO
-        ELSEIF (ISMS_SELEC.EQ.3) THEN
+        ELSEIF (ISMS_SELEC==3) THEN
 C-- AMS auto - defined by elements
           DO NG = 1, NGROUP
             ITY   =IPARG(5,NG)
@@ -196,7 +204,7 @@ C-- AMS auto - defined by elements
               LLT   =IPARG(2,NG)    
               GBUF => ELBUF_TAB(NG)%GBUF 
               DO I=LFT,LLT
-                IF(GBUF%ISMS(I).EQ.0)THEN
+                IF(GBUF%ISMS(I)==0)THEN
                   TAGR(NFT+I)=0
                 ELSE
                   TAGR(NFT+I)=1
@@ -204,7 +212,7 @@ C-- AMS auto - defined by elements
               END DO
             END IF
           END DO
-        ELSEIF (ISMS_SELEC.EQ.4) THEN
+        ELSEIF (ISMS_SELEC==4) THEN
 C-- AMS auto + parts
           DO NG = 1, NGROUP
             ITY   =IPARG(5,NG)
@@ -214,7 +222,7 @@ C-- AMS auto + parts
               LLT   =IPARG(2,NG)    
               GBUF => ELBUF_TAB(NG)%GBUF 
               DO I=LFT,LLT
-                IF(GBUF%ISMS(I).EQ.0.AND.TAGPRT_SMS(IPARTR(NFT+I)).EQ.0)THEN
+                IF(GBUF%ISMS(I)==0.AND.TAGPRT_SMS(IPARTR(NFT+I))==0)THEN
                   TAGR(NFT+I)=0
                 ELSE
                   TAGR(NFT+I)=1
@@ -250,7 +258,7 @@ C
             K14 = K13 + 6
 C
             IF(MTN == 108) THEN
-              IEQUI = UPARAM(IADBUF+4)
+              IEQUI = UPARAM(IADBUF+2)
               XKM= MAX(UPARAM(IADBUF + K11 + 1)*UPARAM(IADBUF + K1 + 1),
      .                 UPARAM(IADBUF + K11 + 2)*UPARAM(IADBUF + K1 + 2),
      .                 UPARAM(IADBUF + K11 + 3)*UPARAM(IADBUF + K1 + 3))   ! /XL(I)
@@ -291,7 +299,7 @@ C
 C------------------------------------------
       IF(NSPMD > 0)THEN
 #ifdef MPI
-      CALL MPI_ALLREDUCE(MPI_IN_PLACE,IERR,1,MPI_INTEGER,MPI_MAX,MPI_COMM_WORLD,IERROR)
+      CALL MPI_ALLREDUCE(MPI_IN_PLACE,IERR,1,MPI_INTEGER,MPI_MAX,SPMD_COMM_WORLD,IERROR)
 #endif
       END IF
       IF(IERR/=0)THEN
@@ -302,5 +310,9 @@ C------------------------------------------
         END IF
       END IF
 C------------------------------------------
+      DEALLOCATE(TAGN)
+      DEALLOCATE(TAGR)
+      DEALLOCATE(TAGPRT_SMS)
+C-----------------------------------------------------
       RETURN
       END      

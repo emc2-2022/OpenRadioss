@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C_FVBAG                       source/airbag/c_fvbag.F       
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FVBAG_MOD                     share/modules1/fvbag_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c_fvbag       ../starter/source/airbag/c_fvbag.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit       ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal        ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod     ../starter/share/modules1/fvbag_mod.F
+!||====================================================================
       SUBROUTINE C_FVBAG(
      .    MONVOL,   NODLOCAL,  IXS     , PROC, NB_NODE, FVMAIN)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE FVBAG_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -72,12 +74,12 @@ C-----------------------------------------------
       ALLOCATE( FVSPMD(NFVBAG) )
 ! ---------------------------------
 C
-      IF (PROC.EQ.1)THEN
+      IF (PROC==1)THEN
         NTGM = 0
         K1 = 1
         DO I=1,NVOLU
           ITYP=MONVOL(K1-1+2)
-          IF (ITYP.EQ.6.OR.ITYP.EQ.8) THEN
+          IF (ITYP==6.OR.ITYP==8) THEN
             NTG=MONVOL(K1-1+33)
           ELSE
             NTG = 0
@@ -92,7 +94,7 @@ C
       IFV=0
       DO I=1,NVOLU
          ITYP=MONVOL(K1-1+2)
-         IF (ITYP.EQ.6.OR.ITYP.EQ.8) THEN
+         IF (ITYP==6.OR.ITYP==8) THEN
             IFV=IFV+1
             NN= MONVOL(K1-1+32)
             NTG=MONVOL(K1-1+33)
@@ -102,7 +104,7 @@ C
             NTGI=MONVOL(K1-1+69)
             KI1 =K2+MONVOL(K1-1+31)
             KIA1=K2+MONVOL(K1-1+20)-1
-C Noeuds de l'enveloppe
+C Nod
             ALLOCATE(IBUF(NN+NNI), IBUFA(NNA))
             DO J=1,NN+NNI
                IBUF(J)=MONVOL(KI1-1+J)
@@ -110,7 +112,7 @@ C Noeuds de l'enveloppe
             DO J=1,NNA
                IBUFA(J)=MONVOL(KIA1-1+J)
             ENDDO
-C Identification du PMAIN
+C Identification of PMAIN
             NMAX=0
             PMAIN=1
             DO P=1,NSPMD
@@ -140,33 +142,33 @@ C Identification du PMAIN
  200                 CONTINUE
                   ENDIF
                ENDDO
-               IF(NN_L+NNI_L.GT.NMAX)THEN
+               IF(NN_L+NNI_L>NMAX)THEN
                   PMAIN=P
                   NMAX=NN_L+NNI_L
                ENDIF
             ENDDO
 
 
-            IF ((ITYP.EQ.6.OR.ITYP.EQ.8) .AND. FVMAIN(IFV) >= 0) THEN
+            IF ((ITYP==6.OR.ITYP==8) .AND. FVMAIN(IFV) >= 0) THEN
            !FVMAIN(IFV) > 0 : The main processor was computed during domain decomposition
               PMAIN = FVMAIN(IFV)
             ENDIF 
             FVSPMD(IFV)%PMAIN=PMAIN
-C Noeuds locaux
+C Local nodes
             NN_L=0
             DO J=1,NN
                JJ=IBUF(J)
-               IF (NODLOCAL(JJ).NE.0) NN_L=NN_L+1
+               IF (NODLOCAL(JJ)/=0) NN_L=NN_L+1
             ENDDO
             NNI_L=0
             DO J=NN+1,NN+NNI
                JJ=IBUF(J)
-               IF (NODLOCAL(JJ).NE.0) NNI_L=NNI_L+1
+               IF (NODLOCAL(JJ)/=0) NNI_L=NNI_L+1
             ENDDO
             NNA_L=0
             DO J=1,NNA
                JJ=IBUFA(J)
-               IF (NODLOCAL(JJ).NE.0) NNA_L=NNA_L+1
+               IF (NODLOCAL(JJ)/=0) NNA_L=NNA_L+1
             ENDDO
             FVSPMD(IFV)%NN_L=NN_L
             FVSPMD(IFV)%NNI_L=NNI_L
@@ -177,7 +179,7 @@ C Noeuds locaux
             NN_L=0
             DO J=1,NN+NNI
                JJ=IBUF(J)
-               IF (NODLOCAL(JJ).NE.0) THEN
+               IF (NODLOCAL(JJ)/=0) THEN
                   NN_L=NN_L+1
                   FVSPMD(IFV)%IBUF_L(1,NN_L)=J
                   FVSPMD(IFV)%IBUF_L(2,NN_L)=NODLOCAL(JJ)
@@ -186,20 +188,20 @@ C Noeuds locaux
             NNA_L=0
             DO J=1,NNA
                JJ=IBUFA(J)
-               IF (NODLOCAL(JJ).NE.0) THEN
+               IF (NODLOCAL(JJ)/=0) THEN
                   NNA_L=NNA_L+1
                   FVSPMD(IFV)%IBUFA_L(1,NNA_L)=J
                   FVSPMD(IFV)%IBUFA_L(2,NNA_L)=NODLOCAL(JJ)
                ENDIF
             ENDDO
             DEALLOCATE(IBUF, IBUFA)
-C Solides additionnels
+C Additional solids
             FVSPMD(IFV)%NSA=NBA
             FVSPMD(IFV)%NNSA=0
             FVSPMD(IFV)%NNSA_L=0
             FVSPMD(IFV)%NELSA=0
-            IF (NBA.GT.0) THEN 
-               IF (PROC.EQ.PMAIN) ALLOCATE(FVSPMD(IFV)%IXSA(8,NBA))
+            IF (NBA>0) THEN 
+               IF (PROC==PMAIN) ALLOCATE(FVSPMD(IFV)%IXSA(8,NBA))
                KIA1=K2+MONVOL(K1-1+19)-1
                DO J=1,NB_NODE
                   ITAG(J)=0
@@ -214,14 +216,14 @@ C Solides additionnels
                ENDDO
                NNSA=0
                DO J=1,NB_NODE
-                  IF (ITAG(J).EQ.1) THEN
+                  IF (ITAG(J)==1) THEN
                      NNSA=NNSA+1
                      REDIR(J)=NNSA
                      IBUFSA(NNSA)=J
                   ENDIF
                ENDDO
                FVSPMD(IFV)%NNSA=NNSA
-               IF (PROC.EQ.PMAIN) THEN
+               IF (PROC==PMAIN) THEN
                   DO J=1,NBA                            
                      JJ=MONVOL(KIA1-1+J)                
                      DO K=1,8                           
@@ -240,7 +242,7 @@ C
                      ENDDO
                   ENDDO
                   DO J=1,FVDATA(IFV)%NNS
-                     IF (FVDATA(IFV)%IFVNOD(1,J).EQ.2) THEN
+                     IF (FVDATA(IFV)%IFVNOD(1,J)==2) THEN
                         JJ=FVDATA(IFV)%IFVNOD(2,J)
                         FVDATA(IFV)%IFVNOD(2,J)=REDIR(JJ)
                      ENDIF
@@ -249,14 +251,14 @@ C
                NNSA_L=0
                DO J=1,NNSA
                   JJ=IBUFSA(J)
-                  IF (NODLOCAL(JJ).NE.0) NNSA_L=NNSA_L+1
+                  IF (NODLOCAL(JJ)/=0) NNSA_L=NNSA_L+1
                ENDDO
                FVSPMD(IFV)%NNSA_L=NNSA_L
                ALLOCATE(FVSPMD(IFV)%IBUFSA_L(2,NNSA_L))
                NNSA_L=0
                DO J=1,NNSA
                   JJ=IBUFSA(J)
-                  IF (NODLOCAL(JJ).NE.0) THEN
+                  IF (NODLOCAL(JJ)/=0) THEN
                      NNSA_L=NNSA_L+1
                      FVSPMD(IFV)%IBUFSA_L(1,NNSA_L)=J
                      FVSPMD(IFV)%IBUFSA_L(2,NNSA_L)=NODLOCAL(JJ)

@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //    
 #include <stdio.h>
 #include <string.h>
@@ -98,17 +98,20 @@ void c_h3d_create_skins_(int *ITAB, int *NUMNOD, int *IPART, int *LIPART1,int *H
 
         for(i=0;i<*NUMELQ;i++)
           {
-          if(H3D_PART[IPARTQ[i] - 1] == 1)
+            if(H3D_PART[IPARTQ[i] - 1] == 1)
             {
-             elem_nodes = 4;
+              if(IPARTQ[i] > 0)
+              {
+                elem_nodes = 4;
 
-             if(IPART[*LIPART1 * (IPARTQ[i] - 1) + 3] != comp_id)
-             {
-             	comp_id = IPART[*LIPART1 * (IPARTQ[i] - 1) + 3];
-                j = i;
-             }
-             nbelems[j] = nbelems[j] + 1;
-             }
+                if(IPART[*LIPART1 * (IPARTQ[i] - 1) + 3] != comp_id)
+                {
+              	  comp_id = IPART[*LIPART1 * (IPARTQ[i] - 1) + 3];
+                  j = i;
+                }
+                nbelems[j] = nbelems[j] + 1;
+              }
+            }
           }
 
         comp_id = 0;
@@ -117,6 +120,8 @@ void c_h3d_create_skins_(int *ITAB, int *NUMNOD, int *IPART, int *LIPART1,int *H
 
         for(i=0;i<*NUMELQ;i++)  
         {
+          if(IPARTQ[i] > 0)
+          {
             if(H3D_PART[IPARTQ[i] - 1] == 1)
             {  
              elem_id = IXQ[*NIXQ * i + *NIXQ - 1];
@@ -163,7 +168,8 @@ void c_h3d_create_skins_(int *ITAB, int *NUMNOD, int *IPART, int *LIPART1,int *H
              	  rc = Hyper3DElementEnd(h3d_file);
              	  if( !rc ) throw rc;
              }
-
+             
+          }
         }
       }
 

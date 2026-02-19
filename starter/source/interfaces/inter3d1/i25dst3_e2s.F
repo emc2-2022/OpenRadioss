@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25DST3_E2S                   source/interfaces/inter3d1/i25dst3_e2s.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25dst3_e2s   ../starter/source/interfaces/inter3d1/i25dst3_e2s.F
+!||--- called by ------------------------------------------------------
+!||    inint3        ../starter/source/interfaces/inter3d1/inint3.F
+!||====================================================================
       SUBROUTINE I25DST3_E2S(
      1   JLT   ,IEDGE  ,CAND_S,CAND_M,
      2   N1    ,N2     ,M1    ,M2    ,
@@ -39,13 +38,11 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "comlock.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "param_c.inc"
-#include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -60,13 +57,10 @@ C-----------------------------------------------
      .     FX(MVSIZ), FY(MVSIZ) , FZ(MVSIZ)
       REAL*4 E2S_NOD_NORMAL(3,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, IA, JA, IB, JB, SOL_EDGE, SH_EDGE, K, NJNDX, N4A, 
-     .        EJ, I1, I2, I3, I4, I0, IT,IAM,IAS,JAS,
+     .        EJ, I1, I2, I3, I4, I0, IT,IAM,IAS,JAS,ISENS,
      .        IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
      .        JNDX(MVSIZ), I4A(MVSIZ)
       my_real
@@ -193,14 +187,14 @@ C
           H2S(EJ,I) = ONE -H1S(EJ,I)
           H2M(EJ,I) = ONE -H1M(EJ,I)
 C !!!!!!!!!!!!!!!!!!!!!!!!!!
-C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 C!!!!!!!!!!!!!!!!!!!!!!!!!!!
           NX(EJ,I) = H1S(EJ,I)*XXS1(I)    + H2S(EJ,I)*XXS2(I)
-     .   	- H1M(EJ,I)*XXM1(EJ,I) - H2M(EJ,I)*XXM2(EJ,I)
+     .     - H1M(EJ,I)*XXM1(EJ,I) - H2M(EJ,I)*XXM2(EJ,I)
           NY(EJ,I) = H1S(EJ,I)*XYS1(I)    + H2S(EJ,I)*XYS2(I)
-     .   	- H1M(EJ,I)*XYM1(EJ,I) - H2M(EJ,I)*XYM2(EJ,I)
+     .     - H1M(EJ,I)*XYM1(EJ,I) - H2M(EJ,I)*XYM2(EJ,I)
           NZ(EJ,I) = H1S(EJ,I)*XZS1(I)    + H2S(EJ,I)*XZS2(I)
-     .   	- H1M(EJ,I)*XZM1(EJ,I) - H2M(EJ,I)*XZM2(EJ,I)
+     .     - H1M(EJ,I)*XZM1(EJ,I) - H2M(EJ,I)*XZM2(EJ,I)
 
           NN(EJ,I) = SQRT(NX(EJ,I)**2 + NY(EJ,I)**2 + NZ(EJ,I)**2)
 
@@ -244,6 +238,19 @@ C
 
           IF(IABS(LEDGE(7,CAND_S(I)))/=1)CYCLE
 
+C---------------------------------------
+C         Solid on second side !
+C---------------------------------------
+C
+C
+          IA=LEDGE(1,CAND_S(I))
+          JA=LEDGE(2,CAND_S(I))
+          IB=LEDGE(3,CAND_S(I))
+          JB=LEDGE(4,CAND_S(I))
+          IF(IA==0 .OR. IB==0) THEN
+            print *,' internal error - i25dst3e'
+          END IF
+
           DO EJ=1,4
 
 
@@ -254,13 +261,13 @@ C         Only contact solid/solid
 C            Common normal : contact normal computing using cross product
 C            contact normal can't be normal to secondary and main surfaces :
 C            using node normal 
-C             +- 90 with tolerance ( 10)
+C             +- 90 with tolerance ( 10deg)
 
 C Computing cross product :
 
             PEDG = XM12(EJ,I) *XS12(EJ,I) + YM12(EJ,I) *YS12(EJ,I) + ZM12(EJ,I) *ZS12(EJ,I)
             NEDG = SQRT(XM2(EJ,I)) * SQRT(XS2(EJ,I))
-            IF(ABS(PEDG).GT.0.9998*NEDG) THEN
+            IF(ABS(PEDG)>ZEP999*NEDG) THEN
               PENE(EJ,I)=ZERO
               CYCLE  ! no contact
             END IF
@@ -285,7 +292,7 @@ C Computing cross product :
             NN(EJ,I)=SQRT(NX(EJ,I)**2 + NY(EJ,I)**2 + NZ(EJ,I)**2)
             PENE(EJ,I) = NN(EJ,I)
 
-C Exclusions :
+C Exclusions:
 
             IAM=CAND_M(I)
             IAS=LEDGE(1,CAND_S(I))
@@ -295,8 +302,21 @@ C Exclusions :
             NNM11(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(EJ,IAM))
             NNM22(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(MOD(EJ,4)+1,IAM))
 
-            NNS11(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(JAS,IAS))
-            NNS22(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(MOD(JAS,4)+1,IAS))
+
+            ISENS = 0
+            IF(IRECT(JAS,IAS)==N1(I).AND.IRECT(MOD(JAS,4)+1,IAS)==N2(I))THEN
+               ISENS= 1
+            ELSEIF(IRECT(JAS,IAS)==N2(I).AND.IRECT(MOD(JAS,4)+1,IAS)==N1(I))THEN
+               ISENS=-1
+            END IF
+
+             IF(ISENS == 1 ) THEN
+                NNS11(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(JAS,IAS))
+                NNS22(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(MOD(JAS,4)+1,IAS))
+             ELSE
+                NNS22(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(JAS,IAS))
+                NNS11(1:3) = E2S_NOD_NORMAL(1:3,ADMSR(MOD(JAS,4)+1,IAS))
+             ENDIF
  
             NM(1:3)=H1M(EJ,I)*NNM11(1:3)+H2M(EJ,I)*NNM22(1:3)
             NS(1:3)=H1S(EJ,I)*NNS11(1:3)+H2S(EJ,I)*NNS22(1:3)
@@ -311,7 +331,7 @@ C Exclusions :
               PENE(EJ,I)=ZERO 
             ENDIF
 
-            IF(ABS(P1) <= ONE_FIFTH*NNNN .OR. ABS(P2) <= ONE_FIFTH*NNNN) THEN ! Tolerance 80deg
+            IF(ABS(P1) <= ZEP2*NNNN .OR. ABS(P2) <= ZEP2*NNNN) THEN ! Tolerance 80deg
               PENE(EJ,I)=ZERO 
               CYCLE  ! no contact
             ENDIF
@@ -321,132 +341,13 @@ C Exclusions :
       ENDIF
 
 
-      IF(SOL_EDGE/=0)THEN !  provisoire pour solides
-
-        DO I=1,JLT
-
-C         IF(PENE(I)==ZERO) CYCLE
-
-          IF(IABS(LEDGE(7,CAND_S(I)))/=1)CYCLE
+      IF(SOL_EDGE/=0)THEN ! temporary for solids
+C-----------Keep this condition for the moment (need?) : increase tolerance ( missing contacts )
 C---------------------------------------
-C         Solid on secnd side !
-C---------------------------------------
-C
-C
-          IA=LEDGE(1,CAND_S(I))
-          JA=LEDGE(2,CAND_S(I))
-          IB=LEDGE(3,CAND_S(I))
-          JB=LEDGE(4,CAND_S(I))
-          IF(IA==0 .OR. IB==0) THEN
-            print *,' internal error - i25dst3e'
-          END IF
-
-          IF(IRECT(3,IA)/=IRECT(4,IA))THEN
-            IX1(I)=IRECT(    JA	  ,IA)
-            IX2(I)=IRECT(MOD(JA,4)  +1,IA)
-            IX3(I)=IRECT(MOD(JA+1,4)+1,IA)
-            IX4(I)=IRECT(MOD(JA+2,4)+1,IA)
-          ELSE
-            IX1(I)=IRECT(NTRIA(1,JA),IA)
-            IX2(I)=IRECT(NTRIA(2,JA),IA)
-            IX3(I)=IRECT(NTRIA(3,JA),IA)
-            IX4(I)=IX3(I)
-          END IF
-C
-          XA1(I)=X(1,IX1(I))
-          YA1(I)=X(2,IX1(I))
-          ZA1(I)=X(3,IX1(I))
-          XA2(I)=X(1,IX2(I))
-          YA2(I)=X(2,IX2(I))
-          ZA2(I)=X(3,IX2(I))
-          XA3(I)=X(1,IX3(I))
-          YA3(I)=X(2,IX3(I))
-          ZA3(I)=X(3,IX3(I))
-          XA4(I)=X(1,IX4(I))
-          YA4(I)=X(2,IX4(I))
-          ZA4(I)=X(3,IX4(I))
-C
-          IF(IX3(I).NE.IX4(I))THEN
-           XA0(I) = FOURTH*(XA1(I)+XA2(I)+XA3(I)+XA4(I))
-           YA0(I) = FOURTH*(YA1(I)+YA2(I)+YA3(I)+YA4(I))
-           ZA0(I) = FOURTH*(ZA1(I)+ZA2(I)+ZA3(I)+ZA4(I)) 
-          ELSE
-           XA0(I) = XA3(I)
-           YA0(I) = YA3(I)
-           ZA0(I) = ZA3(I)
-          ENDIF
-
-        END DO
-
-        DO I=1,JLT
-
-C         IF(PENE(I)==ZERO) CYCLE
-
-          IF(IABS(LEDGE(7,CAND_S(I)))/=1)CYCLE
-C---------------------------------------
-C         Solid on secnd side !
-C---------------------------------------
-C
-C
-          X0A(I,1) = XA1(I) - XA0(I)
-          Y0A(I,1) = YA1(I) - YA0(I)
-          Z0A(I,1) = ZA1(I) - ZA0(I)
-C
-          X0A(I,2) = XA2(I) - XA0(I)
-          Y0A(I,2) = YA2(I) - YA0(I)
-          Z0A(I,2) = ZA2(I) - ZA0(I)
-C
-          XNA(I,1) = -(Y0A(I,1)*Z0A(I,2) - Z0A(I,1)*Y0A(I,2))
-          YNA(I,1) = -(Z0A(I,1)*X0A(I,2) - X0A(I,1)*Z0A(I,2))
-          ZNA(I,1) = -(X0A(I,1)*Y0A(I,2) - Y0A(I,1)*X0A(I,2))
-C
-C         Normal to neighboring segment (cf F == Bisector)
-          PS=XNA(I,1)*FX(I)+YNA(I,1)*FY(I)+ZNA(I,1)*FZ(I)
-          XNB(I,1) = -XNA(I,1)+TWO*PS*FX(I)
-          YNB(I,1) = -YNA(I,1)+TWO*PS*FY(I)
-          ZNB(I,1) = -ZNA(I,1)+TWO*PS*FZ(I)
-C
-        ENDDO
-
-        DO I=1,JLT
-
-          IF(IABS(LEDGE(7,CAND_S(I)))/=1)CYCLE
-C---------------------------------------
-C         Solid on secnd side !
-C---------------------------------------
-          DO EJ=1,4
-
-            IF(EJ==3.AND.M1(EJ,I)==M2(EJ,I)) CYCLE
-
-            IF(PENE(EJ,I)==ZERO) CYCLE
-
-            XS = H1S(EJ,I)*XXS1(I)    + H2S(EJ,I)*XXS2(I)
-            YS = H1S(EJ,I)*XYS1(I)    + H2S(EJ,I)*XYS2(I)
-            ZS = H1S(EJ,I)*XZS1(I)    + H2S(EJ,I)*XZS2(I)
-
-            XM = H1M(EJ,I)*XXM1(EJ,I) + H2M(EJ,I)*XXM2(EJ,I)
-            YM = H1M(EJ,I)*XYM1(EJ,I) + H2M(EJ,I)*XYM2(EJ,I)
-            ZM = H1M(EJ,I)*XZM1(EJ,I) + H2M(EJ,I)*XZM2(EJ,I)
-            DA = (XM-XS)*XNA(I,1)+(YM-YS)*YNA(I,1)+(ZM-ZS)*ZNA(I,1)
-            DB = (XM-XS)*XNB(I,1)+(YM-YS)*YNB(I,1)+(ZM-ZS)*ZNB(I,1)
-
-            CNVX= (XA0(I)-XA1(I))*XNB(I,1)
-     .           +(YA0(I)-YA1(I))*YNB(I,1)
-     .           +(ZA0(I)-ZA1(I))*ZNB(I,1) 
-	    IF(CNVX >= ZERO)THEN
-  	      IF(.NOT.((DA >= ZERO .AND.  DB >= -EM04*CNVX) .OR.
-     .    	       (DA >= -EM04*CNVX .AND. DB >= ZERO)))PENE(EJ,I)=ZERO ! Clip ok
-	    ELSE
- 	      IF(DA <= ZERO .AND. DB <= ZERO) PENE(EJ,I)=ZERO
-	    END IF
-          ENDDO
-C
-        ENDDO
-C---------------------------------------
-        LBA(1:JLT,1:4) = -ONE ! cf test LBA, LCA
+        LBA(1:JLT,1:4) = -ONE ! See test LBA, LCA
         LCA(1:JLT,1:4) = ZERO
 C---------------------------------------
-C       Extraction des coordonnees et pre-filtrage des candidats vs diedre main
+C       extraction of coordinates and pre-filtering of candidates vs main dihedral
 C---------------------------------------
         DO I=1,JLT
 
@@ -476,7 +377,7 @@ C
           YA(4,I)=X(2,IX4(I))
           ZA(4,I)=X(3,IX4(I))
 
-          IF(IX3(I).NE.IX4(I))THEN
+          IF(IX3(I)/=IX4(I))THEN
             XA(5,I) = FOURTH*(XA(1,I)+XA(2,I)+XA(3,I)+XA(4,I))
             YA(5,I) = FOURTH*(YA(1,I)+YA(2,I)+YA(3,I)+YA(4,I))
             ZA(5,I) = FOURTH*(ZA(1,I)+ZA(2,I)+ZA(3,I)+ZA(4,I)) 
@@ -549,6 +450,8 @@ C         Solid on main side !
 C---------------------------------------
         DO I=1,JLT
 
+          IF(IABS(LEDGE(7,CAND_S(I)))==1)CYCLE ! keep condition only Shell/solid 
+
           DO EJ=1,4
 
             IF(PENE(EJ,I)==ZERO) CYCLE
@@ -587,21 +490,21 @@ C
             DA = (XS-XM)*XNA(I,EJ)+(YS-YM)*YNA(I,EJ)+(ZS-ZM)*ZNA(I,EJ)
             DB = (XS-XM)*XNB(I,EJ)+(YS-YM)*YNB(I,EJ)+(ZS-ZM)*ZNB(I,EJ)
 C
-	    CNVX= (XA(I0,I)-XA(I1,I))*XNB(I,EJ)
-     .    	 +(YA(I0,I)-YA(I1,I))*YNB(I,EJ)
-     .    	 +(ZA(I0,I)-ZA(I1,I))*ZNB(I,EJ) 
-	    IF(CNVX >= ZERO)THEN
+              CNVX= (XA(I0,I)-XA(I1,I))*XNB(I,EJ)
+     .       +(YA(I0,I)-YA(I1,I))*YNB(I,EJ)
+     .       +(ZA(I0,I)-ZA(I1,I))*ZNB(I,EJ) 
+              IF(CNVX >= ZERO)THEN
               IF(DA <= ZERO .OR.  DB <= ZERO) THEN ! Don't compute a force in the wrong direction.
                 PENE(EJ,I)=ZERO
               ENDIF
-	    ELSE
- 	      IF(DA <= ZERO .AND. DB <= ZERO) PENE(EJ,I)=ZERO
-	    END IF
+              ELSE
+                IF(DA <= ZERO .AND. DB <= ZERO) PENE(EJ,I)=ZERO
+              END IF
 
           ENDDO
         ENDDO
 C---------------------------------------
-C       Calculer uniquement candidats filtres par la suite...
+C       calculate only filtered candidates later...
 C---------------------------------------
         NJNDX = 0
         N4A   = 0
@@ -626,20 +529,20 @@ C--------------------------------------
 C        Solid on main side !
 C--------------------------------------
 C
-C          vu cas ou S1 (resp S2) est egal au 3eme noeud du triangle main
-C       						    --------
-C          alors qu'il n'y a pas d'auto intersection de la part sur elle meme ::
-C       		      
-C       			       
-C	     M2  ---					M2	
-C	       \    --- 				 |  
-C	         \     ---x M3=S1, S2		   M3=S1 x----x S2
-C	           \	  |				 |	
-C	             \    |				 |	
-C	               \  |				 |	
-C	        	M1				M1	
+C          seen case where S1 (resp S2) is equal to the 3rd node of the main triangle
+C                       --------
+C          While there is no self -intersection on the part on it even ::
+C                 
+C                    
+C       M2  ---          M2
+C         \    ---          |  
+C           \     ---x M3=S1, S2       M3=S1 x----x S2
+C             \    |         |
+C               \    |         |
+C                 \  |         |
+C            M1        M1
 C
-C	            Left view			     Front view 
+C              Left view           Front view 
 C
 C         IF((XXS1(I)==XA3(I).AND.XYS1(I)==YA3(I).AND.XZS1(I)==ZA3(I)).OR.
 C     .      (XXS1(I)==XA4(I).AND.XYS1(I)==YA4(I).AND.XZS1(I)==ZA4(I)).OR.
@@ -661,8 +564,8 @@ C
           DA1 = (XXS1(I)-XA(5,I))*XNA(I,1)+(XYS1(I)-YA(5,I))*YNA(I,1)+(XZS1(I)-ZA(5,I))*ZNA(I,1)
           DA2 = (XXS2(I)-XA(5,I))*XNA(I,1)+(XYS2(I)-YA(5,I))*YNA(I,1)+(XZS2(I)-ZA(5,I))*ZNA(I,1)
 C
-C         On traite y-compris le cas ou S1 ou S2 sont exactement sur la surface 
-C         (en dehors du 3eme point du triangle, que l'on peut rater)
+C         we also handle the case where S1 or S2 are exactly on the surface
+C         (outside the 3rd point of the triangle, which can be missed)
           IF(DA1*DA2 <= ZERO)THEN
             ALP=-DA2/SIGN(MAX(EM20,ABS(DA1-DA2)),DA1-DA2)
             XXS=ALP*XXS1(I)+(ONE-ALP)*XXS2(I)
@@ -707,8 +610,8 @@ C
           DA1 = (XXS1(I)-XA(5,I))*XNA(I,2)+(XYS1(I)-YA(5,I))*YNA(I,2)+(XZS1(I)-ZA(5,I))*ZNA(I,2)
           DA2 = (XXS2(I)-XA(5,I))*XNA(I,2)+(XYS2(I)-YA(5,I))*YNA(I,2)+(XZS2(I)-ZA(5,I))*ZNA(I,2)
 C
-C         On traite y-compris le cas ou S1 ou S2 sont exactement sur la surface 
-C         (en dehors du 3eme point du triangle, que l'on peut rater)
+C         we also handle the case where S1 or S2 are exactly on the surface
+C         (outside the 3rd point of the triangle, which can be missed)
           IF(DA1*DA2 <= ZERO)THEN
             ALP=-DA2/SIGN(MAX(EM20,ABS(DA1-DA2)),DA1-DA2)
             XXS=ALP*XXS1(I)+(ONE-ALP)*XXS2(I)
@@ -739,9 +642,9 @@ C
             LBA(I,2) = -(-(XNA(I,2)*SX2 + YNA(I,2)*SY2 + ZNA(I,2)*SZ2))*AAA
             LCA(I,2) = -( (XNA(I,2)*SX1 + YNA(I,2)*SY1 + ZNA(I,2)*SZ1))*AAA
 C
-C	  ELSE
-C	    LBA(I,2) = -ONE
-C	    LCA(I,2) = ZERO
+C    ELSE
+C      LBA(I,2) = -ONE
+C      LCA(I,2) = ZERO
           END IF
 C
         ENDDO
@@ -753,8 +656,8 @@ C
           DA1 = (XXS1(I)-XA(5,I))*XNA(I,3)+(XYS1(I)-YA(5,I))*YNA(I,3)+(XZS1(I)-ZA(5,I))*ZNA(I,3)
           DA2 = (XXS2(I)-XA(5,I))*XNA(I,3)+(XYS2(I)-YA(5,I))*YNA(I,3)+(XZS2(I)-ZA(5,I))*ZNA(I,3)
 C
-C         On traite y-compris le cas ou S1 ou S2 sont exactement sur la surface 
-C         (en dehors du 3eme point du triangle, que l'on peut rater)
+C         we also handle the case where S1 or S2 are exactly on the surface
+C         (outside the 3rd point of the triangle, which can be missed)
           IF(DA1*DA2 <= ZERO)THEN
             ALP=-DA2/SIGN(MAX(EM20,ABS(DA1-DA2)),DA1-DA2)
             XXS=ALP*XXS1(I)+(ONE-ALP)*XXS2(I)
@@ -785,9 +688,9 @@ C
             LBA(I,3) = -(-(XNA(I,3)*SX2 + YNA(I,3)*SY2 + ZNA(I,3)*SZ2))*AAA
             LCA(I,3) = -( (XNA(I,3)*SX1 + YNA(I,3)*SY1 + ZNA(I,3)*SZ1))*AAA
 C
-C	  ELSE
-C	    LBA(I,3) = -ONE
-C	    LCA(I,3) = ZERO
+C    ELSE
+C      LBA(I,3) = -ONE
+C      LCA(I,3) = ZERO
           END IF
 C
         ENDDO
@@ -799,8 +702,8 @@ C
           DA1 = (XXS1(I)-XA(5,I))*XNA(I,4)+(XYS1(I)-YA(5,I))*YNA(I,4)+(XZS1(I)-ZA(5,I))*ZNA(I,4)
           DA2 = (XXS2(I)-XA(5,I))*XNA(I,4)+(XYS2(I)-YA(5,I))*YNA(I,4)+(XZS2(I)-ZA(5,I))*ZNA(I,4)
 C
-C         On traite y-compris le cas ou S1 ou S2 sont exactement sur la surface 
-C         (en dehors du 3eme point du triangle, que l'on peut rater)
+C         we also handle the case where S1 or S2 are exactly on the surface
+C         (outside the 3rd point of the triangle, which can be missed)
           IF(DA1*DA2 <= ZERO)THEN
             ALP=-DA2/SIGN(MAX(EM20,ABS(DA1-DA2)),DA1-DA2)
             XXS=ALP*XXS1(I)+(ONE-ALP)*XXS2(I)
@@ -831,9 +734,9 @@ C
             LBA(I,4) = -(-(XNA(I,4)*SX2 + YNA(I,4)*SY2 + ZNA(I,4)*SZ2))*AAA
             LCA(I,4) = -( (XNA(I,4)*SX1 + YNA(I,4)*SY1 + ZNA(I,4)*SZ1))*AAA
 C
-C	  ELSE
-C	    LBA(I,4) = -ONE
-C	    LCA(I,4) = ZERO
+C    ELSE
+C      LBA(I,4) = -ONE
+C      LCA(I,4) = ZERO
           END IF
 C
         ENDDO
@@ -847,13 +750,13 @@ C
 C---------------------------------------
 C         Solid on main side !
 C---------------------------------------
-          IF(LBA(I,1) < -EM02 .OR. LCA(I,1) < -EM02 .OR. LBA(I,1)+LCA(I,1) > ONEP02)
+          IF(LBA(I,1) < -EM01 .OR. LCA(I,1) < -EM01 .OR. LBA(I,1)+LCA(I,1) > ONEP01)
      .      PENE(1,I)=ZERO
-          IF(LBA(I,2) < -EM02 .OR. LCA(I,2) < -EM02 .OR. LBA(I,2)+LCA(I,2) > ONEP02)
+          IF(LBA(I,2) < -EM01 .OR. LCA(I,2) < -EM01 .OR. LBA(I,2)+LCA(I,2) > ONEP01)
      .      PENE(2,I)=ZERO
-          IF(LBA(I,3) < -EM02 .OR. LCA(I,3) < -EM02 .OR. LBA(I,3)+LCA(I,3) > ONEP02)
+          IF(LBA(I,3) < -EM01 .OR. LCA(I,3) < -EM01 .OR. LBA(I,3)+LCA(I,3) > ONEP01)
      .      PENE(3,I)=ZERO
-          IF(LBA(I,4) < -EM02 .OR. LCA(I,4) < -EM02 .OR. LBA(I,4)+LCA(I,4) > ONEP02)
+          IF(LBA(I,4) < -EM01 .OR. LCA(I,4) < -EM01 .OR. LBA(I,4)+LCA(I,4) > ONEP01)
      .      PENE(4,I)=ZERO
         ENDDO
 

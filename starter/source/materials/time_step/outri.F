@@ -1,45 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  OUTRI                         source/materials/time_step/outri.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        TRIRAP                        ../common_source/tools/sort/trirap.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    outri          ../starter/source/materials/time_step/outri.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE OUTRI(DTELEM,IXS   ,IXQ   ,IXC   ,IXT   ,
-     .                 IXP   ,IXR   ,IXUR  ,IXTG  ,KXX   ,
+     .                 IXP   ,IXR   ,IXTG  ,KXX   ,
      .                 KXSP  ,KXIG3D,IGEO  ,NUMEL)
 C
-C     TRI DES DTEL (POUR CHAQUE TYPE D'ELEMENT) ET IMPRESSIONS
+C     SORTING OF DTEL (FOR EACH TYPE OF ELEMENT) AND PRINTING
 C
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE MY_ALLOC_MOD
+      USE MESSAGE_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -48,13 +52,12 @@ C-----------------------------------------------
 #include      "sphcom.inc"
 #include      "scr23_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXS(NIXS,*), IXQ(NIXQ,*), IXC(NIXC,*), IXT(NIXT,*) 
-      INTEGER IXP(NIXP,*), IXR(NIXR,*), IXUR(NIXUR,*), IXTG(NIXTG,*) 
+      INTEGER IXP(NIXP,*), IXR(NIXR,*), IXTG(NIXTG,*) 
       INTEGER KXX(NIXX,*), KXSP(NISP,*) ,KXIG3D(NIXIG3D,*),
      .        IGEO(NPROPGI,*)
       my_real
@@ -65,85 +68,119 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NUM2, I, NUMIMP, NUMELO, NUM1, IS_PROP45     
       REAL*4 VINGTR4, TEMPO
+      INTEGER :: IERROR
+      INTEGER, DIMENSION(:), ALLOCATABLE :: PERM
       DATA VINGTR4 /20./
 C=======================================================================
-C     INITIALISATION DES NOS INTERNES DES ELEMENTS AVANT TRI
+C     INITIALIZATION OF INTERNAL NUMBERS OF ELEMENTS BEFORE SORTING
 C
-      DO 1 I=1,NUMELS+NUMELQ
- 1    DTELEM(NUMEL+I)=I
-C
-      NUM2=NUMEL+NUMELS+NUMELQ
-      DO 2 I=1,NUMELC
- 2    DTELEM(NUM2+I)=I
-C
+      CALL MY_ALLOC(PERM,NUMEL)
+      ! --------------------
+      ! solid and quad
+      NUM2 = 0
+      DO I=1,NUMELS+NUMELQ
+        PERM(NUM2+I)=I
+      ENDDO
+      ! --------------------
+      ! shell
+      NUM2=NUMELS+NUMELQ
+      DO I=1,NUMELC
+        PERM(NUM2+I)=I
+      ENDDO
+      ! --------------------
+      ! truss
       NUM2=NUM2+NUMELC
-      DO 3 I=1,NUMELT
- 3    DTELEM(NUM2+I)=I
-C
+      DO I=1,NUMELT
+        PERM(NUM2+I)=I
+      ENDDO
+      ! --------------------
+      ! beam
       NUM2=NUM2+NUMELT
-      DO 4 I=1,NUMELP
- 4    DTELEM(NUM2+I)=I
-C
+      DO I=1,NUMELP
+        PERM(NUM2+I)=I
+      ENDDO
+      ! --------------------
+      ! spring
       NUM2=NUM2+NUMELP
-      DO 5 I=1,NUMELR
- 5    DTELEM(NUM2+I)=I
-C
+      DO I=1,NUMELR
+        PERM(NUM2+I)=I
+      ENDDO
+      ! --------------------
+      ! triangle
       NUM2=NUM2+NUMELR
-      DO 6 I=1,NUMELTG
- 6    DTELEM(NUM2+I)=I
-C
+      DO I=1,NUMELTG
+        PERM(NUM2+I)=I
+      ENDDO
+      ! --------------------
+      ! the X element :)
       NUM2=NUM2+NUMELTG
-      DO 7 I=1,NUMELUR
- 7    DTELEM(NUM2+I)=I
-C
-      NUM2=NUM2+NUMELUR
-      DO 8 I=1,NUMELX
- 8    DTELEM(NUM2+I)=I
-C
+      DO  I=1,NUMELX
+        PERM(NUM2+I)=I
+      ENDDO
+      ! --------------------
+      ! sph
       NUM2=NUM2+NUMELX
-      DO 9 I=1,NUMSPH
- 9    DTELEM(NUM2+I)=I
-C
+      DO I=1,NUMSPH
+        PERM(NUM2+I)=I
+      ENDDO
+      ! --------------------
+      ! igeo element
       NUM2=NUM2+NUMSPH
-      DO 10 I=1,NUMELIG3D
-10    DTELEM(NUM2+I)=I
+      DO  I=1,NUMELIG3D
+        PERM(NUM2+I)=I
+      ENDDO
+      ! --------------------
 C
-C     TRIS DES ELEMENTS EN FONCTION DU PAS DE TEMPS
+C     SORTING OF ELEMENTS ACCORDING TO THE TIME STEP
 C
-      IF (NUMELS.GT.1) CALL TRIRAP(NUMELS,DTELEM(1),NUMEL)
-      IF (NUMELQ.GT.1) CALL TRIRAP(NUMELQ,DTELEM(1),NUMEL)
-      IF (NUMELC.GT.1) CALL TRIRAP(NUMELC,DTELEM(NUMELS+1),NUMEL)
-      IF (NUMELT.GT.1) CALL TRIRAP(NUMELT,
-     .                 DTELEM(NUMELS+NUMELC+1),NUMEL)
-      IF (NUMELP.GT.1) CALL TRIRAP(NUMELP,
-     .                 DTELEM(NUMELS+NUMELC+NUMELT+1),NUMEL)
-      IF (NUMELR.GT.1) CALL TRIRAP(NUMELR,
-     .                 DTELEM(NUMELS+NUMELC+NUMELT+NUMELP+1),NUMEL)
-      IF (NUMELTG.GT.1) THEN
+      IF (NUMELS>1) THEN
+        NUM2 = 1
+        CALL MYQSORT(NUMELS,DTELEM(NUM2),PERM(NUM2),IERROR)
+      ENDIF
+      IF (NUMELQ>1) THEN
+        NUM2 = 1
+        CALL MYQSORT(NUMELQ,DTELEM(NUM2),PERM(NUM2),IERROR)
+      ENDIF
+      IF (NUMELC>1) THEN
+        NUM2 = NUMELS+1
+        CALL MYQSORT(NUMELC,DTELEM(NUM2),PERM(NUM2),IERROR)
+      ENDIF
+      IF (NUMELT>1) THEN
+        NUM2 = NUMELS+NUMELC+1
+        CALL MYQSORT(NUMELT,DTELEM(NUM2),PERM(NUM2),IERROR)
+      ENDIF
+      IF (NUMELP>1) THEN
+        NUM2 = NUMELS+NUMELC+NUMELT+1
+        CALL MYQSORT(NUMELP,DTELEM(NUM2),PERM(NUM2),IERROR)
+      ENDIF
+      IF (NUMELR>1) THEN
+        NUM2 = NUMELS+NUMELC+NUMELT+NUMELP+1
+        CALL MYQSORT(NUMELR,DTELEM(NUM2),PERM(NUM2),IERROR)
+      ENDIF
+      IF (NUMELTG>1) THEN
           NUM2=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+1
-          CALL TRIRAP(NUMELTG,DTELEM(NUM2),NUMEL)
+          CALL MYQSORT(NUMELTG,DTELEM(NUM2),PERM(NUM2),IERROR)
       ENDIF
-      IF (NUMELUR.GT.1) THEN
+      IF (NUMELX>1) THEN
           NUM2=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+1
-          CALL TRIRAP(NUMELUR,DTELEM(NUM2),NUMEL)
+          CALL MYQSORT(NUMELX,DTELEM(NUM2),PERM(NUM2),IERROR)
       ENDIF
-      IF (NUMELX.GT.1) THEN
-          NUM2=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELUR+1
-          CALL TRIRAP(NUMELX,DTELEM(NUM2),NUMEL)
+      IF (NUMSPH>1) THEN
+        NUM2=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELX+1
+        CALL MYQSORT(NUMSPH,DTELEM(NUM2),PERM(NUM2),IERROR)
       ENDIF
-      IF (NUMSPH.GT.1) THEN
-        NUM2=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELUR+NUMELX+1
-        CALL TRIRAP(NUMSPH,DTELEM(NUM2),NUMEL)
-      ENDIF
-      IF (NUMELIG3D.GT.1) THEN
-        NUM2=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELUR+NUMELX+
+      IF (NUMELIG3D>1) THEN
+        NUM2=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELX+
      .       NUMSPH+1
-        CALL TRIRAP(NUMELIG3D,DTELEM(NUM2),NUMEL)
+        CALL MYQSORT(NUMELIG3D,DTELEM(NUM2),PERM(NUM2),IERROR)
       ENDIF
+      
+      DTELEM(NUMEL+1:2*NUMEL) = PERM(1:NUMEL)
+
 C
-C     IMPRESSIONS PAR GROUPES DES ELEMENTS TRIES
+C     PRINTING IN GROUPS OF SORTED ELEMENTS
 C
-      IF (NUMELS.GT.0) THEN
+      IF (NUMELS>0) THEN
         TEMPO = NUMELS*TWOEM2
         NUMIMP=MIN0(NUMELS,MAX1(VINGTR4,TEMPO))
         WRITE(IOUT,1000)
@@ -154,7 +191,7 @@ C
         END DO
       ENDIF
 
-      IF (NUMELQ.GT.0) THEN
+      IF (NUMELQ>0) THEN
         TEMPO = NUMELQ*TWOEM2
         NUMIMP=MIN0(NUMELQ,MAX1(VINGTR4,TEMPO))
         WRITE(IOUT,1000)
@@ -165,13 +202,13 @@ C
         END DO
       ENDIF
 
-      IF(NUMELC.GT.0) THEN
+      IF(NUMELC>0) THEN
         TEMPO = NUMELC*TWOEM2
         NUMIMP=MIN0(NUMELC,MAX1(VINGTR4,TEMPO))
         NUM2=NUMEL+NUMELS
         WRITE(IOUT,2000)
         WRITE(IOUT,1001)
-c        IF(NUMELC.GT.1)THEN
+c        IF(NUMELC>1)THEN
 c          CALL ANCHECK(92)
 c        END IF
         DO I=1,NUMIMP
@@ -180,7 +217,7 @@ c        END IF
         END DO
       ENDIF
 
-      IF(NUMELT.GT.0) THEN
+      IF(NUMELT>0) THEN
         TEMPO = NUMELT*TWOEM2
         NUMIMP=MIN0(NUMELT,MAX1(VINGTR4,TEMPO))
         NUM1=NUMELS+NUMELQ+NUMELC
@@ -195,7 +232,7 @@ c        CALL ANCHECK(94)
         END DO
       ENDIF
 
-      IF(NUMELP.GT.0) THEN
+      IF(NUMELP>0) THEN
         TEMPO = NUMELP*TWOEM2
         NUMIMP=MIN0(NUMELP,MAX1(VINGTR4,TEMPO))
         NUM1=NUMELS+NUMELC+NUMELT
@@ -209,7 +246,7 @@ c        CALL ANCHECK(94)
       ENDIF
 
       IS_PROP45 = 0
-      IF(NUMELR.GT.0) THEN
+      IF(NUMELR>0) THEN
         TEMPO = NUMELR*TWOEM2
         NUMIMP=MIN0(NUMELR,MAX1(VINGTR4,TEMPO))
         NUM1=NUMELS+NUMELC+NUMELT+NUMELP
@@ -229,7 +266,7 @@ c        CALL ANCHECK(95)
      .       WRITE(IOUT,5001)
       ENDIF
 
-      IF(NUMELTG.GT.0 .AND. N2D == 0) THEN
+      IF(NUMELTG>0 .AND. N2D == 0) THEN
         TEMPO = NUMELTG*TWOEM2
         NUMIMP=MIN0(NUMELTG,MAX1(VINGTR4,TEMPO))
         NUM1=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR
@@ -243,7 +280,7 @@ c        CALL ANCHECK(93)
         END DO
       ENDIF
 
-      IF(NUMELTG.GT.0 .AND. N2D .NE. 0) THEN
+      IF(NUMELTG>0 .AND. N2D /= 0) THEN
         TEMPO = NUMELTG*TWOEM2
         NUMIMP=MIN0(NUMELTG,MAX1(VINGTR4,TEMPO))
         NUM1=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR
@@ -256,24 +293,11 @@ c        CALL ANCHECK(93)
            WRITE(IOUT,1002)DTELEM(NUM1+I),IXTG(6,NUMELO)
         END DO
       ENDIF
-
-      IF(NUMELUR.GT.0) THEN
-        TEMPO = NUMELUR*TWOEM2
-        NUMIMP=MIN0(NUMELUR,MAX1(VINGTR4,TEMPO))
-        NUM1=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG
-        NUM2=NUM1+NUMEL
-        WRITE(IOUT,50000)
-        WRITE(IOUT,1001)
-        DO I=1,NUMIMP
-           NUMELO=NINT(DTELEM(NUM2+I))
-           WRITE(IOUT,1002)DTELEM(NUM1+I),IXUR(6,NUMELO)
-        END DO
-      ENDIF
-      
-      IF(NUMELX.GT.0) THEN
+     
+      IF(NUMELX>0) THEN
         TEMPO = NUMELX*TWOEM2
         NUMIMP=MIN0(NUMELX,MAX1(VINGTR4,TEMPO))
-        NUM1=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELUR
+        NUM1=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG
         NUM2=NUM1+NUMEL
         WRITE(IOUT,7000)
         WRITE(IOUT,1001)
@@ -283,10 +307,10 @@ c        CALL ANCHECK(93)
         END DO
       ENDIF
       
-      IF(NUMSPH.GT.0) THEN
+      IF(NUMSPH>0) THEN
         TEMPO = NUMSPH*TWOEM2
         NUMIMP=MIN0(NUMSPH,MAX1(VINGTR4,TEMPO))
-        NUM1=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELUR+NUMELX
+        NUM1=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELX
         NUM2=NUM1+NUMEL
         WRITE(IOUT,8000)
         WRITE(IOUT,1001)
@@ -296,10 +320,10 @@ c        CALL ANCHECK(93)
         END DO
       ENDIF
 
-      IF(NUMELIG3D.GT.0) THEN
+      IF(NUMELIG3D>0) THEN
         TEMPO = NUMELIG3D*TWOEM2
         NUMIMP=MIN0(NUMELIG3D,MAX1(VINGTR4,TEMPO))
-        NUM1=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELUR+NUMELX+
+        NUM1=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NUMELTG+NUMELX+
      .       NUMSPH
         NUM2=NUM1+NUMEL
         WRITE(IOUT,9000)
@@ -309,7 +333,7 @@ c        CALL ANCHECK(93)
            WRITE(IOUT,1002)DTELEM(NUM1+I),KXIG3D(5,NUMELO)
         END DO
       ENDIF
-      
+      DEALLOCATE( PERM )
 C--------------------------------------------------------
  1000 FORMAT(//,'         SOLID ELEMENTS TIME STEP')
  1001 FORMAT(  '         ------------------------',//,
@@ -331,31 +355,29 @@ C--------------------------------------------------------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  OUTRIN                        source/materials/time_step/outri.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        PLOT_CURVE                    ../common_source/sortie/plot_curve.F
-Chd|        TRIRAP                        ../common_source/tools/sort/trirap.F
-Chd|        PLOT_CURVE_MOD                ../common_source/modules/plot_curve_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|====================================================================
+!||====================================================================
+!||    outrin           ../starter/source/materials/time_step/outri.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../starter/share/message_module/message_mod.F
+!||    r2r_mod          ../starter/share/modules1/r2r_mod.F
+!||====================================================================
       SUBROUTINE OUTRIN(MS,IN,STIFN,STIFR,ITAB,DTNODA)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE R2R_MOD
       USE PLOT_CURVE_MOD
+      USE MESSAGE_MOD
 C-----------------------------------------------
-C     TRI DES DT NODAUX ET IMPRESSIONS
+C     SORTING OF NODAL DT AND PRINTING
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -373,57 +395,58 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,N,IMAX, OLD_NUMB, P80, NB_OF_COLUM, STORAGE, OLD_COMPT, COMPT
-      my_real, DIMENSION(NUMNOD*2),TARGET ::
-     .   DT
-      my_real, DIMENSION(:),POINTER ::
-     .   TMP
+      my_real, DIMENSION(:), ALLOCATABLE :: DT
       my_real
      .   DTNODA_STAT(20),NB_NOD_STAT(20),CHUNK, DT_MAX, DT_MIN, SEUIL
+      INTEGER :: IERROR
+      INTEGER, DIMENSION(:), ALLOCATABLE :: PERM
 C=======================================================================
-      TMP => DT(NUMNOD+1:NUMNOD*2)
+      CALL MY_ALLOC(PERM,NUMNOD)
+      CALL MY_ALLOC(DT,NUMNOD)
       DTNODA = EP30
 C 
       DO I=1,NUMNOD
-        IF((MS(I).NE.ZERO).AND.(STIFN(I).GT.EM20))THEN
+        IF((MS(I)/=ZERO).AND.(STIFN(I)>EM20))THEN
           DT(I)=MS(I)/STIFN(I) 
         ELSE
           DT(I)=EP30       ! -1- free nodes dt=1e30 instead of dt=1416=sqrt(1e6).
                            ! -2- nodal time step from VOID elem (stifn<em20) is dt=EP30 too.
         ENDIF
       ENDDO
-	 
-      IF(IRODDL.NE.0)THEN
+           
+      IF(IRODDL/=0)THEN
         DO I=1,NUMNOD
-          IF(IN(I).NE.ZERO)THEN
+          IF(IN(I)/=ZERO)THEN
             DT(I)=MIN(DT(I),IN(I)/STIFR(I))
           ENDIF
         ENDDO
       ENDIF
 
       DO I=1,NUMNOD
-	   IF(DT(I).NE.EP30)DT(I)=SQRT(ABS(TWO*DT(I)))
+             IF(DT(I)/=EP30)DT(I)=SQRT(ABS(TWO*DT(I)))
       END DO
-C---- Multidomains : Nodal time step is desactivated for splited RBODY
-      IF(NSUBDOM.GT.0) THEN
+C---- Multidomains : Nodal time step is deactivated for split RBODY
+      IF(NSUBDOM>0) THEN
         DO I=1,NUMNOD
-          IF(TAGNO(I+N_PART).EQ.3) DT(I) = EP30
+          IF(TAGNO(I+N_PART)==3) DT(I) = EP30
         END DO
       END IF
 C
       DO I=1,NUMNOD
-        TMP(I)=I
+        PERM(I)=I
       ENDDO
-      CALL TRIRAP(NUMNOD,DT,NUMNOD)
+
+      CALL MYQSORT(NUMNOD,DT,PERM,IERROR)
 C
       DTNODA = MIN(DTNODA,DT(1))
 C
-      IF ( N2D.NE.1) THEN        
+      IF ( N2D/=1) THEN        
         WRITE(IOUT,1000)
         WRITE(IOUT,1001)
-        N=NINT(TMP(1))
+        N=PERM(1)
 c        CALL ANCHECK(96)      
         DO I=1,MIN(NUMNOD0,MAX(100,NUMNOD0/50))
-          N=NINT(TMP(I))  
+          N=PERM(I) 
           WRITE(IOUT,1002)DT(I),ITAB(N)
         ENDDO
 C
@@ -489,6 +512,9 @@ C
      .                  INPUT_TXT_X="NODAL TIME STEP",INPUT_TXT_Y="% OF NODES")
       ENDIF
 C
+
+      DEALLOCATE( PERM )
+      DEALLOCATE( DT )
 
 C-----------
  1000 FORMAT(//,'         NODAL TIME STEP (estimation)')

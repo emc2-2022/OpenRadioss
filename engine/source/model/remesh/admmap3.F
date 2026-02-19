@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ADMMAP3                       source/model/remesh/admmap3.F 
-Chd|-- called by -----------
-Chd|        ADMDIV                        source/model/remesh/admdiv.F  
-Chd|        ADMINI                        source/model/remesh/admini.F  
-Chd|        ADMREGUL                      source/model/remesh/admregul.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    admmap3        ../engine/source/model/remesh/admmap3.F
+!||--- called by ------------------------------------------------------
+!||    admdiv         ../engine/source/model/remesh/admdiv.F
+!||    admini         ../engine/source/model/remesh/admini.F
+!||    admregul       ../engine/source/model/remesh/admregul.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    remesh_mod     ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE ADMMAP3(N      ,IXTG   ,X      ,IPARG  ,ELBUF_TAB,
      .                   IGEO   ,IPM    ,SH3TREE)
 C-----------------------------------------------
@@ -37,23 +38,17 @@ C   M o d u l e s
 C-----------------------------------------------
       USE REMESH_MOD
       USE ELBUFDEF_MOD
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr01_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "remesh_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -102,7 +97,7 @@ C-----------------------------------------------
       NG  = SH3TREE(4,N)
       MLW = IPARG(1,NG)
 c
-C     IF (MLW.EQ.0) GOTO 250
+C     IF (MLW==0) GOTO 250
 C---
       NEL  = IPARG(2,NG)
       NFT  = IPARG(3,NG)
@@ -112,7 +107,7 @@ C---
       IEXPAN=IPARG(49,NG)
       NPTM = MAX(1,NPT)
       I = N-NFT
-c      
+C      
       GBUFS => ELBUF_TAB(NG)%GBUF
       NLAY  = ELBUF_TAB(NG)%NLAY
       NPTR  = ELBUF_TAB(NG)%NPTR
@@ -125,12 +120,12 @@ C
 
         M   = SH3TREE(2,N)+IB-1
         NG1 = SH3TREE(4,M)
-        NEL1	= IPARG(2,NG1)
-        NFT1	= IPARG(3,NG1)
-        I1	  = M-NFT1
+        NEL1  = IPARG(2,NG1)
+        NFT1  = IPARG(3,NG1)
+        I1    = M-NFT1
         GBUFT => ELBUF_TAB(NG1)%GBUF
 !
-        DO K=1,8  ! lenght max of GBUF%G_STRA = 8
+        DO K=1,8  ! length max of GBUF%G_STRA = 8
           KK(K)  = NEL *(K-1)
           KK1(K) = NEL1*(K-1)
         ENDDO
@@ -165,7 +160,7 @@ c
           GBUFT%TEMP(I1) = GBUFS%TEMP(I)
         END IF
 c
-c       Local Stress
+C       Local Stress
 c
         DO IR=1,NPTR                                                    
           DO IS=1,NPTS                                                  
@@ -178,12 +173,12 @@ c
                 LBUFT%SIG(KK1(3)+I1) = LBUFS%SIG(KK(3)+I)
                 LBUFT%SIG(KK1(4)+I1) = LBUFS%SIG(KK(4)+I)
                 LBUFT%SIG(KK1(5)+I1) = LBUFS%SIG(KK(5)+I)
-              END DO  	                                                 
-            END DO  	                                                   
+              END DO                                                     
+            END DO                                                       
           END DO                                                        
         END DO                                                          
 c
-c       pla
+C       pla
 c
         IF (GBUFT%G_PLA > 0) THEN 
           DO IL=1,NLAY
@@ -192,15 +187,15 @@ c
           DO IT=1,NPTT
             ELBUF_TAB(NG1)%BUFLY(IL)%LBUF(IR,IS,IT)%PLA(I1) = 
      .      ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)%PLA(I)
-          END DO  	   
-          END DO  	   
-          END DO  	   
-          END DO  	   
+          END DO       
+          END DO       
+          END DO       
+          END DO       
         ENDIF
 c
-c       Uvar
+C       Uvar
 c
-        IF (MLW.GE.28 .AND. MLW.NE.32) THEN
+        IF (MLW>=28 .AND. MLW/=32) THEN
           DO IL=1,NLAY
           DO IR=1,NPTR
           DO IS=1,NPTS
@@ -209,13 +204,13 @@ c
               ELBUF_TAB(NG1)%BUFLY(IL)%MAT(IR,IS,IT)%VAR(NEL1*(K-1)+I1)=
      .        ELBUF_TAB(NG )%BUFLY(IL)%MAT(IR,IS,IT)%VAR(NEL*(K-1)+I)
             END DO
-          END DO  	   
-          END DO  	   
-          END DO  	   
-          END DO  	   
+          END DO       
+          END DO       
+          END DO       
+          END DO       
         END IF
 c
-c       sig moyen                                                           
+C       sig moyen                                                           
 !        IF (NLAY > 1) THEN
 !          DO K=1,NLAY
 !            DO J=1,5                                                      
@@ -232,12 +227,12 @@ c       sig moyen
 !     .        ELBUF_TAB(NG)%BUFLY(1)%SIGPT(JJ+I)          
 !            END DO                                                        
 !          END DO 
-!        ENDIF 	                                                       
+!        ENDIF                                                          
 
 c-----
       END DO  ! IB=1,3
 c---------------------------------------------------
-c     IB=4
+C     IB=4
 c---------------------------------------------------
       M   = SH3TREE(2,N)+3
       NG1 = SH3TREE(4,M)
@@ -247,7 +242,7 @@ c---------------------------------------------------
       GBUFT => ELBUF_TAB(NG1)%GBUF
       I1 = M-NFT1
 !
-      DO K=1,8  ! lenght max of GBUF%G_STRA = 8
+      DO K=1,8  ! length max of GBUF%G_STRA = 8
         KK(K)  = NEL *(K-1)
         KK1(K) = NEL1*(K-1)
       ENDDO
@@ -266,7 +261,7 @@ c
       GBUFT%OFF(I1) = GBUFS%OFF(I)               
 c
 
-c     ener totale approximation
+C     ener totale approximation
       GBUFT%EINT(I1)      = GBUFS%EINT(I)*S2WAKE(IB)/STOT  
       GBUFT%EINT(I1+NEL1) = GBUFS%EINT(I+NEL)*S2WAKE(IB)/STOT
 c
@@ -285,7 +280,7 @@ c
         GBUFT%TEMP(I1)=GBUFS%TEMP(I)                       
       END IF                                               
 c
-c     Local Stress
+C     Local Stress
 c
       IF (IGTYP == 1) THEN
         DO IR=1,NPTR                                                    
@@ -299,8 +294,8 @@ c
               LBUFT%SIG(KK1(3)+I1) = LBUFS%SIG(KK(3)+I)
               LBUFT%SIG(KK1(4)+I1) =-LBUFS%SIG(KK(4)+I)
               LBUFT%SIG(KK1(5)+I1) =-LBUFS%SIG(KK(5)+I)
-            END DO  	                                                 
-          END DO  	                                                   
+            END DO                                                     
+          END DO                                                       
          END DO                                                        
         END DO                                                          
       ELSE
@@ -315,13 +310,13 @@ c
               LBUFT%SIG(KK1(3)+I1) = LBUFS%SIG(KK(3)+I)
               LBUFT%SIG(KK1(4)+I1) = LBUFS%SIG(KK(4)+I)
               LBUFT%SIG(KK1(5)+I1) = LBUFS%SIG(KK(5)+I)
-            END DO  	                                                 
-          END DO  	                                                   
+            END DO                                                     
+          END DO                                                       
          END DO                                                        
         END DO                                                          
       END IF
 c
-c     pla                                                    
+C     pla                                                    
 c
       IF (GBUFT%G_PLA > 0) THEN                              
         DO IL=1,NLAY                                         
@@ -330,15 +325,15 @@ c
         DO IT=1,NPTT                                         
           ELBUF_TAB(NG1)%BUFLY(IL)%LBUF(IR,IS,IT)%PLA(I1) =   
      .    ELBUF_TAB(NG )%BUFLY(IL)%LBUF(IR,IS,IT)%PLA(I) 
-        END DO  	                                            
-        END DO  	                                            
-        END DO  	                                            
-        END DO  	                                            
+        END DO                                                
+        END DO                                                
+        END DO                                                
+        END DO                                                
       ENDIF                                                  
 c
-c     Uvar                                               
+C     Uvar                                               
 c
-      IF (MLW.GE.28 .AND. MLW.NE.32) THEN                               
+      IF (MLW>=28 .AND. MLW/=32) THEN                               
         DO IL=1,NLAY                                                    
         DO IR=1,NPTR                                                    
         DO IS=1,NPTS                                                    
@@ -347,14 +342,14 @@ c
             ELBUF_TAB(NG1)%BUFLY(IL)%MAT(IR,IS,IT)%VAR(NEL1*(K-1)+I1)=  
      .      ELBUF_TAB(NG )%BUFLY(IL)%MAT(IR,IS,IT)%VAR(NEL*(K-1)+I)     
           END DO                                                        
-        END DO  	                                                       
-        END DO  	                                                       
-        END DO  	                                                       
-        END DO  	                                                       
+        END DO                                                           
+        END DO                                                           
+        END DO                                                           
+        END DO                                                           
       END IF                                                            
 
 c
-c     sig moyen                                                             
+C     sig moyen                                                             
 !      IF (NLAY > 1) THEN                                     
 !        DO IL=1,NLAY                                          
 !          BUFLY => ELBUF_TAB(NG)%BUFLY(IL)
@@ -373,9 +368,9 @@ c     sig moyen
 !            BUFLY%SIGPT(II+K) = BUFLY%SIGPT(JJ+K)              
 !          END DO                                                          
 !        END DO                                               
-!      ENDIF 	                                                         
+!      ENDIF                                                            
 c---------------------------------------------
-c     reset source element variables
+C     Reset Source Variable elements
 c---------------------------------------------
       GBUFS%OFF(I)    =-ABS(GBUFS%OFF(I))
 !
@@ -405,28 +400,28 @@ c
                ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)%SIG(KK(K)+I)=ZERO  
               ENDDO                                                   
                ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)%PLA(I)=ZERO  
-            END DO  	                                                 
-          END DO  	                                                   
+            END DO                                                     
+          END DO                                                       
         END DO                                                        
       END DO                                                          
 c
-c     sig moyen
-c      IF (NLAY > 1) THEN
-c        DO K=1,NLAY
-c          BUFLY => ELBUF_TAB(NG)%BUFLY(K)
-c          DO J=1,5
-c            BUFLY%SIGPT(J)=ZERO
-c          END DO
-c        END DO
-c      ELSE
-c        BUFLY => ELBUF_TAB(NG)%BUFLY(1)
-c        DO K=1,NPT
-c          II = (K-1)*NEL*5                                  
-c          DO J=1,5
-c            BUFLY%SIGPT(II+J)=ZERO
-c          END DO
-c        END DO
-c      ENDIF
+C     sig moyen
+C      IF (NLAY > 1) THEN
+C        DO K=1,NLAY
+C          BUFLY => ELBUF_TAB(NG)%BUFLY(K)
+C          DO J=1,5
+C            BUFLY%SIGPT(J)=ZERO
+C          END DO
+C        END DO
+C      ELSE
+C        BUFLY => ELBUF_TAB(NG)%BUFLY(1)
+C        DO K=1,NPT
+C          II = (K-1)*NEL*5                                  
+C          DO J=1,5
+C            BUFLY%SIGPT(II+J)=ZERO
+C          END DO
+C        END DO
+C      ENDIF
 C-----------
       RETURN
       END     

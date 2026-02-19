@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS44                      source/materials/mat/mat044/sigeps44.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|-- calls ---------------
-Chd|        MSTRAIN_RATE                  source/materials/mat_share/mstrain_rate.F
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps44       ../engine/source/materials/mat/mat044/sigeps44.F
+!||--- called by ------------------------------------------------------
+!||    mulaw          ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8         ../engine/source/materials/mat_share/mulaw8.F90
+!||--- calls      -----------------------------------------------------
+!||    mstrain_rate   ../engine/source/materials/mat_share/mstrain_rate.F
+!||    vinter         ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS44(
      1     NEL    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC   ,NPF    ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0    ,RHO    ,
-     3     VOLUME ,EINT   ,
+     3     VOLUME ,EINT   ,IEOS    ,DPDM    ,
      4     EPSPXX ,EPSPYY ,EPSPZZ  ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
      5     DEPSXX ,DEPSYY ,DEPSZZ  ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
      6     EPSXX  ,EPSYY  ,EPSZZ   ,EPSXY   ,EPSYZ   ,EPSZX  ,
@@ -41,7 +41,8 @@ Chd|====================================================================
      9     SIGVXX ,SIGVYY ,SIGVZZ  ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
      A     SOUNDSP,VISCMAX,UVAR    ,OFF     ,NGL     ,IPT    ,
      B     IPM    ,MAT    ,EPSP    ,IPLA    ,SIGY    ,PLA    ,
-     C     DPLA1  ,AMU    ,ISRATE  ,ASRATE  ,NVARTMP ,VARTMP )
+     C     DPLA1  ,AMU    ,ISRATE  ,ASRATE  ,NVARTMP ,VARTMP ,
+     D     ET     )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -91,13 +92,14 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
 C---------+---------+---+---+--------------------------------------------
+      INTEGER ,INTENT(IN) :: IEOS
       INTEGER NEL, NUPARAM, NUVAR,IPT,NVARTMP,
-     .   NGL(NEL),MAT(NEL),IPM(NPROPMI,*), IPLA,IEXPAN,
+     .   NGL(NEL),MAT(NEL),IPM(NPROPMI,*), IPLA,
      .   ISRATE
       my_real
      .   TIME,TIMESTEP,UPARAM(NUPARAM),
@@ -111,6 +113,7 @@ C---------+---------+---+---+--------------------------------------------
      .   SIGOXX(NEL),SIGOYY(NEL),SIGOZZ(NEL),
      .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL),
      .   EPSP(NEL),AMU(NEL), ASRATE
+      my_real, DIMENSION(MVSIZ) ,INTENT(IN) :: DPDM
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -127,8 +130,10 @@ C   I N P U T   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
       my_real 
      .    UVAR(NEL,NUVAR), OFF(NEL) 
+      my_real, DIMENSION(NEL), INTENT(INOUT) :: 
+     .    ET
 C-------------------------
-C    variables non utilisees (fonctions utilisateur)
+C    Variables not used (user functions)
 C-------------------------
       INTEGER NPF(*),MFUNC,KFUNC(MFUNC)
       my_real
@@ -136,10 +141,10 @@ C-------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,IADBUF,ICC,VFLAG,IPOS(MVSIZ),IAD(MVSIZ),ILEN(MVSIZ),IDEV
+      INTEGER I,ICC,VFLAG,IPOS(MVSIZ),IAD(MVSIZ),ILEN(MVSIZ),IDEV
       my_real
      . E,NU,P,DAV,VM,R,EPST,E1,E2,E3,E4,E5,E6,C,CD,D,
-     .        Y,YP,E42,E52,E62,EPST2,RQ,C1,C2,C3,
+     .        Y,YP,E42,E52,E62,EPST2,RQ,BULK,
      .        G,G2,G3,EPSGM,EPMAX,SMAX(MVSIZ),FAIL(MVSIZ),
      .        EPSR1,EPSR2,YLD(MVSIZ),H(MVSIZ),DFDPLA(MVSIZ),
      .        CA,CB,CN,CC,CP,DPLA,YSCALE,DPDT
@@ -162,9 +167,7 @@ C-----------------------------------------------
       G         = UPARAM(16)
       G2        = UPARAM(17)
       G3        = UPARAM(18)
-      C1        = UPARAM(19)
-      C2        = UPARAM(20)
-      C3        = UPARAM(21)
+      BULK      = UPARAM(19)
       EPSGM     = UPARAM(22)
       VFLAG     = NINT(UPARAM(23))
       YSCALE    = UPARAM(24)
@@ -189,8 +192,6 @@ C-----------------------------------------------
         SIGNXY(I)  = SIGOXY(I)+G *DEPSXY(I)
         SIGNYZ(I)  = SIGOYZ(I)+G *DEPSYZ(I)
         SIGNZX(I)  = SIGOZX(I)+G *DEPSZX(I)
-C
-        SOUNDSP(I) = SQRT((C1+ FOUR*G/THREE)/RHO0(I))
         VISCMAX(I) = ZERO
         DPLA1(I)   = ZERO        
       ENDDO
@@ -223,24 +224,24 @@ c         yp= 3 x^2 + c
         EPST  = SQRT(-CD)
         EPST2 = EPST * EPST
         Y = (EPST2 + C)* EPST + D
-        IF(ABS(Y).GT.EM8)THEN
+        IF(ABS(Y)>EM8)THEN
           EPST = ONEP75 * EPST
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
            YP = THREE*EPST2 + C
-         IF(YP.NE.ZERO)EPST = EPST - Y/YP
+         IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST = EPST + DAV
         ENDIF
 C
@@ -342,11 +343,9 @@ C-----------------------------------------------
      1          +SIGNXY(I)**2+SIGNYZ(I)**2+SIGNZX(I)**2     
         VM = SQRT(THREE*VM)
         R  = MIN(ONE,YLD(I)/ MAX(VM,EM20))
-c        P = C1(I) * (RHO(I)/RHO0(I)-1.)
-        P  = C1 * AMU(I) ! AMU is computed by taking into account thermal strain
-        SIGNXX(I) = SIGNXX(I)*R-P
-        SIGNYY(I) = SIGNYY(I)*R-P
-        SIGNZZ(I) = SIGNZZ(I)*R-P
+        SIGNXX(I) = SIGNXX(I)*R
+        SIGNYY(I) = SIGNYY(I)*R
+        SIGNZZ(I) = SIGNZZ(I)*R
         SIGNXY(I) = SIGNXY(I)*R
         SIGNYZ(I) = SIGNYZ(I)*R
         SIGNZX(I) = SIGNZX(I)*R
@@ -359,11 +358,9 @@ c        P = C1(I) * (RHO(I)/RHO0(I)-1.)
      1              +SIGNXY(I)**2+SIGNYZ(I)**2+SIGNZX(I)**2
         VM = SQRT(THREE*VM)
         R  = MIN(ONE,YLD(I)/ MAX(VM,EM20))
-c        P = C1(I) * (RHO(I)/RHO0(I)-ONE)
-        P  = C1 * AMU(I) ! AMU is computed by taking into account thermal strain
-        SIGNXX(I) = SIGNXX(I)*R-P
-        SIGNYY(I) = SIGNYY(I)*R-P
-        SIGNZZ(I) = SIGNZZ(I)*R-P
+        SIGNXX(I) = SIGNXX(I)*R
+        SIGNYY(I) = SIGNYY(I)*R
+        SIGNZZ(I) = SIGNZZ(I)*R
         SIGNXY(I) = SIGNXY(I)*R
         SIGNYZ(I) = SIGNYZ(I)*R
         SIGNZX(I) = SIGNZX(I)*R
@@ -378,15 +375,13 @@ c        P = C1(I) * (RHO(I)/RHO0(I)-ONE)
         R  = MIN(ONE,YLD(I)/ MAX(VM,EM20))
 C       plastic strain increment.
         DPLA = (ONE - R)*VM/MAX(G3+H(I),EM20)
-C       actual yeld stress.
+C       actual yield stress
         YLD(I) = YLD(I) + DPLA*H(I)
         IF (PLA(I) >= EPMAX) YLD(I)=ZERO
         R = MIN(ONE,YLD(I)/ MAX(VM,EM20))
-c        P = C1(I) * (RHO(I)/RHO0(I) - ONE)
-        P = C1 * AMU(I) ! AMU is computed by taking into account thermal strain
-        SIGNXX(I) = SIGNXX(I)*R-P
-        SIGNYY(I) = SIGNYY(I)*R-P
-        SIGNZZ(I) = SIGNZZ(I)*R-P
+        SIGNXX(I) = SIGNXX(I)*R
+        SIGNYY(I) = SIGNYY(I)*R
+        SIGNZZ(I) = SIGNZZ(I)*R
         SIGNXY(I) = SIGNXY(I)*R
         SIGNYZ(I) = SIGNYZ(I)*R
         SIGNZX(I) = SIGNZX(I)*R
@@ -394,19 +389,43 @@ c        P = C1(I) * (RHO(I)/RHO0(I) - ONE)
         DPLA1(I)  = DPLA
        ENDDO
       ENDIF
-C-----------
-      DO I=1,NEL
+C----------------------------------
+      ! update total stress tensor       
+      IF (IEOS == 0) THEN 
+        DO I = 1, NEL
+          ! P = BULK(I) * (RHO(I)/RHO0(I) - ONE)
+          P = BULK * AMU(I) ! AMU is computed by taking into account thermal strain
+          SIGNXX(I)  = SIGNXX(I) - P
+          SIGNYY(I)  = SIGNYY(I) - P 
+          SIGNZZ(I)  = SIGNZZ(I) - P 
+          SIGNXY(I)  = SIGNXY(I)
+          SIGNYZ(I)  = SIGNYZ(I)
+          SIGNZX(I)  = SIGNZX(I)
+          SOUNDSP(I) = SQRT((BULK + FOUR*G/THREE)/RHO0(I))
+        ENDDO
+      ELSE
+        ! if EOS is used, material law calculates only deviatoric stress tensor
+        !                 sound speed depends on pressure derivative over volume change
+        !                 calculated in EOS
+        DO I = 1, NEL
+          SOUNDSP(I) = SQRT((DPDM(I) + FOUR*G/THREE)/RHO0(I))
+        ENDDO       
+      END IF                
+C----------------------------------
+      IF (VFLAG == 1) THEN   ! plastic strain rate filtering
+        DO I=1,NEL
+          DPDT    = DPLA1(I) / MAX(EM20,TIMESTEP)
+          EPSP(I) = ASRATE * DPDT + (ONE - ASRATE) * EPSP(I)
+        ENDDO
+      ENDIF
 C
-C      PLASTIC STRAIN RATE
-       IF (VFLAG == 1) THEN 
-         DPDT    = DPLA1(I) / MAX(EM20,TIMESTEP)
-         EPSP(I) = ASRATE * DPDT + (ONE - ASRATE) * EPSP(I)
-       ENDIF
-C
-       SIGY(I) = MAX(SIGY(I),YLD(I))
-      ENDDO
       DO I=1,NEL
-        IF(OFF(I).LT.ONE) IDEL7NOK = 1
+        SIGY(I) = MAX(SIGY(I),YLD(I))
+        IF (DPLA1(I) > ZERO) THEN
+          ET(I) = H(I) / (H(I) + E)
+        ELSE
+          ET(I) = ONE
+        ENDIF
       ENDDO
 C-----------
       RETURN

@@ -1,107 +1,100 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Cel50c42+++
-Chd|====================================================================
-Chd|  SPHBOX                        share/modules/sphbox.F        
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|        SOLTOSPH_ON1                  source/elements/sph/soltosph_on1.F
-Chd|        SOLTOSPH_ON12                 source/elements/sph/soltosph_on1.F
-Chd|        SOLTOSPH_ON2                  source/elements/sph/soltosph_on2.F
-Chd|        SPADASM                       source/elements/sph/spadasm.F 
-Chd|        SPADASM0                      source/elements/sph/spadasm.F 
-Chd|        SPBUC3                        source/elements/sph/spbuc3.F  
-Chd|        SPCLASV                       source/elements/sph/spclasv.F 
-Chd|        SPCOMPL                       source/elements/sph/spcompl.F 
-Chd|        SPDENS                        source/elements/sph/spdens.F  
-Chd|        SPFORCP                       source/elements/sph/spforcp.F 
-Chd|        SPGAUGE                       source/elements/sph/spgauge.F 
-Chd|        SPGRADT                       source/elements/sph/sptemp.F  
-Chd|        SPGTSYM                       source/elements/sph/sptemp.F  
-Chd|        SPHTRI                        source/elements/sph/sphtri.F  
-Chd|        SPLAPLT                       source/elements/sph/sptemp.F  
-Chd|        SPLISSV                       source/elements/sph/splissv.F 
-Chd|        SPMD_INISPH                   source/mpi/sph/spmd_sptool.F  
-Chd|        SPMD_SAVESPH                  source/mpi/sph/spmd_sptool.F  
-Chd|        SPMD_SPAMAJ                   source/mpi/sph/spmd_spamaj.F  
-Chd|        SPMD_SPAMAJ_old               source/mpi/sph/spmd_spamaj.F  
-Chd|        SPMD_SPHBOX                   source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGAT                   source/mpi/sph/spmd_sphgat.F  
-Chd|        SPMD_SPHGAT_old               source/mpi/sph/spmd_sphgat.F  
-Chd|        SPMD_SPHGETA                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETD                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETDK                 source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETF                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETG                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETH                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETIMP                source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETISPH               source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETSTB                source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETT                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETV                  source/mpi/sph/spmd_sphgetv.F 
-Chd|        SPMD_SPHGETVOIS_OFF           source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETV_OLD              source/mpi/sph/spmd_sphgetv.F 
-Chd|        SPMD_SPHGETW                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETWA                 source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETX                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHVOX                   source/mpi/sph/spmd_sphvox.F  
-Chd|        SPMD_SPHVOX_OLD               source/mpi/sph/spmd_sphvox.F  
-Chd|        SPONFPRS                      source/elements/sph/sponfprs.F
-Chd|        SPONFRO                       source/elements/sph/sponfro.F 
-Chd|        SPONFV                        source/elements/sph/sponfv.F  
-Chd|        SPONOF2                       source/elements/sph/sponof2.F 
-Chd|        SPPRO3                        source/elements/sph/sppro3.F  
-Chd|        SPSCOMP                       source/elements/sph/spcompl.F 
-Chd|        SPSGSYM                       source/elements/sph/spsgsym.F 
-Chd|        SPSTABS                       source/elements/sph/spstab.F  
-Chd|        SPSTABW                       source/elements/sph/spstab.F  
-Chd|        SPSYMP                        source/elements/sph/spsym.F   
-Chd|        SPSYM_ALLOC                   source/elements/sph/spsym_alloc.F
-Chd|        SPTRIVOX                      source/elements/sph/sptrivox.F
-Chd|        RESTMOD                       share/modules/restart_mod.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sphbox                ../engine/share/modules/sphbox.F
+!||--- called by ------------------------------------------------------
+!||    forintp               ../engine/source/elements/forintp.F
+!||    restmod               ../engine/share/modules/restart_mod.F
+!||    soltosph_on1          ../engine/source/elements/sph/soltosph_on1.F
+!||    soltosph_on12         ../engine/source/elements/sph/soltosph_on1.F
+!||    soltosph_on2          ../engine/source/elements/sph/soltosph_on2.F
+!||    spadasm               ../engine/source/elements/sph/spadasm.F
+!||    spadasm0              ../engine/source/elements/sph/spadasm.F
+!||    spbuc3                ../engine/source/elements/sph/spbuc3.F
+!||    spclasv               ../engine/source/elements/sph/spclasv.F
+!||    spcompl               ../engine/source/elements/sph/spcompl.F
+!||    spdens                ../engine/source/elements/sph/spdens.F
+!||    spforcp               ../engine/source/elements/sph/spforcp.F
+!||    spgauge               ../engine/source/elements/sph/spgauge.F
+!||    spgradt               ../engine/source/elements/sph/sptemp.F
+!||    spgtsym               ../engine/source/elements/sph/sptemp.F
+!||    sphtri                ../engine/source/elements/sph/sphtri.F
+!||    splaplt               ../engine/source/elements/sph/sptemp.F
+!||    splissv               ../engine/source/elements/sph/splissv.F
+!||    spmd_inisph           ../engine/source/mpi/sph/spmd_sptool.F
+!||    spmd_savesph          ../engine/source/mpi/sph/spmd_sptool.F
+!||    spmd_spamaj           ../engine/source/mpi/sph/spmd_spamaj.F
+!||    spmd_sphgat           ../engine/source/mpi/sph/spmd_sphgat.F
+!||    spmd_sphgeta          ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetd          ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetdk         ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetf          ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetg          ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgeth          ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetimp        ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetisph       ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetstb        ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgett          ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetv          ../engine/source/mpi/sph/spmd_sphgetv.F
+!||    spmd_sphgetvois_off   ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetw          ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetwa         ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetx          ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphvox           ../engine/source/mpi/sph/spmd_sphvox.F
+!||    sponfprs              ../engine/source/elements/sph/sponfprs.F
+!||    sponfro               ../engine/source/elements/sph/sponfro.F
+!||    sponfv                ../engine/source/elements/sph/sponfv.F
+!||    sponof2               ../engine/source/elements/sph/sponof2.F
+!||    sppro3                ../engine/source/elements/sph/sppro3.F
+!||    spscomp               ../engine/source/elements/sph/spcompl.F
+!||    spsgsym               ../engine/source/elements/sph/spsgsym.F
+!||    spstabs               ../engine/source/elements/sph/spstab.F
+!||    spstabw               ../engine/source/elements/sph/spstab.F
+!||    spsym_alloc           ../engine/source/elements/sph/spsym_alloc.F
+!||    spsymp                ../engine/source/elements/sph/spsym.F
+!||    sptrivox              ../engine/source/elements/sph/sptrivox.F
+!||====================================================================
       MODULE SPHBOX
 #include "my_real.inc"
       TYPE real_pointer5
         my_real, DIMENSION(:), POINTER :: P
       END TYPE real_pointer5
-C nombre de particules sph remote totale a recevoir et a envoyer
+C Number of total remote particles to receive and send
       INTEGER NSPHR, NSPHS
-C dimension vecteur de stockage partie tri , calcul et wacomp
+C dimension of storage vector for sorting, computation and wacomp
       INTEGER, PARAMETER :: SIZSPT = 6, SIZSPC = 14, SIZSPW = 16
-C flags particule active cote recu et envoyee
+C Active particle flags side and sent
       INTEGER, DIMENSION(:), ALLOCATABLE :: ISPHR, ISPHS
-C nombre de cellule a recevoir/envoyer par processeur
+C number of cells to receive/send per processor
       INTEGER, DIMENSION(:), ALLOCATABLE :: PSPHR, PSPHS
-C liste triee par processeur des cellules locales a renvoyer aux autres processeurs
+C List sorted by local cell processor to send to other processors
       INTEGER, DIMENSION(:), ALLOCATABLE :: LSPHS
-C tableau particules symetrique par plan de symetrie
+C symmetric particles array by symmetry plane
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: ISPSYMR
-C tableau cell remote pour sph
+C Cell Remote Table for SPH
       my_real       ,DIMENSION(:,:), ALLOCATABLE :: XSPHR
-C DVOIS(KVOISPH) des particules remote, dans le cas ou elles ont subit
-C une reduction 
+C DVOIS(KVOISPH) of remote particles, in case they have undergone
+C a reduction
       my_real       ,DIMENSION(:), ALLOCATABLE :: DKR, DKS 
 C XSPHR(1) :  no local N sur proc remote
 C XSPHR(2) :  h
@@ -117,10 +110,10 @@ C XSPHR(11) : V(3)
 C XSPHR(12) : KXSP(2,N)/(NGROUP+1)
 C XSPHR(13) : KXSP(2,N)
 C XSPHR(14) : IPARTSP(N)
-C tableau additionnel cell remote pour sph (wacomp)
+C Additional Cell Remote table for SPH
       my_real       ,DIMENSION(:,:), ALLOCATABLE :: WACOMPR
-C tableau additionnel cell remote pour sph (DSPHR)
-c utilise pour traitement IPPV remotes dans sponfv
+C Additional Cell Remote table for SPH (DSPHR)
+c used for remote IPPV processing in sponfv
 c      my_real       ,DIMENSION(:,:), ALLOCATABLE :: DSPHR
 c DSPHR(1) : DXX
 c DSPHR(2) : DXY
@@ -141,4 +134,3 @@ C dim1 WACOMPR = dim1 WACOMP = SIZSPW
       END TYPE SPSYM_STRUCT
 
       END MODULE SPHBOX
-Cel50c42---

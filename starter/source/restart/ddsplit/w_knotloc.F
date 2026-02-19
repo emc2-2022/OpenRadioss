@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  W_KNOTLOC                     source/restart/ddsplit/w_knotloc.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        W_KNOTLOCPC                   source/restart/ddsplit/w_knotlocpc.F
-Chd|====================================================================
+!||====================================================================
+!||    w_knotloc     ../starter/source/restart/ddsplit/w_knotloc.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit       ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    w_knotlocpc   ../starter/source/restart/ddsplit/w_knotlocpc.F
+!||====================================================================
       SUBROUTINE W_KNOTLOC(KXIG3D,NUMELIG3D_L,ISUMNIG3D_L,IXIG3D,CEP,
-     +                  PROC,NODLOCAL,LEN_IA,KNOTLOCPC,KNOTLOCEL,NUMNOD_L)
+     .                  PROC,NODLOCAL,LEN_IA,KNOTLOCPC,KNOTLOCEL,NUMNOD_L,
+     .                  NUMCONV,NUMRADIA)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -40,12 +40,12 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr23_c.inc"
-#include      "rnur_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NUMCONV
+      INTEGER ,INTENT(IN) :: NUMRADIA
       INTEGER NUMELIG3D_L, PROC, ISUMNIG3D_L,LEN_IA,
      .        KXIG3D(NIXIG3D,*), CEP(*), NODLOCAL(*), IXIG3D(*),NUMNOD_L
       my_real
@@ -58,13 +58,13 @@ C-----------------------------------------------
       my_real
      .        KNOTLOCPC_L(SKNOTLOCPC),KNOTLOCEL_L(SKNOTLOCEL)
 C
-      OFF = NUMELC+NUMELTG+NUMELS+NUMELQ+NUMELT+NUMELP+NUMELR+NUMELUR+
+      OFF = NUMELC+NUMELTG+NUMELS+NUMELQ+NUMELT+NUMELP+NUMELR+
      .      NUMCONV+NUMRADIA+SLLOADP/4
       IE_L = 0
       MAXGEO=1
 C
       DO I = 1, NUMELIG3D
-c        IF(CEP(OFF+I).EQ.PROC) THEN
+c        IF(CEP(OFF+I)==PROC) THEN
           MAXGEO= MAX(MAXGEO,KXIG3D(2,I))
 C
           NNOD  = KXIG3D(3,I)
@@ -84,7 +84,7 @@ c        ENDIF
         KNOTLOCEL_L(J) = KNOTLOCEL(J)
       ENDDO
 C
-      KNOTLOCPC_L = 0  ! il faut que els autre cases knotlocpc vides pour les neodus soient mises a 0
+      KNOTLOCPC_L = 0  ! The other KNOT LCPC boxes must be empty for neodus are put to 0
 
       CALL W_KNOTLOCPC(KNOTLOCPC,KNOTLOCPC_L,MAXGEO,NUMNOD_L,NODLOCAL)
 C

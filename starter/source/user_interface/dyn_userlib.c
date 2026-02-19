@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 #include "hardware.inc"
 #include <stdio.h>
 #include <string.h>
@@ -175,18 +175,18 @@ void _FCALL DYN_USERLIB_INIT (char * libname, int *size, int * userlib_avail, in
        /* first trial find Environment variable RAD_USERLIB_LIBPATH */
        dllpath_size=GetEnvironmentVariable("RAD_USERLIB_LIBPATH",dllpath,10240);
        if (dllpath_size > 0){
-         strcpy(dllname,dllpath);
-         strcat(dllname,"\\");
-         strcat(dllname,libn);
+         strcpy_s(dllname,15000,dllpath);
+         strcat_s(dllname,15000,"\\");
+         strcat_s(dllname,15000,libn);
          userlibhandler = LoadLibrary(TEXT(dllname));
        }
        
        if (!userlibhandler){
        /* second trial find Environment variable in local directory */
          dllpath_size=GetCurrentDirectory(10240,dllpath);
-         strcpy(dllname,dllpath);
-         strcat(dllname,"\\");
-         strcat(dllname,libn);     
+         strcpy_s(dllname,15000,dllpath);
+         strcat_s(dllname,15000,"\\");
+         strcat_s(dllname,15000,libn);     
        userlibhandler = LoadLibrary(TEXT(dllname));
        }
             
@@ -202,62 +202,62 @@ void _FCALL DYN_USERLIB_INIT (char * libname, int *size, int * userlib_avail, in
 
 /* Routine ST_LECG */
          sprintf(rname,"ST_LECG");
-         st_lecg=GetProcAddress(userlibhandler,rname);
+         st_lecg=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_lecg) err=err+1;
 
 /* Routine ST_LECGUSER */
          sprintf(rname,"ST_LECGUSER");
-         st_lecguser=GetProcAddress(userlibhandler,rname);
+         st_lecguser=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_lecguser) err=err+1;
 
 /* Routine ST_LECM */
          sprintf(rname,"ST_LECM");
-         st_lecm=GetProcAddress(userlibhandler,rname);
+         st_lecm=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_lecm) err=err+1;
 
 /* Routine ST_LECR */
          sprintf(rname,"ST_LECR");
-         st_lecr=GetProcAddress(userlibhandler,rname);
+         st_lecr=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_lecr) err=err+1;
 
 /* Routine ST_LECM99 */
          sprintf(rname,"ST_LECM99");
-         st_lecm99=GetProcAddress(userlibhandler,rname);
+         st_lecm99=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_lecm99) err=err+1;
 
 /* Routine ST_LECSEN */
          sprintf(rname,"ST_LECSEN");
-         st_lecsen=GetProcAddress(userlibhandler,rname);
+         st_lecsen=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_lecsen) err=err+1;
 
 /* Routine ST_RINIUSER */
          sprintf(rname,"ST_RINIUSER");
-         st_riniuser=GetProcAddress(userlibhandler,rname);
+         st_riniuser=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_riniuser) err=err+1;
 
 /* Routine ST_SINIUSR */
          sprintf(rname,"ST_SINIUSR");
-         st_siniusr=GetProcAddress(userlibhandler,rname);
+         st_siniusr=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_siniusr) err=err+1;
 
 /* Routine ST_USERWIS */
          sprintf(rname,"ST_USERWIS");
-         st_userwis=GetProcAddress(userlibhandler,rname);
+         st_userwis=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_userwis) err=err+1;
 
 /* Routine ST_USERWIS_INI */
          sprintf(rname,"ST_USERWIS_INI");
-         st_userwis_ini=GetProcAddress(userlibhandler,rname);
+         st_userwis_ini=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_userwis_ini) err=err+1;
 
 /* Routine ST_GET_USERBUF_VARIABLE */
          sprintf(rname,"ST_GET_USERBUF_VAR");
-         st_get_userbuf_variable=GetProcAddress(userlibhandler,rname);
+         st_get_userbuf_variable=(void*)GetProcAddress(userlibhandler,rname);
 	 if (!st_get_userbuf_variable) err=err+1;
 
 /* System - Library ID Version */
          sprintf(rname,"userlib_id");
-         userlib_id=GetProcAddress(userlibhandler,rname);
+         userlib_id=(void*)GetProcAddress(userlibhandler,rname);
 	 if(userlib_id) {
 	    userlib_id(userlib_ver);
 	    }else{
@@ -266,7 +266,7 @@ void _FCALL DYN_USERLIB_INIT (char * libname, int *size, int * userlib_avail, in
 
 /* System - Windows Callback Routine */
          sprintf(rname,"set_callback");
-         set_library_callback=GetProcAddress(userlibhandler,rname);
+         set_library_callback=(void*)GetProcAddress(userlibhandler,rname);
 	 if(set_library_callback) {
 	    dll_init_callback();
 	    }else{
@@ -278,7 +278,7 @@ void _FCALL DYN_USERLIB_INIT (char * libname, int *size, int * userlib_avail, in
                 }
 	 
     }else{
-      /*   printf("load unsuccessfull\n"); */
+      /*   printf("load unsuccessful\n"); */
     }
 }
 
@@ -375,7 +375,11 @@ void dyn_userlib_init_(char * libname, int *size, int * userlib_avail, int * use
 
      userlibhandle = NULL;
      if (has_path==1){
+#ifdef SANITIZE
+        userlibhandle = dlopen(libn,RTLD_LAZY|RTLD_GLOBAL);
+#else
         userlibhandle = dlopen(libn,RTLD_LAZY|RTLD_GLOBAL|RTLD_DEEPBIND);
+#endif
      }else{
 
        /* first trial find Environment variable RAD_USERLIB_LIBPATH */
@@ -384,7 +388,11 @@ void dyn_userlib_init_(char * libname, int *size, int * userlib_avail, int * use
          strcpy(load_libname,rad_userlib_libpath);
          strcat(load_libname,"/");
          strcat(load_libname,libn);
+#ifdef SANITIZE
+         userlibhandle = dlopen(load_libname,RTLD_LAZY|RTLD_GLOBAL);
+#else
          userlibhandle = dlopen(load_libname,RTLD_LAZY|RTLD_GLOBAL|RTLD_DEEPBIND);
+#endif
        }
 
        if(userlibhandle==NULL){
@@ -392,12 +400,22 @@ void dyn_userlib_init_(char * libname, int *size, int * userlib_avail, int * use
          getcwd(load_libname,15000);
          strcat(load_libname,"/");
          strcat(load_libname,libn);
+#ifdef SANITIZE
+         userlibhandle = dlopen(load_libname,RTLD_LAZY|RTLD_GLOBAL);
+#else
          userlibhandle = dlopen(load_libname,RTLD_LAZY|RTLD_GLOBAL|RTLD_DEEPBIND);
+#endif
        }
 
        if(userlibhandle==NULL){
          /* Third Trial : Default - LD_LRARY_PATH */
+#ifdef SANITIZE
+         userlibhandle = dlopen(libn,RTLD_LAZY|RTLD_GLOBAL);
+#else
          userlibhandle = dlopen(libn,RTLD_LAZY|RTLD_GLOBAL|RTLD_DEEPBIND);
+#endif
+
+
        }
 
      }
@@ -525,10 +543,7 @@ void st_userlib_lecguser_(int * igtyp,char * rootn,int* rootlen, int * nuvar,my_
 /* --------------------------------- */
 
 /* WINDOWS */
-void  _FCALL ST_USERLIB_USERMAT(MATNUM,ROOTN, ROOTLEN,UPARAM, MAXUPARAM, NUPARAM, NUVAR, IFUNC, MAXFUNC, MFUNC, PARMAT,UNITAB)
-     int *MATNUM, *ROOTLEN,*MAXUPARAM, *NUPARAM, *NUVAR, *IFUNC, *MAXFUNC, *MFUNC, * UNITAB;
-char * ROOTN;
-my_real*UPARAM, *PARMAT;
+void  _FCALL ST_USERLIB_USERMAT(int *MATNUM, char* ROOTN, int *ROOTLEN,my_real *UPARAM, int *MAXUPARAM, int *NUPARAM, int *NUVAR, int *IFUNC, int *MAXFUNC, int *MFUNC, my_real *PARMAT,int *UNITAB)
 {
 	  if (st_lecm) {
 	    (*st_lecm)(MATNUM, ROOTN, ROOTLEN,UPARAM, MAXUPARAM, NUPARAM, NUVAR, IFUNC, MAXFUNC, MFUNC, PARMAT,UNITAB);
@@ -537,10 +552,7 @@ my_real*UPARAM, *PARMAT;
 
 
 /* LINUX */
-void st_userlib_usermat_(MATNUM,ROOTN, ROOTLEN,UPARAM, MAXUPARAM, NUPARAM, NUVAR, IFUNC, MAXFUNC, MFUNC, PARMAT,UNITAB)
-     int *MATNUM, *ROOTLEN,*MAXUPARAM, *NUPARAM, *NUVAR, *IFUNC, *MAXFUNC, *MFUNC, * UNITAB;
-char * ROOTN;
-my_real*UPARAM, *PARMAT;
+void st_userlib_usermat_(int *MATNUM,char *ROOTN, int *ROOTLEN,my_real *UPARAM,int * MAXUPARAM, int *NUPARAM, int *NUVAR, int *IFUNC,int * MAXFUNC,int * MFUNC, my_real *PARMAT,int *UNITAB)
 {
 	  if (st_lecm) {
 	    (*st_lecm)(MATNUM, ROOTN, ROOTLEN,UPARAM, MAXUPARAM, NUPARAM, NUVAR, IFUNC, MAXFUNC, MFUNC, PARMAT,UNITAB);
@@ -572,10 +584,7 @@ void st_userlib_lecm99_(int * ilaw,char * rootn,int* rootlen, int * iuser_law,my
 /* ------------------ */
 
 /* WINDOWS */
-void _FCALL ST_USERLIB_LECR(RUPTID,ROOTN, ROOTLEN,UPARAM, MAXUPARAM, NUPARAM, NUVAR, IFUNC, MAXFUNC, MFUNC, ID)
-     int *RUPTID, *ROOTLEN,*MAXUPARAM, *NUPARAM, *NUVAR, *IFUNC, *MAXFUNC, *MFUNC, *ID;
-char * ROOTN;
-my_real*UPARAM;
+void _FCALL ST_USERLIB_LECR(int *RUPTID,char *ROOTN, int *ROOTLEN,my_real *UPARAM, int *MAXUPARAM, int *NUPARAM, int *NUVAR, int *IFUNC, int *MAXFUNC, int *MFUNC, int *ID)
 {
 	  if (st_lecr) {
 	    (*st_lecr)(RUPTID, ROOTN, ROOTLEN,UPARAM, MAXUPARAM, NUPARAM, NUVAR, IFUNC, MAXFUNC, MFUNC, ID);
@@ -583,10 +592,7 @@ my_real*UPARAM;
 }
 
 /* LINUX */
-void st_userlib_lecr_(RUPTID,ROOTN, ROOTLEN,UPARAM, MAXUPARAM, NUPARAM, NUVAR, IFUNC, MAXFUNC, MFUNC, ID)
-     int *RUPTID, *ROOTLEN,*MAXUPARAM, *NUPARAM, *NUVAR, *IFUNC, *MAXFUNC, *MFUNC, *ID;
-char * ROOTN;
-my_real*UPARAM;
+void st_userlib_lecr_(int *RUPTID,char *ROOTN, int *ROOTLEN,my_real *UPARAM, int *MAXUPARAM, int *NUPARAM, int *NUVAR, int *IFUNC, int *MAXFUNC, int *MFUNC, int *ID)
 {
 	  if (st_lecr) {
 	    (*st_lecr)(RUPTID, ROOTN, ROOTLEN,UPARAM, MAXUPARAM, NUPARAM, NUVAR, IFUNC, MAXFUNC, MFUNC, ID);
@@ -828,6 +834,7 @@ void delete_user_file_(char * filnam,int * len)
   filn[*len]='\0';
 
   remove(filn);
+  free(filn);
 }
 
 void _FCALL DELETE_USER_FILE(char * filnam,int * len)
@@ -841,4 +848,5 @@ void _FCALL DELETE_USER_FILE(char * filnam,int * len)
   filn[*len]='\0';
 
   remove(filn);
+  free(filn);
 }

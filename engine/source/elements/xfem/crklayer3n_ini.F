@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CRKLAYER3N_INI                source/elements/xfem/crklayer3n_ini.F
-Chd|-- called by -----------
-Chd|        C3FORC3                       source/elements/sh3n/coque3n/c3forc3.F
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        LSINT4                        source/elements/xfem/crklayer4n_adv.F
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    crklayer3n_ini   ../engine/source/elements/xfem/crklayer3n_ini.F
+!||--- called by ------------------------------------------------------
+!||    c3forc3          ../engine/source/elements/sh3n/coque3n/c3forc3.F
+!||--- calls      -----------------------------------------------------
+!||    arret            ../engine/source/system/arret.F
+!||    lsint4           ../engine/source/elements/xfem/crklayer4n_adv.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod    ../engine/share/modules/crackxfem_mod.F
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CRKLAYER3N_INI(
      .             NEL       ,NFT       ,ILAY      ,NLAY      ,IXTG      ,
      .             ELCUTC    ,ELCRKINI  ,IEL_CRKTG ,INOD_CRK  ,IAD_CRKTG ,      
@@ -41,21 +43,15 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE CRACKXFEM_MOD
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "com_xfem1.inc"
 #include      "comlock.inc"
 #include      "units_c.inc"
@@ -72,16 +68,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,ILEV,IR,P1,P2,IED,IED1,IED2,PP1,PP2,PP3,FAC,
-     .  ICRK,LAYCUT,NEWCRK,ELCRK,ELCRKTG,IEDGE,ICUT,SIGBETA,ITRI,NM,NP,
+      INTEGER I,K,ILEV,IR,P1,P2,IED,IED1,IED2,PP1,PP2,PP3,FAC,
+     .  ICRK,NEWCRK,ELCRK,ELCRKTG,IEDGE,ICUT,SIGBETA,ITRI,NM,NP,
      .  NX1,NX2,NX3,NOD1,NOD2,IE1,IE2,IFI1,IFI2,IE10,IE20,IAD1,IAD2,IAD3
       INTEGER JCT(NEL),EDGEL(3,NEL),IADC(3),ISIGN(3),
-     .  DD(3),D(6),DX(6),INV(2),N(3),NN(3),IENR0(3),IENR(3),IFI(2)
+     .  DD(3),D(6),DX(6),N(3),NN(3),IENR0(3),IENR(3)
 C----------
       my_real, DIMENSION(NEL)   ::  XL1,YL1
       my_real, DIMENSION(2,NEL) ::  XIN,YIN
       my_real, DIMENSION(3,NEL) ::  XXL,YYL,LEN,FIT
-      my_real BETA0(3,NEL),XN(3),YN(3),ZN(3),XMI(2),YMI(2)
+      my_real BETA0(3,NEL),XN(3),YN(3),XMI(2),YMI(2)
       my_real BETA,XINT,YINT,FI,BMIN,BMAX,M12,MM,CROSS1,CROSS12,
      .   DIR11,DIR22,X1,Y1,X2,Y2,X3,Y3,AREA1,AREA2,AREA3
 c------------------------
@@ -302,7 +298,7 @@ C
         I=JCT(IR)
         FAC = 0
         DO K=1,3
-           IF(EDGEL(K,I).EQ.1.or.EDGEL(K,I).EQ.2) FAC=FAC+1
+           IF(EDGEL(K,I)==1.or.EDGEL(K,I)==2) FAC=FAC+1
         ENDDO
         IF(FAC /= 2)THEN
           WRITE(IOUT,*) 'ERROR IN INITIATION CRACK.NO CUT EDGES'
@@ -376,7 +372,7 @@ C
         ENDDO
       ENDDO
 C-----------------------
-c     FILL new cut phantom element
+c     Fill New Cut Phantom Element
 C-----------------------
       DO IR=1,NEWCRK
         I = JCT(IR)

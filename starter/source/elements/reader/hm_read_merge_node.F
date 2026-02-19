@@ -1,40 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MERGE_NODE            source/elements/reader/hm_read_merge_node.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_merge_node     ../starter/source/elements/reader/hm_read_merge_node.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MERGE_NODE(X,LSUBMODEL,UNITAB,IGRNOD,MERGE_NODE_TAB,
      .                              MERGE_NODE_TOL,NMERGE_NODE_CAND,NMERGE_NODE_DEST)
 C-----------------------------------------------
@@ -45,19 +45,15 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr17_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -71,26 +67,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,ID,UID,IDN,GR_ID,GR_IDS,MERGE_TYPE,FLAG_FULL_MERGE
-      CHARACTER TITR*nchartitle
-      INTEGER, DIMENSION(:),ALLOCATABLE :: TAGNOD1,TAGNOD2
-      LOGICAL   IS_AVAILABLE
-      my_real
-     .   TOL,XN,XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,DX,DY,DZ,TOL_DEF
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
-      INTEGER NGR2USR
-      INTEGER, DIMENSION(:), POINTER :: INGR2USR
+      INTEGER :: I,J,ID,UID,GR_ID,GR_IDS,MERGE_TYPE,FLAG_FULL_MERGE
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      INTEGER, DIMENSION(:),ALLOCATABLE :: TAGNOD1,TAGNOD2,TAGNOD_TEMP
+      LOGICAL :: IS_AVAILABLE
+      my_real :: TOL,XN,XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,DX,DY,DZ,TOL_DEF
 C=======================================================================
 C
       WRITE(IOUT,1000)
 C
       TOL_DEF = ZERO
       FLAG_FULL_MERGE = 0
-      ALLOCATE(TAGNOD1(NUMNOD),TAGNOD2(NUMNOD))
-      TAGNOD1 = 0
-      TAGNOD2 = 0
+      ALLOCATE(TAGNOD1(NUMNOD),TAGNOD2(NUMNOD),TAGNOD_TEMP(NUMNOD))
+      TAGNOD1(1:NUMNOD) = 0
+      TAGNOD2(1:NUMNOD) = 0
 C
 C--------------------------------------------------
 C START BROWSING MODEL MERGE
@@ -106,7 +96,6 @@ C--------------------------------------------------
      .                       OPTION_ID = ID,
      .                       UNIT_ID = UID,
      .                       OPTION_TITR = TITR)
-
 C--------------------------------------------------
 C EXTRACT DATAS
 C--------------------------------------------------
@@ -155,11 +144,23 @@ C
         IF (GR_IDS > 0) THEN
 C--       Grnod id is defined
           IF (MERGE_TYPE == 0) MERGE_TYPE = 1
-          DO J=1,IGRNOD(GR_IDS)%NENTITY
-            TAGNOD1(IGRNOD(GR_IDS)%ENTITY(J)) = 1
-            TAGNOD2(IGRNOD(GR_IDS)%ENTITY(J)) = 1
-          ENDDO
-          IF (MERGE_TYPE == 2) TAGNOD2(1:NUMNOD) = 1
+          IF (MERGE_TYPE == 1) THEN 
+C--       nodes of the group are candidates and destinations
+            DO J=1,IGRNOD(GR_IDS)%NENTITY
+              TAGNOD1(IGRNOD(GR_IDS)%ENTITY(J)) = 1
+              TAGNOD2(IGRNOD(GR_IDS)%ENTITY(J)) = 1
+            ENDDO
+          ELSEIF (MERGE_TYPE == 2) THEN
+C--       nodes of the group are candidates and nodes outside group are destinations
+            TAGNOD_TEMP(1:NUMNOD) = 0
+            DO J=1,IGRNOD(GR_IDS)%NENTITY
+              TAGNOD1(IGRNOD(GR_IDS)%ENTITY(J)) = 1
+              TAGNOD_TEMP(IGRNOD(GR_IDS)%ENTITY(J)) = 1
+            ENDDO
+            DO J=1,NUMNOD
+              IF (TAGNOD_TEMP(J)==0) TAGNOD2(J) = 1      
+            ENDDO
+          ENDIF   
         ELSE
 C--       all nodes taken into account
           IF (FLAG_FULL_MERGE == 0) THEN
@@ -192,6 +193,8 @@ C
         WRITE(IOUT,1100) ID,TRIM(TITR),TOL,MERGE_TYPE,GR_ID    
 C
       ENDDO
+C
+      DEALLOCATE(TAGNOD1,TAGNOD2,TAGNOD_TEMP)
 C
 C-----------
       RETURN

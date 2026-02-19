@@ -1,39 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SCTHERM                       source/elements/thickshell/solidec/sctherm.F
-Chd|-- called by -----------
-Chd|        SCFORC3                       source/elements/thickshell/solidec/scforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE SCTHERM(PM   ,MAT , VOL,
-     .                    NC1,  NC2, NC3,NC4,
-     .                     NC5,  NC6, NC7,NC8,
-     .                     PX1, PX2, PX3, PX4,
-     .                     PY1, PY2, PY3, PY4,
-     .                     PZ1, PZ2, PZ3, PZ4,
-     .                     DT1 ,TEMPNC,TEL,DIE,
-     .                     FPHI,OFFG,OFF)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sctherm   ../engine/source/elements/thickshell/solidec/sctherm.F
+!||--- called by ------------------------------------------------------
+!||    scforc3   ../engine/source/elements/thickshell/solidec/scforc3.F
+!||====================================================================
+      SUBROUTINE SCTHERM(
+     1   PM,      IMAT,    VOL,     NC1,
+     2   NC2,     NC3,     NC4,     NC5,
+     3   NC6,     NC7,     NC8,     PX1,
+     4   PX2,     PX3,     PX4,     PY1,
+     5   PY2,     PY3,     PY4,     PZ1,
+     6   PZ2,     PZ3,     PZ4,     DT1,
+     7   TEMPNC,  TEL,     HEAT,    FPHI,
+     8   OFFG,    OFF,     NEL,     THEACCFACT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -43,36 +43,33 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "param_c.inc"
-#include      "vect01_c.inc"
-#include      "scr_thermal_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER MAT(*),NC1(MVSIZ),NC2(MVSIZ),
+      INTEGER, INTENT(IN) :: NEL
+      INTEGER, INTENT(IN) :: IMAT
+      INTEGER NC1(MVSIZ),NC2(MVSIZ),
      .       NC3(MVSIZ),NC4(MVSIZ),NC5(MVSIZ),NC6(MVSIZ),
      .       NC7(MVSIZ),NC8(MVSIZ)
-C     REAL
-      my_real
-     .    VOL(*), PX1(MVSIZ), PY1(MVSIZ),PZ1(MVSIZ),
+      my_real, INTENT(IN) :: THEACCFACT
+      my_real :: VOL(*), PX1(MVSIZ), PY1(MVSIZ),PZ1(MVSIZ),
      .            PX2(MVSIZ), PY2(MVSIZ),PZ2(MVSIZ),
      .            PX3(MVSIZ), PY3(MVSIZ),PZ3(MVSIZ),
      .            PX4(MVSIZ), PY4(MVSIZ),PZ4(MVSIZ),
-     .    NI(8), TEMPNC(*), FPHI(MVSIZ,8), PM(NPROPM,*), DIE(*),
+     .     TEMPNC(*), FPHI(MVSIZ,8), PM(NPROPM,*), HEAT(*),
      .    DT1, TEL(*), OFF(*), OFFG(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, MX
-C     REAL
+      INTEGER I
       my_real
      .  CA, CB, KC, PHIX, PHIY, PHIZ, A
 C----------------------------------------------- 
-
-      MX  =MAT(LFT)
-      CA = PM(75,MX)
-      CB = PM(76,MX)
-      DO I=LFT,LLT
-       IF(OFF(I).EQ.ZERO.OR.OFFG(I).LE.ZERO) CYCLE
+      CA = PM(75,IMAT)
+      CB = PM(76,IMAT)
+!
+      DO I=1,NEL
+       IF(OFF(I)==ZERO.OR.OFFG(I)<=ZERO) CYCLE
        PHIX = ZERO
        PHIY = ZERO
        PHIZ = ZERO
@@ -99,9 +96,9 @@ C
         PHIY = KC*PHIY
         PHIZ = KC*PHIZ
 C
-C force thermique nodale
+C nodal thermal force
 C
-              A = DIE(I)*ONE_OVER_8
+              A = HEAT(I)*ONE_OVER_8
           FPHI(I,1) = FPHI(I,1) +
      .        A - (PHIX*PX1(I) + PHIY*PY1(I) + PHIZ*PZ1(I))
           FPHI(I,2) = FPHI(I,2) +

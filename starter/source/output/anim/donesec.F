@@ -1,43 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DONESEC                       source/output/anim/donesec.F  
-Chd|-- called by -----------
-Chd|        GENANI1                       source/output/anim/genani1.F  
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE DONESEC(ISECT,NESCT,NSTRF,IXS)                         
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    donesec       ../starter/source/output/anim/donesec.F
+!||--- called by ------------------------------------------------------
+!||    genani1       ../starter/source/output/anim/genani1.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE DONESEC(ISECT,NESCT,NSTRF,IXS)      
+      use element_mod , only : nixs
 C-----------------------------------------------                        
 C   I m p l i c i t   T y p e s                                         
 C-----------------------------------------------                        
 #include      "implicit_f.inc"                                          
-C-----------------------------------------------                        
-C   C o m m o n   B l o c k s                                           
-C-----------------------------------------------                        
-#include      "scr03_c.inc"                                             
-#include      "com04_c.inc"                                             
-#include      "scr05_c.inc"                                             
-#include      "param_c.inc"                                             
 C-----------------------------------------------                        
 C   D u m m y   A r g u m e n t s                                       
 C-----------------------------------------------                        
@@ -53,30 +47,30 @@ C-----------------------------------------------
       SAVE K1                                                           
       SAVE K0                                                           
 C-----------------------------------------------                        
-        IF (ISECT.EQ.1) K0 = NSTRF(25)                                  
+        IF (ISECT==1) K0 = NSTRF(25)                                  
         K5=K0+30+NSTRF(K0+14)+NSTRF(K0+6)                               
      1          +2*NSTRF(K0+7) +NSTRF(K0+8)*2                           
         NSEGC = NSTRF(K0+9)                                             
         DO J=1,NSEGC                                                    
           KK = K5+2*(J-1)+1                                             
-          IF(NSTRF(KK).NE.0) NESCT = NESCT + 1                          
+          IF(NSTRF(KK)/=0) NESCT = NESCT + 1                          
         ENDDO                                                           
         K9=K5+2*NSTRF(K0+9) +2*NSTRF(K0+10)                             
      1       +2*NSTRF(K0+11)+2*NSTRF(K0+12)                             
         NSEGTG = NSTRF(K0+13)                                           
         DO J=1,NSEGTG                                                   
           KK = K9+2*(J-1)+1                                             
-          IF(NSTRF(KK).NE.0) NESCT = NESCT + 1                          
+          IF(NSTRF(KK)/=0) NESCT = NESCT + 1                          
         ENDDO                                                           
         K3=K0+30+NSTRF(K0+14)+NSTRF(K0+6)                               
         NSEGS=NSTRF(K0+7)                                               
                                                                         
-        IF(NSEGS.NE.0) NESCT = NESCT + 1                                
+        IF(NSEGS/=0) NESCT = NESCT + 1                                
                                                                         
         DO J=1,NSEGS                                                    
           KK=K3+2*(J-1)                                                 
           IPACK=NSTRF(KK+1)                                             
-          IF(IPACK.NE.0)THEN                                            
+          IF(IPACK/=0)THEN                                            
             N =NSTRF(KK)                                                
             II(1)=IXS(2,N)                                              
             II(2)=IXS(3,N)                                              
@@ -86,20 +80,20 @@ C-----------------------------------------------
             II(6)=IXS(7,N)                                              
             II(7)=IXS(8,N)                                              
             II(8)=IXS(9,N)                                              
-            IF(     II(2).EQ.II(1).AND.II(4).EQ.II(3)                   
-     .         .AND.II(8).EQ.II(5).AND.II(7).EQ.II(6))THEN              
+            IF(     II(2)==II(1).AND.II(4)==II(3)                   
+     .         .AND.II(8)==II(5).AND.II(7)==II(6))THEN              
 C tetra4, tetra10                                                       
                 N1=MOD(IPACK/POWER2(1),2)                               
                 N2=MOD(IPACK/POWER2(3),2)                               
                 N3=MOD(IPACK/POWER2(5),2)                               
                 N4=MOD(IPACK/POWER2(6),2)                               
-                IF(N1.NE.0.AND.N2.NE.0.AND.N3.NE.0)                     
+                IF(N1/=0.AND.N2/=0.AND.N3/=0)                     
      .             NESCT = NESCT + 1                                    
-                IF(N1.NE.0.AND.N2.NE.0.AND.N4.NE.0)                     
+                IF(N1/=0.AND.N2/=0.AND.N4/=0)                     
      .             NESCT = NESCT + 1                                    
-                IF(N2.NE.0.AND.N3.NE.0.AND.N4.NE.0)                     
+                IF(N2/=0.AND.N3/=0.AND.N4/=0)                     
      .             NESCT = NESCT + 1                                    
-                IF(N3.NE.0.AND.N1.NE.0.AND.N4.NE.0)                     
+                IF(N3/=0.AND.N1/=0.AND.N4/=0)                     
      .             NESCT = NESCT + 1                                    
             ELSE                                                        
 C brick, shell16, brick20                                               
@@ -111,17 +105,17 @@ C brick, shell16, brick20
                 N6=MOD(IPACK/POWER2(6),2)                               
                 N7=MOD(IPACK/POWER2(7),2)                               
                 N8=MOD(IPACK/POWER2(8),2)                               
-                IF(N1.NE.0.AND.N2.NE.0.AND.N3.NE.0.AND.N4.NE.0)         
+                IF(N1/=0.AND.N2/=0.AND.N3/=0.AND.N4/=0)         
      .             NESCT = NESCT + 1                                    
-                IF(N5.NE.0.AND.N6.NE.0.AND.N7.NE.0.AND.N8.NE.0)         
+                IF(N5/=0.AND.N6/=0.AND.N7/=0.AND.N8/=0)         
      .             NESCT = NESCT + 1                                    
-                IF(N1.NE.0.AND.N5.NE.0.AND.N6.NE.0.AND.N2.NE.0)         
+                IF(N1/=0.AND.N5/=0.AND.N6/=0.AND.N2/=0)         
      .             NESCT = NESCT + 1                                    
-                IF(N4.NE.0.AND.N8.NE.0.AND.N7.NE.0.AND.N3.NE.0)         
+                IF(N4/=0.AND.N8/=0.AND.N7/=0.AND.N3/=0)         
      .             NESCT = NESCT + 1                                    
-                IF(N1.NE.0.AND.N4.NE.0.AND.N8.NE.0.AND.N5.NE.0)         
+                IF(N1/=0.AND.N4/=0.AND.N8/=0.AND.N5/=0)         
      .             NESCT = NESCT + 1                                    
-                IF(N2.NE.0.AND.N3.NE.0.AND.N7.NE.0.AND.N6.NE.0)         
+                IF(N2/=0.AND.N3/=0.AND.N7/=0.AND.N6/=0)         
      .             NESCT = NESCT + 1                                    
             END IF                                                      
           END IF                                                        

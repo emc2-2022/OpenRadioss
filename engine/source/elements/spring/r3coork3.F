@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R3COORK3                      source/elements/spring/r3coork3.F
-Chd|-- called by -----------
-Chd|        R12KE3                        source/elements/spring/r12ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r3coork3      ../engine/source/elements/spring/r3coork3.F
+!||--- called by ------------------------------------------------------
+!||    r12ke3        ../engine/source/elements/spring/r12ke3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE R3COORK3(JFT    ,JLT    ,X      ,NCC   ,PID    ,
      1                    NGL    ,R11    ,R21   ,R31    ,R12    ,
      2                    R22    ,R32   ,BETA   ,OFFG   ,OFF    )
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -40,7 +42,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "impl1_c.inc"
 #include      "comlock.inc"
 #include      "units_c.inc"
@@ -57,7 +58,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J,NC1(MVSIZ),NC2(MVSIZ),NC3(MVSIZ)
+      INTEGER I,NC1(MVSIZ),NC2(MVSIZ),NC3(MVSIZ)
 C     REAL
       my_real
      .   X1(MVSIZ), X2(MVSIZ),X3(MVSIZ),Y1(MVSIZ), Y2(MVSIZ),  
@@ -107,7 +108,7 @@ C
       ENDDO 
 C
       DO I=JFT, JLT
-       IF (AL1(I).GT.EM15) THEN
+       IF (AL1(I)>EM15) THEN
         NORM=ONE/AL1(I)
         R11(I)=R11(I)*NORM
         R21(I)=R21(I)*NORM
@@ -124,24 +125,24 @@ C
       ENDDO 
 C
       DO I=JFT, JLT
-       IF (AL2(I).GT.EM15) THEN
+       IF (AL2(I)>EM15) THEN
         NORM=ONE/AL2(I)
         R12(I)=R12(I)*NORM
         R22(I)=R22(I)*NORM
         R32(I)=R32(I)*NORM
        ENDIF 
       ENDDO 
-      IF (IMP_CHK .GT. 0) THEN
+      IF (IMP_CHK > 0) THEN
        DO I=JFT,JLT
-        IF(OFFG(I).NE.ZERO)THEN
-         IF(AL1(I).LE.EM15)THEN
+        IF(OFFG(I)/=ZERO)THEN
+         IF(AL1(I)<=EM15)THEN
 #include "lockon.inc"
             WRITE(IOUT ,2001) NGL(I)
 #include "lockoff.inc"
             IDEL7NOK = 1
             IMP_IW = IMP_IW + 1
          ENDIF 
-         IF(AL2(I).LE.EM15)THEN
+         IF(AL2(I)<=EM15)THEN
 #include "lockon.inc"
             WRITE(IOUT ,2002) NGL(I)
 #include "lockoff.inc"

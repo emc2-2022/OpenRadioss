@@ -1,41 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LEC_INIMAP2D_FILE             source/initial_conditions/inimap/lec_inimap2d_file.F
-Chd|-- called by -----------
-Chd|        HM_READ_INIMAP2D              source/initial_conditions/inimap/hm_read_inimap2d.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        CLOSE_C                       source/output/tools/write_routines.c
-Chd|        CUR_FIL_C                     source/output/tools/write_routines.c
-Chd|        READ_DB                       source/restart/ddsplit/wrrest.F
-Chd|        READ_I_C                      source/output/tools/write_routines.c
-Chd|        FUNC2D_MOD                    share/modules1/func2d_mod.F   
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INIMAP2D_MOD                  share/modules1/inimap2d_mod.F 
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lec_inimap2d_file      ../starter/source/initial_conditions/inimap/lec_inimap2d_file.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_inimap2d       ../starter/source/initial_conditions/inimap/hm_read_inimap2d.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    func2d_mod             ../starter/share/modules1/func2d_mod.F
+!||    inimap2d_mod           ../starter/share/modules1/inimap2d_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LEC_INIMAP2D_FILE(INIMAP2D, FILENAME, ID, TITLE)
 C-----------------------------------------------
 C   M o d u l e s
@@ -44,7 +40,8 @@ C-----------------------------------------------
       USE FUNC2D_MOD
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
-      USE INOUTFILE_MOD      
+      USE INOUTFILE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -53,16 +50,13 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr17_c.inc"
-#include      "com04_c.inc" 
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(INIMAP2D_STRUCT), INTENT(INOUT) :: INIMAP2D
-      CHARACTER*ncharline, INTENT(INOUT) :: FILENAME
+      CHARACTER(LEN=NCHARLINE), INTENT(INOUT) :: FILENAME
       INTEGER, INTENT(IN) :: ID
-      CHARACTER TITLE*nchartitle
+      CHARACTER(LEN=NCHARTITLE)::TITLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -70,7 +64,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      CHARACTER MESS*40,BUFFER*14,ROOTNAME*ncharline
+      CHARACTER MESS*40,BUFFER*14
+      CHARACTER(LEN=NCHARLINE) :: ROOTNAME
       DATA MESS/'INFILE'/
       INTEGER NUM_CENTROIDS,N_CYCLE,K,ISUBMAT,NBMAT,NUM_NODE_VEL,INPUT_VERSION,NB_COMP
       my_real X_SCALE,Y_SCALE,X_SHIFT,Y_SHIFT,TT

@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21THERM                      source/interfaces/int21/i21therm.F
-Chd|-- called by -----------
-Chd|        I21MAINF                      source/interfaces/int21/i21mainf.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21therm   ../engine/source/interfaces/int21/i21therm.F
+!||--- called by ------------------------------------------------------
+!||    i21mainf   ../engine/source/interfaces/int21/i21mainf.F
+!||--- calls      -----------------------------------------------------
+!||    finter     ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE I21THERM(JLT   ,XI    ,YI    ,ZI     ,KTHE   ,
      2                   TEMPI  ,PHI   ,AREAS ,NOINT  ,ASI    ,
      3                   BSI    ,GAPV  ,PENE  ,IFUNCTK,XTHE   ,
@@ -34,11 +34,11 @@ Chd|====================================================================
      5                   PENRAD ,TEMPM ,FHEAT ,EFRICT ,CONDINT,
      6                   IFORM  ,H1    ,H2    ,H3     ,H4     ,
      7                   PHI1   ,PHI2  ,PHI3  ,PHI4   ,X1     ,
-     8                   Y1	,Z1    ,X2    ,Y2     ,Z2     ,
+     8                   Y1  ,Z1    ,X2    ,Y2     ,Z2     ,
      9                   X3     ,Y3    ,Z3    ,X4     ,Y4     ,
      A                   Z4     ,ITAB  ,NSV    ,MSR   ,IX1    ,
      B                   IX2    ,IX3   ,IX4    ,TEMP  ,FCOND  ,
-     C                   DCOND  )      
+     C                   DCOND  ,THEACCFACT)      
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,17 +50,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "com08_c.inc"
-#include      "com01_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT, NOINT, IFUNCTK, FCOND, 
      . NPC(*),IFORM,ITAB(*),
      . NSV(*),MSR(*),IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ)
-C     REAL
+      my_real, intent(in) :: theaccfact
       my_real DCOND
       my_real
      .   TEMPI(MVSIZ), XI(MVSIZ), YI(MVSIZ),TEMP(*),
@@ -108,7 +105,7 @@ C
             AY  = AZ1*AX2 - AX1*AZ2
             AZ  = AX1*AY2 - AY1*AX2
 C                              
-            AREA = ONE_OVER_8*SQRT(AX*AX+AY*AY+AZ*AZ) 
+            AREA = HALF*SQRT(AX*AX+AY*AY+AZ*AZ) 
 C
             AREAC =AREA
 C
@@ -118,24 +115,24 @@ C
 C          
           ENDIF
 C---------------------------------
-C         DISTANCE ENTRE LE NOEUD SECOND. 
-C             ET  LA  SURFACE(SURFFACE NODALE)
+C         DISTANCE ENTRE LE NODE SECOND. 
+C             and the surface (nodal surface)
 C---------------------------------
 C-------------------------------------
-C         Conduction : close distance
+C         Conduction: Close distance
 C-------------------------------------
           IF(PENRAD(I) <= ZERO)THEN
 C Dist = Gapv - Penetration wrt Gapv
             DIST = PENRAD(I)+ GAPV(I)
 C---------------------------------
-C           CALCUL DE LA CONDUCTIBILITE
+C           calculation of the conductivity
 C---------------------------------
             COND = ASI(I)+BSI(I)*TS
             TSTIFM =   MAX(DIST,ZERO) / COND
             TSTIFT = TSTIFM  + RSTIF
-            CONDINT(I) = AREAC /TSTIFT
+            CONDINT(I) = AREAC * THEACCFACT /TSTIFT
 C---------------------------------
-            PHI(I) =  AREAC*(TM - TS)*DT1 / TSTIFT   
+            PHI(I) =  AREAC*(TM - TS)*DT1*THEACCFACT / TSTIFT   
 C----------------------------------------------------------------------
 C         Conduction + Radiation : Heat exchange depending on distance
 C----------------------------------------------------------------------
@@ -147,19 +144,19 @@ C---------------------------------
             TSTIFT = TSTIFM  + RSTIF
             DD = PENRAD(I) /DDCOND
             HCOND  =  FINTER(FCOND,DD,NPC,TF,DYDX) / TSTIFT 
-            CONDINT(I) = AREAC*HCOND
+            CONDINT(I) = AREAC*HCOND * THEACCFACT
 
-            PHI(I) = AREAC * (TM - TS)*DT1* HCOND     
+            PHI(I) = AREAC * (TM - TS)*DT1* HCOND * THEACCFACT    
 
             PHI(I) = PHI(I) + FRAD * AREAC * (TM*TM+TS*TS) 
-     .                    * (TM + TS) * (TM - TS) * DT1   
+     .                    * (TM + TS) * (TM - TS) * DT1 * THEACCFACT   
 C-------------------------------------
 C         Radiation :
 C-------------------------------------
           ELSEIF(PENRAD(I) <= DRAD)THEN
 C---------------------------------
             PHI(I) = FRAD * AREAC * (TM*TM+TS*TS) 
-     .                    * (TM + TS) * (TM - TS) * DT1
+     .                    * (TM + TS) * (TM - TS) * DT1 * THEACCFACT
 
           END IF  
 C
@@ -181,7 +178,7 @@ C---------------------------------
 C---------------------------------
 C        HEAT GENERATION DUE TO FRICTION
 C---------------------------------
-         PHI(I) = PHI(I) + FHEAT * EFRICT(I)
+         PHI(I) = PHI(I) + FHEAT * EFRICT(I) * THEACCFACT
        ENDDO
 C
       ELSE
@@ -204,7 +201,7 @@ C
             AY  = AZ1*AX2 - AX1*AZ2
             AZ  = AX1*AY2 - AY1*AX2
 C                              
-            AREA = ONE_OVER_8*SQRT(AX*AX+AY*AY+AZ*AZ) 
+            AREA = HALF*SQRT(AX*AX+AY*AY+AZ*AZ) 
 C
             AREAC =AREA
 C
@@ -214,26 +211,26 @@ C
 C          
           ENDIF
 C---------------------------------
-C         DISTANCE ENTRE LE NOEUD SECOND. 
-C             ET  LA  SURFACE(SURFFACE NODALE)
+C         DISTANCE ENTRE LE NODE SECOND. 
+C             and the surface (nodal surface)
 C---------------------------------
 C-------------------------------------
-C         Conduction : close distance
+C         Conduction: Close distance
 C-------------------------------------
           IF(PENRAD(I) <= ZERO)THEN
 C Dist = Gapv - Penetration wrt Gapv
             DIST = PENRAD(I) +GAPV(I)
 C---------------------------------
-C           CALCUL DE LA CONDUCTIBILITE
+C           calculation of the conductivity
 C---------------------------------
             P      = XTHE * ABS(FNI(I)) / AREAS(I)
             RSTIF  = ONE / MAX(EM30,KTHE * FINTER(IFUNCTK,P,NPC,TF,DYDX))
             COND   = ASI(I)+BSI(I)*TS
             TSTIFM = MAX(DIST,ZERO) / COND
             TSTIFT = TSTIFM  + RSTIF
-            CONDINT(I) = AREAC/TSTIFT
+            CONDINT(I) = AREAC * THEACCFACT/TSTIFT
 C---------------------------------            
-            PHI(I) = AREAC * (TM- TS)*DT1 / TSTIFT
+            PHI(I) = AREAC * (TM- TS)*DT1*THEACCFACT / TSTIFT
 C---------------------------------
 C----------------------------------------------------------------------
 C         Conduction + Radiation : Heat exchange depending on distance
@@ -248,12 +245,12 @@ C---------------------------------
             TSTIFT = TSTIFM  + RSTIF
             DD = PENRAD(I) /DDCOND
             HCOND  =  FINTER(FCOND,DD,NPC,TF,DYDX) / TSTIFT 
-            CONDINT(I) = AREAC*HCOND
+            CONDINT(I) = AREAC*HCOND*THEACCFACT
 
-            PHI(I) = AREAC * (TM - TS)*DT1 * HCOND         
+            PHI(I) = AREAC * (TM - TS)*DT1 * HCOND *THEACCFACT        
 
             PHI(I) = PHI(I) + FRAD * AREAC * (TM*TM+TS*TS) 
-     .                    * (TM + TS) * (TM - TS) * DT1  
+     .                    * (TM + TS) * (TM - TS) * DT1  *THEACCFACT
 C-------------------------------------
 C         Radiation :
 C-------------------------------------   
@@ -261,7 +258,7 @@ C---------------------------------
           ELSEIF(PENRAD(I) <= DRAD)THEN
 C---------------------------------
             PHI(I) = FRAD * AREAC * (TM*TM+TS*TS) 
-     .                 * (TM + TS) * (TM - TS) * DT1
+     .                 * (TM + TS) * (TM - TS) * DT1 *THEACCFACT
           END IF
 C
          IF(IFORM == 1 )THEN 
@@ -282,7 +279,7 @@ C---------------------------------
 C---------------------------------
 C        HEAT GENERATION DUE TO FRICTION
 C---------------------------------
-         PHI(I) = PHI(I) + FHEAT * EFRICT(I)
+         PHI(I) = PHI(I) + FHEAT * EFRICT(I)*THEACCFACT
        ENDDO
       END IF
 C

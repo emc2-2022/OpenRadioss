@@ -1,42 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT21                 source/materials/mat/mat021/hm_read_mat21.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat21            ../starter/source/materials/mat/mat021/hm_read_mat21.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT21(
      .           LSUBMODEL ,MTAG     ,UNITAB   ,IPM  ,PM,
-     .           MAT_ID    ,TITR     )
+     .           MAT_ID    ,TITR     ,MATPARAM )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -44,6 +46,8 @@ C-----------------------------------------------
       USE ELBUFTAG_MOD            
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -62,12 +66,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "sysunit.inc"
-#include      "submod_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -75,25 +74,25 @@ C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER, INTENT(IN)                          :: MAT_ID
       INTEGER, DIMENSION(NPROPMI) ,INTENT(INOUT)   :: IPM
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
       my_real, DIMENSION(NPROPM)  ,INTENT(INOUT)   :: PM
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
-      TYPE(MLAW_TAG_), INTENT(OUT)                 :: MTAG
+      TYPE(MLAW_TAG_), INTENT(INOUT)               :: MTAG
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT)        :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
-      INTEGER :: I,ILAW,IFUNC
-      my_real :: RHO0,RHOR,E,NU,A0,A1,A2,AMX,C1,FAC_Y,PMIN,PEXT,
-     .           BUNL,XMUMX,E0,G,PSTAR,DELTA,FSCAL_UNIT
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
+      INTEGER :: ILAW,IFUNC
+      my_real :: RHO0,RHOR,E,NU,A0,A1,A2,AMX,C1,FAC_Y,PMIN,PEXT,BUNL,XMUMX,E0,G,PSTAR,DELTA,FSCAL_UNIT
       CHARACTER*64 :: chain      
 C=======================================================================
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED   = .FALSE.
       IS_AVAILABLE = .FALSE.
       ILAW   = 21
       PSTAR  = -INFINITY  
 !---
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 !
       CALL HM_GET_FLOATV('MAT_RHO'      ,RHO0       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Refer_Rho'    ,RHOR       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -112,95 +111,51 @@ C=======================================================================
       CALL HM_GET_FLOATV('MAT_SIG'      ,XMUMX      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV_DIM('PFscale'  ,FSCAL_UNIT ,IS_AVAILABLE, LSUBMODEL, UNITAB)
 !---
-      IF (RHOR.EQ.ZERO) RHOR=RHO0
+      IF (RHOR==ZERO) RHOR=RHO0
       PM(1) = RHOR
       PM(89)= RHO0
 !
       E0=ZERO
-      IF(PMIN.EQ.ZERO) PMIN  =-INFINITY
-      IF(BUNL.EQ.ZERO.AND.XMUMX.NE.ZERO) THEN
-        chain='MUMAX IS DEFINED BUT UNLOADING BULK MODULUS HAS NO USER VALUE.  '      
-        BUNL  = C1
-        CALL ANCMSG(MSGID=829,
-     .                MSGTYPE=MSGWARNING,
-     .                ANMODE=ANINFO,
-     .                I1=21,
-     .                I2=MAT_ID,
-     .                C1='WARNING',
-     .                C2=TITR,
-     .                C3=chain)         
-      ENDIF
-      
-      IF(BUNL.EQ.ZERO) BUNL  = C1      
-      IF(AMX.EQ.ZERO)  AMX   = EP20
-      IF(XMUMX.EQ.ZERO.AND.BUNL.NE.ZERO)THEN
-         XMUMX=EP20 
-        chain='UNLOADING BULK MODULUS IS NOT USED SINCE MUMAX IS ZERO          '      
-        CALL ANCMSG(MSGID=829,
-     .                MSGTYPE=MSGWARNING,
-     .                ANMODE=ANINFO,
-     .                I1=21,
-     .                I2=MAT_ID,
-     .                C1='WARNING',
-     .                C2=TITR,
-     .                C3=chain)             
-      ENDIF
-C      
+      IF(PMIN==ZERO) PMIN  =-INFINITY
+
+      IF(BUNL==ZERO) BUNL  = C1      
+      IF(AMX==ZERO)  AMX   = EP20
+      IF(XMUMX == ZERO)XMUMX=EP20
+
       IF(A1 < ZERO .AND. A2 == ZERO)THEN
         chain='INVERTED YIELD SURFACE. CHECK A1 SIGN.                          '
-        CALL ANCMSG(MSGID=829,
-     .                MSGTYPE=MSGWARNING,
-     .                ANMODE=ANINFO,
-     .                I1=21,
-     .                I2=MAT_ID,
-     .                C1='WARNING',
-     .                C2=TITR,
-     .                C3=chain)   
-      ENDIF     
+        CALL ANCMSG(MSGID=829, MSGTYPE=MSGWARNING, ANMODE=ANINFO, I1=21, I2=MAT_ID, C1='WARNING', C2=TITR, C3=chain)
+      ENDIF
+
       IF(A2 < ZERO)THEN
         chain='UNTYPICAL YIELD SURFACE. CHECK A2 SIGN.                         '
-        CALL ANCMSG(MSGID=829,
-     .                MSGTYPE=MSGWARNING,
-     .                ANMODE=ANINFO,
-     .                I1=21,
-     .                I2=MAT_ID,
-     .                C1='WARNING',
-     .                C2=TITR,
-     .                C3=chain)     
-      ENDIF           
-      IF(C1.LE.ZERO) THEN
+        CALL ANCMSG(MSGID=829, MSGTYPE=MSGWARNING, ANMODE=ANINFO, I1=21, I2=MAT_ID, C1='WARNING', C2=TITR, C3=chain)
+      ENDIF
+
+      IF(C1<=ZERO) THEN
         chain='TENSILE BULK MODULUS IS LOWER OR EQUAL TO 0.                    '      
-        CALL ANCMSG(MSGID=829,
-     .                MSGTYPE=MSGERROR,
-     .                ANMODE=ANINFO,
-     .                I1=21,
-     .                I2=MAT_ID,
-     .                C1='ERROR',
-     .                C2=TITR,
-     .                C3=chain)
-      END IF           
-C
+        CALL ANCMSG(MSGID=829, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=21, I2=MAT_ID, C1='ERROR', C2=TITR, C3=chain)
+      END IF
+
+      IF(BUNL==ZERO) THEN
+        chain='UNLOADING BULK MODULUS HAS NO USER VALUE. IT IS SET TO C1'
+        BUNL  = C1
+        CALL ANCMSG(MSGID=829, MSGTYPE=MSGWARNING, ANMODE=ANINFO, I1=21, I2=MAT_ID, C1='WARNING', C2=TITR, C3=chain)
+      ENDIF
+
       IF(A2==ZERO.AND.A1/=ZERO)THEN   !(A2=A1=ZERO => error message)
         PSTAR=-A0/A1 
-      ELSEIF(A2.NE.ZERO)THEN
+      ELSEIF(A2/=ZERO)THEN
         DELTA = A1*A1-FOUR*A0*A2
-        !Si intersection avec l'axe
-        IF(DELTA .GE. ZERO)THEN
+        !If intersection with the axis
+        IF(DELTA >= ZERO)THEN
           DELTA=SQRT(DELTA)
           PSTAR = (-A1+DELTA)/TWO/A2
-        
         ELSE
         !  PSTAR = -A1/TWO/A2 !no let user do what he wants 
           PSTAR = -INFINITY
           chain='YIELD SURFACE HAS NO ROOT.                                     '      
-          CALL ANCMSG(MSGID=829,
-     .                  MSGTYPE=MSGWARNING,
-     .                  ANMODE=ANINFO,
-     .                  I1=21,
-     .                  I2=MAT_ID,
-     .                  C1='WARNING',
-     .                  C2=TITR,
-     .                  C3=chain)               
+          CALL ANCMSG(MSGID=829, MSGTYPE=MSGWARNING, ANMODE=ANINFO, I1=21, I2=MAT_ID, C1='WARNING', C2=TITR, C3=chain)
         ENDIF
       ELSE
         !do nothing let user do what he wants
@@ -235,7 +190,7 @@ C     Formulation for solid elements time step computation.
 c-------------------
       WRITE(IOUT,1100) TRIM(TITR),MAT_ID,21
       WRITE(IOUT,1000)
-      IF (IS_CRYPTED) THEN
+      IF (IS_ENCRYPTED) THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
         WRITE(IOUT,1200) RHO0,RHOR
@@ -244,13 +199,29 @@ c-------------------
         WRITE(IOUT,1500)IFUNC,FAC_Y,C1,BUNL,XMUMX,PMIN,PEXT,PSTAR
       ENDIF
 C
-C---- Definition des variables internes (stockage elementaire)
+C---- Definition of internal variables (Elementary storage)
 c
       MTAG%G_PLA   = 1
       MTAG%G_EPSQ  = 1
+      MTAG%G_MU    = 1 !unloading history (volumetric plastic strain)
 c
       MTAG%L_PLA   = 1     ! /TH(VPLA)
       MTAG%L_EPSQ  = 1     ! /TH(EPSP)
+      MTAG%L_MU    = 1 !unloading history
+c
+      ! MATPARAM keywords
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ELASTO_PLASTIC")
+
+      ! Material compatibility with /EOS option
+      CALL INIT_MAT_KEYWORD(MATPARAM,"EOS")
+
+      ! EOS/Thermo keyword for pressure treatment in elements
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HYDRO_EOS")
+c
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SPH")
+c
 c-------------------
       RETURN
 c-------------------
@@ -263,7 +234,7 @@ c-------------------
      & 5X,'MATERIAL LAW. . . . . . . . . . . . . .=',I10/)
  1200 FORMAT(
      & 5X,'INITIAL DENSITY . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'EOS REFERENCE DENSITY . . . . . . . . .=',1PG20.13/)
+     & 5X,'REFERENCE DENSITY  .  . . . . . . . . .=',1PG20.13/)
  1300 FORMAT(
      & 5X,40HYOUNG'S MODULUS . . . . . . . . . . . .=,E12.4/,
      & 5X,40HPOISSON'S RATIO . . . . . . . . . . . .=,E12.4/,

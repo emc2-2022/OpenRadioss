@@ -1,77 +1,72 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  QROTA3                        source/output/anim/generate/qrota3.F
-Chd|-- called by -----------
-Chd|        THQUAD                        source/output/th/thquad.F     
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE QROTA3(X, IXQ, KCVT, TENS, GAMA)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    qrota3        ../engine/source/output/anim/generate/qrota3.F
+!||--- called by ------------------------------------------------------
+!||    thquad        ../engine/source/output/th/thquad.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
+      SUBROUTINE QROTA3(
+     1   X,       IXQ,     KCVT,    TENS,
+     2   GAMA,    ISORTH)
+      use element_mod , only : nixq
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "vect01_c.inc"
-#include      "scr18_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
+      INTEGER, INTENT(IN) :: ISORTH
       my_real
      .   X(3,*),TENS(6),GAMA(6)
       INTEGER IXQ(NIXQ), KCVT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C     REAL
       my_real
-     .   X1, X2, X3, X4,
+     .      
      .   Y1, Y2, Y3, Y4,
      .   Z1, Z2, Z3, Z4,
-     .   L11,L12,L13,L22,L23,L33,
+     .   
      .   R22,R23,R32,R33,
      .   G22,G33,G23,G32,
      .   T22,T33,T23,T32,
-     .   S11,S12,S21,S13,S31,S22,S23,S32,S33,
+     .   
      .   SY,SZ,TY,TZ,CT,CS,SUMA,
-     .   T1,T2,T3,T4,S1,S2,S3,S4
-      INTEGER NC1, NC2, NC3, NC4, N, I
+     .   T1,T2,T3,T4,S1,S2,S4
+      INTEGER NC1, NC2, NC3, NC4
 C-----------------------------------------------
         NC1=IXQ(2)
         NC2=IXQ(3)
         NC3=IXQ(4)
         NC4=IXQ(5)
 C----------------------------
-C     COORDONNEES NODALES
+C     NODE COORDINATES
 C----------------------------
         Y1=X(2,NC1)
         Z1=X(3,NC1)
@@ -82,7 +77,7 @@ C----------------------------
         Y4=X(2,NC4)
         Z4=X(3,NC4)
 C-----------
-C       REPERE CONVECTE
+C       convected frame
 C-----------
         SY=HALF*(Y2+Y3-Y1-Y4)
         SZ=HALF*(Z2+Z3-Z1-Z4)
@@ -103,7 +98,7 @@ C-----------
         SY=SY*SUMA
         SZ=SZ*SUMA
 C-----------
-C       MATRICE DE PASSAGE GLOBAL -> CONVECTE
+C       TRANSFORMATION MATRIX GLOBAL -> CONVECTED
 C-----------
         R22= SY
         R32=-SZ
@@ -117,7 +112,7 @@ c
             G23=GAMA(4)
             G33=GAMA(5)
 C-----------
-c       MATRICE DE PASSAGE GLOBAL -> ORTHOTROPE.
+c       TRANSFORMATION MATRIX GLOBAL -> ORTHOTROPIC.
 C-----------
             T22=R22*G22+R23*G32
             T23=R22*G23+R23*G33
@@ -137,7 +132,7 @@ C-----------
             T32=R32*G22+R33*G32
             T33=R32*G23+R33*G33
 C-----------
-c       MATRICE DE PASSAGE ORTHOTROPE -> GLOBAL
+c       TRANSFORMATION MATRIX ORTHOTROPIC -> GLOBAL
 C-----------
             R22=T22
             R23=T23
@@ -146,7 +141,7 @@ C-----------
           ENDIF             
         END IF
 C-----------
-C       SIZE(TENS)=6 ON STOCKE COMME DES SOLIDES MAIS ON N'UTILISE QUE 1, 2 et 4
+C       SIZE(TENS)=6 STORED AS SOLIDS BUT ONLY USE 1, 2 and 4
 C-----------
         S1=TENS(1)
         S2=TENS(2)

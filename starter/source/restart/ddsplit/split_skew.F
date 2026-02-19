@@ -1,54 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPLIT_SKEW                    source/restart/ddsplit/split_skew.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        SKEW_MOD                      share/modules1/skew_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    split_skew   ../starter/source/restart/ddsplit/split_skew.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit      ../starter/source/restart/ddsplit/ddsplit.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
         SUBROUTINE SPLIT_SKEW(CURR_PROC,ISKWP_L,ISKWP,TAG_SKN,MULTIPLE_SKEW)
-C----------------------------------------------------------
-C----------------------------------------------------------
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
         USE SKEW_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
-#include      "units_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -56,7 +46,7 @@ C-----------------------------------------------
         INTEGER, DIMENSION(NUMSKW+1), INTENT(IN) :: TAG_SKN
         INTEGER, DIMENSION(NUMSKW+1), INTENT(IN) :: ISKWP
         INTEGER, DIMENSION(NUMSKW+1), INTENT(INOUT) :: ISKWP_L
-        TYPE(SKEW_TYPE), DIMENSION(NUMSKW+1), INTENT(IN) :: MULTIPLE_SKEW
+        TYPE(PLIST_SKEW_), DIMENSION(NUMSKW+1), INTENT(IN) :: MULTIPLE_SKEW
 !       -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*
 !       CURR_PROC : integer 
 !                   current ID processor 
@@ -83,15 +73,14 @@ C-----------------------------------------------
         INTEGER :: I,J,NN
         INTEGER :: SIZE_SKEW,ISKEW
 C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
+C   S o u r c e   L i n e s
 C-----------------------------------------------
-C=======================================================================
 !$COMMENT
 !       SPLIT_SKEW description
 !       SPLIT_SKEW initializes the SKEW index ISKWP_L used in the engine
 !       
 !       SPLIT_SKEW organization :
-!       - loop over the NUMSKW and check if the SKEW is on the curent
+!       - loop over the NUMSKW and check if the SKEW is on the current
 !         processor
 !$ENDCOMMENT
 
@@ -129,34 +118,21 @@ C=======================================================================
 
 
 
-Chd|====================================================================
-Chd|  SPLIT_SKEW_save               source/restart/ddsplit/split_skew.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        SKEW_MOD                      share/modules1/skew_mod.F     
-Chd|====================================================================
+!||====================================================================
+!||    split_skew_save   ../starter/source/restart/ddsplit/split_skew.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
         SUBROUTINE SPLIT_SKEW_save(CURR_PROC,ISKWP_L,ISKWP,TAG_SKN,MULTIPLE_SKEW,NSKWP)
-C----------------------------------------------------------
-C----------------------------------------------------------
+C-----------------------------------------------
         USE SKEW_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
-#include      "units_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -164,7 +140,7 @@ C-----------------------------------------------
         INTEGER, DIMENSION(NUMSKW+1), INTENT(IN) :: TAG_SKN
         INTEGER, DIMENSION(NUMSKW+1), INTENT(IN) :: ISKWP
         INTEGER, DIMENSION(NUMSKW+1), INTENT(INOUT) :: ISKWP_L
-        TYPE(SKEW_TYPE), DIMENSION(NUMSKW+1), INTENT(IN) :: MULTIPLE_SKEW
+        TYPE(PLIST_SKEW_), DIMENSION(NUMSKW+1), INTENT(IN) :: MULTIPLE_SKEW
 
 
         integer, dimension(*) :: NSKWP
@@ -174,9 +150,8 @@ C-----------------------------------------------
         INTEGER :: I,J,NN
         INTEGER :: SIZE_SKEW,ISKEW
 C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
+C   S o u r c e   L i n e s
 C-----------------------------------------------
-C=======================================================================
         NN = 0
         DO I=1,NUMSKW
                 SIZE_SKEW = TAG_SKN(I+1)

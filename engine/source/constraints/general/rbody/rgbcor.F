@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RGBCOR                        source/constraints/general/rbody/rgbcor.F
-Chd|-- called by -----------
-Chd|        RBYCOR                        source/constraints/general/rbody/rbycor.F
-Chd|-- calls ---------------
-Chd|        IMP_DYNA                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rgbcor     ../engine/source/constraints/general/rbody/rgbcor.F
+!||--- called by ------------------------------------------------------
+!||    rbycor     ../engine/source/constraints/general/rbody/rbycor.F
+!||--- uses       -----------------------------------------------------
+!||    imp_dyna   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE RGBCOR(V  ,VR  ,X    ,RBY,NOD ,
      2                  NBY,SKEW,ISKEW,FS ,ITAB,
      3                  WEIGHT,A,AR   ,MS ,IN  ,
@@ -54,9 +54,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "units_c.inc"
 #include      "parit_c.inc"
 #include      "impl1_c.inc"
 #include      "param_c.inc"
@@ -64,11 +61,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER M, NSN, ICODR, ISK, I, N,ISENS
+      INTEGER M, NSN, I, N,ISENS
 C     REAL
       my_real
      .   VI(3),VG(3),DT05,MAS,WEWE2
-C to keep enough acuracy in single precision
+C to keep enough accuracy in single precision
       DOUBLE PRECISION
      .   ENROTT,ENCINT,XMASST,XMOMTT,YMOMTT,ZMOMTT,
      .   ENCIN2T,ENROT2T
@@ -86,13 +83,13 @@ C-----------------------------------------------
 
 
 C optimisation spmd
-      IF (M.LT.0) RETURN
+      IF (M<0) RETURN
       NSN  =NBY(2)
 C------------------------------------------------------------
-C      CORRECTION DE L'ENERGIE CINETIQUE time = t
+C      CORRECTION OF KINETIC ENERGY at time = t
 C------------------------------------------------------------
-      IF(IMPL_S.GT.0.AND.IDYNA.EQ.0)THEN
-       IF(ISENS.EQ.0)THEN
+      IF(IMPL_S>0.AND.IDYNA==0)THEN
+       IF(ISENS==0)THEN
         VG(1)=VR(1,M)
         VG(2)=VR(2,M)
         VG(3)=VR(3,M)
@@ -115,7 +112,7 @@ C
         ENROT2T=ZERO
 C
         IF(N2D==0) THEN
-         IF (NSN.GE.10.OR.IPARIT.GT.0) THEN
+         IF (NSN>=10.OR.IPARIT>0) THEN
            DO I=1,NSN
             N = NOD(I)
             MAS=MS(N)*WEIGHT_MD(N)
@@ -144,7 +141,6 @@ C
             XMASST=XMASST-MAS
            ENDDO
          ELSE
-#include "scalar.inc"
           DO I=1,NSN
            N = NOD(I)
            MAS=MS(N)*WEIGHT_MD(N)
@@ -177,7 +173,7 @@ C
 C
         ELSE  ! N2D =/ 0
 C
-         IF (NSN.GE.10.OR.IPARIT.GT.0) THEN
+         IF (NSN>=10.OR.IPARIT>0) THEN
            DO I=1,NSN
             N = NOD(I)
             MAS=MS_2D(N)*WEIGHT_MD(N)
@@ -206,7 +202,6 @@ C
             XMASST=XMASST-MAS
            ENDDO
          ELSE
-#include "scalar.inc"
           DO I=1,NSN
            N = NOD(I)
            MAS=MS_2D(N)*WEIGHT_MD(N)
@@ -239,7 +234,7 @@ C
 C
         ENDIF
        ELSE
-C       RBY AVEC SENSOR : PAS DE MASSES OU INERTIE AJOUTEE
+C       rby with sensor: no added masses or inertia
         IF(N2D==0) THEN
           MAS=MS(M)*WEIGHT_MD(M)
         ELSE
@@ -267,9 +262,9 @@ C
 C
        ENDIF
       ELSE
-      IF(ISENS.EQ.0)THEN
+      IF(ISENS==0)THEN
         DT05 = HALF*DT1
-        IF(IDYNA.GT.0) DT05=(DY_G-ONE)*DT1
+        IF(IDYNA>0) DT05=(DY_G-ONE)*DT1
         VG(1)=VR(1,M)+AR(1,M)*DT05
         VG(2)=VR(2,M)+AR(2,M)*DT05
         VG(3)=VR(3,M)+AR(3,M)*DT05
@@ -291,9 +286,9 @@ C
         ENCIN2T=ZERO        
         ENROT2T=ZERO
 C
-Cel vectorisation si nsn.ge.10 ou si imach = 3 et p/on active
+C   vectorisation si nsn>=10 ou si p/on active
         IF(N2D==0) THEN
-         IF (NSN.GE.10.OR.IPARIT.GT.0) THEN
+         IF (NSN>=10.OR.IPARIT>0) THEN
            DO I=1,NSN
 C
             N = NOD(I)
@@ -325,7 +320,6 @@ C
 C
            ENDDO
          ELSE
-#include "scalar.inc"
           DO I=1,NSN
 C
            N = NOD(I)
@@ -360,7 +354,7 @@ C
 C
        ELSE ! N2D =/0
 C
-         IF (NSN.GE.10.OR.IPARIT.GT.0) THEN
+         IF (NSN>=10.OR.IPARIT>0) THEN
            DO I=1,NSN
 C
             N = NOD(I)
@@ -392,7 +386,6 @@ C
 C
            ENDDO
          ELSE
-#include "scalar.inc"
           DO I=1,NSN
 C
            N = NOD(I)
@@ -427,9 +420,9 @@ C
 C
        ENDIF
       ELSE
-C       RBY AVEC SENSOR : PAS DE MASSES OU INERTIE AJOUTEE
+C       rby with sensor: no added masses or inertia
         DT05 = HALF*DT1
-        IF(IDYNA.GT.0) DT05=(DY_G-ONE)*DT1
+        IF(IDYNA>0) DT05=(DY_G-ONE)*DT1
         VG(1)=VR(1,M)+AR(1,M)*DT05
         VG(2)=VR(2,M)+AR(2,M)*DT05
         VG(3)=VR(3,M)+AR(3,M)*DT05
@@ -467,15 +460,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2COR                       source/constraints/general/rbody/rgbcor.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2COR0                      source/constraints/general/rbody/rgbcor.F
-Chd|        IMP_DYNA                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    rbe2cor    ../engine/source/constraints/general/rbody/rgbcor.F
+!||--- called by ------------------------------------------------------
+!||    resol      ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2    ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2cor0   ../engine/source/constraints/general/rbody/rgbcor.F
+!||--- uses       -----------------------------------------------------
+!||    imp_dyna   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE RBE2COR(IRBE2 ,LRBE2 ,X    ,V     ,VR    ,
      2                   SKEW  ,ISKEW ,ITAB ,WEIGHT,A     ,
      3                   AR    ,MS    ,IN   ,WEIGHT_MD)
@@ -492,8 +486,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "scr11_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
-#include      "impl1_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -506,8 +498,8 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER  J,K,N,KK,IAD,M,
-     .        JT(3,NRBE2),JR(3,NRBE2),NM,NN,ISK,NSN,IRAD
+      INTEGER  N,IAD,M,
+     .        JT(3,NRBE2),JR(3,NRBE2),ISK,NSN,IRAD
 C     REAL
       my_real
      .   ENROT_T,ENCIN_T,XMASS_T,
@@ -549,13 +541,13 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2COR0                      source/constraints/general/rbody/rgbcor.F
-Chd|-- called by -----------
-Chd|        RBE2COR                       source/constraints/general/rbody/rgbcor.F
-Chd|-- calls ---------------
-Chd|        IMP_DYNA                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    rbe2cor0   ../engine/source/constraints/general/rbody/rgbcor.F
+!||--- called by ------------------------------------------------------
+!||    rbe2cor    ../engine/source/constraints/general/rbody/rgbcor.F
+!||--- uses       -----------------------------------------------------
+!||    imp_dyna   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE RBE2COR0(V  ,VR  ,X    ,NSL   ,ISL   ,
      2                    JT ,JR  ,M    ,WEIGHT,A     ,
      3                    AR ,MS  ,IN   ,ITAB ,IRAD  ,
@@ -581,21 +573,17 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
 #include      "parit_c.inc"
 #include      "impl1_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, NS,ITRA,IROT
+      INTEGER I, N,ITRA,IROT
 C     REAL
       my_real
-     .   VI(3),VG(3),DT05,MAS,WEWE2,WROT,WROT2,WTRA2
-C to keep enough acuracy in single precision
+     .   VG(3),DT05,MAS,WEWE2,WROT,WROT2,WTRA2
+C to keep enough accuracy in single precision
       DOUBLE PRECISION
      .   ENROTT,ENCINT,XMASST,XMOMTT,YMOMTT,ZMOMTT,
      .   ENCIN2T,ENROT2T
@@ -606,7 +594,7 @@ C-----for the moment RBE2 est spheric ---
       ELSE
        ITRA = 0
       END IF 
-C-----in case of JR=0 and IRAD=0, Inertia0 of Main is suppposed << In_s      
+C-----in case of JR=0 and IRAD=0, Inertia0 of Main is supposed << In_s      
       IF ((JR(1)+JR(2)+JR(3)) >0 .OR. IRAD==0) THEN
        IROT = 1
       ELSE
@@ -621,7 +609,7 @@ C-----in case of JR=0 and IRAD=0, Inertia0 of Main is suppposed << In_s
         ENCIN2T=ZERO
         ENROT2T=ZERO
         ENROTT =ZERO
-      IF(IMPL_S.GT.0.AND.IDYNA.EQ.0)THEN
+      IF(IMPL_S>0.AND.IDYNA==0)THEN
 C
          IF (IRODDL/=0) THEN
           VG(1)=VR(1,M)
@@ -633,7 +621,7 @@ C
      .           + VG(2)*VG(2)
      .           + VG(3)*VG(3))*IN(M)*WROT
          END IF !(IRODDL/=0) THEN
-        IF (NSL.GE.10.OR.IPARIT.GT.0) THEN
+        IF (NSL>=10.OR.IPARIT>0) THEN
           DO I=1,NSL
            N = ISL(I)
            MAS=MS(N)*WEIGHT_MD(N)*ITRA
@@ -671,7 +659,6 @@ C
           ENDDO
          END IF !(IRODDL/=0) THEN
         ELSE
-#include "scalar.inc"
          DO I=1,NSL
           N = ISL(I)
           MAS=MS(N)*WEIGHT_MD(N)*ITRA
@@ -713,7 +700,7 @@ C
       ELSE
         DT05 = HALF*DT1
 C
-        IF(IDYNA.GT.0) DT05=(DY_G-ONE)*DT1
+        IF(IDYNA>0) DT05=(DY_G-ONE)*DT1
 C
          IF (IRODDL/=0) THEN
           VG(1)=VR(1,M)+AR(1,M)*DT05
@@ -724,8 +711,8 @@ C
      .           + VG(2)*VG(2)
      .           + VG(3)*VG(3))*IN(M)*WEIGHT_MD(M)*IROT
          END IF !(IRODDL/=0) THEN
-Cel vectorisation si nsn.ge.10 ou si imach = 3 et p/on active
-        IF (NSL.GE.10.OR.IPARIT.GT.0) THEN
+C   vectorisation si nsn>=10 ou si p/on active
+        IF (NSL>=10.OR.IPARIT>0) THEN
           DO I=1,NSL
 C
            N = ISL(I)
@@ -767,7 +754,6 @@ C
           ENDDO
          ENDIF !(IRODDL/=0) THEN
         ELSE
-#include "scalar.inc"
          DO I=1,NSL
 C
           N = ISL(I)

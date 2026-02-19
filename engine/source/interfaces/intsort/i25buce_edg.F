@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25BUCE_EDG                   source/interfaces/intsort/i25buce_edg.F
-Chd|-- called by -----------
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|-- calls ---------------
-Chd|        I25TRIVOX_EDG                 source/interfaces/intsort/i25trivox_edg.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25buce_edg     ../engine/source/interfaces/intsort/i25buce_edg.F
+!||--- called by ------------------------------------------------------
+!||    i25main_tri     ../engine/source/interfaces/intsort/i25main_tri.F
+!||--- calls      -----------------------------------------------------
+!||    i25trivox_edg   ../engine/source/interfaces/intsort/i25trivox_edg.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../engine/share/message_module/message_mod.F
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
        SUBROUTINE I25BUCE_EDG(
      1   X        ,V       ,IRECT   ,INACTI    ,
      2   NSN      ,NMN      ,CANDM_E2E  ,CANDS_E2E    ,
@@ -60,19 +61,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
 #include      "param_c.inc"
-#include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NSN, NMN,NOINT,IDT,INACTI,IGAP0,IFQ
+      INTEGER NSN, NMN, NOINT, INACTI, IGAP0, IFQ
       INTEGER IRECT(4,*),ITASK,ILEV, IGAP, IEDGE, NEDGE, ESHIFT,NEDGE_T,SSHIFT,NRTM_T 
       INTEGER CANDM_E2E(*),CANDS_E2E(*),CAND_A(*),CANDM_E2S(*),CANDS_E2S(*),CAND_B(*),
      .        IFPEN_E(*), IFPEN_E2S(*)
@@ -86,7 +79,7 @@ C-----------------------------------------------
      .        KREMNODE_E2S(KREMNODE_E2S_SIZ), REMNODE_E2S(REMNODE_E2S_SIZ)
 C     REAL
       my_real
-     .   GAP,PMAX_GAP,VMAXDT,
+     . GAP,VMAXDT,
      .   BMINMA(6),BGAPEMX, MARGE
       my_real , INTENT(IN) :: DGAPLOAD ,DRAD
       my_real
@@ -95,27 +88,20 @@ C     REAL
      .   CANDE2S_FX(4,*) ,CANDE2S_FY(4,*),CANDE2S_FZ(4,*)
       REAL*4 EDG_BISECTOR(3,4,*), VTX_BISECTOR(3,2,*)
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, IP0, IP1, MAXSIZ,  NSNF, NSNL,
-     .        LOC_PROC, N, IEDG, I1, I2
 C     REAL
       my_real
-     .        XYZM(6), AAA, LX, LY, LZ, MY_LX, MY_LY, MY_LZ,DRAD2
+     . XYZM(6), AAA,DRAD2
       INTEGER NBX,NBY,NBZ
       INTEGER (KIND=8) :: NBX8,NBY8,NBZ8,RES8,LVOXEL8   
-      SAVE LX, LY, LZ
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
       DRAD2 = ZERO
 C-----------------------------------------------
 C
-C----- TRI DES ELEMENTS ET DES NOEUDS
+C----- sorting of elements and nodes
 C
 C-----------------------------------------------
 C
@@ -173,7 +159,7 @@ c      END DO
 c#include      "lockon.inc"
 c      LX=LX+MY_LX
 c      LY=LY+MY_LY
-c      LZ=LZ+MY_LZ
+c      Lz = lz+my_lz
 c#include      "lockoff.inc"
 c
 c      CALL MY_BARRIER      
@@ -218,7 +204,7 @@ c      NBZ = NINT((BMINMA(3)-BMINMA(6))/LZ)
       IF(RES8 > LVOXEL8) stop 678
 c      IF(MAX(NBX,NBY,NBZ) > 100) stop 678
 
-C     pas d'initialisation de VOXEL <=> remise a 0 dans i25trivox.
+C     No initialization of Voxel <=> Discount a 0 in i25trivox.
 C
       CALL I25TRIVOX_EDG(
      1   I_MEM   ,VMAXDT   ,INACTI  ,IRECT   ,
@@ -239,7 +225,7 @@ C
      F   KREMNODE_EDG_SIZ,REMNODE_EDG_SIZ,KREMNODE_E2S_SIZ,REMNODE_E2S_SIZ, 
      G   DGAPLOAD )
 C
-C     I_MEM /= 0 ==> PAS ASSEZ DE MEMOIRE CANDIDATS
+C     I_MEM /= 0 ==> PAS ASSEZ DE MEMOIRE CANDIDATES
 C
       RETURN
       END

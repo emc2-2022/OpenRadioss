@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ASSEM_S10                     source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|        S10KE3                        source/elements/solid/solide10/s10ke3.F
-Chd|-- calls ---------------
-Chd|        ASS10_KKII                    source/implicit/assem_s10.F   
-Chd|        ASS10_KKIJ                    source/implicit/assem_s10.F   
-Chd|        ASS10_KKJI                    source/implicit/assem_s10.F   
-Chd|        ASSEM_KII                     source/implicit/imp_glob_k.F  
-Chd|        ASSEM_KIJ                     source/implicit/imp_glob_k.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    assem_s10     ../engine/source/implicit/assem_s10.F
+!||--- called by ------------------------------------------------------
+!||    s10ke3        ../engine/source/elements/solid/solide10/s10ke3.F
+!||--- calls      -----------------------------------------------------
+!||    ass10_kkii    ../engine/source/implicit/assem_s10.F
+!||    ass10_kkij    ../engine/source/implicit/assem_s10.F
+!||    ass10_kkji    ../engine/source/implicit/assem_s10.F
+!||    assem_kii     ../engine/source/implicit/imp_glob_k.F
+!||    assem_kij     ../engine/source/implicit/imp_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE ASSEM_S10(
      1                   IXS   ,IXS10 ,NEL   ,IDDL  ,NDOF  ,
      2                   K_DIAG,K_LT  ,IADK  ,JDIK  ,K11   ,     
@@ -45,6 +47,7 @@ Chd|====================================================================
      B                   K67   ,K68   ,K69   ,K60   ,K77   ,
      C                   K78   ,K79   ,K70   ,K88   ,K89   ,
      D                   K80   ,K99   ,K90   ,K00   ,OFF   )
+      use element_mod , only : nixs
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -56,7 +59,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -96,19 +98,19 @@ C----6---------------------------------------------------------------7---------8
          NN(EP,8) =IXS10(4,EP)
          NN(EP,9) =IXS10(5,EP)
          NN(EP,10)=IXS10(6,EP)
-         IF (NN(EP,5).GT.0.AND.NN(EP,6).GT.0.AND.NN(EP,7).GT.0.AND.
-     .       NN(EP,8).GT.0.AND.NN(EP,9).GT.0.AND.NN(EP,10).GT.0) 
+         IF (NN(EP,5)>0.AND.NN(EP,6)>0.AND.NN(EP,7)>0.AND.
+     .       NN(EP,8)>0.AND.NN(EP,9)>0.AND.NN(EP,10)>0) 
      .    N10 = N10 + 1  
         ENDDO
 C---------condense first in KIJ--for degenerated element------------
-      IF (N10.LT.NEL) THEN
+      IF (N10<NEL) THEN
 C-------block k00,k10,k20,k30,k40,k50,k60,k70,k80,k90-----
        N=10
 C---------N1=3,N2=4--------------
        N1=IPERM1(N)
        N2=IPERM2(N)
        DO EP = 1,NEL
-        IF (NN(EP,N).EQ.0.AND.OFF(EP).GT.ZERO) THEN
+        IF (NN(EP,N)==0.AND.OFF(EP)>ZERO) THEN
           CALL ASS10_KKII(N1   ,N2    ,K33(1,EP),K44(1,EP),K34(1,EP),
      1                    K00(1,EP),3  )
 C------- k10,k20,k30,k40,50,60,70,80,90-----
@@ -147,7 +149,7 @@ C---------N1=2,N2=4--------------
        N1=IPERM1(N)
        N2=IPERM2(N)
        DO EP = 1,NEL
-        IF (NN(EP,N).EQ.0.AND.OFF(EP).GT.ZERO) THEN
+        IF (NN(EP,N)==0.AND.OFF(EP)>ZERO) THEN
           CALL ASS10_KKII(N1   ,N2    ,K22(1,EP),K44(1,EP),K24(1,EP),
      1                    K99(1,EP),3  )
 C------- k19,k29,k39,k49,59,69,79,89-----
@@ -186,7 +188,7 @@ C---------N1=1,N2=4--------------
        N1=IPERM1(N)
        N2=IPERM2(N)
        DO EP = 1,NEL
-        IF (NN(EP,N).EQ.0.AND.OFF(EP).GT.ZERO) THEN
+        IF (NN(EP,N)==0.AND.OFF(EP)>ZERO) THEN
           CALL ASS10_KKII(N1   ,N2    ,K11(1,EP),K44(1,EP),K14(1,EP),
      1                    K88(1,EP),3  )
 C------- k18,k28,k38,k48,58,68,78-----
@@ -225,7 +227,7 @@ C---------N1=3,N2=1--------------
        N1=IPERM1(N)
        N2=IPERM2(N)
        DO EP = 1,NEL
-        IF (NN(EP,N).EQ.0.AND.OFF(EP).GT.ZERO) THEN
+        IF (NN(EP,N)==0.AND.OFF(EP)>ZERO) THEN
           CALL ASS10_KKII(N1   ,N2    ,K33(1,EP),K11(1,EP),K13(1,EP),
      1                    K77(1,EP),3  )
 C------- k17,k27,k37,k47,57,67-----
@@ -264,7 +266,7 @@ C---------N1=2,N2=3--------------
        N1=IPERM1(N)
        N2=IPERM2(N)
        DO EP = 1,NEL
-        IF (NN(EP,N).EQ.0.AND.OFF(EP).GT.ZERO) THEN
+        IF (NN(EP,N)==0.AND.OFF(EP)>ZERO) THEN
           CALL ASS10_KKII(N1   ,N2    ,K22(1,EP),K33(1,EP),K23(1,EP),
      1                    K66(1,EP),3  )
 C------- k16,k26,k36,k46,56-----
@@ -303,7 +305,7 @@ C---------N1=1,N2=2--------------
        N1=IPERM1(N)
        N2=IPERM2(N)
        DO EP = 1,NEL
-        IF (NN(EP,N).EQ.0.AND.OFF(EP).GT.ZERO) THEN
+        IF (NN(EP,N)==0.AND.OFF(EP)>ZERO) THEN
           CALL ASS10_KKII(N1   ,N2    ,K11(1,EP),K22(1,EP),K12(1,EP),
      1                    K55(1,EP),3  )
 C------- k15,k25,k35,k45-----
@@ -336,7 +338,7 @@ C------- k15,k25,k35,k45-----
      2                  K50(1,EP))
         ENDIF 
        ENDDO 
-      END IF !(N10.LT.NEL) THEN
+      END IF !(N10<NEL) THEN
 C-------block diagonal k11,k22...k44-----
        CALL ASSEM_KII(NN(1,1),NEL,IDDL,IADK,K_DIAG,K_LT ,K11,3,OFF) 
        CALL ASSEM_KII(NN(1,2),NEL,IDDL,IADK,K_DIAG,K_LT ,K22,3,OFF) 
@@ -444,32 +446,23 @@ C-------non diag kij-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ASS10_KII                     source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ASSEM_KII1                    source/implicit/assem_s10.F   
-Chd|        ASSEM_KIJ1                    source/implicit/assem_s10.F   
-Chd|====================================================================
+!||====================================================================
+!||    ass10_kii    ../engine/source/implicit/assem_s10.F
+!||--- calls      -----------------------------------------------------
+!||    assem_kii1   ../engine/source/implicit/assem_s10.F
+!||    assem_kij1   ../engine/source/implicit/assem_s10.F
+!||====================================================================
       SUBROUTINE ASS10_KII(NC   ,N1    ,N2    ,
      1                    IDDL  ,IADK  ,JDIK  ,K_DIAG,K_LT  ,
      2                    KJJ   ,ND    )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ND,NC(10),N1,N2,IDDL(*) , IADK(*) ,JDIK(*)      
-C     REAL
       my_real
      .   K_DIAG(*) ,K_LT(*)   ,KJJ(ND,ND)
 C-----------------------------------------------
@@ -499,32 +492,23 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ASS10_KIJ                     source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ASSEM_KII1                    source/implicit/assem_s10.F   
-Chd|        ASSEM_KIJ1                    source/implicit/assem_s10.F   
-Chd|====================================================================
+!||====================================================================
+!||    ass10_kij    ../engine/source/implicit/assem_s10.F
+!||--- calls      -----------------------------------------------------
+!||    assem_kii1   ../engine/source/implicit/assem_s10.F
+!||    assem_kij1   ../engine/source/implicit/assem_s10.F
+!||====================================================================
       SUBROUTINE ASS10_KIJ(NC   ,NI    ,NJ1   ,NJ2   ,ND    ,
      1                    IDDL  ,IADK  ,JDIK  ,K_DIAG,K_LT  ,
      2                    KIJ0  )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ND,NC(10),NI,NJ1,NJ2,IDDL(*) , IADK(*) ,JDIK(*)      
-C     REAL
       my_real
      .   K_DIAG(*) ,K_LT(*)   ,KIJ0(ND,ND)
 C-----------------------------------------------
@@ -541,7 +525,7 @@ C------------------------------
         ENDDO
 C 
         NJ=NJ1
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            KII(I,J) = KIJ(I,J)+ KIJ(J,I)
@@ -549,7 +533,7 @@ C
           ENDDO 
           CALL ASSEM_KII1(NC(NI),IDDL  ,IADK ,K_DIAG,
      1                    K_LT  ,KII   ,ND   )
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           CALL ASSEM_KIJ1(NC(NJ),NC(NI),IDDL  ,IADK,JDIK,
      1                    K_DIAG,K_LT   ,KIJ  ,ND   )
         ELSE
@@ -557,7 +541,7 @@ C
      1                    K_DIAG,K_LT   ,KIJ  ,ND   )
         ENDIF
         NJ=NJ2
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            KII(I,J) = KIJ(I,J)+ KIJ(J,I)
@@ -565,7 +549,7 @@ C
           ENDDO 
           CALL ASSEM_KII1(NC(NI),IDDL  ,IADK ,K_DIAG,
      1                    K_LT  ,KII   ,ND   )
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           CALL ASSEM_KIJ1(NC(NJ),NC(NI),IDDL  ,IADK,JDIK,
      1                    K_DIAG,K_LT   ,KIJ  ,ND   )
         ELSE
@@ -575,32 +559,23 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ASS10_KIJ1                    source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ASSEM_KII1                    source/implicit/assem_s10.F   
-Chd|        ASSEM_KIJ1                    source/implicit/assem_s10.F   
-Chd|====================================================================
+!||====================================================================
+!||    ass10_kij1   ../engine/source/implicit/assem_s10.F
+!||--- calls      -----------------------------------------------------
+!||    assem_kii1   ../engine/source/implicit/assem_s10.F
+!||    assem_kij1   ../engine/source/implicit/assem_s10.F
+!||====================================================================
       SUBROUTINE ASS10_KIJ1(NC   ,NI1   ,NI2   ,NJ1   ,NJ2   ,
      1                     IDDL  ,IADK  ,JDIK  ,K_DIAG,K_LT  ,
      2                     KIJ0  ,ND    )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ND,NC(10),NI1,NI2,NJ1,NJ2,IDDL(*) , IADK(*) ,JDIK(*)      
-C     REAL
       my_real
      .   K_DIAG(*) ,K_LT(*) ,KIJ0(ND,ND)
 C-----------------------------------------------
@@ -618,7 +593,7 @@ C------------------------------
 C 
         NI=NI1
         NJ=NJ1
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            KII(I,J) = KIJ(I,J)+ KIJ(J,I)
@@ -626,7 +601,7 @@ C
           ENDDO 
           CALL ASSEM_KII1(NC(NI),IDDL  ,IADK ,K_DIAG,
      1                    K_LT  ,KII   ,ND   )
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           CALL ASSEM_KIJ1(NC(NJ),NC(NI),IDDL  ,IADK,JDIK,
      1                    K_DIAG,K_LT   ,KIJ  ,ND   )
         ELSE
@@ -635,7 +610,7 @@ C
         ENDIF
 C
         NJ=NJ2
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            KII(I,J) = KIJ(I,J)+ KIJ(J,I)
@@ -643,7 +618,7 @@ C
           ENDDO 
           CALL ASSEM_KII1(NC(NI),IDDL  ,IADK ,K_DIAG,
      1                    K_LT  ,KII   ,ND   )
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           CALL ASSEM_KIJ1(NC(NJ),NC(NI),IDDL  ,IADK,JDIK,
      1                    K_DIAG,K_LT   ,KIJ  ,ND   )
         ELSE
@@ -653,7 +628,7 @@ C
 C
         NI=NI2
         NJ=NJ1
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            KII(I,J) = KIJ(I,J)+ KIJ(J,I)
@@ -661,7 +636,7 @@ C
           ENDDO 
           CALL ASSEM_KII1(NC(NI),IDDL  ,IADK ,K_DIAG,
      1                    K_LT  ,KII   ,ND   )
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           CALL ASSEM_KIJ1(NC(NJ),NC(NI),IDDL  ,IADK,JDIK,
      1                    K_DIAG,K_LT   ,KIJ  ,ND   )
         ELSE
@@ -670,7 +645,7 @@ C
         ENDIF
 C
         NJ=NJ2
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            KII(I,J) = KIJ(I,J)+ KIJ(J,I)
@@ -678,7 +653,7 @@ C
           ENDDO 
           CALL ASSEM_KII1(NC(NI),IDDL  ,IADK ,K_DIAG,
      1                    K_LT  ,KII   ,ND   )
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           CALL ASSEM_KIJ1(NC(NJ),NC(NI),IDDL  ,IADK,JDIK,
      1                    K_DIAG,K_LT   ,KIJ  ,ND   )
         ELSE
@@ -688,30 +663,25 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ASSEM_KII1                    source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|        ASS10_KII                     source/implicit/assem_s10.F   
-Chd|        ASS10_KIJ                     source/implicit/assem_s10.F   
-Chd|        ASS10_KIJ1                    source/implicit/assem_s10.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    assem_kii1   ../engine/source/implicit/assem_s10.F
+!||--- called by ------------------------------------------------------
+!||    ass10_kii    ../engine/source/implicit/assem_s10.F
+!||    ass10_kij    ../engine/source/implicit/assem_s10.F
+!||    ass10_kij1   ../engine/source/implicit/assem_s10.F
+!||====================================================================
       SUBROUTINE ASSEM_KII1(NI    ,IDDL  ,IADK  ,K_DIAG,K_LT  ,
      1                      KII   ,ND    )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "impl1_c.inc"
 #include      "comlock.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ND        
@@ -726,8 +696,8 @@ C-----------------------------------------------
 C----6----------KII is always triag_sup whatever IKPAT---------------7--------
        N = NI
        ID = IDDL(N)
-       IF (IKPAT.EQ.0) THEN
-Cel minimize lockon/lockoff
+       IF (IKPAT==0) THEN
+C   minimize lockon/lockoff
 #include "lockon.inc"
         DO K=1,ND
 c#include "lockon.inc"
@@ -761,35 +731,29 @@ c#include "lockoff.inc"
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ASSEM_KIJ1                    source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|        ASS10_KII                     source/implicit/assem_s10.F   
-Chd|        ASS10_KIJ                     source/implicit/assem_s10.F   
-Chd|        ASS10_KIJ1                    source/implicit/assem_s10.F   
-Chd|        ASS10_KIJ2                    source/implicit/assem_s10.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    assem_kij1   ../engine/source/implicit/assem_s10.F
+!||--- called by ------------------------------------------------------
+!||    ass10_kii    ../engine/source/implicit/assem_s10.F
+!||    ass10_kij    ../engine/source/implicit/assem_s10.F
+!||    ass10_kij1   ../engine/source/implicit/assem_s10.F
+!||    ass10_kij2   ../engine/source/implicit/assem_s10.F
+!||====================================================================
       SUBROUTINE ASSEM_KIJ1(NI    ,NJ    ,IDDL  ,IADK,JDIK,
      1                      K_DIAG,K_LT  ,KIJ   ,ND  )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "comlock.inc"
 #include      "impl1_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ND,NI,NJ,IDDL(*)  ,IADK(*),JDIK(*)       
-C     REAL
       my_real
      .   K_DIAG(*),K_LT(*)   ,KIJ(ND,ND)
 C-----------------------------------------------
@@ -797,22 +761,22 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,ID,JD,JDL,L,JJ
 C----6---------------------------------------------------------------7---------8
-       IF (IKPAT.EQ.0) THEN
+       IF (IKPAT==0) THEN
         I = IDDL(NI)
         J = IDDL(NJ)
         ID = MIN(I,J)
         JD = MAX(I,J)+1
-        IF (I.EQ.ID) THEN
+        IF (I==ID) THEN
          DO K=1,ND
           DO JJ = IADK(ID+K),IADK(ID+1+K)-1
-C---------find l'adress dans LT-----
-           IF (JDIK(JJ).EQ.JD) THEN
+C-------- Find l'Address in LT -----
+           IF (JDIK(JJ)==JD) THEN
             JDL = JJ-1
             GOTO 100
            ENDIF
           ENDDO 
  100      CONTINUE
-Cel minimize lockon/lockoff
+C   minimize lockon/lockoff
 #include "lockon.inc"
           DO L=1,ND
 c#include "lockon.inc"
@@ -824,7 +788,7 @@ c#include "lockoff.inc"
         ELSE
          DO K=1,ND
           DO JJ = IADK(ID+K),IADK(ID+1+K)-1
-           IF (JDIK(JJ).EQ.JD) THEN
+           IF (JDIK(JJ)==JD) THEN
             JDL = JJ-1
             GOTO 200
            ENDIF
@@ -844,11 +808,11 @@ c#include "lockoff.inc"
         J = IDDL(NJ)
         ID = MAX(I,J)
         JD = MIN(I,J)+1
-        IF (I.EQ.ID) THEN
+        IF (I==ID) THEN
          DO K=1,ND
           DO JJ = IADK(ID+K),IADK(ID+1+K)-1
-C---------find l'adress dans LT-----
-           IF (JDIK(JJ).EQ.JD) THEN
+C-------- Find l'Address in LT -----
+           IF (JDIK(JJ)==JD) THEN
             JDL = JJ-1
             GOTO 300
            ENDIF
@@ -865,7 +829,7 @@ c#include "lockoff.inc"
         ELSE
          DO K=1,ND
           DO JJ = IADK(ID+K),IADK(ID+1+K)-1
-           IF (JDIK(JJ).EQ.JD) THEN
+           IF (JDIK(JJ)==JD) THEN
             JDL = JJ-1
             GOTO 400
            ENDIF
@@ -884,31 +848,22 @@ c#include "lockoff.inc"
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ASS10_KIJ2                    source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ASSEM_KIJ1                    source/implicit/assem_s10.F   
-Chd|====================================================================
+!||====================================================================
+!||    ass10_kij2   ../engine/source/implicit/assem_s10.F
+!||--- calls      -----------------------------------------------------
+!||    assem_kij1   ../engine/source/implicit/assem_s10.F
+!||====================================================================
       SUBROUTINE ASS10_KIJ2(NC   ,NI    ,NJ1   ,NJ2   ,ND    ,
      1                    IDDL  ,IADK  ,JDIK  ,K_DIAG,K_LT  ,
      2                    KIJ0  )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ND,NC(10),NI,NJ1,NJ2,IDDL(*) , IADK(*) ,JDIK(*)      
-C     REAL
       my_real
      .   K_DIAG(*) ,K_LT(*)   ,KIJ0(ND,ND)
 C-----------------------------------------------
@@ -925,40 +880,31 @@ C------------------------------
         ENDDO
 C 
         NJ=NJ1
-	
+
         CALL ASSEM_KIJ1(NC(NI),NC(NJ),IDDL  ,IADK,JDIK,
      1                  K_DIAG,K_LT   ,KIJ  ,ND   )
         NJ=NJ2
-	
+
         CALL ASSEM_KIJ1(NC(NI),NC(NJ),IDDL  ,IADK,JDIK,
      1                  K_DIAG,K_LT   ,KIJ  ,ND   )
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ASS10_KKII                    source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|        ASSEM_S10                     source/implicit/assem_s10.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ass10_kkii   ../engine/source/implicit/assem_s10.F
+!||--- called by ------------------------------------------------------
+!||    assem_s10    ../engine/source/implicit/assem_s10.F
+!||====================================================================
       SUBROUTINE ASS10_KKII(N1    ,N2    ,K11   ,K22   ,K12   ,
      1                      KJJ   ,ND    )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ND,N1,N2      
-C     REAL
       my_real
      .   K11(ND,ND) ,K22(ND,ND),K12(ND,ND),KJJ(ND,ND)
 C-----------------------------------------------
@@ -985,7 +931,7 @@ C
           K22(I,J) = K22(I,J)+ KII(I,J)
          ENDDO 
          ENDDO 
-C	 
+C   
          DO I =1,ND
          DO J =1,ND
           K12(I,J) = K12(I,J)+ KII(I,J)
@@ -994,30 +940,21 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ASS10_KKIJ                    source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|        ASSEM_S10                     source/implicit/assem_s10.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ass10_kkij   ../engine/source/implicit/assem_s10.F
+!||--- called by ------------------------------------------------------
+!||    assem_s10    ../engine/source/implicit/assem_s10.F
+!||====================================================================
       SUBROUTINE ASS10_KKIJ(NI    ,NJ1   ,NJ2   ,ND    ,
      1                      K11   ,K22   ,KI1   ,KI2   ,KIJ0  )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ND,NI,NJ1,NJ2   
-C     REAL
       my_real
      .   K11(ND,ND),K22(ND,ND),KI1(ND,ND),KI2(ND,ND),KIJ0(ND,ND)
 C-----------------------------------------------
@@ -1034,13 +971,13 @@ C------------------------------
         ENDDO
 C 
         NJ=NJ1
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            K11(I,J) = K11(I,J)+KIJ(I,J)+ KIJ(J,I)
           ENDDO 
           ENDDO 
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           DO I =1,ND
           DO J =1,ND
            KI1(I,J) = KI1(I,J)+KIJ(J,I)
@@ -1054,13 +991,13 @@ C
           ENDDO 
         END IF
         NJ=NJ2
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            K22(I,J) = K22(I,J)+KIJ(I,J)+ KIJ(J,I)
           ENDDO 
           ENDDO 
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           DO I =1,ND
           DO J =1,ND
            KI2(I,J) = KI2(I,J)+KIJ(J,I)
@@ -1076,26 +1013,18 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ASS10_KKJI                    source/implicit/assem_s10.F   
-Chd|-- called by -----------
-Chd|        ASSEM_S10                     source/implicit/assem_s10.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ass10_kkji   ../engine/source/implicit/assem_s10.F
+!||--- called by ------------------------------------------------------
+!||    assem_s10    ../engine/source/implicit/assem_s10.F
+!||====================================================================
       SUBROUTINE ASS10_KKJI(NI    ,NJ1   ,NJ2   ,ND    ,
      1                      K11   ,K22   ,KI1   ,KI2   ,KIJ0  )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ND,NI,NJ1,NJ2   
@@ -1116,13 +1045,13 @@ C------------------------------
         ENDDO
 C 
         NJ=NJ1
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            K11(I,J) = K11(I,J)+KIJ(I,J)+ KIJ(J,I)
           ENDDO 
           ENDDO 
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           DO I =1,ND
           DO J =1,ND
            KI1(I,J) = KI1(I,J)+KIJ(J,I)
@@ -1136,13 +1065,13 @@ C
           ENDDO 
         END IF
         NJ=NJ2
-        IF (NI.EQ.NJ) THEN
+        IF (NI==NJ) THEN
           DO I =1,ND
           DO J =I,ND
            K22(I,J) = K22(I,J)+KIJ(I,J)+ KIJ(J,I)
           ENDDO 
           ENDDO 
-        ELSEIF (NI.GT.NJ) THEN
+        ELSEIF (NI>NJ) THEN
           DO I =1,ND
           DO J =1,ND
            KI2(I,J) = KI2(I,J)+KIJ(J,I)

@@ -1,36 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_P_AUX                    source/output/sta/stat_p_aux.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        SPMD_RGATHER9_DP              source/mpi/interfaces/spmd_outp.F
-Chd|        SPMD_STAT_PGATHER             source/mpi/output/spmd_stat.F 
-Chd|        STRS_TXT50                    source/output/sta/sta_txt.F   
-Chd|        TAB_STRS_TXT50                source/output/sta/sta_txt.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_p_aux          ../engine/source/output/sta/stat_p_aux.F
+!||--- called by ------------------------------------------------------
+!||    genstat             ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_rgather9_dp    ../engine/source/mpi/interfaces/spmd_outp.F
+!||    spmd_stat_pgather   ../engine/source/mpi/output/spmd_stat.F
+!||    strs_txt50          ../engine/source/output/sta/sta_txt.F
+!||    tab_strs_txt50      ../engine/source/output/sta/sta_txt.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod        ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE STAT_P_AUX(
      1                  ELBUF_TAB  ,IPARG  ,IPM   ,IGEO       ,IXP       ,
      2                  WA         ,WAP0   ,IPARTP,IPART_STATE,STAT_INDXP,
@@ -39,6 +42,8 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD         
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,19 +52,15 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER SIZLOC,SIZP0
+      INTEGER SIZP0
       INTEGER IXP(NIXP,*),
      .        IPARG(NPARG,*),IPM(NPROPMI,*),IGEO(NPROPGI,*),
      .        IPARTP(*),IPART_STATE(*),STAT_INDXP(*)
@@ -69,9 +70,9 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,N,J,K,JJ,LEN,IOFF,NG,NEL,NFT,ITY,LFT,LLT,ID,IPRT0,IPRT,IE, 
-     .        NPT,IR,IS,IPT,IL,IVAR,NUVAR,MY_NUVAR,IGTYP,IPROP,MLW
-      INTEGER PTWA(STAT_NUMELP),
-     .        PTWA_P0(0:MAX(1,STAT_NUMELP_G))
+     .        NPT,IR,IS,IPT,IL,IVAR,MY_NUVAR,IGTYP,IPROP,MLW
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA_P0
       CHARACTER*100 DELIMIT,LINE
       TYPE(G_BUFEL_)  ,POINTER :: GBUF
       my_real,
@@ -83,6 +84,9 @@ C-----------------------------------------------
      ./'----7----|----8----|----9----|----10---|'/
 C-----------------------------------------------
 C     BEAM
+C-----------------------------------------------
+      CALL MY_ALLOC(PTWA,STAT_NUMELP)
+      ALLOCATE(PTWA_P0(0:MAX(1,STAT_NUMELP_G)))
 C-----------------------------------------------
       JJ = 0
 !
@@ -139,7 +143,7 @@ C-----------------------------------------------
                 ENDIF ! IF (MLW == 36)
 !---
                 IE=IE+1
-!               pointeur de fin de zone dans WA
+! end-of-zone pointer in wa
                 PTWA(IE)=JJ
               ENDIF ! IF (IPART_STATE(IPRT) /= 0)
             ENDDO  ! DO I=LFT,LLT
@@ -150,7 +154,7 @@ C-----------------------------------------------
 !     BEAM - WRITE
 !-----------------------------------------------------------------------
       IF (NSPMD == 1) THEN
-!       recopies inutiles pour simplification du code.
+! unnecessary copies for code simplification
         PTWA_P0(0)=0
         DO N=1,STAT_NUMELP
           PTWA_P0(N)=PTWA(N)
@@ -160,7 +164,7 @@ C-----------------------------------------------
           WAP0(J)=WA(J)
         ENDDO
       ELSE
-!       construit les pointeurs dans le tableau global WAP0
+! builds the pointers in the global wap0 array
         CALL SPMD_STAT_PGATHER(PTWA,STAT_NUMELP,PTWA_P0,STAT_NUMELP_G)
         LEN = 0
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
@@ -169,9 +173,9 @@ C-----------------------------------------------
       IF (ISPMD == 0 .AND. LEN > 0) THEN
         IPRT0 = 0
         DO N=1,STAT_NUMELP_G
-!         retrouve le nieme elt dans l'ordre d'id croissant
+!         find the nieme elt in the order of an increasing id
           K=STAT_INDXP(N)
-!         retrouve l'adresse dans WAP0
+!         Find the address in WAP0
           J=PTWA_P0(K-1)
 !
           IOFF  = NINT(WAP0(J + 1))
@@ -237,8 +241,11 @@ C-----------------------------------------------
               J=J+MY_NUVAR
             ENDDO
           ENDIF  !  IF (IOFF == 1 .AND. MY_NUVAR /= 0)
-        ENDDO  !  DO N=1,STAT_NUMELP_G		    
+        ENDDO  !  DO N=1,STAT_NUMELP_G        
       ENDIF  !  IF (ISPMD == 0.AND.LEN > 0)
 c-----------
+      DEALLOCATE(PTWA)
+      DEALLOCATE(PTWA_P0)
+c------------
       RETURN
       END

@@ -1,42 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PERTURB_PART_SHELL    source/general_controls/computation/hm_read_perturb_part_shell.F
-Chd|-- called by -----------
-Chd|        HM_READ_PERTURB               source/general_controls/computation/hm_read_perturb.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        PLOT_DISTRIB                  source/general_controls/computation/plot_distrib.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_perturb_part_shell   ../starter/source/general_controls/computation/hm_read_perturb_part_shell.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_perturb              ../starter/source/general_controls/computation/hm_read_perturb.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                       ../starter/source/output/message/message.F
+!||    hm_get_floatv                ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv                  ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string                ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_read_key           ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start              ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    plot_distrib                 ../starter/source/general_controls/computation/plot_distrib.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod                   ../starter/share/modules1/format_mod.F90
+!||    hm_option_read_mod           ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                  ../starter/share/message_module/message_mod.F
+!||    submodel_mod                 ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PERTURB_PART_SHELL(
      1      IPART   ,RNOISE   ,IPARTC ,IPARTG    ,IGRPART ,
      2      IPM     ,PERTURB  ,LSUBMODEL,UNITAB  ,IDPERTURB,
@@ -50,27 +51,20 @@ C-----------------------------------------------
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD, NCHARKEY
+      USE FORMAT_MOD , ONLY : LFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "scry_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "remesh_c.inc"
 #include      "sphcom.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -93,19 +87,20 @@ C-----------------------------------------------
       INTEGER I,J,K,NUMA,I_METHOD,MAX_PART,
      .   CPT_PART,NB_RANDOM,I_SEED,DISTRIB(50),
      .   II,NB_INTERV,IGRPRT,N,IOK,SEED,SEED_RANDOM,
-     .   ITYP,L,I_PERTURB_VAR,SIZEY,EMPTY
-      CHARACTER TITR*nchartitle,KEY*ncharkey,MES*40
+     .   ITYP,I_PERTURB_VAR,SIZEY,EMPTY
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: TAB_PART
       INTEGER, DIMENSION(:),   ALLOCATABLE :: A_SEED
       INTEGER, DIMENSION(1:8) :: DT_SEED
       my_real
      . MEAN,SD,MEAN_INPUT,SD_INPUT,MAX_DISTRIB,TEMP,MIN_VALUE,
-     . MAX_VALUE,INTERV,VALUE,MAX_VALUE1,MINVAL,MAXVAL,BID
+     . MAX_VALUE,MINVAL,MAXVAL,BID
       my_real, DIMENSION(:), ALLOCATABLE :: ARRAY
       CHARACTER*100 CHAR(100)
       CHARACTER*100 CHAR1(100)
       CHARACTER*100 CHAR2
-      CHARACTER MESS*40,CHVAR*(2*ncharfield)
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARFIELD)::CHVAR
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -143,12 +138,12 @@ c
 C
         ! Reading the number of the Group of Part + the perturbed variable
         CALL HM_GET_INTV('grpart_ID'    ,IGRPRT  ,IS_AVAILABLE,LSUBMODEL) 
-        CALL HM_GET_STRING('chvar',CHVAR   ,2*ncharfield,IS_AVAILABLE)
+        CALL HM_GET_STRING('chvar',CHVAR   ,ncharfield,IS_AVAILABLE)
         IF (CHVAR(1:5) == 'thick' .OR. CHVAR(1:5) == 'THICK') I_PERTURB_VAR = 1  
 c
         EMPTY = 1
-        DO K = 1,2*LFIELD
-          IF(CHVAR(K:K) .NE. ' ') EMPTY = 0
+        DO K = 1,LFIELD
+          IF(CHVAR(K:K) /= ' ') EMPTY = 0
         ENDDO  
 c
         ! Checking the perturbed variable
@@ -246,9 +241,9 @@ c
         IOK      = 0
 C
         ! Reading the number of the Group of Part + the perturbed variable
-        CALL HM_GET_INTV('grpart_ID' ,IGRPRT  ,IS_AVAILABLE,LSUBMODEL) 
+        CALL HM_GET_INTV('grpart_ID',IGRPRT,IS_AVAILABLE,LSUBMODEL)
         QP_IPERTURB(I,5) = IGRPRT
-        CALL HM_GET_STRING('chvar',CHVAR   ,2*ncharfield,IS_AVAILABLE)
+        CALL HM_GET_STRING('chvar',CHVAR,ncharfield,IS_AVAILABLE)
         IF (CHVAR(1:5) == 'thick' .OR. CHVAR(1:5) == 'THICK') QP_IPERTURB(I,6) = 1
 c
         ! Checking Shell part group
@@ -384,7 +379,7 @@ c
         WRITE(IOUT,*) ' '
         NB_INTERV = 50
         SIZEY     = 20
-        IF (MINVAL .NE. -EP30 .AND. MAXVAL .NE. EP30)THEN
+        IF (MINVAL /= -EP30 .AND. MAXVAL /= EP30)THEN
           MIN_VALUE = MINVAL
           MAX_VALUE = MAXVAL
         ENDIF

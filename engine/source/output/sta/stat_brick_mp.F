@@ -1,33 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_BRICK_MP                 source/output/sta/stat_brick_mp.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_brick_mp   ../engine/source/output/sta/stat_brick_mp.F
+!||--- called by ------------------------------------------------------
+!||    genstat         ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    my_orders       ../common_source/tools/sort/my_orders.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod    ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE STAT_BRICK_MP(ITAB,IPART,IGEO,IXS,IPARTS,
      .                        IPART_STATE,NODTAG,STAT_INDXS,
      .                        IPARG ,IXS10,IXS16,IXS20,ELBUF_TAB,
@@ -36,6 +39,8 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD 
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,12 +51,8 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "remesh_c.inc"
-#include      "scr05_c.inc"
 #include      "scr16_c.inc"
 #include      "scr17_c.inc"
-#include      "spmd_c.inc"
-#include      "task_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -65,16 +66,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, JJ, IPRT0, IPRT, K, STAT_NUMELS_1,N10,N20,N16
+      INTEGER I, N, JJ, IPRT0, IPRT, K,N10,N20,N16
       INTEGER NG, NEL, NFT, LFT, LLT, ITY, ISOLNOD, IOFF
-      INTEGER NP(24*NUMELS),
-     .        WORK(70000),CLEF(2,NUMELS)
+      INTEGER WORK(70000)
+      INTEGER,DIMENSION(:),ALLOCATABLE :: NP
+      INTEGER,DIMENSION(:,:),ALLOCATABLE :: CLEF   
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C-----------------------------------------------
 C     8 NODES BRICK
 C-----------------------------------------------
+      CALL MY_ALLOC(NP,24*NUMELS)
+      CALL MY_ALLOC(CLEF,2,NUMELS)
+C-----------------------------------------------
       JJ = 0
-      IF(NUMELS.NE.0)THEN
+      IF(NUMELS/=0)THEN
 
        DO NG=1,NGROUP
         ITY   =IPARG(5,NG)
@@ -92,37 +97,37 @@ C-----------------------------------------------
 
             NP(JJ+1) = IXS(NIXS,N)
             IF (ISOLNOD == 10)THEN
-	      N10 = N - NUMELS8
+                N10 = N - NUMELS8
               NP(JJ+2) = ITAB(IXS(2,N))
               NP(JJ+3) = ITAB(IXS(4,N))
               NP(JJ+4) = ITAB(IXS(7,N))
               NP(JJ+5) = ITAB(IXS(6,N))
-              IF(IXS10(1,N10) .NE. 0)THEN
+              IF(IXS10(1,N10) /= 0)THEN
                 NP(JJ+6) = ITAB(IXS10(1,N10))
               ELSE
                 NP(JJ+6) = 0
               ENDIF
-              IF(IXS10(2,N10) .NE. 0)THEN
+              IF(IXS10(2,N10) /= 0)THEN
                 NP(JJ+7) = ITAB(IXS10(2,N10))
               ELSE
                 NP(JJ+7) = 0
               ENDIF
-              IF(IXS10(3,N10) .NE. 0)THEN
+              IF(IXS10(3,N10) /= 0)THEN
                 NP(JJ+8) = ITAB(IXS10(3,N10))
               ELSE
                 NP(JJ+8) = 0
               ENDIF
-              IF(IXS10(4,N10) .NE. 0)THEN
+              IF(IXS10(4,N10) /= 0)THEN
                 NP(JJ+9) = ITAB(IXS10(4,N10))
               ELSE
                 NP(JJ+9) = 0
               ENDIF
-              IF(IXS10(5,N10) .NE. 0)THEN
+              IF(IXS10(5,N10) /= 0)THEN
                 NP(JJ+10) = ITAB(IXS10(5,N10))
               ELSE
                 NP(JJ+10) = 0
               ENDIF
-              IF(IXS10(6,N10) .NE. 0)THEN
+              IF(IXS10(6,N10) /= 0)THEN
                 NP(JJ+11) = ITAB(IXS10(6,N10))
               ELSE
                 NP(JJ+11) = 0
@@ -138,7 +143,7 @@ C-----------------------------------------------
               NP(JJ+20) = 0
               NP(JJ+21) = 0
             ELSEIF (ISOLNOD == 16)THEN
-	      N16 = N - (NUMELS8+NUMELS10+NUMELS20)
+                N16 = N - (NUMELS8+NUMELS10+NUMELS20)
               NP(JJ+2) = ITAB(IXS(2,N))
               NP(JJ+3) = ITAB(IXS(3,N))
               NP(JJ+4) = ITAB(IXS(4,N))
@@ -147,42 +152,42 @@ C-----------------------------------------------
               NP(JJ+7) = ITAB(IXS(7,N))
               NP(JJ+8) = ITAB(IXS(8,N))
               NP(JJ+9) = ITAB(IXS(9,N))
-              IF(IXS16(1,N16) .NE. 0)THEN
+              IF(IXS16(1,N16) /= 0)THEN
                 NP(JJ+10) = ITAB(IXS16(1,N16))
               ELSE
                 NP(JJ+10) = 0
               ENDIF
-              IF(IXS16(2,N16) .NE. 0)THEN
+              IF(IXS16(2,N16) /= 0)THEN
                 NP(JJ+11) = ITAB(IXS16(2,N16))
               ELSE
                 NP(JJ+11) = 0
               ENDIF
-              IF(IXS16(3,N16) .NE. 0)THEN
+              IF(IXS16(3,N16) /= 0)THEN
                 NP(JJ+12) = ITAB(IXS16(3,N16))
               ELSE
                 NP(JJ+12) = 0
               ENDIF
-              IF(IXS16(4,N16) .NE. 0)THEN
+              IF(IXS16(4,N16) /= 0)THEN
                 NP(JJ+13) = ITAB(IXS16(4,N16))
               ELSE
                 NP(JJ+13) = 0
               ENDIF
-              IF(IXS16(5,N16) .NE. 0)THEN
+              IF(IXS16(5,N16) /= 0)THEN
                 NP(JJ+14) = ITAB(IXS16(5,N16))
               ELSE
                 NP(JJ+14) = 0
               ENDIF
-              IF(IXS16(6,N16) .NE. 0)THEN
+              IF(IXS16(6,N16) /= 0)THEN
                 NP(JJ+15) = ITAB(IXS16(6,N16))
               ELSE
                 NP(JJ+15) = 0
               ENDIF
-              IF(IXS16(7,N16) .NE. 0)THEN
+              IF(IXS16(7,N16) /= 0)THEN
                 NP(JJ+16) = ITAB(IXS16(7,N16))
               ELSE
                 NP(JJ+16) = 0
               ENDIF
-              IF(IXS16(8,N16) .NE. 0)THEN
+              IF(IXS16(8,N16) /= 0)THEN
                 NP(JJ+17) = ITAB(IXS16(8,N16))
               ELSE
                 NP(JJ+17) = 0
@@ -192,7 +197,7 @@ C-----------------------------------------------
               NP(JJ+20) = 0
               NP(JJ+21) = 0
             ELSEIF (ISOLNOD == 20)THEN
-	      N20 = N - (NUMELS8+NUMELS10)
+                N20 = N - (NUMELS8+NUMELS10)
               NP(JJ+2) = ITAB(IXS(2,N))
               NP(JJ+3) = ITAB(IXS(3,N))
               NP(JJ+4) = ITAB(IXS(4,N))
@@ -201,62 +206,62 @@ C-----------------------------------------------
               NP(JJ+7) = ITAB(IXS(7,N))
               NP(JJ+8) = ITAB(IXS(8,N))
               NP(JJ+9) = ITAB(IXS(9,N))
-              IF(IXS20(1,N20) .NE. 0)THEN
+              IF(IXS20(1,N20) /= 0)THEN
                 NP(JJ+10) = ITAB(IXS20(1,N20))
               ELSE
                 NP(JJ+10) = 0
               ENDIF
-              IF(IXS20(2,N20) .NE. 0)THEN
+              IF(IXS20(2,N20) /= 0)THEN
                 NP(JJ+11) = ITAB(IXS20(2,N20))
               ELSE
                 NP(JJ+11) = 0
               ENDIF
-              IF(IXS20(3,N20) .NE. 0)THEN
+              IF(IXS20(3,N20) /= 0)THEN
                 NP(JJ+12) = ITAB(IXS20(3,N20))
               ELSE
                 NP(JJ+12) = 0
               ENDIF
-              IF(IXS20(4,N20) .NE. 0)THEN
+              IF(IXS20(4,N20) /= 0)THEN
                 NP(JJ+13) = ITAB(IXS20(4,N20))
               ELSE
                 NP(JJ+13) = 0
               ENDIF
-              IF(IXS20(5,N20) .NE. 0)THEN
+              IF(IXS20(5,N20) /= 0)THEN
                 NP(JJ+14) = ITAB(IXS20(5,N20))
               ELSE
                 NP(JJ+14) = 0
               ENDIF
-              IF(IXS20(6,N20) .NE. 0)THEN
+              IF(IXS20(6,N20) /= 0)THEN
                 NP(JJ+15) = ITAB(IXS20(6,N20))
               ELSE
                 NP(JJ+15) = 0
               ENDIF
-              IF(IXS20(7,N20) .NE. 0)THEN
+              IF(IXS20(7,N20) /= 0)THEN
                 NP(JJ+16) = ITAB(IXS20(7,N20))
               ELSE
                 NP(JJ+16) = 0
               ENDIF
-              IF(IXS20(8,N20) .NE. 0)THEN
+              IF(IXS20(8,N20) /= 0)THEN
                 NP(JJ+17) = ITAB(IXS20(8,N20))
               ELSE
                 NP(JJ+17) = 0
               ENDIF
-              IF(IXS20(9,N20) .NE. 0)THEN
+              IF(IXS20(9,N20) /= 0)THEN
                 NP(JJ+18) = ITAB(IXS20(9,N20))
               ELSE
                 NP(JJ+18) = 0
               ENDIF
-              IF(IXS20(10,N20) .NE. 0)THEN
+              IF(IXS20(10,N20) /= 0)THEN
                 NP(JJ+19) = ITAB(IXS20(10,N20))
               ELSE
                 NP(JJ+19) = 0
               ENDIF
-              IF(IXS20(11,N20) .NE. 0)THEN
+              IF(IXS20(11,N20) /= 0)THEN
                 NP(JJ+20) = ITAB(IXS20(11,N20))
               ELSE
                 NP(JJ+20) = 0
               ENDIF
-              IF(IXS20(12,N20) .NE. 0)THEN
+              IF(IXS20(12,N20) /= 0)THEN
                 NP(JJ+21) = ITAB(IXS20(12,N20))
               ELSE
                 NP(JJ+21) = 0
@@ -297,12 +302,12 @@ C-----------------------------------------------
               NODTAG(IXS(4,N))=1
               NODTAG(IXS(7,N))=1
               NODTAG(IXS(6,N))=1
-              IF (IXS10(1,N10) .NE. 0) NODTAG(IXS10(1,N10))=1
-              IF (IXS10(2,N10) .NE. 0) NODTAG(IXS10(2,N10))=1
-              IF (IXS10(3,N10) .NE. 0) NODTAG(IXS10(3,N10))=1
-              IF (IXS10(4,N10) .NE. 0) NODTAG(IXS10(4,N10))=1
-              IF (IXS10(5,N10) .NE. 0) NODTAG(IXS10(5,N10))=1
-              IF (IXS10(6,N10) .NE. 0) NODTAG(IXS10(6,N10))=1
+              IF (IXS10(1,N10) /= 0) NODTAG(IXS10(1,N10))=1
+              IF (IXS10(2,N10) /= 0) NODTAG(IXS10(2,N10))=1
+              IF (IXS10(3,N10) /= 0) NODTAG(IXS10(3,N10))=1
+              IF (IXS10(4,N10) /= 0) NODTAG(IXS10(4,N10))=1
+              IF (IXS10(5,N10) /= 0) NODTAG(IXS10(5,N10))=1
+              IF (IXS10(6,N10) /= 0) NODTAG(IXS10(6,N10))=1
             ELSEIF (ISOLNOD == 16)THEN
               NODTAG(IXS(2,N))=1
               NODTAG(IXS(3,N))=1
@@ -312,14 +317,14 @@ C-----------------------------------------------
               NODTAG(IXS(7,N))=1
               NODTAG(IXS(8,N))=1
               NODTAG(IXS(9,N))=1
-              IF (IXS16(1,N16) .NE. 0) NODTAG(IXS16(1,N16))=1
-              IF (IXS16(2,N16) .NE. 0) NODTAG(IXS16(2,N16))=1
-              IF (IXS16(3,N16) .NE. 0) NODTAG(IXS16(3,N16))=1
-              IF (IXS16(4,N16) .NE. 0) NODTAG(IXS16(4,N16))=1
-              IF (IXS16(5,N16) .NE. 0) NODTAG(IXS16(5,N16))=1
-              IF (IXS16(6,N16) .NE. 0) NODTAG(IXS16(6,N16))=1
-              IF (IXS16(7,N16) .NE. 0) NODTAG(IXS16(7,N16))=1
-              IF (IXS16(8,N16) .NE. 0) NODTAG(IXS16(8,N16))=1
+              IF (IXS16(1,N16) /= 0) NODTAG(IXS16(1,N16))=1
+              IF (IXS16(2,N16) /= 0) NODTAG(IXS16(2,N16))=1
+              IF (IXS16(3,N16) /= 0) NODTAG(IXS16(3,N16))=1
+              IF (IXS16(4,N16) /= 0) NODTAG(IXS16(4,N16))=1
+              IF (IXS16(5,N16) /= 0) NODTAG(IXS16(5,N16))=1
+              IF (IXS16(6,N16) /= 0) NODTAG(IXS16(6,N16))=1
+              IF (IXS16(7,N16) /= 0) NODTAG(IXS16(7,N16))=1
+              IF (IXS16(8,N16) /= 0) NODTAG(IXS16(8,N16))=1
             ELSEIF (ISOLNOD == 20)THEN
               NODTAG(IXS(2,N))=1
               NODTAG(IXS(3,N))=1
@@ -329,18 +334,18 @@ C-----------------------------------------------
               NODTAG(IXS(7,N))=1
               NODTAG(IXS(8,N))=1
               NODTAG(IXS(9,N))=1
-              IF (IXS20(1,N20) .NE. 0) NODTAG(IXS20(1,N20))=1
-              IF (IXS20(2,N20) .NE. 0) NODTAG(IXS20(2,N20))=1
-              IF (IXS20(3,N20) .NE. 0) NODTAG(IXS20(3,N20))=1
-              IF (IXS20(4,N20) .NE. 0) NODTAG(IXS20(4,N20))=1
-              IF (IXS20(5,N20) .NE. 0) NODTAG(IXS20(5,N20))=1
-              IF (IXS20(6,N20) .NE. 0) NODTAG(IXS20(6,N20))=1
-              IF (IXS20(7,N20) .NE. 0) NODTAG(IXS20(7,N20))=1
-              IF (IXS20(8,N20) .NE. 0) NODTAG(IXS20(8,N20))=1
-              IF (IXS20(9,N20) .NE. 0) NODTAG(IXS20(9,N20))=1
-              IF (IXS20(10,N20) .NE. 0) NODTAG(IXS20(10,N20))=1
-              IF (IXS20(11,N20) .NE. 0) NODTAG(IXS20(11,N20))=1
-              IF (IXS20(12,N20) .NE. 0) NODTAG(IXS20(12,N20))=1
+              IF (IXS20(1,N20) /= 0) NODTAG(IXS20(1,N20))=1
+              IF (IXS20(2,N20) /= 0) NODTAG(IXS20(2,N20))=1
+              IF (IXS20(3,N20) /= 0) NODTAG(IXS20(3,N20))=1
+              IF (IXS20(4,N20) /= 0) NODTAG(IXS20(4,N20))=1
+              IF (IXS20(5,N20) /= 0) NODTAG(IXS20(5,N20))=1
+              IF (IXS20(6,N20) /= 0) NODTAG(IXS20(6,N20))=1
+              IF (IXS20(7,N20) /= 0) NODTAG(IXS20(7,N20))=1
+              IF (IXS20(8,N20) /= 0) NODTAG(IXS20(8,N20))=1
+              IF (IXS20(9,N20) /= 0) NODTAG(IXS20(9,N20))=1
+              IF (IXS20(10,N20) /= 0) NODTAG(IXS20(10,N20))=1
+              IF (IXS20(11,N20) /= 0) NODTAG(IXS20(11,N20))=1
+              IF (IXS20(12,N20) /= 0) NODTAG(IXS20(12,N20))=1
             ELSE
               NODTAG(IXS(2,N))=1
               NODTAG(IXS(3,N))=1
@@ -366,7 +371,7 @@ C----
         JJ=24*(K-1)
         IPRT=NP(JJ+22)
         IOFF=NP(JJ+24)
-       IF (NP(JJ+23) .EQ. 4) THEN
+       IF (NP(JJ+23) == 4) THEN
         IF(IDEL==0.OR.(IDEL==1.AND.IOFF >= 1)) THEN
          IF(IPRT /= IPRT0)THEN
           WRITE(IUGEO,'(A,I10)')'/TETRA4/',IPART(4,IPRT)
@@ -377,7 +382,7 @@ C----
           WRITE(IUGEO,'(5I10)') NP(JJ+1),NP(JJ+2),NP(JJ+4),
      .                          NP(JJ+8),NP(JJ+6)
         ENDIF
-       ELSEIF (NP(JJ+23) .EQ. 6) THEN
+       ELSEIF (NP(JJ+23) == 6) THEN
         IF(IDEL==0.OR.(IDEL==1.AND.IOFF >= 1)) THEN
          IF(IPRT /= IPRT0)THEN
           WRITE(IUGEO,'(A,I10)')'/PENTA6/',IPART(4,IPRT)
@@ -389,7 +394,7 @@ C----
      .                          NP(JJ+4),NP(JJ+6),NP(JJ+7),
      .                          NP(JJ+8)
         ENDIF
-       ELSEIF (NP(JJ+23) .EQ. 8) THEN
+       ELSEIF (NP(JJ+23) == 8) THEN
         IF(IDEL==0.OR.(IDEL==1.AND.IOFF >= 1)) THEN
          IF(IPRT /= IPRT0)THEN
           WRITE(IUGEO,'(A,I10)')'/BRICK/',IPART(4,IPRT)
@@ -401,7 +406,7 @@ C----
      .                        NP(JJ+4),NP(JJ+5),NP(JJ+6),
      .                        NP(JJ+7),NP(JJ+8),NP(JJ+9)
         ENDIF
-       ELSEIF (NP(JJ+23) .EQ. 10) THEN
+       ELSEIF (NP(JJ+23) == 10) THEN
         IF(IDEL==0.OR.(IDEL==1.AND.IOFF >= 1)) THEN
          IF(IPRT /= IPRT0)THEN
             WRITE(IUGEO,'(A,I10)')'/TETRA10/',IPART(4,IPRT)
@@ -417,7 +422,7 @@ C----
      .                        NP(JJ+8),NP(JJ+9),NP(JJ+10),
      .                        NP(JJ+11)
         ENDIF
-       ELSEIF (NP(JJ+23) .EQ. 16) THEN
+       ELSEIF (NP(JJ+23) == 16) THEN
         IF(IDEL==0.OR.(IDEL==1.AND.IOFF >= 1)) THEN
          IF(IPRT /= IPRT0)THEN
             WRITE(IUGEO,'(A,I10)')'/SHEL16/',IPART(4,IPRT)
@@ -437,7 +442,7 @@ C----
          WRITE(IUGEO,'(4I10)') NP(JJ+14),NP(JJ+15),NP(JJ+16),
      .                        NP(JJ+17)
         ENDIF
-       ELSEIF (NP(JJ+23) .EQ. 20) THEN
+       ELSEIF (NP(JJ+23) == 20) THEN
         IF(IDEL==0.OR.(IDEL==1.AND.IOFF >= 1)) THEN
          IF(IPRT /= IPRT0)THEN
             WRITE(IUGEO,'(A,I10)')'/BRIC20/',IPART(4,IPRT)
@@ -461,6 +466,9 @@ C----
        ENDIF
       END DO
       ENDIF
+C-----------------------------------------------
+      DEALLOCATE(NP)
+      DEALLOCATE(CLEF)
 C-----------------------------------------------
       RETURN
       END

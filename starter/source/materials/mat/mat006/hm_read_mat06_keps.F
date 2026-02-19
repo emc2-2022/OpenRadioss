@@ -1,48 +1,52 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT06_KEPS            source/materials/mat/mat006/hm_read_mat06_keps.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat06_keps       ../starter/source/materials/mat/mat006/hm_read_mat06_keps.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT06_KEPS(
      .           LSUBMODEL ,MTAG6    ,UNITAB   ,IPM     ,PM,
-     .           MAT_ID    ,TITR     ,EOS_TAG  ,MAXEOS ,ISRATE,
-     .           ITYP      ,MTAG17)
+     .           MAT_ID    ,TITR     ,ISRATE,
+     .           ITYP      ,MTAG17   ,MATPARAM )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE UNITAB_MOD
-      USE ELBUFTAG_MOD            
+      USE ELBUFTAG_MOD !MAXEOS
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -61,44 +65,36 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "sysunit.inc"
-#include      "submod_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER, INTENT(INOUT)                       :: MAT_ID
-      INTEGER, INTENT(IN)                          :: MAXEOS
       INTEGER, INTENT(INOUT)                       :: ISRATE
       INTEGER, DIMENSION(NPROPMI) ,INTENT(INOUT)   :: IPM
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
       my_real, DIMENSION(NPROPM)  ,INTENT(INOUT)   :: PM
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
       TYPE(MLAW_TAG_), INTENT(INOUT)               :: MTAG6,MTAG17
-      TYPE(EOS_TAG_) , TARGET, DIMENSION(0:MAXEOS) ,INTENT(OUT) :: EOS_TAG  
       INTEGER,INTENT(IN)                           :: ITYP    
+      TYPE(MATPARAM_STRUCT_),INTENT(INOUT)         :: MATPARAM   
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
-      INTEGER JTUR, I, EMPTY_LINE,COUNT,IEOS,LAW6_OPT
-      my_real
-     .   RHO0, VIS, BID, PSH, C0, C1, C2, C3, C4, C5, PMIN, E0, RK0,
-     .   SSL, CTM, SK, SE, RPR, CT1, CT2, CT3, AK, E, A, B, YP0, YP1,
-     .   MU,RHOR
+      INTEGER JTUR, I,COUNT,LAW6_OPT
+      my_real RHO0, VIS, PSH, C0, C1, C2, C3, C4, C5, PMIN, E0, RK0,
+     .        SSL, CTM, SK, SE, RPR, CT1, CT2, CT3, AK, E, A, B, YP0, YP1,
+     .        MU,RHOR
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
       COUNT = 0
-      IEOS = 0
       JTUR=PM(70)
 !---
-      CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 !
       CALL HM_GET_INTV  ('Line_count'   ,COUNT    ,IS_AVAILABLE,LSUBMODEL)
       COUNT=COUNT+2
@@ -144,11 +140,24 @@ C-----------------------------------------------
       PM(24)=VIS
       PM(104)=C0 - PSH
       PM(32)=C1
-      PM(33)=C2
-      PM(34)=C3
-      PM(35)=C4
-      PM(36)=C5
       PM(37)=PMIN
+      
+      ! allocate EoS data structure
+      MATPARAM%IEOS = 1
+      MATPARAM%EOS%NUPARAM = 7
+      MATPARAM%EOS%NIPARAM = 0
+      MATPARAM%EOS%NFUNC = 0
+      MATPARAM%EOS%NTABLE = 0
+      CALL MATPARAM%EOS%CONSTRUCT() !allocations
+      MATPARAM%EOS%UPARAM(1) = C0-PSH
+      MATPARAM%EOS%UPARAM(2) = C1
+      MATPARAM%EOS%UPARAM(3) = C2
+      MATPARAM%EOS%UPARAM(4) = C3
+      MATPARAM%EOS%UPARAM(5) = C4
+      MATPARAM%EOS%UPARAM(6) = C5
+      MATPARAM%EOS%UPARAM(7) = ZERO
+      MATPARAM%EOS%PSH = PSH
+      MATPARAM%EOS%E0 = E0      
 
       IF(RHOR /= ZERO) THEN
         MU = RHO0/RHOR-ONE  
@@ -157,9 +166,9 @@ C-----------------------------------------------
       ENDIf
             
       IF(MU < ZERO)THEN
-        PM(31) = -PSH + C0+C1*MU+         C3*MU**3+(C4+C5*MU)*E0
+        PM(31) = -PSH + C0+C1*MU + C3*MU**3+(C4+C5*MU)*E0
       ELSE
-        PM(31) = -PSH + C0+C1*MU+C2*MU**2+C3*MU**3+(C4+C5*MU)*E0
+        PM(31) = -PSH + C0+C1*MU + C2*MU**2+C3*MU**3+(C4+C5*MU)*E0
       ENDIF
 
       PM(80)=INFINITY
@@ -199,16 +208,30 @@ C-----------------------------------------------
       PM(85)=SK                                            
       PM(86)=SE                                            
       PM(95)=RPR                                           
-      PM(87)=RK0/RHO0                                      
+      PM(87)=RK0/RHO0  
+!---------------------------------------------------------   
+      MATPARAM%IEOS = 18   ! linear EOS is used by default 
+      IPM(4)        = 18   ! keep this temporarily for output and fluid sections
+!---------------------------------------------------------        
+      ! Material compatibility with /EOS option
+      CALL INIT_MAT_KEYWORD(MATPARAM,"EOS")
 
+      ! EOS/Thermo keyword for pressure treatment in elements
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HYDRO_EOS")
 
-      WRITE(IOUT,1001)
+      CALL INIT_MAT_KEYWORD(MATPARAM,"INCOMPRESSIBLE")
+
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_POROUS")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SPH")
+
       WRITE(IOUT,2001) TRIM(TITR),MAT_ID,6
-      WRITE(IOUT,2002) RHO0,RHOR           
+      WRITE(IOUT,1001)
                
       IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
+         WRITE(IOUT,2002)RHO0,RHOR         
          WRITE(IOUT,1300)VIS
          WRITE(IOUT,1501)PMIN 
       ENDIF
@@ -217,7 +240,7 @@ C-----------------------------------------------
 
       PM(88)=PSH
 c
-C---- Definition des variables internes (stockage elementaire)
+C---- Definition of internal variables (Elementary storage)
 c
       MTAG6%G_RK    = 1
       MTAG6%G_RE    = 1

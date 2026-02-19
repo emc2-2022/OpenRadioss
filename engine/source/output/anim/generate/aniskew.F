@@ -1,40 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ANISKEW                       source/output/anim/generate/aniskew.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_IGATH                    source/mpi/anim/spmd_igath.F  
-Chd|        WRITE_S_C                     source/output/tools/sortie_c.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    aniskew        ../engine/source/output/anim/generate/aniskew.F
+!||--- called by ------------------------------------------------------
+!||    genani         ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_igath     ../engine/source/mpi/anim/spmd_igath.F
+!||    write_s_c      ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE ANISKEW(ELBUF_TAB,SKEW,IPARG ,X     ,IXT ,
      .                   IXP      ,IXR ,GEO   ,DD_IAD,BUFL)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixt,nixr,nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -44,9 +47,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -61,7 +62,7 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J,ISK(6),NEL,NEL3,OFFSET,LFT,LLT,NG,
+      INTEGER I,ISK(6),NEL,LFT,LLT,NG,
      .   ITY,IAD,MLW,NFT,N,II,LEN,IPROP,IGTYP,WA(BUFL),JJ,NUVAR
       my_real
      .   EX(9),S3000,X1,Y1,Z1,X2,Y2,Z2,S
@@ -72,8 +73,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C      SKEW
 C-----------------------------------------------
-Cel seul proc0 ecrit en spmd
-      IF (ISPMD.EQ.0) THEN
+C   seul proc0 ecrit en spmd
+      IF (ISPMD==0) THEN
        DO I=1,NUMSKW
          ISK(1)=NINT(SKEW(1,I)*S3000)
          ISK(2)=NINT(SKEW(2,I)*S3000)
@@ -87,11 +88,8 @@ Cel seul proc0 ecrit en spmd
 C-----------------------------------------------
 C      SKEW ELEMENT 1D
 C-----------------------------------------------
-Cel il faut recuperer les donnees sur les procs
-c      IF (IMACH.EQ.3) THEN
-        II = 0
-c      ENDIF
-C
+C   need to retrieve data on the processors
+      II = 0
       DO NG=1,NGROUP
         MLW   =IPARG(1,NG)
         NEL   =IPARG(2,NG)
@@ -106,7 +104,7 @@ C---
 C-----------------------------------------------
 C      TRUSS
 C-----------------------------------------------
-        IF(ITY.EQ.4)THEN
+        IF(ITY==4)THEN
             DO I=LFT,LLT
               N = I + NFT
               X1=X(1,IXT(3,I))-X(1,IXT(2,I))
@@ -117,7 +115,7 @@ C-----------------------------------------------
               Y1=Y1*S
               Z1=Z1*S
 
-              IF(ABS(Z1).LT.HALF)THEN
+              IF(ABS(Z1)<HALF)THEN
                 X2 =    -Z1*X1
                 Y2 =    -Z1*Y1
                 Z2 = ONE -Z1*Z1
@@ -127,15 +125,6 @@ C-----------------------------------------------
                 Z2 =    -X1*Z1
               ENDIF
               S=S3000/SQRT(X2*X2+Y2*Y2+Z2*Z2)
-c              IF (IMACH.NE.3) THEN
-c                ISK(1)=NINT(X1*S3000)
-c                ISK(2)=NINT(Y1*S3000)
-c                ISK(3)=NINT(Z1*S3000)
-c                ISK(4)=NINT(X2*S)
-c                ISK(5)=NINT(Y2*S)
-c                ISK(6)=NINT(Z2*S)
-c                CALL WRITE_S_C(ISK,6)
-c              ELSE
                 WA(II+1) = NINT(X1*S3000)
                 WA(II+2) = NINT(Y1*S3000)
                 WA(II+3) = NINT(Z1*S3000)
@@ -143,12 +132,12 @@ c              ELSE
                 WA(II+5) = NINT(Y2*S)
                 WA(II+6) = NINT(Z2*S)
                 II = II + 6
-c              ENDIF
+C              ENDIF
             ENDDO
 C-----------------------------------------------
 C       POUTRES
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.5)THEN
+        ELSEIF(ITY==5)THEN
           DO I=LFT,LLT
              JJ = 3*(I-1)
              N = I + NFT
@@ -159,18 +148,6 @@ C-----------------------------------------------
              X2 = GBUF%SKEW(JJ + 1)
              Y2 = GBUF%SKEW(JJ + 2)
              Z2 = GBUF%SKEW(JJ + 3)
-cc             X2=  BUFEL(NB6+3*I-3)
-cc             Y2=  BUFEL(NB6+3*I-2)
-cc             Z2=  BUFEL(NB6+3*I-1)
-c             IF (IMACH.NE.3) THEN
-c               ISK(1)=NINT(X1*S)
-c               ISK(2)=NINT(Y1*S)
-c               ISK(3)=NINT(Z1*S)
-c               ISK(4)=NINT(X2*S3000)
-c               ISK(5)=NINT(Y2*S3000)
-c               ISK(6)=NINT(Z2*S3000)
-c               CALL WRITE_S_C(ISK,6)
-c             ELSE
                WA(II+1) = NINT(X1*S)
                WA(II+2) = NINT(Y1*S)
                WA(II+3) = NINT(Z1*S)
@@ -178,22 +155,21 @@ c             ELSE
                WA(II+5) = NINT(Y2*S3000)
                WA(II+6) = NINT(Z2*S3000)
                II = II + 6
-c             ENDIF
           ENDDO
 C-----------------------------------------------
 C       RESSORTS
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.6)THEN
+        ELSEIF(ITY==6)THEN
           IPROP = IXR(1,NFT+1)
           IGTYP =  NINT(GEO(12,IPROP))
-          IF(IGTYP.EQ.4.OR.IGTYP.EQ.26)THEN
+          IF(IGTYP==4.OR.IGTYP==26)THEN
             DO I=LFT,LLT
               N = I + NFT
               X1=X(1,IXR(3,N))-X(1,IXR(2,N))
               Y1=X(2,IXR(3,N))-X(2,IXR(2,N))
               Z1=X(3,IXR(3,N))-X(3,IXR(2,N))
               S=X1*X1+Y1*Y1+Z1*Z1
-              IF(S.LT.EM30)THEN
+              IF(S<EM30)THEN
                 X1=ONE
                 Y1=ZERO
                 Z1=ZERO
@@ -203,7 +179,7 @@ C-----------------------------------------------
                 Y1=Y1*S
                 Z1=Z1*S
               ENDIF
-              IF(ABS(Z1).LT.HALF)THEN
+              IF(ABS(Z1)<HALF)THEN
                 X2 =    -Z1*X1
                 Y2 =    -Z1*Y1
                 Z2 = ONE -Z1*Z1
@@ -214,15 +190,6 @@ C-----------------------------------------------
               ENDIF
               S=X2*X2+Y2*Y2+Z2*Z2
               S=S3000/MAX(EM20,SQRT(S))
-c              IF (IMACH.NE.3) THEN
-c                ISK(1)=NINT(X1*S3000)
-c                ISK(2)=NINT(Y1*S3000)
-c                ISK(3)=NINT(Z1*S3000)
-c                ISK(4)=NINT(X2*S)
-c                ISK(5)=NINT(Y2*S)
-c                ISK(6)=NINT(Z2*S)
-c                CALL WRITE_S_C(ISK,6)
-c              ELSE
                 WA(II+1) = NINT(X1*S3000)
                 WA(II+2) = NINT(Y1*S3000)
                 WA(II+3) = NINT(Z1*S3000)
@@ -230,10 +197,9 @@ c              ELSE
                 WA(II+5) = NINT(Y2*S)
                 WA(II+6) = NINT(Z2*S)
                 II = II + 6
-c              ENDIF
             ENDDO
 
-          ELSEIF(IGTYP.EQ.12)THEN
+          ELSEIF(IGTYP==12)THEN
             DO I=LFT,LLT
               N = I + NFT
               X1=X(1,IXR(3,N))-X(1,IXR(2,N))
@@ -243,7 +209,7 @@ c              ENDIF
               X1=X1*S
               Y1=Y1*S
               Z1=Z1*S
-              IF(ABS(Z1).LT.HALF)THEN
+              IF(ABS(Z1)<HALF)THEN
                 X2 =    -Z1*X1
                 Y2 =    -Z1*Y1
                 Z2 = ONE -Z1*Z1
@@ -253,15 +219,6 @@ c              ENDIF
                 Z2 =    -X1*Z1
               ENDIF
               S=S3000/MAX(EM20,SQRT(X2*X2+Y2*Y2+Z2*Z2))
-c              IF (IMACH.NE.3) THEN
-c                ISK(1)=NINT(X1*S3000)
-c                ISK(2)=NINT(Y1*S3000)
-c                ISK(3)=NINT(Z1*S3000)
-c                ISK(4)=NINT(X2*S)
-c                ISK(5)=NINT(Y2*S)
-c                ISK(6)=NINT(Z2*S)
-c                CALL WRITE_S_C(ISK,6)
-c              ELSE
                 WA(II+1) = NINT(X1*S3000)
                 WA(II+2) = NINT(Y1*S3000)
                 WA(II+3) = NINT(Z1*S3000)
@@ -269,7 +226,6 @@ c              ELSE
                 WA(II+5) = NINT(Y2*S)
                 WA(II+6) = NINT(Z2*S)
                 II = II + 6
-c              ENDIF
               X1=X(1,IXR(4,N))-X(1,IXR(3,N))
               Y1=X(2,IXR(4,N))-X(2,IXR(3,N))
               Z1=X(3,IXR(4,N))-X(3,IXR(3,N))
@@ -277,7 +233,7 @@ c              ENDIF
               X1=X1*S
               Y1=Y1*S
               Z1=Z1*S
-              IF(Z1.LT.HALF)THEN
+              IF(Z1<HALF)THEN
                 X2 =    -Z1*X1
                 Y2 =    -Z1*Y1
                 Z2 = ONE -Z1*Z1
@@ -287,15 +243,6 @@ c              ENDIF
                 Z2 =    -X1*Z1
               ENDIF
               S=S3000/MAX(EM20,SQRT(X2*X2+Y2*Y2+Z2*Z2))
-c              IF (IMACH.NE.3) THEN
-c                ISK(1)=NINT(X1*S3000)
-c                ISK(2)=NINT(Y1*S3000)
-c                ISK(3)=NINT(Z1*S3000)
-c                ISK(4)=NINT(X2*S)
-c                ISK(5)=NINT(Y2*S)
-c                ISK(6)=NINT(Z2*S)
-c                CALL WRITE_S_C(ISK,6)
-c              ELSE
                 WA(II+1) = NINT(X1*S3000)
                 WA(II+2) = NINT(Y1*S3000)
                 WA(II+3) = NINT(Z1*S3000)
@@ -303,10 +250,10 @@ c              ELSE
                 WA(II+5) = NINT(Y2*S)
                 WA(II+6) = NINT(Z2*S)
                 II = II + 6
-c              ENDIF
+C              ENDIF
             ENDDO
 
-          ELSEIF(IGTYP.EQ.13 .OR. IGTYP == 23)THEN
+          ELSEIF(IGTYP==13 .OR. IGTYP == 23)THEN
             DO I=LFT,LLT
              JJ = 3*(I-1)
              N = I + NFT
@@ -317,18 +264,6 @@ c              ENDIF
              X2 = GBUF%SKEW(JJ + 1)
              Y2 = GBUF%SKEW(JJ + 2)
              Z2 = GBUF%SKEW(JJ + 3)
-cc             X2=  BUFEL(NB14+3*I-3)
-cc             Y2=  BUFEL(NB14+3*I-2)
-cc             Z2=  BUFEL(NB14+3*I-1)
-c             IF (IMACH.NE.3) THEN
-c               ISK(1)=NINT(X1*S)
-c               ISK(2)=NINT(Y1*S)
-c               ISK(3)=NINT(Z1*S)
-c               ISK(4)=NINT(X2*S3000)
-c               ISK(5)=NINT(Y2*S3000)
-c               ISK(6)=NINT(Z2*S3000)
-c               CALL WRITE_S_C(ISK,6)
-c             ELSE
                WA(II+1) = NINT(X1*S)
                WA(II+2) = NINT(Y1*S)
                WA(II+3) = NINT(Z1*S)
@@ -336,7 +271,7 @@ c             ELSE
                WA(II+5) = NINT(Y2*S3000)
                WA(II+6) = NINT(Z2*S3000)
                II = II + 6
-c             ENDIF
+C             ENDIF
             ENDDO
           ELSEIF(IGTYP == 25)THEN
             DO I=LFT,LLT
@@ -349,18 +284,6 @@ c             ENDIF
              X2 = GBUF%SKEW(JJ + 1)
              Y2 = GBUF%SKEW(JJ + 2)
              Z2 = GBUF%SKEW(JJ + 3)
-cc             X2=  BUFEL(NB14+3*I-3)
-cc             Y2=  BUFEL(NB14+3*I-2)
-cc             Z2=  BUFEL(NB14+3*I-1)
-c             IF (IMACH.NE.3) THEN
-c               ISK(1)=NINT(X1*S)
-c               ISK(2)=NINT(Y1*S)
-c               ISK(3)=NINT(Z1*S)
-c               ISK(4)=NINT(X2*S3000)
-c               ISK(5)=NINT(Y2*S3000)
-c               ISK(6)=NINT(Z2*S3000)
-c               CALL WRITE_S_C(ISK,6)
-c             ELSE
                WA(II+1) = NINT(X1*S)
                WA(II+2) = NINT(Y1*S)
                WA(II+3) = NINT(Z1*S)
@@ -368,9 +291,9 @@ c             ELSE
                WA(II+5) = NINT(Y2*S3000)
                WA(II+6) = NINT(Z2*S3000)
                II = II + 6
-c             ENDIF
+C             ENDIF
             ENDDO
-          ELSEIF(IGTYP.GE.29.AND.IGTYP.LE.32)THEN
+          ELSEIF(IGTYP>=29.AND.IGTYP<=32)THEN
             DO I=LFT,LLT
              JJ = 3*(I-1)
              N = I + NFT
@@ -381,18 +304,6 @@ c             ENDIF
              X2 = GBUF%SKEW(JJ + 1)
              Y2 = GBUF%SKEW(JJ + 2)
              Z2 = GBUF%SKEW(JJ + 3)
-cc             X2=  BUFEL(NB14+3*I-3)
-cc             Y2=  BUFEL(NB14+3*I-2)
-cc             Z2=  BUFEL(NB14+3*I-1)
-c             IF (IMACH.NE.3) THEN
-c               ISK(1)=NINT(X1*S)
-c               ISK(2)=NINT(Y1*S)
-c               ISK(3)=NINT(Z1*S)
-c               ISK(4)=NINT(X2*S3000)
-c               ISK(5)=NINT(Y2*S3000)
-c               ISK(6)=NINT(Z2*S3000)
-c               CALL WRITE_S_C(ISK,6)
-c             ELSE
                WA(II+1) = NINT(X1*S)
                WA(II+2) = NINT(Y1*S)
                WA(II+3) = NINT(Z1*S)
@@ -400,10 +311,10 @@ c             ELSE
                WA(II+5) = NINT(Y2*S3000)
                WA(II+6) = NINT(Z2*S3000)
                II = II + 6
-c             ENDIF
+C             ENDIF
             ENDDO
 
-          ELSEIF ((IGTYP.EQ.33).OR.(IGTYP.EQ.45))THEN
+          ELSEIF ((IGTYP==33).OR.(IGTYP==45))THEN
             NUVAR  = NINT(GEO(25,IPROP))
             DO I=LFT,LLT
               N = I + NFT
@@ -414,21 +325,6 @@ c             ENDIF
               EX(4) = GBUF%VAR(JJ + 4)  ! UVAR(25,I)= EX(1)
               EX(5) = GBUF%VAR(JJ + 5)  ! UVAR(26,I)= EX(1)
               EX(6) = GBUF%VAR(JJ + 6)  ! UVAR(27,I)= EX(1)
-cc              EX(1) = BUFEL(NB15+22)
-cc              EX(2) = BUFEL(NB15+23)
-cc              EX(3) = BUFEL(NB15+24)
-cc              EX(4) = BUFEL(NB15+25)
-cc              EX(5) = BUFEL(NB15+26)
-cc              EX(6) = BUFEL(NB15+27)
-c              IF (IMACH.NE.3) THEN
-c                ISK(1)=NINT(EX(1)*S3000)
-c                ISK(2)=NINT(EX(2)*S3000)
-c                ISK(3)=NINT(EX(3)*S3000)
-c                ISK(4)=NINT(EX(4)*S3000)
-c                ISK(5)=NINT(EX(5)*S3000)
-c                ISK(6)=NINT(EX(6)*S3000)
-c                CALL WRITE_S_C(ISK,6)
-c              ELSE
                 WA(II+1) = NINT(EX(1)*S3000)
                 WA(II+2) = NINT(EX(2)*S3000)
                 WA(II+3) = NINT(EX(3)*S3000)
@@ -436,15 +332,14 @@ c              ELSE
                 WA(II+5) = NINT(EX(5)*S3000)
                 WA(II+6) = NINT(EX(6)*S3000)
                 II = II + 6
-c              ENDIF
             ENDDO
 
           ENDIF
-C
+
         ELSE
         ENDIF
 C-----------------------------------------------
-C       FIN DE BOUCLE
+C       end of loop
 C-----------------------------------------------
       ENDDO
 
@@ -453,7 +348,7 @@ C-----------------------------------------------
       ELSE
         LEN = II
       END IF
-      IF (ISPMD.EQ.0) THEN
+      IF (ISPMD==0) THEN
         CALL WRITE_S_C(WA,LEN)
       ENDIF
 C

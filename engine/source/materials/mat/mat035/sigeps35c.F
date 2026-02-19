@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS35C                     source/materials/mat/mat035/sigeps35c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps35c   ../engine/source/materials/mat/mat035/sigeps35c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE SIGEPS35C(
      1     NEL    ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC  ,
      2     NPF    ,NPT    ,IPT     ,IFLA   ,
@@ -40,7 +40,7 @@ Chd|====================================================================
      9     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
      A     SOUNDSP,VISCMAX,THK     ,UVAR    ,OFF    ,
      B     NGL    ,SHF    ,ETSE    ,ISRATE  ,ASRATE ,
-     C     EDOT   )
+     C     EPSD   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -57,32 +57,32 @@ C----------------------------------------------------------------
       my_real
      .      TIME       , TIMESTEP   , UPARAM(NUPARAM),
      .      RHO0  (NEL),  EINT(NEL,2),
-     .      EPSPXX(NEL), EPSPYY(NEL),SHF(NEL), 
+     .      EPSPXX(NEL), EPSPYY(NEL),SHF(NEL),
      .      EPSPXY(NEL), EPSPYZ(NEL), EPSPZX(NEL),
-     .      DEPSXX(NEL), DEPSYY(NEL), 
+     .      DEPSXX(NEL), DEPSYY(NEL),
      .      DEPSXY(NEL), DEPSYZ(NEL), DEPSZX(NEL),
-     .      EPSXX (NEL), EPSYY (NEL), 
+     .      EPSXX (NEL), EPSYY (NEL),
      .      EPSXY (NEL), EPSYZ (NEL), EPSZX (NEL),
-     .      SIGOXX(NEL), SIGOYY(NEL), 
+     .      SIGOXX(NEL), SIGOYY(NEL),
      .      SIGOXY(NEL), SIGOYZ(NEL), SIGOZX(NEL),
-     .      THKLY(NEL) ,THK(NEL),AREA(NEL),EDOT(NEL),
+     .      THKLY(NEL) ,THK(NEL),AREA(NEL),
      .      ASRATE
-c    RHO   (NEL) je suis oblige de calcule
 C----------------------------------------------------------------
 C  O U T P U T   A R G U M E N T S
 C----------------------------------------------------------------
       my_real
-     .      SIGNXX (NEL), SIGNYY (NEL), 
+     .      SIGNXX (NEL), SIGNYY (NEL),
      .      SIGNXY (NEL), SIGNYZ (NEL), SIGNZX(NEL),
-     .      SIGVXX (NEL), SIGVYY (NEL), 
+     .      SIGVXX (NEL), SIGVYY (NEL),
      .      SIGVXY (NEL), SIGVYZ (NEL), SIGVZX(NEL),
      .      SOUNDSP(NEL), VISCMAX(NEL),ETSE(NEL)
 C----------------------------------------------------------------
 C  I N P U T  O U T P U T   A R G U M E N T S
 C----------------------------------------------------------------
-      my_real UVAR(NEL,NUVAR), OFF(NEL) 
+      my_real UVAR(NEL,NUVAR), OFF(NEL)
+      my_real ,INTENT(INOUT) :: EPSD(NEL)
 C----------------------------------------------------------------
-C  VARIABLES FOR FUNCTION INTERPOLATION 
+C  VARIABLES FOR FUNCTION INTERPOLATION
 C----------------------------------------------------------------
       INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
       my_real
@@ -91,15 +91,15 @@ C----------------------------------------------------------------
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
-      INTEGER I,J,KF,IFLAG,ICORRECT
+      INTEGER I,KF,IFLAG,ICORRECT
 
-      my_real 
-     .        POISSON,E,E1,E2,G02,BULK0,
-     .        GT2,BULKT,LAMDA,LAMDAT,RELVEXP,
-     .        VMU2,VLAMDA,VBULK,FAC,
+      my_real
+     .        POISSON,E,E1,E2,G02,
+     .        GT2,BULKT,RELVEXP,
+     .        VMU2,VBULK,FAC,
      .        C1,C2,C3,PMIN,DPDMU,EPSPC,
-     .        P0,PHI,GAMA0, VAR,
-     .        DPDGAMA(MVSIZ),GAMA(MVSIZ),AMU(MVSIZ),
+     .        P0,PHI,GAMA0, VAR,EPSP,
+     .        GAMA(MVSIZ),AMU(MVSIZ),
      .        SM(MVSIZ),EM(MVSIZ),DEDTM(MVSIZ),
      .        G2(MVSIZ),BULK(MVSIZ),
      .        DSXX(MVSIZ),DSYY(MVSIZ),DSXY(MVSIZ),
@@ -110,17 +110,17 @@ C----------------------------------------------------------------
      .        DPDRO(MVSIZ),P(MVSIZ),PDOT(MVSIZ),
      .        MG2(MVSIZ),PG2(MVSIZ),MK(MVSIZ),PK(MVSIZ),
      .        SIGAIR(MVSIZ),RELVOL(MVSIZ),ENEW(MVSIZ),
-     .        RHO   (MVSIZ),EPSP
+     .        RHO(MVSIZ)
 
-      my_real 
-     .       SSM,EPSM,EPSPM,EPIN,SMALL,CSHEAR,MIDSTEP,DT05
+      my_real
+     .       SSM,EPSM,EPSPM,SMALL,CSHEAR,MIDSTEP,DT05
 C=======================================================================
       SMALL = EM3
       CSHEAR= ZEP426667
 C --  INITIALIZATION---------
       IF (TIME == ZERO) THEN
         DO I=1,NEL
-           UVAR(I,3) = AREA(I)*THK(I) ! VOLUME0
+          UVAR(I,3) = AREA(I)*THK(I) ! VOLUME0
         ENDDO
       ENDIF
 C SET INITIAL MATERIAL CONSTANTS
@@ -133,7 +133,7 @@ C SET INITIAL MATERIAL CONSTANTS
       GT2    = UPARAM(5)/(ONE+UPARAM(6))
       BULKT  = UPARAM(5)/(ONE-TWO*UPARAM(6))
       VMU2   = TWO*UPARAM(7)
-      VBULK  = THREE*UPARAM(8)+VMU2      
+      VBULK  = THREE*UPARAM(8)+VMU2
 
       P0     = UPARAM(9)
       PHI    = UPARAM(10)
@@ -150,7 +150,7 @@ C SET INITIAL MATERIAL CONSTANTS
       KF     = IFUNC(1)
 C
       ICORRECT=0
-      IF(NUPARAM.GE.19) ICORRECT=NINT(UPARAM(19))
+      IF(NUPARAM>=19) ICORRECT=NINT(UPARAM(19))
 C
       IF(ICORRECT == 0)THEN
         DT05=HALF*TIMESTEP
@@ -168,22 +168,22 @@ C
 C
       DO 200 I=1,NEL
 c-------calcul E_eq-----
-        EPSPM =EPSPXX(I)+EPSPYY(I)
-        EPSPC =EPSPXX(I)-EPSPYY(I)
-        EPSP  = SQRT(HALF*(EPSPC*EPSPC+EPSPXX(I)*EPSPXX(I)+
-     1          EPSPYY(I)*EPSPYY(I)) +THREE_HALF* (EPSPXY(I)*EPSPXY(I)
-     2          + EPSPYZ(I)*EPSPYZ(I)+EPSPZX(I)*EPSPZX(I)))    
-        IF (ISRATE == 0) THEN 
-          EDOT(I) = EPSP
+        EPSPM = EPSPXX(I)+EPSPYY(I)
+        EPSPC = EPSPXX(I)-EPSPYY(I)
+        EPSP  = SQRT(HALF*(EPSPC*EPSPC+EPSPXX(I)*EPSPXX(I)
+     1          + EPSPYY(I)*EPSPYY(I)) +THREE_HALF* (EPSPXY(I)*EPSPXY(I)
+     2          + EPSPYZ(I)*EPSPYZ(I)+EPSPZX(I)*EPSPZX(I)))
+        IF (ISRATE > 0) THEN
+          EPSD(I)   = ASRATE*EPSP + (ONE - ASRATE)*UVAR(I,4)
+          UVAR(I,4) = EPSD(I)
         ELSE
-          EDOT(I) = ASRATE*EPSP + (ONE - ASRATE)*UVAR(I,4)
-          UVAR(I,4) = EDOT(I)
+          EPSD(I) = EPSP
         ENDIF
 c
 c------UPDATE ELASTIC MODULUS
         RHO(I)=UVAR(I,3)*RHO0(I)/AREA(I)/THK(I)
         RELVOL(I)=RHO0(I)/RHO(I)
-        ENEW(I)=(MAX(E,E1*EDOT(I)+E2))/(EXP(RELVEXP*LOG(RELVOL(I))))
+        ENEW(I)=(MAX(E,E1*EPSP+E2))/(EXP(RELVEXP*LOG(RELVOL(I))))
         G2(I)=ENEW(I)/(ONE+POISSON)
         BULK(I)=ENEW(I)/(ONE-TWO*POISSON)
         MK(I) = (BULK(I)+BULKT)/VBULK
@@ -191,7 +191,7 @@ c------UPDATE ELASTIC MODULUS
         MG2(I) = (G2(I)+GT2)/VMU2
         PG2(I) =  G2(I)*GT2/VMU2
         GAMA(I) = (RELVOL(I)-ONE+GAMA0)
-        IF(ONE+GAMA(I)-PHI.LE.SMALL) GAMA(I)=-(ONE-PHI-SMALL)
+        IF(ONE+GAMA(I)-PHI<=SMALL) GAMA(I)=-(ONE-PHI-SMALL)
         SSM=SIGOXX(I)+SIGOYY(I)
         SM(I)=THIRD*SSM
         EPSM =EPSXX(I)+EPSYY(I)
@@ -208,40 +208,40 @@ c------UPDATE ELASTIC MODULUS
         SIGAIR(I)=MAX(ZERO,-(P0*GAMA(I))/(1+GAMA(I)-PHI))
   200 CONTINUE
 c
-      IF(ICORRECT.NE.0)THEN
-       DO 210 I=1,NEL
+      IF(ICORRECT/=0)THEN
+        DO 210 I=1,NEL
 C COMPUTE DEVIATORIC STRESSES
-        DSXX(I)=SIGOXX(I)-SM(I)
-        DSYY(I)=SIGOYY(I)-SM(I)
-        DSXY(I)=SIGOXY(I)
- 
+          DSXX(I)=SIGOXX(I)-SM(I)
+          DSYY(I)=SIGOYY(I)-SM(I)
+          DSXY(I)=SIGOXY(I)
+
 C  COMPUTE DEVIATORIC STRAINS
-        DEXX(I)=EPSXX(I)-EM(I)
-        DEYY(I)=EPSYY(I)-EM(I)
-        DEXY(I)=EPSXY(I)
+          DEXX(I)=EPSXX(I)-EM(I)
+          DEYY(I)=EPSYY(I)-EM(I)
+          DEXY(I)=EPSXY(I)
 
 C  COMPUTE DEVIATORIC STRAIN RATES
-        DEDTXX(I)=EPSPXX(I)-DEDTM(I)
-        DEDTYY(I)=EPSPYY(I)-DEDTM(I)
-        DEDTXY(I)=EPSPXY(I)
-  210  CONTINUE
+          DEDTXX(I)=EPSPXX(I)-DEDTM(I)
+          DEDTYY(I)=EPSPYY(I)-DEDTM(I)
+          DEDTXY(I)=EPSPXY(I)
+  210   CONTINUE
       ELSE
-       DO I=1,NEL
+        DO I=1,NEL
 C COMPUTE DEVIATORIC STRESSES
-        DSXX(I)=SIGOXX(I)-SM(I)
-        DSYY(I)=SIGOYY(I)-SM(I)
-        DSXY(I)=SIGOXY(I)
- 
+          DSXX(I)=SIGOXX(I)-SM(I)
+          DSYY(I)=SIGOYY(I)-SM(I)
+          DSXY(I)=SIGOXY(I)
+
 C  COMPUTE DEVIATORIC STRAINS
-        DEXX(I)=EPSXX(I)-EM(I)
-        DEYY(I)=EPSYY(I)-EM(I)
-        DEXY(I)=EPSXY(I)*HALF
+          DEXX(I)=EPSXX(I)-EM(I)
+          DEYY(I)=EPSYY(I)-EM(I)
+          DEXY(I)=EPSXY(I)*HALF
 
 C  COMPUTE DEVIATORIC STRAIN RATES
-        DEDTXX(I)=EPSPXX(I)-DEDTM(I)
-        DEDTYY(I)=EPSPYY(I)-DEDTM(I)
-        DEDTXY(I)=EPSPXY(I)*HALF
-       END DO
+          DEDTXX(I)=EPSPXX(I)-DEDTM(I)
+          DEDTYY(I)=EPSPYY(I)-DEDTM(I)
+          DEDTXY(I)=EPSPXY(I)*HALF
+        END DO
       END IF
 
 
@@ -254,12 +254,12 @@ C COMPUTE STRESS RATE INCREMENTS
         DSDTXX(I)=DSDTXX(I)*MIDSTEP
         DSDTYY(I)=DSDTYY(I)*MIDSTEP
         DSDTXY(I)=DSDTXY(I)*MIDSTEP
- 250  CONTINUE
+  250 CONTINUE
 
 
       DO 260 I=1,NEL
-          SM(I)=SM(I)+UVAR(I,1)
-        IF(KF.NE.0) THEN
+        SM(I)=SM(I)+UVAR(I,1)
+        IF(KF/=0) THEN
           AMU(I)=RHO(I)/RHO0(I)-ONE
           IF(IFLAG == 0) THEN
             P(I)=-FAC*FINTER(KF,AMU(I),NPF,TF,DPDMU)
@@ -272,17 +272,17 @@ C COMPUTE STRESS RATE INCREMENTS
      &           -FAC*FINTER(KF,AMU(I),NPF,TF,DPDMU)
           ENDIF
         ELSE
-            PDOT(I)=( C1*BULK(I)*DEDTM(I)
-     &               -C2*MK(I)*SM(I)
-     &               +C3*PK(I)*EM(I))
-     &             /(ONE+C2*DT05*MK(I))
-            P(I)=SM(I)+PDOT(I)*TIMESTEP
+          PDOT(I)=( C1*BULK(I)*DEDTM(I)
+     &             -C2*MK(I)*SM(I)
+     &             +C3*PK(I)*EM(I))
+     &           /(ONE+C2*DT05*MK(I))
+          P(I)=SM(I)+PDOT(I)*TIMESTEP
         ENDIF
-        IF(P(I).LE.PMIN) P(I)=PMIN
+        IF(P(I)<=PMIN) P(I)=PMIN
         P(I)=P(I)-SIGAIR(I)
   260 CONTINUE
 
-C COMPUTE SOUND SPEED 
+C COMPUTE SOUND SPEED
       DO 270 I=1,NEL
         DPDRO(I)= G2(I)/(ONE-POISSON)
      &          +P0*(ONE-PHI)/(ONE+GAMA(I)-PHI)**2
@@ -294,28 +294,28 @@ C COMPUTE SOUND SPEED
 C COMPUTE PRESSURE
 
 C COMPUTE UPDATED STRESSES
-      IF(ICORRECT.NE.0)THEN
-       DO 290 I=1,NEL
-        SIGNXX(I)=DSXX(I)+DSDTXX(I)*TIMESTEP+P(I)
-        SIGNYY(I)=DSYY(I)+DSDTYY(I)*TIMESTEP+P(I)
-        SIGNXY(I)=DSXY(I)+DSDTXY(I)*TIMESTEP*0.5
-        SIGNYZ(I)=SIGOYZ(I)+G02*DEPSYZ(I)*CSHEAR
-        SIGNZX(I)=SIGOZX(I)+G02*DEPSZX(I)*CSHEAR
-        VISCMAX(I)= ZERO
-        UVAR(I,1)=SIGAIR(I)
-  290  CONTINUE
+      IF(ICORRECT/=0)THEN
+        DO 290 I=1,NEL
+          SIGNXX(I)=DSXX(I)+DSDTXX(I)*TIMESTEP+P(I)
+          SIGNYY(I)=DSYY(I)+DSDTYY(I)*TIMESTEP+P(I)
+          SIGNXY(I)=DSXY(I)+DSDTXY(I)*TIMESTEP*0.5
+          SIGNYZ(I)=SIGOYZ(I)+G02*DEPSYZ(I)*CSHEAR
+          SIGNZX(I)=SIGOZX(I)+G02*DEPSZX(I)*CSHEAR
+          VISCMAX(I)= ZERO
+          UVAR(I,1)=SIGAIR(I)
+  290   CONTINUE
       ELSE
-       DO I=1,NEL
-        SIGNXX(I)=DSXX(I)+DSDTXX(I)*TIMESTEP+P(I)
-        SIGNYY(I)=DSYY(I)+DSDTYY(I)*TIMESTEP+P(I)
-        SIGNXY(I)=DSXY(I)+DSDTXY(I)*TIMESTEP
-        SIGNYZ(I)=SIGOYZ(I)+G02*DEPSYZ(I)*CSHEAR
-        SIGNZX(I)=SIGOZX(I)+G02*DEPSZX(I)*CSHEAR
-        VISCMAX(I)= ZERO
-        UVAR(I,1)=SIGAIR(I)
-       END DO
+        DO I=1,NEL
+          SIGNXX(I)=DSXX(I)+DSDTXX(I)*TIMESTEP+P(I)
+          SIGNYY(I)=DSYY(I)+DSDTYY(I)*TIMESTEP+P(I)
+          SIGNXY(I)=DSXY(I)+DSDTXY(I)*TIMESTEP
+          SIGNYZ(I)=SIGOYZ(I)+G02*DEPSYZ(I)*CSHEAR
+          SIGNZX(I)=SIGOZX(I)+G02*DEPSZX(I)*CSHEAR
+          VISCMAX(I)= ZERO
+          UVAR(I,1)=SIGAIR(I)
+        END DO
       END IF
-c-----------        
+c-----------
       RETURN
       END
 

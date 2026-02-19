@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ANIOFF0                       source/output/anim/anioff0.F  
-Chd|-- called by -----------
-Chd|        GENANI1                       source/output/anim/genani1.F  
-Chd|-- calls ---------------
-Chd|        WRITE_C_C                     source/output/tools/write_routines.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    anioff0        ../starter/source/output/anim/anioff0.F
+!||--- called by ------------------------------------------------------
+!||    genani1        ../starter/source/output/anim/genani1.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE ANIOFF0(ELBUF_TAB ,IPARG   ,IOFF   ,EL2FA   ,NBF     ,
      3                   SIOFF, SPH2SOL)                      
 C-----------------------------------------------
@@ -42,9 +41,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s                                           
 C-----------------------------------------------                        
 #include      "com01_c.inc"                                             
-#include      "com04_c.inc"                                             
 #include      "sphcom.inc"                                              
-#include      "scr05_c.inc"                                             
 #include      "param_c.inc"                                             
 C-----------------------------------------------                        
 C   D u m m y   A r g u m e n t s                                       
@@ -69,11 +66,11 @@ c
         LFT=1                                                           
         LLT=NEL                                                         
 C-----------------------------------------------                        
-        IF(ITY.EQ.51)THEN                                               
+        IF(ITY==51)THEN                                               
 C-----------------------------------------------                        
 C         PARTICULES SPH.                                               
 C-----------------------------------------------                        
-          IF(MLW.EQ.0)THEN                                              
+          IF(MLW==0)THEN                                              
             DO I=LFT,LLT                                                
               N = NFT + I                                               
               IOFF(EL2FA(NN1+N)) = 0                                    
@@ -84,7 +81,7 @@ C---      sleeping sol2sph particles considered as deleted in anim
             DO I=LFT,LLT
               N = NFT + I
               IOFF(EL2FA(NN1+N)) = NINT(MIN(GBUF%OFF(I),ONE))
-              IF (SPH2SOL(N).EQ.0) THEN
+              IF (SPH2SOL(N)==0) THEN
                 IOFF_LOC(EL2FA(NN1+N)) = IOFF(EL2FA(NN1+N))
               ELSE
                 IOFF_LOC(EL2FA(NN1+N)) = 0

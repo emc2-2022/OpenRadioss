@@ -1,59 +1,59 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_RGWAL_0                   source/ams/sms_rgwal0.F       
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_RGWALC_BCS_0              source/ams/sms_rgwalc.F       
-Chd|        SMS_RGWALC_BCS_1              source/ams/sms_rgwalc.F       
-Chd|        SMS_RGWALC_BILAN              source/ams/sms_rgwalc.F       
-Chd|        SMS_RGWALC_FRIC               source/ams/sms_rgwalc.F       
-Chd|        SMS_RGWALC_IMPACT             source/ams/sms_rgwalc.F       
-Chd|        SMS_RGWALL_BCS_0              source/ams/sms_rgwall.F       
-Chd|        SMS_RGWALL_BCS_1              source/ams/sms_rgwall.F       
-Chd|        SMS_RGWALL_BILAN              source/ams/sms_rgwall.F       
-Chd|        SMS_RGWALL_FRIC               source/ams/sms_rgwall.F       
-Chd|        SMS_RGWALL_IMPACT             source/ams/sms_rgwall.F       
-Chd|        SMS_RGWALP_BCS_0              source/ams/sms_rgwalp.F       
-Chd|        SMS_RGWALP_BCS_1              source/ams/sms_rgwalp.F       
-Chd|        SMS_RGWALP_BILAN              source/ams/sms_rgwalp.F       
-Chd|        SMS_RGWALP_FRIC               source/ams/sms_rgwalp.F       
-Chd|        SMS_RGWALP_IMPACT             source/ams/sms_rgwalp.F       
-Chd|        SMS_RGWALS_BCS_0              source/ams/sms_rgwals.F       
-Chd|        SMS_RGWALS_BCS_1              source/ams/sms_rgwals.F       
-Chd|        SMS_RGWALS_BILAN              source/ams/sms_rgwals.F       
-Chd|        SMS_RGWALS_FRIC               source/ams/sms_rgwals.F       
-Chd|        SMS_RGWALS_IMPACT             source/ams/sms_rgwals.F       
-Chd|        SMS_RGWALT                    source/ams/sms_rgwal0.F       
-Chd|        SPMD_ALLGLOB_ISUM9            source/mpi/generic/spmd_allglob_isum9.F
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_rgwal_0          ../engine/source/ams/sms_rgwal0.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg              ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier           ../engine/source/system/machine.F
+!||    sms_rgwalc_bcs_0     ../engine/source/ams/sms_rgwalc.F
+!||    sms_rgwalc_bcs_1     ../engine/source/ams/sms_rgwalc.F
+!||    sms_rgwalc_bilan     ../engine/source/ams/sms_rgwalc.F
+!||    sms_rgwalc_fric      ../engine/source/ams/sms_rgwalc.F
+!||    sms_rgwalc_impact    ../engine/source/ams/sms_rgwalc.F
+!||    sms_rgwall_bcs_0     ../engine/source/ams/sms_rgwall.F
+!||    sms_rgwall_bcs_1     ../engine/source/ams/sms_rgwall.F
+!||    sms_rgwall_bilan     ../engine/source/ams/sms_rgwall.F
+!||    sms_rgwall_fric      ../engine/source/ams/sms_rgwall.F
+!||    sms_rgwall_impact    ../engine/source/ams/sms_rgwall.F
+!||    sms_rgwalp_bcs_0     ../engine/source/ams/sms_rgwalp.F
+!||    sms_rgwalp_bcs_1     ../engine/source/ams/sms_rgwalp.F
+!||    sms_rgwalp_bilan     ../engine/source/ams/sms_rgwalp.F
+!||    sms_rgwalp_fric      ../engine/source/ams/sms_rgwalp.F
+!||    sms_rgwalp_impact    ../engine/source/ams/sms_rgwalp.F
+!||    sms_rgwals_bcs_0     ../engine/source/ams/sms_rgwals.F
+!||    sms_rgwals_bcs_1     ../engine/source/ams/sms_rgwals.F
+!||    sms_rgwals_bilan     ../engine/source/ams/sms_rgwals.F
+!||    sms_rgwals_fric      ../engine/source/ams/sms_rgwals.F
+!||    sms_rgwals_impact    ../engine/source/ams/sms_rgwals.F
+!||    sms_rgwalt           ../engine/source/ams/sms_rgwal0.F
+!||    spmd_allglob_isum9   ../engine/source/mpi/generic/spmd_allglob_isum9.F
+!||    spmd_exch_fr6        ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||====================================================================
       SUBROUTINE SMS_RGWAL_0(IFLAG  ,X      ,V      ,RWBUF   ,LPRW    ,   
      2                       NPRW   ,MS     ,FSAV   ,FR_WALL ,FOPT    ,
      3                       RWSAV  ,WEIGHT ,IRWL_WORK, NRWL_SMS,FRWL6,
-     4                       A      ,RES    ,R      ,FREA    )
+     4                       A      ,RES    ,R      ,FREA    ,WFEXT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -67,27 +67,18 @@ C-----------------------------------------------
 #include      "impl1_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-#include      "scr03_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER LPRW(*), NPRW(*), FR_WALL(NSPMD+2,*), WEIGHT(*),
-     .        IRWL_WORK(*), NRWL_SMS(*), IFLAG
-      my_real
-     .   X(3,*), V(3,*),RWBUF(NRWLP,*),RWSAV(*),MS(*),
-     .   FSAV(NTHVKI,*), FOPT(6,*), 
-     .   A(3,*), RES(3,*), R(3,*), FREA(3,*)
-      DOUBLE PRECISION
-     .        FRWL6(7,6,NRWALL)
+      INTEGER LPRW(*), NPRW(*), FR_WALL(NSPMD+2,*), WEIGHT(*),IRWL_WORK(*), NRWL_SMS(*), IFLAG
+      my_real  X(3,*), V(3,*),RWBUF(NRWLP,*),RWSAV(*),MS(*),FSAV(NTHVKI,*), FOPT(6,*),A(3,*), RES(3,*), R(3,*), FREA(3,*)
+      DOUBLE PRECISION FRWL6(7,6,NRWALL)
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, N, ITYP, ISL, IFQ, N2, N3, N4, N5, N6, N7, N8, L, M,
-     .        PMAIN, NSMS, 
-     .        KIND(NRWALL), ISLIND(NRWALL)
+      INTEGER K, N, ITYP, ISL, IFQ, N2, N3, N4, N5, N6, N7, N8, L, M,PMAIN, NSMS, KIND(NRWALL), ISLIND(NRWALL)
 C-----------------------------------------------
           ISL = 1
           K=1
@@ -106,8 +97,8 @@ C
 C
             K=K+NPRW(N)
             IFQ = NINT(RWBUF(15,N))
-            IF (IFQ.GT.0) ISL=ISL+NPRW(N)*3
-            IF(NPRW(N4).EQ.-1)K=K+NINT(RWBUF(8,N))
+            IF (IFQ>0) ISL=ISL+NPRW(N)*3
+            IF(NPRW(N4)==-1)K=K+NINT(RWBUF(8,N))
           END DO
 C
 
@@ -134,22 +125,22 @@ C
             ITYP= NPRW(N4)
 C
             NSMS= NPRW(N7)
-            IF(ITYP.EQ.1.AND.NSMS.NE.0)THEN
+            IF(ITYP==1.AND.NSMS/=0)THEN
               CALL SMS_RGWALL_IMPACT(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          RWSAV(ISL),NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K))
-            ELSEIF(ITYP.EQ.2.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==2.AND.NSMS/=0)THEN
               CALL SMS_RGWALC_IMPACT(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K))
-            ELSEIF(ITYP.EQ.3.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==3.AND.NSMS/=0)THEN
               CALL SMS_RGWALS_IMPACT(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K))
-            ELSEIF(ITYP.EQ.4.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==4.AND.NSMS/=0)THEN
               CALL SMS_RGWALP_IMPACT(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
@@ -179,22 +170,22 @@ C
             ITYP= NPRW(N4)
 C
             NSMS= NPRW(N7)
-            IF(ITYP.EQ.1.AND.NSMS.NE.0)THEN
+            IF(ITYP==1.AND.NSMS/=0)THEN
               CALL SMS_RGWALL_BCS_0(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          RWSAV(ISL),NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K))
-            ELSEIF(ITYP.EQ.2.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==2.AND.NSMS/=0)THEN
               CALL SMS_RGWALC_BCS_0(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K)   )
-            ELSEIF(ITYP.EQ.3.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==3.AND.NSMS/=0)THEN
               CALL SMS_RGWALS_BCS_0(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K))
-            ELSEIF(ITYP.EQ.4.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==4.AND.NSMS/=0)THEN
               CALL SMS_RGWALP_BCS_0(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
@@ -221,22 +212,22 @@ C
             ITYP= NPRW(N4)
 C
             NSMS= NPRW(N7)
-            IF(ITYP.EQ.1.AND.NSMS.NE.0)THEN
+            IF(ITYP==1.AND.NSMS/=0)THEN
               CALL SMS_RGWALL_BCS_1(
      +          X       ,RES         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          RWSAV(ISL),NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K))
-            ELSEIF(ITYP.EQ.2.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==2.AND.NSMS/=0)THEN
               CALL SMS_RGWALC_BCS_1(
      +          X       ,RES         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K))
-            ELSEIF(ITYP.EQ.3.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==3.AND.NSMS/=0)THEN
               CALL SMS_RGWALS_BCS_1(
      +          X       ,RES         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  , NRWL_SMS(K))
-            ELSEIF(ITYP.EQ.4.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==4.AND.NSMS/=0)THEN
               CALL SMS_RGWALP_BCS_1(
      +          X       ,RES         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
@@ -263,25 +254,25 @@ C
             ITYP= NPRW(N4)
 C
             NSMS= NPRW(N7)
-            IF(ITYP.EQ.1.AND.NSMS.NE.0)THEN
+            IF(ITYP==1.AND.NSMS/=0)THEN
               CALL SMS_RGWALL_FRIC(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          RWSAV(ISL),NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K), 
      +          FSAV(1,N),FOPT(1,N),RES         ,R     ,FREA       )
-            ELSEIF(ITYP.EQ.2.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==2.AND.NSMS/=0)THEN
               CALL SMS_RGWALC_FRIC(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K),FSAV(1,N), 
      +          FOPT(1,N),RES      ,R       ,FREA       )
-            ELSEIF(ITYP.EQ.3.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==3.AND.NSMS/=0)THEN
               CALL SMS_RGWALS_FRIC(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K),FSAV(1,N), 
      +          FOPT(1,N),RES      ,R       ,FREA       )
-            ELSEIF(ITYP.EQ.4.AND.NSMS.NE.0)THEN
+            ELSEIF(ITYP==4.AND.NSMS/=0)THEN
               CALL SMS_RGWALP_FRIC(
      +          X       ,A         ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
@@ -315,38 +306,37 @@ C
             END DO
 C
             NSMS= NPRW(N7)
-            IF(ITYP.EQ.1.AND.NSMS.NE.0)THEN
+            IF(ITYP==1.AND.NSMS/=0)THEN
               CALL SMS_RGWALL_BILAN(
      +          X       ,FREA        ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT  ,
      +          RWSAV(ISL),NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K), 
-     +          FSAV(1,N),FOPT(1,N),FRWL6(1,1,N),A     )
-            ELSEIF(ITYP.EQ.2.AND.NSMS.NE.0)THEN
+     +          FSAV(1,N),FOPT(1,N),FRWL6(1,1,N),A     ,WFEXT)
+            ELSEIF(ITYP==2.AND.NSMS/=0)THEN
               CALL SMS_RGWALC_BILAN(
      +          X       ,FREA      ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K),FSAV(1,N), 
-     +          FOPT(1,N),FRWL6(1,1,N),A    )
-            ELSEIF(ITYP.EQ.3.AND.NSMS.NE.0)THEN
+     +          FOPT(1,N),FRWL6(1,1,N),A    ,WFEXT)
+            ELSEIF(ITYP==3.AND.NSMS/=0)THEN
               CALL SMS_RGWALS_BILAN(
      +          X       ,FREA        ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K),FSAV(1,N), 
-     +          FOPT(1,N),FRWL6(1,1,N),A    )
-            ELSEIF(ITYP.EQ.4.AND.NSMS.NE.0)THEN
+     +          FOPT(1,N),FRWL6(1,1,N),A    ,WFEXT)
+            ELSEIF(ITYP==4.AND.NSMS/=0)THEN
               CALL SMS_RGWALP_BILAN(
      +          X       ,FREA        ,V           ,RWBUF(1,N),LPRW(K), 
      +          NPRW(N) ,NPRW(N2)  ,NPRW(N3)    ,MS        ,WEIGHT ,
      +          NPRW(N8),IRWL_WORK(K),NSMS  ,NRWL_SMS(K),FSAV(1,N), 
-     +          FOPT(1,N),FRWL6(1,1,N),A    )
+     +          FOPT(1,N),FRWL6(1,1,N),A    ,WFEXT)
             ENDIF
           END DO
 !$OMP END DO
 
 !$OMP SINGLE
 C
-C Traitements Speciaux : Communications SPMD si moving present
-C + Sauvegarde Force et Impultion main
+C Special treatments: SPMD communications Si Moving Present
 C
           IF(IMCONV == 1) THEN
             DO N=1,NRWALL
@@ -357,8 +347,8 @@ C
               N6=N5+NRWALL
               IF(NPRW(N3) /= 0) THEN
                 IF(NSPMD > 1) THEN
-Cel si proc concerne par le rgwall
-                  IF(FR_WALL(ISPMD+1,N).NE.0) THEN
+C   if proc concerned by the rgwall
+                  IF(FR_WALL(ISPMD+1,N)/=0) THEN
                     CALL SPMD_EXCH_FR6(FR_WALL(1,N),FRWL6(1,1,N),7*6)
                   ENDIF
                   PMAIN = FR_WALL(NSPMD+2,N)
@@ -381,12 +371,11 @@ C
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_RGWALT                    source/ams/sms_rgwal0.F       
-Chd|-- called by -----------
-Chd|        SMS_RGWAL_0                   source/ams/sms_rgwal0.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_rgwalt    ../engine/source/ams/sms_rgwal0.F
+!||--- called by ------------------------------------------------------
+!||    sms_rgwal_0   ../engine/source/ams/sms_rgwal0.F
+!||====================================================================
       SUBROUTINE SMS_RGWALT(MSR ,RWL,FRWL6,PMAIN,FSAV,
      2                  FOPT)
 C-----------------------------------------------
@@ -397,10 +386,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -432,12 +418,12 @@ C-----------------------------------------------
      .      FRWL6(6,4)+FRWL6(6,5)+FRWL6(6,6)
       FZT = FRWL6(7,1)+FRWL6(7,2)+FRWL6(7,3)+
      .      FRWL6(7,4)+FRWL6(7,5)+FRWL6(7,6)
-C F et XMT stockoques dans RWL et appliques debut cycle suivant
+C F and XMT stored in RWL and applied at the beginning of the following cycle
       RWL(17)=FXN+FXT
       RWL(18)=FYN+FYT
       RWL(19)=FZN+FZT
       RWL(20)=XMT
-C test pour ne cummuler qu'une fois en multiprocessors dans le cas moving
+C test to accumulate only once in multiprocessors in the moving case
       IF(ISPMD+1 == PMAIN.OR. MSR == 0) THEN
         DT15=HALF*DT1
         DT25=HALF*DT2

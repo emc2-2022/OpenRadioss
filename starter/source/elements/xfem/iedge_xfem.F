@@ -1,40 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  IEDGE_XFEM                    source/elements/xfem/iedge_xfem.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    iedge_xfem    ../starter/source/elements/xfem/iedge_xfem.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IEDGE_XFEM(
      .           IBORDNODE ,IXC       ,IXTG    ,IEDGESH4,IEDGESH3,
      .           IBORDEDGE ,NODEDGE   ,IELCRKC ,IELCRKTG,IEDGE   ,
      .           CEP_CRK   ,IEDGE_TMP0)
 C=======================================================================
       USE MESSAGE_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -42,11 +43,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com_xfem1.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -68,7 +67,7 @@ C
       DATA NEXTK3/2,3,1/
 C=======================================================================
       NLMAX  = 4*ECRKXFEC + 3*ECRKXFETG   ! max edges
-      NELALL = ECRKXFEC+ECRKXFETG         ! max eleemnts
+      NELALL = ECRKXFEC+ECRKXFETG         ! max elements
 C
       ALLOCATE (LINEIX(2,NLMAX)      ,STAT=stat)
       ALLOCATE (LINEIX2(2,NLMAX)     ,STAT=stat)
@@ -97,7 +96,7 @@ C
         CALL ANCMSG(MSGID=268 ,MSGTYPE=MSGERROR,ANMODE=ANSTOP,C1='EDGE XFEM')
       END IF
 c---------------------------------------
-c       recherche de toutes les lignes dans la surface (shells)
+c       search for all lines in the surface (shells)
 c---------------------------------------
       LL  = 0  ! nb edges
       NEL = 0  ! nb elements
@@ -322,8 +321,8 @@ c---------------------------------------
 c     fill border nodal table
 c---------------------------------------
 c      DO LL=1,NL
-c        IBORDNODE(IXWORK(1,LL)) = 1				  
-c        IBORDNODE(IXWORK(2,LL)) = 1				  
+c        IBORDNODE(IXWORK(1,LL)) = 1          
+c        IBORDNODE(IXWORK(2,LL)) = 1          
 c      ENDDO
 C
       ALLOCATE (IEDGE_TMP(NUMEDGES))
@@ -399,11 +398,9 @@ C-----------
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  DISTFUNCC1                    source/elements/xfem/iedge_xfem.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    distfuncc1   ../starter/source/elements/xfem/iedge_xfem.F
+!||====================================================================
       SUBROUTINE DISTFUNCC1(PLXN,PLYN,PLZN,FI,
      .      X,Y,Z,XINT1X,XINT1Y,XINT1Z)
 C-----------------------------------------------
@@ -426,16 +423,14 @@ C-----------------------------------------------
      .   PLYN*(Y-XINT1Y)+
      .   PLZN*(Z-XINT1Z)
       LEN=SQRT(PLXN**2+PLYN**2+PLZN**2)
-      IF(LEN.NE.ZERO)FI=FI/LEN
+      IF(LEN/=ZERO)FI=FI/LEN
 C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  DISTFUNCC2                    source/elements/xfem/iedge_xfem.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    distfuncc2   ../starter/source/elements/xfem/iedge_xfem.F
+!||====================================================================
       SUBROUTINE DISTFUNCC2(XN,YN,ZN,
      .           XT1,YT1,ZT1,XT2,YT2,ZT2,DIS)
 C-----------------------------------------------
@@ -467,7 +462,7 @@ C
 C
       AREA=-HALF*SQRT(XX**2+YY**2+ZZ**2)
       DIS=SQRT(X12**2+Y12**2+Z12**2)
-      IF(DIS.NE.ZERO)DIS=AREA/DIS
+      IF(DIS/=ZERO)DIS=AREA/DIS
 C
       RETURN
       END

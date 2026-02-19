@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  H3D_DXYZ_RWALL                source/output/h3d/h3d_build_fortran/h3d_dxyz_rwall.F
-Chd|-- called by -----------
-Chd|        GENH3D                        source/output/h3d/h3d_results/genh3d.F
-Chd|-- calls ---------------
-Chd|        SPMD_H3D_GETMSR               source/output/h3d/spmd/spmd_h3d_getmsr.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    h3d_dxyz_rwall    ../engine/source/output/h3d/h3d_build_fortran/h3d_dxyz_rwall.F
+!||--- called by ------------------------------------------------------
+!||    genh3d            ../engine/source/output/h3d/h3d_results/genh3d.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_h3d_getmsr   ../engine/source/output/h3d/spmd/spmd_h3d_getmsr.F
+!||====================================================================
       SUBROUTINE H3D_DXYZ_RWALL (NSTRF,RWBUF,NPRW  ,X     ,XMIN ,
      2                     YMIN ,ZMIN  ,XMAX ,YMAX  , ZMAX,
      3                      FR_SEC,FR_WALL,WEIGHT,ITAB,
@@ -40,10 +40,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
 #include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
@@ -61,16 +59,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER J, I, K, K0, K1, N, NSEG, N1, N2, N3, N4,MSR, ITYP
+      INTEGER K, N, N2, N3, N4, MSR, ITYP
       my_real
-     .   XX1, YY1, ZZ1, XX2, YY2, ZZ2, XX3, YY3, ZZ3,
-     .   XX4, YY4, ZZ4, D13, XXC, YYC, ZZC, AL4,
-     .   PMAIN,LOC_PROC, V1, V2, V3, VV1, VV2,
-     .   VV3, R, XN,YN,ZN,D,DX,DY,DZ, VV, XL
-
-      my_real
-     .   XSEC(3,3,NSECT)
-      REAL R4,SBUF(3*NSECT)
+     .   LOC_PROC, V1, V2, V3, VV1, VV2,
+     .   VV3, R, XN,YN,ZN,DX,DY,DZ, VV, XL
+ 
 CC-----------------------------------------------
       LOC_PROC=ISPMD+1
 C
@@ -82,12 +75,12 @@ C
         N4=N3+NRWALL
         MSR = NPRW(N3)
         IF (NSPMD == 1) THEN
-          IF(MSR.EQ.0)THEN
+          IF(MSR==0)THEN
             XWL(N)=RWBUF(4,N)
             YWL(N)=RWBUF(5,N)
             ZWL(N)=RWBUF(6,N)
           ELSE
-C verifier que ce noeud est sur proc0 !
+C check that this node is on processor 0!
             XWL(N)=X(1,MSR)
             YWL(N)=X(2,MSR)
             ZWL(N)=X(3,MSR)
@@ -104,18 +97,18 @@ C
         N4=N3+NRWALL
         ITYP= NPRW(N4)
 
-        IF(IABS(ITYP).EQ.1)THEN
+        IF(IABS(ITYP)==1)THEN
 C
           XN =RWBUF(1,N)
           YN =RWBUF(2,N)
           ZN =RWBUF(3,N)
-          IF (ISPMD.EQ.0) THEN
+          IF (ISPMD==0) THEN
             DX = XMAX - XMIN
             DY = YMAX - YMIN
             DZ = ZMAX - ZMIN
 C
             R = ZEP707*MAX(DX,DY,DZ)
-            IF (XN == ZERO .AND. YN == ZERO .AND. ZN .NE. ZERO ) THEN
+            IF (XN == ZERO .AND. YN == ZERO .AND. ZN /= ZERO ) THEN
               V1 = ZEP707
               V2 = ZEP707
               V3 = ZERO
@@ -128,8 +121,8 @@ C
             VV2 = V3 * XN - V1 * ZN
             VV3 = V1 * YN - V2 * XN
             VV = SQRT(VV1*VV1 + VV2*VV2 + VV3*VV3)
-            IF(VV.LE.HALF)THEN
-              IF (XN == ZERO .AND. YN == ZERO .AND. ZN .NE. ZERO ) THEN
+            IF(VV<=HALF)THEN
+              IF (XN == ZERO .AND. YN == ZERO .AND. ZN /= ZERO ) THEN
                 V1 = -ZEP707
                 V2 = ZEP707
                 V3 = ZERO        
@@ -162,7 +155,7 @@ c
             RWALL_V10(N) = ZERO
           ENDIF
 c
-        ELSEIF(ITYP.EQ.2)THEN
+        ELSEIF(ITYP==2)THEN
           XN = RWBUF(1,N)
           YN = RWBUF(2,N)
           ZN = RWBUF(3,N)
@@ -171,30 +164,30 @@ c
           DY = YMAX - YMIN
           DZ = ZMAX - ZMIN
 
-  	  R =  HALF*RWBUF(7,N)
-  	  XL = HALF*MAX(DX,DY,DZ)
-  	  V1 = ZERO
-  	  V2 = ZEP707
-  	  V3 = ZEP707
-  	  VV1 = V2 * ZN - V3 * YN
-  	  VV2 = V3 * XN - V1 * ZN
-  	  VV3 = V1 * YN - V2 * XN
-  	  VV = SQRT(VV1*VV1 + VV2*VV2 + VV3*VV3)
-  	  IF(VV.LE.HALF)THEN
-  	    V1 = ZERO
-  	    V2 = -ZEP707
-  	    V3 = ZEP707
-  	    VV1 = V2 * ZN - V3 * YN
-  	    VV2 = V3 * XN - V1 * ZN
-  	    VV3 = V1 * YN - V2 * XN
-  	    VV = SQRT(VV1*VV1 + VV2*VV2 + VV3*VV3)
-  	  ENDIF
-  	  VV1 = R*VV1/VV
-  	  VV2 = R*VV2/VV
-  	  VV3 = R*VV3/VV
-  	  V1 = VV2 * ZN - VV3 * YN
-  	  V2 = VV3 * XN - VV1 * ZN
-  	  V3 = VV1 * YN - VV2 * XN
+            R =  HALF*RWBUF(7,N)
+            XL = HALF*MAX(DX,DY,DZ)
+            V1 = ZERO
+            V2 = ZEP707
+            V3 = ZEP707
+            VV1 = V2 * ZN - V3 * YN
+            VV2 = V3 * XN - V1 * ZN
+            VV3 = V1 * YN - V2 * XN
+            VV = SQRT(VV1*VV1 + VV2*VV2 + VV3*VV3)
+            IF(VV<=HALF)THEN
+              V1 = ZERO
+              V2 = -ZEP707
+              V3 = ZEP707
+              VV1 = V2 * ZN - V3 * YN
+              VV2 = V3 * XN - V1 * ZN
+              VV3 = V1 * YN - V2 * XN
+              VV = SQRT(VV1*VV1 + VV2*VV2 + VV3*VV3)
+            ENDIF
+            VV1 = R*VV1/VV
+            VV2 = R*VV2/VV
+            VV3 = R*VV3/VV
+            V1 = VV2 * ZN - VV3 * YN
+            V2 = VV3 * XN - VV1 * ZN
+            V3 = VV1 * YN - VV2 * XN
 
           RWALL_V1(N) = V1
           RWALL_V2(N) = V2
@@ -207,7 +200,7 @@ c
           RWALL_V9(N) = YN
           RWALL_V10(N) = ZN
 
-        ELSEIF(ITYP.EQ.3)THEN
+        ELSEIF(ITYP==3)THEN
           XN = RWBUF(1,N)
           YN = RWBUF(2,N)
           ZN = RWBUF(3,N)
@@ -223,11 +216,11 @@ c
           RWALL_V9(N) = ZERO
           RWALL_V10(N) = ZERO
 c
-        ELSEIF(ITYP.EQ.4)THEN
+        ELSEIF(ITYP==4)THEN
           XN =RWBUF(1,N)
           YN =RWBUF(2,N)
           ZN =RWBUF(3,N)
-          IF (ISPMD.EQ.0) THEN
+          IF (ISPMD==0) THEN
 C
             RWALL_V1(N)=RWBUF(7,N)
             RWALL_V2(N)=RWBUF(8,N)
@@ -243,7 +236,7 @@ C
 
         ENDIF
         K=K+NPRW(N)
-        IF(NPRW(N4).EQ.-1)K=K+NINT(RWBUF(8,N))
+        IF(NPRW(N4)==-1)K=K+NINT(RWBUF(8,N))
       ENDDO
 C
       RETURN

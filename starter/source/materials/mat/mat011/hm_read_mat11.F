@@ -1,43 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT11                 source/materials/mat/mat011/hm_read_mat11.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat11            ../starter/source/materials/mat/mat011/hm_read_mat11.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT11(LSUBMODEL, MTAG, UNITAB, IPM, PM, 
-     .     MAT_ID, TITR)
+     .     MAT_ID, TITR ,MATPARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -45,6 +45,9 @@ C-----------------------------------------------
       USE ELBUFTAG_MOD            
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
+      USE ALE_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -53,22 +56,18 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "sysunit.inc"
-#include      "alesolver.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER, INTENT(IN)                          :: MAT_ID
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
       TYPE(MLAW_TAG_), INTENT(INOUT)               :: MTAG
       INTEGER, DIMENSION(NPROPMI) ,INTENT(INOUT)   :: IPM
       my_real, DIMENSION(NPROPM)  ,INTENT(INOUT)   :: PM
+      TYPE(MATPARAM_STRUCT_),INTENT(INOUT)         :: MATPARAM
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -84,13 +83,12 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IFR, IFP , IFE , IFT, IFQ, ITYP, INOD, JTHE, ICOMP
-      INTEGER ID
+      INTEGER IFR, IFP, IFE, IFT, IFQ, ITYP, INOD, ICOMP
       my_real
      .   GAM, VCRT2, GAMRP, GAM1, P0, C1, SSP2, EF,
      .   RHO0, PSH, CARL, GAM2, E0, VCRT, RCRT, PCRT, SSP, 
      .   T0, DC, ALP0, RHOC,
-     .   TSCAL, TREF,GAMA,RHOR,
+     .   TSCAL,RHOR,
      .   FAC_LENGTH_, FAC_TIME_
       LOGICAL :: IS_ENCRYPTED, IS_AVAILABLE
 C-----------------------------------------------
@@ -103,7 +101,7 @@ C-----------------------------------------------
       FAC_TIME_   = ONE
 
 C     Check input encryption
-      CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C     Initial and reference density
       CALL HM_GET_FLOATV('MAT_RHO'    ,RHO0        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Refer_Rho'  ,RHOR        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -112,7 +110,7 @@ C     Initial and reference density
       ENDIF
       PM(1) = RHOR
       PM(89) = RHO0 
-      IS_BOUNDARY_MATERIAL = .TRUE.
+      ALE%GLOBAL%IS_BOUNDARY_MATERIAL = .TRUE.
 C    
       CARL     = ZERO
       T0       = ZERO
@@ -180,7 +178,7 @@ C     Switch according to input type
       CASE (3)
          CALL HM_GET_FLOATV('MAT_C0', SSP, IS_AVAILABLE, LSUBMODEL, UNITAB)
          CALL HM_GET_FLOATV('h', CARL, IS_AVAILABLE, LSUBMODEL, UNITAB)
-         IF(CARL*SSP.EQ.ZERO)THEN
+         IF(CARL*SSP==ZERO)THEN
             CALL ANCMSG(MSGID=304,
      .           MSGTYPE=MSGERROR,
      .           ANMODE=ANINFO,
@@ -200,8 +198,8 @@ C     Switch according to input type
 C----------------------
 C     DEFAULT VALUES
 C----------------------
-      IF(CARL.EQ.ZERO)CARL = EM01 * FAC_LENGTH_
-      IF(T0.EQ.ZERO)  T0   = THREE100
+      IF(CARL==ZERO)CARL = EM01 * FAC_LENGTH_
+      IF(T0==ZERO)  T0   = THREE100
       IF(TSCAL == ZERO) TSCAL = ONE * FAC_TIME_
       SELECT CASE(ITYP)
       CASE (0)
@@ -223,7 +221,7 @@ C----------------------
          GAM1 = ONE
          SSP2 = SSP**2
       CASE (3)
-         IF(CARL.GT.ZERO)ALP0=HALF*SSP/CARL
+         IF(CARL>ZERO)ALP0=HALF*SSP/CARL
          RHOC=RHO0*SSP
       CASE DEFAULT
 C     Already exited at input reading
@@ -232,13 +230,14 @@ C     Already exited at input reading
 C----------------------
 C     PRINTOUT
 C----------------------
-      WRITE(IOUT, 800) TRIM(TITR),MAT_ID,11
+      WRITE(IOUT, 800)TRIM(TITR),MAT_ID,11
+      
       IF(IS_ENCRYPTED)THEN
          WRITE(IOUT,900)
          WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
          WRITE(IOUT,1000)ITYP,PSH,TSCAL
-         WRITE(IOUT, 850) RHO0, RHOR
+         WRITE(IOUT, 850) RHO0,RHOR
          SELECT CASE(ITYP)
          CASE(0)
             WRITE(IOUT,1100)GAM,P0,E0,VCRT,RCRT,PCRT,INOD
@@ -279,7 +278,7 @@ C----------------------
       PM(37)  = EF
       PM(40)  = ONE/TSCAL
       PM(50)  = ITYP
-      PM(51)  = INOD ! USR2SYS APRES FSDCOD, IF(IFORM8.EQ.2) INOD=USR2SYS(INOD,ITABM1,MESS)
+      PM(51)  = INOD ! USR2SYS APRES FSDCOD, IF(IFORM8==2) INOD=USR2SYS(INOD,ITABM1,MESS)
       PM(79)  = T0
       PM(80)  = EP30
       PM(88)  = PSH
@@ -291,12 +290,21 @@ C----------------------
 C     MATERIAL BUFFER
 C----------------------
       MTAG%G_RK    = 1   
-      MTAG%G_RE    = 1   
-      MTAG%L_RK    = 1   ! NB10    
-      MTAG%L_TEMP  = 1   ! NB11 
-      MTAG%L_RE    = 1   ! NB12   
-      MTAG%L_VK    = 1   ! NB13   
-      MTAG%L_EINS  = 1   ! NB14   
+      MTAG%G_RE    = 1
+      MTAG%G_TEMP  = 1
+      MTAG%L_RK    = 1
+      MTAG%L_TEMP  = 1
+      MTAG%L_RE    = 1
+      MTAG%L_VK    = 1
+      MTAG%L_EINS  = 1
+      
+      ! EOS/Thermo keyword for pressure treatment in elements
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HYDRO_EOS")
+
+      CALL INIT_MAT_KEYWORD(MATPARAM,"INCOMPRESSIBLE")
+
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")
 C--------------------------------
       RETURN
       
@@ -308,8 +316,8 @@ C----------------------
      & 5X,'MATERIAL NUMBER. . . . . . . . . . . . . . .=',I10/,
      & 5X,'MATERIAL LAW . . . . . . . . . . . . . . . .=',I10/)
   850 FORMAT(
-     & 5X,'INITIAL DENSITY    . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'EOS REFERENCE DENSITY. . . . . . . . . . . .=',1PG20.13/)
+     & 5X,'INITIAL DENSITY . . . . . . . . . . . .=',1PG20.13/,
+     & 5X,'REFERENCE DENSITY . . . . . . . . . . .=',1PG20.13/)
   900 FORMAT(
      & 5X,40H  LAW FOR FLUID BOUNDARY ELEMENTS       ,/,
      & 5X,40H  -------------------------------       ,/)
@@ -342,7 +350,7 @@ C----------------------
  1301 FORMAT(
      & 5X,40HSTAGNATION DENSITY  LOAD CURVE. . . . .=,I10/,
      & 5X,40HSTAGNATION PRESSURE LOAD CURVE. . . . .=,I10/,
-     & 5X,40HSTAGNATION ENERGYE  LOAD CURVE. . . . .=,I10/)
+     & 5X,40HSTAGNATION ENERGY   LOAD CURVE. . . . .=,I10/)
  1302 FORMAT(
      & 5X,40HDENSITY    LOAD CURVE . . . . . . . . .=,I10/,
      & 5X,40HPRESSURE   LOAD CURVE . . . . . . . . .=,I10/,
@@ -353,8 +361,8 @@ C----------------------
      & 5X,40HFINAL STAGNATION ENERGY . . . . . . . .=,E12.4/,
      & 5X,40HDISCHARGE COEFFICIENT (ENTRY LOSS). . .=,E12.4/)
  1353 FORMAT(
-     & 5X,40HCARACTERISTIC SOUND SPEED . . . . . . .=,E12.4/,
-     & 5X,40HCARACTERISTIC LENGHT. . . . . . . . . .=,E12.4/,
+     & 5X,40HCHARACTERISTIC SOUND SPEED. . . . . . .=,E12.4/,
+     & 5X,40HCHARACTERISTIC LENGTH . . . . . . . . .=,E12.4/,
      & 5X,40HREFERENCE NODE (VELOCITY) . . . . . . .=,I10/)
  1400 FORMAT(
      & 5X,40HINITIAL PRESSURE(P-PSH) . . . . . . . .=,E12.4/,
@@ -362,10 +370,8 @@ C----------------------
  2001 FORMAT(
      & 5X,'    THERMAL BOUNDARY  ',/,
      & 5X,'    ----------------  ',/,
-     & 5X,'TEMPERATUR LOAD CURVE . . . . . . . . .=',I10/,
+     & 5X,'TEMPERATURE LOAD CURVE. . . . . . . . .=',I10/,
      & 5X,'FLUX LOAD CURVE. . .  . . . . . . . . .=',I10/)
-C-----------
- 999  CALL FREERR(3)
 C-----------
       RETURN
       END

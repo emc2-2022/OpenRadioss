@@ -1,40 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3GRHEAD                      source/elements/sh3n/coque3n/c3grhead.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        DRAPE_MOD                     share/modules1/drape_mod.F    
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        REORDER_MOD                   share/modules1/reorder_mod.F  
-Chd|        STACK_MOD                     share/modules1/stack_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3grhead               ../starter/source/elements/sh3n/coque3n/c3grhead.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    drape_mod              ../starter/share/modules1/drape_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    reorder_mod            ../starter/share/modules1/reorder_mod.F
+!||    stack_mod              ../starter/share/modules1/stack_mod.F
+!||====================================================================
       SUBROUTINE C3GRHEAD(
      1       IXTG    ,PM      ,GEO     ,INUM    ,ISEL    ,
      2       ITR1    ,EADD    ,INDEX   ,ITRI    ,XNUM    ,
@@ -43,22 +41,27 @@ Chd|====================================================================
      5       IGEO    ,IPM     ,IPART   ,SH3TREE ,NOD2ELTG,
      6       ITRIOFF ,SH3TRIM ,TAGPRT_SMS,
      7       IWORKSH , STACK  ,DRAPE   ,RNOISE,
-     8       MULTI_FVM, SH3ANG)
+     8       MULTI_FVM, SH3ANG,DRAPEG, PTSH3N ,MAT_PARAM,
+     9       DAMP_RANGE_PART)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE STACK_MOD
       USE MULTI_FVM_MOD
       USE REORDER_MOD
       USE GROUPDEF_MOD
       USE DRAPE_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C            A R G U M E N T S
 C-----------------------------------------------
 C     IXTG(NIXTG,NUMELTG)TABLEAU CONECS+PID+MID+NOS TRIANGLES       E
-C     PM(NPROPM,NUMMAT)  TABLEAU DES CARACS DES MATERIAUX           E
-C     GEO(NPROPG,NUMGEO) TABLEAU DES CARACS DES PID                 E
+C     PM(NPROPM,NUMMAT)  ARRAY OF MATERIAL CHARACTERISTICS           E
+C     GEO(NPROPG,NUMGEO) ARRAY OF PID CHARACTERISTICS                 E
 C     INUM(9,NUMELTG)     TABLEAU DE TRAVAIL                         E/S
 C     ISEL(NSELTG)        TABLEAU DES TRI CHOISIES POUR TH          E/S
 C     ITR1(NSELTG)        TABLEAU DE TRAVAIL                         E/S
@@ -74,25 +77,13 @@ C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G L O B A L   P A R A M E T E R S
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C O M M O N   B L O C K S
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
+#include      "com01_c.inc"
 #include      "com_xfem1.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
 #include      "vect01_c.inc"
-#include      "warn_c.inc"
-#include      "scr05_c.inc"
-#include      "scr03_c.inc"
 #include      "remesh_c.inc"
 #include      "sms_c.inc"
 #include      "scr17_c.inc"
@@ -102,52 +93,55 @@ C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
       INTEGER
      .    IXTG(NIXTG,*),ISEL(*),INUM(10,*),ND,ICNOD(*),IXTG1(4,*),
-     .    EADD(*), ITR1(*), INDEX(*), ITRI(7,*),IPARTTG(*),
+     .    EADD(*), ITR1(*), INDEX(*), ITRI(8,*),IPARTTG(*),
      .    CEP(*), XEP(*),ITRIOFF(*),
      .    IGEO(NPROPGI,*),IPM(NPROPMI,*), IPART(LIPART1,*), 
      .    SH3TREE(KSH3TREE,*), NOD2ELTG(*), SH3TRIM(*),
      .    TAGPRT_SMS(*),IWORKSH(3,*)
-C     REAL OU REAL*8
+      INTEGER , DIMENSION(NUMELTG) , INTENT(INOUT):: PTSH3N
+      INTEGER , INTENT(IN) :: DAMP_RANGE_PART(NPART)     !< flag to compute the damping range
       my_real
      .    PM(NPROPM,*), GEO(NPROPG,*), XNUM(*), THK(*), RNOISE(NPERTURB,*),
      .    SH3ANG(*)
 C-----------------------------------------------
       TYPE (STACK_PLY) :: STACK
       TYPE(MULTI_FVM_STRUCT) :: MULTI_FVM
-      TYPE (DRAPE_)  :: DRAPE(*)
-      TYPE (DRAPE_) , DIMENSION(:), ALLOCATABLE :: XNUM_DRAPE
+      TYPE (DRAPE_)  ,TARGET     :: DRAPE(NUMELC_DRAPE + NUMELTG_DRAPE)
+      TYPE (DRAPEG_)                             :: DRAPEG,XNUM_DRAPEG
+      TYPE (DRAPE_)  , DIMENSION(:), ALLOCATABLE :: XNUM_DRAPE
+      TYPE (DRAPE_PLY_)             , POINTER    :: DRAPE_PLY
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRSH3N)  :: IGRSH3N
       TYPE (SURF_)   , DIMENSION(NSURF)    :: IGRSURF
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT), INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER, DIMENSION(:,:), ALLOCATABLE :: ISTOR,INUM_DRAPE
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: ISTOR
       INTEGER WORK(70000)
-      INTEGER I, K, MLN, NG, ISSN, NPN, IFIO,NN,ICO,ID,
-     .   MLN0, ISSN0, IC, N, MID, MID0, PID, PID0, ISTR0,
-     .   IHBE, IHBE0, J, MIDN, NSG, NEL, NE1, ITHK,
-     .   ITHK0, IPLA, IPLA0, II1, JJ1, II2, JJ2, II, JJ, 
-     .   L, IGTYP, II3, JJ3,NGROU,NELTG3,
-     .   MSKMLN, MSKNPN, MSKIHB, MSKISN, MODE,ICSEN,IFAIL,NFAIL,
+      INTEGER I, K, MLN, ISSN, NPN,NN,ICO,ID,
+     .     MID, PID,
+     .     J, ITHK,
+     .    IPLA, II1, JJ1, II2, JJ2, II, JJ, 
+     .    IGTYP, II3, JJ3,NELTG3,
+     .   MSKMLN, MSKNPN, MSKISN, MODE,ICSEN,IFAIL,NFAIL,
      .   MSKIST, MSKIPL, MSKITH, MSKMID,MSKPID,MSKIRP,MSKTYP,IREP,
-     .   II0,JJ0,ILEV,PRT,IADM,DIR,MSKIRB,IRB, II4, JJ4,
-     .   IRUP,IXFEM,IWARNHB,IPT,IMATLY,IPID,ISH3N,
-     .   INUM_WORKC(3,NUMELTG),II5,JJ5,ISUBSTACK,IIGEO,IADI,IPPID,
-     .   NB_LAW58,IPMAT,IPERT,STAT,IALEL, MT
-C     REAL OU REAL*8
-      CHARACTER*nchartitle,
-     .   TITR
+     .   II0,JJ0,ILEV,PRT,IADM,MSKIRB,IRB, II4, JJ4,
+     .   IXFEM,IWARNHB,IPT,IMATLY,IPID,ISH3N,
+     .   II5,JJ5,II6,JJ6,ISUBSTACK,IPPID,
+     .   NB_LAW58,IPMAT,IPERT,STAT,NSLICE,KK,NPT_DRP,IE,
+     .   IE0
+C     REAL OR REAL*8
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C
-      INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX2
+      INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX2, INUM_PTSH3N
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: INUM_WORKSH ! 3,NUMELTG
 
       EXTERNAL MY_SHIFTL,MY_SHIFTR,MY_AND
       INTEGER MY_SHIFTL,MY_SHIFTR,MY_AND
       my_real, DIMENSION(:,:), ALLOCATABLE :: XNUM_RNOISE
-      my_real
-     . ANGLE(NUMELTG)
-C
-Clef 1---------------------------------
+      my_real, DIMENSION(:), ALLOCATABLE :: ANGLE ! NUMELTG
+Clef 1--------------------- ------------
       DATA MSKMLN /O'00777000000'/
       DATA MSKTYP /O'00000777000'/
       DATA MSKISN /O'00000000700'/
@@ -163,10 +157,9 @@ Clef 3---------------------------------
 Clef 4---------------------------------
       DATA MSKPID /O'07777777777'/
 C-----------------------------------------------
-#include "my_allocate.inc"
 C-----------------------------------------------
-
-C
+      ALLOCATE(ANGLE(NUMELTG))
+      ALLOCATE(INUM_WORKSH(3,NUMELTG))
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
        IWARNHB=0
         IF(NADMESH /= 0)THEN
@@ -174,20 +167,38 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
         ELSE
             ALLOCATE( ISTOR(0,0) )
         ENDIF
-        IF (NDRAPE > 0) THEN
-            ALLOCATE( XNUM_DRAPE(NUMELTG))
-            DO I=1, NUMELTG
-               NPT = DRAPE(NUMELC + I)%NPT
-               ALLOCATE(XNUM_DRAPE(I)%RDRAPE(NPT,2),XNUM_DRAPE(I)%IDRAPE(NPT))
-               XNUM_DRAPE(I)%RDRAPE = 0
-               XNUM_DRAPE(I)%IDRAPE = 0
-            ENDDO 
+        IF (NDRAPE > 0 .AND. NUMELTG_DRAPE > 0) THEN
+          ALLOCATE(XNUM_DRAPE(NUMELTG))                                                  
+          ALLOCATE(XNUM_DRAPEG%INDX(NUMELTG))
+          XNUM_DRAPEG%INDX = 0                                         
+          DO I =1, NUMELTG
+            IE = DRAPEG%INDX(NUMELC + I)
+            IF(IE == 0) CYCLE   
+            NPT_DRP = DRAPE(IE)%NPLY_DRAPE
+            NPT     = DRAPE(IE)%NPLY   
+            ALLOCATE(XNUM_DRAPE(I)%INDX_PLY(NPT)) 
+            ALLOCATE(XNUM_DRAPE(I)%DRAPE_PLY(NPT_DRP))        
+            XNUM_DRAPE(I)%INDX_PLY= 0     
+            DO J = 1,NPT_DRP                            
+                NSLICE = DRAPE(IE)%DRAPE_PLY(J)%NSLICE    
+                ALLOCATE(XNUM_DRAPE(I)%DRAPE_PLY(J)%RDRAPE(NSLICE,2))    
+                ALLOCATE(XNUM_DRAPE(I)%DRAPE_PLY(J)%IDRAPE(NSLICE,2))
+                XNUM_DRAPE(I)%DRAPE_PLY(J)%RDRAPE = 0             
+                XNUM_DRAPE(I)%DRAPE_PLY(J)%IDRAPE = 0  
+            ENDDO    
+          ENDDO      
         ELSE
             ALLOCATE( XNUM_DRAPE(0) )
         ENDIF
+        IF(ABS(ISIGI) == 3 .OR. ABS(ISIGI) == 4 .OR. ABS(ISIGI) == 5) THEN
+           ALLOCATE(INUM_PTSH3N(NUMELTG))
+           INUM_PTSH3N = 0
+        ELSE
+           ALLOCATE(INUM_PTSH3N(0))
+        ENDIF 
 C
 C----------------------------------------------------------
-C   TRI GLOBAL SUR TOUS LES CRITERES POUR TOUS LES ELEMENTS
+C   GLOBAL SORTING ON ALL CRITERIA FOR ALL ELEMENTS
 C----------------------------------------------------------
 C
       IF (NPERTURB > 0) THEN
@@ -197,45 +208,92 @@ C
      .                           C1='XNUM_RNOISE')
       ENDIF
 C
-      MY_ALLOCATE(INDEX2,NUMELTG)
-
-      DO I=1,NUMELTG
-        INDEX2(I)= PERMUTATION%TRIANGLE(I)
-        EADD(I)=1
-        ITRI(7,I)=I
-        INDEX(I)=I
-        INUM(1,I)=IPARTTG(I)
-        INUM(2,I)=ITRIOFF(I)
-        XNUM(I)  = THK(I)
-        INUM(3,I)=IXTG(1,I)
-        INUM(4,I)=IXTG(2,I)
-        INUM(5,I)=IXTG(3,I)
-        INUM(6,I)=IXTG(4,I)
-        INUM(7,I)=IXTG(5,I)
-        INUM(8,I)=IXTG(6,I)
-        INUM(9,I)=ICNOD(I)
-        INUM(10,I)=IXTG(1,I)
-        INUM_WORKC(1,I) = IWORKSH(1,NUMELC + I)
-        INUM_WORKC(2,I) = IWORKSH(2,NUMELC + I)
-        INUM_WORKC(3,I) = IWORKSH(3,NUMELC + I)
-        IF (NDRAPE > 0) THEN
-           NPT = DRAPE(NUMELC + I)%NPT
-           XNUM_DRAPE(I)%NPT = NPT
-          DO IPT = 1, NPT
-            XNUM_DRAPE(I)%IDRAPE(IPT)  =  DRAPE(NUMELC + I)%IDRAPE(IPT)
-            XNUM_DRAPE(I)%RDRAPE(IPT,1) = DRAPE(NUMELC + I)%RDRAPE(IPT,1)
-            XNUM_DRAPE(I)%RDRAPE(IPT,2) = DRAPE(NUMELC + I)%RDRAPE(IPT,2)
-          ENDDO
-        ENDIF
-        IF (NPERTURB > 0) THEN
-          DO IPERT = 1, NPERTURB
-            XNUM_RNOISE(IPERT,I) = RNOISE(IPERT,I) 
-          ENDDO
-        ENDIF
-        ANGLE(I)=SH3ANG(I)
-      ENDDO
+      CALL MY_ALLOC(INDEX2,NUMELTG)
+      IF(NDRAPE > 0 .AND. NUMELTG_DRAPE > 0) THEN
+         DO I=1,NUMELTG
+           INDEX2(I)= PERMUTATION%TRIANGLE(I)
+           EADD(I)=1
+           ITRI(7,I)=I
+           INDEX(I)=I
+           INUM(1,I)=IPARTTG(I)
+           INUM(2,I)=ITRIOFF(I)
+           XNUM(I)  = THK(I)
+           INUM(3,I)=IXTG(1,I)
+           INUM(4,I)=IXTG(2,I)
+           INUM(5,I)=IXTG(3,I)
+           INUM(6,I)=IXTG(4,I)
+           INUM(7,I)=IXTG(5,I)
+           INUM(8,I)=IXTG(6,I)
+           INUM(9,I)=ICNOD(I)
+           INUM(10,I)=IXTG(1,I)
+           INUM_WORKSH(1,I) = IWORKSH(1,NUMELC + I)
+           INUM_WORKSH(2,I) = IWORKSH(2,NUMELC + I)
+           INUM_WORKSH(3,I) = IWORKSH(3,NUMELC + I)
+           IF (NPERTURB > 0) THEN                                               
+             DO IPERT = 1, NPERTURB                                             
+               XNUM_RNOISE(IPERT,I) = RNOISE(IPERT,I)                           
+             ENDDO                                                              
+           ENDIF                                                                
+           ANGLE(I)=SH3ANG(I)                                                   
+           !drape structure                                                     
+           IE = DRAPEG%INDX(NUMELC + I)  
+           XNUM_DRAPEG%INDX(I) = IE                                             
+           IF(IE == 0) CYCLE                                                    
+           NPT = DRAPE(IE)%NPLY   
+           XNUM_DRAPE(I)%NPLY = NPT                                       
+           XNUM_DRAPE(I)%INDX_PLY(1:NPT) = DRAPE(IE)%INDX_PLY(1:NPT)            
+           NPT = DRAPE(IE)%NPLY_DRAPE                                           
+           XNUM_DRAPE(I)%NPLY_DRAPE = NPT                                           
+           XNUM_DRAPE(I)%THICK =  DRAPE(IE)%THICK                                  
+           DO JJ = 1, NPT                                                       
+             DRAPE_PLY => DRAPE(IE)%DRAPE_PLY(JJ)                               
+             NSLICE =  DRAPE_PLY%NSLICE                                         
+             XNUM_DRAPE(I)%DRAPE_PLY(JJ)%NSLICE =  NSLICE                       
+             XNUM_DRAPE(I)%DRAPE_PLY(JJ)%IPID = DRAPE_PLY%IPID                 
+             DO KK = 1,NSLICE                                                   
+               XNUM_DRAPE(I)%DRAPE_PLY(JJ)%IDRAPE(KK,1)=DRAPE_PLY%IDRAPE(KK,1)  
+               XNUM_DRAPE(I)%DRAPE_PLY(JJ)%IDRAPE(KK,2)=DRAPE_PLY%IDRAPE(KK,2)  
+               XNUM_DRAPE(I)%DRAPE_PLY(JJ)%RDRAPE(KK,1)=DRAPE_PLY%RDRAPE(KK,1)  
+               XNUM_DRAPE(I)%DRAPE_PLY(JJ)%RDRAPE(KK,2)=DRAPE_PLY%RDRAPE(KK,2)  
+             ENDDO  
+             DEALLOCATE(DRAPE_PLY%IDRAPE, DRAPE_PLY%RDRAPE)   
+           ENDDO 
+             DEALLOCATE(DRAPE(IE)%DRAPE_PLY)  
+             DEALLOCATE(DRAPE(IE)%INDX_PLY)  
+         ENDDO
+      ELSE
+         DO I=1,NUMELTG
+           INDEX2(I)= PERMUTATION%TRIANGLE(I)
+           EADD(I)=1
+           ITRI(7,I)=I
+           INDEX(I)=I
+           INUM(1,I)=IPARTTG(I)
+           INUM(2,I)=ITRIOFF(I)
+           XNUM(I)  = THK(I)
+           INUM(3,I)=IXTG(1,I)
+           INUM(4,I)=IXTG(2,I)
+           INUM(5,I)=IXTG(3,I)
+           INUM(6,I)=IXTG(4,I)
+           INUM(7,I)=IXTG(5,I)
+           INUM(8,I)=IXTG(6,I)
+           INUM(9,I)=ICNOD(I)
+           INUM(10,I)=IXTG(1,I)
+           INUM_WORKSH(1,I) = IWORKSH(1,NUMELC + I)
+           INUM_WORKSH(2,I) = IWORKSH(2,NUMELC + I)
+           INUM_WORKSH(3,I) = IWORKSH(3,NUMELC + I)
+           IF (NPERTURB > 0) THEN
+             DO IPERT = 1, NPERTURB
+               XNUM_RNOISE(IPERT,I) = RNOISE(IPERT,I) 
+             ENDDO
+           ENDIF
+           ANGLE(I)=SH3ANG(I)
+         ENDDO
+      ENDIF
+      IF(ABS(ISIGI)==3.OR.ABS(ISIGI)== 4.OR.ABS(ISIGI)==5)THEN
+         INUM_PTSH3N(1:NUMELTG) = PTSH3N(1:NUMELTG)
+       ENDIF
 C
-      IF(NADMESH.NE.0)THEN
+      IF(NADMESH/=0)THEN
         DO  K=1,KSH3TREE
           DO  I=1,NUMELTG
             ISTOR(K,I)=SH3TREE(K,I)
@@ -255,11 +313,11 @@ C
       DO 100 I = 1, NUMELTG
         II = I
 C
-        IF(NADMESH.EQ.0)THEN
+        IF(NADMESH==0)THEN
           ITRI(1,I)=0
         ELSE
 C
-C       ILEV doit etre de poids fort sur 1ere clef
+C       ILEV must have a strong weight on the first key
           PRT = IPARTTG(II)
           IADM= IPART(10,PRT)
           IF(IADM==0)THEN
@@ -267,7 +325,7 @@ C         not the same group as if adaptivity.
             ITRI(1,I)=0
           ELSE
             ILEV=SH3TREE(3,I)
-            IF(ILEV.LT.0)ILEV=-ILEV-1
+            IF(ILEV<0)ILEV=-ILEV-1
             ITRI(1,I)=ILEV+1
           END IF
         END IF
@@ -275,23 +333,24 @@ C
         MID= IXTG(1,II)
         PID= IXTG(5,II)
         MLN = NINT(PM(19,MID))
+        IF(MLN == 51)TRIMAT=4
 C
-        JTHE = ABS(NINT(PM(71,MID)))        
+        JTHE = NINT(PM(71,MID))
         IGTYP = IGEO(11,PID)
         NPN   = IGEO(4,PID)
         ISH3N  = IGEO(18,PID)
         IXFEM = 0
-	       NFAIL = IPM(220,MID)
+	       NFAIL = MAT_PARAM(MID)%NFAIL
         IFAIL = 0
 C
         IF (IGTYP == 11) THEN
           DO IPT = 1, NPN
            IMATLY  = IGEO(100+IPT,PID)
-            NFAIL  = MAX(NFAIL, IPM(220, IMATLY)) 
+            NFAIL  = MAX(NFAIL, MAT_PARAM(IMATLY)%NFAIL) 
           ENDDO 
           IF(ICRACK3D > 0)THEN
 C -         new multilayer -
-            IXFEM = IPM(236,MID)
+            IXFEM = MAT_PARAM(MID)%IXFEM
           ENDIF
         ELSEIF (IGTYP == 17) THEN
           NPN = IWORKSH(1,NUMELC + II)
@@ -303,7 +362,7 @@ C -         new multilayer -
           DO IPT = 1, NPN
             IPID = STACK%IGEO(IPPID+IPT,ISUBSTACK)
             IMATLY = IGEO(101, IPID)
-            NFAIL  = MAX(NFAIL, IPM(220, IMATLY)) 
+            NFAIL  = MAX(NFAIL, MAT_PARAM(IMATLY)%NFAIL) 
           ENDDO       
         ELSEIF (IGTYP == 51  ) THEN
 C---
@@ -316,7 +375,7 @@ C---
           DO IPT = 1, NPN
             IPID = STACK%IGEO(IPPID+IPT,ISUBSTACK)
             IMATLY = IGEO(101, IPID)
-            NFAIL  = MAX(NFAIL, IPM(220, IMATLY)) 
+            NFAIL  = MAX(NFAIL, MAT_PARAM(IMATLY)%NFAIL) 
 C --- PID 51 combined with LAW58 ---
             IF (NINT(PM(19,IMATLY)) == 58) NB_LAW58 = NB_LAW58 + 1
           ENDDO
@@ -338,7 +397,7 @@ C---
           DO IPT = 1, NPN
             IPID   = STACK%IGEO(IPPID + IPT,ISUBSTACK)
             IMATLY = STACK%IGEO(IPMAT + IPT,ISUBSTACK)
-            NFAIL  = MAX(NFAIL, IPM(220, IMATLY)) 
+            NFAIL  = MAX(NFAIL, MAT_PARAM(IMATLY)%NFAIL) 
 C --- PID 51 combined with LAW58 ---
             IF (NINT(PM(19,IMATLY)) == 58) NB_LAW58 = NB_LAW58 + 1
           ENDDO
@@ -352,7 +411,7 @@ C
         ELSE ! IGTYP == 1
           IF(ICRACK3D > 0)THEN
 C -         new monolayer -
-            IXFEM = IPM(236,MID)
+            IXFEM = MAT_PARAM(MID)%IXFEM
             IF (IXFEM == 1) THEN
               IXFEM = 2
               ICRACK3D = IXFEM
@@ -364,7 +423,7 @@ c
 C thermal material expansion
         IEXPAN  = IPM(218, MID)       
         ICO = ICNOD(II)
-        IF(ISH3N.GT.3.AND.ISH3N.LE.29)THEN
+        IF(ISH3N>3.AND.ISH3N<=29)THEN
           ID = IGEO(1,PID)
           CALL FRETITL2(TITR,IGEO(NPROPGI-LTITR+1,PID),LTITR)
           CALL ANCMSG(MSGID=435,
@@ -383,29 +442,29 @@ C thermal material expansion
         ICSEN= IGEO(3,PID)
         IF (ICSEN > 0) ICSEN=1
 C
-        IF(NPN.EQ.0.AND.(MLN.EQ.36.OR.MLN.EQ.86))THEN
-          IF(IPLA.EQ.0) IPLA=1
-          IF(IPLA.EQ.2) IPLA=0
-        ELSEIF(NPN.EQ.0.AND.MLN.EQ.2)THEN
-          IF(IPLA.EQ.2) IPLA=0
+        IF(NPN==0.AND.(MLN==36.OR.MLN==86))THEN
+          IF(IPLA==0) IPLA=1
+          IF(IPLA==2) IPLA=0
+        ELSEIF(NPN==0.AND.MLN==2)THEN
+          IF(IPLA==2) IPLA=0
         ELSE
-         IF(IPLA.EQ.2) IPLA=0
-         IF(IPLA.EQ.3) IPLA=2
+         IF(IPLA==2) IPLA=0
+         IF(IPLA==3) IPLA=2
         ENDIF
-        IF(ITHK.EQ.2)THEN
+        IF(ITHK==2)THEN
           ITHK = 0
-        ELSEIF(MLN.EQ.32)THEN
+        ELSEIF(MLN==32)THEN
           ITHK = 1
         ENDIF
         IPLA = IABS(IPLA)
         ITHK = IABS(ITHK)
         ISTRAIN = NINT(GEO(11,PID))
-        IF(MLN.EQ.19.OR.MLN.GE.25.OR.MLN.EQ.15)ISTRAIN = 1
+        IF(MLN==19.OR.MLN>=25.OR.MLN==15)ISTRAIN = 1
         ISSN = IABS(NINT(GEO(3,PID)))
-C tri sur elem delete des rigidbody
+C sorting on elem deletes rigidbody
 C IRB = 0 : elem actif
-C IRB = 1 : elem inactif et optimise pour en SPMD
-C IRB = 2 : elem inactif mais optimise pour etre actif en SPMD
+C IRB = 1 : inactive elem and optimized for SPMD
+C IRB = 2: Elem inactive but optimized to be active in SPMD
         IRB = ITRIOFF(I)
 C
 C---     Clef2 
@@ -429,8 +488,8 @@ C       IPLA   = MY_SHIFTL(IPLA,0)
 C
         IGTYP  = MY_SHIFTL(IGTYP,9)
         MLN    = MY_SHIFTL(MLN,18)    
-C     attention cle pleine ;
-C       ICO doit rester en poids le plus fort dans cette cle.
+C     Beware full;
+C       ICO must remain the heaviest weight in this key.
         ICO   = MY_SHIFTL(ICO,29) 
         ITRI(3,I)=IPLA+ISTRAIN+ISSN+IGTYP+MLN+ICO 
 C
@@ -456,10 +515,12 @@ C       PID=MY_SHIFTL(PID,0)
         ITRI(6,I)=PID
 C --- clef7 used for type17 iworkc=0 with/out type17 PID
         ITRI(7,I) =  IWORKSH(2,NUMELC + I)
+C --- clef 8---------------------------------          
+        ITRI(8,I )= DAMP_RANGE_PART(IPARTTG(II))        
  100  CONTINUE
 C
       MODE=0
-      CALL MY_ORDERS( MODE, WORK, ITRI, INDEX, NUMELTG , 7)
+      CALL MY_ORDERS( MODE, WORK, ITRI, INDEX, NUMELTG , 8)
 C
       DO  I=1,NUMELTG
         IPARTTG(I)=INUM(1,INDEX(I))
@@ -479,7 +540,7 @@ C
         ENDDO
       ENDDO
 C
-      IF (NUMELTG6.GT.0) THEN
+      IF (NUMELTG6>0) THEN
         NELTG3 = NUMELTG-NUMELTG6
         DO I = 1, NUMELTG6
           II = I + NELTG3
@@ -495,31 +556,68 @@ C
         ENDDO
       ENDIF 
 C 
-      DO I=1,NUMELTG
-       IWORKSH(1,NUMELC + I)= INUM_WORKC(1,INDEX(I))
-       IWORKSH(2,NUMELC + I)= INUM_WORKC(2,INDEX(I))
-       IWORKSH(3,NUMELC + I)= INUM_WORKC(3,INDEX(I))
-       IF (NDRAPE > 0) THEN
-         NPT = XNUM_DRAPE(INDEX(I))%NPT 
-         IF(NPT /= DRAPE(NUMELC + I)%NPT ) THEN
-            DEALLOCATE(DRAPE(NUMELC + I)%IDRAPE,DRAPE(NUMELC + I)%RDRAPE)
-            ALLOCATE(DRAPE(NUMELC + I)%IDRAPE(NPT),DRAPE(NUMELC + I)%RDRAPE(NPT,2))
-         ENDIF 
-         DRAPE(NUMELC + I)%NPT = NPT
-         DO IPT = 1, NPT
-           DRAPE(NUMELC + I)%IDRAPE(IPT)   = XNUM_DRAPE(INDEX(I))%IDRAPE(IPT)
-           DRAPE(NUMELC + I)%RDRAPE(IPT,1) = XNUM_DRAPE(INDEX(I))%RDRAPE(IPT,1)
-           DRAPE(NUMELC + I)%RDRAPE(IPT,2) = XNUM_DRAPE(INDEX(I))%RDRAPE(IPT,2)
-         ENDDO
+      IF(NDRAPE > 0 .AND. NUMELTG_DRAPE > 0) THEN
+        IE = DRAPEG%NUMSH4
+        DO I=1,NUMELTG
+         IWORKSH(1,NUMELC + I)= INUM_WORKSH(1,INDEX(I))
+         IWORKSH(2,NUMELC + I)= INUM_WORKSH(2,INDEX(I))
+         IWORKSH(3,NUMELC + I)= INUM_WORKSH(3,INDEX(I))
+         IF (NPERTURB > 0) THEN
+           DO IPERT = 1, NPERTURB
+             RNOISE(IPERT,I) = XNUM_RNOISE(IPERT,INDEX(I)) 
+           ENDDO
+         ENDIF
+         SH3ANG(I)=ANGLE(INDEX(I))
+         !
+         IE0 = XNUM_DRAPEG%INDX(INDEX(I))
+         DRAPEG%INDX(NUMELC + I) = 0
+         IF(IE0 == 0) CYCLE
+         IE = IE + 1
+         NPT = XNUM_DRAPE(INDEX(I))%NPLY ! number of layer shell
+         DRAPE(IE)%NPLY = NPT
+         DRAPEG%INDX(NUMELC + I)= IE
+         ALLOCATE(DRAPE(IE)%INDX_PLY(NPT))   
+         DRAPE(IE)%INDX_PLY(1:NPT) =  XNUM_DRAPE(INDEX(I))%INDX_PLY(1:NPT)                                  
+         NPT = XNUM_DRAPE(INDEX(I))%NPLY_DRAPE
+         ALLOCATE(DRAPE(IE)%DRAPE_PLY(NPT))                                      
+         DRAPE(IE)%NPLY_DRAPE= NPT                
+         DRAPE(IE)%THICK =  XNUM_DRAPE(INDEX(I))%THICK               
+         DO JJ = 1, NPT         
+           DRAPE_PLY => DRAPE(IE)%DRAPE_PLY(JJ)                                  
+           NSLICE = XNUM_DRAPE(INDEX(I))%DRAPE_PLY(JJ)%NSLICE                            
+           DRAPE_PLY%NSLICE = NSLICE   
+           DRAPE_PLY%IPID =  XNUM_DRAPE(INDEX(I))%DRAPE_PLY(JJ)%IPID
+           ALLOCATE(DRAPE_PLY%IDRAPE(NSLICE,2), DRAPE_PLY%RDRAPE(NSLICE,2))
+           DRAPE_PLY%IDRAPE = 0
+           DRAPE_PLY%RDRAPE = ZERO 
+           DO KK = 1,NSLICE                                                               
+            DRAPE_PLY%IDRAPE(KK,1) = XNUM_DRAPE(INDEX(I))%DRAPE_PLY(JJ)%IDRAPE(KK,1)      
+            DRAPE_PLY%IDRAPE(KK,2) = XNUM_DRAPE(INDEX(I))%DRAPE_PLY(JJ)%IDRAPE(KK,2)      
+            DRAPE_PLY%RDRAPE(KK,1) = XNUM_DRAPE(INDEX(I))%DRAPE_PLY(JJ)%RDRAPE(KK,1)      
+            DRAPE_PLY%RDRAPE(KK,2) = XNUM_DRAPE(INDEX(I))%DRAPE_PLY(JJ)%RDRAPE(KK,2)      
+           ENDDO                                                                          
+         ENDDO 
+        ENDDO
+      ELSE
+        DO I=1,NUMELTG
+         IWORKSH(1,NUMELC + I)= INUM_WORKSH(1,INDEX(I))
+         IWORKSH(2,NUMELC + I)= INUM_WORKSH(2,INDEX(I))
+         IWORKSH(3,NUMELC + I)= INUM_WORKSH(3,INDEX(I))
+         IF (NPERTURB > 0) THEN
+           DO IPERT = 1, NPERTURB
+             RNOISE(IPERT,I) = XNUM_RNOISE(IPERT,INDEX(I)) 
+           ENDDO
+         ENDIF
+          SH3ANG(I)=ANGLE(INDEX(I))
+        ENDDO 
+      ENDIF
+      !
+      IF(ABS(ISIGI)==3.OR.ABS(ISIGI)== 4.OR.ABS(ISIGI)==5)THEN
+         DO I=1,NUMELTG
+          PTSH3N(I) = INUM_PTSH3N(INDEX(I))
+         ENDDO  
        ENDIF
-       IF (NPERTURB > 0) THEN
-         DO IPERT = 1, NPERTURB
-           RNOISE(IPERT,I) = XNUM_RNOISE(IPERT,INDEX(I)) 
-         ENDDO
-       ENDIF
-        SH3ANG(I)=ANGLE(INDEX(I))
-      ENDDO
-      IF(NADMESH.NE.0)THEN
+      IF(NADMESH/=0)THEN
         DO  K=1,KSH3TREE
           DO  I=1,NUMELTG
             SH3TREE(K,I)=ISTOR(K,INDEX(I))
@@ -531,25 +629,23 @@ C
           ENDDO
         END IF
       END IF
-
 C     
-C INVERSION DE INDEX (DANS ITR1)
+C INDEX INVERSION (IN ITR1)
 C
       DO I=1,NUMELTG
         ITR1(INDEX(I))=I
-      ENDDO      
-
-C RENUMEROTATION DE L'ARBRE
-      IF(NADMESH.NE.0)THEN
+      ENDDO
+C RENAMING OF THE TREE
+      IF(NADMESH/=0)THEN
         DO  I=1,NUMELTG
-          IF(SH3TREE(1,I).NE.0)
+          IF(SH3TREE(1,I)/=0)
      .       SH3TREE(1,I)=ITR1(SH3TREE(1,I))
-          IF(SH3TREE(2,I).NE.0)
+          IF(SH3TREE(2,I)/=0)
      .       SH3TREE(2,I)=ITR1(SH3TREE(2,I))
         ENDDO
       END IF
 C
-C RENUMEROTATION POUR SURFACES
+C RENAMING FOR SURFACES
 C
       DO I=1,NSURF
         NN=IGRSURF(I)%NSEG
@@ -559,7 +655,7 @@ C
         ENDDO
       ENDDO
 C
-C RENUMEROTATION POUR GROUPES DE SHELL3N
+C RENAMING FOR SHELL3N GROUPS
 C
       DO I=1,NGRSH3N
         NN=IGRSH3N(I)%NENTITY
@@ -574,7 +670,7 @@ C
         IF(NOD2ELTG(I) /= 0)NOD2ELTG(I)=ITR1(NOD2ELTG(I))
       END DO
 C--------------------------------------------------------------
-C         DETERMINATION DES SUPER_GROUPES
+C         DETERMINATION OF SUPER_GROUPS
 C--------------------------------------------------------------
       ND=1
       DO I=2,NUMELTG
@@ -593,20 +689,24 @@ C--------------------------------------------------------------
 C for stack/ply pid
         II5=ITRI(7,INDEX(I))
         JJ5=ITRI(7,INDEX(I-1))
-        IF (II0.NE.JJ0.OR.
-     .      II.NE.JJ.OR.
-     .      II1.NE.JJ1.OR.
-     .      II2.NE.JJ2.OR.
-     .      II3.NE.JJ3.OR.
-     .      II4.NE.JJ4.OR.
-     .      II5 .NE. JJ5) THEN
+C damp freq range        
+        II6=ITRI(8,INDEX(I))
+        JJ6=ITRI(8,INDEX(I-1))            
+        IF (II0/=JJ0.OR.
+     .      II/=JJ.OR.
+     .      II1/=JJ1.OR.
+     .      II2/=JJ2.OR.
+     .      II3/=JJ3.OR.
+     .      II4/=JJ4.OR.
+     .      II5/=JJ5.OR.
+     .      II6/=JJ6) THEN
                ND=ND+1
                EADD(ND)=I
         ENDIF
       ENDDO
       EADD(ND+1) = NUMELTG+1
       DO I=1,NUMELTG
-      IF(IWARNHB.NE.0)THEN
+      IF(IWARNHB/=0)THEN
          PID = IXTG(NIXTG-1,I)
          ID=IGEO(1,PID)
          CALL FRETITL2(TITR,IGEO(NPROPGI-LTITR+1,PID),LTITR)
@@ -625,6 +725,24 @@ c
 C
       DEALLOCATE(INDEX2)
       DEALLOCATE( ISTOR )
-      DEALLOCATE( XNUM_DRAPE )
+      IF(NDRAPE > 0 .AND. NUMELTG_DRAPE > 0) THEN
+        DO I =1, NUMELTG       
+           IE = XNUM_DRAPEG%INDX(I)
+           IF(IE == 0) CYCLE                                
+           NPT_DRP = XNUM_DRAPE(I)%NPLY_DRAPE  
+           DO J = 1,NPT_DRP                                              
+              DEALLOCATE(XNUM_DRAPE(I)%DRAPE_PLY(J)%RDRAPE)          
+              DEALLOCATE(XNUM_DRAPE(I)%DRAPE_PLY(J)%IDRAPE)  
+           ENDDO   
+           DEALLOCATE(XNUM_DRAPE(I)%DRAPE_PLY,XNUM_DRAPE(I)%INDX_PLY) 
+         ENDDO
+         DEALLOCATE( XNUM_DRAPE ,XNUM_DRAPEG%INDX)
+      ELSE
+         DEALLOCATE( XNUM_DRAPE )      
+      ENDIF
+      IF(ALLOCATED(INUM_PTSH3N))DEALLOCATE(INUM_PTSH3N)
+
+
+      DEALLOCATE(INUM_WORKSH, ANGLE)
       RETURN
       END

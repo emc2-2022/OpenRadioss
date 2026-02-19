@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  OUTP_S_T                      source/output/sty/outp_s_t.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_RGATHER9_1COMM           source/mpi/interfaces/spmd_outp.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    outp_s_t              ../engine/source/output/sty/outp_s_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp               ../engine/source/output/sty/genoutp.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf               ../engine/share/resol/initbuf.F
+!||    spmd_rgather9_1comm   ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    initbuf_mod           ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE OUTP_S_T(NBX   ,KEY,TEXT,ELBUF_TAB,IPARG,
      .                    DD_IAD,SIZLOC,SIZP0,SIZ_WR)
 C-----------------------------------------------
@@ -45,12 +46,9 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr01_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
@@ -64,8 +62,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NBB(20),RESP0,WRTLEN,RES
-      INTEGER NG, NEL, IADD, N,ISOLNOD,MLW,
+      INTEGER I, J, RESP0, WRTLEN, RES
+      INTEGER NG, NEL, 
      .        II,JJ,JJ_OLD, NGF, NGL, NN, LEN,FWAP0,LENWAP0,
      .        COMPTEUR,L,K,KK(6)
       INTEGER, DIMENSION(NSPGROUP) :: JJ_LOC
@@ -97,7 +95,7 @@ C
          DO  NG = NGF, NGL
           ITY = IPARG(5,NG)
           IF (ITY == 1 .OR. ITY == 2) THEN
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MTN     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -139,7 +137,7 @@ C
         ENDDO
        ENDIF
 !     ++++++++++
-       IF(ISPMD.EQ.0) THEN
+       IF(ISPMD==0) THEN
          RESP0 = 0
          JJ_OLD = 0 
          DO NN=1,NSPGROUP
@@ -154,10 +152,10 @@ C
           ENDDO    ! k=1,nspmd
 
           JJ_OLD = COMPTEUR+RESP0
-          IF (JJ_OLD.GT.0) THEN
+          IF (JJ_OLD>0) THEN
            RES=MOD(JJ_OLD,6)
            WRTLEN=JJ_OLD-RES
-           IF (WRTLEN.GT.0) THEN
+           IF (WRTLEN>0) THEN
             IF (OUTYY_FMT == 2) THEN
              WRITE(IUGEO,'(1P6E12.5)')(WAP0(J),J=1,WRTLEN)
             ELSE
@@ -170,7 +168,7 @@ C
            RESP0=RES
           ENDIF   ! if(jj_old>0)
          ENDDO    ! do nn=1,nspgroup
-         IF ( RESP0.GT.0 ) THEN
+         IF ( RESP0>0 ) THEN
           IF (OUTYY_FMT == 2) THEN
             WRITE(IUGEO,'(1P6E12.5)')(WAP0(J),J=1,RESP0)
           ELSE
@@ -182,23 +180,26 @@ c-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  OUTP_S_TT                     source/output/sty/outp_s_t.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_RGATHER9_1COMM           source/mpi/interfaces/spmd_outp.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+!||====================================================================
+!||    outp_s_tt             ../engine/source/output/sty/outp_s_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp               ../engine/source/output/sty/genoutp.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf               ../engine/share/resol/initbuf.F
+!||    spmd_rgather9_1comm   ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod           ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE OUTP_S_TT(NBX   ,KEY ,TEXT,ELBUF_TAB,IPARG,
      2                    DD_IAD  ,IPM ,IXS,SIZLOC,SIZP0,SIZ_WR )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD         
+      USE ELBUFDEF_MOD 
+      use element_mod , only : nixs       
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -207,13 +208,9 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
@@ -228,7 +225,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,N,II,JJ,NLAY,NPTR,NPTS,NPTT,IL,IR,IS,IT,IPT,
+      INTEGER I, J, K, JJ, NLAY, NPTR, NPTS, NPTT, IL, IR, IS, IT, IPT, 
      .        NG, NEL, IADD, MLW,JJ_OLD, NGF, NGL, NN, LEN, ICAS_OLD,
      .        ISOLNOD,KHBE,ITENS,TSHELL,COMPTEUR,L,KK(6)
       my_real
@@ -257,7 +254,7 @@ C
         DO  NG = NGF, NGL
          ITY   =IPARG(5,NG)
          IF (ITY == 1.OR.ITY == 2) THEN
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,KHBE    ,JIVF    ,  
@@ -299,12 +296,12 @@ C------------------------------------
                    DO IT=1,NPTT                                                  
                     DO IL=1,NLAY
                      LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)             
-                     WA(JJ +  1) = LBUF%SIG(KK(1)+I)				 
-                     WA(JJ +  2) = LBUF%SIG(KK(2)+I)				 
-                     WA(JJ +  3) = LBUF%SIG(KK(3)+I)				 
-                     WA(JJ +  4) = LBUF%SIG(KK(4)+I)				 
-                     WA(JJ +  5) = LBUF%SIG(KK(5)+I)				 
-                     WA(JJ +  6) = LBUF%SIG(KK(6)+I)				 
+                     WA(JJ +  1) = LBUF%SIG(KK(1)+I)         
+                     WA(JJ +  2) = LBUF%SIG(KK(2)+I)         
+                     WA(JJ +  3) = LBUF%SIG(KK(3)+I)         
+                     WA(JJ +  4) = LBUF%SIG(KK(4)+I)         
+                     WA(JJ +  5) = LBUF%SIG(KK(5)+I)         
+                     WA(JJ +  6) = LBUF%SIG(KK(6)+I)         
                      IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN                                      
                        WA(JJ +  7) = ZERO                                       
                      ELSE                                                       
@@ -332,12 +329,12 @@ C------------------------------------
                    DO IS=1,NPTS                                                
                     DO IT=1,NPTT                                                 
                      LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)            
-                     WA(JJ +  1) = LBUF%SIG(KK(1)+I)				
-                     WA(JJ +  2) = LBUF%SIG(KK(2)+I)				
-                     WA(JJ +  3) = LBUF%SIG(KK(3)+I)				
-                     WA(JJ +  4) = LBUF%SIG(KK(4)+I)				
-                     WA(JJ +  5) = LBUF%SIG(KK(5)+I)				
-                     WA(JJ +  6) = LBUF%SIG(KK(6)+I)				
+                     WA(JJ +  1) = LBUF%SIG(KK(1)+I)
+                     WA(JJ +  2) = LBUF%SIG(KK(2)+I)
+                     WA(JJ +  3) = LBUF%SIG(KK(3)+I)
+                     WA(JJ +  4) = LBUF%SIG(KK(4)+I)
+                     WA(JJ +  5) = LBUF%SIG(KK(5)+I)
+                     WA(JJ +  6) = LBUF%SIG(KK(6)+I)
                      IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN                                      
                        WA(JJ +  7) = ZERO                                      
                      ELSE                                                      
@@ -367,12 +364,12 @@ C------------------------------------
                 DO IS=1,NPTS                                                  
                  DO IR=1,NPTR            
                    LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)             
-                   WA(JJ +  1) = LBUF%SIG(KK(1)+I)			       
-                   WA(JJ +  2) = LBUF%SIG(KK(2)+I)			       
-                   WA(JJ +  3) = LBUF%SIG(KK(3)+I)			       
-                   WA(JJ +  4) = LBUF%SIG(KK(4)+I)			       
-                   WA(JJ +  5) = LBUF%SIG(KK(5)+I)			       
-                   WA(JJ +  6) = LBUF%SIG(KK(6)+I)			       
+                   WA(JJ +  1) = LBUF%SIG(KK(1)+I)             
+                   WA(JJ +  2) = LBUF%SIG(KK(2)+I)             
+                   WA(JJ +  3) = LBUF%SIG(KK(3)+I)             
+                   WA(JJ +  4) = LBUF%SIG(KK(4)+I)             
+                   WA(JJ +  5) = LBUF%SIG(KK(5)+I)             
+                   WA(JJ +  6) = LBUF%SIG(KK(6)+I)             
                    IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN                                        
                      WA(JJ +  7) = ZERO                                       
                    ELSE                                                       
@@ -404,12 +401,12 @@ c
                 DO IS=1,NPTS                                                  
                  DO IT=1,NPTT
                    LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)             
-                   WA(JJ +  1) = LBUF%SIG(KK(1)+I)			       
-                   WA(JJ +  2) = LBUF%SIG(KK(2)+I)			       
-                   WA(JJ +  3) = LBUF%SIG(KK(3)+I)			       
-                   WA(JJ +  4) = LBUF%SIG(KK(4)+I)			       
-                   WA(JJ +  5) = LBUF%SIG(KK(5)+I)			       
-                   WA(JJ +  6) = LBUF%SIG(KK(6)+I)			       
+                   WA(JJ +  1) = LBUF%SIG(KK(1)+I)             
+                   WA(JJ +  2) = LBUF%SIG(KK(2)+I)             
+                   WA(JJ +  3) = LBUF%SIG(KK(3)+I)             
+                   WA(JJ +  4) = LBUF%SIG(KK(4)+I)             
+                   WA(JJ +  5) = LBUF%SIG(KK(5)+I)             
+                   WA(JJ +  6) = LBUF%SIG(KK(6)+I)             
                    IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN                                        
                      WA(JJ +  7) = ZERO                                       
                    ELSE                                                       
@@ -436,12 +433,12 @@ c
                 DO IS=1,NPTS                                                  
                  DO IT=1,NPTT                                                 
                    LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)             
-                   WA(JJ +  1) = LBUF%SIG(KK(1)+I)			       
-                   WA(JJ +  2) = LBUF%SIG(KK(2)+I)			       
-                   WA(JJ +  3) = LBUF%SIG(KK(3)+I)			       
-                   WA(JJ +  4) = LBUF%SIG(KK(4)+I)			       
-                   WA(JJ +  5) = LBUF%SIG(KK(5)+I)			       
-                   WA(JJ +  6) = LBUF%SIG(KK(6)+I)			       
+                   WA(JJ +  1) = LBUF%SIG(KK(1)+I)             
+                   WA(JJ +  2) = LBUF%SIG(KK(2)+I)             
+                   WA(JJ +  3) = LBUF%SIG(KK(3)+I)             
+                   WA(JJ +  4) = LBUF%SIG(KK(4)+I)             
+                   WA(JJ +  5) = LBUF%SIG(KK(5)+I)             
+                   WA(JJ +  6) = LBUF%SIG(KK(6)+I)             
                    IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN                                        
                      WA(JJ +  7) = ZERO                                       
                    ELSE                                                       
@@ -471,12 +468,12 @@ c
                 DO IS=1,NPTS                                                  
                  DO IT=1,NPTT                                                 
                    LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)             
-                   WA(JJ +  1) = LBUF%SIG(KK(1)+I)			       
-                   WA(JJ +  2) = LBUF%SIG(KK(2)+I)			       
-                   WA(JJ +  3) = LBUF%SIG(KK(3)+I)			       
-                   WA(JJ +  4) = LBUF%SIG(KK(4)+I)			       
-                   WA(JJ +  5) = LBUF%SIG(KK(5)+I)			       
-                   WA(JJ +  6) = LBUF%SIG(KK(6)+I)			       
+                   WA(JJ +  1) = LBUF%SIG(KK(1)+I)             
+                   WA(JJ +  2) = LBUF%SIG(KK(2)+I)             
+                   WA(JJ +  3) = LBUF%SIG(KK(3)+I)             
+                   WA(JJ +  4) = LBUF%SIG(KK(4)+I)             
+                   WA(JJ +  5) = LBUF%SIG(KK(5)+I)             
+                   WA(JJ +  6) = LBUF%SIG(KK(6)+I)             
                    IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN                                        
                      WA(JJ +  7) = ZERO                                       
                    ELSE                                                       
@@ -503,11 +500,11 @@ c-------------
               WA(JJ+7) = GBUF%EINT(I) 
               WA(JJ+8) = GBUF%RHO(I)  
               JJ = JJ + 8                
-              WA(JJ + 1) = GBUF%SIG(KK(1)+I)				 
-              WA(JJ + 2) = GBUF%SIG(KK(2)+I)				 
-              WA(JJ + 3) = GBUF%SIG(KK(3)+I)				 
-              WA(JJ + 4) = GBUF%SIG(KK(4)+I)				 
-              WA(JJ + 5) = GBUF%SIG(KK(5)+I)				 
+              WA(JJ + 1) = GBUF%SIG(KK(1)+I)         
+              WA(JJ + 2) = GBUF%SIG(KK(2)+I)         
+              WA(JJ + 3) = GBUF%SIG(KK(3)+I)         
+              WA(JJ + 4) = GBUF%SIG(KK(4)+I)         
+              WA(JJ + 5) = GBUF%SIG(KK(5)+I)         
               WA(JJ + 6) = GBUF%SIG(KK(6)+I)  
               IF (GBUF%G_PLA == 0) THEN                                        
                 WA(JJ +  7) = ZERO                                       
@@ -542,9 +539,9 @@ C--------------------------------------
                 DO IS=1,NPTS                                                   
                  DO IT=1,NPTT                                                  
                    LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)           
-                   WA(JJ + 1) = LBUF%EPE(KK(1)+I)			       
-                   WA(JJ + 2) = LBUF%EPE(KK(2)+I)			       
-                   WA(JJ + 3) = LBUF%EPE(KK(3)+I)			       
+                   WA(JJ + 1) = LBUF%EPE(KK(1)+I)             
+                   WA(JJ + 2) = LBUF%EPE(KK(2)+I)             
+                   WA(JJ + 3) = LBUF%EPE(KK(3)+I)             
                    WA(JJ + 4) = ZERO                                        
                    WA(JJ + 5) = ZERO                                        
                    WA(JJ + 6) = ZERO                                        
@@ -561,12 +558,12 @@ C--------------------------------------
                 DO IT=1,NPTT                                                   
                  DO IL=1,NLAY                                                     
                    LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)           
-                   WA(JJ + 1) = LBUF%STRA(KK(1)+I)				
-                   WA(JJ + 2) = LBUF%STRA(KK(2)+I)				
-                   WA(JJ + 3) = LBUF%STRA(KK(3)+I)				
-                   WA(JJ + 4) = LBUF%STRA(KK(4)+I)				
-                   WA(JJ + 5) = LBUF%STRA(KK(5)+I)				
-                   WA(JJ + 6) = LBUF%STRA(KK(6)+I)				
+                   WA(JJ + 1) = LBUF%STRA(KK(1)+I)
+                   WA(JJ + 2) = LBUF%STRA(KK(2)+I)
+                   WA(JJ + 3) = LBUF%STRA(KK(3)+I)
+                   WA(JJ + 4) = LBUF%STRA(KK(4)+I)
+                   WA(JJ + 5) = LBUF%STRA(KK(5)+I)
+                   WA(JJ + 6) = LBUF%STRA(KK(6)+I)
                    JJ=JJ + 6                                                   
                  ENDDO                                                         
                 ENDDO                                                          
@@ -580,12 +577,12 @@ C--------------------------------------
                 DO IS=1,NPTS                                              
                  DO IR=1,NPTR                                                
                    LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)           
-                   WA(JJ + 1) = LBUF%STRA(KK(1)+I)				
-                   WA(JJ + 2) = LBUF%STRA(KK(2)+I)				
-                   WA(JJ + 3) = LBUF%STRA(KK(3)+I)				
-                   WA(JJ + 4) = LBUF%STRA(KK(4)+I)				
-                   WA(JJ + 5) = LBUF%STRA(KK(5)+I)				
-                   WA(JJ + 6) = LBUF%STRA(KK(6)+I)				
+                   WA(JJ + 1) = LBUF%STRA(KK(1)+I)
+                   WA(JJ + 2) = LBUF%STRA(KK(2)+I)
+                   WA(JJ + 3) = LBUF%STRA(KK(3)+I)
+                   WA(JJ + 4) = LBUF%STRA(KK(4)+I)
+                   WA(JJ + 5) = LBUF%STRA(KK(5)+I)
+                   WA(JJ + 6) = LBUF%STRA(KK(6)+I)
                    JJ=JJ + 6                                                   
                  ENDDO                                                         
                 ENDDO                                                          
@@ -600,7 +597,7 @@ C
         NGF = NGL + 1
         JJ_LOC(NN) = JJ - COMPTEUR            ! size of each group
         COMPTEUR = JJ                         
-       ENDDO         ! nn=1,nspgroup
+       ENDDO         ! nn = 1, nspgroup
 !     ++++++++++
        IF( NSPMD>1 ) THEN
         CALL SPMD_RGATHER9_1COMM(WA,JJ,JJ_LOC,WAP0_LOC,SIZP0,ADRESS)
@@ -612,7 +609,7 @@ C
         ENDDO
        ENDIF
 !     ++++++++++
-       IF(ISPMD.EQ.0) THEN
+       IF(ISPMD==0) THEN
        DO NN=1,NSPGROUP
         COMPTEUR = 0
         DO K = 1,NSPMD
@@ -627,12 +624,12 @@ C
         JJ_OLD = COMPTEUR+1
 c--------------------------------
         IF (JJ_OLD > 1) THEN
-C       ICAS_OLD sert a connaitre le "type" du dernier groupe traite
-C       on ajoute un commentaire de format a chaque changement
+C       Icas_old is used to know the "type" of the last group deals
+C       a format comment is added at each change
          ICAS_OLD = 0
          J = 1
          DO WHILE (J < JJ_OLD)
-C         valeur absolue deja stockee dans WA
+C         Absolute value already stores in wa
           IF (ITENS == 2) THEN
            NLAY = NINT(WAP0(J))
            NPTR = NINT(WAP0(J+1))
@@ -667,7 +664,7 @@ c
               ENDIF ! ICAS_OLD
               IF (OUTYY_FMT == 2) THEN
                 WRITE(IUGEO,'(6I8)') NPT,ISOLNOD,KHBE,NPTR,NPTS,NPTT 
-C               ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                 DO I = 1, NPT
                   WRITE(IUGEO,'(1P6E12.5)')(WAP0(J-1+K),K=1,6)
                   J = J + 6
@@ -676,7 +673,7 @@ C               ecriture sur 2 lignes cf smp !
                 ENDDO
               ELSE
                 WRITE(IUGEO,'(6I10)')NPT,ISOLNOD,KHBE,NPTR,NPTS,NPTT 
-C               ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                 DO I = 1, NPT
                   WRITE(IUGEO,'(1P6E20.13)')(WAP0(J-1+K),K=1,6)
                   J = J + 6
@@ -704,7 +701,7 @@ c
              ENDIF
              IF (OUTYY_FMT == 2) THEN
                WRITE(IUGEO,'(3I8)') NPT, ISOLNOD, KHBE
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E12.5)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -713,7 +710,7 @@ C              ecriture sur 2 lignes cf smp !
                ENDDO
              ELSE
                WRITE(IUGEO,'(3I10)') NPT, ISOLNOD, KHBE
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E20.13)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -725,7 +722,7 @@ C              ecriture sur 2 lignes cf smp !
 c          solid properties
            ELSEIF (ISOLNOD == 8 .AND. NPT == 8 .AND.
      .         KHBE /= 14 .AND. KHBE /= 15 .AND. KHBE/=17) THEN
-C            test cas precedent et ecriture format si besoin
+C            Precedent case test and format writing if necessary
              IF (ICAS_OLD /= 4) THEN
                ICAS_OLD = 4
                IF (OUTYY_FMT == 2) THEN
@@ -748,7 +745,7 @@ C            test cas precedent et ecriture format si besoin
                WRITE(IUGEO,'(2I8)')NPT,ISOLNOD 
                WRITE(IUGEO,'(1P2E12.5)')(WAP0(J-1+K),K=1,2)
                J=J+2
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E12.5)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -759,7 +756,7 @@ C              ecriture sur 2 lignes cf smp !
                WRITE(IUGEO,'(2I10)')NPT,ISOLNOD 
                WRITE(IUGEO,'(1P2E20.13)')(WAP0(J-1+K),K=1,2)
                J=J+2
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E20.13)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -790,7 +787,7 @@ c
 c
              IF (OUTYY_FMT == 2) THEN
                WRITE(IUGEO,'(6I8)') NPT,ISOLNOD,KHBE,NPTR,NPTS,NPTT 
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E12.5)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -799,7 +796,7 @@ C              ecriture sur 2 lignes cf smp !
                ENDDO
              ELSE
                WRITE(IUGEO,'(6I10)')NPT,ISOLNOD,KHBE,NPTR,NPTS,NPTT 
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E20.13)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -827,7 +824,7 @@ c
              ENDIF
              IF (OUTYY_FMT == 2) THEN
                WRITE(IUGEO,'(5I8)')NPT,ISOLNOD,NPTR,NPTS,NPTT 
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E12.5)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -836,7 +833,7 @@ C              ecriture sur 2 lignes cf smp !
                ENDDO
              ELSE
                WRITE(IUGEO,'(5I10)')NPT,ISOLNOD,NPTR,NPTS,NPTT 
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E20.13)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -882,7 +879,7 @@ c
                  WRITE(IUGEO,'(1P1E20.13)')WAP0(J)
                  J = J + 1
                ENDIF
-C           le test remis coherent par rapport a SMP
+C           the test made consistent with respect to SMP
 c
            ELSEIF (ISOLNOD == 10) THEN
              IF(ICAS_OLD /= 7) THEN
@@ -903,7 +900,7 @@ c
              ENDIF
              IF (OUTYY_FMT == 2) THEN
                WRITE(IUGEO,'(2I8)')NPT,ISOLNOD
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E12.5)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -912,7 +909,7 @@ C              ecriture sur 2 lignes cf smp !
                ENDDO
              ELSE
                WRITE(IUGEO,'(2I10)')NPT,ISOLNOD
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E20.13)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -939,7 +936,7 @@ C              ecriture sur 2 lignes cf smp !
              ENDIF
              IF (OUTYY_FMT == 2) THEN
                WRITE(IUGEO,'(3I8)') NPT, ISOLNOD, KHBE
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E12.5)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -948,7 +945,7 @@ C              ecriture sur 2 lignes cf smp !
                ENDDO
              ELSE
                WRITE(IUGEO,'(3I10)') NPT, ISOLNOD, KHBE
-C              ecriture sur 2 lignes cf smp !
+C              Writing on 2 lines for SMP compatibility
                DO I = 1, NPT
                  WRITE(IUGEO,'(1P6E20.13)')(WAP0(J-1+K),K=1,6)
                  J = J + 6
@@ -1004,19 +1001,19 @@ c
 c-------------------------------
          ENDDO  ! WHILE (J < JJ_OLD)
        ENDIF    ! jj_old>1
-      ENDDO     ! nn=1,nspgroup
+      ENDDO     ! nn = 1, nspgroup
       ENDIF     ! ispmd==0
 C-----------              
       RETURN
       END
-Chd|====================================================================
-Chd|  COUNT_ARSZ_ST                 source/output/sty/outp_s_t.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|        OUTP_ARSZ_ST                  source/mpi/interfaces/spmd_outp.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    count_arsz_st   ../engine/source/output/sty/outp_s_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp         ../engine/source/output/sty/genoutp.F
+!||    outp_arsz_st    ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE COUNT_ARSZ_ST(IPARG,DD_IAD,WASZ,SZP0)
 C-----------------------------------------------
 C   M o d u l e s
@@ -1026,12 +1023,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   M P I   I n c l u d e s
-C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1046,7 +1037,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NGL,ITY,NRL,KHBE,MLW,NPT,ISOLNOD,NGF,NN,NEL,
+      INTEGER NGL, ITY, KHBE, MLW, NPT, ISOLNOD, NGF, NN, NEL, 
      .        NG,NLAY,NPTR,NPTS,NPTT,NPTG,JJ,
      .        SZP0(3*NSPGROUP+3)
 C=======================================================================

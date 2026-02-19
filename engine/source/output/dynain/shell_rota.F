@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SHELL_ROTA                    source/output/dynain/shell_rota.F
-Chd|-- called by -----------
-Chd|        DYNAIN_C_STRSG                source/output/dynain/dynain_c_strsg.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    shell_rota       ../engine/source/output/dynain/shell_rota.F
+!||--- called by ------------------------------------------------------
+!||    dynain_c_strsg   ../engine/source/output/dynain/dynain_c_strsg.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE SHELL_ROTA(I        ,ILAY    ,NEL    ,IORTH  ,ITY      ,
      2                      IGTYP    ,MLW     ,JDIR   ,SIG    ,ELBUF_STR,
      3                      RX       ,RY      ,RZ     ,SX     ,SY       ,  
@@ -45,12 +45,10 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
-#include      "scr01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL, ILAY,I , NS1,ITY, IORTH, IGTYP,MLW ,JDIR
+      INTEGER NEL, ILAY, I, ITY, IORTH, IGTYP, MLW, JDIR
       my_real SIG(6)
       my_real
      .   RX(MVSIZ), RY(MVSIZ), RZ(MVSIZ), 
@@ -67,14 +65,12 @@ C-----------------------------------------------
       INTEGER ILAW , II
       my_real 
      .   DIR(2),
-     .   V1,V2,V3,VR,VS,AA,BB,SUMA,
+     .
      .   R1,S1,S2,R2,RS1,RS2,R12A,R22A,S12B,S22B,
      .   RS3,R3R3,S3S3,T1,T2,T3,S3,S4,S5,
      .   L11,L12,L13,L22,L23,L33,
      .   R11,R12,R13,R21,R22,R23,R31,R32,R33,
      .   S11,S12,S21,S13,S31,S22,S23,S32,S33
-      my_real, 
-     .   DIMENSION(:) , POINTER :: DIR1 
 C=======================================================================
 C*******************************************
 C     Rotate to global system 
@@ -168,7 +164,7 @@ c
 
        ENDIF
 C-----------------------------------
-C      Rotation Element > Global
+C      Rotation element> Global
 C     TENSOR ROTATION.
 C        R passage Global -> Local.
 C        R S Transpose(R)
@@ -213,14 +209,16 @@ C
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SHELL_LOCAL_FRAME             source/output/dynain/shell_rota.F
-Chd|-- called by -----------
-Chd|        DYNAIN_C_STRSG                source/output/dynain/dynain_c_strsg.F
-Chd|-- calls ---------------
-Chd|        CLSKEW3                       source/elements/sh3n/coquedk/cdkcoor3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    shell_local_frame   ../engine/source/output/dynain/shell_rota.F
+!||--- called by ------------------------------------------------------
+!||    dynain_c_strsg      ../engine/source/output/dynain/dynain_c_strsg.F
+!||--- calls      -----------------------------------------------------
+!||    clskew3             ../engine/source/elements/sh3n/coquedk/cdkcoor3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE SHELL_LOCAL_FRAME(JFT    , JLT   ,ITY      ,IHBE     ,IGTYP   ,
      2                             IXC    ,IXTG   ,NFT      ,X        ,OFFG    ,
      3                             RX     ,RY     ,RZ       ,SX       ,SY      ,  
@@ -230,6 +228,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -238,13 +237,11 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
-#include      "scr01_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL, ITY, NFT ,JFT, JLT , IHBE, IGTYP ,        
+      INTEGER ITY, NFT, JFT, JLT, IHBE, IGTYP, 
      .        IXC(NIXC,*), IXTG(NIXTG,*)
       my_real X(3,*), OFFG(*)
       my_real
@@ -256,7 +253,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I , K, I1,I2,I3,I4,IREL
+      INTEGER I, I1, I2, I3, I4, IREL
       my_real
      .   SUMA(MVSIZ)
 

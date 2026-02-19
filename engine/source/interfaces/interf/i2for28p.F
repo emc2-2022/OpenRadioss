@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2FOR28P                      source/interfaces/interf/i2for28p.F
-Chd|-- called by -----------
-Chd|        INTTI2F                       source/interfaces/interf/intti2f.F
-Chd|-- calls ---------------
-Chd|        I2FOR28P_CIN                  source/interfaces/interf/i2for28p_cin.F
-Chd|        I2FOR28P_PEN                  source/interfaces/interf/i2for28p_pen.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2for28p       ../engine/source/interfaces/interf/i2for28p.F
+!||--- called by ------------------------------------------------------
+!||    intti2f        ../engine/source/interfaces/interf/intti2f.F
+!||--- calls      -----------------------------------------------------
+!||    i2for28p_cin   ../engine/source/interfaces/interf/i2for28p_cin.F
+!||    i2for28p_pen   ../engine/source/interfaces/interf/i2for28p_pen.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod        ../engine/share/modules/h3d_mod.F
+!||====================================================================
       SUBROUTINE I2FOR28P(
      .           X           ,V           ,VR          ,A           ,AR          ,
      .           MS          ,IN          ,STIFN       ,STIFR       ,WEIGHT      ,
@@ -67,19 +68,11 @@ C-----------------------------------------------
      .   DPARA(7,*),DMAST,ADM(*),NMAS(*),FNCONTP(3,*)   ,FTCONTP(3,*) 
       TYPE (H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
-#include      "com01_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,ISN,NI,I0BASE,NINDXC,NINDXP
       INTEGER IADX(NSN),INDXC(NSN),INDXP(NSN)
-C=======================================================================
+C===============================================
       INDXC(1:NSN) = 0      
       INDXP(1:NSN) = 0      
       IADX(1:NSN)  = 0      
@@ -112,8 +105,8 @@ c-----------
      3       AR       ,IN      ,X      ,STIFN   ,STIFR   ,
      4       FSKYI2   ,IADI2   ,FSAV   ,DMAST   ,ADM     ,
      5       MMAS     ,I0      ,NIR    ,I2SIZE  ,IDEL2   ,
-     6       SMAS     ,SINER   ,V      ,CSTS    ,FNCONT  ,
-     7       INDXC    ,IADX    ,H3D_DATA,FNCONTP     ,FTCONTP)
+     6       SMAS     ,SINER   ,CSTS   ,FNCONT  ,INDXC   ,
+     7       IADX     ,H3D_DATA,FNCONTP,FTCONTP)
 c
       ENDIF
 c
@@ -128,7 +121,7 @@ c
      .       STFR_PEN  ,VISC      ,PENFLAG   ,IROT      ,NOINT     ,
      .       NODNX_SMS ,DMINT2    ,DT2T      ,NELTST    ,ITYPTST   ,
      .       IRECTM    ,INDXP     ,IADX      ,
-     .       H3D_DATA  ,FNCONTP     ,FTCONTP)
+     .       H3D_DATA  ,FNCONTP   ,FTCONTP)
 c
       ENDIF 
       I0 = I0BASE + NI                                                         

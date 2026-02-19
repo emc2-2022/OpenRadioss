@@ -1,64 +1,59 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPGRADT                       source/elements/sph/sptemp.F  
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|-- calls ---------------
-Chd|        WEIGHT1                       source/elements/sph/weight.F  
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spgradt   ../engine/source/elements/sph/sptemp.F
+!||--- called by ------------------------------------------------------
+!||    forintp   ../engine/source/elements/forintp.F
+!||--- calls      -----------------------------------------------------
+!||    weight1   ../engine/source/elements/sph/weight.F
+!||--- uses       -----------------------------------------------------
+!||    sphbox    ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPGRADT(
-     1    X        ,MS      ,SPBUF   ,KXSP     ,IXSP    ,
-     2    NOD2SP   ,ISPSYM  ,XSPSYM  ,WA      ,WACOMP  ,
-     3    WTEMP    ,WTR     ,WGRADT  )
+     1   X,       MS,      SPBUF,   KXSP,
+     2   IXSP,    NOD2SP,  ISPSYM,  XSPSYM,
+     3   WA,      WACOMP,  WTEMP,   WTR,
+     4   WGRADT,  LFT,     LLT,     NFT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE SPHBOX
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "sphcom.inc"
-#include      "param_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: LFT
+      INTEGER, INTENT(INOUT) :: LLT
+      INTEGER, INTENT(INOUT) :: NFT
       INTEGER KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),
      .        ISPSYM(NSPCOND,*)
-C     REAL
       my_real
      .   X(3,*)    ,MS(*)   ,
      .   SPBUF(NSPBUF,*) ,XSPSYM(3,*) ,
@@ -68,16 +63,16 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,N,INOD,JNOD,J,NVOIS,M,
-     .        NVOISS,SM,JS,NC,NS,NN
+     .        NVOISS,SM,JS,NC,NN
       my_real
      .       XI,YI,ZI,DI,RHOI,XJ,YJ,ZJ,DJ,RHOJ,DIJ,
      .       VJ,WGHT,WGRAD(3),
      . ALPHAI,ALPHAXI,ALPHAYI,ALPHAZI,
-     . BETAXI,BETAYI,BETAZI,
+     . 
      . BETAXXI,BETAYXI,BETAZXI,
      . BETAXYI,BETAYYI,BETAZYI,
      . BETAXZI,BETAYZI,BETAZZI,
-     . BETAX,WGRDX,WGRDY,WGRDZ,
+     . WGRDX,WGRDY,WGRDZ,
      . TI,TJ
 C-------------------------------------------
       DO I=LFT,LLT
@@ -87,11 +82,11 @@ C-------------------------------------------
        WGRADT(3,N)=ZERO
       ENDDO
 C-----------------------------------------------
-C     Calcul du gradient de temperature.
+C     Calculation of temperature gradient.
 C-----------------------------------------------
       DO 10 I=LFT,LLT
        N    =NFT+I
-       IF(KXSP(2,N).LE.0)GOTO 10
+       IF(KXSP(2,N)<=0)GOTO 10
        INOD =KXSP(3,N)
        XI=X(1,INOD)
        YI=X(2,INOD)
@@ -101,9 +96,9 @@ C-----------------------------------------------
        RHOI =WA(10,N)
 C-----
        ALPHAI=WACOMP(1,N)
-       BETAXI=WACOMP(2,N)
-       BETAYI=WACOMP(3,N)
-       BETAZI=WACOMP(4,N)
+C       BETAXI=WACOMP(2,N)
+C       BETAYI=WACOMP(3,N)
+C       BETAZI=WACOMP(4,N)
        ALPHAXI=WACOMP( 5,N)
        ALPHAYI=WACOMP( 6,N)
        ALPHAZI=WACOMP( 7,N)
@@ -120,7 +115,7 @@ C------
        NVOIS=KXSP(4,N)
        DO J=1,NVOIS
         JNOD=IXSP(J,N)
-        IF(JNOD.GT.0)THEN
+        IF(JNOD>0)THEN
           M=NOD2SP(JNOD)
           XJ=X(1,JNOD)
           YJ=X(2,JNOD)
@@ -143,22 +138,23 @@ C------
           VJ=XSPHR(8,NN)/MAX(EM20,RHOJ)
           TJ=WTR(NN)
         END IF
-        BETAX=ONE +BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
-        WGRDX=
-     .   WGRAD(1)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAXI*BETAX+ALPHAI*
-     .       (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
-        WGRDY=
-     .   WGRAD(2)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAYI*BETAX+ALPHAI*
-     .       (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
-        WGRDZ=
-     .   WGRAD(3)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAZI*BETAX+ALPHAI*
-     .       (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
+        WGRDX=WGRAD(1)*ALPHAI+WGHT*ALPHAXI
+     .       +WGRAD(1)*BETAXXI+WGRAD(2)*BETAXYI+WGRAD(3)*BETAXZI
+        WGRDY=WGRAD(2)*ALPHAI+WGHT*ALPHAYI
+     .       +WGRAD(1)*BETAYXI+WGRAD(2)*BETAYYI+WGRAD(3)*BETAYZI
+        WGRDZ=WGRAD(3)*ALPHAI+WGHT*ALPHAZI
+     .       +WGRAD(1)*BETAZXI+WGRAD(2)*BETAZYI+WGRAD(3)*BETAZZI   
+!        Old order1 correction        
+!        BETAX=ONE +BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
+!        WGRDX=WGRAD(1)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAXI*BETAX+ALPHAI*
+!     .    (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
+!        WGRDY=WGRAD(2)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAYI*BETAX+ALPHAI*
+!     .    (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
+!        WGRDZ=WGRAD(3)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAZI*BETAX+ALPHAI*
+!     .    (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
         WGRAD(1)=WGRDX
         WGRAD(2)=WGRDY
         WGRAD(3)=WGRDZ
@@ -169,11 +165,11 @@ C
 C--------
        END DO
 C------
-C      partie symetrique.
+C      symmetrical part.
        NVOISS=KXSP(6,N)
        DO J=KXSP(5,N)+1,KXSP(5,N)+NVOISS
         JS=IXSP(J,N)
-        IF(JS.GT.0)THEN
+        IF(JS>0)THEN
           SM=JS/(NSPCOND+1)
           NC=MOD(JS,NSPCOND+1)
           JS=ISPSYM(NC,SM)
@@ -202,22 +198,24 @@ C      partie symetrique.
           VJ=XSPHR(8,SM)/MAX(EM20,RHOJ)
           TJ=WTR(SM)
         END IF
-        BETAX=ONE + BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
-        WGRDX=
-     .   WGRAD(1)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAXI*BETAX+ALPHAI*
-     .       (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
-        WGRDY=
-     .   WGRAD(2)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAYI*BETAX+ALPHAI*
-     .       (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
-        WGRDZ=
-     .   WGRAD(3)*ALPHAI*BETAX
-     .   +WGHT*
-     .     (ALPHAZI*BETAX+ALPHAI*
-     .       (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
+C
+        WGRDX=WGRAD(1)*ALPHAI+WGHT*ALPHAXI
+     .       +WGRAD(1)*BETAXXI+WGRAD(2)*BETAXYI+WGRAD(3)*BETAXZI
+        WGRDY=WGRAD(2)*ALPHAI+WGHT*ALPHAYI
+     .       +WGRAD(1)*BETAYXI+WGRAD(2)*BETAYYI+WGRAD(3)*BETAYZI
+        WGRDZ=WGRAD(3)*ALPHAI+WGHT*ALPHAZI
+     .       +WGRAD(1)*BETAZXI+WGRAD(2)*BETAZYI+WGRAD(3)*BETAZZI
+!        Old order1 correction        
+!        BETAX=ONE + BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
+!        WGRDX=WGRAD(1)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAXI*BETAX+ALPHAI*
+!     .    (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
+!        WGRDY=WGRAD(2)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAYI*BETAX+ALPHAI*
+!     .    (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
+!        WGRDZ=WGRAD(3)*ALPHAI*BETAX
+!     .   +WGHT*(ALPHAZI*BETAX+ALPHAI*
+!     .    (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
         WGRAD(1)=WGRDX
         WGRAD(2)=WGRDY
         WGRAD(3)=WGRDZ
@@ -231,46 +229,41 @@ C------
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLAPLT                       source/elements/sph/sptemp.F  
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|-- calls ---------------
-Chd|        WEIGHT1                       source/elements/sph/weight.F  
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|====================================================================
+!||====================================================================
+!||    splaplt   ../engine/source/elements/sph/sptemp.F
+!||--- called by ------------------------------------------------------
+!||    forintp   ../engine/source/elements/forintp.F
+!||--- calls      -----------------------------------------------------
+!||    weight1   ../engine/source/elements/sph/weight.F
+!||--- uses       -----------------------------------------------------
+!||    sphbox    ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPLAPLT(
-     1    X        ,MS      ,SPBUF   ,KXSP     ,IXSP    ,
-     2    NOD2SP   ,ISPSYM  ,XSPSYM  ,WA       ,WACOMP  ,
-     3    WGRADT   ,WGR     ,WGRADTSM,WLAPLT   ,WSMCOMP ,
-     4    LAMBDA   ,LAMBDR  )
+     1   X,       MS,      SPBUF,   KXSP,
+     2   IXSP,    NOD2SP,  ISPSYM,  XSPSYM,
+     3   WA,      WACOMP,  WGRADT,  WGR,
+     4   WGRADTSM,WLAPLT,  WSMCOMP, LAMBDA,
+     5   LAMBDR,  LFT,     LLT,     NFT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE SPHBOX
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "sphcom.inc"
-#include      "param_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: LFT
+      INTEGER, INTENT(INOUT) :: LLT
+      INTEGER, INTENT(INOUT) :: NFT
       INTEGER KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),
      .        ISPSYM(NSPCOND,*)
-C     REAL
       my_real
      .   X(3,*)    ,MS(*)   ,
      .   SPBUF(NSPBUF,*) ,XSPSYM(3,*) ,
@@ -281,21 +274,21 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,N,INOD,JNOD,J,NVOIS,M,
-     .        NVOISS,SM,JS,NC,NS,NN
+     .        NVOISS,SM,JS,NC,NN
       my_real
      .       XI,YI,ZI,DI,RHOI,XJ,YJ,ZJ,DJ,RHOJ,DIJ,
      .       VJ,WGHT,WGRAD(3),
      . ALPHAI,ALPHAXI,ALPHAYI,ALPHAZI,
-     . BETAXI,BETAYI,BETAZI,
+     . 
      . BETAXXI,BETAYXI,BETAZXI,
      . BETAXYI,BETAYYI,BETAZYI,
      . BETAXZI,BETAYZI,BETAZZI,
      . ALPHAJ,ALPHAXJ,ALPHAYJ,ALPHAZJ,
-     . BETAXJ,BETAYJ,BETAZJ,
+     . 
      . BETAXXJ,BETAYXJ,BETAZXJ,
      . BETAXYJ,BETAYYJ,BETAZYJ,
      . BETAXZJ,BETAYZJ,BETAZZJ,
-     . BETAX,WGRDX,WGRDY,WGRDZ,WGRD(3),
+     . WGRDX,WGRDY,WGRDZ,WGRD(3),
      . GRADTXI,GRADTYI,GRADTZI,
      . GRADTXJ,GRADTYJ,GRADTZJ
 C-------------------------------------------
@@ -304,11 +297,11 @@ C-------------------------------------------
        WLAPLT(N)=ZERO
       ENDDO
 C-----------------------------------------------
-C     Calcul du Laplacien(T).
+C     Calculation of Laplacian(T).
 C-----------------------------------------------
       DO 10 I=LFT,LLT
        N    =NFT+I
-       IF(KXSP(2,N).LE.0)GOTO 10
+       IF(KXSP(2,N)<=0)GOTO 10
        INOD =KXSP(3,N)
        XI=X(1,INOD)
        YI=X(2,INOD)
@@ -320,9 +313,9 @@ C-----------------------------------------------
        RHOI =WA(10,N)
 C-----
        ALPHAI=WACOMP(1,N)
-       BETAXI=WACOMP(2,N)
-       BETAYI=WACOMP(3,N)
-       BETAZI=WACOMP(4,N)
+C       BETAXI=WACOMP(2,N)
+C       BETAYI=WACOMP(3,N)
+C       BETAZI=WACOMP(4,N)
        ALPHAXI=WACOMP( 5,N)
        ALPHAYI=WACOMP( 6,N)
        ALPHAZI=WACOMP( 7,N)
@@ -339,7 +332,7 @@ C------
        NVOIS=KXSP(4,N)
        DO J=1,NVOIS
         JNOD=IXSP(J,N)
-        IF(JNOD.GT.0)THEN
+        IF(JNOD>0)THEN
           M=NOD2SP(JNOD)
           XJ=X(1,JNOD)
           YJ=X(2,JNOD)
@@ -355,28 +348,29 @@ C------
           WGRDX=WGRAD(1)
           WGRDY=WGRAD(2)
           WGRDZ=WGRAD(3)
-          BETAX=ONE +BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
-          WGRAD(1)=
-     .     WGRDX*ALPHAI*BETAX
-     .     +WGHT*
-     .      (ALPHAXI*BETAX+ALPHAI*
-     .       (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
-          WGRAD(2)=
-     .     WGRDY*ALPHAI*BETAX
-     .     +WGHT*
-     .      (ALPHAYI*BETAX+ALPHAI*
-     .       (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
-          WGRAD(3)=
-     .     WGRDZ*ALPHAI*BETAX
-     .     +WGHT*
-     .      (ALPHAZI*BETAX+ALPHAI*
-     .       (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
+          WGRAD(1)=WGRDX*ALPHAI+WGHT*ALPHAXI
+     .            +WGRDX*BETAXXI+WGRDY*BETAXYI+WGRDZ*BETAXZI
+          WGRAD(2)=WGRDY*ALPHAI+WGHT*ALPHAYI
+     .            +WGRDX*BETAYXI+WGRDY*BETAYYI+WGRDZ*BETAYZI
+          WGRAD(3)=WGRDZ*ALPHAI+WGHT*ALPHAZI
+     .            +WGRDX*BETAZXI+WGRDY*BETAZYI+WGRDZ*BETAZZI
+!          Old order1 correction          
+!          BETAX=ONE +BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
+!          WGRAD(1)=WGRDX*ALPHAI*BETAX
+!     .     +WGHT*(ALPHAXI*BETAX+ALPHAI*
+!     .      (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
+!          WGRAD(2)=WGRDY*ALPHAI*BETAX
+!     .     +WGHT*(ALPHAYI*BETAX+ALPHAI*
+!     .      (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
+!          WGRAD(3)=WGRDZ*ALPHAI*BETAX
+!     .     +WGHT*(ALPHAZI*BETAX+ALPHAI*
+!     .      (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
 C----------
 C         noyau conjugue Grad[Wa(b)]
           ALPHAJ=WACOMP(1,M)
-          BETAXJ=WACOMP(2,M)
-          BETAYJ=WACOMP(3,M)
-          BETAZJ=WACOMP(4,M)
+C          BETAXJ=WACOMP(2,M)
+C          BETAYJ=WACOMP(3,M)
+C          BETAZJ=WACOMP(4,M)
           ALPHAXJ=WACOMP( 5,M)
           ALPHAYJ=WACOMP( 6,M)
           ALPHAZJ=WACOMP( 7,M)
@@ -390,22 +384,23 @@ C         noyau conjugue Grad[Wa(b)]
           BETAYZJ=WACOMP(15,M)
           BETAZZJ=WACOMP(16,M)
 C
-          BETAX=ONE +BETAXJ*(XJ-XI)+BETAYJ*(YJ-YI)+BETAZJ*(ZJ-ZI)
-          WGRD(1)=
-     .     -WGRDX*ALPHAJ*BETAX
-     .     +WGHT*
-     .      (ALPHAXJ*BETAX+ALPHAJ*
-     .       (BETAXXJ*(XJ-XI)+BETAYXJ*(YJ-YI)+BETAZXJ*(ZJ-ZI)+BETAXJ))
-          WGRD(2)=
-     .     -WGRDY*ALPHAJ*BETAX
-     .     +WGHT*
-     .      (ALPHAYJ*BETAX+ALPHAJ*
-     .       (BETAXYJ*(XJ-XI)+BETAYYJ*(YJ-YI)+BETAZYJ*(ZJ-ZI)+BETAYJ))
-          WGRD(3)=
-     .     -WGRDZ*ALPHAJ*BETAX
-     .     +WGHT*
-     .      (ALPHAZJ*BETAX+ALPHAJ*
-     .       (BETAXZJ*(XJ-XI)+BETAYZJ*(YJ-YI)+BETAZZJ*(ZJ-ZI)+BETAZJ))
+          WGRD(1)=-WGRDX*ALPHAJ+WGHT*ALPHAXJ
+     .            -WGRDX*BETAXXJ-WGRDY*BETAXYJ-WGRDZ*BETAXZJ
+          WGRD(2)=-WGRDY*ALPHAJ+WGHT*ALPHAYJ
+     .            -WGRDX*BETAYXJ-WGRDY*BETAYYJ-WGRDZ*BETAYZJ
+          WGRD(3)=-WGRDZ*ALPHAJ+WGHT*ALPHAZJ
+     .            -WGRDX*BETAZXJ-WGRDY*BETAZYJ-WGRDZ*BETAZZJ  
+!          Old order1 correction          
+!          BETAX=ONE +BETAXJ*(XJ-XI)+BETAYJ*(YJ-YI)+BETAZJ*(ZJ-ZI)
+!          WGRD(1)=-WGRDX*ALPHAJ*BETAX
+!     .     +WGHT*(ALPHAXJ*BETAX+ALPHAJ*
+!     .      (BETAXXJ*(XJ-XI)+BETAYXJ*(YJ-YI)+BETAZXJ*(ZJ-ZI)+BETAXJ))
+!          WGRD(2)=-WGRDY*ALPHAJ*BETAX
+!     .     +WGHT*(ALPHAYJ*BETAX+ALPHAJ*
+!     .      (BETAXYJ*(XJ-XI)+BETAYYJ*(YJ-YI)+BETAZYJ*(ZJ-ZI)+BETAYJ))
+!          WGRD(3)=-WGRDZ*ALPHAJ*BETAX
+!     .     +WGHT*(ALPHAZJ*BETAX+ALPHAJ*
+!     .      (BETAXZJ*(XJ-XI)+BETAYZJ*(YJ-YI)+BETAZZJ*(ZJ-ZI)+BETAZJ)) 
 C
           WLAPLT(N)=WLAPLT(N)+VJ*( 
      . -LAMBDA(M)*(GRADTXJ*WGRD(1)+GRADTYJ*WGRD(2)+GRADTZJ*WGRD(3))
@@ -427,28 +422,29 @@ C--------
           WGRDX=WGRAD(1)
           WGRDY=WGRAD(2)
           WGRDZ=WGRAD(3)
-          BETAX=1.+BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
-          WGRAD(1)=
-     .     WGRDX*ALPHAI*BETAX
-     .     +WGHT*
-     .      (ALPHAXI*BETAX+ALPHAI*
-     .       (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
-          WGRAD(2)=
-     .     WGRDY*ALPHAI*BETAX
-     .     +WGHT*
-     .      (ALPHAYI*BETAX+ALPHAI*
-     .       (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
-          WGRAD(3)=
-     .     WGRDZ*ALPHAI*BETAX
-     .     +WGHT*
-     .      (ALPHAZI*BETAX+ALPHAI*
-     .       (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
+          WGRAD(1)=WGRDX*ALPHAI+WGHT*ALPHAXI
+     .            +WGRDX*BETAXXI+WGRDY*BETAXYI+WGRDZ*BETAXZI
+          WGRAD(2)=WGRDY*ALPHAI+WGHT*ALPHAYI
+     .            +WGRDX*BETAYXI+WGRDY*BETAYYI+WGRDZ*BETAYZI
+          WGRAD(3)=WGRDZ*ALPHAI+WGHT*ALPHAZI
+     .            +WGRDX*BETAZXI+WGRDY*BETAZYI+WGRDZ*BETAZZI          
+!          Old order1 correction
+!          BETAX=1.+BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)          
+!          WGRAD(1)=WGRDX*ALPHAI*BETAX
+!          .    +WGHT*(ALPHAXI*BETAX+ALPHAI*
+!          .    (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
+!          WGRAD(2)=WGRDY*ALPHAI*BETAX
+!          .    +WGHT*(ALPHAYI*BETAX+ALPHAI*
+!          .    (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
+!          WGRAD(3)=WGRDZ*ALPHAI*BETAX
+!          .    +WGHT*(ALPHAZI*BETAX+ALPHAI*
+!          .    (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
 C----------
 C         noyau conjugue Grad[Wa(b)]
           ALPHAJ=WACOMPR(1,NN)
-          BETAXJ=WACOMPR(2,NN)
-          BETAYJ=WACOMPR(3,NN)
-          BETAZJ=WACOMPR(4,NN)
+C          BETAXJ=WACOMPR(2,NN)
+C          BETAYJ=WACOMPR(3,NN)
+C          BETAZJ=WACOMPR(4,NN)
           ALPHAXJ=WACOMPR( 5,NN)
           ALPHAYJ=WACOMPR( 6,NN)
           ALPHAZJ=WACOMPR( 7,NN)
@@ -462,22 +458,24 @@ C         noyau conjugue Grad[Wa(b)]
           BETAYZJ=WACOMPR(15,NN)
           BETAZZJ=WACOMPR(16,NN)
 C
-          BETAX=ONE +BETAXJ*(XJ-XI)+BETAYJ*(YJ-YI)+BETAZJ*(ZJ-ZI)
-          WGRD(1)=
-     .     -WGRDX*ALPHAJ*BETAX
-     .     +WGHT*
-     .      (ALPHAXJ*BETAX+ALPHAJ*
-     .       (BETAXXJ*(XJ-XI)+BETAYXJ*(YJ-YI)+BETAZXJ*(ZJ-ZI)+BETAXJ))
-          WGRD(2)=
-     .     -WGRDY*ALPHAJ*BETAX
-     .     +WGHT*
-     .      (ALPHAYJ*BETAX+ALPHAJ*
-     .       (BETAXYJ*(XJ-XI)+BETAYYJ*(YJ-YI)+BETAZYJ*(ZJ-ZI)+BETAYJ))
-          WGRD(3)=
-     .     -WGRDZ*ALPHAJ*BETAX
-     .     +WGHT*
-     .      (ALPHAZJ*BETAX+ALPHAJ*
-     .       (BETAXZJ*(XJ-XI)+BETAYZJ*(YJ-YI)+BETAZZJ*(ZJ-ZI)+BETAZJ))
+          WGRD(1)=-WGRDX*ALPHAJ+WGHT*ALPHAXJ
+     .            -WGRDX*BETAXXJ-WGRDY*BETAXYJ-WGRDZ*BETAXZJ
+          WGRD(2)=-WGRDY*ALPHAJ+WGHT*ALPHAYJ
+     .            -WGRDX*BETAYXJ-WGRDY*BETAYYJ-WGRDZ*BETAYZJ
+          WGRD(3)=-WGRDZ*ALPHAJ+WGHT*ALPHAZJ
+     .            -WGRDX*BETAZXJ-WGRDY*BETAZYJ-WGRDZ*BETAZZJ
+!          Old order1 correction          
+!          BETAX=ONE +BETAXJ*(XJ-XI)+BETAYJ*(YJ-YI)+BETAZJ*(ZJ-ZI)
+!          WGRD(1)=-WGRDX*ALPHAJ*BETAX
+!     .     +WGHT*(ALPHAXJ*BETAX+ALPHAJ*
+!     .      (BETAXXJ*(XJ-XI)+BETAYXJ*(YJ-YI)+BETAZXJ*(ZJ-ZI)+BETAXJ))
+!          WGRD(2)=-WGRDY*ALPHAJ*BETAX
+!     .     +WGHT*(ALPHAYJ*BETAX+ALPHAJ*
+!     .      (BETAXYJ*(XJ-XI)+BETAYYJ*(YJ-YI)+BETAZYJ*(ZJ-ZI)+BETAYJ))
+!          WGRD(3)=-WGRDZ*ALPHAJ*BETAX
+!     .     +WGHT*(ALPHAZJ*BETAX+ALPHAJ*
+!     .     (BETAXZJ*(XJ-XI)+BETAYZJ*(YJ-YI)+BETAZZJ*(ZJ-ZI)+BETAZJ))
+C 
           WLAPLT(N)=WLAPLT(N)+VJ*( 
      . -LAMBDR(NN)*(GRADTXJ*WGRD(1)+GRADTYJ*WGRD(2)+GRADTZJ*WGRD(3))
      . +LAMBDA(N)*(GRADTXI*WGRAD(1)+GRADTYI*WGRAD(2)+GRADTZI*WGRAD(3)))
@@ -485,11 +483,11 @@ C
 C--------
        END DO
 C------
-C      partie symetrique.
+C      symmetrical part.
        NVOISS=KXSP(6,N)
        DO J=KXSP(5,N)+1,KXSP(5,N)+NVOISS
         JS=IXSP(J,N)
-        IF(JS.GT.0)THEN
+        IF(JS>0)THEN
           SM=JS/(NSPCOND+1)
           NC=MOD(JS,NSPCOND+1)
           JS=ISPSYM(NC,SM)
@@ -508,34 +506,29 @@ C      partie symetrique.
           WGRDX=WGRAD(1)
           WGRDY=WGRAD(2)
           WGRDZ=WGRAD(3)
-          BETAX=ONE + BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
-          WGRAD(1)=
-     .     WGRDX*ALPHAI*BETAX
-     .     +WGHT*
-     .      (ALPHAXI*BETAX+ALPHAI*
-     .       (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
-          WGRAD(2)=
-     .     WGRDY*ALPHAI*BETAX
-     .     +WGHT*
-     .      (ALPHAYI*BETAX+ALPHAI*
-     .       (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
-          WGRAD(3)=
-     .     WGRDZ*ALPHAI*BETAX
-     .     +WGHT*
-     .      (ALPHAZI*BETAX+ALPHAI*
-     .       (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
+          WGRAD(1)=WGRDX*ALPHAI+WGHT*ALPHAXI
+     .            +WGRDX*BETAXXI+WGRDY*BETAXYI+WGRDZ*BETAXZI
+          WGRAD(2)=WGRDY*ALPHAI+WGHT*ALPHAYI
+     .            +WGRDX*BETAYXI+WGRDY*BETAYYI+WGRDZ*BETAYZI
+          WGRAD(3)=WGRDZ*ALPHAI+WGHT*ALPHAZI
+     .            +WGRDX*BETAZXI+WGRDY*BETAZYI+WGRDZ*BETAZZI             
+!          Old order1 correction          
+!          BETAX=ONE + BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
+!          WGRAD(1)=WGRDX*ALPHAI*BETAX
+!     .     +WGHT*(ALPHAXI*BETAX+ALPHAI*
+!     .      (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
+!          WGRAD(2)=WGRDY*ALPHAI*BETAX
+!     .     +WGHT*(ALPHAYI*BETAX+ALPHAI*
+!     .      (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
+!          WGRAD(3)=WGRDZ*ALPHAI*BETAX
+!     .     +WGHT*(ALPHAZI*BETAX+ALPHAI*
+!     .      (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
 C----------
-C         noyau conjugue.
+C         nucleus combines.
           ALPHAJ=WACOMP(1,SM)
-C         BETAXJ=WACOMP(2,SM)
-C         BETAYJ=WACOMP(3,SM)
-C         BETAZJ=WACOMP(4,SM)
-          BETAXJ=WSMCOMP(1,JS)
-          BETAYJ=WSMCOMP(2,JS)
-          BETAZJ=WSMCOMP(3,JS)
-C         ALPHAXJ=WACOMP( 5,SM)
-C         ALPHAYJ=WACOMP( 6,SM)
-C         ALPHAZJ=WACOMP( 7,SM)
+C          BETAXJ=WSMCOMP(1,JS)
+C          BETAYJ=WSMCOMP(2,JS)
+C          BETAZJ=WSMCOMP(3,JS)
           ALPHAXJ=WSMCOMP( 4,JS)
           ALPHAYJ=WSMCOMP( 5,JS)
           ALPHAZJ=WSMCOMP( 6,JS)
@@ -549,22 +542,23 @@ C         ALPHAZJ=WACOMP( 7,SM)
           BETAYZJ=WACOMP(15,SM)
           BETAZZJ=WACOMP(16,SM)
 C	  
-          BETAX=ONE +BETAXJ*(XJ-XI)+BETAYJ*(YJ-YI)+BETAZJ*(ZJ-ZI)
-          WGRD(1)=
-     .     -WGRDX*ALPHAJ*BETAX
-     .     +WGHT*
-     .      (ALPHAXJ*BETAX+ALPHAJ*
-     .       (BETAXXJ*(XJ-XI)+BETAYXJ*(YJ-YI)+BETAZXJ*(ZJ-ZI)+BETAXJ))
-          WGRD(2)=
-     .     -WGRDY*ALPHAJ*BETAX
-     .     +WGHT*
-     .      (ALPHAYJ*BETAX+ALPHAJ*
-     .       (BETAXYJ*(XJ-XI)+BETAYYJ*(YJ-YI)+BETAZYJ*(ZJ-ZI)+BETAYJ))
-          WGRD(3)=
-     .     -WGRDZ*ALPHAJ*BETAX
-     .     +WGHT*
-     .      (ALPHAZJ*BETAX+ALPHAJ*
-     .     (BETAXZJ*(XJ-XI)+BETAYZJ*(YJ-YI)+BETAZZJ*(ZJ-ZI)+BETAZJ))
+          WGRD(1)=-WGRDX*ALPHAJ+WGHT*ALPHAXJ
+     .            -WGRDX*BETAXXJ-WGRDY*BETAXYJ-WGRDZ*BETAXZJ
+          WGRD(2)=-WGRDY*ALPHAJ+WGHT*ALPHAYJ
+     .            -WGRDX*BETAYXJ-WGRDY*BETAYYJ-WGRDZ*BETAYZJ
+          WGRD(3)=-WGRDZ*ALPHAJ+WGHT*ALPHAZJ
+     .            -WGRDX*BETAZXJ-WGRDY*BETAZYJ-WGRDZ*BETAZZJ  
+!          Old order1 correction           
+!          BETAX=ONE +BETAXJ*(XJ-XI)+BETAYJ*(YJ-YI)+BETAZJ*(ZJ-ZI)
+!          WGRD(1)=-WGRDX*ALPHAJ*BETAX
+!     .     +WGHT*(ALPHAXJ*BETAX+ALPHAJ*
+!     .      (BETAXXJ*(XJ-XI)+BETAYXJ*(YJ-YI)+BETAZXJ*(ZJ-ZI)+BETAXJ))
+!          WGRD(2)=-WGRDY*ALPHAJ*BETAX
+!     .     +WGHT*(ALPHAYJ*BETAX+ALPHAJ*
+!     .      (BETAXYJ*(XJ-XI)+BETAYYJ*(YJ-YI)+BETAZYJ*(ZJ-ZI)+BETAYJ))
+!          WGRD(3)=-WGRDZ*ALPHAJ*BETAX
+!     .     +WGHT*(ALPHAZJ*BETAX+ALPHAJ*
+!     .     (BETAXZJ*(XJ-XI)+BETAYZJ*(YJ-YI)+BETAZZJ*(ZJ-ZI)+BETAZJ))
 C
           WLAPLT(N)=WLAPLT(N)+VJ*( 
      . -LAMBDA(SM)*(GRADTXJ*WGRD(1)+GRADTYJ*WGRD(2)+GRADTZJ*WGRD(3))
@@ -585,37 +579,33 @@ C
           GRADTXJ=WGRADTSM(1,JS)
           GRADTYJ=WGRADTSM(2,JS)
           GRADTZJ=WGRADTSM(3,JS)
+C
            WGRDX=WGRAD(1)
            WGRDY=WGRAD(2)
            WGRDZ=WGRAD(3)
-           BETAX=ONE +BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
-           WGRAD(1)=
-     .      WGRDX*ALPHAI*BETAX
-     .      +WGHT*
-     .       (ALPHAXI*BETAX+ALPHAI*
-     .        (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
-           WGRAD(2)=
-     .      WGRDY*ALPHAI*BETAX
-     .      +WGHT*
-     .       (ALPHAYI*BETAX+ALPHAI*
-     .        (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
-           WGRAD(3)=
-     .      WGRDZ*ALPHAI*BETAX
-     .      +WGHT*
-     .       (ALPHAZI*BETAX+ALPHAI*
-     .        (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
+           WGRAD(1)=WGRDX*ALPHAI+WGHT*ALPHAXI
+     .             +WGRDX*BETAXXI+WGRDY*BETAXYI+WGRDZ*BETAXZI
+           WGRAD(2)=WGRDY*ALPHAI+WGHT*ALPHAYI
+     .             +WGRDX*BETAYXI+WGRDY*BETAYYI+WGRDZ*BETAYZI
+           WGRAD(3)=WGRDZ*ALPHAI+WGHT*ALPHAZI
+     .             +WGRDX*BETAZXI+WGRDY*BETAZYI+WGRDZ*BETAZZI 
+!           Old order1 correction           
+!           BETAX=ONE +BETAXI*(XI-XJ)+BETAYI*(YI-YJ)+BETAZI*(ZI-ZJ)
+!           WGRAD(1)=WGRDX*ALPHAI*BETAX
+!     .      +WGHT*(ALPHAXI*BETAX+ALPHAI*
+!     .       (BETAXXI*(XI-XJ)+BETAYXI*(YI-YJ)+BETAZXI*(ZI-ZJ)+BETAXI))
+!           WGRAD(2)=WGRDY*ALPHAI*BETAX
+!     .      +WGHT*(ALPHAYI*BETAX+ALPHAI*
+!     .       (BETAXYI*(XI-XJ)+BETAYYI*(YI-YJ)+BETAZYI*(ZI-ZJ)+BETAYI))
+!           WGRAD(3)=WGRDZ*ALPHAI*BETAX
+!     .      +WGHT*(ALPHAZI*BETAX+ALPHAI*
+!     .       (BETAXZI*(XI-XJ)+BETAYZI*(YI-YJ)+BETAZZI*(ZI-ZJ)+BETAZI))
 C----------
-C          noyau conjugue.
+C          nucleus combines.
            ALPHAJ=WACOMPR(1,SM)
-C          BETAXJ=WACOMPR(2,SM)
-C          BETAYJ=WACOMPR(3,SM)
-C          BETAZJ=WACOMPR(4,SM)
-           BETAXJ=WSMCOMP(1,JS)
-           BETAYJ=WSMCOMP(2,JS)
-           BETAZJ=WSMCOMP(3,JS)
-C          ALPHAXJ=WACOMPR( 5,SM)
-C          ALPHAYJ=WACOMPR( 6,SM)
-C          ALPHAZJ=WACOMPR( 7,SM)
+C           BETAXJ=WSMCOMP(1,JS)
+C           BETAYJ=WSMCOMP(2,JS)
+C           BETAZJ=WSMCOMP(3,JS)
            ALPHAXJ=WSMCOMP( 4,JS)
            ALPHAYJ=WSMCOMP( 5,JS)
            ALPHAZJ=WSMCOMP( 6,JS)
@@ -629,22 +619,23 @@ C          ALPHAZJ=WACOMPR( 7,SM)
            BETAYZJ=WACOMPR(15,SM)
            BETAZZJ=WACOMPR(16,SM)
 C  
-           BETAX=ONE +BETAXJ*(XJ-XI)+BETAYJ*(YJ-YI)+BETAZJ*(ZJ-ZI)
-           WGRD(1)=
-     .      -WGRDX*ALPHAJ*BETAX
-     .      +WGHT*
-     .       (ALPHAXJ*BETAX+ALPHAJ*
-     .       (BETAXXJ*(XJ-XI)+BETAYXJ*(YJ-YI)+BETAZXJ*(ZJ-ZI)+BETAXJ))
-           WGRD(2)=
-     .      -WGRDY*ALPHAJ*BETAX
-     .      +WGHT*
-     .       (ALPHAYJ*BETAX+ALPHAJ*
-     .        (BETAXYJ*(XJ-XI)+BETAYYJ*(YJ-YI)+BETAZYJ*(ZJ-ZI)+BETAYJ))
-           WGRD(3)=
-     .      -WGRDZ*ALPHAJ*BETAX
-     .      +WGHT*
-     .       (ALPHAZJ*BETAX+ALPHAJ*
-     .        (BETAXZJ*(XJ-XI)+BETAYZJ*(YJ-YI)+BETAZZJ*(ZJ-ZI)+BETAZJ))
+           WGRD(1)=-WGRDX*ALPHAJ+WGHT*ALPHAXJ
+     .             -WGRDX*BETAXXJ-WGRDY*BETAXYJ-WGRDZ*BETAXZJ
+           WGRD(2)=-WGRDY*ALPHAJ+WGHT*ALPHAYJ
+     .             -WGRDX*BETAYXJ-WGRDY*BETAYYJ-WGRDZ*BETAYZJ
+           WGRD(3)=-WGRDZ*ALPHAJ+WGHT*ALPHAZJ
+     .             -WGRDX*BETAZXJ-WGRDY*BETAZYJ-WGRDZ*BETAZZJ           
+!           Old order1 correction           
+!           BETAX=ONE +BETAXJ*(XJ-XI)+BETAYJ*(YJ-YI)+BETAZJ*(ZJ-ZI)
+!           WGRD(1)=-WGRDX*ALPHAJ*BETAX
+!     .      +WGHT*(ALPHAXJ*BETAX+ALPHAJ*
+!     .       (BETAXXJ*(XJ-XI)+BETAYXJ*(YJ-YI)+BETAZXJ*(ZJ-ZI)+BETAXJ))
+!           WGRD(2)=-WGRDY*ALPHAJ*BETAX
+!     .      +WGHT*(ALPHAYJ*BETAX+ALPHAJ*
+!     .       (BETAXYJ*(XJ-XI)+BETAYYJ*(YJ-YI)+BETAZYJ*(ZJ-ZI)+BETAYJ))
+!           WGRD(3)=-WGRDZ*ALPHAJ*BETAX
+!     .      +WGHT*(ALPHAZJ*BETAX+ALPHAJ*
+!     .       (BETAXZJ*(XJ-XI)+BETAYZJ*(YJ-YI)+BETAZZJ*(ZJ-ZI)+BETAZJ))
 C
           WLAPLT(N)=WLAPLT(N)+VJ*( 
      . -LAMBDR(SM)*(GRADTXJ*WGRD(1)+GRADTYJ*WGRD(2)+GRADTZJ*WGRD(3))
@@ -656,37 +647,37 @@ C------
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SPGTSYM                       source/elements/sph/sptemp.F  
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|-- calls ---------------
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|====================================================================
+!||====================================================================
+!||    spgtsym   ../engine/source/elements/sph/sptemp.F
+!||--- called by ------------------------------------------------------
+!||    forintp   ../engine/source/elements/forintp.F
+!||--- uses       -----------------------------------------------------
+!||    sphbox    ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPGTSYM(
-     1    ISPCOND   ,XFRAME    ,ISPSYM    ,XSPSYM    ,WGRADT   ,
-     2    WGRADTSM   ,WASPACT   ,WGR       )
+     1   ISPCOND, XFRAME,  ISPSYM,  XSPSYM,
+     2   WGRADT,  WGRADTSM,WASPACT, WGR,
+     3   LFT,     LLT,     NFT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE SPHBOX
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "sphcom.inc"
 #include      "param_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: LFT
+      INTEGER, INTENT(INOUT) :: LLT
+      INTEGER, INTENT(INOUT) :: NFT
       INTEGER ISPCOND(NISPCOND,*), ISPSYM(NSPCOND,*), WASPACT(*)
-C     REAL
       my_real
      .   XFRAME(NXFRAME,*) ,XSPSYM(3,*) , WGRADT(3,*), 
      .   WGRADTSM(3,*), WGR(3,*) 
@@ -699,27 +690,39 @@ C-----------------------------------------------
      .       NX,NY,NZ,TX,TY,TZ,NN,
      .       OX,OY,OZ,UX,UY,UZ,VX,VY,VZ,WX,WY,WZ
 C-----------------------------------------------
-C       Prepare le gradient de temperature sur les particules symetriques.
+C       PREPARE Gradient temperature on symmetric particles.
 C-----------------------------------------------
+      OX = ZERO
+      OY = ZERO
+      OZ = ZERO
+      UX = ZERO
+      UY = ZERO
+      UZ = ZERO
+      VX = ZERO
+      VY = ZERO
+      VZ = ZERO
+      WX = ZERO
+      WY = ZERO
+      WZ = ZERO
       DO NC=1,NSPCOND
         IC=ISPCOND(2,NC)
         IS=ISPCOND(3,NC)
         ISLIDE=ISPCOND(5,NC)
-        IF (IC.EQ.1) THEN
+        IF (IC==1) THEN
             OX=XFRAME(10,IS)
             OY=XFRAME(11,IS)
             OZ=XFRAME(12,IS)
             UX=XFRAME(1,IS)
             UY=XFRAME(2,IS)
             UZ=XFRAME(3,IS)
-        ELSEIF (IC.EQ.2) THEN
+        ELSEIF (IC==2) THEN
             OX=XFRAME(10,IS)
             OY=XFRAME(11,IS)
             OZ=XFRAME(12,IS)
             UX=XFRAME(4,IS)
             UY=XFRAME(5,IS)
             UZ=XFRAME(6,IS)
-        ELSEIF (IC.EQ.3) THEN
+        ELSEIF (IC==3) THEN
             OX=XFRAME(10,IS)
             OY=XFRAME(11,IS)
             OZ=XFRAME(12,IS)
@@ -730,11 +733,11 @@ C-----------------------------------------------
         DO SS=1,NSPHACT
          SM=WASPACT(SS)
          JS=ISPSYM(NC,SM)
-         IF(JS.GT.0)THEN
+         IF(JS>0)THEN
           SX=WGRADT(1,SM)
           SY=WGRADT(2,SM)
           SZ=WGRADT(3,SM)
-C         IF(ISLIDE.EQ.0)THEN
+C         IF(ISLIDE==0)THEN
 C----------
            NN=SX*UX+SY*UY+SZ*UZ
            NX=NN*UX
@@ -751,15 +754,15 @@ C         ENDIF
          ENDIF
         ENDDO
 C
-C Particules symetriques de particules remotes
+C Symmetrical particles of remote particles
 C
         DO SS=1,NSPHR
          JS=ISPSYMR(NC,SS)
-         IF(JS.GT.0)THEN
+         IF(JS>0)THEN
           SX=WGR(1,SS)
           SY=WGR(2,SS)
           SZ=WGR(3,SS)
-C         IF(ISLIDE.EQ.0)THEN
+C         IF(ISLIDE==0)THEN
 C----------
            NN=SX*UX+SY*UY+SZ*UZ
            NX=NN*UX
@@ -779,33 +782,30 @@ C----------------------------------
       ENDDO
       RETURN
       END
-Chd|====================================================================
-Chd|  SPTEMPEL                      source/elements/sph/sptemp.F  
-Chd|-- called by -----------
-Chd|        SPSTRES                       source/elements/sph/spstres.F 
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE SPTEMPEL(KXSP,TEMP,TEMPEL)
+!||====================================================================
+!||    sptempel   ../engine/source/elements/sph/sptemp.F
+!||--- called by ------------------------------------------------------
+!||    spstres    ../engine/source/elements/sph/spstres.F
+!||====================================================================
+      SUBROUTINE SPTEMPEL(
+     1   KXSP,    TEMP,    TEMPEL,  LFT,
+     2   LLT,     NFT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "sphcom.inc"
-#include      "vect01_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: LFT
+      INTEGER, INTENT(INOUT) :: LLT
+      INTEGER, INTENT(INOUT) :: NFT
       INTEGER KXSP(NISP,*)
-C     REAL
-      my_real
-     .   TEMP(*),TEMPEL(*)
+      my_real TEMP(*),TEMPEL(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -815,7 +815,7 @@ C       Temperature in element is equivalent to Nodal temperature for SPH
 C-----------------------------------------------
       DO I=LFT,LLT
        N = NFT+I
-       IF(KXSP(2,N).GT.0)THEN
+       IF(KXSP(2,N)>0)THEN
          INOD = KXSP(3,N)
          TEMPEL(I)=TEMP(INOD)
        ENDIF

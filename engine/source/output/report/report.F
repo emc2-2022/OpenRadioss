@@ -1,37 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  REPORT                        source/output/report/report.F 
-Chd|-- called by -----------
-Chd|        ARRET                         source/system/arret.F         
-Chd|-- calls ---------------
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|====================================================================
-      SUBROUTINE REPORT(IH3DREADER,N,IMVW)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    report                 ../engine/source/output/report/report.F
+!||--- called by ------------------------------------------------------
+!||    arret                  ../engine/source/system/arret.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    inoutfile_mod          ../common_source/modules/inoutfile_mod.F
+!||    names_and_titles_mod   ../common_source/modules/names_and_titles_mod.F
+!||    output_mod             ../common_source/modules/output/output_mod.F90
+!||    user_interface_mod     ../engine/source/modules/user_interface_mod.F90
+!||====================================================================
+      SUBROUTINE REPORT(IH3DREADER,N,IMVW,WFEXT,WFEXT_MD,OUTPUT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INOUTFILE_MOD
+      USE USER_INTERFACE_MOD
+      USE NAMES_AND_TITLES_MOD, ONLY: LPATH
+      USE OUTPUT_MOD , ONLY : OUTPUT_
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -42,54 +49,37 @@ C-----------------------------------------------
 #include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "com10_c.inc"
 #include      "commandline.inc"
-#include      "param_c.inc"
 #include      "scr02_c.inc"
-#include      "scr05_c.inc"
 #include      "scr11_c.inc"
-#include      "scr14_c.inc"
-#include      "scr17_c.inc"
-#include      "scr18_c.inc"
 #include      "spmd_c.inc"
-#include      "units_c.inc"
 #include      "chara_c.inc"
-#include      "nchara_c.inc"
 #include      "drape_c.inc"
 #include      "submodel.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER
-     .         IH3DREADER,N,IMVW
+      INTEGER IH3DREADER,N,IMVW
+      my_real WFEXT,WFEXT_MD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER
-     .         IOUTREP,I,LEN_CWD, OUT_TMP, IS_MESSAGE, IS_WARNING,IS_FILE_FOUND, IEND
+      INTEGER IOUTREP,LEN_CWD, OUT_TMP, IS_MESSAGE, IS_WARNING,IS_FILE_FOUND, IEND
       INTEGER*4 GETCWD, STATUS
-
       CHARACTER FILNAM*100,MVWNAM*100
-      CHARACTER LINE*200
-      CHARACTER CWD*ncharline
-      CHARACTER*100  FMW
+      CHARACTER(LEN=LPATH) :: CWD
       CHARACTER*8  DATE
       CHARACTER*10  TIME
       CHARACTER ELTYP(0:105)*5
       CHARACTER*256 OUTNAME
       CHARACTER*120 CART  
-      my_real
-     .   ENTOT, ENTOT1, ERR, ERR1, X99, EMASS,MAS,
-     .   VX,VY,VZ,DT05,ENTMP(20)  ,RTMP(10),
-     .   MVX, MVY, MVZ, TS, MAS2, WEWE2, ENTOT1B
-      DOUBLE PRECISION ETIME, RETIME, TT0,
-     .                 ENCIND, XMOMTD, YMOMTD, ZMOMTD,
-     .                 XMASSD, ENROTD, ENINTD, ENCIND2,
-     .                 ENROTD2, ENTOTB, EAMSD 
+      my_real ENTOT, ENTOT1, ERR, ERR1, X99, EMASS,ENTOT1B,DM_INOUT,DE_INOUT
+      DOUBLE PRECISION ENTOTB
       INTEGER :: LEN_TMP_NAME
       CHARACTER(len=2148) :: TMP_NAME
+      TYPE(OUTPUT_),INTENT(IN) :: OUTPUT
 C-----------------------------------------------
       DATA ELTYP/'FIXED',
      1           'SOLID','QUAD ','SHELL','TRUSS','BEAM ',
@@ -101,7 +91,7 @@ C-----------------------------------------------
      7           '     ','     ','     ','     ','     ',
      8           '     ','     ','     ','     ','     ',
      9           '     ','     ','     ','     ','     ',
-     A           '     ','     ','     ','     ','RENAU',
+     A           '     ','     ','     ','     ','     ',
      B           'SPCEL','FVBAG','     ','     ','     ',
      C           '     ','     ','     ','     ','     ',
      D           '     ','     ','     ','     ','     ',
@@ -120,17 +110,19 @@ C=======================================================================
       IF(ISPMD == 0) THEN 
 c
        ENTOT = ENCIN + ENINT + ENROT
-       ENTOTB = ENTOT + ENCIN2 + ENROT2 
-       ENTOT1=ENTOT0 + TFEXT
-       ENTOT1B=ENTOT0 + TFEXT + DELTAE + TFEXT_MD       
-       IF(ABS(ENTOT1B).GT.EM20)THEN
+       ENTOTB = ENTOT + ENCIN2 + ENROT2
+       DE_INOUT = OUTPUT%DATA%INOUT%DE_IN + OUTPUT%DATA%INOUT%DE_OUT
+       ENTOT1=ENTOT0 + WFEXT + DE_INOUT
+       ENTOT1B=ENTOT0 + WFEXT + DELTAE + WFEXT_MD + DE_INOUT
+       IF(ABS(ENTOT1B)>EM20)THEN
          ERR = ENTOTB/ENTOT1B - ONE
          ERR1 = MAX(-X99, MIN(X99,ERR*HUNDRED))     
        ELSE
         ERR = ZERO
         ERR1 =ZERO
        ENDIF
-       EMASS = (XMASS - MASS0) / MASS0
+       DM_INOUT = OUTPUT%DATA%INOUT%DM_IN + OUTPUT%DATA%INOUT%DM_OUT
+       EMASS = (XMASS - (MASS0+DM_INOUT)) / (MASS0+DM_INOUT)
         
        CALL DATE_AND_TIME(DATE,TIME)
        STATUS = GETCWD(CWD)
@@ -206,25 +198,25 @@ c
 
 
        WRITE(IOUTREP,'(A)')'<p>'
-       WRITE(IOUTREP,'(A)')'<li><b>Model Informations</b>'
+       WRITE(IOUTREP,'(A)')'<li><b>Model Information</b>'
        WRITE(IOUTREP,'(A)')'<table cellspacing="0" cellpadding="0">'
        WRITE(IOUTREP,'(A)')'<tr>'
        WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of parts: &nbsp;&nbsp;</td>'
        WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NPART,'</td>'
        WRITE(IOUTREP,'(A)')'</tr>'
-       IF(NUMMAT-1 .GE. 1)THEN
+       IF(NUMMAT-1 >= 1)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of Material laws: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMMAT-1,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMGEO .NE. 0)THEN
+       IF(NUMGEO /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of properties: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMGEO,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NFUNCT .NE. 0)THEN
+       IF(NFUNCT /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of functions: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NFUNCT,'</td>'
@@ -235,7 +227,7 @@ c
 
 
        WRITE(IOUTREP,'(A)')'<p>'
-       WRITE(IOUTREP,'(A)')'<li><b>Mesh informations</b>'
+       WRITE(IOUTREP,'(A)')'<li><b>Mesh information</b>'
        WRITE(IOUTREP,'(A)')'<table cellspacing="0" cellpadding="0">'
        WRITE(IOUTREP,'(A)')'<tr>'
        WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of nodes: &nbsp;&nbsp;</td>'
@@ -249,19 +241,19 @@ c
        WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of parts: &nbsp;&nbsp;</td>'
        WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NPART,'</td>'
        WRITE(IOUTREP,'(A)')'</tr>'
-       IF(NRBODY .NE. 0)THEN
+       IF(NRBODY /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of Rigid bodies: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NRBODY,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NRBE2G .NE. 0)THEN
+       IF(NRBE2G /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of Rbe2s: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NRBE2G,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NRBE3G .NE. 0)THEN
+       IF(NRBE3G /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of Rbe3s: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NRBE3G,'</td>'
@@ -272,79 +264,79 @@ c
        WRITE(IOUTREP,'(A)')'<p>'
        WRITE(IOUTREP,'(A)')'<li><b>Elements</b>'
        WRITE(IOUTREP,'(A)')'<table cellspacing="0" cellpadding="0">'
-       IF(NUMELQG .NE. 0)THEN
+       IF(NUMELQG /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 2D solid elements: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELQG,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELSG .NE. 0)THEN
+       IF(NUMELSG /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3D solid elements (TETRA4 & BRICK): &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELSG,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELS10G .NE. 0)THEN
+       IF(NUMELS10G /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3D solid elements (TETRA10): &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELS10G,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELS16G .NE. 0)THEN
+       IF(NUMELS16G /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3D solid elements (SOLID16): &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELS16G,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELS20G .NE. 0)THEN
+       IF(NUMELS20G /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3D solid elements (SOLID20): &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELS20G,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELCG .NE. 0)THEN
+       IF(NUMELCG /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3D shell elements (4-NODES): &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELCG,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELTGG .NE. 0)THEN
+       IF(NUMELTGG /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3D shell elements (3-NODES): &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELTGG,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELTRG .NE. 0)THEN
+       IF(NUMELTRG /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3D truss elements: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELTRG,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELPG .NE. 0)THEN
+       IF(NUMELPG /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3D beam  elements: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELPG,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELRG .NE. 0)THEN
+       IF(NUMELRG /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3D spring  elements: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELRG,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELXG .NE. 0)THEN
+       IF(NUMELXG /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of multipurpose elements: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELXG,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMELIG3D .NE. 0)THEN
+       IF(NUMELIG3D /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of iso-geometrics elements: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMELIG3D,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMSPHG .NE. 0)THEN
+       IF(NUMSPHG /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of smooth particles (SPH CELLS): &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMSPHG,'</td>'
@@ -356,55 +348,55 @@ c
        WRITE(IOUTREP,'(A)')'<p>'
        WRITE(IOUTREP,'(A)')'<li><b>Loads and boundaries</b>'
        WRITE(IOUTREP,'(A)')'<table cellspacing="0" cellpadding="0">'
-       IF(NUMBCS .NE. 0)THEN
+       IF(NUMBCS /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of Boundary conditions : &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMBCS,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NCONLD .NE. 0)THEN
+       IF(NCONLD /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of cloads : &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NCONLD,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NINTER .NE. 0)THEN
+       IF(NINTER /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of interfaces : &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NINTER,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NFXBODY .NE. 0)THEN
+       IF(NFXBODY /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of flexible bodies : &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NFXBODY,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRAV .NE. 0)THEN
+       IF(NGRAV /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of gravities : &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRAV,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NFXVEL .NE. 0)THEN
+       IF(NFXVEL /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of imposed disp/vel/acc : &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NFXVEL,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NINVEL .NE. 0)THEN
+       IF(NINVEL /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of Initial velocities : &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NINVEL,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NVOLU .NE. 0)THEN
+       IF(NVOLU /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of monitored volumes: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NVOLU,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NRWALL .NE. 0)THEN
+       IF(NRWALL /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of Rigid walls: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NRWALL,'</td>'
@@ -421,115 +413,115 @@ c
          WRITE(IOUTREP,'(A)')'<li><b>Radioss tools</b>'
        ENDIF
        WRITE(IOUTREP,'(A)')'<table cellspacing="0" cellpadding="0">'
-       IF(NCLUSTER .NE. 0)THEN
+       IF(NCLUSTER /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of Clusters: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NCLUSTER,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NDRAPE .NE. 0)THEN
+       IF(NDRAPE /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of drapes: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NDRAPE,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMPLY .NE. 0)THEN
+       IF(NUMPLY /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of plies: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMPLY,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMSTACK .NE. 0)THEN
+       IF(NUMSTACK /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of stacks: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMSTACK,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRNOD .NE. 0)THEN
+       IF(NGRNOD /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of node groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRNOD,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRBRIC .NE. 0)THEN
+       IF(NGRBRIC /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of brick groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRBRIC,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRQUAD .NE. 0)THEN
+       IF(NGRQUAD /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of quad groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRQUAD,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRSHEL .NE. 0)THEN
+       IF(NGRSHEL /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of shell groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRSHEL,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRSH3N .NE. 0)THEN
+       IF(NGRSH3N /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of 3 node shell groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRSH3N,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRTRUS .NE. 0)THEN
+       IF(NGRTRUS /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of truss groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRTRUS,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRBEAM .NE. 0)THEN
+       IF(NGRBEAM /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of beam groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRBEAM,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRSPRI .NE. 0)THEN
+       IF(NGRSPRI /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of spring groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRSPRI,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NGRPART .NE. 0)THEN
+       IF(NGRPART /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of part groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NGRPART,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NSURF .NE. 0)THEN
+       IF(NSURF /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of surface groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NSURF,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NSLIN .NE. 0)THEN
+       IF(NSLIN /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of line groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NSLIN,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NSENSOR .NE. 0)THEN
+       IF(SENSORS%NSENSOR /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of sensors: &nbsp;&nbsp;</td>'
-         WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NSENSOR,'</td>'
+         WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',SENSORS%NSENSOR,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMSKW .NE. 0)THEN
+       IF(NUMSKW /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of skews: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMSKW,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NUMFRAM .NE. 0)THEN
+       IF(NUMFRAM /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of frames: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NUMFRAM,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NSUBMOD .NE. 0)THEN
+       IF(NSUBMOD /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of submodels: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NSUBMOD,'</td>'
@@ -542,25 +534,25 @@ c
        WRITE(IOUTREP,'(A)')'<p>'
        WRITE(IOUTREP,'(A)')'<li><b>Data history</b>'
        WRITE(IOUTREP,'(A)')'<table cellspacing="0" cellpadding="0">'
-       IF(NTHGRP .NE. 0)THEN
+       IF(NTHGRP /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of th groups: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NTHGRP,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NSECT .NE. 0)THEN
+       IF(NSECT /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of sections: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NSECT,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NACCELM .NE. 0)THEN
+       IF(NACCELM /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of accelerometers: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NACCELM,'</td>'
          WRITE(IOUTREP,'(A)')'</tr>'
        ENDIF
-       IF(NBGAUGE .NE. 0)THEN
+       IF(NBGAUGE /= 0)THEN
          WRITE(IOUTREP,'(A)')'<tr>'
          WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="2">Number of gauges: &nbsp;&nbsp;</td>'
          WRITE(IOUTREP,'(A,I10,A)')'<td><font face="Arial" size="2">',NBGAUGE,'</td>'
@@ -575,7 +567,7 @@ c       WRITE(IOUTREP,'(A)')'<li><b>Materials</b>'
 c       WRITE(IOUTREP,'(A)')'<table cellspacing="0" cellpadding="0">'
 c       WRITE(IOUTREP,'(A)')'<tr>'
 
-c       IF(NUMMAT .NE. 0)THEN
+c       IF(NUMMAT /= 0)THEN
 c         DO I=1,NUMMAT
 c           MATERIAL(IPM(2,I)) = 1
 c
@@ -638,10 +630,10 @@ c       WRITE(IOUTREP,'(A)')' '
        ENDIF
 
        READ(OUT_TMP,'(A)',END=100)CART
-       DO WHILE (IEND .NE. 1)
+       DO WHILE (IEND /= 1)
          WRITE(IOUTREP,'(A)')'<tr>'
-         IF (CART .NE. ' ' . AND. 
-     .       CART(61:118) .NE. '---------------------------------------------------------')
+         IF (CART /= ' ' . AND. 
+     .       CART(61:118) /= '---------------------------------------------------------')
      .     WRITE(IOUTREP,'(A)')'<td><font face="Arial" size="1">&nbsp;&nbsp;&nbsp;&nbsp;',CART(63:119),' </td>'
          WRITE(IOUTREP,'(A)')'</tr>'
          READ(OUT_TMP,'(A)',END=100)CART
@@ -668,7 +660,7 @@ c       WRITE(IOUTREP,'(A)')' '
        ENDIF
 
 
-       IF(NTHGRP .NE. 0)THEN
+       IF(NTHGRP /= 0)THEN
          WRITE(IOUTREP,'(A)')'</table>'
        ENDIF
 
@@ -740,7 +732,7 @@ c       WRITE(IOUTREP,'(A)')'<p>'
        WRITE(IOUTREP,'(A,G11.4,A)')'<td><font face="Arial" size="2">',ENINT,'</td>'
        WRITE(IOUTREP,'(A,G11.4,A)')'<td><font face="Arial" size="2">',ENCIN,'</td>'
        WRITE(IOUTREP,'(A,G11.4,A)')'<td><font face="Arial" size="2">',ENROT,'</td>'
-       WRITE(IOUTREP,'(A,G11.4,A)')'<td><font face="Arial" size="2">',TFEXT,'</td>'
+       WRITE(IOUTREP,'(A,G11.4,A)')'<td><font face="Arial" size="2">',WFEXT,'</td>'
        WRITE(IOUTREP,'(A,G11.4,A)')'<td align="right"><font face="Arial" size="2">',EMASS,'</td>'
        WRITE(IOUTREP,'(A)')'</tr>'
        WRITE(IOUTREP,'(A)')'</table>'
@@ -748,7 +740,7 @@ c       WRITE(IOUTREP,'(A)')'<p>'
        WRITE(IOUTREP,'(A)')'</ul>'
        WRITE(IOUTREP,'(A)')'<p>'
 
-       IF (IH3DREADER .NE. 0 .OR. IMVW .NE. 0) THEN
+       IF (IH3DREADER /= 0 .OR. IMVW /= 0) THEN
 
          WRITE(IOUTREP,'(A)')' '
          WRITE(IOUTREP,'(A)')'<font face="Arial" size="4"><b><i>Results summary</i></b></font>'
@@ -756,12 +748,12 @@ c       WRITE(IOUTREP,'(A)')'<p>'
          WRITE(IOUTREP,'(A)')'<p>'
        ENDIF
 
-       IF ( IMVW .NE. 0) THEN
+       IF ( IMVW /= 0) THEN
          WRITE(IOUTREP,'(A)')'<a href="',MVWNAM(1:ROOTLEN+4),'">Open ',MVWNAM(1:ROOTLEN+4),' with Hyperview</a>'
          WRITE(IOUTREP,'(A)')'<p>'
        ENDIF
 
-       IF (IH3DREADER .NE. 0) THEN
+       IF (IH3DREADER /= 0) THEN
          WRITE(IOUTREP,'(A)')'<OBJECT ID="HVPControl" WIDTH=800 HEIGHT=600'
          WRITE(IOUTREP,'(A)')'classid="clsid:D28D4D39-57F5-4DFB-8832-C8CB1B1DC410">'
          WRITE(IOUTREP,'(3A)')'<PARAM name="src" value="',ROOTNAM(1:ROOTLEN),'.h3d" />'
@@ -792,7 +784,7 @@ c     . . This feature requires a modern browser with Javascript enabled, as wel
 c     .HyperViewPlayer plugin installed.'
        ENDIF
 
-       IF (IH3DREADER .NE. 0 .OR. IMVW .NE. 0) THEN
+       IF (IH3DREADER /= 0 .OR. IMVW /= 0) THEN
          WRITE(IOUTREP,'(A)')'</font>'
        ENDIF
 
@@ -802,7 +794,7 @@ c     .HyperViewPlayer plugin installed.'
        WRITE(IOUTREP,'(A)')'<hr size="1" color="#000000" width="50%" noshade>'
        WRITE(IOUTREP,'(A)')'<center>'
        WRITE(IOUTREP,'(A)')'<font face="Arial" size="1">'
-       WRITE(IOUTREP,'(A)')'<b>&#169; 1996-2022 Altair Engineering, Inc.</b>'
+       WRITE(IOUTREP,'(A)')'<b>&#169; 1996-2026 Altair Engineering, Inc.</b>'
        WRITE(IOUTREP,'(A)')'</font> '
        WRITE(IOUTREP,'(A)')'</center> '
        WRITE(IOUTREP,'(A)')'</body>'

@@ -1,46 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I1TID3                        source/interfaces/inter3d1/i1tid3.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        INIST3                        source/interfaces/inter3d1/inist3.F
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i1tid3                 ../starter/source/interfaces/inter3d1/i1tid3.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    inist3                 ../starter/source/interfaces/inter3d1/inist3.F
+!||    kinset                 ../starter/source/constraints/general/kinset.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I1TID3(X     ,IRECT,CRST ,MSR  ,NSV,
      1                  ILOC  ,IRTL ,NSN  ,ITAB ,IKINE,
      2                  IKINE1,ID   ,TITR ,ILEV ,NTY, CSTS_BIS)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
-C     INTERFACE TIED CALCUL DE S,T
+C     INTERFACE TIED CALCULATION DE S,T
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      USE FORMAT_MOD , ONLY : FMW_7I_2F
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,33 +54,28 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
 #include      "scr03_c.inc"
-#include      "scr07_c.2.inc"
-#include      "warn_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN
-      INTEGER IRECT(4,*), MSR(*), NSV(*), ILOC(*), IRTL(*),
-     .   ITAB(*),IKINE(*),IKINE1(*),ILEV,NTY
-      my_real
-     .   X(3,*), CRST(2,*), CSTS_BIS(2,*)
+      INTEGER IRECT(4,*), MSR(*), NSV(*), ILOC(*), IRTL(*), ITAB(*),IKINE(*),IKINE1(*),ILEV,NTY
+      my_real X(3,*), CRST(2,*), CSTS_BIS(2,*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER II, I, J, K, L, JJ, NN, IER
       my_real
      .   N1, N2, N3, SS, TT, ALP
+      my_real :: XX1(4),XX2(4),XX3(4),XS1,YS1,ZS1,XC,YC,ZC
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
       ALP = TWOEM2
       DO II=1,NSN
         I=NSV(II)
-        IF ((NTY.EQ.1).OR.((NTY.EQ.2).AND.(ILEV /= 25 .and. ILEV /= 26 .and. ILEV /= 27 .and. ILEV /= 28))) THEN
+        IF ((NTY==1).OR.((NTY==2).AND.(ILEV /= 25 .and. ILEV /= 26 .and. ILEV /= 27 .and. ILEV /= 28))) THEN
           CALL KINSET(2,ITAB(I),IKINE(I),1,0,IKINE1(I))
           CALL KINSET(2,ITAB(I),IKINE(I),2,0,IKINE1(I))
           CALL KINSET(2,ITAB(I),IKINE(I),3,0,IKINE1(I))
@@ -96,11 +95,11 @@ C-----------------------------------------------
         XS1=X(1,I)
         YS1=X(2,I)
         ZS1=X(3,I)
-        CALL INIST3(N1,N2,N3,SS,TT,IER,ALP)
-        IF(IPRI.GE.1)WRITE(IOUT,FMT=FMW_7I_2F)
+        CALL INIST3(N1,N2,N3,SS,TT,IER,ALP,XX1,XX2,XX3,XS1,YS1,ZS1,XC,YC,ZC)
+        IF(IPRI>=1)WRITE(IOUT,FMT=FMW_7I_2F)
      .        ITAB(I),ITAB(K),
      .        L,(ITAB(MSR(IRECT(JJ,L))),JJ=1,4),SS,TT
-         IF(IER.EQ.-1)THEN
+         IF(IER==-1)THEN
             CALL ANCMSG(MSGID=85,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO,
@@ -113,7 +112,7 @@ C-----------------------------------------------
      .                  I6=ITAB(NSV(IRECT(2,L))),
      .                  I7=ITAB(NSV(IRECT(3,L))),
      .                  I8=ITAB(NSV(IRECT(4,L))))
-         ELSE IF(IER.EQ.1)THEN
+         ELSE IF(IER==1)THEN
             CALL ANCMSG(MSGID=86,
      .                  MSGTYPE=MSGWARNING,
      .                  ANMODE=ANINFO_BLIND_2,

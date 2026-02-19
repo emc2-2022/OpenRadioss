@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SET_FAILWAVE_NOD4             source/materials/fail/failwave/set_failwave_nod4.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|-- calls ---------------
-Chd|        SEG_INTERSECT                 source/materials/fail/failwave/seg_intersect.F
-Chd|        FAILWAVE_MOD                  ../common_source/modules/failwave_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    set_failwave_nod4   ../engine/source/materials/fail/failwave/set_failwave_nod4.F
+!||--- called by ------------------------------------------------------
+!||    cforc3              ../engine/source/elements/shell/coque/cforc3.F
+!||    czforc3             ../engine/source/elements/shell/coquez/czforc3.F
+!||--- calls      -----------------------------------------------------
+!||    seg_intersect       ../engine/source/materials/fail/failwave/seg_intersect.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    failwave_mod        ../common_source/modules/failwave_mod.F
+!||====================================================================
       SUBROUTINE SET_FAILWAVE_NOD4(FAILWAVE   ,FWAVE_EL ,NGL      ,
      .           NEL      ,IXC      ,ITAB     ,CRKDIR   ,DIR_A    ,
      .           NROT     ,XL2      ,XL3      ,XL4      ,YL2      ,
@@ -37,18 +39,14 @@ c-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE FAILWAVE_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include "scr17_c.inc"
 #include "com04_c.inc"
 #include "units_c.inc"
 #include "comlock.inc"
@@ -67,7 +65,7 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,K,N1,N2,N3,N4,INTERSECTION,LEVEL,NEWCRK1,NEWCRK2,NCURR,
+      INTEGER I, II, K, N1, N2, N3, N4, INTERSECTION, NEWCRK1, NEWCRK2, NCURR, 
      .        MAXLEV,IDEBUG
       INTEGER ,DIMENSION(NEL)   :: INDX1,INDX2
       INTEGER ,DIMENSION(4)     :: IDF1,IDF2,NOD_ID,NOD_NN
@@ -75,7 +73,7 @@ c
       my_real :: DIR11,DIR22,COSX,SINX,COSY,SINY,LMAX,XM,YM,
      .   X1,Y1,X2,Y2,X3,Y3,X4,Y4,X5,Y5,X6,Y6,X7,Y7,X8,Y8,DX1,DY1,DX2,DY2,
      .   XINT,YINT,RAT1,RAT2,RX,RY   
-      my_real ,DIMENSION(2,NEL) :: P1,P2,P3,P4,P5,P6,P7,P8
+ 
       INTEGER  SEG_INTERSECT
       EXTERNAL SEG_INTERSECT
 c-----------------------------------------------
@@ -110,13 +108,13 @@ c---------------
           NEWCRK1 = 0
           NEWCRK2 = 0
           DO I=1,NEL
-            IF (FWAVE_EL(I) == -1) THEN        ! DIR 1 vient de cracker
+            IF (FWAVE_EL(I) == -1) THEN        ! Dir 1 comes from Cracker
               NEWCRK1 = NEWCRK1 + 1
               INDX1(NEWCRK1) = I
-            ELSEIF (FWAVE_EL(I) == -2) THEN    ! DIR 2 vient de cracker
+            ELSEIF (FWAVE_EL(I) == -2) THEN    ! Dir 2 comes from Cracker
               NEWCRK2 = NEWCRK2 + 1
               INDX2(NEWCRK2) = I
-            ELSEIF (FWAVE_EL(I) == -3) THEN    ! deux directions viennent de cracker
+            ELSEIF (FWAVE_EL(I) == -3) THEN    ! Two directions have just cracker
               NEWCRK1 = NEWCRK1 + 1
               NEWCRK2 = NEWCRK2 + 1
               INDX1(NEWCRK1) = I
@@ -226,7 +224,7 @@ c--------------------------------------------------------------------
 c--------------------------------------------------------------------
                   IF (MAXLEV > FAILWAVE%SIZE) THEN
 #include "lockon.inc"
-                    WRITE(IOUT,*) 'ERROR IN FAILWAVE PROPGATION: ELEMENT =',NGL(I),
+                    WRITE(IOUT,*) 'ERROR IN FAILWAVE PROPAGATION: ELEMENT =',NGL(I),
      .                            'LEVEL=',MAXLEV
 #include "lockoff.inc"
                     MAXLEV = FAILWAVE%SIZE
@@ -345,7 +343,7 @@ c--------------------------------------------------------------------
 c--------------------------------------------------------------------
                   IF (MAXLEV > FAILWAVE%SIZE) THEN
 #include "lockon.inc"
-                    WRITE(IOUT,*) 'ERROR IN FAILWAVE PROPGATION: ELEMENT =',NGL(I),
+                    WRITE(IOUT,*) 'ERROR IN FAILWAVE PROPAGATION: ELEMENT =',NGL(I),
      .                            'LEVEL=',MAXLEV
 #include "lockoff.inc"
                     MAXLEV = FAILWAVE%SIZE
@@ -372,13 +370,13 @@ c
           NEWCRK1 = 0
           NEWCRK2 = 0
           DO I=1,NEL
-            IF (FWAVE_EL(I) == -1) THEN        ! DIR 1 vient de cracker
+            IF (FWAVE_EL(I) == -1) THEN        ! Dir 1 comes from Cracker
               NEWCRK1 = NEWCRK1 + 1
               INDX1(NEWCRK1) = I
-            ELSEIF (FWAVE_EL(I) == -2) THEN    ! DIR 2 vient de cracker
+            ELSEIF (FWAVE_EL(I) == -2) THEN    ! Dir 2 comes from Cracker
               NEWCRK2 = NEWCRK2 + 1
               INDX2(NEWCRK2) = I
-            ELSEIF (FWAVE_EL(I) == -3) THEN    ! deux directions viennent de cracker
+            ELSEIF (FWAVE_EL(I) == -3) THEN    ! Two directions have just cracker
               NEWCRK1 = NEWCRK1 + 1
               NEWCRK2 = NEWCRK2 + 1
               INDX1(NEWCRK1) = I
@@ -544,7 +542,7 @@ c--------------------------------------------------------------------
 c--------------------------------------------------------------------
                   IF (MAXLEV > FAILWAVE%SIZE) THEN
 #include "lockon.inc"
-                    WRITE(IOUT,*) 'ERROR IN FAILWAVE PROPGATION: ELEMENT =',NGL(I),
+                    WRITE(IOUT,*) 'ERROR IN FAILWAVE PROPAGATION: ELEMENT =',NGL(I),
      .                            'LEVEL=',MAXLEV
 #include "lockoff.inc"
                     MAXLEV = FAILWAVE%SIZE
@@ -716,7 +714,7 @@ c--------------------------------------------------------------------
 c--------------------------------------------------------------------
                   IF (MAXLEV > FAILWAVE%SIZE) THEN
 #include "lockon.inc"
-                    WRITE(IOUT,*) 'ERROR IN FAILWAVE PROPGATION: ELEMENT =',NGL(I),
+                    WRITE(IOUT,*) 'ERROR IN FAILWAVE PROPAGATION: ELEMENT =',NGL(I),
      .                            'LEVEL=',MAXLEV
 #include "lockoff.inc"
                     MAXLEV = FAILWAVE%SIZE

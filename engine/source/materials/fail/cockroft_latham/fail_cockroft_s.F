@@ -1,37 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_COCKROFT_S               source/materials/fail/cockroft_latham/fail_cockroft_s.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_cockroft_s   ../engine/source/materials/fail/cockroft_latham/fail_cockroft_s.F
+!||--- called by ------------------------------------------------------
+!||    mmain             ../engine/source/materials/mat_share/mmain.F90
+!||    mulaw             ../engine/source/materials/mat_share/mulaw.F90
+!||    usermat_solid     ../engine/source/materials/mat_share/usermat_solid.F
+!||====================================================================
        SUBROUTINE FAIL_COCKROFT_S(
      1     NEL ,NUPARAM ,NUVAR ,
-     2     TIME ,TIMESTEP ,UPARAM ,
-     3     NGL ,
+     2     TIME ,TIMESTEP ,UPARAM ,NGL ,
      4     EPSPXX ,EPSPYY ,EPSPZZ ,EPSPXY ,EPSPYZ ,EPSPZX ,
      5     EPSXX ,EPSYY ,EPSZZ ,EPSXY ,EPSYZ ,EPSZX ,
      6     SIGNXX ,SIGNYY ,SIGNZZ ,SIGNXY ,SIGNYZ ,SIGNZX ,
@@ -53,15 +51,9 @@ C NEL | 1 | I | R | SIZE OF THE ELEMENT GROUP NEL
 C NUPARAM | 1 | I | R | SIZE OF THE USER PARAMETER ARRAY
 C NUVAR | 1 | I | R | NUMBER OF FAILURE ELEMENT VARIABLES
 C---------+--------+--+--+-------------------------------------------
-C NFUNC | 1 | I | R | NUMBER FUNCTION USED FOR THIS USER LAW
-C IFUNC | NFUNC | I | R | FUNCTION INDEX
-C NPF | * | I | R | FUNCTION ARRAY
-C TF | * | F | R | FUNCTION ARRAY
-C---------+--------+--+--+-------------------------------------------
 C TIME | 1 | F | R | CURRENT TIME
 C TIMESTEP| 1 | F | R | CURRENT TIME STEP
 C UPARAM | NUPARAM | F | R | USER FAILURE PARAMETER ARRAY
-C---------+--------+--+--+-------------------------------------------
 C---------+--------+--+--+-------------------------------------------
 C EPSPXX | NEL | F | R | STRAIN RATE XX
 C EPSPYY | NEL | F | R | STRAIN RATE YY
@@ -83,10 +75,7 @@ C---------+--------+--+--+-------------------------------------------
 C I N P U T A r g u m e n t s
 C-----------------------------------------------
 #include "units_c.inc"
-#include "param_c.inc"
 #include "scr17_c.inc"
-#include "scr19_c.inc"
-#include "impl1_c.inc"
 #include "comlock.inc"
 
 C
@@ -108,7 +97,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C L o c a l V a r i a b l e s
 C-----------------------------------------------
-        INTEGER I,J,LENG,NINDX,INDX(NEL),NCYC
+        INTEGER I,J,LENG,NINDX,INDX(NEL)
         my_real C0,EMA,E_HYD,E_11,E_22,E_33,E_12,E_23,
      .          E_13,EEQ,D_EEQ
         my_real I1,I2,I3,S11,S22,S33,
@@ -131,7 +120,7 @@ c!
 C-----------------------------------------------
 C...    
 C!      UVAR(I,1) contains previous equivalent strain value increment
-C!      UVAR(I,2) contains the Cockroft-Latham acumulated value
+C!      UVAR(I,2) contains the Cockroft-Latham accumulated value
 c!      UVAR(I,3) contains the previous first principal stress
 
       C0       = UPARAM(1)
@@ -153,7 +142,7 @@ c!  ***********************
 C-----------------------------------------------
 c! fast degradation
         DO I=1,NEL
-         IF(OFF(I).LT.ONE .AND. OFF(I) .GT. ZERO) THEN 
+         IF(OFF(I)<ONE .AND. OFF(I) > ZERO) THEN 
            SIGNXX(I) = SIGNXX(I) * OFF(I)
            SIGNYY(I) = SIGNYY(I) * OFF(I)
            SIGNZZ(I) = SIGNZZ(I) * OFF(I)
@@ -162,13 +151,13 @@ c! fast degradation
            SIGNZX(I) = SIGNZX(I) * OFF(I)
            OFF(I)    = OFF(I) * FOUR_OVER_5
          ENDIF
-         IF(OFF(I).LT.EM01) OFF(I) = ZERO
+         IF(OFF(I)<EM01) OFF(I) = ZERO
         END DO
 C-------------------  
       
       
       DO I=1,NEL
-        IF(OFF(I).EQ.ONE) THEN
+        IF(OFF(I)==ONE) THEN
         
 c!          COCKROFT = UVAR(I,2)
 c! equivalent strain calculation (negative = total strain ; positive = plastic strain)
@@ -183,10 +172,10 @@ c! equivalent strain calculation (negative = total strain ; positive = plastic s
           
             EEQ   = E_11**2 + E_22**2 + E_33**2
             EEQ   = EEQ + TWO * (E_12**2) + TWO * (E_23**2) + TWO * (E_13**2)
-            EEQ   = 0.8164965809 * SQRT(EEQ) ! sqrt (2/3)*sqrt(...)
+            EEQ   = 0.8164965809 * SQRT(EEQ) ! SQRT (2/3)*SQRT (...)
 
             D_EEQ = EEQ - UVAR(I,1)
-            IF (D_EEQ .LE. ZERO) D_EEQ = ZERO
+            IF (D_EEQ <= ZERO) D_EEQ = ZERO
             UVAR(I,1) = EEQ  
           ELSE
             D_EEQ = DPLA(I)
@@ -202,7 +191,7 @@ c!   principal stress calculation
      .         SIGNYY(I)*SIGNZX(I)*SIGNZX(I)-SIGNZZ(I)*SIGNXY(I)*SIGNXY(I)+
      .         TWO*SIGNXY(I)*SIGNZX(I)*SIGNYZ(I)
           Q  = (THREE*I2 - I1*I1)/NINE
-          R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/CINQUANTE4     ! (2*I3^3-9*I1*I2+27*I3)/54
+          R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/FIFTY4     ! (2*I3^3-9*I1*I2+27*I3)/54
            
           R_INTER = MIN(R/SQRT(MAX(EM20,(-Q**3))),ONE)
           PHI = ACOS(MAX(R_INTER,-ONE))
@@ -211,23 +200,23 @@ c!   principal stress calculation
           S22 = TWO*SQRT(-Q)*COS((PHI+TWO*PI)/THREE)+THIRD*I1
           S33 = TWO*SQRT(-Q)*COS((PHI+FOUR*PI)/THREE)+THIRD*I1
 
-          IF (S11.LT.S22) THEN 
+          IF (S11<S22) THEN 
             R_INTER = S11
             S11     = S22
             S22     = R_INTER
           ENDIF 
-          IF (S22.LT.S33)THEN
+          IF (S22<S33)THEN
             R_INTER = S22
             S22     = S33
             S33     = R_INTER
           ENDIF
-          IF (S11.LT.S22)THEN
+          IF (S11<S22)THEN
             R_INTER = S11
             S11     = S22
             S22     = R_INTER
           ENDIF
           
-          IF(S11 .GT. ZERO) THEN
+          IF(S11 > ZERO) THEN
             S11       = S11 * EMA + (ONE-EMA)* UVAR(I,3)
             UVAR(I,3) = S11
 
@@ -237,11 +226,10 @@ c!   principal stress calculation
           DFMAX(I) = UVAR(I,2) / MAX(ABS(C0),EM20)
           DFMAX(I) = MIN(ONE,DFMAX(I))
          
-          IF (UVAR(I,2) .GE. ABS(C0)) THEN
+          IF (UVAR(I,2) >= ABS(C0)) THEN
             TDELE(I)    = TIME  
             NINDX       = NINDX+1
             INDX(NINDX) = I              
-            IDEL7NOK    = 1   
             
             OFF(I) = FOUR_OVER_5
 

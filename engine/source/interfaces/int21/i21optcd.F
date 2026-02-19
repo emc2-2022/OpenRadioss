@@ -1,42 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21OPTCD                      source/interfaces/int21/i21optcd.F
-Chd|-- called by -----------
-Chd|        I21MAIN_OPT_TRI               source/interfaces/intsort/i21main_opt_tri.F
-Chd|-- calls ---------------
-Chd|        I21DST3                       source/interfaces/int21/i21dst3.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|====================================================================
-      SUBROUTINE I21OPTCD(CAND_E ,CAND_N ,XLOC  ,I_STOK  ,IRECT  ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21optcd          ../engine/source/interfaces/int21/i21optcd.F
+!||--- called by ------------------------------------------------------
+!||    i21main_opt_tri   ../engine/source/interfaces/intsort/i21main_opt_tri.F
+!||--- calls      -----------------------------------------------------
+!||    i21dst3           ../engine/source/interfaces/int21/i21dst3.F
+!||    my_barrier        ../engine/source/system/machine.F
+!||    startime          ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    timer_mod         ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE I21OPTCD(TIMERS, CAND_E ,CAND_N ,XLOC  ,I_STOK  ,IRECT  ,
      2                   GAP    ,GAP_S  ,IGAP    ,NSN    ,STFN   ,
      3                   ITASK  ,STF    ,INACTI  ,IFPEN  ,FTXSAV ,
      4                   FTYSAV ,FTZSAV ,PENI    ,NIN    ,GAPMAX ,
      5                   ICURV  ,IRTLM   ,CSTS ,DEPTH ,NOD_NORMAL,
      6                   XM0    ,DRAD    ,NB_STOK_N,NB_JLT,DGAPLOAD)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
+          USE TIMER_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,9 +50,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "parit_c.inc"
 #include      "warn_c.inc"
@@ -59,6 +58,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_) :: TIMERS
       INTEGER IRECT(4,*), CAND_E(*), CAND_N(*), IFPEN(*),
      .        I_STOK,NIN,IGAP ,ITASK, NSN, INACTI,ICURV,
      .        IRTLM(2,*),NB_STOK_N(*),NB_JLT(*)
@@ -71,15 +71,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,L,IS,JS,LS,NLS,NLT,NSEG,SG,FIRST,LAST,MSEG,NLF,II,J
+      INTEGER I,L,IS,JS,LS,NLS,NLT,NSEG,SG,FIRST,LAST,MSEG,NLF,J
       INTEGER LIST(MVSIZ),IG(MVSIZ),IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),
      .        IX4(MVSIZ), LISTI(MVSIZ),COUNT_CAND,
      .        IX1_L(MVSIZ), IX2_L(MVSIZ), IX3_L(MVSIZ),IX4_L(MVSIZ)
       my_real
      .        XI,X1,X2,X3,X4,YI,Y1,Y2,Y3,Y4,ZI,Z1,Z2,Z3,Z4,
-     .        XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,V12,V22,V32,V42
+     .        XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX
       my_real
-     .        GAPV(MVSIZ),NOD_NORMAL_L(12,MVSIZ),XE_L(12,MVSIZ),
+     .        GAPV(MVSIZ),
      .        XI_L(MVSIZ), YI_L(MVSIZ), ZI_L(MVSIZ),
      .        X1_L(MVSIZ), X2_L(MVSIZ), X3_L(MVSIZ), X4_L(MVSIZ),
      .        Y1_L(MVSIZ), Y2_L(MVSIZ), Y3_L(MVSIZ), Y4_L(MVSIZ),
@@ -115,7 +115,7 @@ C-----------------------------------------------
        NSEG = MIN(MSEG,LAST-JS)
 
        NLS = NSEG
-       IF(IGAP.EQ.0)THEN
+       IF(IGAP==0)THEN
         DO IS=1,NSEG
           GAPV(IS)=GAP
           LISTI(IS)=IS
@@ -124,24 +124,23 @@ C-----------------------------------------------
         DO IS=1,NSEG
           I=JS+IS
           GAPV(IS)=GAP_S(CAND_N(I))
-          IF(GAPMAX.NE.ZERO)GAPV(IS)=MIN(GAPV(IS),GAPMAX)
+          IF(GAPMAX/=ZERO)GAPV(IS)=MIN(GAPV(IS),GAPMAX)
           GAPV(IS)=MAX(GAPV(IS),GAP)
           LISTI(IS)=IS
         ENDDO
        ENDIF
 C
-       IF (DEBUG(3).GE.1) NB_JLT(ITASK+1) = NB_JLT(ITASK+1) + NLS
+       IF (DEBUG(3)>=1) NB_JLT(ITASK+1) = NB_JLT(ITASK+1) + NLS
 C
        NLF = 1
        NLT = NLS
        NLS=0
        IF(ICURV==3)THEN
-#include      "vectorize.inc"
         DO LS = NLF, NLT
           IS = LISTI(LS)
           I=JS+IS
           L  = CAND_E(I)
-          IF(STF(L).NE.ZERO.AND.STFN(CAND_N(I)).NE.ZERO) THEN 
+          IF(STF(L)/=ZERO.AND.STFN(CAND_N(I))/=ZERO) THEN 
            IG(IS) = CAND_N(I)
            XI = XLOC(1,IG(IS))
            YI = XLOC(2,IG(IS))
@@ -186,11 +185,11 @@ C
        ELSE
 #include      "vectorize.inc"
         DO LS = NLF, NLT
-Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
+C   keep LISTI and LIST to optimize the generated code (IA64)
           IS = LISTI(LS)
           I=JS+IS
           L  = CAND_E(I)
-          IF(STF(L).NE.ZERO.AND.STFN(CAND_N(I)).NE.ZERO) THEN ! Contact sorting optimization
+          IF(STF(L)/=ZERO.AND.STFN(CAND_N(I))/=ZERO) THEN ! Contact sorting optimization
            IG(IS) = CAND_N(I)
            GAPF = MAX(GAPV(IS)+DGAPLOAD,DRAD)
 C          
@@ -323,9 +322,9 @@ C
           ENDIF
         ENDDO
 C        
-        IF (DEBUG(3).GE.1) NB_STOK_N(ITASK+1) = NB_STOK_N(ITASK+1) + NLS
+        IF (DEBUG(3)>=1) NB_STOK_N(ITASK+1) = NB_STOK_N(ITASK+1) + NLS
 C
-        IF (IMONM > 0 .AND. ITASK+1 == 1) CALL STARTIME(77,1) ! Counting DST time
+        IF (IMONM > 0 .AND. ITASK+1 == 1) CALL STARTIME(TIMERS,77) ! Counting DST time
 C
         NLT=NLS
         NLS=0

@@ -1,41 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_ALE_GRID              source/general_controls/ale_grid/hm_read_ale_grid.F
-Chd|-- called by -----------
-Chd|        CONTRL                        source/starter/contrl.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_ale_grid     ../starter/source/general_controls/ale_grid/hm_read_ale_grid.F
+!||--- called by ------------------------------------------------------
+!||    contrl               ../starter/source/starter/contrl.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg               ../starter/source/output/message/message.F
+!||    hm_get_floatv        ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv          ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_count      ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_read_key   ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start      ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod   ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod          ../starter/share/message_module/message_mod.F
+!||    submodel_mod         ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_ALE_GRID(DT_INPUT, ALPHA, GAMMA, VGX, VGY, VGZ, VOLMIN, LSUBMODEL, UNITAB)
+C-----------------------------------------------
+C   D e s c r i p t i o n
+C-----------------------------------------------
+C Input Reader for options /ALE/GRID/...
+C  NWALE       FORMULATION
+C  0           'DONEA'
+C  1           'DISP'
+C  2           'SPRING'
+C  3           'ZERO'
+C  4           'STANDARD'
+C  5           'LAPLACIAN'
+C  6           'VOLUME'
+C  7           'FLOW-TRACKING'
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -43,6 +57,7 @@ C-----------------------------------------------
       USE HM_OPTION_READ_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
+      USE ALE_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,12 +65,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include "submod_c.inc"
-#include "nchar_c.inc"
 #include "param_c.inc"
 #include "com01_c.inc"
 #include "com04_c.inc"
-#include "ale_param.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -65,12 +77,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: NALE_GRID, II, NITER,NTETRA4
-      CHARACTER :: KEY*ncharkey
+      INTEGER :: NALE_GRID, II, NITER
+      CHARACTER :: KEY*32
       LOGICAL :: IS_AVAILABLE
-
+      LOGICAL :: IS_DEFINED_ALE_GRID
+      INTEGER :: IS_DEF, IS_ROT
+C-----------------------------------------------
+C   S o u r c e   L i n e s
+C-----------------------------------------------
 !     Initializations
-      NWALE = 0
+      IS_DEFINED_ALE_GRID = .FALSE.
+      ALE%GRID%NWALE = 0
       ALPHA = ZERO
       GAMMA = ZERO
       VGX = ZERO
@@ -84,7 +101,8 @@ C-----------------------------------------------
       DO II = 1, NALE_GRID
          CALL HM_OPTION_READ_KEY(LSUBMODEL, KEYWORD3 = KEY)
          IF (KEY(1:5) == 'DONEA') THEN
-            IF(NUMTETRA4 > 0) NALENOVS=12
+            IS_DEFINED_ALE_GRID = .TRUE.
+            IF(NUMTETRA4 > 0) ALE%GLOBAL%NALENOVS=12
             CALL HM_GET_FLOATV('Alpha', ALPHA, IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_FLOATV('GAMMA', GAMMA, IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_FLOATV('VEL_X', VGX, IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -96,22 +114,20 @@ C-----------------------------------------------
             IF (VGY == ZERO) VGY = ONE
             IF (VGZ == ZERO) VGZ = ONE
          ELSEIF (KEY(1:4) == 'DISP') THEN
-            NWALE = 1
+            IS_DEFINED_ALE_GRID = .TRUE.
+            ALE%GRID%NWALE = 1
             CALL HM_GET_FLOATV('MAT_EPS', ALPHA, IS_AVAILABLE, LSUBMODEL, UNITAB)
-            CALL HM_GET_FLOATV('VEL_X', VGX, IS_AVAILABLE, LSUBMODEL, UNITAB)
-            CALL HM_GET_FLOATV('VEL_Y', VGY, IS_AVAILABLE, LSUBMODEL, UNITAB)
-            CALL HM_GET_FLOATV('VEL_Z', VGZ, IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_FLOATV('MAT_PC', VOLMIN, IS_AVAILABLE, LSUBMODEL, UNITAB)
             IF (ALPHA == ZERO) ALPHA = INFINITY
-            IF (VGX == ZERO) VGX = ONE
-            IF (VGY == ZERO) VGY = ONE
-            IF (VGZ == ZERO) VGZ = ONE
+            VGX = ONE
+            VGY = ONE
+            VGZ = ONE
          ELSEIF (KEY(1:6) == 'SPRING') THEN
+            IS_DEFINED_ALE_GRID = .TRUE.
             IF (N2D /= 0) THEN
-               CALL ANCMSG(MSGID = 787, MSGTYPE=MSGERROR, ANMODE=ANINFO,
-     .              C1='SPRING')
-            ENDIF 
-            NWALE = 2
+               CALL ANCMSG(MSGID = 787, MSGTYPE=MSGERROR, ANMODE=ANINFO,C1='SPRING')
+            ENDIF
+            ALE%GRID%NWALE = 2
             VGZ = ZERO
             CALL HM_GET_FLOATV('deltaT', ALPHA, IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_FLOATV('MAT_GAMA0', GAMMA, IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -122,7 +138,8 @@ C-----------------------------------------------
             DT_INPUT = ALPHA
             ALPHA = ALPHA / (-VGX + SQRT(VGX * VGX + ONE))
          ELSEIF (KEY(1:8) == 'STANDARD') THEN
-            NWALE = 4
+            IS_DEFINED_ALE_GRID = .TRUE.
+            ALE%GRID%NWALE = 4
             CALL HM_GET_FLOATV('deltaT_min', ALPHA, IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_FLOATV('MAT_GAMAi', GAMMA, IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_FLOATV('DAMP4', VGX, IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -132,16 +149,18 @@ C-----------------------------------------------
             IF (VGX == ZERO) VGX = EM02
             IF (VGY == ZERO) THEN
                CALL ANCMSG(MSGID = 1119, MSGTYPE = MSGERROR, ANMODE = ANINFO,
-     .              C1='** CRITICAL ELEMENT SIZE MUST BE DEFINED (4TH FIELD)')
+     .                     C1='** CRITICAL ELEMENT SIZE MUST BE DEFINED (4TH FIELD)')
             ENDIF
             IF (GAMMA < ZERO .OR. GAMMA > ONE) THEN
                CALL ANCMSG(MSGID = 1119, MSGTYPE = MSGERROR, ANMODE = ANINFO,
-     .              C1='** NON-LINEAR FACTOR MUST BE BETWEEN 0 AND 1 (2ND FIELD)')
+     .                     C1='** NON-LINEAR FACTOR MUST BE BETWEEN 0 AND 1 (2ND FIELD)')
             ENDIF
          ELSEIF (KEY(1:4) == 'ZERO') THEN
-            NWALE = 3
+            IS_DEFINED_ALE_GRID = .TRUE.
+            ALE%GRID%NWALE = 3
          ELSEIF (KEY(1:9) == 'LAPLACIAN') THEN
-            NWALE = 5
+            IS_DEFINED_ALE_GRID = .TRUE.
+            ALE%GRID%NWALE = 5
             CALL HM_GET_FLOATV('LAMBDA', ALPHA, IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_INTV('Niter', NITER, IS_AVAILABLE, LSUBMODEL)
             GAMMA = ZERO
@@ -152,20 +171,46 @@ C-----------------------------------------------
             IF (GAMMA /= ONE .AND. GAMMA /= TWO) GAMMA = ONE
             IF (VGX <= ZERO) VGX = ONE
          ELSEIF (KEY(1:6) == 'VOLUME') THEN
-            NWALE = 6
+            IS_DEFINED_ALE_GRID = .TRUE.
+            ALE%GRID%NWALE = 6
+         ELSEIF (KEY(1:13) == 'FLOW-TRACKING') THEN
+            IS_DEFINED_ALE_GRID = .TRUE.
+            ALE%GRID%NWALE = 7
+            CALL HM_GET_INTV('IS_DEF', IS_DEF, IS_AVAILABLE, LSUBMODEL)
+            CALL HM_GET_INTV('IS_ROT', IS_ROT, IS_AVAILABLE, LSUBMODEL)
+            CALL HM_GET_FLOATV('SCALE_DEF', ALPHA, IS_AVAILABLE, LSUBMODEL, UNITAB)
+            CALL HM_GET_FLOATV('SCALE_ROT', GAMMA, IS_AVAILABLE, LSUBMODEL, UNITAB)
+            IF(IS_DEF == 0)IS_DEF = 1
+            IF(IS_DEF /= 1 .AND. IS_DEF /= -1)IS_DEF = 1 !value different than expected values leads to default value
+            IF(IS_ROT == 0)IS_ROT = 1
+            IF(IS_ROT /= 1 .AND. IS_ROT /= -1)IS_ROT = 1 !value different than expected values leads to default value
+            IF (ALPHA == ZERO) ALPHA = ONE
+            IF (GAMMA == ZERO) GAMMA = ONE
+            VGX = IS_DEF
+            VGY = IS_ROT
+            VGZ = ZERO
+         ELSEIF (KEY(1:8) == 'LAGRANGE') THEN
+            IS_DEFINED_ALE_GRID = .TRUE.
+            ALE%GRID%NWALE = 8
+         ELSE
+           !invalid keyword : error message managed by Reader itself
          ENDIF
-        
+
       ENDDO
-      
-       ! NO /ALE/GRID formulation => DEFAULT = DONEA & its default values are set here
-       IF(NWALE==0 .OR. NWALE==-1)THEN
-         NWALE=0
-         CALL HM_OPTION_COUNT('/TETRA4', NTETRA4)
-         IF(NTETRA4 > 0) NALENOVS=12              
-         IF(GAMMA == ZERO) GAMMA=HUNDRED
-         IF(VGX == ZERO)   VGX=ONE
-         IF(VGY == ZERO)   VGY=ONE
-         IF(VGZ == ZERO)   VGZ=ONE
-       ENDIF      
+
+       ! NO /ALE/GRID formulation => DEFAULT:'DISP' & its default values are set here
+       IF(.NOT. IS_DEFINED_ALE_GRID .OR. NALE_GRID == 0)THEN
+         ALE%GRID%NWALE = 1
+         ALPHA = INFINITY
+         VGX = ONE
+         VGY = ONE
+         VGZ = ONE
+       ENDIF
+
+       IF(NALE_GRID > 1)THEN
+         ! multiple definition of /ALE/GRID : error message eliminates any ambiguity
+          CALL ANCMSG(MSGID = 1118, MSGTYPE = MSGERROR, ANMODE = ANINFO,
+     .    C1='ONLY A SINGLE DEFINITION OF GRID SMOOTHING ALGORITHM IS ALLOWED')
+       ENDIF
 
       END SUBROUTINE HM_READ_ALE_GRID

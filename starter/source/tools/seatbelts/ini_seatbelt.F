@@ -1,47 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INI_SEATBELT                  source/tools/seatbelts/ini_seatbelt.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        NEW_SEATBELT                  source/tools/seatbelts/new_seatbelt.F
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SEATBELT_MOD                  ../common_source/modules/seatbelt_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ini_seatbelt   ../starter/source/tools/seatbelts/ini_seatbelt.F
+!||--- called by ------------------------------------------------------
+!||    initia         ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../starter/source/output/message/message.F
+!||    ifrontplus     ../starter/source/spmd/node/frontplus.F
+!||    new_seatbelt   ../starter/source/tools/seatbelts/new_seatbelt.F
+!||    nlocal         ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INI_SEATBELT(IPARG,ELBUF_TAB,KNOD2EL1D,NOD2EL1D,IXR,
      .                        X,ITAB,IPM,ALEA,KNOD2ELC,
      .                        NOD2ELC,IXC)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE SEATBELT_MOD
-      USE ELBUFDEF_MOD  
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixc,nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,19 +51,16 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "random_c.inc"
-#include      "my_allocate.inc"
+#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IPARG(NPARG,NGROUP),KNOD2EL1D(*),NOD2EL1D(*),IXR(NIXR,*),ITAB(*),IPM(NPROPMI,*),
+      INTEGER :: IPARG(NPARG,NGROUP),KNOD2EL1D(*),NOD2EL1D(*),IXR(NIXR,*),ITAB(*),IPM(NPROPMI,*),
      .        KNOD2ELC(*),NOD2ELC(*),IXC(NIXC,*)
-      my_real               :: X(3,*),ALEA(*)
+      my_real  :: X(3,*),ALEA(*)
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
 C-----------------------------------------------
 C   F u n c t i o n
@@ -72,29 +70,24 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,L,M,NG,NEL,ITY,IAD,LFT,LLT,NFT,MTN,NODE,NODE_NEXT,
-     .        ELEM_NEXT,N1,N2,NTOOL,KK,NOT_USED,FLAG,ELEM_CUR,NN,ID,NNOD,
-     .        MID,MTYP,P,NB_SHELL,NFRAM,N3,N4,MS,NODES,ISEATBELT
-C
-      my_real DIST1,DIST2,ALEA_MAX,TOLE_2
-C
-      INTEGER , DIMENSION(:), ALLOCATABLE:: TAG_RETRACTOR,TAGN_RETRACTOR,TAG_RES
-C
+      INTEGER :: I,J,K,L,M,NG,NEL,ITY,IAD,LFT,LLT,NFT,MTN,NODE,NODE_NEXT,
+     .           ELEM_NEXT,N1,N2,NTOOL,NOT_USED,FLAG,ELEM_CUR,NN,ID,NNOD,
+     .           MID,MTYP,P,NB_SHELL,NFRAM,N3,N4,ISEATBELT,N1SP,N2SP,ELEM
+      my_real :: DIST1,DIST2,ALEA_MAX,TOLE_2
+      INTEGER, DIMENSION(:), ALLOCATABLE:: TAG_RETRACTOR,TAGN_RETRACTOR,TAG_RES
       TYPE(G_BUFEL_),POINTER :: GBUF
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
 C
 C-----Reset of TAG_RES from SEATBELT_TAB structure----------------------------------
-      MY_ALLOCATE(TAG_RES,NUMELR)
+      CALL MY_ALLOC(TAG_RES,NUMELR)
       TAG_RES(1:NUMELR) = 0
       DO I=1,N_SEATBELT
         DO J=1,SEATBELT_TAB(I)%NSPRING
           TAG_RES(SEATBELT_TAB(I)%SPRING(J)) = I
         ENDDO 
       ENDDO
-
-C-----------------------------------------------------------------------------------
 C
 C-----Preparation for SPMD computation  ---------------------------------------------
       IF (NSPMD > 1) THEN
@@ -127,8 +120,8 @@ C
 
 C-----------------------------------------------------------------------------------
 
-      MY_ALLOCATE(TAG_RETRACTOR,NUMELR)
-      MY_ALLOCATE(TAGN_RETRACTOR,NUMNOD)
+      CALL MY_ALLOC(TAG_RETRACTOR,NUMELR)
+      CALL MY_ALLOC(TAGN_RETRACTOR,NUMNOD)
       TAG_RETRACTOR(1:NUMELR) = 0
       TAGN_RETRACTOR(1:NUMNOD) = 0
       FLAG = 1
@@ -155,7 +148,8 @@ C
 C--             Loop on belt inside the retractor
                 CALL NEW_SEATBELT(IXR,ITAB,KNOD2EL1D,NOD2EL1D,N1,
      .                            ELEM_CUR,TAG_RETRACTOR,TAGN_RETRACTOR,I,FLAG,
-     .                            NOT_USED,IPM)
+     .                            NOT_USED,IPM,NOT_USED,NOT_USED,NOT_USED,
+     .                            NOT_USED)
               ENDIF
             ENDIF
           ENDIF
@@ -210,13 +204,6 @@ CC-               determinaton of slipring direction for strand1
                     SLIPRING(K)%FRAM(L)%STRAND_DIRECTION(1) = -1
                   ENDIF
 C
-C----------->     Update of third node------------
-                  DO KK=1,3
-                    IF ((SLIPRING(K)%FRAM(L)%NODE(KK)/=N1).AND.(SLIPRING(K)%FRAM(L)%NODE(KK)/=N2)) THEN
-                      IXR(4,J)=SLIPRING(K)%FRAM(L)%NODE(KK)
-                    ENDIF
-                  ENDDO
-C
                 ELSEIF (((N1==SLIPRING(K)%FRAM(L)%NODE(2)).AND.(N2==SLIPRING(K)%FRAM(L)%NODE(3))).OR.
      .                  ((N1==SLIPRING(K)%FRAM(L)%NODE(3)).AND.(N2==SLIPRING(K)%FRAM(L)%NODE(2)))) THEN
 CC-               element is strand number 2
@@ -232,12 +219,6 @@ CC-               determinaton of slipring direction for strand2
                     SLIPRING(K)%FRAM(L)%STRAND_DIRECTION(2) = -1
                   ENDIF
 C
-C----------->     Update of third node------------
-                  DO KK=1,3
-                    IF ((SLIPRING(K)%FRAM(L)%NODE(KK)/=N1).AND.(SLIPRING(K)%FRAM(L)%NODE(KK)/=N2)) THEN
-                      IXR(4,J)=SLIPRING(K)%FRAM(L)%NODE(KK)
-                    ENDIF
-                  ENDDO
                 ENDIF
               ENDDO
             ENDDO
@@ -259,6 +240,7 @@ C
             IF (TAG_RETRACTOR(J) > 0) THEN
 C-            element initially in the retractor
               GBUF%OFF(I) = ZERO
+              GBUF%RETRACTOR_ID(I) = -K
               K = TAG_RETRACTOR(J)
               ID = RETRACTOR(K)%ID
               NN = RETRACTOR(K)%ANCHOR_NODE 
@@ -405,42 +387,54 @@ C
             N3 = IXC(4,J)
             N4 = IXC(5,J)
 C
-C--         Scale factor on stress intialised 
+C--         Scale factor on stress initialised 
             GBUF%INTVAR(I) = ONE
 C
-            DO M=2,5
-CCC-        Find node after node i
+C--         Initial length of fram 1/2 and fram 4/3
+            DIST1 = (X(1,N2)-X(1,N1))**2+(X(2,N2)-X(2,N1))**2+(X(3,N2)-X(3,N1))**2
+            DIST2 = (X(1,N3)-X(1,N4))**2+(X(2,N3)-X(2,N4))**2+(X(3,N3)-X(3,N4))**2
+            GBUF%INTVAR(I+2*NEL) = SQRT(DIST1)
+            GBUF%INTVAR(I+3*NEL) = SQRT(DIST2)
 C
-C--             spring either betwenn node 1/2 - or 3/4
-                IF (M==2) MS =3
-                IF (M==3) MS =2
-                IF (M==4) MS =5
-                IF (M==5) MS =4
-                NODE = IXC(M,J)
-                NODES = IXC(MS,J)
-C
-                NODE_NEXT = 0
-C
-                DO K=KNOD2EL1D(NODE)+1,KNOD2EL1D(NODE+1)
-                  IF (NOD2EL1D(K) > NUMELT+NUMELP) THEN          
-                    ELEM_NEXT = NOD2EL1D(K)-NUMELT-NUMELP
-                    IF (((IXR(2,ELEM_NEXT)==NODE).AND.(IXR(3,ELEM_NEXT)/=NODES)).OR.
-     .                  ((IXR(3,ELEM_NEXT)==NODE).AND.(IXR(2,ELEM_NEXT)/=NODES))) THEN
-                      MID = IXR(5,ELEM_NEXT)
-                      IF (MID > 0) THEN
-                        MTYP = IPM(2,MID)
-                        IF (MTYP == 114) THEN
-                          IF (IXR(2,ELEM_NEXT) == NODE) THEN
-                            NODE_NEXT = IXR(3,ELEM_NEXT)
-                          ELSE
-                            NODE_NEXT = IXR(2,ELEM_NEXT)
-                          ENDIF
-                        ENDIF
-                      ENDIF  
-                    ENDIF              
+CCC-        Find node defining 1rst orthotropy direction with N1 using springs : N2 (default) or N4 
+            GBUF%ADD_NODE(I) = N2 
+            DO K=KNOD2EL1D(N1)+1,KNOD2EL1D(N1+1)
+              IF (NOD2EL1D(K) > NUMELT+NUMELP) THEN          
+                ELEM = NOD2EL1D(K)-NUMELT-NUMELP
+                MID = IXR(5,ELEM)
+                IF (MID > 0) THEN
+                  MTYP = IPM(2,MID)
+                  IF ((MTYP==114).AND.((IXR(2,ELEM)==N1).AND.(IXR(3,ELEM) == N4))
+     .                            .OR.((IXR(3,ELEM)==N1).AND.(IXR(2,ELEM) == N4))) THEN
+                    GBUF%ADD_NODE(I) = N4
                   ENDIF
-                ENDDO
-                GBUF%ADD_NODE((M-2)*NEL+I) = NODE_NEXT
+                ENDIF              
+              ENDIF
+            ENDDO
+C
+CCC-        Find node after node i
+            DO M=2,5
+              NODE = IXC(M,J)
+              NODE_NEXT = 0
+              DO K=KNOD2EL1D(NODE)+1,KNOD2EL1D(NODE+1)
+                IF (NOD2EL1D(K) > NUMELT+NUMELP) THEN          
+                  ELEM_NEXT = NOD2EL1D(K)-NUMELT-NUMELP
+                  MID = IXR(5,ELEM_NEXT)
+                  IF (MID > 0) THEN
+                    MTYP = IPM(2,MID)
+                    IF (MTYP==114) THEN
+                      N1SP=IXR(2,ELEM_NEXT)
+                      N2SP=IXR(3,ELEM_NEXT)
+                      IF ((N1SP==NODE).AND.(N2SP/=N1).AND.(N2SP/=N2).AND.(N2SP/=N3).AND.(N2SP/=N4)) THEN    
+                        NODE_NEXT = N2SP
+                      ELSEIF ((N2SP==NODE).AND.(N1SP/=N1).AND.(N1SP/=N2).AND.(N1SP/=N3).AND.(N1SP/=N4)) THEN 
+                        NODE_NEXT = N1SP
+                      ENDIF
+                    ENDIF  
+                  ENDIF              
+                ENDIF
+              ENDDO
+              GBUF%ADD_NODE((M-1)*NEL+I) = NODE_NEXT
 C
             ENDDO
 C

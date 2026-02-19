@@ -1,45 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
+!||====================================================================
+!||    mod_sptri   ../starter/source/elements/sph/sptri.F
+!||--- called by ------------------------------------------------------
+!||    sptri       ../starter/source/elements/sph/sptri.F
+!||====================================================================
       module MOD_SPTRI
       implicit none
-#include      "my_real.inc"
       INTEGER, DIMENSION(:), ALLOCATABLE :: WREDUCE
       END MODULE MOD_SPTRI
 
-Chd|====================================================================
-Chd|  SPTRI                         source/elements/sph/sptri.F   
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        SPBUC31                       source/elements/sph/spbuc31.F 
-Chd|        SPCLASV                       source/elements/sph/spclasv.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    sptri         ../starter/source/elements/sph/sptri.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||    spinih        ../starter/source/elements/sph/spinih.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||    arret         ../starter/source/system/arret.F
+!||    spbuc31       ../starter/source/elements/sph/spbuc31.F
+!||    spclasv       ../starter/source/elements/sph/spclasv.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||    mod_sptri     ../starter/source/elements/sph/sptri.F
+!||====================================================================
       SUBROUTINE SPTRI(KXSP,IXSP,NOD2SP,X,SPBUF,
-     .                 LPRTSPH,LONFSPH)
+     .                 LPRTSPH,LONFSPH,IPARTSP,SZ_INTP_DIST,MAX_INTP_DIST_PART,
+     .                 PRE_SEARCH)
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE MOD_SPTRI
@@ -48,34 +56,29 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "sphcom.inc"
-#include      "bucki_c.inc"
 #include      "buckr_c.inc"
-#include      "units_c.inc"
+C-----------------------------------------------
+C     PRE_SEARCH = 0 -> full search of neigbours 
+C     PRE_SEARCH = 1 -> pre-search of neigbours for computation of max interparticle dist 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER KXSP(NISP,*), IXSP(KVOISPH,*), NOD2SP(*),
      .        LPRTSPH(2,0:NPART) ,LONFSPH(*)
+      INTEGER ,INTENT(IN) :: IPARTSP(NUMSPH),PRE_SEARCH,SZ_INTP_DIST
       my_real
      .        SPBUF(NSPBUF,*), X(3,*)
+      my_real ,INTENT(INOUT) :: MAX_INTP_DIST_PART(SZ_INTP_DIST)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N,M,J,K,IG,JG,JK, IREDUCE, NVOIS, IERROR, NVOIS1, NVOIS2,
-     .        JVOIS(NUMSPH), JSTOR(NUMSPH), JPERM(NUMSPH)
-      INTEGER MS, NS, WASPACT(NUMSPH), IPRT
-      my_real
-     .        XI, YI, ZI, XJ, YJ, ZJ, DK,
-     .        CMS2, DMS, DMS2,
-     .        DVOIS(NUMSPH), BMINMA(6), MYSPATRUE,
-     .        XMAX, YMAX, ZMAX
+      INTEGER N,J,K, IREDUCE, NVOIS, IERROR,JVOIS(NUMSPH), JSTOR(NUMSPH), JPERM(NUMSPH)
+      INTEGER NS, WASPACT(NUMSPH), IPRT
+      my_real DVOIS(NUMSPH), BMINMA(6), MYSPATRUE,XMAX, YMAX, ZMAX
 C-----------------------------------------------
       NVOIS = 0
 C-----------------------------------------------      
@@ -88,10 +91,10 @@ C-----------------------------------------------
       IREDUCE=0
       WREDUCE(1:NUMSPH)=0
 C-----------------------------------------------      
-      IF(NSPHIO.EQ.0)THEN
+      IF(NSPHIO==0)THEN
         NSPHACT=0
         DO N=1,NUMSPH
-          IF(KXSP(2,N).NE.0)THEN
+          IF(KXSP(2,N)/=0)THEN
             NSPHACT=NSPHACT+1
             WASPACT(NSPHACT)=N
           ENDIF
@@ -158,9 +161,12 @@ C
 C-----------------------------------------------
       CALL SPBUC31(X      ,KXSP  ,IXSP  ,NOD2SP,
      .             SPBUF  ,WASPACT,JVOIS,JSTOR ,JPERM  ,
-     .             DVOIS ,IREDUCE,WREDUCE,BMINMA )
+     .             DVOIS  ,IREDUCE,WREDUCE,BMINMA,IPARTSP ,
+     .             SZ_INTP_DIST,MAX_INTP_DIST_PART,PRE_SEARCH)
 C-----------------------------------------------
-C     re-tri voisins (voisins vrais, voisins dans la zone de securite).
+C     re-sort neighbors (true neighbors, neighbors in the safety zone)
+C
+      IF (PRE_SEARCH==0) THEN
       MYSPATRUE=SPATRUE
 C     /---------------/
 C      CALL MY_BARRIER
@@ -170,9 +176,10 @@ C     /---------------/
 C     /---------------/
 C      CALL MY_BARRIER
 C     /---------------/
-C#include "lockon.inc"
-      IF(MYSPATRUE.LT.SPATRUE)SPATRUE=MYSPATRUE
-C#include "lockoff.inc"
+      IF(MYSPATRUE<SPATRUE)SPATRUE=MYSPATRUE
+      ELSE     
+        DEALLOCATE(WREDUCE)       
+      ENDIF
 
       RETURN
       END

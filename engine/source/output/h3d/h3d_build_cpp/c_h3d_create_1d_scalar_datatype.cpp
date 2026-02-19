@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,10 +15,10 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
 //Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //    
 #include <stdio.h>
@@ -115,13 +115,23 @@ void c_h3d_create_1d_scalar_datatype_(int *cpt_data, char *name, int *size, int 
 //    sprintf(LAYERPOOL, "%s %d" ,cname1,*info1);
     if( *ipt > 0 )
     {
-       sprintf(IPT_STRING, "IPT %d \0" ,*ipt);
-             LAYERPOOL = strcat(LAYERPOOL,IPT_STRING);
+       sprintf(IPT_STRING, "IPT %d" ,*ipt);
+#ifdef _WIN64
+        strcat_s(LAYERPOOL,100,IPT_STRING);
+#else
+        LAYERPOOL = strcat(LAYERPOOL,IPT_STRING);
+#endif
+
     }
     else
     {
        sprintf(LAYERPOOL, "%s %d" ,cname1,*info1);
-             LAYERPOOL = strcat(LAYERPOOL,IPT_STRING);
+#ifdef _WIN64
+        strcat_s(LAYERPOOL,100,IPT_STRING);
+#else
+        LAYERPOOL = strcat(LAYERPOOL,IPT_STRING);
+#endif
+
     }
 
     rc = Hyper3DAddString(h3d_file, LAYERPOOL, &layer_pool_id);

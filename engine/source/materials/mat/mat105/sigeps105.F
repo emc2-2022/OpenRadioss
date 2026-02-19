@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS105                     source/materials/mat/mat105/sigeps105.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps105        ../engine/source/materials/mat/mat105/sigeps105.F
+!||--- called by ------------------------------------------------------
+!||    mulaw            ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    finter           ../engine/source/tools/curve/finter.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
       SUBROUTINE SIGEPS105 (
      1     NEL    ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC    ,TBURN  ,
      2     NPF    ,TF     ,TIME    ,TIMESTEP,UPARAM   ,BFRAC  ,
@@ -41,18 +42,18 @@ Chd|====================================================================
      8     SIGNXX ,SIGNYY ,SIGNZZ  ,SIGNXY  ,SIGNYZ   ,SIGNZX ,
      9     SIGVXX ,SIGVYY ,SIGVZZ  ,SIGVXY  ,SIGVYZ   ,SIGVZX ,
      A     SOUNDSP,VISCMAX,UVAR    ,OFF     ,NFT      ,V      ,
-     B     W      ,X      ,IX      ,N48     ,NIX      ,JTHE   ,
+     B     W      ,X      ,IX      ,NIX      ,JTHE   ,
      C     GEO    ,PID    ,ILAY    ,NG      ,ELBUF_TAB,PM     , 
-     D     IPARG  ,BUFVOIS ,IPM     ,BUFMAT   ,STIFN  ,
+     D     IPARG  ,BUFVOIS ,IPM    ,BUFMAT  ,STIFN    ,
      E     VD2    ,VDX    ,VDY     ,VDZ     ,MAT      ,VOLN   ,
-     F     QNEW   ,DDVOL  ,QOLD    )  
+     F     QNEW   ,DDVOL  ,QOLD    ,PSH)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C This subroutine computes Powder Burn EOS and is based on (Atwood,Friis,Moxnes) publication.
 C ELEMENT BUFFER
 C   %BFRAC  : is ignition fraction (depends on flamme position regarding the cell)
-C   UVAR(6) : is burn fracttion (depends on F(t) function and also on gas pressure and grains shape)
+C   UVAR(6) : is burn fraction (depends on F(t) function and also on gas pressure and grains shape)
 C EOS
 C   GAS    : Exponantial EOS
 C   POWDER : Linear EOS
@@ -60,6 +61,7 @@ C MATERIAL BUFFER
 C   UPARAM(1:NUPARAM) : material parameters
 C   UVAR  (1:NUVAR)   : cell buffer specific for this material law : Pgas, etc...
 C
+C An Alternative implementation is to use /EOS option : see ./common_source/eos/powder_burn.F
 C
 C-----------------------------------------------
 C   M o d u l e s
@@ -76,20 +78,18 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com06_c.inc"
 #include      "com01_c.inc"
 #include      "com08_c.inc"
 #include      "mvsiz_p.inc"
-#include      "inter22.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL, NUPARAM, NUVAR,NFT,N48,NIX,JTHE,
+      INTEGER NEL, NUPARAM, NUVAR,NFT,NIX,JTHE,
      .        IX(NIX,*), PID(*), ILAY, NG,PM(NPROPM,*),IPARG(*),MAT(*),
      .        IPM(NPROPMI,*)
       my_real 
      .   TIME         ,TIMESTEP   ,UPARAM(NUPARAM),
-     .   SIGY(NEL)    ,VK(NEL)    ,
+     . SIGY(NEL) ,
      .   RHO(NEL)     ,RHO0(NEL)  ,VOLUME(NEL),
      .   EINT(NEL)    ,BUFVOIS(*) ,QNEW(NEL)    ,
      .   DDVOL(NEL)   ,QOLD(NEL)  ,
@@ -106,6 +106,7 @@ C-----------------------------------------------
      .   STIFN(MVSIZ) ,VD2(*)     ,VDX(*)     ,
      .   VDY(*)       ,VDZ(*)     ,SSP        ,
      .   VOLN(*)
+      my_real,intent(inout) :: PSH(NEL)
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
@@ -140,15 +141,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      my_real :: P,Qa,QB,QAL,QBL, POLD,VOLD,EINC,PNEW
-      my_real :: BULK, D, EG, Gr, C, ALPHA,BETA, C1, C2,FSCALE_G,FSCALE_B,FSCALE_P,FSCALE_RHO
-      my_real :: P0,XL, DD, TFEXTT, PSH, VOLO, ESPE, E0, TOTAL_BFRAC, DELTA_BF, BRATE
-      my_real :: PG,PG_,PS, MU_G, MU_P, MU, RHO_G,RHO_G_, RHO_S, RHOG, RHO_Si
+      my_real :: POLD, EINC, PNEW
+      my_real :: BULK, D, EG, Gr, C, ALPHA, C1, C2, FSCALE_G, FSCALE_B, FSCALE_P, FSCALE_RHO
+      my_real :: P0, XL, ESPE, E0, TOTAL_BFRAC, DELTA_BF, BRATE
+      my_real :: PG, PG_, PS, RHO_G, RHO_S, RHO_Si
       INTEGER :: funcb, funcg
-      INTEGER :: IBID, IBFRAC, I , K     
-      my_real :: MASS, DF, TB, DIFF, G_RHOC2, P_RHOC2, RHOC2, SSP_G, SSP_S, MASS_G, MASS_S, VS
-      my_real :: VOL_G, VOL_S, fac,compac,INVrhog
-      my_real :: m0,rho_s0,F,Y_old,Y,FUNC_DOT,FUNC,V0,TMP
+      INTEGER :: I
+      my_real :: MASS, TB, DIFF, SSP_G, SSP_S, MASS_G, MASS_S
+      my_real :: compac
+ 
       
       TYPE(G_BUFEL_)  ,POINTER :: GBUF
       TYPE(L_BUFEL_)  ,POINTER :: LBUF      
@@ -156,7 +157,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      TFEXTT =  ZERO
       GBUF   => ELBUF_TAB(NG)%GBUF           
       LBUF   => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)
       BUFLY  => ELBUF_TAB(NG)%BUFLY(ILAY)      
@@ -165,7 +165,7 @@ C   S t a n d a r d   J W L   E O S
 C-----------------------------------------------  
       BULK       = UPARAM(01)   
       P0         = UPARAM(02)          
-      PSH        = UPARAM(03)   
+      PSH(:)     = UPARAM(03)
       E0         = UPARAM(04)   
       D          = UPARAM(05)   
       EG         = UPARAM(06)   
@@ -179,24 +179,24 @@ C-----------------------------------------------
       FSCALE_P   = UPARAM(14)  
       FSCALE_RHO = UPARAM(15)  
       funcb      = IFUNC(1)  
-      funcg      = IFUNC(2) 
+      funcg      = IFUNC(2)
       
       compac=0.93
                  
-      IF(DT1==ZERO)THEN
+      IF(DT1 == ZERO)THEN
         DO I=1,NEL
           EINT(I) = EG*RHO0(I)*VOLUME(I)
-          UVAR(I,1) = P0                 !PS             
-          UVAR(I,2) = ZERO               !PG             
+          UVAR(I,1) = P0-PSH(I)          !PS
+          UVAR(I,2) = P0-PSH(I)          !PG
           UVAR(I,3) = RHO0(I)/compac     !RHO_S          
           UVAR(I,4) = ZERO               !RHO_G          
-          UVAR(I,5) = P0                 !POLD           
+          UVAR(I,5) = P0-PSH(I)          !POLD
           UVAR(I,6) = ZERO               !F(t_old)        
           UVAR(I,7) = RHO0(I)*VOLUME(I)  !Mass0             
         ENDDO
-        SIGNXX(1:NEL) = - P0 
-        SIGNYY(1:NEL) = - P0  
-        SIGNZZ(1:NEL) = - P0 
+        SIGNXX(1:NEL) = - (P0-PSH(I))
+        SIGNYY(1:NEL) = - (P0-PSH(I))
+        SIGNZZ(1:NEL) = - (P0-PSH(I))
         SIGNXY(1:NEL) = ZERO 
         SIGNYZ(1:NEL) = ZERO 
         SIGNZX(1:NEL) = ZERO 
@@ -212,18 +212,17 @@ C-----------------------------------------------
       ENDIF
 
       DO I=1,NEL
-    
         !--------------------------------!
         ! INIT.                          !
         !--------------------------------!
-        MASS = RHO(I)*VOLUME(I)      
-        XL   = DELTAX(I)
-        ESPE = EINT(I)/MASS 
-        PS   =UVAR(I,1)          
-        PG   =UVAR(I,2)          
-        RHO_S=UVAR(I,3)
-        RHO_G=UVAR(I,4)
-        POLD =UVAR(I,5)  
+        MASS  = RHO(I)*VOLUME(I)
+        XL    = DELTAX(I)
+        ESPE  = EINT(I)/MASS
+        PS    = UVAR(I,1)
+        PG    = UVAR(I,2)
+        RHO_S = UVAR(I,3)
+        RHO_G = UVAR(I,4)
+        POLD  = UVAR(I,5)
                         
         !--------------------------------!
         ! IGNITION FRACTION              !
@@ -240,17 +239,15 @@ C-----------------------------------------------
          ENDIF
         ENDIF
 
-
-                
         !------------------------------------------------!
         ! BURN FRACTION                                  !
         !  BFRAC  : ignition fraction (flamme evolution) !
         !  UVAR(6): burn fraction (grain burn evolution) !
         !------------------------------------------------!
-        IF(BFRAC(I).LE.ZERO)THEN
+        IF(BFRAC(I) <= ZERO)THEN
           TOTAL_BFRAC = ZERO
           UVAR(I,6) = ZERO
-        ELSEIF(UVAR(I,6).NE.ONE)THEN  ! F<1
+        ELSEIF(UVAR(I,6) /= ONE)THEN  ! F<1
             PG_=PG 
             !PG_=PG*(ONE-MASS_S/VOLN(I)/RHO_S)  !effective gaz pressure Pg*(1-RHO_S_/rhop)
             BRATE       = FSCALE_B*FINTER(funcb,(PG_)/FSCALE_P,NPF,TF,DIFF)
@@ -262,7 +259,6 @@ C-----------------------------------------------
             ! avoid LOG(0)
             TOTAL_BFRAC = BFRAC(I)*UVAR(I,6)
         ENDIF       
-        
 
         !--------------------------------!
         ! EOS SOLVING                    !
@@ -274,34 +270,27 @@ C-----------------------------------------------
         RHO_G=ZERO
         
         !in case of compressible solid (linear EOS)
-        RHO_Si=RHO0(I)/compac*((UVAR(I,2)-P0)/BULK+ONE)
-        
+        RHO_Si=RHO0(I)/compac*(UVAR(I,2)/BULK+ONE)
         !in case of constant solid density
         !rho_si=rho0(I)/compac
         
-        
-       IF(MASS_G.GT.ZERO)RHO_G=MASS_G/(VOLN(I)-MASS_S/ max(EM10,RHO_Si)) 
-
-         
-        PG   = RHO_G*EG*EXP(RHO_G/D)
-        
-        PS   = BULK*(RHO_Si/RHO0(I))
-        SSP_S= SQRT(BULK/RHO0(I))
-        
-        IF(RHO_G.GT.ZERO)THEN
+        IF(MASS_G > ZERO)RHO_G=MASS_G/(VOLN(I)-MASS_S/ max(EM10,RHO_Si))
+        PG = P0+RHO_G*EG*EXP(RHO_G/D)
+        PS = P0+BULK*(RHO_Si/RHO0(I)-ONE)
+        SSP_S = SQRT(BULK/RHO0(I))
+        IF(RHO_G > ZERO)THEN
           SSP_G = RHO0(I)/D*Pg + EXP(RHO_G/D)* Pg / (RHO_G/RHO0(I))**2
           SSP_G = SQRT(ONE/RHO_G * SSP_G)
         ELSE
           SSP_G = ZERO
         ENDIF
 
-   
         !--------------------------------!
         ! Global Pressure & SoundSpeed   !
         !--------------------------------! 
         SSP   = TOTAL_BFRAC*SSP_G + (ONE-TOTAL_BFRAC)*SSP_S        
         PNEW  = TOTAL_BFRAC*PG    + (ONE-TOTAL_BFRAC)*PS
-        PNEW  = (PNEW-PSH)*OFF(I)
+        PNEW  = (PNEW-PSH(I))*OFF(I)
         !--------------------------------!
         ! Returning values               !
         !--------------------------------!     
@@ -327,17 +316,17 @@ C-----------------------------------------------
        !UVAR(I,6) -> F(t)
        !UVAR(I,7) -> Mass0  
        
-          
-        if(time==ZERO)then
-        OPEN(UNIT=1,FILE='F.txt'    )
-        OPEN(UNIT=2,FILE='Pg.txt'   )
-        OPEN(UNIT=3,FILE='rhoS.txt' )
-        OPEN(UNIT=4,FILE='Ifrac.txt' )
+        ! --- verification output
+        if(time == ZERO)then
+          open(UNIT=1,FILE='F.txt'    )
+          open(UNIT=2,FILE='Pg.txt'   )
+          open(UNIT=3,FILE='rhoS.txt' )
+          open(UNIT=4,FILE='Ifrac.txt' )
         else
-        OPEN(UNIT=1,FILE='F.txt'   , position="append")
-        OPEN(UNIT=2,FILE='Pg.txt'  , position="append")
-        OPEN(UNIT=3,FILE='rhoS.txt', position="append")
-        OPEN(UNIT=4,FILE='Ifrac.txt',position="append")
+          open(UNIT=1,FILE='F.txt'   , position="append")
+          open(UNIT=2,FILE='Pg.txt'  , position="append")
+          open(UNIT=3,FILE='rhoS.txt', position="append")
+          open(UNIT=4,FILE='Ifrac.txt',position="append")
         endif
 
         WRITE(1,*)TIME,UVAR(I,6)
@@ -348,12 +337,8 @@ C-----------------------------------------------
         CLOSE(1)
         CLOSE(2)
         CLOSE(3)
-         
 
       ENDDO! next I   
-
-
-
 
 C-----------------------------------------------
       RETURN

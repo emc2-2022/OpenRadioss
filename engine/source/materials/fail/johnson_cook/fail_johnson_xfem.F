@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_JOHNSON_XFEM             source/materials/fail/johnson_cook/fail_johnson_xfem.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_johnson_xfem   ../engine/source/materials/fail/johnson_cook/fail_johnson_xfem.F
+!||--- called by ------------------------------------------------------
+!||    mulawc              ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell       ../engine/source/materials/mat_share/usermat_shell.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod       ../engine/share/modules/crackxfem_mod.F
+!||====================================================================
       SUBROUTINE FAIL_JOHNSON_XFEM(
      1           NEL      ,NUPARAM  ,UPARAM   ,NUVAR    ,UVAR     ,
      2           TIME     ,TENS     ,DPLA     ,EPSP     ,TSTAR    ,
@@ -61,7 +61,7 @@ C---------+---------+---+---+--------------------------------------------
 C NPTOT   |  1      | I | R | NUMBER OF LAYERS OR INTEGRATION POINTS   
 C IPT     |  1      | I | R | LAYER OR INTEGRATION POINT NUMBER   
 C IFLAG   |  *      | I | R | GEOMETRICAL FLAGS   
-C NGL     | NEL     | I | R | ELEMEMT NUMBER
+C NGL     | NEL     | I | R | ELEMENT NUMBER
 C---------+---------+---+---+--------------------------------------------
 C TIME    |  1      | F | R | CURRENT TIME
 C UPARAM  | NUPARAM | F | R | USER MATERIAL PARAMETER ARRAY
@@ -96,10 +96,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,L,JJ,ISHELL,NINDX,NINDXP,IADR,LAYXFEM
+      INTEGER I,J,ISHELL,NINDX,NINDXP,IADR,LAYXFEM
       INTEGER INDX(NEL),INDXP(NEL),RFLAG(NEL),RFLAGP(NEL)
-      my_real D1,D2,D3,D4,D5,EPSP0,P,EPSF,SVM,THK_TMP,
-     .    DADV,CC,BB,CR,ORM,SS1,SS2
+      my_real D1,D2,D3,D4,D5,EPSP0,P,EPSF,SVM,
+     .    DADV,EPSF_MIN
       CHARACTER (LEN=3) :: XCHAR
 C=======================================================================
       IADR = (IPT-1)*NEL
@@ -112,10 +112,8 @@ c
       D5      = UPARAM(5)
       EPSP0   = UPARAM(6)
       DADV    = UPARAM(10)
+      EPSF_MIN = UPARAM(12)
       ISHELL  = INT(UPARAM(7))
-      LAYXFEM = INT(UPARAM(11))
-c-----------------------------
-      IF (LAYXFEM == 0) RETURN
 c-----------------------------
       LAYXFEM = IXFEM
       IF (LAYXFEM == 1 .and. ISHELL == 1) ISHELL=2
@@ -162,7 +160,8 @@ C---------------
                 EPSF = D3*P/MAX(EM20,SVM)                                       
                 EPSF = (D1 + D2*EXP(EPSF))*(ONE                                       
      .                     + D4*LOG(MAX(ONE,EPSP(I)/EPSP0)))                   
-     .                     * (ONE + D5*TSTAR(I))                                
+     .                     * (ONE + D5*TSTAR(I))     
+                EPSF = MAX(EPSF,EPSF_MIN)  
                 IF (EPSF > ZERO) DFMAX(I) = DFMAX(I) + DPLA(I)/EPSF              
 c                                                                               
                 IF (IXEL == 0) THEN                                             
@@ -271,7 +270,8 @@ c
                 EPSF = D3*P/MAX(EM20,SVM)                            
                 EPSF = (D1 + D2*EXP(EPSF))*(ONE                       
      .                     + D4*LOG(MAX(ONE,EPSP(I)/EPSP0)))       
-     .                     * (ONE + D5*TSTAR(I))                    
+     .                     * (ONE + D5*TSTAR(I))     
+                EPSF = MAX(EPSF,EPSF_MIN)
                 IF (EPSF > ZERO) DFMAX(I) = DFMAX(I) + DPLA(I)/EPSF  
 c
                 IF (IXEL == 0) THEN                                  
@@ -332,7 +332,8 @@ c
                   EPSF = D3*P/MAX(EM20,SVM)                                       
                   EPSF = (D1 + D2*EXP(EPSF))*(ONE                                       
      .                       + D4*LOG(MAX(ONE,EPSP(I)/EPSP0)))                   
-     .                       * (ONE + D5*TSTAR(I))                                
+     .                       * (ONE + D5*TSTAR(I))    
+                  EPSF = MAX(EPSF,EPSF_MIN)          
                   IF (EPSF > ZERO) DFMAX(I) = DFMAX(I) + DPLA(I)/EPSF
 c                                                                                 
                   IF (IXEL == 0) THEN                                             
@@ -428,14 +429,6 @@ C---------Damage for output  0 < DFMAX < 1 --------------------
         DFMAX(I) = MIN(ONE,DFMAX(I))
       ENDDO
 C------------------
- 2000 FORMAT(1X,'FOR SHELL ELEMENT (JOHNS)',I10,1X,'LAYER',I3,':',/
-     .       1X, 'STRESS TENSOR SET TO ZERO')
- 2100 FORMAT(1X,'FOR SHELL ELEMENT (JOHNS)',I10,1X,'LAYER',I3,':',/,
-     .       1X,'STRESS TENSOR SET TO ZERO',1X,'AT TIME :',1PE12.4)
- 2400 FORMAT(1X,1PG20.13,' % OF THICKNESS OF SHELL BROKEN ')
- 2410 FORMAT(1X,1PG20.13,' % OF THICKNESS OF SHELL ',I10,' BROKEN ')
- 2500 FORMAT(1X,'  LOWER SKIN -> UPPER SKIN ')
- 2600 FORMAT(1X,'  UPPER SKIN -> LOWER SKIN ')
 c---  multilayer
  3000 FORMAT(1X,'CRACK INITIALIZATION IN SHELL ELEMENT',I10,1X,'LAYER',I3)
  3100 FORMAT(1X,'CRACK INITIALIZATION IN SHELL ELEMENT',I10,1X,'LAYER',I3,/

@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PARSOR                        source/output/anim/parsor.F   
-Chd|-- called by -----------
-Chd|        DD_ANI                        source/output/anim/dd_ani.F   
-Chd|-- calls ---------------
-Chd|        FACNOR                        source/output/anim/facnor.F   
-Chd|        FACNOR2                       source/output/anim/facnor.F   
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    parsor        ../starter/source/output/anim/parsor.F
+!||--- called by ------------------------------------------------------
+!||    dd_ani        ../starter/source/output/anim/dd_ani.F
+!||--- calls      -----------------------------------------------------
+!||    facnor        ../starter/source/output/anim/facnor.F
+!||    facnor2       ../starter/source/output/anim/facnor.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PARSOR(X    ,D    ,XNORM ,IADD ,CDG  ,
      .                  BUFEL,IPARG,IXS   ,IXQ  ,IXC  ,
      .                  IXTG ,IXT  ,IXP   ,IXR  ,INVERT,
      .                  KXSP ,IXSP  )
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -43,7 +44,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -61,7 +61,7 @@ C     REAL
      .   OFF
       INTEGER II(4),IE,NG, ITY, LFT, LLT, KPT, N, I, J, N1, N2,
      .        IPID, NEL, IAD, NPAR, NFT, IMID,IALEL, MTN
-      INTEGER ANIM_K, PROC, P, jj
+      INTEGER PROC, P, jj
 C-----------------------------------------------
 C     NORMALE
 C-----------------------------------------------
@@ -90,18 +90,18 @@ C
         P     =IPARG(32,NG)+1
         LFT=1
         LLT=NEL
-C  test si proc doit traiter ce groupe
-        IF (P.NE.PROC) GOTO 790
+C  test if proc must process this group
+        IF (P/=PROC) GOTO 790
 C-----------------------------------------------
 C       SOLID 8N
 C-----------------------------------------------
-        IF(ITY.EQ.1)THEN
+        IF(ITY==1)THEN
          IALEL=IPARG(7,NG)+IPARG(11,NG)
-         IF(IALEL.EQ.0)THEN
+         IF(IALEL==0)THEN
          DO 610 I=LFT,LLT
           N = I + NFT
 C         OFF = BUFEL(IAD+I-1)
-C         IF(OFF.EQ.0.)GOTO 610
+C         IF(OFF==0.)GOTO 610
              II(1) = IXS(3,N)
              II(2) = IXS(2,N)
              II(3) = IXS(5,N)
@@ -168,11 +168,11 @@ C         IF(OFF.EQ.0.)GOTO 610
 C-----------------------------------------------
 C       QUAD
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.2)THEN
+        ELSEIF(ITY==2)THEN
          DO 620 I=LFT,LLT
           N = I + NFT
 C         OFF = BUFEL(IAD+I-1)
-C         IF(OFF.EQ.0.)GOTO 620
+C         IF(OFF==0.)GOTO 620
              II(1) = IXQ(2,N)
              II(2) = IXQ(3,N)
              II(3) = IXQ(4,N)
@@ -191,12 +191,12 @@ C         IF(OFF.EQ.0.)GOTO 620
 C-----------------------------------------------
 C       COQUES
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.3)THEN
+        ELSEIF(ITY==3)THEN
          KPT   =IPARG(6,NG)
          DO 630 I=LFT,LLT
           N = I + NFT
 C         OFF = BUFEL(IAD+I+16*NEL-1)
-C         IF(OFF.EQ.0.)GOTO 630
+C         IF(OFF==0.)GOTO 630
              II(1) = IXC(2,N)
              II(2) = IXC(3,N)
              II(3) = IXC(4,N)
@@ -212,11 +212,11 @@ C         IF(OFF.EQ.0.)GOTO 630
 C-----------------------------------------------
 C       TRUSS
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.4)THEN
+        ELSEIF(ITY==4)THEN
          DO 640 I=LFT,LLT
           N = I + NFT
 C         OFF = BUFEL(IAD+I-1)
-C         IF(OFF.EQ.0.)GOTO 640
+C         IF(OFF==0.)GOTO 640
              II(1) = IXT(2,N)-1
              II(2) = IXT(3,N)-1
              II(3) = IXT(3,N)-1
@@ -228,11 +228,11 @@ C         IF(OFF.EQ.0.)GOTO 640
 C-----------------------------------------------
 C       POUTRES
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.5)THEN
+        ELSEIF(ITY==5)THEN
          DO 650 I=LFT,LLT
           N = I + NFT
 C         OFF = BUFEL(IAD+I-1)
-C         IF(OFF.EQ.0.)GOTO 650
+C         IF(OFF==0.)GOTO 650
              II(1) = IXP(2,N)-1
              II(2) = IXP(3,N)-1
              II(3) = IXP(3,N)-1
@@ -244,14 +244,14 @@ C         IF(OFF.EQ.0.)GOTO 650
 C-----------------------------------------------
 C       RESSORTS
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.6)THEN
+        ELSEIF(ITY==6)THEN
          DO 660 I=LFT,LLT
           N = I + NFT
 C         OFF = BUFEL(IAD+I-1)
-C         IF(OFF.EQ.0.)GOTO 660
+C         IF(OFF==0.)GOTO 660
              II(1) = IXR(2,N)-1
              II(2) = IXR(3,N)-1
-             IF(MTN.EQ.3)THEN
+             IF(MTN==3)THEN
                II(3) = IXR(4,N)-1
                II(4) = IXR(3,N)-1
              ELSE
@@ -265,12 +265,12 @@ C         IF(OFF.EQ.0.)GOTO 660
 C-----------------------------------------------
 C       COQUES 3 NOEUDS
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.7)THEN
+        ELSEIF(ITY==7)THEN
          KPT   =IPARG(6,NG)
          DO 670 I=LFT,LLT
           N = I + NFT
 C         OFF = BUFEL(IAD+I+16*NEL-1)
-C         IF(OFF.EQ.0.)GOTO 670
+C         IF(OFF==0.)GOTO 670
              II(1) = IXTG(2,N)
              II(2) = IXTG(3,N)
              II(3) = IXTG(4,N)
@@ -286,12 +286,12 @@ C         IF(OFF.EQ.0.)GOTO 670
 C-----------------------------------------------
 C       SPH Particules
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.51)THEN
-C idem poutre pour visualisation domdec SPH
+        ELSEIF(ITY==51)THEN
+C Ditto beam for visualization of Domdec Sph
           DO I=LFT,LLT
              N = I + NFT
              N1 = KXSP(3,N)
-C on prend les 12 premieres cellules voisines
+C We take the first 12 neighboring cells
              DO JJ = 1,MIN(12,KXSP(4,N))
                N2 = IXSP(JJ,N) 
                IF(N1<N2)THEN

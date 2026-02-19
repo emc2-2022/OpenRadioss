@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2MOM27_CIN                   source/interfaces/interf/i2mom27_cin.F
-Chd|-- called by -----------
-Chd|        I2FOR27                       source/interfaces/interf/i2for27.F
-Chd|-- calls ---------------
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2mom27_cin   ../engine/source/interfaces/interf/i2mom27_cin.F
+!||--- called by ------------------------------------------------------
+!||    i2for27       ../engine/source/interfaces/interf/i2for27.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod       ../engine/share/modules/h3d_mod.F
+!||    outmax_mod    ../common_source/modules/outmax_mod.F
+!||====================================================================
       SUBROUTINE I2MOM27_CIN(NSN ,NMN     ,AR      ,IRECT    ,CRST    ,
      2               MSR     ,NSV     ,IRTL    ,IN       ,MS      ,
      3               A       ,X       ,WEIGHT  ,STIFR    ,STIFN   ,
@@ -36,6 +37,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTMAX_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,44 +56,33 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K, I3, J3, I2, J2, I1, J1, II, L, JJ, W,NIR
+      INTEGER I, J, K, II, L, JJ, W,NIR
 C     REAL
       my_real
-     .   H(4), XMSJ, SS, ST, XMSI, FXI, FYI, FZI, MXI, MYI, MZI,INS,
+     .   H(4), SS, ST, FXI, FYI, FZI, MXI, MYI, MZI,INS,
      .   X0,X1,X2,X3,X4,Y0,Y1,Y2,Y3,Y4,Z0,Z1,Z2,Z3,Z4,AA,
      .   XC0,YC0,ZC0,SP,SM,TP,TM,XC,YC,ZC,
      .   STF,AI,H2(4)
 C=======================================================================
-C     MINER(II) initialise a MS(J) dans resol_init
-      IF(ANIM_N(12)+OUTP_N(3)+H3D_DATA%N_SCAL_DINER .GT.0) THEN
+C     MINER(II) initialise a MS(J) in resol_init
+      IF(ANIM_N(12)+OUTP_N(3)+H3D_DATA%N_SCAL_DINER >0) THEN
         DO II=1,NMN
           J=MSR(II)
           ADI(J) = ADI(J)*NMAS(II)
         ENDDO
       ENDIF
-      IF (IMACH/=3) THEN
-#include "vectorize.inc"
-        DO II=1,NMN
-          J=MSR(II)
-          IN(J)=MAX(EM20,IN(J))
-        ENDDO
-      ENDIF
-C
-      IF(IMPL_S.GT.0) THEN
+      IF(IMPL_S>0) THEN
       DO II=1,NSN
        K = INDXC(II)
        IF (K == 0) CYCLE
        I = NSV(K)
-       IF(I.GT.0)THEN
+       IF(I>0)THEN
         L=IRTL(II)
 C
         IF (IRECT(3,L) == IRECT(4,L)) THEN
@@ -164,12 +155,25 @@ C
 C
         W = WEIGHT(I)
         AI=AA * MS(I) * W
-        IF (ANIM_N(12)+OUTP_N(3)+H3D_DATA%N_SCAL_DINER .GT.0) THEN
+        IF (ANIM_N(12)+OUTP_N(3)+H3D_DATA%N_SCAL_DINER >0) THEN
           DO JJ=1,NIR
             J=IRECT(JJ,L)
             ADI(J)=ADI(J)+AI*H(JJ)
           END DO
         END IF
+C
+        IF (H3D_DATA%N_VECT_CONT2M > 0) THEN
+          MCONT2(1,I) =  -AR(1,I)*W
+          MCONT2(2,I) =  -AR(2,I)*W
+          MCONT2(3,I) =  -AR(3,I)*W
+          DO JJ=1,NIR
+            J=IRECT(JJ,L)
+            MCONT2(1,J) = MCONT2(1,J) + MXI*H(JJ)*W
+            MCONT2(2,J) = MCONT2(2,J) + MYI*H(JJ)*W
+            MCONT2(3,J) = MCONT2(3,J) + MZI*H(JJ)*W
+          ENDDO
+        ENDIF
+C         
         DO JJ=1,NIR
          J=IRECT(JJ,L)
          IF (MSEGTYP2(L)==1) THEN
@@ -181,10 +185,10 @@ C
          END IF
         ENDDO
         STIFR(I)=EM20
-        IF(IDEL2.NE.0.AND.IN(I).NE.0.)SINER(II)=IN(I)
+        IF(IDEL2/=0.AND.IN(I)/=0.)SINER(II)=IN(I)
         IN(I)=ZERO
         STIFN(I)=EM20
-        IF(IDEL2.NE.0.AND.MS(I).NE.0.)SMASS(II)=MS(I)
+        IF(IDEL2/=0.AND.MS(I)/=0.)SMASS(II)=MS(I)
         MS(I)=ZERO
         A(1,I)=ZERO
         A(2,I)=ZERO
@@ -199,7 +203,7 @@ c
        K = INDXC(II)
        IF (K == 0) CYCLE
        I = NSV(K)
-       IF(I.GT.0)THEN
+       IF(I>0)THEN
         L=IRTL(II)
 C
         SS=CRST(1,II)                                    
@@ -286,12 +290,25 @@ C
 C
         W = WEIGHT(I)
         AI=AA * MS(I) * W
-        IF (ANIM_N(12)+OUTP_N(3)+H3D_DATA%N_SCAL_DINER .GT.0) THEN
+        IF (ANIM_N(12)+OUTP_N(3)+H3D_DATA%N_SCAL_DINER >0) THEN
           DO JJ=1,4
             J=IRECT(JJ,L)
             ADI(J)=ADI(J)+AI*H(JJ)
           END DO
         END IF
+C
+        IF (H3D_DATA%N_VECT_CONT2M > 0) THEN
+          MCONT2(1,I) =  -AR(1,I)*W
+          MCONT2(2,I) =  -AR(2,I)*W
+          MCONT2(3,I) =  -AR(3,I)*W
+          DO JJ=1,NIR
+            J=IRECT(JJ,L)
+            MCONT2(1,J) = MCONT2(1,J) + MXI*H(JJ)*W
+            MCONT2(2,J) = MCONT2(2,J) + MYI*H(JJ)*W
+            MCONT2(3,J) = MCONT2(3,J) + MZI*H(JJ)*W
+          ENDDO
+        ENDIF
+C        
         DO JJ=1,4
          J=IRECT(JJ,L)
          IF (MSEGTYP2(L)==1) THEN
@@ -303,10 +320,10 @@ C
          END IF
         ENDDO
         STIFR(I)=EM20
-        IF(IDEL2.NE.0.AND.IN(I).NE.0.)SINER(II)=IN(I)
+        IF(IDEL2/=0.AND.IN(I)/=0.)SINER(II)=IN(I)
         IN(I)=ZERO
         STIFN(I)=EM20
-        IF(IDEL2.NE.0.AND.MS(I).NE.0.)SMASS(II)=MS(I)
+        IF(IDEL2/=0.AND.MS(I)/=0.)SMASS(II)=MS(I)
         MS(I)=ZERO
         A(1,I)=ZERO
         A(2,I)=ZERO
@@ -317,7 +334,7 @@ C
       ENDIF
 C
 C
-      IF(ANIM_N(12)+OUTP_N(3)+H3D_DATA%N_SCAL_DINER .GT.0) THEN
+      IF(ANIM_N(12)+OUTP_N(3)+H3D_DATA%N_SCAL_DINER >0) THEN
 #include "vectorize.inc"
         DO II=1,NMN
           J=MSR(II)

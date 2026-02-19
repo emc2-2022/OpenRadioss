@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INITWG_X                      source/spmd/domain_decomposition/initwg_x.F
-Chd|-- called by -----------
-Chd|        INITWG                        source/spmd/domain_decomposition/initwg.F
-Chd|-- calls ---------------
-Chd|        DDWEIGHTS_MOD                 share/modules1/ddweights_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    initwg_x        ../starter/source/spmd/domain_decomposition/initwg_x.F
+!||--- called by ------------------------------------------------------
+!||    initwg          ../starter/source/spmd/domain_decomposition/initwg.F
+!||--- uses       -----------------------------------------------------
+!||    ddweights_mod   ../starter/share/modules1/ddweights_mod.F
+!||====================================================================
       SUBROUTINE INITWG_X(WD,PM,GEO,KXX,IGEO,
      .            NUMELX,IPM,NUMMAT,NUMGEO,OFF)
 C-----------------------------------------------
@@ -41,21 +41,15 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
-#include      "com_xfem1.inc"
-#include      "scr21_c.inc"
-#include      "scr05_c.inc"
 #include      "tablen_c.inc"
 #include      "scr23_c.inc"
-#include      "spmd_c.inc" 
-#include      "ddspmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  OFF,NUMELX,
      .  NUMMAT,NUMGEO,TAILLE,KXX(NIXX,*),IGEO(NPROPGI,*),
      .  IPM(NPROPMI,*)
-C     REAL OU REAL*8
+C     REAL OR REAL*8
       my_real
      .    PM(NPROPM,*), GEO(NPROPG,*)
       REAL WD(*)
@@ -79,7 +73,7 @@ C-----------------------------------------------
        DATA WTYPE /1.6 ,1. ,1. ,.9 ,1.1 ,1.4 ,0.65 ,.9 ,2.0/
 C-----------------------------------------------
       DO I=1,NUMELX
-        IF (WD(I+OFF).EQ.0)
+        IF (WD(I+OFF)==0)
      .    WD(I+OFF) = WTYPE(9)
       ENDDO
       RETURN

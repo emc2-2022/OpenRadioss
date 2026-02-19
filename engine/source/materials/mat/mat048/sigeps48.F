@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS48                      source/materials/mat/mat048/sigeps48.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps48   ../engine/source/materials/mat/mat048/sigeps48.F
+!||--- called by ------------------------------------------------------
+!||    mulaw      ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8     ../engine/source/materials/mat_share/mulaw8.F90
+!||====================================================================
       SUBROUTINE SIGEPS48(
      1     NEL    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC   ,NPF    ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0    ,RHO    ,
@@ -87,7 +86,7 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -124,16 +123,16 @@ C-----------------------------------------------
       my_real
      . UVAR(NEL,NUVAR), OFF(NEL)
 C-------------------------
-C    variables non utilisees (fonctions utilisateur)
+C    Variables not used (user functions)
 C-------------------------
       INTEGER NPF(*),MFUNC,KFUNC(MFUNC)
       my_real
-     . FINTER,TF(*)
+     . TF(*)
 C      EXTERNAL FINTER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,IADBUF,ICC(MVSIZ),MX
+      INTEGER I,IADBUF,MX
       my_real 
      .        E,NU,P,DAV,VM,R,DPLA,EPST,E1,E2,E3,E4,E5,E6,C,CD,D,
      .        Y,YP,E42,E52,E62,EPST2,PA,PB,PC,PDA,PDB,YY,
@@ -144,7 +143,7 @@ C-----------------------------------------------
      .        CA(MVSIZ),CB(MVSIZ),CN(MVSIZ),CC(MVSIZ),CO(MVSIZ),
      .        CM(MVSIZ),CE(MVSIZ),CK(MVSIZ),EPS0(MVSIZ)
 C==================================================================|
-      IF(TIME.EQ.ZERO)THEN
+      IF(TIME==ZERO)THEN
         DO I=1,NEL
           UVAR(I,1)=ZERO
         ENDDO
@@ -224,24 +223,24 @@ c         yp= 3 x^2 + c
         EPST = SQRT(-CD)
         EPST2 = EPST * EPST
         Y = (EPST2 + C)* EPST + D
-        IF(ABS(Y).GT.EM8)THEN
+        IF(ABS(Y)>EM8)THEN
           EPST = ONEP75 * EPST
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = THREE*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST2 = EPST * EPST
           Y = (EPST2 + C)* EPST + D
           YP = 3*EPST2 + C
-          IF(YP.NE.ZERO)EPST = EPST - Y/YP
+          IF(YP/=ZERO)EPST = EPST - Y/YP
           EPST = EPST + DAV
         ENDIF
 C
@@ -258,36 +257,36 @@ C Law formulation:
 C sig = ca*SigY + cb*epla^cn + (cc-co*epla^cm)*ln(epsp/eps0) + ce*epsp^ck
 C---------------------
       DO I=1,NEL
-        IF(PLA(I).LE.ZERO) THEN
+        IF(PLA(I)<=ZERO) THEN
          PA=CA(I)
-        ELSEIF(PLA(I).GT.EPMAX(I)) THEN
+        ELSEIF(PLA(I)>EPMAX(I)) THEN
          PA=CA(I)+CB(I)*EPMAX(I)**CN(I)
         ELSE
          PA=CA(I)+CB(I)*PLA(I)**CN(I)
         ENDIF
-        IF(EPSP(I).LE.EPS0(I)) THEN
+        IF(EPSP(I)<=EPS0(I)) THEN
          PB=ZERO
-        ELSEIF(PLA(I).LE.ZERO) THEN
+        ELSEIF(PLA(I)<=ZERO) THEN
          PB=CC(I)*LOG(EPSP(I)/EPS0(I))
         ELSE
          PB=(CC(I)-CO(I)*PLA(I)**CM(I))*LOG(EPSP(I)/EPS0(I))
         ENDIF
-        IF(EPSP(I).LE.ZERO) THEN
+        IF(EPSP(I)<=ZERO) THEN
          PC=ZERO
         ELSE
          PC=CE(I)*EPSP(I)**CK(I)
         ENDIF
 C-----
-        IF(PLA(I).GT.ZERO. AND .CN(I).GE.ONE) THEN
+        IF(PLA(I)>ZERO. AND .CN(I)>=ONE) THEN
          PDA = CB(I)*CN(I)*PLA(I)**(CN(I)- ONE)
-        ELSEIF(PLA(I).GT.ZERO. AND .CN(I).LT.ONE)THEN
+        ELSEIF(PLA(I)>ZERO. AND .CN(I)<ONE)THEN
          PDA = CB(I)*CN(I)*PLA(I)**(ONE-CN(I))
         ELSE
          PDA = E
         ENDIF
-        IF(PLA(I).LE.ZERO. OR .EPSP(I).LE.EPS0(I)) THEN
+        IF(PLA(I)<=ZERO. OR .EPSP(I)<=EPS0(I)) THEN
          PDB = ZERO
-        ELSEIF(CM(I).GE.ONE) THEN
+        ELSEIF(CM(I)>=ONE) THEN
          PDB = CO(I)*CM(I)*PLA(I)**(CM(I)- ONE)*LOG(EPSP(I)/EPS0(I))
         ELSE
          PDB = CO(I)*CM(I)*PLA(I)**(ONE - CM(I))*LOG(EPSP(I)/EPS0(I))
@@ -296,11 +295,11 @@ C-----
         YY    = PA + PB + PC
         YLD(I)= MIN(SMAX(I)+PC, YY)
         H(I) = PDA + PDB
-        IF (YLD(I).LT.YY) H(I)  = ZERO
+        IF (YLD(I)<YY) H(I)  = ZERO
         YLD(I)= FAIL(I)*YLD(I)
         H(I)  = FAIL(I)*H(I)
         SIGY(I)=YLD(I)
-        IF(PLA(I).GT.EPMAX(I)) YLD(I)=ZERO
+        IF(PLA(I)>EPMAX(I)) YLD(I)=ZERO
       ENDDO        
 C
 C-------------------
@@ -313,9 +312,9 @@ C-------------------
         R = MIN(ONE,YLD(I)/ MAX(VM,EM20))
 C       plastic strain increment.
         DPLA=(ONE -R)*VM/MAX(G3(I)+H(I),EM20)
-C       actual yeld stress.
+C       actual yield stress.
         YLD(I)=YLD(I)+DPLA*H(I)
-        IF(PLA(I).GT.EPMAX(I)) YLD(I)=ZERO
+        IF(PLA(I)>EPMAX(I)) YLD(I)=ZERO
         R = MIN(ONE,YLD(I)/ MAX(VM,EM20))
 C
 c        P = C1(I) * (RHO(I)/RHO0(I)- ONE)
@@ -331,9 +330,6 @@ c        P = C1(I) * (RHO(I)/RHO0(I)- ONE)
         DPLA1(I) = DPLA        
       ENDDO
 C
-      DO I=1,NEL
-        IF(OFF(I).LT.ONE) IDEL7NOK = 1
-      ENDDO
       DO I=1,NEL
         SIGY(I)=MAX(SIGY(I),YLD(I))
         DEFP(I)=UVAR(I,1)

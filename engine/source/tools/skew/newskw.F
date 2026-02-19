@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  NEWSKW                        source/tools/skew/newskw.F    
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        SPMD_SD_SKW                   source/mpi/output/spmd_sd_skw.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    newskw        ../engine/source/tools/skew/newskw.F
+!||--- called by ------------------------------------------------------
+!||    resol         ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_sd_skw   ../engine/source/mpi/output/spmd_sd_skw.F
+!||====================================================================
       SUBROUTINE NEWSKW(SKEW    ,ISKWN        ,X           ,ISKWP_L ,NSKWP,
      1                  NUMSKW_L,NUMSKW_L_SEND,ISKWP_L_SEND,RECVCOUNT,ISKWP)
 C-----------------------------------------------
@@ -74,14 +74,12 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, N1, N2, N3, K, I, J, LOC_PROC,IMOV,IDIR,NN
+      INTEGER N, N1, N2, N3, K, LOC_PROC, IMOV, IDIR, NN
 C     REAL
       my_real
      .   P(12), PP1, PP3, PP2
@@ -100,9 +98,9 @@ C-----------------------------------------------
       DO NN=1,NUMSKW_L
         N = ISKWP_L(NN)
 !        do n=1,NUMSKW
-!        IF(abs(ISKWP(N+1)).EQ.LOC_PROC)THEN
+!        IF(abs(ISKWP(N+1))==LOC_PROC)THEN
 
-C processeur concerne par le skew
+C processor concerned by the skew
           N1=ISKWN(1,N+1)
           N2=ISKWN(2,N+1)
           N3=ISKWN(3,N+1)
@@ -111,10 +109,10 @@ C processeur concerne par le skew
 C----------------
 C     SKEW MOBILE
 C----------------
-          IF (N1+N2+N3.NE.0) THEN
+          IF (N1+N2+N3/=0) THEN
 C
             IF(IMOV == 1)THEN
-              IF(N2D.EQ.0)THEN
+              IF(N2D==0)THEN
 C-----------------
 C     CALCUL DE X'(IDIR=1) Y'(IDIR=2) Z'(IDIR=3)
 C-----------------
@@ -165,7 +163,7 @@ C      => Z'=Z(IDIR=3)
 C------------------
               IF (IDIR == 1) THEN
                 PP1=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
-                IF(PP1.EQ.ZERO)THEN
+                IF(PP1==ZERO)THEN
                   P(1)=ONE
                   P(2)=ZERO
                   P(3)=ZERO
@@ -173,7 +171,7 @@ C------------------
                 ENDIF
               ELSE IF (IDIR == 2)THEN 
                 PP2=SQRT(P(4)*P(4)+P(5)*P(5)+P(6)*P(6))
-                IF(PP2.EQ.ZERO)THEN
+                IF(PP2==ZERO)THEN
                   P(4)=ZERO
                   P(5)=ONE
                   P(6)=ZERO
@@ -181,7 +179,7 @@ C------------------
                 ENDIF
               ELSE IF (IDIR == 3)THEN
                 PP3=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
-                IF(PP3.EQ.ZERO)THEN
+                IF(PP3==ZERO)THEN
                   P(7)=ZERO
                   P(8)=ZERO
                   P(9)=ONE
@@ -216,8 +214,8 @@ C      SI X'=0 (Z0'=Y')
 C      => Z0' != Z'(IDIR=3)
 C------------------
               IF (IDIR == 1) THEN
-                IF(PP3.EQ.ZERO)THEN
-                  IF(P(1).EQ.ZERO)THEN
+                IF(PP3==ZERO)THEN
+                  IF(P(1)==ZERO)THEN
                     P(4)=PP1
                     P(5)=P(2)
                   ELSE
@@ -231,8 +229,8 @@ C------------------
                   PP3=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
                 ENDIF
               ELSEIF (IDIR == 2) THEN
-                IF(PP1.EQ.ZERO)THEN
-                  IF(P(4).EQ.ZERO)THEN
+                IF(PP1==ZERO)THEN
+                  IF(P(4)==ZERO)THEN
                     P(7)=PP2
                     P(8)=P(5)
                   ELSE
@@ -246,8 +244,8 @@ C------------------
                   PP1=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
                 ENDIF
               ELSEIF (IDIR == 3) THEN
-                IF(PP2.EQ.ZERO)THEN
-                  IF(P(7).EQ.ZERO)THEN
+                IF(PP2==ZERO)THEN
+                  IF(P(7)==ZERO)THEN
                     P(1)=PP3
                     P(2)=P(8)
                   ELSE
@@ -283,13 +281,13 @@ C-----------------
 C
             ELSEIF(IMOV == 2)THEN
 C-----------------
-C     CALCUL DE X0'
+C     CALCULATION OF X0'
 C-----------------
               P(1)=X(1,N3)-X(1,N1)
               P(2)=X(2,N3)-X(2,N1)
               P(3)=X(3,N3)-X(3,N1)
 C-----------------
-C     CALCUL DE Z'
+C     CALCULATION OF Z'
 C-----------------
               P(7)=X(1,N2)-X(1,N1)
               P(8)=X(2,N2)-X(2,N1)
@@ -299,7 +297,7 @@ C      SI Z'=0
 C      => Z'=Z
 C------------------
               PP3=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
-              IF(PP3.EQ.ZERO)THEN
+              IF(PP3==ZERO)THEN
                 P(7)=ZERO
                 P(8)=ZERO
                 P(9)=ONE
@@ -316,8 +314,8 @@ C------------------
 C      SI Y'=0 (X0'=Z')
 C      => X0' != Y'
 C------------------
-              IF(PP2.EQ.ZERO)THEN
-                IF(P(7).EQ.ZERO)THEN
+              IF(PP2==ZERO)THEN
+                IF(P(7)==ZERO)THEN
                   P(1)=PP3
                   P(2)=P(8)
                 ELSE
@@ -372,12 +370,11 @@ C
 C
       RETURN
       END SUBROUTINE NEWSKW
-Chd|====================================================================
-Chd|  NEWSKW_INIT                   source/tools/skew/newskw.F    
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    newskw_init   ../engine/source/tools/skew/newskw.F
+!||--- called by ------------------------------------------------------
+!||    resol         ../engine/source/engine/resol.F
+!||====================================================================
       SUBROUTINE NEWSKW_INIT(ISKWP ,NUMSKW_L,NSKWP,NUMSKW_L_SEND,ISKWP_L_SEND,RECVCOUNT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -415,25 +412,22 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 #include      "lagmult.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, N1, N2, N3, K, I, J, LOC_PROC,IMOV,IDIR,NN,NN2
+      INTEGER N, LOC_PROC, NN, NN2
 C     REAL
       my_real
-     .   P(12), PP1, PP3, PP2
+     . P1P3P2
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 !$COMMENT
 !       NEWSKW_INIT description
 !       initialization of the sent index array ISKWP_L_SEND
-!       and the number of recevied SKEW value (for the comm)
+!       and the number of received SKEW value (for the comm)
 !       
 !       NEWSKW_INIT organization :
 !       - initialize the ISKWP_L_SEND index array :
@@ -441,7 +435,7 @@ C-----------------------------------------------
 !         if ISKWP(N+A) = -local proc, N+1 is local to 
 !         the processor and the comm is not mandatory 
 !         if LAG MULT method is used, need to always 
-!         communicate the SKEW arraies
+!         communicate the SKEW arrays
 !$ENDCOMMENT
 
 !       initialization
@@ -456,14 +450,14 @@ C-----------------------------------------------
         DO N=1,NUMSKW
                 !       LAG MULT method
                 IF(LAG_NCF+LAG_NCL>0) THEN
-                        IF(ABS(ISKWP(N+1)).EQ.LOC_PROC)THEN
+                        IF(ABS(ISKWP(N+1))==LOC_PROC)THEN
                                 NN2 = NN2 + 1
                                 ISKWP_L_SEND(NN2) = N
                         ENDIF
                         IF(ISKWP(N+1)/=0) RECVCOUNT(ABS(ISKWP(N+1))) = RECVCOUNT(ABS(ISKWP(N+1))) + 10
                 ELSE
                 !       other
-                        IF(ISKWP(N+1).EQ.LOC_PROC)THEN
+                        IF(ISKWP(N+1)==LOC_PROC)THEN
                                 NN2 = NN2 + 1
                                 ISKWP_L_SEND(NN2) = N
                         ENDIF

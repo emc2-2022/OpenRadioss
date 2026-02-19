@@ -1,51 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MONVOL_TYPE9          source/airbag/hm_read_monvol_type9.F
-Chd|-- called by -----------
-Chd|        READ_MONVOL                   source/airbag/read_monvol.F   
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_GET_STRING_INDEX           source/devtools/hm_reader/hm_get_string_index.F
-Chd|        MONVOL_CHECK_SURFCLOSE        share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_CHECK_VENTHOLE_SURF    share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_COMPUTE_VOLUME         share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_ORIENT_SURF            share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_REVERSE_NORMALS        share/modules1/monvol_struct_mod.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_monvol_type9_mod   ../starter/source/airbag/hm_read_monvol_type9.F
+!||--- called by ------------------------------------------------------
+!||    read_monvol                ../starter/source/airbag/read_monvol.F
+!||====================================================================
+      MODULE HM_READ_MONVOL_TYPE9_MOD
+      CONTAINS
+!||====================================================================
+!||    hm_read_monvol_type9         ../starter/source/airbag/hm_read_monvol_type9.F
+!||--- called by ------------------------------------------------------
+!||    read_monvol                  ../starter/source/airbag/read_monvol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                       ../starter/source/output/message/message.F
+!||    freerr                       ../starter/source/starter/freform.F
+!||    hm_get_float_array_index     ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv                ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim            ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index       ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                  ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string_index          ../starter/source/devtools/hm_reader/hm_get_string_index.F
+!||    monvol_check_surfclose       ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_check_venthole_surf   ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_compute_volume        ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_orient_surf           ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_reverse_normals       ../starter/share/modules1/monvol_struct_mod.F
+!||    usr2sys                      ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod                  ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod            ../starter/share/modules1/monvol_struct_mod.F
+!||    submodel_mod                 ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MONVOL_TYPE9(T_MONVOLN, T_MONVOL_METADATA, IPM, IGEO, ITABM1, 
-     .     LSENSOR, SENSOR, NPT, PLD,
+     .     SENSORS,
      .     UNITAB, LUID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG,
      .     LSUBMODEL)
 C-----------------------------------------------
@@ -56,6 +63,8 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE MONVOL_STRUCT_MOD
       USE SUBMODEL_MOD
+      USE SENSOR_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -71,23 +80,20 @@ C     NIMV, NRVOLU
 #include      "param_c.inc"
 C     IIN
 #include      "units_c.inc"
-C     LUNIT
-#include      "sysunit.inc"
 C     IPRI
 #include      "scr03_c.inc"  
-C     NSUBMOD
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(UNIT_TYPE_), INTENT(IN) :: UNITAB
-      INTEGER, INTENT(IN) :: LUID, IPM(NPROPMI, *), IGEO(NPROPGI, *), ITABM1(*), NPT(*)
-      INTEGER, INTENT(IN) :: NPC(*), ITAB(*), IXC(NIXC, *), IXTG(NIXTG, *), LSENSOR(NSENSI, *)
-      my_real, INTENT(IN) :: X(3, *), GEO(NPROPG, *), PM(NPROPM, *), SENSOR(NSENSR, *), PLD(2, *)
+      INTEGER, INTENT(IN) :: LUID, IPM(NPROPMI, *), IGEO(NPROPGI, *), ITABM1(*)
+      INTEGER, INTENT(IN) :: NPC(*), ITAB(*), IXC(NIXC, *), IXTG(NIXTG, *)
+      my_real, INTENT(IN) :: X(3, *), GEO(NPROPG, *), PM(NPROPM, *)
       TYPE (SURF_), INTENT(INOUT), DIMENSION(NSURF) :: IGRSURF
       TYPE(MONVOL_STRUCT_), INTENT(INOUT) :: T_MONVOLN
       TYPE(MONVOL_METADATA_), INTENT(INOUT) :: T_MONVOL_METADATA
       TYPE(SUBMODEL_DATA), DIMENSION(NSUBMOD), INTENT(IN) :: LSUBMODEL
+      TYPE (SENSORS_) ,INTENT(IN) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -131,6 +137,7 @@ C-----------------------------------------------
 C     B e g i n n i n g   o f   s o u r c e
 C-----------------------------------------------
       MESS = 'MONITORED VOLUME DEFINITION             '
+      RMWI = 0
 C     =======
 C     Reading
 C     =======
@@ -195,7 +202,6 @@ C     =======
          ALLOCATE(T_MONVOLN%RBAGHOL(NRBHOL, NVENT))
          T_MONVOLN%RBAGHOL(1:NRBHOL, 1:NVENT) = ZERO
       ENDIF
-      IF (NVENT > 0) THEN
          ALLOCATE(IPVENT(NVENT), IFVENT(NVENT), AVENT(NVENT), BVENT(NVENT))
          ALLOCATE(TVENT(NVENT), TSTOPE(NVENT), DPDEF(NVENT), DTPDEF(NVENT),
      .        IDTPDEF(NVENT))
@@ -205,7 +211,6 @@ C     =======
      .        FPORP1(NVENT), FPORA1(NVENT))
          ALLOCATE(IBLOCKAGE(NVENT), CLEAK(NVENT))
          ALLOCATE(IVDP(NVENT), FVDP(NVENT))
-      ENDIF
 
       IF (NVENTHOLES > 0) THEN
          DO II = 1, NVENTHOLES
@@ -448,7 +453,7 @@ C     ==============
 
       IF (AMU == ZERO) AMU = EM02
       IF (PEXT == ZERO) THEN
-         PEXT = 101325.D0 * (FAC_L_WORK * FAC_T_WORK * FAC_T_WORK) / FAC_M_WORK
+         PEXT = 101325.D0 * (UNITAB%FAC_L_WORK * UNITAB%FAC_T_WORK * UNITAB%FAC_T_WORK) / UNITAB%FAC_M_WORK
       ENDIF
 
       PINI = PEXT
@@ -631,10 +636,10 @@ C     =====
          ENDIF
          IF (ISENS(II) > 0) THEN
             FOUND = .FALSE.
-            DO JJ = 1, NSENSOR
-               IF (ISENS(II) == LSENSOR(1, JJ)) THEN
+            DO JJ = 1, SENSORS%NSENSOR
+               IF (ISENS(II) == SENSORS%SENSOR_TAB(JJ)%SENS_ID) THEN
                   T_MONVOLN%IBAGJET(4, II) = JJ
-                  IF (SENSOR(2, JJ) < TTFIRE) TTFIRE = SENSOR(2, JJ)
+                  IF (SENSORS%SENSOR_TAB(JJ)%TCRIT < TTFIRE) TTFIRE = SENSORS%SENSOR_TAB(JJ)%TCRIT
                   FOUND = .TRUE.
                   EXIT
                ENDIF
@@ -905,7 +910,7 @@ C
      .                 C1 = T_MONVOLN%TITLE)
                ENDIF
 C----------------------------------------------
-C     Ajout condition Scom incluse dans Surf airbag
+C     Adding SCOM Condition Include in Surf Airbag
 C----------------------------------------------
                NN = IGRSURF(T_MONVOL_METADATA%ICBAG(2, II + LCA))%NSEG
                EXT_SURFID = T_MONVOLN%EXT_SURFID
@@ -953,7 +958,7 @@ C----------------------------------------------
                      ENDIF
                   ENDIF
                ENDDO
-C     Fin ajout condition Scom incluse dans Surf airbag
+C     End Addition Condition SCOM Include in Surf Airbag
             ENDIF
             T_MONVOL_METADATA%ICBAG(3, II + LCA) = 0
             IF((COMM_DPDEF(II) == ZERO .AND. COMM_DTPDEF(II) == ZERO) .OR. COMM_TVENT(II) == ZERO)
@@ -1047,6 +1052,7 @@ C     =========
          ENDIF
          DO JJ = 1, 20
             TITREVENT(JJ) = T_MONVOLN%IBAGHOL(JJ + 14, II)
+            VENTTITLE(JJ:JJ) = ACHAR(TITREVENT(JJ))
          ENDDO
          WRITE(IOUT,1476) VENTTITLE
          IF (IPVENT(II) == 0 .AND. AVENT(II) == ZERO) THEN
@@ -1108,7 +1114,6 @@ C     ===================
       IF (ALLOCATED(FPA)) DEALLOCATE(FPA)     
       IF (ALLOCATED(FPZ)) DEALLOCATE(FPZ)     
       IF (ALLOCATED(I_INJSYS)) DEALLOCATE(I_INJSYS)  
-      IF (NVENT > 0) THEN
          DEALLOCATE(IPVENT, IFVENT, AVENT, BVENT)
          DEALLOCATE(TVENT, TSTOPE, DPDEF, DTPDEF,
      .        IDTPDEF)
@@ -1118,7 +1123,6 @@ C     ===================
      .        FPORP1, FPORA1)
          DEALLOCATE(IBLOCKAGE, CLEAK)
          DEALLOCATE(IVDP, FVDP)
-      ENDIF
       IF (NCA > 0) THEN
          DEALLOCATE(COMM_BAGID, COMM_IPVENT, COMM_IPORT, COMM_IPORP,
      .        COMM_DPDEF, COMM_AVENT, COMM_TVENT, COMM_DTPDEF, 
@@ -1315,3 +1319,4 @@ C-----------------------------------------------
      .     /15X,'LEAKAGE AREA TIME FUNCTION. . . . . . .=',I10,
      .     /15X,'        SCALE FACTOR. . . . . . . . . .=',1PG20.13)
       END SUBROUTINE HM_READ_MONVOL_TYPE9
+      END MODULE HM_READ_MONVOL_TYPE9_MOD

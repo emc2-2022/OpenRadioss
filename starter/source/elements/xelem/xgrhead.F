@@ -1,35 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  XGRHEAD                       source/elements/xelem/xgrhead.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    xgrhead        ../starter/source/elements/xelem/xgrhead.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE XGRHEAD(
      1       KXX,  GEO,     INUM,    ITR1,
      2       EADD, INDEX,   ITRI,    IPARTX,     
@@ -43,16 +42,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C            A R G U M E N T S
 C-----------------------------------------------
-C     KXX(5,NUMELX)     TABLEAU CONECS+PID+No ElEMENTS MULTIBRIN   E
-C     GEO(NPROPG,NUMGEO)TABLEAU DES CARACS DES PID                 E
-C     INUM(6,NUMELX)    TABLEAU DE TRAVAIL                         E/S
-C     ITR1(NSELR)       TABLEAU DE TRAVAIL                         E/S
-C     EADD(NUMELX)      TABLEAU DES ADRESSES DANS IDAM CHGT DAMIER   S
-C     INDEX(NUMELX)     TABLEAU DE TRAVAIL                         E/S
-C     ITRI(4,NUMELX)    TABLEAU DE TRAVAIL                         E/S
-C     IPARTX(NUMELX)    TABLEAU PART                               E/S
-C     CEP(NUMELX)    TABLEAU PROC                                  E/S
-C     XEP(NUMEX)    TABLEAU PROC                                  E/S
+C     KXX(5,NUMELX)     ARRAY CONECS+PID+No MULTISTRAND ELEMENTS    E
+C     GEO(NPROPG,NUMGEO)ARRAY OF PID CHARACTERISTICS                E
+C     INUM(6,NUMELX)    WORKING ARRAY                              E/S
+C     ITR1(NSELR)       WORKING ARRAY                              E/S
+C     EADD(NUMELX)      ARRAY OF ADDRESSES IN IDAM CHGT DAMIER       S
+C     INDEX(NUMELX)     WORKING ARRAY                              E/S
+C     ITRI(4,NUMELX)    WORKING ARRAY                              E/S
+C     IPARTX(NUMELX)    PART ARRAY                                 E/S
+C     CEP(NUMELX)    PROC ARRAY                                    E/S
+C     XEP(NUMEX)    PROC ARRAY                                    E/S
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -61,14 +60,8 @@ C-----------------------------------------------
 C   C O M M O N   B L O C K S
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
 #include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr21_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -76,15 +69,13 @@ C-----------------------------------------------
      .        EADD(*),ITR1(*),INDEX(*),ITRI(4,*),
      .        ND, CEP(*), XEP(*),
      .        IPM(NPROPMI,*)
-C     REAL OU REAL*8
-      my_real
-     .    GEO(NPROPG,*)
+      my_real :: GEO(NPROPG,*)
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
       INTEGER 
-     .        I, K, NG, ISSN, NPN, NN, N, MID, PID ,
-     .        II, J, II2,JJ2,JJ, II3, JJ3, L,NGROU,
+     .        I, K, ISSN, NN, MID, PID ,
+     .        II, J, II2,JJ2,JJ, II3, JJ3,
      .        MSKMTN,MSKISN,MSKPID, MODE, WORK(70000)
       EXTERNAL MY_SHIFTL,MY_SHIFTR,MY_AND
       INTEGER MY_SHIFTL,MY_SHIFTR,MY_AND
@@ -96,7 +87,7 @@ C
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
 C----------------------------------------------------------
-C   TRI GLOBAL SUR TOUS LES CRITERES POUR TOUS LES ELEMENTS
+C   GLOBAL TRI ON ALL CRITERIA FOR ALL ELEMENTS
 C----------------------------------------------------------
 C
       DO I=1,NUMELX
@@ -111,17 +102,15 @@ C
         INUM(6,I)=KXX(5,I)
       ENDDO
 
-      IF (IMACH.EQ.3) THEN
-        DO I=1,NUMELX
-          XEP(I)=CEP(I)
-        ENDDO
-      ENDIF
-C
+      DO I=1,NUMELX
+        XEP(I)=CEP(I)
+      ENDDO
+
       DO I = 1, NUMELX
         MID= KXX(1,I)
         PID= KXX(2,I)
         MTN= NINT(GEO(12,PID))
-        IF (MTN.LT.28.OR.MTN.GT.31) THEN
+        IF (MTN<28.OR.MTN>31) THEN
           CALL ANCMSG(MSGID=413,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -133,7 +122,7 @@ C
         ENDIF
 
         ISSN = 0
-        IF(GEO(5,PID).NE.ZERO) ISSN=1
+        IF(GEO(5,PID)/=ZERO) ISSN=1
 C        
         ISSN=MY_SHIFTL(ISSN,6)
         MTN=MY_SHIFTL(MTN,21)
@@ -150,18 +139,16 @@ C
       DO I=1,NUMELX
         IPARTX(I) =INUM(1,INDEX(I))
       ENDDO
-      IF (IMACH.EQ.3) THEN
-        DO I=1,NUMELX
-          CEP(I)=XEP(INDEX(I))
-        ENDDO
-      ENDIF
+      DO I=1,NUMELX
+        CEP(I)=XEP(INDEX(I))
+      ENDDO
       DO  K=1,5
         DO  I=1,NUMELX
           KXX(K,I)=INUM(K+1,INDEX(I))
         ENDDO
       ENDDO
 C
-C INVERSION DE INDEX (DANS ITR1)
+C INDEX INVERSION (IN ITR1)
 C
       DO I=1,NUMELX
         ITR1(INDEX(I))=I
@@ -169,8 +156,8 @@ C
 
 
 C
-C RENUMEROTATION POUR SURFACES
-C ow a verifier IBUFSSG - ITYP .EQ. 100
+C RENAMING FOR SURFACES
+C ow a verifier IBUFSSG - ITYP == 100
        DO I=1,NSURF
          NN=IGRSURF(I)%NSEG
          DO J=1,NN 
@@ -179,7 +166,7 @@ C ow a verifier IBUFSSG - ITYP .EQ. 100
          ENDDO
        ENDDO
 C--------------------------------------------------------------
-C         DETERMINATION DES SUPER_GROUPES
+C         DETERMINATION OF SUPER_GROUPS
 C--------------------------------------------------------------
       ND=1
       DO I=2,NUMELX
@@ -189,7 +176,7 @@ C--------------------------------------------------------------
         JJ2=ITRI(2,INDEX(I-1))
         II3=ITRI(3,INDEX(I))
         JJ3=ITRI(3,INDEX(I-1))
-        IF(II.NE.JJ.OR.II2.NE.JJ2.OR.II3.NE.JJ3) THEN
+        IF(II/=JJ.OR.II2/=JJ2.OR.II3/=JJ3) THEN
           ND=ND+1
           EADD(ND)=I
         ENDIF

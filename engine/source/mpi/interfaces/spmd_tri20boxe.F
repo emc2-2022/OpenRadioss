@@ -1,37 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  SPMD_TRI20BOXE                source/mpi/interfaces/spmd_tri20boxe.F
-Chd|-- called by -----------
-Chd|        I20MAIN_TRI                   source/interfaces/intsort/i20main_tri.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        CONVERSION11                  source/mpi/interfaces/spmd_i7tool.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_tri20boxe        ../engine/source/mpi/interfaces/spmd_tri20boxe.F
+!||--- called by ------------------------------------------------------
+!||    i20main_tri           ../engine/source/interfaces/intsort/i20main_tri.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||    conversion11          ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_TRI20BOXE(IXLINS  ,NRTS    ,XA     ,VA  ,MS     ,
      2                          BMINMAL ,WEIGHT  ,STIFS  ,NIN ,ISENDTO,
      3                          IRCVFROM,IAD_ELEM,FR_ELEM,NRTSR,INACTI,
@@ -45,23 +47,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 #include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr02_c.inc"
-#include      "scr18_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -78,8 +76,8 @@ C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER MSGTYP,INFO,I,NOD, LOC_PROC,P,IDEB, IERROR1, IAD,
-     .        SIZ,J, L, BUFSIZ, LEN, NB, N1, N2, N1L, N2L,
+      INTEGER MSGTYP,I, LOC_PROC,P,IDEB, IERROR1, IAD,
+     .        SIZ,J, L, LEN, NB, N1, N2, N1L, N2L,
      .        STATUS(MPI_STATUS_SIZE),IERROR,REQ_SB(NSPMD),
      .        REQ_RB(NSPMD),KK,NBIRECV,IRINDEXI(NSPMD),
      .        REQ_RD(NSPMD),REQ_SD(NSPMD),REQ_SD2(NSPMD),
@@ -90,7 +88,7 @@ C-----------------------------------------------
       DATA MSGOFF3/137/
 
       my_real
-     .        BMINMA(6,NSPMD), RATIO,
+     .        BMINMA(6,NSPMD),
      .        XMINS, YMINS, ZMINS, XMAXS, YMAXS, ZMAXS
       TYPE(r8_pointer), DIMENSION(NSPMD) :: BUF
 C-----------------------------------------------
@@ -98,10 +96,10 @@ C   S o u r c e  L i n e s
 C-----------------------------------------------
       LOC_PROC = ISPMD + 1
 C
-Cel boite minmax pour le tri provenant de i7buce BMINMA
+C   minmax box for sorting coming from i7buce BMINMA
 C
-      IF(IRCVFROM(NIN,LOC_PROC).EQ.0.AND.
-     .   ISENDTO(NIN,LOC_PROC).EQ.0) RETURN
+      IF(IRCVFROM(NIN,LOC_PROC)==0.AND.
+     .   ISENDTO(NIN,LOC_PROC)==0) RETURN
       BMINMA(1,LOC_PROC) = BMINMAL(1)
       BMINMA(2,LOC_PROC) = BMINMAL(2)
       BMINMA(3,LOC_PROC) = BMINMAL(3)
@@ -109,44 +107,44 @@ C
       BMINMA(5,LOC_PROC) = BMINMAL(5)
       BMINMA(6,LOC_PROC) = BMINMAL(6)
 C
-Cel envoi boite
+C   Box sending
 C
-      IF(IRCVFROM(NIN,LOC_PROC).NE.0) THEN
+      IF(IRCVFROM(NIN,LOC_PROC)/=0) THEN
         DO P = 1, NSPMD
-          IF(ISENDTO(NIN,P).NE.0) THEN
-            IF(P.NE.LOC_PROC) THEN
+          IF(ISENDTO(NIN,P)/=0) THEN
+            IF(P/=LOC_PROC) THEN
               MSGTYP = MSGOFF
               CALL MPI_ISEND(
      .          BMINMA(1,LOC_PROC),6        ,REAL  ,IT_SPMD(P),MSGTYP,
-     .          MPI_COMM_WORLD    ,REQ_SB(P),IERROR)
+     .          SPMD_COMM_WORLD    ,REQ_SB(P),IERROR)
             ENDIF
           ENDIF
         ENDDO
       ENDIF
 C
-Cel reception des boites min-max
+C   Reception of Min-Max boxes
 C
-      IF(ISENDTO(NIN,LOC_PROC).NE.0) THEN
+      IF(ISENDTO(NIN,LOC_PROC)/=0) THEN
         NBIRECV=0
         DO P = 1, NSPMD
-          IF(IRCVFROM(NIN,P).NE.0) THEN
-            IF(LOC_PROC.NE.P) THEN
+          IF(IRCVFROM(NIN,P)/=0) THEN
+            IF(LOC_PROC/=P) THEN
               MSGTYP = MSGOFF
               NBIRECV=NBIRECV+1
               IRINDEXI(NBIRECV)=P
               CALL MPI_IRECV(
      .          BMINMA(1,P)   ,6              ,REAL  ,IT_SPMD(P),MSGTYP,
-     .          MPI_COMM_WORLD,REQ_RB(NBIRECV),IERROR)
+     .          SPMD_COMM_WORLD,REQ_RB(NBIRECV),IERROR)
             ENDIF
           ENDIF
         ENDDO
       ENDIF
 C
-Cel envoi de XREM
+C   sending of XREM
 C
       SIZ = 18
-      IF(INACTI.EQ.5.OR.INACTI.EQ.6) SIZ = SIZ + 12
-      IF(IGAP.EQ.1) SIZ = SIZ + 1
+      IF(INACTI==5.OR.INACTI==6) SIZ = SIZ + 12
+      IF(IGAP==1) SIZ = SIZ + 1
       IF(IDTMINS > 0) SIZ = SIZ + 2
       IF(IDTMINS == 2)THEN
         SIZ = SIZ + 4
@@ -154,7 +152,7 @@ C
         SIZ = SIZ + 2
       END IF
       IDEB = 1
-      IF(ISENDTO(NIN,LOC_PROC).NE.0) THEN
+      IF(ISENDTO(NIN,LOC_PROC)/=0) THEN
         DO KK = 1, NBIRECV
           CALL MPI_WAITANY(NBIRECV,REQ_RB,INDEXI,STATUS,IERROR)
           P=IRINDEXI(INDEXI)
@@ -164,16 +162,16 @@ C
           DO I=1,NRTS
            N1L=IXLINS(1,I)
            N2L=IXLINS(2,I)
-           IF(STIFS(I).GT.ZERO) THEN
+           IF(STIFS(I)>ZERO) THEN
             XMINS = MIN(XA(1,N1L),XA(1,N2L))-TZINF
             YMINS = MIN(XA(2,N1L),XA(2,N2L))-TZINF
             ZMINS = MIN(XA(3,N1L),XA(3,N2L))-TZINF
             XMAXS = MAX(XA(1,N1L),XA(1,N2L))+TZINF
             YMAXS = MAX(XA(2,N1L),XA(2,N2L))+TZINF
             ZMAXS = MAX(XA(3,N1L),XA(3,N2L))+TZINF
-            IF(XMAXS.GE.BMINMA(4,P).AND.XMINS.LE.BMINMA(1,P).AND.
-     .         YMAXS.GE.BMINMA(5,P).AND.YMINS.LE.BMINMA(2,P).AND.
-     .         ZMAXS.GE.BMINMA(6,P).AND.ZMINS.LE.BMINMA(3,P))THEN
+            IF(XMAXS>=BMINMA(4,P).AND.XMINS<=BMINMA(1,P).AND.
+     .         YMAXS>=BMINMA(5,P).AND.YMINS<=BMINMA(2,P).AND.
+     .         ZMAXS>=BMINMA(6,P).AND.ZMINS<=BMINMA(3,P))THEN
               NB = NB + 1
               INDEX(NB) = I
             ENDIF
@@ -185,20 +183,20 @@ C Envoi taille msg
 C
           MSGTYP = MSGOFF2 
           CALL MPI_ISEND(NBOX(P),1,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .                 MPI_COMM_WORLD,REQ_SD(P),IERROR)
+     .                 SPMD_COMM_WORLD,REQ_SD(P),IERROR)
 C
 C Alloc buffer
 C
-          IF (NB.GT.0) THEN
+          IF (NB>0) THEN
            ALLOCATE(BUF(P)%P(SIZ*NB),STAT=IERROR)
-           IF(IERROR.NE.0) THEN
+           IF(IERROR/=0) THEN
              CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
              CALL ARRET(2)
            ENDIF
            L = 0
            IF(IDTMINS/=2.AND.IDTMINS_INT==0)THEN
-            IF(INACTI.NE.5.AND.INACTI.NE.6) THEN
-             IF(IGAP.NE.0) THEN
+            IF(INACTI/=5.AND.INACTI/=6) THEN
+             IF(IGAP/=0) THEN
               IF(IDTMINS==0)THEN
                DO J = 1, NB
                 I = INDEX(J)
@@ -322,7 +320,7 @@ C /DT/NODA/AMS
 C fin /DT/NODA/AMS
              END IF
             ELSE
-             IF(IGAP.NE.0) THEN
+             IF(IGAP/=0) THEN
               IF(IDTMINS==0)THEN
                DO J = 1, NB
                 I = INDEX(J)
@@ -496,8 +494,8 @@ C fin /DT/NODA/AMS
             END IF
            ELSEIF(IDTMINS==2)THEN
 C /DT/AMS
-            IF(INACTI.NE.5.AND.INACTI.NE.6) THEN
-             IF(IGAP.NE.0) THEN
+            IF(INACTI/=5.AND.INACTI/=6) THEN
+             IF(IGAP/=0) THEN
                DO J = 1, NB
                 I = INDEX(J)
                 N1L=IXLINS(1,I)
@@ -566,7 +564,7 @@ C /DT/AMS
                END DO
              END IF
             ELSE
-             IF(IGAP.NE.0) THEN
+             IF(IGAP/=0) THEN
                DO J = 1, NB
                 I = INDEX(J)
                 N1L=IXLINS(1,I)
@@ -661,8 +659,8 @@ C /DT/AMS
             END IF
            ELSE
 C /DT/INTER/AMS
-            IF(INACTI.NE.5.AND.INACTI.NE.6) THEN
-             IF(IGAP.NE.0) THEN
+            IF(INACTI/=5.AND.INACTI/=6) THEN
+             IF(IGAP/=0) THEN
                DO J = 1, NB
                 I = INDEX(J)
                 N1L=IXLINS(1,I)
@@ -727,7 +725,7 @@ C /DT/INTER/AMS
                END DO
              END IF
             ELSE
-             IF(IGAP.NE.0) THEN
+             IF(IGAP/=0) THEN
                DO J = 1, NB
                 I = INDEX(J)
                 N1L=IXLINS(1,I)
@@ -820,24 +818,24 @@ C /DT/INTER/AMS
            MSGTYP = MSGOFF3
            CALL MPI_ISEND(
      1        BUF(P)%P(1),L,MPI_DOUBLE_PRECISION,IT_SPMD(P),MSGTYP,
-     2        MPI_COMM_WORLD,REQ_SD2(P),ierror)
+     2        SPMD_COMM_WORLD,REQ_SD2(P),ierror)
           ENDIF
         ENDDO
       ENDIF
 C
-Cel reception  des donnees XREM
+C   reception of XREM data
 C
-      IF(IRCVFROM(NIN,LOC_PROC).NE.0) THEN
+      IF(IRCVFROM(NIN,LOC_PROC)/=0) THEN
         NRTSR = 0
         L=0
         DO P = 1, NSPMD
           NSNFIE(NIN)%P(P) = 0
-          IF(ISENDTO(NIN,P).NE.0) THEN
-            IF(LOC_PROC.NE.P) THEN
+          IF(ISENDTO(NIN,P)/=0) THEN
+            IF(LOC_PROC/=P) THEN
               MSGTYP = MSGOFF2
               CALL MPI_RECV(NSNFIE(NIN)%P(P),1,MPI_INTEGER,IT_SPMD(P),
-     .                      MSGTYP,MPI_COMM_WORLD,STATUS,IERROR)
-              IF(NSNFIE(NIN)%P(P).GT.0) THEN
+     .                      MSGTYP,SPMD_COMM_WORLD,STATUS,IERROR)
+              IF(NSNFIE(NIN)%P(P)>0) THEN
                 L=L+1
                 ISINDEXI(L)=P
                 NRTSR = NRTSR + NSNFIE(NIN)%P(P)
@@ -849,7 +847,7 @@ C
 C
 C Allocate total size
 C
-        IF(NRTSR.GT.0) THEN
+        IF(NRTSR>0) THEN
           IF (IR4R8 == 2) THEN
             ALLOCATE(XREM(SIZ,NRTSR),STAT=IERROR)
           ELSE
@@ -857,7 +855,7 @@ C
             ALLOCATE(IREM(2,NRTSR),STAT=IERROR1)
             IERROR=IERROR+IERROR1
           END IF
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
@@ -867,11 +865,11 @@ C
             LEN = NSNFIE(NIN)%P(P)*SIZ
             MSGTYP = MSGOFF3 
             IAD = IDEB
-C correction adresse pour passage tableau XREM SP utilise en DP ds la routine de comm
+C Correction Address for Passage REM SP Table used in DP DS the commout routine
             IF(IR4R8 == 1) IAD = 2*IDEB-1
             CALL MPI_IRECV(
      1        XREM(1,IAD),LEN,MPI_DOUBLE_PRECISION,IT_SPMD(P),
-     2        MSGTYP,MPI_COMM_WORLD,REQ_RD(L),IERROR)
+     2        MSGTYP,SPMD_COMM_WORLD,REQ_RD(L),IERROR)
             IDEB = IDEB + NSNFIE(NIN)%P(P)
           ENDDO
           DO L = 1, NBIRECV
@@ -884,22 +882,22 @@ C           P=ISINDEXI(INDEXI)
         ENDIF
       ENDIF
 C
-      IF(IRCVFROM(NIN,LOC_PROC).NE.0) THEN
+      IF(IRCVFROM(NIN,LOC_PROC)/=0) THEN
         DO P = 1, NSPMD
-          IF(ISENDTO(NIN,P).NE.0) THEN
-            IF(P.NE.LOC_PROC) THEN
+          IF(ISENDTO(NIN,P)/=0) THEN
+            IF(P/=LOC_PROC) THEN
               CALL MPI_WAIT(REQ_SB(P),STATUS,IERROR)
             ENDIF
           ENDIF
         ENDDO
       ENDIF
 C
-      IF(ISENDTO(NIN,LOC_PROC).NE.0) THEN
+      IF(ISENDTO(NIN,LOC_PROC)/=0) THEN
         DO P = 1, NSPMD
-          IF(IRCVFROM(NIN,P).NE.0) THEN
-            IF(P.NE.LOC_PROC) THEN
+          IF(IRCVFROM(NIN,P)/=0) THEN
+            IF(P/=LOC_PROC) THEN
               CALL MPI_WAIT(REQ_SD(P),STATUS,IERROR)
-              IF(NBOX(P).NE.0) THEN
+              IF(NBOX(P)/=0) THEN
                 CALL MPI_WAIT(REQ_SD2(P),STATUS,IERROR)
                 DEALLOCATE(BUF(P)%p)
               END IF

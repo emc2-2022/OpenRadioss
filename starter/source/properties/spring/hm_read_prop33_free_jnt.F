@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP33_FREE_JNT       source/properties/spring/hm_read_prop33_free_jnt.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROP33                source/properties/spring/hm_read_prop33.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        SET_U_GEO                     source/user_interface/uaccess.F
-Chd|        SET_U_PNU                     source/user_interface/uaccess.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_PROP33_FREE_JNT(IOUT, ITYP, SKFLAG, PARGEO,IS_CRYPTED,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop33_free_jnt   ../starter/source/properties/spring/hm_read_prop33_free_jnt.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_prop33            ../starter/source/properties/spring/hm_read_prop33.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                    ../starter/source/output/message/message.F
+!||    hm_get_floatv             ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv               ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    set_u_geo                 ../starter/source/user_interface/uaccess.F
+!||    set_u_pnu                 ../starter/source/user_interface/uaccess.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod               ../starter/share/message_module/message_mod.F
+!||    submodel_mod              ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_PROP33_FREE_JNT(IOUT, ITYP, SKFLAG, PARGEO,IS_ENCRYPTED,
      .                       UNITAB,IUNIT,ID,TITR,LSUBMODEL)
       USE UNITAB_MOD
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,9 +47,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   A n a l y s e   M o d u l e
 C-----------------------------------------------
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
 C----------+---------+---+---+--------------------------------------------
 C VAR      | SIZE    |TYP| RW| DEFINITION
 C----------+---------+---+---+--------------------------------------------
@@ -66,9 +64,8 @@ C-----------------------------------------------
       my_real PARGEO(*) 
 
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
-      LOGICAL IS_CRYPTED
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      LOGICAL IS_ENCRYPTED
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
 C=======================================================================
 C   L o c a l   V a r i a b l e s
@@ -155,12 +152,12 @@ C--------------------------------------------------
       CALL HM_GET_FLOATV('Crz',CRZ,IS_AVAILABLE,LSUBMODEL,UNITAB)
       IF(.NOT.IS_AVAILABLE) OFLAG = OFLAG + 1
 C-----------------------
-      IF (IDSK1.LE.0.OR.IDSK2.LE.0) THEN
+      IF (IDSK1<=0.OR.IDSK2<=0) THEN
          CALL ANCMSG(MSGID=386,
-     .  	     MSGTYPE=MSGERROR,
-     .  	     ANMODE=ANINFO_BLIND_1,
-     .  	     I1=ID,
-     .  	     C1=TITR)
+     .         MSGTYPE=MSGERROR,
+     .         ANMODE=ANINFO_BLIND_1,
+     .         I1=ID,
+     .         C1=TITR)
       ENDIF
 C
       CR = ZERO
@@ -171,19 +168,19 @@ C
       MASS = ZERO
       INER = ZERO
 C
-      IF(CXX.EQ.ZERO.AND.IFUN_CXX.NE.0)CXX = ONE
-      IF(CYY.EQ.ZERO.AND.IFUN_CYY.NE.0)CYY = ONE
-      IF(CZZ.EQ.ZERO.AND.IFUN_CZZ.NE.0)CZZ = ONE
-      IF(CRX.EQ.ZERO.AND.IFUN_CRX.NE.0)CRX = ONE
-      IF(CRY.EQ.ZERO.AND.IFUN_CRY.NE.0)CRY = ONE
-      IF(CRZ.EQ.ZERO.AND.IFUN_CRZ.NE.0)CRZ = ONE
+      IF(CXX==ZERO.AND.IFUN_CXX/=0)CXX = ONE
+      IF(CYY==ZERO.AND.IFUN_CYY/=0)CYY = ONE
+      IF(CZZ==ZERO.AND.IFUN_CZZ/=0)CZZ = ONE
+      IF(CRX==ZERO.AND.IFUN_CRX/=0)CRX = ONE
+      IF(CRY==ZERO.AND.IFUN_CRY/=0)CRY = ONE
+      IF(CRZ==ZERO.AND.IFUN_CRZ/=0)CRZ = ONE
 C
-      IF(KXX.EQ.ZERO.AND.IFUN_XX.NE.0) KXX = ONE
-      IF(KYY.EQ.ZERO.AND.IFUN_YY.NE.0) KYY = ONE
-      IF(KZZ.EQ.ZERO.AND.IFUN_ZZ.NE.0) KZZ = ONE
-      IF(KRX.EQ.ZERO.AND.IFUN_RX.NE.0) KRX = ONE
-      IF(KRY.EQ.ZERO.AND.IFUN_RY.NE.0) KRY = ONE
-      IF(KRZ.EQ.ZERO.AND.IFUN_RZ.NE.0) KRZ = ONE
+      IF(KXX==ZERO.AND.IFUN_XX/=0) KXX = ONE
+      IF(KYY==ZERO.AND.IFUN_YY/=0) KYY = ONE
+      IF(KZZ==ZERO.AND.IFUN_ZZ/=0) KZZ = ONE
+      IF(KRX==ZERO.AND.IFUN_RX/=0) KRX = ONE
+      IF(KRY==ZERO.AND.IFUN_RY/=0) KRY = ONE
+      IF(KRZ==ZERO.AND.IFUN_RZ/=0) KRZ = ONE
 C-----------------------
       IF (IFUN_XX  /= 0) KXX = KXX * FAC_FF 
       IF (IFUN_YY  /= 0) KYY = KYY * FAC_FF 
@@ -228,8 +225,8 @@ C---------------------
       IERROR = SET_U_GEO(24,CRX)
       IERROR = SET_U_GEO(25,CRY)
       IERROR = SET_U_GEO(26,CRZ)
-      IERROR = SET_U_GEO(27,FAC_CTX)		
-      IERROR = SET_U_GEO(28,FAC_CRX)		
+      IERROR = SET_U_GEO(27,FAC_CTX)
+      IERROR = SET_U_GEO(28,FAC_CRX)
       IERROR = SET_U_PNU(1,IFUN_XX,KFUNC)
       IERROR = SET_U_PNU(2,IFUN_YY,KFUNC)
       IERROR = SET_U_PNU(3,IFUN_ZZ,KFUNC)
@@ -244,20 +241,20 @@ C---------------------
       IERROR = SET_U_PNU(12,IFUN_CRZ,KFUNC)
 C-----------------------
       WRITE(IOUT,500)
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
-       IF (OFLAG.EQ.12) THEN
+       IF (OFLAG==12) THEN
         WRITE(IOUT,1001)IDSK1,IDSK2,XK,CR,KXX,KYY,KZZ,
-     .  	      KRX,KRY,KRZ,IFUN_XX,IFUN_YY,IFUN_ZZ,
-     .  	      IFUN_RX,IFUN_RY,IFUN_RZ
+     .          KRX,KRY,KRZ,IFUN_XX,IFUN_YY,IFUN_ZZ,
+     .          IFUN_RX,IFUN_RY,IFUN_RZ
        ELSE
         WRITE(IOUT,1000)IDSK1,IDSK2,XK,CR,KXX,KYY,KZZ,
-     .  	      KRX,KRY,KRZ,IFUN_XX,IFUN_YY,IFUN_ZZ,
-     .  	      IFUN_RX,IFUN_RY,IFUN_RZ,
-     .  	      CXX,CYY,CZZ,CRX,CRY,CRZ,
-     .  	      IFUN_CXX,IFUN_CYY,IFUN_CZZ,
-     .  	      IFUN_CRX,IFUN_CRY,IFUN_CRZ
+     .          KRX,KRY,KRZ,IFUN_XX,IFUN_YY,IFUN_ZZ,
+     .          IFUN_RX,IFUN_RY,IFUN_RZ,
+     .          CXX,CYY,CZZ,CRX,CRY,CRZ,
+     .          IFUN_CXX,IFUN_CYY,IFUN_CZZ,
+     .          IFUN_CRX,IFUN_CRY,IFUN_CRZ
        ENDIF
       ENDIF
 C-----------------------
@@ -310,7 +307,6 @@ C-----------------------
      & 5X,'USER RX TORSION FUNCTION ID. . . . . . =',I10/,
      & 5X,'USER RY TORSION FUNCTION ID. . . . . . =',I10/,
      & 5X,'USER RZ TORSION FUNCTION ID. . . . . . =',I10//)
-  999  CALL FREERR(1)
 C-----------------------
       RETURN
       END

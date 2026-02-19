@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_C_THK                    source/output/sta/stat_c_thk.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        SPMD_RGATHER9_DP              source/mpi/interfaces/spmd_outp.F
-Chd|        STRS_TXT50                    source/output/sta/sta_txt.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_c_thk         ../engine/source/output/sta/stat_c_thk.F
+!||--- called by ------------------------------------------------------
+!||    genstat            ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_rgather9_dp   ../engine/source/mpi/interfaces/spmd_outp.F
+!||    strs_txt50         ../engine/source/output/sta/sta_txt.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE STAT_C_THK(ELBUF_TAB,IPARG ,IPM ,IGEO ,IXC ,
      2                      IXTG  ,WA,WAP0 ,IPARTC, IPARTTG,
      3                      IPART_STATE,STAT_INDXC,STAT_INDXTG  ,
@@ -36,7 +38,8 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD         
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,16 +51,13 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "scr03_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER SIZLOC,SIZP0
+      INTEGER SIZP0
       INTEGER IXC(NIXC,*),IXTG(NIXTG,*),
      .        IPARG(NPARG,*),IPM(NPROPMI,*),IGEO(NPROPGI,*),
      .        IPARTC(*), IPARTTG(*), IPART_STATE(*),
@@ -69,10 +69,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, J, JJ, WRTLEN, RES, LEN, K, IOFF
-      INTEGER NG, NEL, NFT, IAD, ITY, LFT,
-     .        LLT, MLW, ISTRAIN, IHBE, ISH3N, IPRT
-      INTEGER ID,IEXPAN,ISROT,ITHK
+      INTEGER I, N, J, JJ, LEN, K, IOFF
+      INTEGER NG, NEL, NFT, ITY, LFT,
+     .        LLT, MLW, IPRT
+      INTEGER ID,ITHK
       double precision   
      .   THK
       CHARACTER*100 LINE
@@ -85,7 +85,7 @@ C-----------------------------------------------
 
       DO NG=1,NGROUP
        ITY   =IPARG(5,NG)
-       IF(ITY.EQ.3) THEN
+       IF(ITY==3) THEN
          GBUF => ELBUF_TAB(NG)%GBUF   
          MLW   =IPARG(1,NG)
          NEL   =IPARG(2,NG)
@@ -101,7 +101,7 @@ C-----------------------------------------------
           IF(IPART_STATE(IPRT)==0)CYCLE
 
           JJ = JJ + 1
-          IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+          IF (MLW /= 0 .AND. MLW /= 13) THEN
             WA(JJ) = GBUF%OFF(I) 
           ELSE
             WA(JJ) = ZERO
@@ -109,7 +109,7 @@ C-----------------------------------------------
           JJ = JJ + 1
           WA(JJ) = IXC(NIXC,N)
           JJ = JJ + 1
-          IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+          IF (MLW /= 0 .AND. MLW /= 13) THEN
            IF (ITHK >0 ) THEN
             WA(JJ) = GBUF%THK(I)
            ELSE
@@ -134,7 +134,7 @@ C-----------------------------------------------
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
       END IF
 
-      IF(ISPMD.EQ.0.AND.LEN.GT.0) THEN
+      IF(ISPMD==0.AND.LEN>0) THEN
          IF (IZIPSTRS == 0) THEN
            WRITE(IUGEO,'(A)')'/INISHE/THICK'
            WRITE(IUGEO,'(A)')
@@ -173,7 +173,7 @@ C-----------------------------------------------
 
       DO NG=1,NGROUP
        ITY   =IPARG(5,NG)
-       IF(ITY.EQ.7) THEN
+       IF(ITY==7) THEN
          GBUF => ELBUF_TAB(NG)%GBUF   
          MLW   =IPARG(1,NG)
          NEL   =IPARG(2,NG)
@@ -189,7 +189,7 @@ C-----------------------------------------------
           IF(IPART_STATE(IPRT)==0)CYCLE
 
           JJ = JJ + 1
-          IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+          IF (MLW /= 0 .AND. MLW /= 13) THEN
             WA(JJ) = GBUF%OFF(I)
           ELSE
             WA(JJ) = ZERO
@@ -197,7 +197,7 @@ C-----------------------------------------------
           JJ = JJ + 1
           WA(JJ) = IXTG(NIXTG,N)
           JJ = JJ + 1
-          IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+          IF (MLW /= 0 .AND. MLW /= 13) THEN
            IF (ITHK >0 ) THEN
             WA(JJ) = GBUF%THK(I)
            ELSE
@@ -222,7 +222,7 @@ C-----------------------------------------------
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
       END IF
 
-      IF(ISPMD.EQ.0.AND.LEN.GT.0) THEN
+      IF(ISPMD==0.AND.LEN>0) THEN
         IF (IZIPSTRS == 0) THEN
           WRITE(IUGEO,'(A)')'/INISH3/THICK'
           WRITE(IUGEO,'(A)')

@@ -1,56 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_LECGRN                     source/groups/hm_lecgrn.F     
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_BIGBOX                     source/model/box/hm_bigbox.F  
-Chd|        HM_ELNGR                      source/groups/hm_elngr.F      
-Chd|        HM_ELNGRR                     source/groups/hm_elngrr.F     
-Chd|        HM_ELNGRS                     source/groups/hm_elngr.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_LINENGR                    source/groups/hm_linengr.F    
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SUBMODGRN                  source/groups/hm_submodgr.F   
-Chd|        HM_SURFNOD                    source/groups/hm_surfnod.F    
-Chd|        HM_TAGPART                    source/groups/hm_tagpart.F    
-Chd|        TAGNOD                        source/groups/tagnod.F        
-Chd|        TAGNODR                       source/groups/tagnodr.F       
-Chd|        TAGNODS                       source/groups/tagnod.F        
-Chd|        TAGNODX                       source/groups/tagnodx.F       
-Chd|        UDOUBLE_IGR                   source/system/sysfus.F        
-Chd|        ULIST2S                       source/system/sysfus.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_lecgrn                ../starter/source/groups/hm_lecgrn.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_bigbox                ../starter/source/model/box/hm_bigbox.F
+!||    hm_elngr                 ../starter/source/groups/hm_elngr.F
+!||    hm_elngrr                ../starter/source/groups/hm_elngrr.F
+!||    hm_elngrs                ../starter/source/groups/hm_elngr.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_linengr               ../starter/source/groups/hm_linengr.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_submodgrn             ../starter/source/groups/hm_submodgr.F
+!||    hm_surfnod               ../starter/source/groups/hm_surfnod.F
+!||    hm_tagpart               ../starter/source/groups/hm_tagpart.F
+!||    tagnod                   ../starter/source/groups/tagnod.F
+!||    tagnodr                  ../starter/source/groups/tagnodr.F
+!||    tagnods                  ../starter/source/groups/tagnod.F
+!||    tagnodx                  ../starter/source/groups/tagnodx.F
+!||    udouble_igr              ../starter/source/system/sysfus.F
+!||    ulist2s                  ../starter/source/system/sysfus.F
+!||    usr2sys                  ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_LECGRN(
      1           ITAB    ,ITABM1  ,IGRNOD  ,
      2           ISUBMOD ,X       ,GEO     ,IXS     ,
@@ -68,32 +67,26 @@ C !!! WARNING due to issues on ibm plateform keep IBUFTMP at the last position
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
       USE OPTIONDEF_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      use element_mod , only : nixs, nixq, nixc, nixt, nixp, nixr, nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "sphcom.inc"
-#include      "sysunit.inc"
-#include      "my_allocate.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -126,19 +119,21 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER J10(10),BUFTMP(NUMNOD*2+NPART),ID_SUB
+      INTEGER J10(10),ID_SUB
+      INTEGER, DIMENSION(:), ALLOCATABLE :: BUFTMP ! NUMNOD*2+NPART
       INTEGER I,J,K,II,KK,N1,N2,ISU,ID,JREC,NNOD,NL,NTRI,IGS,IGRS,
      .        OK,IT0,IT1,IT2,IT3,IT4,IT5,IT6,
      .        FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,STAT,IT7,UID,IFLAGUNIT,
      .        IT8,SUB_ID,IADBOX,NN,LIST_IGR(NGRNOD),IDMIN,IDMAX,OFFSET,
      .        IT9,IDB,NENTITY,NLINES,JJ
+      
       MY_REAL
      .        XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,BID,FAC_L
       INTEGER, DIMENSION(:),ALLOCATABLE :: BUFTMP2
-      CHARACTER TITR*nchartitle,KEY*ncharkey,MESS*40,KEY2*ncharkey
+      CHARACTER(LEN=NCHARTITLE) :: TITR, TITR1
+      CHARACTER(LEN=NCHARKEY) :: KEY,KEY2
+      CHARACTER MESS*40
       INTEGER, DIMENSION(:),ALLOCATABLE :: BUFBOX
-      CHARACTER*nchartitle,
-     .   TITR1
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -150,9 +145,9 @@ C-----------------------------------------------
 C    IGRNOD(IGS)%ID : GROUP identifier
 C    IGRNOD(IGS)%TITLE : GROUP title
 C    IGRNOD(IGS)%NENTITY : Entities (nodes) number of the GROUP
-C    IGRNOD(IGS)%GRTYPE : TYPE ( 0-NOEUDS, 1-BRIC, 2-QUAD,   3-SHELL_4N,
+C    IGRNOD(IGS)%GRTYPE : TYPE ( 0-NODES, 1-BRIC, 2-QUAD,   3-SHELL_4N,
 !                                4-TRUSS,  5-BEAM, 6-SPRINGS,7-SHELL_3N )
-!!                   GRTYPE --- > OBSOLETTE
+!!                   GRTYPE --- > OBSOLETE
 C    IGRNOD(IGS)%SORTED  : FLAG for sorted/unsorted nodes
 !                    = 0 -> sorted
 !                    = 1 -> unsorted
@@ -160,7 +155,7 @@ C    IGRNOD(IGS)%GRPGRP : TYPE of nodal GROUP
 !                                 = 1 FOR /GRNOD/NOD
 !                                 = 2 FOR /GRNOD/GNROD
 !                                 = 0 ALL THE REST
-C    IGRNOD(IGS)%LEVEL  : Hierachy level
+C    IGRNOD(IGS)%LEVEL  : Hierarchy level
 !                             (FLAG 'SUBLEVEL DONE' FOR GROUPS OF GROUPS)
 !                            = 0 ---> not yet initialized
 !                            = 1 ---> done
@@ -170,6 +165,7 @@ C    IGRNOD(IGS)%LEVEL  : Hierachy level
 C    IGRNOD(IGS)%R2R_ALL   ! Multidomaines -> number of node(elems, parts) before split
 C    IGRNOD(IGS)%R2R_SHARE ! shared on boundary subdomain
 C-----------------------------------------------
+      ALLOCATE(BUFTMP(2*NUMNOD + NPART))
       IS_AVAILABLE = .FALSE.
       IT0=0
       IT1=0
@@ -226,7 +222,7 @@ C
         !-----------------------------------------------------------------
         ! GRNOD from GRNODNS
         IF(KEY(1:7) == 'GRNODNS')THEN
-C          tag des groupes de groupes
+C          tag of groups of groups
            IGRNOD(IGS)%NENTITY=-1
 c          non sorted nodes
              IGRNOD(IGS)%SORTED=1
@@ -254,7 +250,7 @@ c          non sorted nodes
             IGRNOD(IGS)%NENTITY=NNOD
 ! may be allocated already (prelecgrns.F) if NUMELX > 0
             IF (.NOT. ALLOCATED(IGRNOD(IGS)%ENTITY)) 
-     .                MY_ALLOCATE(IGRNOD(IGS)%ENTITY,NNOD)
+     .                CALL MY_ALLOC(IGRNOD(IGS)%ENTITY,NNOD)
             IGRNOD(IGS)%GRPGRP=1
             MAXNNOD = MAX(NNOD,MAXNNOD)
           ELSE 
@@ -271,7 +267,7 @@ c          non sorted nodes
         !-----------------------------------------------------------------
         ! GRNOD from NODE
         ELSEIF(KEY(1:4) == 'NODE' .OR. KEY(1:5) == 'CNODE') THEN
-C         groupe de noeuds
+C         group of nodes
           IT1=IT1+1
           IF (FLAG == 0) THEN
             CALL HM_GET_INTV('idsmax' ,NENTITY,IS_AVAILABLE,LSUBMODEL)
@@ -279,7 +275,7 @@ C         groupe de noeuds
             IGRNOD(IGS)%NENTITY=NNOD
 ! may be allocated already (prelecgrns.F) if NUMELX > 0
             IF( .NOT. ALLOCATED(IGRNOD(IGS)%ENTITY)) 
-     .                MY_ALLOCATE(IGRNOD(IGS)%ENTITY,NNOD)
+     .                CALL MY_ALLOC(IGRNOD(IGS)%ENTITY,NNOD)
             IGRNOD(IGS)%GRPGRP=1
             MAXNNOD = MAX(NNOD,MAXNNOD)
           ELSE
@@ -326,7 +322,7 @@ c           sorted nodes
         ELSEIF(KEY(1:3) == 'BOX'.AND.(KEY2(1:5) == 'RECTA'.OR.
      .         KEY2(1:5) == 'CYLIN'.OR.KEY2(1:5) == 'SPHER'))THEN
 C             old /grnod/box (not /BOX/BOX)
-C             groupe de noeuds dans un box (classical box, parallelepiped,
+C             group of nodes in a box (classical box, parallelepiped,
 C                         cylindrical, spherical)
           IT7=IT7+1
           IF (FLAG == 0) IGRNOD(IGS)%NENTITY=0
@@ -355,7 +351,7 @@ C-------------------------------------
         CALL UDOUBLE_IGR(LIST_IGR,NGRNOD,MESS,0,BID)
       ENDIF
 C=======================================================================
-C Remplacement des n0 de noeuds user par systeme (type NODE)
+C Replacement of user node n0 by system n0 (NODE type)
 C=======================================================================
       IF (IT1 /= 0 .AND. FLAG == 1)THEN
 !
@@ -374,14 +370,14 @@ C=======================================================================
             NTRI=IGRNOD(I)%SORTED
             IF (NNOD > 0 .AND. NTRI == 0)THEN
               IF(NNOD == 1) THEN
-C pas de tri necessaire et dichotomie
+C no sorting necessary and dichotomy
                 NN = IGRNOD(I)%ENTITY(NNOD)
                 IGRNOD(I)%ENTITY(NNOD)=USR2SYS(NN,ITABM1,MESS,ID)
                 IGRNOD(I)%NENTITY=1
-C            ELSEIF(NNOD < 10 ou 100 ...)
-C algo avec tri simplifie et dichotomie, nnod limite a definir
+C            ELSEIF(NNOD < 10 or 100 ...)
+C algo with simplified sort and dichotomy, nnod limit to be defined
               ELSE
-C algo optimise pour groupe de taille non negligeable devant numnod
+C Algo optimized for non -negligeable size group in front of n nod
                 BUFTMP2(1:2*NNOD) = 0
                 NNOD=ULIST2S(IGRNOD(I)%ENTITY,NNOD,ITABM1,MESS,BUFTMP2,ID)
                 IGRNOD(I)%NENTITY=NNOD
@@ -439,7 +435,7 @@ C---
                 IF (BUFTMP(J) == 1) NNOD = NNOD+1
               ENDDO
               IGRNOD(IGS)%NENTITY=NNOD
-              MY_ALLOCATE(IGRNOD(IGS)%ENTITY,NNOD)
+              CALL MY_ALLOC(IGRNOD(IGS)%ENTITY,NNOD)
               IGRNOD(IGS)%ENTITY=0
             ELSE
               DO J=1,NUMNOD
@@ -491,14 +487,14 @@ c
           IF (KEY(1:3) == 'BOX' .AND. NBBOX > 0) THEN
             IADBOX = 1
             IFLAGUNIT = 0
-            DO J=1,NUNITS
+            DO J=1,UNITAB%NUNITS
               IF (UNITAB%UNIT_ID(J) == UID) THEN
                 FAC_L = UNITAB%FAC_L(J)
                 IFLAGUNIT = 1
                 EXIT
               ENDIF
             ENDDO
-            IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+            IF (UID/=0.AND.IFLAGUNIT==0) THEN
               CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                    I2=UID,I1=ID,C1='NODE GROUP',
      .                    C2='NODE GROUP',
@@ -514,7 +510,7 @@ C---
             IADBOXMAX = MAX(IADBOX,IADBOXMAX)
             IF (FLAG == 0) THEN
               IGRNOD(IGS)%NENTITY=NNOD
-              MY_ALLOCATE(IGRNOD(IGS)%ENTITY,NNOD)
+              CALL MY_ALLOC(IGRNOD(IGS)%ENTITY,NNOD)
               IGRNOD(IGS)%ENTITY = 0
             ELSEIF (FLAG == 1) THEN
               IGRNOD(IGS)%NENTITY=NNOD
@@ -525,7 +521,7 @@ C---
         IF(ALLOCATED(BUFBOX))DEALLOCATE(BUFBOX)
       ENDIF ! IF(IT8 /= 0)
 C=======================================================================
-C groupes de SUBSETS,PART,MAT,PROP
+C groups of subsets, share, mat, prop
 C=======================================================================
       IGS=0
       IF (IT2 /= 0)THEN
@@ -541,11 +537,11 @@ C
           IGS=IGS+1
           NN = 0
           IF (KEY(1:4) == 'PART'.OR.KEY(1:6) == 'SUBSET'.OR.KEY(1:3) == 'MAT' .OR.KEY(1:4) == 'PROP') THEN
-C             tag les PARTs
+C             tag the PARTs
             BUFTMP = 0
             CALL HM_TAGPART(BUFTMP ,IPART ,KEY  ,IGRNOD(IGS)%ID,TITR  ,TITR1 ,FLAG  ,SUBSET, LSUBMODEL)
 C-------------------------
-C             tag les noeuds
+C             tag the nodes
             CALL TAGNODS(IXS,IXS10,IXS20,IXS16,IPARTS,BUFTMP,IGRNOD(IGS)%ID,TITR)
             CALL TAGNOD(IXQ,NIXQ,2,5,NUMELQ,IPARTQ,BUFTMP,NPART)
             CALL TAGNOD(IXC,NIXC,2,5,NUMELC,IPARTC,BUFTMP,NPART)
@@ -562,7 +558,7 @@ C---
                 IF (BUFTMP(J+NPART) /= 0) NNOD=NNOD+1
               ENDDO
               IGRNOD(IGS)%NENTITY=NNOD
-              MY_ALLOCATE(IGRNOD(IGS)%ENTITY,NNOD)
+              CALL MY_ALLOC(IGRNOD(IGS)%ENTITY,NNOD)
               IGRNOD(IGS)%ENTITY=0
             ELSE
               DO J=1,NUMNOD
@@ -577,7 +573,7 @@ C---
         ENDDO
       ENDIF
 C=======================================================================
-C groupes de SUBMODELS
+C groups of SUBMODELS
 C=======================================================================
       IGS=0
       IF (IT5 > 0)THEN
@@ -599,14 +595,14 @@ c
      .                        TITR1   ,LSUBMODEL  ,IGRNOD(IGS),NN     )
             IF (FLAG == 0) THEN
               IGRNOD(IGS)%NENTITY=NNOD
-              MY_ALLOCATE(IGRNOD(IGS)%ENTITY,NNOD)
+              CALL MY_ALLOC(IGRNOD(IGS)%ENTITY,NNOD)
               IGRNOD(IGS)%ENTITY = 0
             ENDIF
           ENDIF
         ENDDO
       ENDIF
 C=======================================================================
-C groupes de groupes d'elements + surfaces
+C groups of groups of elements + surfaces
 C=======================================================================
       IGS=0
       IF (IT4 /= 0)THEN
@@ -667,7 +663,7 @@ C---
                 IF (BUFTMP(J) /= 0) NNOD=NNOD+1
               ENDDO
               IGRNOD(IGS)%NENTITY=NNOD
-              MY_ALLOCATE(IGRNOD(IGS)%ENTITY,NNOD)
+              CALL MY_ALLOC(IGRNOD(IGS)%ENTITY,NNOD)
               IGRNOD(IGS)%ENTITY = 0
             ELSE
               DO J=1,NUMNOD
@@ -725,7 +721,7 @@ C---
                 IF (BUFTMP(J) == 1) NNOD=NNOD+1
               ENDDO
               IGRNOD(IGS)%NENTITY=NNOD
-              MY_ALLOCATE(IGRNOD(IGS)%ENTITY,NNOD)
+              CALL MY_ALLOC(IGRNOD(IGS)%ENTITY,NNOD)
               IGRNOD(IGS)%ENTITY=0
             ELSE
               DO J=1,NUMNOD
@@ -740,5 +736,6 @@ C---
         ENDDO
       ENDIF
 C-----
+      DEALLOCATE(BUFTMP)
       RETURN
       END

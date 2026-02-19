@@ -1,39 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPINIT3                       source/elements/sph/spinit3.F 
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        DTMAIN                        source/materials/time_step/dtmain.F
-Chd|        MATINI                        source/materials/mat_share/matini.F
-Chd|        SPORTH3                       source/elements/sph/sporth3.F 
-Chd|        SPPART3                       source/elements/sph/sppart3.F 
-Chd|        GET_U_GEO                     source/user_interface/uaccess.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        DETONATORS_MOD                share/modules1/detonators_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spinit3                ../starter/source/elements/sph/spinit3.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    dtmain                 ../starter/source/materials/time_step/dtmain.F
+!||    get_u_func             ../starter/source/user_interface/uaccess.F
+!||    get_u_geo              ../starter/source/user_interface/uaccess.F
+!||    get_u_mat              ../starter/source/user_interface/uaccess.F
+!||    get_u_mid              ../starter/source/user_interface/uaccess.F
+!||    get_u_mnu              ../starter/source/user_interface/uaccess.F
+!||    get_u_pid              ../starter/source/user_interface/uaccess.F
+!||    get_u_pnu              ../starter/source/user_interface/uaccess.F
+!||    matini                 ../starter/source/materials/mat_share/matini.F
+!||    sporth3                ../starter/source/elements/sph/sporth3.F
+!||    sppart3                ../starter/source/elements/sph/sppart3.F
+!||--- uses       -----------------------------------------------------
+!||    detonators_mod         ../starter/share/modules1/detonators_mod.F
+!||====================================================================
       SUBROUTINE SPINIT3(IGRTYP  ,SPBUF    ,KXSP   ,X     ,GEO    ,
      .                   XMAS    ,NPC      ,PLD    ,XIN   ,SKEW   ,
      .                   DTELEM  ,NEL      ,STIFN  ,STIFR ,IGEO   ,
@@ -43,13 +48,15 @@ Chd|====================================================================
      .                   SIGSPH  ,ISPTAG   ,IPART,
      .                   IPM     ,NSIGSPH  ,PTSPH  ,NPF   ,
      .                   TF      ,ELBUF_STR,MCP    ,TEMP  ,ILOADP ,
-     .                   FACLOAD)
+     .                   FACLOAD ,STIFINT  ,I7STIFS,GLOB_THERM,MAT_PARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD    
       USE DETONATORS_MOD              
       USE ALE_CONNECTIVITY_MOD
+      USE GLOB_THERM_MOD
+      USE MATPARAM_DEF_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -64,15 +71,10 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "scry_c.inc"
 #include      "sphcom.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -88,17 +90,22 @@ C-----------------------------------------------
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
       INTEGER,INTENT(IN) :: ILOADP(SIZLOADP,*)
       my_real,INTENT(IN) :: FACLOAD(LFACLOAD,*)
-      TYPE(DETONATOR_STRUCT_)::DETONATORS
+      INTEGER,INTENT(IN) :: I7STIFS
+      my_real,INTENT(INOUT) :: STIFINT(NUMNOD)
+      TYPE(DETONATORS_STRUCT_)::DETONATORS
+      type (glob_therm_) ,intent(inout) :: glob_therm
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IPRT,IMAT,IG,N,I,M,J,INOD,IGTYP,IBID,NF1,NDEPAR,JJ,IP,II(6)
+      INTEGER IPRT,IMAT,IG,N,I,J,INOD,IGTYP,IBID,NF1,NDEPAR,JJ,IP,II(6)
       INTEGER MXT(MVSIZ),NGEO(MVSIZ),NC1(MVSIZ),NGL(MVSIZ)
       my_real
      .        VOL(MVSIZ),MASS(MVSIZ),RHO(MVSIZ),DELTAX(MVSIZ),DTX(MVSIZ),
-     .        X1(MVSIZ),Y1(MVSIZ),Z1(MVSIZ),RBID(1), AIRE(1)
+     .        X1(MVSIZ),Y1(MVSIZ),Z1(MVSIZ),RBID(1), AIRE(MVSIZ)
       my_real
-     .        DIST,STI,FV,MP,BID,RHOCP
+     .        STI,FV,MP,RHOCP
+      my_real :: TEMPEL(NEL)
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(BUF_MAT_) ,POINTER :: MBUF
@@ -131,8 +138,16 @@ c
           IG  =IPART(2,IPRT)
           MP    =GET_U_GEO(1,IG)
           RHO(I)=PM(1,IMAT)
-          VOL(I)=MP/RHO(I)
-          IF(NSPCOND.NE.0) VOL(I)=VOL(I)/ISPTAG(N)
+          IF (NINT(SPBUF(13,N))==1) THEN
+C--         type = 1 - particle with mass input            
+            VOL(I)=SPBUF(12,N)/RHO(I)
+          ELSEIF (NINT(SPBUF(13,N))==2) THEN  
+C--         type = 2 - particle with volume input            
+            VOL(I)=SPBUF(12,N)
+          ELSE  
+            VOL(I)=MP/RHO(I)
+          ENDIF
+          IF(NSPCOND/=0) VOL(I)=VOL(I)/ISPTAG(N)
           MASS(I)   =RHO(I)*VOL(I)
           SPBUF(2,N) =RHO(I)
           SPBUF(12,N)=MASS(I)
@@ -158,7 +173,7 @@ C error !
 C-----------------------------------------------
        NF1 =NFT+1
 C--------------------------------------------------
-C      NUMERO DE MATERIAU ET PID.
+C      MATERIAL NUMBER AND PID.
 C--------------------------------------------------
        DO I=LFT,LLT
         N=NFT+I
@@ -193,10 +208,16 @@ C--------------------------------------------------
         Z1(I)=X(3,INOD)
        ENDDO
 C--------------------------------------------------
-       IF(ISORTH.NE.0)THEN
+       IF(ISORTH/=0)THEN 
          CALL SPORTH3(IPART ,IPARTSP(NFT+1) ,IGEO ,GBUF%GAMA,SKEW,
      .                NEL   )
        END IF
+!
+      IF (JTHE == 0 .and. GLOB_THERM%NINTEMP > 0) THEN
+        TEMPEL(1:NEL) = TEMP(NC1(1:NEL))      
+      ELSE
+        TEMPEL(1:NEL) = PM(79,MXT(1:NEL))
+      END IF
 C--------------------------------------------------
 C     GENERAL CELLS, END.
 C--------------------------------------------------
@@ -208,56 +229,69 @@ C--------------------------------------------------
      .            MXT     ,IPM    ,NSIGSPH    ,NUMSPHY   ,PTSPH  ,
      .            IP      ,NGL    ,NPF        ,TF        ,BUFMAT ,
      .            GBUF    ,LBUF   ,MBUF       ,ELBUF_STR,ILOADP ,
-     .            FACLOAD, DELTAX)
+     .            FACLOAD, DELTAX ,TEMPEL     ,MAT_PARAM )
 C--------------------------------------------------
-C      Diametre initial (Fichiers Y)
+C      INITIAL DIAMETER (Y files )
 C--------------------------------------------------
-       IF(ISIGI.EQ.3.OR.ISIGI.EQ.4.OR.ISIGI.EQ.5)THEN
+       IF(ISIGI==3.OR.ISIGI==4.OR.ISIGI==5)THEN
          DO I=LFT,LLT
            N = I+NFT
            JJ=PTSPH(N)
-           IF(JJ.NE.0.AND.SIGSPH(11,JJ).NE.0.)THEN
-             SPBUF(1,N)=SIGSPH(11,JJ)
-           END IF
+           IF(JJ/=0) THEN
+             IF(SIGSPH(11,JJ)/=0.)THEN
+               SPBUF(1,N)=SIGSPH(11,JJ)
+             ENDIF
+           ENDIF
            SPBUF(2,N) = GBUF%RHO(I)
          ENDDO
        ENDIF
 C----------------------------------------
-C     INITIALISATION DE LA THERMIQUE
+C     INITIALISATION OF THERMAL BEHAVIOR
 C----------------------------------------
-      IF(JTHE > 0)THEN
+      IF (JTHE > 0)THEN
         DO I=LFT,LLT
           GBUF%TEMP(I)=PM(79,MXT(I))
         ENDDO
       ELSEIF (JTHE < 0) THEN
-        INTHEAT = 1
+        GLOB_THERM%INTHEAT = 1
         DO I=LFT,LLT
           J = NC1(I)
-          RHOCP = PM(69,MXT(I))*VOL(I)
-          MCP(J) = RHOCP+MCP(J)
+          RHOCP   = PM(69,MXT(I))*VOL(I)
+          MCP(J)  = RHOCP+MCP(J)
           TEMP(J) = PM(79,MXT(I))
         ENDDO
       END IF
 C--------------------------------------------------
-C     INITIALISATION DES MASSES.
+C     INITIALISATION OF MASSES
 C--------------------------------------------------
       CALL SPPART3(XMAS,PARTSAV,NC1,MASS,X,V,IPARTSP(NF1))
 C--------------------------------------------------
-C     CALCUL DES DT ELEMENTAIRES
+C     ELEMENTARY TIME STEP COMPUTATION
 C--------------------------------------------------
-       NDEPAR=NUMELC+NUMELS+NUMELT+NUMELQ+NUMELP+NUMELR+NUMELUR+NUMELTG
+       NDEPAR=NUMELC+NUMELS+NUMELT+NUMELQ+NUMELP+NUMELR+NUMELTG
      .       +NUMELX+NFT
      
-      AIRE(1) = ZERO
+      AIRE(:) = ZERO
+      IGTYP = IPARG(38)
       CALL DTMAIN(GEO       ,PM        ,IPM         ,NGEO    ,MXT     ,FV    ,
      .     GBUF%EINT ,GBUF%TEMP ,GBUF%DELTAX ,GBUF%RK ,GBUF%RE ,BUFMAT, DELTAX, AIRE, 
-     .     GBUF%VOL, DTX, IGEO)
+     .     GBUF%VOL, DTX, IGEO,IGTYP)
 
-       DO I=LFT,LLT
-         DTELEM(NDEPAR+I)=DTX(I)
+       DO I=LFT,LLT 
+         DTELEM(NDEPAR+I)=DTX(I) 
          STI = TWO * MASS(I) / MAX(EM20,DTX(I)*DTX(I))
          STIFN(KXSP(3,I+NFT))=STIFN(KXSP(3,I+NFT))+STI
        ENDDO
+C----------------------------------------------
+C     INITIALISATION OF NODAL STIFFNESSES FOR CONTACT
+C----------------------------------------------
+      IF(I7STIFS/=0)THEN
+        DO I=LFT,LLT
+          N = I+NFT
+C         stiff = 0.5*Bulk*VOL**1/3 (SPH only one element per node - no summation needed)        
+          STIFINT(KXSP(3,I+NFT))= HALF*PM(32,MXT(I))*VOL(I)**THIRD
+        ENDDO
+      ENDIF         
 C--------------------------------------------------
       DO I=LFT,LLT
         N=NFT+I
@@ -280,6 +314,4 @@ C--------------------------------------------------
 C--------------------------------------------------
       RETURN
 C--------------------------------------------------
- 999  CONTINUE
-      RETURN
       END

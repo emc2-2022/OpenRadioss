@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  XFORC28                       source/elements/xelem/xforc28.F
-Chd|-- called by -----------
-Chd|        XFORC3                        source/elements/xelem/xforc3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GET_U_FUNC                    source/user_interface/ufunc.F 
-Chd|        GET_U_GEO                     source/user_interface/upidmid.F
-Chd|        GET_U_PNU                     source/user_interface/upidmid.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    xforc28       ../engine/source/elements/xelem/xforc28.F
+!||--- called by ------------------------------------------------------
+!||    xforc3        ../engine/source/elements/xelem/xforc3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||    get_u_func    ../engine/source/user_interface/ufunc.F
+!||    get_u_mid     ../engine/source/user_interface/upidmid.F
+!||    get_u_mnu     ../engine/source/user_interface/upidmid.F
+!||    get_u_pid     ../engine/source/user_interface/upidmid.F
+!||    get_u_pnu     ../engine/source/user_interface/upidmid.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE XFORC28(NX     ,
      2             XEL     ,VEL     ,VREL   ,UIX    ,UID    ,
      3             IOUT    ,IPROP   ,IMAT   ,OFF    ,KEINT  ,
@@ -74,7 +77,7 @@ C VISCM    |   NX    | F | W | NODAL VISCOSITY (TIME STEP)
 C VISCR    |   NX    | F | W | NODAL ROTATION VISCOSITY (TIME STEP)
 C----------+---------+---+---+--------------------------------------------
 C FORC     | 3*NX    | F | W | NODAL FORCES
-C TORQ     | 3*NX    | F | W | NODAL TORQUS
+C TORQ     | 3*NX    | F | W | NODAL TORQUE
 C----------+---------+---+---+--------------------------------------------
 C NUVAR    |  1      | I | R | NUMBER OF USER ELEMENT VARIABLES
 C UVAR     |NUVAR    | F |R/W| USER ELEMENT VARIABLES 
@@ -107,7 +110,7 @@ C         I     :     VARIABLE INDEX(1 for first function)
 C         IM    :     MATERIAL NUMBER
 C         KFUNC :     ONLY FUNCTION ARE YET AVAILABLE.
 C         THIS FUNCTION RETURN THE USER STORED FUNCTION NUMBER(function 
-C         refered by users materials).
+C         referred by users materials).
 C         SEE LECM28 FOR CORRESPONDING ID STORAGE.
 C-------------------------------------------------------------------------
 C my_real PARAMI = GET_U_GEO(I,IP)
@@ -174,13 +177,13 @@ C-----------------------------------------------
       INTEGER NB1, NB2, NB3, MB1, MB2, MB3, MB4, MB5,
      .        K, IFUNCT, IFV, NIT, ECHANGE
       my_real
-     .  LPREV, LNEXT, VPREV(3), VNEXT(3), VV,XK, XC,
-     .  L0, L, DX, DXOLD, DDX, DT11, DVX, FX, G, Y, DFDX, DGDX, F,
+     .   LNEXT, VPREV(3), VNEXT(3), VV,XK, XC,
+     .  L0, L, DX, DXOLD, DDX, DT11, DVX, FX, G, DFDX, DGDX, F,
      .  STIF, MU1, MU2, FRIC, MU, BETA, FMAX, DFS, DF,   FF,
-     .  EPSMOY, DF1, DF2, XN, FXOLD, EPSTOT, EPSMIN, EPSMAX, DEPS,
-     .  RHO, XM, XKM, XKS, XCM, DTC, DTK, FACT, FFAC,XFAC  
+     .  EPSMOY, XN, FXOLD, EPSTOT, EPSMIN, EPSMAX, DEPS,
+     .  RHO, XM, XKM, XCM, DTC, DTK, FACT, FFAC,XFAC  
 C-----------------------------------------------
-C       initial total lenght UVAR(NB1:NB1)
+C       initial total length UVAR(NB1:NB1)
         NB1=1
 C       previous elongation  UVAR(NB2:NB2)
         NB2=NB1+1
@@ -191,7 +194,7 @@ C       initial nodes masses UVARN(MB1:MB1+NX-1)
 C       forces into strands UVARN(MB2:MB2+NX-1)
 C       using UVARN(MB2:MB2+NX-2) only.
         MB2=MB1+NX
-C       strands initial lenght UVARN(MB3:MB3+NX-1)
+C       strands initial length UVARN(MB3:MB3+NX-1)
 C       using UVARN(MB3:MB3+NX-2) only.
         MB3=MB2+NX
 C       strands elongations UVARN(MB4:MB4+NX-1)
@@ -202,11 +205,11 @@ C       using UVARN(MB5:MB5+NX-2) only.
         MB5=MB4+NX
 C-----------------------------------------------
 C       already broken only returns mass & null stiffness.
-        IF (OFF.EQ.ZERO) GOTO 200
+        IF (OFF==ZERO) GOTO 200
 C-----------------------------------------------
 C       FORCE & PLASTIC DISPLACEMENT,
 C-----------------------------------------------
-C       ACTUAL LENGHT.
+C       ACTUAL LENGTH.
         L=0.0
         DO K=1,NX-1
           LNEXT=
@@ -224,16 +227,16 @@ C-------
         XFAC=GET_U_GEO(13,IPROP)
 C-------
 C       STIF (tangent stiffness) is considered for friction ..
-        IF (IFUNCT.EQ.0.AND.IFV.EQ.0) THEN
+        IF (IFUNCT==0.AND.IFV==0) THEN
 C------------------------------------------
 C        LINEAR ELASTIC
          L0  =UVAR(NB1)
          DX  =L-L0
-C        raideur tgte par unite de longueur.
+C        tangent stiffness per unit length
          STIF=XK
          F   =XK*DX/L0
          EPSTOT=DX/L0
-        ELSEIF (IFUNCT.EQ.0.AND.IFV.NE.0) THEN
+        ELSEIF (IFUNCT==0.AND.IFV/=0) THEN
 C------------------------------------------
 C        G(Deps) only.
          L0  =UVAR(NB1)
@@ -249,14 +252,14 @@ C        NON LINEAR ELASTIC
          DX    =L-L0
          EPSTOT=DX/L0
          F     =GET_U_FUNC(IFUNCT,EPSTOT,DFDX)
-C        raideur tgte par unite de longueur.
+C        tangent stiffness per unit length
          F = FFAC*F
          STIF=FFAC*DFDX
         ENDIF
 C-------------------------------------
 C       LINEAR DAMPING.
         DT11 = DT
-        IF(DT11.EQ.ZERO)DT11 = EP30
+        IF(DT11==ZERO)DT11 = EP30
 C
         DXOLD=UVAR(NB2)
         DDX=DX-DXOLD
@@ -268,7 +271,7 @@ C
 C
         XC  =GET_U_GEO(5,IPROP)
         DGDX=ZERO
-        IF (IFV.GT.0) THEN
+        IF (IFV>0) THEN
          G  = GET_U_FUNC(IFV,DEPS*XFAC,DGDX)
          DGDX = DGDX*XFAC
          FX = F*G+XC*DEPS
@@ -307,7 +310,7 @@ C       rupture criteria is based upon average of total deformation
 C       into nstrand element.
         EPSMIN=GET_U_GEO(8,IPROP)
         EPSMAX=GET_U_GEO(9,IPROP)
-        IF (EPSTOT.LT.EPSMIN.OR.EPSTOT.GT.EPSMAX) THEN
+        IF (EPSTOT<EPSMIN.OR.EPSTOT>EPSMAX) THEN
          OFF=ZERO
          FX =ZERO
 #include "lockon.inc"
@@ -330,33 +333,33 @@ C-------
      .       + VPREV(2) * (VEL(2,K+1) - VEL(2,K))
      .       + VPREV(3) * (VEL(3,K+1) - VEL(3,K))
          UVARN(MB2+K-1)=UVARN(MB2+K-1)
-C tous les brins ont la meme longueur correspond a :
+C all strands have the same length corresponds to:
      .       +STIF*(DT*DDX*(XN-ONE)/MAX(EM15,L)-EPSMOY)
         ENDDO
 C-------
 C
         ECHANGE=1
         NIT=0
-        DO WHILE(ECHANGE.EQ.1.AND.NIT.LT.10)
+        DO WHILE(ECHANGE==1.AND.NIT<10)
           ECHANGE=0
           NIT=NIT+1
           DO K=1,NX-1
-C           stifr utilise de maniere temporaire.
+C           SFR uses a temporary manner.
             STIFR(K)=UVARN(MB2+K-1)
           END DO
           DO K=2,NX-1
 C          default pulley friction.
            FRIC=MU1
            MU  = GET_U_GEO(50+K,IPROP)
-           IF (MU.GE.ZERO) FRIC=MU
+           IF (MU>=ZERO) FRIC=MU
            MU  = GET_U_GEO(525+K-1,IPROP)
-           IF (MU.GE.ZERO) THEN 
+           IF (MU>=ZERO) THEN 
              FRIC=FRIC + HALF*MU
            ELSE
              FRIC=FRIC + HALF*MU2
            ENDIF
            MU  = GET_U_GEO(525+K,IPROP)
-           IF (MU.GE.ZERO) THEN 
+           IF (MU>=ZERO) THEN 
              FRIC=FRIC+HALF*MU
            ELSE
              FRIC=FRIC + HALF*MU2
@@ -376,9 +379,9 @@ C
            FF   = TWO*FX+STIFR(K-1)+STIFR(K)
            FMAX = MAX(ZERO,FF*TANH(HALF*FRIC*BETA))
            DFS  = STIFR(K-1)-STIFR(K)
-           IF(ABS(DFS).GT.FMAX)THEN
+           IF(ABS(DFS)>FMAX)THEN
              DF =SIGN(ABS(DFS)-FMAX,DFS)
-C            tous les brins ont la meme longueur correspond a :
+C            all strands have the same length corresponds to:
              UVARN(MB2+K-2)=UVARN(MB2+K-2)-HALF*DF
              UVARN(MB2+K-1)=UVARN(MB2+K-1)+HALF*DF
              ECHANGE=1
@@ -446,7 +449,7 @@ C       return internal energy of element.
         ENDDO
         UVAR(NB3)=FX
 C-------
-        IF (OFF.EQ.ZERO) THEN
+        IF (OFF==ZERO) THEN
 C        vanish forces into strands.
          DO K=1,NX-1
           UVARN(MB2+K-1)=ZERO
@@ -461,10 +464,10 @@ C-----------------------------------------------
         DO K=1,NX-1
 C-------
 C         CHECK NSTRAND STIFNESS AND DAMPING..
-          IF(MASS(K).LE.EM15)THEN
+          IF(MASS(K)<=EM15)THEN
 #include "lockon.inc"
              WRITE(IOUT,*)
-     .' ** ERROR NSTRAND : NULL STRAND LENGHT, ELEMENT=',
+     .' ** ERROR NSTRAND : NULL STRAND LENGTH, ELEMENT=',
      .        UID
 #include "lockoff.inc"
             GOTO 999
@@ -476,7 +479,7 @@ C         rigidite tangente
           XCM  = (F*DGDX+XC)*L/(MAX(EM15,MASS(K))*L0)
 C-------
 C         CHECK NSTRAND STIFNESS AND DAMPING..
-          IF(XKM.LE.EM15.AND.XCM.LE.EM15)THEN
+          IF(XKM<=EM15.AND.XCM<=EM15)THEN
 #include "lockon.inc"
              WRITE(IOUT,*)
      .' ** ERROR NSTRAND : NULL STRAND STIFFNESS & DAMPING, ELEMENT=',
@@ -489,7 +492,7 @@ C           DTK=(SQRT(0.25*XCM*XCM+XM*XKM)-0.5*XCM)/MAX(EM15,XKM)
 C           DTC=0.5 * 2.*XM/MAX(EM15,XCM)
           DTK=(SQRT(XCM*XCM+XM*XKM)-XCM)/MAX(EM15,XKM)
           DTC=XM/MAX(EM15,XCM)
-          IF (DTK.EQ.ZERO) THEN
+          IF (DTK==ZERO) THEN
 C          XKM==0.
            DTK=DTC
           ELSE
@@ -507,7 +510,7 @@ C-----------------------------------------------
          VISCR(K) =ZERO 
         ENDDO
 C
-        IF (OFF.EQ.ZERO) THEN
+        IF (OFF==ZERO) THEN
          DO K=1,NX
           VISCM(K) =ZERO
           STIFM(K) =ZERO  

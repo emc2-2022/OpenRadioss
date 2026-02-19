@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PRINTBCS                      source/constraints/general/bcs/printbcs.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    printbcs               ../starter/source/constraints/general/bcs/printbcs.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE PRINTBCS(ICODE     ,ISKEW   ,ITAB    ,ITABM1 ,IKINE  ,
      .                  IGRNOD    ,IBCSLAG ,LAG_NCF ,LAG_NKF,LAG_NHF,
      .                  IKINE1LAG ,ISKN    ,NOM_OPT , NBCSLAG)
@@ -37,6 +38,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,10 +51,8 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "units_c.inc"
 #include      "scr03_c.inc"
-#include      "submod_c.inc"
 #include      "titr_c.inc"
 #include      "param_c.inc"
-#include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -68,12 +68,13 @@ C-----------------------------------------------
       INTEGER I,JJ(12), IC, NC, N, NUSR, IS, IC1, IC2, IC3, IC4,
      .        NOSYS, J,J10(10),IGR,IGRS,ISU,IBCALE,J6(6),K,
      .        IC0, IC01, IC02, IC03, IC04, ID ,ILAGM,
-     .        FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,IKINE1(3*NUMNOD),SUB_ID,
+     .        FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,SUB_ID,
      .        CHKCOD,ISERR,NOD
       INTEGER IUN
-      CHARACTER MESS*40,KEY*ncharkey,STRING*ncharfield,CODE*7,
-     .        KEY2*ncharkey
-      CHARACTER TITR*nchartitle,OPT*8
+      CHARACTER MESS*40,CODE*7,OPT*8
+      CHARACTER(LEN=NCHARKEY) :: KEY,KEY2
+      CHARACTER(LEN=NCHARFIELD) :: STRING
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -89,20 +90,20 @@ C-----------------------------------------------
 C======================================================================|
 C
       DO I=1,NUMNOD
-        IF(ISKEW(I).EQ.-1)ISKEW(I)=0
+        IF(ISKEW(I)==-1)ISKEW(I)=0
       ENDDO
 C
-      IF(IALE.EQ.0)THEN
+      IF(IALE==0)THEN
         WRITE(IOUT,'(/A/A/A/)')TITRE(80),TITRE(81),
      .   '       NODE  TRANS. ROTAT.         SKEW'
 C
       ELSE
         WRITE(IOUT,'(/A/A/A/)')TITRE(80),TITRE(81),TITRE(82)
       ENDIF
-      IF(IPRI.GE.2)THEN
+      IF(IPRI>=2)THEN
        DO 500 N=1,NUMNOD
        IC=ICODE(N)
-       IF (IC.EQ.0) GO TO 500
+       IF (IC==0) GO TO 500
        IC1=IC/512
        IC2=(IC-512*IC1)/64
        IC3=(IC-512*IC1-64*IC2)/8
@@ -113,7 +114,7 @@ C
        J6(4)=IC2/4
        J6(5)=(IC2-4*J6(4))/2
        J6(6)=(IC2-4*J6(4)-2*J6(5))
-       IF(IALE.EQ.0)THEN
+       IF(IALE==0)THEN
 C
          WRITE(IOUT,'(1X,I10,2(1X,3I2),3X,I10)')ITAB(N),J6,
      .           ISKN(4,ISKEW(N))
@@ -136,7 +137,7 @@ C
        ENDIF
  500   CONTINUE
       ENDIF
-      IF (NBCSLAG.GT.0) THEN
+      IF (NBCSLAG>0) THEN
         WRITE(IOUT,1000)
         DO I = 1, NBCSLAG
           IGRS=IBCSLAG(1,I)
@@ -153,7 +154,7 @@ C
           J6(4)=IC2/4
           J6(5)=(IC2-4*J6(4))/2
           J6(6)=(IC2-4*J6(4)-2*J6(5))
-          IF (IPRI.GE.2) THEN
+          IF (IPRI>=2) THEN
             DO J=1,IGRNOD(IGRS)%NENTITY
               NOSYS=IGRNOD(IGRS)%ENTITY(J)
 C
@@ -172,7 +173,5 @@ C
      . '     BOUNDARY CONDITIONS BY LAGRANGE MULTIPLIERS'/
      . '     ----------------------- '/
      . '     NODE  TRANS. ROTAT.       SKEW'/)
-      RETURN
- 999  CALL FREERR(1)
       RETURN
       END

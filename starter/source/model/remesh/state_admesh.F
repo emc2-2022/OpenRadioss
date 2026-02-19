@@ -1,41 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STATE_ADMESH                  source/model/remesh/state_admesh.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        NINTLST2                      source/system/nintrr.F        
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    state_admesh             ../starter/source/model/remesh/state_admesh.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    nintlst2                 ../starter/source/system/nintrr.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE STATE_ADMESH(IPART ,IPARTC,IPARTTG,IXC   ,IXTG  ,
      .                      SH4TREE,SH3TREE,SH4TRIM,SH3TRIM,LSUBMODEL)
 C----------------------------------------------------------
@@ -45,24 +45,18 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE HM_OPTION_READ_MOD
       USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "remesh_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -72,7 +66,6 @@ C-----------------------------------------------
      .        SH4TREE(KSH4TREE,*), SH3TREE(KSH3TREE,*),
      .        SH4TRIM(*), SH3TRIM(*)
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
-C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -83,12 +76,10 @@ C-----------------------------------------------
       INTEGER IX1(MAX(NUMELC,NUMELTG)), 
      .        IX2(MAX(NUMELC,NUMELTG)), 
      .        INDEX(2*MAX(NUMELC,NUMELTG))
-C     REAL
-      CHARACTER MESS*40,TITR*nchartitle,KEY*ncharkey,KEY2*ncharkey
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY) :: KEY,KEY2
       LOGICAL IS_AVAILABLE
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
 C-----------------------------------------------
       DATA MESS /'ADAPTIVE MESHING STATE DEFINITION       '/
 C-----------------------------------------------
@@ -254,7 +245,7 @@ C
                  ERRORADJ =1 
                 ENDIF
               ENDIF
-              IF(ERRORADJ ==1.AND.ABS(LEVEL).LT.LEVELMAX) THEN 
+              IF(ERRORADJ ==1.AND.ABS(LEVEL)<LEVELMAX) THEN 
                 CALL ANCMSG(MSGID=1023,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO,
@@ -265,7 +256,7 @@ C
      .                  I5=ID)
               END IF
 C
-              IF(LEVEL.LT.-LEVELMAX-1.OR.LEVEL.GT.LEVELMAX)THEN
+              IF(LEVEL<-LEVELMAX-1.OR.LEVEL>LEVELMAX)THEN
             CALL ANCMSG(MSGID=656,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO,
@@ -460,7 +451,7 @@ C
                  ERRORADJ =1 
                 ENDIF
               ENDIF
-              IF(ERRORADJ ==1.AND.ABS(LEVEL).LT.LEVELMAX) THEN 
+              IF(ERRORADJ ==1.AND.ABS(LEVEL)<LEVELMAX) THEN 
                 CALL ANCMSG(MSGID=1023,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO,
@@ -471,7 +462,7 @@ C
      .                  I5=ID)
               END IF
 C
-              IF(LEVEL.LT.-LEVELMAX-1.OR.LEVEL.GT.LEVELMAX)THEN
+              IF(LEVEL<-LEVELMAX-1.OR.LEVEL>LEVELMAX)THEN
             CALL ANCMSG(MSGID=657,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO,
@@ -495,8 +486,5 @@ C
       DEALLOCATE(LIST)
       DEALLOCATE(INDEXL)
 
-      RETURN
-C-------------------------------------
-  999 CALL FREERR(1)
       RETURN
       END

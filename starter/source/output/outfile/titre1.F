@@ -1,36 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C=======================================================================
 C
 C     SORTIE1.FOR
 C
 C=======================================================================
-Chd|====================================================================
-Chd|  TITRE1                        source/output/outfile/titre1.F
-Chd|-- called by -----------
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    titre1     ../starter/source/output/outfile/titre1.F
+!||--- called by ------------------------------------------------------
+!||    starter0   ../starter/source/starter/starter0.F
+!||====================================================================
       SUBROUTINE TITRE1
 C------------------------------------
 C     DEBUT => CONTROLS
@@ -70,7 +69,7 @@ C     CONTROL
 C------------------------------------
       TITRE(110)       ='    CONTROL  PARAMETERS'                                                  
       TITRE(111)       ='    -------------------'                                                  
-      TITRE(112)       = '    DTDES : TIME STEP FOR DRAWINGS  . . . . . . . . . . .'               
+      TITRE(112)       = '' ! no longer used
       TITRE(113)       = '    DTHIS : TIME STEP FOR TIME HISTORIES  . . . . . . . .'               
       TITRE(114)       = '    DTINI : INITIAL TIME STEP . . . . . . . . . . . . . .'               
       TITRE(115)       = '    DTFAC : TIME STEP SCALE FACTOR  . . . . . . . . . . .'               
@@ -113,7 +112,7 @@ C------------------------------------
       TITRE(151)       = '    NFXVEL: NUMBER OF FIXED VELOCITIES. . . . . . . . . .'               
       TITRE(152)       = '    NRIVET: NUMBER OF RIVETS OR SPOT WELDS. . . . . . . .'               
       TITRE(153)       = '    NSECT : NUMBER OF SECTIONS SAVED (TIME HISTORY PLOTS)'               
-      TITRE(154)       = '                                                         ' !obsloete option removed        
+      TITRE(154)       = '                                                         ' !obsolete option removed        
       TITRE(155)       = '    NJOINT: NUMBER OF JOINTS. . . . . . . . . . . . . . .'               
       TITRE(156)       = '    NSNOD: NUMBER OF NODES SAVED (TIME HISTORY PLOTS) . .'               
       TITRE(157)       = '    NSELQ: NUMBER OF QUAD   ELEMENTS SAVED. . . . . . . .'               

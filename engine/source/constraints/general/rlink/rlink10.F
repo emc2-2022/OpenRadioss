@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RLINK10                       source/constraints/general/rlink/rlink10.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        RLINK1                        source/constraints/general/rlink/rlink1.F
-Chd|        RLINK2                        source/constraints/general/rlink/rlink2.F
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rlink10         ../engine/source/constraints/general/rlink/rlink10.F
+!||--- called by ------------------------------------------------------
+!||    resol           ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    rlink1          ../engine/source/constraints/general/rlink/rlink1.F
+!||    rlink2          ../engine/source/constraints/general/rlink/rlink2.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||====================================================================
       SUBROUTINE RLINK10(
      1   MS    ,IN    ,A     ,AR   ,V    ,
      2   VR    ,NLINK ,LLINK ,SKEW ,FR_RL,
@@ -42,10 +42,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -60,7 +58,7 @@ C-----------------------------------------------
       INTEGER K, K1, N, ISK, I, KIND(NRLINK)
 C-----------------------------------------------
 C
-C Pre calcul index
+C Pre-computation of index
 C
           K = 1
           DO I = 1, NRLINK
@@ -70,13 +68,13 @@ C
 C
           K1=1
 
-C boucle parallele sur les threads SMP
+C parallel loop over SMP threads
 !$OMP DO SCHEDULE(DYNAMIC,1)
           DO N=1,NRLINK
             K1=4*N-3
             K = KIND(N)
             ISK=NLINK(K1+3)
-            IF(ISK.EQ.1)THEN
+            IF(ISK==1)THEN
               CALL RLINK1(
      1          MS         ,IN         ,A       ,AR    ,NLINK(K1) ,
      2          NLINK(K1+1),NLINK(K1+2),LLINK(K),WEIGHT,FRL6(1,1,N),
@@ -93,18 +91,18 @@ C boucle parallele sur les threads SMP
           IF(NSPMD > 1) THEN
 !$OMP SINGLE
 
-C routine appelee rlink par rlink a optimiser si besoin
+C routine called rlink by rlink to be optimized if needed
 
             DO N=1,NRLINK
-C routine de calcul Parith/ON de A AR MS IN rigid link
-              IF(FR_RL(ISPMD+1,N).NE.0)
+C routine for Parith/ON computation of A AR MS IN rigid link
+              IF(FR_RL(ISPMD+1,N)/=0)
      +          CALL SPMD_EXCH_FR6(FR_RL(1,N),FRL6(1,1,N),15*6)
             END DO
 
 !$OMP END SINGLE
           END IF
 
-C boucle parallele sur les threads SMP
+C parallel loop over SMP threads
 !$OMP DO SCHEDULE(DYNAMIC,1)
           DO N=1,NRLINK
             K1=4*N-3
@@ -113,7 +111,7 @@ c            DO I=1,N-1
 c              K=K+NLINK(4*I-3)
 c            ENDDO
             ISK=NLINK(K1+3)
-            IF(ISK.EQ.1)THEN
+            IF(ISK==1)THEN
               CALL RLINK1(
      1          MS         ,IN         ,A       ,AR    ,NLINK(K1) ,
      2          NLINK(K1+1),NLINK(K1+2),LLINK(K),WEIGHT,FRL6(1,1,N),
@@ -129,16 +127,16 @@ c            ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RLINK11                       source/constraints/general/rlink/rlink10.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        RLINK1                        source/constraints/general/rlink/rlink1.F
-Chd|        RLINK2                        source/constraints/general/rlink/rlink2.F
-Chd|        RLINK3                        source/constraints/general/rlink/rlink10.F
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|====================================================================
+!||====================================================================
+!||    rlink11         ../engine/source/constraints/general/rlink/rlink10.F
+!||--- called by ------------------------------------------------------
+!||    resol           ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    rlink1          ../engine/source/constraints/general/rlink/rlink1.F
+!||    rlink2          ../engine/source/constraints/general/rlink/rlink2.F
+!||    rlink3          ../engine/source/constraints/general/rlink/rlink10.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||====================================================================
       SUBROUTINE RLINK11(
      1   MS    ,IN    ,A     ,AR    ,V     ,
      2   VR    ,NNLINK,LLLINK,SKEW  ,FR_LL ,
@@ -151,12 +149,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -170,10 +165,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, K1, N, ISK, I,IC,ICR, IPOL, KIND(NLINK)
+      INTEGER K, K1, N, ISK, I, IPOL, KIND(NLINK)
 C-----------------------------------------------
 C
-C Pre calcul index
+C Pre-computation of index
 C
           K = 1
           DO I = 1, NLINK
@@ -183,7 +178,7 @@ C
 C
           K1=1
 
-C boucle parallele sur les threads SMP
+C parallel loop over SMP threads
 !$OMP DO SCHEDULE(DYNAMIC,1)
           DO N=1,NLINK
 c            K = 1
@@ -194,12 +189,12 @@ c            ENDDO
             IPOL=NNLINK(6,N)
             K = KIND(N)
             IPOL=NNLINK(6,N)
-            IF(IPOL.EQ.1)THEN
+            IF(IPOL==1)THEN
                CALL RLINK3(
      1      MS       ,IN           ,X          ,A          ,AR         ,
      2      V        ,VR           ,NNLINK(1,N),NNLINK(3,N),NNLINK(4,N),
      3      LLLINK(K),XFRAME(1,ISK),WEIGHT     ,FRL6(1,1,N),1          )
-            ELSEIF(ISK.EQ.1)THEN
+            ELSEIF(ISK==1)THEN
                CALL RLINK1(
      1      MS         ,IN         ,A        ,AR     ,NNLINK(1,N),
      2      NNLINK(3,N),NNLINK(4,N),LLLINK(K),WEIGHT ,FRL6(1,1,N),
@@ -216,30 +211,30 @@ c            ENDDO
           IF(NSPMD > 1) THEN
 !$OMP SINGLE
 
-C routine appelee rlink par rlink a optimiser si besoin
+C routine called rlink by rlink to be optimized if needed
 
             DO N=1,NLINK
-C routine de calcul Parith/ON de A AR MS IN rigid link
-              IF(FR_LL(ISPMD+1,N).NE.0)
+C routine for Parith/ON computation of A AR MS IN rigid link
+              IF(FR_LL(ISPMD+1,N)/=0)
      +          CALL SPMD_EXCH_FR6(FR_LL(1,N),FRL6(1,1,N),15*6)
             END DO
 
 !$OMP END SINGLE
           END IF
 
-C boucle parallele sur les threads SMP
+C parallel loop over SMP threads
 !$OMP DO SCHEDULE(DYNAMIC,1)
           DO N=1,NLINK
             ISK=NNLINK(5,N)
             IPOL=NNLINK(6,N)
             K = KIND(N)
             IPOL=NNLINK(6,N)
-            IF(IPOL.EQ.1)THEN
+            IF(IPOL==1)THEN
                CALL RLINK3(
      1      MS       ,IN           ,X          ,A          ,AR         ,
      2      V        ,VR           ,NNLINK(1,N),NNLINK(3,N),NNLINK(4,N),
      3      LLLINK(K),XFRAME(1,ISK),WEIGHT     ,FRL6(1,1,N),2          )
-            ELSEIF(ISK.EQ.1)THEN
+            ELSEIF(ISK==1)THEN
               CALL RLINK1(
      1      MS         ,IN         ,A        ,AR     ,NNLINK(1,N),
      2      NNLINK(3,N),NNLINK(4,N),LLLINK(K),WEIGHT ,FRL6(1,1,N),
@@ -257,13 +252,13 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  RLINK3                        source/constraints/general/rlink/rlink10.F
-Chd|-- called by -----------
-Chd|        RLINK11                       source/constraints/general/rlink/rlink10.F
-Chd|-- calls ---------------
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+!||====================================================================
+!||    rlink3        ../engine/source/constraints/general/rlink/rlink10.F
+!||--- called by ------------------------------------------------------
+!||    rlink11       ../engine/source/constraints/general/rlink/rlink10.F
+!||--- calls      -----------------------------------------------------
+!||    sum_6_float   ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE RLINK3(MS ,IN    ,X     ,A    ,AR   ,
      2                  V  ,VR    ,NSN   ,IC   ,ICR  ,
      3                  NOD,XFRAME,WEIGHT,FRL6 ,IFLAG)
@@ -276,14 +271,11 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN, IC, ICR, IFLAG
       INTEGER NOD(*),WEIGHT(*)
-C     REAL
       my_real
      .   MS(*), IN(*), X(3,*), A(3,*), AR(3,*), V(3,*), VR(3,*),
      .   XFRAME(*)
@@ -291,13 +283,11 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IC1, ICC, IC2, IC3, I, N, K
-C     REAL
-      my_real
-     .   MASS, INER, AX, AY, AZ, VX, VY, VZ, DAX, DAY, DAZ, AAX, AAY,
-     .   AAZ, DVX, DVY, DVZ, VVX, VVY, VVZ, RX, RY, RZ, SX, SY, SZ,
-     .   TX, TY, TZ, OX, OY, OZ, AA, MR2,VTMR2,ATMR2,RX0, RY0, RZ0,R,
-     .   F1(NSN), F2(NSN), F3(NSN), F4(NSN), F5(NSN), F6(NSN), F7(NSN)
+      INTEGER :: IC1, ICC, IC2, IC3, I, N, K
+      my_real :: MASS, INER, AX, AY, AZ, VX, VY, VZ,
+     .           RX, RY, RZ, SX, SY, SZ,
+     .           TX, TY, TZ, OX, OY, OZ, AA, MR2,VTMR2,ATMR2,RX0, RY0, RZ0,R,
+     .           F1(NSN), F2(NSN), F3(NSN), F4(NSN), F5(NSN), F6(NSN), F7(NSN)
 C-----------------------------------------------
 C
       IF(IFLAG == 1)THEN
@@ -369,7 +359,7 @@ C-----------------------------------------------------------------------
         V(1,N) = RX * AX + RY * AY + RZ * AZ
         V(2,N) = SX * AX + SY * AY + SZ * AZ
         V(3,N) = (TX * AX + TY * AY + TZ * AZ) / R
-        IF(IRODDL.NE.0)THEN
+        IF(IRODDL/=0)THEN
           AX = AR(1,N)
           AY = AR(2,N)
           AZ = AR(3,N)
@@ -383,7 +373,7 @@ C-----------------------------------------------------------------------
           VR(2,N) = SX * AX + SY * AY + SZ * AZ
           VR(3,N) = TX * AX + TY * AY + TZ * AZ
         ENDIF
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F1(I) = R*R*MS(N)
           F2(I) = R*R*MS(N)*V(3,N)
           F3(I) = R*R*MS(N)*A(3,N)
@@ -397,16 +387,16 @@ c          ATMR2 = ATMR2 + R*R*MS(N)*A(3,N)
         ENDIF
        ENDDO
 C
-       IF(IC.NE.0)THEN
+       IF(IC/=0)THEN
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
         CALL SUM_6_FLOAT(1  ,NSN  ,F1, FRL6(1,1), 15)
         CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1), 15)
         CALL SUM_6_FLOAT(1  ,NSN  ,F3, FRL6(3,1), 15)
        
 C-----------------------------------------------------------------------
-C       masse quantite de mouvement
+C       mass momentum
 C-----------------------------------------------------------------------
         AX  =ZERO
         AY  =ZERO
@@ -415,7 +405,7 @@ C-----------------------------------------------------------------------
         MASS=ZERO
         DO I=1,NSN
           N = NOD(I)
-          IF(WEIGHT(N).EQ.1) THEN
+          IF(WEIGHT(N)==1) THEN
             F1(I)=MS(N)
             F2(I)=MS(N)*A(1,N)
             F3(I)=MS(N)*A(2,N)
@@ -430,7 +420,7 @@ C-----------------------------------------------------------------------
           ENDIF
         ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
         CALL SUM_6_FLOAT(1  ,NSN  ,F1, FRL6(4,1), 15)
         CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(5,1), 15)
@@ -439,11 +429,11 @@ C
         CALL SUM_6_FLOAT(1  ,NSN  ,F5, FRL6(8,1), 15)
        ENDIF
 C-----------------------------------------------------------------------
-C     DDL de rotation
+C     rotational DOF
 C-----------------------------------------------------------------------
-       IF(IRODDL.NE.0.AND.ICR.NE.0)THEN
+       IF(IRODDL/=0.AND.ICR/=0)THEN
 C-----------------------------------------------------------------------
-C       inertie quantite de mouvement
+C       inertia momentum
 C-----------------------------------------------------------------------
 c        AX  =ZERO
 c        AY  =ZERO
@@ -455,7 +445,7 @@ c        INER=ZERO
 C
         DO I=1,NSN
           N = NOD(I)
-          IF(WEIGHT(N).EQ.1) THEN
+          IF(WEIGHT(N)==1) THEN
             F1(I)=IN(N)
             F2(I)=IN(N)*AR(1,N)
             F3(I)=IN(N)*AR(2,N)
@@ -467,7 +457,7 @@ C
         ENDDO
 C
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
         CALL SUM_6_FLOAT(1  ,NSN  ,F1, FRL6(9,1), 15)
         CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(10,1), 15)
@@ -490,7 +480,7 @@ C
        OY = XFRAME(11)
        OZ = XFRAME(12)
 C
-       IF(IC.NE.0)THEN
+       IF(IC/=0)THEN
          IC1=IC/4
          ICC=IC-4*IC1
          IC2=ICC/2
@@ -535,9 +525,9 @@ C
          ENDDO
        END IF
 C-----------------------------------------------------------------------
-C     DDL de rotation
+C     rotational DOF
 C-----------------------------------------------------------------------
-       IF(IRODDL.NE.0.AND.ICR.NE.0)THEN
+       IF(IRODDL/=0.AND.ICR/=0)THEN
          IC1=ICR/4
          ICC=ICR-4*IC1
          IC2=ICC/2
@@ -557,7 +547,7 @@ C
      +         FRL6(14,4)+FRL6(14,5)+FRL6(14,6)
          VZ  = FRL6(15,1)+FRL6(15,2)+FRL6(15,3)+
      +         FRL6(15,4)+FRL6(15,5)+FRL6(15,6)
-         IF(INER.NE.ZERO)THEN
+         IF(INER/=ZERO)THEN
            AX=AX/INER
            AY=AY/INER
            AZ=AZ/INER
@@ -615,7 +605,7 @@ C-----------------------------------------------------------------------
         V(1,N) = AX
         V(2,N) = AY
         V(3,N) = AZ
-        IF(IRODDL.NE.0)THEN
+        IF(IRODDL/=0)THEN
           AX = RX * AR(1,N) + SX * AR(2,N) + TX * AR(3,N)
           AY = RY * AR(1,N) + SY * AR(2,N) + TY * AR(3,N)
           AZ = RZ * AR(1,N) + SZ * AR(2,N) + TZ * AR(3,N)

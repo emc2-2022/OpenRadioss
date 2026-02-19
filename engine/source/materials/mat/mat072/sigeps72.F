@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C  --New-- Hill model + MMC failure model
-Chd|====================================================================
-Chd|  SIGEPS72                      source/materials/mat/mat072/sigeps72.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sigeps72   ../engine/source/materials/mat/mat072/sigeps72.F
+!||--- called by ------------------------------------------------------
+!||    mulaw      ../engine/source/materials/mat_share/mulaw.F90
+!||====================================================================
       SUBROUTINE SIGEPS72(
      1     NEL      ,NUPARAM  ,NUVAR    ,
      2     TIME     ,TIMESTEP ,UPARAM   ,RHO0     ,RHO      ,
@@ -45,16 +44,12 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C---------+---------+---+---+--------------------------------------------
-#include      "param_c.inc"
-#include      "parit_c.inc"
 #include      "scr17_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com08_c.inc"
 #include      "units_c.inc"
-#include      "impl1_c.inc"
 C
-      INTEGER NEL,NUPARAM,NUVAR,IPT,NGL(NEL),INLOC
+      INTEGER NEL,NUPARAM,NUVAR,NGL(NEL),INLOC
       my_real
      .   TIME,TIMESTEP,UPARAM(NUPARAM),
      .   RHO(NEL),RHO0(NEL),
@@ -105,9 +100,9 @@ C-----------------------------------------------
       A1      = UPARAM(7)   ! Diag. component of 3D elastic matrix
       A2      = UPARAM(8)   ! Non-diag. component of 3D elastic matrix
       BULK    = UPARAM(9)   ! Bulk modulus
-      LAMHOOK = UPARAM(10)  ! Hooke's lamba coefficient
+      LAMHOOK = UPARAM(10)  ! Hooke's lambda coefficient
       ! Hardening parameter
-      SIGY    = UPARAM(11)  ! Initial yield stress 
+      SIGY    = UPARAM(11)  ! Initial yield stress
       EPS0    = UPARAM(12)  ! Initial plastic strain (> 0)
       NEXPO   = UPARAM(13)  ! Hardening exponent
       ! Hill yield criterion parameters
@@ -225,12 +220,12 @@ c
           ! the consistency condition using the backward Euler implicit method
           ! with a Newton-Raphson iterative procedure
           ! Its expression at each iteration is : DLAMBDA = - PHI/DPHI_DLAMBDA
-	  ! -> PHI          : current value of yield function (known)
+            ! -> PHI          : current value of yield function (known)
           ! -> DPHI_DLAMBDA : derivative of PHI with respect to DLAMBDA by taking
           !                   into account of internal variables kinetic : 
           !                   plasticity, temperature and damage (to compute)
 c        
-	  ! 1 - Computation of DPHI_DSIG the normal to the yield surface
+            ! 1 - Computation of DPHI_DSIG the normal to the yield surface
           !------------------------------------------------------------- 
           
           NORMXX = (GG*(SIGNXX(I)-SIGNZZ(I)) + HH*(SIGNXX(I)-SIGNYY(I)))/(MAX(SIGHL(I),EM20))
@@ -243,7 +238,7 @@ c
           ! 2 - Computation of DPHI_DLAMBDA
           !---------------------------------------------------------
 c        
-          !   a) Derivative with respect stress increments tensor DSIG			
+          !   a) Derivative with respect stress increments tensor DSIG
           !   --------------------------------------------------------
           DFDSIG2 = NORMXX * NORMXX * G2
      .            + NORMYY * NORMYY * G2
@@ -252,7 +247,7 @@ c
      .            + NORMYZ * NORMYZ * G
      .            + NORMZX * NORMZX * G  
 c
-          !   b) Derivatives with respect to plastic strain P 			
+          !   b) Derivatives with respect to plastic strain P 
           !   ------------------------------------------------  
 c          
           !     i) Derivative of the yield stress with respect to plastic strain dYLD / dPLA
@@ -368,7 +363,6 @@ C
           IF (DAM(I) >= DC) THEN
             DAM(I) = DC
             OFF(I) = FOUR_OVER_5
-            IDEL7NOK = 1
             NINDX = NINDX+1
             INDX(NINDX)=I
           ENDIF  
@@ -383,11 +377,15 @@ C
         ! Sound-speed
         SOUNDSP(I) = SQRT((BULK + FOUR_OVER_3*G)/RHO0(I)) 
         ! Coefficient for hourglass
-        ETSE(I)    = H(I) / (H(I) + E)
+        IF (DPLA(I) > ZERO) THEN 
+          ETSE(I)  = H(I) / (H(I) + E)
+        ELSE
+          ETSE(I)  = ONE
+        ENDIF
       ENDDO 
 C
       ! Printout element deletion
-      IF(NINDX.GT.0)THEN
+      IF(NINDX>0)THEN
         DO J=1,NINDX
 #include "lockon.inc"
           WRITE(IOUT, 1000) NGL(INDX(J))

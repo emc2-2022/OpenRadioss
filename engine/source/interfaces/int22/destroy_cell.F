@@ -1,52 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DESTROY_CELL                  source/interfaces/int22/destroy_cell.F
-Chd|-- called by -----------
-Chd|        SINIT22_FVM                   source/interfaces/int22/sinit22_fvm.F
-Chd|-- calls ---------------
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    destroy_cell     ../engine/source/interfaces/int22/destroy_cell.F
+!||--- called by ------------------------------------------------------
+!||    sinit22_fvm      ../engine/source/interfaces/int22/sinit22_fvm.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
       SUBROUTINE DESTROY_CELL(NIN,IB,ICELL_TARGET,ICELLv,IBv,J,Jv, IXS, ITASK)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C----------------------------------------------- 
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C Destroy a cell ICELL_target for a given cut 
 C cell IB in the cut cell buffer.
 C When a Cell is destroyed from the list , Cell
 C list is updated taken into account : Volume, 
-C Faces, and Ajdacent Cell data
+C Faces, and adjacent cell data
 C What needs to be update in cut cell buffer :
 C      TYPE BRICK_ENTITY 
-C        INTEGER                         :: NBCUT                   !nombre de plans de coupe
+C        INTEGER                         :: NBCUT                   !number of cutting planes
 C        INTEGER                         :: SECID_Cell(8)           !cut local id in [1,8] -> [1,52] = sec type. Each possible cut is numbered from 1 to 52 ; 8 nodes => 8 possible cut cells
 C        INTEGER                         :: WhichCell_Node(8)       !node local id in[1,8] -> [1,8] = local cut cell id.
-C        INTEGER                         :: %POLY()%NumNOD(9)          !noeuds sommets
-C        INTEGER                         :: %POLY()%NumPOINT        !nombre total de point decrivant le volume
+C        INTEGER                         :: %POLY()%NumNOD(9)          !vertex nodes
+C        Integer :: %Poly () %Numpoint! Total number of points describing the volume
 C        INTEGER                         :: %POLY()%FACE()%NumPOINT      !gives number of points (node+intersec.pts) on a given cell face        
 C        INTEGER                         :: Adjacent_Cell(6,9,5)    !index3: IADJ (adjacent cell id 1:%NAdjCell)
 C        INTEGER                         :: NAdjCell(9,6)           !Number of adjacent cell for a given cell 1:9 and a given face 1:6
@@ -65,15 +66,11 @@ C   M o d u l e s
 C----------------------------------------------- 
       USE I22BUFBRIC_MOD 
       USE I22TRI_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -100,7 +97,7 @@ C-----------------------------------------------
         endif
         endif
         
-        IF(NCELL.EQ.0 .OR. (NBCUT>1.AND.ICELL_TARGET==9) )THEN
+        IF(NCELL==0 .OR. (NBCUT>1.AND.ICELL_TARGET==9) )THEN
           print *, "**error inter22 : unexpected situation, elem id=", IXS(11,ID)
         ENDIF        
         
@@ -239,7 +236,7 @@ c          ENDIF
                                                   
           BRICK_LIST(NIN,IB)%SECTYPE(1)               = 'REMOVED 0-CELL' 
           
-  !optim : no time to optim, will be treated later, meanwhile a second pass is done in sinit22.F
+!optim : no time to optim, will be treated later, meanwhile a second pass is done in sinit22.F
 c           !---UPDATING ADJACENT CELL   
 c          !adjacent brick
 c          NAdjv = BRICK_LIST(NIN,IBv)%POLY(ICELLv)%FACE(Jv)%NAdjCell                                                       
@@ -254,8 +251,8 @@ c          bFOUND = .FALSE.
 c          DO IADJ=1,NADJ
 c            IF (BRICK_LIST(NIN,IBv)%POLY(1)%FACE(J)%Adjacent_Cell(IADJ)/=ICELL_TARGET) EXIT
 c          ENDDO  
-c          IF(IADJ.LE.NADJ)THEN
-c          !traiter ici l'adjacence en 3D : boucler sur toutes les voisines de toutes les faces, si = 1ou 9 selon ICELL_TARGET, mettre   jour
+c          IF(IADJ<=NADJ)THEN
+c          ! Treat the adjacency in 3D here: to complete on all the neighbors of all the faces, if = 1 or according to Icell_target, update
 c          a
 c            BRICK_LIST(NIN,IB)%POLY(1)%FACE(J)%Adjacent_Cell(IADJ) = ICELLv
 c          ENDIF
@@ -278,7 +275,7 @@ c          ENDIF
           !---STEP 1
           ICELL = ICELL_TARGET - 1
           !---STEP 2
-          DO WHILE (ICELL.LE.NCELL) ! loop on polyhedron {1:NCELL} \ {9}
+          DO WHILE (ICELL<=NCELL) ! loop on polyhedron {1:NCELL} \ {9}
             ICELL = ICELL +1
             IF (ICELL>=NCELL)EXIT
             BRICK_LIST(NIN,IB)%SECID_Cell(ICELL)                        = BRICK_LIST(NIN,IB)%SECID_Cell(ICELL+1)                                         

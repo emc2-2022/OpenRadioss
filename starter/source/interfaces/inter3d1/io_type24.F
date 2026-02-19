@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  IO_TYPE24                     source/interfaces/inter3d1/io_type24.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        IO_IARRAY                     source/interfaces/inter3d1/io_type24.F
-Chd|        IO_RARRAY                     source/interfaces/inter3d1/io_type24.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    io_type24   ../starter/source/interfaces/inter3d1/io_type24.F
+!||--- calls      -----------------------------------------------------
+!||    io_iarray   ../starter/source/interfaces/inter3d1/io_type24.F
+!||    io_rarray   ../starter/source/interfaces/inter3d1/io_type24.F
+!||====================================================================
       SUBROUTINE IO_TYPE24(IDO,IOUT,
      .                     IGAP, 
      .                     IPEN0,   
@@ -92,17 +91,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -332,11 +320,9 @@ c     WRITE(6,*) " RWA       ";CALL IO_RARRAY (RWA      ,SIZ_RWA      ,IOUT ,FLA
 
       RETURN
       END
-Chd|====================================================================
-Chd|  IO_INT                        source/interfaces/inter3d1/io_type24.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    io_int   ../starter/source/interfaces/inter3d1/io_type24.F
+!||====================================================================
       SUBROUTINE IO_INT(SCALAR,IOUT,FLAG)
 C============================================================================
 C-----------------------------------------------
@@ -347,12 +333,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 
       INTEGER, INTENT(IN)   :: IOUT
       INTEGER, INTENT(INOUT):: SCALAR
@@ -376,12 +358,11 @@ c     CALL FLUSH(700)
       RETURN
       END
 
-Chd|====================================================================
-Chd|  IO_IARRAY                     source/interfaces/inter3d1/io_type24.F
-Chd|-- called by -----------
-Chd|        IO_TYPE24                     source/interfaces/inter3d1/io_type24.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    io_iarray   ../starter/source/interfaces/inter3d1/io_type24.F
+!||--- called by ------------------------------------------------------
+!||    io_type24   ../starter/source/interfaces/inter3d1/io_type24.F
+!||====================================================================
       SUBROUTINE IO_IARRAY(ARRAY,LENGTH,IOUT,FLAG)
 C============================================================================
 C-----------------------------------------------
@@ -392,12 +373,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 
       INTEGER, INTENT(IN)   :: LENGTH,IOUT
       INTEGER, INTENT(INOUT):: ARRAY(LENGTH)
@@ -424,12 +401,11 @@ c          WRITE(6,*) I,ARRAY(I)
       RETURN
       END
 C============================================================================
-Chd|====================================================================
-Chd|  IO_RARRAY                     source/interfaces/inter3d1/io_type24.F
-Chd|-- called by -----------
-Chd|        IO_TYPE24                     source/interfaces/inter3d1/io_type24.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    io_rarray   ../starter/source/interfaces/inter3d1/io_type24.F
+!||--- called by ------------------------------------------------------
+!||    io_type24   ../starter/source/interfaces/inter3d1/io_type24.F
+!||====================================================================
       SUBROUTINE IO_RARRAY(ARRAY,LENGTH,IOUT,FLAG)
 C-----------------------------------------------
 C   M o d u l e s
@@ -439,12 +415,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 
       INTEGER, INTENT(IN)   :: LENGTH,IOUT
       my_real, INTENT(INOUT):: ARRAY(LENGTH)

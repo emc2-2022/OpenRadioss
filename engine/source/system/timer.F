@@ -1,65 +1,59 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PRINT_SUMMARY                 source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTIME                      source/system/timer.F         
-Chd|-- calls ---------------
-Chd|        PRINT_BLOCK                   source/system/timer.F         
-Chd|====================================================================
-      SUBROUTINE PRINT_SUMMARY(FLAG,NTIMAX,TABTIME,TITLES,OUT_ID) 
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    print_summary   ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printime        ../engine/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||    print_block     ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    timer_mod       ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE PRINT_SUMMARY(FLAG,NTIMAX,TABTIME,TITLES,OUT_ID,ITHERM)
+        use timer_mod , only : timer_ale_elm
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "macro.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "couple_c.inc"
 #include      "impl1_c.inc"
 #include      "remesh_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr18_c.inc"
-#include      "alefvm.inc"
 #include      "sms_c.inc"
 #include      "sphcom.inc"
 #include      "task_c.inc"
-#include      "warn_c.inc"
-#include      "filescount_c.inc"
 #include        "timeri_c.inc"
-C#include        "timerr_c.inc"
 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
         INTEGER, INTENT(IN) :: FLAG ! 1 : No MIN/MAX block 
                                     ! 2 : Min/Max block
+        INTEGER, INTENT(IN) :: ITHERM
         INTEGER, INTENT(IN) :: OUT_ID ! file descriptor
         INTEGER, INTENT(IN) :: NTIMAX ! max number of timer
         CHARACTER(LEN=9), INTENT(INOUT) :: TITLES(NTIMAX) ! number of columns
@@ -70,16 +64,16 @@ C-----------------------------------------------
         INTEGER :: NF,NFIELDS,FIELDS(NTIMAX) 
         INTEGER I,J
         REAL :: TOTAL
-        REAL ::  ZEROS = 0.0 
+        REAL :: ZEROS = 0.0
 
-        IF (IMPL_S.EQ.1) THEN
+        IF (IMPL_S==1) THEN
          NFIELDS = 4
          FIELDS(1) = 31 ; FIELDS(2) = 32 ; FIELDS(3) = 33 ; FIELDS(4) = 34
          CALL PRINT_BLOCK("** IMPLICIT  **",TABTIME,NTIMAX,
      .                      FLAG,OUT_ID,NFIELDS,FIELDS,TITLES)
         ENDIF
 C
-c       IF(IMONM .GE. 1)THEN
+c       IF(IMONM >= 1)THEN
          NF = 1
          IF(NINTER > 0) THEN
            FIELDS(NF) = MACRO_TIMER_CONTSORT
@@ -109,7 +103,7 @@ c       IF(IMONM .GE. 1)THEN
      .                      FLAG,OUT_ID,NFIELDS,FIELDS,TITLES)
 
 
-        IF(NADMESH.NE.0)THEN
+        IF(NADMESH/=0)THEN
          NFIELDS = 3
          FIELDS(1) = 36 ; FIELDS(2) = 37 ; FIELDS(3) = 38 
          CALL PRINT_BLOCK("** ADAPTIVE MESH TIME  **",TABTIME,NTIMAX,
@@ -139,7 +133,7 @@ c       IF(IMONM .GE. 1)THEN
      .                     FLAG,OUT_ID,NFIELDS,FIELDS,TITLES)
         ENDIF ! SPMD
 C
-        IF (IMONM.GE.1) THEN
+        IF (IMONM>=1) THEN
           IF(IDTMINS/=0.OR.IDTMINS_INT/=0)THEN
             FIELDS(1)  =61 ; TITLES(61) = 'PCG' 
             FIELDS(2)  =62 ; TITLES(62) = 'PARITF' 
@@ -170,11 +164,11 @@ C
           END IF
 C
           DO I = 1, NSPMD
-           TABTIME(MACRO_TIMER_TMP1,I) = MAX(ZERO,TABTIME(8,I)-TABTIME(20,I)
+           TABTIME(MACRO_TIMER_TMP1,I) = MAX(0.0,TABTIME(8,I)-TABTIME(20,I)
      .                                            -TABTIME(29,I)
      .                                            -TABTIME(76,I),
      .                                            +TABTIME(77,I))
-           TABTIME(MACRO_TIMER_TMP2,I) = MAX(ZERO,TABTIME(8,I)+
+           TABTIME(MACRO_TIMER_TMP2,I) = MAX(0.0,TABTIME(8,I)+
      .                               TABTIME(19,I)+TABTIME(3,I)
      .                              -TABTIME(29,I)-TABTIME(76,I))
 
@@ -254,13 +248,14 @@ C
           CALL PRINT_BLOCK(" ",TABTIME,NTIMAX,
      .                      FLAG,OUT_ID,NFIELDS,FIELDS,TITLES)
 
-          IF(IALE+IEULER+ITHERM.NE.0) THEN
+          IF(IALE+IEULER+ITHERM/=0) THEN
             FIELDS(1) = MACRO_TIMER_ALEMAIN                           
             FIELDS(2) = MACRO_TIMER_IFSUB0                           
             FIELDS(3) = MACRO_TIMER_MULTIFVM                           
             FIELDS(4) = MACRO_TIMER_SPMDCFD                           
             FIELDS(5) = MACRO_TIMER_MUSCL
-            NFIELDS = 5
+            fields(6) = timer_ale_elm
+            NFIELDS = 6
             CALL PRINT_BLOCK("** ALE TIME **",TABTIME,NTIMAX,
      .                      FLAG,OUT_ID,NFIELDS,FIELDS,TITLES)
 
@@ -375,10 +370,10 @@ C /INTER/TYPE25 25
             FIELDS(1 )=MACRO_TIMER_GENH3D ; TITLES(FIELDS(1 ))= 'TOTAL'         
             FIELDS(2 )=MACRO_TIMER_SPMDH3D; TITLES(FIELDS(2 ))= 'SPMD'      
             FIELDS(3 )=MACRO_TIMER_LIBH3D ; TITLES(FIELDS(3 ))= 'H3DLIB'       
-c           FIELDS(4 )=MACRO_TIMER_GENH3D1; TITLES(FIELDS(4 ))= 'SOLID'      
+            FIELDS(4 )=MACRO_TIMER_GENH3D1; TITLES(FIELDS(4 ))= 'GPSTMAX'      
 c           FIELDS(5 )=MACRO_TIMER_GENH3D2; TITLES(FIELDS(5 ))= 'WRITE'       
 
-            NFIELDS = 3
+            NFIELDS = 4
 
             CALL PRINT_BLOCK("** H3D ANIMATIONS **",TABTIME,NTIMAX,
      .                      FLAG,OUT_ID,NFIELDS,FIELDS,TITLES)
@@ -405,27 +400,22 @@ C
       END SUBROUTINE
 
 
-Chd|====================================================================
-Chd|  PRINT_BLOCK                   source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINT_SUMMARY                 source/system/timer.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    print_block     ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    print_summary   ../engine/source/system/timer.F
+!||====================================================================
       SUBROUTINE PRINT_BLOCK(TITLE_PART,TABTIME,NTIMAX,
      . FLAG,OUT_ID,NFIELDS,FIELDS,TITLES)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "macro.inc"
 #include      "com01_c.inc"
 #include      "task_c.inc"
-C#include      "timerr_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -442,7 +432,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-        CHARACTER(LEN=22) :: FORMAT1="(1x,A4,1x,15(1x,E9.4))"
+        CHARACTER(LEN=22) :: FORMAT1="(1x, A4, 1x, 15(1x, E9.4))"
         CHARACTER(LEN=22) :: FORMAT2="(1x,A5,1x,15(1x,A9))"
         CHARACTER(LEN=22) :: FORMAT3="(17x,A20)"
         CHARACTER(LEN=22) :: FORMAT4="(I4,2x,15(1x,E9.4))"
@@ -480,8 +470,8 @@ C-----------------------------------------------
           DO I = 1, NSPMD
             DO J = 1, NFIELDS
               AVG(J)=AVG(J)+TABTIME(FIELDS(J),I)
-              DMIN(J)=MIN(DMIN(J)  ,TABTIME(FIELDS(J),I))
-              DMAX(J)=MAX(DMAX(J)  ,TABTIME(FIELDS(J),I))
+              DMIN(J)=MIN(DMIN(J)  ,DBLE(TABTIME(FIELDS(J),I)))
+              DMAX(J)=MAX(DMAX(J)  ,DBLE(TABTIME(FIELDS(J),I)))
             END DO
           END DO
           DO I=1,NFIELDS
@@ -496,538 +486,55 @@ C-----------------------------------------------
         ENDIF
       END SUBROUTINE
 
-Chd|====================================================================
-Chd|  INITIME                       source/system/timer.F         
-Chd|-- called by -----------
-Chd|        RADIOSS2                      source/engine/radioss2.F      
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE INITIME()
-C     initialisation des timers
-C     timer                       signification
-C
-C     1                           resol
-C     2                           interfaces (total ou tri fop) [tri type 7, ALE]
-C     3                           elements
-C     4                           cond. cin.
-C     5                           integration
-C     6                           non parallel sur p0
-C     7                           IO
-C     8                           interfaces (forces fop) [i7opcd,i7dst3,i7for3,shooting nodes]
-C     9                           assemblage forces
-C    10                           echange forces spmd
-C    11                           echange rigid bodies forces
-C    12                           echange rigid bodies vitesses
-C    13                           echange vitesse spmd
-C    14                           -----
-C********* TIMERS 15 A 25 ACTIVE sur /DEBUG/CAND + /MON/ON ***************                        
-c    15                           interface i7buce_crit 
-C    16                           interface icomcrit (comm critere de tris)
-C    17                           interface i7main_tri (tri)
-C    18                           interface spmd_ifront     (maj frontieres)
-C    19                           interface i7optcd 
-C    20                           interface force i7for3
-C    21                           interface envoi force
-C    22                           interface reception force
-C    23                           interface envoi vitesse
-C    24                           interface reception vitesse
-C    25                           interface envoi XV tri (TRI7BOX)
-C    26                           interface maj cand tri (no comm, included in i7maindb)
-C    27                           interface tri mmx (comm only, included in spmd_i7crit)
-C    28                           interface tied type 2
-C    29                           interface shooting nodes
-C    30                           interface i7buce pure (sans comm)
-c    31                           [K] setup 
-C    32                           [M] setup
-C    33                           implicit solver
-C    34                           total implicit     
-C    35                           time spent in Material routines
-C    36                           adaptive meshing : criteria
-C    37                           adaptive meshing : kinematic conditions forces
-C    38                           adaptive meshing : kinematic conditions velocities
-C    39                           selective mass scaling
-C********* TIMERS 40 A 60 ACTIVE sur /DEBUG/CAND + /MON/ON ***************
-C    40                           cond cine rbodies + sensors + accelerometres 
-C    41                           cond cine concentrated load forces
-C    42                           cond cine boundary conditions
-C    43                           cond cine rlinks + rivets + cjoints + rwalls
-C    44                           cond cine fixvel + fixtemp
-C    45                           cond cine RBE3
-C    46                           cond cine gravity
-C    47                           task0 manctr
-C    48                           sph (total)
-C    49                           task0 geo+uwin+tfum+desacti
-C    50                           task0 airbag
-C    51                           task0 forints 
-C    52                           task0 damping
-C    53                           task0 DT2
-C    54                           task0 R2R
-C    55                           -----
-C    56                           synchro avant critere tri 
-C    57                           synchro apres critere tri 
-C    58                           synchro fin de tri 
-C    59                           synchro apres element+interf forces 
-C    60                           synchro fin cycle si cc a envoyer 
-C********* TIMERS 61 A 70 ACTIVE sur /MON/FULL ***************
-C    61                           AMS PCG  PCG       :: PCG sauf produits matrice-vecteur W=MV 
-C    62                           AMS PCG  PARIT F   :: calcul des normes et produits scalaires P/ON (sum_6_float)
-C    63                           AMS PCG  COMM R    :: comm. pour calcul des normes et produiys scalaires
-C    64                           AMS PCG  COMP M.V  :: calcul W=MV hors communications
-C    65                           AMS PCG  COMM VFI  :: COMM. ECHANGE VFI cf contacts
-C    66                           IMP PCG
-C    67                           IMP PCG
-C    68                           IMP PCG
-C    69                           IMP PCG
-C    70                           AMS EIGENVECTORS
-C******** 71 A 74 ACTIVE sur /MON/FULL ***********************
-C    71                           AMS EIGENVECTORS
-C    72                           AMS EIGENVECTORS
-C    73                           AMS EIGENVECTORS
-C    74                           AMS PCG  COMP MV/E :: calcul W=MV wrt matrice elementaire uniquement - inclus dans time(64)
-C    75                           AMS BUILD MATRIX
-C    76                           synchro fin de cycle comm shooting
-C
-C    75 - 86                      utilise, mais non decrit ..                          
-C
-C    80                           AMS PCG COMM M.V   :: COMM. pour ASSEMBLAGE de W=MV
-C
-C    87                           sph preparation (sorting, ...)
-C    88                           sph interactions (forintp)
-C    89                           sph others
-C******** 90 A 95 SPH************************************
-C    90                           SPH/SORT1 including 91
-C    91                           SPH/COMM.SORT1
-C    94                           SPH/SORT0 including 92
-C    92                           SPH/COMM.SORT0
-C    93                           SPH/COMM.FORCES
-C    95                           SPH/LOAD INBALANCE SORTING
-C******** 96 A 100 LIBRES ************************************
-C******** 106 /INTER/TYPE25 Specific  ************************
-C   106                           /INTER/TYPE25 Normals computation
-C   107                           Libre
-C   108                           Libre
-C   109                           Libre
-C********* 110-119  ALE ***************************
-C********* 120-122  H3D ANIM***********************
-C********  149-150  temporary *********************
 
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "macro.inc"
-#include      "task_c.inc"
-#include      "timerr_c.inc"
-      COMMON /ICLOCK/CLOCK0
-      INTEGER CLOCK0
-      COMMON /RCLOCK/ELAPSED
-      DOUBLE PRECISION ELAPSED
-#if _OPENMP
-      REAL(kind=8) OMP_get_wtime
-      external OMP_get_wtime
-#endif
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I, J
-C-----------------------------------------------
-      DO I =1, PARASIZ 
-        DO J = 1, NTIMAX 
-          CPUTIME(J,I) = ZERO
-          SYSTIME(J,I) = ZERO
-          REALTIME(J,I) = ZERO
-        ENDDO 
-      ENDDO
-      CALL SYSTEM_CLOCK(CLOCK0)   ! recuperation du temps de debut dans clock0
-      IF(CLOCK0 < 0 )  CALL SYSTEM_CLOCK(CLOCK0)   !In case of failure
-      ELAPSED = ZERO  ! initialisation a zero de l'elapsed time
-
-#if _OPENMP
-        OMP_STARTING_TIME = OMP_GET_WTIME( )
-#endif
-C
-      RETURN
-      END
-
-Chd|====================================================================
-Chd|  STARTIME                      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        ALEMAIN                       source/ale/alemain.F          
-Chd|        ALEWDX                        source/ale/grid/alewdx.F      
-Chd|        C3FORC3                       source/elements/sh3n/coque3n/c3forc3.F
-Chd|        C3FORC3_CRK                   source/elements/xfem/c3forc3_crk.F
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|        CMAIN3                        source/materials/mat_share/cmain3.F
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|        DYNA_INA                      source/implicit/imp_dyna.F    
-Chd|        DYNA_WEX                      source/implicit/imp_dyna.F    
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|        GENH3D                        source/output/h3d/h3d_results/genh3d.F
-Chd|        I10MAIN_TRI                   source/interfaces/intsort/i10main_tri.F
-Chd|        I11MAINF                      source/interfaces/int11/i11mainf.F
-Chd|        I11MAIN_TRI                   source/interfaces/intsort/i11main_tri.F
-Chd|        I17MAIN_TRI                   source/interfaces/int17/i17main_pena.F
-Chd|        I20MAINF                      source/interfaces/int20/i20mainf.F
-Chd|        I20MAIN_TRI                   source/interfaces/intsort/i20main_tri.F
-Chd|        I21MAINF                      source/interfaces/int21/i21mainf.F
-Chd|        I21MAIN_TRI                   source/interfaces/intsort/i21main_tri.F
-Chd|        I21OPTCD                      source/interfaces/int21/i21optcd.F
-Chd|        I22MAINF                      source/interfaces/int22/i22mainf.F
-Chd|        I22MAIN_TRI                   source/interfaces/intsort/i22main_tri.F
-Chd|        I23MAINF                      source/interfaces/int23/i23mainf.F
-Chd|        I23MAIN_TRI                   source/interfaces/intsort/i23main_tri.F
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|        I24MAIN_TRI                   source/interfaces/intsort/i24main_tri.F
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|        I25MAIN_FREE                  source/interfaces/intsort/i25main_free.F
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|        I7MAIN_TRI                    source/interfaces/intsort/i7main_tri.F
-Chd|        IG3DUFORC3                    source/elements/ige3d/ig3duforc3.F
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_K_EIG                     stub/imp_k_eig.F              
-Chd|        IMP_PCGH                      source/implicit/imp_pcg.F     
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|        INTCRIT                       source/interfaces/intsort/intcrit.F
-Chd|        INTER_SORT_07                 source/interfaces/int07/inter_sort_07.F
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|        LIN_SOLV                      source/implicit/lin_solv.F    
-Chd|        LIN_SOLVH1                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVHM                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVIH2                   source/implicit/lin_solv.F    
-Chd|        MAV_LTH                       source/implicit/produt_v.F    
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MMAIN8                        source/materials/mat_share/mmain8.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        MULTI_MUSCL_GRADIENTS         source/multifluid/multi_muscl_gradients.F
-Chd|        PREC_SOLVH                    source/implicit/prec_solv.F   
-Chd|        PRODUT_H                      source/implicit/produt_v.F    
-Chd|        PRODUT_HP                     source/implicit/produt_v.F    
-Chd|        RBYFOR                        source/constraints/general/rbody/rbyfor.F
-Chd|        RESOL                         source/engine/resol.F         
-Chd|        RMATFORP                      source/materials/mat/mat013/rmatforp.F
-Chd|        S10FORC3                      source/elements/solid/solide10/s10forc3.F
-Chd|        S4FORC3                       source/elements/solid/solide4/s4forc3.F
-Chd|        S8CFORC3                      source/elements/thickshell/solide8c/s8cforc3.F
-Chd|        S8EFORC3                      source/elements/solid/solide8e/s8eforc3.F
-Chd|        S8FORC3                       source/elements/solid/solide8/s8forc3.F
-Chd|        S8SFORC3                      source/elements/solid/solide8s/s8sforc3.F
-Chd|        S8ZFORC3                      source/elements/solid/solide8z/s8zforc3.F
-Chd|        SFORC3                        source/elements/solid/solide/sforc3.F
-Chd|        SMS_CHECK                     source/ams/sms_fsa_inv.F      
-Chd|        SMS_INIST                     source/ams/sms_proj.F         
-Chd|        SMS_INIX                      source/ams/sms_proj.F         
-Chd|        SMS_MASS_SCALE_2              source/ams/sms_mass_scale_2.F 
-Chd|        SMS_MAV_LT                    source/ams/sms_pcg.F          
-Chd|        SMS_MAV_LT1                   source/ams/sms_pcg.F          
-Chd|        SMS_MAV_LT2                   source/ams/sms_pcg.F          
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|        SMS_PRO_P                     source/ams/sms_proj.F         
-Chd|        SPHPREP                       source/elements/sph/sphprep.F 
-Chd|        SPHTRI0                       source/elements/sph/sphtri0.F 
-Chd|        SPMD_CELL_EXCHANGE            source/mpi/generic/spmd_cell_exchange.F
-Chd|        SPMD_E1VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_E4VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_E6VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_ENVOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_EVOIS                    source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_EXALEW                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_EXALEW_PON               source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_EXTAG                    source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_GLOB_DMIN9               source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_I4VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_I8VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_INIT_EBCS                source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_L11VOIS                  source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_L51VOIS                  source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_LAGBOUNDS_EXCH_I22       source/mpi/interfaces/spmd_lagbounds_exch_i22.F
-Chd|        SPMD_SEGCOM                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_TRI11VOX                 source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI18_151VOX             source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI20BOX                 source/mpi/interfaces/spmd_tri20box.F
-Chd|        SPMD_TRI22VOX                 source/mpi/interfaces/spmd_tri22vox.F
-Chd|        SPMD_TRI24VOX                 source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI25VOX                 source/mpi/interfaces/spmd_tri25vox.F
-Chd|        SPMD_TRI7VOX                  source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI7VOX_OPTIMIZED        source/mpi/interfaces/spmd_tri7vox_optimized.F
-Chd|        SPMD_WVOIS                    source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_XVOIS                    source/mpi/fluid/spmd_cfd.F   
-Chd|        SUSER43                       source/elements/solid/sconnect/suser43.F
-Chd|        SZFORC3                       source/elements/solid/solidez/szforc3.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|        MY_ETIME                      source/system/machine.F       
-Chd|====================================================================
-      SUBROUTINE STARTIME(EVENT,ITASK)
-C     routine d'incrementation du timer event
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "task_c.inc"
-#include      "timerr_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER EVENT,ITASK
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-#if _OPENMP
-       REAL(kind=8) OMP_GET_WTIME
-       external OMP_GET_WTIME
-#endif
-C
-C pour eviter erreur passage hybrid
-      CALL MY_ETIME(TIMER(1,EVENT,ITASK))
-#if _OPENMP
-      OMP_INITIME(EVENT,ITASK) = OMP_GET_WTIME( )
-#else
-      CALL SYSTEM_CLOCK(CLOCKINI(EVENT,ITASK))
-      IF(CLOCKINI(EVENT,ITASK)< 0 ) CALL SYSTEM_CLOCK(CLOCKINI(EVENT,ITASK))
-#endif
-
-
-      RETURN
-      END
-
-Chd|====================================================================
-Chd|  STOPTIME                      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        ALEMAIN                       source/ale/alemain.F          
-Chd|        ALEWDX                        source/ale/grid/alewdx.F      
-Chd|        C3FORC3                       source/elements/sh3n/coque3n/c3forc3.F
-Chd|        C3FORC3_CRK                   source/elements/xfem/c3forc3_crk.F
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|        CMAIN3                        source/materials/mat_share/cmain3.F
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|        DYNA_INA                      source/implicit/imp_dyna.F    
-Chd|        DYNA_WEX                      source/implicit/imp_dyna.F    
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|        GENH3D                        source/output/h3d/h3d_results/genh3d.F
-Chd|        I10MAIN_TRI                   source/interfaces/intsort/i10main_tri.F
-Chd|        I11MAINF                      source/interfaces/int11/i11mainf.F
-Chd|        I11MAIN_TRI                   source/interfaces/intsort/i11main_tri.F
-Chd|        I17MAIN_TRI                   source/interfaces/int17/i17main_pena.F
-Chd|        I20MAINF                      source/interfaces/int20/i20mainf.F
-Chd|        I20MAIN_TRI                   source/interfaces/intsort/i20main_tri.F
-Chd|        I21MAINF                      source/interfaces/int21/i21mainf.F
-Chd|        I21MAIN_TRI                   source/interfaces/intsort/i21main_tri.F
-Chd|        I22MAINF                      source/interfaces/int22/i22mainf.F
-Chd|        I22MAIN_TRI                   source/interfaces/intsort/i22main_tri.F
-Chd|        I23MAINF                      source/interfaces/int23/i23mainf.F
-Chd|        I23MAIN_TRI                   source/interfaces/intsort/i23main_tri.F
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|        I24MAIN_TRI                   source/interfaces/intsort/i24main_tri.F
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|        I25MAIN_FREE                  source/interfaces/intsort/i25main_free.F
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|        I7MAIN_TRI                    source/interfaces/intsort/i7main_tri.F
-Chd|        IG3DUFORC3                    source/elements/ige3d/ig3duforc3.F
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_K_EIG                     stub/imp_k_eig.F              
-Chd|        IMP_PCGH                      source/implicit/imp_pcg.F     
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|        INTCRIT                       source/interfaces/intsort/intcrit.F
-Chd|        INTER_SORT_07                 source/interfaces/int07/inter_sort_07.F
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|        LIN_SOLV                      source/implicit/lin_solv.F    
-Chd|        LIN_SOLVH1                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVHM                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVIH2                   source/implicit/lin_solv.F    
-Chd|        MAV_LTH                       source/implicit/produt_v.F    
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MMAIN8                        source/materials/mat_share/mmain8.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        MULTI_MUSCL_GRADIENTS         source/multifluid/multi_muscl_gradients.F
-Chd|        PREC_SOLVH                    source/implicit/prec_solv.F   
-Chd|        RBYFOR                        source/constraints/general/rbody/rbyfor.F
-Chd|        RESOL                         source/engine/resol.F         
-Chd|        RMATFORP                      source/materials/mat/mat013/rmatforp.F
-Chd|        S10FORC3                      source/elements/solid/solide10/s10forc3.F
-Chd|        S4FORC3                       source/elements/solid/solide4/s4forc3.F
-Chd|        S8CFORC3                      source/elements/thickshell/solide8c/s8cforc3.F
-Chd|        S8EFORC3                      source/elements/solid/solide8e/s8eforc3.F
-Chd|        S8FORC3                       source/elements/solid/solide8/s8forc3.F
-Chd|        S8SFORC3                      source/elements/solid/solide8s/s8sforc3.F
-Chd|        S8ZFORC3                      source/elements/solid/solide8z/s8zforc3.F
-Chd|        SFORC3                        source/elements/solid/solide/sforc3.F
-Chd|        SMS_CHECK                     source/ams/sms_fsa_inv.F      
-Chd|        SMS_INIST                     source/ams/sms_proj.F         
-Chd|        SMS_INIX                      source/ams/sms_proj.F         
-Chd|        SMS_MASS_SCALE_2              source/ams/sms_mass_scale_2.F 
-Chd|        SMS_MAV_LT                    source/ams/sms_pcg.F          
-Chd|        SMS_MAV_LT1                   source/ams/sms_pcg.F          
-Chd|        SMS_MAV_LT2                   source/ams/sms_pcg.F          
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|        SMS_PRO_P                     source/ams/sms_proj.F         
-Chd|        SPHPREP                       source/elements/sph/sphprep.F 
-Chd|        SPHTRI0                       source/elements/sph/sphtri0.F 
-Chd|        SPMD_CELL_EXCHANGE            source/mpi/generic/spmd_cell_exchange.F
-Chd|        SPMD_E1VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_E4VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_E6VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_ENVOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_EVOIS                    source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_EXALEW                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_EXALEW_PON               source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_EXTAG                    source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_GLOB_DMIN9               source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_I4VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_I8VOIS                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_INIT_EBCS                source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_L11VOIS                  source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_L51VOIS                  source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_LAGBOUNDS_EXCH_I22       source/mpi/interfaces/spmd_lagbounds_exch_i22.F
-Chd|        SPMD_SEGCOM                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_TRI18_151VOX             source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI20BOX                 source/mpi/interfaces/spmd_tri20box.F
-Chd|        SPMD_TRI22VOX                 source/mpi/interfaces/spmd_tri22vox.F
-Chd|        SPMD_TRI24VOX                 source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI25VOX                 source/mpi/interfaces/spmd_tri25vox.F
-Chd|        SPMD_TRI7VOX                  source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI7VOX_OPTIMIZED        source/mpi/interfaces/spmd_tri7vox_optimized.F
-Chd|        SPMD_WVOIS                    source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_XVOIS                    source/mpi/fluid/spmd_cfd.F   
-Chd|        SUSER43                       source/elements/solid/sconnect/suser43.F
-Chd|        SZFORC3                       source/elements/solid/solidez/szforc3.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|        MY_ETIME                      source/system/machine.F       
-Chd|====================================================================
-      SUBROUTINE STOPTIME(EVENT,ITASK)
-C     routine incrementation du timer event
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "task_c.inc"
-#include      "timerr_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER EVENT,ITASK
-C
-      INTEGER CLOCK1, CLOCKRATE, NBMAX
-      DOUBLE PRECISION  SECS
-      REAL(KIND=8) :: OMP_ENDING_TIME
-#if _OPENMP
-       REAL(kind=8) OMP_GET_WTIME
-       external OMP_GET_WTIME
-#endif
-C pour eviter erreur passage hybrid
-C
-      CALL MY_ETIME(TIMER(3,EVENT,ITASK))
-      CPUTIME(EVENT,ITASK) = CPUTIME(EVENT,ITASK) +
-     .                       TIMER(3,EVENT,ITASK)-TIMER(1,EVENT,ITASK)
-      SYSTIME(EVENT,ITASK) = SYSTIME(EVENT,ITASK) +
-     .                       TIMER(4,EVENT,ITASK)-TIMER(2,EVENT,ITASK)
-#if _OPENMP
-      OMP_ENDING_TIME = OMP_GET_WTIME( )
-      SECS = OMP_ENDING_TIME - OMP_INITIME(EVENT,ITASK)
-#else
-      CALL SYSTEM_CLOCK(COUNT=CLOCK1, COUNT_RATE=CLOCKRATE,
-     +                  COUNT_MAX=NBMAX                   )
-      IF(CLOCK1 < 0 ) THEN 
-      ! Retry in case of failure
-        CALL SYSTEM_CLOCK(COUNT=CLOCK1, COUNT_RATE=CLOCKRATE,
-     +                  COUNT_MAX=NBMAX                   )
-      ENDIF
-
-      SECS = CLOCK1-CLOCKINI(EVENT,ITASK)    ! diff temps courant - temps initial
-      IF(SECS.LT.ZERO) SECS = SECS + NBMAX   ! cas depassement nb de periode maximum
-      SECS = SECS/CLOCKRATE
-#endif
-
-      REALTIME(EVENT,ITASK)=REALTIME(EVENT,ITASK)+SECS
-C
-      RETURN
-      END
-
-Chd|====================================================================
-Chd|  PRINTIME                      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        CLOSE_C                       source/output/tools/sortie_c.c
-Chd|        CUR_FIL_C                     source/output/tools/sortie_c.c
-Chd|        ELAPSTIME                     source/system/timer.F         
-Chd|        FSEEK_END_C                   source/output/tools/sortie_c.c
-Chd|        GET_MEM_MAP_VAR               source/system/timer.F         
-Chd|        MAP_MEMORY                    ../common_source/comm/memory_use_c.c
-Chd|        OPEN_C                        source/output/tools/sortie_c.c
-Chd|        PRINT_SUMMARY                 source/system/timer.F         
-Chd|        RAD_SPMD_RECV                 source/mpi/generic/rad_spmd_recv.F
-Chd|        RAD_SPMD_SEND                 source/mpi/generic/rad_spmd_send.F
-Chd|        SPMD_GLOB_ISUM9               source/mpi/interfaces/spmd_th.F
-Chd|        WRITE_DPDB                    source/output/tools/write_db.F
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        TIME_MOD                      share/modules/time_mod.F      
-Chd|====================================================================
-      SUBROUTINE PRINTIME(ITASK)
-C     routine d'affichage des timers
+!||====================================================================
+!||    printime          ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    resol             ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    close_c           ../common_source/tools/input_output/write_routines.c
+!||    cur_fil_c         ../common_source/tools/input_output/write_routines.c
+!||    elapstime         ../engine/source/system/timer.F
+!||    fseek_end_c       ../common_source/tools/input_output/write_routines.c
+!||    get_mem_map_var   ../engine/source/system/timer.F
+!||    map_memory        ../common_source/comm/memory_use_c.c
+!||    open_c            ../common_source/tools/input_output/write_routines.c
+!||    print_summary     ../engine/source/system/timer.F
+!||    rad_spmd_recv     ../engine/source/mpi/generic/rad_spmd_recv.F
+!||    rad_spmd_send     ../engine/source/mpi/generic/rad_spmd_send.F
+!||    spmd_glob_isum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    write_dpdb        ../common_source/tools/input_output/write_db.F
+!||--- uses       -----------------------------------------------------
+!||    inoutfile_mod     ../common_source/modules/inoutfile_mod.F
+!||    output_mod        ../common_source/modules/output/output_mod.F90
+!||    time_mod          ../engine/share/modules/time_mod.F
+!||    timer_mod         ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE PRINTIME(T,ITHERM,OUTPUT)
+C     timers display routine
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE TIMER_MOD
       USE TIME_MOD
       USE INOUTFILE_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include        "com01_c.inc"
 #include        "com04_c.inc"
-#include        "couple_c.inc"
-#include        "impl1_c.inc"
-#include        "remesh_c.inc"
 #include        "scr05_c.inc"
-#include        "scr07_c.inc"
-#include        "scr18_c.inc"
-#include        "alefvm.inc"
 #include        "sms_c.inc"
-#include        "sphcom.inc"
 #include        "task_c.inc"
 #include        "timerc_c.inc"
 #include        "timeri_c.inc"
-#include        "timerr_c.inc"
+!#include        "timerr_c.inc"
 #include        "units_c.inc"
-#include        "warn_c.inc"
 #include        "filescount_c.inc"
       COMMON /ICLOCK/CLOCK0
       INTEGER CLOCK0
@@ -1036,23 +543,25 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ITASK
+      TYPE(TIMER_), INTENT(INOUT) :: T
+      INTEGER ,INTENT(IN) :: ITHERM
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, NPROC, MSGTAG, IRSIZE, J, IH, IM, IS
-      DOUBLE PRECISION  SECS, TOTAL, CUMUL(NTIMAX),
-     .        AVERAGE(NTIMAX), DEVIATION(NTIMAX),
-     .        DMIN(NTIMAX), DMAX(NTIMAX),CUMUL_MAT,CUMUL_ELEM,
+      DOUBLE PRECISION  SECS, TOTAL, CUMUL(MAX_NB_TIMER),
+     .        AVERAGE(MAX_NB_TIMER), DEVIATION(MAX_NB_TIMER),
+     .        DMIN(MAX_NB_TIMER), DMAX(MAX_NB_TIMER),CUMUL_MAT,CUMUL_ELEM,
      .        CUMUL_FAIL,ARRAY(NSPMD),X_MINVALUE,X_MAXVALUE,Y_MAXVALUE
       INTEGER MEMUSE(NSPMD),MEM_L,MMIN,MMAX,MTOT,MAVR,
      .        OUTSIZE,RFILESIZE,NB_INTERV
       INTEGER VMPEAK, VMSIZE,VMRSS,VMHWM, VMSTK,MEMSTAT(5,NSPMD),
      .        GOT_MEM_MAP
-      CHARACTER(LEN=9) TITLES(NTIMAX)
-      INTEGER FIELDS(11),NFIELDS
+      CHARACTER(LEN=9) TITLES(MAX_NB_TIMER)
+ 
       REAL ZEROS
-      INTEGER :: NF,IJK,IJKL,LEN_RST_NAME
+      INTEGER :: LEN_RST_NAME
       CHARACTER*8  DATE
       CHARACTER*10  TIME
       LOGICAL :: BOOL_FILE
@@ -1061,6 +570,11 @@ C-----------------------------------------------
       INTEGER :: LEN_TMP_NAME
       CHARACTER(len=4096) :: TMP_NAME
       INTEGER :: INDICE
+      INTEGER, PARAMETER :: INTSIZE = 4
+      REAL, DIMENSION(:,:), ALLOCATABLE :: CPUTIME
+      REAL, DIMENSION(:,:), ALLOCATABLE :: SYSTIME
+      REAL, DIMENSION(:,:), ALLOCATABLE :: REALTIME
+ 
 
       TITLES(MACRO_TIMER_RESOL      ) = "RESOL"
       TITLES(MACRO_TIMER_CONTSORT   ) = "CONTSORT"
@@ -1079,6 +593,7 @@ C-----------------------------------------------
       TITLES(MACRO_TIMER_MULTIFVM   ) = "MULTIFVM"
       TITLES(MACRO_TIMER_SPMDCFD    ) = "SPMDCFD"
       TITLES(MACRO_TIMER_MUSCL    ) = "MUSCL"
+      titles(timer_ale_elm) = "ALE_ELM"
 
       
       TITLES(31) = '[K]SETUP'
@@ -1090,7 +605,7 @@ C-----------------------------------------------
       TITLES(38) = 'VEL'
 C
       ZEROS=ZERO
-      IF (ICRAY.EQ.1) THEN
+      IF (ICRAY==1) THEN
         IRSIZE = 8
       ELSE
         IRSIZE = 4
@@ -1103,43 +618,64 @@ C
       VMSTK=-1
       CALL MAP_MEMORY(VMPEAK, VMSIZE,VMRSS,VMHWM, VMSTK)
       NPROC = NSPMD
-C nproc = nombre de domaines, toutes les taches SMP comptent pour un seul proc
+C nproc = number of domains, all SMP tasks count as one proc
 CC      NPROC = MAX(NTHREAD,NSPMD)
 CC smp nproc = ntask, spmd nproc = NSPMD
+
+      ALLOCATE(CPUTIME(MAX_NB_TIMER,NSPMD))
+      ALLOCATE(SYSTIME(MAX_NB_TIMER,NSPMD))
+      ALLOCATE(REALTIME(MAX_NB_TIMER,NSPMD))
+
+      DO I = 1, MAX_NB_TIMER
+       ! copy local timers 
+        CPUTIME(I,1) = T%CPUTIME(I)
+        SYSTIME(I,1) = T%SYSTIME(I)
+        REALTIME(I,1) = T%REALTIME(I)
+      ENDDO
+
+      MEMUSE(ISPMD+1)=VMPEAK
+      MEMSTAT(1,ISPMD+1) = VMPEAK
+      MEMSTAT(2,ISPMD+1) = VMSIZE
+      MEMSTAT(3,ISPMD+1) = VMRSS
+      MEMSTAT(4,ISPMD+1) = VMHWM
+      MEMSTAT(5,ISPMD+1) = VMSTK
+
+
+
       IF (NSPMD > 1) THEN
-C gather des cpu et sys time pour spmd
+C gather cpu and sys time for spmd
         MSGTAG = 1000
-        IF (ISPMD.NE.0) THEN
-          CALL RAD_SPMD_SEND(CPUTIME,NTIMAX*IRSIZE,0,IT_SPMD,
+        IF (ISPMD/=0) THEN
+          CALL RAD_SPMD_SEND(T%CPUTIME,MAX_NB_TIMER*IRSIZE,0,IT_SPMD,
      .                       MSGTAG+ISPMD+1,INTSIZE)
-          CALL RAD_SPMD_SEND(SYSTIME,NTIMAX*IRSIZE,0,IT_SPMD,
+          CALL RAD_SPMD_SEND(T%SYSTIME,MAX_NB_TIMER*IRSIZE,0,IT_SPMD,
      .                       MSGTAG+ISPMD+1,INTSIZE)
-          CALL RAD_SPMD_SEND(REALTIME,NTIMAX*IRSIZE,0,IT_SPMD,
+          CALL RAD_SPMD_SEND(T%REALTIME,MAX_NB_TIMER*IRSIZE,0,IT_SPMD,
      .                       MSGTAG+ISPMD+1,INTSIZE)
         ELSE
           DO I = 2, NSPMD
-            CALL RAD_SPMD_RECV(CPUTIME(1,I),NTIMAX*IRSIZE,I-1,IT_SPMD,
+            CALL RAD_SPMD_RECV(CPUTIME(1,I),MAX_NB_TIMER*IRSIZE,I-1,IT_SPMD,
      .                         MSGTAG+I,INTSIZE)
-            CALL RAD_SPMD_RECV(SYSTIME(1,I),NTIMAX*IRSIZE,I-1,IT_SPMD,
+            CALL RAD_SPMD_RECV(SYSTIME(1,I),MAX_NB_TIMER*IRSIZE,I-1,IT_SPMD,
      .                         MSGTAG+I,INTSIZE)
-            CALL RAD_SPMD_RECV(REALTIME(1,I),NTIMAX*IRSIZE,I-1,IT_SPMD,
+            CALL RAD_SPMD_RECV(REALTIME(1,I),MAX_NB_TIMER*IRSIZE,I-1,IT_SPMD,
      .                         MSGTAG+I,INTSIZE)
           ENDDO
         ENDIF
 
-C Gather de la m  moire utilis  e
+C Gather memory used
         MSGTAG = 1100
         MEMUSE=0
         MEM_L=0
 
-        MEMUSE(ISPMD+1)=VMPEAK
-        MEMSTAT(1,ISPMD+1) = VMPEAK
-        MEMSTAT(2,ISPMD+1) = VMSIZE
-        MEMSTAT(3,ISPMD+1) = VMRSS
-        MEMSTAT(4,ISPMD+1) = VMHWM
-        MEMSTAT(5,ISPMD+1) = VMSTK
+c       MEMUSE(ISPMD+1)=VMPEAK
+c       MEMSTAT(1,ISPMD+1) = VMPEAK
+c       MEMSTAT(2,ISPMD+1) = VMSIZE
+c       MEMSTAT(3,ISPMD+1) = VMRSS
+c       MEMSTAT(4,ISPMD+1) = VMHWM
+c       MEMSTAT(5,ISPMD+1) = VMSTK
 
-        IF (ISPMD.NE.0) THEN
+        IF (ISPMD/=0) THEN
           CALL RAD_SPMD_SEND( MEMUSE(ISPMD+1),1*IRSIZE,0,IT_SPMD,
      .                        MSGTAG+ISPMD+1,INTSIZE)
           CALL RAD_SPMD_SEND( VMSIZE,1*IRSIZE,0,IT_SPMD,
@@ -1192,7 +728,7 @@ C Gather de la m  moire utilis  e
         ENDIF
       ELSE
 C Monoproc run
-C Gestion de la m  moire utilisee
+C Management of used memory
         IF(VMHWM/=-1) THEN
             MEM_L = VMHWM
         ELSEIF(VMPEAK/=-1) THEN
@@ -1208,28 +744,28 @@ C Gestion de la m  moire utilisee
         MAVR = MEM_L
       ENDIF
 C
-C Gather de la taille des fichiers restart
+C Gather the size of restart files
       IF(NSPMD > 1)CALL SPMD_GLOB_ISUM9(RESTARTFILESIZE,1)
-C Gather taille des fichiers multiple restart
+C Gather Size of Multiple Restart files
       IF(NSPMD > 1)CALL SPMD_GLOB_ISUM9(MULTIRESTS,26)
 C
 
 
 C
-      IF (ISPMD.NE.0) RETURN
+      IF (ISPMD/=0) RETURN
 
       WRITE(ISTDO,*)' '
       WRITE(ISTDO,*)'                          ** CPU USER TIME **'
       WRITE(ISTDO,*)' '
 
-        CALL PRINT_SUMMARY(1,NTIMAX,CPUTIME,TITLES,ISTDO) 
+        CALL PRINT_SUMMARY(1,MAX_NB_TIMER,CPUTIME,TITLES,ISTDO,ITHERM) 
 
       WRITE(IOUT,*)' '
       WRITE(IOUT,*)'                          ** CPU USER TIME **'
       WRITE(IOUT,*)' '
 
         
-        CALL PRINT_SUMMARY(1,NTIMAX,CPUTIME,TITLES,IOUT) 
+        CALL PRINT_SUMMARY(1,MAX_NB_TIMER,CPUTIME,TITLES,IOUT,ITHERM) 
 
 
 
@@ -1275,11 +811,11 @@ C
 C---------------------------
 C Global timings
 C---------------------------
-      DO I = 1, NTIMAX
+      DO I = 1, MAX_NB_TIMER
         CUMUL(I) = ZERO
       END DO
       DO I = 1,NPROC
-        DO J = 1, NTIMAX
+        DO J = 1, MAX_NB_TIMER
          CUMUL(J) = CUMUL(J) + CPUTIME(J,I)
         ENDDO
       ENDDO
@@ -1317,7 +853,7 @@ C---------------------------
       WRITE(ISTDO,'(A,E9.4,3x,F6.2,A)')' AMS.........................: ',
      +  CUMUL(39),100*CUMUL(39)/CUMUL(1),' % '
       END IF
-      IF(IALE+IEULER+ITHERM.NE.0) THEN
+      IF(IALE+IEULER+ITHERM/=0) THEN
       WRITE(ISTDO,'(A,E9.4,3x,F6.2,A)')' ALE.........................: ',
      + CUMUL(MACRO_TIMER_ALEMAIN),
      + 100*CUMUL(MACRO_TIMER_ALEMAIN)/CUMUL(1),' % '
@@ -1327,7 +863,7 @@ C---------------------------
      +  TOTAL,100*TOTAL/CUMUL(1),' % '
       WRITE(ISTDO,'(A,E9.4,3x,F6.2,A)')' TOTAL.......................: ',
      +  CUMUL(1),100*CUMUL(1)/CUMUL(1),' % '
-c     IF(NUMSPH .NE.0) THEN
+c     IF(NUMSPH /=0) THEN
 c     WRITE(ISTDO,'(A,E9.4,3x,F6.2,A)')' SPH TOTAL...................: ',
 c    + CUMUL(48),
 c    + 100*CUMUL(48)/CUMUL(1),' % '
@@ -1360,7 +896,7 @@ c     ENDIF
         WRITE(IOUT,'(A,E9.4,3x,F6.2,A)')' AMS.........................: ',
      +  CUMUL(39),100*CUMUL(39)/CUMUL(1),' % '
       END IF
-      IF(IALE+IEULER+ITHERM.NE.0) THEN
+      IF(IALE+IEULER+ITHERM/=0) THEN
       WRITE(IOUT,'(A,E9.4,3x,F6.2,A)')' ALE.........................: ',
      +  CUMUL(MACRO_TIMER_ALEMAIN)
      +  ,100*CUMUL(MACRO_TIMER_ALEMAIN)/CUMUL(1),' % '
@@ -1369,12 +905,6 @@ c     ENDIF
      +  TOTAL,100*TOTAL/CUMUL(1),' % '
       WRITE(IOUT,'(A,E9.4,3x,F6.2,A)')' TOTAL.......................: ',
      +  CUMUL(1),100*CUMUL(1)/CUMUL(1),' % '
-c     IF(NUMSPH .NE.0) THEN
-c     WRITE(IOUT,'(A,E9.4,3x,F6.2,A)')' SPH TOTAL...................: ',
-c    + CUMUL(48),
-c    + 100*CUMUL(48)/CUMUL(1),' % '
-c     ENDIF
-
       WRITE(IOUT,*)' '
 
       
@@ -1384,7 +914,7 @@ C
        WRITE(IOUT,*)'                          ** ELAPSED TIME **'    
        WRITE(IOUT,*)' '                                               
         
-        CALL PRINT_SUMMARY(2,NTIMAX,REALTIME,TITLES,IOUT) 
+        CALL PRINT_SUMMARY(2,MAX_NB_TIMER,REALTIME,TITLES,IOUT,ITHERM) 
 
        IF(.FALSE.)THEN
         WRITE(IOUT,*)' '
@@ -1534,8 +1064,10 @@ C Engine Disk usage Statistics
 C---------------------------
 C Elapsed time & Estimated Speedup
 C---------------------------
-      CALL ELAPSTIME(SECS)
-      CALL DATE_AND_TIME(DATE,TIME) 
+      CALL ELAPSTIME(T,SECS)
+      CALL DATE_AND_TIME(DATE,TIME)
+      OUTPUT%CHECKSUM%DATE = DATE
+      OUTPUT%CHECKSUM%TIME = TIME
 !     ---------------------------
       IF(ISPMD==0) THEN
         CURRENT_RUN = GLOBAL_COMP_TIME%RUN_NBR
@@ -1565,13 +1097,13 @@ C---------------------------
 
 C      CALL SYSTEM_CLOCK(COUNT=CLOCK1, COUNT_RATE=CLOCKRATE,
 C     +                  COUNT_MAX=NBMAX                   )
-C      SECS = CLOCK1-CLOCK0         ! diff temps final - temps initial (qui peut ne pas etre 0 !)
-C      IF(SECS.LT.ZERO) SECS = SECS + NBMAX   ! cas depassement nb de periode maximum
+C      SECS = Clock1-Clock0!Final time - Initial time (which may not be 0!)
+C      IF(SECS<ZERO) SECS = SECS + NBMAX   ! cas depassement nb de periode maximum
 C      SECS = SECS/CLOCKRATE
 
-      IH=SECS/3600
-      IM=(SECS-IH*3600)/60
-      IS=SECS-IH*3600-IM*60
+      IH=INT(SECS/3600.0D0)
+      IM=INT((SECS-IH*3600.0D0)/60.0D0)
+      IS=INT(SECS-IH*3600.0D0-IM*60.0D0)
 
       WRITE(IOUT,*)
      .  '                  ** COMPUTE TIME INFORMATION **'
@@ -1597,144 +1129,28 @@ C      SECS = SECS/CLOCKRATE
  2000 FORMAT(' #PROC  ','CONT.SORT  ','CONT. F   ','ELEMENT  ',
      .       'KIN.COND.  ','INTEGR.','    I/O     ','TASK0     ',
      .       'ASSEMB.   ','RESOL  ')
- 2001 FORMAT(' #PROC  ','CONT.SORT  ','CONT. F   ','ELEMENT  ',
-     .       'KIN.COND.  ','INTEGR.','    I/O     ','TASK0     ',
-     .       'ASSEMB.   ','AMS      ','RESOL  ')
- 2050 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     .       1x,E9.4,1x,E9.4,1x,E9.4)
- 2051 FORMAT(I4,3x,F6.2,A,1x,F6.2,A,1x,F6.2,A,1x,F6.2,A,1x,F6.2,A,
-     .       1x,F6.2,A,1x,F6.2,A,1x,F6.2,A,1x,F6.2,A)
- 2055 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     .       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 2057 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     .       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 2100 FORMAT(' #PROC  ','CONT.SORT  ','CONT. F   ','ELEMENT  ',
-     .       'KIN.COND.  ','INTEGR.','    I/O     ','TASK0     ',
-     .       'ASSEMB.   ','RESOL  ')
- 2101 FORMAT(' #PROC  ','CONT.SORT  ','CONT. F   ','ELEMENT  ',
-     .       'KIN.COND.  ','INTEGR.','    I/O     ','TASK0     ',
-     .       'ASSEMB.   ' ,'AMS      ','RESOL  ')
- 2102 FORMAT('        ','CONT.SORT  ','CONT. F   ','ELEMENT  ',
-     .       'KIN.COND.  ','INTEGR.','    I/O     ','TASK0     ',
-     .       'ASSEMB.   ','RESOL  ')
- 2103 FORMAT('        ','CONT.SORT  ','CONT. F   ','ELEMENT  ',
-     .       'KIN.COND.  ','INTEGR.','    I/O     ','TASK0     ',
-     .       'ASSEMB.   ' ,'AMS      ','RESOL  ')
- 2110 FORMAT(' #PROC  ','[K]SETUP ','[M]SETUP ','IMPL.SOLV ',
-     .       'IMPL.TOTAL')
- 2120 FORMAT(' #PROC  ',' COMM DOT',' COMM V ','COMM GPU>CPU ',
-     .       'COMM CPU>GPU ')
- 2121 FORMAT('        ',' COMM DOT',' COMM V ','COMM GPU>CPU ',
-     .       'COMM CPU>GPU ')
- 2125 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 2126 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 2150 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,
-     .       E9.4,1x,E9.4,1x,E9.4)
- 2151 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,
-     .       E9.4,1x,E9.4,1x,E9.4)
- 2155 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     .       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 2156 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     .       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 2157 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     .       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 2158 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     .       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 2160 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 2200 FORMAT(' #PROC  ','CRITER  ','ADAPT FOR ','ADAPT VEL ')
- 2201 FORMAT('        ','CRITER  ','ADAPT FOR ','ADAPT VEL ')
- 2250 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4)
- 2251 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4)
  3000 FORMAT(' #PROC  ','FORCES    ','RBY.FOR.  ','RBY.VEL.  ',
      .       'VELOCITIES','   TOTAL   ','% CPU')
- 3001 FORMAT('        ','FORCES    ','RBY.FOR.  ','RBY.VEL.  ',
-     .       'VELOCITIES','   TOTAL   ')
- 3050 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,2x,F6.2)
- 3051 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 3330 FORMAT(' #PROC  ',' PCG     ',' PARIT F ','  COMM R  ',
-     .       '  COMP M.V ',' COMM VFI ',' COMM M.V ',' TOT PROJ ',
-     .       ' MAV_LT2  ',' MAM_NM    ',' MAV_N,MN ',' COMP MV/E',
-     .       ' BUILD M  ')
- 3331 FORMAT('        ',' PCG     ',' PARIT F ','  COMM R  ',
-     .       '  COMP M.V ',' COMM VFI ',' COMM M.V ',' TOT PROJ ',' MAV_LT2  ',
-     .       ' MAM_NM    ',' MAV_N,MN ',' COMP MV/E',' BUILD M  ')
- 3335 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     .       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 3336 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     .       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 4000 FORMAT(' #PROC  ','BUCKCRIT ',' COMMCRIT','  BUCKET  ',
-     .       '  GFRONT   ',' CONT.OPT ',' CONT.F** ',
-     .       ' CONT.DST ',' C+E FORCE',' CONT.NORML')
- 4001 FORMAT('        ','BUCKCRIT ',' COMMCRIT','  BUCKET  ',
-     .       '  GFRONT   ',' CONT.OPT ',' CONT.F** ',
-     .       ' CONT.DST ',' C+E FORCE')
- 4050 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,
-     .       E9.4,1x,E9.4,1x,E9.4)
- 4051 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,
-     .       E9.4,1x,E9.4)
- 4500 FORMAT(' #PROC  ','RB+SENS ','  CLOADS  ','  BCS    ',
-     .       '   RL+RW   ','  FIXVEL  ','   RBE3   ','   GRAV')
- 4501 FORMAT('        ','RB+SENS ','  CLOADS  ','  BCS    ',
-     .       '   RL+RW   ','  FIXVEL  ','   RBE3   ','   GRAV')
- 4550 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,2x,E9.4,1x,
-     .       E9.4,1x,E9.4,1x,E9.4)
- 4551 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,2x,E9.4,1x,
-     .       E9.4,1x,E9.4,1x,E9.4)
- 5000 FORMAT(' #PROC  ','FICOM1   ',' FICOM2  ','  ISDXV1   ',
-     .                  ' ISDXV2  ',' TRI MMX**','  TRI BOX  ',
-     .                  ' TRI BUC**',' TRI GAT**',' SYNC COM ',
-     .                  ' SHOOTING ',' INT2 F+V')
- 5001 FORMAT('        ','FICOM1   ',' FICOM2  ','  ISDXV1   ',
-     .                  ' ISDXV2  ',' TRI MMX**','  TRI BOX  ',
-     .                  ' TRI BUC**',' TRI GAT**',' SYNC COM ',
-     .                  ' SHOOTING ',' INT2 F+V')
- 5050 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     +       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 5051 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     +       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 5500 FORMAT(' #PROC  ','MANCTR  ','  MONVOL  ','  DAMP   ',
-     .                  '   INT2*   ','  FIXVEL* ','  CLOADS* ',
-     .                  '  DT2   ','    AUX   ','    FORINTS ',
-     .                  '    R2R   ','    R2M')
- 5501 FORMAT('        ','MANCTR  ','  MONVOL  ','  DAMP   ',
-     .                  '   INT2*   ','  FIXVEL* ','  CLOADS* ',
-     .                  '  DT2   ','    AUX   ','    FORINTS ',
-     .                  '    R2R   ','    R2M')
  5550 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
      +       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
      +       1x,E9.4,1x,E9.4)
- 5551 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     +       1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,
-     +       1x,E9.4,1x,E9.4)
- 5600 FORMAT(' #PROC ',' SPH/TOTAL',' SPH/SORT ','SPH/FORCES',
-     .       ' SPH/OTHER',' SPH/SORT1',' COMM.SORT1',' SPH/SORT0',
-     .       ' COMM.SORT0',' COMM.FORCES')
- 5601 FORMAT('       ',' SPH/TOTAL',' SPH/SORT ','SPH/FORCES',
-     .       ' SPH/OTHER',' SPH/SORT1',' COMM.SORT1',' SPH/SORT0',
-     .       ' COMM.SORT0',' COMM.FORCES')
  6000 FORMAT(' ELAPSED TIME     =',F14.2,' s')
  6100 FORMAT('                   ',I8,':',I2.2,':',I2.2)
  6200 FORMAT(' EXECUTION STARTED .........................:      ',
      .        A4,'/',A2,'/',A2,'  ',A2,':',A2,':',A2)
  6300 FORMAT(' EXECUTION COMPLETED .......................:      ',
      .        A4,'/',A2,'/',A2,'  ',A2,':',A2,':',A2)
- 6500 FORMAT(' #PROC  ','BEG CRIT  ','EOF CRIT  ','EOF SORT ',
-     .                  ' EOF FORCE',' EOF CYCLE','   EOF SPH')
- 6501 FORMAT('        ','BEG CRIT  ','EOF CRIT  ','EOF SORT ',
-     .                  ' EOF FORCE',' EOF CYCLE','   EOF SPH')
- 6550 FORMAT(I4,3x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
- 6551 FORMAT(1x,A4,2x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4,1x,E9.4)
  8000 FORMAT(' ESTIMATED SPEEDUP=',F14.2)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  PRINT_RUNTIME                 source/system/timer.F         
-Chd|-- called by -----------
-Chd|        ARRET                         source/system/arret.F         
-Chd|-- calls ---------------
-Chd|        TIME_MOD                      share/modules/time_mod.F      
-Chd|====================================================================
+!||====================================================================
+!||    print_runtime   ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    arret           ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    time_mod        ../engine/share/modules/time_mod.F
+!||====================================================================
         SUBROUTINE PRINT_RUNTIME( )
 C-----------------------------------------------
 C   M o d u l e s
@@ -1745,44 +1161,33 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include	"com01_c.inc"
-#include        "scr05_c.inc"
-#include        "scr07_c.inc"
-#include	"task_c.inc"
 #include        "units_c.inc"
-#include        "warn_c.inc"
-#include        "impl1_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------        
-        INTEGER :: I,IJK,IJKL,CURRENT_RUN
-        REAL(kind=8) :: TOTAL_TIME,RESULT
+        INTEGER :: I, IJK, IJKL
+        REAL(kind=8) :: TOTAL_TIME
         INTEGER, DIMENSION(GLOBAL_COMP_TIME%RUN_NBR+2) :: IH_TAB,IM_TAB,IS_TAB
 !       ----------------------------------------
 
         TOTAL_TIME = GLOBAL_COMP_TIME%STARTER_TIME
         DO I=1,GLOBAL_COMP_TIME%RUN_NBR
                 TOTAL_TIME = TOTAL_TIME + GLOBAL_COMP_TIME%ENGINE_TIME(I)
-                IH_TAB(I)=GLOBAL_COMP_TIME%ENGINE_TIME(I)/3600
-                IM_TAB(I)=(GLOBAL_COMP_TIME%ENGINE_TIME(I)-IH_TAB(I)*3600)/60
-                IS_TAB(I)=GLOBAL_COMP_TIME%ENGINE_TIME(I)-IH_TAB(I)*3600-IM_TAB(I)*60
+                IH_TAB(I)=INT(GLOBAL_COMP_TIME%ENGINE_TIME(I)/3600.0D0)
+                IM_TAB(I)=INT((GLOBAL_COMP_TIME%ENGINE_TIME(I)-IH_TAB(I)*3600.0D0)/60.0D0)
+                IS_TAB(I)=INT(GLOBAL_COMP_TIME%ENGINE_TIME(I)-IH_TAB(I)*3600.0D0-IM_TAB(I)*60.0D0)
         ENDDO
         IJK = GLOBAL_COMP_TIME%RUN_NBR + 1
-        IH_TAB(IJK)=GLOBAL_COMP_TIME%STARTER_TIME/3600
-        IM_TAB(IJK)=(GLOBAL_COMP_TIME%STARTER_TIME-IH_TAB(IJK)*3600)/60
-        IS_TAB(IJK)=GLOBAL_COMP_TIME%STARTER_TIME-IH_TAB(IJK)*3600-IM_TAB(IJK)*60
+        IH_TAB(IJK)=INT(GLOBAL_COMP_TIME%STARTER_TIME/3600.0D0)
+        IM_TAB(IJK)=INT((GLOBAL_COMP_TIME%STARTER_TIME-IH_TAB(IJK)*3600.0D0)/60.0D0)
+        IS_TAB(IJK)=INT(GLOBAL_COMP_TIME%STARTER_TIME-IH_TAB(IJK)*3600.0D0-IM_TAB(IJK)*60.0D0)
 
         IJKL = GLOBAL_COMP_TIME%RUN_NBR + 2
-        IH_TAB(IJKL)=TOTAL_TIME/3600
-        IM_TAB(IJKL)=(TOTAL_TIME-IH_TAB(IJKL)*3600)/60
-        IS_TAB(IJKL)=TOTAL_TIME-IH_TAB(IJKL)*3600-IM_TAB(IJKL)*60
+        IH_TAB(IJKL)=INT(TOTAL_TIME/3600.0D0)
+        IM_TAB(IJKL)=INT((TOTAL_TIME-IH_TAB(IJKL)*3600.0D0)/60.0D0)
+        IS_TAB(IJKL)=INT(TOTAL_TIME-IH_TAB(IJKL)*3600-IM_TAB(IJKL)*60.0D0)
       
         WRITE(IOUT,*) ' '
         WRITE(IOUT,*)
@@ -1806,30 +1211,27 @@ C
         RETURN
         END SUBROUTINE 
 
-Chd|====================================================================
-Chd|  PRINTCPU                      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        RADIOSS2                      source/engine/radioss2.F      
-Chd|-- calls ---------------
-Chd|        CPUINFO                       source/system/mon_c.c         
-Chd|        SPMD_PRINTCPUINFO             source/mpi/output/spmd_printcpuinfo.F
-Chd|====================================================================
+!||====================================================================
+!||    printcpu               ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    radioss2               ../engine/source/engine/radioss2.F
+!||--- calls      -----------------------------------------------------
+!||    cpuinfo                ../engine/source/system/mon_c.c
+!||    get_solver_stacksize   ../common_source/comm/stacksize.cpp
+!||    my_flush               ../engine/source/system/machine.F
+!||    spmd_printcpuinfo      ../engine/source/mpi/output/spmd_printcpuinfo.F
+!||====================================================================
       SUBROUTINE PRINTCPU(IFLAG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include	"com01_c.inc"
-#include        "scr05_c.inc"
-#include        "scr07_c.inc"
-#include	"task_c.inc"
+#include  "com01_c.inc"
+#include  "task_c.inc"
 #include        "units_c.inc"
-#include        "warn_c.inc"
 #include        "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1840,18 +1242,24 @@ C-----------------------------------------------
       INTEGER FREQUENCE,LENH,LENC,I,MEM,SWAP
       SAVE HOSTNAME,CPUNAM,FREQUENCE,LENH,LENC,MEM,SWAP
 
-      IF(IFLAG.EQ.1) THEN
+      CHARACTER(len=129) :: STACKSIZE_INFO
+      INTEGER :: STACKSIZE_INFO_LEN
+
+      CHARACTER(len=129) :: OMP_STACKSIZE_INFO
+      INTEGER            :: OMP_STACKSIZE_INFO_LEN
+
+      IF(IFLAG==1) THEN
 
         CALL CPUINFO(HOSTNAME,LENH,CPUNAM, LENC, FREQUENCE,MEM,SWAP)
 
-      ELSEIF(IFLAG.EQ.2) THEN
-C 2eme appel apres init parallele (echange et ecriture)
-        IF(ISPMD.EQ.0) THEN
+      ELSEIF(IFLAG==2) THEN
+        ! 2nd call after parallel initialization & communication
+        IF(ISPMD==0) THEN
           WRITE(IOUT,*)' ' 
           WRITE(IOUT,7000) 
           WRITE(IOUT,*)' ' 
-          IF(NSPMD.EQ.1) THEN
-            IF(MEM.GT.-1)THEN
+          IF(NSPMD==1) THEN
+            IF(MEM>-1)THEN
               WRITE(IOUT,7400) 
               WRITE(IOUT,'(A,A,A,A,A,I4,A,I6,A,I6,A)') ' ',
      .        HOSTNAME(1:LENH),'   ',CPUNAM(1:LENC),', ',FREQUENCE,
@@ -1864,7 +1272,7 @@ C 2eme appel apres init parallele (echange et ecriture)
             END IF
           ELSE
             I = 1
-            IF(MEM.GT.-1)THEN
+            IF(MEM>-1)THEN
               WRITE(IOUT,7500) 
               WRITE(IOUT,'(I4,A,A,A,A,A,I4,A,I6,A,I6,A)') I,'   ',
      .        HOSTNAME(1:LENH),'   ',CPUNAM(1:LENC),', ',FREQUENCE,
@@ -1877,12 +1285,22 @@ C 2eme appel apres init parallele (echange et ecriture)
             END IF
           END IF
         END IF
-C ecriture du complement en multiprocs
-        IF(NSPMD.GT.1)
+C Scripture of multi -procharous complement
+        IF(NSPMD>1)
      .    CALL SPMD_PRINTCPUINFO(HOSTNAME,LENH,CPUNAM, LENC, FREQUENCE,
      .                           MEM,SWAP)
-        IF(ISPMD.EQ.0) WRITE(IOUT,*)' ' 
-
+        IF(ISPMD==0) THEN 
+          WRITE(IOUT,*)' ' 
+          OMP_STACKSIZE_INFO_LEN=128
+          STACKSIZE_INFO_LEN=128
+          CALL GET_SOLVER_STACKSIZE(STACKSIZE_INFO,STACKSIZE_INFO_LEN,OMP_STACKSIZE_INFO,OMP_STACKSIZE_INFO_LEN)
+          WRITE(IOUT,'(A,A)') ' STACKSIZE  . . . . . . . . . . . . . . . . . . . . ',STACKSIZE_INFO(1:STACKSIZE_INFO_LEN)
+          WRITE(IOUT,'(A,A)') ' THREAD STACKSIZE . . . . . . . . . . . . . . . . . ',OMP_STACKSIZE_INFO(1:OMP_STACKSIZE_INFO_LEN)
+          WRITE(IOUT,'(A)') ' '
+          ! Force write to output file 
+          CALL MY_FLUSH(IOUT)
+       END IF
+       
       ENDIF
      
       LMEMV = MEM
@@ -1894,20 +1312,17 @@ C ecriture du complement en multiprocs
  7550 FORMAT (' CPU#  HOSTNAME     CPU TYPE AND FREQUENCY ')
 
       END
-Chd|====================================================================
-Chd|  INITIMEG                      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        RESOL_INIT                    source/engine/resol_init.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    initimeg     ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    resol_init   ../engine/source/engine/resol_init.F
+!||====================================================================
       SUBROUTINE INITIMEG(NG)
-C     initialisation des timers groupes elem.
+C     Initialization of Timers Groups Elem.
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1928,43 +1343,42 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  STARTIMEG                     source/system/timer.F         
-Chd|-- called by -----------
-Chd|        ERR_THK                       source/elements/shell/err_thk.F
-Chd|        FORINT                        source/elements/forint.F      
-Chd|        FORINTC                       source/elements/forintc.F     
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|        FORINTS                       source/elements/forints.F     
-Chd|        IMP_GLOB_K                    source/implicit/imp_glob_k.F  
-Chd|        IMP_GLOB_K0                   source/implicit/imp_glob_k.F  
-Chd|        INIXFEM                       source/elements/xfem/inixfem.F
-Chd|        PRELECFLOW                    source/elements/solid/solide/prelecflow.F
-Chd|        SMS_INI_KDI                   source/ams/sms_init.F         
-Chd|        SOLTOSPHA                     source/elements/sph/soltospha.F
-Chd|        SOLTOSPHF                     source/elements/sph/soltosph.F
-Chd|        SOLTOSPHP                     source/elements/sph/soltosph.F
-Chd|        SOLTOSPH_ON1                  source/elements/sph/soltosph_on1.F
-Chd|        SOLTOSPH_ON12                 source/elements/sph/soltosph_on1.F
-Chd|        SOLTOSPH_ON2                  source/elements/sph/soltosph_on2.F
-Chd|        SPLISSV                       source/elements/sph/splissv.F 
-Chd|        SPSTABS                       source/elements/sph/spstab.F  
-Chd|        THICKVAR                      source/elements/shell/coque/thickvar.F
-Chd|        UPXFEM1                       source/elements/xfem/upxfem1.F
-Chd|        UPXFEM2                       source/elements/xfem/upxfem2.F
-Chd|        UPXFEM_TAGXP                  source/elements/xfem/upxfem_tagxp.F
-Chd|        XFEOFF                        source/elements/xfem/xfeoff.F 
-Chd|-- calls ---------------
-Chd|        MY_ETIME                      source/system/machine.F       
-Chd|====================================================================
+!||====================================================================
+!||    startimeg       ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    alemain         ../engine/source/ale/alemain.F
+!||    err_thk         ../engine/source/elements/shell/err_thk.F
+!||    forint          ../engine/source/elements/forint.F
+!||    forintc         ../engine/source/elements/forintc.F
+!||    forintp         ../engine/source/elements/forintp.F
+!||    forints         ../engine/source/elements/forints.F
+!||    imp_glob_k      ../engine/source/implicit/imp_glob_k.F
+!||    imp_glob_k0     ../engine/source/implicit/imp_glob_k.F
+!||    inixfem         ../engine/source/elements/xfem/inixfem.F
+!||    prelecflow      ../engine/source/elements/solid/solide/prelecflow.F
+!||    sms_ini_kdi     ../engine/source/ams/sms_init.F
+!||    soltosph_on1    ../engine/source/elements/sph/soltosph_on1.F
+!||    soltosph_on12   ../engine/source/elements/sph/soltosph_on1.F
+!||    soltosph_on2    ../engine/source/elements/sph/soltosph_on2.F
+!||    soltospha       ../engine/source/elements/sph/soltospha.F
+!||    soltosphf       ../engine/source/elements/sph/soltosph.F
+!||    soltosphp       ../engine/source/elements/sph/soltosph.F
+!||    splissv         ../engine/source/elements/sph/splissv.F
+!||    spstabs         ../engine/source/elements/sph/spstab.F
+!||    thickvar        ../engine/source/elements/shell/coque/thickvar.F
+!||    upxfem1         ../engine/source/elements/xfem/upxfem1.F
+!||    upxfem2         ../engine/source/elements/xfem/upxfem2.F
+!||    upxfem_tagxp    ../engine/source/elements/xfem/upxfem_tagxp.F
+!||    xfeoff          ../engine/source/elements/xfem/xfeoff.F
+!||--- calls      -----------------------------------------------------
+!||    my_etime        ../engine/source/system/machine.F
+!||====================================================================
       SUBROUTINE STARTIMEG(NG)
-C     routine d'incrementation des timers elem.
+C     Timer Elem Timer Incorsement Routine.
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1980,41 +1394,40 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  STOPTIMEG                     source/system/timer.F         
-Chd|-- called by -----------
-Chd|        ERR_THK                       source/elements/shell/err_thk.F
-Chd|        FORINT                        source/elements/forint.F      
-Chd|        FORINTC                       source/elements/forintc.F     
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|        FORINTS                       source/elements/forints.F     
-Chd|        INIXFEM                       source/elements/xfem/inixfem.F
-Chd|        PRELECFLOW                    source/elements/solid/solide/prelecflow.F
-Chd|        SMS_INI_KDI                   source/ams/sms_init.F         
-Chd|        SOLTOSPHA                     source/elements/sph/soltospha.F
-Chd|        SOLTOSPHF                     source/elements/sph/soltosph.F
-Chd|        SOLTOSPHP                     source/elements/sph/soltosph.F
-Chd|        SOLTOSPH_ON1                  source/elements/sph/soltosph_on1.F
-Chd|        SOLTOSPH_ON12                 source/elements/sph/soltosph_on1.F
-Chd|        SOLTOSPH_ON2                  source/elements/sph/soltosph_on2.F
-Chd|        SPLISSV                       source/elements/sph/splissv.F 
-Chd|        SPSTABS                       source/elements/sph/spstab.F  
-Chd|        THICKVAR                      source/elements/shell/coque/thickvar.F
-Chd|        UPXFEM1                       source/elements/xfem/upxfem1.F
-Chd|        UPXFEM2                       source/elements/xfem/upxfem2.F
-Chd|        UPXFEM_TAGXP                  source/elements/xfem/upxfem_tagxp.F
-Chd|        XFEOFF                        source/elements/xfem/xfeoff.F 
-Chd|-- calls ---------------
-Chd|        MY_ETIME                      source/system/machine.F       
-Chd|====================================================================
+!||====================================================================
+!||    stoptimeg       ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    alemain         ../engine/source/ale/alemain.F
+!||    err_thk         ../engine/source/elements/shell/err_thk.F
+!||    forint          ../engine/source/elements/forint.F
+!||    forintc         ../engine/source/elements/forintc.F
+!||    forintp         ../engine/source/elements/forintp.F
+!||    forints         ../engine/source/elements/forints.F
+!||    inixfem         ../engine/source/elements/xfem/inixfem.F
+!||    prelecflow      ../engine/source/elements/solid/solide/prelecflow.F
+!||    sms_ini_kdi     ../engine/source/ams/sms_init.F
+!||    soltosph_on1    ../engine/source/elements/sph/soltosph_on1.F
+!||    soltosph_on12   ../engine/source/elements/sph/soltosph_on1.F
+!||    soltosph_on2    ../engine/source/elements/sph/soltosph_on2.F
+!||    soltospha       ../engine/source/elements/sph/soltospha.F
+!||    soltosphf       ../engine/source/elements/sph/soltosph.F
+!||    soltosphp       ../engine/source/elements/sph/soltosph.F
+!||    splissv         ../engine/source/elements/sph/splissv.F
+!||    spstabs         ../engine/source/elements/sph/spstab.F
+!||    thickvar        ../engine/source/elements/shell/coque/thickvar.F
+!||    upxfem1         ../engine/source/elements/xfem/upxfem1.F
+!||    upxfem2         ../engine/source/elements/xfem/upxfem2.F
+!||    upxfem_tagxp    ../engine/source/elements/xfem/upxfem_tagxp.F
+!||    xfeoff          ../engine/source/elements/xfem/xfeoff.F
+!||--- calls      -----------------------------------------------------
+!||    my_etime        ../engine/source/system/machine.F
+!||====================================================================
       SUBROUTINE STOPTIMEG(NG)
-C     routine incrementation du timer event
+C     Timer Event Incontation Routine
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -2030,41 +1443,40 @@ C
      .                       TIMERG(2,NG)-TIMERG(1,NG)
       RETURN
       END
-Chd|====================================================================
-Chd|  PRINTIMEG                     source/system/timer.F         
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        INTERLAGRAN                   source/system/timer.F         
-Chd|        PRINTCOQUES                   source/system/timer.F         
-Chd|        PRINTSOLIDES                  source/system/timer.F         
-Chd|        PRINTTET10                    source/system/timer.F         
-Chd|        PRINTTET4                     source/system/timer.F         
-Chd|        PRINTTRIANGLES                source/system/timer.F         
-Chd|====================================================================
-      SUBROUTINE PRINTIMEG(IPARG,PM,IPM,IXC,IXTG,IXS)
-C     routine d'affichage des timers
+!||====================================================================
+!||    printimeg        ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    resol            ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    interlagran      ../engine/source/system/timer.F
+!||    printcoques      ../engine/source/system/timer.F
+!||    printsolides     ../engine/source/system/timer.F
+!||    printtet10       ../engine/source/system/timer.F
+!||    printtet4        ../engine/source/system/timer.F
+!||    printtriangles   ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||====================================================================
+      SUBROUTINE PRINTIMEG(IPARG,PM,IPM,IXC,IXTG,IXS)        
+C     timers display routine
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr07_c.inc"
       COMMON /TIMERG/TIMERG(2,500000),CPUTIMEG(500000)
       REAL TIMERG,CPUTIMEG
 C-----------------------------------------------
-#include	"com01_c.inc"
-#include	"com04_c.inc"
-#include        "scr05_c.inc"
-#include	"task_c.inc"
+#include  "com01_c.inc"
+#include  "task_c.inc"
 #include        "units_c.inc"
 #include        "param_c.inc"
-#include        "spmd_c.inc"
-#include        "rnur_c.inc"
 #include        "chara_c.inc"
 #include        "scr19_c.inc"
 #include        "ddspmd_c.inc"
@@ -2078,7 +1490,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, NPROC, MSGTAG, MSGTAG2, ISTART, NGROUP_R,
+      INTEGER 
      .        NEL,PROC,NGF, NGL,
      .        J, NELT,
      .        NG,IRSIZE, MSGTAG3 ,NES,NEQ,NEC,NETG,NET,NEP,NER,NEUR,
@@ -2101,16 +1513,16 @@ C
       TPSTHTOT = 0.
       BATOZMULT = 4
       TIMMAT = 0.
-C   ouverture du fichier DDW
+C   opening of the DDW file
       WRITE(PROCNAM,'(I4.4)')ISPMD+1
       FILNAM=ROOTNAM(1:ROOTLEN)//'_'//CHRUN//'_'//PROCNAM//'.ddw2'
       OPEN(UNIT=66,FILE=FILNAM,ACCESS='SEQUENTIAL',
      .                  FORM='FORMATTED',STATUS='UNKNOWN')
       FILEN=ROOTLEN+14 
 C  
-C   preparation de la ponderation
+C   preparation of the weighting
 C  
-      IF (TPSENG.EQ.ZERO) THEN
+      IF (TPSENG==ZERO) THEN
          TPPOND = ONE
       ELSE
          TPPOND = TPSENG/TPSREF
@@ -2125,7 +1537,7 @@ C
 c      WRITE(66,1100) NCYCLE
 
 
-C   Comptage des groupes
+C   counting of groups
       NUMSOLG = 0
       NUMSHG = 0
       NUMTRIG = 0
@@ -2134,23 +1546,23 @@ C   Comptage des groupes
 
       DO NG=1,NGROUP
         ITY = IPARG(5,NG)
-        IF (ITY.EQ.1) THEN
+        IF (ITY==1) THEN
           ISOLNOD = IPARG(28,NG) 
-          IF (ISOLNOD.EQ.4) THEN
+          IF (ISOLNOD==4) THEN
             NUMSOL4G = NUMSOL4G+1
-          ELSEIF (ISOLNOD.EQ.10) THEN
+          ELSEIF (ISOLNOD==10) THEN
             NUMSOL10G = NUMSOL10G+1
           ELSE
             NUMSOLG = NUMSOLG + 1
           ENDIF
-        ELSEIF (ITY.EQ.3) THEN
+        ELSEIF (ITY==3) THEN
            NUMSHG = NUMSHG + 1
-        ELSEIF (ITY.EQ.7) THEN
+        ELSEIF (ITY==7) THEN
            NUMTRIG = NUMTRIG + 1
         ENDIF
       ENDDO
 
-C   Calcul du temps theorique de chaque groupe
+C   calculation of the theoretical time for each group
       DO NG=1,NGROUP
          ITY = IPARG(5,NG)
          MTN = IPARG(1,NG)
@@ -2162,65 +1574,65 @@ C   Calcul du temps theorique de chaque groupe
 
          THEOGP(NG)=0.
 C   SOLIDES
-         IF (ITY.EQ.1) THEN
+         IF (ITY==1) THEN
           ISOLNOD=IPARG(28,NG)
-          IF (ISOLNOD.EQ.4) THEN
+          IF (ISOLNOD==4) THEN
            TELT = TET4TNL(MTN,1) + TET4TELT(1)
 C   TETRA10
-          ELSEIF (ISOLNOD.EQ.10) THEN
-	   MMA = IXS(1,NFT)
-	   NFUNC = MAX(IPM(10,MMA) - 3,1)
-	   IF (NFUNC.LE.2) THEN
+          ELSEIF (ISOLNOD==10) THEN
+             MMA = IXS(1,NFT)
+             NFUNC = MAX(IPM(10,MMA) - 3,1)
+             IF (NFUNC<=2) THEN
               TELT = TET10TNL(MTN,1) + TET10TELT(1)
-	   ELSEIF (NFUNC.GT.2.AND.NFUNC.LE.7) THEN
-	      TELT = TET10TNL(MTN,2) + TET10TELT(1)
-	   ELSE
-	      TELT = TET10TNL(MTN,3) + TET10TELT(1)
-	   ENDIF
+             ELSEIF (NFUNC>2.AND.NFUNC<=7) THEN
+                TELT = TET10TNL(MTN,2) + TET10TELT(1)
+             ELSE
+                TELT = TET10TNL(MTN,3) + TET10TELT(1)
+             ENDIF
           ELSE
-           IF (IHBE.LE.1.OR.IHBE.EQ.101) THEN
+           IF (IHBE<=1.OR.IHBE==101) THEN
 C   Solides ISOLD1
             TELT = SOL1TNL(MTN,1) + SOLTELT(1)
-           ELSEIF (IHBE.EQ.2.OR.IHBE.EQ.102) THEN
+           ELSEIF (IHBE==2.OR.IHBE==102) THEN
 C   Solides ISOLD2
             TELT = SOL1TNL(MTN,1) + SOLTELT(2)
 C
-           ELSEIF (IHBE.EQ.24.OR.IHBE.EQ.104) THEN
+           ELSEIF (IHBE==24.OR.IHBE==104) THEN
 C   Solides ISOLD24  - HEPH
             TELT = SOL1TNL(MTN,1) + SOLTELT(3)
 C
-           ELSEIF (IHBE.EQ.12.OR.IHBE.EQ.112) THEN
-C   Solides ISOLD12 - std 8 node integ point
+           ELSEIF (IHBE==12.OR.IHBE==112) THEN
+C   Solids Insd12 - STD 8 NODE INTEG Point
             TELT = SOL8TNL(MTN,1) + SOLTELT(4)
 C
-           ELSEIF (IHBE.EQ.14.OR.IHBE.GE.222) THEN
+           ELSEIF (IHBE==14.OR.IHBE>=222) THEN
 C   Solides HA8
             MPT = ABS (NPT)
             NPTS = MPT/100
             NPTT = MOD(MPT/10,10)
             NPTR = MOD(MPT,10)
-            NPTOT = NPTS*NPTT*NPTR
+            NPTOT = NPTS*NPTT*INT(NPTR)
 C
             TELT = NPTOT*SOL8TNL(MTN,1)+SOLTELT(5)+NPTOT*SOLTELT(6)
-	   
-	   ELSEIF(IHBE.EQ.17)THEN
-	     TELT = SOL1TNL(MTN,1)*8+SOLTELT(7)
-	   ELSE
-	     TELT = SOL1TNL(MTN,1) + SOLTELT(1)
+             
+             ELSEIF(IHBE==17)THEN
+               TELT = SOL1TNL(MTN,1)*8+SOLTELT(7)
+             ELSE
+               TELT = SOL1TNL(MTN,1) + SOLTELT(1)
            ENDIF
           ENDIF
 C
            THEOGP(NG)= TELT*NELEM*NCYCLE*TPPOND
 C   COQUES
-         ELSEIF (ITY.EQ.3) THEN
+         ELSEIF (ITY==3) THEN
 
           DO J=NFT,NFT+NELEM-1
            MMA = IXC(1,J)
-           IF (NPT.GT.0) THEN
+           IF (NPT>0) THEN
 C   traitement a part pour zero points d integration
-             IF (MTN.EQ.2.OR.MTN.EQ.3) THEN
+             IF (MTN==2.OR.MTN==3) THEN
                CC = PM(43,MMA)
-               IF (CC.NE.0.0 )THEN
+               IF (CC/=0.0 )THEN
                  TABMAT(1) = SHTNL(MTN,1,2)
                  TABMAT(2) = SHTNL(MTN,2,2)
                  TABMAT(3) = SHTNL(MTN,3,2)
@@ -2230,18 +1642,18 @@ C   traitement a part pour zero points d integration
                  TABMAT(3) = SHTNL(MTN,3,1)
                ENDIF
 
-             ELSEIF (MTN.EQ.36) THEN
+             ELSEIF (MTN==36) THEN
                 NFUNC = IPM(10,MMA)
 
-               IF (NFUNC.LE.2) THEN
+               IF (NFUNC<=2) THEN
                  TABMAT(1) = SHTNL(MTN,1,1)
                  TABMAT(2) = SHTNL(MTN,2,1)
                  TABMAT(3) = SHTNL(MTN,3,1)
-               ELSEIF (NFUNC.GT.2.AND.NFUNC.LE.7) THEN
+               ELSEIF (NFUNC>2.AND.NFUNC<=7) THEN
                  TABMAT(1) = SHTNL(MTN,1,2)
                  TABMAT(2) = SHTNL(MTN,2,2)
                  TABMAT(3) = SHTNL(MTN,3,2)
-               ELSEIF (NFUNC.GT.7) THEN
+               ELSEIF (NFUNC>7) THEN
                  TABMAT(1) = SHTNL(MTN,1,3)
                  TABMAT(2) = SHTNL(MTN,2,3)
                  TABMAT(3) = SHTNL(MTN,3,3)
@@ -2262,21 +1674,21 @@ C   traitement a part pour zero points d integration
 
             ELSE
 C   Cas Zero points d integration
-             IF (MTN.EQ.2.OR.MTN.EQ.3) THEN
+             IF (MTN==2.OR.MTN==3) THEN
                CC = PM(43,MMA)
-               IF (CC.NE.0.0 )THEN
+               IF (CC/=0.0 )THEN
                  TIMMAT = SHTNL(MTN,0,2)
                ELSE
                  TIMMAT = SHTNL(MTN,0,1)
                ENDIF
 
-             ELSEIF (MTN.EQ.36) THEN
+             ELSEIF (MTN==36) THEN
                NFUNC = NINT(PM(40,MMA))
-               IF (NFUNC.LE.2) THEN
+               IF (NFUNC<=2) THEN
                  TIMMAT = SHTNL(MTN,0,1)
-               ELSEIF (NFUNC.GT.2.AND.NFUNC.LE.7) THEN
+               ELSEIF (NFUNC>2.AND.NFUNC<=7) THEN
                  TIMMAT = SHTNL(MTN,0,2)
-               ELSEIF (NFUNC.GT.7) THEN
+               ELSEIF (NFUNC>7) THEN
                  TIMMAT = SHTNL(MTN,0,3)
                ENDIF
              ELSE
@@ -2286,27 +1698,27 @@ C   Cas Zero points d integration
 C   fin cas zero point d integrations
             ENDIF 
 
-C   temps elementaire
-            IF (IHBE.GE.11.AND.IHBE.LE.19) THEN
+C   elementary time
+            IF (IHBE>=11.AND.IHBE<=19) THEN
               TELT = SHTELT(3)+BATOZMULT*TIMMAT
-            ELSEIF (IHBE.GE.21.AND.IHBE.LE.29) THEN
+            ELSEIF (IHBE>=21.AND.IHBE<=29) THEN
               TELT = SHTELT(2) + TIMMAT
             ELSE
               TELT = SHTELT(1)  + TIMMAT
             ENDIF
-C   fin temps elementaire
+C   Elementary end
               THEOGP(NG)= THEOGP(NG)+TELT*NCYCLE*TPPOND
           ENDDO
 C   TRIANGLES
-         ELSEIF (ITY.EQ.7) THEN
+         ELSEIF (ITY==7) THEN
 
           DO J=NFT,NFT+NELEM-1
            MMA = IXTG(1,J)
-           IF (NPT.GT.0) THEN
+           IF (NPT>0) THEN
 C   traitement a part pour zero points d integration
-             IF (MTN.EQ.2.OR.MTN.EQ.3) THEN
+             IF (MTN==2.OR.MTN==3) THEN
                CC = PM(43,MMA)
-               IF (CC.NE.0.0 )THEN
+               IF (CC/=0.0 )THEN
                  TABMAT(1) = TRITNL(MTN,1,2)
                  TABMAT(2) = TRITNL(MTN,2,2)
                  TABMAT(3) = TRITNL(MTN,3,2)
@@ -2316,17 +1728,17 @@ C   traitement a part pour zero points d integration
                  TABMAT(3) = TRITNL(MTN,3,1)
                ENDIF
 
-             ELSEIF (MTN.EQ.36) THEN
+             ELSEIF (MTN==36) THEN
                NFUNC = IPM(10,MMA)
-               IF (NFUNC.LE.2) THEN
+               IF (NFUNC<=2) THEN
                  TABMAT(1) = TRITNL(MTN,1,1)
                  TABMAT(2) = TRITNL(MTN,2,1)
                  TABMAT(3) = TRITNL(MTN,3,1)
-               ELSEIF (NFUNC.GT.2.AND.NFUNC.LE.7) THEN
+               ELSEIF (NFUNC>2.AND.NFUNC<=7) THEN
                  TABMAT(1) = TRITNL(MTN,1,2)
                  TABMAT(2) = TRITNL(MTN,2,2)
                  TABMAT(3) = TRITNL(MTN,3,2)
-               ELSEIF (NFUNC.GT.7) THEN
+               ELSEIF (NFUNC>7) THEN
                  TABMAT(1) = TRITNL(MTN,1,3)
                  TABMAT(2) = TRITNL(MTN,2,3)
                  TABMAT(3) = TRITNL(MTN,3,3)
@@ -2347,21 +1759,21 @@ C   traitement a part pour zero points d integration
 
             ELSE
 C   Cas Zero points d integration
-             IF (MTN.EQ.2.OR.MTN.EQ.3) THEN
+             IF (MTN==2.OR.MTN==3) THEN
                CC = PM(43,MMA)
-               IF (CC.NE.0.0 )THEN
+               IF (CC/=0.0 )THEN
                  TIMMAT = TRITNL(MTN,0,2)
                ELSE
                  TIMMAT = TRITNL(MTN,0,1)
                ENDIF
 
-             ELSEIF (MTN.EQ.36) THEN
+             ELSEIF (MTN==36) THEN
                NFUNC = NINT(PM(40,MMA))
-               IF (NFUNC.LE.2) THEN
+               IF (NFUNC<=2) THEN
                  TIMMAT = TRITNL(MTN,0,1)
-               ELSEIF (NFUNC.GT.2.AND.NFUNC.LE.7) THEN
+               ELSEIF (NFUNC>2.AND.NFUNC<=7) THEN
                  TIMMAT = TRITNL(MTN,0,2)
-               ELSEIF (NFUNC.GT.7) THEN
+               ELSEIF (NFUNC>7) THEN
                  TIMMAT = TRITNL(MTN,0,3)
                ENDIF
              ELSE
@@ -2371,15 +1783,15 @@ C   Cas Zero points d integration
 C   fin cas zero point d integrations
             ENDIF 
 
-C   temps elementaire
-            IF (IHBE.GE.11.AND.IHBE.LE.19) THEN
+C   elementary time
+            IF (IHBE>=11.AND.IHBE<=19) THEN
               TELT = TRITELT(3)+BATOZMULT*TIMMAT
-            ELSEIF (IHBE.GE.21.AND.IHBE.LE.29) THEN
+            ELSEIF (IHBE>=21.AND.IHBE<=29) THEN
               TELT = TRITELT(2) + TIMMAT
             ELSE
               TELT = TRITELT(1)  + TIMMAT
             ENDIF
-C   fin temps elementaire
+C   Elementary end
               THEOGP(NG)= THEOGP(NG)+TELT*NCYCLE*TPPOND
            ENDDO
 
@@ -2389,26 +1801,26 @@ C   fin temps elementaire
       ENDDO
 
 
-C   Maintenant qu on a tous les temps theoriques des groupes on
-C   peux passer au traitement et a l affichage.
+C   Now that we have all the theoretical times of groups we
+C   can go to treatment and display.
 
        NUMOTHER = NGROUP - NUMSHG - NUMTRIG - NUMSOLG
        WRITE(66,'(A)') ' ' 
        WRITE(66,1100) NUMSOLG,NUMSHG,NUMTRIG,NUMOTHER
        WRITE(66,'(A)') ' ' 
        WRITE(66,1200) TPSREEL,TPSTHTOT
-      IF (NUMSOLG.GT.0)
+      IF (NUMSOLG>0)
      .  CALL PRINTSOLIDES(IPARG,THEOGP,NUMSOLG,IPM,IXS)
 
-      IF (NUMSOL4G.GT.0)
+      IF (NUMSOL4G>0)
      .  CALL PRINTTET4(IPARG,THEOGP,NUMSOL4G,IPM,IXS)
 
-      IF (NUMSOL10G.GT.0)
+      IF (NUMSOL10G>0)
      .  CALL PRINTTET10(IPARG,THEOGP,NUMSOL10G)
-      IF (NUMSHG.GT.0)
+      IF (NUMSHG>0)
      .  CALL PRINTCOQUES(IPARG,IXC,IPM,THEOGP,NUMSHG)
 
-      IF (NUMTRIG.GT.0)
+      IF (NUMTRIG>0)
      .  CALL PRINTTRIANGLES(IPARG,THEOGP,NUMTRIG)
 
       CLOSE(UNIT=66)
@@ -2438,14 +1850,20 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  PRINTCOQUES                   source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTIMEG                     source/system/timer.F         
-Chd|-- calls ---------------
-Chd|        MY_FSORT                      source/system/timer.F         
-Chd|====================================================================
+!||====================================================================
+!||    printcoques   ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printimeg     ../engine/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||    my_fsort      ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE PRINTCOQUES(IPARG,IXC,IPM,THEOGP,NUMSHG)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -2454,17 +1872,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include    "com01_c.inc"
-#include    "com04_c.inc"
-#include    "scr05_c.inc"
-#include    "task_c.inc"
-#include    "units_c.inc"
 #include    "param_c.inc"
-#include    "spmd_c.inc"
-#include    "rnur_c.inc"
-#include    "chara_c.inc"
-#include    "scr07_c.inc"
 #include    "scr19_c.inc"
-#include    "ddspmd_c.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -2484,9 +1893,9 @@ C-----------------------------------------------
      .       ITY,MTN,NELEM,NPT,NSG,MID,MUID,
      .        NFT,IHBE,MMA,NFUNC,I,J
       REAL DIFFTT,DIFFTTSH(NUMSHG),TEMP(NUMSHG)
-      REAL THEOTP(NUMSHG),REELTP(NUMSHG)
-      REAL TABX(3),TABMAT(3),NPTR,TIMMAT,TELT
-      REAL TPSTHTOT,TPSREEL,PCT
+ 
+ 
+      REAL PCT
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -2503,7 +1912,7 @@ C-----------------------------------------------
         IHBE  = IPARG(23,NG)
 
 
-        IF (ITY.EQ.3) THEN
+        IF (ITY==3) THEN
 
           NGL = NGL + 1
 
@@ -2568,14 +1977,20 @@ c     .                '         TIMETHEO             DIFF      PCT'
 
       END
 
-Chd|====================================================================
-Chd|  PRINTSOLIDES                  source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTIMEG                     source/system/timer.F         
-Chd|-- calls ---------------
-Chd|        MY_FSORT                      source/system/timer.F         
-Chd|====================================================================
+!||====================================================================
+!||    printsolides   ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printimeg      ../engine/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||    my_fsort       ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE PRINTSOLIDES(IPARG,THEOGP,NUMSOLG,IPM,IXS)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -2584,17 +1999,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include    "com01_c.inc"
-#include    "com04_c.inc"
-#include    "scr05_c.inc"
-#include    "task_c.inc"
-#include    "units_c.inc"
 #include    "param_c.inc"
-#include    "spmd_c.inc"
-#include    "rnur_c.inc"
-#include    "chara_c.inc"
-#include    "scr07_c.inc"
 #include    "scr19_c.inc"
-#include    "ddspmd_c.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -2614,9 +2020,9 @@ C-----------------------------------------------
      .       NFT,IHBE,MMA,NFUNC,I,J,ISOLNOD,
      .       MID,MUID
       REAL DIFFTT,DIFFTTSH(NUMSOLG),TEMP(NUMSOLG)
-      REAL THEOTP(NUMSOLG),REELTP(NUMSOLG)
-      REAL TABX(3),TABMAT(3),NPTR,TIMMAT,TELT
-      REAL TPSTHTOT,TPSREEL,PCT
+ 
+ 
+      REAL PCT
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -2631,9 +2037,9 @@ C-----------------------------------------------
         NFT = IPARG(3,NG)+1
         IHBE    = IPARG(23,NG)
 
-        IF (ITY.EQ.1) THEN
+        IF (ITY==1) THEN
           ISOLNOD = IPARG(28,NG)
-          IF (ISOLNOD.NE.4.AND.ISOLNOD.NE.10) THEN
+          IF (ISOLNOD/=4.AND.ISOLNOD/=10) THEN
             NGL = NGL + 1
             NUMGROUP(NGL) = NG
             DIFFTTSH(NGL) = CPUTIMEG(NG) - THEOGP(NG)
@@ -2656,12 +2062,12 @@ C-----------------------------------------------
         ITY = IPARG(5,NG)
         MTN = IPARG(1,NG)
         NELEM = IPARG(2,NG)
-	NFT   = IPARG(3,NG)+1
+          NFT   = IPARG(3,NG)+1
         NSG = IPARG(10,NG)
         NPT = IPARG(6,NG)
-	
+
         MID = IXS(1,NFT)
-        MUID = IPM(1,MID)	
+        MUID = IPM(1,MID)
 
         DIFFTT = CPUTIMEG(NG) - THEOGP(NG) 
 
@@ -2685,14 +2091,20 @@ C-----------------------------------------------
      &        '         TIMETHEO             DIFF        PCT')
 
       END
-Chd|====================================================================
-Chd|  PRINTTET4                     source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTIMEG                     source/system/timer.F         
-Chd|-- calls ---------------
-Chd|        MY_FSORT                      source/system/timer.F         
-Chd|====================================================================
+!||====================================================================
+!||    printtet4     ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printimeg     ../engine/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||    my_fsort      ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE PRINTTET4(IPARG,THEOGP,NUMSOLG,IPM,IXS)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -2701,17 +2113,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include    "com01_c.inc"
-#include    "com04_c.inc"
-#include    "scr05_c.inc"
-#include    "task_c.inc"
-#include    "units_c.inc"
 #include    "param_c.inc"
-#include    "spmd_c.inc"
-#include    "rnur_c.inc"
-#include    "chara_c.inc"
-#include    "scr07_c.inc"
 #include    "scr19_c.inc"
-#include    "ddspmd_c.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -2730,9 +2133,9 @@ C-----------------------------------------------
      .       ITY,MTN,NELEM,NPT,NSG,ISOLNOD,
      .        NFT,IHBE,MMA,NFUNC,I,J,MID,MUID
       REAL DIFFTT,DIFFTTSH(NUMSOLG),TEMP(NUMSOLG)
-      REAL THEOTP(NUMSOLG),REELTP(NUMSOLG)
-      REAL TABX(3),TABMAT(3),NPTR,TIMMAT,TELT
-      REAL TPSTHTOT,TPSREEL,PCT
+ 
+ 
+      REAL PCT
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -2747,9 +2150,9 @@ C-----------------------------------------------
         NFT = IPARG(3,NG)+1
         IHBE    = IPARG(23,NG)
 
-        IF (ITY.EQ.1) THEN
+        IF (ITY==1) THEN
           ISOLNOD =  IPARG(28,NG)
-          IF (ISOLNOD.EQ.4) THEN
+          IF (ISOLNOD==4) THEN
             NGL = NGL + 1
             NUMGROUP(NGL) = NG
             DIFFTTSH(NGL) = CPUTIMEG(NG) - THEOGP(NG)
@@ -2768,7 +2171,7 @@ C-----------------------------------------------
       DO I=1,NUMSOLG
         NGL = INDEXSH(I)
         NG = NUMGROUP(NGL)
-	NFT   = IPARG(3,NG)+1
+          NFT   = IPARG(3,NG)+1
 
         ITY = IPARG(5,NG)
         MTN = IPARG(1,NG)
@@ -2801,13 +2204,13 @@ C-----------------------------------------------
      &        '         TIMETHEO             DIFF        PCT')
 
       END
-Chd|====================================================================
-Chd|  PRINTTET10                    source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTIMEG                     source/system/timer.F         
-Chd|-- calls ---------------
-Chd|        MY_FSORT                      source/system/timer.F         
-Chd|====================================================================
+!||====================================================================
+!||    printtet10   ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printimeg    ../engine/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||    my_fsort     ../engine/source/system/timer.F
+!||====================================================================
       SUBROUTINE PRINTTET10(IPARG,THEOGP,NUMSOLG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -2817,17 +2220,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include    "com01_c.inc"
-#include    "com04_c.inc"
-#include    "scr05_c.inc"
-#include    "task_c.inc"
-#include    "units_c.inc"
 #include    "param_c.inc"
-#include    "spmd_c.inc"
-#include    "rnur_c.inc"
-#include    "chara_c.inc"
-#include    "scr07_c.inc"
 #include    "scr19_c.inc"
-#include    "ddspmd_c.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -2846,9 +2240,9 @@ C-----------------------------------------------
      .       ITY,MTN,NELEM,NPT,NSG,ISOLNOD,
      .        NFT,IHBE,MMA,NFUNC,I,J
       REAL DIFFTT,DIFFTTSH(NUMSOLG),TEMP(NUMSOLG)
-      REAL THEOTP(NUMSOLG),REELTP(NUMSOLG)
-      REAL TABX(3),TABMAT(3),NPTR,TIMMAT,TELT
-      REAL TPSTHTOT,TPSREEL,PCT
+ 
+ 
+      REAL PCT
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -2863,9 +2257,9 @@ C-----------------------------------------------
         NFT = IPARG(3,NG)+1
         IHBE    = IPARG(23,NG)
 
-        IF (ITY.EQ.1) THEN
+        IF (ITY==1) THEN
           ISOLNOD =  IPARG(28,NG)
-          IF (ISOLNOD.EQ.10) THEN
+          IF (ISOLNOD==10) THEN
             NGL = NGL + 1
             NUMGROUP(NGL) = NG
             DIFFTTSH(NGL) = CPUTIMEG(NG) - THEOGP(NG)
@@ -2913,13 +2307,13 @@ C-----------------------------------------------
 
       END
 
-Chd|====================================================================
-Chd|  PRINTTRIANGLES                source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTIMEG                     source/system/timer.F         
-Chd|-- calls ---------------
-Chd|        MY_FSORT                      source/system/timer.F         
-Chd|====================================================================
+!||====================================================================
+!||    printtriangles   ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printimeg        ../engine/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||    my_fsort         ../engine/source/system/timer.F
+!||====================================================================
       SUBROUTINE PRINTTRIANGLES(IPARG,THEOGP,NUMTRIG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -2929,17 +2323,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include    "com01_c.inc"
-#include    "com04_c.inc"
-#include    "scr05_c.inc"
-#include    "task_c.inc"
-#include    "units_c.inc"
 #include    "param_c.inc"
-#include    "spmd_c.inc"
-#include    "rnur_c.inc"
-#include    "chara_c.inc"
-#include      "scr07_c.inc"
 #include     "scr19_c.inc"
-#include     "ddspmd_c.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -2958,9 +2343,9 @@ C-----------------------------------------------
      .       ITY,MTN,NELEM,NPT,NSG,
      .        NFT,IHBE,MMA,NFUNC,I,J
       REAL DIFFTT,DIFFTTSH(NUMTRIG),TEMP(NUMTRIG)
-      REAL THEOTP(NUMTRIG),REELTP(NUMTRIG)
-      REAL THEOGP(NGROUP),TABX(3),TABMAT(3),NPTR,TIMMAT,TELT
-      REAL TPSTHTOT,TPSREEL,PCT
+ 
+      REAL THEOGP(NGROUP)
+      REAL PCT
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -2977,7 +2362,7 @@ C-----------------------------------------------
         NFT = IPARG(3,NG)+1
         IHBE    = IPARG(23,NG)
 
-        IF (ITY.EQ.7) THEN
+        IF (ITY==7) THEN
 
           NGL = NGL + 1
 
@@ -3029,12 +2414,11 @@ C-----------------------------------------------
 
 
 
-Chd|====================================================================
-Chd|  INTERLAGRAN                   source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTIMEG                     source/system/timer.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    interlagran   ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printimeg     ../engine/source/system/timer.F
+!||====================================================================
       SUBROUTINE INTERLAGRAN(TAB,LX,LTAB,X,Y)
 
       REAL TAB(LTAB),LX(LTAB),X,Y,MUL
@@ -3046,7 +2430,7 @@ Chd|====================================================================
 
       MUL = 1.
       DO J=1,LTAB
-        IF (I.NE.J) THEN
+        IF (I/=J) THEN
           MUL= MUL * (X-LX(J))/(LX(I)-LX(J))
         ENDIF
       ENDDO
@@ -3057,16 +2441,15 @@ Chd|====================================================================
       END
 
 C   mon tri flottant
-Chd|====================================================================
-Chd|  MY_FSORT                      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTCOQUES                   source/system/timer.F         
-Chd|        PRINTSOLIDES                  source/system/timer.F         
-Chd|        PRINTTET10                    source/system/timer.F         
-Chd|        PRINTTET4                     source/system/timer.F         
-Chd|        PRINTTRIANGLES                source/system/timer.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    my_fsort         ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printcoques      ../engine/source/system/timer.F
+!||    printsolides     ../engine/source/system/timer.F
+!||    printtet10       ../engine/source/system/timer.F
+!||    printtet4        ../engine/source/system/timer.F
+!||    printtriangles   ../engine/source/system/timer.F
+!||====================================================================
       SUBROUTINE MY_FSORT(ARRAY,INDEX,SIZE,WORK)
          INTEGER SIZE
          real
@@ -3080,7 +2463,7 @@ Chd|====================================================================
 
          DO I=1,SIZE
            DO J=1,SIZE-I
-              IF (WORK(J).LT.WORK(J+1)) THEN
+              IF (WORK(J)<WORK(J+1)) THEN
                  TMP = WORK(J)
                  WORK(J) = WORK(J+1)
                  WORK(J+1) = TMP
@@ -3093,28 +2476,29 @@ Chd|====================================================================
          ENDDO
       END
 
-Chd|====================================================================
-Chd|  ELAPSTIME                     source/system/timer.F         
-Chd|-- called by -----------
-Chd|        ADD_ELAPSED_TIME_MON_OFF      source/system/timer.F         
-Chd|        ECRIT                         source/output/ecrit.F         
-Chd|        PRINTIME                      source/system/timer.F         
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE ELAPSTIME(ETIME)
-C     reset timer elapsed time et calcul tu temps elapsed courant
+!||====================================================================
+!||    elapstime                  ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    add_elapsed_time_mon_off   ../engine/source/system/timer.F
+!||    ecrit                      ../engine/source/output/ecrit.F
+!||    printime                   ../engine/source/system/timer.F
+!||    resol                      ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    timer_mod                  ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE ELAPSTIME(T,ETIME)
+        USE TIMER_MOD
+C     reset timer elapsed time and calculate current elapsed time
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "timerr_c.inc"
+!#include      "timerr_c.inc"
       COMMON /ICLOCK/CLOCK0
       INTEGER CLOCK0
       COMMON /RCLOCK/ELAPSED
@@ -3122,13 +2506,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_), INTENT(INOUT) :: T
       DOUBLE PRECISION ETIME
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER CLOCK1, CLOCKRATE, NBMAX
       DOUBLE PRECISION  SECS
-#if _OPENMP
+#ifdef _OPENMP
        REAL(kind=8) :: OMP_ENDING_TIME
        REAL(kind=8) OMP_GET_WTIME
        external OMP_GET_WTIME
@@ -3141,17 +2526,17 @@ C-----------------------------------------------
         CALL SYSTEM_CLOCK(COUNT=CLOCK1, COUNT_RATE=CLOCKRATE,
      +                  COUNT_MAX=NBMAX                   )
       ENDIF
-#if _OPENMP
+#ifdef _OPENMP
       OMP_ENDING_TIME = OMP_GET_WTIME( )
       CLOCK0 = CLOCK1
-      ELAPSED = OMP_ENDING_TIME - OMP_STARTING_TIME
+      ELAPSED = OMP_ENDING_TIME - T%OMP_STARTING_TIME
       ETIME = ELAPSED
 #else
       IF(CLOCK1 > 0 ) THEN
-        SECS = CLOCK1-CLOCK0         ! diff temps courant - temps initial (qui peut ne pas etre 0 !)
-        IF(SECS.LT.ZERO) SECS = SECS + NBMAX   ! cas depassement nb de periode maximum
+        SECS = CLOCK1-CLOCK0         ! Different time common - Initial time (which may not be 0!)
+        IF(SECS<ZERO) SECS = SECS + NBMAX   ! case overflow of maximum period number
         SECS = SECS/CLOCKRATE
-        CLOCK0 = CLOCK1              ! recuperation du temps courant dans clock0
+        CLOCK0 = CLOCK1              !retrieval of the current time in clock0
         ELAPSED = ELAPSED + SECS
         ETIME = ELAPSED
       ENDIF
@@ -3159,25 +2544,20 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  STARTIME_MP                   source/system/timer.F         
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    startime_mp   ../engine/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE STARTIME_MP(EVENT,NBR_GR,TIMER_MP)
-C     routine d'incrementation du timer event
+C     Timer Event Incormenting Routine
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "timerr_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3186,32 +2566,27 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER I
+ 
       
       CALL CPU_TIME(TIMER_MP(1,EVENT))
      
       RETURN
       END
 
-Chd|====================================================================
-Chd|  STOPTIME_MP                   source/system/timer.F         
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    stoptime_mp   ../engine/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE STOPTIME_MP(EVENT,NBR_GR,TIMER_MP,CPUTIME_MP)
-C     routine incrementation du timer event
+C     Timer Event Incontation Routine
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "timerr_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3219,9 +2594,9 @@ C-----------------------------------------------
       my_real, DIMENSION(NBR_GR) :: CPUTIME_MP
       my_real, DIMENSION(2,NBR_GR) :: TIMER_MP
 C
-      INTEGER CLOCK1, CLOCKRATE, NBMAX
+ 
       DOUBLE PRECISION  SECS
-      INTEGER NBR_ELEM,I
+ 
 C      **********************************
 C
           CALL CPU_TIME(TIMER_MP(2,EVENT))
@@ -3231,53 +2606,48 @@ C
       RETURN
       END
        
-Chd|====================================================================
-Chd|  CUMULTIME_MP                  source/system/timer.F         
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        PRINTIME_MP                   source/system/timer.F         
-Chd|        SPMD_EX_CPUTIME               source/mpi/output/spmd_ex_cputime.F
-Chd|====================================================================
+!||====================================================================
+!||    cumultime_mp      ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    resol             ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    printime_mp       ../engine/source/system/timer.F
+!||    spmd_ex_cputime   ../engine/source/mpi/output/spmd_ex_cputime.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod       ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CUMULTIME_MP(
      1          TAILLE,IPARG,
      2          IXC,IXQ,IXT,IXP,IXTG,
-     3          IXR,IXUR,IXS,KXIG3D,IPM,
+     3          IXR,IXS,KXIG3D,IPM,
      4          IGEO,GEO,POIN_UMP,CPUTIME_MP,
      5          NBR_GPMP,CPUTIME_MP_GLOB,TAB_UMP,PM,
      6          BUFMAT,TABMP_L,TAB_MAT )
-C     
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        use element_mod , only : nixs,nixq,nixc,nixtg,nixq,nixp,nixr,nixt
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include    "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "scr07_c.inc"
       COMMON /TIMERG/TIMERG(2,500000),CPUTIMEG(500000)
       REAL TIMERG,CPUTIMEG
 C-----------------------------------------------
 #include    "com01_c.inc"
 #include    "com04_c.inc"
-#include    "scr05_c.inc"
 #include    "task_c.inc"
-#include    "units_c.inc"
 #include    "param_c.inc"
-#include    "spmd_c.inc"
-#include    "rnur_c.inc"
-#include    "chara_c.inc"
 #include    "scr19_c.inc"
-#include    "ddspmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARG(NPARG,*),IXC(NIXC,*),IXS(NIXS,*),
      .        IXQ(NIXQ,*),IXT(NIXT,*), IXP(NIXP,*),
-     .        IXR(NIXR,*), IXUR(*),KXIG3D(*),IXTG(NIXTG,*),
+     .        IXR(NIXR,*),KXIG3D(*),IXTG(NIXTG,*),
      .        IPM(NPROPMI,*),IGEO(NPROPGI,*),
      .        TAILLE,NBR_GPMP,TABMP_L
 
@@ -3304,33 +2674,32 @@ C-----------------------------------------------
       
       
       
-      INTEGER  NPROC, MSGTAG, MSGTAG2, ISTART, NGROUP_R,
+      INTEGER 
      .        NEL,PROC,NGF, NGL,
      .         NELT,
      .        IRSIZE, MSGTAG3 ,NES,NEQ,NEC,NETG,NET,NEP,NER,NEUR,
      .        MPT,NPTS,NPTT,NPTOT,ISOLNOD,JSROT
 
-       CHARACTER FILNAM*100,PROCNAM*4
+       CHARACTER FILNAM*100, PROCNAM*4
        my_real
      .     TS, TQ, TC, TTG, TT, TP, TR, TUR, DTU,MINS,MAXS,MINQ,
      .     MAXQ,MINC,MAXC,MINTG,MAXTG,MINP,MAXP,MINT,MAXT,MINR,
      .     MAXR,MINUR,MAXUR, CPUG, CPUELEM, T(8,2),CC
 C
-      INTEGER NUMSOLG,NUMSHG,NUMTRIG,NUMOTHER,MTN,NELEM,NPT,NSG,
+      INTEGER MTN, NELEM, NPT, NSG, 
      .        IHBE,NFUNC,FILEN,NUMSOL4G,NUMSOL10G,JHBE
 
       REAL
      .   THEOGP(NGROUP),TABX(3),TABMAT(3),NPTR,TIMMAT,TELT,TPSTHTOT,
      .   TPSREEL,BATOZMULT,TPPOND
-      INTEGER RECHERCHE,OFF,NUMEL_RE
+ 
       my_real INVTREF
-      my_real, DIMENSION(NUMMAT,NUMGEO) :: SOLTELT1_OLD,SOLTELT6_OLD,
+      my_real, DIMENSION(NUMMAT,NUMGEO) :: 
      .             SOLTELT8_OLD,SOLTELT16_OLD,SOLTELT20_OLD,TETRA4_OLD,
      .             TETRA10_OLD,SHTNL_OLD,TRITNL_OLD
-      REAL WD
+ 
 C-----------------------------------------------
 
-!#include "weights_p4linux964_spmd.inc" 
       T1 = 0
       ELEM_MP = ZERO
       POIDS_REF = ZERO
@@ -3530,40 +2899,30 @@ C
       END
       
       
-Chd|====================================================================
-Chd|  PRINTIME_MP                   source/system/timer.F         
-Chd|-- called by -----------
-Chd|        CUMULTIME_MP                  source/system/timer.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    printime_mp    ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    cumultime_mp   ../engine/source/system/timer.F
+!||====================================================================
       SUBROUTINE PRINTIME_MP(TAILLE,TAB_UMP,CPUTIME_MP2,POIN_UMP,T1,
      .                       ELEM_MP,CPUTIME_MP,POIDS_REF)
-C     routine d'ecriture des timers
+C     Timer writing routine
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include    "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "scr07_c.inc"
       COMMON /TIMERG/TIMERG(2,500000),CPUTIMEG(500000)
       REAL TIMERG,CPUTIMEG
 C-----------------------------------------------
 #include    "com01_c.inc"
 #include    "com04_c.inc"
-#include    "scr05_c.inc"
 #include    "task_c.inc"
 #include    "units_c.inc"
-#include    "param_c.inc"
-#include    "spmd_c.inc"
-#include    "rnur_c.inc"
 #include    "chara_c.inc"
 #include    "scr19_c.inc"
-#include    "ddspmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3587,7 +2946,7 @@ C
 C-----------------------------------------------
 
       IF(ISPMD==0) THEN
-C ro ouverture du fichier DDW proc = 0 
+C Ro opening the DDW PRO file = 0 
        FILNAM=ROOTNAM(1:ROOTLEN)//'_'//CHRUN//'.ddw'
        OPEN(UNIT=66,FILE=FILNAM,ACCESS='SEQUENTIAL',
      .                  FORM='FORMATTED',STATUS='UNKNOWN')
@@ -3629,7 +2988,7 @@ C ro ouverture du fichier DDW proc = 0
        WRITE (ISTDO,1300) FILNAM(1:FILEN)
       ENDIF
 
-C ro ouverture du fichier DDW par proc
+C opening of the DDW file by proc
       IF(IDDWSTAT/=0) THEN
        WRITE(PROCNAM,'(I4.4)')ISPMD+1
        FILNAM=ROOTNAM(1:ROOTLEN)//'_'//CHRUN//'_'//PROCNAM//'.ddw'
@@ -3688,12 +3047,6 @@ C ro ouverture du fichier DDW par proc
  1500 FORMAT(
      & /' '/' '/4X,'ISPMD. . . . . . . . . . . . . .',I10)
 
- 1200 FORMAT(
-     & 4X,'SOLID, SHELL, TRIANGULAR GROUP TIME'/,
-     & 4X,'-----------------------------------'/,
-     & 4X,'TOTAL GROUP TIME . . . . . . . . . . . . .  . . .',1PG20.13/
-     & 4X,'STARTER ESTIMATED GROUP TIME . . . . . . .  . . .',1PG20.13)
-
  1300   FORMAT (4X,' DD ANALYSIS FILE:',1X,A,' WRITTEN')
  
  3000 FORMAT(
@@ -3701,10 +3054,6 @@ C ro ouverture du fichier DDW par proc
      &         10X,' --------------------'/
      &        ' '/
      &        ' '/
-     &        '    LAW_NUMB      ELEM_TYP      NUM_ELEM      MAT_NUMB      MAT_USER',
-     &        '     PROP_NUMB     PROP_USER          CPUTIME')
-     
- 3100 FORMAT(
      &        '    LAW_NUMB      ELEM_TYP      NUM_ELEM      MAT_NUMB      MAT_USER',
      &        '     PROP_NUMB     PROP_USER          CPUTIME')
      
@@ -3716,12 +3065,11 @@ C
       END
 
 C workaround / one variable in commandline.inc conflicts with scr07.inc
-Chd|====================================================================
-Chd|  GET_MEM_MAP_VAR               source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTIME                      source/system/timer.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    get_mem_map_var   ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printime          ../engine/source/system/timer.F
+!||====================================================================
       SUBROUTINE GET_MEM_MAP_VAR(GOT_M_MAP)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -3741,26 +3089,29 @@ C-----------------------------------------------
       END
 
 !       ----------------------------------------
-Chd|====================================================================
-Chd|  ADD_ELAPSED_TIME_MON_OFF      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        CLOSE_C                       source/output/tools/sortie_c.c
-Chd|        CUR_FIL_C                     source/output/tools/sortie_c.c
-Chd|        ELAPSTIME                     source/system/timer.F         
-Chd|        FSEEK_END_C                   source/output/tools/sortie_c.c
-Chd|        OPEN_C                        source/output/tools/sortie_c.c
-Chd|        WRITE_DPDB                    source/output/tools/write_db.F
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        TIME_MOD                      share/modules/time_mod.F      
-Chd|====================================================================
-        SUBROUTINE ADD_ELAPSED_TIME_MON_OFF( )
+!||====================================================================
+!||    add_elapsed_time_mon_off   ../engine/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    resol                      ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    close_c                    ../common_source/tools/input_output/write_routines.c
+!||    cur_fil_c                  ../common_source/tools/input_output/write_routines.c
+!||    elapstime                  ../engine/source/system/timer.F
+!||    fseek_end_c                ../common_source/tools/input_output/write_routines.c
+!||    open_c                     ../common_source/tools/input_output/write_routines.c
+!||    write_dpdb                 ../common_source/tools/input_output/write_db.F
+!||--- uses       -----------------------------------------------------
+!||    inoutfile_mod              ../common_source/modules/inoutfile_mod.F
+!||    time_mod                   ../engine/share/modules/time_mod.F
+!||    timer_mod                  ../engine/source/system/timer_mod.F90
+!||====================================================================
+        SUBROUTINE ADD_ELAPSED_TIME_MON_OFF(T)
 !       When /MON/OFF is used, main processor 
 !       must write the elapsed time
 C-----------------------------------------------
 C       M o d u l e s
 C-----------------------------------------------
+        USE TIMER_MOD
         USE TIME_MOD
         USE INOUTFILE_MOD
 C-----------------------------------------------
@@ -3768,39 +3119,18 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C       G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C       C o m m o n   B l o c k s
 C-----------------------------------------------
-#include        "com01_c.inc"
-#include        "com04_c.inc"
-#include        "couple_c.inc"
-#include        "impl1_c.inc"
-#include        "remesh_c.inc"
-#include        "scr05_c.inc"
-#include        "scr07_c.inc"
-#include        "scr18_c.inc"
-#include        "alefvm.inc"
-#include        "sms_c.inc"
-#include        "sphcom.inc"
 #include        "task_c.inc"
-#include        "timerc_c.inc"
-#include        "timeri_c.inc"
-#include        "timerr_c.inc"
-#include        "units_c.inc"
-#include        "warn_c.inc"
-#include        "filescount_c.inc"
         COMMON /ICLOCK/CLOCK0
         INTEGER CLOCK0
         COMMON /RCLOCK/ELAPSED
         DOUBLE PRECISION ELAPSED
 C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-        INTEGER I, NPROC
+        TYPE(TIMER_), INTENT(INOUT) :: T
+        INTEGER I
         DOUBLE PRECISION  SECS
         INTEGER :: LEN_RST_NAME
         LOGICAL :: BOOL_FILE
@@ -3812,7 +3142,7 @@ C-----------------------------------------------
 C---------------------------
 C       Elapsed time & Estimated Speedup
 C---------------------------
-        CALL ELAPSTIME(SECS)
+        CALL ELAPSTIME(T,SECS)
 !       ---------------------------
         IF(ISPMD==0) THEN
             CURRENT_RUN = GLOBAL_COMP_TIME%RUN_NBR

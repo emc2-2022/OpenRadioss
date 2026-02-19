@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMASS3                        source/elements/solid/solide/smass3.F
-Chd|-- called by -----------
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        MULTIFLUID_INIT3              source/multifluid/multifluid_init3.F
-Chd|        S8CINIT3                      source/elements/thickshell/solide8c/s8cinit3.F
-Chd|        S8ZINIT3                      source/elements/solid/solide8z/s8zinit3.F
-Chd|        SCINIT3                       source/elements/thickshell/solidec/scinit3.F
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|-- calls ---------------
-Chd|        MY_EXIT                       source/output/analyse/analyse.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    smass3             ../starter/source/elements/solid/solide/smass3.F
+!||--- called by ------------------------------------------------------
+!||    inirig_mat         ../starter/source/elements/initia/inirig_mat.F
+!||    inivoid            ../starter/source/elements/initia/inivoid.F
+!||    multifluid_init3   ../starter/source/multifluid/multifluid_init3.F
+!||    s8cinit3           ../starter/source/elements/thickshell/solide8c/s8cinit3.F
+!||    s8zinit3           ../starter/source/elements/solid/solide8z/s8zinit3.F
+!||    scinit3            ../starter/source/elements/thickshell/solidec/scinit3.F
+!||    sinit3             ../starter/source/elements/solid/solide/sinit3.F
+!||--- calls      -----------------------------------------------------
+!||    my_exit            ../starter/source/output/analyse/analyse.c
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SMASS3(
      1     RHO    ,MS   ,PARTSAV,X    ,V ,
      2     IPART  ,MSS  ,VOLU   ,
@@ -40,6 +41,10 @@ Chd|====================================================================
      4     VR     ,INS  ,WMA    ,RHOCP,MCP,  
      5     MCPS   ,MSSA ,RHOF   ,FRAC ,FILL, 
      6     NC1, NC2, NC3, NC4, NC5, NC6, NC7, NC8)
+C-----------------------------------------------
+C   I m p l i c i t   T y p e s
+C-----------------------------------------------
+      USE ALE_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,7 +56,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IPART(*),NDDIM
+      INTEGER IPART(*)
       my_real
      .   RHO(*),MS(*),X(3,*),V(3,*),PARTSAV(20,*),VOLU(*),
      .   MSS(8,*), MSSF(8,*), MSNF(*),IN(*),VR(3,*),INS(8,*),WMA(*),
@@ -61,18 +66,13 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com07_c.inc"
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
-#include      "ale_param.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, IP,I1,I2,I3,I4,I5,I6,I7,I8
-      my_real
-     .   XX,YY,ZZ,XY,YZ,ZX, MASSP,INER,RCP
-      my_real
-     .   MASS(MVSIZ),MASSF(MVSIZ)
+      INTEGER I, IP, I1, I2, I3, I4, I5, I6, I7, I8
+      my_real XX, YY, ZZ, XY, YZ, ZX, INER, RCP
+      my_real MASS(MVSIZ),MASSF(MVSIZ)
 C-------------------------------
 C=======================================================================
        DO I=LFT,LLT
@@ -236,9 +236,8 @@ C           STOP 1119
          INS(8,I)=INER
         ENDDO
        ENDIF
-
 C
-      IF(JALE > 0 .AND. NWALE == 4)THEN
+      IF(JALE > 0 .AND. ALE%GRID%NWALE == 4)THEN
         DO I=LFT,LLT
           I1 = NC1(I)
           I2 = NC2(I)

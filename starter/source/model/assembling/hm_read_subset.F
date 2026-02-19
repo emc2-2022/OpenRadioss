@@ -1,44 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_SUBSET                source/model/assembling/hm_read_subset.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ECRSUB2                       source/model/assembling/hm_read_subset.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        UDOUBLE_IGR                   source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_subset           ../starter/source/model/assembling/hm_read_subset.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    ecrsub2                  ../starter/source/model/assembling/hm_read_subset.F
+!||    fretitl2                 ../starter/source/starter/freform.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    udouble_igr              ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_SUBSET(SUBSET,IPART,NSUBS,NPART,LSUBMODEL)
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
@@ -59,6 +58,7 @@ C     LSUBMODEL       SUBMODEL STRUCTURE
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE GROUPDEF_MOD     
       USE SUBMODEL_MOD
@@ -82,12 +82,8 @@ C MODIFIED ARGUMENTS
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
-#include      "param_c.inc"
 #include      "units_c.inc"
-#include      "my_allocate.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -97,7 +93,8 @@ C-----------------------------------------------
       INTEGER J10(10)
       INTEGER, DIMENSION(NPART+NSUBS) :: BUFTMP
       my_real BID
-      CHARACTER TITR*nchartitle,MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER MESS*40
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -110,7 +107,7 @@ C  SUBSET(ISU)%ID  ::SUBSET identifier
 C  SUBSET(ISU)%TITLE  : SUBSET title
 C  SUBSET(ISU)%TH_FLAG : TIME HISTORY flag
 C  SUBSET(ISU)%PARENT : SUBSET PARENT
-C  SUBSET(ISU)%NCHILD : SUBSETS number of childs
+C  SUBSET(ISU)%NCHILD : SUBSETS number of children
 C  SUBSET(ISU)%NPART : SUBSET number of part (within one subset)
 C  SUBSET(ISU)%NTPART : Total number of parts (within parent subset)
 C  SUBSET(ISU)%THIAD : IAD for global ITHBUF storage variables
@@ -153,12 +150,12 @@ C--------------------------------------------------
         SUBSET(ISU)%NPART  = 0
         SUBSET(ISU)%NCHILD = NSU
         SUBSET(ISU)%TH_FLAG = 0
-        MY_ALLOCATE(SUBSET(ISU)%NVARTH,10) 
+        CALL MY_ALLOC(SUBSET(ISU)%NVARTH,10) 
 c        /iTH , i=A,,B, ... I 
 c     (  /iTH --> 9 additional time history files + 1 for /TH )
         SUBSET(ISU)%NVARTH(1:10) = 0
         SUBSET(ISU)%THIAD = 0
-        MY_ALLOCATE(SUBSET(ISU)%CHILD,NSU)
+        CALL MY_ALLOC(SUBSET(ISU)%CHILD,NSU)
         DO K=1,NSU
           SUBSET(ISU)%CHILD(K) = 0
         ENDDO
@@ -233,7 +230,7 @@ c
       SUBSET(NSUBS)%NCHILD = 0
       SUBSET(NSUBS)%NPART  = 0
       SUBSET(NSUBS)%TH_FLAG = 0
-      MY_ALLOCATE(SUBSET(NSUBS)%NVARTH,10) !  /iTH , i=A,,B, ... I 
+      CALL MY_ALLOC(SUBSET(NSUBS)%NVARTH,10) !  /iTH , i=A,,B, ... I 
 !     (  /iTH --> 9 additional time history files + 1 for /TH )
       SUBSET(NSUBS)%NVARTH(1:10) = 0
       SUBSET(NSUBS)%THIAD = 0
@@ -248,7 +245,7 @@ c
       ENDDO
 !==================================================
       SUBSET(NSUBS)%NCHILD = NSU
-      MY_ALLOCATE(SUBSET(NSUBS)%CHILD,NSU)
+      CALL MY_ALLOC(SUBSET(NSUBS)%CHILD,NSU)
       DO I=1,NSU
         SUBSET(NSUBS)%CHILD(I) = BUFTMP(I)
       ENDDO
@@ -268,7 +265,7 @@ C-------------------------------------
           ENDIF
         ENDDO
         SUBSET(ISU)%NPART = NP   
-        MY_ALLOCATE(SUBSET(ISU)%PART,NP)
+        CALL MY_ALLOC(SUBSET(ISU)%PART,NP)
         DO K=1,NP
           SUBSET(ISU)%PART(K) = BUFTMP(K) 
         ENDDO
@@ -318,7 +315,7 @@ C-------------------------------------
           NC = SUBLVL(SUBSET,NSUBS,ISU,NTP,BUFTMP)               
         ENDDO
         SUBSET(ISU)%NTPART = NTP
-        MY_ALLOCATE(SUBSET(ISU)%TPART,NTP)
+        CALL MY_ALLOC(SUBSET(ISU)%TPART,NTP)
         DO I=1,NTP
           SUBSET(ISU)%TPART(I) = BUFTMP(I)
         ENDDO
@@ -348,9 +345,6 @@ C-------------------------------------
         ENDIF
       ENDDO
 C=======================================================================
-      RETURN
- 999  CALL FREERR(1)
-C-----------
       RETURN
       END
       
@@ -390,19 +384,19 @@ c-----------
       RETURN
       END
 c
-Chd|====================================================================
-Chd|  ECRSUB2                       source/model/assembling/hm_read_subset.F
-Chd|-- called by -----------
-Chd|        HM_READ_SUBSET                source/model/assembling/hm_read_subset.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ecrsub2                ../starter/source/model/assembling/hm_read_subset.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_subset         ../starter/source/model/assembling/hm_read_subset.F
+!||--- calls      -----------------------------------------------------
+!||    fretitl2               ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ECRSUB2(SUBSET,NSUBS,ISU,IPART,NIVMAX)
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -423,7 +417,7 @@ C-----------------------------------------------
       INTEGER I,K,K2,L,LL,NP,IP,ID,NIVEAU,NIVMAX,TITLEN
       INTEGER CNT(0:33)
       CHARACTER LIGNE*132,LIGN2*132,BAR(33)*10,BLI*21
-      CHARACTER TITR*nchartitle
+      CHARACTER(LEN=NCHARTITLE)::TITR
       DATA BAR /33*'|         '/
       DATA BLI /'|____________________'/
       DATA CNT /34*0/
@@ -439,7 +433,7 @@ C=======================================================================
 
       L = MIN(10,MAX(2,22/(NIVMAX+1)))
       
-c     lignes vides avant subset 
+c     Empty lines before subset 
       K = 3
       DO I=1,NIVEAU
         LIGNE(K:K+L) = BAR(I)(1:L)
@@ -462,14 +456,7 @@ c     ligne subset
       ELSE
         K = 3
       ENDIF
-Cmi+++
-!      if (ID == 50000005)then
-!        write(iout,*)'MIRC_STOP_SUBSETS',ID,ISU,NIVEAU,L
-!        write(iout,*)'MIRC_STOP_SUBSETS',LEN(SUBSET(ISU)%TITLE),
-!     . SUBSET(ISU)%TITLE
-!        stop
-!      endif
-Cmi---
+
       DO I=1,NIVEAU-1
         LIGNE(K:K+L-1)=BAR(I)(1:L)
         K=K+L
@@ -491,7 +478,7 @@ Cmi---
       ENDDO
       WRITE(IOUT,'(A)')LIGNE(1:K)
       
-c    subset souligne + ligne vide apres subset
+c    Subset underlines + empty line after subset
       K=3
       LIGNE=' '
       DO I=1,NIVEAU

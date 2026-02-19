@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS91GPINCH                source/materials/mat/mat091/sigeps91gpinch.F
-Chd|-- called by -----------
-Chd|        MULAWGLCPINCH                 source/elements/shell/coqueba/mulawglcpinch.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps91gpinch   ../engine/source/materials/mat/mat091/sigeps91gpinch.F
+!||--- called by ------------------------------------------------------
+!||    mulawglcpinch    ../engine/source/elements/shell/coqueba/mulawglcpinch.F
+!||====================================================================
       SUBROUTINE SIGEPS91GPINCH(
      1                     JFT     ,JLT     ,NUVAR   ,UPARAM  ,RHO0    ,
      2                     THK     ,THK0    ,NEL     ,SSP     ,AREA    ,
@@ -56,9 +55,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr06_c.inc"
-#include      "com08_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A R G U M E N T S
 C-----------------------------------------------
@@ -92,28 +88,28 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,MX,J,IADBUF
+      INTEGER I,MX,IADBUF
 C     REAL
       my_real
      .   PA1,PA2,PA3,PA4,PA5,
      .   E,NU,G,GS,SIGY,HM,SIGY0,
-     .   MS,FS,D1,D2,D3,C1,C2,C3, 
-     .   AAA,BBB,CCC,P,BULK
+     . MS,D1,D2,D3,C1,C2,C3,
+     . BULK
       my_real
-     .   VOL(MVSIZ),SPHEPS(MVSIZ), 
-     .   DEVDEPSXX(MVSIZ),DEVDEPSYY(MVSIZ),DEVDEPSZZ(MVSIZ),
-     .   DEVDEPSXY(MVSIZ),DEVDEPSYZ(MVSIZ),DEVDEPSXZ(MVSIZ),
+     . VOL(MVSIZ),
+     .
+     .
      .   B1(MVSIZ),B2(MVSIZ),B3(MVSIZ),B4(MVSIZ),B5(MVSIZ),
      .   THK08(MVSIZ),VISCMX(MVSIZ),THKX(MVSIZ),MU(MVSIZ),
-     .   SVONM(MVSIZ),CRIT(MVSIZ),SPHSIG(MVSIZ),MAGDEV(MVSIZ),INVMAGDEV(MVSIZ),
-     .   DEVSXX(MVSIZ),DEVSYY(MVSIZ),DEVSZZ(MVSIZ),
-     .   DEVSXY(MVSIZ),DEVSYZ(MVSIZ),DEVSZX(MVSIZ),
-     .   N1(MVSIZ),N2(MVSIZ),N3(MVSIZ),N4(MVSIZ),N5(MVSIZ),N6(MVSIZ),
+     .
+     .
+     .
+     .
      .   RR(MVSIZ),UNSYEQ(MVSIZ),HH(MVSIZ),ETSE(MVSIZ),
      .   DEGSH_LOC(MVSIZ),DEGMB_LOC(MVSIZ),DEGFX_LOC(MVSIZ),DWELM(MVSIZ),
      .   DWELF(MVSIZ),DWPLA(MVSIZ),DPLA(MVSIZ),
-     .   SDEVXX(MVSIZ),SDEVYY(MVSIZ),SDEVZZ(MVSIZ),
-     .   SIGNDEVXX(MVSIZ),SIGNDEVYY(MVSIZ),SIGNDEVZZ(MVSIZ),PNEW(MVSIZ),PTRIAL(MVSIZ),
+     .
+     . SIGNDEVXX(MVSIZ),SIGNDEVYY(MVSIZ),SIGNDEVZZ(MVSIZ),PNEW(MVSIZ),
      .   POLD(MVSIZ),SIGODEVXX(MVSIZ),SIGODEVYY(MVSIZ),SIGODEVZZ(MVSIZ),DD(MVSIZ)
 C-----------------------------------------------
 C

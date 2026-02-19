@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PROJECIG3D                    source/elements/ige3d/projecig3d.F
-Chd|-- called by -----------
-Chd|        ANIMIG3D                      source/output/anim/generate/animig3d.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        IG3DONEBASIS                  source/elements/ige3d/ig3donebasis.F
-Chd|        IG3DONEDERIV                  source/elements/ige3d/ig3donederiv.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    projecig3d     ../engine/source/elements/ige3d/projecig3d.F
+!||--- called by ------------------------------------------------------
+!||    animig3d       ../engine/source/output/anim/generate/animig3d.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    ig3donebasis   ../engine/source/elements/ige3d/ig3donebasis.F
+!||    ig3donederiv   ../engine/source/elements/ige3d/ig3donederiv.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE PROJECIG3D(ELBUF_TAB, IPARG  ,X , D, V, A, WIGE ,KXIG3D   ,IXIG3D   ,
      .               IG3DSOLID,NANIM3D_L, X_TEMP, D_TEMP, V_TEMP, A_TEMP, TABSTRESL, 
      .               IGEO,KNOT, NG, NBG, NISOELCUT, NCTRL, NEL_P, ITAB, CONT, CONT_TEMP,
@@ -56,9 +57,7 @@ C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "nsvis_c.inc"
 #include      "param_c.inc"
-#include      "fluid_scr_c.inc"
 #include      "tabsiz_c.inc"
 #include      "scr14_c.inc"
 #include      "ige3d_c.inc"
@@ -84,15 +83,15 @@ C-----------------------------------------------
       INTEGER IDX(MVSIZ),IDY(MVSIZ),IDZ(MVSIZ),
      .        IDX2(MVSIZ),IDY2(MVSIZ),IDZ2(MVSIZ),
      .        N1, N2, N3,NKNOT1,NKNOT2,NKNOT3, I, J,K, JJ, L, M, N,
-     .        O, P, Q, BID, COUNT, PROJEC,
+     .           BID, COUNT,
      .        ITENS, IDBRICK, INCTRL,IERROR,
-     .        IPROP, NELIG3D,IAD_KNOT,
+     .        IPROP,IAD_KNOT,
      .        IR, IS, IT, ING, DECAL, COUNT2, COUNT3, NEL,
-     .        IDFRSTLOCKNT,IDPC
+     .        IDFRSTLOCKNT
       my_real
      .   XX(NCTRL,MVSIZ),YY(NCTRL,MVSIZ),ZZ(NCTRL,MVSIZ),
      .   DX(NCTRL,MVSIZ),DY(NCTRL,MVSIZ),DZ(NCTRL,MVSIZ), 
-     .   UX(NCTRL,MVSIZ),UY(NCTRL,MVSIZ),UZ(NCTRL,MVSIZ),
+     .   
      .   VX(NCTRL,MVSIZ),VY(NCTRL,MVSIZ),VZ(NCTRL,MVSIZ),
      .   AX(NCTRL,MVSIZ),AY(NCTRL,MVSIZ),AZ(NCTRL,MVSIZ),
      .   CONTX(NCTRL,MVSIZ),CONTY(NCTRL,MVSIZ),CONTZ(NCTRL,MVSIZ),
@@ -112,7 +111,7 @@ C-----------------------------------------------
       my_real,
      .  ALLOCATABLE, DIMENSION(:,:) :: RI,FI
       my_real
-     .   RBID,TBID(NCTRL,3)
+     .   TBID(NCTRL,3)
 C----------------------------------------------------------
       DOUBLE PRECISION
      .  W_GAUSS(9,9),A_GAUSS(9,9)
@@ -150,7 +149,7 @@ C----------------------------------------------------------
      1 0.D0               ,0.D0               ,0.D0               ,
      2 -.577350269189625D0,0.577350269189625D0,0.D0               ,
      2 0.D0               ,0.D0               ,0.D0               ,
-     2 0.D0               ,0.D0               ,0.D0               , 	
+     2 0.D0               ,0.D0               ,0.D0               , 
      3 -.774596669241483D0,0.D0               ,0.774596669241483D0,
      3 0.D0               ,0.D0               ,0.D0               ,
      3 0.D0               ,0.D0               ,0.D0               ,
@@ -195,7 +194,7 @@ C-----------------------------------------------
       ALLOCATE(MAB(SIXIG3D),RI(6,SIXIG3D),
      .         FI(6,SIXIG3D), STAT=IERROR)
       
-      IF(IERROR.NE.0)THEN
+      IF(IERROR/=0)THEN
        CALL ANCMSG(MSGID=249,ANMODE=ANINFO)
        CALL ARRET(2)
       END IF
@@ -218,37 +217,37 @@ C-----------------------------------------------
             XX(J,I)=X(1,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             YY(J,I)=X(2,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             ZZ(J,I)=X(3,IXIG3D(KXIG3D(4,I+NFT)+J-1))
-            IF(ANIM_V(1).EQ.1) THEN
+            IF(ANIM_V(1)==1) THEN
             VX(J,I)=V(1,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             VY(J,I)=V(2,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             VZ(J,I)=V(3,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             ENDIF
-            IF(ANIM_V(2).EQ.1) THEN
+            IF(ANIM_V(2)==1) THEN
             DX(J,I)=D(1,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             DY(J,I)=D(2,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             DZ(J,I)=D(3,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             ENDIF
-            IF(ANIM_V(3).EQ.1) THEN
+            IF(ANIM_V(3)==1) THEN
             AX(J,I)=A(1,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             AY(J,I)=A(2,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             AZ(J,I)=A(3,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             ENDIF
-            IF(ANIM_V(4).GT.0)THEN
+            IF(ANIM_V(4)>0)THEN
             CONTX(J,I)=CONT(1,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             CONTY(J,I)=CONT(2,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             CONTZ(J,I)=CONT(3,IXIG3D(KXIG3D(4,I+NFT)+J-1))            
             ENDIF
-            IF(ANIM_V(5).EQ.1) THEN
+            IF(ANIM_V(5)==1) THEN
             FINTX(J,I)=FINT(1,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             FINTY(J,I)=FINT(2,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             FINTZ(J,I)=FINT(3,IXIG3D(KXIG3D(4,I+NFT)+J-1))    
             ENDIF
-            IF(ANIM_V(6).EQ.1) THEN
+            IF(ANIM_V(6)==1) THEN
             FEXTX(J,I)=FEXT(1,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             FEXTY(J,I)=FEXT(2,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             FEXTZ(J,I)=FEXT(3,IXIG3D(KXIG3D(4,I+NFT)+J-1)) 
             ENDIF
-            IF(ANIM_V(17).EQ.1) THEN
+            IF(ANIM_V(17)==1) THEN
             FREACTX(J,I)=FREAC(1,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             FREACTY(J,I)=FREAC(2,IXIG3D(KXIG3D(4,I+NFT)+J-1))
             FREACTZ(J,I)=FREAC(3,IXIG3D(KXIG3D(4,I+NFT)+J-1)) 
@@ -302,25 +301,25 @@ c        PASZ = (KNOT(IAD_KNOT+NKNOT1+NKNOT2+1+IDZ(I)) - KNOT(IAD_KNOT+NKNOT1+NK
       
            DO ITENS=1,3
             XXI(ITENS) = ZERO
-            IF(ANIM_V(1).EQ.1) THEN
+            IF(ANIM_V(1)==1) THEN
              VI(ITENS) = ZERO
             ENDIF
-            IF(ANIM_V(2).EQ.1) THEN
+            IF(ANIM_V(2)==1) THEN
              DI(ITENS) = ZERO
             ENDIF
-            IF(ANIM_V(3).EQ.1) THEN
+            IF(ANIM_V(3)==1) THEN
              AI(ITENS) = ZERO
             ENDIF
-            IF(ANIM_V(4).GT.0)THEN
+            IF(ANIM_V(4)>0)THEN
              CONTI(ITENS) = ZERO
             ENDIF
-            IF(ANIM_V(5).GT.0)THEN
+            IF(ANIM_V(5)>0)THEN
              FINTI(ITENS) = ZERO
             ENDIF
-            IF(ANIM_V(6).GT.0)THEN
+            IF(ANIM_V(6)>0)THEN
              FEXTI(ITENS) = ZERO
             ENDIF
-            IF(ANIM_V(17).GT.0)THEN
+            IF(ANIM_V(17)>0)THEN
              FREACTI(ITENS) = ZERO
             ENDIF
            ENDDO 
@@ -353,37 +352,37 @@ c     .       KNOT(IAD_KNOT+NKNOT1+NKNOT2+1)
              XXI(1) = XXI(1) + R(J)*XX(J,I)
              XXI(2) = XXI(2) + R(J)*YY(J,I)
              XXI(3) = XXI(3) + R(J)*ZZ(J,I)
-             IF(ANIM_V(1).EQ.1) THEN
+             IF(ANIM_V(1)==1) THEN
              VI(1) = VI(1) + R(J)*VX(J,I)
              VI(2) = VI(2) + R(J)*VY(J,I)
              VI(3) = VI(3) + R(J)*VZ(J,I)
              ENDIF
-             IF(ANIM_V(2).EQ.1) THEN
+             IF(ANIM_V(2)==1) THEN
              DI(1) = DI(1) + R(J)*DX(J,I)
              DI(2) = DI(2) + R(J)*DY(J,I)
              DI(3) = DI(3) + R(J)*DZ(J,I)
              ENDIF
-             IF(ANIM_V(3).EQ.1) THEN
+             IF(ANIM_V(3)==1) THEN
              AI(1) = AI(1) + R(J)*AX(J,I)
              AI(2) = AI(2) + R(J)*AY(J,I)
              AI(3) = AI(3) + R(J)*AZ(J,I)
              ENDIF
-             IF(ANIM_V(4).GT.0)THEN
+             IF(ANIM_V(4)>0)THEN
              CONTI(1) = CONTI(1) + R(J)*CONTX(J,I)
              CONTI(2) = CONTI(2) + R(J)*CONTY(J,I)
              CONTI(3) = CONTI(3) + R(J)*CONTZ(J,I)
              ENDIF
-             IF(ANIM_V(5).GT.0)THEN
+             IF(ANIM_V(5)>0)THEN
              FINTI(1) = FINTI(1) + R(J)*FINTX(J,I)
              FINTI(2) = FINTI(2) + R(J)*FINTY(J,I)
              FINTI(3) = FINTI(3) + R(J)*FINTZ(J,I)
              ENDIF
-             IF(ANIM_V(6).GT.0)THEN
+             IF(ANIM_V(6)>0)THEN
              FEXTI(1) = FEXTI(1) + R(J)*FEXTX(J,I)
              FEXTI(2) = FEXTI(2) + R(J)*FEXTY(J,I)
              FEXTI(3) = FEXTI(3) + R(J)*FEXTZ(J,I)
              ENDIF
-             IF(ANIM_V(17).GT.0)THEN
+             IF(ANIM_V(17)>0)THEN
              FREACTI(1) = FREACTI(1) + R(J)*FREACTX(J,I)
              FREACTI(2) = FREACTI(2) + R(J)*FREACTY(J,I)
              FREACTI(3) = FREACTI(3) + R(J)*FREACTZ(J,I)
@@ -392,25 +391,25 @@ c     .       KNOT(IAD_KNOT+NKNOT1+NKNOT2+1)
 
            DO ITENS=1,3
              X_TEMP(ITENS,COUNT + DECAL*64) = XXI(ITENS)
-             IF(ANIM_V(1).EQ.1) THEN
+             IF(ANIM_V(1)==1) THEN
              V_TEMP(ITENS,COUNT + DECAL*64) = VI(ITENS)
              ENDIF
-             IF(ANIM_V(2).EQ.1) THEN
+             IF(ANIM_V(2)==1) THEN
              D_TEMP(ITENS,COUNT + DECAL*64) = DI(ITENS)
              ENDIF
-             IF(ANIM_V(3).EQ.1) THEN
+             IF(ANIM_V(3)==1) THEN
              A_TEMP(ITENS,COUNT + DECAL*64) = AI(ITENS)
              ENDIF
-             IF(ANIM_V(4).GT.0)THEN
+             IF(ANIM_V(4)>0)THEN
              CONT_TEMP(ITENS,COUNT + DECAL*64) = CONTI(ITENS)
              ENDIF
-             IF(ANIM_V(5).GT.0)THEN
+             IF(ANIM_V(5)>0)THEN
              FINT_TEMP(ITENS,COUNT + DECAL*64) = FINTI(ITENS)
              ENDIF
-             IF(ANIM_V(6).GT.0)THEN
+             IF(ANIM_V(6)>0)THEN
              FEXT_TEMP(ITENS,COUNT + DECAL*64) = FEXTI(ITENS)
              ENDIF
-             IF(ANIM_V(17).GT.0)THEN
+             IF(ANIM_V(17)>0)THEN
              FREACT_TEMP(ITENS,COUNT + DECAL*64) = FREACTI(ITENS)
              ENDIF
            ENDDO
@@ -438,7 +437,7 @@ c     .       KNOT(IAD_KNOT+NKNOT1+NKNOT2+1)
 
        ENDDO
 
-c     METHODE DE PROJECTION PAR LES MOINDRES CARRES SUR LE PATCH 
+c     LEAST SQUARES PROJECTION METHOD ON THE PATCH
 
        COUNT2 = 0
 

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R12SUMG3                      source/elements/spring/r12sumg3.F
-Chd|-- called by -----------
-Chd|        R12KE3                        source/elements/spring/r12ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r12sumg3   ../engine/source/elements/spring/r12sumg3.F
+!||--- called by ------------------------------------------------------
+!||    r12ke3     ../engine/source/elements/spring/r12ke3.F
+!||====================================================================
       SUBROUTINE R12SUMG3(JFT    ,JLT     ,KX     ,DKX     ,R11    ,
      1                    R21    ,R31     ,R12    ,R22     ,R32    ,
      2                    KE11   ,KE12    ,KE13   ,KE22    ,KE23   ,
@@ -107,7 +106,7 @@ C
        ENDDO
 C-----frotement---
        DO EP=JFT,JLT
-        IF (DKX(EP).GT.ZERO) THEN
+        IF (DKX(EP)>ZERO) THEN
          DO I=1,3 
           DO J=I,3 
            KE11(I,J,EP)=KE11(I,J,EP)+DKX(EP)*K1(I,J,EP)

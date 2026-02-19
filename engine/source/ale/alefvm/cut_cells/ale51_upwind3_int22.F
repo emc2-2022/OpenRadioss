@@ -1,46 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALE51_UPWIND3_INT22           source/ale/alefvm/cut_cells/ale51_upwind3_int22.F
-Chd|-- called by -----------
-Chd|        AFLUXT                        source/ale/ale51/afluxt.F     
-Chd|        ALE51_FINISH                  source/ale/ale51/ale51_finish.F
-Chd|        ALE51_INIT                    source/ale/ale51/ale51_init.F 
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ale51_upwind3_int22   ../engine/source/ale/alefvm/cut_cells/ale51_upwind3_int22.F
+!||--- called by ------------------------------------------------------
+!||    afluxt_int22          ../engine/source/ale/ale51/afluxt_int22.F90
+!||    ale51_finish_int22    ../engine/source/ale/ale51/ale51_finish_int22.F90
+!||    ale51_init            ../engine/source/ale/ale51/ale51_init.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier            ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    i22tri_mod            ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    multimat_param_mod    ../common_source/modules/multimat_param_mod.F90
+!||====================================================================
       SUBROUTINE ALE51_UPWIND3_INT22(
-     .                         PM     , IXS  , ITRIMAT,        IFLG ,
-     .                         NV46   , IPARG, ELBUF_TAB, ITASK  )
+     .                         PM     , IXS      , ITRIMAT,        IFLG ,
+     .                         IPARG  , ELBUF_TAB, ITASK  ,
+     .                         nb_int22,int22_,i22len_,brick_list)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C 'alefvm' is related to a collocated scheme (built from FVM and based on Godunov scheme)
 C  which was temporarily introduced for experimental option /INTER/TYPE22 (FSI coupling with cut cell method)
-C This cut cell method is not completed, abandonned, and is not an official option.
+C This cut cell method is not completed, abandoned, and is not an official option.
 C There is no other use for this scheme which is automatically enabled when /INTER/TYPE22 is defined (INT22>0 => IALEFVM=1).
 C
 C  This subroutines computes from direct fluxes :
@@ -51,9 +54,10 @@ C
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
-      USE I22BUFBRIC_MOD
-      USE I22TRI_MOD 
-      USE ELBUFDEF_MOD  
+      use i22tri_mod , only : brick_entity,ibug22_upwind,ibug22_itrimat
+      USE ELBUFDEF_MOD
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -65,22 +69,22 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "vect01_c.inc"
 #include      "param_c.inc"
 #include      "inter22.inc"
-#include      "i22edges.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER,INTENT(IN) :: ITRIMAT,IFLG
-      INTEGER IXS(NIXS,*), NV46,IPARG(NPARG,*),ITASK
-      my_real ::
-     .   PM(NPROPM,*),DDVOLi(MVSIZ)
+      integer, intent(in) :: nb_int22 !< number of candidates for the interface 22
+      integer, intent(in) :: int22_ !< number of /TYPE22 interfaces
+      integer, intent(in) :: i22len_ !< buffer size for intersected bricks         
+      INTEGER IXS(NIXS,*), IPARG(NPARG,*),ITASK
+      my_real :: PM(NPROPM,*)
       TYPE(ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB      
+      type(brick_entity), dimension(int22_,i22len_), intent(inout) :: brick_list !< interface 22 data structure                
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -91,7 +95,7 @@ C-----------------------------------------------
       
       INTEGER                             :: IB,IBv, NIN, ICELL,NCELL,IDLOC
       INTEGER                             :: IE,IDV,ADD, IE_M
-      my_real                             :: cellFLUX(6,9,NB),UPWL(6) 
+      my_real                             :: cellFLUX(6,9,nb_int22),UPWL(6) 
       
       my_real, DIMENSION(:), POINTER      ::  UVAR,pDDVOL           
       my_real                             :: DDVOL
@@ -105,30 +109,29 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-
       !=================
       ! INITIALIZATIONS 
       !=================
       NIN = 1
-      NBF = 1+ITASK*NB/NTHREAD
-      NBL = (ITASK+1)*NB/NTHREAD
-      NBL = MIN(NBL,NB)
+      NBF = 1+ITASK*nb_int22/NTHREAD
+      NBL = (ITASK+1)*nb_int22/NTHREAD
+      NBL = MIN(NBL,nb_int22)
 
 
       !INTERFACE 22 ONLY - OUTPUT---------------!
       debug_outp = .false.
-      if(ibug22_upwind.ne.0)then
-        if(ibug22_upwind.GT.0)then
+      if(ibug22_upwind/=0)then
+        if(ibug22_upwind>0)then
           do ib=nbf,nbl
             ie  = brick_list(nin,ib)%id
             mlw = brick_list(nin,ib)%mlw
-            if(ixs(11,ie).eq.ibug22_upwind)debug_outp=.true.
-            if(mlw.ne.51)debug_outp=.false.
+            if(ixs(11,ie)==ibug22_upwind)debug_outp=.true.
+            if(mlw/=51)debug_outp=.false.
           enddo
         elseif(ibug22_upwind==-1)then
           debug_outp = .true.
         endif
-        if(((itrimat.ne.ibug22_itrimat).and.(ibug22_itrimat.ne.-1)))debug_outp=.false.
+        if(((itrimat/=ibug22_itrimat).and.(ibug22_itrimat/=-1)))debug_outp=.false.
       endif
       if(debug_outp)then
              print *, "    |----ale51_upwind3_int22.F-----|"
@@ -139,9 +142,9 @@ C-----------------------------------------------
       endif
        
       !======================================================!
-      ! STEP B : NON COFORM MESH                             !
+      ! STEP B : NON CONFORM MESH                            !
       !    USE CONSISTENT FLUX                               !
-      !======================================================!       
+      !======================================================!
       DO IB=NBF,NBL  
         IE                =  BRICK_LIST(NIN,IB)%ID 
         MLW               =  BRICK_LIST(NIN,IB)%MLW               
@@ -149,10 +152,10 @@ C-----------------------------------------------
         MCELL             =  BRICK_LIST(NIN,IB)%MainID       
         ICELL             =  0  
         IDLOC             =  BRICK_LIST(NIN,IB)%IDLOC
-        IF(MLW.NE.51)CYCLE
-        DO WHILE (ICELL.LE.NCELL) ! loop on polyhedron {1:NCELL} U {9}
+        IF(MLW/=51)CYCLE
+        DO WHILE (ICELL<=NCELL) ! loop on polyhedron {1:NCELL} U {9}
           ICELL = ICELL +1
-          IF (ICELL>NCELL .AND. NCELL.NE.0)ICELL=9 
+          IF (ICELL>NCELL .AND. NCELL/=0)ICELL=9 
           !======================================================!
           !  MULTIMATERIAL UPWIND TREATMENT                      !          
           !======================================================!          
@@ -161,7 +164,7 @@ C-----------------------------------------------
           UPWL(1:6) = PM(16,MAT)
           REDUC     = PM(92,MAT)
           DDVOL     = ZERO
-          BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1 = ZERO
+          BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1_mat(itrimat) = ZERO
           DO J=1,6
             NADJ = BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%NAdjCell          
             DO IADJ = 1,NADJ
@@ -169,10 +172,10 @@ C-----------------------------------------------
               IBv    = BRICK_LIST(NIN,IB)%Adjacent_Brick(J,4)
               Jv     = BRICK_LIST(NIN,IB)%Adjacent_Brick(J,5)              
               ICELLv = BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_Cell(IADJ)
-              cellFLUX(J,ICELL,IB) = BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_UpwFLUX(IADJ)
-              IF(IDV.EQ.0)THEN
+              cellFLUX(J,ICELL,IB) = BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_UpwFLUX_mat(IADJ,itrimat)
+              IF(IDV==0)THEN
                cellFLUX(J,ICELL,IB)=cellFLUX(J,ICELL,IB)*REDUC
-              ELSEIF(IDV.GT.0)THEN
+              ELSEIF(IDV>0)THEN
                NG      = BRICK_LIST(NIN,IB)%NG
                ISILENT = IPARG(64,NG)
                IF(ISILENT==1)THEN
@@ -180,10 +183,12 @@ C-----------------------------------------------
                  cellFLUX(J,ICELL,IB)=cellFLUX(J,ICELL,IB)*PM(92,IXS(1,IDV))
                ENDIF
               ENDIF 
-              BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_upwFLUX(IADJ) = cellFLUX(J,ICELL,IB)-UPWL(J)*ABS(cellFLUX(J,ICELL,IB))
-              BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1 = 
-     .        BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1 + cellFLUX(J,ICELL,IB)+UPWL(J)*ABS(cellFLUX(J,ICELL,IB))
-              IF(IFLG.EQ.10)THEN
+              BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_UpwFLUX_mat(IADJ,itrimat) = 
+     .         cellFLUX(J,ICELL,IB)-UPWL(J)*ABS(cellFLUX(J,ICELL,IB))
+              BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1_mat(itrimat) = 
+     .        BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1_mat(itrimat) + 
+     .                      cellFLUX(J,ICELL,IB)+UPWL(J)*ABS(cellFLUX(J,ICELL,IB))
+              IF(IFLG==10)THEN
                 DDVOL = DDVOL + cellFLUX(J,ICELL,IB)
 C                DDVOL = DDVOL + cellFLUX(J,ICELL,IB)+UPWL(J)*ABS(cellFLUX(J,ICELL,IB))                
 C                DDVOL = DDVOL + cellFLUX(J,ICELL,IB)-UPWL(J)*ABS(cellFLUX(J,ICELL,IB))   
@@ -192,20 +197,22 @@ C                DDVOL = DDVOL + cellFLUX(J,ICELL,IB)-UPWL(J)*ABS(cellFLUX(J,ICE
             ENDDO!next IADJ
           ENDDO!next J
          
-          BRICK_LIST(NIN,IB)%POLY(ICELL)%DDVOL_upw = DDVOL  !HALF*DDVOL
+          BRICK_LIST(NIN,IB)%POLY(ICELL)%DDVOL_upw(itrimat) = DDVOL  !HALF*DDVOL
 
            !INTERFACE 22 ONLY - OUTPUT---------------!
 !#!include "lockon.inc"      
            if(debug_outp)then
-            if(ibug22_upwind.eq.ixs(11,ie) .OR. ibug22_upwind.eq.-1)then          
+            if(ibug22_upwind==ixs(11,ie) .OR. ibug22_upwind==-1)then          
              print *,                    "      brique         =", ixs(11,ie)
              print *,                    "      icell          =", ICELL 
-            write (*,FMT='(A,1E26.14)') "       Flu1           =", BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1             
+            write (*,FMT='(A,1E26.14)') "       Flu1           =", 
+     .       BRICK_LIST(NIN,IB)%POLY(ICELL)%Adjacent_FLU1_mat(itrimat)             
              DO J=1,6
                NADJ = BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%NAdjCell          
                DO IADJ = 1,NADJ                        
                  print *,                "      FACE           =", J
-            write (*,FMT='(A,6E26.14)') "       Flux(IAD:NADJ) =", BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_upwFLUX(IADJ)
+            write (*,FMT='(A,6E26.14)') "       Flux(IAD:NADJ) =", 
+     .        BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(J)%Adjacent_upwFLUX_mat(IADJ,itrimat)
                ENDDO
              ENDDO
              print *, "      ------------------------" 
@@ -226,37 +233,34 @@ C                DDVOL = DDVOL + cellFLUX(J,ICELL,IB)-UPWL(J)*ABS(cellFLUX(J,ICE
       ! SECND CELLS STACK                                       !
       !---------------------------------------------------------!
       !STACK Secnd cells values from ones connected to current main cell                                                        
-      NIN = 1													       
-      DO IB=NBF,NBL												             
-     	NG    = BRICK_LIST(NIN,IB)%NG										       
-     	IE    = BRICK_LIST(NIN,IB)%ID										       
-     	IDLOC = BRICK_LIST(NIN,IB)%IDLOC									       
-     	MLW   =  BRICK_LIST(NIN,IB)%MLW 									       
-     	NUM   = BRICK_LIST(NIN,IB)%SecndList%Num								       
-     	MCELL = BRICK_LIST(NIN,IB)%mainID									       
-     	IF(MLW.NE.51)CYCLE											       
-     	DDVOL = ZERO												       
-     	DO K=1,NUM												       
-     	  IBV	 = BRICK_LIST(NIN,IB)%SecndList%IBV(K)  							       
-     	  ICELLv = BRICK_LIST(NIN,IB)%SecndList%ICELLv(K)							       
-     	  DDVOL  = DDVOL + BRICK_LIST(NIN,IBv)%POLY(ICELLv)%DDVOL_upw						       
-     	ENDDO													       
-     	DDVOL = DDVOL + BRICK_LIST(NIN,IB)%POLY(MCELL)%DDVOL_upw						       
-     	!updating law51 material buffer with computed stacked value						       
-     	IF(ITRIMAT.GT.0)THEN											       
-     	  LFT	 =  1												       
-     	  LLT	 =  IPARG(2,NG) 										       
-     	  UVAR   => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR							       
-     	  ADD	 = (N0PHAS + (ITRIMAT-1)*NVPHAS+12)*LLT 							       
-     	  pDDVOL => UVAR(ADD+1:ADD+LLT) 									       
-     	  pDDVOL(IDLOC) =  DDVOL   !*HALF  : deja applique facteur 1/2					       
-     	  if(ixs(11,IE)==26354)then										       
-     	    print *, "itrimat, ddvoli", itrimat, DDVOL  							       
-     	  endif 												       
-     	ELSE													       
-     	  BRICK_LIST(NIN,IB)%POLY(MCELL)%DDVOL_upw = DDVOL							       
-     	ENDIF													       
-      ENDDO!next IB												       
+      NIN = 1                                 
+      DO IB=NBF,NBL                                     
+          NG    = BRICK_LIST(NIN,IB)%NG                           
+          IE    = BRICK_LIST(NIN,IB)%ID                           
+          IDLOC = BRICK_LIST(NIN,IB)%IDLOC                         
+          MLW   =  BRICK_LIST(NIN,IB)%MLW                          
+          NUM   = BRICK_LIST(NIN,IB)%SecndList%Num                       
+          MCELL = BRICK_LIST(NIN,IB)%mainID                         
+          IF(MLW/=51)CYCLE                             
+          DDVOL = ZERO                               
+          DO K=1,NUM                               
+            IBV   = BRICK_LIST(NIN,IB)%SecndList%IBV(K)                       
+            ICELLv = BRICK_LIST(NIN,IB)%SecndList%ICELLv(K)                     
+            DDVOL  = DDVOL + BRICK_LIST(NIN,IBv)%POLY(ICELLv)%DDVOL_upw(itrimat)                   
+          ENDDO                                 
+          DDVOL = DDVOL + BRICK_LIST(NIN,IB)%POLY(MCELL)%DDVOL_upw(itrimat)                   
+          !updating law51 material buffer with computed stacked value                   
+          IF(ITRIMAT>0)THEN                             
+            LFT   =  1                               
+            LLT   =  IPARG(2,NG)                            
+            UVAR   => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR                     
+            ADD   = (M51_N0PHAS + (ITRIMAT-1)*M51_NVPHAS+12)*LLT                      
+            pDDVOL => UVAR(ADD+1:ADD+LLT)                          
+            pDDVOL(IDLOC) =  DDVOL   !*Half: already apply 1/2 factor                                              
+          ELSE                                 
+            BRICK_LIST(NIN,IB)%POLY(MCELL)%DDVOL_upw(itrimat) = DDVOL                     
+          ENDIF                                 
+      ENDDO!next IB                               
       
 
       RETURN

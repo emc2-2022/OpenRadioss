@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  ATURI3                        source/ale/ale3d/aturi3.F     
-Chd|-- called by -----------
-Chd|        MULTIFLUID_INIT3              source/multifluid/multifluid_init3.F
-Chd|        S4INIT3                       source/elements/solid/solide4/s4init3.F
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    aturi3             ../starter/source/ale/ale3d/aturi3.F
+!||--- called by ------------------------------------------------------
+!||    multifluid_init3   ../starter/source/multifluid/multifluid_init3.F
+!||    s4init3            ../starter/source/elements/solid/solide4/s4init3.F
+!||    sinit3             ../starter/source/elements/solid/solide/sinit3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE ATURI3(IPARG,RHO,PM,IX,X,RK,RE,VOLU)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -98,7 +99,7 @@ C-----------------------------------------------
                  Y1=X(2,IX(2,J))+X(2,IX(3,J))+X(2,IX(4,J))+X(2,IX(5,J))+X(2,IX(6,J))+X(2,IX(7,J))+X(2,IX(8,J))+X(2,IX(9,J))
                  Z1=X(3,IX(2,J))+X(3,IX(3,J))+X(3,IX(4,J))+X(3,IX(5,J))+X(3,IX(6,J))+X(3,IX(7,J))+X(3,IX(8,J))+X(3,IX(9,J))
                  D2= MIN(D2,(X1-X0)**2+(Y1-Y0)**2+(Z1-Z0)**2)
-               END DO !JJ=LFT2,LLT2
+               END DO !JJ = LFT2, LLT2
              ENDIF
           END DO !NG=1,NGROUP
           XL=XL+ONE_OVER_8*SQRT(D2)

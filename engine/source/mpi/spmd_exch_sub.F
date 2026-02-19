@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_SUB_BOUNDARIES           source/mpi/spmd_exch_sub.F    
-Chd|-- called by -----------
-Chd|        RESOL_INIT                    source/engine/resol_init.F    
-Chd|-- calls ---------------
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_sub_boundaries   ../engine/source/mpi/spmd_exch_sub.F
+!||--- called by ------------------------------------------------------
+!||    resol_init            ../engine/source/engine/resol_init.F
+!||--- uses       -----------------------------------------------------
+!||    nlocal_reg_mod        ../common_source/modules/nlocal_reg_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_SUB_BOUNDARIES(NLOC_DMG,IAD_ELEM,FR_ELEM)
 C-----------------------------------------------
 C   M o d u l e s
@@ -35,22 +36,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr06_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "parit_c.inc"
 #include      "scr02_c.inc"
 C-----------------------------------------------
@@ -155,9 +147,9 @@ C     -----------------------------
                 NN = NLOC_DMG%FR_ELEM(J)
                 NDDL = NLOC_DMG%POSI(NN+1) - NLOC_DMG%POSI(NN)
                 DO CC = NLOC_DMG%ADDCNE(NN),NLOC_DMG%ADDCNE(NN+1)-1
-                  IF( NLOC_DMG%PROCNE(CC).EQ.LOC_PROC)THEN                          
+                  IF( NLOC_DMG%PROCNE(CC)==LOC_PROC)THEN                          
                     LSD=LSD+1
-                  ELSEIF(NLOC_DMG%PROCNE(CC).EQ.P) THEN
+                  ELSEIF(NLOC_DMG%PROCNE(CC)==P) THEN
                     LRD=LRD+1
                   ENDIF
  
@@ -198,12 +190,12 @@ C     -----------------------------
                 NDDL = NLOC_DMG%POSI(NN+1) - NLOC_DMG%POSI(NN)
 
                 DO CC = NLOC_DMG%ADDCNE(NN),NLOC_DMG%ADDCNE(NN+1)-1
-                  IF( NLOC_DMG%PROCNE(CC).EQ.LOC_PROC)THEN
+                  IF( NLOC_DMG%PROCNE(CC)==LOC_PROC)THEN
                     NLOC_DMG%FR_NBCC(1,P) = NLOC_DMG%FR_NBCC(1,P)+KK*NDDL      
                     NLOC_DMG%ISENDSP(LSD)=CC                    
                     NLOC_DMG%FR_ELEM_S(LSD)=NN             
                     LSD=LSD+1
-                  ELSEIF(NLOC_DMG%PROCNE(CC).EQ.P) THEN
+                  ELSEIF(NLOC_DMG%PROCNE(CC)==P) THEN
                     NLOC_DMG%FR_NBCC(2,P) = NLOC_DMG%FR_NBCC(2,P)+KK*NDDL      
                     NLOC_DMG%IRECSP(LRD)=CC 
                     NLOC_DMG%FR_ELEM_R(LRD)=NN                                    
@@ -226,13 +218,15 @@ C     -----------------------------
       END
 
 
-Chd|====================================================================
-Chd|  SPMD_EXCH_SUB_POFF            source/mpi/spmd_exch_sub.F    
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_sub_poff    ../engine/source/mpi/spmd_exch_sub.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    nlocal_reg_mod        ../common_source/modules/nlocal_reg_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_SUB_POFF(NLOC_DMG)
 C-----------------------------------------------
 C   M o d u l e s
@@ -241,22 +235,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr06_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "scr02_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -266,19 +255,19 @@ C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER I,J,K,L,M,ND
+      INTEGER I, J, K, L
       INTEGER NDDL,NSIZESUB,NN,NPOS,SIZEA
 
 C MPI  VARIABLES
 
-      INTEGER MSGTYP,NOD,LOC_PROC, SIZ,NB_NOD,NB,MAXLEV,VALUE
+      INTEGER MSGTYP, SIZ
 
       INTEGER STATUS(MPI_STATUS_SIZE),IERROR
 
       INTEGER MSGOFF1
       INTEGER IAD_SEND(NSPMD+1),IAD_RECV(NSPMD+1)
-      INTEGER SEND_SIZ(NSPMD),RECV_SIZ(NSPMD)
-      INTEGER SIZ_SEND,SIZ_RECV
+ 
+ 
 
       INTEGER REQ_S(NSPMD)
       INTEGER REQ_R(NSPMD)
@@ -290,7 +279,7 @@ C=======================================================================
       NSIZESUB=NLOC_DMG%NNOD
       SIZEA = NLOC_DMG%L_NLOC
 C-------------------------------
-C 1. SEND & RECIEVE Buffer size
+C 1. SEND & RECEIVE Buffer size
 C-------------------------------
       SIZ = NLOC_DMG%IAD_SIZE(NSPMD+1)-NLOC_DMG%IAD_SIZE(1)
       ALLOCATE(RECV_BUF(SIZ))
@@ -305,7 +294,7 @@ c--------------------------------------------------------------------
         IF (SIZ > 0)THEN
           MSGTYP = MSGOFF1
           CALL MPI_IRECV( RECV_BUF(L),SIZ,REAL,IT_SPMD(I),MSGTYP,
-     G                    MPI_COMM_WORLD,REQ_R(I),IERROR)
+     G                    SPMD_COMM_WORLD,REQ_R(I),IERROR)
           L = L + SIZ
         ENDIF
         IAD_RECV(I+1) = L
@@ -342,11 +331,11 @@ c--------------------------------------------------------------------
             MSGTYP = MSGOFF1
             CALL MPI_ISEND(
      S        SEND_BUF(L),SIZ,REAL,IT_SPMD(I),MSGTYP,
-     G        MPI_COMM_WORLD,REQ_S(I),IERROR)
+     G        SPMD_COMM_WORLD,REQ_S(I),IERROR)
           ENDIF
       ENDDO
 c--------------------------------------------------------------------
-c     Receive buffer & compute recieve_size
+c     Receive buffer & compute receive_size
 c-------------------------------------------------------------------
       K=1
       DO I = 1, NSPMD
@@ -393,13 +382,15 @@ c-------------------------------------------------------------------
       END
 
 
-Chd|====================================================================
-Chd|  SPMD_EXCH_SUB_PON             source/mpi/spmd_exch_sub.F    
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_sub_pon     ../engine/source/mpi/spmd_exch_sub.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    nlocal_reg_mod        ../common_source/modules/nlocal_reg_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_SUB_PON(NLOC_DMG)
 !$COMMENT
 !       SPMD_EXCH_SUB_PON
@@ -418,22 +409,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr06_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "scr02_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -443,19 +429,19 @@ C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER I,J,K,L,M,ND,IJK
+      INTEGER I, J, K, L, IJK
       INTEGER NDDL,NSIZESUB,NN,NPOS,SIZEA
 
 C MPI  VARIABLES
 
-      INTEGER MSGTYP,NOD,LOC_PROC, SIZ,NB_NOD,NB,MAXLEV,VALUE
+      INTEGER MSGTYP, SIZ
 
       INTEGER STATUS(MPI_STATUS_SIZE),IERROR
 
       INTEGER MSGOFF1
       INTEGER IAD_SEND(NSPMD+1),IAD_RECV(NSPMD+1)
-      INTEGER SEND_SIZ(NSPMD),RECV_SIZ(NSPMD)
-      INTEGER SIZ_SEND,SIZ_RECV
+ 
+ 
 
       INTEGER :: SIZ_S,SIZ_R
       INTEGER REQ_S(NSPMD)
@@ -468,7 +454,7 @@ C=======================================================================
       NSIZESUB=NLOC_DMG%NNOD
       SIZEA = NLOC_DMG%L_NLOC
 C-------------------------------
-C 1. SEND & RECIEVE Buffer size
+C 1. SEND & RECEIVE Buffer size
 C-------------------------------
       SIZ_S = NLOC_DMG%FR_NBCC(1,NSPMD+1)
       SIZ_R = NLOC_DMG%FR_NBCC(2,NSPMD+1)
@@ -487,7 +473,7 @@ c--------------------------------------------------------------------
         IF (SIZ > 0)THEN
           MSGTYP = MSGOFF1
           CALL MPI_IRECV( RECV_BUF(L),SIZ,REAL,IT_SPMD(I),MSGTYP,
-     G                    MPI_COMM_WORLD,REQ_R(I),IERROR)
+     G                    SPMD_COMM_WORLD,REQ_R(I),IERROR)
           L = L + SIZ
         ENDIF
         IAD_RECV(I+1) = L
@@ -526,11 +512,11 @@ c--------------------------------------------------------------------
             MSGTYP = MSGOFF1
             CALL MPI_ISEND(
      S        SEND_BUF(L),SIZ,REAL,IT_SPMD(I),MSGTYP,
-     G        MPI_COMM_WORLD,REQ_S(I),IERROR)
+     G        SPMD_COMM_WORLD,REQ_S(I),IERROR)
           ENDIF
       ENDDO
 c--------------------------------------------------------------------
-c     Receive buffer & compute recieve_size
+c     Receive buffer & compute receive_size
 c-------------------------------------------------------------------
       K=1
       DO I = 1, NSPMD

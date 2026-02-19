@@ -1,71 +1,71 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25MAIN_SLID                  source/interfaces/int25/i25main_slid.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        ALLOCATE_COMM_STRUCT          share/modules/mpi_comm_mod.F  
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        DEALLOCATE_COMM_STRUCT        share/modules/mpi_comm_mod.F  
-Chd|        I25COMP_1                     source/interfaces/int25/i25comp_1.F
-Chd|        I25PREP_ADD                   source/interfaces/int25/i25slid.F
-Chd|        I25PREP_NINDEX                source/interfaces/int25/i25slid.F
-Chd|        I25PREP_SEND                  source/interfaces/int25/i25slid.F
-Chd|        I25PREP_SIZBUFS               source/interfaces/int25/i25slid.F
-Chd|        I25PREP_SLID_2                source/interfaces/int25/i25slid.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_I25_SLIDE_EXCH           source/mpi/interfaces/spmd_i25slide.F
-Chd|        SPMD_I25_SLIDE_GAT            source/mpi/interfaces/spmd_i25slide.F
-Chd|        UPGRADE_CAND_OPT              ../common_source/interf/upgrade_multimp.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFMOD                     share/modules/restart_mod.F   
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MPI_COMMOD                    share/modules/mpi_comm_mod.F  
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25main_slid             ../engine/source/interfaces/int25/i25main_slid.F
+!||--- called by ------------------------------------------------------
+!||    inttri                   ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||    allocate_comm_struct     ../engine/share/modules/mpi_comm_mod.F
+!||    ancmsg                   ../engine/source/output/message/message.F
+!||    arret                    ../engine/source/system/arret.F
+!||    deallocate_comm_struct   ../engine/share/modules/mpi_comm_mod.F
+!||    i25comp_1                ../engine/source/interfaces/int25/i25comp_1.F
+!||    i25prep_add              ../engine/source/interfaces/int25/i25slid.F
+!||    i25prep_nindex           ../engine/source/interfaces/int25/i25slid.F
+!||    i25prep_send             ../engine/source/interfaces/int25/i25slid.F
+!||    i25prep_sizbufs          ../engine/source/interfaces/int25/i25slid.F
+!||    i25prep_slid_2           ../engine/source/interfaces/int25/i25slid.F
+!||    my_barrier               ../engine/source/system/machine.F
+!||    spmd_i25_slide_exch      ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||    spmd_i25_slide_gat       ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||    upgrade_cand_opt         ../common_source/interf/upgrade_multimp.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod                  ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod            ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod              ../engine/share/message_module/message_mod.F
+!||    mpi_commod               ../engine/share/modules/mpi_comm_mod.F
+!||    parameters_mod           ../common_source/modules/interfaces/parameters_mod.F
+!||    sensor_mod               ../common_source/modules/sensor_mod.F90
+!||    tri7box                  ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25MAIN_SLID(
-     1       IPARI    ,IAD_ELEM ,FR_ELEM  ,ITAB     ,SENSOR ,
-     2       INTLIST25,INTBUF_TAB ,IAD_FRNOR,FR_NOR ,
+     1       IPARI    ,IAD_ELEM ,FR_ELEM  ,ITAB     ,SENSOR_TAB,
+     2       NSENSOR  ,INTLIST25,INTBUF_TAB ,IAD_FRNOR,FR_NOR ,
      3       X        ,V       ,MS      ,TEMP   ,KINET   ,
      4       NODNX_SMS,JTASK   ,NB_DST2, MAIN_PROC,
      5       NEWFRONT ,ISENDTO ,IRCVFROM ,NBINTC,
      6       INTLIST ,ISLEN7   ,IRLEN7  ,IRLEN7T  ,ISLEN7T,
-     7       NB_DST1 ,H3D_DATA, 
-     8       ICODT,
-     9       ISKEW)
-
+     7       NB_DST1 ,H3D_DATA,   ICODT, ISKEW,PARAMETERS,NODADT_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE INTBUFMOD
       USE MESSAGE_MOD
       USE TRI7BOX
       USE INTBUFDEF_MOD  
       USE MPI_COMMOD  
       USE H3D_MOD
+      USE SENSOR_MOD
+      USE PARAMETERS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -76,27 +76,20 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "secur_c.inc"
 #include      "spmd_c.inc"
 #include      "task_c.inc"
-#include      "timeri_c.inc"
 #include      "warn_c.inc" 
-#include      "scr17_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NSENSOR
+      INTEGER ,INTENT(IN) :: NODADT_THERM
       INTEGER IPARI(NPARI,*), ITAB(*), INTLIST25(*), JTASK,
      .        IAD_ELEM(2,*) ,FR_ELEM(*), IAD_FRNOR(NINTER25,NSPMD+1), FR_NOR(*),
      .        KINET(*), NODNX_SMS(*), NB_DST1(PARASIZ), NB_DST2(PARASIZ)
       INTEGER, INTENT(IN) :: ICODT(*),ISKEW(*)
-      my_real
-     .        SENSOR(NSENSR,*), X(3,*), V(3,*), MS(*), TEMP(*)
+      my_real :: X(3,*), V(3,*), MS(*), TEMP(*)
       TYPE(INTBUF_STRUCT_),DIMENSION(NINTER) :: INTBUF_TAB
       INTEGER MAIN_PROC(NUMNOD)
       INTEGER NBINTC,ISLEN7,IRLEN7,
@@ -104,26 +97,26 @@ C-----------------------------------------------
      .        NEWFRONT(*), INTLIST(*),
      .        ISENDTO(NINTER+1,*) ,IRCVFROM(NINTER+1,*)
       TYPE(H3D_DATABASE) :: H3D_DATA
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) ,INTENT(IN) :: SENSOR_TAB
+      TYPE (PARAMETERS_) ,INTENT(IN):: PARAMETERS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER KK, NIN, NI25, ISENS, LENT25, IERROR, ITYP,
+      INTEGER NIN, NI25, LENT25, IERROR, ITYP, 
      .        IFQ, IGAP, INTTH, ILEV, IVIS2,
-     .        I_STOK_GLO, I_STOK, I,J, LINDMAX, NSNR, INACTI, NADMSR,
-     .        LENADD, MG, L, N, N_OLD_IMPACT,
-     .        P, RSIZ(NINTER25), ISIZ(NINTER25), SIZBUFS(NSPMD), IADBUFR(NSPMD+1),
+     . I_STOK_GLO, I,J, NSNR, INACTI, NADMSR,
+     . N_OLD_IMPACT,
+     . P, RSIZ(NINTER25), ISIZ(NINTER25), SIZBUFS(NSPMD),
      .        NADMAX, LADMAX, NSLIDMX, NSENDTOT, NSNF, NSNL, NSNRF, NSNRL,INTFRIC ,
-     .        FLAGREMN, LREMNORMAX
+     .        FLAGREMN, LREMNORMAX, ISTIF_MSDT, IFSUB_CAREA
       INTEGER SIZOPT, K_STOK, I_OPT_STOK
-      my_real
-     .       TS, STARTT, STOPT
-      INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX2, BUFR, NADD, KADD,
+      INTEGER, DIMENSION(:), ALLOCATABLE :: NADD, KADD, 
      .                                      NSLIDE, FR_SLIDE, INDXTOSEND
 C
       TYPE(real_pointer),    DIMENSION(NSPMD,NINTER25) :: RBUFS,RBUFR
       TYPE(int_pointer) ,    DIMENSION(NSPMD,NINTER25) :: IBUFS,IBUFR  
 
-C     rassembler les trois structures + COMM_PATTERN 
+C     Gather the three structures + comm_pattern 
       TYPE(MPI_COMM_STRUCT) :: COMM_INT
       TYPE(MPI_COMM_STRUCT) :: COMM_REAL
       TYPE(MPI_COMM_STRUCT) :: COMM_SIZ
@@ -132,6 +125,7 @@ C     rassembler les trois structures + COMM_PATTERN
       INTEGER SIZBUFS_GLOB(NSPMD,NINTER25)  !number of nodes to send per proc per interf
       INTEGER SIZBUFR_GLOB(NSPMD,NINTER25)  !number of nodes to recv per proc per interf
       INTEGER NB_TOT
+      INTEGER :: NRTM, NSN
 C-----------------------------------------------
 
 
@@ -163,17 +157,21 @@ C
       CALL MY_BARRIER
 C
 C-----------------------------------------------------------------------
-C       Secnd node leaving its previous impacted segment ...
-C-----------------------------------------------------------------------
+C       Second node leaving its previous impacted segment ...
+C-----------------------------------------------------------------------  
+!$OMP SINGLE
       DO NI25=1,NINTER25
-C
         NIN = INTLIST25(NI25)
-
         IPARI(29,NIN) = 0
-C
+      END DO
+!$OMP END SINGLE
+
+      DO NI25=1,NINTER25
+        NIN = INTLIST25(NI25)
         CALL I25COMP_1(
      1    IPARI   ,INTBUF_TAB(NIN),X   ,ITAB      ,NIN       ,
-     2    KINET     ,JTASK    ,NB_DST1(JTASK),V   ,SENSOR    )
+     2    KINET     ,JTASK    ,NB_DST1(JTASK),V   ,NSENSOR   ,
+     3    SENSOR_TAB)
       ENDDO
 C
       CALL MY_BARRIER
@@ -194,8 +192,8 @@ C
         RSIZ(1:NINTER25) = 0
 
 
-!        : remplir COMM_PATTERN tel que COMM_PATTERN(P,NIN) = 1 => comm entre ISPMD et P
-!       pour l interface NIN (symmetrie necessaire entre processeurs)
+!        : fill comm_pattern such that comm_pattern (p, nin) = 1 => comm between ISPMD and P
+!       For the NIN interface (necessary symmetry between processors)
         COMM_PATTERN(1:NSPMD,1:NINTER25) = 0
         DO NI25=1,NINTER25
 C
@@ -203,23 +201,9 @@ C
 C
           IPARI(29,NIN) = 0
 C
-C         STARTT=INTBUF_TAB(NIN)%VARIABLES(3)
-C         STOPT =INTBUF_TAB(NIN)%VARIABLES(11)
-C         IF(STARTT.GT.TT) CYCLE
-C         IF(TT.GT.STOPT)  CYCLE
-C
-C         Look if interface is activated 
-C          ISENS = IPARI(64,NIN)  
-C          IF(ISENS.NE.0)  THEN         ! Interface activated by sensor
-C             TS = SENSOR(2,ISENS)
-C          ELSE
-C             TS = TT
-C          ENDIF
-C          IF(TT.LT.TS) CYCLE
-
           DO P = 1,NSPMD
              LENT25 = IAD_FRNOR(NI25,P+1)-IAD_FRNOR(NI25,P)
-             IF(P .NE. ISPMD +1 .AND. LENT25 /= 0) THEN
+             IF(P /= ISPMD +1 .AND. LENT25 /= 0) THEN
                 COMM_PATTERN(P,NI25) = 1
              ENDIF
           ENDDO
@@ -234,17 +218,17 @@ C
 C
 C         STARTT=INTBUF_TAB(NIN)%VARIABLES(3)
 C         STOPT =INTBUF_TAB(NIN)%VARIABLES(11)
-C         IF(STARTT.GT.TT) CYCLE
-C         IF(TT.GT.STOPT)  CYCLE
+C         IF(STARTT>TT) CYCLE
+C         IF(TT>STOPT)  CYCLE
 C
 C         Look if interface is activated 
 C         ISENS = IPARI(64,NIN)  
-C         IF(ISENS.NE.0)  THEN         ! Interface activated by sensor
-C            TS = SENSOR(2,ISENS)
+C         IF(ISENS/=0)  THEN         ! Interface activated by sensor
+C            TS = SENSOR_TAB(ISENS)%TSTART
 C         ELSE
 C            TS = TT
 C         ENDIF
-C         IF(TT.LT.TS) CYCLE
+C         IF(TT<TS) CYCLE
 C
 C precalculer LENS
           LENT25 = IAD_FRNOR(NI25,NSPMD+1)-IAD_FRNOR(NI25,1)
@@ -269,18 +253,18 @@ C-----------------------------------------------------------------------
 
         ELSE
 C-----------------------------------------------------------------------
-C         SPMD only <=> envoi de nds secnds qui glissent sur un sommet frontire
+C         spmd only <=> sending secondary nodes that slide on a boundary vertex
 C-----------------------------------------------------------------------
 C
           ALLOCATE(NADD(NADMAX+1),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
 C
           LADMAX = 4*NSLIDMX
           ALLOCATE(KADD(LADMAX),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
@@ -291,20 +275,6 @@ C
 
              IPARI(29,NIN) = 0
 C
-C            STARTT=INTBUF_TAB(NIN)%VARIABLES(3)
-C            STOPT =INTBUF_TAB(NIN)%VARIABLES(11)
-C            IF(STARTT.GT.TT) CYCLE
-C            IF(TT.GT.STOPT)  CYCLE
-C
-C            Look if interface is activated 
-C            ISENS = IPARI(64,NIN)  
-C            IF(ISENS.NE.0)  THEN         ! Interface activated by sensor
-C               TS = SENSOR(2,ISENS)
-C            ELSE
-C               TS = TT
-C            ENDIF
-C            IF(TT.LT.TS) CYCLE
-
 C ==========================================================================
 C            Post Asynchronous reception of the sizes
              CALL SPMD_I25_SLIDE_EXCH(IBUFR    ,RBUFR      ,ISIZ(NI25)     ,RSIZ(NI25) 
@@ -324,9 +294,12 @@ C
              INTTH =IPARI(47,NIN)
              INTFRIC =IPARI(72,NIN)
              IVIS2 =IPARI(14,NIN)
+             ISTIF_MSDT = IPARI(97,NIN)
+             IFSUB_CAREA =0
+             IF(IPARI(36,NIN)> 0.AND.PARAMETERS%INTCAREA > 0) IFSUB_CAREA = 1
              ITYP  = 25
 C
-C            NADD(1:NADMSR+1), KADD <=> liste sky line des noeuds secnd concerns / tous les sommets frontires
+C            Nadd (1: Nadmsr+1), Kadd <=> Sky Line list of the send nodes concerns / All the Sommets Frontiers
              NADD(1:NADMSR+1)=0
              CALL I25PREP_ADD(
      1      NIN    ,NI25     ,NSN          ,NSNR      ,ITAB     ,
@@ -340,7 +313,7 @@ C           compute size of buffer for send
      4        KADD   ,SIZBUFS,NSENDTOT)
 C
             ALLOCATE(FR_SLIDE(4*NSENDTOT),INDXTOSEND(NSENDTOT),STAT=IERROR)
-            IF(IERROR.NE.0) THEN
+            IF(IERROR/=0) THEN
               CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
@@ -351,8 +324,8 @@ C           compute index of nodes to send to the all domains
      1        NIN    ,NI25   ,NSN    ,NSNR   ,ITYP     ,
      2        IFQ    ,INACTI ,IGAP   ,INTTH  ,ILEV     ,
      3        ITAB   ,INTBUF_TAB(NIN)%NSV,IAD_FRNOR,FR_NOR ,NADD ,
-     4        KADD   ,RSIZ(NI25)   ,ISIZ(NI25)   ,SIZBUFS,FR_SLIDE ,
-     5        INDXTOSEND,INTFRIC, IVIS2)
+     4        KADD   ,RSIZ(NI25)    ,ISIZ(NI25),SIZBUFS,FR_SLIDE ,
+     5        INDXTOSEND,INTFRIC   , IVIS2   ,ISTIF_MSDT,IFSUB_CAREA)
 C
             DO P=1,NSPMD
               NULLIFY(RBUFS(P,NI25)%P)
@@ -364,7 +337,7 @@ C
                RBUFS(P,NI25)%P(1:RSIZ(NI25)*SIZBUFS(P)) = -1
               ENDIF
               SIZBUFS_GLOB(P,NI25)=SIZBUFS(P)
-              IF(IERROR.NE.0) THEN
+              IF(IERROR/=0) THEN
                 CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                 CALL ARRET(2)
               ENDIF
@@ -382,11 +355,12 @@ C ==========================================================================
      1        NIN    ,NI25     ,NSN      ,NSNR   ,ITYP    ,
      2        IFQ    ,INACTI   ,IGAP     ,INTTH  ,ILEV    ,
      3        ITAB   ,IAD_FRNOR,FR_NOR   ,
-     4        LENT25 ,NADD   ,KADD       ,KINET    ,
+     4        LENT25 ,NADD     ,KADD     ,KINET    ,
      5        NODNX_SMS ,X     ,V        ,MS    ,TEMP  ,
      .        INTBUF_TAB(NIN)  ,RBUFS, IBUFS,
      6        RSIZ(NI25),      ISIZ(NI25),  SIZBUFS, FR_SLIDE,INDXTOSEND, 
-     7        MAIN_PROC,INTFRIC ,IVIS2, ICODT,ISKEW) 
+     7        MAIN_PROC,INTFRIC ,IVIS2  , ICODT  ,ISKEW ,
+     8        ISTIF_MSDT,IFSUB_CAREA,PARAMETERS%INTAREAN) 
 
 
 C ==========================================================================
@@ -412,21 +386,7 @@ C
 
           IPARI(29,NIN) = 0
 C
-C          STARTT=INTBUF_TAB(NIN)%VARIABLES(3)
-C          STOPT =INTBUF_TAB(NIN)%VARIABLES(11)
-C          IF(STARTT.GT.TT) CYCLE
-C          IF(TT.GT.STOPT)  CYCLE
-C
-C         Look if interface is activated 
-C         ISENS = IPARI(64,NIN)  
-C         IF(ISENS.NE.0)  THEN         ! Interface activated by sensor
-C            TS = SENSOR(2,ISENS)
-C         ELSE
-C            TS = TT
-C         ENDIF
-C         IF(TT.LT.TS) CYCLE
-C
-C         Recieve buffer ( + wait for sizes)
+C         Receive buffer ( + wait for sizes)
           IF(NSPMD > 1) THEN
             CALL SPMD_I25_SLIDE_EXCH(IBUFR    ,RBUFR      ,ISIZ(NI25)     ,RSIZ(NI25) 
      .                    ,SIZBUFR_GLOB       ,COMM_INT,COMM_REAL,COMM_SIZ
@@ -446,19 +406,22 @@ C
           INTFRIC =IPARI(72,NIN)
           FLAGREMN =IPARI(63,NIN)
           LREMNORMAX =IPARI(82,NIN)
+          ISTIF_MSDT = IPARI(97,NIN)
+          IFSUB_CAREA =0
+          IF(IPARI(36,NIN)> 0.AND.PARAMETERS%INTCAREA > 0) IFSUB_CAREA = 1
           ITYP  = 25
 
-C         filtrer => ne garder que les anciens impacts + les candidats au glissement 
+C         filter => keep only old impacts + candidates for sliding
           IF(NSPMD > 1) THEN
-C           Output : Pour cette interface , liste de nds a ajouter a NSNFI
+C           output: for this interface, list of nodes to add to nsnfi
 
 
 C ============================================================================
-C Deux approches possibles:
+C Two possible approaches:
 C                    1                                2
-C    -Wait toutes les procs (synchro)   |  - Wait sur une taille
-C    -Allocation de XREM/IREM           |  - Reception dans dans RBUFR/IBUFR 
-C    -Reception dans XREM/IREM          |  - Copie de *BUFR -> *REM
+C    wait for all procs (sync) | wait on a size
+C    allocation of xrem/irem | reception in rbufr/ibufr
+C    reception in xrem/irem | copy from *bufr to *rem
 C
 C  Ici on teste (2)  
             NB_TOT = 0
@@ -497,19 +460,20 @@ C===============================================================================
            I_STOK_GLO = INTBUF_TAB(NIN)%I_STOK(2)
 
            IF(NSPMD > 1) THEN
-C : on ne change pas NSNR dans IPARI depuis SPMD_I25_SLIDE_GAT, donc NSNR n est plus la taille
-C : des structures FI 
+C : we do not change nsnr in iPari since SPMD_I25_Slide_gat, so nsnr is no longer the size
+C of fi structures
 C
              CALL SPMD_I25_SLIDE_GAT(NSN  ,NIN, NI25,
      2                               IGAP  ,NSNR   ,INTTH   ,ILEV, INTBUF_TAB(NIN), 
      3                               FR_NOR,IAD_FRNOR, SIZBUFS, ITAB, H3D_DATA    ,
-     4                               INTFRIC,FLAGREMN,LREMNORMAX,NRTM,IVIS2)
+     4                               INTFRIC,FLAGREMN,LREMNORMAX,NRTM,IVIS2       ,
+     5                               ISTIF_MSDT,IFSUB_CAREA,NODADT_THERM)
         ! Passer intbuftab(nin)
-C : Les noeuds qui glissent de P0 vers P1 et qui sont locaux a P1 se trouvent quand
-C : meme dans la structure frontiere *FI(NIN)%P a la position du proc P1
-C : Soit  - remplir les structures locales au lieu des structures *FI directement dans SPMD_I25_SLIDE_GAT
-C :       - remplir les structures locales dans une routine a partir des *FI(NIN)%P([P0 ; P1 ; P2 ... ... ]) 
-C :       - Retirer ces NS de XREM et IREM lors de la copie des [IR]BUFR vers [IX]REM  
+C nodes that slide from p0 to p1 and are local to p1 are found when
+C even in the boundary structure *fi(nin)%p at the position of proc p1
+C either - fill the local structures instead of the *fi structures directly in spmd_i25_slide_gat
+C - fill the local structures in a routine from *fi(nin)%p([p0 ; p1 ; p2 ... ... ])
+C - remove these ns from xrem and irem when copying from [ir]bufr to [ix]rem
 
               IPARI(24,NIN) = NSNR
            ENDIF
@@ -542,7 +506,7 @@ C         Warning : Arrays are reallocated in UPGRADE_CAND_OPT routine !!!!
           END IF
 C
           INTBUF_TAB(NIN)%I_STOK(2)=I_OPT_STOK ! == INTBUF_TAB(NIN)%I_STOK(2)+K_STOK
-          IF (DEBUG(3).GE.1) THEN
+          IF (DEBUG(3)>=1) THEN
               NB_DST1(JTASK)  = NB_DST1(JTASK)  + K_STOK
               NB_DST2(JTASK)  = NB_DST2(JTASK)  - K_STOK
           ENDIF
@@ -560,20 +524,6 @@ C-----------------------------------------------------------------------
           DO NI25=1,NINTER25
           NIN = INTLIST25(NI25)
 C
-C         STARTT=INTBUF_TAB(NIN)%VARIABLES(3)
-C         STOPT =INTBUF_TAB(NIN)%VARIABLES(11)
-C         IF(STARTT.GT.TT) CYCLE
-C         IF(TT.GT.STOPT)  CYCLE
-C
-C         Look if interface is activated 
-C         ISENS = IPARI(64,NIN)  
-C         IF(ISENS.NE.0)  THEN         ! Interface activated by sensor
-C            TS = SENSOR(2,ISENS)
-C         ELSE
-C            TS = TT
-C         ENDIF
-C         IF(TT.LT.TS) CYCLE
-
           ! Wait and deallocate Send buffers
           CALL SPMD_I25_SLIDE_EXCH(IBUFS    ,RBUFS      ,ISIZ(NI25)     ,RSIZ(NI25) 
      .                    ,SIZBUFS_GLOB       ,COMM_INT,COMM_REAL,COMM_SIZ

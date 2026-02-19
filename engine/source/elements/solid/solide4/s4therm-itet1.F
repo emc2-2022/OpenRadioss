@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S4THERM_ITET1                 source/elements/solid/solide4/s4therm-itet1.F
-Chd|-- called by -----------
-Chd|        S10FORC3                      source/elements/solid/solide10/s10forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE S4THERM_ITET1(PM   ,MAT  ,NC   ,NEL  ,
-     .                         XX   ,YY   ,ZZ   ,DT1  ,DIE ,
-     .                         TEMP ,FPHI ,OFFG ,OFF )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s4therm_itet1   ../engine/source/elements/solid/solide4/s4therm-itet1.F
+!||--- called by ------------------------------------------------------
+!||    s10forc3        ../engine/source/elements/solid/solide10/s10forc3.F
+!||====================================================================
+      SUBROUTINE S4THERM_ITET1(PM   ,IMAT  ,NC   ,NEL  ,
+     .                         XX   ,YY   ,ZZ   ,DT1  ,HEAT ,
+     .                         TEMP ,FPHI ,OFFG ,OFF  ,THEACCFACT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -38,24 +37,21 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "param_c.inc"
-#include      "scr_thermal_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL, MAT(*),NC(MVSIZ,10)
-      my_real
-     .    TEMP(*), DIE(*),
-     .    FPHI(MVSIZ,10), PM(NPROPM,*), 
-     .    DT1, OFF(*), OFFG(*)
+      INTEGER NEL, NC(MVSIZ,10)
+      INTEGER, INTENT(IN) :: IMAT
+      my_real, INTENT(IN) :: THEACCFACT
+      my_real, INTENT(IN) :: DT1 
+      my_real :: TEMP(*), HEAT(*), FPHI(MVSIZ,10), PM(NPROPM,*), 
+     .    OFF(*), OFFG(*)
       DOUBLE PRECISION
      .    XX(MVSIZ,10), YY(MVSIZ,10), ZZ(MVSIZ,10)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, MX
+      INTEGER I
       my_real
      .   DET(NEL),
      .   PX1(NEL), PX2(NEL), PX3(NEL), PX4(NEL),  
@@ -119,12 +115,11 @@ C---+----1
       ENDDO
 
 C---+----1
-      MX = MAT(1)
-      CA = PM(75,MX)
-      CB = PM(76,MX)
+      CA = PM(75,IMAT)
+      CB = PM(76,IMAT)
 C
       DO I=1,NEL
-         IF(OFF(I).EQ.ZERO.OR.OFFG(I).LE.ZERO) CYCLE
+         IF(OFF(I)==ZERO.OR.OFFG(I)<=ZERO) CYCLE
          TEMP1 = TEMP(NC(I,1))
          TEMP2 = TEMP(NC(I,2))
          TEMP3 = TEMP(NC(I,3))
@@ -142,9 +137,9 @@ C
          PHIY = KC*PHIY
          PHIZ = KC*PHIZ
 C
-C force thermique nodale
+C nodal thermal force
 C
-         A = FOURTH * DIE(I)
+         A = FOURTH * HEAT(I)
          FPHI(I,1) = A - (PHIX*PX1(I) + PHIY*PY1(I) + PZ1(I)*PHIZ)
          FPHI(I,2) = A - (PHIX*PX2(I) + PHIY*PY2(I) + PZ2(I)*PHIZ)
          FPHI(I,3) = A - (PHIX*PX3(I) + PHIY*PY3(I) + PZ3(I)*PHIZ)

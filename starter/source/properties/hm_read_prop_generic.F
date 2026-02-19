@@ -1,67 +1,70 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP_GENERIC          source/properties/hm_read_prop_generic.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        HM_READ_PROP28                source/properties/xelem/hm_read_prop28.F
-Chd|        HM_READ_PROP32                source/properties/spring/hm_read_prop32.F
-Chd|        HM_READ_PROP33                source/properties/spring/hm_read_prop33.F
-Chd|        HM_READ_PROP34                source/properties/sph/hm_read_prop34.F
-Chd|        HM_READ_PROP35                source/properties/spring/hm_read_prop35.F
-Chd|        HM_READ_PROP36                source/properties/spring/hm_read_prop36.F
-Chd|        HM_READ_PROP43                source/properties/solid/hm_read_prop43.F
-Chd|        HM_READ_PROP44                source/properties/spring/hm_read_prop44.F
-Chd|        HM_READ_PROP45                source/properties/spring/hm_read_prop45.F
-Chd|        HM_READ_PROP46                source/properties/spring/hm_read_prop46.F
-Chd|        HM_READ_PROP_USER             source/properties/user_spring_solid/hm_read_prop_user.F
-Chd|        HM_READ_PROP_USER4            source/properties/user_spring_solid/hm_read_prop_user4.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop_generic   ../starter/source/properties/hm_read_prop_generic.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties     ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    hm_read_prop28         ../starter/source/properties/xelem/hm_read_prop28.F
+!||    hm_read_prop32         ../starter/source/properties/spring/hm_read_prop32.F
+!||    hm_read_prop33         ../starter/source/properties/spring/hm_read_prop33.F
+!||    hm_read_prop34         ../starter/source/properties/sph/hm_read_prop34.F
+!||    hm_read_prop35         ../starter/source/properties/spring/hm_read_prop35.F
+!||    hm_read_prop36         ../starter/source/properties/spring/hm_read_prop36.F
+!||    hm_read_prop43         ../starter/source/properties/solid/hm_read_prop43.F
+!||    hm_read_prop44         ../starter/source/properties/spring/hm_read_prop44.F
+!||    hm_read_prop45         ../starter/source/properties/spring/hm_read_prop45.F
+!||    hm_read_prop46         ../starter/source/properties/spring/hm_read_prop46.F
+!||    hm_read_prop_user      ../starter/source/properties/user_spring_solid/hm_read_prop_user.F
+!||    hm_read_prop_user4     ../starter/source/properties/user_spring_solid/hm_read_prop_user4.F
+!||--- uses       -----------------------------------------------------
+!||    defaults_mod           ../starter/source/modules/defaults_mod.F90
+!||    elbuftag_mod           ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    reader_old_mod         ../starter/share/modules1/reader_old_mod.F90
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP_GENERIC(
      1                    IGTYP  ,IG      ,IDTITL  ,KEYTYPE  ,GEO      ,
      2                    IGEO   ,LBUFGEO ,BUFGEO  ,IADBUF   ,UNITAB   ,
      3                    ISKN   ,KNOT    ,IAD_KNOT,PROP_TAG ,LSUBMODEL,
-     4                    RTRANS ,SUB_ID  ,IUNIT   ,SUB_INDEX)
+     4                    RTRANS ,SUB_ID  ,IUNIT   ,SUB_INDEX,DEFAULTS )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE UNITAB_MOD
       USE MESSAGE_MOD
       USE ELBUFTAG_MOD            
-      USE SUBMODEL_MOD
+      USE SUBMODEL_MOD , ONLY : NSUBMOD, SUBMODEL_DATA
+      USE DEFAULTS_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARLINE
+      USE READER_OLD_MOD , ONLY : KLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -70,20 +73,18 @@ C-----------------------------------------------
 #include      "scr17_c.inc"
 #include      "scr19_c.inc"
 #include      "units_c.inc"
-#include      "scr03_c.inc"
 #include      "param_c.inc"
-#include      "scr15_c.inc"
 #include      "tablen_c.inc"
-#include      "userlib.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
 C     INPUT ARGUMENTS
-      CHARACTER,INTENT(IN):: IDTITL*nchartitle, KEYTYPE*ncharline
+      CHARACTER(LEN=NCHARTITLE),INTENT(IN):: IDTITL
+      CHARACTER(LEN=NCHARLINE) :: KEYTYPE
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER,INTENT(IN):: IG,ISKN(LISKN,*),SUB_ID,IUNIT,SUB_INDEX
       my_real  ,INTENT(IN):: RTRANS(NTRANSF,*)
-      TYPE(SUBMODEL_DATA),INTENT(IN) :: LSUBMODEL(*)
+      TYPE(SUBMODEL_DATA),INTENT(IN) :: LSUBMODEL(NSUBMOD)
 C     OUTPUT ARGUMENTS
       INTEGER,INTENT(OUT):: IGTYP
 C     MODIFIED ARGUMENT
@@ -92,45 +93,17 @@ C     MODIFIED ARGUMENT
      .        GEO(NPROPG), KNOT(*)
       DOUBLE PRECISION,INTENT(INOUT)::  BUFGEO(*)
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP),INTENT(INOUT) :: PROP_TAG
+      TYPE(DEFAULTS_), INTENT(IN)  :: DEFAULTS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER ISKW,IADFUN,IADMAT,IADPID,IADTAB
-      INTEGER I, ILAW,NPG,JCVT,NUVAR(2)
-      my_real
-     .        PARGEO(100),STIF,TTHICK
-      my_real
-     .        QA,QB
+      INTEGER I, NPG, JCVT, NUVAR(2)
+      my_real PARGEO(100), STIF
+      my_real QA,QB
       CHARACTER FILNAM*512,CLAW*4
-      INTEGER LEN_FILNAM
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C=======================================================================
-c------------------------------
-C     User properties are read w/old reader
-C     When using a dynamic (user) library, one should write in a real scratch file.
-c------------------------------
-c      IF(USERL_AVAIL==1 .AND. (IGTYP==29.OR.IGTYP==30.OR.IGTYP==31.OR.
-c     *                           IGTYP==37.OR.IGTYP==38.OR.IGTYP==39.OR.
-c     *                           IGTYP==40.OR.IGTYP==41.OR.IGTYP==42))
-c     *                           THEN
-C
-c      WRITE(CLAW,'(I4.4)')IGTYP
-c      FILNAM  ='SI'//ROOTNAM(1:ROOTLEN)//'_'//CLAW//'.scr'
-c      LEN_FILNAM=LEN_TRIM(FILNAM)
-c
-c      OPEN(UNIT=30,FILE=FILNAM(1:LEN_FILNAM),
-c     . FORM='FORMATTED',RECL=ncharline)
-c
-c      LINE=' '
-c      DO WHILE(LINE(1:1) /= '/')
-c       IREC=IREC+1
-c       READ(IIN,REC=IREC,ERR=999,FMT='(A)')LINE
-c       WRITE(30,FMT='(A)')LINE
-c      ENDDO
-c      IREC=IREC-1
-c      CLOSE(UNIT=30)
-c
 c------------------------------
       DO I = 1,100
        PARGEO(I) = ZERO
@@ -193,20 +166,20 @@ C     rupture property for interface type 2
 C          ( not a true user property )
 C--------------------------------------------------
           IGTYP=37
-          CALL HM_READ_PROP_USER4(IOUT  ,NUVAR ,PARGEO ,UNITAB ,LSUBMODEL)
+          CALL HM_READ_PROP_USER4(IOUT  ,NUVAR ,UNITAB ,LSUBMODEL)
 
              
         CASE ('TYPE43','CONNECT')
           IGTYP=43
           CALL HM_READ_PROP43(GEO     ,IGEO     ,IOUT    ,IG      ,
      .                        NUVAR   ,PARGEO   ,IGTYP ,PROP_TAG,
-     .                        UNITAB  ,LSUBMODEL)
+     .                        UNITAB  ,LSUBMODEL,DEFAULTS%SOLID)
 
         CASE ('TYPE44','SPR_CRUS')
           IGTYP=44
           CALL HM_READ_PROP44(IOUT  ,IG   ,NUVAR ,PARGEO,
      .                        UNITAB,ISKN  ,IGEO ,TITR  ,IGTYP ,
-     .                        PROP_TAG,LSUBMODEL ,SUB_INDEX,IUNIT)
+     .                        PROP_TAG,LSUBMODEL ,SUB_INDEX)
 
         CASE ('TYPE45','KJOINT2')              
           IGTYP     =45
@@ -216,7 +189,7 @@ C--------------------------------------------------
         CASE ('TYPE46','SPR_MUSCLE')              
           IGTYP     =46
           CALL HM_READ_PROP46(IOUT , NUVAR ,PARGEO,UNITAB,IGTYP,
-     .                        IG,PROP_TAG,TITR,LSUBMODEL,IUNIT)
+     .                        IG,PROP_TAG,LSUBMODEL,IUNIT)
 
         CASE ('TYPE29','TYPE30','TYPE31',
      .        'USER1' ,'USER2' ,'USER3')
@@ -300,8 +273,7 @@ C
 C-----------
       IADBUF  = IADTAB + NJTAB
 C-----------
-      IF (IGTYP > 28 .and. IGTYP < 32 .or. 
-     .          IGTYP > 36 .and. IGTYP < 43) THEN   ! prop user
+      IF (IGTYP > 28 .and. IGTYP < 32 .or.  IGTYP > 36 .and. IGTYP < 43) THEN   ! prop user
           PROP_TAG(IGTYP)%G_SIG  = 6
           PROP_TAG(IGTYP)%G_VOL  = 1
           PROP_TAG(IGTYP)%G_EINT = 1
@@ -319,16 +291,7 @@ C-----------
       ENDIF ! IF (IGTYP)
 C-----------
       RETURN
- 999  CALL ANCMSG(MSGID=54,
-     .            ANMODE=ANINFO,
-     .            MSGTYPE=MSGERROR,
-     .            C1=KLINE)
+
       RETURN
- 1000 FORMAT(
-     & 5X,'USER PROPERTY SET'/,
-     & 5X,'PROPERTY SET NUMBER . . . . . . . . . .=',I10)
- 1100 FORMAT(
-     & 5X,'SPH PROPERTY SET'/,
-     & 5X,'PROPERTY SET NUMBER . . . . . . . . . .=',I10)
       END
 

@@ -1,49 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_CYLJOINT              source/constraints/general/cyl_joint/hm_read_cyljoint.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANODSET                       source/output/analyse/analyse_node.c
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SZ_R2R                     source/coupling/rad2rad/routines_r2r.F
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        NODGRNR5                      source/starter/freform.F      
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        JOINT_MOD                     share/modules1/joint_mod.F    
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_cyljoint       ../starter/source/constraints/general/cyl_joint/hm_read_cyljoint.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    anodset                ../starter/source/output/analyse/analyse_node.c
+!||    fretitl                ../starter/source/starter/freform.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_sz_r2r              ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    ifrontplus             ../starter/source/spmd/node/frontplus.F
+!||    kinset                 ../starter/source/constraints/general/kinset.F
+!||    nodgrnr5               ../starter/source/starter/freform.F
+!||    udouble                ../starter/source/system/sysfus.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    joint_mod              ../starter/share/modules1/joint_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_CYLJOINT(LJOINT ,ITABM1,IKINE  ,ITAB   ,IGRNOD,
      .                            NOM_OPT,LSUBMODEL)
 C-----------------------------------------------
@@ -55,6 +54,7 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD 
       USE JOINT_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -67,17 +67,13 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "com01_c.inc"
 #include      "units_c.inc"
 #include      "com04_c.inc"
 #include      "r2r_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER LJOINT(*), ITABM1(*), IKINE(*),
-     .        ITAB(*)
+      INTEGER LJOINT(*), ITABM1(*), IKINE(*), ITAB(*)
       INTEGER NOM_OPT(LNOPT1,*)
 C-----------------------------------------------
       TYPE (GROUP_)  ,DIMENSION(NGRNOD)   :: IGRNOD
@@ -85,12 +81,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, I, NS, J, LJ, NU, IDIR,ID,N1,N2,IGU,IKINE1(3*NUMNOD),
-     .        IFLAGUNIT,FLAG_FMT_TMP,IFIX_TMP,UID,NY,SUB_ID,
-     .        IGS
-      my_real
-     .   BID 
-      CHARACTER MESS*40,TITR*nchartitle
+      INTEGER :: K, I, NS, J, LJ, NU, IDIR,ID,N1,N2,IGU,IKINE1(3*NUMNOD),UID,NY,SUB_ID,IGS
+      my_real :: BID
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       LOGICAL :: IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -115,10 +109,10 @@ C
       DO I=1,NJOINT
         NY=NY+1
 C----------Multidomaines --> on ignore les cyljoint non tags----------
-        IF(NSUBDOM.GT.0)THEN
-	        IF(TAGCYL(NY).EQ.0)CALL HM_SZ_R2R(TAGCYL,NY,LSUBMODEL)
+        IF(NSUBDOM>0)THEN
+                  IF(TAGCYL(NY)==0)CALL HM_SZ_R2R(TAGCYL,NY,LSUBMODEL)
         END IF
-C----------------------------------------------------------------------	
+C----------------------------------------------------------------------
         CALL HM_OPTION_READ_KEY(LSUBMODEL,
      .                       OPTION_ID = ID,
      .                       UNIT_ID = UID,
@@ -147,7 +141,7 @@ C
         DO LJ=1,NS
             NU = ITAB(LJOINT(K+LJ))
             CYL_JOIN(I)%SECONDARY_NODE(LJ) = LJOINT(K+LJ)
-	        IF(JOINT_SMS) CALL IFRONTPLUS(LJOINT(K+LJ),1)
+                  IF(JOINT_SMS) CALL IFRONTPLUS(LJOINT(K+LJ),1)
             !   ----------------------
             DO IDIR=1,6
                 CALL KINSET(64,NU,IKINE(LJOINT(K+LJ)),IDIR,0
@@ -164,7 +158,7 @@ C
 
       ENDDO
 C-------------------------------------
-C Recherche des ID doubles
+C Searching for duplicate IDs
 C-------------------------------------
       CALL UDOUBLE(NOM_OPT,LNOPT1,NJOINT,MESS,0,BID)
 C
@@ -174,8 +168,6 @@ C
      + '        ',I8,' NODES:')
 
  1100 FORMAT(7X,10I10)
-      RETURN
- 999  CALL FREERR(3)
       RETURN
       END
 

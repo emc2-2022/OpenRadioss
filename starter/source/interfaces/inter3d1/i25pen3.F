@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  I25PEN3                       source/interfaces/inter3d1/i25pen3.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i25pen3       ../starter/source/interfaces/inter3d1/i25pen3.F
+!||--- called by ------------------------------------------------------
+!||    inint3        ../starter/source/interfaces/inter3d1/inint3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I25PEN3(
      1                  JLT    ,CAND_N ,CAND_E ,PENMIN ,PENMAX,
      2                  X1     ,X2     ,X3     ,X4     ,X0     ,
@@ -38,7 +38,8 @@ Chd|====================================================================
      7                  MSEGLO ,GAPS   ,IRECT  ,IRTLM  ,
      9                  TIME_S ,PENE_OLD,ITAB   ,MSEGTYP,ISHARP,
      A                  NNX     ,NNY    ,NNZ   ,GAP_NM  ,MVOISN,
-     B                  GAPMXL  ,IVIS2  ,IBOUND,VTX_BISECTOR)
+     B                  GAPMXL  ,IVIS2  ,IBOUND,VTX_BISECTOR,ILEV,
+     C                  INACTI)
 C
       USE MESSAGE_MOD
 C
@@ -51,31 +52,17 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "vect07_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
-#include      "param_c.inc"
 #include      "scr05_c.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
       INTEGER JLT, NSVG(*), NSN, MSEGLO(*), MSEGTYP(*), NRTM, IVIS2, ISHARP
-C     REAL
+      INTEGER , INTENT(IN) :: INACTI, ILEV
       my_real
      .   GAPS(*), GAP_NM(4,*), GAPMXL(*)
       INTEGER IRECT(4,*), ITAB(*),CAND_E(*),CAND_N(*),IRTLM(4,*)
       INTEGER IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),IX4(MVSIZ),
      .        MVOISN(MVSIZ,4), IBOUND(4,MVSIZ)
-C     REAL
       my_real
      .   PENMAX,PENMIN,PENE_OLD(5,NSN),TIME_S(NSN)
       my_real
@@ -91,29 +78,25 @@ C-----------------------------------------------
      .        NINDX, INDX(MVSIZ), I4N(MVSIZ), 
      .        FAR(MVSIZ,4), SUBTRIA(MVSIZ), I1, I2, ITRIA(2,4), JJ
       INTEGER IB1, IB2, IB3, IBX, IX, IY, IZ, NBORD, KBORD(MVSIZ)
-C     REAL
       my_real
-     .   UNP,ZEROM,EPS,UNPT,ZEROMT,AAA,BB(MVSIZ,4)
+     .   AAA,BB(MVSIZ,4)
       my_real
      .     XIJ(MVSIZ,4),  XI0V(MVSIZ), 
      .     YIJ(MVSIZ,4),  YI0V(MVSIZ), 
      .     ZIJ(MVSIZ,4),  ZI0V(MVSIZ), 
-     .     LBH(MVSIZ,4), LCH(MVSIZ,4), LAH(MVSIZ,4), 
      .     DX, DY, DZ, DD(MVSIZ,4), 
      .     XP, YP, ZP,
-     .     GAP_MM(MVSIZ), GAPV(MVSIZ,4), GAP2
+     .     GAP_MM(MVSIZ), GAPV(MVSIZ,4), GAP2,NORM
       my_real
      .     PENE, 
      .     SX1,SX2,SX3,SX4,
      .     SY1,SY2,SY3,SY4,
      .     SZ1,SZ2,SZ3,SZ4,
      .     X0N(MVSIZ,4), Y0N(MVSIZ,4), Z0N(MVSIZ,4), 
-     .     XN(MVSIZ,4),YN(MVSIZ,4),ZN(MVSIZ,4),HH(MVSIZ),
+     .     XN(MVSIZ,4),YN(MVSIZ,4),ZN(MVSIZ,4),
      .     SIDE(MVSIZ,4), 
      .     X12(MVSIZ), Y12(MVSIZ), Z12(MVSIZ), 
      .     PX, PY, PZ, PP, LL, NN, PN, VX, VY, VZ,
-     .     NY1, NY2, NY3, NY4,
-     .     NZ1, NZ2, NZ3, NZ4,
      .     XX(MVSIZ,5),YY(MVSIZ,5),ZZ(MVSIZ,5), 
      .     PENT(MVSIZ,4), DIST(MVSIZ), LB(MVSIZ,4), LC(MVSIZ,4),
      .     LAP, LBP(MVSIZ,4), LCP(MVSIZ,4), HLA, HLB(MVSIZ,4), HLC(MVSIZ,4),
@@ -326,20 +309,20 @@ C
         LBP(I,IT) = LB(I,IT)
         LCP(I,IT) = LC(I,IT)
         LAP       = ONE-LBP(I,IT)-LCP(I,IT)
-C       HLA, HLB, HLC necessaires pour triangle angle obtu
+C       HLA, HLB, HLC required for triangle sharp angle
         AAA = ONE / MAX(EM20,X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I))
         HLA= LAP*ABS(LAP) * AAA
-        IF(LAP.LT.ZERO.AND.
-     +     HLA.LE.HLB(I,IT).AND.HLA.LE.HLC(I,IT))THEN
+        IF(LAP<ZERO.AND.
+     +     HLA<=HLB(I,IT).AND.HLA<=HLC(I,IT))THEN
          LBP(I,IT) = (XIJ(I,I2)*X12(I)+YIJ(I,I2)*Y12(I)+ZIJ(I,I2)*Z12(I)) * AAA
          LBP(I,IT) = MAX(ZERO,MIN(ONE,LBP(I,IT)))
          LCP(I,IT) = ONE - LBP(I,IT)
-        ELSEIF(LBP(I,IT).LT.ZERO.AND.
-     +         HLB(I,IT).LE.HLC(I,IT).AND.HLB(I,IT).LE.HLA)THEN
+        ELSEIF(LBP(I,IT)<ZERO.AND.
+     +         HLB(I,IT)<=HLC(I,IT).AND.HLB(I,IT)<=HLA)THEN
          LBP(I,IT) = ZERO
          LCP(I,IT) = AL(I,I2)
-        ELSEIF(LCP(I,IT).LT.ZERO.AND.
-     +         HLC(I,IT).LE.HLA.AND.HLC(I,IT).LE.HLB(I,IT))THEN
+        ELSEIF(LCP(I,IT)<ZERO.AND.
+     +         HLC(I,IT)<=HLA.AND.HLC(I,IT)<=HLB(I,IT))THEN
          LCP(I,IT) = ZERO
          LBP(I,IT) = AL(I,I1)
         ENDIF
@@ -372,7 +355,11 @@ C
             PENT(I,IT)=ZERO
           END IF
         ELSEIF(ETYP(I) > NRTM)THEN ! Coating shell (same orientation than solid)
-          PENT(I,IT)=MAX(GAPV(I,IT)+BB(I,IT),ZERO)
+          IF(BB(I,IT) > ZERO)THEN
+            PENT(I,IT)=GAPV(I,IT)+BB(I,IT)
+          ELSE
+            PENT(I,IT)=MAX(ZERO,GAPV(I,IT)-SQRT(DD(I,IT)))          
+          END IF
         ELSE
           IF(BB(I,IT) > ZERO)THEN
 C
@@ -389,7 +376,7 @@ C--------------------------------------------------------
        DO K=1,NINDX
         I=INDX(K)
 C    
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           N4N = N4N+1
           I4N(N4N)=I
         ENDIF
@@ -410,20 +397,20 @@ C
           LBP(I,IT) = LB(I,IT)
           LCP(I,IT) = LC(I,IT)
           LAP       = ONE-LBP(I,IT)-LCP(I,IT)
-C         HLA, HLB, HLC necessaires pour triangle angle obtu
+C         HLA, HLB, HLC required for triangle sharp angle
           AAA = ONE / MAX(EM20,X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I))
           HLA= LAP*ABS(LAP) * AAA
-          IF(LAP.LT.ZERO.AND.
-     +       HLA.LE.HLB(I,IT).AND.HLA.LE.HLC(I,IT))THEN
+          IF(LAP<ZERO.AND.
+     +       HLA<=HLB(I,IT).AND.HLA<=HLC(I,IT))THEN
            LBP(I,IT) = (XIJ(I,I2)*X12(I)+YIJ(I,I2)*Y12(I)+ZIJ(I,I2)*Z12(I)) * AAA
            LBP(I,IT) = MAX(ZERO,MIN(ONE,LBP(I,IT)))
            LCP(I,IT) = ONE - LBP(I,IT)
-          ELSEIF(LBP(I,IT).LT.ZERO.AND.
-     +           HLB(I,IT).LE.HLC(I,IT).AND.HLB(I,IT).LE.HLA)THEN
+          ELSEIF(LBP(I,IT)<ZERO.AND.
+     +           HLB(I,IT)<=HLC(I,IT).AND.HLB(I,IT)<=HLA)THEN
            LBP(I,IT) = ZERO
            LCP(I,IT) = AL(I,I2)
-          ELSEIF(LCP(I,IT).LT.ZERO.AND.
-     +           HLC(I,IT).LE.HLA.AND.HLC(I,IT).LE.HLB(I,IT))THEN
+          ELSEIF(LCP(I,IT)<ZERO.AND.
+     +           HLC(I,IT)<=HLA.AND.HLC(I,IT)<=HLB(I,IT))THEN
            LCP(I,IT) = ZERO
            LBP(I,IT) = AL(I,I1)
           ENDIF
@@ -457,7 +444,11 @@ C
               PENT(I,IT)=ZERO
             END IF
           ELSEIF(ETYP(I) > NRTM)THEN ! Coating shell (same orientation than solid)
-            PENT(I,IT)=MAX(GAPV(I,IT)+BB(I,IT),ZERO)
+            IF(BB(I,IT) > ZERO)THEN
+               PENT(I,IT)=GAPV(I,IT)+BB(I,IT)
+            ELSE
+               PENT(I,IT)=MAX(ZERO,GAPV(I,IT)-SQRT(DD(I,IT)))          
+            END IF
           ELSE
             IF(BB(I,IT) > ZERO)THEN
 C
@@ -485,7 +476,7 @@ C
                LCX = LC(I,JJ)
                LAX = ONE-LB(I,JJ)-LC(I,JJ)
 C
-C              Privilegier secteur dans lequel on se trouve.
+C              Privilegier sector in which we are.
                IF(LBX >= ZERO .AND. LCX >= ZERO)THEN
                  LX=ZERO
                ELSE
@@ -529,7 +520,7 @@ C
         YH(I)=YI(I)+BB(I,IT)*YN(I,IT)
         ZH(I)=ZI(I)+BB(I,IT)*ZN(I,IT)
 C
-C       Projection en dehors du triangle
+C       Projection outside the triangle
         IF(LB(I,IT) < -EM03 .OR. LC(I,IT) < -EM03 .OR.
      .      LB(I,IT)+LC(I,IT) > ONE+EM03) FAR(I,IT)=1
 C
@@ -593,7 +584,7 @@ C
 C
             SIDE(I,IT)=-(XIJ(I,I1)*PX+YIJ(I,I1)*PY+ZIJ(I,I1)*PZ)*SQRT(ONE/MAX(EM30,LL*PP))
 C
-C           Projette a l'exterieur et Hors secteur angulaire (cf bissectrices) <=> Glissement
+C           Projection outside and outside the cornerstone (see bisector) <=> shift
             IF(SIDE(I,IT) < -ZEP01) FAR(I,IT) =2
 C
           END IF
@@ -667,10 +658,10 @@ C
 
             IF(MVOISN(I,1) /= 0)THEN
 C
-C             INGAP = 1 => tjrs regarder si l'on est dans le cone (permet de determiner dans quel cone on se trouve) 
+C             INGAP = 1 => always check if we are in the cone (allows to determine in which cone we are)
 C
-C             Glissement => utiliser le cone pour choisir entre les segments voisins
-C                           mais garder le contact si le nd a glisse de plus d'un elt (cf supersonic)
+C             Sliding => use the cone to choose between neighboring segments
+C                           but maintain contact if the node has slipped more than one elt (cf supersonic)
 C          
               X12(I)=XX(I,2)-XX(I,1)
               Y12(I)=YY(I,2)-YY(I,1)
@@ -691,10 +682,10 @@ C
 
             IF(MVOISN(I,2) /= 0)THEN
 C
-C             INGAP = 1 => tjrs regarder si l'on est dans le cone (permet de determiner dans quel cone on se trouve) 
+C             INGAP = 1 => always check if we are in the cone (allows to determine in which cone we are)
 C
-C             Glissement => utiliser le cone pour choisir entre les segments voisins
-C                           mais garder le contact si le nd a glisse de plus d'un elt (cf supersonic)
+C             Sliding => use the cone to choose between neighboring segments
+C                           but maintain contact if the node has slipped more than one elt (cf supersonic)
 C            
               X12(I)=XX(I,3)-XX(I,2)
               Y12(I)=YY(I,3)-YY(I,2)
@@ -715,10 +706,10 @@ C
 
             IF(MVOISN(I,4) /= 0)THEN
 C
-C               INGAP = 1 => tjrs regarder si l'on est dans le cone (permet de determiner dans quel cone on se trouve) 
+C               INGAP = 1 => always check if we are in the cone (allows to determine in which cone we are)
 C
-C               Glissement => utiliser le cone pour choisir entre les segments voisins
-C                             mais garder le contact si le nd a glisse de plus d'un elt (cf supersonic)
+C               Sliding => use the cone to choose between neighboring segments
+C                             but maintain contact if the node has slipped more than one elt (cf supersonic)
 C            
               X12(I)=XX(I,1)-XX(I,3)
               Y12(I)=YY(I,1)-YY(I,3)
@@ -760,7 +751,13 @@ C
         I1=ITRIA(1,IT)
         I2=ITRIA(2,IT)
 C
-        IF(PENT(I,IT)==ZERO) CYCLE
+        NN1(I) = ZERO
+        NN2(I) = ZERO
+        NN3(I) = ZERO
+
+        IF(PENT(I,IT)==ZERO) THEN
+         CYCLE
+        ENDIF
 C
         IF(IX3(I) /= IX4(I))THEN
 C
@@ -846,8 +843,8 @@ C
 
             ELSE
 
-c              print *,' ** possible internal error wrt p1,p2 in i25pen3',ib1,ib2,
-c     .        itab(nsvg(i)),itab(ix1(i)),itab(ix2(i)),itab(ix3(i)),itab(ix4(i)),p1,p2
+C              print *,' ** possible internal error wrt p1,p2 in i25pen3',ib1,ib2,
+C     .        itab(nsvg(i)),itab(ix1(i)),itab(ix2(i)),itab(ix3(i)),itab(ix4(i)),p1,p2
 
             END IF
 
@@ -859,7 +856,7 @@ C
           IB2=IBOUND(2,I)
           IB3=IBOUND(3,I)
 C
-C         Projection sur le plan et Distance signee au plan
+C         Projection on the plane and Signed distance to the plane
           XH(I)=XI(I)+BB(I,IT)*XN(I,IT)
           YH(I)=YI(I)+BB(I,IT)*YN(I,IT)
           ZH(I)=ZI(I)+BB(I,IT)*ZN(I,IT)
@@ -1035,7 +1032,7 @@ C             N3(I) = N3(I)*NN
             ELSE
 C
               NNE(I)=NNE(I)-GAPS(I)
-              IF(-BB(I,IT) < GAPV(I,IT)+NNE(I))THEN ! Test 45 degres !
+              IF(-BB(I,IT) < GAPV(I,IT)+NNE(I))THEN ! Test 45 degrees !
 C
 C               Normale horizonale
 C               N1(I) = NN1(I)
@@ -1181,6 +1178,15 @@ C--------------------------------------------------------
           MGLOB = MSEGLO(L)
 
           PENE=PENT(I,IT) ! PENE /= ZERO .OR. DIST(I) < PENMIN**2
+
+C------- exclude wrong normal dir PEN_OLD(1-3): normal of nn  
+         IF (MSEGTYP(L)==0.OR.MSEGTYP(L)>NRTM) THEN          
+            IF(INACTI/=0.AND.ILEV/=3)THEN
+              NORM = NN1(I)*PENE_OLD(1,N)+NN2(I)*PENE_OLD(2,N)
+     +                  +NN3(I)*PENE_OLD(3,N)
+              IF(NORM > ZERO) PENE = ZERO
+            END IF 
+          ENDIF 
 C       if(itab(nsvg(i))==299344.or.itab(ix1(i))==299344.or.itab(ix2(i))==299344
 C    .   .or.itab(ix3(i))==299344.or.itab(ix4(i))==299344)
 C    .      print *,itab(nsvg(i)),itab(ix1(i)),itab(ix2(i)),itab(ix3(i)),itab(ix4(i)),
@@ -1226,7 +1232,17 @@ C         Looking for penetration vs closest segment (cf initial penetrations vs
             IF(PENT(I,IT)==ZERO) CYCLE
           END IF
 
+
           PENE=MAX(ZERO,PENT(I,IT)-HALF*GAPV(I,IT)) ! PENE /= ZERO .OR. DIST(I) < PENMIN**2
+
+C------- exclude wrong normal dir PEN_OLD(1-3): normal of nn  
+         IF (MSEGTYP(L)==0.OR.MSEGTYP(L)>NRTM) THEN          
+            IF(INACTI/=0.AND.ILEV/=3)THEN
+              NORM = NN1(I)*PENE_OLD(1,N)+NN2(I)*PENE_OLD(2,N)
+     +                  +NN3(I)*PENE_OLD(3,N)
+              IF(NORM > ZERO) PENE = ZERO
+            END IF 
+          ENDIF 
 C 
 C         Looking for penetration vs closest segment (cf initial penetrations vs solids)
           IF(DIST(I) < TIME_S(N) .OR.

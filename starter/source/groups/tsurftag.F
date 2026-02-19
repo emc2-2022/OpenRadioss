@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  TSURFTAG                      source/groups/tsurftag.F      
-Chd|-- called by -----------
-Chd|        HM_READ_SURF                  source/groups/hm_read_surf.F  
-Chd|-- calls ---------------
-Chd|        SEGSURF                       source/groups/tsurftag.F      
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    tsurftag       ../starter/source/groups/tsurftag.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_surf   ../starter/source/groups/hm_read_surf.F
+!||--- calls      -----------------------------------------------------
+!||    segsurf        ../starter/source/groups/tsurftag.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE TSURFTAG(IXS     ,IXS10  ,IGRSURF,FLAG ,NSEG  ,
      2                    KNOD2ELS,NOD2ELS,N1     ,N2   ,N3    ,
      3                    NSEG0   )
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -42,14 +43,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -78,6 +74,8 @@ C-------------------------------------------------------------------------
       IORD = 0
       ELEM = 0
       ELEM8 = 0
+      FACET = 0
+      IE10 = 0
 C-----------Search Element Tetra 10 containing the facet N1 N2 N3---------------
 
       DO I=KNOD2ELS(N1)+1,KNOD2ELS(N1+1)     
@@ -93,7 +91,7 @@ C-----------Search Element Tetra 10 containing the facet N1 N2 N3---------------
                   IE10=IE-NUMELS8
                ELSEIF(IXS(FACES(K,J),IE)==N1.AND.IXS(FACES(K+1,J),IE)==N3.AND.
      .                IXS(FACES(K+2,J),IE)==N2 ) THEN
-                  IORD = -1  ! opposit order than defined in Faces
+                  IORD = -1  ! opposite order than defined in Faces
                   ELEM = IE
                   FACET = J
                   IE10=IE-NUMELS8
@@ -286,26 +284,18 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SEGSURF                       source/groups/tsurftag.F      
-Chd|-- called by -----------
-Chd|        HM_READ_SURF                  source/groups/hm_read_surf.F  
-Chd|        TSURFTAG                      source/groups/tsurftag.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    segsurf        ../starter/source/groups/tsurftag.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_surf   ../starter/source/groups/hm_read_surf.F
+!||    tsurftag       ../starter/source/groups/tsurftag.F
+!||====================================================================
       SUBROUTINE SEGSURF(N1    ,N2        ,N3        ,N4       ,NSEG0,
      .                   ISEG  ,SURF_NODES,SURF_ELTYP,SURF_ELEM,ELEM,ELTY)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  SPMD_LAGBOUNDS_EXCH_I22       source/mpi/interfaces/spmd_lagbounds_exch_i22.F
-Chd|-- called by -----------
-Chd|        I22MAIN_TRI                   source/interfaces/intsort/i22main_tri.F
-Chd|-- calls ---------------
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    spmd_lagbounds_exch_i22   ../engine/source/mpi/interfaces/spmd_lagbounds_exch_i22.F
+!||--- called by ------------------------------------------------------
+!||    i22main_tri               ../engine/source/interfaces/intsort/i22main_tri.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod               ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod       ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_LAGBOUNDS_EXCH_I22(
      1   BMINMAL_SPMD, BMINMAL   ,ISENDTO, IRCVFROM , NIN    )  
 C-----------------------------------------------
@@ -39,26 +39,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr02_c.inc"
-#include      "scr18_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "timeri_c.inc"
-!#include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -100,7 +93,6 @@ C=======================================================================
       !-------------------------------------------!
       !    Domain Bounds from i22xsave            !
       !-------------------------------------------!
-      IF (IMONM > 0) CALL STARTIME(25,1)
       BMINMA(1,LOC_PROC) = BMINMAL(1)
       BMINMA(2,LOC_PROC) = BMINMAL(2)
       BMINMA(3,LOC_PROC) = BMINMAL(3)
@@ -111,39 +103,38 @@ C=======================================================================
       !  Local Lagrangian Domain Bounds Sending   !
       !-------------------------------------------!
       DO P = 1, NSPMD
-        IF(P.NE.LOC_PROC) THEN
+        IF(P/=LOC_PROC) THEN
           MSGTYP = MSGOFF
           CALL MPI_ISEND(
      .      BMINMA(1,LOC_PROC),6  ,REAL  ,IT_SPMD(P),MSGTYP,
-     .      MPI_COMM_WORLD    ,REQ_SB(P),IERROR)
+     .      SPMD_COMM_WORLD    ,REQ_SB(P),IERROR)
         ENDIF
       ENDDO
       !-------------------------------------------!
-      ! Remote Lagrangian Domain Bounds Recieving !
+      ! Remote Lagrangian Domain Bounds Receiving !
       !-------------------------------------------!
       NBIRECV=0
       DO P = 1, NSPMD
-        IF(LOC_PROC.NE.P) THEN
+        IF(LOC_PROC/=P) THEN
           NBIRECV=NBIRECV+1
           IRINDEXI(NBIRECV)=P
           MSGTYP = MSGOFF
           CALL MPI_RECV(
      .      BMINMA(1,P)   ,6      ,REAL  ,IT_SPMD(P),MSGTYP,
-     .      MPI_COMM_WORLD,STATUS,IERROR)
+     .      SPMD_COMM_WORLD,STATUS,IERROR)
         ENDIF
       ENDDO
       !-------------------------------------------!
       !     MPI_WAITING                           !
       !-------------------------------------------!
       DO P = 1, NSPMD
-        IF(P.NE.LOC_PROC) THEN
+        IF(P/=LOC_PROC) THEN
           CALL MPI_WAIT(REQ_SB(P),STATUS,IERROR)
         ENDIF
       ENDDO
       !-------------------------------------------!
       ! Returning complete bounds data
       BMINMAL_SPMD = BMINMA
-      IF (IMONM > 0) CALL STOPTIME(25,1)
 #endif
       RETURN
       END

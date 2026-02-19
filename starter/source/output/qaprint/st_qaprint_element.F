@@ -1,63 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ST_QAPRINT_ELEMENT            source/output/qaprint/st_qaprint_element.F
-Chd|-- called by -----------
-Chd|        ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    st_qaprint_element     ../starter/source/output/qaprint/st_qaprint_element.F
+!||--- called by ------------------------------------------------------
+!||    st_qaprint_driver      ../starter/source/output/qaprint/st_qaprint_driver.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ST_QAPRINT_ELEMENT(IXS , IXS10, IPM   , IGEO, ITAB, 
      1                              ISOLNOD,IXR, R_SKEW,ISKWN, IXP ,
      2                              IXT    ,X  , IXC   ,IXTG ,THKE ,
      3                              SH4ANG ,THKEC,SH3ANG,KXSP ,IPARTSP,
      4                              IPART  ,IXR_KJ,KXX ,IXX  , IPARTX ,
-     5                              IXRI   ,IXS16 ,IXQ )
+     5                              IXRI   ,IXS16 ,IXQ ,IBEAM_VECTOR,RBEAM_VECTOR)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
       USE QA_OUT_MOD
       USE MESSAGE_MOD
+      USE MY_ALLOC_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "scr17_c.inc"
-#include      "scr21_c.inc"
 #include      "scr23_c.inc"
-#include      "tabsiz_c.inc"
-#include      "units_c.inc"
-#include      "my_allocate.inc"
 #include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -67,16 +62,18 @@ C-----------------------------------------------
       INTEGER, INTENT(IN) :: IXR(NIXR,*), R_SKEW(*), ISKWN(LISKN,*), IXP(NIXP,*), IXT(NIXT,*),
      .                       IXC(NIXC,*),IXTG(NIXTG,*),KXSP(NISP,*),IPARTSP(*),IPART(LIPART1,*),
      .                       KXX(NIXX,*),IXX(*),IPARTX(*),IXRI(4,*),IXS16(8,*),IXQ(NIXQ,*)
+      INTEGER, INTENT(IN) :: IBEAM_VECTOR(NUMELP)
       my_real, INTENT(IN) ::
      .                       X(3,NUMNOD),
      .                        THKE(*),THKEC(*),SH4ANG(*),SH3ANG(*)
+      my_real, INTENT(IN) :: RBEAM_VECTOR(3,NUMELP)
 C--------------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, MY_ID, TEMP_INT, NS, MY_MID, MY_PID, MY_NOD, MY_SKEW,NC
       INTEGER :: WORK(70000),NUMEL_KJ
       INTEGER, ALLOCATABLE, DIMENSION(:) :: INDEX,ITR1
-      CHARACTER *nchartitle TITR
+      CHARACTER(LEN=NCHARTITLE)::TITR
       CHARACTER (LEN=255) :: VARNAME
       DOUBLE PRECISION TEMP_DOUBLE
       INTEGER ITETRA4(4),IPENTA6(6)
@@ -91,8 +88,8 @@ C-----------------------------------------------
 C       Solid elements
 C-----------------------------------------------
 C
-        MY_ALLOCATE(INDEX,2*NUMELS)
-        MY_ALLOCATE(ITR1,NUMELS)
+        CALL MY_ALLOC(INDEX,2*NUMELS)
+        CALL MY_ALLOC(ITR1,NUMELS)
 C
         DO I=1,NUMELS8
           ITR1(I)=IXS(NIXS,I)
@@ -240,8 +237,8 @@ C-----------------------------------------------
 C       Spring elements
 C-----------------------------------------------
 C
-        MY_ALLOCATE(INDEX,2*NUMELR)
-        MY_ALLOCATE(ITR1,NUMELR)
+        CALL MY_ALLOC(INDEX,2*NUMELR)
+        CALL MY_ALLOC(ITR1,NUMELR)
 C
         DO I=1,NUMELR
           ITR1(I)=IXR(NIXR,I)
@@ -297,8 +294,8 @@ C
         IF (NUMELR > 0) THEN
 C
           NUMEL_KJ = IXR_KJ(1,NUMELR+1)
-          MY_ALLOCATE(INDEX,2*NUMEL_KJ)
-          MY_ALLOCATE(ITR1,NUMEL_KJ)
+          CALL MY_ALLOC(INDEX,2*NUMEL_KJ)
+          CALL MY_ALLOC(ITR1,NUMEL_KJ)
 C
           DO I=1,NUMEL_KJ
             ITR1(I)=IXR_KJ(4,I)
@@ -326,8 +323,8 @@ C-----------------------------------------------
 C       Beam elements
 C-----------------------------------------------
 C
-        MY_ALLOCATE(INDEX,2*NUMELP)
-        MY_ALLOCATE(ITR1,NUMELP)
+        CALL MY_ALLOC(INDEX,2*NUMELP)
+        CALL MY_ALLOC(ITR1,NUMELP)
 C
         DO I=1,NUMELP
           ITR1(I)=IXP(NIXP,I)
@@ -354,7 +351,14 @@ C
             END IF
           END DO
 C
-          IF(IXP(4,NS)/=0)THEN
+          IF (IBEAM_VECTOR(NS) == 1) THEN
+            TEMP_DOUBLE = RBEAM_VECTOR(1,NS)
+            CALL QAPRINT('--> INPUT_VEC_X', 0,TEMP_DOUBLE)
+            TEMP_DOUBLE = RBEAM_VECTOR(2,NS)
+            CALL QAPRINT('--> INPUT_VEC_Y', 0,TEMP_DOUBLE)
+            TEMP_DOUBLE = RBEAM_VECTOR(3,NS)
+            CALL QAPRINT('--> INPUT_VEC_Z', 0,TEMP_DOUBLE)
+          ELSEIF(IXP(4,NS)/=0)THEN
             MY_NOD = ITAB(IXP(4,NS))
             WRITE(VARNAME,'(A,I0)') 'NODE_',J-1
             CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)), MY_NOD,0.0_8)
@@ -375,8 +379,8 @@ C-----------------------------------------------
 C       Truss elements
 C-----------------------------------------------
 C
-        MY_ALLOCATE(INDEX,2*NUMELT)
-        MY_ALLOCATE(ITR1,NUMELT)
+        CALL MY_ALLOC(INDEX,2*NUMELT)
+        CALL MY_ALLOC(ITR1,NUMELT)
 C
         DO I=1,NUMELT
           ITR1(I)=IXT(NIXT,I)
@@ -410,8 +414,8 @@ C
 C-----------------------------------------------
 C       SHELL elements
 C-----------------------------------------------
-        MY_ALLOCATE(INDEX,2*NUMELC)
-        MY_ALLOCATE(ITR1,NUMELC)
+        CALL MY_ALLOC(INDEX,2*NUMELC)
+        CALL MY_ALLOC(ITR1,NUMELC)
 C
         DO I=1,NUMELC
           ITR1(I)=IXC(NIXC,I)
@@ -449,8 +453,8 @@ C
 C-----------------------------------------------
 C       QUAD elements
 C-----------------------------------------------
-        MY_ALLOCATE(INDEX,2*NUMELQ)
-        MY_ALLOCATE(ITR1,NUMELQ)
+        CALL MY_ALLOC(INDEX,2*NUMELQ)
+        CALL MY_ALLOC(ITR1,NUMELQ)
 C
         DO I=1,NUMELQ
           ITR1(I)=IXQ(NIXQ,I)
@@ -480,8 +484,8 @@ C
 C-----------------------------------------------
 C       SH3N elements
 C-----------------------------------------------
-        MY_ALLOCATE(INDEX,2*NUMELTG)
-        MY_ALLOCATE(ITR1,NUMELTG)
+        CALL MY_ALLOC(INDEX,2*NUMELTG)
+        CALL MY_ALLOC(ITR1,NUMELTG)
 C
         DO I=1,NUMELTG
           ITR1(I)=IXTG(NIXTG,I)
@@ -520,8 +524,8 @@ C
 C-----------------------------------------------
 C       Sph elements
 C-----------------------------------------------
-        MY_ALLOCATE(INDEX,2*NUMSPH)
-        MY_ALLOCATE(ITR1,NUMSPH)
+        CALL MY_ALLOC(INDEX,2*NUMSPH)
+        CALL MY_ALLOC(ITR1,NUMSPH)
 C
         DO I=1,NUMSPH
           ITR1(I)=KXSP(NISP,I)
@@ -557,8 +561,8 @@ C
 C-----------------------------------------------
 C       Xelem elements
 C-----------------------------------------------
-        MY_ALLOCATE(INDEX,2*NUMELX)
-        MY_ALLOCATE(ITR1,NUMELX)
+        CALL MY_ALLOC(INDEX,2*NUMELX)
+        CALL MY_ALLOC(ITR1,NUMELX)
 C
         DO I=1,NUMELX
           ITR1(I)=KXX(NIXX,I)
@@ -588,8 +592,8 @@ C
 C-----------------------------------------------
 C       Rivet elements
 C-----------------------------------------------
-        MY_ALLOCATE(INDEX,2*NRIVET)
-        MY_ALLOCATE(ITR1,NRIVET)
+        CALL MY_ALLOC(INDEX,2*NRIVET)
+        CALL MY_ALLOC(ITR1,NRIVET)
 C
         DO I=1,NRIVET
           ITR1(I)=IXRI(4,I)

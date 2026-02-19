@@ -1,39 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 Cas|         I17MAIN_PENA            /int17/i17main_pena.F
-Chd|====================================================================
-Chd|  I17CRIT                       source/interfaces/int17/i17crit.F
-Chd|-- called by -----------
-Chd|        I17MAIN                       source/interfaces/int17/i17main.F
-Chd|        I17MAIN_CRIT_TRI              source/interfaces/int17/i17main_pena.F
-Chd|-- calls ---------------
-Chd|        I16BOX                        source/interfaces/int16/i16crit.F
-Chd|        I20BOX                        source/interfaces/int16/i16crit.F
-Chd|====================================================================
+!||====================================================================
+!||    i17crit            ../engine/source/interfaces/int17/i17crit.F
+!||--- called by ------------------------------------------------------
+!||    i17main            ../engine/source/interfaces/int17/i17main.F
+!||    i17main_crit_tri   ../engine/source/interfaces/int17/i17main_pena.F
+!||--- calls      -----------------------------------------------------
+!||    i16box             ../engine/source/interfaces/int16/i16crit.F
+!||    i20box             ../engine/source/interfaces/int16/i16crit.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||====================================================================
        SUBROUTINE I17CRIT(
      1       X      ,V      ,A       ,NELEM ,EMINX  ,
      2       NME    ,ITASK  ,XSAV    ,IXS   ,IXS16  ,
      3       IXS20  ,XMSR_G ,SIZE_T_G)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,15 +49,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -66,19 +62,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NSNF,NMEF,NSNL,NMEL,I, J, II, K,I16,I20,LFT16,LLT16,
+      INTEGER NMEF,NMEL,I,I16,I20,LFT16,LLT16,
      .        LFT20,LLT20,INDEX16(MVSIZ),INDEX20(MVSIZ)
       my_real
      .   XMSR(6), SIZE_T
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-C-----------------------------------------------
-C------------------------------------
       NMEF = 1 + ITASK*NME / NTHREAD
       NMEL = (ITASK+1)*NME / NTHREAD
 C--------------------------------------------------------------
-C     0- CALCUL DU CRITERE POUR SAVOIR SI ON DOIT TRIER OU NON
+C     0- criterion calculation to know if sorting is needed
 C--------------------------------------------------------------
       XMSR(1) = -EP30
       XMSR(2) = -EP30
@@ -88,7 +82,7 @@ C--------------------------------------------------------------
       XMSR(6) =  EP30    
       SIZE_T  =  ZERO
 C------------------------------------
-C     CALCUL DES BORNES DES ELEMENTS
+C     calculation of element bounds
 C------------------------------------
       DO I=NMEF,NMEL
         EMINX(1,I) = EP30
@@ -106,20 +100,20 @@ C
       DO I=NMEF,NMEL
           I20=NELEM(I)-NUMELS8-NUMELS10
           I16=I20-NUMELS20
-          IF(I16.GE.1.AND.I16.LE.NUMELS16)THEN
+          IF(I16>=1.AND.I16<=NUMELS16)THEN
             LLT16=LLT16+1
             INDEX16(LLT16)=I
-            IF(LLT16.EQ.MVSIZ-1)THEN
+            IF(LLT16==MVSIZ-1)THEN
               CALL I16BOX(
      1            LFT16,LLT16  ,NELEM,EMINX,NMEF ,NMEL  ,
      2            X    ,V      ,A    ,IXS  ,IXS16,SIZE_T,
      3            XMSR ,INDEX16,XSAV  )
               LLT16=0
             ENDIF
-          ELSEIF(I20.GE.1.AND.I20.LE.NUMELS20)THEN
+          ELSEIF(I20>=1.AND.I20<=NUMELS20)THEN
             LLT20=LLT20+1
             INDEX20(LLT20)=I
-            IF(LLT20.EQ.MVSIZ-1)THEN
+            IF(LLT20==MVSIZ-1)THEN
               CALL I20BOX(
      1            LFT20,LLT20  ,NELEM,EMINX,NMEF ,NMEL  ,
      2            X    ,V      ,A    ,IXS  ,IXS20,SIZE_T,
@@ -128,11 +122,11 @@ C
             ENDIF
           ENDIF
       END DO
-      IF(LLT16.GT.0)CALL I16BOX(
+      IF(LLT16>0)CALL I16BOX(
      1            LFT16,LLT16  ,NELEM,EMINX,NMEF ,NMEL  ,
      2            X    ,V      ,A    ,IXS  ,IXS16,SIZE_T,
      3            XMSR ,INDEX16,XSAV  )
-      IF(LLT20.GT.0)CALL I20BOX(
+      IF(LLT20>0)CALL I20BOX(
      1            LFT20,LLT20  ,NELEM,EMINX,NMEF ,NMEL  ,
      2            X    ,V      ,A    ,IXS  ,IXS20,SIZE_T,
      3            XMSR ,INDEX20,XSAV  )

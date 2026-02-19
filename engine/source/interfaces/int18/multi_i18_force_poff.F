@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MULTI_I18_FORCE_POFF          source/interfaces/int18/multi_i18_force_poff.F
-Chd|-- called by -----------
-Chd|        I18FOR3                       source/interfaces/int18/i18for3.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    multi_i18_force_poff   ../engine/source/interfaces/int18/multi_i18_force_poff.F
+!||--- called by ------------------------------------------------------
+!||    i18for3                ../engine/source/interfaces/int18/i18for3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    multi_fvm_mod          ../common_source/modules/ale/multi_fvm_mod.F90
+!||    tri7box                ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE MULTI_I18_FORCE_POFF(DT, JLT   ,IX1  ,IX2  ,IX3  ,IX4    ,
      .     NSVG  ,H1   ,H2   ,H3   ,H4     ,STIF ,
      .     FX1   ,FY1  ,FZ1  ,FX2  ,FY2    ,FZ2  ,
@@ -53,7 +54,8 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MULTI_FVM_MOD
       USE TRI7BOX
-      USE ELBUFDEF_MOD       
+      USE ELBUFDEF_MOD   
+      use element_mod , only : nixs    
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -66,16 +68,13 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
-#include      "scr18_c.inc"
 #include      "com04_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP) :: ELBUF_TAB
-      INTEGER JLT, NIN,INTTH,JTASK,IGROUPS(NUMELS),IPARG(NPARG,*),
+      INTEGER JLT, NIN, JTASK, IGROUPS(NUMELS), IPARG(NPARG, *), 
      .        IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),IX4(MVSIZ),NSVG(MVSIZ),IXS(NIXS,*)
       my_real, DIMENSION(2*MVSIZ), INTENT(in) :: MSI
       my_real
@@ -92,7 +91,6 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J1, IG, ISHIFT, NODFI, NG, ILOC, NEL, NFT
       INTEGER :: SHIFT_FORCE_INT
-      my_real MASS
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
@@ -129,7 +127,7 @@ C
          IG=NSVG(I)
          ! --------------------
          ! local node
-         IF (IG .GT. 0) THEN
+         IF (IG > 0) THEN
             IG = IG - NUMNOD
             NG = IGROUPS(IG)
             NFT=IPARG(3,NG)

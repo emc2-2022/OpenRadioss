@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  OUTP_SP_T                     source/output/sty/outp_sp_t.F 
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_RGATHER9_1COMM           source/mpi/interfaces/spmd_outp.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    outp_sp_t             ../engine/source/output/sty/outp_sp_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp               ../engine/source/output/sty/genoutp.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf               ../engine/share/resol/initbuf.F
+!||    spmd_rgather9_1comm   ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    initbuf_mod           ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE OUTP_SP_T(KEY,TEXT,ELBUF_TAB,IPARG,DD_IAD,SIZLOC,SIZP0,SIZ_WR)
 C-----------------------------------------------
 C   M o d u l e s
@@ -44,14 +45,10 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr01_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "sphcom.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -64,7 +61,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NG,NEL,N,II(6),JJ,JJ_OLD, NGF, NGL, NN, 
+      INTEGER I, J, NG, NEL, II(6), JJ, JJ_OLD, NGF, NGL, NN, 
      .   LEN,RESP0,WRTLEN,RES,COMPTEUR,L,K
       INTEGER, DIMENSION(NSPGROUP) :: JJ_LOC
       INTEGER, DIMENSION(NSPGROUP+1,NSPMD) :: ADRESS 
@@ -97,7 +94,7 @@ C
          DO  NG = NGF, NGL
           ITY   =IPARG(5,NG)
           IF(ITY == 51) THEN
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MTN     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -138,7 +135,7 @@ C
         ENDDO
        ENDIF
 !     ++++++++++
-       IF(ISPMD.EQ.0) THEN
+       IF(ISPMD==0) THEN
          RESP0 = 0
          DO NN=1,NSPGROUP
           COMPTEUR = 0
@@ -167,7 +164,7 @@ C
            ENDDO
            RESP0=RES
           ENDIF      ! jj_old>0
-        ENDDO        ! nn=1,nspgroup
+        ENDDO        ! nn = 1, nspgroup
         IF (RESP0 > 0) THEN
           IF (OUTYY_FMT == 2) THEN
             WRITE(IUGEO,'(1P6E12.5)')(WAP0(J),J=1,RESP0)
@@ -178,16 +175,17 @@ C
       END IF         ! ispmd = 0
       RETURN
       END
-Chd|====================================================================
-Chd|  OUTP_SP_TT                    source/output/sty/outp_sp_t.F 
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_RGATHER9_1COMM           source/mpi/interfaces/spmd_outp.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+!||====================================================================
+!||    outp_sp_tt            ../engine/source/output/sty/outp_sp_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp               ../engine/source/output/sty/genoutp.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf               ../engine/share/resol/initbuf.F
+!||    spmd_rgather9_1comm   ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    initbuf_mod           ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE OUTP_SP_TT(KEY,TEXT,ELBUF_TAB,IPARG,DD_IAD,
      2           IPM  ,KXSP ,SPBUF,SIZLOC,SIZP0,SIZ_WR)
 C-----------------------------------------------
@@ -203,12 +201,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr16_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
 #include      "task_c.inc"
@@ -227,7 +221,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,II(6),JJ, JJ_OLD,NPTR, NPTS, NPTT,NPTG,
+      INTEGER I, J, K, II(6), JJ, JJ_OLD, 
      .   NG, NEL, IADD, N,NGF, NGL, NN, LEN,MLW,COMPTEUR,L
       INTEGER, DIMENSION(NSPGROUP) :: JJ_LOC
       INTEGER, DIMENSION(NSPGROUP+1,NSPMD) :: ADRESS 
@@ -267,7 +261,7 @@ C
         DO  NG = NGF, NGL
          ITY   =IPARG(5,NG)
          IF (ITY == 51) THEN
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MTN     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -306,7 +300,7 @@ C
         NGF = NGL + 1
         JJ_LOC(NN) = JJ - COMPTEUR            ! size of each group
         COMPTEUR = JJ                         
-      ENDDO                                   ! nn=1,nspdgroup
+      ENDDO                                   ! nn = 1, nspdgroup
 
 !     ++++++++++
        IF( NSPMD>1 ) THEN
@@ -319,7 +313,7 @@ C
         ENDDO
        ENDIF
 !     ++++++++++
-       IF(ISPMD.EQ.0) THEN
+       IF(ISPMD==0) THEN
          DO NN=1,NSPGROUP
           COMPTEUR = 0
           DO K = 1,NSPMD
@@ -332,7 +326,7 @@ C
           ENDDO    ! k=1,nspmd
 
         JJ_OLD = COMPTEUR
-        IF(JJ_OLD.GT.0) THEN    
+        IF(JJ_OLD>0) THEN    
          IF (OUTYY_FMT == 2) THEN
            J = 1
            DO WHILE (J<JJ_OLD)
@@ -344,7 +338,7 @@ C
            ENDDO 
          ELSE
            J = 1
-           DO WHILE (J.LE.JJ_OLD)
+           DO WHILE (J<=JJ_OLD)
              WRITE(IUGEO,'(1P3E20.13)')(WAP0(J-1+K),K=1,3) ! j-1+k=1,...,3
              J=J+3 ! j = 4
              WRITE(IUGEO,'(1P6E20.13)')(WAP0(J-1+K),K=1,6) ! j-1+k = 4,...,9 
@@ -353,18 +347,17 @@ C
            ENDDO 
          END IF
         END IF
-       ENDDO   ! nn=1,nspgroup
+       ENDDO   ! nn = 1, nspgroup
       END IF   ! ispmd=0     
 C-----------             
       RETURN
       END
-Chd|====================================================================
-Chd|  COUNT_ARSZ_SPT                source/output/sty/outp_sp_t.F 
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|        OUTP_ARSZ_SPT                 source/mpi/interfaces/spmd_outp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    count_arsz_spt   ../engine/source/output/sty/outp_sp_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp          ../engine/source/output/sty/genoutp.F
+!||    outp_arsz_spt    ../engine/source/mpi/interfaces/spmd_outp.F
+!||====================================================================
       SUBROUTINE COUNT_ARSZ_SPT(IPARG,DD_IAD,WASZ,SIZ_WRITE_LOC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -375,7 +368,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
@@ -413,13 +405,12 @@ C-----------------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  COUNT_ARSZ_SPTT               source/output/sty/outp_sp_t.F 
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|        OUTP_ARSZ_SPTT                source/mpi/interfaces/spmd_outp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    count_arsz_sptt   ../engine/source/output/sty/outp_sp_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp           ../engine/source/output/sty/genoutp.F
+!||    outp_arsz_sptt    ../engine/source/mpi/interfaces/spmd_outp.F
+!||====================================================================
       SUBROUTINE COUNT_ARSZ_SPTT(IPARG,DD_IAD,WASZ,SIZ_WRITE_LOC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -430,7 +421,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------

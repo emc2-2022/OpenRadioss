@@ -1,93 +1,113 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECTUR                        source/input/lectur.F         
-Chd|-- called by -----------
-Chd|        RADIOSS2                      source/engine/radioss2.F      
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ANIM_BUILD_INDEX_ALL          source/output/anim/reader/anim_build_index_all.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        CHKIPARI                      source/interfaces/interf/chkstfn3.F
-Chd|        FR_RLALE                      source/mpi/kinematic_conditions/fr_rlink1.F
-Chd|        FR_RLINK1                     source/mpi/kinematic_conditions/fr_rlink1.F
-Chd|        LCBCSF                        source/constraints/general/bcs/lcbcsf.F
-Chd|        LECCUT                        source/tools/sect/leccut.F    
-Chd|        LECDAMP                       source/input/lecdamp.F        
-Chd|        LECEIG                        source/input/leceig.F         
-Chd|        LECFLSW                       source/fluid/lecflsw.F        
-Chd|        LECFUN                        source/tools/curve/lecfun.F   
-Chd|        LECFVBAG                      source/input/lecfvbag.F       
-Chd|        LECFVBAG1                     source/input/lecfvbag1.F      
-Chd|        LECFXINP                      source/input/lecfxinp.F       
-Chd|        LECH3D                        source/output/h3d/h3d_build_fortran/lech3d.F
-Chd|        LECIMPL                       source/input/lectur.F         
-Chd|        LECINV                        source/input/lecinv.F         
-Chd|        LECNOISE                      source/general_controls/computation/lecnoise.F
-Chd|        LECSTAT                       source/input/lecstat.F        
-Chd|        RBYONF                        source/constraints/general/rbody/rbyonf.F
-Chd|        READ_DYNAIN                   source/output/dynain/read_dynain.F
-Chd|        RLINK0                        source/constraints/general/rlink/rlink0.F
-Chd|        SPMD_CHKW                     source/mpi/generic/spmd_chkw.F
-Chd|        SPMD_GLOB_ISUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_IBCAST                   source/mpi/generic/spmd_ibcast.F
-Chd|        SPMD_WIOUT                    source/mpi/generic/spmd_wiout.F
-Chd|        NGR2USR                       source/input/freform.F        
-Chd|        CHECK_MOD                     ../common_source/modules/check_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTSTAMP_GLOB_MOD             share/modules/intstamp_glob_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lectur                 ../engine/source/input/lectur.F
+!||--- called by ------------------------------------------------------
+!||    radioss2               ../engine/source/engine/radioss2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../engine/source/output/message/message.F
+!||    anim_build_index_all   ../engine/source/output/anim/reader/anim_build_index_all.F
+!||    arret                  ../engine/source/system/arret.F
+!||    chkipari               ../engine/source/interfaces/interf/chkstfn3.F
+!||    finter                 ../engine/source/tools/curve/finter.F
+!||    fr_rlale               ../engine/source/mpi/kinematic_conditions/fr_rlink1.F
+!||    fr_rlink1              ../engine/source/mpi/kinematic_conditions/fr_rlink1.F
+!||    lcbcsf                 ../engine/source/constraints/general/bcs/lcbcsf.F
+!||    leccut                 ../engine/source/tools/sect/leccut.F
+!||    lecdamp                ../engine/source/input/lecdamp.F
+!||    leceig                 ../engine/source/input/leceig.F
+!||    lecflsw                ../engine/source/fluid/lecflsw.F
+!||    lecfun                 ../engine/source/tools/curve/lecfun.F
+!||    lecfvbag               ../engine/source/input/lecfvbag.F
+!||    lecfvbag1              ../engine/source/input/lecfvbag1.F
+!||    lecfxinp               ../engine/source/input/lecfxinp.F
+!||    lech3d                 ../engine/source/output/h3d/h3d_build_fortran/lech3d.F
+!||    lecimpl                ../engine/source/input/lectur.F
+!||    lecinv                 ../engine/source/input/lecinv.F
+!||    lecnoise               ../engine/source/general_controls/computation/lecnoise.F
+!||    lecstat                ../engine/source/input/lecstat.F
+!||    ngr2usr                ../engine/source/input/freform.F
+!||    prelech3d              ../engine/source/output/h3d/h3d_build_fortran/prelech3d.F90
+!||    rbyonf                 ../engine/source/constraints/general/rbody/rbyonf.F
+!||    read_dynain            ../engine/source/output/dynain/read_dynain.F
+!||    rlink0                 ../engine/source/constraints/general/rlink/rlink0.F
+!||    spmd_chkw              ../engine/source/mpi/generic/spmd_chkw.F
+!||    spmd_glob_isum9        ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_ibcast            ../engine/source/mpi/generic/spmd_ibcast.F
+!||    spmd_wiout             ../engine/source/mpi/generic/spmd_wiout.F
+!||--- uses       -----------------------------------------------------
+!||    ale_mod                ../common_source/modules/ale/ale_mod.F
+!||    alemuscl_mod           ../common_source/modules/ale/alemuscl_mod.F
+!||    check_mod              ../common_source/modules/check_mod.F
+!||    dt_mod                 ../engine/source/modules/dt_mod.F
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    fvbag_mod              ../engine/share/modules/fvbag_mod.F
+!||    fxb_mod                ../engine/share/modules/fxb_mod.F
+!||    glob_therm_mod         ../common_source/modules/mat_elem/glob_therm_mod.F90
+!||    groupdef_mod           ../common_source/modules/groupdef_mod.F
+!||    h3d_mod                ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod          ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    intstamp_glob_mod      ../engine/share/modules/intstamp_glob_mod.F
+!||    loads_mod              ../common_source/modules/loads/loads_mod.F90
+!||    mat_elem_mod           ../common_source/modules/mat_elem/mat_elem_mod.F90
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    multi_fvm_mod          ../common_source/modules/ale/multi_fvm_mod.F90
+!||    my_alloc_mod           ../common_source/tools/memory/my_alloc.F90
+!||    names_and_titles_mod   ../common_source/modules/names_and_titles_mod.F
+!||    output_mod             ../common_source/modules/output/output_mod.F90
+!||    pblast_mod             ../common_source/modules/loads/pblast_mod.F90
+!||    prelech3d_mod          ../engine/source/output/h3d/h3d_build_fortran/prelech3d.F90
+!||    sensor_mod             ../common_source/modules/sensor_mod.F90
+!||    stack_mod              ../engine/share/modules/stack_mod.F
+!||    state_mod              ../common_source/modules/state_mod.F
+!||    table_mod              ../engine/share/modules/table_mod.F
+!||====================================================================
       SUBROUTINE LECTUR(ICODE   ,ISKEW ,ISKWN  ,IXTG   ,IXS   ,
      2                  IXQ     ,IXC   ,IXT    ,IXP    ,IXR   ,
      3                  ITAB    ,ITABM1,NPC    ,IPARG  ,IGRV  ,
-     4                  IBGR    ,IPARI ,LSENSOR,
+     4                  IBGR    ,IPARI ,
      5                  NPBY    ,LPBY  ,NNLINK ,LLINK  ,LINALE,
      6                  NEFLSW  ,NNFLSW,ICUT   ,INOISE ,
      7                  X       ,V     ,VR     ,MS     ,IN    ,
      8                  SKEW    ,PLD           ,RBY    ,
-     9                  WA      ,CRFLSW,XCUT   ,ANIN   ,DAMPR ,
+     9                  WA      ,CRFLSW,XCUT   ,DAMPR ,
      A                  IGRNOD  ,KXSP  ,WEIGHT ,FR_RBY2,FR_RL ,
      B                  PARTSAV,IPART  ,PM    ,
      C                  MONVOL  ,VOLMON,IPART_STATE,GEO,TABLE ,
      D                  IFRAME  ,XFRAME,ELBUF_STR,IGEO ,INTBUF_TAB,
-     E                  IPM     ,H3D_DATA, MULTI_FVM,FLAG_CST_AMS,
+     E                  IPM     ,H3D_DATA, MULTI_FVM,
      F                  IGRPART ,TAG_SKINS6,ICFIELD,LCFIELD,TAGSLV_RBY,
-     G                  IPART_DYNAIN,MDS_LABEL,MDS_OUTPUT_TABLE,MDS_NMAT,
-     H                  MAX_DEPVAR,MDS_NDEPSVAR,STACK,IBCL,ILOADP,LLOADP)
+     G                  MDS_LABEL,MDS_OUTPUT_TABLE,MDS_NMAT,MAX_DEPVAR,
+     H                  MDS_NDEPSVAR,STACK,IBCL,ILOADP,LLOADP,SENSORS,
+     I                  DYNAIN_DATA,DT ,LOADS ,OUTPUT,NAMES_AND_TITLES,
+     J                  MAT_PARAM,GLOB_THERM,PBLAST)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE TABLE_MOD
       USE MESSAGE_MOD
-      USE ELBUFDEF_MOD
+      USE MAT_ELEM_MOD
       USE INTBUFDEF_MOD
       USE STACK_MOD
       USE H3D_MOD
@@ -96,6 +116,21 @@ C-----------------------------------------------
       USE INTSTAMP_GLOB_MOD
       USE FVBAG_MOD
       USE CHECK_MOD
+      USE SENSOR_MOD
+      USE OUTPUT_MOD
+      USE STATE_MOD
+      USE ALEMUSCL_MOD , only:ALEMUSCL_Param
+      USE ALE_MOD
+      USE DT_MOD
+      USE LOADS_MOD
+      USE FXB_MOD
+      USE MY_ALLOC_MOD
+      USE NAMES_AND_TITLES_MOD
+      USE ELBUFDEF_MOD
+      USE glob_therm_mod
+      USE PBLAST_MOD
+      USE PRELECH3D_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -104,10 +139,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com02_c.inc"
 #include      "com04_c.inc"
 #include      "com06_c.inc"
-#include      "com07_c.inc"
 #include      "com08_c.inc"
 #include      "com09_c.inc"
 #include      "param_c.inc"
@@ -117,12 +150,10 @@ C-----------------------------------------------
 #include      "scr05_c.inc"
 #include      "scr06_c.inc"
 #include      "scr07_c.inc"
-#include      "scr13_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "scr17_c.inc"
 #include      "scr18_c.inc"
-#include      "scr25_c.inc"
 #include      "cong1_c.inc"
 #include      "cong2_c.inc"
 #include      "scrfs_c.inc"
@@ -132,48 +163,37 @@ C-----------------------------------------------
 #include      "scrcut_c.inc"
 #include      "scrnoi_c.inc"
 #include      "parit_c.inc"
-#include      "rnur_c.inc"
-#include      "scrupw_c.inc"
-#include      "scr_fac_c.inc"
-#include      "couple_c.inc"
 #include      "chara_c.inc"
 #include      "task_c.inc"
 #include      "sphcom.inc"
 #include      "impl1_c.inc"
-#include      "subc_c.inc"
-#include      "buckcom.inc"
 #include      "tabsiz_c.inc"
 #include      "remesh_c.inc"
 #include      "sms_c.inc"
 #include      "rad2r_c.inc"
 #include      "inter22.inc"
 #include      "userlib.inc"
-#include      "alefvm.inc"
-#include      "scr_thermal_c.inc"
-#include      "nchara_c.inc"
-#include      "alesolver.inc"
-#include      "alemuscl.inc"
 #include      "spmd_c.inc"
 #include      "intstamp_c.inc"
-#include      "ale_param.inc"
+#include      "couple_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IPARG(NPARG,*), IPARI(NPARI,*), IXS(NIXS,*),
+      INTEGER IPARG(NPARG,NGROUP), IPARI(NPARI,*), IXS(NIXS,*),
      .   IXQ(NIXQ,*), IXC(NIXC,*), IXT(NIXT,*), IXP(NIXP,*),
      .   IXR(NIXR,*), IXTG(NIXTG,*),ITAB(*), ITABM1(*),
      .   ISKWN(LISKN,*), NPBY(NNPBY,*),NNLINK(*) ,LLINK(*) ,LINALE(*),
      .   ICODE(*) ,ISKEW(*),NPC(*),NEFLSW(*),NNFLSW(*),ICUT(*),
-     .   INOISE(*),IGRV(NIGRV,*),IBGR(*),LSENSOR(NSENSI,*),
+     .   INOISE(*),IGRV(NIGRV,*),IBGR(*),
      .   LPBY(*),KXSP(NISP,*),WEIGHT(*),FR_RBY2(*),
      .   FR_RL(NSPMD+2,*),
      .   IPART(*), MONVOL(*), IPART_STATE(*),IFRAME(LISKN,*),
-     .   IGEO(NPROPGI,*),IPM(NPROPMI,*),FLAG_CST_AMS,TAG_SKINS6(*),
-     .   ICFIELD(SIZFIELD,*), LCFIELD(*), TAGSLV_RBY(*),IPART_DYNAIN(*),
+     .   IGEO(NPROPGI,*),IPM(NPROPMI,*),TAG_SKINS6(*),
+     .   ICFIELD(SIZFIELD,*), LCFIELD(*), TAGSLV_RBY(*),
      .   MDS_OUTPUT_TABLE(MDS_NMAT*MAX_DEPVAR),MDS_NMAT,MAX_DEPVAR,
      .   MDS_NDEPSVAR(*),IBCL(*),ILOADP(*),LLOADP(*)
       my_real
-     .    SKEW(LSKEW,*),RBY(*),MS(*),IN(*),ANIN(*),
+     .    SKEW(LSKEW,*),RBY(*),MS(*),IN(*),
      .    X(*), V(*), VR(*),WA(*),PLD(*),CRFLSW(*),XCUT(*),
      .    DAMPR(NRDAMP,*), PARTSAV(*),PM(NPROPM,*),
      .    VOLMON(*),GEO(NPROPG,*),XFRAME(NXFRAME,*)
@@ -186,45 +206,57 @@ C-----------------------------------------------
       TYPE(GROUP_)  ,DIMENSION(NGRPART) :: IGRPART
       CHARACTER MDS_LABEL(1024,MDS_NMAT)
       TYPE (STACK_PLY) :: STACK
+      TYPE (SENSORS_) ,INTENT(INOUT) ,TARGET :: SENSORS
+      TYPE (DYNAIN_DATABASE), INTENT(INOUT)  :: DYNAIN_DATA
+      TYPE (DT_), INTENT(INOUT)              :: DT
+      TYPE (LOADS_), INTENT(IN)              :: LOADS
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT !< output structure
+      TYPE(NAMES_AND_TITLES_),INTENT(INOUT) :: NAMES_AND_TITLES  !< NAMES_AND_TITLES host the input deck names and titles for outputs
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
+      type (glob_therm_) ,intent(inout)       :: glob_therm
+      type (pblast_) ,intent(inout)           :: pblast
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NLEC(16), I, IBID, IGFOR0, NSLIOF, NELSOF, NELQOF, NDAMPN,
+      INTEGER NLEC(16), I, NSLIOF, NELSOF, NELQOF, NDAMPN,
      .   NELCOF, NELTOF, NELPOF, NELROF, NINTCH, NUBCSN, ITFOR0, IRFE0,
-     .   IRFL0, K, NELOF, NN, NBC, IL, II, J, KLG, KUG, NBLK, KI, NG,
+     .   IRFL0, K, NELOF, NN, NBC, IL, II, J, KLG, KUG, NBLK, NG,
      .   ITY, NEL, NFT, IAD, IGOF, K1, K2, N, I1, I2, I3, IR1, IR2, IR3,
      .   ISK, IC, ICR, M1, M2, IM, NOINT, NSEARCH, JPRI, NPTS,
-     .   NRBYON, NRBYOF, NELTGOF,NINIV,IHBE,NSLIOFN,NSLIOFS,KK,NTY,
-     .   NSN,NRTS,NRTM,NMN,IANIS0,L,NCPRI1,NRLINK0,NALELK0,
-     .   NSPHOF,IWIOUT,NLECSPH(10),NFXINP,NCRST1,IPRECP,NEIGOFF,NEOFF,
-     .   NALEOF,NEULEROF,NTHERMOF,IBSOL,NFVMESH,MLW,LL,ISK1,ISK2,NIPMAX,
-     .   NFVMODI,IOK, ALEStrL(0:6),NLYMAX, NALELINK0, GR_ID,
-     .   NALELK_starter, uID, NALELK_removed, JALE,NIPMAX_SOL,USERL_COUNT,
-     .   IUS,CPTPLY,IPT,IGTYP,NPT,NPTR,NPTT,IGTYP15,IDEL2,IS,
-     .   IDX,WORK(70000),CPT,STEXT1,STEXT2,MULTIREST1,NLPRI1,LOWMACH_OPT,IERROR,
-     .   NINTERSKID,INTER_INPUT,NPTT_PLY,NMAX,IVOLU,IFV,IFV_TYPE,ISTATG_P,
-     .   NIPMAX_BEAM,K3,K4,K5,K6,K7,K8,K9
+     .   NRBYON, NRBYOF, NELTGOF,NINIV,NSLIOFN,NSLIOFS,KK,NTY,
+     .   NSN,NRTS,NRTM,NMN,L,NCPRI1,NRLINK0,NALELK0,
+     .   NSPHOF,IWIOUT,NLECSPH(10),NFXINP,NCRST1,NEIGOFF,NEOFF,
+     .   NALEOF,NEULEROF,NTHERMOF,NFVMESH,MLW,LL,ISK1,ISK2,
+     .   NFVMODI,IOK, ALEStrL(0:8), NALELINK0, GR_ID,
+     .   NALELK_starter, uID, NALELK_removed, JALE,USERL_COUNT,
+     .   IDEL2,IS,
+     .   STEXT1,MULTIREST1,NLPRI1,IERROR,
+     .   NINTERSKID,IVOLU,IFV,IFV_TYPE,ISTATG_P,
+     .   K3,K4,K5,K6,K7,K8,K9,NINEFRICG,NS,NI,NPARTOF,IFT,ILT,K10,K11,JJ,DTFCT,Ok
 
       INTEGER :: NBPARTALEON, NBPARTALEOFF, PARTID, ISON, ION, IOFF, NBALEON_PART, NBALEOFF_PART
       INTEGER, DIMENSION(:), ALLOCATABLE :: ALEOFF_PARTIDS_TMP, ALEOFF_PARTIDS,
      .     ALEON_PARTIDS_TMP, ALEON_PARTIDS
       INTEGER, DIMENSION(:), ALLOCATABLE :: ALELIN_ON_OFF
       my_real
-     .   TITLE(20), TFI, DTH, DTF, DTM, T1G, DTG, T1P, DTP, ALP, GAM,
-     .   CV1, CV2, CV3, VOLM, TSTART, TFIN, DTH1(9),CS1(2), DT_INPUT, DT_CRIT
-       CHARACTER*9 Cale1,Cale2,ALEform(0:6),CHAR1,CHAR2
-       CHARACTER*9 Label1,Label2,Label3,Label4,Label5,Label6,Label7,Label8,Label9
-       CHARACTER CARTE*ncharline,LINE*ncharline
-      my_real eta1,eta2
-      my_real,
-     .   DIMENSION(:), POINTER :: OFFG
+     .   TFI,  DTF, DTM, ALP, GAM,
+     .   CV1, CV2, CV3, VOLM, TSTART, TFIN,DT_INPUT, DT_CRIT
+       CHARACTER*9 Label1,Label2,Label3,Label4,Label5,Label6,Label7,Label8
+       CHARACTER*16 ALEform(0:8),Cale1,Cale2,CHAR1,CHAR2,Label9
+       CHARACTER*3 :: LABEL_DEF,LABEL_ROT
+      CHARACTER(LEN=4), DIMENSION(20) :: TITLE
+      my_real eta1,eta2,MIN_ASPECT,MIN_DEFV,DYDX
+      my_real, DIMENSION(:), POINTER :: OFFG
+      TYPE (SENSOR_STR_) ,DIMENSION(:) ,POINTER :: SENSOR_TAB
+      LOGICAL IS_ALREADY_PRINTED
+      REAL(KIND=8) :: DTH
+      REAL(KIND=8), DIMENSION(9) :: DTH1
+      INTEGER, DIMENSION(:), ALLOCATABLE :: IPARTOF
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER NINTRN, NGR2USR
-      my_real
-     .   SYSFUS
-      EXTERNAL NGR2USR
+      INTEGER,EXTERNAL :: NGR2USR
+      my_real,EXTERNAL  :: FINTER
 C-----------------------------------------------
       ! setting NOINT in IPARI(13)
       IERR = 0
@@ -233,6 +265,7 @@ C-----------------------------------------------
          IPARI(13,I)=10
          IF(IPARI(15,I) == 0) IPARI(15,I)=I
       ENDDO
+      SENSOR_TAB => SENSORS%SENSOR_TAB(1:SENSORS%NSENSOR)
 
       CALL CHKIPARI(IPARI)
 
@@ -240,23 +273,19 @@ C-----------------------------------------------
       READ (IIN,'(4F16.0,I8,I10,2I8)')TFI,DTH,DTF,DTM,NCPRI1,NCRST1,MULTIREST1,NLPRI1
       READ (IIN,'(5F16.0)')(DTH1(I),I=1,5)
       READ (IIN,'(4F16.0)')(DTH1(I+5),I=1,4)
-      READ (IIN,'(2F16.0,I8)')T1G,DTG,IGFOR0
-      READ (IIN,'(2F16.0)')T1P,DTP
       READ (IIN,'(6F10.0)')ALP,GAM,CV1,CV2,CV3,VOLM
-      READ (IIN,'(I8)') LOWMACH_OPT
-      READ (IIN,'(10I8)')   NSLIOF,NELSOF,NELQOF,NELCOF,NELTOF,
-     +                      NELPOF,NELROF,NELTGOF,NSLIOFN,NSLIOFS
-      READ (IIN,'(I8)')   NSPHOF
-      READ (IIN,'(3I8)')  NALEOF,NEULEROF,NTHERMOF
-      READ (IIN,'(2I8)')   NRLINK0,NALELK0
-      READ (IIN,'(2I8)')   NALELINK0
+      READ (IIN,'(10I8)') NSLIOF,NELSOF,NELQOF,NELCOF,NELTOF,NELPOF,NELROF,NELTGOF,NSLIOFN,NSLIOFS
+      READ (IIN,'(I8)') NSPHOF
+      READ (IIN,'(4I8)') NALEOF,NEULEROF,NTHERMOF,NPARTOF
+      READ (IIN,'(2I8)') NRLINK0,NALELK0
+      READ (IIN,'(2I8)') NALELINK0
 C--------------
 C     ALE ON / OFF
 C--------------
       READ (IIN, '(I8, I8)') NBPARTALEON, NBPARTALEOFF
       IF(MCHECK == 0)THEN
-        NRLINK= NRLINK0
-        NALELK= NALELK0
+        NRLINK=NRLINK0
+        NALELK=NALELK0
         NALELINK=NALELINK0
         IRPREV = 0
       ENDIF
@@ -264,18 +293,11 @@ C--------------
       NRBYOF = 0
       NUBCSN = 0
       NINIV  = 0
-      READ (IIN,'(2I8)')   NUBCSN,NINIV
-      READ (IIN,'(3I8)')   NINTCH,NRBYON,NRBYOF
+      READ (IIN,'(2I8)') NUBCSN,NINIV
+      READ (IIN,'(3I8)') NINTCH,NRBYON,NRBYOF
       READ (IIN,'(I8)') NDAMPN
       READ(IIN,'(I8)') NFXINP
 C-----
-      NCPRISH=0
-      NCTRLSH=0
-      IF(ISHSUB /= 0)THEN
-        READ (IIN,'(2I8)')NCPRISH,NCTRLSH
-        IF(NCPRISH == 0) NCPRISH=1
-        IF(NCTRLSH == 0) NCTRLSH=1000
-      ENDIF
       READ(IIN,'(2I8)') NEIGOFF, NEOFF
       READ(IIN,'(2I8)') NFVMESH, NFVMODI
 C-----
@@ -287,17 +309,9 @@ C
       IF(NCRST1 == 0.AND.MCHECK == 0) NCRST=10000000
       IF(TFI /= 0.0) TSTOP=TFI
 C
-      IF(DTG /= ZERO.AND.MCHECK == 0) DTDES=DTG
-      IF(T1G /= ZERO.AND.MCHECK == 0) TDES =T1G
-      IF(DTP /= ZERO.AND.MCHECK == 0) DTPAT=DTP
-      IF(T1P /= ZERO.AND.MCHECK == 0) TPAT =T1P
-C
-      IF(DTDES == ZERO) TDES=EP30
-      IF(DTPAT == ZERO) TPAT=EP30
-C
       IF(TOUTP0 /= ZERO)  TOUTP = TOUTP0
       IF(DTOUTP0 > ZERO) DTOUTP= DTOUTP0
-      IF(DTOUTP.LE.ZERO)  TOUTP = EP30
+      IF(DTOUTP<=ZERO)  TOUTP = EP30
       IF (TOUTP < TT-DT2.AND.DTOUTP > ZERO)TOUTP = TOUTP
      .    + INT((TT-DT2-TOUTP)/DTOUTP)*DTOUTP
       IF (TOUTP < TT-DT2)TOUTP = TOUTP+DTOUTP
@@ -305,61 +319,53 @@ C
 C .sta files
       IF(TSTAT0 /= ZERO)  TSTAT = TSTAT0
       IF(DTSTAT0 > ZERO) DTSTAT= DTSTAT0
-      IF(DTSTAT.LE.ZERO)  TSTAT = EP30
+      IF(DTSTAT<=ZERO)  TSTAT = EP30
       IF (TSTAT < TT-DT2.AND.DTSTAT > ZERO)TSTAT = TSTAT
      .    + INT((TT-DT2-TSTAT)/DTSTAT)*DTSTAT
       IF (TSTAT < TT-DT2)TSTAT = TSTAT+DTSTAT
 C .dynain files
-      IF(TDYNAIN0 /= ZERO)  TDYNAIN = TDYNAIN0
-      IF(DTDYNAIN0 > ZERO)  DTDYNAIN= DTDYNAIN0
-      IF(DTDYNAIN.LE.ZERO)  TDYNAIN = EP30
-      IF (TDYNAIN < TT-DT2.AND.DTDYNAIN > ZERO)TDYNAIN = TDYNAIN
-     .    + INT((TT-DT2-TDYNAIN)/DTDYNAIN)*DTDYNAIN
-      IF (TDYNAIN< TT-DT2)TDYNAIN = TDYNAIN+DTDYNAIN
+      IF(DYNAIN_DATA%TDYNAIN0 /= ZERO)  DYNAIN_DATA%TDYNAIN = DYNAIN_DATA%TDYNAIN0
+      IF(DYNAIN_DATA%DTDYNAIN0 > ZERO)  DYNAIN_DATA%DTDYNAIN= DYNAIN_DATA%DTDYNAIN0
+      IF(DYNAIN_DATA%DTDYNAIN<=ZERO)  DYNAIN_DATA%TDYNAIN = EP30
+      IF (DYNAIN_DATA%TDYNAIN < TT-DT2.AND.DYNAIN_DATA%DTDYNAIN > ZERO)DYNAIN_DATA%TDYNAIN = DYNAIN_DATA%TDYNAIN
+     .    + INT((TT-DT2-DYNAIN_DATA%TDYNAIN)/DYNAIN_DATA%DTDYNAIN)*DYNAIN_DATA%DTDYNAIN
+      IF (DYNAIN_DATA%TDYNAIN< TT-DT2)DYNAIN_DATA%TDYNAIN = DYNAIN_DATA%TDYNAIN+DYNAIN_DATA%DTDYNAIN
 C abf files
       DO I=1,10
         IF(DTABF0(I) > ZERO) DTABF(I)= DTABF0(I)
         IF(DTABFWR0(I) > ZERO) DTABFWR(I)= DTABFWR0(I)
       ENDDO
-      IF (ABFILE(1) .NE. 0) TABFIS(1) = TT
+      IF (ABFILE(1) /= 0) TABFIS(1) = TT
 C
-      IF(DTH /= ZERO.AND.MCHECK == 0) DTHIS=DTH
+      IF(DTH /= ZERO.AND.MCHECK == 0) OUTPUT%TH%DTHIS=DTH
       DO I= 1, 9
-       IF(DTH1(I) /= ZERO.AND.MCHECK == 0) DTHIS1(I)=DTH1(I)
+       IF(DTH1(I) /= ZERO.AND.MCHECK == 0) OUTPUT%TH%DTHIS1(I)=DTH1(I)
       ENDDO
-c h3d files
-      H3D_DATA%DTH3D = ZERO
-      IF(H3D_DATA%TH3D0 /= ZERO)  H3D_DATA%TH3D = H3D_DATA%TH3D0
-      IF(H3D_DATA%DTH3D0 > ZERO) H3D_DATA%DTH3D= H3D_DATA%DTH3D0
-      IF(H3D_DATA%DTH3D.LE.ZERO)  H3D_DATA%TH3D = EP30
-      IF (H3D_DATA%TH3D < TT-DT2.AND. H3D_DATA%DTH3D > ZERO)
-     .     H3D_DATA%TH3D = H3D_DATA%TH3D
-     .              + INT((TT-DT2-H3D_DATA%TH3D)/H3D_DATA%DTH3D)*H3D_DATA%DTH3D
-      IF (H3D_DATA%TH3D < TT-DT2)H3D_DATA%TH3D = H3D_DATA%TH3D+H3D_DATA%DTH3D
+
 C
       IF(MCHECK == 0)THEN
-        VGY0=ZERO
-        VGZ0=ZERO
+        ALE%GRID%VGY0=ZERO
+        ALE%GRID%VGZ0=ZERO
         IF(DTF /= ZERO) DTFAC=DTF
         IF(DTM /= ZERO) DTMIN=DTM
-        IF(ALP /= ZERO) ALPHA=ALP
-        IF(GAM /= ZERO) GAMMA=GAM
-        IF(CV1 /= ZERO) VGX  =CV1
-        IF(CV2 /= ZERO) VGY  =CV2
-        IF(CV3 /= ZERO) VGZ  =CV3
-        IF(NWALE_ENGINE == 2)THEN
+        IF(ALP /= ZERO) ALE%GRID%ALPHA=ALP
+        IF(GAM /= ZERO) ALE%GRID%GAMMA=GAM
+        IF(CV1 /= ZERO) ALE%GRID%VGX  =CV1
+        IF(CV2 /= ZERO) ALE%GRID%VGY  =CV2
+        IF(CV3 /= ZERO) ALE%GRID%VGZ  =CV3
+        IF(ALE%GRID%NWALE_ENGINE == 2)THEN
           IF(ALP /= ZERO) THEN
-            ALPHA    = ALP/(-VGX+SQRT(VGX**2+ ONE))
+            ALE%GRID%ALPHA = ALP/(-ALE%GRID%VGX+SQRT(ALE%GRID%VGX**2+ ONE))
             DT_INPUT = ALP
           ELSE
-            DT_INPUT = ALPHA*(-VGX+SQRT(VGX**2+ ONE))
+            DT_INPUT = ALE%GRID%ALPHA*(-ALE%GRID%VGX+SQRT(ALE%GRID%VGX**2+ ONE))
           ENDIF
         ENDIF
-        IF(NWALE_ENGINE == 1.AND.ALP == ZERO) ALPHA=EP30
+        IF(ALE%GRID%NWALE_ENGINE == 1.AND.ALP == ZERO) ALE%GRID%ALPHA=EP30
         IF(VOLM /= ZERO)VOLMIN=VOLM
         IF(INT22>0)THEN
           DTFAC22 = ONE
-          IF(DTFAC.GT.HALF)DTFAC22 = HALF / DTFAC      
+          IF(DTFAC>HALF)DTFAC22 = HALF / DTFAC
         ENDIF
       ENDIF
 C
@@ -406,71 +412,17 @@ C
         DTFACX = MIN(DTFAC1(I), DTFACX)
       ENDDO
 
-C     Coeff CFL pour le FVMBAG
-      IF (DTFAC1(52) .GT. ZERO) THEN
-         IF (ISPMD == 0) THEN
-            CALL ANCMSG(MSGID=282, ANMODE=ANINFO)
-         ENDIF
-         K1 = 1
-         DO IVOLU = 1, NVOLU
-            IFV = MONVOL(K1 - 1 + 45)
-            IFV_TYPE = MONVOL(K1 - 1 + 2)
-            IF (IFV_TYPE .EQ. 8) THEN
-               FVDATA_OLD(IFV)%CFL_COEF = DTFAC1(52)
-            ENDIF
-            K1=K1+NIMV
-         ENDDO
-      ELSE
-         K1 = 1
-         DO IVOLU = 1, NVOLU
-            IFV = MONVOL(K1 - 1 + 45)
-            IFV_TYPE = MONVOL(K1 - 1 + 2)
-            IF (IFV_TYPE .EQ. 8) THEN
-               IF (FVDATA_OLD(IFV)%CFL_COEF == ZERO) THEN
-                  FVDATA_OLD(IFV)%CFL_COEF = DTFAC
-               ENDIF
-            ELSE
-               DTFAC1(52) = DTFAC
-            ENDIF
-            K1=K1+NIMV
-         ENDDO
-         IF(IDTMIN(52) == 0)IDTMIN(52) = 1
-      ENDIF
-C     Min timestep pour le FVMBAG
-      IF (DTMIN1(52) .GT. ZERO) THEN
-         K1 = 1
-         DO IVOLU = 1, NVOLU
-            IFV = MONVOL(K1 - 1 + 45)
-            IFV_TYPE = MONVOL(K1 - 1 + 2)
-            IF (IFV_TYPE .EQ. 8) THEN
-               FVDATA_OLD(IFV)%DTMIN = DTMIN1(52)
-            ENDIF
-            K1=K1+NIMV
-         ENDDO
-      ELSE
-         K1 = 1
-         DO IVOLU = 1, NVOLU
-            IFV = MONVOL(K1 - 1 + 45)
-            IFV_TYPE = MONVOL(K1 - 1 + 2)
-            IF (IFV_TYPE .EQ. 8) THEN
-               IF (FVDATA_OLD(IFV)%DTMIN == ZERO) THEN
-                  FVDATA_OLD(IFV)%DTMIN = DTMIN
-               ENDIF
-            ELSE
-               DTMIN1(52) = DTMIN
-            ENDIF
-            K1=K1+NIMV
-         ENDDO
-         IF(IDTMIN(52) == 0)IDTMIN(52) = 1
-      ENDIF
+      IF(IDTMIN(52) == 0)IDTMIN(52) = 1
+      IF(DTFAC1(52) == ZERO)DTFAC1(52) = ZEP9
+      IF(DTMIN1(52) == ZERO)DTMIN1(52) = EM20
 
       I=102
-        IF(IDT_ALE.EQ.-1)THEN
+        IF(ALE%GLOBAL%IDT_ALE==-1)THEN
           IF(DTMIN1(I) == ZERO)DTMIN1(I) = DTMIN
           IF(DTFAC1(I) == ZERO)DTFAC1(I) = DTFAC
         ELSE
           IF(DTMIN1(I) == ZERO)DTMIN1(I) = ZERO
-          IF(DTFAC1(I) == ZERO)DTFAC1(I) = HALF         
+          IF(DTFAC1(I) == ZERO)DTFAC1(I) = HALF
         ENDIF
 C
       IF(NODADT == 0)THEN
@@ -480,12 +432,8 @@ C
         IF(IDTMIN(7) == 0)IDTMIN(7) = 2
       ENDIF
 C
-      IF(ISPMD == 0)
-     .  WRITE(IOUT,'(//1X,20A4//)') TITLE
-      IGFOR0=IGFORM + 1
+      IF(ISPMD == 0) WRITE(IOUT,'(//1X,20A4//)') TITLE
       ITFOR0=ITFORM + 1
-C     IRFE0 =(IRFORM/3)
-C     IRFL0 =(IRFORM-3*IRFE0) + 1
       IRFE0 =(IRFORM/5)
       IRFL0 =(IRFORM-5*IRFE0) + 1
       IRFE0 =IRFE0 + 1
@@ -510,29 +458,31 @@ C --------------------------------------------------------------------
       ENDIF
 C When Dynamical user libraries are used, add a print in 0001.out file
       IF (USERL_AVAIL==1)THEN
-       IF(ISPMD.EQ.0)THEN
+       IF(ISPMD==0)THEN
         WRITE(IOUT,4500)
-	WRITE(IOUT,4600) DLIBFILE(1:DLIBFILE_SIZE),DLIBTKVERS
+        WRITE(IOUT,4600) DLIBFILE(1:DLIBFILE_SIZE),DLIBTKVERS
        ENDIF
       ENDIF
 C --------------------------------------------------------------------
 
-      IF (IRAD2R.EQ.1) THEN
-        IF(IMACH.NE.3.OR.ISPMD.EQ.0) WRITE(IOUT,1099)
-        IF (ITFOR0.EQ.1 ) THEN
+      IF (IRAD2R==1) THEN
+        IF(ISPMD==0) WRITE(IOUT,1099)
+        IF (ITFOR0==1 ) THEN
            CALL ANCMSG(MSGID=242,ANMODE=ANINFO_BLIND)
            CALL ARRET(2)
         ENDIF
       ELSE
-        IF ((R2R_SIU.EQ.1).AND.(ISPMD.EQ.0)) THEN
+        IF ((R2R_SIU==1).AND.(ISPMD==0)) THEN
            CALL ANCMSG(MSGID=239,ANMODE=ANINFO_BLIND)
            CALL ARRET(2)
         ENDIF
       ENDIF
-      IF(ISPMD == 0.AND.MCHECK == 0)
-     .  WRITE(IOUT,1100)TSTOP,DTHIS,DTFAC,DTMIN
+C
+      MIN_ASPECT = DT%BRICK_CST_COL_MIN
+      MIN_DEFV = DT%BRICK_CST_DEFV_MIN
+      IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,1100)TSTOP,OUTPUT%TH%DTHIS,DTFAC,DTMIN
       IF(NODADT == 0)THEN
-	IF ((MIN_ASPECT+MIN_DEFV)>ZERO) THEN
+       IF ((MIN_ASPECT+MIN_DEFV)>ZERO) THEN
          IF(ISPMD == 0.AND.MCHECK == 0)THEN
            WRITE(IOUT,4700) DTFAC1(1),DTMIN1(1),IDTMIN(1),
      +                 MIN_ASPECT,MIN_DEFV,
@@ -548,7 +498,7 @@ C --------------------------------------------------------------------
           IF(IDT1SOL/=0) WRITE(IOUT,4730)
           IF(IDT1TET10/=0) WRITE(IOUT,4740)
          ENDIF!(ISPMD == 0.AND.MCHECK == 0)
-        ELSE
+       ELSE
          IF(ISPMD == 0.AND.MCHECK == 0)THEN
           WRITE(IOUT,1105) DTFAC1(1),DTMIN1(1),IDTMIN(1),
      +                 DTFAC1(2),DTMIN1(2),IDTMIN(2),
@@ -563,25 +513,25 @@ C --------------------------------------------------------------------
           IF(IDT1SOL/=0) WRITE(IOUT,4730)
           IF(IDT1TET10/=0) WRITE(IOUT,4740)
          ENDIF!(ISPMD == 0.AND.MCHECK == 0)
-	END IF
+       END IF !(MIN_ASPECT+MIN_DEFV)>ZERO)
+       IF (DT%IDEL_BRICK>ZERO) THEN
+           IF(ISPMD == 0.AND.MCHECK == 0)THEN
+             WRITE(IOUT,5020)DT%BRICK_DEL_COL_MIN,DT%BRICK_DEL_DEFV_MIN,DT%BRICK_DEL_ASP_MAX,DT%BRICK_DEL_DEFV_MAX
+           ENDIF
+       ENDIF
         IF(IDTMIN(11) == 3 .OR. IDTMIN(11) == 8) THEN
-           IF(ISPMD == 0.AND.MCHECK == 0)
-     .      WRITE(IOUT,1107)DTFAC1(11),DTMIN1(11),IDTMIN(11)
+           IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,1107)DTFAC1(11),DTMIN1(11),IDTMIN(11)
         ENDIF
         IF(IDTMINS_INT/=0)THEN
-         IF((IMACH /= 3.OR.ISPMD == 0).AND.MCHECK == 0)THEN
+         IF((ISPMD == 0).AND.MCHECK == 0)THEN
           WRITE(IOUT,1209) DTFACS_INT,DTMINS_INT
          END IF
         END IF
         IF(IDTMINS/=0)THEN
-         IF((IMACH /= 3.OR.ISPMD == 0).AND.MCHECK == 0.AND.IDTGRS<=0)
-     .                                                          THEN
-          WRITE(IOUT,1109) DTFACS,DTMINS,TOL_SMS,
-     .                     NSMSPCG,M_VS_SMS,NCPRISMS,-IDTGRS
-         ELSEIF((IMACH /= 3.OR.ISPMD == 0).AND.MCHECK == 0)THEN
-          WRITE(IOUT,1109) DTFACS,DTMINS,TOL_SMS,
-     .                     NSMSPCG,M_VS_SMS,NCPRISMS,
-     .                     IGRPART(IDTGRS)%ID
+         IF((ISPMD == 0).AND.MCHECK == 0.AND.IDTGRS<=0)THEN
+          WRITE(IOUT,1109) DTFACS,DTMINS,TOL_SMS,NSMSPCG,M_VS_SMS,NCPRISMS,-IDTGRS
+         ELSEIF((ISPMD == 0).AND.MCHECK == 0)THEN
+          WRITE(IOUT,1109) DTFACS,DTMINS,TOL_SMS,NSMSPCG,M_VS_SMS,NCPRISMS,IGRPART(IDTGRS)%ID
          END IF
         END IF
       ELSE
@@ -596,7 +546,7 @@ C --------------------------------------------------------------------
             ENDIF
           END IF
         END IF
-	IF ((MIN_ASPECT+MIN_DEFV)>ZERO) THEN
+        IF ((MIN_ASPECT+MIN_DEFV)>ZERO) THEN
          IF(ISPMD == 0.AND.MCHECK == 0)THEN
            WRITE(IOUT,4700) DTFAC1(1),DTMIN1(1),IDTMIN(1),
      +                 MIN_ASPECT,MIN_DEFV,
@@ -610,8 +560,8 @@ C --------------------------------------------------------------------
            !WRITE(IOUT,4710) DTFAC1(102),DTMIN1(102)
            IF(IDT1SH /=0) WRITE(IOUT,4720)
            IF(IDT1SOL/=0) WRITE(IOUT,4730)
-          IF(IDT1TET10/=0) WRITE(IOUT,4740)
-          ENDIF
+           IF(IDT1TET10/=0) WRITE(IOUT,4740)
+         ENDIF
         ELSE
          IF(ISPMD == 0.AND.MCHECK == 0)THEN
           WRITE(IOUT,1105) DTFAC1(1),DTMIN1(1),IDTMIN(1),
@@ -627,9 +577,14 @@ C --------------------------------------------------------------------
           IF(IDT1SOL/=0) WRITE(IOUT,4730)
           IF(IDT1TET10/=0) WRITE(IOUT,4740)
          ENDIF
-	END IF !((MIN_ASPECT+MIN_DEFV)>ZERO) THEN
+        END IF !((MIN_ASPECT+MIN_DEFV)>ZERO) THEN
+        IF (DT%IDEL_BRICK>ZERO) THEN
+           IF(ISPMD == 0.AND.MCHECK == 0)THEN
+             WRITE(IOUT,5020)DT%BRICK_DEL_COL_MIN,DT%BRICK_DEL_DEFV_MIN,DT%BRICK_DEL_ASP_MAX,DT%BRICK_DEL_DEFV_MAX
+           ENDIF
+        END IF
         IF(IDTMINS_INT/=0)THEN
-         IF((IMACH /= 3.OR.ISPMD == 0).AND.MCHECK == 0)THEN
+         IF((ISPMD == 0).AND.MCHECK == 0)THEN
           WRITE(IOUT,1209) DTFACS_INT,DTMINS_INT
          END IF
         END IF
@@ -637,27 +592,19 @@ C
         IF(IDTMINS/=0)THEN
 C
           IF (ISMS_SELEC < 3) THEN
-          IF((IMACH /= 3.OR.ISPMD == 0).AND.MCHECK == 0.AND.IDTGRS<=0)
-     .                                                          THEN
-           WRITE(IOUT,1108) DTFACS,DTMINS,TOL_SMS,
-     .                      NSMSPCG,NCPRISMS,-IDTGRS
-          ELSEIF((IMACH /= 3.OR.ISPMD == 0).AND.MCHECK == 0)THEN
-           WRITE(IOUT,1108) DTFACS,DTMINS,TOL_SMS,
-     .                      NSMSPCG,NCPRISMS,
-     .                      IGRPART(IDTGRS)%ID
+          IF((ISPMD == 0).AND.MCHECK == 0.AND.IDTGRS<=0) THEN
+           WRITE(IOUT,1108) DTFACS,DTMINS,TOL_SMS,NSMSPCG,NCPRISMS,-IDTGRS
+          ELSEIF((ISPMD == 0).AND.MCHECK == 0)THEN
+           WRITE(IOUT,1108) DTFACS,DTMINS,TOL_SMS,NSMSPCG,NCPRISMS,IGRPART(IDTGRS)%ID
             END IF
 C
           ELSE
-C--        /DT/CST_AMS >- automatic element selection
+C- /DT /CST_AMS>- Automatic election
             DT_CRIT = DTMINS / MAX(EM20,DTFAC1(11))
-            IF((IMACH /= 3.OR.ISPMD == 0).AND.MCHECK == 0.AND.IDTGRS<=0)
-     .                                                          THEN
-              WRITE(IOUT,2109) DTFACS,DTMINS,TOL_SMS,
-     .                     NSMSPCG,M_VS_SMS,NCPRISMS,DT_CRIT,-IDTGRS
-            ELSEIF((IMACH /= 3.OR.ISPMD == 0).AND.MCHECK == 0)THEN
-              WRITE(IOUT,2109) DTFACS,DTMINS,TOL_SMS,
-     .                     NSMSPCG,M_VS_SMS,NCPRISMS,DT_CRIT,
-     .                     IGRPART(IDTGRS)%ID
+            IF((ISPMD == 0).AND.MCHECK == 0.AND.IDTGRS<=0)THEN
+              WRITE(IOUT,2109) DTFACS,DTMINS,TOL_SMS,NSMSPCG,M_VS_SMS,NCPRISMS,DT_CRIT,-IDTGRS
+            ELSEIF((ISPMD == 0).AND.MCHECK == 0)THEN
+              WRITE(IOUT,2109) DTFACS,DTMINS,TOL_SMS, NSMSPCG,M_VS_SMS,NCPRISMS,DT_CRIT,IGRPART(IDTGRS)%ID
          END IF
 C
         END IF
@@ -666,104 +613,2001 @@ C
 C
       ENDIF
 C
-	IF ((MIN_ASPECT+MIN_DEFV)>ZERO) THEN
-           IF(ISPMD == 0.AND.MCHECK == 0)
-     .      WRITE(IOUT,4700)MIN_ASPECT,MIN_DEFV
-	END IF
 
       IF(NODADT==0.AND.(ISTATCND/=0.AND.IMPL_S==0))THEN
         CALL ANCMSG(MSGID=121,ANMODE=ANINFO_BLIND)
         CALL ARRET(2)
       END IF
-      IF(ISPMD == 0.AND.MCHECK == 0.AND.KDTINT /= 0)
-     .  WRITE(IOUT,'(A)')
-     .  ' NEW (HIDDEN) TIME STEP COMPUTATION',
-     .  ' ON INTERFACE TYPE 7,11 AND 19 IS ON'
-C
-      IF(ISPMD == 0.AND.MCHECK == 0.AND.KDTSMSTR == 0)
-     .  WRITE(IOUT,'(A)')
-     .  ' BACK TO VERSION 4 COMPUTATION OF NODAL TIME STEP',
-     .  ' CASE OF SMALL STRAIN FOR SOLIDS.'
-      IF(CODVERS.GE.44.AND.NUMSPH /= 0.AND.MCHECK == 0)THEN
+      IF(ISPMD == 0.AND.MCHECK == 0.AND.KDTINT /= 0)THEN
+        WRITE(IOUT,'(A)')' NEW (HIDDEN) TIME STEP COMPUTATION',' ON INTERFACE TYPE 7,11 AND 19 IS ON'
+      ENDIF
+      IF(ISPMD == 0.AND.MCHECK == 0.AND.KDTSMSTR == 0)THEN
+        WRITE(IOUT,'(A)')' BACK TO VERSION 4 COMPUTATION OF NODAL TIME STEP',' CASE OF SMALL STRAIN FOR SOLIDS.'
+      ENDIF
+      IF(CODVERS>=44.AND.NUMSPH /= 0.AND.MCHECK == 0)THEN
         IF(IDTMIN(51) == 3)THEN
          IF(ISPMD == 0)THEN
-          WRITE(ISTDO,*)
-     .' ** WARNING SMALL STRAIN FORMULATION FOR SPH'
-          WRITE(IOUT,*)
-     .' ** WARNING SMALL STRAIN FORMULATION IS NOT AVAILABLE FOR SPH,',
-     .          ' OPTION /DT/SPHCEL/CST WILL BE OMITTED.'
+          WRITE(ISTDO,*)' ** WARNING SMALL STRAIN FORMULATION FOR SPH'
+          WRITE(IOUT,*)' ** WARNING SMALL STRAIN FORMULATION IS NOT AVAILABLE FOR SPH,',' OPTION /DT/SPHCEL/CST WILL BE OMITTED.'
          END IF
          IDTMIN(51)=0
         ENDIF
         IF(NODADT == 1)THEN
-         IF(ISPMD == 0)
-     .    WRITE(IOUT,*)
-     .   'IMPROVED TIME STEP (NODAL) COMPUTATION ON SPH PARTICLES :'
+         IF(ISPMD == 0) WRITE(IOUT,*)'IMPROVED TIME STEP (NODAL) COMPUTATION ON SPH PARTICLES :'
          DTFAC1(51)=DTFAC1(11)
         ENDIF
-        IF(ISPMD == 0)
-     .   WRITE(IOUT,1151)DTFAC1(51),DTMIN1(51),IDTMIN(51)
+        IF(ISPMD == 0) WRITE(IOUT,1151)DTFAC1(51),DTMIN1(51),IDTMIN(51)
       ENDIF
 C
       IF(ISPMD == 0.AND.MCHECK == 0) THEN
+        IF(NUM_OPT_DT_FVMBAG_0+NUM_OPT_DT_FVMBAG_1>0)THEN
+         !if at least on option /DT/FVMBAG/0 or /DT/FVMBAG/1 is defined then output parameter for the retained one (last read one)
+         ! (multiple definition is not expected)
+         IF(NUM_OPT_DT_FVMBAG_1>0)THEN
+            WRITE(IOUT,1156)
+         ELSE
+            WRITE(IOUT,1155)
+         ENDIF
          WRITE(IOUT,1152)DTFAC1(52),DTMIN1(52),IDTMIN(52)
+        ENDIF
       ENDIF
       IF(ISPMD == 0.AND.MCHECK == 0) THEN
          K1 = 1
+         IS_ALREADY_PRINTED = .FALSE.
          DO IVOLU = 1, NVOLU
             IFV = MONVOL(K1 - 1 + 45)
             IFV_TYPE = MONVOL(K1 - 1 + 2)
-            IF (IFV_TYPE .EQ. 8) THEN
-               WRITE(IOUT,1153)MONVOL(K1),FVDATA_OLD(IFV)%CFL_COEF,FVDATA_OLD(IFV)%DTMIN,IDTMIN(52)
-               IF(NUM_OPT_DT_FVMBAG_2 > 0)WRITE(IOUT,1154)FVDATA_OLD(IFV)%L_TYPE,FVDATA_OLD(IFV)%LAMBDA,FVDATA_OLD(IFV)%DTOLD
+            IF (IFV_TYPE == 6 .OR. IFV_TYPE == 8 .OR. IFV_TYPE == 11) THEN
+               IF(.NOT.IS_ALREADY_PRINTED)THEN
+                 WRITE(IOUT,1157)
+                 IS_ALREADY_PRINTED=.TRUE.
+               ENDIF
+            ENDIF
+            IF(IFV_TYPE == 6) WRITE(IOUT,1147)MONVOL(K1)
+            IF(IFV_TYPE == 8) WRITE(IOUT,1148)MONVOL(K1)
+            IF(IFV_TYPE == 11)WRITE(IOUT,1149)MONVOL(K1)
+            IF (IFV_TYPE == 6 .OR. IFV_TYPE == 8 .OR. IFV_TYPE == 11) THEN
+               WRITE(IOUT,1153)FVDATA_OLD(IFV)%CFL_COEF,FVDATA_OLD(IFV)%DTMIN,FVDATA_OLD(IFV)%ID_DT_OPTION
+               IF(FVDATA_OLD(IFV)%ID_DT_OPTION ==2)THEN
+                 WRITE(IOUT,1154)FVDATA_OLD(IFV)%L_TYPE,FVDATA_OLD(IFV)%LAMBDA,FVDATA_OLD(IFV)%DTOLD
+               ENDIF
             ENDIF
             K1=K1+NIMV
          ENDDO
       ENDIF
 C
-      IF(ISPMD == 0.AND.MCHECK == 0.AND.IDTHEPH /= 0)
-     .  WRITE(IOUT,'(A)')
-     .  ' OPTIMIZED TIME STEP COMPUTATION FOR HEPH.'
-      IF(ISPMD == 0.AND.MCHECK == 0.AND.IDTTSH /= 0)
-     .  WRITE(IOUT,'(A)')
-     .  ' OPTIMIZED (SHELL) TIME STEP FOR THICK SHELLS.'
-      IF(ISPMD == 0.AND.MCHECK == 0.AND.ISMOOTH4 /= 0)
-     .  THEN
-          WRITE(IOUT,'(A)')
-     .    ' OPTION FSMOOTH4 HAS BEEN ASKED FOR : ',
-     .    ' THERE WILL BE NO EFFECT IF RESTARTING FROM A PREVIOUS RUN,',
-     .    ' AND IT HAD NOT BEEN ASKED FOR IN THIS PREVIOUS RUN.'
-      ELSEIF(MCHECK == 0.AND.ISMOOTH4 == 0)THEN
-        DO I=1,NUMMAT
-          IF(NINT(PM(19,I)) == 2)THEN
-            PM(8,I)=1
-          END IF
-        END DO
-      END IF
-C
-       IF(ISPMD == 0.AND.MCHECK == 0)
-     .  WRITE(IOUT,1110)NCPRI,NCRST,MULTIREST,INVERS,ITFOR0
+      IF(ISPMD == 0.AND.MCHECK == 0.AND.IDT1SOL /= 0) WRITE(IOUT,'(A)')' OPTIMIZED TIME STEP COMPUTATION FOR HEPH.'
+      IF(ISPMD == 0.AND.MCHECK == 0.AND.IDTTSH /= 0) WRITE(IOUT,'(A)')' OPTIMIZED (SHELL) TIME STEP FOR THICK SHELLS.'
+      IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,1110)NCPRI,NCRST,MULTIREST,INVERS,ITFOR0
       IF(ISPMD == 0.AND.RESTART_FILE == 0) WRITE(IOUT,*) CHECK_MESSAGE(2)(1:len_trim(CHECK_MESSAGE(2)) )
-      IF (IMPL_S == 1.AND.IKG.GE.5) THEN
+      IF (IMPL_S == 1.AND.IKG>=5) THEN
          IKG=IKG-5
        IF(ISPMD == 0) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : PARITH/ON IS NOT ',
-     .                'COMPATIBLE WITH IMPLICIT OPTION '
-         WRITE(IOUT,*) ' ** RESETING **  : PARITH/OFF  '
+         WRITE(IOUT,*) ' ** WARNING ** : PARITH/ON IS NOT ','COMPATIBLE WITH IMPLICIT OPTION '
+         WRITE(IOUT,*) ' ** RESETTING **  : PARITH/OFF  '
        ENDIF
       ENDIF
+C---------------------
+C FE THERMAL ANALYSIS
+C---------------------
+       IF(ISPMD == 0 .AND. IMASSI > 0 ) THEN
+         WRITE(IOUT,'(A)')' RESET INITIAL MASS FOR THIS RUN '
+       ENDIF
+C---------------------
+C INITIAL MASS
+C---------------------
+       IF (ISPMD == 0 .AND. GLOB_THERM%ITHERM_FE > 0 ) THEN
+         WRITE(IOUT,'(A)')' FINITE ELEMENT THERMAL ANALYSIS '
+         IF (GLOB_THERM%IDT_THERM == 1) THEN
+            WRITE(IOUT,'(A)')' THERMAL ANALYSIS ONLY'
+            WRITE(IOUT,'(A,1X,G14.7)')' THERMAL TIME STEP SCALE FACTOR . . . . . . . . .', GLOB_THERM%DTFACTHERM
+         ENDIF
+         IF (GLOB_THERM%THEACCFACT > ONE ) THEN
+           WRITE(IOUT,'(A,1X,G14.7/)')' FACTOR TO SPEED-UP THERMAL ANALYSIS. . . . . . .', GLOB_THERM%THEACCFACT
+         ENDIF
+       ENDIF
+C
+C-----------------------
+C     The correct indexes in ANIM data structures wrt integration points or layers
+C     of all actual elements will be rebuilt ::
+C-----------------------
+      CALL ANIM_BUILD_INDEX_ALL(ISPMD   ,MCHECK ,SENSORS ,IGEO ,GEO )
+C-------------------------------------------
+C     STOP/SENSOR
+C-------------------------------------------
+      IF (MCHECK == 0) THEN
+        ALLOCATE(SENSORS%STOP(SENSORS%NSTOP))
+        SENSORS%STOP(:) = 0
+      END IF
+      IF (MCHECK == 0) THEN
+        IF (SENSORS%NSTOP > 0) THEN
+          DO K=1,SENSORS%NSTOP
+            IERR = 1
+            IF (SENSORS%STOP_TMP(K) > 0) THEN
+              DO I=1,SENSORS%NSENSOR
+                IF (SENSOR_TAB(I)%SENS_ID == SENSORS%STOP_TMP(K)) THEN
+                  SENSORS%STOP(K) = I
+                  IERR = 0
+                  EXIT
+                ENDIF
+              ENDDO
+            ENDIF
+            IF (IERR == 1) THEN
+             CALL ANCMSG(MSGID=233, ANMODE=ANINFO,I1=SENSORS%STOP_TMP(K))
+            ENDIF
+          ENDDO
+        ENDIF
+      END IF                    !(ISPMD==0.AND.MCHECK==0)
+C-------------------------------------------
+C     STATE/SENSOR
+C-------------------------------------------
+      IF (MCHECK == 0) THEN
+        ALLOCATE(SENSORS%STAT(SENSORS%NSTAT))
+        SENSORS%STAT(:) = 0
+      END IF
+      IF (ISPMD == 0 .AND. MCHECK == 0) THEN
+        MSTATT = 0
+        IF (SENSORS%NSTAT > 0) THEN
+          DO K=1,SENSORS%NSTAT
+            IERR = 1
+            IF(SENSORS%STAT(K) /= 0) THEN
+              DO I=1,SENSORS%NSENSOR
+               IF (SENSORS%SENSOR_TAB(I)%SENS_ID == SENSORS%STAT(K)) THEN
+                 SENSORS%STAT(K) = I
+                 IERR = 0
+                 EXIT
+                ENDIF
+              ENDDO
+            ENDIF
+            IF (IERR == 1) THEN
+             CALL ANCMSG(MSGID=235, ANMODE=ANINFO,I1=SENSORS%STAT(K))
+            ELSE
+               MSTAT(K) = 0
+            ENDIF
+          ENDDO
+        ENDIF
+      END IF                    !(ISPMD==0.AND.MCHECK==0)
+C-------------------------------------------
+C     OUTP/SENSOR
+C-------------------------------------------
+      IF (MCHECK == 0) THEN
+        ALLOCATE(SENSORS%OUTP(SENSORS%NOUTP))
+        SENSORS%OUTP(:) = 0
+      END IF
+      IF (ISPMD == 0 .AND. MCHECK == 0) THEN
+        IF (SENSORS%NOUTP > 0) THEN
+          DO K=1,SENSORS%NOUTP
+            IERR = 1
+            IF (SENSORS%OUTP_TMP(K) > 0) THEN
+              DO I=1,SENSORS%NSENSOR
+               IF (SENSORS%SENSOR_TAB(I)%SENS_ID == SENSORS%OUTP_TMP(K)) THEN
+                 SENSORS%OUTP(K) = I
+                 IERR = 0
+                 EXIT
+                ENDIF
+              ENDDO
+            ENDIF
+            IF (IERR == 1) THEN
+             CALL ANCMSG(MSGID=236, ANMODE=ANINFO,I1 = SENSORS%OUTP_TMP(K))
+            ENDIF
+          ENDDO
+        ENDIF
+      END IF                    !(ISPMD==0.AND.MCHECK==0)
+
+C-------------------------------------------
+C     STATE/SENSOR
+C-------------------------------------------
+      IF(ISPMD == 0.AND.MCHECK == 0) THEN
+       WRITE(IOUT,1150)DTIN,DTMX
+       IF(IMPL /= 0)
+     .   WRITE(IOUT,1160)EPS,EPS2,NITMX
+       ISTATG_P = IABS(ISTATG)
+       IF(ISTAT == 1)THEN
+         WRITE(IOUT,1171)ISTATG_P,BETA,PERIOD
+       ELSEIF(ISTAT == 2)THEN
+        IF (TST_START>ZERO.OR.TST_STOP>ZERO) THEN
+          IF (TST_STOP==ZERO) TST_STOP = TSTOP
+          WRITE(IOUT,5001)ISTATG_P,TST_START,TST_STOP
+        ELSE
+          WRITE(IOUT,1172)ISTATG_P
+        END IF
+       ELSEIF(ISTAT == 3)THEN
+        IF (TST_START>ZERO.OR.TST_STOP>ZERO) THEN
+          IF (TST_STOP==ZERO) TST_STOP = TSTOP
+          WRITE(IOUT,5011)ISTATG_P,TST_START,TST_STOP
+        ELSE
+          WRITE(IOUT,5010)ISTATG_P
+        END IF
+       ENDIF
+C-----------------------
+       IF(IPARIT == 0)THEN
+          WRITE(IOUT,1180)
+       ELSEIF(IPARIT == 1)THEN
+         WRITE(IOUT,1181)
+       ELSE
+         WRITE(IOUT,1182)IPARIT-1
+       ENDIF
+C-----------------------
+       WRITE(IOUT,1300) NSLIOF,NPARTOF,NELSOF,NELQOF,NELCOF,NELTOF,NELPOF,NELROF,NELTGOF,NSPHOF
+       WRITE(IOUT,1400) NRLINK
+       WRITE(IOUT,1500) NUBCSN
+       IF(IALE /= 0.OR.IEULER /= 0)WRITE(IOUT,1450) NALELINK+NALELK !format v12 + format v5
+c
+      ELSEIF(ISPMD == 0 .AND. MCHECK /= 0) THEN
+      ENDIF                     !(ISPMD==0.AND.MCHECK==0)
+C-----------------------------------
+C     ALE/EULER : UPWIND
+C----------------------------------------
+         ! ALE%UPWIND%UPW_UPDATE == 1 : ENGINE /UPWIND CARD DETECTED
+         !ALE%UPWIND%UPW_UPDATE == 2 : /UPWIND CARD IS CHANGING AT LEAST ONE PARAMETER
+         !if /UPWIND is defined then set new parameters
+      IF(ISPMD == 0 .AND. MCHECK == 0)THEN
+        IF(IALE /= 0 .OR. IEULER /= 0)THEN
+         IF(ALE%UPWIND%UPW_UPDATE /= 0 )THEN
+           DO K=1,NUMMAT-1
+             !ILAW=PM(19,K)
+             JALE=INT(PM(72,K))  ! JALE from PROP (IGEO(62,IPID)) is not checked since this option /UPWIND is obsolete
+             IF(JALE /= 0)THEN
+               IF(PM(15,K) /= ALE%UPWIND%UPWMG2 .OR. PM(16,K) /= ALE%UPWIND%UPWOG2)THEN
+                 ALE%UPWIND%UPW_UPDATE = 2
+                 PM(15,K) = ALE%UPWIND%UPWMG2
+                 PM(16,K) = ALE%UPWIND%UPWOG2
+               ENDIF
+            ENDIF
+           ENDDO
+           IF(ALE%UPWIND%UPWSM /= ALE%UPWIND%UPWSM2)THEN
+             ALE%UPWIND%UPW_UPDATE = 2
+             ALE%UPWIND%UPWSM = ALE%UPWIND%UPWSM2
+           ENDIF
+         !if /UPWIND is not defined then catch parameter from previous run
+         ELSEIF(ALE%UPWIND%UPW_UPDATE == 0)THEN
+           ALE%UPWIND%UPWMG2=ONE
+           ALE%UPWIND%UPWOG2=ONE
+           ALE%UPWIND%UPWSM2=ONE
+           DO K=1,NUMMAT-1
+             !ILAW=PM(19,K)
+             JALE=INT(PM(72,K))
+             IF(JALE /= 0)THEN
+               IF(PM(15,K) /= ALE%UPWIND%UPWMG2 .OR. PM(16,K) /= ALE%UPWIND%UPWOG2 .OR. ALE%UPWIND%UPWSM /= ALE%UPWIND%UPWSM2)THEN
+                 IF(PM(15,K) /= ZERO)ALE%UPWIND%UPWMG2 = PM(15,K)
+                 IF(PM(16,K) /= ZERO)ALE%UPWIND%UPWOG2 = PM(16,K)
+                 IF(ALE%UPWIND%UPWSM /= ZERO)ALE%UPWIND%UPWSM2 = ALE%UPWIND%UPWSM
+                 EXIT
+               ENDIF
+            ENDIF
+           ENDDO
+         ENDIF
+           ENDIF
+         ENDIF
+C-----------------------------------
+C     ALE/EULER : OUTPUT
+C----------------------------------------
+      IF(IALE /= 0 .OR. IEULER /= 0)THEN
+         !-----------------------
+         !     QUASI-INCOMPRESSIBLE /INCMP
+         !-----------------------
+          IF(ALE%GLOBAL%INCOMP == 1.AND.MCHECK == 0) WRITE(IOUT,1196)
+         !-----------------------
+         !     GRID FORMULATION
+         !-----------------------
+         !---ALE GRID FORMULATION CHECK---!
+         IF(ALE%GRID%NWALE_ENGINE /= ALE%GRID%NWALE_RST .AND. ALE%GRID%NWALE_ENGINE /= -1) THEN !Forbid ALE grid formulation switch
+           IF(ALE%GRID%NWALE_ENGINE /= 3)THEN  !expect if new one is /ALE/ZERO
+             ALEform=(/'DONEA           ','DISP            ','SPRING          ', 'ZERO            ',
+     .                 'STANDARD        ','LAPLACIAN       ','VOLUME          ', 'FLOW-TRACKING   ',
+     .                 'LAGRANGE        ' /)
+             ALEStrL=(/5,4,6,4,8,9,6,13,8/)
+             Cale1=ALEform(ALE%GRID%NWALE_ENGINE)
+             Cale2=ALEform(ALE%GRID%NWALE_RST)
+             CALL ANCMSG(MSGID=229,ANMODE=ANINFO,
+     .                   C1=Cale1(1:ALEStrL(ALE%GRID%NWALE_ENGINE)),C2=Cale2(1:ALEStrL(ALE%GRID%NWALE_RST)))
+              CALL ARRET(2)
+            ELSE
+             ALE%GRID%NWALE_ENGINE = 3
+            END IF
+          END IF
+
+         !--Labels for Staggered Scheme
+         IF(ALE%UPWIND%UPWM == 2)THEN
+            Label1='TG       '
+         ELSEIF(ALE%UPWIND%UPWM == 3)THEN
+            Label1='SUPG     '
+         ELSE
+            Label1='UPWIND   '
+         ENDIF
+         Label2='UPWIND   '
+         Label3='UPWIND   '
+         IF(ALEMUSCL_Param%IALEMUSCL == 0)THEN
+           Label4='UPWIND   '
+         ELSE
+           Label4='MUSCL    '
+         ENDIF
+         !--Labels for Colocated Scheme
+         IF(ALEMUSCL_Param%IALEMUSCL == 0)THEN
+           Label5='1ST-ORDER'
+           Label6='1ST-ORDER'
+           Label7='1ST-ORDER'
+           Label8='1ST-ORDER'
+         ELSEIF(ALEMUSCL_Param%IALEMUSCL == 1)THEN
+           Label5='2ND-ORDER'
+           Label6='2ND-ORDER'
+           Label7='2ND-ORDER'
+           Label8='2ND-ORDER'
+         ELSEIF(ALEMUSCL_Param%IALEMUSCL == 2)THEN
+           Label5='1ST-ORDER'
+           Label6='1ST-ORDER'
+           Label7='1ST-ORDER'
+           Label8='2ND-ORDER'
+         ENDIF
+         MULTI_FVM%LOWMACH_OPT = .FALSE.
+         IF (ALE%GLOBAL%HLLC_LOWMACH == 1 .AND. MULTI_FVM%IS_USED) THEN
+            MULTI_FVM%LOWMACH_OPT = .TRUE.
+         ENDIF
+         ALEform=(/'DONEA           ','DISP            ','SPRING          ', 'ZERO            ',
+     .             'STANDARD        ','LAPLACIAN       ','VOLUME          ', 'FLOW-TRACKING   ',
+     .             'LAGRANGE        '/)
+         !effective value which will be retained during numerical solving
+         IF(ALE%GRID%NWALE_ENGINE /= -1)THEN
+           ALE%GRID%NWALE = ALE%GRID%NWALE_ENGINE
+         ELSE
+           ALE%GRID%NWALE = ALE%GRID%NWALE_RST
+         ENDIF
+         Label9(:)='         '
+         Label9(1:16)=ALEform(ALE%GRID%NWALE)
+         eta1=ALE%UPWIND%UPWMG2
+         eta2=ALE%UPWIND%UPWOG2
+         IF(ALE%UPWIND%UPWM>1)eta1=ALE%UPWIND%CUPWM
+         !OUTPUT NUMERICAL SCHEME AND ITS PARAMETERS
+         IF(ISPMD == 0 .AND. MCHECK == 0)THEN
+           WRITE(IOUT,1001)
+           WRITE(IOUT,1002)Label1,eta1,Label2,eta2,Label3,eta2,Label4
+           IF(MULTI_FVM%IS_USED)THEN
+             WRITE(IOUT,1003)Label5,Label6,Label7,Label8
+             IF(MULTI_FVM%LOWMACH_OPT)WRITE(IOUT,1004)
+             IF(ALEMUSCL_Param%IALEMUSCL/=0)WRITE(IOUT,1005)ALEMUSCL_Param%BETA
+           ENDIF
+           !OUTPUT COURANT NUMBER
+           WRITE(IOUT,1006) DTFAC1(102),DTMIN1(102)
+           !OUTPUT GRID SMOOTHING FORMULATION AND ITS PARAMETERS
+           WRITE(IOUT,1007)Label9(1:len_trim(Label9))
+           SELECT CASE (ALE%GRID%NWALE)
+             CASE(0) !DONEA
+               WRITE(IOUT,1008)
+               WRITE(IOUT,1200) ALE%GRID%ALPHA,ALE%GRID%GAMMA,ALE%GRID%VGX,ALE%GRID%VGY,ALE%GRID%VGZ,VOLMIN
+             CASE(1) !DISP
+               WRITE(IOUT,1008)
+               WRITE(IOUT,1220) ALE%GRID%ALPHA,VOLMIN
+             CASE(2) !SPRING
+               WRITE(IOUT,1008)
+               WRITE(IOUT,1250) DT_INPUT,ALE%GRID%ALPHA,ALE%GRID%GAMMA,ALE%GRID%VGX,ALE%GRID%VGY,VOLMIN
+             CASE(3) !ZERO
+               !no parameters
+             CASE(4) !STANDARD
+               WRITE(IOUT,1008)
+                WRITE(IOUT,1254) ALE%GRID%ALPHA,ALE%GRID%GAMMA,ALE%GRID%VGX,ALE%GRID%VGY
+             CASE(5)! LAPLACIAN
+               WRITE(IOUT,1008)
+               WRITE(IOUT,1254) ALE%GRID%ALPHA,ALE%GRID%GAMMA,ALE%GRID%VGX,ALE%GRID%VGY
+             CASE(6) !VOLUME
+               !no parameters
+             CASE(7) !FLOW-TRACKING
+               WRITE(IOUT,1008)
+               LABEL_DEF=' NO'
+               LABEL_ROT=' NO'
+               IF(INT(ALE%GRID%VGX) == 1)LABEL_DEF='YES'
+               IF(INT(ALE%GRID%VGY) == 1)LABEL_ROT='YES'
+               WRITE(IOUT,1257) LABEL_DEF,LABEL_ROT,ALE%GRID%ALPHA,ALE%GRID%GAMMA
+             CASE(8) !LAGRANGE
+               !no parameters               
+           END SELECT
+         ENDIF
+       ENDIF !(IALE/=0.OR.IEULER/=0)
+          !---CHECK END-------------------!
+!-----------------------
+!     FEM MOMENTUM INTEGRATION
+!-----------------------
+      IF(ISPMD == 0.AND.MCHECK == 0)THEN
+        IF(IALE+IEULER /= 0 .AND. ALE%GLOBAL%ISFINT /= 3)THEN
+          SELECT CASE(ALE%GLOBAL%ISFINT)
+            !CASE(3)
+            ! WRITE(IOUT,1197)   !default
+            CASE(2)
+             WRITE(IOUT,1198)
+            CASE(1)
+             WRITE(IOUT,1199)
+          END SELECT
+         ENDIF
+      ENDIF
+
+C-------------------------------
+C ELIMINATION PARTIE ALE EULER THERMIQUE
+C-------------------------------
+      IF(IALE /= 0.AND.NALEOF == 1)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)THEN
+          WRITE(IOUT,*)'ALE FORMULATION SWITCHED OFF '
+        END IF
+        IALE = 0
+      END IF
+      IF(IEULER /= 0.AND.NEULEROF == 1)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)THEN
+          WRITE(IOUT,*)'EULER FORMULATION SWITCHED OFF '
+        END IF
+        IEULER = 0
+      END IF
+      IF (GLOB_THERM%ITHERM /= 0.AND.NTHERMOF == 1)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)THEN
+          WRITE(IOUT,*)'THERMIC FORMULATION SWITCHED OFF '
+        END IF
+        GLOB_THERM%ITHERM = 0
+      END IF
+C-------------------------------
+      IF(IDEL7 /= 0.AND.MCHECK == 0.AND.N2D == 0)THEN
+        IDELI7 = IDEL7 - 1
+        IF(ISPMD == 0)THEN
+          WRITE(IOUT,1550) IDELI7
+          CALL ANCMSG(MSGID=122,ANMODE=ANINFO_BLIND)
+          CALL ARRET(2)
+        ENDIF
+      ELSEIF(N2D /= 0.AND.MCHECK == 0)THEN
+        IF(ISPMD == 0)WRITE(IOUT,1550) IDEL7-1
+      END IF
+C-------------------------------
+C     INTERFACE CLEANING
+C-------------------------------
+      IF(NSLIOF /= 0) THEN
+C
+       NN=(NSLIOF+9)/10
+       DO IL=1,NN
+         READ (IIN,'(10I10)') (NLEC(I),I=1,10)
+         DO I=1,10
+           IF(NLEC(I) == 0)CYCLE
+           IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,2000) NLEC(I)
+           DO K=1,NINTER
+             IF(IPARI(15,K) == NLEC(I))THEN
+               IF(IPARI(7,K)==2)THEN
+                 IDEL2= IPARI(17,K)
+                 IF(IDEL2 /= 0)THEN
+C                  SMASS & SINER have been saved only if IDEL2 /= 0
+                   NSN  = IPARI(5,K)
+                   DO N=1,NSN
+                     IS =INTBUF_TAB(K)%NSV(N)
+                     IF(IS > 0)THEN
+                       MS(IS)=INTBUF_TAB(K)%SMAS(N)
+                       IN(IS)=INTBUF_TAB(K)%SINER(N)
+                       INTBUF_TAB(K)%NSV(N)=-IS
+                     END IF
+                   END DO
+                 END IF
+               END IF
+C----- change T_stop for int25 otherwise issue w/ int25
+               IF(IPARI(7,K)==25)THEN
+                 INTBUF_TAB(K)%VARIABLES(11) = ZERO
+               ELSE
+                 IPARI(7,K)=0
+               ENDIF
+             END IF
+           ENDDO
+         ENDDO !next I
+       ENDDO
+      ENDIF
+C-----------------------------------
+C     CLEANING INTERFACE NODES
+C----------------------------------------
+      IF(NSLIOFN /= 0) THEN
+       READ (IIN,'(2I8)') I,NN
+       KK=0
+       DO K=1,NINTER
+         IF(IPARI(15,K) == I)KK=K
+       ENDDO
+       IF(KK == 0)THEN
+        IF(ISPMD == 0) THEN
+          CALL ANCMSG(MSGID=123,ANMODE=ANINFO_BLIND)
+        ENDIF
+        CALL ARRET(2)
+       ENDIF
+       NRTS  =IPARI(3,KK)
+       NRTM  =IPARI(3,KK)
+       NSN   =IPARI(5,KK)
+       NMN   =IPARI(6,KK)
+       NTY   =IPARI(7,KK)
+       IF (IPARI(71,KK)/=0) NTY = 19   ! Interface type 19
+       IF(NTY == 3)THEN
+         NSN   =NSN + NMN
+       ELSEIF(NTY == 4 .OR. NTY == 5)THEN
+       ELSEIF(NTY == 7 .OR. NTY == 10 .OR. NTY == 22)THEN
+       ELSE
+        IF(ISPMD == 0) THEN
+          CALL ANCMSG(MSGID=124,ANMODE=ANINFO_BLIND)
+        ENDIF
+        CALL ARRET(2)
+       ENDIF
+       DO IL=1,NN
+         READ (IIN,'(10I10)') (NLEC(I),I=1,10)
+         DO I=1,10
+          IF(NLEC(I) /= 0)THEN
+            DO K=1,NSN
+              IF(ITAB(INTBUF_TAB(KK)%NSV(K)) == NLEC(I))THEN !NSV(K)
+                INTBUF_TAB(KK)%STFNS(K)=ZERO !STFNS(K)
+              ENDIF
+            ENDDO
+          ENDIF
+         ENDDO
+       ENDDO
+      ENDIF
+C----------------------------------------------
+C     CLEANING ELEMS
+C----------------------------------------------
+      NELOF=NELSOF+NELQOF+NELCOF+NELTOF+NELPOF+NELROF+NELTGOF+NSPHOF
+C-----------------------
+C     1. 3D ELEMS
+C-----------------------
+      IF(NELSOF > 0)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)WRITE (IOUT,1810)
+        NN=(NELSOF+4)/5
+        NBC=5
+        DO IL=1,NN
+          READ (IIN,'(10I10)') (NLEC(II),II=1,10)
+          DO J=1,NBC
+            KLG=NLEC(2*J-1)
+            KUG=NLEC(2*J  )
+            IF(KLG<=0) GO TO 120
+            NBLK=(IL-1)*NBC+J
+            DO L=1,NUMELS
+              IF(IXS(NIXS,L)>=KLG.AND.IXS(NIXS,L)<=KUG) THEN
+                DO K=KLG,KUG
+                  IF(IXS(NIXS,L) == K) THEN
+                    IXS(1,L)=-IABS(IXS(1,L))
+                    GOTO 111
+                  ENDIF
+                ENDDO
+              ENDIF
+111           CONTINUE
+            ENDDO
+          ENDDO
+        ENDDO
+  120   CONTINUE
+        K=0
+        DO J=1,NUMELS
+          IF(IXS(1,J) < 0)THEN
+            K=K+1
+            NLEC(K) = IXS(NIXS,J)
+            IF(K == 10)THEN
+              IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+              K=0
+            ENDIF
+          ENDIF
+        ENDDO
+        IF(K > 0) THEN
+          IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+        ENDIF
+        IF(NSPMD > 1) THEN
+          ! required treatments to retrieve deleted elems in correct order
+          IWIOUT = 0
+          IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+          CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+          CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+          IF (IWIOUT > 0) THEN
+            CALL SPMD_WIOUT(IOUT,IWIOUT)
+            IWIOUT = 0
+          ENDIF
+        ENDIF
+      ENDIF!(NELSOF > 0)
+C-----------------------
+C     2. 2D-ELEMS
+C-----------------------
+      IF(NELQOF > 0)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)WRITE (IOUT,1820)
+       IF (INVERS < 18) THEN
+         NN=(NELQOF+7)/8
+         NBC=8
+       ELSE
+         NN=(NELQOF+4)/5
+         NBC=5
+       ENDIF
+       DO I=1,NN
+            READ (IIN,'(10I10)') (NLEC(II),II=1,10)
+            DO J=1,NBC
+                KLG=NLEC(2*J-1)
+                KUG=NLEC(2*J  )
+                IF(KLG<=0) GO TO 220
+                NBLK=(I-1)*NBC+J
+                DO L=1,NUMELQ
+                    IF(IXQ(NIXQ,L)>=KLG.AND.IXQ(NIXQ,L)<=KUG) THEN
+                        DO K=KLG,KUG
+                            IF(IXQ(NIXQ,L) == K) THEN
+                                IXQ(1,L)=-IABS(IXQ(1,L))
+                                GOTO 211
+                            ENDIF
+                        ENDDO
+                    ENDIF
+  211               CONTINUE
+                ENDDO
+            ENDDO
+       ENDDO
+  220  CONTINUE
+       K=0
+       DO J=1,NUMELQ
+         IF(IXQ(1,J) < 0)THEN
+           K=K+1
+           NLEC(K) = IXQ(NIXQ,J)
+           IF(K == 10)THEN
+           IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+             K=0
+           ENDIF
+         ENDIF
+       ENDDO
+       IF(K > 0) THEN
+         IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+       ENDIF
+       IF(NSPMD > 1) THEN
+          ! required treatments to retrieve deleted elems in correct order
+         IWIOUT = 0
+         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+         IF (IWIOUT > 0) THEN
+           CALL SPMD_WIOUT(IOUT,IWIOUT)
+           IWIOUT = 0
+         ENDIF
+       ENDIF
+      END IF
+C-----------------------
+C     3. SHELL ELEMS
+C-----------------------
+      IF(NELCOF > 0)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)WRITE (IOUT,1830)
+         NN=(NELCOF+4)/5
+         NBC=5
+       DO I=1,NN
+            READ (IIN,'(10I10)') (NLEC(II),II=1,10)
+            DO J=1,NBC
+                KLG=NLEC(2*J-1)
+                KUG=NLEC(2*J  )
+                IF(KLG<=0) GO TO 320
+                NBLK=(I-1)*NBC+J
+                DO L=1,NUMELC
+                    IF(IXC(NIXC,L)>=KLG.AND.IXC(NIXC,L)<=KUG) THEN
+                        DO K=KLG,KUG
+                            IF(IXC(NIXC,L) == K) THEN
+                                IXC(1,L)=-IABS(IXC(1,L))
+                                GOTO 311
+                            ENDIF
+                        ENDDO
+                    ENDIF
+  311               CONTINUE
+                ENDDO
+            ENDDO
+       ENDDO
+  320  CONTINUE
+       K=0
+       DO J=1,NUMELC
+         IF(IXC(1,J) < 0)THEN
+           K=K+1
+           NLEC(K) = IXC(NIXC,J)
+           IF(K == 10)THEN
+             IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+             K=0
+           ENDIF
+         ENDIF
+       ENDDO
+       IF(K > 0) THEN
+         IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+       ENDIF
+       IF(NSPMD > 1) THEN
+          ! required treatments to retrieve deleted elems in correct order
+         IWIOUT = 0
+         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+         IF (IWIOUT > 0) THEN
+           CALL SPMD_WIOUT(IOUT,IWIOUT)
+           IWIOUT = 0
+         ENDIF
+       ENDIF
+      END IF
+C-----------------------
+C     4. ROD ELEMS
+C-----------------------
+      IF(NELTOF > 0)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)WRITE (IOUT,1840)
+         NN=(NELTOF+4)/5
+         NBC=5
+       DO I=1,NN
+            READ (IIN,'(10I10)') (NLEC(II),II=1,10)
+            DO J=1,NBC
+                KLG=NLEC(2*J-1)
+                KUG=NLEC(2*J  )
+                IF(KLG<=0) GO TO 420
+                NBLK=(I-1)*NBC+J
+                DO L=1,NUMELT
+                    IF(IXT(NIXT,L)>=KLG.AND.IXT(NIXT,L)<=KUG) THEN
+                        DO K=KLG,KUG
+                            IF(IXT(NIXT,L) == K) THEN
+                                IXT(1,L)=-IABS(IXT(1,L))
+                                GOTO 411
+                            ENDIF
+                        ENDDO
+                    ENDIF
+  411               CONTINUE
+                ENDDO
+            ENDDO
+       ENDDO
+  420  CONTINUE
+       K=0
+       DO J=1,NUMELT
+         IF(IXT(1,J) < 0)THEN
+           K=K+1
+           NLEC(K) = IXT(NIXT,J)
+           IF(K == 10)THEN
+             IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+             K=0
+           ENDIF
+         ENDIF
+       ENDDO
+       IF(K > 0) THEN
+         IF(MCHECK == 0) WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+       ENDIF
+       IF(NSPMD > 1) THEN
+          ! required treatments to retrieve deleted elems in correct order
+         IWIOUT = 0
+         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+         IF (IWIOUT > 0) THEN
+           CALL SPMD_WIOUT(IOUT,IWIOUT)
+           IWIOUT = 0
+         ENDIF
+       ENDIF
+      END IF
+C-----------------------
+C     5. BEAM ELEMS
+C-----------------------
+      IF(NELPOF > 0)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)WRITE (IOUT,1850)
+       NN=(NELPOF+4)/5
+       NBC=5
+       DO I=1,NN
+            READ (IIN,'(10I10)') (NLEC(II),II=1,10)
+            DO J=1,NBC
+                KLG=NLEC(2*J-1)
+                KUG=NLEC(2*J  )
+                IF(KLG<=0) GO TO 520
+                NBLK=(I-1)*NBC+J
+                DO L=1,NUMELP
+                    IF(IXP(NIXP,L)>=KLG.AND.IXP(NIXP,L)<=KUG) THEN
+                        DO K=KLG,KUG
+                            IF(IXP(NIXP,L) == K) THEN
+                                IXP(1,L)=-IABS(IXP(1,L))
+                                GOTO 511
+                            ENDIF
+                        ENDDO
+                    ENDIF
+  511               CONTINUE
+                ENDDO
+            ENDDO
+       ENDDO
+  520  CONTINUE
+       K=0
+       DO J=1,NUMELP
+         IF(IXP(1,J) < 0)THEN
+           K=K+1
+           NLEC(K) = IXP(NIXP,J)
+           IF(K == 10)THEN
+             IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+             K=0
+           ENDIF
+         ENDIF
+       ENDDO
+       IF(K > 0) THEN
+         IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+       ENDIF
+       IF(NSPMD > 1) THEN
+          ! required treatments to retrieve deleted elems in correct order
+         IWIOUT = 0
+         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+         IF (IWIOUT > 0) THEN
+           CALL SPMD_WIOUT(IOUT,IWIOUT)
+           IWIOUT = 0
+         ENDIF
+       ENDIF
+      END IF
+C-----------------------
+C     6. SPRING ELEMS
+C-----------------------
+      IF(NELROF > 0)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)WRITE (IOUT,1860)
+       NN=(NELROF+4)/5
+       NBC=5
+       DO I=1,NN
+            READ (IIN,'(10I10)') (NLEC(II),II=1,10)
+            DO J=1,NBC
+                KLG=NLEC(2*J-1)
+                KUG=NLEC(2*J  )
+                IF(KLG<=0) GO TO 620
+                NBLK=(I-1)*NBC+J
+                DO L=1,NUMELR
+                    IF(IXR(NIXR,L)>=KLG.AND.IXR(NIXR,L)<=KUG) THEN
+                        DO K=KLG,KUG
+                            IF(IXR(NIXR,L) == K) THEN
+                                IXR(1,L)=-IABS(IXR(1,L))
+                                GOTO 611
+                            ENDIF
+                        ENDDO
+                    ENDIF
+  611               CONTINUE
+                ENDDO
+            ENDDO
+       ENDDO
+  620  CONTINUE
+       K=0
+       DO J=1,NUMELR
+         IF(IXR(1,J) < 0)THEN
+           K=K+1
+           NLEC(K) = IXR(NIXR,J)
+           IF(K == 10)THEN
+             IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+             K=0
+           ENDIF
+         ENDIF
+       ENDDO
+       IF(K > 0) THEN
+         IF(MCHECK == 0) WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+       ENDIF
+       IF(NSPMD > 1) THEN
+          ! required treatments to retrieve deleted elems in correct order
+         IWIOUT = 0
+         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+         IF (IWIOUT > 0) THEN
+           CALL SPMD_WIOUT(IOUT,IWIOUT)
+           IWIOUT = 0
+         ENDIF
+       ENDIF
+      ENDIF
+C-----------------------
+C     7. 3N-SHELL-ELEMS
+C-----------------------
+      IF(NELTGOF > 0)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)WRITE (IOUT,1870)
+         NN=(NELTGOF+4)/5
+         NBC=5
+       DO I=1,NN
+            READ (IIN,'(10I10)') (NLEC(II),II=1,10)
+            DO J=1,NBC
+                KLG=NLEC(2*J-1)
+                KUG=NLEC(2*J  )
+                IF(KLG<=0) GO TO 640
+                NBLK=(I-1)*NBC+J
+                DO L=1,NUMELTG
+                    IF(IXTG(NIXTG,L)>=KLG.AND.IXTG(NIXTG,L)<=KUG) THEN
+                        DO K=KLG,KUG
+                            IF(IXTG(NIXTG,L) == K) THEN
+                                IXTG(1,L)=-IABS(IXTG(1,L))
+                                GOTO 631
+                            ENDIF
+                        ENDDO
+                    ENDIF
+  631               CONTINUE
+                ENDDO
+            ENDDO
+       ENDDO
+  640  CONTINUE
+       K=0
+       DO J=1,NUMELTG
+         IF(IXTG(1,J) < 0)THEN
+           K=K+1
+           NLEC(K) = IXTG(NIXTG,J)
+           IF(K == 10)THEN
+             IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+             K=0
+           ENDIF
+         ENDIF
+       ENDDO
+       IF(K > 0) THEN
+         IF(MCHECK == 0) WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+       ENDIF
+       IF(NSPMD > 1) THEN
+          ! required treatments to retrieve deleted elems in correct order
+         IWIOUT = 0
+         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+         IF (IWIOUT > 0) THEN
+           CALL SPMD_WIOUT(IOUT,IWIOUT)
+           IWIOUT = 0
+         ENDIF
+       ENDIF
+C
+      END IF
+C-----------------------
+C     8. SPH PARTICLES
+C-----------------------
+      IF(NSPHOF > 0)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)WRITE (IOUT,1880)
+         NN=(NSPHOF+4)/5
+         NBC=5
+       K=0
+       DO I=1,NN
+            READ (IIN,'(10I10)') (NLEC(II),II=1,10)
+            DO J=1,NBC
+                KLG=NLEC(2*J-1)
+                KUG=NLEC(2*J  )
+                IF(KLG<=0) GO TO 732
+                NBLK=(I-1)*NBC+J
+                DO L=1,NUMSPH
+                    IF(KXSP(NISP,L)>=KLG.AND.KXSP(NISP,L)<=KUG) THEN
+C           number of the related group :
+                        NG =MOD(ABS(KXSP(2,L)),NGROUP+1)
+                        IF(NG /= 0)THEN
+                            NFT=IPARG(3,NG)
+                            IAD=IPARG(4,NG)
+                            II=L-NFT
+!                            ELBUF_STR(NG)%GBUF%OFF(II) = ZERO
+                            KXSP(2,L) = 0
+                            K=K+1
+                            NLECSPH(K) = KXSP(NISP,L)
+                            IF(K == 10)THEN
+                                IF(MCHECK == 0) WRITE (IOUT,'(5I10)') (NLECSPH(II),II=1,K)
+                                K=0
+                            END IF
+                        END IF
+                    ENDIF
+                ENDDO
+            ENDDO
+       ENDDO
+  732  CONTINUE
+       IF(K > 0) THEN
+         IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLECSPH(II),II=1,K)
+       END IF
+       IF(NSPMD > 1) THEN
+          ! required treatments to retrieve deleted elems in correct order
+         IWIOUT = 0
+         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+         IF (IWIOUT > 0) THEN
+           CALL SPMD_WIOUT(IOUT,IWIOUT)
+           IWIOUT = 0
+         ENDIF
+       ENDIF
+C
+      END IF
+!-----------------------
+!     9. /DEL/PART
+!-----------------------
+      IF(NPARTOF > 0)THEN
+        IF(ISPMD == 0.AND.MCHECK == 0)WRITE (IOUT,1890)
+         NN=(NPARTOF+4)/5
+         NBC=5
+         ALLOCATE(IPARTOF(NPART))
+         IPARTOF = 0
+         DO I=1,NN
+              READ (IIN,'(10I10)') (NLEC(II),II=1,10)
+              DO J=1,NBC
+                  KLG=NLEC(2*J-1)
+                  KUG=NLEC(2*J  )
+                  IF(KLG<=0) GO TO 832
+                  NBLK=(I-1)*NBC+J
+                 DO L = 1, NPART
+                    DO K=KLG,KUG
+                        IF(IPART(4 + (L - 1) * LIPART1) == K) THEN
+                           IPARTOF(L)=1
+                           CYCLE
+                        ENDIF
+                    ENDDO
+                 ENDDO
+              ENDDO
+         ENDDO
+  832  CONTINUE
+         K=0
+         DO L=1,NPART
+           IF(IPARTOF(L)== 1)THEN
+             K=K+1
+             NLEC(K) = IPART(4 + (L - 1) * LIPART1)
+             IF(K == 10)THEN
+               IF(MCHECK == 0)WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+               K=0
+             ENDIF
+           ENDIF
+         ENDDO
+         IF(K > 0) THEN
+           IF(MCHECK == 0) WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
+         ENDIF
+         IF(NSPMD > 1) THEN
+            ! required treatments to retrieve deleted elems in correct order
+           IWIOUT = 0
+           IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+           CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+           CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+           IF (IWIOUT > 0) THEN
+             CALL SPMD_WIOUT(IOUT,IWIOUT)
+             IWIOUT = 0
+           ENDIF
+         ENDIF
+!
+      END IF
+
+
+C-----------------------
+C     RESET OFF ARRAY
+C-----------------------
+      IF (NELOF > 0)THEN
+       DO NG=1,NGROUP
+         OFFG => ELBUF_STR(NG)%GBUF%OFF
+         MLW=IPARG(1,NG)
+         ITY=IPARG(5,NG)
+         NEL=IPARG(2,NG)
+         NFT=IPARG(3,NG)
+         IAD=IPARG(4,NG)
+         IGOF=0
+C-----------------------
+C     1. SOLID ELEMS
+C-----------------------
+         IF(ITY == 1.AND.NELSOF /= 0)THEN
+            IGOF=1
+            DO I=1,NEL
+              II=I+NFT
+              IF(IXS(1,II) < 0)THEN
+               IXS(1,II)=-IXS(1,II)
+               IF (MLW /= 0) THEN
+                 OFFG(I)=ZERO
+               ELSE     ! loi0, no off
+                 CALL ANCMSG(MSGID=238,ANMODE=ANINFO_BLIND,I1=IXS(NIXS,II),C1='BRICK',C2='BRICK')
+               ENDIF
+              ELSE
+               IGOF=0
+              ENDIF
+            ENDDO
+C-----------------------
+C     2. 2D ELEMS
+C-----------------------
+         ELSEIF(ITY == 2.AND.NELQOF /= 0)THEN
+          IGOF=1
+          DO I=1,NEL
+            II=I+NFT
+            IF(IXQ(1,II) < 0)THEN
+             IXQ(1,II)=-IXQ(1,II)
+             OFFG(I) = ZERO
+            ELSE
+             IGOF=0
+            ENDIF
+          ENDDO
+C-----------------------
+C     3. SHELL ELEMS
+C-----------------------
+         ELSEIF(ITY == 3.AND.NELCOF /= 0)THEN
+           IGOF=1
+           DO I=1,NEL
+             II=I+NFT
+             IF(IXC(1,II) < 0)THEN
+               IXC(1,II)=-IXC(1,II)
+               IF (MLW /= 0) THEN
+                 OFFG(I) = ZERO
+               ELSE     ! loi0, no off
+                CALL ANCMSG(MSGID=238,ANMODE=ANINFO_BLIND,I1=IXC(NIXC,II), C1='SHELL',C2='SHELL')
+               ENDIF
+             ELSE
+               IGOF=0
+             ENDIF
+           ENDDO
+C-----------------------
+C     4. ROD ELEMS
+C-----------------------
+         ELSEIF(ITY == 4.AND.NELTOF /= 0)THEN
+C          IGOF=1
+C removal of the group incompatible with gap truss option
+           IGOF=0
+           DO I=1,NEL
+             II=I+NFT
+             IF(IXT(1,II) < 0)THEN
+              IXT(1,II)=-IXT(1,II)
+              OFFG(I) = ZERO
+C             ELSE
+C              IGOF=0
+             ENDIF
+           ENDDO
+C-----------------------
+C     5. BEAM ELEMS
+C-----------------------
+         ELSEIF(ITY == 5.AND.NELPOF /= 0)THEN
+          IGOF=1
+          DO I=1,NEL
+            II=I+NFT
+            IF(IXP(1,II) < 0)THEN
+             IXP(1,II)=-IXP(1,II)
+             OFFG(I) = ZERO
+            ELSE
+             IGOF=0
+            ENDIF
+          ENDDO
+C-----------------------
+C     6. ELEMENTS RESSORTS
+C-----------------------
+         ELSEIF(ITY == 6.AND.NELROF /= 0)THEN
+          IGOF=0
+          DO I=1,NEL
+            II=I+NFT
+            IF(IXR(1,II) < 0)THEN
+              IXR(1,II)=-IXR(1,II)
+              OFFG(I) = ZERO
+            ENDIF
+          ENDDO
+C-----------------------
+C     7. 3N-SHELL-ELEMS
+C-----------------------
+         ELSEIF(ITY == 7.AND.NELTGOF /= 0)THEN
+          IGOF=1
+          DO I=1,NEL
+            II=I+NFT
+            IF(IXTG(1,II) < 0)THEN
+             IXTG(1,II)=-IXTG(1,II)
+             IF(MLW /= 0) THEN
+               OFFG(I) = ZERO
+             ELSE     ! loi0, no off
+              CALL ANCMSG(MSGID=238,ANMODE=ANINFO_BLIND,I1=IXTG(NIXTG,II), C1='SH_3N',C2='SH_3N')
+             ENDIF
+            ELSE
+             IGOF=0
+            ENDIF
+          ENDDO
+C-----------------------
+C     8. SPH PARTICLES
+C-----------------------
+         ELSEIF(ITY == 51.AND.NSPHOF /= 0)THEN
+          IGOF=1
+          DO I=1,NEL
+            II=I+NFT
+            IF(KXSP(2,II) == 0)THEN
+             OFFG(I) = ZERO
+            ELSE
+             IGOF=0
+            ENDIF
+          ENDDO
+         ENDIF
+C----------------------------------------
+C     CHECK FOR GROUP CLEANING
+C----------------------------------------
+         IPARG(8,NG)=MAX0(IPARG(8,NG),IGOF)
+        ENDDO ! next NG
+      END IF
+! /DEL/PART       
+      IF(NPARTOF > 0)THEN
+!     per group
+        K1=1+LIPART1*(NPART+NTHPART)+2*9*(NPART+NTHPART)
+        K2=K1+NUMELS
+        K3=K2+NUMELQ
+        K4=K3+NUMELC
+        K5=K4+NUMELT
+        K6=K5+NUMELP
+        K7=K6+NUMELR
+        K8=K7
+        K9=K8+NUMELTG
+        K10= K9 + NUMELX
+        K11= K10+ NUMSPH
+        DO NG = 1, NGROUP
+           OFFG => ELBUF_STR(NG)%GBUF%OFF
+           MLW=IPARG(1,NG)
+           ITY = IPARG(5, NG)
+           NEL = IPARG(2, NG)
+           NFT = IPARG(3, NG)
+           IF (NEL == 0) CYCLE
+           IGOF=0
+           SELECT CASE (ITY)
+             CASE(1)                                             
+!       1. SOLID ELEMS
+               IGOF=1
+               DO I=1,NEL
+                 II=I+NFT-1
+                  PARTID = IPART(K1 + II)
+                  IF (IPARTOF(PARTID)==1) THEN
+                    IF (MLW/=0)  OFFG(I) = ZERO 
+                  ELSE
+                    IGOF=0
+                  ENDIF
+               ENDDO
+             CASE(2)                                             
+!       2. 2D ELEMS
+               IGOF=1
+               DO I=1,NEL
+                 II=I+NFT-1
+                  PARTID = IPART(K2 + II)
+                  IF (IPARTOF(PARTID)==1) THEN
+                    OFFG(I) = ZERO 
+                  ELSE
+                    IGOF=0
+                  ENDIF
+               ENDDO
+             CASE(3)                                             
+!       3. SHELL ELEMS
+               IGOF=1
+               DO I=1,NEL
+                 II=I+NFT-1
+                  PARTID = IPART(K3 + II)
+                  IF (IPARTOF(PARTID)==1) THEN
+                    IF (MLW/=0)  OFFG(I) = ZERO 
+                  ELSE
+                    IGOF=0
+                  ENDIF
+               ENDDO
+             CASE(4)                                             
+!       4. ROD ELEMS
+               IGOF=0
+               DO I=1,NEL
+                 II=I+NFT-1
+                  PARTID = IPART(K4 + II)
+                  IF (IPARTOF(PARTID)==1) OFFG(I) = ZERO 
+               ENDDO
+             CASE(5)                                             
+!       5. BEAM ELEMS
+               IGOF=1
+               DO I=1,NEL
+                 II=I+NFT-1
+                  PARTID = IPART(K5 + II)
+                  IF (IPARTOF(PARTID)==1) THEN
+                    OFFG(I) = ZERO 
+                  ELSE
+                    IGOF=0
+                  ENDIF
+               ENDDO
+             CASE(6)                                             
+!       6. ELEMENTS RESSORTS
+               IGOF=0
+               DO I=1,NEL
+                 II=I+NFT-1
+                  PARTID = IPART(K6 + II)
+                  IF (IPARTOF(PARTID)==1) OFFG(I) = ZERO 
+               ENDDO
+             CASE(7)                                             
+!       7. 3N-SHELL-ELEMS
+               IGOF=1
+               DO I=1,NEL
+                 II=I+NFT-1
+                  PARTID = IPART(K7 + II)
+                  IF (IPARTOF(PARTID)==1) THEN
+                    IF (MLW/=0)  OFFG(I) = ZERO 
+                  ELSE
+                    IGOF=0
+                  ENDIF
+               ENDDO
+             CASE(51)                                             
+!       8. SPH PARTICLES
+               IGOF=1
+               DO I=1,NEL
+                 II=I+NFT-1
+                  PARTID = IPART(K10 + II)
+                  IF (IPARTOF(PARTID)==1) THEN
+                    OFFG(I) = ZERO 
+                    KXSP(2,NFT+I) = 0
+                  ELSE
+                    IGOF=0
+                  ENDIF
+               ENDDO
+            END SELECT 
+            IPARG(8,NG)=MAX0(IPARG(8,NG),IGOF)
+        ENDDO
+        IF (ALLOCATED(IPARTOF)) DEALLOCATE(IPARTOF)
+      END IF
+C-------------------------------------------
+C     ADDING RIGID LINK BETWEEN NODES
+C-------------------------------------------
+      IF(NRLINK > 0 .AND. MCHECK == 0) THEN
+       K1 =1
+       K2 =1
+       DO K=1,NRLINK
+         READ (IIN,'(I8,1X,3I1,1X,3I1,I10)')N,I1,I2,I3,IR1,IR2,IR3,ISK
+         READ (IIN,'(10I10)') (LLINK(K2+I-1),I=1,N)
+         IC=I3+2*I2+4*I1
+         ICR=IR3+2*IR2+4*IR1
+         IF(IRODDL == 0)ICR=0
+         IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,2100)  K,I1,I2,I3,IR1,IR2,IR3,ISK,N
+         IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,'(10I10)')  (LLINK(K2+I-1),I=1,N)
+         IF ( ISK  /=  0) THEN
+           ISK1 = 0
+           ISK2 = 0
+           DO LL=0,NUMSKW
+             IF(ISK == ISKWN(4,LL+1)) THEN
+               ISK1 = LL
+               ISK2 = 1
+             ENDIF
+           ENDDO
+           IF ( ISK2  ==  0) THEN
+             CALL ANCMSG(MSGID=125,ANMODE=ANINFO)
+             CALL ARRET(2)
+           ENDIF
+           ISK = ISK1
+         ENDIF
+         ! shared verification & defining specific data structure
+         CALL FR_RLINK1(LLINK(K2),ITABM1,FR_RL(1,K),N)
+         CALL RLINK0(
+     1      V           ,VR          ,MS       ,IN           ,NNLINK(K1),
+     2      NNLINK(K1+1),NNLINK(K1+2),LLINK(K2),N            ,IC        ,
+     3      ICR         ,NNLINK(K1+3),ISK      ,SKEW(1,ISK+1),ISKWN     ,
+     4      FR_RL(1,K)  ,WEIGHT      )
+         K1=K1+4
+         K2=K2+N
+         IF(IC+ICR == 0)THEN
+          IF(ISPMD == 0)CALL ANCMSG(MSGID=126,ANMODE=ANINFO)
+          CALL ARRET(2)
+         ENDIF
+       ENDDO
+      ENDIF
+C-------------------------------------------
+C     ALE - LINK ON GRID VELOCITY
+C     format v5 ('/VEL/*')
+C-------------------------------------------
+C
+C                  |ALE LINK 1                                       |2              |NALELK
+C             +----+----+----+----+----+----+----+----+----+...-+----+----+----+--...+----+----+--...
+C   LINALE    |uID | M1 | M2 | N  | IC | IM |id1 |id2 |id3 |... |idn | ...           |
+C             +----+----+----+----+----+----+----+----+----+...-+----+----+----+--...+----+----+--...
+C (1:SLINALE)   1    2    3    4    5    6   6+1                 6+N
+C    +LLINAL               |
+C                         (N=1 if grnod_id is used)
+C
+C    First subarrays are used to define ale links from starter (1:SLINALE). Engine links are in (SLINALE+1:SLINALE+LLINAL)
+C    Only Starter part is written in restart files.
+C
+C             M1 : MAIN node 1
+C             M2 : MAIN node 2
+C             N  : number of nodes
+C             IC : dir XYZ
+C             IM : formulation option -1,0,1
+C             id*: node_id list or grnod_id
+C
+C      N<0 means that ALE LINK is tagged in FRALNK() as defined from a grnod_id.
+
+C
+C   +--RADIOSS2
+C      +--LECINP
+C      |  +--FREFORM                           (direct access writing IUSC1, counting number of /VEL/ALE cards)
+C      |     +--FRALNK(src/freef/fralnk.F)     (LINALE size calculation:SLINALE, reading/checking GRNOD option)
+C      +--LECTUR                               (storing data in LINALE)
+C      |  +--FR_RLALE(priv/spmd/fr_rlink1.F)   (check and tag available nodes on current domain)
+C      +--RESOL
+C         +--ALEWDX
+C            +--ALELIN(priv/ale/alelin.F)      (ale link subroutine, updated to be used with grnod_id)
+C
+C
+C
+
+C     SLINALE : starter size
+C     LLINAL  : engine size
+C     NALELK  : engine /VEL/ALE card (obsolete)
+C     NALELINK: engine /ALELINK/VEL
+C     after reading : SLINALE <- SLINALE+LLINAL
+C                      NALELK <- NALELK+NALELINK
+
+      NALELK_starter = 0
+      IF(MCHECK==0)NALELK_starter = SLINALE/7 !SLINALE : starter linale size
+      NALELK_removed=0
+      K=6
+
+      !setting MAIN node user id to internal id
+      DO J=1,NALELK_starter
+        IF(IRUN == 1 .AND. MCHECK == 0)
+     .   CALL FR_RLALE(LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,-1)
+        K=K+1+6
+      ENDDO
+
+      IF(NALELK /= 0.AND.MCHECK == 0)THEN
+       K=SLINALE+6                                                  !LINALE(1:SLINALE):starter cards ;LINALE(SLINALE+1:SLINALE+LLINE):engine cards
+       !K=5 !en attendant de copier LIALE starter dans (1:SLINALE)
+       DO J=1,NALELK
+         READ (IIN,'(3I10,5X,3I1,I10)')M1,M2,N,I1,I2,I3,IM
+         !---------------------------------!
+         !  ALE LINK DEFINED FROM NODES    !
+         !---------------------------------!
+         IF(N>0)THEN
+           READ (IIN,'(10I10)')(LINALE(K+I),I=1,N)
+           IC=I3+2*I2+4*I1
+           IF(IC == 0)THEN
+            IC=7
+            I1=1
+            I2=1
+            I3=1
+           ENDIF
+           IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,2200)M1,M2,I1,I2,I3,IM
+            LINALE(K-4)=M1
+            LINALE(K-3)=M2
+            LINALE(K-2)=N
+            LINALE(K-1)=IC
+            LINALE(K)=IM
+            IF(ISPMD == 0.AND.MCHECK == 0)THEN
+              WRITE(IOUT,'(10I10)')(LINALE(K+I),I=1,N)
+              WRITE(IOUT,2201)
+            ENDIF
+c           Verification shared and tag in - nodes not present
+            CALL FR_RLALE(LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,N)
+            K=K+N+6
+         !---------------------------------!
+         !  ALE LINK DEFINED FROM GRNOD    !
+         !---------------------------------!
+         ELSE !N<=0
+         !M1    < 0
+         !GR_ID < 0
+           READ (IIN,'(I10)', ERR=998,IOSTAT=IERROR)GR_ID
+
+ 0998     IF(IERROR/=0)THEN
+            WRITE(ISTDO,*)  ' ** ERROR IN ALE LINK: INVALID GRNOD_ID'
+            GR_ID = 0
+          ENDIF
+           LINALE(K+1)=NGR2USR(GR_ID,IGRNOD,NGRNOD)
+
+           IF(LINALE(K+1)==0)CALL ARRET(2) !node group not found
+
+           IF(IM==0.AND.IGRNOD(LINALE(K+1))%SORTED /= 1)THEN
+           !option 0 needs to be defined with a /GRNOD/NODENS
+             WRITE(ISTDO,*)' ** ERROR IN ALE LINK:'
+             WRITE(ISTDO,*) '   UNSORTABLE NODE GROUP REQUIRED WITH OPTION 0 (/GRNOD/NODENS)'
+             WRITE(IOUT ,*)' ** ERROR IN ALE LINK:'
+             WRITE(IOUT,*) '   UNSORTABLE NODE GROUP REQUIRED WITH OPTION 0 (/GRNOD/NODENS)'
+             CALL ARRET(2)
+           ENDIF
+
+           IC=I3+2*I2+4*I1
+           IF(IC == 0)THEN
+            IC=7
+            I1=1
+            I2=1
+            I3=1
+           ENDIF
+           IF(ISPMD == 0.AND.MCHECK == 0)THEN
+             WRITE(IOUT,2200)M1,M2,I1,I2,I3,IM !N=1 with GRNOD option
+             WRITE(IOUT,2202)GR_ID
+           ENDIF
+            LINALE(K-4)=M1
+            LINALE(K-3)=M2
+            LINALE(K-2)=N
+            LINALE(K-1)=IC
+            LINALE(K)=IM
+            !shared verification & untag non present nodes
+            CALL FR_RLALE(LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,N)
+            K=K+1+6
+         ENDIF
+       ENDDO !next J
+       SLINALE = SLINALE + LLINAL
+      ENDIF !IF(NALELK /= 0.AND.MCHECK == 0)THEN
+
+C-------------------------------------------
+C     ALE - LINK ON GRID VELOCITY
+C     format >= v12  ('/ALE/LINK/*')
+C-------------------------------------------
+      IF(NALELINK /= 0.AND.MCHECK == 0)THEN
+       IF(NALELK==0)K=SLINALE+6
+       DO J=1,NALELINK
+         READ (IIN,'(3I10,5X,3I1,I10)')M1,M2,N,I1,I2,I3,IM
+         IF(M1>0.AND.M2>0)THEN
+           !---------------------------------!
+           !  ALE LINK DEFINED FROM NODES    !
+           !---------------------------------!
+           IF(N>0)THEN
+             READ (IIN,'(10I10)')(LINALE(K+I),I=1,N)
+             IC=I3+2*I2+4*I1
+             IF(IC == 0)THEN
+              IC=7
+              I1=1
+              I2=1
+              I3=1
+             ENDIF
+             IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,2200)M1,M2,I1,I2,I3,IM
+             LINALE(K-4)=M1
+             LINALE(K-3)=M2
+             LINALE(K-2)=N
+             LINALE(K-1)=IC
+             LINALE(K)=IM
+             IF(ISPMD == 0.AND.MCHECK == 0)THEN
+               WRITE(IOUT,'(10I10)')(LINALE(K+I),I=1,N)
+               WRITE(IOUT,2201)
+             ENDIF
+              ! Verification shared and tag in - nodes not present
+              CALL FR_RLALE(LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,N)
+              K=K+N+6
+            !---------------------------------!
+            !  ALE LINK DEFINED FROM GRNOD    !
+            !---------------------------------!
+           ELSE !(N<=0)
+              READ (IIN,'(I10)', ERR=999,IOSTAT=IERROR)GR_ID
+ 0999         IF(IERROR/=0)THEN
+                WRITE(ISTDO,*)  ' ** ERROR IN ALE LINK: CANNOT READ GRNOD_ID VALUE'
+                GR_ID = 0
+                CALL ARRET(2) !node group not read
+              ENDIF
+
+              LINALE(K+1)=NGR2USR(GR_ID,IGRNOD,NGRNOD)
+              IF(LINALE(K+1)==0)THEN
+                WRITE(ISTDO,*)  ' ** ERROR IN ALE LINK: INVALID GRNOD_ID'
+                CALL ARRET(2) !node group not found
+              ENDIF
+
+              IF(IM==0.AND.IGRNOD(LINALE(K+1))%SORTED /= 1)THEN
+              !option 0 needs to be defined with a /GRNOD/NODENS
+                WRITE(ISTDO,*)' ** ERROR IN ALE LINK:'
+                WRITE(ISTDO,*)'    UNSORTABLE NODE GROUP REQUIRED WITH OPTION 0 (/GRNOD/NODENS)'
+                WRITE(IOUT ,*)' ** ERROR IN ALE LINK:'
+                WRITE(IOUT,*) '    UNSORTABLE NODE GROUP REQUIRED WITH OPTION 0 (/GRNOD/NODENS)'
+                CALL ARRET(2)
+              ENDIF
+
+              IC=I3+2*I2+4*I1
+              IF(IC == 0)THEN
+               IC=7
+               I1=1
+               I2=1
+               I3=1
+              ENDIF
+              IF(ISPMD == 0.AND.MCHECK == 0)THEN
+                WRITE(IOUT,2200)M1,M2,I1,I2,I3,IM !N=1 with GRNOD option
+                WRITE(IOUT,2202)GR_ID
+              ENDIF
+              LINALE(K-4)=M1
+              LINALE(K-3)=M2
+              LINALE(K-2)=N
+              LINALE(K-1)=IC
+              LINALE(K)=IM
+              !shared verification & untag non present nodes
+              CALL FR_RLALE(LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,N)
+              K=K+1+6
+           ENDIF !(N>0)
+
+         !---------------------------------!
+         !  ALE LINK SET ON                !
+         !---------------------------------!
+         ELSEIF(M1==-1)THEN ! ON
+           ALLOCATE(ALELIN_ON_OFF(IABS(N)))
+           READ (IIN,'(10I10)')(ALELIN_ON_OFF(I),I=1,N)
+           !L=1  !pos
+           KK=0 ! number of ale link deactivated
+           DO I1=1,N
+             L=1 !pos
+             M1=ALELIN_ON_OFF(I1)
+           DO I=1,NALELK_starter
+             !---------------------------------!
+             !  CHECK AND DEACTIVATE           !
+             !---------------------------------!
+             IF(L>=SLINALE)THEN
+               !warning : uID does not exist
+                 WRITE(ISTDO,*)' ** WARNING ALE LINK DOES NOT EXIST :',M1
+                 WRITE(IOUT,*) ' ** WARNING ALE LINK DOES NOT EXIST :',M1
+               EXIT
+             ELSE
+               uID = LINALE(L+0)
+               N   = LINALE(L+3)
+               IF(uID==-M1)THEN
+                 NALELK_removed = NALELK_removed+1 !counting deactivated links
+                 LINALE(L+0)=-LINALE(L+0)          !setting negative uID to skip ALE LINK treatment (alelin.F)
+                 !printout :
+                 IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,2211)M1 !N=1 with GRNOD option
+                 EXIT !next ALELIN_ON_OFF
+               ELSEIF(uID==M1)THEN
+                 NALELK_removed = NALELK_removed+1 !counting deactivated links
+                 !warning uID already set OFF :
+                 WRITE(ISTDO,*)' ** WARNING ALE LINK ALREADY ACTIVATED :  ',M1
+                 EXIT !next ALELIN_ON_OFF
+               ENDIF
+
+             ENDIF
+             L = L+6+IABS(N) !next uID position in LINALE()
+           ENDDO
+           ENDDO
+           DEALLOCATE(ALELIN_ON_OFF)
+           !IF(NALELK_removed>0)NALELK_removed=1 !/ALE/LINK/ON or OFF card is no longer taken into account
+
+         !---------------------------------!
+         !  ALE LINK SET OFF               !
+         !---------------------------------!
+         ELSEIF(M1==-2)THEN ! OFF
+           ALLOCATE(ALELIN_ON_OFF(IABS(N)))
+           READ (IIN,'(10I10)')(ALELIN_ON_OFF(I),I=1,N)
+           !L=1  !pos
+           KK=0 ! number of ale link deactivated
+           DO I1=1,N
+             L=1 !pos
+             M1=ALELIN_ON_OFF(I1)
+           DO I=1,NALELK_starter
+             !---------------------------------!
+             !  CHECK AND DEACTIVATE           !
+             !---------------------------------!
+             IF(L>=SLINALE)THEN
+               !warning : uID does not exist
+                 WRITE(ISTDO,*) ' ** WARNING ALE LINK DOES NOT EXIST :',M1
+                 WRITE(IOUT,*)  ' ** WARNING ALE LINK DOES NOT EXIST :',M1
+               EXIT
+             ELSE
+               uID = LINALE(L+0)
+               N   = LINALE(L+3)
+               IF(uID==M1)THEN
+                 NALELK_removed = NALELK_removed+1 !counting deactivated links
+                 LINALE(L+0)=-LINALE(L+0)          !setting negative uID to skip ALE LINK treatment (alelin.F)
+                 !printout :
+                 IF(ISPMD == 0.AND.MCHECK == 0)WRITE(IOUT,2210)M1 !N=1 with GRNOD option
+                 EXIT !next ALELIN_ON_OFF
+               ELSEIF(uID==-M1)THEN
+                 NALELK_removed = NALELK_removed+1 !counting deactivated links
+                 !warning uID already set OFF :
+                 WRITE(ISTDO,*)' ** WARNING ALE LINK ALREADY DEACTIVATED :',M1
+                 EXIT !next ALELIN_ON_OFF
+               ENDIF
+             ENDIF
+             L = L+6+IABS(N) !next uID position in LINALE()
+           ENDDO
+           ENDDO
+           DEALLOCATE(ALELIN_ON_OFF)
+           !IF(NALELK_removed>0)NALELK_removed=1 !/ALE/LINK/ON or OFF card is no longer taken into account
+         ENDIF
+
+       ENDDO
+       SLINALE = SLINALE + LLINAL
+       NALELK  = NALELK+NALELINK-NALELK_removed
+      ENDIF !(NALELINK /= 0.AND.MCHECK == 0)
+
+      IF(MCHECK==0)NALELK=NALELK+NALELK_starter
+
+C-------------------------------------------
+C     ALE ON/ OFF
+C-------------------------------------------
+      IF(NBPARTALEON > 0) ALLOCATE(ALEON_PARTIDS_TMP(NBPARTALEON))
+      IF(NBPARTALEOFF > 0) ALLOCATE(ALEOFF_PARTIDS_TMP(NBPARTALEOFF))
+      ION = 0
+      IOFF = 0
+      DO I = 1, NBPARTALEON + NBPARTALEOFF
+         READ(IIN, '(I10, I10)') PARTID, ISON
+         IF (ISON == 1) THEN
+            ION = ION + 1
+            ALEON_PARTIDS_TMP(ION) = PARTID
+         ELSE IF(ISON == 0) THEN
+            IOFF = IOFF + 1
+            ALEOFF_PARTIDS_TMP(IOFF) = PARTID
+         ENDIF
+      ENDDO
+C     Checking for duplicates and removal
+      DO I = 1, NBPARTALEON
+         PARTID = ALEON_PARTIDS_TMP(I)
+         IF (PARTID /= -1) THEN
+            DO J = 1, NBPARTALEON
+               IF (J == I) CYCLE
+               IF (ALEON_PARTIDS_TMP(J) == PARTID) THEN
+                  NBPARTALEON = NBPARTALEON - 1
+                  ALEON_PARTIDS_TMP(J) = -1
+               ENDIF
+            ENDDO
+         ENDIF
+      ENDDO
+      DO I = 1, NBPARTALEOFF
+         PARTID = ALEOFF_PARTIDS_TMP(I)
+         IF (PARTID /= -1) THEN
+            DO J = 1, NBPARTALEOFF
+               IF (J == I) CYCLE
+               IF (ALEOFF_PARTIDS_TMP(J) == PARTID) THEN
+                  NBPARTALEOFF = NBPARTALEOFF - 1
+                  ALEOFF_PARTIDS_TMP(J) = -1
+               ENDIF
+            ENDDO
+C     Check if part is also defined in ON
+C     By default, all parts are ON, if a part is set to OFF
+C     and ON at the same time, we choose to OFF it
+            DO J = 1, NBPARTALEON
+               IF (ALEON_PARTIDS_TMP(J) == PARTID) THEN
+                  !!! WARNING TO OUTPUT HERE
+                  ALEON_PARTIDS_TMP(J) = -1
+                  NBPARTALEON = NBPARTALEON - 1
+                  CALL ANCMSG(MSGID = 272, ANMODE = ANINFO, I1 = PARTID)
+               ENDIF
+            ENDDO
+         ENDIF
+      ENDDO
+C     Checking that part ids exist in IPART(4, *)
+      NBALEOFF_PART = NBPARTALEOFF
+      NBALEON_PART = NBPARTALEON
+      DO I = 1, NBPARTALEON
+         PARTID = ALEON_PARTIDS_TMP(I)
+         ISON = 0
+         IF (PARTID /= -1) THEN
+            DO J = 1, NPART
+               IF (IPART(4 + (J - 1) * LIPART1) == PARTID) THEN
+                  ISON = 1
+                  ALEON_PARTIDS_TMP(I) = J
+                  EXIT
+               ENDIF
+            ENDDO
+         ENDIF
+         IF (ISON == 0) THEN
+            ALEON_PARTIDS_TMP(I) = -1
+            NBALEON_PART = NBALEON_PART - 1
+            CALL ANCMSG(MSGID = 271, ANMODE = ANINFO, I1 = PARTID)
+            CALL ARRET(2)
+         ENDIF
+      ENDDO
+      DO I = 1, NBPARTALEOFF
+         PARTID = ALEOFF_PARTIDS_TMP(I)
+         ISON = 0
+         IF (PARTID /= -1) THEN
+            DO J = 1, NPART
+               IF (IPART(4 + (J - 1) * LIPART1) == PARTID) THEN
+                  ISON = 1
+                  ALEOFF_PARTIDS_TMP(I) = J
+                  EXIT
+               ENDIF
+            ENDDO
+         ENDIF
+         IF (ISON == 0) THEN
+            ALEOFF_PARTIDS_TMP(I) = -1
+            NBALEOFF_PART = NBALEOFF_PART - 1
+            CALL ANCMSG(MSGID = 271, ANMODE = ANINFO, I1 = PARTID)
+            CALL ARRET(2)
+         ENDIF
+      ENDDO
+C     Filling module values
+      IF (NBALEOFF_PART > 0) ALLOCATE(ALEOFF_PARTIDS(NBALEOFF_PART))
+      IF (NBALEON_PART > 0) ALLOCATE(ALEON_PARTIDS(NBALEON_PART))
+      DO I = 1, NBPARTALEON
+         PARTID = ALEON_PARTIDS_TMP(I)
+         ISON = 0
+         IF (PARTID /= -1) THEN
+            ISON = ISON + 1
+            ALEON_PARTIDS(ISON) = PARTID
+         ENDIF
+      ENDDO
+      ISON = 0
+      DO I = 1, NBPARTALEOFF
+         PARTID = ALEOFF_PARTIDS_TMP(I)
+         IF (PARTID /= -1) THEN
+            ISON = ISON + 1
+            ALEOFF_PARTIDS(ISON) = PARTID
+         ENDIF
+      ENDDO
+C     OUTPUT
+      DO I = 1, NBALEOFF_PART
+         WRITE(IOUT, 4800) ALEOFF_PARTIDS(I)
+      ENDDO
+C-------------------------------------------
+C     Fill IPARG
+C-------------------------------------------
+      K1 = 1 + LIPART1 * (NPART + NTHPART) + 2 * 9 * (NPART + NTHPART)
+      K2 = K1 + NUMELS
+      DO NG = 1, NGROUP
+         ITY = IPARG(5, NG)
+         NEL = IPARG(2, NG)
+         NFT = IPARG(3, NG)
+C     Initially, IPARG(76, *) = 0 --> ON
+C     When restarting a computation, IPARG(76, NG) = Whatever was put here during previous run
+C     Find part associated to the current group
+C     by checking the first element of the group
+C     NB : all elements in a same group belong necessarily to the same part
+
+         IF (ITY == 1) THEN
+C     Solid groups
+            PARTID = IPART(K1 + NFT)
+         ELSEIF (ITY == 2) THEN
+C     Shells and coques
+            PARTID = IPART(K2 + NFT)
+         ENDIF
+C     Check if this part is found in ALEOFF_PARTIDS
+         DO I = 1, NBALEOFF_PART
+            IF (ALEOFF_PARTIDS(I) == PARTID) THEN
+               IPARG(76, NG) = 1 ! --> OFF
+               EXIT
+            ENDIF
+         ENDDO
+C     Check if this part is found in ALEON_PARTIDS
+         DO I = 1, NBALEON_PART
+            IF (ALEON_PARTIDS(I) == PARTID) THEN
+               IPARG(76, NG) = 0 ! --> ON
+               EXIT
+            ENDIF
+         ENDDO
+      ENDDO
+      IF (ALLOCATED(ALEON_PARTIDS_TMP)) DEALLOCATE(ALEON_PARTIDS_TMP)
+      IF (ALLOCATED(ALEOFF_PARTIDS_TMP)) DEALLOCATE(ALEOFF_PARTIDS_TMP)
+      IF (ALLOCATED(ALEON_PARTIDS)) DEALLOCATE(ALEON_PARTIDS)
+      IF (ALLOCATED(ALEOFF_PARTIDS)) DEALLOCATE(ALEOFF_PARTIDS)
+C-------------------------------------------
+C     MODIFICATION DES CONDITIONS AUX LIMITES
+C-------------------------------------------
+      IF(NUBCSN /= 0)THEN
+        CALL LCBCSF(ICODE,ISKEW,NUBCSN,ITAB,ITABM1,NPBY ,ISKWN,WEIGHT)
+        IF(NSPMD > 1) THEN
+C necessary processing to recover limit cond nodes
+          IWIOUT = 0
+          IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
+          CALL SPMD_GLOB_ISUM9(IWIOUT,1)
+          CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
+          IF (IWIOUT > 0) THEN
+            CALL SPMD_WIOUT(IOUT,IWIOUT)
+            IWIOUT = 0
+          END IF
+        END IF
+      END IF
+C-------------------------------------------
+C     INTERFACE MODIFICATION
+C-------------------------------------------
+      IF(NINTCH /= 0)THEN
+        DO I=1,NINTCH
+            READ(IIN,'(2I8,2F16.0)')NOINT,NSEARCH,TSTART,TFIN
+            IF(TFIN == 0.0)TFIN=1.E30
+            IF(TFIN <= TSTART) THEN
+              CALL ANCMSG(MSGID=307,ANMODE=ANSTOP)
+              CALL ARRET(2)
+            ENDIF
+
+            JPRI = -1
+            DO J=1,NINTER
+              IF(NOINT == IPARI(15,J)) THEN
+                IF(NSEARCH /= 0) IPARI(13,J)=NSEARCH
+                INTBUF_TAB(J)%VARIABLES(3)  = TSTART
+                INTBUF_TAB(J)%VARIABLES(11) = TFIN
+                JPRI=J
+              ENDIF
+            ENDDO
+            IF(JPRI/=-1) THEN
+                IF(ISPMD == 0.AND.MCHECK == 0) WRITE(IOUT,2300)NOINT,IPARI(13,JPRI),TSTART,TFIN
+            ELSE
+                IF(ISPMD == 0.AND.MCHECK == 0) WRITE(IOUT,2301)NOINT
+            ENDIF
+        ENDDO
+      ENDIF
+C
+      IF(MCHECK /= 0)THEN
+       DO I = 1,MX_OUTP
+        NV_OUTP = NV_OUTP + OUTP_V(I)
+        NSS_OUTP = NSS_OUTP + OUTP_SS(I)
+        NST_OUTP = NST_OUTP + OUTP_ST(I)
+        NCS_OUTP = NCS_OUTP + OUTP_CS(I)
+        NCT_OUTP = NCT_OUTP + OUTP_CT(I)
+        NTS_OUTP = NTS_OUTP + OUTP_TS(I)
+        NPS_OUTP = NPS_OUTP + OUTP_PS(I)
+        NPT_OUTP = NPT_OUTP + OUTP_PT(I)
+        NRS_OUTP = NRS_OUTP + OUTP_RS(I)
+        NRT_OUTP = NRT_OUTP + OUTP_RT(I)
+       ENDDO
+       IF(OUTP_V(12) == 1)NV_OUTP=NV_OUTP+1
+      ENDIF
+C-------------------------------------------
+C     MODIFICATION OF RIGID BODY
+C-------------------------------------------
+      IF(NRBYOF /= 0)
+     1    CALL   RBYONF(IPARG,IPARI       ,MS     ,IN     ,
+     2                  IXS  ,IXQ  ,IXC   ,IXT    ,IXP    ,
+     3                  IXR  ,SKEW ,ITAB  ,ITABM1 ,ISKWN  ,
+     4                  NPBY ,0    ,NRBYOF,WA     ,LPBY   ,
+     5                  RBY  ,X    ,V     ,VR     ,IXTG   ,
+     6                  IGRV ,IBGR ,WEIGHT,FR_RBY2,PARTSAV,
+     7                  IPART,ELBUF_STR,ICFIELD,LCFIELD,TAGSLV_RBY)
+C
+      IF(NRBYON /= 0)
+     1    CALL   RBYONF(IPARG,IPARI       ,MS     ,IN     ,
+     2                  IXS  ,IXQ  ,IXC   ,IXT    ,IXP    ,
+     3                  IXR  ,SKEW ,ITAB  ,ITABM1 ,ISKWN  ,
+     4                  NPBY ,1    ,NRBYON,WA     ,LPBY   ,
+     5                  RBY  ,X    ,V     ,VR     ,IXTG   ,
+     6                  IGRV ,IBGR ,WEIGHT,FR_RBY2,PARTSAV,
+     7                  IPART,ELBUF_STR,ICFIELD,LCFIELD,TAGSLV_RBY)
+C---------------------------------------------------------
+C     READING DATA FOR FLUX & ROTATION
+C---------------------------------------------------------
+      IF (NSFLSW  /= 0.AND.MCHECK == 0) THEN
+        CALL LECFLSW (NSFLSW,NTFLSW,NEFLSW,NNFLSW,CRFLSW,X,IXS,IPARG,WA)
+      ENDIF
+C-------------------------------------------------
+C     MODIFICATION OF TIME FUNCTIONS
+C-------------------------------------------------
+      IF (NFCT  /=  0) THEN
+        CALL LECFUN (NPC, PLD, NFCT, NPTS, TABLE)
+      END IF
+C-------------------------------------------------
+C     RESET VELOCITIES
+C-------------------------------------------------
+      IF (NINIV  /=  0) THEN
+        CALL LECINV (NINIV,X,V,VR,ITAB,IFRAME,XFRAME,IGRNOD,FXBIPM,FXBVIT,FXBRPM)
+      END IF
+C---------------------------------------------------------
+C     CUTS
+C---------------------------------------------------------
+      IF(NCUTS > 0.AND.MCHECK == 0)CALL LECCUT(ICUT,XCUT,ITABM1)
+C---------------------------------------------------------
+C     ANIMATION (DT ,DMAS)
+C---------------------------------------------------------
+!     DO I=1,SANIN
+!       ANIN(I)=ZERO
+!     ENDDO
+C---------------------------------------------------------
+C     FILTERED SAMPLED OUTPUT
+C---------------------------------------------------------
+      IF(NNOISE > 0)CALL LECNOISE(INOISE,ITABM1,NAMES_AND_TITLES)
+      NNOISER=NNOISE
+C---------------------------------------------------------
+C     MADYMO COUPLING GENERAL DATA (CONVERSION FACTORS).
+C---------------------------------------------------------
+#ifdef DNC
+      IF( IMADCPL > 0.AND.INVERS>=40.AND.MCHECK == 0)CALL LECCPL()
+#endif
+C---------------------------------------------------------
+C     OPTIONS SPMD SPECIFIQUES
+       IF(IPREAD > 0.AND.ISPMD == 0.AND.MCHECK == 0) WRITE(IOUT,4000)
+       IF(IDDW > 0.AND.ISPMD == 0.AND.MCHECK == 0) WRITE(IOUT,4100)
+C---------------------------------------------------------
+C     RAYLEIGH DAMPING
+C---------------------------------------------------------
+      CALL LECDAMP(NDAMPN, DAMPR, IGRNOD)
+C---------------------------------------------------------
+      ISTATCND_SAV= ISTATCND
+      IF(IMPL_S/=0) THEN
+        IF(ISPRB==0.AND.NADMESH/=0)THEN
+          IF (ISPMD == 0) THEN
+            CALL ANCMSG(MSGID=131,ANMODE=ANINFO)
+          ENDIF
+          CALL ARRET(2)
+        ENDIF
+        ISTATCND    = 0
+      END IF
+C---------------------------------------------------------
+      IF (IMPL_S == 1.OR.NEIG > 0) CALL LECIMPL
+      IF (NFXINP > 0) CALL LECFXINP(NFXINP)
+      IF(ALE%SUB%NODSUBDT /= 0)THEN
+        IF(ISPMD == 0) THEN
+          CALL ANCMSG(MSGID=129,ANMODE=ANINFO_BLIND)
+        END IF
+        CALL ARRET(2)
+      END IF
+      IF (NEIGOFF > 0) CALL LECEIG(NEIGOFF, NEOFF)
+      IF (NFVMESH > 0) CALL LECFVBAG(NFVMESH, MONVOL, VOLMON, X)
+      IF (NFVMODI > 0) CALL LECFVBAG1(NFVMODI, MONVOL, VOLMON)
+C-------------------------------------------
+C     .sta files
+C-------------------------------------------
+      IF(MCHECK /= 0)THEN
+        NC_STAT = 0
+        DO I = 1,MX_STAT
+          NC_STAT = NC_STAT + STAT_C(I)
+        ENDDO
+      ENDIF
+      IF(NSTATPRT /= 0 .OR. NSTATALL /= 0)THEN
+        K1=1+LIPART1*(NPART+NTHPART)+2*9*(NPART+NTHPART)
+        K2=K1+NUMELS
+        K3=K2+NUMELQ
+        K4=K3+NUMELC
+        K5=K4+NUMELT
+        K6=K5+NUMELP
+        K7=K6+NUMELR
+        K8=K7
+        K9=K8+NUMELTG
+        CALL LECSTAT(IPART,IPART_STATE,ELBUF_STR,IPM,IPARG,IPART(K1),
+     .               IPART(K3),IPART(K8),MAT_PARAM)
+      END IF
+C-------------------------------------------
+C     .dynain files
+C-------------------------------------------
+      IF(DYNAIN_DATA%NDYNAINPRT /= 0 .OR. DYNAIN_DATA%NDYNAINALL /= 0)THEN
+        K1=1+LIPART1*(NPART+NTHPART)+2*9*(NPART+NTHPART)
+        K2=K1+NUMELS
+        K3=K2+NUMELQ
+        K4=K3+NUMELC
+        K5=K4+NUMELT
+        K6=K5+NUMELP
+        K7=K6+NUMELR
+        K8=K7
+        K9=K8+NUMELTG
+        CALL READ_DYNAIN(IPART,DYNAIN_DATA,IPART(K3),IPART(K8),IXC,IXTG)
+      END IF
 C-------------------------------------------
 C     .h3d files
 C-------------------------------------------
-      CALL LECH3D(GEO,IGEO,IPM,IPART,H3D_DATA,MULTI_FVM,IPARI,IPARG,TAG_SKINS6,
+      CALL PRELECH3D(NUMGEO   ,NPROPGI  ,NPROPMI  ,NUMMAT   ,NUMPLY   ,
+     .               IGEO     ,IPM      ,H3D_DATA ,MULTI_FVM,MDS_OUTPUT_TABLE,
+     .               MDS_NMAT ,MAX_DEPVAR,MDS_NDEPSVAR,MAT_PARAM,NUMSPHG)
+      CALL LECH3D(OUTPUT,GEO,IGEO,IPM,IPART,H3D_DATA,MULTI_FVM,IPARI,IPARG,TAG_SKINS6,
      .            MDS_LABEL,MDS_OUTPUT_TABLE,MDS_NMAT,MAX_DEPVAR,MDS_NDEPSVAR,
-     .            ELBUF_STR,STACK,IBCL,ILOADP,LLOADP)
+     .            ELBUF_STR,STACK,IBCL,ILOADP,LLOADP,LOADS,MAT_PARAM,PBLAST,
+     .            IGRPART,NPC,PLD,SNPC,STF)
 c
-      IF(H3D_DATA%N_OUTP_H3D .NE. 0 .AND. ISPMD == 0)THEN
+      IF(H3D_DATA%N_OUTP_H3D /= 0 .AND. ISPMD == 0)THEN
         WRITE(IOUT,5000)H3D_DATA%TH3D,H3D_DATA%DTH3D
         WRITE(IOUT,*)'       |'
         DO I=1,H3D_DATA%N_OUTP_H3D
-          IF( H3D_DATA%OUTPUT_LIST(I)%ETYPE == 2 .AND. NUMELCG+NUMELTGG > 0 .OR.
+          IF( H3D_DATA%OUTPUT_LIST(I)%ETYPE == 1 .OR.
+     .        H3D_DATA%OUTPUT_LIST(I)%ETYPE == 2 .AND. NUMELCG+NUMELTGG > 0 .OR.
      .        H3D_DATA%OUTPUT_LIST(I)%ETYPE == 3 .AND. NUMELSG > 0 .OR.
      .        H3D_DATA%OUTPUT_LIST(I)%ETYPE == 4 .AND. NUMELTRG+NUMELPG+NUMELRG > 0 .OR.
      .        H3D_DATA%OUTPUT_LIST(I)%ETYPE == 5 .AND. NUMSPHG > 0 .OR.
@@ -799,36 +2643,29 @@ c
 c
             STEXT1 = H3D_DATA%OUTPUT_LIST(I)%S_STRING1
             WRITE(IOUT,*)  '       |----'//CHAR1//' '//CHAR2//' : '
-c            WRITE(IOUT,*)  '	    |----'//H3D_DATA%OUTPUT_LIST(I)%KEYWORD
+c            WRITE(IOUT,*)  '       |----'//H3D_DATA%OUTPUT_LIST(I)%KEYWORD
             WRITE(IOUT,*)  '       |    '//H3D_DATA%OUTPUT_LIST(I)%STRING1(1:STEXT1)
 
             IF (H3D_DATA%OUTPUT_LIST(I)%IUVAR > 0)
-     .        WRITE(IOUT,*)  '       |        UVAR=',
-     .     	H3D_DATA%OUTPUT_LIST(I)%IUVAR
+     .        WRITE(IOUT,*)  '       |        UVAR=', H3D_DATA%OUTPUT_LIST(I)%IUVAR
 
             IF (H3D_DATA%OUTPUT_LIST(I)%PLY > 0)
-     .        WRITE(IOUT,*)  '       |        PLY=',
-     .     	H3D_DATA%OUTPUT_LIST(I)%PLY
+     .        WRITE(IOUT,*)  '       |        PLY=',H3D_DATA%OUTPUT_LIST(I)%PLY
 
             IF (H3D_DATA%OUTPUT_LIST(I)%LAYER > 0)
-     .        WRITE(IOUT,*)  '       |        LAYER=',
-     .     	H3D_DATA%OUTPUT_LIST(I)%LAYER
+     .        WRITE(IOUT,*)  '       |        LAYER=',H3D_DATA%OUTPUT_LIST(I)%LAYER
 
             IF (H3D_DATA%OUTPUT_LIST(I)%IPT > 0)
-     .        WRITE(IOUT,*)  '       |        IPT=',
-     .     	H3D_DATA%OUTPUT_LIST(I)%IPT
+     .        WRITE(IOUT,*)  '       |        IPT=',H3D_DATA%OUTPUT_LIST(I)%IPT
 
             IF (H3D_DATA%OUTPUT_LIST(I)%IR > 0)
-     .        WRITE(IOUT,*)   '       |        IR=',
-     .     	H3D_DATA%OUTPUT_LIST(I)%IR
+     .        WRITE(IOUT,*)   '       |        IR=',H3D_DATA%OUTPUT_LIST(I)%IR
 
             IF (H3D_DATA%OUTPUT_LIST(I)%IR > 0)
-     .        WRITE(IOUT,*)   '       |        IS=',
-     .     	H3D_DATA%OUTPUT_LIST(I)%IS
+     .        WRITE(IOUT,*)   '       |        IS=',H3D_DATA%OUTPUT_LIST(I)%IS
 
             IF (H3D_DATA%OUTPUT_LIST(I)%IT > 0)
-     .        WRITE(IOUT,*)   '       |        IT=',
-     .     	H3D_DATA%OUTPUT_LIST(I)%IT
+     .        WRITE(IOUT,*)   '       |        IT=',H3D_DATA%OUTPUT_LIST(I)%IT
 
             WRITE(IOUT,*)'       |'
           ENDIF
@@ -837,992 +2674,31 @@ c            WRITE(IOUT,*)  '	    |----'//H3D_DATA%OUTPUT_LIST(I)%KEYWORD
         WRITE(IOUT,*)' '
       ENDIF
 C-------------------------------------------
-C---------------------
-C FE THERMAL ANALYSIS
-C---------------------
-       IF(ISPMD == 0 .AND. IMASSI > 0 ) THEN
-         WRITE(IOUT,'(A)')' RESET INITIAL MASS FOR THIS RUN '
-       ENDIF
-C---------------------
-C INITIAL MASS
-C---------------------
-       IF(ISPMD == 0 .AND. ITHERM_FE > 0 ) THEN
-         WRITE(IOUT,'(A)')' FINITE ELEMENT THERMAL ANALYSIS '
-         IF(IDT_THERM == 1) THEN
-            WRITE(IOUT,'(A)')' THERMAL ANALYSIS ONLY'
-            WRITE(IOUT,'(A,1X,G14.7)')
-     .     ' THERMAL TIME STEP SCALE FACTOR . . . . . . . . .', DTFACTHERM
-         ENDIF
-         IF(THEACCFACT > ONE ) THEN
-           WRITE(IOUT,'(A,1X,G14.7/)')
-     .     ' FACTOR TO SPEED-UP THERMAL ANALYSIS. . . . . . .', THEACCFACT
-         ENDIF
-       ENDIF
+C     H3D/SENSOR
 C-------------------------------------------
-C     Animations
-C-------------------------------------------
-      IF(TANIM0 /= ZERO)  TANIM = TANIM0
-      IF(DTANIM0 > ZERO)  DTANIM= DTANIM0
-      IF(DTANIM.LE.ZERO)  TANIM = EP30
-      IF (TANIM < TT-DT2.AND.DTANIM > ZERO)TANIM = TANIM
-     .    + INT((TT-DT2-TANIM)/DTANIM)*DTANIM
-      IF (TANIM < TT-DT2)TANIM = TANIM+DTANIM
-C-----------------------
-      IF(ANIM_V(14)+H3D_DATA%N_VECT_DROT > 0 .AND.
-     .      ((ISUB == 0.AND.ISECUT == 0.AND.IISROT == 0.AND.
-     .       MSHSUB == 0.AND.IMPOSE_DR == 0 .AND. IDROT == 0)
-     .       .OR. IRODDL == 0)) THEN
-       IF(ISPMD == 0) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : /ANIM/DROT OPTION USED',
-     .                 '    WHILE ROTATIONAL DOF ARE NOT COMPUTED',
-     .                 '    (IDROT = 0 IN /IOFLAG OPTION)'
-         WRITE(ISTDO,*) ' ** WARNING ** : /ANIM/DROT OPTION USED',
-     .                 '    WHILE ROTATIONAL DOF ARE NOT COMPUTED',
-     .                 '    (IDROT = 0 IN /IOFLAG OPTION)'
-       ENDIF
-       IF(ANIM_V(14) == 1) THEN
-       ANIM_V(14) = 0
-       NV_ANI = NV_ANI - 1
-      ENDIF
-      ENDIF
-C-----------------------
-      IF(ISPMD == 0.AND.MCHECK == 0) THEN
-C-----------------------
-C       Tracing Animations cards
-C-----------------------
-       WRITE(IOUT,1120)TANIM,DTANIM,IANISENS,DTANISENS,
-     +       ANIM_E(1),ANIM_E(2),ANIM_E(3),ANIM_E(25),
-     +       ANIM_E(4),ANIM_E(5),ANIM_E(6),
-     +       ANIM_E(7),ANIM_E(8),ANIM_E(9),
-     +        ANIM_E(10)+ANIM_E(4960)+ANIM_E(4961)+ANIM_E(4962)
-        WRITE(IOUT,1129) ANIM_N(3),ANIM_N(4),ANIM_N(6)
-       WRITE(IOUT,1130)
-     +       ANIM_V(1),ANIM_V(2),ANIM_V(3),ANIM_V(4),ANIM_V(5),
-     +       ANIM_V(6),ANIM_V(7),ANIM_V(9),ANIM_V(12),
-     +       ANIM_T(1),ANIM_T(2),ANIM_T(3),ANIM_T(4)
-       WRITE(IOUT,1140)
-     +       ANIM_T(5),ANIM_T(6),ANIM_T(7),ANIM_T(8),
-     +       ANIM_M,ANIM_K
-       ENDIF
-C-----------------------
-C     The correct indexes in ANIM data structures wrt integration points or layers
-C     of all actual elements will be rebuilt ::
-C-----------------------
-      CALL ANIM_BUILD_INDEX_ALL(ISPMD   ,MCHECK ,LSENSOR ,IGEO    ,GEO    )
-C-------------------------------------------
-C     STOP/LSENSOR
-C-------------------------------------------
-      IF(ISPMD == 0.AND.MCHECK == 0) THEN
-       IF (NSTOPSENS /= 0) THEN
-          DO K=1,NSTOPSENS
-            IERR = 1
-            IF(LSTOPSENS(K) /= 0) THEN
-              DO I=1,NSENSOR
-               IF (LSENSOR(1,I)==LSTOPSENS(K)) THEN
-                 LSTOPSENS(K) = I
-                 IERR = 0
-                 EXIT
-                ENDIF
-              ENDDO
-            ENDIF
-            IF(IERR == 1) THEN
-             CALL ANCMSG(MSGID=233,
-     .             ANMODE=ANINFO,
-     .             I1=LSTOPSENS(K))
-            ENDIF
-          ENDDO
-        ENDIF
-      ELSEIF(ISPMD == 0 .AND. MCHECK /= 0) THEN
-        NSTOPSENS = NSTOPSENS_OLD
-        DO K=1,NSTOPSENS_OLD
-          LSTOPSENS(K) = LSTOPSENS_OLD(K)
-        ENDDO
-      END IF                    !(ISPMD.EQ.0.AND.MCHECK.EQ.0)
-C-------------------------------------------
-C     STATE/LSENSOR
-C-------------------------------------------
-      IF(ISPMD == 0.AND.MCHECK == 0) THEN
-       MSTATT = 0
-       IF (NSTATSENS /= 0) THEN
-          DO K=1,NSTATSENS
-            IERR = 1
-            IF(LSTATSENS(K) /= 0) THEN
-              DO I=1,NSENSOR
-               IF (LSENSOR(1,I)==LSTATSENS(K)) THEN
-                 LSTATSENS(K) = I
-                 IERR = 0
-                 EXIT
-                ENDIF
-              ENDDO
-            ENDIF
-            IF(IERR == 1) THEN
-             CALL ANCMSG(MSGID=235,
-     .             ANMODE=ANINFO,
-     .             I1=LSTATSENS(K))
-            ELSE
-               MSTAT(K) = 0
-            ENDIF
-          ENDDO
-        ENDIF
-      ELSEIF(ISPMD == 0 .AND. MCHECK /= 0) THEN
-        NSTATSENS = NSTATSENS_OLD
-        DO K=1,NSTATSENS_OLD
-          LSTATSENS(K) = LSTATSENS_OLD(K)
-        ENDDO
-      END IF                    !(ISPMD.EQ.0.AND.MCHECK.EQ.0)
-C-------------------------------------------
-C     OUTP/LSENSOR
-C-------------------------------------------
-      IF(ISPMD == 0.AND.MCHECK == 0) THEN
-       IF (NOUTPSENS /= 0) THEN
-          DO K=1,NOUTPSENS
-            IERR = 1
-            IF(LOUTPSENS(K) /= 0) THEN
-              DO I=1,NSENSOR
-               IF (LSENSOR(1,I)==LOUTPSENS(K)) THEN
-                 LOUTPSENS(K) = I
-                 IERR = 0
-                 EXIT
-                ENDIF
-              ENDDO
-            ENDIF
-            IF(IERR == 1) THEN
-             CALL ANCMSG(MSGID=236,
-     .             ANMODE=ANINFO,
-     .             I1=LOUTPSENS(K))
-            ENDIF
-          ENDDO
-        ENDIF
-      ELSEIF(ISPMD == 0 .AND. MCHECK /= 0) THEN
-        NOUTPSENS = NOUTPSENS_OLD
-        DO K=1,NOUTPSENS_OLD
-          LOUTPSENS(K) = LOUTPSENS_OLD(K)
-         ENDDO
-      END IF                    !(ISPMD.EQ.0.AND.MCHECK.EQ.0)
-C-------------------------------------------
-C     H3D/LSENSOR
-C-------------------------------------------
-      IF(ISPMD == 0.AND.MCHECK == 0) THEN
+      IF (ISPMD == 0.AND.MCHECK == 0) THEN
         DO K=1,H3D_DATA%N_SENS_H3D
          IOK = 0
           IF(H3D_DATA%LSENS_H3D(K) /= 0)THEN
-           DO I=1,NSENSOR
-              IF(H3D_DATA%LSENS_H3D(K) == LSENSOR(1,I))THEN
-                H3D_DATA%LSENS_H3D(K)=I
+           DO I=1,SENSORS%NSENSOR
+              IF(H3D_DATA%LSENS_H3D(K) == SENSOR_TAB(I)%SENS_ID)THEN
+               H3D_DATA%LSENS_H3D(K)=I
                IOK = 1
                EXIT
              ENDIF
            ENDDO
          ENDIF
          IF(IOK == 0) THEN
-            CALL ANCMSG(MSGID=283,ANMODE=ANINFO,I1=H3D_DATA%LSENS_H3D(K))
+           CALL ANCMSG(MSGID=283,ANMODE=ANINFO,I1=H3D_DATA%LSENS_H3D(K))
            CALL ARRET(2)
          ENDIF
        ENDDO
-      ELSEIF(ISPMD == 0 .AND. MCHECK /= 0) THEN
-      ENDIF                     !(ISPMD.EQ.0.AND.MCHECK.EQ.0)
-C-------------------------------------------
-C     STATE/LSENSOR
-C-------------------------------------------
-      IF(ISPMD == 0.AND.MCHECK == 0) THEN
-       WRITE(IOUT,1150)DTIN,DTMX
-       IF(IMPL /= 0)
-     .   WRITE(IOUT,1160)EPS,EPS2,NITMX
-       ISTATG_P = IABS(ISTATG)
-       IF(ISTAT == 1)THEN
-         WRITE(IOUT,1171)ISTATG_P,BETA,PERIOD
-       ELSEIF(ISTAT == 2)THEN
-        IF (TST_START>ZERO.OR.TST_STOP>ZERO) THEN
-          IF (TST_STOP==ZERO) TST_STOP = TSTOP
-          WRITE(IOUT,5001)ISTATG_P,TST_START,TST_STOP
-        ELSE
-          WRITE(IOUT,1172)ISTATG_P
-        END IF
-       ELSEIF(ISTAT == 3)THEN
-        IF (TST_START>ZERO.OR.TST_STOP>ZERO) THEN
-          IF (TST_STOP==ZERO) TST_STOP = TSTOP
-          WRITE(IOUT,5011)ISTATG_P,TST_START,TST_STOP
-        ELSE
-          WRITE(IOUT,5010)ISTATG_P
-        END IF
-       ENDIF
-C-----------------------
-       IF(IPARIT == 0)THEN
-          WRITE(IOUT,1180)
-       ELSEIF(IPARIT == 1)THEN
-         WRITE(IOUT,1181)
-       ELSE
-         WRITE(IOUT,1182)IPARIT-1
-       ENDIF
-C-----------------------
-       IF(IMLAGSOL == 1)THEN
-         WRITE(IOUT,'(/,A)')
-     .   ' DIRECT SOLVER USED FOR LAGRANGE MULTIPLIERS'
-       END IF
-C-----------------------
-       WRITE(IOUT,1300) NSLIOF,NELSOF,NELQOF,NELCOF,NELTOF,NELPOF,NELROF,NELTGOF,NSPHOF
-       WRITE(IOUT,1400) NRLINK
-       WRITE(IOUT,1500) NUBCSN
-       IF(IALE /= 0.OR.IEULER /= 0)WRITE(IOUT,1450) NALELINK+NALELK !format v12 + format v5
-c
-      ELSEIF(ISPMD == 0 .AND. MCHECK /= 0) THEN
-      ENDIF                     !(ISPMD.EQ.0.AND.MCHECK.EQ.0)
-C-----------------------------------
-C     ALE/EULER : UPWIND
-C----------------------------------------
-         !UPW_UPDATE == 1 : ENGINE /UPWIND CARD DETECTED
-         !UPW_UPDATE == 2 : /UPWIND CARD IS CHANGING AT LEAST ONE PARAMETER
-         !if /UPWIND is defined then set new parameters
-      IF(ISPMD == 0.AND.MCHECK == 0)THEN
-        IF(IALE /= 0.OR.IEULER /= 0)THEN
-         IF(UPW_UPDATE/=0)THEN
-           DO K=1,NUMMAT-1
-             !ILAW=PM(19,K)
-             JALE=PM(72,K)
-             IF(JALE /= 0)THEN
-               IF(PM(15,K)/=UPWMG2.OR.PM(16,K)/=UPWOG2)THEN
-                 UPW_UPDATE = 2
-                 PM(15,K) = UPWMG2
-                 PM(16,K) = UPWOG2
-               ENDIF
-            ENDIF
-           ENDDO
-           IF(UPWSM/=UPWSM2)THEN
-             UPW_UPDATE = 2
-             UPWSM      = UPWSM2
-           ENDIF
-         !if /UPWIND is not defined then catch parameter from previous run
-         ELSEIF(UPW_UPDATE==0)THEN
-           UPWMG2=ONE
-           UPWOG2=ONE
-           UPWSM2=ONE
-           DO K=1,NUMMAT-1
-             !ILAW=PM(19,K)
-             JALE=PM(72,K)
-             IF(JALE /= 0)THEN
-               IF(PM(15,K)/=UPWMG2.OR.PM(16,K)/=UPWOG2 .OR.UPWSM /= UPWSM2)THEN
-                 UPWMG2 = PM(15,K)
-                 UPWOG2 = PM(16,K)
-                 UPWSM2 = UPWSM
-                 EXIT
-               ENDIF
-            ENDIF
-           ENDDO
-         ENDIF
-           ENDIF
-         ENDIF
-C-----------------------------------
-C     ALE/EULER : OUTPUT
-C----------------------------------------
-      IF(IALE /= 0.OR.IEULER /= 0)THEN
-         !-----------------------
-         !     QUASI-INCOMPRESSIBLE /INCMP
-         !-----------------------
-          IF(INCOMP == 1.AND.MCHECK == 0) WRITE(IOUT,1196)
-         !-----------------------
-         !     GRID FORMULATION
-         !-----------------------
-         !---ALE GRID FORMULATION CHECK---!
-         IF(NWALE_ENGINE /= NWALE_RST .AND. NWALE_ENGINE /= -1) THEN !Forbid ALE grid formulation switch
-           IF(NWALE_ENGINE /= 3)THEN  !expect if new one is /ALE/ZERO
-             ALEform=(/'DONEA    ','DISP     ','SPRING   ', 'ZERO     ','STANDARD ', 'LAPLACIAN' ,'VOLUME   '/)
-             ALEStrL=(/5,4,6,4,8,9,6/)
-             Cale1=ALEform(NWALE_ENGINE)
-             Cale2=ALEform(NWALE_RST)
-             CALL ANCMSG(MSGID=229,ANMODE=ANINFO, C1=Cale1(1:ALEStrL(NWALE_ENGINE)),C2=Cale2(1:ALEStrL(NWALE_RST)))
-              CALL ARRET(2)
-            ELSE
-             NWALE_ENGINE = 3
-            END IF
-          END IF
-
-         !--Labels for Staggered Scheme
-         IF(UPWM.EQ.2)THEN
-            Label1='TG       '
-         ELSEIF(UPWM.EQ.3)THEN
-            Label1='SUPG     '
-         ELSE
-            Label1='UPWIND   '
-         ENDIF
-         Label2='UPWIND   '
-         Label3='UPWIND   '
-         IF(IALEMUSCL.EQ.0)THEN
-           Label4='UPWIND   '
-         ELSE
-           Label4='MUSCL    '
-         ENDIF
-         !--Labels for Colocated Scheme
-         IF(IALEMUSCL.EQ.0)THEN
-           Label5='1ST-ORDER'
-           Label6='1ST-ORDER'
-           Label7='1ST-ORDER'
-           Label8='1ST-ORDER'
-         ELSEIF(IALEMUSCL.EQ.1)THEN
-           Label5='2ND-ORDER'
-           Label6='2ND-ORDER'
-           Label7='2ND-ORDER'
-           Label8='2ND-ORDER'
-         ELSEIF(IALEMUSCL.EQ.2)THEN
-           Label5='1ST-ORDER'
-           Label6='1ST-ORDER'
-           Label7='1ST-ORDER'
-           Label8='2ND-ORDER'
-         ENDIF
-         MULTI_FVM%LOWMACH_OPT = .FALSE.
-         IF (LOWMACH_OPT == 1 .AND. MULTI_FVM%IS_USED) THEN
-            MULTI_FVM%LOWMACH_OPT = .TRUE.
-         ENDIF
-         ALEform=(/'DONEA    ','DISP     '
-     .   ,'SPRING   ', 'ZERO     ','STANDARD ', 'LAPLACIAN', 'VOLUME   ' /)
-         !effective value which will be retained during numerical solving
-         IF(NWALE_ENGINE /= -1)THEN
-           NWALE = NWALE_ENGINE
-         ELSE
-           NWALE = NWALE_RST
-         ENDIF
-         Label9='                '
-         Label9(1:9)=ALEform(NWALE)
-         eta1=UPWMG2
-         eta2=UPWOG2
-         IF(UPWM>1)eta1=CUPWM
-         IF(ISPMD==0 .AND. MCHECK==0)THEN
-           WRITE(IOUT,1001)
-           WRITE(IOUT,1002)Label1,eta1,Label2,eta2,Label3,eta2,Label4
-           IF(MULTI_FVM%IS_USED)THEN
-             WRITE(IOUT,1003)Label5,Label6,Label7,Label8
-             IF(MULTI_FVM%LOWMACH_OPT)
-     .       WRITE(IOUT,1004)
-             IF(IALEMUSCL.NE.0)
-     .       WRITE(IOUT,1005)I_BETA
-           ENDIF
-           WRITE(IOUT,1006) DTFAC1(102),DTMIN1(102)
-           WRITE(IOUT,1007)Label9
-           IF(NWALE == 0) WRITE(IOUT,1200) ALPHA,GAMMA,VGX,VGY,VGZ,VOLMIN
-           IF(NWALE == 1) WRITE(IOUT,1220) ALPHA,VGX,VGY,VGZ,VOLMIN
-           IF(NWALE == 2) WRITE(IOUT,1250) DT_INPUT,ALPHA,GAMMA,VGX,VGY,VOLMIN
-           IF(NWALE == 4) WRITE(IOUT,1254) ALPHA,GAMMA,VGX,VGY
-         ENDIF
-       ENDIF !(IALE.NE.0.OR.IEULER.NE.0)
-          !---CHECK END-------------------!
-!-----------------------
-!     FEM MOMENTUM INTEGRATION
-!-----------------------
-      IF(ISPMD == 0.AND.MCHECK == 0)THEN
-        IF(IALE+IEULER.NE.0 .AND. ISFINT.NE.3)THEN
-          SELECT CASE(ISFINT)
-            !CASE(3)
-            ! WRITE(IOUT,1197)   !default
-            CASE(2)
-             WRITE(IOUT,1198)
-            CASE(1)
-             WRITE(IOUT,1199)
-          END SELECT
-         ENDIF
-      ENDIF
-
+      ENDIF                     !(ISPMD==0.AND.MCHECK==0)
 C-------------------------------
-C ELIMINATION PARTIE ALE EULER THERMIQUE
-C-------------------------------
-      IF(IALE /= 0.AND.NALEOF == 1)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)THEN
-          WRITE(IOUT,*)'ALE FORMULATION SWITCHED OFF '
-        END IF
-        IALE = 0
-      END IF
-      IF(IEULER /= 0.AND.NEULEROF == 1)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)THEN
-          WRITE(IOUT,*)'EULER FORMULATION SWITCHED OFF '
-        END IF
-        IEULER = 0
-      END IF
-      IF(ITHERM /= 0.AND.NTHERMOF == 1)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)THEN
-          WRITE(IOUT,*)'THERMIC FORMULATION SWITCHED OFF '
-        END IF
-        ITHERM = 0
-      END IF
-C-------------------------------
-      IF(IDEL7 /= 0.AND.MCHECK == 0.AND.N2D == 0)THEN
-        IDELI7 = IDEL7 - 1
-        IF(ISPMD == 0)THEN
-          WRITE(IOUT,1550) IDELI7
-          CALL ANCMSG(MSGID=122,ANMODE=ANINFO_BLIND)
-          CALL ARRET(2)
-        ENDIF
-      ELSEIF(N2D /= 0.AND.MCHECK == 0)THEN
-        IF(ISPMD == 0)
-     .    WRITE(IOUT,1550) IDEL7-1
-      END IF
-C-------------------------------
-C     ELIMINATION D'INTERFACES
-C-------------------------------
-      IF(NSLIOF /= 0) THEN
-C
-       NN=(NSLIOF+9)/10
-       DO IL=1,NN
-         READ (IIN,'(10I10)') (NLEC(I),I=1,10)
-         DO 80 I=1,10
-          IF(NLEC(I) == 0)GOTO 80
-          IF(ISPMD == 0.AND.MCHECK == 0)
-     .           WRITE(IOUT,2000) NLEC(I)
-               DO K=1,NINTER
-                 IF(IPARI(15,K) == NLEC(I))THEN
-                   IF(IPARI(7,K)==2)THEN
-                     IDEL2= IPARI(17,K)
-                     IF(IDEL2 /= 0)THEN
-C
-C                      SMASS & SINER have been saved only if IDEL2 /= 0
-                       NSN  = IPARI(5,K)
-                       DO N=1,NSN
-                         IS =INTBUF_TAB(K)%NSV(N)
-                         IF(IS > 0)THEN
-                           MS(IS)=INTBUF_TAB(K)%SMAS(N)
-                           IN(IS)=INTBUF_TAB(K)%SINER(N)
-                           INTBUF_TAB(K)%NSV(N)=-IS
-                         END IF
-                       END DO
-                     END IF
-                   END IF
-C----- change T_stop for int25 otherwise issue w/ int25
-                   IF(IPARI(7,K)==25)THEN
-                     INTBUF_TAB(K)%VARIABLES(11) = ZERO
-                   ELSE
-                   IPARI(7,K)=0
-                 ENDIF
-                 END IF
-               ENDDO
-   80    CONTINUE
-       ENDDO
-      ENDIF
-C-----------------------------------
-C     ELIMINATION DE NOEUDS D'INTERFACES
-C----------------------------------------
-      IF(NSLIOFN /= 0) THEN
-C
-       READ (IIN,'(2I8)') I,NN
-       KK=0
-       DO K=1,NINTER
-         IF(IPARI(15,K) == I)KK=K
-       ENDDO
-       IF(KK == 0)THEN
-        IF(ISPMD == 0) THEN
-          CALL ANCMSG(MSGID=123,ANMODE=ANINFO_BLIND)
-        ENDIF
-        CALL ARRET(2)
-       ENDIF
-       NRTS  =IPARI(3,KK)
-       NRTM  =IPARI(3,KK)
-       NSN   =IPARI(5,KK)
-       NMN   =IPARI(6,KK)
-       NTY   =IPARI(7,KK)
-C--    Interface type 19
-       IF (IPARI(71,KK).NE.0) NTY = 19
-C
-       IF(NTY == 3)THEN
-         NSN   =NSN + NMN
-       ELSEIF(NTY == 4 .OR. NTY == 5)THEN
-       ELSEIF(NTY == 7 .OR. NTY == 10 .OR. NTY == 22)THEN
-       ELSE
-        IF(ISPMD == 0) THEN
-          CALL ANCMSG(MSGID=124,ANMODE=ANINFO_BLIND)
-        ENDIF
-        CALL ARRET(2)
-       ENDIF
-       DO IL=1,NN
-         READ (IIN,'(10I10)') (NLEC(I),I=1,10)
-         DO I=1,10
-          IF(NLEC(I) /= 0)THEN
-            DO K=1,NSN
-              IF(ITAB(INTBUF_TAB(KK)%NSV(K)) == NLEC(I))THEN !NSV(K)
-                INTBUF_TAB(KK)%STFNS(K)=ZERO !STFNS(K)
-              ENDIF
-            ENDDO
-          ENDIF
-         ENDDO
-       ENDDO
-      ENDIF
-C----------------------------------------------
-C     ELEMENTS ELIMINES
-C----------------------------------------------
-      NELOF=NELSOF+NELQOF+NELCOF+NELTOF+NELPOF+NELROF
-     .     +NELTGOF+NSPHOF
-C-----------------------
-C     1. ELEMENTS 3D
-C-----------------------
-      IF(NELSOF > 0)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)
-     .  WRITE (IOUT,1810)
-         NN=(NELSOF+4)/5
-         NBC=5
-C
-       DO 110 IL=1,NN
-          READ (IIN,'(10I10)') (NLEC(II),II=1,10)
-C
-        DO 110 J=1,NBC
-         KLG=NLEC(2*J-1)
-         KUG=NLEC(2*J  )
-         IF(KLG.LE.0) GO TO 120
-         NBLK=(IL-1)*NBC+J
-         DO L=1,NUMELS
-           IF(IXS(NIXS,L).GE.KLG.AND.IXS(NIXS,L).LE.KUG) THEN
-             DO K=KLG,KUG
-               IF(IXS(NIXS,L) == K) THEN
-                 IXS(1,L)=-IABS(IXS(1,L))
-                 GOTO 111
-               ENDIF
-             ENDDO
-           ENDIF
-111        CONTINUE
-         ENDDO
-  110  CONTINUE
-  120  CONTINUE
-       K=0
-       DO J=1,NUMELS
-         IF(IXS(1,J) < 0)THEN
-           K=K+1
-           NLEC(K) = IXS(NIXS,J)
-           IF(K == 10)THEN
-           IF(MCHECK == 0)
-     .         WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-             K=0
-           ENDIF
-         ENDIF
-       ENDDO
-       IF(K > 0) THEN
-         IF(MCHECK == 0)
-     .     WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-       ENDIF
-       IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les elts deletes dans l'ordre
-         IWIOUT = 0
-         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
-         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
-         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-         IF (IWIOUT > 0) THEN
-           CALL SPMD_WIOUT(IOUT,IWIOUT)
-           IWIOUT = 0
-         ENDIF
-       ENDIF
-      ENDIF
-C-----------------------
-C     2. ELEMENTS 2D
-C-----------------------
-      IF(NELQOF > 0)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)
-     .    WRITE (IOUT,1820)
-       IF (INVERS < 18) THEN
-         NN=(NELQOF+7)/8
-         NBC=8
-       ELSE
-         NN=(NELQOF+4)/5
-         NBC=5
-       ENDIF
-C
-       DO 210 I=1,NN
-          READ (IIN,'(10I10)') (NLEC(II),II=1,10)
-C
-        DO 210 J=1,NBC
-        KLG=NLEC(2*J-1)
-        KUG=NLEC(2*J  )
-        IF(KLG.LE.0) GO TO 220
-        NBLK=(I-1)*NBC+J
-        DO L=1,NUMELQ
-          IF(IXQ(NIXQ,L).GE.KLG.AND.IXQ(NIXQ,L).LE.KUG) THEN
-            DO K=KLG,KUG
-              IF(IXQ(NIXQ,L) == K) THEN
-                IXQ(1,L)=-IABS(IXQ(1,L))
-                GOTO 211
-              ENDIF
-            ENDDO
-          ENDIF
-  211     CONTINUE
-        ENDDO
-  210  CONTINUE
-  220  CONTINUE
-       K=0
-       DO J=1,NUMELQ
-         IF(IXQ(1,J) < 0)THEN
-           K=K+1
-           NLEC(K) = IXQ(NIXQ,J)
-           IF(K == 10)THEN
-           IF(MCHECK == 0)
-     .         WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-             K=0
-           ENDIF
-         ENDIF
-       ENDDO
-       IF(K > 0) THEN
-         IF(MCHECK == 0)
-     .     WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-       ENDIF
-       IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les elts deletes dans l'ordre
-         IWIOUT = 0
-         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
-         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
-         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-         IF (IWIOUT > 0) THEN
-           CALL SPMD_WIOUT(IOUT,IWIOUT)
-           IWIOUT = 0
-         ENDIF
-       ENDIF
-      END IF
-C-----------------------
-C     3. ELEMENTS COQUES
-C-----------------------
-      IF(NELCOF > 0)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)
-     .    WRITE (IOUT,1830)
-         NN=(NELCOF+4)/5
-         NBC=5
-C
-       DO 310 I=1,NN
-          READ (IIN,'(10I10)') (NLEC(II),II=1,10)
-        DO 310 J=1,NBC
-        KLG=NLEC(2*J-1)
-        KUG=NLEC(2*J  )
-        IF(KLG.LE.0) GO TO 320
-        NBLK=(I-1)*NBC+J
-        DO L=1,NUMELC
-          IF(IXC(NIXC,L).GE.KLG.AND.IXC(NIXC,L).LE.KUG) THEN
-            DO K=KLG,KUG
-              IF(IXC(NIXC,L) == K) THEN
-                IXC(1,L)=-IABS(IXC(1,L))
-                GOTO 311
-              ENDIF
-            ENDDO
-          ENDIF
-  311   CONTINUE
-        ENDDO
-  310  CONTINUE
-  320  CONTINUE
-       K=0
-       DO J=1,NUMELC
-         IF(IXC(1,J) < 0)THEN
-           K=K+1
-           NLEC(K) = IXC(NIXC,J)
-           IF(K == 10)THEN
-             IF(MCHECK == 0)
-     .         WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-             K=0
-           ENDIF
-         ENDIF
-       ENDDO
-       IF(K > 0) THEN
-         IF(MCHECK == 0)
-     .     WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-       ENDIF
-       IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les elts deletes dans l'ordre
-         IWIOUT = 0
-         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
-         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
-         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-         IF (IWIOUT > 0) THEN
-           CALL SPMD_WIOUT(IOUT,IWIOUT)
-           IWIOUT = 0
-         ENDIF
-       ENDIF
-      END IF
-C-----------------------
-C     4. ELEMENTS TIGES
-C-----------------------
-      IF(NELTOF > 0)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)
-     .    WRITE (IOUT,1840)
-         NN=(NELTOF+4)/5
-         NBC=5
-C
-       DO 410 I=1,NN
-          READ (IIN,'(10I10)') (NLEC(II),II=1,10)
-C
-        DO 410 J=1,NBC
-        KLG=NLEC(2*J-1)
-        KUG=NLEC(2*J  )
-        IF(KLG.LE.0) GO TO 420
-        NBLK=(I-1)*NBC+J
-        DO L=1,NUMELT
-          IF(IXT(NIXT,L).GE.KLG.AND.IXT(NIXT,L).LE.KUG) THEN
-            DO K=KLG,KUG
-              IF(IXT(NIXT,L) == K) THEN
-                IXT(1,L)=-IABS(IXT(1,L))
-                GOTO 411
-              ENDIF
-            ENDDO
-          ENDIF
-  411     CONTINUE
-        ENDDO
-  410  CONTINUE
-  420  CONTINUE
-       K=0
-       DO J=1,NUMELT
-         IF(IXT(1,J) < 0)THEN
-           K=K+1
-           NLEC(K) = IXT(NIXT,J)
-           IF(K == 10)THEN
-             IF(MCHECK == 0)
-     .         WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-             K=0
-           ENDIF
-         ENDIF
-       ENDDO
-       IF(K > 0) THEN
-         IF(MCHECK == 0)
-     .     WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-       ENDIF
-       IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les elts deletes dans l'ordre
-         IWIOUT = 0
-         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
-         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
-         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-         IF (IWIOUT > 0) THEN
-           CALL SPMD_WIOUT(IOUT,IWIOUT)
-           IWIOUT = 0
-         ENDIF
-       ENDIF
-      END IF
-C-----------------------
-C     5. ELEMENTS POUTRES
-C-----------------------
-      IF(NELPOF > 0)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)
-     .    WRITE (IOUT,1850)
-       NN=(NELPOF+4)/5
-       NBC=5
-C
-       DO 510 I=1,NN
-        READ (IIN,'(10I10)') (NLEC(II),II=1,10)
-C
-        DO 510 J=1,NBC
-        KLG=NLEC(2*J-1)
-        KUG=NLEC(2*J  )
-        IF(KLG.LE.0) GO TO 520
-        NBLK=(I-1)*NBC+J
-        DO L=1,NUMELP
-          IF(IXP(NIXP,L).GE.KLG.AND.IXP(NIXP,L).LE.KUG) THEN
-            DO K=KLG,KUG
-              IF(IXP(NIXP,L) == K) THEN
-                IXP(1,L)=-IABS(IXP(1,L))
-                GOTO 511
-              ENDIF
-            ENDDO
-          ENDIF
-  511     CONTINUE
-        ENDDO
-  510  CONTINUE
-  520  CONTINUE
-       K=0
-       DO J=1,NUMELP
-         IF(IXP(1,J) < 0)THEN
-           K=K+1
-           NLEC(K) = IXP(NIXP,J)
-           IF(K == 10)THEN
-             IF(MCHECK == 0)
-     .         WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-             K=0
-           ENDIF
-         ENDIF
-       ENDDO
-       IF(K > 0) THEN
-         IF(MCHECK == 0)
-     .     WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-       ENDIF
-       IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les elts deletes dans l'ordre
-         IWIOUT = 0
-         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
-         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
-         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-         IF (IWIOUT > 0) THEN
-           CALL SPMD_WIOUT(IOUT,IWIOUT)
-           IWIOUT = 0
-         ENDIF
-       ENDIF
-      END IF
-C-----------------------
-C     6. ELEMENTS RESSORTS
-C-----------------------
-      IF(NELROF > 0)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)
-     .    WRITE (IOUT,1860)
-       NN=(NELROF+4)/5
-       NBC=5
-C
-       DO 610 I=1,NN
-        READ (IIN,'(10I10)') (NLEC(II),II=1,10)
-C
-        DO 610 J=1,NBC
-        KLG=NLEC(2*J-1)
-        KUG=NLEC(2*J  )
-        IF(KLG.LE.0) GO TO 620
-        NBLK=(I-1)*NBC+J
-        DO L=1,NUMELR
-          IF(IXR(NIXR,L).GE.KLG.AND.IXR(NIXR,L).LE.KUG) THEN
-            DO K=KLG,KUG
-              IF(IXR(NIXR,L) == K) THEN
-                IXR(1,L)=-IABS(IXR(1,L))
-                GOTO 611
-              ENDIF
-            ENDDO
-          ENDIF
-  611     CONTINUE
-        ENDDO
-  610  CONTINUE
-  620  CONTINUE
-       K=0
-       DO J=1,NUMELR
-         IF(IXR(1,J) < 0)THEN
-           K=K+1
-           NLEC(K) = IXR(NIXR,J)
-           IF(K == 10)THEN
-             IF(MCHECK == 0)
-     .         WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-             K=0
-           ENDIF
-         ENDIF
-       ENDDO
-       IF(K > 0) THEN
-         IF(MCHECK == 0)
-     .     WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-       ENDIF
-       IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les elts deletes dans l'ordre
-         IWIOUT = 0
-         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
-         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
-         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-         IF (IWIOUT > 0) THEN
-           CALL SPMD_WIOUT(IOUT,IWIOUT)
-           IWIOUT = 0
-         ENDIF
-       ENDIF
-      ENDIF
-C-----------------------
-C     7. ELEMENTS COQUES 3N
-C-----------------------
-      IF(NELTGOF > 0)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)
-     .    WRITE (IOUT,1870)
-         NN=(NELTGOF+4)/5
-         NBC=5
-C
-       DO 630 I=1,NN
-          READ (IIN,'(10I10)') (NLEC(II),II=1,10)
-C
-        DO 630 J=1,NBC
-        KLG=NLEC(2*J-1)
-        KUG=NLEC(2*J  )
-        IF(KLG.LE.0) GO TO 640
-        NBLK=(I-1)*NBC+J
-        DO L=1,NUMELTG
-          IF(IXTG(NIXTG,L).GE.KLG.AND.IXTG(NIXTG,L).LE.KUG) THEN
-            DO K=KLG,KUG
-              IF(IXTG(NIXTG,L) == K) THEN
-                IXTG(1,L)=-IABS(IXTG(1,L))
-                GOTO 631
-              ENDIF
-            ENDDO
-          ENDIF
-  631     CONTINUE
-        ENDDO
-  630  CONTINUE
-  640  CONTINUE
-       K=0
-       DO J=1,NUMELTG
-         IF(IXTG(1,J) < 0)THEN
-           K=K+1
-           NLEC(K) = IXTG(NIXTG,J)
-           IF(K == 10)THEN
-             IF(MCHECK == 0)
-     .         WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-             K=0
-           ENDIF
-         ENDIF
-       ENDDO
-       IF(K > 0) THEN
-         IF(MCHECK == 0)
-     .     WRITE (IOUT,'(5I10)') (NLEC(II),II=1,K)
-       ENDIF
-       IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les elts deletes dans l'ordre
-         IWIOUT = 0
-         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
-         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
-         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-         IF (IWIOUT > 0) THEN
-           CALL SPMD_WIOUT(IOUT,IWIOUT)
-           IWIOUT = 0
-         ENDIF
-       ENDIF
-C
-      END IF
-C-----------------------
-C     8. SPH PARTICLES
-C-----------------------
-      IF(NSPHOF > 0)THEN
-        IF(ISPMD == 0.AND.MCHECK == 0)
-     .    WRITE (IOUT,1880)
-         NN=(NSPHOF+4)/5
-         NBC=5
-C
-       K=0
-       DO 730 I=1,NN
-          READ (IIN,'(10I10)') (NLEC(II),II=1,10)
-C
-        DO 730 J=1,NBC
-        KLG=NLEC(2*J-1)
-        KUG=NLEC(2*J  )
-        IF(KLG.LE.0) GO TO 732
-        NBLK=(I-1)*NBC+J
-        DO L=1,NUMSPH
-          IF(KXSP(NISP,L).GE.KLG.AND.KXSP(NISP,L).LE.KUG) THEN
-C           number of the related group :
-            NG =MOD(ABS(KXSP(2,L)),NGROUP+1)
-            IF(NG /= 0)THEN
-c             ITY=IPARG(5,NG)
-c             NEL=IPARG(2,NG)
-              NFT=IPARG(3,NG)
-              IAD=IPARG(4,NG)
-              II=L-NFT
-              ELBUF_STR(NG)%GBUF%OFF(II) = ZERO
-              KXSP(2,L) = 0
-              K=K+1
-              NLECSPH(K) = KXSP(NISP,L)
-              IF(K == 10)THEN
-              IF(MCHECK == 0)
-     .            WRITE (IOUT,'(5I10)') (NLECSPH(II),II=1,K)
-                K=0
-              END IF
-            END IF
-          ENDIF
-        ENDDO
-  730  CONTINUE
-  732  CONTINUE
-       IF(K > 0) THEN
-         IF(MCHECK == 0)
-     .     WRITE (IOUT,'(5I10)') (NLECSPH(II),II=1,K)
-       END IF
-       IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les elts deletes dans l'ordre
-         IWIOUT = 0
-         IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
-         CALL SPMD_GLOB_ISUM9(IWIOUT,1)
-         CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-         IF (IWIOUT > 0) THEN
-           CALL SPMD_WIOUT(IOUT,IWIOUT)
-           IWIOUT = 0
-         ENDIF
-       ENDIF
-C
-      END IF
-
-C-------------------------------
-C     Outuput by interface :
+C     Output by interface :
 C        1 - Skid lines
 C-------------------------------
       IF(H3D_DATA%N_SCAL_SKID  > 0.AND.NINTSKIDOLD==0) THEN
-C
          NINTERSKID = H3D_DATA%N_SCAL_SKID
          IF(NINTSTAMP/=0) THEN
             ALLOCATE (PSKIDS(NINTERSKID,NUMNODG))
@@ -1834,921 +2710,171 @@ C
       ELSEIF(H3D_DATA%N_SCAL_SKID  == 0.AND.NINTSKIDOLD==0)THEN
          ALLOCATE (PSKIDS(0,0))
       ENDIF
+C-------------------------------------------
+C        2 - Frictionnal energy: allocs tabs
+C--------------------------------------------
+         IF(H3D_DATA%N_SCAL_CSE_FRIC >0.AND.OUTPUT%DATA%S_EFRIC == 0)THEN
+            ALLOCATE(OUTPUT%DATA%EFRICG(NUMNOD))
+            OUTPUT%DATA%EFRICG(1:NUMNOD) = ZERO
+            IF(NINTSTAMP/=0) THEN
+              ALLOCATE(OUTPUT%DATA%EFRICG_STAMP(NUMNODG))
+              OUTPUT%DATA%EFRICG_STAMP(1:NUMNODG) = ZERO
+            ELSE
+              ALLOCATE(OUTPUT%DATA%EFRICG_STAMP(0))
+            ENDIF
+         ELSEIF(OUTPUT%DATA%S_EFRIC==0)THEN
+            ALLOCATE(OUTPUT%DATA%EFRICG(0))
+            ALLOCATE(OUTPUT%DATA%EFRICG_STAMP(0))
+         ENDIF
 
+      IF(H3D_DATA%N_SCAL_CSE_FRICINT  > 0.AND.OUTPUT%DATA%S_EFRICINT==0) THEN
+C
+         NINEFRICG = H3D_DATA%N_SCAL_CSE_FRICINT
+         OUTPUT%DATA%NINEFRIC_STAMP = 0
+         OUTPUT%DATA%NINEFRIC = 0
+         IF(NINTSTAMP/=0) THEN
+           DO N=1,NINTER
+               NI = H3D_DATA%N_CSE_FRIC_INTER (N)
+               IF(NI/= 0.AND.IPARI(7,N)==21) OUTPUT%DATA%NINEFRIC_STAMP = OUTPUT%DATA%NINEFRIC_STAMP + 1
+           ENDDO
+         ENDIF
+         IF(OUTPUT%DATA%NINEFRIC_STAMP==NINEFRICG) THEN
+            CALL MY_ALLOC(OUTPUT%DATA%EFRIC_STAMP,NINEFRICG,NUMNODG)
+            OUTPUT%DATA%EFRIC_STAMP(1:NINEFRICG,1:NUMNODG) = ZERO
+            CALL MY_ALLOC(OUTPUT%DATA%EFRIC,0,0)
+         ELSEIF(OUTPUT%DATA%NINEFRIC_STAMP==0) THEN
+            OUTPUT%DATA%NINEFRIC = NINEFRICG
+            CALL MY_ALLOC(OUTPUT%DATA%EFRIC,OUTPUT%DATA%NINEFRIC,NUMNOD)
+            OUTPUT%DATA%EFRIC(1:NINEFRICG,1:NUMNOD) = ZERO
+            CALL MY_ALLOC(OUTPUT%DATA%EFRIC_STAMP,0,0)
+         ELSE
+            OUTPUT%DATA%NINEFRIC = NINEFRICG-OUTPUT%DATA%NINEFRIC_STAMP
+            CALL MY_ALLOC(OUTPUT%DATA%EFRIC_STAMP,OUTPUT%DATA%NINEFRIC_STAMP,NUMNODG)
+            OUTPUT%DATA%EFRIC_STAMP(1:OUTPUT%DATA%NINEFRIC_STAMP,1:NUMNODG) = ZERO
+            CALL MY_ALLOC(OUTPUT%DATA%EFRIC,OUTPUT%DATA%NINEFRIC,NUMNOD)
+            OUTPUT%DATA%EFRIC(1:OUTPUT%DATA%NINEFRIC,1:NUMNOD) = ZERO
+            NS = 0
+            NN= 0
+            DO N=1,NINTER
+               NI = H3D_DATA%N_CSE_FRIC_INTER (N)
+               IF(NI/= 0.AND.IPARI(7,N)==21) THEN
+                  NS = NS+1
+                  H3D_DATA%N_CSE_FRIC_INTER (N) = OUTPUT%DATA%NINEFRIC + NS
+               ELSEIF (NI/=0) THEN
+                  NN = NN+1
+                  H3D_DATA%N_CSE_FRIC_INTER (N) = NN
+               ENDIF
+            ENDDO
+         ENDIF
+      ELSEIF(OUTPUT%DATA%S_EFRICINT==0)THEN
+            CALL MY_ALLOC(OUTPUT%DATA%EFRIC,0,0)
+            CALL MY_ALLOC(OUTPUT%DATA%EFRIC_STAMP,0,0)
+      ENDIF
 C-----------------------------------
+C-------------------------------------------
+C     Animations
+C-------------------------------------------
 
-C-----------------------
-C     MISE DE OFF A ZERO
-C-----------------------
-      IF (NELOF > 0)THEN
-       DO 790 NG=1,NGROUP
-       OFFG => ELBUF_STR(NG)%GBUF%OFF
-       MLW=IPARG(1,NG)
-       ITY=IPARG(5,NG)
-       NEL=IPARG(2,NG)
-       NFT=IPARG(3,NG)
-       IAD=IPARG(4,NG)
-       IGOF=0
-C-----------------------
-C     1. ELEMENTS SOLIDES
-C-----------------------
-       IF(ITY == 1.AND.NELSOF /= 0)THEN
-        IGOF=1
-        DO 710 I=1,NEL
-        II=I+NFT
-        IF(IXS(1,II) < 0)THEN
-         IXS(1,II)=-IXS(1,II)
-         IF (MLW /= 0) THEN
-           OFFG(I)=ZERO
-         ELSE     ! loi0, pas de off
-           CALL ANCMSG(MSGID=238,ANMODE=ANINFO_BLIND,I1=IXS(NIXS,II),
-     .                 C1='BRICK',C2='BRICK')
-         ENDIF
-        ELSE
-         IGOF=0
-        ENDIF
-  710   CONTINUE
-C-----------------------
-C     2. ELEMENTS 2D
-C-----------------------
-       ELSEIF(ITY == 2.AND.NELQOF /= 0)THEN
-        IGOF=1
-        DO 720 I=1,NEL
-        II=I+NFT
-        IF(IXQ(1,II) < 0)THEN
-         IXQ(1,II)=-IXQ(1,II)
-         OFFG(I) = ZERO
-        ELSE
-         IGOF=0
-        ENDIF
-  720   CONTINUE
-C-----------------------
-C     3. ELEMENTS COQUES
-C-----------------------
-       ELSEIF(ITY == 3.AND.NELCOF /= 0)THEN
-        IGOF=1
-        DO I=1,NEL
-        II=I+NFT
-        IF(IXC(1,II) < 0)THEN
-          IXC(1,II)=-IXC(1,II)
-          IF (MLW /= 0) THEN
-            OFFG(I) = ZERO
-          ELSE     ! loi0, pas de off
-           CALL ANCMSG(MSGID=238,ANMODE=ANINFO_BLIND,I1=IXC(NIXC,II),
-     .                 C1='SHELL',C2='SHELL')
-          ENDIF
-        ELSE
-          IGOF=0
-        ENDIF
-        ENDDO
-C-----------------------
-C     4. ELEMENTS TIGES
-C-----------------------
-       ELSEIF(ITY == 4.AND.NELTOF /= 0)THEN
-C        IGOF=1
-C suppression du groupe incompatible avec option gap truss
-        IGOF=0
-        DO 740 I=1,NEL
-        II=I+NFT
-        IF(IXT(1,II) < 0)THEN
-         IXT(1,II)=-IXT(1,II)
-         OFFG(I) = ZERO
-C        ELSE
-C         IGOF=0
-        ENDIF
-  740   CONTINUE
-C-----------------------
-C     5. ELEMENTS POUTRES
-C-----------------------
-       ELSEIF(ITY == 5.AND.NELPOF /= 0)THEN
-        IGOF=1
-        DO 750 I=1,NEL
-        II=I+NFT
-        IF(IXP(1,II) < 0)THEN
-         IXP(1,II)=-IXP(1,II)
-         OFFG(I) = ZERO
-        ELSE
-         IGOF=0
-        ENDIF
-  750   CONTINUE
-C-----------------------
-C     6. ELEMENTS RESSORTS
-C-----------------------
-       ELSEIF(ITY == 6.AND.NELROF /= 0)THEN
-        IGOF=0
-        DO 760 I=1,NEL
-        II=I+NFT
-        IF(IXR(1,II) < 0)THEN
-         IXR(1,II)=-IXR(1,II)
-         OFFG(I) = ZERO
-        ENDIF
-  760   CONTINUE
-C-----------------------
-C     7. ELEMENTS COQUES 3N
-C-----------------------
-       ELSEIF(ITY == 7.AND.NELTGOF /= 0)THEN
-        IGOF=1
-        DO 770 I=1,NEL
-        II=I+NFT
-        IF(IXTG(1,II) < 0)THEN
-         IXTG(1,II)=-IXTG(1,II)
-         IF(MLW /= 0) THEN
-           OFFG(I) = ZERO
-         ELSE     ! loi0, pas de off
-          CALL ANCMSG(MSGID=238,ANMODE=ANINFO_BLIND,I1=IXTG(NIXTG,II),
-     .                C1='SH_3N',C2='SH_3N')
-         ENDIF
-        ELSE
-         IGOF=0
-        ENDIF
-  770   CONTINUE
-C-----------------------
-C     8. SPH PARTICLES
-C-----------------------
-       ELSEIF(ITY == 51.AND.NSPHOF /= 0)THEN
-        IGOF=1
-        DO 780 I=1,NEL
-        II=I+NFT
-        IF(KXSP(2,II) /= 0)THEN
-         IGOF=0
-        ENDIF
-  780   CONTINUE
-       ENDIF
-C----------------------------------------
-C     TEST POUR L'ELIMINATION D'ONE GROUPE
-C----------------------------------------
-       IPARG(8,NG)=MAX0(IPARG(8,NG),IGOF)
-  790  CONTINUE
-      END IF
-C-------------------------------------------
-C     ADDITION DE LIENS RIGIDES ENTRE NOEUDS
-C-------------------------------------------
-      IF(NRLINK > 0.AND.MCHECK == 0) THEN
-       K1 =1
-       K2 =1
-       DO 800 K=1,NRLINK
-       READ (IIN,'(I8,1X,3I1,1X,3I1,I10)')N,I1,I2,I3,IR1,IR2,IR3,ISK
-       READ (IIN,'(10I10)')   (LLINK(K2+I-1),I=1,N)
-       IC=I3+2*I2+4*I1
-       ICR=IR3+2*IR2+4*IR1
-       IF(IRODDL == 0)ICR=0
-       IF(ISPMD == 0.AND.MCHECK == 0)
-     .  WRITE(IOUT,2100)  K,I1,I2,I3,IR1,IR2,IR3,ISK,N
-       IF(ISPMD == 0.AND.MCHECK == 0)
-     .  WRITE(IOUT,'(10I10)')  (LLINK(K2+I-1),I=1,N)
-       IF ( ISK  /=  0) THEN
-         ISK2 = 0
-         DO LL=0,NUMSKW
-           IF(ISK == ISKWN(4,LL+1)) THEN
-             ISK1 = LL
-             ISK2 = 1
+C------------------------------------------------
+C     Check function load of output frequencie and initial time step
+C------------------------------------------------
+        IF(output%nb_anim_frame >0.AND.OUTPUT%DTANIM_FCT_ID==0) THEN 
+           IF(OUTPUT%TANIM_STOP0 >ZERO.AND.OUTPUT%TANIM_STOP0 /= EP20.AND.OUTPUT%TANIM0 > 0) THEN
+              OUTPUT%DTANIM0  = (OUTPUT%TANIM_STOP0 - OUTPUT%TANIM0) / output%nb_anim_frame
+           ELSEIF(OUTPUT%TANIM_STOP0 >ZERO.AND.OUTPUT%TANIM_STOP0 /= EP20) THEN
+              OUTPUT%DTANIM0  = (OUTPUT%TANIM_STOP0-TT) / output%nb_anim_frame
+           ELSEIF(OUTPUT%TANIM0 >ZERO) THEN
+              OUTPUT%DTANIM0  = (TSTOP-OUTPUT%TANIM0) / output%nb_anim_frame
+           ELSE
+              OUTPUT%DTANIM0  = (TSTOP-TT) / output%nb_anim_frame
            ENDIF
-         ENDDO
-         IF ( ISK2  ==  0) THEN
-           CALL ANCMSG(MSGID=125,ANMODE=ANINFO)
-           CALL ARRET(2)
-         ENDIF
-         ISK = ISK1
-       ENDIF
-
-C Verification partagee et remplissage structure de donnees specifiques
-
-       CALL FR_RLINK1(LLINK(K2),ITABM1,FR_RL(1,K),N)
-       CALL RLINK0(
-     1    V           ,VR          ,MS       ,IN           ,NNLINK(K1),
-     2    NNLINK(K1+1),NNLINK(K1+2),LLINK(K2),N            ,IC        ,
-     3    ICR         ,NNLINK(K1+3),ISK      ,SKEW(1,ISK+1),ISKWN     ,
-     4    FR_RL(1,K)  ,WEIGHT      )
-       K1=K1+4
-       K2=K2+N
-       IF(IC+ICR == 0)THEN
-        IF(ISPMD == 0)
-     .   CALL ANCMSG(MSGID=126,ANMODE=ANINFO)
-        CALL ARRET(2)
-       ENDIF
-  800  CONTINUE
-      ENDIF
-C-------------------------------------------
-C     ADDITION DE LIENS SUR LA VITESSE DE MAILLAGE
-C     format v5 ('/VEL/*')
-C-------------------------------------------
-C
-C                  |ALE LINK 1                                       |2              |NALELK
-C             +----+----+----+----+----+----+----+----+----+...-+----+----+----+--...+----+----+--...
-C   LINALE    |uID | M1 | M2 | N  | IC | IM |id1 |id2 |id3 |... |idn | ...           |
-C             +----+----+----+----+----+----+----+----+----+...-+----+----+----+--...+----+----+--...
-C (1:SLINALE)   1    2    3    4    5    6   6+1                 6+N
-C    +LLINAL               |
-C                         (N=1 if grnod_id is used)
-C
-C    First subarrays are used to define ale links from starter (1:SLINALE). Engine links are in (SLINALE+1:SLINALE+LLINAL)
-C    Only Starter part is written in restart files.
-C
-C             M1 : MAIN node 1
-C             M2 : MAIN node 2
-C             N  : number of nodes
-C             IC : dir XYZ
-C             IM : formulation option -1,0,1
-C             id*: node_id list or grnod_id
-C
-C      N<0 means that ALE LINK is taged in FRALNK() as defined from a grnod_id.
-
-C
-C   +--RADIOSS2
-C      +--LECINP
-C      |  +--FREFORM                           (direct access writing IUSC1, counting number of /VEL/ALE cards)
-C      |     +--FRALNK(src/freef/fralnk.F)     (LINALE size calculation:SLINALE, reading/checking GRNOD option)
-C      +--LECTUR                               (storing data in LINALE)
-C      |  +--FR_RLALE(priv/spmd/fr_rlink1.F)   (check and tag available nodes on current domain)
-C      +--RESOL
-C         +--ALEWDX
-C            +--ALELIN(priv/ale/alelin.F)      (ale link subroutine, updated to be used with grnod_id)
-C
-C
-C
-
-C     SLINALE : starter size
-C     LLINAL  : engine size
-C     NALELK  : engine /VEL/ALE card (obsolete)
-C     NALELINK: engine /ALELINK/VEL
-C     after reading : SLINALE <- SLINALE+LLINAL
-C                      NALELK <- NALELK+NALELINK
-
-      NALELK_starter = 0
-      IF(MCHECK==0)NALELK_starter = SLINALE/7 !SLINALE : starter linale size
-      NALELK_removed=0
-      K=6
-
-      !seting MAIN node user id to internal id
-      DO J=1,NALELK_starter
-        IF(IRUN == 1 .AND. MCHECK == 0)
-     .   CALL FR_RLALE(LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,-1)
-        K=K+1+6
-      ENDDO
-
-      IF(NALELK /= 0.AND.MCHECK == 0)THEN
-       K=SLINALE+6                                                  !LINALE(1:SLINALE):starter cards ; LINALE(SLINALE+1:SLINALE+LLINE):engine cards
-       !K=5 !en attendant de copier LIALE starter dans (1:SLINALE)
-       DO J=1,NALELK
-         READ (IIN,'(3I10,5X,3I1,I10)')M1,M2,N,I1,I2,I3,IM
-         !---------------------------------!
-         !  ALE LINK DEFINED FROM NODES    !
-         !---------------------------------!
-         IF(N>0)THEN
-           READ (IIN,'(10I10)')(LINALE(K+I),I=1,N)
-           IC=I3+2*I2+4*I1
-           IF(IC == 0)THEN
-            IC=7
-            I1=1
-            I2=1
-            I3=1
-           ENDIF
-           IF(ISPMD == 0.AND.MCHECK == 0)
-     .    WRITE(IOUT,2200)M1,M2,I1,I2,I3,IM
-            LINALE(K-4)=M1
-            LINALE(K-3)=M2
-            LINALE(K-2)=N
-            LINALE(K-1)=IC
-            LINALE(K)=IM
-            IF(ISPMD == 0.AND.MCHECK == 0)THEN
-              WRITE(IOUT,'(10I10)')(LINALE(K+I),I=1,N)
-              WRITE(IOUT,2201)
+            IF (OUTPUT%DTANIM0 <= ZERO) THEN
+              CALL ANCMSG(MSGID=293,ANMODE=ANINFO,c1='ANIM',c2='ANIM')
+              CALL ARRET(0)
             ENDIF
-c           Verification partagee et tag en - noeuds non present
-            CALL FR_RLALE(LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,N)
-            K=K+N+6
-         !---------------------------------!
-         !  ALE LINK DEFINED FROM GRNOD    !
-         !---------------------------------!
-         ELSE !N<=0
-         !M1    < 0
-         !GR_ID < 0
-           READ (IIN,'(I10)', ERR=998,IOSTAT=IERROR)GR_ID
-
- 0998     IF(IERROR.NE.0)THEN
-            WRITE(ISTDO,*)  ' ** ERROR IN ALE LINK: INVALID GRNOD_ID'
-            GR_ID = 0
-          ENDIF
-           LINALE(K+1)=NGR2USR(GR_ID,IGRNOD,NGRNOD)
-
-           IF(LINALE(K+1)==0)CALL ARRET(2) !node group not found
-
-           IF(IM==0.AND.IGRNOD(LINALE(K+1))%SORTED /= 1)THEN
-           !option 0 needs to be defined with a /GRNOD/NODENS
-             WRITE(ISTDO,*)
-     .         ' ** ERROR IN ALE LINK:'
-             WRITE(ISTDO,*)
-     . '   UNSORTABLE NODE GROUP REQUIRED WITH OPTION 0 (/GRNOD/NODENS)'
-             WRITE(IOUT ,*)
-     .         ' ** ERROR IN ALE LINK:'
-             WRITE(IOUT,*)
-     . '   UNSORTABLE NODE GROUP REQUIRED WITH OPTION 0 (/GRNOD/NODENS)'
-             CALL ARRET(2)
-           ENDIF
-
-           IC=I3+2*I2+4*I1
-           IF(IC == 0)THEN
-            IC=7
-            I1=1
-            I2=1
-            I3=1
-           ENDIF
-           IF(ISPMD == 0.AND.MCHECK == 0)THEN
-             WRITE(IOUT,2200)M1,M2,I1,I2,I3,IM !N=1 with GRNOD option
-             WRITE(IOUT,2202)GR_ID
-           ENDIF
-            LINALE(K-4)=M1
-            LINALE(K-3)=M2
-            LINALE(K-2)=N
-            LINALE(K-1)=IC
-            LINALE(K)=IM
-c           Verification partagee et tag en - noeuds non present
-            CALL FR_RLALE(LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,N)
-            K=K+1+6
          ENDIF
-       ENDDO !next J
-       SLINALE = SLINALE + LLINAL
-      ENDIF !IF(NALELK /= 0.AND.MCHECK == 0)THEN
 
-C-------------------------------------------
-C     ADDITION DE LIENS SUR LA VITESSE DE MAILLAGE
-C     format v12 ('/ALE/LINK/*')
-C-------------------------------------------
-      IF(NALELINK /= 0.AND.MCHECK == 0)THEN
-       IF(NALELK==0)K=SLINALE+6
-       DO J=1,NALELINK
-         READ (IIN,'(3I10,5X,3I1,I10)')M1,M2,N,I1,I2,I3,IM
-         IF(M1>0.AND.M2>0)THEN
-           !---------------------------------!
-           !  ALE LINK DEFINED FROM NODES    !
-           !---------------------------------!
-           IF(N>0)THEN
-             READ (IIN,'(10I10)')(LINALE(K+I),I=1,N)
-             IC=I3+2*I2+4*I1
-             IF(IC == 0)THEN
-              IC=7
-              I1=1
-              I2=1
-              I3=1
+         OK = 0
+         DTFCT = 0
+         IF (output%DTANIM_FCT_ID > 0) THEN    
+
+            DO JJ=1,NFUNCT                     
+              IF(OUTPUT%DTANIM_FCT_ID == NPC(NFUNCT+2+JJ-1)) THEN  
+                 DTFCT=JJ                
+                 OK = 1               
+                 EXIT                    
+              ENDIF                           
+            ENDDO   
+            IF (OK == 0) THEN                                                   
+                CALL ANCMSG(MSGID=315,            
+     .                  MSGTYPE=MSGERROR,        
+     .                  ANMODE=ANINFO_BLIND_1,   
+     .                  C1='ANIM',                 
+     .                  I2=OUTPUT%DTANIM_FCT_ID)          
              ENDIF
-             IF(ISPMD == 0.AND.MCHECK == 0)
-     .        WRITE(IOUT,2200)M1,M2,I1,I2,I3,IM
-             LINALE(K-4)=M1
-             LINALE(K-3)=M2
-             LINALE(K-2)=N
-             LINALE(K-1)=IC
-             LINALE(K)=IM
-             IF(ISPMD == 0.AND.MCHECK == 0)THEN
-               WRITE(IOUT,'(10I10)')(LINALE(K+I),I=1,N)
-               WRITE(IOUT,2201)
-             ENDIF
-              ! Verification partagee et tag en - noeuds non present
-              CALL FR_RLALE
-     .              (LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,N)
-              K=K+N+6
-            !---------------------------------!
-            !  ALE LINK DEFINED FROM GRNOD    !
-            !---------------------------------!
-           ELSE !(N<=0)
-              READ (IIN,'(I10)', ERR=999,IOSTAT=IERROR)GR_ID
- 0999         IF(IERROR.NE.0)THEN
-                WRITE(ISTDO,*)  ' ** ERROR IN ALE LINK: CANNOT READ GRNOD_ID VALUE'
-                GR_ID = 0
-                CALL ARRET(2) !node group not read
-              ENDIF
+             IF (OK >0) OUTPUT%DTANIM_FCT_ID = DTFCT
 
-              LINALE(K+1)=NGR2USR(GR_ID,IGRNOD,NGRNOD)
-              IF(LINALE(K+1)==0)THEN
-                WRITE(ISTDO,*)  ' ** ERROR IN ALE LINK: INVALID GRNOD_ID'
-                CALL ARRET(2) !node group not found
-              ENDIF
-
-              IF(IM==0.AND.IGRNOD(LINALE(K+1))%SORTED /= 1)THEN
-              !option 0 needs to be defined with a /GRNOD/NODENS
-                WRITE(ISTDO,*)
-     .            ' ** ERROR IN ALE LINK:'
-                WRITE(ISTDO,*)
-     .'    UNSORTABLE NODE GROUP REQUIRED WITH OPTION 0 (/GRNOD/NODENS)'
-                WRITE(IOUT ,*)
-     .            ' ** ERROR IN ALE LINK:'
-                WRITE(IOUT,*)
-     .'    UNSORTABLE NODE GROUP REQUIRED WITH OPTION 0 (/GRNOD/NODENS)'
-                CALL ARRET(2)
-              ENDIF
-
-              IC=I3+2*I2+4*I1
-              IF(IC == 0)THEN
-               IC=7
-               I1=1
-               I2=1
-               I3=1
-              ENDIF
-              IF(ISPMD == 0.AND.MCHECK == 0)THEN
-                WRITE(IOUT,2200)M1,M2,I1,I2,I3,IM !N=1 with GRNOD option
-                WRITE(IOUT,2202)GR_ID
-              ENDIF
-              LINALE(K-4)=M1
-              LINALE(K-3)=M2
-              LINALE(K-2)=N
-              LINALE(K-1)=IC
-              LINALE(K)=IM
-c             Verification partagee et tag en - noeuds non present
-              CALL FR_RLALE
-     .          (LINALE(K-4),LINALE(K-3),LINALE(K+1),ITABM1,N)
-              K=K+1+6
-           ENDIF !(N>0)
-
-         !---------------------------------!
-         !  ALE LINK SET ON                !
-         !---------------------------------!
-         ELSEIF(M1==-1)THEN ! ON
-           ALLOCATE(ALELIN_ON_OFF(IABS(N)))
-           READ (IIN,'(10I10)')(ALELIN_ON_OFF(I),I=1,N)
-           !L=1  !pos
-           KK=0 ! number of ale link deactivated
-           DO I1=1,N
-             L=1 !pos
-             M1=ALELIN_ON_OFF(I1)
-           DO I=1,NALELK_starter
-             !---------------------------------!
-             !  CHECK AND DEACTIVATE           !
-             !---------------------------------!
-             IF(L>=SLINALE)THEN
-               !warning : uID does not exist
-                 WRITE(ISTDO,*)
-     .           ' ** WARNING ALE LINK DOES NOT EXIST :',M1
-                 WRITE(IOUT,*)
-     .           ' ** WARNING ALE LINK DOES NOT EXIST :',M1
-               EXIT
-             ELSE
-               uID = LINALE(L+0)
-               N   = LINALE(L+3)
-               IF(uID==-M1)THEN
-                 NALELK_removed = NALELK_removed+1 !counting deactivated links
-                 LINALE(L+0)=-LINALE(L+0)          !setting negative uID to skip ALE LINK treatment (alelin.F)
-                 !printout :
-                 IF(ISPMD == 0.AND.MCHECK == 0)
-     .           WRITE(IOUT,2211)M1 !N=1 with GRNOD option
-                 EXIT !next ALELIN_ON_OFF
-               ELSEIF(uID==M1)THEN
-                 NALELK_removed = NALELK_removed+1 !counting deactivated links
-                 !warning uID already set OFF :
-                 WRITE(ISTDO,*)
-     .           ' ** WARNING ALE LINK ALREADY ACTIVATED :  ',M1
-                 EXIT !next ALELIN_ON_OFF
-               ENDIF
-
-             ENDIF
-             L = L+6+IABS(N) !next uID position in LINALE()
-           ENDDO
-           ENDDO
-           DEALLOCATE(ALELIN_ON_OFF)
-           !IF(NALELK_removed>0)NALELK_removed=1 !/ALE/LINK/ON or OFF card is no longer taken into account
-
-         !---------------------------------!
-         !  ALE LINK SET OFF               !
-         !---------------------------------!
-         ELSEIF(M1==-2)THEN ! OFF
-           ALLOCATE(ALELIN_ON_OFF(IABS(N)))
-           READ (IIN,'(10I10)')(ALELIN_ON_OFF(I),I=1,N)
-           !L=1  !pos
-           KK=0 ! number of ale link deactivated
-           DO I1=1,N
-             L=1 !pos
-             M1=ALELIN_ON_OFF(I1)
-           DO I=1,NALELK_starter
-             !---------------------------------!
-             !  CHECK AND DEACTIVATE           !
-             !---------------------------------!
-             IF(L>=SLINALE)THEN
-               !warning : uID does not exist
-                 WRITE(ISTDO,*)
-     .           ' ** WARNING ALE LINK DOES NOT EXIST :',M1
-                 WRITE(IOUT,*)
-     .           ' ** WARNING ALE LINK DOES NOT EXIST :',M1
-               EXIT
-             ELSE
-               uID = LINALE(L+0)
-               N   = LINALE(L+3)
-               IF(uID==M1)THEN
-                 NALELK_removed = NALELK_removed+1 !counting deactivated links
-                 LINALE(L+0)=-LINALE(L+0)          !setting negative uID to skip ALE LINK treatment (alelin.F)
-                 !printout :
-                 IF(ISPMD == 0.AND.MCHECK == 0)
-     .           WRITE(IOUT,2210)M1 !N=1 with GRNOD option
-                 EXIT !next ALELIN_ON_OFF
-               ELSEIF(uID==-M1)THEN
-                 NALELK_removed = NALELK_removed+1 !counting deactivated links
-                 !warning uID already set OFF :
-                 WRITE(ISTDO,*)
-     .           ' ** WARNING ALE LINK ALREADY DEACTIVATED :',M1
-                 EXIT !next ALELIN_ON_OFF
-               ENDIF
-             ENDIF
-             L = L+6+IABS(N) !next uID position in LINALE()
-           ENDDO
-           ENDDO
-           DEALLOCATE(ALELIN_ON_OFF)
-           !IF(NALELK_removed>0)NALELK_removed=1 !/ALE/LINK/ON or OFF card is no longer taken into account
-         ENDIF
-
-       ENDDO
-       SLINALE = SLINALE + LLINAL
-       NALELK  = NALELK+NALELINK-NALELK_removed
-      ENDIF !(NALELINK /= 0.AND.MCHECK == 0)
-
-      IF(MCHECK==0)NALELK=NALELK+NALELK_starter
-
-C-------------------------------------------
-C     ALE ON/ OFF
-C-------------------------------------------
-      IF(NBPARTALEON .GT. 0) ALLOCATE(ALEON_PARTIDS_TMP(NBPARTALEON))
-      IF(NBPARTALEOFF .GT. 0) ALLOCATE(ALEOFF_PARTIDS_TMP(NBPARTALEOFF))
-      ION = 0
-      IOFF = 0
-      DO I = 1, NBPARTALEON + NBPARTALEOFF
-         READ(IIN, '(I10, I10)') PARTID, ISON
-         IF (ISON .EQ. 1) THEN
-            ION = ION + 1
-            ALEON_PARTIDS_TMP(ION) = PARTID
-         ELSE IF(ISON .EQ. 0) THEN
-            IOFF = IOFF + 1
-            ALEOFF_PARTIDS_TMP(IOFF) = PARTID
-         ENDIF
-      ENDDO
-C     Checking for doublon and suppression
-      DO I = 1, NBPARTALEON
-         PARTID = ALEON_PARTIDS_TMP(I)
-         IF (PARTID .NE. -1) THEN
-            DO J = 1, NBPARTALEON
-               IF (J .EQ. I) CYCLE
-               IF (ALEON_PARTIDS_TMP(J) .EQ. PARTID) THEN
-                  NBPARTALEON = NBPARTALEON - 1
-                  ALEON_PARTIDS_TMP(J) = -1
-               ENDIF
-            ENDDO
-         ENDIF
-      ENDDO
-      DO I = 1, NBPARTALEOFF
-         PARTID = ALEOFF_PARTIDS_TMP(I)
-         IF (PARTID .NE. -1) THEN
-            DO J = 1, NBPARTALEOFF
-               IF (J .EQ. I) CYCLE
-               IF (ALEOFF_PARTIDS_TMP(J) .EQ. PARTID) THEN
-                  NBPARTALEOFF = NBPARTALEOFF - 1
-                  ALEOFF_PARTIDS_TMP(J) = -1
-               ENDIF
-            ENDDO
-C     Check if part is also defined in ON
-C     By default, all parts are ON, if a part is set to OFF
-C     and ON at the same time, we choose to OFF it
-            DO J = 1, NBPARTALEON
-               IF (ALEON_PARTIDS_TMP(J) .EQ. PARTID) THEN
-                  !!! WARNING TO OUTPUT HERE
-                  ALEON_PARTIDS_TMP(J) = -1
-                  NBPARTALEON = NBPARTALEON - 1
-                  CALL ANCMSG(MSGID = 272, ANMODE = ANINFO, I1 = PARTID)
-               ENDIF
-            ENDDO
-         ENDIF
-      ENDDO
-C     Checking that part ids exist in IPART(4, *)
-      NBALEOFF_PART = NBPARTALEOFF
-      NBALEON_PART = NBPARTALEON
-      DO I = 1, NBPARTALEON
-         PARTID = ALEON_PARTIDS_TMP(I)
-         ISON = 0
-         IF (PARTID .NE. -1) THEN
-            DO J = 1, NPART
-               IF (IPART(4 + (J - 1) * LIPART1) .EQ. PARTID) THEN
-                  ISON = 1
-                  ALEON_PARTIDS_TMP(I) = J
-                  EXIT
-               ENDIF
-            ENDDO
-         ENDIF
-         IF (ISON .EQ. 0) THEN
-            ALEON_PARTIDS_TMP(I) = -1
-            NBALEON_PART = NBALEON_PART - 1
-            CALL ANCMSG(MSGID = 271, ANMODE = ANINFO, I1 = PARTID)
-            CALL ARRET(2)
-         ENDIF
-      ENDDO
-      DO I = 1, NBPARTALEOFF
-         PARTID = ALEOFF_PARTIDS_TMP(I)
-         ISON = 0
-         IF (PARTID .NE. -1) THEN
-            DO J = 1, NPART
-               IF (IPART(4 + (J - 1) * LIPART1) .EQ. PARTID) THEN
-                  ISON = 1
-                  ALEOFF_PARTIDS_TMP(I) = J
-                  EXIT
-               ENDIF
-            ENDDO
-         ENDIF
-         IF (ISON .EQ. 0) THEN
-            ALEOFF_PARTIDS_TMP(I) = -1
-            NBALEOFF_PART = NBALEOFF_PART - 1
-            CALL ANCMSG(MSGID = 271, ANMODE = ANINFO, I1 = PARTID)
-            CALL ARRET(2)
-         ENDIF
-      ENDDO
-C     Filling module values
-      IF (NBALEOFF_PART .GT. 0) ALLOCATE(ALEOFF_PARTIDS(NBALEOFF_PART))
-      IF (NBALEON_PART .GT. 0) ALLOCATE(ALEON_PARTIDS(NBALEON_PART))
-      DO I = 1, NBPARTALEON
-         PARTID = ALEON_PARTIDS_TMP(I)
-         ISON = 0
-         IF (PARTID .NE. -1) THEN
-            ISON = ISON + 1
-            ALEON_PARTIDS(ISON) = PARTID
-         ENDIF
-      ENDDO
-      ISON = 0
-      DO I = 1, NBPARTALEOFF
-         PARTID = ALEOFF_PARTIDS_TMP(I)
-         IF (PARTID .NE. -1) THEN
-            ISON = ISON + 1
-            ALEOFF_PARTIDS(ISON) = PARTID
-         ENDIF
-      ENDDO
-C     OUTPUT
-      DO I = 1, NBALEOFF_PART
-         WRITE(IOUT, 4800) ALEOFF_PARTIDS(I)
-      ENDDO
-C-------------------------------------------
-C     Fill IPARG
-C-------------------------------------------
-      K1 = 1 + LIPART1 * (NPART + NTHPART) + 2 * 9 * (NPART + NTHPART)
-      K2 = K1 + NUMELS
-      DO NG = 1, NGROUP
-         ITY = IPARG(5, NG)
-         NEL = IPARG(2, NG)
-         NFT = IPARG(3, NG)
-C     Initialy, IPARG(76, *) = 0 --> ON
-C     When restarting a computation, IPARG(76, NG) = Whatever was put here during previous run
-C     Find part associated to the current group
-C     by checking the first element of the group
-C     NB : all elements in a same group belong necessarily to the same part
-
-         IF (ITY .EQ. 1) THEN
-C     Solid groups
-            PARTID = IPART(K1 + NFT)
-         ELSEIF (ITY .EQ. 2) THEN
-C     Shells and coques
-            PARTID = IPART(K2 + NFT)
-         ENDIF
-C     Check if this part is found in ALEOFF_PARTIDS
-         DO I = 1, NBALEOFF_PART
-            IF (ALEOFF_PARTIDS(I) .EQ. PARTID) THEN
-               IPARG(76, NG) = 1 ! --> OFF
-               EXIT
+            IF(OUTPUT%DTANIM_FCT_ID > 0) THEN
+              OUTPUT%DTANIM0  =  FINTER(OUTPUT%DTANIM_FCT_ID,ZERO,NPC,PLD,DYDX)   
+              !need to add the python also 
             ENDIF
-         ENDDO
-C     Check if this part is found in ALEON_PARTIDS
-         DO I = 1, NBALEON_PART
-            IF (ALEON_PARTIDS(I) .EQ. PARTID) THEN
-               IPARG(76, NG) = 0 ! --> ON
-               EXIT
+
+            IF (OUTPUT%DTANIM0 <= ZERO) THEN
+              CALL ANCMSG(MSGID=293,ANMODE=ANINFO,c1='ANIM',c2='ANIM')
+              CALL ARRET(0)
             ENDIF
-         ENDDO
-      ENDDO
-      IF (ALLOCATED(ALEON_PARTIDS_TMP)) DEALLOCATE(ALEON_PARTIDS_TMP)
-      IF (ALLOCATED(ALEOFF_PARTIDS_TMP)) DEALLOCATE(ALEOFF_PARTIDS_TMP)
-      IF (ALLOCATED(ALEON_PARTIDS)) DEALLOCATE(ALEON_PARTIDS)
-      IF (ALLOCATED(ALEOFF_PARTIDS)) DEALLOCATE(ALEOFF_PARTIDS)
-C-------------------------------------------
-C     MODIFICATION DES CONDITIONS AUX LIMITES
-C-------------------------------------------
-      IF(NUBCSN /= 0)THEN
-        CALL LCBCSF(ICODE,ISKEW,NUBCSN,ITAB,ITABM1,
-     2              NPBY ,ISKWN,WEIGHT)
-        IF(NSPMD > 1) THEN
-C traitement necessaire pour recuperer les noeuds cond limites
-          IWIOUT = 0
-          IF (ISPMD /= 0) CALL SPMD_CHKW(IWIOUT,IOUT)
-          CALL SPMD_GLOB_ISUM9(IWIOUT,1)
-          CALL SPMD_IBCAST(IWIOUT,IWIOUT,1,1,0,2)
-          IF (IWIOUT > 0) THEN
-            CALL SPMD_WIOUT(IOUT,IWIOUT)
-            IWIOUT = 0
-          END IF
-        END IF
-      END IF
-C-------------------------------------------
-C     MODIFICATION DES INTERFACES
-C-------------------------------------------
-      IF(NINTCH /= 0)THEN
-        DO 950 I=1,NINTCH
-            READ(IIN,'(2I8,2F16.0)')NOINT,NSEARCH,TSTART,TFIN
-            IF(TFIN == 0.0)TFIN=1.E30
-            DO 949 J=1,NINTER
-              IF(NOINT == IPARI(15,J)) THEN
-                IF(NSEARCH /= 0) IPARI(13,J)=NSEARCH
-                INTBUF_TAB(J)%VARIABLES(3)  = TSTART
-                INTBUF_TAB(J)%VARIABLES(11) = TFIN
-                JPRI=J
-              ENDIF
- 949        CONTINUE
-             IF(ISPMD == 0.AND.MCHECK == 0)
-     .       WRITE(IOUT,2300)NOINT,IPARI(13,JPRI),TSTART,TFIN
- 950    CONTINUE
+         ENDIF
+
+      IF(OUTPUT%TANIM0 /= ZERO)  OUTPUT%TANIM = OUTPUT%TANIM0
+      IF(OUTPUT%TANIM_STOP0/=ZERO .AND. OUTPUT%TANIM_STOP0/=EP20)  OUTPUT%TANIM_STOP = OUTPUT%TANIM_STOP0
+      IF(OUTPUT%DTANIM0 > ZERO)  OUTPUT%DTANIM= OUTPUT%DTANIM0
+      IF(OUTPUT%DTANIM<=ZERO)  OUTPUT%TANIM = EP30
+      IF (OUTPUT%TANIM < TT-DT2.AND.OUTPUT%DTANIM > ZERO)OUTPUT%TANIM = OUTPUT%TANIM
+     .    + INT((TT-DT2-OUTPUT%TANIM)/OUTPUT%DTANIM)*OUTPUT%DTANIM
+      IF (OUTPUT%TANIM < TT-DT2)OUTPUT%TANIM = OUTPUT%TANIM+OUTPUT%DTANIM
+C-----------------------
+      IF(ANIM_V(14)+H3D_DATA%N_VECT_DROT > 0 .AND.
+     .      ((ISECUT == 0 .AND. IISROT == 0 .AND. IMPOSE_DR == 0 .AND. IDROT == 0) .OR. IRODDL == 0)) THEN
+       IF(ISPMD == 0) THEN
+         WRITE(IOUT,*) ' ** WARNING ** : /ANIM/DROT OPTION USED',
+     .                 '    WHILE ROTATIONAL DOF ARE NOT COMPUTED',
+     .                 '    (IDROT = 0 IN /IOFLAG OPTION)'
+         WRITE(ISTDO,*) ' ** WARNING ** : /ANIM/DROT OPTION USED',
+     .                 '    WHILE ROTATIONAL DOF ARE NOT COMPUTED',
+     .                 '    (IDROT = 0 IN /IOFLAG OPTION)'
+       ENDIF
+       IF(ANIM_V(14) == 1) THEN
+         ANIM_V(14) = 0
+         NV_ANI = NV_ANI - 1
+       ENDIF
       ENDIF
-C
-      IF(MCHECK /= 0)THEN
-       DO I = 1,MX_OUTP
-        NV_OUTP = NV_OUTP + OUTP_V(I)
-        NSS_OUTP = NSS_OUTP + OUTP_SS(I)
-        NST_OUTP = NST_OUTP + OUTP_ST(I)
-        NCS_OUTP = NCS_OUTP + OUTP_CS(I)
-        NCT_OUTP = NCT_OUTP + OUTP_CT(I)
-        NTS_OUTP = NTS_OUTP + OUTP_TS(I)
-        NPS_OUTP = NPS_OUTP + OUTP_PS(I)
-        NPT_OUTP = NPT_OUTP + OUTP_PT(I)
-        NRS_OUTP = NRS_OUTP + OUTP_RS(I)
-        NRT_OUTP = NRT_OUTP + OUTP_RT(I)
-       ENDDO
-       IF(OUTP_V(12) == 1)NV_OUTP=NV_OUTP+1
-      ENDIF
+C-----------------------
+      IF(ISPMD == 0.AND.MCHECK == 0) THEN
+C-----------------------
+C       Tracing Animations cards
+C-----------------------
+       WRITE(IOUT,1120)OUTPUT%TANIM,OUTPUT%DTANIM,OUTPUT%TANIM_STOP,SENSORS%ANIM_ID,SENSORS%ANIM_DT,
+     +       ANIM_E(1),ANIM_E(2),ANIM_E(3),ANIM_E(25),
+     +       ANIM_E(4),ANIM_E(5),ANIM_E(6),
+     +       ANIM_E(7),ANIM_E(8),ANIM_E(9),
+     +       ANIM_E(10)+ANIM_E(4960)+ANIM_E(4961)+ANIM_E(4962)
+        WRITE(IOUT,1129) ANIM_N(3),ANIM_N(4),ANIM_N(6)
+       WRITE(IOUT,1130)
+     +       ANIM_V(1),ANIM_V(2),ANIM_V(3),ANIM_V(4),ANIM_V(5),
+     +       ANIM_V(6),ANIM_V(7),ANIM_V(9),ANIM_V(12),
+     +       ANIM_T(1),ANIM_T(2),ANIM_T(3),ANIM_T(4)
+       WRITE(IOUT,1140)
+     +       ANIM_T(5),ANIM_T(6),ANIM_T(7),ANIM_T(8),
+     +       ANIM_M,ANIM_K
+       ENDIF
 C-------------------------------------------
-C     MODIFICATION DES RIGID BODY
-C-------------------------------------------
-      IF(NRBYOF /= 0)
-     1    CALL   RBYONF(IPARG,IPARI       ,MS     ,IN     ,
-     2                  IXS  ,IXQ  ,IXC   ,IXT    ,IXP    ,
-     3                  IXR  ,SKEW ,ITAB  ,ITABM1 ,ISKWN  ,
-     4                  NPBY ,0    ,NRBYOF,WA     ,LPBY   ,
-     5                  RBY  ,X    ,V     ,VR     ,IXTG   ,
-     6                  IGRV ,IBGR ,WEIGHT,FR_RBY2,PARTSAV,
-     7                  IPART,ELBUF_STR,ICFIELD,LCFIELD,TAGSLV_RBY)
-C
-      IF(NRBYON /= 0)
-     1    CALL   RBYONF(IPARG,IPARI       ,MS     ,IN     ,
-     2                  IXS  ,IXQ  ,IXC   ,IXT    ,IXP    ,
-     3                  IXR  ,SKEW ,ITAB  ,ITABM1 ,ISKWN  ,
-     4                  NPBY ,1    ,NRBYON,WA     ,LPBY   ,
-     5                  RBY  ,X    ,V     ,VR     ,IXTG   ,
-     6                  IGRV ,IBGR ,WEIGHT,FR_RBY2,PARTSAV,
-     7                  IPART,ELBUF_STR,ICFIELD,LCFIELD,TAGSLV_RBY)
-C---------------------------------------------------------
-C     LECTURE DE DONNEES POUR LE CALCUL DES FLUX ET DE LA ROTATION
-C---------------------------------------------------------
-      IF (NSFLSW  /= 0.AND.MCHECK == 0) THEN
-        CALL LECFLSW (NSFLSW,NTFLSW,NEFLSW,NNFLSW,CRFLSW,
-     1                X     ,IXS ,IPARG, WA)
-      ENDIF
-C-------------------------------------------------
-C     MODIFICATION DES FONCTIONS DE TEMPS
-C-------------------------------------------------
-      IF (NFCT  /=  0) THEN
-C
-        CALL LECFUN (NPC, PLD, NFCT, NPTS, TABLE)
-C
-      END IF
-C-------------------------------------------------
-C     REINITIALISATION DES VITESSES
-C-------------------------------------------------
-      IF (NINIV  /=  0) THEN
-C
-        CALL LECINV (NINIV,X,V,VR,ITAB,IFRAME,XFRAME,IGRNOD)
-C
-      END IF
-C---------------------------------------------------------
-C     CUTS
-C---------------------------------------------------------
-      IF(NCUTS > 0.AND.MCHECK == 0)CALL LECCUT(ICUT,XCUT,ITABM1)
-C---------------------------------------------------------
-C     ANIMATION (DT ,DMAS)
-C---------------------------------------------------------
-      DO I=1,SANIN
-        ANIN(I)=ZERO
-      ENDDO
-C---------------------------------------------------------
-C     FILTERED SAMPLED OUTPUT
-C---------------------------------------------------------
-C      IF(NNOISE > 0.AND.MCHECK == 0)CALL LECNOISE(INOISE,ITABM1)
-      IF(NNOISE > 0)CALL LECNOISE(INOISE,ITABM1)
-      NNOISER=NNOISE
-C---------------------------------------------------------
-C     MADYMO COUPLING GENERAL DATA (CONVERSION FACTORS).
-C---------------------------------------------------------
-#ifdef DNC
-      IF( IMADCPL > 0.AND.INVERS.GE.40.AND.MCHECK == 0)CALL LECCPL()
-#endif
-C---------------------------------------------------------
-C     OPTIONS SPMD SPECIFIQUES
-       IF(IPREAD > 0.AND.ISPMD == 0.AND.MCHECK == 0) WRITE(IOUT,4000)
-       IF(IDDW > 0.AND.ISPMD == 0.AND.MCHECK == 0) WRITE(IOUT,4100)
-C---------------------------------------------------------
-C     RAYLEIGH DAMPING
-C---------------------------------------------------------
-      CALL LECDAMP(NDAMPN, DAMPR, IGRNOD)
-C---------------------------------------------------------
-      ISTATCND_SAV= ISTATCND
-      IF(IMPL_S/=0) THEN
-        IF(ISPRB==0.AND.NADMESH/=0)THEN
-          IF (IMACH /= 3.OR.ISPMD == 0) THEN
-            CALL ANCMSG(MSGID=131,ANMODE=ANINFO)
-          ENDIF
-          CALL ARRET(2)
-        ENDIF
-        ISTATCND    = 0
-      END IF
-C---------------------------------------------------------
-      IF (IMPL_S == 1.OR.NEIG > 0) CALL LECIMPL
-      IF (NFXINP > 0) CALL LECFXINP(NFXINP)
-C-----
-!      !Keyword no longer used
-!      IF(IENTHA /= 0)THEN
-!         WRITE(IOUT,*) ' Enthalpy Convection for ALE or Euler'
-!      ENDIF
-      IF(ISHSUB /= 0)THEN
-        IF(IALESUB /= 0)THEN
-         IF(ISPMD == 0) THEN
-          CALL ANCMSG(MSGID=127,ANMODE=ANINFO_BLIND)
-         END IF
-         CALL ARRET(2)
-        ENDIF
-        IF(MSHSUB == 0)THEN
-         IF(ISPMD == 0) THEN
-          CALL ANCMSG(MSGID=128,ANMODE=ANINFO_BLIND)
-         END IF
-         CALL ARRET(2)
-        ENDIF
-        IF(ISPMD == 0) THEN
-         WRITE(IOUT,*) ' SHELLS SUBCYCLING IS ON'
-         WRITE(IOUT,1111) NCPRISH,NCTRLSH
-        END IF
-      ENDIF
-      IF(NODSUBDT /= 0)THEN
-        IF(ISHSUB == 0)THEN
-         IF(ISPMD == 0) THEN
-          CALL ANCMSG(MSGID=129,ANMODE=ANINFO_BLIND)
-         END IF
-         CALL ARRET(2)
-        ELSE IF(NODADT == 0) THEN
-         IF(ISPMD == 0) THEN
-          CALL ANCMSG(MSGID=130,ANMODE=ANINFO_BLIND)
-         END IF
-         CALL ARRET(2)
-        ELSE
-         IF(DTFSUB == 0.) DTFSUB=DTFAC1(11)
-         IF(ISPMD == 0) THEN
-          WRITE(IOUT,*)
-     .    'NODAL TIME STEP FOR SHELLS SUBCYCLING IS ON'
-          WRITE(IOUT,1112) DTFSUB, DTMSUB, NODSUBDT-1
-         END IF
-        END IF
-      ELSE IF(NODADT /= 0.AND.ISHSUB /= 0)THEN
-         NODSUBDT=1
-         DTFSUB=DTFAC1(11)
-         DTMSUB=DTMIN1(11)
-         IF(ISPMD == 0) THEN
-          WRITE(IOUT,*)
-     .    'NODAL TIME STEP FOR SHELLS SUBCYCLING IS ON'
-          WRITE(IOUT,1112) DTFSUB, DTMSUB, NODSUBDT-1
-         END IF
-      END IF
-      IF (NEIGOFF > 0) CALL LECEIG(NEIGOFF, NEOFF)
-      IF (NFVMESH > 0) CALL LECFVBAG(NFVMESH, MONVOL, VOLMON, X)
-      IF (NFVMODI > 0) CALL LECFVBAG1(NFVMODI, MONVOL, VOLMON)
-C-------------------------------------------
-C     .sta files
-C-------------------------------------------
-      IF(MCHECK /= 0)THEN
-        NC_STAT = 0
-        DO I = 1,MX_STAT
-          NC_STAT = NC_STAT + STAT_C(I)
-        ENDDO
-      ENDIF
-      IF(NSTATPRT /= 0 .OR. NSTATALL /= 0)THEN
-        K1=1+LIPART1*(NPART+NTHPART)+2*9*(NPART+NTHPART)
-        K2=K1+NUMELS
-        K3=K2+NUMELQ
-        K4=K3+NUMELC
-        K5=K4+NUMELT
-        K6=K5+NUMELP
-        K7=K6+NUMELR
-        K8=K7+NUMELUR
-        K9=K8+NUMELTG
-        CALL LECSTAT(IPART,IPART_STATE,ELBUF_STR,IPM,IPARG,
-     .               IPART(K1),IPART(K3),IPART(K8))
-      END IF
-C-------------------------------------------
-C     .dynain files
-C-------------------------------------------
-      IF(NDYNAINPRT /= 0 .OR. NDYNAINALL /= 0)THEN
-        K1=1+LIPART1*(NPART+NTHPART)+2*9*(NPART+NTHPART)
-        K2=K1+NUMELS
-        K3=K2+NUMELQ
-        K4=K3+NUMELC
-        K5=K4+NUMELT
-        K6=K5+NUMELP
-        K7=K6+NUMELR
-        K8=K7+NUMELUR
-        K9=K8+NUMELTG
-        CALL READ_DYNAIN(IPART,IPART_DYNAIN,IPART(K3),IPART(K8),IXC,IXTG)
-      END IF
+c-----------------------------------------
+c     deallocate temporary SENSOR arrays
+c-----------------------------------------
+      IF (ALLOCATED(SENSORS%ANIM_TMP)) DEALLOCATE (SENSORS%ANIM_TMP)
+      IF (ALLOCATED(SENSORS%STAT_TMP)) DEALLOCATE (SENSORS%STAT_TMP)
+      IF (ALLOCATED(SENSORS%OUTP_TMP)) DEALLOCATE (SENSORS%OUTP_TMP)
+      IF (ALLOCATED(SENSORS%STOP_TMP)) DEALLOCATE (SENSORS%STOP_TMP)
 C---------------------------------------------------------
       IF(IERR == 0) RETURN
       CALL ARRET(0)
@@ -2780,18 +2906,15 @@ C---------------------------------------------------------
  1007 FORMAT(
      & 1X,'  |'/
      & 1X,'  +--GRID SMOOTHING'/
-     & 1X,'     +--FORMULATION       : ',A16/
+     & 1X,'     +--FORMULATION       : ',A17)
+ 1008 FORMAT(
      & 1X,'     +--PARAMETERS        :')
 
  1099 FORMAT(
      .  ' MULTIDOMAINS COUPLING . . . . . . . . . . . . . .',G14.7//)
  1100 FORMAT(
      .  ' FINAL TIME . . . . . . . . . . . . . . . . . . . ',G14.7//
-c     .  ' TIME FOR FIRST G-FILE PLOT . . . . . . . . . . . ',G14.7//
-c     .  ' TIME INTERVAL FOR PLOTS  . . . . . . . . . . . . ',G14.7//
      .  ' TIME INTERVAL FOR TIME HISTORY PLOTS . . . . . . ',G14.7//
-c     .  ' TIME FOR FIRST PATRAN-FILE PLOT. . . . . . . . . ',G14.7//
-c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
      .  ' TIME STEP SCALE FACTOR . . . . . . . . . . . . . ',G14.7//
      .  ' MINIMUM TIME STEP  . . . . . . . . . . . . . . . ',G14.7//)
  1105 FORMAT(
@@ -2819,6 +2942,15 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
      .  ' CONTACT TIME STEP SCALE FACTOR . . . . . . . . . ',G14.7/
      .  ' CONTACT MINIMUM TIME STEP. . . . . . . . . . . . ',G14.7/
      .  ' MIN. TIME FLAG(1:STOP, 2:REMOVE NODE FROM INTERF)',I5/ )
+ 1155 FORMAT('/DT/FVMBAG/0 OPTION')
+ 1156 FORMAT('/DT/FVMBAG/1 OPTION')
+ 1157 FORMAT('FVMBAG TIME STEP SYNTHESIS')
+ 1147 FORMAT(
+     .  ' FVMBAG  ID. . . . . . . . . . . . . . . . . . . . ',I10)
+ 1148 FORMAT(
+     .  ' FVMBAG1 ID. . . . . . . . . . . . . . . . . . . . ',I10)
+ 1149 FORMAT(
+     .  ' FVMBAG2 ID. . . . . . . . . . . . . . . . . . . . ',I10)
  1151 FORMAT(
      .  ' SMOOTH PARTICLES TIME STEP SCALE FACTOR. . . . . ',G14.7/
      .  ' SMOOTH PARTICLES MINIMUM TIME STEP . . . . . . . ',G14.7/
@@ -2828,14 +2960,13 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
      .  ' FVMBAG MINIMUM TIME STEP . . . . . . . . . . . . ',G14.7/
      .  ' FVMBAG TIME STEP FLAG. . . . . . . . . . . . . . ',I5,/)
  1153 FORMAT(
-     .  ' FVMBAG1 ID. . . . . . . . . . . . . . . . . . . . ',I10/
-     .  ' . . FVMBAG1 TIME STEP SCALE FACTOR. . . . . . . . . . ',G14.7/
-     .  ' . . FVMBAG1 MINIMUM TIME STEP . . . . . . . . . . . . ',G14.7/
-     .  ' . . FVMBAG1 TIME STEP FLAG. . . . . . . . . . . . . . ',I5)
+     .  ' . . TIME STEP SCALE FACTOR. . . . . . . . . . . . . . ',G14.7/
+     .  ' . . MINIMUM TIME STEP . . . . . . . . . . . . . . . . ',G14.7/
+     .  ' . . TIME STEP FLAG. . . . . . . . . . . . . . . . . . ',I5)
  1154 FORMAT(
-     .  ' . . FVMBAG1 CHARACTERISTIC LENGTH OPTION. . . . . . . ',I5/
-     .  ' . . FVMBAG1 TIME STEP SMOOTHING FACTOR. . . . . . . . ',G14.7/
-     .  ' . . FVMBAG1 PREVIOUS TIME STEP. . . . . . . . . . . . ',G14.7)
+     .  ' . . CHARACTERISTIC LENGTH OPTION. . . . . . . . . . . ',I5/
+     .  ' . . TIME STEP SMOOTHING FACTOR. . . . . . . . . . . . ',G14.7/
+     .  ' . . PREVIOUS TIME STEP. . . . . . . . . . . . . . . . ',G14.7)
  1107 FORMAT(
      .  ' CONTACT NODAL TIME STEP SCALE FACTOR . . . . . . ',G14.7/
      .  ' CONTACT NODAL MINIMUM TIME STEP. . . . . . . . . ',G14.7/
@@ -2898,18 +3029,10 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
      .  ' MAXIMUM RESTART WRITE BEFORE OVERWRITE . . . . . ',I5   //
      .  ' INVERS: INPUT DECK VERSION . . . . . . . . . . . ',I5/
      .  ' ITTYP : FLAG FOR TYPE OF T-FILE. . . . . . . . . ' ,I5/)
- 1111 FORMAT(
-     .  ' PRINTOUT SHELL SUBCYCLES FREQUENCY. . . . . . . . . . . .',
-     .    I5/
-     .  ' CONTROL NUMBER OF CONSECUTIVE SHELLS COMPUTATION CYCLES .',
-     .    I5/)
- 1112 FORMAT(
-     .  ' NODAL TIME STEP FOR SHELLS SCALE FACTOR. . . . . ',G14.7/
-     .  ' NODAL MINIMUM TIME STEP FOR SHELLS . . . . . . . ',G14.7/
-     .  ' MIN. TIME FLAG (1:INCREASE MASS) . . . . . . . . ',I5//)
  1120 FORMAT(/
      .  ' TIME FOR FIRST ANIMATION-FILE PLOT . . . . . . . ',G14.7/
      .  ' TIME INTERVAL FOR ANIMATION-FILE PLOTS . . . . . ',G14.7/
+     .  ' TIME TO STOP ANIMATION-FILE PLOTS. . . . . . . . ',G14.7/
      .  ' SENSOR FOR ANIMATION-FILE PLOTS. . . . . . . . . ',I10/
      .  ' TIME INTERVAL FOR SENSOR ANIMATION-FILE PLOTS. . ',G14.7//
      .  ' VARIABLE SAVED ON ANIMATION FILES (1: YES) :',/
@@ -2960,11 +3083,6 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
      .  ' GLOBAL CONVERGENCE PRECISION . . . . . . . . . . ',G14.7/
      .  ' INCREMENTAL CONVERGENCE PRECISION. . . . . . . . ',G14.7/
      .  ' MAXIMUM NUMBER OF ITERATIONS . . . . . . . . . . ',I5)
- 1170 FORMAT(/
-     .  ' DYNAMIC RELAXATION  '   /
-     .  ' DISCRET RELAXATION FLAG. . . . . . . . . . . . . ',I5/
-     .  ' BETA . . . . . . . . . . . . . . . . . . . . . . ',G14.7/
-     .  ' PERIOD . . . . . . . . . . . . . . . . . . . . . ',G14.7)
  1171 FORMAT(/
      .  ' DYNAMIC RELAXATION  '   /
      .  ' NODE GROUP ID (=0 ALL NODES) . . . . . . . . . . ',I10/
@@ -2973,11 +3091,6 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
  1172 FORMAT(/
      .  ' KINEMATIC RELAXATION  '   /
      .  ' NODE GROUP ID (=0 ALL NODES) . . . . . . . . . . ',I10)
- 1173 FORMAT(/
-     .  ,'alpha M + beta K DAMPING                         '/
-     .  ' NODE GROUP ID (=0 ALL NODES) . . . . . . . . . . ',I10/
-     .  ' ALPHA  . . . . . . . . . . . . . . . . . . . . . ',G14.7/
-     .  ' BETA . . . . . . . . . . . . . . . . . . . . . . ',G14.7)
  1180 FORMAT(/
      .  ' PARALLEL ARITHMETIC OFF')
  1181 FORMAT(/
@@ -2986,8 +3099,6 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
      .  ' PARALLEL ARITHMETIC FLAG . . . . . . . . . . . . ',I5)
  1196 FORMAT(/
      .  ' QUASI-COMPRESSIBLE FORMULATION ON (/INCMP)')
- 1197 FORMAT(
-     .  '          MOMENTUM : SURFACE INTEGRATION')
  1198 FORMAT(
      .  '          MOMENTUM : MIXED INTEGRATION')
  1199 FORMAT(
@@ -3001,9 +3112,6 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
      . 28X,' VOLMIN  : MINIMUM VOLUME FOR ELEMENT DELETION. . ',G14.7//)
  1220 FORMAT(
      . 28X,' UMAX  : MAXIMUM ABSOLUTE GRID VELOCITY . . . . . ',G14.7/
-     . 28X,' CWX   : X GRID VELOCITY SCALE FACTOR . . . . . . ',G14.7/
-     . 28X,' CWY   : Y GRID VELOCITY SCALE FACTOR . . . . . . ',G14.7/
-     . 28X,' CWZ   : Z GRID VELOCITY SCALE FACTOR . . . . . . ',G14.7/
      . 28X,' VMIN  : MINIMUM VOLUME FOR ELEMENT DELETION. . . ',G14.7//)
  1250 FORMAT(
      . 28X,' DT0   : TYPICAL TIME STEP. . . . . . . . . . . . ',G14.7/
@@ -3016,9 +3124,15 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
      . 28X,' ALPHA : STABILITY FACTOR . . . . . . . . . . . . ',G14.7/
      . 28X,' GAMMA : NON LINEARITY FACTOR . . . . . . . . . . ',G14.7/
      . 28X,' BETA  : DAMPING COEFFICIENT. . . . . . . . . . . ',G14.7/
-     . 28X,' LC    : CARACTERISTIC LENGTH . . . . . . . . . . ',G14.7//)
+     . 28X,' LC    : CHARACTERISTIC LENGTH. . . . . . . . . . ',G14.7//)
+ 1257 FORMAT(
+     . 28X,' ENABLED DEFORMATION  . . . . . . . . . . . . . . ',A3/
+     . 28X,' ENABLED ROTATION  .  . . . . . . . . . . . . . . ',A3/
+     . 28X,' SCALE FACTOR FOR DEFORMATION . . . . . . . . . . ',G14.7/
+     . 28X,' SCALE FACTOR FOR ROTATION  . . . . . . . . . . . ',G14.7//)
  1300 FORMAT(
      .  ' NUMBER OF INTERFACES TO BE ELIMINATED. . . . . . ',I8//
+     .  ' NUMBER OF PARTS TO BE ELIMINATED . . . . . . . . ',I8//
      .  ' NUMBER OF SOLID  ELEMENT BLOCKS TO BE ELIMINATED ',I8//
      .  ' NUMBER OF QUAD   ELEMENT BLOCKS TO BE ELIMINATED ',I8//
      .  ' NUMBER OF SHELL  ELEMENT BLOCKS TO BE ELIMINATED ',I8//
@@ -3043,7 +3157,7 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
  1860 FORMAT(///' LIST OF ELIMINATED SPRING ELEMENTS ')
  1870 FORMAT(///' LIST OF ELIMINATED SH_3N  ELEMENTS ')
  1880 FORMAT(///' LIST OF ELIMINATED   SPH PARTICLES ')
- 1900 FORMAT(/' BLOCK     FIRST ELEMENT   LAST ELEMENT ')
+ 1890 FORMAT(///' LIST OF ELIMINATED PARTS           ')
  2000 FORMAT(/' INTERFACE NUMBER',I10,'    IS ELIMINATED')
  2100 FORMAT(/' RIGID LINK:',I5,
      .        ' TRANSLATION X,Y,Z',3(1X,I1),
@@ -3064,12 +3178,10 @@ c    .  ' TIME INTERVAL FOR PATRAN-FILE PLOTS. . . . . . . ',G14.7//
      .  ' SEARCH OF CLOSEST NODES EACH NSEARCH TIME STEPS. ',I5/
      .  ' START TIME . . . . . . . . . . . . . . . . . . . ',G14.7/
      .  ' STOP  TIME . . . . . . . . . . . . . . . . . . . ',G14.7)
- 3000 FORMAT(///' ERROR IN NUMBER OF LOAD CURVE '/
-     .          '------- NEW NUMBER OF LOAD CURVE       : ',I5/
-     .          '------- LAST NUMBER OF LOAD CURVE      : ',I5/)
- 3100 FORMAT(///' ERROR IN TOTAL NUMBER OF LOAD CURVE POINTS'/
-     .          '------- NEW NUMBER OF POINTS           : ',I5/
-     .          '------- LAST NUMBER OF POINTS          : ',I5/)
+
+ 2301 FORMAT(/' ERROR IN INTERFACE CHANGES'/
+     .  ' INTERFACE NB IS NOT EXISTING . . . . . . . . . . ',I10)
+
  4000 FORMAT(/
      .  ' SPMD PARALLEL RESTART READING (PREAD) ACTIVATED')
  4100 FORMAT(/
@@ -3084,8 +3196,8 @@ C
      .  ' BRICK TIME STEP SCALE FACTOR . . . . . . . . . . ',G14.7/
      .  ' BRICK MINIMUM TIME STEP. . . . . . . . . . . . . ',G14.7/
      .  ' MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE 3:CST )',I5//
-     .  ' BRICK MINIMUM ASPECT RATIO (Tet collapse). . . . :',G14.7/
-     .  ' BRICK MINIMUM VOLUME CHANGE . . . . . . . . . . .:',G14.7//
+     .  ' BRICK_CST MINIMUM ASPECT RATIO (Tet collapse). . ',G14.7/
+     .  ' BRICK_CST MINIMUM VOLUME CHANGE . . . . . . . .  ',G14.7//
      .  ' QUAD TIME STEP SCALE FACTOR. . . . . . . . . . . ',G14.7/
      .  ' QUAD MINIMUM TIME STEP . . . . . . . . . . . . . ',G14.7/
      .  ' MIN. TIME STEP FLAG (1:STOP RUN, 2:DELETE QUAD). ',I5//
@@ -3110,7 +3222,7 @@ C
  4720 FORMAT(
      .  ' ACCURATE TIME STEP FOR SHELLS IS USED. . . . . . ',/)
  4730 FORMAT(
-     .  ' ACCURATE TIME STEP FOR 4-NODE TETRAHEDRA IS USED   ',/)
+     .  ' ACCURATE TIME STEP FOR 4-NODE & 8-NODE SOLID IS USED',/)
  4740 FORMAT(
      .  ' ACCURATE TIME STEP FOR 10-NODE TETRAHEDRA IS USED  ',/)
  4800 FORMAT(
@@ -3132,15 +3244,20 @@ C
      .  ' NODE GROUP ID (=0 ALL NODES) . . . . . . . . . . ',I10/
      .  '  START TIME. . . . . . . . . . . . . . . . . . . ',G14.7/
      .  '  STOP  TIME. . . . . . . . . . . . . . . . . . . ',G14.7)
+ 5020 FORMAT(
+     .  ' BRICK_DEL MINIMUM COLLAPSE RATIO. . . . . . . . . ',G14.7/
+     .  ' BRICK_DEL MINIMUM VOLUME CHANGE . . . . . . . . . ',G14.7/
+     .  ' BRICK_DEL MAXIMUM ASPECT RATIO  . . . . . . . . . ',G14.7/
+     .  ' BRICK_DEL MAXIMUM VOLUME CHANGE . . . . . . . . . ',G14.7//)
 
       END
-Chd|====================================================================
-Chd|  PROUT_BUCK                    source/input/lectur.F         
-Chd|-- called by -----------
-Chd|        LECIMPL                       source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|        IMP_KBCS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    prout_buck   ../engine/source/input/lectur.F
+!||--- called by ------------------------------------------------------
+!||    lecimpl      ../engine/source/input/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    imp_kbcs     ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE PROUT_BUCK(IP,NBUCK,IBUCK)
 C-----------------------------------------------
 C   M o d u l e s
@@ -3168,8 +3285,7 @@ C-----------------------------------------------
        ELSE
         WRITE(IP,2000)
        END IF
-       WRITE(IP,3000)NBUCK,SHIFT_B,EMIN_B,EMAX_B,MSGL_B,MAXSET_B,
-     .               MSG_BSOL(1)
+       WRITE(IP,3000)NBUCK,SHIFT_B,EMIN_B,EMAX_B,MSGL_B,MAXSET_B, MSG_BSOL(1)
 
       RETURN
  1000 FORMAT(
@@ -3177,29 +3293,30 @@ C-----------------------------------------------
  2000 FORMAT(
      .  ' EULER BUCKLING ANALYSIS :'/)
  3000 FORMAT(
-     .  ' NUMBER OF MODES TO BE COMPUTED :. . . . . ',2X,I5/
-     .  ' SHIFT IN BUCKLING MODES PENCIL :. . . . . ',2X,G14.7/
-     .  ' MINMUM EIGENVALUE :. . . . . . . . . . .  ',2X,G14.7/
-     .  ' MAXMUM EIGENVALUE :. . . . . . . . . . .  ',2X,G14.7/
-     .  ' OUTPUT MESSAGE LEVEL:. . . . . . . . . . .',2X,I5/
-     .  ' NUMBER OF VECTORS IN BLOCK OR SET: . . . .',2X,I5/
-     .  ' LINEAR SOLVER : . . . . . . . . . . . . . ',2X,A/)
+     .  ' NUMBER OF MODES TO BE COMPUTED: . . . . . ',2X,I5/
+     .  ' SHIFT IN BUCKLING MODES PENCIL: . . . . . ',2X,G14.7/
+     .  ' MINIMUM EIGENVALUE: . . . . . . . . . . . ',2X,G14.7/
+     .  ' MAXIMUM EIGENVALUE: . . . . . . . . . . . ',2X,G14.7/
+     .  ' OUTPUT MESSAGE LEVEL: . . . . . . . . . . ',2X,I5/
+     .  ' NUMBER OF VECTORS IN BLOCK OR SET:  . . . ',2X,I5/
+     .  ' LINEAR SOLVER:  . . . . . . . . . . . . . ',2X,A/)
       END
-Chd|====================================================================
-Chd|  LECIMPL                       source/input/lectur.F         
-Chd|-- called by -----------
-Chd|        LECTUR                        source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        FLOATMIN                      ../common_source/tools/math/precision.c
-Chd|        PROUT_BUCK                    source/input/lectur.F         
-Chd|        SPMD_MAX_S                    source/mpi/implicit/imp_spmd.F
-Chd|        IMP_KBCS                      share/modules/impbufdef_mod.F 
-Chd|        IMP_PCG_PROJ                  share/modules/impbufdef_mod.F 
-Chd|        IMP_SPBRM                     share/modules/impbufdef_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    lecimpl        ../engine/source/input/lectur.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../engine/source/input/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    floatmin       ../common_source/tools/math/precision.c
+!||    prout_buck     ../engine/source/input/lectur.F
+!||    spmd_max_s     ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_kbcs       ../engine/share/modules/impbufdef_mod.F
+!||    imp_pcg_proj   ../engine/share/modules/impbufdef_mod.F
+!||    imp_spbrm      ../engine/share/modules/impbufdef_mod.F
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LECIMPL
 C-----------------------------------------------
 C   M o d u l e s
@@ -3218,29 +3335,18 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com06_c.inc"
-#include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
-#include      "parit_c.inc"
 #include      "task_c.inc"
 #include      "impl1_c.inc"
 #include      "impl2_c.inc"
 #include      "buckcom.inc"
-#include      "tabsiz_c.inc"
-#include      "fsi_ar_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER J,NTY,IPRINT,IBID,ISOL,NDDL_MIN
-      my_real
-     .   CS1(2),S
+      INTEGER J,NTY,IPRINT,IBID,ISOL
+      my_real CS1(2),S
       REAL FLMIN
-      CHARACTER*25  MSG_TYPE(9),MSG_ISOL(9),MSG_INSOL(4),MSG_PRE(5),
-     .              MSG_BSOL(3)
+      CHARACTER*25  MSG_TYPE(9),MSG_ISOL(9),MSG_INSOL(4),MSG_PRE(5),MSG_BSOL(3)
       DATA
      .            MSG_TYPE
      . / 'STATIC LINEAR',
@@ -3255,7 +3361,7 @@ C-----------------------------------------------
      .            MSG_ISOL
      . / 'PREC. CONJUGATE GRADIENT',
      .   'DIRECT(MUMPS) ',
-c     .   'PREC. LANZOS ',
+c     .'Prec.Lanzos',
      .   'DIRECT',
      .   'MULTI-LEVEL CONDENSATION',
      .   'MIXE SOLVERS: 1 + 3',
@@ -3282,10 +3388,24 @@ C-----------------------------------------------
        IPRINT=0
 C       IMPMV>0 isolv/=1 --> IMPMV=0
        IF (ISPMD == 0) IPRINT=1
+       IF (IMP_CHK > 0) THEN
+          NTY = 5
+          IF (IPREC /= 5) IPREC=5
+          IF (ILINE /= 1) ILINE=1
+          IF (ISOLV /= 1) ISOLV=1
+          IF (D_TOL /= ZERO) D_TOL = ZERO
+       ENDIF
        IF(ISOLV >= 3 ) THEN
           CALL ANCMSG(MSGID=296,ANMODE=ANINFO,I1=ISOLV)
-	      ISOLV = 2
+          ISOLV = 2
        END IF
+
+#ifndef MUMPS5
+       IF(ISOLV == 2 .AND. NSPMD > 1) THEN
+         WRITE(6,*) "Fatal error: MUMPS is required, but not available"
+         CALL ARRET(5)
+       ENDIF
+#endif
        IF (NEIG > 0) THEN
         ILINE=1
         ISPRB=0
@@ -3311,13 +3431,11 @@ C  AUTO SELECT SOLVER
 
         IF (ILINE == 1) THEN
 
-           WRITE(IOUT,*) ' ** WARNING ** : SOLVER AUTO SELECT IS NOT ',
-     .                'COMPATIBLE WITH LINEAR RUN '
-           WRITE(IOUT,*) ' ** RESETING TO **  : DEFAULT ONE  '
+           WRITE(IOUT,*) ' ** WARNING ** : SOLVER AUTO SELECT IS NOT ','COMPATIBLE WITH LINEAR RUN '
+           WRITE(IOUT,*) ' ** RESETTING TO **  : DEFAULT ONE  '
 
-           WRITE(ISTDO,*) ' ** WARNING ** : SOLVER AUTO SELECT IS NOT ',
-     .                'COMPATIBLE WITH LINEAR RUN '
-           WRITE(ISTDO,*) ' ** RESETING TO **  : DEFAULT ONE  '
+           WRITE(ISTDO,*) ' ** WARNING ** : SOLVER AUTO SELECT IS NOT ','COMPATIBLE WITH LINEAR RUN '
+           WRITE(ISTDO,*) ' ** RESETTING TO **  : DEFAULT ONE  '
 
            ISOLV = 0
 
@@ -3328,16 +3446,15 @@ C----- default solver-> MUMPS
        IF (ISOLV == 0) ISOLV = 2
 C-------ISOLV=2 --> use MUMPS anyway
        IMUMPSV = 0
-	   IF (ISOLV > 1 .AND. ISOLV <9 ) IMUMPSV = 1
+       IF (ISOLV > 1 .AND. ISOLV <9 ) IMUMPSV = 1
        IF (ISOLV == 2 .OR. ISOLV ==3 ) THEN
         IMUMPSV = 1
         ISOLV = 3
        END IF
        IF ((ISOLV == 3.OR.ISOLV == 4).AND.INTP_C < 0) THEN
         IF(IPRINT==1) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : DIRECT SOLVER IS NOT ',
-     .                'COMPATIBLE WITH IMPL/INTER/KNONL OPTION '
-         WRITE(IOUT,*) ' ** RESETING TO **  : MIXE ONE  '
+         WRITE(IOUT,*) ' ** WARNING ** : DIRECT SOLVER IS NOT ','COMPATIBLE WITH IMPL/INTER/KNONL OPTION '
+         WRITE(IOUT,*) ' ** RESETTING TO **  : MIXE ONE  '
         ENDIF
         ISOLV = ISOLV + 2
        ENDIF
@@ -3349,38 +3466,28 @@ C-------ISOLV=9 -> PCG w/ Projection
        IF (M_VS > 0) THEN
 C------case /IMPL/PROJV/n w/o /SOLV/9
         IF (ISOLV /= 9) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : /IMPL/PROJV IS ',
-     .                'ONLY COMPATIBLE WITH PCGP SOLVER  '
+         WRITE(IOUT,*) ' ** WARNING ** : /IMPL/PROJV IS ','ONLY COMPATIBLE WITH PCGP SOLVER  '
          WRITE(IOUT,*) ' ** CHANGE TO **  : ISOLV=9  '
          ISOLV = 9
         END IF
        END IF
 
        IF (NBUCK > 0.AND.NSPMD == 1.AND.ISOLV /= 3) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : /IMPL/BUCKL IS ',
-     .                'ONLY COMPATIBLE WITH BCS SOLVER '
+         WRITE(IOUT,*) ' ** WARNING ** : /IMPL/BUCKL IS ','ONLY COMPATIBLE WITH BCS SOLVER '
          WRITE(IOUT,*) ' ** CHANGE TO **  : ISOLV=3  '
          ISOLV = 3
        ENDIF
 
        IF (IPREC == 0.OR.IPREC > 6)IPREC=5
-       IF (IMP_CHK > 0) THEN
-          NTY = 5
-          IF (IPREC /= 5) IPREC=5
-          IF (ILINE /= 1) ILINE=1
-          IF (ISOLV /= 1) ISOLV=1
-          IF (D_TOL /= ZERO) D_TOL = ZERO
-       ENDIF
 
        IF (ISOLV == 2) THEN
         IF (ITOL == 0.OR.ITOL > 1) ITOL=2
         IF (L_TOL == ZERO) L_TOL=P_MACH
-       ELSEIF (ISOLV == 1.OR.ISOLV.GE.7) THEN
+       ELSEIF (ISOLV == 1.OR.ISOLV>=7) THEN
         IF (ITOL == 0) ITOL=3
         IF (ITOL > 4) THEN
          IF(IPRINT==1) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : WRONG LINEAR STOP ',
-     .                'CRITERION NUMBER, RESET TO DEFAUT ONE ** '
+         WRITE(IOUT,*) ' ** WARNING ** : WRONG LINEAR STOP ','CRITERION NUMBER, RESET TO DEFAULT ONE ** '
          ENDIF
          ITOL=3
         ENDIF
@@ -3403,8 +3510,7 @@ C--------MIX-----
         IF (ITOL == 0) ITOL=1
         IF (ITOL > 4) THEN
          IF(IPRINT==1) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : WRONG LINEAR STOP ',
-     .                'CRITERION NUMBER, RESET TO DEFAUT ONE ** '
+         WRITE(IOUT,*) ' ** WARNING ** : WRONG LINEAR STOP ','CRITERION NUMBER, RESET TO DEFAULT ONE ** '
          ENDIF
          ITOL=3
         ENDIF
@@ -3418,7 +3524,7 @@ C--------MIX-----
        ELSE
          IF (ISPMD == 0)THEN
           WRITE(IOUT,*) ' ** WARNING ** : SOLVER NON AVAILABLE '
-          WRITE(IOUT,*) ' ** RESETING TO **  : DEFAUT ONE  '
+          WRITE(IOUT,*) ' ** RESETTING TO **  : DEFAULT ONE  '
          ENDIF
          ISOLV = 1
        ENDIF
@@ -3427,7 +3533,7 @@ C--------MIX-----
          IF (ISPMD == 0)THEN
          WRITE(IOUT,*) ' ** WARNING ** : ',
      .                'THIS PRECONDITION METHOD IS NO MORE SUPPORTED '
-         WRITE(IOUT,*) ' ** RESETING TO **  : DEFAUT ONE  '
+         WRITE(IOUT,*) ' ** RESETTING TO **  : DEFAULT ONE  '
          ENDIF
          IPREC = 5
         ENDIF
@@ -3435,15 +3541,13 @@ C--------MIX-----
        IF (N_PAT > 1) THEN
          IF (N_PAT > 4) THEN
           IF(IPRINT==1) THEN
-          WRITE(IOUT,*) ' ** WARNING ** : UNAVAILABLE PRECONDITION',
-     .                 ' MATRIX PATTERN, RESET TO 4 ** '
+          WRITE(IOUT,*) ' ** WARNING ** : UNAVAILABLE PRECONDITION',' MATRIX PATTERN, RESET TO 4 ** '
           ENDIF
           N_PAT = 4
          ENDIF
          IF (IPREC /= 5) THEN
           IF(IPRINT==1) THEN
-           WRITE(IOUT,*) ' ** WARNING ** : INPUT PRECONDITION MATRIX',
-     .              ' PATTERN ONLY AVAILABLE WITH IPREC=5 : IGNORED **'
+           WRITE(IOUT,*) ' ** WARNING ** : INPUT PRECONDITION MATRIX',' PATTERN ONLY AVAILABLE WITH IPREC=5 : IGNORED **'
           ENDIF
           N_PAT = 1
          ENDIF
@@ -3452,8 +3556,7 @@ C--------MIX-----
        P_MACH = TWO*FLMIN
        IF (NVOLU>0 .AND. IMPMV > 0 .AND. ISOLV/=1) THEN
         IF(IPRINT==1) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : DIRECT SOLVER IS NOT ',
-     .                'COMPATIBLE WITH MONITORED VOLUME TYPE3 '
+         WRITE(IOUT,*) ' ** WARNING ** : DIRECT SOLVER IS NOT ','COMPATIBLE WITH MONITORED VOLUME TYPE3 '
          WRITE(IOUT,*) ' ** STIFFNESS WILL BE IGNORED **  '
         ENDIF
         IMPMV = 0
@@ -3472,8 +3575,7 @@ C--------MIX-----
         IF (ISCAU > 0) THEN
          IF (ISMDISP > 0) THEN
           IF(IPRINT==1) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : SMALL DISPLACEMENT IS IGNORED',
-     .                 ' UNCOMPATIBLE WITH CAUCHY STRESS OUTPUT OPTION;'
+         WRITE(IOUT,*) ' ** WARNING ** : SMALL DISPLACEMENT IS IGNORED',' INCOMPATIBLE WITH CAUCHY STRESS OUTPUT OPTION;'
           ENDIF
           ISMDISP = 0
          ENDIF
@@ -3484,16 +3586,14 @@ C--------MIX-----
 C--------nonlinear parametres-----
         IF (ISPRB == 1.AND.IDYNA > 0) THEN
          IF(IPRINT==1) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : DYNAMIC IMPLICIT IS NOT ',
-     .                'COMPATIBLE WITH IMPL/SPRBACK OPTION '
-         WRITE(IOUT,*) ' ** RESETING **  : STATIC ONE  '
+         WRITE(IOUT,*) ' ** WARNING ** : DYNAMIC IMPLICIT IS NOT ', 'COMPATIBLE WITH IMPL/SPRBACK OPTION '
+         WRITE(IOUT,*) ' ** RESETTING **  : STATIC ONE  '
          ENDIF
          IDYNA=0
         ENDIF
         IF (ISPRB == 1.AND.ISIGINI > 0) THEN
          IF(IPRINT==1) THEN
-         WRITE(IOUT,*) ' ** WARNING ** : PRE-STRESSES OPTION IS NOT ',
-     .                'COMPATIBLE WITH IMPL/SPRBACK OPTION '
+         WRITE(IOUT,*) ' ** WARNING ** : PRE-STRESSES OPTION IS NOT ', 'COMPATIBLE WITH IMPL/SPRBACK OPTION '
          WRITE(IOUT,*) ' ** DEACTIVATING IT  '
          ENDIF
          ISIGINI=0
@@ -3505,9 +3605,8 @@ C--------nonlinear parametres-----
          NTY=3
          IF (IQSTAT > 0) THEN
           IF(IPRINT==1) THEN
-          WRITE(IOUT,*) ' ** WARNING ** : QUASI-SATIC IMPLICIT IS NOT ',
-     .                'COMPATIBLE WITH DYNAMIC OPTION '
-          WRITE(IOUT,*) ' ** RESETING **  : DYNAMIC ONE  '
+          WRITE(IOUT,*) ' ** WARNING ** : QUASI-SATIC IMPLICIT IS NOT ','COMPATIBLE WITH DYNAMIC OPTION '
+          WRITE(IOUT,*) ' ** RESETTING **  : DYNAMIC ONE  '
           ENDIF
           IQSTAT=0
          END IF
@@ -3531,7 +3630,7 @@ C--------------Non linear solvers
         IF (INSOLV > 4)THEN
          IF(IPRINT==1) THEN
           WRITE(IOUT,*) ' ** WARNING ** : WRONG NONLINEAR SOLVER '
-          WRITE(IOUT,*) ' ** RESETING TO**  : DEFAULT ONE '
+          WRITE(IOUT,*) ' ** RESETTING TO**  : DEFAULT ONE '
          ENDIF
          INSOLV = 0
         ENDIF
@@ -3547,7 +3646,7 @@ C--------stop criteria-------
          IF (NITOL > 3) THEN
           IF(IPRINT==1) THEN
          WRITE(IOUT,*) ' ** WARNING ** : WRONG NONLINEAR STOP ',
-     .                'CRITERION NUMBER, RESET TO DEFAUT ONE ** '
+     .                'CRITERION NUMBER, RESET TO DEFAULT ONE ** '
           ENDIF
           NITOL=0
          ENDIF
@@ -3594,7 +3693,7 @@ C
           IF (SCAL_DTN == ZERO) SCAL_DTN=TWO_THIRD
           IF (SCAL_DTP == ZERO) SCAL_DTP=ONEP1
          ENDIF
-C-------ALEN=ALEN0 IF ALEN0=0 sinon ALEN est calcule auto
+C-------ALEN=ALEN0 IF ALEN0=0 otherwise ALEN is computed automatically
 C-------RIKS ARC LENGTH METHOD ------
         ELSEIF (IDTC == 3) THEN
          IF (NL_DTP == 0) NL_DTP=12
@@ -3605,12 +3704,9 @@ C-------RIKS ARC LENGTH METHOD ------
          IF (NDTFIX > 0) THEN
           IF(IPRINT==1) THEN
           WRITE(ISTDO,*)
-     .        ' ** WARNING :RIKS METHOD IS NOT ',
-     .                'COMPATIBLE WITH FIXED TIME POINT '
+     .        ' ** WARNING :RIKS METHOD IS NOT ','COMPATIBLE WITH FIXED TIME POINT '
           WRITE(ISTDO,*) ' ** FIXED TIME POINT : DEACTIVATED  '
-          WRITE(IOUT,*)
-     .        ' ** WARNING :RIKS METHOD IS NOT ',
-     .                'COMPATIBLE WITH FIXED TIME POINT '
+          WRITE(IOUT,*)' ** WARNING :RIKS METHOD IS NOT ','COMPATIBLE WITH FIXED TIME POINT '
           WRITE(IOUT,*) ' ** FIXED TIME POINT : DEACTIVATED  '
           NDTFIX = 0
           IDTFIX = 0
@@ -3619,14 +3715,10 @@ C-------RIKS ARC LENGTH METHOD ------
         ELSE
          IF(.NOT.(ISMDISP > 0.AND.ISOLV < 4)) THEN
          IF(IPRINT==1) THEN
-         WRITE(ISTDO,*)
-     .        ' ** WARNING: NO TIMESTEP CONTROL METHOD DEFINED **'
-         WRITE(ISTDO,*)
-     .   ' ** POTENTIAL INFINITE LOOP IF NO CONVERGENCE IS ACHIEVED **'
-         WRITE(IOUT,*)
-     .        ' ** WARNING: NO TIMESTEP CONTROL METHOD DEFINED **'
-         WRITE(IOUT,*)
-     .   ' ** POTENTIAL INFINITE LOOP IF NO CONVERGENCE IS ACHIEVED **'
+         WRITE(ISTDO,*) ' ** WARNING: NO TIMESTEP CONTROL METHOD DEFINED **'
+         WRITE(ISTDO,*)' ** POTENTIAL INFINITE LOOP IF NO CONVERGENCE IS ACHIEVED **'
+         WRITE(IOUT,*)' ** WARNING: NO TIMESTEP CONTROL METHOD DEFINED **'
+         WRITE(IOUT,*) ' ** POTENTIAL INFINITE LOOP IF NO CONVERGENCE IS ACHIEVED **'
          ENDIF
          END IF !(.NOT.(ISMDISP > 0.AND.ISOLV < 4)) THEN
          IF (SCAL_DTN == ZERO) SCAL_DTN=HALF
@@ -3637,10 +3729,8 @@ C
 C
         IF (DT_IMP == ZERO) THEN
          IF(IPRINT==1) THEN
-         WRITE(ISTDO,*)
-     .        ' ** WARNING: NO INITIAL TIMESTEP DEFINED **'
-         WRITE(IOUT,*)
-     .        ' ** WARNING: NO INITIAL TIMESTEP DEFINED **'
+         WRITE(ISTDO,*)' ** WARNING: NO INITIAL TIMESTEP DEFINED **'
+         WRITE(IOUT,*)' ** WARNING: NO INITIAL TIMESTEP DEFINED **'
          ENDIF
         ENDIF
 C
@@ -3651,13 +3741,10 @@ C
          IKPRES = 0
          IF (IKPROJ == 0 ) IKPROJ =-1
 C
-         IF (IDYNA > 0.AND.IDTC > 0.AND.ISOLV < 4
-     .       .AND.SCAL_DTP /= ONE) THEN
+         IF (IDYNA > 0 .AND. IDTC > 0.AND.ISOLV < 4 .AND. SCAL_DTP /= ONE) THEN
           IF(IPRINT==1) THEN
-           WRITE(ISTDO,*)
-     . ' ** WARNING: CONST. TIME-STEP WILL BE USED WITH SMALL DISP. **'
-           WRITE(IOUT,*)
-     . ' ** WARNING: CONST. TIME-STEP WILL BE USED WITH SMALL DISP. **'
+           WRITE(ISTDO,*)' ** WARNING: CONST. TIME-STEP WILL BE USED WITH SMALL DISP. **'
+           WRITE(IOUT,*)' ** WARNING: CONST. TIME-STEP WILL BE USED WITH SMALL DISP. **'
           ENDIF
           SCAL_DTP = ONE
          ENDIF
@@ -3689,7 +3776,7 @@ C-----------attention initialization should not be inside below--
        IF(IPRINT==1) THEN
         IF (NSPMD == 1.AND.ISOLV == 3) THEN
            MSG_ISOL(ISOLV)='DIRECT (BCS)'
-        ELSEIF (IMACH == 3.AND.ISOLV == 3) THEN
+        ELSEIF (ISOLV == 3) THEN
            MSG_ISOL(ISOLV)='DIRECT (MUMPS)'
         ENDIF
         IF (NEIG == 0) THEN
@@ -3699,8 +3786,7 @@ C-----------attention initialization should not be inside below--
           WRITE(IOUT,5010)MSG_TYPE(NTY),MSG_ISOL(ISOL),LPRINT
          ELSE
           ISOL=MIN(9,ISOLV)
-          WRITE(IOUT,5000)MSG_TYPE(NTY),MSG_ISOL(ISOL),MSG_PRE(IPREC),
-     .                   ITOL,L_LIM,L_TOL,LPRINT
+          WRITE(IOUT,5000)MSG_TYPE(NTY),MSG_ISOL(ISOL),MSG_PRE(IPREC),ITOL,L_LIM,L_TOL,LPRINT
          ENDIF
         IBID =0
         IF (INTP_C < 0) IBID =1
@@ -3731,11 +3817,9 @@ C
          ENDIF
 C
          IF(ISOLV == 5.OR.ISOLV == 6) THEN
-          WRITE(IOUT,5150)IPUPD,N_LIM,
-     .                    NPRINT,ISIGINI,IRREF,IDTC,DT_MIN,DT_MAX
+          WRITE(IOUT,5150)IPUPD,N_LIM,NPRINT,ISIGINI,IRREF,IDTC,DT_MIN,DT_MAX
          ELSE
-          WRITE(IOUT,5180)N_LIM,
-     .                    NPRINT,ISIGINI,IRREF,IDTC,DT_MIN,DT_MAX
+          WRITE(IOUT,5180)N_LIM, NPRINT,ISIGINI,IRREF,IDTC,DT_MIN,DT_MAX
          ENDIF
 C
          IF(IRIG_M == 1) THEN
@@ -3792,8 +3876,7 @@ C
        IF (ILINE /= 1.AND.ILINE_S > 0) THEN
          IF (NLS_LIM == 0) NLS_LIM=20
          IF (LS_TOL == ZERO) LS_TOL=EM03
-         IF(IPRINT==1)
-     .    WRITE(IOUT,6900)ILINE_S,NLS_LIM,LS_TOL
+         IF(IPRINT==1)WRITE(IOUT,6900)ILINE_S,NLS_LIM,LS_TOL
           IF (ILINE_S == 3) THEN
            IF (NITOL /= 2.AND.NITOL /= 4) THEN
              LS_TOL=FIVE*LS_TOL
@@ -3856,15 +3939,12 @@ C
        IF (NBUCK > 0) THEN
         IF (IMUMPSV> 0) THEN
           IF (BISOLV /= 1.AND.BISOLV /= 2) THEN
-             WRITE(ISTDO,*)
-     .        ' ** ERROR ** UNAVAILABLE SOLVER FOR BUCKLING ANALYSIS'
-             WRITE(IOUT,*)
-     .        ' ** ERROR ** UNAVAILABLE SOLVER FOR BUCKLING ANALYSIS'
+             WRITE(ISTDO,*) ' ** ERROR ** UNAVAILABLE SOLVER FOR BUCKLING ANALYSIS'
+             WRITE(IOUT,*)  ' ** ERROR ** UNAVAILABLE SOLVER FOR BUCKLING ANALYSIS'
              CALL ARRET(2)
           ENDIF
           IF (ISPMD == 0) THEN
-             WRITE(IOUT,6000) NBUCK, SHFTBUCK, BNITER, BINCV, BMAXNCV,
-     .                        MSG_BSOL(2)
+             WRITE(IOUT,6000) NBUCK, SHFTBUCK, BNITER, BINCV, BMAXNCV, MSG_BSOL(2)
           ENDIF
         ELSE
           CALL PROUT_BUCK(IOUT,NBUCK,IBUCKL)
@@ -3951,7 +4031,7 @@ C
      .  ' DESIRED CONVERGE ITERATION NUM. . . . . . .',2X,I5/
      .  ' MAXIMUM CONVERGE ITERATION NUM. . . . . . .',2X,I5/
      .  ' DECREASING TIME STEP SCALE FACTOR.  . . . .',2X,G14.7/
-     .  ' MAXINUM INCREASING TIME STEP SCALE FACTOR ',2X,G14.7/
+     .  ' MAXIMUM INCREASING TIME STEP SCALE FACTOR ',2X,G14.7/
      .  ' CONSTANT ARC-LENGTH. . . . . . .. . . . . ',2X,G14.7//)
  5400 FORMAT(
      .  ' TIME INTEGRATION WITH HHT-ALPHA CONSTANT  ',2X,G14.7//)
@@ -4002,7 +4082,7 @@ C
      .  ' DESIRED CONVERGE ITERATION NUM. . . . . . .',2X,I5/
      .  ' MAXIMUM CONVERGE ITERATION NUM. . . . . . .',2X,I5/
      .  ' DECREASING TIME STEP SCALE FACTOR.  . . . .',2X,G14.7/
-     .  ' MAXINUM INCREASING TIME STEP SCALE FACTOR ',2X,G14.7/
+     .  ' MAXIMUM INCREASING TIME STEP SCALE FACTOR ',2X,G14.7/
      .  ' CONSTANT ARC-LENGTH. . . . . . .. . . . . ',2X,G14.7/
      .  ' CONSTRAINT TYPE . . . .. . . . . . . . . . ',2X,I5/
      .  ' LOADING CONTRIBUTION SCALE FACTOR . . . . ',2X,G14.7//)
@@ -4019,18 +4099,6 @@ C
      .  ' MAXIMUM REFERENCE FORCE RESIDUAL . . . . ',2X,G14.7//)
  8010 FORMAT(
      .  ' SMALL DISPLACEMENT OPTION(0:OFF,1:ON) . . .. . .',2X,I5/)
- 8300 FORMAT(
-     .  ' FSI WETTED SURFACE ELEMENT GROUP . . . . .',2X,I5/
-     .  ' FSI WETTED SURFACE SURFACE GROUP . . . . .',2X,I5/
-     .  ' FSI PORT NUMBER. . . . . . . . . . . . . .',2X,I5/
-     .  ' FSI MINIMUM NUMBER OF EXCHANGES. . . . . .',2X,I5/
-     .  ' FSI MAXIMUM NUMBER OF EXCHANGES. . . . . .',2X,I5/
-     .  ' FSI USE DATA TAGS SWITCH . . . . . . . . .',2X,I5/
-     .  ' FSI DATA EXCHANGE CODE . . . . . . . . . .',2X,I5/
-     .  ' FSI MESSAGE LEVEL. . . . . . . . . . . . .',2X,I5/
-     .  ' FSI WAIT TIME. . . . . . . . . . . . . . .',2X,I5/
-     .  ' FSI DISPLACEMENT CONVERGENCE TOLERANCE. ',2X,G14.7/
-     .  ' FSI FORCE CONVERGENCE TOLERANCE . . . . ',2X,G14.7//)
  8400 FORMAT(
      .  ' NUMBER OF PROJECTION VECTORS OF PCG . . . ',2X,I5/
      .  ' PROJECTION VECTOR INITIALIZATION METHOD . ',2X,I5/)

@@ -1,66 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_LINES_OF_LINES             source/groups/hm_lines_of_lines.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_lines_of_lines        ../starter/source/groups/hm_lines_of_lines.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_LINES_OF_LINES(IGRSLIN ,INSEG  ,FLAG  ,ICOUNT ,ITER ,NSETS, LSUBMODEL)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
-#include      "my_allocate.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -69,13 +61,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER  I,K,L,J,ID,IGS,IGRS,JREC,IAD0,IADV,NSEG,NSEGV,
-     .        FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,SKIPFLAG,UID,NSEG_TOT,
+      INTEGER  K,L,ID,IGS,IGRS,NSEG,NSEGV,
+     .        SKIPFLAG,UID,NSEG_TOT,
      .        NSETS,NENTITY,KK,JJ
-      CHARACTER TITR*nchartitle,KEY*ncharkey,KEY2*ncharkey
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY) :: KEY,KEY2
 !
       TYPE (SURF_)   , DIMENSION(NSLIN+NSETS)   :: IGRSLIN
-      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
+      LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 !   IGRSLIN(IGS)%ID   :: LINE identifier
 !   IGRSLIN(IGS)%TITLE   :: LINE title
@@ -91,11 +84,11 @@ C-----------------------------------------------
 !   2. Split lines accordingly
 !
 C-----------------------------------------------
-C     LIGNES DES LIGNES ...
+C     LINES OF LINES ...
 C=======================================================================
       IF (FLAG == 0) ICOUNT=0
 
-C     boucle sur les lignes  
+C     loop over the lines
       CALL HM_OPTION_START('/LINE')
       DO IGS=1,NSLIN
         CALL HM_OPTION_READ_KEY(LSUBMODEL,
@@ -127,7 +120,7 @@ C     boucle sur les lignes
      .                              I1=ID,
      .                              C1=TITR,
      .                              I2=JJ)
-                      !! comme les /surf/surf                      ELSEIF (IGRSLIN(IGRS)%NSEG == -1) THEN
+                      !!Like /surfing /surfing Elseif (igrslin (igrs)%nseg == -1) then
                       ELSEIF (IGRSLIN(IGRS)%LEVEL == 0)THEN
 C                       reference a une ligne non initialise     
                         IF (ITER > NSLIN) GOTO 900               
@@ -148,13 +141,13 @@ C                       reference a une ligne initialise
               IF (SKIPFLAG == 0) THEN               
                 INSEG=INSEG+6*NSEG                                
                 IGRSLIN(IGS)%NSEG= NSEG
-                MY_ALLOCATE2D(IGRSLIN(IGS)%NODES,NSEG,2)
+                CALL MY_ALLOC(IGRSLIN(IGS)%NODES,NSEG,2)
                 IGRSLIN(IGS)%NODES(1:NSEG,1:2) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELTYP,NSEG)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELTYP,NSEG)
                 IGRSLIN(IGS)%ELTYP(1:NSEG) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%ELEM,NSEG)
+                CALL MY_ALLOC(IGRSLIN(IGS)%ELEM,NSEG)
                 IGRSLIN(IGS)%ELEM(1:NSEG) = 0
-                MY_ALLOCATE(IGRSLIN(IGS)%PROC,NSEG)
+                CALL MY_ALLOC(IGRSLIN(IGS)%PROC,NSEG)
                 IGRSLIN(IGS)%PROC(1:NSEG) = 0
               ENDIF                                 
 C-----------                                             

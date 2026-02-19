@@ -1,42 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_INTER_TYPE22          source/interfaces/int22/hm_read_inter_type22.F
-Chd|-- called by -----------
-Chd|        HM_READ_INTER_FSI             source/interfaces/reader/hm_read_inter_fsi.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_inter_type22   ../starter/source/interfaces/int22/hm_read_inter_type22.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_inter_fsi      ../starter/source/interfaces/reader/hm_read_inter_fsi.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
        SUBROUTINE HM_READ_INTER_TYPE22(
-     1        IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,NI       ,
+     1        IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,
      2        IGRNOD     ,IGRSURF    ,IGRBRIC    ,IGRSH3N   ,IGRTRUSS ,
-     3        FRIC_P     ,TITR       ,LSUBMODEL)  
+     3        FRIC_P     ,TITR       ,LSUBMODEL  ,NPARI     ,NPARIR)
 C============================================================================
 C     
 C-----------------------------------------------
@@ -45,25 +44,20 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e 
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "sphcom.inc"
-#include      "submod_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ISU1,ISU2,NI,NOINT
-      INTEGER IPARI(*)
+      INTEGER,INTENT(IN) :: NPARI, NPARIR !< array sizes
+      INTEGER ISU1,ISU2,NOINT
+      INTEGER IPARI(NPARI)
       my_real STFAC
-      my_real
-     .   FRIGAP(*),FRIC_P(*)
-      CHARACTER TITR*nchartitle,TITR1*nchartitle
+      my_real  FRIGAP(NPARIR),FRIC_P(10)
+      CHARACTER(LEN=NCHARTITLE),INTENT(IN) ::  TITR
 C-----------------------------------------------
       TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
       TYPE (GROUP_)  ,TARGET, DIMENSION(NGRBRIC) :: IGRBRIC
@@ -74,41 +68,25 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr06_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
-#include      "intstamp_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "fluid_scr_c.inc"
-#include      "scr12_c.inc"
-#include      "remesh_c.inc"
-#include      "sysunit.inc"
-#include      "thknod_c.inc"
 #include      "inter22.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J, NTYP, IBID,INACTI,IGSTI, IVIS2,ILEV,INTKG,
-     .    IS1, IS2, IGAP,MULTIMP,IFQ, KK,II,I22GRSH3N,I22GRNOD,
-     .    IDELKEEP,INTTH,I22LEN1,I22GRTRUS,I22GRNOD2,I22GRNOD3
-      my_real
-     .    FRIC,GAP,STARTT,BUMULT,STOPT,VISC,VISCF,RATIO22_
-      LOGICAL LOGI1, LOGI2, LOGI_I22GRSH3N, LOGI_I22GRTRUS,LOGI_I22GRNOD
+      INTEGER J, NTYP, IBID,INACTI,IGSTI, IVIS2,ILEV,INTKG,
+     .        IS1, IS2, IGAP,MULTIMP,I22GRSH3N,I22GRNOD,
+     .        INTTH,I22LEN1,I22GRTRUS,I22GRNOD2,I22GRNOD3
+      my_real :: FRIC,GAP,STARTT,BUMULT,STOPT,VISC,VISCF,RATIO22_
+      LOGICAL LOGI_I22GRSH3N, LOGI_I22GRTRUS,LOGI_I22GRNOD
       LOGICAL IS_AVAILABLE
-      CHARACTER MESS*40, MSGTITL*nchartitle
-      CHARACTER OPT*ncharkey,KEY*ncharkey,KEY1*ncharkey,
-     .          BCFLAG*ncharfield, BCFLAGM*ncharfield
-!
       INTEGER, DIMENSION(:), POINTER :: INGR2USR
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER USR2SYS,SUR2USR,NGR2USR
+      INTEGER NGR2USR
 C=======================================================================
 C     READING ALE INTERFACE /INTER/TYPE22
 C=======================================================================
@@ -117,21 +95,16 @@ C Initializations
       IS2=0
       ILEV=0
       INTKG =0
-C
       NTYP = 22
       IPARI(15)=NOINT
       IPARI(7)=NTYP
-      
       IS_AVAILABLE=.FALSE.
-
 C------------------------------------------------------------
 C  Card1 
 C------------------------------------------------------------
 
        CALL HM_GET_INTV('grbric_ID', ISU1, IS_AVAILABLE, LSUBMODEL)
        CALL HM_GET_INTV('surf_ID', ISU2, IS_AVAILABLE, LSUBMODEL)
-       !READ(IIN,REC=IREC,ERR=999,FMT='(A)')LINE
-       !READ(LINE,ERR=999,FMT=FMT_10I)ISU1,ISU2, I22GRSH3N, I22GRTRUS, I22GRNOD,  I22GRNOD2, I22GRNOD3,IOUTP22, IBID,IBID
        I22GRSH3N=0
        I22GRTRUS=0
        I22GRNOD=0
@@ -143,12 +116,8 @@ C
 C....* CHECKS *.............
 C
        !IF main SIDE IS NOT GIVEN            
-       IF(ISU2.EQ.0) THEN                      
-          CALL ANCMSG(MSGID=119,               
-     .                MSGTYPE=MSGERROR,        
-     .                ANMODE=ANINFO,           
-     .                I1=NOINT,                
-     .                C1=TITR)                 
+       IF(ISU2==0) THEN                      
+          CALL ANCMSG(MSGID=119,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=NOINT,C1=TITR)
          IS2=0                                 
        ELSE                                    
          IS2=1                                 
@@ -156,24 +125,20 @@ C
          ISU2=NGR2USR(ISU2,INGR2USR,NSURF)
        ENDIF                                   
                                                
-       !common value : IOUTP22                 
-       IF(IOUTP22.EQ.0)THEN                    
+       !Common Value: ioutp22                 
+       IF(IOUTP22==0)THEN                    
          IOUTP22=1                             
-       ELSEIF(IOUTP22.NE.1)THEN                
+       ELSEIF(IOUTP22/=1)THEN                
          IOUTP22=0                             
        ENDIF                                   
 
        ! IF SECONDARY ID SIDE IS GIVEN
-       IF(ISU1.NE.0)THEN
+       IF(ISU1/=0)THEN
           INGR2USR => IGRBRIC(1:NGRBRIC)%ID
           ISU1=NGR2USR(ISU1,INGR2USR,NGRBRIC)
           IS1 =4
        ELSE
-             CALL ANCMSG(MSGID=114,
-     .                   MSGTYPE=MSGERROR,
-     .                   ANMODE=ANINFO,
-     .                   I1=NOINT,
-     .                   C1=TITR)
+             CALL ANCMSG(MSGID=114,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=NOINT,C1=TITR)
           IS1 =0
        ENDIF
 C
@@ -181,12 +146,9 @@ C------------------------------------------------------------
 C  Card2 
 C------------------------------------------------------------
       !=======================================================!
-      !   TEMPORARY : flags for equivvalent type7 interface   !
+      !   TEMPORARY : flags for equivalent type7 interface    !
       !=======================================================!
 
-        !IREC=IREC+1
-        !READ(IIN,REC=IREC,ERR=999,FMT='(A)')LINE
-        !READ(LINE,ERR=999,FMT=FMT_2F) JMULT22,RATIO22_
         JMULT22=ZERO
         RATIO22_=ZERO
 
@@ -199,8 +161,8 @@ C
         IPARI(46)=ISU2
 C
 
-        IF(JMULT22.EQ.ZERO)JMULT22=ONE
-        IF(RATIO22_ .EQ. ZERO)RATIO22_ = ONE + TEN/HUNDRED
+        IF(JMULT22==ZERO)JMULT22=ONE
+        IF(RATIO22_ == ZERO)RATIO22_ = ONE + TEN/HUNDRED
         RATIO22    = MIN(RATIO22,RATIO22_)
         GAP        = ZERO
         IGSTI      = 0
@@ -260,9 +222,9 @@ C
         !IGR3SHN flag
         !
         !     IGRN(1,I) : IDENTIFICATEUR DE GROUP
-        !     IGRN(2,I) : NOMBRE DE NOEUDS
-        !     IGRN(3,I) : ADRESSE DES NOEUDS DANS IBUFSSG
-        !     IGRN(4,I) : TYPE (0 POUR NOEUDS, 1 BRIC, 2 QUAD, 3 SHELL, 
+        !     IGRN(2,I) : NUMBER OF NODES
+        ! IGRN(3,I) : ADDRESS OF NODES IN IBUFSSG
+        !     IGRN(4,I) : TYPE (0 FOR NODES, 1 BRIC, 2 QUAD, 3 SHELL, 
         !                         4 TRUSS, 5 BEAM, 6 SPRINGS,7 SHELL_3N)
         !        
         LOGI_I22GRSH3N = .FALSE.
@@ -344,7 +306,7 @@ c          print *, "WARNING : INTER22, GRNOD ID NOT FOUND IN INPUT FILE"
         KCONTACT =MAX(KCONTACT,0,0)
         INTBAG = MAX(INTBAG,0)  
         
-        IF(IS1*IS2.NE.0)THEN
+        IF(IS1*IS2/=0)THEN
           INT22  = INT22 + 1                                   !number of int22 interfaces.
           I22LEN1 = MAX(100     ,NINT(82*IGRBRIC(ISU1)%NENTITY**HALF))
           I22LEN1 = MIN(I22LEN1 ,IGRBRIC(ISU1)%NENTITY)
@@ -370,7 +332,7 @@ C------------------------------------------------------------
       IF (STOPT == ZERO) STOPT = EP30
       FRIGAP(11)=STOPT
 C BUMULT is increased for big models
-      IF(BUMULT.EQ.ZERO) THEN
+      IF(BUMULT==ZERO) THEN
         BUMULT = BMUL0
         IF(NUMNOD > 2500000) THEN
           BUMULT = BMUL0*TWO
@@ -391,44 +353,42 @@ C     PRINTOUT
 C------------------------------------------------------------
 C
 
-      IF(I22GRSH3N.GT.0)WRITE(IOUT,2207)I22GRSH3N, I22GRTRUS,I22GRNOD
+      IF(I22GRSH3N>0)WRITE(IOUT,2207)I22GRSH3N, I22GRTRUS,I22GRNOD
 
 C--------------------------------------------------------------
-      IF(IS1.EQ.0)THEN
+      IF(IS1==0)THEN
         WRITE(IOUT,'(6X,A)')'NO SECONDARY SURFACE INPUT'
-      ELSEIF(IS1.EQ.1)THEN
+      ELSEIF(IS1==1)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.2)THEN
+      ELSEIF(IS1==2)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY NODES'
-      ELSEIF(IS1.EQ.3)THEN
+      ELSEIF(IS1==3)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.4 )THEN
+      ELSEIF(IS1==4 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY BRICKS'
-      ELSEIF(IS1.EQ.5 )THEN
+      ELSEIF(IS1==5 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY SOLID ELEMENTS'        
       ENDIF
-      IF(IS2.EQ.0)THEN
+      IF(IS2==0)THEN
         WRITE(IOUT,'(6X,A)')'NO MAIN SURFACE INPUT'
-      ELSEIF(IS2.EQ.1)THEN
+      ELSEIF(IS2==1)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.2)THEN
+      ELSEIF(IS2==2)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY NODES'
-      ELSEIF(IS2.EQ.3)THEN
+      ELSEIF(IS2==3)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.4)THEN
+      ELSEIF(IS2==4)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE REFERS ',
      .                      'TO HYPER-ELLIPSOIDAL SURFACE'
       ENDIF
 C
 C--------------------------------------------------------------
- 1000 FORMAT(/1X,'  INTERFACE NUMBER :',I10,1X,A)
+
 C------------
-      RETURN
- 999  CALL FREERR(3)
       RETURN
 
  2207 FORMAT(//
-     .    '    TYPE.EQ.22 FSI INTERFACE                    ' //,
+     .    '    TYPE==22 FSI INTERFACE                    ' //,
      .    '    GRSH3N_ID. . . . . . . . . . . . . . . . . . ',I10/,
      .    '    GRTRUS_ID. . . . . . . . . . . . . . . . . . ',I10/,
      .    '    GRNOD_ID . . . . . . . . . . . . . . . . . . ',I10/)    

@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C=======================================================================
 C      Yoshida-Uemori law - two surface plasticity
 C=======================================================================
-Chd|====================================================================
-Chd|  SIGEPS78                      source/materials/mat/mat078/sigeps78.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+!||====================================================================
+!||    sigeps78   ../engine/source/materials/mat/mat078/sigeps78.F
+!||--- called by ------------------------------------------------------
+!||    mulaw      ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    finter     ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE SIGEPS78 (
      1     NEL      ,NUPARAM  ,NUVAR    ,NFUNC    ,IFUNC    ,NPF      ,
      2     TF       ,TIME     ,TIMESTEP ,UPARAM   ,RHO0     ,RHO      ,
@@ -46,8 +46,6 @@ C-----------------------------------------------
 C   C O M M O N
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr17_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -94,16 +92,16 @@ C-----------------------------------------------
       my_real EINI,NU,BSAT,HYU,CYU,RSAT,
      .        YIELD,BYU,MYU,C1_KH,C2_KH,
      .        EINF,COE,FCTP,FCT,CUN,CDEUX,CTROIS,SIGY,DMU,PRDEN,
-     .        THA,THB,TOLR,SEFF,DG,SEFFP,CASTA,THETAQ,DTCA,DTBM,
+     .        THA,THB,TOLR,SEFF,SEFFP,CASTA,DTCA,DTBM,
      .        STHABXX,STHABYY,STHABZZ,STHABXY,STHABYZ,STHABZX,
      .        SAXX,SAYY,SAZZ,SAXY,SAYZ,SAZX,GAMA,HDGSIG,H,BQDB,EQBQ
       my_real :: YOUNG(NEL),
      .        ALXX(NEL),ALYY(NEL),ALZZ(NEL),RBULK(NEL),SHEAR(NEL),LAMDA(NEL),
      .        ALXY(NEL),ALYZ(NEL),ALZX(NEL),
-     .        AYU(NEL),SIGM(NEL),SIGEQ(NEL),DYDXE(NEL),WAVE(NEL),R(NEL),
+     .        AYU(NEL),SIGM(NEL),DYDXE(NEL),WAVE(NEL),R(NEL),
      .        STRIALXX(NEL),STRIALYY(NEL),STRIALZZ(NEL),
      .        STRIALXY(NEL),STRIALYZ(NEL),STRIALZX(NEL),
-     .        G2(NEL),ASTA(NEL),SCALEE(NEL),RNIH(NEL),DRNIH(NEL),EPBAR(NEL),
+     .        G2(NEL),ASTA(NEL),SCALEE(NEL),RNIH(NEL),
      .        MAX_ASTA(NEL)
       my_real :: DB(6,NEL),EP(6,NEL),AST(6,NEL),BETA(6,NEL),
      .        DR(NEL),BQ(6,NEL)
@@ -175,7 +173,7 @@ C     READING STORED STATE_VARIABLES
         SHEAR(I) = YOUNG(I)*CDEUX
         LAMDA(I) = YOUNG(I)*CTROIS
         G2(I) = TWO*SHEAR(I)
-C       Module d'onde de compression
+C       Compression wave wave module
         WAVE(I)=G2(I)+LAMDA(I)
         ASTA(I)=ZERO
         MAX_ASTA(I) = UVAR(I,6)
@@ -243,7 +241,7 @@ C   PROJECTION
 C------------------------------------------------------------
 C=======================================================================
 C       Compute the effective strain increment with Newton algorithm
-	   DEP(I)=UVAR(I,5)
+             DEP(I)=UVAR(I,5)
 C=======================================================================
 C                                  Newton
 C=======================================================================
@@ -255,7 +253,7 @@ C=======================================================================
         PRDEN=THREE*SHEAR(I)+CYU*AYU(I)+MYU*BYU
         CASTA=CYU*SQRT(AYU(I)/ASTA(I))
         DO K=1,NITER     
-c       THA et THB pour semi implicite---------------------------------
+c       THA and THB for semi-implicit---------------------------------
         THA=ONE-CASTA*DEP(I)
         THB=ONE-MYU*DEP(I)
 C       sum of Tetaa alpha* + Tetab Beta=STHAB
@@ -333,7 +331,7 @@ C=======================================================================
         DTCA=TWO*THIRD*CYU*AYU(I)
         DTBM=TWO*THIRD*BYU*MYU
         DO J=1,6
-C         Actualisation de alpha* et beta avec Epsilon_n+1^p
+C         Update of alpha* and beta with Epsilon_n+1^p
           AST(J,I)=THA*AST(J,I)+DTCA*EP(J,I)
           BETA(J,I)=THB*BETA(J,I)+DTBM*EP(J,I)
         ENDDO
@@ -417,7 +415,7 @@ C============================================================
         SIGNXY(I)=SIGOXY(I)+G2(I)*(DEPSXY(I)-EP(4,I))
         SIGNYZ(I)=SIGOYZ(I)+G2(I)*(DEPSYZ(I)-EP(5,I))
         SIGNZX(I)=SIGOZX(I)+G2(I)*(DEPSZX(I)-EP(6,I))
-c==========Module tangent=====================================
+c============ Tangent module ========================================================================
          
         IF( DEP(I) > ZERO)THEN
          SIGM(I)=-(SIGNXX(I)+SIGNYY(I)+SIGNZZ(I))*THIRD

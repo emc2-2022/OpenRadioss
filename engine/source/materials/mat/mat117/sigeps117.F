@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS117                     source/materials/mat/mat117/sigeps117.F
-Chd|-- called by -----------
-Chd|        SUSER43                       source/elements/solid/sconnect/suser43.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps117   ../engine/source/materials/mat/mat117/sigeps117.F
+!||--- called by ------------------------------------------------------
+!||    suser43     ../engine/source/elements/solid/sconnect/suser43.F
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE SIGEPS117(
      1     NEL     ,NUPARAM ,NUVAR   ,JSMS    ,TIME    ,TIMESTEP,
      2     UPARAM  ,UVAR    ,AREA    ,OFF     ,OFFL    ,
@@ -38,7 +38,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C----------------------------------------------------------
-#include "scr17_c.inc"
 #include "units_c.inc"
 #include "comlock.inc"
 #include "sms_c.inc"
@@ -62,15 +61,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: I,J,K,II, I_REL, IRUPT,NINDXF
+      INTEGER :: I,II, IRUPT,NINDXF
       INTEGER ,DIMENSION(NEL)  :: INDXF
-      my_real :: RHO0,  DM,   DAM,  STF,  ET2,DTB,
+      my_real ::   DM,   DAM,  STF,DTB,
      .   E_ELAS_N,DTINV , T_N,T_S,
      .   EXP_G   ,     EXP_BK,   DELTA0S_CST, DELTA0N_CST, 
      .   GIC     ,     GIIC  ,  E_ELAS_S,  UND_CST,  UTD_CST,GAMA
 c
       my_real, DIMENSION(NEL) :: EPSM,DELTA0M,  BETA,
-     .   ETHA,DELTAFMAX,EPST,FAC1, FAC2,FAC3,EPSMMAX ,EPSN ,
+     .   DELTAFMAX,EPST,FAC1, FAC2,FAC3,EPSMMAX ,EPSN ,
      .   DELTA0N,DELTA0S,UND,UTD,DYDX1,DYDX2,LENGTH,TMAX_N,TMAX_S
 c-----------------------------------------------
 c     UVAR(1)  =  
@@ -118,7 +117,7 @@ c-------------------------
       DO I=1,NEL             
         EPSN(I) = MAX(EPSZZ(I) , ZERO)      
         EPST(I) = SQRT(EPSYZ(I)**2  + EPSZX(I)**2)
-        EPSM(I) = SQRT( EPSN(I)**2  + EPST(I)**2)	           
+        EPSM(I) = SQRT( EPSN(I)**2  + EPST(I)**2)             
         EPSMMAX(I) = MAX(EPSM(I),EPSMMAX(I))
       ENDDO !I=1,NEL
       !---------------------------------------------------------
@@ -166,7 +165,7 @@ c-------------------------
         END IF
       ENDDO !I=1,NEL
 !------------------------------------------------    
-!             DAMMAGE      : ultimate displacement                       
+!             DAMAGE      : ultimate displacement                       
 !------------------------------------------------    
       ! IRUPT =2  = BK method -----------------
       IF (IRUPT == 2) THEN
@@ -223,10 +222,10 @@ c-------------------------
 !     Stress update
 !---------------------------------------------------------------
       DO I=1,NEL
-         IF (EPSN(I) < ZERO )  THEN 
-            SIGNZZ(I) = E_ELAS_N*EPSN(I)            
+         IF (EPSZZ(I) < ZERO )  THEN 
+            SIGNZZ(I) = E_ELAS_N*EPSZZ(I)            
           ELSE
-            SIGNZZ(I) = (ONE-DMG(I))*E_ELAS_N*EPSN(I)
+            SIGNZZ(I) = (ONE-DMG(I))*E_ELAS_N*EPSZZ(I)
           ENDIF
           ! sigma shear Y   
           SIGNYZ(I) = (ONE-DMG(I))*E_ELAS_S*(EPSYZ(I))

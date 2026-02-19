@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I14ELA                        source/interfaces/int14/i14ela.F
-Chd|-- called by -----------
-Chd|        I14CMP                        source/interfaces/int14/i14cmp.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i14ela         ../engine/source/interfaces/int14/i14ela.F
+!||--- called by ------------------------------------------------------
+!||    i14cmp         ../engine/source/interfaces/int14/i14cmp.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||====================================================================
       SUBROUTINE I14ELA(X      ,KSURF  ,IGRSURF,BUFSF ,NSC    ,
      2                  KSC    ,NSP    ,KSP    ,KSI   ,IMPACT ,
      3                  CIMP   ,NIMP   ,STFAC  ,NLO   ,GAPMIN ,
@@ -47,8 +47,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -76,8 +74,8 @@ C-----------------------------------------------
       my_real
      .   XPV(3,MVSIZ)
 C-----------------------------------------------
-C-----------------------------------------------
       ADRBUF=IGRSURF(KSURF)%IAD_BUFR
+      FTOT = ZERO
 C-----------------------------------------------
       A =BUFSF(ADRBUF+1)
       B =BUFSF(ADRBUF+2)
@@ -101,7 +99,7 @@ C-------------------------------
       NREST=NSC
   50  CONTINUE
 C-------------------------------
-C     Passage au repere local :
+C     Passage to the local frame:
 C-------------------------------
       DO I=1,MIN(MVSIZ,NREST)
       IL=KSC(I+NDEB)
@@ -114,7 +112,7 @@ C-------------------------------
       XPV(3,I)=ROT(7)*X1+ROT(8)*X2+ROT(9)*X3
       ENDDO
 C-------------------------------
-C     Normale et penetration.
+C     normal and penetration
 C-------------------------------
 #include "vectorize.inc"
       DO I=1,MIN(MVSIZ,NREST)
@@ -123,13 +121,13 @@ C-------------------------------
 C-------------------------------
       XPVN1 =XPV(1,I)**(DGR-1)
       SGNXN=-ONE      
-      IF (XPVN1*XPV(1,I).GE.ZERO) SGNXN=ONE
+      IF (XPVN1*XPV(1,I)>=ZERO) SGNXN=ONE
       YPVN1 =XPV(2,I)**(DGR-1)
       SGNYN=-ONE
-      IF (YPVN1*XPV(2,I).GE.ZERO) SGNYN=ONE
+      IF (YPVN1*XPV(2,I)>=ZERO) SGNYN=ONE
       ZPVN1 =XPV(3,I)**(DGR-1)
       SGNZN=-ONE
-      IF (ZPVN1*XPV(3,I).GE.ZERO) SGNZN=ONE
+      IF (ZPVN1*XPV(3,I)>=ZERO) SGNZN=ONE
 C-------------------------------
       N1 =SGNXN*XPVN1*AN
       N2 =SGNYN*YPVN1*BN
@@ -139,7 +137,7 @@ C-------------------------------
 C-------------------------------
       EP=N1*XPV(1,I)+N2*XPV(2,I)+N3*XPV(3,I)
 C-------------------------------
-C     Detection exacte de l'impact.
+C     Exact impact detection.
 C-------------------------------
 C     Ellipsoide ::
 C     ANS=(EP-SQRT(EP))/MAX(EM20,N)
@@ -147,10 +145,10 @@ C     Hyper-Ellipsoide ::
       ANS=(EP-EXP((DGR-1)*LOG(MAX(EP,EM20))/DGR))
      .      / MAX(EXP((DGR-1)*LOG(EM20)/DGR),N)
 C-------------------------------
-C     projection du point impacte :
-C     projection sur tangente / hors ellips.
+C     projection of the ed point:
+C     Projection on Tangente / Outside Ellips.
 C-------------------------------
-      IF (GAPMIN.LT.ANS) THEN
+      IF (GAPMIN<ANS) THEN
         IMPACT(IL)=0
       ELSE
         IMPACT(IL)=1
@@ -168,12 +166,12 @@ C-------------------------------
       ANS=GAPMIN-ANS
       ANS=MAX(ZERO,ANS)
 C-------------------------------
-      IF (ANS.GT.ANSMX) ANSMX=ANS
+      IF (ANS>ANSMX) ANSMX=ANS
 C-------------------------------
       WF(IN)=ANS
       ENDDO
 C---------------------------------
-      IF (NREST-MVSIZ.GT.0) THEN
+      IF (NREST-MVSIZ>0) THEN
         NREST=NREST-MVSIZ
         NDEB =NDEB +MVSIZ
         GOTO 50
@@ -196,18 +194,18 @@ C     penetration.
 C-------------------------------
       ANS=GAPMIN-WF(IN)
 C-------------------------------
-C     IF (GAPMIN.LT.ANS) THEN
+C     IF (GAPMIN<ANS) THEN
 C       IMPACT(IL)=0
 C     ELSE
 C       IMPACT(IL)=1
 C     END IF
 C     ANS=MAX(ZERO,ANS)
-      IF (ANS.GT.ANSMX) ANSMX=ANS
+      IF (ANS>ANSMX) ANSMX=ANS
 C-------------------------------
       WF(IN)=ANS
       ENDDO
 C---------------------------------
-      IF (NREST-MVSIZ.GT.0) THEN
+      IF (NREST-MVSIZ>0) THEN
         NREST=NREST-MVSIZ
         NDEB =NDEB +MVSIZ
         GOTO 100
@@ -215,20 +213,20 @@ C---------------------------------
 C-----------------------------------------------
 C     FORCE ELASTIQUE TOTALE=FCT(PENETRATION MAX.).
 C-----------------------------------------------
-      IF (NLO.NE.0) THEN
+      IF (NLO/=0) THEN
         NPT = (NPC(NLO+1)-NPC(NLO))/2
         II  = NPC(NLO)
-        IF (ANSMX.LE.PLD(II)) THEN
+        IF (ANSMX<=PLD(II)) THEN
           PENTE=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
           FTOT =PLD(II+1)+PENTE*(ANSMX-PLD(II))
-        ELSEIF (ANSMX.GE.PLD(II+2*(NPT-1))) THEN
+        ELSEIF (ANSMX>=PLD(II+2*(NPT-1))) THEN
           JJ=II+2*(NPT-1)
           PENTE=(PLD(JJ+1)-PLD(JJ-1))/(PLD(JJ)-PLD(JJ-2))
           FTOT =PLD(JJ+1)+MAX(-PLD(JJ+1),PENTE*(ANSMX-PLD(JJ)))
         ELSE
           DO IPT=1,NPT-1
-           IF (PLD(II).LE.ANSMX
-     .     .AND.ANSMX.LE.PLD(II+2)) THEN
+           IF (PLD(II)<=ANSMX
+     .     .AND.ANSMX<=PLD(II+2)) THEN
             PENTE=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
             FTOT =PLD(II+1)+PENTE*(ANSMX-PLD(II))
             GOTO 200
@@ -239,10 +237,10 @@ C-----------------------------------------------
         ENDIF
       ENDIF
 C-----------------------------------------------
-C     RAIDEUR DE L'INTERFACE
+C     interface stiffness
 C     TQ | SOMME DES FORCES | = F(PENETRATION MAX.)
 C-----------------------------------------------
-      IF (NLO.NE.0) THEN
+      IF (NLO/=0) THEN
        FNORMX=ZERO
        FNORMY=ZERO
        FNORMZ=ZERO     
@@ -263,7 +261,7 @@ C------
        ENDDO
 C------
        NF =SQRT(FNORMX*FNORMX+FNORMY*FNORMY+FNORMZ*FNORMZ)
-       IF (NF.NE.ZERO) THEN
+       IF (NF/=ZERO) THEN
         STF=STFAC*FTOT/NF
        ELSE
         STF=ZERO

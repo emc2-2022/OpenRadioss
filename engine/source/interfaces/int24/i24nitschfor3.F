@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  I24NITSCHFOR3                 source/interfaces/int24/i24nitschfor3.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i24nitschfor3   ../engine/source/interfaces/int24/i24nitschfor3.F
+!||--- called by ------------------------------------------------------
+!||    resol           ../engine/source/engine/resol.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod     ../engine/share/message_module/message_mod.F
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
        SUBROUTINE  I24NITSCHFOR3 (IPARI ,INTBUF_TAB ,IPARIT ,STRESSMEAN,
      2                           INTLIST ,NBINTC    ,X      ,IADS      ,
      3                           FORNEQS ,FORNEQSKY,ITAB    ,IXS       ,
@@ -40,25 +41,16 @@ C-----------------------------------------------
       USE TRI7BOX
       USE MESSAGE_MOD
       USE INTBUFDEF_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-#include      "spmd_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -71,12 +63,12 @@ C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
       INTEGER,ALLOCATABLE,DIMENSION(:) ::  ITAG
-      INTEGER I ,J ,NI ,NIN ,NTY ,NSN ,NRTS ,SN ,IE ,NF ,N1 ,N2 ,N3 ,N4 ,
+      INTEGER I  ,NI ,NIN ,NTY ,NSN ,NRTS ,SN ,IE ,NF ,N1 ,N2 ,N3 ,N4 ,
      .        N ,K1 ,K2 ,K3 ,K4 ,INTNITSCHE ,ADS1 ,ADS2 ,ADS3 ,ADS4 ,IE10,
      .        NS1 ,NS2 ,NS3 ,NS4
       my_real 
      .        SX1 ,SY1 ,SZ1 ,SX2 ,SY2 ,SZ2 ,SX3 ,SY3 ,
-     .       SZ3 ,AREAS ,XNS ,YNS ,ZNS ,FOR ,FORX ,FORY ,FORZ,
+     .       SZ3      ,FORX ,FORY ,FORZ,
      .       SIGNX ,SIGNY ,SIGNZ   
 C-----------------------------------------------
 C Equivalent nodal force computation using element mean stress:
@@ -85,9 +77,9 @@ C               FORNEQS = SUM(PHI*STRESSMEAN*Facet_Normal*Facet_Area)
 C-----------------------------------------------
       ALLOCATE(ITAG(NUMNOD))
       ITAG(1:NUMNOD)=0
-      IF(IPARIT.EQ.0)THEN
+      IF(IPARIT==0)THEN
        DO NI=1,NBINTC
-	 NIN = INTLIST(NI)
+           NIN = INTLIST(NI)
          NTY   = IPARI(7,NIN)
          NSN   = IPARI(5,NIN)
          NRTS  = IPARI(3,NIN)
@@ -239,7 +231,7 @@ C
       ELSE !IPARIT
 
        DO NI=1,NBINTC
-	 NIN = INTLIST(NI)
+           NIN = INTLIST(NI)
          NTY   = IPARI(7,NIN)
          NSN   = IPARI(5,NIN)
          NRTS  = IPARI(3,NIN)

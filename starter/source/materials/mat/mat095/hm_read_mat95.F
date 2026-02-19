@@ -1,41 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT95                 source/materials/mat/mat095/hm_read_mat95.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat95            ../starter/source/materials/mat/mat095/hm_read_mat95.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT95(UPARAM   ,MAXUPARAM,NUPARAM ,NUVAR  ,MFUNC   , 
      .                         MAXFUNC  ,MTAG     ,PARMAT  ,UNITAB ,IMATVIS ,
      .                         PM       ,LSUBMODEL, ID     ,TITR   ,MATPARAM)                     
@@ -63,7 +63,8 @@ C-----------------------------------------------
       USE MESSAGE_MOD      
       USE SUBMODEL_MOD
       USE MATPARAM_DEF_MOD          
-      USE HM_OPTION_READ_MOD 
+      USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -71,47 +72,40 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       my_real, DIMENSION(NPROPM) ,INTENT(INOUT)   :: PM     
-      my_real, DIMENSION(100)    ,INTENT(OUT)     :: PARMAT
-      my_real, DIMENSION(MAXUPARAM) ,INTENT(OUT)  :: UPARAM
+      my_real, DIMENSION(100)    ,INTENT(INOUT)     :: PARMAT
+      my_real, DIMENSION(MAXUPARAM) ,INTENT(INOUT)  :: UPARAM
       
       INTEGER, INTENT(INOUT)          :: MFUNC,NUPARAM,NUVAR,IMATVIS
       TYPE(MLAW_TAG_),INTENT(INOUT)   :: MTAG
       INTEGER,INTENT(IN)              :: ID,MAXFUNC,MAXUPARAM 
-      CHARACTER*nchartitle,INTENT(IN) :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN) :: TITR
       TYPE(SUBMODEL_DATA),INTENT(IN)  :: LSUBMODEL(*)
       TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER :: NBMAT, MAT_ID  ! Number of declared materials
-      INTEGER :: I,J,NRATE,NPS,OPTE,IFUNCE,ILAW,NFUNC
+      INTEGER :: I,J,NRATE,NPS,OPTE,IFUNCE,ILAW,NFUNC,IFORM
       my_real :: RHO0, RHOR,E,NU,G,MU,RBULK,   C1,  
      .           C10,C01,C20,C11,C02 ,TAUREF_UNIT,
      .           C30, C21,C12,C03,SB,D1,D2,D3,A,EXPC,EXPM,KSI,TAUREF
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C-----------------------------------------------
       IMATVIS = 1                 
       ILAW    = 95
@@ -137,6 +131,7 @@ C=======================================================================
       NU     = ZERO
       TAUREF = ZERO
       A      = ZERO
+      IFORM  = 0
 Card1        
       CALL HM_GET_FLOATV('MAT_C_10'    ,C10      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MAT_C_01'    ,C01      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -154,6 +149,8 @@ Card3
       CALL HM_GET_FLOATV('MAT_D_1'    ,D1       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MAT_D_2'    ,D2       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MAT_D_3'    ,D3       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+      CALL HM_GET_FLOATV('MAT_NU'     ,NU       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+      CALL HM_GET_INTV  ('IFORM'      ,IFORM    ,IS_AVAILABLE,LSUBMODEL) 
 
 Card4        
       CALL HM_GET_FLOATV('MLAW95_A'    ,A        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -165,10 +162,11 @@ Card4
 
 C------------------------------------------------------------------
       NUVAR = 10
-      NUPARAM = 22
+      NUPARAM = 23
 C------------------------------------------------------------------
       IF(D2 /=  ZERO )   D2 = ONE/D2    
       IF(D3 /=  ZERO )   D3 = ONE/D3 
+      IF(IFORM== 0 )IFORM = 1
 
       IF(TAUREF == ZERO) THEN
         CALL HM_GET_FLOATV_DIM('MAT_TAU_REF' ,TAUREF_UNIT   ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -182,13 +180,19 @@ C------------------------------------------------------------------
          RBULK= TWO*D1 *(ONE+SB) 
          NU = (THREE*RBULK -TWO*G)/(THREE*RBULK + G)/TWO
          E = NINE*RBULK*G/(THREE*RBULK + G)
+      ELSEIF(NU /=ZERO)THEN
+         D2 = ZERO
+         D3 = ZERO
+         E  = TWO*G*(ONE + NU)  
+         RBULK = TWO_THIRD*G*(ONE + NU)/(ONE-TWO*NU)
+         D1 = RBULK / TWO                
       ELSE
          D2 = ZERO
          D3 = ZERO
          NU= 0.495
          RBULK = TWO_THIRD*G*(ONE + NU)/(ONE-TWO*NU)
          D1 = RBULK / TWO ! 1/D1 A VOIR SI ON SUPRIME PAS LE TERME AVEC J
-         E = TWO*G*(ONE + NU)      
+         E = TWO*G*(ONE + NU)                 
       ENDIF
 C------------------------------------------------------------------
       UPARAM(19) = G 
@@ -198,8 +202,6 @@ C------------------------------------------------------------------
       IF(EXPC == ZERO)EXPC = -0.700000000
       IF(KSI  == ZERO)KSI = EM02
 C------------------------------------------------------------------
-C------------------------------------------------------------------
-C     
       UPARAM(1)  = C10
       UPARAM(2)  = C01
       UPARAM(3)  = C20
@@ -218,8 +220,8 @@ C
       UPARAM(17) = EXPM
       UPARAM(18) = KSI 
       UPARAM(22) = TAUREF
+      UPARAM(23) = IFORM
 c
-
 c---------------------------------
 C      PM PARMAT
 C---------------------------------
@@ -234,15 +236,18 @@ C---------------------------------
 c-----------------
       CALL INIT_MAT_KEYWORD(MATPARAM,"INCOMPRESSIBLE")
       CALL INIT_MAT_KEYWORD(MATPARAM,"TOTAL")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HOOK")
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")
 c-----------------
       WRITE(IOUT,1001) TRIM(TITR),ID,95
       WRITE(IOUT,1000)
-      IF (IS_CRYPTED)THEN                                     
+      IF (IS_ENCRYPTED)THEN                                     
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE     
          WRITE(IOUT,1002)RHO0
          WRITE(IOUT,1100)C10,C01,C20,C11,C02,
-     .      C30, C21,C12,C03,D1,D2,D3  
+     .      C30, C21,C12,C03,D1,D2,D3  ,NU,IFORM
          WRITE(IOUT,1300)A,EXPC,EXPM,KSI ,SB ,TAUREF
          WRITE(IOUT,1200)G,RBULK, NU
       ENDIF
@@ -268,7 +273,11 @@ C
      & 5X,'C03 . . . . . . . . . . . . . . . . . . .=',1PG20.13/
      & 5X,'1/D1  . . . . . . . . . . . . . . . . . .=',1PG20.13/
      & 5X,'1/D2  . . . . . . . . . . . . . . . . . .=',1PG20.13/
-     & 5X,'1/D3  . . . . . . . . . . . . . . . . . .=',1PG20.13)
+     & 5X,'1/D3  . . . . . . . . . . . . . . . . . .=',1PG20.13/
+     & 5X,'POISSON COEFFICIENT . . . . . . . . . . .=',1PG20.13//
+     & 5X,'INCOMPRESSIBILITY FORMULATION FLAG IFORM. . .  =',I2/,
+     & 5X,'  IFORM = 1: STANDARD STRAIN ENERGY DENSITY (DEFAULT)',/,
+     & 5X,'  IFORM = 2: MODIFIED STRAIN ENERGY DENSITY          ',/)
  1300 FORMAT(
      & 5X,'PARAMETERS FOR THE EFFECTIVE CREEP STRAIN RATE: ',/,
      & 5X,'A. . . . . . . . . . . . . . . . . . . . =',1PG20.13/
@@ -283,14 +292,4 @@ C
      & 5X,'POISSON RATIO. . . . . . . . . . . . . . =',1PG20.13//) 
 C
       RETURN
- 999  CALL FREERR(3)
       END
-
-
-
-
-
-
-
-
-

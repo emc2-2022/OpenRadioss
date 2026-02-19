@@ -1,37 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S20COOR3                      source/elements/solid/solide20/s20coor3.F
-Chd|-- called by -----------
-Chd|        S16FORC3                      source/elements/thickshell/solide16/s16forc3.F
-Chd|        S20FORC3                      source/elements/solid/solide20/s20forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE S20COOR3(X,IXS,IXSP,V,W,IPERM1,IPERM2,NPE,
-     2   XX, YY, ZZ, VX,VY, VZ,VDXX, VDYY, VDZZ, 
-     3   VDX,VDY,VDZ,VD2,VIS,OFFG,OFF,SAV,
-     4   NC,NGL,MXT,NGEO,FX,FY,FZ,STIG,
-     5   SIGG,EINTG,RHOG,QG,EPLASM,EPSDG,G_PLA,G_EPSD,NEL,CONDEN)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s20coor3      ../engine/source/elements/solid/solide20/s20coor3.F
+!||--- called by ------------------------------------------------------
+!||    s16forc3      ../engine/source/elements/thickshell/solide16/s16forc3.F
+!||    s20forc3      ../engine/source/elements/solid/solide20/s20forc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
+      SUBROUTINE S20COOR3(
+     1   X,       IXS,     IXSP,    V,
+     2   W,       IPERM1,  IPERM2,  NPE,
+     3   XX,      YY,      ZZ,      VX,
+     4   VY,      VZ,      VDXX,    VDYY,
+     5   VDZZ,    VDX,     VDY,     VDZ,
+     6   VD2,     VIS,     OFFG,    OFF,
+     7   SAV,     NC,      NGL,     MXT,
+     8   NGEO,    FX,      FY,      FZ,
+     9   STIG,    SIGG,    EINTG,   RHOG,
+     A   QG,      EPLASM,  EPSDG,   G_PLA,
+     B   G_EPSD,  NEL,     CONDEN,  JALE,
+     C   ISMSTR,  JEUL,    JLAG)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -43,13 +53,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
 #include      "scr18_c.inc"
-#include      "param_c.inc"
-#include      "scr01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: JALE
+      INTEGER, INTENT(IN) :: ISMSTR
+      INTEGER, INTENT(IN) :: JEUL
+      INTEGER, INTENT(IN) :: JLAG
       INTEGER NPE,G_PLA,G_EPSD,NEL,
      .        NC(MVSIZ,NPE), MXT(*), NGL(*),NGEO(*),
      .        IXS(NIXS,*),IXSP(NPE-8,*), IPERM1(NPE),IPERM2(NPE)
@@ -75,8 +86,8 @@ C-----------------------------------------------
       OFF_L  = ZERO
       IUN=1
 C
-      MXT_1 = IXS(1,LFT)
-      DO I=LFT,LLT
+      MXT_1 = IXS(1,1)
+      DO I=1,NEL
         VIS(I)=ZERO
         VD2(I)=ZERO
         NGEO(I)=IXS(10,I)
@@ -110,26 +121,26 @@ C
         CONDEN(I,1:8)=ZERO
       ENDDO
       IF (G_PLA > 0) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           EPLASM(I)=ZERO  
         ENDDO
       ENDIF
       IF (G_EPSD > 0) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           EPSDG(I)=ZERO
         ENDDO
       ENDIF
 C
       DO N=9,NPE
-        DO I=LFT,LLT
+        DO I=1,NEL
           NC(I,N) =IXSP(N-8,I)
           STIG(I,N)=ZERO
           CONDEN(I,N)=ZERO
         ENDDO
       ENDDO
 C
-      IF (JLAG.EQ.0)THEN
-        DO I=LFT,LLT
+      IF (JLAG==0)THEN
+        DO I=1,NEL
           VDX(I)=ZERO
           VDY(I)=ZERO
           VDZ(I)=ZERO  
@@ -140,10 +151,10 @@ C
 C----------------------------
 C     NODAL COORDINATES     |
 C----------------------------
-        IF(ISMSTR.EQ.1.OR.(ISMSTR.EQ.2.AND.IDTMIN(1).EQ.3))THEN
+        IF(ISMSTR==1.OR.(ISMSTR==2.AND.IDTMIN(1)==3))THEN
 C
-          DO I=LFT,LLT
-            IF(OFFG(I).GT.ONE)THEN
+          DO I=1,NEL
+            IF(OFFG(I)>ONE)THEN
               XX(I,N)=SAV(I,N)
               YY(I,N)=SAV(I,N+NPE)
               ZZ(I,N)=SAV(I,N+2*NPE)
@@ -162,7 +173,7 @@ C
 C
         ELSE
 C
-          DO I=LFT,LLT
+          DO I=1,NEL
               NN = MAX(IUN,NC(I,N))
               XX(I,N)=X(1,NN)
               YY(I,N)=X(2,NN)
@@ -173,7 +184,7 @@ C
 C
         ENDIF
 C
-        DO I=LFT,LLT
+        DO I=1,NEL
             NN = MAX(IUN,NC(I,N))
             VX(I,N)=V(1,NN)
             VY(I,N)=V(2,NN)
@@ -182,9 +193,9 @@ C
             FY(I,N)=ZERO
             FZ(I,N)=ZERO    
         ENDDO
-        IF(OFF_L.LT.0.)THEN
-          DO I=LFT,LLT
-            IF(OFFG(I).LT.0.)THEN
+        IF(OFF_L<0.)THEN
+          DO I=1,NEL
+            IF(OFFG(I)<0.)THEN
               VX(I,N)=ZERO
               VY(I,N)=ZERO
               VZ(I,N)=ZERO
@@ -192,24 +203,24 @@ C
           ENDDO
         ENDIF
 C
-        IF (JLAG.EQ.0)THEN
+        IF (JLAG==0)THEN
 C
-          IF(JALE.NE.0)THEN
-            DO I=LFT,LLT
+          IF(JALE/=0)THEN
+            DO I=1,NEL
               NN = MAX(IUN,NC(I,N))
               VDXX(I,N)=VX(I,N)-W(1,NN)
               VDYY(I,N)=VY(I,N)-W(2,NN)
               VDZZ(I,N)=VZ(I,N)-W(3,NN)
             ENDDO
-          ELSEIF(JEUL.NE.0)THEN
-            DO I=LFT,LLT
+          ELSEIF(JEUL/=0)THEN
+            DO I=1,NEL
               VDXX(I,N)=VX(I,N)
               VDYY(I,N)=VY(I,N)
               VDZZ(I,N)=VZ(I,N)
             ENDDO
           ENDIF
 C
-          DO I=LFT,LLT
+          DO I=1,NEL
             VDX(I)=VDX(I)+VDXX(I,N)
             VDY(I)=VDY(I)+VDYY(I,N)
             VDZ(I)=VDZ(I)+VDZZ(I,N)
@@ -217,8 +228,8 @@ C
         ENDIF
       ENDDO
 C
-      IF (JLAG.EQ.0)THEN
-        DO I=LFT,LLT
+      IF (JLAG==0)THEN
+        DO I=1,NEL
           VDX(I)=FOURTH*VDX(I)
           VDY(I)=FOURTH*VDY(I)
           VDZ(I)=FOURTH*VDZ(I)  
@@ -229,8 +240,8 @@ C
       DO N=9,NPE
         N1=IPERM1(N)
         N2=IPERM2(N)
-        DO I=LFT,LLT
-          IF(NC(I,N).EQ.0)THEN
+        DO I=1,NEL
+          IF(NC(I,N)==0)THEN
             XX(I,N) = HALF*(XX(I,N1)+XX(I,N2))
             YY(I,N) = HALF*(YY(I,N1)+YY(I,N2))
             ZZ(I,N) = HALF*(ZZ(I,N1)+ZZ(I,N2))

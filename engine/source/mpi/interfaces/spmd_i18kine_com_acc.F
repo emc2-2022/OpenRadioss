@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_I18KINE_COM_ACC          source/mpi/interfaces/spmd_i18kine_com_acc.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_1                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_i18kine_com_acc   ../engine/source/mpi/interfaces/spmd_i18kine_com_acc.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_1         ../engine/source/interfaces/int18/i18main_kine.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../engine/source/output/message/message.F
+!||    arret                  ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod          ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod    ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box                ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_I18KINE_COM_ACC(IPARI,INTBUF_TAB,
      *                MTF,A,ITAB,TAGPENE)
 C-----------------------------------------------
@@ -42,21 +44,18 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -72,16 +71,16 @@ C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
       INTEGER STATUS(MPI_STATUS_SIZE),
-     *        REQ_SI(NSPMD),REQ_RI(NSPMD)
+     *        REQ_SI(NSPMD)
       INTEGER P,LENSD,LENRV,IADS(NSPMD+1),IADR(NSPMD+1),IERROR,
      *        SIZ,LOC_PROC,MSGTYP,MSGOFF,IDEB(NINTER)
       INTEGER NIN,NTY,INACTI
-      INTEGER J,L,NB,NN,K,N,NOD,MODE,LEN,ALEN,ND
+      INTEGER L,NB,NN,K,NOD,ALEN,ND
       my_real ,
      *   DIMENSION(:), ALLOCATABLE :: BBUFS, BBUFR
       DATA MSGOFF/150/
 C-----------------------------------------------
-C Sur la type 18KINE, il faut communiquer les accelerations des nds seconds
+C On the 18KINE type, it is necessary to communicate the accelerations of the secondary nodes
 
       LOC_PROC = ISPMD+1
       IADS = 0
@@ -90,7 +89,7 @@ C Sur la type 18KINE, il faut communiquer les accelerations des nds seconds
       LENRV = 0
 
       ALEN=8
-C Comptage des tailles de buffer  Receeption et envoi
+C Counting of buffer sizes Reception and sending
       DO P=1,NSPMD
          IADR(P)=LENRV+1
          DO NIN=1,NINTER
@@ -105,18 +104,18 @@ C Comptage des tailles de buffer  Receeption et envoi
       ENDDO
       IADR(NSPMD+1)=LENRV+1
 
-      IF(LENSD.GT.0)THEN
+      IF(LENSD>0)THEN
           ALLOCATE(BBUFS(LENSD),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
       ENDIF
 
-C Preparation du recieve
-      IF(LENRV.GT.0)THEN
+C Preparation of the receive
+      IF(LENRV>0)THEN
           ALLOCATE(BBUFR(LENRV),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
@@ -134,7 +133,7 @@ C Send
            IF((NTY==7.and.IPARI(34,NIN)==-2.and.INACTI==7).OR.
      .        (NTY==22.and.IPARI(34,NIN)==-2.and.INACTI==7))THEN
                NB = NSNSI(NIN)%P(P)
-C Preparation du send
+C Preparation of the send
                DO NN=1,NB
                  ND = NSVSI(NIN)%P(IDEB(NIN)+NN)
                  NOD=INTBUF_TAB(NIN)%NSV(ND)
@@ -158,12 +157,12 @@ c                 BBUFS(L+4)=MTF(11,NOD)
          ENDDO
 
          SIZ = L-IADS(P)
-         IF(SIZ.GT.0)THEN
+         IF(SIZ>0)THEN
               MSGTYP = MSGOFF
 C Send
               CALL MPI_ISEND(
      .          BBUFS(IADS(P)),SIZ,REAL     ,IT_SPMD(P),MSGTYP,
-     .          MPI_COMM_WORLD,REQ_SI(P),IERROR    )
+     .          SPMD_COMM_WORLD,REQ_SI(P),IERROR    )
          ENDIF
        ENDIF
       ENDDO
@@ -178,7 +177,7 @@ C Recieve
           IF (SIZ > 0) THEN
             MSGTYP = MSGOFF
             CALL MPI_RECV( BBUFR(IADR(P)),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     *                     MPI_COMM_WORLD,STATUS,IERROR )
+     *                     SPMD_COMM_WORLD,STATUS,IERROR )
            DO NIN=1,NINTER
              NTY   =IPARI(7,NIN)
              INACTI =IPARI(22,NIN)
@@ -207,14 +206,14 @@ C Recieve
           ENDIF
       ENDDO
 
-C Fin du send
+C End of the send
       DO P = 1, NSPMD
           IF (P==NSPMD)THEN
              SIZ=LENSD-IADS(P)
           ELSE
              SIZ=IADS(P+1)-IADS(P)
           ENDIF
-          IF(SIZ.GT.0) THEN
+          IF(SIZ>0) THEN
             CALL MPI_WAIT(REQ_SI(P),STATUS,IERROR)
           ENDIF
       ENDDO

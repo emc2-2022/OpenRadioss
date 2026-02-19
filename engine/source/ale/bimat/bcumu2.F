@@ -1,54 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BCUMU2                        source/ale/bimat/bcumu2.F     
-Chd|-- called by -----------
-Chd|        BFORC2                        source/ale/bimat/bforc2.F     
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE BCUMU2(ALPH,ALPHC,E,FILL,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    bcumu2   ../engine/source/ale/bimat/bcumu2.F
+!||--- called by ------------------------------------------------------
+!||    bforc2   ../engine/source/ale/bimat/bforc2.F
+!||====================================================================
+      SUBROUTINE BCUMU2(ALPH,E,
      .                  SIG,EINT,RHO,BULK,BULKT,
      .                  SIGT,EINTT,RHOT,TEMPT,TEMP,
      .                  PLAST,PLAS,BFRACT,BFRAC,
      .                  F11, F12, F21, F22, AX1,AX2,
      .                  T11,T12,T13,T14,T21,T22,T23,T24, 
      .                  B11,B12,B13,B14,B21,B22,B23,B24,
-     .                  NC1,NC2,NC3,NC4,STI,STIFN,
+     .                  NC1,NC2,NC3,NC4, STI,STIFN,
      .                  L_TEMP, L_PLA,L_BFRAC, L_BULK,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NC1(*), NC2(*), NC3(*), NC4(*), L_TEMP, L_PLA, L_BFRAC,L_BULK,NEL
       my_real
-     .   ALPH(*), ALPHC(*), E(3,*)   , FILL(*)  , SIG(NEL,6), EINT(*) ,
+     .   ALPH(*), E(3,*)   , SIG(NEL,6), EINT(*) ,
      .   RHO(*) , BULK(*) , SIGT(NEL,6), EINTT(*) , RHOT(*) , TEMPT(*),
      .   TEMP(*), PLAST(*), PLAS(*)  , BFRACT(*), BFRAC(*), BULKT(*)
       my_real
@@ -69,7 +64,7 @@ C-----------------------------------------------
       my_real
      .   ALPHT, ALPHX     
 C-----------------------------------------------
-      IF(JALE+JEUL.EQ.0.OR.MTN.EQ.11) THEN
+      IF(JALE+JEUL==0.OR.MTN==11) THEN
       DO I=LFT,LLT
         B11(I)=ZERO
         B12(I)=ZERO
@@ -102,7 +97,7 @@ C-------------------------
        ENDDO
 
       DO I=LFT,LLT
-        IF(ALPH(I).EQ.ZERO)THEN
+        IF(ALPH(I)==ZERO)THEN
          DO J=1,6
            SIG(I,J)= ZERO
          ENDDO
@@ -147,29 +142,24 @@ C-------------------------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  BCUMU2P                       source/ale/bimat/bcumu2.F     
-Chd|-- called by -----------
-Chd|        BFORC2                        source/ale/bimat/bforc2.F     
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE BCUMU2P(ALPH,ALPHC,FILL,
+!||====================================================================
+!||    bcumu2p   ../engine/source/ale/bimat/bcumu2.F
+!||--- called by ------------------------------------------------------
+!||    bforc2    ../engine/source/ale/bimat/bforc2.F
+!||====================================================================
+      SUBROUTINE BCUMU2P(ALPH,
      .                   SIG,EINT,RHO,BULK,BULKT,
      .                   SIGT,EINTT,RHOT,TEMPT,TEMP,
      .                   PLAST,PLAS,BFRACT,BFRAC,
      .                   F11, F12, F21, F22, AX1,AX2,
      .                   T11,T12,T13,T14,T21,T22,T23,T24, 
      .                   B11,B12,B13,B14,B21,B22,B23,B24,
-     .                   FSKY,FSKYV,IADQ,STI,NC1,NC2,NC3,NC4,
+     .                   FSKY,FSKYV,IADQ,STI,
      .                   L_TEMP, L_PLA, L_BFRAC,L_BULK,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -177,10 +167,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IADQ(4,*),NC1(*),NC2(*),NC3(*),NC4(*),L_TEMP, L_PLA,L_BFRAC,
+      INTEGER IADQ(4,*),L_TEMP, L_PLA,L_BFRAC,
      .   L_BULK,NEL
       my_real
-     .   ALPH(*), ALPHC(*), FILL(*), SIG(NEL,6), EINT(*),
+     .   ALPH(*),SIG(NEL,6), EINT(*),
      .   RHO(*), BULK(*), SIGT(NEL,6), EINTT(*), RHOT(*),TEMPT(*),
      .   TEMP(*),PLAST(*), PLAS(*), BFRACT(*), BFRAC(*), BULKT(*)
       my_real
@@ -202,7 +192,7 @@ C-----------------------------------------------
       my_real
      .   ALPHT, ALPHX     
 C-----------------------------------------------
-      IF(JALE+JEUL.EQ.0.OR.MTN.EQ.11) THEN
+      IF(JALE+JEUL==0.OR.MTN==11) THEN
       DO I=LFT,LLT
         B11(I)=ZERO
         B12(I)=ZERO
@@ -217,7 +207,7 @@ C-----------------------------------------------
 C-------------------------
 C     ASSEMBLE
 C-------------------------
-      IF(IVECTOR.EQ.1) THEN
+      IF(IVECTOR==1) THEN
         DO I=LFT,LLT
           ALPHT=ONE
           ALPHX=ALPH(I)
@@ -270,7 +260,7 @@ C-------------------------
       ENDIF
 
       DO I=LFT,LLT
-        IF(ALPH(I).EQ.ZERO)THEN
+        IF(ALPH(I)==ZERO)THEN
          DO J=1,6
            SIG(I,J)=ZERO
          ENDDO
@@ -315,29 +305,24 @@ C-------------------------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  BCUMU2PA                      source/ale/bimat/bcumu2.F     
-Chd|-- called by -----------
-Chd|        BFORC2                        source/ale/bimat/bforc2.F     
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE BCUMU2PA(ALPH,ALPHC,FILL,
+!||====================================================================
+!||    bcumu2pa   ../engine/source/ale/bimat/bcumu2.F
+!||--- called by ------------------------------------------------------
+!||    bforc2     ../engine/source/ale/bimat/bforc2.F
+!||====================================================================
+      SUBROUTINE BCUMU2PA(ALPH,
      .                    SIG,EINT,RHO,BULK,BULKT,
      .                    SIGT,EINTT,RHOT,TEMPT,TEMP,
      .                    PLAST,PLAS,BFRACT,BFRAC,
      .                    F11, F12, F21, F22, AX1,AX2,
      .                    T11,T12,T13,T14,T21,T22,T23,T24, 
      .                    B11,B12,B13,B14,B21,B22,B23,B24,
-     .                    FSKY,FSKYV,IADQ,STI,NC1,NC2,NC3,NC4,
+     .                    FSKY,FSKYV,IADQ,STI,
      .                    L_TEMP, L_PLA,L_BFRAC,L_BULK,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -345,10 +330,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IADQ(4,*),NC1(*),NC2(*),NC3(*),NC4(*),L_TEMP,L_PLA,L_BFRAC,
+      INTEGER IADQ(4,*),L_TEMP,L_PLA,L_BFRAC,
      .   L_BULK,NEL
       my_real
-     .   ALPH(*), ALPHC(*), FILL(*), SIG(NEL,6), EINT(*),
+     .   ALPH(*), SIG(NEL,6), EINT(*),
      .   RHO(*), BULK(*), SIGT(NEL,6), EINTT(*), RHOT(*),TEMPT(*),
      .   TEMP(*), PLAST(*), PLAS(*), BFRACT(*), BFRAC(*),BULKT(*)
       my_real
@@ -370,7 +355,7 @@ C-----------------------------------------------
       my_real
      .   ALPHT, ALPHX
 C-----------------------------------------------
-      IF(JALE+JEUL.EQ.0.OR.MTN.EQ.11) THEN
+      IF(JALE+JEUL==0.OR.MTN==11) THEN
       DO I=LFT,LLT
         B11(I)=ZERO
         B12(I)=ZERO
@@ -385,7 +370,7 @@ C-----------------------------------------------
 C-------------------------
 C     ASSEMBLE
 C-------------------------
-      IF(IVECTOR.EQ.1) THEN
+      IF(IVECTOR==1) THEN
         DO I=LFT,LLT
           ALPHT=ONE
           ALPHX=ALPH(I)
@@ -454,7 +439,7 @@ C-------------------------
       ENDIF
 
       DO I=LFT,LLT
-        IF(ALPH(I).EQ.ZERO)THEN
+        IF(ALPH(I)==ZERO)THEN
          DO J=1,6
            SIG(I,J)=ZERO
          ENDDO

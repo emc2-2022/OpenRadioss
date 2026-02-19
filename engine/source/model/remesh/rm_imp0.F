@@ -1,40 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RMDIM_IMP                     source/model/remesh/rm_imp0.F 
-Chd|-- called by -----------
-Chd|        DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rmdim_imp     ../engine/source/model/remesh/rm_imp0.F
+!||--- called by ------------------------------------------------------
+!||    dim_kinmax    ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int        ../engine/source/implicit/produt_v.F
+!||    reorder_a     ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||    remesh_mod    ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE RMDIM_IMP(IXC ,IXTG  ,NDOF   ,NNMAX ,NKINE,
      1                     INLOC,NROW ,ITAB   ,SH4TREE,SH3TREE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE REMESH_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -80,11 +83,11 @@ C
           M(2)=IXC(4,SON+1)
           M(3)=IXC(5,SON+2)
           M(4)=IXC(2,SON+3)
-	  DO J = 1 , 4
-	   MN = M(J)
+            DO J = 1 , 4
+             MN = M(J)
            IF(TAGNOD(MN)==0.AND.NDOF(MN)>0) NSH_KIN= NSH_KIN + 1
            TAGNOD(MN)=1
-	  END DO 
+            END DO 
         END DO
 
         DO NN=PSH3KIN(LEVEL)+1,PSH3KIN(LEVEL+1)
@@ -95,16 +98,16 @@ C
           M(1)=IXTG(4,SON+3)
           M(2)=IXTG(2,SON+3)
           M(3)=IXTG(3,SON+3)
-	  DO J = 1 , 3
-	   MN = M(J)
+            DO J = 1 , 3
+             MN = M(J)
            IF(TAGNOD(MN)==0.AND.NDOF(MN)>0) NSH_KIN= NSH_KIN + 1
            TAGNOD(MN)=1
-	  END DO 
+            END DO 
         END DO
 
       END DO
       
-      IF (NSH_KIN.EQ.0) RETURN
+      IF (NSH_KIN==0) RETURN
 
       ALLOCATE(ISH_NS(NSH_KIN),ISH_MS(2,NSH_KIN))
       
@@ -117,10 +120,10 @@ C
 
           SON=SH4TREE(2,N)
 
-	  DO J = 1 , 4
-	   NI(J) = IXC(J+1,N)
-	  END DO 
-	  NI(5) = NI(1)
+            DO J = 1 , 4
+             NI(J) = IXC(J+1,N)
+            END DO 
+            NI(5) = NI(1)
 C
           MC=IXC(4,SON)
 
@@ -130,16 +133,16 @@ C
           M(2)=IXC(4,SON+1)
           M(3)=IXC(5,SON+2)
           M(4)=IXC(2,SON+3)
-	  DO J = 1 , 4
-	   MN = M(J)
+            DO J = 1 , 4
+             MN = M(J)
            IF(TAGNOD(MN)==0.AND.NDOF(MN)>0) THEN
-	    NS= NS + 1
-	    ISH_NS(NS) = MN
-	    ISH_MS(1,NS) = NI(J)
-	    ISH_MS(2,NS) = NI(J+1)
+              NS= NS + 1
+              ISH_NS(NS) = MN
+              ISH_MS(1,NS) = NI(J)
+              ISH_MS(2,NS) = NI(J+1)
            END IF
            TAGNOD(MN)=1
-	  END DO 
+            END DO 
         END DO
 
 
@@ -148,24 +151,24 @@ C
 
           SON=SH3TREE(2,N)
 
-	  DO J = 1 , 3
-	   NI(J) = IXTG(J+1,N)
-	  END DO 
-	  NI(4) = NI(1)
+            DO J = 1 , 3
+             NI(J) = IXTG(J+1,N)
+            END DO 
+            NI(4) = NI(1)
 C
           M(1)=IXTG(4,SON+3)
           M(2)=IXTG(2,SON+3)
           M(3)=IXTG(3,SON+3)
-	  DO J = 1 , 3
-	   MN = M(J)
+            DO J = 1 , 3
+             MN = M(J)
            IF(TAGNOD(MN)==0.AND.NDOF(MN)>0) THEN
-	    NS= NS + 1
-	    ISH_NS(NS) = MN
-	    ISH_MS(1,NS) = NI(J)
-	    ISH_MS(2,NS) = NI(J+1)
+              NS= NS + 1
+              ISH_NS(NS) = MN
+              ISH_MS(1,NS) = NI(J)
+              ISH_MS(2,NS) = NI(J+1)
            END IF
            TAGNOD(MN)=1
-	  END DO 
+            END DO 
         END DO
 
       END DO
@@ -183,11 +186,11 @@ C
 C-------i,j<->j,i
       DO NN=1,NSH4ACT
         N    =LSH4ACT(NN)
-	 IS = 0
+           IS = 0
          DO J=1,4
           M(J)=IXC(J+1,N)
           MN = TAGNOD(M(J))
-	  IF (MN>0.AND.MN<=NKS) IS = MN 
+            IF (MN>0.AND.MN<=NKS) IS = MN 
          ENDDO 
          IF (IS > 0) THEN
           DO J=1,4
@@ -201,11 +204,11 @@ C-------i,j<->j,i
       END DO 
       DO NN=1,NSH3ACT
         N    =LSH3ACT(NN)
-	 IS = 0
+           IS = 0
          DO J=1,3
           M(J)=IXTG(J+1,N)
           MN = TAGNOD(M(J))
-	  IF (MN>0.AND.MN<=NKS) IS = MN 
+            IF (MN>0.AND.MN<=NKS) IS = MN 
          ENDDO 
          IF (IS > 0) THEN
           DO J=1,3
@@ -232,7 +235,7 @@ C-----------------elementary connectivity -----
           K=TAGNOD(NS)
           IF (K > 0) THEN
            DO L=1,4
-            IF (NS.NE.M(L)) THEN
+            IF (NS/=M(L)) THEN
              CALL REORDER_A(NROWK(K),ICOK(1,K),M(L)) 
             ENDIF
            ENDDO
@@ -249,7 +252,7 @@ C-----------------elementary connectivity -----
           K=TAGNOD(NS)
           IF (K > 0) THEN
            DO L=1,3
-            IF (NS.NE.M(L)) THEN
+            IF (NS/=M(L)) THEN
              CALL REORDER_A(NROWK(K),ICOK(1,K),M(L)) 
             ENDIF
            ENDDO
@@ -265,8 +268,8 @@ C-----------------new connectivity due to kin-----
        MK1 = TAGNOD(M1)
        MK2 = TAGNOD(M2)
        DO J=1,NROWK(K)
-	NN = ICOK(J,K)
-	MN = TAGNOD(NN)
+          NN = ICOK(J,K)
+          MN = TAGNOD(NN)
         IF (NN/=M1) THEN
          CALL REORDER_A(NROWK(MK1),ICOK(1,MK1),NN) 
          CALL REORDER_A(NROWK(MN),ICOK(1,MN),M1) 
@@ -288,8 +291,8 @@ C
        END IF
        NROW(NS)=MAX(NROW(NS),NROWK(K))
        DO J=1,NROWK(K)
-	NN = ICOK(J,K)
-	MN = TAGNOD(NN)
+          NN = ICOK(J,K)
+          MN = TAGNOD(NN)
         NNMAX=MAX(NNMAX,NROWK(MN))
         IF (INLOC(NN)==0) THEN
          NKINE=NKINE+1
@@ -318,14 +321,15 @@ C
       RETURN
       END     
 
-Chd|====================================================================
-Chd|  RMIND_IMP                     source/model/remesh/rm_imp0.F 
-Chd|-- called by -----------
-Chd|        IND_KINE_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+!||====================================================================
+!||    rmind_imp    ../engine/source/model/remesh/rm_imp0.F
+!||--- called by ------------------------------------------------------
+!||    ind_kine_k   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    remesh_mod   ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE RMIND_IMP(NNMAX,INLOC,NROWK,ICOK )
 C-----------------------------------------------
 C   M o d u l e s
@@ -336,20 +340,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NNMAX
       INTEGER INLOC(*),NROWK(*),ICOK(NNMAX,*)
-C-----------------------------------------------
-C   External function
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -379,14 +373,15 @@ C
       RETURN
       END     
 
-Chd|====================================================================
-Chd|  RM_IMP0                       source/model/remesh/rm_imp0.F 
-Chd|-- called by -----------
-Chd|        UPD_GLOB_K                    source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        RM_IMP1                       source/model/remesh/rm_imp0.F 
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+!||====================================================================
+!||    rm_imp0      ../engine/source/model/remesh/rm_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_glob_k   ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    rm_imp1      ../engine/source/model/remesh/rm_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    remesh_mod   ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE RM_IMP0(NDDL  ,IADK  ,JDIK  ,DIAG_K ,LT_K  ,
      1                   NDOF  ,IDDL  ,IKC   ,B      ,ITAB  )
 C-----------------------------------------------
@@ -397,12 +392,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -427,19 +416,19 @@ C
       RETURN
       END     
 
-Chd|====================================================================
-Chd|  RM_IMP1                       source/model/remesh/rm_imp0.F 
-Chd|-- called by -----------
-Chd|        RM_IMP0                       source/model/remesh/rm_imp0.F 
-Chd|-- calls ---------------
-Chd|        GET_KII                       source/implicit/imp_glob_k.F  
-Chd|        GET_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        PRINT_WKIJ                    source/implicit/imp_glob_k.F  
-Chd|        PUT_KII                       source/implicit/imp_glob_k.F  
-Chd|        PUT_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        UPDKDD                        source/interfaces/interf/i2_imp1.F
-Chd|        UPDKDD1                       source/interfaces/interf/i2_imp1.F
-Chd|====================================================================
+!||====================================================================
+!||    rm_imp1      ../engine/source/model/remesh/rm_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rm_imp0      ../engine/source/model/remesh/rm_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    get_kii      ../engine/source/implicit/imp_glob_k.F
+!||    get_kij      ../engine/source/implicit/imp_glob_k.F
+!||    print_wkij   ../engine/source/implicit/imp_glob_k.F
+!||    put_kii      ../engine/source/implicit/imp_glob_k.F
+!||    put_kij      ../engine/source/implicit/imp_glob_k.F
+!||    updkdd       ../engine/source/interfaces/interf/i2_imp1.F
+!||    updkdd1      ../engine/source/interfaces/interf/i2_imp1.F
+!||====================================================================
       SUBROUTINE RM_IMP1(NIR  ,IRECT ,I    ,NR   ,NODS ,
      3                   ITAB ,IKC  ,NDOF  ,NDDL ,IDDL ,
      4                   IADK ,JDIK ,DIAG_K,LT_K ,B    )
@@ -457,10 +446,6 @@ C     REAL
       my_real
      .   DIAG_K(*),LT_K(*),B(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER  J, J1, J2, J3, J4, K, JD, II, L, JJ,
@@ -475,7 +460,7 @@ C --------------------------------------------------
          NJ=IRECT(J)
          NDM = MAX(NDM,NDOF(NJ))
         ENDDO
-        IF (NDM.EQ.0) RETURN
+        IF (NDM==0) RETURN
       FACM = ONE / NIR
       FACM2 = FACM*FACM
         DO K=1,NDOF(I)
@@ -502,29 +487,29 @@ C-------Update K(main node),B---
            ND = MIN(ND,NDOF(NM))
            CALL UPDKDD(ND,KDD,KII,FACM2,0)
            CALL PUT_KIJ(NJ,NM,IDDL,IADK,JDIK,LT_K,KII,ND,ND,IR)
-           IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NJ) ,ITAB(NM) ,3 )
+           IF (IR==1) CALL PRINT_WKIJ(ITAB(NJ) ,ITAB(NM) ,3 )
           ENDDO 
         ENDDO 
 C--------no diag--Kjm=sum(KjsCsm)--
         DO I1 = 1,NR
           NI=NODS(I1)
           NIDOF=NDOF(NI)
-          IF (NIDOF.EQ.0) CYCLE
+          IF (NIDOF==0) CYCLE
           CALL GET_KIJ(NI,I,IDDL,IADK,JDIK,LT_K,KDD,NIDOF,NDOF(I),IR)
-          IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(I) ,3 )
+          IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(I) ,3 )
 C------- Update ---
           NDI = MIN(NDM,NIDOF)
           DO J=1,NIR
            NJ=IRECT(J)
            NDJ = MIN(NDM,NDOF(NJ))
-           IF (NDJ.GT.0) THEN
-            IF (NJ.EQ.NI) THEN
+           IF (NDJ>0) THEN
+            IF (NJ==NI) THEN
              CALL UPDKDD1(NIDOF,NDJ,KDD,KII,FACM,1)
              CALL PUT_KII(NJ ,IDDL ,IADK,DIAG_K,LT_K,KII,NDJ)
             ELSE
              CALL UPDKDD1(NDI,NDOF(I),KDD,KII,FACM,0)
              CALL PUT_KIJ(NI,NJ,IDDL,IADK,JDIK,LT_K,KII,NDI,NDJ,IR)
-             IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(NJ) ,3 )
+             IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(NJ) ,3 )
             ENDIF 
            ENDIF 
           ENDDO 
@@ -532,18 +517,20 @@ C------- Update ---
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RM_IMP2                       source/model/remesh/rm_imp0.F 
-Chd|-- called by -----------
-Chd|        RECUKIN                       source/implicit/recudis.F     
-Chd|-- calls ---------------
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+!||====================================================================
+!||    rm_imp2       ../engine/source/model/remesh/rm_imp0.F
+!||--- called by ------------------------------------------------------
+!||    recukin       ../engine/source/implicit/recudis.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||    remesh_mod    ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE RM_IMP2(IXC,IXTG,V ,VR ,SH4TREE,SH3TREE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE REMESH_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -553,9 +540,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -585,7 +569,7 @@ C
 C
           MC=IXC(3,SON+3)
 
-          IF(TAGNOD(MC).EQ.0)THEN
+          IF(TAGNOD(MC)==0)THEN
             TAGNOD(MC)=1
             DO J=1,3
               V(J,MC)= FOURTH*(V(J,N1)+V(J,N2)+V(J,N3)+V(J,N4))
@@ -601,7 +585,7 @@ C
           M(3)=IXC(5,SON+2)
           M(4)=IXC(2,SON+3)
 
-          IF(TAGNOD(M(1)).EQ.0)THEN
+          IF(TAGNOD(M(1))==0)THEN
             TAGNOD(M(1))=1
             DO J=1,3
               V(J,M(1))= HALF*(V(J,N1)+V(J,N2))
@@ -612,7 +596,7 @@ C
           ELSE
           END IF
 
-          IF(TAGNOD(M(2)).EQ.0)THEN
+          IF(TAGNOD(M(2))==0)THEN
             TAGNOD(M(2))=1
             DO J=1,3
               V(J,M(2))= HALF*(V(J,N2)+V(J,N3))
@@ -623,7 +607,7 @@ C
           ELSE
           END IF
 
-          IF(TAGNOD(M(3)).EQ.0)THEN
+          IF(TAGNOD(M(3))==0)THEN
             TAGNOD(M(3))=1
             DO J=1,3
               V(J,M(3))= HALF*(V(J,N3)+V(J,N4))
@@ -634,7 +618,7 @@ C
           ELSE
           END IF
 
-          IF(TAGNOD(M(4)).EQ.0)THEN
+          IF(TAGNOD(M(4))==0)THEN
             TAGNOD(M(4))=1
             DO J=1,3
               V(J,M(4))= HALF*(V(J,N4)+V(J,N1))
@@ -659,7 +643,7 @@ C
           M(2)=IXTG(2,SON+3)
           M(3)=IXTG(3,SON+3)
 
-          IF(TAGNOD(M(1)).EQ.0)THEN
+          IF(TAGNOD(M(1))==0)THEN
             TAGNOD(M(1))=1
             DO J=1,3
               V(J,M(1))= HALF*(V(J,N1)+V(J,N2))
@@ -670,7 +654,7 @@ C
           ELSE
           END IF
 
-          IF(TAGNOD(M(2)).EQ.0)THEN
+          IF(TAGNOD(M(2))==0)THEN
             TAGNOD(M(2))=1
             DO J=1,3
               V(J,M(2))= HALF*(V(J,N2)+V(J,N3))
@@ -681,7 +665,7 @@ C
           ELSE
           END IF
 
-          IF(TAGNOD(M(3)).EQ.0)THEN
+          IF(TAGNOD(M(3))==0)THEN
             TAGNOD(M(3))=1
             DO J=1,3
               V(J,M(3))= HALF*(V(J,N3)+V(J,N1))

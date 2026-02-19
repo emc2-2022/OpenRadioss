@@ -1,52 +1,71 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  M2LAW                         source/materials/mat/mat002/m2law.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|-- calls ---------------
-Chd|        M2ITER_IMP                    source/materials/mat/mat002/m2law.F
-Chd|        MDTSPH                        source/materials/mat_share/mdtsph.F
-Chd|        MQVISCB                       source/materials/mat_share/mqviscb.F
-Chd|====================================================================
-      SUBROUTINE M2LAW (PM ,OFF  ,SIG     ,EINT   ,RHO     ,
-     2           QOLD   ,EPXE    ,EPSD    ,VOL    ,STIFN   ,
-     3           DT2T   ,NELTST  ,ITYPTST ,OFFG   ,GEO     ,
-     4           PID    ,AMU     ,VOL_AVG,
-     6           MUMAX  ,MAT     ,NGL     ,SSP    ,DVOL    ,
-     7           AIRE   ,VNEW    ,VD2     ,DELTAX ,VIS     ,  
-     8           D1     ,D2      ,D3      ,D4     ,D5      ,
-     9           D6     ,PNEW    ,PSH     ,QNEW   ,SSP_EQ  ,
-     A           SOLD1  ,SOLD2   ,SOLD3   ,SOLD4  ,SOLD5   ,
-     B           SOLD6  ,IPLA    ,SIGY    ,DEFP   ,DPLA1   ,
-     C           EPSP   ,TSTAR   ,ETSE    ,MSSA   ,DMELS   ,
-     D           TEMPEL ,SIGBAK  ,AL_IMP  ,SIGNOR ,CONDE   ,
-     E           DTEL   ,G_DT    ,NEL     ,IPM    ,RHOREF  ,
-     F           RHOSP   )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    m2law              ../engine/source/materials/mat/mat002/m2law.F
+!||--- called by ------------------------------------------------------
+!||    mmain              ../engine/source/materials/mat_share/mmain.F90
+!||--- calls      -----------------------------------------------------
+!||    m2iter_imp         ../engine/source/materials/mat/mat002/m2iter_imp.F
+!||    mdtsph             ../engine/source/materials/mat_share/mdtsph.F
+!||    mqviscb            ../engine/source/materials/mat_share/mqviscb.F
+!||    mstrain_rate       ../engine/source/materials/mat_share/mstrain_rate.F
+!||--- uses       -----------------------------------------------------
+!||    glob_therm_mod     ../common_source/modules/mat_elem/glob_therm_mod.F90
+!||    matparam_def_mod   ../common_source/modules/mat_elem/matparam_def_mod.F90
+!||    prop_param_mod     ../common_source/modules/mat_elem/prop_param_mod.F90
+!||====================================================================
+      SUBROUTINE M2LAW(mat_param ,
+     1   PM,      OFF,        SIG,     EINT,
+     2   RHO,     QOLD,       EPXE,    EPSD,
+     3   VOL,     STIFN,      DT2T,    NELTST,
+     4   ITYPTST, OFFG,       GEO,     PID,
+     5   AMU,     VOL_AVG,    MUMAX,   MAT,
+     6   NGL,     SSP,        DVOL,    AIRE,
+     7   VNEW,    VD2,        DELTAX,  VIS,
+     8   D1,      D2,         D3,      D4,
+     9   D5,      D6,         PNEW,    PSH,
+     A   QNEW,    SSP_EQ,     SOLD1,   SOLD2,
+     B   SOLD3,   SOLD4,      SOLD5,   SOLD6,
+     C   SIGY,    DEFP,       DPLA,    JLAG,
+     D   EPSP,    TSTAR,      ETSE,    MSSA,
+     E   DMELS,   TEMPEL,     SIGBAK,  AL_IMP,
+     F   SIGNOR,  CONDE,      DTEL,    G_DT,
+     G   NEL,     IPM,        RHOREF,  RHOSP,
+     H   IPG,     DMG,        ITY,     JTUR,
+     I   JTHE,    JSPH,       ISMSTR,  JSMS,
+     J   NPG ,    DPDM ,      FHEAT,   glob_therm,
+     H   NUMGEO,  IGEO)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      use glob_therm_mod
+      use matparam_def_mod
+      USE prop_param_mod , only : n_var_igeo
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
+#include      "comlock.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -56,143 +75,145 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "vect01_c.inc"
 #include      "impl1_c.inc"
+#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NPG
+      INTEGER, INTENT(IN) :: ISMSTR
+      INTEGER, INTENT(IN) :: JSMS
+      INTEGER, INTENT(IN) :: ITY
+      INTEGER, INTENT(IN) :: JTUR
+      INTEGER, INTENT(IN) :: JTHE
+      INTEGER, INTENT(IN) :: JSPH
+      INTEGER, INTENT(IN) :: JLAG
+      INTEGER,INTENT(IN) :: NUMGEO
 C
-      INTEGER NELTST,ITYPTST,PID(*),G_DT,NEL
-      INTEGER MAT(*),NGL(*),IPLA, IPM(NPROPMI,*)
-      my_real
-     .   DT2T
-C
-      my_real
-     .   PM(NPROPM,*), OFF(*), SIG(NEL,6), EINT(*), RHO(*), QOLD(*),
-     .   EPXE(*), EPSD(*), VOL(*), STIFN(*), OFFG(*),GEO(NPROPG,*),
-     .   MUMAX(*),AMU(*),VOL_AVG(*)
-      my_real
-     .   VNEW(*), VD2(*), DELTAX(*), SSP(*), AIRE(*), VIS(*), 
-     .   PSH(*), PNEW(*),QNEW(*) ,SSP_EQ(*), DVOL(*), 
-     .   D1(*), D2(*), D3(*), D4(*), D5(*), D6(*), 
-     .   SOLD1(MVSIZ), SOLD2(MVSIZ), SOLD3(MVSIZ),
-     .   SOLD4(MVSIZ), SOLD5(MVSIZ), SOLD6(MVSIZ),
-     .   TSTAR(MVSIZ), DPLA1(MVSIZ), EPSP(MVSIZ)
-C
-      my_real
-     .   SIGY(*) ,DEFP(*),ETSE(*), MSSA(*), DMELS(*), TEMPEL(*),
-     .   SIGBAK(NEL,6),AL_IMP(*),SIGNOR(MVSIZ,6),CONDE(*),DTEL(*),
-     .   RHOREF(*)  ,RHOSP(*)  
+      INTEGER NELTST,ITYPTST,PID(NEL),G_DT,NEL,IPG
+      INTEGER MAT(NEL),NGL(NEL), IPM(NPROPMI,*)
+      my_real :: DT2T
+      my_real PM(NPROPM,*), OFF(NEL), SIG(NEL,6), EINT(NEL), RHO(NEL), QOLD(NEL),
+     .        EPXE(NEL), EPSD(NEL), VOL(NEL), STIFN(NEL), OFFG(NEL),GEO(NPROPG,*),
+     .        MUMAX(NEL),AMU(NEL),VOL_AVG(NEL)
+      my_real VNEW(NEL), VD2(NEL), DELTAX(NEL), SSP(NEL), AIRE(NEL), VIS(NEL),
+     .        PSH(NEL), PNEW(NEL),QNEW(NEL) ,SSP_EQ(NEL), DVOL(NEL),
+     .        D1(NEL), D2(NEL), D3(NEL), D4(NEL), D5(NEL), D6(NEL),
+     .        SOLD1(MVSIZ), SOLD2(MVSIZ), SOLD3(MVSIZ),
+     .        SOLD4(MVSIZ), SOLD5(MVSIZ), SOLD6(MVSIZ),
+     .        TSTAR(MVSIZ), DPLA(MVSIZ), EPSP(MVSIZ), DMG(NEL)
+      my_real, DIMENSION(MVSIZ) ,INTENT(IN) :: DPDM
+      my_real, DIMENSION(NEL) ,INTENT(INOUT) :: FHEAT ! Heat due to plastic work for Heat Equation with lagrangian framework
+      my_real SIGY(NEL) ,DEFP(NEL),ETSE(NEL), MSSA(NEL), DMELS(NEL), TEMPEL(NEL),
+     .        SIGBAK(NEL,6),AL_IMP(NEL),SIGNOR(MVSIZ,6),CONDE(NEL),DTEL(NEL),
+     .        RHOREF(NEL)  ,RHOSP(NEL)
+      type (glob_therm_)      ,intent(inout) :: glob_therm
+      type (matparam_struct_) ,intent(in)    :: mat_param
+      integer,dimension(n_var_igeo,numgeo),intent(in)  :: igeo
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER ICC,IRTY,ISRATE,
-     .   I, MX , NPIF,IBID,IKFLG
-      my_real
-     .   RHO0, 
-     .   EPD(MVSIZ),
-     .   G(MVSIZ), AK(MVSIZ),
-     .   PC(MVSIZ), QH(MVSIZ), C1,T(MVSIZ),
-     .   AJ2(MVSIZ), DAV(MVSIZ),
-     .   P, EPMX, 
-     .   CA(MVSIZ), CB(MVSIZ), CC, CN,
-     .   EPDR, CMX, 
-     .   SIGMX(MVSIZ),Z3,Z4,CP,
-     .   ASRATE,
-     .   E1, E2, E3, E4, E5,E6, EINC, G2, G1,
-     .       SIGEXX(MVSIZ),SIGEYY(MVSIZ),SIGEZZ(MVSIZ),
-     .       SIGEXY(MVSIZ),SIGEYZ(MVSIZ),SIGEZX(MVSIZ),
-     .    SCALE, BID1, BID2, BID3, DTA,TM,MT,EPIF, DPLA,
-     .    DSXX,DSYY,DSZZ,DSXY,DSYZ,DSZX,ALPHA,HKIN,
-     .    FACQ0,FISOKIN,BETA,VM,VM_1,G3,G3H,NORM_1,
-     .    G_1,CA_1,CB_1,SIGMX_1,T_1
+      INTEGER :: I, J, ICC,IFORM,ISRATE,VP,IDEV,NINDX
+      INTEGER :: INDX(NEL)
+      my_real RHO0, PLAP,POLD,PSHIFT,BULK,P, EPMX,CC,CN,EPDR,
+     .        Z3,Z4,RHOCP,RHOCPI,T_REF,T_MELT,ASRATE,
+     .        E1, E2, E3, E4, E5,E6, EINC, G0,G1,G2,G3,G3H,
+     . SCALE, DTA,MT,
+     .        DSXX,DSYY,DSZZ,DSXY,DSYZ,DSZX,ALPHA,HKIN,
+     .        FACQ0,FISOKIN,BETA,VM,VM_1,NORM_1,CA0,CB,SIGM0
+      my_real EPD(MVSIZ),G(MVSIZ), AK(MVSIZ), QH(MVSIZ),
+     .        AJ2(MVSIZ), DAV(MVSIZ),CA(MVSIZ),SIGMX(MVSIZ),
+     .        SIGEXX(MVSIZ),SIGEYY(MVSIZ),SIGEZZ(MVSIZ),
+     .        SIGEXY(MVSIZ),SIGEYZ(MVSIZ),SIGEZX(MVSIZ)
       my_real, DIMENSION(MVSIZ) :: BIDMVSIZ
 C-----------------------------------------------
-C
-      EPIF    = ZERO
-      NPIF    = 0
+C   B o d y
+C-----------------------------------------------
       FACQ0   = ONE
 C
-      MX      = MAT(LFT)
-      RHO0    = PM( 1,MX)
-      C1      = PM(32,MX)
-      CN      = PM(40,MX)
-      CC      = PM(43,MX)
-      ICC     = NINT(PM(49,MX))
-      EPMX    = PM(41,MX)
-      EPDR    = PM(44,MX)
-      EPIF    = MAX(EPIF,CC)
-      IRTY    = NINT(PM(50,MX))
-      Z3      = PM(51,MX)
-      Z4      = PM(52,MX)
-      CP      = PM(53,MX)
-      CMX     = PM(45,MX)
-      ISRATE  = IPM(3,MX)
-      ASRATE  = MIN(ONE,PM(9,MX)*DT1)
-      FISOKIN = PM(55,MX)
-      G_1     = PM(22,MX)
-      CA_1    = PM(38,MX)
-      CB_1    = PM(39,MX)
-      SIGMX_1 = PM(42,MX)
-      T_1     = PM(54,MX)
-      DO I=LFT,LLT
-        G(I)    =G_1*OFF(I)
-c     --constants a,b,n of the hardening function
-c     --sigma_0 = a + b*(eps_p)**n
-        CA(I)   =CA_1
-        CB(I)   =CB_1
-        SIGMX(I)=SIGMX_1
-        NPIF    = NPIF+IRTY
-        T(I)   =T_1
-C
+      IFORM   = mat_param%iparam(1)
+      ICC     = mat_param%iparam(2)
+      VP      = mat_param%iparam(3)
+      ISRATE  = mat_param%iparam(4)
+
+      RHO0    = mat_param%rho
+      BULK    = mat_param%bulk
+      G0      = mat_param%shear
+       
+
+      CA0     = mat_param%uparam(1)
+      CB      = mat_param%uparam(2)
+      CN      = mat_param%uparam(3)
+      EPMX    = mat_param%uparam(4)
+      SIGM0   = mat_param%uparam(5)
+      CC      = mat_param%uparam(6)
+      EPDR    = mat_param%uparam(7)
+      fisokin = mat_param%uparam(8)
+      asrate  = mat_param%uparam(9)
+      Z3      = mat_param%uparam(10)
+      asrate  = MIN(one, asrate*dt1)
+
+      T_REF   = mat_param%therm%tref
+      T_MELT  = mat_param%therm%tmelt
+      RHOCP   = mat_param%therm%rhocp
+      IF (RHOCP > ZERO) THEN
+        RHOCPI = ONE / RHOCP
+      ELSE
+        RHOCPI = ZERO
+      END IF
+      PSHIFT  = PM(88,MAT(1))     ! from EOS
+!
+      IF (IFORM == 1) THEN        ! Zerilli
+        Z4 = mat_param%uparam(11)
+      END IF
+!
+      DO I=1,NEL
+        G(I)    = G0*OFF(I)
+        CA(I)   = CA0
+        SIGMX(I)= SIGM0
         ETSE(I) = ONE
       ENDDO
 C
 C------------------------------------------
 C     ECROUISSAGE CINE
 C------------------------------------------
-      IKFLG=0
-      DO I=LFT,LLT
-         IF (FISOKIN /= ZERO ) THEN
-          SIG(I,1)=SIG(I,1)-SIGBAK(I,1)
-          SIG(I,2)=SIG(I,2)-SIGBAK(I,2)
-          SIG(I,3)=SIG(I,3)-SIGBAK(I,3)
-          SIG(I,4)=SIG(I,4)-SIGBAK(I,4)
-          SIG(I,5)=SIG(I,5)-SIGBAK(I,5)
-          SIG(I,6)=SIG(I,6)-SIGBAK(I,6)
-          IKFLG = IKFLG + 1
-         ENDIF           
-      ENDDO
+      IF (FISOKIN > ZERO) THEN
+        DO I=1,NEL
+         SIG(I,1)=SIG(I,1)-SIGBAK(I,1)
+         SIG(I,2)=SIG(I,2)-SIGBAK(I,2)
+         SIG(I,3)=SIG(I,3)-SIGBAK(I,3)
+         SIG(I,4)=SIG(I,4)-SIGBAK(I,4)
+         SIG(I,5)=SIG(I,5)-SIGBAK(I,5)
+         SIG(I,6)=SIG(I,6)-SIGBAK(I,6)
+        ENDDO
+      ENDIF           
 C      
-      DO I=LFT,LLT
-       P  =-THIRD*(SIG(I,1)+SIG(I,2)+SIG(I,3))
-       DAV(I)=-THIRD*(D1(I)+D2(I)+D3(I))
-       G1=DT1*G(I)
-       G2=TWO*G1
-       SSP(I)=SQRT((ONEP333*G(I)+C1)/RHO0)
-C-------------------------------
-C     CONTRAINTES DEVIATORIQUES
-C-------------------------------
-c     -- deviatoric elastic stress predictor
-       SIG(I,1)=SIG(I,1)+P+G2*(D1(I)+DAV(I))
-       SIG(I,2)=SIG(I,2)+P+G2*(D2(I)+DAV(I))
-       SIG(I,3)=SIG(I,3)+P+G2*(D3(I)+DAV(I))
-       SIG(I,4)=SIG(I,4)+G1*D4(I)
-       SIG(I,5)=SIG(I,5)+G1*D5(I)
-       SIG(I,6)=SIG(I,6)+G1*D6(I)
+      DO I=1,NEL
+        P  =-THIRD*(SIG(I,1)+SIG(I,2)+SIG(I,3))
+        DAV(I)=-THIRD*(D1(I)+D2(I)+D3(I))
+        G1=DT1*G(I)
+        G2=TWO*G1
+        SSP(I)=SQRT((ONEP333*G(I)+BULK)/RHO0)
+c      -- deviatoric elastic stress predictor
+        SIG(I,1)=SIG(I,1)+P+G2*(D1(I)+DAV(I))
+        SIG(I,2)=SIG(I,2)+P+G2*(D2(I)+DAV(I))
+        SIG(I,3)=SIG(I,3)+P+G2*(D3(I)+DAV(I))
+        SIG(I,4)=SIG(I,4)+G1*D4(I)
+        SIG(I,5)=SIG(I,5)+G1*D5(I)
+        SIG(I,6)=SIG(I,6)+G1*D6(I)
 C
-c     -- von Mises stress at elastic predictor
-       AJ2(I)=HALF*(SIG(I,1)**2+SIG(I,2)**2+SIG(I,3)**2)
-     1               +SIG(I,4)**2+SIG(I,5)**2+SIG(I,6)**2
-       AJ2(I)=SQRT(THREE*AJ2(I))
+c      -- von Mises stress at elastic predictor
+        AJ2(I)=HALF*(SIG(I,1)**2+SIG(I,2)**2+SIG(I,3)**2)
+     .             + SIG(I,4)**2+SIG(I,5)**2+SIG(I,6)**2
+        AJ2(I)=SQRT(THREE*AJ2(I))
       ENDDO
 C
 c     --  storing elastic predictors for stiffness computation
-      IF (IMPL_S.GT.0.OR.IKFLG.GT.0) THEN
-        DO I=LFT,LLT
+      IF (IMPL_S>0 .OR. FISOKIN>ZERO) THEN
+        DO I=1,NEL
          SIGEXX(I) = SIG(I,1)
          SIGEYY(I) = SIG(I,2)
-         SIGEZZ(I) = SIG(I,3)		    
+         SIGEZZ(I) = SIG(I,3)        
          SIGEXY(I) = SIG(I,4)
          SIGEYZ(I) = SIG(I,5)
          SIGEZX(I) = SIG(I,6)
@@ -201,256 +222,146 @@ c     --  storing elastic predictors for stiffness computation
 C-------------
 C     STRAIN RATE (JOHNSON-COOK, ZERILLI-ARMSTRONG)
 C-------------
-      IF (ISRATE > 0) THEN
-        DO I=LFT,LLT
-          EPD(I) = HALF*((D1(I)+DAV(I))**2+(D2(I)+DAV(I))**2
-     .                                  +(D3(I)+DAV(I))**2) 
-     .           + FOURTH*(D4(I)**2+D5(I)**2+D6(I)**2)
-          EPD(I) = SQRT(THREE*EPD(I))/THREE_HALF
-          EPSD(I) = ASRATE*EPD(I) + (ONE -ASRATE)*EPSD(I)
-        ENDDO
-      ELSE
-        DO I=LFT,LLT
-          EPSD(I)=OFF(I)* MAX( ABS(D1(I)), ABS(D2(I)), ABS(D3(I)),
-     .      HALF*ABS(D4(I)),HALF*ABS(D5(I)),HALF*ABS(D6(I)))
-        ENDDO
-      ENDIF   ! israte
+      IDEV = VP - 2
+      CALL MSTRAIN_RATE(NEL    ,ISRATE ,ASRATE ,EPSD   ,IDEV   ,
+     .                  D1,      D2,      D3,      D4,       D5,      D6)
+
       EPSP(1:NEL) = EPSD(1:NEL)                   
+      EPD(1:NEL)  = ONE                 
 c
-      IF (EPIF.NE.0.0)THEN
-        DO I=LFT,LLT
-           EPD(I)= MAX(EPSD(I),EM15)
-           EPD(I)= LOG(EPD(I)/EPDR)
-        ENDDO
-        IF(JTHE >= 0 ) THEN     
-          TM=Z4
-          IF(TM.EQ.ZERO)TM=EP30   
-          DO I=LFT,LLT
-            T(I) = T(I) +CP*EINT(I)/MAX(EM15,VOL(I))
-            TSTAR(I)=MIN(ONE,MAX(ZERO,(T(I)-T_1)/(TM-T_1))) 
-          ENDDO
-        ENDIF  
-  
-        IF(NPIF.EQ.ZERO)THEN
-          DO I=LFT,LLT
-             MT=MAX(EM15,Z3)
-c
-c epd(i) >= 0
-c
-             EPD(I)= MAX(ZERO,EPD(I))
-             EPD(I)= (ONE +CC * EPD(I))*(ONE -TSTAR(I)**MT)
-             IF(ICC.EQ.1)SIGMX(I)= SIGMX(I)*EPD(I)
-          ENDDO
-        ELSEIF(NPIF.EQ.LLT)THEN
-          DO I=LFT,LLT
-             EPD(I)= CC*EXP((-Z3+Z4 * EPD(I))*T(I))
-             IF(ICC.EQ.1)SIGMX(I)= SIGMX(I) + EPD(I)
-             CA(I) = CA(I) + EPD(I)
-             EPD(I)=ONE
+      IF (CC /= ZERO) THEN
+        IF (VP == 1) THEN
+          DO I=1,NEL
+            EPD(I)= MAX(EPSD(I),EPDR)
+            EPD(I)= LOG(EPD(I)/EPDR)  
           ENDDO
         ELSE
-          DO I=LFT,LLT
-           IF(IRTY.EQ.0)THEN
-             MT=Z3
-           EPD(I)= MAX(ZERO,EPD(I))
-             EPD(I)= (ONE +CC * EPD(I))*(ONE -TSTAR(I)**MT)
-             IF(ICC.EQ.1)SIGMX(I)= SIGMX(I)*EPD(I)
-           ELSE
-             EPD(I)= CC*EXP((-Z3+Z4 * EPD(I))*T(I))
-             IF(ICC.EQ.1)SIGMX(I)= SIGMX(I) + EPD(I)
-             CA(I) = CA(I) + EPD(I)
-             EPD(I)=ONE
-           ENDIF
+          DO I=1,NEL
+            EPD(I)= MAX(EPSD(I),EM15)
+            EPD(I)= LOG(EPD(I)/EPDR)  
           ENDDO
-        ENDIF
-      ELSE
-        DO I=LFT,LLT
-          EPD(I)=ONE
-        ENDDO
+        ENDIF ! VP
+!  
+        IF (IFORM == 0) THEN   ! J-C
+          DO I=1,NEL
+             MT=MAX(EM15,Z3)
+             EPD(I)= MAX(ZERO,EPD(I))
+             EPD(I)= (ONE +CC * EPD(I))*(ONE -TSTAR(I)**MT)
+             IF (ICC==1) SIGMX(I) = SIGM0*EPD(I)
+          ENDDO
+        ELSEIF (IFORM==1) THEN
+          DO I=1,NEL
+             EPD(I)= CC*EXP((-Z3+Z4 * EPD(I))*TEMPEL(I))
+             IF (ICC==1) SIGMX(I) = SIGM0 + EPD(I)
+             CA(I) = CA0 + EPD(I)
+             EPD(I)=ONE
+          ENDDO
+        END IF
+      ELSEIF (IFORM == 0) THEN  
+        MT = MAX(EM15,Z3)
+        EPD(1:NEL) = ONE - TSTAR(1:NEL)**MT
+        IF (ICC==1) SIGMX(1:NEL) = SIGM0*EPD(1:NEL)
       ENDIF
 C-------------
 C     CRITERE
 C-------------
-C--------pure-isotrope----
-      IF (IKFLG == 0 ) THEN
-      IF(IPLA.NE.2)THEN
-        IF(CN.EQ.ONE) THEN
-                AK(LFT:LLT)= CA(LFT:LLT)+CB(LFT:LLT)*EPXE(LFT:LLT)
-                QH(LFT:LLT)= CB(LFT:LLT)*EPD(LFT:LLT)
+      IF (FISOKIN == ZERO) THEN  ! isotropic hardening
+        IF(CN==ONE) THEN
+          AK(1:NEL)= CA(1:NEL)+CB*EPXE(1:NEL)
+          QH(1:NEL)= CB*EPD(1:NEL)
         ELSE
-                DO  I=LFT,LLT
-                        IF(EPXE(I).GT.ZERO) THEN
-                                AK(I)=CA(I)+CB(I)*EPXE(I)**CN
-                                IF(CN.GT.ONE) THEN
-                                        QH(I)= (CB(I)*CN*EPXE(I)**(CN - ONE))*EPD(I)
-                                ELSE
-                                        QH(I)= (CB(I)*CN/EPXE(I)**(ONE -CN))*EPD(I)
-                                ENDIF
-                        ELSE
-                                AK(I)=CA(I)
-                                QH(I)=ZERO
-                        ENDIF
-                ENDDO
+          DO  I=1,NEL
+            IF(EPXE(I)>ZERO) THEN
+              AK(I)=CA(I)+CB*EPXE(I)**CN
+              IF(CN>ONE) THEN
+                QH(I) = (CB*CN*EPXE(I)**(CN - ONE))*EPD(I)
+              ELSE
+                QH(I) = (CB*CN/EPXE(I)**(ONE -CN))*EPD(I)
+              ENDIF
+            ELSE
+              AK(I)=CA(I)
+              QH(I)=ZERO
+            ENDIF
+          ENDDO
         ENDIF
-        DO  I=LFT,LLT
-                AK(I)=AK(I)*EPD(I)
-                IF(SIGMX(I).LT.AK(I))THEN
-                        AK(I)=SIGMX(I)
-                        QH(I)=ZERO
-                ENDIF
-                SIGY(I) = AK(I)
-                IF(EPXE(I).GT.EPMX)THEN
-                        AK(I)=ZERO
-                        QH(I)=ZERO
-                ENDIF
+        DO  I=1,NEL
+          AK(I)=AK(I)*EPD(I)
+          IF(SIGMX(I)<AK(I))THEN
+            AK(I)=SIGMX(I)
+            QH(I)=ZERO
+          ENDIF
+          SIGY(I) = AK(I)
+          IF(EPXE(I)>EPMX)THEN
+            AK(I)=ZERO
+            QH(I)=ZERO
+          ENDIF
         ENDDO
-      ELSE
-       DO 95 I=LFT,LLT
-       IF(CN.EQ.ONE) THEN
-        AK(I)= CA(I)+CB(I)*EPXE(I)
-       ELSE
-       IF(EPXE(I).GT.ZERO) THEN
-        AK(I)=CA(I)+CB(I)*EPXE(I)**CN
-       ELSE
-         AK(I)=CA(I)
-       ENDIF
-       ENDIF
-       AK(I)= MIN(AK(I)*EPD(I),SIGMX(I))
-       SIGY(I) = AK(I)
-       IF(EPXE(I).GT.EPMX)AK(I)=ZERO
-   95  CONTINUE
-      ENDIF
-      ELSE
-C------------------------------------------
-C     ECROUISSAGE CINE&MIXE
-C------------------------------------------
-       IF(IPLA.NE.2)THEN
-        DO I=LFT,LLT
-         BETA = ONE-FISOKIN
-C------------SIGY is used for hourglass stress compute--         
-         IF(CN.EQ.ONE) THEN
-          SIGY(I) = CA(I)+CB(I)*EPXE(I)
-          AK(I)= CA(I)+BETA*CB(I)*EPXE(I)
-          QH(I)= CB(I)*EPD(I)
-         ELSE
-          IF(EPXE(I).GT.ZERO) THEN
-           SIGY(I)=CA(I)+CB(I)*EPXE(I)**CN
-           AK(I)=CA(I)+BETA*CB(I)*EPXE(I)**CN
-           IF(CN.GT.ONE) THEN
-            QH(I)= (CB(I)*CN*EPXE(I)**(CN - ONE))*EPD(I)
-           ELSE
-            QH(I)= (CB(I)*CN/EPXE(I)**(ONE -CN))*EPD(I)
-           ENDIF
+!
+      ELSE     ! kinematic hardening
+!
+        DO I=1,NEL
+          BETA = ONE-FISOKIN
+          ! SIGY is used for hourglass stress compute--        
+          IF(CN==ONE) THEN
+            SIGY(I) = CA(I)+CB*EPXE(I)
+            AK(I)= CA(I)+BETA*CB*EPXE(I)
+            QH(I)= CB*EPD(I)
           ELSE
-           AK(I)=CA(I)
-           SIGY(I)=CA(I)
-           QH(I)=ZERO
+            IF(EPXE(I)>ZERO) THEN
+              SIGY(I)=CA(I)+CB*EPXE(I)**CN
+              AK(I)=CA(I)+BETA*CB*EPXE(I)**CN
+              IF(CN>ONE) THEN
+                QH(I)= (CB*CN*EPXE(I)**(CN - ONE))*EPD(I)
+              ELSE
+                QH(I)= (CB*CN/EPXE(I)**(ONE -CN))*EPD(I)
+              ENDIF
+            ELSE
+             AK(I)=CA(I)
+             SIGY(I)=CA(I)
+             QH(I)=ZERO
+            ENDIF
           ENDIF
-         ENDIF
-         AK(I)=AK(I)*EPD(I)
-         SIGY(I)=SIGY(I)*EPD(I)
-         IF(SIGMX(I).LT.AK(I))THEN
-          AK(I)=SIGMX(I)
-          QH(I)=ZERO
-         ENDIF
-         SIGY(I)=MIN(SIGY(I),SIGMX(I))
-         IF(EPXE(I).GT.EPMX)THEN
-          AK(I)=ZERO
-          QH(I)=ZERO
-         ENDIF
-        END DO !I=LFT,LLT
-C
-       ELSE
-        DO I=LFT,LLT
-         BETA = ONE-FISOKIN
-         IF(CN.EQ.ONE) THEN
-          SIGY(I)= CA(I)+CB(I)*EPXE(I)
-          AK(I)= CA(I)+BETA*CB(I)*EPXE(I)
-          QH(I)= CB(I)*EPD(I)
-         ELSE
-          IF(EPXE(I).GT.ZERO) THEN
-           SIGY(I)=CA(I)+CB(I)*EPXE(I)**CN
-           AK(I)=CA(I)+BETA*CB(I)*EPXE(I)**CN
-           IF(CN.GT.ONE) THEN
-            QH(I)= (CB(I)*CN*EPXE(I)**(CN - ONE))*EPD(I)
-           ELSE
-            QH(I)= (CB(I)*CN/EPXE(I)**(ONE -CN))*EPD(I)
-           ENDIF
-          ELSE
-           AK(I)=CA(I)
-           SIGY(I)=CA(I)
-           QH(I)=ZERO
+          AK(I)=AK(I)*EPD(I)
+          SIGY(I)=SIGY(I)*EPD(I)
+          IF(SIGMX(I)<AK(I))THEN
+            AK(I)=SIGMX(I)
+            QH(I)=ZERO
           ENDIF
-         ENDIF
-         AK(I)= MIN(AK(I)*EPD(I),SIGMX(I))
-         SIGY(I) = MIN(SIGY(I)*EPD(I),SIGMX(I))
-         IF(EPXE(I).GT.EPMX)THEN
-          AK(I)=ZERO
-          QH(I)=ZERO
-         ENDIF
-        END DO 
-       ENDIF
-      END IF !(IKFLG == 0 ) THEN
-C
-      IF(IPLA.EQ.0)THEN
-       DO 110 I=LFT,LLT
-       SCALE= MIN(ONE,AK(I)/ MAX(AJ2(I),EM15))
-       SIG(I,1)=SCALE*SIG(I,1)
-       SIG(I,2)=SCALE*SIG(I,2)
-       SIG(I,3)=SCALE*SIG(I,3)
-       SIG(I,4)=SCALE*SIG(I,4)
-       SIG(I,5)=SCALE*SIG(I,5)
-       SIG(I,6)=SCALE*SIG(I,6)
-       EPXE(I)=EPXE(I)+(ONE-SCALE)*AJ2(I)/MAX(THREE*G(I)+QH(I),EM15)
-C
-       DPLA1(I) = (ONE-SCALE)*AJ2(I)/MAX(THREE*G(I)+QH(I),EM15)     
-  110 CONTINUE
-C
-      ELSEIF(IPLA.EQ.2)THEN
-       DO I=LFT,LLT
-       SCALE= MIN(ONE,AK(I)/ MAX(AJ2(I),EM15))
-       SIG(I,1)=SCALE*SIG(I,1)
-       SIG(I,2)=SCALE*SIG(I,2)
-       SIG(I,3)=SCALE*SIG(I,3)
-       SIG(I,4)=SCALE*SIG(I,4)
-       SIG(I,5)=SCALE*SIG(I,5)
-       SIG(I,6)=SCALE*SIG(I,6)
-       EPXE(I)=EPXE(I)+(ONE -SCALE)*AJ2(I)/MAX(3.*G(I),EM15)
-       DPLA1(I) = (ONE -SCALE)*AJ2(I)/MAX(3.*G(I),EM15)
-       ENDDO
-C
-      ELSEIF(IPLA.EQ.1)THEN
-C
-      IF (IMPL_S.EQ.0) THEN
-       DO I=LFT,LLT
-       SCALE= MIN(ONE,AK(I)/ MAX(AJ2(I),EM15))
-C      plastic strain increment.
-       DPLA=(ONE-SCALE)*AJ2(I)/MAX(THREE*G(I)+QH(I),EM15)
-C      actual yield stress.
-       AK(I)=AK(I)+(ONE - FISOKIN)*DPLA*QH(I)
-       SCALE= MIN(ONE,AK(I)/ MAX(AJ2(I),EM15))
-       SIG(I,1)=SCALE*SIG(I,1)
-       SIG(I,2)=SCALE*SIG(I,2)
-       SIG(I,3)=SCALE*SIG(I,3)
-       SIG(I,4)=SCALE*SIG(I,4)
-       SIG(I,5)=SCALE*SIG(I,5)
-       SIG(I,6)=SCALE*SIG(I,6)
-       EPXE(I)=EPXE(I)+DPLA
-       DPLA1(I) = DPLA       
-       ENDDO
-      ELSE
-c ---- nonlinear hardening requires iterations in radial return ---
-      CALL  M2ITER_IMP( SIG,   EPXE,   AJ2,  G,
-     1                  CA,     CB,    CN,
-     2                  EPD,  SIGMX,  EPMX,
-     3                 DPLA1,   AK,  QH,  SIGY ,FISOKIN,
-     4                  NEL)
-C
-      END IF !(IMPL_S.EQ.0) THEN
-      ENDIF 
+          SIGY(I)=MIN(SIGY(I),SIGMX(I))
+          IF(EPXE(I)>EPMX)THEN
+            AK(I)=ZERO
+            QH(I)=ZERO
+          ENDIF
+        END DO ! I=1,NEL
+      END IF   ! (FISOKIN == 0 ) THEN
+!---------------------------------------------------------
+      IF (IMPL_S==0) THEN
+        DO I=1,NEL
+          SCALE= MIN(ONE,AK(I)/ MAX(AJ2(I),EM15))
+C         plastic strain increment.
+          DPLA(I)=(ONE-SCALE)*AJ2(I)/MAX(THREE*G(I)+QH(I),EM15)
+C         actual yield stress.
+          AK(I)=AK(I)+(ONE - FISOKIN)*DPLA(I)*QH(I)
+          SCALE= MIN(ONE,AK(I)/ MAX(AJ2(I),EM15))
+          SIG(I,1)=SCALE*SIG(I,1)
+          SIG(I,2)=SCALE*SIG(I,2)
+          SIG(I,3)=SCALE*SIG(I,3)
+          SIG(I,4)=SCALE*SIG(I,4)
+          SIG(I,5)=SCALE*SIG(I,5)
+          SIG(I,6)=SCALE*SIG(I,6)
+          EPXE(I)=EPXE(I)+DPLA(I)
+        ENDDO
+!
+      ELSE    ! implicit : nonlinear hardening requires iterations in radial return
+        CALL  M2ITER_IMP(SIG,     EPXE,    AJ2,     G,
+     1                   CA,      CB,      CN,      EPD,
+     2                   SIGMX,   EPMX,    DPLA,   AK,
+     3                   QH,      SIGY,    FISOKIN, NEL)
+!
+      END IF ! IMPL_S
 c-----------------------------------------
-      IF (IKFLG > 0 ) THEN
-       DO I=LFT,LLT
+      IF (FISOKIN > ZERO) THEN
+       DO I=1,NEL
           DSXX = SIGEXX(I) - SIG(I,1) 
           DSYY = SIGEYY(I) - SIG(I,2)
           DSZZ = SIGEZZ(I) - SIG(I,3)
@@ -475,276 +386,194 @@ C       ..gets stresses from shifted stresses and back stresses
           SIG(I,5)=SIG(I,5) + SIGBAK(I,5)
           SIG(I,6)=SIG(I,6) + SIGBAK(I,6)
        ENDDO
-      END IF !(IKFLG > 0 ) THEN
-C
+      END IF !(FISOKIN > 0 ) THEN
+c-----------------------------------------
+!
       BIDMVSIZ(1:MVSIZ) = ZERO
-      IF (JSPH.EQ.0)THEN
-       CALL MQVISCB(PM,OFF     ,RHO    ,BIDMVSIZ,BIDMVSIZ,SSP   ,
-     2        BIDMVSIZ,STIFN   ,DT2T   ,NELTST,ITYPTST,AIRE  ,
-     3        OFFG    ,GEO     ,PID    ,VNEW   ,VD2   ,DELTAX ,
-     4        VIS     ,D1      ,D2      ,D3     ,PNEW  ,PSH    ,
-     5        MAT     ,NGL     ,QNEW    ,SSP_EQ ,VOL   ,MSSA   ,
-     6        DMELS   ,IBID    ,FACQ0   ,CONDE  ,DTEL  ,G_DT   ,
-     7        IPM     ,RHOREF  ,RHOSP   )
+      IF (JSPH==0) THEN
+       CALL MQVISCB(
+     1   PM,      OFF,     RHO,     BIDMVSIZ,
+     2   BIDMVSIZ,SSP,     BIDMVSIZ,STIFN,
+     3   DT2T,    NELTST,  ITYPTST, AIRE,
+     4   OFFG,    GEO,     PID,     VNEW,
+     5   VD2,     DELTAX,  VIS,     D1,
+     6   D2,      D3,      PNEW,    PSH,
+     7   MAT,     NGL,     QNEW,    SSP_EQ,
+     8   VOL,     MSSA,    DMELS,   IGEO,
+     9   FACQ0,   CONDE,   DTEL,    G_DT,
+     A   IPM,     RHOREF,  RHOSP,   NEL,
+     B   ITY,     ISMSTR,  JTUR,    JTHE,
+     C   JSMS,    NPG   ,   glob_therm)
       ELSE
-       CALL MDTSPH(PM ,OFF     ,RHO     ,BIDMVSIZ,BIDMVSIZ,
-     2        BIDMVSIZ,STIFN   ,DT2T    ,NELTST  ,ITYPTST ,
-     3        OFFG    ,GEO     ,PID     ,MUMAX   ,SSP     ,
-     4        VNEW    ,VD2     ,DELTAX  ,VIS     ,D1      ,
-     5        D2      ,D3      ,PNEW    ,PSH     ,MAT     ,
-     6        NGL     ,QNEW    ,SSP_EQ  ,G_DT    ,DTEL)
+       CALL MDTSPH(
+     1   PM,      OFF,     RHO,     BIDMVSIZ,
+     2   BIDMVSIZ,BIDMVSIZ,STIFN,   DT2T,
+     3   NELTST,  ITYPTST, OFFG,    GEO,
+     4   PID,     MUMAX,   SSP,     VNEW,
+     5   VD2,     DELTAX,  VIS,     D1,
+     6   D2,      D3,      PNEW,    PSH,
+     7   MAT,     NGL,     QNEW,    SSP_EQ,
+     8   G_DT,    DTEL,    NEL,     ITY,
+     9   JTUR,    JTHE)
       ENDIF
 C
-      DTA =HALF*DT1
+      DTA = HALF*DT1
 C
-      DO I=LFT,LLT
-       PNEW(I)=C1*AMU(I)
-       SIG(I,1)=(SIG(I,1)-PNEW(I))*OFF(I)
-       SIG(I,2)=(SIG(I,2)-PNEW(I))*OFF(I)
-       SIG(I,3)=(SIG(I,3)-PNEW(I))*OFF(I)
-       SIG(I,4)= SIG(I,4)*OFF(I)
-       SIG(I,5)= SIG(I,5)*OFF(I)
-       SIG(I,6)= SIG(I,6)*OFF(I)
+      NINDX = 0
+      INDX(1:NEL) = 0
+      DO I=1,NEL
+        IF ((EPXE(I) > EPMX).AND.(DMG(I)==ZERO)) THEN 
+          NINDX = NINDX + 1
+          INDX(NINDX) = I
+          DMG(I) = ONE
+        ENDIF
       ENDDO
-!       split the loop in two parts in order to improve the vectorization
-      DO I=LFT,LLT
-       E1=D1(I)*(SOLD1(I)+SIG(I,1))
-       E2=D2(I)*(SOLD2(I)+SIG(I,2))
-       E3=D3(I)*(SOLD3(I)+SIG(I,3))
-       E4=D4(I)*(SOLD4(I)+SIG(I,4))
-       E5=D5(I)*(SOLD5(I)+SIG(I,5))
-       E6=D6(I)*(SOLD6(I)+SIG(I,6))
+ 
+      IF (MAT_PARAM%IEOS == 0) THEN !  add pressure to the deviatoric stress
+        DO I=1,NEL
+          PNEW(I)  = BULK*AMU(I)
+          SIG(I,1) =(SIG(I,1) - PNEW(I))*OFF(I)
+          SIG(I,2) =(SIG(I,2) - PNEW(I))*OFF(I)
+          SIG(I,3) =(SIG(I,3) - PNEW(I))*OFF(I)
+          SIG(I,4) = SIG(I,4) * OFF(I)
+          SIG(I,5) = SIG(I,5) * OFF(I)
+          SIG(I,6) = SIG(I,6) * OFF(I)
+        ENDDO
+!
+        DO I=1,NEL
+          E1 = D1(I)*(SOLD1(I)+SIG(I,1))
+          E2 = D2(I)*(SOLD2(I)+SIG(I,2))
+          E3 = D3(I)*(SOLD3(I)+SIG(I,3))
+          E4 = D4(I)*(SOLD4(I)+SIG(I,4))
+          E5 = D5(I)*(SOLD5(I)+SIG(I,5))
+          E6 = D6(I)*(SOLD6(I)+SIG(I,6))
+          EINC = VOL_AVG(I)*(E1+E2+E3+E4+E5+E6)*DTA - HALF*DVOL(I)*(QOLD(I)+QNEW(I))
+          EINT(I) = (EINT(I)+EINC*OFF(I)) / MAX(EM15,VOL(I))
+        ENDDO
+
+      ELSE
+        ! if EOS is used, material law calculates only deviatoric stress tensor
+        !                 sound speed depends on pressure derivative over volume change
+        !                 calculated in EOS
+        DO I = 1, NEL
+          SSP(I) = SQRT((DPDM(I) + FOUR*G(I)/THREE)/RHO0)
+!
+          POLD     = (SOLD1(I)+SOLD2(I)+SOLD3(I)) * THIRD
+          SOLD1(I) = SOLD1(I) - POLD
+          SOLD2(I) = SOLD2(I) - POLD
+          SOLD3(I) = SOLD3(I) - POLD
+          E1 = D1(I) * (SOLD1(I)+SIG(I,1))
+          E2 = D2(I) * (SOLD2(I)+SIG(I,2))
+          E3 = D3(I) * (SOLD3(I)+SIG(I,3))
+          E4 = D4(I) * (SOLD4(I)+SIG(I,4))
+          E5 = D5(I) * (SOLD5(I)+SIG(I,5))
+          E6 = D6(I) * (SOLD6(I)+SIG(I,6))
+          EINC    = VOL_AVG(I) * (E1+E2+E3+E4+E5+E6) * DTA
+          EINT(I) = EINT(I) + (EINC+HALF*DVOL(I)*(POLD-PSHIFT-QOLD(I)-QNEW(I)))*OFF(I)
+        ENDDO       
+      END IF       
 C
-       EINC = VOL_AVG(I)*(E1+E2+E3+E4+E5+E6)*DTA - HALF*DVOL(I)*(QOLD(I)+QNEW(I))
-       EINT(I)=(EINT(I)+EINC*OFF(I)) / MAX(EM15,VOL(I))
+      DO I=1,NEL
+        QOLD(I) = QNEW(I)
+        DEFP(I) = EPXE(I)
+        SIGY(I) = MAX(SIGY(I),AK(I))
       ENDDO
+      DO I=1,NEL
+        IF (DPLA(I) > 0) ETSE(I)= HALF*QH(I)*OFF(I)/MAX(G(I),EM15)
+      ENDDO
+!----------------------------------------------------------------     
+!     implicit
+!----------------------------------------------------------------     
+      IF (IMPL_S>0) THEN
+        IF (IKT==0) RETURN
+        IF (FISOKIN == ZERO) THEN
+          DO I=1,NEL
+           IF (DPLA(I)>0)THEN
+             IF(CN==ONE) THEN
+               QH(I)= CB*EPD(I)
+             ELSEIF(CN>ONE) THEN
+               QH(I)= (CB*CN*EPXE(I)**(CN - ONE))*EPD(I)
+             ELSE
+               QH(I)= (CB*CN/EPXE(I)**(ONE -CN))*EPD(I)
+             ENDIF
+           ENDIF
+          ENDDO
+        ENDIF
 C
-      DO I=LFT,LLT
-       QOLD(I)=QNEW(I)
-       DEFP(I)=EPXE(I)
-       SIGY(I)=MAX(SIGY(I),AK(I))
-      ENDDO
-       DO I=LFT,LLT
-         IF(DPLA1(I).GT.0) ETSE(I)= HALF*QH(I)*OFF(I)/MAX(G(I),EM15)
-       ENDDO
-      IF (IMPL_S.GT.0) THEN
-       IF (IKT==0) RETURN
-       IF(IPLA.NE.2.AND.IKFLG.EQ.0)THEN
-        DO I=LFT,LLT
-         IF(DPLA1(I).GT.0)THEN
-          IF(CN.EQ.ONE) THEN
-           QH(I)= CB(I)*EPD(I)
-          ELSEIF(CN.GT.ONE) THEN
-           QH(I)= (CB(I)*CN*EPXE(I)**(CN - ONE))*EPD(I)
-          ELSE
-           QH(I)= (CB(I)*CN/EPXE(I)**(ONE -CN))*EPD(I)
-          ENDIF
+        DO I = 1,NEL
+         IF (DPLA(I)>ZERO) THEN
+
+c .....   Von Mises stress at the elastic predictor (point B)
+c .....   SIGEXX, etc. are deviatoric stresses
+          VM =HALF*(SIGEXX(I)**2+SIGEYY(I)**2+SIGEZZ(I)**2)
+     1               +SIGEXY(I)**2+SIGEYZ(I)**2+SIGEZX(I)**2
+          VM_1 =ONE/SQRT(THREE*VM)
+          G3 = THREE*G(I)
+          G3H = MAX(G3+QH(I),EM15)
+          SCALE = MAX(ZERO,ONE-G3H*DPLA(I)*VM_1)
+c .....   NORM_1 normalizes deviatoric stresses, includes consistent
+c .....   stiffness matrix parameter beta, von Mises at B, and two_pmi
+          NORM_1=G3*VM_1*SQRT(SCALE/G3H)
+c .....   Deviatoric stresses "normalized"
+          SIGNOR(I,1)=SIGEXX(I)*NORM_1
+          SIGNOR(I,2)=SIGEYY(I)*NORM_1
+          SIGNOR(I,3)=SIGEZZ(I)*NORM_1
+          SIGNOR(I,4)=SIGEXY(I)*NORM_1
+          SIGNOR(I,5)=SIGEYZ(I)*NORM_1
+          SIGNOR(I,6)=SIGEZX(I)*NORM_1
+
+c .....   Parameter alpha of consistent matrix
+          AL_IMP(I)= ONE - G3*DPLA(I)*VM_1
+         ELSE
+           AL_IMP(I)=ONE
          ENDIF
         ENDDO
-       ENDIF
-C      -----IKT=4------------
-       DO I = LFT,LLT
-        IF (DPLA1(I).GT.ZERO) THEN
-
-c ...... Von Mises stress at the elastic predictor (point B)
-c ...... SIGEXX, etc. are deviatoric stresses
-         VM =HALF*(SIGEXX(I)**2+SIGEYY(I)**2+SIGEZZ(I)**2)
-     1              +SIGEXY(I)**2+SIGEYZ(I)**2+SIGEZX(I)**2
-         VM_1 =ONE/SQRT(THREE*VM)
-         G3 = THREE*G(I)
-         G3H = MAX(G3+QH(I),EM15)
-         SCALE = MAX(ZERO,ONE-G3H*DPLA1(I)*VM_1)
-c ...... NORM_1 normalizes deviatoric stresses, includes consistent
-c ...... stiffness matrix parameter beta, von Mises at B, and two_pmi
-         NORM_1=G3*VM_1*SQRT(SCALE/G3H)
-c ...... Deviatoric stresses "normalized"
-         SIGNOR(I,1)=SIGEXX(I)*NORM_1
-         SIGNOR(I,2)=SIGEYY(I)*NORM_1
-         SIGNOR(I,3)=SIGEZZ(I)*NORM_1
-         SIGNOR(I,4)=SIGEXY(I)*NORM_1
-         SIGNOR(I,5)=SIGEYZ(I)*NORM_1
-         SIGNOR(I,6)=SIGEZX(I)*NORM_1
-
-c ...... Parameter alpha of consistent matrix
-         AL_IMP(I)= ONE - G3*DPLA1(I)*VM_1
-        ELSE
-         AL_IMP(I)=ONE
-        ENDIF
-       ENDDO
       ENDIF
-C
+!---------------------------------------------------------
+      ! end implicit
+!---------------------------------------------------------
+!     update and filter plastic strain rate for VP=1
+!---------------------------------------------------------
+!
+      IF (VP== 1) THEN
+        DO I=1,NEL       
+          PLAP    = DPLA(I) / MAX(EM20,DT1)
+          EPSD(I) = ASRATE * PLAP + (ONE - ASRATE) * EPSD(I)
+        ENDDO
+      ENDIF
+C----------------------------------------------
+C     TEMPERATURE (Heating due to plastic work)
+C----------------------------------------------
+      IF (JTHE < 0 .AND. JLAG /= 0) THEN
+        DO I=1,NEL
+          FHEAT(I) = FHEAT(I) + SIGY(I)*DPLA(I)*VOL(I)
+        ENDDO
+      ELSEIF (RHOCP > ZERO) THEN
+        DO I=1,NEL
+          TEMPEL(I) = TEMPEL(I) + SIGY(I)*DPLA(I) * RHOCPI
+          ! temperature and internal energy must be incremented consistantly
+          ! internal energy is incremented later in parent subroutine (mmain)
+          ! with total energy deformation which already includes plastic work
+          !   Edef = 0.5 * VOL * sum ( sig.eps_dot , i=1..6)
+          !   so internal energy and temperature remain consistant
+        ENDDO
+      END IF
+!---------------------------------------------------------
+      ! Printout element deletion
+      IF (NINDX > 0) THEN
+        DO J=1,NINDX
+#include "lockon.inc"
+          WRITE(IOUT, 1000) NGL(INDX(J)),IPG
+          WRITE(ISTDO,1100) NGL(INDX(J)),IPG,TT
+#include "lockoff.inc"
+        ENDDO
+      ENDIF
+!---------------------------------------------------------------
+ 1000 FORMAT(1X,'EXCEEDED EPS_MAX ON SOLID ELEMENT NUMBER ',I10,
+     . ': DEVIATORIC STRESS SET TO 0 ON INTEGRATION POINT ',I5 )
+ 1100 FORMAT(1X,'EXCEEDED EPS_MAX ON SOLID ELEMENT NUMBER ',I10,
+     . ': DEVIATORIC STRESS SET TO 0 ON INTEGRATION POINT ',I5 ,
+     .          ' AT TIME :',G11.4)  
+!-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  M2ITER_IMP                    source/materials/mat/mat002/m2law.F
-Chd|-- called by -----------
-Chd|        M2LAW                         source/materials/mat/mat002/m2law.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE M2ITER_IMP( SIG,  EPXE,   AJ2,     G,    CA,
-     1                        CB,    CN,   EPD, SIGMX,  EPMX,
-     2                     DPLA1,    AK,    QH, SIGY ,FISOKIN,
-     3                      NEL )
-c--------------------------------------------------------------
-c
-c    -------------------
-c    -- parameters in --
-c    -------------------
-c
-c    SIG   = Elastic Predictor (Deviatoric Stress Tensor)
-c    EPXE  = previous time-step equivalent plastic strain  (on input)
-c    AJ2   = von Mises stress at elastic predictor
-c    G     = Kirhhoff's modulus (elastic shear modulus))
-c
-c    CA, CB, CN = coefficients of the hardening rule
-c                 Sigma_Yield =   CA + CB * (equiv_pl_strn)**CN
-c    EPD   = scalling fac due to velocity effect
-c    SIGMX = max allowable von Mises stress   
-c    EPMX  = max allowable equivalent plastic strain
-c    FISOKIN= Mixed hardening ratio
-c    --------------------
-c    -- parameters out --      
-c    --------------------
-c
-c    DPLA1 = equivalent plastic strain increment
-c    EPXE  = updated  equivalent plastic strain (on output)
-c    AK    = current yield stress
-c    SIGY  = current yield stress (same as AK)
-c    QH    = current hardening parameter
-c
-c--------------------------------------------------------------
-c qz !! this subroutine will be optimized after
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect01_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER  NEL
-C     REAL
-      my_real
-     .   SIG(NEL,6), EPXE(*),EPD(*),
-     .   G(*), AK(*),QH(*), AJ2(*), 
-     .   CA(*), CB(*), CN,FISOKIN,
-     .   SIGMX(*),DPLA1(*),EPMX  ,SIGY(*)
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I, ITER, NITER
-C
-C     REAL
-      MY_REAL
-     .   XSI,DXSI,LHS,RHS,ALPHA_RADIAL,BETA,G3(MVSIZ),HTOT
-C
-c ---- max number of iterations ----
-       NITER = 10
-C       
-       DO 100 I=LFT,LLT
-C
-C------------------------------------------
-C
-       XSI = ZERO
-C
-C      -- PREVIOUS TIME-STEP EQUIVALENT PLASTIC STRAIN
-       EPXE(I) = MAX(ZERO,EPXE(I))
-       G3(I) =MAX(THREE*G(I),EM15)
-C
-C      -- PREVIOUS TIME-STEP YIELD STRESS !!!!! if EPXE=0!!!!!
-C       AK(I)=CA(I)+CB(I)*EPXE(I)**CN(I) !..SIGMA0(EPS_P)
-C
-C      -- COMPARE IT WITH ELASTIC PREDICTOR
-       IF(AJ2(I).LT.AK(I)) GO TO 90 
-C
-       BETA = ONE-FISOKIN
-       DO 80 ITER = 1,NITER ! .. NR ITERATIONS ..
-C
-       IF(EPXE(I).GT.ZERO) THEN !..TESTING FOR ZERO EQUIV.PL.STRN
-         AK(I)=CA(I)+BETA*CB(I)*EPXE(I)**CN !..SIGMA0(EPS_P)
-C
-C      --COMPUTE THE HARDENING PARAMETER H
-C      --(JUST THE DERIVATIVE OF THE SIG-EPS_PL FUNCTION)
-C
-         IF(CN.GT.ONE) THEN
-           QH(I) = (CB(I)*CN*EPXE(I)**(CN - ONE))*EPD(I)
-         ELSEIF(CN.EQ.ONE) THEN !.. LINEAR HARDENING
-           QH(I)= CB(I)*EPD(I)
-         ELSE !.. POWER LESS THAN UNITY
-           QH(I) = (CB(I)*CN/EPXE(I)**(ONE -CN))*EPD(I)
-         ENDIF
-C
-       ELSEIF(EPXE(I).EQ.ZERO) THEN
-C
-         AK(I)=CA(I)
-C
-         IF(CN.GT.ONE )THEN
-               QH(I) = ZERO
-         ELSEIF(CN.EQ.ONE) THEN 
-               QH(I) = CB(I)*EPD(I)
-         ELSE
-               QH(I) = EP10 *EPD(I) !.. SHOULD BE +INFINITY
-         ENDIF
-C
-       ELSE !--ERROR
-CCC             WRITE(*,*)'M2LAW-NEGATIVE EQUIVALENT PLASTIC STRN',EPXE(I)
-CCC             CALL ARRET(2)
-C
-       ENDIF !--EPXE(I).GT.ZERO ..END TESTING FOR ZERO EQUIV.PL.STRN
-C
-       HTOT = G3(I) + FISOKIN*QH(I)
-       RHS = AJ2(I) -HTOT * XSI - AK(I)
-       LHS = G3(I) +  QH(I)
-       DXSI = RHS/LHS
-       XSI = XSI + DXSI
-C
-       EPXE(I) = EPXE(I) + DXSI 
-       EPXE(I) = MAX(ZERO,EPXE(I))
-          IF( ABS(DXSI).LT.EM10.AND.
-     $        ABS(RHS ).LT.EM10) GO TO 90
-C
- 80    CONTINUE
-CCC      WRITE(*,*)'M2LAW--NON-CONVERGED ITERATION', ABS(DXSI),ABS(RHS)
- 90    CONTINUE
-C
-       IF(XSI.LT.ZERO) XSI = ZERO
-       DPLA1(I) = XSI !.. PLASTIC STRAIN MULTIPLIER "delta lambda"
-CCC       IF(I.EQ.1)WRITE(*,*)'D_LAMBDA =',XSI
-C
-C     .. ENFORCING SOME CUT-OFFS, LEFT UNCHANGED
-C  ----!!!cette partie devrait etre   interieure de boucle ---  tester
-       AK(I)=AK(I)*EPD(I)
-       IF(SIGMX(I).LT.AK(I))THEN
-        AK(I)=SIGMX(I)
-        QH(I)=ZERO
-       ENDIF
-C       SIGY(I) = AK(I)
-       IF(EPXE(I).GT.EPMX)THEN
-         AK(I)=ZERO
-         QH(I)=ZERO
-       ENDIF
-C
-C     -- RADIAL RETURN ------
-C     -- ALPHA_RADIAL := PARAMETER ALPHA OF THE RADIAL RETURN
-C
-       ALPHA_RADIAL= MIN(ONE,AK(I)/ MAX(AJ2(I),EM15))
-       SIG(I,1)=ALPHA_RADIAL*SIG(I,1)
-       SIG(I,2)=ALPHA_RADIAL*SIG(I,2)
-       SIG(I,3)=ALPHA_RADIAL*SIG(I,3)
-       SIG(I,4)=ALPHA_RADIAL*SIG(I,4)
-       SIG(I,5)=ALPHA_RADIAL*SIG(I,5)
-       SIG(I,6)=ALPHA_RADIAL*SIG(I,6)
-C
- 100  CONTINUE                  !..LOOP ON ELEMENTS
-C
-      RETURN
-      END
-
-

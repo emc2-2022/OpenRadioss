@@ -1,42 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT110                source/materials/mat/mat110/hm_read_mat110.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat110             ../starter/source/materials/mat/mat110/hm_read_mat110.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat                ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim          ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted     ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword           ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod               ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT110(
      .           UPARAM   ,MAXUPARAM,NUPARAM  ,NUVAR    ,NTABL    ,
      .           MTAG     ,PARMAT   ,UNITAB   ,PM       ,LSUBMODEL,
@@ -50,6 +50,7 @@ C-----------------------------------------------
       USE SUBMODEL_MOD 
       USE ELBUFTAG_MOD
       USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e sXM
 C-----------------------------------------------
@@ -57,25 +58,21 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
-C
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER, INTENT(IN)    :: MAT_ID,MAXUPARAM,MAXTABL
       my_real, DIMENSION(NPROPM) ,INTENT(INOUT)    :: PM     
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
       INTEGER, INTENT(INOUT)               :: ISRATE,ITABLE(MAXTABL)
-      INTEGER, INTENT(OUT)                 :: NUPARAM,NUVAR,NTABL,NVARTMP
-      my_real, DIMENSION(MAXUPARAM) ,INTENT(OUT)   :: UPARAM
-      my_real, DIMENSION(100),INTENT(OUT) :: PARMAT
+      INTEGER, INTENT(INOUT)                 :: NUPARAM,NUVAR,NTABL,NVARTMP
+      my_real, DIMENSION(MAXUPARAM) ,INTENT(INOUT)   :: UPARAM
+      my_real, DIMENSION(100),INTENT(INOUT) :: PARMAT
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
-      TYPE(MLAW_TAG_), INTENT(OUT) :: MTAG
+      TYPE(MLAW_TAG_), INTENT(INOUT) :: MTAG
       TYPE(MATPARAM_STRUCT_),INTENT(INOUT) :: MATPARAM
 C     
 C-----------------------------------------------
@@ -90,12 +87,12 @@ C     REAL
      .   ASRATE,KBOLTZ,XSCALE,YSCALE,FISOKIN,TINI,rhoBI_theta,B1,B2,MU,
      .   XSCALE_UNIT,YSCALE_UNIT
       my_real
-     .   F1,F2,DF1_DMU,DF2_DMU,D2F1_D2MU,D2F2_D2MU,EIG1,EIG2,
+     .   F1,F2,DF1_DMU,DF2_DMU,D2F1_D2MU,D2F2_D2MU,
      .   DPHI_DSIG1,DPHI_DSIG2,DMU_DSIG1,DMU_DSIG2,MINEIG,THET,DA_DCOS2(2),
      .   DB_DCOS2(2),DC_DCOS2(2),D2A_D2COS2(2),D2B_D2COS2(2),D2C_D2COS2(2),
-     .   DTHET_DCOS2,D2THET_D2THETCOS2,DF1_DCOS2,DF2_DCOS2,DPHI_DCOS2,
+     .   DF1_DCOS2,DF2_DCOS2,DPHI_DCOS2,
      .   D2F1_D2COS2,D2F2_D2COS2,D2F1_D2MUCOS2,D2F2_D2MUCOS2,MINEIGMU,
-     .   MINEIGTHET,NUMER,DNUMER_DMU,DNUMER_DCOS2,DENOM,DDENOM_DMU,DDENOM_DCOS2,
+     .   MINEIGTHET,DENOM,
      .   DMU_DCOS2,T(3,3),D(3,3),WEIGHT,DWEIGHT_DCOS2,D2WEIGHT_D2COS2,U,UPRIM,UPPRIM,
      .   DU_DMU,DUPRIM_DMU,V,VPRIM,VPPRIM,DV_DMU,DVPRIM_DMU,W0,fUN_AV,rLank_AV,
      .   fBI_MIN,fBI_MAX,fBI_TRANS,ADIRAC,FDIRAC,fPS_MIN,fPS_MAX,fPS_TRANS,
@@ -128,7 +125,7 @@ C=======================================================================
       IS_AVAILABLE = .FALSE.
       ILAW = 110
 c------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 c------------------------------------------
 c
 card1 - Density
@@ -184,6 +181,7 @@ card6 - Strain-rate computation
       CALL HM_GET_INTV  ('MAT_TAB_TEMP'  ,TAB_TEMP ,IS_AVAILABLE, LSUBMODEL)
 card7 - Yield criterion parameters
       ! Classical Vegter yield locus
+      NANGLE = 0
       IF (Icrit == 1) THEN     
         CALL HM_GET_INTV('MAT_refanglemax',NANGLE,IS_AVAILABLE,LSUBMODEL)
         IF (NANGLE > 10) THEN 
@@ -193,6 +191,7 @@ card7 - Yield criterion parameters
         IF (.NOT.ALLOCATED(fUN))   ALLOCATE(fUN(NANGLE,2))
         IF (.NOT.ALLOCATED(fSH))   ALLOCATE(fSH(NANGLE,2))
         IF (.NOT.ALLOCATED(fPS))   ALLOCATE(fPS(NANGLE,2))
+        fPS(1:NANGLE,1:2) = ZERO
         IF (.NOT.ALLOCATED(rLank)) ALLOCATE(rLank(NANGLE))
         ! Loop over angles (must be equally distributed between 0 and pi/2)
         DO J = 1, NANGLE
@@ -292,9 +291,9 @@ c
         ENDIF
 c        
         ! Computation of plane strain reference point first coordinate
-        fPS_MIN   = 0.97D0
-        fPS_MAX   = 1.14D0
-        fPS_TRANS = 1.22D0
+        fPS_MIN   = 0.827D0
+        fPS_MAX   = 1.315D0
+        fPS_TRANS = 0.5D0
         ADIRAC    = 1.2D0
         DO J = 1,NANGLE
           FDIRAC    = EXP(ADIRAC*(rLank(J)-fPS_TRANS))
@@ -421,11 +420,11 @@ c---------------------
         ! Set strain-rate filtering
         ISRATE  = 1
         ! Default cutting frequency
-        IF ((ASRATE == ZERO).OR.(Ivflag == 1)) ASRATE = 10000.0D0*FAC_T_WORK
+        IF ((ASRATE == ZERO).OR.(Ivflag == 1)) ASRATE = 10000.0D0*UNITAB%FAC_T_WORK
       ENDIF
       ! Boltzmann constant
       KBOLTZ = 8.6173303*EM5 ! eV/K (~J/K)
-      KBOLTZ = KBOLTZ/(FAC_M_WORK*FAC_L_WORK*FAC_L_WORK/(FAC_T_WORK*FAC_T_WORK))
+      KBOLTZ = KBOLTZ/(UNITAB%FAC_M_WORK*UNITAB%FAC_L_WORK*UNITAB%FAC_L_WORK/(UNITAB%FAC_T_WORK*UNITAB%FAC_T_WORK))
       ! Kinematic hardening factor
       IF (FISOKIN > ONE)   FISOKIN = ONE
       IF (FISOKIN < ZERO) FISOKIN = ZERO
@@ -1929,9 +1928,13 @@ c
         MTAG%L_SIGA  = 3
       ENDIF
 c
-      CALL INIT_MAT_KEYWORD(MATPARAM ,"ELASTO_PLASTIC")
-      CALL INIT_MAT_KEYWORD(MATPARAM ,"INCREMENTAL"   )
-      CALL INIT_MAT_KEYWORD(MATPARAM ,"LARGE_STRAIN"  )
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ELASTO_PLASTIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"INCREMENTAL"   )
+      CALL INIT_MAT_KEYWORD(MATPARAM,"LARGE_STRAIN"  )
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ORTHOTROPIC"   )
+c 
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ORTHOTROPIC")
 c
 c--------------------------
 c     Parameters printout

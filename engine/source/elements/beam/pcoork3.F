@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PCOORK3                       source/elements/beam/pcoork3.F
-Chd|-- called by -----------
-Chd|        PKE3                          source/elements/beam/pke3.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    pcoork3   ../engine/source/elements/beam/pcoork3.F
+!||--- called by ------------------------------------------------------
+!||    pke3      ../engine/source/elements/beam/pke3.F
+!||====================================================================
       SUBROUTINE PCOORK3(JFT    ,JLT    ,X      ,NCC   ,OFFG  ,
      2                   PID    ,MAT    ,NGL    ,AL    ,ALI   , 
      3                   ALS    ,ISMSTR ,R11    ,R12   ,R13   ,
@@ -40,14 +39,10 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT, JLT ,ISMSTR
       INTEGER NCC(6,*),PID(*),MAT(*),NGL(*)
-C     REAL
       my_real
      .   X(3,*),OFFG(*),AL(*),ALI(*),ALS(*),
      .   R11(*),R12(*),R13(*),
@@ -56,14 +51,11 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J,NC1(MVSIZ),NC2(MVSIZ),NC3(MVSIZ)
-C     REAL
-      my_real
-     .   X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), 
-     .   Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), 
-     .   Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ),NORM
+      INTEGER :: I, NC1(MVSIZ),NC2(MVSIZ),NC3(MVSIZ)
+      my_real :: X1(MVSIZ), X2(MVSIZ), X3(MVSIZ),
+     .           Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ),
+     .           Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ),NORM
 C-----------------------------------------------
-C
       DO I=JFT, JLT
        MAT(I)=NCC(1,I)
        PID(I)=NCC(5,I)
@@ -73,7 +65,7 @@ C
        NC3(I)=NCC(4,I)
       ENDDO 
 C----------------------------
-C     COORDONNEES
+C     COORDINATES
 C----------------------------
       DO I=JFT, JLT
        X1(I)=X(1,NC1(I))
@@ -98,7 +90,7 @@ C----------------------------
        R31(I)=Z2(I)-Z1(I)
       ENDDO 
 C
-      IF (ISMSTR.NE.0) THEN
+      IF (ISMSTR/=0) THEN
        DO  I=JFT, JLT
         AL(I)=ALS(I)
        ENDDO
@@ -108,7 +100,7 @@ C
        ENDDO
       ENDIF 
       DO  I=JFT, JLT
-       IF (AL(I).LT.EM20) OFFG(I)=ZERO
+       IF (AL(I)<EM20) OFFG(I)=ZERO
        ALI(I)=ONE/MAX(EM20,AL(I))
       ENDDO 
 C

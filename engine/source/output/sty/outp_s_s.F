@@ -1,35 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  OUTP_S_S                      source/output/sty/outp_s_s.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_RGATHER9_1COMM           source/mpi/interfaces/spmd_outp.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    outp_s_s              ../engine/source/output/sty/outp_s_s.F
+!||--- called by ------------------------------------------------------
+!||    genoutp               ../engine/source/output/sty/genoutp.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf               ../engine/share/resol/initbuf.F
+!||    spmd_rgather9_1comm   ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod           ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE OUTP_S_S(NBX     ,KEY     ,TEXT   ,ELBUF_TAB,
      .                    IPARG   ,EANI    ,IXS    ,IPM      ,DD_IAD ,
      .                    SIZLOC  ,SIZP0   ,SIZ_WR)
@@ -38,6 +40,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
       USE ELBUFDEF_MOD         
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,12 +49,9 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr01_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
@@ -68,17 +68,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,II(6),JJ,NBB(20),RESP0,WRTLEN,RES
-      INTEGER NG, NEL, IADD,N,MLW,
-     .        JJ_OLD, NGF, NGL, NN, LEN,NLAY, NUVAR, NPTT, NPTS,
-     .        LIAD, IUS, ISOLNOD, IPT,IL,IR,IS,IT, MLW2, NPTG, 
-     .        MT, NPTR,K, NPT1,COMPTEUR,L
+      INTEGER I,J,II(6),JJ,RESP0,WRTLEN,RES
+      INTEGER NG, NEL,N,MLW,
+     .        JJ_OLD, NGF, NGL, NN,NLAY, NUVAR, NPTT, NPTS,
+     .         IUS, ISOLNOD,IL,IR,IS,IT, 
+     .         NPTR,K,COMPTEUR,L
       INTEGER, DIMENSION(NSPGROUP) :: JJ_LOC
       INTEGER, DIMENSION(NSPGROUP+1,NSPMD) :: ADRESS 
       my_real
      .   WA(SIZLOC),WAP0(SIZ_WR),WAP0_LOC(SIZP0)
       my_real
-     .   FUNC(6),S1 ,S2 ,S3 ,P ,VONM2, USER(200)
+     .   S1 ,S2 ,S3 ,P ,VONM2, USER(200)
       TYPE(BUF_LAY_) ,POINTER :: BUFLY     
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
@@ -107,7 +107,7 @@ C
           IF (ITY /= 1 .AND. ITY /= 2) CYCLE
            ISOLNOD = IABS(IPARG(28,NG))
            NUVAR = 0
-           CALL INITBUF (IPARG    ,NG      ,                    
+           CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -144,12 +144,12 @@ c-------------------------------
              DO I=LFT,LLT
                JJ = JJ + 1
                N = I + NFT            
-               P = - (GBUF%SIG(II(1)+I) 	   
-     .             +  GBUF%SIG(II(2)+I) 	   
-     .             +  GBUF%SIG(II(3)+I)) / THREE		  
-               S1 = GBUF%SIG(II(1)+I) + P			  
-               S2 = GBUF%SIG(II(2)+I) + P			  
-               S3 = GBUF%SIG(II(3)+I) + P			  
+               P = - (GBUF%SIG(II(1)+I)      
+     .             +  GBUF%SIG(II(2)+I)      
+     .             +  GBUF%SIG(II(3)+I)) / THREE      
+               S1 = GBUF%SIG(II(1)+I) + P        
+               S2 = GBUF%SIG(II(2)+I) + P        
+               S3 = GBUF%SIG(II(3)+I) + P        
                VONM2 = THREE*(GBUF%SIG(II(4)+I)**2 +               
      .                        GBUF%SIG(II(5)+I)**2 +               
      .                        GBUF%SIG(II(6)+I)**2 +               
@@ -157,9 +157,9 @@ c-------------------------------
                WA(JJ)= SQRT(VONM2)
              ENDDO                  
 c-------------------------------
-           ELSEIF(NBX.GE.20.AND.NBX.LE.24) THEN
+           ELSEIF(NBX>=20.AND.NBX<=24) THEN
 C            variable user 1:5
-            IF(MLW.GE.28) THEN
+            IF(MLW>=28) THEN
               DO I=LFT,LLT
                 NUVAR  = MAX(NUVAR,IPM(8,IXS(1,I+NFT)))
               ENDDO
@@ -217,7 +217,7 @@ c
                   ENDDO       
                 ENDDO       
 c
-              ELSE  ! Lois non user
+              ELSE  ! Laws not user
                DO I=LFT,LLT
                 WA(JJ+ 1 ) = ISOLNOD
                 WA(JJ+ 2 ) = NPT
@@ -291,9 +291,9 @@ C  equivalent stress - other then VON MISES
                 P = - (GBUF%SIG(II(1)+I)
      .              +  GBUF%SIG(II(2)+I)
      .              +  GBUF%SIG(II(3)+I)) / THREE
-                S1 = GBUF%SIG(II(1)+I) + P			   
-                S2 = GBUF%SIG(II(2)+I) + P			   
-                S3 = GBUF%SIG(II(3)+I) + P			   
+                S1 = GBUF%SIG(II(1)+I) + P         
+                S2 = GBUF%SIG(II(2)+I) + P         
+                S3 = GBUF%SIG(II(3)+I) + P         
                 VONM2 = THREE*(GBUF%SIG(II(4)+I)**2 +               
      .                         GBUF%SIG(II(5)+I)**2 +               
      .                         GBUF%SIG(II(6)+I)**2 +               
@@ -320,7 +320,7 @@ c-------------------------------
         ENDDO
        ENDIF
 !     ++++++++++
-       IF(ISPMD.EQ.0) THEN
+       IF(ISPMD==0) THEN
          RESP0 = 0 
 
          DO NN=1,NSPGROUP
@@ -338,7 +338,7 @@ c-------------------------------
          IF(JJ_OLD>0) THEN
           IF( NBX == 26) THEN
            J = 0
-           DO WHILE(J.LT.JJ_OLD)
+           DO WHILE(J<JJ_OLD)
             ISOLNOD= NINT(WAP0(J + 1)) 
             NPT    = NINT(WAP0(J + 2)) 
             NUVAR  = NINT(WAP0(J + 3)) 
@@ -349,7 +349,7 @@ c-------------------------------
             ELSE
              WRITE(IUGEO,'(4I10)')ISOLNOD,NPT,NUVAR,JHBE
             ENDIF               
-              IF (NUVAR.NE.0) THEN
+              IF (NUVAR/=0) THEN
                DO I = 1,NPT               
                   IF(OUTYY_FMT == 2)THEN
                  WRITE(IUGEO,'(1P6E12.5)')(WAP0(J + K),K=1,NUVAR)
@@ -363,7 +363,7 @@ c-------------------------------
           ELSE
             RES=MOD(JJ_OLD,6)
             WRTLEN=JJ_OLD-RES
-            IF (WRTLEN.GT.0) THEN
+            IF (WRTLEN>0) THEN
              IF (OUTYY_FMT == 2) THEN
                WRITE(IUGEO,'(1P6E12.5)')(WAP0(J),J=1,WRTLEN)
              ELSE
@@ -376,7 +376,7 @@ c-------------------------------
             RESP0=RES
           ENDIF    ! nbx= 26
          ENDIF    ! JJ_OLD>0
-        ENDDO      ! nn=1,nspgroup
+        ENDDO      ! nn = 1, nspgroup
 c
         IF (RESP0>0) THEN
            IF (OUTYY_FMT == 2) THEN
@@ -389,14 +389,16 @@ c
 c-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  COUNT_ARSZ_SS                 source/output/sty/outp_s_s.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|        OUTP_ARSZ_SS                  source/mpi/interfaces/spmd_outp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    count_arsz_ss   ../engine/source/output/sty/outp_s_s.F
+!||--- called by ------------------------------------------------------
+!||    genoutp         ../engine/source/output/sty/genoutp.F
+!||    outp_arsz_ss    ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE COUNT_ARSZ_SS(IPARG,DD_IAD,IPM,IXS,WASZ,SIZ_WRITE_LOC)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -416,8 +418,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NN,NG,SZP0(NSPGROUP),RSZP0(NSPGROUP),NGF,NGL,JJ,
-     .        WASZ26,P0ARS26,MLW,NEL,NPT,JHBE,ISOLNOD, 
+      INTEGER NN,NG,NGF,NGL,JJ,
+     .        WASZ26,MLW,NEL,NPT,JHBE,ISOLNOD, 
      .        NUVAR,I,LFT,LLT,NFT,ITY,WASZ1
 C-----------------------------------------------
       WASZ1 = 0
@@ -475,11 +477,13 @@ C-----------------------------------------------
              ELSEIF(ISOLNOD == 10.OR.((ISOLNOD == 6.OR.ISOLNOD == 8).
      .            AND.JHBE == 15).OR.JHBE == 12)THEN
                JJ = JJ + (NUVAR*ABS(NPT)+4)*NEL
+             ELSEIF(NPT > 1)THEN
+               JJ = JJ + (NUVAR*NPT+4)*NEL
              ELSE
                JJ = JJ + (NUVAR+4)*NEL      
              ENDIF               
             ELSE
-cc  pour d'autres type de lois materiaux
+cfor other types of material laws
                JJ = JJ + 4 * NEL
             ENDIF 
 

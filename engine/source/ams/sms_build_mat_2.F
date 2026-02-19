@@ -1,40 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_BUILD_MAT_2               source/ams/sms_build_mat_2.F  
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_BUILD_DIAG                source/ams/sms_build_diag.F   
-Chd|        SPMD_LIST_SMS                 source/mpi/ams/spmd_sms.F     
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTSTAMP_MOD                  share/modules/intstamp_mod.F  
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_build_mat_2   ../engine/source/ams/sms_build_mat_2.F
+!||--- called by ------------------------------------------------------
+!||    resol             ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg            ../engine/source/output/message/message.F
+!||    arret             ../engine/source/system/arret.F
+!||    my_barrier        ../engine/source/system/machine.F
+!||    sms_build_diag    ../engine/source/ams/sms_build_diag.F
+!||    spmd_list_sms     ../engine/source/mpi/ams/spmd_sms.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod      ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod       ../common_source/modules/elements/element_mod.F90
+!||    intbufdef_mod     ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    intstamp_mod      ../engine/share/modules/intstamp_mod.F
+!||    message_mod       ../engine/share/message_module/message_mod.F
+!||    my_alloc_mod      ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE SMS_BUILD_MAT_2(
      1             ITASK    ,NODFT   ,NODLT  ,
      2             IXC      ,IPARG   ,IXS      ,IXT      ,IXP     ,
@@ -57,40 +60,35 @@ Chd|====================================================================
      I             NPRW ,LPRW    ,FR_WALL  ,NRWL_SMS ,RBY           ,
      J             X    ,A       ,AR       ,IN       ,V             ,
      K             VR   ,IRBE2   ,LRBE2    ,IRBE3    ,LRBE3         ,
-     L             IAD_RBE3M ,FR_RBE3M,NATIV_SMS,T2MAIN_SMS,T2FAC_SMS)
+     L             IAD_RBE3M ,FR_RBE3M,NATIV_SMS,T2MAIN_SMS,T2FAC_SMS,
+     M             MSKYI_FI_SMS, LIST_SMS,LIST_RMS,SZ_mw6,MW6)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE MOD_SMS_WORK
       USE INTSTAMP_MOD
       USE MESSAGE_MOD
       USE ELBUFDEF_MOD 
-      USE INTBUFDEF_MOD 
+      USE INTBUFDEF_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixr,nixp,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-#include "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "intstamp_c.inc"
 #include      "kincod_c.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
 #include      "sms_c.inc"
-#include      "scr01_c.inc"
-#include      "scr02_c.inc"
 #include      "scr17_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "warn_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ITASK, NODFT, NODLT,
@@ -127,27 +125,38 @@ C-----------------------------------------------
      .        DMELS(*), DMELTR(*), DMELP(*), DMELRT(*), EV(*),
      .        DMINT2(4,*), RBY(NRBY,*), X(3,*), A(3,*), AR(3,*), IN(*),
      .        V(3,*), VR(3,*),T2FAC_SMS(*)
+      my_real,dimension(fr_rms(nspmd+1)),intent(inout) :: MSKYI_FI_SMS
+      integer,dimension(fr_sms(nspmd+1)),intent(inout) :: LIST_SMS
+      integer,dimension(fr_rms(nspmd+1)),intent(inout) :: LIST_RMS
+      integer,intent(in) :: SZ_mw6
+      DOUBLE PRECISION,dimension(6,SZ_mw6),intent(inout) :: MW6
+
       TYPE(INTSTAMP_DATA) INTSTAMP(*)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K, KN, IKN, JJ, KK, II, IJ, IK, N, M, NN, P, LOC_PROC
+      INTEGER I, J, K, JJ, KK, II, IJ, IK, N, M, NN, P, LOC_PROC
       INTEGER NG, ITY, NEL, NFT, ISOLNOD,MLW,LFT, LLT,
      .        KAD, NPT, IHBE, ICNOD, ISTRA, IEXPAN, IE, J1,
      .        ILOC4(4), IG, IGTYP, IERROR, IPERM1(6), IPERM2(6),IPENTA6(6)
-      INTEGER MSR, NSN, KI, KJ, KL, NSR
-      INTEGER SIZE, LENR, IAD, L, JI,TAGA(NUMNOD),NAD_SMS(NUMNOD),
-     .        KADI_SMS(NUMNOD+1), NADI_SMS(NUMNOD), TAG8(NUMNOD), 
-     .        NAD_SMS_0(NUMNOD)
+      INTEGER MSR, NSN, KI, KJ
+      INTEGER  IAD, L, JI
+      INTEGER,DIMENSION(:),ALLOCATABLE :: TAGA
+      INTEGER,DIMENSION(:),ALLOCATABLE :: NAD_SMS
+      INTEGER,DIMENSION(:),ALLOCATABLE :: KADI_SMS
+      INTEGER,DIMENSION(:),ALLOCATABLE :: NADI_SMS
+      INTEGER,DIMENSION(:),ALLOCATABLE :: TAG8
+      INTEGER,DIMENSION(:),ALLOCATABLE :: NAD_SMS_0
       INTEGER NTY, ILAGM, N1, N2, N3, N4,
-     .        NMN,ILEV, KSN, KMULT
+     .        ILEV, KSN, KMULT
       my_real
-     .        MELE4, MELE12, XN, LTIJ, MSLV,
-     .        IXX, IYY, IZZ, XX, YY, ZZ, MAS, AWORK(3,NUMNOD),
-     .        VRX, VRY, VRZ, V1, V2, V3, GX, GY, GZ, XNOD,
+     .        MELE4, MELE12, LTIJ,
+     .              
+     .           XNOD,
      .        FAC_SCAL_I,FAC_SCAL_J
+      my_real, dimension(:,:),ALLOCATABLE ::  AWORK
 C-----
       INTEGER, DIMENSION(:), ALLOCATABLE :: IMV
       my_real
@@ -162,8 +171,18 @@ C-----
       DATA IPERM2/2,3,1,4,4,4/
       DATA IPENTA6/1,2,3,5,6,7/
 C-----------------------------------------------
+      CALL MY_ALLOC(TAGA,NUMNOD)
+      CALL MY_ALLOC(NAD_SMS,NUMNOD)
+      CALL MY_ALLOC(KADI_SMS,NUMNOD+1)
+      CALL MY_ALLOC(NADI_SMS,NUMNOD)
+      CALL MY_ALLOC(TAG8,NUMNOD)
+      CALL MY_ALLOC(NAD_SMS_0,NUMNOD)
+      CALL MY_ALLOC(AWORK,3,NUMNOD)
+C-----------------------------------------------
 C reset enforcement of contact sorting
+!$OMP SINGLE
       KFORSMS=0
+!$OMP END SINGLE
 C
       IF(IPARIT/=0)THEN
         IF(DEBUG(9)==0)THEN
@@ -180,30 +199,14 @@ C
      .                C1='(/DT/.../AMS)')
           CALL ARRET(2)
         ENDIF
-        IF(ITASK==0)THEN
-          ALLOCATE(MW6(6,NUMNOD),STAT=IERROR)
-          IF(IERROR/=0) THEN
-            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .                  C1='(/DT/.../AMS)')
-            CALL ARRET(2)
-          ENDIF
-        END IF
       END IF
-      IF(ITASK==0)THEN
-        ALLOCATE(LIST_SMS(FR_SMS(NSPMD+1)),LIST_RMS(FR_RMS(NSPMD+1)),
-     .        MSKYI_FI_SMS(FR_RMS(NSPMD+1)),STAT=IERROR)
-        IF(IERROR/=0) THEN
-          CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .                C1='(/DT/.../AMS)')
-          CALL ARRET(2)
-        ENDIF
-      ENDIF
+
 C
       NODXI_SMS(NODFT:NODLT)=NODNX_SMS(NODFT:NODLT)
 C
       CALL MY_BARRIER()
 C
-C     si /DT/INTER/AMS sans /DT/AMS
+C     if /DT/INTER/AMS without /DT/AMS
       IF(IDTMINS/=2)GO TO 100
 C
 !$OMP DO SCHEDULE(DYNAMIC,1)
@@ -222,11 +225,11 @@ C
       IHBE    = IPARG(23,NG)
       ISOLNOD = IPARG(28,NG)
       IEXPAN  = IPARG(49,NG)
-      IF (IHBE.EQ.101) THEN
+      IF (IHBE==101) THEN
         IHBE=1
-      ELSEIF(IHBE.EQ.102) THEN
+      ELSEIF(IHBE==102) THEN
         IHBE=0
-      ELSEIF(IHBE.EQ.112) THEN
+      ELSEIF(IHBE==112) THEN
         IHBE=0
       ENDIF
       LFT   = 1
@@ -317,7 +320,7 @@ C                                     <=> mele12=dmels(mqviscb)/2/4
               TAGA(I)=TAGA(I)+1
               KMULT=MAX(KMULT,TAGA(I))
             END DO
-C peut etre instable pour les prismes
+C may be unstable for prisms
 C           MELE4 =HALF*DMELS(IE)
             MELE4 =KMULT*HALF*DMELS(IE)
 C
@@ -328,7 +331,7 @@ C  w^2 < 2k / (m+8*dmels)
 C  but dt = 2/w =sqrt( 2*(m+dmels) /k) => 8*dmels=dmels(mqviscb)/2
 C                                     <=> mele12=dmels=dmels(mqviscb)/2/8
 C
-C  Pentas (note : 2 x plus de masse que necessaire sur les nds non doubles)
+C  Pentas (note: 2x more mass than necessary on non-double nodes)
 C  Me=[ 5*dmels    -dmels   ...        -dmels ]
 C     [  -dmels   5*dmels   ...        -dmels ]
 C     [  -dmels    -dmels  5*dmels     -dmels ]
@@ -389,9 +392,9 @@ C void elements may be into contact
             IF (OFFG(J) > ZERO) THEN
              MELE4 = HALF*DMELS(IE)
 C
-C             Q : Quelles VP pour M-1K ?  M=[ Mvettex+9dm, -dm      ,.....	  ]
-C         				    [	-dm	 , Medge+9dm, -dm, ....]
-C         				     .........
+C             Q: What VP for M-1K?M = [mvettex+9dm, -dm, .....]
+C                     [  -dm   , Medge+9dm, -dm, ....]
+C                      .........
 C             Mvertex = Mass/32, Medge=7*Mass/48
 C
 C             A: Supposed lambda(M) > Mvertex+10dm
@@ -409,8 +412,8 @@ C
              DO KK=1,4
                JJ = IXS(1+ILOC4(KK),IE)
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=-MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=-MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -419,8 +422,8 @@ C
                IF(JJ==0) CYCLE
 
                IF(.NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=-MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=-MELE12
+            IJ=IJ+1
                END IF
              END DO
            END DO
@@ -435,8 +438,8 @@ C
              DO KK=1,4
                JJ = IXS(1+ILOC4(KK),IE)
                IF(.NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=-MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=-MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -445,14 +448,14 @@ C
                IF(JJ==0) CYCLE
 
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=-MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=-MELE12
+            IJ=IJ+1
                END IF
              END DO
 
            END DO
 
-C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...)
+C          nd nonexistent midfielder, transfer to the summits (symmetry in jsm_sms ...)
            DO K=1,6
 
              I =IXS10(K,J1)
@@ -464,8 +467,8 @@ C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...
              DO KK=1,4
                JJ = IXS(1+ILOC4(KK),IE)
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -474,8 +477,8 @@ C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...
                IF(JJ==0) CYCLE
 
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -485,8 +488,8 @@ C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...
              DO KK=1,4
                JJ = IXS(1+ILOC4(KK),IE)
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -495,8 +498,8 @@ C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...
                IF(JJ==0) CYCLE
 
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
+            IJ=IJ+1
                END IF
              END DO
            END DO
@@ -512,14 +515,14 @@ C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...
             IF (OFFG(J) > ZERO) THEN
              MELE4 = HALF*DMELS(IE)
 C
-C             Q : Quelles VP pour M-1K ?  M=[ Mvettex+9dm, -dm      ,.....	  ]
-C         				    [	-dm	 , Medge+9dm, -dm, ....]
-C         				     .........
+C             Q: What VP for M-1K?M = [mvettex+9dm, -dm, .....]
+C                     [  -dm   , Medge+9dm, -dm, ....]
+C                      .........
 C             Mvertex = Mass/32, Medge=7*Mass/48
 C
 C             A: Supposed lambda(M) > Mvertex+10dm
 C
-             MELE4 = MELE4*SEVEN/FOURTY8
+             MELE4 = MELE4*SEVEN/FORTY8
             END IF
            END IF
 
@@ -532,8 +535,8 @@ C
              DO KK=1,4
                JJ = IXS(1+ILOC4(KK),IE)
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=-MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=-MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -542,8 +545,8 @@ C
                IF(JJ==0) CYCLE
 
                IF(.NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=-MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=-MELE12
+            IJ=IJ+1
                END IF
              END DO
            END DO
@@ -558,8 +561,8 @@ C
              DO KK=1,4
                JJ = IXS(1+ILOC4(KK),IE)
                IF(.NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=-MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=-MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -568,8 +571,8 @@ C
                IF(JJ==0) CYCLE
 
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=-MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=-MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -587,8 +590,8 @@ C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...
              DO KK=1,4
                JJ = IXS(1+ILOC4(KK),IE)
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -597,8 +600,8 @@ C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...
                IF(JJ==0) CYCLE
 
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -608,8 +611,8 @@ C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...
              DO KK=1,4
                JJ = IXS(1+ILOC4(KK),IE)
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
+            IJ=IJ+1
                END IF
              END DO
 
@@ -618,8 +621,8 @@ C          nd milieu inexistant, transfert aux sommets (symetrie dans JSM_SMS...
                IF(JJ==0) CYCLE
 
                IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
-          	  LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
-          	  IJ=IJ+1
+            LTK_SMS (IJ)=LTK_SMS (IJ)-HALF*MELE12
+            IJ=IJ+1
                END IF
              END DO
            END DO
@@ -849,7 +852,7 @@ C---    T2MAIN_SMS(6) must be updated if element failure
             NTY   = IPARI(7,N)
             ILAGM = IPARI(33,N)
             ILEV  = IPARI(20,N)
-            IF(NTY.EQ.2 .AND. ILAGM.EQ.0 .AND.ILEV/=25.AND.ILEV/=26)THEN
+            IF(NTY==2 .AND. ILAGM==0 .AND.ILEV/=25.AND.ILEV/=26)THEN
               NSN=IPARI(5,N)
               DO II=1,NSN
                 I=INTBUF_TAB(N)%NSV(II)
@@ -864,7 +867,7 @@ C
           NTY   = IPARI(7,N)
           ILAGM = IPARI(33,N)
           ILEV  = IPARI(20,N)
-          IF(NTY.EQ.2 .AND. ILAGM.EQ.0 .AND.ILEV/=25.AND.ILEV/=26.AND.ILEV/=27.AND.ILEV/=28)THEN
+          IF(NTY==2 .AND. ILAGM==0 .AND.ILEV/=25.AND.ILEV/=26.AND.ILEV/=27.AND.ILEV/=28)THEN
 C
             KAD=IPARI(1,N)
             NSN=IPARI(5,N)
@@ -933,10 +936,10 @@ C
                     NAD_SMS(J) =NAD_SMS(J)+1
                     NAD_SMS(N4)=NAD_SMS(N4)+1
 
-                    IF (I.GT.J) THEN
+                    IF (I>J) THEN
                       DO K =2,5
                         DO KK =2,5
-                          IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                          IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                             LT_SMS(NAD_SMS(T2MAIN_SMS(K,I))) = HALF*LTIJ
                             LT_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))= HALF*LTIJ
                             NAD_SMS(T2MAIN_SMS(K,I)) =NAD_SMS(T2MAIN_SMS(K,I))+1
@@ -969,10 +972,10 @@ C
                     NAD_SMS(J) =NAD_SMS(J)+1
                     NAD_SMS(N4)=NAD_SMS(N4)+1
 
-                    IF (I.GT.J) THEN
+                    IF (I>J) THEN
                       DO K =2,5
                         DO KK =2,5
-                          IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                          IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                             LT_SMS(NAD_SMS(T2MAIN_SMS(K,I))) = ZERO
                             LT_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))= ZERO
                             NAD_SMS(T2MAIN_SMS(K,I)) =NAD_SMS(T2MAIN_SMS(K,I))+1
@@ -1036,10 +1039,10 @@ C
                     NAD_SMS(J) =NAD_SMS(J)+1
                     NAD_SMS(N4)=NAD_SMS(N4)+1
 
-                    IF (I.GT.J) THEN
+                    IF (I>J) THEN
                     DO K =2,5
                       DO KK =2,5
-                        IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                        IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                           LT_SMS(NAD_SMS(T2MAIN_SMS(K,I))) = HALF*LTIJ
                           LT_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))= HALF*LTIJ
                           NAD_SMS(T2MAIN_SMS(K,I)) =NAD_SMS(T2MAIN_SMS(K,I))+1
@@ -1055,7 +1058,7 @@ C
               END IF
             END DO
 C
-          ELSEIF(NTY.EQ.2.AND.ILAGM.EQ.0.AND.(ILEV==25.or.ILEV==26))THEN
+          ELSEIF(NTY==2.AND.ILAGM==0.AND.(ILEV==25.or.ILEV==26))THEN
 C
             KAD=IPARI(1,N)
             NSN=IPARI(5,N)
@@ -1127,7 +1130,7 @@ C
               END IF
             END DO
 C
-          ELSEIF(NTY.EQ.2.AND.ILAGM.EQ.0.AND.(ILEV==27.or.ILEV==28))THEN
+          ELSEIF(NTY==2.AND.ILAGM==0.AND.(ILEV==27.or.ILEV==28))THEN
 C
             KAD=IPARI(1,N)
             NSN=IPARI(5,N)
@@ -1135,7 +1138,7 @@ C
               I=INTBUF_TAB(N)%NSV(II)
               KSN=KSN+1
 C
-              IF (INTBUF_TAB(N)%IRUPT(II).EQ.0) THEN
+              IF (INTBUF_TAB(N)%IRUPT(II)==0) THEN
 C
               L=INTBUF_TAB(N)%IRTLM(II)
               N1 = INTBUF_TAB(N)%IRECTM(4*(L-1)+1)
@@ -1205,10 +1208,10 @@ C
                     NAD_SMS(J) =NAD_SMS(J)+1
                     NAD_SMS(N4)=NAD_SMS(N4)+1
 
-                    IF (I.GT.J) THEN
+                    IF (I>J) THEN
                     DO K =2,5
                       DO KK =2,5
-                        IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                        IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                           LT_SMS(NAD_SMS(T2MAIN_SMS(K,I))) = HALF*LTIJ
                           LT_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))= HALF*LTIJ
                           NAD_SMS(T2MAIN_SMS(K,I)) =NAD_SMS(T2MAIN_SMS(K,I))+1
@@ -1241,10 +1244,10 @@ C
                     NAD_SMS(J) =NAD_SMS(J)+1
                     NAD_SMS(N4)=NAD_SMS(N4)+1
 
-                    IF (I.GT.J) THEN
+                    IF (I>J) THEN
                     DO K =2,5
                       DO KK =2,5
-                        IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                        IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                           LT_SMS(NAD_SMS(T2MAIN_SMS(K,I))) = ZERO
                           LT_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))= ZERO
                           NAD_SMS(T2MAIN_SMS(K,I)) =NAD_SMS(T2MAIN_SMS(K,I))+1
@@ -1308,10 +1311,10 @@ C
                     NAD_SMS(J) =NAD_SMS(J)+1
                     NAD_SMS(N4)=NAD_SMS(N4)+1
 
-                    IF (I.GT.J) THEN
+                    IF (I>J) THEN
                     DO K =2,5
                       DO KK =2,5
-                        IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                        IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                           LT_SMS(NAD_SMS(T2MAIN_SMS(K,I))) = HALF*LTIJ
                           LT_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))= HALF*LTIJ
                           NAD_SMS(T2MAIN_SMS(K,I)) =NAD_SMS(T2MAIN_SMS(K,I))+1
@@ -1423,7 +1426,7 @@ C
 C
         IF(TAGMSR_RBY_SMS(MSR) /= 0) THEN
 C
-C ce noeud ne sera jamais supprime des rwalls ... probleme ou pas ?
+C this node will never be removed from the rwalls ... problem or not?
          NODXI_SMS(MSR)=1
 C
          NSN=NPBY(2,M)
@@ -1458,7 +1461,7 @@ C------------
           IF(J > I)THEN
             JI=JSM_SMS(IJ)
             IF(LT_SMS(IJ)==ZERO.OR.LT_SMS(JI)==ZERO)THEN
-c IJ or JI ask for resetting connexion to 0
+c IJ or JI ask for resetting connection to 0
               LT_SMS(IJ)=ZERO
               LT_SMS(JI)=ZERO
             ELSE
@@ -1572,10 +1575,8 @@ C----
      D           LRBE3   ,IAD_RBE3M,FR_RBE3M )
 C 
 
-      IF(ITASK==0)DEALLOCATE(LIST_SMS,LIST_RMS,MSKYI_FI_SMS)
       IF(IPARIT/=0)THEN
         DEALLOCATE(IMV, MV, MV6)
-        IF(ITASK==0)DEALLOCATE(MW6)
       END IF
 c-----------
       RETURN

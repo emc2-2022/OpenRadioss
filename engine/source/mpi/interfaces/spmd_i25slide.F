@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_I25_SLIDE_EXCH           source/mpi/interfaces/spmd_i25slide.F
-Chd|-- called by -----------
-Chd|        I25MAIN_SLID                  source/interfaces/int25/i25main_slid.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MPI_COMMOD                    share/modules/mpi_comm_mod.F  
-Chd|        POINTERDEF                    share/modules/pointerdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_i25_slide_exch   ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- called by ------------------------------------------------------
+!||    i25main_slid          ../engine/source/interfaces/int25/i25main_slid.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    mpi_commod            ../engine/share/modules/mpi_comm_mod.F
+!||    pointerdef            ../engine/share/modules/pointerdef_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_I25_SLIDE_EXCH(IBUF    ,RBUF      ,ISIZ    ,RSIZ 
      .                              ,NB      ,COMM_INT, COMM_REAL, COMM_SIZ
      .                              ,MODE    ,NIN,      COMM_PATTERN)
@@ -41,35 +43,26 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr02_c.inc"
-#include      "scr18_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "timeri_c.inc"
-#include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER, INTENT(IN) :: MODE
       ! MODE 0 =>  ISEND sizes
       ! MODE 1 =>  ISEND buffer
-      ! MODE 2 =>  Recieve the sizes 
-      ! MODE 3 =>  Recieve the messages
+      ! MODE 2 =>  Receive the sizes 
+      ! MODE 3 =>  Receive the messages
       ! MODE 4 =>  Deallocate Recv buffer
       ! MODE 5 =>  Deallocate Send buffer 
       INTEGER, INTENT(IN) :: NIN ! Interface number
@@ -112,13 +105,13 @@ C-----------------------------------------------
       IF(MODE == 0) THEN        
       !SEND sizes
         DO P = 1, NSPMD
-          IF(P .NE. LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
+          IF(P /= LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
             MSGTYP = MSGOFF1 
             COMM_SIZ%SIZ(P,NIN) = 1
             COMM_SIZ%TAG(P,NIN) = MSGTYP 
             CALL MPI_ISEND(
      1        NB(P,NIN),1,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     2        MPI_COMM_WORLD,COMM_SIZ%SEND_RQ(P,NIN),ierror)
+     2        SPMD_COMM_WORLD,COMM_SIZ%SEND_RQ(P,NIN),ierror)
           ELSE
              COMM_SIZ%SEND_RQ(P,NIN) = MPI_REQUEST_NULL
           ENDIF
@@ -126,7 +119,7 @@ C-----------------------------------------------
       ELSE IF(MODE == 1) THEN        
       !SEND
          DO P = 1, NSPMD
-           IF(P .NE. LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
+           IF(P /= LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
              IF(NB(P,NIN) > 0) THEN 
                LENGTH = NB(P,NIN)*RSIZ
                MSGTYP = MSGOFF2 
@@ -135,7 +128,7 @@ C-----------------------------------------------
                
                CALL MPI_ISEND(
      1           RBUF(P,NIN)%P(1),LENGTH,REAL,IT_SPMD(P),MSGTYP,
-     2           MPI_COMM_WORLD,COMM_REAL%SEND_RQ(P,NIN),ierror)
+     2           SPMD_COMM_WORLD,COMM_REAL%SEND_RQ(P,NIN),ierror)
                
                MSGTYP = MSGOFF3 
                LENGTH = NB(P,NIN) * ISIZ
@@ -143,7 +136,7 @@ C-----------------------------------------------
                COMM_INT%TAG(P,NIN) = MSGTYP 
                CALL MPI_ISEND(
      1           IBUF(P,NIN)%P(1),LENGTH,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     2           MPI_COMM_WORLD,COMM_INT%SEND_RQ(P,NIN),ierror)
+     2           SPMD_COMM_WORLD,COMM_INT%SEND_RQ(P,NIN),ierror)
              ELSE
                  COMM_INT%SEND_RQ(P,NIN) = MPI_REQUEST_NULL
                  COMM_REAL%SEND_RQ(P,NIN) = MPI_REQUEST_NULL
@@ -153,13 +146,13 @@ C-----------------------------------------------
        ELSEIF(MODE==2) THEN         
        !RECV SIZES
          DO P = 1, NSPMD
-            IF( P.NE.LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
+            IF( P/=LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
              MSGTYP = MSGOFF1 
              COMM_REAL%SIZ(P,NIN) = 1
 
              CALL MPI_IRECV(
      1         NB(P,NIN),1,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     2         MPI_COMM_WORLD,COMM_SIZ%RECV_RQ(P,NIN),ierror)
+     2         SPMD_COMM_WORLD,COMM_SIZ%RECV_RQ(P,NIN),ierror)
              ELSE
                COMM_SIZ%RECV_RQ(P,NIN) = MPI_REQUEST_NULL
              ENDIF 
@@ -171,11 +164,11 @@ C-----------------------------------------------
          DO P = 1,NSPMD
            COMM_REAL%SIZ(P,NIN) = 0 
            COMM_INT%SIZ(P,NIN) = 0 
-           IF(P.NE. LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) NBCOM = NBCOM + 1
+           IF(P/= LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) NBCOM = NBCOM + 1
          ENDDO
          
          DO PP = 1,NBCOM
-C          IF(P.NE. LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
+C          IF(P/= LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
 C            CALL MPI_WAIT(COMM_SIZ%RECV_RQ(P,NIN),STATUS,IERROR)
              CALL MPI_WAITANY(NSPMD,COMM_SIZ%RECV_RQ(1:NSPMD,NIN),P,STATUS,IERROR)
 
@@ -183,23 +176,23 @@ C            CALL MPI_WAIT(COMM_SIZ%RECV_RQ(P,NIN),STATUS,IERROR)
                LENGTH = NB(P,NIN)*RSIZ
                MSGTYP = MSGOFF2 
                COMM_REAL%SIZ(P,NIN) = NB(P,NIN) 
-               MY_ALLOCATE(RBUF(P,NIN)%P,LENGTH)
+               ALLOCATE(RBUF(P,NIN)%P(LENGTH))
                RBUF(P,NIN)%P(1:LENGTH) = 0
                
                CALL MPI_RECV(
      1           RBUF(P,NIN)%P(1),LENGTH,REAL,IT_SPMD(P),MSGTYP,
-     2           MPI_COMM_WORLD,STATUS,ierror)
+     2           SPMD_COMM_WORLD,STATUS,ierror)
                
                LENGTH = NB(P,NIN)*ISIZ
                MSGTYP = MSGOFF3 
                COMM_INT%SIZ(P,NIN) = NB(P,NIN) 
              
-               MY_ALLOCATE(IBUF(P,NIN)%P,LENGTH)
+               ALLOCATE(IBUF(P,NIN)%P(LENGTH))
                IBUF(P,NIN)%P(1:LENGTH) = 0
              
                CALL MPI_RECV(
      1           IBUF(P,NIN)%P(1),LENGTH,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     2           MPI_COMM_WORLD,STATUS,ierror)
+     2           SPMD_COMM_WORLD,STATUS,ierror)
              ENDIF
 C          ENDIF
          ENDDO
@@ -215,7 +208,7 @@ C          ENDIF
        ELSEIF(MODE == 5) THEN
          !CLEAN
          DO P = 1, NSPMD
-            IF(P .NE. LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
+            IF(P /= LOC_PROC .AND. COMM_PATTERN(P,NIN) == 1) THEN
              CALL MPI_WAIT(COMM_SIZ%SEND_RQ(P,NIN),STATUS,IERROR)
             ENDIF
             IF(NB(P,NIN) > 0 .AND. COMM_PATTERN(P,NIN) == 1) THEN
@@ -233,28 +226,31 @@ C          ENDIF
 
 
 C   
-Chd|====================================================================
-Chd|  SPMD_I25_SLIDE_GAT            source/mpi/interfaces/spmd_i25slide.F
-Chd|-- called by -----------
-Chd|        I25MAIN_SLID                  source/interfaces/int25/i25main_slid.F
-Chd|-- calls ---------------
-Chd|        DEALLOCATE_FI1_TMP            source/mpi/interfaces/spmd_i25slide.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        REALLOCATE_FI1                source/mpi/interfaces/spmd_i25slide.F
-Chd|        REALLOCATE_FI2                source/mpi/interfaces/spmd_i25slide.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        IFRONT_MOD                    share/modules/ifront_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI25TMP                      share/modules/tri25tmp_mod.F  
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_i25_slide_gat    ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- called by ------------------------------------------------------
+!||    i25main_slid          ../engine/source/interfaces/int25/i25main_slid.F
+!||--- calls      -----------------------------------------------------
+!||    deallocate_fi1_tmp    ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||    my_orders             ../common_source/tools/sort/my_orders.c
+!||    reallocate_fi1        ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||    reallocate_fi2        ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod               ../engine/share/modules/h3d_mod.F
+!||    ifront_mod            ../engine/share/modules/ifront_mod.F
+!||    intbufdef_mod         ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri25tmp              ../engine/share/modules/tri25tmp_mod.F
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_I25_SLIDE_GAT(NSN  ,NIN, NI25,
      2                             IGAP  ,NSNR   ,INTTH   ,ILEV,INTBUF_TAB,
      3                             FR_NOR, IAD_FRNOR, NB_SLID   ,ITAB, H3D_DATA,
-     4                             INTFRIC,FLAGREMN , LREMNORMAX,NRTM,IVIS2 )
+     4                             INTFRIC,FLAGREMN , LREMNORMAX,NRTM,IVIS2 ,
+     5                             ISTIF_MSDT,IFSUB_CAREA,NODADT_THERM)
 c
-c -  Nodes in IREM are not necessarly from their PMAIN processor.
+c -  Nodes in IREM are not necessarily from their PMAIN processor.
 c -  IREM is reordered according to ITAB for each PMAIN 
 c        INDX_FOR_P(0) = positions in IREM of the sliding secnd nodes that
 c                        have 0 as PMAIN
@@ -274,11 +270,11 @@ c - INDEX( "numbering on old FI" ) = numbering in new FI
 c   - This is be used to renumber the remote part of CAND_N , CAND_OPT_N
 c   
 c   Remark If a secnd node known as an old remote slides
-c    (present in XREM and old TMP%*FI strucutre), then the values in *FI structures
+c    (present in XREM and old TMP%*FI structure), then the values in *FI structures
 c    are replaced by the values coming from [XI]REM. 
 c
 c  Example using NSPMD = 4. 
-c  proc P3 recieved some incoming sliding nodes from P0 P1 & P2, and 
+c  proc P3 received some incoming sliding nodes from P0 P1 & P2, and 
 c  store the secnds nodes that have P0 as PMAIN:
 c     - The node with UID 500 is sliding from P1 to P3 and has P0 as PMAIN 
 c        This node is a new (was not included in the old *FI structures).  
@@ -352,29 +348,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "param_c.inc"
-#include      "parit_c.inc"
 #include      "spmd_c.inc"
 #include      "sms_c.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -384,32 +367,32 @@ C-----------------------------------------------
      .        NB_SLID(NSPMD), ! NB of new sliding secnd nodes
      .        ITAB(*)
       INTEGER, INTENT(INOUT) :: NSNR
+      INTEGER, INTENT(IN) :: NODADT_THERM
+      INTEGER, INTENT(IN) :: ISTIF_MSDT,IFSUB_CAREA
       INTEGER IAD_FRNOR(NINTER25,NSPMD+1),FR_NOR(*)
       TYPE(H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER NSNR_OLD,NSNR_NEW,NODFI,NNP,LSKYFI,
-     .        NOD, LOC_PROC, I, N, NN, P, IDEB, J, K,L,JJ, I_STOK, IX, II
+      INTEGER NSNR_OLD,NSNR_NEW,NODFI,LSKYFI,
+     .        LOC_PROC, I, N, NN, P, IDEB, J, K,L,JJ, IX
       INTEGER NSNR_TOT
       INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX ! renumbering cand_n
-      INTEGER  NN2,RSHIFT,ISHIFT, IOLDNSNFI, ND, JDEB, Q
+      INTEGER  RSHIFT,ISHIFT, JDEB
       INTEGER, DIMENSION(:), ALLOCATABLE :: IAUX,IAUX_LOCAL,IAUX_REV,IAUX_K,IAUX_L
       INTEGER IDEB_NEW  ! shift for resulting *FI 
       INTEGER IDEB_OLD  ! shift for old *FI
       INTEGER IDEB_SLID ! shift for new sliding nodes
       INTEGER PNEW,POLD,ID_OLD,ID_NEW 
-      INTEGER SNEW,SOLD,PMAIN,NB_SLID_TOT
-      my_real,
-     .    DIMENSION(:), ALLOCATABLE :: PENEFI_OLD, STIFFI_OLD
-      INTEGER MARGIN,N_NEW_SECND,UID
+      INTEGER NB_SLID_TOT
+      INTEGER UID
       TYPE(I25_TMP_STRUCT) :: TMP
       TYPE(int_pointer) , DIMENSION(NSPMD) :: INDX_FOR_P,UID_FOR_P
       INTEGER, ALLOCATABLE, DIMENSION(:) :: PERMUTATIONS, PROC_ORIG
       INTEGER SINDEX(NSPMD), SIZE_PERM_MAX, PROC_FROM
       INTEGER WORK(70000)
-      INTEGER PLOCAL, NBLOCAL, PM, KK, KM, KI, LL, SIZREMNORFI, SIZ, NE
+      INTEGER PLOCAL, NBLOCAL, KK, KM, KI, LL, SIZREMNORFI, SIZ, NE
       INTEGER, DIMENSION(:), ALLOCATABLE :: REMNOR_FI_TMP
 C-----------------------------------------------
 C   S o u r c e  L i n e s
@@ -419,17 +402,17 @@ C-----------------------------------------------
       LSKYFI= 0
       NB_SLID_TOT = 0
       NSNR_TOT = 0
-C Reperage des candidats
+C locating candidates
 
 C
-C Allocation des tableaux de frontieres interfaces
+C allocation of interface boundary arrays
 C
       DO P = 1,NSPMD
          NODFI =  NODFI + NSNFI(NIN)%P(P) + NB_SLID(P)
          NB_SLID_TOT = NB_SLID_TOT + NB_SLID(P) 
          NSNR_TOT = NSNR_TOT + NSNFI(NIN)%P(P) 
       ENDDO
-      MY_ALLOCATE(PROC_ORIG,NB_SLID_TOT)
+      ALLOCATE(PROC_ORIG(NB_SLID_TOT))
       IDEB = 0
       DO P = 1,NSPMD
          PROC_ORIG(IDEB+1:IDEB+NB_SLID(P)) =  P
@@ -437,12 +420,12 @@ C
       ENDDO
 
 
-      MY_ALLOCATE(INDEX,NSNR_TOT)
+      ALLOCATE(INDEX(NSNR_TOT))
       INDEX(1:NSNR_TOT) = 0
-      CALL REALLOCATE_FI1(NODFI,TMP,NIN,INTTH,IGAP,ILEV,INTFRIC,FLAGREMN,IVIS2)
+      CALL REALLOCATE_FI1(NODFI,TMP,NIN,INTTH,IGAP,ILEV,INTFRIC,FLAGREMN,IVIS2,ISTIF_MSDT,IFSUB_CAREA)
       NSNFI(NIN)%P(1:NSPMD) = TMP%NSNFI%P(1:NSPMD)
 C
-C Compactage des candidats
+C compacting candidates
 C
       IDEB = 0
       IDEB_NEW = 0  
@@ -460,8 +443,8 @@ C
         ! overestimation
         nullify(INDX_FOR_P(P)%P)
         nullify(UID_FOR_P(P)%P)
-        MY_ALLOCATE(INDX_FOR_P(P)%P,MAX(NB_SLID_TOT,1))
-        MY_ALLOCATE(UID_FOR_P(P)%P,MAX(1,NB_SLID_TOT))
+        ALLOCATE(INDX_FOR_P(P)%P(MAX(NB_SLID_TOT,1)))
+        ALLOCATE(UID_FOR_P(P)%P(MAX(1,NB_SLID_TOT)))
         INDX_FOR_P(P)%P(1:NB_SLID_TOT) = 0
         UID_FOR_P(P)%P(1:NB_SLID_TOT) = 0
         SINDEX(P) = 0
@@ -482,17 +465,17 @@ C
          SIZE_PERM_MAX = MAX(SIZE_PERM_MAX,SINDEX(P))
       ENDDO
 
-      MY_ALLOCATE(PERMUTATIONS,2*SIZE_PERM_MAX)
+      ALLOCATE(PERMUTATIONS(2*SIZE_PERM_MAX))
       IF(FLAGREMN == 2 ) THEN
-         MY_ALLOCATE(REMNOR_FI_TMP,NODFI*LREMNORMAX)
+         ALLOCATE(REMNOR_FI_TMP(NODFI*LREMNORMAX))
          KI = 0
       ENDIF
       DO P = 1, NSPMD
       ! Pour l'instant on garde l'iteration P = LOC_PROC
-      ! voir avec  ce qu'il faut faire dans ce cas
+      ! see with what to do in this case
         NN = 0
         NSNR_OLD = NSNFI(NIN)%P(P)
-        NSNR_NEW = SINDEX(P) ! NSNR from XREM, we don't know yet if they are already knwon 
+        NSNR_NEW = SINDEX(P) ! NSNR from XREM, we don't know yet if they are already known
         NSNFI(NIN)%P(P) = NSNR_NEW + NSNR_OLD 
 
         IF(NSNR_OLD +  NSNR_NEW > 0) THEN
@@ -508,11 +491,11 @@ C
             ENDDO
           ENDIF
 
-          MY_ALLOCATE(IAUX,NSNR_OLD+NSNR_NEW)
-          MY_ALLOCATE(IAUX_LOCAL,NSNR_OLD+NSNR_NEW)
-          MY_ALLOCATE(IAUX_REV,NSNR_OLD+NSNR_NEW)
-          MY_ALLOCATE(IAUX_K,NSNR_OLD+NSNR_NEW)
-          MY_ALLOCATE(IAUX_L,NSNR_OLD+NSNR_NEW)
+          ALLOCATE(IAUX(NSNR_OLD+NSNR_NEW))
+          ALLOCATE(IAUX_LOCAL(NSNR_OLD+NSNR_NEW))
+          ALLOCATE(IAUX_REV(NSNR_OLD+NSNR_NEW))
+          ALLOCATE(IAUX_K(NSNR_OLD+NSNR_NEW))
+          ALLOCATE(IAUX_L(NSNR_OLD+NSNR_NEW))
 
           POLD=1
           PNEW=1
@@ -572,7 +555,7 @@ C
               END IF
             ELSEIF (ID_NEW == ID_OLD .AND. PNEW <= NSNR_NEW .AND. POLD <= NSNR_OLD) THEN
               ! In the case the secnd sliding from another processor
-              ! is knwon already on this processor, then we keep the new values
+              ! is known already on this processor, then we keep the new values
               ! in IREM and XREM
               NSNFI(NIN)%P(P) =  NSNFI(NIN)%P(P) - 1
               INDEX(IDEB_OLD+POLD) = IX + IDEB_NEW
@@ -588,7 +571,7 @@ C
 
 
 C ========================================================
-C If a secnd is already known, update local strcuture here
+C If a secnd is already known, update local structure here
 C Or in ELSEIF(I == 0) THEN blocks below
 C ========================================================
           DO J = 1,NBLOCAL
@@ -601,12 +584,12 @@ C ========================================================
           ENDDO
 
 C ========================================================
-C If a secnd is already known, update local strcuture here
+C If a secnd is already known, update local structure here
 C ========================================================
 
 
 
-          ! NN = Taille de XREM + Taille ancien FI - noeuds communs
+          ! Nn = size of xrem + old size fi - common nodes
           NN = NSNFI(NIN)%P(P)
           NSNFI(NIN)%P(P) = NN - NBLOCAL
 
@@ -616,7 +599,7 @@ C =============================================================
             I = IAUX(J)
             K = IDEB_NEW+J-NBLOCAL
             IF(I > 0 )THEN
-              ! IAUX > 0 => Pointer to  secnds already in FI strcuture
+              ! IAUX > 0 => Pointer to  secnds already in FI structure
               L = IDEB_OLD+I
               XFI(NIN)%P(1,K)     = TMP%XFI%P(1,L)
               XFI(NIN)%P(2,K)     = TMP%XFI%P(2,L)
@@ -683,7 +666,7 @@ C  symmetric plane
 
 C
 C specific cases ../..
-          IF(IGAP.EQ.1 .OR. IGAP.EQ.2)THEN
+          IF(IGAP==1 .OR. IGAP==2 .OR. IGAP==5)THEN
             NBLOCAL = 0
             DO J=1,NN
               I = IAUX(J)
@@ -699,7 +682,7 @@ C specific cases ../..
               END IF
             END DO
             RSHIFT = RSHIFT + 1    
-          ELSEIF(IGAP.EQ.3)THEN 
+          ELSEIF(IGAP==3)THEN 
             NBLOCAL = 0
             DO J = 1, NN
               I = IAUX(J)
@@ -721,7 +704,7 @@ C specific cases ../..
 C
 
 C thermic
-          IF(INTTH.GT.0)THEN
+          IF(INTTH>0)THEN
              NBLOCAL = 0
              DO J = 1, NN
                I = IAUX(J)
@@ -745,28 +728,28 @@ C thermic
           ENDIF
           
 C Adhesion
-          IF(IVIS2==-1.AND.INTTH==0)THEN
+          IF(IVIS2==-1)THEN
              NBLOCAL = 0
              DO J = 1, NN
                I = IAUX(J)
                K = IDEB_NEW+J -NBLOCAL
                IF (I > 0) THEN
                  L = IDEB_OLD+I
-                 AREASFI(NIN)%P(K) = TMP%AREASFI%P(L) 
+                 IF(INTTH==0) AREASFI(NIN)%P(K) = TMP%AREASFI%P(L) 
                  IF_ADHFI(NIN)%P(K) =  TMP%IF_ADHFI%P(L)
                ELSEIF( I < 0 ) THEN
                  L = INDX_FOR_P(P)%P(-I)
-                 AREASFI(NIN)%P(K) =  XREM(RSHIFT,L)
+                 IF(INTTH==0) AREASFI(NIN)%P(K) =  XREM(RSHIFT,L)
                  IF_ADHFI(NIN)%P(K) =  IREM(ISHIFT,L)                
                ELSEIF(I == 0) THEN                 
                  K = IAUX_K(J) 
                  L = IAUX_L(J) 
-                 INTBUF_TAB%AREAS(K)   = XREM(RSHIFT,L)
+                 IF(INTTH==0) INTBUF_TAB%AREAS(K)   = XREM(RSHIFT,L)
                  INTBUF_TAB%IF_ADH(K)  = IREM(ISHIFT,L)
                  NBLOCAL = NBLOCAL+1
                END IF
              END DO
-             RSHIFT = RSHIFT + 1
+             IF(INTTH==0) RSHIFT = RSHIFT + 1
              ISHIFT = ISHIFT + 1
           ENDIF
               
@@ -787,6 +770,43 @@ C Friction
                END IF
              END DO
              ISHIFT = ISHIFT + 1
+          ENDIF
+C Stiffness based on masses and time step
+          IF(ISTIF_MSDT > 0) THEN
+             NBLOCAL = 0
+             DO J = 1, NN
+               I = IAUX(J)
+               K = IDEB_NEW+J -NBLOCAL
+               IF (I > 0) THEN
+                 L = IDEB_OLD+I
+                 STIF_MSDT_FI(NIN)%P(K) = TMP%STIF_MSDT_FI%P(L) 
+               ELSEIF( I < 0 ) THEN
+                 L = INDX_FOR_P(P)%P(-I)
+                  STIF_MSDT_FI(NIN)%P(K) =  XREM(RSHIFT,  L) 
+               ELSEIF(I == 0) THEN
+                 NBLOCAL = NBLOCAL+1
+               END IF
+             END DO
+             RSHIFT = RSHIFT + 1
+          ENDIF
+C
+C CAREA output in TH (case of NISUB)
+          IF(IFSUB_CAREA > 0) THEN
+             NBLOCAL = 0
+             DO J = 1, NN
+               I = IAUX(J)
+               K = IDEB_NEW+J -NBLOCAL
+               IF (I > 0) THEN
+                 L = IDEB_OLD+I
+                 INTAREANFI(NIN)%P(K) = TMP%INTAREANFI%P(L) 
+               ELSEIF( I < 0 ) THEN
+                 L = INDX_FOR_P(P)%P(-I)
+                  INTAREANFI(NIN)%P(K) =  XREM(RSHIFT,  L) 
+               ELSEIF(I == 0) THEN
+                 NBLOCAL = NBLOCAL+1
+               END IF
+             END DO
+             RSHIFT = RSHIFT + 1
           ENDIF
 C
           IF(IDTMINS==2)THEN
@@ -810,7 +830,7 @@ C
              END DO
              ISHIFT = ISHIFT + 2
         
-          ELSEIF(IDTMINS_INT.NE.0)THEN
+          ELSEIF(IDTMINS_INT/=0)THEN
              NBLOCAL = 0
              DO J = 1, NN
                I = IAUX(J)
@@ -910,7 +930,7 @@ C         IF(ITYP==25)THEN
             ISHIFT = ISHIFT + 5
  
             IF (ILEV==2) THEN  
-C          NBINFLFI local ne semble pas toujours alloue 
+C          Local nbinflfi does not always seem allocated 
                NBLOCAL = 0
                DO J = 1, NN
                  I = IAUX(J)
@@ -1015,15 +1035,15 @@ C
           DEALLOCATE(IAUX,IAUX_LOCAL,IAUX_REV,IAUX_K,IAUX_L)
 
 
-        ENDIF !IF(NSNR_OLD.NE.0) 
-      ENDDO  ! end do NSPMD        	
+        ENDIF !IF(NSNR_OLD/=0) 
+      ENDDO  ! end do NSPMD        
 
 c ===============================================================
 c                           TESTS
 c ==============================================================
 !      DO II = 1,NSPMD 
 !        IF(II == LOC_PROC) THEN
-!          IF(NSNR .NE. IDEB_NEW) WRITE(6,*) __FILE__,"NSNR = ",NSNR," --> ", IDEB_NEW
+!          IF(NSNR /= IDEB_NEW) WRITE(6,*) __FILE__,"NSNR = ",NSNR," --> ", IDEB_NEW
 !          J = 1
 !          DO P = 1,NSPMD
 !            WRITE(6,*) ispmd+1, "P = ",P
@@ -1035,7 +1055,7 @@ c ==============================================================
 !          ENDDO
 !        ENDIF
 !        CALL FLUSH(6)
-!        CALL MPI_BARRIER(MPI_COMM_WORLD,IDEB)
+!        CALL MPI_BARRIER(SPMD_COMM_WORLD,IDEB)
 !      ENDDO
 c ==============================================================
 
@@ -1050,7 +1070,7 @@ C
          KREMNOR_FI(NIN)%P(1)=0  
 
          SIZREMNORFI = KREMNOR_FI(NIN)%P(NODFI+1)
-         MY_ALLOCATE(REMNOR_FI(NIN)%P,SIZREMNORFI)
+         ALLOCATE(REMNOR_FI(NIN)%P(SIZREMNORFI))
          IF(SIZREMNORFI > 0) THEN
             DO N=1,SIZREMNORFI
                REMNOR_FI(NIN)%P(N) =REMNOR_FI_TMP(N)
@@ -1069,7 +1089,7 @@ C ================================================================
 
 
 C
-C Deallocation de XREM IREM
+C Deallocation of XREM IREM
 C
       IF(ALLOCATED(XREM)) DEALLOCATE(XREM)
       IF(ALLOCATED(IREM)) DEALLOCATE(IREM)
@@ -1077,16 +1097,16 @@ C
 C
 C   ALLOCATIONS FOR THE ASSEMBLY  
 C
-      CALL REALLOCATE_FI2(NIN, INTTH, NODFI, LSKYFI, H3D_DATA, IVIS2) 
+      CALL REALLOCATE_FI2(NIN, INTTH, NODFI, LSKYFI, H3D_DATA,NODADT_THERM) 
 C
 C      ! DEALLOCATE old structures
 C
-      CALL DEALLOCATE_FI1_TMP(NODFI,TMP,NIN,INTTH,IGAP,ILEV,INTFRIC,FLAGREMN,IVIS2)
+      CALL DEALLOCATE_FI1_TMP(NODFI,TMP,NIN,INTTH,IGAP,ILEV,INTFRIC,FLAGREMN,IVIS2,ISTIF_MSDT,IFSUB_CAREA)
 C
       DO I = 1, INTBUF_TAB%I_STOK(1)
         N = INTBUF_TAB%CAND_N(I)
         NN = N-NSN
-        IF(NN.GT.0)THEN
+        IF(NN>0)THEN
           INTBUF_TAB%CAND_N(I) = ABS(INDEX(NN))+NSN
         ENDIF
       ENDDO
@@ -1094,7 +1114,7 @@ C
       DO I = 1, INTBUF_TAB%I_STOK(2)
         N = INTBUF_TAB%CAND_OPT_N(I)
         NN = N-NSN
-        IF(NN.GT.0)THEN
+        IF(NN>0)THEN
           INTBUF_TAB%CAND_OPT_N(I) = ABS(INDEX(NN))+NSN
         ENDIF
       ENDDO
@@ -1111,17 +1131,18 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  REALLOCATE_FI1                source/mpi/interfaces/spmd_i25slide.F
-Chd|-- called by -----------
-Chd|        SPMD_I25_SLIDE_GAT            source/mpi/interfaces/spmd_i25slide.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI25TMP                      share/modules/tri25tmp_mod.F  
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    reallocate_fi1        ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i25_slide_gat    ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri25tmp              ../engine/share/modules/tri25tmp_mod.F
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE REALLOCATE_FI1(NEW_SIZE,TMP,NIN,INTTH,IGAP,ILEV,INTFRIC,
-     .                          FLAGREMN,IVIS2)
+     .                          FLAGREMN,IVIS2,ISTIF_MSDT,IFSUB_CAREA)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -1131,32 +1152,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 #include      "assert.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "spmd_c.inc"
 #include      "sms_c.inc"
-C-----------------------------------------------
-C   M y  A l l o c a t e                             
-C-----------------------------------------------
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER, INTENT(IN) ::  NEW_SIZE,NIN,INTTH,IGAP,ILEV,INTFRIC,FLAGREMN,
      .                        IVIS2
+      INTEGER, INTENT(IN) :: ISTIF_MSDT, IFSUB_CAREA
       TYPE(I25_TMP_STRUCT) TMP
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
@@ -1182,13 +1191,19 @@ C-----------------------------------------------
        TMP%MATSFI%P=>MATSFI(NIN)%P
        TMP%AREASFI%P=>AREASFI(NIN)%P
       ENDIF 
-      IF(INTTH==0.AND.IVIS2==-1) THEN
-        TMP%AREASFI%P=>AREASFI(NIN)%P
+      IF(IVIS2==-1) THEN
+        IF(INTTH==0) TMP%AREASFI%P=>AREASFI(NIN)%P
         TMP%IF_ADHFI%P=>IF_ADHFI(NIN)%P
       ENDIF
       IF(INTFRIC > 0 ) THEN
        TMP%IPARTFRICSFI%P=>IPARTFRICSFI(NIN)%P
       ENDIF 
+      IF(ISTIF_MSDT > 0 ) THEN
+       TMP%STIF_MSDT_FI%P=>STIF_MSDT_FI(NIN)%P
+      ENDIF
+      IF(IFSUB_CAREA > 0 ) THEN
+       TMP%INTAREANFI%P=>INTAREANFI(NIN)%P
+      ENDIF  
       IF(IDTMINS == 2) THEN
        TMP%NODNXFI%P=>NODNXFI(NIN)%P
        TMP%NODAMSFI%P=>NODAMSFI(NIN)%P
@@ -1197,9 +1212,9 @@ C-----------------------------------------------
        TMP%NODAMSFI%P=>NODAMSFI(NIN)%P
        TMP%PROCAMSFI%P=>PROCAMSFI(NIN)%P
       ENDIF 
-      IF(IGAP.NE.0) THEN
+      IF(IGAP/=0) THEN
         TMP%GAPFI%P=>GAPFI(NIN)%P
-        IF(IGAP.EQ.3) THEN
+        IF(IGAP==3) THEN
           TMP%GAP_LFI%P=>GAP_LFI(NIN)%P
         ENDIF
       ENDIF
@@ -1230,60 +1245,66 @@ C
 
 C     WRITE(6,*) "NEW SIZE:",NEW_SIZE
 
-      MY_ALLOCATE(NSNFI(NIN)%P,NSPMD)
-      MY_ALLOCATE(NSVFI(NIN)%P,NEW_SIZE)
-      MY_ALLOCATE(MSFI(NIN)%P,NEW_SIZE)
-      MY_ALLOCATE(STIFI(NIN)%P,NEW_SIZE)
-      MY_ALLOCATE(ITAFI(NIN)%P,NEW_SIZE)
-      MY_ALLOCATE(PMAINFI(NIN)%P,NEW_SIZE)
-      MY_ALLOCATE(KINFI(NIN)%P,NEW_SIZE)
-      MY_ALLOCATE2D(VFI(NIN)%P,3,NEW_SIZE)
-      MY_ALLOCATE2D(XFI(NIN)%P,3,NEW_SIZE)
+      ALLOCATE(NSNFI(NIN)%P(NSPMD))
+      ALLOCATE(NSVFI(NIN)%P(NEW_SIZE))
+      ALLOCATE(MSFI(NIN)%P(NEW_SIZE))
+      ALLOCATE(STIFI(NIN)%P(NEW_SIZE))
+      ALLOCATE(ITAFI(NIN)%P(NEW_SIZE))
+      ALLOCATE(PMAINFI(NIN)%P(NEW_SIZE))
+      ALLOCATE(KINFI(NIN)%P(NEW_SIZE))
+      ALLOCATE(VFI(NIN)%P(3,NEW_SIZE))
+      ALLOCATE(XFI(NIN)%P(3,NEW_SIZE))
       IF(.TRUE.) THEN
-       MY_ALLOCATE(ICODT_FI(NIN)%P,NEW_SIZE)
-       MY_ALLOCATE(ISKEW_FI(NIN)%P,NEW_SIZE)
+       ALLOCATE(ICODT_FI(NIN)%P(NEW_SIZE))
+       ALLOCATE(ISKEW_FI(NIN)%P(NEW_SIZE))
       ENDIF
       IF(INTTH > 0 ) THEN
-       MY_ALLOCATE(TEMPFI(NIN)%P,NEW_SIZE)
-       MY_ALLOCATE(MATSFI(NIN)%P,NEW_SIZE)
-       MY_ALLOCATE(AREASFI(NIN)%P,NEW_SIZE)
+       ALLOCATE(TEMPFI(NIN)%P(NEW_SIZE))
+       ALLOCATE(MATSFI(NIN)%P(NEW_SIZE))
+       ALLOCATE(AREASFI(NIN)%P(NEW_SIZE))
       ENDIF 
-      IF(INTTH==0.AND.IVIS2==-1) THEN
-        MY_ALLOCATE(AREASFI(NIN)%P,NEW_SIZE)
-        MY_ALLOCATE(IF_ADHFI(NIN)%P,NEW_SIZE)
+      IF(IVIS2==-1) THEN
+        IF(INTTH==0) ALLOCATE(AREASFI(NIN)%P(NEW_SIZE))
+        ALLOCATE(IF_ADHFI(NIN)%P(NEW_SIZE))
       ENDIF
       IF(INTFRIC > 0 ) THEN
-       MY_ALLOCATE(IPARTFRICSFI(NIN)%P,NEW_SIZE)
+       ALLOCATE(IPARTFRICSFI(NIN)%P(NEW_SIZE))
+      ENDIF 
+      IF(ISTIF_MSDT > 0 ) THEN
+       ALLOCATE(STIF_MSDT_FI(NIN)%P(NEW_SIZE))
+      ENDIF 
+      IF(IFSUB_CAREA > 0 ) THEN
+       ALLOCATE(INTAREANFI(NIN)%P(NEW_SIZE))
       ENDIF 
       IF(IDTMINS == 2) THEN
-       MY_ALLOCATE(NODNXFI(NIN)%P,NEW_SIZE)
-       MY_ALLOCATE(NODAMSFI(NIN)%P,NEW_SIZE)
-       MY_ALLOCATE(PROCAMSFI(NIN)%P,NEW_SIZE)
+       ALLOCATE(NODNXFI(NIN)%P(NEW_SIZE))
+       ALLOCATE(NODAMSFI(NIN)%P(NEW_SIZE))
+       ALLOCATE(PROCAMSFI(NIN)%P(NEW_SIZE))
       ELSEIF(IDTMINS_INT /= 0) THEN
-       MY_ALLOCATE(NODAMSFI(NIN)%P,NEW_SIZE)
-       MY_ALLOCATE(PROCAMSFI(NIN)%P,NEW_SIZE)
+       ALLOCATE(NODAMSFI(NIN)%P(NEW_SIZE))
+       ALLOCATE(PROCAMSFI(NIN)%P(NEW_SIZE))
       ENDIF 
-      IF(IGAP.NE.0) THEN
-        MY_ALLOCATE(GAPFI(NIN)%P,NEW_SIZE)
-        IF(IGAP.EQ.3) THEN
-          MY_ALLOCATE(GAP_LFI(NIN)%P,NEW_SIZE)
+      IF(IGAP/=0) THEN
+        ALLOCATE(GAPFI(NIN)%P(NEW_SIZE))
+        IF(IGAP==3) THEN
+          ALLOCATE(GAP_LFI(NIN)%P(NEW_SIZE))
         ENDIF
       ENDIF
       IF(ILEV == 2 ) THEN 
-        MY_ALLOCATE(NBINFLFI(NIN)%P,NEW_SIZE)
+        ALLOCATE(NBINFLFI(NIN)%P(NEW_SIZE))
       ENDIF
-      MY_ALLOCATE2D(IRTLM_FI(NIN)%P,4,NEW_SIZE)
-      MY_ALLOCATE(TIME_SFI(NIN)%P,2*NEW_SIZE)
-      MY_ALLOCATE2D(SECND_FRFI(NIN)%P,6,NEW_SIZE)
+      ALLOCATE(IRTLM_FI(NIN)%P(4,NEW_SIZE))
+      ALLOCATE(TIME_SFI(NIN)%P(2*NEW_SIZE))
+      ALLOCATE(SECND_FRFI(NIN)%P(6,NEW_SIZE))
       SECND_FRFI(NIN)%P (1:6,1:NEW_SIZE)=ZERO
-      MY_ALLOCATE2D(PENE_OLDFI(NIN)%P,5,NEW_SIZE)
+      ALLOCATE(PENE_OLDFI(NIN)%P(5,NEW_SIZE))
       PENE_OLDFI(NIN)%P(1:5,1:NEW_SIZE)=ZERO
-      MY_ALLOCATE2D(STIF_OLDFI(NIN)%P,2,NEW_SIZE)
+      ALLOCATE(STIF_OLDFI(NIN)%P(2,NEW_SIZE))
       STIF_OLDFI(NIN)%P(1:2,1:NEW_SIZE)=ZERO
-      MY_ALLOCATE(ICONT_I_FI(NIN)%P,NEW_SIZE)
-      MY_ALLOCATE2D(ISLIDE_FI(NIN)%P,4,NEW_SIZE)
+      ALLOCATE(ICONT_I_FI(NIN)%P(NEW_SIZE))
+      ALLOCATE(ISLIDE_FI(NIN)%P(4,NEW_SIZE))
       IF(FLAGREMN == 2) THEN       
-       MY_ALLOCATE(KREMNOR_FI(NIN)%P,NEW_SIZE+1)
+       ALLOCATE(KREMNOR_FI(NIN)%P(NEW_SIZE+1))
        KREMNOR_FI(NIN)%P(1:NEW_SIZE+1) = 0
       ENDIF
 C
@@ -1291,16 +1312,18 @@ C
 
       RETURN
       END SUBROUTINE    
-Chd|====================================================================
-Chd|  DEALLOCATE_FI1_TMP            source/mpi/interfaces/spmd_i25slide.F
-Chd|-- called by -----------
-Chd|        SPMD_I25_SLIDE_GAT            source/mpi/interfaces/spmd_i25slide.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI25TMP                      share/modules/tri25tmp_mod.F  
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE DEALLOCATE_FI1_TMP(NEW_SIZE,TMP,NIN,INTTH,IGAP,ILEV,INTFRIC,FLAGREMN,IVIS2)
+!||====================================================================
+!||    deallocate_fi1_tmp    ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i25_slide_gat    ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri25tmp              ../engine/share/modules/tri25tmp_mod.F
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE DEALLOCATE_FI1_TMP(NEW_SIZE,TMP,NIN,INTTH,IGAP,ILEV,INTFRIC,
+     .                          FLAGREMN,IVIS2,ISTIF_MSDT,IFSUB_CAREA)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -1310,30 +1333,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "spmd_c.inc"
 #include      "sms_c.inc"
-C-----------------------------------------------
-C   M y  A l l o c a t e                             
-C-----------------------------------------------
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER, INTENT(IN) ::  NEW_SIZE,NIN,INTTH,IGAP,ILEV,INTFRIC,FLAGREMN,IVIS2
+      INTEGER, INTENT(IN) :: ISTIF_MSDT, IFSUB_CAREA
       TYPE(I25_TMP_STRUCT) TMP
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
@@ -1358,12 +1368,18 @@ C-----------------------------------------------
        DEALLOCATE(TMP%MATSFI%P)
        DEALLOCATE(TMP%AREASFI%P)
       ENDIF 
-      IF(INTTH==0.AND.IVIS2==-1) THEN
-        DEALLOCATE(TMP%AREASFI%P)
+      IF(IVIS2==-1) THEN
+        IF(INTTH==0) DEALLOCATE(TMP%AREASFI%P)
         DEALLOCATE(TMP%IF_ADHFI%P)
       ENDIF
       IF(INTFRIC > 0 ) THEN
        DEALLOCATE(TMP%IPARTFRICSFI%P)
+      ENDIF 
+      IF(ISTIF_MSDT > 0 ) THEN
+       DEALLOCATE(TMP%STIF_MSDT_FI%P)
+      ENDIF 
+      IF(IFSUB_CAREA > 0 ) THEN
+       DEALLOCATE(TMP%INTAREANFI%P)
       ENDIF 
       IF(IDTMINS == 2) THEN
        DEALLOCATE(TMP%NODNXFI%P)
@@ -1373,9 +1389,9 @@ C-----------------------------------------------
        DEALLOCATE(TMP%NODAMSFI%P)
        DEALLOCATE(TMP%PROCAMSFI%P)
       ENDIF 
-      IF(IGAP.NE.0) THEN
+      IF(IGAP/=0) THEN
         DEALLOCATE(TMP%GAPFI%P)
-        IF(IGAP.EQ.3) THEN
+        IF(IGAP==3) THEN
           DEALLOCATE(TMP%GAP_LFI%P)
         ENDIF
       ENDIF
@@ -1402,18 +1418,20 @@ C
       END SUBROUTINE    
 
 
-Chd|====================================================================
-Chd|  REALLOCATE_FI2                source/mpi/interfaces/spmd_i25slide.F
-Chd|-- called by -----------
-Chd|        SPMD_I25_SLIDE_GAT            source/mpi/interfaces/spmd_i25slide.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE REALLOCATE_FI2(NIN, INTTH, NODFI, LSKYFI,H3D_DATA,IVIS2) 
+!||====================================================================
+!||    reallocate_fi2        ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i25_slide_gat    ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod               ../engine/share/modules/h3d_mod.F
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE REALLOCATE_FI2(NIN, INTTH, NODFI, LSKYFI,H3D_DATA,NODADT_THERM) 
 C
 C                               
 C
@@ -1426,32 +1444,21 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "scr18_c.inc"
-#include      "param_c.inc"
 #include      "parit_c.inc"
-#include      "spmd_c.inc"
-#include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER, INTENT(IN) ::  NIN, INTTH, NODFI, LSKYFI, IVIS2
+      INTEGER, INTENT(IN) ::  NIN, INTTH, NODFI, LSKYFI
+      INTEGER, INTENT(IN) :: NODADT_THERM
       TYPE(H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
@@ -1467,7 +1474,7 @@ C-----------------------------------------------
 C
 C Allocation Parith/OFF
 C
-        IF(IPARIT.EQ.0) THEN
+        IF(IPARIT==0) THEN
          
           IF(ASSOCIATED(AFI(NIN)%P)) THEN
               DEALLOCATE(AFI(NIN)%P)
@@ -1478,8 +1485,8 @@ C
               NULLIFY(AFI(NIN)%P) 
           ENDIF
 
-          IF(NODFI.GT.0)ALLOCATE(AFI(NIN)%P(3,NODFI*NTHREAD),STAT=IERROR1)
-          IF(NODFI.GT.0)ALLOCATE(STNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR2)
+          IF(NODFI>0)ALLOCATE(AFI(NIN)%P(3,NODFI*NTHREAD),STAT=IERROR1)
+          IF(NODFI>0)ALLOCATE(STNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR2)
 C Init a 0
           DO I = 1, NODFI*NTHREAD
             AFI(NIN)%P(1,I) = ZERO
@@ -1488,9 +1495,9 @@ C Init a 0
             STNFI(NIN)%P(I) = ZERO
           ENDDO
 C
-          IF(KDTINT.NE.0)THEN
+          IF(KDTINT/=0)THEN
             IF(ASSOCIATED(VSCFI(NIN)%P)) DEALLOCATE(VSCFI(NIN)%P)
-            IF(NODFI.GT.0)ALLOCATE(VSCFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR3)
+            IF(NODFI>0)ALLOCATE(VSCFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR3)
 C Init a 0
             DO I = 1, NODFI*NTHREAD
               VSCFI(NIN)%P(I) = ZERO
@@ -1505,9 +1512,9 @@ C
           IF(ASSOCIATED(FSKYFI(NIN)%P)) DEALLOCATE(FSKYFI(NIN)%P)
           IF(ASSOCIATED(ISKYFI(NIN)%P)) DEALLOCATE(ISKYFI(NIN)%P)
           NLSKYFI(NIN) = LSKYFI
-          IF(LSKYFI.GT.0) THEN
+          IF(LSKYFI>0) THEN
             ALLOCATE(ISKYFI(NIN)%P(LSKYFI),STAT=IERROR1)
-            IF(KDTINT.EQ.0) THEN
+            IF(KDTINT==0) THEN
               ALLOCATE(FSKYFI(NIN)%P(4,LSKYFI),STAT=IERROR2)
             ELSE
               ALLOCATE(FSKYFI(NIN)%P(5,LSKYFI),STAT=IERROR2)
@@ -1518,17 +1525,17 @@ C
 C
 C Allocation Parith/OFF
 C
-        IF(IPARIT.EQ.0) THEN
+        IF(IPARIT==0) THEN
           IF(ASSOCIATED(AFI(NIN)%P)) DEALLOCATE(AFI(NIN)%P)
           IF(ASSOCIATED(STNFI(NIN)%P)) DEALLOCATE(STNFI(NIN)%P)
           IF(ASSOCIATED(FTHEFI(NIN)%P)) DEALLOCATE(FTHEFI(NIN)%P)
-          IF(NODFI.GT.0)ALLOCATE(AFI(NIN)%P(3,NODFI*NTHREAD),STAT=IERROR1)
-          IF(NODFI.GT.0)ALLOCATE(STNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR2)
-          IF(NODFI.GT.0)ALLOCATE(FTHEFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR3)
+          IF(NODFI>0)ALLOCATE(AFI(NIN)%P(3,NODFI*NTHREAD),STAT=IERROR1)
+          IF(NODFI>0)ALLOCATE(STNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR2)
+          IF(NODFI>0)ALLOCATE(FTHEFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR3)
 C
           IF(NODADT_THERM ==1) THEN
             IF(ASSOCIATED(CONDNFI(NIN)%P)) DEALLOCATE(CONDNFI(NIN)%P)
-            IF(NODFI.GT.0.AND.NODADT_THERM ==1)ALLOCATE(CONDNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR4)
+            IF(NODFI>0.AND.NODADT_THERM ==1)ALLOCATE(CONDNFI(NIN)%P(NODFI*NTHREAD),STAT=IERROR4)
           ENDIF
 C
 
@@ -1548,9 +1555,9 @@ C Init a 0
             ENDDO
           ENDIF
 C
-          IF(KDTINT.NE.0)THEN
+          IF(KDTINT/=0)THEN
             IF(ASSOCIATED(VSCFI(NIN)%P)) DEALLOCATE(VSCFI(NIN)%P)
-            IF(NODFI.GT.0)ALLOCATE(VSCFI(NIN)%P(NODFI),STAT=IERROR4)
+            IF(NODFI>0)ALLOCATE(VSCFI(NIN)%P(NODFI),STAT=IERROR4)
 C Init a 0
             DO I = 1, NODFI
               VSCFI(NIN)%P(I) = ZERO
@@ -1565,9 +1572,9 @@ C
           IF(ASSOCIATED(ISKYFI(NIN)%P)) DEALLOCATE(ISKYFI(NIN)%P)
           IF(ASSOCIATED(FTHESKYFI(NIN)%P)) DEALLOCATE(FTHESKYFI(NIN)%P)
           NLSKYFI(NIN) = LSKYFI
-          IF(LSKYFI.GT.0) THEN
+          IF(LSKYFI>0) THEN
             ALLOCATE(ISKYFI(NIN)%P(LSKYFI),STAT=IERROR1)
-            IF(KDTINT.EQ.0) THEN
+            IF(KDTINT==0) THEN
               ALLOCATE(FSKYFI(NIN)%P(4,LSKYFI),STAT=IERROR2)
               ALLOCATE(FTHESKYFI(NIN)%P(LSKYFI),STAT=IERROR3)
             ELSE
@@ -1579,26 +1586,26 @@ C
 C
           IF(NODADT_THERM ==1) THEN
             IF(ASSOCIATED(CONDNSKYFI(NIN)%P)) DEALLOCATE(CONDNSKYFI(NIN)%P)
-            IF(LSKYFI.GT.0) ALLOCATE(CONDNSKYFI(NIN)%P(LSKYFI),STAT=IERROR4)
+            IF(LSKYFI>0) ALLOCATE(CONDNSKYFI(NIN)%P(LSKYFI),STAT=IERROR4)
           ENDIF
 C
 
         ENDIF        
       ENDIF    
 C
-      IF(IERROR1+IERROR2+IERROR3+IERROR4.NE.0) THEN
+      IF(IERROR1+IERROR2+IERROR3+IERROR4/=0) THEN
         CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
         CALL ARRET(2)
       ENDIF
 C
-C allocations conditionnelles output pression
+C Output Pressure/ Friction Energy conditional allowances
 C
-      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT .GT.0)THEN
+      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT >0)THEN
         IF(ASSOCIATED(FNCONTI(NIN)%P)) DEALLOCATE(FNCONTI(NIN)%P)
         IF(ASSOCIATED(FTCONTI(NIN)%P)) DEALLOCATE(FTCONTI(NIN)%P)
         ALLOCATE(FNCONTI(NIN)%P(3,NODFI),STAT=IERROR1)
         ALLOCATE(FTCONTI(NIN)%P(3,NODFI),STAT=IERROR2)
-        IF(IERROR1+IERROR2.NE.0) THEN
+        IF(IERROR1+IERROR2/=0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
         ELSE
@@ -1613,18 +1620,45 @@ C
         END IF          
       END IF
 C
+      IF(H3D_DATA%N_SCAL_CSE_FRICINT >0)THEN
+       IF(H3D_DATA%N_CSE_FRIC_INTER (NIN) >0)THEN
+        IF(ASSOCIATED(EFRICFI(NIN)%P)) DEALLOCATE(EFRICFI(NIN)%P)
+        ALLOCATE(EFRICFI(NIN)%P(NODFI),STAT=IERROR1)
+        IF(IERROR1/=0) THEN
+          CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
+          CALL ARRET(2)
+        ELSE
+          DO J = 1, NODFI
+            EFRICFI(NIN)%P(J)=ZERO
+          END DO                  
+        END IF            
+       END IF
+      ENDIF
+C
+      IF(H3D_DATA%N_SCAL_CSE_FRIC >0)THEN
+        IF(ASSOCIATED(EFRICGFI(NIN)%P)) DEALLOCATE(EFRICGFI(NIN)%P)
+        ALLOCATE(EFRICGFI(NIN)%P(NODFI),STAT=IERROR1)
+        IF(IERROR1/=0) THEN
+          CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
+          CALL ARRET(2)
+        ELSE
+          DO J = 1, NODFI
+            EFRICGFI(NIN)%P(J)=ZERO
+          END DO                  
+        END IF            
+      END IF
 
       RETURN
       END SUBROUTINE
 
-Chd|====================================================================
-Chd|  CHECK_FI                      source/mpi/interfaces/spmd_i25slide.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI25TMP                      share/modules/tri25tmp_mod.F  
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    check_fi              ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri25tmp              ../engine/share/modules/tri25tmp_mod.F
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE CHECK_FI()
 C use for debug only
 C
@@ -1636,39 +1670,21 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "spmd_c.inc"
-#include      "sms_c.inc"
-C-----------------------------------------------
-C   M y  A l l o c a t e                             
-C-----------------------------------------------
-#include      "my_allocate.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 
        IF(ISPMD == 1) THEN
-      !   IF(NSNR > 0) THEN
            IF(ABS(NSVFI(1)%P(2)) ==  5864) THEN 
              WRITE(6,*) __FILE__,__LINE__
            ENDIF
-      !   ENDIF
        ENDIF 
+       
        RETURN  
        END SUBROUTINE

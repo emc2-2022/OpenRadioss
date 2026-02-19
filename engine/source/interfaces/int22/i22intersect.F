@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I22INTERSECT                  source/interfaces/int22/i22intersect.F
-Chd|-- called by -----------
-Chd|        I22BUCE                       source/interfaces/intsort/i22buce.F
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        ISONSH3N                      source/interfaces/int22/i22intersect.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        REALLOC_MOD                   share/modules/realloc_mod.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i22intersect     ../engine/source/interfaces/int22/i22intersect.F
+!||--- called by ------------------------------------------------------
+!||    i22buce          ../engine/source/interfaces/intsort/i22buce.F
+!||--- calls      -----------------------------------------------------
+!||    arret            ../engine/source/system/arret.F
+!||    isonsh3n         ../engine/source/interfaces/int22/i22intersect.F
+!||    my_barrier       ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22edge_mod      ../common_source/modules/interfaces/cut-cell-buffer_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    realloc_mod      ../engine/share/modules/realloc_mod.F
+!||====================================================================
       SUBROUTINE I22INTERSECT(
      1      X      ,II_STOK, CAND_B  ,CAND_E   ,ITASK,
      2      NBRIC  ,ITAB   , BUFBRIC  ,NCAND,   
@@ -41,7 +44,7 @@ C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C  X(3,*) is used for local nodes (cells) for surface nodes use IRECTL  
 C-----------------------------------------------
@@ -50,7 +53,8 @@ C-----------------------------------------------
       USE I22BUFBRIC_MOD
       USE I22TRI_MOD
       USE I22EDGE_MOD  
-      USE REALLOC_MOD     
+      USE REALLOC_MOD
+      use element_mod , only : nixs     
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -63,18 +67,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr05_c.inc"
-#include      "sms_c.inc"
 #include      "task_c.inc"
-#include      "timerr_c.inc"
-#include      "i22edges.inc"
-C-----------------------------------------------s
+C-----------------------------------------------
 C=======================================================================
 C 6   creation of edge list and addresses for each candidate cell
 C================================================================     
@@ -119,7 +113,7 @@ C-----------------------------------------------
       LOGICAL :: IsSH3N
      
       LOGICAL, DIMENSION(NBRIC) :: COUNT
-!      LOGICAL, DIMENSION(12*NBRIC) :: LEDGE
+!      Logical, dimension (12*nbric) :: ledge
       LOGICAL :: BOOL(NIRECT_L)
       INTEGER NBCUT, NBCUT2,DEJA, ISONSHELL, ISONSH3N
       INTEGER :: COUNTER, NEDGE, NFACE, NODES8(8), COUNTER_BRICK(NBRIC)
@@ -199,11 +193,11 @@ C================================================================
       !---------------------------------------------------------!
       !INTERFACE 22 ONLY - OUTPUT---------------!
        debug_outp = .false.
-       if(ibug22_intersect.ne.0)then
-         if(ibug22_intersect.GT.0)then
+       if(ibug22_intersect/=0)then
+         if(ibug22_intersect>0)then
            do ib=nbf,nbl
              ie=BUFBRIC(LIST_B(Ib))
-             if(ixs(11,ie).eq.ibug22_intersect)then
+             if(ixs(11,ie)==ibug22_intersect)then
                debug_outp=.true.
                exit
              endif
@@ -248,7 +242,7 @@ C================================================================
         d_3 = zero
         DO J=1,12
           K=(I-1)*12+J
-          EDGE_LIST(NIN,K)%NODE(1:2)    = IXS(iEDGE(1:2,J)+1,BRICK_LIST(NIN,I)%ID)                        ! ids cell nodes
+          EDGE_LIST(NIN,K)%NODE(1:2)    = IXS(INT22_BUF%iEDGE(1:2,J)+1,BRICK_LIST(NIN,I)%ID)                        ! ids cell nodes
           EDGE_LIST(NIN,K)%NBCUT        = 0
           EDGE_LIST(NIN,K)%CUTSHELL     = 0
           EDGE_LIST(NIN,K)%CUTCOOR(1:2) = ZERO
@@ -271,7 +265,7 @@ C       Storage in vNE(1:NCANDE,1:3,TT)
 C                     -->   1st arg : candidate Face (structure)
 C                     -->   2nd arg : components x,y,z
 C                     -->   3rd arg : normal number (1shell=4tria)
-C     b.plane equation (constant value)
+C     B.PLANE EQUATION (Constant Value)
 C                      BasisCONST(TT)
 C                     -->   1st arg : normal number (1shell=4tria)
 C================================================================        
@@ -299,7 +293,7 @@ C================================================================
           ptZ(I,2)=IRECT_L(12,NE)  !M(4)
           ptZ(I,3)=IRECT_L(16,NE)  !M(4)
         END IF        
-        DO TT=1,NbSubTriangles(I)                                    !composing triangle (Z,IPA,IPB) = (Z,1,2) ou (Z,2,3) ou (Z,3,4) ou (Z,4,1)
+        DO TT=1,NbSubTriangles(I)                                    !Triangle comping (Z, IPA, IPB) = (Z, 1,2) or (Z, 2.3) or (Z, 3.4) or (Z, 4.1)
           IPA=A(TT)                                                  ! Z is centroid of 4node-shell.
           IPB=A(TT+1) !; IF(IPB==5) IPB=1,for cyclic permutation
           !IPA=IRECT_L(IPA,NE)
@@ -312,12 +306,12 @@ C================================================================
           !normalizing the normal vector to normalize the cartesian plane equation
           NORM = vNE(I,1,TT)*vNE(I,1,TT)+vNE(I,2,TT)*vNE(I,2,TT)+vNE(I,3,TT)*vNE(I,3,TT)
           NORM = SQRT(NORM)
-          IF(NORM.NE.ZERO)THEN
+          IF(NORM/=ZERO)THEN
           vNE(I,1,TT) = vNE(I,1,TT) / NORM
           vNE(I,2,TT) = vNE(I,2,TT) / NORM
           vNE(I,3,TT) = vNE(I,3,TT) / NORM
           ENDIF
-          BasisCONST(I,TT) = SUM(ptZ(i,1:3)*vNE(I,1:3,TT))            !basis constant (surface equation)
+          BasisCONST(I,TT) = SUM(ptZ(i,1:3)*vNE(I,1:3,TT))            !Constant basis (Equation surface)
                                                                       !basis point is Zentrum, it is common for each triangle
           !PLANE EQUATION : nx.X + nY.Y + nZ.Z + k = 0
           ! where n is vNE
@@ -328,7 +322,7 @@ C================================================================
       CALL MY_BARRIER !wait for complete initialization 
 
 C=======================================================================
-C 3   Calcul Intersections
+C 3   Calculation Intersections
 C================================================================    
       if(itask==0 .AND. debug_outp)then
           print *,"  Calcul des Intersections sur Proc=", ITASK+1
@@ -338,12 +332,12 @@ C================================================================
       NBF = 1+ITASK*NCANDB/NTHREAD
       NBL = (ITASK+1)*NCANDB/NTHREAD
 
-      !NCANDB bricks are present in candidates. Theses NCANDB bricks are multi-threaded. Each thread will handle ( (/CAND_B(IADF(I):IADL(I)) , CAND_B(IADF(I):IADL(I))/), I=NBF,NBL)
+      !NCANDB bricks are present in candidates. These NCANDB bricks are multi-threaded. Each thread will handle ( (/CAND_B(IADF(I):IADL(I)) , CAND_B(IADF(I):IADL(I))/), I=NBF,NBL)
 
       DO I=NBF,NBL !each thread handle its bricks (no duplicate work)
         BRICK_LIST(NIN,I)%Seg_add_LFT = IADF(I)    ! corresponding window in CAND_B(i)  : CAND_B(IADFL(I):IADL(I)) = I
         BRICK_LIST(NIN,I)%Seg_add_LLT = IADL(I) 
-	CAND_B(IADF(I):IADL(I)) = I        !TRANSFORM CAND_B(I) into ADD into brick_list()
+          CAND_B(IADF(I):IADL(I)) = I        !TRANSFORM CAND_B(I) into ADD into brick_list()
 c        print *, "IB           =", I
 c        print *, "....IADF,IADL=", IADF(I), IADL(I)   
         IB  = LIST_B(I)            !local ID in group IBUFSSG(IAD+(/1:NBRIC/))
@@ -362,7 +356,7 @@ c        print *, "....IADF,IADL=", IADF(I), IADL(I)
 
         DO IAD=IADF(I), IADL(I)
           IE    = CAND_E(IAD)
-          IF(IE.LE.0)CYCLE
+          IF(IE<=0)CYCLE
           IADE  = GET_LIST_E_POS_FROM_CAND_E_POS(IAD)
 C          !non intersection criterion (couple is retained anyway in CAND_B/CAND_E because we may not search/sort on each cycle)
 C          IF((XMAXS(IB)<IRECT_L(17,IE)).OR. ! ignore if intersection with cell (without margin)is null, IRECT_L <=> xmine,xmaxe,...zmine,zmaxe
@@ -379,7 +373,7 @@ C          END IF
             N_CUT_EDGE    = 0
             DO J=1,12                                                   !12 edges !opposite sign for nodes power ?
               K       = (I-1)*12+J                                      !k : address number in EDGE_LIST
-              POW(1:2)= POWER(iEDGE(1:2, J))
+              POW(1:2)= POWER(INT22_BUF%iEDGE(1:2, J))
               iN(1:2) = EDGE_LIST(NIN,K)%NODE(1:2)                      !IXS(1+iEDGE(1, J),NS)
               DEJA    = EDGE_LIST(NIN,K)%NBCUT                                 !is edge already cut by another shell ?
               NBCUT   = -1
@@ -403,7 +397,7 @@ C          END IF
                 print *, "J  =", J
                 print *, "POW1,POW2", POW(1:2)
               endif
-              !if (ixs(11,brick_list(nin,i)%id)==5882 .AND. J.EQ.12)then
+              !if (ixs(11,brick_list(nin,i)%id)==5882 .AND. J==12)then
               !  print *, "5882====="
               !  write(*,FMT='(A,4I20)')    "shell N1-N2-N3-N4 :",INT(IRECT_L(01:04,IE))
               !  print *, "IE =", IE
@@ -415,17 +409,17 @@ C          END IF
               TOLCRIT = EM06
               TOL = (ONE+EM04)*TOLCRIT*diag22(I)  !EM04 in ISONSH3N
               ! POWER is in mm corresponds to the shifted distance of the intercept (ordonnee a lorigine) it must be normalized
-              IF((ABS(POW(1)).LE.TOL).AND.(ABS(POW(2)).LE.TOL))THEN         !edge is on the shell then no intersection with the face
+              IF((ABS(POW(1))<=TOL).AND.(ABS(POW(2))<=TOL))THEN         !edge is on the shell then no intersection with the face
                 TANGENT(J) = 1
                 !print *, "TANGENT=1",ixs(11,brick_list(nin,i)%id)
                 cycle
               ENDIF                
               IF(DEJA==2)CYCLE                                          !hypothesis: 2 intersections max. Warning possible dpedency of elem numbering
-              IF(  ((POW(1).LT.-TOL).AND.(POW(2).GT.TOL)) .OR.((POW(1).GT.TOL).AND.(POW(2).LT.-TOL)) )THEN    !intersection with current shell     
+              IF(  ((POW(1)<-TOL).AND.(POW(2)>TOL)) .OR.((POW(1)>TOL).AND.(POW(2)<-TOL)) )THEN    !intersection with current shell     
                 ON1(1:3) = X(1:3,iN(1))
                 N1N2(1:3)= EDGE_LIST(NIN,K)%VECTOR(1:3)
                 DENOM    = SUM( vNE(IADE,1:3,TT) * N1N2(1:3) )
-                IF(ABS(DENOM).GT.EM12)THEN
+                IF(ABS(DENOM)>EM12)THEN
                 CUTCOOR = ( BasisCONST(IADE,TT) - SUM( vNE(IADE,1:3,TT) * ON1(1:3) )    ) / DENOM                     !N.N1 change all 3 cycles (possible optimization, cf definition of iedge)        
                 ELSE
                   !in this case edge is intersected with a plane which is quasi tangent. possibly infinite solutions. We choose cutcoor=0.5, error related to this description is neglictible
@@ -433,7 +427,7 @@ C          END IF
                   CALL ARRET(2)
                 ENDIF    
                 
-                IF((CUTCOOR.LE.ONE+TOL).AND.(CUTCOOR.GE.-TOL))THEN           !check if intersection point is one on the shell
+                IF((CUTCOOR<=ONE+TOL).AND.(CUTCOOR>=-TOL))THEN           !check if intersection point is one on the shell
                   CUTCOOR = MIN(ONE-EM06,CUTCOOR)
                   CUTCOOR = MAX(EM06   ,CUTCOOR)
                   POINT(1:3)=ON1(1:3) + CUTCOOR * N1N2(1:3)
@@ -443,13 +437,13 @@ C          END IF
                 END IF
                 
                 NBCUT2 = 0
-              ELSEIF((ABS(POW(1)).LE.TOL).AND.(ABS(POW(2)).LE.TOL))THEN         !edge is on the shell then no intersection with the face
+              ELSEIF((ABS(POW(1))<=TOL).AND.(ABS(POW(2))<=TOL))THEN         !edge is on the shell then no intersection with the face
               !DON'T CUT EDGE WHICH IS LAYING ON THE CUT PLANE. ITS ADJACENT EDGES WILL BE CUT.
                 ! specific case : edge is on the structural face
                 !IF(J==1 .OR. J==5 .OR. J==8 .OR. J==12)THEN
                 !  ON1(1:3) = X(1:3,iN(1))
                 !  N1N2(1:3)= EDGE_LIST(NIN,K)%VECTOR(1:3)
-                !  CUTCOOR     = ONE-EM06                                      !interection on edge nodes1,5,8 ou 12 (necessary case to get a corresponding topology without risking to loose the lagrangian surface while it moves)
+                !  CUTCOOR     = ONE-EM06                                      !intserection on edge nodes1,5,8 ou 12 (necessary case to get a corresponding topology without risking to loose the lagrangian surface while it moves)
                 !  CUTCOOR2    = EM06
                 
                 
@@ -461,12 +455,12 @@ C          END IF
                   !-!NBCUT2 = 0                  
                 !ENDIF
                 TANGENT(J) = 1
-              ELSEIF (ABS(POW(1)).LE.TOL)THEN                               !intersection with summit #1
+              ELSEIF (ABS(POW(1))<=TOL)THEN                               !intersection with summit #1
               !SET CUTCOOR = EM06 TO HAVE A EPSILON CUT SURFACE. OTHERWISE CRITERIA FOR AMBIGUS COMBINATION WILL GET A DIVISION BY 0 (double penta check in i22subvol)
                 !IF(J==1 .OR. J==5 .OR. J==8 .OR. J==12)THEN
                   ON1(1:3) = X(1:3,iN(1))
                   N1N2(1:3)= EDGE_LIST(NIN,K)%VECTOR(1:3)
-                  CUTCOOR     = EM06                                     !interection on edge nodes 1,5,8 ou 12 (necessary case to get a corresponding topology without risking to loose the lagrangian surface while it moves)
+                  CUTCOOR     = EM06                                     !intserection on edge nodes 1,5,8 ou 12 (necessary case to get a corresponding topology without risking to loose the lagrangian surface while it moves)
                   POINT(1:3)  = ON1(1:3) + ZERO * N1N2(1:3)              
                   NBCUT2 = 0             
                 !ELSE
@@ -481,12 +475,12 @@ C          END IF
 !                  NBCUT  = 0
 !                ENDIF
 !                NBCUT2 = 0                  
-              ELSEIF (ABS(POW(2)).LE.TOL)THEN                               !intersection with summit #2
+              ELSEIF (ABS(POW(2))<=TOL)THEN                               !intersection with summit #2
               !SET CUTCOOR = ONE-EM06 TO HAVE A EPSILON CUT SURFACE. OTHERWISE CRITERIA FOR AMBIGUS COMBINATION WILL GET A DIVISION BY 0 (double penta check in i22subvol)
                 !IF(J==1 .OR. J==5 .OR. J==8 .OR. J==12)THEN
                   ON1(1:3) = X(1:3,iN(1))
                   N1N2(1:3)= EDGE_LIST(NIN,K)%VECTOR(1:3)
-                  CUTCOOR     = ONE-EM06                                     !interection with edge nodes 1,5,8 ou 12 (necessary case to get a corresponding topology without risking to loose the lagrangian surface while it moves)
+                  CUTCOOR     = ONE-EM06                                     !intserection with edge nodes 1,5,8 ou 12 (necessary case to get a corresponding topology without risking to loose the lagrangian surface while it moves)
                   POINT(1:3)  = ON1(1:3) + ONE * N1N2(1:3)              
                   NBCUT2 = 0             
                 !ELSE
@@ -513,34 +507,34 @@ C          END IF
                 IFLG_DB=0
               endif
                
-             IF(NBCUT==-1) NBCUT =ISONSH3N( ptZ(IADE,1:3),ptA(IADE,1:3,TT),vZA(IADE,1:3,TT),vZB(IADE,1:3,TT),POINT(1:3) ,IFLG_DB)                                                           ! verifie si POINT(:) appartient au triangle           
-             IF(NBCUT2==-1)NBCUT2=ISONSH3N( ptZ(IADE,1:3),ptA(IADE,1:3,TT),vZA(IADE,1:3,TT),vZB(IADE,1:3,TT),POINT2(1:3),IFLG_DB)                                                             ! verifie si POINT(:) appartient au triangle
+             IF(NBCUT==-1) NBCUT =ISONSH3N( ptZ(IADE,1:3),ptA(IADE,1:3,TT),vZA(IADE,1:3,TT),vZB(IADE,1:3,TT),POINT(1:3) ,IFLG_DB)                                                           ! Check if point (:) belongs to the triangle           
+             IF(NBCUT2==-1)NBCUT2=ISONSH3N( ptZ(IADE,1:3),ptA(IADE,1:3,TT),vZA(IADE,1:3,TT),vZB(IADE,1:3,TT),POINT2(1:3),IFLG_DB)                                                             ! Check if point (:) belongs to the triangle
              
               if (ixs(11,brick_list(nin,i)%id)==idb_ID )then
                 print *, "NBCUT, NBCUT2=", NBCUT,NBCUT2
               endif                      
 
               !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-              !If intersection with inifinite plane, we calculate coordinates on the edge : COOR = N1+ t N1N2
+              !If intersection with infinite plane, we calculate coordinates on the edge : COOR = N1+ t N1N2
               ! if t is not within [0,1] we are not on the segment but on the open entity (N1N2)\[N1N2]
-              IF(NBCUT.GT.0) THEN !if we detect intersection on current shell          
+              IF(NBCUT>0) THEN !if we detect intersection on current shell          
                 IF(DEJA==0)THEN !edge is not yet cut : first intersection detected
                   !print *, "nouveau point", CUTCOOR                
                   NBCUT=1
-                  EDGE_LIST(NIN,K)%CUTCOOR(1)  = CUTCOOR          ! sotrage
+                  EDGE_LIST(NIN,K)%CUTCOOR(1)  = CUTCOOR          ! storage
                   EDGE_LIST(NIN,K)%CUTSHELL(1) = IE
                 ELSEIF (DEJA==1)THEN                              ! already cut => 2nd intersection
                   OLD_CUTCOOR  = EDGE_LIST(NIN,K)%CUTCOOR(1)      ! first store, the ordering the 2 intersections
                   OLD_CUTSHELL = EDGE_LIST(NIN,K)%CUTSHELL(1)
-                  IF (ABS(CUTCOOR-OLD_CUTCOOR).GT.EM6) THEN
+                  IF (ABS(CUTCOOR-OLD_CUTCOOR)>EM6) THEN
                     NBCUT=2
-                    IF(CUTCOOR.GT.OLD_CUTCOOR)THEN
+                    IF(CUTCOOR>OLD_CUTCOOR)THEN
                       EDGE_LIST(NIN,K)%CUTCOOR(1)  = OLD_CUTCOOR
                       EDGE_LIST(NIN,K)%CUTCOOR(2)  = CUTCOOR
                       EDGE_LIST(NIN,K)%CUTSHELL(1) = OLD_CUTSHELL
                       EDGE_LIST(NIN,K)%CUTSHELL(2) = IE
                       !print *, "second points point",OLD_CUTCOOR,CUTCOOR
-                    ELSEIF(CUTCOOR.LT.OLD_CUTCOOR)THEN
+                    ELSEIF(CUTCOOR<OLD_CUTCOOR)THEN
                       EDGE_LIST(NIN,K)%CUTCOOR(1)  = CUTCOOR
                       EDGE_LIST(NIN,K)%CUTCOOR(2)  = OLD_CUTCOOR
                       EDGE_LIST(NIN,K)%CUTSHELL(1) = IE
@@ -548,7 +542,7 @@ C          END IF
                       !print *, "second points point",CUTCOOR,OLD_CUTCOOR
                     ELSE
                       !print *, "point deja trouve", CUTCOOR
-                      NBCUT=1 ! le point est le meme, inutile de l'enregistrer.
+                      NBCUT=1 ! the point is the same, no need to record it
                     END IF
                   END IF              
                 ELSEIF(DEJA==2)THEN ! already 2 intersections, no more expected (hypothesis)
@@ -563,7 +557,7 @@ C          END IF
                 EDGE_LIST(NIN,K)%LEN   = SQRT(N1N2(1)*N1N2(1)+N1N2(2)*N1N2(2)+N1N2(3)*N1N2(3)) 
               END IF !NBCUT>0
               
-              IF(NBCUT2.GT.0  .AND. DEJA.EQ.0)THEN !if already intersected
+              IF(NBCUT2>0  .AND. DEJA==0)THEN !if already intersected
                   NBCUT=2
                   EDGE_LIST(NIN,K)%CUTCOOR(1)=ZERO ! storage
                   EDGE_LIST(NIN,K)%CUTCOOR(2)=ONE   ! storage              
@@ -607,7 +601,7 @@ C          END IF
             !  face1 cuts edge within tolerance, intersection point must be doubled to get PENTA  HEXA, otherwise, max(secID) = HEXA
             ! 
             !cleaning if cutcoor = EM06 ou CUTCOOR = ONE-EM06   (CASE : lagrangian face == euler face => HEXA cutting)
-             IF(NBCUT.GE.1)THEN
+             IF(NBCUT>=1)THEN
               CUTCOOR = EDGE_LIST(NIN,K)%CUTCOOR(1)
               IF(CUTCOOR==EM06 .OR. CUTCOOR==ONE-EM06)THEN
                 EDGE_LIST(NIN,K)%CUTSHELL(1)   = EDGE_LIST(NIN,K)%CUTSHELL(2)
@@ -623,7 +617,7 @@ C          END IF
              !duplicated nodes
              NBCUT                             = EDGE_LIST(NIN,K)%NBCUT 
              CUTCOOR                           =  EDGE_LIST(NIN,K)%CUTCOOR(1)
-             IF(NBCUT==1 .AND. CUTCOOR.GT.EM06 .AND. CUTCOOR.LT.ONE-EM06)THEN
+             IF(NBCUT==1 .AND. CUTCOOR>EM06 .AND. CUTCOOR<ONE-EM06)THEN
                EDGE_LIST(NIN,K)%CUTSHELL(2) = EDGE_LIST(NIN,K)%CUTSHELL(1)
                EDGE_LIST(NIN,K)%NBCUT       = 2
                EDGE_LIST(NIN,K)%CUTCOOR(2)  = EDGE_LIST(NIN,K)%CUTCOOR(1)               
@@ -669,7 +663,7 @@ C================================================================
         N1N2(1:3)    = EDGE_LIST(NIN,IAD)%VECTOR(1:3)
         ON1(1:3)     = X(1:3,iN(1)) 
           DO K=1,NBCUT
-            !intersection coordonates
+            !intersection coordinates
             POINT(1:3)= ON1(1:3) + CUT(K) * N1N2(1:3)
             ! EDGE_LIST(NIN,IAD)%CUTPOINT(1:3) = POINT(1:3)              
            !===script HM=====!
@@ -682,9 +676,9 @@ C================================================================
            !===script HM=====!
    
           db_FLAG=.true.
-          if (som.GT.0)then
+          if (som>0)then
             do L=1,SOM
-              if(SUM(ABS(point(1:3)-debugTab(L,1:3))).LT.EM06)
+              if(SUM(ABS(point(1:3)-debugTab(L,1:3)))<EM06)
      .                               db_FLAG=.false.
             end do
           end if
@@ -693,7 +687,7 @@ C================================================================
             debugTab(som,1:3)    =point(1:3)
           end if
 
-          END DO ! (DO K=1,NBCUT <=> NBCUT.GT.0)
+          END DO ! (DO K=1,NBCUT <=> NBCUT>0)
         END DO !next J=1,12
       END DO! next I=1,NB      
       !===script HM=====!      
@@ -724,7 +718,7 @@ C================================================================
           print *, "  |           EDGES               |"
           print *, "  |-------------------------------|"
           print *, 12*NB , "  edges (12*NBRIC)" 
-        DO I=1, NB ! 1,NB fractionne sur les differents threads 
+        DO I=1, NB ! 1,nb split across different threads
           if(ibug22_intersect/=-1 .and. ibug22_intersect/=ixs(11,brick_list(nin,i)%id))cycle           
           print *, "  ** CELL **", IXS(11,BRICK_LIST(NIN,I)%ID)
           DO J=1,12
@@ -773,17 +767,17 @@ C================================================================
 
 
 
-Chd|====================================================================
-Chd|  ISONSH3N                      source/interfaces/int22/i22intersect.F
-Chd|-- called by -----------
-Chd|        I22INTERSECT                  source/interfaces/int22/i22intersect.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    isonsh3n       ../engine/source/interfaces/int22/i22intersect.F
+!||--- called by ------------------------------------------------------
+!||    i22intersect   ../engine/source/interfaces/int22/i22intersect.F
+!||    i22trivox      ../engine/source/interfaces/intsort/i22trivox.F
+!||====================================================================
       INTEGER FUNCTION ISONSH3N(Z, A, ZA, ZB, P, IFLG_DB)
 C-----------------------------------------------
 C   P r e c o n d i t i o n s
 C-----------------------------------------------
-! Precondition : Point P is on the inifinite plane generated by 3-node-shell (Z,A,B)
+! Precondition : Point P is on the infinite plane generated by 3-node-shell (Z,A,B)
 C-----------------------------------------------
 C   D e s c r i p t  i o n
 C-----------------------------------------------
@@ -861,9 +855,9 @@ C-----------------------------------------------
         write(*,fmt='(A12,3F30.16)')"*createnode ",P(1:3)
       ENDIF
   
-      IF(t.GE.-TOL)THEN
-        IF(s.GE.-TOL )THEN
-          IF(s+t.LE.ONE+TOL)THEN
+      IF(t>=-TOL)THEN
+        IF(s>=-TOL )THEN
+          IF(s+t<=ONE+TOL)THEN
             ISONSH3N = 1
           ENDIF
         ENDIF       

@@ -1,93 +1,86 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SUM_6_FLOAT                   source/system/parit.F         
-Chd|-- called by -----------
-Chd|        AIRBAGB                       source/airbag/airbag2.F       
-Chd|        AIRBAGB1                      source/airbag/airbagb1.F      
-Chd|        ASS18                         source/interfaces/int18/ass18.F
-Chd|        PORO                          source/ale/porous/poro.F      
-Chd|        RBYACT                        source/constraints/general/rbody/rbyact.F
-Chd|        RBYPID                        source/constraints/general/rbody/rbypid.F
-Chd|        RGBODFP                       source/constraints/general/rbody/rgbodfp.F
-Chd|        RGWALC                        source/constraints/general/rwall/rgwalc.F
-Chd|        RGWALL                        source/constraints/general/rwall/rgwall.F
-Chd|        RGWALP                        source/constraints/general/rwall/rgwalp.F
-Chd|        RGWALS                        source/constraints/general/rwall/rgwals.F
-Chd|        RGWATH                        source/interfaces/int09/rgwath.F
-Chd|        RLINK0                        source/constraints/general/rlink/rlink0.F
-Chd|        RLINK1                        source/constraints/general/rlink/rlink1.F
-Chd|        RLINK2                        source/constraints/general/rlink/rlink2.F
-Chd|        RLINK3                        source/constraints/general/rlink/rlink10.F
-Chd|        RMATPON                       source/materials/mat/mat013/rmatpon.F
-Chd|        SENSOR_ENERGY_BILAN           source/tools/sensor/sensor_energy_bilan.F
-Chd|        SENSOR_TEMP0                  source/tools/sensor/sensor_temp0.F
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|        SMS_PRODUT_H                  source/ams/sms_proj.F         
-Chd|        SMS_RBE_1                     source/ams/sms_rbe2.F         
-Chd|        SMS_RBE_5                     source/ams/sms_rbe2.F         
-Chd|        SMS_RGWALC_BILAN              source/ams/sms_rgwalc.F       
-Chd|        SMS_RGWALL_BILAN              source/ams/sms_rgwall.F       
-Chd|        SMS_RGWALP_BILAN              source/ams/sms_rgwalp.F       
-Chd|        SMS_RGWALS_BILAN              source/ams/sms_rgwals.F       
-Chd|        SMS_RLINK1                    source/ams/sms_rlink.F        
-Chd|        SMS_RLINK2                    source/ams/sms_rlink.F        
-Chd|        SMS_RLINK3                    source/ams/sms_rlink.F        
-Chd|        SPGAUGE                       source/elements/sph/spgauge.F 
-Chd|        TELESC                        source/constraints/general/cyl_joint/telesc.F
-Chd|        VOLPVGB                       source/airbag/volpvg.F        
-Chd|        VOLUM0                        source/airbag/volum0.F        
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sum_6_float             ../engine/source/system/parit.F
+!||--- called by ------------------------------------------------------
+!||    airbagb                 ../engine/source/airbag/airbag2.F
+!||    airbagb1                ../engine/source/airbag/airbagb1.F
+!||    damping_vref_sum6_rby   ../engine/source/assembly/damping_vref_sum6_rby.F90
+!||    dampvref_sum6           ../engine/source/assembly/dampvref_sum6.F
+!||    get_volume_area         ../engine/source/airbag/get_volume_area.F90
+!||    poro                    ../engine/source/ale/porous/poro.F
+!||    rbyact                  ../engine/source/constraints/general/rbody/rbyact.F
+!||    rbypid                  ../engine/source/constraints/general/rbody/rbypid.F
+!||    rgbodfp                 ../engine/source/constraints/general/rbody/rgbodfp.F
+!||    rgwalc                  ../engine/source/constraints/general/rwall/rgwalc.F
+!||    rgwall                  ../engine/source/constraints/general/rwall/rgwall.F
+!||    rgwalp                  ../engine/source/constraints/general/rwall/rgwalp.F
+!||    rgwals                  ../engine/source/constraints/general/rwall/rgwals.F
+!||    rgwath                  ../engine/source/interfaces/int09/rgwath.F
+!||    rlink0                  ../engine/source/constraints/general/rlink/rlink0.F
+!||    rlink1                  ../engine/source/constraints/general/rlink/rlink1.F
+!||    rlink2                  ../engine/source/constraints/general/rlink/rlink2.F
+!||    rlink3                  ../engine/source/constraints/general/rlink/rlink10.F
+!||    rmatpon                 ../engine/source/materials/mat/mat013/rmatpon.F
+!||    rwall_fpen              ../engine/source/constraints/general/rwall/rgwall_pen.F90
+!||    sensor_energy_bilan     ../engine/source/tools/sensor/sensor_energy_bilan.F
+!||    sensor_temp0            ../engine/source/tools/sensor/sensor_temp0.F
+!||    sms_pcg                 ../engine/source/ams/sms_pcg.F
+!||    sms_produt_h            ../engine/source/ams/sms_proj.F
+!||    sms_rbe_1               ../engine/source/ams/sms_rbe2.F
+!||    sms_rbe_5               ../engine/source/ams/sms_rbe2.F
+!||    sms_rgwalc_bilan        ../engine/source/ams/sms_rgwalc.F
+!||    sms_rgwall_bilan        ../engine/source/ams/sms_rgwall.F
+!||    sms_rgwalp_bilan        ../engine/source/ams/sms_rgwalp.F
+!||    sms_rgwals_bilan        ../engine/source/ams/sms_rgwals.F
+!||    sms_rlink1              ../engine/source/ams/sms_rlink.F
+!||    sms_rlink2              ../engine/source/ams/sms_rlink.F
+!||    sms_rlink3              ../engine/source/ams/sms_rlink.F
+!||    spgauge                 ../engine/source/elements/sph/spgauge.F
+!||    telesc                  ../engine/source/constraints/general/cyl_joint/telesc.F
+!||    volpvgb                 ../engine/source/airbag/volpvg.F
+!||    volum0                  ../engine/source/airbag/volum0.F
+!||====================================================================
       SUBROUTINE SUM_6_FLOAT(JFT  ,JLT  ,F, F6, N)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT, JLT, N
-C     REAL
       my_real
      .   F(*)
       DOUBLE PRECISION F6(N,6)
 C-----------------------------------------------
 c
-c      r=26 (foat_to_6_float): nombre de bits pour la retenu
-c         autorise  faire 2^r + ~= 67,000,000.
+c      r=26 (foat_to_6_float): number of bits for the carry
+c         allows to make 2^R + ~ = 67,000,000.
 c
-c      m1: masque 1
+c      m1: mask 1
 c      ...
-c      m6: masque 6
+c      m6: mask 6
 c
 c      m2 = m1 - 53 + r
 c      m3 = m2 - 53 + r
@@ -95,7 +88,7 @@ c      m4 = m3 - 53 + r
 c      m5 = m4 - 53 + r
 c      m6 = m5 - 53 + r
 c
-c      si r= 26 : mi = mi-1 - 27
+c      if r= 26 : mi = mi-1 - 27
 c
 c      f1 = (f + 2^m1) - 2^m1
 c       b = f - f1
@@ -104,42 +97,42 @@ c       d = b - f2
 c      f3 = (d + 2^m3) - 2^m3
 c      f4 = ((d - f3) + 2^m4) - 2^m4
 c      ...
-c--------- calcul de fmax, fmin 
-c      fmax avec r bits  zero = 2^(m1-r)
+c--------- calculation of fmax, fmin
+c      fmax with r bits  zero = 2^(m1-r)
 c
-c      fmin avec 53 bits significatif = 2^m6
-c      fmin avec 1 bits significatif  = 2^(m6-53)
+c      Fmin with 53 significant bits = 2^m6
+c      Fmin with 1 significant bits = 2^(M6-53)
 c
-c--------- fmax, fmin aprs exprimentation
-c      fmax avec r bits  zero ~= 2^(m1-2r)
+c-------- FMAX, fmin after expression
+c      fmax with r bits  zero ~= 2^(m1-2r)
 c
-c      fmin avec 53 bits significatif ~= 2^(m6-r)
-c      fmin avec 1 bits significatif  ~= 2^(m6-53-r)
+c      Fmin with 53 significant bits ~ = 2^(M6-R)
+c      Fmin with 1 significant bits ~ = 2^(M6-53-R)
 c
 c 6 float r=26 m1=89 m6=-46
 c 
-c      fmax avec r bits  zero ~= 2^37 = 
-c      fmin avec 53 bits significatif ~= 2^(m6-r)
-c      fmin avec 1 bits significatif  ~= 2^(m6-53-r)
+c      fmax with r bits  zero ~= 2^37 = 
+c      Fmin with 53 significant bits ~ = 2^(M6-R)
+c      Fmin with 1 significant bits ~ = 2^(M6-53-R)
 c-------------------------------------------------------
-c       a = f + deuxp63
-c       f4(1) = a - deuxp63
+c       A = F + twoP63
+c       F4 (1) = A - TwoP63
 c       b = f - f4(1)
-c       c = b + deuxp30
-c       f4(2) = c - deuxp30
+c       c '= b + twop30
+c       F4 (2) = c'- twop30
 c       d = b - f4(2)
-c       e = d + deuxpm3
-c       f4(3) = e - deuxpm3
+c       E = d '+ twopm3
+c       F4 (3) = E - TwoPM3
 c       g = d - f4(3)
-c       h = g + deuxpm36
-c       f4(4) = h - deuxpm36
+c       H = G + twoPM36
+c       F4 (4) = H - TwoPM36
 C-----------------------------------------------
 C   L o c a l   C o m m o n
 C-----------------------------------------------
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
-C Commun pour casser l optimisation et thread private pour multithread
+C Common to break the optimization and thread private for multithread
 C
       COMMON /PARIT_VAR/TEMP1,TEMP2,TEMP3,TEMP4,TEMP5,TEMP6,TEMP7,
      .                  TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
@@ -149,7 +142,7 @@ C
      .                 TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
      .                 TEMP17,RESTE
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -203,44 +196,37 @@ C-----------------------------------------------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  FOAT_TO_6_FLOAT               source/system/parit.F         
-Chd|-- called by -----------
-Chd|        I20FOR3                       source/interfaces/int20/i20for3.F
-Chd|        I20FOR3E                      source/interfaces/int20/i20for3.F
-Chd|        I21ASS3                       source/interfaces/int21/i21ass3.F
-Chd|        MULTI_I18_FORCE_PON           source/interfaces/int18/multi_i18_force_pon.F
-Chd|        RBE2F                         source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2FL                        source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE3T1                        source/constraints/general/rbe3/rbe3f.F
-Chd|        S10VOLNOD3                    source/elements/solid/solide4_sfem/s10volnod3.F
-Chd|        S4ALESFEM                     source/elements/solid/solide4_sfem/s4alesfem.F
-Chd|        S4LAGSFEM                     source/elements/solid/solide4_sfem/s4lagsfem.F
-Chd|        S4VOLNOD3                     source/elements/solid/solide4_sfem/s4volnod3.F
-Chd|        S4VOLNOD_SM                   source/elements/solid/solide4_sfem/s4volnod3.F
-Chd|        SMS_BUILD_DIAG                source/ams/sms_build_diag.F   
-Chd|        SMS_MAV_LT                    source/ams/sms_pcg.F          
-Chd|        SMS_MAV_LT1                   source/ams/sms_pcg.F          
-Chd|        SMS_MAV_LT2                   source/ams/sms_pcg.F          
-Chd|        SMS_PRODUT3                   source/ams/sms_proj.F         
-Chd|        SMS_RBE3T1                    source/ams/sms_rbe3.F         
-Chd|        SMS_RBE3_PREC                 source/ams/sms_rbe3.F         
-Chd|        SPLISSV                       source/elements/sph/splissv.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    foat_to_6_float       ../engine/source/system/parit.F
+!||--- called by ------------------------------------------------------
+!||    i20for3               ../engine/source/interfaces/int20/i20for3.F
+!||    i20for3e              ../engine/source/interfaces/int20/i20for3.F
+!||    i21ass3               ../engine/source/interfaces/int21/i21ass3.F
+!||    inter_sh_offset_ini   ../engine/source/interfaces/shell_offset/inter_offset_ini.F90
+!||    multi_i18_force_pon   ../engine/source/interfaces/int18/multi_i18_force_pon.F
+!||    offset_nproj          ../engine/source/interfaces/shell_offset/offset_nproj.F90
+!||    rbe2f                 ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2fl                ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe3f                 ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    s10volnod3            ../engine/source/elements/solid/solide4_sfem/s10volnod3.F
+!||    s10volnodt3           ../engine/source/elements/solid/solide4_sfem/s10volnodt3.F
+!||    s4alesfem             ../engine/source/elements/solid/solide4_sfem/s4alesfem.F
+!||    s4lagsfem             ../engine/source/elements/solid/solide4_sfem/s4lagsfem.F
+!||    s4volnod3             ../engine/source/elements/solid/solide4_sfem/s4volnod3.F
+!||    s4volnod_sm           ../engine/source/elements/solid/solide4_sfem/s4volnod_sm.F
+!||    sms_build_diag        ../engine/source/ams/sms_build_diag.F
+!||    sms_mav_lt            ../engine/source/ams/sms_pcg.F
+!||    sms_mav_lt2           ../engine/source/ams/sms_pcg.F
+!||    sms_produt3           ../engine/source/ams/sms_proj.F
+!||    sms_rbe3_prec         ../engine/source/ams/sms_rbe3.F
+!||    sms_rbe3t1            ../engine/source/ams/sms_rbe3.F
+!||    splissv               ../engine/source/elements/sph/splissv.F
+!||====================================================================
       SUBROUTINE FOAT_TO_6_FLOAT(JFT  ,JLT  ,F, F6)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -251,12 +237,12 @@ C     REAL
       DOUBLE PRECISION F6(6,*)
 C-----------------------------------------------
 c
-c      r=26 (foat_to_6_float): nombre de bits pour la retenu
-c         autorise  faire 2^r + ~= 67,000,000.
+c      r=26 (foat_to_6_float): number of bits for the carry
+c         allows to make 2^R + ~ = 67,000,000.
 c
-c      m1: masque 1
+c      m1: mask 1
 c      ...
-c      m6: masque 6
+c      m6: mask 6
 c
 c      m2 = m1 - 53 + r
 c      m3 = m2 - 53 + r
@@ -264,7 +250,7 @@ c      m4 = m3 - 53 + r
 c      m5 = m4 - 53 + r
 c      m6 = m5 - 53 + r
 c
-c      si r= 26 : mi = mi-1 - 27
+c      if r= 26 : mi = mi-1 - 27
 c
 c      f1 = (f + 2^m1) - 2^m1
 c       b = f - f1
@@ -273,42 +259,42 @@ c       d = b - f2
 c      f3 = (d + 2^m3) - 2^m3
 c      f4 = ((d - f3) + 2^m4) - 2^m4
 c      ...
-c--------- calcul de fmax, fmin 
-c      fmax avec r bits  zero = 2^(m1-r)
+c--------- calculation of fmax, fmin
+c      fmax with r bits  zero = 2^(m1-r)
 c
-c      fmin avec 53 bits significatif = 2^m6
-c      fmin avec 1 bits significatif  = 2^(m6-53)
+c      Fmin with 53 significant bits = 2^m6
+c      Fmin with 1 significant bits = 2^(M6-53)
 c
-c--------- fmax, fmin aprs exprimentation
-c      fmax avec r bits  zero ~= 2^(m1-2r)
+c-------- FMAX, fmin after expression
+c      fmax with r bits  zero ~= 2^(m1-2r)
 c
-c      fmin avec 53 bits significatif ~= 2^(m6-r)
-c      fmin avec 1 bits significatif  ~= 2^(m6-53-r)
+c      Fmin with 53 significant bits ~ = 2^(M6-R)
+c      Fmin with 1 significant bits ~ = 2^(M6-53-R)
 c
 c 6 float r=26 m1=89 m6=-46
 c 
-c      fmax avec r bits  zero ~= 2^37 = 
-c      fmin avec 53 bits significatif ~= 2^(m6-r)
-c      fmin avec 1 bits significatif  ~= 2^(m6-53-r)
+c      fmax with r bits  zero ~= 2^37 = 
+c      Fmin with 53 significant bits ~ = 2^(M6-R)
+c      Fmin with 1 significant bits ~ = 2^(M6-53-R)
 c-------------------------------------------------------
-c       a = f + deuxp63
-c       f4(1) = a - deuxp63
+c       A = F + twoP63
+c       F4 (1) = A - TwoP63
 c       b = f - f4(1)
-c       c = b + deuxp30
-c       f4(2) = c - deuxp30
+c       c '= b + twop30
+c       F4 (2) = c'- twop30
 c       d = b - f4(2)
-c       e = d + deuxpm3
-c       f4(3) = e - deuxpm3
+c       E = d '+ twopm3
+c       F4 (3) = E - TwoPM3
 c       g = d - f4(3)
-c       h = g + deuxpm36
-c       f4(4) = h - deuxpm36
+c       H = G + twoPM36
+c       F4 (4) = H - TwoPM36
 C-----------------------------------------------
 C   L o c a l   C o m m o n
 C-----------------------------------------------
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
-C Commun pour casser l optimisation et thread private pour multithread
+C Common to break the optimization and thread private for multithread
 C
       COMMON /PARIT_VAR/TEMP1,TEMP2,TEMP3,TEMP4,TEMP5,TEMP6,TEMP7,
      .                  TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
@@ -318,7 +304,7 @@ C
      .                 TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
      .                 TEMP17,RESTE
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -365,36 +351,26 @@ C-----------------------------------------------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  FOAT_TO_7_FLOAT               source/system/parit.F         
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    foat_to_7_float   ../engine/source/system/parit.F
+!||====================================================================
        SUBROUTINE FOAT_TO_7_FLOAT(F,F7)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
        DOUBLE PRECISION F,F7(7)
 C-----------------------------------------------
 c
-c      r=29 (foat_to_7_float): nombre de bits pour la retenu
-c         autorise  faire 2^r + ~= 537,000,000.
+c      r=29 (foat_to_7_float): number of bits for the carry
+c         allows to make 2^R + ~ = 537,000,000.
 c
-c      m1: masque 1
+c      m1: mask 1
 c      ...
-c      m6: masque 6
+c      m6: mask 6
 c
 c      m2 = m1 - 53 + r
 c      m3 = m2 - 53 + r
@@ -403,7 +379,7 @@ c      m5 = m4 - 53 + r
 c      m6 = m5 - 53 + r
 c      m7 = m6 - 53 + r
 c
-c      si r= 29 : mi = mi-1 - 24
+c      if r= 29 : mi = mi-1 - 24
 c
 c      f1 = (f + 2^m1) - 2^m1
 c       b = f - f1
@@ -412,37 +388,37 @@ c       d = b - f2
 c      f3 = (d + 2^m3) - 2^m3
 c      f4 = ((d - f3) + 2^m4) - 2^m4
 c      ...
-c--------- calcul de fmax, fmin 
-c          calcul 
-c      fmax avec 0 bits  zero = 2^m1
-c      fmax avec r bits  zero = 2^(m1-r)
+c--------- calculation of fmax, fmin
+c          calculation 
+c      fmax with 0 bits  zero = 2^m1
+c      fmax with r bits  zero = 2^(m1-r)
 c
-c      fmin avec 53 bits significatif = 2^m7
-c      fmin avec 1 bits significatif  = 2^(m7+53)
+c      Fmin with 53 significant bits = 2^m7
+c      Fmin with 1 significant bits = 2^(m7+53)
 c
-c      fmax avec 0 bits  zero = 5. 10^27
-c      fmax avec r bits  zero = 9. 10^18
-c      fmin avec 53 bits significatif ~= 2.2 10^-16
-c      fmin avec 1 bits significatif  ~= 2.4 10^-32
+c      fmax with 0 bits zero = 5. 10^27
+c      fmax with r bits  zero = 9. 10^18
+c      Fmin with 53 significant bits ~ = 2.2 10^-16
+c      Fmin with 1 significant bits ~ = 2.4 10^-32
 c-------------------------------------------------------
-c       a = f + deuxp63
-c       f4(1) = a - deuxp63
+c       A = F + twoP63
+c       F4 (1) = A - TwoP63
 c       b = f - f4(1)
-c       c = b + deuxp30
-c       f4(2) = c - deuxp30
+c       c '= b + twop30
+c       F4 (2) = c'- twop30
 c       d = b - f4(2)
-c       e = d + deuxpm3
-c       f4(3) = e - deuxpm3
+c       E = d '+ twopm3
+c       F4 (3) = E - TwoPM3
 c       g = d - f4(3)
-c       h = g + deuxpm36
-c       f4(4) = h - deuxpm36
+c       H = G + twoPM36
+c       F4 (4) = H - TwoPM36
 C-----------------------------------------------
 C   L o c a l   C o m m o n
 C-----------------------------------------------
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
-C Commun pour casser l optimisation et thread private pour multithread
+C Common to break the optimization and thread private for multithread
 C
       COMMON /PARIT_VAR/TEMP1,TEMP2,TEMP3,TEMP4,TEMP5,TEMP6,TEMP7,
      .                  TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
@@ -452,12 +428,11 @@ C
      .                 TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
      .                 TEMP17,RESTE
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-       DOUBLE PRECISION PE,PS
        DOUBLE PRECISION DEUXP92,DEUXP68,DEUXP44 ,DEUXP20,DEUXPM4,
      .          DEUXPM28,DEUXPM52
        DATA DEUXP92 /'45B0000000000000'X/
@@ -498,79 +473,14 @@ C-----------------------------------------------
        RETURN
        END
 
-       
-       
-c      SUBROUTINE DOUBLE_FLOT_IEEE(JFT  ,JLT  ,I8 ,R8, I8F)
-c      SUBROUTINE DOUBLE_FLOT_IEEE(JFT  ,JLT  ,I8 ,R8, I8F)
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-c#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-c#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-c#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-c      INTEGER JFT, JLT
-c      integer*8 I8(*),I8F(3,*)
-cC     REAL
-c      my_real
-c     .   R8(MVSIZ)
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-c___________________________________________________          
-c      integer i,iexpo,i4mask11
-c      integer*8 i8_mant
-c      integer*8 i8_deuxp52,i8mask43,i8mask52,i8mask63,i8mask1 
-c      data i8_deuxp52 /  '10000000000000'x/
-c      data i8mask1    /               '1'x/
-c      data i8mask43   /     '7ffffffffff'x/
-c      data i8mask52   /   'fffffffffffff'x/
-c      data i8mask63   /'7fffffffffffffff'x/
-c      data i4mask11   /             '7ff'x/
-c___________________________________________________          
-C-----------------------------------------------
-C
-c      DO I=JFT,JLT
-c___________________________________________________          
-c          i8_mant    = ior(iand(i8mask52,I8(I)),i8_deuxp52)
-cc          iexpo      = exponent(R8(I))-53
-cc          iexpo  = iand(ishft(I4(2,i),-20),i4mask11) - 1022 - 53  
-c          iexpo  = iand(ishft(I4(2,i),-20),i4mask11) - 1075  
-c          if(R8(I).lt.0.)then
-c           I8F(1,I) = -iand(i8mask63,ishft(i8_mant,iexpo))
-c           I8F(2,I) = -iand(i8mask43,ishft(i8_mant,iexpo+43))
-c           I8F(3,I) = -iand(i8mask43,ishft(i8_mant,iexpo+86))
-c     .                -iand(i8mask1 ,ishft(i8_mant,iexpo+87))
-c          elseif(R8(I).gt.0.)then
-c           I8F(1,I) =  iand(i8mask63,ishft(i8_mant,iexpo))
-c           I8F(2,I) =  iand(i8mask43,ishft(i8_mant,iexpo+43))
-c           I8F(3,I) =  iand(i8mask43,ishft(i8_mant,iexpo+86))
-c     .                +iand(i8mask1 ,ishft(i8_mant,iexpo+87))
-c          else
-c           I8F(1,I) =  0
-c           I8F(2,I) =  0
-c           I8F(3,I) =  0
-c          endif
-c      ENDDO
-c___________________________________________________          
-c      RETURN
-c      END
-Chd|====================================================================
-Chd|  DOUBLE_FLOT_IEEE              source/system/parit.F         
-Chd|-- called by -----------
-Chd|        CUPDT3F                       source/elements/shell/coque/cupdt3.F
-Chd|        I7ASS3                        source/interfaces/int07/i7ass3.F
-Chd|        I7ASS35                       source/interfaces/int07/i7ass3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+
+!||====================================================================
+!||    double_flot_ieee   ../engine/source/system/parit.F
+!||--- called by ------------------------------------------------------
+!||    cupdt3f            ../engine/source/elements/shell/coque/cupdt3.F
+!||    i7ass3             ../engine/source/interfaces/int07/i7ass3.F
+!||    i7ass35            ../engine/source/interfaces/int07/i7ass3.F
+!||====================================================================
       SUBROUTINE DOUBLE_FLOT_IEEE(JFT  ,JLT  ,I8 ,R8, I8F)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -581,15 +491,10 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT, JLT
       integer*8 I8(*),I8F(3,*)
-C     REAL
       my_real
      .   R8(MVSIZ)
 C-----------------------------------------------
@@ -618,33 +523,27 @@ c___________________________________________________
 c___________________________________________________          
       RETURN
       END
-Chd|====================================================================
-Chd|  SUM_6_FLOAT_SENS              source/system/parit.F         
-Chd|-- called by -----------
-Chd|        I10MAINF                      source/interfaces/int10/i10mainf.F
-Chd|        I11MAINF                      source/interfaces/int11/i11mainf.F
-Chd|        I20MAINF                      source/interfaces/int20/i20mainf.F
-Chd|        I21MAINF                      source/interfaces/int21/i21mainf.F
-Chd|        I22MAINF                      source/interfaces/int22/i22mainf.F
-Chd|        I23MAINF                      source/interfaces/int23/i23mainf.F
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sum_6_float_sens   ../engine/source/system/parit.F
+!||--- called by ------------------------------------------------------
+!||    i10mainf           ../engine/source/interfaces/int10/i10mainf.F
+!||    i11mainf           ../engine/source/interfaces/int11/i11mainf.F
+!||    i20mainf           ../engine/source/interfaces/int20/i20mainf.F
+!||    i21mainf           ../engine/source/interfaces/int21/i21mainf.F
+!||    i22mainf           ../engine/source/interfaces/int22/i22mainf.F
+!||    i23mainf           ../engine/source/interfaces/int23/i23mainf.F
+!||    i24mainf           ../engine/source/interfaces/int24/i24main.F
+!||    i25mainf           ../engine/source/interfaces/int25/i25mainf.F
+!||    i7mainf            ../engine/source/interfaces/int07/i7mainf.F
+!||====================================================================
       SUBROUTINE SUM_6_FLOAT_SENS(F, A, B, C, JFT  ,JLT  , F6, D, E, G, ISENSINT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -656,12 +555,12 @@ C     REAL
       DOUBLE PRECISION F6(D,E,G)
 C-----------------------------------------------
 c
-c      r=26 (foat_to_6_float): nombre de bits pour la retenu
-c         autorise  faire 2^r + ~= 67,000,000.
+c      r=26 (foat_to_6_float): number of bits for the carry
+c         allows to make 2^R + ~ = 67,000,000.
 c
-c      m1: masque 1
+c      m1: mask 1
 c      ...
-c      m6: masque 6
+c      m6: mask 6
 c
 c      m2 = m1 - 53 + r
 c      m3 = m2 - 53 + r
@@ -669,7 +568,7 @@ c      m4 = m3 - 53 + r
 c      m5 = m4 - 53 + r
 c      m6 = m5 - 53 + r
 c
-c      si r= 26 : mi = mi-1 - 27
+c      if r= 26 : mi = mi-1 - 27
 c
 c      f1 = (f + 2^m1) - 2^m1
 c       b = f - f1
@@ -678,42 +577,42 @@ c       d = b - f2
 c      f3 = (d + 2^m3) - 2^m3
 c      f4 = ((d - f3) + 2^m4) - 2^m4
 c      ...
-c--------- calcul de fmax, fmin 
-c      fmax avec r bits  zero = 2^(m1-r)
+c--------- calculation of fmax, fmin
+c      fmax with r bits  zero = 2^(m1-r)
 c
-c      fmin avec 53 bits significatif = 2^m6
-c      fmin avec 1 bits significatif  = 2^(m6-53)
+c      Fmin with 53 significant bits = 2^m6
+c      Fmin with 1 significant bits = 2^(M6-53)
 c
-c--------- fmax, fmin aprs exprimentation
-c      fmax avec r bits  zero ~= 2^(m1-2r)
+c-------- FMAX, fmin after expression
+c      fmax with r bits  zero ~= 2^(m1-2r)
 c
-c      fmin avec 53 bits significatif ~= 2^(m6-r)
-c      fmin avec 1 bits significatif  ~= 2^(m6-53-r)
+c      Fmin with 53 significant bits ~ = 2^(M6-R)
+c      Fmin with 1 significant bits ~ = 2^(M6-53-R)
 c
 c 6 float r=26 m1=89 m6=-46
 c 
-c      fmax avec r bits  zero ~= 2^37 = 
-c      fmin avec 53 bits significatif ~= 2^(m6-r)
-c      fmin avec 1 bits significatif  ~= 2^(m6-53-r)
+c      fmax with r bits  zero ~= 2^37 = 
+c      Fmin with 53 significant bits ~ = 2^(M6-R)
+c      Fmin with 1 significant bits ~ = 2^(M6-53-R)
 c-------------------------------------------------------
-c       a = f + deuxp63
-c       f4(1) = a - deuxp63
+c       A = F + twoP63
+c       F4 (1) = A - TwoP63
 c       b = f - f4(1)
-c       c = b + deuxp30
-c       f4(2) = c - deuxp30
+c       c '= b + twop30
+c       F4 (2) = c'- twop30
 c       d = b - f4(2)
-c       e = d + deuxpm3
-c       f4(3) = e - deuxpm3
+c       E = d '+ twopm3
+c       F4 (3) = E - TwoPM3
 c       g = d - f4(3)
-c       h = g + deuxpm36
-c       f4(4) = h - deuxpm36
+c       H = G + twoPM36
+c       F4 (4) = H - TwoPM36
 C-----------------------------------------------
 C   L o c a l   C o m m o n
 C-----------------------------------------------
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
-C Commun pour casser l optimisation et thread private pour multithread
+C Common to break the optimization and thread private for multithread
 C
       COMMON /PARIT_VAR/TEMP1,TEMP2,TEMP3,TEMP4,TEMP5,TEMP6,TEMP7,
      .                  TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
@@ -723,7 +622,7 @@ C
      .                 TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
      .                 TEMP17,RESTE
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -739,94 +638,86 @@ C-----------------------------------------------
       DATA R8DEUXPM46/'3D10000000000000'x/
 
       DO I= 1,A
-        IF(ISENSINT(I) .NE.0)THEN
+        IF(ISENSINT(I) /=0)THEN
          DO J= 1,B
-   	    DO K=JFT,JLT
+              DO K=JFT,JLT
 
-   	     RESTE  = F(I,J,K)
+               RESTE  = F(I,J,K)
 
-   	     TEMP1  = RESTE + R8DEUXP89
-   	     TEMP11 = TEMP1 - R8DEUXP89
-   	     RESTE  = RESTE - TEMP11
+               TEMP1  = RESTE + R8DEUXP89
+               TEMP11 = TEMP1 - R8DEUXP89
+               RESTE  = RESTE - TEMP11
 
-   	     TEMP2  = RESTE + R8DEUXP62
-   	     TEMP12 = TEMP2 - R8DEUXP62
-   	     RESTE  = RESTE - TEMP12
+               TEMP2  = RESTE + R8DEUXP62
+               TEMP12 = TEMP2 - R8DEUXP62
+               RESTE  = RESTE - TEMP12
 
-   	     TEMP3  = RESTE + R8DEUXP35
-   	     TEMP13 = TEMP3 - R8DEUXP35
-   	     RESTE  = RESTE - TEMP13
+               TEMP3  = RESTE + R8DEUXP35
+               TEMP13 = TEMP3 - R8DEUXP35
+               RESTE  = RESTE - TEMP13
 
-   	     TEMP4  = RESTE + R8TWOP8
-   	     TEMP14 = TEMP4 - R8TWOP8
-   	     RESTE  = RESTE - TEMP14
+               TEMP4  = RESTE + R8TWOP8
+               TEMP14 = TEMP4 - R8TWOP8
+               RESTE  = RESTE - TEMP14
 
-   	     TEMP5  = RESTE + R8DEUXPM19
-   	     TEMP15 = TEMP5 - R8DEUXPM19
-   	     RESTE  = RESTE - TEMP15
+               TEMP5  = RESTE + R8DEUXPM19
+               TEMP15 = TEMP5 - R8DEUXPM19
+               RESTE  = RESTE - TEMP15
 
-   	     TEMP6  = RESTE + R8DEUXPM46
-   	     TEMP16 = TEMP6 - R8DEUXPM46
+               TEMP6  = RESTE + R8DEUXPM46
+               TEMP16 = TEMP6 - R8DEUXPM46
 
 #include "lockon.inc"
-   	     F6(J,1,ISENSINT(I))  = F6(J,1,ISENSINT(I)) + TEMP11
-   	     F6(J,2,ISENSINT(I))  = F6(J,2,ISENSINT(I)) + TEMP12
-   	     F6(J,3,ISENSINT(I))  = F6(J,3,ISENSINT(I)) + TEMP13
-   	     F6(J,4,ISENSINT(I))  = F6(J,4,ISENSINT(I)) + TEMP14
-   	     F6(J,5,ISENSINT(I))  = F6(J,5,ISENSINT(I)) + TEMP15
-   	     F6(J,6,ISENSINT(I))  = F6(J,6,ISENSINT(I)) + TEMP16 
+               F6(J,1,ISENSINT(I))  = F6(J,1,ISENSINT(I)) + TEMP11
+               F6(J,2,ISENSINT(I))  = F6(J,2,ISENSINT(I)) + TEMP12
+               F6(J,3,ISENSINT(I))  = F6(J,3,ISENSINT(I)) + TEMP13
+               F6(J,4,ISENSINT(I))  = F6(J,4,ISENSINT(I)) + TEMP14
+               F6(J,5,ISENSINT(I))  = F6(J,5,ISENSINT(I)) + TEMP15
+               F6(J,6,ISENSINT(I))  = F6(J,6,ISENSINT(I)) + TEMP16 
 #include "lockoff.inc"
 
-   	    ENDDO
+              ENDDO
          ENDDO
         ENDIF
       ENDDO
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SUM_6_FLOAT_SECT              source/system/parit.F         
-Chd|-- called by -----------
-Chd|        SECTIO3N                      source/tools/sect/sectio.F    
-Chd|        SECTIOC                       source/tools/sect/sectio.F    
-Chd|        SECTIOP                       source/tools/sect/sectio.F    
-Chd|        SECTIOR                       source/tools/sect/sectio.F    
-Chd|        SECTIOS                       source/tools/sect/sectio.F    
-Chd|        SECTIOS4                      source/tools/sect/sectio.F    
-Chd|        SECTIOS6                      source/tools/sect/sectio.F    
-Chd|        SECTIOT                       source/tools/sect/sectio.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sum_6_float_sect   ../engine/source/system/parit.F
+!||--- called by ------------------------------------------------------
+!||    section_3n         ../engine/source/tools/sect/section_3n.F
+!||    section_c          ../engine/source/tools/sect/section_c.F
+!||    section_p          ../engine/source/tools/sect/section_p.F
+!||    section_r          ../engine/source/tools/sect/section_r.F
+!||    section_s          ../engine/source/tools/sect/section_s.F
+!||    section_s4         ../engine/source/tools/sect/section_s4.F
+!||    section_s6         ../engine/source/tools/sect/section_s6.F
+!||    section_t          ../engine/source/tools/sect/section_t.F
+!||====================================================================
       SUBROUTINE SUM_6_FLOAT_SECT(F, A, B, JFT  ,JLT  , F6, D, E)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT, JLT, A, B, D, E
-C     REAL
-      my_real
-     .   F(A,B)
+      my_real F(A,B)
       DOUBLE PRECISION F6(D,E)
 C-----------------------------------------------
 c
-c      r=26 (foat_to_6_float): nombre de bits pour la retenu
-c         autorise  faire 2^r + ~= 67,000,000.
+c      r=26 (foat_to_6_float): number of bits for the carry
+c         allows to make 2^R + ~ = 67,000,000.
 c
-c      m1: masque 1
+c      m1: mask 1
 c      ...
-c      m6: masque 6
+c      m6: mask 6
 c
 c      m2 = m1 - 53 + r
 c      m3 = m2 - 53 + r
@@ -834,7 +725,7 @@ c      m4 = m3 - 53 + r
 c      m5 = m4 - 53 + r
 c      m6 = m5 - 53 + r
 c
-c      si r= 26 : mi = mi-1 - 27
+c      if r= 26 : mi = mi-1 - 27
 c
 c      f1 = (f + 2^m1) - 2^m1
 c       b = f - f1
@@ -843,42 +734,42 @@ c       d = b - f2
 c      f3 = (d + 2^m3) - 2^m3
 c      f4 = ((d - f3) + 2^m4) - 2^m4
 c      ...
-c--------- calcul de fmax, fmin 
-c      fmax avec r bits  zero = 2^(m1-r)
+c--------- calculation of fmax, fmin
+c      fmax with r bits  zero = 2^(m1-r)
 c
-c      fmin avec 53 bits significatif = 2^m6
-c      fmin avec 1 bits significatif  = 2^(m6-53)
+c      Fmin with 53 significant bits = 2^m6
+c      Fmin with 1 significant bits = 2^(M6-53)
 c
-c--------- fmax, fmin aprs exprimentation
-c      fmax avec r bits  zero ~= 2^(m1-2r)
+c-------- FMAX, fmin after expression
+c      fmax with r bits  zero ~= 2^(m1-2r)
 c
-c      fmin avec 53 bits significatif ~= 2^(m6-r)
-c      fmin avec 1 bits significatif  ~= 2^(m6-53-r)
+c      Fmin with 53 significant bits ~ = 2^(M6-R)
+c      Fmin with 1 significant bits ~ = 2^(M6-53-R)
 c
 c 6 float r=26 m1=89 m6=-46
 c 
-c      fmax avec r bits  zero ~= 2^37 = 
-c      fmin avec 53 bits significatif ~= 2^(m6-r)
-c      fmin avec 1 bits significatif  ~= 2^(m6-53-r)
+c      fmax with r bits  zero ~= 2^37 = 
+c      Fmin with 53 significant bits ~ = 2^(M6-R)
+c      Fmin with 1 significant bits ~ = 2^(M6-53-R)
 c-------------------------------------------------------
-c       a = f + deuxp63
-c       f4(1) = a - deuxp63
+c       A = F + twoP63
+c       F4 (1) = A - TwoP63
 c       b = f - f4(1)
-c       c = b + deuxp30
-c       f4(2) = c - deuxp30
+c       c '= b + twop30
+c       F4 (2) = c'- twop30
 c       d = b - f4(2)
-c       e = d + deuxpm3
-c       f4(3) = e - deuxpm3
+c       E = d '+ twopm3
+c       F4 (3) = E - TwoPM3
 c       g = d - f4(3)
-c       h = g + deuxpm36
-c       f4(4) = h - deuxpm36
+c       H = G + twoPM36
+c       F4 (4) = H - TwoPM36
 C-----------------------------------------------
 C   L o c a l   C o m m o n
 C-----------------------------------------------
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
-C Commun pour casser l optimisation et thread private pour multithread
+C Common to break the optimization and thread private for multithread
 C
       COMMON /PARIT_VAR/TEMP1,TEMP2,TEMP3,TEMP4,TEMP5,TEMP6,TEMP7,
      .                  TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
@@ -888,12 +779,12 @@ C
      .                 TEMP11,TEMP12,TEMP13,TEMP14,TEMP15,TEMP16,
      .                 TEMP17,RESTE
 C
-C Attention - Attention - Attention - Attention - Attention - Attention
+C Warning - Warning - Warning - Warning - Warning - Warning
 C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K
+      INTEGER I,J
       DOUBLE PRECISION R8DEUXP89,R8DEUXP62,R8DEUXP35,R8TWOP8
       DOUBLE PRECISION R8DEUXPM19,R8DEUXPM46
       DATA R8DEUXP89 /'4580000000000000'x/
@@ -903,43 +794,43 @@ C-----------------------------------------------
       DATA R8DEUXPM19/'3EC0000000000000'x/
       DATA R8DEUXPM46/'3D10000000000000'x/
       DO I= 1,A
-   	DO J=JFT,JLT
+          DO J=JFT,JLT
 
-   	 RESTE  = F(I,J)
+           RESTE  = F(I,J)
 
-   	 TEMP1  = RESTE + R8DEUXP89
-   	 TEMP11 = TEMP1 - R8DEUXP89
-   	 RESTE  = RESTE - TEMP11
+           TEMP1  = RESTE + R8DEUXP89
+           TEMP11 = TEMP1 - R8DEUXP89
+           RESTE  = RESTE - TEMP11
 
-   	 TEMP2  = RESTE + R8DEUXP62
-   	 TEMP12 = TEMP2 - R8DEUXP62
-   	 RESTE  = RESTE - TEMP12
+           TEMP2  = RESTE + R8DEUXP62
+           TEMP12 = TEMP2 - R8DEUXP62
+           RESTE  = RESTE - TEMP12
 
-   	 TEMP3  = RESTE + R8DEUXP35
-   	 TEMP13 = TEMP3 - R8DEUXP35
-   	 RESTE  = RESTE - TEMP13
+           TEMP3  = RESTE + R8DEUXP35
+           TEMP13 = TEMP3 - R8DEUXP35
+           RESTE  = RESTE - TEMP13
 
-   	 TEMP4  = RESTE + R8TWOP8
-   	 TEMP14 = TEMP4 - R8TWOP8
-   	 RESTE  = RESTE - TEMP14
+           TEMP4  = RESTE + R8TWOP8
+           TEMP14 = TEMP4 - R8TWOP8
+           RESTE  = RESTE - TEMP14
 
-   	 TEMP5  = RESTE + R8DEUXPM19
-   	 TEMP15 = TEMP5 - R8DEUXPM19
-   	 RESTE  = RESTE - TEMP15
+           TEMP5  = RESTE + R8DEUXPM19
+           TEMP15 = TEMP5 - R8DEUXPM19
+           RESTE  = RESTE - TEMP15
 
-   	 TEMP6  = RESTE + R8DEUXPM46
-   	 TEMP16 = TEMP6 - R8DEUXPM46
+           TEMP6  = RESTE + R8DEUXPM46
+           TEMP16 = TEMP6 - R8DEUXPM46
 
-#include "lockon.inc"   	 
-   	 F6(I,1)  = F6(I,1) + TEMP11
-   	 F6(I,2)  = F6(I,2) + TEMP12
-   	 F6(I,3)  = F6(I,3) + TEMP13
-   	 F6(I,4)  = F6(I,4) + TEMP14
-   	 F6(I,5)  = F6(I,5) + TEMP15
-   	 F6(I,6)  = F6(I,6) + TEMP16
+#include "lockon.inc"      
+           F6(I,1)  = F6(I,1) + TEMP11
+           F6(I,2)  = F6(I,2) + TEMP12
+           F6(I,3)  = F6(I,3) + TEMP13
+           F6(I,4)  = F6(I,4) + TEMP14
+           F6(I,5)  = F6(I,5) + TEMP15
+           F6(I,6)  = F6(I,6) + TEMP16
 #include "lockoff.inc"
 
-   	ENDDO
+          ENDDO
       ENDDO
 
       RETURN

@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BEMSOLVP                      source/fluid/bemsolvp.F       
-Chd|-- called by -----------
-Chd|        INCPFLOW                      source/fluid/incpflow.F       
-Chd|-- calls ---------------
-Chd|        GLBEMP                        source/fluid/bemsolvp.F       
-Chd|        GLSINFP                       source/fluid/bemsolvp.F       
-Chd|        INTGTG                        source/fluid/bemsolv.F        
-Chd|        INTHTG                        source/fluid/bemsolv.F        
-Chd|        PROGCONDP_C                   source/system/progcond_c.c    
-Chd|        SPMD_FL_SUM                   source/mpi/generic/spmd_fl_sum.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    bemsolvp         ../engine/source/fluid/bemsolvp.F
+!||--- called by ------------------------------------------------------
+!||    incpflow         ../engine/source/fluid/incpflow.F
+!||--- calls      -----------------------------------------------------
+!||    glbemp           ../engine/source/fluid/bemsolvp.F
+!||    glsinfp          ../engine/source/fluid/bemsolvp.F
+!||    intgtg           ../engine/source/fluid/bemsolv.F
+!||    inthtg           ../engine/source/fluid/bemsolv.F
+!||    progcondp_c      ../engine/source/system/progcond_c.c
+!||    spmd_fl_sum      ../engine/source/mpi/generic/spmd_fl_sum.F
+!||====================================================================
       SUBROUTINE BEMSOLVP(
      .   ELEM         , NORM , X          , NNRP       , CR_LOC_GLOB,
      .   CR_GLOB_LOC  , NNCP , CC_LOC_GLOB, CC_GLOB_LOC, NCEIP      ,
@@ -72,11 +72,11 @@ C-----------------------------------------------
      .        NRX, NRY, NRZ, AREA2, RVAL(3), LSUM(NNO), LSUMT(NNO)
 #if defined(MPI) && defined(MYREAL8) && !defined(WITHOUT_LINALG)
 C---------------------------------------------------
-C 0- Initialisations pour utilisation SCALAPACK
+C 0- Initializations for scalapack use
 C---------------------------------------------------
-C Initialisation de la process grid
+C Initialization of the process grid
       CALL SL_INIT(ICTXT, NPROW, NPCOL)
-C Descripteur pour HBEM
+C Descriptor for HBEM
       DESC_H(1)=1
       DESC_H(2)=ICTXT
       DESC_H(3)=NNO
@@ -86,7 +86,7 @@ C Descripteur pour HBEM
       DESC_H(7)=0
       DESC_H(8)=0
       DESC_H(9)=MAX(1,NNRP)
-C Descripteur pour GBEM
+C Descriptor for GBEM
       DESC_G(1)=1
       DESC_G(2)=ICTXT
       DESC_G(3)=NNO
@@ -96,7 +96,7 @@ C Descripteur pour GBEM
       DESC_G(7)=0
       DESC_G(8)=0
       DESC_G(9)=MAX(1,NNRP)
-C Descripteur pour Q
+C Descriptor for Q
       DESC_Q(1)=1
       DESC_Q(2)=ICTXT
       DESC_Q(3)=NEL
@@ -106,7 +106,7 @@ C Descripteur pour Q
       DESC_Q(7)=0
       DESC_Q(8)=0
       DESC_Q(9)=MAX(1,NERP)
-C Descripteur pour PHI
+C Descriptor for PHI
       DESC_P(1)=1
       DESC_P(2)=ICTXT
       DESC_P(3)=NNO
@@ -120,10 +120,9 @@ C---------------------------------------------------
 C 1- Assemblage
 C---------------------------------------------------
       IF (L_ASSEMB) THEN
-         IF (ILVOUT.GE.1.AND.ISPMD.EQ.0) WRITE(ISTDO,'(A)') 
-     .   ' ** BEMSOLV : ASSEMBLY OF INTEGRAL OPERATORS'
-         IF (IFORM.EQ.1) THEN
-C Assemblage de H
+         IF (ILVOUT>=1.AND.ISPMD==0) WRITE(ISTDO,'(A)') ' ** BEMSOLV : ASSEMBLY OF INTEGRAL OPERATORS'
+         IF (IFORM==1) THEN
+C Assembly of H
             DO I=1,NNRP
                DO J=1,NNCP
                   HBEM(I,J)=ZERO
@@ -133,7 +132,7 @@ C Assemblage de H
                ENDDO
             ENDDO
             DO I=1,NCEIP
-               IF (ILVOUT.EQ.2) 
+               IF (ILVOUT==2) 
      .            CALL PROGCONDP_C(I,NCEIP+NEP, ISPMD+1, IBID)
                IEL=CCEI_LOC_GLOB(I)
                N1=ELEM(1,IEL)
@@ -168,14 +167,14 @@ C Assemblage de H
      .                        X0,  Y0,  Z0,  D2,   AREA2,
      .                        NRX, NRY, NRZ, RVAL, N1,
      .                        N2,  N3,  X  )
-                  IF (NL1.NE.0) HBEM(J,NL1)=HBEM(J,NL1)+RVAL(1)
-                  IF (NL2.NE.0) HBEM(J,NL2)=HBEM(J,NL2)+RVAL(2)
-                  IF (NL3.NE.0) HBEM(J,NL3)=HBEM(J,NL3)+RVAL(3)
+                  IF (NL1/=0) HBEM(J,NL1)=HBEM(J,NL1)+RVAL(1)
+                  IF (NL2/=0) HBEM(J,NL2)=HBEM(J,NL2)+RVAL(2)
+                  IF (NL3/=0) HBEM(J,NL3)=HBEM(J,NL3)+RVAL(3)
                ENDDO
             ENDDO
-C Assemblage de G
+C Assembly of G
             DO I=1,NEP
-               IF (ILVOUT.EQ.2) 
+               IF (ILVOUT==2) 
      .            CALL PROGCONDP_C(NCEIP+I,NCEIP+NEP, ISPMD+1, IBID)
                IEL=CE_LOC_GLOB(I)
                N1=ELEM(1,IEL)
@@ -213,7 +212,7 @@ C Assemblage de G
                   GBEM(J,I)=GBEM(J,I)+RVAL(1)
                ENDDO
             ENDDO
-C Somme des lignes pour le terme diagonal de H
+C Sum of rows for the diagonal term of H
             DO I=1,NNO
                LSUM(I)=ZERO
             ENDDO
@@ -227,10 +226,10 @@ C Somme des lignes pour le terme diagonal de H
             DO I=1,NNO
                IR=CR_GLOB_LOC(I)
                IC=CC_GLOB_LOC(I)
-               IF (IR.GT.0.AND.IC.GT.0) HBEM(IR,IC)=-LSUMT(I)
+               IF (IR>0.AND.IC>0) HBEM(IR,IC)=-LSUMT(I)
             ENDDO
 C
-         ELSEIF (IFORM.EQ.2) THEN
+         ELSEIF (IFORM==2) THEN
             DO I=1,NNRP
                DO J=1,NNCP
                   HBEM(I,J)=ZERO
@@ -240,7 +239,7 @@ C
                ENDDO
             ENDDO
             DO I=1,NREIP
-               IF (ILVOUT.EQ.2) 
+               IF (ILVOUT==2) 
      .            CALL PROGCONDP_C(I,NREIP, ISPMD+1, IBID)
                IEL=CREI_LOC_GLOB(I)
                N1=ELEM(1,IEL)
@@ -292,7 +291,7 @@ C
      .                     OFFNR, OFFNC)
             ENDDO
          ENDIF
-C Somme des lignes de G pour remplacer la derniere colonne de H
+C Sum of G rows to replace the last column of H
          DO I=1,NNO
             LSUM(I)=ZERO
          ENDDO
@@ -304,40 +303,39 @@ C Somme des lignes de G pour remplacer la derniere colonne de H
          ENDDO
          CALL SPMD_FL_SUM(LSUM, NNO, LSUMT)
          IC=CC_GLOB_LOC(NNO)
-         IF (IC.GT.0) THEN
+         IF (IC>0) THEN
             DO I=1,NNO
                IR=CR_GLOB_LOC(I)
-               IF (IR.GT.0) HBEM(IR,IC)=-LSUMT(I)
+               IF (IR>0) HBEM(IR,IC)=-LSUMT(I)
             ENDDO
          ENDIF
-C Factorisation de HBEM
+C Factorization of HBEM
          CALL PDGETRF(NNO,    NNO,  HBEM, 1, 1, 
      .                DESC_H, IPIV, INFO)
       ENDIF            
 C---------------------------------------------------
 C 2- Resolution
 C---------------------------------------------------
-      IF (ILVOUT.GE.1.AND.ISPMD.EQ.0) THEN
+      IF (ILVOUT>=1.AND.ISPMD==0) THEN
          WRITE(ISTDO,*)
-         WRITE(ISTDO,'(A)') 
-     .' ** BEMSOLV : PARALLEL LINEAR SYSTEM SOLUTION'
+         WRITE(ISTDO,'(A)') ' ** BEMSOLV : PARALLEL LINEAR SYSTEM SOLUTION'
       ENDIF
       CALL PDGEMV('N', NNO, NEL,    ONE,   GBEM,
      .            1,   1,   DESC_G, Q,    1,
      .            1,   DESC_Q, 1,   ZERO, PHI,
      .            1,   1,   DESC_P, 1)
 C
-      IF (IFORM.EQ.1) THEN
+      IF (IFORM==1) THEN
          IC=CC_GLOB_LOC(1)
-         IF (IC.GT.0) THEN
+         IF (IC>0) THEN
             DO I=1,NNRP
                IR=CR_LOC_GLOB(I)
                PHI(I)=PHI(I)-PHI_INF(IR)
             ENDDO
          ENDIF
-      ELSEIF (IFORM.EQ.2) THEN
+      ELSEIF (IFORM==2) THEN
          IC=CC_GLOB_LOC(1)
-         IF (IC.GT.0) THEN
+         IF (IC>0) THEN
             DO I=1,NREIP
                IEL=CREI_LOC_GLOB(I)
                N1=ELEM(1,IEL)
@@ -373,13 +371,13 @@ C
 #endif
       RETURN
       END
-Chd|====================================================================
-Chd|  GLBEMP                        source/fluid/bemsolvp.F       
-Chd|-- called by -----------
-Chd|        BEMSOLVP                      source/fluid/bemsolvp.F       
-Chd|-- calls ---------------
-Chd|        INTANL                        source/fluid/bemsolv.F        
-Chd|====================================================================
+!||====================================================================
+!||    glbemp     ../engine/source/fluid/bemsolvp.F
+!||--- called by ------------------------------------------------------
+!||    bemsolvp   ../engine/source/fluid/bemsolvp.F
+!||--- calls      -----------------------------------------------------
+!||    intanl     ../engine/source/fluid/bemsolv.F
+!||====================================================================
       SUBROUTINE GLBEMP(X1    , Y1   , Z1    , X2  , Y2   ,
      .                  Z2    , X3   , Y3    , Z3  , X0   ,
      .                  Y0    , Z0   , TELNOR, HBEM, GBEM ,
@@ -391,9 +389,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -543,21 +538,17 @@ C Matrice G
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  GLSINFP                       source/fluid/bemsolvp.F       
-Chd|-- called by -----------
-Chd|        BEMSOLVP                      source/fluid/bemsolvp.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    glsinfp    ../engine/source/fluid/bemsolvp.F
+!||--- called by ------------------------------------------------------
+!||    bemsolvp   ../engine/source/fluid/bemsolvp.F
+!||====================================================================
       SUBROUTINE GLSINFP(N1     , N2,  N3,  JAC, S    ,
      .                   PHI_INF, NL1, NL2, NL3, OFFNR)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -629,9 +620,9 @@ C
          S(NL1)=S(NL1)-OFFNR(1)*W*VAL1*PHI_INFP*JAC
          S(NL2)=S(NL2)-OFFNR(2)*W*VAL2*PHI_INFP*JAC
          S(NL3)=S(NL3)-OFFNR(3)*W*VAL3*PHI_INFP*JAC
-*         IF (NL1.GT.0) S(NL1)=S(NL1)-W*VAL1*PHI_INFP*JAC
-*         IF (NL2.GT.0) S(NL2)=S(NL2)-W*VAL2*PHI_INFP*JAC
-*         IF (NL3.GT.0) S(NL3)=S(NL3)-W*VAL3*PHI_INFP*JAC
+*         IF (NL1>0) S(NL1)=S(NL1)-W*VAL1*PHI_INFP*JAC
+*         IF (NL2>0) S(NL2)=S(NL2)-W*VAL2*PHI_INFP*JAC
+*         IF (NL3>0) S(NL3)=S(NL3)-W*VAL3*PHI_INFP*JAC
       ENDDO
 C
       RETURN

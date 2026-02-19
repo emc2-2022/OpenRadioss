@@ -1,38 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Csm|============================================================
-Csm|  CBAPROJ_PLY                          /coqueba/cbaproj_ply.F
-Csm|------------------------------------------------------------
-Csm|-- appelee par -----------
-Csm|         CBAFORC3                         /coqueba/cbaforc3.F
-Csm|-- appelle ---------------
-Csm|============================================================
-Chd|====================================================================
-Chd|  CBAPROJ_PLY                   source/properties/composite_options/stack/cbaproj_ply.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbaproj_ply   ../engine/source/properties/composite_options/stack/cbaproj_ply.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3      ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBAPROJ_PLY(
      1            JFT    ,JLT  ,NPT  , NPLAT  ,IPLAT, VQN    ,
      2            VQ     ,VF   , VFI , COREL ,DI ,
@@ -46,7 +38,6 @@ C        SORTIES : FIJ
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -63,7 +54,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I, J, K,EP,I_INF,I_SUP,IPLY,NPLAT0
+      INTEGER J, K, EP, NPLAT0
       my_real 
      .     MM(3,4),FL(3,4),ML(2,4),C1,Z1,
      .     AR(3),AD(4),ALR(3),ALD(4),DBAD(3),
@@ -219,7 +210,7 @@ C        I=3
        ENDDO
       ENDDO
 C
-C     Projection des forces d'interpli
+C     Interpli's projection
        DO J = 1 , NPT 
 #include "vectorize.inc"
         DO EP=JFT,JLT  
@@ -228,7 +219,7 @@ C     Projection des forces d'interpli
          FL1 = VFI(K,1,J)
          FL2 = VFI(K,2,J)
          FL3 = VFI(K,3,J)
-C transformation au repere globale
+C global frame
          F1= VQ(K,1,1)*FL1  + VQ(K,1,2)*FL2
      1                               + VQ(K,1,3)*FL3
          F2=  VQ(K,2,1)*FL1  + VQ(K,2,2)*FL2
@@ -243,7 +234,7 @@ CNode 2 -ply
          FL1 = VFI(K,4,J)
          FL2 = VFI(K,5,J)
          FL3 = VFI(K,6,J)
-C transformation au repere globale
+C global frame
          F1= VQ(K,1,1)*FL1  + VQ(K,1,2)*FL2
      1                               + VQ(K,1,3)*FL3
          F2=  VQ(K,2,1)*FL1  + VQ(K,2,2)*FL2
@@ -257,7 +248,7 @@ CC
          FL1 = VFI(K,7,J)
          FL2 = VFI(K,8,J)
          FL3 = VFI(K,9,J)
-C transformation au repere globale
+C global frame
          F1= VQ(K,1,1)*FL1  + VQ(K,1,2)*FL2
      1                               + VQ(K,1,3)*FL3
          F2=  VQ(K,2,1)*FL1  + VQ(K,2,2)*FL2
@@ -272,7 +263,7 @@ CNode 4 -ply
          FL1 = VFI(K,10,J)
          FL2 = VFI(K,11,J)
          FL3 = VFI(K,12,J)
-C transformation au repere globale
+C global frame
          F1= VQ(K,1,1)*FL1  + VQ(K,1,2)*FL2
      1                               + VQ(K,1,3)*FL3
          F2=  VQ(K,2,1)*FL1  + VQ(K,2,2)*FL2

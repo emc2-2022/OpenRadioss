@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FXBODFP1                      source/constraints/fxbody/fxbodfp.F
-Chd|-- called by -----------
-Chd|        FXBYFOR                       source/constraints/fxbody/fxbyfor.F
-Chd|-- calls ---------------
-Chd|        FXBDEPLA                      source/constraints/fxbody/fxbdepla.F
-Chd|        FXBMAJP1                      source/constraints/fxbody/fxbodfp.F
-Chd|        FXBSGMAJ                      source/constraints/fxbody/fxbsgmaj.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fxbodfp1       ../engine/source/constraints/fxbody/fxbodfp.F
+!||--- called by ------------------------------------------------------
+!||    fxbyfor        ../engine/source/constraints/fxbody/fxbyfor.F
+!||--- calls      -----------------------------------------------------
+!||    fxbdepla       ../engine/source/constraints/fxbody/fxbdispl.F
+!||    fxbmajp1       ../engine/source/constraints/fxbody/fxbodfp.F
+!||    fxbsgmaj       ../engine/source/constraints/fxbody/fxbsgmaj.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE FXBODFP1(FXBIPM , FXBRPM, FXBNOD  , FXBMOD  , FXBDEP ,
      .                    FXBVIT , FXBACC, A       , AR      , NME    ,
      .                    NMOD   , ITN   , FXBELM  , FXBSIG  , ELBUF  ,
@@ -51,9 +52,7 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "parit_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -78,9 +77,9 @@ C
      .              NME   , NMOD  , RT    )
 C
       IFILE=FXBIPM(29)
-      IF (IFILE.EQ.0) THEN
+      IF (IFILE==0) THEN
          LMOD=FXBIPM(3)*6
-      ELSEIF (IFILE.EQ.1) THEN
+      ELSEIF (IFILE==1) THEN
          LMOD=NSN*6
       ENDIF
       ISH=FXBIPM(16)
@@ -95,7 +94,7 @@ C
       CALL FXBSGMAJ(ELBUF,      FXBELM,  FXBSIG, FXBDEP, FXBIPM,
      .              FXBRPM(15), PARTSAV, RT    , ITN   , IPARG ,
      .              NFX       , LVSIG  , IRCS  ,ELBUF_TAB)
-      IF (ITN.EQ.0) THEN
+      IF (ITN==0) THEN
          DN=FXBIPM(3)-FXBIPM(18)
          IRCM=FXBIPM(30)
          CALL FXBDEPLA(FXBDEP, FXBRPM, X,   D,    DN,   
@@ -108,7 +107,7 @@ C-----------------------------------------------
       DO I=1,NUMNOD
          IFAC(I)=1
       ENDDO
-      IF (NSPMD.GT.1) THEN
+      IF (NSPMD>1) THEN
          DO I=1,NSPMD
             DO J=IAD_ELEM(1,I),IAD_ELEM(1,I+1)-1
                JJ=FR_ELEM(J)
@@ -117,7 +116,7 @@ C-----------------------------------------------
          ENDDO
       ENDIF
 C
-      IF (IPARIT.EQ.0) THEN
+      IF (IPARIT==0) THEN
          DO I=1,12
             MFEXT(I)=ZERO
             IAD=(I-1)*LMOD
@@ -129,7 +128,7 @@ C
                IAD=IAD+6
             ENDDO
          ENDDO
-         IF (ISH.GT.0) THEN
+         IF (ISH>0) THEN
             DO I=13,NME
                MFEXT(I)=ZERO
                IAD=(I-1)*LMOD
@@ -143,7 +142,7 @@ C
             ENDDO
          ENDIF      
 C
-         IF (NMOD.GT.0) THEN
+         IF (NMOD>0) THEN
             DO I=1,NMOD
                MFEXT(NME+I)=ZERO
                IAD=(NME+I-1)*LMOD
@@ -181,7 +180,7 @@ C
                IAD=IAD+6
             ENDDO
          ENDDO
-         IF (ISH.GT.0) THEN
+         IF (ISH>0) THEN
             DO I=13,NME
                IAD=(I-1)*LMOD
                DO II=1,NSN
@@ -194,7 +193,7 @@ C
             ENDDO
          ENDIF      
 C
-         IF (NMOD.GT.0) THEN
+         IF (NMOD>0) THEN
             DO I=1,NMOD
                IAD=(NME+I-1)*LMOD
                DO II=1,NSN
@@ -220,21 +219,30 @@ C
 C
       RETURN
       END SUBROUTINE FXBODFP1
-Chd|====================================================================
-Chd|  FXBODFP2                      source/constraints/fxbody/fxbodfp.F
-Chd|-- called by -----------
-Chd|        FXBYFOR                       source/constraints/fxbody/fxbyfor.F
-Chd|-- calls ---------------
-Chd|        FXBMAJP2                      source/constraints/fxbody/fxbodfp.F
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+!||====================================================================
+!||    fxbodfp2           ../engine/source/constraints/fxbody/fxbodfp.F
+!||--- called by ------------------------------------------------------
+!||    fxbyfor            ../engine/source/constraints/fxbody/fxbyfor.F
+!||--- calls      -----------------------------------------------------
+!||    fxbmajp2           ../engine/source/constraints/fxbody/fxbodfp.F
+!||--- uses       -----------------------------------------------------
+!||    finter_mixed_mod   ../engine/source/tools/finter_mixed.F90
+!||    python_funct_mod   ../common_source/modules/python_mod.F90
+!||    sensor_mod         ../common_source/modules/sensor_mod.F90
+!||====================================================================
       SUBROUTINE FXBODFP2(FXBIPM , FXBRPM , FXBGLM, FXBCPM, FXBCPS ,
      .                    FXBLM  , FXBFLS , FXBDLS, FXBDEP, FXBVIT ,
      .                    NME    , NMOD   , MVN   , MCD   , SE     ,
-     .                    SV     , FSAV   , FXBFP , TFEXT , FXBFC  ,
+     .                    SV     , FSAV   , FXBFP , WFEXT , FXBFC  ,
      .                    FXBGRVI, FXBGRVR, NLGRAV, IGRV  , NPC    ,
-     .                    TF     , FXBGRP , TFGRAV, SENSOR, LSENSOR,
-     .                    MFEXT  , AGRV   )
+     .                    TF     , FXBGRP , TFGRAV, SENSOR_TAB, NSENSOR,
+     .                    MFEXT  , AGRV  ,PYTHON )
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------  
+      USE python_funct_mod, ONLY : python_
+      use finter_mixed_mod, ONLY : finter_mixed
+      USE SENSOR_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -248,14 +256,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NSENSOR
       INTEGER FXBIPM(*), NME, NMOD, FXBGRVI(*), NLGRAV, IGRV(NIGRV,*),
-     .        NPC(*), LSENSOR(NSENSI,*)
+     .        NPC(*)
       my_real
      .        FXBRPM(*), FXBGLM(*), FXBCPM(*), FXBCPS(*), FXBLM(*),
      .        FXBFLS(*), FXBDLS(*), FXBDEP(*), FXBVIT(*), MVN(*), 
-     .        MCD(NME,*), SE(*), SV(*), FSAV(*), FXBFP(*), TFEXT,
+     .        MCD(NME,*), SE(*), SV(*), FSAV(*), FXBFP(*), WFEXT,
      .        FXBFC(*), FXBGRVR(*), TF(*), FXBGRP(*), TFGRAV,
-     .        SENSOR(NSENSR,*), MFEXT(*), AGRV(LFACGRV,*)
+     .        MFEXT(*), AGRV(LFACGRV,*)
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) :: SENSOR_TAB
+      TYPE(python_), intent(inout) :: python
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -263,13 +274,11 @@ C-----------------------------------------------
      .        IAD, II, III, IIAD
       my_real
      .        MC(NME*NMOD), RC(NME*NMOD), TS, FI, ALPHA, BETA,
-     .        MFINT(NME+NMOD), FDALPHA(NMOD), ENINT, DYDX,
+     .        MFINT(NME+NMOD), FDALPHA(NMOD), ENINT,
      .        MFGRAV(NMOD+NME) 
-      my_real FINTER 
-      EXTERNAL FINTER
 C
       IBLO=FXBIPM(28)
-      IF (NMOD.GT.0) CALL FXBMAJP2(MC,  RC,     MVN,    NME,   NMOD,
+      IF (NMOD>0) CALL FXBMAJP2(MC,  RC,     MVN,    NME,   NMOD,
      .                             DT1, FXBCPM, FXBCPS, FXBLM, FXBRPM)
 C-----------------------------------------------
 C Projection of gravity forces
@@ -278,7 +287,7 @@ C-----------------------------------------------
          MFGRAV(I)=ZERO
       ENDDO
 C
-      IF (NLGRAV.GT.0) THEN
+      IF (NLGRAV>0) THEN
          IADG=0
          IADGR=0
          DO IG=1,NLGRAV
@@ -286,16 +295,16 @@ C
             IFUNC=IGRV(3,NL)
             ISENS=0
             DO K=1,NSENSOR
-               IF (IGRV(6,NL).EQ.LSENSOR(1,K)) ISENS=K
+               IF (IGRV(6,NL)==SENSOR_TAB(K)%SENS_ID) ISENS=K  ! do it in starter !!!
             ENDDO
-            IF (ISENS.EQ.0) THEN
+            IF (ISENS==0) THEN
                TS=TT
             ELSE
-               TS=TT-SENSOR(2,ISENS)
-               IF (TS.LT.ZERO) CYCLE
+               TS=TT-SENSOR_TAB(ISENS)%TSTART
+               IF (TS<ZERO) CYCLE
             ENDIF
             IF (IFUNC > 0) THEN
-              FI=AGRV(1,NL)*FINTER(IFUNC,TS,NPC,TF,DYDX)
+              FI=AGRV(1,NL)*FINTER_MIXED(python,nfunct,IFUNC,TS,NPC,TF)
             ELSE
               FI=AGRV(1,NL)
             ENDIF
@@ -327,7 +336,7 @@ C-----------------------------------------------
       DO I=1,NME+NMOD
          TFGRAV=TFGRAV+HALF*(FXBGRP(I)+MFGRAV(I))*FXBVIT(I)*DT1
          MFEXT(I)=MFEXT(I)+MFGRAV(I)
-         TFEXT=TFEXT+HALF*(FXBFP(I)+MFEXT(I))*FXBVIT(I)*DT1
+         WFEXT=WFEXT+HALF*(FXBFP(I)+MFEXT(I))*FXBVIT(I)*DT1
          FXBGRP(I)=MFGRAV(I)
          FXBFP(I)=MFEXT(I)
       ENDDO
@@ -337,7 +346,7 @@ C-----------------------------------------------
       NMST=FXBIPM(5)
       ALPHA=FXBRPM(13)
       BETA=FXBRPM(14)
-      IF (NMOD.GT.0.AND.IBLO.EQ.0) THEN 
+      IF (NMOD>0.AND.IBLO==0) THEN 
          DO I=1,NME
             MFINT(I)=ZERO
             IAD=NMOD*(I-1)
@@ -350,7 +359,7 @@ C-----------------------------------------------
             MFINT(I)=ZERO
          ENDDO
       ENDIF
-      IF (NMST.GT.0) THEN
+      IF (NMST>0) THEN
          DO I=1,NMST
             MFINT(NME+I)=ZERO
             FXBFC(I)=ZERO
@@ -367,12 +376,12 @@ C-----------------------------------------------
             FDALPHA(I)=ALPHA*FXBLM(I)*FXBVIT(NME+I)
          ENDDO
       ENDIF
-      IF ((NMOD-NMST).GT.0) THEN
+      IF ((NMOD-NMST)>0) THEN
          DO I=1,NMOD-NMST
             III=NMST+I
             MFINT(NME+III)=ZERO
             FXBFC(III)=ZERO
-            IF (NMST.GT.0) THEN
+            IF (NMST>0) THEN
                DO II=1,NMST
                   IAD=(II-1)*(2*NMOD-II+2)/2+(III-II+1)
                   MFINT(NME+III)=MFINT(NME+III)+FXBFLS(IAD)*
@@ -386,25 +395,25 @@ C-----------------------------------------------
          ENDDO
       ENDIF
       ENINT=ZERO
-      IF (NMOD.GT.0) THEN
+      IF (NMOD>0) THEN
          DO I=1,NMOD
             ENINT=ENINT+HALF*FXBDEP(NME+I)*MFINT(NME+I)
          ENDDO
       ENDIF
       FXBRPM(11)=ENINT
       FSAV(1)=ENINT
-      FSAV(3)=TFEXT
+      FSAV(3)=WFEXT
 C-----------------------------------------------
 C Condensation of global unknowns
 C-----------------------------------------------
       DO I=1,NME
          SE(I)=MFEXT(I)-MFINT(I)
       ENDDO
-      IF (NMOD.GT.0) THEN
+      IF (NMOD>0) THEN
          DO I=1,NMOD
             SV(I)=MFEXT(NME+I)-MFINT(NME+I)-FXBFC(I)-FDALPHA(I)
          ENDDO
-         IF (IBLO.EQ.0) THEN
+         IF (IBLO==0) THEN
             DO I=1,NME
                IAD=NMOD*(I-1)
                DO II=1,NMOD
@@ -413,16 +422,16 @@ C-----------------------------------------------
             ENDDO
          ENDIF
       ENDIF
-      IF (IBLO.EQ.1) RETURN
+      IF (IBLO==1) RETURN
       III=0
       DO I=1,NME
          DO II=I,NME
             III=III+1
             MCD(I,II)=FXBGLM(III)
-            IF (I.NE.II) MCD(II,I)=MCD(I,II)
+            IF (I/=II) MCD(II,I)=MCD(I,II)
          ENDDO
       ENDDO
-      IF (NMOD.GT.0) THEN
+      IF (NMOD>0) THEN
          DO I=1,NME
             IAD=NMOD*(I-1)
             DO II=1,NME
@@ -436,21 +445,17 @@ C-----------------------------------------------
 C
       RETURN
       END SUBROUTINE FXBODFP2
-Chd|====================================================================
-Chd|  FXBMAJP1                      source/constraints/fxbody/fxbodfp.F
-Chd|-- called by -----------
-Chd|        FXBODFP1                      source/constraints/fxbody/fxbodfp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    fxbmajp1   ../engine/source/constraints/fxbody/fxbodfp.F
+!||--- called by ------------------------------------------------------
+!||    fxbodfp1   ../engine/source/constraints/fxbody/fxbodfp.F
+!||====================================================================
       SUBROUTINE FXBMAJP1(FXBDEP,FXBVIT,FXBACC,FXBRPM,DT1 ,
      .                    NME   ,NMOD  ,TMROT )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -460,7 +465,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,II
+      INTEGER I,J
       my_real
      .   DDEP(NME+NMOD)
 C  
@@ -484,21 +489,17 @@ C-----------------------------------------------
 C      
       RETURN
       END SUBROUTINE FXBMAJP1  
-Chd|====================================================================
-Chd|  FXBMAJP2                      source/constraints/fxbody/fxbodfp.F
-Chd|-- called by -----------
-Chd|        FXBODFP2                      source/constraints/fxbody/fxbodfp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    fxbmajp2   ../engine/source/constraints/fxbody/fxbodfp.F
+!||--- called by ------------------------------------------------------
+!||    fxbodfp2   ../engine/source/constraints/fxbody/fxbodfp.F
+!||====================================================================
       SUBROUTINE FXBMAJP2(MC , RC    , MVN   , NME  , NMOD  ,
      .                    DT1, FXBCPM, FXBCPS, FXBLM, FXBRPM)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

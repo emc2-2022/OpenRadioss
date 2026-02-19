@@ -1,47 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CREATE_MAP_TABLES             source/model/sets/map_tables.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        MAP_ORDER                     source/model/sets/map_order.F 
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MAPPING_OPTION_MOD            share/modules1/dichotomy_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    create_map_tables      ../starter/source/model/sets/map_tables.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    map_order              ../starter/source/model/sets/map_order.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    mapping_option_mod     ../starter/share/modules1/dichotomy_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_MAP_TABLES ( MAP_TABLES ,MODE  ,
      *                               LSUBMODEL  ,SUBSET,
      *                               IPART,
      *                               IXS  ,IXQ, IXC ,IXTG ,
-     *                               IXT  ,IXP ,IXR ,IXUR,KXSP,LRIVET,
+     *                               IXT  ,IXP ,IXR ,KXSP,LRIVET,
      *                               RBY_MSN)
 C-----------------------------------------------
 C   M o d u l e s
@@ -52,6 +50,8 @@ C-----------------------------------------------
       USE SETDEF_MOD
       USE GROUPDEF_MOD 
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY, NCHARFIELD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -60,12 +60,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "nchar_c.inc"
 #include      "scr17_c.inc"
-#include      "param_c.inc"
 #include      "sphcom.inc"
-#include      "submod_c.inc"
-#include      "rnur_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s 
 C-----------------------------------------------
@@ -82,7 +78,6 @@ C-----------------------------------------------
       INTEGER, INTENT(IN), DIMENSION(NIXT,NUMELT)    :: IXT
       INTEGER, INTENT(IN), DIMENSION(NIXP,NUMELP)    :: IXP
       INTEGER, INTENT(IN), DIMENSION(NIXR,NUMELR)    :: IXR
-      INTEGER, DIMENSION(NIXUR,NUMELUR), INTENT(in)  :: IXUR
       INTEGER, DIMENSION(NISP,NUMSPH), INTENT(in)    :: KXSP
       INTEGER, DIMENSION(4,NRIVET), INTENT(in)       :: LRIVET
       INTEGER, INTENT(IN), DIMENSION(2,NRBODY)       :: RBY_MSN
@@ -90,12 +85,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, SET_ID,NSET_G,NSET_COL,OFFSET,NSET1,NSET2
+      INTEGER I, SET_ID, NSET_G, NSET_COL, NSET1, NSET2
       INTEGER, DIMENSION(:),ALLOCATABLE :: ISORT,ISORT2,SAV,SAV2
       INTEGER, DIMENSION(:),ALLOCATABLE :: INDEX_SORT,INDEX_SORT2
       INTEGER, DIMENSION(70000) :: IWORK
-      CHARACTER KEYSET*ncharfield,SET_TYPE*ncharfield,KEY*ncharkey,KEY_TYPE*ncharfield
-      CHARACTER TITLE*nchartitle,SET_TITLE*nchartitle,KEYPART*ncharkey,TITLE2*nchartitle
+      CHARACTER(LEN=NCHARFIELD) :: KEYSET,SET_TYPE,KEY_TYPE
+      CHARACTER(LEN=NCHARTITLE) ::  TITLE,SET_TITLE,TITLE2
+      CHARACTER(LEN=NCHARKEY) :: KEYPART,KEY
       CHARACTER MESS*40
       DATA MESS/'SET  GROUP DEFINITION               '/
 C-----------------------------------------------
@@ -242,8 +238,7 @@ C Submodel
           ALLOCATE(INDEX_SORT(2*NSUBMOD))
 
           DO I=1,NSUBMOD
-             OFFSET = LSUBMODEL(I)%OFF_SUBMOD - LSUBMODEL(I)%OFF_SUBMOD0
-             ISORT(I) = LSUBMODEL(I)%NOSUBMOD - OFFSET
+             ISORT(I) = LSUBMODEL(I)%NOSUBMOD
              INDEX_SORT(I)=I
           ENDDO
           CALL MY_ORDERS(0,IWORK,ISORT,INDEX_SORT,NSUBMOD,1)
@@ -301,9 +296,6 @@ C Beam
 C Spring
         IF(MODE==1) ALLOCATE( MAP_TABLES%ISPRINGM(NUMELR,2))
         CALL MAP_ORDER(IXR,NIXR,NIXR,NUMELR,MAP_TABLES%ISPRINGM)    
-C Renault element
-        IF(MODE==1) ALLOCATE( MAP_TABLES%IELMURM(NUMELUR,2))
-        CALL MAP_ORDER(IXUR,NIXUR,NIXUR,NUMELUR,MAP_TABLES%IELMURM)      
 C SPH 
         IF(MODE==1) ALLOCATE( MAP_TABLES%ISPHM(NUMSPH,2))
         MAP_TABLES%ISPHM(1:NUMSPH,1:2) = 0

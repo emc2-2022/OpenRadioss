@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BCS2                          source/constraints/general/bcs/bcs2.F
-Chd|-- called by -----------
-Chd|        I9AVEL                        source/interfaces/int09/i9avel.F
-Chd|        I9WAL2                        source/interfaces/int09/i9wal2.F
-Chd|        I9WAL3                        source/interfaces/int09/i9wal3.F
-Chd|        IQELA2                        source/ale/inter/iqela2.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    bcs2     ../engine/source/constraints/general/bcs/bcs2.F
+!||--- called by ------------------------------------------------------
+!||    i9avel   ../engine/source/interfaces/int09/i9avel.F
+!||    i9wal2   ../engine/source/interfaces/int09/i9wal2.F
+!||    i9wal3   ../engine/source/interfaces/int09/i9wal3.F
+!||    iqela2   ../engine/source/ale/inter/iqela2.F
+!||====================================================================
       SUBROUTINE BCS2(A,B,J,K)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -47,12 +46,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   P r e - C o n i d i t i o n s 
 C-----------------------------------------------
-      IF(K.EQ.0) RETURN
+      IF(K==0) RETURN
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      IF(J.EQ.1) THEN
-        !=====REPERE GLOBAL
+      IF(J==1) THEN
+        !=====GLOBAL REFERENCE FRAME
         SELECT CASE (K)
           CASE(1)
             A(3)=ZERO
@@ -138,12 +137,11 @@ C-----------------------------------------------
 
 
 
-Chd|====================================================================
-Chd|  BCS2V                         source/constraints/general/bcs/bcs2.F
-Chd|-- called by -----------
-Chd|        ALEWDX                        source/ale/grid/alewdx.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    bcs2v    ../engine/source/constraints/general/bcs/bcs2.F
+!||--- called by ------------------------------------------------------
+!||    alewdx   ../engine/source/ale/grid/alewdx.F
+!||====================================================================
       SUBROUTINE BCS2V(NINDX,INDX,ISKEW,ICODT,A,B)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -168,8 +166,8 @@ C-----------------------------------------------
         N    = INDX(K)
         ISK  = ISKEW(N)
         LCOD = ICODT(N)
-        IF(ISK.EQ.1) THEN
-         !=====REPERE GLOBAL
+        IF(ISK==1) THEN
+         !=====GLOBAL REFERENCE FRAME
          SELECT CASE (LCOD)
            CASE(1)
              A(3,N)=ZERO

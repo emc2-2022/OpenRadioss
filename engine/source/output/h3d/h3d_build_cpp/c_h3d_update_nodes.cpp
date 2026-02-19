@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //    
 #include <stdio.h>
 #include <string.h>
@@ -107,7 +107,7 @@ void c_h3d_update_nodes_(char *name, int *size, my_real *TT,int *IH3D, int *ITAB
         if( !rc ) throw rc;
         sim_idx=*IH3D; 
             char name[32];
-            sprintf(name,"Time = %f\0",time);
+            sprintf(name,"Time = %f",time);
             
             if(*size != 0) rc = Hyper3DSimulationWrite(h3d_file, sim_idx, cname,time);
             if(*size == 0) rc = Hyper3DSimulationWrite(h3d_file, sim_idx, name,time);

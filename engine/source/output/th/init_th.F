@@ -1,49 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIT_TH                       source/output/th/init_th.F    
-Chd|-- called by -----------
-Chd|        INIT_TH0                      source/output/th/init_th0.F   
-Chd|-- calls ---------------
-Chd|        SPMD_GATHERV_INT              source/mpi/generic/spmd_gatherv_int.F
-Chd|        SPMD_GATHER_INT               source/mpi/generic/spmd_gather_int.F
-Chd|        THCOQ_COUNT                   source/output/th/thcoq_count.F
-Chd|        THNOD_COUNT                   source/output/th/thnod_count.F
-Chd|        THNST_COUNT                   source/output/th/thnst_count.F
-Chd|        THPOUT_COUNT                  source/output/th/thpout_count.F
-Chd|        THQUAD_COUNT                  source/output/th/thquad_count.F
-Chd|        THRES_COUNT                   source/output/th/thres_count.F
-Chd|        THSOL_COUNT                   source/output/th/thsol_count.F
-Chd|        THSPH_COUNT                   source/output/th/thsph_count.F
-Chd|        THTRUS_COUNT                  source/output/th/thtrus_count.F
-Chd|        CLUSTER_MOD                   share/modules/cluster_mod.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|        TH_MOD                        share/modules/th_mod.F        
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    init_th            ../engine/source/output/th/init_th.F
+!||--- called by ------------------------------------------------------
+!||    init_th0           ../engine/source/output/th/init_th0.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_gather_int    ../engine/source/mpi/generic/spmd_gather_int.F
+!||    spmd_gatherv_int   ../engine/source/mpi/generic/spmd_gatherv_int.F
+!||    thcoq_count        ../engine/source/output/th/thcoq_count.F
+!||    thnod_count        ../engine/source/output/th/thnod_count.F
+!||    thnst_count        ../engine/source/output/th/thnst_count.F
+!||    thpout_count       ../engine/source/output/th/thpout_count.F
+!||    thquad_count       ../engine/source/output/th/thquad_count.F
+!||    thres_count        ../engine/source/output/th/thres_count.F
+!||    thsol_count        ../engine/source/output/th/thsol_count.F
+!||    thsph_count        ../engine/source/output/th/thsph_count.F
+!||    thtrus_count       ../engine/source/output/th/thtrus_count.F
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod        ../engine/share/modules/cluster_mod.F
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod       ../common_source/modules/groupdef_mod.F
+!||    stack_mod          ../engine/share/modules/stack_mod.F
+!||    th_mod             ../engine/share/modules/th_mod.F
+!||====================================================================
         SUBROUTINE INIT_TH(IPARG,ITHBUF,ELBUF_TAB,IGEO,IXR,
-     .                     ITHGRP,NTHGRP2,ID,WEIGHT)
+     .                     ITHGRP,NTHGRP2,ID,WEIGHT,SITHBUF)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -52,6 +54,7 @@ C-----------------------------------------------
       USE STACK_MOD
       USE GROUPDEF_MOD
       USE TH_MOD
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -61,32 +64,14 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "com10_c.inc"
-#include      "sphcom.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr11_c.inc"
-#include      "scr12_c.inc"
-#include      "scr13_c.inc"
-#include      "scr17_c.inc"
-#include      "scr23_c.inc"
-#include      "scrfs_c.inc"
-#include      "rnur_c.inc"
 #include      "task_c.inc"
-#include      "warn_c.inc"
-#include      "timeri_c.inc"
-#include      "impl1_c.inc"
-#include      "rad2r_c.inc"
-#include      "thermal_c.inc"
 #include      "tabsiz_c.inc" 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER MBUFFER, NPARTL,NTHGRP2
+      INTEGER, INTENT(IN) :: SITHBUF
+      INTEGER  NTHGRP2
       INTEGER IPARG(NPARG,*),IGEO(NPROPGI,*),
      .   ITHGRP(NITHGR,*),ITHBUF(SITHBUF),IXR(NIXR,*),WEIGHT(NUMNOD)
       INTEGER, INTENT(in) :: ID
@@ -95,8 +80,8 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,L,M,N,II,JJ,IP,NP,NN,NG,ITY,NEL,NFT,N1,N2,NPT,NRWA,
-     .   JALE,FSAVMAX,PROC,NVAR,IAD,ITYP,IADV,FIRST,KRBHOL,ISKN,NNOD,ELTYPE
+      INTEGER I,J,N,
+     .   ELTYPE
       INTEGER :: MY_SIZE,TOTAL_INDEX_WA_SIZE,IJK
       INTEGER, DIMENSION(NTHGRP2+1) :: LOCAL_WA
       INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX_WA_ELTYPE_P0,INDEX_WA_SIZE_P0
@@ -165,7 +150,7 @@ C-------------------------------------------------------
 !   -------------------------------------
         !   ----------------------------------
         
-        !   allocation of local arraies
+        !   allocation of local arrays
         ALLOCATE( INDEX_WA_ELTYPE(2*NTHGRP2+1) )
         ALLOCATE( INDEX_WA_SIZE_P0(NSPMD) )
         ALLOCATE( WA_INDEX_DIPLS(NSPMD) )
@@ -256,31 +241,31 @@ C-------------------------------------------------------
             !   count the number of chunk and get the total size of WA_SPRING
             IF(ELTYPE==1) THEN
                 CALL THRES_COUNT(IPARG,ITHBUF,ELBUF_TAB,IGEO,IXR,
-     .                         ITHGRP,NTHGRP2,WA_SIZE(ID),INDEX_WA_ELTYPE)
+     .                         ITHGRP,NTHGRP2,WA_SIZE(ID),INDEX_WA_ELTYPE,SITHBUF)
             ELSEIF(ELTYPE==2) THEN
                 CALL THNOD_COUNT(ITHGRP,NTHGRP2,WA_SIZE(ID),INDEX_WA_ELTYPE,ITHBUF,
-     .                           WEIGHT)
+     .                           WEIGHT,SITHBUF)
             ELSEIF(ELTYPE==3) THEN
                 CALL THSOL_COUNT(NTHGRP2 ,ITHGRP,WA_SIZE(ID),INDEX_WA_ELTYPE,
-     .                           IPARG,ITHBUF  )
+     .                           IPARG,ITHBUF,SITHBUF  )
             ELSEIF(ELTYPE==4) THEN
                 CALL THQUAD_COUNT(NTHGRP2 ,ITHGRP,WA_SIZE(ID),INDEX_WA_ELTYPE,
-     .                           IPARG,ITHBUF  )
+     .                           IPARG,ITHBUF,SITHBUF  )
             ELSEIF(ELTYPE==5) THEN
                 CALL THCOQ_COUNT(NTHGRP2 ,ITHGRP,WA_SIZE(ID),INDEX_WA_ELTYPE,
-     .                           IPARG,ITHBUF  )
+     .                           IPARG,ITHBUF,SITHBUF  )
             ELSEIF(ELTYPE==6) THEN
                 CALL THTRUS_COUNT(NTHGRP2,ITHGRP,WA_SIZE(ID),INDEX_WA_ELTYPE,
-     .                            IPARG  ,ITHBUF)
+     .                            IPARG  ,ITHBUF,SITHBUF)
             ELSEIF(ELTYPE==7) THEN
                 CALL THPOUT_COUNT(NTHGRP2, ITHGRP, WA_SIZE(ID),INDEX_WA_ELTYPE,
-     .                            IPARG  , ITHBUF )
+     .                            IPARG  , ITHBUF,SITHBUF )
             ELSEIF(ELTYPE==8) THEN
                 CALL THSPH_COUNT(NTHGRP2, ITHGRP, WA_SIZE(ID),INDEX_WA_ELTYPE, 
-     .                           IPARG, ITHBUF )
+     .                           IPARG, ITHBUF ,SITHBUF)
             ELSEIF(ELTYPE==9) THEN
                 CALL THNST_COUNT(NTHGRP2, ITHGRP, WA_SIZE(ID),INDEX_WA_ELTYPE,
-     .                           IPARG,ITHBUF)
+     .                           IPARG,ITHBUF,SITHBUF)
             ENDIF
 
             !   send the local size of index to PROC0

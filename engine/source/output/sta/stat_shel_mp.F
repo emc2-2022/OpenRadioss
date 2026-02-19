@@ -1,33 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_SHEL_MP                  source/output/sta/stat_shel_mp.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_shel_mp   ../engine/source/output/sta/stat_shel_mp.F
+!||--- called by ------------------------------------------------------
+!||    genstat        ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    my_orders      ../common_source/tools/sort/my_orders.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod   ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE STAT_SHEL_MP(ITAB,ITABG,LENG,IPART,IGEO,
      .            IXC,IXTG,IPARTC,IPARTTG,IPART_STATE,
      .            NODTAG,STAT_INDXC,STAT_INDXTG,SH4TREE,SH3TREE,
@@ -36,7 +39,9 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD 
+      USE ELBUFDEF_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,11 +53,8 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-#include      "scr05_c.inc"
 #include      "scr16_c.inc"
 #include      "scr17_c.inc"
-#include      "spmd_c.inc"
-#include      "task_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -72,23 +74,27 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, N, JJ, IPRT0, IPRT, K, II
       INTEGER NG, NEL, NFT, LFT, LLT, ITY, MLW, ITHK,IOFF
-      INTEGER NP(8*MAX(NUMELC,NUMELTG)),
-     .        WORK(70000),CLEF(2,MAX(NUMELC,NUMELTG))
-      double precision   
-     .   THK(MAX(NUMELC,NUMELTG))
-      TYPE(G_BUFEL_)  ,POINTER :: GBUF     
+      INTEGER WORK(70000)
+      INTEGER, DIMENSION(:),ALLOCATABLE :: NP
+      INTEGER, DIMENSION(:,:),ALLOCATABLE :: CLEF
+      double precision,DIMENSION(:),ALLOCATABLE ::   THK
+      TYPE(G_BUFEL_)  ,POINTER :: GBUF
+C-----------------------------------------------
+      CALL MY_ALLOC(THK,MAX(NUMELC,NUMELTG))
+      CALL MY_ALLOC(CLEF,2,MAX(NUMELC,NUMELTG))
+      CALL MY_ALLOC(NP,8*MAX(NUMELC,NUMELTG))
 C-----------------------------------------------
 C     4-NODE SHELLS
 C-----------------------------------------------
       JJ = 0
       II = 0
-      IF(NUMELC.NE.0)THEN
+      IF(NUMELC/=0)THEN
 
        DO NG=1,NGROUP
         ITY   =IPARG(5,NG)
-        IF(ITY.EQ.3) THEN
+        IF(ITY==3) THEN
           NEL   =IPARG(2,NG)
-          NFT	=IPARG(3,NG)
+          NFT  =IPARG(3,NG)
           GBUF => ELBUF_TAB(NG)%GBUF   
           MLW   =IPARG(1,NG)
           ITHK  =IPARG(28,NG)
@@ -108,7 +114,7 @@ C-----------------------------------------------
            NP(JJ+6) = IPRT
            NP(JJ+7) = IABS(NINT(GBUF%OFF(I)))
            II = II + 1
-           IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+           IF (MLW /= 0 .AND. MLW /= 13) THEN
              IF (ITHK >0 ) THEN
                  THK(II) = GBUF%THK(I)
              ELSE
@@ -159,10 +165,10 @@ C----
 C     Specific adaptive meshing :
       IF(NADMESH /=0)THEN
        JJ = 0
-       IF(NUMELC.NE.0)THEN
+       IF(NUMELC/=0)THEN
         DO NG=1,NGROUP
          ITY   =IPARG(5,NG)
-         IF(ITY.EQ.3) THEN
+         IF(ITY==3) THEN
            NEL   =IPARG(2,NG)
            NFT   =IPARG(3,NG)
            LFT=1
@@ -210,7 +216,7 @@ C     Specific adaptive meshing :
          IF(IPRT /= IPRT0)THEN
            WRITE(IUGEO,'(A)')'/ADMESH/STATE/SHELL'
            WRITE(IUGEO,'(2A)')
-     .  '#  SHELLID       ID1       ID2	      ID3       ID4     LEVEL',
+     .  '#  SHELLID       ID1       ID2        ID3       ID4     LEVEL',
      .  '  IMAPPING'
            IPRT0=IPRT
          END IF
@@ -224,12 +230,12 @@ C     3-NODE SHELLS
 C-----------------------------------------------
       JJ = 0
       II = 0
-      IF(NUMELTG.NE.0)THEN
+      IF(NUMELTG/=0)THEN
        DO NG=1,NGROUP
         ITY   =IPARG(5,NG)
-        IF(ITY.EQ.7) THEN
-          NEL	=IPARG(2,NG)
-          NFT	=IPARG(3,NG)
+        IF(ITY==7) THEN
+          NEL  =IPARG(2,NG)
+          NFT  =IPARG(3,NG)
           GBUF => ELBUF_TAB(NG)%GBUF   
           MLW   =IPARG(1,NG)
           ITHK  =IPARG(28,NG)
@@ -249,7 +255,7 @@ C
            NP(JJ+5) = IPRT
            NP(JJ+6) = IABS(NINT(GBUF%OFF(I)))
            II = II + 1
-           IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+           IF (MLW /= 0 .AND. MLW /= 13) THEN
              IF (ITHK >0 ) THEN
                  THK(II) = GBUF%THK(I)
              ELSE
@@ -300,13 +306,13 @@ C-----
 C     Specific adaptive meshing :
       IF(NADMESH /=0)THEN
        JJ = 0
-       IF(NUMELTG.NE.0)THEN
+       IF(NUMELTG/=0)THEN
 
         DO NG=1,NGROUP
          ITY   =IPARG(5,NG)
-         IF(ITY.EQ.7) THEN
-           NEL	=IPARG(2,NG)
-           NFT	=IPARG(3,NG)
+         IF(ITY==7) THEN
+           NEL  =IPARG(2,NG)
+           NFT  =IPARG(3,NG)
            LFT=1
            LLT=NEL
 C
@@ -353,7 +359,7 @@ C
          IF(IPRT /= IPRT0)THEN
            WRITE(IUGEO,'(A)')'/ADMESH/STATE/SH3N'
            WRITE(IUGEO,'(2A)')
-     .  '#   SH3NID       ID1       ID2	      ID3       ID4     LEVEL',
+     .  '#   SH3NID       ID1       ID2        ID3       ID4     LEVEL',
      .  '  IMAPPING'
            IPRT0=IPRT
          END IF
@@ -363,5 +369,8 @@ C
 
       END IF
 C-----------------------------------------------
+      DEALLOCATE(THK)
+      DEALLOCATE(CLEF)
+      DEALLOCATE(NP)
       RETURN
       END

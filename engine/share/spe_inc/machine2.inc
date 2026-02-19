@@ -1,5 +1,5 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
 Copyright>    
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
@@ -44,23 +44,12 @@ C     NCINP nombre de cycles entre la lecture du fichier de commande rootCnn
 #else
       IVECTOR = 0
 #endif
-C#if defined(PVM) || defined(MPI)
-      IMACH=3
-C#else
-C      IMACH=0
-c#endif
-C     IMACH=0,1 ou 2  non spmd
-C     IMACH=3  spmd
       NTHREAD=1
 C     NTHREAD=1 un seul processeur
 C     NTHREAD=n n processeurs
       IEXPM=1
 C     IEXPM=0  standard
 C     IEXPM=1  allocation dynamique
-      IGFORM=3
-C     IGFORM=0  fichiers de dessin binaire
-C     IGFORM=1  fichiers de dessin code
-C     IGFORM=3  fichiers de dessin IEEE
       ITFORM=3
 C     ITFORM=0  fichiers de T. H. binaire
 C     ITFORM=1  fichiers de T. H. code

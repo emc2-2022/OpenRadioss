@@ -1,47 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SURFACE_BUFFER                source/model/sets/surface_buffer.F
-Chd|-- called by -----------
-Chd|        CREATE_SURFACE_FROM_ELEMENT   source/model/sets/create_surface_from_element.F
-Chd|-- calls ---------------
-Chd|        QUAD_SURFACE_BUFFER           source/model/sets/quad_surface_buffer.F
-Chd|        SHELL_SURFACE_BUFFER          source/model/sets/shell_surface_buffer.F
-Chd|        SHELL_SURFACE_BUFFER_REMESH   source/model/sets/shell_surface_buffer_remesh.F
-Chd|        SOLID_SURFACE_BUFFER          source/model/sets/solid_surface_buffer.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    surface_buffer                ../starter/source/model/sets/surface_buffer.F
+!||--- called by ------------------------------------------------------
+!||    create_surface_from_element   ../starter/source/model/sets/create_surface_from_element.F
+!||--- calls      -----------------------------------------------------
+!||    quad_surface_buffer           ../starter/source/model/sets/quad_surface_buffer.F
+!||    shell_surface_buffer          ../starter/source/model/sets/shell_surface_buffer.F
+!||    shell_surface_buffer_remesh   ../starter/source/model/sets/shell_surface_buffer_remesh.F
+!||    solid_surface_buffer          ../starter/source/model/sets/solid_surface_buffer.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SURFACE_BUFFER(
      .                          IXS       ,IXS10    ,IXC       ,SH4TREE   ,SH3TREE   ,
      .                          IXTG      ,KNOD2ELS ,NOD2ELS   ,KNOD2ELC  ,NOD2ELC   ,
      .                          KNOD2ELTG ,NOD2ELTG ,NSEG      ,IEXT      ,IPARTC    ,
      .                          IPARTS    ,IPARTG   ,CLAUSE    ,BUFTMPSURF,IAD_SURF  ,
      .                          OPT_O     ,IPART    ,KNOD2ELQ  ,NOD2ELQ   ,X         ,
-     .                          IXQ       ,KEYSET)
+     .                          IXQ       ,KEYSET   ,IPARTQ)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE SETDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARFIELD
+      use element_mod , only : nixs,nixq,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -57,11 +59,10 @@ C-----------------------------------------------
      .        KNOD2ELC(*),NOD2ELC(*),KNOD2ELTG(*),NOD2ELTG(*),
      .        IXC(NIXC,*),IXTG(NIXTG,*),IPARTC(*),IPARTG(*),
      .        BUFTMPSURF(*),IPARTS(*),SH4TREE(*),SH3TREE(*),
-     .        IPART(LIPART1,*),KNOD2ELQ(*),NOD2ELQ(*),IXQ(NIXQ,*)
+     .        IPART(LIPART1,*),KNOD2ELQ(*),NOD2ELQ(*),IXQ(NIXQ,*),IPARTQ(NUMELQ)
       INTEGER IEXT,NSEG,IAD_SURF,OPT_O
-      CHARACTER KEYSET*ncharfield
-      my_real
-     .   X(3,*)
+      CHARACTER(LEN=NCHARFIELD) :: KEYSET
+      my_real X(3,*)
 !
       TYPE (SET_) ::  CLAUSE
 C-----------------------------------------------
@@ -91,7 +92,7 @@ C=======================================================================
      .                             NSEG     ,IAD_SURF  ,OPT_O    ,BUFTMPSURF,CLAUSE)
       ELSE
         IF ( CLAUSE%NB_SH4N > 0 ) CALL SHELL_SURFACE_BUFFER_REMESH(
-     .                             IXC     ,NIXC      ,2	 ,5	    ,3     ,
+     .                             IXC     ,NIXC      ,2   ,5      ,3     ,
      .                             NSEG    ,IAD_SURF  ,BUFTMPSURF,CLAUSE    ,IPARTC ,
      .                             IPART   ,KSH4TREE  ,SH4TREE   )
         IF ( CLAUSE%NB_SH3N > 0 .AND. NUMELTRIA == 0) 
@@ -105,7 +106,7 @@ C=======================================================================
 !
       IF ( CLAUSE%NB_QUAD > 0 ) CALL QUAD_SURFACE_BUFFER(
      .                           IXQ     ,IAD_SURF ,BUFTMPSURF ,NSEG  ,KNOD2ELQ ,
-     .                           NOD2ELQ ,IEXT     ,X          ,CLAUSE)
+     .                           NOD2ELQ ,IEXT     ,X          ,CLAUSE,IPARTQ)
 !---
       RETURN
       END

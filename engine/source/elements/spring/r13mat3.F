@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R13MAT3                       source/elements/spring/r13mat3.F
-Chd|-- called by -----------
-Chd|        R13KE3                        source/elements/spring/r13ke3.F
-Chd|        R8KE3                         source/elements/spring/r8ke3.F
-Chd|-- calls ---------------
-Chd|        RKENONL                       source/elements/spring/r4mat3.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r13mat3   ../engine/source/elements/spring/r13mat3.F
+!||--- called by ------------------------------------------------------
+!||    r13ke3    ../engine/source/elements/spring/r13ke3.F
+!||    r8ke3     ../engine/source/elements/spring/r8ke3.F
+!||--- calls      -----------------------------------------------------
+!||    rkenonl   ../engine/source/elements/spring/r4mat3.F
+!||====================================================================
       SUBROUTINE R13MAT3(JFT    ,JLT    ,GEO    ,KX      ,KY     ,
      1                   KZ     ,MX     ,MY     ,MZ      ,MGN    ,
      2                   AL0    ,FX     ,FY     ,FZ      ,DX     ,
@@ -47,7 +47,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "impl2_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -91,12 +90,12 @@ C       MX(I)=GEO(53,MGN(I))*MX(I)
 C       MY(I)=GEO(57,MGN(I))*MY(I)
 C       MZ(I)=GEO(61,MGN(I))*MZ(I)
        ILENG=NINT(GEO(93,MGN(I)))
-       IF(ILENG.NE.0) ILEN = 1
+       IF(ILENG/=0) ILEN = 1
       ENDDO
-      IF(ILEN.NE.0) THEN
+      IF(ILEN/=0) THEN
        DO I=JFT,JLT
         ILENG=NINT(GEO(93,MGN(I)))
-        IF(ILENG.NE.0)THEN
+        IF(ILENG/=0)THEN
          ALI = ONE/AL0(I)
          KX(I)=KX(I)*ALI
          KY(I)=KY(I)*ALI
@@ -107,7 +106,7 @@ C       MZ(I)=GEO(61,MGN(I))*MZ(I)
         ENDIF
        ENDDO
       ENDIF
-      IF (ISMDISP.GT.0.OR.ISPRN.EQ.1) THEN
+      IF (ISMDISP>0.OR.ISPRN==1) THEN
 C-----------KX------------
        DO I=JFT,JLT
         IECROU(I)=NINT(GEO(7,MGN(I)))

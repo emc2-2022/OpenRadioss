@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS48C                     source/materials/mat/mat048/sigeps48c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps48c   ../engine/source/materials/mat/mat048/sigeps48c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||====================================================================
       SUBROUTINE SIGEPS48C(
      1     NEL0    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC  ,
      2     NPF    ,NPT0    ,IPT     ,IFLAG   ,
@@ -40,7 +39,7 @@ Chd|====================================================================
      A     SOUNDSP,VISCMAX,THK     ,PLA     ,UVAR   ,
      B     OFF    ,NGL    ,IPM     ,MAT     ,ETSE   ,
      C     GS     ,YLD    ,EPSP    ,DPLA_I  ,ISRATE ,
-     D     INLOC  ,DPLANL )
+     D     ASRATE ,EPSD_PG,INLOC   ,DPLANL  ,LOFF   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -91,7 +90,7 @@ C SIGVXX  | NEL0    | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL0    | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL0    | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL0    | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL0    | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C THK     | NEL0    | F |R/W| THICKNESS
 C PLA     | NEL0    | F |R/W| PLASTIC STRAIN
@@ -101,15 +100,15 @@ C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
 C
       INTEGER NEL0, NUPARAM, NUVAR, NPT0,ISRATE, IPT,IFLAG(*),
      .   NGL(NEL0),MAT(NEL0),IPM(NPROPMI,*),INLOC
+      my_real ,INTENT(IN) :: ASRATE
+      my_real ,DIMENSION(NEL0) ,INTENT(IN)    :: EPSD_PG
+      my_real ,DIMENSION(NEL0) ,INTENT(INOUT) :: EPSP
       my_real
      . TIME,TIMESTEP,UPARAM(*),
      .   AREA(NEL0),RHO0(NEL0),EINT(NEL0,2),
@@ -122,7 +121,8 @@ C
      .   EPSXY(NEL0) ,EPSYZ(NEL0) ,EPSZX(NEL0) ,
      .   SIGOXX(NEL0),SIGOYY(NEL0),
      .   SIGOXY(NEL0),SIGOYZ(NEL0),SIGOZX(NEL0),
-     .   GS(*),EPSP(NEL0),DPLANL(NEL0)
+     .   GS(*),DPLANL(NEL0)
+      my_real, DIMENSION(NEL0), INTENT(IN) :: LOFF
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -139,7 +139,7 @@ C-----------------------------------------------
       my_real
      . UVAR(NEL0,NUVAR), OFF(NEL0),THK(NEL0),YLD(NEL0)
 C-------------------------
-C    variables non utilisees (Fonctions utilisateur)
+C    Variables not used (user functions)
 C-------------------------
       INTEGER NPF(*),MFUNC,KFUNC(MFUNC)
       my_real
@@ -152,20 +152,20 @@ C-----------------------------------------------
      .        SVM(MVSIZ),DR(MVSIZ),
      .        AA(MVSIZ),BB(MVSIZ),DPLA_J(MVSIZ),
      .        PP(MVSIZ),QQ(MVSIZ),FAIL(MVSIZ),H(MVSIZ),HS(MVSIZ),
-     .        EPSM(MVSIZ),
-     .        YLO(MVSIZ),EPSGM(MVSIZ),
+     .        
+     .        YLO(MVSIZ),
      .        SIGEXX(MVSIZ),SIGEYY(MVSIZ),SIGEXY(MVSIZ)
       my_real
      .        R,UMR,NUX,A,B,C,S11,S22,S12,P,P2,DEZZ,SIGZ,S1,S2,S3,
      .        VM2,EPST,NNU2,F,DF,Q2,YLD_I,SIGPXX,E1,A11,A21,G1,G31,
      .        NNU11,NU11,NU21,NU31,NU41,NU51,NU61,SIGPYY,SIGPXY,SIGM1,
      .        EPSM1,EPSR11,EPSR21,YD1,HC1,CN1,C11,C21,CM1,C31,CL1,
-     .        FISOKIN1,EPSGM1,EPS01,PA,PB,PC,PDA,PDB,YY,
+     .        FISOKIN1,EPS01,PA,PB,PC,PDA,PDB,YY,
      .        DSXX,DSYY,DSXY,DEXX,DEYY,DEXY, ALPHA
 C
       DATA NMAX/3/
 C=======================================================================
-       IF(TIME.EQ.ZERO)THEN
+       IF(TIME==ZERO)THEN
          DO I=1,NEL0
            UVAR(I,1)=ZERO
            UVAR(I,2)=ZERO
@@ -232,11 +232,13 @@ C
 C-------------------
 C     STRAIN RATE
 C-------------------
-C
-         IF (ISRATE .EQ. 0) EPSP(I) = 
-     .     HALF*( ABS(EPSPXX(I)+EPSPYY(I))
-     .   + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
-     .                 + EPSPXY(I)*EPSPXY(I) ) )
+         IF (ISRATE == 0) THEN
+           EPSP(I) = HALF*( ABS(EPSPXX(I)+EPSPYY(I))
+     .             + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
+     .             + EPSPXY(I)*EPSPXY(I) ) )
+         ELSE
+           EPSP(I) = ASRATE*EPSD_PG(I) + (ONE-ASRATE)*EPSP(I)
+         END IF
 C-------------------
 C     STRAIN 
 C-------------------
@@ -251,42 +253,42 @@ C     CURRENT YIELD AND HARDENING
 C-------------------
 C
        DO I=1,NEL0
-        IF(PLA(I).LE.ZERO) THEN
+        IF(PLA(I)<=ZERO) THEN
          PA=YD1
         ELSE
          PA=YD1+HC1*PLA(I)**CN1
         ENDIF
-        IF(EPSP(I).LE.EPS01) THEN
+        IF(EPSP(I)<=EPS01) THEN
          PB=0.
-        ELSEIF(PLA(I).LE.ZERO) THEN
+        ELSEIF(PLA(I)<=ZERO) THEN
          PB=C11*LOG(EPSP(I)/EPS01)
         ELSE
          PB=(C11-C21*PLA(I)**CM1)*LOG(EPSP(I)/EPS01)
         ENDIF
-        IF(EPSP(I).LE.ZERO) THEN
+        IF(EPSP(I)<=ZERO) THEN
          PC=ZERO
         ELSE
          PC=C31*EPSP(I)**CL1
         ENDIF
 C-----
-        IF(PLA(I).GT.ZERO. AND .CN1.GE.ONE) THEN
+        IF(PLA(I)>ZERO. AND .CN1>=ONE) THEN
          PDA = HC1*CN1*PLA(I)**(CN1-ONE)
-        ELSEIF(PLA(I).GT.ZERO. AND .CN1.LT.ONE)THEN
+        ELSEIF(PLA(I)>ZERO. AND .CN1<ONE)THEN
          PDA = HC1*CN1*PLA(I)**(ONE -CN1)
         ELSE
          PDA = E1
         ENDIF
-        IF(PLA(I).LE.0. OR .EPSP(I).LE.EPS01) THEN
+        IF(PLA(I)<=0. OR .EPSP(I)<=EPS01) THEN
         PDB = ZERO
-        ELSEIF(CM1.GE.ONE) THEN
+        ELSEIF(CM1>=ONE) THEN
          PDB = C21*CM1*PLA(I)**(CM1 - ONE)*LOG(EPSP(I)/EPS01)
         ELSE
          PDB = C21*CM1*PLA(I)**(ONE-CM1)*LOG(EPSP(I)/EPS01)
         ENDIF
 C
-c         IF (ICC1.NE.1.AND.CN1.NE.ZERO)
+c         IF (ICC1/=1.AND.CN1/=ZERO)
 c     &      EPSGM1=((SIGM1/RQ-YD1)/HC1)**(1./CN1)
-c         IF (PLA(I).GE.EPSGM1) THEN
+c         IF (PLA(I)>=EPSGM1) THEN
 c            YLD(I) = SIGM1
 c            HS(I) = ZERO
 c         ENDIF
@@ -295,28 +297,28 @@ C----
         YY    = PA + PB + PC
         HS(I) = PDA + PDB
         YLD(I)= MIN(SIGM1+PC, YY)
-        IF (YLD(I).LT.YY) HS(I)  = ZERO
+        IF (YLD(I)<YY) HS(I)  = ZERO
         HS(I)  = FAIL(I)*HS(I)
         YLD(I) = FAIL(I)*YLD(I)
       ENDDO
 C       
 C---  KINEMATIC HARDENING
 C
-      IF (FISOKIN1.EQ.ONE) THEN
+      IF (FISOKIN1==ONE) THEN
         DO I=1,NEL0
           YLD(I) = FAIL(I)*YLO(I)
         ENDDO
-      ELSEIF (FISOKIN1.GT.ZERO) THEN
+      ELSEIF (FISOKIN1>ZERO) THEN
         DO I=1,NEL0
           YLD(I) = (ONE-FISOKIN1)*YLD(I) + FISOKIN1*FAIL(I)*YLO(I)
         ENDDO        
       ENDIF
 C
 C-------------------------
-C      PROJECTION IFLAG = 0  (projection radiale)
+C      PROJECTION IFLAG = 0  (radial projection)
 C-------------------------
 C
-      IF(IFLAG(1).EQ.0) THEN
+      IF(IFLAG(1)==0) THEN
           DO I=1,NEL0
            SVM(I)=SQRT(SIGNXX(I)*SIGNXX(I)
      .             +SIGNYY(I)*SIGNYY(I)
@@ -341,9 +343,9 @@ C-------------------------
 C      PROJECTION IFLAG = 1 
 C-------------------------
 C
-       ELSEIF(IFLAG(1).EQ.1)THEN
+       ELSEIF(IFLAG(1)==1)THEN
 C
-C---     CRITERE DE VON MISES
+C---     von mises criterion
 C
          DO I=1,NEL0
            S1=SIGNXX(I)+SIGNYY(I)
@@ -362,7 +364,7 @@ C---     GATHER PLASTIC FLOW
 C
          NINDX=0
          DO I=1,NEL0
-           IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+           IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
              NINDX=NINDX+1
              INDEX(NINDX)=I
            ENDIF
@@ -370,7 +372,7 @@ C
 C
 C---    DEP EN CONTRAINTE PLANE
 C
-         IF(NINDX.NE.0) THEN
+         IF(NINDX/=0) THEN
           DO J=1,NINDX
            I=INDEX(J)
            HS(I)  = MAX(ZERO,HS(I))
@@ -394,7 +396,7 @@ C
              DF    =-(AA(I)*NU11*P2*PP(I)+THREE*BB(I)*NU21*Q2*QQ(I))
      .         *(E1-TWO*DR(I)*H(I))/YLD_I
      .         -TWO*H(I)*YLD_I
-             IF(DPLA_I(I).GT.ZERO) THEN
+             IF(DPLA_I(I)>ZERO) THEN
                DPLA_J(I) = MAX(ZERO,DPLA_I(I)-F/DF)
              ELSE
                DPLA_J(I) = ZERO
@@ -423,12 +425,12 @@ C
 C-------------------------
 C      PROJECTION IFLAG = 2
 C-------------------------
-C projection radial sur le deviateur sur un critere reduit
-C projection elastique en z => sig33 = 0
-C le coef. de reduction du critere est tel que 
-C l'on se trouve sur le critere apres les 2 projections
+C radial projection on the deviator on a reduced criterion
+C Elastic projection in z => sig33 = 0
+C the criterion reduction coefficient is such that
+C one is on the criterion after the 2 projections
 C
-       ELSEIF(IFLAG(1).EQ.2)THEN
+       ELSEIF(IFLAG(1)==2)THEN
 C
          DO I=1,NEL0
            P   = -(SIGNXX(I)+SIGNYY(I))*THIRD
@@ -461,17 +463,17 @@ C proj.   signzz    = 0.
              DEZZ=-(DEPSXX(I)+DEPSYY(I))*NNU11-NU31*DEZZ
              THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
            ENDIF
-           IF(R.LT.ONE) ETSE(I)= HS(I)/(HS(I)+E1)
+           IF(R<ONE) ETSE(I)= HS(I)/(HS(I)+E1)
          ENDDO
        ENDIF
 C
        DO I=1,NEL0
-         IF(PLA(I).GT.EPSM1.AND.OFF(I).EQ.ONE)OFF(I)=FOUR_OVER_5
+         IF(PLA(I)>EPSM1.AND.OFF(I)==ONE)OFF(I)=FOUR_OVER_5
        ENDDO
 C
 C---     KINEMATIC HARDENING
 C
-       IF (FISOKIN1.NE.ZERO) THEN
+       IF (FISOKIN1/=ZERO) THEN
         DO I=1,NEL0
           DSXX = SIGEXX(I) - SIGNXX(I)
           DSYY = SIGEYY(I) - SIGNYY(I)
@@ -497,13 +499,15 @@ C---     NON-LOCAL THICKNESS VARIATION
 C
        IF (INLOC > 0) THEN 
          DO I = 1,NEL0 
-           SVM(I) = SQRT(SIGNXX(I)*SIGNXX(I)
-     .              + SIGNYY(I)*SIGNYY(I)
-     .              - SIGNXX(I)*SIGNYY(I)
-     .              + THREE*SIGNXY(I)*SIGNXY(I))
-           DEZZ   = MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/MAX(SVM(I),EM20)
-           DEZZ   = -NUX*((SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/E1) - DEZZ
-           THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)     
+           IF (LOFF(I) == ONE) THEN 
+             SVM(I) = SQRT(SIGNXX(I)*SIGNXX(I)
+     .                + SIGNYY(I)*SIGNYY(I)
+     .                - SIGNXX(I)*SIGNYY(I)
+     .                + THREE*SIGNXY(I)*SIGNXY(I))
+             DEZZ   = MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/MAX(SVM(I),EM20)
+             DEZZ   = -NUX*((SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/E1) - DEZZ
+             THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)   
+           ENDIF  
          ENDDO  
        ENDIF 
 C

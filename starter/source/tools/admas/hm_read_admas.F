@@ -1,46 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_ADMAS                 source/tools/admas/hm_read_admas.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        SURFMAS                       source/tools/admas/surfmas.F  
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_admas              ../starter/source/tools/admas/hm_read_admas.F
+!||--- called by ------------------------------------------------------
+!||    lectur                     ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key         ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start            ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    surfmas                    ../starter/source/tools/admas/surfmas.F
+!||    usr2sys                    ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    r2r_mod                    ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_ADMAS(
      .                   MS       ,ITABM1   ,IGRNOD   ,UNITAB  ,IGRSURF,
      .                   IPART    ,IPMAS    ,TOTADDMAS,FLAG    ,IGRPART,
@@ -48,6 +47,7 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE UNITAB_MOD
       USE R2R_MOD
       USE MESSAGE_MOD
@@ -60,20 +60,12 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "sysunit.inc"
 #include      "r2r_c.inc"
-#include      "param_c.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -92,7 +84,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,ITYPE,ID,UID,IGR,IGRS,NOSYS,ISU,NNOD,
      .        ISS,NN,IBUFN(4),CAPT,ITY,IPA,IP,IGRPA,IDP,
-     .        NEL,IFLAG,JCURR,FIRST,CPT_LAST,IMS,ENTITYMAX
+     .        NEL,IFLAG,JCURR,CPT_LAST,IMS,ENTITYMAX
       my_real
      .   AMAS,COEFF_R2R
       LOGICAL LOOP_2
@@ -190,12 +182,12 @@ C--------------------------------------------------
             IGRS=0
 
 c original
-c	  DO J=1,NGRNOD
-c	    IF(IGR == IGROU(1,J))THEN
-c	      IGRS=J
-c	      GOTO 100
-c	    ENDIF
-c	  ENDDO
+c    DO J=1,NGRNOD
+c      IF(IGR == IGROU(1,J))THEN
+c        IGRS=J
+c        GOTO 100
+c      ENDIF
+c    ENDDO
 c end original
 ccccccccccccccccccccccccc
 c OPTIMISATION1
@@ -207,15 +199,15 @@ c in case on non sorted file, a dichotomic search is more appropriate
 
             CPT_LAST = NGRNOD
             LOOP_2 = .FALSE.
-110	    CONTINUE
-	    DO J=JCURR,CPT_LAST
-	      IF (IGR == IGRNOD(J)%ID) THEN
-	        IGRS = J
-	        JCURR = J
-c	        group found
-	        GOTO 100
-	      ENDIF
-	      IF (J == NGRNOD) THEN 
+110      CONTINUE
+              DO J=JCURR,CPT_LAST
+                IF (IGR == IGRNOD(J)%ID) THEN
+                  IGRS = J
+                  JCURR = J
+c          group found
+                  GOTO 100
+                ENDIF
+                IF (J == NGRNOD) THEN 
                 IF(LOOP_2)THEN
 c second passage IGRS has not been found we output in error 
                   GOTO 100
@@ -224,23 +216,23 @@ c first passage in loop, we will start a 2nd passage from 1 to jcurr
                   LOOP_2 = .TRUE.
                 ENDIF
                 CPT_LAST = JCURR
-	        JCURR = 1
+                  JCURR = 1
 c begin again loop 1
-	        GOTO 110
-	      ENDIF
-	    ENDDO ! DO J=JCURR,CPT_LAST
+                  GOTO 110
+                ENDIF
+              ENDDO ! DO J=JCURR,CPT_LAST
 ccccccccccccccccccccccccc
 c end OPTIMISATION1
 ccccccccccccccccccccccccc
 100         CONTINUE
 C---
             IF (ITYPE == 1) THEN 
-	      COEFF_R2R = 1
+                COEFF_R2R = 1
               NNOD = IGRNOD(IGRS)%NENTITY
-C-----------Multidomaines : on corrige la masse totale avec le nouveau nb de noeuds--------------
+C-----------Multidomains: the total mass is corrected with the new number of nodes--------------
               IF (NSUBDOM > 0) THEN
-	         IF (IPID.EQ.0) NNOD = NNOD-IGRNOD(IGRS)%R2R_SHARE
-	         COEFF_R2R=(1.00*NNOD)/(1.00*MAX(1,IGRNOD(IGRS)%R2R_ALL))
+                   IF (IPID==0) NNOD = NNOD-IGRNOD(IGRS)%R2R_SHARE
+                   COEFF_R2R=(1.00*NNOD)/(1.00*MAX(1,IGRNOD(IGRS)%R2R_ALL))
               ENDIF
               AMAS = COEFF_R2R*AMAS/MAX(1,NNOD)
             ENDIF !  ! IF (ITYPE == 1)
@@ -248,7 +240,7 @@ C
             IF (IGRS /= 0) THEN
               DO J=1,IGRNOD(IGRS)%NENTITY
                 NOSYS=IGRNOD(IGRS)%ENTITY(J)
-C-----------Multidomaines : les noeuds communs ne sont traites que sur 1 domaine--------------	    
+C-----------Multidomains: common nodes are only processed on 1 domain--------------
                 IF ((NSUBDOM > 0).AND.(IPID == 0)) THEN
                   IF (TAGNO(NPART+NOSYS) > 1) GOTO 150
                 ENDIF
@@ -297,25 +289,25 @@ C-----------Multidomaines : les noeuds communs ne sont traites que sur 1 domaine
             DO J=1,NSURF
               IF (ISU == IGRSURF(J)%ID) THEN
                 ISS=J
-	        NN = IGRSURF(ISS)%NSEG
+                  NN = IGRSURF(ISS)%NSEG
                 EXIT
               ENDIF
             ENDDO
-C-----------Multidomaines -> on decompte les seg communs, on ne les compte qu'une foi---
+C-----------Multidomains -> we count the common segments, we only count them once---
             IF (NSUBDOM > 0) THEN
-	      IF (IDDOM > 0) NN = NN-ISURF_R2R(1,ISS)
+                IF (IDDOM > 0) NN = NN-ISURF_R2R(1,ISS)
             ENDIF
 C-----------
             IF (ISS /= 0) THEN
               DO J=1,NN
-	        IF (IDDOM > 0) THEN
-C-----------Multidomaines -> on elimine les seg communs, on ne les traite qu'une foi---
-	          CAPT=0
+                  IF (IDDOM > 0) THEN
+C-----------Multidomains -> we eliminate the common segments, we only process them once---
+                    CAPT=0
                   DO K=1,4
-	            CAPT=CAPT+TAGNO(NPART+IGRSURF(ISS)%NODES(J,K))
+                      CAPT=CAPT+TAGNO(NPART+IGRSURF(ISS)%NODES(J,K))
                   ENDDO
-	          IF (CAPT == 8) GOTO 160
-	        ENDIF
+                    IF (CAPT == 8) GOTO 160
+                  ENDIF
 C 
                 ITY=IGRSURF(ISS)%ELTYP(J)
 C
@@ -385,8 +377,8 @@ C---
               NEL = IGRPART(IGRS)%NENTITY
               IPMAS(I)%NPART = NEL
 !    allocate only one time because of "IDDLEVEL"
-              if (.not.allocated(IPMAS(I)%PART))  MY_ALLOCATE(IPMAS(I)%PART,NEL)
-              if (.not.allocated(IPMAS(I)%PARTID))MY_ALLOCATE(IPMAS(I)%PARTID,NEL)
+              if (.not.allocated(IPMAS(I)%PART))  ALLOCATE(IPMAS(I)%PART(NEL))
+              if (.not.allocated(IPMAS(I)%PARTID))ALLOCATE(IPMAS(I)%PARTID(NEL))
             ELSE
               CALL ANCMSG(MSGID=879,
      .                    MSGTYPE=MSGERROR,
@@ -400,13 +392,13 @@ C---
               IMASADD = IMASADD + 1
 C
               NEL = IGRPART(IGRS)%NENTITY
-C-----------Multidomaines : on ne peut pas splitter la masse dans ce cas--------------
-              IF ((NSUBDOM > 0) .AND.(NEL /= IGRPART(IGRS)%R2R_ALL)) THEN
-              CALL ANCMSG(MSGID=893,
-     .                    MSGTYPE=MSGERROR,
-     .                    ANMODE=ANINFO,
-     .                    I1=ID)
-	      ENDIF	      
+C-----------Multidomains: we cannot split the mass in this case--------------
+              IF ((NSUBDOM > 0) .AND.(NEL /= IGRPART(IGRS)%R2R_ALL).AND.(NEL > 0)) THEN
+                CALL ANCMSG(MSGID=893,
+     .                      MSGTYPE=MSGERROR,
+     .                      ANMODE=ANINFO,
+     .                      I1=ID)
+              ENDIF        
               DO J=1,NEL
                 IDP=IGRPART(IGRS)%ENTITY(J)
                 IPMAS(I)%PARTID(J) = IDP
@@ -448,10 +440,10 @@ C-----------Multidomaines : on ne peut pas splitter la masse dans ce cas--------
      .                      I2=ENTITY_MULTI(J))
               ENDIF
               NOSYS = USR2SYS(ENTITY_MULTI(J),ITABM1,MESS,ID)
-C-----------Multidomaines : les noeuds communs ne sont traits que sur 1 domaine--------------	    
+C-----------multidomains: common nodes are only processed in one domain--------------
               IF ((NSUBDOM > 0) .AND. (IPID == 0)) THEN
-	         IF (TAGNO(NPART+NOSYS) > 1) GOTO 170
-	      ENDIF
+                   IF (TAGNO(NPART+NOSYS) > 1) GOTO 170
+                ENDIF
               MS(NOSYS) = MS(NOSYS) + AMAS_MULTI(J)
               TOTADDMAS = TOTADDMAS + AMAS_MULTI(J)
  170          CONTINUE
@@ -476,8 +468,8 @@ C-----------Multidomaines : les noeuds communs ne sont traits que sur 1 domaine-
           IF (FLAG == 0) THEN
             IPMAS(I)%NPART = ENTITYMAX
 !    allocate only one time because of "IDDLEVEL"
-            if (.not.allocated(IPMAS(I)%PART))  MY_ALLOCATE(IPMAS(I)%PART,ENTITYMAX)
-            if (.not.allocated(IPMAS(I)%PARTID))MY_ALLOCATE(IPMAS(I)%PARTID,ENTITYMAX)
+            if (.not.allocated(IPMAS(I)%PART))  ALLOCATE(IPMAS(I)%PART(ENTITYMAX))
+            if (.not.allocated(IPMAS(I)%PARTID))ALLOCATE(IPMAS(I)%PARTID(ENTITYMAX))
           ENDIF ! IF (FLAG == 0)
 !
           IPA = 0
@@ -514,13 +506,13 @@ C-----------Multidomaines : les noeuds communs ne sont traits que sur 1 domaine-
                 ENDIF
               ENDDO
 !
-C-----------Multidomaines : on ignore les parts qui ne sont pas propres au domaine--------------
+C-----------multidomains: parts that do not belong to the domain are ignored--------------
               IF (NSUBDOM > 0) THEN
-	        IF (TAG_PART(IP) == 0) THEN
+                  IF (TAG_PART(IP) == 0) THEN
                   IPMAS(I)%NPART = IPMAS(I)%NPART -1
-		  GOTO 180
-		ENDIF
-	      ENDIF
+            GOTO 180
+          ENDIF
+                ENDIF
 
               IF (IP > 0) THEN
                 IMASADD = IMASADD + 1

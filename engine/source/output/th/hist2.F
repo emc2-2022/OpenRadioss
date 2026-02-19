@@ -1,89 +1,108 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HIST2                         source/output/th/hist2.F      
-Chd|-- called by -----------
-Chd|        SORTIE_MAIN                   source/output/sortie_main.F   
-Chd|-- calls ---------------
-Chd|        BUFMONV                       source/output/th/hist2.F      
-Chd|        CUR_FIL_C                     source/output/tools/sortie_c.c
-Chd|        FLU_FIL_C                     source/output/tools/sortie_c.c
-Chd|        FSEEK_C                       source/output/tools/sortie_c.c
-Chd|        SPMD_COLLECT_SEATBELT         source/mpi/output/spmd_collect_seatbelt.F
-Chd|        SPMD_GATHERV                  source/mpi/generic/spmd_gatherv.F
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_GLOB_RSUM_POFF           source/mpi/generic/spmd_glob_rsum_poff.F
-Chd|        SPMD_SD_ACC                   source/mpi/output/spmd_sd_acc.F
-Chd|        SPMD_SD_GAU                   source/mpi/output/spmd_sd_gau.F
-Chd|        SURF_AREA                     source/output/th/surf_area.F  
-Chd|        SURF_MASS_MONV                source/output/th/surf_mass.F  
-Chd|        THCLUSTER                     source/output/th/thcluster.F  
-Chd|        THCOQ                         source/output/th/thcoq.F      
-Chd|        THFXMOD                       source/output/th/thfxmod.F    
-Chd|        THKIN                         source/output/th/thkin.F      
-Chd|        THMONV                        source/output/th/thmonv.F     
-Chd|        THNOD                         source/output/th/thnod.F      
-Chd|        THNST                         source/output/th/thnst.F      
-Chd|        THPOUT                        source/output/th/thpout.F     
-Chd|        THQUAD                        source/output/th/thquad.F     
-Chd|        THRES                         source/output/th/thres.F      
-Chd|        THRNUR                        source/output/th/thrnur.F     
-Chd|        THSOL                         source/output/th/thsol.F      
-Chd|        THSPH                         source/output/th/thsph.F      
-Chd|        THSURF                        source/output/th/thsurf.F     
-Chd|        THTRUS                        source/output/th/thtrus.F     
-Chd|        WRITE_TH                      source/output/th/write_th.F   
-Chd|        WRTDES                        source/output/th/wrtdes.F     
-Chd|        WRTDES0                       source/output/th/wrtdes0.F    
-Chd|        CLUSTER_MOD                   share/modules/cluster_mod.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        PINCHTYPE_MOD                 ../common_source/modules/pinchtype_mod.F
-Chd|        SEATBELT_MOD                  ../common_source/modules/seatbelt_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|        TH_MOD                        share/modules/th_mod.F        
-Chd|====================================================================
-      SUBROUTINE HIST2(PM      ,D       ,X      ,V        ,A        ,
-     2                 IXS     ,BUFEL   ,WA     ,IPARG    ,
-     4                 FSAV    ,FLSW    ,SKEW   ,ELBUF_TAB,CLUSTER  ,
-     5                 PARTSAV ,ACCELM  ,LOUT   ,
-     6                 IPARI   ,WEIGHT  ,IPART  ,IGRSURF  ,
-     7                 ITHGRP  ,ITHBUF  ,SUBSET ,GEO      ,
-     8                 KXX     ,IXR      ,
-     9                 KXSP    ,NOD2SP  ,SPBUF  ,
-     B                 NPARTSAV,AR      ,VR     ,DR       ,
-     D                 FSAVD   ,LRIVET   ,RIVET    ,
-     E                 ISKWN   ,IFRAME  ,XFRAME ,IXC      ,IXQ      ,
-     F                 DTHIS0  ,THIS0   ,IFIL   ,NTHGRP2  ,IXTG     ,
-     G                 IGEO    ,IPM     ,FXBIPM ,FXBDEP   ,FXBVIT   ,
-     H                 FXBACC  ,IPARTL  ,NPARTL ,IACCP    ,NACCP    ,
-     I                 IPARTH  ,NPARTH  ,NVPARTH,
-     J                 NVSUBTH ,MONVOL  ,VOLMON ,FR_MV    ,TEMP,INOD,
-     K                 FTHREAC,NODREAC  ,GRESAV ,GAUGE    ,
-     L                 IGAUP  ,NGAUP    ,ITTYP  ,WEIGHT_MD,SIZE_MES ,
-     M                 RTHBUF ,THKE     ,STACK  ,ISPHIO   ,VSPHIO  ,
-     N                 ITHFLAG,PINCH_DATA,MULTI_FVM,W)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hist2_mod     ../engine/source/output/th/hist2.F
+!||--- called by ------------------------------------------------------
+!||    sortie_main   ../engine/source/output/sortie_main.F
+!||====================================================================
+      MODULE HIST2_MOD
+      CONTAINS
+!||====================================================================
+!||    hist2                   ../engine/source/output/th/hist2.F
+!||--- called by ------------------------------------------------------
+!||    sortie_main             ../engine/source/output/sortie_main.F
+!||--- calls      -----------------------------------------------------
+!||    bufmonv                 ../engine/source/output/th/hist2.F
+!||    cur_fil_c               ../common_source/tools/input_output/write_routines.c
+!||    flu_fil_c               ../common_source/tools/input_output/write_routines.c
+!||    fseek_c_rd              ../common_source/tools/input_output/write_routines.c
+!||    spmd_collect_seatbelt   ../engine/source/mpi/output/spmd_collect_seatbelt.F
+!||    spmd_gatherv            ../engine/source/mpi/generic/spmd_gatherv.F
+!||    spmd_glob_dsum9         ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_glob_rsum_poff     ../engine/source/mpi/generic/spmd_glob_rsum_poff.F
+!||    spmd_sd_acc             ../engine/source/mpi/output/spmd_sd_acc.F
+!||    spmd_sd_gau             ../engine/source/mpi/output/spmd_sd_gau.F
+!||    surf_area               ../engine/source/output/th/surf_area.F
+!||    surf_mass_monv          ../engine/source/output/th/surf_mass.F
+!||    thcluster               ../engine/source/output/th/thcluster.F
+!||    thcoq                   ../engine/source/output/th/thcoq.F
+!||    thkin                   ../engine/source/output/th/thkin.F
+!||    thmonv                  ../engine/source/output/th/thmonv.F
+!||    thnod                   ../engine/source/output/th/thnod.F
+!||    thnst                   ../engine/source/output/th/thnst.F
+!||    thpout                  ../engine/source/output/th/thpout.F
+!||    thquad                  ../engine/source/output/th/thquad.F
+!||    thres                   ../engine/source/output/th/thres.F
+!||    thrnur                  ../engine/source/output/th/thrnur.F
+!||    thsechecksum            ../engine/source/output/th/thchecksum.F90
+!||    thsens                  ../engine/source/output/th/thsens.F
+!||    thsol                   ../engine/source/output/th/thsol.F
+!||    thsph                   ../engine/source/output/th/thsph.F
+!||    thsurf                  ../engine/source/output/th/thsurf.F
+!||    thtrus                  ../engine/source/output/th/thtrus.F
+!||    write_th                ../engine/source/output/th/write_th.F
+!||    wrtdes                  ../engine/source/output/th/wrtdes.F
+!||    wrtdes0                 ../engine/source/output/th/wrtdes0.F
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod             ../engine/share/modules/cluster_mod.F
+!||    ebcs_mod                ../common_source/modules/boundary_conditions/ebcs_mod.F90
+!||    elbufdef_mod            ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod             ../common_source/modules/elements/element_mod.F90
+!||    glob_therm_mod          ../common_source/modules/mat_elem/glob_therm_mod.F90
+!||    groupdef_mod            ../common_source/modules/groupdef_mod.F
+!||    matparam_def_mod        ../common_source/modules/mat_elem/matparam_def_mod.F90
+!||    multi_fvm_mod           ../common_source/modules/ale/multi_fvm_mod.F90
+!||    output_mod              ../common_source/modules/output/output_mod.F90
+!||    pinchtype_mod           ../common_source/modules/pinchtype_mod.F
+!||    seatbelt_mod            ../common_source/modules/seatbelt_mod.F
+!||    sensor_mod              ../common_source/modules/sensor_mod.F90
+!||    stack_mod               ../engine/share/modules/stack_mod.F
+!||    th_mod                  ../engine/share/modules/th_mod.F
+!||    th_surf_mod             ../common_source/modules/interfaces/th_surf_mod.F
+!||    thsechecksum_mod        ../engine/source/output/th/thchecksum.F90
+!||====================================================================
+      SUBROUTINE HIST2(PM      ,D         ,X        ,V           ,A         ,
+     2                 IXS     ,BUFEL     ,WA       ,IPARG       ,SENSOR_TAB,
+     4                 FSAV    ,FLSW      ,SKEW     ,ELBUF_TAB   ,CLUSTER   ,
+     5                 PARTSAV ,ACCELM    ,NSENSOR  ,MATPARAM_TAB, 
+     6                 WEIGHT  ,IPART     ,IGRSURF  ,EBCS_TAB    ,
+     7                 ITHGRP  ,ITHBUF    ,SUBSET   ,GEO         ,
+     8                 KXX     ,IXR       ,
+     9                 KXSP    ,NOD2SP    ,SPBUF    ,
+     B                 AR      ,VR        ,DR       ,
+     D                 LRIVET  ,RIVET     ,IXP      ,
+     E                 ISKWN   ,IFRAME    ,XFRAME   ,IXC         ,IXQ       ,
+     F                 DTHIS0  ,THIS0     ,IFIL     ,NTHGRP2     ,IXTG      ,
+     G                 IGEO    ,IPM       ,
+     H                 IPARTL  ,NPARTL    ,IACCP    ,NACCP       ,
+     I                 IPARTH  ,NPARTH    ,NVPARTH  ,
+     J                 MONVOL  ,VOLMON    ,FR_MV    ,TEMP,INOD   ,
+     K                 FTHREAC ,NODREAC   ,GRESAV   ,GAUGE       ,
+     L                 IGAUP   ,NGAUP     ,ITTYP    ,SIZE_MES    ,
+     M                 RTHBUF  ,THKE      ,STACK    ,ISPHIO      ,VSPHIO    ,
+     N                 ITHFLAG ,PINCH_DATA,MULTI_FVM,W           ,SITHBUF   ,
+     Q                 FSAVSURF,NEED_TO_REINIT_FSAV ,GLOB_THERM  ,OUTPUT    ,
+     P                 MASS0_START)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -95,6 +114,14 @@ C-----------------------------------------------
       USE PINCHTYPE_MOD
       USE MULTI_FVM_MOD
       USE SEATBELT_MOD  
+      USE SENSOR_MOD
+      USE MATPARAM_DEF_MOD
+      USE EBCS_MOD , only : t_ebcs_tab
+      USE TH_SURF_MOD , only : TH_SURF_NUM_CHANNEL
+      use glob_therm_mod
+      USE OUTPUT_MOD , ONLY : OUTPUT_
+      use thsechecksum_mod
+      use element_mod , only : nixs,nixq,nixc,nixp,nixr,nixt,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -106,7 +133,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "com10_c.inc"
 #include      "sphcom.inc"
 #include      "units_c.inc"
 #include      "param_c.inc"
@@ -118,126 +144,159 @@ C-----------------------------------------------
 #include      "scr17_c.inc"
 #include      "scr23_c.inc"
 #include      "scrfs_c.inc"
-#include      "rnur_c.inc"
 #include      "task_c.inc"
-#include      "warn_c.inc"
-#include      "timeri_c.inc"
 #include      "impl1_c.inc"
 #include      "rad2r_c.inc"
-#include      "thermal_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER MBUFFER, NPARTL
-      LOGICAL LOUT
-      INTEGER IXS(NIXS,*),IPARG(NPARG,*),
-     .   NPARTSAV,
-     .   IPARI(NPARI,*),IGEO(NPROPGI,*),
+      TYPE(t_ebcs_tab), TARGET, INTENT(IN) :: EBCS_TAB
+      INTEGER,INTENT(IN) :: SITHBUF,NSENSOR
+      INTEGER NPARTL
+      INTEGER IXS(NIXS,NUMELS),IPARG(NPARG,NGROUP),
+     .   IGEO(NPROPGI,NUMGEO),
      .   WEIGHT(NUMNOD),IPART(LIPART1,*),
      .   ITHGRP(NITHGR,*),ITHBUF(*),
-     .   IXR(NIXR,*),KXSP(NISP,*),NOD2SP(*),LRIVET(4,*),IPM(NPROPMI,*),
-     .   ISKWN(LISKN,*),IFRAME(LISKN,*),IXC(NIXC,*),IXQ(NIXQ,*),
-     .   IXTG(NIXTG,*),IFIL,NTHGRP2,FXBIPM(*),IPARTL(*),IACCP(*),
+     .   IXR(NIXR,*),KXSP(NISP,*),NOD2SP(*),LRIVET(4,*),IPM(NPROPMI,NUMMAT),
+     .   ISKWN(LISKN,*),IFRAME(LISKN,*),IXC(NIXC,NUMELC),IXQ(NIXQ,NUMELQ),
+     .   IXTG(NIXTG,*),IFIL,NTHGRP2,IPARTL(*),IACCP(*),
      .   NACCP(*),NPARTH,IPARTH(NPARTH,*),NVPARTH,
-     .   NVSUBTH, MONVOL(*), FR_MV(*),INOD(*),
+     .   MONVOL(*), FR_MV(*),INOD(*),
      .   NODREAC(*),KXX(NIXX,*),IGAUP(*),NGAUP(*),ITTYP,
-     .   WEIGHT_MD(NUMNOD),SIZE_MES,ISPHIO(NISPHIO,*),ITHFLAG
-C     REAL
+     .   SIZE_MES,ISPHIO(NISPHIO,*),ITHFLAG
       my_real
-     .   PM(NPROPM,*), D(3,*), X(3,*), V(3,*), A(3,*), BUFEL(*), WA(*),
+     .   PM(NPROPM,NUMMAT), D(3,NUMNOD), X(3,NUMNOD), V(3,NUMNOD), A(3,NUMNOD), BUFEL(*), WA(*),
      .   FSAV(NTHVKI,*), FLSW(9,*), SKEW(LSKEW,*), PARTSAV(NPSAV,*),
      .   ACCELM(LLACCELM,*), GEO(NPROPG,*),SPBUF(*),XFRAME(NXFRAME,*),
-     .   AR(3,*),VR(3,*),DR(3,*),FSAVD(NTHVKI,*),
-     .   RIVET(NRIVF,*), THIS0, DTHIS0,THKE(*),
-     .   RIVOFF(NRIVET), FXBDEP(*), FXBVIT(*), FXBACC(*), VOLMON(*),
-     .   TEMP(*),FTHREAC(*),GRESAV(NPSAV,*), GAUGE(LLGAUGE,*),RTHBUF(*),
-     .   VSPHIO(*), W(3,*)
+     .   AR(3,NUMNOD),VR(3,NUMNOD),DR(3,NUMNOD),
+     .   RIVET(NRIVF,*), THKE(*),
+     .   RIVOFF(NRIVET), VOLMON(*),
+     .   TEMP(*),FTHREAC(*),GRESAV(NPSAV,*), GAUGE(LLGAUGE,NBGAUGE),RTHBUF(*),
+     .   VSPHIO(*), W(3,NUMNOD)
+      my_real, INTENT(IN   ) :: MASS0_START
+      REAL(KIND=8), INTENT(INOUT) :: THIS0, DTHIS0
+      INTEGER, DIMENSION(NIXP,NUMELP) ,INTENT(IN):: IXP
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP) :: ELBUF_TAB
       TYPE (CLUSTER_) ,DIMENSION(NCLUSTER)    :: CLUSTER
       TYPE (STACK_PLY) :: STACK
       TYPE (SUBSET_) , DIMENSION(NSUBS) :: SUBSET
       TYPE (SURF_)   , DIMENSION(NSURF) :: IGRSURF
       TYPE (PINCH) :: PINCH_DATA
-      TYPE(MULTI_FVM_STRUCT), INTENT(IN) :: MULTI_FVM   
+      TYPE (MULTI_FVM_STRUCT), INTENT(IN) :: MULTI_FVM   
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) ,INTENT(IN) :: SENSOR_TAB
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(IN) :: MATPARAM_TAB
+      TYPE (glob_therm_), INTENT(IN) :: glob_therm
+      my_real, INTENT(INOUT) :: FSAVSURF(TH_SURF_NUM_CHANNEL,NSURF)
+      LOGICAL, INTENT(INOUT) :: NEED_TO_REINIT_FSAV !< boolean to re-initialize PARTSAV array
+      TYPE(OUTPUT_),INTENT(INOUT) :: OUTPUT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,L,M,N,II,JJ,IP,NP,NN,NG,ITY,NEL,NFT,N1,N2,NPT,NRWA,
-     .   JALE,FSAVMAX,PROC,NVAR,IAD,ITYP,IADV,FIRST,KRBHOL,ISKN,NNOD
-      INTEGER :: ID_HIST
-      INTEGER
-     .   SEEK_ID
-      LOGICAL ICOND
-      my_real
-     . XFN,SUBSAV(100),XX,YY,ZZ,XY,YZ,ZX,DET,XXMOM,YYMOM,ZZMOM,NORM,
-     .   XCG, YCG, ZCG, IXX, IYY, IZZ,IXY, IYZ, IZX,
-     .   JXX, JYY, JZZ, JXY, JYZ, JZX, AA, THISC,XM,YM,ZM
-      DATA FIRST/0/
-      SAVE FIRST
-      my_real
-     .   FSAVINT(NTHVKI,NINTER+NINTSUB),FSAVVENT(5,NVENTTOT),
-     .   VX(3),VY(3),VN(3),X1(3),X2(3),X3(3),FLOC(3),MLOC(3),FAC
-      my_real
-     .   FSAVSURF(3,NSURF)
-      my_real :: ARRAY(5)
-      INTEGER :: MY_SIZE
-      LOGICAL :: RIVET_BOOL
-C=======================================================================
+      LOGICAL ICOND,RIVET_BOOL,HAS_TH
+      
+      INTEGER I,J,K,L,M,N,II,JJ,NP,NN,N1,NRWA,
+     .        JALE,FSAVMAX,NVAR,IAD,ITYP,IADV,KRBHOL,ID_HIST, SEEK_ID,
+     .        IMID,IPID,JALE_FROM_MAT,JALE_FROM_PROP,SURF_ID
+
+      my_real XX,YY,ZZ,DET,XXMOM,YYMOM,ZZMOM, 
+     .        XCG, YCG, ZCG, IXX, IYY, IZZ,IXY, IYZ, IZX,                   
+     .        JXX, JYY, JZZ, JXY, JYZ, JZX, AA, THISC,          
+     .        FSAVINT(NTHVKI,NINTER+NINTSUB),FSAVVENT(5,NVENTTOT),          
+     .        FAC,ARRAY(5)                            
+      my_real, DIMENSION(100) :: SUBSAV  
+      my_real, DIMENSION(1) :: WA_LOCAL
+      REAL(KIND=8) :: THIS0_DOUBLE,TT_DOUBLE
+      REAL(KIND=8) :: DTHIS0_DOUBLE,DT1_DOUBLE,THISC_DOUBLE
+C-----------------------------------------------
+C   S o u r c e   L i n e s
+C-----------------------------------------------
       ID_HIST = ITHFLAG
       THISC = THIS0
+      THISC_DOUBLE = THIS0
       SEEK_ID = IUNIT-29
+      IXX = ZERO
+      IYY = ZERO
+      IZZ = ZERO
+      IXY = ZERO
+      IYZ = ZERO
+      IZX = ZERO
+      JXX = ZERO
+      JYY = ZERO
+      JZZ = ZERO
+      IZX = ZERO
+      JXY = ZERO
+      JZX = ZERO
+      XXMOM = ZERO
+      YYMOM = ZERO
+      ZZMOM = ZERO
+      XCG = ZERO
+      YCG = ZERO
+      ZCG = ZERO
+      AA = ZERO
+
       IF (IUNIT == 3) SEEK_ID = 1                   
 C--------Multidomains : control of time history for subdomains-----------
-      IF ((IRAD2R.EQ.1).AND.(R2R_SIU.EQ.1)) THEN
+      IF ((IRAD2R==1).AND.(R2R_SIU==1)) THEN
         R2R_TH_FLAG(SEEK_ID) = 0
         IF (IDDOM == 0) THEN
           R2R_TH_MAIN(SEEK_ID) = 0
         ELSE
-          IF (R2R_TH_MAIN(SEEK_ID).EQ.0) THEN
+          IF (R2R_TH_MAIN(SEEK_ID)==0) THEN
             THISC = EP30
             SIZE_MES = 0
-          ELSEIF (R2R_TH_MAIN(SEEK_ID).EQ.1) THEN
-            THISC = TT-EM20
+          ELSEIF (R2R_TH_MAIN(SEEK_ID)==1) THEN
+            THISC_DOUBLE = TT
+            THISC_DOUBLE = THISC_DOUBLE - EM20
+            THISC = THISC_DOUBLE
             SIZE_MES = 1
           ENDIF
         ENDIF
-      ENDIF      
+      ENDIF   
+      TT_DOUBLE = TT
+
 C-----------------------------------------------------------------------    
-      IF (TT.GE.THISC) THEN
+      IF (TT>=THISC_DOUBLE) THEN
+        NEED_TO_REINIT_FSAV = .TRUE.
 C---------------------------
         IF (IDDOM == 0) R2R_TH_MAIN(SEEK_ID) = 1
         R2R_TH_FLAG(SEEK_ID) = 1          
 C---------------------------
-        IF (IMPL_S.GT.0) THEN
-          THIS0=MAX(TT,THIS0+MAX(DTHIS0,DT1))
-          THIS0=MIN(TSTOP,THIS0)
+        THIS0_DOUBLE = THIS0
+        DTHIS0_DOUBLE = DTHIS0
+        IF (IMPL_S>0) THEN
+          DT1_DOUBLE = DT1
+          THIS0_DOUBLE=MAX(TT_DOUBLE,THIS0_DOUBLE+MAX(DTHIS0_DOUBLE,DT1_DOUBLE))
+          THIS0_DOUBLE=MIN(TSTOP,THIS0_DOUBLE)
+          THIS0 = THIS0_DOUBLE
         ELSE
-          THIS0=MAX(TT,THIS0+DTHIS0)
-          THIS0=MIN(TSTOP,THIS0)
-        ENDIF    
+          THIS0_DOUBLE=MAX(TT_DOUBLE,THIS0_DOUBLE+DTHIS0_DOUBLE)
+          THIS0_DOUBLE=MIN(TSTOP,THIS0_DOUBLE)
+          THIS0 = THIS0_DOUBLE
+        ENDIF 
 C---------------------------                  
         IF(ITTYP==3) CALL CUR_FIL_C(IFIL)
 C Heat Outputs
-        ARRAY(1) =  HEAT_FFLUX
-        ARRAY(2) =  HEAT_STORED
-        ARRAY(3) =  HEAT_CONV
-        ARRAY(4) =  HEAT_RADIA
-        ARRAY(5) =  HEAT_MECA
+        ARRAY(1) =  GLOB_THERM%HEAT_FFLUX
+        ARRAY(2) =  GLOB_THERM%HEAT_STORED
+        ARRAY(3) =  GLOB_THERM%HEAT_CONV
+        ARRAY(4) =  GLOB_THERM%HEAT_RADIA
+        ARRAY(5) =  GLOB_THERM%HEAT_MECA
         IF(NSPMD > 1) CALL SPMD_GLOB_RSUM_POFF(ARRAY,5)
-C       dans version spmd seul process 0 ecrit
+C       SPMD: only process 0 is writing
         IF (ISPMD==0) THEN
 C--------Multidomains : offset for th file------------------------------
-          IF ((IRAD2R.EQ.1).AND.(R2R_SIU.EQ.1)) THEN
-            IF (SEEK_FLAG(SEEK_ID).EQ.1) THEN     
-              CALL FSEEK_C(SEEK0(SEEK_ID))
+          IF ((IRAD2R==1).AND.(R2R_SIU==1)) THEN
+            IF (SEEK_FLAG(SEEK_ID)==1) THEN     
+              CALL FSEEK_C_RD(SEEK0(SEEK_ID))
               SEEK_FLAG(SEEK_ID) = 0
             ELSE
-              CALL FSEEK_C(SEEKC(SEEK_ID))          
+              CALL FSEEK_C_RD(SEEKC(SEEK_ID))          
             ENDIF
           ENDIF
-C-----------------------------------------------------------------------                  
-          CALL WRTDES(TT,TT,1,ITTYP,1)
+C-----------------------------------------------------------------------              
+          WA_LOCAL(1) = TT    
+          CALL WRTDES(WA_LOCAL,WA_LOCAL,1,ITTYP,1)
 C------------------------
 C         VARIABLES GLOBALES
 C------------------------
@@ -250,33 +309,29 @@ C------------------------
           WA(II+6) =XMASS
           WA(II+7) =DT2
           WA(II+8) =ENROT
-          WA(II+9) =TFEXT
+          WA(II+9) =OUTPUT%TH%WFEXT
           WA(II+10)=REINT
           WA(II+11)=ECONT+ECONT_CUMU+ECONTV+ECONTD   ! Global contact energy : Sum of contact energies
           WA(II+12)=EHOUR
           WA(II+13)= ECONT+ECONT_CUMU !Contact Elastic Energy
           WA(II+14)= ECONTV ! Contact Frictional Energy
           WA(II+15)= ECONTD ! Damping Frictional Energy
-
-!   Version 2018 not released 
-c          WA(II+13)=EAMS
-c          WA(II+14)= ARRAY(1)
-c          WA(II+15)= ARRAY(2)
-c          WA(II+16)= ARRAY(3)
-c          WA(II+17)= ARRAY(4)
-c          WA(II+18)= ARRAY(5)
-
-C         NGLOBTH depends on /TH/VERS
+          WA(II+16)= WPLAST ! Plastic Work
+          WA(II+17)= XMASS-MASS0_START ! Added mass
+          WA(II+18)= EP02*(XMASS - MASS0_START) / MAX(MASS0,EM20) ! Added mass % 
+          WA(II+19)= OUTPUT%DATA%INOUT%DM_IN    !inlet mass
+          WA(II+20)= OUTPUT%DATA%INOUT%DM_OUT   !outlet mass
+          WA(II+21)= OUTPUT%DATA%INOUT%DE_IN    !inlet energy
+          WA(II+22)= OUTPUT%DATA%INOUT%DE_OUT   !outlet energy
           IF(IUNIT==IUHIS) CALL WRTDES(WA,WA,NGLOBTH,ITTYP,1)
         ENDIF  ! ISPMD==0
 C-----------------------------
-C       VARIABLES PAR PART
+C       VARIABLES FOR EACH PART
 C-----------------------------
-        IF(NPART.GT.0) THEN
-         IF(NSPMD > 1 .AND. NTHPART .GT. 0)
-     .       CALL SPMD_GLOB_DSUM9(GRESAV,NPSAV*NGPE)
+        IF(NPART>0) THEN
+         IF(NSPMD > 1 .AND. NTHPART > 0) CALL SPMD_GLOB_DSUM9(GRESAV,NPSAV*NGPE)
          IF(NSPMD>1) CALL SPMD_GLOB_DSUM9(PARTSAV,NPSAV*(NPART+NTHPART))
-         IF(ISPMD.NE.0) THEN
+         IF(ISPMD/=0) THEN
            DO M=1,NPSAV                                  
              DO I=1,NPART+NTHPART                         
                PARTSAV(M,I) = ZERO
@@ -288,19 +343,19 @@ C-----------------------------
          ELSE
           II=0                                  
           DO I=1,NPART+NTHPART                  
-            NVAR=IPARTH(NVPARTH,I)               
+            NVAR=IPARTH(NVPARTH,I)   
             IAD =IPARTH(NVPARTH+1,I)             
-            IF (I .GT. NPART) THEN               
+            IF (I > NPART) THEN               
               DO J=1,NPSAV                       
                 PARTSAV(J,I) = GRESAV(J,I-NPART) 
               ENDDO                              
             ENDIF                                
-            IF(NVAR.GT.0)THEN
-              IF(NPSAV.GE.22)THEN
+            IF(NVAR>0)THEN
+              IF(NPSAV>=22)THEN
 C---------------------------------------
-C               CALCUL DU CG
-C               CALCUL DES QUANTITES DE MOUVEMENT / CG
-C               CALCUL DES INERTIES / CG
+C               GRAVITY CENTER
+C               MOMENTUM / CG
+C               INERTIA / CG
 C---------------------------------------
                 AA  = ONE/MAX(EM20,PARTSAV(6,I))
                 XCG = PARTSAV(9,I)*AA
@@ -318,7 +373,7 @@ C---------------------------------------
                 IXY = PARTSAV(18,I)+PARTSAV( 9,I)*YCG
                 IYZ = PARTSAV(19,I)+PARTSAV(10,I)*ZCG
                 IZX = PARTSAV(20,I)+PARTSAV(11,I)*XCG
-              ENDIF  ! NPSAV.GE.22
+              ENDIF  ! NPSAV>=22
               DO N=IAD,IAD+NVAR-1
                 II=II+1
                 IF(N <= SITHBUF) THEN
@@ -337,7 +392,7 @@ C---------------------------------------
                 ELSEIF(K==5)THEN
                   WA(II)=PARTSAV(K,I)                
                 ELSEIF(K==6)THEN
-                  WA(II)=PARTSAV(6,I)+PARTSAV(25,I)
+                  WA(II)=PARTSAV(6,I)
                 ELSEIF(K==7)THEN
                   WA(II)=PARTSAV(8,I)
                 ELSEIF(K==8)THEN
@@ -388,35 +443,41 @@ C                                    [Izx Iyz Izz]   {ZZMOM}
                   DET =  ONE/ MAX(EM20,
      .                        IXX * JXX + IXY * JXY + IZX * JZX)
                   WA(II)=DET *
-     .         (HALF*(JXX*XXMOM*XXMOM+JYY*YYMOM*YYMOM+JZZ*ZZMOM*ZZMOM)
-     .             + JXY*XXMOM*YYMOM+JYZ*YYMOM*ZZMOM+JZX*XXMOM*ZZMOM )
+     .                        (HALF*(JXX*XXMOM*XXMOM+JYY*YYMOM*YYMOM+JZZ*ZZMOM*ZZMOM)
+     .                             + JXY*XXMOM*YYMOM+JYZ*YYMOM*ZZMOM+JZX*XXMOM*ZZMOM )
                 ELSEIF(K==24)THEN
                   WA(II)=PARTSAV(22,I)
+                ELSEIF(K==25) THEN 
+                  WA(II)=PARTSAV(25,I)
+                ELSEIF(K==29) THEN 
+                  WA(II)=PARTSAV(3,I)/MAX(PARTSAV(6,I),EM20)
+                ELSEIF(K==30) THEN 
+                  WA(II)=PARTSAV(4,I)/MAX(PARTSAV(6,I),EM20)
+                ELSEIF(K==31) THEN 
+                  WA(II)=PARTSAV(5,I)/MAX(PARTSAV(6,I),EM20)
+                ELSEIF(K==32) THEN 
+                  WA(II)=PARTSAV(29,I)
                 ELSEIF(K > 0 .AND. SIZE(PARTSAV,1) >= K) THEN
                   WA(II)=PARTSAV(K,I)
                 ELSE 
                   WA(II) = 0
                 ENDIF  !  K == 
               ENDDO    !  N=IAD,IAD+NVAR-1
-            ENDIF      !  NVAR.GT.0
+            ENDIF      !  NVAR>0
           ENDDO        !  I=1,NPART+NTHPART 
-          IF (II.NE.0) CALL WRTDES(WA,WA,II,ITTYP,1)
-         ENDIF         !  ISPMD.NE.0
-        ENDIF          !  NPART.GT.0
+          IF (II/=0) CALL WRTDES(WA,WA,II,ITTYP,1)
+         ENDIF         !  ISPMD/=0
+        ENDIF          !  NPART>0
 C-----------------------------
-C     VARIABLES PAR SUBSET
+C     VARIABLES FOR EACH SUBSET
 C-----------------------------
-       IF(NSUBS.GT.0.AND.ISPMD==0) THEN
+       IF(NSUBS>0.AND.ISPMD==0) THEN
          II=0
          DO I=1,NSUBS
-!!           NVAR=ISUBTH(NVSUBTH,I)
-!!           IAD =ISUBTH(NVSUBTH+1,I)
            NVAR=SUBSET(I)%NVARTH(ITHFLAG)
            IAD =SUBSET(I)%THIAD
-!!           NP  =ISUBS(8,I)
-!!           IP  =ISUBS(9,I)
            NP = SUBSET(I)%NTPART
-           IF(NVAR.GT.0)THEN
+           IF(NVAR>0)THEN
              DO K=1,NPSAV
                  SUBSAV(K)=ZERO
              ENDDO
@@ -426,7 +487,7 @@ C-----------------------------
                  SUBSAV(K)=SUBSAV(K)+PARTSAV(K,JJ)
                ENDDO
              ENDDO
-             IF(NPSAV.GE.22)THEN
+             IF(NPSAV>=22)THEN
                AA  = ONE/MAX(EM20,SUBSAV(6))
                XCG = SUBSAV( 9)*AA
                YCG = SUBSAV(10)*AA
@@ -443,7 +504,7 @@ C-----------------------------
                IXY = SUBSAV(18)+SUBSAV( 9)*YCG
                IYZ = SUBSAV(19)+SUBSAV(10)*ZCG
                IZX = SUBSAV(20)+SUBSAV(11)*XCG
-               IF ((IRAD2R.EQ.1).AND.(R2R_SIU.EQ.1)) THEN
+               IF ((IRAD2R==1).AND.(R2R_SIU==1)) THEN
                  XXMOM = SUBSAV(12)
                  YYMOM = SUBSAV(13)
                  ZZMOM = SUBSAV(14)
@@ -461,7 +522,7 @@ C-----------------------------
                IF(K==1)THEN
                  WA(II)=SUBSAV(1)+SUBSAV(24)+SUBSAV(26)
                ELSEIF(K==6)THEN
-                 WA(II)=SUBSAV(6)+SUBSAV(25)
+                 WA(II)=SUBSAV(6)
                ELSEIF(K==7)THEN
                  WA(II)=SUBSAV(8)
                ELSEIF(K==8)THEN
@@ -512,43 +573,44 @@ C                                    [Izx Iyz Izz]   {ZZMOM}
                  JXY=IYZ*IZX-IXY*IZZ
                  JYZ=IZX*IXY-IYZ*IXX
                  JZX=IXY*IYZ-IZX*IYY
-                 DET =  ONE/ MAX(EM20,
-     .                       IXX * JXX + IXY * JXY + IZX * JZX)
-                 WA(II)=DET *
-     .        (HALF*(IXX*XXMOM*XXMOM+IYY*YYMOM*YYMOM+IZZ*ZZMOM*ZZMOM)
-     .            + IXY*XXMOM*YYMOM+IYZ*YYMOM*ZZMOM+IZX*XXMOM*ZZMOM )
+                 DET =  ONE/ MAX(EM20,IXX * JXX + IXY * JXY + IZX * JZX)
+                 WA(II)=DET * (HALF*(IXX*XXMOM*XXMOM+IYY*YYMOM*YYMOM+IZZ*ZZMOM*ZZMOM)
+     .                             + IXY*XXMOM*YYMOM+IYZ*YYMOM*ZZMOM+IZX*XXMOM*ZZMOM )
               ELSEIF(K==24)THEN
                  WA(II)=SUBSAV(22)
-               ELSEIF(K > 0) THEN
+              ELSEIF(K==25) THEN 
+                 WA(II)=SUBSAV(25)
+              ELSEIF(K==29) THEN 
+                 WA(II)=SUBSAV(3)/MAX(SUBSAV(6),EM20)
+              ELSEIF(K==30) THEN 
+                 WA(II)=SUBSAV(4)/MAX(SUBSAV(6),EM20)
+              ELSEIF(K==31) THEN 
+                 WA(II)=SUBSAV(5)/MAX(SUBSAV(6),EM20)
+              ELSEIF(K==32) THEN
+                 WA(II)=SUBSAV(29)
+              ELSEIF(K > 0) THEN
                  WA(II)=SUBSAV(K)
-               ELSE 
+              ELSE 
                  WA(II) = 0
                ENDIF
              ENDDO
            ENDIF
          ENDDO
-         IF(II.NE.0)CALL WRTDES(WA,WA,II,ITTYP,1)
+         IF(II/=0)CALL WRTDES(WA,WA,II,ITTYP,1)
        ENDIF
 C-------------------------------------------------------
 C      TH GROUP KINE SPMD
-C       Comment : FSAV(NTHVKI,*), avec NTHVKI = 18
+C       (  FSAV(NTHVKI,*), with NTHVKI = 18  )
 C-------------------------------------------------------
        FSAVMAX = NVOLU+NRBAG+NJOINT+NSECT+NRBODY+NRWALL+NINTER+NINTSUB
 
        IF (NSPMD > 1) THEN
-         CALL SPMD_GLOB_DSUM9(
-     .        FSAV,NTHVKI*(NINTER+NRWALL+NRBODY+NSECT+NJOINT))
-         IF((NVOLU+NRBAG).GT.0)
-     .        CALL SPMD_GLOB_DSUM9(
-     .        FSAV(1,1+NINTER+NRWALL+NRBODY+NSECT+NJOINT),
-     .        NTHVKI*(NVOLU+NRBAG))
-         IF(NINTSUB.GT.0)
-     .        CALL SPMD_GLOB_DSUM9(
-     .  FSAV(1,1+NINTER+NRWALL+NRBODY+NSECT+NJOINT+NVOLU+NRBAG),
-     .  NTHVKI*NINTSUB)
+         CALL SPMD_GLOB_DSUM9(FSAV,NTHVKI*(NINTER+NRWALL+NRBODY+NSECT+NJOINT))
+         IF((NVOLU+NRBAG)>0)CALL SPMD_GLOB_DSUM9(FSAV(1,1+NINTER+NRWALL+NRBODY+NSECT+NJOINT),NTHVKI*(NVOLU+NRBAG))
+         IF(NINTSUB>0)CALL SPMD_GLOB_DSUM9(FSAV(1,1+NINTER+NRWALL+NRBODY+NSECT+NJOINT+NVOLU+NRBAG),NTHVKI*NINTSUB)
        ENDIF
-       IF(FSAVMAX.GT.0) THEN
-         IF (ISPMD.NE.0) THEN
+       IF(FSAVMAX>0) THEN
+         IF (ISPMD/=0) THEN
             DO I=1,FSAVMAX
               DO J=1,NTHVKI
                 FSAV(J,I) = ZERO
@@ -557,20 +619,18 @@ C-------------------------------------------------------
          ENDIF
        ENDIF
 C
-       IF(NINTER+NINTSUB.NE.0.AND.ISPMD==0)THEN
+       IF(NINTER+NINTSUB/=0.AND.ISPMD==0)THEN
          DO J=1,NTHVKI
            DO N=1,NINTER
              FSAVINT(J,N)=FSAV(J,N)
            END DO
            DO N=1,NINTSUB
-             FSAVINT(J,NINTER+N)=
-     .  FSAV(J,(NINTER+NRWALL+NRBODY+NSECT+NJOINT+NVOLU+NRBAG)+N)
+             FSAVINT(J,NINTER+N)=FSAV(J,(NINTER+NRWALL+NRBODY+NSECT+NJOINT+NVOLU+NRBAG)+N)
            END DO
          END DO
        END IF
-       IF(NVENTTOT.GT.0)THEN
-C
-C        vide les donnees de Volmon dans Buffer Fsavvent.
+       IF(NVENTTOT>0)THEN
+         ! Volmon dumped into Fsavvent.
          DO I=1,NVENTTOT
            DO J=1,5
              FSAVVENT(J,I) = ZERO
@@ -578,44 +638,87 @@ C        vide les donnees de Volmon dans Buffer Fsavvent.
          END DO
          KRBHOL =1 + NRVOLU * NVOLU + LRCBAG + LRBAGJET
          CALL BUFMONV(FSAVVENT,MONVOL,VOLMON(KRBHOL),FR_MV)
-C
          IF(NSPMD > 1)CALL SPMD_GLOB_DSUM9(FSAVVENT,5*NVENTTOT)
        END IF
-C
-       IF(NSURF > 0) THEN
-         DO I=1,NSURF
-           DO J=1,3
-             FSAVSURF(J,I)=ZERO
-           ENDDO
-         ENDDO
-C-----------------------------------
-C      CALCUL DE L'AIRE DES SURFACES
-C-----------------------------------
-         DO I=1,NSURF
-            IF(IGRSURF(I)%TH_SURF == 1) THEN
-               NN = IGRSURF(I)%NSEG
-               CALL SURF_AREA(X, NN, IGRSURF(I)%NODES, FSAVSURF(1,I))
-            ENDIF
-         ENDDO
+
 C---------------------------------------------------------
-C      CALCUL DE LA MASSE TRAVERSANT LES SURFACES (FVMBAG)
+C      /Th/surfing: 6 output channels
 C---------------------------------------------------------
+      !FSAVSURF(1, 1:NSURF) : area                        (ebcs + monvol + ploads)
+      !FSAVSURF(2, 1:NSURF) : massflow                    (ebcs + monvol         )
+      !FSAVSURF(3, 1:NSURF) : velocity                    (ebcs + monvol + ploads)
+      !FSAVSURF(4, 1:NSURF) : pressure                    (ebcs + monvol + ploads)
+      !FSAVSURF(5, 1:NSURF) : area with applied pressure  (                ploads)
+      !FSAVSURF(6, 1:NSURF) : cumulated mass              (ebcs + monvol         )
+C-----------------------------------
+C      /TH/SURF (AREA) if not already computed
+C-----------------------------------
+       DO I=1,NSURF
+         IF(IGRSURF(I)%TH_SURF == 1 .AND. FSAVSURF(1,I) == ZERO) THEN
+           NN = IGRSURF(I)%NSEG
+           CALL SURF_AREA(X, NN, IGRSURF(I)%NODES, FSAVSURF(1,I), NUMNOD, N2D)
+         ENDIF
+       ENDDO
+
+C---------------------------------------------------------
+C      /TH/SURF (cumulated mass from AIRBAGS)
+C---------------------------------------------------------
+       IF(NSURF > 0)THEN
          CALL SURF_MASS_MONV(FSAVSURF,IGRSURF,MONVOL,VOLMON,FR_MV)
-C
-         IF(NSPMD > 1)CALL SPMD_GLOB_DSUM9(FSAVSURF,3*NSURF)
+       ENDIF !NSURF > 0
+
+C---------------------------------------------------------
+C      /TH/SURF : SPMD EXCHANGE
+C---------------------------------------------------------
+       IF(NSPMD > 1)CALL SPMD_GLOB_DSUM9(FSAVSURF,5*NSURF)
+
+C---------------------------------------------------------
+C      /TH/SURF (PRESSURE mean velues)
+C---------------------------------------------------------
+       IF(ISPMD ==0 ) THEN
+         DO I=1,NSURF
+           IF(IGRSURF(I)%TH_SURF == 1) THEN
+             IF( FSAVSURF(5,I) > ZERO )THEN
+               FSAVSURF(4,I) = FSAVSURF(4,I) / FSAVSURF(5,I) ! The pressure in an average pressure
+             ELSE
+               FSAVSURF(4,I) = ZERO
+             ENDIF
+           ENDIF
+         ENDDO
        ENDIF
+
+C---------------------------------------------------------
+C      /TH/SURF (EBCS mean values)
+C        total surface FSAVSURF(1,:) are here gathered and
+C        they can be used here to divide
+C---------------------------------------------------------
+       IF (EBCS_TAB%nebcs > 0)THEN
+         DO K=1,EBCS_TAB%nebcs
+           IF(.NOT.EBCS_TAB%need_to_compute(K)) CYCLE
+           HAS_TH = EBCS_TAB%TAB(K)%poly%has_th
+           IF(has_th) THEN
+             SURF_ID = EBCS_TAB%TAB(K)%poly%surf_id
+             NN = IGRSURF(SURF_ID)%NSEG
+             IF(FSAVSURF(1,SURF_ID) > ZERO)THEN
+               FSAVSURF(3,SURF_ID) =  FSAVSURF(3,SURF_ID) / FSAVSURF(1,SURF_ID)  !mean velocity
+               FSAVSURF(4,SURF_ID) =  FSAVSURF(4,SURF_ID) / FSAVSURF(1,SURF_ID)  !mean pressure
+             ENDIF
+           ENDIF
+         ENDDO!next K
+       ENDIF
+
 C--------------------------------------------
-C      PRE TRAITEMENT RIVETS SPMD ONLY
+C      PRE-TREATMENT RIVETS (SPMD ONLY)
 C--------------------------------------------
-       IF(NRIVF.GT.1.AND.NSPMD > 1.AND.NRIVET.GT.0) THEN
+       IF(NRIVF>1 .AND. NSPMD > 1 .AND. NRIVET>0) THEN
         DO K = 1, NRIVET
           I = ABS(LRIVET(2,K))
-C sauvegarde flag off
+C beckup : flag off
           RIVOFF(K) = RIVET(1,K)
           RIVET_BOOL=.FALSE.
           IF(LRIVET(2,K) <1)  RIVET_BOOL=.TRUE.
           IF(RIVET_BOOL.EQV..FALSE.) THEN
-            IF (WEIGHT(I).NE.1) RIVET_BOOL=.TRUE.
+            IF (WEIGHT(I)/=1) RIVET_BOOL=.TRUE.
           ENDIF
           IF(RIVET_BOOL) THEN
             DO N = 1, NRIVF
@@ -624,27 +727,27 @@ C sauvegarde flag off
           ENDIF
         END DO
         CALL SPMD_GLOB_DSUM9(RIVET,NRIVF*NRIVET)
-C restitution flag off
+C retrieve : flag off
         DO K = 1, NRIVET
           RIVET(1,K) = RIVOFF(K)
         END DO
        ENDIF
 C--------------------------------------------
-C      PRE TRAITEMENT ACCELEROMETRES SPMD ONLY
+C      PRE-TREATMENT ACCELEROMETERS (SPMD ONLY)
 C--------------------------------------------
-       IF(NACCELM.GT.0 .AND. NSPMD > 1)THEN
-C gather sur p0 des valeurs a jour pour les accelerometres
+       IF(NACCELM>0 .AND. NSPMD > 1)THEN
+C gather on proc 0 of up-to-date values for the accelerometers
          CALL SPMD_SD_ACC(ACCELM,IACCP,NACCP)
        END IF
 C--------------------------------------------
-C      PRE TRAITEMENT GAUGES SPMD ONLY
+C      PRE-TREATMENT GAUGES (SPMD ONLY)
 C--------------------------------------------
-       IF(NBGAUGE.GT.0 .AND. NSPMD > 1)THEN
-C gather sur p0 des valeurs a jour pour les gauges
+       IF(NBGAUGE>0 .AND. NSPMD > 1)THEN
+C gather on proc 0 of up-to-date values for the gauges
          CALL SPMD_SD_GAU(GAUGE,IGAUP,NGAUP)
        END IF
 C--------------------------------------------
-C      PRE TRAITEMENT SEATBELTS
+C      PRE-TREATMENT SEATBELTS
 C--------------------------------------------
        IF(NSLIPRING_G + NRETRACTOR_G > 0) THEN
 C
@@ -701,12 +804,12 @@ C-------------------------------------------------------
 !   TH optimization for node elements
         !   initialization of local array       
         WA_NOD(ID_HIST)%WA_REAL( 1:WA_NOD_SIZE(ID_HIST) ) = ZERO
-        CALL THNOD(ITHBUF ,
+        CALL THNOD(OUTPUT, ITHBUF ,
      2   WA_NOD(ID_HIST)%WA_REAL,X       ,D       ,V      ,A      ,
      3             VR      ,AR      ,ISKWN   ,IFRAME  ,SKEW   ,
      4             XFRAME  ,WEIGHT  ,TEMP    ,INOD    ,FTHREAC,
      5             NODREAC, CPTREAC ,DR      ,ITTYP   ,NTHGRP2,
-     6             ITHGRP ,PINCH_DATA)
+     6             ITHGRP ,PINCH_DATA,GLOB_THERM%ITHERM_FE)
         !   send WA_NOD to PROC0
         IF(NSPMD>1) THEN
             CALL SPMD_GATHERV(WA_NOD(ID_HIST)%WA_REAL,WA_NOD_P0(ID_HIST)%WA_REAL,0,
@@ -722,10 +825,11 @@ C-------------------------------------------------------
 !   TH optimization for solid elements
         !   initialization of local array
         WA_SOL(ID_HIST)%WA_REAL( 1:WA_SOL_SIZE(ID_HIST) ) = ZERO
-        CALL THSOL(ELBUF_TAB,NTHGRP2 ,ITHGRP , 
-     .                 IPARG   ,ITHBUF   ,WA_SOL(ID_HIST)%WA_REAL ,
-     .                 IXS     ,X        ,IPM    ,PM     ,IGEO    ,
-     .                 MULTI_FVM,V       ,W      )
+        CALL THSOL(    ELBUF_TAB, NTHGRP2, ITHGRP                  ,
+     .                 IPARG    , ITHBUF , WA_SOL(ID_HIST)%WA_REAL ,
+     .                 IXS      , X      , IPM                     ,PM     ,IGEO    ,
+     .                 MULTI_FVM, V      , W                       ,GLOB_THERM%ITHERM,
+     .                 NUMELS   , NUMMAT , NUMGEO                  , NUMNOD,SITHBUF)
 
         !   send WA_SOL to PROC0
         IF(NSPMD>1) THEN
@@ -742,10 +846,11 @@ C-------------------------------------------------------
 !   TH optimization for quad/tria elements
         !   initialization of local array
         WA_QUAD(ID_HIST)%WA_REAL( 1:WA_QUAD_SIZE(ID_HIST) ) = ZERO
-        CALL THQUAD(ELBUF_TAB,NTHGRP2 , ITHGRP , 
+        CALL THQUAD(ELBUF_TAB,NTHGRP2  ,ITHGRP    ,
      1              IPARG    ,ITHBUF   ,WA_QUAD(ID_HIST)%WA_REAL      ,
      2              IPM      ,IXQ      ,IXTG      ,X       ,MULTI_FVM ,
-     3              V        ,W        )
+     3              V        ,W        ,GLOB_THERM%ITHERM  ,PM        ,
+     .              NUMELQ   ,NUMMAT   ,NUMNOD    ,SITHBUF   ,NUMELTG)
         !   send WA_QUAD to PROC0
         IF(NSPMD>1) THEN
             CALL SPMD_GATHERV(WA_QUAD(ID_HIST)%WA_REAL,WA_QUAD_P0(ID_HIST)%WA_REAL,0,
@@ -761,7 +866,7 @@ C-------------------------------------------------------
 !   TH optimization for shell/shell3n elements
         !   initialization of local array
         WA_COQ(ID_HIST)%WA_REAL( 1:WA_COQ_SIZE(ID_HIST) ) = ZERO
-        CALL THCOQ(ELBUF_TAB,NTHGRP2 , ITHGRP ,
+        CALL THCOQ(ELBUF_TAB,MATPARAM_TAB,NTHGRP2 , ITHGRP ,
      .                 IPARG,ITHBUF,WA_COQ(ID_HIST)%WA_REAL,
      .                 IPM,IGEO,IXC,IXTG ,PM,
      .                 RTHBUF ,THKE ,STACK)
@@ -797,7 +902,7 @@ C-------------------------------------------------------
 !   TH optimization for beam elements
         !   initialization of local array
         WA_POUT(ID_HIST)%WA_REAL( 1:WA_POUT_SIZE(ID_HIST) ) = ZERO
-        CALL THPOUT(IPARG , NTHGRP2  , ITHGRP ,
+        CALL THPOUT(IPARG , NTHGRP2  , ITHGRP , GEO,  IXP,  
      .              ITHBUF, ELBUF_TAB, WA_POUT(ID_HIST)%WA_REAL   )
         !   send WA_POUT to PROC0
         IF(NSPMD>1) THEN
@@ -844,8 +949,8 @@ C-------------------------------------------------------
         !   end of NSTRAND treatment
         !   ----------------------------------
 !   -------------------------------------
-       NRWA=NRWALL
-          DO N=1,NTHGRP2
+        NRWA=NRWALL
+        DO N=1,NTHGRP2
           ITYP=ITHGRP(2,N)
           NN  =ITHGRP(4,N)
           IAD =ITHGRP(5,N)
@@ -859,7 +964,7 @@ C-------------------------------------------------------
             !   all the stuff already done, PROC0 writes its data             
             IF(ISPMD==0) CALL WRITE_TH(N,NSPMD,NN,NVAR,ITTYP,
      1                      SOL_STRUCT(ID_HIST),WA_SOL_P0(ID_HIST))
-          ELSEIF( NANALY .NE. 0 .AND. (ITYP==2.OR.ITYP==117) )THEN
+          ELSEIF( NANALY /= 0 .AND. (ITYP==2.OR.ITYP==117) )THEN
             !   all the stuff already done, PROC0 writes its data     
             IF(ISPMD==0) CALL WRITE_TH(N,NSPMD,NN,NVAR,ITTYP,
      1                      QUAD_STRUCT(ID_HIST),WA_QUAD_P0(ID_HIST))
@@ -946,7 +1051,7 @@ C-----------------------------
 C-----------------------------
 C           ACCELEROMETRE
 C-----------------------------
-Cel en spmd seul p0 ecrit accelerometres
+C   en spmd seul p0 ecrit accelerometres
             IF (ISPMD==0) THEN
               II = 0
               DO J=IAD,IAD+NN-1
@@ -957,9 +1062,9 @@ Cel en spmd seul p0 ecrit accelerometres
                   WA(II)=ACCELM(19+K,I)
                 ENDDO
               ENDDO
-              IF(II.GT.0)CALL WRTDES(WA,WA,II,ITTYP,1)
+              IF(II>0)CALL WRTDES(WA,WA,II,ITTYP,1)
             ENDIF
-          ELSEIF(ITYP==109.AND.NRIVF.GT.1) THEN
+          ELSEIF(ITYP==109.AND.NRIVF>1) THEN
 C-----------------------------
 C           RIVET
 C-----------------------------
@@ -973,7 +1078,7 @@ C-----------------------------
                   WA(II)=RIVET(K,I)
                 ENDDO
               ENDDO
-              IF(II.GT.0)CALL WRTDES(WA,WA,II,ITTYP,1)
+              IF(II>0)CALL WRTDES(WA,WA,II,ITTYP,1)
             ENDIF
           ELSEIF(ITYP==110) THEN
 C-----------------------------
@@ -1041,7 +1146,7 @@ C                fixed frame
                 ENDDO
                ELSE
 C               moving frame
-                IF(NXFRAME.LT.36)THEN
+                IF(NXFRAME<36)THEN
                  DO L=IADV,IADV+NVAR-1
                   K=ITHBUF(L)
                   II=II+1
@@ -1152,7 +1257,7 @@ C               moving frame
                 ENDIF
                ENDIF
               ENDDO
-              IF(II.GT.0)CALL WRTDES(WA,WA,II,ITTYP,1)
+              IF(II>0)CALL WRTDES(WA,WA,II,ITTYP,1)
             ENDIF
           ELSEIF(ITYP==111)THEN
 C-----------------------------
@@ -1162,11 +1267,7 @@ C-----------------------------
      .   FSAV(1,1+NINTER+NRWALL+NRBODY+NSECT+NJOINT+NRBAG+NVOLU),
      .   ITTYP)
           ELSEIF (ITYP==112) THEN
-C-----------------------------
-C           MODE
-C-----------------------------
-            CALL THFXMOD(IAD,    NN,     ITHBUF, IADV,   NVAR,
-     .                   FXBIPM, FXBDEP, FXBVIT, FXBACC,ITTYP)
+
           ELSEIF (ITYP==113) THEN
 C-----------------------------
 C           GAUGE
@@ -1197,7 +1298,7 @@ C-----------------------------
                   ENDIF
                 ENDDO
               ENDDO
-              IF(II.GT.0)CALL WRTDES(WA,WA,II,ITTYP,1)
+              IF(II>0)CALL WRTDES(WA,WA,II,ITTYP,1)
             ENDIF
           ELSEIF (ITYP==114) THEN
 C-----------------------------
@@ -1216,14 +1317,13 @@ C-----------------------------
               II=II+1
               WA(II)=VSPHIO(ISPHIO(4,I)+16)
             ENDDO
-            IF(NSPMD.GT.1) CALL SPMD_GLOB_DSUM9(WA,II)
-            IF((ISPMD.EQ.0).AND.(II.GT.0)) CALL WRTDES(WA,WA,II,ITTYP,1)
+            IF(NSPMD>1) CALL SPMD_GLOB_DSUM9(WA,II)
+            IF((ISPMD==0).AND.(II>0)) CALL WRTDES(WA,WA,II,ITTYP,1)
           ELSEIF (ITYP==116) THEN
 C-----------------------------
-C           SURF
+C           /TH/SURF
 C-----------------------------
-            CALL THSURF(IAD,IAD+NN-1,IADV,IADV+NVAR-1,ITHBUF,
-     .                  WA ,FSAVSURF,ITTYP)
+            CALL THSURF(IAD,IAD+NN-1,IADV,IADV+NVAR-1,ITHBUF,WA ,FSAVSURF,ITTYP,NSURF)
 C
           ELSEIF (ITYP==118) THEN
 C-----------------------------
@@ -1251,12 +1351,12 @@ C-----------------------------
                   ENDIF
                 ENDDO
               ENDDO
-              IF(II.GT.0)CALL WRTDES(WA,WA,II,ITTYP,1)
+              IF(II>0)CALL WRTDES(WA,WA,II,ITTYP,1)
             ENDIF
 C
           ELSEIF (ITYP==119) THEN
 C-----------------------------
-C           RETRACTOR
+C           RETRACTORS
 C-----------------------------
             IF (ISPMD==0) THEN
               II = 0
@@ -1274,16 +1374,36 @@ C-----------------------------
                   ENDIF
                 ENDDO
               ENDDO
-              IF(II.GT.0)CALL WRTDES(WA,WA,II,ITTYP,1)
+              IF(II>0)CALL WRTDES(WA,WA,II,ITTYP,1)
             ENDIF
-          ENDIF
+c
+          ELSEIF (ITYP == 120) THEN
+C-----------------------------
+C           SENSORS
+C-----------------------------
+            CALL THSENS (SENSOR_TAB,NSENSOR,
+     .           IAD    ,IAD+NN-1 ,IADV   ,IADV+NVAR-1,ITHBUF   ,
+     .           WA     ,ITTYP    ,SITHBUF)
+C
+c
+          ELSEIF (ITYP == 121) THEN
+C-----------------------------
+C           SENSORS
+C-----------------------------
+            CALL THSECHECKSUM (
+     .           IAD    ,IAD+NN-1 ,IADV   ,IADV+NVAR-1,ITHBUF   ,
+     .           WA     ,ITTYP    ,SITHBUF,SWA,ISPMD)
+C
+c----
+c----
+          ENDIF  ! ITYP
        ENDDO
 C-------------------------------------------------------
-C     SECTIONS FLUIDES
+C     SECTIONS OF FLUIDS
 C-------------------------------------------------------
-       IF (NSFLSW.GT. 0 .AND. NABFILE==0)THEN
+       IF (NSFLSW> 0 .AND. NABFILE==0)THEN
          IF (NSPMD > 1)CALL SPMD_GLOB_DSUM9(FLSW,9*NSFLSW)
-         IF (ISPMD.NE.0) THEN
+         IF (ISPMD/=0) THEN
              DO I=1,NSFLSW
                FLSW(1,I) = ZERO
                FLSW(2,I) = ZERO
@@ -1317,11 +1437,12 @@ C---------------------------------------
          IF(ISPMD==0)THEN
            IF(IUNIT==3)THEN
             DO M=1,NPART+NTHPART
-C remise a zero apres gather sur toute les parts ou on ne cumule pas
+C Reset after gather on all partitions where no accumulation occurs
               DO I=1,NPSAV
-                IF((I.LT.23.OR.I.GT.26).AND.I.NE.8 .AND. NABFILE==0
-     .               .AND. (MSTOP .NE. 1 .OR. ICTLSTOP == 1) )
-     .            PARTSAV(I,M)=0
+                IF((I<23.OR.I>26.OR.I==25).AND.I/=8 .AND. NABFILE==0
+     .               .AND. (MSTOP /= 1 .OR. ICTLSTOP == 1) ) then
+                 PARTSAV(I,M)=0
+                ENDIF
               END DO
             END DO
            END IF
@@ -1330,34 +1451,27 @@ C remise a zero apres gather sur toute les parts ou on ne cumule pas
 C-------------------------
       REINT=ZERO
       IF(IUNIT==3)THEN
-        ICOND = TT+2.*DT2.GE.T1S+DT2S
+        ICOND = TT+2.*DT2>=T1S+DT2S
         DO II=1,NPARTL
-C remise a zero sur part active du processeur en spmd
-          M = IPARTL(II)
-          JALE= NINT(PM(72,IPART(1,M)))
-          IF(JALE==0.OR.(JALE.GT.0.AND.ICOND))THEN
+          ! zeroing on current PART on local domain
+          M = IPARTL(II) !local parts (present on current domain)
+          IMID = IPART(1,M)
+          IPID = IPART(2,M)
+          JALE_FROM_MAT = NINT(PM(72,IMID))
+          JALE_FROM_PROP = IGEO(62,IPID)
+          JALE = MAX(JALE_FROM_MAT, JALE_FROM_PROP)
+          IF(JALE == 0 .OR. (JALE > 0 .AND. ICOND))THEN
             DO I=1,NPSAV
-              IF((I.LT.23.OR.I.GT.26).AND.I.NE.8 .AND. NABFILE==0
-     .               .AND.(MSTOP .NE. 1 .OR. ICTLSTOP == 1) )
-     .          PARTSAV(I,M)=0
+              IF((I < 23.OR.I > 26.OR.I==25) .AND. I /= 8 .AND. NABFILE==0 .AND.(MSTOP /= 1 .OR. ICTLSTOP == 1) ) THEN
+                PARTSAV(I,M)=0
+              ENDIF
             END DO
           END IF
         END DO
-c      ELSEIF(IMACH.NE.3.AND.IUNIT==3)THEN
-c        ICOND = TT+2.*DT2.GE.T1S+DT2S
-c        DO M=1,NPART
-C remise a zero sur part active du processeur en spmd
-c          JALE= NINT(PM(72,IPART(1,M)))
-c          IF(JALE==0.OR.(JALE.GT.0.AND.ICOND))THEN
-c            DO I=1,NPSAV
-c              IF((I.LT.23.OR.I.GT.26).AND.I.NE.8)
-c     .          PARTSAV(I,M)=0
-c            END DO
-c          END IF
-c        END DO
       END IF
-C remise a zero du tableau GRESAV
-      IF (NTHPART .GT. 0) THEN
+
+C reset GRESAV array
+      IF (NTHPART > 0) THEN
         DO I=1,NPSAV
           DO J = 1,NTHPART
             GRESAV(I,J) = ZERO
@@ -1366,15 +1480,14 @@ C remise a zero du tableau GRESAV
       ENDIF
 C-----------   
       RETURN
-      END
+      END SUBROUTINE HIST2
+      END MODULE HIST2_MOD
 C
-Chd|====================================================================
-Chd|  BUFMONV                       source/output/th/hist2.F      
-Chd|-- called by -----------
-Chd|        ABFHIST2                      source/output/abf/abfhist2.F  
-Chd|        HIST2                         source/output/th/hist2.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    bufmonv   ../engine/source/output/th/hist2.F
+!||--- called by ------------------------------------------------------
+!||    hist2     ../engine/source/output/th/hist2.F
+!||====================================================================
       SUBROUTINE BUFMONV(FSAVVENT,IVOLU,RBAGHOL,FR_MV)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1387,22 +1500,19 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IVOLU(NIMV,*),FR_MV(NSPMD+2,NVOLU)
-C     REAL
-      my_real
-     .   FSAVVENT(5,*),RBAGHOL(*)
+      my_real FSAVVENT(5,*),RBAGHOL(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N,ITYP,NVENT,IVENTTOT,RADHOL,IV,PMAIN
 C-----------------------------------------------
       DO N=1,NVOLU
-        ITYP	=IVOLU(2,N)
-        IF(ITYP.GE.4.AND.ITYP.LE.9)THEN
+        ITYP =IVOLU(2,N)
+        IF(ITYP>=4.AND.ITYP<=9)THEN
           PMAIN = FR_MV(NSPMD+2,N)
           IF(ISPMD+1==PMAIN)THEN
             NVENT   =IVOLU(11,N)
@@ -1421,7 +1531,5 @@ C             Aout, Aout1, Uout, Mout, Hout
         END IF
       END DO
       RETURN
-      END
-
-
+      END SUBROUTINE BUFMONV
 

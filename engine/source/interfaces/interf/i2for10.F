@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2FOR10                       source/interfaces/interf/i2for10.F
-Chd|-- called by -----------
-Chd|        INTTI2F                       source/interfaces/interf/intti2f.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2for10   ../engine/source/interfaces/interf/i2for10.F
+!||--- called by ------------------------------------------------------
+!||    intti2f   ../engine/source/interfaces/interf/intti2f.F
+!||====================================================================
       SUBROUTINE I2FOR10(A       ,MS      ,STIFN   ,WEIGHT  ,IRECT   ,
      2                   NSV     ,MSR     ,IRTL    ,IRUPT   ,CRST    ,
      3                   FSM     ,NSN     ,CSTS_BIS)
@@ -44,11 +43,7 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -92,7 +87,7 @@ C        Additional shape functions for distribution of mass / inertia - to avoi
           H2(4)=TP*SM       
 c
           IF (IRUPT(II) == 0) THEN
-C---------- pas de rupture                   
+Cno failure
 c
             XMSI= MS(I)*W
             STFN= STIFN(I)*W
@@ -115,7 +110,7 @@ c
               A(3,I)  =ZERO
             ENDIF
           ELSEIF (IRUPT(II) == -1) THEN
-C---------- rupture partielle  
+C---------- partial rupture  
 C
             FXI = FSM(1,II)  
             FYI = FSM(2,II)  
@@ -140,12 +135,11 @@ C-----------
       END SUBROUTINE I2FOR10
 C
 C
-Chd|====================================================================
-Chd|  I2MOM10                       source/interfaces/interf/i2for10.F
-Chd|-- called by -----------
-Chd|        INTTI2F                       source/interfaces/interf/intti2f.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2mom10   ../engine/source/interfaces/interf/i2for10.F
+!||--- called by ------------------------------------------------------
+!||    intti2f   ../engine/source/interfaces/interf/intti2f.F
+!||====================================================================
       SUBROUTINE I2MOM10(NSN    ,NMN    ,AR     ,IRECT   ,CRST    , 
      2                   MSR    ,NSV    ,IRTL   ,IN      ,MS      , 
      3                   A      ,X      ,WEIGHT ,STIFR   ,STIFN   ,
@@ -166,29 +160,17 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, II, L, JJ, W
 C     REAL
       my_real
-     .   H(4),S,T,XMSI,FXI,FYI,FZI,MXI,MYI,MZI,INS,AA,
+     .   H(4),S,T,FXI,FYI,FZI,MXI,MYI,MZI,INS,AA,
      .   X0,X1,X2,X3,X4,Y0,Y1,Y2,Y3,Y4,Z0,Z1,Z2,Z3,Z4,
      .   XC0,YC0,ZC0,SP,SM,TP,TM,XC,YC,ZC,
      .   STF,H2(4)
 C=======================================================================
-      IF (IMACH == 3) THEN
-        CONTINUE
-      ELSE
-#include "vectorize.inc"
-        DO II=1,NMN
-          I=MSR(II)
-          IN(I)=MAX(EM20,IN(I))
-        ENDDO
-      ENDIF
-C
       DO II=1,NSN
         IF (IRUPT(II) == 0) THEN
           I = NSV(II)

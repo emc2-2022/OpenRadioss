@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I11DSTK3                      source/interfaces/int11/i11dstk3.F
-Chd|-- called by -----------
-Chd|        I11FKU3                       source/interfaces/int11/i11ke3.F
-Chd|        I11KE3                        source/interfaces/int11/i11ke3.F
-Chd|        IMP_I11MAINF                  source/interfaces/int11/i11ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i11dstk3       ../engine/source/interfaces/int11/i11dstk3.F
+!||--- called by ------------------------------------------------------
+!||    i11fku3        ../engine/source/interfaces/int11/i11ke3.F
+!||    i11ke3         ../engine/source/interfaces/int11/i11ke3.F
+!||    imp_i11mainf   ../engine/source/interfaces/int11/i11ke3.F
+!||====================================================================
       SUBROUTINE I11DSTK3(
      1   JLT    ,CAND_S,CAND_M,H1S   ,H2S   ,
      2   H1M    ,H2M   ,NX    ,NY    ,NZ    ,
@@ -60,9 +59,6 @@ C-----------------------------------------------
      .     VYS1(*) ,VYS2(*) ,VZS1(*) ,VZS2(*) ,VXM1(*),
      .     VXM2(*) ,VYM1(*) ,VYM2(*) ,VZM1(*) ,VZM2(*),
      .     MS1(*) ,MS2(*) ,MM1(*) ,MM2(*), GAPV(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -145,18 +141,18 @@ C
 C
        XS2 = MAX(XS2,EM20)
        XM2 = MAX(XM2,EM20)
-       IF(H1M(I).LT.ZERO)THEN
+       IF(H1M(I)<ZERO)THEN
          H1M(I) = ZERO
          H1S(I) = -XA / XS2
-       ELSEIF(H1M(I).GT.ONE)THEN
+       ELSEIF(H1M(I)>ONE)THEN
          H1M(I) = ONE
          H1S(I) = -(XA + XSM) / XS2
        ENDIF
 C
-       IF(H1S(I).LT.ZERO)THEN
+       IF(H1S(I)<ZERO)THEN
          H1S(I) = ZERO
          H1M(I) = -XB / XM2
-       ELSEIF(H1S(I).GT.ONE)THEN
+       ELSEIF(H1S(I)>ONE)THEN
          H1S(I) = ONE
          H1M(I) = -(XB + XSM) / XM2
        ENDIF
@@ -167,7 +163,7 @@ C
        H2S(I) = ONE -H1S(I)
        H2M(I) = ONE -H1M(I)
 C !!!!!!!!!!!!!!!!!!!!!!!
-C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 C!!!!!!!!!!!!!!!!!!!!!!!!
        NX(I) = H1S(I)*XXS1(I) + H2S(I)*XXS2(I)
      .       - H1M(I)*XXM1(I) - H2M(I)*XXM2(I)
@@ -180,12 +176,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I11DSTR3                      source/interfaces/int11/i11dstk3.F
-Chd|-- called by -----------
-Chd|        IMP_I11MAINF                  source/interfaces/int11/i11ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i11dstr3       ../engine/source/interfaces/int11/i11dstk3.F
+!||--- called by ------------------------------------------------------
+!||    imp_i11mainf   ../engine/source/interfaces/int11/i11ke3.F
+!||====================================================================
       SUBROUTINE I11DSTR3(
      1                    JLT    ,CAND_S,CAND_M,STIF   ,GAPV   ,
      2                     NX    ,NY    ,NZ    ,JLT_NEW)
@@ -197,8 +192,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -207,9 +200,6 @@ C-----------------------------------------------
       my_real
      .     NX(*),NY(*),NZ(*),STIF(*), GAPV(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I
@@ -217,15 +207,13 @@ C-----------------------------------------------
      .     PENE2(MVSIZ),GAP2,FAC
 C--------------------------------------------------------
        FAC = ZEP97*ZEP97
-Ctmp       FAC = (ONE +HALF)*(ONE +HALF)
       DO I=1,JLT
        GAP2 = FAC*GAPV(I)*GAPV(I)
        PENE2(I) = GAP2 - NX(I)*NX(I) - NY(I)*NY(I) - NZ(I)*NZ(I)
        PENE2(I) = MAX(ZERO,PENE2(I)) 
       ENDDO
-#include  "vectorize.inc"
       DO I=1,JLT
-        IF(PENE2(I).NE.ZERO.AND.STIF(I).NE.ZERO)THEN
+        IF(PENE2(I)/=ZERO.AND.STIF(I)/=ZERO)THEN
           JLT_NEW = JLT_NEW + 1
           CAND_S(JLT_NEW) = CAND_S(I)
           CAND_M(JLT_NEW) = CAND_M(I)

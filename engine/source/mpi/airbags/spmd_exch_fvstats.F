@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_EXCH_FVSTATS             source/mpi/airbags/spmd_exch_fvstats.F
-Chd|-- called by -----------
-Chd|        ECRIT                         source/output/ecrit.F         
-Chd|-- calls ---------------
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_exch_fvstats   ../engine/source/mpi/airbags/spmd_exch_fvstats.F
+!||--- called by ------------------------------------------------------
+!||    ecrit               ../engine/source/output/ecrit.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod           ../engine/share/modules/fvbag_mod.F
+!||    spmd_mod            ../engine/source/mpi/spmd_mod.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_FVSTATS(MONVOL)                           
 C-----------------------------------------------
 C   M o d u l e s 
 C-----------------------------------------------
       USE FVBAG_MOD
+      USE SPMD_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -39,9 +42,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -66,10 +67,10 @@ C
       IFV = 0
       DO N=1,NVOLU
          ITYP=MONVOL(K1-1+2)
-         IF (ITYP.EQ.6 .OR. ITYP.EQ.8) THEN
+         IF (ITYP==6 .OR. ITYP==8) THEN
            IFV = IFV + 1
            ID=MONVOL(K1-1+1)
-           IF((FVSPMD(IFV)%PMAIN-1 .EQ. ISPMD) .OR. (NSPMD .EQ. 1)) THEN
+           IF((FVSPMD(IFV)%PMAIN-1 == ISPMD) .OR. (NSPMD == 1)) THEN
              BUFS(1,IFV)=ID                       
              BUFS(2,IFV)=MONVOL(K1-1+49)
              BUFS(3,IFV)=MONVOL(K1-1+70)
@@ -98,7 +99,7 @@ C
         LEN = IFV*6
         CALL MPI_ALLREDUCE(BUFS,BUFR,LEN,
      .                  MPI_INTEGER,MPI_SUM,
-     .                  MPI_COMM_WORLD,IERROR)
+     .                  SPMD_COMM_WORLD,IERROR)
       ENDIF
 
 
@@ -110,7 +111,7 @@ C
         IFV = 0
         DO N=1,NVOLU
            ITYP=MONVOL(K1-1+2)
-           IF (ITYP.EQ.6 .OR. ITYP.EQ.8) THEN
+           IF (ITYP==6 .OR. ITYP==8) THEN
              IFV = IFV + 1
              MONVOL(K1-1+1)  = BUFR(1,IFV)
              MONVOL(K1-1+49) = BUFR(2,IFV)

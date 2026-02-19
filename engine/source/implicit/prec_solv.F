@@ -1,39 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-#ifdef MUMPS5
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C---------------------solves [L][D][L]^t{z}={v}--DIAG_M(deja inverse)-----
 C---------------------or  {z}=[Z][D]^-1[Z]^t{v}-----for inverse option IPREC>=6
-Chd|====================================================================
-Chd|  PREC_SOLV                     source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        LIN_SOLV2                     source/implicit/lin_solv.F    
-Chd|        MAV_LT1                       source/implicit/produt_v.F    
-Chd|        PREC0_SOLV                    source/implicit/prec_solv.F   
-Chd|        PRECIC_SOLV                   source/implicit/prec_solv.F   
-Chd|        DSGRAPH_MOD                   share/modules/dsgraph_mod.F   
-Chd|====================================================================
+!||====================================================================
+!||    prec_solv     ../engine/source/implicit/prec_solv.F
+!||--- calls      -----------------------------------------------------
+!||    arret         ../engine/source/system/arret.F
+!||    lin_solv2     ../engine/source/implicit/lin_solv.F
+!||    mav_lt1       ../engine/source/implicit/produt_v.F
+!||    prec0_solv    ../engine/source/implicit/prec_solv.F
+!||    precic_solv   ../engine/source/implicit/prec_solv.F
+!||--- uses       -----------------------------------------------------
+!||    dsgraph_mod   ../engine/share/modules/dsgraph_mod.F
+!||====================================================================
       SUBROUTINE PREC_SOLV(IPREC,
      1                    IADK  ,JDIK  ,DIAG_K,LT_K  ,ITASK  ,
      2                    GRAPHE,ITAB  ,INSOLV,IT    ,FAC_K  ,
@@ -49,11 +48,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL  ,NNZ   ,IADM(*) ,JDIM(*),IPREC,ITASK,IPRINT
@@ -65,12 +59,13 @@ C     REAL
       my_real
      .  DIAG_K(*),LT_K(*),FAC_K(*)
       TYPE(PRGRAPH) :: GRAPHE(*)
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 c     iprec=1 => [I] 
 c     iprec=2 => jacobien NNZ=0
-c     iprec=3 => I.C.(0) :[LT_M]-->strict upper triangle [L]^t en c.r.s.
+c     IPREC = 3 => I.C. (0): [LT_M]-> Strict upper triangle [l]^t'a c.r.s.
 c     iprec=4 => I.C.(0)_Stab :item
 c     iprec=5 => fsai .r same indice than [K]
 c     iprec=12 => I.C.(J) :[LT_M]-->strict upper triangle [L]^t en c.r.s.
@@ -84,8 +79,8 @@ C-----------------------------
       my_real
      .        RBID
 C-----------------------------
-      IF (IPREC.EQ.1) THEN
-       IF (ISOLV.GT.2) THEN
+      IF (IPREC==1) THEN
+       IF (ISOLV>2) THEN
         NI0= 0
         NNZK = IADK(NDDL+1)-IADK(1)
 #ifdef MUMPS5
@@ -106,19 +101,19 @@ C-----------------------------
          Z(I)=V(I)
         ENDDO
        ENDIF
-      ELSEIF (IPREC.EQ.5) THEN
+      ELSEIF (IPREC==5) THEN
        CALL PRECIC_SOLV(NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      1                  LT_M  ,V     ,Z     ) 
-      ELSEIF (IPREC.EQ.14) THEN
+      ELSEIF (IPREC==14) THEN
        CALL PRECIC_SOLV(NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      1                  LT_M  ,V     ,Z     ) 
-      ELSEIF (IPREC.EQ.15) THEN
+      ELSEIF (IPREC==15) THEN
        CALL PRECIC_SOLV(NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      1                  LT_M  ,V     ,Z     )
-      ELSEIF (IPREC.GE.16.AND.IPREC.LE.19) THEN
+      ELSEIF (IPREC>=16.AND.IPREC<=19) THEN
        CALL MAV_LT1( NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      2               LT_M  ,V     ,Z     )
-      ELSEIF (IPREC.GE.20.AND.IPREC.LE.23) THEN
+      ELSEIF (IPREC>=20.AND.IPREC<=23) THEN
        CALL PRECIC_SOLV(NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      1                  LT_M  ,V     ,Z     ) 
       ELSE 
@@ -127,19 +122,21 @@ C-----------------------------
       ENDIF
 C--------------------------------------------
       RETURN
+#endif
       END
 C-----------spmd----------solves [L][D][L]^t{z}={v}--DIAG_M(deja inverse)-----
-Chd|====================================================================
-Chd|  PREC_SOLVP                    source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|        IMP_LANZP                     source/implicit/imp_lanz.F    
-Chd|-- calls ---------------
-Chd|        LIN_SOLVP2                    source/implicit/lin_solv.F    
-Chd|        PREC0_SOLV                    source/implicit/prec_solv.F   
-Chd|        PRECIC_SOLV                   source/implicit/prec_solv.F   
-Chd|        SPMD_SUMF_V                   source/mpi/implicit/imp_spmd.F
-Chd|        DSGRAPH_MOD                   share/modules/dsgraph_mod.F   
-Chd|====================================================================
+!||====================================================================
+!||    prec_solvp    ../engine/source/implicit/prec_solv.F
+!||--- called by ------------------------------------------------------
+!||    imp_lanzp     ../engine/source/implicit/imp_lanz.F
+!||--- calls      -----------------------------------------------------
+!||    lin_solvp2    ../engine/source/implicit/lin_solv.F
+!||    prec0_solv    ../engine/source/implicit/prec_solv.F
+!||    precic_solv   ../engine/source/implicit/prec_solv.F
+!||    spmd_sumf_v   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    dsgraph_mod   ../engine/share/modules/dsgraph_mod.F
+!||====================================================================
       SUBROUTINE PREC_SOLVP(IPREC, ITASK   ,
      1                      GRAPHE,IAD_ELEM,FR_ELEM,DIAG_K,LT_K   , 
      2                      IADK  ,JDIK    ,ITAB   ,IPRINT,INSOLV , 
@@ -156,11 +153,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "dmumps_struc.h"
+#if defined(MUMPS5)
+#include "dmumps_struc.h"
+#endif
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -169,13 +166,18 @@ C-----------------------------------------------
      .        ITAB(*), IPRINT, 
      .        INSOLV, IT, IPIV_K(*), NK, CDDLP(*), ISOLV, IDSC,
      .        IDDL(*), IKC(*), INLOC(*), NDOF(*)
-C     REAL
-      my_real
-     .  DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
-      my_real
-     .        DIAG_K(*), LT_K(*),FAC_K(*)
+      my_real DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
+      my_real DIAG_K(*), LT_K(*),FAC_K(*)
       TYPE(PRGRAPH) :: GRAPHE(*)
+C
+#ifdef MUMPS5
       TYPE(DMUMPS_STRUC) MUMPS_PAR
+#else
+      ! Fake declaration as DMUMPS_STRUC is shipped with MUMPS
+      INTEGER MUMPS_PAR 
+#endif
+
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -187,8 +189,8 @@ C-----------------------------
       my_real
      .        RBID
 C-----------------------------
-      IF (IPREC.EQ.1) THEN
-       IF (ISOLV.GT.2) THEN
+      IF (IPREC==1) THEN
+       IF (ISOLV>2) THEN
         NI0= 0
 #ifdef MUMPS5
           CALL LIN_SOLVP2(GRAPHE, V     , NDDL , IAD_ELEM , FR_ELEM,
@@ -208,7 +210,7 @@ C-----------------------------
          Z(I)=V(I)
         ENDDO
        ENDIF 
-      ELSEIF (IPREC.EQ.5) THEN
+      ELSEIF (IPREC==5) THEN
        CALL PRECIC_SOLV(NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      1                  LT_M  ,V     ,Z     ) 
        CALL SPMD_SUMF_V(Z)
@@ -220,17 +222,17 @@ C-----------------------------
 C
 C--------------------------------------------
       RETURN
+#endif
       END
 C---------------------solves [L][D][L]^t{z}={v}--DIAG_M(deja inverse)-----
-Chd|====================================================================
-Chd|  PREC0_SOLV                    source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|        IMP_FSAI                      source/implicit/imp_fsa_inv.F 
-Chd|        PREC_SOLV                     source/implicit/prec_solv.F   
-Chd|        PREC_SOLVH                    source/implicit/prec_solv.F   
-Chd|        PREC_SOLVP                    source/implicit/prec_solv.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prec0_solv   ../engine/source/implicit/prec_solv.F
+!||--- called by ------------------------------------------------------
+!||    imp_fsai     ../engine/source/implicit/imp_fsa_inv.F
+!||    prec_solv    ../engine/source/implicit/prec_solv.F
+!||    prec_solvh   ../engine/source/implicit/prec_solv.F
+!||    prec_solvp   ../engine/source/implicit/prec_solv.F
+!||====================================================================
       SUBROUTINE PREC0_SOLV(
      1                    NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      2                    LT_M  ,V     ,Z     )
@@ -239,17 +241,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL  ,NNZ   ,IADM(*)  ,JDIM(*)
 C     REAL
       my_real
      .  DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -259,7 +257,7 @@ C-----------------------------
       DO I=1,NDDL
        Z(I)=V(I)
       ENDDO
-      IF (NNZ.GT.0) THEN
+      IF (NNZ>0) THEN
 C --------Forword---[LT_M]^t[D]{z}={v}----
        DO I=1,NDDL
         DO J =IADM(I),IADM(I+1)-1
@@ -282,13 +280,12 @@ C --------Backword----[LT_M]{z}={v}---
       ENDIF
 C--------------------------------------------
       RETURN
+#endif
       END
 C-------------solves  {z}=[Z][D]^-1[Z]^t{v}-----
-Chd|====================================================================
-Chd|  PRECIR_SOLV                   source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    precir_solv   ../engine/source/implicit/prec_solv.F
+!||====================================================================
       SUBROUTINE PRECIR_SOLV(
      1                    NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      2                    LT_M  ,V     ,Z     )
@@ -297,17 +294,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL  ,NNZ   ,IADM(*)  ,JDIM(*),IPREC
 C     REAL
       my_real
      .  DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -315,7 +308,7 @@ C-----------------------------------------------
       my_real
      .  TMP(NDDL) 
 C--[LT_M]-->[Z]^t strict lower triangle c.c.s.(= transpose of strict upper tria c.r.s.)--- 
-C--------- tmp est utilisee pour la raison //-------- 
+C--------- tmp is used for the reason //--------
        DO I=1,NDDL
         Z(I) = V(I)
        ENDDO
@@ -340,15 +333,15 @@ C --------[Z]{z}-------
        ENDDO
 C--------------------------------------------
       RETURN
+#endif
       END
 C-------------solves  {z}=[Z][D]^-1[Z]^t{v}----[Z] en colonne-
-Chd|====================================================================
-Chd|  PRECIC_SOLV                   source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|        PREC_SOLV                     source/implicit/prec_solv.F   
-Chd|        PREC_SOLVP                    source/implicit/prec_solv.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    precic_solv   ../engine/source/implicit/prec_solv.F
+!||--- called by ------------------------------------------------------
+!||    prec_solv     ../engine/source/implicit/prec_solv.F
+!||    prec_solvp    ../engine/source/implicit/prec_solv.F
+!||====================================================================
       SUBROUTINE PRECIC_SOLV(
      1                    NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      2                    LT_M  ,V     ,Z     )
@@ -357,17 +350,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL  ,NNZ   ,IADM(*)  ,JDIM(*),IPREC
 C     REAL
       my_real
      .  DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -375,7 +364,7 @@ C-----------------------------------------------
       my_real
      .  TMP(NDDL) 
 C--[LT_M]-->[Z]^t strict lower triangle c.r.s.(= transpose of strict upper tria c.c.s.)--- 
-C--------- tmp est utilisee pour la raison //-------- 
+C--------- tmp is used for the reason //--------
 C-----------------------------
        DO I=1,NDDL
         Z(I) = V(I)
@@ -401,14 +390,14 @@ C --------{z}=[Z]{z}-------
        ENDDO
 C--------------------------------------------
       RETURN
+#endif
       END
 C------------hibrid version-solves  {z}=[Z][D]^-1[Z]^t{v}----[Z] en colonne-
-Chd|====================================================================
-Chd|  PREC5H_SOLV                   source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|====================================================================
+!||====================================================================
+!||    prec5h_solv   ../engine/source/implicit/prec_solv.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier    ../engine/source/system/machine.F
+!||====================================================================
       SUBROUTINE PREC5H_SOLV(
      1                    NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      2                    LT_M  ,V     ,Z     ,F_DDL ,L_DDL  )
@@ -418,17 +407,13 @@ C-----------------------------------------------
 #include "implicit_f.inc"
 #include "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL  ,NNZ   ,IADM(*)  ,JDIM(*),F_DDL ,L_DDL
 C     REAL
       my_real
      .  DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -436,7 +421,7 @@ C-----------------------------------------------
       my_real
      .  TMP(NDDL) 
 C--[LT_M]-->[Z]^t strict lower triangle c.r.s.(= transpose of strict upper tria c.c.s.)--- 
-C--------- tmp est utilisee pour la raison //-------- 
+C--------- tmp is used for the reason //--------
 C-----------------------------
        DO I=F_DDL ,L_DDL
         Z(I) = V(I)
@@ -473,17 +458,19 @@ C---------------------
 #include "lockoff.inc"
 C--------------------------------------------
       RETURN
+#endif
       END
 C------------hibrid version-solves  {z}=[Z][D]^-1[Z]^t{v}----[Z] en colonne-
-Chd|====================================================================
-Chd|  PREC5HC_SOLV                  source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|        PREC_SOLVGH                   source/implicit/prec_solv.F   
-Chd|        PREC_SOLVH                    source/implicit/prec_solv.F   
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        IMP_WORKH                     share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    prec5hc_solv   ../engine/source/implicit/prec_solv.F
+!||--- called by ------------------------------------------------------
+!||    prec_solvgh    ../engine/source/implicit/prec_solv.F
+!||    prec_solvh     ../engine/source/implicit/prec_solv.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier     ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    imp_workh      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE PREC5HC_SOLV(
      1                    NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      2                    LT_M  ,V     ,Z     ,F_DDL ,L_DDL  )
@@ -496,17 +483,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL  ,NNZ   ,IADM(*)  ,JDIM(*),F_DDL ,L_DDL
 C     REAL
       my_real
      .  DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -547,14 +530,14 @@ C --------{z}=[Z]{z}-------
        ENDDO
 C--------------------------------------------
       RETURN
+#endif
       END
-Chd|====================================================================
-Chd|  PREC2H_SOLV                   source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|        PREC_SOLVGH                   source/implicit/prec_solv.F   
-Chd|        PREC_SOLVH                    source/implicit/prec_solv.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prec2h_solv   ../engine/source/implicit/prec_solv.F
+!||--- called by ------------------------------------------------------
+!||    prec_solvgh   ../engine/source/implicit/prec_solv.F
+!||    prec_solvh    ../engine/source/implicit/prec_solv.F
+!||====================================================================
       SUBROUTINE PREC2H_SOLV(
      1                      F_DDL ,L_DDL ,DIAG_M ,V     ,Z    )
 C-----------------------------------------------
@@ -562,17 +545,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  F_DDL ,L_DDL  
 C     REAL
       my_real
      .  DIAG_M(*), Z(*) ,V(*) 
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -582,24 +561,24 @@ C-----------------------------------------------
        ENDDO
 C--------------------------------------------
       RETURN
+#endif
       END
 C-----------spmd----------solves [L][D][L]^t{z}={v}--DIAG_M(deja inverse)-----
-Chd|====================================================================
-Chd|  PREC_SOLVH                    source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|        IMP_PCGH                      source/implicit/imp_pcg.F     
-Chd|-- calls ---------------
-Chd|        LIN_SOLV2                     source/implicit/lin_solv.F    
-Chd|        LIN_SOLVP2                    source/implicit/lin_solv.F    
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        PREC0_SOLV                    source/implicit/prec_solv.F   
-Chd|        PREC2H_SOLV                   source/implicit/prec_solv.F   
-Chd|        PREC5HC_SOLV                  source/implicit/prec_solv.F   
-Chd|        SPMD_SUMF_V                   source/mpi/implicit/imp_spmd.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        DSGRAPH_MOD                   share/modules/dsgraph_mod.F   
-Chd|====================================================================
+!||====================================================================
+!||    prec_solvh     ../engine/source/implicit/prec_solv.F
+!||--- called by ------------------------------------------------------
+!||    imp_pcgh       ../engine/source/implicit/imp_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    lin_solv2      ../engine/source/implicit/lin_solv.F
+!||    lin_solvp2     ../engine/source/implicit/lin_solv.F
+!||    my_barrier     ../engine/source/system/machine.F
+!||    prec0_solv     ../engine/source/implicit/prec_solv.F
+!||    prec2h_solv    ../engine/source/implicit/prec_solv.F
+!||    prec5hc_solv   ../engine/source/implicit/prec_solv.F
+!||    spmd_sumf_v    ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    dsgraph_mod    ../engine/share/modules/dsgraph_mod.F
+!||====================================================================
       SUBROUTINE PREC_SOLVH(IPREC, ITASK   ,
      1                      GRAPHE,IAD_ELEM,FR_ELEM,DIAG_K,LT_K   , 
      2                      IADK  ,JDIK    ,ITAB   ,IPRINT,INSOLV , 
@@ -617,13 +596,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "dmumps_struc.h"
-#include      "com01_c.inc"
-#include      "timeri_c.inc"
+#if defined(MUMPS5)
+#include "dmumps_struc.h"
+#endif
+#include "timeri_c.inc"
+#include "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -632,13 +611,18 @@ C-----------------------------------------------
      .        ITAB(*), IPRINT, 
      .        INSOLV, IT, IPIV_K(*), NK, CDDLP(*), ISOLV, IDSC,
      .        IDDL(*), IKC(*), INLOC(*), NDOF(*),F_DDL  ,L_DDL
-C     REAL
-      my_real
-     .  DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
-      my_real
-     .        DIAG_K(*), LT_K(*),FAC_K(*)
+      my_real DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
+      my_real DIAG_K(*), LT_K(*),FAC_K(*)
       TYPE(PRGRAPH) :: GRAPHE(*)
+C
+#ifdef MUMPS5
       TYPE(DMUMPS_STRUC) MUMPS_PAR
+#else
+      ! Fake declaration as DMUMPS_STRUC is shipped with MUMPS
+      INTEGER MUMPS_PAR 
+#endif
+
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -647,14 +631,13 @@ c     iprec=2 => jacobien NNZ=0
 c     iprec=5 => fsai .r same indice than [K]
 C-----------------------------
       INTEGER I,J,K,IBID,NI0,NNZK
-      my_real
-     .        RBID
+      my_real RBID
 C-----------------------------
-      IF (IPREC.EQ.1) THEN
-       IF (ISOLV.GT.2.AND.ISOLV.LT.7) THEN
+      IF (IPREC==1) THEN
+       IF (ISOLV>2.AND.ISOLV<7) THEN
 #ifdef MUMPS5
-        IF (ITASK.EQ.0) THEN
-         IF (NSPMD.GT.1) THEN
+        IF (ITASK==0) THEN
+         IF (NSPMD>1) THEN
 
           NI0= 0
           CALL LIN_SOLVP2(GRAPHE, V     , NDDL , IAD_ELEM , FR_ELEM,
@@ -674,7 +657,7 @@ C-----------------------------
      4                    ISOLV ,IBID  ,GRAPHE,ITAB  ,INSOLV ,
      5                    IT    ,FAC_K ,IPIV_K,NK    ,RBID   ,
      6                    IDSC  )
-         END IF !(NSPMD.GT.1) THEN
+         END IF !(NSPMD>1) THEN
         END IF 
 #else
       WRITE(6,*) "Fatal error: MUMPS required"
@@ -689,64 +672,56 @@ C---------------------
          Z(I)=V(I)
         ENDDO
        ENDIF 
-      ELSEIF (IPREC.EQ.2) THEN
+      ELSEIF (IPREC==2) THEN
        CALL PREC2H_SOLV(
      1                  F_DDL ,L_DDL ,DIAG_M ,V     ,Z     )
-      ELSEIF (IPREC.EQ.5) THEN
+      ELSEIF (IPREC==5) THEN
        CALL PREC5HC_SOLV(NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      1                   LT_M  ,V     ,Z     ,F_DDL ,L_DDL ) 
       ELSE 
-       IF (ITASK.EQ.0) THEN
+       IF (ITASK==0) THEN
         CALL PREC0_SOLV(NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      1                 LT_M  ,V     ,Z     )
        ENDIF 
       ENDIF
 C
-      IF (IPREC.GT.1) THEN
+      IF (IPREC>1) THEN
 C----------------------
       CALL MY_BARRIER
-       IF (ITASK.EQ.0.AND.NSPMD.GT.1) THEN
-         IF(IMONM > 0) CALL STARTIME(66,1)
+       IF (ITASK==0.AND.NSPMD>1) THEN
          CALL SPMD_SUMF_V(Z)
-         IF(IMONM > 0) CALL STOPTIME(66,1)
        END IF
       ENDIF
 C--------------------------------------------
       RETURN
+#endif
       END
-Chd|====================================================================
-Chd|  PREC_SOLVGH                   source/implicit/prec_solv.F   
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        PREC2H_SOLV                   source/implicit/prec_solv.F   
-Chd|        PREC5HC_SOLV                  source/implicit/prec_solv.F   
-Chd|        SPMD_SUMF_V                   source/mpi/implicit/imp_spmd.F
-Chd|====================================================================
+!||====================================================================
+!||    prec_solvgh    ../engine/source/implicit/prec_solv.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier     ../engine/source/system/machine.F
+!||    prec2h_solv    ../engine/source/implicit/prec_solv.F
+!||    prec5hc_solv   ../engine/source/implicit/prec_solv.F
+!||    spmd_sumf_v    ../engine/source/mpi/implicit/imp_spmd.F
+!||====================================================================
       SUBROUTINE PREC_SOLVGH(IPREC, ITASK   ,NDDL  ,IADM  ,JDIM   ,
      6                      DIAG_M , LT_M  ,V     ,Z      ,F_DDL  ,
      7                      L_DDL  )
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
+#include "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NDDL  ,IADM(*)  ,JDIM(*),IPREC, ITASK,
      .         F_DDL  ,L_DDL
-C     REAL
-      my_real
-     .  DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
+      my_real DIAG_M(*), Z(*), LT_M(*)  ,V(*) 
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -755,29 +730,28 @@ c     iprec=2 => jacobien NNZ=0
 c     iprec=5 => fsai .r same indice than [K]
 C-----------------------------
       INTEGER I,J,K,IBID,NI0,NNZ
-      my_real
-     .        RBID
+      my_real RBID
 C-----------------------------
-      IF (IPREC.EQ.1) THEN
+      IF (IPREC==1) THEN
         DO I = F_DDL  ,L_DDL
          Z(I)=V(I)
         ENDDO
-      ELSEIF (IPREC.EQ.2) THEN
+      ELSEIF (IPREC==2) THEN
        CALL PREC2H_SOLV(
      1                  F_DDL ,L_DDL ,DIAG_M ,V     ,Z     )
-      ELSEIF (IPREC.EQ.5) THEN
+      ELSEIF (IPREC==5) THEN
        NNZ=IADM(NDDL+1)-IADM(1)
        CALL PREC5HC_SOLV(NDDL  ,NNZ   ,IADM  ,JDIM  ,DIAG_M ,   
      1                   LT_M  ,V     ,Z     ,F_DDL ,L_DDL ) 
       ENDIF
 C
-      IF (IPREC.GT.1) THEN
+      IF (IPREC>1) THEN
 C----------------------
       CALL MY_BARRIER
 C---------------------
-       IF (ITASK.EQ.0.AND.NSPMD.GT.1) CALL SPMD_SUMF_V(Z)
+       IF (ITASK==0.AND.NSPMD>1) CALL SPMD_SUMF_V(Z)
       ENDIF
 C--------------------------------------------
       RETURN
-      END
 #endif
+      END

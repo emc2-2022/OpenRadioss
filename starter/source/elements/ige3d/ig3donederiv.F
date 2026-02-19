@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  IG3DONEDERIV                  source/elements/ige3d/ig3donederiv.F
-Chd|-- called by -----------
-Chd|        IG3DINIT3                     source/elements/ige3d/ig3dinit3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        DERSONEBASISFUN               source/elements/ige3d/dersonebasisfun.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ig3donederiv      ../starter/source/elements/ige3d/ig3donederiv.F
+!||--- called by ------------------------------------------------------
+!||    ig3dinit3         ../starter/source/elements/ige3d/ig3dinit3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg            ../starter/source/output/message/message.F
+!||    dersonebasisfun   ../starter/source/elements/ige3d/dersonebasisfun.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod       ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IG3DONEDERIV(
      1 ITEL  ,N     ,XXI   ,YYI   ,
      2 ZZI   ,WWI   ,IDX   ,IDY   ,
@@ -62,9 +63,9 @@ C IDY2        |  1           |  I  |   R  |  ELEMENT LAST INDEX IN KNOT VECTOR I
 C IDZ2        |  1           |  I  |   R  |  ELEMENT LAST INDEX IN KNOT VECTOR IN Z DIRECTION
 C R           |  NCTRL       |  F  |   W  |  ARRAY OF TRIVIATE NURBS BASIS FUNCTION
 C DRDX        |  NCTRL,3     |  F  |   W  |  TRIVIATE NURBS FUNCTION DERIVATIVES IN PARAMETRIC COORDINATES
-C GAUSSX      |  1           |  F  |   R  |  COORDONATES IN DIRECTION X OF GAUSS POINT 
-C GAUSSY      |  1           |  F  |   R  |  COORDONATES IN DIRECTION Y OF GAUSS POINT 
-C GAUSSZ      |  1           |  F  |   R  |  COORDONATES IN DIRECTION Z OF GAUSS POINT 
+C GAUSSX      |  1           |  F  |   R  |  COORDINATES IN DIRECTION X OF GAUSS POINT 
+C GAUSSY      |  1           |  F  |   R  |  COORDINATES IN DIRECTION Y OF GAUSS POINT 
+C GAUSSZ      |  1           |  F  |   R  |  COORDINATES IN DIRECTION Z OF GAUSS POINT 
 C NCTRL       |  1           |  I  |   R  |  NUMBER OF ELEMENT CONTROL POINTS IN CURRENT GROUP
 C PX          |  1           | I  |   R  |  POLYNOMIAL INTERPOLATION DEGREE IN X DIRECTION
 C PY          |  1           | I  |   R  |  POLYNOMIAL INTERPOLATION DEGREE IN Y DIRECTION
@@ -101,7 +102,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NUMLOC, I, J, K, NA, NB, NC
+      INTEGER NUMLOC, I, NA, NB, NC
       my_real
      .  DRDXI(NCTRL,3),SUMTOT, DETDXDXI, FN(NCTRL), 
      .  DNDXI(NCTRL), FM(NCTRL), DMDXI(NCTRL), FL(NCTRL),
@@ -193,7 +194,7 @@ C COMPUTE INVERSE OF GRADIENT (OBTENIR DXIDX)
      .        +DXDXI(1,1)*DXDXI(2,2)*DXDXI(3,3)
      .        -DXDXI(1,2)*DXDXI(2,1)*DXDXI(3,3)
 
-      IF (ABS(DETDXDXI).LT.EM20) THEN
+      IF (ABS(DETDXDXI)<EM20) THEN
         CALL ANCMSG(MSGID=1183,
      .              MSGTYPE=MSGWARNING,
      .              ANMODE=ANINFO,
@@ -233,7 +234,7 @@ C COMPUTE DERIVATES OF BASIS FUNCTIONS WITH RESPECT TO PHYSICAL COORDINATES
         ENDDO
       ENDDO
 
-C DETERMINANT DE LA MATRICE AJMAT (QUI REGROUPE DONC LES TWO JACOBIENS)
+C determinant of the ajmat matrix (which therefore groups the two jacobians)
 
       DETJAC=(AJMAT(1,1)*AJMAT(2,2)*AJMAT(3,3))
      .      +(AJMAT(1,2)*AJMAT(2,3)*AJMAT(3,1))

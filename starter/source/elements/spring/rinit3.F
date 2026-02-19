@@ -1,59 +1,59 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RINIT3                        source/elements/spring/rinit3.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        R1BUF3                        source/elements/spring/r1buf3.F
-Chd|        R23MASS                       source/elements/spring/rmass.F
-Chd|        R2BUF3                        source/elements/spring/r2buf3.F
-Chd|        R3BUF3                        source/elements/spring/r3buf3.F
-Chd|        R4BUF3                        source/elements/spring/r4buf3.F
-Chd|        R4INI                         source/elements/spring/rinit3.F
-Chd|        R8INI                         source/elements/spring/rinit3.F
-Chd|        RINI1U                        source/elements/spring/rinit3.F
-Chd|        RINI2U                        source/elements/spring/rinit3.F
-Chd|        RINI32                        source/properties/spring/hm_read_prop32.F
-Chd|        RINI33                        source/elements/joint/rjoint/rini33.F
-Chd|        RINI35                        source/elements/spring/rini35.F
-Chd|        RINI36                        source/properties/spring/hm_read_prop36.F
-Chd|        RINI3U                        source/elements/spring/rinit3.F
-Chd|        RINI44                        source/elements/spring/rini44.F
-Chd|        RINI45                        source/elements/joint/rjoint/rini45.F
-Chd|        RINI46                        source/elements/spring/rini46.F
-Chd|        RKINI3                        source/elements/spring/rkini3.F
-Chd|        RMAS12                        source/elements/spring/rmas12.F
-Chd|        RMASS                         source/elements/spring/rmass.F
-Chd|        RUINI                         source/elements/spring/rinit3.F
-Chd|        ST_USERLIB_RINIUSER           source/user_interface/dyn_userlib.c
-Chd|        USER_OUTPUT                   source/user_interface/user_output.F
-Chd|        STRR                          source/tools/univ/strr.F      
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rinit3                 ../starter/source/elements/spring/rinit3.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    r1buf3                 ../starter/source/elements/spring/r1buf3.F
+!||    r23mass                ../starter/source/elements/spring/rmass.F
+!||    r2buf3                 ../starter/source/elements/spring/r2buf3.F
+!||    r3buf3                 ../starter/source/elements/spring/r3buf3.F
+!||    r4buf3                 ../starter/source/elements/spring/r4buf3.F
+!||    r4ini                  ../starter/source/elements/spring/rinit3.F
+!||    r8ini                  ../starter/source/elements/spring/rinit3.F
+!||    rini1u                 ../starter/source/elements/spring/rinit3.F
+!||    rini2u                 ../starter/source/elements/spring/rinit3.F
+!||    rini32                 ../starter/source/properties/spring/hm_read_prop32.F
+!||    rini33                 ../starter/source/elements/joint/rjoint/rini33.F
+!||    rini35                 ../starter/source/elements/spring/rini35.F
+!||    rini36                 ../starter/source/properties/spring/hm_read_prop36.F
+!||    rini3u                 ../starter/source/elements/spring/rinit3.F
+!||    rini44                 ../starter/source/elements/spring/rini44.F
+!||    rini45                 ../starter/source/elements/joint/rjoint/rini45.F
+!||    rini46                 ../starter/source/elements/spring/rini46.F
+!||    rkini3                 ../starter/source/elements/spring/rkini3.F
+!||    rmas12                 ../starter/source/elements/spring/rmas12.F
+!||    rmass                  ../starter/source/elements/spring/rmass.F
+!||    ruini                  ../starter/source/elements/spring/rinit3.F
+!||    user_output            ../starter/source/user_interface/user_output.F
+!||--- uses       -----------------------------------------------------
+!||    bpreload_mod           ../starter/share/modules1/bpreload_mod.F
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE RINIT3(ELBUF_STR,
      .                  IXR      ,X        ,GEO      ,XMAS   ,NPC   ,
      .                  PLD      ,XIN      ,SKEW     ,DTELEM ,NEL   ,
@@ -62,12 +62,18 @@ Chd|====================================================================
      .                  INR      ,STIFINT  ,STR      ,IGEO   ,SIGRS ,
      .                  NSIGRS   ,IMERGE2  ,IADMERGE2,MSRT   ,IXR_KJ,
      .                  NOM_OPT  ,STRR     ,PTSPRI   ,IPM    ,PM   ,
-     .                  UPARAM   ,R_SKEW)
+     .                  UPARAM   ,R_SKEW   ,PRELOAD_A,IPRELD ,NPRELOAD_A,
+     .                  IKINE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
       USE MESSAGE_MOD
+      USE SEATBELT_MOD
+      USE BPRELOAD_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE FORMAT_MOD , ONLY : FMT_10I
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -81,17 +87,15 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "vect01_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr03_c.inc"
 #include      "random_c.inc"
-#include      "scr05_c.inc"
 #include      "scr12_c.inc"
 #include      "scr17_c.inc"
 #include      "userlib.inc"
 #include      "scr15_c.inc"
+#include      "kincod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -100,6 +104,8 @@ C-----------------------------------------------
      .        IADMERGE2(NUMNOD+1),IXR_KJ(5,*),PTSPRI(*),
      .        IPM(NPROPMI,*),R_SKEW(*)
       INTEGER NOM_OPT(LNOPT1,*)
+      INTEGER , INTENT (IN)  :: IPRELD,NPRELOAD_A
+      INTEGER , INTENT (IN)  :: IKINE(3*NUMNOD)
 C     REAL
       my_real
      .   X(3,*), GEO(NPROPG,*), XMAS(*), PLD(*), XIN(*),
@@ -109,19 +115,17 @@ C     REAL
      .   PM(NPROPM,*)
 C
       TYPE(ELBUF_STRUCT_), TARGET :: ELBUF_STR
+      TYPE(PREL1D_) , DIMENSION(NPRELOAD_A), TARGET :: PRELOAD_A
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,I2, IGTYP, NDEPAR, NB1, NB2, NB3, NB4, NB5,NB5A,NB5B,
-     .   NB6, NB7, NB8, NB9, NB10, NB11, NB12, NB13, NB14, 
-     .   NB15, NB15A, NB15B, NB15C, NB15D, NB15E, NB16, NBFI,
-     .   NEL4,K,KK,KK1,ITMP,NEL5,
-     .   I1, I0, I3,NEL3,NUVAR,NUPARAM,NFUNC,IADFUN,
-     .   NMAT,IADMAT,NJPID,IADPID,ILENG,NFUND,
+      INTEGER I,J,I2, IGTYP, NDEPAR, 
+     .   K,KK,KK1,ITMP,
+     .   I1, I0, I3,NUVAR,NUPARAM,NFUNC,IADFUN,
+     .   ILENG,NFUND,
      3   UIX(4,MVSIZ),
-     .   NB2A ,NB2B ,NB4A ,NB4B ,NB6A ,NB6B,NB7A,NB7B,NB8A ,NB8B,NB9A, 
-     .    NB9B ,NB10A,NB10B,NB11A,NB11B,NB12A,NB12B,NB13A,NB13B,NB18,
-     .    IMAT,K1,K11,K14,K12,K13,IADBUF,IMASS
+     .   IMAT,K1,K11,K14,K12,K13,IADBUF,IMASS,SLIP,FRA,IH,NKIN,
+     .   KCOND1,KCOND2
 C     REAL
       my_real
      .   DT, DTC, XKM, XCM, XKR, XCR, XM, XINE,  EX, EY, EZ,
@@ -139,16 +143,16 @@ C     REAL
       DATA NSPRG /0/, NSPRG4 /0/, NSPRG8 /0/, NSPRG12 /0/, 
      .     NSPRG13 /0/, NSPRG25 /0/,NSPRG26/0/,NSPRGU /0/, 
      .     NSPRG23 /0/,NSPRG27/0/
-      INTEGER MINIDL, MAXIDL,IPID
+      INTEGER MINIDL, MAXIDL,IPID,IFUNC
       my_real 
-     .     NOISE,BIDON,MAS2
+     .     NOISE,BIDON,MAS2,UNDAMP
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE)::TITR
       CHARACTER OPTION*50
 C
       TYPE(G_BUFEL_),POINTER :: GBUF
       INTEGER II(6)
+      my_real :: DFS(2), DV(2)
 C=======================================================================
       BIDON = ZERO
 C
@@ -237,8 +241,7 @@ C-----------------
             DO K=1,IADMERGE2(ITMP+1) - IADMERGE2(ITMP)
               KK = KK + 1
               IF (KK  ==  10) THEN
-                WRITE (IOUT,FMT=FMT_10I)
-     .         (ITAB(IMERGE2(IADMERGE2(ITMP)+KK1)),KK1=0,KK-1)
+                WRITE (IOUT,FMT=FMT_10I)(ITAB(IMERGE2(IADMERGE2(ITMP)+KK1)),KK1=0,KK-1)
                 KK = 0
               ENDIF
             ENDDO
@@ -322,7 +325,6 @@ c      CALL ANCNTS(IDS, CNT2)
            ILENG = NINT(UPARAM(IADBUF + 2))
            IMASS =  IGEO(4,I0)
            MTN   = IPM(2,IMAT)
-           IF(MTN == 108) IMASS = 2
            IF(MTN == 114) THEN
              IMASS = 1
              LMIN = MAX(UPARAM(IADBUF + 119),UPARAM(IADBUF + 126))
@@ -355,7 +357,7 @@ c      CALL ANCNTS(IDS, CNT2)
      .                   ANMODE=ANINFO_BLIND_1,
      .                   I1=ID,
      .                   C1=TITR,
-     .                   I2=IXR(NIXR,I))
+     .                   I2=IXR(NIXR,J))
           ENDIF
         ELSE
           XL(I)=ONE
@@ -439,7 +441,6 @@ C
             IMASS = IGEO(4,I0)
             MTN   = IPM(2,IMAT)
             UINER(I) = ZERO
-            IF(MTN == 108) IMASS = 2
 C---- For mat law108 skew per element is used if available
             IF ((MTN == 108).AND.( R_SKEW(I+NFT) > 0)) THEN
               GBUF%SKEW_ID(I) = R_SKEW(I+NFT)
@@ -449,7 +450,11 @@ C---- For mat law108 skew of property 23 is used if no skew per element
             ELSEIF (MTN == 114) THEN
 C---- For mat law114 lmin is used for mass setting of element with null length
               IMASS = 1
-              LMIN = MAX(UPARAM(IADBUF + 119),UPARAM(IADBUF + 126))
+              IF (GBUF%RETRACTOR_ID(I) < 0) THEN
+                LMIN = MAX(UPARAM(IADBUF + 119),UPARAM(IADBUF + 126))
+              ELSE
+                LMIN = UPARAM(IADBUF + 119)
+              ENDIF  
               RFAC = UPARAM(IADBUF + 124)
               IXX = UPARAM(IADBUF + 122)
               IYY = UPARAM(IADBUF + 123)
@@ -458,21 +463,36 @@ C---- For mat law114 lmin is used for mass setting of element with null length
 C-              1D material of 2D seatbelt - no need for inertia - mass and inertia given by shell
                 RFAC = ZERO
               ENDIF
-C-            inertia of element is automaically computed acording to moment of inertia area if Young modulus > 0
+C-            inertia of element is automatically computed according to moment of inertia area if Young modulus > 0
               UINER(I) = MAX(EM20,RFAC*MAX((RHO*GEO(1,I0)*LENGTH*LENGTH*LENGTH)/TWELVE + RHO*IYY*LENGTH,RHO*IXX*LENGTH))     
             ENDIF
+C            
             IF(IMASS == 1) THEN
              GBUF%MASS(I) = GEO(1,I0)*LENGTH*RHO
-C
-             IF (LENGTH == ZERO .AND. RHO /= ZERO) THEN
+             IF ((LENGTH == ZERO).AND.(RHO /= ZERO)) THEN
                IPID = IXR(1,I)
+               NKIN  = IKINE(I1)
+               KCOND1 = IRB(NKIN)+IRB2(NKIN)
+               NKIN  = IKINE(I2)
+               KCOND2 = IRB(NKIN)+IRB2(NKIN)          
                CALL FRETITL2(TITR,IGEO(NPROPGI-LTITR+1,I0),LTITR)
-               CALL ANCMSG(MSGID=1664,
-     .                     MSGTYPE=MSGERROR,
-     .                     ANMODE=ANINFO_BLIND_1,
-     .                     I1=ID,
-     .                     C1=TITR,
-     .                     I2=IXR(NIXR,I))
+               IF (MTN == 108) THEN
+C-               imass = 1 (mass per unit lenght) + null length accepted for law108 - only a warning is printed  
+C.               mass checked later in rcheckmass                            
+                 CALL ANCMSG(MSGID=3103,
+     .                       MSGTYPE=MSGWARNING,
+     .                       ANMODE=ANINFO_BLIND_1,
+     .                       I1=ID,
+     .                       C1=TITR,
+     .                       I2=IXR(NIXR,NFT+I))
+               ELSE
+                 CALL ANCMSG(MSGID=1664,
+     .                       MSGTYPE=MSGERROR,
+     .                       ANMODE=ANINFO_BLIND_1,
+     .                       I1=ID,
+     .                       C1=TITR,
+     .                       I2=IXR(NIXR,NFT+I))   
+               ENDIF   
              ENDIF
             ELSEIF(IMASS == 2) THEN
               GBUF%MASS(I) = GEO(1,I0)*RHO
@@ -507,7 +527,7 @@ C
      .            ANMODE=ANINFO_BLIND_2,
      .            PRMOD=MSG_PRINT)
 C------------------------------------------
-C     INITIALISATION DES RIGIDITES NODALES POUR INTERFACES
+C     initialization of nodal rigidities for interfaces
 C------------------------------------------
       IF (I7STIFS /= 0) THEN
         IF (IGTYP == 4 .OR. IGTYP == 12 .OR. IGTYP == 27) THEN
@@ -591,7 +611,7 @@ C----
        IF (INISPRI /= 0) 
      .   CALL R4INI(SIGRS        ,IXR        ,NSIGRS           ,GBUF%EINT       ,GBUF%FOR   ,
      2              GBUF%TOTDEPL ,GBUF%FOREP ,GBUF%DEP_IN_TENS ,GBUF%DEP_IN_COMP,GBUF%LENGTH,
-     3              BIDON        ,BIDON      ,IGTYP            ,PTSPRI   ,GBUF%DEFINI(II(1)),
+     3              DFS , DV,IGTYP            ,PTSPRI   ,GBUF%DEFINI(II(1)),
      4              GBUF%FORINI(II(1)))
       ELSEIF (IGTYP == 26) THEN
         CALL RMASS(IXR         ,GEO  ,XMAS        ,XIN ,PARTSAV     ,
@@ -603,7 +623,7 @@ C----
         IF (INISPRI /= 0) 
      .    CALL R4INI(SIGRS        ,IXR        ,NSIGRS          ,GBUF%EINT       ,GBUF%FOR   ,
      2               GBUF%TOTDEPL ,GBUF%FOREP ,BIDON           ,BIDON           ,GBUF%LENGTH,
-     3               BIDON        ,GBUF%DV    ,IGTYP           ,PTSPRI          ,GBUF%DEFINI,
+     3               DFS ,GBUF%DV    ,IGTYP           ,PTSPRI          ,GBUF%DEFINI,
      4               GBUF%FORINI  )
 c------     
 C=======================================================================
@@ -633,19 +653,18 @@ C----
 C=======================================================================
       ELSEIF (IGTYP == 12) THEN
 C=======================================================================
-         CALL RMAS12 (IXR         ,GEO,XMAS        ,XIN,PARTSAV     ,
+         CALL RMAS12 (IXR         ,GEO,PARTSAV     ,
      2                X           ,V  ,IPART(NFT+1),XL ,MSR(1,NFT+1),
      3                INR(1,NFT+1),MSRT)
         IDS = 457
         CNT1 = 0
         CNT2 = 0
-        CALL R3BUF3(GBUF%OFF,GEO  ,X ,GBUF%LENGTH(II(1)) ,IXR ,GBUF%POSX,
-     .              IGEO    ,ITAB )
+        CALL R3BUF3(GBUF%OFF,GEO  ,X ,GBUF%LENGTH(II(1)) ,IXR ,GBUF%POSX,IGEO    ,ITAB )
         NSPRG = NSPRG + CNT2
         IF (INISPRI /= 0) 
      .    CALL R4INI(SIGRS        ,IXR        ,NSIGRS          ,GBUF%EINT       ,GBUF%FOR   ,
      2               GBUF%TOTDEPL ,GBUF%FOREP ,GBUF%DEP_IN_TENS,GBUF%DEP_IN_TENS,GBUF%LENGTH,
-     3               GBUF%DFS     ,BIDON      ,IGTYP           ,PTSPRI          ,GBUF%DEFINI,
+     3               GBUF%DFS     ,DV,IGTYP           ,PTSPRI          ,GBUF%DEFINI,
      4               GBUF%FORINI  )
 C=======================================================================
       ELSEIF (IGTYP == 13) THEN
@@ -761,7 +780,7 @@ C----
        IF (INISPRI /= 0) 
      .   CALL R4INI(SIGRS        ,IXR        ,NSIGRS           ,GBUF%EINT       ,GBUF%FOR   ,
      2              GBUF%TOTDEPL ,GBUF%FOREP ,GBUF%DEP_IN_TENS ,GBUF%DEP_IN_COMP,GBUF%LENGTH,
-     3              BIDON        ,BIDON      ,IGTYP            ,PTSPRI   ,GBUF%DEFINI(II(1)),
+     3              DFS,DV,IGTYP            ,PTSPRI   ,GBUF%DEFINI(II(1)),
      4              GBUF%FORINI(II(1)))
 C=======================================================================
       ELSEIF (IGTYP == 32 .OR. IGTYP == 33 .OR. IGTYP == 45) THEN
@@ -772,7 +791,7 @@ C=======================================================================
         NUPARAM =  NINT(GEO(26,I0))
         IF (IGTYP == 32) THEN
           CALL RINI32(
-     1                NEL      ,IOUT  ,I0       ,
+     1                NEL      ,I0       ,
      2                UIX      ,UL    ,GBUF%MASS,UINER   ,USTIFM ,
      3                USTIFR   ,UVISM ,UVISR    ,GBUF%VAR,NUVAR  ,ID,TITR,
      4                GBUF%EINT,NPC   ,PLD      )
@@ -820,8 +839,8 @@ C
           STIFR(I1)=STIFR(I1)+XKR
           STIFR(I2)=STIFR(I2)+XKR
           STRR(J)=XKR
-          IF (XCM+XKM.LT.EM15) XM =ONE
-          IF (XCR+XKR.LT.EM15) XINE=ONE
+          IF (XCM+XKM<EM15) XM =ONE
+          IF (XCR+XKR<EM15) XINE=ONE
           XKM= MAX(EM15,XKM)
           XKR= MAX(EM15,XKR)
           DT=(SQRT(XCM*XCM+XM*XKM)-XCM)/XKM
@@ -835,16 +854,16 @@ C
         ENDDO
 C
         CALL RINI2U(
-     1    IXR         ,GBUF%MASS,UINER,XMAS        ,XIN         ,
+     1    IXR         ,GBUF%MASS,UINER,
      2    PARTSAV     ,X        ,V    ,IPART(NFT+1),MSR(1,NFT+1),
      3    INR(1,NFT+1),MSRT     ,EMS  )
         IF (INISPRI /= 0) 
      .    CALL RUINI(
-     2 SIGRS                ,IXR                 ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
+     2 SIGRS                ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
      3 GBUF%FOR(II(2))      ,GBUF%FOR(II(3))     ,GBUF%MOM(II(1))     ,GBUF%MOM(II(2))      ,GBUF%MOM(II(3))      ,
      4 GBUF%V_REPCVT(II(1)) ,GBUF%V_REPCVT(II(2)),GBUF%V_REPCVT(II(3)),GBUF%VR_REPCVT(II(1)),GBUF%VR_REPCVT(II(2)),
-     5 GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT           ,BIDON                ,BIDON                ,
-     6 IGTYP                ,PTSPRI)
+     5 GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT           ,
+     6 PTSPRI)
 C=======================================================================
       ELSEIF (IGTYP == 35 .OR. IGTYP == 36) THEN
 C=======================================================================
@@ -861,7 +880,7 @@ C---
         ELSEIF (IGTYP == 36) THEN
            CALL RINI36(
      1       NEL    ,IOUT  ,I0       ,
-     2       UIX    ,UL    ,GBUF%MASS,UINER   ,USTIFM ,
+     2       UL    ,GBUF%MASS,UINER   ,USTIFM ,
      3       USTIFR ,UVISM ,UVISR    ,GBUF%VAR,NUVAR  )
         ENDIF
 C---
@@ -883,8 +902,8 @@ C---
           STIFR(I1)=STIFR(I1)+XKR
           STIFR(I2)=STIFR(I2)+XKR
           STRR(J)=XKR
-          IF (XCM+XKM.LT.EM15) XM =ONE
-          IF (XCR+XKR.LT.EM15) XINE=ONE
+          IF (XCM+XKM<EM15) XM =ONE
+          IF (XCR+XKR<EM15) XINE=ONE
           XKM= MAX(EM15,XKM)
           XKR= MAX(EM15,XKR)
           DT=(SQRT(XCM*XCM+XM*XKM)-XCM)/XKM
@@ -897,16 +916,16 @@ C---
           DTELEM(NDEPAR+I)= DT
         ENDDO
         CALL RINI2U(
-     1    IXR         ,GBUF%MASS,UINER,XMAS        ,XIN         ,
+     1    IXR         ,GBUF%MASS,UINER,
      2    PARTSAV     ,X        ,V    ,IPART(NFT+1),MSR(1,NFT+1),
      3    INR(1,NFT+1),MSRT     ,EMS  )
         IF (INISPRI /= 0) 
      +    CALL RUINI(
-     2  SIGRS                ,IXR                 ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
+     2  SIGRS                ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
      3  GBUF%FOR(II(2))      ,GBUF%FOR(II(3))     ,GBUF%MOM(II(1))     ,GBUF%MOM(II(2))      ,GBUF%MOM(II(3))      ,
      4  GBUF%V_REPCVT(II(1)) ,GBUF%V_REPCVT(II(2)),GBUF%V_REPCVT(II(3)),GBUF%VR_REPCVT(II(1)),GBUF%VR_REPCVT(II(2)),
-     5  GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT           ,BIDON                ,BIDON                ,
-     6  IGTYP                ,PTSPRI)
+     5  GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT          ,
+     6  PTSPRI)
 C
 C=======================================================================
       ELSEIF (IGTYP > 28 .AND. IGTYP < 43) THEN  ! reserved for user properties
@@ -1062,8 +1081,8 @@ C
           STIFR(I1)=STIFR(I1)+XKR
           STIFR(I2)=STIFR(I2)+XKR
           STRR(J)=XKR
-          IF (XCM+XKM.LT.EM15) XM =ONE
-          IF (XCR+XKR.LT.EM15) XINE=ONE
+          IF (XCM+XKM<EM15) XM =ONE
+          IF (XCR+XKR<EM15) XINE=ONE
           XKM= MAX(EM15,XKM)
           XKR= MAX(EM15,XKR)
           DT=(SQRT(XCM*XCM+XM*XKM)-XCM)/XKM
@@ -1077,16 +1096,16 @@ C
         ENDDO
 C
         CALL RINI2U(
-     1    IXR         ,GBUF%MASS,UINER,XMAS        ,XIN         ,
+     1    IXR         ,GBUF%MASS,UINER,
      2    PARTSAV     ,X        ,V    ,IPART(NFT+1),MSR(1,NFT+1),
      3    INR(1,NFT+1),MSRT     ,EMS  )
         IF (INISPRI /= 0) 
      .    CALL RUINI(
-     2  SIGRS                ,IXR                 ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
+     2  SIGRS                ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
      3  GBUF%FOR(II(2))      ,GBUF%FOR(II(3))     ,GBUF%MOM(II(1))     ,GBUF%MOM(II(2))      ,GBUF%MOM(II(3))      ,
      4  GBUF%V_REPCVT(II(1)) ,GBUF%V_REPCVT(II(2)),GBUF%V_REPCVT(II(3)),GBUF%VR_REPCVT(II(1)),GBUF%VR_REPCVT(II(2)),
-     5  GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT           ,BIDON                ,BIDON                ,
-     6  IGTYP                ,PTSPRI)
+     5  GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT          ,
+     6  PTSPRI)
 C=======================================================================
       ELSEIF (IGTYP == 44) THEN
 C=======================================================================
@@ -1117,8 +1136,8 @@ C
           STIFR(I1)=STIFR(I1)+XKR
           STIFR(I2)=STIFR(I2)+XKR
           STRR(J)=XKR
-          IF(XCM+XKM.LT.EM15)XM =ONE
-          IF(XCR+XKR.LT.EM15)XINE=ONE
+          IF(XCM+XKM<EM15)XM =ONE
+          IF(XCR+XKR<EM15)XINE=ONE
           XKM= MAX(EM15,XKM)
           XKR= MAX(EM15,XKR)
           DT=(SQRT(XCM*XCM+XM*XKM)-XCM)/XKM
@@ -1131,16 +1150,16 @@ C
           DTELEM(NDEPAR+I)= DT
         ENDDO
         CALL RINI2U(
-     1    IXR         ,GBUF%MASS,UINER,XMAS        ,XIN         ,
+     1    IXR         ,GBUF%MASS,UINER,
      2    PARTSAV     ,X        ,V    ,IPART(NFT+1),MSR(1,NFT+1),
      3    INR(1,NFT+1),MSRT     ,EMS  )
         IF (INISPRI /= 0) 
      .    CALL RUINI(
-     2  SIGRS                ,IXR                 ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
+     2  SIGRS                ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
      3  GBUF%FOR(II(2))      ,GBUF%FOR(II(3))     ,GBUF%MOM(II(1))     ,GBUF%MOM(II(2))      ,GBUF%MOM(II(3))      ,
      4  GBUF%V_REPCVT(II(1)) ,GBUF%V_REPCVT(II(2)),GBUF%V_REPCVT(II(3)),GBUF%VR_REPCVT(II(1)),GBUF%VR_REPCVT(II(2)),
-     5  GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT           ,BIDON                ,BIDON                ,
-     6  IGTYP                ,PTSPRI)
+     5  GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT     ,
+     6  PTSPRI)
 C=======================================================================
       ELSEIF (IGTYP == 46) THEN
 C=======================================================================
@@ -1171,8 +1190,8 @@ C
           STIFR(I1)=STIFR(I1)+XKR
           STIFR(I2)=STIFR(I2)+XKR
           STRR(J)=XKR
-          IF (XCM+XKM.LT.EM15) XM =ONE
-          IF (XCR+XKR.LT.EM15) XINE=ONE
+          IF (XCM+XKM<EM15) XM =ONE
+          IF (XCR+XKR<EM15) XINE=ONE
           XKM= MAX(EM15,XKM)
           XKR= MAX(EM15,XKR)
           DT=(SQRT(XCM*XCM+XM*XKM)-XCM)/XKM
@@ -1186,21 +1205,21 @@ C
         ENDDO
 C
         CALL RINI2U(
-     1    IXR         ,GBUF%MASS,UINER,XMAS        ,XIN         ,
+     1    IXR         ,GBUF%MASS,UINER,
      2    PARTSAV     ,X        ,V    ,IPART(NFT+1),MSR(1,NFT+1),
      3    INR(1,NFT+1),MSRT     ,EMS  )
 C
         IF (INISPRI /= 0) 
      .   CALL RUINI(
-     2  SIGRS                ,IXR                 ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
+     2  SIGRS                ,NSIGRS              ,NUVAR                ,GBUF%FOR(II(1))      ,
      3  GBUF%FOR(II(2))      ,GBUF%FOR(II(3))     ,GBUF%MOM(II(1))     ,GBUF%MOM(II(2))      ,GBUF%MOM(II(3))      ,
      4  GBUF%V_REPCVT(II(1)) ,GBUF%V_REPCVT(II(2)),GBUF%V_REPCVT(II(3)),GBUF%VR_REPCVT(II(1)),GBUF%VR_REPCVT(II(2)),
-     5  GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT           ,BIDON                ,BIDON                ,
-     6  IGTYP                ,PTSPRI)
+     5  GBUF%VR_REPCVT(II(3)),GBUF%VAR            ,GBUF%EINT     ,
+     6  PTSPRI)
 C-----
       ENDIF  ! IGTYP
 C------------------------------------------
-C     CALCUL DES DT ELEMENTAIRES & DT Nodal (take into account XCM)
+C     COMPUTATION OF ELEMENT TIME STEPS & Nodal DT (take into account XCM)
 C------------------------------------------
 C
       K1 = 4
@@ -1266,8 +1285,8 @@ C
      .        + MAX(GEO(144,I0),GEO(145,I0),GEO(146,I0)))/XL(I)
           XM=GEO(1,I0)*XL(I)
           XINE=GEO(9,I0)*XL(I)
-          IF (XCM+XKM.LT.EM15) XM =ONE
-          IF (XCR+XKR.LT.EM15) XINE=ONE
+          IF (XCM+XKM<EM15) XM =ONE
+          IF (XCR+XKR<EM15) XINE=ONE
           XKM= MAX(EM15,XKM)
           XKR= MAX(EM15,XKR)
           DT=XM/MAX(EM15,SQRT(XCM*XCM+XKM*XM)+XCM)
@@ -1334,11 +1353,11 @@ C
      .               GEO(23,I0)*GEO(57,I0),
      .               GEO(27,I0)*GEO(61,I0)))/XL(I)
           XCR= (XCR+MAX(GEO(20,I0),GEO(24,I0),GEO(28,I0))
-     .        +   MAX(GEO(144,I0),GEO(145,I0),GEO(146,I0)) )/XL(I)
+     .        +     MAX(GEO(144,I0),GEO(145,I0),GEO(146,I0)) )/XL(I)
           XM=GEO(1,I0)*XL(I)
           XINE=GEO(9,I0)*XL(I)
-          IF (XCM+XKM.LT.EM15) XM =ONE
-          IF (XCR+XKR.LT.EM15) XINE=ONE
+          IF (XCM+XKM<EM15) XM =ONE
+          IF (XCR+XKR<EM15) XINE=ONE
           XKM= MAX(EM15,XKM)
           XKR= MAX(EM15,XKR)
           DT=XM/MAX(EM15,SQRT(XCM*XCM+XKM*XM)+XCM)
@@ -1380,8 +1399,8 @@ C
               ! old Geo 144,145,146 not used.
               XM  = GBUF%MASS(I)*XL(I)
               XINE= GEO(2,I0)*XL(I)
-              IF (XCM+XKM.LT.EM15) XM  =ONE
-              IF (XCR+XKR.LT.EM15) XINE=ONE
+              IF (XCM+XKM<EM15) XM  =ONE
+              IF (XCR+XKR<EM15) XINE=ONE
               XKM= MAX(EM15,XKM)
               XKR= MAX(EM15,XKR)
               DT =XM/MAX(EM15,SQRT(XCM*XCM+XKM*XM)+XCM)
@@ -1406,14 +1425,14 @@ C
      .              MAX(UPARAM(IADBUF + K14 + 2),UPARAM(IADBUF + K14 + 3)))* AL2
               XKR= ( XKR
      .              + MAX(UPARAM(IADBUF + K11 + 4)*UPARAM(IADBUF + K1 + 4),
-     .                   UPARAM(IADBUF + K11 + 5)*UPARAM(IADBUF + K1 + 5),
-     .                   UPARAM(IADBUF + K11 + 6)*UPARAM(IADBUF + K1 + 6)))/XL(I)
-              XCR= (XCR+MAX(UPARAM(IAD + K12 + 1),UPARAM(IADBUF + K12 + 2),UPARAM(IADBUF + K12 + 3))
-     .            +     MAX(UPARAM(IAD + K14 + 4),UPARAM(IADBUF + K14 + 5),UPARAM(IADBUF + K14 + 6)) )/XL(I)
+     .                    UPARAM(IADBUF + K11 + 5)*UPARAM(IADBUF + K1 + 5),
+     .                    UPARAM(IADBUF + K11 + 6)*UPARAM(IADBUF + K1 + 6)))/XL(I)
+              XCR= (XCR+MAX(UPARAM(IADBUF + K12 + 4),UPARAM(IADBUF + K12 + 5),UPARAM(IADBUF + K12 + 6))
+     .            +     MAX(UPARAM(IADBUF + K14 + 4),UPARAM(IADBUF + K14 + 5),UPARAM(IADBUF + K14 + 6)) )/XL(I)
               XM  =GBUF%MASS(I)
               XINE=GEO(2,I0)*XL(I)
-              IF (XCM+XKM.LT.EM15) XM  =ONE
-              IF (XCR+XKR.LT.EM15) XINE=ONE
+              IF (XCM+XKM<EM15) XM  =ONE
+              IF (XCR+XKR<EM15) XINE=ONE
               XKM= MAX(EM15,XKM)
               XKR= MAX(EM15,XKR)
               DT =XM/MAX(EM15,SQRT(XCM*XCM+XKM*XM)+XCM)
@@ -1444,29 +1463,44 @@ C
      .              + MAX(UPARAM(IADBUF + K11 + 4)*UPARAM(IADBUF + K1 + 4),
      .                   UPARAM(IADBUF + K11 + 5)*UPARAM(IADBUF + K1 + 5),
      .                   UPARAM(IADBUF + K11 + 6)*UPARAM(IADBUF + K1 + 6)))/XL(I)
-              XCR= (XCR+MAX(UPARAM(IAD + K12 + 1),UPARAM(IADBUF + K12 + 2),UPARAM(IADBUF + K12 + 3))
-     .            +     MAX(UPARAM(IAD + K14 + 4),UPARAM(IADBUF + K14 + 5),UPARAM(IADBUF + K14 + 6)) )/XL(I)
+              XCR= (XCR+MAX(UPARAM(IADBUF+K12 + 1),UPARAM(IADBUF+ K12 + 2),UPARAM(IADBUF+ K12 + 3))
+     .            +     MAX(UPARAM(IADBUF+K14 + 4),UPARAM(IADBUF+ K14 + 5),UPARAM(IADBUF+ K14 + 6)) )/XL(I)
 C-
               IF (UPARAM(IADBUF + 127) > ZERO) THEN
 C-              1D material of 2D seatbelt - element mass and inertia recomputed for elementary time step
                 RHO = UPARAM(IADBUF+128)
                 XM = RHO*XL(I)*GEO(1,I0)
                 XINE=MAX(EM20,MAX((RHO*GEO(1,I0)*LENGTH*LENGTH*LENGTH)/TWELVE+ RHO*IYY*LENGTH,RHO*IXX*LENGTH))
-                GBUF%MASS(I) = XM
-                GBUF%INTVAR(I) = XINE
+                GBUF%MASS(I) = XM*GBUF%FRAM_FACTOR(I)
+                GBUF%INTVAR(I) = XINE*GBUF%FRAM_FACTOR(I)
                 MAS2 = XM
                 INE2 = XINE
               ELSE
+                GBUF%FRAM_FACTOR(I) = ONE
                 XM  =GBUF%MASS(I)
                 XINE=UINER(I)
                 GBUF%INTVAR(I) = XINE
                 MAS2 = TWO*MSR(1,J)
                 INE2 = TWO*INR(1,J)
               ENDIF
-              GBUF%FRAM_FACTOR(I) = ONE
 C
-              IF (XCM+XKM.LT.EM15) XM  =ONE
-              IF (XCR+XKR.LT.EM15) XINE=ONE
+              IF (GBUF%SLIPRING_STRAND(I) > 0) THEN
+C--------->     Update of third node if seatbelt spring in slipring------------
+                SLIP = GBUF%SLIPRING_ID(I)
+                FRA = GBUF%SLIPRING_FRAM_ID(I)
+                DO KK=1,3
+                  IF ((SLIPRING(SLIP)%FRAM(FRA)%NODE(KK)/=I1).AND.(SLIPRING(SLIP)%FRAM(FRA)%NODE(KK)/=I2)) THEN
+                     IXR(4,J)=SLIPRING(SLIP)%FRAM(FRA)%NODE(KK)
+                  ENDIF
+                ENDDO
+              ELSEIF (GBUF%RETRACTOR_ID(I) < 0) THEN
+C--------->     Deactivation of elements initially in retractor------------
+                GBUF%OFF(I) = ZERO
+                GBUF%RETRACTOR_ID(I) = 0
+              ENDIF
+C
+              IF (XCM+XKM<EM15) XM  =ONE
+              IF (XCR+XKR<EM15) XINE=ONE
               XKM= MAX(EM15,XKM)
               XKR= MAX(EM15,XKR)
               DT =XM/MAX(EM15,SQRT(XCM*XCM+XKM*XM)+XCM)
@@ -1490,6 +1524,48 @@ C
            STIFR(I1)=STIFR(I1)+STI
            STIFR(I2)=STIFR(I2)+STI
            STRR(J)=XKR
+        ELSEIF (IGTYP == 25) THEN
+          EX=X(1,I2)-X(1,I1)
+          EY=X(2,I2)-X(2,I1)
+          EZ=X(3,I2)-X(3,I1)
+          AL2= EX*EX+EY*EY+EZ*EZ
+          XKM= MAX(GEO(3,I0)*GEO(41,I0),
+     .             GEO(10,I0)*GEO(45,I0))/XL(I)
+          XCM= (MAX(GEO(4,I0),GEO(11,I0))
+     .          + MAX(GEO(141,I0),GEO(142,I0)))/XL(I)
+          XKR= GEO(10,I0)*GEO(45,I0)*AL2  
+          XKR= (XKR
+     .          +MAX(GEO(19,I0)*GEO(53,I0),GEO(23,I0)*GEO(57,I0)))/XL(I)
+          XCR= (GEO(11,I0)+GEO(142,I0))*AL2 
+          XCR= (XCR+
+     .          MAX(GEO(141,I0),GEO(142,I0))+MAX(GEO(20,I0),GEO(24,I0))
+     .         +MAX(GEO(143,I0),GEO(144,I0)) )/XL(I)
+          XM=GEO(1,I0)*XL(I)
+          XINE=GEO(9,I0)*XL(I)
+          IF (XCM+XKM<EM15) XM =ONE
+          IF (XCR+XKR<EM15) XINE=ONE
+          XKM= MAX(EM15,XKM)
+          XKR= MAX(EM15,XKR)
+          DT=XM/MAX(EM15,SQRT(XCM*XCM+XKM*XM)+XCM)
+          DTC=XINE/MAX(EM15,SQRT(XCR*XCR+XINE*XKR)+XCR)
+          DTELEM(NDEPAR+I)=MIN(DT,DTC)
+          MAS2 = TWO*MSR(1,J)
+          IF (MAS2>ZERO) THEN
+           STI = (SQRT(XCM**2+XKM*MAS2)+XCM)**2/MAS2
+          ELSE
+           STI = XKM
+          END IF
+          STIFN(I1)=STIFN(I1)+STI
+          STIFN(I2)=STIFN(I2)+STI
+          MAS2 = INR(1,J)
+          IF (MAS2>ZERO) THEN
+            STI = (SQRT(XCR**2+XKR*MAS2)+XCR)**2/MAS2
+          ELSE
+            STI = XKR
+          END IF
+          STIFR(I1)=STIFR(I1)+STI
+          STIFR(I2)=STIFR(I2)+STI
+          STRR(J)=XKR
         ELSEIF (IGTYP == 27) THEN
           XM = GEO(1,I0)*XL(I)
           XKM= GEO(2,I0)*GEO(10,I0)/XL(I)
@@ -1515,29 +1591,86 @@ C
           STIFN(I2)=STIFN(I2)+STI
         END IF 
       ENDDO
-      IDS = 42
-c      CALL ANCHECK(IDS)
-C
-      IDS = 43
-c      CALL ANCHECK(IDS)
-C
-      IDS = 40
-c      CALL ANCHECK(IDS)
-      IDS = 37
-c      CALL ANCHECK(IDS)
+!
+      IF (IPRELD>0) THEN
+        SELECT CASE (IGTYP)
+          CASE(4,13)
+            J=1+NFT
+            I0=IXR(1,J)
+            IH = NINT(GEO(7,I0))
+            IFUNC = IGEO(101,I0)
+            IF (IFUNC==0) IH =0
+            IF (IH==0.OR.IH==8) THEN
+              CALL ANCMSG(MSGID=3057,
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO_BLIND_1,
+     .                  I1=ID,
+     .                  I2=IH,
+     .                  C1=TITR)
+            ELSE
+              DO I=LFT,LLT
+                XM=GEO(1,I0)*XL(I)
+                UNDAMP = XM/DTELEM(NDEPAR+I)
+                GBUF%BPRELD(I)     = PRELOAD_A(IPRELD)%preload
+                GBUF%BPRELD(I+NEL) = UNDAMP*PRELOAD_A(IPRELD)%damp
+              ENDDO
+            END IF 
+          CASE(23)
+            IF (MTN==113) THEN  
+              J=1+NFT
+              I0=IXR(1,J)
+              IMAT   = IXR(5,J)
+              IFUNC = IPM(10 + 1,IMAT)
+              IADBUF = IPM(7,IMAT) - 1
+              IH= NINT(UPARAM(IADBUF + 4 + 12*6 + 1))
+              IF (IFUNC==0) IH =0
+              IF (IH==0.OR.IH==8) THEN
+                CALL ANCMSG(MSGID=3057,
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO_BLIND_1,
+     .                  I1=ID,
+     .                  I2=IH,
+     .                  C1=TITR)
+              ELSE
+               DO I=LFT,LLT
+                XM=GBUF%MASS(I)
+                UNDAMP = XM/DTELEM(NDEPAR+I)
+                GBUF%BPRELD(I)     = PRELOAD_A(IPRELD)%preload
+                GBUF%BPRELD(I+NEL) = UNDAMP*PRELOAD_A(IPRELD)%damp
+               ENDDO
+              END IF ! IH==0.OR.
+            ELSE
+              CALL ANCMSG(MSGID=3053,
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO_BLIND_1,
+     .                  I1=ID,
+     .                  I2=IGTYP,
+     .                  C1=TITR)
+            END IF
+          CASE DEFAULT
+            CALL ANCMSG(MSGID=3053,
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO_BLIND_1,
+     .                  I1=ID,
+     .                  I2=IGTYP,
+     .                  C1=TITR)
+        END SELECT 
+!
+      END IF
 C-----
  1000 FORMAT('LIST OF POSSIBLE CNODES MERGED WITH NODE OF ID=',I10)
 C-----
       RETURN
       END
-Chd|====================================================================
-Chd|  RINI3U                        source/elements/spring/rinit3.F
-Chd|-- called by -----------
-Chd|        RINIT3                        source/elements/spring/rinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rini3u        ../starter/source/elements/spring/rinit3.F
+!||--- called by ------------------------------------------------------
+!||    rinit3        ../starter/source/elements/spring/rinit3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE RINI3U(OFF  ,GEO  ,X     ,X0    ,IX   ,
      .                  SKEW ,RLOC ,ITAB  ,UIX   ,IGEO )
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1565,7 +1698,7 @@ C-----------------------------------------------
       INTEGER I, J, NG, I1, I2, I3, ISK
 C     REAL
       my_real
-     .   X1, Y1, Z1, IDIR
+     .   X1, Y1, Z1
 C-----------------------------------------------
       DO I=LFT,LLT
         OFF(I) = ONE
@@ -1629,14 +1762,15 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RINI1U                        source/elements/spring/rinit3.F
-Chd|-- called by -----------
-Chd|        RINIT3                        source/elements/spring/rinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rini1u        ../starter/source/elements/spring/rinit3.F
+!||--- called by ------------------------------------------------------
+!||    rinit3        ../starter/source/elements/spring/rinit3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE RINI1U(OFF  ,GEO  ,X     ,X0    ,IX   ,
      .                  SKEW ,RLOC ,ITAB  ,UIX   ,IGEO )
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1718,17 +1852,18 @@ C
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  RINI2U                        source/elements/spring/rinit3.F
-Chd|-- called by -----------
-Chd|        RINIT3                        source/elements/spring/rinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE RINI2U(IXR     ,UMASS ,UINER ,MS    ,XIN,
+!||====================================================================
+!||    rini2u        ../starter/source/elements/spring/rinit3.F
+!||--- called by ------------------------------------------------------
+!||    rinit3        ../starter/source/elements/spring/rinit3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE RINI2U(IXR     ,UMASS ,UINER,
      .                  PARTSAV ,X     ,V     ,IPART ,MSR,
      .                  INR     ,MSRT  ,EMS   )
+      use element_mod , only : nixr
 C----------------------------------------------
-C     INITIALISATION DES MASSES NODALES
+C     initialization of nodal masses
 C----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1738,25 +1873,19 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXR(NIXR,*),IPART(*)
-      my_real
-     .   UMASS(*),UINER(*), MS(*), XIN(*),X(3,*),V(3,*),
-     .   PARTSAV(20,*), MSR(3,*), INR(3,*), MSRT(*),EMS(*)
+      my_real :: UMASS(*),UINER(*), X(3,*),V(3,*)
+      my_real :: PARTSAV(20,*), MSR(3,*), INR(3,*), MSRT(*),EMS(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, IP,I1,I2
-C     REAL
-      my_real
-     .   XX,YY,ZZ,XY,YZ,ZX
-      my_real
-     .   XI
+      my_real :: XX,YY,ZZ,XY,YZ,ZX
+      my_real :: XI
 C---------------------------------------------------------------------
 C----------------------------------------------
 C     MASSE ELEMENT /2
@@ -1765,84 +1894,46 @@ C----------------------------------------------
         EMS(I)=HALF*UMASS(I)
       ENDDO
 C----------------------------------------------
-C     INITIALISATION DES MASSES NODALES
+C     initialization of nodal masses
 C----------------------------------------------
-C     traitement specifique spmd pour mass et iner parith/on
-      IF (IMACH /= 3) THEN
-        DO I=LFT,LLT
-          I1 = IXR(2,I+NFT)
-          I2 = IXR(3,I+NFT)
+C     specific spmd treatment for mass and iner parith/on
+      DO I=LFT,LLT
+        I1 = IXR(2,I+NFT)
+        I2 = IXR(3,I+NFT)
 C
-          XI=HALF*UINER(I)
-          MS(I1)=MS(I1)+EMS(I)
-          MS(I2)=MS(I2)+EMS(I)
-          XIN(I1)=XIN(I1)+XI
-          XIN(I2)=XIN(I2)+XI
+        XI=HALF*UINER(I)
+        MSR(1,I)=EMS(I)
+        MSR(2,I)=EMS(I)
+        MSR(3,I)=EMS(I)
+        INR(1,I)=XI
+        INR(2,I)=XI
+        INR(3,I)=XI
 C
-          IP=IPART(I)
-          PARTSAV(1,IP)=PARTSAV(1,IP) + TWO*EMS(I)
-          PARTSAV(2,IP)=PARTSAV(2,IP) + EMS(I)*(X(1,I1)+X(1,I2))
-          PARTSAV(3,IP)=PARTSAV(3,IP) + EMS(I)*(X(2,I1)+X(2,I2))
-          PARTSAV(4,IP)=PARTSAV(4,IP) + EMS(I)*(X(3,I1)+X(3,I2))
-          XX = (X(1,I1)*X(1,I1)+X(1,I2)*X(1,I2))
-          XY = (X(1,I1)*X(2,I1)+X(1,I2)*X(2,I2))
-          YY = (X(2,I1)*X(2,I1)+X(2,I2)*X(2,I2))
-          YZ = (X(2,I1)*X(3,I1)+X(2,I2)*X(3,I2))
-          ZZ = (X(3,I1)*X(3,I1)+X(3,I2)*X(3,I2))
-          ZX = (X(3,I1)*X(1,I1)+X(3,I2)*X(1,I2))
-          PARTSAV(5,IP) =PARTSAV(5,IP) + TWO*XI + EMS(I) * (YY+ZZ)
-          PARTSAV(6,IP) =PARTSAV(6,IP) + TWO*XI + EMS(I) * (ZZ+XX)
-          PARTSAV(7,IP) =PARTSAV(7,IP) + TWO*XI + EMS(I) * (XX+YY)
-          PARTSAV(8,IP) =PARTSAV(8,IP)  - EMS(I) * XY
-          PARTSAV(9,IP) =PARTSAV(9,IP)  - EMS(I) * YZ
-          PARTSAV(10,IP)=PARTSAV(10,IP) - EMS(I) * ZX
+        IP=IPART(I)
+        PARTSAV(1,IP)=PARTSAV(1,IP) + TWO*EMS(I)
+        PARTSAV(2,IP)=PARTSAV(2,IP) + EMS(I)*(X(1,I1)+X(1,I2))
+        PARTSAV(3,IP)=PARTSAV(3,IP) + EMS(I)*(X(2,I1)+X(2,I2))
+        PARTSAV(4,IP)=PARTSAV(4,IP) + EMS(I)*(X(3,I1)+X(3,I2))
+        XX = (X(1,I1)*X(1,I1)+X(1,I2)*X(1,I2))
+        XY = (X(1,I1)*X(2,I1)+X(1,I2)*X(2,I2))
+        YY = (X(2,I1)*X(2,I1)+X(2,I2)*X(2,I2))
+        YZ = (X(2,I1)*X(3,I1)+X(2,I2)*X(3,I2))
+        ZZ = (X(3,I1)*X(3,I1)+X(3,I2)*X(3,I2))
+        ZX = (X(3,I1)*X(1,I1)+X(3,I2)*X(1,I2))
+        PARTSAV(5,IP) =PARTSAV(5,IP) + TWO*XI + EMS(I) * (YY+ZZ)
+        PARTSAV(6,IP) =PARTSAV(6,IP) + TWO*XI + EMS(I) * (ZZ+XX)
+        PARTSAV(7,IP) =PARTSAV(7,IP) + TWO*XI + EMS(I) * (XX+YY)
+        PARTSAV(8,IP) =PARTSAV(8,IP)  - EMS(I) * XY
+        PARTSAV(9,IP) =PARTSAV(9,IP)  - EMS(I) * YZ
+        PARTSAV(10,IP)=PARTSAV(10,IP) - EMS(I) * ZX
 C
-          PARTSAV(11,IP)=PARTSAV(11,IP) + EMS(I)*(V(1,I1)+V(1,I2))
-          PARTSAV(12,IP)=PARTSAV(12,IP) + EMS(I)*(V(2,I1)+V(2,I2))
-          PARTSAV(13,IP)=PARTSAV(13,IP) + EMS(I)*(V(3,I1)+V(3,I2))
-          PARTSAV(14,IP)=PARTSAV(14,IP) + HALF * EMS(I) *
-     .       (V(1,I1)*V(1,I1)+V(2,I1)*V(2,I1)+V(3,I1)*V(3,I1)
-     .       +V(1,I2)*V(1,I2)+V(2,I2)*V(2,I2)+V(3,I2)*V(3,I2))
-        ENDDO
-      ELSE
-        DO I=LFT,LLT
-          I1 = IXR(2,I+NFT)
-          I2 = IXR(3,I+NFT)
-C
-          XI=HALF*UINER(I)
-          MSR(1,I)=EMS(I)
-          MSR(2,I)=EMS(I)
-          MSR(3,I)=EMS(I)
-          INR(1,I)=XI
-          INR(2,I)=XI
-          INR(3,I)=XI
-C
-          IP=IPART(I)
-          PARTSAV(1,IP)=PARTSAV(1,IP) + TWO*EMS(I)
-          PARTSAV(2,IP)=PARTSAV(2,IP) + EMS(I)*(X(1,I1)+X(1,I2))
-          PARTSAV(3,IP)=PARTSAV(3,IP) + EMS(I)*(X(2,I1)+X(2,I2))
-          PARTSAV(4,IP)=PARTSAV(4,IP) + EMS(I)*(X(3,I1)+X(3,I2))
-          XX = (X(1,I1)*X(1,I1)+X(1,I2)*X(1,I2))
-          XY = (X(1,I1)*X(2,I1)+X(1,I2)*X(2,I2))
-          YY = (X(2,I1)*X(2,I1)+X(2,I2)*X(2,I2))
-          YZ = (X(2,I1)*X(3,I1)+X(2,I2)*X(3,I2))
-          ZZ = (X(3,I1)*X(3,I1)+X(3,I2)*X(3,I2))
-          ZX = (X(3,I1)*X(1,I1)+X(3,I2)*X(1,I2))
-          PARTSAV(5,IP) =PARTSAV(5,IP) + TWO*XI + EMS(I) * (YY+ZZ)
-          PARTSAV(6,IP) =PARTSAV(6,IP) + TWO*XI + EMS(I) * (ZZ+XX)
-          PARTSAV(7,IP) =PARTSAV(7,IP) + TWO*XI + EMS(I) * (XX+YY)
-          PARTSAV(8,IP) =PARTSAV(8,IP)  - EMS(I) * XY
-          PARTSAV(9,IP) =PARTSAV(9,IP)  - EMS(I) * YZ
-          PARTSAV(10,IP)=PARTSAV(10,IP) - EMS(I) * ZX
-C
-          PARTSAV(11,IP)=PARTSAV(11,IP) + EMS(I)*(V(1,I1)+V(1,I2))
-          PARTSAV(12,IP)=PARTSAV(12,IP) + EMS(I)*(V(2,I1)+V(2,I2))
-          PARTSAV(13,IP)=PARTSAV(13,IP) + EMS(I)*(V(3,I1)+V(3,I2))
-          PARTSAV(14,IP)=PARTSAV(14,IP) + HALF * EMS(I) *
-     .       (V(1,I1)*V(1,I1)+V(2,I1)*V(2,I1)+V(3,I1)*V(3,I1)
-     .       +V(1,I2)*V(1,I2)+V(2,I2)*V(2,I2)+V(3,I2)*V(3,I2))
-        ENDDO
-      ENDIF
+        PARTSAV(11,IP)=PARTSAV(11,IP) + EMS(I)*(V(1,I1)+V(1,I2))
+        PARTSAV(12,IP)=PARTSAV(12,IP) + EMS(I)*(V(2,I1)+V(2,I2))
+        PARTSAV(13,IP)=PARTSAV(13,IP) + EMS(I)*(V(3,I1)+V(3,I2))
+        PARTSAV(14,IP)=PARTSAV(14,IP) + HALF * EMS(I) *
+     .     (V(1,I1)*V(1,I1)+V(2,I1)*V(2,I1)+V(3,I1)*V(3,I1)
+     .     +V(1,I2)*V(1,I2)+V(2,I2)*V(2,I2)+V(3,I2)*V(3,I2))
+      ENDDO
 C
       IF (IREST_MSELT /= 0)THEN
         DO I=LFT,LLT
@@ -1852,16 +1943,17 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  R4INI                         source/elements/spring/rinit3.F
-Chd|-- called by -----------
-Chd|        RINIT3                        source/elements/spring/rinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    r4ini         ../starter/source/elements/spring/rinit3.F
+!||--- called by ------------------------------------------------------
+!||    rinit3        ../starter/source/elements/spring/rinit3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE R4INI(SIGRS ,IXR  ,NSIGI ,EINT  ,F   ,
      .                 DL    ,FEP  ,DPL   ,DPL2  ,XL0 ,
      .                 DFS   ,DV   ,IGTYP ,PTSPRI,DL0 ,
      .                 F0    )
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1870,14 +1962,11 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NIX,N,NSIGI,NUVAR,NEL,IGTYP
+      INTEGER NSIGI,IGTYP
       INTEGER IXR(NIXR,*),PTSPRI(*)
 C     REAL
       my_real
@@ -1886,7 +1975,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,II,JJ,K
+      INTEGER I,II,JJ
 C----------------------------------------------------------------------- 
 C---
 C     CONTRAINTES INITIALES + OTHERS
@@ -1894,7 +1983,7 @@ C---
       IF (INISPRI /= 0) THEN
         DO I=LFT,LLT
           II = I+NFT
-!         lenght recumputed in engine if not concerned by INISPRI
+!         length recumputed in engine if not concerned by INISPRI
           XL0(I)   = ZERO
 !
           JJ = PTSPRI(II)
@@ -1923,12 +2012,12 @@ C---
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  R8INI                         source/elements/spring/rinit3.F
-Chd|-- called by -----------
-Chd|        RINIT3                        source/elements/spring/rinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    r8ini         ../starter/source/elements/spring/rinit3.F
+!||--- called by ------------------------------------------------------
+!||    rinit3        ../starter/source/elements/spring/rinit3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE R8INI(IGTYP ,NEL  ,SIGRS ,IXR   ,NSIGI,
      .                 FX    ,FY   ,FZ    ,MX    ,MY   ,
      .                 MZ    ,FXEP ,FYEP  ,FZEP  ,XMEP ,
@@ -1940,6 +2029,7 @@ Chd|====================================================================
      .                 PTSPRI,DX0  ,DY0   ,DZ0   ,RX0  ,
      .                 RY0   ,RZ0  ,FX0   ,FY0   ,FZ0  ,
      .                 MX0   ,MY0  ,MZ0   )
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1948,14 +2038,12 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include       "com04_c.inc"
-#include       "param_c.inc"
 #include       "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NIX,N
-      INTEGER IXR(NIXR,*),NSIGI,NUVAR,NEL,IGTYP,PTSPRI(*)
+
+      INTEGER IXR(NIXR,*),NSIGI,NEL,IGTYP,PTSPRI(*)
 C     REAL
       my_real
      .   FX(*),FY(*),FZ(*),EINT(*),SIGRS(NSIGI,*),
@@ -1969,7 +2057,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,II,JJ,K
+      INTEGER I,II,JJ
 C----------------------------------------------------------------------- 
 C---
 C     CONTRAINTES INITIALES + OTHERS
@@ -1977,7 +2065,7 @@ C---
       IF (INISPRI /= 0) THEN
         DO I=LFT,LLT
           II = I+NFT
-!         lenght recumputed in engine if not concerned by INISPRI
+!         length recumputed in engine if not concerned by INISPRI
           XL0(I)   = ZERO
           YL0(I)   = ZERO
           ZL0(I)   = ZERO
@@ -1985,40 +2073,27 @@ C---
           JJ = PTSPRI(II)
           IF (JJ == 0) GOTO 200
 C---
-!          FX(I)	   = SIGRS(2, JJ)
-!          DX(I)	   = SIGRS(3, JJ)
           FXEP(I)  = SIGRS(4, JJ)
           DXPL(I)  = SIGRS(5, JJ)
           DXPL2(I) = SIGRS(6, JJ)
-!          FY(I)    = SIGRS(7, JJ)
-!          DY(I)    = SIGRS(8, JJ)
           FYEP(I)  = SIGRS(9,JJ)
           DYPL(I)  = SIGRS(10,JJ) 
           DYPL2(I) = SIGRS(11,JJ)
-!          FZ(I)    = SIGRS(12,JJ)
-!          DZ(I)    = SIGRS(13,JJ)
           FZEP(I)  = SIGRS(14,JJ)
           DZPL(I)  = SIGRS(15,JJ)
           DZPL2(I) = SIGRS(16,JJ)
-!          MX(I)	   = SIGRS(17,JJ)
-!          RX(I)	   = SIGRS(18,JJ)
           XMEP(I)  = SIGRS(19,JJ)
           RPX(I)   = SIGRS(20,JJ)
           RPX2(I)  = SIGRS(21,JJ)
-!          MY(I)    = SIGRS(22,JJ)
-!          RY(I)    = SIGRS(23,JJ)
           YMEP(I)  = SIGRS(24,JJ) 
           RPY(I)   = SIGRS(25,JJ)
           RPY2(I)  = SIGRS(26,JJ)
-!          MZ(I)	   = SIGRS(27,JJ) 
-!          RZ(I)	   = SIGRS(28,JJ)
           ZMEP(I)  = SIGRS(29,JJ)
           RPZ(I)   = SIGRS(30,JJ)
           RPZ2(I)  = SIGRS(31,JJ)
           XL0(I)   = SIGRS(32,JJ)
           YL0(I)   = SIGRS(33,JJ)
           ZL0(I)   = SIGRS(34,JJ)
-!!          EINT(I)  = SIGRS(35,JJ)
           IF (IGTYP == 8  .OR. IGTYP == 13 .OR.
      .        IGTYP == 23 .OR. IGTYP == 25) THEN
             DX0(I) = SIGRS(3, JJ)
@@ -2048,18 +2123,17 @@ C---
 C---
       RETURN
       END      
-Chd|====================================================================
-Chd|  RUINI                         source/elements/spring/rinit3.F
-Chd|-- called by -----------
-Chd|        RINIT3                        source/elements/spring/rinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ruini    ../starter/source/elements/spring/rinit3.F
+!||--- called by ------------------------------------------------------
+!||    rinit3   ../starter/source/elements/spring/rinit3.F
+!||====================================================================
       SUBROUTINE RUINI(
-     .                 SIGRS,IXR   ,NSIGI,NUVAR,FX   ,
+     .                 SIGRS  ,NSIGI,NUVAR,FX   ,
      .                 FY   ,FZ    ,XMOM ,YMOM ,ZMOM ,
      .                 DX   ,DY    ,DZ   ,RX   ,RY   ,
-     .                 RZ   ,UVAR  ,EINT ,YMOM1,ZMOM1,
-     .                 IGTYP,PTSPRI)
+     .                 RZ   ,UVAR  ,EINT ,
+     .                 PTSPRI)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -2068,23 +2142,21 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include       "com04_c.inc"
-#include       "param_c.inc"
 #include       "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NIX,N,NUVAR,IGTYP,NSIGI,NEL
-      INTEGER IXR(NIXR,*),PTSPRI(*)
+      INTEGER NUVAR,NSIGI
+      INTEGER PTSPRI(*)
 C     REAL
       my_real
      .   FX(*),FY(*),FZ(*),XMOM(*),YMOM(*),ZMOM(*),
-     .   EINT(*),SIGRS(NSIGI,*),YMOM1(*),ZMOM1(*),
+     .   EINT(*),SIGRS(NSIGI,*),
      .   UVAR(NUVAR,*),DX(*),DY(*),DZ(*),RX(*),RY(*),RZ(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,II,JJ,K,PT
+      INTEGER I,II,JJ,K,PT
 C-----------------------------------------------
 C---
 C     CONTRAINTES INITIALES + OTHERS
@@ -2096,29 +2168,21 @@ C
           JJ = PTSPRI(II)
           IF (JJ == 0) GOTO 200
 C---
-          FX(I)	  = SIGRS(2, JJ)
+          FX(I)    = SIGRS(2, JJ)
           DX(I)   = SIGRS(3, JJ)
           FY(I)   = SIGRS(4, JJ)
           DY(I)   = SIGRS(5, JJ)
           FZ(I)   = SIGRS(6, JJ)
-          DZ(I)	  = SIGRS(7, JJ)
+          DZ(I)    = SIGRS(7, JJ)
           XMOM(I) = SIGRS(8, JJ)
-          RX(I)	  = SIGRS(9,JJ)
+          RX(I)    = SIGRS(9,JJ)
           YMOM(I) = SIGRS(10,JJ)
-          RY(I)	  = SIGRS(11,JJ)
+          RY(I)    = SIGRS(11,JJ)
           ZMOM(I) = SIGRS(12,JJ)
           RZ(I)   = SIGRS(13,JJ)  
           EINT(I) = SIGRS(14,JJ)
 C
           PT = 14
-!!   no realy need for initialisation, since they are computed at cycle = 0
-!!   within engine (overwritting initial values)
-!!          IF (IGTYP /= 32 .AND. IGTYP /= 33 .AND. IGTYP /= 45) THEN
-!!            YMOM1(I) = SIGRS(PT+1,JJ)
-!!            ZMOM1(I) = SIGRS(PT+2,JJ)
-!!            PT = PT + 2
-!!          ENDIF
-C  -- UVAR --
           DO K=1,NUVAR
             UVAR(K,I) = SIGRS(PT + K ,JJ)
           ENDDO

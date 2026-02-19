@@ -1,46 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_INTER_TYPE02          source/interfaces/int02/hm_read_inter_type02.F
-Chd|-- called by -----------
-Chd|        HM_READ_INTER_STRUCT          source/interfaces/reader/hm_read_inter_struct.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        DEFINTER                      source/interfaces/interf1/definter.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_inter_type02     ../starter/source/interfaces/int02/hm_read_inter_type02.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_inter_struct     ../starter/source/interfaces/reader/hm_read_inter_struct.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    definter                 ../starter/source/interfaces/interf1/definter.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    ngr2usr                  ../starter/source/system/nintrr.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_INTER_TYPE02(
-     1        IPARI      ,STFAC      ,FRIGAP    ,NOINT    ,IGRNOD      ,
-     2        IGRSURF    ,I2RUPT     ,AREASL    ,DEF_INTER,NPC1       ,
-     3        TITR       ,UNITAB     ,LSUBMODEL)
+     1        IPARI      ,STFAC      ,FRIGAP    ,NOINT    ,IGRNOD    ,
+     2        IGRSURF    ,I2RUPT     ,AREASL    ,DEF_INTER,NPC1      ,
+     3        TITR       ,UNITAB     ,LSUBMODEL ,NPARI    ,NPARIR    ,
+     4        SNPC1      ,INTHEAT    )
 C============================================================================
 C     
 C-----------------------------------------------
@@ -48,65 +48,55 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
-      USE SUBMODEL_MOD
+      USE SUBMODEL_MOD , ONLY : SUBMODEL_DATA, NSUBMOD
+      USE ALE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      USE UNITAB_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NOINT
-      INTEGER IPARI(*),DEF_INTER(*),NPC1(*)
-      my_real
-     .   STFAC,AREASL,UNITAB(*)
-      my_real
-     .   FRIGAP(*),I2RUPT(*)
-      CHARACTER TITR*nchartitle
-C-----------------------------------------------
-      TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
-      TYPE (SURF_)   ,TARGET , DIMENSION(NSURF)  :: IGRSURF
-      TYPE(SUBMODEL_DATA),INTENT(IN)             :: LSUBMODEL(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com09_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "scr12_c.inc"
-#include      "sysunit.inc"
-#include      "fluid_scr_c.inc"
+C-----------------------------------------------
+C   D u m m y   A r g u m e n t s
+C-----------------------------------------------
+      INTEGER,INTENT(IN) :: NPARI,NPARIR,SNPC1 !< array sizes
+      INTEGER,INTENT(INOUT) :: INTHEAT
+      INTEGER NOINT
+      INTEGER IPARI(NPARI),DEF_INTER(100),NPC1(SNPC1)
+      my_real STFAC,AREASL !,UNITAB(*)
+      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
+      my_real FRIGAP(NPARIR),I2RUPT(6)
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+C-----------------------------------------------
+      TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
+      TYPE (SURF_)   ,TARGET , DIMENSION(NSURF)  :: IGRSURF
+      TYPE(SUBMODEL_DATA),INTENT(IN)             :: LSUBMODEL(NSUBMOD)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER J,IBUC, NTYP, IGSTI,IS1, IS2,PID,IPRINT,
      .     ILEV, HIERA,IDEL2,INT2DEF,INTTH,IMOD,IFILTR,IGNORE,
      .     IFUNS,IFUNN,IFUNT,NUVAR,ISYM,INTKG,IPROJ,IASSIGN,
-     .     PENFLAG,IROT,OK,ISU1,ISU2,ISI1,ISI2
+     .     PENFLAG,IROT,OK,ISU1,ISU2,ISI1,ISI2,ISU3,ISI3
       my_real
      .   STARTT,STOPT,KTHE,VISC,DNMAX,DTMAX,SCAL_F,
      .   SCAL_SR,SCAL_D,ALPHA,AREA,F_UNIT,SR_UNIT,D_UNIT
-      CHARACTER KEY1*ncharkey
+      CHARACTER(LEN=NCHARKEY) :: KEY1
 !
       INTEGER, DIMENSION(:), POINTER :: INGR2USR
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER NGR2USR
+      INTEGER,EXTERNAL :: NGR2USR
 C-----------------------------------------------
       DATA INT2DEF/5/
 C=======================================================================
@@ -137,12 +127,12 @@ C
       IPARI(15)=NOINT
       IPARI(7)=NTYP
 C
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C
 C------------------------------------------------------------
 C  Card1 :flags
@@ -158,6 +148,7 @@ C--------------------------------------------------
       CALL HM_GET_INTV('LEVEL',HIERA,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('Isearch',IBUC,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('NodDel2',IDEL2,IS_AVAILABLE,LSUBMODEL)
+      CALL HM_GET_INTV('secondarysurfids',ISI3,IS_AVAILABLE,LSUBMODEL)
 C -- Hidden flag - PID - 
       PID = 0
 C--------------------------------------------------
@@ -171,20 +162,16 @@ C.....* Default values definition *........
       IPRINT = 0
 C
       KEY1='IGNORE'
-      CALL DEFINTER(KEY1     ,IGNORE    ,IASSIGN   ,IPRINT   ,
-     .                NTYP     ,DEF_INTER)
+      CALL DEFINTER(KEY1  ,IGNORE  ,IASSIGN   ,IPRINT   ,NTYP   ,DEF_INTER)
 C
       KEY1='ILEV'
-      CALL DEFINTER(KEY1     ,ILEV    ,IASSIGN   ,IPRINT   ,
-     .                NTYP     ,DEF_INTER)
+      CALL DEFINTER(KEY1  ,ILEV    ,IASSIGN   ,IPRINT   ,NTYP   ,DEF_INTER)
 C
       KEY1='IBUC'
-      CALL DEFINTER(KEY1     ,IBUC    ,IASSIGN   ,IPRINT   ,
-     .                NTYP     ,DEF_INTER)
+      CALL DEFINTER(KEY1  ,IBUC    ,IASSIGN   ,IPRINT   ,NTYP   ,DEF_INTER)
 C
       KEY1='IDEL2'
-      CALL DEFINTER(KEY1     ,IDEL2    ,IASSIGN   ,IPRINT   ,
-     .                NTYP     ,DEF_INTER)
+      CALL DEFINTER(KEY1  ,IDEL2   ,IASSIGN   ,IPRINT   ,NTYP   ,DEF_INTER)
 
 C....* CHECKS AND Storage IPARI FRIGAP *.............
 C
@@ -195,9 +182,31 @@ C
       INGR2USR => IGRSURF(1:NSURF)%ID
       ISU2=NGR2USR(ISI2,INGR2USR,NSURF)
 C
+      ISU3 = 0
+      IF (ISI3>0) THEN 
+        ISU3=NGR2USR(ISI3,INGR2USR,NSURF)
+        IF(ISU3 == 0) THEN
+          CALL ANCMSG(MSGID=1725,
+     .               ANMODE=ANINFO_BLIND_1,
+     .               MSGTYPE=MSGERROR,
+     .               I1=NOINT,
+     .               I2=ISI3,
+     .               C1=TITR)
+        END IF
+        IF (ILEV /= 25 .and. ILEV /= 26 .and. ILEV /= 27 .and. ILEV /= 28) THEN
+          CALL ANCMSG(MSGID=3078,
+     .               ANMODE=ANINFO_BLIND_1,
+     .               MSGTYPE=MSGWARNING,
+     .               I1=NOINT,
+     .               I2=ILEV,
+     .               I3=ISI3,
+     .               C1=TITR)
+          ISU3 = 0
+        END IF
+      END IF
 C-------*CHECKS*-------------------
 
-      IF (ISU1==0) THEN
+      IF (ISU1==0.AND.ISU3 == 0) THEN
         CALL ANCMSG(MSGID=1726,
      .               ANMODE=ANINFO_BLIND_1,
      .               MSGTYPE=MSGERROR,
@@ -216,25 +225,33 @@ C-------*CHECKS*-------------------
         IS2=0
       END IF
 C
-      IF ((ISU1 > 0).AND.(IGRNOD(ISU1)%NENTITY == 0)) THEN
-        CALL ANCMSG(MSGID=1131,
-     .   		ANMODE=ANINFO_BLIND_1,
-     .  		MSGTYPE=MSGERROR,
-     .    		I1=NOINT,
-     .    		C1=TITR)
+      IF (ISU1 > 0.AND.ISU3== 0) THEN
+        IF (IGRNOD(ISU1)%NENTITY == 0)
+     .   CALL ANCMSG(MSGID=1131,
+     .       ANMODE=ANINFO_BLIND_1,
+     .      MSGTYPE=MSGERROR,
+     .        I1=NOINT,
+     .        C1=TITR)
       END IF
 C
-      IPARI(45) = ISU1
-      IPARI(46) = ISU2
+      IF (ISU3 > 0) THEN
+        IPARI(45) = ISU2
+        IPARI(46) = ISU3
+        IS1=-1
+        IS2=-1
+      ELSE
+        IPARI(45) = ISU1
+        IPARI(46) = ISU2 
+      END IF
       IPARI(13) = IS1*10+IS2
 C
 ! ILEV
-      IF (ILEV .NE. 0 .AND. ILEV .NE. 1 .AND. ILEV .NE. 2 .AND. 
-     .      ILEV .NE. 3 .AND .ILEV .NE. 4 .AND. ILEV .NE. 5 .AND. 
-     .      ILEV .NE. 10 .AND. ILEV .NE. 11 .AND. ILEV .NE. 12 .AND.
-     .      ILEV .NE. 20 .AND. ILEV .NE. 21 .AND. ILEV .NE. 22 .AND. 
-     .      ILEV .NE. 25 .AND. ILEV .NE. 26 .AND. ILEV .NE. 27 .AND. 
-     .      ILEV .NE. 28 .AND. ILEV .NE. 30) THEN
+      IF (ILEV /= 0 .AND. ILEV /= 1 .AND. ILEV /= 2 .AND. 
+     .      ILEV /= 3 .AND .ILEV /= 4 .AND. ILEV /= 5 .AND. 
+     .      ILEV /= 10 .AND. ILEV /= 11 .AND. ILEV /= 12 .AND.
+     .      ILEV /= 20 .AND. ILEV /= 21 .AND. ILEV /= 22 .AND. 
+     .      ILEV /= 25 .AND. ILEV /= 26 .AND. ILEV /= 27 .AND. 
+     .      ILEV /= 28 .AND. ILEV /= 30) THEN
 
             CALL ANCMSG(MSGID=1614,
      .                  MSGTYPE=MSGERROR,
@@ -245,16 +262,24 @@ C
      .                  C3='TYPE2',
      .                  I2=ILEV)
       ENDIF
-      IF (ICAA == 1 .AND. ILEV == 0) ILEV=4
+      IF (ALE%GLOBAL%ICAA == 1 .AND. ILEV == 0) ILEV=4
       IF (ILEV == 5) ILEV=0
 
 ! IDEL2
-      IF ((ILEV/=0 .AND. ILEV/=1 .AND. ILEV/=5 .AND. ILEV/=25 .AND. ILEV/=26 .AND. ILEV/=27 .AND. ILEV/=28)) 
-     .      IDEL2 = 0
+      IF ((ILEV/=0 .AND. ILEV/=1 .AND. ILEV/=5 .AND. ILEV/=25 .AND. ILEV/=26 .AND. ILEV/=27 .AND. ILEV/=28)) IDEL2 = 0
       IF (N2D == 1)  IDEL2 = 0
       IPARI(17) = IDEL2
-
-      IF(IBUC.EQ.0)IBUC=2
+C
+      IF ((N2D > 0).AND.(ILEV/=0)) THEN
+        CALL ANCMSG(MSGID=3015,
+     .              ANMODE=ANINFO_BLIND_1,
+     .              MSGTYPE=MSGERROR,
+     .              I1=NOINT,
+     .              C1=TITR,
+     .              I2=ILEV)
+      ENDIF
+C
+      IF(IBUC==0)IBUC=2
       IPARI(12) = IBUC
 
 CC---     Hierarchy useless for interface type2 with penalty - hiera set to 0
@@ -348,14 +373,6 @@ C.....* CHECK AND Storage IPARI FRIGAP *.........
         IF (SCAL_F  == ZERO) SCAL_F  = ONE*F_UNIT
         IF (SCAL_SR  == ZERO) SCAL_SR  = ONE*SR_UNIT
         IF (SCAL_D == ZERO) SCAL_D = ONE*D_UNIT
-C
-C	DNMAX = DNMAX*L_UNIT
-C	DTMAX = DTMAX*L_UNIT
-C        AREA = AREA*FAC_L*FAC_L
-C        SCAL_F = SCAL_F*FAC_M/(FAC_L*FAC_T**2)
-C        SCAL_SR = SCAL_SR*FAC_M/(FAC_L*FAC_T**3)
-C        SCAL_D = SCAL_D*FAC_L
-C
         IF (DNMAX   == ZERO) DNMAX = EP20
         IF (DTMAX   == ZERO) DTMAX = EP20
 C
@@ -419,8 +436,8 @@ C--------------------------------------------------
       CALL HM_GET_FLOATV('Kthe',KTHE,IS_AVAILABLE,LSUBMODEL,UNITAB)
 C---------------------- 
 C
-      IF (IPROJ.EQ.0) IPROJ = 1
-      IF(INTTH > 0 ) INTHEAT = 1
+      IF (IPROJ==0) IPROJ = 1
+      IF (INTTH > 0 ) INTHEAT = 1
 
       IPARI(47) = INTTH
       FRIGAP(15)  = KTHE
@@ -525,49 +542,45 @@ C........* PRINT INTERFACES INPUT *.....................
       END IF
  
 C--------------------------------------------------------------
-      IF(IS1.EQ.0)THEN
+      IF(IS1==0)THEN
         WRITE(IOUT,'(6X,A)')'NO SECONDARY SURFACE INPUT'
-      ELSEIF(IS1.EQ.1)THEN
+      ELSEIF(IS1==1)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.2)THEN
+      ELSEIF(IS1==2)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY NODES'
-      ELSEIF(IS1.EQ.3)THEN
+      ELSEIF(IS1==3)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.4 )THEN
+      ELSEIF(IS1==4 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY BRICKS'
-      ELSEIF(IS1.EQ.5 )THEN
+      ELSEIF(IS1==5 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY SOLID ELEMENTS'        
       ENDIF
-      IF(IS2.EQ.0)THEN
+      IF(IS2==0)THEN
         WRITE(IOUT,'(6X,A)')'NO MAIN SURFACE INPUT'
-      ELSEIF(IS2.EQ.1)THEN
+      ELSEIF(IS2==1)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.2)THEN
+      ELSEIF(IS2==2)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY NODES'
-      ELSEIF(IS2.EQ.3)THEN
+      ELSEIF(IS2==3)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.4)THEN
+      ELSEIF(IS2==4)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE REFERS ',
      .                      'TO HYPER-ELLIPSOIDAL SURFACE'
       ENDIF
+      IF(IS1<0.AND.IS2<0) WRITE(IOUT,'(4X,A)')'SURFACE TO SURFACE INPUT'
 C
 C--------------------------------------------------------------
- 1000 FORMAT(/1X,'  INTERFACE NUMBER :',I10,1X,A)
- 1300 FORMAT(    /1X,'   INTERFACES               ' /
-     .            1X,' --------------             '// )
 C------------
       RETURN
- 999  CALL FREERR(3)
-      RETURN
  1502 FORMAT(//
-     .    '    TYPE.EQ.2   TIED SLIDING                  ' //
+     .    '    TYPE==2   TIED SLIDING                  ' //
      .    '    FORMULATION LEVEL . . . . . . . . . . . . ',I5/,
      .    '    HIERARCHICAL SOLVING LEVEL. . . . . . . . ',I5/,
      .    '    SEARCH FORMULATION. . . . . . . . . . . . ',I5/,
      .    '    SEARCH DISTANCE . . . . . . . . . . . . . ',1PG20.13/,
      .    '    IGNORE FLAG . . . . . . . . . . . . . . . ',I5/)
  1532 FORMAT(//
-     .    '    TYPE.EQ.2   TIED SLIDING                  ' //
+     .    '    TYPE==2   TIED SLIDING                  ' //
      .    '    FORMULATION LEVEL . . . . . . . . . . . . ',I5/,
      .    '    HIERARCHICAL SOLVING LEVEL. . . . . . . . ',I5/,
      .    '    SEARCH FORMULATION. . . . . . . . . . . . ',I5/,

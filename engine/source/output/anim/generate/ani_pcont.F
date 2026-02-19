@@ -1,41 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ANI_PCONT                     source/output/anim/generate/ani_pcont.F
-Chd|-- called by -----------
-Chd|        SORTIE_MAIN                   source/output/sortie_main.F   
-Chd|-- calls ---------------
-Chd|        SPMD_EXCH_NODAREA             source/mpi/anim/spmd_exch_nodarea.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE ANI_PCONT(IXS ,IXC    ,IXTG    ,FASOLFR  ,X       ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ani_pcont           ../engine/source/output/anim/generate/ani_pcont.F
+!||--- called by ------------------------------------------------------
+!||    sortie_main         ../engine/source/output/sortie_main.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exch_nodarea   ../engine/source/mpi/anim/spmd_exch_nodarea.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    h3d_mod             ../engine/share/modules/h3d_mod.F
+!||    output_mod          ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE ANI_PCONT(OUTPUT, IXS ,IXC    ,IXTG    ,FASOLFR  ,X       ,
      .                 CONTN   ,CONTT  ,IAD_ELEM,FR_ELEM,WEIGHT    ,
      .                 IXQ     ,SEGQUADFR,IXS10 ,FNCONTP2,FTCONTP2 ,
-     .                 H3D_DATA)
+     .                 H3D_DATA,CSEFRIC,CSEFRICG,SZ_NPCONT2,NPCONT2)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,34 +51,38 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "units_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
+      TYPE(OUTPUT_), intent(inout) :: OUTPUT
       INTEGER  
      .   IXS(NIXS,*), IXC(NIXC,*), IXTG(NIXTG,*), FASOLFR(2,*),
      .   IAD_ELEM(2,*), FR_ELEM(*), WEIGHT(*),IXQ(7,*),SEGQUADFR(2,*),
      .   IXS10(6,*)
+      INTEGER  , INTENT(IN)    :: SZ_NPCONT2
       my_real
      .   X(3,*), CONTN(3,*), CONTT(3,*),FNCONTP2(3,*),FTCONTP2(3,*)
+      my_real  , INTENT(INOUT) :: CSEFRIC(OUTPUT%DATA%NINEFRIC,OUTPUT%DATA%S_EFRICINT),CSEFRICG(OUTPUT%DATA%S_EFRIC)
+      my_real  , INTENT(IN)    :: NPCONT2(3,SZ_NPCONT2)
       TYPE (H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N1,N2,N3,N4,NN1,NN2,NN3,J,
      .        I,N,IFAC,ILINE,
-     .        IERROR, LENR
+     .         LENR, NI,NNOUT
+       INTEGER, DIMENSION(:), ALLOCATABLE ::  ITAGN
        my_real
      .     AREA, 
      .     X1,Y1,Z1,X2,Y2,Z2,X3,Y3,Z3,X4,Y4,Z4,
      .     X31,Y31,Z31,X42,Y42,Z42,X32,Y32,Z32,E3X,E3Y,E3Z,
-     .     FS2, FS3, FT2, FT3, E, F, G, RAYON,AY1,AY2,AY3,AY4
+     .          
+     .     AREAINV,NORMAL(3),NNN,F_TOTAL(1:3),FN_PROJ
       INTEGER FACES(4,6),LINES(2,4),FACES10(3,24)
        my_real, DIMENSION(:), ALLOCATABLE ::  NODAREA
+       my_real, DIMENSION(:,:), ALLOCATABLE ::  NORM_N
 C     REAL
       DATA FACES/1,2,3,4,
      .           2,1,5,6,
@@ -116,6 +125,425 @@ C
         NODAREA(N)=ZERO
       END DO
 C
+!    do normal dependent only for CONTN(1:3)>0
+      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT /=0) THEN
+        NNOUT = 0
+         DO N=1,NUMNOD
+             NORMAL(1:3) = CONTN(1:3,N)
+             NNN = NORMAL(1)**2+NORMAL(2)**2+NORMAL(3)**2
+             IF(NNN > EM14) NNOUT = NNOUT + 1
+         END DO
+        IF(NNOUT >0) THEN
+          ALLOCATE(ITAGN(NUMNOD))
+          ALLOCATE(NORM_N(3,NNOUT))
+          ITAGN = 0
+          NI = 0
+          DO N=1,NUMNOD
+             NORMAL(1:3) = CONTN(1:3,N)
+             NNN = NORMAL(1)**2+NORMAL(2)**2+NORMAL(3)**2
+             IF(NNN > EM14) THEN
+                NNN = ONE/SQRT(NNN)
+                NORMAL(1:3) = NORMAL(1:3)*NNN
+                NI = NI + 1
+                ITAGN(N) = NI
+                NORM_N(1:3,NI) = NORMAL(1:3)
+             END IF
+          END DO
+          DO I=1,NFASOLFR
+            N   =FASOLFR(1,I)
+            IFAC=FASOLFR(2,I)
+C         
+            IF( N  <= NUMELS8 ) THEN
+          
+              N1=IXS(FACES(1,IFAC)+1,N)
+              N2=IXS(FACES(2,IFAC)+1,N)
+              N3=IXS(FACES(3,IFAC)+1,N)
+              N4=IXS(FACES(4,IFAC)+1,N)
+              IF((ITAGN(N1)+ITAGN(N2)+ITAGN(N3)+ITAGN(N4))==0 ) CYCLE
+              X1=X(1,N1)
+              Y1=X(2,N1)
+              Z1=X(3,N1)
+              X2=X(1,N2)
+              Y2=X(2,N2)
+              Z2=X(3,N2)
+              X3=X(1,N3)
+              Y3=X(2,N3)
+              Z3=X(3,N3)
+              X4=X(1,N4)
+              Y4=X(2,N4)
+              Z4=X(3,N4)
+C         
+              X31=X3-X1
+              Y31=Y3-Y1
+              Z31=Z3-Z1
+              X42=X4-X2
+              Y42=Y4-Y2
+              Z42=Z4-Z2
+C         
+              E3X=Y31*Z42-Z31*Y42
+              E3Y=Z31*X42-X31*Z42
+              E3Z=X31*Y42-Y31*X42
+C         
+              IF(   N4/=N3
+     .         .AND.N3/=N2
+     .         .AND.N2/=N1
+     .         .AND.N1/=N4)THEN
+                E3X=ONE_OVER_8*E3X
+                E3Y=ONE_OVER_8*E3Y
+                E3Z=ONE_OVER_8*E3Z
+!                AREA=SQRT(E3X*E3X+E3Y*E3Y+E3Z*E3Z)
+                NI=  ITAGN(N1) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N1)=NODAREA(N1)+AREA
+                ENDIF
+                NI=  ITAGN(N2) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N2)=NODAREA(N2)+AREA
+                ENDIF
+                NI=  ITAGN(N3) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N3)=NODAREA(N3)+AREA
+                ENDIF
+                NI=  ITAGN(N4) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N4)=NODAREA(N4)+AREA
+                ENDIF
+              ELSE
+                E3X=ONE_OVER_6*E3X
+                E3Y=ONE_OVER_6*E3Y
+                E3Z=ONE_OVER_6*E3Z
+!                AREA=SQRT(E3X*E3X+E3Y*E3Y+E3Z*E3Z)
+                NI=  ITAGN(N1) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N1)=NODAREA(N1)+AREA
+                ENDIF
+                IF (N2 /= N1 ) THEN 
+                  NI=  ITAGN(N2) 
+                  IF (NI > 0 ) THEN 
+                    NORMAL(1:3)= NORM_N(1:3,NI) 
+                    AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                    NODAREA(N2)=NODAREA(N2)+AREA
+                  ENDIF
+                ENDIF
+                IF (N3 /= N2 .AND. N3 /= N1 ) THEN 
+                  NI=  ITAGN(N3) 
+                  IF (NI > 0 ) THEN 
+                    NORMAL(1:3)= NORM_N(1:3,NI) 
+                    AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                    NODAREA(N3)=NODAREA(N3)+AREA
+                  ENDIF
+                ENDIF
+                IF (N4 /= N3 .AND. N4 /= N2 .AND. N4 /= N1 ) THEN 
+                  NI=  ITAGN(N4) 
+                  IF (NI > 0 ) THEN 
+                    NORMAL(1:3)= NORM_N(1:3,NI) 
+                    AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                    NODAREA(N4)=NODAREA(N4)+AREA
+                  ENDIF
+                ENDIF
+              END IF
+!         
+            ELSEIF( N  <= NUMELS8+NUMELS10 ) THEN
+!         
+              N1=0
+              N2=0
+              N3=0
+
+          
+              DO J=1,4         
+                NN1=FACES10(1,4*(IFAC-1)+J)
+                NN2=FACES10(2,4*(IFAC-1)+J)
+                NN3=FACES10(3,4*(IFAC-1)+J)
+          
+                IF(NN1 > 0 ) THEN 
+                   IF(NN1 >0.AND.NN1 < 10) THEN
+                      N1=IXS(NN1+1,N) 
+                   ELSE
+                      N1=IXS10(NN1-10,N-NUMELS8)
+                   ENDIF
+                ENDIF
+          
+                IF(NN2 > 0 ) THEN 
+                  IF(NN2 < 10) THEN
+                     N2=IXS(NN2+1,N) 
+                   ELSE
+                     N2=IXS10(NN2-10,N-NUMELS8)
+                   ENDIF
+                ENDIF 
+          
+                IF(NN3 > 0 ) THEN 
+                   IF(NN3 < 10) THEN
+                      N3=IXS(NN3+1,N) 
+                   ELSE
+                      N3=IXS10(NN3-10,N-NUMELS8)
+                   ENDIF
+                ENDIF
+          
+          
+                IF(N1 > 0 .AND. N2 > 0 .AND.N3 > 0) THEN
+                  IF((ITAGN(N1)+ITAGN(N2)+ITAGN(N3))==0 ) CYCLE
+                  X1=X(1,N1)
+                  Y1=X(2,N1)
+                  Z1=X(3,N1)
+                  X2=X(1,N2)
+                  Y2=X(2,N2)
+                  Z2=X(3,N2)
+                  X3=X(1,N3)
+                  Y3=X(2,N3)
+                  Z3=X(3,N3)
+C         
+                  X31=X3-X1
+                  Y31=Y3-Y1
+                  Z31=Z3-Z1
+                  X32=X3-X2
+                  Y32=Y3-Y2
+                  Z32=Z3-Z2
+C         
+                  E3X=Y31*Z32-Z31*Y32
+                  E3Y=Z31*X32-X31*Z32
+                  E3Z=X31*Y32-Y31*X32
+C         
+                  E3X=ONE_OVER_6*E3X
+                  E3Y=ONE_OVER_6*E3Y
+                  E3Z=ONE_OVER_6*E3Z
+!                  AREA=SQRT(E3X*E3X+E3Y*E3Y+E3Z*E3Z)
+                  NI=  ITAGN(N1) 
+                  IF (NI > 0 ) THEN 
+                    NORMAL(1:3)= NORM_N(1:3,NI) 
+                    AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                    NODAREA(N1)=NODAREA(N1)+AREA
+                  ENDIF
+                  NI=  ITAGN(N2) 
+                  IF (NI > 0 ) THEN 
+                    NORMAL(1:3)= NORM_N(1:3,NI) 
+                    AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                    NODAREA(N2)=NODAREA(N2)+AREA
+                  ENDIF
+                  NI=  ITAGN(N3) 
+                  IF (NI > 0 ) THEN 
+                    NORMAL(1:3)= NORM_N(1:3,NI) 
+                    AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                    NODAREA(N3)=NODAREA(N3)+AREA
+                  ENDIF
+                ENDIF
+              ENDDO
+            ENDIF
+          END DO
+C
+          DO N=1,NUMELC
+            N1=IXC(2,N)
+            N2=IXC(3,N)
+            N3=IXC(4,N)
+            N4=IXC(5,N)
+            IF((ITAGN(N1)+ITAGN(N2)+ITAGN(N3)+ITAGN(N4))==0 ) CYCLE
+            IF(N4/=N3)THEN
+              X1=X(1,N1)
+              Y1=X(2,N1)
+              Z1=X(3,N1)
+              X2=X(1,N2)
+              Y2=X(2,N2)
+              Z2=X(3,N2)
+              X3=X(1,N3)
+              Y3=X(2,N3)
+              Z3=X(3,N3)
+              X4=X(1,N4)
+              Y4=X(2,N4)
+              Z4=X(3,N4)
+C         
+              X31=X3-X1
+              Y31=Y3-Y1
+              Z31=Z3-Z1
+              X42=X4-X2
+              Y42=Y4-Y2
+              Z42=Z4-Z2
+C         
+              E3X=Y31*Z42-Z31*Y42
+              E3Y=Z31*X42-X31*Z42
+              E3Z=X31*Y42-Y31*X42
+C         
+              E3X=ONE_OVER_8*E3X
+              E3Y=ONE_OVER_8*E3Y
+              E3Z=ONE_OVER_8*E3Z
+C         
+!              AREA=SQRT(E3X*E3X+E3Y*E3Y+E3Z*E3Z)
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N1)=NODAREA(N1)+AREA
+                ENDIF
+                NI=  ITAGN(N2) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N2)=NODAREA(N2)+AREA
+                ENDIF
+                NI=  ITAGN(N3) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N3)=NODAREA(N3)+AREA
+                ENDIF
+                NI=  ITAGN(N4) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N4)=NODAREA(N4)+AREA
+                ENDIF
+C         
+            ELSE
+              X1=X(1,N1)
+              Y1=X(2,N1)
+              Z1=X(3,N1)
+              X2=X(1,N2)
+              Y2=X(2,N2)
+              Z2=X(3,N2)
+              X3=X(1,N3)
+              Y3=X(2,N3)
+              Z3=X(3,N3)
+              X31=X3-X1
+              Y31=Y3-Y1
+              Z31=Z3-Z1
+              X32=X3-X2
+              Y32=Y3-Y2
+              Z32=Z3-Z2
+C         
+              E3X=Y31*Z32-Z31*Y32
+              E3Y=Z31*X32-X31*Z32
+              E3Z=X31*Y32-Y31*X32
+              E3X=ONE_OVER_6*E3X
+              E3Y=ONE_OVER_6*E3Y
+              E3Z=ONE_OVER_6*E3Z
+C         
+!              AREA=SQRT(E3X*E3X+E3Y*E3Y+E3Z*E3Z)
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N1)=NODAREA(N1)+AREA
+                ENDIF
+                NI=  ITAGN(N2) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N2)=NODAREA(N2)+AREA
+                ENDIF
+                NI=  ITAGN(N3) 
+                IF (NI > 0 ) THEN 
+                  NORMAL(1:3)= NORM_N(1:3,NI) 
+                  AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+                  NODAREA(N3)=NODAREA(N3)+AREA
+                ENDIF
+            END IF
+          END DO
+C         
+          DO N=1,NUMELTG
+            N1=IXTG(2,N)
+            N2=IXTG(3,N)
+            N3=IXTG(4,N)
+            X1=X(1,N1)
+            Y1=X(2,N1)
+            Z1=X(3,N1)
+            X2=X(1,N2)
+            Y2=X(2,N2)
+            Z2=X(3,N2)
+            X3=X(1,N3)
+            Y3=X(2,N3)
+            Z3=X(3,N3)
+            X31=X3-X1
+            Y31=Y3-Y1
+            Z31=Z3-Z1
+            X32=X3-X2
+            Y32=Y3-Y2
+            Z32=Z3-Z2
+C         
+            E3X=Y31*Z32-Z31*Y32
+            E3Y=Z31*X32-X31*Z32
+            E3Z=X31*Y32-Y31*X32
+            E3X=ONE_OVER_6*E3X
+            E3Y=ONE_OVER_6*E3Y
+            E3Z=ONE_OVER_6*E3Z
+C         
+!            AREA=SQRT(E3X*E3X+E3Y*E3Y+E3Z*E3Z)
+            IF (NI > 0 ) THEN 
+              NORMAL(1:3)= NORM_N(1:3,NI) 
+              AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+              NODAREA(N1)=NODAREA(N1)+AREA
+            ENDIF
+            NI=  ITAGN(N2) 
+            IF (NI > 0 ) THEN 
+              NORMAL(1:3)= NORM_N(1:3,NI) 
+              AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+              NODAREA(N2)=NODAREA(N2)+AREA
+            ENDIF
+            NI=  ITAGN(N3) 
+            IF (NI > 0 ) THEN 
+              NORMAL(1:3)= NORM_N(1:3,NI) 
+              AREA = ABS(NORMAL(1)*E3X+NORMAL(2)*E3Y+NORMAL(3)*E3Z)
+              NODAREA(N3)=NODAREA(N3)+AREA
+            ENDIF
+          END DO
+C         
+          DO I=1,NSEGQUADFR
+            N  =SEGQUADFR(1,I)
+            ILINE=SEGQUADFR(2,I)
+          
+            N1=IXQ(LINES(1,ILINE)+1,N)
+            N2=IXQ(LINES(2,ILINE)+1,N)
+          
+            Y1=X(2,N1)
+            Z1=X(3,N1)
+            Y2=X(2,N2)
+            Z2=X(3,N2)
+          
+            AREA = SQRT((Y2-Y1)*(Y2-Y1)+(Z2-Z1)*(Z2-Z1))
+            AREA = AREA*HALF
+          
+          
+           NODAREA(N1)=NODAREA(N1)+AREA
+           NODAREA(N2)=NODAREA(N2)+AREA
+          
+          ENDDO
+        END IF !(NNOUT >0) THEN
+!
+          IF(NSPMD > 1)THEN
+            LENR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
+            CALL SPMD_EXCH_NODAREA(NODAREA,IAD_ELEM,FR_ELEM,LENR,WEIGHT)
+          END IF
+C
+          DO N=1,NUMNOD
+            IF (NODAREA(N) <= EM20) THEN
+              CONTN(1,N)=ZERO
+              CONTN(2,N)=ZERO
+              CONTN(3,N)=ZERO
+              CONTT(1,N)=ZERO
+              CONTT(2,N)=ZERO
+              CONTT(3,N)=ZERO
+            ELSE
+              AREAINV = ONE/MAX(EM20,NODAREA(N))
+              CONTN(1,N)=AREAINV*CONTN(1,N)
+              CONTN(2,N)=AREAINV*CONTN(2,N)
+              CONTN(3,N)=AREAINV*CONTN(3,N)
+              CONTT(1,N)=AREAINV*CONTT(1,N)
+              CONTT(2,N)=AREAINV*CONTT(2,N)
+              CONTT(3,N)=AREAINV*CONTT(3,N)
+            ENDIF
+          END DO
+          IF (NNOUT >0) THEN
+            DEALLOCATE(ITAGN)
+            DEALLOCATE(NORM_N)
+            NODAREA(1:NUMNOD)=ZERO
+          END IF !(NNOUT >0) THEN
+      ENDIF
+!
       DO I=1,NFASOLFR
         N   =FASOLFR(1,I)
         IFAC=FASOLFR(2,I)
@@ -150,10 +578,10 @@ C
            E3Y=Z31*X42-X31*Z42
            E3Z=X31*Y42-Y31*X42
 C
-           IF(    N4.NE.N3
-     .       .AND.N3.NE.N2
-     .       .AND.N2.NE.N1
-     .       .AND.N1.NE.N4)THEN
+           IF(    N4/=N3
+     .       .AND.N3/=N2
+     .       .AND.N2/=N1
+     .       .AND.N1/=N4)THEN
              E3X=ONE_OVER_8*E3X
              E3Y=ONE_OVER_8*E3Y
              E3Z=ONE_OVER_8*E3Z
@@ -167,26 +595,26 @@ C
              E3Y=ONE_OVER_6*E3Y
              E3Z=ONE_OVER_6*E3Z
              AREA=SQRT(E3X*E3X+E3Y*E3Y+E3Z*E3Z)
-             IF(N4.EQ.N3)THEN
-                IF(N2.NE.N1) THEN
+             IF(N4==N3)THEN
+                IF(N2/=N1) THEN
                   NODAREA(N1)=NODAREA(N1)+AREA
                   NODAREA(N2)=NODAREA(N2)+AREA
                   NODAREA(N3)=NODAREA(N3)+AREA
                 ENDIF
-             ELSEIF(N3.EQ.N2)THEN
-                IF(N4.NE.N1) THEN
+             ELSEIF(N3==N2)THEN
+                IF(N4/=N1) THEN
                   NODAREA(N1)=NODAREA(N1)+AREA
                   NODAREA(N2)=NODAREA(N2)+AREA
                   NODAREA(N4)=NODAREA(N4)+AREA
                 ENDIF
-             ELSEIF(N2.EQ.N1)THEN
-                IF(N4.NE.N3) THEN
+             ELSEIF(N2==N1)THEN
+                IF(N4/=N3) THEN
                    NODAREA(N2)=NODAREA(N2)+AREA
                    NODAREA(N3)=NODAREA(N3)+AREA
                    NODAREA(N4)=NODAREA(N4)+AREA
                 ENDIF
-             ELSEIF(N1.EQ.N4)THEN
-                IF(N2.NE.N3) THEN
+             ELSEIF(N1==N4)THEN
+                IF(N2/=N3) THEN
                    NODAREA(N2)=NODAREA(N2)+AREA
                    NODAREA(N3)=NODAREA(N3)+AREA
                    NODAREA(N4)=NODAREA(N4)+AREA
@@ -267,7 +695,7 @@ C
         N2=IXC(3,N)
         N3=IXC(4,N)
         N4=IXC(5,N)
-        IF(N4.NE.N3)THEN
+        IF(N4/=N3)THEN
           X1=X(1,N1)
           Y1=X(2,N1)
           Z1=X(3,N1)
@@ -392,28 +820,7 @@ C
         CALL SPMD_EXCH_NODAREA(NODAREA,IAD_ELEM,FR_ELEM,LENR,WEIGHT)
       END IF
 C
-      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT .NE.0) THEN
-         DO N=1,NUMNOD
-           IF (NODAREA(N) == ZERO) THEN
-             CONTN(1,N)=ZERO
-             CONTN(2,N)=ZERO
-             CONTN(3,N)=ZERO
-             CONTT(1,N)=ZERO
-             CONTT(2,N)=ZERO
-             CONTT(3,N)=ZERO
-           ELSE
-             NODAREA(N)=ONE/MAX(EM30,NODAREA(N))
-             CONTN(1,N)=NODAREA(N)*CONTN(1,N)
-             CONTN(2,N)=NODAREA(N)*CONTN(2,N)
-             CONTN(3,N)=NODAREA(N)*CONTN(3,N)
-             CONTT(1,N)=NODAREA(N)*CONTT(1,N)
-             CONTT(2,N)=NODAREA(N)*CONTT(2,N)
-             CONTT(3,N)=NODAREA(N)*CONTT(3,N)
-           ENDIF
-         END DO
-       ENDIF
-C
-      IF(ANIM_V(27)+H3D_DATA%N_VECT_PCONT2 .NE.0) THEN
+      IF(ANIM_V(27)+H3D_DATA%N_VECT_PCONT2 /=0) THEN
          DO N=1,NUMNOD
            IF (NODAREA(N) == ZERO) THEN
              FNCONTP2(1,N)=ZERO
@@ -423,38 +830,74 @@ C
              FTCONTP2(2,N)=ZERO
              FTCONTP2(3,N)=ZERO
            ELSE
-             NODAREA(N)=ONE/MAX(EM30,NODAREA(N))
-             FNCONTP2(1,N)=NODAREA(N)*FNCONTP2(1,N)
-             FNCONTP2(2,N)=NODAREA(N)*FNCONTP2(2,N)
-             FNCONTP2(3,N)=NODAREA(N)*FNCONTP2(3,N)
-             FTCONTP2(1,N)=NODAREA(N)*FTCONTP2(1,N)
-             FTCONTP2(2,N)=NODAREA(N)*FTCONTP2(2,N)
-             FTCONTP2(3,N)=NODAREA(N)*FTCONTP2(3,N)
+C--          computation of normal and tangent contribution for PCONT2
+C--          total force stored in FNCONTP2
+             AREAINV = ONE/MAX(EM20,NODAREA(N))
+             NORMAL(1:3) = NPCONT2(1:3,N)
+             NNN = SQRT(MAX(EM20,NORMAL(1)**2+NORMAL(2)**2+NORMAL(3)**2))
+             NORMAL(1:3) = NORMAL(1:3)/NNN
+             FN_PROJ = FNCONTP2(1,N)*NORMAL(1)+FNCONTP2(2,N)*NORMAL(2)+FNCONTP2(3,N)*NORMAL(3)
+             F_TOTAL(1:3) = FNCONTP2(1:3,N)
+             FNCONTP2(1,N)=AREAINV*FN_PROJ*NORMAL(1)
+             FNCONTP2(2,N)=AREAINV*FN_PROJ*NORMAL(2)
+             FNCONTP2(3,N)=AREAINV*FN_PROJ*NORMAL(3)
+             FTCONTP2(1,N)=AREAINV*(F_TOTAL(1)-FN_PROJ*NORMAL(1))
+             FTCONTP2(2,N)=AREAINV*(F_TOTAL(2)-FN_PROJ*NORMAL(2))
+             FTCONTP2(3,N)=AREAINV*(F_TOTAL(3)-FN_PROJ*NORMAL(3))
            ENDIF
          END DO
        ENDIF
+C
+       IF(OUTPUT%DATA%NINEFRIC > 0) THEN
+        DO NI=1,OUTPUT%DATA%NINEFRIC
+         DO N=1,NUMNOD
+           IF (NODAREA(N) == ZERO) THEN
+             CSEFRIC(NI,N)=ZERO
+           ELSE
+             AREAINV = ONE/MAX(EM30,NODAREA(N))
+             CSEFRIC(NI,N)=AREAINV*OUTPUT%DATA%EFRIC(NI,N)
+           ENDIF
+         END DO
+        ENDDO
+       ENDIF
+C
+      IF(H3D_DATA%N_SCAL_CSE_FRIC >0)THEN
+         DO N=1,NUMNOD
+           IF (NODAREA(N) == ZERO) THEN
+             CSEFRICG(N)=ZERO
+           ELSE
+             AREAINV = ONE/MAX(EM30,NODAREA(N))
+             CSEFRICG(N)=AREAINV*OUTPUT%DATA%EFRICG(N)
+           ENDIF
+         END DO
+      ENDIF
 C
       DEALLOCATE(NODAREA)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ANI_PCONT21                   source/output/anim/generate/ani_pcont.F
-Chd|-- called by -----------
-Chd|        SORTIE_MAIN                   source/output/sortie_main.F   
-Chd|-- calls ---------------
-Chd|        SPMD_EXCH_NODAREA             source/mpi/anim/spmd_exch_nodarea.F
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE ANI_PCONT21(IXS ,IXC    ,IXTG    ,FASOLFR  ,X       ,
+!||====================================================================
+!||    ani_pcont21         ../engine/source/output/anim/generate/ani_pcont.F
+!||--- called by ------------------------------------------------------
+!||    sortie_main         ../engine/source/output/sortie_main.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exch_nodarea   ../engine/source/mpi/anim/spmd_exch_nodarea.F
+!||    spmd_glob_dsum9     ../engine/source/mpi/interfaces/spmd_th.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    h3d_mod             ../engine/share/modules/h3d_mod.F
+!||    output_mod          ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE ANI_PCONT21(OUTPUT,IXS ,IXC    ,IXTG    ,FASOLFR  ,X       ,
      .                 CONTN   ,CONTT  ,IAD_ELEM,FR_ELEM,WEIGHT      ,
      .                 NODGLOB ,FNCONTG ,FTCONTG,FNCONTP2,FTCONTP2   ,
-     .                 H3D_DATA )
+     .                 H3D_DATA,CSEFRIC_STAMP,CSEFRICG_STAMP,SZ_NPCONT2,NPCONT2)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -465,34 +908,36 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "spmd_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
+      TYPE(OUTPUT_), intent(inout) :: OUTPUT
       INTEGER  
      .   IXS(NIXS,*), IXC(NIXC,*), IXTG(NIXTG,*), FASOLFR(2,*),
      .   IAD_ELEM(2,*), FR_ELEM(*), WEIGHT(*), NODGLOB(*)
+      INTEGER  , INTENT(IN)    :: SZ_NPCONT2
       my_real
      .   X(3,*), CONTN(3,*), CONTT(3,*), FNCONTG(3,*), FTCONTG(3,*),
      .   FNCONTP2(3,*),FTCONTP2(3,*)
+      my_real  , INTENT(INOUT) :: CSEFRIC_STAMP(OUTPUT%DATA%NINEFRIC_STAMP,OUTPUT%DATA%S_EFRICINTG),
+     .   CSEFRICG_STAMP(OUTPUT%DATA%S_EFRICG)
+      my_real  , INTENT(IN)    :: NPCONT2(3,SZ_NPCONT2)
       TYPE (H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N1,N2,N3,N4,
      .        I,K,N,IFAC,
-     .        IERROR, LENR
+     .         LENR, NI
        my_real
      .     AREA, 
      .     X1,Y1,Z1,X2,Y2,Z2,X3,Y3,Z3,X4,Y4,Z4,
      .     X31,Y31,Z31,X42,Y42,Z42,X32,Y32,Z32,E3X,E3Y,E3Z,
-     .     TMP
+     .     TMP,AREAINV,NORMAL(3),NNN,F_TOTAL(1:3),FN_PROJ
       INTEGER FACES(4,6)
       my_real, DIMENSION(:), ALLOCATABLE ::  NODAREA,NODAREAG
 C     REAL
@@ -541,10 +986,10 @@ C
         E3Y=Z31*X42-X31*Z42
         E3Z=X31*Y42-Y31*X42
 C
-        IF(    N4.NE.N3
-     .    .AND.N3.NE.N2
-     .    .AND.N2.NE.N1
-     .    .AND.N1.NE.N4)THEN
+        IF(    N4/=N3
+     .    .AND.N3/=N2
+     .    .AND.N2/=N1
+     .    .AND.N1/=N4)THEN
           E3X=ONE_OVER_8*E3X
           E3Y=ONE_OVER_8*E3Y
           E3Z=ONE_OVER_8*E3Z
@@ -558,26 +1003,26 @@ C
           E3Y=ONE_OVER_6*E3Y
           E3Z=ONE_OVER_6*E3Z
           AREA=SQRT(E3X*E3X+E3Y*E3Y+E3Z*E3Z)
-          IF(N4.EQ.N3)THEN
-            IF(N2.NE.N1) THEN
+          IF(N4==N3)THEN
+            IF(N2/=N1) THEN
               NODAREA(N1)=NODAREA(N1)+AREA
               NODAREA(N2)=NODAREA(N2)+AREA
               NODAREA(N3)=NODAREA(N3)+AREA
             ENDIF
-          ELSEIF(N3.EQ.N2)THEN
-            IF(N4.NE.N1) THEN
+          ELSEIF(N3==N2)THEN
+            IF(N4/=N1) THEN
               NODAREA(N1)=NODAREA(N1)+AREA
               NODAREA(N2)=NODAREA(N2)+AREA
               NODAREA(N4)=NODAREA(N4)+AREA
             ENDIF
-          ELSEIF(N2.EQ.N1)THEN
-            IF(N4.NE.N3) THEN
+          ELSEIF(N2==N1)THEN
+            IF(N4/=N3) THEN
               NODAREA(N2)=NODAREA(N2)+AREA
               NODAREA(N3)=NODAREA(N3)+AREA
               NODAREA(N4)=NODAREA(N4)+AREA
             ENDIF
-          ELSEIF(N1.EQ.N4)THEN
-            IF(N2.NE.N3) THEN
+          ELSEIF(N1==N4)THEN
+            IF(N2/=N3) THEN
               NODAREA(N2)=NODAREA(N2)+AREA
               NODAREA(N3)=NODAREA(N3)+AREA
               NODAREA(N4)=NODAREA(N4)+AREA
@@ -591,7 +1036,7 @@ C
         N2=IXC(3,N)
         N3=IXC(4,N)
         N4=IXC(5,N)
-        IF(N4.NE.N3)THEN
+        IF(N4/=N3)THEN
           X1=X(1,N1)
           Y1=X(2,N1)
           Z1=X(3,N1)
@@ -696,7 +1141,46 @@ C
       END IF
 C-----
 
-      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT .NE.0) THEN
+      IF(NSPMD > 1)THEN
+        IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT+OUTPUT%DATA%NINEFRIC_STAMP
+     .   +H3D_DATA%N_SCAL_CSE_FRIC /=0) THEN
+
+          ALLOCATE(NODAREAG(NUMNODG))
+           DO I=1,NUMNODG
+             NODAREAG(I)=ZERO
+           ENDDO
+           DO K=1,NUMNOD
+             I=NODGLOB(K)
+             NODAREAG(I)=NODAREA(K)*WEIGHT(K)
+           ENDDO
+
+           CALL SPMD_GLOB_DSUM9(NODAREAG,NUMNODG)
+
+           IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT/=0) THEN
+              CALL SPMD_GLOB_DSUM9(FNCONTG,3*NUMNODG)
+              CALL SPMD_GLOB_DSUM9(FTCONTG,3*NUMNODG)
+           ENDIF
+           IF(OUTPUT%DATA%NINEFRIC_STAMP > 0) THEN
+             DO NI=1,OUTPUT%DATA%NINEFRIC_STAMP
+               DO I=1,NUMNODG
+                 CSEFRIC_STAMP(NI,I)=OUTPUT%DATA%EFRIC_STAMP(NI,I)
+               ENDDO
+               CALL SPMD_GLOB_DSUM9(CSEFRIC_STAMP(NI,1),NUMNODG)
+             ENDDO
+           ENDIF
+
+           IF(H3D_DATA%N_SCAL_CSE_FRIC > 0) THEN
+              DO I=1,NUMNODG
+                 CSEFRICG_STAMP(I)=OUTPUT%DATA%EFRICG_STAMP(I)
+              ENDDO
+              CALL SPMD_GLOB_DSUM9(CSEFRICG_STAMP,NUMNODG)
+           ENDIF
+           
+        ENDIF
+
+      ENDIF
+
+      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT /=0) THEN
 C     INTER == 21
         IF (NSPMD == 1) THEN
           DO N=1,NUMNOD
@@ -719,19 +1203,6 @@ C     INTER == 21
             ENDIF
           END DO
         ELSE
-          ALLOCATE(NODAREAG(NUMNODG))
-           DO I=1,NUMNODG
-             NODAREAG(I)=ZERO
-           ENDDO
-           DO K=1,NUMNOD
-             I=NODGLOB(K)
-             NODAREAG(I)=NODAREA(K)*WEIGHT(K)
-           ENDDO
-
-           CALL SPMD_GLOB_DSUM9(NODAREAG,NUMNODG)
-           CALL SPMD_GLOB_DSUM9(FNCONTG,3*NUMNODG)
-           CALL SPMD_GLOB_DSUM9(FTCONTG,3*NUMNODG)
-
            IF(ISPMD==0)THEN
              DO N=1,NUMNODG
                IF (NODAREAG(N) == ZERO) THEN
@@ -761,11 +1232,11 @@ C     INTER == 21
                FTCONTG(3,N)=ZERO
              END DO
            END IF
-           DEALLOCATE(NODAREAG)
+
          END IF
        ENDIF
 C
-      IF(ANIM_V(27)+H3D_DATA%N_VECT_PCONT2 .NE.0) THEN
+      IF(ANIM_V(27)+H3D_DATA%N_VECT_PCONT2 /=0) THEN
          DO N=1,NUMNOD
            IF (NODAREA(N) == ZERO) THEN
              FNCONTP2(1,N)=ZERO
@@ -775,17 +1246,93 @@ C
              FTCONTP2(2,N)=ZERO
              FTCONTP2(3,N)=ZERO
            ELSE
-             NODAREA(N)=ONE/MAX(EM30,NODAREA(N))
-             FNCONTP2(1,N)=NODAREA(N)*FNCONTP2(1,N)
-             FNCONTP2(2,N)=NODAREA(N)*FNCONTP2(2,N)
-             FNCONTP2(3,N)=NODAREA(N)*FNCONTP2(3,N)
-             FTCONTP2(1,N)=NODAREA(N)*FTCONTP2(1,N)
-             FTCONTP2(2,N)=NODAREA(N)*FTCONTP2(2,N)
-             FTCONTP2(3,N)=NODAREA(N)*FTCONTP2(3,N)
+C--          computation of normal and tangent contribution for PCONT2
+C--          total force stored in FNCONTP2
+             AREAINV = ONE/MAX(EM20,NODAREA(N))
+             NORMAL(1:3) = NPCONT2(1:3,N)
+             NNN = SQRT(MAX(EM20,NORMAL(1)**2+NORMAL(2)**2+NORMAL(3)**2))
+             NORMAL(1:3) = NORMAL(1:3)/NNN
+             FN_PROJ = FNCONTP2(1,N)*NORMAL(1)+FNCONTP2(2,N)*NORMAL(2)+FNCONTP2(3,N)*NORMAL(3)
+             F_TOTAL(1:3) = FNCONTP2(1:3,N)
+             FNCONTP2(1,N)=AREAINV*FN_PROJ*NORMAL(1)
+             FNCONTP2(2,N)=AREAINV*FN_PROJ*NORMAL(2)
+             FNCONTP2(3,N)=AREAINV*FN_PROJ*NORMAL(3)
+             FTCONTP2(1,N)=AREAINV*(F_TOTAL(1)-FN_PROJ*NORMAL(1))
+             FTCONTP2(2,N)=AREAINV*(F_TOTAL(2)-FN_PROJ*NORMAL(2))
+             FTCONTP2(3,N)=AREAINV*(F_TOTAL(3)-FN_PROJ*NORMAL(3))
            ENDIF
          END DO
        ENDIF
 C
+       IF(OUTPUT%DATA%NINEFRIC_STAMP > 0) THEN
+        IF (NSPMD == 1) THEN
+            DO NI=1,OUTPUT%DATA%NINEFRIC_STAMP
+             DO N=1,NUMNOD
+                I=NODGLOB(N)
+                IF (NODAREA(N) == ZERO) THEN
+                   CSEFRIC_STAMP(NI,I)=ZERO
+                ELSE
+                  TMP=ONE/MAX(EM30,NODAREA(N))
+                  CSEFRIC_STAMP(NI,I)=TMP*OUTPUT%DATA%EFRIC_STAMP(NI,I)
+                ENDIF
+             END DO
+            ENDDO
+        ELSE
+          IF(ISPMD==0)THEN 
+            DO NI=1,OUTPUT%DATA%NINEFRIC_STAMP
+             DO N=1,NUMNODG
+                IF (NODAREAG(N) == ZERO) THEN
+                   CSEFRIC_STAMP(NI,N)=ZERO
+                ELSE
+                  TMP=ONE/MAX(EM30,NODAREAG(N))
+                  CSEFRIC_STAMP(NI,N)=TMP*CSEFRIC_STAMP(NI,N)
+                ENDIF
+             END DO
+            ENDDO
+          ELSE
+            DO NI=1,OUTPUT%DATA%NINEFRIC_STAMP
+              DO N=1,NUMNODG
+                CSEFRIC_STAMP(NI,N)=ZERO
+              END DO
+            ENDDO
+          ENDIF
+        ENDIF
+       ENDIF
+C
+       IF(H3D_DATA%N_SCAL_CSE_FRIC > 0) THEN
+        IF (NSPMD == 1) THEN
+            DO N=1,NUMNOD
+              I=NODGLOB(N)
+              IF (NODAREA(N) == ZERO) THEN
+                 CSEFRICG_STAMP(I)=ZERO
+              ELSE
+                 TMP=ONE/MAX(EM30,NODAREA(N))
+                 CSEFRICG_STAMP(I)=TMP*OUTPUT%DATA%EFRICG_STAMP(I)
+              ENDIF
+            ENDDO
+        ELSE
+          IF(ISPMD==0)THEN 
+            DO N=1,NUMNODG
+              IF (NODAREAG(N) == ZERO) THEN
+                 CSEFRICG_STAMP(N)=ZERO
+              ELSE
+                 TMP=ONE/MAX(EM30,NODAREAG(N))
+                 CSEFRICG_STAMP(N)=TMP*CSEFRICG_STAMP(N)
+              ENDIF
+            ENDDO
+          ELSE
+            DO N=1,NUMNODG
+              CSEFRICG_STAMP(N)=ZERO
+            END DO
+          ENDIF
+        ENDIF
+       ENDIF
+C
+      IF(NSPMD > 1)THEN
+        IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT+OUTPUT%DATA%NINEFRIC_STAMP
+     .   +H3D_DATA%N_SCAL_CSE_FRIC /=0) DEALLOCATE(NODAREAG)
+      ENDIF
+          
       DEALLOCATE(NODAREA)
 C
       RETURN

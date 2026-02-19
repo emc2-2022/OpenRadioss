@@ -1,42 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 #define TO1D(i,j,k,s1,s2) i+(j-1)*s1+(k-1)*s1*s2
-Chd|====================================================================
-Chd|  I25TAGN                       source/interfaces/int25/i25norm.F
-Chd|-- called by -----------
-Chd|        I25MAIN_NORM                  source/interfaces/int25/i25main_norm.F
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25tagn         ../engine/source/interfaces/int25/i25norm.F
+!||--- called by ------------------------------------------------------
+!||    i25main_norm    ../engine/source/interfaces/int25/i25main_norm.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier      ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25TAGN (NI25    ,NIN     ,NRTM    ,NSN      ,NSNR    ,
      2                    JTASK   ,IAD_FRNOR ,FR_NOR ,IRTLM   ,MSEGTYP ,
      3                    I_STOK_GLO,I_STOK_RTLM,CAND_OPT_E,STFNS ,ACTNOR ,IRECT   ,
      4                    TAGNOD    ,IAD_ELEM,FR_ELEM ,ADMSR    ,KNOR2MSR ,
      5                    NOR2MSR   ,FLAGREMN,KREMNOR ,REMNOR   ,IEDGE    ,
      6                    NEDGE,LEDGE,NRTM_FREE,FREE_IRECT_ID,I_STOK_E2S  ,
-     7                    CANDM_E2S  ,CANDS_E2S  ,MVOISIN ,E2S_ACTNOR,NADMSR )
+     7                    CANDM_E2S  ,CANDS_E2S  ,MVOISIN ,E2S_ACTNOR,NADMSR ,STFM,
+     8                    NUMBER_EDGE_TYPE1,NUMBER_EDGE_TYPE1_0,EDGE_TYPE1,EDGE_TYPE1_0 )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -49,17 +51,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 #include      "i25edge_c.inc"
 
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -73,15 +72,21 @@ C-----------------------------------------------
       INTEGER, INTENT(IN) :: IEDGE,NEDGE
       INTEGER :: LEDGE(NLEDGE,NEDGE)
       INTEGER :: FREE_IRECT_ID(NRTM),NRTM_FREE
+      INTEGER, INTENT(in) :: NUMBER_EDGE_TYPE1 !< number of solid edge
+      INTEGER, INTENT(in) :: NUMBER_EDGE_TYPE1_0 !< number of solid + S edge
+      INTEGER, DIMENSION(NUMBER_EDGE_TYPE1), INTENT(in) :: EDGE_TYPE1 !< solid edge list
+      INTEGER, DIMENSION(NUMBER_EDGE_TYPE1_0), INTENT(in) :: EDGE_TYPE1_0 !< solid + S edge list
 C     REAL
       my_real
      .        STFNS(*)
+      my_real, INTENT(IN):: STFM(NRTM)
+
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J , K, N, NOR, NOD, L, ISH, FIRST, LAST, NL, LVOIS, NORV
+      INTEGER I, J, K, N, NOR, NOD, L, ISH, FIRST, LAST, NL, LVOIS
       INTEGER NRTMFT, NRTMLT, NSNF, NSNL, NSNRF, NSNRL, NODFT, NODLT,
-     .        I1, I2, I3, I4, M, NOR1, NOR2,  NADMSRFT, NADMSRLT,
+     . M, NOR1, NOR2, NADMSRFT, NADMSRLT,
      .        NRTMFT_FREE, NRTMLT_FREE, NEDGFT, NEDGLT, SOL_EDGE, SH_EDGE
       INTEGER IRM,JRM,IEDG,JEDG
       INTEGER, DIMENSION(:), ALLOCATABLE ::  TAGMSR
@@ -95,7 +100,7 @@ C
       NRTMLT= JTASK*NRTM/NTHREAD
       ACTNOR(NRTMFT:NRTMLT)=0
 C
-      IF(IEDGE .NE. 0) THEN
+      IF(IEDGE /= 0) THEN
         SOL_EDGE =IEDGE/10 ! solids
         IF(SOL_EDGE/=0) THEN
           NADMSRFT= 1+(JTASK-1)*NADMSR/ NTHREAD
@@ -130,10 +135,10 @@ c
                 DO J=1,4
                   NOR=ADMSR(J,L)
 C
-C             considerer L ET tous les segments voisins (cf glissement)
+C             consider l and all neighboring segments (see sliding)
                   DO NL=KNOR2MSR(NOR)+1,KNOR2MSR(NOR+1)
                     LVOIS= NOR2MSR(NL)
-                    IF(TAGMSR(LVOIS)==0) THEN
+                    IF(TAGMSR(LVOIS)==0.AND.STFM(LVOIS) > ZERO) THEN
                       ACTNOR(LVOIS)=1
 
                       DO K=1,4
@@ -158,14 +163,16 @@ C                                  IRTLM(4,N) is INTERCEP
                 ACTNOR(L)=1
                 DO J=1,4
                   NOR=ADMSR(J,L)
-C             considerer L ET tous les segments voisins (cf glissement)
+C             consider l and all neighboring segments (see sliding)
                   DO NL=KNOR2MSR(NOR)+1,KNOR2MSR(NOR+1)
                     LVOIS= NOR2MSR(NL)
-                    ACTNOR(LVOIS)=1
-                    DO K=1,4
-                       NOD=IRECT(K,LVOIS)
-                       TAGNOD(NOD)=1
-                    END DO
+                    IF(STFM(LVOIS) > ZERO) THEN
+                       ACTNOR(LVOIS)=1
+                       DO K=1,4
+                          NOD=IRECT(K,LVOIS)
+                          TAGNOD(NOD)=1
+                       END DO
+                    ENDIF
                   END DO 
                 END DO
              END IF
@@ -194,10 +201,10 @@ C
               DO J=1,4
                 NOR=ADMSR(J,L)
 C
-C             considerer L ET tous les segments voisins (cf glissement)
+C             consider l and all neighboring segments (see sliding)
                 DO NL=KNOR2MSR(NOR)+1,KNOR2MSR(NOR+1)
                   LVOIS= NOR2MSR(NL)
-                  IF(TAGMSR(LVOIS)==0) THEN
+                  IF(TAGMSR(LVOIS)==0.AND.STFM(LVOIS) > ZERO) THEN
                     ACTNOR(LVOIS)=1
 
                     DO K=1,4
@@ -227,15 +234,18 @@ C
               DO J=1,4
                 NOR=ADMSR(J,L)
 C
-C             considerer L ET tous les segments voisins (cf glissement)
+C             consider l and all neighboring segments (see sliding)
                 DO NL=KNOR2MSR(NOR)+1,KNOR2MSR(NOR+1)
                   LVOIS= NOR2MSR(NL)
-                  ACTNOR(LVOIS)=1
+                  IF(STFM(LVOIS) > ZERO) THEN
 
-                  DO K=1,4
-                     NOD=IRECT(K,LVOIS)
-                     TAGNOD(NOD)=1
-                  END DO
+                     ACTNOR(LVOIS)=1
+
+                     DO K=1,4
+                        NOD=IRECT(K,LVOIS)
+                        TAGNOD(NOD)=1
+                     END DO
+                  ENDIF
 
                 END DO
               END DO
@@ -245,7 +255,7 @@ C             considerer L ET tous les segments voisins (cf glissement)
         END DO
       ENDIF
 C
-C     Calcul des candidats optimises
+C     calculation of optimized candidates
       FIRST = I_STOK_RTLM + 1 + (I_STOK_GLO-I_STOK_RTLM)*(JTASK-1) / NTHREAD
       LAST  = I_STOK_RTLM +     (I_STOK_GLO-I_STOK_RTLM)*JTASK / NTHREAD
       DO I=FIRST,LAST
@@ -264,7 +274,7 @@ C     Calcul des candidats optimises
         END IF
       END DO
 C
-C     Force le calcul le long des free edges necessaire a vtx_bisector
+C     force calculation along free edges needed for vtx_bisector
       NRTMFT_FREE= 1+(JTASK-1)*NRTM_FREE/NTHREAD
       NRTMLT_FREE= JTASK*NRTM_FREE/NTHREAD
       DO I=NRTMFT_FREE,NRTMLT_FREE
@@ -285,7 +295,7 @@ C     Force le calcul le long des free edges necessaire a vtx_bisector
         END DO
       END DO
 C
-      IF(IEDGE .NE. 0) THEN
+      IF(IEDGE /= 0) THEN
 
         SOL_EDGE =IEDGE/10 ! solids
         SH_EDGE  =IEDGE-10*SOL_EDGE ! shells
@@ -307,12 +317,14 @@ C         Primary edges <=> only candidates retained for this cycle (optcd_e2s)
           END DO
 C
 C         All secondary edges includes
-          NEDGFT= 1+(JTASK-1)*NEDGE/NTHREAD
-          NEDGLT= JTASK*NEDGE/NTHREAD
-          DO I = NEDGFT,NEDGLT
+          NEDGFT = 1 + (JTASK-1)*NUMBER_EDGE_TYPE1_0 / NTHREAD
+          NEDGLT = JTASK*NUMBER_EDGE_TYPE1_0 / NTHREAD
+          IF(JTASK==NTHREAD) NEDGLT =NUMBER_EDGE_TYPE1_0
+#include "vectorize.inc"
+          DO J = NEDGFT,NEDGLT
+            I = EDGE_TYPE1_0(J)
 C
-            IF( LEDGE(LEDGE_TYPE,I) < 0 .OR.
-     .         (SH_EDGE==1 .AND. LEDGE(LEDGE_TYPE,I) /= 1 .AND. LEDGE(LEDGE_RIGHT_SEG,I) /= 0)) CYCLE
+            IF(SH_EDGE==1 .AND. LEDGE(LEDGE_TYPE,I) /= 1 .AND. LEDGE(LEDGE_RIGHT_SEG,I) /= 0) CYCLE
             ! Not a secondary edge
 C
             IRM =LEDGE(LEDGE_LEFT_SEG ,I)
@@ -337,7 +349,7 @@ C
         ENDIF
       ENDIF
 C
-      IF(IEDGE .NE. 0) THEN
+      IF(IEDGE /= 0) THEN
 
         SOL_EDGE =IEDGE/10 ! solids
 C
@@ -358,10 +370,12 @@ c              IF( LEDGE(LEDGE_TYPE,ABS(CANDS_E2S(I)))/=1)CYCLE
           END DO
 
 C         All secondary edges includes
-          NEDGFT= 1+(JTASK-1)*NEDGE/NTHREAD
-          NEDGLT= JTASK*NEDGE/NTHREAD
-          DO I = NEDGFT,NEDGLT
-             IF(LEDGE(LEDGE_TYPE,I)/=1)CYCLE 
+          NEDGFT = 1 + (JTASK-1)*NUMBER_EDGE_TYPE1 / NTHREAD
+          NEDGLT = JTASK*NUMBER_EDGE_TYPE1 / NTHREAD
+          IF(JTASK==NTHREAD) NEDGLT =NUMBER_EDGE_TYPE1
+#include "vectorize.inc"
+          DO J = NEDGFT,NEDGLT
+            I = EDGE_TYPE1(J)
 C
             IRM =LEDGE(LEDGE_LEFT_SEG ,I)
             IEDG=LEDGE(LEDGE_LEFT_ID  ,I)
@@ -376,7 +390,7 @@ C
       ENDIF
 
 C
-C     force le calcul des normales vs noeuds frontieres
+C     force calculation of normals vs boundary nodes
       CALL MY_BARRIER()
 
       IF(NSPMD > 1 .AND. JTASK == 1)THEN
@@ -409,16 +423,17 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I25NORMP                      source/interfaces/int25/i25norm.F
-Chd|-- called by -----------
-Chd|        I25MAIN_NORM                  source/interfaces/int25/i25main_norm.F
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_EXCH_NOR                 source/mpi/interfaces/spmd_exch_nor.F
-Chd|        DEBUG_MOD                     share/modules/debug_mod.F     
-Chd|        MPI_COMMOD                    share/modules/mpi_comm_mod.F  
-Chd|====================================================================
+!||====================================================================
+!||    i25normp        ../engine/source/interfaces/int25/i25norm.F
+!||--- called by ------------------------------------------------------
+!||    i25main_norm    ../engine/source/interfaces/int25/i25main_norm.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier      ../engine/source/system/machine.F
+!||    spmd_exch_nor   ../engine/source/mpi/interfaces/spmd_exch_nor.F
+!||--- uses       -----------------------------------------------------
+!||    debug_mod       ../engine/share/modules/debug_mod.F
+!||    mpi_commod      ../engine/share/modules/mpi_comm_mod.F
+!||====================================================================
       SUBROUTINE I25NORMP(NI25      ,NRTM  ,NRTM0   ,IRECT   ,X       ,
      .                    NOD_NORMAL,NMN   ,MSR     ,JTASK   ,STIFM, STFE,
      .                    ACTNOR  ,MSEGTYP ,TAGNOD  ,MVOISIN ,EVOISIN ,
@@ -427,7 +442,7 @@ Chd|====================================================================
      .                    IAD_FRNOR,FR_NOR,VTX_BISECTOR,FLAG,
      .                    NB_FREE_BOUND,FREE_BOUND,TAGE,FREE_IRECT_ID,NRTM_FREE,
      .                    FSKYT,IADNOR,ISHIFT,ADDCSRECT,PROCNOR,SOL_EDGE,
-     .                    FSKYN25  )
+     .                    FSKYN25 )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -443,17 +458,12 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "assert.inc"
-#include      "i25edge_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "spmd_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -477,12 +487,11 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J , N, LLT, NM, IRM, N1, N2, N3, N4, IAD, LENR, LENS, CC, ISH
+      INTEGER I, J, N, LLT, IRM, IAD, ISH
       INTEGER IX1, IX2, IX3, IX4,
-     .        I1, I2, I3, I4, JRM, JEDG, IEDG, NEDG, IS1,IS2
-      INTEGER NRTMFT, NRTMLT, NEDGFT, NEDGLT, NADMSRFT, NADMSRLT
+     . I1, I2, I3, I4, JRM, JEDG, IEDG, IS1,IS2
+      INTEGER NRTMFT, NRTMLT, NADMSRFT, NADMSRLT
       INTEGER SIZE                 
-      my_real S1,S2
       REAL*4
      .     X0, Y0, Z0,
      .     X1, X2, X3, X4,
@@ -495,10 +504,9 @@ C-----------------------------------------------
      .     XN2(MVSIZ),YN2(MVSIZ),ZN2(MVSIZ),
      .     XN3(MVSIZ),YN3(MVSIZ),ZN3(MVSIZ),
      .     XN4(MVSIZ),YN4(MVSIZ),ZN4(MVSIZ),
-     .     XS(MVSIZ), YS(MVSIZ), ZS(MVSIZ),
      .     AAA, NX, NY, NZ,
      .     VX, VY, VZ, X12, Y12, Z12
-      REAL*4 :: X0S,Y0S,Z0S,X01S,Y01S,Z01S,X02S,Y02S,Z02S
+ 
       LOGICAL :: LIMIT_CASE,IS_QUAD(MVSIZ)
 C     REAL*4 :: RZERO, RUN, REM30, REP30, RDIX
 C     PARAMETER ( RZERO = 0.          )
@@ -517,8 +525,8 @@ C     PARAMETER ( REM30 = RUN/REP30   )
 
 C-----------------------------------------------
 C debug
-      INTEGER IE,JE,I1E,I2E
-      INTEGER :: IDS(4)
+ 
+ 
 
 C     RZERO = 0.
 C     RUN   = 1.
@@ -536,7 +544,7 @@ C
         LLT=MIN(NRTMLT-N+1,MVSIZ)
 C
         TAGE(N:LLT+N-1)=0
-CLe nofusion est important 
+Cnofusion is important
 #include  "vectorize.inc"
 CDIR$ NOFUSION
         DO I=1,LLT
@@ -547,6 +555,12 @@ C
           IX2=IRECT(2,IRM)
           IX3=IRECT(3,IRM)
           IX4=IRECT(4,IRM)
+          IF(IX3/=IX4)THEN
+           IS_QUAD(I) = .TRUE.
+          ELSE
+           IS_QUAD(I) = .FALSE.
+          ENDIF
+
 C
           IF(TAGNOD(IX1)==0.AND.
      .       TAGNOD(IX2)==0.AND.
@@ -557,7 +571,7 @@ C
           END IF
 
 C
-          IF(STIFM(IRM) .NE. ZERO) THEN
+          IF(STIFM(IRM) > ZERO) THEN
 C
             X1=X(1,IX1)
             Y1=X(2,IX1)
@@ -572,17 +586,14 @@ C
             Y4=X(2,IX4)
             Z4=X(3,IX4)
 C           
-C           IF(I3.NE.I4)THEN
-            IF(IX3.NE.IX4)THEN
+            IF(IX3/=IX4)THEN
              X0 = (X1+X2+X3+X4)/4.0
              Y0 = (Y1+Y2+Y3+Y4)/4.0
              Z0 = (Z1+Z2+Z3+Z4)/4.0 
-             IS_QUAD(I) = .TRUE.
             ELSE
              X0 = X3
              Y0 = Y3
              Z0 = Z3
-             IS_QUAD(I) = .FALSE.
             ENDIF
 C           
             X01 = X1 - X0
@@ -740,7 +751,7 @@ C
           END IF
         END DO
 
-      IF(SOL_EDGE .NE. 0) THEN
+      IF(SOL_EDGE /= 0) THEN
 
         DO I=1,LLT
 C
@@ -753,7 +764,6 @@ C
           I3=ADMSR(3,IRM)
           I4=ADMSR(4,IRM)
 C
-C         IF(I3.NE.I4)THEN
           IF(IS_QUAD(I))THEN
             IAD = IADNOR(1,IRM)
             FSKYT(1,IAD) =  XN4(I)+XN1(I)
@@ -813,7 +823,7 @@ C
       LIMIT_CASE = .FALSE. 
       DO I=1,NRTM_FREE
         IRM = FREE_IRECT_ID(I) 
-        IF(STIFM(IRM)==ZERO)CYCLE
+        IF(STIFM(IRM) <= ZERO)CYCLE
         DO IEDG=1,4
           IF(MVOISIN(IEDG,IRM)==0)THEN
             IF(.NOT.(IRECT(3,IRM)==IRECT(4,IRM).AND.IEDG==3))THEN
@@ -949,7 +959,7 @@ C
 
 C
       IF(NSPMD > 1)THEN
-        IF(JTASK.EQ.1)THEN
+        IF(JTASK==1)THEN
           SIZE = 3
           CALL SPMD_EXCH_NOR(
      1      NI25,IAD_FREDG,FR_EDG , NOD_NORMAL,WNOD_NORMAL,SIZE ,NADMSR,
@@ -983,13 +993,13 @@ C            CYCLE
           ENDIF
 
            IF(ACTNOR(IRM)==0) THEN
-CC pas besoin de calculer les bis. sur ce irm
+Cno need to calculate the bisectors on this irm
 C             WNOD_NORMAL(1:3,1:4,IRM) = RZERO
               CYCLE
            ENDIF
 
 C
-          IF(STIFM(IRM) == 0) THEN
+          IF(STIFM(IRM) <= 0) THEN
             WNOD_NORMAL(1:3,1:4,IRM) = RZERO
           ELSE
             DO J=1,4
@@ -1017,50 +1027,50 @@ C               ENDIF
 C
       CALL MY_BARRIER
       IF(NSPMD > 1)THEN
-        IF(JTASK.EQ.1)THEN
+        IF(JTASK==1)THEN
           SIZE = 3
           CALL SPMD_EXCH_NOR(
      1      NI25,IAD_FREDG,FR_EDG , NOD_NORMAL,WNOD_NORMAL,SIZE , NADMSR,
      2      BUFFERS%RECV_RQ  ,BUFFERS%SEND_RQ,BUFFERS%IRINDEX,BUFFERS%ISINDEX,BUFFERS%IAD_RECV,
      3      BUFFERS%NBIRECV,BUFFERS%NBISEND,BUFFERS%RECV_BUF   ,BUFFERS%SEND_BUF ,VTX_BISECTOR,
      4      LBOUND,IAD_FRNOR,FR_NOR,2,FSKYN25 ,ISHIFT,ADDCSRECT, PROCNOR,SOL_EDGE)
+          WHERE (LBOUND(1:NADMSR) > 1) 
+            LBOUND(1:NADMSR) = 1
+          END WHERE
         END IF
-        WHERE (LBOUND(1:NADMSR) > 1) 
-          LBOUND(1:NADMSR) = 1
-        END WHERE
       END IF
 C
       CALL MY_BARRIER
 C
       DO IRM=NRTMFT,NRTMLT
 C
-C       IF(ACTNOR(IRM)==0 .OR. STIFM(IRM)==ZERO) CYCLE
+C       IF(ACTNOR(IRM)==0 .OR. STIFM(IRM)<=ZERO) CYCLE
 
-! Nod Normal should be recieved even if IRM 
+! Nod Normal should be received even if IRM 
 C is deleted
 C ISPMD may still send the edge during for contact detection
 C (i.e. ISPMD is PMAIN)
 
         IF(ACTNOR(IRM)==0) CYCLE
 
-        IF(STIFM(IRM) == ZERO) THEN
+        IF(STIFM(IRM) <= ZERO) THEN
           NOD_NORMAL(1:3,1:4,IRM) = RZERO 
         ENDIF
 
         DO J=1,4
           JRM =MVOISIN(J,IRM)
 C         DEBUG_E2E(INT_CHECKSUM(IDS,4,1) == D_EM,JRM)
-          IF(JRM<0 .AND. STIFM(IRM) == 0 ) THEN
+          IF(JRM<0 .AND. STIFM(IRM) <= 0 ) THEN
             NOD_NORMAL(1,J,IRM) = WNOD_NORMAL(1,J,IRM)
             NOD_NORMAL(2,J,IRM) = WNOD_NORMAL(2,J,IRM)
             NOD_NORMAL(3,J,IRM) = WNOD_NORMAL(3,J,IRM)
 C If the local segment is broken
-C The (secoundary) edge can still be sended by ISPMD to the processor that have
+C The (secondary) edge can still be sended by ISPMD to the processor that have
 C the main segment. 
 C In that case, the ordering of (JEDG) should be the one on the side that is not
 C broken
           ELSE ! JRM >= 0 .OR. STIFM /= 0 
-            IF( JRM .NE. 0) THEN
+            IF( JRM /= 0) THEN
               NX=NOD_NORMAL(1,J,IRM)+WNOD_NORMAL(1,J,IRM)
               NY=NOD_NORMAL(2,J,IRM)+WNOD_NORMAL(2,J,IRM)
               NZ=NOD_NORMAL(3,J,IRM)+WNOD_NORMAL(3,J,IRM)
@@ -1105,12 +1115,11 @@ CCCC #endif
       END
 
 
-Chd|====================================================================
-Chd|  I25ASSNP                      source/interfaces/int25/i25norm.F
-Chd|-- called by -----------
-Chd|        I25MAIN_NORM                  source/interfaces/int25/i25main_norm.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i25assnp       ../engine/source/interfaces/int25/i25norm.F
+!||--- called by ------------------------------------------------------
+!||    i25main_norm   ../engine/source/interfaces/int25/i25main_norm.F
+!||====================================================================
       SUBROUTINE I25ASSNP(JTASK   ,NADMSR ,NOD_NORMAL,ADMSR ,ADSKYT  ,
      .                    IADNOR  ,ACTNOR ,FSKYT  )
 C-----------------------------------------------
@@ -1118,16 +1127,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "com08_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1141,8 +1142,8 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J, C1, C2, CC
-      INTEGER NADMSRFT, NADMSRLT, NRTMFT, NRTMLT
+      INTEGER I, C1, C2, CC
+      INTEGER NADMSRFT, NADMSRLT
       REAL*4 
      .       AAA
 C------------------------------------

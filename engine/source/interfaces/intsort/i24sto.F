@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I24STO                        source/interfaces/intsort/i24sto.F
-Chd|-- called by -----------
-Chd|        I24TRIVOX                     source/interfaces/intsort/i24trivox.F
-Chd|-- calls ---------------
-Chd|        I24COR3T                      source/interfaces/intsort/i24cor3t.F
-Chd|        I24EDGT                       source/interfaces/intsort/i24sto.F
-Chd|        I24PEN3                       source/interfaces/intsort/i24pen3.F
-Chd|        I24S1S2                       source/interfaces/intsort/i24sto.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i24sto      ../engine/source/interfaces/intsort/i24sto.F
+!||--- called by ------------------------------------------------------
+!||    i24trivox   ../engine/source/interfaces/intsort/i24trivox.F
+!||--- calls      -----------------------------------------------------
+!||    i24cor3t    ../engine/source/interfaces/intsort/i24cor3t.F
+!||    i24edgt     ../engine/source/interfaces/intsort/i24sto.F
+!||    i24pen3     ../engine/source/interfaces/intsort/i24pen3.F
+!||    i24s1s2     ../engine/source/interfaces/intsort/i24sto.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box     ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24STO(
      1      J_STOK,IRECT  ,X     ,NSV   ,II_STOK,
      2      CAND_N,CAND_E ,MULNSN,NOINT ,MARGE  ,
@@ -50,16 +51,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -87,8 +78,6 @@ C     REAL
      .   PENE(MVSIZ), GAPV(MVSIZ), GAPVE(MVSIZ), PENE_E(MVSIZ)
       DATA ITYPE/24/
 C-----------------------------------------------
-#include "sync_dir.inc"
-C-----------------------------------------------
       CALL I24COR3T( J_STOK  ,X    ,IRECT   ,NSV   ,PROV_E  ,
      1               PROV_N  ,X1    ,X2      ,
      2               X3      ,X4   ,Y1      ,Y2    ,Y3      ,
@@ -112,20 +101,20 @@ C-----------------------------------------------
      .             MBINFLG,ISEADD ,ISEDGE ,PENE_E,IEDGE )
 
 C-----------------------------------------------
-C SUPPRESSION DES ANCIENS CANDIDATS DEJE STOCKES 
+C SUPPRESSION DES ANCIENS CANDIDATES DEJE STOCKES 
 C-----------------------------------------------
       DO I=1,J_STOK
-       IF(PENE(I).NE.ZERO)THEN
+       IF(PENE(I)/=ZERO)THEN
          N  = PROV_N(I)
          NE = PROV_E(I)+ESHIFT
-         IF(N.GT.NSN)THEN
-C numerotation tris precedent pour les noeuds non locaux (SPMD)
+         IF(N>NSN)THEN
+C numbering of previous sorts for non-local nodes (spmd)
             N = OLDNUM(N-NSN)+NSN
-            IF(N.EQ.NSN) N = NSN+NSNROLD+1
+            IF(N==NSN) N = NSN+NSNROLD+1
          END IF
          J = CAND_A(N)
-          DO WHILE(J.LE.CAND_A(N+1)-1)
-              IF(CAND_E(J).EQ.NE)THEN
+          DO WHILE(J<=CAND_A(N+1)-1)
+              IF(CAND_E(J)==NE)THEN
                   PENE(I)=ZERO
                   J=CAND_A(N+1)
                 ELSE
@@ -137,16 +126,16 @@ C numerotation tris precedent pour les noeuds non locaux (SPMD)
 
       K_STOK = 0
       DO I=1,J_STOK
-          IF(PENE(I)+PENE_E(I).NE.ZERO) THEN
+          IF(PENE(I)+PENE_E(I)/=ZERO) THEN
            K_STOK = K_STOK + 1
            IF( MSEGTYP(PROV_E(I)+ESHIFT)>0) K_STOK = K_STOK + 1
           END IF 
       ENDDO
-      IF(K_STOK.EQ.0)RETURN
+      IF(K_STOK==0)RETURN
 C
 #include "lockon.inc"
       I_STOK = II_STOK
-      IF(I_STOK+K_STOK.GT.MULNSN) THEN
+      IF(I_STOK+K_STOK>MULNSN) THEN
             I_MEM = 2
 #include "lockoff.inc"
             RETURN
@@ -155,7 +144,7 @@ C
 #include "lockoff.inc"
       IF(IEDGE==0)THEN
         DO I=1,J_STOK
-          IF(PENE(I).NE.ZERO)THEN
+          IF(PENE(I)/=ZERO)THEN
             I_STOK = I_STOK + 1
             CAND_N(I_STOK) = PROV_N(I)
             CAND_E(I_STOK) = PROV_E(I)+ESHIFT
@@ -199,14 +188,15 @@ C
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24S1S2                       source/interfaces/intsort/i24sto.F
-Chd|-- called by -----------
-Chd|        I24STO                        source/interfaces/intsort/i24sto.F
-Chd|-- calls ---------------
-Chd|        BITGET                        source/interfaces/intsort/i20sto.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i24s1s2   ../engine/source/interfaces/intsort/i24sto.F
+!||--- called by ------------------------------------------------------
+!||    i24sto    ../engine/source/interfaces/intsort/i24sto.F
+!||--- calls      -----------------------------------------------------
+!||    bitget    ../engine/source/interfaces/intsort/i20sto.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box   ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24S1S2(LLT  ,NSN  ,ESHIFT,PROV_N,PROV_E,
      .                   NBINFLG,MBINFLG,PENE)
 C-----------------------------------------------
@@ -218,18 +208,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-#include      "units_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER LLT,NSN,ESHIFT,PROV_N(*),PROV_E(*),NBINFLG(*),MBINFLG(*)
 C     REAL
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -261,14 +243,15 @@ C=======================================================================
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I24EDGT                       source/interfaces/intsort/i24sto.F
-Chd|-- called by -----------
-Chd|        I24STO                        source/interfaces/intsort/i24sto.F
-Chd|-- calls ---------------
-Chd|        BITGET                        source/interfaces/intsort/i20sto.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i24edgt   ../engine/source/interfaces/intsort/i24sto.F
+!||--- called by ------------------------------------------------------
+!||    i24sto    ../engine/source/interfaces/intsort/i24sto.F
+!||--- calls      -----------------------------------------------------
+!||    bitget    ../engine/source/interfaces/intsort/i20sto.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box   ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24EDGT(LLT  ,NSN  ,ESHIFT,PROV_N,PROV_E,
      .                   MBINFLG,ISEADD ,ISEDGE ,PENE_E,IEDGE )
 C-----------------------------------------------
@@ -280,11 +263,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-#include      "units_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER LLT,NSN,ESHIFT,PROV_N(*),PROV_E(*),MBINFLG(*),
@@ -292,9 +270,6 @@ C-----------------------------------------------
 C     REAL
       my_real
      .    PENE_E(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -317,7 +292,7 @@ C=======================================================================
              IAD = ISEADD(N)
              NES = ISEDGE(IAD)
            ELSE
-c a faire !!!!!!!!!!!!!!!!!!!!!!!!!
+c a to perform !!!!!!!!!!!!!!!!!!!!!!!!!
              stop 987
            ENDIF
            IF(IME /= 1 .or. NES == 0) PENE_E(I)=ZERO

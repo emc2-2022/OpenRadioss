@@ -1,80 +1,75 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_RBE3                  source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SZ_R2R                     source/coupling/rad2rad/routines_r2r.F
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        PRERBE3FR                     source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_rbe3               ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    lectur                     ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    fretitl                    ../starter/source/starter/freform.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key         ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start            ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_sz_r2r                  ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    kinset                     ../starter/source/constraints/general/kinset.F
+!||    prerbe3fr                  ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    usr2sys                    ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    r2r_mod                    ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_RBE3(IRBE3  ,LRBE3  ,FRBE3  ,ITAB   ,ITABM1  ,
      .                         IGRNOD ,ISKN   ,LXINTD ,IKINE  ,IDDLEVEL,
      .                         NOM_OPT,ITAGND ,GRNOD_UID,UNITAB,LSUBMODEL )
 C-------------------------------------
-C     LECTURE STRUCTURE RIGIDES 
+C     READING STRUCTURE RIGIDES 
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE UNITAB_MOD
       USE R2R_MOD
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "scr17_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "submod_c.inc"
 #include      "tabsiz_c.inc"
 #include      "r2r_c.inc"
 #include      "sphcom.inc"
@@ -86,8 +81,7 @@ C-----------------------------------------------
      .        ISKN(LISKN,*),LXINTD,
      .        IDDLEVEL,IKINE(*),ITAGND(*)
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      my_real
-     .     FRBE3(6,*)
+      my_real FRBE3(6,*)
       INTEGER NOM_OPT(LNOPT1,*)
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD)  :: IGRNOD
@@ -96,21 +90,24 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, K, NSL, NSLT, ITYP, NUSER,  NM, NI, NI_OK,
-     .        ISK, ISENS, INGU, IGM, J, P,IAD,NS,NN,J6(6),JJ,II,
-     .        IC,IC1,IC2,IROT,ISKS,IADS,IERR1,ISKEW0(SLRBE3/2),IMODIF,
-     .        IDIR,IKINE1(3*NUMNOD),NRB,ID,UID,SUB_INDEX
-      CHARACTER TITR*nchartitle,KEY*ncharkey,MESS*40
-      CHARACTER STRING*ncharfield,CODE*7
+      INTEGER I, N, K, NSL, NUSER,  NM, NI, NI_OK,
+     .        ISK, INGU, IGM, J, IAD,NS,NN,J6(6),JJ,II,
+     .        IC,IC1,IC2,IROT,ISKS,IADS,IMODIF,
+     .        IDIR,NRB,ID,UID,SUB_INDEX,IFORM
+      my_real W
+      INTEGER, DIMENSION(:),ALLOCATABLE   :: IKINE1
+      INTEGER, DIMENSION(:),ALLOCATABLE   :: ISKEW0
+      my_real, DIMENSION(:,:),ALLOCATABLE :: WI
+      CHARACTER(LEN=NCHARTITLE) ::  TITR
+      CHARACTER(LEN=NCHARFIELD) :: STRING
+      CHARACTER :: MESS*40
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER USR2SYS,NODGRNR5
+      INTEGER USR2SYS
 C
       DATA MESS/'INTERPOLATION CONSTRAINT BODY  '/
-      my_real
-     .   WI(6,NUMNOD),W
 C-----------------------------------------------
 C     IRBE3(1,I) : IAD0 for LRBE3 and FRBE3
 C     IRBE3(2,I) : TYPE         usr' id temporaire (print)
@@ -119,11 +116,19 @@ C     IRBE3(4,I) : REF_DOF
 C     IRBE3(5,I) : NUMBER MAIN NODE
 C     IRBE3(6,I) : IROT        =0 no rotational dependent
 C     IRBE3(7,I) : SENSOR NUMBER - not used yet
-C     IRBE3(8,I) :  not used yet,used temporaire for Imodif
-C     IRBE3(9,I) :  not used yet
-C     IRBE3(10,I) :  Numero interne du IRBE3 (necessaire pour Modif/SPMD)
+C     IRBE3(8,I) : Imodif ! 4 : switch to penalty formulation (for testing)
+C     IRBE3(9,I) :  if penalty formulation : 0=kinematic, 1=penalty
+C     IRBE3(10,I) :  Internal number of IRBE3 (necessary for Modif/SPMD)
 C=======================================================================
-
+! complete case of switching to penalty formulation; free nodes w/ spc?
+! 1) hierachy level>1
+! 2) incompatibility kin
+! 3) avoid too much added mass : 2 conditions 1)Is>0 2)rR>?
+! rbe3_mod is used from engine, ini is done in resol_init,internal arrays of pen are added in restart 
+      CALL MY_ALLOC(IKINE1,3*NUMNOD)
+      CALL MY_ALLOC(ISKEW0,SLRBE3/2)
+      CALL MY_ALLOC(WI,6,NUMNOD)
+c
       WRITE(IOUT,1000)
 CC
       IS_AVAILABLE = .FALSE.
@@ -147,9 +152,10 @@ C---------otherwise quadratic cycling---------
       DO I=1,NRBE3
         NRB=NRB+1
 C----------Multidomaines --> on ignore les rbe3 non tages---------
-        IF(NSUBDOM.GT.0)THEN
-          IF(TAGRB3(NRB).EQ.0)CALL HM_SZ_R2R(TAGRB3,NRB,LSUBMODEL)
+        IF(NSUBDOM>0)THEN
+          IF(TAGRB3(NRB)==0)CALL HM_SZ_R2R(TAGRB3,NRB,LSUBMODEL)
         END IF
+        IFORM = 0
 C--------------------------------------------------
 C EXTRACT DATAS OF /RBE3/... LINE
 C--------------------------------------------------
@@ -170,18 +176,30 @@ C
         CALL HM_GET_INTV('LRZ',J6(6),IS_AVAILABLE,LSUBMODEL)
         CALL HM_GET_INTV('nset',NN,IS_AVAILABLE,LSUBMODEL)
         CALL HM_GET_INTV('I_Modif',IMODIF,IS_AVAILABLE,LSUBMODEL)
+        CALL HM_GET_INTV('Iform',IFORM,IS_AVAILABLE,LSUBMODEL)
         IRBE3(2,I) = ID
         IRBE3(10,I)=I
         NUSER = ID
 C
-        IF (IMODIF.EQ.0) IMODIF =1
+        IF (IMODIF==0) IMODIF =1
+!        IF (IMODIF==4) IRBE3(9,I) =1
         IRBE3(8,I) = IMODIF
+        SELECT CASE (IFORM)
+          CASE(0,1)
+           IRBE3(9,I) =0
+           IF (IFORM==0) IFORM =1
+          CASE(2)
+           IRBE3(9,I) = -1
+          CASE(3)
+           IRBE3(9,I) = 1
+        END SELECT
         NS = USR2SYS(NSL,ITABM1,MESS,NUSER)
         IC1=J6(1)*4 +J6(2)*2 +J6(3)
         IC2=J6(4)*4 +J6(5)*2 +J6(6)
         IC =IC1*512+IC2*64
-        IF (IC.EQ.0) IC =7*512+7*64
-        IF (NS10E > 0.AND.ITAGND(NS)/=0) THEN
+        IF (IC==0) IC =7*512+7*64
+        IF (NS10E > 0) THEN
+          IF(ITAGND(NS)/=0) THEN
 C------- error out      
           CALL ANCMSG(MSGID=1208,
      .                MSGTYPE=MSGERROR,
@@ -190,6 +208,7 @@ C------- error out
      .                C1='RBE3 ',
      .                I2=NUSER,
      .                C2='RBE3 ')
+          ENDIF
         END IF
         IRBE3(3,I) = NS
         IRBE3(4,I) = IC
@@ -205,7 +224,7 @@ C------- error out
          CALL HM_GET_INT_ARRAY_INDEX('rz',J6(6),J,IS_AVAILABLE,LSUBMODEL)
          CALL HM_GET_INT_ARRAY_INDEX('SKEW_ARRAY',ISK,J,IS_AVAILABLE,LSUBMODEL)
          CALL HM_GET_INT_ARRAY_INDEX('independentnodesets',INGU,J,IS_AVAILABLE,LSUBMODEL)
-         IF (W.EQ.ZERO.OR.IMODIF.EQ.3) W=ONE
+         IF (W==ZERO.OR.IMODIF==3) W=ONE
          NM = 0
          IF(INGU > 0) THEN
           CALL C_HASH_FIND(GRNOD_UID,INGU,IGM) 
@@ -222,14 +241,14 @@ C------- error out
          END IF !(INGU > 0)
 
          ISKS = 0
-         IF ((J6(1)+J6(2)+J6(3)+J6(4)+J6(5)+J6(6)).EQ.0) THEN
+         IF ((J6(1)+J6(2)+J6(3)+J6(4)+J6(5)+J6(6))==0) THEN
           J6(1)=1
           J6(2)=1
           J6(3)=1
          ENDIF
-         IF (ISK.NE.0) THEN
+         IF (ISK/=0) THEN
           DO JJ=0,NUMSKW+MIN(1,NSPCOND)*NUMSPH+NSUBMOD
-           IF(ISK.EQ.ISKN(4,JJ+1)) THEN
+           IF(ISK==ISKN(4,JJ+1)) THEN
             ISKS=JJ+1
             GO TO 10
            ENDIF
@@ -250,9 +269,9 @@ C------- error out
           ISKEW0(IAD+K)=ISK
           DO JJ=1,6
            II = J6(JJ)
-           IF (II.GT.ZERO) THEN
-            IF (JJ.GT.3) IROT=1
-            IF (WI(JJ,NI).EQ.ZERO) THEN
+           IF (II>ZERO) THEN
+            IF (JJ>3) IROT=1
+            IF (WI(JJ,NI)==ZERO) THEN
                    WI(JJ,NI) = W
             ELSE
              CALL ANCMSG(MSGID=705,
@@ -263,7 +282,8 @@ C------- error out
      .                   I2=ITAB(NI))
             ENDIF
            ENDIF
-           IF (NS10E > 0.AND.ITAGND(NI)/=0) THEN
+           IF (NS10E > 0) THEN
+             IF(ITAGND(NI)/=0) THEN
 C------- error out      
              CALL ANCMSG(MSGID=1211,
      .               MSGTYPE=MSGERROR,
@@ -272,6 +292,7 @@ C------- error out
      .               C1='RBE3',
      .               I2=NUSER,
      .               C2='RBE3')
+             ENDIF
            END IF
            FRBE3(JJ,IAD+K) = WI(JJ,NI)
           ENDDO
@@ -301,7 +322,7 @@ C
        IF (IMODIF/=2) IRBE3(8,I)=4
        CALL PRERBE3FR(IRBE3 ,I    ,J6  ,J6(4)   )
        IF (IPRI>=5) THEN
-        WRITE(IOUT,1100) NUSER,ITAB(NS),J6,NM,IMODIF
+        WRITE(IOUT,1100) NUSER,ITAB(NS),J6,NM,IMODIF,IFORM
         WRITE(IOUT,1101)
         DO J = 1, NM
          WRITE(IOUT,1102) ITAB(LRBE3(IAD+J)),ISKEW0(IAD+J),
@@ -310,7 +331,7 @@ C
         WRITE(IOUT,*) 
        ELSE
 c        WRITE(IOUT,1103) 
-        WRITE(IOUT,1104) NUSER,ITAB(NS),J6,NM,IMODIF
+        WRITE(IOUT,1104) NUSER,ITAB(NS),J6,NM,IMODIF,IFORM
        END IF
         LXINTD = LXINTD + NM/4 + 1
         IF (IDDLEVEL == 0) THEN
@@ -320,12 +341,11 @@ c        WRITE(IOUT,1103)
           ENDDO
         ENDIF
       ENDDO
-      IF (NSPMD>1) THEN
-          LXINTD = 6*LXINTD
-      ELSE
-         LXINTD = 0
-      ENDIF
+      IF (NSPMD==1) LXINTD = 0
 C
+      DEALLOCATE(IKINE1)
+      DEALLOCATE(ISKEW0)
+      DEALLOCATE(WI)
       RETURN
 C
  1000 FORMAT(//
@@ -335,7 +355,8 @@ C
      .       /5X,'DEPENDENT NODE . . . . . . . . .',I10
      .       /5X,'REFERENCE DOF(Trarot). . . . . . . ',3I1,1X,3I1
      .       /5X,'NUMBER OF INDEPENDENT NODES. . .',I10
-     .       /5X,'FLAG OF WEIGHTING MODIFICATION .',I10)
+     .       /5X,'FLAG OF WEIGHTING MODIFICATION .',I10
+     .       /5X,'FLAG OF RBE3 FORMULATION. . . . ',I10)
  1101 FORMAT(//
      .'     WEIGHTING FACTORS OF INDEPENDENT NODES   '/
      .'     -------------------    '/
@@ -343,45 +364,42 @@ C
      .'            DIR_TRA_3         DIR_ROT_1         DIR_ROT_2',
      .'            DIR_ROT_3'/)
  1102 FORMAT(3X,2I10,3X,6G20.13)
- 1103 FORMAT('      RBE3_ID DEPENDENT_NODE REF_DOF    #IND.   IMODIF'/)
- 1104 FORMAT(3X,2I10,2X,3I1,1X,3I1,2I10)
+ 1103 FORMAT('      RBE3_ID DEPENDENT_NODE REF_DOF    #IND.   IMODIF   IFORM'/)
+ 1104 FORMAT(3X,2I10,2X,3I1,1X,3I1,3I10)
 C 
       END SUBROUTINE HM_READ_RBE3 
-Chd|====================================================================
-Chd|  INIRBE3                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        HIREORBE3                     source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        RBE3CHK                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    inirbe3                ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    hireorbe3              ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    ifrontplus             ../starter/source/spmd/node/frontplus.F
+!||    nlocal                 ../starter/source/spmd/node/ddtools.F
+!||    rbe3chk                ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INIRBE3(IRBE3  ,LRBE3  ,FRBE3  ,SKEW   ,X     ,
-     .                    MS     ,IN     ,NOM_OPT)
+     .                    MS     ,IN    ,NOM_OPT,STIFN  ,STIFR ,
+     .                   ICODE  ,ITAB )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------   
-      USE MESSAGE_MOD       
+      USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "scr17_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -390,6 +408,10 @@ C-----------------------------------------------
       INTEGER IRBE3(NRBE3L,*), LRBE3(*)
       my_real
      .     SKEW(LSKEW,*), FRBE3(*),X(3,*),MS(*),IN(*)
+      my_real , DIMENSION(NUMNOD), INTENT(IN  ) ::STIFN 
+      my_real , DIMENSION(NUMNOD), INTENT(IN  ) ::STIFR 
+      INTEGER , DIMENSION(NUMNOD), INTENT(IN  ) ::ICODE 
+      INTEGER , DIMENSION(NUMNOD), INTENT(IN  ) ::ITAB 
       INTEGER NOM_OPT(LNOPT1,*)
 C-----------------------------------------------
 C   F u n c t i o n
@@ -399,14 +421,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, K, NSL,NM, NI, NMT,M,IROT,IMO,
-     .        J, P,IAD,NS,NN,J6(6),JJ,II,IADS,IERR1,NP,IC,ICT
-      INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      INTEGER I, NM, NMT,M,IROT,IMO,ICR,
+     .        J, P,IAD,NS,IADS,IERR1,IC,ICT
+      INTEGER ID,IPEN
+      CHARACTER(LEN=NCHARTITLE)::TITR
 C
-      my_real
-     .   W,WMIN
+      my_real WMIN,IN_T
 C-----------------------------------------------
 C     FRBE3(1-3,I) : tw(i)
 C     FRBE3(4-6,I) : rw(i)
@@ -423,21 +443,68 @@ C----- re-ordering by hierrrchy (only 1 level)
        NM = IRBE3(5,I)
        IROT =IRBE3(6,I)
        IMO = IRBE3(8,I)
+       IPEN = IRBE3(9,I)
         
         ID=NOM_OPT(1,I)
         CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,I),LTITR)
+! Switch to penalty if /BCS of NS
+        IF (ICODE(NS)>0 .AND. IPEN==0) THEN 
+          IRBE3(9,I) = 1 ! add message
+          CALL ANCMSG(MSGID=3115,
+     .                   MSGTYPE=MSGWARNING,
+     .                   ANMODE=ANINFO_BLIND_1,
+     .                   I1=ID,
+     .                   C1=TITR,
+     .                   I2=ITAB(NS))
+        END IF
+C------ check if solid node for all independent
+! will be switch to pen if arm>0 
+        IF (IN(NS)>EM10.AND.MIN(STIFN(NS),STIFR(NS))>EM10.AND.IPEN==0) IPEN = 2 
+        IF (IROT>0) THEN
+          IN_T = ZERO
+          DO J=1,NM
+            M= LRBE3(IAD+J)
+            IN_T = IN_T + IN(M)
+          ENDDO
+          IF (IN_T<EM20) THEN
+             CALL ANCMSG(MSGID=3009,
+     .                   MSGTYPE=MSGWARNING,
+     .                   ANMODE=ANINFO_BLIND_1,
+     .                   I1=ID,
+     .                   C1=TITR)
+            IROT = 0
+            IRBE3(6,I) = 0
+          END IF
+         END IF !(IROT>0) THEN
         CALL RBE3CHK(LRBE3(IAD+1),LRBE3(NMT+IAD+1) ,NS     ,X      ,
      .               FRBE3(6*IAD+1),SKEW    ,NM   ,IROT  ,IMO, WMIN,
-     .               IERR1 )
-        IF (IERR1.GT.0) THEN
+     .               IPEN, IERR1 )
+        IF (IPEN==-2) THEN
+          IRBE3(9,I) = 0 ! small arm keep kinematic
+        ELSEIF (IPEN==2) THEN
+          IRBE3(9,I) = 1 ! add message
+          CALL ANCMSG(MSGID=3097,
+     .                   MSGTYPE=MSGWARNING,
+     .                   ANMODE=ANINFO_BLIND_1,
+     .                   I1=ID,
+     .                   C1=TITR)
+        END IF
+        IF (IERR1==400) THEN
+             ID= IRBE3(2,I)
+             CALL ANCMSG(MSGID=3098,
+     .                   MSGTYPE=MSGERROR,
+     .                   ANMODE=ANINFO,
+     .                   I1=ID,
+     .                   C1=TITR)
+        ELSEIF (IERR1>0) THEN
              ID= IRBE3(2,I)
              CALL ANCMSG(MSGID=706,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO,
      .                   I1=ID,
      .                   C1=TITR)
-        ELSEIF (IERR1.LT.0) THEN
-           IF (IMO.EQ.2) THEN
+        ELSEIF (IERR1<0) THEN
+           IF (IMO==2) THEN
              ID= IRBE3(2,I)
              CALL ANCMSG(MSGID=749,
      .                   MSGTYPE=MSGWARNING,
@@ -454,25 +521,19 @@ C----- re-ordering by hierrrchy (only 1 level)
      .                   R1=WMIN)
            END IF
         END IF
-C------ remove JR of NS if no dof of rotation		
-		IF (IRODDL==0 .OR.IN(NS)==ZERO) THEN
-		 IC = IRBE3(4,I)
-		 ICT = IC/512
-		 IRBE3(4,I) = ICT*512
-		END IF
         DO J=1,NM
           M= LRBE3(IAD+J)
           FRBE3(IADS+J) =MS(M)
-          IF (IRODDL.NE.0) FRBE3(IADS+NMT+J) =IN(M)
+          IF (IRODDL/=0) FRBE3(IADS+NMT+J) =IN(M)
         ENDDO
 C------IF NS not in any proc : done already in domdec2
         DO P = 1, NSPMD
-         IF (NLOCAL(NS,P).EQ.0) THEN
+         IF (NLOCAL(NS,P)==0) THEN
            GO TO 200
          ENDIF
          DO J=1,NM
           M= LRBE3(IAD+J)
-          IF (NSPMD.GT.1) CALL IFRONTPLUS(M,P)
+          IF (NSPMD>1) CALL IFRONTPLUS(M,P)
          ENDDO
 C optimisation possible
  200     CONTINUE
@@ -482,89 +543,24 @@ C optimisation possible
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INTXRBE3                      source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE INTXRBE3(IRBE3  ,LRBE3  ,NELEMINT,IXINT,IFIEND)
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER IRBE3(NRBE3L,*), LRBE3(*),NELEMINT, IXINT(6,*), IFIEND
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I, N, J,K, NS,NM, NI, NMT,M,NFT,JLT,IAD,II
-C
-C========================================================================|
-      NMT = 0
-      DO I=1,NRBE3
-       IAD = IRBE3(1,I)
-       NS = IRBE3(3,I)
-       NM = IRBE3(5,I)
-       DO NFT =0,NM-1 ,4
-         JLT = MIN(4, NM - NFT )
-         NELEMINT = NELEMINT + 1
-         NMT = NMT + 1
-         DO J = 1 ,JLT
-          II = J+ NFT
-          M= LRBE3(IAD+II)
-          IXINT(J,NELEMINT)=M
-         ENDDO
-         IF (JLT.EQ.1) THEN
-          IXINT(2,NELEMINT)=IXINT(1,NELEMINT)
-          IXINT(3,NELEMINT)=IXINT(1,NELEMINT)
-          IXINT(4,NELEMINT)=IXINT(1,NELEMINT)
-         ELSEIF (JLT.EQ.2) THEN
-          IXINT(3,NELEMINT)=IXINT(1,NELEMINT)
-          IXINT(4,NELEMINT)=IXINT(2,NELEMINT)
-         ELSEIF (JLT.EQ.3) THEN
-          IXINT(4,NELEMINT)=IXINT(3,NELEMINT)
-         ENDIF
-         IXINT(5,NELEMINT)=NS
-         IXINT(6,NELEMINT)=100
-       ENDDO
-      ENDDO
-      IFIEND = IFIEND + NMT*6
-C
-      RETURN
-      END
-Chd|====================================================================
-Chd|  RBE3CHK                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        INIRBE3                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- calls ---------------
-Chd|        INVERT                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        RBE3UF                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        RBE3UM                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        WRRINF                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        ZERO1                         source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3chk   ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    inirbe3   ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- calls      -----------------------------------------------------
+!||    invert    ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    rbe3uf    ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    rbe3um    ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    wrrinf    ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    zero1     ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||====================================================================
       SUBROUTINE RBE3CHK(INRBE3  ,ILRBE3  ,NS     ,XYZ    ,FRBE3   ,
      .                   SKEW    ,NG      ,IROT   ,IMODIF ,WMIN    ,
-     .                   IERR   )
+     .                   IPEN    ,IERR   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -572,14 +568,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER INRBE3(*),ILRBE3(*),NG, NS,IROT,IMODIF,IERR
+      INTEGER INRBE3(*),ILRBE3(*),NG, NS,IROT,IMODIF,IERR,IPEN
 C     REAL
       my_real
      .   XYZ(3,*), FRBE3(6,*), SKEW(LSKEW,*),WMIN
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K,N, M ,NML, IAD,JJ,KG,NSNGLR,IELSUB,KDIAG
+      INTEGER I, J, K,KG,NSNGLR,IELSUB,KDIAG
 C     REAL
       my_real
      *        TW(3,NG), RW(3,NG),
@@ -602,7 +598,8 @@ C     REAL
      *                 TMUFX(3), TMUFY(3), TMUFZ(3),
      *                 TFUMX(3), TFUMY(3), TFUMZ(3),
      *                 TMUMX(3), TMUMY(3), TMUMZ(3),
-     *                 A(6,6), C(6,6), T(3,3),SMIN,SMAX,MMAX,TMAX
+     *                 A(6,6), C(6,6), T(3,3),SMIN,SMAX,MMAX,TMAX,
+     *                 XBAR(3),RN(3),GAMMA(9),WI(NG),GAMMA_MAX,RNDOTRN,DET,ARM
 C
 C     INITIALIZATION
 C
@@ -637,7 +634,7 @@ C     ERROR OUT IF RBE3 ELEMENT HAS TWO INDEPENDENT NODES WITH
 C     NO ROTATIONAL WEIGHTS SET (THIS MEANS THE ELEMENT CANNOT
 C     SUPPORT A MOMENT ALONG ITS AXIS)
 C
-      IF (NG .EQ. 2.AND.IROT.EQ.0) THEN
+      IF (NG == 2.AND.IROT==0) THEN
             IERR = 322
             GOTO 999
       ENDIF
@@ -646,7 +643,7 @@ C     CALCULATE DIRECTION COSINES OF LOCAL COORDINATE SYSTEMS, IF ANY
 C
         DO K = 1, NG
             IELSUB = ILRBE3(K)
-            IF (IELSUB .GT. 0) THEN
+            IF (IELSUB > 0) THEN
                DO I = 1, 3
                      EL(I,1,K) = SKEW(I,IELSUB)
                      EL(I,2,K) = SKEW(I+3,IELSUB)
@@ -665,7 +662,7 @@ C
       DO 70 K = 1, NG
          KG = INRBE3(K)
          IELSUB = ILRBE3(K)
-         IF (IELSUB .GT. 0) THEN
+         IF (IELSUB > 0) THEN
 C
 C           IF GRID POINT HAS A LOCAL COORDINATE SYSTEM
 C
@@ -685,22 +682,22 @@ C
      *                              (XYZ(3,KG) - REFPT(3))**2 )
  70   CONTINUE
 C
-      IF (ABS(DENFX) .LE. EM20) THEN
+      IF (ABS(DENFX) <= EM20) THEN
          IERR = 326
       ENDIF
 C
-      IF (ABS(DENFY) .LE. EM20) THEN
+      IF (ABS(DENFY) <= EM20) THEN
          IERR = 327
       ENDIF
 C
-      IF (ABS(DENFZ) .LE. EM20) THEN
+      IF (ABS(DENFZ) <= EM20) THEN
          IERR = 328
       ENDIF
-      IF (IERR .GT. 0) GOTO 999
+      IF (IERR > 0) GOTO 999
          AVEREF = AVEREF/NG
-         IF (AVEREF .EQ. ZERO) AVEREF = 1.0D0
+         IF (AVEREF == ZERO) AVEREF = 1.0D0
 C--- IMODIF=4: normalized TW;       
-       IF (IMODIF==4) THEN
+       IF (IMODIF==4.OR.IPEN>0) THEN
          DO K = 1, NG
            FRBE3(1,K) =  FRBE3(1,K)/DENFX
            FRBE3(2,K) =  FRBE3(2,K)/DENFY
@@ -710,6 +707,51 @@ C--- IMODIF=4: normalized TW;
            FRBE3(6,K) =  FRBE3(6,K)/DENFZ
          ENDDO
        END IF
+      IF (IPEN > 0) THEN
+        XBAR(1:3) = ZERO
+        DO K = 1, NG
+          KG = INRBE3(K)
+          WI(K) = FRBE3(1,K)
+          XBAR(1:3) = XBAR(1:3) + WI(K)*XYZ(1:3,KG)
+        ENDDO
+!       keep kinematic if very small arm
+        RN(1:3) = REFPT(1:3)-XBAR(1:3)
+        ARM = RN(1)*RN(1)+RN(2)*RN(2)+RN(3)*RN(3)
+        RNDOTRN = ZERO
+        DO K = 1, NG
+            KG = INRBE3(K)
+            RN(1:3) = XYZ(1:3,KG)-XBAR(1:3)
+            RNDOTRN = MAX(RNDOTRN,RN(1)*RN(1)+RN(2)*RN(2)+RN(3)*RN(3))
+        END DO
+        IF (ARM/RNDOTRN < EM06) IPEN =-2
+C--- CHECK for penalty colinear case w/ irot=0       
+        IF (IROT==0) THEN
+          GAMMA(1:9) = ZERO
+          DO K = 1, NG
+            KG = INRBE3(K)
+            RN(1:3) = XYZ(1:3,KG)-XBAR(1:3)
+            RNDOTRN = RN(1)*RN(1)+RN(2)*RN(2)+RN(3)*RN(3)
+!  
+            GAMMA(1) = GAMMA(1)+WI(K)*(RNDOTRN-RN(1)*RN(1))
+            GAMMA(2) = GAMMA(2)+WI(K)*(       -RN(2)*RN(1))
+            GAMMA(3) = GAMMA(3)+WI(K)*(       -RN(3)*RN(1))
+            GAMMA(4) = GAMMA(4)+WI(K)*(       -RN(1)*RN(2))
+            GAMMA(5) = GAMMA(5)+WI(K)*(RNDOTRN-RN(2)*RN(2))
+            GAMMA(6) = GAMMA(6)+WI(K)*(       -RN(3)*RN(2))
+            GAMMA(7) = GAMMA(7)+WI(K)*(       -RN(1)*RN(3))
+            GAMMA(8) = GAMMA(8)+WI(K)*(       -RN(2)*RN(3))
+            GAMMA(9) = GAMMA(9)+WI(K)*(RNDOTRN-RN(3)*RN(3))
+          ENDDO       
+          DET = (GAMMA(1)*(GAMMA(5)*GAMMA(9)-GAMMA(6)*GAMMA(8))-       
+     *           GAMMA(2)*(GAMMA(4)*GAMMA(9)-GAMMA(6)*GAMMA(7))+       
+     *           GAMMA(3)*(GAMMA(4)*GAMMA(8)-GAMMA(5)*GAMMA(7)))
+!  
+          GAMMA_MAX = MAX(EM20,GAMMA(1),GAMMA(5),GAMMA(9))
+          IF(ABS(DET/(GAMMA_MAX*GAMMA_MAX*GAMMA_MAX)) < EM6) IERR = 400
+        END IF
+      END IF
+      IF (IERR > 0) GOTO 999
+!
 C
 C     CALCULATE 3 CENTERS OF GRAVITY (CGMX, CGMY AND CGMZ) AND
 C     DENOMINATORS FOR DISTRIBUTING MOMENTS (DENMX, DENMY AND DENMZ)
@@ -717,7 +759,7 @@ C
       DO 40 K = 1, NG
          KG = INRBE3(K)
          IELSUB = ILRBE3(K)
-         IF (IELSUB .GT. 0) THEN
+         IF (IELSUB > 0) THEN
 C
 C           IF THERE IS A LOCAL COORDINATE SYSTEM AT THE GRID POINT
 C
@@ -769,7 +811,7 @@ C              WEIGHTS WITH THE SQUARE OF THE AVERAGE DISTANCE OF THE
 C              INDEPENDENT GRID POINTS FROM THE REFERENCE POINT TO
 C              RENDER THE RBE3 CALCULATIONS UNIT INDEPENDENT
 C
-         IF (IELSUB .GT. 0) THEN
+         IF (IELSUB > 0) THEN
 C
 C           IF GRID POINT HAS A LOCAL COORDINATE SYSTEM
 C
@@ -804,24 +846,24 @@ C     PERFORM SOME CHECKS ON WEIGHTS, TO MAKE SURE THAT THE RBE3
 C     ELEMENT HAS NO UNCONSTRAINED DEGREES OF FREEDOM
 C
 C
-      IF (ABS(DENMX) .LE. EM20) THEN
+      IF (ABS(DENMX) <= EM20) THEN
          IERR = 329
       ENDIF
 C
-      IF (ABS(DENMY) .LE. EM20) THEN
+      IF (ABS(DENMY) <= EM20) THEN
          IERR = 330
       ENDIF
 C
-      IF (ABS(DENMZ) .LE. EM20) THEN
+      IF (ABS(DENMZ) <= EM20) THEN
          IERR = 331
       ENDIF
 C
       SMIN = MIN(ABS(DENMX),ABS(DENMY),ABS(DENMZ))
       SMAX = MAX(ABS(DENMX),ABS(DENMY),ABS(DENMZ))
 C
-      IF (IERR .GT. 0) GOTO 999
+      IF (IERR > 0) GOTO 999
 C
-      IF (IROT.EQ.0 .AND.(SMAX/SMIN).GT.THIRTY) IERR = -100
+      IF (IROT==0 .AND.(SMAX/SMIN)>THIRTY) IERR = -100
 C     CALCULATE 3 FORCE DISTRIBUTIONS THAT CREATE NET X, Y AND Z FORCES
 C     OF 1 (BESIDES OTHER NONZERO FORCES/MOMENTS IN ALL THE DIRECTIONS)
 C
@@ -880,16 +922,16 @@ C     INVERT THE 6X6 MATRIX
 C
       NSNGLR  = 0
       CALL INVERT(A,C,6,NSNGLR)
-      IF (NSNGLR .NE. 0) THEN
+      IF (NSNGLR /= 0) THEN
          IERR = 332
          GOTO 999
       ENDIF
-      IF (KDIAG .GE. 1) THEN
+      IF (KDIAG >= 1) THEN
          CALL WRRINF('C(i,1)=',c(1,1),3)
          CALL WRRINF('C(i,2)=',c(1,2),3)
          CALL WRRINF('C(i,3)=',c(1,3),3)
       ENDIF
-      IF (KDIAG.EQ.0.AND.IERR.EQ.0) RETURN
+      IF (KDIAG==0.AND.IERR==0) RETURN
 C
 C     LINEARLY COMBINE FORCE/MOMENT DISTRIBUTIONS FOR THE 6 CASES
 C
@@ -924,23 +966,23 @@ C
  260        CONTINUE
  270     CONTINUE
 C--------------special case with Imodif
-       IF (IERR.EQ.-100) THEN
+       IF (IERR==-100) THEN
         MMAX=ZERO
          DO J = 4, 6
             DO K = 1, NG
               DO I = 1, 3
-               IF (MMAX.LT.ABS(FDSTNB(I,K,J))) MMAX = ABS(FDSTNB(I,K,J))
+               IF (MMAX<ABS(FDSTNB(I,K,J))) MMAX = ABS(FDSTNB(I,K,J))
               END DO
             END DO
          END DO
-        IF (MMAX.LE.ONE) THEN
+        IF (MMAX<=ONE) THEN
          IERR=0
         ELSE
          TMAX=ZERO
-         IF (IMODIF.NE.2) THEN
+         IF (IMODIF/=2) THEN
            DO K = 1, NG
             DO I = 1, 3
-              IF (TMAX.LT.TW(I,K)) TMAX=TW(I,K)
+              IF (TMAX<TW(I,K)) TMAX=TW(I,K)
             ENDDO
            ENDDO
          ENDIF
@@ -957,10 +999,10 @@ C
 C
 C     DIAGNOSTIC INFORMATION
 C
-      IF (KDIAG .GE. 2) THEN
+      IF (KDIAG >= 2) THEN
 c         CALL WRRINF('REF_POINT',REFPT,3)
 c         CALL WRRINF('INDPT_GRDS',INRBE3,NG)
-c      IF (SMAX/SMIN .GT. THIRTY) print *,'SMAX/SMIN=',SMAX/SMIN
+c      IF (SMAX/SMIN > THIRTY) print *,'SMAX/SMIN=',SMAX/SMIN
          CALL WRRINF('TRAN_WGHTS',TW,3*NG)
          CALL WRRINF('ROT_WGHTS',RW,3*NG)
          CALL WRRINF('CGMX',CGMX,3)
@@ -974,7 +1016,7 @@ c      IF (SMAX/SMIN .GT. THIRTY) print *,'SMAX/SMIN=',SMAX/SMIN
          CALL WRRINF('DENMZ',DENMZ,1)
          CALL WRRINF('AVEREF',AVEREF,1)
 C
-            IF (KDIAG .EQ. 9.or.IERR.NE.0) THEN
+            IF (KDIAG == 9.or.IERR/=0) THEN
                CALL WRRINF('FDSTNB_ULFX@REF',FDSTNB(1,1,1),3*NG)
                CALL WRRINF('FDSTNB_ULFY@REF',FDSTNB(1,1,2),3*NG)
                CALL WRRINF('FDSTNB_ULFZ@REF',FDSTNB(1,1,3),3*NG)
@@ -988,7 +1030,7 @@ C
                CALL WRRINF('MDSTNB_ULMY@REF',MDSTNB(1,1,5),3*NG)
                CALL WRRINF('MDSTNB_ULMZ@REF',MDSTNB(1,1,6),3*NG)
             ENDIF
-         IF (KDIAG .GE. 30) THEN
+         IF (KDIAG >= 30) THEN
             CALL WRRINF('FDSTNL_ULFX@REF',FDSTNL(1,1,1),3*NG)
             CALL WRRINF('FDSTNL_ULFY@REF',FDSTNL(1,1,2),3*NG)
             CALL WRRINF('FDSTNL_ULFZ@REF',FDSTNL(1,1,3),3*NG)
@@ -1008,14 +1050,14 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE3UF                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        RBE3CHK                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        RBE3CL                        source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|        ZERO1                         source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3uf    ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    rbe3chk   ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    rbe3cl    ../starter/source/constraints/general/kinchk.F
+!||--- calls      -----------------------------------------------------
+!||    zero1     ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||====================================================================
       SUBROUTINE RBE3UF(INRBE3,ILRBE3,EL,TW,XYZ,REFPT,
      *                  FUFXLC,FUFYLC,FUFZLC,
      *                  FUFX,FUFY,FUFZ,MUFX,MUFY,MUFZ,
@@ -1057,7 +1099,7 @@ C
       DO 50 K = 1, NG
          KG = INRBE3(K)
          IELSUB = ILRBE3(K)
-         IF (IELSUB .GT. 0) THEN
+         IF (IELSUB > 0) THEN
 C
 C           FORCES AT GRID POINT ALONG GRID POINT'S LOCAL (OUTPUT)
 C           COORDINATE AXES
@@ -1127,14 +1169,14 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  RBE3UM                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        RBE3CHK                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        RBE3CL                        source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|        ZERO1                         source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe3um    ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    rbe3chk   ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    rbe3cl    ../starter/source/constraints/general/kinchk.F
+!||--- calls      -----------------------------------------------------
+!||    zero1     ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||====================================================================
       SUBROUTINE RBE3UM(INRBE3,ILRBE3,EL,TW,RW,XYZ,REFPT,CGMX,CGMY,CGMZ,
      *                  FUMXLC,FUMYLC,FUMZLC,MXLC,MYLC,MZLC,
      *                  FUMX,FUMY,FUMZ,MX,MY,MZ,MUMX,MUMY,MUMZ,
@@ -1182,7 +1224,7 @@ C
       DO 50 K = 1, NG
          KG = INRBE3(K)
          IELSUB = ILRBE3(K)
-         IF (IELSUB .GT. 0) THEN
+         IF (IELSUB > 0) THEN
 C
 C           FORCES  AT GRID POINT ALONG GRID POINT'S LOCAL
 C           (OUTPUT) COORDINATE AXES
@@ -1252,11 +1294,11 @@ C
 C
  50   CONTINUE
 C
-      IF (IROT.GT.0) THEN
+      IF (IROT>0) THEN
        DO K = 1, NG
          KG = INRBE3(K)
          IELSUB = ILRBE3(K)
-         IF (IELSUB .GT. 0) THEN
+         IF (IELSUB > 0) THEN
 C
 C           MOMENTS AT GRID POINT ALONG GRID POINT'S LOCAL
 C           (OUTPUT) COORDINATE AXES
@@ -1312,16 +1354,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INVERT                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        LAW87_UPD                     source/materials/mat/mat087/law87_upd.F
-Chd|        MASS_FLUID_QD                 source/fluid/mass-fluid_qd.F  
-Chd|        MASS_FLUID_TG                 source/fluid/mass-fluid_tg.F  
-Chd|        RBE3CHK                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        RBE3CL                        source/constraints/general/kinchk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    invert                        ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    damping_range_compute_param   ../starter/source/general_controls/damping/damping_range_compute_param.F90
+!||    law87_upd                     ../starter/source/materials/mat/mat087/law87_upd.F90
+!||    mass_fluid_qd                 ../starter/source/fluid/mass-fluid_qd.F
+!||    mass_fluid_tg                 ../starter/source/fluid/mass-fluid_tg.F
+!||    rbe3chk                       ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    rbe3cl                        ../starter/source/constraints/general/kinchk.F
+!||====================================================================
        SUBROUTINE INVERT(MATRIX, INVERSE, N, ERRORFLAG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1336,7 +1378,7 @@ c       !DECLARATIONS
      *     , INTENT(OUT), DIMENSION(N,N) :: INVERSE !INVERTED MATRIX
 
         LOGICAL :: FLAG = .TRUE.
-        INTEGER :: I, J, K, L
+        INTEGER :: I, J, K
       my_real
      *     :: M
       my_real
@@ -1355,7 +1397,7 @@ c       !AUGMENT INPUT MATRIX WITH AN IDENTITY MATRIX
                 END DO
         END DO
 
-c       !REDUCE AUGMENTED MATRIX TO UPPER TRAINGULAR FORM
+c       !REDUCE AUGMENTED MATRIX TO UPPER TRIANGULAR FORM
         DO K =1, N-1
                 IF (AUGMATRIX(K,K) == 0) THEN
                         FLAG = .FALSE.
@@ -1421,19 +1463,18 @@ c       !STORE ANSWER
         RETURN
         END SUBROUTINE INVERT
 C----------------------------
-Chd|====================================================================
-Chd|  WRRINF                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        RBE3CHK                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    wrrinf    ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    rbe3chk   ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||====================================================================
       SUBROUTINE WRRINF(TITLE,R,N)
 #include      "implicit_f.inc"
 #include      "units_c.inc"
 c       !DECLARATIONS
       INTEGER N
       my_real
-     .        R(N),RMAX
+     .        R(N)
       CHARACTER TITLE*(*)
 C----------------------------
       INTEGER I
@@ -1442,15 +1483,14 @@ c      print *,TITLE,(R(I),I=1,N)
       RETURN
       END
 C----------------------------
-Chd|====================================================================
-Chd|  ZERO1                         source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        RBE3CHK                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        RBE3CL                        source/constraints/general/kinchk.F
-Chd|        RBE3UF                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|        RBE3UM                        source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    zero1     ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    rbe3chk   ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    rbe3cl    ../starter/source/constraints/general/kinchk.F
+!||    rbe3uf    ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||    rbe3um    ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||====================================================================
       SUBROUTINE ZERO1(R,N)
 #include      "implicit_f.inc"
 c       !DECLARATIONS
@@ -1464,24 +1504,19 @@ C----------------------------
       ENDDO
       RETURN
       END
-Chd|====================================================================
-Chd|  PRERBE3FR                     source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        HM_READ_RBE3                  source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prerbe3fr      ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_rbe3   ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||====================================================================
       SUBROUTINE PRERBE3FR(IRBE3 ,N    ,JT  ,JR   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1491,7 +1526,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J,IC,ICT,ICR
+      INTEGER J,IC,ICT,ICR
 C======================================================================|
         IC=IRBE3(4,N)
         ICT=IC/512
@@ -1545,31 +1580,30 @@ C======================================================================|
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  HIREORBE3                     source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- called by -----------
-Chd|        INIRBE3                       source/constraints/general/rbe3/hm_read_rbe3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    hireorbe3              ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- called by ------------------------------------------------------
+!||    inirbe3                ../starter/source/constraints/general/rbe3/hm_read_rbe3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE HIREORBE3(IRBE3  ,LRBE3  ,FRBE3 ,NOM_OPT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "scr17_c.inc"
@@ -1583,16 +1617,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, J,K, NS,NM, NI, NMT,M,NFT,JLT,IAD,II,M2,III
+      INTEGER I, N, J,K, NS,NM, NI, NMT,M,NFT,IAD,II,M2,III,IPEN
 C
-      INTEGER ID, INDEX(NRBE3),ITAG(NUMNOD),NZ,IAD1,IADS,
+      INTEGER ID, INDEX(NRBE3),NZ,IAD1,IADS,
      .        LCOPY(SLRBE3),ICOPY(NRBE3L,NRBE3)
-      CHARACTER*nchartitle,
-     .   TITR
-      my_real
-     .        FCOPY(SLRBE3*3)
+      INTEGER,DIMENSION(:),ALLOCATABLE :: ITAG
+      CHARACTER(LEN=NCHARTITLE)::TITR
+      my_real FCOPY(SLRBE3*3)
 C========================================================================|
 C-----only one level of hierarchy is allowed
+      CALL MY_ALLOC(ITAG,NUMNOD)
       ITAG(1:NUMNOD)=0
       DO I=1,NRBE3
        NS = IRBE3(3,I)
@@ -1600,53 +1634,143 @@ C-----only one level of hierarchy is allowed
        INDEX(I) = I
       ENDDO
       NZ = 0
+! case Iform=2 :  error out if >1 level     
       DO I=1,NRBE3
-       IAD = IRBE3(1,I)
-       NM = IRBE3(5,I)
-       DO J =1,NM
-        M = LRBE3(IAD+J)
-        IF (ITAG(M)>0) THEN
-         NZ = NZ +1
-C----- exchange INDEX(I) , NZ        
-         IF (INDEX(I) > NZ) THEN
-          NI = INDEX(I)
-          INDEX(I) = NZ
-          INDEX(NZ) = NI
-         END IF
-         CYCLE
-        ENDIF
-       ENDDO
+        IAD = IRBE3(1,I)
+        NM = IRBE3(5,I)
+        IPEN= IRBE3(9,I)
+        IF (IPEN>=0) CYCLE
+        DO J =1,NM
+          M = LRBE3(IAD+J)
+          IF (ITAG(M)>0) THEN 
+              II = ITAG(M)
+              IF (IRBE3(9,II)<0) NZ = NZ +1 
+          END IF
+        ENDDO
       ENDDO
       IF (NZ >0 ) THEN
 C-----error out if >1 level      
         DO I=1,NRBE3
          IAD = IRBE3(1,I)
          NM = IRBE3(5,I)
+         IPEN= IRBE3(9,I)
+         IF (IPEN>=0) CYCLE
          DO J =1,NM
           M = LRBE3(IAD+J)
           IF (ITAG(M)>0) THEN
             II = ITAG(M)
-            NMT = IRBE3(5,II)
-            DO K =1,NMT
-              NFT = IRBE3(1,II)
-              M2 = LRBE3(NFT+K)
-              IF (ITAG(M2)>0) THEN
-               III = ITAG(M2)
-               ID=NOM_OPT(1,III)
-               CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,III),LTITR)
-               CALL ANCMSG(MSGID=1887,
-     .                     MSGTYPE=MSGERROR,
-     .                     ANMODE=ANINFO,
-     .                     I1=ID,
-     .                     C1=TITR,
-     .                     I2=NOM_OPT(1,I),
-     .                     I3=NOM_OPT(1,II))
-              END IF
-            ENDDO
+            IF (IRBE3(9,II)<0) THEN 
+              NMT = IRBE3(5,II)
+              DO K =1,NMT
+                NFT = IRBE3(1,II)
+                M2 = LRBE3(NFT+K)
+                IF (ITAG(M2)>0) THEN
+                  III = ITAG(M2)
+                  IF (IRBE3(9,III)<0) THEN 
+                    ID=NOM_OPT(1,III)
+                    CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,III),LTITR)
+                    CALL ANCMSG(MSGID=1887,
+     .                          MSGTYPE=MSGERROR,
+     .                          ANMODE=ANINFO,
+     .                          I1=ID,
+     .                          C1=TITR,
+     .                          I2=NOM_OPT(1,I),
+     .                          I3=NOM_OPT(1,II))
+                  END IF !(IRBE3(9,III)<0) THEN 
+                END IF
+              ENDDO
+            END IF !(IRBE3(9,II)<0) THEN 
           ENDIF
          ENDDO
         ENDDO
+      END IF !(NZ >0 ) THEN
+! case Iform=1,3  
+      NZ = 0
+      DO I=1,NRBE3
+       IAD = IRBE3(1,I)
+       IPEN= IRBE3(9,I)
+       IF (IPEN>0) CYCLE 
+       NM = IRBE3(5,I)
+       DO J =1,NM
+        M = LRBE3(IAD+J)
+        IF (ITAG(M)>0) THEN
+         IPEN= IRBE3(9,ITAG(M))
+         IF (IPEN==0) THEN
+           NZ = NZ + 1
+           CYCLE
+         END IF
+        ENDIF
+       ENDDO
+      ENDDO
+      IF (NZ >0 ) THEN
+!-----swtch to penalty  if >1 level      
+        DO I=NRBE3,1,-1
+         IAD = IRBE3(1,I)
+         IPEN= IRBE3(9,I)
+         IF (IPEN>0) CYCLE 
+         NM = IRBE3(5,I)
+         II = 0
+         DO J =1,NM
+          M = LRBE3(IAD+J)
+          IF (ITAG(M)>0) THEN
+            IPEN= IRBE3(9,ITAG(M))
+            IF (IPEN/=0) CYCLE 
+            II = ITAG(M)
+            NMT = IRBE3(5,II)
+            NFT = IRBE3(1,II)
+            III = 0
+            DO K =1,NMT
+              M2 = LRBE3(NFT+K)
+              IF (ITAG(M2)>0) THEN
+                IPEN= IRBE3(9,ITAG(M2))
+                IF (IPEN==0) THEN 
+                  III = ITAG(M2)
+                  CYCLE 
+                END IF
+              END IF
+            ENDDO
+            IF (III>0) CYCLE 
+          ENDIF
+         ENDDO
+         IF (II >0 .AND. III>0) THEN
+               ID=NOM_OPT(1,I)
+               CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,I),LTITR)
+               IRBE3(9,I) = 1
+               CALL ANCMSG(MSGID=3099,
+     .                     MSGTYPE=MSGWARNING,
+     .                     ANMODE=ANINFO,
+     .                     I1=ID,
+     .                     C1=TITR,
+     .                     I2=NOM_OPT(1,II),
+     .                     I3=NOM_OPT(1,III))
+         END IF 
+        ENDDO
+      END IF
 C----- re-ordering
+      NZ = 0
+      DO I=1,NRBE3
+       IAD = IRBE3(1,I)
+       IPEN= IRBE3(9,I)
+       IF (IPEN>0) CYCLE 
+       NM = IRBE3(5,I)
+       DO J =1,NM
+        M = LRBE3(IAD+J)
+        IF (ITAG(M)>0) THEN
+         IPEN= IRBE3(9,ITAG(M))
+         IF (IPEN<=0) THEN
+           NZ = NZ +1
+!----- exchange INDEX(I) , NZ        
+           IF (INDEX(I) > NZ) THEN
+             NI = INDEX(I)
+             INDEX(I) = NZ
+             INDEX(NZ) = NI
+           END IF
+           CYCLE
+         END IF !(IPEN==0) THEN
+        ENDIF
+       ENDDO
+      ENDDO
+      IF (NZ >0 ) THEN
         IADS = SLRBE3/2
         LCOPY(1:SLRBE3) = LRBE3(1:SLRBE3)       
         ICOPY(1:NRBE3L,1:NRBE3) = IRBE3(1:NRBE3L,1:NRBE3)
@@ -1673,6 +1797,7 @@ C----- re-ordering
         ENDDO
       END IF
 C
+      DEALLOCATE(ITAG)
       RETURN
       END SUBROUTINE HIREORBE3
 C========================================================================|

@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ZEROVARS_AUTO                 source/elements/elbuf_init/zerovars_auto.F
-Chd|-- called by -----------
-Chd|        ELBUF_INI                     source/elements/elbuf_init/elbuf_ini.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    zerovars_auto   ../starter/source/elements/elbuf_init/zerovars_auto.F
+!||--- called by ------------------------------------------------------
+!||    elbuf_ini       ../starter/source/elements/elbuf_init/elbuf_ini.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod    ../starter/share/modules1/elbuftag_mod.F
+!||====================================================================
       SUBROUTINE ZEROVARS_AUTO(ELBUF_STR)
 C-----------------------------------------------
 C   M o d u l e s
@@ -35,17 +34,13 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD            
       USE ELBUFTAG_MOD            
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com_xfem1.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(ELBUF_STRUCT_),TARGET  :: ELBUF_STR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER ILAY,NLAY,IXFEM,IAD
+      INTEGER ILAY,IAD
       TYPE(BUF_LAY_)     , POINTER :: BUFLY
       TYPE(G_BUFEL_)     , POINTER :: GBUF
 C=======================================================================
@@ -84,6 +79,8 @@ c
       IAD = IAD + 1
       GBUF%G_PLA   = 0   
       IAD = IAD + 1
+      GBUF%G_WPLA  = 0   
+      IAD = IAD + 1    
       GBUF%G_TEMP  = 0   
       IAD = IAD + 1
       GBUF%G_TB    = 0   
@@ -158,6 +155,14 @@ C
       IAD = IAD + 1
       GBUF%G_MU = 0  
       IAD = IAD + 1
+      GBUF%G_PLANL = 0  
+      IAD = IAD + 1
+      GBUF%G_EPSDNL = 0  
+      IAD = IAD + 1
+      GBUF%G_DMGSCL = 0  
+      IAD = IAD + 1
+      GBUF%G_TSAIWU = 0  
+      IAD = IAD + 1
       GBUF%G_TEMPG = 0 
       IAD = IAD + 1
       GBUF%G_COR_NF = 0   
@@ -173,6 +178,12 @@ C
       GBUF%G_BETAORTH   = 0     
       IAD = IAD + 1
       GBUF%G_AMU = 0   
+      IAD = IAD + 1
+      GBUF%G_EINT_DISTOR  = 0  
+      IAD = IAD + 1
+      GBUF%G_FOR_G  = 0  
+      IAD = IAD + 1
+      GBUF%G_FORPG_G  = 0  
       
 C 1-D elements (TRUSS, BEAM, SPRING, NSTRAND)
       IAD = IAD + 1
@@ -249,6 +260,10 @@ C 1-D elements (TRUSS, BEAM, SPRING, NSTRAND)
       GBUF%G_SKEW_ID = 0
       IAD = IAD + 1
       GBUF%G_GAMA_R  = 0
+      IAD = IAD + 1
+      GBUF%G_YIELD_IN_COMP = 0
+      IAD = IAD + 1
+      GBUF%G_XXOLD_IN_COMP = 0
 C
 C seatbelts elements
       IAD = IAD + 1
@@ -283,6 +298,9 @@ C seatbelts elements
       GBUF%G_TM_SIG =0
       IAD = IAD + 1
       GBUF%G_TM_STRA=0
+      IAD = IAD + 1
+! shell offset      
+      GBUF%G_SH_IOFFSET=0
 c---
       IAD = IAD + 1
       GBUF%NVAR_GLOB = IAD
@@ -326,6 +344,8 @@ c
         BUFLY%L_EPSF   = 0
         IAD = IAD + 1
         BUFLY%L_PLA    = 0
+        IAD = IAD + 1
+        BUFLY%L_WPLA   = 0
         IAD = IAD + 1
         BUFLY%L_TEMP   = 0
         IAD = IAD + 1
@@ -405,13 +425,21 @@ c
         IAD = IAD + 1
         BUFLY%L_MU = 0
         IAD = IAD + 1
+        BUFLY%L_PLANL  = 0
+        IAD = IAD + 1
+        BUFLY%L_EPSDNL = 0
+        IAD = IAD + 1
+        BUFLY%L_DMGSCL = 0
+        IAD = IAD + 1
+        BUFLY%L_TSAIWU = 0
+        IAD = IAD + 1        
         BUFLY%L_PIJ = 0
         IAD = IAD + 1
         BUFLY%L_VOL0DP = 0
         IAD = IAD + 1
 c        
 c---
-C  nb of local variable
+C  Number of local variables
         BUFLY%NVAR_LOC = IAD
 c---
         IAD = 0
@@ -440,7 +468,7 @@ c---
         BUFLY%LY_OFF   = 0
         IAD = IAD + 1
 c---
-C  nb of layer variable
+C  Number of layer variables
         BUFLY%NVAR_LAY = IAD
 c---
       ENDDO 

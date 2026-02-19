@@ -1,42 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_INIT                      source/ams/sms_init.F         
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        NODNX_SMS_INI                 source/ams/sms_init.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_init               ../starter/source/ams/sms_init.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    nodnx_sms_ini          ../starter/source/ams/sms_init.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SMS_INIT(
      1  IXS     ,IXQ      ,IXC     ,IXT     ,IXP       ,
      2  IXR     ,IXTG     ,IXTG1   ,IXS10   ,IXS16     ,
      3  IXS20   ,IPARG    ,NODNX_SMS ,
      4  ICODT   ,ICODR    ,KINET     ,
      5                     IPARTS    ,IPARTQ   ,IPARTC  ,
-     6  IPARTT  ,IPARTP   ,IPARTR    ,IPARTUR  ,IPARTTG ,
+     6  IPARTT  ,IPARTP   ,IPARTR    ,IPARTTG ,
      7  IPARTX  ,TAGPRT_SMS,ITAB    ,IRBE2   ,
      8  IRBE3   ,LRBE2     ,LRBE3     ,NPRW    ,LPRW    ,
      9  IPART   ,IGEO      ,IPM       ,NATIV_SMS,NPBY   ,
@@ -45,21 +46,18 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "kincod_c.inc"
 #include      "param_c.inc"
-#include      "sms_c.inc"
 #include      "units_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
@@ -72,7 +70,7 @@ C-----------------------------------------------
      .        IPARG(NPARG,*), 
      .   NODNX_SMS(*), ICODT(*), ICODR(*), KINET(*),
      .   IPARTS(*),IPARTQ(*),IPARTC(*),IPARTT(*),
-     .   IPARTP(*),IPARTR(*),IPARTUR(*),IPARTTG(*),IPARTX(*),
+     .   IPARTP(*),IPARTR(*),IPARTTG(*),IPARTX(*),
      .   TAGPRT_SMS(*),
      .   ITAB(*),
      .   IRBE2(NRBE2L,*), IRBE3(NRBE3L,*), LRBE2(*), LRBE3(*),
@@ -80,7 +78,6 @@ C-----------------------------------------------
      .   IPART(LIPART1,*), IGEO(NPROPGI,*), IPM(NPROPMI,*), NATIV_SMS(*),
      .   NPBY(NNPBY,*), LPBY(*), TAGMSR_RBY_SMS(*), TAGSLV_RBY_SMS(*)
       INTEGER NOM_OPT(LNOPT1,*)
-C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -91,8 +88,7 @@ C-----------------------------------------------
      .        N2, N3, N4, N5, N6
       INTEGER M, MSR, KI, NSMS(2), IWSMS, NSNW, NHI
       INTEGER J1, IPERM1(6), IPERM2(6),IPENTA6(6)
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(len=nchartitle) :: TITR
       DATA ILOC4/1,3,6,5/
       DATA IPERM1/1,2,3,1,2,3/
       DATA IPERM2/2,3,1,4,4,4/
@@ -277,7 +273,7 @@ C if msr secnd of moving or lagrange wall => no ams
             K  =K+NSN
           END DO
  100      CONTINUE
-          IF(IWSMS==0.AND.NPBY(7,M).GT.0 .AND. 
+          IF(IWSMS==0.AND.NPBY(7,M)>0 .AND. 
      .       (KINET(MSR) <=1 
      .        .OR. IVF(KINET(MSR)) ==1
      .        .OR. IRLK(KINET(MSR))==1 
@@ -351,8 +347,8 @@ C-----
 C-----
       DO NHI=0,NHRBE2
        DO N=1,NRBE2
-        IF (IRBE2(9,N).NE.NHI) CYCLE
-	IAD = IRBE2(1,N)
+        IF (IRBE2(9,N)/=NHI) CYCLE
+          IAD = IRBE2(1,N)
         NSN = IRBE2(5,N)
         M   = IRBE2(3,N)
 
@@ -378,22 +374,23 @@ C-----------------------------------------------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_INI_KAD                   source/ams/sms_init.F         
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_ini_kad   ../starter/source/ams/sms_init.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SMS_INI_KAD(
      1  IXS     ,IXQ      ,IXC     ,IXT     ,IXP       ,
      2  IXR     ,IXTG     ,IXTG1   ,IXS10   ,IXS16     ,
      3  IXS20   ,IPARG    ,MS      ,MS0     ,NODNX_SMS ,
      4  ICODT   ,ICODR    ,KINET   ,
      5  KAD_SMS                    ,IPARTS   ,IPARTQ   ,
-     6  IPARTC  ,IPARTT  ,IPARTP   ,IPARTR    ,IPARTUR  ,
+     6  IPARTC  ,IPARTT  ,IPARTP   ,IPARTR    ,
      7  IPARTTG ,IPARTX  ,TAGPRT_SMS,TAGREL_SMS,ITAB    ,
      8  IRBE2   ,IRBE3     ,LRBE2    ,LRBE3    ,
      9  NPRW    ,LPRW      ,IPART    ,IGEO     ,NATIV_SMS)
+        use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -403,10 +400,8 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "kincod_c.inc"
 #include      "param_c.inc"
 #include      "sms_c.inc"
-#include      "units_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -419,7 +414,7 @@ C-----------------------------------------------
      .   NODNX_SMS(*), ICODT(*), ICODR(*), KINET(*), 
      .   KAD_SMS(*),
      .   IPARTS(*),IPARTQ(*),IPARTC(*),IPARTT(*),
-     .   IPARTP(*),IPARTR(*),IPARTUR(*),IPARTTG(*),IPARTX(*),
+     .   IPARTP(*),IPARTR(*),IPARTTG(*),IPARTX(*),
      .   TAGPRT_SMS(*), TAGREL_SMS(*),
      .   ITAB(*), 
      .   IRBE2(NRBE2L,*), IRBE3(NRBE3L,*), LRBE2(*), LRBE3(*),
@@ -635,12 +630,12 @@ C
              DO K=1,2
                I=IXR(1+K,J)
                DO KK=1,2
-         	 JJ = IXR(1+KK,J)
+           JJ = IXR(1+KK,J)
                  IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
                    TAGREL_SMS(NG)=1
-         	   NAD_SMS(I)=NAD_SMS(I)+1
-         	   KNZ_SMS   =KNZ_SMS+1
-         	 END IF
+             NAD_SMS(I)=NAD_SMS(I)+1
+             KNZ_SMS   =KNZ_SMS+1
+           END IF
                END DO
              END DO
            END DO
@@ -651,44 +646,44 @@ C
                I=IXR(1+K,J)
 
                KK=2
-         	 JJ = IXR(1+KK,J)
+           JJ = IXR(1+KK,J)
                  IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
                    TAGREL_SMS(NG)=1
-         	   NAD_SMS(I)=NAD_SMS(I)+1
-         	   KNZ_SMS   =KNZ_SMS+1
-         	 END IF
+             NAD_SMS(I)=NAD_SMS(I)+1
+             KNZ_SMS   =KNZ_SMS+1
+           END IF
 
              K=2
 
                I=IXR(1+K,J)
 
                KK=1
-         	 JJ = IXR(1+KK,J)
+           JJ = IXR(1+KK,J)
                  IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
                    TAGREL_SMS(NG)=1
-         	   NAD_SMS(I)=NAD_SMS(I)+1
-         	   KNZ_SMS   =KNZ_SMS+1
-         	 END IF
+             NAD_SMS(I)=NAD_SMS(I)+1
+             KNZ_SMS   =KNZ_SMS+1
+           END IF
 
                KK=3
-         	 JJ = IXR(1+KK,J)
+           JJ = IXR(1+KK,J)
                  IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
                    TAGREL_SMS(NG)=1
-         	   NAD_SMS(I)=NAD_SMS(I)+1
-         	   KNZ_SMS   =KNZ_SMS+1
-         	 END IF
+             NAD_SMS(I)=NAD_SMS(I)+1
+             KNZ_SMS   =KNZ_SMS+1
+           END IF
 
              K=3
 
                I=IXR(1+K,J)
 
                KK=2
-         	 JJ = IXR(1+KK,J)
+           JJ = IXR(1+KK,J)
                  IF(JJ/=I.AND..NOT.(NATIV_SMS(I)==0.AND.NATIV_SMS(JJ)==0))THEN
                    TAGREL_SMS(NG)=1
-         	   NAD_SMS(I)=NAD_SMS(I)+1
-         	   KNZ_SMS   =KNZ_SMS+1
-         	 END IF
+             NAD_SMS(I)=NAD_SMS(I)+1
+             KNZ_SMS   =KNZ_SMS+1
+           END IF
 
            END DO
           END IF
@@ -718,26 +713,18 @@ C
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  NODNX_SMS_INI                 source/ams/sms_init.F         
-Chd|-- called by -----------
-Chd|        SMS_INIT                      source/ams/sms_init.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    nodnx_sms_ini   ../starter/source/ams/sms_init.F
+!||--- called by ------------------------------------------------------
+!||    sms_init        ../starter/source/ams/sms_init.F
+!||====================================================================
       SUBROUTINE NODNX_SMS_INI(
      1 NUMNOD  ,NUMEL ,NIX ,MIX ,LIX ,
      2 IX      ,IPARTX,TAGPRT_SMS,NODNX_SMS)
 C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
-C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -764,20 +751,19 @@ C
             IF(TAG(I)==0)THEN
               NODNX_SMS(I)=NODNX_SMS(I)+1
               TAG(I)=1
-            END IF		    
+            END IF        
           END IF                  
         ENDDO                                    
       ENDDO                                      
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_INI_KDI                   source/ams/sms_init.F         
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    sms_ini_kdi     ../starter/source/ams/sms_init.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SMS_INI_KDI(
      2             IXC      ,IPARG   ,IXS      ,IXT      ,IXP     ,
      3             IXR      ,IXTG    ,IXS10    ,NODNX_SMS,KAD_SMS ,
@@ -785,28 +771,25 @@ Chd|====================================================================
      5             JADT_SMS ,JADP_SMS,
      6             JADR_SMS,JADTG_SMS,TAGPRT_SMS,IAD_SMS ,
      7             TAGREL_SMS,IPARTS ,IPARTQ   ,IPARTC   ,IPARTT   ,
-     8             IPARTP    ,IPARTR ,IPARTUR  ,IPARTTG  ,IPARTX   ,
+     8             IPARTP    ,IPARTR ,IPARTTG  ,IPARTX   ,
      9             NPBY      ,LPBY   ,KINET    ,TAGSLV_RBY_SMS,IPARI,
      A             INTBUF_TAB,LAD_SMS,IPART    ,IGEO     ,NATIV_SMS )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INTBUFDEF_MOD 
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-#include "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "kincod_c.inc"
 #include      "param_c.inc"
 #include      "sms_c.inc"
-#include      "units_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -823,7 +806,7 @@ C-----------------------------------------------
      .        JADTG_SMS(3,*), NATIV_SMS(*),
      .        TAGPRT_SMS(*), TAGREL_SMS(*), 
      .        IPARTS(*), IPARTQ(*), IPARTC(*), IPARTT(*),
-     .        IPARTP(*), IPARTR(*), IPARTUR(*), IPARTTG(*), IPARTX(*),
+     .        IPARTP(*), IPARTR(*), IPARTTG(*), IPARTX(*),
      .        NPBY(NNPBY,*), LPBY(*), KINET(*), TAGSLV_RBY_SMS(*),
      .        IPARI(NPARI,*), 
      .        LAD_SMS(*), KDI_SMS(*), 
@@ -847,7 +830,7 @@ C-----------------------------------------------
       DATA IPENTA6/1,2,3,5,6,7/
 C-----------------------------------------------
 C
-C     Construit JDI_SMS, JADS_SMS, etc
+C     Built jdi_sms, jads_sms, etc.
 C     -----------------
       DO I=1,NUMNOD
         NAD_SMS(I)=KAD_SMS(I)
@@ -1151,7 +1134,7 @@ C
       END DO
 C-------------------------------------------------------------------------
 C     PREPARE KOMPACTION OF ELEMENTARY MATRIX
-C     NODNX_SMS(I) devient le nb de nds connectes a I
+C     Nodnx_sms (i) becomes the nb of NDS connects a i
 C-------------------------------------------------------------------------
       TAGK(1:NUMNOD)=0
       DO I=1,NUMNOD
@@ -1179,21 +1162,20 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_INI_JAD_1                 source/ams/sms_init.F         
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    sms_ini_jad_1   ../starter/source/ams/sms_init.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SMS_INI_JAD_1(
      2             IXC      ,IPARG   ,IXS      ,IXT      ,IXP      ,
      3             IXR      ,IXTG    ,IXS10    ,NODNX_SMS,JADC_SMS ,
      4             JADS_SMS ,JADS10_SMS,JADT_SMS,JADP_SMS,JADR_SMS ,
      5             JADTG_SMS,TAGPRT_SMS,KAD_SMS,KDI_SMS  ,PK_SMS   ,
      6             TAGREL_SMS,IPARTS ,IPARTQ   ,IPARTC   ,IPARTT   ,
-     7             IPARTP    ,IPARTR ,IPARTUR  ,IPARTTG  ,IPARTX   ,
+     7             IPARTP    ,IPARTR ,IPARTTG  ,IPARTX   ,
      8             NPBY      ,LPBY   ,KINET    ,TAGSLV_RBY_SMS,IPARI,
      9             INTBUF_TAB,LAD_SMS,IPART    ,IGEO     ,NATIV_SMS ,
      A             IAD_SMS   ,IDI_SMS,JAD_SMS  ,JDI_SMS  ,T2MAIN_SMS)
@@ -1201,21 +1183,17 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INTBUFDEF_MOD 
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-#include "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "kincod_c.inc"
 #include      "param_c.inc"
 #include      "sms_c.inc"
-#include      "units_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1233,7 +1211,7 @@ C-----------------------------------------------
      .        JADTG_SMS(3,*),NATIV_SMS(*),
      .        TAGPRT_SMS(*), TAGREL_SMS(*), 
      .        IPARTS(*), IPARTQ(*), IPARTC(*), IPARTT(*),
-     .        IPARTP(*), IPARTR(*), IPARTUR(*), IPARTTG(*), IPARTX(*),
+     .        IPARTP(*), IPARTR(*), IPARTTG(*), IPARTX(*),
      .        NPBY(NNPBY,*), LPBY(*), KINET(*), TAGSLV_RBY_SMS(*),
      .        IPARI(NPARI,*), 
      .        LAD_SMS(*), 
@@ -1255,7 +1233,7 @@ C-----------------------------------------------
       DATA IUN/1/
 C-------------------------------------------------------------------------
 C     PREPARE KOMPACTION OF ELEMENTARY MATRIX
-C     construit IDI_SMS et pointeurs KAD_SMS vers JAD_SMS 
+C     Built Idi_sms and Pointers Kad_sms to Jad_sms 
 C     KJ = KAD_SMS(I),KAD_SMS(I+1)-1 => PK_SMS(KJ) = rang de KDI_SMS(KJ) dans IDI_SMS(I),IDI_SMS(I+1)-1
 C-------------------------------------------------------------------------
       TAGK(1:NUMNOD)=0
@@ -1350,7 +1328,7 @@ C inter/type2 : numbering
 C------------
       KINET(1:NUMNOD) = 0 
 C
-C     Tag des mains pour TYPE2 symetrisees
+C     main tag for symmetrical type 2
 C
       DO N=1,NINTER
         NTY = IPARI(7,N)
@@ -1383,7 +1361,7 @@ c
       ENDDO
 C
       DO N=1,NUMNOD
-        IF(KINET(N)/=0) KINET(N)=MIN(IUN,KINET(N)-1) ! KINET == 1 <=> Incompatible conditions
+        IF(KINET(N)/=0) KINET(N)=MIN(IUN,KINET(N)-1) ! Kinet == 1 <=> Incompatible conditions
       END DO
 C------------
 C
@@ -1394,7 +1372,7 @@ C
         ILAGM = IPARI(33,N)
         ILEV  = IPARI(20,N)
         NSN   = IPARI(5,N)
-        IF(NTY.EQ.2 .AND. ILAGM.EQ.0 .AND.ILEV/=25 .and. ILEV/=26.AND. ILEV/=27 .and. ILEV/=28)THEN
+        IF(NTY==2 .AND. ILAGM==0 .AND.ILEV/=25 .and. ILEV/=26.AND. ILEV/=27 .and. ILEV/=28)THEN
           DO II=1,NSN
             I=ABS(INTBUF_TAB(N)%NSV(II))
             L=INTBUF_TAB(N)%IRTLM(II)
@@ -1413,10 +1391,10 @@ C
             T2MAIN_SMS(4,I)  = N4
 
           ENDDO  
-        ELSEIF(NTY.EQ.2 .AND. ILAGM.EQ.0 .AND.(ILEV==27.or.ILEV==28))THEN
+        ELSEIF(NTY==2 .AND. ILAGM==0 .AND.(ILEV==27.or.ILEV==28))THEN
            DO II=1,NSN
             I=ABS(INTBUF_TAB(N)%NSV(II))
-            IF (INTBUF_TAB(N)%IRUPT(II).EQ.0) THEN
+            IF (INTBUF_TAB(N)%IRUPT(II)==0) THEN
 C           Kinematic node
               L=INTBUF_TAB(N)%IRTLM(II)
               N1 = INTBUF_TAB(N)%IRECTM(4*(L-1)+1)
@@ -1442,7 +1420,7 @@ C
         NTY   = IPARI(7,N)
         ILAGM = IPARI(33,N)
         ILEV  = IPARI(20,N)
-        IF(NTY.EQ.2 .AND. ILAGM.EQ.0 .AND.ILEV/=25 .and. ILEV/=26.AND. ILEV/=27 .and. ILEV/=28)THEN
+        IF(NTY==2 .AND. ILAGM==0 .AND.ILEV/=25 .and. ILEV/=26.AND. ILEV/=27 .and. ILEV/=28)THEN
           NSN=IPARI(5,N)
           DO II=1,NSN
             I=ABS(INTBUF_TAB(N)%NSV(II))
@@ -1466,10 +1444,10 @@ C
               NODNX_SMS(N4)=NODNX_SMS(N4)+1
               NNZ_SMS = NNZ_SMS + 8
 C-- Type2 crossed connection between main nodes
-              IF ((T2MAIN_SMS(1,J).GT.0).AND.(I.GT.J)) THEN
+              IF ((T2MAIN_SMS(1,J)>0).AND.(I>J)) THEN
                 DO K =1,4
                   DO KK =1,4
-                    IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                    IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                       NODNX_SMS(T2MAIN_SMS(K,I))=NODNX_SMS(T2MAIN_SMS(K,I))+1
                       NODNX_SMS(T2MAIN_SMS(KK,J))=NODNX_SMS(T2MAIN_SMS(KK,J))+1
                       NNZ_SMS = NNZ_SMS + 2
@@ -1479,7 +1457,7 @@ C-- Type2 crossed connection between main nodes
               ENDIF
             END DO
           END DO
-        ELSEIF(NTY.EQ.2 .AND. ILAGM.EQ.0 .AND.(ILEV==25.or.ILEV==26))THEN
+        ELSEIF(NTY==2 .AND. ILAGM==0 .AND.(ILEV==25.or.ILEV==26))THEN
           NSN=IPARI(5,N)
           DO II=1,NSN
             I=ABS(INTBUF_TAB(N)%NSV(II))
@@ -1501,11 +1479,11 @@ C-- Type2 crossed connection between main nodes
             NODNX_SMS(N4)=NODNX_SMS(N4)+1
             NNZ_SMS = NNZ_SMS + 8
           END DO
-        ELSEIF(NTY.EQ.2 .AND. ILAGM.EQ.0 .AND.(ILEV==27.or.ILEV==28))THEN
+        ELSEIF(NTY==2 .AND. ILAGM==0 .AND.(ILEV==27.or.ILEV==28))THEN
           NSN=IPARI(5,N)
           DO II=1,NSN
             I=ABS(INTBUF_TAB(N)%NSV(II))
-            IF (KINET(I).EQ.0) THEN
+            IF (KINET(I)==0) THEN
 C           Kinematic node
               L=INTBUF_TAB(N)%IRTLM(II)
               N1 = INTBUF_TAB(N)%IRECTM(4*(L-1)+1)
@@ -1527,10 +1505,10 @@ C           Kinematic node
                 NODNX_SMS(N4)=NODNX_SMS(N4)+1
                 NNZ_SMS = NNZ_SMS + 8
 C-- Type2 crossed connection between main nodes
-                IF ((T2MAIN_SMS(1,J).GT.0).AND.(I.GT.J)) THEN
+                IF ((T2MAIN_SMS(1,J)>0).AND.(I>J)) THEN
                   DO K =1,4
                     DO KK =1,4
-                      IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                      IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                         NODNX_SMS(T2MAIN_SMS(K,I))=NODNX_SMS(T2MAIN_SMS(K,I))+1
                         NODNX_SMS(T2MAIN_SMS(KK,J))=NODNX_SMS(T2MAIN_SMS(KK,J))+1
                         NNZ_SMS = NNZ_SMS + 2
@@ -1571,22 +1549,21 @@ C reconstruit JAD_SMS
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_INI_JAD_2                 source/ams/sms_init.F         
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTSTAMP_MOD                  share/modules1/intstamp_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    sms_ini_jad_2   ../starter/source/ams/sms_init.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    intstamp_mod    ../starter/share/modules1/intstamp_mod.F
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SMS_INI_JAD_2(
      2             IXC      ,IPARG   ,IXS      ,IXT      ,IXP     ,
      3             IXR      ,IXTG    ,IXS10    ,NODNX_SMS,JADC_SMS,
      4             JADS_SMS ,JADS10_SMS,JADT_SMS ,JADP_SMS,JADR_SMS ,
      5             JADTG_SMS,TAGPRT_SMS,KAD_SMS,KDI_SMS  ,
      6             TAGREL_SMS,IPARTS ,IPARTQ   ,IPARTC   ,IPARTT   ,
-     7             IPARTP    ,IPARTR ,IPARTUR  ,IPARTTG  ,IPARTX   ,
+     7             IPARTP    ,IPARTR ,IPARTTG  ,IPARTX   ,
      8             NPBY      ,LPBY   ,KINET    ,TAGSLV_RBY_SMS,IPARI,
      9             INTBUF_TAB,LAD_SMS ,NPRW    ,LPRW ,TAGMSR_RBY_SMS,
      A             INTSTAMP ,IPART    ,IGEO    ,NATIV_SMS,IRBE2   ,
@@ -1598,22 +1575,17 @@ C-----------------------------------------------
       USE INTSTAMP_MOD
       USE INTBUFDEF_MOD 
       USE MESSAGE_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-#include "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "intstamp_c.inc"
-#include      "kincod_c.inc"
 #include      "param_c.inc"
 #include      "sms_c.inc"
-#include      "units_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1631,7 +1603,7 @@ C-----------------------------------------------
      .        JADTG_SMS(3,*),
      .        TAGPRT_SMS(*), TAGREL_SMS(*), 
      .        IPARTS(*), IPARTQ(*), IPARTC(*), IPARTT(*),
-     .        IPARTP(*), IPARTR(*), IPARTUR(*), IPARTTG(*), IPARTX(*),
+     .        IPARTP(*), IPARTR(*), IPARTTG(*), IPARTX(*),
      .        NPBY(NNPBY,*), LPBY(*), KINET(*), TAGSLV_RBY_SMS(*),
      .        IPARI(NPARI,*), 
      .        LAD_SMS(*), 
@@ -1658,7 +1630,7 @@ C-------------------------------------------------------------------------
 C     PREPARE KOMPACTION OF ELEMENTARY MATRIX
 C     KJ = KAD_SMS(I),KAD_SMS(I+1)-1 => PK_SMS(KJ) = rang de KDI_SMS(KJ) dans JDI_SMS(I),JDI_SMS(I+1)-1
 C
-C     Reconstruit JDI_SMS :: Recopie IDI_SMS (connectivite elementaire compactee et triee)
+C     Rebuilt jdi_sms :: copy idi_sms (compact and sorting elementary connectivity)
 C-------------------------------------------------------------------------
       DO I=1,NUMNOD
         DO KJ=IAD_SMS(I),IAD_SMS(I+1)-1
@@ -1718,10 +1690,10 @@ C
               NAD_SMS(J)=NAD_SMS(J)+1
 C
 C-- Type2 crossed connection between main nodes
-              IF ((T2MAIN_SMS(1,J).GT.0).AND.(I.GT.J)) THEN
+              IF ((T2MAIN_SMS(1,J)>0).AND.(I>J)) THEN
                 DO K =1,4
                   DO KK =1,4
-                    IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                    IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                       JDI_SMS(NAD_SMS(T2MAIN_SMS(K,I)))=T2MAIN_SMS(KK,J)
                       NAD_SMS(T2MAIN_SMS(K,I))=NAD_SMS(T2MAIN_SMS(K,I))+1
                       JDI_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))=T2MAIN_SMS(K,I)
@@ -1774,7 +1746,7 @@ C
           NSN=IPARI(5,N)
           DO II=1,NSN
             I=ABS(INTBUF_TAB(N)%NSV(II))
-            IF (KINET(I).EQ.0) THEN
+            IF (KINET(I)==0) THEN
 C             Kinematic node
               L=INTBUF_TAB(N)%IRTLM(II)
               N1 = INTBUF_TAB(N)%IRECTM(4*(L-1)+1)
@@ -1811,10 +1783,10 @@ C
                 NAD_SMS(J)=NAD_SMS(J)+1
 C
 C-- Type2 crossed connection between main nodes
-                IF ((T2MAIN_SMS(1,J).GT.0).AND.(I.GT.J)) THEN
+                IF ((T2MAIN_SMS(1,J)>0).AND.(I>J)) THEN
                   DO K =1,4
                     DO KK =1,4
-                      IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                      IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                         JDI_SMS(NAD_SMS(T2MAIN_SMS(K,I)))=T2MAIN_SMS(KK,J)
                         NAD_SMS(T2MAIN_SMS(K,I))=NAD_SMS(T2MAIN_SMS(K,I))+1
                         JDI_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))=T2MAIN_SMS(K,I)
@@ -1879,24 +1851,24 @@ C reconstruit JAD_SMS
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_INI_JAD_3                 source/ams/sms_init.F         
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTSTAMP_MOD                  share/modules1/intstamp_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    sms_ini_jad_3   ../starter/source/ams/sms_init.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../starter/source/output/message/message.F
+!||    arret           ../starter/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    intstamp_mod    ../starter/share/modules1/intstamp_mod.F
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SMS_INI_JAD_3(
      2             IXC      ,IPARG   ,IXS      ,IXT      ,IXP     ,
      3             IXR      ,IXTG    ,IXS10    ,NODNX_SMS,JADC_SMS,
      4             JADS_SMS ,JADS10_SMS,JADT_SMS ,JADP_SMS,JADR_SMS ,
      5             JADTG_SMS,TAGPRT_SMS,KAD_SMS  ,KDI_SMS ,
      6             TAGREL_SMS,IPARTS ,IPARTQ   ,IPARTC   ,IPARTT   ,
-     7             IPARTP    ,IPARTR ,IPARTUR  ,IPARTTG  ,IPARTX   ,
+     7             IPARTP    ,IPARTR ,IPARTTG  ,IPARTX   ,
      8             NPBY     ,LPBY     ,KINET    ,
      9             TAGSLV_RBY_SMS,IPARI,INTBUF_TAB,
      A             LAD_SMS   ,JSM_SMS  ,INTSTAMP  ,IPART     , 
@@ -1907,25 +1879,19 @@ C   M o d u l e s
 C-----------------------------------------------
       USE INTSTAMP_MOD
       USE INTBUFDEF_MOD
-      USE MESSAGE_MOD  
+      USE MESSAGE_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-#include "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "intstamp_c.inc"
-#include      "kincod_c.inc"
 #include      "param_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
 #include      "scr17_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER 
@@ -1941,7 +1907,7 @@ C-----------------------------------------------
      .        JADTG_SMS(3,*),NATIV_SMS(*),
      .        TAGPRT_SMS(*), TAGREL_SMS(*), 
      .        IPARTS(*), IPARTQ(*), IPARTC(*), IPARTT(*),
-     .        IPARTP(*), IPARTR(*), IPARTUR(*), IPARTTG(*), IPARTX(*),
+     .        IPARTP(*), IPARTR(*), IPARTTG(*), IPARTX(*),
      .        NPBY(NNPBY,*), LPBY(*), KINET(*), TAGSLV_RBY_SMS(*),
      .        IPARI(NPARI,*), 
      .        LAD_SMS(*), JSM_SMS(*), 
@@ -1963,7 +1929,7 @@ C-------------------------------------------------------------------------
 C     PREPARE KOMPACTION OF ELEMENTARY MATRIX
 C     KJ = KAD_SMS(I),KAD_SMS(I+1)-1 => PK_SMS(KJ) = rang de KDI_SMS(KJ) dans JDI_SMS(I),JDI_SMS(I+1)-1
 C
-C     Reconstruit JDI_SMS :: Recopie IDI_SMS (connectivite elementaire compactee et triee)
+C     Rebuilt jdi_sms :: copy idi_sms (compact and sorting elementary connectivity)
 C-------------------------------------------------------------------------
       DO I=1,NUMNOD
         DO KJ=IAD_SMS(I),IAD_SMS(I+1)-1
@@ -1972,14 +1938,14 @@ C-------------------------------------------------------------------------
         END DO
       END DO
 C-------------------------------------------------------------------------
-C     PREPARE JSM_SMS (connectivite elementaire)
+C     PREPARE JSM_SMS (Elementary connectivitis)
 C-------------------------------------------------------------------------
       DO I=1,NUMNOD
         DO KJ=JAD_SMS(I),JAD_SMS(I)+LAD_SMS(I)-1
           J =JDI_SMS(KJ)
 cc        IF(I < J)THEN
 C
-C         dichotomie (recherche parmi les voisins ordonnes de J)
+C         Dichotomy (research among the neighbors of J)
           K1=JAD_SMS(J)
           K2=JAD_SMS(J)+LAD_SMS(J)-1
  100      CONTINUE
@@ -2013,7 +1979,7 @@ C
         NAD_SMS(I)=JAD_SMS(I)+LAD_SMS(I)
       END DO
 C
-C inter/type2 : reconstruction (jdi et jsm)
+C Inter/Type2: Reconstruction (JDI and JSM)
 C------------
       DO N=1,NINTER
         NTY   = IPARI(7,N)
@@ -2068,10 +2034,10 @@ C
               NAD_SMS(J)=NAD_SMS(J)+1
 C
 C-- Type2 crossed connection between main nodes
-              IF ((T2MAIN_SMS(1,J).GT.0).AND.(I.GT.J)) THEN
+              IF ((T2MAIN_SMS(1,J)>0).AND.(I>J)) THEN
                 DO K =1,4
                   DO KK =1,4
-                    IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                    IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                       JSM_SMS(NAD_SMS(T2MAIN_SMS(K,I)))=NAD_SMS(T2MAIN_SMS(KK,J))
                       JSM_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))=NAD_SMS(T2MAIN_SMS(K,I))
                       JDI_SMS(NAD_SMS(T2MAIN_SMS(K,I)))=T2MAIN_SMS(KK,J)
@@ -2138,7 +2104,7 @@ C
           NSN=IPARI(5,N)
           DO II=1,NSN
             I=ABS(INTBUF_TAB(N)%NSV(II))
-            IF (KINET(I).EQ.0) THEN
+            IF (KINET(I)==0) THEN
 C           Kinematic node
  
               L=INTBUF_TAB(N)%IRTLM(II)
@@ -2184,10 +2150,10 @@ C           Kinematic node
                 NAD_SMS(J)=NAD_SMS(J)+1
 C
 C-- Type2 crossed connection between main nodes
-                IF ((T2MAIN_SMS(1,J).GT.0).AND.(I.GT.J)) THEN
+                IF ((T2MAIN_SMS(1,J)>0).AND.(I>J)) THEN
                   DO K =1,4
                     DO KK =1,4
-                      IF (T2MAIN_SMS(K,I).NE.T2MAIN_SMS(KK,J)) THEN
+                      IF (T2MAIN_SMS(K,I)/=T2MAIN_SMS(KK,J)) THEN
                         JSM_SMS(NAD_SMS(T2MAIN_SMS(K,I)))=NAD_SMS(T2MAIN_SMS(KK,J))
                         JSM_SMS(NAD_SMS(T2MAIN_SMS(KK,J)))=NAD_SMS(T2MAIN_SMS(K,I))
                         JDI_SMS(NAD_SMS(T2MAIN_SMS(K,I)))=T2MAIN_SMS(KK,J)
@@ -2266,12 +2232,12 @@ C-----------------------------------------------
           J=JDI_SMS(IJ)
           IF(J > I)THEN
             JI=JSM_SMS(IJ)
-            IF (IJ.NE.JSM_SMS(JI)) ERROR = 1
+            IF (IJ/=JSM_SMS(JI)) ERROR = 1
           END IF
         END DO
       END DO
 C
-      IF (ERROR.EQ.1) THEN
+      IF (ERROR==1) THEN
         CALL ANCMSG(MSGID=1242,ANMODE=ANINFO,MSGTYPE=MSGERROR)
         CALL ARRET(2)
       ENDIF

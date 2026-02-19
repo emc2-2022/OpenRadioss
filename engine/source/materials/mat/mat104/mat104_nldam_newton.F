@@ -1,40 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MAT104_NLDAM_NEWTON           source/materials/mat/mat104/mat104_nldam_newton.F
-Chd|-- called by -----------
-Chd|        SIGEPS104                     source/materials/mat/mat104/sigeps104.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    mat104_nldam_newton   ../engine/source/materials/mat/mat104/mat104_nldam_newton.F
+!||--- called by ------------------------------------------------------
+!||    sigeps104             ../engine/source/materials/mat/mat104/sigeps104.F
+!||====================================================================
       SUBROUTINE MAT104_NLDAM_NEWTON(
-     1     NEL     ,NGL     ,NUPARAM ,NUVAR   , 
+     1     NEL     ,NGL     ,NUPARAM ,NUVAR   ,VOLUME  ,FHEAT   , 
      2     TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFF     ,
      3     RHO0    ,RHO     ,PLA     ,DPLA    ,EPSD    ,SOUNDSP ,
      4     DEPSXX  ,DEPSYY  ,DEPSZZ  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,
      5     SIGOXX  ,SIGOYY  ,SIGOZZ  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
      6     SIGNXX  ,SIGNYY  ,SIGNZZ  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,
-     7     SIGY    ,ET      ,TEMPEL  ,VARNL   ,DMG     ,TEMP    ,
-     8     SEQ     )
+     7     SIGY    ,ET      ,DPLA_NL ,DMG     ,TEMP    ,SEQ     ,
+     8     PLA_NL  ,PLAP_NL ,JLAG    )
       !=======================================================================
       !      Implicit types
       !=======================================================================
@@ -42,29 +41,33 @@ Chd|====================================================================
       !=======================================================================
       !      Common
       !=======================================================================
-#include      "param_c.inc" 
 #include      "com01_c.inc"
-#include      "scr17_c.inc"
       !=======================================================================
       !      Dummy arguments
       !=======================================================================
       INTEGER NEL,NUPARAM,NUVAR,JTHE
+      INTEGER ,INTENT(IN) :: JLAG
       INTEGER ,DIMENSION(NEL), INTENT(IN)    :: NGL
       my_real 
      .   TIME,TIMESTEP
       my_real,DIMENSION(NUPARAM), INTENT(IN) :: 
      .   UPARAM
+      my_real, DIMENSION(NEL), INTENT(IN)    :: VOLUME
+      my_real ,DIMENSION(NEL), INTENT(INOUT) :: FHEAT
       my_real,DIMENSION(NEL), INTENT(IN)     :: 
-     .   RHO0,RHO,TEMPEL,
+     .   RHO0,RHO,
      .   DEPSXX,DEPSYY,DEPSZZ,DEPSXY,DEPSYZ,DEPSZX,
-     .   SIGOXX,SIGOYY,SIGOZZ,SIGOXY,SIGOYZ,SIGOZX
+     .   SIGOXX,SIGOYY,SIGOZZ,SIGOXY,SIGOYZ,SIGOZX,
+     .   PLA_NL,PLAP_NL,DPLA_NL
 c
       my_real ,DIMENSION(NEL), INTENT(OUT)   :: 
      .   SOUNDSP,SIGY,ET,
      .   SIGNXX,SIGNYY,SIGNZZ,SIGNXY,SIGNYZ,SIGNZX
 c
       my_real ,DIMENSION(NEL), INTENT(INOUT)       :: 
-     .   PLA,VARNL,DPLA,EPSD,OFF,TEMP,DMG,SEQ
+     .   PLA,DPLA,EPSD,OFF,TEMP,SEQ
+      my_real ,DIMENSION(NEL,6), INTENT(INOUT)     ::
+     .   DMG
       my_real ,DIMENSION(NEL,NUVAR), INTENT(INOUT) :: 
      .   UVAR
       !=======================================================================
@@ -72,52 +75,36 @@ c
       !=======================================================================
       INTEGER I,II,IGURSON,ITER,NITER,NINDX,INDEX(NEL)
 c
-      DOUBLE PRECISION :: 
+      my_real :: 
      .   YOUNG,BULK,LAM,G,G2,NU,CDR,KDR,HARD,YLD0,QVOCE,BVOCE,JCC,
      .   EPSP0,MTEMP,TINI,TREF,ETA,CP,DPIS,DPAD,ASRATE,AFILTR,HKHI,
-     .   Q1,Q2,ED,AN,EPN,KW,FR,FC,F0
-      DOUBLE PRECISION :: 
-     .   DTI,H,LDAV,TRDEP,SIGVM,OMEGA,
+     .   Q1,Q2,ED,AN,KW,FR,FC,F0
+      my_real ::
+     .   DTI,LDAV,TRDEP,SIGVM,OMEGA,
      .   DTEMP,FCOSH,FSINH,DPDT,DLAM,DDEP
-      DOUBLE PRECISION ::
+      my_real ::
      .   DSDRDJ2,DSDRDJ3,
      .   DJ3DSXX,DJ3DSYY,DJ3DSZZ,DJ3DSXY,DJ3DSYZ,DJ3DSZX,
-     .   DJ2DSXX,DJ2DSYY,DJ2DSZZ,DJ2DSXY,DJ2DSYZ,DJ2DSZX,
-     .   DFDSXX,DFDSYY,DFDSZZ,DFDSXY,DFDSYZ,DFDSZX,
-     .   NORMSIG,SDPLA,DPHI_DTRSIG,DFDSIG2,SDV_DFDSIG,
-     .   DPHI_DSIG,DPHI_DYLD,DPHI_DFDR,DF_DFS,DFS_DFT,DPHI_DFT,
-     .   DPHI_DFS,DFN_DLAM,DFSH_DLAM,DFG_DLAM,DFT_DLAM,
-     .   DFN,DFSH,DFG,DFT,DYLD_DPLA,DYLD_DTEMP,DTEMP_DLAM
+     .   
+     .   
+     .   NORMSIG,SDPLA,DPHI_DTRSIG,DFDSIG2,
+     .   DPHI_DSIG,DPHI_DYLD,DPHI_DFDR,
+     .   
+     .   DYLD_DPLA
 c
-      DOUBLE PRECISION, DIMENSION(NEL) :: 
-     .   DSIGXX,DSIGYY,DSIGZZ,DSIGXY,DSIGYZ,DSIGZX,TRSIG,
+      my_real, DIMENSION(NEL) :: 
+     .   TRSIG,
      .   SXX,SYY,SZZ,SXY,SYZ,SZX,SIGM,J2,J3,SIGDR,YLD,WEITEMP,
-     .   HARDP,FHARD,FRATE,FTHERM,DTHERM,FDR,PHI0,TRDFDS,TRIAX,D,
+     .   HARDP,FHARD,FRATE,FTHERM,FDR,TRDFDS,TRIAX,
      .   FDAM,PHI,FT,FS,FG,FN,FSH,DPLA_DLAM,DPHI_DLAM,ETAT,
      .   NORMXX,NORMYY,NORMXY,NORMZZ,NORMYZ,NORMZX,SIG_DFDSIG,
-     .   DPXX,DPYY,DPXY,DPYZ,DPZX,DPZZ,SIGDR2,YLD2I
+     .   DPXX,DPYY,DPXY,DPYZ,DPZX,DPZZ,SIGDR2,YLD2I,DLAM_NL
 c
-      DOUBLE PRECISION, DIMENSION(NEL) :: 
-     .   DLAM_NL,PLAP_NL,DPLA_NL,PLA_NL
       !=======================================================================
-      !       DRUCKER MATERIAL LAW WITH GURSON DAMAGE
-      !           USING NON LOCAL PEERLINGS METHOD
+      !       DRUCKER - VOCE - JOHNSON-COOK MATERIAL LAW WITH GURSON DAMAGE
+      !                   USING NON LOCAL PEERLINGS METHOD
       !=======================================================================
-      !UVAR(1)   FG       DAMAGE OF CAVITIES GROWTH
-      !UVAR(2)   FN       DAMAGE OF CAVITIES NUCLEATION
-      !UVAR(3)   FSH      DAMAGE OF SHEAR
-      !UVAR(4)   FT       TOTAL DAMAGE (FG + FN + FSH)
-      !UVAR(5)   FS       EFFECTIVE DAMAGE FS = F(FT)
-      !UVAR(6)   PLA_NL   NON-LOCAL PLASTIC STRAIN
-      !UVAR(7)   PLAP_NL  NON-LOCAL PLASTIC STRAIN-RATE
-      !UVAR(8)   YLD      YIELD STRESS
-      !-----------------------------------------------------------------------  
-      !Warning VARNL(NEL) :
-      !input  => VARNL = non-local plastic strain increment
-      !output => VARNL = cumulated local plastic strain
-      !-----------------------------------------------------------------------  
-      !DEPIJ = PLASTIC STRAIN TENSOR COMPONENT
-      !DEPSIJ = TOTAL STRAIN  TENSOR COMPONENT (EL+PL)
+      !UVAR(1)   YLD      YIELD STRESS
       !=======================================================================
 c      
       !=======================================================================
@@ -172,63 +159,51 @@ c
       ! Recovering internal variables
       DO I=1,NEL
         ! If the element is failing
-        IF (OFF(I) < 0.001)   OFF(I) = ZERO
-        IF (OFF(I) < ONE)      OFF(I) = OFF(I)*FOUR_OVER_5
+        IF (OFF(I) < EM03) OFF(I) = ZERO
+        IF (OFF(I) < ONE)  OFF(I) = OFF(I)*FOUR_OVER_5
         ! User inputs
-        FG(I)     = UVAR(I,1)  ! Growth damage
-        FN(I)     = UVAR(I,2)  ! Nucleation damage
-        FSH(I)    = UVAR(I,3)  ! Shear damage
-        FT(I)     = UVAR(I,4)  ! Total damage
-        FS(I)     = UVAR(I,5)  ! Effective damage
-        PLA_NL(I) = UVAR(I,6)  ! Non-local plastic strain
-        YLD(I)    = UVAR(I,8)  ! Previous yield stress
+        YLD(I)    = UVAR(I,1)  ! Previous yield stress
+        ! Damage variables
+        FG(I)     = DMG(I,2)   ! Growth damage
+        FN(I)     = DMG(I,3)   ! Nucleation damage
+        FSH(I)    = DMG(I,4)   ! Shear damage
+        FT(I)     = DMG(I,5)   ! Total damage
+        FS(I)     = DMG(I,6)   ! Effective damage
         ! Standard inputs
-        D(I)      = Q1*FS(I)   ! Effective normalized damage
         DPLA(I)   = ZERO       ! Initialization of the plastic strain increment
-        ET(I)     = ONE         ! Initialization of hourglass coefficient
-        HARDP(I)  = ZERO       ! Initialization of hourglass coefficient
-        IF (OFF(I) == ONE) THEN 
-          DPLA_NL(I) = MAX(VARNL(I),ZERO)     ! Non-local plastic strain increment
-          PLA_NL(I)  = PLA_NL(I) + DPLA_NL(I) ! Non-local cumulated plastic strain 
-          PLAP_NL(I) = DPLA_NL(I) * DTI       ! Non-local plastic strain-rate
-        ELSE 
-          DPLA_NL(I) = ZERO
-          PLAP_NL(I) = ZERO
-        ENDIF
+        ET(I)     = ONE        ! Initialization of hourglass coefficient
+        HARDP(I)  = ZERO       ! Initialization of hardening modulus
+        DLAM_NL(I) = ZERO      ! Initialization of the plastic multiplier
       ENDDO
 c      
       ! Initialization of damage, temperature and self-heating weight factor
       IF (TIME == ZERO) THEN   
-        TEMP(1:NEL) = TINI 
+        IF (JTHE == 0) TEMP(1:NEL) = TINI 
         IF (ISIGI == 0) THEN 
-          UVAR(1:NEL,4) = F0
-          FT(1:NEL)     = F0
-          DMG(1:NEL)    = F0/FR
+          DMG(1:NEL,5) = F0
+          FT(1:NEL)    = F0
+          DMG(1:NEL,1) = F0/FR
           IF (F0<FC) THEN 
-            UVAR(1:NEL,5) = F0
+            DMG(1:NEL,6) = F0
           ELSE
-            UVAR(1:NEL,5) = FC + (ONE/Q1-FC)*(F0-FC)/(FR-FC)
+            DMG(1:NEL,6) = FC + (ONE/Q1-FC)*(F0-FC)/(FR-FC)
           ENDIF
-          FS(1:NEL) = UVAR(1:NEL,5)
+          FS(1:NEL) = DMG(1:NEL,6)
         ENDIF
       ENDIF 
-      IF (CP > ZERO) THEN     
-        IF (JTHE == 0) THEN
-          DO I=1,NEL
-            ! Computation of the weight factor
-            IF (PLAP_NL(I) < DPIS) THEN
-              WEITEMP(I) = ZERO
-            ELSEIF (PLAP_NL(I) > DPAD) THEN
-              WEITEMP(I) = ONE
-            ELSE
-              WEITEMP(I) = ((PLAP_NL(I)-DPIS)**2 )
-     .        * (THREE*DPAD - TWO*PLAP_NL(I) - DPIS)
-     .         / ((DPAD-DPIS)**3)
-            ENDIF
-          ENDDO
-        ELSE
-          TEMP(1:NEL) = TEMPEL(1:NEL)
-        ENDIF
+      IF ((JTHE == 0 .AND. CP > ZERO) .OR. JTHE /= 0) THEN     
+        DO I=1,NEL
+          ! Computation of the weight factor
+          IF (PLAP_NL(I) < DPIS) THEN
+            WEITEMP(I) = ZERO
+          ELSEIF (PLAP_NL(I) > DPAD) THEN
+            WEITEMP(I) = ONE
+          ELSE
+            WEITEMP(I) = ((PLAP_NL(I)-DPIS)**2 )
+     .      * (THREE*DPAD - TWO*PLAP_NL(I) - DPIS)
+     .       / ((DPAD-DPIS)**3)
+          ENDIF
+        ENDDO
       ENDIF
 c      
       !========================================================================
@@ -237,28 +212,28 @@ c
       DO I=1,NEL  
 c       
         ! Previous value of Drucker equivalent stress
-        TRSIG(I)= SIGOXX(I) + SIGOYY(I) + SIGOZZ(I)
-        SIGM(I) =-TRSIG(I) * THIRD
-        SXX(I)  = SIGOXX(I) + SIGM(I)
-        SYY(I)  = SIGOYY(I) + SIGM(I)
-        SZZ(I)  = SIGOZZ(I) + SIGM(I)
-        SXY(I)  = SIGOXY(I)
-        SYZ(I)  = SIGOYZ(I)
-        SZX(I)  = SIGOZX(I)
-        J2(I)   = HALF*(SXX(I)**2 + SYY(I)**2 + SZZ(I)**2 )
-     .          +       SXY(I)**2 + SYZ(I)**2 + SZX(I)**2
-        J3(I)   = SXX(I) * SYY(I) * SZZ(I)  
-     .          + SXY(I) * SYZ(I) * SZX(I) * TWO
-     .          - SXX(I) * SYZ(I)**2
-     .          - SYY(I) * SZX(I)**2
-     .          - SZZ(I) * SXY(I)**2 
-c
-        FDR(I) = J2(I)**3 - CDR*(J3(I)**2)
+        TRSIG(I) = SIGOXX(I) + SIGOYY(I) + SIGOZZ(I)
+        SIGM(I)  =-TRSIG(I) * THIRD
+        SXX(I)   = SIGOXX(I) + SIGM(I)
+        SYY(I)   = SIGOYY(I) + SIGM(I)
+        SZZ(I)   = SIGOZZ(I) + SIGM(I)
+        SXY(I)   = SIGOXY(I)
+        SYZ(I)   = SIGOYZ(I)
+        SZX(I)   = SIGOZX(I)
+        J2(I)    = HALF*(SXX(I)**2 + SYY(I)**2 + SZZ(I)**2 )
+     .           +       SXY(I)**2 + SYZ(I)**2 + SZX(I)**2
+        J3(I)    = SXX(I) * SYY(I) * SZZ(I)  
+     .           + SXY(I) * SYZ(I) * SZX(I) * TWO
+     .           - SXX(I) * SYZ(I)**2
+     .           - SYY(I) * SZX(I)**2
+     .           - SZZ(I) * SXY(I)**2 
+        FDR(I)   = J2(I)**3 - CDR*(J3(I)**2)
         IF (FDR(I) > ZERO) THEN
           SIGDR(I) = KDR * EXP((ONE/SIX)*LOG(FDR(I)))
         ELSE
           SIGDR(I) = ZERO
         ENDIF
+c
         ! Computation of the stress triaxiality and the etaT factor
         IF (SIGDR(I)>ZERO) THEN 
           TRIAX(I) = (TRSIG(I)*THIRD)/SIGDR(I)
@@ -291,47 +266,40 @@ c
      .          + TWO*SIGOXY(I)*SIGOXY(I)
      .          + TWO*SIGOYZ(I)*SIGOYZ(I)
      .          + TWO*SIGOZX(I)*SIGOZX(I))
+        NORMSIG = MAX(NORMSIG,ONE)
 c
-        ! Computation of the norm to the yield surface
-        IF (NORMSIG>ZERO) THEN
-c
-          FDR(I)      = (J2(I)/(NORMSIG**2))**3 - CDR*((J3(I)/(NORMSIG**3))**2)             
-          DPHI_DFDR   = DPHI_DSIG*KDR*(ONE/SIX)*EXP(-(FIVE/SIX)*LOG(FDR(I)))                    
-          DSDRDJ2     = DPHI_DFDR*THREE*(J2(I)/(NORMSIG**2))**2                             
-          DSDRDJ3     = -DPHI_DFDR*TWO*CDR*(J3(I)/(NORMSIG**3))                     
-c       dJ3/dS
-          DJ3DSXX =  TWO_THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
-     .             -  THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
-     .             -  THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)                 
-          DJ3DSYY = - THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
-     .             + TWO_THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
-     .             -  THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)             
-          DJ3DSZZ = - THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
-     .              - THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
-     .             + TWO_THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)
-          DJ3DSXY = TWO*(SXX(I)*SXY(I) + SXY(I)*SYY(I) + SZX(I)*SYZ(I))/(NORMSIG**2)                  
-          DJ3DSYZ = TWO*(SXY(I)*SZX(I) + SYY(I)*SYZ(I) + SYZ(I)*SZZ(I))/(NORMSIG**2)                    
-          DJ3DSZX = TWO*(SXX(I)*SZX(I) + SXY(I)*SYZ(I) + SZX(I)*SZZ(I))/(NORMSIG**2)   
-        ! dPhi/dSig
-          NORMXX(I) = DSDRDJ2*SXX(I)/NORMSIG + DSDRDJ3*DJ3DSXX + DPHI_DTRSIG
-          NORMYY(I) = DSDRDJ2*SYY(I)/NORMSIG + DSDRDJ3*DJ3DSYY + DPHI_DTRSIG
-          NORMZZ(I) = DSDRDJ2*SZZ(I)/NORMSIG + DSDRDJ3*DJ3DSZZ + DPHI_DTRSIG
-          NORMXY(I) = TWO*DSDRDJ2*SXY(I)/NORMSIG + DSDRDJ3*DJ3DSXY
-          NORMYZ(I) = TWO*DSDRDJ2*SYZ(I)/NORMSIG + DSDRDJ3*DJ3DSYZ
-          NORMZX(I) = TWO*DSDRDJ2*SZX(I)/NORMSIG + DSDRDJ3*DJ3DSZX  
-          TRDFDS(I) = NORMXX(I) + NORMYY(I) + NORMZZ(I)   
-          SIG_DFDSIG(I) = SIGOXX(I)*NORMXX(I) + SIGOYY(I)*NORMYY(I) + SIGOZZ(I)*NORMZZ(I)
-     .                  + SIGOXY(I)*NORMXY(I) + SIGOYZ(I)*NORMYZ(I) + SIGOZX(I)*NORMZX(I)
+        ! Computation of the normal to the yield surface
+        FDR(I) = (J2(I)/(NORMSIG**2))**3 - CDR*((J3(I)/(NORMSIG**3))**2)  
+        IF (FDR(I) > ZERO) THEN            
+          DPHI_DFDR = DPHI_DSIG*KDR*(ONE/SIX)*EXP(-(FIVE/SIX)*LOG(FDR(I)))      
         ELSE
-          NORMXX(I)     = ZERO
-          NORMYY(I)     = ZERO
-          NORMZZ(I)     = ZERO
-          NORMXY(I)     = ZERO
-          NORMYZ(I)     = ZERO
-          NORMZX(I)     = ZERO
-          TRDFDS(I)     = ZERO
-          SIG_DFDSIG(I) = ZERO
+          DPHI_DFDR = ZERO
         ENDIF
+        DSDRDJ2 = DPHI_DFDR*THREE*(J2(I)/(NORMSIG**2))**2                             
+        DSDRDJ3 = -DPHI_DFDR*TWO*CDR*(J3(I)/(NORMSIG**3))                     
+        !dJ3/dS
+        DJ3DSXX =  TWO_THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
+     .            -    THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
+     .            -    THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)                 
+        DJ3DSYY = -    THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
+     .           + TWO_THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
+     .            -    THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)             
+        DJ3DSZZ = -    THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
+     .            -    THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
+     .           + TWO_THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)
+        DJ3DSXY = TWO*(SXX(I)*SXY(I) + SXY(I)*SYY(I) + SZX(I)*SYZ(I))/(NORMSIG**2)                  
+        DJ3DSYZ = TWO*(SXY(I)*SZX(I) + SYY(I)*SYZ(I) + SYZ(I)*SZZ(I))/(NORMSIG**2)                    
+        DJ3DSZX = TWO*(SXX(I)*SZX(I) + SXY(I)*SYZ(I) + SZX(I)*SZZ(I))/(NORMSIG**2)   
+        ! dPhi/dSig
+        NORMXX(I) = DSDRDJ2*SXX(I)/NORMSIG + DSDRDJ3*DJ3DSXX + DPHI_DTRSIG
+        NORMYY(I) = DSDRDJ2*SYY(I)/NORMSIG + DSDRDJ3*DJ3DSYY + DPHI_DTRSIG
+        NORMZZ(I) = DSDRDJ2*SZZ(I)/NORMSIG + DSDRDJ3*DJ3DSZZ + DPHI_DTRSIG
+        NORMXY(I) = TWO*DSDRDJ2*SXY(I)/NORMSIG + DSDRDJ3*DJ3DSXY
+        NORMYZ(I) = TWO*DSDRDJ2*SYZ(I)/NORMSIG + DSDRDJ3*DJ3DSYZ
+        NORMZX(I) = TWO*DSDRDJ2*SZX(I)/NORMSIG + DSDRDJ3*DJ3DSZX  
+        TRDFDS(I) = NORMXX(I) + NORMYY(I) + NORMZZ(I)   
+        SIG_DFDSIG(I) = SIGOXX(I)*NORMXX(I) + SIGOYY(I)*NORMYY(I) + SIGOZZ(I)*NORMZZ(I)
+     .                + SIGOXY(I)*NORMXY(I) + SIGOYZ(I)*NORMYZ(I) + SIGOZX(I)*NORMZX(I)
 c
         ! Computation of the non-local plastic multiplier
         IF (SIG_DFDSIG(I)>ZERO) THEN
@@ -345,7 +313,7 @@ c
           FG(I) = FG(I) + (ONE-FT(I))*DLAM_NL(I)*TRDFDS(I)
         ENDIF
         FG(I) = MAX(FG(I),ZERO)
-c 
+c   
         ! Nucleation damage update
         IF ((PLA_NL(I) >= ED).AND.(FT(I)<FR)) THEN 
           ! Case for positive stress triaxiality
@@ -370,7 +338,7 @@ c
           FSH(I) = FSH(I) + KW*OMEGA*FT(I)*(SDPLA/SIGDR(I))
         ENDIF
         FSH(I) = MAX(FSH(I),ZERO)
-c        
+c          
         ! Total damage update
         FT(I) = F0 + FG(I) + FN(I) + FSH(I) 
         FT(I) = MIN(FT(I), FR)
@@ -385,14 +353,11 @@ c
           FS(I) = FC + (ONE/Q1 - FC) * (FT(I)-FC)/(FR-FC)
         ENDIF
         FS(I)   = MIN (FS(I),ONE/Q1)
-        D(I)    = Q1*FS(I)
-c
+c  
         ! Temperature update
-        IF (CP > ZERO ) THEN                   
-          IF (JTHE == 0) THEN                   
-            DTEMP   = WEITEMP(I)*(ONE-FT(I))*YLD(I)*DPLA_NL(I)*ETA/(RHO0(I)*CP)
-            TEMP(I) = TEMP(I) + DTEMP
-          ENDIF
+        IF (JTHE == 0 .AND. CP > ZERO ) THEN 
+          DTEMP   = WEITEMP(I)*(ONE-FT(I))*YLD(I)*DPLA_NL(I)*ETA/(RHO0(I)*CP)
+          TEMP(I) = TEMP(I) + DTEMP
         ENDIF
       ENDDO      
 c      
@@ -404,8 +369,7 @@ c
         FRATE(I) = ONE
         IF (EPSD(I) > EPSP0) FRATE(I) = FRATE(I) + JCC*LOG(EPSD(I)/EPSP0)
         ! c) - Correction factor for thermal effects
-        FTHERM(I) = ONE
-        IF (CP > ZERO) FTHERM(I) = ONE - MTEMP*(TEMP(I) - TREF)
+        FTHERM(I) = ONE - MTEMP*(TEMP(I) - TREF)
         ! d) - Computation of the yield function
         YLD(I) = FHARD(I)*FRATE(I)*FTHERM(I)
         ! e) - Checking values
@@ -419,12 +383,12 @@ c
 c
         ! Computation of the trial stress tensor
         LDAV      = (DEPSXX(I) + DEPSYY(I) + DEPSZZ(I)) * LAM
-        SIGNXX(I) = SIGOXX(I) + (ONE-D(I))*(DEPSXX(I)*G2 + LDAV)
-        SIGNYY(I) = SIGOYY(I) + (ONE-D(I))*(DEPSYY(I)*G2 + LDAV)
-        SIGNZZ(I) = SIGOZZ(I) + (ONE-D(I))*(DEPSZZ(I)*G2 + LDAV)
-        SIGNXY(I) = SIGOXY(I) + (ONE-D(I))*DEPSXY(I)*G
-        SIGNYZ(I) = SIGOYZ(I) + (ONE-D(I))*DEPSYZ(I)*G
-        SIGNZX(I) = SIGOZX(I) + (ONE-D(I))*DEPSZX(I)*G
+        SIGNXX(I) = SIGOXX(I) + (DEPSXX(I)*G2 + LDAV)
+        SIGNYY(I) = SIGOYY(I) + (DEPSYY(I)*G2 + LDAV)
+        SIGNZZ(I) = SIGOZZ(I) + (DEPSZZ(I)*G2 + LDAV)
+        SIGNXY(I) = SIGOXY(I) + DEPSXY(I)*G
+        SIGNYZ(I) = SIGOYZ(I) + DEPSYZ(I)*G
+        SIGNZX(I) = SIGOZX(I) + DEPSZX(I)*G
         ! Computation of the trace of the trial stress tensor
         TRSIG(I)  = SIGNXX(I) + SIGNYY(I) + SIGNZZ(I)
         SIGM(I)   = -TRSIG(I) * THIRD
@@ -437,7 +401,7 @@ c
         SZX(I) = SIGNZX(I)
         ! Second deviatoric invariant
         J2(I) = HALF*(SXX(I)**2 + SYY(I)**2 + SZZ(I)**2 )
-     .          +       SXY(I)**2 + SYZ(I)**2 + SZX(I)**2
+     .        +       SXY(I)**2 + SYZ(I)**2 + SZX(I)**2
         ! Third deviatoric invariant
         J3(I) = SXX(I) * SYY(I) * SZZ(I)  
      .        + SXY(I) * SYZ(I) * SZX(I) * TWO
@@ -469,30 +433,24 @@ c
       ! - COMPUTATION OF YIELD FONCTION
       !=======================================================================
       DO I=1,NEL
-        ! If the element is not broken
-        IF (OFF(I)==ONE) THEN
-          FDAM(I) = TWO*Q1*FS(I)*COSH(Q2*ETAT(I)*TRSIG(I)/YLD(I)/TWO) - (Q1*FS(I))**2
-          PHI(I)  = (SIGDR(I) / YLD(I))**2 - ONE + FDAM(I)
-        ! If the element is broken  
-        ELSE
-          PHI(I) = ZERO
-        ENDIF 
+        FDAM(I) = TWO*Q1*FS(I)*COSH(Q2*ETAT(I)*TRSIG(I)/YLD(I)/TWO) - (Q1*FS(I))**2
+        PHI(I)  = (SIGDR(I) / YLD(I))**2 - ONE + FDAM(I)
       ENDDO
 c
       ! Checking plastic behavior for all elements
       NINDX = 0
       DO I=1,NEL         
-        IF ((PHI(I)>ZERO).AND.(OFF(I) == ONE).AND.(FT(I)<FR)) THEN
+        IF ((PHI(I) >= ZERO).AND.(OFF(I) == ONE).AND.(FT(I) < FR)) THEN
           NINDX=NINDX+1
           INDEX(NINDX)=I
         ENDIF
       ENDDO
 c
       !====================================================================
-      ! - PLASTIC CORRECTION WITH BACKWARD EULER METHOD (NEWTON RESOLUTION)
+      ! - PLASTIC CORRECTION WITH CUTTING PLANE METHOD (SEMI-IMPLICIT)
       !==================================================================== 
 c      
-      ! Number of maximum Newton iterations
+      ! Number of iterations
       NITER = 3
 c      
       ! Loop over plastifying elements
@@ -519,26 +477,20 @@ c
         DO II=1,NINDX 
           I = INDEX(II)
 c        
-          ! Note     : in this part, the purpose is to compute for each iteration
+          ! Note: in this part, the purpose is to compute for each iteration
           ! a plastic multiplier allowing to update internal variables to satisfy
-          ! the consistency condition using the backward Euler implicit method
-          ! with a Newton-Raphson iterative procedure
+          ! the consistency condition using the cutting plane semi-implicit 
+          ! iterative procedure.
           ! Its expression at each iteration is : DLAMBDA = - PHI/DPHI_DLAMBDA
-	  ! -> PHI          : current value of yield function (known)
+          ! -> PHI          : current value of yield function (known)
           ! -> DPHI_DLAMBDA : derivative of PHI with respect to DLAMBDA by taking
           !                   into account of internal variables kinetic : 
           !                   plasticity, temperature and damage (to compute)
 c        
-	  ! 1 - Computation of DPHI_DSIG the normal to the yield surface
+          ! 1 - Computation of DPHI_DSIG the normal to the yield surface
           !-------------------------------------------------------------
 c        
-          ! Computation of the normal to the yield criterion NORM
-          ! flow direction (derivative dPhi / Dsig) 
-          ! HERE WE COMPUTE DPHI/DS with phi = (sigbar/sigy)**2 - 1       
-          ! on note dphi/dS=dF/dS                                        
-          ! Fdr = J2^3 - c*J3^2                                     
-          ! dPhi/dSig = dPhi/dFdr * (dFdr/dJ2 * dJ2/dSig + dFdr/dJ3 * dJ3/dSig)
-          ! dJ2/dSig = S            
+          ! Derivative with respect to the equivalent stress and trace
           YLD2I(I)    = ONE/(YLD(I)**2)
           DPHI_DSIG   = TWO*SIGDR(I)*YLD2I(I)    
           FSINH       = SINH(Q2*ETAT(I)*TRSIG(I)/(YLD(I)*TWO))
@@ -546,11 +498,12 @@ c
 c          
           ! Computation of the Eulerian norm of the stress tensor
           NORMSIG = SQRT(SIGNXX(I)*SIGNXX(I)
-     .            + SIGNYY(I)*SIGNYY(I)
-     .            + SIGNZZ(I)*SIGNZZ(I)  
-     .            + TWO*SIGNXY(I)*SIGNXY(I)
-     .            + TWO*SIGNYZ(I)*SIGNYZ(I)
-     .            + TWO*SIGNZX(I)*SIGNZX(I))            
+     .                 + SIGNYY(I)*SIGNYY(I)
+     .                 + SIGNZZ(I)*SIGNZZ(I)  
+     .             + TWO*SIGNXY(I)*SIGNXY(I)
+     .             + TWO*SIGNYZ(I)*SIGNYZ(I)
+     .             + TWO*SIGNZX(I)*SIGNZX(I))  
+          NORMSIG = MAX(NORMSIG,ONE)          
 c        
           ! Derivative with respect to Fdr 
           FDR(I)     =  (J2(I)/(NORMSIG**2))**3 - CDR*((J3(I)/(NORMSIG**3))**2)       
@@ -559,13 +512,13 @@ c
           DSDRDJ3    = -DPHI_DFDR*TWO*CDR*(J3(I)/(NORMSIG**3))         
           ! dJ3/dSig
           DJ3DSXX =  TWO_THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
-     .             -  THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
-     .             -  THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)                 
-          DJ3DSYY = - THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
+     .                -  THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
+     .                -  THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)                 
+          DJ3DSYY =   -  THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
      .             + TWO_THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
-     .             -  THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)             
-          DJ3DSZZ = - THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
-     .              - THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
+     .                -  THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)             
+          DJ3DSZZ =   -  THIRD*(SYY(I)*SZZ(I)-SYZ(I)**2)/(NORMSIG**2)
+     .                -  THIRD*(SXX(I)*SZZ(I)-SZX(I)**2)/(NORMSIG**2)
      .             + TWO_THIRD*(SXX(I)*SYY(I)-SXY(I)**2)/(NORMSIG**2)
           DJ3DSXY = TWO*(SXX(I)*SXY(I) + SXY(I)*SYY(I) + SZX(I)*SYZ(I))/(NORMSIG**2)                   
           DJ3DSYZ = TWO*(SXY(I)*SZX(I) + SYY(I)*SYZ(I) + SYZ(I)*SZZ(I))/(NORMSIG**2)                     
@@ -581,17 +534,17 @@ c
           ! 2 - Computation of DPHI_DLAMBDA
           !---------------------------------------------------------
 c        
-          !   a) Derivative with respect stress increments tensor DSIG			
+          !   a) Derivative with respect stress increments tensor DSIG
           !   --------------------------------------------------------
           TRDFDS(I) = NORMXX(I) + NORMYY(I) + NORMZZ(I)  
-          DFDSIG2   = NORMXX(I) * (ONE-D(I))*(NORMXX(I)*G2 + LAM*TRDFDS(I))
-     .              + NORMYY(I) * (ONE-D(I))*(NORMYY(I)*G2 + LAM*TRDFDS(I))
-     .              + NORMZZ(I) * (ONE-D(I))*(NORMZZ(I)*G2 + LAM*TRDFDS(I)) 
-     .              + NORMXY(I) * (ONE-D(I))*NORMXY(I) * G
-     .              + NORMYZ(I) * (ONE-D(I))*NORMYZ(I) * G
-     .              + NORMZX(I) * (ONE-D(I))*NORMZX(I) * G              
+          DFDSIG2   = NORMXX(I) * (NORMXX(I)*G2 + LAM*TRDFDS(I))
+     .              + NORMYY(I) * (NORMYY(I)*G2 + LAM*TRDFDS(I))
+     .              + NORMZZ(I) * (NORMZZ(I)*G2 + LAM*TRDFDS(I)) 
+     .              + NORMXY(I) * NORMXY(I) * G
+     .              + NORMYZ(I) * NORMYZ(I) * G
+     .              + NORMZX(I) * NORMZX(I) * G              
 c               
-          !   b) Derivatives with respect to plastic strain P 			
+          !   b) Derivatives with respect to plastic strain P 
           !   ------------------------------------------------
 c        
           !     i) Derivative of the yield stress with respect to plastic strain dYLD / dPLA
@@ -624,7 +577,7 @@ c
           ! Computation of the plastic multiplier
           DLAM = -PHI(I)/DPHI_DLAM(I)  
 c          
-	  ! Plastic strains tensor update
+          ! Plastic strains tensor update
           DPXX(I)  = DLAM * NORMXX(I)
           DPYY(I)  = DLAM * NORMYY(I)
           DPZZ(I)  = DLAM * NORMZZ(I)
@@ -635,12 +588,12 @@ c
 c          
           ! Elasto-plastic stresses update   
           LDAV      = TRDEP * LAM
-          SIGNXX(I) = SIGNXX(I) - (ONE-D(I))*(DPXX(I)*G2 + LDAV)
-          SIGNYY(I) = SIGNYY(I) - (ONE-D(I))*(DPYY(I)*G2 + LDAV)
-          SIGNZZ(I) = SIGNZZ(I) - (ONE-D(I))*(DPZZ(I)*G2 + LDAV)
-          SIGNXY(I) = SIGNXY(I) - (ONE-D(I))*DPXY(I)*G
-          SIGNYZ(I) = SIGNYZ(I) - (ONE-D(I))*DPYZ(I)*G
-          SIGNZX(I) = SIGNZX(I) - (ONE-D(I))*DPZX(I)*G        
+          SIGNXX(I) = SIGNXX(I) - (DPXX(I)*G2 + LDAV)
+          SIGNYY(I) = SIGNYY(I) - (DPYY(I)*G2 + LDAV)
+          SIGNZZ(I) = SIGNZZ(I) - (DPZZ(I)*G2 + LDAV)
+          SIGNXY(I) = SIGNXY(I) - DPXY(I)*G
+          SIGNYZ(I) = SIGNYZ(I) - DPYZ(I)*G
+          SIGNZX(I) = SIGNZX(I) - DPZX(I)*G        
           TRSIG(I)  = SIGNXX(I) + SIGNYY(I) + SIGNZZ(I)
           SIGM(I)   = -TRSIG(I) * THIRD
           SXX(I)    = SIGNXX(I) + SIGM(I)
@@ -688,11 +641,21 @@ c
         ! End of the loop over the iterations  
       ENDDO 
       !===================================================================
-      ! - END OF PLASTIC CORRECTION WITH NEWTON IMPLICIT ITERATIVE METHOD
+      ! - END OF PLASTIC CORRECTION WITH CUTTING PLANE ITERATIVE METHOD
       !===================================================================
 c          
       ! Storing new values
       DO I=1,NEL
+        ! USR Outputs
+        UVAR(I,1)  = YLD(I)            ! Yield stress
+        ! Standard outputs
+        DMG(I,1)   = FT(I)/FR          ! Normalized total damage
+        DMG(I,2)   = FG(I)             ! Growth damage
+        DMG(I,3)   = FN(I)             ! Nucleation damage 
+        DMG(I,4)   = FSH(I)            ! Shear damage
+        DMG(I,5)   = MIN(FT(I),FR)     ! Total damage
+        DMG(I,6)   = MIN(FS(I),ONE/Q1) ! Effective damage
+        SEQ(I)     = SIGDR(I)          ! Equivalent stress
         ! If element is broken
         IF (FT(I) >= FR) THEN
           DPLA(I)    = ZERO
@@ -702,31 +665,29 @@ c
           SIGNXY(I)  = ZERO
           SIGNYZ(I)  = ZERO
           SIGNZX(I)  = ZERO
-          SIGDR(I)   = ZERO
+          SEQ(I)     = ZERO
         ENDIF
-        ! USR Outputs
-        UVAR(I,1)  = FG(I)            ! Growth damage
-        UVAR(I,2)  = FN(I)            ! Nucleation damage
-        UVAR(I,3)  = FSH(I)           ! Shear damage
-        UVAR(I,4)  = MIN(FT(I),FR)    ! Total damage
-        UVAR(I,5)  = MIN(FS(I),ONE/Q1) ! Effective damage
-        UVAR(I,6)  = PLA_NL(I)        ! Non-local cumulated plastic strain
-        UVAR(I,7)  = PLAP_NL(I)       ! Non-local plastic strain-rate   
-        UVAR(I,8)  = YLD(I)           ! Yield stress
-        ! Standard outputs        
-        DMG(I)     = FT(I)/FR         ! Normalized total damage
-        SEQ(I)     = SIGDR(I)         ! SIGEQ
         ! Plastic strain-rate (filtered)
         DPDT       = DPLA(I) / MAX(EM20,TIMESTEP)
         EPSD(I)    = AFILTR * DPDT + (ONE - AFILTR) * EPSD(I)
         ! Coefficient for hourglass
-        ET(I)      = HARDP(I)*FRATE(I) / (HARDP(I)*FRATE(I) + YOUNG)
-        ! Variable to regularize (cumulated plastic strain)
-        VARNL(I)   = PLA(I)
+        IF (DPLA(I) > ZERO) THEN 
+          ET(I)     = HARDP(I)*FRATE(I) / (HARDP(I)*FRATE(I) + YOUNG)
+        ELSE
+          ET(I)     = ONE
+        ENDIF
         ! Computation of the sound speed
         SOUNDSP(I) = SQRT((BULK + FOUR_OVER_3*G)/RHO0(I))
         ! Storing the yield stress
         SIGY(I)    = YLD(I)
       ENDDO 
-c
+C-----------------------------------------------
+C     plastic work dissipated as heat - in case of /heat/mat
+C-----------------------------------------------
+      IF (JTHE < 0 .AND. JLAG /= 0) THEN
+        DO I=1,NEL
+          FHEAT(I) = FHEAT(I) + ETA*(ONE-FT(I))*WEITEMP(I)*YLD(I)*DPLA(I)*VOLUME(I)
+        ENDDO
+      END IF
+!-----------
       END

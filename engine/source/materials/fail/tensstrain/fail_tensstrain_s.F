@@ -1,44 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_TENSSTRAIN_S             source/materials/fail/tensstrain/fail_tensstrain_s.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_tensstrain_s   ../engine/source/materials/fail/tensstrain/fail_tensstrain_s.F
+!||--- called by ------------------------------------------------------
+!||    mmain               ../engine/source/materials/mat_share/mmain.F90
+!||    mulaw               ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8              ../engine/source/materials/mat_share/mulaw8.F90
+!||    usermat_solid       ../engine/source/materials/mat_share/usermat_solid.F
+!||--- calls      -----------------------------------------------------
+!||    finter              ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE FAIL_TENSSTRAIN_S(
      1           NEL    ,NUPARAM,NUVAR  ,NFUNC   ,IFUNC   , 
      2           NPF    ,TF     ,TIME   ,TIMESTEP,UPARAM  ,
-     3           NGL    ,IPM    ,MAT    ,ALDT    ,TSTAR  ,ISMSTR ,
+     3           NGL    ,ALDT   ,TSTAR  ,ISMSTR ,
      4           EPSXX  ,EPSYY  ,EPSZZ  ,EPSXY   ,EPSYZ  ,EPSZX  ,
      5           SIGNXX ,SIGNYY ,SIGNZZ ,SIGNXY  ,SIGNYZ ,SIGNZX ,
-     6           EPSP   ,UVAR   ,OFF    ,IP      ,DFMAX  ,TDELE  ,
+     6           EPSP   ,UVAR   ,OFF    ,DFMAX  ,TDELE  ,
      7           MFXX   ,MFXY   ,MFXZ   ,MFYX    ,MFYY   ,MFYZ   ,                 
-     8           MFZX   ,MFZY   ,MFZZ   )
+     8           MFZX   ,MFZY   ,MFZZ   ,DMG_SCALE)
 C-----------------------------------------------
 C   Tensile Strain failure criterion
 C-----------------------------------------------
@@ -77,14 +77,14 @@ C---------+---------+---+---+--------------------------------------------
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER :: NEL,NUPARAM,NUVAR,ISMSTR,IP
-      INTEGER ,DIMENSION(NEL)       :: NGL,MAT
-      INTEGER ,DIMENSION(NPROPMI,*) :: IPM
+      INTEGER :: NEL,NUPARAM,NUVAR,ISMSTR
+      INTEGER ,DIMENSION(NEL)       :: NGL
       my_real  :: TIME,TIMESTEP
       my_real ,DIMENSION(NUPARAM)  :: UPARAM
       my_real ,DIMENSION(NEL) :: SIGNXX,SIGNYY,SIGNZZ,SIGNXY,SIGNYZ,SIGNZX,
      .   EPSXX,EPSYY,EPSZZ,EPSXY,EPSYZ,EPSZX,EPSP,ALDT,TSTAR,
      .   MFXX,MFXY,MFXZ,MFYX,MFYY,MFYZ,MFZX,MFZY,MFZZ
+      my_real, DIMENSION(NEL), INTENT(INOUT) :: DMG_SCALE
 C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
@@ -106,13 +106,13 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,NINDXD,NINDXF,S_FLAG,STRDEF,STRFLAG
-      INTEGER ,DIMENSION(NEL) :: IFLAG,INDXD,INDXF
+      INTEGER ,DIMENSION(NEL) :: INDXD,INDXF
       my_real :: E1,E2,E3,E4,E5,E6,RFAC,RFAC2,E42,E52,E62,C,D,EPST,EPST2,
-     .       R1,R2,Y,YP,DAV,DYDX,IE_SP,P,SCALE,CC,Y1,I1,I2,I3,Q,R,PHI,
+     .       R1,R2,Y,YP,DAV,DYDX,CC,Y1,I1,I2,I3,Q,R,PHI,
      .       R_INTER,EL_REF,SC_EL,EPSP1,EPSP2,FAC,SCALE_TEMP,
      .       E11,E22,E33,EPSF1,EPSF2,LAMBDA,UNIT_T,EPSP_UNIT
       my_real,DIMENSION(NEL) :: EPS11,EPS22,EPS33,EPS12,EPS23,EPS31,
-     .   EPS_MAX,DAMAGE,RIEF1,RIEF2
+     .   EPS_MAX,DAMAGE
 C=======================================================================
       EPSF1   = UPARAM(1)
       EPSF2   = UPARAM(2)
@@ -133,9 +133,8 @@ c
 C-----------------------------------------------
 c     Initialization
 C-----------------------------------------------
-      IF (TIME == ZERO) THEN
+      IF (UVAR(1,1) == ZERO) THEN 
         DO I=1,NEL
-
           SELECT CASE (S_FLAG)
             CASE (1)  ! default - old formulation
               UVAR(I,1) = EPSP1
@@ -155,13 +154,13 @@ C-----------------------------------------------
               ELSE
                 UVAR(I,1) = ONE
               ENDIF              
-          END SELECT          
+          END SELECT
         ENDDO
       ENDIF
 c-----------------------------------------------
       DO I=1,NEL
         IF (OFF(I) < EM01) OFF(I)=ZERO
-        IF (OFF(I) < ONE)   OFF(I)=OFF(I)*FOUR_OVER_5
+        IF (OFF(I) < ONE)  OFF(I)=OFF(I)*FOUR_OVER_5
       END DO
 c----------------------------------------------
 c     Max strain transformation following input definition
@@ -335,7 +334,7 @@ c!              from: http://www.continuummechanics.org/principalstrain.html
                 I3 = E1*E2*E3 - E1*E52 - E2*E62 - E3*E42 + TWO*E4*E5*E6
 
                 Q  = (THREE*I2 - I1*I1)/NINE
-                R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/CINQUANTE4     ! (2*I3^3-9*I1*I2+27*I3)/54
+                R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/FIFTY4     ! (2*I3^3-9*I1*I2+27*I3)/54
            
                 R_INTER = MIN(R/SQRT(MAX(EM20,(-Q**3))),ONE)
                 PHI = ACOS(MAX(R_INTER,-ONE))
@@ -556,7 +555,7 @@ c-------------------
               I2 = E1*E2 + E2*E3 + E3*E1 - E4*E4 - E5*E5 - E6*E6
               I3 = E1*E2*E3 - E1*E52 - E2*E62 - E3*E42 + TWO*E4*E5*E6
               Q  = (THREE*I2 - I1*I1)/NINE
-              R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/CINQUANTE4     ! (2*I3^3-9*I1*I2+27*I3)/54
+              R  = (TWO*I1*I1*I1-NINE*I1*I2+TWENTY7*I3)/FIFTY4     ! (2*I3^3-9*I1*I2+27*I3)/54
               
               R_INTER = MIN(R/SQRT(MAX(EM20,(-Q**3))),ONE)
               PHI = ACOS(MAX(R_INTER,-ONE))
@@ -651,7 +650,6 @@ c---------------
 c--------------------------
 c
       IF (NINDXF > 0 .AND. IMCONV == 1) THEN
-        IDEL7NOK = 1    
         DO J=1,NINDXF
 #include "lockon.inc"
           WRITE(IOUT, 1000) NGL(INDXF(J))
@@ -663,13 +661,8 @@ C ---
       DO I=1,NEL
         R1 = EPSF1
         R2 = EPSF2
-        IF (R1 < R2) THEN         
-          SIGNXX(I) = (ONE - DAMAGE(I))*SIGNXX(I)
-          SIGNYY(I) = (ONE - DAMAGE(I))*SIGNYY(I)
-          SIGNZZ(I) = (ONE - DAMAGE(I))*SIGNZZ(I)
-          SIGNXY(I) = (ONE - DAMAGE(I))*SIGNXY(I)
-          SIGNYZ(I) = (ONE - DAMAGE(I))*SIGNYZ(I)
-          SIGNZX(I) = (ONE - DAMAGE(I))*SIGNZX(I)
+        IF (R1 < R2) THEN    
+          DMG_SCALE(I) = ONE - DAMAGE(I)
         END IF
         DFMAX(I) = MAX(DFMAX(I),DAMAGE(I))  ! Maximum Damage storing for output : 0 < DFMAX < 1
        ENDDO            

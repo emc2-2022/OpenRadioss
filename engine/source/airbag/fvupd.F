@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVUPD0                        source/airbag/fvupd.F         
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        FVUPD1                        source/airbag/fvupd.F         
-Chd|        SPMD_FVB_GATH_BEGIN           source/mpi/airbags/spmd_fvb.F 
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|====================================================================
-      SUBROUTINE FVUPD0(MONVOL, X, V, VOLMON)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvupd0                ../engine/source/airbag/fvupd.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    fvupd1                ../engine/source/airbag/fvupd.F
+!||    spmd_fvb_gath_begin   ../engine/source/mpi/airbags/spmd_fvb.F
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod             ../engine/share/modules/fvbag_mod.F
+!||====================================================================
+      SUBROUTINE FVUPD0(MONVOL, X, V, VOLMON, SMONVOL, SVOLMON)
 C-----------------------------------------------
 C   M o d u l e s 
 C-----------------------------------------------
@@ -43,18 +44,16 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
-C     DTMIN1
-#include      "scr18_c.inc"
+C DTMIN
+#include      "scr18_c.inc" 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER MONVOL(*)
-      my_real
-     .        X(3,*), V(3,*), VOLMON(*)
+      INTEGER,INTENT(IN) :: SMONVOL, SVOLMON
+      INTEGER MONVOL(SMONVOL)
+      my_real X(3,NUMNOD), V(3,NUMNOD), VOLMON(SVOLMON)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -66,7 +65,9 @@ C-----------------------------------------------
       INTEGER NFVMERGE(4), NSKIP, IEQUI, IVINI
       INTEGER NSKIP_TAB(NVOLU)
       my_real :: FVBAG_DTMIN
-C
+C-----------------------------------------------
+C   S o u r c e   L i n e s
+C-----------------------------------------------
       IADPOLH=1
       K1=1
       K2=1+NIMV*NVOLU
@@ -82,7 +83,7 @@ C
 C
       DO N=1,NVOLU
          ITYP=MONVOL(K1-1+2)
-         IF (ITYP.EQ.6.OR.ITYP.EQ.8) THEN
+         IF (ITYP==6.OR.ITYP==8) THEN
            IFV=MONVOL(K1-1+45)
 
 C
@@ -109,7 +110,7 @@ C
               IF(NSKIP >= 1) GO TO 200
 
               IMESH=MONVOL(K1-1+56)
-              IF (IMESH.EQ.0) THEN
+              IF (IMESH==0) THEN
                                 
         
                NNS=MONVOL(K1-1+32)
@@ -121,6 +122,10 @@ C
                ALLOCATE(FVSPMD(IFV)%VVV(3,MAX(1,NNT))) 
                ALLOCATE(FVSPMD(IFV)%WAV(3,MAX(1,NNA))) 
                ALLOCATE(FVSPMD(IFV)%WAX(3,MAX(1,NNA))) 
+               FVSPMD(IFV)%XXX(1:3,1:MAX(1,NNT)) = ZERO
+               FVSPMD(IFV)%VVV(1:3,1:MAX(1,NNT)) = ZERO
+               FVSPMD(IFV)%WAV(1:3,1:MAX(1,NNA)) = ZERO
+               FVSPMD(IFV)%WAX(1:3,1:MAX(1,NNA)) = ZERO
                IF( NSPMD > 1 ) THEN 
                  CALL SPMD_FVB_GATH_BEGIN(IFV,X,FVSPMD(IFV)%XXX,FVSPMD(IFV)%WAX,
      .                                 V,FVSPMD(IFV)%VVV,FVSPMD(IFV)%WAV )
@@ -147,11 +152,11 @@ C
 
       DO N=1,NVOLU
          ITYP=MONVOL(K1-1+2)
-         IF (ITYP.EQ.6.OR.ITYP.EQ.8) THEN
+         IF (ITYP==6.OR.ITYP==8) THEN
            IFV=MONVOL(K1-1+45)
            IF(NSKIP_TAB(N) >= 1) GO TO 100
            IMESH=MONVOL(K1-1+56)
-           IF (IMESH.EQ.1) THEN
+           IF (IMESH==1) THEN
             MONVOL(K1-1+56)=0
            ELSE
 C
@@ -185,7 +190,7 @@ C
             KIA7=KIA6+NTGA
             KIA8=KIA7+8*NBA
 C
-            KRA5=KR1+7*(NNS+NNI)+4*(NTG+NTGI)+6*NNA
+            KRA5=MIN(SVOLMON, KR1+7*(NNS+NNI)+4*(NTG+NTGI)+6*NNA)
             KRA6=KRA5+3*NNA
 C
             NFVMERGE(1)=0
@@ -193,28 +198,28 @@ C
             NFVMERGE(3)=0
             NFVMERGE(4)=0
 C
-            IF (ITYP .EQ. 8) THEN
+            IF (ITYP == 8) THEN
                FVBAG_DTMIN = FVDATA(IFV)%DTMIN
             ELSE
                FVBAG_DTMIN = DTMIN1(52)
             ENDIF
             CALL FVUPD1(
-     .NTG,                   MONVOL(KI1),         MONVOL(KI2), X, NPOLH, 
-     .FVDATA(IFV)%MPOLH,     FVDATA(IFV)%QPOLH,   FVDATA(IFV)%EPOLH, V ,
-     .FVDATA(IFV)%PPOLH,     FVDATA(IFV)%RPOLH,   FVDATA(IFV)%GPOLH,     
-     .FVDATA(IFV)%IFVNOD,    FVDATA(IFV)%RFVNOD,  FVDATA(IFV)%IFVTRI,    
-     .FVDATA(IFV)%IFVPOLY,   FVDATA(IFV)%IFVTADR, FVDATA(IFV)%IFVPOLH,   
-     .FVDATA(IFV)%IFVPADR,   NNFV, NTRFV,         VOLMON(KK1),   NPOLY,  
-     .ID,                    FVDATA(IFV)%CPAPOLH, FVDATA(IFV)%CPBPOLH,   
-     .FVDATA(IFV)%CPCPOLH,   FVDATA(IFV)%RMWPOLH, FVDATA(IFV)%VPOLH_INI, 
-     .IVMIN,                 FVDATA(IFV)%IDPOLH , MONVOL(KIA4),          
-     .MONVOL(KIA5),          MONVOL(KIA6),        FVDATA(IFV)%IBPOLH,    
-     .FVDATA(IFV)%REDIR_ANIM,FVDATA(IFV)%NOD_ANIM,FVDATA(IFV)%NNS_ANIM,
-     .FVDATA(IFV)%NPOLH_ANIM,FVDATA(IFV)%DTPOLH  ,ILVOUT,   NNT,   NNA,
-     .IFV,                   VOLMON(KRA5),        FVDATA(IFV)%TPOLH,
-     .FVDATA(IFV)%CPDPOLH,   FVDATA(IFV)%CPEPOLH, FVDATA(IFV)%CPFPOLH,
-     .ITYP,                  NFVMERGE,            VOLMON(KRA6),
-     .MONVOL(KIA8),          MONVOL(K1)         , FVBAG_DTMIN)   
+     .        NTG,                   MONVOL(KI1),         MONVOL(KI2)          , X          , NPOLH ,
+     .        FVDATA(IFV)%MPOLH,     FVDATA(IFV)%QPOLH,   FVDATA(IFV)%EPOLH    , V          ,
+     .        FVDATA(IFV)%PPOLH,     FVDATA(IFV)%RPOLH,   FVDATA(IFV)%GPOLH    ,    
+     .        FVDATA(IFV)%IFVNOD,    FVDATA(IFV)%RFVNOD,  FVDATA(IFV)%IFVTRI   ,   
+     .        FVDATA(IFV)%IFVPOLY,   FVDATA(IFV)%IFVTADR, FVDATA(IFV)%IFVPOLH  ,  
+     .        FVDATA(IFV)%IFVPADR,   NNFV,                NTRFV                , VOLMON(KK1), NPOLY , 
+     .        ID,                    FVDATA(IFV)%CPAPOLH, FVDATA(IFV)%CPBPOLH  ,  
+     .        FVDATA(IFV)%CPCPOLH,   FVDATA(IFV)%RMWPOLH, FVDATA(IFV)%VPOLH_INI,
+     .        IVMIN,                 FVDATA(IFV)%IDPOLH , MONVOL(KIA4)         ,         
+     .        MONVOL(KIA5),          MONVOL(KIA6),        FVDATA(IFV)%IBPOLH   ,   
+     .        FVDATA(IFV)%REDIR_ANIM,FVDATA(IFV)%NOD_ANIM,FVDATA(IFV)%NNS_ANIM ,
+     .        FVDATA(IFV)%NPOLH_ANIM,FVDATA(IFV)%DTPOLH  ,ILVOUT               , NNT        , NNA   ,
+     .        IFV,                   VOLMON(KRA5),        FVDATA(IFV)%TPOLH    ,
+     .        FVDATA(IFV)%CPDPOLH,   FVDATA(IFV)%CPEPOLH, FVDATA(IFV)%CPFPOLH  ,
+     .        ITYP,                  NFVMERGE,            VOLMON(KRA6)         ,
+     .        MONVOL(KIA8),          MONVOL(K1)         , FVBAG_DTMIN          , NUMNOD)  
 C
             MONVOL(K1-1+49)=NPOLH
             FVDATA(IFV)%NPOLH=NPOLH
@@ -231,16 +236,17 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  FVUPD1                        source/airbag/fvupd.F         
-Chd|-- called by -----------
-Chd|        FVUPD0                        source/airbag/fvupd.F         
-Chd|-- calls ---------------
-Chd|        FVTEMP                        source/airbag/fvbag.F         
-Chd|        SPMD_FVB_GATH_END             source/mpi/airbags/spmd_fvb.F 
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|        FVMBAG_MESHCONTROL_MOD        ../common_source/modules/fvmbag_meshcontrol_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    fvupd1                   ../engine/source/airbag/fvupd.F
+!||--- called by ------------------------------------------------------
+!||    fvupd0                   ../engine/source/airbag/fvupd.F
+!||--- calls      -----------------------------------------------------
+!||    fvtemp                   ../engine/source/airbag/fvtemp.F
+!||    spmd_fvb_gath_end        ../engine/source/mpi/airbags/spmd_fvb.F
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod                ../engine/share/modules/fvbag_mod.F
+!||    fvmbag_meshcontrol_mod   ../common_source/modules/airbag/fvmbag_meshcontrol_mod.F
+!||====================================================================
       SUBROUTINE FVUPD1(NEL       , IBUF    , ELEM     , X    , NPOLH ,
      .                  MPOLH     , QPOLH   , EPOLH    , V    ,
      .                  PPOLH     , RPOLH   , GPOLH    , 
@@ -256,7 +262,7 @@ Chd|====================================================================
      .                  IFV       , XXXA    , TPOLH, 
      .                  CPDPOLH   , CPEPOLH , CPFPOLH  ,
      .                  ITYP      , NFVMERGE, VVVA     , 
-     .                  NCONA     , IVOLU   ,FVBAG_DTMIN)
+     .                  NCONA     , IVOLU   ,FVBAG_DTMIN, NUMNOD)
 C-----------------------------------------------
 C   M o d u l e s 
 C-----------------------------------------------
@@ -269,38 +275,40 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "scr18_c.inc"
 #include      "com01_c.inc"
 #include      "com08_c.inc"
 #include      "units_c.inc"
 #include      "task_c.inc"
+#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL, IBUF(*), ELEM(3,*), NPOLH, IFVNOD(3,*), IFVTRI(6,*),
-     .        IFVPOLY(*), IFVTADR(*), IFVPOLH(*), IFVPADR(*), NNS,
-     .        NNTR, NPOLY, ID, IVMIN, IDPOLH(*), IBUFA(*), ELEMA(3,*),
-     .        TAGELA(*), IBPOLH(*), REDIR_ANIM(*), NNS_ANIM, NPOLH_ANIM,
-     .        ILVOUT, NNT, NNA, IFV, ITYP, NFVMERGE(4), NCONA(16,*),
+      INTEGER, INTENT(IN) :: NUMNOD, NNTR, NNS,NNS_ANIM, NPOLH_ANIM,ILVOUT, NNT, NNA, IFV, ITYP,NPOLY, ID, IVMIN, NEL
+      INTEGER,INTENT(INOUT) ::NPOLH
+      INTEGER IBUF(*), ELEM(3,*), IFVNOD(3,*), IFVTRI(6,NNTR),
+     .        IFVPOLY(*), IFVTADR(*), IFVPOLH(*), IFVPADR(*), 
+     .        IDPOLH(*), IBUFA(*), ELEMA(3,*),
+     .        TAGELA(*), IBPOLH(*), REDIR_ANIM(*), 
+     .        NFVMERGE(4), NCONA(16,*),
      .        IVOLU(*)
       my_real
-     .        X(3,*), MPOLH(*), QPOLH(3,*), EPOLH(*), PPOLH(*), 
-     .        RPOLH(*), GPOLH(*), RFVNOD(2,*), RVOLU(*),
-     .        CPAPOLH(*), CPBPOLH(*), CPCPOLH(*), RMWPOLH(*),
-     .        VPOLH_INI(*), NOD_ANIM(3,*), DTPOLH(*), XXXA(3,*),
-     .        TPOLH(*), CPDPOLH(*), CPEPOLH(*), CPFPOLH(*),
-     .        V(3,*)  , VVVA(3,*), FVBAG_DTMIN
+     .        X(3,NUMNOD), MPOLH(NPOLH), QPOLH(3,NPOLH), EPOLH(NPOLH), PPOLH(NPOLH), 
+     .        RPOLH(NPOLH), GPOLH(NPOLH), RFVNOD(2,NNS), RVOLU(*),
+     .        CPAPOLH(NPOLH), CPBPOLH(NPOLH), CPCPOLH(NPOLH), RMWPOLH(NPOLH),
+     .        VPOLH_INI(NPOLH), NOD_ANIM(3,NNS_ANIM), DTPOLH(NPOLH), XXXA(3,*),
+     .        TPOLH(NPOLH), CPDPOLH(NPOLH), CPEPOLH(NPOLH), CPFPOLH(NPOLH),
+     .        V(3,NUMNOD)  , VVVA(3,*), FVBAG_DTMIN
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IEL, N1, N2, N3, NN1, NN2, NN3, J, JJ, K, KK, NPA,
+      INTEGER I, IEL, N1, N2, N3, J, JJ, K, KK, NPA,
      .        IMAX, IP1, IP2, ITAG(NPOLH), ITAGP(NPOLY),
      .        COUNT(NPOLH), II, CC, LEN, NPOLH_OLD, NNP,
      .        IFVPADR_OLD(NPOLH+1), REDIR(NPOLH), ILOOP,
-     .        POLHAPP(2,NPOLY), CMAX, JMIN, ITYPM,
+     .        POLHAPP(2,NPOLY), CMAX, ITYPM,
      .        IDP1, IDP2, IDPOLH_OLD(NPOLH), IBPOLH_OLD(NPOLH), I1, I2,
-     .        NNSA,JJJ,KKK,IP3,ITYPL,DTMERGV12
+     .        NNSA,KKK,IP3,ITYPL,DTMERGV12
       my_real
      .        KSI, ETA, X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3,
      .        PNOD(3,NNS), X12, Y12, Z12, X13, Y13, Z13, NRX, NRY,
@@ -309,8 +317,8 @@ C-----------------------------------------------
      .        QPOLH_OLD(3,NPOLH), EPOLH_OLD(NPOLH), PVOLU_OLD(NPOLH),
      .        VOLUMIN, AREAPOLY(NPOLY), CPAPOLH_OLD(NPOLH),
      .        CPBPOLH_OLD(NPOLH), CPCPOLH_OLD(NPOLH), 
-     .        RMWPOLH_OLD(NPOLH), GPOLH_OLD(NPOLH), VOLUSORT(NPOLH),
-     .        VMIN, VTMP, VPOLH_INI_OLD(NPOLH), VVMAX(NPOLH), VOL1,
+     .        RMWPOLH_OLD(NPOLH), GPOLH_OLD(NPOLH),
+     .        VPOLH_INI_OLD(NPOLH), VVMAX(NPOLH), VOL1,
      .        VOL2, DTMIN, FAC, DTPOLH_OLD(NPOLH),
      .        TPOLH_OLD(NPOLH), CPDPOLH_OLD(NPOLH), CPEPOLH_OLD(NPOLH), 
      .        CPFPOLH_OLD(NPOLH), EFAC, CPA, CPB, CPC, CPD, CPE, CPF,
@@ -320,7 +328,7 @@ C
       INTEGER, ALLOCATABLE :: MERGE(:,:), IFVPOLH_OLD(:)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
       IF (NSPMD == 1) THEN
-C traitement necessaire pour rester p/on
+C treatment necessary to stay p/we
          DO I=1,FVSPMD(IFV)%NN_L+FVSPMD(IFV)%NNI_L
            I1=FVSPMD(IFV)%IBUF_L(1,I)
            I2=FVSPMD(IFV)%IBUF_L(2,I)
@@ -329,7 +337,7 @@ C traitement necessaire pour rester p/on
            FVSPMD(IFV)%XXX(3,I1)=X(3,I2)
          ENDDO
 C
-         IF (KMESH(IFV) .GE. 2) THEN
+         IF (KMESH(IFV) >= 2) THEN
             DO I = 1, FVSPMD(IFV)%NNA_L
                I1=FVSPMD(IFV)%IBUFA_L(1,I)
                I2=FVSPMD(IFV)%IBUFA_L(2,I)
@@ -352,7 +360,7 @@ C
                FVSPMD(IFV)%WAX(3,I1)=X(3,I2)
             ENDDO
          ENDIF
-C WA utilise temporairement pour stocker XXXA
+C WA uses temporarily to store xxxa
          DO I=1,NNA
            XXXA(1,I)=FVSPMD(IFV)%WAX(1,I)
            XXXA(2,I)=FVSPMD(IFV)%WAX(2,I)
@@ -367,7 +375,7 @@ C
            FVSPMD(IFV)%VVV(3,I1)=V(3,I2)
          ENDDO
 C
-         IF (KMESH(IFV) .GE. 2) THEN
+         IF (KMESH(IFV) >= 2) THEN
             DO I = 1, FVSPMD(IFV)%NNA_L
                I1=FVSPMD(IFV)%IBUFA_L(1,I)
                I2=FVSPMD(IFV)%IBUFA_L(2,I)
@@ -390,7 +398,7 @@ C
                FVSPMD(IFV)%WAV(3,I1)=V(3,I2)
             ENDDO
          ENDIF
-C WA utilise temporairement pour stocker VVVA
+C WA uses temporarily to store VVVA
          DO I=1,NNA
             IF(NCONA(2,I) == 1) THEN
               VVVA(1,I)=FVSPMD(IFV)%WAV(1,I)
@@ -400,19 +408,24 @@ C WA utilise temporairement pour stocker VVVA
          ENDDO
 C
       ELSE
+
+
+
+
+
 C
          NNSA=FVSPMD(IFV)%NNSA
-C Cacher XXX, VVV WAX WA dans FVSPMD 
+C Cache XXX, VVV WAX WA in FVSPMD 
 c        CALL SPMD_FVB_GATH_BEGIN(IFV,X,FVSPMD(IFV)%XXX,FVSPMD(IFV)%WAX,
 c    .                                V,FVSPMD(IFV)%VVV,FVSPMD(IFV)%WAV )
          CALL SPMD_FVB_GATH_END(IFV,X,FVSPMD(IFV)%XXX,FVSPMD(IFV)%WAX,
      .                                V,FVSPMD(IFV)%VVV,FVSPMD(IFV)%WAV )
 
 c        CALL SPMD_FVB_GATH(IFV, X, XXX, WA, XXXSA, 3)
-C WA utilise temporairement pour stocker XXXA
-         IF (KMESH(IFV) .GE. 2) THEN
+C WA uses temporarily to store xxxa
+         IF (KMESH(IFV) >= 2) THEN
             DO I=1,NNA
-               IF (NCONA(2, I) .NE. 0) THEN
+               IF (NCONA(2, I) /= 0) THEN
                   XXXA(1,I)=FVSPMD(IFV)%WAX(1,I)
                   XXXA(2,I)=FVSPMD(IFV)%WAX(2,I)
                   XXXA(3,I)=FVSPMD(IFV)%WAX(3,I)
@@ -428,8 +441,8 @@ C WA utilise temporairement pour stocker XXXA
          ENDIF
 C
 
-C XXXSA et VVVSA utilise temporairement
-C WA utilise temporairement pour stocker VVVA
+C XXXSA and VVVSA temporarily uses
+C WA uses temporarily to store VVVA
          DO I=1,NNA
            IF(NCONA(2,I) == 1) THEN
               VVVA(1,I)=FVSPMD(IFV)%WAV(1,I)
@@ -438,7 +451,7 @@ C WA utilise temporairement pour stocker VVVA
            END IF
          END DO
 C
-         IF (ISPMD.NE.FVSPMD(IFV)%PMAIN-1) GOTO 300      
+         IF (ISPMD/=FVSPMD(IFV)%PMAIN-1) GOTO 300      
       ENDIF
 C
       IF(TT == DT1) THEN
@@ -446,22 +459,22 @@ C
       ELSE
          DTI = DT12
       ENDIF
-	  
+            
 
 !$OMP PARALLEL PRIVATE(I,II,J,JJ,K,KK,IP1,IP2,IEL,AREA,NX,NY,NZ,PVOLTMP)
 !$OMP+ PRIVATE(X1,Y1,Z1,N1,N2,N3,X12,Y12,Z12,X13,Y13,Z13)
 !$OMP+ PRIVATE(X2,Y2,Z2,X3,Y3,Z3,NRX,NRY,NRZ,AREA2) 
 !$OMP+ PRIVATE(KSI,ETA,FAC,I1,I2)
 C
-C Calcul position et vitesse des noeuds internes 
-!$OMP DO SCHEDULE(GUIDED,1)
+C calculation of position and velocity of internal nodes
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ)
       DO I=1,NNA
         IF(NCONA(2,I) == 0) THEN
            FVSPMD(IFV)%WAV(1,I)=ZERO
            FVSPMD(IFV)%WAV(2,I)=ZERO
            FVSPMD(IFV)%WAV(3,I)=ZERO
            II=NCONA(1,I)
-          IF(II.EQ.0) CYCLE
+          IF(II==0) CYCLE
            DO J=1,II
              K=NCONA(J+2,I)
              FVSPMD(IFV)%WAV(1,I)=FVSPMD(IFV)%WAV(1,I)+VVVA(1,K)
@@ -476,7 +489,7 @@ C Calcul position et vitesse des noeuds internes
 !$OMP END DO
 
       IF(DT1 == ZERO) THEN         
-!$OMP DO SCHEDULE(GUIDED,1)
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ)
         DO I=1,NNA
           IF(NCONA(2,I) == 0) THEN
              FVSPMD(IFV)%WAV(1,I)=RVOLU(67)
@@ -487,8 +500,8 @@ C Calcul position et vitesse des noeuds internes
 !$OMP END DO
       ENDIF
 
-C Calcul la position des noeuds internes 
-!$OMP DO SCHEDULE(GUIDED,1)
+C calculation of the position of internal nodes
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ)
       DO I=1,NNA
         IF(NCONA(2,I) == 0) THEN
            VVVA(1,I)=FVSPMD(IFV)%WAV(1,I)
@@ -502,10 +515,10 @@ C Calcul la position des noeuds internes
 !$OMP END DO 
 
 
-C Calcul la position de tous les points 
-!$OMP DO SCHEDULE(GUIDED,1) 
+C calculation of the position of all points
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ)
       DO I=1,NNS
-         IF (IFVNOD(1,I).EQ.1) THEN
+         IF (IFVNOD(1,I)==1) THEN
             IEL=IFVNOD(2,I)
             KSI=RFVNOD(1,I)
             ETA=RFVNOD(2,I)
@@ -513,7 +526,7 @@ C
             N1=ELEMA(1,IEL)
             N2=ELEMA(2,IEL)
             N3=ELEMA(3,IEL)
-            IF (TAGELA(IEL).GT.0) THEN
+            IF (TAGELA(IEL)>0) THEN
                X1=FVSPMD(IFV)%XXX(1,N1)
                Y1=FVSPMD(IFV)%XXX(2,N1)
                Z1=FVSPMD(IFV)%XXX(3,N1)
@@ -523,7 +536,7 @@ C
                X3=FVSPMD(IFV)%XXX(1,N3)
                Y3=FVSPMD(IFV)%XXX(2,N3)
                Z3=FVSPMD(IFV)%XXX(3,N3)
-            ELSEIF (TAGELA(IEL).LT.0) THEN
+            ELSEIF (TAGELA(IEL)<0) THEN
                X1=XXXA(1,N1)
                Y1=XXXA(2,N1)
                Z1=XXXA(3,N1)
@@ -537,7 +550,7 @@ C
             PNOD(1,I)=(ONE-KSI-ETA)*X1+KSI*X2+ETA*X3
             PNOD(2,I)=(ONE-KSI-ETA)*Y1+KSI*Y2+ETA*Y3
             PNOD(3,I)=(ONE-KSI-ETA)*Z1+KSI*Z2+ETA*Z3
-         ELSEIF (IFVNOD(1,I).EQ.2) THEN
+         ELSEIF (IFVNOD(1,I)==2) THEN
             I2=IFVNOD(3,I)
             PNOD(1,I)=XXXA(1,I2)
             PNOD(2,I)=XXXA(2,I2)
@@ -546,9 +559,9 @@ C
       ENDDO
 !$OMP END DO
 
-!$OMP DO SCHEDULE(GUIDED,1) 
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ)
       DO I=1,NNS
-         IF (IFVNOD(1,I).EQ.3) THEN
+         IF (IFVNOD(1,I)==3) THEN
             I1=IFVNOD(2,I)
             I2=IFVNOD(3,I)
             FAC=RFVNOD(1,I)
@@ -559,8 +572,8 @@ C
       ENDDO
 !$OMP END DO
 
-      IF (NPOLH_ANIM.GT.0) THEN
-!$OMP DO SCHEDULE(GUIDED,1) 
+      IF (NPOLH_ANIM>0) THEN
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ)
          DO I=1,NNS_ANIM             
             II=REDIR_ANIM(I)         
             NOD_ANIM(1,I)=PNOD(1,II) 
@@ -569,9 +582,9 @@ C
          ENDDO 
 !$OMP END DO
       ENDIF 
-	  
-C Normale et aire des triangles
-!$OMP DO SCHEDULE(GUIDED,1) 
+            
+C normal and area of triangles
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ)
       DO I=1,NNTR
          N1=IFVTRI(1,I)
          N2=IFVTRI(2,I)
@@ -596,7 +609,7 @@ C Normale et aire des triangles
          NRZ=X12*Y13-Y12*X13
          AREA2=SQRT(NRX**2+NRY**2+NRZ**2)
          PAREA(I)=HALF*AREA2
-         IF (AREA2.GT.0) THEN
+         IF (AREA2>0) THEN
             PNORM(1,I)=NRX/AREA2
             PNORM(2,I)=NRY/AREA2
             PNORM(3,I)=NRZ/AREA2
@@ -608,37 +621,37 @@ C Normale et aire des triangles
       ENDDO
 !$OMP END DO
 C
-C Volume des polyhedres
-!$OMP DO SCHEDULE(GUIDED,1) 
+C volume of polyhedra
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ)
       DO I=1,NPOLH
          PVOLU(I)= ZERO
          PVOLTMP = ZERO
-C Boucle sur les polygones du polyhedre
+C loop over the polygons of the polyhedron
          DO J=IFVPADR(I),IFVPADR(I+1)-1
             JJ=IFVPOLH(J)
-C Boucle sur les triangles du polygone
+C loop over the triangles of the polygon
             DO K=IFVTADR(JJ), IFVTADR(JJ+1)-1
                KK=IFVPOLY(K)
                AREA=PAREA(KK)
                IEL=IFVTRI(4,KK)
-               IF (IEL.GT.0) THEN
+               IF (IEL>0) THEN
                   NX=PNORM(1,KK)
                   NY=PNORM(2,KK)
                   NZ=PNORM(3,KK)
                ELSE
                   IP1=IFVTRI(5,KK)
                   IP2=IFVTRI(6,KK)
-                  IF (IP1.EQ.I) THEN
+                  IF (IP1==I) THEN
                      NX=PNORM(1,KK)
                      NY=PNORM(2,KK)
                      NZ=PNORM(3,KK)
                   ENDIF
-                  IF (IP2.EQ.I) THEN
+                  IF (IP2==I) THEN
                      NX=-PNORM(1,KK)
                      NY=-PNORM(2,KK)
                      NZ=-PNORM(3,KK)
                   ENDIF   
-                  IF (IP1.EQ.I.AND.IP2.EQ.I) THEN
+                  IF (IP1==I.AND.IP2==I) THEN
                      NX=ZERO
                      NY=ZERO
                      NZ=ZERO
@@ -658,37 +671,48 @@ C Boucle sur les triangles du polygone
 
       IF(IVOLU(39) == 0) RETURN
 
-C Pas de temps mini
+C minimum time step
 C      DTMIN=DTMIN1(52)
       DTMIN = FVBAG_DTMIN
       DTMERGV12=IDTMIN(52)
       IF(DTMERGV12==2) DTMERGV12=1
-C Volume moyen
+C Average volume
       VM=ZERO
       NPA=0
       DO I=1,NPOLH
-         IF (PVOLU(I).GT.ZERO) THEN
+         IF (PVOLU(I)>ZERO) THEN
             VM=VM+PVOLU(I)
             NPA=NPA+1
          ENDIF
       ENDDO
-      VM=VM/NPA
-      IF (IVMIN.EQ.1) THEN
-         VOLUMIN=VM*RVOLU(31)
-      ELSE
+      IF(NPA>0)THEN
+        VM=VM/NPA
+      ENDIF
+      
+      !RVOLU(31) : cgmerg
+      !RVOLU(33) : VM(from starter)
+      !IVOLU(60) : IVMIN/Igmerg
+      IF (IVMIN == 1) THEN
+         ! mean volume is current one
+         VOLUMIN=VM*RVOLU(31) 
+      ELSEIF (IVMIN == -1)THEN
+         ! specific case : Iswitch=2 : full merging request on Tswitch/Pswitch criteria
+         VOLUMIN = EP20
+      ELSE 
+         ! mean volume is initial one
          VOLUMIN=RVOLU(33)*RVOLU(31)
       ENDIF
 
-C Aire des polygones et polyhedres appuyes
+C Area of supported polygons and polyhedra
       DO I=1,NPOLY
          AREAPOLY(I)=ZERO
          POLHAPP(1,I)=0
          POLHAPP(2,I)=0
          DO J=IFVTADR(I),IFVTADR(I+1)-1
             JJ=IFVPOLY(J)
-            IF (JJ.EQ.-1) GOTO 50
+            IF (JJ==-1) GOTO 50
             IEL=IFVTRI(4,JJ)
-            IF (IEL.EQ.0) THEN
+            IF (IEL==0) THEN
               IP1=IFVTRI(5,JJ)
               IP2=IFVTRI(6,JJ)
               AREAPOLY(I)=AREAPOLY(I)+PAREA(JJ)
@@ -698,16 +722,16 @@ C Aire des polygones et polyhedres appuyes
          ENDDO
   50  ENDDO
 C
-      IF (NPOLH.EQ.1) GOTO 300      
+      IF (NPOLH==1) GOTO 300      
   100 DO I=1,NPOLH
          ITAG(I)=0
       ENDDO
       DO I=1,NPOLY
          ITAGP(I)=0
       ENDDO
-C Volume max de voisins
+C max volume of neighbors
 !$OMP PARALLEL PRIVATE(I,J,JJ,K,KK,IEL,II)
-!$OMP DO SCHEDULE(GUIDED,1) 
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ)
       DO I=1,NPOLH
          VVMAX(I)=ZERO
          DO J=IFVPADR(I),IFVPADR(I+1)-1
@@ -715,10 +739,10 @@ C Volume max de voisins
             DO K=IFVTADR(JJ), IFVTADR(JJ+1)-1
                KK=IFVPOLY(K)
                IEL=IFVTRI(4,KK)
-               IF (IEL.EQ.0) THEN
-                  IF (IFVTRI(5,KK).EQ.I) THEN
+               IF (IEL==0) THEN
+                  IF (IFVTRI(5,KK)==I) THEN
                      II=IFVTRI(6,KK)
-                  ELSEIF (IFVTRI(6,KK).EQ.I) THEN
+                  ELSEIF (IFVTRI(6,KK)==I) THEN
                      II=IFVTRI(5,KK)
                   ENDIF
                   VVMAX(I)=MAX(VVMAX(I),PVOLU(II))
@@ -736,19 +760,19 @@ C
 C
       ILOOP=0
       DO I=1,NPOLH
-         IF (ITAG(I).NE.0) CYCLE
-         IF (PVOLU(I).LE.VOLUMIN.OR.PVOLU(I).LE.VVMAX(I).OR.
-     .       MPOLH(I).LE.ZERO.OR.EPOLH(I).LE.ZERO.OR.
+         IF (ITAG(I)/=0) CYCLE
+         IF (PVOLU(I)<=VOLUMIN.OR.PVOLU(I)<=VVMAX(I).OR.
+     .       MPOLH(I)<=ZERO.OR.EPOLH(I)<=ZERO.OR.
      .       (DTMERGV12 == 0 .AND. DTPOLH(I) <= DTMIN .AND. 
      .       PVOLU(I) <= TEN*VOLUMIN) .OR.
-     .       (DTMERGV12 == 1 .AND. DTPOLH(I).LE.DTMIN) ) THEN
+     .       (DTMERGV12 == 1 .AND. DTPOLH(I)<=DTMIN) ) THEN
 C
             ITYPM=1
-            IF (PVOLU(I).GT.VOLUMIN) ITYPM=2
-            IF (MPOLH(I).LE.ZERO.OR.EPOLH(I).LE.ZERO) ITYPM=3
-            IF (DTPOLH(I).LE.DTMIN) ITYPM=4
+            IF (PVOLU(I)>VOLUMIN) ITYPM=2
+            IF (MPOLH(I)<=ZERO.OR.EPOLH(I)<=ZERO) ITYPM=3
+            IF (DTPOLH(I)<=DTMIN) ITYPM=4
 C
-C Recherche le polyedre voisin Imax ayant la plus grande surface commune avec le polyedre I
+C Search for the neighboring polyhedron Imax with the largest common surface with polyhedron I
 C
             AREAMAX=ZERO
             IMAX=0
@@ -757,11 +781,11 @@ C
                AREA=AREAPOLY(JJ)
                IP1=POLHAPP(1,JJ)
                IP2=POLHAPP(2,JJ)
-               IF (AREA.GT.AREAMAX) THEN
-                  IF (IP1.EQ.I) THEN
+               IF (AREA>AREAMAX) THEN
+                  IF (IP1==I) THEN
                      IMAX=IP2
                      AREAMAX=AREA
-                  ELSEIF (IP2.EQ.I) THEN
+                  ELSEIF (IP2==I) THEN
                      IMAX=IP1
                      AREAMAX=AREA
                   ENDIF
@@ -770,18 +794,18 @@ C
 C Only one polyhedron remaining
             IF(IMAX==0) CYCLE
 C
-            IF (ITAG(IMAX).NE.0) THEN 
+            IF (ITAG(IMAX)/=0) THEN 
 C Polyedre Imax a deja re   u un polyedre
                ILOOP=1
             ELSE
-C Merge polyedre I dans polyedre Imax
+C Merge polyhedron I into polyhedron Imax
                DO J=IFVPADR(IMAX),IFVPADR(IMAX+1)-1
                   JJ=IFVPOLH(J)
                   K=IFVTADR(JJ)
                   KK=IFVPOLY(K)
-C Tag polygone commun aux polyedres Imax et I
-                  IF (IFVTRI(4,KK).EQ.0.AND.(IFVTRI(5,KK).EQ.I.OR.
-     .                                       IFVTRI(6,KK).EQ.I))
+C Tag Polygon common to Polyhedra Imax and I
+                  IF (IFVTRI(4,KK)==0.AND.(IFVTRI(5,KK)==I.OR.
+     .                                       IFVTRI(6,KK)==I))
      .               ITAGP(JJ)=1
                ENDDO
 C
@@ -799,25 +823,25 @@ C
                IF (ILVOUT >= 2) THEN
                   IDP1=IDPOLH(I)
                   IDP2=IDPOLH(IMAX)
-                  IF (ITYPM.EQ.1) THEN
+                  IF (ITYPM==1) THEN
                      WRITE(IOUT,
      .               '(A46,I8,A6,G11.4,A1,A20,I8,A7,G11.4,A1,A12,I10)') 
      .  ' ** GLOBAL MERGE:       MERGING FINITE VOLUME ',IDP1,
      .  ' (VOL=',VOL1,')',
      .  ' WITH FINITE VOLUME ',IDP2,' (VOL=',VOL2,')','  MONVOL ID ',ID
-                  ELSEIF (ITYPM.EQ.2) THEN
+                  ELSEIF (ITYPM==2) THEN
                      WRITE(IOUT,
      .               '(A46,I8,A6,G11.4,A1,A20,I8,A7,G11.4,A1,A12,I10)') 
      .  ' ** NEIGHBORHOOD MERGE: MERGING FINITE VOLUME ',IDP1,
      .  ' (VOL=',VOL1,')',
      .  ' WITH FINITE VOLUME ',IDP2,' (VOL=',VOL2,')','  MONVOL ID ',ID
-                  ELSEIF (ITYPM.EQ.3) THEN
+                  ELSEIF (ITYPM==3) THEN
                      WRITE(IOUT,
      .               '(A46,I8,A6,G11.4,A1,A20,I8,A7,G11.4,A1,A12,I10)') 
      .  ' ** STABILITY MERGE:    MERGING FINITE VOLUME ',IDP1,
      .  ' (VOL=',VOL1,')',
      .  ' WITH FINITE VOLUME ',IDP2,' (VOL=',VOL2,')','  MONVOL ID ',ID
-                  ELSEIF (ITYPM.EQ.4) THEN
+                  ELSEIF (ITYPM==4) THEN
                      WRITE(IOUT,
      .               '(A46,I8,A6,G11.4,A1,A20,I8,A7,G11.4,A1,A12,I10)') 
      .  ' ** TIME STEP MERGE:    MERGING FINITE VOLUME ',IDP1,
@@ -834,7 +858,7 @@ C
             JJ=IFVPOLH(J)
             K=IFVTADR(JJ)
             KK=IFVPOLY(K)
-            IF (IFVTRI(4,KK).EQ.0.AND.IFVTRI(5,KK).EQ.IFVTRI(6,KK)) THEN
+            IF (IFVTRI(4,KK)==0.AND.IFVTRI(5,KK)==IFVTRI(6,KK)) THEN
                ITAGP(JJ)=1
             ENDIF
          ENDDO
@@ -844,14 +868,14 @@ C
       ENDDO
       DO I=1,NPOLH
          II=ITAG(I)
-         IF (II.GT.0) COUNT(II)=COUNT(II)+1
+         IF (II>0) COUNT(II)=COUNT(II)+1
       ENDDO
 
       CMAX=0
       DO I=1,NPOLH
          CMAX=MAX(CMAX,COUNT(I))
       ENDDO
-      IF (CMAX.EQ.1) GOTO 300      
+      IF (CMAX==1) GOTO 300      
 C
       ALLOCATE(MERGE(CMAX+1,NPOLH))
       DO I=1,NPOLH
@@ -860,7 +884,7 @@ C
       ENDDO
       DO I=1,NPOLH
          II=ITAG(I)
-         IF (II.GT.0) THEN
+         IF (II>0) THEN
             CC=MERGE(1,II)
             CC=CC+1
             MERGE(1,II)=CC
@@ -873,17 +897,17 @@ C
       ALLOCATE(IFVPOLH_OLD(LEN))
 
 !$OMP PARALLEL PRIVATE(I)
-!$OMP DO SCHEDULE(GUIDED,1) 
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ) 
       DO I=1,IFVPADR(NPOLH+1)-1
          IFVPOLH_OLD(I)=IFVPOLH(I)
       ENDDO
 !$OMP END DO
-!$OMP DO SCHEDULE(GUIDED,1) 
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ) 
       DO I=1,NPOLH+1
          IFVPADR_OLD(I)=IFVPADR(I)
       ENDDO
 !$OMP END DO
-!$OMP DO SCHEDULE(GUIDED,1) 
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ) 
       DO I=1,NPOLH
          MPOLH_OLD(I)=MPOLH(I)
          QPOLH_OLD(1,I)=QPOLH(1,I)
@@ -928,7 +952,7 @@ C
       NNP=0
       DO I=1,NPOLH_OLD
         CC=MERGE(1,I)
-        IF (CC.EQ.0) CYCLE
+        IF (CC==0) CYCLE
         NPOLH=NPOLH+1
         IFVPADR(NPOLH)=NNP+1
         IF(CC == 1) THEN
@@ -936,7 +960,7 @@ C
           REDIR(JJ)=NPOLH
           DO K=IFVPADR_OLD(JJ),IFVPADR_OLD(JJ+1)-1
              KK=IFVPOLH_OLD(K)
-             IF (ITAGP(KK).EQ.1) CYCLE
+             IF (ITAGP(KK)==1) CYCLE
              NNP=NNP+1
              IFVPOLH(NNP)=KK
           ENDDO
@@ -947,7 +971,7 @@ C
           QPOLH(3,NPOLH)=QPOLH_OLD(3,JJ)
           EPOLH(NPOLH)=EPOLH_OLD(JJ)
 C
-          IF (MPOLH(NPOLH).LE.ZERO.OR.EPOLH(NPOLH).LE.ZERO) ILOOP=1
+          IF (MPOLH(NPOLH)<=ZERO.OR.EPOLH(NPOLH)<=ZERO) ILOOP=1
 C
           PVOLU(NPOLH)=PVOLU_OLD(JJ)
           GPOLH(NPOLH)=GPOLH_OLD(JJ)
@@ -969,7 +993,7 @@ C
             REDIR(JJ)=NPOLH
             DO K=IFVPADR_OLD(JJ),IFVPADR_OLD(JJ+1)-1
                KK=IFVPOLH_OLD(K)
-               IF (ITAGP(KK).EQ.1) CYCLE
+               IF (ITAGP(KK)==1) CYCLE
                NNP=NNP+1
                IFVPOLH(NNP)=KK
             ENDDO
@@ -981,7 +1005,7 @@ C
             EPOLH(NPOLH)=EPOLH(NPOLH)+EPOLH_OLD(JJ)
             PVOLU(NPOLH)=PVOLU(NPOLH)+PVOLU_OLD(JJ)
 C
-            IF (MPOLH(NPOLH).LE.ZERO.OR.EPOLH(NPOLH).LE.ZERO) ILOOP=1
+            IF (MPOLH(NPOLH)<=ZERO.OR.EPOLH(NPOLH)<=ZERO) ILOOP=1
             IF (PVOLU(NPOLH) <= ZERO) ILOOP=1
 C
             IF(MPOLH_OLD(JJ) > 0) THEN
@@ -1011,7 +1035,7 @@ C
           IDPOLH(NPOLH)=IDPOLH_OLD(I)
           IF (DT1 /= ZERO) THEN
 C     In case of initial engine merging, time step HAS TO be same as the one that would have
-C     been calculated if mergind had occured during starter
+C     been calculated if mergind had occurred during starter
              IBPOLH(NPOLH)=0
           ENDIF
           DTPOLH(NPOLH)=EP30
@@ -1021,7 +1045,7 @@ C     been calculated if mergind had occured during starter
 C
 
       DO I=1,NNTR
-         IF (IFVTRI(4,I).LE.0) THEN
+         IF (IFVTRI(4,I)<=0) THEN
             IP1=IFVTRI(5,I)
             IP2=IFVTRI(6,I)
             IFVTRI(5,I)=REDIR(IP1)
@@ -1029,14 +1053,14 @@ C
          ENDIF
       ENDDO
       DO I=1,NPOLY
-         IF (ITAGP(I).EQ.1) THEN
+         IF (ITAGP(I)==1) THEN
             DO J=IFVTADR(I),IFVTADR(I+1)-1
                IFVPOLY(J)=-1
             ENDDO
          ENDIF
          IP1=POLHAPP(1,I)
          IP2=POLHAPP(2,I)
-         IF (IP1.GT.0) THEN
+         IF (IP1>0) THEN
             POLHAPP(1,I)=REDIR(IP1)
             POLHAPP(2,I)=REDIR(IP2)
          ENDIF
@@ -1048,7 +1072,7 @@ C
 !$OMP+ PRIVATE(TEMP,TEMP0,EFAC,CPA,CPB,CPC,CPD,CPE,CPF,RMW)
 !$OMP+ PRIVATE(ITYPL)
       ITYPL = ITYP
-!$OMP DO SCHEDULE(GUIDED,1) 
+!$OMP DO SCHEDULE(DYNAMIC,MVSIZ) 
       DO I=1,NPOLH
          IF( EPOLH(I) <= ZERO .OR. 
      .       MPOLH(I) <= ZERO .OR. 
@@ -1097,7 +1121,7 @@ C
              IP1=IFVTRI(5,KK)
              IP2=IFVTRI(6,KK)
              IP3=IFVTRI(1,KK)
-             IF(KKK.EQ.1) THEN
+             IF(KKK==1) THEN
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
                WRITE(IOUT,'(3I10,3G10.3,5X,I6,4X,I6,4X,G14.6,3I10,
      .                      G14.6)') I,I1,I2,PVOLU(I),MPOLH(I),TPOLH(I),
@@ -1114,15 +1138,19 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
         ENDDO
       ENDIF
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
-      IF (ILOOP.EQ.1) THEN
-         IF (NPOLH.EQ.1) THEN
-            WRITE(IOUT,'(A,I10)') ' ** MONVOL ID ',ID
-            WRITE(IOUT,'(A)')'  ONLY ONE FINITE VOLUME REMAIN - EXITING'
+      IF (ILOOP==1) THEN
+         IF (NPOLH==1) THEN
+            IF (ILVOUT >= 1) THEN
+               WRITE(IOUT,'(A,I10)') ' ** MONVOL ID ',ID
+               WRITE(IOUT,'(A)')'  ONLY ONE FINITE VOLUME REMAIN - EXITING'
+            ENDIF
             GOTO 300      
          ELSE
-            WRITE(IOUT,'(A,I10,2A,I10)') ' ** MONVOL ID ',ID,
-     .                         ' FINITE VOLUME MESH UPDATE - LOOPING -',
-     .                         ' NUMBER OF FINITE VOLUMES : ',NPOLH
+            IF (ILVOUT >= 1) THEN
+               WRITE(IOUT,'(A,I10,2A,I10)') ' ** MONVOL ID ',ID,
+     .              ' FINITE VOLUME MESH UPDATE - LOOPING -',
+     .              ' NUMBER OF FINITE VOLUMES : ',NPOLH
+            ENDIF
          ENDIF
          GOTO 100
       ENDIF

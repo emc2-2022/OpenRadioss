@@ -1,66 +1,77 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STACK_MOD                     share/modules1/stack_mod.F    
-Chd|-- called by -----------
-Chd|        C3GRHEAD                      source/elements/sh3n/coque3n/c3grhead.F
-Chd|        C3GRTAILS                     source/elements/sh3n/coque3n/c3grtails.F
-Chd|        C3INIT3                       source/elements/sh3n/coque3n/c3init3.F
-Chd|        C3INMAS                       source/elements/sh3n/coque3n/c3inmas.F
-Chd|        CBAINIT3                      source/elements/shell/coqueba/cbainit3.F
-Chd|        CBUFXFE                       source/elements/xfem/cbufxfe.F
-Chd|        CDKINIT3                      source/elements/sh3n/coquedk/cdkinit3.F
-Chd|        CGRHEAD                       source/elements/shell/coque/cgrhead.F
-Chd|        CGRTAILS                      source/elements/shell/coque/cgrtails.F
-Chd|        CINIT3                        source/elements/shell/coque/cinit3.F
-Chd|        CINMAS                        source/elements/shell/coque/cinmas.F
-Chd|        CMAINI3                       source/elements/sh3n/coquedk/cmaini3.F
-Chd|        CORTHDIR                      source/elements/shell/coque/corthdir.F
-Chd|        CORTHINI                      source/elements/shell/coque/corthini.F
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|        DEALLOCATE_ELBUF              source/elements/elbuf_init/deallocate_buffer.F
-Chd|        ELBUF_INI                     source/elements/elbuf_init/elbuf_ini.F
-Chd|        HM_READ_ANIM                  source/general_controls/engine/hm_read_anim.F
-Chd|        HM_READ_DRAPE                 source/properties/composite_options/drape/hm_read_drape.F
-Chd|        HM_READ_PROP17                source/properties/shell/hm_read_prop17.F
-Chd|        HM_READ_PROP51                source/properties/shell/hm_read_prop51.F
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|        HM_READ_STACK                 source/stack/hm_read_stack.F  
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        LAYINI1                       source/elements/shell/coqueba/layini1.F
-Chd|        LAYINI_XFE                    source/elements/xfem/cbufxfe.F
-Chd|        LECSTACK_PLY                  source/properties/composite_options/stack/lecstack_ply.F
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|        SHELLTHK_UPD                  source/properties/composite_options/drape/shellthk_upd.F
-Chd|        SPMD_ANIM_PLY_INIT            source/spmd/spmd_anim_ply_init.F
-Chd|        STACKGROUP                    source/stack/stackgroup.F     
-Chd|        T3GRHEAD                      source/elements/solid_2d/tria/t3grhead.F
-Chd|        T3GRTAILS                     source/elements/solid_2d/tria/t3grtails.F
-Chd|        STACK_VAR_MOD                 share/modules1/stack_var_mod.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stack_mod                           ../starter/share/modules1/stack_mod.F
+!||--- called by ------------------------------------------------------
+!||    brokmann_random                     ../starter/source/materials/fail/windshield_alter/brokmann_random.F90
+!||    c3grhead                            ../starter/source/elements/sh3n/coque3n/c3grhead.F
+!||    c3grtails                           ../starter/source/elements/sh3n/coque3n/c3grtails.F
+!||    c3init3                             ../starter/source/elements/sh3n/coque3n/c3init3.F
+!||    c3inmas                             ../starter/source/elements/sh3n/coque3n/c3inmas.F
+!||    cbainit3                            ../starter/source/elements/shell/coqueba/cbainit3.F
+!||    cbufxfe                             ../starter/source/elements/xfem/cbufxfe.F
+!||    cdkinit3                            ../starter/source/elements/sh3n/coquedk/cdkinit3.F
+!||    cgrhead                             ../starter/source/elements/shell/coque/cgrhead.F
+!||    cgrtails                            ../starter/source/elements/shell/coque/cgrtails.F
+!||    check_mat_elem_prop_compatibility   ../starter/source/materials/mat/check_mat_elem_prop_compatibility.F
+!||    check_pthickfail                    ../starter/source/materials/fail/check_pthickfail.F
+!||    cinit3                              ../starter/source/elements/shell/coque/cinit3.F
+!||    cinmas                              ../starter/source/elements/shell/coque/cinmas.F
+!||    cmaini3                             ../starter/source/elements/sh3n/coquedk/cmaini3.F
+!||    corthdir                            ../starter/source/elements/shell/coque/corthdir.F
+!||    corthini                            ../starter/source/elements/shell/coque/corthini.F
+!||    ddsplit                             ../starter/source/restart/ddsplit/ddsplit.F
+!||    elbuf_ini                           ../starter/source/elements/elbuf_init/elbuf_ini.F
+!||    fractal_element_neighbor            ../starter/source/materials/fail/fractal/fractal_element_neighbor.F90
+!||    hm_read_drape                       ../starter/source/properties/composite_options/drape/hm_read_drape.F
+!||    hm_read_inistate_d00                ../starter/source/elements/initia/hm_read_inistate_d00.F
+!||    hm_read_prop17                      ../starter/source/properties/shell/hm_read_prop17.F
+!||    hm_read_prop51                      ../starter/source/properties/shell/hm_read_prop51.F
+!||    hm_read_properties                  ../starter/source/properties/hm_read_properties.F
+!||    hm_read_stack                       ../starter/source/stack/hm_read_stack.F
+!||    i2buc1                              ../starter/source/interfaces/inter3d1/i2buc1.F
+!||    i2trivox                            ../starter/source/interfaces/inter3d1/i2trivox.F90
+!||    inint3                              ../starter/source/interfaces/inter3d1/inint3.F
+!||    inintr                              ../starter/source/interfaces/interf1/inintr.F
+!||    inirig_mat                          ../starter/source/elements/initia/inirig_mat.F
+!||    initia                              ../starter/source/elements/initia/initia.F
+!||    inivoid                             ../starter/source/elements/initia/inivoid.F
+!||    layini1                             ../starter/source/elements/shell/coqueba/layini1.F
+!||    layini_xfe                          ../starter/source/elements/xfem/cbufxfe.F
+!||    lec_inistate                        ../starter/source/elements/initia/lec_inistate.F
+!||    lecstack_ply                        ../starter/source/properties/composite_options/stack/lecstack_ply.F
+!||    lectur                              ../starter/source/starter/lectur.F
+!||    pre_stackgroup                      ../starter/source/stack/pres_stackgroup.F
+!||    random_walk_dmg                     ../starter/source/materials/fail/fractal/random_walk_dmg.F90
+!||    shellthk_upd                        ../starter/source/properties/composite_options/drape/shellthk_upd.F
+!||    spmd_anim_ply_init                  ../starter/source/spmd/spmd_anim_ply_init.F
+!||    stack_var_mod                       ../starter/share/modules1/stack_var_mod.F
+!||    stackgroup                          ../starter/source/stack/stackgroup.F
+!||    stackgroup_drape                    ../starter/source/stack/stackgroup_drape.F
+!||    t3grhead                            ../starter/source/elements/solid_2d/tria/t3grhead.F
+!||    t3grtails                           ../starter/source/elements/solid_2d/tria/t3grtails.F
+!||    updfail                             ../starter/source/materials/updfail.F90
+!||====================================================================
       MODULE STACK_MOD
 C-----------------------------------------------
 C   m y _ r e a l
@@ -70,9 +81,11 @@ C---------------------------------------------
 C Structures needed for stack (PID17) properties 
 C---------------------------------------------
 C PLY  Nodes structures for animations
+      integer, parameter :: stack_s_pm1 = 20 !< first dimension of pm array
       TYPE STACK_PLY
-         INTEGER , DIMENSION (:,:), ALLOCATABLE :: IGEO        ! IGEO TABLE
-         my_real , DIMENSION (:,:), ALLOCATABLE :: GEO  , PM       ! GEO, PM 
+        integer :: s_pm2 !< second dimension of pm array
+        INTEGER , DIMENSION (:,:), ALLOCATABLE :: IGEO        ! IGEO TABLE
+        my_real , DIMENSION (:,:), ALLOCATABLE :: GEO  , PM       ! GEO, PM 
       END TYPE STACK_PLY        
 C      
       TYPE STACK_INFO_ 

@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25NEIGH                      source/interfaces/inter3d1/i25neigh.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        I25NEIGH_MSG_ERR              source/interfaces/inter3d1/i25neigh.F
-Chd|        I25NEIGH_SEG_EN               source/interfaces/inter3d1/i25neigh.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        BITGET                        source/interfaces/inter3d1/bitget.F
-Chd|        BITSET                        source/interfaces/inter3d1/bitget.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25neigh               ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    bitget                 ../starter/source/interfaces/inter3d1/bitget.F
+!||    bitset                 ../starter/source/interfaces/inter3d1/bitget.F
+!||    i25neigh_msg_err       ../starter/source/interfaces/inter3d1/i25neigh.F
+!||    i25neigh_seg_e         ../starter/source/interfaces/inter3d1/i25neigh.F
+!||    i25neigh_seg_en        ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I25NEIGH(NRTM ,NSN   ,NSV     ,IRECT  ,IRTLM,
      2                         MVOISIN,EVOISIN ,MSEGLO ,MSEGTYP,ITAB   ,
      3                         X      ,ID      ,TITR   ,IGEO   ,NADMSR ,
@@ -38,14 +40,18 @@ Chd|====================================================================
      5                         NEDGE  ,LEDGE   ,LBOUND ,EDG_COS,NISUB  ,
      6                         LISUB  ,ADDSUBM,LISUBM  ,INFLG_SUBM ,NISUBE,
      7                         ADDSUBE,LISUBE ,INFLG_SUBE,NOINT,NMN,MSR,
-     8                         NOM_OPT,ILEV   ,MBINFLG ,EBINFLG)
+     8                         NOM_OPT,ILEV   ,MBINFLG ,EBINFLG,IELEM_M,
+     9                         IDEL_SOLID)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE MY_ALLOC_MOD
+      USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -69,23 +75,23 @@ C-----------------------------------------------
       INTEGER ID
       my_real
      .   X(3,*), EDG_COS
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      INTEGER  , INTENT(IN) :: IDEL_SOLID         ! solid erosion
+      INTEGER  , INTENT(IN) :: IELEM_M(2,NRTM)   ! elements connected to the segment (especially solid)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,L,IW,I1,I2,I3,I4,M,N,NMAX,E_MAX,E_ID,N_EI,
-     1        ITAG(NUMNOD),NE0,NRTM0,ISH,
+     1        NE0,NRTM0,ISH,NVERTX, IVERTX, JVERTX,
      2        J1,J2,J3,J4,K1,K2,L1,L2,KPERM1(4),KPERM2(4),IRR,
-     3        NFT,JLT,MI,II(4),JJ(4),IEDG,JEDG,IOK,
-     4        NVERTX, NTAG(4*NRTM), ROOT(4*NRTM), IVERTX, JVERTX,
-     5        IBASE, KBASE, KOLD, FIN, NE, EJ, NEDGE_TMP, 
-     6        SOL_EDGE, SH_EDGE, ISTORE,
-     7        LL, KK, CUR, NEXT, JSUB, KSUB, IMS1, IMS2, IMS3, IMS4, 
-     8        NISUBN, INFLG, MAXADD, STAT
+     3        NFT,JLT,MI,II(4),JJ(4),IEDG,JEDG,IOK,       
+     4        IBASE, KBASE, KOLD, FIN, NE, EJ, NEDGE_TMP, 
+     5        SOL_EDGE, SH_EDGE, ISTORE,
+     6        LL, KK, CUR, NEXT, JSUB, KSUB, IMS1, IMS2, IMS3, IMS4, 
+     7        NISUBN, INFLG, MAXADD, STAT
       INTEGER IX1, IX2, IX3, IX4,
      ,        JX1, JX2, JX3, JX4,
-     .        NA, NB, EA, EB
+     .        NA, NB, EA, EB,JM,MJ,DN_EI
       INTEGER, DIMENSION(:),ALLOCATABLE :: MVOI
       INTEGER, DIMENSION(:,:),ALLOCATABLE :: EIDNOD
       my_real
@@ -99,9 +105,10 @@ C-----------------------------------------------
      .     XNA, YNA, ZNA, XNB, YNB, ZNB, AAA, BBB, ANG
       INTEGER WORK(70000)
       INTEGER,  DIMENSION(:,:),ALLOCATABLE :: CLEF,LEDGE_TMP1,LEDGE_TMP2
-      INTEGER,  DIMENSION(:),ALLOCATABLE :: INDEX
+      INTEGER,  DIMENSION(:),ALLOCATABLE :: INDEX, ITAG, NTAG, ROOT
       INTEGER, DIMENSION(:), ALLOCATABLE :: MLOC,KAD,ADDSUBN,ADDSUBN_TMP,
      .                                      LISUBN,INFLG_SUBN,IXSUB
+      INTEGER, DIMENSION(:,:,:),ALLOCATABLE :: MNEIGH_SOLID
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -111,23 +118,35 @@ C-----------------------------------------------
       DATA KPERM1/1,3,5,7/
       DATA KPERM2/2,4,6,8/
 C-----------------------------------------------
+      CALL MY_ALLOC(ITAG,NUMNOD)
+      CALL MY_ALLOC(NTAG,4*NRTM)
+      CALL MY_ALLOC(ROOT,4*NRTM)
+C
       DO I=1,NRTM
         MSEGLO(I)=I      
       ENDDO
-C-----------shell segs have been duplicated w/ inverse order
-C-----------for the moment all antisymmetry surface will be stored at the end
+C-------------------------------------------------------
+C     Neighbhoors researching
+C       shell segs have been duplicated w/ inverse order
+C       for the moment all antisymmetry surface will be stored at the end
+C       for Solids : searching of neighbhoors is only done for external segments
+C-----------------------------------------------
+C
       DO I=1,NUMNOD
         ITAG(I)=0
       ENDDO
       DO I=1,NRTM
-       DO J=1,3
-        M=IRECT(J,I)
-        ITAG(M)=ITAG(M)+1
-       END DO
-       IF (IRECT(4,I)/=IRECT(3,I))THEN
-         M= IRECT(4,I)
-         ITAG(M)=ITAG(M)+1
-       END IF
+        IF(IELEM_M(2,I) == 0) THEN
+
+          DO J=1,3
+            M=IRECT(J,I)
+            ITAG(M)=ITAG(M)+1
+          END DO
+          IF (IRECT(4,I)/=IRECT(3,I))THEN
+            M= IRECT(4,I)
+            ITAG(M)=ITAG(M)+1
+          END IF
+        ENDIF
       END DO
 C-----MSEGTYP (> NRTM for i=NRTM0+1,NRTM0+NRTM_SH) -> IM2SH = MSEGTYP-NRTM---------
 C-----------max number of connected segment per node
@@ -141,16 +160,19 @@ C-----------max number of connected segment per node
       EIDNOD(1:NMAX,1:NUMNOD)=0
 C------------ini- E_ids of each node
       DO I=1,NRTM
-       DO J=1,3
-        M=IRECT(J,I)
-        ITAG(M)=ITAG(M)+1
-        EIDNOD(ITAG(M),M)=I
-       END DO
-       IF (IRECT(4,I)/=IRECT(3,I)) THEN
-        M= IRECT(4,I)
-        ITAG(M)=ITAG(M)+1
-        EIDNOD(ITAG(M),M)=I
-       END IF
+        IF(IELEM_M(2,I) == 0) THEN
+
+          DO J=1,3
+            M=IRECT(J,I)
+            ITAG(M)=ITAG(M)+1
+            EIDNOD(ITAG(M),M)=I
+          END DO
+          IF (IRECT(4,I)/=IRECT(3,I)) THEN
+            M= IRECT(4,I)
+            ITAG(M)=ITAG(M)+1
+            EIDNOD(ITAG(M),M)=I
+          END IF
+        ENDIF
       END DO
 C------------MVOISIN-(seg number) ---
       E_MAX=4
@@ -161,39 +183,42 @@ C------------MVOISIN-(seg number) ---
       END DO
 C
       DO I=1,NRTM
-       N_EI=0
+        IF(IELEM_M(2,I) == 0) THEN
+          N_EI=0
 C----seg 1-2------
-       I1 =IRECT(1,I)
-       I2 =IRECT(2,I)
-       CALL I25NEIGH_SEG_EN(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),MVOISIN,
-     1                  N_EI,MVOI ,I   ,I1 ,I2 ,IRECT,
-     2                  X  ,MVOISIN(1,I),NRTM,MSEGTYP,IRR   )
-       IF (IRR >0) CALL I25NEIGH_MSG_ERR(I1,I2,ITAB,IRR)
+          I1 =IRECT(1,I)
+          I2 =IRECT(2,I)
+          CALL I25NEIGH_SEG_EN(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),MVOISIN,
+     1                    N_EI,MVOI ,I   ,I1 ,I2 ,IRECT,
+     2                    X  ,MVOISIN(1,I),NRTM,MSEGTYP,IRR   )
+          IF (IRR >0) CALL I25NEIGH_MSG_ERR(I1,I2,ITAB,IRR)
 C----seg 2-3------
-       I1 =IRECT(2,I)
-       I2 =IRECT(3,I)
-       CALL I25NEIGH_SEG_EN(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),MVOISIN,
-     1                  N_EI,MVOI ,I   ,I1 ,I2 ,IRECT,
-     2                  X  ,MVOISIN(1,I),NRTM,MSEGTYP,IRR   )
-       IF (IRR >0) CALL I25NEIGH_MSG_ERR(I1,I2,ITAB,IRR)
+          I1 =IRECT(2,I)
+          I2 =IRECT(3,I)
+          CALL I25NEIGH_SEG_EN(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),MVOISIN,
+     1                    N_EI,MVOI ,I   ,I1 ,I2 ,IRECT,
+     2                    X  ,MVOISIN(1,I),NRTM,MSEGTYP,IRR   )
+          IF (IRR >0) CALL I25NEIGH_MSG_ERR(I1,I2,ITAB,IRR)
 C----seg 3-4------
-       I1 =IRECT(3,I)
-       I2 =IRECT(4,I)
-       CALL I25NEIGH_SEG_EN(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),MVOISIN,
+          I1 =IRECT(3,I)
+          I2 =IRECT(4,I)
+          CALL I25NEIGH_SEG_EN(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),MVOISIN,
      1                  N_EI,MVOI ,I   ,I1 ,I2 ,IRECT,
      2                  X  ,MVOISIN(1,I),NRTM,MSEGTYP,IRR   )
-       IF (IRR >0) CALL I25NEIGH_MSG_ERR(I1,I2,ITAB,IRR)
+          IF (IRR >0) CALL I25NEIGH_MSG_ERR(I1,I2,ITAB,IRR)
 C----seg 1-4------
-       I1 =IRECT(4,I)
-       I2 =IRECT(1,I)
-       CALL I25NEIGH_SEG_EN(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),MVOISIN,
-     1                  N_EI,MVOI ,I   ,I1 ,I2 ,IRECT,
-     2                  X  ,MVOISIN(1,I),NRTM,MSEGTYP,IRR   )
-       IF (IRR >0) CALL I25NEIGH_MSG_ERR(I1,I2,ITAB,IRR)
+          I1 =IRECT(4,I)
+          I2 =IRECT(1,I)
+          CALL I25NEIGH_SEG_EN(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),MVOISIN,
+     1                    N_EI,MVOI ,I   ,I1 ,I2 ,IRECT,
+     2                    X  ,MVOISIN(1,I),NRTM,MSEGTYP,IRR   )
+          IF (IRR >0) CALL I25NEIGH_MSG_ERR(I1,I2,ITAB,IRR)
 C
-       MVOI(1:N_EI)=0 ! Reset MVOI
+           MVOI(1:N_EI)=0 ! Reset MVOI
 C
-      END DO !I=1,NRTM
+        ENDIF
+      END DO !I=1,NRTM     
+C
 C--------------------------------------------
       DO I=1,NRTM
         DO J=1,4
@@ -211,6 +236,107 @@ C--------------------------------------------
         END DO
       END DO !I=1,NRTM
 C--------------------------------------------
+      DEALLOCATE(MVOI,EIDNOD)
+C--------------------------------------------
+C------------------------------------------------------
+C        Solid erosion : 
+C        if internal segments of solids are defined : need to build ADMSR for all NRTM 
+C        Store all segments connected to the same edge for solid segments
+C-----------------------------------------------------
+      IF(IDEL_SOLID > 0) THEN  
+        DO I=1,NUMNOD
+          ITAG(I)=0
+        ENDDO
+        DO I=1,NRTM  
+          IF(IELEM_M(1,I) <= NUMELS) THEN
+
+            DO J=1,3
+              M=IRECT(J,I)
+              ITAG(M)=ITAG(M)+1
+            END DO
+            IF (IRECT(4,I)/=IRECT(3,I))THEN
+               M= IRECT(4,I)
+               ITAG(M)=ITAG(M)+1
+            END IF
+          ENDIF
+        END DO
+C        
+        NMAX=0
+        DO I=1,NUMNOD
+         NMAX=MAX(NMAX,ITAG(I))
+         ITAG(I)=0
+        ENDDO
+        ALLOCATE(EIDNOD(NMAX,NUMNOD))
+        EIDNOD(1:NMAX,1:NUMNOD)=0
+        ALLOCATE(MVOI(NMAX+10))
+        MVOI(1:NMAX+10)=0
+C
+        ALLOCATE(MNEIGH_SOLID(NMAX,4,NRTM))
+        MNEIGH_SOLID(1:NMAX,1:4,1:NRTM) = 0
+        DO I=1,NRTM
+          IF(IELEM_M(1,I) <= NUMELS) THEN
+
+            DO J=1,3
+              M=IRECT(J,I)
+              ITAG(M)=ITAG(M)+1
+              EIDNOD(ITAG(M),M)=I
+            END DO
+            IF (IRECT(4,I)/=IRECT(3,I)) THEN
+              M= IRECT(4,I)
+              ITAG(M)=ITAG(M)+1
+              EIDNOD(ITAG(M),M)=I
+            END IF
+          ENDIF
+        END DO
+C
+C------------- Neighbour Segments --------------       
+C
+        DO I=1,NRTM 
+          IF(IELEM_M(1,I) <= NUMELS) THEN
+            N_EI=0
+C----seg 1-2------
+            I1 =IRECT(1,I)
+            I2 =IRECT(2,I)
+            CALL I25NEIGH_SEG_E(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),N_EI,MVOI,I,
+     .                          I1,I2,IRECT,NRTM,MSEGTYP ,MVOISIN)         
+            MNEIGH_SOLID(1:N_EI,1,I) = MVOI(1:N_EI)
+            NE0 =N_EI
+C----seg 2-3------
+            I1 =IRECT(2,I)
+            I2 =IRECT(3,I)
+            CALL I25NEIGH_SEG_E(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),N_EI,MVOI,I,
+     .                          I1,I2,IRECT,NRTM,MSEGTYP ,MVOISIN)
+            DN_EI = N_EI - NE0  
+            MNEIGH_SOLID(1:DN_EI,2,I) = MVOI(NE0+1:N_EI)
+            NE0 =N_EI
+C----seg 3-4------
+            I1 =IRECT(3,I)
+            I2 =IRECT(4,I)
+            CALL I25NEIGH_SEG_E(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),N_EI,MVOI,I,
+     .                          I1,I2,IRECT,NRTM,MSEGTYP ,MVOISIN)
+            DN_EI = N_EI - NE0
+            MNEIGH_SOLID(1:DN_EI,3,I) = MVOI(NE0+1:N_EI)
+            NE0 =N_EI
+C----seg 1-4------
+            I1 =IRECT(4,I)
+            I2 =IRECT(1,I)
+            CALL I25NEIGH_SEG_E(ITAG(I1),EIDNOD(1,I1),ITAG(I2),EIDNOD(1,I2),N_EI,MVOI,I,
+     .                          I1,I2,IRECT,NRTM,MSEGTYP ,MVOISIN)
+            DN_EI = N_EI - NE0      
+            MNEIGH_SOLID(1:DN_EI,4,I) = MVOI(NE0+1:N_EI)
+C
+            MVOI(1:N_EI)=0 ! Reset MVOI    
+          ENDIF      
+        ENDDO
+
+        DEALLOCATE(MVOI,EIDNOD)
+
+      ENDIF
+      DEALLOCATE(ITAG)
+
+C--------------------------------------------
+
+
       NVERTX=0
       DO I=1,NRTM
         DO J=1,3
@@ -234,13 +360,12 @@ C
         DO IEDG=1,4
 C
           IF(II(4)==II(3).AND.IEDG==3) CYCLE
+          I1=IEDG
+          I2=MOD(IEDG,4)+1
 C
           MI=MVOISIN(IEDG,I)
           IF(MI/=0)THEN
 C
-            I1=IEDG
-            I2=MOD(IEDG,4)+1
-
             JJ(1:4)=IRECT(1:4,MI)
 C
             IOK=0
@@ -265,7 +390,7 @@ C
                 EVOISIN(IEDG,I)=JEDG
 
               ELSEIF(II(I1)==JJ(J1).AND.II(I2)==JJ(J2))THEN
-                print *,'i25inisu_nei - internal error : non consistant neighboring segment'
+                print *,'i25inisu_nei - internal error : non-consistent neighboring segment'
 
               END IF
             END DO
@@ -276,9 +401,51 @@ C
      .                                        itab(jj(1)),itab(jj(2)),itab(jj(3)),itab(jj(4))
           END IF ! IF(MI/=0)THEN
 C
+          IF(IELEM_M(1,I) <= NUMELS.AND.IDEl_SOLID > 0) THEN
+            DO K=1,NMAX
+              MJ = MNEIGH_SOLID(K,IEDG,I)
+              IF(MJ/=0.AND.MJ/=MI) THEN
+C
+                JJ(1:4)=IRECT(1:4,MJ)
+C
+                IOK=0
+                DO JEDG=1,4
+C
+                  IF(JJ(4)==JJ(3).AND.JEDG==3) CYCLE
+C
+                  J1=JEDG
+                  J2=MOD(JEDG,4)+1
+                  IF(II(I2)==JJ(J1).AND.II(I1)==JJ(J2))THEN
+                      
+                    IVERTX=MIN(ROOT(ADMSR(I1,I)),ROOT(ADMSR(J2,MJ)))
+                    JVERTX=MAX(ROOT(ADMSR(I1,I)),ROOT(ADMSR(J2,MJ)))
+                    IF(JVERTX/=IVERTX) ROOT(JVERTX)=IVERTX
+      
+                    IVERTX=MIN(ROOT(ADMSR(I2,I)),ROOT(ADMSR(J1,MJ)))
+                    JVERTX=MAX(ROOT(ADMSR(I2,I)),ROOT(ADMSR(J1,MJ)))
+                    IF(JVERTX/=IVERTX) ROOT(JVERTX)=IVERTX
+      
+                    IOK=1
+            
+c                 ELSEIF(II(I1)==JJ(J1).AND.II(I2)==JJ(J2))THEN
+c                      print *,'i25inisu_nei - internal error : non-consistent neighboring segment'
+      
+                  END IF
+                END DO
+      
+c               IF(IOK==0)
+c           .        WRITE(ISTDO,*) 'i25inisu_nei - internal error : no common edge w/neighboring segment',
+c           .                                        itab(ii(1)),itab(ii(2)),itab(ii(3)),itab(ii(4)),
+c           .                                        itab(jj(1)),itab(jj(2)),itab(jj(3)),itab(jj(4))
+c                END IF ! IF(MJ/=0.AND.MJ/=MI)THEN
+              ENDIF
+            ENDDO
+          ENDIF
         END DO
 C
       END DO
+C
+      IF(IDEl_SOLID > 0) DEALLOCATE(MNEIGH_SOLID)
 C
       DO I=1,NVERTX
         J=I
@@ -309,7 +476,7 @@ C
         ADMSR(4,I)=NTAG(ADMSR(4,I))
       END DO
 C-------------------------------------------------
-C     Compute adresses for Parith/ON assembling of the normals
+C     Compute addresses for Parith/ON assembling of the normals
 C-------------------------------------------------
       NTAG(1:4*NRTM)=0
       DO I=1,NRTM
@@ -333,7 +500,7 @@ C-------------------------------------------------
         I2 = ABS(ADMSR(2,N))
         I3 = ABS(ADMSR(3,N))
         I4 = ABS(ADMSR(4,N))
-        IF(IRECT(3,N).NE.IRECT(4,N))THEN
+        IF(IRECT(3,N)/=IRECT(4,N))THEN
           IADNOR(1,N)=ADSKYN(I1)
           ADSKYN(I1) = ADSKYN(I1)+1
           IADNOR(2,N)=ADSKYN(I2)
@@ -359,7 +526,7 @@ C     Reset ADSKYN
         ADSKYN(N+1) = ADSKYN(N)+NTAG(N)
       END DO
 C      
-      DEALLOCATE(MVOI,EIDNOD)
+      DEALLOCATE(NTAG,ROOT)
 C
       NRTM0=NRTM-NRTM_SH
 C
@@ -367,22 +534,22 @@ C
       LBOUND(1:NADMSR)=0
 C-----------------------------------------------------------------------
 C     LEDGE(1:NLEDGE)
-C       1: "left" segment number <=> index dans IRECT(1:NRTM)
+C       1: "left" segment number <=> index in IRECT(1:NRTM)
 C       2: local number of the edge within "left" segment
 C       3: "right" segment number
 C       4: local number of the edge within "right" segment     ! Squeezing T, X.. shapes wrt rupture
-C       5: I1 = numero local du noeud 1 dans NSV(1:NSN)
-C       6: I2 = numero local du noeud 1 dans NSV(1:NSN)
+C       5: I1 = Local NUE NUMB 1 in NSV (1: NSN)
+C       6: I2 = local number of node 1 in NSV (1: nsn)
 C       7: Type of the edge :
-C             < 0 <=> l'arete est uniquement main, pas second
-C             +/-1 arete de solide
-C             +/-2 arete de coque
+C             <0 <=> the arete is only main, not second
+C             +/-1 edge of solid
+C             +/-2 edge of shell
 C for engine:
 C       8: Global ID (id in starter)
-C       9: Weight = 1 => secondary secnd handled by current domain
+C       9: Weight = 1 => secondary second handled by current domain
 C      10: orientation flag left seg
 C      11: first node of left seg
-C      12: second node left seg
+C      12: Second node left seg
 C      13: orientation flag right seg
 C      14: first node of right seg
 C      15: second node right seg
@@ -391,86 +558,87 @@ C-----------------------------------------------------------------------
       ALLOCATE(LEDGE_TMP1(NLEDGE,4*NRTM))
 C
       DO I=1,NRTM
-
-        IF(I <= NRTM0)THEN
-          IBASE=I
-        ELSE
-          IBASE=-MSEGTYP(I)
-          ! IF(IBASE > 0) THEN
-          IF(IBASE > NRTM)IBASE=IBASE-NRTM
-          ! END IF
-        END IF
-
-        DO J=1,4
-          I1=IRECT(J,I)
-          I2=IRECT(MOD(J,4)+1,I)
-C
-          K=MVOISIN(J,I)
-C
-          IF(K <= NRTM0)THEN
-            KBASE=K ! y-compris K=0
+        IF(IELEM_M(2,I) == 0) THEN
+          IF(I <= NRTM0)THEN
+            IBASE=I
           ELSE
-            KBASE=-MSEGTYP(K)
+           IBASE=-MSEGTYP(I)
+          ! IF(IBASE > 0) THEN
+            IF(IBASE > NRTM)IBASE=IBASE-NRTM
+          ! END IF
+          END IF
+
+          DO J=1,4
+            I1=IRECT(J,I)
+            I2=IRECT(MOD(J,4)+1,I)
+C
+            K=MVOISIN(J,I)
+C
+            IF(K <= NRTM0)THEN
+              KBASE=K ! y-compris K=0
+            ELSE
+              KBASE=-MSEGTYP(K)
             ! IF(KBASE > 0) THEN
-            IF(KBASE > NRTM)KBASE=KBASE-NRTM
+              IF(KBASE > NRTM)KBASE=KBASE-NRTM
             ! END IF
-          END IF
+            END IF
 C    
-          IF(KBASE < IBASE)THEN
+            IF(KBASE < IBASE)THEN
 
-            IF(.NOT.(I1==I2.AND.J==3))THEN
+              IF(.NOT.(I1==I2.AND.J==3))THEN
 C
-              NEDGE=NEDGE+1
-              LEDGE_TMP1(1,NEDGE)=I
-              LEDGE_TMP1(2,NEDGE)=J
-              LEDGE_TMP1(3,NEDGE)=K
-              LEDGE_TMP1(4,NEDGE)=0
-              IF(ITAB(I1) < ITAB(I2))THEN
-                LEDGE_TMP1(5,NEDGE)=I1
-                LEDGE_TMP1(6,NEDGE)=I2
-              ELSE
-                LEDGE_TMP1(5,NEDGE)=I2
-                LEDGE_TMP1(6,NEDGE)=I1
-              END IF
-C
-              IF(K/=0)THEN 
-                IF(MSEGTYP(I)==0.AND.MSEGTYP(K)==0)THEN ! Solid only
-                  LEDGE_TMP1(7,NEDGE)=1 ! arete solide-solide
+                NEDGE=NEDGE+1
+                LEDGE_TMP1(1,NEDGE)=I
+                LEDGE_TMP1(2,NEDGE)=J
+                LEDGE_TMP1(3,NEDGE)=K
+                LEDGE_TMP1(4,NEDGE)=0
+                IF(ITAB(I1) < ITAB(I2))THEN
+                  LEDGE_TMP1(5,NEDGE)=I1
+                  LEDGE_TMP1(6,NEDGE)=I2
                 ELSE
-                  LEDGE_TMP1(7,NEDGE)=2 ! arete coque-coque ou coque-solide
+                  LEDGE_TMP1(5,NEDGE)=I2
+                  LEDGE_TMP1(6,NEDGE)=I1
                 END IF
-              ELSE ! Bord
-                LEDGE_TMP1(7,NEDGE)=2
-              END IF
 C
-              IF(K/=0)THEN
-                DO L=1,4
-                  K1=IRECT(L,K)
-                  K2=IRECT(MOD(L,4)+1,K)
-                  IF(.NOT.(K1==K2.AND.L==3).AND.((K1==I1.AND.K2==I2).OR.(K2==I1.AND.K1==I2))) THEN
-                    LEDGE_TMP1(4,NEDGE)=L
+                IF(K/=0)THEN 
+                  IF(MSEGTYP(I)==0.AND.MSEGTYP(K)==0)THEN ! Solid only
+                    LEDGE_TMP1(7,NEDGE)=1 ! arete solide-solide
+                  ELSE
+                    LEDGE_TMP1(7,NEDGE)=2 ! ARETE COQUE-COQUE OR SOLIDE COOL
                   END IF
-                END DO
-                IF(LEDGE_TMP1(4,NEDGE)==0)THEN
-                  WRITE(ISTDO,'(A)') 
-     .                      'i25inisu_nei - internal error : could not find the edge on neighboring element'
+                ELSE ! Bord
+                  LEDGE_TMP1(7,NEDGE)=2
                 END IF
+C
+                IF(K/=0)THEN
+                  DO L=1,4
+                    K1=IRECT(L,K)
+                    K2=IRECT(MOD(L,4)+1,K)
+                    IF(.NOT.(K1==K2.AND.L==3).AND.((K1==I1.AND.K2==I2).OR.(K2==I1.AND.K1==I2))) THEN
+                      LEDGE_TMP1(4,NEDGE)=L
+                    END IF
+                  END DO
+                  IF(LEDGE_TMP1(4,NEDGE)==0)THEN
+                    WRITE(ISTDO,'(A)') 
+     .                      'i25inisu_nei - internal error : could not find the edge on neighboring element'
+                  END IF
+                END IF
+C
               END IF
-C
-            END IF
 
 
-          END IF
-C
-          IF(K==0)THEN
-            IF(.NOT.(I1==I2.AND.J==3))THEN
-C
-              LBOUND(ADMSR(J,I))=1
-              LBOUND(ADMSR(MOD(J,4)+1,I))=1
-C
             END IF
-          END IF
-        END DO
+C
+            IF(K==0)THEN
+              IF(.NOT.(I1==I2.AND.J==3))THEN
+C
+                LBOUND(ADMSR(J,I))=1
+                LBOUND(ADMSR(MOD(J,4)+1,I))=1
+C
+              END IF
+            END IF
+          END DO
+        ENDIF
       END DO
 C-----------------------------------------------------------------------
 C
@@ -704,7 +872,7 @@ c       print *,I,LEDGE(1,I),LEDGE(2,I),LEDGE(3,I),LEDGE(4,I),ITAB(LEDGE(5,I)),I
 c      END DO
 C
 C-----------------------------------------
-C     Flag d'appartenance des aretes a S1/S2
+C     Flag of belonging to the areas a S1/S2
 C-----------------------------------------
       IF(NEDGE/=0 .AND. ILEV==2)THEN
         EBINFLG(1:NEDGE)=0
@@ -737,7 +905,7 @@ C
 
         ALLOCATE(ADDSUBN_TMP(NMN+1), ADDSUBN(NMN+1))
 C-----------------------------------------
-C       Calcul de ADDSUBN, LISUBN, INFLG_SUBN pour les noeuds mains
+C       Calculation of ADDSUBN, LISUBN, INFLG_SUBN for the main nodes
 C-----------------------------------------
         ADDSUBN_TMP(1:NMN+1)=0
         DO I=1,NRTM
@@ -761,7 +929,7 @@ C
         ALLOCATE (LISUBN(NISUBN),INFLG_SUBN(NISUBN),STAT=stat)
         INFLG_SUBN(1:NISUBN)=0
 C
-C       utilise KAD(1:NMN) pour remplir LISUBN, INFLG_SUBN
+C       Use Kad (1: NMN) to fill Lisubn, inflg_subn
         DO N=1,NMN
           KAD(N)=ADDSUBN_TMP(N)
         END DO
@@ -778,7 +946,7 @@ C       utilise KAD(1:NMN) pour remplir LISUBN, INFLG_SUBN
           END DO
         END DO
 C-----------------------------------------
-C       Compactage de LISUBN ET Combinaison des flags INFLG_SUBN
+C       Compacting LISUBN AND Combining INFLG_SUBN flags
 C-----------------------------------------
         MAXADD = 0
         DO N=1,NMN
@@ -849,7 +1017,7 @@ C
           END DO
         END DO
 C-----------------------------------------
-C       Calcul de ADDSUBE, LISUBE, INFLG_SUBE a partir de ADDSUBN, LISUBN, INFLG_SUBN
+C       Calculation de ADDSUBE, LISUBE, INFLG_SUBE a partir de ADDSUBN, LISUBN, INFLG_SUBN
 C-----------------------------------------
         ADDSUBE(1:NEDGE+1)  = 0 
         INFLG_SUBE(1:NISUBE)=0
@@ -860,14 +1028,14 @@ C
 
           LL  =ADDSUBN(I1)
           KK  =ADDSUBN(I2)
-          DO WHILE(LL.LT.ADDSUBN(I1+1))
+          DO WHILE(LL<ADDSUBN(I1+1))
             JSUB=LISUBN(LL)
-            DO WHILE(KK.LT.ADDSUBN(I2+1))
+            DO WHILE(KK<ADDSUBN(I2+1))
               KSUB=LISUBN(KK)   
-              IF(KSUB.EQ.JSUB)THEN
+              IF(KSUB==JSUB)THEN
                 ADDSUBE(NE)=ADDSUBE(NE)+1
                 KK=KK+1
-              ELSE IF(KSUB.LT.JSUB)THEN
+              ELSE IF(KSUB<JSUB)THEN
                 KK=KK+1
               ELSE
                 GO TO 100
@@ -886,7 +1054,7 @@ C
         END DO
         ADDSUBE(1+NEDGE)=CUR
 C
-C       utilise KAD(1:NEDGE) pour remplir LISUBE, INFLG_SUBE
+C       Use Kad (1: Nedge) to fill Lisube, inflg_sube
         DO NE=1,NEDGE
           KAD(NE)=ADDSUBE(NE)
         END DO
@@ -897,15 +1065,15 @@ C       utilise KAD(1:NEDGE) pour remplir LISUBE, INFLG_SUBE
 
           LL  =ADDSUBN(I1)
           KK  =ADDSUBN(I2)
-          DO WHILE(LL.LT.ADDSUBN(I1+1))
+          DO WHILE(LL<ADDSUBN(I1+1))
             JSUB=LISUBN(LL)
             IMS1 = BITGET(INFLG_SUBN(LL),0)
             IMS2 = BITGET(INFLG_SUBN(LL),1)
-            DO WHILE(KK.LT.ADDSUBN(I2+1))
+            DO WHILE(KK<ADDSUBN(I2+1))
               KSUB=LISUBN(KK)   
               IMS3 = BITGET(INFLG_SUBN(KK),0)
               IMS4 = BITGET(INFLG_SUBN(KK),1)
-              IF(KSUB.EQ.JSUB)THEN
+              IF(KSUB==JSUB)THEN
                 LISUBE(KAD(NE))=JSUB
                 IF(IMS1==1.AND.IMS3==1) ! edge belongs to S1 is I1 and I2 belong to S1
      .           INFLG_SUBE(KAD(NE))=
@@ -915,7 +1083,7 @@ C       utilise KAD(1:NEDGE) pour remplir LISUBE, INFLG_SUBE
      .                BITSET(INFLG_SUBE(KAD(NE)),1)
                 KAD(NE)   =KAD(NE)+1
                 KK=KK+1
-              ELSE IF(KSUB.LT.JSUB)THEN
+              ELSE IF(KSUB<JSUB)THEN
                 KK=KK+1
               ELSE
                 GO TO 200
@@ -928,7 +1096,7 @@ C       utilise KAD(1:NEDGE) pour remplir LISUBE, INFLG_SUBE
 
         DEALLOCATE (MLOC,KAD,ADDSUBN_TMP,ADDSUBN,LISUBN,INFLG_SUBN,IXSUB)
 C-------------------------------------
-        IF(IPRI.GE.6) THEN
+        IF(IPRI>=6) THEN
           WRITE(IOUT,1000)
           WRITE(IOUT,1010)NOINT
           WRITE(IOUT,'(10I10)')
@@ -937,7 +1105,7 @@ C-------------------------------------
           DO NE=1,NEDGE
             JSUB=ADDSUBE(NE)
             N   =ADDSUBE(NE+1)-ADDSUBE(NE)
-            IF(N.GT.0)THEN
+            IF(N>0)THEN
               WRITE(IOUT,'(3I10)')NE,ITAB(LEDGE(5,NE)),ITAB(LEDGE(6,NE))
               WRITE(IOUT,'(30X,2I10)')
      .          (LISUBE(JSUB-1+K),INFLG_SUBE(JSUB-1+K),K=1,N)
@@ -956,31 +1124,28 @@ C-------------------------------------
 C-------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I25INI_GAP_N                  source/interfaces/inter3d1/i25neigh.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i25ini_gap_n   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- called by ------------------------------------------------------
+!||    inint3         ../starter/source/interfaces/inter3d1/inint3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I25INI_GAP_N(
      1 NRTM  ,IRECT ,IXS   ,GEO   ,IXC   ,IXTG  ,
      2 IXT   ,IXP   ,IPART  ,IPARTC   ,IPARTTG  ,
      3 THK   ,THK_PART,GAP_N ,GAP_M   ,NMN      ,
      4 MSR   ,GAPN_M  ,GAPMAX_M ,GAPSCALE,IGEO  ,
-     5 MSEGTYP,GAPMSAV,ITHK25)
+     5 MSEGTYP,GAPMSAV,ITHK25,IGAP,THK_M   ,THK_M_SCALE)
+      use element_mod , only :nixs,nixc,nixtg,nixt,nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
@@ -994,28 +1159,34 @@ C     REAL
       my_real
      .   GEO(NPROPG,*), THK(*),THK_PART(*),GAP_N(4,*),GAP_M(*),
      .   GAPN_M(*),GAPMAX_M, GAPSCALE,GAPMSAV(*)
+      INTEGER, INTENT(IN)    :: IGAP
+      my_real, INTENT(IN) :: THK_M   ,THK_M_SCALE
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,IW,I1,I2,I3,MG,M,IP,IGTYP
       my_real
-     .   WA(NUMNOD),DX
+     .   DX
+      my_real, DIMENSION(:), ALLOCATABLE :: WA
 C init 
 C
+       ALLOCATE(WA(NUMNOD))
        DO I=1,NUMNOD
         WA(I)=ZERO
        END DO
 C        
 C------------------------------------
-C     GAP NOEUDS IN WA
+C     GAP NODES IN WA
 C------------------------------------
        DO I=1,NUMELC
          MG=IXC(6,I)
          IGTYP = IGEO(11,MG)
          IP = IPARTC(I)
-         IF ( THK_PART(IP) .NE. ZERO .AND. IINTTHICK .EQ. 0) THEN
+         IF ( IGAP == 5.AND.THK_M /= ZERO) THEN
+            DX=HALF*THK_M
+         ELSEIF ( THK_PART(IP) /= ZERO .AND. IINTTHICK == 0) THEN
            DX=HALF*THK_PART(IP)
-         ELSEIF ( THK(I) .NE. ZERO .AND. IINTTHICK .EQ. 0) THEN
+         ELSEIF ( THK(I) /= ZERO .AND. IINTTHICK == 0) THEN
            DX=HALF*THK(I)
          ELSEIF(IGTYP == 17) THEN
            DX=HALF*THK(I)
@@ -1032,9 +1203,11 @@ C
          MG=IXTG(5,I)
          IGTYP = IGEO(11,MG)
          IP = IPARTTG(I)
-         IF ( THK_PART(IP) .NE. ZERO .AND. IINTTHICK .EQ. 0) THEN
+         IF ( IGAP == 5.AND.THK_M /= ZERO) THEN
+            DX=HALF*THK_M
+         ELSEIF ( THK_PART(IP) /= ZERO .AND. IINTTHICK == 0) THEN
            DX=HALF*THK_PART(IP)
-         ELSEIF ( THK(NUMELC+I) .NE. ZERO .AND. IINTTHICK .EQ. 0) THEN
+         ELSEIF ( THK(NUMELC+I) /= ZERO .AND. IINTTHICK == 0) THEN
            DX=HALF*THK(NUMELC+I)
          ELSEIF(IGTYP == 17) THEN
            DX=HALF*THK(NUMELC+I)
@@ -1046,9 +1219,15 @@ C
          WA(IXTG(4,I))=MAX(WA(IXTG(4,I)),DX)
        ENDDO
 C
-       DO I=1,NUMNOD
-        WA(I)=GAPSCALE*WA(I)
-       END DO
+       IF(IGAP==5.AND.THK_M /= ZERO) THEN
+         DO I=1,NUMNOD
+           WA(I)=THK_M_SCALE*WA(I)
+         END DO
+       ELSE
+         DO I=1,NUMNOD
+           WA(I)=GAPSCALE*WA(I)
+         END DO
+       ENDIF
 C--------exclude lines in main surfaces
 C       DO I=1,NUMELT
 C        MG=IXT(4,I)
@@ -1064,7 +1243,7 @@ C        WA(IXP(2,I))=MAX(WA(IXP(2,I)),DX)
 C        WA(IXP(3,I))=MAX(WA(IXP(3,I)),DX)
 C       ENDDO
 C------------------------------------
-C     INI GAP_N (4), GAP_M is modified taking into accound nodal gap for sorting
+C     INI GAP_N (4), GAP_M is modified taking into account nodal gap for sorting
 C------------------------------------
 C -----due to the fact that if surf_M does not contain the defining w/ shell
 C-------> should not take into account GAP_shell    
@@ -1089,6 +1268,7 @@ C
           M=IRECT(J,I)
           GAP_N(J,I)=WA(M)
           GAP_M(I) = MAX(GAP_M(I),WA(M))
+
         END DO
       END DO  ! nrtm
 C
@@ -1097,19 +1277,19 @@ C
           GAPMSAV(I) = GAP_M(I)
         ENDDO
       ENDIF
-
+      DEALLOCATE(WA)
 C        
       RETURN
       END
-Chd|====================================================================
-Chd|  I25NEIGH_SEG_EN               source/interfaces/inter3d1/i25neigh.F
-Chd|-- called by -----------
-Chd|        I25NEIGH                      source/interfaces/inter3d1/i25neigh.F
-Chd|-- calls ---------------
-Chd|        I25NEIGH_REMOVEALLBUT1        source/interfaces/inter3d1/i25neigh.F
-Chd|        I25NEIGH_SEG_E                source/interfaces/inter3d1/i25neigh.F
-Chd|        I25NEIGH_SEG_OPP              source/interfaces/inter3d1/i25neigh.F
-Chd|====================================================================
+!||====================================================================
+!||    i25neigh_seg_en          ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- called by ------------------------------------------------------
+!||    i25neigh                 ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- calls      -----------------------------------------------------
+!||    i25neigh_removeallbut1   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||    i25neigh_seg_e           ../starter/source/interfaces/inter3d1/i25neigh.F
+!||    i25neigh_seg_opp         ../starter/source/interfaces/inter3d1/i25neigh.F
+!||====================================================================
       SUBROUTINE I25NEIGH_SEG_EN(N1,IED1,N2   ,IED2 ,MVOISIN,
      .                           NE ,ICE,ISELF,I1,I2  ,IRECT,
      .                           X   ,IE ,NRTM,MSEGTYP,IRR  )
@@ -1120,7 +1300,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1140,7 +1319,7 @@ c  I   N2,IED2(N2)       - number and neighbour segment id list of node I2
 c  O   NE,ICE(NE)        - Number and neighbour segment id list of segment id ISELF
 c  I   ISELF,I1,I2       - input segment id ISELF w/ nodes I1,I2 (I25NEIGH_un nodes)
 c  I   IRECT(4,*)        - connectivity of segment id *
-c  I   X(3,*)            - node co-ordinates
+c  I   X(3,*)            - node coordinates
 c  O   IE(NE)            - final (reduced) neighbour segment,array
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -1155,10 +1334,11 @@ C      MVOISIN already filled due to symetrization ::
          NE=NE0+1
          RETURN
        END IF
-C-------------neighbour segments-----------       
+
+C------------- Neighbour Segments --------------       
        CALL I25NEIGH_SEG_E(N1,IED1,N2,IED2,NE,ICE,ISELF,
      .                I1,I2,IRECT,NRTM,MSEGTYP ,MVOISIN)
-C-------------treatement of multi-neighbours (T shape,shell) segments => reduce to 1----------
+C-------------treatment of multi-neighbours (T shape,shell) segments => reduce to 1----------
        DNE = NE-NE0
        IF (DNE > 1) THEN
          CALL I25NEIGH_REMOVEALLBUT1(DNE,ICE(NE0+1),ISELF,IRECT,X ,I1,I2,IRR)
@@ -1166,7 +1346,7 @@ C-------------treatement of multi-neighbours (T shape,shell) segments => reduce 
        END IF
        IF (ICE(NE)>0 )THEN
 C
-C       shell symetric segment will be removed here !
+C       shell symmetric segment will be removed here !
         CALL I25NEIGH_SEG_OPP(ISELF,ICE(NE),IRECT,X ,IOP)
         IF (IOP > 0 ) ICE(NE) = 0
        END IF !(ICE(NE)>0 )THEN
@@ -1183,7 +1363,7 @@ C       print *,'!!!error (report to developer)!!!',(NE-NE0)
 
        IF(NE-NE0 == 1 .AND. IE(NE)/=0)THEN
 C
-C        Enforce symetry ::
+C        Enforce symmetry ::
          DO JJ=1,4
           IF(I2==IRECT(JJ,IE(NE)))THEN
             J2 = JJ
@@ -1205,17 +1385,18 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  I25NEIGH_SEG_E                source/interfaces/inter3d1/i25neigh.F
-Chd|-- called by -----------
-Chd|        I25NEIGH_SEG_EN               source/interfaces/inter3d1/i25neigh.F
-Chd|-- calls ---------------
-Chd|        ADD_ID                        source/interfaces/inter3d1/i24tools.F
-Chd|        INTAB                         source/interfaces/inter3d1/i24tools.F
-Chd|        SAME_SEG                      source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    i25neigh_seg_e    ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- called by ------------------------------------------------------
+!||    i25neigh          ../starter/source/interfaces/inter3d1/i25neigh.F
+!||    i25neigh_seg_en   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- calls      -----------------------------------------------------
+!||    add_id            ../starter/source/interfaces/inter3d1/i24tools.F
+!||    intab             ../starter/source/interfaces/inter3d1/i24tools.F
+!||    same_seg          ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE I25NEIGH_SEG_E(N1,IED1,N2,IED2,N,IC,ISELF,
-     .                      I1,I2,IRECT,NRTM,MSEGTYP,MVOISIN)
+     .                          I1,I2,IRECT,NRTM,MSEGTYP,MVOISIN)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1223,7 +1404,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1251,7 +1431,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NEW,K,M,LING,NE,NN,JJ,J1,J2
+      INTEGER I,J,NEW,K,M,LING,NE,NN,JJ,J1,J2,NOK,KK
       DATA LING/0/
 C----add I25NEIGH_un ID--at end--------------------------
       IF (I1==I2) THEN
@@ -1290,9 +1470,33 @@ C
      .                    (IABS(MSEGTYP(ISELF)) <= NRTM .AND. IABS(MSEGTYP(NEW)) > NRTM))) THEN
 C            Triangles ::
              IF(IRECT(3,NEW)==IRECT(4,NEW).AND.J2==3.AND.J1==1) J2=4
+             NOK = 0
+
+             IF(IRECT(3,ISELF)==IRECT(4,ISELF)) THEN
+                DO JJ=1,4
+                   IF(IRECT(JJ,ISELF)/=I1.AND.IRECT(JJ,ISELF)/=I2) THEN
+                     DO KK=1,4
+                        IF(KK/=J1.AND.KK/=J2) THEN
+                          IF (IRECT(JJ,ISELF)==IRECT(KK,NEW)) NOK = 1 
+                        ENDIF
+                     ENDDO
+                   ENDIF
+                ENDDO
+             ENDIF
+             IF(IRECT(3,NEW)==IRECT(4,NEW)) THEN
+                DO JJ=1,4
+                   IF(JJ/=J1.AND.JJ/=J2) THEN
+                     DO KK=1,4
+                        IF(IRECT(KK,ISELF)/=I1.AND.IRECT(KK,ISELF)/=I2) THEN
+                          IF (IRECT(JJ,NEW)==IRECT(KK,ISELF)) NOK = 1 
+                        ENDIF
+                     ENDDO
+                   ENDIF
+                ENDDO
+             ENDIF
 C
 C            Does not consider NEW if NEW is already neighbor of another segment.            
-             IF(MVOISIN(J2,NEW)==0) CALL ADD_ID(N,IC,NEW)
+             IF(MVOISIN(J2,NEW)==0.AND.NOK==0) CALL ADD_ID(N,IC,NEW)
 C
           end if
         END IF
@@ -1303,14 +1507,14 @@ C----add 0 for IC if find nothing -> consisting w/ ICN------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  I25NEIGH_REMOVEALLBUT1        source/interfaces/inter3d1/i25neigh.F
-Chd|-- called by -----------
-Chd|        I25NEIGH_SEG_EN               source/interfaces/inter3d1/i25neigh.F
-Chd|-- calls ---------------
-Chd|        NORMA4N                       source/interfaces/inter3d1/norma1.F
-Chd|        NORMV3                        source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    i25neigh_removeallbut1   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- called by ------------------------------------------------------
+!||    i25neigh_seg_en          ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- calls      -----------------------------------------------------
+!||    norma4n                  ../starter/source/interfaces/inter3d1/norma1.F
+!||    normv3                   ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE I25NEIGH_REMOVEALLBUT1(N,IC,ISELF,IRECT,X ,I1,I2,IRR)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -1319,7 +1523,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1330,7 +1533,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,J1,J2,INV,ipr
+      INTEGER I,J,J1,J2,INV
       my_real
      .   S,YJ(3,N),YI(3),Y0(3),YJNI(N),ANGLE(N),SMIN,NORM,
      .   NXI,NYI,NZI,X12,Y12,Z12,NXJ,NYJ,NZJ,SMAX
@@ -1409,7 +1612,7 @@ C--------groupe YJ*Ni<0 :convex keep angle (min_cos) only
         END IF !(J==N) then
 C ------still no valid one-----------       
         IF (J1==0) then
-c        print *,'***warning** No valid Neighbour Segs of',N,' candidats'
+c        print *,'***warning** No valid Neighbour Segs of',N,' CANDIDATES'
          IRR = 11
          IC(1)=0         
         ELSE
@@ -1421,12 +1624,13 @@ c        print *,'***warning** No valid Neighbour Segs of',N,' candidats'
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  I25NEIGH_SEG_OPP              source/interfaces/inter3d1/i25neigh.F
-Chd|-- called by -----------
-Chd|        I25NEIGH_SEG_EN               source/interfaces/inter3d1/i25neigh.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i25neigh_seg_opp   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- called by ------------------------------------------------------
+!||    i25neigh_seg_en    ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- calls      -----------------------------------------------------
+!||    intab              ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE I25NEIGH_SEG_OPP(EI,EJ,IRECT,X ,IOP)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -1435,7 +1639,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1443,7 +1646,7 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   X(3,*)
-C----if the normals of two segements are opposite or near opposite
+C----if the normals of two segments are opposite or near opposite
 C----if two common segs, will also be eliminated 
 C-----------------------------------------------
 C   External function
@@ -1528,29 +1731,26 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  I25NEIGH_MSG_ERR              source/interfaces/inter3d1/i25neigh.F
-Chd|-- called by -----------
-Chd|        I25NEIGH                      source/interfaces/inter3d1/i25neigh.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i25neigh_msg_err   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- called by ------------------------------------------------------
+!||    i25neigh           ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I25NEIGH_MSG_ERR(I1,I2,ITAB,IRR)
       USE MESSAGE_MOD
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "scr03_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER I1,I2,ITAB(*),IRR

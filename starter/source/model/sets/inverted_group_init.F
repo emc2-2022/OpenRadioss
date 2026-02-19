@@ -1,43 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INVERTED_GROUP_INIT           source/model/sets/inverted_group_init.F
-Chd|-- called by -----------
-Chd|        COMPUTE_CONNECT_PARTELM       source/model/sets/compute_connect_partelm.F
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        INVERTED_GROUP_MOD            share/modules1/inverted_group_mod.F
-Chd|====================================================================
-        SUBROUTINE INVERTED_GROUP_INIT(MODE,INV_GROUP)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inverted_group_init       ../starter/source/model/sets/inverted_group_init.F
+!||--- called by ------------------------------------------------------
+!||    compute_connect_partelm   ../starter/source/model/sets/compute_connect_partelm.F
+!||    lectur                    ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    inverted_group_mod        ../starter/share/modules1/inverted_group_mod.F
+!||====================================================================
+        SUBROUTINE INVERTED_GROUP_INIT(MODE,INV_GROUP,NUMSPH)
 !$COMMENT
 !       INVERTED_GROUP_INIT description
 !       initialization of INV_GROUP structure (number of elm & part)
 !       
 !       INVERTED_GROUP_INIT organization :
-!           2 different modes :
+!           2 different modes:
 !           - MODE = 0 --> first initialization
 !           - MODE = 1 --> recomputation of the inverted connectivity
-!             the size does not change, the structure was alreay allocated,
+!             the size does not change, the structure was already allocated,
 !             flush to 0 the array 
 !$ENDCOMMENT
 C-----------------------------------------------
@@ -49,9 +49,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
@@ -60,9 +57,7 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
         INTEGER, INTENT(in) :: MODE
         TYPE(INVERTGROUP_STRUCT_) :: INV_GROUP
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
+        INTEGER, INTENT(IN) :: NUMSPH
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -84,6 +79,7 @@ C-----------------------------------------------
             INV_GROUP%SIZE_TG = NUMELTG
             INV_GROUP%SIZE_TRIA= NUMELTRIA
             INV_GROUP%SIZE_R = NUMELR        
+            INV_GROUP%SIZE_SPH = NUMSPH
         ELSE
         !   ---------------
         !   recompute the inverted connectivity : flush to 0
@@ -98,6 +94,7 @@ C-----------------------------------------------
             INV_GROUP%INDPARTTG( 1:MY_SIZE ) = 0
             INV_GROUP%INDPARTTRIA( 1:MY_SIZE ) = 0
             INV_GROUP%INDPARTR( 1:MY_SIZE ) = 0
+            INV_GROUP%INDPARTSPH( 1:MY_SIZE ) = 0
 
             MY_SIZE = INV_GROUP%SIZE_S
             INV_GROUP%PARTS( 1:MY_SIZE ) = 0
@@ -119,6 +116,9 @@ C-----------------------------------------------
 
             MY_SIZE = INV_GROUP%SIZE_R
             INV_GROUP%PARTR( 1:MY_SIZE ) = 0  
+
+            MY_SIZE = INV_GROUP%SIZE_SPH
+            INV_GROUP%PARTSPH( 1:MY_SIZE ) = 0
         !   ---------------  
         ENDIF
 !   ----------------------------------------

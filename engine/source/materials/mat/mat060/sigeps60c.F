@@ -1,39 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS60C                     source/materials/mat/mat060/sigeps60c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        INTER_RAT_V                   source/materials/mat/mat060/sigeps60c.F
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps60c     ../engine/source/materials/mat/mat060/sigeps60c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc        ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter        ../engine/source/tools/curve/finter.F
+!||    inter_rat_v   ../engine/source/materials/mat/mat060/sigeps60c.F
+!||    vinter        ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS60C(
      1     NEL0    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC  ,
      2     NPF    ,NPT0    ,IPT     ,IFLAG   ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0   ,
-     3     AREA   ,EINT   ,THKLY   ,
+     3     AREA   ,EINT   ,THKLY   ,ISRATE  ,ASRATE ,
      4     EPSPXX ,EPSPYY ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
      5     DEPSXX ,DEPSYY ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
      6     EPSXX  ,EPSYY  ,EPSXY   ,EPSYZ   ,EPSZX  ,
@@ -42,8 +42,8 @@ Chd|====================================================================
      9     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
      A     SOUNDSP,VISCMAX,THK     ,PLA     ,UVAR   ,
      B     OFF    ,NGL    ,IPM     ,MAT     ,ETSE   ,
-     C     GS     ,YLD    ,EPSP    ,ISRATE  ,DPLA_I ,
-     D     SHF    ,INLOC  ,DPLANL  )
+     C     GS     ,YLD    ,EPSD_PG ,EPSP    ,DPLA_I ,
+     D     SHF    ,INLOC  ,DPLANL  ,LOFF    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -94,7 +94,7 @@ C SIGVXX  | NEL0    | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL0    | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL0    | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL0    | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL0    | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C THK     | NEL0    | F |R/W| THICKNESS
 C PLA     | NEL0    | F |R/W| PLASTIC STRAIN
@@ -104,9 +104,6 @@ C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
@@ -114,6 +111,9 @@ C-----------------------------------------------
 C
       INTEGER NEL0, NUPARAM, NUVAR, NPT0, IPT,IFLAG(*),
      .   NGL(NEL0),MAT(NEL0),ISRATE,IPM(NPROPMI,*),INLOC
+      my_real ,INTENT(IN) :: ASRATE
+      my_real ,DIMENSION(NEL0) ,INTENT(IN)    :: EPSD_PG !< global element strain rate in Gauss pt
+      my_real ,DIMENSION(NEL0) ,INTENT(INOUT) :: EPSP    !< local strain rate used in equations
       my_real TIME,TIMESTEP,UPARAM(*),
      .   AREA(NEL0),RHO0(NEL0),EINT(NEL0,2),
      .   THKLY(NEL0),PLA(NEL0),
@@ -125,8 +125,8 @@ C
      .   EPSXY(NEL0) ,EPSYZ(NEL0) ,EPSZX(NEL0) ,
      .   SIGOXX(NEL0),SIGOYY(NEL0),
      .   SIGOXY(NEL0),SIGOYZ(NEL0),SIGOZX(NEL0),
-     .   GS(*)       ,EPSP(NEL0),SHF(NEL0),
-     .   DPLANL(NEL0)
+     .   GS(*)       ,SHF(NEL0), DPLANL(NEL0)
+      my_real, DIMENSION(NEL0), INTENT(IN) :: LOFF
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -157,41 +157,41 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NRATE(MVSIZ),J1(MVSIZ),J2(MVSIZ),N,NINDX,NMAX,IADBUF,NFUNC,
+      INTEGER I, J, J1(MVSIZ), J2(MVSIZ), N, NINDX, NMAX, IADBUF, NFUNC, 
      .        IAD1(MVSIZ),IPOS1(MVSIZ),ILEN1(MVSIZ),
      .        IAD2(MVSIZ),IPOS2(MVSIZ),ILEN2(MVSIZ),
      .        IAD3(MVSIZ),IPOS3(MVSIZ),ILEN3(MVSIZ),
      .        IAD4(MVSIZ),IPOS4(MVSIZ),ILEN4(MVSIZ),
-     .        JJ(MVSIZ),INDEX(MVSIZ),IFUNC(MVSIZ,100),NRATEM,
-     .        NRATE1,IFUNC1(100),IADBUFV(MVSIZ),NFUNCV(MVSIZ),
-     .        NFUNCM, J3(MVSIZ), J4(MVSIZ), NN, INDEX1,MOPTE,MEINF,MCE,IFUNCE
+     . JJ(MVSIZ),INDEX(MVSIZ),
+     . NRATE1,IFUNC1(100),
+     . J3(MVSIZ), J4(MVSIZ),IFUNCE
       my_real 
      .        E(MVSIZ),A1(MVSIZ),A2(MVSIZ),G(MVSIZ),G3(MVSIZ),
      .        DYDX1(MVSIZ),DYDX2(MVSIZ),RATE(MVSIZ,4),SVM(MVSIZ),
      .        Y1(MVSIZ),Y2(MVSIZ),DR(MVSIZ),
-     .        YFAC(MVSIZ,4),NNU1(MVSIZ),NU1(MVSIZ),
-     .        NU2(MVSIZ),NU3(MVSIZ),NU4(MVSIZ),NU5(MVSIZ),NU6(MVSIZ),
+     . YFAC(MVSIZ,4),
+     .
      .        AA(MVSIZ),BB(MVSIZ),DPLA_J(MVSIZ),     
-     .        PP(MVSIZ),QQ(MVSIZ),FAIL(MVSIZ),SVMO(MVSIZ),H(MVSIZ),
-     .        EPSMAX(MVSIZ),EPSR1(MVSIZ),EPSR2(MVSIZ),FISOKIN(MVSIZ),
+     . PP(MVSIZ),QQ(MVSIZ),FAIL(MVSIZ),H(MVSIZ),
+     .
      .        SIGEXX(MVSIZ),SIGEYY(MVSIZ),SIGEXY(MVSIZ),
-     .        HK(MVSIZ),NU(MVSIZ),Y3(MVSIZ),Y4(MVSIZ),
-     .        DYDX3(MVSIZ),DYDX4(MVSIZ),EINF(MVSIZ),
-     .        CE(MVSIZ),ESCALE(MVSIZ),E0(MVSIZ),DYDXE(MVSIZ)
+     . HK(MVSIZ),Y3(MVSIZ),Y4(MVSIZ),
+     . DYDX3(MVSIZ),DYDX4(MVSIZ),
+     . ESCALE(MVSIZ),DYDXE(MVSIZ)
       my_real
-     .        R,UMR,A,B,C,AMU,S11,S22,S12,P,P2,FAC,DEZZ,
-     .        SIGZ,S1,S2,S3,DPLA,VM2,EPST,NNU2,CE1, EINF1,
-     .        ERR,F,DF,PLA_I,Q2,YLD_I,SIGPXX,SIGPYY,SIGPXY,
+     . R,UMR,A,B,C,S11,S22,S12,P,P2,FAC,DEZZ,
+     . SIGZ,S1,S2,S3,VM2,EPST,NNU2,CE1, EINF1,
+     . F,DF,Q2,YLD_I,SIGPXX,SIGPYY,SIGPXY,
      .        ALPHA,
      .        E1,A11,A21,G1,G31,NNU11,NU11,NU21,NU31,NU41,NU51,NU61,
      .        EPSMAX1,EPSR11,EPSR21,FISOKIN1,
      .        DSXX,DSYY,DSXY,DEXX,DEYY,DEXY,NUX, X(MVSIZ)
       my_real
-     .        ME, MA1, MA2, MG, MNU,
-     .        MEPSMAX,MEPSR1,MEPSR2,MFISOKIN, 
+     .
+     .
      .        Y11(MVSIZ), Y22(MVSIZ), Y33(MVSIZ), Y44(MVSIZ), Y(MVSIZ),YP(MVSIZ),
      .        X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), X4(MVSIZ)
-      INTEGER JST(MVSIZ+1), IC, MNRATE, OPTE1,OPTE(MVSIZ)
+      INTEGER OPTE1
 C
       DATA NMAX/3/
 C-----------------------------------------------
@@ -252,8 +252,8 @@ c-----------------------------
            ENDIF
           ENDDO
        ENDIF                                                                  
-       IF(EPSMAX1.EQ.0.)THEN
-         IF(TF(NPF(IFUNC1(1)+1)-1).EQ.ZERO)THEN
+       IF(EPSMAX1==0.)THEN
+         IF(TF(NPF(IFUNC1(1)+1)-1)==ZERO)THEN
            EPSMAX1=TF(NPF(IFUNC1(1)+1)-2)
          ELSE
            EPSMAX1= EP30
@@ -273,8 +273,8 @@ C
        EPSR21 =UPARAM(IADBUF+6+2*NRATE1+3)
        FISOKIN1=UPARAM(IADBUF+6+2*NRATE1+8)
 C
-       IF (ISIGI.EQ.0) THEN
-       IF(TIME.EQ.ZERO)THEN
+       IF (ISIGI==0) THEN
+       IF(TIME==ZERO)THEN
          DO I=1,NEL0
            UVAR(I,1)=ZERO
            UVAR(I,2)=ZERO
@@ -316,10 +316,13 @@ C-------------------
 C     STRAIN RATE
 C-------------------
 C
-         IF (ISRATE.EQ.0) EPSP(I) = 
-     .     HALF*( ABS(EPSPXX(I)+EPSPYY(I))
-     .   + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
-     .                 + EPSPXY(I)*EPSPXY(I) ) )
+         IF (ISRATE==0) THEN
+           EPSP(I) = HALF*( ABS(EPSPXX(I)+EPSPYY(I))
+     .             + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
+     .             + EPSPXY(I)*EPSPXY(I) ) )
+         ELSE
+           EPSP(I) = ASRATE*EPSD_PG(I) + (ONE-ASRATE)*EPSP(I)
+         ENDIF
 C-------------------
 C     STRAIN 
 C-------------------
@@ -337,20 +340,20 @@ C-------------------
          JJ(I) = 1
        ENDDO
        IADBUF = IPM(7,MAT(1)) - 1
-Cel inversion boucles
+C   inversion boucles
        DO J=2,NRATE1-1
          DO I=1,NEL0
-           IF(EPSP(I).GE.UPARAM(IADBUF+6+J)) JJ(I) = J
+           IF(EPSP(I)>=UPARAM(IADBUF+6+J)) JJ(I) = J
          ENDDO
        ENDDO
 #include "vectorize.inc"
        DO I=1,NEL0
-         IF(JJ(I).EQ.1)THEN 
+         IF(JJ(I)==1)THEN 
            J1(I) = JJ(I)
            J2(I) = J1(I)+1
            J3(I) = J2(I)+1
            J4(I) = J3(I)+1 
-          ELSEIF(JJ(I).EQ.(NRATE1-1))THEN
+          ELSEIF(JJ(I)==(NRATE1-1))THEN
            J1(I) = JJ(I) - 2
            J2(I) = J1(I)+1 
            J3(I) = J2(I)+1 
@@ -376,12 +379,12 @@ Cel inversion boucles
 C
 #include "vectorize.inc"
        DO I=1,NEL0
-        IF(JJ(I).EQ.1)THEN 
+        IF(JJ(I)==1)THEN 
           J1(I) = JJ(I)
           J2(I) = J1(I)+1
           J3(I) = J2(I)+1
           J4(I) = J3(I)+1 
-         ELSEIF(JJ(I).EQ.(NRATE1-1))THEN
+         ELSEIF(JJ(I)==(NRATE1-1))THEN
           J1(I) = JJ(I) - 2
           J2(I) = J1(I)+1 
           J3(I) = J2(I)+1 
@@ -415,11 +418,11 @@ C
        CALL VINTER(TF,IAD4,IPOS4,ILEN4,NEL0,PLA,DYDX4,Y4)
 C
 C
-       IF (FISOKIN1.EQ.0.) THEN
+       IF (FISOKIN1==0.) THEN
 !       ------------------------
 #include "vectorize.inc"
         DO I=1,NEL0
-          IF(JJ(I).EQ.1)THEN 
+          IF(JJ(I)==1)THEN 
             J1(I) = JJ(I)
             J2(I) = J1(I)+1
             J3(I) = J2(I)+1
@@ -428,7 +431,7 @@ C
             DYDX2 (I) = DYDX2(I)*YFAC(I,2)          
             FAC   = (EPSP(I) - RATE(I,1))/(RATE(I,2) - RATE(I,1)) 
             H(I)   = FAIL(I)*(DYDX1(I) + FAC*(DYDX2(I)-DYDX1(I)))
-           ELSEIF(JJ(I).EQ.(NRATE1-1))THEN
+           ELSEIF(JJ(I)==(NRATE1-1))THEN
             J1(I) = JJ(I) - 2
             J2(I) = J1(I)+1 
             J3(I) = J2(I)+1 
@@ -468,10 +471,10 @@ C
         YLD(1:NEL0) = FAIL(1:NEL0)*Y(1:NEL0)
         YLD(1:NEL0) = MAX(YLD(1:NEL0),EM20)
 !       ------------------------
-       ELSEIF (FISOKIN1.EQ.ONE) THEN
+       ELSEIF (FISOKIN1==ONE) THEN
 #include "vectorize.inc"
         DO I=1,NEL0
-           IF(JJ(I).EQ.1)THEN 
+           IF(JJ(I)==1)THEN 
             J1(I) = JJ(I)
             J2(I) = J1(I)+1
             J3(I) = J2(I)+1
@@ -480,7 +483,7 @@ C
             DYDX2 (I) = DYDX2(I)*YFAC(I,2)          
             FAC   = (EPSP(I) - RATE(I,1))/(RATE(I,2) - RATE(I,1)) 
             H(I)   = FAIL(I)*(DYDX1(I) + FAC*(DYDX2(I)-DYDX1(I)))
-           ELSEIF(JJ(I).EQ.(NRATE1-1))THEN
+           ELSEIF(JJ(I)==(NRATE1-1))THEN
             J1(I) = JJ(I) - 2
             J2(I) = J1(I)+1 
             J3(I) = J2(I)+1 
@@ -522,7 +525,7 @@ C       ECROUISSAGE CINEMATIQUE
        ELSE
 #include "vectorize.inc"
         DO I=1,NEL0
-           IF(JJ(I).EQ.1)THEN 
+           IF(JJ(I)==1)THEN 
             J1(I) = JJ(I)
             J2(I) = J1(I)+1
             J3(I) = J2(I)+1
@@ -531,7 +534,7 @@ C       ECROUISSAGE CINEMATIQUE
             DYDX2 (I) = DYDX2(I)*YFAC(I,2)          
             FAC   = (EPSP(I) - RATE(I,1))/(RATE(I,2) - RATE(I,1)) 
             H(I)   = FAIL(I)*(DYDX1(I) + FAC*(DYDX2(I)-DYDX1(I)))
-           ELSEIF(JJ(I).EQ.(NRATE1-1))THEN
+           ELSEIF(JJ(I)==(NRATE1-1))THEN
             J1(I) = JJ(I) - 2
             J2(I) = J1(I)+1 
             J3(I) = J2(I)+1 
@@ -584,8 +587,8 @@ C       ECROUISSAGE CINEMATIQUE
 C-------------------
 C     PROJECTION
 C-------------------
-       IF(IFLAG(1).EQ.0)THEN
-C projection radiale 
+       IF(IFLAG(1)==0)THEN
+C radial projection 
          DO I=1,NEL0
            SVM(I)=SQRT(SIGNXX(I)*SIGNXX(I)
      .             +SIGNYY(I)*SIGNYY(I)
@@ -604,12 +607,12 @@ C projection radiale
              DEZZ=-(DEPSXX(I)+DEPSYY(I))*NNU11-NU31*DEZZ
              THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
            ENDIF
-           IF(R.LT.ONE) ETSE(I)= H(I)/(H(I)+E(I))
+           IF(R<ONE) ETSE(I)= H(I)/(H(I)+E(I))
          ENDDO
 C
-       ELSEIF(IFLAG(1).EQ.1)THEN
+       ELSEIF(IFLAG(1)==1)THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     von mises criterion
 C-------------------------
          DO I=1,NEL0
            H(I) = MAX(ZERO,H(I))
@@ -629,13 +632,13 @@ C     GATHER PLASTIC FLOW
 C-------------------------
          NINDX=0
          DO I=1,NEL0
-           IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+           IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
              NINDX=NINDX+1
              INDEX(NINDX)=I
            ENDIF
          ENDDO
 C
-         IF(NINDX.NE.0) THEN
+         IF(NINDX/=0) THEN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
@@ -663,7 +666,7 @@ C
      .         *(E(I)- TWO*DR(I)*HK(I))/YLD_I
      .         - TWO*HK(I)*YLD_I
              DF = SIGN(MAX(ABS(DF),EM20),DF)
-             IF(DPLA_I(I).GT.ZERO) THEN
+             IF(DPLA_I(I)>ZERO) THEN
                DPLA_J(I)=MAX(ZERO,DPLA_I(I)-F/DF)
              ELSE
                DPLA_J(I)=ZERO
@@ -689,11 +692,11 @@ C------------------------------------------
           ENDDO
          ENDIF
 C-------------------------------------------
-       ELSEIF(IFLAG(1).EQ.2)THEN
-C projection radial sur le deviateur sur un critere reduit
-C projection elastique en z => sig33 = 0
-C le coef. de reduction du critere est tel que 
-C l'on se trouve sur le critere apres les 2 projections
+       ELSEIF(IFLAG(1)==2)THEN
+C radial projection on the deviator on a reduced criterion
+C Elastic projection in z => sig33 = 0
+C the criterion reduction coefficient is such that
+C one is on the criterion after the 2 projections
          DO I=1,NEL0
            P   = -(SIGNXX(I)+SIGNYY(I))*THIRD
            S11 = SIGNXX(I)+P
@@ -723,18 +726,18 @@ C
              DEZZ=-(DEPSXX(I)+DEPSYY(I))*NNU11-NU31*DEZZ
              THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
            ENDIF
-           IF(R.LT.ONE) ETSE(I)= H(I)/(H(I)+E(I))
+           IF(R<ONE) ETSE(I)= H(I)/(H(I)+E(I))
          ENDDO
        ENDIF
 C
        DO I=1,NEL0
-         IF(PLA(I).GT.EPSMAX1.AND.OFF(I).EQ.ONE)OFF(I)=FOUR_OVER_5
+         IF(PLA(I)>EPSMAX1.AND.OFF(I)==ONE)OFF(I)=FOUR_OVER_5
        ENDDO
 C------------------------------------------
 C     ECROUISSAGE CINE
 C------------------------------------------
-Cel test bypass
-       IF (FISOKIN1.NE.ZERO) THEN
+C   test bypass
+       IF (FISOKIN1/=ZERO) THEN
         DO I=1,NEL0
           DSXX = SIGEXX(I) - SIGNXX(I)
           DSYY = SIGEYY(I) - SIGNYY(I)
@@ -759,25 +762,26 @@ C     NON-LOCAL THICKNESS VARIATION
 C--------------------------------
       IF (INLOC > 0) THEN
         DO I = 1,NEL0 
-          SVM(I) = SQRT(SIGNXX(I)*SIGNXX(I)
-     .           + SIGNYY(I)*SIGNYY(I)
-     .           - SIGNXX(I)*SIGNYY(I)
-     .           + THREE*SIGNXY(I)*SIGNXY(I))
-          DEZZ   = MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/MAX(SVM(I),EM20)
-          DEZZ   = -NUX*((SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/E1) - DEZZ
-          THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)     
+          IF (LOFF(I) == ONE) THEN 
+            SVM(I) = SQRT(SIGNXX(I)*SIGNXX(I)
+     .             + SIGNYY(I)*SIGNYY(I)
+     .             - SIGNXX(I)*SIGNYY(I)
+     .             + THREE*SIGNXY(I)*SIGNXY(I))
+            DEZZ   = MAX(DPLANL(I),ZERO)*HALF*(SIGNXX(I)+SIGNYY(I))/MAX(SVM(I),EM20)
+            DEZZ   = -NUX*((SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/E1) - DEZZ
+            THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I) 
+          ENDIF    
         ENDDO  
       ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INTER_RAT                     source/materials/mat/mat060/sigeps60c.F
-Chd|-- called by -----------
-Chd|        SIGEPS60                      source/materials/mat/mat060/sigeps60.F
-Chd|        SIGEPS60G                     source/materials/mat/mat060/sigeps60g.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    inter_rat   ../engine/source/materials/mat/mat060/sigeps60c.F
+!||--- called by ------------------------------------------------------
+!||    sigeps60    ../engine/source/materials/mat/mat060/sigeps60.F
+!||    sigeps60g   ../engine/source/materials/mat/mat060/sigeps60g.F
+!||====================================================================
       SUBROUTINE INTER_RAT(X0,X1,X2,X3,Y0,Y1,Y2,Y3,X,Y,YP,I,N)
 C
 C     INTERPOLATION (RATIONAL FUNCTION)
@@ -798,8 +802,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 C     REAL
       my_real
-     .   Q, D, R, S, SP, C2, DM, SM, C1, C6, C4, C3, C3D, C5,
-     .   A1, A0, A2, T, Y11
+     .   Q, D, R, S, SP, C2, DM, SM, C1, C6, C4, C3, C3D, C5
 C
       Q = X-X1
       D = X2-X1
@@ -813,8 +816,8 @@ C
       C1 = (S-SM) / (D+DM)
       C6 = 0.
 C
-      IF(I.EQ.1)THEN
-          IF(X.LE.X0) THEN
+      IF(I==1)THEN
+          IF(X<=X0) THEN
            C1 = ZERO
            C2 = ZERO
            SM = ZERO
@@ -828,7 +831,7 @@ C
           C3 = ABS(C2*R)
           C3D = C3+ABS(C1*Q)
           C5 = ZERO
-        IF(C3D.GT.ZERO) THEN
+        IF(C3D>ZERO) THEN
           C3 = C3/C3D
           C5 = C3*(C1-C2)
         ENDIF
@@ -836,8 +839,8 @@ C
         C6 = D*C5*(ONE - C3)
         Y = Y0 + Q*(SM-R*C4)
         YP = SM+(Q-R)*C4+C6
-      ELSE IF(I.EQ.N-1)THEN
-        IF(SP.EQ.ZERO.OR.(X.GT.X3)) THEN
+      ELSE IF(I==N-1)THEN
+        IF(SP==ZERO.OR.(X>X3)) THEN
           C1 = ZERO
           C2 = ZERO        
          ELSE
@@ -850,7 +853,7 @@ C
            C3 = ABS(C2*R)
            C3D = C3+ABS(C1*Q)
            C5 = ZERO
-           IF(C3D.GT.ZERO) THEN
+           IF(C3D>ZERO) THEN
            C3 = C3/C3D
            C5 = C3*(C1-C2)
            ENDIF
@@ -859,11 +862,11 @@ C
            Y = Y2 + (X - X2)*(SP-(X3 - X)*C4)
            YP = SP+(Q-R)*C4+C6
       ELSE
-        IF(I.EQ.2.AND.SM*(SM-DM*C1).LE.ZERO)C1=(S-SM-SM) / D
+        IF(I==2.AND.SM*(SM-DM*C1)<=ZERO)C1=(S-SM-SM) / D
         C3 = ABS(C2*R)
         C3D = C3+ABS(C1*Q)
         C5 = ZERO
-        IF(C3D.GT.ZERO) THEN
+        IF(C3D>ZERO) THEN
           C3 = C3/C3D
           C5 = C3*(C1-C2)
         ENDIF
@@ -877,12 +880,11 @@ C
       END
 
 
-Chd|====================================================================
-Chd|  INTER_RAT_V                   source/materials/mat/mat060/sigeps60c.F
-Chd|-- called by -----------
-Chd|        SIGEPS60C                     source/materials/mat/mat060/sigeps60c.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    inter_rat_v   ../engine/source/materials/mat/mat060/sigeps60c.F
+!||--- called by ------------------------------------------------------
+!||    sigeps60c     ../engine/source/materials/mat/mat060/sigeps60c.F
+!||====================================================================
       SUBROUTINE INTER_RAT_V(NEL0,X0,X1,X2,X3,Y0,Y1,Y2,Y3,X,Y,YP,JJ,N)
 !
 !     INTERPOLATION (RATIONAL FUNCTION)
@@ -926,8 +928,8 @@ C
 #include "vectorize.inc"
         DO I=1,NEL0       
                 ! ------------------- 
-                IF(JJ(I).EQ.1)THEN
-                        IF(X(I).LE.X0(I)) THEN
+                IF(JJ(I)==1)THEN
+                        IF(X(I)<=X0(I)) THEN
                                 C1(I) = ZERO
                                 C2(I) = ZERO
                                 SM(I) = ZERO
@@ -941,7 +943,7 @@ C
                         C3(I) = ABS(C2(I)*R(I))
                         C3D(I) = C3(I)+ABS(C1(I)*Q(I))
                         C5(I) = ZERO
-                        IF(C3D(I).GT.ZERO) THEN
+                        IF(C3D(I)>ZERO) THEN
                                 C3(I) = C3(I)/C3D(I)
                                 C5(I) = C3(I)*(C1(I)-C2(I))
                         ENDIF
@@ -950,8 +952,8 @@ C
                         Y(I) = Y0(I) + Q(I)*(SM(I)-R(I)*C4(I))
                         YP(I) = SM(I)+(Q(I)-R(I))*C4(I)+C6(I)
                 ! ------------------- 
-                ELSE IF(JJ(I).EQ.N-1)THEN
-                        IF(SP(I).EQ.ZERO.OR.(X(I).GT.X3(I))) THEN
+                ELSE IF(JJ(I)==N-1)THEN
+                        IF(SP(I)==ZERO.OR.(X(I)>X3(I))) THEN
                                 C1(I) = ZERO
                                 C2(I) = ZERO        
                         ELSE
@@ -964,7 +966,7 @@ C
                         C3(I) = ABS(C2(I)*R(I))
                         C3D(I) = C3(I)+ABS(C1(I)*Q(I))
                         C5(I) = ZERO
-                        IF(C3D(I).GT.ZERO) THEN
+                        IF(C3D(I)>ZERO) THEN
                                 C3(I) = C3(I)/C3D(I)
                                 C5(I) = C3(I)*(C1(I)-C2(I))
                         ENDIF
@@ -974,11 +976,11 @@ C
                         YP(I) = SP(I)+(Q(I)-R(I))*C4(I)+C6(I)
                 ! ------------------- 
                 ELSE
-                        IF(JJ(I).EQ.2.AND.SM(I)*(SM(I)-DM(I)*C1(I)).LE.ZERO)C1(I)=(S(I)-SM(I)-SM(I)) / D(I)
+                        IF(JJ(I)==2.AND.SM(I)*(SM(I)-DM(I)*C1(I))<=ZERO)C1(I)=(S(I)-SM(I)-SM(I)) / D(I)
                         C3(I) = ABS(C2(I)*R(I))
                         C3D(I) = C3(I)+ABS(C1(I)*Q(I))
                         C5(I) = ZERO
-                        IF(C3D(I).GT.ZERO) THEN
+                        IF(C3D(I)>ZERO) THEN
                                 C3(I) = C3(I)/C3D(I)
                                 C5(I) = C3(I)*(C1(I)-C2(I))
                         ENDIF

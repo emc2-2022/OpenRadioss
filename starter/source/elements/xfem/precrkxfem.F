@@ -1,35 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PRECRKXFEM                    source/elements/xfem/precrkxfem.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ADDCNE_XFE                    source/elements/xfem/precrkxfem.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    precrkxfem    ../starter/source/elements/xfem/precrkxfem.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    addcne_xfe    ../starter/source/elements/xfem/precrkxfem.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PRECRKXFEM(
      .           IPARG      ,IXC         ,IXTG          , NCRKXFE    ,      
      .           IEL_CRKXFEM,INOD_CRKXFEM,ADDCNE_CRKXFEM)  
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -84,12 +86,11 @@ c-----------
       RETURN
       END
 c
-Chd|====================================================================
-Chd|  ADDCNE_XFE                    source/elements/xfem/precrkxfem.F
-Chd|-- called by -----------
-Chd|        PRECRKXFEM                    source/elements/xfem/precrkxfem.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    addcne_xfe   ../starter/source/elements/xfem/precrkxfem.F
+!||--- called by ------------------------------------------------------
+!||    precrkxfem   ../starter/source/elements/xfem/precrkxfem.F
+!||====================================================================
       SUBROUTINE ADDCNE_XFE(IEL_CRKXFEM ,KX   ,NIX  ,IX    ,ADDCNE_CRKXFEM,
      .                      INOD_CRKXFEM,LFT  ,LLT  ,NFT   ,NCRKXFE       )
 C-----------------------------------------------
@@ -110,7 +111,7 @@ C=======================================================================
       DO  K=2,KX
         DO I=LFT,LLT
           IF (IEL_CRKXFEM(I+NFT) > 0) THEN
-            N = INOD_CRKXFEM(IX(K,I+NFT)) + 1     ! numerotation locale des noeuds phantomes
+            N = INOD_CRKXFEM(IX(K,I+NFT)) + 1     ! Local number of ghost nodes
             ADDCNE_CRKXFEM(N) = ADDCNE_CRKXFEM(N) + 1
           ENDIF
         ENDDO

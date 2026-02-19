@@ -1,51 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECINS                        source/interfaces/interf1/lecins.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ELTY_SURF                     source/interfaces/interf1/lecins.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        I11EDGE                       source/interfaces/inter3d1/i11edge.F
-Chd|        I20SURFI                      source/interfaces/inter3d1/i20surfi.F
-Chd|        I24SURFI                      source/interfaces/inter3d1/i24surfi.F
-Chd|        I25SURFI                      source/interfaces/inter3d1/i25surfi.F
-Chd|        INGRBRIC                      source/interfaces/interf1/ingrbric.F
-Chd|        INGRBRIC_CENTROIDS            source/interfaces/interf1/ingrbric_centroids.F
-Chd|        INGRBRIC_NODES                source/interfaces/interf1/ingrbric_nodes.F
-Chd|        INPOINT                       source/interfaces/interf1/inpoint.F
-Chd|        INSLIN                        source/interfaces/interf1/inslin.F
-Chd|        INSURF                        source/interfaces/interf1/insurf.F
-Chd|        INSURF23                      source/interfaces/interf1/insurf23.F
-Chd|        INSURFIGEO                    source/interfaces/interf1/insurfigeo.F
-Chd|        NSEGMT                        source/interfaces/interf1/nsegmt.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lecins                 ../starter/source/interfaces/interf1/lecins.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    elty_surf              ../starter/source/interfaces/interf1/lecins.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    i11edge                ../starter/source/interfaces/inter3d1/i11edge.F
+!||    i20surfi               ../starter/source/interfaces/inter3d1/i20surfi.F
+!||    i24surfi               ../starter/source/interfaces/inter3d1/i24surfi.F
+!||    i25surfi               ../starter/source/interfaces/inter3d1/i25surfi.F
+!||    i2_surfi               ../starter/source/interfaces/inter3d1/i2_surfi.F90
+!||    ingrbric               ../starter/source/interfaces/interf1/ingrbric.F
+!||    ingrbric_centroids     ../starter/source/interfaces/interf1/ingrbric_centroids.F
+!||    ingrbric_nodes         ../starter/source/interfaces/interf1/ingrbric_nodes.F
+!||    inpoint                ../starter/source/interfaces/interf1/inpoint.F
+!||    inslin                 ../starter/source/interfaces/interf1/inslin.F
+!||    insurf                 ../starter/source/interfaces/interf1/insurf.F
+!||    insurf23               ../starter/source/interfaces/interf1/insurf23.F
+!||    insurfigeo             ../starter/source/interfaces/interf1/insurfigeo.F
+!||    nsegmt                 ../starter/source/interfaces/interf1/nsegmt.F
+!||--- uses       -----------------------------------------------------
+!||    i2_surfi_mod           ../starter/source/interfaces/inter3d1/i2_surfi.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LECINS(IPARI   ,ITAB       ,PM       ,IPM       ,BUFMAT  ,
      .                  IGRNOD  ,IGRSURF    ,IGRSLIN  ,XFILTR    ,STFAC   ,
      .                  FRIC_P  ,FRIGAP     ,I2RUPT   ,AREASL    ,LIXINT  ,
@@ -53,7 +53,8 @@ Chd|====================================================================
      .                  IXC     ,IXTG       ,KNOD2ELC ,KNOD2ELTG ,NOD2ELC ,
      .                  NOD2ELTG,INTBUF_TAB ,KNOD2ELS ,NOD2ELS   ,IXS10   ,
      .                  IXS16   ,IXS20      ,NIGE,RIGE,XIGE      ,VIGE    ,
-     .                  IGRBRIC ,MULTI_FVM  ,NALE)
+     .                  IGRBRIC ,MULTI_FVM  ,NALE     ,IGEO      ,INTERFACES,
+     .                  S_NOD2ELS,S_NOD2ELTG,FLAG_ELEM_INTER25   ,LIST_NIN25)
 C============================================================================
 C-----------------------------------------------
 C   M o d u l e s
@@ -62,55 +63,50 @@ C-----------------------------------------------
       USE INTBUFDEF_MOD
       USE GROUPDEF_MOD
       USE MULTI_FVM_MOD
+      USE INTERFACES_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE I2_SURFI_MOD ,         ONLY : I2_SURFI
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com02_c.inc"
-#include      "com03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
 #include      "scr17_c.inc"
-#include      "conv_c.inc"
-#include      "ige3d_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IPARI(NPARI,*), ITAB(NUMNOD),IXS(NIXS,NUMELS),
+      INTEGER IPARI(NPARI,NINTER), ITAB(NUMNOD),IXS(NIXS,NUMELS),
      .        IXC(*),IXTG(*),KNOD2ELC(*),KNOD2ELTG(*),
      .        NOD2ELC(*),NOD2ELTG(*),KNOD2ELS(*),NOD2ELS(*),
      .        IXS10(6,*), IXS16(8,*), IXS20(12,*),NIGE(*)
+      INTEGER ,INTENT(IN) :: S_NOD2ELS,S_NOD2ELTG
       INTEGER LIXINT, NBRIC
-      INTEGER,INTENT(IN) :: IPM(NPROPMI,NUMMAT)
+      INTEGER,INTENT(IN) :: IPM(NPROPMI,NUMMAT), IGEO(NPROPGI,NUMGEO)
       my_real,INTENT(IN) :: BUFMAT(SBUFMAT)
-      my_real
-     .   XFILTR(*),STFAC(*),FRIC_P(10,*),FRIGAP(NPARIR,*),
-     .   I2RUPT (6,*),AREASL(*),RIGE(*),XIGE(*),VIGE(*)
-      my_real
-     .   X(3,NUMNOD)
+      my_real :: XFILTR(*),STFAC(*),FRIC_P(10,NINTER),FRIGAP(NPARIR,NINTER)
+      my_real :: I2RUPT(6,NINTER),AREASL(*),RIGE(*),XIGE(*),VIGE(*)
+      my_real,INTENT(IN) :: X(3,NUMNOD)
       my_real, INTENT(IN) :: PM(*)
       INTEGER NOM_OPT(LNOPT1,*)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
-      INTEGER, INTENT(IN) :: NALE(NUMNOD)      
+      INTEGER, INTENT(IN) :: NALE(NUMNOD)   
+      INTEGER, INTENT(INOUT) :: LIST_NIN25(NINTER)
+      INTEGER, INTENT(INOUT) :: FLAG_ELEM_INTER25(NINTER25,NUMELS)   
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD)  :: IGRNOD
       TYPE (GROUP_)  , DIMENSION(NGRBRIC) :: IGRBRIC
       TYPE (SURF_)   , DIMENSION(NSURF) ,TARGET  :: IGRSURF
       TYPE (SURF_)   , DIMENSION(NSLIN) ,TARGET  :: IGRSLIN
-      TYPE(MULTI_FVM_STRUCT)                     :: MULTI_FVM      
+      TYPE(MULTI_FVM_STRUCT)                     :: MULTI_FVM    
+      TYPE (INTERFACES_) ,INTENT(INOUT):: INTERFACES  
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -120,7 +116,7 @@ C-----------------------------------------------
      .   ISU1,ISU2,NRTM0,NRTM_SH,
      .   NRTS_NEW, NRTM_NEW,IBID,INTTH,
      .   NRTM_IGE,NRTM_FE,NRTS_IGE,NRTS_FE,
-     .   NMN_IGE,NMN_FE,NSN_IGE,NSN_FE,INTNITSCHE,IAD_IGE,GRBRIC_ID
+     .   NMN_IGE,NMN_FE,NSN_IGE,NSN_FE,INTNITSCHE,IAD_IGE,GRBRIC_ID,NIN25
 
       INTEGER :: STAT
       INTEGER, DIMENSION(:), ALLOCATABLE, TARGET ::  NTAG_TARGET
@@ -129,8 +125,7 @@ C-----------------------------------------------
       LOGICAL TYPE18
       CHARACTER MESS*40
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       DATA MESS/'INTERFACE INPUT                         '/
 C=======================================================================
        ALLOCATE(NTAG_TARGET(2*NUMNOD+1), STAT=Stat)
@@ -141,6 +136,7 @@ C=======================================================================
         NTAG(K) = 0
        ENDDO
       LIXINT = 0
+      NIN25 = 0
 C---------------------
       DO NI = 1,LINTER
 C
@@ -165,7 +161,7 @@ C
         IRM    = 0
         IRS    = 0
 C- deactivated interfaces
-        IF (NTYP.EQ.0) CYCLE
+        IF (NTYP==0) CYCLE
 C-----Isogeometric elements
         IF(NTYP==7) THEN
          NRTM_IGE   = IPARI(73,NI)
@@ -190,15 +186,14 @@ C-----Isogeometric elements
         IF(NTYP==7 .AND. INACTI==7)TYPE18=.TRUE.
 C-------------------------------------------
         ID=NOM_OPT(1,NI)
-        CALL FRETITL2(TITR,
-     .                NOM_OPT(LNOPT1-LTITR+1,NI),LTITR)
+        CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,NI),LTITR)
 C-------------------------------------------
         INTBUF_TAB(NI)%STFAC(1) = STFAC(NI)
         DO J = 1,NPARIR
           INTBUF_TAB(NI)%VARIABLES(J) = FRIGAP(J,NI)
         ENDDO
 C-----
-C      LECTURE DES RENSEIGNEMENTS SURFACE SECOND/MAIN
+C      READING SURFACE INFORMATION SECONDARY/MAIN
 C-----
 C      1) SURFACE SECONDARY
 C
@@ -206,27 +201,27 @@ C
           IF(NRTS == 0) THEN
              CALL ANCMSG(MSGID=118, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=ID, C1=TITR)
           ENDIF
-          IF(IPRI.GE.1) WRITE(IOUT,'(//,A)')' SECONDARY SURFACE'
+          IF(IPRI>=1) WRITE(IOUT,'(//,A)')' SECONDARY SURFACE'
           SURF_NODES => IGRSURF(ISU1)%NODES(1:NRTS,1:4)
-          CALL INSURF(NRTS,NSN,IRS,INTBUF_TAB(NI)%IRECTS,NOINT,
+          CALL INSURF(NRTS,NSN,IRS,INTBUF_TAB(NI)%IRECTS,
      .                SURF_NODES,ITAB,INTBUF_TAB(NI)%NSV,ID,TITR,
-     .                NTAG,INTBUF_TAB(NI)%S_NSV,INTBUF_TAB(NI)%S_IRECTS,X,TYPE18)
+     .                NTAG,INTBUF_TAB(NI)%S_NSV,INTBUF_TAB(NI)%S_IRECTS,TYPE18)
         ELSEIF (NTYP == 17) THEN
         ELSEIF (NTYP == 20) THEN
         ELSEIF (NTYP == 22) THEN
-            IF(ISU1.GT.0)THEN
-              IF(IPRI.GE.1) WRITE(IOUT,'(//,A)')' SECONDARY SURFACE'
+            IF(ISU1>0)THEN
+              IF(IPRI>=1) WRITE(IOUT,'(//,A)')' SECONDARY SURFACE'
               NBRIC=IGRBRIC(ISU1)%NENTITY
-              CALL INGRBRIC(NSN,   NOINT,   IGRBRIC(ISU1)%ENTITY,   ITAB,  INTBUF_TAB(NI)%NSV,
-     +                      IXS,   NBRIC,   PM, INTBUF_TAB(NI)%S_NSV)
+              CALL INGRBRIC(NSN,   IGRBRIC(ISU1)%ENTITY, INTBUF_TAB(NI)%NSV,
+     +                      IXS,   NBRIC,   PM, INTBUF_TAB(NI)%S_NSV,IGEO)
            ENDIF
 C--------------------------------------------
         ELSEIF(NTYP == 23) THEN
-          IF(IS1.NE.0) THEN
-            IF(NRTS == 0.AND.IS1.NE.2) THEN
+          IF(IS1/=0) THEN
+            IF(NRTS == 0.AND.IS1/=2) THEN
               CALL ANCMSG(MSGID=118, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=ID, C1=TITR)
             ENDIF
-            IF(IPRI.GE.1) WRITE(IOUT,'(//,A)')' SECONDARY SURFACE'
+            IF(IPRI>=1) WRITE(IOUT,'(//,A)')' SECONDARY SURFACE'
             IF(IS1 == 1)THEN
               NRTS=IGRSURF(ISU1)%NSEG
               SURF_NODES => IGRSURF(ISU1)%NODES(1:NRTS,1:4)
@@ -243,18 +238,18 @@ c              CALL INPOINT(NSN,NOINT,IBUFSSG(IAD),ITAB,INTBUF_TAB(NI)%NSV)
 c            END IF
         ELSEIF (NTYP == 25) THEN
         ELSE
-          IF(IS1.NE.0) THEN
-            IF(NRTS == 0.AND.IS1.NE.2.AND.IS1.NE.5) THEN
+          IF(IS1/=0) THEN
+            IF(NRTS == 0.AND.IS1/=2.AND.IS1/=5.AND.IS1/=-1) THEN
               CALL ANCMSG(MSGID=118, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=ID, C1=TITR)
             ENDIF
-            IF(IPRI.GE.1) WRITE(IOUT,'(//,A)')' SECONDARY SURFACE'
+            IF(IPRI>=1) WRITE(IOUT,'(//,A)')' SECONDARY SURFACE'
             IF(IS1 == 1)THEN
               IF (NTYP == 3 .OR. NTYP == 6) IRS = IPARI(25,NI)
               SURF_NODES => IGRSURF(ISU1)%NODES(1:NRTS_FE,1:4)
-              CALL INSURF(NRTS_FE,NSN_FE,IRS,INTBUF_TAB(NI)%IRECTS,NOINT,
+              CALL INSURF(NRTS_FE,NSN_FE,IRS,INTBUF_TAB(NI)%IRECTS,
      .                   SURF_NODES,ITAB,INTBUF_TAB(NI)%NSV,ID,TITR,
-     .                   NTAG,INTBUF_TAB(NI)%S_NSV,INTBUF_TAB(NI)%S_IRECTS,X,TYPE18)
-              IF (IGRSURF(ISU1)%NSEG_IGE .GE. 1) THEN
+     .                   NTAG,INTBUF_TAB(NI)%S_NSV,INTBUF_TAB(NI)%S_IRECTS,TYPE18)
+              IF (IGRSURF(ISU1)%NSEG_IGE >= 1) THEN
                 SURF_NODES_IGE => IGRSURF(ISU1)%NODES_IGE(1:NRTS_IGE,1:4)
                 IAD_IGE = IGRSURF(ISU1)%IAD_IGE
                 CALL INSURFIGEO(NRTS_IGE,NRTS_FE,NSN_IGE,0,IAD_IGE,IRS,
@@ -274,11 +269,13 @@ c            END IF
               !INTER18 + GRBRIC_ID
               NBRIC = IGRBRIC(GRBRIC_ID)%NENTITY              
               IF (MULTI_FVM%IS_USED)THEN
-               CALL INGRBRIC_CENTROIDS(NOINT, IGRBRIC(GRBRIC_ID)%ENTITY, ITAB, INTBUF_TAB(NI)%NSV,
+               IPARI(14,NI) = 151
+               CALL INGRBRIC_CENTROIDS(IGRBRIC(GRBRIC_ID)%ENTITY, INTBUF_TAB(NI)%NSV,
      .                       IXS, NBRIC)                            
               ELSE
-               CALL INGRBRIC_NODES(    NSN_FE, NOINT, IGRBRIC(GRBRIC_ID)%ENTITY, ITAB, INTBUF_TAB(NI)%NSV,
-     .                       IXS, NBRIC, 2, NALE, IPM, BUFMAT, INTBUF_TAB(NI)%S_NSV)              
+               IPARI(14,NI) = 0
+               CALL INGRBRIC_NODES(NSN_FE, IGRBRIC(GRBRIC_ID)%ENTITY, ITAB, INTBUF_TAB(NI)%NSV,
+     .                       IXS, NBRIC, NALE, IPM, BUFMAT, INTBUF_TAB(NI)%S_NSV)
               ENDIF
             ENDIF
             IF (NTYP==3) THEN
@@ -296,7 +293,7 @@ C-----
           IF(NRTM == 0) THEN
              CALL ANCMSG(MSGID=119, MSGTYPE=MSGERROR, ANMODE=ANINFO,I1=ID,C1=TITR)
           ENDIF
-          IF(IPRI.GE.1) WRITE(IOUT,'(//,A,I10)')
+          IF(IPRI>=1) WRITE(IOUT,'(//,A,I10)')
      .    ' MAIN SURFACE IS THE HYPER-ELLIPSOIDAL SURFACE :',
      .      IGRSURF(ISU2)%ID
           INTBUF_TAB(NI)%KSURF(1)=ISU2
@@ -304,7 +301,7 @@ C-----
           IF(NRTM == 0) THEN
              CALL ANCMSG(MSGID=119, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=ID,C1=TITR)
           ENDIF
-          IF(IPRI.GE.1) WRITE(IOUT,'(//,A,I10)')
+          IF(IPRI>=1) WRITE(IOUT,'(//,A,I10)')
      .    ' MAIN SURFACE IS THE HYPER-ELLIPSOIDAL SURFACE :',
      .      IGRSURF(ISU2)%ID
           INTBUF_TAB(NI)%KSURF(1)=ISU2
@@ -312,11 +309,11 @@ C-----
 C       
 C--------------------------------------------
         ELSEIF( NTYP == 23) THEN
-          IF(IS2.NE.0) THEN
+          IF(IS2/=0) THEN
             IF(NRTM == 0) THEN
               CALL ANCMSG(MSGID=119, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=ID, C1=TITR)
             ENDIF
-            IF(IPRI.GE.1) WRITE(IOUT,'(//,A)')' MAIN SURFACE'
+            IF(IPRI>=1) WRITE(IOUT,'(//,A)')' MAIN SURFACE'
             IF(IS2 == 1)THEN
               NRTM=IGRSURF(ISU2)%NSEG
               SURF_NODES => IGRSURF(ISU2)%NODES(1:NRTM,1:4)
@@ -332,41 +329,41 @@ C--------------------------------------------
         ELSEIF (NTYP == 24) THEN
           NRTM_SH   = IPARI(42,NI)
           NRTM0   = NRTM -NRTM_SH
-          IF (IS2.NE.0) THEN
+          IF (IS2/=0) THEN
             IF(NRTM0 == 0) THEN
               CALL ANCMSG(MSGID=119, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=ID, C1=TITR)
             ENDIF
-            IF(IPRI.GE.1) WRITE(IOUT,'(//,A)')' MAIN SURFACE'
+            IF(IPRI>=1) WRITE(IOUT,'(//,A)')' MAIN SURFACE'
             IF(IS2 == -1)THEN
               NRTM0 = IGRSURF(ISU2)%NSEG
               SURF_NODES => IGRSURF(ISU2)%NODES(1:NRTM0,1:4)
-              CALL INSURF(NRTM0,NMN,IRM,INTBUF_TAB(NI)%IRECTM,NOINT,
+              CALL INSURF(NRTM0,NMN,IRM,INTBUF_TAB(NI)%IRECTM,
      .                    SURF_NODES,ITAB,INTBUF_TAB(NI)%MSR,ID,TITR,
-     .                    NTAG,INTBUF_TAB(NI)%S_MSR,INTBUF_TAB(NI)%S_IRECTM,X,TYPE18)
+     .                    NTAG,INTBUF_TAB(NI)%S_MSR,INTBUF_TAB(NI)%S_IRECTM,TYPE18)
             ENDIF
             IF(IS1/=-2)THEN
               NRTM0 = IGRSURF(ISU1)%NSEG
               SURF_NODES => IGRSURF(ISU1)%NODES(1:NRTM0,1:4)
-              CALL INSURF(NRTM0,NMN,IRM,INTBUF_TAB(NI)%IRECTM,NOINT,
+              CALL INSURF(NRTM0,NMN,IRM,INTBUF_TAB(NI)%IRECTM,
      .                    SURF_NODES,ITAB,INTBUF_TAB(NI)%MSR,ID,TITR,
-     .                    NTAG,INTBUF_TAB(NI)%S_MSR,INTBUF_TAB(NI)%S_IRECTM,X,TYPE18)
+     .                    NTAG,INTBUF_TAB(NI)%S_MSR,INTBUF_TAB(NI)%S_IRECTM,TYPE18)
             ENDIF
           ENDIF
         ELSEIF (NTYP == 25) THEN
         ELSE
           IF (NTYP == 3 .OR. NTYP == 5 .OR. NTYP == 6 .OR. NTYP == 8)
      .        IRM = IPARI(24,NI)
-          IF (IS2.NE.0) THEN
+          IF (IS2/=0) THEN
             IF(NRTM_FE == 0 .AND. NRTM_IGE == 0) THEN
               CALL ANCMSG(MSGID=119, MSGTYPE=MSGERROR,  ANMODE=ANINFO, I1=ID, C1=TITR)
             ENDIF
-            IF(IPRI.GE.1) WRITE(IOUT,'(//,A)')' MAIN SURFACE'
-            IF(IS2 == 1)THEN
+            IF(IPRI>=1) WRITE(IOUT,'(//,A)')' MAIN SURFACE'
+            IF(IS2 == 1 )THEN
               SURF_NODES => IGRSURF(ISU2)%NODES(1:NRTM_FE,1:4)
-              CALL INSURF(NRTM_FE,NMN_FE,IRM,INTBUF_TAB(NI)%IRECTM,NOINT,
+              CALL INSURF(NRTM_FE,NMN_FE,IRM,INTBUF_TAB(NI)%IRECTM,
      .                    SURF_NODES,ITAB,INTBUF_TAB(NI)%MSR,ID,TITR,
-     .                    NTAG,INTBUF_TAB(NI)%S_MSR,INTBUF_TAB(NI)%S_IRECTM,X,TYPE18)
-              IF (IGRSURF(ISU2)%NSEG_IGE .GE. 1) THEN
+     .                    NTAG,INTBUF_TAB(NI)%S_MSR,INTBUF_TAB(NI)%S_IRECTM,TYPE18)
+              IF (IGRSURF(ISU2)%NSEG_IGE >= 1) THEN
                 SURF_NODES_IGE => IGRSURF(ISU2)%NODES_IGE(1:NRTM_IGE,1:4)
                 IAD_IGE = IGRSURF(ISU2)%IAD_IGE
                 CALL INSURFIGEO(NRTM_IGE,NRTM_FE,NMN_IGE,NSN_IGE,IAD_IGE,IRM,INTBUF_TAB(NI)%IRECTM,NOINT,
@@ -382,14 +379,14 @@ C--------------------------------------------
      .                    NTAG)
             ELSEIF(IS2 == 4) THEN
               SURF_NODES => IGRSURF(ISU2)%NODES(1:NRTM,1:4)
-              CALL INSURF(NRTM,NMN,IRM,INTBUF_TAB(NI)%IRECTM,NOINT,
+              CALL INSURF(NRTM,NMN,IRM,INTBUF_TAB(NI)%IRECTM,
      .                    SURF_NODES,ITAB,INTBUF_TAB(NI)%MSR,ID,TITR,
-     .                    NTAG,INTBUF_TAB(NI)%S_MSR,INTBUF_TAB(NI)%S_IRECTM,X,TYPE18)
+     .                    NTAG,INTBUF_TAB(NI)%S_MSR,INTBUF_TAB(NI)%S_IRECTM,TYPE18)
             ENDIF
             IF (NTYP==3 ) THEN
              CALL ELTY_SURF(NRTS,NRTM,IGRSURF(ISU2)%NSEG,IGRSURF(ISU2)%ELTYP,
      .                      INTBUF_TAB(NI)%MSEGTYP,ISU2)
-            ELSEIF (NTYP==2 .OR. NTYP==5 .OR. NTYP==7 .OR. 
+            ELSEIF ((NTYP==2.AND.IS2>0) .OR. NTYP==5 .OR. NTYP==7 .OR. 
      +         NTYP==10 .OR. NTYP==21) THEN
              CALL ELTY_SURF(0,NRTM,IGRSURF(ISU2)%NSEG,IGRSURF(ISU2)%ELTYP,
      .                      INTBUF_TAB(NI)%MSEGTYP,ISU2)
@@ -406,7 +403,7 @@ C-------
      .         INTBUF_TAB(NI)%NSEGM,NMT,NRTM,NMN)
 C-------
         ELSEIF (NTYP == 2) THEN
-          LIXINT = LIXINT+6*NSN
+          LIXINT = LIXINT+NSN
           IF (ILEV == 20 .OR. ILEV == 21 .OR. ILEV == 22.OR.INTTH >0) THEN
            DO J = 1,NSN
             INTBUF_TAB(NI)%AREAS2(J) = AREASL(NI) 
@@ -421,9 +418,22 @@ C-------
             INTBUF_TAB(NI)%RUPT(5)   = I2RUPT(5,NI)
             INTBUF_TAB(NI)%RUPT(6)   = I2RUPT(6,NI)
           ENDIF
+          IF (IS1==-1.AND. IS2==-1) THEN
+               IF(IPRI>=1) WRITE(IOUT,'(//,A,I10)')' SURFACE TO SURFACE INFO OF INTERFACE NUMBER :',ID
+               CALL I2_SURFI(NPARI   ,IPARI(1,NI),NSURF   ,IGRSURF ,                
+     1                       NSN     ,INTBUF_TAB(NI)%NSV,NRTM ,INTBUF_TAB(NI)%IRECTM,
+     2                       NMN     ,INTBUF_TAB(NI)%MSR,INTBUF_TAB(NI)%MSEGTYP,
+     3                       FRIGAP(4,NI),X       ,NUMNOD,ITAB ,IPRI ,IOUT  ,
+     4                       IXS     ,NUMELS  ,NOINT   ,INTBUF_TAB(NI)%IRTLM    ,
+     5                       INTBUF_TAB(NI)%CSTS,INTBUF_TAB(NI)%DPARA,IXC      ,
+     6                       IXTG    , KNOD2ELC ,KNOD2ELTG,NOD2ELC   ,NOD2ELTG ,
+     7                       KNOD2ELS,NOD2ELS   ,IXS10    ,IXS16     ,IXS20    ,
+     8                       S_NOD2ELS,S_NOD2ELTG,NUMELC  ,NUMELTG   ,NUMELS10 ,
+     9                       NUMELS16,NUMELS20 ,ID,TITR)
+          END IF
 C-------
         ELSEIF (NTYP == 3 .OR. NTYP == 4 .OR. NTYP == 9) THEN
-          IF(IPARI(30,NI).NE.0) THEN
+          IF(IPARI(30,NI)/=0) THEN
             INTBUF_TAB(NI)%FRIC_P(1) = FRIC_P(1,NI)
             INTBUF_TAB(NI)%FRIC_P(2) = FRIC_P(2,NI)
             INTBUF_TAB(NI)%FRIC_P(3) = FRIC_P(3,NI)
@@ -431,7 +441,7 @@ C-------
             INTBUF_TAB(NI)%FRIC_P(5) = FRIC_P(5,NI)
             INTBUF_TAB(NI)%FRIC_P(6) = FRIC_P(6,NI)
           ENDIF
-          IF(IPARI(31,NI).NE.0) THEN
+          IF(IPARI(31,NI)/=0) THEN
             INTBUF_TAB(NI)%XFILTR(1) = XFILTR(NI)
           ENDIF
           CALL NSEGMT(
@@ -443,7 +453,7 @@ C-------
 C-------
         ELSEIF (NTYP == 5) THEN
 C-------
-          IF (IPARI(30,NI).NE.0) THEN
+          IF (IPARI(30,NI)/=0) THEN
             INTBUF_TAB(NI)%FRIC_P(1)  =FRIC_P(1,NI)
             INTBUF_TAB(NI)%FRIC_P(2) = FRIC_P(2,NI)
             INTBUF_TAB(NI)%FRIC_P(3) = FRIC_P(3,NI)
@@ -451,7 +461,7 @@ C-------
             INTBUF_TAB(NI)%FRIC_P(5) = FRIC_P(5,NI)
             INTBUF_TAB(NI)%FRIC_P(6) = FRIC_P(6,NI)
           ENDIF
-          IF(IPARI(31,NI).NE.0) THEN
+          IF(IPARI(31,NI)/=0) THEN
             INTBUF_TAB(NI)%XFILTR(1) = XFILTR(NI)
           ENDIF
           CALL NSEGMT(
@@ -470,7 +480,7 @@ C-------
      .         NMT,NRTM,NMN)
 C-------
         ELSEIF (NTYP == 7) THEN
-          IF (IPARI(30,NI).NE.0) THEN
+          IF (IPARI(30,NI)/=0) THEN
              INTBUF_TAB(NI)%FRIC_P(1) = FRIC_P(1,NI)
              INTBUF_TAB(NI)%FRIC_P(2) = FRIC_P(2,NI)
              INTBUF_TAB(NI)%FRIC_P(3) = FRIC_P(3,NI)
@@ -478,10 +488,10 @@ C-------
              INTBUF_TAB(NI)%FRIC_P(5) = FRIC_P(5,NI)
              INTBUF_TAB(NI)%FRIC_P(6) = FRIC_P(6,NI)
           ENDIF
-          IF(IPARI(31,NI).NE.0) THEN
+          IF(IPARI(31,NI)/=0) THEN
              INTBUF_TAB(NI)%XFILTR(1) = XFILTR(NI)
           ENDIF
-          LIXINT = LIXINT+6*MULTIMP*(NSN_IGE+NSN_FE)
+          LIXINT = LIXINT+MULTIMP*(NSN_IGE+NSN_FE)
 C-------
         ELSEIF (NTYP == 8) THEN
 C-------
@@ -501,7 +511,7 @@ C-------
      .         NMT,NRTM,NMN)
 C-------
         ELSEIF (NTYP == 20) THEN
-          IF (IPARI(30,NI).NE.0) THEN
+          IF (IPARI(30,NI)/=0) THEN
              INTBUF_TAB(NI)%FRIC_P(1) = FRIC_P(1,NI)
              INTBUF_TAB(NI)%FRIC_P(2) = FRIC_P(2,NI)
              INTBUF_TAB(NI)%FRIC_P(3) = FRIC_P(3,NI)
@@ -509,11 +519,11 @@ C-------
              INTBUF_TAB(NI)%FRIC_P(5) = FRIC_P(5,NI)
              INTBUF_TAB(NI)%FRIC_P(6) = FRIC_P(6,NI)
           ENDIF
-          IF(IPARI(31,NI).NE.0) THEN
+          IF(IPARI(31,NI)/=0) THEN
             INTBUF_TAB(NI)%XFILTR(1) = XFILTR(NI)
           ENDIF
-          LIXINT = LIXINT+6*MULTIMP*NSN
-          IALLO = 2  ! initialisation des tableaux
+          LIXINT = LIXINT+MULTIMP*NSN
+          IALLO = 2  ! initialization of arrays
           CALL I20SURFI(
      1      IALLO        ,IPARI(1,NI)  ,IGRNOD     ,IGRSURF  ,
      2      IGRSLIN      ,INTBUF_TAB(NI)%IRECTM,FRIGAP(1,NI) ,
@@ -524,7 +534,7 @@ C-------
 
 C-------
         ELSEIF (NTYP == 21) THEN
-          IF (IPARI(30,NI).NE.0) THEN
+          IF (IPARI(30,NI)/=0) THEN
              INTBUF_TAB(NI)%FROT_P(1) = FRIC_P(1,NI)
              INTBUF_TAB(NI)%FROT_P(2) = FRIC_P(2,NI)
              INTBUF_TAB(NI)%FROT_P(3) = FRIC_P(3,NI)
@@ -532,13 +542,13 @@ C-------
              INTBUF_TAB(NI)%FROT_P(5) = FRIC_P(5,NI)
              INTBUF_TAB(NI)%FROT_P(6) = FRIC_P(6,NI)
           ENDIF
-          IF(IPARI(31,NI).NE.0) THEN
+          IF(IPARI(31,NI)/=0) THEN
             INTBUF_TAB(NI)%ALPHA0(1) = XFILTR(NI)
           ENDIF
-          LIXINT = MAX(LIXINT,6*MULTIMP*NSN)
+          LIXINT = MAX(LIXINT,MULTIMP*NSN)
 C-------
         ELSEIF (NTYP == 22) THEN
-          IF (IPARI(30,NI).NE.0) THEN
+          IF (IPARI(30,NI)/=0) THEN
              INTBUF_TAB(NI)%FRIC_P(1) = FRIC_P(1,NI)
              INTBUF_TAB(NI)%FRIC_P(2) = FRIC_P(2,NI)
              INTBUF_TAB(NI)%FRIC_P(3) = FRIC_P(3,NI)
@@ -546,13 +556,13 @@ C-------
              INTBUF_TAB(NI)%FRIC_P(5) = FRIC_P(5,NI)
              INTBUF_TAB(NI)%FRIC_P(6) = FRIC_P(6,NI)
           ENDIF
-          IF(IPARI(31,NI).NE.0) THEN
+          IF(IPARI(31,NI)/=0) THEN
             INTBUF_TAB(NI)%XFILTR(1) = XFILTR(NI)
           ENDIF
-          LIXINT = LIXINT+6*MULTIMP*NSN
+          LIXINT = LIXINT+MULTIMP*NSN
 C-------
         ELSEIF (NTYP == 23) THEN
-          IF (IPARI(30,NI).NE.0) THEN
+          IF (IPARI(30,NI)/=0) THEN
              INTBUF_TAB(NI)%FRIC_P(1) = FRIC_P(1,NI)
              INTBUF_TAB(NI)%FRIC_P(2) = FRIC_P(2,NI)
              INTBUF_TAB(NI)%FRIC_P(3) = FRIC_P(3,NI)
@@ -560,13 +570,13 @@ C-------
              INTBUF_TAB(NI)%FRIC_P(5) = FRIC_P(5,NI)
              INTBUF_TAB(NI)%FRIC_P(6) = FRIC_P(6,NI)
           ENDIF
-          IF(IPARI(31,NI).NE.0) THEN
+          IF(IPARI(31,NI)/=0) THEN
             INTBUF_TAB(NI)%XFILTR(1) = XFILTR(NI)
           ENDIF
-          LIXINT = MAX(LIXINT,6*MULTIMP*NSN)
+          LIXINT = MAX(LIXINT,MULTIMP*NSN)
 C-------
         ELSEIF (NTYP == 24) THEN
-          IF (IPARI(30,NI).NE.0) THEN
+          IF (IPARI(30,NI)/=0) THEN
              INTBUF_TAB(NI)%FRIC_P(1) = FRIC_P(1,NI)
              INTBUF_TAB(NI)%FRIC_P(2) = FRIC_P(2,NI)
              INTBUF_TAB(NI)%FRIC_P(3) = FRIC_P(3,NI)
@@ -574,12 +584,12 @@ C-------
              INTBUF_TAB(NI)%FRIC_P(5) = FRIC_P(5,NI)
              INTBUF_TAB(NI)%FRIC_P(6) = FRIC_P(6,NI)
           ENDIF
-          IF(IPARI(31,NI).NE.0) THEN
+          IF(IPARI(31,NI)/=0) THEN
             INTBUF_TAB(NI)%XFILTR(1) = XFILTR(NI)
           ENDIF
-          LIXINT = LIXINT+6*MULTIMP*NSN
+          LIXINT = LIXINT+MULTIMP*NSN
 C-----------inside I24SURFI NRTM=NRTM0          
-          IALLO = 2  ! initialisation des tableaux
+          IALLO = 2  ! initialization of arrays
           CALL I24SURFI(
      1      IALLO                  , IPARI(1,NI)            ,IGRNOD                   ,IGRSURF              ,
      2      INTBUF_TAB(NI)%IRECTM  ,FRIGAP(1,NI)            ,
@@ -593,7 +603,7 @@ C-----------inside I24SURFI NRTM=NRTM0
 C------initialization of doubler M_seg pour shells ---> move inside I24SURFI
 C-------
         ELSEIF (NTYP == 25) THEN
-          IF (IPARI(30,NI).NE.0) THEN
+          IF (IPARI(30,NI)/=0) THEN
              INTBUF_TAB(NI)%FRIC_P(1) = FRIC_P(1,NI)
              INTBUF_TAB(NI)%FRIC_P(2) = FRIC_P(2,NI)
              INTBUF_TAB(NI)%FRIC_P(3) = FRIC_P(3,NI)
@@ -601,17 +611,19 @@ C-------
              INTBUF_TAB(NI)%FRIC_P(5) = FRIC_P(5,NI)
              INTBUF_TAB(NI)%FRIC_P(6) = FRIC_P(6,NI)
           ENDIF
-          IF(IPARI(31,NI).NE.0) THEN
+          IF(IPARI(31,NI)/=0) THEN
             INTBUF_TAB(NI)%XFILTR(1) = XFILTR(NI)
           ENDIF
-          LIXINT = LIXINT+6*MULTIMP*NSN
+          LIXINT = LIXINT+MULTIMP*NSN
 C-----------inside I24SURFI NRTM=NRTM0          
-          IALLO = 2  ! initialisation des tableaux
+          IALLO = 2  ! initialization of arrays
           IF(ILEV==2)THEN
-C           necessaire au 2eme passage (cf IDDLEVEL)
+C           necessary in the 2nd passage (see iddlevel)
             INTBUF_TAB(NI)%NBINFLG(1:INTBUF_TAB(NI)%S_NBINFLG)=0
             INTBUF_TAB(NI)%MBINFLG(1:INTBUF_TAB(NI)%S_MBINFLG)=0
           END IF
+          NIN25 = NIN25 + 1
+          LIST_NIN25(NI) = NIN25
           CALL I25SURFI(
      1      IALLO                  ,IPARI(1,NI)            ,IGRNOD                   , IGRSURF               ,
      2      INTBUF_TAB(NI)%IRECTM  , FRIGAP(1,NI)          ,
@@ -621,7 +633,8 @@ C           necessaire au 2eme passage (cf IDDLEVEL)
      6      IXTG                   ,KNOD2ELC               ,KNOD2ELTG                ,NOD2ELC                ,
      7      NOD2ELTG               ,KNOD2ELS               ,NOD2ELS                  ,IXS                    ,
      8      IXS10                  ,IXS16                  ,IXS20                    ,INTBUF_TAB(NI)%IRTSE   ,
-     9      INTBUF_TAB(NI)%IS2SE   ,INTBUF_TAB(NI)%IS2PT   ,INTBUF_TAB(NI)%IS2ID     )
+     9      INTBUF_TAB(NI)%IS2SE   ,INTBUF_TAB(NI)%IS2PT   ,INTBUF_TAB(NI)%IS2ID     ,INTERFACES%PARAMETERS  ,
+     A      NIN25                  ,FLAG_ELEM_INTER25      )
 C------initialization of doubler M_seg pour shells ---> move inside I24SURFI
         ENDIF
 C
@@ -636,27 +649,16 @@ C-----
 
       RETURN
       END
-Chd|====================================================================
-Chd|  ELTY_SURF                     source/interfaces/interf1/lecins.F
-Chd|-- called by -----------
-Chd|        LECINS                        source/interfaces/interf1/lecins.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    elty_surf   ../starter/source/interfaces/interf1/lecins.F
+!||--- called by ------------------------------------------------------
+!||    lecins      ../starter/source/interfaces/interf1/lecins.F
+!||====================================================================
       SUBROUTINE ELTY_SURF(NRTM0,NRTM,NSEG,SURF_ELTYP,MSEGTYP,ISU2)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

@@ -1,49 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- called by -----------
-Chd|        IMP_GLOB_K                    source/implicit/imp_glob_k.F  
-Chd|        IMP_GLOB_K0                   source/implicit/imp_glob_k.F  
-Chd|-- calls ---------------
-Chd|        ASSEM_C4                      source/implicit/assem_c4.F    
-Chd|        C4EOFF                        source/elements/shell/coque/c4eoff.F
-Chd|        CBABE3                        source/elements/shell/coqueba/cbabe3.F
-Chd|        CBABEC3                       source/elements/shell/coqueba/cbabe3.F
-Chd|        CBABER3                       source/elements/shell/coqueba/cbabe3.F
-Chd|        CBACOORK                      source/elements/shell/coqueba/cbacoork.F
-Chd|        CBADERIRZ                     source/elements/shell/coqueba/cbadef.F
-Chd|        CBAINI3                       source/elements/shell/coqueba/cbake3.F
-Chd|        CBALKE3                       source/elements/shell/coqueba/cbalke3.F
-Chd|        CBALKEC3                      source/elements/shell/coqueba/cbalke3.F
-Chd|        CBALKERZ                      source/elements/shell/coqueba/cbalke3.F
-Chd|        CBASUMG3                      source/elements/shell/coqueba/cbasumg3.F
-Chd|        CMATC3                        source/elements/shell/coqueba/cmatc3.F
-Chd|        CMATIP3                       source/elements/shell/coqueba/cmatc3.F
-Chd|        DRAPE_MOD                     share/modules/drape_mod.F     
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbake3         ../engine/source/elements/shell/coqueba/cbake3.F
+!||--- called by ------------------------------------------------------
+!||    imp_glob_k     ../engine/source/implicit/imp_glob_k.F
+!||    imp_glob_k0    ../engine/source/implicit/imp_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    assem_c4       ../engine/source/implicit/assem_c4.F
+!||    c4eoff         ../engine/source/elements/shell/coque/c4eoff.F
+!||    cbabe3         ../engine/source/elements/shell/coqueba/cbabe3.F
+!||    cbabec3        ../engine/source/elements/shell/coqueba/cbabe3.F
+!||    cbaber3        ../engine/source/elements/shell/coqueba/cbabe3.F
+!||    cbacoork       ../engine/source/elements/shell/coqueba/cbacoork.F
+!||    cbaderirz      ../engine/source/elements/shell/coqueba/cbadef.F
+!||    cbaini3        ../engine/source/elements/shell/coqueba/cbake3.F
+!||    cbalke3        ../engine/source/elements/shell/coqueba/cbalke3.F
+!||    cbalkec3       ../engine/source/elements/shell/coqueba/cbalke3.F
+!||    cbalkerz       ../engine/source/elements/shell/coqueba/cbalke3.F
+!||    cbasumg3       ../engine/source/elements/shell/coqueba/cbasumg3.F
+!||    cmatc3         ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    cmatip3        ../engine/source/elements/shell/coqueba/cmatc3.F
+!||--- uses       -----------------------------------------------------
+!||    drape_mod      ../engine/share/modules/drape_mod.F
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    stack_mod      ../engine/share/modules/stack_mod.F
+!||====================================================================
        SUBROUTINE CBAKE3 (
      1            JFT    ,JLT    ,NFT    ,NPT    ,MTN    ,
      2            ITHK   ,NCYCLE ,
@@ -52,13 +54,14 @@ Chd|====================================================================
      5            ETAG  , IDDL   ,NDOF  ,K_DIAG ,K_LT  , IADK  ,JDIK  ,
      6            IHBE   ,THKE   ,ISMSTR ,X      ,IKGEO  ,
      7            IPM    ,IGEO   ,IEXPAN ,IPARG  ,ISUBSTACK ,STACK ,
-     8            DRAPE )
+     8            DRAPE_SH4N  ,INDX_DRAPE,SEDRAPE,NUMEL_DRAPE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD   
       USE STACK_MOD
-      USE DRAPE_MOD         
+      USE DRAPE_MOD  
+      use element_mod , only : nixc       
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -70,8 +73,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C O M M O N   B L O C K S
 C-----------------------------------------------
-#include      "scr01_c.inc"
-#include      "parit_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -79,10 +80,12 @@ C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
       INTEGER JFT     ,JLT    ,NFT    ,NPT   ,MTN     ,ITHK   ,
      .   NCYCLE,ISTRAIN ,IPLA   ,OFFSET,IHBE    ,ISMSTR,IKGEO,IEXPAN
+      INTEGER ,    INTENT(IN)     ::        SEDRAPE,NUMEL_DRAPE
       INTEGER IXC(NIXC,*) ,IGEO(NPROPGI,*),IPM(*),IPARG(*)
       INTEGER INDXOF(MVSIZ),ISUBSTACK,
      .         ETAG(*),IDDL(*)  ,NDOF(*)  ,IADK(*) ,JDIK(*)
-C     REAL OU REAL*8
+      INTEGER, DIMENSION(SEDRAPE) :: INDX_DRAPE
+C     REAL OR REAL*8
       my_real
      .   PM(NPROPM,*),GEO(NPROPG,*),BUFMAT(*),   X(3,*),THKE(*)
       my_real    
@@ -91,18 +94,18 @@ C     REAL OU REAL*8
      .   KE24(36,MVSIZ),KE34(36,MVSIZ),OFF(MVSIZ),K_DIAG(*) ,K_LT(*)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
       TYPE (STACK_PLY) :: STACK
-      TYPE (DRAPE_) :: DRAPE
+      TYPE (DRAPE_) :: DRAPE_SH4N(NUMELC_DRAPE)
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
       INTEGER 
      .   NPLAT,NLAY,IPLAT(MVSIZ)
       INTEGER 
-     .   I, J,J1,J2, IR, IS, NEL,  IUN,  MX,L_DIRA ,L_DIRB ,
-     .   EP,NG,NPG,NNOD,IREP,PT1,PT2,PT3,LENF,LENM,NPTR,NPTS,
-     .   PT0,PTF,PTM,PTE,PTEP,PTS,PPTF,PPTM,PPTE,PPTEP,PPTS
+     .   I, J,J1,J2, IR, IS, NEL,  IUN,L_DIRA ,L_DIRB ,
+     .   NG,NPG,NNOD,IREP,LENF,LENM,NPTR,NPTS,
+     .   PTF,PTM
       INTEGER  MAT(MVSIZ), PID(MVSIZ), NGL(MVSIZ)
-      INTEGER  MPT,IORTH,IBID,IDRIL
+      INTEGER  MPT,IORTH,IDRIL
       PARAMETER (NPG = 4)
       PARAMETER (NNOD = 4)
       MY_REAL 
@@ -116,9 +119,9 @@ C-----------------------------------------------
      .      VASTN(MVSIZ,4*NNOD),AREA(MVSIZ),
      .      CDET(MVSIZ),THK2(MVSIZ)
       INTEGER 
-     .   NEL8,NEL5,NEL3,NPTM,IGTYP,PTMAT,NBM_S,NBDIR,NB16A
+     .   NEL8,NEL5,NEL3,NPTM,IGTYP
       MY_REAL 
-     .   SIGY(MVSIZ),VOL0(MVSIZ),THK0(MVSIZ),
+     .   VOL0(MVSIZ),THK0(MVSIZ),
      .   X13(MVSIZ) ,Y13(MVSIZ), X24(MVSIZ) ,HZ(MVSIZ),
      .   VOLG(MVSIZ),Y24(MVSIZ),HM(MVSIZ,4),HF(MVSIZ,4),HC(MVSIZ,2),
      .   HMOR(MVSIZ,2),HFOR(MVSIZ,2),HMFOR(MVSIZ,6),GS(MVSIZ)
@@ -147,7 +150,7 @@ C--------------------------
       GBUF => ELBUF_STR%GBUF
       IUN = 1
       NEL=JLT-JFT+IUN
-      IF (MTN.EQ.1) NPT=0
+      IF (MTN==1) NPT=0
       MPT=IABS(NPT)
       IDRIL = IPARG(41)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
@@ -188,15 +191,15 @@ C
      3                     MF11,MF12,MF13,MF14,MF22,MF23,MF24,MF33, 
      4                     MF34,MF44,FM12,FM13,FM14,FM23,FM24,FM34) 
 C
-      IF (IREP.GT.0) THEN
+      IF (IREP>0) THEN
       CALL CMATC3(JFT    ,JLT     ,PM     ,MAT     ,GEO     ,
      1            PID    ,AREA    ,THK0   ,THK2    ,GBUF%THK,
      2            THKE   ,VOLG    ,MTN    ,NPT     ,ITHK    ,
      3            HM     ,HF      ,HC     ,HZ      ,IGTYP   ,
      4            IORTH  ,HMOR    ,HFOR   ,DIR_A   ,IGEO    ,
      5            IDRIL  ,IHBE    ,HMFOR  ,GS      ,ISUBSTACK,
-     6            STACK  ,ELBUF_STR,NLAY  ,DRAPE   ,NFT      ,
-     7            NEL    )
+     6            STACK  ,ELBUF_STR,NLAY  ,DRAPE_SH4N   ,NFT      ,
+     7            NEL    ,INDX_DRAPE,SEDRAPE,NUMEL_DRAPE)
       ELSE
       CALL CMATC3(JFT    ,JLT     ,PM     ,MAT     ,GEO     ,
      1            PID    ,AREA    ,THK0   ,THK2    ,GBUF%THK,
@@ -204,10 +207,10 @@ C
      3            HM     ,HF      ,HC     ,HZ      ,IGTYP   ,
      4            IORTH  ,HMOR    ,HFOR   ,DIRA    ,IGEO    ,
      5            IDRIL  ,IHBE    ,HMFOR  ,GS      ,ISUBSTACK,
-     6            STACK  ,ELBUF_STR,NLAY  ,DRAPE  , NFT      ,
-     7            NEL    )
+     6            STACK  ,ELBUF_STR,NLAY  ,DRAPE_SH4N  , NFT      ,
+     7            NEL    ,INDX_DRAPE,SEDRAPE,NUMEL_DRAPE)
       ENDIF
-      IF (IDRIL.GT.0) THEN
+      IF (IDRIL>0) THEN
         CALL CBADERIRZ(JFT  ,JLT  ,AREA ,X13 ,X24   ,
      2                 Y13  ,Y24  ,BM0RZ,BMKRZ,BMERZ,
      3                 VCORE,NPLAT,IPLAT,ISMSTR)
@@ -215,7 +218,7 @@ C
         CALL CBABEC3(JFT ,JLT ,X13  ,X24  ,Y13  ,Y24 ,BM, NPLAT, IPLAT)
       END IF
 C-----------------------------------------------
-C     BOUCLE SUR POINTS D'INTEGRATION DE GAUSS
+C     LOOP OVER GAUSS INTEGRATION POINTS
 C-----------------------------------------------
       LENF = NEL*GBUF%G_FORPG/NPG
       LENM = NEL*GBUF%G_MOMPG/NPG
@@ -255,7 +258,7 @@ C----------------------------
      6                      MF34,MF44,FM12,FM13,FM14,FM23,FM24,FM34,
      7                      IORTH,HMOR,HFOR,IDRIL,HMFOR,
      8                      X13  ,X24  ,Y13  ,Y24,NEL)
-          IF (IDRIL.GT.0) THEN
+          IF (IDRIL>0) THEN
            CALL CBABER3(JFT ,JLT  ,BM0RZ,BMKRZ,BMERZ  ,
      2                       BMRZ ,BRZ  ,BM   ,NPLAT  ,IPLAT,
      3                       NG   )
@@ -271,9 +274,9 @@ C----------------------------
           END IF
         ENDDO
        ENDDO
-C---------FIN DE BOUCLE DE 4 POINTS DE GAUSS------------
-C-------------membrane shear traitement--------------------
-        IF (IDRIL.EQ.0) THEN
+C---------END OF LOOP OF 4 GAUSS POINTS------------
+C------------ Membrane shear treatment ---------------------------------------------------
+        IF (IDRIL==0) THEN
          CALL CBALKEC3(JFT,JLT,VOLG  ,X13  ,X24  ,Y13  ,Y24, HM,
      1                    K11,K12,K13,K14,K22,K23,K24,K33,K34,K44,
      2                    NPLAT,IPLAT,IKGEO,GBUF%FOR,M11,M22,M33,M44,
@@ -291,7 +294,7 @@ C----------------------------
      6                     KE11,KE22,KE33,KE44,KE12,KE13,KE14,KE23,
      7                     KE24,KE34,VCORE,IDRIL,IORTH)
      
-             IF (NEIG.GT.0) CALL C4EOFF(
+             IF (NEIG>0) CALL C4EOFF(
      1                   JFT, JLT, IXC, ETAG, OFF)
 C
              CALL ASSEM_C4(
@@ -302,19 +305,11 @@ C
 C
        RETURN
        END
-C   |============================================================
-C   |   CBAINI3                             /coqueba/cbake3.F
-C   |------------------------------------------------------------
-C   |-- appele -----------
-C   |-- appelee par -----------
-C   |        CBAKE3                         /coqueba/cbake3.F
-C   |============================================================
-Chd|====================================================================
-Chd|  CBAINI3                       source/elements/shell/coqueba/cbake3.F
-Chd|-- called by -----------
-Chd|        CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbaini3   ../engine/source/elements/shell/coqueba/cbake3.F
+!||--- called by ------------------------------------------------------
+!||    cbake3    ../engine/source/elements/shell/coqueba/cbake3.F
+!||====================================================================
         SUBROUTINE CBAINI3(JFT,JLT,VKSI,VETA,
      1                     K11,K12,K13,K14,K22,K23,K24,K33,K34,K44,
      2                     M11,M12,M13,M14,M22,M23,M24,M33,M34,M44,
@@ -327,7 +322,6 @@ C-----------------------------------------------
 c-----------------------------------------------
 c   g l o b a l   p a r a m e t e r s
 c-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------

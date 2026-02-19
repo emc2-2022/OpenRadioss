@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  M32PLAS                       source/materials/mat/mat032/m32plas.F
-Chd|-- called by -----------
-Chd|        SIGEPS32C                     source/materials/mat/mat032/sigeps32c.F
-Chd|-- calls ---------------
-Chd|        UROTOV                        source/airbag/uroto.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    m32plas     ../engine/source/materials/mat/mat032/m32plas.F
+!||--- called by ------------------------------------------------------
+!||    sigeps32c   ../engine/source/materials/mat/mat032/sigeps32c.F
+!||--- calls      -----------------------------------------------------
+!||    urotov      ../engine/source/airbag/uroto.F
+!||====================================================================
       SUBROUTINE M32PLAS(JFT    ,JLT    ,PM     ,OFF    ,EPSEQ  ,
      .                   IMAT   ,DIR    ,EZZ    ,IPLA   ,DT1C   ,
      .                   DPLA1  ,EPSPD  ,NEL    ,NGL    ,HARDM  ,
@@ -49,7 +49,6 @@ C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "units_c.inc"
 #include      "scr17_c.inc"
-#include      "conv_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -70,7 +69,7 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   E,CA, CE, CN, NU,
-     .   YMAX,CM,EPDR,EPCHK(MVSIZ),
+     .   YMAX,CM,EPDR,
      .   A11,A22,A1122,A12,
      .   SEQ,YLD,SCALE, EPSP,S11,S22,S12,G3(MVSIZ),NU1,
      .   D11, D22, D12, DPLA, DTINV, P,A,B,C,A1S1,A2S2,Q,UMR,
@@ -78,7 +77,7 @@ C     REAL
      .   H(MVSIZ),DPLA_I(MVSIZ),DPLA_J(MVSIZ),ETSE(MVSIZ),NU2(MVSIZ),
      .   NU3(MVSIZ),NU4(MVSIZ),NU5(MVSIZ),NNU1(MVSIZ),Q12(MVSIZ),
      .   Q21(MVSIZ),JQ(MVSIZ),JQ2(MVSIZ),A_1,A_2,A_3,
-     .   ST11(MVSIZ),ST22(MVSIZ),ST12(MVSIZ),AXX(MVSIZ),AYY(MVSIZ),
+     .   ST11(MVSIZ),ST22(MVSIZ),AXX(MVSIZ),AYY(MVSIZ),
      .   A_XY(MVSIZ),AXY(MVSIZ),B_1(MVSIZ),B_2(MVSIZ),B_3(MVSIZ),
      .   YLDP(MVSIZ),DR,P_1,P_2,P_3,PP1,PP2,PP3,F,DF,YLD_I,A1,
      .   A2,EPSMAX,SIGE(MVSIZ,5)
@@ -102,9 +101,9 @@ C-----------------------------------------------
       EPSMAX = PM(41,IMAT)
 C
       IF (IPLA == 0) THEN
-C projection radiale 
+C radial projection 
 C-------------------
-C     CONTRAINTE ORTHO
+C     ORTHO STRESS
 C-------------------
         DO I=JFT,JLT
           D11 = DIR(I,1)*DIR(I,1)
@@ -114,7 +113,7 @@ C-------------------
           S22 = D22*SIGNXX(I) + D11*SIGNYY(I) - TWO*D12*SIGNXY(I)
           S12 = D12*(SIGNYY(I) - SIGNXX(I)) + ( D11 - D22 )*SIGNXY(I)
 C----------------------------
-C     VITESSE DE DEFORMATION
+C     deformation rate
 C----------------------------
           EPSP = MAX(ABS(DEPSXX(I)),ABS(DEPSYY(I)),HALF*ABS(DEPSXY(I)))
           DTINV= DT1C(I)/MAX(DT1C(I)**2,EM20)
@@ -129,7 +128,7 @@ C-------------
           YLD = CA*(CE+EPSEQ(I))**CN*EPSP**CM
           YLD = MIN(YLD ,YMAX)
 C------------------------------------------
-C     CONTRAINTES PLASTIQUEMENT ADMISSIBLES
+C     PLASTICALLY ADMISSIBLE STRESSES
 C------------------------------------------
           SEQ = SQRT(A11*S11*S11 + A22*S22*S22
      .            -A1122*S11*S22 + A12*S12*S12)
@@ -143,9 +142,9 @@ C------------------------------------------
           DPLA1(I) = DPLA
         ENDDO
       ELSEIF (IPLA == 2) THEN
-C projection avec p=cste + mise a zero de s33 => sig sur le critere 
+C projection with p=constant + zeroing of s33 => sig on the criterion
 C-------------------
-C     CONTRAINTE ORTHO
+C     ORTHO STRESS
 C-------------------
         DO I=JFT,JLT
           D11 = DIR(I,1)*DIR(I,1)
@@ -155,7 +154,7 @@ C-------------------
           S22 = D22*SIGNXX(I) + D11*SIGNYY(I) - TWO*D12*SIGNXY(I)
           S12 = D12*(SIGNYY(I) - SIGNXX(I)) + ( D11 - D22 )*SIGNXY(I)
 C----------------------------
-C     VITESSE DE DEFORMATION
+C     deformation rate
 C----------------------------
           EPSP = MAX(ABS(DEPSXX(I)),ABS(DEPSYY(I)),HALF*ABS(DEPSXY(I)))
           DTINV= DT1C(I)/MAX(DT1C(I)**2,EM20)
@@ -168,7 +167,7 @@ C-------------
           YLD =CA*(CE+EPSEQ(I))**CN*EPSP**CM
           YLD = MIN(YLD ,YMAX)
 C------------------------------------------
-C     CONTRAINTES PLASTIQUEMENT ADMISSIBLES
+C     PLASTICALLY ADMISSIBLE STRESSES
 C------------------------------------------
           NU1 = NU/(ONE - NU)
           NU5(I) = ONE-NU1 
@@ -198,7 +197,7 @@ C------------------------------------------
 C Projection iterative
       ELSEIF (IPLA == 1) THEN
 C-- -----------------------
-C         CONTRAINTES ORHTO
+C         ORTHO STRESSES
 C-------------------------
         DO I=JFT,JLT
           D11 = DIR(I,1)*DIR(I,1)
@@ -209,7 +208,7 @@ C-------------------------
           S_12(I) = D12*(SIGNYY(I) - SIGNXX(I)) + ( D11 - D22 )*SIGNXY(I)
           NNU1(I) = NU / (ONE - NU)
 C----------------------------
-C     VITESSE DE DEFORMATION
+C     deformation rate
 C----------------------------
           EPSP = MAX(ABS(DEPSXX(I)),ABS(DEPSYY(I)),HALF*ABS(DEPSXY(I)))
           DTINV= DT1C(I)/MAX(DT1C(I)**2,EM20)
@@ -252,7 +251,7 @@ C-------------------------
         ENDDO
         IF (NINDX > 0) THEN
 C---------------------------
-C    DEP EN CONTRAINTE PLANE
+C    DEP IN PLANE STRESS
 C---------------------------
 #include "vectorize.inc"
           DO  J=1,NINDX
@@ -323,7 +322,7 @@ C
             ENDDO ! DO  J=1,NINDX
           ENDDO ! DO N=1,NMAX
 C------------------------------------------
-C     CONTRAINTES PLASTIQUEMENT ADMISSIBLES
+C     PLASTICALLY ADMISSIBLE STRESSES
 C------------------------------------------
 #include "vectorize.inc"
          DO  J=1,NINDX
@@ -377,7 +376,6 @@ C
         ENDIF  !  IF (NINDX > 0) THEN
 c---
         IF (NINDX > 0) THEN
-          IDEL7NOK = 1
           IF (IMCONV == 1) THEN
             DO I = 1, NINDX
 #include   "lockon.inc"

@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RGWATH                        source/interfaces/int09/rgwath.F
-Chd|-- called by -----------
-Chd|        RGWAL1                        source/ale/grid/rgwal1.F      
-Chd|-- calls ---------------
-Chd|        RGWAT2                        source/interfaces/int09/rgwat2.F
-Chd|        RGWAT3                        source/interfaces/int09/rgwat3.F
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rgwath          ../engine/source/interfaces/int09/rgwath.F
+!||--- called by ------------------------------------------------------
+!||    rgwal1          ../engine/source/ale/grid/rgwal1.F
+!||--- calls      -----------------------------------------------------
+!||    rgwat2          ../engine/source/interfaces/int09/rgwat2.F
+!||    rgwat3          ../engine/source/interfaces/int09/rgwat3.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||    sum_6_float     ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE RGWATH(
      1               X      ,V      ,W        ,RWL     ,NSW     ,
      2               NSN    ,MSR    ,MS       ,FSAV    ,IXS     ,
@@ -41,7 +43,8 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixs,nixq            
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,10 +54,8 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -66,7 +67,7 @@ C-----------------------------------------------
       my_real
      .  PM(NPROPM,*), X(*), RWL(*), MS(*), FSAV(*), V(*), W(*), 
      .  E(*), A(*),
-     .  TEMP,TSTIF,FHEAT, SAVE(3)
+     .  TEMP,TSTIF,FHEAT
       TYPE(ELBUF_STRUCT_), DIMENSION(NGROUP) :: ELBUF_TAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -74,14 +75,22 @@ C-----------------------------------------------
       INTEGER M3, M2, M1, I, N, N3, N2, N1, K, PMAIN
       my_real
      .   XWL, YWL, ZWL, VXW, VYW, VZW, FXN, FYN, FZN, FXT, FYT, FZT,
-     .   VX, VY, VZ, UX, UY, UZ, XC, YC, ZC, DP, DV, DA, DVT,
+     .   VX, VY, VZ, UX, UY, UZ, XC, YC, ZC, DP, DV, DVT,
      .   FNXN,FNYN, FNZN, FNXT, FNYT, FNZT, FNDFN, FTDFT, FRIC, FRIC2,
      .   FCOE,
      .   F1(NSN), F2(NSN), F3(NSN), F4(NSN), F5(NSN), F6(NSN)
       DOUBLE PRECISION 
      .   FRWL6(6,6)
 C
-      IF(MSR.EQ.0)THEN
+      M1 = 0
+      M2 = 0
+      M3 = 0
+      I = 0     
+      N = 0
+      N1 = 0
+      N2 = 0
+      N3 = 0
+      IF(MSR==0)THEN
        XWL=RWL(4)
        YWL=RWL(5)
        ZWL=RWL(6)
@@ -100,12 +109,12 @@ C
        ZWL=X(M3)+VZW*DT2
       ENDIF
 C-----------------------
-C     VITESSE DE MATIERE ET GRILLE
+C     material and grid velocity
 C-----------------------
 C
       DO 10 N=1,NUMNOD
         NTAG(N) = 0
-        E(N)	= ZERO
+        E(N)  = ZERO
  10   CONTINUE
 C
 c      FXN = ZERO
@@ -131,7 +140,7 @@ C
       ZC=UZ-ZWL
       DP=XC*RWL(1)+YC*RWL(2)+ZC*RWL(3)
       NSW(I) = N
-      IF(DP.GT.ZERO)GOTO 20
+      IF(DP>ZERO)GOTO 20
        NTAG(N) = 1
        DV=(V(N1)-VXW)*RWL(1)+(V(N2)-VYW)*RWL(2)+(V(N3)-VZW)*RWL(3)
        DVT=DV
@@ -144,7 +153,7 @@ C
 c       FXN=FXN+FNXN*WEIGHT(N)
 c       FYN=FYN+FNYN*WEIGHT(N)
 c       FZN=FZN+FNZN*WEIGHT(N)
-       IF(ITIED.NE.0)THEN
+       IF(ITIED/=0)THEN
         FNXT=((V(N1)-VXW))*MS(N)-FNXN
         FNYT=((V(N2)-VYW))*MS(N)-FNYN
         FNZT=((V(N3)-VZW))*MS(N)-FNZN
@@ -153,13 +162,13 @@ c       FZN=FZN+FNZN*WEIGHT(N)
         FHEAT=RWL(12)
         FRIC =RWL(13)
         FRIC2=FRIC**2
-        IF(FTDFT.LE.FRIC2*FNDFN.OR.ITIED.EQ.1) THEN
-C         POINT SECND TIED
+        IF(FTDFT<=FRIC2*FNDFN.OR.ITIED==1) THEN
+C         SECONDARY NODE TIED
           V(N1)=VXW
           V(N2)=VYW
           V(N3)=VZW
         ELSE
-C         POINT SECND SLIDING
+C         SECONDARY NODE SLIDING
           FCOE=FRIC*SQRT(FNDFN/FTDFT)
           FNXT=FCOE*FNXT
           FNYT=FCOE*FNYT
@@ -193,9 +202,9 @@ c        FZT=ZERO
        W(N3)=W(N3)-DV*RWL(3)
  20   CONTINUE
 C
-C Traitement Parith/ON
+C Parith/ON processing
 C
-      IF (MSR.NE.0) THEN
+      IF (MSR/=0) THEN
         DO K = 1, 6
           FRWL6(1,K) = ZERO
           FRWL6(2,K) = ZERO
@@ -212,8 +221,8 @@ C
         CALL SUM_6_FLOAT(1, NSN, F6, FRWL6(6,1), 6)
         
         IF(NSPMD > 1) THEN
-Cel si proc concerne par le rgwall
-          IF(FR_WALL(ISPMD+1).NE.0) THEN
+C   if processor is concerned by rgwall
+          IF(FR_WALL(ISPMD+1)/=0) THEN
             CALL SPMD_EXCH_FR6(FR_WALL,FRWL6,6*6)
           ENDIF
           PMAIN = FR_WALL(NSPMD+2)
@@ -233,17 +242,14 @@ Cel si proc concerne par le rgwall
      .        FRWL6(5,4)+FRWL6(5,5)+FRWL6(5,6)
         FZT = FRWL6(6,1)+FRWL6(6,2)+FRWL6(6,3)+
      .        FRWL6(6,4)+FRWL6(6,5)+FRWL6(6,6)
-        IF(MS(MSR).NE.ZERO)THEN
+        IF(MS(MSR)/=ZERO)THEN
           A(M1)=(FXT+FXN) / DT12
           A(M2)=(FYT+FYN) / DT12
           A(M3)=(FZT+FZN) / DT12
         ENDIF
 
-        IF(ISPMD+1.EQ.PMAIN)THEN
-C
-CGW   TFEXT=TFEXT 
-CCG   L' ENERGIE DE FROTTEMENT EST MISE DS LES ELEMENTS
-C
+        IF(ISPMD+1==PMAIN)THEN
+
           FSAV(1)=FSAV(1)+FXN
           FSAV(2)=FSAV(2)+FYN
           FSAV(3)=FSAV(3)+FZN
@@ -256,7 +262,7 @@ C
 C----------------------
 C     PONT THERMIQUE
 C----------------------
-      IF(N2D.EQ.0)THEN
+      IF(N2D==0)THEN
         CALL RGWAT3(
      1               X        ,NELW ,NE      ,IXS    ,
      4               ELBUF_TAB,IPARG,PM      ,NTAG   ,TEMP   ,

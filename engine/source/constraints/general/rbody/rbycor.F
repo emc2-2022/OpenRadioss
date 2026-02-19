@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RBYCOR                        source/constraints/general/rbody/rbycor.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        RGBCOR                        source/constraints/general/rbody/rgbcor.F
-Chd|        IMP_DYNA                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rbycor     ../engine/source/constraints/general/rbody/rbycor.F
+!||--- called by ------------------------------------------------------
+!||    resol      ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    rgbcor     ../engine/source/constraints/general/rbody/rgbcor.F
+!||--- uses       -----------------------------------------------------
+!||    imp_dyna   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE RBYCOR(RBY ,X   ,V    ,VR  ,SKEW    ,FSAV     ,
      2                  LPBY,NPBY,ISKEW,ITAB,WEIGHT  ,A        ,
      3                  AR  ,MS  ,IN   ,KIND,IRBKIN_L,NRBYKIN_L,
@@ -45,7 +46,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "scr11_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -66,15 +66,15 @@ C     REAL
      .   XMOMT_T,YMOMT_T,ZMOMT_T,ENCIN2_T,ENROT2_T
 C-----------------------------------------------
 C-------------------------------------
-C CALCUL SUPER RIGID BODIES (non multi-thread) sur premiere tache libre
+C COMPUTATION FOR SUPER RIGID BODIES (non multi-thread) on first free task
 C-------------------------------------
 !$OMP SINGLE
       DO KK=1,NRBYKIN_L
         N=IRBKIN_L(KK)
         K  = KIND(N)
-        IF(NPBY(7,N).GT.0.AND.NPBY(4,N).NE.0)THEN
+        IF(NPBY(7,N)>0.AND.NPBY(4,N)/=0)THEN
           J = NINTER+NRWALL+N
-          IF( IDYNA.GT.0 ) THEN
+          IF( IDYNA>0 ) THEN
             CALL RGBCOR(
      1        DY_V,DY_VR,X,RBY(1,N),LPBY(K),
      2        NPBY(1,N),SKEW,ISKEW,FSAV(1,J),ITAB,
@@ -93,10 +93,10 @@ C-------------------------------------
       ENDDO
 !$OMP END SINGLE
 C-------------------------------------
-C CALCUL FORCE RIGID BODIES CLASSIQUES (multi-thread)
+C FORCE COMPUTATION FOR CLASSICAL RIGID BODIES (multi-thread)
 C-------------------------------------
 C
-Cel optimisation locks
+C   optimisation locks
       ENROT_T=ZERO
       ENCIN_T=ZERO
       XMASS_T=ZERO
@@ -110,9 +110,9 @@ C
       DO KK=1,NRBYKIN_L
         N = IRBKIN_L(KK)
         K  = KIND(N)
-        IF( NPBY(7,N).GT.0.AND.NPBY(4,N).EQ.0)THEN
+        IF( NPBY(7,N)>0.AND.NPBY(4,N)==0)THEN
           J = NINTER+NRWALL+N
-          IF( IDYNA.GT.0 ) THEN
+          IF( IDYNA>0 ) THEN
             CALL RGBCOR(
      1        DY_V,DY_VR,X,RBY(1,N),LPBY(K),
      2        NPBY(1,N),SKEW,ISKEW,FSAV(1,J),ITAB,

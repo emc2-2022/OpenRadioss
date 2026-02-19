@@ -1,62 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SORTI25                       source/mpi/interfaces/sorti25.F
-Chd|-- called by -----------
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sorti25           ../engine/source/mpi/interfaces/sorti25.F
+!||--- called by ------------------------------------------------------
+!||    spmd_i7fcom_pon   ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||====================================================================
       SUBROUTINE SORTI25(N,ISKY,FSKYI,NFSKYI)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER N, NFSKYI, ISKY(*)
-      my_real
-     .        FSKYI(2*NFSKYI,*)
+      my_real FSKYI(2*NFSKYI,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, L, IR, IIA
-      my_real
-     .        RRA1, RRA2, RRA3, RRA4, RRA5,
-     .        RRA6, RRA7, RRA8, RRA9, RRA10
+      my_real RRA1, RRA2, RRA3, RRA4, RRA5, RRA6, RRA7, RRA8, RRA9, RRA10
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-Cel test sur n=0
-      IF (N.EQ.0) RETURN
+C   test on n=0
+      IF (N==0) RETURN
       L=N/2+1
       IR=N
-      IF(NFSKYI.EQ.4)THEN
+      IF(NFSKYI==4)THEN
 10     CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -87,8 +80,8 @@ Cel test sur n=0
           FSKYI(7,IR)=FSKYI(7,1)
           FSKYI(8,IR)=FSKYI(8,1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -103,11 +96,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-20      IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+20      IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)
@@ -136,7 +129,7 @@ C         IF(IR.EQ.1)THEN
        GO TO 10
       ELSE
 100    CONTINUE
-        IF(L.GT.1)THEN
+        IF(L>1)THEN
           L=L-1
           IIA =ISKY(L)
           RRA1=FSKYI(1,L)
@@ -173,8 +166,8 @@ C         IF(IR.EQ.1)THEN
           FSKYI(9,IR)=FSKYI(9,1)
           FSKYI(10,IR)=FSKYI(10,1)
           IR=IR-1
-C         IF(IR.EQ.1)THEN
-          IF(IR.LE.1)THEN
+C         IF(IR==1)THEN
+          IF(IR<=1)THEN
             ISKY(1)=IIA
             FSKYI(1,1)=RRA1
             FSKYI(2,1)=RRA2
@@ -191,11 +184,11 @@ C         IF(IR.EQ.1)THEN
         ENDIF
         I=L
         J=L+L
-200     IF(J.LE.IR)THEN
-          IF(J.LT.IR)THEN
-            IF(ISKY(J).LT.ISKY(J+1))J=J+1
+200     IF(J<=IR)THEN
+          IF(J<IR)THEN
+            IF(ISKY(J)<ISKY(J+1))J=J+1
           ENDIF
-          IF(IIA.LT.ISKY(J))THEN
+          IF(IIA<ISKY(J))THEN
             ISKY(I)=ISKY(J)
             FSKYI(1,I)=FSKYI(1,J)
             FSKYI(2,I)=FSKYI(2,J)

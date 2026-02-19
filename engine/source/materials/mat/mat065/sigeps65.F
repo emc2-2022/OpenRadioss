@@ -1,33 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS65                      source/materials/mat/mat065/sigeps65.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        EQSOLV_2                      source/materials/mat/mat065/sigeps65c.F
-Chd|        INTERSTAR                     source/materials/mat/mat065/sigeps65c.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps65    ../engine/source/materials/mat/mat065/sigeps65.F
+!||--- called by ------------------------------------------------------
+!||    mulaw       ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    eqsolv_2    ../engine/source/materials/mat/mat065/sigeps65c.F
+!||    finter      ../engine/source/tools/curve/finter.F
+!||    finter2     ../engine/source/tools/curve/vinter.F
+!||    interstar   ../engine/source/materials/mat/mat065/sigeps65c.F
+!||====================================================================
       SUBROUTINE SIGEPS65(
      1     NEL    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC   ,NPF    ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0    ,RHO    ,
@@ -50,7 +52,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
@@ -90,24 +91,18 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
 C---------+---------+---+---+--------------------------------------------
 #include      "com01_c.inc"
-#include      "com08_c.inc"
-#include      "impl1_c.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr17_c.inc"
-#include      "scr05_c.inc"
-#include      "units_c.inc"
 C=======================================================================
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL, NUPARAM, NUVAR,IPT,IPLA, JTHE,
+      INTEGER NEL, NUPARAM, NUVAR,IPLA,
      .   NGL(NEL),MAT(NEL),IPM(NPROPMI,*)
       my_real
      .   TIME,TIMESTEP,UPARAM(*),
@@ -120,7 +115,7 @@ C-----------------------------------------------
      .   EPSXY(NEL) ,EPSYZ(NEL) ,EPSZX(NEL) ,
      .   SIGOXX(NEL),SIGOYY(NEL),SIGOZZ(NEL),
      .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL),
-     .   EPSP(NEL),ETSE(NEL), TEMPEL(NEL),AMU(NEL)
+     .   EPSP(NEL),ETSE(NEL),AMU(NEL)
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -164,22 +159,22 @@ C-----------------------------------------------
 C
       my_real
      .        S1,S2,T1,T2,X1,X2,Y1,Y2,SX,TY,DYDX,DTDS,RATE1,
-     .        RATE2,SIGY1,SIGY2,SVTEST,TEST,HH,DESEL
+     .        RATE2,SIGY1,SIGY2,TEST,DESEL
       my_real
      .        E(NEL),NU,G3,G,EPS(NEL),C1,
-     .        EPSMAX,TRSIGO(NEL),NUU(NEL),EPSS(NEL),
-     .        EPS0(NEL),DEPSEQ(NEL),DSIGXX(NEL),DSIGYY(NEL),
-     .        DSIGZZ(NEL),SV2(NEL),SIGO(NEL),SVM(NEL),
-     .        STRXX(NEL),STRYY(NEL),STRZZ(NEL),SIGM(NEL),
-     .        STRXY(NEL),STRYZ(NEL),STRZX(NEL),TRSIGN(NEL),
+     .        EPSMAX,TRSIGO(NEL),EPSS(NEL),
+     .        DEPSEQ(NEL),
+     .        SV2(NEL),SVM(NEL),
+     .        
+     .        
      .        RBULK,G2,
      .        DYDXC1(NEL),DYDXC2(NEL),YC1(NEL),YC2(NEL),
      .        DYDXD1(NEL),DYDXD2(NEL),YD1(NEL),YD2(NEL),
      .        SIGYLD(NEL),HC(NEL),HD(NEL),SIGFC(NEL), SIGFD(NEL), 
-     .        FAC(NEL),EPSE(NEL),YFAC(NEL,2),DEPSS(NEL),H(NEL),
-     .        DEPSE(NEL),DEQ(NEL),YIELD(NEL),UNLOAD(NEL),
+     .        FAC(NEL),EPSE(NEL),DEPSS(NEL),H(NEL),
+     .        DEPSE(NEL),DEQ(NEL),YIELD(NEL),
      .        EPSC1(NEL),EPSC2(NEL),EPSD1(NEL),EPSD2(NEL),WORK(NEL),
-     .        DYDXC(NEL),YC(NEL),YFAC1(NEL),YFAC2(NEL),COEFB(NEL),
+     .        YFAC1(NEL),YFAC2(NEL),COEFB(NEL),
      .        DEXX(NEL),DEYY(NEL),DEZZ(NEL),P0(NEL),COEFA(NEL),
      .        SOXX(NEL),SOYY(NEL),SOZZ(NEL) ,SVMO2(NEL),DSIG(NEL),
      .        A,B,CC,X11,X22,DAV,ALPHA,SFC,SFD,P
@@ -233,8 +228,8 @@ c----  find yield values
         DO I1=1,NRATE
           FUNC = IFUNC(I1)
           FUND = IFUNC(I1+NRATE)
-          NP1  = (NPF(FUNC+1)-NPF(FUNC))*HALF
-          NP2  = (NPF(FUND+1)-NPF(FUND))*HALF
+          NP1  = (NPF(FUNC+1)-NPF(FUNC))/2
+          NP2  = (NPF(FUND+1)-NPF(FUND))/2
 c---
           DO J=3,NP1
             J1=2*(J-2)
@@ -382,20 +377,20 @@ c         loading curves
           IPOSC2(I) = NINT(UVAR(I,N0+J2))
           EPSC1(I)  = UVAR(I,N1+J1)
           EPSC2(I)  = UVAR(I,N1+J2)
-          IADC1(I)  = HALF*NPF(IPM(10+J1,MX)) + 1
-          IADC2(I)  = HALF*NPF(IPM(10+J2,MX)) + 1
-          ILENC1(I) = HALF*NPF(IPM(10+J1,MX)+1)-IADC1(I)-IPOSC1(I)
-          ILENC2(I) = HALF*NPF(IPM(10+J2,MX)+1)-IADC2(I)-IPOSC2(I)
+          IADC1(I)  = NPF(IPM(10+J1,MX))/2 + 1
+          IADC2(I)  = NPF(IPM(10+J2,MX))/2 + 1
+          ILENC1(I) = NPF(IPM(10+J1,MX)+1)/2-IADC1(I)-IPOSC1(I)
+          ILENC2(I) = NPF(IPM(10+J2,MX)+1)/2-IADC2(I)-IPOSC2(I)
 c         unloading curves
           IPOSD1(I) = NINT(UVAR(I,N2+J1))          
           IPOSD2(I) = NINT(UVAR(I,N2+J2))
           EPSD1(I)  = UVAR(I,N3+J1)
           EPSD2(I)  = UVAR(I,N3+J2)
-          IADD1(I)  = HALF*NPF(IPM(10+NRATE+J1,MX)) + 1
-          IADD2(I)  = HALF*NPF(IPM(10+NRATE+J2,MX)) + 1
-          ILEND1(I) = HALF*NPF(IPM(10+NRATE+J1,MX)+1)
+          IADD1(I)  = NPF(IPM(10+NRATE+J1,MX))/2 + 1
+          IADD2(I)  = NPF(IPM(10+NRATE+J2,MX))/2 + 1
+          ILEND1(I) = NPF(IPM(10+NRATE+J1,MX)+1)/2
      .              - IADD1(I) - IPOSD1(I)
-          ILEND2(I) = HALF*NPF(IPM(10+NRATE+J2,MX)+1)
+          ILEND2(I) = NPF(IPM(10+NRATE+J2,MX)+1)/2
      .              - IADD2(I) - IPOSD2(I)
         ELSE
           SIGYLD(I) = SIGY1
@@ -404,10 +399,10 @@ c         unloading curves
           EPSC1(I)  = UVAR(I,N1+J1)
           EPSD1(I)  = UVAR(I,N3+J1)
 
-          IADC1(I)  = HALF*NPF(IPM(10+J1,MX)) + 1
-          IADD1(I)  = HALF*NPF(IPM(10+NRATE+J1,MX)) + 1
-          ILENC1(I) = HALF*NPF(IPM(10+J1,MX)+1)-IADC1(I)-IPOSC1(I)
-          ILEND1(I) = HALF*NPF(IPM(10+NRATE+J1,MX)+1)
+          IADC1(I)  = NPF(IPM(10+J1,MX))/2 + 1
+          IADD1(I)  = NPF(IPM(10+NRATE+J1,MX))/2 + 1
+          ILENC1(I) = NPF(IPM(10+J1,MX)+1)/2-IADC1(I)-IPOSC1(I)
+          ILEND1(I) = NPF(IPM(10+NRATE+J1,MX)+1)/2
      .              - IADD1(I) - IPOSD1(I)
         ENDIF
       ENDDO                                         
@@ -549,7 +544,7 @@ C
            ENDIF
           ELSEIF ( SVM(I) <  SIGFC(I))THEN   !cas elastique,pente E => depss = 0                    
            DPLA (I) = ZERO    
-           IF (FLAG(I) == -1 .AND. WORK(I) < ZERO.AND.EPSS(I)>PLA(I))THEN !passage cote negatif,faux svm 
+           IF (FLAG(I) == -1 .AND. WORK(I) < ZERO.AND.EPSS(I)>PLA(I))THEN !Negative side passage, false SVM 
              FLAG(I) = -1
              YIELD(I)=SVM(I)+SIGFD(I)
              DEPSS(I) = -(YIELD(I)) / (E(I) + HD(I)) 

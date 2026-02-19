@@ -1,36 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MDAMA24                       source/elements/solid/solidez/mdama24.F
-Chd|-- called by -----------
-Chd|        SZHOUR3                       source/elements/solid/solidez/szhour3.F
-Chd|        SZHOUR3_OR                    source/elements/solid/solidez/szhour3.F
-Chd|-- calls ---------------
-Chd|        CBATRAN3V                     source/elements/solid/solidez/szhour3.F
-Chd|        GETTRANSV                     source/elements/solid/solidez/szhour3.F
-Chd|        MMODUL24C                     source/elements/solid/solidez/szhour3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    mdama24        ../engine/source/elements/solid/solidez/mdama24.F
+!||--- called by ------------------------------------------------------
+!||    s6zhour3       ../engine/source/elements/solid/solide6z/s6zhourg3.F90
+!||    s6zhour3_or    ../engine/source/elements/solid/solide6z/s6zhourg3_or.F90
+!||    szhour3        ../engine/source/elements/solid/solidez/szhour3.F
+!||    szhour3_or     ../engine/source/elements/solid/solidez/szhour3_or.F
+!||--- calls      -----------------------------------------------------
+!||    cbatran3v      ../engine/source/elements/solid/solidez/cbatran3v.F
+!||    gettransv      ../engine/source/elements/solid/solidez/gettransv.F
+!||    mmodul24c      ../engine/source/elements/solid/solidez/mmodul24c.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE MDAMA24(ELBUF_STR,JFT     ,JLT     ,PM    ,MAT    ,
      .                   DAMA_G )
 C-----------------------------------------------
@@ -49,7 +52,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -62,12 +64,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,MX,IAD,J,K,ipr,NBDAMA,ISYM
+      INTEGER I,MX,J,NBDAMA,ISYM
 C     REAL
       my_real
-     .   CC(MVSIZ,3,3),B(MVSIZ,3,3),G33(MVSIZ,3,3)
+     .   CC(MVSIZ,3,3),B(MVSIZ,3,3)
       my_real
-     .   NU,LAMDA,GG,C1,QC(MVSIZ,9),QCG(MVSIZ,9),QG(MVSIZ,9),
+     .   QC(MVSIZ,9),QCG(MVSIZ,9),QG(MVSIZ,9),
      .   QGC(MVSIZ,9),G3(MVSIZ,3),DAM
       my_real
      .   C3(MVSIZ,3),DAMANG(MVSIZ,6)
@@ -75,14 +77,14 @@ C     REAL
 C-----------------------------------------------
        LBUF => ELBUF_STR%BUFLY(1)%LBUF(1,1,1)
         MX = MAT(1)
-C-------get concrete part (CC,G3) and ANG in damage system	 
+C-------get concrete part (CC,G3) and ANG in damage system   
         CALL MMODUL24C(JLT    ,PM(1,MX),LBUF%DAM,LBUF%CRAK ,
      .                 CC     ,G3      ,LBUF%ANG,DAMANG ,NBDAMA)
        IF (NBDAMA==0) THEN
         DAMA_G(JFT:JLT,1:3)= ZERO
        ELSE
          C3(JFT:JLT,1:3)=PM(24,MX)
-C----- 	
+C----- 
          CALL GETTRANSV(JFT,JLT,DAMANG ,QC,QCG,QGC,QG)
         B(JFT:JLT,1:3,1:3)=ZERO
 C      

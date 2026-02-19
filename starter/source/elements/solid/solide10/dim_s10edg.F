@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DIM_S10EDG                    source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dim_s10edg   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur       ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE DIM_S10EDG(NEDG, IXS10 ,IPARG ,ITAGND)
 C=======================================================================
 C-----------------------------------------------
@@ -66,15 +65,15 @@ C-----------------------------------------------
         NF2  = NFT-NUMELS8
 C
         DO I=1,NEL
-	 II = I+NF2
+           II = I+NF2
          DO J = 1 , 6
- 	  N = IXS10(J,II)
- 	 IF (N >0) THEN
-	  IF (ITAGND(N)==0) THEN
-	   NEDG = NEDG + 1
-	   ITAGND(N)=NEDG
-	  END IF
-	 END IF
+            N = IXS10(J,II)
+           IF (N >0) THEN
+            IF (ITAGND(N)==0) THEN
+             NEDG = NEDG + 1
+             ITAGND(N)=NEDG
+            END IF
+           END IF
          ENDDO
         ENDDO
        END IF
@@ -82,14 +81,15 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_S10EDG                    source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ind_s10edg    ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE IND_S10EDG(ICNDS10, IXS, IXS10 ,IPARG,ITAGND)
 C=======================================================================
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -139,17 +139,17 @@ C
           NC(3) =IXS(7,II)
           NC(4) =IXS(6,II)
          DO J = 1 , 6
- 	  N = IXS10(J,JJ)
- 	  IF (N >0) THEN
-	   IF (ITAGND(N)==0) THEN
-	    NEDG = NEDG + 1
+            N = IXS10(J,JJ)
+            IF (N >0) THEN
+             IF (ITAGND(N)==0) THEN
+              NEDG = NEDG + 1
             ITAGND(N) = NEDG
             N1=IPERM1(J)
             N2=IPERM2(J)
             ICNDS10(1,NEDG) = N
             ICNDS10(2,NEDG) = NC(N1)
             ICNDS10(3,NEDG) = NC(N2)
-	   END IF
+             END IF
           END IF
          END DO
         END DO 
@@ -165,21 +165,17 @@ C                > NS10E : to be tagged first and be degenerated after
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  REORD_ICND                    source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reord_icnd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur       ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE REORD_ICND(ICNDS10, ITAGND)
 C=======================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -202,26 +198,25 @@ C
        IF (ITAGND(N)>0) THEN
         J = ITAGND(N)
         IE = IE + 1
-	ICNDS10(1:3,IE)=ICND_CP(1:3,J)
-	ITAGND(N) = IE
+          ICNDS10(1:3,IE)=ICND_CP(1:3,J)
+          ITAGND(N) = IE
        END IF
       END DO
       IF (IE /= NS10E) print *,'Error of re-ordering in REORD_ICND',IE,NS10E
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  REMOVE_ND                     source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        HM_READ_GRAV                  source/loads/general/grav/hm_read_grav.F
-Chd|        HM_READ_RWALL_CYL             source/constraints/general/rwall/hm_read_rwall_cyl.F
-Chd|        HM_READ_RWALL_LAGMUL          source/constraints/general/rwall/hm_read_rwall_lagmul.F
-Chd|        HM_READ_RWALL_PARAL           source/constraints/general/rwall/hm_read_rwall_paral.F
-Chd|        HM_READ_RWALL_PLANE           source/constraints/general/rwall/hm_read_rwall_plane.F
-Chd|        HM_READ_RWALL_SPHER           source/constraints/general/rwall/hm_read_rwall_spher.F
-Chd|        HM_READ_RWALL_THERM           source/constraints/general/rwall/hm_read_rwall_therm.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    remove_nd              ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_grav           ../starter/source/loads/general/grav/hm_read_grav.F
+!||    hm_read_rwall_cyl      ../starter/source/constraints/general/rwall/hm_read_rwall_cyl.F
+!||    hm_read_rwall_lagmul   ../starter/source/constraints/general/rwall/hm_read_rwall_lagmul.F
+!||    hm_read_rwall_paral    ../starter/source/constraints/general/rwall/hm_read_rwall_paral.F
+!||    hm_read_rwall_plane    ../starter/source/constraints/general/rwall/hm_read_rwall_plane.F
+!||    hm_read_rwall_spher    ../starter/source/constraints/general/rwall/hm_read_rwall_spher.F
+!||    hm_read_rwall_therm    ../starter/source/constraints/general/rwall/hm_read_rwall_therm.F
+!||====================================================================
       SUBROUTINE REMOVE_ND(NN, INN, ITAGND)
 C=======================================================================
 C-----------------------------------------------
@@ -229,17 +224,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NN, INN(*), ITAGND(*)
-C     REAL
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -251,7 +238,7 @@ C------remove tagged nodes in INN(*)----------------------------
        N = INN(I)
        IF (ITAGND(N) ==0 ) THEN
         ND = ND + 1
-	INN(ND) =INN(I)
+          INN(ND) =INN(I)
        END IF
       ENDDO 
 C      
@@ -259,11 +246,9 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  REMDEG_ND                     source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    remdeg_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||====================================================================
       SUBROUTINE REMDEG_ND(NN, INN, ITAGND)
 C=======================================================================
 C-----------------------------------------------
@@ -271,17 +256,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NN, INN(*), ITAGND(*)
-C     REAL
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -293,7 +270,7 @@ C------remove tagged nodes in INN(*) and will be degenerated-----------
        N = INN(I)
        IF (ITAGND(N) ==0 ) THEN
         ND = ND + 1
-	INN(ND) =INN(I)
+          INN(ND) =INN(I)
        ELSEIF (ITAGND(N) >0 ) THEN
         ITAGND(N) = -ITAGND(N)
        END IF
@@ -303,15 +280,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RIGMODIF_ND                   source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        HM_READ_RBODY                 source/constraints/general/rbody/hm_read_rbody.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        INTAB                         source/interfaces/inter3d1/i24tools.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    rigmodif_nd     ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_rbody   ../starter/source/constraints/general/rbody/hm_read_rbody.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../starter/source/output/message/message.F
+!||    intab           ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE RIGMODIF_ND(NN, INN, ITAGND,ICNDS10,IU,TITR,ITAB)
 C=======================================================================
       USE MESSAGE_MOD
@@ -319,9 +297,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -363,7 +338,7 @@ C--- -1: nd alone is in Rbody
         IS2 = INTAB(NN,INN,N2)
         IF (IS1.AND.IS2) THEN
 C----removed from INN and degenerating in 2nd passe----------
-         ITAGND(N) = ITAGND(N) + NS10E	
+         ITAGND(N) = ITAGND(N) + NS10E
          NNEW = NNEW + 1
          INN(NNEW) =INN(I)
          IER1 =1
@@ -375,7 +350,7 @@ C----removed from INN and degenerating in 2nd passe----------
      .                I1=ITAB(ND),
      .                PRMOD=MSG_CUMU)
         ELSEIF (.NOT.(IS1).AND..NOT.(IS2)) THEN
-C----error out	ND is along in RB
+C----error out  ND is along in RB
           CALL ANCMSG(MSGID=1216,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -384,7 +359,7 @@ C----error out	ND is along in RB
      .                I2=IU,
      .                C2='RIGID BODY ')
         ELSE
-C----removed from INN directely----------
+C----removed from INN directly----------
          IER2 =1
          IF (IPRI>=5)
      .    CALL ANCMSG(MSGID=1210,
@@ -421,21 +396,17 @@ C
        END IF 
       RETURN
       END
-Chd|====================================================================
-Chd|  RIGMODIF1_ND                  source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rigmodif1_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE RIGMODIF1_ND(NPBY,LPBY,ITAGND)
 C=======================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -460,27 +431,29 @@ C------removing Nd from LPBY(*)--degenerating--
         DO KK = 1, NSL
           NN = LPBY(K+KK)
           IF(ITAGND(NN)>NS10E)THEN
-	   ITAGND(NN) = -(ITAGND(NN)-NS10E)
+             ITAGND(NN) = -(ITAGND(NN)-NS10E)
           ELSE
            NSL_N = NSL_N + 1
-	   LPBY(K_N+NSL_N) =NN
+             LPBY(K_N+NSL_N) =NN
           END IF
         ENDDO
         K = K + NSL
         K_N = K_N + NSL_N
-	NPBY(2,N) = NSL_N
+          NPBY(2,N) = NSL_N
       ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2MODIF_ND                  source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        HM_READ_RBE2                  source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2modif_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_rbe2   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../starter/source/output/message/message.F
+!||    intab          ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE RBE2MODIF_ND(NN, INN, ITAGND,ICNDS10,IU,ITAB,ITAGM,M,ITAGIC)
 C=======================================================================
       USE MESSAGE_MOD
@@ -488,9 +461,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -573,7 +543,7 @@ C------!!!!add detail for message
 C----degenerating in 2nd passe------ and removed from RBE2 in 2nd passe
          NNEW = NNEW + 1
          INN(NNEW) =INN(I)
-         ITAGND(N) = ITAGND(N) + NS10E	
+         ITAGND(N) = ITAGND(N) + NS10E
          IER1 = 1
          IF (IPRI>=5)
      .    CALL ANCMSG(MSGID=1213,
@@ -583,7 +553,7 @@ C----degenerating in 2nd passe------ and removed from RBE2 in 2nd passe
      .                C1='RBE2 ',
      .                PRMOD=MSG_CUMU)
         ELSEIF (.NOT.(IS1).AND..NOT.(IS2)) THEN
-C----error out	ND is along in RBE2
+C----error out  ND is along in RBE2
           CALL ANCMSG(MSGID=1216,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -592,7 +562,7 @@ C----error out	ND is along in RBE2
      .                I2=IU,
      .                C2='RBE2 ')
         ELSE
-C----remove Nd from RBE2	directely
+C----remove Nd from RBE2 directly
          IER2 = 1
          IF (IPRI>=5)
      .     CALL ANCMSG(MSGID=1210,
@@ -601,7 +571,7 @@ C----remove Nd from RBE2	directely
      .                C1='RBE2 ',
      .                I1=ITAB(ND),
      .                PRMOD=MSG_CUMU)
-	END IF
+          END IF
        ELSE
         NNEW = NNEW + 1
         INN(NNEW) =INN(I)
@@ -630,13 +600,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2MODIF1_ND                 source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2modif1_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE RBE2MODIF1_ND(IRBE2,LRBE2,ITAGND)
 C=======================================================================
       USE MESSAGE_MOD
@@ -644,9 +614,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -684,24 +651,24 @@ C-----
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BCSMODIF_ND                   source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE BCSMODIF_ND(ICODE, ITAGND,ICNDS10,ITAB)
+!||====================================================================
+!||    bcsmodif_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE BCSMODIF_ND(ICODE, ITAGND,ICNDS10,ITAB  ,
+     .                       NNPBY,SLRBODY,NRBE2L ,SLRBE2,
+     .                       NPBY ,LPBY   ,IRBE2  ,LRBE2 )
 C=======================================================================
       USE MESSAGE_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -712,75 +679,97 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "scr03_c.inc"
+      INTEGER, INTENT (IN) :: NNPBY,SLRBODY,NRBE2L,SLRBE2
+      INTEGER, DIMENSION(NNPBY,NRBYKIN),INTENT (IN) :: NPBY
+      INTEGER, DIMENSION(SLRBODY)      ,INTENT (IN) :: LPBY
+      INTEGER, DIMENSION(NRBE2L,NRBE2) ,INTENT (IN) :: IRBE2
+      INTEGER, DIMENSION(SLRBE2)       ,INTENT (IN) :: LRBE2
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,NG, NEL, NFT,NF1, NF2, N,ND,N1,N2,ID,IPR
-      INTEGER IS1,IS2
+      INTEGER IS1,IS2,ISMIN,NSL,M,K,KK
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: ICODEM
 C     REAL
 C------treatment for /BCS ----------------------------
+! case of BCS by RBODY or RBE2
+      ALLOCATE(ICODEM(NUMNOD))
+      ICODEM(1:NUMNOD) = ICODE(1:NUMNOD)
+      K = 0
+      DO N = 1, NRBYKIN
+        M = NPBY(1,N)
+        IF (ICODEM(M) == 0) CYCLE
+        NSL=NPBY(2,N)
+        DO KK = 1, NSL
+          ND = LPBY(K+KK)
+          ICODEM(ND)=MAX(ICODEM(ND),ICODEM(M))
+        ENDDO
+        K = K + NSL
+      ENDDO
+      DO N = 1, NRBE2
+        K = IRBE2(1,N)
+        M = IRBE2(3,N)
+        IF (ICODEM(M) == 0) CYCLE
+        NSL = IRBE2(5,N)
+        DO KK = 1, NSL
+          ND = LRBE2(K+KK)
+          ICODEM(ND)=MAX(ICODEM(ND),ICODEM(M))
+        ENDDO
+      ENDDO
       IPR = 0
       DO N=1,NUMNOD
-       IF (ICODE(N)>0 .AND. ITAGND(N) /=0 ) THEN
-        ID = IABS(ITAGND(N))
-	ND = ICNDS10(1,ID)
-	N1 = ICNDS10(2,ID)
-	N2 = ICNDS10(3,ID)
-	IS1 = ICODE(N1)
-	IS2 = ICODE(N2)
-c	IF (IS1==IS2.AND.ICODE(N)==IS1) THEN
-C----remove Nd from ICNDS10
-c         ITAGND(N) = ITAGND(N) + NS10E	
-c-----no need warning like gravity-----	 
-c          CALL ANCMSG(MSGID=1205,
-c     .                MSGTYPE=MSGINFO,
-c     .                ANMODE=ANINFO_BLIND_1,
-c     .                C1='Boundary conditions ',
-c     .                I1=IU,
-c     .                I2=ITAB(ND),
-c     .                I3=ITAB(ND))
-	IF (IS1/=ICODE(N).AND.IS2/=ICODE(N)) THEN
-C----error out	ND is along in /BCS
-          CALL ANCMSG(MSGID=1208,
+       IF (ICODEM(N)>0 .AND. ITAGND(N) /=0 ) THEN
+         ID = IABS(ITAGND(N))
+         ND = ICNDS10(1,ID)
+         N1 = ICNDS10(2,ID)
+         N2 = ICNDS10(3,ID)
+         IS1 = ICODEM(N1)
+         IS2 = ICODEM(N2)
+         ISMIN = MIN(IS1,IS2)
+         IF (IS1/=ICODEM(N).AND.IS2/=ICODEM(N).AND.ISMIN<ICODEM(N)) THEN
+C----error out  ND has more /BCS than edge node
+            CALL ANCMSG(MSGID=1208,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
      .                I1=ITAB(ND),
      .                C1='Boundary conditions ',
      .                C2='Boundary conditions')
-	ELSE
-C----remove Nd from /BCS +degenerating	
-         ICODE(N) = 0
-         IPR = 1
-         IF (ITAGND(N)>0)ITAGND(N) = -ITAGND(N) 
-         IF (IPRI>=5)
-     .    CALL ANCMSG(MSGID=1207,
+         ELSE
+C----remove Nd from /BCS +degenerating
+           ICODE(N) = 0
+           IPR = 1
+           IF (ITAGND(N)>0)ITAGND(N) = -ITAGND(N) 
+           IF (IPRI>=5)
+     .     CALL ANCMSG(MSGID=1207,
      .                MSGTYPE=MSGINFO,
      .                ANMODE=ANINFO_BLIND_1,
      .                I1=ITAB(ND),
      .                PRMOD=MSG_CUMU)
-	END IF
+         END IF
        END IF
       ENDDO 
-       IF (IPR >0.AND.IPRI>=5) THEN
+      IF (IPR >0.AND.IPRI>=5) THEN
           CALL ANCMSG(MSGID=1207,
      .                MSGTYPE=MSGINFO,
      .                ANMODE=ANINFO_BLIND_1,
      .                C1='Boundary conditions ',
      .                C2='Boundary conditions',
      .                PRMOD=MSG_PRINT)
-       END IF 
+      END IF 
+      DEALLOCATE(ICODEM)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  FIXMODIF_ND                   source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        SAMEFVID                      source/elements/solid/solide10/dim_s10edg.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    fixmodif_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||    samefvid      ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE FIXMODIF_ND(IBFV, ITAGND,ICNDS10,ITAB)
 C=======================================================================
       USE MESSAGE_MOD
@@ -788,9 +777,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -820,24 +806,24 @@ C------treatment for tagged nodes in INN(*)----------------------------
        K = IBFV(12,I)
        IF (ITAGND(N) /=0 ) THEN
         ID = IABS(ITAGND(N))
-	ND = ICNDS10(1,ID)
-	N1 = ICNDS10(2,ID)
-	N2 = ICNDS10(3,ID)
-C--------quadratic, but---	
-	IS1 = SAMEFVID(K,IBFV,N1)
-	IS2 = SAMEFVID(K,IBFV,N2)
-c	IF (IS1.AND.IS2) THEN
+          ND = ICNDS10(1,ID)
+          N1 = ICNDS10(2,ID)
+          N2 = ICNDS10(3,ID)
+C--------quadratic, but---
+          IS1 = SAMEFVID(K,IBFV,N1)
+          IS2 = SAMEFVID(K,IBFV,N2)
+c  IF (IS1.AND.IS2) THEN
 C----remove Nd from ICNDS10
-c         ITAGND(N) = ITAGND(N) + NS10E	
-	IF (.NOT.(IS1).AND..NOT.(IS2)) THEN
-C----error out	ND is along in FV
+c         ITAGND(N) = ITAGND(N) + NS10E
+          IF (.NOT.(IS1).AND..NOT.(IS2)) THEN
+C----error out  ND is along in FV
           CALL ANCMSG(MSGID=1208,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
      .                I1=ITAB(ND),
      .                C1='Imposed VEL/DISP/ACC ',
      .                C2='Imposed VEL/DISP/ACC')
-	ELSE
+          ELSE
 C----remove Nd from FV and warning out-- will be done in ddsplit
          IPR = 1
          IF (IBFV(3,I)>0) IBFV(3,I) = -IBFV(3,I)
@@ -848,7 +834,7 @@ C----remove Nd from FV and warning out-- will be done in ddsplit
      .                ANMODE=ANINFO_BLIND_1,
      .                I1=ITAB(ND),
      .                PRMOD=MSG_CUMU)
-	END IF
+          END IF
        END IF
       ENDDO 
 C      
@@ -863,12 +849,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SAMEFVID                      source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        FIXMODIF_ND                   source/elements/solid/solide10/dim_s10edg.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    samefvid      ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    fixmodif_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||====================================================================
       LOGICAL FUNCTION SAMEFVID(ID,IBFV,N)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -892,7 +877,7 @@ C----6---------------------------------------------------------------7---------8
        DO I =1,NFXVEL
         NI = IABS(IBFV(1,I))
         IF (NI==N) THEN
-	 K = IBFV(12,I)
+           K = IBFV(12,I)
          IF (K==ID) SAMEFVID=.TRUE.
          RETURN
         ENDIF
@@ -900,21 +885,23 @@ C----6---------------------------------------------------------------7---------8
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INT2MODIF_ND                  source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    int2modif_nd           ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    inintr2                ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    intab                  ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INT2MODIF_ND(IPARI,INTBUF_TAB,ITAGND,ICNDS10,ITAB)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE MESSAGE_MOD
-      USE INTBUFDEF_MOD 
+      USE INTBUFDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -922,11 +909,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "param_c.inc"
-#include      "scr17_c.inc"
 #include      "com04_c.inc"
-#include      "warn_c.inc"
 #include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -944,7 +928,7 @@ C-----------------------------------------------
       INTEGER I,J,N,NTY,NSN,NMN,ISL,NKIN,NOINT,IMODI,II,N1,N2,ND
       INTEGER K,ILEV,NUVAR,IDEL7N,INTTH,IPR,IML,ICOM
       INTEGER, DIMENSION(NUMNOD) :: ITAGS,ITAGMD
-      CHARACTER*nchartitle, TITR
+      CHARACTER(LEN=NCHARTITLE):: TITR
       LOGICAL IS1,IS2,ISD
 C=======================================================================
 C--------done before : switch to penalty if only ND is secnd (N1,N2 not)
@@ -959,14 +943,14 @@ c         DO I=1,NS10E
 c          ND = ICNDS10(1,I)
 c          N1 = ICNDS10(2,I)
 c          N2 = ICNDS10(3,I)
-c	  IF (ITAGND(ND)>NS10E) CYCLE
-c	  ISD = INTAB(NSN,INTBUF_TAB(N)%NSV,ND)
+c    IF (ITAGND(ND)>NS10E) CYCLE
+c    ISD = INTAB(NSN,INTBUF_TAB(N)%NSV,ND)
 c          IF (.NOT.(ISD)) THEN
-c	   IS1 = INTAB(NSN,INTBUF_TAB(N)%NSV,N1)
-c	   IF (IS1) THEN
-c	    IS2 = INTAB(NSN,INTBUF_TAB(N)%NSV,N2)
-c	    IF (IS2.AND.ITAGND(ND)>0) THEN
-c	     ITAGND(ND)=-ITAGND(ND)
+c     IS1 = INTAB(NSN,INTBUF_TAB(N)%NSV,N1)
+c     IF (IS1) THEN
+c      IS2 = INTAB(NSN,INTBUF_TAB(N)%NSV,N2)
+c      IF (IS2.AND.ITAGND(ND)>0) THEN
+c       ITAGND(ND)=-ITAGND(ND)
 c             IPR = IPR +1
 c             CALL ANCMSG(MSGID=1212,
 c     .                MSGTYPE=MSGWARNING,
@@ -975,8 +959,8 @@ c     .                I1=ITAB(ND),
 c     .                I2=ITAB(N1),
 c     .                I3=ITAB(N2),
 c     .                PRMOD=MSG_CUMU)
-c	    END IF
-c           END IF	    
+c      END IF
+c           END IF      
 c          END IF 
 c         END DO 
 c         IF (IPR >0) THEN
@@ -1031,7 +1015,7 @@ C
             ISL = INTBUF_TAB(N)%NSV(I)
             IF (ITAGMD(ISL)>0 ) ITAGMD(IML)=-ITAGMD(ISL)
           ENDDO
-	 END IF
+           END IF
         END IF
       END DO
 C
@@ -1069,28 +1053,28 @@ C
         IF (NTY == 2 ) THEN
           NSN   = IPARI(5,N)
           NOINT = IPARI(15,N)
-	  IMODI = 0
+            IMODI = 0
           IPR = 0
          IF (ILEV == 25 .or. ILEV == 26) THEN
          ELSEIF (ILEV == 27 .or. ILEV == 28) THEN
           DO I=1,NSN
             ISL = INTBUF_TAB(N)%NSV(I)
             IF (ITAGND(ISL)/=0 .AND.INTBUF_TAB(N)%IRUPT(I) /= 1)THEN
-	     INTBUF_TAB(N)%NSV(I) = -ISL
-	     IF (ITAGND(ISL)>0 ) ITAGND(ISL) = -ITAGND(ISL)
-	     IMODI = IMODI + 1
-	    END IF
+               INTBUF_TAB(N)%NSV(I) = -ISL
+               IF (ITAGND(ISL)>0 ) ITAGND(ISL) = -ITAGND(ISL)
+               IMODI = IMODI + 1
+              END IF
           ENDDO
          ELSE
           DO I=1,NSN
             ISL = INTBUF_TAB(N)%NSV(I)
             IF (ITAGND(ISL)/=0 )THEN
-	     INTBUF_TAB(N)%NSV(I) = -ISL
-	     IF (ITAGND(ISL)>0 ) ITAGND(ISL) = -ITAGND(ISL)
-	     IMODI = IMODI + 1
-	    END IF
+               INTBUF_TAB(N)%NSV(I) = -ISL
+               IF (ITAGND(ISL)>0 ) ITAGND(ISL) = -ITAGND(ISL)
+               IMODI = IMODI + 1
+              END IF
           ENDDO
-	 END IF
+           END IF
 C-----------------------------------------------
 C     Compact INT,REAL BUFFER
 C-----------------------------------------------
@@ -1105,8 +1089,8 @@ C-----------------------------------------------
                INTBUF_TAB(N)%NSV(II) = INTBUF_TAB(N)%NSV(I)
                INTBUF_TAB(N)%IRTLM(II) = INTBUF_TAB(N)%IRTLM(I)
                IF ((ILEV >= 10.AND.ILEV <= 22).OR.ILEV == 27.OR.ILEV == 28) THEN
-	        INTBUF_TAB(N)%IRUPT(II) = INTBUF_TAB(N)%IRUPT(I)
-	       END IF
+                  INTBUF_TAB(N)%IRUPT(II) = INTBUF_TAB(N)%IRUPT(I)
+                 END IF
               INTBUF_TAB(N)%CSTS(1+2*(II-1))   = INTBUF_TAB(N)%CSTS(1+2*(I-1))
               INTBUF_TAB(N)%CSTS(1+2*(II-1)+1) = INTBUF_TAB(N)%CSTS(1+2*(I-1)+1)
               INTBUF_TAB(N)%DPARA(1+7*(II-1))   = INTBUF_TAB(N)%DPARA(1+7*(I-1))
@@ -1119,14 +1103,14 @@ C-----------------------------------------------
               IF (IDEL7N /= 0)THEN
                INTBUF_TAB(N)%SMAS(II)  = INTBUF_TAB(N)%SMAS(I)
                INTBUF_TAB(N)%SINER(II) = INTBUF_TAB(N)%SINER(I)
-	      END IF
+                END IF
               IF ((ILEV>=10 .AND. ILEV<=22 ).OR. INTTH > 0) THEN
                INTBUF_TAB(N)%AREAS2(II) = INTBUF_TAB(N)%AREAS2(I)
                 DO K = 0,NUVAR-1
                  INTBUF_TAB(N)%UVAR(1+NUVAR*(II-1)+K) = 
      .                     INTBUF_TAB(N)%UVAR(1+NUVAR*(I-1)+K)
                 ENDDO                                  
-	      END IF
+                END IF
               IF (( ILEV>=10 .AND. ILEV<=12).OR.( ILEV>=20 .AND. ILEV<=22)) THEN
                INTBUF_TAB(N)%SMAS(II)  = INTBUF_TAB(N)%SMAS(I)
                INTBUF_TAB(N)%SINER(II) = INTBUF_TAB(N)%SINER(I)
@@ -1152,14 +1136,14 @@ C-----------------------------------------------
                 INTBUF_TAB(N)%FSM(1+3*(II-1)+K) = INTBUF_TAB(N)%FSM(1+3*(I-1)+K)
                 INTBUF_TAB(N)%FINI(1+3*(II-1)+K) = INTBUF_TAB(N)%FINI(1+3*(I-1)+K)
                ENDDO             
- 	      END IF
+                END IF
               IF (INTBUF_TAB(N)%S_CSTS_BIS>0) THEN
                DO K = 0,1
                 INTBUF_TAB(N)%CSTS_BIS(1+2*(II-1)+K) = INTBUF_TAB(N)%CSTS_BIS(1+2*(I-1)+K)
                ENDDO             
               END IF
-	     ELSE
-C-----warning out	 
+               ELSE
+C-----warning out   
              ISL = -INTBUF_TAB(N)%NSV(I)
              IPR = 1
            IF (IPRI>=5) 
@@ -1171,7 +1155,7 @@ C-----warning out
              ENDIF                                
            ENDDO                                  
            IPARI(5,N) = II
-	 END IF !(IMODI > 0 )
+           END IF !(IMODI > 0 )
          IF (IPR >0.AND.IPRI>=5) THEN
           CALL ANCMSG(MSGID=1209,
      .                MSGTYPE=MSGINFO,
@@ -1186,26 +1170,18 @@ C
 c-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  PRE_CNDPON                    source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|====================================================================
+!||====================================================================
+!||    pre_cndpon   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur       ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal       ../starter/source/spmd/node/ddtools.F
+!||====================================================================
       SUBROUTINE PRE_CNDPON(ICNDS10,ADSKYCND,CEPCND,CELCND  ,ITAGND)
-C
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1232,7 +1208,7 @@ C
 C Itet=2 of Tetra10 same than int2
 C
 C-----------------------------------------------------
-C Preparation de ADDCNCND : Adresse matrice CNCND 
+C Preparation of ADDCNCND : Address matrix CNCND 
 C-----------------------------------------------------
         DO N=0,NUMNOD+1
           ADSKYCND(N) = 0
@@ -1241,34 +1217,34 @@ C
         NIR = 2
         DO I=1,NS10E
           K = IABS(ICNDS10(1,I))
-	  IF (ITAGND(K)>NS10E) CYCLE
+            IF (ITAGND(K)>NS10E) CYCLE
           DO J=1,NIR
             KK = ICNDS10(1+J,I)
             ADSKYCND(KK) = ADSKYCND(KK) + 1
           END DO
         END DO
 C-----------------------------------------------
-C   CALCUL DES ADRESSES DU VECTEUR SKYLINE
+C   CALCULATION OF SKYLINE VECTOR ADDRESSES
 C-----------------------------------------------
-C------remove zero value nodes at the begining---
+C------remove zero value nodes at the beginning---
        IF (ADSKYCND(1)>0) THEN
         NI= 1
        ELSE
         NI = 0
         DO I=2,NUMNOD
           IF (ADSKYCND(I)>0) THEN
-	   NI = I
-	   GOTO 100
-	  END IF
+             NI = I
+             GOTO 100
+            END IF
         ENDDO
  100     CONTINUE
        END IF
 C-----------first activate node should begin from 1       
         IF (NI==1) THEN
-	 ADSKYCND(1) = ADSKYCND(1)+1
-	ELSE
-	 ADSKYCND(1) = 1
-	END IF
+           ADSKYCND(1) = ADSKYCND(1)+1
+          ELSE
+           ADSKYCND(1) = 1
+          END IF
         DO I=2,NUMNOD+1
           ADSKYCND(I)=ADSKYCND(I)+ADSKYCND(I-1)
         ENDDO
@@ -1277,30 +1253,30 @@ C-----------first activate node should begin from 1
         ENDDO
         ADSKYCND(1:NI) = 1
 C-----------------------------------------------
-C Remplissage de CEPCND : connection Element/Local
+C Filling of Cepcnd: Element/Local Connection
 C-----------------------------------------------
            ICOMP(1:NSPMD)=0
             DO I=1,NS10E
               K = IABS(ICNDS10(1,I))
-	      IF (ITAGND(K)>NS10E) CYCLE
+                IF (ITAGND(K)>NS10E) CYCLE
               DO P = 1, NSPMD
                 IF(NLOCAL(K,P)==1)THEN
                   CEPCND(I) = P-1
-		  ICOMP(P) = ICOMP(P) + 1
+            ICOMP(P) = ICOMP(P) + 1
                   CELCND(I)= ICOMP(P)
-	          GOTO 200
+                    GOTO 200
                 ENDIF
               ENDDO
  200        CONTINUE
             ENDDO
 C-----------------------------------------------
-C Remplissage de CEL : connection Element/Local
+C CEL filling: Element/Local Connection
 C-----------------------------------------------
 c        DO P = 1, NSPMD
 c          NL_L = 0
 c          DO I=1,NS10E
 c            K = IABS(ICNDS10(1,I))
-c	    IF (ITAGND(K)>NS10E) CYCLE
+c      IF (ITAGND(K)>NS10E) CYCLE
 c            IF(CELCND(I)==0) THEN
 c              IF(NLOCAL(K,P)==1)THEN
 c                NL_L = NL_L + 1
@@ -1312,51 +1288,31 @@ c        END DO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  FILLCNCND                     source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    fillcncnd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur      ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE FILLCNCND(CNCND  ,ADDCNCND, ICNDS10,ITAGND)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "rnur_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ADDCNCND(0:*), CNCND(*),ICNDS10(3,*),ITAGND(*)
-
-C-----------------------------------------------
-C   F u n c t i o n
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
-C---------------------------------------
+C-----------------------------------------------
       INTEGER I, J, L, K, N, OFF, NTY, NRTS, NRTM, NSN, NMN,
      .        KK, NIR,ADSKY(NUMNOD+1)
 C-----------------------------------------------
-C   S o u r c e  L i n e s
-C-----------------------------------------------
-C-----------------------------------------------
-C   CALCUL DE CNE ADDCNE
+C   CALCULATION OF CNE ADDCNE
 C-----------------------------------------------
       DO I = 1, NUMNOD+1
         ADSKY(I) = ADDCNCND(I)
@@ -1366,7 +1322,7 @@ C ADDCNCND(I+1)-ADDCNCND(I): nb of node I (main)
         NIR = 2
         DO I=1,NS10E
           K = ICNDS10(1,I)
-	  IF (ITAGND(K)>NS10E) CYCLE
+            IF (ITAGND(K)>NS10E) CYCLE
           DO J=1,NIR
             KK = ICNDS10(1+J,I)
             CNCND(ADSKY(KK)) = I
@@ -1376,21 +1332,17 @@ C ADDCNCND(I+1)-ADDCNCND(I): nb of node I (main)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  STIFN0_ND                     source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    stifn0_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur      ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE STIFN0_ND(ICNDS10,STIFN)
 C=======================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1415,21 +1367,17 @@ C------put STIFN(ND)=0 for mscalling dt estimation
 C      
       RETURN
       END
-Chd|====================================================================
-Chd|  STIFN1_ND                     source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    stifn1_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur      ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE STIFN1_ND(ICNDS10,STIFN)
 C=======================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1462,14 +1410,15 @@ C------condense STIFN(ND)
 C      
       RETURN
       END
-Chd|====================================================================
-Chd|  BCSCYCMODIF_ND                source/elements/solid/solide10/dim_s10edg.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    bcscycmodif_nd   ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg           ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE BCSCYCMODIF_ND(IBCSCYC,LBCSCYC,ITAGND,ITAB)
 C=======================================================================
       USE MESSAGE_MOD
@@ -1478,18 +1427,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IBCSCYC(4,*), LBCSCYC(2,*), ITAGND(*),ITAB(*)
-C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------

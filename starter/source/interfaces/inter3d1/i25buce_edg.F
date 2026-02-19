@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25BUCE_EDG                   source/interfaces/inter3d1/i25buce_edg.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        I25TRIVOX_EDG                 source/interfaces/inter3d1/i25trivox_edg.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules1/tri7box.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25buce_edg     ../starter/source/interfaces/inter3d1/i25buce_edg.F
+!||--- called by ------------------------------------------------------
+!||    inint3          ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    i25trivox_edg   ../starter/source/interfaces/inter3d1/i25trivox_edg.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||    tri7box         ../starter/share/modules1/tri7box.F
+!||====================================================================
        SUBROUTINE I25BUCE_EDG(
      1   X        ,IRECT   ,INACTI  ,NSN      ,
      2   NMN      ,CANDM_E2E  ,CANDS_E2E  ,
@@ -38,11 +39,13 @@ Chd|====================================================================
      6   NCONT    ,GAP_M   ,ITASK    ,BGAPEMX  ,
      7   I_MEM    ,ITAB    ,MBINFLG  ,EBINFLG  ,LL_STOK  ,
      8   MULNSNS  ,ILEV    ,CAND_A   ,CAND_P   ,IGAP0    ,
-     9   FLAGREMNODE,KREMNOD,REMNOD   ,
+     9   FLAGREMNODE,KREMNOD,REMNOD   ,S_REMNODE_EDG,
      A   IGAP    ,GAP_M_L   ,IEDGE    ,NEDGE    ,MSEGTYP, 
      B   LEDGE   ,ADMSR,EDG_BISECTOR,VTX_BISECTOR,
      C   CANDM_E2S ,CANDS_E2S,CAND_B ,CAND_PS  ,GAPE    ,
-     D   GAP_E_L  ,DGAPLOAD)
+     D   GAP_E_L  ,DGAPLOAD,FLAG_REMOVED_NODE,
+     E   S_KREMNODE_E2S,S_REMNODE_E2S,KREMNODE_E2S,REMNODE_E2S,
+     F   S_KREMNODE_EDG)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
@@ -52,30 +55,28 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "comlock.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
-C#include      "task_c.inc"
-C#include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NSN, NMN,NOINT,IDT,INACTI,IGAP0
+      INTEGER NSN, NMN,NOINT,INACTI,IGAP0
+      LOGICAL, INTENT(in) :: FLAG_REMOVED_NODE !< flag to remove some S node from the list of candidates
+      INTEGER, INTENT(in) :: S_KREMNODE_E2S !< size of KREMNODE_E2S array
+      INTEGER, INTENT(in) :: S_REMNODE_E2S !< size of REMNODE_E2S array
+      INTEGER, INTENT(in) :: S_KREMNODE_EDG
+
       INTEGER IRECT(4,*),ITASK,ILEV, IGAP, IEDGE, NEDGE, ESHIFT,NEDGE_T,SSHIFT,NRTM_T 
       INTEGER CANDM_E2E(*),CANDS_E2E(*),CAND_A(*),CANDM_E2S(*),CANDS_E2S(*),CAND_B(*)
+      INTEGER, INTENT(in) :: S_REMNODE_EDG
       INTEGER MULNSNE,MULNSNS,NCONT,I_MEM(2),
      .        II_STOK, LL_STOK, ITAB(*),MBINFLG(*), EBINFLG(*), LEDGE(NLEDGE,*), ADMSR(*),
      .        MSEGTYP(*),
-     .        FLAGREMNODE, KREMNOD(*), REMNOD(*)
-C     REAL
+     .        FLAGREMNODE, KREMNOD(S_KREMNODE_EDG), REMNOD(*)
+      INTEGER, DIMENSION(S_KREMNODE_E2S), INTENT(in) :: KREMNODE_E2S !< adress of forbidden S edge
+      INTEGER, DIMENSION(S_REMNODE_E2S), INTENT(in) :: REMNODE_E2S !< list of forbidden S edge
       my_real
      .   GAP,VMAXDT,DRAD,
      .   BMINMA(6),BGAPEMX, MARGE
@@ -84,24 +85,23 @@ C     REAL
      .   X(3,*), STFM(*), GAP_M(*), GAP_M_L(*), GAPE(*), GAP_E_L(*), CAND_P(*), CAND_PS(*), STFN(*)
       REAL*4 EDG_BISECTOR(3,4,*), VTX_BISECTOR(3,2,*)
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, SOL_EDGE, SH_EDGE, 
-     .        N, L, E, IE, I1, I2, N1, N2 
-C     REAL
+      INTEGER I, J, 
+     .         L, E 
       my_real
      .        XYZM(6), AAA, TZINF, 
      .        XMIN, YMIN, ZMIN, XMAX, YMAX, ZMAX
       INTEGER NBX,NBY,NBZ
-      INTEGER (KIND=8) :: NBX8,NBY8,NBZ8,RES8,LVOXEL8   
+      INTEGER (KIND=8) :: NBX8,NBY8,NBZ8,RES8,LVOXEL8
+      INTEGER (KIND=8) :: IONE,IHUNDRED !< Integer constants in INTEGER 8 for comparisions
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-C     CALCUL DES BORNES DU DOMAINE
+      IONE=1        !< Constant init
+      IHUNDRED=100  !< Constant init
+C--------------------------------
+C     Calculation of the domain boundaries
 C--------------------------------
       BMINMA(1)=-EP30
       BMINMA(2)=-EP30
@@ -118,7 +118,7 @@ C--------------------------------
       ZMAX=-EP30 
 C
       DO I=ESHIFT+1,ESHIFT+NEDGE_T
-     	L=LEDGE(1,I)
+          L=LEDGE(1,I)
         E=LEDGE(2,I)
         IF(STFM(L) /= ZERO)THEN      
           J=IRECT(E,L)
@@ -208,12 +208,12 @@ C=============================================================================
       RES8=(NBX8+2)*(NBY8+2)*(NBZ8+2)
       
       IF(RES8 > LVOXEL8) THEN
-        NBX = MIN(100,MAX(NBX8,1))
-        NBY = MIN(100,MAX(NBY8,1))
-        NBZ = MIN(100,MAX(NBZ8,1))
+        NBX = MIN(IHUNDRED,MAX(NBX8,IONE))
+        NBY = MIN(IHUNDRED,MAX(NBY8,IONE))
+        NBZ = MIN(IHUNDRED,MAX(NBZ8,IONE))
       END IF
 
-C     initialisation complete de VOXEL
+C     Complete initialization of VOXEL
       DO I=INIVOXEL,(NBX+2)*(NBY+2)*(NBZ+2)
         VOXEL1(I)=0
       ENDDO
@@ -228,13 +228,15 @@ C
      6   IGAP    ,GAP_M    ,GAP_M_L ,DRAD     ,MARGE    ,
      7   ITASK   ,ITAB     ,LL_STOK ,MULNSNS  ,
      8   MBINFLG ,EBINFLG  ,ILEV    ,CAND_A   ,CAND_P   ,
-     9   FLAGREMNODE,KREMNOD,REMNOD  ,
+     9   FLAGREMNODE,KREMNOD,REMNOD  , S_REMNODE_EDG, 
      A   IEDGE   ,NEDGE    ,LEDGE    ,MSEGTYP ,IGAP0    ,
      B   ADMSR,EDG_BISECTOR,VTX_BISECTOR,
      C   CANDM_E2S,CANDS_E2S,CAND_B,CAND_PS   ,GAPE     ,
-     D   GAP_E_L  ,DGAPLOAD)
+     D   GAP_E_L  ,DGAPLOAD,FLAG_REMOVED_NODE,
+     E   S_KREMNODE_E2S,S_REMNODE_E2S,KREMNODE_E2S,REMNODE_E2S,
+     F   S_KREMNODE_EDG)
 C
-C     I_MEM /= 0 ==> PAS ASSEZ DE MEMOIRE CANDIDATS
+C     I_MEM /= 0 ==> PAS ASSEZ DE MEMOIRE CANDIDATES
 C
       RETURN
       END

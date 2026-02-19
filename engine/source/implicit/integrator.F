@@ -1,38 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTEGRATORL                   source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    integratorl   ../engine/source/implicit/integrator.F
+!||====================================================================
       SUBROUTINE INTEGRATORL(NODFT,NODLT,D     ,DR    ,
      1                      X    ,V    ,VR     ,A     ,AR    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -61,7 +57,7 @@ C------- integrateur ----------
             A(2,I)=ZERO
             A(3,I)=ZERO
            ENDDO
-           IF (IRODDL.NE.0) THEN
+           IF (IRODDL/=0) THEN
             DO I=NODFT,NODLT
             VR(1,I)=DR(1,I)*DTI
             VR(2,I)=DR(2,I)*DTI
@@ -74,21 +70,18 @@ C------- integrateur ----------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  INTEGRATOR                    source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        INTEGRATOR0                   source/implicit/integrator.F  
-Chd|        INTE_DYNA                     source/implicit/imp_dyna.F    
-Chd|====================================================================
+!||====================================================================
+!||    integrator    ../engine/source/implicit/integrator.F
+!||--- calls      -----------------------------------------------------
+!||    inte_dyna     ../engine/source/implicit/imp_dyna.F
+!||    integrator0   ../engine/source/implicit/integrator.F
+!||====================================================================
       SUBROUTINE INTEGRATOR(NODFT,NODLT ,NDT   ,D    ,DR    ,
      1                      X     ,V    ,VR    ,A    ,AR    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -109,7 +102,7 @@ C-----------------------------------------------
       my_real
      .  DTI
 C------- integrateur ---------- 
-      IF (IDYNA.GT.0) CALL INTE_DYNA(NODFT,NODLT ,
+      IF (IDYNA>0) CALL INTE_DYNA(NODFT,NODLT ,
      .                               D    ,DR    ,V    ,VR    )
       DTI = ONE/DT2/NDT
        DO I=NODFT,NODLT
@@ -117,7 +110,7 @@ C------- integrateur ----------
         V(2,I)=DTI*D(2,I)
         V(3,I)=DTI*D(3,I)
        ENDDO
-       IF (IRODDL.NE.0) THEN
+       IF (IRODDL/=0) THEN
         DO I=NODFT,NODLT
          VR(1,I)=DTI*DR(1,I)
          VR(2,I)=DTI*DR(2,I)
@@ -131,7 +124,7 @@ C
        A(2,I)=ZERO
        A(3,I)=ZERO
       ENDDO
-      IF (IRODDL.NE.0) THEN
+      IF (IRODDL/=0) THEN
        DO I=NODFT,NODLT
         AR(1,I)=ZERO
         AR(2,I)=ZERO
@@ -141,20 +134,17 @@ C
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  INTEGRATOR0                   source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|        INTEGRATOR                    source/implicit/integrator.F  
-Chd|        INTEGRATOR_HP                 source/implicit/integrator.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    integrator0     ../engine/source/implicit/integrator.F
+!||--- called by ------------------------------------------------------
+!||    integrator      ../engine/source/implicit/integrator.F
+!||    integrator_hp   ../engine/source/implicit/integrator.F
+!||====================================================================
       SUBROUTINE INTEGRATOR0(NODFT,NODLT,V     ,X    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -170,7 +160,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I
-C------- integrateur de base--------- 
+C------- basic integrator --------
            DO I=NODFT,NODLT
             X(1,I)=X(1,I)+V(1,I)*DT2
             X(2,I)=X(2,I)+V(2,I)*DT2
@@ -179,21 +169,14 @@ C------- integrateur de base---------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  INTEGRATOR1                   source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    integrator1   ../engine/source/implicit/integrator.F
+!||====================================================================
       SUBROUTINE INTEGRATOR1(NODFT,NODLT,D     ,X    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -205,7 +188,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,K
-C------- integrateur de base--------- 
+C------- basic integrator --------
            DO I=NODFT,NODLT
             X(1,I)=X(1,I)+D(1,I)
             X(2,I)=X(2,I)+D(2,I)
@@ -214,20 +197,17 @@ C------- integrateur de base---------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  INTEGRATOR2                   source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|        AL_CONSTRAINT1                source/implicit/nl_solv.F     
-Chd|        AL_CONSTRAINTH1               source/implicit/nl_solv.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    integrator2       ../engine/source/implicit/integrator.F
+!||--- called by ------------------------------------------------------
+!||    al_constraint1    ../engine/source/implicit/nl_solv.F
+!||    al_constrainth1   ../engine/source/implicit/nl_solv.F
+!||====================================================================
       SUBROUTINE INTEGRATOR2(NODFT,NODLT,IDDL,NDOF,IKC,D,DR,DD,DDR)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -246,15 +226,15 @@ C-----------------------------------------------
           DO I=NODFT,NODLT
            DO J=1,3
             ID = IDDL(I)+J
-            IF (IKC(ID).EQ.0) D(J,I)=D(J,I)+DD(J,I)
+            IF (IKC(ID)==0) D(J,I)=D(J,I)+DD(J,I)
            ENDDO
           ENDDO
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
             DO I=NODFT,NODLT
-             IF (NDOF(I).GT.3) THEN
+             IF (NDOF(I)>3) THEN
               DO J=1,3
                ID = IDDL(I)+J+3
-               IF (IKC(ID).EQ.0) DR(J,I)=DR(J,I)+DDR(J,I)
+               IF (IKC(ID)==0) DR(J,I)=DR(J,I)+DDR(J,I)
               ENDDO
              ENDIF
             ENDDO
@@ -262,18 +242,14 @@ C-----------------------------------------------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  FRAC_D                        source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    frac_d   ../engine/source/implicit/integrator.F
+!||====================================================================
       SUBROUTINE FRAC_D(NODFT,NODLT,IDDL,NDOF,IKC,D,DR,FAC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -293,15 +269,15 @@ C-----------------------------------------------
           DO I=NODFT,NODLT
            DO J=1,3
             ID = IDDL(I)+J
-            IF (IKC(ID).EQ.0) D(J,I)=D(J,I)*FAC
+            IF (IKC(ID)==0) D(J,I)=D(J,I)*FAC
            ENDDO
           ENDDO
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
             DO I=NODFT,NODLT
-             IF (NDOF(I).GT.3) THEN
+             IF (NDOF(I)>3) THEN
               DO J=1,3
                ID = IDDL(I)+J+3
-               IF (IKC(ID).EQ.0) DR(J,I)=DR(J,I)*FAC
+               IF (IKC(ID)==0) DR(J,I)=DR(J,I)*FAC
               ENDDO
              ENDIF
             ENDDO
@@ -309,20 +285,17 @@ C-----------------------------------------------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  FRAC_DD                       source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|        AL_CONSTRAINT1                source/implicit/nl_solv.F     
-Chd|        AL_CONSTRAINTH1               source/implicit/nl_solv.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    frac_dd           ../engine/source/implicit/integrator.F
+!||--- called by ------------------------------------------------------
+!||    al_constraint1    ../engine/source/implicit/nl_solv.F
+!||    al_constrainth1   ../engine/source/implicit/nl_solv.F
+!||====================================================================
       SUBROUTINE FRAC_DD(NODFT,NODLT,IDDL,NDOF,IKC,D,DR,DD,DDR,FAC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -342,15 +315,15 @@ C-----------------------------------------------
           DO I=NODFT,NODLT
            DO J=1,3
             ID = IDDL(I)+J
-            IF (IKC(ID).EQ.0) D(J,I)=D(J,I)+FAC*DD(J,I)
+            IF (IKC(ID)==0) D(J,I)=D(J,I)+FAC*DD(J,I)
            ENDDO
           ENDDO
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
             DO I=NODFT,NODLT
-             IF (NDOF(I).GT.3) THEN
+             IF (NDOF(I)>3) THEN
               DO J=1,3
                ID = IDDL(I)+J+3
-               IF (IKC(ID).EQ.0) DR(J,I)=DR(J,I)+FAC*DDR(J,I)
+               IF (IKC(ID)==0) DR(J,I)=DR(J,I)+FAC*DDR(J,I)
               ENDDO
              ENDIF
             ENDDO
@@ -359,21 +332,19 @@ C--------------------------------------------
       RETURN
       END
 C-----_HP: Hybrid SMP // inside     
-Chd|====================================================================
-Chd|  INTEGRATORL_HP                source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_SMPINI                    source/implicit/imp_solv.F    
-Chd|====================================================================
+!||====================================================================
+!||    integratorl_hp   ../engine/source/implicit/integrator.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv         ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_smpini       ../engine/source/implicit/imp_solv.F
+!||====================================================================
       SUBROUTINE INTEGRATORL_HP(D     ,DR    ,
      1                          X    ,V    ,VR     ,A     ,AR    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -405,7 +376,7 @@ C------- integrateur ----------
             A(2,I)=ZERO
             A(3,I)=ZERO
            ENDDO
-           IF (IRODDL.NE.0) THEN
+           IF (IRODDL/=0) THEN
             DO I=NODFT,NODLT
             VR(1,I)=DR(1,I)*DTI
             VR(2,I)=DR(2,I)*DTI
@@ -419,23 +390,21 @@ C------- integrateur ----------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  INTEGRATOR_HP                 source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_SMPINI                    source/implicit/imp_solv.F    
-Chd|        INTEGRATOR0                   source/implicit/integrator.F  
-Chd|        INTE_DYNA                     source/implicit/imp_dyna.F    
-Chd|====================================================================
+!||====================================================================
+!||    integrator_hp   ../engine/source/implicit/integrator.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_smpini      ../engine/source/implicit/imp_solv.F
+!||    inte_dyna       ../engine/source/implicit/imp_dyna.F
+!||    integrator0     ../engine/source/implicit/integrator.F
+!||====================================================================
       SUBROUTINE INTEGRATOR_HP(NDT   ,D    ,DR    ,
      1                         X     ,V     ,VR    ,A    ,AR    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -461,14 +430,14 @@ C------- integrateur ----------
       DTI = ONE/DT2/NDT
 !$OMP PARALLEL PRIVATE(ITSK,NODFT ,NODLT,I)
       CALL IMP_SMPINI(ITSK   ,NODFT ,NODLT ,NUMNOD )
-      IF (IDYNA.GT.0) CALL INTE_DYNA(NODFT,NODLT ,
+      IF (IDYNA>0) CALL INTE_DYNA(NODFT,NODLT ,
      .                               D    ,DR    ,V    ,VR    )
        DO I=NODFT,NODLT
         V(1,I)=DTI*D(1,I)
         V(2,I)=DTI*D(2,I)
         V(3,I)=DTI*D(3,I)
        ENDDO
-       IF (IRODDL.NE.0) THEN
+       IF (IRODDL/=0) THEN
         DO I=NODFT,NODLT
          VR(1,I)=DTI*DR(1,I)
          VR(2,I)=DTI*DR(2,I)
@@ -482,7 +451,7 @@ C
        A(2,I)=ZERO
        A(3,I)=ZERO
       ENDDO
-      IF (IRODDL.NE.0) THEN
+      IF (IRODDL/=0) THEN
        DO I=NODFT,NODLT
         AR(1,I)=ZERO
         AR(2,I)=ZERO
@@ -493,20 +462,18 @@ C
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  INTEGRATOR1_HP                source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_SMPINI                    source/implicit/imp_solv.F    
-Chd|====================================================================
+!||====================================================================
+!||    integrator1_hp   ../engine/source/implicit/integrator.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv         ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_smpini       ../engine/source/implicit/imp_solv.F
+!||====================================================================
       SUBROUTINE INTEGRATOR1_HP(D     ,X    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -522,7 +489,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NODFT,NODLT ,ITSK
       INTEGER I,K
-C------- integrateur de base--------- 
+C------- basic integrator --------
 !$OMP PARALLEL PRIVATE(ITSK,NODFT ,NODLT,I)
       CALL IMP_SMPINI(ITSK   ,NODFT ,NODLT ,NUMNOD )
            DO I=NODFT,NODLT
@@ -534,21 +501,19 @@ C------- integrateur de base---------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  INTEGRATOR2_HP                source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|        AL_CONSTRAINT1_HP             source/implicit/nl_solv.F     
-Chd|        NL_SOLV                       source/implicit/nl_solv.F     
-Chd|-- calls ---------------
-Chd|        IMP_SMPINI                    source/implicit/imp_solv.F    
-Chd|====================================================================
+!||====================================================================
+!||    integrator2_hp      ../engine/source/implicit/integrator.F
+!||--- called by ------------------------------------------------------
+!||    al_constraint1_hp   ../engine/source/implicit/nl_solv.F
+!||    nl_solv             ../engine/source/implicit/nl_solv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_smpini          ../engine/source/implicit/imp_solv.F
+!||====================================================================
       SUBROUTINE INTEGRATOR2_HP(IDDL,NDOF,IKC,D,DR,DD,DDR)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -572,15 +537,15 @@ C-----------------------------------------------
           DO I=NODFT,NODLT
            DO J=1,3
             ID = IDDL(I)+J
-            IF (IKC(ID).EQ.0) D(J,I)=D(J,I)+DD(J,I)
+            IF (IKC(ID)==0) D(J,I)=D(J,I)+DD(J,I)
            ENDDO
           ENDDO
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
             DO I=NODFT,NODLT
-             IF (NDOF(I).GT.3) THEN
+             IF (NDOF(I)>3) THEN
               DO J=1,3
                ID = IDDL(I)+J+3
-               IF (IKC(ID).EQ.0) DR(J,I)=DR(J,I)+DDR(J,I)
+               IF (IKC(ID)==0) DR(J,I)=DR(J,I)+DDR(J,I)
               ENDDO
              ENDIF
             ENDDO
@@ -589,20 +554,18 @@ C-----------------------------------------------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  FRAC_D_HP                     source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|        NL_SOLV                       source/implicit/nl_solv.F     
-Chd|-- calls ---------------
-Chd|        IMP_SMPINI                    source/implicit/imp_solv.F    
-Chd|====================================================================
+!||====================================================================
+!||    frac_d_hp    ../engine/source/implicit/integrator.F
+!||--- called by ------------------------------------------------------
+!||    nl_solv      ../engine/source/implicit/nl_solv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_smpini   ../engine/source/implicit/imp_solv.F
+!||====================================================================
       SUBROUTINE FRAC_D_HP(IDDL,NDOF,IKC,D,DR,FAC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -626,15 +589,15 @@ C-----------------------------------------------
           DO I=NODFT,NODLT
            DO J=1,3
             ID = IDDL(I)+J
-            IF (IKC(ID).EQ.0) D(J,I)=D(J,I)*FAC
+            IF (IKC(ID)==0) D(J,I)=D(J,I)*FAC
            ENDDO
           ENDDO
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
             DO I=NODFT,NODLT
-             IF (NDOF(I).GT.3) THEN
+             IF (NDOF(I)>3) THEN
               DO J=1,3
                ID = IDDL(I)+J+3
-               IF (IKC(ID).EQ.0) DR(J,I)=DR(J,I)*FAC
+               IF (IKC(ID)==0) DR(J,I)=DR(J,I)*FAC
               ENDDO
              ENDIF
             ENDDO
@@ -643,21 +606,19 @@ C-----------------------------------------------
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  FRAC_DD_HP                    source/implicit/integrator.F  
-Chd|-- called by -----------
-Chd|        AL_CONSTRAINT1_HP             source/implicit/nl_solv.F     
-Chd|        NL_SOLV                       source/implicit/nl_solv.F     
-Chd|-- calls ---------------
-Chd|        IMP_SMPINI                    source/implicit/imp_solv.F    
-Chd|====================================================================
+!||====================================================================
+!||    frac_dd_hp          ../engine/source/implicit/integrator.F
+!||--- called by ------------------------------------------------------
+!||    al_constraint1_hp   ../engine/source/implicit/nl_solv.F
+!||    nl_solv             ../engine/source/implicit/nl_solv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_smpini          ../engine/source/implicit/imp_solv.F
+!||====================================================================
       SUBROUTINE FRAC_DD_HP(IDDL,NDOF,IKC,D,DR,DD,DDR,FAC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -681,15 +642,15 @@ C-----------------------------------------------
           DO I=NODFT,NODLT
            DO J=1,3
             ID = IDDL(I)+J
-            IF (IKC(ID).EQ.0) D(J,I)=D(J,I)+FAC*DD(J,I)
+            IF (IKC(ID)==0) D(J,I)=D(J,I)+FAC*DD(J,I)
            ENDDO
           ENDDO
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
             DO I=NODFT,NODLT
-             IF (NDOF(I).GT.3) THEN
+             IF (NDOF(I)>3) THEN
               DO J=1,3
                ID = IDDL(I)+J+3
-               IF (IKC(ID).EQ.0) DR(J,I)=DR(J,I)+FAC*DDR(J,I)
+               IF (IKC(ID)==0) DR(J,I)=DR(J,I)+FAC*DDR(J,I)
               ENDDO
              ENDIF
             ENDDO

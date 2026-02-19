@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CREATE_SUBM_CLAUSE            source/model/sets/create_subm_clause.F
-Chd|-- called by -----------
-Chd|        HM_SET                        source/model/sets/hm_set.F    
-Chd|-- calls ---------------
-Chd|        CREATE_SUBM_LIST              source/model/sets/create_subm_clause.F
-Chd|        CREATE_SUBM_LIST_G            source/model/sets/create_subm_clause.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    create_subm_clause   ../starter/source/model/sets/create_subm_clause.F
+!||--- called by ------------------------------------------------------
+!||    hm_set               ../starter/source/model/sets/hm_set.F
+!||--- calls      -----------------------------------------------------
+!||    create_subm_list     ../starter/source/model/sets/create_subm_clause.F
+!||    create_subm_list_g   ../starter/source/model/sets/create_subm_clause.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod   ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod          ../starter/share/message_module/message_mod.F
+!||    submodel_mod         ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SUBM_CLAUSE(
      .                        CLAUSE   ,ISUBMM  ,JCLAUSE ,OPT_G ,IS_AVAILABLE ,
      .                        LSUBMODEL,IPART   )
@@ -69,7 +69,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "submod_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -94,21 +93,20 @@ C-----------------------------------------------
         ENDIF
 C-----------------------------------------------
       END
-Chd|====================================================================
-Chd|  CREATE_SUBM_LIST              source/model/sets/create_subm_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_SUBM_CLAUSE            source/model/sets/create_subm_clause.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_INT_ARRAY_2INDEXES     source/devtools/hm_reader/hm_get_int_array_2indexes.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        SET_USRTOS                    source/model/sets/ipartm1.F   
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    create_subm_list            ../starter/source/model/sets/create_subm_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_subm_clause          ../starter/source/model/sets/create_subm_clause.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                      ../starter/source/output/message/message.F
+!||    hm_get_int_array_2indexes   ../starter/source/devtools/hm_reader/hm_get_int_array_2indexes.F
+!||    hm_get_int_array_index      ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    set_usrtos                  ../starter/source/model/sets/ipartm1.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                 ../starter/share/message_module/message_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SUBM_LIST(
      .               CLAUSE,  ISUBMM  ,JCLAUSE ,IS_AVAILABLE ,LSUBMODEL,
      .               IPART )
@@ -142,10 +140,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "submod_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -160,12 +155,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,IDS,NINDX,LIST_SIZE,IDS_MAX,SUBMM,PARTM,ISUB,IP,SUB_INDEX,
+      INTEGER I,J,IDS,NINDX,IDS_MAX,SUBMM,PARTM,ISUB,IP,SUB_INDEX,
      . LIST_SIZE_S,LIST_SIZE_P,LIST_SIZE_N,NODE
       INTEGER IWORK(70000)
 !
       INTEGER, ALLOCATABLE, DIMENSION(:) :: SUBM_READ_TMP,SORTED_SUBM,INDEXS,
-     . PART_READ_TMP,SORTED_PARTS,INDEXP,TAGNODSUB,NODE_READ_TMP,SORTED_NODES,INDEXN
+     . PART_READ_TMP,SORTED_PARTS,INDEXP,NODE_READ_TMP,SORTED_NODES,INDEXN
 C
       INTEGER SET_USRTOS
       EXTERNAL SET_USRTOS
@@ -184,14 +179,6 @@ C=======================================================================
 
       ALLOCATE(INDEXP(2*NPART)) ! parts of subsets
       INDEXP = 0
-
-      ALLOCATE(TAGNODSUB(NUMNOD))
-
-      ALLOCATE(NODE_READ_TMP(NUMNOD))
-!!      ALLOCATE(SORTED_NODES(NUMNOD))
-!!      ALLOCATE(INDEXN(2*NUMNOD)) ! nodes of subsets
-!!      INDEXN = 0
-
 
       NINDX = 0
       LIST_SIZE_S = 0
@@ -285,60 +272,6 @@ C=======================================================================
         CLAUSE%PART(I) = SORTED_PARTS(I)
       ENDDO
 !---
-
-
-      ! Tag & convert Nodes of Submodel
-      ! ---------------------
-      CALL CPP_NODE_SUB_TAG(TAGNODSUB)
-
-
-      NINDX = 0
-      DO I=1,LIST_SIZE_S
-        ISUB = SORTED_SUBM(I)
-        DO J=1,NUMNOD
-          SUB_INDEX = TAGNODSUB(J)
-          IF (ISUB == SUB_INDEX) THEN
-
-             NODE = J
-
-             NINDX=NINDX+1    !   nb of Nodess of CLAUSE subsets
-             NODE_READ_TMP(NINDX) = NODE
-
-          ENDIF
-        ENDDO
-      ENDDO
-
-
-      ! Sort of TAG Nodess from Readed SUBMODELs and remove eventual duplicates
-      ! ---------------------------------------------------- 
-
-      ALLOCATE(SORTED_NODES(NINDX))
-      ALLOCATE(INDEXN(2*NINDX))
-      INDEXN = 0
-
-      IWORK(:) = 0
-      DO I=1,NINDX
-        INDEXN(I) = I
-      ENDDO
-      CALL MY_ORDERS(0,IWORK,NODE_READ_TMP,INDEXN,NINDX,1)
-                
-      DO I=1,NINDX
-         SORTED_NODES(I) = NODE_READ_TMP(INDEXN(I))
-      ENDDO
-
-      LIST_SIZE_N = 0
-      CALL REMOVE_DUPLICATES(SORTED_NODES,NINDX,LIST_SIZE_N)
-
-
-      ! Copy in final SET
-      ! ------------------
-      CLAUSE%NB_NODE = LIST_SIZE_N  
-      ALLOCATE( CLAUSE%NODE( LIST_SIZE_N ) )
-
-      DO I=1,LIST_SIZE_N
-        CLAUSE%NODE(I) = SORTED_NODES(I)
-      ENDDO
-
 C-------------------------
        DEALLOCATE(SUBM_READ_TMP)
        DEALLOCATE(SORTED_SUBM)
@@ -346,27 +279,22 @@ C-------------------------
        DEALLOCATE(PART_READ_TMP)
        DEALLOCATE(SORTED_PARTS)
        DEALLOCATE(INDEXP)
-       DEALLOCATE(TAGNODSUB)
-       DEALLOCATE(NODE_READ_TMP)
-       DEALLOCATE(SORTED_NODES)
-       DEALLOCATE(INDEXN)
 C-------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  CREATE_SUBM_LIST_G            source/model/sets/create_subm_clause.F
-Chd|-- called by -----------
-Chd|        CREATE_SUBM_CLAUSE            source/model/sets/create_subm_clause.F
-Chd|-- calls ---------------
-Chd|        HM_GET_INT_ARRAY_2INDEXES     source/devtools/hm_reader/hm_get_int_array_2indexes.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        SET_USRTOS_NEAREST            source/model/sets/ipartm1.F   
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    create_subm_list_g          ../starter/source/model/sets/create_subm_clause.F
+!||--- called by ------------------------------------------------------
+!||    create_subm_clause          ../starter/source/model/sets/create_subm_clause.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_int_array_2indexes   ../starter/source/devtools/hm_reader/hm_get_int_array_2indexes.F
+!||    hm_get_int_array_index      ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    set_usrtos_nearest          ../starter/source/model/sets/ipartm1.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod          ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                 ../starter/share/message_module/message_mod.F
+!||    submodel_mod                ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CREATE_SUBM_LIST_G(
      .               CLAUSE,  ISUBMM  ,JCLAUSE ,IS_AVAILABLE ,LSUBMODEL,
      .               IPART )
@@ -401,8 +329,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "submod_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -417,7 +343,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,IDS,LIST_SIZE,IDS_MAX,PARTM,GENE_MAX,K,S,S1,
+      INTEGER I,J,LIST_SIZE,PARTM,GENE_MAX,K,S,S1,
      . NINDX,IP,ISUB,SUB_INDEX,NODE
       INTEGER START_GENE,END_GENE,INCR_GENE,SSTART,SSTOP,STACK,STACK_ONE,NB_RESULT
 !-
@@ -547,7 +473,7 @@ C=======================================================================
 
              NODE = J
 
-             NINDX=NINDX+1    !   nb of Nodess of CLAUSE subsets
+             NINDX=NINDX+1    !   nb of Nodes of CLAUSE subsets
              NODE_READ_TMP(NINDX) = NODE
 
           ENDIF
@@ -555,7 +481,7 @@ C=======================================================================
       ENDDO
 
 
-      ! Sort of TAG Nodess from Readed SUBMODELs and remove eventual duplicates
+      ! Sort of TAG Nodes from Readed SUBMODELs and remove eventual duplicates
       ! ---------------------------------------------------- 
 
       ALLOCATE(SORTED_NODES(NINDX))

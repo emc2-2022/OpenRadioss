@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CDK6COOR3                     source/elements/sh3n/coquedk6/cdk6coor3.F
-Chd|-- called by -----------
-Chd|        CDK6FORC3                     source/elements/sh3n/coquedk6/cdk6forc3.F
-Chd|-- calls ---------------
-Chd|        CLSKEW3                       source/elements/sh3n/coquedk/cdkcoor3.F
-Chd|        CORTDIR3                      source/elements/shell/coque/cortdir3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cdk6coor3      ../engine/source/elements/sh3n/coquedk6/cdk6coor3.F
+!||--- called by ------------------------------------------------------
+!||    cdk6forc3      ../engine/source/elements/sh3n/coquedk6/cdk6forc3.F
+!||--- calls      -----------------------------------------------------
+!||    clskew3        ../engine/source/elements/sh3n/coquedk/cdkcoor3.F
+!||    cortdir3       ../engine/source/elements/shell/coque/cortdir3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CDK6COOR3(ELBUF_STR,JFT,JLT,MAT,PID,
      .                    NGL,X,V,R,IXTG,OFFG,OFF,
      .                    R11,R12,R13,R21,R22,R23,R31,R32,R33,
@@ -44,6 +46,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE ELBUFDEF_MOD
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -82,19 +85,19 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NC1, NC2, NC3, NC4(MVSIZ), NC5(MVSIZ), NC6(MVSIZ),
-     .        I,II(13), J,I1, I2, I3, N ,SVS,JVS(MVSIZ),EP, MAT_1
+     .        I,II(13),I1 ,SVS,JVS(MVSIZ),EP, MAT_1
 C     REAL
       my_real
      .   VX1(MVSIZ), VX2(MVSIZ), VX3(MVSIZ),
      .   VY1(MVSIZ), VY2(MVSIZ), VY3(MVSIZ), 
      .   VZ1(MVSIZ), VZ2(MVSIZ), VZ3(MVSIZ),
-     .   VLX1(MVSIZ), VLX2(MVSIZ), VLX3(MVSIZ),
-     .   VLY1(MVSIZ), VLY2(MVSIZ), VLY3(MVSIZ), 
+     .     
+     .      
      .   VX4(MVSIZ), VY4(MVSIZ), VZ4(MVSIZ),
      .   VX5(MVSIZ), VY5(MVSIZ), VZ5(MVSIZ),
      .   VX6(MVSIZ), VY6(MVSIZ), VZ6(MVSIZ),
-     .   RX1(MVSIZ), RX2(MVSIZ), RX3(MVSIZ), RY1(MVSIZ),
-     .   RY2(MVSIZ), RY3(MVSIZ), RZ1(MVSIZ), RZ2(MVSIZ),RZ3(MVSIZ),
+     .      
+     .      
      .   X1(MVSIZ),X2(MVSIZ),X3(MVSIZ),X4(MVSIZ),X5(MVSIZ),X6(MVSIZ), 
      .   Y1(MVSIZ),Y2(MVSIZ),Y3(MVSIZ),Y4(MVSIZ),Y5(MVSIZ),Y6(MVSIZ),
      .   Z1(MVSIZ),Z2(MVSIZ),Z3(MVSIZ),Z4(MVSIZ),Z5(MVSIZ),Z6(MVSIZ), 
@@ -116,7 +119,7 @@ C
        PID(I)  = IXTG(5,I)
        NGL(I)  = IXTG(6,I)
 C----------------------------
-C     COORDONNEES
+C     COORDINATES
 C----------------------------
        X1(I)=X(1,NC1)
        Y1(I)=X(2,NC1)
@@ -141,7 +144,7 @@ C----------------------------
        VZ3(I)=V(3,NC3)
       ENDDO 
 C----------------------------
-C     vectoriser elements avec ou sans voisins
+C     vectorize elements with or without neighbors
 C-----------------------------------------------
       NVS=JFT-1
       SVS= NVS
@@ -160,7 +163,7 @@ C-----------------------------------------------
       DO I=NVS+1,JLT
         IVS(I)=JVS(I-NVS)
       ENDDO 
-C----------Element central----------
+C----------Central Element----------
       DO I=JFT,JLT
        RX(I)=X2(I)-X1(I)
        RY(I)=Y2(I)-Y1(I)
@@ -210,8 +213,8 @@ C----------------------------
           IF (OFFG(I) == ONE) OFFG(I)=TWO
         ENDDO
       ENDIF
-C----------Elements cotes----------
-C--------avec voisins---------------------------------------
+C----------Element edges----------
+C--------with adjacent elems---------------------------------------
       DO EP=JFT,NVS
         I =IVS(EP)
         VX4(I)=V(1,NC4(I))
@@ -236,10 +239,10 @@ C--------avec voisins---------------------------------------
         Y6(I)=X(2,NC6(I))-Y3(I)
         Z6(I)=X(3,NC6(I))-Z3(I)
       ENDDO
-C--------sans voisins---------------------------------------
+C--------without adjacent elems---------------------------------------
       DO EP=NVS+1,JLT
         I =IVS(EP)
-C--------sans cote node 4 ---------------------------------------
+C--------without edge node 4 ---------------------------------------
        IF (NC4(I) <= 0) THEN
         VX4(I)=ZERO
         VY4(I)=ZERO
@@ -367,7 +370,7 @@ C----------------------------
         VY6(I)=VY0
         VZ6(I)=VZ0
       ENDDO
-C---------normales des elements voisins---
+C---------normal vector of adjacent elems---
       DO I=JFT,JLT
 C---------node 4---
         A =-YL2(I)*ZL4(I)
@@ -396,9 +399,24 @@ C---------node 6---
       ENDDO
       DO EP=NVS+1,JLT
        I =IVS(EP)
-       IF (NC4(I) <= 0) N4Z(I)=ONE
-       IF (NC5(I) <= 0) N5Z(I)=ONE
-       IF (NC6(I) <= 0) N6Z(I)=ONE
+       IF (NC4(I) <= 0) THEN 
+         N4X(I)=ZERO
+         N4Y(I)=ZERO
+         N4Z(I)=ONE
+         AREA4(I)=ONE/SQRT(AREA2(I))
+       END IF
+       IF (NC5(I) <= 0) THEN 
+         N5X(I)=ZERO
+         N5Y(I)=ZERO
+         N5Z(I)=ONE
+         AREA5(I)=ONE/SQRT(AREA2(I))
+       END IF
+       IF (NC6(I) <= 0) THEN 
+         N6X(I)=ZERO
+         N6Y(I)=ZERO
+         N6Z(I)=ONE
+         AREA6(I)=ONE/SQRT(AREA2(I))
+       END IF
       ENDDO
       DO I=JFT,JLT
         VLZ(I,4)=N4X(I)*VX4(I)+N4Y(I)*VY4(I)+N4Z(I)*VZ4(I)
@@ -436,25 +454,23 @@ C----------------------------
 C--------------------------
 C-------Correction 2nd order rigid rotation due a V(t+dt/2),X(t+dt)----
 C--------------------------
-       IF (ISHV51 > 51) THEN
-         DT05 = HALF*DT1
-         DO I=JFT,JLT
-           VZ21=VZ2(I)-VZ1(I)
-           VZ31=VZ3(I)-VZ1(I)
-           EXZ =  YL3(I)*VZ21-YL2(I)*VZ31
-           EYZ = -XL3(I)*VZ21+XL2(I)*VZ31
-           DDRY=DT05*EXZ/AREA2(I)
-           DDRX=DT05*EYZ/AREA2(I)
-	          V21X = VLX(I,1)
-	          V31X = VLX(I,2)
-           DDRZ1=DT05*VLY(I,1)/XL2(I)
-           DDRZ2=DT05*V31X/YL3(I)
-           VLX(I,1) = VLX(I,1)-DDRY*VZ21-DDRZ1*VLY(I,1)
-           VLX(I,2) = VLX(I,2)-DDRY*VZ31-DDRZ1*VLY(I,2)
-           VLY(I,1) = VLY(I,1)-DDRX*VZ21-DDRZ2*V21X
-           VLY(I,2) = VLY(I,2)-DDRX*VZ31-DDRZ2*V31X
-         ENDDO
-       ENDIF 
+      DT05 = HALF*DT1                                  
+      DO I=JFT,JLT                                     
+        VZ21=VZ2(I)-VZ1(I)
+        VZ31=VZ3(I)-VZ1(I)
+        EXZ =  YL3(I)*VZ21-YL2(I)*VZ31
+        EYZ = -XL3(I)*VZ21+XL2(I)*VZ31
+        DDRY=DT05*EXZ/AREA2(I)
+        DDRX=DT05*EYZ/AREA2(I)
+        V21X = VLX(I,1)
+        V31X = VLX(I,2)                         
+        DDRZ1=DT05*VLY(I,1)/XL2(I)
+        DDRZ2=DT05*V31X/YL3(I)
+        VLX(I,1) = VLX(I,1)-DDRY*VZ21-DDRZ1*VLY(I,1)   
+        VLX(I,2) = VLX(I,2)-DDRY*VZ31-DDRZ1*VLY(I,2)
+        VLY(I,1) = VLY(I,1)-DDRX*VZ21-DDRZ2*V21X
+        VLY(I,2) = VLY(I,2)-DDRX*VZ31-DDRZ2*V31X
+      ENDDO                                            
 C----------------------------
       OFF_L = ZERO
       DO I=JFT,JLT

@@ -1,46 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS37_SINGLE_CELL          source/interfaces/int22/sigeps37_single_cell.F
-Chd|-- called by -----------
-Chd|        SINIT22_FVM                   source/interfaces/int22/sinit22_fvm.F
-Chd|-- calls ---------------
-Chd|        ALEFVM_MOD                    ../common_source/modules/alefvm_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps37_single_cell   ../engine/source/interfaces/int22/sigeps37_single_cell.F
+!||--- called by ------------------------------------------------------
+!||    sinit22_fvm            ../engine/source/interfaces/int22/sinit22_fvm.F
+!||--- uses       -----------------------------------------------------
+!||    alefvm_mod             ../common_source/modules/ale/alefvm_mod.F
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod            ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE SIGEPS37_SINGLE_CELL (
-     1   ELBUF_TAB, IXS,  BUFMAT , IPARG, IPM,
-     2   IDLOC    , NG ,  brickID, VOL  
+     1                                 ELBUF_TAB, IXS,  BUFMAT , IPARG, IPM,
+     2                                 IDLOC    , NG ,  brickID, VOL  
      .                                )
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C This subroutine is treating material law 37.
-C    !UVAR(I,1) : massic percentage of liquid * global density  (rho1*V1/V : it needs to give liquid mass multipling by element volume in aleconve.F)
+C    !UVAR(I,1) : massic percentage of liquid * global density  (rho1*V1/V : it needs to give liquid mass multiplying by element volume in aleconve.F)
 C    !UVAR(I,2) : density of gas
 C    !UVAR(I,3) : density of liquid
 C    !UVAR(I,4) : volumetric fraction of liquid
@@ -51,6 +52,7 @@ C-----------------------------------------------
       USE INITBUF_MOD
       USE ELBUFDEF_MOD
       USE ALEFVM_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -82,13 +84,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J, ISOLVER, NITER, ITER,MT, LLT_, IADBUF
+      INTEGER NITER, ITER,MT, LLT_, IADBUF
       my_real 
-     .   SSP,VIS,VIS2,VIS3,VV,C1,C2,C12,R1,R2,PMIN,A2,RHO10,RHO20,
-     .   RHO1,RHO2,A1,A,B,C, B1,B2,P,GAM,P0,GPR,POLD,
-     .   PN2,RHN2,VISA1,VISB1,VISA2,VISB2,DYDX,RHOSCALE,TOL,  MAS, MAS1, MAS2,
-     .   RHO1T,RHO2T, ERROR, P1,P2,F1,F2,DF11,DF12,DF21,DF22,DET,DRHO1,DRHO2,
-     .   MU1P1, MU2P1, DP0, PSH, SSP1, SSP2, RHO,  UVAR(5)
+     .   SSP,C1,R1,PMIN,RHO10,RHO20,
+     .   RHO1,RHO2, P,GAM,P0,
+     .   TOL,  MAS, MAS1, MAS2,
+     .   ERROR, P1,P2,F1,F2,DF11,DF12,DF21,DF22,DET,DRHO1,DRHO2,
+     .   PSH, SSP1, SSP2, RHO,  UVAR(5)
 C-----------------------------------------------
 C   S o u r c e   C o d e
 C-----------------------------------------------
@@ -151,16 +153,16 @@ C-----------------------------------------------
              MAS2 = MAS - MAS1                                                            
              RHO2 = UVAR( 2)                                                              
              RHO1 = UVAR( 3)                                                              
-             IF (MAS1 / MAS .LT. EM10) THEN                                               
-                !! Phase 2 seule presente                                                 
+             IF (MAS1 / MAS < EM10) THEN                                               
+                !!Phase 2 Only present                                                 
                 UVAR( 1) = ZERO                                                           
                 UVAR( 4) = ZERO                                                           
                 UVAR( 5) = ONE                                                             
                 RHO2 = MAS / VOL                                                          
                 UVAR( 2) = RHO2                                                           
                 P = P0 * (RHO2/RHO20)**GAM                                                
-             ELSEIF (MAS2 / MAS .LT. EM10) THEN                                           
-                !! Phase 1 seule presente                                                 
+             ELSEIF (MAS2 / MAS < EM10) THEN                                           
+                !!Phase 1 only present                                                 
                 RHO1 = MAS / VOL                                                          
                 UVAR( 1) = RHO1                                                           
                 UVAR( 3) = RHO1                                                           
@@ -170,7 +172,7 @@ C-----------------------------------------------
              ELSE                                                                         
                 ERROR = EP30                                                              
                 ITER  = 1                                                                 
-                DO WHILE(ITER .LT. NITER .AND. ERROR .GT. TOL)                            
+                DO WHILE(ITER < NITER .AND. ERROR > TOL)                            
                    P1 = R1 * RHO1 - C1 + P0                                               
                    P2 = P0 * (RHO2/RHO20)**GAM                                            
                    F1 = MAS1 / RHO1 + MAS2 / RHO2 - VOL                                   
@@ -189,10 +191,10 @@ C-----------------------------------------------
                    ERROR = ABS(DRHO1 / RHO1) + ABS(DRHO2 / RHO2)                          
                    ITER = ITER + 1                                                        
                 ENDDO                                                                     
-                IF (ABS(P1 - P2) .GT. 1.D-5) THEN                                         
+                IF (ABS(P1 - P2) > 1.D-5) THEN                                         
                    !PRINT*, "P1", P1, "P2", P2                                            
                 ENDIF                                                                     
-                IF (ERROR .GT. TOL) THEN                                                  
+                IF (ERROR > TOL) THEN                                                  
                    PRINT*, "*** WARNING LAW37, convergence tol. ", ERROR, TOL        
                 ENDIF                                                                     
                 P = R1 * RHO1 - C1 + P0                                                   
@@ -204,14 +206,14 @@ C-----------------------------------------------
              UVAR(2)  = RHO2                                                              
              UVAR(3)  = RHO1                                                              
              UVAR(4)  = UVAR(1)/RHO1                                                      
-             IF(UVAR(4).LT.EM20)UVAR(4)=ZERO                                              
+             IF(UVAR(4)<EM20)UVAR(4)=ZERO                                              
              UVAR(5)  = ONE-UVAR(4)                                                        
-             IF (SSP1 .GT. ZERO) THEN                                                     
+             IF (SSP1 > ZERO) THEN                                                     
                 SSP1 = UVAR(4) / SSP1                                                     
              ELSE                                                                         
                 SSP1 = ZERO                                                               
              ENDIF                                                                        
-             IF (SSP2 .GT. ZERO) THEN                                                     
+             IF (SSP2 > ZERO) THEN                                                     
                 SSP2 = UVAR(5) / SSP2                                                     
              ELSE                                                                         
                 SSP2 = ZERO                                                               
@@ -250,10 +252,8 @@ C-----------------------------------------------
          
            LBUF%SSP(IDLOC)            = SSP    ;                                    
 
-
-
-           FCELL(5, brickID ) = SSP                                         
-           FCELL(6, brickID ) = P  
+           ALEFVM_Buffer%FCELL(5, brickID ) = SSP                                         
+           ALEFVM_Buffer%FCELL(6, brickID ) = P  
 
 C-----------------------------------------------
       RETURN

@@ -1,43 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_TAB_OLD_C                source/materials/fail/tabulated/fail_tab_old_c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_tab_old_c   ../engine/source/materials/fail/tabulated/fail_tab_old_c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc           ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell    ../engine/source/materials/mat_share/usermat_shell.F
+!||--- calls      -----------------------------------------------------
+!||    finter           ../engine/source/tools/curve/finter.F
+!||    vinter           ../engine/source/tools/curve/vinter.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE FAIL_TAB_OLD_C(
      1           NEL      ,NUPARAM  ,NUVAR    ,UPARAM   ,UVAR     ,
      2           NFUNC    ,IFUNC    ,NPF      ,TF       ,
      3           TIME     ,NGL      ,IPG      ,ILAY     ,IPT      ,
      4           SIGNXX   ,SIGNYY   ,SIGNXY   ,SIGNYZ   ,SIGNZX   ,
      5           DPLA     ,EPSP     ,THK      ,ALDT     ,TEMP     ,
-     6           PTHKF    ,OFF      ,FOFF     ,
-     7           DFMAX    ,TDEL     ,IGTYP    )
+     6           OFF      ,FOFF     ,DFMAX    ,TDEL     )
 C-----------------------------------------------
 C    tabulated failure model
 C-----------------------------------------------
@@ -54,7 +54,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ,INTENT(IN) :: NEL,NUPARAM,NUVAR,IPG,ILAY,IPT,IGTYP
+      INTEGER ,INTENT(IN) :: NEL,NUPARAM,NUVAR,IPG,ILAY,IPT
       INTEGER ,DIMENSION(NEL) ,INTENT(IN) :: NGL
       my_real ,INTENT(IN) :: TIME
       my_real ,DIMENSION(NEL) ,INTENT(IN) :: OFF,THK,ALDT,DPLA,EPSP,
@@ -64,7 +64,6 @@ C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
       INTEGER ,DIMENSION(NEL) ,INTENT(INOUT) :: FOFF
-      my_real ,INTENT(OUT) :: PTHKF
       my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: DFMAX
       my_real ,DIMENSION(NEL) ,INTENT(OUT)   :: TDEL
       my_real ,DIMENSION(NEL,NUVAR) ,INTENT(INOUT) :: UVAR
@@ -92,12 +91,11 @@ C UVAR(1) = DAMAGE
 C UVAR(2) = initial characteristic el. length
 C UVAR(3) = IPOS variable for element length scale function interpolation
 C=======================================================================
-      IF (TIME == ZERO) THEN
+      IF (UVAR(1,2) == ZERO) THEN
         UVAR(1:NEL,2) = ALDT(1:NEL) 
       ENDIF
 c---------------------------
       IFAIL_SH  = INT(UPARAM(2))
-      PTHKF     = UPARAM(3)
       P_THICK   = UPARAM(3)
       DCRIT     = UPARAM(4)
       DD        = UPARAM(5)
@@ -114,14 +112,6 @@ c---- Failure strain functions
 c---- Scale functions       
       IFUN_EL   = IFUNC(NRATE+1)
       IFUN_TEMP = IFUNC(NRATE+2)
-c---------------------------
-      IF (P_THICK > ZERO .and. IFAIL_SH > 1 .and. IGTYP <= 10) THEN
-        PTHKF = P_THICK
-      ELSEIF (IFAIL_SH == 1) THEN
-        PTHKF = EM06
-      ELSEIF (IFAIL_SH == 2) THEN
-        PTHKF = ONE - EM06
-      ENDIF
 C---------
       NINDXF = 0  
       NINDX  = 0  
@@ -160,7 +150,7 @@ c----
 #include "vectorize.inc"
         DO J=1,NINDX                           
           I = INDX(J)  
-c----   element length scale function
+c---- Length Scale Function element
           LAMBDAV(J) = UVAR(I,2) / EL_REF
           IPOSV(J) = NINT(UVAR(I,3))
           IADP (J) = NPF(IFUN_EL) / 2 + 1

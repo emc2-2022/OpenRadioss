@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ELAS24                        source/materials/mat/mat024/elas24.F
-Chd|-- called by -----------
-Chd|        CONC24                        source/materials/mat/mat024/conc24.F
-Chd|-- calls ---------------
-Chd|        RDAM24                        source/materials/mat/mat024/rdam24.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    elas24   ../engine/source/materials/mat/mat024/elas24.F
+!||--- called by ------------------------------------------------------
+!||    conc24   ../engine/source/materials/mat/mat024/conc24.F
+!||--- calls      -----------------------------------------------------
+!||    rdam24   ../engine/source/materials/mat/mat024/rdam24.F
+!||====================================================================
       SUBROUTINE ELAS24(NEL    ,PM     ,
      .                  CDAM   ,SIGC   ,DAM    ,ANG    ,EPS_F  ,CRAK   ,
      .                  C44    ,C55    ,C66    ,DE1    ,DE2    ,DE3    ,
@@ -46,7 +46,7 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NEL
       my_real PM(NPROPM)
-      my_real, DIMENSION(NEL) ,INTENT(IN)  :: DEPS1,DEPS2,DEPS3,DEPS4,DEPS5,DEPS6
+      my_real, DIMENSION(NEL) ,INTENT(INOUT)  :: DEPS1,DEPS2,DEPS3,DEPS4,DEPS5,DEPS6
       my_real, DIMENSION(NEL) ,INTENT(OUT) :: S01,S02,S03,S04,S05,S06,
      .                                        SCAL1,SCAL2,SCAL3,C44,C55,C66
       my_real, DIMENSION(NEL) ,INTENT(OUT) :: DE1,DE2,DE3
@@ -61,9 +61,9 @@ C-----------------------------------------------
       INTEGER I,K,NBDAMA,NBDAMA0
       INTEGER, DIMENSION(NEL) ::  DAMAI,DAMA0I
       my_real, DIMENSION(NEL) ::  DE4,DE5,DE6
-      my_real  YOUNG,NU,G,A11,A12,DSUP,QQ,DEN,DEPSF,HH1,HH2,HH3
+      my_real  YOUNG,NU,G,A11,A12,DSUP,QQ,DEN,HH1,HH2,HH3
 C=======================================================================
-c     DEi = (1 - DAMi)       coefficients d endommagement de la matrice Hook
+c     Dei = (1 - Dami) Damage coefficients of the Hook matrix
 c-----------------------------------------------------------------------
       YOUNG = PM(20)
       NU    = PM(21)
@@ -87,7 +87,7 @@ c
          ENDIF
       ENDDO
 c
-c     ROTATION de DEPS_IJ DANS LES DIRECTIONS D'ENDOMMAGEMENT
+c     rotation of deps_ij in the damage directions
 c
       IF (NBDAMA > 0) THEN
         CALL RDAM24(NEL   ,NBDAMA,DAMAI ,ANG   ,DEPS1 ,
@@ -98,7 +98,7 @@ c     DAMAGED ELEMENT GROUP => modified Hook matrix
 c-----------------------------------------------------------
       DO K=1,NBDAMA
         I = DAMAI(K)
-c       cumul de deformation endommagee
+c       accumulation of damaged strain
         CRAK(I,1) = CRAK(I,1) + DEPS1(I)
         CRAK(I,2) = CRAK(I,2) + DEPS2(I)
         CRAK(I,3) = CRAK(I,3) + DEPS3(I)
@@ -106,19 +106,19 @@ c
 c       Damage evolution depending on EPS_F_i/EPS_i
 c
         HH1  = MAX(CRAK(I,1),EM20)
-        IF (EPS_F(I,1).GT.ZERO) THEN
+        IF (EPS_F(I,1)>ZERO) THEN
           DE1(I) = QQ * (ONE- EPS_F(I,1)/HH1 )
         ELSE
           DE1(I) = ZERO
         ENDIF
         HH2  = MAX(CRAK(I,2),EM20)
-        IF (EPS_F(I,2).GT.ZERO) THEN
+        IF (EPS_F(I,2)>ZERO) THEN
           DE2(I) = QQ * (ONE- EPS_F(I,2)/HH2 )
         ELSE
           DE2(I) = ZERO
         ENDIF
         HH3  = MAX(CRAK(I,3),EM20)
-        IF (EPS_F(I,3).GT.ZERO) THEN
+        IF (EPS_F(I,3)>ZERO) THEN
           DE3(I) = QQ * (ONE - EPS_F(I,3)/HH3 )
         ELSE
           DE3(I) = ZERO
@@ -170,7 +170,7 @@ c
      .         + CDAM(I,2,3)*CRAK(I,3)
         S03(I) = CDAM(I,3,1)*CRAK(I,1) + CDAM(I,3,2)*CRAK(I,2)
      .         + CDAM(I,3,3)*CRAK(I,3)
-c       formulation incrementale en cisaillement 
+c       Incremental formulation in shear 
         S04(I) = DE4(I)*SIGC(I,4) + C44(I)*DEPS4(I)
         S05(I) = DE5(I)*SIGC(I,5) + C55(I)*DEPS5(I)
         S06(I) = DE6(I)*SIGC(I,6) + C66(I)*DEPS6(I)

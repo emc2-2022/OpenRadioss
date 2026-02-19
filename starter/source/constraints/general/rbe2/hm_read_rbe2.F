@@ -1,49 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_RBE2                  source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SZ_R2R                     source/coupling/rad2rad/routines_r2r.F
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        RBE2MODIF_ND                  source/elements/solid/solide10/dim_s10edg.F
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        NODGRNR6                      source/starter/freform.F      
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_rbe2           ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl                ../starter/source/starter/freform.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_sz_r2r              ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    ifrontplus             ../starter/source/spmd/node/frontplus.F
+!||    kinset                 ../starter/source/constraints/general/kinset.F
+!||    nlocal                 ../starter/source/spmd/node/ddtools.F
+!||    nodgrnr6               ../starter/source/starter/freform.F
+!||    rbe2modif_nd           ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_RBE2(IRBE2   ,LRBE2  ,ITAB    ,ITABM1  ,IGRNOD,
      .                        ISKN    ,IKINE  ,IDDLEVEL,NOM_OPT ,ITAGND,
      .                        ICDNS10 ,LSUBMODEL)
@@ -54,6 +53,7 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE HM_OPTION_READ_MOD
       USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -63,9 +63,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr05_c.inc"
@@ -73,10 +70,7 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "tabsiz_c.inc"
-#include      "submod_c.inc"
 #include      "r2r_c.inc"
 #include      "sphcom.inc"
 #include      "scr03_c.inc"
@@ -93,12 +87,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, K, NSL, NSLT, ITYP, NUSER,  NM,M, NI,
-     .        ISK, ISENS, INGU, IGM, J, P,IAD,NS,NN,J6(6),JJ,II,
-     .        IC,IC1,IC2,IROT,ISKS,IADS,IERR1,NC,ID,IDIR,
-     .        IKINE1(3*NUMNOD),IRAD,NRB,ICP,IER,NMOVE,SUB_INDEX
+      INTEGER I, K, NUSER,  NM,M,
+     .        ISK, INGU, IGM, J, P,IAD,NS,J6(6),JJ,
+     .        IC,IC1,IC2,ISKS,IDIR,
+     .        IKINE1(3*NUMNOD),IRAD,NRB,NMOVE,SUB_INDEX,NSL
       INTEGER, DIMENSION(NUMNOD) :: ITAGM,ITAGIC
-      CHARACTER TITR*nchartitle,KEY*ncharkey,MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER :: MESS*40
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -111,7 +106,7 @@ C
       DATA MESS/'RBE2 RIGID BODY  '/
 C-----------------------------------------------
 C     IRBE2(1,I) : IAD0 for LRBE2
-C     IRBE2(2,I) : TYPE 	usr' id temporaire (print)
+C     IRBE2(2,I) : TYPE   usr' id temporaire (print)
 C     IRBE2(3,I) : INDEPENDENT NODE
 C     IRBE2(4,I) : REF_DOF
 C     IRBE2(5,I) : NUMBER OF DEPENDENT NODES
@@ -137,9 +132,9 @@ C
       DO I=1,NRBE2
         NRB=NRB+1
 C----------Multidomaines --> on ignore les rbe3 non tages---------
-        IF(NSUBDOM.GT.0)THEN
-	     IF(TAGRB2(NRB).EQ.0)CALL HM_SZ_R2R(TAGRB2,NRB,LSUBMODEL)
-	    END IF
+        IF(NSUBDOM>0)THEN
+               IF(TAGRB2(NRB)==0)CALL HM_SZ_R2R(TAGRB2,NRB,LSUBMODEL)
+              END IF
 C-----------------------------------------------------------------
         CALL HM_OPTION_READ_KEY(LSUBMODEL,
      .                       OPTION_ID = NUSER,
@@ -167,7 +162,7 @@ C
         IC1=J6(1)*4 +J6(2)*2 +J6(3)
         IC2=J6(4)*4 +J6(5)*2 +J6(6)
         IC =IC1*512+IC2*64
-        IF (IC.EQ.0) IC =7*512+7*64
+        IF (IC==0) IC =7*512+7*64
         IRBE2(3,I) = M
         IRBE2(4,I) = IC
         IRBE2(1,I) = IAD
@@ -177,7 +172,7 @@ C
         IF (NS10E > 0) THEN
 C----partial dof of RBE2 will be treated correctly
 C         
-	 IF (ITAGND(M)/=0) THEN
+           IF (ITAGND(M)/=0) THEN
           CALL ANCMSG(MSGID=1211,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -185,10 +180,10 @@ C
      .               C1='RBE2',
      .               I2=NUSER,
      .               C2='RBE2')
-	 END IF
+           END IF
         END IF
         ISKS = 0
-        IF ((J6(1)+J6(2)+J6(3)+J6(4)+J6(5)+J6(6)).EQ.0) THEN
+        IF ((J6(1)+J6(2)+J6(3)+J6(4)+J6(5)+J6(6))==0) THEN
          J6(1)=1
          J6(2)=1
          J6(3)=1
@@ -196,9 +191,9 @@ C
          J6(5)=1
          J6(6)=1
         ENDIF
-        IF (ISK.NE.0) THEN
+        IF (ISK/=0) THEN
          DO JJ=0,NUMSKW+MIN(1,NSPCOND)*NUMSPH+NSUBMOD
-          IF(ISK.EQ.ISKN(4,JJ+1)) THEN
+          IF(ISK==ISKN(4,JJ+1)) THEN
             ISKS=JJ+1
             GO TO 10
           ENDIF
@@ -283,7 +278,7 @@ C--------for decompo
           FMAIN(1:NSPMD) = 0
           DO P = 1, NSPMD
             DO J = 1, NS
-              IF (NLOCAL(LRBE2(IAD+J),P).NE.0)THEN
+              IF (NLOCAL(LRBE2(IAD+J),P)/=0)THEN
                 FMAIN(P) = 1
                 GO TO 85
               ENDIF
@@ -292,8 +287,8 @@ C--------for decompo
           END DO
 C  noeud main sur les procs ayant au moins 1 SECONDARY
           DO P = 1, NSPMD
-            IF (FMAIN(P).EQ.1) THEN
-	      CALL IFRONTPLUS(M,P)
+            IF (FMAIN(P)==1) THEN
+                CALL IFRONTPLUS(M,P)
             ENDIF
           ENDDO
         ENDIF
@@ -301,7 +296,6 @@ C  noeud main sur les procs ayant au moins 1 SECONDARY
       END IF !(IDDLEVEL > 0) THEN
 C
       RETURN
- 999  CALL FREERR(3)
 C
  1000 FORMAT(//
      .'       RIGID ELEMENT (RBE2)   '/
@@ -315,22 +309,21 @@ C
  1201 FORMAT('      RBE2_ID IND._NODE REF_DOF   SKEW_ID    #SECONDARY     IFLAG'/)
  1200 FORMAT(3X,2I10,3X,3I1,1X,3I1,3I10)
       END SUBROUTINE HM_READ_RBE2
-Chd|====================================================================
-Chd|  HM_PREREAD_RBE2               source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_SZ_R2R                     source/coupling/rad2rad/routines_r2r.F
-Chd|        NGR2USRN                      source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    hm_preread_rbe2        ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_sz_r2r              ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    ngr2usrn               ../starter/source/system/nintrr.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_PREREAD_RBE2(LNUM    ,LREAL,  IGRNOD, LSUBMODEL)
 C-----------------------------------------------
 C   M o d u l e s
@@ -339,6 +332,7 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -346,9 +340,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "param_c.inc"
-#include      "scr17_c.inc"
 #include      "com04_c.inc"
 #include      "r2r_c.inc"
 C-----------------------------------------------
@@ -361,14 +353,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,IGU,IGS,NI,NN,NJ,JJ, NUSER, NUM,NRB
-      CHARACTER TITR*nchartitle
-      INTEGER NGR2USRN,ISK
+      INTEGER I,IGU,IGS,NN, NUSER, NRB
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      INTEGER NGR2USRN
       LOGICAL IS_AVAILABLE
 C========================================================================|
       LNUM  = 0
       LREAL  = 0
-      IF (NRBE2.EQ.0) RETURN
+      IF (NRBE2==0) RETURN
 
       NRB = 0
 
@@ -376,8 +368,8 @@ C========================================================================|
       DO I=1,NRBE2
         NRB=NRB+1
 C----------Multidomaines --> on ignore les rbe2 non tages---------
-        IF(NSUBDOM.GT.0)THEN
-	  IF(TAGRB2(NRB).EQ.0)CALL HM_SZ_R2R(TAGRB2,NRB,LSUBMODEL)
+        IF(NSUBDOM>0)THEN
+            IF(TAGRB2(NRB)==0)CALL HM_SZ_R2R(TAGRB2,NRB,LSUBMODEL)
         END IF
 C-----------------------------------------------------------------
         CALL HM_OPTION_READ_KEY(LSUBMODEL,
@@ -392,33 +384,23 @@ C
       ENDDO
 C-----------
       RETURN
- 999  CALL FREERR(3)
-      RETURN
       END SUBROUTINE HM_PREREAD_RBE2
-Chd|====================================================================
-Chd|  REORBE2                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        INIRBE2                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- calls ---------------
-Chd|        SETIADM                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|====================================================================
+!||====================================================================
+!||    reorbe2   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    inirbe2   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- calls      -----------------------------------------------------
+!||    setiadm   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||====================================================================
       SUBROUTINE REORBE2(IRBE2  ,LRBE2  ,NC )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -428,14 +410,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, K, NSL,NM, NI, NMT,M,IROT,ID,IMO,IC0,NZ,
-     .        J, P,IAD,NS,NN,II,IT,IADS,IERR1,IAD1,IC,NIT,I0,I1
+      INTEGER I, N, K, NSL,M,IC0,NZ,
+     .        J, IAD,NS,II,IT,IERR1,IAD1,IC,NIT,I0,I1
 C
-      INTEGER ITAG(NUMNOD),LCOPY(SLRBE2),ICOPY(NRBE2L,NRBE2),
-     .        NHIE,IORDER(NRBE2),INDICE(NRBE2),ITAG1(NRBE2),
-     .        IAD_N(NUMNOD+1)
+      INTEGER LCOPY(SLRBE2),ICOPY(NRBE2L,NRBE2),
+     .        IORDER(NRBE2),INDICE(NRBE2),ITAG1(NRBE2)
+      INTEGER, DIMENSION(:), ALLOCATABLE :: ITAG,IAD_N
 C========================================================================|
 C--------re-ordering if with hierarchy---------------------------------------
+      ALLOCATE(ITAG(NUMNOD))
+      ALLOCATE(IAD_N(NUMNOD+1))
       NC=0
       DO I=1,NUMNOD
        ITAG(I)=0
@@ -444,7 +428,7 @@ C--------if same node as several IND. of /RBE2----------------------------------
       NZ=0
       DO I=1,NRBE2
        M = IRBE2(3,I)
-       IF (ITAG(M).EQ.0) THEN
+       IF (ITAG(M)==0) THEN
         ITAG(M)=I
        ELSE
         NZ=NZ+1
@@ -459,13 +443,13 @@ C---------  if hierarchy
         NSL = IRBE2(5,I)
         DO J =1,NSL
          NS = LRBE2(IAD+J)
-         IF (ITAG(NS).GT.I) NC=NC+1
+         IF (ITAG(NS)>I) NC=NC+1
          DO K=IAD_N(NS),IAD_N(NS+1)-1
-          IF (ITAG1(K).GT.I) NC=NC+1
+          IF (ITAG1(K)>I) NC=NC+1
          ENDDO
         ENDDO
       ENDDO
-      IF (NC.EQ.0) RETURN
+      IF (NC==0) RETURN
 C---------
       DO I=1,NRBE2
        IORDER(I) = I
@@ -483,11 +467,11 @@ C---------   ite=
        NSL = IRBE2(5,I)
        DO J =1,NSL
         NS = LRBE2(IAD+J)
-        IF (ITAG(NS).EQ.0) CYCLE
+        IF (ITAG(NS)==0) CYCLE
         IC=INDICE(ITAG(NS))
         I1=INDICE(I)
 C-----
-         IF (IC.GT.I1) THEN
+         IF (IC>I1) THEN
           NC = NC+1
 C-------exchange IORDER(IC) & IORDER(I) --
           I0 = IORDER(I1)
@@ -496,12 +480,12 @@ C-------exchange IORDER(IC) & IORDER(I) --
           IC0 = INDICE(I)
           INDICE(I) = IC
           INDICE(ITAG(NS)) = I1
-              IF (IT.EQ.NIT) IERR1 = IRBE2(2,I)
+              IF (IT==NIT) IERR1 = IRBE2(2,I)
          ENDIF
          DO K=IAD_N(NS),IAD_N(NS+1)-1
           IC=INDICE(ITAG1(K))
           I1=INDICE(I)
-           IF (IC.GT.I1) THEN
+           IF (IC>I1) THEN
                NC = NC+1
 C--exchange IORDER(IC) & IORDER(I) --
            I0 = IORDER(I1)
@@ -514,11 +498,11 @@ C--exchange IORDER(IC) & IORDER(I) --
         ENDDO
       ENDDO
        II = NC -II
-       IF (II.LE.0) GOTO 100
+       IF (II<=0) GOTO 100
       ENDDO
  100  CONTINUE
 C
-      IF (IERR1.GT.0) NC=-IERR1
+      IF (IERR1>0) NC=-IERR1
 C----------copy---
       DO I=1,NRBE2
         IAD = IRBE2(1,I)
@@ -547,24 +531,22 @@ C----------reodering---
         ENDDO
         IAD1 =IAD1+NSL
       ENDDO
+      DEALLOCATE(ITAG,IAD_N)
+
 C
       RETURN
       END SUBROUTINE REORBE2
-Chd|====================================================================
-Chd|  SETIADM                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        HIERARBE2                     source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|        REORBE2                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    setiadm     ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    hierarbe2   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||    reorbe2     ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||====================================================================
       SUBROUTINE SETIADM(IADM,NZ,IAD_N,IRBE2)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -577,9 +559,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, NM,NS,J,NSL,IAD,M
+      INTEGER I, N, NM,J,M
 C
-      INTEGER ITAG(NUMNOD),IADM_CP(NZ)
+      INTEGER IADM_CP(NZ)
+      INTEGER, DIMENSION(:), ALLOCATABLE :: ITAG
+C========================================================================|
+      ALLOCATE(ITAG(NUMNOD))
 C========================================================================|
       DO I=1,NUMNOD
        ITAG(I)=0
@@ -592,11 +577,11 @@ C========================================================================|
       NM =0
       IAD_N(1)=1
       DO N=1,NUMNOD
-       IF (ITAG(N).GT.0) THEN
+       IF (ITAG(N)>0) THEN
         DO J=1,NZ
          I = IADM(J)
          M = IRBE2(3,I)
-         IF (M.EQ.N) THEN
+         IF (M==N) THEN
           NM=NM+1
           IADM_CP(NM)=I
          ENDIF
@@ -607,33 +592,26 @@ C========================================================================|
       DO J=1,NZ
        IADM(J)=IADM_CP(J)
       ENDDO
+      DEALLOCATE(ITAG)
 C
       RETURN
       END SUBROUTINE SETIADM
-Chd|====================================================================
-Chd|  HIERARBE2                     source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        INIRBE2                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- calls ---------------
-Chd|        SETIADM                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|====================================================================
+!||====================================================================
+!||    hierarbe2   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    inirbe2     ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- calls      -----------------------------------------------------
+!||    setiadm     ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||====================================================================
       SUBROUTINE HIERARBE2(IRBE2  ,LRBE2)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -645,10 +623,13 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, N, IM1,NS,J,NSL,IAD,M,IH1,K,NZ,II,IAD1
 C
-      INTEGER ITAG(NUMNOD),ITAG1(NRBE2),IAD_N(NUMNOD+1),
+      INTEGER ITAG1(NRBE2),
      .        LCOPY(SLRBE2),ICOPY(NRBE2L,NRBE2)
+      INTEGER, DIMENSION(:), ALLOCATABLE :: ITAG, IAD_N
 C========================================================================|
 C--------defining hierarchy---------------------------------------
+      ALLOCATE(ITAG(NUMNOD))
+      ALLOCATE(IAD_N(NUMNOD+1))
       DO I=1,NUMNOD
        ITAG(I)=0
       ENDDO
@@ -656,7 +637,7 @@ C--------if same node as several MAINs---------------------------------------
       NZ=0
       DO I=1,NRBE2
        M = IRBE2(3,I)
-       IF (ITAG(M).EQ.0) THEN
+       IF (ITAG(M)==0) THEN
         ITAG(M)=I
        ELSE
             NZ=NZ+1
@@ -671,7 +652,7 @@ C--------------------------------------------
        NSL = IRBE2(5,I)
        DO J =1,NSL
         NS = LRBE2(IAD+J)
-        IF (ITAG(NS).GT.0) THEN
+        IF (ITAG(NS)>0) THEN
          IM1=ITAG(NS)
          IH1 = IRBE2(9,IM1)+1
          IRBE2(9,I) = MAX(IRBE2(9,I),IH1)
@@ -688,7 +669,7 @@ C--------------------------------------------
        NHRBE2 = MAX(NHRBE2,IRBE2(9,I))
        M = IRBE2(3,I)
       ENDDO
-      IF (NHRBE2.EQ.0) RETURN
+      IF (NHRBE2==0) RETURN
 C-------reordering according hiera---
        DO I=1,NRBE2
        IAD = IRBE2(1,I)
@@ -706,7 +687,7 @@ C----------reodering---
       II = 0
       DO N=0,NHRBE2
        DO I=1,NRBE2
-        IF (ICOPY(9,I).NE.N) CYCLE
+        IF (ICOPY(9,I)/=N) CYCLE
         II = II + 1
         IAD = ICOPY(1,I)
         M  = ICOPY(3,I)
@@ -722,43 +703,40 @@ C----------reodering---
        ENDDO
       ENDDO
 C
+      DEALLOCATE(ITAG,IAD_N)
       RETURN
       END SUBROUTINE HIERARBE2
-Chd|====================================================================
-Chd|  INIRBE2                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        HIERARBE2                     source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|        RBE2_MERGE                    source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|        REORBE2                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    inirbe2                ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    hierarbe2              ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||    rbe2_merge             ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||    reorbe2                ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INIRBE2(IRBE2  ,LRBE2  ,ITAB  ,X    ,MS   ,
      .                   IN     ,STIFN  ,STIFR ,TOTMAS,XGT  ,
      .                   YGT    ,ZGT   ,B1    ,B2   ,B3    ,
      .                   B5    ,B6    ,B9     ,NOM_OPT,ITAGND )
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "scr17_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "tabsiz_c.inc"
 #include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -771,25 +749,23 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J ,N, K, NSL,M, NC,NS,ICT,ICR,IC,IAD,ID,J6(6),IRAD
+      INTEGER I, J, NSL,M, NC,NS,ICT,ICR,IC,IAD,ID,J6(6),IRAD
 C
-      my_real
-     .     XX, XY, XZ, YY, YZ, ZZ,IXX,IYY,IZZ,DD,MASRB,INRB,INS,INS0
-      CHARACTER*nchartitle,
-     .   TITR
+      my_real XX, XY, XZ, YY, YZ, ZZ,IXX,IYY,IZZ,DD,MASRB,INRB,INS
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C========================================================================|
       CALL RBE2_MERGE(IRBE2  ,LRBE2  )
       CALL REORBE2(IRBE2  ,LRBE2  ,NC )
       CALL HIERARBE2(IRBE2  ,LRBE2  )
-      IF (NC.LT.0) THEN
+      IF (NC<0) THEN
        ID= -NC
         CALL ANCMSG(MSGID=803,
      .              MSGTYPE=MSGERROR,
      .              ANMODE=ANINFO,
      .              I1=ID)
-      ELSEIF(NHRBE2.GT.0) THEN
+      ELSEIF(NHRBE2>0) THEN
         WRITE(IOUT,1200) NHRBE2
-       IF (IPRI.GE.5) THEN
+       IF (IPRI>=5) THEN
              WRITE(IOUT,1000)
         DO I=1,NRBE2
          M = ITAB(IRBE2(3,I))
@@ -856,7 +832,7 @@ C
        IC=IRBE2(4,I)
        IRAD = IRBE2(11,I)
        ICT=IC/512
-       IF (ICT.GT.0) THEN
+       IF (ICT>0) THEN
         IF (NS10E>0) THEN
          DO J =1,NSL
           NS = LRBE2(IAD+J)
@@ -873,16 +849,16 @@ C
         END IF !(NS10E>0) THEN
        ENDIF
        ICR=(IC-512*(ICT))/64
-       IF (IRODDL.EQ.0) ICR =0
-        IF (ICR.GT.0.OR.IRAD.EQ.0) THEN
-         IF (ICR.GT.0) THEN
+       IF (IRODDL==0) ICR =0
+        IF (ICR>0.OR.IRAD==0) THEN
+         IF (ICR>0) THEN
           DO J =1,NSL
            NS = LRBE2(IAD+J)
            IN(M) = IN(M)+IN(NS)
            STIFR(M)= STIFR(M)+STIFR(NS)
           ENDDO
          END IF
-         IF (ICT.GT.0) THEN
+         IF (ICT>0) THEN
           IF (NS10E>0) THEN
            DO J =1,NSL
             NS = LRBE2(IAD+J)
@@ -895,7 +871,7 @@ C
             IZZ=XX+YY
             INS = (IXX+IYY+IZZ)*MS(NS)
             IN(M) = IN(M)+ INS
-            IF (ICT.EQ.7) INRB = INRB+INS
+            IF (ICT==7) INRB = INRB+INS
             DD = XX+YY+ZZ
             STIFR(M)= STIFR(M)+DD*STIFN(NS)
            ENDDO
@@ -910,7 +886,7 @@ C
            IZZ=XX+YY
            INS = (IXX+IYY+IZZ)*MS(NS)
            IN(M) = IN(M)+ INS
-           IF (ICT.EQ.7) INRB = INRB+INS
+           IF (ICT==7) INRB = INRB+INS
            DD = XX+YY+ZZ
            STIFR(M)= STIFR(M)+DD*STIFN(NS)
           ENDDO
@@ -925,7 +901,7 @@ C-----Correction -only for the case 111---
        NSL = IRBE2(5,I)
        IC=IRBE2(4,I)
        ICT=IC/512
-       IF (ICT.EQ.7) THEN
+       IF (ICT==7) THEN
         DO J =1,NSL
          NS = LRBE2(IAD+J)
          STIFN(NS)= EM20
@@ -948,7 +924,7 @@ C-----Correction -only for the case 111---
         ENDDO
        ENDIF
         ICR=(IC-512*(ICT))/64
-        IF (ICR.EQ.7.AND.IRODDL.GT.0) THEN
+        IF (ICR==7.AND.IRODDL>0) THEN
          DO J =1,NSL
           NS = LRBE2(IAD+J)
           STIFR(NS)= EM20
@@ -968,7 +944,7 @@ C
      .                 NOM_OPT(LNOPT1-LTITR+1,I),LTITR)
 
         M = IRBE2(3,I)
-        IF(MS(M).LE.1.0E-25) THEN
+        IF(MS(M)<=1.0E-25) THEN
            CALL ANCMSG(MSGID=804,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -976,7 +952,7 @@ C
      .                   C1=TITR)
            RETURN
         ENDIF
-       IF (IPRI.GE.3) THEN
+       IF (IPRI>=3) THEN
         WRITE(IOUT,1300)
         IF (IRODDL==0) THEN
          WRITE(IOUT,1600) IRBE2(2,I),ITAB(IRBE2(3,I)),MS(M)
@@ -1008,38 +984,33 @@ C
      .       /10X,'INDEPENDENT NODE NUMBER. . .',I10,
      .       /10X,'NEW MASS. . . . . . . . . . .',1PG20.13,//)
       END SUBROUTINE INIRBE2
-Chd|====================================================================
-Chd|  CONTRBE2                      source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        CONTRL                        source/starter/contrl.F       
-Chd|-- calls ---------------
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    contrbe2               ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    contrl                 ../starter/source/starter/contrl.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE CONTRBE2(ICR,LSUBMODEL)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------  
       USE HM_OPTION_READ_MOD
       USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1048,10 +1019,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, K, NSL, NSLT, ITYP, NUSER,  NM,M, NI,
-     .        ISK, ISENS, INGU, IGM, J, P,IAD,NS,NN,J6(6),JJ,II,
-     .        IC,IC1,IC2,IROT,ISKS,IADS,IERR1,NC,ID,IRAD
-      CHARACTER TITR*nchartitle,KEY*ncharkey
+      INTEGER I, NUSER,  NM,
+     .        ISK, INGU, J6(6),IRAD
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -1079,7 +1049,7 @@ C
         CALL HM_GET_INTV('dependentnodeset',INGU,IS_AVAILABLE,LSUBMODEL)
         CALL HM_GET_INTV('Iflag',IRAD,IS_AVAILABLE,LSUBMODEL)
 C
-        IF ((J6(1)+J6(2)+J6(3)+J6(4)+J6(5)+J6(6)).EQ.0) THEN
+        IF ((J6(1)+J6(2)+J6(3)+J6(4)+J6(5)+J6(6))==0) THEN
          J6(4)=1
          J6(5)=1
          J6(6)=1
@@ -1090,16 +1060,14 @@ C
       ENDDO
 C
       RETURN
- 999  CALL FREERR(1)
 C
       END SUBROUTINE CONTRBE2
-Chd|====================================================================
-Chd|  SETELOFF2                     source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    seteloff2      ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SETELOFF2(IXS    ,IXC    ,IXT    ,IXP    ,IXR    ,
      2                     IXTG   ,IPARG  ,ISOLOFF,ISHEOFF,
      3                     ITRUOFF,IPOUOFF,IRESOFF,ITRIOFF,IGRNRB2,
@@ -1108,22 +1076,18 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
+      use element_mod , only : nixs,nixc,nixtg,nixt,nixp,nixr
 C-------------------------------------
-C    PRE LECTURE STRUCTURE RIGIDES POUR OPTIMIZATION
+C    PRE-READ RIGID STRUCTURE FOR OPTIMIZATION
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "scr17_c.inc"
 #include      "scr03_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -1140,14 +1104,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NG, MLW, ITY, NEL, NFT, IAD, I, II, IGOF, NR, IG,
-     .        NSN, NALL, ISHFT, IOK, IRBYON,M,IC,IC0,
+      INTEGER I, II, NR, IG,
+     .        NSN, NALL, IRBYON,M,IC,IC0,
      .        ITAG(NUMNOD)
 C-----------------------
 C     MISE DE OFF A -OFF
 C======================================================================|
-      IF (NRBE2.EQ.0) RETURN
-      IF(IPRI.GE.5) THEN
+      IF (NRBE2==0) RETURN
+      IF(IPRI>=5) THEN
         WRITE(IOUT,*)' '
 
         WRITE(IOUT,*)' LIST OF DEACTIVATED ELEMENTS FROM RBE2'
@@ -1161,7 +1125,7 @@ C
         IG = IGRNRB2(NR)
         M  = IRBE2(3,NR)
         IC = IRBE2(4,NR)
-        IF(IG.GT.0.AND.IC.EQ.IC0)THEN
+        IF(IG>0.AND.IC==IC0)THEN
           NSN = IGRNOD(IG)%NENTITY
           DO I=1,NUMNOD
             ITAG(I)=0
@@ -1173,21 +1137,21 @@ C
 C
           DO II = 1, NUMELT
             NALL = ITAG(IXT(2,II)) * ITAG(IXT(3,II))
-            IF(NALL.NE.0)THEN
+            IF(NALL/=0)THEN
               ITRUOFF(II) = IRBYON
             END IF
           END DO
 C
           DO II = 1, NUMELP
             NALL = ITAG(IXP(2,II)) * ITAG(IXP(3,II))
-            IF(NALL.NE.0)THEN
+            IF(NALL/=0)THEN
               IPOUOFF(II) = IRBYON
             END IF
           END DO
 C
           DO II = 1, NUMELR
             NALL = ITAG(IXR(2,II)) * ITAG(IXR(3,II))
-            IF(NALL.NE.0)THEN
+            IF(NALL/=0)THEN
               IRESOFF(II) = IRBYON
             END IF
           END DO
@@ -1197,20 +1161,20 @@ C
 C  -----DEACTIVATED ELEMENTS will done in SETELOFF------
       RETURN
       END SUBROUTINE SETELOFF2
-Chd|====================================================================
-Chd|  SETRB2ON                      source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        NGR2USRN                      source/system/nintrr.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    setrb2on               ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    ngr2usrn               ../starter/source/system/nintrr.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE SETRB2ON(IXS    ,IXC    ,IXTG   ,IGRNOD ,
      2                    IGRNRB2,ISOLOFF,ISHEOFF,ITRIOFF,ITABM1,
      3                    LSUBMODEL)
@@ -1220,24 +1184,18 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE HM_OPTION_READ_MOD
       USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs,nixc,nixtg
 C-------------------------------------
-C    PRE LECTURE STRUCTURE RIGIDES POUR OPTIMIZATION
+C    PRE-READ RIGID STRUCTURE FOR OPTIMIZATION
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1249,18 +1207,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NR, IDUM, I, L, ISENS, IGS,NSN,IAD,II,NALL,
-     .        IGU,ID,ILAGM,ISU,UID,IRBYON,
-     .        ITAG(NUMNOD),NN,NM, NUSER, NUM,M,J6(6),IC
-      CHARACTER TITR*nchartitle,MESS*40
+      INTEGER NR, I, IGS,NSN,II,NALL,
+     .        IGU,IRBYON,
+     .        ITAG(NUMNOD),NN,NM, NUSER, M,J6(6),IC
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER :: MESS*40
       INTEGER NGR2USRN
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER USR2SYS,NODGRNR,NGR2USR
+      INTEGER USR2SYS
 C-----------------------------------
-      IF (NRBE2.EQ.0) RETURN
+      IF (NRBE2==0) RETURN
 C
       CALL HM_OPTION_START('/RBE2')
       IRBYON = 20
@@ -1298,7 +1257,7 @@ C
           DO II = 1, NUMELC
             NALL = ITAG(IXC(2,II)) * ITAG(IXC(3,II)) *
      +             ITAG(IXC(4,II)) * ITAG(IXC(5,II))
-            IF(NALL.NE.0)THEN
+            IF(NALL/=0)THEN
               ISHEOFF(II) = IRBYON
             END IF
           END DO
@@ -1306,7 +1265,7 @@ C
           DO II = 1, NUMELTG
             NALL = ITAG(IXTG(2,II)) * ITAG(IXTG(3,II)) *
      +             ITAG(IXTG(4,II))
-            IF(NALL.NE.0)THEN
+            IF(NALL/=0)THEN
               ITRIOFF(II) = IRBYON
             END IF
           END DO
@@ -1352,7 +1311,7 @@ C
      +             ITAG(IXS(4,II)) * ITAG(IXS(5,II)) *
      +             ITAG(IXS(6,II)) * ITAG(IXS(7,II)) *
      +             ITAG(IXS(8,II)) * ITAG(IXS(9,II))
-            IF(NALL.NE.0)THEN
+            IF(NALL/=0)THEN
               ISOLOFF(II) = IRBYON
             END IF
           END DO
@@ -1360,36 +1319,27 @@ C
 C
       END DO
 C
- 999  RETURN
+      RETURN
       END
 C
-Chd|====================================================================
-Chd|  RBE2_MERGE                    source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        INIRBE2                       source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- calls ---------------
-Chd|        IC_MRG                        source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|        SAME_NSN                      source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_merge   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    inirbe2      ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- calls      -----------------------------------------------------
+!||    ic_mrg       ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||    same_nsn     ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||====================================================================
       SUBROUTINE RBE2_MERGE(IRBE2  ,LRBE2  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1397,12 +1347,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, K, NSL,NM, NI, NMT,M,IROT,ID,IMO,IC0,NZ,NSLN,NSLJ,
-     .        J, P,IAD,NS,NN,II,IT,IADS,IERR1,IAD1,IC,MJ,ICJ,NSJ,IADJ
+      INTEGER I, NSL,M,NZ,NSLJ,
+     .        J, IAD,NS,II,IC,MJ,IADJ
 C
-      INTEGER ITAG(NUMNOD),ISAME
+      INTEGER ISAME
+      INTEGER, DIMENSION(:), ALLOCATABLE :: ITAG
+
 C========================================================================|
-C--------merging RBE2 w/ the same NS/M (seperated IC)--------------------
+C--------merging RBE2 w/ the same NS/M (separated IC)--------------------
+      ALLOCATE(ITAG(NUMNOD))
       ITAG(1:NUMNOD)=0
 C--------if same node as several IND. of /RBE2------------
       NZ=0
@@ -1415,7 +1368,10 @@ C--------if same node as several IND. of /RBE2------------
          ITAG(NS)=ITAG(NS)+1
         ENDDO
       ENDDO
-      IF (NZ==0) RETURN
+      IF (NZ==0) THEN 
+         DEALLOCATE(ITAG)
+         RETURN
+      ENDIF
 C --------merge if same all excepting IC     
       DO I=1,NRBE2
         IAD = IRBE2(1,I)
@@ -1436,25 +1392,19 @@ C --------merge if same all excepting IC
         ENDDO
       ENDDO
 C
+      DEALLOCATE(ITAG)
       RETURN
       END SUBROUTINE RBE2_MERGE
-Chd|====================================================================
-Chd|  SAME_NSN                      source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        RBE2_MERGE                    source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    same_nsn     ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_merge   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||====================================================================
       SUBROUTINE SAME_NSN(NSL,LRBE2_1  ,LRBE2_2,ITAG,ISAME)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1476,24 +1426,18 @@ C========================================================================|
 C
       RETURN
       END SUBROUTINE SAME_NSN
-Chd|====================================================================
-Chd|  IC_MRG                        source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        RBE2_MERGE                    source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- calls ---------------
-Chd|        ICT2JT                        source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|====================================================================
+!||====================================================================
+!||    ic_mrg       ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_merge   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- calls      -----------------------------------------------------
+!||    ict2jt       ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||====================================================================
       SUBROUTINE IC_MRG(IC_N,IC1 ,IC2)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1524,23 +1468,16 @@ C========================================================================|
 C
       RETURN
       END SUBROUTINE IC_MRG
-Chd|====================================================================
-Chd|  ICT2JT                        source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- called by -----------
-Chd|        IC_MRG                        source/constraints/general/rbe2/hm_read_rbe2.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ict2jt   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    ic_mrg   ../starter/source/constraints/general/rbe2/hm_read_rbe2.F
+!||====================================================================
       SUBROUTINE ICT2JT(ICT,JT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1549,7 +1486,6 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J
 C======================================================================|
 C        ICT=IC/512
 C        ICR=(IC-512*(ICT))/64

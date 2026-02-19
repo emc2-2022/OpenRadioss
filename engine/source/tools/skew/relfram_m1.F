@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RELFRAM_M1                    source/tools/skew/relfram_m1.F
-Chd|-- called by -----------
-Chd|        CFIELD_1                      source/loads/general/load_centri/cfield.F
-Chd|        CFIELD_IMP                    source/loads/general/load_centri/cfield_imp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    relfram_m1   ../engine/source/tools/skew/relfram_m1.F
+!||--- called by ------------------------------------------------------
+!||    cfield_1     ../engine/source/loads/general/load_centri/cfield.F
+!||    cfield_imp   ../engine/source/loads/general/load_centri/cfield_imp.F
+!||====================================================================
       SUBROUTINE RELFRAM_M1(XG ,VG      ,AREL    ,XFRAME  ,
      2                      VO      , AO      )
 C-----------------------------------------------
@@ -36,10 +35,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -51,7 +47,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, K
+ 
 C     REAL
       my_real
      .   ROT(9),ROT0(9),ROTDT05(9),ROTT05(9),
@@ -81,7 +77,7 @@ C-----------
        OM(2)=XG(2)-O(2)
        OM(3)=XG(3)-O(3)   
 C-----------
-C      vitesse d'entrainement (T-1/2).
+C      Training velocity (T-1/2).
 C-----------
        DT05=0.5*DT1
        OM2(1)=OM(1)-DT05*(VG(1)-VO(1))
@@ -122,10 +118,10 @@ C-----------
        AE(3)=AO(3)+DWDT(1)*OM(2)-DWDT(2)*OM(1)
      .            +W(1)*WOM(2)-W(2)*WOM(1)
 C-----------
-C      acceleration de Coriolis.
+C      Coriolis acceleration.
 C-----------
 C      second order correction.
-C      vitesse d'entrainement (T).
+C      Training velocity (T).
 C      VE(1)=VO(1)+WOM(1)
 C      VE(2)=VO(2)+WOM(2)
 C      VE(3)=VO(3)+WOM(3)
@@ -137,12 +133,11 @@ C      VREL(3)=VG(3)-VE(3)
        AC(2)=2.*(W(3)*VREL(1)-W(1)*VREL(3))
        AC(3)=2.*(W(1)*VREL(2)-W(2)*VREL(1))
 C-----------
-C      relative accelaration in global frame at time T.
+C      relative acceleration in global frame at time T.
 C-----------
        AREL(1)=AREL(1)+AE(1)+AC(1)
        AREL(2)=AREL(2)+AE(2)+AC(2)
        AREL(3)=AREL(3)+AE(3)+AC(3)
 C-----------------------------------------------
- 999  CONTINUE
       RETURN
       END

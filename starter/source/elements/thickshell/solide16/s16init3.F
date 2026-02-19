@@ -1,48 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S16INIT3                      source/elements/thickshell/solide16/s16init3.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ATHERI                        source/ale/atheri.F           
-Chd|        DTMAIN                        source/materials/time_step/dtmain.F
-Chd|        FAILINI                       source/elements/solid/solide/failini.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MATINI                        source/materials/mat_share/matini.F
-Chd|        S16COOR3                      source/elements/thickshell/solide16/s16coor3.F
-Chd|        S16DERI3                      source/elements/thickshell/solide16/s16deri3.F
-Chd|        S16MASS3                      source/elements/thickshell/solide16/s16mass3.F
-Chd|        S16RST                        source/elements/thickshell/solide16/s16deri3.F
-Chd|        S20MSI                        source/elements/solid/solide20/s20mass3.F
-Chd|        SBULK3                        source/elements/solid/solide/sbulk3.F
-Chd|        SIGIN20B                      source/elements/solid/solide20/s20mass3.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        DETONATORS_MOD                share/modules1/detonators_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s16init3               ../starter/source/elements/thickshell/solide16/s16init3.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    atheri                 ../starter/source/ale/atheri.F
+!||    dtmain                 ../starter/source/materials/time_step/dtmain.F
+!||    failini                ../starter/source/elements/solid/solide/failini.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    matini                 ../starter/source/materials/mat_share/matini.F
+!||    s16coor3               ../starter/source/elements/thickshell/solide16/s16coor3.F
+!||    s16deri3               ../starter/source/elements/thickshell/solide16/s16deri3.F
+!||    s16mass3               ../starter/source/elements/thickshell/solide16/s16mass3.F
+!||    s16rst                 ../starter/source/elements/thickshell/solide16/s16deri3.F
+!||    s20msi                 ../starter/source/elements/solid/solide20/s20mass3.F
+!||    s20temp                ../starter/source/elements/solid/solide20/s20temp.F90
+!||    sbulk3                 ../starter/source/elements/solid/solide/sbulk3.F
+!||    sigin20b               ../starter/source/elements/solid/solide20/s20mass3.F
+!||--- uses       -----------------------------------------------------
+!||    detonators_mod         ../starter/share/modules1/detonators_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    s20temp_mod            ../starter/source/elements/solid/solide20/s20temp.F90
+!||====================================================================
       SUBROUTINE S16INIT3(
      1      ELBUF_STR ,MAS     ,IXS     ,PM      ,X        ,
      2      DETONATORS,GEO     ,VEUL    ,ALE_CONNECTIVITY ,IPARG    ,
@@ -53,7 +54,8 @@ Chd|====================================================================
      7      VNS       ,BNS     ,VNSX    ,BNSX    ,PTSOL    ,
      8      BUFMAT    ,MCP     ,MCPS    ,MCPSX   ,TEMP     ,
      9      NPF       ,TF      ,STRSGLOB,STRAGLOB,FAIL_INI ,
-     A      ILOADP    ,FACLOAD ,RNOISE  ,PERTURB )
+     A      ILOADP    ,FACLOAD ,RNOISE  ,PERTURB ,MAT_PARAM,
+     B      GLOB_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -61,6 +63,11 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE DETONATORS_MOD      
       USE ALE_CONNECTIVITY_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use glob_therm_mod
+      use s20temp_mod
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -72,17 +79,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
 #include      "scr12_c.inc"
 #include      "scr17_c.inc"
 #include      "scry_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -100,16 +102,18 @@ C-----------------------------------------------
       TYPE(ELBUF_STRUCT_), TARGET :: ELBUF_STR
       INTEGER,INTENT(IN) :: ILOADP(SIZLOADP,*)
       my_real,INTENT(IN) :: FACLOAD(LFACLOAD,*)
-      TYPE(DETONATOR_STRUCT_)::DETONATORS
+      TYPE(DETONATORS_STRUCT_)::DETONATORS
       TYPE(t_ale_connectivity), INTENT(INOUT) :: ALE_CONNECTIVITY
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
+      type (glob_therm_) ,intent(in)      :: glob_therm
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NF1,IBID,I,IGTYP,IP,NF2,NPTR,NPTS,NPTT,NLAY,IL,IR,IS,IT,
      .        N, NUVAR,IINT, NCC,IDEF,JHBE,IPID1,L_PLA,L_SIGB
       INTEGER NC(MVSIZ,16),MAT(MVSIZ), PID(MVSIZ), NGL(MVSIZ),RBID(1)
-      CHARACTER*nchartitle,
-     .   TITR1
+      INTEGER ,PARAMETER :: NPE=16
+      CHARACTER(LEN=NCHARTITLE)::TITR1
       my_real
      .   BID, FV,WI,AA,BB
       my_real
@@ -122,7 +126,8 @@ C-----------------------------------------------
      .  SX(MVSIZ),SY(MVSIZ),SZ(MVSIZ),VOLG(MVSIZ),
      .  TX(MVSIZ),TY(MVSIZ),TZ(MVSIZ),UL(MVSIZ,16),
      .  NI(MVSIZ,16),DNIDR(MVSIZ,16),DNIDS(MVSIZ,16),DNIDT(MVSIZ,16),
-     .  DTX(MVSIZ),STIN(MVSIZ,16), RHOCP(MVSIZ),TEMP0(MVSIZ), AIRE(1)
+     .  DTX(MVSIZ),STIN(MVSIZ,16), RHOCP(MVSIZ),TEMP0(MVSIZ), AIRE(MVSIZ)
+      my_real :: TEMPEL(NEL)
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
       TYPE(BUF_MAT_) ,POINTER :: MBUF
@@ -330,7 +335,7 @@ C
      2   YY           ,ZZ       ,VX         ,VY          ,VZ      ,
      3   NC           ,NGL      ,MAT        ,PID         ,MASS    ,
      4   DTELEM(NFT+1),STI      ,GBUF%SIG   ,GBUF%EINT   ,GBUF%RHO,
-     5   GBUF%QVIS    ,TEMP0    ,TEMP       ,NEL         )
+     5   GBUF%QVIS    ,TEMP0    ,TEMP       ,NEL         ,GLOB_THERM%NINTEMP)
 C
       DO N=1,16
         DO I=LFT,LLT
@@ -342,7 +347,7 @@ C
       ENDDO
 C
 C----------------------------------------
-C     INITIALISATION DE LA THERMIQUE 
+C     INITIALIZATION OF THERMAL CONDITIONS
 C----------------------------------------
       IF(JTHE /=0) CALL ATHERI(MAT,PM,GBUF%TEMP)
 C-----------------------------
@@ -389,6 +394,12 @@ c
      5      LBUF%VOL,DELTAX ,STIN   ,NI     ,VOLG   ,UL        ,LBUF%VOL0DP )
          ENDIF
 c
+         IF (JTHE == 0 .and. GLOB_THERM%NINTEMP > 0) THEN
+           CALL S20TEMP(NEL,NUMNOD,MVSIZ,NPE, NC,NI(1,IP),TEMP,TEMPEL)
+         ELSE
+           TEMPEL(1:NEL) = TEMP0(1:NEL)
+         ENDIF             
+!
          CALL MATINI(PM       ,IXS    ,NIXS        ,X          ,
      .               GEO      ,ALE_CONNECTIVITY  ,DETONATORS  ,IPARG      ,
      .               SIGI     ,NEL    ,SKEW        ,IGEO(1,1)  ,
@@ -396,9 +407,9 @@ c
      .               MAT      ,IPM    ,NSIGS       ,NUMSOL     ,PTSOL    ,
      .               IP       ,NGL    ,NPF         ,TF         ,BUFMAT   ,
      .               GBUF     ,LBUF   ,MBUF        ,ELBUF_STR  ,ILOADP   ,
-     .               FACLOAD, DELTAX)
+     .               FACLOAD, DELTAX  ,TEMPEL      ,MAT_PARAM  )
 C----------------------------------------
-C     INITIALISATION DES MASSES
+C     INITIALIZATION OF MASSES
 C----------------------------------------
          CALL S20MSI(LBUF%RHO ,MASS     ,LBUF%VOL  ,DTELEM(NFT+1),STI    ,
      .               LBUF%OFF ,LBUF%SIG ,LBUF%EINT ,DTX          ,NEL    ,
@@ -408,10 +419,10 @@ C-------------------------------------------
 C    INITIALISATION DES CONTRAINTES + ENERGIE+ DENSITE + PLA
 C---------------------------------------------
          IF (MTN >= 28) THEN
-	          NUVAR =  IPM(8,IXS(1,NFT+1))
+                    NUVAR =  IPM(8,IXS(1,NFT+1))
            IDEF =1
-	        ELSE
-	          NUVAR = 0
+                  ELSE
+                    NUVAR = 0
            IF(MTN == 14 .OR. MTN == 12)THEN             
               IDEF =1                                   
            ELSEIF(MTN == 24)THEN                        
@@ -456,7 +467,7 @@ C
       AIRE(:) = ZERO
       CALL DTMAIN(GEO       ,PM        ,IPM         ,PID     ,MAT     ,FV    ,
      .     GBUF%EINT ,GBUF%TEMP ,GBUF%DELTAX ,GBUF%RK ,GBUF%RE ,BUFMAT, DELTAX, AIRE, 
-     .     GBUF%VOL, DTX, IGEO)
+     .     GBUF%VOL, DTX, IGEO,IGTYP)
 c
       CALL S16MASS3(
      1        MASS         ,MAS,PARTSAV,IPARTS(NF1),MSS(1,NF1),VOLG,
@@ -470,10 +481,10 @@ C----------------------------------------
       CALL FAILINI(ELBUF_STR,NPTR,NPTS,NPTT,NLAY,
      .             IPM,SIGSP,NSIGI,FAIL_INI ,
      .             SIGI,NSIGS,IXS,NIXS,PTSOL,
-     .             RNOISE,PERTURB,BUFMAT)
+     .             RNOISE,PERTURB,MAT_PARAM)
 C------------------------------------------
-C     assemblage des Volumes nodaux et Modules nodaux
-C     (pour rigidites d'interface)
+C     assembly of Nodal Volumes and Nodal Modules
+C     (for interface rigidities)
 C------------------------------------------
       IF (I7STIFS /= 0) THEN
         NCC=16

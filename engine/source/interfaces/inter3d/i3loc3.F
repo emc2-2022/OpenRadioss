@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I3LOC3                        source/interfaces/inter3d/i3loc3.F
-Chd|-- called by -----------
-Chd|        I6MAIN                        source/interfaces/inter3d/i6main.F
-Chd|        I9MAIN3                       source/interfaces/int09/i9main3.F
-Chd|        INTVO3                        source/interfaces/inter3d/intvo3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE I3LOC3(X,IRECT,LMSR,MSR,NSV,
-     1                  ILOC,NSEG,XI,YI,ZI,
-     2                  XFACE)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i3loc3    ../engine/source/interfaces/inter3d/i3loc3.F
+!||--- called by ------------------------------------------------------
+!||    i6main    ../engine/source/interfaces/inter3d/i6main.F
+!||    i9main3   ../engine/source/interfaces/int09/i9main3.F
+!||    intvo3    ../engine/source/interfaces/inter3d/intvo3.F
+!||====================================================================
+      SUBROUTINE I3LOC3(
+     1   X,       IRECT,   LMSR,    MSR,
+     2   NSV,     ILOC,    NSEG,    XI,
+     3   YI,      ZI,      XFACE,   LFT,
+     4   LLT,     NFT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -42,17 +43,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: LFT
+      INTEGER, INTENT(INOUT) :: LLT
+      INTEGER, INTENT(INOUT) :: NFT
       INTEGER IRECT(4,*), LMSR(*), MSR(*), NSV(*), ILOC(*), NSEG(*)
 C     REAL
       my_real
      .   X(3,*)
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr04_c.inc"
-#include      "vect07_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       my_real, DIMENSION(MVSIZ), INTENT(INOUT) ::  XI,YI,ZI,XFACE
 C-----------------------------------------------
@@ -65,9 +64,7 @@ C     REAL
      .   GMS, CMS,
      .   DMS, EMS, FMS
 C-----------------------------------------------
-!      EQUIVALENCE (XJ,BV(1,1)) ,(YJ,BV(1,2)) ,(ZJ,BV(1,3))
-!      EQUIVALENCE (XI,BV(1,13)),(YI,BV(1,14)),(ZI,BV(1,15))
-!      EQUIVALENCE (XFACE,BV(1,29))
+
       DO 100 I=LFT,LLT
       XFACE(I)=ONE
       IL=I+NFT
@@ -99,19 +96,19 @@ C
       DMS=(XI(I)-X(1,KG))**2+(YI(I)-X(2,KG))**2+(ZI(I)-X(3,KG))**2
       EMS=(XI(I)-X(1,MG))**2+(YI(I)-X(2,MG))**2+(ZI(I)-X(3,MG))**2
       FMS=(XI(I)-X(1,NG))**2+(YI(I)-X(2,NG))**2+(ZI(I)-X(3,NG))**2
-      IF(CMS.LT.GMS) THEN
+      IF(CMS<GMS) THEN
        GMS=CMS
        JLNEW=J
       ENDIF
-      IF(DMS.LT.GMS) THEN
+      IF(DMS<GMS) THEN
        GMS=DMS
        JLNEW=K
       ENDIF
-      IF(EMS.LT.GMS) THEN
+      IF(EMS<GMS) THEN
        GMS=EMS
        JLNEW=M
       ENDIF
-      IF(FMS.LT.GMS) THEN
+      IF(FMS<GMS) THEN
        GMS=FMS
        JLNEW=N
       ENDIF

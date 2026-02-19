@@ -1,38 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CNLOC_MATINI                  source/materials/mat_share/cnloc_matini.F
-Chd|-- called by -----------
-Chd|        C3FINT_REG_INI                source/elements/sh3n/coque3n/c3fint_reg_ini.F
-Chd|        CBAFINT_REG_INI               source/elements/shell/coqueba/cbafint_reg_ini.F
-Chd|        CDKFINT_REG_INI               source/elements/sh3n/coquedk/cdkfint_reg_ini.F
-Chd|        CFINT_REG_INI                 source/elements/shell/coque/cfint_reg_ini.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        CNLOC_MAT104_INI              source/materials/mat/mat104/cnloc_mat104_ini.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cnloc_matini       ../starter/source/materials/mat_share/cnloc_matini.F
+!||--- called by ------------------------------------------------------
+!||    c3fint_reg_ini     ../starter/source/elements/sh3n/coque3n/c3fint_reg_ini.F
+!||    cbafint_reg_ini    ../starter/source/elements/shell/coqueba/cbafint_reg_ini.F
+!||    cdkfint_reg_ini    ../starter/source/elements/sh3n/coquedk/cdkfint_reg_ini.F
+!||    cfint_reg_ini      ../starter/source/elements/shell/coque/cfint_reg_ini.F
+!||--- calls      -----------------------------------------------------
+!||    cnloc_mat104_ini   ../starter/source/materials/mat/mat104/cnloc_mat104_ini.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE CNLOC_MATINI(ELBUF_STR,NEL      ,IPM      ,
      .                        BUFMAT   ,TIME     ,VARNL    ,
      .                        FAILURE  )
@@ -46,18 +45,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -70,7 +60,6 @@ C-----------------------------------------------
       LOGICAL :: FAILURE
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
 C-----------------------------------------------
       INTEGER I,K,IR,IS,IT,IADBUF,NPTT,NPTR,NPTS,
      .        IJ(5),IJ1,IJ2,IJ3,IJ4,IJ5,IPG,
@@ -100,7 +89,7 @@ C
       ! Material properties and parameters
       IADBUF  = MAX(1,IPM(7,IMAT))
       NUPARAM = IPM(9,IMAT) 
-      UPARAM  => BUFMAT(IADBUF:IADBUF+NUPARAM)       
+      UPARAM  => BUFMAT(IADBUF:IADBUF+NUPARAM-1)
 C
       DO K=1,5
         IJ(K) = NEL*(K-1)
@@ -122,6 +111,13 @@ C
             LBUF => BUFLY%LBUF(IR,IS,IT)
             ! Interval variable buffer
             UVAR => BUFLY%MAT(IR,IS,IT)%VAR
+            ! Non-local plastic strain update
+            IF (GBUF%G_PLANL > 0) THEN 
+              DO I = 1,NEL 
+                VARNL(I,IT)   = MAX(VARNL(I,IT),ZERO)
+                LBUF%PLANL(I) = LBUF%PLANL(I) + VARNL(I,IT)
+              ENDDO 
+            ENDIF
             ! Select the material initialization routine
             SELECT CASE (ILAW)
               CASE(104)
@@ -130,11 +126,13 @@ C
      .                                LBUF%SIG(IJ2),LBUF%SIG(IJ3)  ,LBUF%SIG(IJ4)      ,LBUF%SIG(IJ5),
      .                                THKN     ,LBUF%DMG ,NPTR     ,NPTS     ,NPTT     ,BUFLY        ,
      .                                TIME     ,VARNL(1,IT),FAILURE)                  
-              CASE DEFAULT
-                CALL ANCMSG(MSGID=1766,MSGTYPE=MSGERROR,
-     .                      ANMODE=ANINFO_BLIND_1,I1=ILAW) 
-                EXIT
-            ENDSELECT
+            END SELECT
+            ! Plastic strain to regularize
+            IF (GBUF%G_PLANL > 0) THEN 
+              DO I = 1,NEL 
+                VARNL(I,IT) = LBUF%PLA(I)
+              ENDDO
+            ENDIF
           ENDDO
         ENDDO
       ENDDO

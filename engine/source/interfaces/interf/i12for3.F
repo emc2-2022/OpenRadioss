@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Cel|         INTTI12F                        /interf/intti12.F
-Chd|====================================================================
-Chd|  I12FOR3                       source/interfaces/interf/i12for3.F
-Chd|-- called by -----------
-Chd|        INTTI12F                      source/interfaces/interf/intti12.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+C  |         INTTI12F                        /interf/intti12.F
+!||====================================================================
+!||    i12for3    ../engine/source/interfaces/interf/i12for3.F
+!||--- called by ------------------------------------------------------
+!||    intti12f   ../engine/source/interfaces/interf/intti12.F
+!||====================================================================
       SUBROUTINE I12FOR3(
      1  NSN  ,NMN  ,A      ,IRECT,CRST  ,
      2  MSR  ,NSV  ,IRTL   ,MS   ,WEIGHT,
@@ -49,19 +48,18 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, II, L, JJ,JL
       my_real
-     .   H(4), XMSJ, SS, TT, XMSI, FXI, FYI, FZI,SP,SM,TP,TM,
+     .   H(4), SS, TT, XMSI, FXI, FYI, FZI,SP,SM,TP,TM,
      .   P(9),CST,SST,FXR, FYR, FZR
 C-----------------------------------------------
       NIR=2
-      IF(N2D.EQ.0)NIR=4
-      IF(ILEV.EQ.1)THEN
+      IF(N2D==0)NIR=4
+      IF(ILEV==1)THEN
         DO I=1,9
           P(I)=SKEW(I,IREF+1)
         ENDDO
@@ -72,14 +70,14 @@ C-----------------------------------------------
         ENDDO
       ENDIF
 
-       !Cel sauvegarde de la masse initiale
+       !cell saves the initial mass
         DO II=1,NMN
           J=MSR(II)
           MMASS(II)=MS(J)
         ENDDO
 
       DO II=1,NSN
-        IF(TAGKINE(II).GT.0)THEN
+        IF(TAGKINE(II)>0)THEN
           I=NSV(II)
           L=IRTL(II)
           SS=CRST(1,II)
@@ -99,8 +97,8 @@ C-----------------------------------------------
           H(2)=TM*SP
           H(3)=TP*SP
           H(4)=TP*SM
-          IF(ILEV.EQ.1)THEN
-           IF(TETS(II).LT.10000. )THEN
+          IF(ILEV==1)THEN
+           IF(TETS(II)<10000. )THEN
             CST=COS(TETS(II))
             SST=SIN(TETS(II))
             FXR=FXI*P(1)+FYI*P(2)+FZI*P(3)
@@ -144,7 +142,7 @@ C-----------------------------------------------
               STIFN(J)=STIFN(J)+STIFN(I)*H(JJ)
 
             ENDDO
-          ENDIF !(ILEV.EQ.1)
+          ENDIF !(ILEV==1)
         STIFN(I)=EM20
         A(I1)=ZERO
         A(I2)=ZERO
@@ -152,7 +150,7 @@ C-----------------------------------------------
         ENDIF
       ENDDO
       
-      IF(ILEV.EQ.1 )THEN
+      IF(ILEV==1 )THEN
         DO II=1,NMN
           CST=COS(TETM(II))
           SST=SIN(TETM(II))

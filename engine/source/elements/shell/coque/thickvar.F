@@ -1,40 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  THICKVAR                      source/elements/shell/coque/thickvar.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        STARTIMEG                     source/system/timer.F         
-Chd|        STOPTIMEG                     source/system/timer.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    thickvar       ../engine/source/elements/shell/coque/thickvar.F
+!||--- called by ------------------------------------------------------
+!||    resol          ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    startimeg      ../engine/source/system/timer.F
+!||    stoptimeg      ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE THICKVAR(IPARG,ELBUF_TAB,IXC,IXTG,THKSH4_VAR,
      .                    THKSH3_VAR,THKNOD,THKE,SH4TREE,SH3TREE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,7 +51,6 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "remesh_c.inc"
 #include      "task_c.inc"
-#include      "scr01_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -72,7 +74,7 @@ C-----------------------------------------------
       IF(NADMESH==0)THEN
  250  CONTINUE
 #include "lockon.inc"
-      IF(NSGDONE.GT.NGROUP) THEN
+      IF(NSGDONE>NGROUP) THEN
 #include "lockoff.inc"
          GOTO 252
       ENDIF
@@ -81,9 +83,9 @@ C-----------------------------------------------
 #include "lockoff.inc"
       IF (IPARG(8,NG) == 1)GOTO 250
       ITY   =IPARG(5,NG)
-      IF(ITY.NE.3.AND.ITY.NE.7)GOTO 250
+      IF(ITY/=3.AND.ITY/=7)GOTO 250
 
-        IF (IDDW.GT.0) CALL STARTIMEG(NG)
+        IF (IDDW>0) CALL STARTIMEG(NG)
         MTN=IPARG(1,NG)
         IF(MTN == 0) GOTO 250
         NEL=IPARG(2,NG)
@@ -133,14 +135,14 @@ c
           END IF
         END IF
 
-        IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+        IF (IDDW>0) CALL STOPTIMEG(NG)
       GOTO 250
  252  CONTINUE
 C-----------------------------------------------
       ELSE
  450  CONTINUE
 #include "lockon.inc"
-      IF(NSGDONE.GT.NGROUP) THEN
+      IF(NSGDONE>NGROUP) THEN
 #include "lockoff.inc"
          GOTO 452
       ENDIF
@@ -149,9 +151,9 @@ C-----------------------------------------------
 #include "lockoff.inc"
       IF(IPARG(8,NG) == 1)GOTO 450
       ITY   =IPARG(5,NG)
-      IF(ITY.NE.3.AND.ITY.NE.7)GOTO 450
+      IF(ITY/=3.AND.ITY/=7)GOTO 450
 
-        IF (IDDW.GT.0) CALL STARTIMEG(NG)
+        IF (IDDW>0) CALL STARTIMEG(NG)
         MTN=IPARG(1,NG)
         IF(MTN == 0) GOTO 450
         NEL=IPARG(2,NG)
@@ -276,7 +278,7 @@ c
           END DO
         END IF
 
-        IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+        IF (IDDW>0) CALL STOPTIMEG(NG)
       GOTO 450
  452  CONTINUE
       END IF

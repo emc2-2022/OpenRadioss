@@ -1,44 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  I7STI3                        source/interfaces/inter3d1/i7sti3.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRICTION_PARTS_SEARCH         source/interfaces/inter3d1/i7sti3.F
-Chd|        I4GMX3                        source/interfaces/inter3d1/i4gmx3.F
-Chd|        INCOQ3                        source/interfaces/inter3d1/incoq3.F
-Chd|        INELTC                        source/interfaces/inter3d1/inelt.F
-Chd|        INELTIGEO                     source/interfaces/inter3d1/inelt.F
-Chd|        INELTS                        source/interfaces/inter3d1/inelt.F
-Chd|        INSOL3D                       source/interfaces/inter3d1/insol3.F
-Chd|        VOLINT                        source/interfaces/inter3d1/volint.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUF_FRIC_MOD               share/modules1/intbuf_fric_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i7sti3                  ../starter/source/interfaces/inter3d1/i7sti3.F
+!||--- called by ------------------------------------------------------
+!||    inint3                  ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                  ../starter/source/output/message/message.F
+!||    friction_parts_search   ../starter/source/interfaces/inter3d1/i7sti3.F
+!||    i4gmx3                  ../starter/source/interfaces/inter3d1/i4gmx3.F
+!||    incoq3                  ../starter/source/interfaces/inter3d1/incoq3.F
+!||    ineltc                  ../starter/source/interfaces/inter3d1/inelt.F
+!||    ineltigeo               ../starter/source/interfaces/inter3d1/inelt.F
+!||    inelts                  ../starter/source/interfaces/inter3d1/inelt.F
+!||    insol3d                 ../starter/source/interfaces/inter3d1/insol3.F
+!||    volint                  ../starter/source/interfaces/inter3d1/volint.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod             ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I7STI3(
      1              X          ,IRECT   ,STF          ,IXS      ,PM       ,
      2              GEO        ,NRT     ,IXC          ,NINT     ,STFAC    ,
@@ -55,21 +54,22 @@ Chd|====================================================================
      E              DRAD       ,IGEO   ,FILLSOL       ,PM_STACK ,IWORKSH  ,
      F              IT19       ,KXIG3D ,IXIG3D        ,INTFRIC  ,IPARTS   ,
      G              TAGPRT_FRIC,IPARTFRICS,IPARTFRICM ,INTBUF_FRIC_TAB,NRT_IGE,
-     I              IREM_GAP   ,GAPM_MX,GAPS_MX       ,GAPM_L_MX,GAPS_L_MX)
+     I              IREM_GAP   ,GAPM_MX,GAPS_MX       ,GAPM_L_MX,GAPS_L_MX,
+     J              IPARTT     ,IPARTP ,IPARTR        ,ELEM_LINKED_TO_SEGMENT,
+     K              FLAG_ELEM_INTER25     ) 
 C-----------------------------------------------
 C   M o d u l e s
-C----------------------------------------------- 
+C-----------------------------------------------
+      USE MY_ALLOC_MOD 
       USE MESSAGE_MOD
       USE INTBUF_FRIC_MOD
       USE GROUPDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only :nixs,nixc,nixtg,nixt,nixp,nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -77,12 +77,9 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr08_c.inc"
 #include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -105,25 +102,34 @@ C-----------------------------------------------
      .   MS(*),WA(*),GAP_S(*),GAP_M(*),
      .   AREAS(*),THK(*),THK_PART(*),
      .   GAP_S_L(*),GAP_M_L(*), FILLSOL(*),PM_STACK(20,*)
-      INTEGER ID
-      CHARACTER*nchartitle, TITR
+      INTEGER, DIMENSION(NUMELT), INTENT(IN) :: IPARTT
+      INTEGER, DIMENSION(NUMELP), INTENT(IN) :: IPARTP
+      INTEGER, DIMENSION(NUMELR), INTENT(IN) :: IPARTR
+      INTEGER, INTENT(IN) ::  ID
+      CHARACTER(LEN=NCHARTITLE)::TITR
       TYPE(INTBUF_FRIC_STRUCT_) INTBUF_FRIC_TAB(*)
       TYPE (SURF_) :: IGRSURF
+      INTEGER, DIMENSION(NUMELS), INTENT(INOUT):: ELEM_LINKED_TO_SEGMENT !< working array, dim=numels
+      INTEGER, INTENT(IN) :: FLAG_ELEM_INTER25(NINTER25,NUMELS)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NDX, I, J, INRT, NELS, MT, JJ, JJJ, NELC,
-     .   MG, NUM, NPT, LL, L, NN, NELTG,N1,N2,N3,N4,IE,
+     .   MG, L, NELTG,N1,N2,IE,
      .   IP, NLEV, MYLEV, K, P, R, T,IGTYP,IPGMAT,IGMAT,
-     .   ISUBSTACK,NELIG3D, COIN_IGE(8), IPID, PX, PY, PZ, IAD ,IPFMAX,IPL,
-     .   IPFLMAX,IPG
+     .   ISUBSTACK,NELIG3D, COIN_IGE(8), IPID, PX, PY, PZ ,IPFMAX,IPL,
+     .   IPFLMAX,IPG,NINV,ICONTR,NIN25
       INTEGER JPERM(4)
       LOGICAL TYPE18
       my_real
-     .   DXM, GAPMX, GAPMN, AREA, VOL, DX, GAPM, DDX, 
+     .   DXM, GAPMX, GAPMN, AREA, VOL, DX, GAPM, 
      .   GAPTMP, GAPSCALE,SX1,SY1,SZ1,SX2,SY2,SZ2,SX3,SY3,SZ3,
-     .   SLSFAC,XL
+     .   SLSFAC,XL,BULK
       my_real, dimension(:), allocatable :: GAP_S_L_TMP
+      INTEGER, DIMENSION(:),ALLOCATABLE  :: TAGELEMS,INDEXE
+      LOGICAL :: PRINT_ERROR
+      INTEGER, DIMENSION(4) :: NODE_ID
+      INTEGER :: IELEM(2)
       DATA JPERM/2,3,4,1/
 C-----------------------------------------------
 C   S o u r c e   L i n e s
@@ -220,16 +226,16 @@ C------------------------------------
        DO I=1,NUMELC
         MG=IXC(6,I)
         IGTYP = IGEO(11,MG)
-	IP = IPARTC(I)
-	IF ( THK_PART(IP) /= ZERO .AND. IINTTHICK == 0) THEN
-	  DX=HALF*THK_PART(IP)
-	ELSEIF ( THK(I)  /= ZERO .AND. IINTTHICK == 0) THEN
-	  DX=HALF*THK(I)
-	ELSEIF(IGTYP == 17 .OR. IGTYP ==51 .OR. IGTYP == 52) THEN
-	  DX=HALF*THK(I)
+          IP = IPARTC(I)
+          IF ( THK_PART(IP) /= ZERO .AND. IINTTHICK == 0) THEN
+            DX=HALF*THK_PART(IP)
+          ELSEIF ( THK(I)  /= ZERO .AND. IINTTHICK == 0) THEN
+            DX=HALF*THK(I)
+          ELSEIF(IGTYP == 17 .OR. IGTYP ==51 .OR. IGTYP == 52) THEN
+            DX=HALF*THK(I)
         ELSE
           DX=HALF*GEO(1,MG)
-	ENDIF
+          ENDIF
         WA(IXC(2,I))=MAX(WA(IXC(2,I)),DX)
         WA(IXC(3,I))=MAX(WA(IXC(3,I)),DX)
         WA(IXC(4,I))=MAX(WA(IXC(4,I)),DX)
@@ -238,42 +244,68 @@ C------------------------------------
        DO I=1,NUMELTG
         MG=IXTG(5,I)
         IGTYP = IGEO(11,MG)
-	IP = IPARTTG(I)
-	IF ( THK_PART(IP) /= ZERO .AND. IINTTHICK == 0) THEN
-	  DX=HALF*THK_PART(IP)
-	ELSEIF ( THK(NUMELC+I) /= ZERO .AND. IINTTHICK == 0) THEN
-	  DX=HALF*THK(NUMELC+I)
-	ELSEIF(IGTYP == 17 .OR. IGTYP ==51 .OR. IGTYP == 52) THEN
-	  DX=HALF*THK(NUMELC+I)
+          IP = IPARTTG(I)
+          IF ( THK_PART(IP) /= ZERO .AND. IINTTHICK == 0) THEN
+            DX=HALF*THK_PART(IP)
+          ELSEIF ( THK(NUMELC+I) /= ZERO .AND. IINTTHICK == 0) THEN
+            DX=HALF*THK(NUMELC+I)
+          ELSEIF(IGTYP == 17 .OR. IGTYP ==51 .OR. IGTYP == 52) THEN
+            DX=HALF*THK(NUMELC+I)
         ELSE
           DX=HALF*GEO(1,MG)
-	ENDIF
+          ENDIF
         WA(IXTG(2,I))=MAX(WA(IXTG(2,I)),DX)
         WA(IXTG(3,I))=MAX(WA(IXTG(3,I)),DX)
         WA(IXTG(4,I))=MAX(WA(IXTG(4,I)),DX)
        ENDDO
        DO I=1,NUMELT
         MG=IXT(4,I)
-        DX=HALF*SQRT(GEO(1,MG))
+        IP = IPARTT(I)
+        IF ( THK_PART(IP) > ZERO ) THEN
+          DX=HALF*THK_PART(IP)
+        ELSE
+          DX=HALF*SQRT(GEO(1,MG))
+        END IF
         WA(IXT(2,I))=MAX(WA(IXT(2,I)),DX)
         WA(IXT(3,I))=MAX(WA(IXT(3,I)),DX)
        ENDDO
        DO I=1,NUMELP
         MG=IXP(5,I)
-        DX=0.5*SQRT(GEO(1,MG))
+        IP = IPARTP(I)
+        IF ( THK_PART(IP) > ZERO ) THEN
+          DX=HALF*THK_PART(IP)
+        ELSE
+          DX=HALF*SQRT(GEO(1,MG))
+        END IF
         WA(IXP(2,I))=MAX(WA(IXP(2,I)),DX)
         WA(IXP(3,I))=MAX(WA(IXP(3,I)),DX)
        ENDDO
-       DO I=1,NSN
-         GAP_S(I)=GAPSCALE * WA(NSV(I))
-         IF(IGAP == 3 .AND. GAP_S_L_TMP(NSV(I)) /= ZERO)GAP_S_L(I)=MIN(GAP_S_L(I),GAP_S_L_TMP(NSV(I)))
-         IF(IGAP /= 3) THEN
-           GAPS_MX=MAX(GAPS_MX,GAP_S(I))
-         ELSE
-           GAPS_MX = MAX(GAPS_MX,GAP_S(I))
-           GAPS_L_MX = MAX(GAPS_L_MX,GAP_S_L(I))
-         END IF
+       DO I=1,NUMELR
+         IP = IPARTR(I)
+         IF ( THK_PART(IP) > ZERO ) THEN
+           MG=IXR(1,I)
+           IGTYP = IGEO(11,MG)
+           DX=HALF*THK_PART(IP)
+           WA(IXR(2,I))=MAX(WA(IXR(2,I)),DX)
+           WA(IXR(3,I))=MAX(WA(IXR(3,I)),DX)
+           IF (IGTYP==12) WA(IXR(4,I))=MAX(WA(IXR(4,I)),DX)
+        END IF
        ENDDO
+       IF(TYPE18)THEN
+         GAPS_MX = ZERO
+         GAP_S(1:NSN) = ZERO
+       ELSE
+         DO I=1,NSN
+           GAP_S(I)=GAPSCALE * WA(NSV(I))
+           IF(IGAP == 3)THEN
+             IF(GAP_S_L_TMP(NSV(I)) /= ZERO)GAP_S_L(I)=MIN(GAP_S_L(I),GAP_S_L_TMP(NSV(I)))
+             GAPS_MX = MAX(GAPS_MX,GAP_S(I))
+             GAPS_L_MX = MAX(GAPS_L_MX,GAP_S_L(I))
+           ELSE
+             GAPS_MX=MAX(GAPS_MX,GAP_S(I))
+           END IF
+         ENDDO
+        ENDIF
       ENDIF
 C
 C SECONDARY SIDE - SURFACE ---
@@ -370,6 +402,13 @@ C
 C------------------------------------
 C     GAP STIFF FACES MAIN
 C------------------------------------
+      IF(NUMELS > 0) THEN
+        CALL MY_ALLOC(TAGELEMS,NUMELS)
+        TAGELEMS = 0
+        CALL MY_ALLOC(INDEXE,NUMELS)
+        INDEXE = 0
+      ENDIF
+      NINV = 0
       DO I=1,NRT
         STF(I)=ZERO
         IF(INTTH > 0 ) IELES(I) = 0
@@ -387,6 +426,8 @@ C----------------------
         !----------------!
         IF(NELS /= 0)THEN
           MT=IXS(1,NELS)
+          MG=IXS(NIXS-1,NELS)
+          ICONTR = IGEO(97,MG)
           IF(MT > 0)THEN
             DO JJ=1,8
               JJJ=IXS(JJ+1,NELS)
@@ -395,7 +436,12 @@ C----------------------
               ZC(JJ)=X(3,JJJ)
             END DO
             CALL VOLINT(VOL)
-            STF(I)=SLSFAC*FILLSOL(NELS)*AREA*AREA*PM(32,MT)/VOL
+            IF (ICONTR==1 ) THEN
+              BULK = PM(107,MT)
+            ELSE
+              BULK = PM(32,MT)
+            END IF
+            STF(I)=SLSFAC*FILLSOL(NELS)*AREA*AREA*BULK/VOL
           ELSE
             IF(NINT >= 0) THEN
                CALL ANCMSG(MSGID=95,
@@ -612,9 +658,28 @@ C----------------------------------                                             
 C----------------------
 C       SOLID ELEMENTS
 C----------------------
+        PRINT_ERROR = .FALSE.
+        NIN25 = 0
         CALL INSOL3D(X     ,IRECT ,IXS      ,NINT    ,NELS,INRT,
      .               AREA  ,NOINT ,KNOD2ELS ,NOD2ELS ,0   ,
-     .               IXS10 ,IXS16 ,IXS20)
+     .               IXS10 ,IXS16 ,IXS20    ,TAGELEMS,INDEXE,NINV,IELEM,
+     .               ELEM_LINKED_TO_SEGMENT ,PRINT_ERROR,
+     .               NIN25,NTY, FLAG_ELEM_INTER25 )
+        IF(PRINT_ERROR) THEN
+          NODE_ID(1:4) = ITAB(IRECT(1:4,INRT))
+          
+          CALL ANCMSG(MSGID=3062,
+     .                MSGTYPE=MSGWARNING,
+     .                ANMODE=ANINFO_BLIND_1,
+     .                I1=ID,
+     .                I2=NODE_ID(1),
+     .                I3=NODE_ID(2),
+     .                I4=NODE_ID(3),
+     .                I5=NODE_ID(4),
+     .                C1=TITR ,
+     .                PRMOD=MSG_PRINT)
+        ENDIF
+
         !----------------!
         !  NELS > 0      !
         !----------------!
@@ -847,24 +912,7 @@ C----------------------------------
         !  NELS+NELC+NELTG = 0      !
         !---------------------------!
         IF(NELS+NELC+NELTG == 0)THEN
-         IF (IMACH /= 3) THEN
-           IF(NINT > 0) THEN
-              CALL ANCMSG(MSGID=92,
-     .                    MSGTYPE=MSGWARNING,
-     .                    ANMODE=ANINFO_BLIND_2,
-     .                    I1=ID,
-     .                    C1=TITR,
-     .                    I2=I)
-           ENDIF
-           IF(NINT < 0) THEN
-              CALL ANCMSG(MSGID=93,
-     .                    MSGTYPE=MSGWARNING,
-     .                    ANMODE=ANINFO_BLIND_2,
-     .                    I1=ID,
-     .                    C1=TITR,
-     .                    I2=I)
-           ENDIF
-         ELSE
+
 C        SPMD EXCHANGE : if no element associated to the edge => error
            IF(NINT > 0) THEN
              CALL ANCMSG(MSGID=481,             
@@ -882,11 +930,40 @@ C        SPMD EXCHANGE : if no element associated to the edge => error
      .                   C1=TITR,               
      .                   I2=I)                  
            ENDIF
-         ENDIF
+
         ENDIF
 C----------------------------------        
       ENDDO!next I=1,NRT
   
+      IF(NUMELS > 0) DEALLOCATE(TAGELEMS,INDEXE)
+C
+      CALL ANCMSG(MSGID=3022,
+     .             MSGTYPE=MSGWARNING,
+     .             ANMODE=ANINFO_BLIND_1,
+     .             I1=ID,
+     .             C1=TITR,
+     .             PRMOD=MSG_PRINT)
+      CALL ANCMSG(MSGID=3024,
+     .             MSGTYPE=MSGWARNING,
+     .             ANMODE=ANINFO_BLIND_1,
+     .             I1=ID,
+     .             C1=TITR,
+     .             PRMOD=MSG_PRINT)
+      IF(NINV > 0 .AND.NINT>0)
+     .    CALL ANCMSG(MSGID=3023,
+     .             MSGTYPE=MSGWARNING,
+     .             ANMODE=ANINFO_BLIND_1,
+     .             I1=ID,
+     .             C1=TITR,
+     .             I2=NINV)
+C
+      IF(NINV > 0 .AND.NINT< 0)
+     .    CALL ANCMSG(MSGID=3025,
+     .             MSGTYPE=MSGWARNING,
+     .             ANMODE=ANINFO_BLIND_1,
+     .             I1=ID,
+     .             C1=TITR,
+     .             I2=NINV)
 C------------------------------------
 C     GAP STIF FACES MAIN IGE
 C------------------------------------
@@ -949,24 +1026,7 @@ C------------------------------------
            ENDIF
           ENDIF  
         ELSEIF(NELIG3D == 0)THEN
-         IF (IMACH /= 3) THEN
-           IF(NINT > 0) THEN
-              CALL ANCMSG(MSGID=92,
-     .                    MSGTYPE=MSGWARNING,
-     .                    ANMODE=ANINFO_BLIND_2,
-     .                    I1=ID,
-     .                    C1=TITR,
-     .                    I2=I)
-           ENDIF
-           IF(NINT < 0) THEN
-              CALL ANCMSG(MSGID=93,
-     .                    MSGTYPE=MSGWARNING,
-     .                    ANMODE=ANINFO_BLIND_2,
-     .                    I1=ID,
-     .                    C1=TITR,
-     .                    I2=I)
-           ENDIF
-         ELSE
+
 C        SPMD : one element must be associated to the edge
            IF(NINT > 0) THEN
               CALL ANCMSG(MSGID=481,
@@ -984,7 +1044,7 @@ C        SPMD : one element must be associated to the edge
      .                    C1=TITR,
      .                    I2=I)
            ENDIF
-         ENDIF
+
         ENDIF
       ENDDO!next I
       
@@ -1087,7 +1147,7 @@ Ce warning for sorting algorithm (performance).
         END IF
       END IF
 
-C -----Friction model  secnd nodes parts------
+C ---- FRUCTION MODEL DRAD NODES PARTS ------
       IF(INTFRIC > 0) THEN
         IF(NUMELS  /= 0)THEN
           DO I = 1,NSN   
@@ -1190,39 +1250,31 @@ C
      .                                                    1PG20.13)
       END
 
-Chd|====================================================================
-Chd|  FRICTION_PARTS_SEARCH         source/interfaces/inter3d1/i7sti3.F
-Chd|-- called by -----------
-Chd|        HM_READ_FRICTION_ORIENTATIONS source/interfaces/friction/reader/hm_read_friction_orientations.F
-Chd|        I11STI3                       source/interfaces/inter3d1/i11sti3.F
-Chd|        I24GAPM                       source/interfaces/inter3d1/i24sti3.F
-Chd|        I24STI3                       source/interfaces/inter3d1/i24sti3.F
-Chd|        I25GAPM                       source/interfaces/inter3d1/i25sti3.F
-Chd|        I25STI3                       source/interfaces/inter3d1/i25sti3.F
-Chd|        I7STI3                        source/interfaces/inter3d1/i7sti3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    friction_parts_search           ../starter/source/interfaces/inter3d1/i7sti3.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_friction_orientations   ../starter/source/interfaces/friction/reader/hm_read_friction_orientations.F
+!||    i11sti3                         ../starter/source/interfaces/inter3d1/i11sti3.F
+!||    i21els3                         ../starter/source/interfaces/inter3d1/i21els3.F
+!||    i24gapm                         ../starter/source/interfaces/inter3d1/i24sti3.F
+!||    i24sti3                         ../starter/source/interfaces/inter3d1/i24sti3.F
+!||    i25gapm                         ../starter/source/interfaces/inter3d1/i25sti3.F
+!||    i25sti3                         ../starter/source/interfaces/inter3d1/i25sti3.F
+!||    i7sti3                          ../starter/source/interfaces/inter3d1/i7sti3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE FRICTION_PARTS_SEARCH(
      .            IP     ,NPARTSFRIC  ,PARTSFRIC  ,IPL )
                           
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "comlock.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

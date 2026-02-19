@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C_ICNDS10                     source/restart/ddsplit/c_icnds10.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c_icnds10   ../starter/source/restart/ddsplit/c_icnds10.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit     ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal      ../starter/source/spmd/node/ddtools.F
+!||====================================================================
       SUBROUTINE C_ICNDS10(ICNDS10,ITAGND,PROC,NS10E_L,NBDDCNDM,MS,MS_ND)
 C-----------------------------------------------
 C   M o d u l e s
@@ -36,7 +36,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -88,7 +87,7 @@ c        ENDDO
 !     allocate 1d array
       ALLOCATE( TAGI(NUMNOD) )
       TAGI(1:NUMNOD) = 0 
-C-------------pour main nodes---------
+C-------------for main nodes---------
       DO N = 1, NS10E
         NN = ICNDS10(1,N)
         IF(NLOCAL(NN,PROC+1)/=1.OR.ITAGND(NN)>NS10E) CYCLE
@@ -101,15 +100,15 @@ C----- normally N1,N2 are local as  NN-----
          ENDDO
             IF(NLOCAL(N1,PROC+1)==1) THEN
               IF(TAGI(N1)==0.AND.NF > 1) THEN
-C decompte des frontieres de main nodes
+C counting boundaries of main nodes
                 DO P = 1, NSPMD
                   IF(NLOCAL(N1,P)==1)THEN
                     NBDDCNDM = NBDDCNDM + 1
                   END IF
                 END DO
-C on ne se compte pas soi-meme
+C We do not count ourselves
                 NBDDCNDM = NBDDCNDM - 1
-C pour ne pas prendre en compte 2 fois des noeuds main ds les frontieres
+C to avoid counting main nodes in the boundaries twice
 c                IF (NF > 1) NBDDCNDM = NBDDCNDM + 1
                 TAGI(N1) = 1
               END IF
@@ -117,15 +116,15 @@ c                IF (NF > 1) NBDDCNDM = NBDDCNDM + 1
 C----- N2 -------       
             IF(NLOCAL(N2,PROC+1)==1) THEN
               IF(TAGI(N2)==0.AND.NF > 1) THEN
-C decompte des frontieres de main nodes
+C counting boundaries of main nodes
                 DO P = 1, NSPMD
                   IF(NLOCAL(N2,P)==1)THEN
                     NBDDCNDM = NBDDCNDM + 1
                   END IF
                 END DO
-C on ne se compte pas soi-meme
+C We do not count ourselves
                 NBDDCNDM = NBDDCNDM - 1
-C pour ne pas prendre en compte 2 fois des noeuds main ds les frontieres
+C to avoid counting main nodes in the boundaries twice
 c                IF (NF > 1) NBDDCNDM = NBDDCNDM + 1
                 TAGI(N2) = 1
               END IF

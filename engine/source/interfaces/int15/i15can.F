@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I15CAN                        source/interfaces/int15/i15can.F
-Chd|-- called by -----------
-Chd|        I15CMP                        source/interfaces/int15/i15cmp.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i15can         ../engine/source/interfaces/int15/i15can.F
+!||--- called by ------------------------------------------------------
+!||    i15cmp         ../engine/source/interfaces/int15/i15cmp.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||====================================================================
       SUBROUTINE I15CAN(NSI    ,KSI   ,X    ,KSURF  ,IGRSURF ,
      2                  BUFSF  ,NSC  ,KSC    ,NTC   , KTC  ,
      3                  IACTIV )
@@ -39,15 +39,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -64,7 +58,7 @@ C-----------------------------------------------
       my_real
      .   DGR,
      .   XM, YM, ZM, XG, YG, ZG, A, B, C, ROT(9),
-     .   AN, BN, CN,
+     .     
      .   XLMIN, XLMAX, YLMIN, YLMAX, ZLMIN, ZLMAX,
      .   XGMIN, XGMAX, YGMIN, YGMAX, ZGMIN, ZGMAX,
      .   X1, Y1, Z1, 
@@ -92,7 +86,7 @@ C       CN=1./CN
         ROT(I)=BUFSF(ADRBUF+7+I-1)
        END DO
 C----------------------------------
-C      Boite englobante de l'ellipsoide dans le repere global.
+C      bounding box of the ellipsoid in the global coordinate system
        XLMIN=-A
        XLMAX= A
        YLMIN=-B
@@ -108,72 +102,72 @@ C      Boite englobante de l'ellipsoide dans le repere global.
        XG   =ROT(1)*XLMAX+ROT(4)*YLMIN+ROT(7)*ZLMIN
        YG   =ROT(2)*XLMAX+ROT(5)*YLMIN+ROT(8)*ZLMIN
        ZG   =ROT(3)*XLMAX+ROT(6)*YLMIN+ROT(9)*ZLMIN
-       IF (XG.LT.XGMIN) XGMIN=XG
-       IF (XG.GT.XGMAX) XGMAX=XG
-       IF (YG.LT.YGMIN) YGMIN=YG
-       IF (YG.GT.YGMAX) YGMAX=YG
-       IF (ZG.LT.ZGMIN) ZGMIN=ZG
-       IF (ZG.GT.ZGMAX) ZGMAX=ZG
+       IF (XG<XGMIN) XGMIN=XG
+       IF (XG>XGMAX) XGMAX=XG
+       IF (YG<YGMIN) YGMIN=YG
+       IF (YG>YGMAX) YGMAX=YG
+       IF (ZG<ZGMIN) ZGMIN=ZG
+       IF (ZG>ZGMAX) ZGMAX=ZG
        XG   =ROT(1)*XLMIN+ROT(4)*YLMAX+ROT(7)*ZLMIN
        YG   =ROT(2)*XLMIN+ROT(5)*YLMAX+ROT(8)*ZLMIN
        ZG   =ROT(3)*XLMIN+ROT(6)*YLMAX+ROT(9)*ZLMIN
-       IF (XG.LT.XGMIN) XGMIN=XG
-       IF (XG.GT.XGMAX) XGMAX=XG
-       IF (YG.LT.YGMIN) YGMIN=YG
-       IF (YG.GT.YGMAX) YGMAX=YG
-       IF (ZG.LT.ZGMIN) ZGMIN=ZG
-       IF (ZG.GT.ZGMAX) ZGMAX=ZG
+       IF (XG<XGMIN) XGMIN=XG
+       IF (XG>XGMAX) XGMAX=XG
+       IF (YG<YGMIN) YGMIN=YG
+       IF (YG>YGMAX) YGMAX=YG
+       IF (ZG<ZGMIN) ZGMIN=ZG
+       IF (ZG>ZGMAX) ZGMAX=ZG
        XG   =ROT(1)*XLMIN+ROT(4)*YLMIN+ROT(7)*ZLMAX
        YG   =ROT(2)*XLMIN+ROT(5)*YLMIN+ROT(8)*ZLMAX
        ZG   =ROT(3)*XLMIN+ROT(6)*YLMIN+ROT(9)*ZLMAX
-       IF (XG.LT.XGMIN) XGMIN=XG
-       IF (XG.GT.XGMAX) XGMAX=XG
-       IF (YG.LT.YGMIN) YGMIN=YG
-       IF (YG.GT.YGMAX) YGMAX=YG
-       IF (ZG.LT.ZGMIN) ZGMIN=ZG
-       IF (ZG.GT.ZGMAX) ZGMAX=ZG
+       IF (XG<XGMIN) XGMIN=XG
+       IF (XG>XGMAX) XGMAX=XG
+       IF (YG<YGMIN) YGMIN=YG
+       IF (YG>YGMAX) YGMAX=YG
+       IF (ZG<ZGMIN) ZGMIN=ZG
+       IF (ZG>ZGMAX) ZGMAX=ZG
        XG   =ROT(1)*XLMAX+ROT(4)*YLMAX+ROT(7)*ZLMIN
        YG   =ROT(2)*XLMAX+ROT(5)*YLMAX+ROT(8)*ZLMIN
        ZG   =ROT(3)*XLMAX+ROT(6)*YLMAX+ROT(9)*ZLMIN
-       IF (XG.LT.XGMIN) XGMIN=XG
-       IF (XG.GT.XGMAX) XGMAX=XG
-       IF (YG.LT.YGMIN) YGMIN=YG
-       IF (YG.GT.YGMAX) YGMAX=YG
-       IF (ZG.LT.ZGMIN) ZGMIN=ZG
-       IF (ZG.GT.ZGMAX) ZGMAX=ZG
+       IF (XG<XGMIN) XGMIN=XG
+       IF (XG>XGMAX) XGMAX=XG
+       IF (YG<YGMIN) YGMIN=YG
+       IF (YG>YGMAX) YGMAX=YG
+       IF (ZG<ZGMIN) ZGMIN=ZG
+       IF (ZG>ZGMAX) ZGMAX=ZG
        XG   =ROT(1)*XLMAX+ROT(4)*YLMIN+ROT(7)*ZLMAX
        YG   =ROT(2)*XLMAX+ROT(5)*YLMIN+ROT(8)*ZLMAX
        ZG   =ROT(3)*XLMAX+ROT(6)*YLMIN+ROT(9)*ZLMAX
-       IF (XG.LT.XGMIN) XGMIN=XG
-       IF (XG.GT.XGMAX) XGMAX=XG
-       IF (YG.LT.YGMIN) YGMIN=YG
-       IF (YG.GT.YGMAX) YGMAX=YG
-       IF (ZG.LT.ZGMIN) ZGMIN=ZG
-       IF (ZG.GT.ZGMAX) ZGMAX=ZG
+       IF (XG<XGMIN) XGMIN=XG
+       IF (XG>XGMAX) XGMAX=XG
+       IF (YG<YGMIN) YGMIN=YG
+       IF (YG>YGMAX) YGMAX=YG
+       IF (ZG<ZGMIN) ZGMIN=ZG
+       IF (ZG>ZGMAX) ZGMAX=ZG
        XG   =ROT(1)*XLMIN+ROT(4)*YLMAX+ROT(7)*ZLMAX
        YG   =ROT(2)*XLMIN+ROT(5)*YLMAX+ROT(8)*ZLMAX
        ZG   =ROT(3)*XLMIN+ROT(6)*YLMAX+ROT(9)*ZLMAX
-       IF (XG.LT.XGMIN) XGMIN=XG
-       IF (XG.GT.XGMAX) XGMAX=XG
-       IF (YG.LT.YGMIN) YGMIN=YG
-       IF (YG.GT.YGMAX) YGMAX=YG
-       IF (ZG.LT.ZGMIN) ZGMIN=ZG
-       IF (ZG.GT.ZGMAX) ZGMAX=ZG
+       IF (XG<XGMIN) XGMIN=XG
+       IF (XG>XGMAX) XGMAX=XG
+       IF (YG<YGMIN) YGMIN=YG
+       IF (YG>YGMAX) YGMAX=YG
+       IF (ZG<ZGMIN) ZGMIN=ZG
+       IF (ZG>ZGMAX) ZGMAX=ZG
        XG   =ROT(1)*XLMAX+ROT(4)*YLMAX+ROT(7)*ZLMAX
        YG   =ROT(2)*XLMAX+ROT(5)*YLMAX+ROT(8)*ZLMAX
        ZG   =ROT(3)*XLMAX+ROT(6)*YLMAX+ROT(9)*ZLMAX
-       IF (XG.LT.XGMIN) XGMIN=XG
-       IF (XG.GT.XGMAX) XGMAX=XG
-       IF (YG.LT.YGMIN) YGMIN=YG
-       IF (YG.GT.YGMAX) YGMAX=YG
-       IF (ZG.LT.ZGMIN) ZGMIN=ZG
-       IF (ZG.GT.ZGMAX) ZGMAX=ZG
+       IF (XG<XGMIN) XGMIN=XG
+       IF (XG>XGMAX) XGMAX=XG
+       IF (YG<YGMIN) YGMIN=YG
+       IF (YG>YGMAX) YGMAX=YG
+       IF (ZG<ZGMIN) ZGMIN=ZG
+       IF (ZG>ZGMAX) ZGMAX=ZG
 C----------------------------------
        NSC=0
        NTC=0
 C------------------------
        DO 110 I=1,NSI
-        IF (IACTIV(I).EQ.-1) GOTO 110
+        IF (IACTIV(I)==-1) GOTO 110
         IN1=KSI(1,I)
         X1=X(1,IN1)-XM
         Y1=X(2,IN1)-YM
@@ -187,7 +181,7 @@ C------------------------
         Y3=X(2,IN3)-YM
         Z3=X(3,IN3)-ZM
         IN4=KSI(4,I)
-        IF (IN4.NE.IN3) THEN
+        IF (IN4/=IN3) THEN
          X4=X(1,IN4)-XM
          Y4=X(2,IN4)-YM
          Z4=X(3,IN4)-ZM
@@ -197,27 +191,27 @@ C------------------------
          YRMAX=Y1
          ZRMIN=Z1
          ZRMAX=Z1
-         IF (X2.LT.XRMIN) XRMIN=X2
-         IF (X2.GT.XRMAX) XRMAX=X2
-         IF (Y2.LT.YRMIN) YRMIN=Y2
-         IF (Y2.GT.YRMAX) YRMAX=Y2
-         IF (Z2.LT.ZRMIN) ZRMIN=Z2
-         IF (Z2.GT.ZRMAX) ZRMAX=Z2
-         IF (X3.LT.XRMIN) XRMIN=X3
-         IF (X3.GT.XRMAX) XRMAX=X3
-         IF (Y3.LT.YRMIN) YRMIN=Y3
-         IF (Y3.GT.YRMAX) YRMAX=Y3
-         IF (Z3.LT.ZRMIN) ZRMIN=Z3
-         IF (Z3.GT.ZRMAX) ZRMAX=Z3
-         IF (X4.LT.XRMIN) XRMIN=X4
-         IF (X4.GT.XRMAX) XRMAX=X4
-         IF (Y4.LT.YRMIN) YRMIN=Y4
-         IF (Y4.GT.YRMAX) YRMAX=Y4
-         IF (Z4.LT.ZRMIN) ZRMIN=Z4
-         IF (Z4.GT.ZRMAX) ZRMAX=Z4
-         IF ( .NOT.(    XRMAX.LT.XGMIN.OR.XRMIN.GT.XGMAX
-     .                 .OR.YRMAX.LT.YGMIN.OR.YRMIN.GT.YGMAX
-     .                 .OR.ZRMAX.LT.ZGMIN.OR.ZRMIN.GT.ZGMAX) ) THEN
+         IF (X2<XRMIN) XRMIN=X2
+         IF (X2>XRMAX) XRMAX=X2
+         IF (Y2<YRMIN) YRMIN=Y2
+         IF (Y2>YRMAX) YRMAX=Y2
+         IF (Z2<ZRMIN) ZRMIN=Z2
+         IF (Z2>ZRMAX) ZRMAX=Z2
+         IF (X3<XRMIN) XRMIN=X3
+         IF (X3>XRMAX) XRMAX=X3
+         IF (Y3<YRMIN) YRMIN=Y3
+         IF (Y3>YRMAX) YRMAX=Y3
+         IF (Z3<ZRMIN) ZRMIN=Z3
+         IF (Z3>ZRMAX) ZRMAX=Z3
+         IF (X4<XRMIN) XRMIN=X4
+         IF (X4>XRMAX) XRMAX=X4
+         IF (Y4<YRMIN) YRMIN=Y4
+         IF (Y4>YRMAX) YRMAX=Y4
+         IF (Z4<ZRMIN) ZRMIN=Z4
+         IF (Z4>ZRMAX) ZRMAX=Z4
+         IF ( .NOT.(    XRMAX<XGMIN.OR.XRMIN>XGMAX
+     .                 .OR.YRMAX<YGMIN.OR.YRMIN>YGMAX
+     .                 .OR.ZRMAX<ZGMIN.OR.ZRMIN>ZGMAX) ) THEN
               NSC=NSC+1
               KSC(NSC)=I
          ENDIF
@@ -231,21 +225,21 @@ C---------------------------------
          YRMAX=Y1
          ZRMIN=Z1
          ZRMAX=Z1
-         IF (X2.LT.XRMIN) XRMIN=X2
-         IF (X2.GT.XRMAX) XRMAX=X2
-         IF (Y2.LT.YRMIN) YRMIN=Y2
-         IF (Y2.GT.YRMAX) YRMAX=Y2
-         IF (Z2.LT.ZRMIN) ZRMIN=Z2
-         IF (Z2.GT.ZRMAX) ZRMAX=Z2
-         IF (X3.LT.XRMIN) XRMIN=X3
-         IF (X3.GT.XRMAX) XRMAX=X3
-         IF (Y3.LT.YRMIN) YRMIN=Y3
-         IF (Y3.GT.YRMAX) YRMAX=Y3
-         IF (Z3.LT.ZRMIN) ZRMIN=Z3
-         IF (Z3.GT.ZRMAX) ZRMAX=Z3
-         IF ( .NOT.( XRMAX.LT.XGMIN.OR.XRMIN.GT.XGMAX
-     .                .OR.YRMAX.LT.YGMIN.OR.YRMIN.GT.YGMAX
-     .                .OR.ZRMAX.LT.ZGMIN.OR.ZRMIN.GT.ZGMAX) ) THEN
+         IF (X2<XRMIN) XRMIN=X2
+         IF (X2>XRMAX) XRMAX=X2
+         IF (Y2<YRMIN) YRMIN=Y2
+         IF (Y2>YRMAX) YRMAX=Y2
+         IF (Z2<ZRMIN) ZRMIN=Z2
+         IF (Z2>ZRMAX) ZRMAX=Z2
+         IF (X3<XRMIN) XRMIN=X3
+         IF (X3>XRMAX) XRMAX=X3
+         IF (Y3<YRMIN) YRMIN=Y3
+         IF (Y3>YRMAX) YRMAX=Y3
+         IF (Z3<ZRMIN) ZRMIN=Z3
+         IF (Z3>ZRMAX) ZRMAX=Z3
+         IF ( .NOT.( XRMAX<XGMIN.OR.XRMIN>XGMAX
+     .                .OR.YRMAX<YGMIN.OR.YRMIN>YGMAX
+     .                .OR.ZRMAX<ZGMIN.OR.ZRMIN>ZGMAX) ) THEN
               NTC=NTC+1
               KTC(NTC)=I
          ENDIF

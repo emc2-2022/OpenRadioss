@@ -1,47 +1,52 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25MAIN_FREE                  source/interfaces/intsort/i25main_free.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        I25EDGE_SWITCH                source/interfaces/int25/i25edge_switch.F
-Chd|        I25FREE_BOUND                 source/interfaces/int25/i25free_bound.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_GET_STIF25_EDG           source/mpi/interfaces/spmd_getstif25_edg.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE I25MAIN_FREE(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25main_free          ../engine/source/interfaces/intsort/i25main_free.F
+!||--- called by ------------------------------------------------------
+!||    inttri                ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||    i25edge_switch        ../engine/source/interfaces/int25/i25edge_switch.F
+!||    i25free_bound         ../engine/source/interfaces/int25/i25free_bound.F
+!||    my_barrier            ../engine/source/system/machine.F
+!||    spmd_get_stif25_edg   ../engine/source/mpi/interfaces/spmd_getstif25_edg.F
+!||    startime              ../engine/source/system/timer_mod.F90
+!||    stoptime              ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod         ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    timer_mod             ../engine/source/system/timer_mod.F90
+!||    tri25ebox             ../engine/share/modules/tri25ebox.F
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE I25MAIN_FREE(TIMERS,
      1                  ITASK, IPARI  ,INTBUF_TAB, INTLIST25, ISENDTO,
      2                  IRECVFROM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE TIMER_MOD
       USE INTBUFDEF_MOD   
       USE TRI7BOX
+      USE TRI25EBOX , ONLY : NEDGE_REMOTE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,12 +59,11 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_) :: TIMERS
       INTEGER IPARI(NPARI,NINTER),ITASK,INTLIST25(*)
       INTEGER ISENDTO(NSPMD+1,*),IRECVFROM(NSPMD+1,*)
 C     REAL
@@ -69,8 +73,6 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N, NIN, NRTM, IEDGE, NEDGE
 C     REAL
-      my_real
-     .   STARTT, STOPT
 C-----------------------------------------------
       DO N = 1,NINTER25
         NIN = INTLIST25(N)
@@ -96,13 +98,14 @@ C
 !$OMP END SINGLE
       END DO
 C-----------------------------------------------------------
-      IF (IMON.GT.0 .AND. ITASK.EQ.0) THEN
-        CALL STARTIME(MACRO_TIMER_T25STFE,1)
+      IF (IMON>0 .AND. ITASK==0) THEN
+        CALL STARTIME(TIMERS,MACRO_TIMER_T25STFE)
       ENDIF
 C       
 !$OMP SINGLE
       DO N = 1,NINTER25
        NIN = INTLIST25(N)
+       NEDGE_REMOTE = IPARI(69,NIN)
        IF(IPARI(MACRO_IEDGE,NIN) > 0) THEN
 C
 C        Also needed in SMP for resetting STFE !
@@ -114,8 +117,8 @@ C        Also needed in SMP for resetting STFE !
       ENDDO
 !$OMP END SINGLE
 C
-      IF (IMON.GT.0 .AND. ITASK.EQ.0) THEN
-        CALL STOPTIME(MACRO_TIMER_T25STFE,1)
+      IF (IMON>0 .AND. ITASK==0) THEN
+        CALL STOPTIME(TIMERS,MACRO_TIMER_T25STFE)
       ENDIF
 C-----------------------------------------------------------
       RETURN

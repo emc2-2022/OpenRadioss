@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPCLASV                       source/elements/sph/spclasv.F 
-Chd|-- called by -----------
-Chd|        SPHPREP                       source/elements/sph/sphprep.F 
-Chd|-- calls ---------------
-Chd|        MYQSORT                       ../common_source/tools/sort/myqsort.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_ALLGLOB_ISUM9            source/mpi/generic/spmd_allglob_isum9.F
-Chd|        SPMD_SPHGETH                  source/mpi/elements/spmd_sph.F
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|        SPH_STRUCT_MOD                share/modules/sph_struct_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spclasv              ../engine/source/elements/sph/spclasv.F
+!||--- called by ------------------------------------------------------
+!||    sphprep              ../engine/source/elements/sph/sphprep.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier           ../engine/source/system/machine.F
+!||    myqsort              ../common_source/tools/sort/myqsort.F
+!||    spmd_allglob_isum9   ../engine/source/mpi/generic/spmd_allglob_isum9.F
+!||    spmd_sphgeth         ../engine/source/mpi/elements/spmd_sph.F
+!||--- uses       -----------------------------------------------------
+!||    sph_struct_mod       ../engine/share/modules/sph_struct_mod.F
+!||    sphbox               ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPCLASV(X      ,SPBUF ,KXSP   ,IXSP   ,NOD2SP   ,
      1                   ISPSYM ,XSPSYM,WSP2SORT,ITASK  ,MYSPATRUE,
      2                   IREDUCE,KREDUCE,LGAUGE ,GAUGE ,ISORTSP)
@@ -40,28 +41,20 @@ C   M o d u l e s
 C-----------------------------------------------
       USE SPHBOX
       USE SPH_STRUCT_MOD
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "bucki_c.inc"
-#include      "buckr_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
-#include      "units_c.inc"
 #include      "task_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),
@@ -76,7 +69,7 @@ C-----------------------------------------------
       INTEGER
      .   N,INOD,JNOD,J,NVOIS,M,NCAND,K1,K2,NVOIS1,NVOIS2,
      .   NVOISS,NVOISS1,NVOISS2, IAUX, IERROR,
-     .   K, L, JK, NC, JS, NS, NN, NB,JJ1,JJ2, JJ, JJJ,
+     .   K, JK, NC, JS, NS, NN, NB,JJ1,JJ2, JJ, JJJ,
      .   MWA(2*KVOISPH),JSTOR(KVOISPH), JPERM(KVOISPH),
      .   LVOIRED, IG
       my_real
@@ -89,7 +82,7 @@ C-----------------------------------------------
         LVOIRED = 0
         IF(IREDUCE==0)GO TO 100
 C-------------------------------------------
-C       tri voisins / ne garder que LVOISPH voisins effectifs
+C       Tri neighboring / keep only lvoisph neighbors effective
 C
 C       /---------------/
         CALL MY_BARRIER
@@ -100,9 +93,9 @@ C
          DWA(N)=ONE
          NVOIS1 =KXSP(4,N)
          NVOISS1=KXSP(6,N)
-         IF(KREDUCE(N)/=0.OR.NVOIS1+NVOISS1.GT.LVOISPH)THEN
+         IF(KREDUCE(N)/=0.OR.NVOIS1+NVOISS1>LVOISPH)THEN
 C
-           IF(NVOIS1+NVOISS1.GT.LVOISPH)THEN
+           IF(NVOIS1+NVOISS1>LVOISPH)THEN
              KREDUCE(N)=KREDUCE(N)+10
              LVOIRED = 1
            END IF
@@ -116,13 +109,13 @@ C
            NCAND=KXSP(5,N)+KXSP(7,N)
            DO K=1,NVOIS
              JNOD = IXSP(K,N)
-             IF(JNOD.GT.0)THEN
+             IF(JNOD>0)THEN
                M =NOD2SP(JNOD)
                XJ=X(1,JNOD)
                YJ=X(2,JNOD)
                ZJ=X(3,JNOD)
                DJ=SPBUF(1,M)
-             ELSE			 ! cellule remote
+             ELSE       ! cellule remote
                NN = -JNOD
                XJ=XSPHR(3,NN)
                YJ=XSPHR(4,NN)
@@ -136,12 +129,12 @@ C
            END DO
            DO K=NVOIS+1,NCAND
              JK = IXSP(K,N)
-             IF(JK.GT.0)THEN
+             IF(JK>0)THEN
                NC=MOD(JK,NSPCOND+1)
                M=JK/(NSPCOND+1)
                JS=ISPSYM(NC,M)
                DJ=SPBUF(1,M)
-             ELSE		       ! particule symetrique de particule remote
+             ELSE  ! symmetrical particle from remote one
               NC=MOD(-JK,NSPCOND+1)
               M =-JK/(NSPCOND+1)
               JS=ISPSYMR(NC,M)
@@ -210,11 +203,11 @@ C
 C         /---------------/
           CALL MY_BARRIER
 C         /---------------/
-          IF(ITASK.EQ.0) THEN
+          IF(ITASK==0) THEN
 c            CALL SPMD_GLOB_IMAX9(LVOIRED,1)
             CALL  SPMD_ALLGLOB_ISUM9(LVOIRED,1)
 C
-C il faut encore echanger SPBUF(1,*)
+C SPBUF must still be exchanged (1,*)
             IF(LVOIRED /= 0) CALL SPMD_SPHGETH(KXSP ,SPBUF)
           END IF
         END IF
@@ -238,9 +231,9 @@ C
            ZI=X(3,INOD)
            DI=SPBUF(1,N)
 C
-C          on est forcement plus proche de la particule vraie que de la particule fantome
+C          we are necessarily closer to the real particle than to the phantom particle
            JNOD = IXSP(NVOIS,N)
-           IF(JNOD.GT.0)THEN
+           IF(JNOD>0)THEN
              M =NOD2SP(JNOD)
              XJ=X(1,JNOD)
              YJ=X(2,JNOD)
@@ -263,14 +256,14 @@ C
        END DO
 C-------------------------------------------
  100    CONTINUE
-        IF(NSPCOND.EQ.0) THEN
+        IF(NSPCOND==0) THEN
           DO N = ITASK+1,NSPHR,NTHREAD
-C remise a zero du flag de reperage des cellules actives en spmd multiprocesseurs
+C reset flag for locating active cells in spmd multiprocessors
             ISPHR(N) = 0
           END DO
         ELSE
-C si condition de symetrie alors pas d'optimisation sur particules active
-C car particule symetrique de particule inactive eventuellement active
+C If condition of symmetry then no optimization on active particles
+C Because symmetrical particle of inactive particle possibly active
           DO N = ITASK+1,NSPHR,NTHREAD
             ISPHR(N) = 1
           END DO
@@ -291,7 +284,7 @@ C
           NVOIS2=0
           DO J=1,NCAND
             JNOD=IXSP(J,N)
-            IF(JNOD.GT.0)THEN
+            IF(JNOD>0)THEN
               M=NOD2SP(JNOD)
               XJ=X(1,JNOD)
               YJ=X(2,JNOD)
@@ -299,7 +292,7 @@ C
               DD  =(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
               DMS =SPBUF(1,N)+SPBUF(1,M)
               DMS2=DMS*DMS
-              IF (KXSP(2,M).NE.0.AND.DD.LT.DMS2) THEN
+              IF (KXSP(2,M)/=0.AND.DD<DMS2) THEN
                 NVOIS1=NVOIS1+1
                 MWA(NVOIS1)=JNOD
               ELSE
@@ -314,7 +307,7 @@ C
               DD  =(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
               DMS =SPBUF(1,N)+XSPHR(2,NN)
               DMS2=DMS*DMS
-              IF (NINT(XSPHR(13,NN)).NE.0.AND.DD.LT.DMS2) THEN
+              IF (NINT(XSPHR(13,NN))/=0.AND.DD<DMS2) THEN
                 NVOIS1=NVOIS1+1
                 MWA(NVOIS1)=JNOD
                 ISPHR(NN) = 1          ! flag reperage cellule active          
@@ -333,11 +326,12 @@ C---------
             IXSP(NVOIS1+J,N)=MWA(KVOISPH+J)
           ENDDO
 C------------------
-C Tri des particules effectives suivant no particule pour conservation Parith/ON
+C Sorting effective particles according to no particle for conservation
+C PARITH/ON
           DO K = 1, NVOIS1
             JK = IXSP(K,N)
-            IF(JK.GT.0)THEN
-              DVOIS(K) = KXSP(8,NOD2SP(JK))           ! ID particule stoke ds DVOIS
+            IF(JK>0)THEN
+              DVOIS(K) = KXSP(8,NOD2SP(JK))           ! Id Particle Stoke DS DVOIS
             ELSE
               DVOIS(K) = NINT(XSPHR(6,-JK))
             END IF
@@ -351,7 +345,7 @@ C Tri des particules effectives suivant no particule pour conservation Parith/ON
           END DO
          ENDDO
 C--------------------------------------------
-C      Re-ordonne les particules fantomes.
+C      Re-order ghost particles.
          DO NS=ITASK+1,NSP2SORT,NTHREAD
           N=WSP2SORT(NS)
           INOD=KXSP(3,N)
@@ -365,7 +359,7 @@ C      Re-ordonne les particules fantomes.
           NVOISS2=0
           DO K=NVOIS2+1,NVOIS2+NVOISS
             JK=IXSP(K,N)
-            IF(JK.GT.0)THEN
+            IF(JK>0)THEN
              NC=MOD(JK,NSPCOND+1)
              M =JK/(NSPCOND+1)
              JS=ISPSYM(NC,M)
@@ -376,14 +370,14 @@ C      Re-ordonne les particules fantomes.
              DMS =DI+DJ
              DMS2=DMS*DMS
              DD=(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
-             IF (KXSP(2,M).NE.0.AND.DD.LT.DMS2) THEN
+             IF (KXSP(2,M)/=0.AND.DD<DMS2) THEN
               NVOISS1=NVOISS1+1
               MWA(NVOISS1)=JK
              ELSE
               NVOISS2=NVOISS2+1
               MWA(KVOISPH+NVOISS2)=JK
              ENDIF
-            ELSE                      ! particule symetrique de particule remote
+            ELSE                      ! Symmetrical particle particle Remote
              NC=MOD(-JK,NSPCOND+1)
              M =-JK/(NSPCOND+1)
              JS=ISPSYMR(NC,M)
@@ -394,7 +388,7 @@ C      Re-ordonne les particules fantomes.
              DMS =DI+DJ
              DMS2=DMS*DMS
              DD=(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
-             IF (NINT(XSPHR(13,M)).NE.0.AND.DD.LT.DMS2) THEN
+             IF (NINT(XSPHR(13,M))/=0.AND.DD<DMS2) THEN
               NVOISS1=NVOISS1+1
               MWA(NVOISS1)=JK
              ELSE
@@ -410,13 +404,14 @@ C      Re-ordonne les particules fantomes.
           DO J=1,NVOISS2
             IXSP(NVOIS2+NVOISS1+J,N)=MWA(KVOISPH+J)
           ENDDO
-C Tri des particules symetriques suivant no particule pour conservation Parith/ON
+C Sorting symmetrical particles according to no particle for
+C conservation /PARITH/ON
           DO K = 1, NVOISS1
             JK = IXSP(NVOIS2+K,N)
-            IF(JK.GT.0)THEN
+            IF(JK>0)THEN
               M=JK/(NSPCOND+1)
               NC=MOD(JK,NSPCOND+1)
-              DVOIS(K) = KXSP(8,M)            ! ID particule stoke ds DVOIS
+              DVOIS(K) = KXSP(8,M)            ! Id Particle Stoke DS DVOIS
 cc              DVOIS(K) = KXSP(8,nod2sp(M))          ! ID particule stoke ds DVOIS
               MWA(K) = NC
             ELSE
@@ -439,19 +434,19 @@ cc              DVOIS(K) = KXSP(8,nod2sp(M))          ! ID particule stoke ds DV
           DO K=1,NVOISS1
            MWA(K) = JSTOR(JPERM(K))
           END DO
-          IF(NSPCOND.GT.1) THEN
-C Tri des particules symetriques suivant NSPCOND pour un meme no particule pour conservation Parith/ON
+          IF(NSPCOND>1) THEN
+C Sort symmetric particles according to NSPCOND for same particle number for Parith/ON conservation
             M = NINT(DVOIS(1))
             NB = 1
             DO K = 2, NVOISS1
-              IF(NINT(DVOIS(K)).NE.M) THEN
-                IF(NB.GT.1)THEN
+              IF(NINT(DVOIS(K))/=M) THEN
+                IF(NB>1)THEN
                   JJ1 = K-NB
                   JJ2 = K-1
 C petit tri bulle
                   DO JJ = JJ1, JJ2-1
                     DO JJJ = JJ+1, JJ2
-                      IF(MWA(JJ).GT.MWA(JJJ))THEN
+                      IF(MWA(JJ)>MWA(JJJ))THEN
                         IAUX = MWA(JJ)
                         MWA(JJ) = MWA(JJJ)
                         MWA(JJJ) = IAUX
@@ -469,13 +464,13 @@ C petit tri bulle
               END IF 
             END DO
 C terminaison
-            IF(NB.GT.1)THEN
+            IF(NB>1)THEN
               JJ1 = NVOISS1-NB+1
               JJ2 = NVOISS1
 C petit tri bulle
               DO JJ = JJ1, JJ2-1
                 DO JJJ = JJ+1, JJ2
-                  IF(MWA(JJ).GT.MWA(JJJ))THEN
+                  IF(MWA(JJ)>MWA(JJJ))THEN
                     IAUX = MWA(JJ)
                     MWA(JJ) = MWA(JJJ)
                     MWA(JJJ) = IAUX
@@ -502,7 +497,7 @@ C--------------------------------------------
           NVOIS2=0
           DO J=1,NCAND
             JNOD=IXSP(J,N)
-            IF(JNOD.GT.0)THEN
+            IF(JNOD>0)THEN
               M=NOD2SP(JNOD)
               XJ=X(1,JNOD)
               YJ=X(2,JNOD)
@@ -510,7 +505,7 @@ C--------------------------------------------
               DD  =(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
               DMS =SPBUF(1,N)+SPBUF(1,M)
               DMS2=DMS*DMS
-              IF (KXSP(2,M).NE.0.AND.DD.LT.DMS2) THEN
+              IF (KXSP(2,M)/=0.AND.DD<DMS2) THEN
                 NVOIS1=NVOIS1+1
                 MWA(NVOIS1)=JNOD
               ELSE
@@ -525,7 +520,7 @@ C--------------------------------------------
               DD  =(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
               DMS =SPBUF(1,N)+XSPHR(2,NN)
               DMS2=DMS*DMS
-              IF (NINT(XSPHR(13,NN)).NE.0.AND.DD.LT.DMS2) THEN
+              IF (NINT(XSPHR(13,NN))/=0.AND.DD<DMS2) THEN
                 NVOIS1=NVOIS1+1
                 MWA(NVOIS1)=JNOD
                 ISPHR(NN) = 1          ! flag reperage cellule active          
@@ -545,7 +540,7 @@ C---------
           ENDDO
          ENDDO ! NS=ITASK+1,NSP2SORT,NTHREAD
 C--------------------------------------------
-C        Re-ordonne les particules fantomes.
+C        Re-order ghost particles.
          DO NS=ITASK+1,NSP2SORT,NTHREAD
           N=WSP2SORT(NS)
           INOD=KXSP(3,N)
@@ -559,7 +554,7 @@ C        Re-ordonne les particules fantomes.
           NVOISS2=0
           DO K=NVOIS2+1,NVOIS2+NVOISS
             JK=IXSP(K,N)
-            IF(JK.GT.0)THEN
+            IF(JK>0)THEN
              NC=MOD(JK,NSPCOND+1)
              M =JK/(NSPCOND+1)
              JS=ISPSYM(NC,M)
@@ -570,14 +565,14 @@ C        Re-ordonne les particules fantomes.
              DMS =DI+DJ
              DMS2=DMS*DMS
              DD=(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
-             IF (KXSP(2,M).NE.0.AND.DD.LT.DMS2) THEN
+             IF (KXSP(2,M)/=0.AND.DD<DMS2) THEN
               NVOISS1=NVOISS1+1
               MWA(NVOISS1)=JK
              ELSE
               NVOISS2=NVOISS2+1
               MWA(KVOISPH+NVOISS2)=JK
              ENDIF
-            ELSE                      ! particule symetrique de particule remote
+            ELSE                      ! Symmetrical particle particle Remote
              NC=MOD(-JK,NSPCOND+1)
              M =-JK/(NSPCOND+1)
              JS=ISPSYMR(NC,M)
@@ -588,7 +583,7 @@ C        Re-ordonne les particules fantomes.
              DMS =DI+DJ
              DMS2=DMS*DMS
              DD=(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
-             IF (NINT(XSPHR(13,M)).NE.0.AND.DD.LT.DMS2) THEN
+             IF (NINT(XSPHR(13,M))/=0.AND.DD<DMS2) THEN
               NVOISS1=NVOISS1+1
               MWA(NVOISS1)=JK
              ELSE
@@ -619,7 +614,7 @@ C-----------------------------------------------
          NVOIS2=0
          DO J=1,NCAND
            JNOD=IXSP(J,N)
-           IF(JNOD.GT.0)THEN
+           IF(JNOD>0)THEN
              M=NOD2SP(JNOD)
              XJ=X(1,JNOD)
              YJ=X(2,JNOD)
@@ -627,7 +622,7 @@ C-----------------------------------------------
              DD  =(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
              DMS =TWO*SPBUF(1,M)
              DMS2=DMS*DMS
-             IF (KXSP(2,M).NE.0.AND.DD.LT.DMS2) THEN
+             IF (KXSP(2,M)/=0.AND.DD<DMS2) THEN
                NVOIS1=NVOIS1+1
                MWA(NVOIS1)=JNOD
              ELSE
@@ -642,7 +637,7 @@ C-----------------------------------------------
              DD  =(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
              DMS =TWO*XSPHR(2,NN)
              DMS2=DMS*DMS
-             IF (NINT(XSPHR(13,NN)).NE.0.AND.DD.LT.DMS2) THEN
+             IF (NINT(XSPHR(13,NN))/=0.AND.DD<DMS2) THEN
                NVOIS1=NVOIS1+1
                MWA(NVOIS1)=JNOD
                ISPHR(NN) = 1          ! flag reperage cellule active          
@@ -661,14 +656,14 @@ C--------
            IXSP(NVOIS1+J,N)=MWA(KVOISPH+J)
          ENDDO
 C-------------------------------------------
-C        Re-ordonne les particules fantomes.
+C        Re-order ghost particles.
          NVOIS2 =KXSP(5,N)
          NVOISS =KXSP(7,N)
          NVOISS1=0
          NVOISS2=0
          DO K=NVOIS2+1,NVOIS2+NVOISS
            JK=IXSP(K,N)
-           IF(JK.GT.0)THEN
+           IF(JK>0)THEN
             NC=MOD(JK,NSPCOND+1)
             M =JK/(NSPCOND+1)
             JS=ISPSYM(NC,M)
@@ -679,14 +674,14 @@ C        Re-ordonne les particules fantomes.
             DMS =TWO*DJ
             DMS2=DMS*DMS
             DD=(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
-            IF (KXSP(2,M).NE.0.AND.DD.LT.DMS2) THEN
+            IF (KXSP(2,M)/=0.AND.DD<DMS2) THEN
              NVOISS1=NVOISS1+1
              MWA(NVOISS1)=JK
             ELSE
              NVOISS2=NVOISS2+1
              MWA(KVOISPH+NVOISS2)=JK
             ENDIF
-           ELSE                      ! particule symetrique de particule remote
+           ELSE                      ! Symmetrical particle particle Remote
             NC=MOD(-JK,NSPCOND+1)
             M =-JK/(NSPCOND+1)
             JS=ISPSYMR(NC,M)
@@ -697,7 +692,7 @@ C        Re-ordonne les particules fantomes.
             DMS =TWO*DJ
             DMS2=DMS*DMS
             DD=(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
-            IF (NINT(XSPHR(13,M)).NE.0.AND.DD.LT.DMS2) THEN
+            IF (NINT(XSPHR(13,M))/=0.AND.DD<DMS2) THEN
              NVOISS1=NVOISS1+1
              MWA(NVOISS1)=JK
             ELSE

@@ -1,42 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R2R_FORK                      source/coupling/rad2rad/r2r_fork.F
-Chd|-- called by -----------
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        CREATE_CHILD                  source/coupling/rad2rad/r2r_fork.F
-Chd|        MY_FORK                       source/system/rad_sys_call.c  
-Chd|        MY_WAITPID                    source/system/rad_sys_call.c  
-Chd|        R2R_PRELEC_NAME               source/coupling/rad2rad/r2r_prelec_name.F
-Chd|        READ_FLAG_ALE                 source/coupling/rad2rad/r2r_fork.F
-Chd|        WIN_WAITPID                   source/coupling/rad2rad/r2r_fork.F
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r2r_fork              ../starter/source/coupling/rad2rad/r2r_fork.F
+!||--- called by ------------------------------------------------------
+!||    starter0              ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../starter/source/output/message/message.F
+!||    create_child          ../starter/source/coupling/rad2rad/r2r_fork.F
+!||    my_fork               ../starter/source/system/rad_sys_call.c
+!||    my_waitpid            ../starter/source/system/rad_sys_call.c
+!||    r2r_prelec_name       ../starter/source/coupling/rad2rad/r2r_prelec_name.F
+!||    read_flag_ale         ../starter/source/coupling/rad2rad/r2r_fork.F
+!||    win_waitpid           ../starter/source/coupling/rad2rad/r2r_fork.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../starter/share/message_module/message_mod.F
+!||    r2r_mod               ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod          ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE R2R_FORK(CHRUN,FILNAM,LSUBMODEL)
 C-----------------------------------------------
 C   M o d u l e s
@@ -51,9 +51,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
@@ -61,23 +58,26 @@ C-----------------------------------------------
 #include      "units_c.inc"
 #include      "warn_c.inc"
 #include      "scr03_c.inc"
-#include      "scr17_c.inc"
 #include      "scr15_c.inc"
 #include      "param_c.inc"
 #include      "r2r_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      CHARACTER FILNAM*100,CHRUN*4,ROOT_SUB*80
+      CHARACTER FILNAM*2148,CHRUN*4,ROOT_SUB*80
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)               
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER ISTAT,KDOM,IPID_RET,IERROR,WAIT,IPID_L,STAT,DOM_SWITCH
       LOGICAL(4) WAITA       
-#if defined(COMP_ARMFLANG) || defined(COMP_LLVM)
-      INTEGER  GETPID
+#if defined(COMP_ARMFLANG) || defined(COMP_LLVM) || defined(COMP_AOCC) 
+      INTEGER ::  GETPID
 #endif
+#if defined(COMP_NVFORTRAN)
+      INTEGER, EXTERNAL :: GETPID
+#endif
+
       INTEGER :: LEN_TMP_NAME
       CHARACTER(len=4096) :: TMP_NAME
 C-----------------------------------------------
@@ -95,20 +95,20 @@ C----------------------------------------------------------------------
 C----------------------------- WINDOWS --------------------------------
 C----------------------------------------------------------------------         
 #if CPP_mach == CPP_p4win64 || CPP_mach == CPP_p4win32
-        IF (IPID.NE.0) CALL CREATE_CHILD(IPID_RET,FLG_SWALE)
+        IF (IPID/=0) CALL CREATE_CHILD(IPID_RET,FLG_SWALE)
 C----------------------------------------------------------------------         
 C-------------PGI -> LINUX / SUN -> SOLARISX64 / IBM -> AIX64----------
 C----------------------------------------------------------------------                 
 #elif CPP_mach == CPP_linux964 || CPP_mach == CPP_sun25 || CPP_mach == CPP_pwr4
         IPID = FORK()
 #if defined(_OPENMP)
-        IF (IPID.EQ.0) CALL OMP_SET_NUM_THREADS(NTHREAD_R2R)
+        IF (IPID==0) CALL OMP_SET_NUM_THREADS(NTHREAD_R2R)
 #endif         
 C----------------------------------------------------------------------         
-C-------------------INTEL -> LINUX/LINUXIA64/MACOSX--------------------
+C------------------- Intel-> Linux/Linux IA64/MacOS --------------------------------------------------------------
 C----------------------------------------------------------------------         
 #else
-#if defined (COMP_GFORTRAN) ||  defined(COMP_ARMFLANG) || defined(COMP_LLVM)
+#if defined(COMP_GFORTRAN) || defined(COMP_ARMFLANG)|| defined(COMP_LLVM) || defined(COMP_AOCC) || defined(COMP_NVFORTRAN)
         CALL MY_FORK(IPID)
         IPID_RET = GETPID()
 #else
@@ -116,7 +116,7 @@ C----------------------------------------------------------------------
         CALL PXFGETPID(IPID_RET,IERROR)
 #endif
 #if defined(_OPENMP)
-        IF (IPID.EQ.0) CALL OMP_SET_NUM_THREADS(NTHREAD_R2R)
+        IF (IPID==0) CALL OMP_SET_NUM_THREADS(NTHREAD_R2R)
 #endif        
 #endif
 C----------------------------------------------------------------------         
@@ -124,7 +124,8 @@ C----------------------------------------------------------------------
         KDOM = KDOM + 1
         IPID_L = IPID
 C
-        IF (IPID.NE.0) THEN     
+        IF (IPID/=0) THEN     
+            ISTAT = 0
 C----------------------------------------------------------------------
 C----------------------------- WINDOWS --------------------------------
 C----------------------------------------------------------------------         
@@ -136,10 +137,10 @@ C----------------------------------------------------------------------
 #elif CPP_mach == CPP_linux964 || CPP_mach == CPP_sun25 || CPP_mach == CPP_pwr4
             IERROR = WAIT(ISTAT)
 C----------------------------------------------------------------------     
-C-------------------INTEL -> LINUX/LINUXIA64/MACOSX--------------------
+C------------------- Intel-> Linux/Linux IA64/MacOS --------------------------------------------------------------
 C----------------------------------------------------------------------                     
 #else
-#if defined(COMP_GFORTRAN) ||  defined(COMP_ARMFLANG) || defined(COMP_LLVM)
+#if defined(COMP_GFORTRAN) ||  defined(COMP_ARMFLANG) || defined(COMP_LLVM) ||  defined(COMP_AOCC) || defined(COMP_NVFORTRAN)
             CALL MY_WAITPID(IPID,ISTAT,0,IPID_RET)
 #else
             CALL PXFWAITPID(IPID,ISTAT,0,IPID_RET,IERROR)
@@ -150,8 +151,8 @@ C----------------------------------------------------------------------
             IDDOM = 0
             IDDOM_L = IDDOM
             CALL READ_FLAG_ALE(CHRUN)
-            IF (FLG_FSI.EQ.1) THEN
-              IF (FLG_SWALE.LT.1) THEN
+            IF (FLG_FSI==1) THEN
+              IF (FLG_SWALE<1) THEN
                 FLG_SWALE = FLG_SWALE + 1
                 DOM_SWITCH = KDOM
                 KDOM = KDOM - 1
@@ -165,10 +166,10 @@ C----------------------------------------------------------------------
      .              ANMODE=ANINFO)
                 IERR=IERR+1    
               ENDIF
-            ELSEIF (KDOM.LT.NSUBDOM) THEN
+            ELSEIF (KDOM<NSUBDOM) THEN
               GOTO 2000
             ENDIF
-            IF (FLG_SWALE.EQ.1) THEN
+            IF (FLG_SWALE==1) THEN
                IPID_L = 0
                IDDOM_L = 1
             ENDIF     
@@ -178,13 +179,13 @@ C----------------------------------------------------------------------
             CALL R2R_PRELEC_NAME(KDOM,LSUBMODEL)
             IDDOM = KDOM
             IDDOM_L = IDDOM
-            IF (FLG_SWALE.EQ.1) THEN
+            IF (FLG_SWALE==1) THEN
                IPID_L = 1
                IDDOM_L = 0
             ENDIF   
         ENDIF
 C
-        IF (IPID_L.NE.0) THEN    
+        IF (IPID_L/=0) THEN    
             WRITE(ISTDO,'(A)') '-----------------------------------' 
             WRITE(ISTDO,'(A)')' .. TREATMENT OF THE FULL DOMAIN'
             WRITE(ISTDO,'(A)') '-----------------------------------'
@@ -221,12 +222,12 @@ C--------------------------------------------------------------------C
       END
 
 #if CPP_mach == CPP_p4win64 || CPP_mach == CPP_p4win32
-Chd|====================================================================
-Chd|  WIN_WAITPID                   source/coupling/rad2rad/r2r_fork.F
-Chd|-- called by -----------
-Chd|        R2R_FORK                      source/coupling/rad2rad/r2r_fork.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    win_waitpid   ../starter/source/coupling/rad2rad/r2r_fork.F
+!||--- called by ------------------------------------------------------
+!||    r2r_fork      ../starter/source/coupling/rad2rad/r2r_fork.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE WIN_WAITPID(IPID_RET)
 C----------------------------------------------- 
       USE DFWIN
@@ -245,16 +246,16 @@ C-----------------------------------------------
       
       END
 
-Chd|====================================================================
-Chd|  CREATE_CHILD                  source/coupling/rad2rad/r2r_fork.F
-Chd|-- called by -----------
-Chd|        R2R_FORK                      source/coupling/rad2rad/r2r_fork.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_EXIT                       source/output/analyse/analyse.c
-Chd|        RAD2RAD_CREATEPROCESS         source/system/machine_c.c     
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    create_child            ../starter/source/coupling/rad2rad/r2r_fork.F
+!||--- called by ------------------------------------------------------
+!||    r2r_fork                ../starter/source/coupling/rad2rad/r2r_fork.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                  ../starter/source/output/message/message.F
+!||    my_exit                 ../starter/source/output/analyse/analyse.c
+!||--- uses       -----------------------------------------------------
+!||    message_mod             ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE CREATE_CHILD(ID,FLG_SWALE)
       USE MESSAGE_MOD
 C----------------------------------------------- 
@@ -264,9 +265,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -289,12 +287,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 
       SUCCESS = SETENVQQ("R2R_ENV_IPID=5")
-      IF (FLG_SWALE.GT.0) SUCCESS = SETENVQQ("R2R_ENV_SWALE=5")
+      IF (FLG_SWALE>0) SUCCESS = SETENVQQ("R2R_ENV_SWALE=5")
 
       CALL GET_COMMAND(COMMAND,LEN,STATUS)
       
 C-------Incompatibility of "<" remplaced by "-i" ----------------      
-      IF (LEN_TRIM(INPUT).EQ.0) THEN
+      IF (LEN_TRIM(INPUT)==0) THEN
         CALL ANCMSG(MSGID=840,
      .              MSGTYPE=MSGERROR,
      .              ANMODE=ANINFO)
@@ -313,14 +311,13 @@ C-------Incompatibility of "<" remplaced by "-i" ----------------
       END
 #endif
 
-Chd|====================================================================
-Chd|  READ_FLAG_ALE                 source/coupling/rad2rad/r2r_fork.F
-Chd|-- called by -----------
-Chd|        R2R_FORK                      source/coupling/rad2rad/r2r_fork.F
-Chd|-- calls ---------------
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|====================================================================
+!||====================================================================
+!||    read_flag_ale   ../starter/source/coupling/rad2rad/r2r_fork.F
+!||--- called by ------------------------------------------------------
+!||    r2r_fork        ../starter/source/coupling/rad2rad/r2r_fork.F
+!||--- uses       -----------------------------------------------------
+!||    r2r_mod         ../starter/share/modules1/r2r_mod.F
+!||====================================================================
       SUBROUTINE READ_FLAG_ALE(CHRUN)
 C-----------------------------------------------
 C   M o d u l e s

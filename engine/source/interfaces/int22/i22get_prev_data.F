@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I22GET_PREV_DATA              source/interfaces/int22/i22get_prev_data.F
-Chd|-- called by -----------
-Chd|        I22BUCE                       source/interfaces/intsort/i22buce.F
-Chd|-- calls ---------------
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        REALLOC_MOD                   share/modules/realloc_mod.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i22get_prev_data   ../engine/source/interfaces/int22/i22get_prev_data.F
+!||--- called by ------------------------------------------------------
+!||    i22buce            ../engine/source/interfaces/intsort/i22buce.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod     ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22edge_mod        ../common_source/modules/interfaces/cut-cell-buffer_mod.F
+!||    i22tri_mod         ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    realloc_mod        ../engine/share/modules/realloc_mod.F
+!||====================================================================
       SUBROUTINE I22GET_PREV_DATA(
      1      X      ,II_STOK, CAND_B  ,CAND_E   ,ITASK,
      2      NBRIC  ,ITAB   , BUFBRIC  ,NCAND,   
@@ -38,7 +40,7 @@ C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C  This subroutine get data from cut cell buffer
 C  in previous cycle and update new buffer with
@@ -46,7 +48,7 @@ C  consistent data if brick is sill there
 C  Example :
 C    * nodes which were main
 C    * old volume
-C    * list of previous secnds (for merge/demerge)
+C    * list of previous seconds (for merge/demerge)
 C    * IIAD22 is also reset for all brick in
 C      previous buffer
 C-----------------------------------------------
@@ -56,30 +58,17 @@ C-----------------------------------------------
       USE I22TRI_MOD
       USE I22EDGE_MOD  
       USE REALLOC_MOD     
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr05_c.inc"
-#include      "sms_c.inc"
 #include      "task_c.inc"
-#include      "timerr_c.inc"
-#include      "i22edges.inc"
 #include      "inter22.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -112,7 +101,7 @@ C   S o u r c e   L i n e
 C-----------------------------------------------     
     
       NB  = NCANDB
-      IF(NB.GT.I22LEN)THEN
+      IF(NB>I22LEN)THEN
         print *, "**error inter22 : memory size allocation", NB,I22LEN
         stop
         !handle this with reallocate later
@@ -122,7 +111,7 @@ C-----------------------------------------------
       NBL = (ITASK+1)*NB/NTHREAD
       NIN = 1
 
-      IF(ITASK==0.AND.DT1.NE.ZERO)THEN
+      IF(ITASK==0.AND.DT1/=ZERO)THEN
         
         DO IB=1,NBOLD(NIN)
           IE = BRICK_LIST(NIN,IB)%ID
@@ -142,7 +131,7 @@ C-----------------------------------------------
         !---NewInBuffer--------!        
         DO IB=1,NB
           IDX = LIST_B(IB)                             
-          IF(TAG_INDEX(IDX).NE.0 .AND. TAG_INDEX_OLD(IDX).EQ.0)THEN
+          IF(TAG_INDEX(IDX)/=0 .AND. TAG_INDEX_OLD(IDX)==0)THEN
             BRICK_LIST(NIN,IB)%NewInBuffer = 1
 ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
           ELSE
@@ -156,7 +145,7 @@ ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
         ENDDO
         DO IB=1,NBOLD(NIN)
           IDX = LIST_B_OLD(NIN,IB)                             !allocated in resol with brick_list
-          IF(TAG_INDEX(IDX).GT.0)THEN                          !cell BUFBBRIC(IDX) is always in buffer
+          IF(TAG_INDEX(IDX)>0)THEN                          !cell BUFBBRIC(IDX) is always in buffer
             IDX = TAG_INDEX(IDX)                               !position in new buffer
             BRICK_LIST(NIN,IDX)%NODE(1:8)%NodWasMain = I8(1:8,IB)
           ENDIF
@@ -167,7 +156,7 @@ ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
         ENDDO
         DO IB=1,NBOLD(NIN)
           IDX = LIST_B_OLD(NIN,IB)  
-          IF(TAG_INDEX(IDX).GT.0)THEN  
+          IF(TAG_INDEX(IDX)>0)THEN  
             IDX = TAG_INDEX(IDX)  
             BRICK_LIST(NIN,IDX)%NODE(1:8)%WhereWasMain = I8(1:8,IB)
           ENDIF
@@ -180,7 +169,7 @@ ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
         BRICK_LIST(NIN,1:NBOLD(NIN))%Vold_SCell = ZERO
         DO IB=1,NBOLD(NIN)
           IDX = LIST_B_OLD(NIN,IB) 
-          IF(TAG_INDEX(IDX).GT.0)THEN  
+          IF(TAG_INDEX(IDX)>0)THEN  
             IDX = TAG_INDEX(IDX)  
             BRICK_LIST(NIN,IDX)%Vold_SCell = R9(1,IB)
           ENDIF
@@ -193,7 +182,7 @@ ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
         ENDDO
         DO IB=1,NBOLD(NIN)
           IDX = LIST_B_OLD(NIN,IB) 
-          IF(TAG_INDEX(IDX).GT.0)THEN 
+          IF(TAG_INDEX(IDX)>0)THEN 
             IDX = TAG_INDEX(IDX)  
             BRICK_LIST(NIN,IDX)%NODE(1:8)%OLD_WhichCell = I8(1:8,IB)
           ENDIF
@@ -204,9 +193,9 @@ ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
         ENDDO
         DO J=1,9;BRICK_LIST(NIN,1:NBOLD(NIN))%POLY(J)%Vnew = -EP30;ENDDO
         DO IB=1,NBOLD(NIN)
-          IDX = LIST_B_OLD(NIN,IB)                             !doit etre alloue dans resol en meme temps que brick_list
-          IF(TAG_INDEX(IDX).GT.0)THEN                          !la brick BUFBBRIC(IDX) est toujours dans le buffer
-            IDX = TAG_INDEX(IDX)                               !position dans le nouveau buffer
+          IDX = LIST_B_OLD(NIN,IB)                             !must be allocated in resol at the same time as brick_list
+          IF(TAG_INDEX(IDX)>0)THEN                          !the brick bufbbric(idx) is always in the buffer
+            IDX = TAG_INDEX(IDX)                               !position in the new buffer
             BRICK_LIST(NIN,IDX)%POLY(1:9)%OLD_Vnew = R9(1:9,IB)
           ENDIF
         ENDDO!next IB
@@ -214,7 +203,7 @@ ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
         !------SecndList-------!
         DO IB=1,NBOLD(NIN)
           IDX = LIST_B_OLD(NIN,IB) 
-          IF(TAG_INDEX(IDX).GT.0)THEN 
+          IF(TAG_INDEX(IDX)>0)THEN 
             IDX = TAG_INDEX(IDX) 
             IF(BRICK_LIST(NIN,IB)%SecndList%Num==0)CYCLE
             OLD_SecndList(NIN,IDX)%VOL_unmerged       = BRICK_LIST(NIN,IB)%SecndList%VOL_unmerged
@@ -247,11 +236,11 @@ ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
         ENDDO!next IB
         !---OldMainStrongNode----!
         DO IB=1,NBOLD(NIN)
-          I8(1,IB) = BRICK_LIST(NIN,IB)%OldMainStrongNode !sauvegarder avant de faire la modification ci-dessous
+          I8(1,IB) = BRICK_LIST(NIN,IB)%OldMainStrongNode !save before making the modification below
         ENDDO
         DO IB=1,NBOLD(NIN)
           IDX = LIST_B_OLD(NIN,IB) 
-          IF(TAG_INDEX(IDX).GT.0)THEN 
+          IF(TAG_INDEX(IDX)>0)THEN 
             IDX = TAG_INDEX(IDX) 
             BRICK_LIST(NIN,IDX)%OldMainStrongNode = I8(1,IB)
           ENDIF
@@ -262,10 +251,10 @@ ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
         ENDDO
         DO IB=1,NBOLD(NIN)
           IDX = LIST_B_OLD(NIN,IB) 
-          IF(TAG_INDEX(IDX).GT.0)THEN 
+          IF(TAG_INDEX(IDX)>0)THEN 
             IDX = TAG_INDEX(IDX) 
             BRICK_LIST(NIN,IDX)%WasCut = 0
-            IF(I8(1,IB).GT.0)BRICK_LIST(NIN,IDX)%WasCut = 1
+            IF(I8(1,IB)>0)BRICK_LIST(NIN,IDX)%WasCut = 1
           ENDIF
         ENDDO!next IB           
 
@@ -276,7 +265,7 @@ ccc            print *, "new in buffer, IB=", ib, ixs(11,idx)
         BRICK_LIST(NIN,1:NB)%OLD_ICODE = 0
         DO IB=1,NBOLD(NIN)
           IDX = LIST_B_OLD(NIN,IB) 
-          IF(TAG_INDEX(IDX).GT.0)THEN 
+          IF(TAG_INDEX(IDX)>0)THEN 
             IDX = TAG_INDEX(IDX)
             BRICK_LIST(NIN,IDX)%OLD_ICODE = I8(1,IB)
           ENDIF

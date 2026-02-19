@@ -1,39 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S10MASS3                      source/elements/solid/solide10/s10mass3.F
-Chd|-- called by -----------
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        S10INIT3                      source/elements/solid/solide10/s10init3.F
-Chd|-- calls ---------------
-Chd|        S4FRACA10                     source/elements/solid/solide10/s10mass3.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s10mass3     ../starter/source/elements/solid/solide10/s10mass3.F
+!||--- called by ------------------------------------------------------
+!||    inirig_mat   ../starter/source/elements/initia/inirig_mat.F
+!||    s10init3     ../starter/source/elements/solid/solide10/s10init3.F
+!||--- calls      -----------------------------------------------------
+!||    s4fraca10    ../starter/source/elements/solid/solide10/s10mass3.F
+!||====================================================================
       SUBROUTINE S10MASS3(
      1   MASS,MS ,PARTSAV,IPART  ,MSS ,VOLU,
      2   XX  ,YY ,ZZ     ,VX     ,VY  ,VZ  ,  
      3   NC  ,STI,STIFN  ,DELTAX2,MSSX,MASSCP,
      4   MCP ,MCPS       ,MCPSX  ,IN  ,STIFR,
-     5   INS ,MSSA       ,X      ,FILL)
+     5   INS ,MSSA       ,X      ,FILL,IMAS_DS)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,11 +47,11 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) ::  IMAS_DS
       INTEGER IPART(*), NC(MVSIZ,10)
       DOUBLE PRECISION
      .   XX(MVSIZ,10), YY(MVSIZ,10), ZZ(MVSIZ,10)
@@ -76,7 +76,7 @@ C
       DATA IPERM3/1,3,6,5,0,0,0,0,0,0/
 C
 C-----------------------------------------------------------------------
-      FAC=TRHEE_OVER_14
+      FAC=THREE_OVER_14
       FACIROT = NINE + THIRD
 
       IF(IREST_MSELT /= 0)THEN
@@ -84,7 +84,7 @@ C-----------------------------------------------------------------------
         MSSA(I)=MASS(I)
        ENDDO
       ENDIF
-      CALL S4FRACA10(X,NC(1,1),NC(1,2),NC(1,3),NC(1,4),PTG   )
+      CALL S4FRACA10(X,NC(1,1),NC(1,2),NC(1,3),NC(1,4),PTG ,IMAS_DS)
 C
       IF(IDT1TET10==0.AND.ISROT == 0)THEN
 C       same as RD Engine
@@ -105,8 +105,8 @@ C       same as RD Engine
           STIFN(NC(I,2))=STIFN(NC(I,2))+STI(I)*DELTAX2(I)
           STIFN(NC(I,3))=STIFN(NC(I,3))+STI(I)*DELTAX2(I)
           STIFN(NC(I,4))=STIFN(NC(I,4))+STI(I)*DELTAX2(I)
-          DO N=5,10	    
-           IF(NC(I,N).NE.0)THEN
+          DO N=5,10      
+           IF(NC(I,N)/=0)THEN
              MSSX(N-4,I)=BM*PTG(N,I)
              STIFN(NC(I,N))=STIFN(NC(I,N))+STI(I)
            ELSE
@@ -115,7 +115,7 @@ C       same as RD Engine
              N22=IPERM2(N)
              N2=IPERM3(N22)
              MSS(N1,I)=MSS(N1,I) + HALF*BM*PTG(N,I)
-             MSS(N2,I)=MSS(N2,I) + HALF*BM*PTG(N,I)	     
+             MSS(N2,I)=MSS(N2,I) + HALF*BM*PTG(N,I)       
              STIFN(NC(I,N11))=STIFN(NC(I,N11))  + HALF*STI(I)
              STIFN(NC(I,N22))=STIFN(NC(I,N22))  + HALF*STI(I)      
            ENDIF
@@ -130,13 +130,13 @@ C         Not yet compatible with IMAS_DS/=0
           MSS(6,I)=AM
           MSS(5,I)=AM
           AAA=STI(I)*TWO/THIRTY2
-          BBB=STI(I)*TWO*SEVEN/FOURTY8
+          BBB=STI(I)*TWO*SEVEN/FORTY8
           STIFN(NC(I,1))=STIFN(NC(I,1))+AAA
           STIFN(NC(I,2))=STIFN(NC(I,2))+AAA
           STIFN(NC(I,3))=STIFN(NC(I,3))+AAA
           STIFN(NC(I,4))=STIFN(NC(I,4))+AAA
-          DO N=5,10	    
-           IF(NC(I,N).NE.0)THEN
+          DO N=5,10      
+           IF(NC(I,N)/=0)THEN
              MSSX(N-4,I)=BM
              STIFN(NC(I,N))=STIFN(NC(I,N))+BBB
            ELSE
@@ -198,7 +198,7 @@ c           BI = (SEVEN/FIVE)*DELTAX2(I)*MASS(I)
            STIFN(NC(I,3))=STIFN(NC(I,3))+AAA
            STIFN(NC(I,4))=STIFN(NC(I,4))+AAA
            DO N=5,10
-             IF(NC(I,N).NE.0)THEN
+             IF(NC(I,N)/=0)THEN
                MSSX(N-4,I) = AM*FACIROT
                STIFN(NC(I,N))=STIFN(NC(I,N))+AAA*FACIROT
              ENDIF
@@ -218,8 +218,8 @@ C          Not yet compatible with IMAS_DS/=0
            STIFN(NC(I,3))=STIFN(NC(I,3))+AAA
            STIFN(NC(I,4))=STIFN(NC(I,4))+AAA
            DO N=5,10
-             IF(NC(I,N).NE.0)THEN
-               MSSX(N-4,I) = AM*FACIROT !  meme masse que dans le cas standard
+             IF(NC(I,N)/=0)THEN
+               MSSX(N-4,I) = AM*FACIROT ! same mass as in the standard case
                STIFN(NC(I,N))=STIFN(NC(I,N))+AAA*FACIROT
              ENDIF
            ENDDO
@@ -239,35 +239,35 @@ C
      .     + AM*(ZZ(I,1)+ZZ(I,2)+ZZ(I,3)+ZZ(I,4))
      .     + BM*(ZZ(I,5)+ZZ(I,6)+ZZ(I,7)+ZZ(I,8)+ZZ(I,9)+ZZ(I,10))
        AXX = AM*(XX(I,1)*XX(I,1)+XX(I,2)*XX(I,2)
-     .  	+XX(I,3)*XX(I,3)+XX(I,4)*XX(I,4))
+     .    +XX(I,3)*XX(I,3)+XX(I,4)*XX(I,4))
      .      +BM*(XX(I,5)*XX(I,5)+XX(I,6)*XX(I,6)
-     .  	+XX(I,7)*XX(I,7)+XX(I,8)*XX(I,8)
-     .  	+XX(I,9)*XX(I,9)+XX(I,10)*XX(I,10))
+     .    +XX(I,7)*XX(I,7)+XX(I,8)*XX(I,8)
+     .    +XX(I,9)*XX(I,9)+XX(I,10)*XX(I,10))
        AYY = AM*(YY(I,1)*YY(I,1)+YY(I,2)*YY(I,2)
-     .  	+YY(I,3)*YY(I,3)+YY(I,4)*YY(I,4))
+     .    +YY(I,3)*YY(I,3)+YY(I,4)*YY(I,4))
      .      +BM*(YY(I,5)*YY(I,5)+YY(I,6)*YY(I,6)
-     .  	+YY(I,7)*YY(I,7)+YY(I,8)*YY(I,8)
-     .  	+YY(I,9)*YY(I,9)+YY(I,10)*YY(I,10))
+     .    +YY(I,7)*YY(I,7)+YY(I,8)*YY(I,8)
+     .    +YY(I,9)*YY(I,9)+YY(I,10)*YY(I,10))
        AZZ = AM*(ZZ(I,1)*ZZ(I,1)+ZZ(I,2)*ZZ(I,2)
-     .  	+ZZ(I,3)*ZZ(I,3)+ZZ(I,4)*ZZ(I,4))
+     .    +ZZ(I,3)*ZZ(I,3)+ZZ(I,4)*ZZ(I,4))
      .      +BM*(ZZ(I,5)*ZZ(I,5)+ZZ(I,6)*ZZ(I,6)
-     .  	+ZZ(I,7)*ZZ(I,7)+ZZ(I,8)*ZZ(I,8)
-     .  	+ZZ(I,9)*ZZ(I,9)+ZZ(I,10)*ZZ(I,10))
+     .    +ZZ(I,7)*ZZ(I,7)+ZZ(I,8)*ZZ(I,8)
+     .    +ZZ(I,9)*ZZ(I,9)+ZZ(I,10)*ZZ(I,10))
        AXY = AM*(XX(I,1)*YY(I,1)+XX(I,2)*YY(I,2)
-     .  	+XX(I,3)*YY(I,3)+XX(I,4)*YY(I,4))
+     .    +XX(I,3)*YY(I,3)+XX(I,4)*YY(I,4))
      .      +BM*(XX(I,5)*YY(I,5)+XX(I,6)*YY(I,6)
-     .  	+XX(I,7)*YY(I,7)+XX(I,8)*YY(I,8)
-     .  	+XX(I,9)*YY(I,9)+XX(I,10)*YY(I,10))
+     .    +XX(I,7)*YY(I,7)+XX(I,8)*YY(I,8)
+     .    +XX(I,9)*YY(I,9)+XX(I,10)*YY(I,10))
        AYZ = AM*(YY(I,1)*ZZ(I,1)+YY(I,2)*ZZ(I,2)
-     .  	+YY(I,3)*ZZ(I,3)+YY(I,4)*ZZ(I,4))
+     .    +YY(I,3)*ZZ(I,3)+YY(I,4)*ZZ(I,4))
      .      +BM*(YY(I,5)*ZZ(I,5)+YY(I,6)*ZZ(I,6)
-     .  	+YY(I,7)*ZZ(I,7)+YY(I,8)*ZZ(I,8)
-     .  	+YY(I,9)*ZZ(I,9)+YY(I,10)*ZZ(I,10))
+     .    +YY(I,7)*ZZ(I,7)+YY(I,8)*ZZ(I,8)
+     .    +YY(I,9)*ZZ(I,9)+YY(I,10)*ZZ(I,10))
        AZX = AM*(ZZ(I,1)*XX(I,1)+ZZ(I,2)*XX(I,2)
-     .  	+ZZ(I,3)*XX(I,3)+ZZ(I,4)*XX(I,4))
+     .    +ZZ(I,3)*XX(I,3)+ZZ(I,4)*XX(I,4))
      .      +BM*(ZZ(I,5)*XX(I,5)+ZZ(I,6)*XX(I,6)
-     .  	+ZZ(I,7)*XX(I,7)+ZZ(I,8)*XX(I,8)
-     .  	+ZZ(I,9)*XX(I,9)+ZZ(I,10)*XX(I,10))
+     .    +ZZ(I,7)*XX(I,7)+ZZ(I,8)*XX(I,8)
+     .    +ZZ(I,9)*XX(I,9)+ZZ(I,10)*XX(I,10))
        PARTSAV(5,IP) =PARTSAV(5,IP)  + (AYY+AZZ)
        PARTSAV(6,IP) =PARTSAV(6,IP)  + (AZZ+AXX)
        PARTSAV(7,IP) =PARTSAV(7,IP)  + (AXX+AYY)
@@ -286,33 +286,33 @@ C
      .     + BM*(VZ(I,5)+VZ(I,6)+VZ(I,7)+VZ(I,8)+VZ(I,9)+VZ(I,10))
        PARTSAV(14,IP)=PARTSAV(14,IP) + HALF *
      .      (AM*(VX(I,1)*VX(I,1)+VX(I,2)*VX(I,2)
-     .  	+VX(I,3)*VX(I,3)+VX(I,4)*VX(I,4)
-     .  	+VY(I,1)*VY(I,1)+VY(I,2)*VY(I,2)
-     .  	+VY(I,3)*VY(I,3)+VY(I,4)*VY(I,4)
-     .  	+VZ(I,1)*VZ(I,1)+VZ(I,2)*VZ(I,2)
-     .  	+VZ(I,3)*VZ(I,3)+VZ(I,4)*VZ(I,4))
+     .    +VX(I,3)*VX(I,3)+VX(I,4)*VX(I,4)
+     .    +VY(I,1)*VY(I,1)+VY(I,2)*VY(I,2)
+     .    +VY(I,3)*VY(I,3)+VY(I,4)*VY(I,4)
+     .    +VZ(I,1)*VZ(I,1)+VZ(I,2)*VZ(I,2)
+     .    +VZ(I,3)*VZ(I,3)+VZ(I,4)*VZ(I,4))
      .      +BM*(VX(I,5)*VX(I,5)+VX(I,6)*VX(I,6)
-     .  	+VX(I,7)*VX(I,7)+VX(I,8)*VX(I,8)
-     .  	+VX(I,9)*VX(I,9)+VX(I,10)*VX(I,10)
-     .  	+VY(I,5)*VY(I,5)+VY(I,6)*VY(I,6)
-     .  	+VY(I,7)*VY(I,7)+VY(I,8)*VY(I,8)
-     .  	+VY(I,9)*VY(I,9)+VY(I,10)*VY(I,10)
-     .  	+VZ(I,5)*VZ(I,5)+VZ(I,6)*VZ(I,6)
-     .  	+VZ(I,7)*VZ(I,7)+VZ(I,8)*VZ(I,8)
-     .  	+VZ(I,9)*VZ(I,9)+VZ(I,10)*VZ(I,10)))
+     .    +VX(I,7)*VX(I,7)+VX(I,8)*VX(I,8)
+     .    +VX(I,9)*VX(I,9)+VX(I,10)*VX(I,10)
+     .    +VY(I,5)*VY(I,5)+VY(I,6)*VY(I,6)
+     .    +VY(I,7)*VY(I,7)+VY(I,8)*VY(I,8)
+     .    +VY(I,9)*VY(I,9)+VY(I,10)*VY(I,10)
+     .    +VZ(I,5)*VZ(I,5)+VZ(I,6)*VZ(I,6)
+     .    +VZ(I,7)*VZ(I,7)+VZ(I,8)*VZ(I,8)
+     .    +VZ(I,9)*VZ(I,9)+VZ(I,10)*VZ(I,10)))
       ENDDO
 
       IF(JTHE < 0) THEN
        DO I=LFT,LLT
-        FAC=TRHEE_OVER_14
+        FAC=THREE_OVER_14
         AM = MASSCP(I)*FAC/(FOUR*FAC + SIX)
         BM = MASSCP(I)*ONE/(FOUR*FAC + SIX)
         MCPS(1,I)=AM
         MCPS(3,I)=AM
         MCPS(6,I)=AM
         MCPS(5,I)=AM
-        DO N=5,10	  
-          IF(NC(I,N).NE.0)THEN
+        DO N=5,10    
+          IF(NC(I,N)/=0)THEN
             MCPSX(N-4,I) = BM
           ELSE
             N11=IPERM1(N)
@@ -329,12 +329,11 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  S10MSI                        source/elements/solid/solide10/s10mass3.F
-Chd|-- called by -----------
-Chd|        S10INIT3                      source/elements/solid/solide10/s10init3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    s10msi     ../starter/source/elements/solid/solide10/s10mass3.F
+!||--- called by ------------------------------------------------------
+!||    s10init3   ../starter/source/elements/solid/solide10/s10init3.F
+!||====================================================================
       SUBROUTINE S10MSI(RHO,MASS,VOLU,DTELEM,STI,
      .                  OFF,SIG,EINT,
      .                  OFFG,SIGG,EINTG,RHOG,WIP,
@@ -344,10 +343,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -405,14 +400,14 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  S4FRACA10                     source/elements/solid/solide10/s10mass3.F
-Chd|-- called by -----------
-Chd|        S10MASS3                      source/elements/solid/solide10/s10mass3.F
-Chd|-- calls ---------------
-Chd|        AREA_TRIA                     source/elements/solid/solide4/s4mass3.F
-Chd|====================================================================
-      SUBROUTINE S4FRACA10(X,IX1 ,IX2,IX3 ,IX4 ,PTG   )
+!||====================================================================
+!||    s4fraca10   ../starter/source/elements/solid/solide10/s10mass3.F
+!||--- called by ------------------------------------------------------
+!||    s10mass3    ../starter/source/elements/solid/solide10/s10mass3.F
+!||--- calls      -----------------------------------------------------
+!||    area_tria   ../starter/source/elements/solid/solide4/s4mass3.F
+!||====================================================================
+      SUBROUTINE S4FRACA10(X,IX1 ,IX2,IX3 ,IX4 ,PTG  ,IMAS_DS )
 C----------------------------------------------
 C     MASS PARTITION IN FUNCTION OF NODAL ANGLES by AREA
 C-----------------------------------------------
@@ -424,13 +419,9 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr21_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -440,9 +431,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,N,IP,I1,I2,I3,I4
+      INTEGER, INTENT(IN) ::  IMAS_DS
+      INTEGER I,J
       my_real
-     .   XX,YY,ZZ,XY,YZ,ZX,P1,P2,P3,P4,S
+     .   S
       my_real
      .   A1(MVSIZ), A2(MVSIZ), A3(MVSIZ),A4(MVSIZ)
 C=======================================================================
@@ -454,7 +446,7 @@ C=======================================================================
        END DO
        RETURN
       END IF
-C ------------Ai -> A²(i)-----------
+C ---------------------------------
        CALL AREA_TRIA(X,IX2,IX3,IX4, A1  )
        CALL AREA_TRIA(X,IX1,IX3,IX4, A2  )
        CALL AREA_TRIA(X,IX1,IX2,IX4, A3  )

@@ -1,43 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ORTHRG                        source/constraints/fxbody/ortho_normalization.F
-Chd|-- called by -----------
-Chd|        INI_FXBODY                    source/constraints/fxbody/ini_fxbody.F
-Chd|-- calls ---------------
-Chd|        WSUM                          source/constraints/fxbody/ortho_normalization.F
-Chd|        PRSCAL                        source/constraints/fxbody/ortho_normalization.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    orthrg       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||--- called by ------------------------------------------------------
+!||    ini_fxbody   ../starter/source/constraints/fxbody/ini_fxbody.F
+!||--- calls      -----------------------------------------------------
+!||    prscal       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||    wsum         ../starter/source/constraints/fxbody/ortho_normalization.F
+!||====================================================================
       SUBROUTINE ORTHRG(VECT, MAS, NDDL,NB_MODES ) 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -73,24 +68,19 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  ORTHSR                        source/constraints/fxbody/ortho_normalization.F
-Chd|-- called by -----------
-Chd|        INI_FXBODY                    source/constraints/fxbody/ini_fxbody.F
-Chd|-- calls ---------------
-Chd|        WSUM                          source/constraints/fxbody/ortho_normalization.F
-Chd|        PRSCAL                        source/constraints/fxbody/ortho_normalization.F
-Chd|====================================================================
+!||====================================================================
+!||    orthsr       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||--- called by ------------------------------------------------------
+!||    ini_fxbody   ../starter/source/constraints/fxbody/ini_fxbody.F
+!||--- calls      -----------------------------------------------------
+!||    prscal       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||    wsum         ../starter/source/constraints/fxbody/ortho_normalization.F
+!||====================================================================
       SUBROUTINE ORTHSR(VECTS, VECTR, MAS, NDDL, NMS,NMR) 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -123,24 +113,19 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  ORTHST                        source/constraints/fxbody/ortho_normalization.F
-Chd|-- called by -----------
-Chd|        INI_FXBODY                    source/constraints/fxbody/ini_fxbody.F
-Chd|-- calls ---------------
-Chd|        WSUM                          source/constraints/fxbody/ortho_normalization.F
-Chd|        PRSCAL                        source/constraints/fxbody/ortho_normalization.F
-Chd|====================================================================
+!||====================================================================
+!||    orthst       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||--- called by ------------------------------------------------------
+!||    ini_fxbody   ../starter/source/constraints/fxbody/ini_fxbody.F
+!||--- calls      -----------------------------------------------------
+!||    prscal       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||    wsum         ../starter/source/constraints/fxbody/ortho_normalization.F
+!||====================================================================
       SUBROUTINE ORTHST(VECTS, MAS  , NDDL, NMS, NMSF,TOLE)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -155,14 +140,21 @@ C-----------------------------------------------
      .        S, MS, NORM, UNSN, REF, VT(NDDL)
 C
       my_real 
-     .        PRSCAL
+     .        PRSCAL,MAXI
+C-----------------------------------------------
       EXTERNAL PRSCAL
+C-----------------------------------------------
 C
          DO I=1,NDDL
             VT(I)=ZERO
          ENDDO
-         REF=PRSCAL(VECTS(1,1), VECTS(1,1), NDDL, MAS)
-         REF=SQRT(REF)
+
+         MAXI = ZERO
+         DO I=1,NMS
+           NORM=PRSCAL(VECTS(1,I), VECTS(1,I), NDDL, MAS)
+           IF (SQRT(NORM)>MAXI) MAXI  = MAX(MAXI,SQRT(NORM))
+         ENDDO
+         REF = MAXI
          NMSF=0
 C
          DO I=1,NMS
@@ -174,7 +166,7 @@ C
                CALL WSUM(VECTS(1,I), VECTS(1,II), ONE, MS, NDDL)
             ENDDO
             NORM=PRSCAL(VECTS(1,I), VECTS(1,I), NDDL, MAS)
-            IF (SQRT(NORM).GT.TOLE*REF) THEN
+            IF (SQRT(NORM)>TOLE*REF) THEN
                NMSF=NMSF+1
                UNSN=ONE/SQRT(NORM)
                CALL WSUM(VECTS(1,NMSF), VECTS(1,I), ZERO, UNSN, NDDL)
@@ -183,23 +175,19 @@ C
 C
       RETURN
       END 
-Chd|====================================================================
-Chd|  PRSCAL                        source/constraints/fxbody/ortho_normalization.F
-Chd|-- called by -----------
-Chd|        INI_FXBODY                    source/constraints/fxbody/ini_fxbody.F
-Chd|        ORTHRG                        source/constraints/fxbody/ortho_normalization.F
-Chd|        ORTHSR                        source/constraints/fxbody/ortho_normalization.F
-Chd|        ORTHST                        source/constraints/fxbody/ortho_normalization.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prscal       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||--- called by ------------------------------------------------------
+!||    ini_fxbody   ../starter/source/constraints/fxbody/ini_fxbody.F
+!||    orthrg       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||    orthsr       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||    orthst       ../starter/source/constraints/fxbody/ortho_normalization.F
+!||====================================================================
       my_real FUNCTION PRSCAL(V1    , V2, NDDL, VALUE) 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -224,22 +212,18 @@ C
 C
       END
 C
-Chd|====================================================================
-Chd|  WSUM                          source/constraints/fxbody/ortho_normalization.F
-Chd|-- called by -----------
-Chd|        ORTHRG                        source/constraints/fxbody/ortho_normalization.F
-Chd|        ORTHSR                        source/constraints/fxbody/ortho_normalization.F
-Chd|        ORTHST                        source/constraints/fxbody/ortho_normalization.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    wsum     ../starter/source/constraints/fxbody/ortho_normalization.F
+!||--- called by ------------------------------------------------------
+!||    orthrg   ../starter/source/constraints/fxbody/ortho_normalization.F
+!||    orthsr   ../starter/source/constraints/fxbody/ortho_normalization.F
+!||    orthst   ../starter/source/constraints/fxbody/ortho_normalization.F
+!||====================================================================
       SUBROUTINE WSUM(V1, V2, A1, A2, NDDL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

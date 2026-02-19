@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-C  nouvelle routine (modified ogden form) --
-Chd|====================================================================
-Chd|  SIGEPS82                      source/materials/mat/mat082/sigeps82.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        VALPVECDP_V                   source/materials/mat/mat033/sigeps33.F
-Chd|        VALPVEC_V                     source/materials/mat/mat033/sigeps33.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps82      ../engine/source/materials/mat/mat082/sigeps82.F
+!||--- called by ------------------------------------------------------
+!||    mulaw         ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    finter        ../engine/source/tools/curve/finter.F
+!||    valpvec_v     ../engine/source/materials/mat/mat033/sigeps33.F
+!||    valpvecdp_v   ../engine/source/materials/mat/mat033/sigeps33.F
+!||====================================================================
        SUBROUTINE SIGEPS82(
      1      NEL    , NUPARAM, NUVAR   , NFUNC , IFUNC , NPF   ,
      2      TF     , TIME   , TIMESTEP, UPARAM, RHO0  , RHO   ,
@@ -51,15 +51,11 @@ C-----------------------------------------------
 C   G L O B A L   P A R A M E T E R S
 C-----------------------------------------------
 #include "mvsiz_p.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   C O M M O N 
 C-----------------------------------------------
 #include "scr05_c.inc"
 #include "impl1_c.inc"
-#include      "units_c.inc"
-#include "com01_c.inc"
-#include "scr18_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
@@ -97,19 +93,19 @@ C----------------------------------------------------------------
 C  VARIABLES FOR FUNCTION INTERPOLATION 
 C----------------------------------------------------------------
       INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
-      my_real FINTER,FINTTE,TF(*),FINT2V
+      my_real FINTER,FINTTE,TF(*)
       EXTERNAL FINTER,FINTTE
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
-      INTEGER    I,J,K,II,NORDRE,NMAXW,JJ
+      INTEGER    I,J,K,II,NORDRE,JJ
       my_real
      .   MU(100),AL(100),S(MVSIZ,3),DD,PP,GMAX,
      .   D(MVSIZ),AV(MVSIZ,6),RBULK,EV(MVSIZ,3),
      .   EVD(MVSIZ,3),RV(MVSIZ),EVV(MVSIZ,3),
      .   DIRPRV(MVSIZ,3,3),PUI,PUI_TAB(3),LAM_AL(3)
       my_real
-     .    A(3,3),DPRA(3,3),EIGEN(3) ,AMAX ,ETI,P,EFAC
+     .    AMAX ,ETI,P
       my_real ,DIMENSION(NEL,3) :: CII
       my_real ,DIMENSION(NEL)   :: GTMAX,RKMAX  
 C----------------------------------------------------------------
@@ -128,8 +124,8 @@ cc      NU      = UPARAM(1)
 
 cc      RBULK   = TWO/D(1) + TWO*GMAX*THIRD
       RBULK   = TWO/D(1)
-C iniialisation des variabesl users 
-      IF(TIME.EQ.ZERO)THEN
+C initialization of user variables
+      IF(TIME==ZERO)THEN
        DO J = 1,NUVAR
         DO  I = 1, NEL
          UVAR(I,J) = ZERO
@@ -146,9 +142,9 @@ c       ENDIF
        AV(I,5)=EPSYZ(I)/2
        AV(I,6)=EPSZX(I)/2
       ENDDO       
-CEigenvalues needed to be calcultated in double precision
+CEigenvalues needed to be calculated in double precision
 C        for a simple precision executing
-      IF (IRESP.EQ.1) THEN
+      IF (IRESP==1) THEN
         CALL VALPVECDP_V(AV,EVV,DIRPRV,NEL)
       ELSE
        CALL VALPVEC_V(AV,EVV,DIRPRV,NEL)
@@ -157,7 +153,7 @@ C-ISMSTR=0-NO SMALL STRAIN OPTION:STRAINS ARE LOGARITHMIC, STRESS IS CAUCHY
 C-ISMSTR=1-SMALL STRAIN OPTION:STRAINS ARE ENGINEERING, STRESS IS CAUCHY
 C-ISMSTR=2-SMALL STRAIN OPTION:STRAINS ARE ENGINEERING, STRESS IS BIOT
 C-ISMSTR=3-NO SMALL STRAIN OPTION:STRESS IS BIOT
-      IF(ISMSTR.EQ.0.OR.ISMSTR.EQ.2.OR.ISMSTR.EQ.4) THEN
+      IF(ISMSTR==0.OR.ISMSTR==2.OR.ISMSTR==4) THEN
         DO I=1,NEL
 C ---- (STRAIN IS LOGARITHMIC)
          EV(I,1)=EXP(EVV(I,1))
@@ -204,7 +200,7 @@ C       EFAC=TWOP5
        ENDDO
       ENDIF
 C----------------
-C deviatorique strecth
+C DEVIATORCE Stretch
 C
       DO I=1,NEL
 C----  RV = RHO0/RHO = RELATIVE VOLUME = DET A (A = GRADIENT OF DEFORMATION)
@@ -288,22 +284,22 @@ C------max of Cii :
            ENDIF
          ENDDO
          DO II = 2,NORDRE
-		   IF (D(II)==ZERO) CYCLE
-		   PP = 2*II*(2*II-1)/D(II)
-		   JJ = 2*II - 2
+             IF (D(II)==ZERO) CYCLE
+             PP = 2*II*(2*II-1)/D(II)
+             JJ = 2*II - 2
            DO I=1,NEL
-		    IF (ABS(RV(I)- ONE)<EM20) CYCLE
+              IF (ABS(RV(I)- ONE)<EM20) CYCLE
             RKMAX(I) = RKMAX(I) + PP * (RV(I)- ONE)**JJ
            ENDDO
          ENDDO
-C------GT=3/4 Cii (factor 1/2*1/3 already inside CII)		  
+C------GT=3/4 Cii (factor 1/2*1/3 already inside CII)      
          DO I=1,NEL
            AMAX= HALF*MAX(CII(I,1),CII(I,2),CII(I,3))/GMAX
-C---------reduce old result change		   
+C---------reduce old result change       
            ETI = MAX(ONE,AMAX*0.81) 
            GTMAX(I) = GMAX*ETI 
            RKMAX(I) = MAX(RBULK,RKMAX(I))
-C---- 		   
+C----        
            ET(I)= MAX(ONE,AMAX)
          ENDDO
 C cauchy to glabale

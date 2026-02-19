@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECDAMP                       source/input/lecdamp.F        
-Chd|-- called by -----------
-Chd|        LECTUR                        source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        NGR2USR                       source/input/freform.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lecdamp        ../engine/source/input/lecdamp.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../engine/source/input/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    ngr2usr        ../engine/source/input/freform.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LECDAMP(ND, DAMPR, IGRNOD)
 C-----------------------------------------------
 C   M o d u l e s
@@ -47,13 +48,11 @@ C-----------------------------------------------
 #include      "scr07_c.inc"
 #include      "stati_c.inc"
 #include      "statr_c.inc"
-#include      "com01_c.inc"
 #include      "units_c.inc"
 #include      "com04_c.inc"
 #include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -75,10 +74,10 @@ C-----------------------------------------------
       INTEGER  NGR2USR
       EXTERNAL NGR2USR
 C-----------------------------------------------
-      IF (ND.GT.0) THEN
+      IF (ND>0) THEN
         IF (IDAMP0 == 1) THEN
-          IF (ND.GT.1) THEN
-           IF (ISPMD.EQ.0)THEN
+          IF (ND>1) THEN
+           IF (ISPMD==0)THEN
             WRITE(ISTDO,*)' ** ERROR:  INPUT ERROR IN OPTION DAMP'
             WRITE(IOUT,* )' ** ERROR:  INPUT ERROR IN OPTION DAMP'
             WRITE(IOUT,*) '    V41 FORMAT ALLOWS ONLY ONE /DAMP OPTION'
@@ -87,16 +86,16 @@ C-----------------------------------------------
           ENDIF
           DAMPA0 = 0.
           DAMPB0 = 0.
-          READ (IIN,'(I8,2E16.9,I8)') IDNEW,DAMPA0,DAMPB0,NGR
-          IF (MCHECK.EQ.0) THEN
+          READ (IIN,'(I10,2E16.9,I8)') IDNEW,DAMPA0,DAMPB0,NGR
+          IF (MCHECK==0) THEN
             IDAMPG = NGR2USR(NGR,IGRNOD,NGRNOD)
-            IF (IDAMPG.EQ.0) NGR = 0
+            IF (IDAMPG==0) NGR = 0
             DAMPA  = DAMPA0
             DAMPB  = DAMPB0
-            IF (ISPMD.EQ.0) WRITE(IOUT,2241) NGR,DAMPA,DAMPB
+            IF (ISPMD==0) WRITE(IOUT,2241) NGR,DAMPA,DAMPB
           ENDIF
-        ELSEIF (NDAMP.GT.0) THEN
-          IF (ISPMD.EQ.0) WRITE (IOUT,2000) ND
+        ELSEIF (NDAMP>0) THEN
+          IF (ISPMD==0) WRITE (IOUT,2000) ND
           DO K=1,ND
             READ (IIN,'(I10,2E20.0,2I10,E20.0)') IDNEW,DAMPA,DAMPB,NGR,
      .                                           KORTH,FACTB
@@ -104,8 +103,8 @@ c            READ (IIN,'(I10,2E20.0,2I10,2E20.0)') IDNEW,DAMPA,DAMPB,NGR,
 c     .                                           KORTH,TSTART,TSTOP
 c            FACTB = ZERO
 c            IF(TSTOP == ZERO) TSTOP = EP30
-            IF (NGR.NE.0) THEN
-             IF (ISPMD.EQ.0) THEN
+            IF (NGR/=0) THEN
+             IF (ISPMD==0) THEN
               WRITE(ISTDO,*)' ** ERROR:  INPUT ERROR IN OPTION DAMP'
               WRITE(IOUT,* )' ** ERROR:  INPUT ERROR IN OPTION DAMP'
               WRITE(IOUT,*) '            NOT A V44 FORMAT '
@@ -113,9 +112,9 @@ c            IF(TSTOP == ZERO) TSTOP = EP30
              CALL ARRET(2)
             ENDIF
             IF (FACTB == ZERO) FACTB = ONE
-            IF(KORTH.EQ.0)THEN
-              IF (ISPMD.EQ.0) WRITE (IOUT,2200) IDNEW,DAMPA,DAMPB,FACTB
-c              IF (ISPMD.EQ.0) WRITE (IOUT,2200) IDNEW,DAMPA,DAMPB,FACTB,
+            IF(KORTH==0)THEN
+              IF (ISPMD==0) WRITE (IOUT,2200) IDNEW,DAMPA,DAMPB,FACTB
+c              IF (ISPMD==0) WRITE (IOUT,2200) IDNEW,DAMPA,DAMPB,FACTB,
 c     .                                          TSTART,TSTOP
               OK=0
               IF (NDAMP == 1 .AND. IDNEW == 0) THEN
@@ -127,7 +126,7 @@ c     .                                          TSTART,TSTOP
               ELSE
                 DO L=1,NDAMP
                   ID = DAMPR(1,L)
-                  IF(ID.EQ.IDNEW) THEN
+                  IF(ID==IDNEW) THEN
                     DAMPR(3,L) = DAMPA
                     DAMPR(4,L) = DAMPB
                     DAMPR(5,L)  = DAMPA  
@@ -148,9 +147,9 @@ c                    DAMPR(18,L) = TSTOP
                 ENDDO
               ENDIF
             ELSE
-              IF(NRDAMP.LT.15)THEN
+              IF(NRDAMP<15)THEN
                IERR=IERR+1
-               IF (ISPMD.EQ.0) THEN
+               IF (ISPMD==0) THEN
                  CALL ANCMSG(MSGID=203,ANMODE=ANINFO,
      .                       I1=IDNEW)
                END IF
@@ -161,17 +160,17 @@ c                    DAMPR(18,L) = TSTOP
               READ (IIN,'(2E20.0)') DAMPARX,DAMPBRX
               READ (IIN,'(2E20.0)') DAMPARY,DAMPBRY
               READ (IIN,'(2E20.0)') DAMPARZ,DAMPBRZ
-              IF (ISPMD.EQ.0) WRITE (IOUT,2250) IDNEW,
+              IF (ISPMD==0) WRITE (IOUT,2250) IDNEW,
      .                    DAMPA,DAMPB,DAMPAY,DAMPBY,DAMPAZ,DAMPBZ,
      .            DAMPARX,DAMPBRX,DAMPARY,DAMPBRY,DAMPARZ,DAMPBRZ
-c              IF (ISPMD.EQ.0) WRITE (IOUT,2250) IDNEW,
+c              IF (ISPMD==0) WRITE (IOUT,2250) IDNEW,
 c     .                    DAMPA,DAMPB,DAMPAY,DAMPBY,DAMPAZ,DAMPBZ,
 c     .            DAMPARX,DAMPBRX,DAMPARY,DAMPBRY,DAMPARZ,DAMPBRZ,
 c     .            TSTART,TSTOP
               OK=0
               DO L=1,NDAMP
                 ID = DAMPR(1,L)
-                IF(ID.EQ.IDNEW) THEN
+                IF(ID==IDNEW) THEN
                   DAMPR(3,L)  = DAMPA
                   DAMPR(4,L)  = DAMPB
                   DAMPR(5,L)  = DAMPAY
@@ -191,9 +190,9 @@ c                  DAMPR(18,L) = TSTOP
                 ENDIF
               ENDDO
             END IF
-            IF(OK.EQ.0)THEN
+            IF(OK==0)THEN
              IERR=IERR+1
-             IF (ISPMD.EQ.0) THEN
+             IF (ISPMD==0) THEN
                CALL ANCMSG(MSGID=203,ANMODE=ANINFO,
      .                     I1=IDNEW)
              END IF
@@ -201,7 +200,7 @@ c                  DAMPR(18,L) = TSTOP
             ENDIF
           ENDDO
         ELSE
-         IF (ISPMD.EQ.0) THEN
+         IF (ISPMD==0) THEN
           CALL ANCMSG(MSGID=204,ANMODE=ANINFO)
          END IF
          CALL ARRET(2)
@@ -212,11 +211,6 @@ C
 C
  2000  FORMAT(' RAYLEIGH DAMPING'  /
      .  '  NUMBER OF NEW DAMPING PARAMETERS. . . . . . =' ,I8 /)
- 2050  FORMAT(' ** ERROR:  INPUT ERROR IN OPTION DAMP',/
-     .'    WRONG NUMBER OF DAMPING PARAMETERS FOR /DAMP/ID NUMBER:',
-     .   I10/)
- 2100  FORMAT(' ** ERROR:  INPUT ERROR IN OPTION DAMP',/
-     .        '    /DAMP/ID NUMBER:',I10,' NOT FOUND'/)
  2200  FORMAT('DAMPING ID . . . . . . . . . . . . .',I10
      .        /5X,'ALPHA. . . . . . . . . . . . . .',1PG20.13
      .        /5X,'BETA . . . . . . . . . . . . . .',1PG20.13

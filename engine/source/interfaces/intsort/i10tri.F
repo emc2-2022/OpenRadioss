@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I10TRI                        source/interfaces/intsort/i10tri.F
-Chd|-- called by -----------
-Chd|        I10BUCE                       source/interfaces/intsort/i10buce.F
-Chd|-- calls ---------------
-Chd|        I10STO                        source/interfaces/intsort/i10sto.F
-Chd|        I7DSTK                        source/interfaces/intsort/i7dstk.F
-Chd|        SPMD_OLDNUMCD                 source/mpi/interfaces/spmd_i7tool.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i10tri          ../engine/source/interfaces/intsort/i10tri.F
+!||--- called by ------------------------------------------------------
+!||    i10buce         ../engine/source/interfaces/intsort/i10buce.F
+!||--- calls      -----------------------------------------------------
+!||    i10sto          ../engine/source/interfaces/intsort/i10sto.F
+!||    i7dstk          ../engine/source/interfaces/intsort/i7dstk.F
+!||    spmd_oldnumcd   ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I10TRI(
      1      ADD   ,NSN    ,RENUM  ,NSNR     ,NRTM   ,
      2      IRECT ,X      ,XYZM   ,IGAP     ,GAP    ,
@@ -37,9 +38,10 @@ Chd|====================================================================
      4      CAND_E,NSN4   ,NOINT  ,TZINF    ,MAXBOX ,
      5      MINBOX,I_MEM  ,NB_N_B ,I_ADD_MAX,CAND_A ,
      6      ESHIFT,NSNROLD,STF    ,STFN     ,GAP_S  ,
-     7      GAP_M ,GAPMIN ,GAPMAX ,MARGE    ,NIN    )
+     7      GAP_M ,GAPMIN ,GAPMAX ,MARGE    ,NIN    ,
+     8      INTHEAT,IDT_THERM,NODADT_THERM)
 C============================================================================
-C  cette routine est appelee par : I10BUCE(/int10/i10buce.F)
+C  this routine is called by: I10BUCE(/int10/i10buce.F)
 C----------------------------------------------------------------------------
 C  cette routine appelle : I10STO(/int10/i10sto.F)
 C                          I7DSTK(/int7/i7dstk.F)
@@ -58,66 +60,60 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
-C   ROLE DE LA ROUTINE:
+C   role of the routine:
 C   ===================
-C   CLASSE LES ELETS DE BPE ET LES NOEUDS DE BPN EN TWO ZONES
-C   > OU < A UNE FRONTIERE ICI DETERMINEE ET SORT LE TOUT
-C   DANS bpe,hpe, et bpn,hpn
+C   classifies BPE elements and BPN nodes into two zones
+C   > or < to a boundary determined here and sorts everything
+C   in bpe,hpe, and bpn,hpn
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C
 C     NOM          DESCRIPTION                       E/S
 C
-C     BPE          TABLEAU DES FACETTES A TRIER      => Local
-C                  ET DU RESULTAT COTE MAX            
-C     PE           TABLEAU DES FACETTES              => Local
+C     BPE          ARRAY OF FACETTES TO SORT      => Local
+C                  and of the result on max side
+C     PE           ARRAY OF FACETTES              => Local
 C                  RESULTAT COTE MIN
-C     BPN          TABLEAU DES NOEUDS A TRIER        => Local
-C                  ET DU RESULTAT COTE MAX            
-C     PN           TABLEAU DES NOEUDS                => Local
+C     BPN          SORTED NODES ARRAY        => Local
+C                  and of the result on max side
+C     PN           NODES ARRAY => Local
 C                  RESULTAT COTE MIN
-C     ADD(2,*)     TABLEAU DES ADRESSES              E/S 
-C          1.......ADRESSES NOEUDS
-C          2.......ADRESSES ELEMENTS
-C     ZYZM(6,*)     TABLEAU DES XYZMIN               E/S 
+C     ADD(2,*)     ARRAY OF ADRESSES              E/S 
+C          1.......ADRESSES NODES C          2.......ADRESSES ELEMENTS
+C     ZYZM(6,*)     ARRAY OF XYZMIN               E/S 
 C          1.......XMIN BOITE
 C          2.......YMIN BOITE
 C          3.......ZMIN BOITE
 C          4.......XMAX BOITE
 C          5.......YMAX BOITE
 C          6.......ZMAX BOITE
-C     IRECT(4,*)   TABLEAU DES CONEC FACETTES        E
+C     IRECT(4,*)   ARRAY OF CONEC FACETTES        E
 C     X(3,*)       COORDONNEES NODALES               E
-C     NB_NC        NOMBRE DE NOEUDS CANDIDATS        => Local
-C     NB_EC        NOMBRE D'ELTS CANDIDATS           => Local
-C     I_ADD        POSITION DANS LE TAB DES ADRESSES E/S
-C     NSV          NOS SYSTEMES DES NOEUDS           E
-C     XMAX         plus grande abcisse existante     E
-C     XMAX         plus grande ordonn. existante     E
-C     XMAX         plus grande cote    existante     E
+C     NB_NC        NUMBER OF CANDIDATE NODES        => Local
+C     NB_EC        NUMBER OF CANDIDATE ELEMENTS           => Local
+C     I_ADD        position in the I/O address table
+C     NSV          NOS SYSTEMES DES NODES E
+C     Xmax larger abcisse existing e
+C     XMAX largest order.existing E
+C     Xmax larger existing side E
 C     MAXSIZ       TAILLE MEMOIRE MAX POSSIBLE       E
-C     I_STOK       niveau de stockage des couples
-C                                candidats impact    E/S
-C     ADNSTK       adresse courante dans la boite des noeuds
-C     CAND_N       boites resultats noeuds
-C     CAND_A       adresse de N dans CAND_N trie
-C     ADESTK       adresse courante dans la boite des elements
+C     I_STOK       storage level of pairs
+C                                CANDIDATES impact    E/S
+C     ADNSTK       current address in the node box
+C     CAND_N       boites resultats nodes C     CAND_A       address of N in sorted CAND_N
+C     ADESTK       current address in the element box
 C     CAND_E       adresses des boites resultat elements
-C     NSN4         4*NSN TAILLE MAX ADMISE MAINTENANT POUR LES
-C                  COUPLES NOEUDS,ELT CANDIDATS
-C     NOINT        NUMERO USER DE L'INTERFACE
+C     NSN4         4*NSN maximum size now allowed for
+C                  COUPLES NODES,ELT CANDIDATES
+C     NOINT        INTERFACE USER NUMBER
 C     TZINF        TAILLE ZONE INFLUENCE
 C     MAXBOX       TAILLE MAX BUCKET
 C     MINBOX       TAILLE MIN BUCKET
-C     PROV_N       CAND_N provisoire (variable static dans i7tri)
-C     PROV_E       CAND_E provisoire (variable static dans i7tri)
+C     Prov_n Provisional Cand_n (static variable in i7tri)
+C     PROV_E       CAND_E provisoire (variable static in i7tri)
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -125,6 +121,9 @@ C-----------------------------------------------
      .        NSN4,NB_N_B,NOINT,I_ADD_MAX,NSNR,NRTM,IGAP,
      .        ADD(2,*),IRECT(4,*),II_STOK,
      .        NSV(*),CAND_N(*),CAND_E(*),CAND_A(*),RENUM(*)
+      INTEGER, INTENT(IN) :: INTHEAT
+      INTEGER, INTENT(IN) :: IDT_THERM
+      INTEGER, INTENT(IN) :: NODADT_THERM
 C     REAL
       my_real
      .   X(3,*),XYZM(6,*),STF(*),STFN(*),GAP_S(*),GAP_M(*),
@@ -135,15 +134,15 @@ C-----------------------------------------------
       INTEGER NB_NCN,NB_NCN1,NB_ECN,ADDNN,ADDNE,I,J,DIR,NB_NC,NB_EC,
      .        N1,N2,N3,N4,NN,NE,K,L,NCAND_PROV,J_STOK,II,JJ,NIN,
      .        PROV_N(2*MVSIZ),PROV_E(2*MVSIZ),OLDNUM(NSNR),
-C BPE : utilise sur NRTM et non NRTM + 100 en toute rigueur (ici MAXSIZ = NRTM + 100)
+C BPE: Use on nrtm and not nrtm + 100 rigorously (here maxsiz = nrtm + 100)
      .        BPE(MAXSIZ/3),PE(MAXSIZ),BPN(NSN+NSNR),PN(NSN+NSNR)
 C     REAL
       my_real
-     .   DX,DY,DZ,DSUP,SEUIL,SEUILS,SEUILI, XX1, XX2, XX3, XX4,
+     .   DX,DY,DZ,DSUP,SEUIL, XX1, XX2, XX3, XX4,
      .   XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX, TZ, GAPSMX, BGAPSMX
 C-----------------------------------------------
 C
-C Phase initiale de construction de BPE et BPN deplacee de I10BUCE => I10TRI
+C initial construction phase of BPE and BPN moved from I10BUCE => I10TRI
 C
       XMIN = XYZM(1,I_ADD)
       YMIN = XYZM(2,I_ADD)
@@ -152,44 +151,44 @@ C
       YMAX = XYZM(5,I_ADD)
       ZMAX = XYZM(6,I_ADD)
 C
-C Copie des nos de segments et de noeuds dans BPE ET BPN
+C copy segment and node numbers into BPE and BPN
 C
       NB_EC = 0
       DO I=1,NRTM
-C on ne retient plus les facettes detruites
-        IF(STF(I).NE.ZERO)THEN
+C We no longer retain the Destruit facets
+        IF(STF(I)/=ZERO)THEN
           NB_EC = NB_EC + 1
           BPE(NB_EC) = I
         END IF
       ENDDO
 C
-C Optimisation // recherche les noeuds compris dans xmin xmax des 
-C elements du processeur
+C optimization // search for nodes within xmin xmax of
+C processor elements
 C
       NB_NC = 0
       DO I=1,NSN
        J=NSV(I)
-       IF(STFN(I).NE.ZERO) THEN
-        IF(X(1,J).GE.XMIN.AND.X(1,J).LE.XMAX.AND.
-     .     X(2,J).GE.YMIN.AND.X(2,J).LE.YMAX.AND.
-     .     X(3,J).GE.ZMIN.AND.X(3,J).LE.ZMAX)THEN
+       IF(STFN(I)/=ZERO) THEN
+        IF(X(1,J)>=XMIN.AND.X(1,J)<=XMAX.AND.
+     .     X(2,J)>=YMIN.AND.X(2,J)<=YMAX.AND.
+     .     X(3,J)>=ZMIN.AND.X(3,J)<=ZMAX)THEN
           NB_NC = NB_NC + 1
           BPN(NB_NC) = I
         ENDIF
        END IF
       ENDDO
 C
-C Prise en compte candidats non locaux en SPMD
+C Non -local candidate account in SPMD
 C
       DO I = NSN+1, NSN+NSNR
         NB_NC = NB_NC + 1
         BPN(NB_NC) = I
       ENDDO
 C
-C En SPMD, retrouve ancienne numerotation des candidats non locaux
+C In SPMD, finds former number of non -local candidates
 C
-      IF(NSPMD.GT.1) THEN
-        CALL SPMD_OLDNUMCD(RENUM,OLDNUM,NSNR,NSNROLD)
+      IF(NSPMD>1) THEN
+        CALL SPMD_OLDNUMCD(RENUM,OLDNUM,NSNR,NSNROLD,INTHEAT,IDT_THERM,NODADT_THERM)
       END IF
 C
       J_STOK = 0
@@ -200,7 +199,7 @@ C=======================================================================
 C-----------------------------------------------------------
 C
 C
-C    1- PHASE DE TRI SUR LA MEDIANE SELON LA + GDE DIRECTION
+C    1- sorting phase on the median along the largest direction
 C                    
 C                   
 C-----------------------------------------------------------
@@ -209,32 +208,31 @@ C
 C    1- DETERMINER LA DIRECTION A DIVISER X,Y OU Z
 C
       DIR = 1
-      IF(DY.EQ.DSUP) THEN
+      IF(DY==DSUP) THEN
         DIR = 2
-      ELSE IF(DZ.EQ.DSUP) THEN
+      ELSE IF(DZ==DSUP) THEN
         DIR = 3
       ENDIF
       SEUIL =(XYZM(DIR+3,I_ADD)+XYZM(DIR,I_ADD))*0.5
 C
-C    2- DIVISER LES NOEUDS EN TWO ZONES 
+C    2- DIVISER LES NODES EN TWO ZONES 
 C
       NB_NCN= 0
       NB_NCN1= 0
       ADDNN= ADD(1,I_ADD)
-      IF(IGAP.EQ.0)THEN
-#include "vectorize.inc"
+      IF(IGAP==0)THEN
         DO I=1,NB_NC
          J = BPN(I)
-         IF(J.LE.NSN) THEN
-          IF(X(DIR,NSV(J)).LT.SEUIL) THEN
-C           ON STOCKE DANS LE BAS DE LA PILE BP
+         IF(J<=NSN) THEN
+          IF(X(DIR,NSV(J))<SEUIL) THEN
+C           store at the bottom of the bp stack
             NB_NCN1 = NB_NCN1 + 1
             ADDNN = ADDNN + 1
             PN(ADDNN) = J
           ENDIF
          ELSE
-          IF(XREM(DIR,J-NSN).LT.SEUIL) THEN
-C           ON STOCKE DANS LE BAS DE LA PILE BP
+          IF(XREM(DIR,J-NSN)<SEUIL) THEN
+C           store at the bottom of the bp stack
             NB_NCN1 = NB_NCN1 + 1
             ADDNN = ADDNN + 1
             PN(ADDNN) = J
@@ -242,17 +240,16 @@ C           ON STOCKE DANS LE BAS DE LA PILE BP
          ENDIF
         ENDDO
 C
-#include "vectorize.inc"
         DO I=1,NB_NC
          J = BPN(I)
-         IF(J.LE.NSN) THEN
-          IF(X(DIR,NSV(J)).GE.SEUIL) THEN
+         IF(J<=NSN) THEN
+          IF(X(DIR,NSV(J))>=SEUIL) THEN
 C           ON STOCKE EN ECRASANT PROGRESSIVEMENT BPN
             NB_NCN = NB_NCN + 1
             BPN(NB_NCN) = J
           ENDIF
          ELSE
-          IF(XREM(DIR,J-NSN).GE.SEUIL) THEN
+          IF(XREM(DIR,J-NSN)>=SEUIL) THEN
 C           ON STOCKE EN ECRASANT PROGRESSIVEMENT BPN
             NB_NCN = NB_NCN + 1
             BPN(NB_NCN) = J
@@ -261,20 +258,19 @@ C           ON STOCKE EN ECRASANT PROGRESSIVEMENT BPN
         ENDDO
       ELSE
         GAPSMX = ZERO
-#include "vectorize.inc"
         DO I=1,NB_NC
          J = BPN(I)
-         IF(J.LE.NSN) THEN
-          IF(X(DIR,NSV(J)).LT.SEUIL) THEN
-C           ON STOCKE DANS LE BAS DE LA PILE BP
+         IF(J<=NSN) THEN
+          IF(X(DIR,NSV(J))<SEUIL) THEN
+C           store at the bottom of the bp stack
             NB_NCN1 = NB_NCN1 + 1
             ADDNN = ADDNN + 1
             PN(ADDNN) = J
             GAPSMX = MAX(GAPSMX,GAP_S(J))
           ENDIF
          ELSE
-          IF(XREM(DIR,J-NSN).LT.SEUIL) THEN
-C           ON STOCKE DANS LE BAS DE LA PILE BP
+          IF(XREM(DIR,J-NSN)<SEUIL) THEN
+C           store at the bottom of the bp stack
             NB_NCN1 = NB_NCN1 + 1
             ADDNN = ADDNN + 1
             PN(ADDNN) = J
@@ -284,18 +280,17 @@ C           ON STOCKE DANS LE BAS DE LA PILE BP
         ENDDO
 C
         BGAPSMX = ZERO
-#include "vectorize.inc"
         DO I=1,NB_NC
          J = BPN(I)
-         IF(J.LE.NSN) THEN
-          IF(X(DIR,NSV(J)).GE.SEUIL) THEN
+         IF(J<=NSN) THEN
+          IF(X(DIR,NSV(J))>=SEUIL) THEN
 C           ON STOCKE EN ECRASANT PROGRESSIVEMENT BPN
             NB_NCN = NB_NCN + 1
             BPN(NB_NCN) = J
             BGAPSMX = MAX(BGAPSMX,GAP_S(J))
           ENDIF
          ELSE
-          IF(XREM(DIR,J-NSN).GE.SEUIL) THEN
+          IF(XREM(DIR,J-NSN)>=SEUIL) THEN
 C           ON STOCKE EN ECRASANT PROGRESSIVEMENT BPN
             NB_NCN = NB_NCN + 1
             BPN(NB_NCN) = J
@@ -305,13 +300,12 @@ C           ON STOCKE EN ECRASANT PROGRESSIVEMENT BPN
         ENDDO
       END IF
 C
-C    3- DIVISER LES ELEMENTS
+C    3- divide the elements
 C
-      IF(IGAP.EQ.0) THEN
+      IF(IGAP==0) THEN
        NB_ECN= 0
        ADDNE= ADD(2,I_ADD)
-       IF(NB_NCN1.EQ.0) THEN
-#include "vectorize.inc"
+       IF(NB_NCN1==0) THEN
         DO I=1,NB_EC
          NE = BPE(I)
          XX1=X(DIR, IRECT(1,NE))
@@ -319,14 +313,13 @@ C
          XX3=X(DIR, IRECT(3,NE))
          XX4=X(DIR, IRECT(4,NE))
          XMAX=MAX(XX1,XX2,XX3,XX4)+TZINF
-         IF(XMAX.GE.SEUIL) THEN
+         IF(XMAX>=SEUIL) THEN
 C         ON STOCKE EN ECRASANT PROGRESSIVEMENT BPE
           NB_ECN = NB_ECN + 1
           BPE(NB_ECN) = NE
          ENDIF
         ENDDO
-       ELSEIF(NB_NCN.EQ.0) THEN
-#include "vectorize.inc"
+       ELSEIF(NB_NCN==0) THEN
         DO I=1,NB_EC
          NE = BPE(I)
          XX1=X(DIR, IRECT(1,NE))
@@ -334,14 +327,13 @@ C         ON STOCKE EN ECRASANT PROGRESSIVEMENT BPE
          XX3=X(DIR, IRECT(3,NE))
          XX4=X(DIR, IRECT(4,NE))
          XMIN=MIN(XX1,XX2,XX3,XX4)-TZINF
-         IF(XMIN.LT.SEUIL) THEN
-C         ON STOCKE DANS LE BAS DE LA PILE BP
+         IF(XMIN<SEUIL) THEN
+C         store at the bottom of the bp stack
           ADDNE = ADDNE + 1
           PE(ADDNE) = NE
          ENDIF
         ENDDO
        ELSE
-#include "vectorize.inc"
         DO I=1,NB_EC
          NE = BPE(I)
          XX1=X(DIR, IRECT(1,NE))
@@ -349,13 +341,12 @@ C         ON STOCKE DANS LE BAS DE LA PILE BP
          XX3=X(DIR, IRECT(3,NE))
          XX4=X(DIR, IRECT(4,NE))
          XMIN=MIN(XX1,XX2,XX3,XX4)-TZINF
-         IF(XMIN.LT.SEUIL) THEN
-C         ON STOCKE DANS LE BAS DE LA PILE BP
+         IF(XMIN<SEUIL) THEN
+C         store at the bottom of the bp stack
           ADDNE = ADDNE + 1
           PE(ADDNE) = NE
          ENDIF
         ENDDO
-#include "vectorize.inc"
         DO I=1,NB_EC
          NE = BPE(I)
          XX1=X(DIR, IRECT(1,NE))
@@ -363,7 +354,7 @@ C         ON STOCKE DANS LE BAS DE LA PILE BP
          XX3=X(DIR, IRECT(3,NE))
          XX4=X(DIR, IRECT(4,NE))
          XMAX=MAX(XX1,XX2,XX3,XX4)+TZINF
-         IF(XMAX.GE.SEUIL) THEN
+         IF(XMAX>=SEUIL) THEN
 C         ON STOCKE EN ECRASANT PROGRESSIVEMENT BPE
           NB_ECN = NB_ECN + 1
           BPE(NB_ECN) = NE
@@ -374,8 +365,7 @@ C Optimisation gap variable
       ELSE
        NB_ECN= 0
        ADDNE= ADD(2,I_ADD)
-       IF(NB_NCN1.EQ.0) THEN
-#include "vectorize.inc"
+       IF(NB_NCN1==0) THEN
         DO I=1,NB_EC
          NE = BPE(I)
          XX1=X(DIR, IRECT(1,NE))
@@ -384,14 +374,13 @@ C Optimisation gap variable
          XX4=X(DIR, IRECT(4,NE))
          XMAX=MAX(XX1,XX2,XX3,XX4)
      +       +MIN(MAX(BGAPSMX+GAP_M(NE),GAPMIN),GAPMAX)+MARGE
-         IF(XMAX.GE.SEUIL) THEN
+         IF(XMAX>=SEUIL) THEN
 C         ON STOCKE EN ECRASANT PROGRESSIVEMENT BPE
           NB_ECN = NB_ECN + 1
           BPE(NB_ECN) = NE
          ENDIF
         ENDDO
-       ELSEIF(NB_NCN.EQ.0) THEN
-#include "vectorize.inc"
+       ELSEIF(NB_NCN==0) THEN
         DO I=1,NB_EC
          NE = BPE(I)
          XX1=X(DIR, IRECT(1,NE))
@@ -400,14 +389,13 @@ C         ON STOCKE EN ECRASANT PROGRESSIVEMENT BPE
          XX4=X(DIR, IRECT(4,NE))
          XMIN=MIN(XX1,XX2,XX3,XX4)
      -       -MIN(MAX(GAPSMX+GAP_M(NE),GAPMIN),GAPMAX)-MARGE
-         IF(XMIN.LT.SEUIL) THEN
-C         ON STOCKE DANS LE BAS DE LA PILE BP
+         IF(XMIN<SEUIL) THEN
+C         store at the bottom of the bp stack
           ADDNE = ADDNE + 1
           PE(ADDNE) = NE
          ENDIF
         ENDDO
        ELSE
-#include "vectorize.inc"
         DO I=1,NB_EC
          NE = BPE(I)
          XX1=X(DIR, IRECT(1,NE))
@@ -416,13 +404,12 @@ C         ON STOCKE DANS LE BAS DE LA PILE BP
          XX4=X(DIR, IRECT(4,NE))
          XMIN=MIN(XX1,XX2,XX3,XX4)
      -       -MIN(MAX(GAPSMX+GAP_M(NE),GAPMIN),GAPMAX)-MARGE
-         IF(XMIN.LT.SEUIL) THEN
-C         ON STOCKE DANS LE BAS DE LA PILE BP
+         IF(XMIN<SEUIL) THEN
+C         store at the bottom of the bp stack
           ADDNE = ADDNE + 1
           PE(ADDNE) = NE
          ENDIF
         ENDDO
-#include "vectorize.inc"
         DO I=1,NB_EC
          NE = BPE(I)
          XX1=X(DIR, IRECT(1,NE))
@@ -431,7 +418,7 @@ C         ON STOCKE DANS LE BAS DE LA PILE BP
          XX4=X(DIR, IRECT(4,NE))
          XMAX=MAX(XX1,XX2,XX3,XX4)
      +       +MIN(MAX(BGAPSMX+GAP_M(NE),GAPMIN),GAPMAX)+MARGE
-         IF(XMAX.GE.SEUIL) THEN
+         IF(XMAX>=SEUIL) THEN
 C         ON STOCKE EN ECRASANT PROGRESSIVEMENT BPE
           NB_ECN = NB_ECN + 1
           BPE(NB_ECN) = NE
@@ -444,12 +431,12 @@ C    4- REMPLIR LES TABLEAUX D'ADRESSES
 C
       ADD(1,I_ADD+1) = ADDNN
       ADD(2,I_ADD+1) = ADDNE
-C-----on remplit les min de la boite suivante et les max de la courante
-C     (i.e. seuil est un max pour la courante)
-C     on va redescendre et donc on definit une nouvelle boite
-C     on remplit les max de la nouvelle boite
-C     initialises dans i7buc1 a 1.E30 comme ca on recupere
-c     soit XMAX soit le max de la boite
+C-----fill the min of the next box and the max of the current one
+C     (i.e. threshold is a max for the current one)
+C     We're going to go down and so we define a new box
+C     fill the max of the new box
+C     initialises in i7buc1 a 1.E30 comme ca on recupere
+c     either xmax or the max of the box
       XYZM(1,I_ADD+1) = XYZM(1,I_ADD) 
       XYZM(2,I_ADD+1) = XYZM(2,I_ADD)
       XYZM(3,I_ADD+1) = XYZM(3,I_ADD)
@@ -461,9 +448,9 @@ c     soit XMAX soit le max de la boite
 C
       NB_NC = NB_NCN
       NB_EC = NB_ECN
-C     on incremente le niveau de descente avant de sortir
+C     increment the descent level before exiting
       I_ADD = I_ADD + 1
-      IF(I_ADD+1.GE.I_ADD_MAX) THEN
+      IF(I_ADD+1>=I_ADD_MAX) THEN
         I_MEM = 3
         RETURN
       ENDIF
@@ -476,41 +463,40 @@ C
 C
 C    2- TEST ARRET = BOITE VIDE
 C                    BOITE TROP PETITE 
-C                    BOITE NE CONTENANT QU'ONE NOEUD
-C                    PLUS DE MEMOIRE DISPONIBLE
+C                    BOITE NE CONTENANT QU'ONE NODE C                    No More Memory Available
 C
 C-----------------------------------------------------------
 C
-C-------------------TEST SUR MEMOIRE DEPASSEE------------
+C-------------------test for exceeded memory------------
 C
-      IF(ADD(2,I_ADD)+NB_EC.GT.MAXSIZ) THEN
-C       PLUS DE PLACE DANS LA PILE DES ELEMENTS BOITES TROP PETITES
+      IF(ADD(2,I_ADD)+NB_EC>MAXSIZ) THEN
+C       no more space in the stack of elements boxes too small
         I_MEM = 1
         RETURN
       ENDIF
 C
-C--------------------TEST SUR BOITE VIDES-------------- 
+C--------------------test for empty boxes--------------
 C
-      IF(NB_EC.NE.0.AND.NB_NC.NE.0) THEN
+      IF(NB_EC/=0.AND.NB_NC/=0) THEN
 C
         DX = XYZM(4,I_ADD) - XYZM(1,I_ADD)
         DY = XYZM(5,I_ADD) - XYZM(2,I_ADD)
         DZ = XYZM(6,I_ADD) - XYZM(3,I_ADD)
         DSUP= MAX(DX,DY,DZ)
 C
-C-------------------TEST SUR FIN DE BRANCHE ------------
-C       1- STOCKAGE DU OU DES  NOEUD CANDIDAT ET DES ELTS CORRESP.
-C       VIRER LES INUTILES
+C-------------------test for end of branch ------------
+C       1- storage of candidate node(s) and corresponding elements
+C       remove the useless ones
 C
-        IF(NB_EC+NB_NC.LE.128) THEN
+        IF(NB_EC+NB_NC<=128) THEN
           NCAND_PROV = NB_EC*NB_NC
         ELSE
           NCAND_PROV = 129
         ENDIF
-        IF(DSUP.LT.MINBOX.OR.NB_NC.LE.NB_N_B.OR.NCAND_PROV.LE.128) THEN
+        IF(DSUP<MINBOX.OR.NB_NC<=NB_N_B.OR.NCAND_PROV<=128) THEN
           NCAND_PROV = NB_EC*NB_NC
           DO K=1,NCAND_PROV,NVSIZ
-           IF(IGAP.EQ.0) THEN
+           IF(IGAP==0) THEN
              DO L=K,MIN(K-1+NVSIZ,NCAND_PROV)
               I = 1+(L-1)/NB_NC
               J = L-(I-1)*NB_NC
@@ -541,24 +527,24 @@ C
               ZMIN=MIN(XX1,XX2,XX3,XX4)-TZINF
 C
               JJ = BPN(J)
-              IF(JJ.LE.NSN) THEN
+              IF(JJ<=NSN) THEN
                NN=NSV(JJ)
-               IF(NN.NE.N1.AND.NN.NE.N2.AND.NN.NE.N3.AND.NN.NE.N4.AND.
-     &           X(1,NN).GT.XMIN.AND.X(1,NN).LT.XMAX.AND.
-     &           X(2,NN).GT.YMIN.AND.X(2,NN).LT.YMAX.AND.
-     &           X(3,NN).GT.ZMIN.AND.X(3,NN).LT.ZMAX ) THEN
+               IF(NN/=N1.AND.NN/=N2.AND.NN/=N3.AND.NN/=N4.AND.
+     &           X(1,NN)>XMIN.AND.X(1,NN)<XMAX.AND.
+     &           X(2,NN)>YMIN.AND.X(2,NN)<YMAX.AND.
+     &           X(3,NN)>ZMIN.AND.X(3,NN)<ZMAX ) THEN
                 J_STOK = J_STOK + 1
                 PROV_N(J_STOK) = JJ
                 PROV_E(J_STOK) = NE
                ENDIF
               ELSE
                II = JJ-NSN
-               IF(XREM(1,II).GT.XMIN.AND.
-     &            XREM(1,II).LT.XMAX.AND.
-     &            XREM(2,II).GT.YMIN.AND.
-     &            XREM(2,II).LT.YMAX.AND.
-     &            XREM(3,II).GT.ZMIN.AND.
-     &            XREM(3,II).LT.ZMAX ) THEN
+               IF(XREM(1,II)>XMIN.AND.
+     &            XREM(1,II)<XMAX.AND.
+     &            XREM(2,II)>YMIN.AND.
+     &            XREM(2,II)<YMAX.AND.
+     &            XREM(3,II)>ZMIN.AND.
+     &            XREM(3,II)<ZMAX ) THEN
                 J_STOK = J_STOK + 1
                 PROV_N(J_STOK) = JJ
                 PROV_E(J_STOK) = NE
@@ -577,7 +563,7 @@ C
               N4=IRECT(4,NE)
 C
               JJ = BPN(J)
-              IF(JJ.LE.NSN) THEN
+              IF(JJ<=NSN) THEN
                 TZ=MAX(MIN(GAP_S(JJ)+GAP_M(NE),GAPMAX),GAPMIN)+MARGE
                 XX1=X(1, N1)
                 XX2=X(1, N2)
@@ -598,10 +584,10 @@ C
                 ZMAX=MAX(XX1,XX2,XX3,XX4)+TZ
                 ZMIN=MIN(XX1,XX2,XX3,XX4)-TZ
                 NN=NSV(JJ)
-                IF(NN.NE.N1.AND.NN.NE.N2.AND.NN.NE.N3.AND.NN.NE.N4.AND.
-     &             X(1,NN).GT.XMIN.AND.X(1,NN).LT.XMAX.AND.
-     &             X(2,NN).GT.YMIN.AND.X(2,NN).LT.YMAX.AND.
-     &             X(3,NN).GT.ZMIN.AND.X(3,NN).LT.ZMAX ) THEN
+                IF(NN/=N1.AND.NN/=N2.AND.NN/=N3.AND.NN/=N4.AND.
+     &             X(1,NN)>XMIN.AND.X(1,NN)<XMAX.AND.
+     &             X(2,NN)>YMIN.AND.X(2,NN)<YMAX.AND.
+     &             X(3,NN)>ZMIN.AND.X(3,NN)<ZMAX ) THEN
                   J_STOK = J_STOK + 1
                   PROV_N(J_STOK) = JJ
                   PROV_E(J_STOK) = NE
@@ -628,12 +614,12 @@ C
                 XX4=X(3, N4)
                 ZMAX=MAX(XX1,XX2,XX3,XX4)+TZ
                 ZMIN=MIN(XX1,XX2,XX3,XX4)-TZ
-                IF(XREM(1,II).GT.XMIN.AND.
-     &             XREM(1,II).LT.XMAX.AND.
-     &             XREM(2,II).GT.YMIN.AND.
-     &             XREM(2,II).LT.YMAX.AND.
-     &             XREM(3,II).GT.ZMIN.AND.
-     &             XREM(3,II).LT.ZMAX ) THEN
+                IF(XREM(1,II)>XMIN.AND.
+     &             XREM(1,II)<XMAX.AND.
+     &             XREM(2,II)>YMIN.AND.
+     &             XREM(2,II)<YMAX.AND.
+     &             XREM(3,II)>ZMIN.AND.
+     &             XREM(3,II)<ZMAX ) THEN
                   J_STOK = J_STOK + 1
                   PROV_N(J_STOK) = JJ
                   PROV_E(J_STOK) = NE
@@ -641,14 +627,14 @@ C
               ENDIF
              ENDDO
            END IF
-           IF(J_STOK.GE.NVSIZ) THEN
+           IF(J_STOK>=NVSIZ) THEN
               CALL I10STO(
      1              NVSIZ ,IRECT ,X      ,NSV   ,II_STOK,
      2              CAND_N,CAND_E,NSN4   ,NOINT ,MARGE  ,
      3              I_MEM ,PROV_N,PROV_E ,CAND_A,ESHIFT ,
      4              NSN   ,OLDNUM,NSNROLD,IGAP  ,GAP    ,
      6              GAP_S ,GAP_M ,GAPMIN ,GAPMAX,NIN    )
-              IF(I_MEM.EQ.2)RETURN
+              IF(I_MEM==2)RETURN
               J_STOK = J_STOK-NVSIZ
 #include "vectorize.inc"
               DO J=1,J_STOK
@@ -664,15 +650,15 @@ C=======================================================================
         ENDIF
       ENDIF
 C-------------------------------------------------------------------------
-C     BOITE VIDE OU
-C     FIN DE BRANCHE
-C     on decremente le niveau de descente avant de recommencer
+C     empty box or
+C     end of branch
+C     decrement the descent level before restarting
 C-------------------------------------------------------------------------
       I_ADD = I_ADD - 1
-      IF (I_ADD.NE.0) THEN
+      IF (I_ADD/=0) THEN
 C=======================================================================
-C         IL FAUT COPIER LES BAS DES PILES DANS BAS_DE_PILE CORRESPONDANTS
-C         AVANT DE REDESCENDRE DANS LA BRANCHE MITOYENNE
+C         need to copy the stack bottoms into corresponding stack_bottom
+C         before going back down into the adjacent branch
 C=======================================================================
           CALL I7DSTK(NB_NC,NB_EC,ADD(1,I_ADD),BPN,PN,BPE,PE)
 C=======================================================================
@@ -680,9 +666,9 @@ C=======================================================================
 C=======================================================================
       ENDIF
 C=======================================================================
-C     FIN DU TRI
+C     end of sorting
 C=============================================      
-      IF(J_STOK.NE.0)CALL I10STO(
+      IF(J_STOK/=0)CALL I10STO(
      1              J_STOK,IRECT ,X      ,NSV   ,II_STOK,
      2              CAND_N,CAND_E,NSN4   ,NOINT ,MARGE  ,
      3              I_MEM ,PROV_N,PROV_E ,CAND_A,ESHIFT ,

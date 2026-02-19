@@ -1,53 +1,67 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  HM_READ_INIVEL                source/initial_conditions/general/inivel/hm_read_inivel.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_INIVEL(V         ,W      ,ITAB     ,ITABM1 ,VR       ,
-     .                  IGRNOD    ,IGRBRIC,ISKN     ,SKEW   ,INIVIDS  ,
-     .                  X         ,UNITAB ,LSUBMODEL,RTRANS ,XFRAME   ,
-     .                  IFRAME    ,VFLOW  ,WFLOW    ,KXSP   ,MULTI_FVM,
-     .                  FVM_INIVEL,IGRQUAD,IGRSH3N  ,RBY_MSN,RBY_INIAXIS)
+!||====================================================================
+!||    hm_read_inivel             ../starter/source/initial_conditions/general/inivel/hm_read_inivel.F
+!||--- called by ------------------------------------------------------
+!||    lectur                     ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    freerr                     ../starter/source/starter/freform.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string              ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_count            ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_read_key         ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start            ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    subrotvect                 ../starter/source/model/submodel/subrot.F
+!||    udouble                    ../starter/source/system/sysfus.F
+!||    usr2sys                    ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_INIVEL(V         , W      , ITAB     , ITABM1 , VR         ,
+     .                          IGRNOD    , IGRBRIC, ISKN     , SKEW   , INIVIDS    ,
+     .                          X         , UNITAB , LSUBMODEL, RTRANS , XFRAME     ,
+     .                          IFRAME    , VFLOW  , WFLOW    , KXSP   , MULTI_FVM  ,
+     .                          FVM_INIVEL, IGRQUAD, IGRSH3N  , RBY_MSN, RBY_INIAXIS,
+     .                          SENSORS   ,NINIVELT,INIVEL_T )
+C-----------------------------------------------
+C   D e s c r i p t i o n
+C-----------------------------------------------
+C INITIAL VELOCITY READER (OPTIONS : /INIVEL/...)
+C
+C  /INIVEL/TRA       ITYPE=0
+C  /INIVEL/ROT       ITYPE=1
+C  /INIVEL/T+G       ITYPE=2
+C  /INIVEL/GRID      ITYPE=3
+C  /INIVEL/AXIS      ITYPE=4
+C  /INIVEL/FVM       ITYPE=5
+C  /INIVEL/NODE      ITYPE=6
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -57,6 +71,9 @@ C-----------------------------------------------
       USE MULTI_FVM_MOD
       USE GROUPDEF_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY, NCHARFIELD
+      USE SENSOR_MOD
+      USE INIVEL_MOD 
 C----------------------------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -64,28 +81,25 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
 #include      "scr03_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 #include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
-      INTEGER ITAB(*), ITABM1(*),ISKN(LISKN,*),
-     .        INIVIDS(*),IFRAME(LISKN,*),KXSP(NISP,*),RBY_MSN(2,*)
+      INTEGER ,INTENT(IN) :: NINIVELT
+      TYPE (UNIT_TYPE_),INTENT(IN) :: UNITAB
+      INTEGER :: ITAB(*), ITABM1(*),ISKN(LISKN,*),INIVIDS(*),IFRAME(LISKN,*),KXSP(NISP,*),RBY_MSN(2,*)
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
-      my_real
-     .   V(3,*),W(3,*),VR(3,*),SKEW(LSKEW,*),BID,X(3,*),
-     .   RTRANS(NTRANSF,*),XFRAME(NXFRAME,*),VFLOW(3,*) ,WFLOW(3,*),
-     .   RBY_INIAXIS(7,*)
+      my_real :: V(3,*),W(3,*),VR(3,*),SKEW(LSKEW,*),X(3,*),RTRANS(NTRANSF,*),XFRAME(NXFRAME,*),VFLOW(3,*) ,WFLOW(3,*)
+      my_real :: RBY_INIAXIS(7,*)
       TYPE(MULTI_FVM_STRUCT) :: MULTI_FVM
       TYPE(FVM_INIVEL_STRUCT), INTENT(INOUT) :: FVM_INIVEL(*)
+      TYPE (SENSORS_) ,INTENT(IN) :: SENSORS
+      TYPE(INIVEL_), DIMENSION(NINIVELT), INTENT(INOUT) :: INIVEL_T
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD)  :: IGRNOD
       TYPE (GROUP_)  , DIMENSION(NGRBRIC) :: IGRBRIC
@@ -94,167 +108,237 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,N,NRB,KPRI,KROT,NNOD,NOSYS,ITYPE,ID,ISK,IGR,IGRS,NBVEL,
-     .        UID,IFLAGUNIT,NODID,NODID1,SUB_INDEX,IDIR,
-     .        IDGRBRICK, IDGRQUAD, IDGRSH3N, IDGRBRICK_LOC, IDGRQUAD_LOC, IDGRSH3N_LOC,
-     .        IAD1, IAD2,NODE,NL,JREC,NOD_COUNT,IAD,NODINIVEL,CPT,XYZSIZE
-      INTEGER FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,IFRA,IFM,IUN,JJ,K1,K2,K3,INOD,NB_NODES,
-     .        ID_NODE,IOK
+      INTEGER :: I,J,K,N,NRB,KPRI,KROT,NNOD,NOSYS,ITYPE,ID,ISK,IGR,IGRS,NBVEL
+      INTEGER :: USER_UNIT_ID,SUB_INDEX,IDIR,SENS_ID,NINIT,SENSID
+      INTEGER :: IDGRBRICK, IDGRQUAD, IDGRTRIA, IDGRBRICK_LOC, IDGRQUAD_LOC, IDGRTRIA_LOC
+      INTEGER :: NOD_COUNT,NODINIVEL,CPT,SUB_ID
+      INTEGER :: IFRA,IFM,IUN,K1,K2,K3,INOD,NB_NODES, ID_NODE,IOK
+      INTEGER :: NINIVEL_FVM,NINIVEL_TOTAL
+      INTEGER :: FVM_GRBRIC_USER_ID(NINVEL), FVM_GRQUAD_USER_ID(NINVEL), FVM_GRTRIA_USER_ID(NINVEL) ! printout only
       INTEGER, DIMENSION(:), ALLOCATABLE :: TAGNO_RBY
-      my_real
-     .   V1, V2, V3, V4, V5, V6, VL1, VL2, VL3,VRA, OX, OY, OZ,
-     .   NIXJ(6),VR1,VR2,VR3,VRL1,VRL2,VRL3
-      LOGICAL LV,LVR
-      CHARACTER MESS*40,LLINE*ncharline,TITR*nchartitle,KEY*ncharkey,
-     .          XYZ*ncharfield
-      LOGICAL IS_AVAILABLE
+      my_real :: V1, V2, V3, V4, V5, V6, VL1, VL2, VL3,VRA, OX, OY, OZ, NIXJ(6),VR1,VR2,VR3,BID
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY) :: KEY
+      CHARACTER(LEN=NCHARFIELD) ::XYZ
+      CHARACTER*16 :: LABEL
+      LOGICAL IS_AVAILABLE, IS_FOUND_UNIT_ID, IS_FOUND
+      my_real :: TSTART
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER USR2SYS, USRTOS, KFRAME
+      INTEGER,EXTERNAL :: USR2SYS
       DATA MESS/'INITIAL VELOCITIES DEFINITION           '/
       DATA IUN/1/
-C=======================================================================
+C-----------------------------------------------
+C   S o u r c e   L i n e s
+C-----------------------------------------------
       IS_AVAILABLE = .FALSE.
-      FLAG_FMT = 0
       NBVEL = 0
-      ISK   = 0
-      IFRA  = 0
-      IFM   = 0
-      K1    = 0
-      K2    = 0
-      K3    = 0
-      IDIR  = 0
-C--------------------------------------------------
-C     V INI DANS FICHIER D00 ou 0.RAD
-C--------------------------------------------------
-!---
-!     KEY = 'NODE', temporary velocity table allocation
-!
-!  start count
-      NOD_COUNT = 0
+      ISK = 0
+      IFRA = 0
+      IFM = 0
+      K1 = 0
+      K2 = 0
+      K3 = 0
+      IDIR = 0
       KROT = 0
+      NOD_COUNT = 0
+      IDGRBRICK_LOC = 0
+      IDGRQUAD_LOC  = 0
+      IDGRTRIA_LOC  = 0
+
+      CALL HM_OPTION_COUNT('/INIVEL'    , NINIVEL_TOTAL)
+      CALL HM_OPTION_COUNT('/INIVEL/FVM', NINIVEL_FVM)
 C--------------------------------------------------
-C START BROWSING MODEL PROPERTIES
+C LOOP OVER /INIVEL/... OPTIONS IN INPUT FILE
 C--------------------------------------------------
       CALL HM_OPTION_START('/INIVEL')
       I = 0 
+      NINIT = 0 ! number  of /INIVEL w/ tstart
 
       DO CPT=1,HM_NINVEL
         I = I + 1
-C--------------------------------------------------
-C EXTRACT DATAS OF /INIVEL/... LINE
-C--------------------------------------------------
-        CALL HM_OPTION_READ_KEY(LSUBMODEL,
-     .                       OPTION_ID = ID,
-     .                       UNIT_ID = UID,
-     .                       SUBMODEL_INDEX = SUB_INDEX,
-     .                       OPTION_TITR = TITR,
-     .                       KEYWORD2 = KEY)
-C
-        IFLAGUNIT = 0
-        DO J=1,NUNITS
-          IF (UNITAB%UNIT_ID(J) == UID) THEN
-            IFLAGUNIT = 1
+        !---SET CURSOR ON NEXT INIVEL OPTION
+        CALL HM_OPTION_READ_KEY(LSUBMODEL,OPTION_ID = ID,UNIT_ID = USER_UNIT_ID,SUBMODEL_INDEX = SUB_INDEX,
+     .                          SUBMODEL_ID = SUB_ID,OPTION_TITR = TITR,KEYWORD2 = KEY)
+
+        !---CHECK EXISTING UNIT ID IF PROVIDED
+        IS_FOUND_UNIT_ID = .FALSE.
+        DO J=1,UNITAB%NUNITS
+          IF (UNITAB%UNIT_ID(J) == USER_UNIT_ID) THEN
+            IS_FOUND_UNIT_ID = .TRUE.
             EXIT
           ENDIF
         ENDDO
-        IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+        IF (USER_UNIT_ID /= 0 .AND. .NOT.IS_FOUND_UNIT_ID) THEN
           CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,
-     .                I2=UID,I1=ID,C1='INITIAL VELOCITY',
-     .                 C2='INITIAL VELOCITY',
-     .                 C3=TITR) 
+     .                 I2=USER_UNIT_ID,I1=ID,C1='INITIAL VELOCITY',C2='INITIAL VELOCITY',C3=TITR) 
         ENDIF
 
+        !---SET ITYPE DEPENDING ON USER KEYWORD
         FVM_INIVEL(I)%FLAG = .FALSE.
-C
-        IF(KEY(1:3).EQ.'TRA')THEN
+        TSTART = ZERO
+        SENS_ID = 0
+        LABEL='/INIVEL'
+        IF(KEY(1:3)=='TRA')THEN
           ITYPE=0
-        ELSEIF(KEY(1:3).EQ.'ROT')THEN
+          LABEL='/INIVEL/TRA'
+        ELSEIF(KEY(1:3)=='ROT')THEN
           ITYPE=1
-        ELSEIF(KEY(1:3).EQ.'T+G')THEN
+          LABEL='/INIVEL/ROT'
+        ELSEIF(KEY(1:3)=='T+G')THEN
           ITYPE=2
-        ELSEIF(KEY(1:3).EQ.'GRI')THEN
+          LABEL='/INIVEL/T+G'
+        ELSEIF(KEY(1:3)=='GRI')THEN
           ITYPE=3
-        ELSEIF(KEY(1:4).EQ.'AXIS')THEN
-          IF(INVERS < 120) CALL ANCMSG(MSGID=2046,
-     .                                 ANMODE=ANINFO,
-     .                                 MSGTYPE=MSGERROR,
-     .                                 C1='/INIVEL/AXIS',
-     .                                 I1=INVERS)
+          LABEL='/INIVEL/GRID'
+        ELSEIF(KEY(1:4)=='AXIS')THEN
+          IF(INVERS < 120) THEN
+            CALL ANCMSG(MSGID=2046,ANMODE=ANINFO,MSGTYPE=MSGERROR,C1='/INIVEL/AXIS',I1=INVERS)
+          ENDIF
           ITYPE=4
+          LABEL='/INIVEL/AXIS'
         ELSEIF(KEY(1:3) == 'FVM') THEN
-          ITYPE = 5
-          FVM_INIVEL(I)%FLAG = .TRUE.
-        ELSEIF(KEY(1:4).EQ.'NODE')THEN
+          ITYPE=5
+!          FVM_INIVEL(I)%FLAG = .TRUE.
+          LABEL='/INIVEL/FVM'
+        ELSEIF(KEY(1:4)=='NODE')THEN
           ITYPE=6
+          LABEL='/INIVEL/NODE'
         ELSE
-          GOTO 999
+          CALL FREERR(1)
+          RETURN
         ENDIF
 
         NBVEL = NBVEL+1
         INIVIDS(NBVEL)=ID
-!
-        IF(ITYPE > 6) THEN
+
+! read t_start,sens_id for Itype<6
+       IF(ITYPE < 6) THEN 
+          CALL HM_GET_FLOATV('tstart',TSTART,IS_AVAILABLE,LSUBMODEL,UNITAB)
+          CALL HM_GET_INTV('sensor_id',SENSID,IS_AVAILABLE,LSUBMODEL)
+          IF (SENSID > 0) THEN
+            DO J=1,SENSORS%NSENSOR
+              IF(SENSORS%SENSOR_TAB(J)%SENS_ID == SENSID) SENS_ID=J
+            ENDDO
+            IF(SENS_ID == 0)THEN
+              CALL ANCMSG(MSGID=1252,ANMODE=ANINFO,MSGTYPE=MSGERROR,C1=LABEL, I1=ID, C2=LABEL, C3=TITR, I2=SENSID)
+            ENDIF
+          END IF
+       END IF 
+!       
+       IF(ITYPE > 6) THEN
+          !invalid type
           CYCLE
+
+        !---READER /INIVEL/TRA,ROT,T+G,GRID  (0,1,2,3)
         ELSEIF (ITYPE <= 3) THEN
+          ISK = 0
           IFRA  = 0
-C--------------------------------------------------
-C EXTRACT DATAS (INTEGER VALUES)
-C--------------------------------------------------
           CALL HM_GET_INTV('entityid',IGR,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('inputsystem',ISK,IS_AVAILABLE,LSUBMODEL)
-          IF(ISK == 0 .AND. SUB_INDEX .NE. 0 ) ISK = LSUBMODEL(SUB_INDEX)%SKEW
-C--------------------------------------------------
-C EXTRACT DATAS (REAL VALUES)
-C--------------------------------------------------
+          IF(ISK == 0 .AND. SUB_INDEX /= 0 ) ISK = LSUBMODEL(SUB_INDEX)%SKEW
           CALL HM_GET_FLOATV('vector_X',VL1,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('vector_Y',VL2,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('vector_Z',VL3,IS_AVAILABLE,LSUBMODEL,UNITAB)
+          IF(N2D /= 0 .AND. ISK == 0)THEN
+            IF(VL1 /= 0)THEN
+              !2D plane strain warning about X-velocity
+              CALL ANCMSG(MSGID=1256, ANMODE=ANINFO, MSGTYPE=MSGWARNING, C1=LABEL, I1=ID, C2=LABEL, C3=TITR)
+              VL1 = ZERO
+            ENDIF
+          ENDIF
+          IF (TSTART>ZERO .OR. SENS_ID>0) THEN 
+            NINIT = NINIT + 1
+            INIVEL_T(NINIT)%ID = ID
+            INIVEL_T(NINIT)%ITYPE = ITYPE
+            INIVEL_T(NINIT)%GENERAL%TYPE = ITYPE
+            INIVEL_T(NINIT)%GENERAL%SKEW_ID = ISK
+            INIVEL_T(NINIT)%GENERAL%GRND_ID = IGR
+            INIVEL_T(NINIT)%GENERAL%VX = VL1
+            INIVEL_T(NINIT)%GENERAL%VY = VL2
+            INIVEL_T(NINIT)%GENERAL%VZ = VL3
+            INIVEL_T(NINIT)%GENERAL%SENSOR_ID = SENSID
+            INIVEL_T(NINIT)%GENERAL%TSTART = TSTART
+          END IF
 
+        !---READER /INIVEL/AXIS (4)
         ELSEIF (ITYPE == 4) THEN
-C--------------------------------------------------
-C EXTRACT DATAS (STRING)
-C--------------------------------------------------
           CALL HM_GET_STRING('rad_dir',XYZ,ncharfield,IS_AVAILABLE)
-C--------------------------------------------------
-C EXTRACT DATAS (INTEGER VALUES)
-C--------------------------------------------------
           CALL HM_GET_INTV('inputsystem',IFRA,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('entityid',IGR,IS_AVAILABLE,LSUBMODEL)
-C--------------------------------------------------
-C EXTRACT DATAS (REAL VALUES)
-C--------------------------------------------------
+
           CALL HM_GET_FLOATV('vector_X',VL1,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('vector_Y',VL2,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('vector_Z',VL3,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('rad_rotational_velocity',VRA,IS_AVAILABLE,LSUBMODEL,UNITAB)
-C
-C  UTILISER LEN_TRIM A LA PLACE DE XYZSIZE : XYZ(1:LEN_TRIM(XYZ))
-C
-          XYZSIZE=1
-          IF(XYZ(1:XYZSIZE).EQ.'X') THEN
+          IF(N2D /= 0 .AND. IFRA == 0)THEN
+            IF(VL2 /=0 .OR. VL3 /= 0)THEN
+              !2D plane strain warning about Y or Z rotation (resulting into X-velocity)
+              CALL ANCMSG(MSGID=1256, ANMODE=ANINFO, MSGTYPE=MSGWARNING, C1=LABEL, I1=ID, C2=LABEL, C3=TITR)
+              VL2 = ZERO
+              VL3 = ZERO
+            ENDIF
+          ENDIF
+          IF(IFRA == 0 .AND. SUB_INDEX  /=  0) CALL SUBROTVECT(VL1,VL2,VL3,RTRANS,SUB_ID,LSUBMODEL)
+          IF(XYZ(1:1)=='X') THEN
             IDIR=1
-          ELSEIF(XYZ(1:XYZSIZE).EQ.'Y') THEN
+          ELSEIF(XYZ(1:1)=='Y') THEN
             IDIR=2
-          ELSEIF(XYZ(1:XYZSIZE).EQ.'Z') THEN
+          ELSEIF(XYZ(1:1)=='Z') THEN
             IDIR=3
           ELSE
-            CALL ANCMSG(MSGID=933,
-     .                  MSGTYPE=MSGERROR,
-     .                  ANMODE=ANINFO,
-     .                  I1=ID,
-     .                  C1=TITR)
+            CALL ANCMSG(MSGID=933,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=ID,C1=TITR)
           ENDIF
           ISK = 0
+          IF (TSTART>ZERO .OR. SENS_ID>0) THEN 
+            NINIT = NINIT + 1
+            INIVEL_T(NINIT)%ID = ID
+            INIVEL_T(NINIT)%ITYPE = ITYPE
+            INIVEL_T(NINIT)%AXIS%DIR = IDIR
+            INIVEL_T(NINIT)%AXIS%FRAME_ID = IFRA
+            INIVEL_T(NINIT)%AXIS%GRND_ID = IGR
+            INIVEL_T(NINIT)%AXIS%VX = VL1
+            INIVEL_T(NINIT)%AXIS%VY = VL2
+            INIVEL_T(NINIT)%AXIS%VZ = VL3
+            INIVEL_T(NINIT)%AXIS%VR = VRA
+            INIVEL_T(NINIT)%AXIS%SENSOR_ID = SENSID
+            INIVEL_T(NINIT)%AXIS%TSTART = TSTART
+          END IF
+
+         !---READER /INIVEL/FVM (5)
         ELSEIF (ITYPE == 5) THEN
           CALL HM_GET_FLOATV('Vx', VL1, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('Vy', VL2, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOATV('Vz', VL3, IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_INTV('grbric_ID', IDGRBRICK, IS_AVAILABLE, LSUBMODEL)
           CALL HM_GET_INTV('grqd_ID', IDGRQUAD, IS_AVAILABLE, LSUBMODEL)
-          CALL HM_GET_INTV('grtria_ID', IDGRSH3N, IS_AVAILABLE, LSUBMODEL)
+          CALL HM_GET_INTV('grtria_ID', IDGRTRIA, IS_AVAILABLE, LSUBMODEL)
           CALL HM_GET_INTV('skew_ID', ISK, IS_AVAILABLE, LSUBMODEL)
+          IF(N2D /= 0 .AND. ISK == 0)THEN
+            IF(VL1 /= 0)THEN
+              !2D plane strain warning about X-velocity
+              CALL ANCMSG(MSGID=1256, ANMODE=ANINFO, MSGTYPE=MSGWARNING, C1=LABEL, I1=ID, C2=LABEL, C3=TITR)
+              VL1 = ZERO
+            ENDIF
+          ENDIF
+          IF (TSTART>ZERO .OR. SENS_ID>0) THEN 
+            NINIT = NINIT + 1
+            INIVEL_T(NINIT)%ID = ID
+            INIVEL_T(NINIT)%ITYPE = ITYPE
+            INIVEL_T(NINIT)%FVM%SKEW_ID = ISK
+            INIVEL_T(NINIT)%FVM%GRBRIC_ID = IDGRBRICK
+            INIVEL_T(NINIT)%FVM%GRQD_ID   = IDGRQUAD
+            INIVEL_T(NINIT)%FVM%GRTRIA_ID = IDGRTRIA
+            INIVEL_T(NINIT)%FVM%VX = VL1
+            INIVEL_T(NINIT)%FVM%VY = VL2
+            INIVEL_T(NINIT)%FVM%VZ = VL3
+            INIVEL_T(NINIT)%FVM%SENSOR_ID = SENSID
+            INIVEL_T(NINIT)%FVM%TSTART = TSTART
+          END IF
+
+       !---READER /INIVEL/NODE (6)
         ELSEIF (ITYPE == 6) THEN
           CALL HM_GET_INTV('NB_NODES', NB_NODES, IS_AVAILABLE, LSUBMODEL)
           DO N=1,NB_NODES
@@ -266,11 +350,25 @@ C
             CALL HM_GET_FLOAT_ARRAY_INDEX('VXRA', VR1, N, IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_FLOAT_ARRAY_INDEX('VYRA', VR2, N, IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_FLOAT_ARRAY_INDEX('VZRA', VR3, N, IS_AVAILABLE, LSUBMODEL, UNITAB)
-
+            IF(N2D /= 0 .AND. ISK == 0)THEN
+              IF(VL1 /=0 .OR. VR2 /= 0 .OR. VR3 /= 0)THEN
+                !plane strain warning about X-direction
+                CALL ANCMSG(MSGID=1256, ANMODE=ANINFO, MSGTYPE=MSGWARNING, C1=LABEL, I1=ID, C2=LABEL, C3=TITR)
+                VL1 = ZERO
+                VR2 = ZERO
+                VR3 = ZERO
+              ENDIF
+            ENDIF
             IOK = 0
             KROT = 1
             IF (ID_NODE > 0) THEN
               IF (ISK > 0) THEN
+                V1 = -HUGE(V1)
+                V2 = -HUGE(V2)
+                V3 = -HUGE(V3)
+                V4 = -HUGE(V4)
+                V5 = -HUGE(V5)
+                V6 = -HUGE(V6)
                 DO J=0,NUMSKW+MIN(IUN,NSPCOND)*NUMSPH+NSUBMOD
                   IF (ISK == ISKN(4,J+1)) THEN
                     ISK=J+1
@@ -283,15 +381,8 @@ C
                     IOK = 1
                   ENDIF
                 ENDDO
-                IF (IOK == 0)CALL ANCMSG(MSGID=184,
-     .                      MSGTYPE=MSGERROR,
-     .                      ANMODE=ANINFO,
-     .                      C1='INITIAL VELOCITY',
-     .                      I1=ID,
-     .                      C2='INITIAL VELOCITY',
-     .                      C3=TITR,
-     .                      I2=ISK)
-
+                IF (IOK == 0)CALL ANCMSG(MSGID=184,MSGTYPE=MSGERROR,ANMODE=ANINFO,
+     .                                   I1=ID,I2=ISK,C1='INITIAL VELOCITY',C2='INITIAL VELOCITY',C3=TITR)
                  NOSYS = USR2SYS(ID_NODE,ITABM1,MESS,ID)
                  V(1,NOSYS)  = V1
                  V(2,NOSYS)  = V2
@@ -309,49 +400,45 @@ C
                  VR(3,NOSYS) = VR3
               ENDIF
             ENDIF
-          ENDDO 
+          ENDDO !N=1,NB_NODES
           ISK = 0
-        ENDIF
+
+        ENDIF !ITYPE TEST
 C
-        IF (ITYPE .NE. 6) THEN
+        IF (ITYPE /= 6) THEN
           IF (ISK > 0) THEN
+              IS_FOUND = .FALSE.
               DO J=0,NUMSKW+MIN(IUN,NSPCOND)*NUMSPH+NSUBMOD
                 IF (ISK == ISKN(4,J+1)) THEN
                   ISK=J+1
                   V1 = SKEW(1,ISK)*VL1+SKEW(4,ISK)*VL2+SKEW(7,ISK)*VL3
                   V2 = SKEW(2,ISK)*VL1+SKEW(5,ISK)*VL2+SKEW(8,ISK)*VL3
                   V3 = SKEW(3,ISK)*VL1+SKEW(6,ISK)*VL2+SKEW(9,ISK)*VL3
-                  GO TO 200
+                  IS_FOUND = .TRUE.
+                  EXIT
                 ENDIF
               ENDDO
-              CALL ANCMSG(MSGID=184,
-     .                    MSGTYPE=MSGERROR,
-     .                    ANMODE=ANINFO,
-     .                    C1='INITIAL VELOCITY',
-     .                    I1=ID,
-     .                    C2='INITIAL VELOCITY',
-     .                    C3=TITR,
-     .                    I2=ISK)
-200           CONTINUE
+              IF(.NOT. IS_FOUND)THEN
+                CALL ANCMSG(MSGID=184,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=ID,I2=ISK,
+     .                      C1='INITIAL VELOCITY', C2='INITIAL VELOCITY', C3=TITR)
+              ENDIF
+
           ELSEIF (IFRA > 0) THEN
+            IS_FOUND = .FALSE.
             DO K=1,NUMFRAM
               J=K+1
-              IF(IFRA.EQ.IFRAME(4,J)) THEN
+              IF(IFRA==IFRAME(4,J)) THEN
                 V1 = XFRAME(1,J)*VL1+XFRAME(4,J)*VL2+XFRAME(7,J)*VL3
                 V2 = XFRAME(2,J)*VL1+XFRAME(5,J)*VL2+XFRAME(8,J)*VL3
                 V3 = XFRAME(3,J)*VL1+XFRAME(6,J)*VL2+XFRAME(9,J)*VL3
-                GO TO 110
+                IS_FOUND = .TRUE.
+                EXIT
               ENDIF
             ENDDO
-            CALL ANCMSG(MSGID=490,
-     .                  MSGTYPE=MSGERROR,
-     .                  ANMODE=ANINFO,
-     .                  C1='INITIAL VELOCITY',
-     .                  I1=ID,
-     .                  C2='INITIAL VELOCITY',
-     .                  C3=TITR,
-     .                  I2=IFRA)
-110         CONTINUE
+            IF(.NOT. IS_FOUND)THEN
+              CALL ANCMSG(MSGID=490,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=ID,I2=IFRA,
+     .                    C1='INITIAL VELOCITY',C2='INITIAL VELOCITY',C3=TITR)
+            ENDIF
             IFM = J
           ELSEIF (ISK == 0 .AND. IFRA == 0) THEN
             V1 = VL1
@@ -359,84 +446,72 @@ C
             V3 = VL3
           ENDIF 
         ENDIF
+        IDGRBRICK_LOC = -1
+        IDGRQUAD_LOC  = -1
+        IDGRTRIA_LOC  = -1
+
         IF (ITYPE == 5) THEN
            IF (.NOT. MULTI_FVM%IS_USED) THEN
-              CALL ANCMSG(MSGID=1554,
-     .             MSGTYPE=MSGERROR,
-     .             ANMODE=ANINFO,
-     .             C1='IN /INIVEL OPTION')
+              CALL ANCMSG(MSGID=1554,MSGTYPE=MSGERROR,ANMODE=ANINFO,C1='IN /INIVEL OPTION')
            ELSE
               IDGRBRICK_LOC = -1
               IDGRQUAD_LOC  = -1
-              IDGRSH3N_LOC  = -1
-              IF (IDGRBRICK + IDGRQUAD + IDGRSH3N .EQ. 0) THEN
-                 CALL ANCMSG(MSGID=1553, MSGTYPE=MSGWARNING, ANMODE=ANINFO,
-     .                C1='IN /INIVEL OPTION')
+              IDGRTRIA_LOC  = -1
+              IF (IDGRBRICK + IDGRQUAD + IDGRTRIA == 0) THEN
+                 CALL ANCMSG(MSGID=1553, MSGTYPE=MSGWARNING, ANMODE=ANINFO,C1='IN /INIVEL OPTION')
               ELSE
-                 IF (IDGRBRICK .NE. 0) THEN
+                 IF (IDGRBRICK /= 0) THEN
                     DO J = 1,NGRBRIC
                        IF (IDGRBRICK == IGRBRIC(J)%ID) IDGRBRICK_LOC = J
                     ENDDO
-                    IF (IDGRBRICK_LOC .EQ. -1) THEN
-                       CALL ANCMSG(MSGID=1554,
-     .                      MSGTYPE=MSGERROR,
-     .                      ANMODE=ANINFO,
-     .                      C1='IN /INIVEL OPTION',
-     .                      I1=IDGRBRICK)
+                    IF (IDGRBRICK_LOC == -1) THEN
+                       CALL ANCMSG(MSGID=1554, MSGTYPE=MSGERROR,ANMODE=ANINFO,C1='IN /INIVEL OPTION',I1=IDGRBRICK)
                     ENDIF
                  ENDIF
-                 IF (IDGRQUAD .NE. 0) THEN
+                 IF (IDGRQUAD /= 0) THEN
                     DO J = 1,NGRQUAD
                        IF (IDGRQUAD == IGRQUAD(J)%ID) IDGRQUAD_LOC = J
                     ENDDO    
-                    IF (IDGRQUAD_LOC .EQ. -1) THEN
-                       CALL ANCMSG(MSGID=1554,
-     .                      MSGTYPE=MSGERROR,
-     .                      ANMODE=ANINFO,
-     .                      C1='IN /INIVEL OPTION',
-     .                      I1=IDGRQUAD)
+                    IF (IDGRQUAD_LOC == -1) THEN
+                       CALL ANCMSG(MSGID=1554,MSGTYPE=MSGERROR,ANMODE=ANINFO,C1='IN /INIVEL OPTION',I1=IDGRQUAD)
                     ENDIF
                  ENDIF
-                 IF (IDGRSH3N .NE. 0) THEN
+                 IF (IDGRTRIA /= 0) THEN
                     DO J = 1,NGRSH3N
-                       IF (IDGRSH3N == IGRSH3N(J)%ID) IDGRSH3N_LOC = J
+                       IF (IDGRTRIA == IGRSH3N(J)%ID) IDGRTRIA_LOC = J
                     ENDDO      
-                    IF (IDGRSH3N_LOC .EQ. -1) THEN
-                       CALL ANCMSG(MSGID=1554,
-     .                      MSGTYPE=MSGERROR,
-     .                      ANMODE=ANINFO,
-     .                      C1='IN /INIVEL OPTION',
-     .                      I1=IDGRSH3N)                   
+                    IF (IDGRTRIA_LOC == -1) THEN
+                       CALL ANCMSG(MSGID=1554,MSGTYPE=MSGERROR,ANMODE=ANINFO,C1='IN /INIVEL OPTION',I1=IDGRTRIA)
                     ENDIF
                  ENDIF
               ENDIF
-C     Going on
-C     Brick groups
-              FVM_INIVEL(I)%FLAG = .TRUE.
-              FVM_INIVEL(I)%GRBRICID = IDGRBRICK_LOC
-              FVM_INIVEL(I)%GRQUADID = IDGRQUAD_LOC
-              FVM_INIVEL(I)%GRSH3NID = IDGRSH3N_LOC
-              FVM_INIVEL(I)%VX = V1
-              FVM_INIVEL(I)%VY = V2
-              FVM_INIVEL(I)%VZ = V3
+              !     Going on
+              !     Brick groups
+              IF (TSTART==ZERO .AND. SENS_ID==0) THEN 
+                FVM_INIVEL(I)%FLAG = .TRUE.
+                FVM_INIVEL(I)%GRBRICID = IDGRBRICK_LOC
+                FVM_INIVEL(I)%GRQUADID = IDGRQUAD_LOC
+                FVM_INIVEL(I)%GRSH3NID = IDGRTRIA_LOC
+                FVM_INIVEL(I)%VX = V1
+                FVM_INIVEL(I)%VY = V2
+                FVM_INIVEL(I)%VZ = V3
+                FVM_GRBRIC_USER_ID(I) = IDGRBRICK
+                FVM_GRQUAD_USER_ID(I) = IDGRQUAD
+                FVM_GRTRIA_USER_ID(I) = IDGRTRIA
+              END IF !(TSTART==ZERO .AND. SENS_ID==0) THEN 
            ENDIF 
         ENDIF 
 C
         IF (ITYPE /= 5 .AND. ITYPE /= 6) THEN
            IGRS=0
            IF (IGR == 0) THEN
-              CALL ANCMSG(MSGID=668,
-     .             MSGTYPE=MSGERROR,
-     .             ANMODE=ANINFO,
-     .             C1='/INIVEL',
-     .             C2='/INIVEL',
-     .             C3=TITR,
-     .             I1=ID)
+              CALL ANCMSG(MSGID=668,MSGTYPE=MSGERROR,ANMODE=ANINFO,C1='/INIVEL',C2='/INIVEL',C3=TITR,I1=ID)
            ENDIF
            DO J=1,NGRNOD
               IF(IGR == IGRNOD(J)%ID) IGRS=J
            ENDDO
-           IF(IGRS /= 0)THEN
+           IF(IGRS /= 0 )THEN
+             IF(TSTART==ZERO .AND. SENS_ID==0)THEN
               DO J=1,IGRNOD(IGRS)%NENTITY
                  NOSYS=IGRNOD(IGRS)%ENTITY(J)
                  IF(ITYPE == 0) THEN
@@ -447,14 +522,13 @@ C
                        VFLOW(1,NOSYS) = V1
                        VFLOW(2,NOSYS) = V2
                        VFLOW(3,NOSYS) = V3
-C     
                        WFLOW(1,NOSYS) = V1
                        WFLOW(2,NOSYS) = V2
                        WFLOW(3,NOSYS) = V3
                     ENDIF
                  ELSEIF(ITYPE == 1) THEN
                     KROT = 1
-                    IF (IRODDL.GT.0) THEN
+                    IF (IRODDL>0) THEN
                       VR(1,NOSYS)=V1
                       VR(2,NOSYS)=V2
                       VR(3,NOSYS)=V3
@@ -472,7 +546,6 @@ C
                        VFLOW(1,NOSYS) = V1
                        VFLOW(2,NOSYS) = V2
                        VFLOW(3,NOSYS) = V3
-C     
                        WFLOW(1,NOSYS) = V1
                        WFLOW(2,NOSYS) = V2
                        WFLOW(3,NOSYS) = V3
@@ -485,7 +558,6 @@ C
                        VFLOW(1,NOSYS) = V1
                        VFLOW(2,NOSYS) = V2
                        VFLOW(3,NOSYS) = V3
-C     
                        WFLOW(1,NOSYS) = V1
                        WFLOW(2,NOSYS) = V2
                        WFLOW(3,NOSYS) = V3
@@ -499,7 +571,6 @@ C--                 /INIVEL/AXIS -> tag of main nodes of rbody
                         TAGNO_RBY(RBY_MSN(2,NRB)) = NRB
                       ENDDO
                     ENDIF
-C
                     NIXJ = ZERO
                     IF (IFRA > 0) THEN
                        K1=3*IDIR-2
@@ -514,23 +585,23 @@ C
                        NIXJ(4)=XFRAME(K3,IFM)*(X(2,NOSYS)-OY)
                        NIXJ(5)=XFRAME(K3,IFM)*(X(1,NOSYS)-OX)
                        NIXJ(6)=XFRAME(K1,IFM)*(X(3,NOSYS)-OZ)
-                       IF (IRODDL.GT.0) THEN
+                       IF (IRODDL>0) THEN
                           VR(1,NOSYS)= VRA*XFRAME(K1,IFM)
                           VR(2,NOSYS)= VRA*XFRAME(K2,IFM)
                           VR(3,NOSYS)= VRA*XFRAME(K3,IFM)
                        END IF
                     ELSE
-                       IF(IDIR.EQ.1) THEN
+                       IF(IDIR==1) THEN
                           NIXJ(1)=X(2,NOSYS)
                           NIXJ(6)=X(3,NOSYS)
-                       ELSEIF(IDIR.EQ.2) THEN
+                       ELSEIF(IDIR==2) THEN
                           NIXJ(2)=X(1,NOSYS)
                           NIXJ(3)=X(3,NOSYS)
-                       ELSEIF(IDIR.EQ.3) THEN
+                       ELSEIF(IDIR==3) THEN
                           NIXJ(4)=X(2,NOSYS)
                           NIXJ(5)=X(1,NOSYS)
                        ENDIF
-                       IF (IRODDL.GT.0) THEN
+                       IF (IRODDL>0) THEN
                           VR(1,NOSYS)= ZERO !VRA*XFRAME(K1,IFM)
                           VR(2,NOSYS)= ZERO !VRA*XFRAME(K2,IFM)
                           VR(3,NOSYS)= ZERO !VRA*XFRAME(K3,IFM)
@@ -546,12 +617,11 @@ C
                        VFLOW(1,NOSYS) = V(1,NOSYS)
                        VFLOW(2,NOSYS) = V(2,NOSYS)
                        VFLOW(3,NOSYS) = V(3,NOSYS)
-C     
                        WFLOW(1,NOSYS) = V(1,NOSYS)
                        WFLOW(2,NOSYS) = V(2,NOSYS)
                        WFLOW(3,NOSYS) = V(3,NOSYS)
                     ENDIF
-C
+
 C--                 /INIVEL/AXIS -> data must be stored to update initial velocity when RBODY main node is moved (inirby.F)
                     IF (NRBODY > 0) THEN
                       IF (TAGNO_RBY(NOSYS) > 0) THEN
@@ -559,211 +629,177 @@ C--                 /INIVEL/AXIS -> data must be stored to update initial veloci
                         RBY_INIAXIS(2,TAGNO_RBY(NOSYS)) = V(1,NOSYS)
                         RBY_INIAXIS(3,TAGNO_RBY(NOSYS)) = V(2,NOSYS)
                         RBY_INIAXIS(4,TAGNO_RBY(NOSYS)) = V(3,NOSYS)
-                        IF (IRODDL.GT.0) THEN
+                        IF (IRODDL>0) THEN
                           RBY_INIAXIS(5,TAGNO_RBY(NOSYS)) = VR(1,NOSYS)
                           RBY_INIAXIS(6,TAGNO_RBY(NOSYS)) = VR(2,NOSYS)
                           RBY_INIAXIS(7,TAGNO_RBY(NOSYS)) = VR(3,NOSYS)
                         ENDIF                   
                       ENDIF
                     ENDIF
-C
                  ENDIF
               ENDDO
               NNOD=IGRNOD(IGRS)%NENTITY
+             END IF ! (TSTART==ZERO .AND. SENSOR_ID==0)THEN
            ELSE
-              CALL ANCMSG(MSGID=53,
-     .             MSGTYPE=MSGERROR,
-     .             ANMODE=ANINFO,
-     .             C1='IN /INIVEL OPTION',
-     .             I1=IGR)
+              CALL ANCMSG(MSGID=53,MSGTYPE=MSGERROR,ANMODE=ANINFO,C1='IN /INIVEL OPTION',I1=IGR)
            ENDIF
         ENDIF ! IF (ITYPE /= 5 .AND. ITYPE /= 6)
       ENDDO
-C
+
       IF (ALLOCATED(TAGNO_RBY)) DEALLOCATE(TAGNO_RBY)
-C---
+
       CALL UDOUBLE(INIVIDS,1,NBVEL,MESS,0,BID)
-C
-C--- RAZ vitesses for SPH Reserve particles
-      IF (NSPHRES.GT.0) THEN
+
+      !--- Reset velocities for the dormant SPH particles in the reservoir
+      IF (NSPHRES>0) THEN
         DO N=1,NSPHRES
           INOD = KXSP(3,FIRST_SPHRES+N-1)
           V(1,INOD) = ZERO
           V(2,INOD) = ZERO
           V(3,INOD) = ZERO
-          IF (IRODDL.GT.0) THEN
+          IF (IRODDL>0) THEN
             VR(1,INOD) = ZERO
             VR(2,INOD) = ZERO
             VR(3,INOD) = ZERO
           ENDIF
         END DO   
       ENDIF
-C--------------------------------------------------
-C     PRINT
-C--------------------------------------------------
+
+
+      !--------------------------------------------------
+      !     STARTER LISTING FILE (INITIAL VELOCITY PRINTED IF IPRI >= 2)
+      !            IPRI : SEE /IOFLAG OPTION
+      !--------------------------------------------------
       IF (HM_NINVEL > 0) THEN
+        J=0
+        NODINIVEL=0
 
-      J=0
-      NODINIVEL=0
-      IF(IPRI.GE.2)THEN
-       IF(IALE.NE.0) THEN
-         WRITE(IOUT,2100)
-       ELSEIF(KROT.EQ.0) THEN
-         WRITE(IOUT,2000)
-       ELSE
-         WRITE(IOUT,2200)
-       ENDIF
-       KPRI=0
-       DO 340 N=1,NUMNOD,50
-       J=J+50
-       J=MIN(J,NUMNOD)
-       IF(IALE.EQ.0) THEN
-        DO 330 I=N,J
-          IF(KPRI.GE.50) THEN
-            IF(KROT.EQ.0) THEN
-              WRITE(IOUT,2000)
-            ELSE
-              WRITE(IOUT,2200)
-            ENDIF
-            KPRI=0
-          ENDIF
-          IF(IRODDL.NE.0) THEN
-            IF (V(1,I).NE.ZERO.OR.V(2,I).NE.ZERO.OR.V(3,I).NE.ZERO.OR.
-     .        VR(1,I).NE.ZERO.OR.VR(2,I).NE.ZERO.OR.VR(3,I).NE.ZERO)THEN
-              NODINIVEL=NODINIVEL+1
-              IF (VR(1,I).NE.ZERO.OR.VR(2,I).NE.ZERO.OR.
-     .            VR(3,I).NE.ZERO) THEN
-                WRITE(IOUT,'(3X,I10,8X,1P6G20.13)')
-     .              ITAB(I),V(1,I),V(2,I),V(3,I),VR(1,I),VR(2,I),VR(3,I)
-              ELSE
-                WRITE(IOUT,'(3X,I10,8X,1P6G20.13)')
-     .               ITAB(I),V(1,I),V(2,I),V(3,I)
-              ENDIF
-              KPRI=KPRI+1
-            ENDIF
-         ELSEIF(V(1,I).NE.ZERO.OR.V(2,I).NE.ZERO.OR.V(3,I).NE.ZERO) THEN
-           NODINIVEL=NODINIVEL+1
-           WRITE(IOUT,'(3X,I10,8X,1P6G20.13)')
-     .           ITAB(I),V(1,I),V(2,I),V(3,I)
-           KPRI=KPRI+1
-         ENDIF
- 330    CONTINUE
-       ELSE
-        DO 335 I=N,J
-          IF(KPRI.EQ.50) THEN
+        ! INITIAL VELOCIIES FOR STAGGERED SCHEME
+        IF(IPRI >= 2 .AND. NINIVEL_TOTAL-NINIVEL_FVM > 0 )THEN
+
+          !---TITLE OUTPUT
+          !     STAGGERED SCHEME (VELOCITIES AT NODES)
+          IF(IALE /= 0) THEN
             WRITE(IOUT,2100)
-            KPRI=0
+          ELSEIF(KROT == 0) THEN
+            WRITE(IOUT,2000)
+          ELSE
+            WRITE(IOUT,2200)
           ENDIF
-        IF(V(1,I).NE.ZERO.OR.V(2,I).NE.ZERO.OR.V(3,I).NE.ZERO.OR.
-     .     W(1,I).NE.ZERO.OR.W(2,I).NE.ZERO.OR.W(3,I).NE.ZERO) THEN
-          NODINIVEL=NODINIVEL+1
-          WRITE(IOUT,'(5X,I10,8X,1P6G20.13)') ITAB(I),
-     +                        V(1,I),V(2,I),V(3,I),W(1,I),W(2,I),W(3,I)
-          KPRI=KPRI+1
-        ENDIF
- 335    CONTINUE
-       ENDIF
- 340  CONTINUE
-      WRITE(IOUT,'(/,A,I10,//)')
-     +           ' NUMBER OF NODES WITH INITIAL VELOCITY:',NODINIVEL
-      ENDIF
 
-      ENDIF
+          !---DETAILS OUTPUT--------------------------
+          !     STAGGERED SCHEME (VELOCITIES AT NODES)
+            KPRI=0
+            DO N=1,NUMNOD,50
+              J=J+50
+              J=MIN(J,NUMNOD)
+              IF(IALE == 0)THEN
+                DO I=N,J
+                  IF(KPRI >= 50) THEN
+                    IF(KROT == 0) THEN
+                      WRITE(IOUT,2000)
+                    ELSE
+                      WRITE(IOUT,2200)
+                    ENDIF
+                    KPRI=0
+                  ENDIF
+                  IF(IRODDL /= 0) THEN
+                    IF (V(1,I)/=ZERO.OR.V(2,I)/=ZERO.OR.V(3,I)/=ZERO.OR.VR(1,I)/=ZERO.OR.VR(2,I)/=ZERO.OR.VR(3,I)/=ZERO)THEN
+                      NODINIVEL=NODINIVEL+1
+                      IF (VR(1,I) /= ZERO .OR. VR(2,I) /= ZERO .OR. VR(3,I) /= ZERO) THEN
+                        WRITE(IOUT,'(3X,I10,8X,1P6G20.13)') ITAB(I),V(1,I),V(2,I),V(3,I),VR(1,I),VR(2,I),VR(3,I)
+                      ELSE
+                        WRITE(IOUT,'(3X,I10,8X,1P6G20.13)')ITAB(I),V(1,I),V(2,I),V(3,I)
+                      ENDIF
+                      KPRI=KPRI+1
+                    ENDIF
+                  ELSEIF(V(1,I) /= ZERO .OR. V(2,I) /= ZERO .OR. V(3,I) /= ZERO) THEN
+                    NODINIVEL=NODINIVEL+1
+                    WRITE(IOUT,'(3X,I10,8X,1P6G20.13)')ITAB(I),V(1,I),V(2,I),V(3,I)
+                    KPRI=KPRI+1
+                  ENDIF
+                ENDDO!next I
+
+              ELSEIF(IALE /= 0)THEN
+                DO I=N,J
+                  IF(KPRI==50) THEN
+                    WRITE(IOUT,2100)
+                    KPRI=0
+                  ENDIF
+                  IF(V(1,I)/=ZERO.OR.V(2,I)/=ZERO.OR.V(3,I)/=ZERO.OR.W(1,I)/=ZERO.OR.W(2,I)/=ZERO.OR.W(3,I)/=ZERO) THEN
+                    NODINIVEL=NODINIVEL+1
+                    WRITE(IOUT,'(5X,I10,8X,1P6G20.13)') ITAB(I),V(1,I),V(2,I),V(3,I),W(1,I),W(2,I),W(3,I)
+                    KPRI=KPRI+1
+                  ENDIF
+                ENDDO! NEXT I
+              ENDIF
+
+            ENDDO!NEXT N
+            WRITE(IOUT,'(/,A,I10,//)') ' NUMBER OF NODES WITH INITIAL VELOCITY:',NODINIVEL
+
+        ENDIF
+
+        ! INITIAL VELOCIIES FOR COLLOCATED SCHEME
+        IF(IPRI >= 2 .AND. NINIVEL_FVM > 0 )THEN
+          WRITE(IOUT,3000)
+          !---DETAILS OUTPUT-----------------------------------
+          !     COLOCATED SCHEME (VELOCITIES AT CELL CENTROIDS)
+            DO I=1,HM_NINVEL  ! bug cpt
+              IF(.NOT. FVM_INIVEL(I)%FLAG)CYCLE
+              V1=FVM_INIVEL(I)%VX
+              V2=FVM_INIVEL(I)%VY
+              V3=FVM_INIVEL(I)%VZ
+              IF(IDGRBRICK_LOC >0)THEN
+                WRITE(IOUT,3001)
+                WRITE(IOUT,'(5X,I10,8X,1P6G20.13)') FVM_GRBRIC_USER_ID(I),V1,V2,V3
+              ENDIF
+              IF(IDGRQUAD_LOC >0)THEN
+                WRITE(IOUT,3002)
+                WRITE(IOUT,'(5X,I10,8X,1P6G20.13)') FVM_GRQUAD_USER_ID(I),V1,V2,V3
+              ENDIF
+              IF(IDGRTRIA_LOC >0)THEN
+                WRITE(IOUT,3003)
+                WRITE(IOUT,'(5X,I10,8X,1P6G20.13)') FVM_GRTRIA_USER_ID(I),V1,V2,V3
+              ENDIF
+            ENDDO!next CPT
+             WRITE(IOUT,'(//)')
+        ENDIF!IF(IPRI >= 2)
+        IF (NINIT > 0 ) WRITE(IOUT,4000) NINIT
+
+      ENDIF!(HM_NINVEL > 0)
 !-----------
       RETURN
 !-----------
 2000  FORMAT(//
      .'     INITIAL VELOCITIES    '/
-     .'     -------------------    '/
+     .'     -------------------   '/
      + 9X,'NODE',22X,'VX   ',15X,'VY   ',15X,'VZ   '/)
 2100  FORMAT(//
      .'     INITIAL VELOCITIES    '/
-     .'     -------------------    '/
+     .'     -------------------   '/
      + 9X,'NODE',22X,'VX   ',15X,'VY   ',15X,'VZ   ',
      +           14X,'WX   ',15X,'WY   ',15X,'WZ   '/)
 2200  FORMAT(//
      .'     INITIAL VELOCITIES    '/
-     .'     -------------------    '/
+     .'     -------------------   '/
      + 9X,'NODE',22X,'VX   ',15X,'VY   ',15X,'VZ   ',
      +           14X,'VRX  ',15X,'VRY  ',15X,'VRZ'/)
- 999  CALL FREERR(1)
-      RETURN
-      END
-Chd|====================================================================
-Chd|  HM_PREREAD_INIVEL             source/initial_conditions/general/inivel/hm_read_inivel.F
-Chd|-- called by -----------
-Chd|        CONTRL                        source/starter/contrl.F       
-Chd|-- calls ---------------
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        STACK_VAR_MOD                 share/modules1/stack_var_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_PREREAD_INIVEL(KROT,LSUBMODEL)
-C============================================================================
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-      USE STACK_VAR_MOD
-      USE SUBMODEL_MOD
-      USE HM_OPTION_READ_MOD
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-#include      "submod_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr21_c.inc"
-#include      "tabsiz_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER KROT
-      TYPE(SUBMODEL_DATA) LSUBMODEL(*)
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I,IG,CPT
-      CHARACTER IDTITL*nchartitle,KEY*ncharkey, 
-     .          SOLVERKEYWORD*ncharline
-      LOGICAL IS_AVAILABLE
-C=======================================================================
-C--------------------------------------------------
-      IS_AVAILABLE = .FALSE.
-C--------------------------------------------------
-C START BROWSING INIVEL OPTIONS
-C--------------------------------------------------
-      CALL HM_OPTION_START('/INIVEL')
-      I = 0
-C--------------------------------------------------
-C BROWSING INIVEL OPTIONS 1->HM_NINVEL
-C--------------------------------------------------
-! rotational inivel at nodes
-      DO CPT=1,HM_NINVEL
-        I = I + 1
-        KEY = ''
-        SOLVERKEYWORD = ''
-        IDTITL = ''
-C--------------------------------------------------
-C EXTRACT DATAS OF /INIVEL/... LINE
-C--------------------------------------------------
-        CALL HM_OPTION_READ_KEY(LSUBMODEL,
-     .                       OPTION_ID = IG,
-     .                       KEYWORD2 = KEY)
-C
-        IF (KEY(1:4) == 'NODE') KROT = 1
-      ENDDO
-C      
-      RETURN
-      END
+3000  FORMAT(//
+     .'     INITIAL VELOCITIES (FVM)   '/
+     .'     ------------------------   ')
+3001  FORMAT(
+     + 9X,'GRBRIC',22X,'VX   ',15X,'VY   ',15X,'VZ   ')
+3002  FORMAT(
+     + 9X,'GRQUAD',22X,'VX   ',15X,'VY   ',15X,'VZ   ')
+3003  FORMAT(
+     + 9X,'GRTRIA',22X,'VX   ',15X,'VY   ',15X,'VZ   ')
+!-----------
+4000  FORMAT(//
+     .'     INITIAL VELOCITIES    '/
+     .'     -------------------   '/
+     + I8,3X,'INITIAL VELOCITIES WILL BE APPLIED IN ENGINE BY T_START OR SENSOR'/)
+
+!-----------
+      END SUBROUTINE HM_READ_INIVEL
+
+

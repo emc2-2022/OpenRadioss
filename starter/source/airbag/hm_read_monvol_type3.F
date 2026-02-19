@@ -1,50 +1,56 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MONVOL_TYPE3          source/airbag/hm_read_monvol_type3.F
-Chd|-- called by -----------
-Chd|        READ_MONVOL                   source/airbag/read_monvol.F   
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        MONVOL_CHECK_SURFCLOSE        share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_COMPUTE_VOLUME         share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_ORIENT_SURF            share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_REVERSE_NORMALS        share/modules1/monvol_struct_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_MONVOL_TYPE3(T_MONVOLN, IPM, IGEO, ITABM1, 
-     .     LSENSOR, SENSOR, NPT, PLD,
-     .     UNITAB, LUID, NPC, IGRSURF, ITAB, X, PM, GEO, IXC, IXTG,
-     .     LSUBMODEL)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_monvol_type3_mod   ../starter/source/airbag/hm_read_monvol_type3.F
+!||--- called by ------------------------------------------------------
+!||    read_monvol                ../starter/source/airbag/read_monvol.F
+!||====================================================================
+      MODULE HM_READ_MONVOL_TYPE3_MOD
+      CONTAINS
+!||====================================================================
+!||    hm_read_monvol_type3       ../starter/source/airbag/hm_read_monvol_type3.F
+!||--- called by ------------------------------------------------------
+!||    read_monvol                ../starter/source/airbag/read_monvol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    freerr                     ../starter/source/starter/freform.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim          ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    monvol_check_surfclose     ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_compute_volume      ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_orient_surf         ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_reverse_normals     ../starter/share/modules1/monvol_struct_mod.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod          ../starter/share/modules1/monvol_struct_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_MONVOL_TYPE3(T_MONVOLN,
+     .     UNITAB, LUID, NPC, IGRSURF,
+     .     ITAB, X, PM, GEO, IXC, IXTG, LSUBMODEL)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -53,6 +59,7 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE MONVOL_STRUCT_MOD
       USE SUBMODEL_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -63,34 +70,31 @@ C-----------------------------------------------
 C     NSURF, NFUNCT
 #include      "com04_c.inc"
 C     KMONVO, IREC
-#include      "scr17_c.inc"
 C     NIMV, NRVOLU
 #include      "param_c.inc"
 C     IIN
 #include      "units_c.inc"
-C     NSUBMOD
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(UNIT_TYPE_), INTENT(IN) :: UNITAB
-      INTEGER, INTENT(IN) :: LUID, IPM(NPROPMI, *), IGEO(NPROPGI, *), ITABM1(*), NPT(*)
-      INTEGER, INTENT(IN) :: NPC(*), ITAB(*), IXC(NIXC, *), IXTG(NIXTG, *), LSENSOR(NSENSI, *)
-      my_real, INTENT(IN) :: X(3, *), GEO(NPROPG, *), PM(NPROPM, *), SENSOR(NSENSR, *), PLD(2, *)
+      INTEGER, INTENT(IN) :: LUID
+      INTEGER, INTENT(IN) :: NPC(*), ITAB(*), IXC(NIXC, *), IXTG(NIXTG, *)
+      my_real, INTENT(IN) :: X(3, *), GEO(NPROPG, *), PM(NPROPM, *)
       TYPE (SURF_), INTENT(INOUT), DIMENSION(NSURF) :: IGRSURF
       TYPE(MONVOL_STRUCT_), INTENT(INOUT) :: T_MONVOLN
       TYPE(SUBMODEL_DATA), DIMENSION(NSUBMOD), INTENT(IN) :: LSUBMODEL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: II, I, J
+      INTEGER :: II, J
       INTEGER :: SURFID
       my_real :: FAC_M, FAC_L, FAC_T, FAC_C, FAC_GEN
       my_real :: SCAL_T, SCAL_P, SCAL_S, SCAL_A, SCAL_D
       LOGICAL :: FOUND
       my_real :: SA, ROT, VOL, VMIN, VEPS, AMU, SV, RHOI
-      my_real :: GAMMA, T_RELAX, PEXT, PINI, PMAX, VINC, MI, EI, AVENT, BVENT, 
-     .     TVENT, DPDEF, DTPDEF, FPORT, FPORP, FPORA, DUMMY, TI
+      my_real :: GAMMA, T_RELAX, PEXT, PINI, PMAX, VINC, MI, EI, AVENT
+      my_real :: BVENT, TVENT, DPDEF, DTPDEF, FPORT, FPORP, FPORA, TI
       INTEGER :: NVENT, IPVENT, IDEF, IPORT, IPORP, IPORA, IEQUI
       LOGICAL :: IS_AVAILABLE
 C-----------------------------------------------
@@ -257,8 +261,7 @@ C     Reverse all normals to ensure positive volume
 
 C     Parameter checks
       IF (GAMMA == ONE) THEN
-         CALL ANCMSG(MSGID = 641, MSGTYPE = MSGERROR, ANMODE = ANINFO_BLIND_1,
-     .              I1 = T_MONVOLN%ID, C1 = T_MONVOLN%TITLE)
+         CALL ANCMSG(MSGID = 641, MSGTYPE = MSGERROR, ANMODE = ANINFO_BLIND_1, I1 = T_MONVOLN%ID, C1 = T_MONVOLN%TITLE)
       ENDIF
       IF (AMU == ZERO) THEN
          AMU = EM02
@@ -387,11 +390,9 @@ C     =========
          TVENT = T_MONVOLN%RBAGHOL(3, II)
          DPDEF = T_MONVOLN%RBAGHOL(1, II)
          IF(ABS(IDEF) == 1)THEN
-            WRITE(IOUT,1380) II, IPVENT, AVENT, IPORT, IPORP, IPORA,
-     .           TVENT, DPDEF, DTPDEF, FPORT, FPORP, FPORA
+            WRITE(IOUT,1380) II, IPVENT, AVENT, IPORT, IPORP, IPORA,TVENT, DPDEF, DTPDEF, FPORT, FPORP, FPORA
          ELSE
-            WRITE(IOUT,1381) II, IPVENT, AVENT, IPORT, IPORP, IPORA,
-     .           TVENT, DPDEF, DTPDEF, FPORT, FPORP, FPORA
+            WRITE(IOUT,1381) II, IPVENT, AVENT, IPORT, IPORP, IPORA,TVENT, DPDEF, DTPDEF, FPORT, FPORP, FPORA
          ENDIF
       ENDDO
 C-----------------------------------------------
@@ -410,10 +411,6 @@ C-----------------------------------------------
      .     /5X,'UNIT SCALE FOR ANGLE FUNCTIONS         =',1PG20.13,
      .     /5X,'UNIT SCALE FOR DISTANCE FUNCTIONS      =',1PG20.13)
  1005 FORMAT( 5X,'EXTERNAL SURFACE ID . . . . . . . . . .=',I10)
- 1200 FORMAT( 5X,'LOAD CURVE NUMBER . . . . . . . . . . .=',I10,
-     .     /5X,'CURVE TYPE  . . . . . . . . . . . . . .=',I10,
-     .     /5X,'  0 : P=F(V)',
-     .     /5X,'  1 : P=F(T)'/)
  1300 FORMAT(
      .     5X,'GAMMA . . . . . . . . . . . . . . . . .=',1PG20.13,
      .     /5X,'VOLUMIC VISCOSITY . . . . . . . . . . .=',1PG20.13,
@@ -423,8 +420,8 @@ C-----------------------------------------------
      .     /5X,'INCOMPRESSIBLE VOLUME.. . . . . . . . .=',1PG20.13,
      .     /5X,'INITIAL MASS. . . . . . . . . . . . . .=',1PG20.13,
      .     /5X,'RELAXATION TIME . . . . . . . . . . . .=',1PG20.13,
-     .     /5X,'INTIAL MASS DENSITY . . . . . . . . . .=',1PG20.13,
-     .     /5X,'INTIAL TEMPERATURE  . . . . . . . . . .=',1PG20.13)
+     .     /5X,'INITIAL MASS DENSITY. . . . . . . . . .=',1PG20.13,
+     .     /5X,'INITIAL TEMPERATURE . . . . . . . . . .=',1PG20.13)
  1370 FORMAT(
      .     /5X,'VENT HOLES                              ',
      .     /5X,'----------                              ')
@@ -440,7 +437,7 @@ C-----------------------------------------------
      .     /15X,'  (TOTAL AREA IS CONSIDERED)            ',
      .     /15X,'AVENT (VENT HOLE AREA OR SCALE FACTOR) =',1PG20.13,
      .     /15X,'  IF IPDEF=0    : VENT HOLE AREA '
-     .     /15X,'  IF IPDEF.NE.0 : VENT HOLE AREA SCALE FACTOR'
+     .     /15X,'  IF IPDEF/=0 : VENT HOLE AREA SCALE FACTOR'
      .     /15X,'POROSITY FUNCTION / TIME. . . . . . . .=',I10,
      .     /15X,'POROSITY FUNCTION / PRESSURE. . . . . .=',I10,
      .     /15X,'POROSITY FUNCTION / AREA. . . . . . . .=',I10,
@@ -458,7 +455,7 @@ C-----------------------------------------------
      .     /15X,'  (DELETED ELEMENTS AREA IS CONSIDERED) ',
      .     /15X,'AVENT (VENT HOLE AREA OR SCALE FACTOR) =',1PG20.13,
      .     /15X,'  IF IPDEF=0    : VENT HOLE AREA '
-     .     /15X,'  IF IPDEF.NE.0 : VENT HOLE AREA SCALE FACTOR'
+     .     /15X,'  IF IPDEF/=0 : VENT HOLE AREA SCALE FACTOR'
      .     /15X,'POROSITY FUNCTION / TIME. . . . . . . .=',I10,
      .     /15X,'POROSITY FUNCTION / PRESSURE. . . . . .=',I10,
      .     /15X,'POROSITY FUNCTION / AREA. . . . . . . .=',I10,
@@ -471,3 +468,4 @@ C-----------------------------------------------
      .     /15X,'POROSITY PRESSURE FUNCTION SCALE FACTOR=',1PG20.13,
      .     /15X,'POROSITY AREA FUNCTION SCALE FACTOR . .=',1PG20.13)
       END SUBROUTINE HM_READ_MONVOL_TYPE3
+      END MODULE HM_READ_MONVOL_TYPE3_MOD

@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CDLEN3                        source/elements/shell/coque/cdlen3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cdlen3       ../engine/source/elements/shell/coque/cdlen3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3       ../engine/source/elements/shell/coque/cforc3.F
+!||    cforc3_crk   ../engine/source/elements/xfem/cforc3_crk.F
+!||====================================================================
       SUBROUTINE CDLEN3(JFT,JLT ,PM  ,OFF,AREA, 
      2                  X2 ,X3  ,X4  ,Y2 ,Y3  ,  
      3                  Y4 ,ALDT,MAT,GEO ,PID ,
@@ -43,15 +42,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-C  _clean#include      "vect04_c.inc"
 #include      "param_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr06_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -87,17 +79,17 @@ C
       DO I=JFT,JLT
         ALMIN(I)= MIN(AL1(I),AL2(I),AL4(I))
         ALQUAD  = MIN(AL3(I),AL5(I),AL6(I))
-        IF(AL3(I).NE.ZERO) ALMIN(I)= MIN(ALMIN(I),ALQUAD)
+        IF(AL3(I)/=ZERO) ALMIN(I)= MIN(ALMIN(I),ALQUAD)
         DTDYN= AREA(I)*AREA(I) / MAX(AL5(I),AL6(I),EM20)
         ALDT(I)= MAX( DTDYN , ALMIN(I) )
       ENDDO
 C---------------------------------------------------------
-C     DT COMPATIBLE AVEC FONCTIONS DE FORMES SUR HOURGLASS
+C     DT COMPATIBLE WITH SHAPE FUNCTIONS ON HOURGLASS
 C---------------------------------------------------------
-        IF(IHBE.NE.0)THEN
+        IF(IHBE/=0)THEN
             MX = MAT(JFT)
             DO  I=JFT,JLT
-                IF(INVSTR.GE.35)THEN
+                IF(INVSTR>=35)THEN
                     IPID=PID(I)
                     H1 =GEO(13,IPID)
                     H2 =GEO(14,IPID)
@@ -107,12 +99,12 @@ C---------------------------------------------------------
                 ENDIF
             DTHOUR = HALF * (ALMIN(I)+ALDT(I)) / MAX(H1,H2)
 C Bug HP            ALDT(I)  = MIN(ALDT(I),DTHOUR)
-            IF (DTHOUR.LT.ALDT(I)) ALDT(I)=DTHOUR
+            IF (DTHOUR<ALDT(I)) ALDT(I)=DTHOUR
           ENDDO
         ELSE
           MX = MAT(JFT)
           DO  I=JFT,JLT
-          IF(INVSTR.GE.35)THEN
+          IF(INVSTR>=35)THEN
            IPID=PID(I)
            H1 =GEO(13,IPID)
            H2 =GEO(14,IPID)

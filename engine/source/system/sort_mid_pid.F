@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SORT_MID_PID                  source/system/sort_mid_pid.F  
-Chd|-- called by -----------
-Chd|        GRPSPLIT                      source/engine/resol_init.F    
-Chd|-- calls ---------------
-Chd|        MID_PID_MOD                   share/modules/mid_pid_mod.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sort_mid_pid   ../engine/source/system/sort_mid_pid.F
+!||--- called by ------------------------------------------------------
+!||    grpsplit       ../engine/source/engine/resol_init.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    mid_pid_mod    ../engine/share/modules/mid_pid_mod.F
+!||    my_alloc_mod   ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
        SUBROUTINE SORT_MID_PID(N_SHELL,IGROUC_SHELL,
      1                         POIN_GROUP_MID_SHELL,POIN_GROUP_PID_SHELL,
      2                         MID_SHELL,TAB_LOC,TAB_SHELL_LOC,TAB_MAT)
 
         USE MID_PID_MOD
+        USE MY_ALLOC_MOD
 
 !      ----------------------------------------------
 !      Sort Shell groups :
@@ -61,17 +64,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER, INTENT(IN) ::N_SHELL
@@ -83,20 +80,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-       INTEGER ::I,J,II,JJ,K,INDI,NBR_MID_PID_GRP
-       INTEGER :: NG,NGG,NGG_LOC,ITY
+       INTEGER ::I,J,II,JJ,NBR_MID_PID_GRP
+       INTEGER :: NG,NGG,NGG_LOC
        INTEGER :: MARQUEUR,MARQUEUR_2,MARQUEUR_3,COMPTEUR_MAT_PROP_SHELL,COMPTEUR
        INTEGER :: FIRST,LAST,SHIFT,GR_ID,GR_ID2
-       INTEGER :: NBR_MID,NFT
        INTEGER :: MID,MAX_MID
        INTEGER :: PID,MAX_PID,PID_1,PID_2
        INTEGER, DIMENSION(:), ALLOCATABLE :: PID_INDEX,INDEX
-       INTEGER, DIMENSION(N_SHELL) :: POIN_MID_SHELL
+       INTEGER, DIMENSION(:), ALLOCATABLE :: POIN_MID_SHELL
        my_real POIDS_J,POIDS_J1
-       TYPE(MID_PID_TYPE),DIMENSION(NUMMAT) :: MID_PID_SHELL
+       TYPE(MID_PID_TYPE),DIMENSION(:),ALLOCATABLE :: MID_PID_SHELL
 C-----------------------------------------------
-
-       ALLOCATE( PID_INDEX(NUMMAT) )
+       ALLOCATE(MID_PID_SHELL(NUMMAT))
+       ALLOCATE(PID_INDEX(NUMMAT) )
+       CALL MY_ALLOC(POIN_MID_SHELL,N_SHELL)
        PID_INDEX(1:NUMMAT) = 0
 
        COMPTEUR = 0
@@ -185,7 +182,7 @@ C-----------------------------------------------
             II=TAB_LOC(J,1)
             MID = TAB_SHELL_LOC(II,3)
             PID = TAB_SHELL_LOC(II,4)
-	    GR_ID = TAB_SHELL_LOC(II,2)
+              GR_ID = TAB_SHELL_LOC(II,2)
             POIDS_J = TAB_MAT(GR_ID)
             JJ=TAB_LOC(J+1,1)
             MID = TAB_SHELL_LOC(JJ,3)
@@ -246,6 +243,7 @@ C-----------------------------------------------
          DEALLOCATE( MID_PID_SHELL(MID)%PID1D )      
        ENDDO
 
-
+       DEALLOCATE(MID_PID_SHELL)
+       DEALLOCATE(POIN_MID_SHELL)
        RETURN
        END SUBROUTINE SORT_MID_PID

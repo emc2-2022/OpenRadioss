@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2FOR27P_CIN                  source/interfaces/interf/i2for27p_cin.F
-Chd|-- called by -----------
-Chd|        I2FOR27P                      source/interfaces/interf/i2for27p.F
-Chd|-- calls ---------------
-Chd|        I2CIN_ROT27                   ../common_source/interf/i2cin_rot27.F
-Chd|        I2FORCES                      source/interfaces/interf/i2forces.F
-Chd|        I2LOCEQ_27                    ../common_source/interf/i2loceq.F
-Chd|        I2REP                         ../common_source/interf/i2rep.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2for27p_cin   ../engine/source/interfaces/interf/i2for27p_cin.F
+!||--- called by ------------------------------------------------------
+!||    i2for27p       ../engine/source/interfaces/interf/i2for27p.F
+!||--- calls      -----------------------------------------------------
+!||    i2cin_rot27    ../common_source/interf/i2cin_rot27.F
+!||    i2forces       ../engine/source/interfaces/interf/i2forces.F
+!||    i2loceq_27     ../common_source/interf/i2loceq.F
+!||    i2rep          ../common_source/interf/i2rep.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod        ../engine/share/modules/h3d_mod.F
+!||====================================================================
       SUBROUTINE I2FOR27P_CIN(
      1           NSN    ,NMN    ,A      ,CRST   ,NSV    ,         
      2           MS     ,WEIGHT ,STIFN  ,MMASS  ,FSKYI2 ,         
@@ -64,19 +65,15 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, I1, I2, I3, II, NN, L, J,K, JJ, I0BASE,
+      INTEGER I, I1, I2, I3, II, NN, L, J,K, I0BASE,
      .        IX1,IX2,IX3,IX4,NIRL
 C     REAL
       my_real
-     .   SS, ST, XMSI, FXI, FYI, FZI,SP,SM,TP,TM,
+     .   SS, ST, XMSI,FS(3),SP,SM,TP,TM,
      .   H(4),E1X,E1Y,E1Z,E2X,E2Y,E2Z,E3X,E3Y,E3Z,
      .   X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,X0,Y0,Z0,XS(3),XM(3),
      .   STIFM,FMX(4),FMY(4),FMZ(4),FX(4),FY(4),FZ(4),
@@ -152,19 +149,19 @@ C
             X1  = X(1,IX1)                                       
             Y1  = X(2,IX1)                                          
             Z1  = X(3,IX1)                                          
-            X2  = X(1,IX2)					     
-            Y2  = X(2,IX2)					     
-            Z2  = X(3,IX2)					     
-            X3  = X(1,IX3)					     
-            Y3  = X(2,IX3)					     
-            Z3  = X(3,IX3)					     
-            X4  = X(1,IX4)					     
-            Y4  = X(2,IX4)					     
-            Z4  = X(3,IX4)					     
+            X2  = X(1,IX2)               
+            Y2  = X(2,IX2)               
+            Z2  = X(3,IX2)               
+            X3  = X(1,IX3)               
+            Y3  = X(2,IX3)               
+            Z3  = X(3,IX3)               
+            X4  = X(1,IX4)               
+            Y4  = X(2,IX4)               
+            Z4  = X(3,IX4)               
             XS(1)  = X(1,I)                                          
             XS(2)  = X(2,I)                                         
             XS(3)  = X(3,I)                                          
-C								
+C
             CALL I2REP(X1     ,X2     ,X3     ,X4     ,
      .               Y1     ,Y2     ,Y3     ,Y4     ,
      .               Z1     ,Z2     ,Z3     ,Z4     ,
@@ -258,7 +255,7 @@ C---- update main forces (moment balance) - local coordinates RX
                 MYS = AR(1,I)*E2X + AR(2,I)*E2Y + AR(3,I)*E2Z
                 MZS = AR(1,I)*E3X + AR(2,I)*E3Y + AR(3,I)*E3Z
               
-C--           moment balance + moment transfer
+C- Balance time + Transfer moment
                 CALL I2LOCEQ_27(NIRL    ,RS     ,RX     ,RY     ,RZ      ,    
      .                          FMX     ,FMY    ,FMZ    ,H      ,STIFM   ,
      .                          MXS     ,MYS    ,MZS    ,STIFMR ,BETAX   ,
@@ -268,7 +265,7 @@ C--           moment balance + moment transfer
                 MYS = ZERO
                 MZS = ZERO
 
-C--           moment balance
+C- Balance moment
                 CALL I2LOCEQ_27(NIRL    ,RS     ,RX     ,RY     ,RZ      ,    
      .                          FMX     ,FMY    ,FMZ    ,H      ,STIFM   ,
      .                          MXS     ,MYS    ,MZS    ,STIFMR ,BETAX   ,
@@ -283,6 +280,7 @@ C
                 FY(J) = E1Y*FMX(J) + E2Y*FMY(J) + E3Y*FMZ(J) 
                 FZ(J) = E1Z*FMX(J) + E2Z*FMY(J) + E3Z*FMZ(J) 
               ENDDO
+              FS(1:3)=A(1:3,I)
 C
             ENDIF
 C
@@ -295,15 +293,15 @@ C
             STIFM=ZERO
             STIFMR = ZERO
             STBRK=ZERO
-            DWDU=ZERO                                     
-            FXI=A(1,I)                                        
-            FYI=A(2,I)                                        
-            FZI=A(3,I)
+            DWDU=ZERO
+            FS(1)=A(1,I)                                        
+            FS(2)=A(2,I)                                        
+            FS(3)=A(3,I)
 C
             DO J=1,4
-              FX(J) = FXI*H(J)
-              FY(J) = FYI*H(J)
-              FZ(J) = FZI*H(J)
+              FX(J) = FS(1)*H(J)
+              FY(J) = FS(2)*H(J)
+              FZ(J) = FS(3)*H(J)
             ENDDO
 C
           ENDIF
@@ -351,20 +349,20 @@ C
          ENDIF
 C                                             
 C---     output of tied contact forces
- 	 CALL I2FORCES(X      ,V	,A	 ,MS	  ,I	  ,
-     .	               IRECT(1,L),H	,NIR     ,FSAV    ,FNCONT ,
-     .                 FNCONTP,FTCONTP ,WEIGHT  ,H3D_DATA)
+         CALL I2FORCES(X       ,FS     ,FX     ,FY      ,FZ     ,
+     .                 IRECT(1,L),NIR  ,FSAV   ,FNCONT  ,FNCONTP,
+     .                 FTCONTP ,WEIGHT ,H3D_DATA,I      ,H)
 C                      
          IF (IRODDL == 0) THEN                               
            STIFN(I)=EM20                                    
-           IF(IDEL2.NE.0.AND.MS(I).NE.0.)SMASS(II)=MS(I)    
+           IF(IDEL2/=0.AND.MS(I)/=0.)SMASS(II)=MS(I)    
            MS(I)=ZERO                                       
            A(1,I)=ZERO                                       
            A(2,I)=ZERO                                       
            A(3,I)=ZERO                                       
          ENDIF                                          
 C                                            
-C        stokage ZERO pour noeuds delete par idel2         
+C        zero storage for nodes deleted by idel2
         ELSEIF (WEIGHT(-I) == 1) THEN                       
           I0 = I0BASE + IADX(K)                                
           NN = IADI2(1,I0)                                 

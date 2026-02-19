@@ -1,48 +1,52 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT49                 source/materials/mat/mat049/hm_read_mat49.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat49            ../starter/source/materials/mat/mat049/hm_read_mat49.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT49(
-     .           LSUBMODEL ,MTAG     ,UNITAB   ,IPM    ,PM,
-     .           MAT_ID    ,TITR     ,EOS_TAG  ,MAXEOS ,ISRATE )
+     .           LSUBMODEL ,MTAG     ,UNITAB   ,IPM    ,PM       ,
+     .           MAT_ID    ,TITR     ,ISRATE ,MATPARAM )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFTAG_MOD            
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
+      USE MATPARAM_DEF_MOD          
+      USE UNITAB_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -61,52 +65,49 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "sysunit.inc"
-#include      "submod_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER, INTENT(INOUT)                       :: MAT_ID
-      INTEGER, INTENT(IN)                          :: MAXEOS
       INTEGER, INTENT(INOUT)                       :: ISRATE
       INTEGER, DIMENSION(NPROPMI) ,INTENT(INOUT)   :: IPM
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
       my_real, DIMENSION(NPROPM)  ,INTENT(INOUT)   :: PM
-      my_real, DIMENSION(LUNIT,NUNITS) ,INTENT(IN) :: UNITAB
-      TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
+      TYPE(UNIT_TYPE_), INTENT(in) :: UNITAB
+      TYPE(SUBMODEL_DATA), DIMENSION(NSUBMOD),INTENT(IN) :: LSUBMODEL
       TYPE(MLAW_TAG_), INTENT(INOUT)               :: MTAG
-      TYPE(EOS_TAG_) , TARGET, DIMENSION(0:MAXEOS) ,INTENT(OUT) :: EOS_TAG   
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED,IS_EOS, EOS_EMBEDDED
-      INTEGER JTUR, I, EMPTY_LINE,COUNT,IEOS,LAW6_OPT
-      INTEGER JTHE, IFLAGR
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
+      INTEGER IEOS, COUNT
       my_real
      .    YOUNG,NU,SIG0,CB,CN,SIGM,EPSM,T0,TMELT,PMIN,
      .    SPH,CB1,CB2,CH,CF,G0,BULK,
-     .    FAC_L,FAC_T,FAC_M,FAC_C,
-     .   BID2 ,BID3 ,BID4 ,BID5 ,
-     .   BID2_,BID3_,BID4_,BID5_,
-     .   C0,C1,C2,C3,C4,C5,E0,PSH,RHO0,RHOR
+     .    
+     .   
+     .   
+     .   PSH,RHO0,RHOR
+      CHARACTER*32 :: MTL_MSG
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
       COUNT = 0
-      IS_EOS=.FALSE.
-      IEOS=0
-      EOS_EMBEDDED=.FALSE.
+      IEOS = 0
       BULK=ZERO
       
       BULK = ZERO
       PSH = ZERO
+      
+      IS_ENCRYPTED=.FALSE.
+      IS_AVAILABLE=.FALSE.
+      
+      MTL_MSG = ''
             
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 
       CALL HM_GET_FLOATV('MAT_RHO'        ,RHO0     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Refer_Rho'      ,RHOR     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -132,53 +133,33 @@ C-----------------------------------------------
 
       CALL HM_GET_INTV  ('Line_count'     ,COUNT    ,IS_AVAILABLE, LSUBMODEL)
 
-      IF(INVERS_INIT.LE.51)THEN
-        EOS_EMBEDDED=.TRUE.
-      ENDIF          
+      !Default EoS
+      IEOS   = 18 ! Linear EOS is used by default
+      MATPARAM%IEOS = IEOS
+      IPM(4)        = IEOS    ! keep this temporarily for output and fluid sections
 
-
-        IF(EOS_EMBEDDED)THEN
-           CALL HM_GET_FLOATV('MAT_C0'       ,C0       ,IS_AVAILABLE, LSUBMODEL, UNITAB)               
-           CALL HM_GET_FLOATV('MAT_C1'       ,C1       ,IS_AVAILABLE, LSUBMODEL, UNITAB)               
-           CALL HM_GET_FLOATV('MAT_C2'       ,C2       ,IS_AVAILABLE, LSUBMODEL, UNITAB)               
-           CALL HM_GET_FLOATV('MAT_C3'       ,C3       ,IS_AVAILABLE, LSUBMODEL, UNITAB)               
-           CALL HM_GET_FLOATV('MAT_C4'       ,C4       ,IS_AVAILABLE, LSUBMODEL, UNITAB)               
-           CALL HM_GET_FLOATV('MAT_C5'       ,C5       ,IS_AVAILABLE, LSUBMODEL, UNITAB)               
-           CALL HM_GET_FLOATV('MAT_E0'       ,E0       ,IS_AVAILABLE, LSUBMODEL, UNITAB)               
-           CALL HM_GET_FLOATV('MAT_PSH'      ,PSH      ,IS_AVAILABLE, LSUBMODEL, UNITAB)  
-            BULK  = C1
-            PM(23)= E0
-            PM(31)= C0-PSH
-            PM(32)= C1
-            PM(33)= C2
-            PM(34)= C3
-            PM(35)= C4
-            PM(36)= C5
-            PM(88)= ZERO 
-            IEOS = 1 ! POLYNOMIAL EOS         
-        ENDIF
-
-      IF (PMIN.EQ.ZERO) PMIN=-EP20
-      IF (RHOR.EQ.ZERO) RHOR=RHO0
+      IF (PMIN==ZERO) PMIN=-EP20
+      IF (RHOR==ZERO) RHOR=RHO0
       PM(1) = RHOR
       PM(89)= RHO0     
 
       IF(CF < ZERO) THEN
-            CALL ANCMSG(MSGID=1513,MSGTYPE=MSGERROR,ANMODE=ANINFO,
-     .                  I1 = MAT_ID,C1 = TITR)
+        CALL ANCMSG(MSGID=1513,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1 = MAT_ID,C1 = TITR)
       ENDIF
-      IF(NU.LT.ZERO.OR.NU.GE.HALF)THEN
-            CALL ANCMSG(MSGID=1514,MSGTYPE=MSGERROR,ANMODE=ANINFO,
-     .                  I1 = MAT_ID,C1 = TITR)
+      
+      IF(NU<ZERO.OR.NU>=HALF)THEN
+        MTL_MSG = "LAW49 (STEINBERG GUINAN)"
+        CALL ANCMSG(MSGID=1514,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=MAT_ID,C1=MTL_MSG,C2=TITR)
       ENDIF
-      IF(EPSM.EQ.ZERO) EPSM  = EP20
-      IF(SIGM.EQ.ZERO) SIGM  = EP20
-      IF(TMELT.EQ.ZERO)TMELT = EP20
-      IF(PMIN.EQ.ZERO) PMIN  =-EP20
-      IF(T0.EQ.ZERO)   T0    = THREE100
+      
+      IF(EPSM==ZERO) EPSM  = EP20
+      IF(SIGM==ZERO) SIGM  = EP20
+      IF(TMELT==ZERO)TMELT = EP20
+      IF(PMIN==ZERO) PMIN  =-EP20
+      IF(T0==ZERO)   T0    = THREE100
       G0 = YOUNG /TWO / (ONE+NU)
-      IF(.NOT.EOS_EMBEDDED)BULK=YOUNG/(THREE*(ONE - TWO*NU))
-C
+      BULK=YOUNG/(THREE*(ONE - TWO*NU))
+
       PM(20) = YOUNG 
       PM(21) = NU
       PM(22) = G0
@@ -199,41 +180,39 @@ C
       PM(78) = T0
       PM(79) = T0
       PM(80) = TMELT
-C-----------
-C     Formulation for solid elements time step computation.
+                
+      !Formulation for solid elements time step computation.
       IPM(252)= 2
       PM(105) = TWO*G0/(BULK+FOUR_OVER_3*G0) ! =(1-2*Nu)/(1-Nu)
-C
+
+      ! MATPARAM keywords
+      CALL INIT_MAT_KEYWORD(MATPARAM,"INCOMPRESSIBLE")
+
+      ! Material compatibility with /EOS option
+      CALL INIT_MAT_KEYWORD(MATPARAM,"EOS")
+
+      ! EOS/Thermo keyword for pressure treatment in elements
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HYDRO_EOS")
+
+      ! Properties compatibility 
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")    
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SPH")         
+
       WRITE(IOUT,1000)          
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
         WRITE(IOUT,2001) TITR,MAT_ID,49
         WRITE(IOUT,2002) RHO0,RHOR  
-        WRITE(IOUT,1100)YOUNG,SIG0,NU,CB,CN,SIGM,EPSM,
-     .                T0,TMELT,SPH,PMIN,CB1,CB2,CH,CF
+        WRITE(IOUT,1100)YOUNG,SIG0,NU,CB,CN,SIGM,EPSM,T0,TMELT,SPH,PMIN,CB1,CB2,CH,CF
       ENDIF
-      !--------------------------------------------------!
-      ! OLD FORMAT 100 (OBSOLETE)                        !
-      !--------------------------------------------------!
-      IF(EOS_EMBEDDED)THEN                    !
-        WRITE(IOUT,2000)                                 !      
-        IF(IS_CRYPTED)THEN                              !
-          WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'     !
-        ELSE                                             !
-          WRITE(IOUT,2500)C0,C1,C2,C3,C4,C5,E0,PM(1),PSH !
-        ENDIF                                            !
-      ENDIF                                              !
-      !--------------------------------------------------!      
-c
-C---- Definition des variables internes (stockage elementaire)
-c
+
       MTAG%G_PLA   = 1    
       MTAG%G_TEMP  = 1    
-c
-      MTAG%L_PLA   = 1    ! NB10
-      MTAG%L_TEMP  = 1    ! NB11
-      MTAG%L_EPSD  = 1    ! NB12
+
+      MTAG%L_PLA   = 1
+      MTAG%L_TEMP  = 1
+      MTAG%L_EPSD  = 1
 C--------------------------------
  1000 FORMAT(
      & 5X,'   STEINBERG-GUINAN CONSTITUTIVE LAW   ',/,
@@ -255,11 +234,6 @@ C--------------------------------
      & 5X,'H COEFFICIENT . . . . . . . . . . . . .=',1PG20.13/
      & 5X,'F COEFFICIENT . . . . . . . . . . . . .=',1PG20.13//)
 C-----------
- 2000 FORMAT(
-     & 5X,'  POLYNOMIAL EOS                       ',/,
-     & 5X,'  --------------                       ',/,   
-     & 5X,'    INPUT 100 IS OBSOLETE              ',/,         
-     & 5X,'    IT CAN BE REPLACED BY /EOS CARD    ',/)
  2001 FORMAT(/
      & 5X,A,/,
      & 5X,'   MATERIAL NUMBER . . . . . . . . . . . .=',I10/,
@@ -267,18 +241,5 @@ C-----------
  2002 FORMAT(
      &  5X,'  INITIAL DENSITY . . . . . . . . . . . .=',1PG20.13/,
      &  5X,'  REFERENCE DENSITY . . . . . . . . . . .=',1PG20.13/)
- 2500 FORMAT(
-     & 5X,'C0. . . . . . . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'C1. . . . . . . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'C2. . . . . . . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'C3. . . . . . . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'C4. . . . . . . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'C5. . . . . . . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'INITIAL INTERNAL ENERGY PER UNIT VOLUME .=',1PG20.13/,
-     & 5X,'REFERENCE DENSITY . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'PRESSURE SHIFT. . . . . . . . . . . . . .=',1PG20.13//)     
-      RETURN
- 999  CALL FREERR(3)
       RETURN
       END
-

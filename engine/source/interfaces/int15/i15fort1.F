@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I15FORT1                      source/interfaces/int15/i15fort1.F
-Chd|-- called by -----------
-Chd|        I15CMP                        source/interfaces/int15/i15cmp.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i15fort1       ../engine/source/interfaces/int15/i15fort1.F
+!||--- called by ------------------------------------------------------
+!||    i15cmp         ../engine/source/interfaces/int15/i15cmp.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||====================================================================
       SUBROUTINE I15FORT1(NDEB , NTC  ,STFAC ,X     ,V    ,
      2                  KSURF  ,IGRSURF ,BUFSF ,KTC   ,KSI  ,
      3                  IACTIV ,IOLD  ,HOLD  ,NOLD  ,DOLD ,
@@ -53,16 +53,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "task_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr17_c.inc"
-#include      "parit_c.inc"
-#include      "param_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -85,12 +77,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER ADRBUF, I, IL, IN1, IN2, IN3, IN4, NLS
+      INTEGER ADRBUF, I, IL, IN1, IN2, IN3, NLS
       my_real
      .   A, B, C, ROT(9), X1, X2, X3, XM, YM, ZM,
      .   V1, V2, V3, VXM, VYM, VZM, VRX, VRY, VRZ,
      .   V1X2, V2X1, V1X3, V3X1, V2X3, V3X2,
-     .   DELTX, DELTY, DELTZ, ND, PN, SCALE, NV,
+     .   DELTX, DELTY, DELTZ, ND, PN, SCALE,
      .   VXK, VYK, VZK, DVX, DVY, DVZ, XH, YH, ZH,
      .   DX1, DY1, DZ1, DX2, DY2, DZ2, DX3, DY3, DZ3,
      .   DX, DY, DZ,
@@ -107,7 +99,6 @@ C-----------------------------------------------
      .   VX3(MVSIZ),VY3(MVSIZ),VZ3(MVSIZ),
      .   VXH(MVSIZ),VYH(MVSIZ),VZH(MVSIZ)
 C-----------------------------------------------
-C-----------------------------------------------
       ADRBUF=IGRSURF(KSURF)%IAD_BUFR
       A =BUFSF(ADRBUF+1)
       B =BUFSF(ADRBUF+2)
@@ -116,7 +107,7 @@ C-----------------------------------------------
        ROT(I)=BUFSF(ADRBUF+7+I-1)
       END DO
 C-----------------------------------------------
-C     Noeud main dans le repere de l'ellipsoide :
+C     main node in the ellipsoid frame
 C-----------------------------------------------
       X1=BUFSF(ADRBUF+16)-BUFSF(ADRBUF+4)
       X2=BUFSF(ADRBUF+17)-BUFSF(ADRBUF+5)
@@ -125,7 +116,7 @@ C-----------------------------------------------
       YM=ROT(4)*X1+ROT(5)*X2+ROT(6)*X3
       ZM=ROT(7)*X1+ROT(8)*X2+ROT(9)*X3
 C-----------------------------------------------
-C     Vitesse du noeud main en local.
+C     main node velocity locally.
 C-----------------------------------------------
       V1=BUFSF(ADRBUF+19)
       V2=BUFSF(ADRBUF+20)
@@ -134,7 +125,7 @@ C-----------------------------------------------
       VYM=ROT(4)*V1+ROT(5)*V2+ROT(6)*V3
       VZM=ROT(7)*V1+ROT(8)*V2+ROT(9)*V3
 C-----------------------------------------------
-C     Vitesse  de rotation du noeud main en local.
+C     rotation velocity of the main node in local
 C-----------------------------------------------
       V1=BUFSF(ADRBUF+22)
       V2=BUFSF(ADRBUF+23)
@@ -143,12 +134,12 @@ C-----------------------------------------------
       VRY=ROT(4)*V1+ROT(5)*V2+ROT(6)*V3
       VRZ=ROT(7)*V1+ROT(8)*V2+ROT(9)*V3
 C----------------------------------------------------------
-C     PASSAGE DES VITESSES EN LOCAL.
-C     non optimise (plusieurs fois / noeud).
+C     PASSAGE OF VELOCITIES TO LOCAL.
+C     non optimise (plusieurs fois / node).
 C----------------------------------------------------------
       DO 100 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 100
+      IF (IACTIV(1,IL)<=0) GOTO 100
       I  =NLS-NDEB
 C------
        IN1=KSI(1,IL)
@@ -180,7 +171,7 @@ C     Force normale.
 C----------------------------------------------------------
       DO 200 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 200
+      IF (IACTIV(1,IL)<=0) GOTO 200
       I  =NLS-NDEB
 C       STF(I)=STFAC*DEPTH(I)/MAX(DEPTH(I)-PENET(I),EM20)
       STF(I)=STFAC*DEPTH(I)**2/MAX((DEPTH(I)-PENET(I))**2,EM20)
@@ -189,13 +180,13 @@ C       STF(I)=STFAC*DEPTH(I)/MAX(DEPTH(I)-PENET(I),EM20)
       FZN(I)=STF(I)*PENET(I)*NZI(I)
  200  CONTINUE
 C-------------------------------
-C     Extraction du pt de contact au cycle precedent.
+C     extraction of the contact point at the previous cycle
 C-------------------------------
       DO 250 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 250
+      IF (IACTIV(1,IL)<=0) GOTO 250
       I  =NLS-NDEB
-C     Point sur le triangle tq D(P,L) etait maximum au cycle precedent.
+C     Point on the TQ D triangle (P, L) was maximum at the previous cycle.
       L1(I)=IOLD(1,4*(IL-1)+1)
       L2(I)=IOLD(2,4*(IL-1)+1)
       L3(I)=IOLD(3,4*(IL-1)+1)
@@ -206,21 +197,21 @@ C----------------------------------------------------------
 #include "vectorize.inc"
       DO 275 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 275
+      IF (IACTIV(1,IL)<=0) GOTO 275
       I  =NLS-NDEB
 C------------------------------
       FXT(I)=ZERO
       FYT(I)=ZERO
       FZT(I)=ZERO     
 C-------------------------------
-C     TOURNER DELTA(T-1) DANS LE PLAN TANGENT.
+C     rotate delta(t-1) in the tangent plane
 C-------------------------------
-      IF (IACTIV(1,IL).GT.2) THEN
+      IF (IACTIV(1,IL)>2) THEN
        DELTX=DOLD(1,4*(IL-1)+1)
        DELTY=DOLD(2,4*(IL-1)+1)
        DELTZ=DOLD(3,4*(IL-1)+1)
        ND =SQRT(DELTX*DELTX+DELTY*DELTY+DELTZ*DELTZ)
-       IF (ND.NE.ZERO) THEN
+       IF (ND/=ZERO) THEN
         PN=DELTX*NXI(I)+DELTY*NYI(I)+DELTZ*NZI(I)
         DELTX=DELTX-PN*NXI(I)
         DELTY=DELTY-PN*NYI(I)
@@ -236,7 +227,7 @@ C-------------------------------
        DELTZ=ZERO    
       ENDIF
 C-------------------------------
-C     INCREMENT SUR DELTA (T-1 -> T) : VITESSE RELATIVE TANGENTE DE POLD * DT
+C     INCREMENT SUR DELTA (T-1 -> T) : VELOCITY RELATIVE TANGENTE DE POLD * DT
 C-------------------------------
       XH=HOLD(1,4*(IL-1)+1)
       YH=HOLD(2,4*(IL-1)+1)
@@ -253,7 +244,7 @@ C-------------------------------
       VXH(I)=VXM+V1
       VYH(I)=VYM+V2
       VZH(I)=VZM+V3
-      IF (IACTIV(1,IL).GE.2) THEN
+      IF (IACTIV(1,IL)>=2) THEN
        VXK=L1(I)*VX1(I)+L2(I)*VX2(I)+L3(I)*VX3(I)
        VYK=L1(I)*VY1(I)+L2(I)*VY2(I)+L3(I)*VY3(I)
        VZK=L1(I)*VZ1(I)+L2(I)*VZ2(I)+L3(I)*VZ3(I)
@@ -285,7 +276,7 @@ C------------------------------------------------------------
 #include "vectorize.inc"
       DO 625 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 625
+      IF (IACTIV(1,IL)<=0) GOTO 625
       I  =NLS-NDEB
 C-----
       FTX=FXT(I)
@@ -297,7 +288,7 @@ C-----
       FTN=SQRT(FTX*FTX+FTY*FTY+FTZ*FTZ)
       FN =SQRT(FNX*FNX+FNY*FNY+FNZ*FNZ)
       FMAX= MAX(VFRIC*FN,ZERO)
-      IF (FTN.GT.FMAX) THEN
+      IF (FTN>FMAX) THEN
         SCALE =FMAX/FTN
         FTX=SCALE*FTX
         FTY=SCALE*FTY
@@ -305,12 +296,12 @@ C-----
       ELSE
         SCALE=1.
       ENDIF
-      IF (IACTIV(1,IL).GT.1) THEN
-C      Glissement DELTA=scale.DELTA
+      IF (IACTIV(1,IL)>1) THEN
+C      Delta shift = scale.delta
        DELTX=SCALE*DOLD(1,4*(IL-1)+1)
        DELTY=SCALE*DOLD(2,4*(IL-1)+1)
        DELTZ=SCALE*DOLD(3,4*(IL-1)+1)
-C      MISE EN MEMOIRE BUFFERS D'INTERFACE (-> PROCHAIN CYCLE).
+C      SET EN MEMOIRE BUFFERS D'INTERFACE (-> PROCHAIN CYCLE).
        DOLD(1,4*(IL-1)+1)=DELTX
        DOLD(2,4*(IL-1)+1)=DELTY
        DOLD(3,4*(IL-1)+1)=DELTZ
@@ -325,7 +316,7 @@ C------------------------------------------------------------
 C#include "vectorize.inc"
       DO 650 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 650
+      IF (IACTIV(1,IL)<=0) GOTO 650
       I  =NLS-NDEB
 C-----
       DX2=XP2(1,I)-XTK(I)
@@ -359,12 +350,12 @@ C-----
       IOLD(3,4*(IL-1)+1)=S3*S
  650  CONTINUE
 C------------------------------------------------------------
-C     MISE EN MEMOIRE BUFFERS D'INTERFACE (-> PROCHAIN CYCLE).
+C     SET EN MEMOIRE BUFFERS D'INTERFACE (-> PROCHAIN CYCLE).
 C------------------------------------------------------------
 #include "vectorize.inc"
       DO 700 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 700
+      IF (IACTIV(1,IL)<=0) GOTO 700
       I  =NLS-NDEB
 C-----
       HOLD(1,4*(IL-1)+1)=XI(I)
@@ -376,12 +367,12 @@ C-----
       NOLD(3,4*(IL-1)+1)=NZI(I)
  700  CONTINUE
 C------------------------------------------------------------
-C     MISE EN MEMOIRE (VECTEURS DE TRAVAIL -> ASSEMBLAGE).
+C     SET EN MEMOIRE (VECTEURS DE TRAVAIL -> ASSEMBLAGE).
 C------------------------------------------------------------
-C     non vectoriel.
+C     non -vector.
       DO 600 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 600
+      IF (IACTIV(1,IL)<=0) GOTO 600
       I  =NLS-NDEB
 C-----
       IN1=KSI(1,IL)
@@ -394,10 +385,10 @@ C-----
 C-----
  600  CONTINUE
 C------------------------------------------------------------
-C     non vectoriel.
+C     non -vector.
       DO 800 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 800
+      IF (IACTIV(1,IL)<=0) GOTO 800
       I  =NLS-NDEB
 C-----
       IN1=KSI(1,IL)
@@ -433,10 +424,10 @@ C-----
 C-----
  800  CONTINUE
 C------------------------------------------------------------
-C     non vectoriel.
+C     non -vector.
       DO 825 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (iactiv(1,IL).LE.0) GOTO 825
+      IF (iactiv(1,IL)<=0) GOTO 825
       I  =NLS-NDEB
 C-----
       IN1=KSI(1,IL)
@@ -477,13 +468,13 @@ C------------------------------------------------------------
       DTI=EP20
       DO 900 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 900
+      IF (IACTIV(1,IL)<=0) GOTO 900
       I  =NLS-NDEB
       DVX=VX1(I)-VXH(I)
       DVY=VY1(I)-VYH(I)
       DVZ=VZ1(I)-VZH(I)
       PN=DVX*NXI(I)+DVY*NYI(I)+DVZ*NZI(I)
-      IF (PN.LT.ZERO) THEN
+      IF (PN<ZERO) THEN
         H  =XP1(1,I)*NXI(I)+XP1(2,I)*NYI(I)+XP1(3,I)*NZI(I)
         DTI=MIN(DTI,HALF*H/MAX(EM20,-PN))
       ENDIF
@@ -491,7 +482,7 @@ C------------------------------------------------------------
       DVY=VY2(I)-VYH(I)
       DVZ=VZ2(I)-VZH(I)
       PN=DVX*NXI(I)+DVY*NYI(I)+DVZ*NZI(I)
-      IF (PN.LT.ZERO) THEN
+      IF (PN<ZERO) THEN
         H  =XP2(1,I)*NXI(I)+XP2(2,I)*NYI(I)+XP2(3,I)*NZI(I)
         DTI=MIN(DTI,HALF*H/MAX(EM20,-PN))
       ENDIF
@@ -499,11 +490,11 @@ C------------------------------------------------------------
       DVY=VY3(I)-VYH(I)
       DVZ=VZ3(I)-VZH(I)
       PN=DVX*NXI(I)+DVY*NYI(I)+DVZ*NZI(I)
-      IF (PN.LT.ZERO) THEN
+      IF (PN<ZERO) THEN
         H  =XP3(1,I)*NXI(I)+XP3(2,I)*NYI(I)+XP3(3,I)*NZI(I)
         DTI=MIN(DTI,HALF*H/MAX(EM20,-PN))
       ENDIF
-      IF(DTI.LT.DT2T)THEN
+      IF(DTI<DT2T)THEN
         DT2T    = DTI
         NELTST  = NOINT
         ITYPTST = 10
@@ -511,17 +502,17 @@ C------------------------------------------------------------
 C-----
  900  CONTINUE
 C----------------------------------
-      IF (DTI.LE.0.) THEN
+      IF (DTI<=0.) THEN
       DTI=EP20
       DO 950 NLS=NDEB+1,MIN(NDEB+MVSIZ,NTC)
       IL =KTC(NLS)
-      IF (IACTIV(1,IL).LE.0) GOTO 950
+      IF (IACTIV(1,IL)<=0) GOTO 950
       I  =NLS-NDEB
       DVX=VX1(I)-VXH(I)
       DVY=VY1(I)-VYH(I)
       DVZ=VZ1(I)-VZH(I)
       PN=DVX*NXI(I)+DVY*NYI(I)+DVZ*NZI(I)
-      IF (PN.LT.ZERO) THEN
+      IF (PN<ZERO) THEN
         H  =XP1(1,I)*NXI(I)+XP1(2,I)*NYI(I)+XP1(3,I)*NZI(I)
         DTI=MIN(DTI,HALF*H/MAX(EM20,-PN))
       ENDIF
@@ -529,7 +520,7 @@ C----------------------------------
       DVY=VY2(I)-VYH(I)
       DVZ=VZ2(I)-VZH(I)
       PN=DVX*NXI(I)+DVY*NYI(I)+DVZ*NZI(I)
-      IF (PN.LT.ZERO) THEN
+      IF (PN<ZERO) THEN
         H  =XP2(1,I)*NXI(I)+XP2(2,I)*NYI(I)+XP2(3,I)*NZI(I)
         DTI=MIN(DTI,HALF*H/MAX(EM20,-PN))
       ENDIF
@@ -537,11 +528,11 @@ C----------------------------------
       DVY=VY3(I)-VYH(I)
       DVZ=VZ3(I)-VZH(I)
       PN=DVX*NXI(I)+DVY*NYI(I)+DVZ*NZI(I)
-      IF (PN.LT.ZERO) THEN
+      IF (PN<ZERO) THEN
         H  =XP3(1,I)*NXI(I)+XP3(2,I)*NYI(I)+XP3(3,I)*NZI(I)
         DTI=MIN(DTI,HALF*H/MAX(EM20,-PN))
       ENDIF
-      IF(DTI.LE.ZERO)THEN
+      IF(DTI<=ZERO)THEN
          IN1=KSI(1,IL)
          IN2=KSI(2,IL)
          IN3=KSI(3,IL)

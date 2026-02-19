@@ -1,67 +1,60 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP13                source/properties/spring/hm_read_prop13.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        NL                            source/output/message/message.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop13           ../starter/source/properties/spring/hm_read_prop13.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties       ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP13(GEO, IGEO, IG, UNITAB,ISKN,
-     .                          IDTITL, IGTYP, PROP_TAG,LSUBMODEL)
+     .                          IDTITL, IGTYP, PROP_TAG,LSUBMODEL,SUB_INDEX)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
       USE UNITAB_MOD
       USE MESSAGE_MOD
       USE ELBUFTAG_MOD   
-      USE SUBMODEL_MOD         
+      USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
 #include      "com04_c.inc"
-#include      "submod_c.inc"
 #include      "sphcom.inc"
 #include      "tablen_c.inc"
 C-----------------------------------------------
@@ -69,12 +62,12 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER IGEO(NPROPGI),ISKN(LISKN,*),IGTYP,IG
+      INTEGER, INTENT(IN) :: SUB_INDEX
 C     REAL
       my_real GEO(NPROPG)
-      my_real FAC_M, FAC_L, FAC_T
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
-      CHARACTER IDTITL*nchartitle
+      CHARACTER(LEN=NCHARTITLE)::IDTITL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -86,7 +79,7 @@ C     REAL
      .   PUN,VT0, VR0, CC(6), CN(6), XA(6), XB(6),ASRATE,GF3,
      .   A_UNIT,B_UNIT,D_UNIT,E_UNIT,F_UNIT,
      .   LSCALE_UNIT,GF3_UNIT,VT0_UNIT,VR0_UNIT,ASR_UNIT,CRIT_SCALE(6)
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
 C=======================================================================
       DATA PUN/0.1/
 C=======================================================================
@@ -97,7 +90,7 @@ C
       ISRATE = 0
       ASRATE = ZERO
 C
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 
 C     Double stockage temporaire - supprimer GEO(12,I)=IGTYP apres tests
@@ -108,11 +101,12 @@ C
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
       CALL HM_GET_INTV('SKEW_CSID',ISK,IS_AVAILABLE,LSUBMODEL)
+      IF(ISK == 0 .AND. SUB_INDEX /= 0 ) ISK = LSUBMODEL(SUB_INDEX)%SKEW
       CALL HM_GET_INTV('ISENSOR',ISENS,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('ISFLAG',IFL,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('Ifail',IFAIL,IS_AVAILABLE,LSUBMODEL)
@@ -161,7 +155,7 @@ C
       GEO(93)=ILENG
       GEO(95)=IFAIL2
 C----
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,1000)IG
  1000   FORMAT(
      &    5X,'SPRING PROPERTY SET'/,
@@ -169,7 +163,7 @@ C----
      &    5X,'PROPERTY SET NUMBER . . . . . . . . . .=',I10/,
      &    5X,'CONFIDENTIAL DATA'//)
       ELSE
-        WRITE(IOUT,1801)IG,XM,XIN,ISKN(4,ISK),ISENS,IFL,IFAIL,IFAIL2,
+        WRITE(IOUT,1801)IG,XM,XIN,ISKN(4,ISK),ABS(ISENS),IFL,IFAIL,IFAIL2,
      .                  ILENG
       ENDIF
 !-------------------------------------------------------
@@ -301,7 +295,7 @@ C----
       GEO(3)  = XK / A
       GEO(4)  = XC
       GEO(7)  = IECROU+PUN
-C--   If H=6 - addditional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
+C--   If H=6 - additional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
       IF (IECROU == 6) THEN
         GEO(25) = 6
       ENDIF
@@ -311,7 +305,7 @@ C
       IGEO(103) = IFUNC2
       IGEO(119) = IFUNC3
 C----
-      IF (.NOT. IS_CRYPTED) THEN
+      IF (.NOT. IS_ENCRYPTED) THEN
         IF (IECROU /= 5) THEN
           IF (IFAIL2 == 3) THEN
             WRITE(IOUT,1813)'TENSION',XK,XC,IFUNC,LSCALE,IFUNC2,F,IECROU,
@@ -456,7 +450,7 @@ C----
       GEO(10) = XK / A
       GEO(11) = XC
       GEO(14) = IECROU+PUN
-C--   If H=6 - addditional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
+C--   If H=6 - additional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
       IF (IECROU == 6) THEN
         GEO(25) = 6
       ENDIF
@@ -466,7 +460,7 @@ C
       IGEO(106) = IFUNC2
       IGEO(120) = IFUNC3
 C----
-      IF (.NOT. IS_CRYPTED) THEN
+      IF (.NOT. IS_ENCRYPTED) THEN
         IF (IECROU /= 5) THEN
           IF (IFAIL2 == 3) THEN
             WRITE(IOUT,1813)'Y SHEAR',XK,XC,IFUNC,LSCALE,IFUNC2,F,IECROU,
@@ -611,7 +605,7 @@ C----
       GEO(15) = XK / A
       GEO(16) = XC
       GEO(18) = IECROU+PUN
-C--   If H=6 - addditional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
+C--   If H=6 - additional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
       IF (IECROU == 6) THEN
         GEO(25) = 6
       ENDIF
@@ -621,7 +615,7 @@ C
       IGEO(109) = IFUNC2
       IGEO(121) = IFUNC3
 C----
-      IF (.NOT. IS_CRYPTED) THEN
+      IF (.NOT. IS_ENCRYPTED) THEN
         IF (IECROU /= 5) THEN
           IF (IFAIL2 == 3) THEN
             WRITE(IOUT,1813)'Z SHEAR',XK,XC,IFUNC,LSCALE,IFUNC2,F,IECROU,
@@ -693,7 +687,7 @@ C--------------------------------------------------
       CALL HM_GET_FLOATV_DIM('MIN_RUP4',CRIT_SCALE(4),IS_AVAILABLE,LSUBMODEL,UNITAB)
 C
 C----
-!      IF(IFUNC.NE.0.AND.IECROU.GE.1.AND.XK == ZERO)THEN
+!      IF(IFUNC/=0.AND.IECROU>=1.AND.XK == ZERO)THEN
 !         CALL ANCMSG(MSGID=230,
 !     .               MSGTYPE=MSGERROR,
 !     .               ANMODE=ANINFO_BLIND_1,
@@ -783,7 +777,7 @@ C----
       GEO(19)  = XK / A
       GEO(20)  = XC
       GEO(22)  = IECROU+PUN
-C--   If H=6 - addditional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
+C--   If H=6 - additional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
       IF (IECROU == 6) THEN
         GEO(25) = 6
       ENDIF
@@ -793,7 +787,7 @@ C
       IGEO(112) = IFUNC2
       IGEO(122) = IFUNC3
 C----
-      IF (.NOT. IS_CRYPTED) THEN
+      IF (.NOT. IS_ENCRYPTED) THEN
         IF (IECROU /= 5) THEN
           IF (IFAIL2 == 3) THEN
             WRITE(IOUT,1833)'TORSION',XK,XC,IFUNC,LSCALE,IFUNC2,F,IECROU,
@@ -936,7 +930,7 @@ C----
       GEO(23)  = XK / A
       GEO(24)  = XC
       GEO(26)  = IECROU+PUN
-C--   If H=6 - addditional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
+C--   If H=6 - additional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
       IF (IECROU == 6) THEN
         GEO(25) = 6
       ENDIF
@@ -946,7 +940,7 @@ C
       IGEO(115) = IFUNC2
       IGEO(123) = IFUNC3
 C----
-      IF (.NOT. IS_CRYPTED) THEN
+      IF (.NOT. IS_ENCRYPTED) THEN
         IF (IECROU /= 5) THEN
           IF (IFAIL2 == 3) THEN
             WRITE(IOUT,1833)'Y FLEXION',XK,XC,IFUNC,LSCALE,IFUNC2,F,
@@ -1089,7 +1083,7 @@ C----
       GEO(27)  = XK / A
       GEO(28)  = XC
       GEO(30)  = IECROU+PUN
-C--   If H=6 - addditional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
+C--   If H=6 - additional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
       IF (IECROU == 6) THEN
         GEO(25) = 6
       ENDIF
@@ -1099,7 +1093,7 @@ C
       IGEO(118) = IFUNC2
       IGEO(124) = IFUNC3
 C----
-      IF (.NOT. IS_CRYPTED) THEN
+      IF (.NOT. IS_ENCRYPTED) THEN
         IF (IECROU /= 5) THEN
           IF (IFAIL2 == 3) THEN
             WRITE(IOUT,1833)'Z FLEXION',XK,XC,IFUNC,LSCALE,IFUNC2,F,
@@ -1211,7 +1205,7 @@ C----
       GEO(127) = ISRATE
       GEO(128) = ASRATE
 C
-      IF (.NOT. IS_CRYPTED) THEN
+      IF (.NOT. IS_ENCRYPTED) THEN
         WRITE(IOUT,1850) VT0,VR0,
      .      (CC(J),J=1,6),(CN(J),J=1,6),(XA(J),J=1,6),(XB(J),J=1,6)
         WRITE(IOUT,1900) ISRATE,ASRATE
@@ -1241,25 +1235,13 @@ C
       PROP_TAG(IGTYP)%G_SKEW_ERR = 3
       PROP_TAG(IGTYP)%G_E6 = 6
       PROP_TAG(IGTYP)%G_RUPTCRIT = 1
-      PROP_TAG(IGTYP)%G_NUVAR = MAX(PROP_TAG(IGTYP)%G_NUVAR,NINT(GEO(25))) ! addtional internal variables for h=6
+      PROP_TAG(IGTYP)%G_NUVAR = MAX(PROP_TAG(IGTYP)%G_NUVAR,NINT(GEO(25))) ! additional internal variables for h=6
       PROP_TAG(IGTYP)%G_DEFINI = 6
       PROP_TAG(IGTYP)%G_FORINI = 6
 C
 C------------------------
       RETURN
 c-----------
- 1800 FORMAT(
-     & 5X,'SPRING PROPERTY SET (BEAM TYPE)'/,
-     & 5X,'PROPERTY SET NUMBER . . . . . . . . . .=',I10/,
-     & 5X,'SPRING MASS . . . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'SPRING INERTIA. . . . . . . . . . . . .=',1PG20.13/,
-     & 5X,'SKEW FRAME NUMBER (0:GLOBAL). . . . . .=',I10/,
-     & 5X,'SENSOR NUMBER (0:NOT USED). . . . . . .=',I10/,
-     & 5X,'SENSOR FLAG (0:ACTIV 1:DEACT 2:BOTH). .=',I10/,
-     & 5X,'FAILURE FLAG (0:UNCOUPLED 1:COUPLED). .=',I10/,
-     & 5X,'UNIT LENGTH FLAG. . . . . . . . . . . .=',I10/,
-     & 5X,'IF=1 UNIT LENGTH MASS,STIFFNESS AND INPUT',/,
-     & 5X,'     CURVE ARE STRAIN DEPENDING',/)
  1810 FORMAT(
      & 5X,A,/,
      & 5X,'SPRING STIFFNESS. . . . . . . . . . . .=',1PG20.13/,
@@ -1367,7 +1349,7 @@ c-----------
      & 5X,'SENSOR NUMBER (0:NOT USED). . . . . . .=',I10/,
      & 5X,'SENSOR FLAG (0:ACTIV 1:DEACT 2:BOTH). .=',I10/,
      & 5X,'FAILURE FLAG (0:UNCOUPLED 1:COUPLED). .=',I10/,
-     & 5X,'FAILURE CRITERIUM (DISPL/FORCE/ENERGY).=',I10/,
+     & 5X,'FAILURE CRITERION (DISPL/FORCE/ENERGY).=',I10/,
      & 5X,'      1:DISPLACEMENT  2:FORCE  3:ENERGY '  ,/,
      & 5X,'UNIT LENGTH FLAG. . . . . . . . . . . .=',I10/,
      & 5X,'IF=1 UNIT LENGTH MASS,STIFFNESS AND INPUT',/,
@@ -1594,8 +1576,6 @@ c-----------
  1900 FORMAT(
      & 5X,'SMOOTH STRAIN RATE OPTION . . .. . . . =',I10/,
      & 5X,'STRAIN RATE CUTTING FREQUENCY .. . . . =',1PG20.13/)
-c-----------
- 999  CALL FREERR(1)
 c-----------
       RETURN
       END

@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  TRI25TMP                      share/modules/tri25tmp_mod.F  
-Chd|-- called by -----------
-Chd|        CHECK_FI                      source/mpi/interfaces/spmd_i25slide.F
-Chd|        DEALLOCATE_FI1_TMP            source/mpi/interfaces/spmd_i25slide.F
-Chd|        REALLOCATE_FI1                source/mpi/interfaces/spmd_i25slide.F
-Chd|        SPMD_I25_SLIDE_GAT            source/mpi/interfaces/spmd_i25slide.F
-Chd|-- calls ---------------
-Chd|        POINTERDEF                    share/modules/pointerdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    tri25tmp             ../engine/share/modules/tri25tmp_mod.F
+!||--- called by ------------------------------------------------------
+!||    check_fi             ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||    deallocate_fi1_tmp   ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||    reallocate_fi1       ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||    spmd_i25_slide_gat   ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||--- uses       -----------------------------------------------------
+!||    pointerdef           ../engine/share/modules/pointerdef_mod.F
+!||====================================================================
       MODULE TRI25TMP
 #include "my_real.inc"
       USE POINTERDEF
@@ -65,90 +65,91 @@ C On utlise PANE_OLD
       INTEGER :: CURRENT_FI_SIZE
 
 C buffer envoi/reception forces interfaces
-C tableau de pointeurs NSVFI de taille NINTER
-C indiquant liste noeuds remote a recevoir du "proc main"
+C pointer array NSVFI of size NINTER
+C indicating nodes list Remote to receive "proc main"
       TYPE(int_pointer) :: NSVFI
 
 C Proc main of the secnd node. Assumes that only the main processor sends
 C secnds nodes
       TYPE(int_pointer) PMAINFI
 
-C tableau de pointeurs NSNFI de taille NINTER
-C indiquant pour chaque interface type7 le nb de noeuds secnd dans NSVFI
-C par processeur
+C pointer array NSNFI of size NINTER
+C indicating for each interface type7 the number of secondary nodes in NSVFI
+C per processor
       TYPE(int_pointer) :: 
      .  NSNFI, NSNFI_SAV, ITAFI, KINFI, MATSFI,
 C tableau i20 specifique (flag nodal)
      .  NBINFLFI,
      .  NODNXFI, NODAMSFI, PROCAMSFI,
-C tableau i20 partie edge
+C Table I20 Part Edge
      .  NSNFIE,NSVFIE,ITAFIE,NODNXFIE, NODAMSFIE, PROCAMSFIE,
 C Friction model : secnd parts id
      .  IPARTFRICSFI,IPARTFRIC_FIE,
 C type25 interface adhesion
      .  IF_ADHFI
-C tableaux frontieres interfaces pour MS, STFN, STIFN
+C arrays front interfaces for MS, STFN, STIFN
       TYPE(int_pointer) :: ICODT_FI,ISKEW_FI
       TYPE(real_pointer) :: 
      .  MSFI, STIFI, STNFI, GAPFI,VSCFI, FTHEFI, FTHESKYFI,
      .  AREASFI, TEMPFI, ALPHAKFI, DIAG_SMSFI,GAP_LFI,CONDNFI,
      .  CONDNSKYFI,
-C tableau i20 partie edge
+C Table I20 Part Edge
      .  MSFIE, STIFIE, STNFIE, GAPFIE, VSCFIE, ALPHAKFIE,
      .  DIAG_SMSFIE,
 C tableau I18 Kine
      .  MTFI_PENE,MTFI_PENEMIN
-C tableaux frontieres interfaces pour X, V A ou FSKY
+C interface boundary arrays for X, V A or FSKY
       TYPE(real_pointer2) :: 
      .  XFI, VFI, AFI, FSKYFI, PENFI, PENFIA,MTFI_V,MTFI_A,
      .  I18KAFI,MTFI_N,DAANCFI
-C tableau i20 partie edge
+C Table I20 Part Edge
      .  XFIE, VFIE, AFIE, FSKYFIE, PENFIE, PENFIAE, DAANCFIE
-C tableaux frontieres interfaces 17 pour
+C Tables front interfaces 17 for
       TYPE(real_pointer2) :: 
      .  EMINXFI, KSFI, FROTSFI, STNFI17
-C tableaux frontieres interfaces 17 pour XFI17, VFI17, AFI17
+C Tables Frontieres Interfaces 17 for XFI17, VFI17, AFI17
       TYPE(real_pointer3) :: 
      .  XFI17, VFI17, AFI17
-C tableaux frontieres interfaces 20 pour DXANC,DVANC
+C Tables boundary interfaces 20 for DXANC, DVANC
       TYPE(real_pointer2) :: 
      .  DXANCFI, DVANCFI, DXANCFIE, DVANCFIE
-C tableaux frontieres interfaces 20 pour DAANC6
+C Boundary Tables Interfaces 20 for DAANC6
       TYPE(r8_pointer3) :: 
      .  DAANC6FI, DAANC6FIE
-C tableau de pointeurs ISKYFI de taille NINTER indiquant pour chaque interface
-C la liste des noeuds remote associe a une force dans FSKYI
+C pointer array ISKYFI of size NINTER indicating for each interface
+C the list of remote nodes associated with a force in FSKYI
       TYPE(int_pointer) :: ISKYFI,
-C tableau i20 partie edge
+C Table I20 Part Edge
      .  ISKYFIE
-C tableau de pointeurs NSVSI de taille NINTER
-C indiquant liste noeuds remote a envoyer au "proc secnd"
+C pointer array NSVSI of size NINTER
+C Saying the noded list Remote to send to the "Prof Second"
       TYPE(int_pointer) :: NSVSI,
-C tableau i20 partie edge
+C Table I20 Part Edge
      .  NSVSIE
-C tableau de pointeurs NSNSI de taille NINTER
-C indiquant pour chaque interface type7, 10, 11 le nb de noeuds secnd dans NSVSI
-C par processeur
+C pointer array NSNSI of size NINTER
+C indicating for each interface type7, 10, 11 the number of secondary nodes in NSVSI
+C per processor
       TYPE(int_pointer) :: NSNSI,
-C tableau i20 partie edge
+C Table I20 Part Edge
      .  NSNSIE
-C tableau de pointeurs NISUBSFI de taille NINTER
-C indiquant pour chaque interface type7, 10 le nbre d elt dans LISUBSFI
-C par processeur
+C pointer array NISUBSFI of size NINTER
+C indicating for each interface type7, 10 the number of elements in LISUBSFI
+C per processor
       TYPE(int_pointer) :: NISUBSFI
-C tableau de pointeurs LISUBSFI de taille NINTER
-C indiquant pour chaque interface type7, 10, et pour chaque noeud remote de cette interface
-C la liste des sous interfaces
+C pointer array LISUBSFI of size NINTER
+C indicating for each interface type7, 10, and for each remote node of this interface
+C the list of sub-interfaces
       TYPE(int_pointer) :: LISUBSFI
-C tableau de pointeurs INFLG_SUBSFI de taille NINTER
-C indiquant pour chaque interface type25 et pour chaque noeud remote de cette interface
-C l appartenance a S1, S2, ou GRNOD
+C pointer array INFLG_SUBSFI of size NINTER
+C indicating for each interface type25 and for each remote node of this interface
+C belonging to S1, S2, or Grnod
       TYPE(int_pointer), DIMENSION(:), ALLOCATABLE :: INFLG_SUBSFI
-C tableau de pointeurs ADDSUBSFI de taille NINTER
-C indiquant pour chaque interface type7, 10, et pour chaque noeud remote de cette interface
-C son adresse de depart dans LISUBSFI et INFLG_SUBSFI(tableau dimensionne a NSNR+1 (noeud remote + 1)
+C pointer array ADDSUBSFI of size NINTER
+C indicating for each interface type7, 10, and for each remote node of this interface
+C Its departure address in lisubsfi and inflg_subsfi (Table dimensioning a nsnr + 1 (Remote node + 1)
       TYPE(int_pointer) :: ADDSUBSFI
       TYPE(real_pointer2) :: FNCONTI, FTCONTI
+      TYPE(real_pointer) :: EFRICFI, EFRICGFI
       INTEGER  :: NLSKYFI, NLSKYFIE
 C Flag array to tag if NSNFI was frozen into NSNFI_SAV - Case INACTI + TSTART
       INTEGER  :: NSNFI_FLAG
@@ -171,6 +172,8 @@ C Type 25 Interface
 C Type 25 Interface FLAGREMN
       TYPE(int_pointer)  :: REMNOR_FI
       TYPE(int_pointer)  :: KREMNOR_FI
+      TYPE(real_pointer)  :: STIF_MSDT_FI
+      TYPE(real_pointer)  :: INTAREANFI
 
       END TYPE I25_TMP_STRUCT
 

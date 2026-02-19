@@ -1,51 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_INTER_TYPE07          source/interfaces/int07/hm_read_inter_type07.F
-Chd|-- called by -----------
-Chd|        HM_READ_INTER_STRUCT          source/interfaces/reader/hm_read_inter_struct.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        DEFINTER                      source/interfaces/interf1/definter.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        INTER_DCOD_FRICTION           source/interfaces/reader/inter_dcod_friction.F
-Chd|        INTER_DCOD_FUNCTION           source/interfaces/reader/inter_dcod_function.F
-Chd|        INTER_DCOD_SENSOR             source/interfaces/reader/inter_dcod_sensor.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUF_FRIC_MOD               share/modules1/intbuf_fric_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_inter_type07   ../starter/source/interfaces/int07/hm_read_inter_type07.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_inter_struct   ../starter/source/interfaces/reader/hm_read_inter_struct.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    definter               ../starter/source/interfaces/interf1/definter.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim      ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    inter_dcod_friction    ../starter/source/interfaces/reader/inter_dcod_friction.F
+!||    inter_dcod_function    ../starter/source/interfaces/reader/inter_dcod_function.F
+!||    inter_dcod_sensor      ../starter/source/interfaces/reader/inter_dcod_sensor.F
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_INTER_TYPE07(
      1        IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,NI         ,    
      2        IGRNOD     ,IGRSURF    ,XFILTR     ,FRIC_P    ,NOM_OPT    ,
-     3        DEF_INTER  ,NPC1       ,LSENSOR    ,UNITAB    ,LSUBMODEL  ,
+     3        DEF_INTER  ,NPC1       ,SENSORS    ,UNITAB    ,LSUBMODEL  ,
      4        TITR       ,NOM_OPTFRIC,INTBUF_FRIC_TAB,NPC   ,TF         ,
-     4        ID_TYPE19)
+     4        ID_TYPE19  ,NPARI      ,NPARIR     ,SNPC      ,SNPC1      ,
+     5        LNOPT1     ,NPTS       ,ITHERM_FE  ,INTHEAT    )
 C============================================================================
 C
 C-----------------------------------------------
@@ -54,52 +53,42 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE INTBUF_FRIC_MOD
       USE GROUPDEF_MOD
-      USE SUBMODEL_MOD
+      USE SUBMODEL_MOD , ONLY : SUBMODEL_DATA, NSUBMOD
       USE UNITAB_MOD
+      USE SENSOR_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "sphcom.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NOM_OPT(LNOPT1,*), NOM_OPTFRIC(LNOPT1,*)
-      INTEGER NI,NOINT,ID_TYPE19
-      INTEGER IPARI(*),DEF_INTER(*),NPC1(*),LSENSOR(NSENSI,*),NPC(*)
-      my_real
-     .   STFAC,XFILTR
-      my_real
-     .   FRIGAP(*),FRIC_P(*),TF(*)
-      CHARACTER TITR*nchartitle
-      TYPE(INTBUF_FRIC_STRUCT_) INTBUF_FRIC_TAB(*)
-      TYPE(SUBMODEL_DATA) LSUBMODEL(*)
-C-----------------------------------------------
-      TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
-      TYPE (SURF_)   ,TARGET , DIMENSION(NSURF)   :: IGRSURF
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr06_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "scr12_c.inc"
 #include      "remesh_c.inc"
-#include      "sysunit.inc"
-#include      "thknod_c.inc"
+C-----------------------------------------------
+C   D u m m y   A r g u m e n t s
+C-----------------------------------------------
+      INTEGER,INTENT(IN) :: NPARI,NPARIR,SNPC,SNPC1,LNOPT1,NPTS !< array sizes
+      INTEGER NOM_OPT(LNOPT1,*), NOM_OPTFRIC(LNOPT1,*)
+      INTEGER NI,NOINT,ID_TYPE19
+      INTEGER IPARI(NPARI),DEF_INTER(100),NPC1(SNPC1),NPC(SNPC)
+      INTEGER,INTENT(IN   ) :: ITHERM_FE
+      INTEGER,INTENT(INOUT) :: INTHEAT
+      my_real STFAC,XFILTR
+      my_real FRIGAP(NPARIR),FRIC_P(10),TF(NPTS)
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      TYPE(INTBUF_FRIC_STRUCT_) INTBUF_FRIC_TAB(*)
+      TYPE(SUBMODEL_DATA),INTENT(IN) :: LSUBMODEL(NSUBMOD)
+C-----------------------------------------------
+      TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
+      TYPE (SURF_)   ,TARGET , DIMENSION(NSURF)   :: IGRSURF
+      TYPE (SENSORS_) ,INTENT(IN) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -107,7 +96,7 @@ C-----------------------------------------------
      .    INACTI, IBC1M, IBC2M, IBC3M, IGSTI, IVIS2,IS1, IS2,
      .    ILEV, IGAP,MULTIMP,MFROT,IFQ,IBAG,MODFR,
      .    IEDGE,NOD1,
-     .    IGAP0,FLAGREMNOD,IDSENS,IDELKEEP,INTKG,IREM7I2,IPRINT,    
+     .    FLAGREMNOD,IDSENS,IDELKEEP,INTKG,IREM7I2,IPRINT,
      .    INTFRIC,IASSIGN,IGAP_TYPE19,IRSTH,IDEL7N,
      .    ICURV,IFRICTH,NA1,NA2,IFORM,IADM,NRADM,FIELD6,ITIED,
      .    IB1,IB2,IB3,ISU1,ISU2,ISU3,NTYP0
@@ -116,8 +105,9 @@ C-----------------------------------------------
      .   GAPSCALE,GAPMAX,STMIN,STMAX,PADM, ANGLADM, CADM,
      .   PERCENT_SIZE,PENMAX,PENMIN,VISC,VISCF,FPENMAX,DTMIN,
      .   RSTH,TINT, XTHE, FRAD, DRAD,XFRICTH,FHEATS,FHEATM,
-     .   EDG_ANGL,VISCFLUID,SIGMAXADH,VISCADHFACT,XTHE_UNIT
-      CHARACTER KEY1*ncharkey
+     .   EDG_ANGL,VISCFLUID,SIGMAXADH,VISCADHFACT,XTHE_UNIT,
+     .   EDGE_SCALE_GAP 
+      CHARACTER(LEN=NCHARKEY) :: KEY1
       LOGICAL IS_AVAILABLE
 !
       INTEGER, DIMENSION(:), POINTER :: INGR2USR
@@ -125,7 +115,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER NGR2USR
+      INTEGER,EXTERNAL :: NGR2USR
 C-----------------------------------------------
 C=======================================================================
 C     READING PENALTY INTERFACE /INTER/TYPE7
@@ -178,7 +168,7 @@ C
       VISC = ZERO
       XFILTR = ZERO
       DO I = 1, 10
-          FRIC_P(I) = ZERO
+        FRIC_P(I) = ZERO
       ENDDO
       C1=ZERO
       C2=ZERO
@@ -206,6 +196,7 @@ C
       FHEATS= ZERO
       FHEATM= ZERO
       DTMIN=ZERO
+      EDGE_SCALE_GAP = ZERO
 C
       IASSIGN = 1
 C
@@ -218,7 +209,7 @@ C-- first type7 of type19
         NTYP = 19
         IPARI(71) = -1
       ELSEIF (ID_TYPE19 > 0) THEN
-C-- symetrical type7 of type19 - internal id of main type7 must be identified 
+C-- symmetrical type7 of type19 - internal id of main type7 must be identified
         NTYP = 19
         DO I=1,NI-1
           IF (NOM_OPT(1,I)==ID_TYPE19) THEN
@@ -265,7 +256,7 @@ C
       CALL HM_GET_INTV('Crx_Fun',IFRICTH,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('Fric_ID',INTFRIC,IS_AVAILABLE,LSUBMODEL)
 C
-      IF(IADM.EQ.2) CALL HM_GET_INTV('NRadm',NRADM,IS_AVAILABLE,LSUBMODEL)
+      IF(IADM==2) CALL HM_GET_INTV('NRadm',NRADM,IS_AVAILABLE,LSUBMODEL)
 C
       IF(INTTH > 0 ) THEN
          CALL HM_GET_INTV('IFORM1',IFORM,IS_AVAILABLE,LSUBMODEL)
@@ -301,18 +292,18 @@ C
       CALL HM_GET_FLOATV('Xfreq',ALPHA,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('scale1',XFRICTH,IS_AVAILABLE,LSUBMODEL,UNITAB)
 C
-      IF (MFROT.GT.0) THEN
+      IF (MFROT>0) THEN
          CALL HM_GET_FLOATV('C1',C1,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C2',C2,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C3',C3,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C4',C4,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C5',C5,IS_AVAILABLE,LSUBMODEL,UNITAB)
       ENDIF
-      IF (MFROT.GT.1) THEN
+      IF (MFROT>1) THEN
         CALL HM_GET_FLOATV('C6',C6,IS_AVAILABLE,LSUBMODEL,UNITAB)
       ENDIF
 C
-      IF(IADM.EQ.2)THEN
+      IF(IADM==2)THEN
         CALL HM_GET_FLOATV('Padm',PADM,IS_AVAILABLE,LSUBMODEL,UNITAB)
         CALL HM_GET_FLOATV('Angladm',ANGLADM,IS_AVAILABLE,LSUBMODEL,UNITAB)
       ENDIF
@@ -326,6 +317,10 @@ C
          CALL HM_GET_FLOATV('D_RAD',DRAD,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('Fmax',FHEATS,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('HEAT_AL',FHEATM,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      ENDIF
+C
+      IF(NTYP ==  19) THEN
+          CALL HM_GET_FLOATV('EDGE_SCALE_GAP',EDGE_SCALE_GAP,IS_AVAILABLE,LSUBMODEL,UNITAB)
       ENDIF
 C
 C--------------------------------------------------
@@ -366,12 +361,12 @@ C
         CALL DEFINTER(KEY1     ,MODFR,IASSIGN   ,IPRINT   ,
      .                NTYP     ,DEF_INTER)
 C
-        IF (NTYP.EQ.19) THEN
+        IF (NTYP==19) THEN
 C-- for TYPE19 field6 is iedge
-          IF (FIELD6.LE.2) THEN
+          IF (FIELD6<=2) THEN
             IEDGE = FIELD6
           ELSE
-C-- COmpatibilty with old inputs where multimp can be read in field6
+C-- Compatibility with old inputs where multimp can be read in field6
             IEDGE = 2
           ENDIF
 C
@@ -396,13 +391,13 @@ C
         IS2=1
         INGR2USR => IGRSURF(1:NSURF)%ID
         ISU2=NGR2USR(ISU2,INGR2USR,NSURF)
-        IF(ISU1.NE.0)THEN
+        IF(ISU1/=0)THEN
           INGR2USR => IGRNOD(1:NGRNOD)%ID
           ISU1=NGR2USR(ISU1,INGR2USR,NGRNOD)
           IS1 =2
         ENDIF
 
-        IF(INTTH > 0 ) INTHEAT = 1
+        IF (INTTH > 0 ) INTHEAT = 1
         IPARI(47) = INTTH
 C Ibag
         IF (IBAG/=0.AND.NVOLU==0.AND.IALELAG==0.AND.NSPHSOL==0) THEN
@@ -415,7 +410,7 @@ C Ibag
         ENDIF
 
 C Iadm
-        IF (IADM.NE.0.AND.NADMESH.EQ.0) THEN
+        IF (IADM/=0.AND.NADMESH==0) THEN
              CALL ANCMSG(MSGID=647,
      .                   MSGTYPE=MSGWARNING,
      .                   ANMODE=ANINFO_BLIND_2,
@@ -425,7 +420,7 @@ C Iadm
         ENDIF
 
 
-        IF (IADM.NE.0.AND.ICURV.NE.0) THEN
+        IF (IADM/=0.AND.ICURV/=0) THEN
              CALL ANCMSG(MSGID=648,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO,
@@ -450,8 +445,8 @@ C Iadm
 C
 C....* Card2  *.............
 C
-        IF(ISU1.EQ.0)THEN
-          IF(ISU3.NE.0)THEN
+        IF(ISU1==0)THEN
+          IF(ISU3/=0)THEN
             IS1 =1
             INGR2USR => IGRSURF(1:NSURF)%ID
             ISU1=NGR2USR(ISU3,INGR2USR,NSURF)
@@ -465,12 +460,12 @@ C
         IPARI(13)=IS1*10+IS2
 
 
-        IF(IGAP.GE.2)THEN
-          IF(GAPSCALE.EQ.ZERO)GAPSCALE=ONE
+        IF(IGAP>=2)THEN
+          IF(GAPSCALE==ZERO)GAPSCALE=ONE
           FRIGAP(13) = GAPSCALE
           FRIGAP(16) = GAPMAX
         END IF
-        IF(FRIGAP(16).EQ.ZERO)THEN
+        IF(FRIGAP(16)==ZERO)THEN
           GAPMAX=EP30
           FRIGAP(16)=GAPMAX
         END IF
@@ -481,9 +476,9 @@ C
 C....* Card3  *.............
 C
 
-        IF(IGSTI.GT.1)THEN
+        IF(IGSTI>1)THEN
           I7STIFS=1
-          IF(STMAX.EQ.ZERO)STMAX=EP30
+          IF(STMAX==ZERO)STMAX=EP30
           FRIGAP(17) = STMIN
           FRIGAP(18) = STMAX
         ELSE
@@ -505,7 +500,7 @@ C-----IPARI(54) is used temporately  before determined only by FLAGREMNOD
 C
         FRIGAP(41)=DTMIN
 C
-        IF(IGAP.EQ.3)THEN
+        IF(IGAP==3)THEN
           IF(PERCENT_SIZE==ZERO) PERCENT_SIZE = FOUR*EM01
         END IF
         FRIGAP(28) = PERCENT_SIZE
@@ -523,7 +518,7 @@ C
             WRITE(IOUT,*)' SPHERICAL CURVATURE:'
             WRITE(IOUT,*)'    NA1 =',NA1,' NA2 =',NA2
 
-        ELSEIF(ICURV.EQ.2)THEN
+        ELSEIF(ICURV==2)THEN
 
             IF(NA1==0.OR.NA2==0) THEN
                CALL ANCMSG(MSGID=1728,
@@ -544,7 +539,7 @@ C
 C.....* Card5 *.....
 C
         IF(STFAC== ZERO) STFAC=ONE
-        IF(IGSTI.EQ.1)STFAC=-STFAC
+        IF(IGSTI==1)STFAC=-STFAC
 
         IF (STOPT == ZERO) STOPT = EP30
 
@@ -561,15 +556,15 @@ C
         IF (IB3==1) IBC3  = 1
 
 C Hidden flag no more read using HM reader
-c        IF (BCFLAGM(LFIELD-2:LFIELD-2).EQ. '1') IBC1M = 1
-c        IF (BCFLAGM(LFIELD-1:LFIELD-1).EQ. '1') IBC2M = 1
-c        IF (BCFLAGM(LFIELD  :LFIELD  ).EQ. '1') IBC3M = 1
+c        IF (BCFLAGM(LFIELD-2:LFIELD-2)== '1') IBC1M = 1
+c        IF (BCFLAGM(LFIELD-1:LFIELD-1)== '1') IBC2M = 1
+c        IF (BCFLAGM(LFIELD  :LFIELD  )== '1') IBC3M = 1
 
         IPARI(11)=4*IBC1+2*IBC2+IBC3 + 8 *(4*IBC1M+2*IBC2M+IBC3M)
 
-        IF(FRIC.NE.ZERO.AND.VISCF.EQ.ZERO)VISCF=ONE
-        IF(VISC.EQ.ZERO)THEN
-           IF(IVIS2.EQ.5)THEN
+        IF(FRIC/=ZERO.AND.VISCF==ZERO)VISCF=ONE
+        IF(VISC==ZERO)THEN
+           IF(IVIS2==5)THEN
              VISC=ONE
            ELSE
              VISC=FIVEEM2
@@ -583,7 +578,7 @@ C
         END IF
         IPARI(61)=IDELKEEP
 
-        IF (IDEL7N.GT.2.OR.N2D.EQ.1) IDEL7N = 0
+        IF (IDEL7N>2.OR.N2D==1) IDEL7N = 0
         IPARI(17)=IDEL7N
 
         IPARI(14)=IVIS2 ! IVIS2 = 0  Hidden flag : no more read using HM reader 
@@ -591,7 +586,7 @@ C
         IPARI(22)=INACTI
 
 C BUMULT is increased for big models
-        IF(BUMULT.EQ.ZERO) THEN
+        IF(BUMULT==ZERO) THEN
           BUMULT = BMUL0
           IF(NUMNOD > 2500000) THEN
              BUMULT = BMUL0*TWO
@@ -605,7 +600,7 @@ C
 C.....* Card7 : FRICTION data *.........
 C
 
-        IF (ALPHA.EQ.0.) IFQ = 0
+        IF (ALPHA==0.) IFQ = 0
 C
 C
         IF(FRIC == ZERO)THEN
@@ -618,25 +613,25 @@ C
         IF(XFRICTH == ZERO) XFRICTH=ONE
         FRIGAP(34) =  XFRICTH
 
-        IF (MODFR.EQ.0) MODFR = 1
-        IF (MODFR.EQ.2.AND.IFQ.LT.10) IFQ = IFQ + 10
+        IF (MODFR==0) MODFR = 1
+        IF (MODFR==2.AND.IFQ<10) IFQ = IFQ + 10
 
-        IF (MFROT.NE.0.AND.VISCF.EQ.0.0) VISCF=ONE
-        IF(MODFR.EQ.2)VISCF=ZERO
+        IF (MFROT/=0.AND.VISCF==0.0) VISCF=ONE
+        IF(MODFR==2)VISCF=ZERO
 
-        IF (IFQ.GT.0) THEN
-           IF (IFQ.EQ.10) XFILTR = ONE
-           IF (MOD(IFQ,10).EQ.1) XFILTR = ALPHA
-           IF (MOD(IFQ,10).EQ.2) XFILTR=FOUR*ATAN2(ONE,ZERO) / ALPHA
-           IF (MOD(IFQ,10).EQ.3) XFILTR=FOUR*ATAN2(ONE,ZERO) * ALPHA
-           IF (XFILTR.LT.ZERO) THEN
+        IF (IFQ>0) THEN
+           IF (IFQ==10) XFILTR = ONE
+           IF (MOD(IFQ,10)==1) XFILTR = ALPHA
+           IF (MOD(IFQ,10)==2) XFILTR=FOUR*ATAN2(ONE,ZERO) / ALPHA
+           IF (MOD(IFQ,10)==3) XFILTR=FOUR*ATAN2(ONE,ZERO) * ALPHA
+           IF (XFILTR<ZERO) THEN
                CALL ANCMSG(MSGID=554,
      .                     MSGTYPE=MSGERROR,
      .                     ANMODE=ANINFO_BLIND_1,
      .                     I1=NOINT,
      .                     C1=TITR,
      .                     R1=ALPHA)
-           ELSEIF (XFILTR.GT.1.AND.MOD(IFQ,10).LE.2) THEN
+           ELSEIF (XFILTR>1.AND.MOD(IFQ,10)<=2) THEN
                 CALL ANCMSG(MSGID=554,
      .                      MSGTYPE=MSGERROR,
      .                      ANMODE=ANINFO_BLIND_1,
@@ -670,7 +665,7 @@ C
 C
 C.....* Card 9 *.........
 C     
-        IF(IADM.EQ.2)THEN
+        IF(IADM==2)THEN
           IF(NRADM==0)   NRADM  =3
           IF(PADM==ZERO) PADM   =ONE
         ELSE
@@ -702,7 +697,7 @@ C
           XTHE = ONE * XTHE_UNIT
         ENDIF
 C
-        IF(ITHERM_FE == 0 .AND. INTTH > 0 ) THEN
+        IF (ITHERM_FE == 0 .AND. INTTH > 0 ) THEN
            INTHEAT = 0
            IPARI(47) = 0
            CALL ANCMSG(MSGID=702,
@@ -748,7 +743,7 @@ C------------------------------------------------------------
 C
         NTYP0 = 7
         CALL INTER_DCOD_FUNCTION(NTYP0,NI,IPARI,NPC1,NOM_OPT,NPC,TF)
-        CALL INTER_DCOD_SENSOR (NTYP0,NI,IPARI,NOM_OPT,LSENSOR)
+        CALL INTER_DCOD_SENSOR (NTYP0,NI,IPARI,NOM_OPT,SENSORS)
         CALL INTER_DCOD_FRICTION(NTYP0,NI,IPARI,NOM_OPT,NOM_OPTFRIC,
      .                           INTBUF_FRIC_TAB)
 C
@@ -771,7 +766,7 @@ C
        CALL DEFINTER(KEY1     ,IGAP     ,IASSIGN   ,IPRINT   ,
      .               NTYP     ,DEF_INTER)
 C
-       IF (NTYP.EQ.19) THEN
+       IF (NTYP==19) THEN
             IF (IGAP_TYPE19 == 4) IGAP = IGAP_TYPE19
             KEY1='IEDGE'
             CALL DEFINTER(KEY1     ,IEDGE    ,IASSIGN   ,IPRINT   ,
@@ -810,66 +805,66 @@ C
          WRITE(IOUT,1549)
        ENDIF
 C  
-       IF( (IGAP.GE.2 .AND. IGAP.NE.1000).
-     .        OR.IGSTI.GT.1 .AND. IGSTI.NE.1000)THEN
-           IF(IGSTI.EQ.1)THEN
-               IF(IDSENS.NE.0) THEN
-                  WRITE(IOUT,1537)IBC1,IBC2,IBC3,IBC1M,IBC2M,IBC3M,
-     .                 STFAC,
+       IF( (IGAP>=2 .AND. IGAP/=1000).
+     .        OR.IGSTI>1 .AND. IGSTI/=1000)THEN
+           IF(IGSTI==1)THEN
+               IF(IDSENS/=0) THEN
+                  WRITE(IOUT,1537)IBC1,IBC2,IBC3,
+     .                 ABS(STFAC),
      .                 FRIC,IGAP,GAP,GAPMAX,PERCENT_SIZE,FLAGREMNOD,
      .                 IREM7I2,GAPSCALE,IDSENS,                 
      .                 BUMULT,INACTI,FPENMAX,VISC,VISCF,IPARI(14),
      .                 IPARI(20),MULTIMP
                 ELSE
-                  WRITE(IOUT,1538)IBC1,IBC2,IBC3,IBC1M,IBC2M,IBC3M,
-     .                 STFAC,
+                  WRITE(IOUT,1538)IBC1,IBC2,IBC3,
+     .                 ABS(STFAC),
      .                 FRIC,IGAP,GAP,GAPMAX,PERCENT_SIZE,FLAGREMNOD, 
      .                 GAPSCALE,STARTT,STOPT,       
      .                 BUMULT,INACTI,FPENMAX,VISC,VISCF,IPARI(14), 
      .                 IPARI(20),MULTIMP
                 ENDIF
            ELSE
-                IF(IDSENS.NE.0) THEN
-                  WRITE(IOUT,1547)IBC1,IBC2,IBC3,IBC1M,IBC2M,IBC3M,
-     .                 STFAC,IGSTI,STMIN,STMAX,
+                IF(IDSENS/=0) THEN
+                  WRITE(IOUT,1547)IBC1,IBC2,IBC3,
+     .                 ABS(STFAC),IGSTI,STMIN,STMAX,
      .                 FRIC,IGAP,GAP,GAPMAX,PERCENT_SIZE,FLAGREMNOD,
      .                 IREM7I2,GAPSCALE,IDSENS,                 
      .                 BUMULT,INACTI,FPENMAX,VISC,VISCF,IPARI(14),
      .                 IPARI(20),MULTIMP
                 ELSE
-                  WRITE(IOUT,1548)IBC1,IBC2,IBC3,IBC1M,IBC2M,IBC3M,
-     .                 STFAC,IGSTI,STMIN,STMAX,
+                  WRITE(IOUT,1548)IBC1,IBC2,IBC3,
+     .                 ABS(STFAC),IGSTI,STMIN,STMAX,
      .                 FRIC,IGAP,GAP,GAPMAX,PERCENT_SIZE,FLAGREMNOD,
      .                 IREM7I2,GAPSCALE,STARTT,STOPT,                 
      .                 BUMULT,INACTI,FPENMAX,VISC,VISCF,IPARI(14),
      .                 IPARI(20),MULTIMP
                 ENDIF
            ENDIF
-       ELSEIF(STFAC.GE.ZERO)THEN
-           IF(IDSENS.NE.0) THEN
-               WRITE(IOUT,1507)IBC1,IBC2,IBC3,IBC1M,IBC2M,IBC3M,
-     .                 STFAC,IGAP,GAP,PERCENT_SIZE,FLAGREMNOD,
+       ELSEIF(STFAC>=ZERO)THEN
+           IF(IDSENS/=0) THEN
+               WRITE(IOUT,1507)IBC1,IBC2,IBC3,
+     .                 ABS(STFAC),IGAP,GAP,PERCENT_SIZE,FLAGREMNOD,
      .                 IREM7I2,IDSENS,
      .                 BUMULT,INACTI,FPENMAX,VISC,VISCF,IPARI(14),
      .                 IPARI(20),MULTIMP
            ELSE
-                WRITE(IOUT,1594)IBC1,IBC2,IBC3,IBC1M,IBC2M,IBC3M,
-     .                 STFAC,IGAP,GAP,PERCENT_SIZE,FLAGREMNOD,
+                WRITE(IOUT,1594)IBC1,IBC2,IBC3,
+     .                 ABS(STFAC),IGAP,GAP,PERCENT_SIZE,FLAGREMNOD,
      .                 IREM7I2,STARTT,STOPT,
      .                 BUMULT,INACTI,FPENMAX,VISC,VISCF,IPARI(14),
      .                 IPARI(20),MULTIMP
            ENDIF
        ELSE
 C
-           IF(IDSENS.NE.0) THEN
-                 WRITE(IOUT,1517)IBC1,IBC2,IBC3,IBC1M,IBC2M,IBC3M,
-     .                 -STFAC,IGAP,GAP,PERCENT_SIZE,FLAGREMNOD,
+           IF(IDSENS/=0) THEN
+                 WRITE(IOUT,1517)IBC1,IBC2,IBC3,
+     .                 ABS(STFAC),IGAP,GAP,PERCENT_SIZE,FLAGREMNOD,
      .                 IREM7I2,IDSENS,
      .                 BUMULT,INACTI,FPENMAX,VISC,VISCF,IPARI(14),
      .                 IPARI(20),MULTIMP
            ELSE
-                 WRITE(IOUT,1595)IBC1,IBC2,IBC3,IBC1M,IBC2M,IBC3M,
-     .                 -STFAC,IGAP,GAP,PERCENT_SIZE,FLAGREMNOD,
+                 WRITE(IOUT,1595)IBC1,IBC2,IBC3,
+     .                 ABS(STFAC),IGAP,GAP,PERCENT_SIZE,FLAGREMNOD,
      .                 IREM7I2,STARTT,STOPT,
      .                 BUMULT,INACTI,FPENMAX,VISC,VISCF,IPARI(14),
      .                 IPARI(20),MULTIMP
@@ -884,11 +879,11 @@ C
      .    '       2: TIED (no rebound)'
        END IF
 
-       IF (DTMIN.NE.ZERO) THEN
+       IF (DTMIN/=ZERO) THEN
             WRITE(IOUT,1577)DTMIN
        ENDIF
 
-       IF(IDEL7N.NE.0) THEN
+       IF(IDEL7N/=0) THEN
            WRITE(IOUT,'(A,A,I5/)')
      . '    DELETION FLAG ON FAILURE OF MAIN ELEMENT',
      . ' (1:YES-ALL/2:YES-ANY) : ',IDEL7N
@@ -899,7 +894,7 @@ C
         ENDIF
 
         IF(INTFRIC == 0 ) THEN
-           IF(IFQ.GE.10) THEN
+           IF(IFQ>=10) THEN
                WRITE(IOUT,1518)
            ELSE
                WRITE(IOUT,1519)
@@ -907,7 +902,7 @@ C
 
            WRITE(IOUT,1520)MOD(IFQ,10), XFILTR
 
-           IF(MFROT.EQ.0)THEN
+           IF(MFROT==0)THEN
 
              IF(IFRICTH ==0 ) THEN
                 WRITE(IOUT,1524) FRIC
@@ -915,18 +910,19 @@ C
                 WRITE(IOUT,1525) IFRICTH,XFRICTH,FRIC
               ENDIF 
 
-           ELSEIF(MFROT.EQ.1)THEN
+           ELSEIF(MFROT==1)THEN
                 WRITE(IOUT,1515)FRIC_P(1),FRIC_P(2),FRIC_P(3),
      .          FRIC_P(4),FRIC_P(5)
 
-           ELSEIF(MFROT.EQ.2)THEN
+           ELSEIF(MFROT==2)THEN
                 WRITE(IOUT,1522)FRIC,FRIC_P(1),FRIC_P(2),FRIC_P(3),
      .          FRIC_P(4),FRIC_P(5),FRIC_P(6)
 
-           ELSEIF(MFROT.EQ.3)THEN
+           ELSEIF(MFROT==3)THEN
                 WRITE(IOUT,1523)FRIC_P(1),FRIC_P(2),FRIC_P(3),
      .           FRIC_P(4),FRIC_P(5),FRIC_P(6)
-
+           ELSEIF(MFROT==4)THEN
+               WRITE(IOUT,1526)  FRIC,FRIC_P(1),FRIC_P(2)
            ENDIF
         ELSE
 
@@ -937,12 +933,12 @@ C
 
         ENDIF
 
-        IF(IBAG.NE.1000) THEN
+        IF(IBAG/=1000) THEN
               WRITE(IOUT,*)'    AIRBAG POROSITY COUPLING ON   '
         ENDIF
 
-        IF(IADM.NE.0) THEN
-           WRITE(IOUT,*)'    MESH REFINMENT CASE OF CONTACT',
+        IF(IADM/=0) THEN
+           WRITE(IOUT,*)'    MESH REFINEMENT CASE OF CONTACT',
      .' (0:NO/1:DUE TO CURVATURE/2:DUE TO CURVATURE OR PENETRATION)',
      .' SET TO ',IADM
            IF(IADM==2)THEN
@@ -962,44 +958,40 @@ C
 C---- printout for TYPE19
         IF (NTYP == 19) THEN 
           IF (IGAP == 4) THEN
-            WRITE(IOUT,1552) IEDGE,GAP
+            WRITE(IOUT,1552) IEDGE,EDGE_SCALE_GAP,GAP
           ELSE
-            WRITE(IOUT,1551) IEDGE
+            WRITE(IOUT,1551) IEDGE,EDGE_SCALE_GAP
           ENDIF
         ENDIF
 
 C--------------------------------------------------------------
-      IF(IS1.EQ.0)THEN
+      IF(IS1==0)THEN
         WRITE(IOUT,'(6X,A)')'NO SECONDARY SURFACE INPUT'
-      ELSEIF(IS1.EQ.1)THEN
+      ELSEIF(IS1==1)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.2)THEN
+      ELSEIF(IS1==2)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY NODES'
-      ELSEIF(IS1.EQ.3)THEN
+      ELSEIF(IS1==3)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.4 )THEN
+      ELSEIF(IS1==4 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY BRICKS'
-      ELSEIF(IS1.EQ.5 )THEN
+      ELSEIF(IS1==5 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY SOLID ELEMENTS'        
       ENDIF
-      IF(IS2.EQ.0)THEN
+      IF(IS2==0)THEN
         WRITE(IOUT,'(6X,A)')'NO MAIN SURFACE INPUT'
-      ELSEIF(IS2.EQ.1)THEN
+      ELSEIF(IS2==1)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.2)THEN
+      ELSEIF(IS2==2)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY NODES'
-      ELSEIF(IS2.EQ.3)THEN
+      ELSEIF(IS2==3)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.4)THEN
+      ELSEIF(IS2==4)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE REFERS ',
      .                      'TO HYPER-ELLIPSOIDAL SURFACE'
       ENDIF
 C
 C--------------------------------------------------------------
- 1000 FORMAT(/1X,'  INTERFACE NUMBER :',I10,1X,A)
-C------------
-      RETURN
- 999  CALL FREERR(3)
       RETURN
 
 
@@ -1045,231 +1037,213 @@ C------------
      .  '   Function for FRICTION COEFFICIENT wrt TEMPERATURE',I10/,
      .      '    Abscissa scale factor on IFUNTCF. . . .  . ',1PG20.13/,
      .      '    Ordinate scale factor on IFUNTCF .  . .  . ',1PG20.13/)
+ 1526 FORMAT(/
+     .    '     EXPONENTIAL DECAY FRICTION LAW   '/
+     .    '      MU = c1+(MUo-c1)*exp(-c2*v)'/
+     .    '      STATIC COEFFICIENT MUo . . . . . . . . . ',1PG20.13/,
+     .    '      DYNAMIC COEFFICIENT C1 . . . . . . . . . ',1PG20.13/,
+     .    '      EXPONENTIAL DECAY COEFFICIENT C2 . . . . ',1PG20.13/)
 C----------     
  1537 FORMAT(
-     .       '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .       '       SECONDARY NODE  (1:YES 0:NO)          Y DIR  ',I1/,
-     .       '                                         Z DIR  ',I1/,
-     .       '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .       '       MAIN NODE (1:YES 0:NO)          Y DIR  ',I1/,
-     .       '                                         Z DIR  ',I1/,
+     .       '    BOUND. COND. DELETED AFTER IMPACT . . . . . IN X DIR       ',I1/,
+     .       '       SECONDARY NODE  (1:YES 0:NO)                Y DIR       ',I1/,
+     .       '                                                   Z DIR       ',I1/,
      .       '    CONSTANT STIFFNESS. . . . . . . . . . . . . ',1PG20.13/,
      .       '    FRICTION FACTOR . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . . ',I5/,
+     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . .            ',I5/,
      .       '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
      .       '    MAXIMUM GAP (= 0. <=> NO MAXIMUM GAP) . . . ',1PG20.13/,
-     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR  . . . . . '/,
+     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR            '/,
      .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
-     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING  . . '/,
-     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE   ',I5/,
-     .       '    DE-ACTIVATION FLAG IF CONFLITING W/ TYPE2   ',I10/,
+     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING      '/,
+     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE .            ',I5/,
+     .       '    DE-ACTIVATION FLAG IF CONFLICT W/ TYPE2 . .       ',I10/,
      .       '    GAP SCALE FACTOR. . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    START TIME/STOP TIME ACTIVATED BY SENSOR ID ',I10/,
+     .       '    START TIME/STOP TIME ACTIVATED BY SENSOR ID       ',I10/,
      .       '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . . ',I10/,
-     .       '    MAXIMAL INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
+     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . .       ',I10/,
+     .       '    MAXIMUM INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
      .       '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
      .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
-     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . . ',I5/,
-     .       '    FORMULATION LEVEL . . . . . . . . . . . . . ',I5/,
-     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . . ',I5/)
+     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . .            ',I5/,
+     .       '    FORMULATION LEVEL . . . . . . . . . . . . .            ',I5/,
+     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . .            ',I5/)
  1538 FORMAT(
-     .       '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .       '       SECONDARY NODE  (1:YES 0:NO)          Y DIR  ',I1/,
-     .       '                                         Z DIR  ',I1/,
-     .       '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .       '       MAIN NODE (1:YES 0:NO)          Y DIR  ',I1/,
-     .       '                                         Z DIR  ',I1/,
-     .       '    CONSTANT STIFFNESS. . . . . . . . . . . . ',1PG20.13/,
-     .       '    FRICTION FACTOR . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . ',I5/,
-     .       '    MINIMUM GAP . . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    MAXIMUM GAP (= 0. <=> NO MAXIMUM GAP) . . ',1PG20.13/,
-     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR  . . . . '/,
-     .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . ',1PG20.13/,
-     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING  . '/,
-     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE ',I5/,
-     .       '    GAP SCALE FACTOR. . . . . . . . . . . . . ',1PG20.13/,
-     .       '    START TIME. . . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    STOP TIME . . . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    BUCKET FACTOR . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . ',I10/,
-     .       '    MAXIMAL INITIAL PENETRATION FACTOR. . . . ',1PG20.13/,
-     .       '    CRITICAL DAMPING FACTOR . . . . . . . . . ',1PG20.13/,
-     .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . ',1PG20.13/,
-     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . ',I5/,
-     .       '    FORMULATION LEVEL . . . . . . . . . . . . ',I5/,
-     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . ',I5/)
+     .       '    BOUND. COND. DELETED AFTER IMPACT . . . . . IN X DIR       ',I1/,
+     .       '       SECONDARY NODE  (1:YES 0:NO)                Y DIR       ',I1/,
+     .       '                                                   Z DIR       ',I1/,
+     .       '    CONSTANT STIFFNESS. . . . . . . . . . . . . ',1PG20.13/,
+     .       '    FRICTION FACTOR . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . .            ',I5/,
+     .       '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    MAXIMUM GAP (= 0. <=> NO MAXIMUM GAP) . . . ',1PG20.13/,
+     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR            '/,
+     .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
+     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING      '/,
+     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE .            ',I5/,
+     .       '    GAP SCALE FACTOR. . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    START TIME. . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    STOP TIME . . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . .       ',I10/,
+     .       '    MAXIMUM INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
+     .       '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
+     .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
+     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . .            ',I5/,
+     .       '    FORMULATION LEVEL . . . . . . . . . . . . .            ',I5/,
+     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . .            ',I5/)
  1547 FORMAT(
-     .       '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .       '       SECONDARY NODE  (1:YES 0:NO)          Y DIR  ',I1/,
-     .       '                                         Z DIR  ',I1/,
-     .       '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .       '       MAIN NODE (1:YES 0:NO)          Y DIR  ',I1/,
-     .       '                                         Z DIR  ',I1/,
-     .       '    STIFFNESS FACTOR. . . . . . . . . . . . . ',1PG20.13/,
-     .       '    STIFFNESS FORMULATION. .  . . . . . . . . ',I4/,
+     .       '    BOUND. COND. DELETED AFTER IMPACT . . . . . IN X DIR       ',I1/,
+     .       '       SECONDARY NODE  (1:YES 0:NO)                Y DIR       ',I1/,
+     .       '                                                   Z DIR       ',I1/,
+     .       '    STIFFNESS FACTOR. . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    STIFFNESS FORMULATION. .  . . . . . . . . .             ',I4/,
      .' 2,3,4,5 : STIFFNESS IS COMPUTED FROM STIFFNESS ON MAIN SIDE'/,
-     .'                                 AND STIFFNESS AT SECONDARY NODES'/,
+     .'                            AND STIFFNESS AT SECONDARY NODES'/,
      .'    1000 : STIFFNESS IS COMPUTED FROM STIFFNESS ON MAIN SIDE'/,
      .       '    MINIMUM STIFFNESS. . . .  . . . . . . . . . ',1PG20.13/,
      .       '    MAXIMUM STIFFNESS. . . .  . . . . . . . . . ',1PG20.13/,
      .       '    FRICTION FACTOR . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . . ',I5/,
+     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . .            ',I5/,
      .       '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
      .       '    MAXIMUM GAP (= 0. <=> NO MAXIMUM GAP) . . . ',1PG20.13/,
-     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR  . . . . . '/,
+     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR            '/,
      .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
-     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING  . . '/,
-     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE   ',I5/,
-     .       '    DE-ACTIVATION FLAG IF CONFLITING W/ TYPE2  ',I10/,
+     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING      '/,
+     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE .            ',I5/,
+     .       '    DE-ACTIVATION FLAG IF CONFLICT W/ TYPE2 . .       ',I10/,
      .       '    GAP SCALE FACTOR. . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    START TIME/STOP TIME ACTIVATED BY SENSOR ID ',I10/,
+     .       '    START TIME/STOP TIME ACTIVATED BY SENSOR ID       ',I10/,
      .       '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . . ',I10/,
-     .       '    MAXIMAL INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
+     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . .       ',I10/,
+     .       '    MAXIMUM INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
      .       '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
      .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
-     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . . ',I5/,
-     .       '    FORMULATION LEVEL . . . . . . . . . . . . . ',I5/,
-     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . . ',I5/)
+     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . .            ',I5/,
+     .       '    FORMULATION LEVEL . . . . . . . . . . . . .            ',I5/,
+     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . .            ',I5/)
  1548 FORMAT(
-     .       '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .       '       SECONDARY NODE  (1:YES 0:NO)          Y DIR  ',I1/,
-     .       '                                         Z DIR  ',I1/,
-     .       '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .       '       MAIN NODE (1:YES 0:NO)          Y DIR  ',I1/,
-     .       '                                         Z DIR  ',I1/,
-     .       '    STIFFNESS FACTOR. . . . . . . . . . . . . ',1PG20.13/,
-     .       '    STIFFNESS FORMULATION. .  . . . . . . . . ',I4/,
+     .       '    BOUND. COND. DELETED AFTER IMPACT . . . . . IN X DIR       ',I1/,
+     .       '       SECONDARY NODE  (1:YES 0:NO)                Y DIR       ',I1/,
+     .       '                                                   Z DIR       ',I1/,
+     .       '    STIFFNESS FACTOR. . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    STIFFNESS FORMULATION. .  . . . . . . . . .             ',I4/,
      .' 2,3,4,5 : STIFFNESS IS COMPUTED FROM STIFFNESS ON MAIN SIDE'/,
-     .'                                 AND STIFFNESS AT SECONDARY NODES'/,
+     .'                            AND STIFFNESS AT SECONDARY NODES'/,
      .'    1000 : STIFFNESS IS COMPUTED FROM STIFFNESS ON MAIN SIDE'/,
-     .       '    MINIMUM STIFFNESS. . . .  . . . . . . . . ',1PG20.13/,
-     .       '    MAXIMUM STIFFNESS. . . .  . . . . . . . . ',1PG20.13/,
-     .       '    FRICTION FACTOR . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . ',I5/,
-     .       '    MINIMUM GAP . . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    MAXIMUM GAP (= 0. <=> NO MAXIMUM GAP) . . ',1PG20.13/,
-     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR  . . . . '/,
-     .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . ',1PG20.13/,
-     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING  . . '/,
-     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE   ',I5/,
-     .       '    DE-ACTIVATION FLAG IF CONFLITING W/ TYPE2  ',I10/,
-     .       '    GAP SCALE FACTOR. . . . . . . . . . . . . ',1PG20.13/,
-     .       '    START TIME. . . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    STOP TIME . . . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    BUCKET FACTOR . . . . . . . . . . . . . . ',1PG20.13/,
-     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . ',I10/,
-     .       '    MAXIMAL INITIAL PENETRATION FACTOR. . . . ',1PG20.13/,
-     .       '    CRITICAL DAMPING FACTOR . . . . . . . . . ',1PG20.13/,
-     .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . ',1PG20.13/,
-     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . ',I5/,
-     .       '    FORMULATION LEVEL . . . . . . . . . . . . ',I5/,
-     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . ',I5/)
+     .       '    MINIMUM STIFFNESS. . . .  . . . . . . . . . ',1PG20.13/,
+     .       '    MAXIMUM STIFFNESS. . . .  . . . . . . . . . ',1PG20.13/,
+     .       '    FRICTION FACTOR . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . .            ',I5/,
+     .       '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    MAXIMUM GAP (= 0. <=> NO MAXIMUM GAP) . . . ',1PG20.13/,
+     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR            '/,
+     .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
+     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING      '/,
+     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE .            ',I5/,
+     .       '    DE-ACTIVATION FLAG IF CONFLICT W/ TYPE2 . .       ',I10/,
+     .       '    GAP SCALE FACTOR. . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    START TIME. . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    STOP TIME . . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . .       ',I10/,
+     .       '    MAXIMUM INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
+     .       '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
+     .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
+     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . .            ',I5/,
+     .       '    FORMULATION LEVEL . . . . . . . . . . . . .            ',I5/,
+     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . .            ',I5/)
  1507 FORMAT(
-     .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .    '       SECONDARY NODE  (1:YES 0:NO)          Y DIR  ',I1/,
-     .    '                                         Z DIR  ',I1/,
-     .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .    '       MAIN NODE (1:YES 0:NO)          Y DIR  ',I1/,
-     .    '                                         Z DIR  ',I1/,
-     .    '    STIFFNESS FACTOR. . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    VARIABLE GAP FLAG . . . . . . . . . . . . . ',I5/,
-     .    '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    %MESHSIZE TAKEN INTO ACCOUNT FOR  . . . . . '/,
-     .    '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
-     .    '    FLAGREMNODE : NOT CONSIDER NEIGHBORING  . . '/,
-     .    '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE   ',I5/,
-     .    '    DE-ACTIVATION FLAG IF CONFLITING W/ TYPE2   ',I10/,
-     .    '    START TIME/STOP TIME ACTIVATED BY SENSOR ID ',I10/,
-     .    '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    DE-ACTIVATION OF INITIAL PENETRATIONS . . . ',I10/,
-     .    '    MAXIMAL INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
-     .    '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
-     .    '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
-     .    '    QUADRATIC DAMPING FLAG. . . . . . . . . . . ',I5/,
-     .    '    FORMULATION LEVEL . . . . . . . . . . . . . ',I5/,
-     .    '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . . ',I5/)
+     .       '    BOUND. COND. DELETED AFTER IMPACT . . . . . IN X DIR       ',I1/,
+     .       '       SECONDARY NODE  (1:YES 0:NO)                Y DIR       ',I1/,
+     .       '                                                   Z DIR       ',I1/,
+     .       '    STIFFNESS FACTOR. . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . .            ',I5/,
+     .       '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR            '/,
+     .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
+     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING      '/,
+     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE .            ',I5/,
+     .       '    DE-ACTIVATION FLAG IF CONFLICT W/ TYPE2 . .       ',I10/,
+     .       '    START TIME/STOP TIME ACTIVATED BY SENSOR ID       ',I10/,
+     .       '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . .       ',I10/,
+     .       '    MAXIMUM INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
+     .       '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
+     .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
+     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . .            ',I5/,
+     .       '    FORMULATION LEVEL . . . . . . . . . . . . .            ',I5/,
+     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . .            ',I5/)
  1594 FORMAT(
-     .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .    '       SECONDARY NODE  (1:YES 0:NO)          Y DIR  ',I1/,
-     .    '                                         Z DIR  ',I1/,
-     .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .    '       MAIN NODE (1:YES 0:NO)          Y DIR  ',I1/,
-     .    '                                         Z DIR  ',I1/,
-     .    '    STIFFNESS FACTOR. . . . . . . . . . . . . ',1PG20.13/,
-     .    '    VARIABLE GAP FLAG . . . . . . . . . . . . ',I5/,
-     .    '    MINIMUM GAP . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    %MESHSIZE TAKEN INTO ACCOUNT FOR  . . . . '/,
-     .    '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . ',1PG20.13/,
-     .    '    FLAGREMNODE : NOT CONSIDER NEIGHBORING  . '/,
-     .    '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE ',I5/,
-     .    '    DE-ACTIVATION FLAG IF CONFLITING W/ TYPE2   ',I10/,
-     .    '    START TIME. . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    STOP TIME . . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    BUCKET FACTOR . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    DE-ACTIVATION OF INITIAL PENETRATIONS . . ',I10/,
-     .    '    MAXIMAL INITIAL PENETRATION FACTOR. . . . ',1PG20.13/,
-     .    '    CRITICAL DAMPING FACTOR . . . . . . . . . ',1PG20.13/,
-     .    '    FRICTION CRITICAL DAMPING FACTOR. . . . . ',1PG20.13/,
-     .    '    QUADRATIC DAMPING FLAG. . . . . . . . . . ',I5/,
-     .    '    FORMULATION LEVEL . . . . . . . . . . . . ',I5/,
-     .    '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . ',I5/)
+     .       '    BOUND. COND. DELETED AFTER IMPACT . . . . . IN X DIR       ',I1/,
+     .       '       SECONDARY NODE  (1:YES 0:NO)                Y DIR       ',I1/,
+     .       '                                                   Z DIR       ',I1/,
+     .       '    STIFFNESS FACTOR. . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . .            ',I5/,
+     .       '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR            '/,
+     .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
+     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING      '/,
+     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE .            ',I5/,
+     .       '    DE-ACTIVATION FLAG IF CONFLICT W/ TYPE2 . .       ',I10/,
+     .       '    START TIME. . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    STOP TIME . . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . .       ',I10/,
+     .       '    MAXIMUM INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
+     .       '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
+     .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
+     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . .            ',I5/,
+     .       '    FORMULATION LEVEL . . . . . . . . . . . . .            ',I5/,
+     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . .            ',I5/)
  1517 FORMAT(
-     .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .    '       SECONDARY NODE  (1:YES 0:NO)          Y DIR  ',I1/,
-     .    '                                         Z DIR  ',I1/,
-     .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .    '       MAIN NODE (1:YES 0:NO)          Y DIR  ',I1/,
-     .    '                                         Z DIR  ',I1/,
-     .    '    CONSTANT STIFFNESS. . . . . . . . . . . . . ',1PG20.13/,
-     .    '    VARIABLE GAP FLAG . . . . . . . . . . . . . ',I5/,
-     .    '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    %MESHSIZE TAKEN INTO ACCOUNT FOR  . . . . . '/,
-     .    '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
-     .    '    FLAGREMNODE : NOT CONSIDER NEIGHBORING  . . '/,
-     .    '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE   ',I5/,
-     .    '    DE-ACTIVATION FLAG IF CONFLITING W/ TYPE2   ',I10/,
-     .    '    START TIME/STOP TIME ACTIVATED BY SENSOR ID ',I10/,
-     .    '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    DE-ACTIVATION OF INITIAL PENETRATIONS . . . ',I10/,
-     .    '    MAXIMAL INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
-     .    '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
-     .    '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
-     .    '    QUADRATIC DAMPING FLAG. . . . . . . . . . . ',I5/,
-     .    '    FORMULATION LEVEL . . . . . . . . . . . . . ',I5/,
-     .    '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . . ',I5/)
+     .       '    BOUND. COND. DELETED AFTER IMPACT . . . . . IN X DIR       ',I1/,
+     .       '       SECONDARY NODE  (1:YES 0:NO)                Y DIR       ',I1/,
+     .       '                                                   Z DIR       ',I1/,
+     .       '    CONSTANT STIFFNESS. . . . . . . . . . . . . ',1PG20.13/,
+     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . .            ',I5/,
+     .       '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR            '/,
+     .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
+     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING      '/,
+     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE .            ',I5/,
+     .       '    DE-ACTIVATION FLAG IF CONFLICT W/ TYPE2 . .       ',I10/,
+     .       '    START TIME/STOP TIME ACTIVATED BY SENSOR ID       ',I10/,
+     .       '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . .       ',I10/,
+     .       '    MAXIMUM INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
+     .       '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
+     .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
+     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . .            ',I5/,
+     .       '    FORMULATION LEVEL . . . . . . . . . . . . .            ',I5/,
+     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . .            ',I5/)
  1595 FORMAT(
-     .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .    '       SECONDARY NODE  (1:YES 0:NO)          Y DIR  ',I1/,
-     .    '                                         Z DIR  ',I1/,
-     .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
-     .    '       MAIN NODE (1:YES 0:NO)          Y DIR  ',I1/,
-     .    '                                         Z DIR  ',I1/,
-     .    '    CONSTANT STIFFNESS. . . . . . . . . . . . ',1PG20.13/,
-     .    '    VARIABLE GAP FLAG . . . . . . . . . . . . ',I5/,
-     .    '    MINIMUM GAP . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    %MESHSIZE TAKEN INTO ACCOUNT FOR  . . . . '/,
-     .    '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . ',1PG20.13/,
-     .    '    FLAGREMNODE : NOT CONSIDER NEIGHBORING  . '/,
-     .    '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE ',I5/,
-     .    '    DE-ACTIVATION FLAG IF CONFLITING W/ TYPE2 ',I10/,
-     .    '    START TIME. . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    STOP TIME . . . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    BUCKET FACTOR . . . . . . . . . . . . . . ',1PG20.13/,
-     .    '    DE-ACTIVATION OF INITIAL PENETRATIONS . . ',I10/,
-     .    '    MAXIMAL INITIAL PENETRATION FACTOR. . . . ',1PG20.13/,
-     .    '    CRITICAL DAMPING FACTOR . . . . . . . . . ',1PG20.13/,
-     .    '    FRICTION CRITICAL DAMPING FACTOR. . . . . ',1PG20.13/,
-     .    '    QUADRATIC DAMPING FLAG. . . . . . . . . . ',I5/,
-     .    '    FORMULATION LEVEL . . . . . . . . . . . . ',I5/,
-     .    '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . ',I5/)
+     .       '    BOUND. COND. DELETED AFTER IMPACT . . . . . IN X DIR       ',I1/,
+     .       '       SECONDARY NODE  (1:YES 0:NO)                Y DIR       ',I1/,
+     .       '                                                   Z DIR       ',I1/,
+     .       '    CONSTANT STIFFNESS. . . . . . . . . . . . . ',1PG20.13/,
+     .       '    VARIABLE GAP FLAG . . . . . . . . . . . . .            ',I5/,
+     .       '    MINIMUM GAP . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    %MESHSIZE TAKEN INTO ACCOUNT FOR            '/,
+     .       '    CALCULATION OF MAXIMUM GAP(IGAP = 3). . . . ',1PG20.13/,
+     .       '    FLAGREMNODE : NOT CONSIDER NEIGHBORING      '/,
+     .       '    NODES IN CASE OF ELEMENT SIZE < GAP VALUE .            ',I5/,
+     .       '    DE-ACTIVATION FLAG IF CONFLICT W/ TYPE2 . .       ',I10/,
+     .       '    START TIME. . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    STOP TIME . . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    BUCKET FACTOR . . . . . . . . . . . . . . . ',1PG20.13/,
+     .       '    DE-ACTIVATION OF INITIAL PENETRATIONS . . .       ',I10/,
+     .       '    MAXIMUM INITIAL PENETRATION FACTOR. . . . . ',1PG20.13/,
+     .       '    CRITICAL DAMPING FACTOR . . . . . . . . . . ',1PG20.13/,
+     .       '    FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13/,
+     .       '    QUADRATIC DAMPING FLAG. . . . . . . . . . .            ',I5/,
+     .       '    FORMULATION LEVEL . . . . . . . . . . . . .            ',I5/,
+     .       '    MEAN POSSIBLE NUMBER OF IMPACT/NODE . . . .            ',I5/)
 
  1549 FORMAT(//
-     .    '    TYPE.EQ.7   PARALLEL/AUTO IMPACTING           ' //)
+     .    '    TYPE==7   PARALLEL/AUTO IMPACTING           ' //)
  1550 FORMAT(//
-     .    '    TYPE.EQ.19  PARALLEL/AUTO IMPACTING           ' //)
+     .    '    TYPE==19  PARALLEL/AUTO IMPACTING           ' //)
  1577 FORMAT(
      .       '    MINIMUM TIME STEP . . . . . . . . . . . . ',1PG20.13/)
 C
@@ -1286,7 +1260,7 @@ C
      .'  MAXIMUM ANGLE ON MAIN SIDE AT CONTACT LOCATION      ',
      .   1PG20.13//) 
  2500   FORMAT(//
-     .       '    TYPE.EQ.7   thermal interface          ' //,
+     .       '    TYPE==7   thermal interface          ' //,
      .       '    Heat conduction per surface unit. . . .  . ',1PG20.13/,
      .       '    Interface temperature  . . . . . . . . . . ',1PG20.13/,
      .       '    Radiation factor . . . . . . . . . . . . . ',1PG20.13/,
@@ -1297,16 +1271,8 @@ C
      .       '          1 : heat Exchange between pieces in contact',/,
      .       '  Frictional heat transfer on SECONDARY surface . ',1PG20.13/,
      .       '  Frictional heat transfer on MAIN surface. ',1PG20.13/)
- 2501   FORMAT(//
-     .       '    TYPE.EQ.7   thermal interface          ' //,
-     .       '    Heat conduction per surface unit. . . .  . ',1PG20.13/,
-     .       '    Interface temperature  . . . . . . . . . . ',1PG20.13/,
-     .       '    FORMULATION CHOICE : . . . . . . . . . . . . ',I10,/,
-     .       '          0 : heat transfer between shells(SECONDARY side)',/,
-     .       '                 and constant temperature in interface',/,
-     .       '          1 : heat Exchange between pieces in contact')
 2503   FORMAT(//
-     .       '    TYPE.EQ.7   thermal interface          ' //,
+     .       '    TYPE==7   thermal interface          ' //,
      .  '   Function for thermal heat exchange coefficient wrt contact pressure',I10/,
      .      '    Abscissa scale factor on IFUNTCK. . . .  . ',1PG20.13/,
      .      '    Ordinate scale factor on IFUNTCK .  . .  . ',1PG20.13/,
@@ -1320,9 +1286,11 @@ C
      .       '  Frictional heat transfer on SECONDARY surface . ',1PG20.13/,
      .       '  Frictional heat transfer on MAIN surface. ',1PG20.13/)
  1551 FORMAT(
-     .       '    EDGES SELECTION FLAG . . . . . . . . . . . ',I5/)
+     .       '    EDGES SELECTION FLAG . . . . . . . . . . . ',I5/,
+     .       '    EDGE TO EDGE GAP SCALE FACTOR. . . . . . . ',1PG20.13/)
  1552 FORMAT(
      .       '    EDGES SELECTION FLAG . . . . . . . . . . . ',I5/,
+     .       '    EDGE TO EDGE GAP SCALE FACTOR. . . . . . . ',1PG20.13/,
      .       '    CONSTANT GAP FOR EDGE TO EDGE CONTACT . . .',1PG20.13/,
      .       '    VARIABLE GAP FOR NODE TO SURFACE CONTACT (IGAP=2)',/)
       END

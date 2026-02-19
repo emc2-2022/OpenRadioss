@@ -1,56 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALEFVM_STRESS_INT22           source/ale/alefvm/alefvm_stress_int22.F
-Chd|-- called by -----------
-Chd|        SFORC3                        source/elements/solid/solide/sforc3.F
-Chd|-- calls ---------------
-Chd|        ALEFVM_MOD                    ../common_source/modules/alefvm_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    alefvm_stress_int22   ../engine/source/ale/alefvm/alefvm_stress_int22.F
+!||--- called by ------------------------------------------------------
+!||    sforc3                ../engine/source/elements/solid/solide/sforc3.F
+!||--- uses       -----------------------------------------------------
+!||    alefvm_mod            ../common_source/modules/ale/alefvm_mod.F
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod        ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
       SUBROUTINE ALEFVM_STRESS_INT22 (
-     1                          IXS,      NV46, SIG,  QVIS, 
+     1                          IXS,      SIG,  QVIS,
      2                          N1X,      N2X,  N3X,  N4X,  N5X,  N6X,
      3                          N1Y,      N2Y,  N3Y,  N4Y,  N5Y,  N6Y,
      4                          N1Z,      N2Z,  N3Z,  N4Z,  N5Z,  N6Z,
-     5                          X  ,      IPM,  RHO,  VOL,  A  ,  IAD22,
-     6                          ELBUF_TAB,NEL,  MOM,  SSP,  ITASK)
+     5                          IPM,      RHO,  VOL,  IAD22,
+     6                          NEL,      MOM,  SSP,  SVIS)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C 'alefvm' is related to a collocated scheme (built from FVM and based on Godunov scheme)
 C  which was temporarily introduced for experimental option /INTER/TYPE22 (FSI coupling with cut cell method)
-C This cut cell method is not completed, abandonned, and is not an official option.
+C This cut cell method is not completed, abandoned, and is not an official option.
 C There is no other use for this scheme which is automatically enabled when /INTER/TYPE22 is defined (INT22>0 => IALEFVM=1).
 C
 C This subroutine is treating an uncut cell.
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ALEFVM_MOD       !F_FACE
+      USE ALEFVM_MOD
       USE ELBUFDEF_MOD     !TYPE(ELBUF_STRUCT_)
       USE I22BUFBRIC_MOD   !BRICK_LIST
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -64,15 +66,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "nsvis_c.inc"
-#include      "fluid_scr_c.inc"
-#include      "inter22.inc"
 #include      "param_c.inc"
-#include      "alefvm.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C----------------------------------------------- 
@@ -84,37 +78,35 @@ C subroutine is unplugged
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER :: NEL, ITASK
-      INTEGER :: IXS(NIXS,*),NV46,IPM(NPROPMI,*)
-      my_real :: SIG(NEL,6),QVIS(NEL),X(3,*),RHO(NEL), VOL(NEL), A(3,*), IAD22(*)
+      INTEGER :: NEL
+      INTEGER :: IXS(NIXS,*),IPM(NPROPMI,*)
+      my_real :: SIG(NEL,6),QVIS(NEL),RHO(NEL), VOL(NEL), IAD22(*)
       my_real :: N1X(*), N2X(*),  N3X(*), N4X(*), N5X(*), N6X(*),
      .           N1Y(*), N2Y(*),  N3Y(*), N4Y(*), N5Y(*), N6Y(*),
      .           N1Z(*), N2Z(*),  N3Z(*), N4Z(*), N5Z(*), N6Z(*),
      .           MOM(NEL,3), SSP(NEL), ISGN, V(3), W(3), VmW(3)
-      TYPE(ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB     
+      my_real, DIMENSION(MVSIZ,6), INTENT(INOUT) :: SVIS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: I, II, J, K, IMAT, IALEFVM_FLG, IB, NIN, IBM, NGM, IDLOCM, ICUT,MCELL,NUM,IBv,ICELLv
-      INTEGER :: ISECND, ID, NP, IBs, ICELLs, Js, NumSECND
+      INTEGER :: I, II, K, IMAT, IALEFVM_FLG, IB, NIN, IBM, NGM, IDLOCM, ICUT,MCELL,NUM
+      INTEGER :: ISECND, ID, IBs, ICELLs, Js, NumSECND
       
       my_real :: P(MVSIZ) , 
      .           S1(MVSIZ)     , S2(MVSIZ)          , S3(MVSIZ), 
      .           S4(MVSIZ)     , S5(MVSIZ)          , S6(MVSIZ),
-     .           PVOIS(6,MVSIZ), NORM    , S(0:6), S0(14)
-      my_real
-     .   N0X(14), N0Y(14), N0Z(14),
-     .   NS(3,0:6), MASS,U_N(0:6), SURF(6)
+     .           NORM          , S(0:6)             , S0(14)
+      my_real :: N0X(14), N0Y(14), N0Z(14),MASS,U_N(0:6)
      
       INTEGER :: idbf,idbl,ICELL,NBCUT,NCELL,NBCUTv,IDEB,IFIN
       LOGICAL :: debug_outp
 C-----------------------------------------------
 C   P r e - C o n d i t i o n s
 C-----------------------------------------------      
-      IF(IALEFVM==0)RETURN
-      IMAT        = IXS(1,LFT+NFT)
+      IF(ALEFVM_Param%IEnabled==0)RETURN
+      IMAT        = IXS(1,1+NFT)
       IALEFVM_FLG = IPM(251,IMAT)  
-      IF(IALEFVM_FLG .LE. 1)RETURN       
+      IF(IALEFVM_FLG <= 1)RETURN       
 C-----------------------------------------------
 C   S o u r c e   L i n e s 
 C-----------------------------------------------
@@ -122,29 +114,29 @@ C-----------------------------------------------
       !inter22
       NIN = 1
       
-      ! attention : il faut que mmain soit traite pour chacun des groupes 
-      ! afin de connaitre les tenseurs voisins (SIG,SVIS,QVIS) !
-      ! l'assemblage est ensuite realise apres tous les appel de 
+      ! attention: mmain must be processed for each group
+      ! in order to know the neighboring tensors (SIG,SVIS,QVIS) !
+      ! the assembly is then carried out after all calls to
       ! ALEMAIN>SFORC3() pour chaque groupe.
 
       !-------------------------------------------------------------!
       ! PRESSURE                                                    !
       !-------------------------------------------------------------! 
-      DO I=LFT,LLT                          
+      DO I=1,NEL                          
         S1(I) = SIG(I,1) + SVIS(I,1) - QVIS(I) 
         S2(I) = SIG(I,2) + SVIS(I,2) - QVIS(I) 
         S3(I) = SIG(I,3) + SVIS(I,3) - QVIS(I) 
         S4(I) = SIG(I,4) + SVIS(I,4)
         S5(I) = SIG(I,5) + SVIS(I,5) 
-        S6(I) = SIG(I,6) + SVIS(I,6)		   
+        S6(I) = SIG(I,6) + SVIS(I,6)       
       ENDDO 
-      DO I=LFT,LLT
+      DO I=1,NEL
         P(I)      = -THIRD*(S1(I)+S2(I)+S3(I))        
       ENDDO
       ! STORAGE
-      DO I=LFT,LLT                           
+      DO I=1,NEL                           
         IB = NINT(IAD22(I))                  
-        IF(IB.LE.0) CYCLE 
+        IF(IB<=0) CYCLE 
         BRICK_LIST(NIN,IB)%RHOC   = RHO(I)*SSP(I)                   
         BRICK_LIST(NIN,IB)%SIG(0) = P(I)     
         BRICK_LIST(NIN,IB)%SIG(1) = S1(I)    
@@ -159,10 +151,10 @@ C-----------------------------------------------
       !-------------------------------------------------------------!
       ! NORMAL VECTOR FOR ALE  (can be optimize for EULER           !
       !-------------------------------------------------------------!                                       
-      DO I=LFT,LLT                          
+      DO I=1,NEL                          
       II      = I + NFT                     
       IB      = NINT(IAD22(I))              
-      IF(IB.LE.0)CYCLE                      
+      IF(IB<=0)CYCLE                      
         ! Face-1                            
         N1X(I) = BRICK_LIST(NIN,IB)%N(1,1)  
         N1Y(I) = BRICK_LIST(NIN,IB)%N(1,2)  
@@ -194,25 +186,25 @@ C-----------------------------------------------
       ! COMPOSING THE SUPERCELL                                     !
       !   NEEDED FOR ALE_FVM_SFINT3_INT22 INTEGRAL : Pface interp.  !
       !-------------------------------------------------------------!
-      DO I=LFT, LLT
+      DO I=1, NEL
         !WARNING : Normal vectors computed in EPXLE3() if IALEFVM>0
         II                                               = I + NFT
         IB                                               = NINT(IAD22(I))
-        IF(IB.LE.0)CYCLE 
+        IF(IB<=0)CYCLE 
         NBCUT                                            = BRICK_LIST(NIN,IB)%NBCUT
         MCELL                                            = BRICK_LIST(NIN,IB)%MainID
         NCELL                                            = NBCUT
         ICELL                                            = MCELL
         BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(1:6)%U_N     = ZERO
         !---face-0  
-        IF(NBCUT.GT.0)THEN
+        IF(NBCUT>0)THEN
           S(1:6)                                         = BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(1:6)%Surf                                                            
           S(0)                                           = BRICK_LIST(NIN,IB)%PCUT(ICELL)%SCUT(1)                                                                   
           IBM                                            = BRICK_LIST(NIN,IB)%POLY(ICELL)%WhereIsMain(4)                                                          
           NGM                                            = BRICK_LIST(NIN,IBM)%NG                                                                                   
           IDLOCM                                         = BRICK_LIST(NIN,IBM)%IDLOC                                                                                                                                                                                                                              
           ISGN                                           = ONE                                                                                                                      
-          IF(ICELL.EQ.9)ISGN = -ONE                                                                                                                                                  
+          IF(ICELL==9)ISGN = -ONE                                                                                                                                                  
           BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE0%U_N(1:9)  = ZERO                                                                                                                   
           DO K=1,NBCUT                                                                                                                                                           
             ICUT                                         = K                                                                                                                      
@@ -263,7 +255,7 @@ C-----------------------------------------------
           ISGN                                           = ONE    
           IDEB                                           = ICELLs
           IFIN                                           = ICELLs                                                                                                                                         
-          IF(ICELLs.EQ.9)THEN
+          IF(ICELLs==9)THEN
             ISGN                                         = -ONE                                                                                                                                                         
             IDEB                                         = 1
             IFIN                                         = NBCUTv
@@ -307,19 +299,19 @@ C-----------------------------------------------
 
  
         !DEBUG-OUTPUT---------------!
-        if(IALEFVM_OUTP_STRESS /= 0)then
+        if(ALEFVM_Param%IOUTP_STRESS /= 0)then
           debug_outp = .FALSE.
-          if(IALEFVM_OUTP_STRESS>0)then
+          if(ALEFVM_Param%IOUTP_STRESS>0)then
             do i=lft,llt
               ii = nft + i
-              if(ixs(11,ii)==IALEFVM_OUTP_STRESS)THEN
+              if(ixs(11,ii)==ALEFVM_Param%IOUTP_STRESS)THEN
                 debug_outp = .TRUE.
                 idbf   = i
                 idbl   = i
                 EXIT
               endif
              enddo
-          elseif(IALEFVM_OUTP_STRESS==-1)then
+          elseif(ALEFVM_Param%IOUTP_STRESS==-1)then
             debug_outp=.TRUE.
                 idbf   = lft
                 idbl   = llt          
@@ -333,11 +325,11 @@ C-----------------------------------------------
           do i=idbf,idbl
             ii = nft + i
             IB               = NINT(IAD22(I))
-            if(ib.le.0)CYCLE
+            if(ib<=0)CYCLE
             NBCUT            = BRICK_LIST(NIN,IB)%NBCUT
-            IF(NBCUT.GT.0)THEN
+            IF(NBCUT>0)THEN
              ICELL                 =  BRICK_LIST(NIN,IB)%mainID
-             IF(ICELL.EQ.0)CYCLE                        
+             IF(ICELL==0)CYCLE                        
                         
                print *,                    "      brique=", ixs(11,nft+i), "icell=", ICELL
                print *,                    "        vold=", brick_list(nin,ib)%vold_scell
@@ -386,7 +378,7 @@ C-----------------------------------------------
      .                                      "#-------- face_3 ---------","#-------- face_4 ---------",
      .                                      "#-------- face_5 ---------","#-------- face_6 --------#"  
                write (*,FMT='(A,1E26.14)')    "    <U,N>                  =", BRICK_LIST(NIN,IB)%POLY(ICELL)%FACE(1:6)%U_N          
-            ENDIF!(NBCUT.GT.0)   
+            ENDIF!(NBCUT>0)   
              
              NUM = BRICK_LIST(NIN,IB)%SecndList%Num
              IBM = IB

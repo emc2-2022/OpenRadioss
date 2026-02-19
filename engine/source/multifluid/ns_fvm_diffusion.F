@@ -1,25 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ns_fvm_diffusion       ../engine/source/multifluid/ns_fvm_diffusion.F
+!||--- called by ------------------------------------------------------
+!||    alemain                ../engine/source/ale/alemain.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_e1vois            ../engine/source/mpi/fluid/spmd_cfd.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    diffusion_mod          ../engine/share/modules/diffusion_mod.F
+!||    ebcs_mod               ../common_source/modules/boundary_conditions/ebcs_mod.F90
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    multi_fvm_mod          ../common_source/modules/ale/multi_fvm_mod.F90
+!||====================================================================
       subroutine ns_fvm_diffusion(ale_connect, multi_fvm, time_step, ebcs_tab, 
      .     diffusion, ipm, pm, iparg, elbuf_tab, nercvois, nesdvois, lercvois, lesdvois, 
      .     ixs, func_value)
@@ -28,24 +42,22 @@ Copyright>        commercial version may interest you: https://www.altair.com/ra
       USE DIFFUSION_MOD
       USE EBCS_MOD
       USE ELBUFDEF_MOD
+      use element_mod , only : nixs
 c-----------------------------------------------
 c   i m p l i c i t   t y p e s
 c-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "task_c.inc"
 !     nspmd, ngroup
 #include "com01_c.inc"
 !     numels
 #include "com04_c.inc"
 !     nsvois
-#include "spmd_c.inc"
 !     npropmi, npropm, nparg
 #include "param_c.inc"
 c-----------------------------------------------
 c   m e s s a g e   p a s s i n g
 c-----------------------------------------------
 #ifdef mpi
-#include "mpif.h"
 #endif
 !     dummy
       type(t_ale_connectivity), intent(in) :: ale_connect
@@ -122,7 +134,7 @@ c-----------------------------------------------
 
 !     ebcs / fluxout and ebcs / inlet : newman boundary conditions
       if (ebcs_tab%nebcs_fvm > 0) then
-!     flag_outlet = 0 for standard dirichlet condition: u_boudary = 0 un Euler, or w_grid in ALE. Rhs needs be modified
+!     flag_outlet = 0 for standard dirichlet condition: u_boundary = 0 un Euler, or w_grid in ALE. Rhs needs be modified
 !     flag_outlet = -1 for newman boundary condition
 !     flag_outlet = iebcs for dirichlet boundary condition, value of velocity is then taken as the one given in the inlet card.
          if (.not. diffusion%outlet_flagged) then

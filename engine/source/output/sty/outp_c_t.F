@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  OUTP_C_T                      source/output/sty/outp_c_t.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|-- calls ---------------
-Chd|        SPMD_RGATHER9_1COMM           source/mpi/interfaces/spmd_outp.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    outp_c_t              ../engine/source/output/sty/outp_c_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp               ../engine/source/output/sty/genoutp.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_rgather9_1comm   ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE OUTP_C_T(ITENS ,KEY   ,TEXT  ,ELBUF_TAB,
      .                    IPARG ,EPSDOT,DD_IAD,SIZLOC   ,SIZP0,SIZ_WR)
 C-----------------------------------------------
@@ -45,8 +46,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
@@ -65,14 +64,14 @@ C-----------------------------------------------
       INTEGER I,J,JJ
       INTEGER NG,NEL,NFT,ITY,LFT,NPT,IPT,N0,
      .        LLT,MLW,ISTRAIN,N,NS1,NS2,
-     .        I1,I2,ISTRE,IHBE,JJ_OLD,NGF,NGL,NN,LEN,
-     .        IR,IS,NPTR,NPTS,NLAY,MPT,NPT_ALL,IGTYP,NPTT,II(8)
+     .        ISTRE,IHBE,JJ_OLD,NGF,NGL,NN,
+     .        NLAY,MPT,NPT_ALL,IGTYP,II(8)
       INTEGER RESP0,WRTLEN,RES,COMPTEUR,L,K
       INTEGER, DIMENSION(NSPGROUP) :: JJ_LOC
       INTEGER, DIMENSION(NSPGROUP+1,NSPMD) :: ADRESS 
       my_real
      .   WA(SIZLOC),WAP0(SIZ_WR),WAP0_LOC(SIZP0)
-      my_real A1,A2,THK,FUNC(6)
+      my_real A1,A2,THK
 C
       TYPE(G_BUFEL_) , POINTER :: GBUF
 C-----------------------------------------------
@@ -112,7 +111,7 @@ C
               NLAY    = ELBUF_TAB(NG)%NLAY
               GBUF    =>ELBUF_TAB(NG)%GBUF
 !
-              DO I=1,8  ! lenght max of GBUF%G_STRA = 8
+              DO I=1,8  ! length max of GBUF%G_STRA = 8
                 II(I) = NEL*(I-1)
               ENDDO
 
@@ -324,7 +323,7 @@ C------------------------
         ENDDO
        ENDIF
 !     ++++++++++
-       IF(ISPMD.EQ.0) THEN
+       IF(ISPMD==0) THEN
          RESP0 = 0
          DO NN=1,NSPGROUP
           COMPTEUR = 0
@@ -338,7 +337,7 @@ C------------------------
           ENDDO    ! k=1,nspmd
 
           JJ_OLD = COMPTEUR+RESP0
-          IF(JJ_OLD.GT.0) THEN
+          IF(JJ_OLD>0) THEN
             RES=MOD(JJ_OLD,6)
             WRTLEN=JJ_OLD-RES
             IF (WRTLEN > 0) THEN
@@ -367,27 +366,30 @@ C---
       RETURN
       END
 
-Chd|====================================================================
-Chd|  OUTP_C_TF                     source/output/sty/outp_c_t.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|-- calls ---------------
-Chd|        C_TF_NE                       source/output/sty/c_tf_ne.F   
-Chd|        SPMD_RGATHER9_1COMM           source/mpi/interfaces/spmd_outp.F
-Chd|        DRAPE_MOD                     share/modules/drape_mod.F     
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
+!||====================================================================
+!||    outp_c_tf             ../engine/source/output/sty/outp_c_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp               ../engine/source/output/sty/genoutp.F
+!||--- calls      -----------------------------------------------------
+!||    c_tf_ne               ../engine/source/output/sty/c_tf_ne.F
+!||    spmd_rgather9_1comm   ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    drape_mod             ../engine/share/modules/drape_mod.F
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    stack_mod             ../engine/share/modules/stack_mod.F
+!||====================================================================
       SUBROUTINE OUTP_C_TF(ITENS ,KEY   ,TEXT  ,ELBUF_TAB,IPARG,
      .                     DD_IAD,SIZLOC,SIZP0 ,THKE     ,GEO  ,
-     .                     IGEO  ,STACK ,DRAPE_Q4, DRAPE_T3 ,IXC  ,
-     .                     IXTG  ,SIZ_WR)
+     .                     IGEO  ,STACK ,DRAPE_SH4N, DRAPE_SH3N ,IXC  ,
+     .                     IXTG  ,SIZ_WR,DRAPEG)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
       USE STACK_MOD
       USE DRAPE_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -399,9 +401,6 @@ C-----------------------------------------------
 #include      "units_c.inc"
 #include      "task_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "scr16_c.inc"
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
@@ -420,10 +419,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NG,NEL,NFT,ITY,LFT,NPT,IPT,N0,
-     .   LLT,MLW,ISTRAIN,N,NS1,NS2,
-     .   I1,I2,I3,I4,I5,I11,ISTRE,IHBE,I,J,JJ,
-     .   JJ_OLD,NGF,NGL,NN,LEN,K,NPG,IPG,NLAY,NPTS,NPTR,IL,ITHK,NPTT,IT,
+      INTEGER NG,NEL,NFT,ITY,LFT,NPT,
+     .   LLT,MLW,ISTRAIN,
+     .   I1,I3,IHBE,I,J,JJ,
+     .   JJ_OLD,NGF,NGL,NN,K,NPG,IPG,NLAY,NPTS,NPTR,IL,ITHK,NPTT,IT,
      .   IGTYP,IXFEM,ISUBSTACK,NPT_ALL,MPT,COMPTEUR,L,II(8)
       INTEGER, DIMENSION(NSPGROUP) :: JJ_LOC
       INTEGER, DIMENSION(NSPGROUP+1,NSPMD) :: ADRESS 
@@ -431,12 +430,13 @@ C-----------------------------------------------
      .   WA(SIZLOC),WAP0(SIZ_WR),WAP0_LOC(SIZP0)
 
       my_real
-     .   A1,A2,THK,FUNC(6),HOURG(5),PLA(MVSIZ)
+     .   FUNC(6),HOURG(5)
 C
       TYPE(BUF_LAY_) ,POINTER :: BUFLY
       TYPE(G_BUFEL_) ,POINTER :: GBUF
       TYPE(L_BUFEL_) ,POINTER :: LBUF
-      TYPE(DRAPE_) :: DRAPE_Q4, DRAPE_T3
+      TYPE(DRAPE_) :: DRAPE_SH4N(NUMELC_DRAPE), DRAPE_SH3N(NUMELTG_DRAPE)
+      TYPE(DRAPEG_) :: DRAPEG
 C-----------------------------------------------
         IF (ISPMD == 0) THEN
           WRITE(IUGEO,'(2A)')'/SHELL     /TENSOR    /',KEY
@@ -521,12 +521,12 @@ C---
               NPTS = ELBUF_TAB(NG)%NPTS
               NPG  = NPTR*NPTS
 !
-              DO I=1,8  ! lenght max of GBUF%G_STRA = 8
+              DO I=1,8  ! length max of GBUF%G_STRA = 8
                 II(I) = NEL*(I-1)
               ENDDO
 !
 C
-C pre counting of all NPTT (especialy for PID_51)
+C pre counting of all NPTT (especially for PID_51)
 C
               MPT = IABS(NPT)
               IF (IGTYP == 51 .OR. IGTYP == 52 ) THEN
@@ -553,8 +553,8 @@ C------------------------
      .                         ITY          ,ISTRAIN  ,JJ   ,WA    ,1     ,
      .                         NLAY         ,NPTR     ,NPTS ,ITHK  ,NFT   ,
      .                         THKE         ,NPG      ,IGTYP,GEO   ,IGEO  ,
-     .                         IXFEM        ,ISUBSTACK,STACK,DRAPE_Q4, DRAPE_T3,
-     .                         IXC          ,IXTG     ,MPT  )
+     .                         IXFEM        ,ISUBSTACK,STACK,DRAPE_SH4N, DRAPE_SH3N,
+     .                         IXC          ,IXTG     ,MPT  ,DRAPEG )
                 ELSE
                   IF (MLW == 1 .OR. MLW == 3 .OR. MLW == 23) THEN
                     DO I=LFT,LLT
@@ -805,7 +805,7 @@ C-----------------------------------------------------------------------
         ENDDO
        ENDIF
 !     ++++++++++
-       IF(ISPMD.EQ.0) THEN
+       IF(ISPMD==0) THEN
          DO NN=1,NSPGROUP
           COMPTEUR = 0
           DO K = 1,NSPMD
@@ -819,7 +819,7 @@ C-----------------------------------------------------------------------
            
 
           JJ_OLD = COMPTEUR
-          IF(JJ_OLD.GT.0) THEN
+          IF(JJ_OLD>0) THEN
 
             IF (ITENS == 95) THEN
               J = 1
@@ -946,14 +946,14 @@ C-----------------------------------------------------------------------
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  COUNT_ARSZ_CT                 source/output/sty/outp_c_t.F  
-Chd|-- called by -----------
-Chd|        GENOUTP                       source/output/sty/genoutp.F   
-Chd|        OUTP_ARSZ_CT                  source/mpi/interfaces/spmd_outp.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    count_arsz_ct   ../engine/source/output/sty/outp_c_t.F
+!||--- called by ------------------------------------------------------
+!||    genoutp         ../engine/source/output/sty/genoutp.F
+!||    outp_arsz_ct    ../engine/source/mpi/interfaces/spmd_outp.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE COUNT_ARSZ_CT(IPARG,DD_IAD,WASZ,SIZ_WRITE,ELBUF_TAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -995,7 +995,7 @@ C-----------------------------------------------
      . .OR.OUTP_CT( 4) == 1.OR.OUTP_CT( 5) == 1.OR.OUTP_CT( 6) == 1
      . .OR.OUTP_CT( 7) == 1.OR.OUTP_CT( 8) == 1.OR.OUTP_CT(91) == 1
      . .OR.OUTP_CT(92) == 1.OR.OUTP_CT(93) == 1.OR.OUTP_CT(94) == 1
-     . .OR.COUNT.GT.0 )   THEN
+     . .OR.COUNT>0 )   THEN
 
         NGF = 1
         NGL = 0
@@ -1055,7 +1055,7 @@ C------------------------
 C---QEPH:------
                 IF (IHBE == 23) THEN
                   NPG=4
-C---Transfert to QBAT------
+C---Transfer to QBAT------
                   IF (MPT == 0) THEN
                     JJ = JJ + ((9*NPG)+5)*NEL
                   ELSE

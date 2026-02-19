@@ -1,41 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT121                source/materials/mat/mat121/hm_read_mat121.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat121           ../starter/source/materials/mat/mat121/hm_read_mat121.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT121(
      .           UPARAM   ,MAXUPARAM,NUPARAM  ,NUVAR    ,MAXFUNC  ,
      .           NFUNC    ,IFUNC    ,MTAG     ,PARMAT   ,UNITAB   ,
@@ -49,6 +49,7 @@ C-----------------------------------------------
       USE SUBMODEL_MOD 
       USE ELBUFTAG_MOD
       USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e sXM
 C-----------------------------------------------
@@ -56,11 +57,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -68,22 +65,22 @@ C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN)                 :: UNITAB 
       INTEGER, INTENT(IN)                          :: MAT_ID,MAXUPARAM,MAXFUNC
       my_real, DIMENSION(NPROPM) ,INTENT(INOUT)    :: PM     
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
       INTEGER, INTENT(INOUT)                       :: ISRATE,IFUNC(MAXFUNC)
-      INTEGER, INTENT(OUT)                         :: NUPARAM,NUVAR,NFUNC
+      INTEGER, INTENT(INOUT)                         :: NUPARAM,NUVAR,NFUNC
       my_real, DIMENSION(MAXUPARAM) ,INTENT(INOUT) :: UPARAM
-      my_real, DIMENSION(100),INTENT(OUT)          :: PARMAT
+      my_real, DIMENSION(100),INTENT(INOUT)          :: PARMAT
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
-      TYPE(MLAW_TAG_), INTENT(OUT)                 :: MTAG
-      TYPE(MATPARAM_STRUCT_) ,INTENT(OUT)          :: MATPARAM  
+      TYPE(MLAW_TAG_), INTENT(INOUT)               :: MTAG
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT)        :: MATPARAM  
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,ILAW,Ires,Ivisc,Ifail,Fct_SIG0,
+      INTEGER ILAW,Ires,Ivisc,Ifail,Fct_SIG0,
      .        Fct_YOUN,Fct_TANG,Fct_FAIL
 C     REAL
       my_real
-     .   RHO0,YOUNG,NU,A,G,G2,LAM,BULK,NNU,NNU1,Fcut,DTMIN,
+     .   RHO0,YOUNG,NU,G,G2,LAM,BULK,NNU,NNU1,Fcut,DTMIN,
      .   Xscale_SIG0,Yscale_SIG0,Xscale_YOUN,Yscale_YOUN,
      .   Xscale_TANG,Xscale_FAIL,Yscale_FAIL,
      .   XSCALE_UNIT,YSCALE_UNIT,A11,A12,TANG
@@ -94,7 +91,7 @@ C=======================================================================
       IS_AVAILABLE = .FALSE.
       ILAW = 121
 c------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 c------------------------------------------
 c
 card1 - Density
@@ -175,7 +172,7 @@ c-----------------------------
       ! Failure criterion flag
       Ifail = MIN(MAX(Ifail,0),3)
       ! Check initial yield stress function is defined 
-      IF (Fct_SIG0 == 0) THEN 
+      IF ((Fct_SIG0 == 0).AND.(Yscale_SIG0 == ZERO)) THEN 
         CALL ANCMSG(MSGID=2060,
      .              MSGTYPE=MSGERROR,
      .              ANMODE=ANINFO_BLIND_2,
@@ -203,7 +200,7 @@ c-----------------------------
       ENDIF
       ! Strain-rate filtering frequency
       IF (Fcut == ZERO) THEN 
-        Fcut = 10000.0D0*FAC_T_WORK  
+        Fcut = 10000.0D0*UNITAB%FAC_T_WORK  
       ENDIF
       ! Timestep failure criterion
       IF (DTMIN == ZERO) DTMIN = -INFINITY
@@ -218,12 +215,12 @@ c--------------------------
       ! Number of user variables 
       IF (Ires == 1) THEN 
         IF (Ivisc == 0) THEN 
-          NUVAR = 1
+          NUVAR = 2
         ELSE
           NUVAR = 3
         ENDIF
       ELSE
-        NUVAR = 0
+        NUVAR = 1
       ENDIF
 c      
       ! Material parameters
@@ -280,6 +277,12 @@ c
       CALL INIT_MAT_KEYWORD(MATPARAM ,"ELASTO_PLASTIC")
       CALL INIT_MAT_KEYWORD(MATPARAM ,"INCREMENTAL" )
       CALL INIT_MAT_KEYWORD(MATPARAM ,"LARGE_STRAIN")
+      CALL INIT_MAT_KEYWORD(MATPARAM ,"HOOK")
+c
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ISOTROPIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SPH")
 c
 c--------------------------
 c     Parameters printout
@@ -297,7 +300,11 @@ c--------------------------
         IF (Ivisc == 0) THEN 
           WRITE(IOUT,1380) Fcut
         ENDIF
-        WRITE(IOUT,1400) Fct_SIG0,Xscale_SIG0,Yscale_SIG0
+        IF (Fct_SIG0 > 0) THEN 
+          WRITE(IOUT,1400) Fct_SIG0,Xscale_SIG0,Yscale_SIG0
+        ELSE
+          WRITE(IOUT,1450) Yscale_SIG0
+        ENDIF
         IF (Fct_YOUN > 0) THEN 
           WRITE(IOUT,1500) Fct_YOUN,Xscale_YOUN,Yscale_YOUN
         ENDIF
@@ -343,21 +350,23 @@ c-----------------------------------------------------------------------
  1380 FORMAT(
      & 5X,'STRAIN-RATE FILTERING CUTOFF FREQUENCY.=',1PG20.13/)
  1400 FORMAT(
-     & 5X,'INITIAL YIELD STRESS FUNCTION ID. . . .=',I3/
+     & 5X,'INITIAL YIELD STRESS FUNCTION ID. . . .=',I10/
      & 5X,'STRAIN-RATE SCALE FACTOR. . . . . . . .=',1PG20.13/
      & 5X,'YIELD STRESS SCALE FACTOR . . . . . . .=',1PG20.13/)
+ 1450 FORMAT(
+     & 5X,'CONSTANT INITIAL YIELD STRESS . . . . .=',1PG20.13/)
  1500 FORMAT(
-     & 5X,'YOUNG MODULUS FUNCTION ID . . . . . . .=',I3/
+     & 5X,'YOUNG MODULUS FUNCTION ID . . . . . . .=',I10/
      & 5X,'STRAIN-RATE SCALE FACTOR. . . . . . . .=',1PG20.13/
      & 5X,'YOUNG MODULUS SCALE FACTOR  . . . . . .=',1PG20.13/)
  1600 FORMAT(
-     & 5X,'TANGENT MODULUS FUNCTION ID . . . . . .=',I3/
+     & 5X,'TANGENT MODULUS FUNCTION ID . . . . . .=',I10/
      & 5X,'STRAIN-RATE SCALE FACTOR. . . . . . . .=',1PG20.13/
      & 5X,'TANGENT MODULUS SCALE FACTOR  . . . . .=',1PG20.13/)
  1650 FORMAT(
      & 5X,'CONSTANT TANGENT MODULUS  . . . . . . .=',1PG20.13/)
  1700 FORMAT(
-     & 5X,'FAILURE CRITERION STRESS FUNCTION ID  .=',I3/
+     & 5X,'FAILURE CRITERION STRESS FUNCTION ID  .=',I10/
      & 5X,'STRAIN-RATE SCALE FACTOR. . . . . . . .=',1PG20.13/
      & 5X,'ORDINATE SCALE FACTOR . . . . . . . . .=',1PG20.13/)
  1800 FORMAT(

@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DXYZSPH                       source/output/anim/generate/dxyzsph.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_GATHER_SPH               source/mpi/anim/spmd_gather_sph.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dxyzsph           ../engine/source/output/anim/generate/dxyzsph.F
+!||--- called by ------------------------------------------------------
+!||    genani            ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_gather_sph   ../engine/source/mpi/anim/spmd_gather_sph.F
+!||    write_r_c         ../common_source/tools/input_output/write_routines.c
+!||====================================================================
       SUBROUTINE DXYZSPH (NESPH,KXSP,X,SPBUF,SNNSPHG,NNSPH)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -37,11 +37,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "sphcom.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -57,8 +54,7 @@ C-----------------------------------------------
      4   XQ(3),FACT
       REAL R4,R4NP(3*NNSPH)
 C-----------------------------------------------
-      IF (NUMSPH+MAXPJET.EQ.0) GOTO 100
-C-----------------------------------------------
+      IF (NUMSPH+MAXPJET==0) GOTO 100
 C-----------------------------------------------
       CNT = 0
       FACT =(THREE/(FOUR*SQRT(TWO)))**THIRD
@@ -148,7 +144,7 @@ C           XQ(3) =ZI+SQRT(3.)*R
  100  CONTINUE
 C-------------------------------------------------------
       IF (NSPMD > 1) THEN
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
           BUF = 3*SNNSPHG
         ELSE
           BUF=1

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S16MASS3                      source/elements/thickshell/solide16/s16mass3.F
-Chd|-- called by -----------
-Chd|        S16INIT3                      source/elements/thickshell/solide16/s16init3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s16mass3   ../starter/source/elements/thickshell/solide16/s16mass3.F
+!||--- called by ------------------------------------------------------
+!||    s16init3   ../starter/source/elements/thickshell/solide16/s16init3.F
+!||====================================================================
       SUBROUTINE S16MASS3(
      1   MASS  ,MS  ,PARTSAV,IPART  ,MSS,VOLG,
      2   XX    ,YY  ,ZZ     ,VX     ,VY ,VZ  ,  
@@ -56,14 +55,13 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, IP,N1,N2, IPERM1(16),IPERM2(16),N
 C     REAL
       my_real
-     .   AXX,AYY,AZZ,AXY,AYZ,AZX,AM,BM,FAC,MASSCP
+     .   AXX,AYY,AZZ,AXY,AYZ,AZX,AM,BM,MASSCP
 C
       DATA IPERM1/0,0,0,0,0,0,0,0,1,2,3,4,5,6,7,8/
       DATA IPERM2/0,0,0,0,0,0,0,0,2,3,4,1,6,7,8,5/
@@ -95,7 +93,7 @@ C
         DO N=9,16
           N1=IPERM1(N)
           N2=IPERM2(N)
-          IF(NC(I,N).NE.0)THEN
+          IF(NC(I,N)/=0)THEN
             MSSX(N-8,I)=BM
             STIFN(NC(I,N))=STIFN(NC(I,N))+STI(I)
           ELSE
@@ -220,7 +218,7 @@ C
      .           +VZ(I,15)*VZ(I,15)+VZ(I,16)*VZ(I,16)))
        ENDDO  
 CC
-C  heat transfert for solid
+C  heat transfer for solid
 C      
        IF(JTHE < 0 ) THEN
         DO I=LFT,LLT

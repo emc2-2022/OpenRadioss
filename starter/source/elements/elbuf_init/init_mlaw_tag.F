@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIT_MLAW_TAG                 source/elements/elbuf_init/init_mlaw_tag.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    init_mlaw_tag   ../starter/source/elements/elbuf_init/init_mlaw_tag.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod    ../starter/share/modules1/elbuftag_mod.F
+!||====================================================================
       SUBROUTINE INIT_MLAW_TAG(MLAW_TAG,MY_SIZE)
 C-----------------------------------------------
 C   M o d u l e s
@@ -36,14 +36,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "tablen_c.inc"
-#include      "inter22.inc"
-#include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -74,6 +66,10 @@ C-----------------------------------------------
             MLAW_TAG(I)%G_SEQ = 0
             MLAW_TAG(I)%G_ABURN = 0
             MLAW_TAG(I)%G_MU = 0
+            MLAW_TAG(I)%G_PLANL = 0
+            MLAW_TAG(I)%G_EPSDNL = 0
+            MLAW_TAG(I)%G_DMGSCL = 0
+            MLAW_TAG(I)%G_TSAIWU = 0
             MLAW_TAG(I)%G_MAXFRAC = 0
             MLAW_TAG(I)%G_MAXEPS = 0
             MLAW_TAG(I)%G_DMG = 0
@@ -94,6 +90,7 @@ C-----------------------------------------------
             MLAW_TAG(I)%G_NUVAR = 0
             MLAW_TAG(I)%G_MASS = 0
             MLAW_TAG(I)%G_SKEW_ID = 0
+            MLAW_TAG(I)%G_THK = 0
 c           layer variables 
 c   
             MLAW_TAG(I)%LY_DIRA = 0
@@ -136,12 +133,15 @@ c
             MLAW_TAG(I)%L_XST = 0      
             MLAW_TAG(I)%L_SSP = 0      
             MLAW_TAG(I)%L_Z = 0
-            MLAW_TAG(I)%L_FRAC  = 0       !    pourcentage de phase (multimat) 
+            MLAW_TAG(I)%L_FRAC  = 0       ! phase percentage (multimat)
             MLAW_TAG(I)%L_BFRAC = 0
             MLAW_TAG(I)%L_DMG = 0
             MLAW_TAG(I)%L_ABURN = 0
             MLAW_TAG(I)%L_MU = 0
-    
+            MLAW_TAG(I)%L_PLANL  = 0
+            MLAW_TAG(I)%L_EPSDNL = 0
+            MLAW_TAG(I)%L_DMGSCL = 0
+            MLAW_TAG(I)%L_TSAIWU = 0
 c---    uvar            
             MLAW_TAG(I)%NUVAR = 0           
             MLAW_TAG(I)%NVARTMP = 0      

@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVBRIC                        source/airbag/fvbric.F        
-Chd|-- called by -----------
-Chd|        FVMESH0                       source/airbag/fvmesh0.F       
-Chd|-- calls ---------------
-Chd|        SPMD_FVB_GATH                 source/mpi/airbags/spmd_fvb_gath.F
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvbric          ../engine/source/airbag/fvbric.F
+!||--- called by ------------------------------------------------------
+!||    fvmesh0         ../engine/source/airbag/fvmesh0.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_fvb_gath   ../engine/source/mpi/airbags/spmd_fvb_gath.F
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod       ../engine/share/modules/fvbag_mod.F
+!||====================================================================
       SUBROUTINE FVBRIC(IVOLU, RVOLU, IBUF, X, NN)
 C-----------------------------------------------
 C   M o d u l e s 
@@ -40,7 +41,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
@@ -52,7 +52,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, II, NBX, NBY, NBRIC, NNB, IFV, NNB1, J, K, NV, NALL,
+      INTEGER I, NBX, NBY, NBRIC, NNB, IFV, NNB1, J, K, NV, NALL,
      .        NC, TNC(4), TNV(5,6), KK, L, N1, N2, N3, N4, N5, N6, N7,
      .        N8, I1, I2 
       my_real
@@ -74,7 +74,7 @@ C
 C
       IFV=IVOLU(45)
       IF (NSPMD == 1) THEN
-C traitement necessaire pour rester p/on
+C treatment necessary to stay p/we
          DO I=1,FVSPMD(IFV)%NN_L
             I1=FVSPMD(IFV)%IBUF_L(1,I)
             I2=FVSPMD(IFV)%IBUF_L(2,I)
@@ -91,7 +91,7 @@ c         ENDDO
       ELSE
          CALL SPMD_FVB_GATH(IFV, X, XXX, RBID, RBID,
      .                      1  )
-         IF (ISPMD.NE.FVSPMD(IFV)%PMAIN-1) RETURN
+         IF (ISPMD/=FVSPMD(IFV)%PMAIN-1) RETURN
       ENDIF
       VX3=RVOLU(35)
       VY3=RVOLU(36)
@@ -208,17 +208,17 @@ C
          ENDDO
          NV=0
          DO J=1,NBRIC
-            IF (J.EQ.I) CYCLE
+            IF (J==I) CYCLE
             NALL=0
             NC=0
             DO K=1,8
-               IF (ITAG(FVDATA(IFV)%BRIC(K,J)).EQ.1) THEN
+               IF (ITAG(FVDATA(IFV)%BRIC(K,J))==1) THEN
                   NC=NC+1
                   TNC(NC)=FVDATA(IFV)%BRIC(K,J)
                ENDIF
                NALL=NALL+ITAG(FVDATA(IFV)%BRIC(K,J))
             ENDDO
-            IF (NALL.NE.4) CYCLE
+            IF (NALL/=4) CYCLE
             NV=NV+1
             TNV(1,NV)=J
             TNV(2,NV)=TNC(1)
@@ -239,7 +239,7 @@ C
                DO L=1,4
                   NALL=NALL*ITAG(TNV(1+L,K))
                ENDDO
-               IF (NALL.EQ.1) FVDATA(IFV)%TBRIC(J,I)=TNV(1,K)
+               IF (NALL==1) FVDATA(IFV)%TBRIC(J,I)=TNV(1,K)
             ENDDO
             DO K=1,4
                KK=FAC(K,J)
@@ -271,7 +271,7 @@ C
      .              FVDATA(IFV)%XB(3,N5)+FVDATA(IFV)%XB(3,N6)+
      .              FVDATA(IFV)%XB(3,N7)+FVDATA(IFV)%XB(3,N8))
 C
-         IF (I.EQ.1) THEN
+         IF (I==1) THEN
             VX1=FVDATA(IFV)%XB(1,N2)-FVDATA(IFV)%XB(1,N1)
             VY1=FVDATA(IFV)%XB(2,N2)-FVDATA(IFV)%XB(2,N1)
             VZ1=FVDATA(IFV)%XB(3,N2)-FVDATA(IFV)%XB(3,N1)
@@ -335,7 +335,7 @@ C
             VY=YC-YCF
             VZ=ZC-ZCF
             SS=VX*NX+VY*NY+VZ*NZ
-            IF (SS.LE.ZERO) THEN
+            IF (SS<=ZERO) THEN
                FVDATA(IFV)%SFAC(J,2,I)=NX/RR
                FVDATA(IFV)%SFAC(J,3,I)=NY/RR
                FVDATA(IFV)%SFAC(J,4,I)=NZ/RR

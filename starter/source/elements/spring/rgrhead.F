@@ -1,61 +1,60 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RGRHEAD                       source/elements/spring/rgrhead.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        CLUSTER_MOD                   share/modules1/cluster_mod.F  
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        SEATBELT_MOD                  ../common_source/modules/seatbelt_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rgrhead        ../starter/source/elements/spring/rgrhead.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod    ../starter/share/modules1/cluster_mod.F
+!||====================================================================
       SUBROUTINE RGRHEAD(
      1       IXR     ,GEO    ,INUM   ,ISEL     ,IGEO   ,
      2       ITR1    ,EADD   ,INDEX  ,ITRI     ,
      3       IPARTR  ,ND     ,IGRSURF,IGRSPRING,
      4       CEP     ,XEP    ,IRESOFF,TAGPRT_SMS, CLUSTERS,
-     5       IPM     ,R_SKEW)
+     5       IPM     ,R_SKEW ,ITAGPRLD_SPRING)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
       USE CLUSTER_MOD
       USE SEATBELT_MOD
+      use element_mod , only : nixr
 C-----------------------------------------------
 C            A R G U M E N T S
 C-----------------------------------------------
-C     IXR(6,NUMELR)     TABLEAU CONECS+PID+NOS RESSORTS            E
-C     GEO(NPROPG,NUMGEO)TABLEAU DES CARACS DES PID                 E
-C     INUM(6,NUMELR)    TABLEAU DE TRAVAIL                         E/S
-C     ISEL(NSELR)       TABLEAU DES RESSORTS CHOISIS POUR TH       E/S
-C     ITR1(NSELR)       TABLEAU DE TRAVAIL                         E/S
-C     EADD(NUMELR)      TABLEAU DES ADRESSES DANS IDAM CHGT DAMIER   S
-C     INDEX(NUMELR)     TABLEAU DE TRAVAIL                         E/S
-C     ITRI(4,NUMELR)    TABLEAU DE TRAVAIL                         E/S
-C     IPARTR(NUMELR)    TABLEAU PART                               E/S
-C     CEP(NUMELR)    TABLEAU PROC                               E/S
-C     XEP(NUMELR)    TABLEAU PROC                               E/S
+C     IXR(6,NUMELR)     CONNECTIVITY+PID+SPRING NUMBERS TABLE      E
+C     geo(npropG,numgeo)table of characteristics of pid
+C     INUM(6,NUMELR)    WORK TABLE                                 E/S
+C     ISEL(NSELR)       TABLE OF SPRINGS CHOSEN FOR TH             E/S
+C     ITR1(NSELR)       WORK TABLE                                 E/S
+C     EADD(NUMELR)      TABLE OF ADDRESSES IN IDAM CHGT DAMIER     S
+C     INDEX(NUMELR)     WORK TABLE                                 E/S
+C     ITRI(4,NUMELR)    WORK TABLE                                 E/S
+C     IPARTR(NUMELR)    PART TABLE                                 E/S
+C     CEP(NUMELR)    PROC TABLE                                 E/S
+C     XEP(NUMELR)    PROC TABLE                                 E/S
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -64,27 +63,18 @@ C-----------------------------------------------
 C   C O M M O N   B L O C K S
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr21_c.inc"
 #include      "sms_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
       INTEGER IXR(NIXR,*),ISEL(*),INUM(9,*),IPARTR(*),
-     .        EADD(*),ITR1(*),INDEX(*),ITRI(4,*),
+     .        EADD(*),ITR1(*),INDEX(*),ITRI(5,*),
      .        ND, CEP(*), XEP(*),IRESOFF(*),R_SKEW(*),
      .        TAGPRT_SMS(*), IGEO(NPROPGI,*),IPM(NPROPMI,*)
-C     REAL OU REAL*8
-      my_real
-     .    GEO(NPROPG,*)
+      my_real :: GEO(NPROPG,*)
+      INTEGER ,INTENT(INOUT), DIMENSION(NUMELR) ::ITAGPRLD_SPRING
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRSPRI)  :: IGRSPRING
       TYPE (SURF_)   , DIMENSION(NSURF)    :: IGRSURF
@@ -93,9 +83,9 @@ C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
       INTEGER 
-     .        I, K, NG, ISSN, NPN, NN, N, MID, PID ,
-     .        II, J, II3,JJ3,II2,JJ2,JJ,L,II4,JJ4,IGTYP,
-     .        IFLAG_GTYP,
+     .        I,J,K, ISSN, NN, MID, PID ,IGTYP,
+     .        II,JJ,II2,JJ2,II3,JJ3,II4,JJ4,II5,JJ5,
+     .        IFLAG_GTYP,IPRLD,
      .        MSKMTN,MSKISN,MSKPID, MODE, WORK(70000)
       EXTERNAL MY_SHIFTL,MY_SHIFTR,MY_AND
       INTEGER MY_SHIFTL,MY_SHIFTR,MY_AND
@@ -110,12 +100,12 @@ C
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
  
 C----------------------------------------------------------
-C   TRI GLOBAL SUR TOUS LES CRITERES POUR TOUS LES ELEMENTS
+C   global sorting on all criteria for all elements
 C----------------------------------------------------------
 C
       DO I=1,NUMELR
         EADD(I)=1
-        ITRI(4,I)=I
+        ITRI(5,I)=I
         INDEX(I)=I
         INUM(1,I)=IPARTR(I)
         INUM(2,I)=IXR(1,I)
@@ -128,30 +118,25 @@ C
         INUM(9,I)=R_SKEW(I)
       ENDDO
 
-      IF (IMACH.EQ.3) THEN
-        DO I=1,NUMELR
-          XEP(I)=CEP(I)
-        ENDDO
-      ENDIF
-C
-C
+      DO I=1,NUMELR
+        XEP(I)=CEP(I)
+      ENDDO
       
       DO I = 1, NUMELR
         II = I
-        PID= IXR(1,II)
-        MTN= NINT(GEO(8,PID))
+        PID  = IXR(1,II)
+        MID  = IXR(5,II)  
+        MTN  = NINT(GEO(8,PID))
         ISSN = 0
-        IF(GEO(5,PID).NE.ZERO) ISSN=1
+        IF(GEO(5,PID)/=ZERO) ISSN=1
         IGTYP = IGEO(11,PID)
         IFLAG_GTYP = 0
         IF(IGTYP == 23)THEN
           IFLAG_GTYP = 1
-          MID = IXR(5,II)  
           MTN = IPM(2,MID)      
-        ENDIF  
-          
-!!        MID = 0
-!!        IF(IGTYP == 23) MID = IXR(5,II)
+        ENDIF
+        IPRLD = ITAGPRLD_SPRING(II)
+        IF (IPRLD>0) IFLAG_GTYP = 1+IPRLD
 C
         JSMS = 0
         IF(ISMS/=0)THEN
@@ -173,35 +158,36 @@ C
         ITRI(3,I)=IRESOFF(I)   
 C        
         ITRI(4,I)=IFLAG_GTYP
+C        
+        ITRI(5,I)=MID
       ENDDO
 C
       MODE=0
-      CALL MY_ORDERS( MODE, WORK, ITRI, INDEX, NUMELR , 4)
+      CALL MY_ORDERS( MODE, WORK, ITRI, INDEX, NUMELR , 5)
 C
       DO I=1,NUMELR
         IPARTR(I) =INUM(1,INDEX(I))
         IRESOFF(I)=INUM(8,INDEX(I))
         R_SKEW(I)=INUM(9,INDEX(I))
       ENDDO
-C
-      IF (IMACH.EQ.3) THEN
-        DO I=1,NUMELR
-          CEP(I)=XEP(INDEX(I))
-        ENDDO
-      ENDIF
+
+      DO I=1,NUMELR
+        CEP(I)=XEP(INDEX(I))
+      ENDDO
+
       DO  K=1,6
         DO  I=1,NUMELR
           IXR(K,I)=INUM(K+1,INDEX(I))
         ENDDO
       ENDDO
 C
-C INVERSION DE INDEX (DANS ITR1)
+C inversion of index (in itr1)
 C
       DO I=1,NUMELR
         ITR1(INDEX(I))=I
       ENDDO
 C
-C RENUMEROTATION POUR SURFACES
+C renumbering for surfaces
 C
       DO I=1,NSURF
         NN=IGRSURF(I)%NSEG
@@ -211,7 +197,7 @@ C
         ENDDO
       ENDDO
 C
-C RENUMEROTATION POUR GROUPES DE RESSORTS
+C renumbering for spring groups
 C
       DO I=1,NGRSPRI
         NN=IGRSPRING(I)%NENTITY
@@ -245,8 +231,13 @@ C
         ENDDO
       ENDDO
 
+C REORDERING FOR ITAGPRLD_SPRING
+      INUM(8,1:NUMELR)=ITAGPRLD_SPRING(1:NUMELR)
+      DO I=1,NUMELR
+        ITAGPRLD_SPRING(I) =INUM(8,INDEX(I))
+      ENDDO
 C--------------------------------------------------------------
-C         DETERMINATION DES SUPER_GROUPES
+C         determination of super_groups
 C--------------------------------------------------------------
       ND=1
       DO I=2,NUMELR
@@ -262,9 +253,12 @@ C
         II4=ITRI(4,INDEX(I))
         JJ4=ITRI(4,INDEX(I-1))
 
+        II5=ITRI(5,INDEX(I))
+        JJ5=ITRI(5,INDEX(I-1))
+
         MTN = NINT(GEO(8,II2))       
-        IF(II.NE.JJ.OR.(II2.NE.JJ2 .AND.MTN.EQ.5).OR.(II3.NE.JJ3) .OR.
-     .                                                II4.NE.JJ4) THEN
+        IF (II /=JJ  .OR. II2/=JJ2 .OR. II3/=JJ3 .OR.
+     .      II4/=JJ4 .OR. II5/=JJ5) THEN
           ND=ND+1
           EADD(ND)=I
         ENDIF

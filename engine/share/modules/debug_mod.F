@@ -1,56 +1,68 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DEBUG_MOD                     share/modules/debug_mod.F     
-Chd|-- called by -----------
-Chd|        CHECK_NAN_ACC                 source/output/outfile/check_nan_acc.F
-Chd|        I24ASS2                       source/interfaces/int24/i24for3.F
-Chd|        I24COR3                       source/interfaces/int24/i24cor3.F
-Chd|        I24ISPT2_INI_OPTTRI           source/interfaces/int24/i24cor3.F
-Chd|        I24OPTCD                      source/interfaces/intsort/i24optcd.F
-Chd|        I25COR3_E2S                   source/interfaces/int25/i25cor3_e2s.F
-Chd|        I25FREE_BOUND                 source/interfaces/int25/i25free_bound.F
-Chd|        I25NORMP                      source/interfaces/int25/i25norm.F
-Chd|        I25OPTCD_E2S                  source/interfaces/intsort/i25optcd_e2s.F
-Chd|        I25TRIVOX_EDG                 source/interfaces/intsort/i25trivox_edg.F
-Chd|        PREPARE_DEBUG                 share/modules/debug_mod.F     
-Chd|        SPMD_COLLECT_MULTI_FVM        source/mpi/output/spmd_collect_multi_fvm.F
-Chd|        SPMD_COLLECT_NLOCAL           source/mpi/output/spmd_collect_nlocal.F
-Chd|        SPMD_FIADD25E_POFF            source/mpi/interfaces/spmd_fiadd25e_poff.F
-Chd|        SPMD_FIADD25E_PON             source/mpi/interfaces/spmd_fiadd25e_pon.F
-Chd|        UPDATE_FAILWAVE               source/materials/fail/failwave/update_failwave.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    debug_mod                             ../engine/share/modules/debug_mod.F
+!||--- called by ------------------------------------------------------
+!||    aconve                                ../engine/source/ale/aconve.F90
+!||    ale51_antidiff3                       ../engine/source/ale/ale51/ale51_antidiff3.F
+!||    ebcs8_inlet                           ../engine/source/boundary_conditions/ebcs/ebcs8_inlet.F90
+!||    get_hashtable_for_neighbour_segment   ../engine/source/interfaces/interf/get_hashtable_for_neighbour_segment.F90
+!||    i24ass2                               ../engine/source/interfaces/int24/i24for3.F
+!||    i24cor3                               ../engine/source/interfaces/int24/i24cor3.F
+!||    i24ispt2_ini_opttri                   ../engine/source/interfaces/int24/i24cor3.F
+!||    i24optcd                              ../engine/source/interfaces/intsort/i24optcd.F
+!||    i25cor3_e2s                           ../engine/source/interfaces/int25/i25cor3_e2s.F
+!||    i25free_bound                         ../engine/source/interfaces/int25/i25free_bound.F
+!||    i25normp                              ../engine/source/interfaces/int25/i25norm.F
+!||    i25optcd_e2s                          ../engine/source/interfaces/intsort/i25optcd_e2s.F
+!||    i25trivox_edg                         ../engine/source/interfaces/intsort/i25trivox_edg.F
+!||    prepare_debug                         ../engine/share/modules/debug_mod.F
+!||    remove_neighbour_segment              ../engine/source/interfaces/interf/remove_neighbour_segment.F90
+!||    resol                                 ../engine/source/engine/resol.F
+!||    spmd_collect_multi_fvm                ../engine/source/mpi/output/spmd_collect_multi_fvm.F
+!||    spmd_collect_nlocal                   ../engine/source/mpi/output/spmd_collect_nlocal.F
+!||    spmd_exch_n_neighbor_2d               ../engine/source/mpi/ale/spmd_exch_n_neighbor.F90
+!||    spmd_exch_n_neighbor_3d               ../engine/source/mpi/ale/spmd_exch_n_neighbor.F90
+!||    spmd_fiadd25e_poff                    ../engine/source/mpi/interfaces/spmd_fiadd25e_poff.F
+!||    spmd_fiadd25e_pon                     ../engine/source/mpi/interfaces/spmd_fiadd25e_pon.F
+!||    update_failwave                       ../engine/source/materials/fail/failwave/update_failwave.F
+!||    update_slipring                       ../engine/source/tools/seatbelts/update_slipring.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       MODULE DEBUG_MOD
 
-        INTEGER, DIMENSION(:),ALLOCATABLE :: ITAB_DEBUG
+        USE ISO_C_BINDING
+        INTEGER, DIMENSION(:),ALLOCATABLE :: ITAB_DEBUG !< User Node Identifiers
+        INTEGER :: NCYCLE_DEBUG                         !< Engine Cycle number
+        integer :: nspmd_debug !< number of processors
+        integer :: ispmd_debug !< processor id
+!       Double precision, dimension (:), allocatable:: detach_shell
+
 
         CONTAINS
-Chd|====================================================================
-Chd|  SP_CHECKSUM                   share/modules/debug_mod.F     
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sp_checksum   ../engine/share/modules/debug_mod.F
+!||====================================================================
       PURE FUNCTION SP_CHECKSUM(A,SIZ1,SIZ2)  RESULT(CHECKSUM)
 C Prints Adler 32 checksum of A(1:SIZ2,1:SIZ1) in *1.out file 
 C-----------------------------------------------
@@ -101,11 +113,9 @@ C     (s2 << 16) | s1
       CHECKSUM = IOR(S2 * TWO_POWER_16,S1)
       DEALLOCATE(TMP)
       END FUNCTION
-Chd|====================================================================
-Chd|  DP_CHECKSUM                   share/modules/debug_mod.F     
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    dp_checksum   ../engine/share/modules/debug_mod.F
+!||====================================================================
       PURE FUNCTION DP_CHECKSUM(A,SIZ1,SIZ2) RESULT(CHECKSUM)
 C Prints Adler 32 checksum of A(1:SIZ2,1:SIZ1) in *1.out file 
 C-----------------------------------------------
@@ -155,14 +165,13 @@ C     (s2 << 16) | s1
       CHECKSUM = IOR(S2 * TWO_POWER_16,S1)
       DEALLOCATE(TMP)
       END FUNCTION
-Chd|====================================================================
-Chd|  INT_CHECKSUM                  share/modules/debug_mod.F     
-Chd|-- called by -----------
-Chd|        I25COR3_E2S                   source/interfaces/int25/i25cor3_e2s.F
-Chd|        I25OPTCD_E2S                  source/interfaces/intsort/i25optcd_e2s.F
-Chd|        I25TRIVOX_EDG                 source/interfaces/intsort/i25trivox_edg.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    int_checksum    ../engine/share/modules/debug_mod.F
+!||--- called by ------------------------------------------------------
+!||    i25cor3_e2s     ../engine/source/interfaces/int25/i25cor3_e2s.F
+!||    i25optcd_e2s    ../engine/source/interfaces/intsort/i25optcd_e2s.F
+!||    i25trivox_edg   ../engine/source/interfaces/intsort/i25trivox_edg.F
+!||====================================================================
       PURE FUNCTION INT_CHECKSUM(A,SIZ1,SIZ2) RESULT(CHECKSUM)
 C Prints Adler 32 checksum of A(1:SIZ2,1:SIZ1) in *1.out file 
 C-----------------------------------------------
@@ -215,31 +224,31 @@ C     (s2 << 16) | s1
       END MODULE DEBUG_MOD
 
 
-Chd|====================================================================
-Chd|  PREPARE_DEBUG                 share/modules/debug_mod.F     
-Chd|-- called by -----------
-Chd|        CHECK_NAN_ACC                 source/output/outfile/check_nan_acc.F
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        DEBUG_MOD                     share/modules/debug_mod.F     
-Chd|        RESTMOD                       share/modules/restart_mod.F   
-Chd|====================================================================
-      SUBROUTINE PREPARE_DEBUG()
-
-        USE RESTMOD
+!||====================================================================
+!||    prepare_debug        ../engine/share/modules/debug_mod.F
+!||--- called by ------------------------------------------------------
+!||    resol_alloc_phase1   ../engine/source/engine/resol_alloc.F90
+!||--- uses       -----------------------------------------------------
+!||    debug_mod            ../engine/share/modules/debug_mod.F
+!||====================================================================
+      SUBROUTINE PREPARE_DEBUG(ITAB,NUMNOD,ispmd,nspmd)
         USE DEBUG_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
+       INTEGER, INTENT(IN) :: NUMNOD
+       integer, intent(in) :: ispmd !< processor id
+       integer, intent(in) :: nspmd !< number of processors
+       INTEGER, DIMENSION(:), INTENT(IN) :: ITAB(NUMNOD)
 C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------
-
-       ALLOCATE  (ITAB_DEBUG(NUMNOD))
+       ALLOCATE (ITAB_DEBUG(NUMNOD))
        ITAB_DEBUG(1:NUMNOD)=ITAB(1:NUMNOD)
-
+C-----------------------------------------------
+       NCYCLE_DEBUG = 0 ! updated in resol loop
+       ispmd_debug = ispmd
+       nspmd_debug = nspmd
+C-----------------------------------------------
       END
       

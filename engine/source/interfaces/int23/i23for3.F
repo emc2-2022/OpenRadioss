@@ -1,42 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I23FOR3                       source/interfaces/int23/i23for3.F
-Chd|-- called by -----------
-Chd|        I23MAINF                      source/interfaces/int23/i23mainf.F
-Chd|-- calls ---------------
-Chd|        I7ASS0                        source/interfaces/int07/i7ass3.F
-Chd|        I7ASS05                       source/interfaces/int07/i7ass3.F
-Chd|        I7ASS2                        source/interfaces/int07/i7ass3.F
-Chd|        I7ASS25                       source/interfaces/int07/i7ass3.F
-Chd|        I7ASS3                        source/interfaces/int07/i7ass3.F
-Chd|        I7ASS35                       source/interfaces/int07/i7ass3.F
-Chd|        I7SMS2                        source/interfaces/int07/i7sms2.F
-Chd|        IBCOFF                        source/interfaces/interf/ibcoff.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE I23FOR3(JLT    ,NIN    ,NOINT  ,IBC    ,ICODT  ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i23for3      ../engine/source/interfaces/int23/i23for3.F
+!||--- called by ------------------------------------------------------
+!||    i23mainf     ../engine/source/interfaces/int23/i23mainf.F
+!||--- calls      -----------------------------------------------------
+!||    i7ass0       ../engine/source/interfaces/int07/i7ass3.F
+!||    i7ass05      ../engine/source/interfaces/int07/i7ass3.F
+!||    i7ass2       ../engine/source/interfaces/int07/i7ass3.F
+!||    i7ass25      ../engine/source/interfaces/int07/i7ass3.F
+!||    i7ass3       ../engine/source/interfaces/int07/i7ass3.F
+!||    i7ass35      ../engine/source/interfaces/int07/i7ass3.F
+!||    i7sms2       ../engine/source/interfaces/int07/i7sms2.F
+!||    ibcoff       ../engine/source/interfaces/interf/ibcoff.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod      ../engine/share/modules/h3d_mod.F
+!||    output_mod   ../common_source/modules/output/output_mod.F90
+!||    tri7box      ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE I23FOR3(OUTPUT, JLT    ,NIN    ,NOINT  ,IBC    ,ICODT  ,
      2                  FSAV    ,GAP    ,STIGLO ,FRIC   ,VISC   ,
      3                  INACTI  ,MFROT  ,IFQ    ,IBAG   ,
      4                  ICURV   ,STIF    ,GAPV  ,ITAB   ,A      ,    
@@ -61,6 +63,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE TRI7BOX
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -78,7 +81,6 @@ C-----------------------------------------------
 #include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "impl1_c.inc"
-#include      "param_c.inc"
 #include      "parit_c.inc"
 #include      "scr05_c.inc"
 #include      "scr07_c.inc"
@@ -90,6 +92,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
       INTEGER JLT, IBC, INACTI, IBAG, NIN, NOINT, INTTH,JTASK,
      .        MFROT, IFQ, ICURV(3),
      .        ICODT(*), ITAB(*) ,ICONTACT(*),
@@ -122,8 +125,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, IG, J, JG , K0,NBINTER,K1S,K,IL,IE, NN, NI,IBID,
-     .        IRB(0:511),IRB2(0:511),NA1,NA2,IBCM,IBCS
+      INTEGER I, J1, IG, J, JG , K0,NBINTER,K1S,K, NN,IBID,
+     .        IBCM,IBCS
       my_real
      .   FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ),FNI(MVSIZ),
      .   FXN(MVSIZ), FYN(MVSIZ), FZN(MVSIZ),
@@ -132,11 +135,11 @@ C-----------------------------------------------
      .   FZ1(MVSIZ), FZ2(MVSIZ), FZ3(MVSIZ), FZ4(MVSIZ),
      .   XMU(MVSIZ),
      .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ), 
-     .   VNX, VNY, VNZ, AA, S2, DIST, RDIST, DTI,
-     .   V2, FF, ALPHA, BETA,
-     .   FX, FY, FZ, FT, FN, FMAX, FTN,
+     .      AA, DTI,
+     .   V2, ALPHA, BETA,
+     .   FX, FY, FZ, FT, FN, FTN,
      .   ECONTT, ECONVT,ECONTDT,
-     .   FSAV1, FSAV2, FSAV3, FSAV4, FSAV5, FSAV6, FSAV7, FSAV8, 
+     .   FSAV1, FSAV2, FSAV3, FSAV4, FSAV5, FSAV6, FSAV8, 
      .   FSAV9, FSAV10, FSAV11, FSAV12, FSAV13, FSAV14, FSAV15,
      .   VV,AX1,AX2,AY1,AY2,AZ1,AZ2,AX,AY,AZ,AREA,P,VV1,VV2,DMU,
      .   DT1INV, VIS, RBID,
@@ -149,17 +152,16 @@ C-----------------------------------------------
      .   KT(MVSIZ),C(MVSIZ),CF(MVSIZ),
      .   KS(MVSIZ),K1(MVSIZ),K2(MVSIZ),K3(MVSIZ),K4(MVSIZ),
      .   CS(MVSIZ),C1(MVSIZ),C2(MVSIZ),C3(MVSIZ),C4(MVSIZ),
-     .   CX,CY,CFI,AUX,DTMINI
+     .   CX,CY,AUX,DTMINI
 C-----------------------------------------------
       RBID = ZERO
       IBID = 0
-#include "sync_dir.inc"
-      IF (IRESP.EQ.1) THEN
+      IF (IRESP==1) THEN
            PREC = FIVEEM4
       ELSE
            PREC = EM10
       ENDIF
-      IF(DT1.GT.ZERO)THEN
+      IF(DT1>ZERO)THEN
         DT1INV = ONE/DT1
       ELSE
         DT1INV =ZERO
@@ -167,24 +169,24 @@ C-----------------------------------------------
 C---------------------
 C     PENE INITIALE
 C---------------------
-      IF(INACTI.EQ.6)THEN
+      IF(INACTI==6)THEN
         DO I=1,JLT
-C REDUCTION DE LA PENE INITIALE
+C REDUCTION OF THE INITIAL PENALTY
           CAND_P(INDEX(I))=MIN(CAND_P(INDEX(I)),
      .      ( (ONE-FIVEEM2)*CAND_P(INDEX(I))
      .        +FIVEEM2*(PENE(I)+FIVEEM2*MAX(GAPV(I)-PENE(I),ZERO)))  )
-C SOUSTRACTION DE LA PENE INITIALE A LA PENE ET AU GAP
+C SUBTRACTION OF THE INITIAL PENALTY FROM THE PENALTY AND GAP
           PENE(I)=MAX(ZERO,PENE(I)-CAND_P(INDEX(I)))
-          IF( PENE(I).EQ.ZERO )  STIF(I) = ZERO
+          IF( PENE(I)==ZERO )  STIF(I) = ZERO
         ENDDO
        ELSE
         DO I=1,JLT
-C REDUCTION DE LA PENE INITIALE
+C REDUCTION OF THE INITIAL PENALTY
           CAND_P(INDEX(I))=MIN(CAND_P(INDEX(I)),
      .           ((ONE-FIVEEM2)*CAND_P(INDEX(I))+FIVEEM2*PENE(I))  )
-C SOUSTRACTION DE LA PENE INITIALE A LA PENE ET AU GAP
+C SUBTRACTION OF THE INITIAL PENALTY FROM THE PENALTY AND GAP
           PENE(I)=MAX(ZERO,PENE(I)-CAND_P(INDEX(I)))
-          IF( PENE(I).EQ.ZERO ) STIF(I) = ZERO
+          IF( PENE(I)==ZERO ) STIF(I) = ZERO
         ENDDO
       END IF
 C-------------------------------------------
@@ -194,9 +196,9 @@ C---------------------------------
       ECONVT = ZERO
       ECONTDT = ZERO
       DO I=1,JLT
-       IF(STIGLO.LE.ZERO)THEN
+       IF(STIGLO<=ZERO)THEN
          STIF(I) = -STIGLO*STIF(I)
-       ELSEIF(STIF(I).NE.ZERO)THEN
+       ELSEIF(STIF(I)/=ZERO)THEN
          IF(STIF(I)/=ZERO) STIF(I) = STIGLO
        ENDIF
        IF(STIF(I)/=ZERO)STIF(I)=MIN(KMAX,MAX(KMIN,STIF(I)))
@@ -217,7 +219,7 @@ C---------------------------------
         VN(I) = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
       ENDDO
 C
-      IF(KDTINT.EQ.0.AND.(IDTMINS/=2.AND.IDTMINS_INT==0))THEN
+      IF(KDTINT==0.AND.(IDTMINS/=2.AND.IDTMINS_INT==0))THEN
         DO I=1,JLT
           VIS = VISC * SQRT(TWO * STIF(I) * MSI(I))
           FNI(I)  = FNI(I) + VIS * VN(I)
@@ -241,7 +243,7 @@ C inutile          KT(I)= TWO*STIF(I)
         ENDDO
       END IF
 C---------------------------------
-C     CALCUL DE LA FORCE NORMALE
+C     CALCULATION OF THE NORMAL FORCE
 C---------------------------------
       DO I=1,JLT
        FXN(I)=FNI(I)*NX(I)
@@ -288,10 +290,11 @@ C
         ENDDO
       ENDIF
 C---------------------------------
-      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT.GT.0.AND.
-     .          (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .              (MANIM.GE.4.AND.MANIM.LE.15).OR.H3D_DATA%MH3D.NE.0))THEN
-         IF (INCONV.EQ.1) THEN
+      IF((ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT>0.AND.
+     .          ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .              (MANIM>=4.AND.MANIM<=15).OR.H3D_DATA%MH3D/=0))
+     .   .OR.H3D_DATA%N_VECT_PCONT_MAX>0)THEN
+         IF (INCONV==1) THEN
 #include "lockon.inc"
            DO I=1,JLT
             FNCONT(1,IX1(I)) =FNCONT(1,IX1(I)) + FXN(I)*H1(I)
@@ -307,8 +310,8 @@ C---------------------------------
             FNCONT(2,IX4(I)) =FNCONT(2,IX4(I)) + FYN(I)*H4(I)
             FNCONT(3,IX4(I)) =FNCONT(3,IX4(I)) + FZN(I)*H4(I)
             JG = NSVG(I)
-            IF(JG.GT.0) THEN
-C en SPMD : traitement a refaire apres reception noeud remote si JG < 0
+            IF(JG>0) THEN
+C In SPMD: Treatment to be redone after reception node Remote if JG <0
               FNCONT(1,JG)=FNCONT(1,JG)- FXN(I)
               FNCONT(2,JG)=FNCONT(2,JG)- FYN(I)
               FNCONT(3,JG)=FNCONT(3,JG)- FZN(I)
@@ -320,20 +323,20 @@ C en SPMD : traitement a refaire apres reception noeud remote si JG < 0
             ENDIF
            ENDDO
 #include "lockoff.inc"
-         END IF !(INCONV.EQ.1) THEN
+         END IF !(INCONV==1) THEN
       ENDIF
 C---------------------------------
 C     NEW FRICTION MODELS
 C---------------------------------
-      IF (MFROT.EQ.0) THEN
+      IF (MFROT==0) THEN
 C---    Coulomb friction
         DO I=1,JLT
           XMU(I) = FRIC
         ENDDO
-      ELSEIF (MFROT.EQ.1) THEN
+      ELSEIF (MFROT==1) THEN
 C---    Viscous friction
         DO I=1,JLT
-C attention : normale <> normale a l'elt
+C attention : normal <> elt normal
           AA = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
           V2 = (VX(I) - NX(I)*AA)**2 
      .       + (VY(I) - NY(I)*AA)**2 
@@ -354,10 +357,10 @@ C attention : normale <> normale a l'elt
      .           +(FROT_P(2) + FROT_P(3)*P) * VV + FROT_P(5)*V2
           XMU(I) = MAX(XMU(I),EM30)
         ENDDO
-      ELSEIF(MFROT.EQ.2)THEN
+      ELSEIF(MFROT==2)THEN
 C---    Loi Darmstad
         DO I=1,JLT
-C attention : normale <> normale a l'elt
+C attention : normal <> elt normal 
           AA = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
           V2 = (VX(I) - NX(I)*AA)**2 
      .       + (VY(I) - NY(I)*AA)**2 
@@ -380,20 +383,20 @@ C attention : normale <> normale a l'elt
      .           + FROT_P(5)*EXP(FROT_P(6)*VV)
           XMU(I) = MAX(XMU(I),EM30)
         ENDDO
-      ELSEIF (MFROT.EQ.3) THEN
-C---    Loi Renard
+      ELSEIF (MFROT==3) THEN
+C---    Renard 
         DO I=1,JLT
-C attention : normale <> normale a l'elt
+C attention : normal <> element normal  
           AA = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
           V2 = (VX(I) - NX(I)*AA)**2 
      .       + (VY(I) - NY(I)*AA)**2 
      .       + (VZ(I) - NZ(I)*AA)**2
           VV = SQRT(MAX(EM30,V2))
-          IF(VV.GE.0.AND.VV.LE.FROT_P(5)) THEN
+          IF(VV>=0.AND.VV<=FROT_P(5)) THEN
             DMU = FROT_P(3)-FROT_P(1)
             VV1 = VV / FROT_P(5)
             XMU(I) = FROT_P(1)+ DMU*VV1*(TWO-VV1)
-          ELSEIF(VV.GT.FROT_P(5).AND.VV.LT.FROT_P(6)) THEN
+          ELSEIF(VV>FROT_P(5).AND.VV<FROT_P(6)) THEN
             DMU = FROT_P(4)-FROT_P(3) 
             VV1 = (VV - FROT_P(5))/(FROT_P(6)-FROT_P(5))
             XMU(I) = FROT_P(3)+ DMU * (THREE-TWO*VV1)*VV1**2
@@ -404,6 +407,18 @@ C attention : normale <> normale a l'elt
           ENDIF
           XMU(I) = MAX(XMU(I),EM30)
         ENDDO
+      ELSEIF(MFROT==4)THEN
+C---    Exponential decay model
+        DO I=1,JLT
+          AA = NX(I)*VX(I) + NY(I)*VY(I) + NZ(I)*VZ(I)
+          V2 = (VX(I) - NX(I)*AA)**2 
+     .       + (VY(I) - NY(I)*AA)**2 
+     .       + (VZ(I) - NZ(I)*AA)**2
+           VV = SQRT(MAX(EM30,V2))
+           XMU(I) = FROT_P(1)
+     .        + (FRIC-FROT_P(1))*EXP(-FROT_P(2)*VV)
+           XMU(I) = MAX(XMU(I),EM30)
+         ENDDO
       ENDIF
 C------------------
 C    TANGENT FORCE CALCULATION
@@ -418,7 +433,7 @@ C------------------
 C---------------------------------
 C     INCREMENTAL (STIFFNESS) FORMULATION
 C---------------------------------
-      IF (IFQ.EQ.13) THEN
+      IF (IFQ==13) THEN
         ALPHA = MAX(ONE,ALPHA0*DT12)
       ELSE
         ALPHA = ALPHA0
@@ -454,10 +469,11 @@ C-------    total force
       ENDDO
 C---------------------------------
 C
-      IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT.GT.0.AND.
-     .          (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .              (MANIM.GE.4.AND.MANIM.LE.15).OR.H3D_DATA%MH3D.NE.0))THEN
-         IF (INCONV.EQ.1) THEN
+      IF((ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT>0.AND.
+     .          ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .              (MANIM>=4.AND.MANIM<=15).OR.H3D_DATA%MH3D/=0))
+     .   .OR.H3D_DATA%N_VECT_PCONT_MAX>0)THEN
+         IF (INCONV==1) THEN
 #include "lockon.inc"
            DO I=1,JLT
             FTCONT(1,IX1(I)) =FTCONT(1,IX1(I)) + FXT(I)*H1(I)
@@ -473,8 +489,8 @@ C
             FTCONT(2,IX4(I)) =FTCONT(2,IX4(I)) + FYT(I)*H4(I)
             FTCONT(3,IX4(I)) =FTCONT(3,IX4(I)) + FZT(I)*H4(I)
             JG = NSVG(I)
-            IF(JG.GT.0) THEN
-C en SPMD : traitement a refaire apres reception noeud remote si JG < 0
+            IF(JG>0) THEN
+C In SPMD: Treatment to be redoneafter reception node Remote if JG <0
               FTCONT(1,JG)=FTCONT(1,JG)- FXT(I)
               FTCONT(2,JG)=FTCONT(2,JG)- FYT(I)
               FTCONT(3,JG)=FTCONT(3,JG)- FZT(I)
@@ -486,7 +502,7 @@ C en SPMD : traitement a refaire apres reception noeud remote si JG < 0
             ENDIF
            ENDDO
 #include "lockoff.inc"
-         END IF !(INCONV.EQ.1) THEN
+         END IF !(INCONV==1) THEN
       ENDIF
 C
       DO I=1,JLT
@@ -526,19 +542,19 @@ C
       ENDIF
 C---------------------------------
 #include "lockon.inc"
-      IF (INCONV.EQ.1) THEN
+      IF (INCONV==1) THEN
         ECONTV = ECONTV + ECONVT  ! Frictional Energy
-        ECONT  = ECONT + ECONTT   ! Elatic Energy
+        ECONT  = ECONT + ECONTT   ! Elastic Energy
         ECONTD = ECONTD + ECONTDT ! Damping Energy
-      END IF !(INCONV.EQ.1) THEN
+      END IF !(INCONV==1) THEN
 #include "lockoff.inc"
 C---------------------------------
-      IF(KDTINT.EQ.1)THEN
-       IF(VISC.NE.ZERO)THEN
+      IF(KDTINT==1)THEN
+       IF(VISC/=ZERO)THEN
         DO I=1,JLT
-C        C(I)=2.*C(I)
+C        C (i) = 2.*C (i)
 C
-         IF(MSI(I).EQ.ZERO)THEN
+         IF(MSI(I)==ZERO)THEN
           KS(I) =ZERO
           CS(I) =ZERO
           STV(I)=ZERO
@@ -552,7 +568,7 @@ C
          ENDIF      
 C
          J1=IX1(I)
-         IF(MS(J1).EQ.ZERO)THEN
+         IF(MS(J1)==ZERO)THEN
           K1(I) =ZERO
           C1(I) =ZERO
           ST1(I)=ZERO
@@ -566,7 +582,7 @@ C
          ENDIF      
 C
          J1=IX2(I)
-         IF(MS(J1).EQ.ZERO)THEN
+         IF(MS(J1)==ZERO)THEN
           K2(I) =ZERO
           C2(I) =ZERO
           ST2(I)=ZERO
@@ -580,7 +596,7 @@ C
          ENDIF      
 C
          J1=IX3(I)
-         IF(MS(J1).EQ.ZERO)THEN
+         IF(MS(J1)==ZERO)THEN
           K3(I) =ZERO
           C3(I) =ZERO
           ST3(I)=ZERO
@@ -594,7 +610,7 @@ C
          ENDIF      
 C
          J1=IX4(I)
-         IF(MS(J1).EQ.ZERO)THEN
+         IF(MS(J1)==ZERO)THEN
           K4(I) =ZERO
           C4(I) =ZERO
           ST4(I)=ZERO
@@ -628,134 +644,6 @@ C
         ENDDO
        ENDIF
       ENDIF
-C
-C---------------------------------
-C
-C      IF(IDTMIN(10).EQ.1.OR.IDTMIN(10).EQ.2.OR.
-C     .   IDTMIN(10).EQ.5.OR.IDTMIN(10).EQ.6)THEN
-C       DTMI0 = EP20
-C       IF(KDTINT.EQ.0)THEN
-C        DO I=1,JLT
-C         DTMI(I) = EP20
-C         MAS2  = TWO * MSI(I)
-C         IF(MAS2.GT.ZERO.AND.STIF(I).GT.ZERO.AND.
-C     .     IRB(KINI(I)).EQ.0.AND.IRB2(KINI(I)).EQ.0)THEN
-C           DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/STIF(I)))
-C         ENDIF
-C         MAS2  = TWO* MS(IX1(I))
-C         IF(MAS2.GT.ZERO.AND.H1(I)*STIF(I).GT.ZERO.AND.
-C     .     IRB(KINET(IX1(I))).EQ.0.AND.IRB2(KINET(IX1(I))).EQ.0)THEN
-C           DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(H1(I)*STIF(I))))
-C         ENDIF
-C         MAS2  = TWO * MS(IX2(I))
-C         IF(MAS2.GT.ZERO.AND.H2(I)*STIF(I).GT.ZERO.AND.
-C     .     IRB(KINET(IX2(I))).EQ.0.AND.IRB2(KINET(IX2(I))).EQ.0)THEN
-C           DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(H2(I)*STIF(I))))
-C         ENDIF
-C         MAS2  = TWO* MS(IX3(I))
-C         IF(MAS2.GT.ZERO.AND.H3(I)*STIF(I).GT.ZERO.AND.
-C     .     IRB(KINET(IX3(I))).EQ.0.AND.IRB2(KINET(IX3(I))).EQ.0)THEN
-C           DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(H3(I)*STIF(I))))
-C         ENDIF
-C         MAS2  = TWO * MS(IX4(I))
-C         IF(MAS2.GT.ZERO.AND.H4(I)*STIF(I).GT.ZERO.AND.
-C     .     IRB(KINET(IX4(I))).EQ.0.AND.IRB2(KINET(IX4(I))).EQ.0)THEN
-C           DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(H4(I)*STIF(I))))
-C         ENDIF
-C         DTMI0 = MIN(DTMI0,DTMI(I))
-C        ENDDO
-C       ELSE
-C        DO I=1,JLT
-C         DTMI(I) = EP20
-C         MAS2  = TWO * MSI(I)
-C         MAS2  = TWO * MSI(I)
-C         IF(MAS2.GT.ZERO.AND.STV(I).GT.ZERO.AND.
-C     .     IRB(KINI(I)).EQ.0.AND.IRB2(KINI(I)).EQ.0)THEN
-C          DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/STV(I)))
-C         ENDIF
-C         MAS2  = TWO * MS(IX1(I))
-C         IF(MAS2.GT.ZERO.AND.ST1(I).GT.ZERO.AND.
-C     .     IRB(KINET(IX1(I))).EQ.0.AND.IRB2(KINET(IX1(I))).EQ.0)THEN
-C          DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(ST1(I))))
-C         ENDIF
-C         MAS2  = TWO * MS(IX2(I))
-C         IF(MAS2.GT.ZERO.AND.ST2(I).GT.ZERO.AND.
-C     .     IRB(KINET(IX2(I))).EQ.0.AND.IRB2(KINET(IX2(I))).EQ.0)THEN
-C          DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(ST2(I))))
-C         ENDIF
-C         MAS2  = TWO * MS(IX3(I))
-C         IF(MAS2.GT.ZERO.AND.ST3(I).GT.ZERO.AND.
-C     .     IRB(KINET(IX3(I))).EQ.0.AND.IRB2(KINET(IX3(I))).EQ.0)THEN
-C          DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(ST3(I))))
-C         ENDIF
-C         MAS2  = TWO * MS(IX4(I))
-C         IF(MAS2.GT.ZERO.AND.ST4(I).GT.ZERO.AND.
-C     .     IRB(KINET(IX4(I))).EQ.0.AND.IRB2(KINET(IX4(I))).EQ.0)THEN
-C          DTMI(I) = MIN(DTMI(I),DTFAC1(10)*SQRT(MAS2/(ST4(I))))
-C         ENDIF
-C         DTMI0 = MIN(DTMI0,DTMI(I))
-C        ENDDO
-C       ENDIF
-C       IF(DTMI0.LE.DTMIN1(10))THEN
-C        DO I=1,JLT
-C         IF(DTMI(I).LE.DTMIN1(10))THEN
-C           JG = NSVG(I)
-C           IF(JG.GT.0)THEN
-C             NI = ITAB(JG)
-C           ELSE
-C             NI = ITAFI(NIN)%P(-JG)
-C           ENDIF
-C           IF(IDTMIN(10).EQ.1.AND.ICPL.EQ.0)THEN
-C#include "lockon.inc"
-C             WRITE(IOUT,'(A,E12.4,A,I8)')
-C     .       ' **WARNING MINIMUM TIME STEP ',DTMI(I),
-C     .       ' IN INTERFACE ',NOINT
-C             WRITE(IOUT,'(A,I8)') '   SECONDARY NODE   : ',NI                
-C             WRITE(IOUT,'(A,4I8)')'   MAIN NODES : ',
-C     .         ITAB(IX1(I)),ITAB(IX2(I)),ITAB(IX3(I)),ITAB(IX4(I)) 
-C#include "lockoff.inc"
-C             TSTOP = TT
-C           ELSEIF(IDTMIN(10).EQ.1.AND.ICPL.NE.0)THEN
-C#include "lockon.inc"
-C             WRITE(IOUT,'(A,E12.4,A,I8)')
-C     .       ' **WARNING MINIMUM TIME STEP ',DTMI(I),
-C     .       ' IN INTERFACE ',NOINT
-C             WRITE(IOUT,'(A,I8)') '   SECONDARY NODE   : ',NI                 
-C             WRITE(IOUT,'(A,4I8)')'   MAIN NODES : ',
-C     .         ITAB(IX1(I)),ITAB(IX2(I)),ITAB(IX3(I)),ITAB(IX4(I)) 
-C#include "lockoff.inc"
-C             MSTOP = 2
-C          ELSEIF(IDTMIN(10).EQ.2)THEN
-C#include "lockon.inc"
-C             WRITE(IOUT,'(A,E12.4,A,I8)')
-C     .       ' **WARNING MINIMUM TIME STEP ',DTMI(I),
-C     .       ' IN INTERFACE ',NOINT
-C             WRITE(IOUT,'(A,I8,A,I8)')'   DELETE SECONDARY NODE ',
-C     .         NI,' FROM INTERFACE ',NOINT                 
-C             WRITE(IOUT,'(A,4I8)')'   MAIN NODES : ',
-C     .         ITAB(IX1(I)),ITAB(IX2(I)),ITAB(IX3(I)),ITAB(IX4(I)) 
-C             IF(JG.GT.0) THEN
-C               STFN(CN_LOC(I)) = -ABS(STFN(CN_LOC(I)))
-C             ELSE
-C               STIFI(NIN)%P(-JG) = -ABS(STIFI(NIN)%P(-JG))
-C             ENDIF
-C#include "lockoff.inc"
-C             IF (IMACH.EQ.3) NEWFRONT = -1
-C           ELSEIF(IDTMIN(10).EQ.5)THEN
-C#include "lockon.inc"
-C             WRITE(IOUT,'(A,E12.4,A,I8)')
-C     .       ' **WARNING MINIMUM TIME STEP ',DTMI(I),
-C     .       ' IN INTERFACE ',NOINT
-C             WRITE(IOUT,'(A,I8)') '   SECONDARY NODE   : ',NI                 
-C             WRITE(IOUT,'(A,4I8)')'   MAIN NODES : ',
-C     .         ITAB(IX1(I)),ITAB(IX2(I)),ITAB(IX3(I)),ITAB(IX4(I)) 
-C#include "lockoff.inc"
-C             MSTOP = 2
-C           ENDIF                
-C         ENDIF
-C        ENDDO
-C       ENDIF
-C      ENDIF
 C-----------------------------------------------------
       IF(INTTH==0)THEN
         DO I=1,JLT            
@@ -777,14 +665,14 @@ C
 C          
         ENDDO                
       END IF
-C spmd : identification des noeuds interf. utiles a envoyer
-      IF (NSPMD.GT.1) THEN
+C SPMD: Identification of interf nodes.useful to send
+      IF (NSPMD>1) THEN
 Ctmp+1 mic only
 #include "mic_lockon.inc"
       DO I = 1,JLT
           NN = NSVG(I)
-          IF(NN.LT.0)THEN
-C tag temporaire de NSVFI a -
+          IF(NN<0)THEN
+C temporary tag of nsvfi a -
             NSVFI(NIN)%P(-NN) = -ABS(NSVFI(NIN)%P(-NN))
           ENDIF
         ENDDO
@@ -805,8 +693,8 @@ C
         STIF(1:JLT)=ZERO
       END IF
 C-----------------------------------------------------
-      IF(IPARIT.EQ.3)THEN
-       IF(KDTINT.EQ.0)THEN
+      IF(IPARIT==3)THEN
+       IF(KDTINT==0)THEN
         CALL I7ASS3(JLT  ,IX1  ,IX2  ,IX3  ,IX4  ,
      2             NSVG ,H1   ,H2   ,H3   ,H4   ,STIF ,
      3             FX1  ,FY1  ,FZ1  ,FX2  ,FY2  ,FZ2  ,
@@ -821,15 +709,15 @@ C-----------------------------------------------------
      6                  KS   ,K1   ,K2   ,K3   ,K4   ,CS   ,
      7                  C1   ,C2   ,C3   ,C4   )
        ENDIF
-      ELSEIF(IPARIT.EQ.0)THEN
-       IF(KDTINT.EQ.0)THEN
+      ELSEIF(IPARIT==0)THEN
+       IF(KDTINT==0)THEN
          CALL I7ASS0(JLT   ,IX1  ,IX2  ,IX3  ,IX4    ,
      2               NSVG  ,H1   ,H2   ,H3   ,H4     ,STIF ,
      3               FX1   ,FY1  ,FZ1  ,FX2  ,FY2    ,FZ2  ,
      4               FX3   ,FY3  ,FZ3  ,FX4  ,FY4    ,FZ4  ,
      5               FXI   ,FYI  ,FZI  ,A    ,STIFN  ,NIN  ,
      6               INTTH ,RBID ,RBID ,RBID ,RBID   ,RBID ,
-     7               RBID  ,RBID ,RBID ,JTASK,IBID)
+     7               RBID  ,RBID ,RBID ,JTASK,IBID   ,IBID )
 
        ELSE
 C
@@ -841,11 +729,11 @@ C
      6                KS    ,K1   ,K2   ,K3   ,K4     ,CS    ,
      7                C1    ,C2   ,C3   ,C4   ,NIN    ,INTTH ,
      8                RBID  ,RBID ,RBID ,RBID ,RBID   ,RBID  ,
-     9                JTASK ,RBID ,RBID  ,IBID )
+     9                JTASK ,RBID ,RBID ,IBID ,IBID   )
        ENDIF
 C
       ELSE
-        IF(KDTINT.EQ.0)THEN
+        IF(KDTINT==0)THEN
           CALL I7ASS2(JLT   ,IX1   ,IX2  ,IX3  ,IX4  ,
      2                NSVG  ,H1    ,H2   ,H3   ,H4   ,STIF   ,
      3                FX1   ,FY1   ,FZ1  ,FX2  ,FY2  ,FZ2    ,
@@ -853,7 +741,7 @@ C
      5                FXI   ,FYI   ,FZI  ,FSKYI,ISKY ,NISKYFI,
      6                NIN   ,NOINT ,INTTH,RBID  ,RBID  ,RBID  ,
      7                RBID  ,RBID  ,RBID  ,RBID ,RBID  ,
-     A                IBID  )
+     A                IBID  ,IBID  )
         ELSE
           CALL I7ASS25(JLT   ,IX1  ,IX2  ,IX3  ,IX4    ,
      2                 NSVG  ,H1   ,H2   ,H3   ,H4     ,
@@ -862,16 +750,16 @@ C
      5                 FXI   ,FYI  ,FZI  ,FSKYI,NISKYFI,NIN  ,
      6                 KS    ,K1   ,K2   ,K3   ,K4     ,CS   ,
      7                 C1    ,C2   ,C3   ,C4   ,ISKY  ,NOINT ,
-     8                 INTTH ,RBID ,RBID ,RBID  ,RBID  ,RBID  ,
-     9                 RBID  ,RBID ,RBID ,IBID )
+     8                 INTTH ,RBID ,RBID ,RBID ,RBID  ,RBID  ,
+     9                 RBID  ,RBID ,RBID ,IBID ,IBID )
         ENDIF
       ENDIF
 C
 C-----------------------------------------------------
-      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT .GT.0.AND.
-     .          (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .              (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))THEN
-         IF (INCONV.EQ.1) THEN
+      IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT >0.AND.
+     .          ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .              (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))THEN
+         IF (INCONV==1) THEN
 #include "lockon.inc"
            DO I=1,JLT
             FCONT(1,IX1(I)) =FCONT(1,IX1(I)) + FX1(I)
@@ -887,54 +775,54 @@ C-----------------------------------------------------
             FCONT(2,IX4(I)) =FCONT(2,IX4(I)) + FY4(I)
             FCONT(3,IX4(I)) =FCONT(3,IX4(I)) + FZ4(I)
             JG = NSVG(I)
-            IF(JG.GT.0) THEN
-C en SPMD : traitement a refaire apres reception noeud remote si JG < 0
+            IF(JG>0) THEN
+C In SPMD: Treatment to be redoen after reception node Remote if JG <0
               FCONT(1,JG)=FCONT(1,JG)- FXI(I)
               FCONT(2,JG)=FCONT(2,JG)- FYI(I)
               FCONT(3,JG)=FCONT(3,JG)- FZI(I)
             ENDIF
            ENDDO
 #include "lockoff.inc"
-         END IF !(INCONV.EQ.1) THEN
+         END IF !(INCONV==1) THEN
       ENDIF
 C-----------------------------------------------------
-      IF(ISECIN.GT.0.AND.INCONV.EQ.1)THEN
+      IF(ISECIN>0.AND.INCONV==1)THEN
         K0=NSTRF(25)
-        IF(NSTRF(1)+NSTRF(2).NE.0)THEN
+        IF(NSTRF(1)+NSTRF(2)/=0)THEN
           DO I=1,NSECT
            NBINTER=NSTRF(K0+14)
            K1S=K0+30
            DO J=1,NBINTER
-            IF(NSTRF(K1S).EQ.NOINT)THEN
-              IF(ISECUT.NE.0)THEN
+            IF(NSTRF(K1S)==NOINT)THEN
+              IF(ISECUT/=0)THEN
 #include "lockon.inc"
                 DO K=1,JLT
-C attention aux signes pour le cumul des efforts
-C a rendre conforme avec CFORC3
-                 IF(SECFCUM(4,IX1(K),I).EQ.1.)THEN
+C attention to the signs for the accumulation of  forces
+C To make it conform with CFORC3
+                 IF(SECFCUM(4,IX1(K),I)==1.)THEN
                   SECFCUM(1,IX1(K),I)=SECFCUM(1,IX1(K),I)-FX1(K)
                   SECFCUM(2,IX1(K),I)=SECFCUM(2,IX1(K),I)-FY1(K)
                   SECFCUM(3,IX1(K),I)=SECFCUM(3,IX1(K),I)-FZ1(K)
                 ENDIF
-                IF(SECFCUM(4,IX2(K),I).EQ.1.)THEN
+                IF(SECFCUM(4,IX2(K),I)==1.)THEN
                   SECFCUM(1,IX2(K),I)=SECFCUM(1,IX2(K),I)-FX2(K)
                   SECFCUM(2,IX2(K),I)=SECFCUM(2,IX2(K),I)-FY2(K)
                   SECFCUM(3,IX2(K),I)=SECFCUM(3,IX2(K),I)-FZ2(K)
                 ENDIF
-                IF(SECFCUM(4,IX3(K),I).EQ.1.)THEN
+                IF(SECFCUM(4,IX3(K),I)==1.)THEN
                   SECFCUM(1,IX3(K),I)=SECFCUM(1,IX3(K),I)-FX3(K)
                   SECFCUM(2,IX3(K),I)=SECFCUM(2,IX3(K),I)-FY3(K)
                   SECFCUM(3,IX3(K),I)=SECFCUM(3,IX3(K),I)-FZ3(K)
                 ENDIF
-                IF(SECFCUM(4,IX4(K),I).EQ.1.)THEN
+                IF(SECFCUM(4,IX4(K),I)==1.)THEN
                   SECFCUM(1,IX4(K),I)=SECFCUM(1,IX4(K),I)-FX4(K)
                   SECFCUM(2,IX4(K),I)=SECFCUM(2,IX4(K),I)-FY4(K)
                   SECFCUM(3,IX4(K),I)=SECFCUM(3,IX4(K),I)-FZ4(K)
                 ENDIF
                 JG = NSVG(K)
-                IF(JG.GT.0) THEN
-C en SPMD : traitement a refaire apres reception noeud remote si JG < 0
-                  IF(SECFCUM(4,JG,I).EQ.1.)THEN
+                IF(JG>0) THEN
+C In SPMD: Treatment to be redone after reception node Remote if JG <0
+                  IF(SECFCUM(4,JG,I)==1.)THEN
                     SECFCUM(1,JG,I)=SECFCUM(1,JG,I)+FXI(K)
                     SECFCUM(2,JG,I)=SECFCUM(2,JG,I)+FYI(K)
                     SECFCUM(3,JG,I)=SECFCUM(3,JG,I)+FZI(K)
@@ -952,14 +840,14 @@ C +fsav(section)
        ENDIF
       ENDIF
 C-----------------------------------------------------
-      IF((IBAG.NE.0).OR.(IDAMP_RDOF.NE.0)) THEN
+      IF((IBAG/=0).OR.(IDAMP_RDOF/=0)) THEN
        DO I=1,JLT
-C       IF(PENE(I).NE.ZERO)THEN
-C test modifie pour coherence avec communication SPMD (spmd_i7tools)
-        IF(FXI(I).NE.ZERO.OR.FYI(I).NE.ZERO.OR.FZI(I).NE.ZERO)THEN
+C       IF(PENE(I)/=ZERO)THEN
+C modified test for coherence with SPMD communication (spmd_i7tools)
+        IF(FXI(I)/=ZERO.OR.FYI(I)/=ZERO.OR.FZI(I)/=ZERO)THEN
           JG = NSVG(I)
-          IF(JG.GT.0) THEN
-C en SPMD : traitement a refaire apres reception noeud remote si JG < 0
+          IF(JG>0) THEN
+C In SPMD: Treatment to be redone after reception node Remote if JG <0
             ICONTACT(JG)=1
           ENDIF
           ICONTACT(IX1(I))=1
@@ -970,20 +858,20 @@ C en SPMD : traitement a refaire apres reception noeud remote si JG < 0
        ENDDO
       ENDIF
 C
-      IF(IBC.EQ.0) RETURN
+      IF(IBC==0) RETURN
 C
       DO 400 I=1,JLT
-        IF(PENE(I).EQ.ZERO)GOTO 400
+        IF(PENE(I)==ZERO)GOTO 400
         IBCM = IBC / 8
         IBCS = IBC - 8 * IBCM
-        IF(IBCS.GT.0) THEN
+        IF(IBCS>0) THEN
           IG=NSVG(I)
-          IF(IG.GT.0) THEN
-C en SPMD : traitement a refaire apres reception noeud remote si JG < 0
+          IF(IG>0) THEN
+C In SPMD: Treatment to be redone after reception node Remote if JG <0
             CALL IBCOFF(IBCS,ICODT(IG))
           ENDIF
         ENDIF
-        IF(IBCM.GT.0) THEN
+        IF(IBCM>0) THEN
          IG=IX1(I)
          CALL IBCOFF(IBCM,ICODT(IG))
          IG=IX2(I)

@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I20BUCE_CRIT                  source/interfaces/intsort/i20buce_crit.F
-Chd|-- called by -----------
-Chd|        I20MAIN_CRIT_TRI              source/interfaces/intsort/i20main_crit_tri.F
-Chd|-- calls ---------------
-Chd|        SPMD_GET_PENIS20              source/mpi/interfaces/send_cand.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-       SUBROUTINE I20BUCE_CRIT(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i20buce_crit       ../engine/source/interfaces/intsort/i20buce_crit.F
+!||--- called by ------------------------------------------------------
+!||    i20main_crit_tri   ../engine/source/interfaces/intsort/i20main_crit_tri.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_get_penis20   ../engine/source/mpi/interfaces/send_cand.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod            ../engine/share/modules/h3d_mod.F
+!||    output_mod         ../common_source/modules/output/output_mod.F90
+!||====================================================================
+       SUBROUTINE I20BUCE_CRIT(OUTPUT  ,
      1       ITASK   ,X       ,V       ,MS      ,
      2       NTY     ,NIN     ,INACTI  ,NSN     ,
      3       NMN     ,NSV     ,MSR     ,XSAV    ,
@@ -44,7 +46,8 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE H3D_MOD  
+      USE H3D_MOD 
+      USE OUTPUT_MOD 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -53,22 +56,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE (OUTPUT_) :: OUTPUT
       INTEGER NSN,NMN,ITASK,NSV(NSN),MSR(NMN), NIN ,NTY ,INACTI,
      .        NLINSA,NLINMA,NLN,NLG(NLN),NRTM
       INTEGER NSNE,NMNE,NSVE(NSNE),MSRE(NMNE),IXLINS(2,*),IKINE(NUMNOD)
@@ -85,13 +85,9 @@ C-----------------------------------------------
      .       DAANC6(3,6,*)
       TYPE (H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NSNF,NMNF,NSNL,NMNL,I, II, N,NLNF,NLNL,IL,IG,NRTMF,NRTML
+      INTEGER NSNF,NMNF,NSNL,NMNL,I, II,NLNF,NLNL,IL,IG,NRTMF,NRTML
       INTEGER NSNEF,NMNEF,NSNEL,NMNEL,NLINSAF,NLINSAL,NLINMAF,NLINMAL
       INTEGER IRBY
       my_real 
@@ -99,9 +95,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-C-----------------------------------------------
 C
-C     0- CALCUL DU CRITERE POUR SAVOIR SI ON DOIT TRIER OU NON
+C     0- calculate criterion to know if we should sort or not
 C
       XSLV(1) = -EP30
       XSLV(2) = -EP30
@@ -164,7 +159,7 @@ C=======================================================================
           IRBY = IKINE(IG) - (IKINE(IG)/2)*2
           IF(MS(IG) > ZERO .and. IRBY /= 1)THEN
 
-c essai viscosite critique
+c Critical viscosite test
 c            AAA = DT12/(TWO*MS(IG))
             AAA = DT12/(AMASS*MS(IG))
 c           delta A parith on
@@ -303,9 +298,9 @@ c           delta A parith on
         END DO
       END IF
 
-      IF(ANIM_V(15)+OUTP_V(15)+H3D_DATA%N_VECT_DXANC .GT.0.AND.
-     .          (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .              (MANIM.GE.4.AND.MANIM.LE.15).OR.H3D_DATA%MH3D.NE.0))THEN
+      IF(ANIM_V(15)+OUTP_V(15)+H3D_DATA%N_VECT_DXANC >0.AND.
+     .          ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .              (MANIM>=4.AND.MANIM<=15).OR.H3D_DATA%MH3D/=0))THEN
         DO I=NLNF,NLNL
           IG=NLG(I)
           DXANCG(1,IG) = DXANC(1,I)
@@ -316,17 +311,17 @@ c           delta A parith on
 C=======================================================================
 C     maj pene a verifier !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 C=======================================================================
-      IF(INACTI.EQ.5.OR.INACTI.EQ.6)THEN
-        IF(NSPMD > 1 .AND. TT > ZERO) THEN     ! a tt=0. les frontieres ne sont que partiellement baties
+      IF(INACTI==5.OR.INACTI==6)THEN
+        IF(NSPMD > 1 .AND. TT > ZERO) THEN     ! at tt=0, boundaries are only partially built
 C
-C Partie non parallele smt
+C SMT non -parallel part
 C
 !$OMP SINGLE
           CALL SPMD_GET_PENIS20(NSV,IXLINS,PENIS,PENISE,PENIA,NIN)
-C Fin Partie non parallele smt
+C End non -parallel part SMT
 !$OMP END SINGLE
         ENDIF
-c a faire ici ou dans I20BUCE_CRIT IF(PENIA(5,I)+... /= ZERO)NACTI=NACTI+1
+c To be done here or in i20buce_cript if (Penia (5, i)+... /= zero) nacti = nacti+1
         DO I=NLNF,NLNL
           PENIA(4,I) = MIN(PENIA(4,I),PENIA(5,I))
           PENIA(5,I) = ZERO
@@ -353,19 +348,19 @@ c a faire ici ou dans I20BUCE_CRIT IF(PENIA(5,I)+... /= ZERO)NACTI=NACTI+1
 C=======================================================================
 C     maj pene edges   !!!!!  deplace
 C=======================================================================
-c      IF(INACTI.EQ.5.OR.INACTI.EQ.6)THEN
+c      IF(INACTI==5.OR.INACTI==6)THEN
 cC
-cC  maj PENIS sur partie non locale
+cc'Maj penis on non -local part
 cC
 c        IF(NSPMD > 1) THEN
 cC
-cC Partie non parallele smt
+cit is not parallel SMT
 cC
 c!$OMP SINGLE
 c
 c          CALL SPMD_GET_PENIS20E(NLINSA,PENIS,NIN)
 c
-cC Fin Partie non parallele smt
+cIt's not parallel part SMT
 c!$OMP END SINGLE
 c
 c        END IF
@@ -374,12 +369,12 @@ C=======================================================================
 C     maj pene edges  fin !!!!!  deplace
 C=======================================================================
 C=======================================================================
-C     CALCUL CRITERE TRI
+C     CALCULATION CRITERE TRI
 C=======================================================================
 #include "vectorize.inc"
       DO I=NSNF,NSNL
           IL = NSV(I)
-          IF(STFA(IL).NE.ZERO) THEN
+          IF(STFA(IL)/=ZERO) THEN
 
             XSLV(1)=MAX(XSLV(1),XA(1,IL)-XSAV(1,I))
             XSLV(2)=MAX(XSLV(2),XA(2,IL)-XSAV(2,I))
@@ -402,7 +397,7 @@ C
       DO I=NMNF,NMNL
           II = I+NSN
           IL=MSR(I)
-          IF(IL.GT.0) THEN
+          IF(IL>0) THEN
             XMSR(1)=MAX(XMSR(1),XA(1,IL)-XSAV(1,II))
             XMSR(2)=MAX(XMSR(2),XA(2,IL)-XSAV(2,II))
             XMSR(3)=MAX(XMSR(3),XA(3,IL)-XSAV(3,II))
@@ -418,14 +413,14 @@ C
             VMSR(6)=MIN(VMSR(6),VA(3,IL))
           ENDIF
       END DO
-C dist calcule une fois pour toutes les interfaces dans SMP_CRIT (ci-dessous) ou SPMD_CRIT
+C dist calculated once for all interfaces in SMP_CRIT (below) or SPMD_CRIT
 C
 C     EDGES
 C
       DO I=NSNEF,NSNEL
          IL=NSVE(I)
 C shooting nodes
-         IF(IL.GT.0) THEN
+         IF(IL>0) THEN
           XSLV(1)=MAX(XSLV(1),XA(1,IL)-XSAVE(1,I))
           XSLV(2)=MAX(XSLV(2),XA(2,IL)-XSAVE(2,I))
           XSLV(3)=MAX(XSLV(3),XA(3,IL)-XSAVE(3,I))
@@ -445,7 +440,7 @@ C
          II = I+NSNE
          IL=MSRE(I)
 C shooting nodes
-         IF(IL.GT.0) THEN
+         IF(IL>0) THEN
           XMSR(1)=MAX(XMSR(1),XA(1,IL)-XSAVE(1,II))
           XMSR(2)=MAX(XMSR(2),XA(2,IL)-XSAVE(2,II))
           XMSR(3)=MAX(XMSR(3),XA(3,IL)-XSAVE(3,II))
@@ -496,8 +491,8 @@ C
 C=======================================================================
 C     STIF
 C=======================================================================
-      IF(NSPMD.EQ.1) THEN
-C traitement deplace dans SPMD_GET_STIF en SPMD
+      IF(NSPMD==1) THEN
+C Deplace treatment in SPMD_Get_Stif in SPMD
         DO I=NLNF,NLNL
           STFA(I)=MAX(STFA(I),ZERO)
         ENDDO
@@ -509,19 +504,19 @@ C
 C=======================================================================
 C     maj pene edges   !!!!!  deplace
 C=======================================================================
-c      IF(INACTI.EQ.5.OR.INACTI.EQ.6)THEN
+c      IF(INACTI==5.OR.INACTI==6)THEN
 cC
-cC  maj PENIS sur partie non locale
+cc'Maj penis on non -local part
 cC
 c        IF(NSPMD > 1) THEN
 cC
-cC Partie non parallele smt
+cit is not parallel SMT
 cC
 c!$OMP SINGLE
 c
 c          CALL SPMD_GET_PENIS20E(NLINSA,PENIS,NIN)
 c
-cC Fin Partie non parallele smt
+cIt's not parallel part SMT
 c!$OMP END SINGLE
 c
 c        END IF
@@ -538,7 +533,7 @@ C=======================================================================
 C     maj pene edges  fin !!!!!  deplace
 C=======================================================================
 C
-C sur les noeuds frontieres en SPMD, suffit d'initialiser ALPHAKFI a ONE ds i20main_tri/i20xsinir
+C On the boundary nodes in SPMD, just initialize alphakfi to one ds i20main_tri/i20xinirir
       DO I=NLNF,NLNL
         ALPHAK(1,I)=MAX(ALPHAK(1,I),ALPHAK(3,I))
         ALPHAK(1,I)=MIN(ALPHAK(1,I),ABS(ALPHAK(2,I)))

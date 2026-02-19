@@ -1,56 +1,57 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        C3COORI                       source/elements/sh3n/coque3n/c3coori.F
-Chd|        C3DERII                       source/elements/sh3n/coque3n/c3derii.F
-Chd|        C3EVEC3                       source/elements/sh3n/coque3n/c3evec3.F
-Chd|        C3INMAS                       source/elements/sh3n/coque3n/c3inmas.F
-Chd|        C3VEOK3                       source/elements/sh3n/coque3n/c3veok3.F
-Chd|        CCOORI                        source/elements/shell/coque/ccoori.F
-Chd|        CDERII                        source/elements/shell/coque/cderii.F
-Chd|        CEVECI                        source/elements/shell/coque/ceveci.F
-Chd|        CINMAS                        source/elements/shell/coque/cinmas.F
-Chd|        CVEOK3                        source/elements/shell/coque/cveok3.F
-Chd|        DTMAIN                        source/materials/time_step/dtmain.F
-Chd|        S10COOR3_OLD                  source/elements/solid/solide10/s10coor3.F
-Chd|        S10DERI3                      source/elements/solid/solide10/s10deri3.F
-Chd|        S10LEN3                       source/elements/solid/solide10/s10len3.F
-Chd|        S10MASS3                      source/elements/solid/solide10/s10mass3.F
-Chd|        S4COOR3                       source/elements/solid/solide4/s4coor3.F
-Chd|        S4DERI3                       source/elements/solid/solide4/s4deri3.F
-Chd|        S4MASS3                       source/elements/solid/solide4/s4mass3.F
-Chd|        SCOOR3                        source/elements/solid/solide/scoor3.F
-Chd|        SDERI3                        source/elements/solid/solide/sderi3.F
-Chd|        SDLEN3                        source/elements/solid/solide/sdlen3.F
-Chd|        SMASS3                        source/elements/solid/solide/smass3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        STACK_MOD                     share/modules1/stack_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inirig_mat        ../starter/source/elements/initia/inirig_mat.F
+!||--- called by ------------------------------------------------------
+!||    initia            ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    c3coori           ../starter/source/elements/sh3n/coque3n/c3coori.F
+!||    c3derii           ../starter/source/elements/sh3n/coque3n/c3derii.F
+!||    c3evec3           ../starter/source/elements/sh3n/coque3n/c3evec3.F
+!||    c3inmas           ../starter/source/elements/sh3n/coque3n/c3inmas.F
+!||    c3veok3           ../starter/source/elements/sh3n/coque3n/c3veok3.F
+!||    ccoori            ../starter/source/elements/shell/coque/ccoori.F
+!||    cderii            ../starter/source/elements/shell/coque/cderii.F
+!||    ceveci            ../starter/source/elements/shell/coque/ceveci.F
+!||    cinmas            ../starter/source/elements/shell/coque/cinmas.F
+!||    cveok3            ../starter/source/elements/shell/coque/cveok3.F
+!||    dtmain            ../starter/source/materials/time_step/dtmain.F
+!||    s10coor3_old      ../starter/source/elements/solid/solide10/s10coor3.F
+!||    s10deri3          ../starter/source/elements/solid/solide10/s10deri3.F
+!||    s10len3           ../starter/source/elements/solid/solide10/s10len3.F
+!||    s10mass3          ../starter/source/elements/solid/solide10/s10mass3.F
+!||    s4coor3           ../starter/source/elements/solid/solide4/s4coor3.F
+!||    s4deri3           ../starter/source/elements/solid/solide4/s4deri3.F
+!||    s4mass3           ../starter/source/elements/solid/solide4/s4mass3.F
+!||    scoor3            ../starter/source/elements/solid/solide/scoor3.F
+!||    sderi3            ../starter/source/elements/solid/solide/sderi3.F
+!||    sdlen3            ../starter/source/elements/solid/solide/sdlen3.F
+!||    smass3            ../starter/source/elements/solid/solide/smass3.F
+!||--- uses       -----------------------------------------------------
+!||    defaults_mod      ../starter/source/modules/defaults_mod.F90
+!||    drape_mod         ../starter/share/modules1/drape_mod.F
+!||    stack_mod         ../starter/share/modules1/stack_mod.F
+!||====================================================================
       SUBROUTINE INIRIG_MAT(IXC ,IXS    ,IXTG   ,IXS10  ,X      ,
      2                      V   ,PM     ,GEO    ,MS     ,IN     ,
      3                      PTG ,MSC    ,MSS    ,MSTG   ,INC    ,
@@ -64,13 +65,17 @@ Chd|====================================================================
      B                   NINDX  ,XREFC  ,XREFTG ,XREFS   ,MSSA  ,
      C                   SH3TRIM,ISUBSTACK,BUFMAT,IPM    ,STACK ,
      D                   RNOISE ,STRC  ,STRTG   ,PERTURB ,NEL   ,
-     E                   GROUP_PARAM)
+     E                   GROUP_PARAM   ,IGTYP   ,DEFAULTS,GLOB_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
       USE STACK_MOD
-      USE MATPARAM_DEF_MOD            
+      USE GROUP_PARAM_MOD            
+      USE DEFAULTS_MOD
+      use glob_therm_mod
+      USE DRAPE_MOD
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -91,14 +96,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NVC, IHBE, ISOLNOD, NDDIM, ILEV,NRIG_MAT,NUMEL,
-     .        NINDX,ISUBSTACK,NEL
-      INTEGER IXC(NIXC,*),IXS(NIXS,*),IXTG(NIXTG,*),IXS10(6,*),
-     .        IPARTS(*),IPARTC(*),IPARTT(*),IGEO(NPROPGI,*),
-     .        NSHNOD(*), SH4TREE(KSH4TREE,*), SH3TREE(*),
-     .        IRIG_NODE(*) ,CONNEC(NUMEL, 10),SH3TRIM(*)
-      INTEGER *8 I8MI(6,*),IPM(NPROPMI,*),PERTURB(NPERTURB)
-      my_real 
+      INTEGER :: NVC, IHBE, ISOLNOD, NUMEL,NINDX,ISUBSTACK,NEL
+      INTEGER ,INTENT(IN) :: IGTYP
+      INTEGER :: IXC(NIXC,*),IXS(NIXS,*),IXTG(NIXTG,*),IXS10(6,*),
+     .          IPARTS(*),IPARTC(*),IPARTT(*),IGEO(NPROPGI,*),
+     .          NSHNOD(*), SH4TREE(KSH4TREE,*), SH3TREE(*),
+     .          IRIG_NODE(*) ,CONNEC(NUMEL, 10),SH3TRIM(*)
+      INTEGER*8 :: I8MI(6,*),IPM(NPROPMI,*),PERTURB(NPERTURB)
+      my_real ::
      .   PM(NPROPM,*), GEO(NPROPG,*),MS(*),MSC(*),MSS(8,*), 
      .   MSTG(*),INTG(*),PTG(3,*),IN(*),INC(*),THKC(*),THKT(*), 
      .   X(3,*),V(3,*),VEUL(LVEUL,*),DTELEM(*),PARTSAV(20,*),
@@ -107,17 +112,17 @@ C-----------------------------------------------
      .   MSSX(12,*),STIFN(*), STIFR(*),
      .   XREFC(4,3,*),XREFTG(3,3,*),XREFS(8,3,*), MSSA(*),BUFMAT(*),
      .   RNOISE(*),STRC(*),STRTG(*)
-      TYPE(GRP_PARAM_STRUCT_)  :: GROUP_PARAM
+      TYPE(GROUP_PARAM_)  :: GROUP_PARAM
+      TYPE(DEFAULTS_), INTENT(IN)      :: DEFAULTS             
+      TYPE(glob_therm_) ,intent(in)    :: glob_therm
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IGTYP, NDEPAR, NDSA,NC(20),N,JJ,KK,J,K,IP,NF1,NF2,
-     .   ILAW,IMAT,IPROP,IE,IBID(MVSIZ),NREFSTA
-      INTEGER NC10(MVSIZ,10)
+      INTEGER :: I,  NDEPAR, NC(20),N,JJ,J,IP,NF1,NF2,IMAT,IPROP,IBID(MVSIZ),NREFSTA,IMAS_DS
+      INTEGER :: NC10(MVSIZ,10)
       INTEGER, DIMENSION(MVSIZ) :: IX1,IX2,IX3,IX4,IX5,IX6,IX7,IX8,MXT,PID,NGL
-      my_real
-     .   VOID(MVSIZ),MSPHI(MVSIZ),INPHI(MVSIZ),XPHI(MVSIZ), 
-     .   THKPHI(MVSIZ),PV(MVSIZ),
+      my_real ::
+     .   VOID(MVSIZ), 
      .   RX(MVSIZ) ,RY(MVSIZ) ,RZ(MVSIZ) ,SX(MVSIZ) ,
      .   SY(MVSIZ) ,SZ(MVSIZ) ,TX(MVSIZ) ,TY(MVSIZ) ,TZ(MVSIZ) ,
      .   F1X(MVSIZ) ,F1Y(MVSIZ) ,F1Z(MVSIZ) ,
@@ -144,7 +149,9 @@ C-----------------------------------------------
 C
       TYPE(ELBUF_STRUCT_) ,POINTER :: BIDBUF
       TYPE (STACK_PLY) :: STACK
-      DOUBLE PRECISION 
+      TYPE (DRAPE_) , DIMENSION(NUMELC_DRAPE+NUMELTG_DRAPE), TARGET :: DRAPE
+
+      DOUBLE PRECISION ::
      .   XD1(MVSIZ), XD2(MVSIZ), XD3(MVSIZ), XD4(MVSIZ),
      .   XD5(MVSIZ), XD6(MVSIZ), XD7(MVSIZ), XD8(MVSIZ),
      .   YD1(MVSIZ), YD2(MVSIZ), YD3(MVSIZ), YD4(MVSIZ),
@@ -158,6 +165,8 @@ C
       BID(1:MVSIZ) = ZERO
       NREFSTA = NXREF
       NXREF = 0
+      IMAS_DS = DEFAULTS%SOLID%IMAS
+      DTX(1:MVSIZ) = ZERO
       IF (ITY == 1.AND. ISMSTR == 10) ISMSTR = 4
 C-----------------------------------------------
       IF (ITY == 1.AND. ISOLNOD == 4)THEN
@@ -207,11 +216,12 @@ C
      2      IPARTS(NFT+1),MSS(1,NFT+1),MSNF   ,MSSF(1,NFT+1),WMA ,
      3      RHOCP        ,MCP         ,MCPS(1,NFT+1)          ,TEMP0,
      4      TEMP         ,MSSA        ,IX1    ,IX2    ,IX3    ,IX4  ,
-     5      FILL, VOLU)
+     5      FILL, VOLU   ,IMAS_DS     ,GLOB_THERM%NINTEMP)
         ENDIF                   
 C
         CALL DTMAIN(GEO  ,PM   ,VOID  ,PID   ,MXT   ,VOID  ,
-     .              VOID ,VOID ,VOID  ,VOID  ,VOID  ,BUFMAT, DDELTAX, AREA, VOLU, DTX, IGEO)
+     .              VOID ,VOID ,VOID  ,VOID  ,VOID  ,BUFMAT, 
+     .              DDELTAX, AREA, VOLU, DTX, IGEO,IGTYP)
 C
         DO I=1,NEL
          DTELEM(NFT+I)=DTX(I)
@@ -231,15 +241,15 @@ C Solid 10 nodes tetrahedron-
      .                XX, YY, ZZ, VX, VY, VZ, NC10,
      .                NGL,MXT,PID,MASS,DTELEM(NFT+1),STI,
      .                VOID6,VOID,VOID,VOID, 
-     .                TEMP0, TEMP   ,NEL)
+     .                TEMP0, TEMP   ,NEL,GLOB_THERM%NINTEMP)
         CALL S10DERI3(VOLP,NGL,
      .                XX, YY, ZZ, PX,PY,PZ, NX,
      .                RX, RY, RZ, SX, SY, SZ, TX, TY, TZ,VOLU,VOID,
      .                BIDBUF,VOLG)
- 	CALL S10LEN3(VOLP,NGL,DELTAX,DELTAX2,
-     .  	     PX,PY,PZ,VOLU,VOID,VOLG, 
-     .  	     RX, RY, RZ, SX, SY, SZ, TX, TY, TZ,
-     .  	     NEL,MXT,PM,V_PITER,IBID)
+          CALL S10LEN3(VOLP,NGL,DELTAX,DELTAX2,
+     .         PX,PY,PZ,VOLU,VOID,VOLG, 
+     .         RX, RY, RZ, SX, SY, SZ, TX, TY, TZ,
+     .         NEL,MXT,PM,V_PITER,IBID)
 C
         DO I=1,NEL
           MASSCP(I) = ZERO 
@@ -262,9 +272,9 @@ C
      .              XX  ,YY ,ZZ     ,VX         ,VY         ,VZ  ,  
      .              NC10  ,STI,STIFN  ,DELTAX2    ,MSSX(1,NF1),MASSCP,
      .              MCP ,MCPS(1,NF1),MCPSX(1,NF1),IN        ,STIFR,
-     .              INS(1,NF1),MSSA ,X    ,FILL)
+     .              INS(1,NF1),MSSA ,X    ,FILL  ,IMAS_DS)
 C
-C Create dependancy to rigid material              
+C Create dependency to rigid material              
         DO I=1,NEL
           NINDX = NINDX + 1
           N = I + NFT
@@ -300,7 +310,7 @@ C Solid 8 nodes brick
          TEMP0(I) = ZERO 
         ENDDO
 C
-C Creation de la dependance au mat_rigid
+C Creation of the dependency on mat_rigid
         DO I=1,NEL
           N = I + NFT
           NINDX = NINDX + 1
@@ -327,7 +337,7 @@ C
      .           Z1   ,Z2   ,Z3   ,Z4   ,Z5   ,Z6   ,Z7   ,Z8   ,
      .           RX   ,RY   ,RZ   ,SX   ,SY   ,SZ   ,TX   ,TY   ,TZ   ,
      .           E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y  ,E3Z  ,
-     .           F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0, TEMP,
+     .           F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0, TEMP,GLOB_THERM%NINTEMP,
      .           XD1  ,XD2  ,XD3  ,XD4  ,XD5  ,XD6  ,XD7  ,XD8   ,
      .           YD1  ,YD2  ,YD3  ,YD4  ,YD5  ,YD6  ,YD7  ,YD8   ,
      .           ZD1  ,ZD2  ,ZD3  ,ZD4  ,ZD5  ,ZD6  ,ZD7  ,ZD8   )
@@ -358,9 +368,9 @@ C
      5         MCPS(1,NFT+1),MSSA         ,BID    ,BID        ,FILL, 
      6         IX1, IX2, IX3, IX4, IX5, IX6, IX7, IX8)
 C  
-C Element time step
+C Time Step element
         CALL DTMAIN(GEO  ,PM   ,VOID  ,PID   ,MXT   ,VOID  ,  
-     .              VOID ,VOID ,VOID  ,VOID  ,VOID  ,BUFMAT, DDELTAX, AREA, VOLU, DTX , IGEO)  
+     .              VOID ,VOID ,VOID  ,VOID  ,VOID  ,BUFMAT, DDELTAX, AREA, VOLU, DTX , IGEO,IGTYP)  
 C
         DO  I=1,NEL
           N = I + NFT
@@ -376,7 +386,7 @@ C
           STIFN(IXS(9,N))=STIFN(IXS(9,N))+STIE
         ENDDO     
 C--------------------------------------
-      ELSEIF (ITY.EQ.3) THEN
+      ELSEIF (ITY==3) THEN
 C--------------------------------------
 C 4-nodes shell
         IMAT  = IXC(1,1+NFT)         ! material number
@@ -400,8 +410,8 @@ C
      .              NSHNOD ,STC(NFT+1),SH4TREE ,MCP   ,MCPC(NFT+1) , 
      .              TEMP    ,BID , BID,BID,BID,
      .              BID,BID,ISUBSTACK,IBID,BIDBUF,
-     .              STACK,BIDG, RNOISE ,BID ,
-     .              PERTURB,IX1     ,IX2      ,IX3     ,IX4      )
+     .              STACK,BIDG, RNOISE ,DRAPE ,GLOB_THERM%NINTEMP,
+     .              PERTURB,IX1     ,IX2      ,IX3     ,IX4    ,IBID, IBID )
         CALL CDERII(PX1 ,PX2 ,PY1   ,PY2,
      .              X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  , 
      .              Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4  ,
@@ -454,7 +464,7 @@ C Nodal time step
           DTELEM(NDEPAR+I) = EP30
         ENDDO
 C
-C Create dependancy to rigid material
+C Create dependency to rigid material
         DO I=1,NEL
           N = I + NFT
           NINDX = NINDX + 1
@@ -473,7 +483,7 @@ C
           IRIG_NODE(NC(4)) = 1
         ENDDO                             
 C--------------------------------------
-      ELSEIF(ITY.EQ.7)THEN
+      ELSEIF(ITY==7)THEN
 C--------------------------------------
 C 3-nodes shell
         IMAT  = IXTG(1,1+NFT)          ! material number
@@ -493,9 +503,9 @@ C
      .               PTG(1,NFT+1),IGEO ,IMAT  ,IPROP   ,AREA    ,
      .               ETNOD,NSHNOD,STTG(NFT+1), SH3TREE,MCP   ,
      .               MCPS(1,NFT+1) , TEMP,SH3TRIM,ISUBSTACK,IBID,
-     .               BIDBUF, STACK,BIDG ,RNOISE,
-     .               BID,PERTURB,IX1   ,IX2      ,IX3    ,
-     .               X2L      ,X3L    ,Y3L   )
+     .               BIDBUF, STACK,BIDG ,RNOISE,DRAPE,
+     .               PERTURB,IX1   ,IX2      ,IX3    ,GLOB_THERM%NINTEMP,
+     .               X2L      ,X3L    ,Y3L , IBID, IBID   )
         CALL C3DERII(LFT,LLT,PM,GEO,PX1,PY1,PY2,S
      .               TIFN   ,STIFR   ,IXTG(1,NFT+1),
      .               THKT,SH3TREE,ALDT,BUFMAT , IPM   ,IGEO ,
@@ -510,7 +520,7 @@ C
            DTELEM(NDEPAR+I) = EP30
         ENDDO
 C
-C Create dependancy to rigid material
+C Create dependency to rigid material
         DO I=1,NEL
           N = I + NFT
           NINDX = NINDX + 1

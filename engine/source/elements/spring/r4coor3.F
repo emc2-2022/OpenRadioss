@@ -1,35 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R4COOR3                       source/elements/spring/r4coor3.F
-Chd|-- called by -----------
-Chd|        RFORC3                        source/elements/spring/rforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE R4COOR3(X   ,VR  ,IXR ,RLOC ,NGL,
-     .                   X1  ,Y1  ,Z1  ,X2   ,Y2 ,
-     .                   Z2  ,MGN ,RX1 ,RY1  ,RZ1,
-     .                   RX2 ,RY2 ,RZ2 ,NC1  ,NC2)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r4coor3       ../engine/source/elements/spring/r4coor3.F
+!||--- called by ------------------------------------------------------
+!||    rforc3        ../engine/source/elements/spring/rforc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
+      SUBROUTINE R4COOR3(
+     1   X,       VR,      IXR,     RLOC,
+     2   NGL,     X1,      Y1,      Z1,
+     3   X2,      Y2,      Z2,      MGN,
+     4   RX1,     RY1,     RZ1,     RX2,
+     5   RY2,     RZ2,     NC1,     NC2,
+     6   NEL)
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,11 +46,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NEL
       INTEGER IXR(NIXR,*),NGL(*),MGN(*),NC1(*),NC2(*)
 C     REAL
       my_real
@@ -55,9 +59,9 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J
+      INTEGER I
 C------------------------------------------------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
         NC1(I)=IXR(2,I)
         NC2(I)=IXR(3,I)
         MGN(I)=IXR(1,I)
@@ -66,7 +70,7 @@ C------------------------------------------------------------------
 C----------------------------
 C     COORDONNEES+ROTATIONS
 C----------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
         X1(I)=X(1,NC1(I))
         Y1(I)=X(2,NC1(I))
         Z1(I)=X(3,NC1(I))

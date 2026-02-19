@@ -1,37 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECINV                        source/input/lecinv.F         
-Chd|-- called by -----------
-Chd|        LECTUR                        source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        NGR2USR                       source/input/freform.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE LECINV(NINIV ,X, V ,VR  ,ITAB  ,IFRAME ,XFRAME, IGRNOD )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lecinv         ../engine/source/input/lecinv.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../engine/source/input/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    fxbvini        ../common_source/fxbody/fxbvini.F
+!||    ngr2usr        ../engine/source/input/freform.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE LECINV(NINIV ,X, V ,VR  ,ITAB  ,
+     .                  IFRAME,XFRAME, IGRNOD, FXBIPM, FXBVIT,
+     .                  FXBRPM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -47,25 +51,26 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "units_c.inc"
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "param_c.inc"
-#include      "sphcom.inc"
-#include      "scr17_c.inc"
+#include      "fxbcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C----------------------------------------------- 
       INTEGER NINIV,ITAB(*),IFRAME(LISKN,*)
+      INTEGER, INTENT(IN) :: FXBIPM(NBIPM,NFXBODY)
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD) :: IGRNOD
 C     REAL
       my_real
      .   X(3,*),V(3,*), VR(3,*), XFRAME(NXFRAME,*)
+      my_real, INTENT(IN) :: FXBRPM(LENRPM)
+      my_real, INTENT(INOUT) :: FXBVIT(LENVAR)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,JJ,K,N,N1,N2,K1,K2,K3,NGR2USR,II
-      INTEGER IDIR,CPT0,CPT1,IFM,IFRA,IGN,CPT20,CPT21
+      INTEGER I,J,K,N,N1,N2,K1,K2,K3,NGR2USR,II
+      INTEGER IDIR,CPT0,CPT1,IFRA,IGN,CPT20,CPT21
 C     REAL
       my_real
      .   VV  ,VTX ,VTY ,VTZ , NIXJ(6),
@@ -73,15 +78,15 @@ C     REAL
       EXTERNAL NGR2USR
 C-----------------------------------------------
 C
-      IF(IMACH.NE.3.OR.ISPMD.EQ.0) THEN
+      IF(ISPMD==0) THEN
         WRITE(IOUT,'(//,A,/)')' VELOCITY REINITIALISATION'
-C
       ENDIF
 C
       CPT0=0
       CPT1=0
       CPT20=0
       CPT21=0
+      J = 0
 C
       DO I = 1,NINIV
        READ (IIN,'(3I10,F20.0)') N1,N2,IDIR,VV
@@ -99,7 +104,7 @@ C-----
        ENDIF
 C
        IF (IDIR < 0) THEN
-         IF(IMACH.NE.3.OR.ISPMD.EQ.0) THEN
+         IF(ISPMD==0) THEN
            IF (N1 < 0) THEN
              IF (CPT20==0) WRITE(IOUT,3000)
              WRITE(IOUT,3100) -N1,VV,VTX,VTY,VTZ,IFRA
@@ -122,9 +127,12 @@ C
 C
              NIXJ = ZERO
              IF (IFRA > 0) THEN
+               VX = ZERO
+               VY = ZERO
+               VZ = ZERO
                DO K=1,NUMFRAM
                  J=K+1
-                 IF(IFRA.EQ.IFRAME(4,K+1)) THEN
+                 IF(IFRA==IFRAME(4,K+1)) THEN
                  VX = XFRAME(1,J)*VTX+XFRAME(4,J)*VTY+XFRAME(7,J)*VTZ
                  VY = XFRAME(2,J)*VTX+XFRAME(5,J)*VTY+XFRAME(8,J)*VTZ
                  VZ = XFRAME(3,J)*VTX+XFRAME(6,J)*VTY+XFRAME(9,J)*VTZ
@@ -140,26 +148,26 @@ C
                NIXJ(4)=XFRAME(K3,J)*(X(2,N)-XFRAME(11,J))
                NIXJ(5)=XFRAME(K3,J)*(X(1,N)-XFRAME(10,J))
                NIXJ(6)=XFRAME(K1,J)*(X(3,N)-XFRAME(12,J))
-               IF (IRODDL.GT.0) THEN
+               IF (IRODDL>0) THEN
                  VR(1,N)= VV*XFRAME(K1,J)
                  VR(2,N)= VV*XFRAME(K2,J)
                  VR(3,N)= VV*XFRAME(K3,J)
                END IF
              ELSE
-               IF(-IDIR.EQ.1) THEN
+               IF(-IDIR==1) THEN
                  NIXJ(1)=X(2,N)
                  NIXJ(6)=X(3,N)
-               ELSEIF(-IDIR.EQ.2) THEN
+               ELSEIF(-IDIR==2) THEN
                  NIXJ(2)=X(1,N)
                  NIXJ(3)=X(3,N)
-               ELSEIF(-IDIR.EQ.3) THEN
+               ELSEIF(-IDIR==3) THEN
                  NIXJ(4)=X(2,N)
                  NIXJ(5)=X(1,N)
                ENDIF
                VX=VTX
                VY=VTY
                VZ=VTZ
-               IF (IRODDL.GT.0) THEN
+               IF (IRODDL>0) THEN
                  IF (IDIR==-1) VR(1,N)= VV
                  IF (IDIR==-2) VR(2,N)= VV
                  IF (IDIR==-3) VR(3,N)= VV
@@ -171,13 +179,16 @@ C
           ENDDO
          ELSE
           DO N = 1,NUMNOD
-           IF(ITAB(N).GE.N1.AND.ITAB(N).LE.N2) THEN
+           IF(ITAB(N)>=N1.AND.ITAB(N)<=N2) THEN
 C
              NIXJ = ZERO
              IF (IFRA > 0) THEN
+               VX = ZERO
+               VY = ZERO
+               VZ = ZERO
                DO K=1,NUMFRAM
                  J=K+1
-                 IF(IFRA.EQ.IFRAME(4,K+1)) THEN
+                 IF(IFRA==IFRAME(4,K+1)) THEN
                  VX = XFRAME(1,J)*VTX+XFRAME(4,J)*VTY+XFRAME(7,J)*VTZ
                  VY = XFRAME(2,J)*VTX+XFRAME(5,J)*VTY+XFRAME(8,J)*VTZ
                  VZ = XFRAME(3,J)*VTX+XFRAME(6,J)*VTY+XFRAME(9,J)*VTZ
@@ -193,26 +204,26 @@ C
                NIXJ(4)=XFRAME(K3,J)*(X(2,N)-XFRAME(11,J))
                NIXJ(5)=XFRAME(K3,J)*(X(1,N)-XFRAME(10,J))
                NIXJ(6)=XFRAME(K1,J)*(X(3,N)-XFRAME(12,J))
-               IF (IRODDL.GT.0) THEN
+               IF (IRODDL>0) THEN
                  VR(1,N)= VV*XFRAME(K1,J)
                  VR(2,N)= VV*XFRAME(K2,J)
                  VR(3,N)= VV*XFRAME(K3,J)
                END IF
              ELSE
-               IF(-IDIR.EQ.1) THEN
+               IF(-IDIR==1) THEN
                  NIXJ(1)=X(2,N)
                  NIXJ(6)=X(3,N)
-               ELSEIF(-IDIR.EQ.2) THEN
+               ELSEIF(-IDIR==2) THEN
                  NIXJ(2)=X(1,N)
                  NIXJ(3)=X(3,N)
-               ELSEIF(-IDIR.EQ.3) THEN
+               ELSEIF(-IDIR==3) THEN
                  NIXJ(4)=X(2,N)
                  NIXJ(5)=X(1,N)
                ENDIF
                VX=VTX
                VY=VTY
                VZ=VTZ
-               IF (IRODDL.GT.0) THEN
+               IF (IRODDL>0) THEN
                  IF (IDIR==-1) VR(1,N)= VV
                  IF (IDIR==-2) VR(2,N)= VV
                  IF (IDIR==-3) VR(3,N)= VV
@@ -227,14 +238,14 @@ C
        ELSE
 C
         IF (N1 < 0) THEN
-         IF(ISPMD.EQ.0) THEN
+         IF(ISPMD==0) THEN
            IF (CPT21==0) WRITE(IOUT,4000)
            WRITE(IOUT,4100)-N1,IDIR,VV
            CPT21=CPT21+1
            CPT20=0
          ENDIF
 C
-         IF(IDIR.LE.3)THEN
+         IF(IDIR<=3)THEN
            DO II=1,IGRNOD(IGN)%NENTITY
              N=IGRNOD(IGN)%ENTITY(II)
              V(IDIR,N) = VV
@@ -246,25 +257,31 @@ C
            ENDDO
          ENDIF
         ELSE
-         IF(IMACH.NE.3.OR.ISPMD.EQ.0) THEN
+         IF(ISPMD==0) THEN
            IF (CPT1==0) WRITE(IOUT,2000)
            WRITE(IOUT,2100)N1,N2,IDIR,VV
            CPT1=CPT1+1
            CPT0=0
          ENDIF
 C
-         IF(IDIR.LE.3)THEN
+         IF(IDIR<=3)THEN
            DO N = 1,NUMNOD
-            IF(ITAB(N).GE.N1.AND.ITAB(N).LE.N2)V(IDIR,N) = VV
+            IF(ITAB(N)>=N1.AND.ITAB(N)<=N2)V(IDIR,N) = VV
            ENDDO
          ELSE
            DO N = 1,NUMNOD
-            IF(ITAB(N).GE.N1.AND.ITAB(N).LE.N2)VR(IDIR-3,N) = VV
+            IF(ITAB(N)>=N1.AND.ITAB(N)<=N2)VR(IDIR-3,N) = VV
            ENDDO
          ENDIF
         END IF !(N1 < 0) THEN
        ENDIF
       ENDDO
+C----------------
+C     Initialization of Fxbvit for flexible bodies
+C----------------
+      IF (NFXBODY>0) THEN
+        CALL FXBVINI(FXBIPM, FXBVIT, FXBRPM, V, VR)
+      ENDIF
 C----------------
 C     FORMATS
 C----------------

@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_FLD_XFEM                 source/materials/fail/fld/fail_fld_xfem.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        FINTERFLD                     source/materials/fail/fld/fail_fld_c.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_fld_xfem   ../engine/source/materials/fail/fld/fail_fld_xfem.F
+!||--- called by ------------------------------------------------------
+!||    mulawc          ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell   ../engine/source/materials/mat_share/usermat_shell.F
+!||--- calls      -----------------------------------------------------
+!||    finter          ../engine/source/tools/curve/finter.F
+!||    finterfld       ../engine/source/materials/fail/fld/fail_fld_c.F
+!||====================================================================
       SUBROUTINE FAIL_FLD_XFEM(
      1     NEL      ,NUPARAM  ,NUVAR    ,NFUNC    ,IFUNC    ,
      2     NPF      ,TF       ,TIME     ,UPARAM   ,
      3     NGL      ,IPT      ,NPTOT    ,SSP      ,TENS     ,
      4     SIGNXX   ,SIGNYY   ,SIGNXY   ,SIGNYZ   ,SIGNZX   ,
      5     EPSXX    ,EPSYY    ,EPSXY    ,EPSYZ    ,EPSZX    ,  
-     6     UVAR     ,NOFF     ,OFF      ,IP       ,
+     6     UVAR     ,NOFF     ,OFF      ,LF_DAMMX ,
      7     ELCRKINI ,IXFEM    ,IXEL     ,ILAY     ,IPTT     ,  
      8     OFFL     ,NPTT     ,NPTTF    ,DFMAX    ,TDEL     ,   
-     9     DAM      ,FLD_IDX  )
+     9     DAM      ,FLD_IDX  ,NIPARAM  ,IPARAM   ,PLA      ,
+     A     DEPSXX   ,DEPSYY   ,DEPSXY   ,DT1      )
 C-----------------------------------------------
 c    FLD failure model for XFEM
 C-----------------------------------------------
@@ -78,13 +79,17 @@ C IPTT                        CURRENT INTEGRATION POINT IN THE LAYER (FOR OUTPUT
 C---------+---------+---+---+--------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL,NUPARAM,NUVAR,NFUNC,IP,IPT,IPTT,NPTOT,IXFEM,IXEL,ILAY,NPTT
+      INTEGER NEL,NUPARAM,NUVAR,NFUNC,IPT,IPTT,NPTOT,IXFEM,IXEL,ILAY,NPTT
       INTEGER ELCRKINI(NXLAYMAX,NEL),NOFF(NEL),IFUNC(NFUNC),NGL(NEL),FLD_IDX(NEL)
       my_real 
      .   TIME,UPARAM(NUPARAM),SIGNXX(NEL),SIGNYY(NEL),
-     .   SIGNZZ(NEL),SIGNXY(NEL),SIGNYZ(NEL),SIGNZX(NEL),SSP(NEL),
+     .   SIGNXY(NEL),SIGNYZ(NEL),SIGNZX(NEL),SSP(NEL),
      .   EPSXX(NEL),EPSYY(NEL),EPSXY(NEL),EPSYZ(NEL),EPSZX(NEL),
-     .   TENS(NEL,5),DFMAX(NEL),TDEL(NEL),NPTTF(NEL),DAM(NEL)
+     .   TENS(NEL,5),DFMAX(NEL,LF_DAMMX),TDEL(NEL),NPTTF(NEL),DAM(NEL)
+      INTEGER, INTENT(IN) :: NIPARAM, LF_DAMMX
+      INTEGER, DIMENSION(NIPARAM), INTENT(IN) :: IPARAM
+      my_real, DIMENSION(NEL), INTENT(IN) :: PLA,DEPSXX,DEPSYY,DEPSXY
+      my_real, INTENT(IN) :: DT1
 C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
@@ -105,14 +110,15 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,J,K,L,IENG,IAD,NINDX,NINDXP,ISHELL,LAYXFEM,LENF
+      INTEGER I,II,J,IENG,IAD,NINDX,NINDXP,ISHELL,LAYXFEM,LENF
       INTEGER INDX(NEL),INDXP(NEL),RFLAG(NEL),RFLAGP(NEL)  
       my_real 
-     .   RANI,R1,R2,DADV,SIGMAX,S1,S2,SS,Q,DYDX,E12
+     .   RANI,R1,R2,DADV,S1,S2,SS,Q,DYDX,E12
       my_real, ALLOCATABLE, DIMENSION(:) :: XF  
       my_real 
-     .   TBA(NEL),TBK(NEL),SIGR(NEL),EMAJ(NEL),EMIN(NEL),
-     .   EM(NEL),EM_DCRIT(NEL),EM_DADV(NEL)
+     .   EMAJ(NEL),EMIN(NEL),
+     .   EM(NEL),EM_DCRIT(NEL),EM_DADV(NEL),DEMAJ(NEL),DEMIN(NEL),
+     .   BETA(NEL),ALPHA,FCUT
       CHARACTER (LEN=3) :: XCHAR
 C=======================================================================
       IAD = (IPT-1)*NEL
@@ -126,24 +132,36 @@ C=======================================================================
       NINDX  = 0  
       NINDXP = 0  
 c---
-      ISHELL  = INT(UPARAM(1))
-      LAYXFEM = INT(UPARAM(4))   ! Ixfem flag of layer material
-      DADV    = UPARAM(5)
-      IENG    = INT(UPARAM(6))
-      RANI    = UPARAM(7)
+      !=================================================================
+      ! - INITIALISATION OF COMPUTATION ON TIME STEP
+      !=================================================================
+      ! Recovering failure criterion parameters
+      ! -> Integer parameter
+      ISHELL = IPARAM(1)
+      IENG   = IPARAM(3)
+      ! -> Real parameters
+      DADV   = UPARAM(2)
+      RANI   = UPARAM(3)
+      FCUT   = UPARAM(5)
+      IF (UPARAM(6) > ZERO) THEN 
+        ALPHA = UPARAM(6) 
+      ELSE 
+        ALPHA = TWO*PI*FCUT*DT1/(ONE + TWO*PI*FCUT*DT1)
+      ENDIF
 c
-      IF (LAYXFEM == 0) RETURN
       LAYXFEM = IXFEM
-      IF (LAYXFEM == 1 .and. ISHELL == 1) ISHELL=2
+      IF (IXFEM == 1 .and. ISHELL == 1) ISHELL=2
 c
       DO I=1,NEL
         EM_DCRIT(I)= ZERO
         EM_DADV(I) = ZERO
       END DO
-C
-c --- Minor and major (true) strain deformation.
-C
+c
+      !=================================================================
+      ! - MINOR AND MAJOR (TRUE) STRAIN DEFORMATION
+      !=================================================================
       DO I = 1,NEL
+        ! For classic linear formulation
         E12= HALF*EPSXY(I)
         S1 = HALF*(EPSXX(I) + EPSYY(I))
         S2 = HALF*(EPSXX(I) - EPSYY(I))
@@ -155,10 +173,28 @@ C
           EMIN(I) = EMAJ(I)
           EMAJ(I) = SS
         ENDIF
+        ! For non-linear path formulation
+        E12 = HALF*DEPSXY(I)
+        S1  = HALF*(DEPSXX(I) + DEPSYY(I))
+        S2  = HALF*(DEPSXX(I) - DEPSYY(I))
+        Q   = SQRT(S2**2 + E12**2)
+        DEMAJ(I)  = S1 + Q
+        DEMIN(I)  = S1 - Q   
+        ! Strain ratio filtering value for non-linear path formulation
+        DEMAJ(I)  = ALPHA*DEMAJ(I) + (ONE - ALPHA)*UVAR(I,2) 
+        DEMIN(I)  = ALPHA*DEMIN(I) + (ONE - ALPHA)*UVAR(I,3) 
+        BETA(I)   = DEMIN(I)/SIGN(MAX(ABS(DEMAJ(I)),EM20),DEMAJ(I))
+        UVAR(I,2) = DEMAJ(I)
+        UVAR(I,3) = DEMIN(I)
+        IF (IENG == 2) THEN
+          DFMAX(I,4) = BETA(I)
+        ENDIF 
       ENDDO
-c-----
-c     failure major strain from input curve and damage ratio  : 0 < DFMAX < 1 
-c-----
+c
+      !=================================================================
+      ! FAILURE MAJOR STRAIN FROM INPUT CURVE AND DAMAGE RATIO
+      !=================================================================
+      ! -> Engineering strains input
       IF (IENG == 1) THEN   ! transform input fld curve to true strain
         II   = NPF(IFUNC(1))
         LENF = NPF(IFUNC(1)+ 1) - NPF(IFUNC(1))
@@ -168,37 +204,72 @@ c-----
         ENDDO
 c
         DO I = 1,NEL
-          EM(I)    = FINTERFLD(EMIN(I),IFUNC(1),LENF,XF)
-          DAM(I)   = EMAJ(I) / EM(I)
-          DFMAX(I) = MIN(ONE, DAM(I))
+          EM(I)  = FINTERFLD(EMIN(I),LENF,XF)
+          DAM(I) = EMAJ(I) / EM(I)
+          DFMAX(I,2) = DAM(I)
+          DFMAX(I,1) = MIN(ONE, DAM(I))
+        ENDDO
+      ! -> True strain input
+      ELSE
+        ! -> Classic formulation
+        IF (IENG == 0) THEN 
+          DO I = 1,NEL
+            EM(I)  = FINTER(IFUNC(1),EMIN(I),NPF,TF,DYDX)
+            DAM(I) = EMAJ(I) / EM(I)
+            DFMAX(I,2) = DAM(I)
+            DFMAX(I,1) = MIN(ONE, DAM(I))
+          ENDDO
+        ! -> Non-linear path formulation
+        ELSEIF (IENG == 2) THEN
+          DO I = 1,NEL
+            EM(I)  = FINTER(IFUNC(1),EMIN(I),NPF,TF,DYDX)
+            DAM(I) = MAX(PLA(I) / EM(I),DAM(I))
+            DFMAX(I,2) = DAM(I)
+            DFMAX(I,1) = MIN(ONE, DAM(I))
+          ENDDO
+        ENDIF
+      ENDIF 
+c
+      !=================================================================
+      ! FLD ZONE INDEX CALCULATION FOR ANIM OUTPUT
+      !=================================================================
+      R1 = TWO*EM02
+      R2 = RANI/(RANI+ONE)
+      IF (IENG < 2) THEN
+        DO I = 1,NEL
+          IF (EMAJ(I) >= EM(I)) THEN
+            FLD_IDX(I) = 6      ! zone 6 = failure
+          ELSEIF (EMAJ(I) >= EM(I) - EM01) THEN
+            FLD_IDX(I) = 5      ! zone 5 = margin to fail
+          ELSEIF (EMAJ(I)**2 + EMIN(I)**2 < R1**2) THEN
+            FLD_IDX(I) = 1      ! zone 1 = radius 0.02
+          ELSEIF (EMAJ(I) >= ABS(EMIN(I))) THEN
+            FLD_IDX(I) = 4      ! zone 4 = safe (45 deg line)
+          ELSEIF (EMAJ(I) >= R2*ABS(EMIN(I))) THEN
+            FLD_IDX(I) = 3      ! zone 3  = angle atan(r/(1+r))  - compression
+          ELSE
+            FLD_IDX(I) = 2      ! zone 2  - high wrinkle tendency
+          ENDIF
+          DFMAX(I,3) = FLD_IDX(I)
         ENDDO
       ELSE
         DO I = 1,NEL
-          EM(I)    = FINTER(IFUNC(1),EMIN(I),NPF,TF,DYDX)
-          DAM(I)   = EMAJ(I) / EM(I)
-          DFMAX(I) = MIN(ONE, DAM(I))
+          IF (PLA(I) >= EM(I)) THEN
+            FLD_IDX(I) = MAX(6,FLD_IDX(I))      ! zone 6 = failure
+          ELSEIF (PLA(I) >= EM(I) - EM01) THEN
+            FLD_IDX(I) = MAX(5,FLD_IDX(I))      ! zone 5 = margin to fail
+          ELSEIF (PLA(I)**2 + BETA(I)**2 < R1**2) THEN
+            FLD_IDX(I) = MAX(1,FLD_IDX(I))      ! zone 1 = radius 0.02
+          ELSEIF (PLA(I) >= ABS(BETA(I))) THEN
+            FLD_IDX(I) = MAX(4,FLD_IDX(I))      ! zone 4 = safe (45 deg line)
+          ELSEIF (PLA(I) >= R2*ABS(BETA(I))) THEN
+            FLD_IDX(I) = MAX(3,FLD_IDX(I))      ! zone 3  = angle atan(r/(1+r))  - compression
+          ELSE
+            FLD_IDX(I) = MAX(2,FLD_IDX(I))      ! zone 2  - high wrinkle tendency
+          ENDIF
+          DFMAX(I,3) = FLD_IDX(I)
         ENDDO
-      ENDIF 
-c--------------------------------------------------------------------
-c     FLD zone index calculation for ANIM output
-c
-      R1 = TWO*EM02
-      R2 = RANI/(RANI+ONE)
-      DO I = 1,NEL
-        IF (EMAJ(I) >= EM(I)) THEN
-          FLD_IDX(I) = 6      ! zone 6 = failure
-        ELSEIF (EMAJ(I) >= EM(I) - EM01) THEN
-          FLD_IDX(I) = 5      ! zone 5 = margin to fail
-        ELSEIF (EMAJ(I)**2 + EMIN(I)**2 < R1**2) THEN
-          FLD_IDX(I) = 1      ! zone 1 = radius 0.02
-        ELSEIF (EMAJ(I) >= ABS(EMIN(I))) THEN
-          FLD_IDX(I) = 4      ! zone 4 = safe (45 deg line)
-        ELSEIF (EMAJ(I) >= R2*ABS(EMIN(I))) THEN
-          FLD_IDX(I) = 3      ! zone 3  = angle atan(r/(1+r))  - compresion
-        ELSE
-          FLD_IDX(I) = 2      ! zone 2  - high wrinkle tendency
-        ENDIF
-      ENDDO
+      ENDIF
 c--------------------------------------------------------------------
       DO I = 1,NEL
         TENS(I,1) = SIGNXX(I)
@@ -230,7 +301,8 @@ c--------------------------
 c---------------
         CASE (1)    ! multilayer XFEM                                    
 c---------------
-            DO I = 1,NEL                                                          
+            DO I = 1,NEL   
+              IF (IENG == 2) EMAJ(I) = PLA(I)                                                       
               IF (OFF(I) == ONE) THEN                                              
                 IF (UVAR(I,1) == ZERO) THEN                                       
                   IF (IXEL == 0) THEN                                             
@@ -332,6 +404,7 @@ c---------------
 c
               IF (LAYXFEM > 0) THEN
                 DO I = 1,NEL
+                  IF (IENG == 2) EMAJ(I) = PLA(I)                                                       
                   IF (OFF(I) == ONE) THEN
                     IF (IXEL == 0) THEN    ! not cut yet
                       IF (ELCRKINI(ILAY,I) == 0 .and. 
@@ -383,6 +456,7 @@ c
             ELSEIF (ISHELL == 2)THEN
 c
               DO I = 1,NEL
+                IF (IENG == 2) EMAJ(I) = PLA(I)                                                       
                 IF (OFF(I) == ONE) THEN
                   IF (UVAR(I,1) == ZERO) THEN
                     IF (IXEL == 0) THEN    ! testing standard element
@@ -474,14 +548,6 @@ c-----------------
 c
       IF (IENG == 1) DEALLOCATE(XF)
 c-----------------------------------------------
- 2000 FORMAT(1X,'FOR SHELL ELEMENT (FLD)',I10,1X,'LAYER',I3,':',/
-     .       1X, 'STRESS TENSOR SET TO ZERO')
- 2100 FORMAT(1X,'FOR SHELL ELEMENT (FLD)',I10,1X,'LAYER',I3,':',/,
-     .       1X, 'STRESS TENSOR SET TO ZERO',1X,'AT TIME :',1PE20.13)
- 2400 FORMAT(1X,1PG20.13,' % OF THICKNESS OF SHELL BROKEN ')
- 2410 FORMAT(1X,1PG20.13,' % OF THICKNESS OF SHELL ',I10,' BROKEN ')
- 2500 FORMAT(1X,'  LOWER SKIN -> UPPER SKIN ')
- 2600 FORMAT(1X,'  UPPER SKIN -> LOWER SKIN ')
 c---  multilayer xfem
  3000 FORMAT(1X,'CRACK INITIALIZATION IN SHELL ELEMENT',I10,1X,'LAYER',I3)
  3100 FORMAT(1X,'CRACK INITIALIZATION IN SHELL ELEMENT',I10,1X,'LAYER',I3,/

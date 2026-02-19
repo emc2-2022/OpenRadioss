@@ -1,44 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT44                 source/materials/mat/mat044/hm_read_mat44.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat44            ../starter/source/materials/mat/mat044/hm_read_mat44.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT44(
      .           UPARAM   ,MAXUPARAM,NUPARAM  ,NUVAR    ,NFUNC    ,
      .           MTAG     ,PARMAT   ,UNITAB   ,PM       ,LSUBMODEL,
      .           ISRATE   ,MAT_ID   ,TITR     ,IFUNC    ,MAXFUNC  ,
-     .           NVARTMP  )
+     .           NVARTMP  ,MATPARAM )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -46,6 +48,8 @@ C-----------------------------------------------
       USE ELBUFTAG_MOD            
       USE MESSAGE_MOD 
       USE SUBMODEL_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -64,10 +68,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -75,38 +76,50 @@ C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER, INTENT(IN)    :: MAT_ID,MAXUPARAM,MAXFUNC
       my_real, DIMENSION(NPROPM) ,INTENT(INOUT)    :: PM     
-      CHARACTER*nchartitle ,INTENT(IN)             :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN)             :: TITR
       INTEGER, INTENT(INOUT)               :: ISRATE,IFUNC(MAXFUNC)
-      INTEGER, INTENT(OUT)                 :: NUPARAM,NUVAR,NFUNC,NVARTMP
-      my_real, DIMENSION(MAXUPARAM) ,INTENT(OUT)   :: UPARAM
-      my_real, DIMENSION(100),INTENT(OUT) :: PARMAT
+      INTEGER, INTENT(INOUT)                 :: NUPARAM,NUVAR,NFUNC,NVARTMP
+      my_real, DIMENSION(MAXUPARAM) ,INTENT(INOUT)   :: UPARAM
+      my_real, DIMENSION(100),INTENT(INOUT) :: PARMAT
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
-      TYPE(MLAW_TAG_), INTENT(OUT) :: MTAG
+      TYPE(MLAW_TAG_), INTENT(INOUT) :: MTAG
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
-      INTEGER :: ILAW,ICC,ISRAT,Ivflag
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
+      INTEGER :: ILAW,ICC,ISRAT,Ivflag,IFLAG
       my_real :: RHO0,RHOR,E,NU,CA,CB,CN,G,A1,BULK,EPSM,SIGM,EPSR1,EPSR2,
-     .           EPSP_REF,FISOKIN,CP,CC,ASRATE,EPSGM,YLD_SCALE,YLD_SCALE_UNIT
+     .           EPSP_REF,FISOKIN,CP,CC,ASRATE,EPSGM,YLD_SCALE,YLD_SCALE_UNIT,
+     .           CB0,RM,AG,CN0
 C=======================================================================
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED   = .FALSE.
       IS_AVAILABLE = .FALSE.
       ILAW   = 44
 c
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 c
       CALL HM_GET_FLOATV('MAT_RHO'   ,RHO0     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Refer_Rho' ,RHOR     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-      
+c      
       CALL HM_GET_FLOATV('MAT_E'     ,E        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MAT_NU'    ,NU       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+      CALL HM_GET_INTV  ('MAT_Iflag' ,IFLAG    ,IS_AVAILABLE, LSUBMODEL)
+      IFLAG = MAX(MIN(IFLAG,1),0)
 c
-      CALL HM_GET_FLOATV('MAT_SIGY'  ,CA       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-      CALL HM_GET_FLOATV('MAT_B'     ,CB       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-      CALL HM_GET_FLOATV('MAT_N'     ,CN       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-      CALL HM_GET_FLOATV('MAT_HARD'  ,FISOKIN  ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-      CALL HM_GET_FLOATV('MAT_SIG'   ,SIGM     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+      IF (IFLAG == 1) THEN
+        CALL HM_GET_FLOATV('MAT_SIG2_yc',CA    ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_UTS'  ,CB      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_EUTS' ,CN      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_HARD' ,FISOKIN ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_SIG'  ,SIGM    ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+      ELSE
+        CALL HM_GET_FLOATV('MAT_SIGY' ,CA      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_B'    ,CB      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_N'    ,CN      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_HARD' ,FISOKIN ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_SIG'  ,SIGM    ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+      ENDIF
 c
       CALL HM_GET_FLOATV('MAT_SRC'   ,EPSP_REF ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MAT_SRE'   ,CP       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -125,6 +138,33 @@ c--------------------------------------------------
 c     default values
 c---------------------
       IF (RHOR == ZERO)  RHOR  = RHO0
+c
+      IF (IFLAG == 1) THEN
+        CB0 = CB
+        RM  = CB *(ONE+CN)
+        AG  = LOG(ONE+CN)
+        CN0 = CN
+        CN  = RM*AG / (RM-CA)
+        CB  = RM/MAX((CN*AG**(CN-ONE)),EM20)
+        IF (CN > ONE) THEN
+          CN = ONE
+          CB = (CB0*(ONE+CN0)-CA)/(LOG(1+CN0)-CB0*(1+CN0)/E-CA/E)
+          CALL ANCMSG(MSGID=3120,
+     .                MSGTYPE=MSGWARNING,
+     .                ANMODE=ANINFO_BLIND_1,
+     .                I1=MAT_ID,
+     .                C1=TITR)
+        ENDIF                                                       
+        IF (CN < ZERO .AND. CB < ZERO) THEN                         
+          CN = ZERO                                                 
+          CB = ZERO                                                 
+          CALL ANCMSG(MSGID=3121,
+     .                MSGTYPE=MSGWARNING,
+     .                ANMODE=ANINFO_BLIND_1,
+     .                I1=MAT_ID,
+     .                C1=TITR)
+        ENDIF
+      ENDIF
 c
       IF (NU < ZERO .OR. NU >= HALF) THEN
          CALL ANCMSG(MSGID=49,
@@ -163,10 +203,10 @@ c
         ! If plastic strain is chosen, filtering by default
         ISRAT     = 1
         ISRATE    = MAX(ISRATE,ISRAT) 
-        ASRATE    = 10000.0D0*FAC_T_WORK
+        ASRATE    = 10000.0D0*UNITAB%FAC_T_WORK
       ELSE
         IF (ASRATE /= ZERO) THEN
-          ! If a flitering frequency is given by the user
+          ! If a filtering frequency is given by the user
           ISRAT     = 1
           ISRATE    = MAX(ISRATE,ISRAT)
         ELSE
@@ -174,7 +214,7 @@ c
           IF (ISRAT /= 0) THEN
             ISRAT     = 1
             ISRATE    = MAX(ISRATE,ISRAT) 
-            ASRATE    = 10000.0D0*FAC_T_WORK  
+            ASRATE    = 10000.0D0*UNITAB%FAC_T_WORK  
           ! If no filtering frequency and no flag is activated => no filtering
           ELSE
             ISRAT     = 0
@@ -269,17 +309,35 @@ c-----------------
       IF (FISOKIN > ZERO) THEN 
         MTAG%L_SIGB  = 3
       ENDIF
+C
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ELASTO_PLASTIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"INCREMENTAL")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"LARGE_STRAIN") 
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ISOTROPIC")  
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC") 
+      CALL INIT_MAT_KEYWORD(MATPARAM,"BEAM_ALL")   
+      CALL INIT_MAT_KEYWORD(MATPARAM,"TRUSS")         
+C
+      ! Material compatibility with /EOS option
+      CALL INIT_MAT_KEYWORD(MATPARAM,"EOS")
 c-----------------
       WRITE(IOUT,1000) TRIM(TITR),MAT_ID,44
       WRITE(IOUT,1100)
 
-      IF (IS_CRYPTED) THEN
+      IF (IS_ENCRYPTED) THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
         WRITE(IOUT,1200) RHO0
-        WRITE(IOUT,1300)E,NU,CA,CB,CN,FISOKIN,SIGM,
-     .      EPSP_REF,CP,ICC,ISRATE,ASRATE,Ivflag,EPSM,
-     .      EPSR1,EPSR2,IFUNC(1),YLD_SCALE
+        IF (IFLAG == 0) THEN
+          WRITE(IOUT,1300) E,NU,CA,CB,CN,FISOKIN,SIGM,
+     .        EPSP_REF,CP,ICC,ISRATE,ASRATE,Ivflag,EPSM,
+     .        EPSR1,EPSR2,IFUNC(1),YLD_SCALE
+        ELSEIF (IFLAG == 1) THEN
+          WRITE(IOUT,1350) E,NU,CA,CB0,CN0,CB,CN,FISOKIN,SIGM,
+     .        EPSP_REF,CP,ICC,ISRATE,ASRATE,Ivflag,EPSM,
+     .        EPSR1,EPSR2,IFUNC(1),YLD_SCALE
+        ENDIF
       ENDIF     
 c-----------------------------------------------------------------------
  1000 FORMAT(/
@@ -295,6 +353,30 @@ c-----------------------------------------------------------------------
      & 5X,'YOUNG MODULUS . . . . . . . . . . . . .=',1PG20.13/
      & 5X,'POISSON RATIO . . . . . . . . . . . . .=',1PG20.13/
      & 5X,'YIELD STRESS . . . . . . . . . . . . . =',1PG20.13/
+     & 5X,'HARDENING PARAMETER. . . . . . . . . . =',1PG20.13/
+     & 5X,'HARDENING EXPONENT . . . . . . . . . . =',1PG20.13/
+     & 5X,'ISO-KINEMATIC HARDENNING FACTOR. . . . =',1PG20.13/
+     & 5X,'MAXIMUM STRESS . . . . . . . . . . . . =',1PG20.13/
+     & 5X,'REFERENCE STRAIN RATE CC . . . . . . . =',1PG20.13/
+     & 5X,'STRAIN RATE EXPONENT (1/P) . . . . . . =',1PG20.13/
+     & 5X,'FLAG FOR STRAIN RATE ON SIG-MAX. . . . =',I10/
+     & 5X,'SMOOTH STRAIN RATE OPTION. . . . . . . =',I10/
+     & 5X,'STRAIN RATE CUTTING FREQUENCY. . . . . =',1PG20.13/
+     & 5X,'STRAIN RATE CHOICE FLAG  . . . . . . . =',I10/
+     & 5X,'     VP=1  EQUIVALENT PLASTIC STRAIN RATE'/
+     & 5X,'     VP=2  TOTAL STRAIN RATE (DEFAULT)'/
+     & 5X,'     VP=3  DEVIATORIC STRAIN RATE'/
+     & 5X,'FAILURE PLASTIC STRAIN . . . . . . . . =',1PG20.13/
+     & 5X,'TENSION FAILURE STRAIN 1 . . . . . . . =',1PG20.13/
+     & 5X,'TENSION FAILURE STRAIN 2 . . . . . . . =',1PG20.13/
+     & 5X,'YIELD FUNCTION IDENTIFIER  . . . . . . =',I10/
+     & 5X,'YIELD FUNCTION SCALE FACTOR  . . . . . =',1PG20.13/)
+ 1350 FORMAT(
+     & 5X,'YOUNG MODULUS . . . . . . . . . . . . .=',1PG20.13/
+     & 5X,'POISSON RATIO . . . . . . . . . . . . .=',1PG20.13/
+     & 5X,'YIELD STRESS . . . . . . . . . . . . . =',1PG20.13/
+     & 5X,'ULTIMATE STRESS (UTS) . . . . . . . . .=',1PG20.13/
+     & 5X,'STRAIN AT UTS (AG). . . . . . . . . . .=',1PG20.13/
      & 5X,'HARDENING PARAMETER. . . . . . . . . . =',1PG20.13/
      & 5X,'HARDENING EXPONENT . . . . . . . . . . =',1PG20.13/
      & 5X,'ISO-KINEMATIC HARDENNING FACTOR. . . . =',1PG20.13/

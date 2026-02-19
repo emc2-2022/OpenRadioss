@@ -1,38 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  NODAL_SCHLIEREN               source/output/anim/generate/nodal_schlieren.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|        H3D_NODAL_SCALAR              source/output/h3d/h3d_results/h3d_nodal_scalar.F
-Chd|-- calls ---------------
-Chd|        AGRAD3                        source/ale/ale3d/agrad3.F     
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    nodal_schlieren        ../engine/source/output/anim/generate/nodal_schlieren.F
+!||--- called by ------------------------------------------------------
+!||    genani                 ../engine/source/output/anim/generate/genani.F
+!||    h3d_nodal_scalar       ../engine/source/output/h3d/h3d_results/h3d_nodal_scalar.F
+!||--- calls      -----------------------------------------------------
+!||    agrad3                 ../engine/source/ale/ale3d/agrad3.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod         ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22edge_mod            ../common_source/modules/interfaces/cut-cell-buffer_mod.F
+!||    i22tri_mod             ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    initbuf_mod            ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE NODAL_SCHLIEREN(WA4, X,IXS, IXQ, ITAB,IPARG ,IBID,ELBUF_TAB,ALE_CONNECTIVITY)
 C-----------------------------------------------
 C   D e s c r i p t i o n
@@ -57,6 +60,7 @@ C-----------------------------------------------
       USE I22EDGE_MOD    
       USE I22TRI_MOD           
       USE ALE_CONNECTIVITY_MOD
+      use element_mod , only : nixs,nixq
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -67,11 +71,7 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
-#include      "flowcom.inc"
-#include      "task_c.inc"
 #include      "param_c.inc"
-#include      "inter22.inc"
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -85,16 +85,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IADI, IADR, I, ITYP, NINOUT, NNO, NEL, II1, II2,
+      INTEGER I, ITYP, NEL, 
      .        IR1, IR2, J, JJ, NNO_L, NNI_L, II3, II4, JJJ, NNI,
      .        IALEL,NNOD,IPOS,NGv,IDLOCv,K, IAD2
       INTEGER IV(6), IE
-      INTEGER MLW, NG, KCVT, II, NBF, NBL, IB, ICELL, NIN, MCELL
-      TYPE(G_BUFEL_)  ,POINTER :: GBUF,GBUFv     
+      INTEGER NG
+      TYPE(G_BUFEL_)  ,POINTER :: GBUF
       my_real, ALLOCATABLE, DIMENSION(:) :: COUNT_VOL    
       my_real D,V, DPHI(MVSIZ)
-      INTEGER,DIMENSION(:,:), POINTER   :: pAdjBRICK 
-      my_real :: GRAD(6,MVSIZ)     
+ 
+      my_real :: GRAD(MVSIZ,6)     
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -145,7 +145,8 @@ C-----------------------------------------------
               DO I=1,NEL
                 LFT = 1
                 LLT = NEL
-                CALL AGRAD3(IXS,X,ALE_CONNECTIVITY,GRAD)
+                CALL AGRAD3(
+     1   IXS,             X,               ALE_CONNECTIVITY,GRAD,MVSIZ,0)
                 IE =NFT+I
                 IAD2 = ALE_CONNECTIVITY%ee_connect%iad_connect(IE)
                 IV(1)=ALE_CONNECTIVITY%ee_connect%connected(IAD2 + 1 - 1)
@@ -154,19 +155,13 @@ C-----------------------------------------------
                 IV(4)=ALE_CONNECTIVITY%ee_connect%connected(IAD2 + 4 - 1)
                 IV(5)=ALE_CONNECTIVITY%ee_connect%connected(IAD2 + 5 - 1)
                 IV(6)=ALE_CONNECTIVITY%ee_connect%connected(IAD2 + 6 - 1)
-                IF(IV(1).LE.0)IV(1)=IE
-                IF(IV(2).LE.0)IV(2)=IE
-                IF(IV(3).LE.0)IV(3)=IE
-                IF(IV(4).LE.0)IV(4)=IE
-                IF(IV(5).LE.0)IV(5)=IE
-                IF(IV(6).LE.0)IV(6)=IE
+                IF(IV(1)<=0)IV(1)=IE
+                IF(IV(2)<=0)IV(2)=IE
+                IF(IV(3)<=0)IV(3)=IE
+                IF(IV(4)<=0)IV(4)=IE
+                IF(IV(5)<=0)IV(5)=IE
+                IF(IV(6)<=0)IV(6)=IE
                 DPHI(I) = ZERO
-!     .           (PHI(IV(1))-PHI(IE))*GRAD(1,I) 
-!     .          +(PHI(IV(2))-PHI(IE))*GRAD(2,I) 
-!     .          +(PHI(IV(3))-PHI(IE))*GRAD(3,I) 
-!     .          +(PHI(IV(4))-PHI(IE))*GRAD(4,I) 
-!     .          +(PHI(IV(5))-PHI(IE))*GRAD(5,I) 
-!     .          +(PHI(IV(6))-PHI(IE))*GRAD(6,I)  
                   DO J=2,NNOD+1
                     JJ=IXS(J,NFT+I)
                     K = J-1

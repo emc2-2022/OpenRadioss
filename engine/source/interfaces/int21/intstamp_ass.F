@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTSTAMP_ASS                  source/interfaces/int21/intstamp_ass.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        SPMD_GLOB_DPSUM9              source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_RBCAST                   source/mpi/generic/spmd_rbcast.F
-Chd|        INTSTAMP_MOD                  share/modules/intstamp_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    intstamp_ass       ../engine/source/interfaces/int21/intstamp_ass.F
+!||--- called by ------------------------------------------------------
+!||    resol              ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_glob_dpsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_glob_dsum9    ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_rbcast        ../engine/source/mpi/generic/spmd_rbcast.F
+!||--- uses       -----------------------------------------------------
+!||    intstamp_mod       ../engine/share/modules/intstamp_mod.F
+!||====================================================================
       SUBROUTINE INTSTAMP_ASS(
      1           INTSTAMP,MS     ,IN      ,A     ,AR    ,
-     2           STIFN   ,STIFR  ,WEIGHT  )
+     2           STIFN   ,STIFR  ,WEIGHT  ,WFEXT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -42,43 +43,29 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
+!#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "param_c.inc"
 #include      "parit_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr11_c.inc"
 #include      "task_c.inc"
 #include      "intstamp_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
       INTEGER WEIGHT(*)
-      my_real
-     .   MS(*), IN(*), A(3,*), AR(3,*), STIFN(*), STIFR(*)
+      my_real MS(*), IN(*), A(3,*), AR(3,*), STIFN(*), STIFR(*)
       TYPE(INTSTAMP_DATA) INTSTAMP(*)
+      DOUBLE PRECISION, INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NN, MSR, MSRR, INTDAMP, KDIR, K, IROT
-C     REAL
-      my_real
-     .   BUFS(8,NINTSTAMP), ALPHA, VIS, MASS, INM, STF, STR,
-     .   VX, VY, VZ, FVX, FVY, FVZ, DT05, DW
+      my_real BUFS(8,NINTSTAMP), ALPHA, VIS, MASS, INM, STF, STR, VX, VY, VZ, FVX, FVY, FVZ, DT05, DW
       DOUBLE PRECISION BUFS6(6,8,NINTSTAMP)
 C-----------------------------------------------
-      IF(IPARIT/=0)THEN
+      IF(IPARIT /= 0)THEN
         DO NN=1,NINTSTAMP
          DO K=1,6
           DO KDIR=1,3
@@ -95,9 +82,9 @@ C null if irot=0
           BUFS6(K,8,NN)=INTSTAMP(NN)%STR6(K)
          END DO
         END DO
-        IF(NSPMD.GT.1)
+        IF(NSPMD>1)
      .    CALL SPMD_GLOB_DPSUM9(BUFS6,48*NINTSTAMP)
-        IF(ISPMD.EQ.0)THEN
+        IF(ISPMD==0)THEN
           DO NN=1,NINTSTAMP
             DO KDIR=1,8
               BUFS(KDIR,NN)=BUFS6(1,KDIR,NN)
@@ -109,7 +96,7 @@ C null if irot=0
             END DO
           END DO
         END IF
-        IF(NSPMD.GT.1)
+        IF(NSPMD>1)
      .    CALL SPMD_RBCAST(BUFS,BUFS,8*NINTSTAMP,1,0,2)
         DO NN=1,NINTSTAMP
           DO KDIR=1,3
@@ -125,7 +112,7 @@ C null if irot=0
           END IF
         END DO
       ELSE
-        IF(NSPMD.GT.1)THEN
+        IF(NSPMD>1)THEN
           DO NN=1,NINTSTAMP
             DO KDIR=1,3
               BUFS(KDIR,NN)=INTSTAMP(NN)%FC(KDIR)
@@ -183,16 +170,16 @@ C---------------------
         MASS   =MS(MSR)
         STF =INTSTAMP(NN)%STF
         VIS =ALPHA*SQRT(FOUR*MASS*STF)
-        TFEXT=TFEXT + DT05*INTSTAMP(NN)%DW
+        WFEXT=WFEXT + DT05*INTSTAMP(NN)%DW
         IF(INTDAMP==0)THEN
           A(1,MSR)=A(1,MSR)-VIS*INTSTAMP(NN)%V(1)
           A(2,MSR)=A(2,MSR)-VIS*INTSTAMP(NN)%V(2)
           A(3,MSR)=A(3,MSR)-VIS*INTSTAMP(NN)%V(3)
           IF(ISPMD==0)THEN
-	    DW=-VIS*( INTSTAMP(NN)%V(1)*INTSTAMP(NN)%V(1)
-     . 	      +INTSTAMP(NN)%V(2)*INTSTAMP(NN)%V(2)
-     . 	      +INTSTAMP(NN)%V(3)*INTSTAMP(NN)%V(3))
-	    TFEXT=TFEXT + DT05 * DW
+              DW=-VIS*( INTSTAMP(NN)%V(1)*INTSTAMP(NN)%V(1)
+     .         +INTSTAMP(NN)%V(2)*INTSTAMP(NN)%V(2)
+     .         +INTSTAMP(NN)%V(3)*INTSTAMP(NN)%V(3))
+              WFEXT=WFEXT + DT05 * DW
           END IF
         ELSE
           VX=(INTSTAMP(NN)%V(1)-INTSTAMP(INTDAMP)%V(1))
@@ -210,7 +197,7 @@ C---------------------
           A(3,MSRR)=A(3,MSRR)+FVZ
           IF(ISPMD==0)THEN
             DW=-TWO*(FVX*VX+FVY*VY+FVZ*VZ)
-            TFEXT=TFEXT + DT05 * DW
+            WFEXT=WFEXT + DT05 * DW
           END IF
         END IF
         IROT=INTSTAMP(NN)%IROT
@@ -224,10 +211,10 @@ C---------------------
             AR(2,MSR)=AR(2,MSR)-VIS*INTSTAMP(NN)%VR(2)
             AR(3,MSR)=AR(3,MSR)-VIS*INTSTAMP(NN)%VR(3)
             IF(ISPMD==0)THEN
-	      DW=-VIS*( INTSTAMP(NN)%VR(1)*INTSTAMP(NN)%VR(1)
-     . 	        +INTSTAMP(NN)%VR(2)*INTSTAMP(NN)%VR(2)
-     . 	        +INTSTAMP(NN)%VR(3)*INTSTAMP(NN)%VR(3))
-	      TFEXT=TFEXT + DT05 * DW
+                DW=-VIS*( INTSTAMP(NN)%VR(1)*INTSTAMP(NN)%VR(1)
+     .           +INTSTAMP(NN)%VR(2)*INTSTAMP(NN)%VR(2)
+     .           +INTSTAMP(NN)%VR(3)*INTSTAMP(NN)%VR(3))
+                WFEXT=WFEXT + DT05 * DW
             END IF
           ELSE
             VX=INTSTAMP(NN)%VR(1)-INTSTAMP(INTDAMP)%VR(1)
@@ -245,7 +232,7 @@ C---------------------
             AR(3,MSRR)=AR(3,MSRR)+FVZ
             IF(ISPMD==0)THEN
               DW=-TWO*(FVX*VX+FVY*VY+FVZ*VZ)
-              TFEXT=TFEXT + DT05 * DW
+              WFEXT=WFEXT + DT05 * DW
             END IF
           END IF
         END IF

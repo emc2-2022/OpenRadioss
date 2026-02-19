@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  C_PON                         source/restart/ddsplit/c_pon.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    c_pon          ../starter/source/restart/ddsplit/c_pon.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit        ../starter/source/restart/ddsplit/ddsplit.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE C_PON(ADDCNE ,NUMNOD_L,NODGLOB ,LCNE_L,I2NSNT ,
      2                 ADDCNI2,LCNI2_L ,MONVOL  ,
      3                 CEP    ,PROC    ,NNMV_L  ,NNMVC_L,ADDCNE_PXFEM,
@@ -41,7 +40,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -49,7 +47,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "com_xfem1.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -61,16 +58,13 @@ C-----------------------------------------------
      .         ADDCNCND(0:*),LCNCND_L
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
 C-----------------------------------------------
-C   F u n c t i o n
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N,I,K0,K1,K2,K6,IS,NN,IAD,J,ITY,OFFC,OFFTG,NN_L,N1,
-     .        ITYP,NVENT,IV,IADHOL,KIBHOL,KIBJET,NNC,KAD,NAV,IPVENT
+      INTEGER N,I,K0,K1,K2,K6,IS,NN,J,ITY,OFFC,OFFTG,NN_L,N1,
+     .        ITYP,NVENT,IV,IADHOL,KIBHOL,KIBJET,NNC,NAV,IPVENT
 C-----------------------------------------------
 C
-C taille Matrice connectivite locale
+C Local connectivity matrix size
 C
       LCNE_L = 0
       DO I = 1, NUMNOD_L
@@ -81,7 +75,7 @@ C
 C taille Matrice connectivite locale (interface type 2)
 C
       LCNI2_L = 0
-      IF(I2NSNT.GT.0) THEN
+      IF(I2NSNT>0) THEN
         DO I = 1, NUMNOD_L
           N = NODGLOB(I)
           LCNI2_L = LCNI2_L + ADDCNI2(N+1)-ADDCNI2(N)
@@ -101,7 +95,7 @@ C
       ENDIF
 C-----Itet2 S10      
       LCNCND_L = 0
-      IF(NS10E.GT.0) THEN
+      IF(NS10E>0) THEN
         DO I = 1, NUMNOD_L
           N = NODGLOB(I)
           LCNCND_L = LCNCND_L + ADDCNCND(N+1)-ADDCNCND(N)
@@ -122,7 +116,7 @@ C
         ENDDO
       ENDIF
 C
-C Taille connectivite airbag
+C Airbag connectivity size
 C
       OFFC = NUMELS+NUMELQ
       OFFTG =NUMELS+NUMELQ+ NUMELC+NUMELT+NUMELP+NUMELR
@@ -143,10 +137,10 @@ C
         DO J = 1, NN
           ITY = IGRSURF(IS)%ELTYP(J)
           I   = IGRSURF(IS)%ELEM(J)
-          IF (ITY.EQ.3) THEN
-            IF(CEP(OFFC+I).EQ.PROC) NN_L = NN_L + 1
-          ELSEIF (ITY.EQ.7) THEN
-            IF(CEP(OFFTG+I).EQ.PROC) NN_L = NN_L + 1
+          IF (ITY==3) THEN
+            IF(CEP(OFFC+I)==PROC) NN_L = NN_L + 1
+          ELSEIF (ITY==7) THEN
+            IF(CEP(OFFTG+I)==PROC) NN_L = NN_L + 1
           ELSE
           ENDIF
         ENDDO
@@ -154,17 +148,17 @@ C
         IF(ITYP==3.OR.ITYP==4.OR.ITYP==5.OR.ITYP==7.OR.ITYP==9) THEN
           DO IV = 1, NVENT
             IPVENT = MONVOL(IADHOL+NIBHOL*(IV-1)+2-1)
-            IF(IPVENT.NE.0) THEN
+            IF(IPVENT/=0) THEN
               NNC=IGRSURF(IPVENT)%NSEG
               DO J = 1, NNC
                 ITY = IGRSURF(IPVENT)%ELTYP(J)
                 I   = IGRSURF(IPVENT)%ELEM(J)
-                IF (ITY.EQ.3) THEN
-                  IF(CEP(I+OFFC).EQ.PROC) THEN
+                IF (ITY==3) THEN
+                  IF(CEP(I+OFFC)==PROC) THEN
                     K0 = K0 + 1
                   END IF
-                ELSEIF (ITY.EQ.7) THEN
-                  IF(CEP(I+OFFTG).EQ.PROC) THEN
+                ELSEIF (ITY==7) THEN
+                  IF(CEP(I+OFFTG)==PROC) THEN
                     K0 = K0 + 1
                   END IF
                 END IF
@@ -175,17 +169,17 @@ C
         IF(ITYP==4.OR.ITYP==5.OR.ITYP==7.OR.ITYP==9)THEN
           DO IV = 1, NAV
             IPVENT = MONVOL(K2+NICBAG*(IV-1)+2-1)
-            IF(IPVENT.NE.0) THEN
+            IF(IPVENT/=0) THEN
               NNC=IGRSURF(IPVENT)%NSEG
               DO J = 1, NNC
                 ITY = IGRSURF(IPVENT)%ELTYP(J)
                 I   = IGRSURF(IPVENT)%ELEM(J)
-                IF (ITY.EQ.3) THEN
-                  IF(CEP(I+OFFC).EQ.PROC) THEN
+                IF (ITY==3) THEN
+                  IF(CEP(I+OFFC)==PROC) THEN
                     K0 = K0 + 1
                   END IF
-                ELSEIF (ITY.EQ.7) THEN
-                  IF(CEP(I+OFFTG).EQ.PROC) THEN
+                ELSEIF (ITY==7) THEN
+                  IF(CEP(I+OFFTG)==PROC) THEN
                     K0 = K0 + 1
                   END IF
                 END IF

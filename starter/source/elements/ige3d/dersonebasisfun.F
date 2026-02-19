@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DERSONEBASISFUN               source/elements/ige3d/dersonebasisfun.F
-Chd|-- called by -----------
-Chd|        IG3DONEDERIV                  source/elements/ige3d/ig3donederiv.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dersonebasisfun   ../starter/source/elements/ige3d/dersonebasisfun.F
+!||--- called by ------------------------------------------------------
+!||    ig3donederiv      ../starter/source/elements/ige3d/ig3donederiv.F
+!||====================================================================
       SUBROUTINE DERSONEBASISFUN(IDXI, PXI, XI, KXI, DERS1, DERS2)
 C--------------------------------------------------------------------------------------------------------
 C
@@ -59,21 +58,17 @@ C-------------------------------------------------------------------------------
 C--------------------------------------------------------------------------------------------------------
 C Local variables 
 C--------------------------------------------------------------------------------------------------------
-      INTEGER J, JJ, K, L, NDERS
-      my_real 
-     .  SAVED, TEMP, ALEFT, RIGHT
-      my_real, 
-     .  DIMENSION(2) :: DERS, A
-      my_real, 
-     .  DIMENSION(PXI+1,PXI+1) :: ANDU
-      my_real, 
-     .  DIMENSION(PXI+1) :: ND
+      INTEGER J, JJ, K, NDERS
+      my_real SAVED, TEMP, ALEFT, RIGHT
+      my_real, DIMENSION(2) :: DERS
+      my_real, DIMENSION(PXI+1,PXI+1) :: ANDU
+      my_real, DIMENSION(PXI+1) :: ND
 
       NDERS=1
       ANDU(:,:)=ZERO
 
       DO J=0,PXI
-        IF ((XI.GE.KXI(IDXI+J)).AND.(XI.LT.KXI(IDXI+J+1))) THEN
+        IF ((XI>=KXI(IDXI+J)).AND.(XI<KXI(IDXI+J+1))) THEN
           ANDU(J+1,1) = ONE
         ELSE
           ANDU(J+1,1) = ZERO
@@ -102,7 +97,7 @@ C-------------------------------------------------------------------------------
       
       DERS(1) = ANDU(1,PXI+1) 
 
-CCC ERREUR A PARTIR DE LA
+Cerror from here
 
       DO K=1,NDERS
         DO J=1,K+1

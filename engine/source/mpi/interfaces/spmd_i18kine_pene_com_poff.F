@@ -1,40 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  SPMD_I18KINE_PENE_COM_POFF    source/mpi/interfaces/spmd_i18kine_pene_com_poff.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_1                source/interfaces/int18/i18main_kine.F
-Chd|        I18MAIN_KINE_2                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE SPMD_I18KINE_PENE_COM_POFF(IPARI,INTBUF_TAB,FCONT,
+!||====================================================================
+!||    spmd_i18kine_pene_com_poff   ../engine/source/mpi/interfaces/spmd_i18kine_pene_com_poff.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_1               ../engine/source/interfaces/int18/i18main_kine.F
+!||    i18main_kine_2               ../engine/source/interfaces/int18/i18main_kine.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                       ../engine/source/output/message/message.F
+!||    arret                        ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod                      ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod                ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod                  ../engine/share/message_module/message_mod.F
+!||    output_mod                   ../common_source/modules/output/output_mod.F90
+!||    spmd_comm_world_mod          ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box                      ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE SPMD_I18KINE_PENE_COM_POFF(OUTPUT,IPARI,INTBUF_TAB,FCONT,
      *                MTF,A,IAD_ELEM,FR_ELEM,MODE,SLVNDTAG,TAGPENE,ITAB,
      .                H3D_DATA )
 C-----------------------------------------------
@@ -44,24 +47,22 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE INTBUFDEF_MOD
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "com01_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
@@ -72,6 +73,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), intent(inout) :: OUTPUT
       INTEGER IPARI(NPARI,*),IAD_ELEM(2,*),FR_ELEM(*),
      *        SLVNDTAG(*),TAGPENE(*),ITAB(*),MODE
 C
@@ -89,18 +91,18 @@ C-----------------------------------------------
       INTEGER P,LENSD,LENRV,IADS(NSPMD+1),IADR(NSPMD+1),IERROR,
      *        SIZ,LOC_PROC,MSGTYP,IDEB(NINTER), MSGOFF, MSGOFF2
       INTEGER NIN,NTY,INACTI
-      INTEGER J,L,NB,NN,K,N,NOD,LEN,ALEN,ND,FLG
+      INTEGER J,L,NB,NN,K,NOD,LEN,ALEN,ND,FLG
       my_real ,
      *   DIMENSION(:), ALLOCATABLE :: BBUFS, BBUFR
       DATA MSGOFF/148/
       DATA MSGOFF2/149/
 C-----------------------------------------------
-C Sur la type 18KINE, il y a 3 comm qui sont bases
-C sur le meme schemas avec des
-C donn  es differentes
+C On the 18KINE type, there are 3 comms that are based
+C on the same schema with
+C different data
 C MODE =
 C   1 : PENE + PENEMIN
-C   2 : Vitesses noeuds seconds
+C   2: Second node velocities
 C   3 : Accelerations noeuds seconds
 
       LOC_PROC = ISPMD+1
@@ -116,7 +118,7 @@ C   3 : Accelerations noeuds seconds
       ELSEIF(MODE==3)THEN
         ALEN=7
       ENDIF
-C Comptage des tailles de buffer  Receeption et envoi
+C Counting buffer sizes Reception and sending
       DO P=1,NSPMD
          IADR(P)=LENRV+1
          DO NIN=1,NINTER
@@ -131,18 +133,18 @@ C Comptage des tailles de buffer  Receeption et envoi
       ENDDO
       IADR(NSPMD+1)=LENRV+1
 
-      IF(LENSD.GT.0)THEN
+      IF(LENSD>0)THEN
           ALLOCATE(BBUFS(LENSD),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
       ENDIF
 
-C Preparation du recieve
-      IF(LENRV.GT.0)THEN
+C Preparation of the receive
+      IF(LENRV>0)THEN
           ALLOCATE(BBUFR(LENRV),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
@@ -158,7 +160,7 @@ C Send
            INACTI =IPARI(22,NIN)
            IF((NTY==7.and.IPARI(34,NIN)==-2.and.INACTI==7).OR.
      .        (NTY==22.and.IPARI(34,NIN)==-2.and.INACTI==7)) THEN
-C Preparation du send
+C Preparation of the send
              NB = NSNFI(NIN)%P(P)
              IF (MODE==1)THEN
                DO NN=1,NB
@@ -198,12 +200,12 @@ c                 BBUFS(L+5)=MTFI_V(NIN)%P(6,NN+IDEB(NIN))
            ENDIF
          ENDDO
          SIZ = L-IADS(P)
-         IF(SIZ.GT.0)THEN
+         IF(SIZ>0)THEN
               MSGTYP = MSGOFF 
 C Send
               CALL MPI_ISEND(
      .          BBUFS(IADS(P)),SIZ,REAL     ,IT_SPMD(P),MSGTYP,
-     .          MPI_COMM_WORLD,REQ_SI(P),IERROR    )
+     .          SPMD_COMM_WORLD,REQ_SI(P),IERROR    )
          ENDIF
        ENDIF
       ENDDO
@@ -218,7 +220,7 @@ C Recieve
 
 C Send
             CALL MPI_RECV( BBUFR(IADR(P)),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     *                     MPI_COMM_WORLD,STATUS,IERROR )
+     *                     SPMD_COMM_WORLD,STATUS,IERROR )
            DO NIN=1,NINTER
              NTY   =IPARI(7,NIN)
              INACTI =IPARI(22,NIN)
@@ -228,7 +230,7 @@ C Send
                NB = NSNSI(NIN)%P(P)
                IF (NB > 0)THEN
 C
-                IF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.22)THEN
+                IF(NTY==7.OR.NTY==10.OR.NTY==22)THEN
                   IF(MODE==1)THEN
                     DO K=1,NB
                       ND = NSVSI(NIN)%P(IDEB(NIN)+K)
@@ -266,10 +268,11 @@ c                      ENDIF
                          A(1,NOD) = BBUFR(IADR(P)+L)
                          A(2,NOD) = BBUFR(IADR(P)+L+1)
                          A(3,NOD) = BBUFR(IADR(P)+L+2)
-                         IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT.GT.0.AND.
-     .                    (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.
-     .                    (MANIM.GE.4.AND.MANIM.LE.15)))THEN
-                           IF(INCONV .EQ. 1) THEN
+                         IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT>0.AND.
+     .                    ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.
+     .                     (TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.
+     .                    (MANIM>=4.AND.MANIM<=15)))THEN
+                           IF(INCONV == 1) THEN
                              FCONT(1,NOD) = FCONT(1,NOD)+BBUFR(IADR(P)+L+3)
                              FCONT(2,NOD) = FCONT(2,NOD)+BBUFR(IADR(P)+L+4)
                              FCONT(3,NOD) = FCONT(3,NOD)+BBUFR(IADR(P)+L+5)
@@ -289,14 +292,14 @@ c                      ENDIF
           L=L+SIZ
       ENDDO
 
-C Fin du send
+C End of the send
       DO P = 1, NSPMD
           IF (P==NSPMD)THEN
              SIZ=LENSD-IADS(P)
           ELSE
              SIZ=IADS(P+1)-IADS(P)
           ENDIF
-          IF(SIZ.GT.0) THEN
+          IF(SIZ>0) THEN
             CALL MPI_WAIT(REQ_SI(P),STATUS,IERROR)
           ENDIF
       ENDDO
@@ -305,7 +308,7 @@ C Fin du send
       IF (ALLOCATED(BBUFR)) DEALLOCATE(BBUFR)
 
 C--------------------------------------------------
-C 2eme partie - echanges sur les noeuds frontieres
+C 2nd part - exchanges on the boundary nodes
 C--------------------------------------------------
       IF(MODE==1)THEN
         LEN=5
@@ -313,6 +316,8 @@ C--------------------------------------------------
         LEN=6
       ELSEIF(MODE==3)THEN
         LEN=4
+      ELSE 
+        LEN=0
       ENDIF
       LENRV = (IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1))*LEN
 
@@ -323,18 +328,18 @@ C--------------------------------------------------
       L=1
       DO P=1,NSPMD
         SIZ = (IAD_ELEM(1,P+1)-IAD_ELEM(1,P))*LEN
-        IF(SIZ.NE.0)THEN
+        IF(SIZ/=0)THEN
           MSGTYP = MSGOFF2
           CALL MPI_IRECV(
      S      BBUFR(L),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_RI(P),IERROR)
+     G      SPMD_COMM_WORLD,REQ_RI(P),IERROR)
             L = L + SIZ
         ENDIF
         IADR(P+1) = L
       END DO
 
 
-C Remplis le Buffer
+C Fill the Buffer
       L=1
       DO P=1,NSPMD
         IADS(P)=L
@@ -351,8 +356,8 @@ C Remplis le Buffer
             BBUFS(L)  =MTF(1,NOD)
             BBUFS(L+1)=MTF(2,NOD)
             BBUFS(L+2)=MTF(3,NOD)
-C MTF(4-6) ne sont pas des valeurs de cumuls initialises dans les parties
-c ou l on en a besoin. Inutile de les communiquer
+C MTF(4-6) are not initialized cumulative values in the parts
+c where they are needed. No need to communicate them
 c            BBUFS(L+3)=MTF(4,NOD)
 c            BBUFS(L+4)=MTF(5,NOD)
 c            BBUFS(L+5)=MTF(6,NOD)
@@ -373,20 +378,20 @@ C   echange messages
 C
 
       DO P=1,NSPMD
-       IF(IAD_ELEM(1,P+1)-IAD_ELEM(1,P).GT.0)THEN
+       IF(IAD_ELEM(1,P+1)-IAD_ELEM(1,P)>0)THEN
           MSGTYP = MSGOFF2
           SIZ = IADS(1+P)-IADS(P)
           L = IADS(P)
           CALL MPI_ISEND(
      S      BBUFS(L),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_SI(P),IERROR)
+     G      SPMD_COMM_WORLD,REQ_SI(P),IERROR)
        ENDIF
       ENDDO
 C--------------------------------------------------------------------
 C Reception
       DO P = 1, NSPMD
         NB = IAD_ELEM(1,P+1)-IAD_ELEM(1,P)
-        IF(NB.GT.0)THEN
+        IF(NB>0)THEN
           CALL MPI_WAIT(REQ_RI(P),STATUS,IERROR)
           L = IADR(P)
           DO J=IAD_ELEM(1,P),IAD_ELEM(1,P+1)-1
@@ -409,8 +414,8 @@ C Reception
                MTF(1,NOD)=MTF(1,NOD)+BBUFR(L)
                MTF(2,NOD)=MTF(2,NOD)+BBUFR(L+1)
                MTF(3,NOD)=MTF(3,NOD)+BBUFR(L+2)
-C MTF(4-6) ne sont pas des valeurs de cumuls initialises dans les parties
-c ou l on en a besoin. Inutile de les communiquer
+C MTF(4-6) are not initialized cumulative values in the parts
+c where they are needed. No need to communicate them
 c               MTF(4,NOD)=BBUFR(L+3)
 c               MTF(5,NOD)=BBUFR(L+4)
 c               MTF(6,NOD)=BBUFR(L+5)
@@ -428,10 +433,10 @@ c               MTF(6,NOD)=BBUFR(L+5)
         ENDIF
       ENDDO
 
-C Fin du send
+C End of the send
       DO P = 1, NSPMD
           SIZ=IADS(P+1)-IADS(P)
-          IF(SIZ.GT.0) THEN
+          IF(SIZ>0) THEN
             CALL MPI_WAIT(REQ_SI(P),STATUS,IERROR)
           ENDIF
       ENDDO

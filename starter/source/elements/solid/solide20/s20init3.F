@@ -1,48 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S20INIT3                      source/elements/solid/solide20/s20init3.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ATHERI                        source/ale/atheri.F           
-Chd|        DTMAIN                        source/materials/time_step/dtmain.F
-Chd|        FAILINI                       source/elements/solid/solide/failini.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MATINI                        source/materials/mat_share/matini.F
-Chd|        S20COOR3                      source/elements/solid/solide20/s20coor3.F
-Chd|        S20DERI3                      source/elements/solid/solide20/s20deri3.F
-Chd|        S20MASS3                      source/elements/solid/solide20/s20mass3.F
-Chd|        S20MSI                        source/elements/solid/solide20/s20mass3.F
-Chd|        S20RST                        source/elements/solid/solide20/s20deri3.F
-Chd|        SBULK3                        source/elements/solid/solide/sbulk3.F
-Chd|        SIGIN20B                      source/elements/solid/solide20/s20mass3.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        DETONATORS_MOD                share/modules1/detonators_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s20init3               ../starter/source/elements/solid/solide20/s20init3.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    atheri                 ../starter/source/ale/atheri.F
+!||    dtmain                 ../starter/source/materials/time_step/dtmain.F
+!||    failini                ../starter/source/elements/solid/solide/failini.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    matini                 ../starter/source/materials/mat_share/matini.F
+!||    s20coor3               ../starter/source/elements/solid/solide20/s20coor3.F
+!||    s20deri3               ../starter/source/elements/solid/solide20/s20deri3.F
+!||    s20mass3               ../starter/source/elements/solid/solide20/s20mass3.F
+!||    s20msi                 ../starter/source/elements/solid/solide20/s20mass3.F
+!||    s20rst                 ../starter/source/elements/solid/solide20/s20deri3.F
+!||    s20temp                ../starter/source/elements/solid/solide20/s20temp.F90
+!||    sbulk3                 ../starter/source/elements/solid/solide/sbulk3.F
+!||    sigin20b               ../starter/source/elements/solid/solide20/s20mass3.F
+!||--- uses       -----------------------------------------------------
+!||    detonators_mod         ../starter/share/modules1/detonators_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    s20temp_mod            ../starter/source/elements/solid/solide20/s20temp.F90
+!||====================================================================
       SUBROUTINE S20INIT3(
      1           ELBUF_STR,MAS      ,IXS     ,PM      ,X         ,
      2           DETONATORS,GEO      ,VEUL    ,ALE_CONNECTIVITY ,IPARG     ,
@@ -53,14 +54,20 @@ Chd|====================================================================
      8           VNS      ,BNS      ,VNSX    ,BNSX    ,PTSOL     ,
      9           BUFMAT   ,MCP      ,MCPS    ,MCPSX   ,TEMP      ,
      A           NPF      ,TF       ,STRSGLOB,STRAGLOB,FAIL_INI  ,
-     B           ILOADP   ,FACLOAD  ,RNOISE  ,PERTURB )
-      USE MESSAGE_MOD
+     B           ILOADP   ,FACLOAD  ,RNOISE  ,PERTURB ,MAT_PARAM ,
+     C           GLOB_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD     
       USE DETONATORS_MOD             
       USE ALE_CONNECTIVITY_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE MESSAGE_MOD
+      use glob_therm_mod
+      use s20temp_mod
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -72,17 +79,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
 #include      "scr12_c.inc"
 #include      "scr17_c.inc"
 #include      "scry_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -100,29 +102,32 @@ C-----------------------------------------------
       TYPE(ELBUF_STRUCT_), TARGET :: ELBUF_STR
       INTEGER,INTENT(IN) :: ILOADP(SIZLOADP,*)
       my_real,INTENT(IN) :: FACLOAD(LFACLOAD,*) 
-      TYPE(DETONATOR_STRUCT_)::DETONATORS     
+      TYPE(DETONATORS_STRUCT_)::DETONATORS     
       TYPE(t_ale_connectivity), INTENT(INOUT) :: ALE_CONNECTIVITY
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
+      type (glob_therm_) ,intent(in)      :: glob_therm
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NF1, IBID, I, IGTYP, IP, NF2,NPTR,NPTS,NPTT,IR,IS,IT,
-     .        NB01,NB02,NB03,NB04,NB05,NB06, NUVAR,IDEF,
+      INTEGER NF1, I, IGTYP, IP, NF2,NPTR,NPTS,NPTT,IR,IS,IT,
+     .         NUVAR,IDEF,
      .        JHBE, IPID1,NLAY,L_PLA,L_SIGB
       INTEGER NC(MVSIZ,20),MAT(MVSIZ), PID(MVSIZ), NGL(MVSIZ), NCC
-      CHARACTER*nchartitle,
-     .   TITR1
+      CHARACTER(LEN=NCHARTITLE)::TITR1
       my_real
-     .   BID, FV(1),
-     .   V8LOC(51,MVSIZ), MASS(MVSIZ),
-     .  VOLP(MVSIZ,5), STI(MVSIZ),DELTAX(MVSIZ),DELTAX2(MVSIZ),
+     .    FV(1),
+     .  MASS(MVSIZ),
+     .  STI(MVSIZ),DELTAX(MVSIZ),DELTAX2(MVSIZ),
      .  XX(MVSIZ,20), YY(MVSIZ,20), ZZ(MVSIZ,20),
      .  VX(MVSIZ,20), VY(MVSIZ,20), VZ(MVSIZ,20),
      .  PX(MVSIZ,20), PY(MVSIZ,20), PZ(MVSIZ,20),
      .  RX(MVSIZ),RY(MVSIZ),RZ(MVSIZ),
-     .  SX(MVSIZ),SY(MVSIZ),SZ(MVSIZ),VOLG(MVSIZ),
+     .  SX(MVSIZ),SY(MVSIZ),SZ(MVSIZ),
      .  TX(MVSIZ),TY(MVSIZ),TZ(MVSIZ),UL(MVSIZ,20),
      .  NI(MVSIZ,20),DNIDR(MVSIZ,20),DNIDS(MVSIZ,20),DNIDT(MVSIZ,20),
-     .  DTX(MVSIZ), WI,RHOCP(MVSIZ),TEMP0(MVSIZ), AIRE(1)
+     .  DTX(MVSIZ), WI,RHOCP(MVSIZ),TEMP0(MVSIZ), AIRE(MVSIZ)
+      my_real :: TEMPEL(NEL)
+      INTEGER ,PARAMETER :: NPE=20
 C-----------------------------------------------
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
@@ -166,7 +171,7 @@ c------------------------------------------------------------
      1 0.D0               ,0.D0               ,0.D0               ,
      2 -.577350269189625D0,0.577350269189625D0,0.D0               ,
      2 0.D0               ,0.D0               ,0.D0               ,
-     2 0.D0               ,0.D0               ,0.D0               , 	
+     2 0.D0               ,0.D0               ,0.D0               , 
      3 -.774596669241483D0,0.D0               ,0.774596669241483D0,
      3 0.D0               ,0.D0               ,0.D0               ,
      3 0.D0               ,0.D0               ,0.D0               ,
@@ -208,9 +213,9 @@ C
      2   YY         ,ZZ    ,VX        ,VY          ,VZ      , 
      3   NC         ,NGL   ,MAT       ,PID         ,MASS    ,
      4   DTELEM(NF1),STI   ,GBUF%SIG  ,GBUF%EINT   ,GBUF%RHO,
-     5   GBUF%QVIS  ,TEMP0 ,TEMP      ,NEL         )
+     5   GBUF%QVIS  ,TEMP0 ,TEMP      ,NEL         ,GLOB_THERM%NINTEMP)
 C----------------------------------------
-C     INITIALISATION DE LA THERMIQUE 
+C     initialization of thermal
 C----------------------------------------
       IF(JTHE /=0) CALL ATHERI(MAT,PM,GBUF%TEMP)
 C-----------------------------
@@ -244,6 +249,12 @@ c
      5    LBUF%VOL,DELTAX ,DELTAX2,IR*IS*IT,NPTR*NPTS*NPTT,UL ,
      6    GBUF%VOL,LBUF%VOL0DP)
 C
+          IF (JTHE == 0 .and. GLOB_THERM%NINTEMP > 0) THEN
+            CALL S20TEMP(NEL,NUMNOD,MVSIZ,NPE, NC,NI(1,IP),TEMP,TEMPEL)
+          ELSE
+            TEMPEL(1:NEL) = TEMP0(1:NEL)
+          ENDIF             
+!
           CALL MATINI(PM      ,IXS      ,NIXS      ,X         ,
      .               GEO      ,ALE_CONNECTIVITY    ,DETONATORS,IPARG     ,
      .               SIGI     ,NEL      ,SKEW      ,IGEO      ,
@@ -251,20 +262,20 @@ C
      .               MAT      ,IPM      ,NSIGS     ,NUMSOL    ,PTSOL  ,
      .               IP       ,NGL      ,NPF       ,TF        ,BUFMAT ,
      .               GBUF     ,LBUF     ,MBUF      ,ELBUF_STR ,ILOADP ,
-     .               FACLOAD, DELTAX)
+     .               FACLOAD, DELTAX    ,TEMPEL    ,MAT_PARAM )
 C----------------------------------------
           AIRE(:) = ZERO
           CALL DTMAIN(GEO       ,PM        ,IPM         ,PID     ,MAT     ,FV    ,
      .         LBUF%EINT ,LBUF%TEMP ,LBUF%DELTAX ,LBUF%RK ,LBUF%RE ,BUFMAT, DELTAX, AIRE, 
-     .         GBUF%VOL, DTX       , IGEO)
+     .         GBUF%VOL, DTX       , IGEO,IGTYP)
 C----------------------------------------
-c         INITIALISATION DES MASSES
+c         initialization of masses
 C
           CALL S20MSI(LBUF%RHO, MASS    , LBUF%VOL , DTELEM(NF1), STI    ,
      .                LBUF%OFF, LBUF%SIG, LBUF%EINT, DTX        , NEL    ,
      .                GBUF%OFF, GBUF%SIG, GBUF%EINT, GBUF%RHO   , WI/EIGHT)
 C----------------------------------------
-         IF (MTN.GE.28)THEN
+         IF (MTN>=28)THEN
            NUVAR  = IPM(8,IXS(1,NF1))
            IDEF =1
           ELSE
@@ -302,7 +313,7 @@ C------------------------------------------
       AIRE(:) = ZERO
       CALL DTMAIN(GEO       ,PM        ,IPM         ,PID     ,MAT     ,FV    ,
      .     GBUF%EINT ,GBUF%TEMP ,GBUF%DELTAX ,GBUF%RK ,LBUF%RE ,BUFMAT, DELTAX, AIRE, 
-     .     GBUF%VOL, DTX        , IGEO )
+     .     GBUF%VOL, DTX        , IGEO,IGTYP )
 c
       CALL S20MASS3(
      1     MASS        ,MAS,PARTSAV,IPARTS(NF1),MSS(1,NF1),GBUF%VOL   ,
@@ -316,12 +327,12 @@ C----------------------------------------
       CALL FAILINI(ELBUF_STR,NPTR,NPTS,NPTT,NLAY,
      .             IPM,SIGSP,NSIGI,FAIL_INI,
      .             SIGI,NSIGS,IXS,NIXS,PTSOL,
-     .             RNOISE,PERTURB,BUFMAT)
+     .             RNOISE,PERTURB,MAT_PARAM)
 C------------------------------------------
-C     assemblage des Volumes nodaux et Modules nodaux
-C     (pour rigidites d'interface)
+C     assembly of nodal volumes and nodal modules
+C     (for interface stiffnesses)
 C------------------------------------------
-      IF(I7STIFS.NE.0)THEN
+      IF(I7STIFS/=0)THEN
         NCC=20
         CALL SBULK3(GBUF%VOL ,NC     ,NCC      ,MAT        ,PM         ,
      2              VOLNOD   ,BVOLNOD,VNS(1,NF1),BNS(1,NF1),VNSX(1,NF1),
@@ -329,9 +340,9 @@ C------------------------------------------
       ENDIF
 C------------------------------------------
       DO I=LFT,LLT
-        IF(IXS(10,I+NFT).NE.0) THEN
-          IF(     IGTYP.NE.0 .AND.IGTYP.NE.6
-     .       .AND.IGTYP.NE.14.AND.IGTYP.NE.15)THEN
+        IF(IXS(10,I+NFT)/=0) THEN
+          IF(     IGTYP/=0 .AND.IGTYP/=6
+     .       .AND.IGTYP/=14.AND.IGTYP/=15)THEN
              IPID1=IXS(NIXS-1,I+NFT)
              CALL FRETITL2(TITR1,IGEO(NPROPGI-LTITR+1,IPID1),LTITR)
              CALL ANCMSG(MSGID=226,

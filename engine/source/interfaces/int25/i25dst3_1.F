@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25DST3_1                     source/interfaces/int25/i25dst3_1.F
-Chd|-- called by -----------
-Chd|        I25COMP_1                     source/interfaces/int25/i25comp_1.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25dst3_1   ../engine/source/interfaces/int25/i25dst3_1.F
+!||--- called by ------------------------------------------------------
+!||    i25comp_1   ../engine/source/interfaces/int25/i25comp_1.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box     ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25DST3_1(
      1                  JLT    ,CAND_N ,CAND_E ,
      2                  XX     ,YY     ,ZZ     ,
@@ -51,12 +51,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "com01_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "task_c.inc"
-#include      "impl1_c.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -65,7 +59,7 @@ C-----------------------------------------------
      .        CAND_N(*),
      .        CAND_E(*),NSVG(MVSIZ)
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
-     .        INTTH,MSEGLO(*),IRTLM(4,NSN), SUBTRIA(MVSIZ), 
+     . MSEGLO(*),IRTLM(4,NSN), SUBTRIA(MVSIZ),
      .        MVOISN(MVSIZ,4), IBOUND(4,*)
       my_real
      .     TIME_S(2,NSN), GAPS(*), GAPM(*), GAPMXL(MVSIZ)
@@ -79,33 +73,19 @@ C-----------------------------------------------
       INTEGER IRECT(4,*),ITAB(*),ICONT_I(*), FAR(MVSIZ,4)
       REAL*4 VTX_BISECTOR(3,2,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com08_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K, L, JJ, INTERSECT, N, ITQ, N4N, IT, IKEEP, MGLOB, NINDX, ITOLD
-      INTEGER I4N(MVSIZ), INDX(MVSIZ), I1, I2, II,
+      INTEGER I, J, K, JJ, N, N4N, IT, ITOLD
+      INTEGER I4N(MVSIZ), I1, I2, 
      .        ITRIA(2,4), INEIGH(3,4), MARQUE(4,MVSIZ),
-     .        SUBTRIA_N(MVSIZ), IT1, IB1, IB2, IB3, IBX, IX, IY, IZ
+     . SUBTRIA_N(MVSIZ), IB1, IB2, IB3, IBX, IX, IY, IZ
       my_real
-     .     XI1(MVSIZ),  XI2(MVSIZ),  XI0V(MVSIZ),  XI5,
-     .     YI1(MVSIZ),  YI2(MVSIZ),  YI0V(MVSIZ),  YI5,
-     .     ZI1(MVSIZ),  ZI2(MVSIZ),  ZI0V(MVSIZ),  ZI5,
+     . XI1(MVSIZ), XI0V(MVSIZ),
+     . YI1(MVSIZ), YI0V(MVSIZ),
+     . ZI1(MVSIZ), ZI0V(MVSIZ),
      .     XIJ(MVSIZ,4),  
      .     YIJ(MVSIZ,4),  
-     .     ZIJ(MVSIZ,4),  
-     .     X51,  X52,  X53, X54,
-     .     Y51,  Y52,  Y53, Y54,
-     .     Z51,  Z52,  Z53, Z54,
-     .     XO1, XO2, XO3, XO4, XO5, XOI,
-     .     YO1, YO2, YO3, YO4, YO5, YOI,
-     .     ZO1, ZO2, ZO3, ZO4, ZO5, ZOI,
-     .     VO12, VO23, VO34, VO41, PENE
+     .     ZIJ(MVSIZ,4)
       my_real
      .     GAP_MM(MVSIZ), GAP, GAP2,
      .     XP, YP, ZP,
@@ -123,10 +103,8 @@ C-----------------------------------------------
      .     X12(MVSIZ), Y12(MVSIZ), Z12(MVSIZ), 
      .     PX, PY, PZ, PP, P1, P2, XH, YH, ZH, D1, D2, D3, VX, VY, VZ, 
      .     LL,NN,PN,
-     .     N1X,N1Y,N1Z,N1N,
-     .     N2X,N2Y,N2Z,N2N,
      .     LX, LAX, LBX, LCX, LD(MVSIZ), DMIN
-      INTEGER ISHEL(MVSIZ)
+ 
       DATA ITRIA/1,2,2,3,3,4,4,1/,
      .     INEIGH/4,3,2,1,4,3,2,1,4,3,2,1/
 C-----------------------------------------------------------------------
@@ -141,7 +119,7 @@ C initialisation (cf triangles)
 C
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C    
         X0N(I,1) = XX(I,1) - XX(I,5)
         Y0N(I,1) = YY(I,1) - YY(I,5)
@@ -172,7 +150,7 @@ C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
         XI0V(I) = XX(I,5) - XI(I)
         YI0V(I) = YY(I,5) - YI(I)
@@ -259,24 +237,24 @@ C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
-        AAA	 = ONE/MAX(EM30,X0N(I,1)*X0N(I,1)+Y0N(I,1)*Y0N(I,1)+Z0N(I,1)*Z0N(I,1))
+        AAA   = ONE/MAX(EM30,X0N(I,1)*X0N(I,1)+Y0N(I,1)*Y0N(I,1)+Z0N(I,1)*Z0N(I,1))
         HLC(I,1) = LC(I,1)*ABS(LC(I,1))*AAA
         HLB(I,4) = LB(I,4)*ABS(LB(I,4))*AAA
         AL(I,1)  = -(XI0V(I)*X0N(I,1)+YI0V(I)*Y0N(I,1)+ZI0V(I)*Z0N(I,1))*AAA
         AL(I,1)  = MAX(ZERO,MIN(ONE,AL(I,1)))
-        AAA	 = ONE/MAX(EM30,X0N(I,2)*X0N(I,2)+Y0N(I,2)*Y0N(I,2)+Z0N(I,2)*Z0N(I,2))
+        AAA   = ONE/MAX(EM30,X0N(I,2)*X0N(I,2)+Y0N(I,2)*Y0N(I,2)+Z0N(I,2)*Z0N(I,2))
         HLC(I,2) = LC(I,2)*ABS(LC(I,2))*AAA
         HLB(I,1) = LB(I,1)*ABS(LB(I,1))*AAA
         AL(I,2)  = -(XI0V(I)*X0N(I,2)+YI0V(I)*Y0N(I,2)+ZI0V(I)*Z0N(I,2))*AAA
         AL(I,2)  = MAX(ZERO,MIN(ONE,AL(I,2)))
-        AAA	 = ONE/MAX(EM30,X0N(I,3)*X0N(I,3)+Y0N(I,3)*Y0N(I,3)+Z0N(I,3)*Z0N(I,3))
+        AAA   = ONE/MAX(EM30,X0N(I,3)*X0N(I,3)+Y0N(I,3)*Y0N(I,3)+Z0N(I,3)*Z0N(I,3))
         HLC(I,3) = LC(I,3)*ABS(LC(I,3))*AAA
         HLB(I,2) = LB(I,2)*ABS(LB(I,2))*AAA
         AL(I,3)  = -(XI0V(I)*X0N(I,3)+YI0V(I)*Y0N(I,3)+ZI0V(I)*Z0N(I,3))*AAA
         AL(I,3)  = MAX(ZERO,MIN(ONE,AL(I,3)))
-        AAA	 = ONE/MAX(EM30,X0N(I,4)*X0N(I,4)+Y0N(I,4)*Y0N(I,4)+Z0N(I,4)*Z0N(I,4))
+        AAA   = ONE/MAX(EM30,X0N(I,4)*X0N(I,4)+Y0N(I,4)*Y0N(I,4)+Z0N(I,4)*Z0N(I,4))
         HLC(I,4) = LC(I,4)*ABS(LC(I,4))*AAA
         HLB(I,3) = LB(I,3)*ABS(LB(I,3))*AAA
         AL(I,4)  = -(XI0V(I)*X0N(I,4)+YI0V(I)*Y0N(I,4)+ZI0V(I)*Z0N(I,4))*AAA
@@ -290,7 +268,7 @@ C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
         X12(I) = XX(I,I2) - XX(I,I1)
         Y12(I) = YY(I,I2) - YY(I,I1)
@@ -298,21 +276,21 @@ C
 C
         LBP(I,IT) = LB(I,IT)
         LCP(I,IT) = LC(I,IT)
-        LAP	  = ONE-LBP(I,IT)-LCP(I,IT)
-C       HLA, HLB, HLC necessaires pour triangle angle obtu
+        LAP    = ONE-LBP(I,IT)-LCP(I,IT)
+C       HLA, HLB, HLC required for triangle sharp angle
         AAA = ONE / MAX(EM20,X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I))
         HLA= LAP*ABS(LAP) * AAA
-        IF(LAP.LT.ZERO.AND.
-     +     HLA.LE.HLB(I,IT).AND.HLA.LE.HLC(I,IT))THEN
+        IF(LAP<ZERO.AND.
+     +     HLA<=HLB(I,IT).AND.HLA<=HLC(I,IT))THEN
          LBP(I,IT) = (XIJ(I,I2)*X12(I)+YIJ(I,I2)*Y12(I)+ZIJ(I,I2)*Z12(I)) * AAA
          LBP(I,IT) = MAX(ZERO,MIN(ONE,LBP(I,IT)))
          LCP(I,IT) = ONE - LBP(I,IT)
-        ELSEIF(LBP(I,IT).LT.ZERO.AND.
-     +         HLB(I,IT).LE.HLC(I,IT).AND.HLB(I,IT).LE.HLA)THEN
+        ELSEIF(LBP(I,IT)<ZERO.AND.
+     +         HLB(I,IT)<=HLC(I,IT).AND.HLB(I,IT)<=HLA)THEN
          LBP(I,IT) = ZERO
          LCP(I,IT) = AL(I,I2)
-        ELSEIF(LCP(I,IT).LT.ZERO.AND.
-     +         HLC(I,IT).LE.HLA.AND.HLC(I,IT).LE.HLB(I,IT))THEN
+        ELSEIF(LCP(I,IT)<ZERO.AND.
+     +         HLC(I,IT)<=HLA.AND.HLC(I,IT)<=HLB(I,IT))THEN
          LCP(I,IT) = ZERO
          LBP(I,IT) = AL(I,I1)
         ENDIF
@@ -328,12 +306,12 @@ C       HLA, HLB, HLC necessaires pour triangle angle obtu
 
       END DO
 C--------------------------------------------------------
-C     Verifie si penetre vs gap cylindrique ...
+C     Check if penetra vs cylindrical gap ...
 C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I =1,JLT
 C          
-        IF (STIF(I) == ZERO)CYCLE
+        IF (STIF(I) <= ZERO)CYCLE
 C
         LAP  = ONE-LBP(I,IT)-LCP(I,IT)
 C
@@ -356,9 +334,9 @@ C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I =1,JLT
 C          
-        IF (STIF(I) == ZERO)CYCLE
+        IF (STIF(I) <= ZERO)CYCLE
 C
-C       Projection en dehors du triangle
+C       Projection outside the triangle
         IF(LB(I,IT) < -EM03 .OR. LC(I,IT) < -EM03 .OR.
      .      LB(I,IT)+LC(I,IT) > ONE+EM03) FAR(I,IT)=1
 C
@@ -376,7 +354,7 @@ C
      .          (YH-YY(I,I1))* NNY(I,IT)+
      .          (ZH-ZZ(I,I1))* NNZ(I,IT) >= GAPS(I)) FAR(I,IT) =2
 C
-	  ELSEIF((IB1 /= 0 .AND. IB2 == 0).OR.
+            ELSEIF((IB1 /= 0 .AND. IB2 == 0).OR.
      .           (IB2 /= 0 .AND. IB1 == 0))THEN
 
 C
@@ -426,9 +404,9 @@ C           normal to the bisecting plane (pointing toward the inside)
 C
             LL  = XIJ(I,I1)*XIJ(I,I1)+YIJ(I,I1)*YIJ(I,I1)+ZIJ(I,I1)*ZIJ(I,I1)
 C
-            SIDE(I,IT)=-(XIJ(I,I1)*PX+YIJ(I,I1)*PY+ZIJ(I,I1)*PZ)*SQRT(ONE/MAX(EM30,LL*PP))		  
+            SIDE(I,IT)=-(XIJ(I,I1)*PX+YIJ(I,I1)*PY+ZIJ(I,I1)*PZ)*SQRT(ONE/MAX(EM30,LL*PP))      
 C
-C           Projette a l'exterieur et Hors secteur angulaire (cf bissectrices) <=> Glissement
+C           Projection outside and outside the cornerstone (see bisector) <=> shift
             IF(SIDE(I,IT) < -ZEP01) FAR(I,IT) =2
 C
           END IF
@@ -436,9 +414,9 @@ C
 C
         ELSE
 C
-	  IB1=IBOUND(1,I)
-	  IB2=IBOUND(2,I)
-	  IB3=IBOUND(3,I)
+            IB1=IBOUND(1,I)
+            IB2=IBOUND(2,I)
+            IB3=IBOUND(3,I)
 C
           D1=(XH-XX(I,1))* NNX(I,1)+
      .       (YH-YY(I,1))* NNY(I,1)+
@@ -454,7 +432,7 @@ C
             FAR(I,1)=2
           ELSEIF( MVOISN(I,2)==0 .AND. D2 >= GAPS(I)) THEN  
             FAR(I,2)=2
-          ELSEIF( MVOISN(I,4)==0 .AND. D3 >= GAPS(I)) THEN 	 
+          ELSEIF( MVOISN(I,4)==0 .AND. D3 >= GAPS(I)) THEN    
             FAR(I,3)=2
           ELSEIF((IB1/=0 .AND. IB2==0 .AND. IB3==0).OR.
      .           (IB2/=0 .AND. IB3==0 .AND. IB1==0).OR.
@@ -535,9 +513,9 @@ C             normal to the bisecting plane (pointing toward the inside)
               PZ = Y12(I)*NNX(I,2)-X12(I)*NNY(I,2)  
               PP = PX*PX+PY*PY+PZ*PZ
 C
-	      XI1(I) = XX(I,2) - XI(I)
-	      YI1(I) = YY(I,2) - YI(I)
-	      ZI1(I) = ZZ(I,2) - ZI(I)
+                XI1(I) = XX(I,2) - XI(I)
+                YI1(I) = YY(I,2) - YI(I)
+                ZI1(I) = ZZ(I,2) - ZI(I)
               LL     = XI1(I)*XI1(I)+YI1(I)*YI1(I)+ZI1(I)*ZI1(I)
 C
               SIDE(I,2)=-(XI1(I)*PX+YI1(I)*PY+ZI1(I)*PZ)*SQRT(ONE/MAX(EM30,LL*PP))   
@@ -557,9 +535,9 @@ C             normal to the bisecting plane (pointing toward the inside)
               PZ = Y12(I)*NNX(I,4)-X12(I)*NNY(I,4)  
               PP = PX*PX+PY*PY+PZ*PZ
 C
-	      XI1(I) = XX(I,3) - XI(I)
-	      YI1(I) = YY(I,3) - YI(I)
-	      ZI1(I) = ZZ(I,3) - ZI(I)
+                XI1(I) = XX(I,3) - XI(I)
+                YI1(I) = YY(I,3) - YI(I)
+                ZI1(I) = ZZ(I,3) - ZI(I)
               LL     = XI1(I)*XI1(I)+YI1(I)*YI1(I)+ZI1(I)*ZI1(I)
 C
               SIDE(I,4)=-(XI1(I)*PX+YI1(I)*PY+ZI1(I)*PZ)*SQRT(ONE/MAX(EM30,LL*PP))   
@@ -577,9 +555,9 @@ C--------------------------------------------------------
       N4N=0
       DO I=1,JLT
 C
-       IF(STIF(I) == ZERO)CYCLE
+       IF(STIF(I) <= ZERO)CYCLE
 C
-       IF(IX3(I).NE.IX4(I))THEN
+       IF(IX3(I)/=IX4(I))THEN
          N4N = N4N+1
          I4N(N4N)=I
        ENDIF
@@ -600,21 +578,21 @@ C
 C
          LBP(I,IT) = LB(I,IT)
          LCP(I,IT) = LC(I,IT)
-         LAP	   = ONE-LBP(I,IT)-LCP(I,IT)
-C        HLA, HLB, HLC necessaires pour triangle angle obtu
+         LAP     = ONE-LBP(I,IT)-LCP(I,IT)
+C        HLA, HLB, HLC required for triangle sharp angle
          AAA = ONE / MAX(EM20,X12(I)*X12(I)+Y12(I)*Y12(I)+Z12(I)*Z12(I))
          HLA= LAP*ABS(LAP) * AAA
-         IF(LAP.LT.ZERO.AND.
-     +      HLA.LE.HLB(I,IT).AND.HLA.LE.HLC(I,IT))THEN
+         IF(LAP<ZERO.AND.
+     +      HLA<=HLB(I,IT).AND.HLA<=HLC(I,IT))THEN
           LBP(I,IT) = (XIJ(I,I2)*X12(I)+YIJ(I,I2)*Y12(I)+ZIJ(I,I2)*Z12(I)) * AAA
           LBP(I,IT) = MAX(ZERO,MIN(ONE,LBP(I,IT)))
           LCP(I,IT) = ONE - LBP(I,IT)
-         ELSEIF(LBP(I,IT).LT.ZERO.AND.
-     +          HLB(I,IT).LE.HLC(I,IT).AND.HLB(I,IT).LE.HLA)THEN
+         ELSEIF(LBP(I,IT)<ZERO.AND.
+     +          HLB(I,IT)<=HLC(I,IT).AND.HLB(I,IT)<=HLA)THEN
           LBP(I,IT) = ZERO
           LCP(I,IT) = AL(I,I2)
-         ELSEIF(LCP(I,IT).LT.ZERO.AND.
-     +          HLC(I,IT).LE.HLA.AND.HLC(I,IT).LE.HLB(I,IT))THEN
+         ELSEIF(LCP(I,IT)<ZERO.AND.
+     +          HLC(I,IT)<=HLA.AND.HLC(I,IT)<=HLB(I,IT))THEN
           LCP(I,IT) = ZERO
           LBP(I,IT) = AL(I,I1)
          ENDIF
@@ -630,7 +608,7 @@ C        HLA, HLB, HLC necessaires pour triangle angle obtu
 
         END DO
 C--------------------------------------------------------
-C       Verifie si penetre vs gap cylindrique ...
+C       Check if penetra vs cylindrical gap ...
 C--------------------------------------------------------
 #include  "vectorize.inc"
         DO K=1,N4N
@@ -658,7 +636,7 @@ C--------------------------------------------------------
         DO K=1,N4N
          I=I4N(K)
 C
-C       Projection en dehors du triangle
+C       Projection outside the triangle
         IF(LB(I,IT) < -EM03 .OR. LC(I,IT) < -EM03 .OR.
      .      LB(I,IT)+LC(I,IT) > ONE+EM03) FAR(I,IT)=1
 C
@@ -674,7 +652,7 @@ C
      .        (YH-YY(I,I1))* NNY(I,IT)+
      .        (ZH-ZZ(I,I1))* NNZ(I,IT) >= GAPS(I)) FAR(I,IT) =2
 C
-	ELSEIF((IB1 /= 0 .AND. IB2 == 0).OR.
+          ELSEIF((IB1 /= 0 .AND. IB2 == 0).OR.
      .         (IB2 /= 0 .AND. IB1 == 0))THEN
 C
           IBX=MAX(IB1,IB2)
@@ -711,11 +689,11 @@ C
 C       Cone
         IF(FAR(I,IT)==1 .OR. BB(I,IT) <= ZERO) THEN
 C
-C        tjrs regarder si l'on est dans le cone (permet de determiner dans quel cone on se trouve) 
+C        always check if you are in the cone (allows to determine in which cone you are)
 C
- 	 X12(I)=XX(I,I2)-XX(I,I1)
- 	 Y12(I)=YY(I,I2)-YY(I,I1)
- 	 Z12(I)=ZZ(I,I2)-ZZ(I,I1)
+           X12(I)=XX(I,I2)-XX(I,I1)
+           Y12(I)=YY(I,I2)-YY(I,I1)
+           Z12(I)=ZZ(I,I2)-ZZ(I,I1)
 C
 C        normal to the bisecting plane (pointing toward the inside)
          PX = Z12(I)*NNY(I,IT)-Y12(I)*NNZ(I,IT)  
@@ -725,7 +703,7 @@ C        normal to the bisecting plane (pointing toward the inside)
 C
          LL  = XIJ(I,I1)*XIJ(I,I1)+YIJ(I,I1)*YIJ(I,I1)+ZIJ(I,I1)*ZIJ(I,I1)
 C
-         SIDE(I,IT)=-(XIJ(I,I1)*PX+YIJ(I,I1)*PY+ZIJ(I,I1)*PZ)*SQRT(ONE/MAX(EM30,LL*PP))  	       
+         SIDE(I,IT)=-(XIJ(I,I1)*PX+YIJ(I,I1)*PY+ZIJ(I,I1)*PZ)*SQRT(ONE/MAX(EM30,LL*PP))           
          IF(SIDE(I,IT) < -ZEP01) FAR(I,IT) =2
 C
         END IF
@@ -740,7 +718,7 @@ C--------------------------------------------------------
 #include  "vectorize.inc"
       DO I=1,JLT
 C          
-        IF (STIF(I) == ZERO)CYCLE
+        IF (STIF(I) <= ZERO)CYCLE
 C
         SUBTRIA_N(I)= SUBTRIA(I)
 C
@@ -752,7 +730,7 @@ C
               LCX = LC(I,JJ)
               LAX = ONE-LB(I,JJ)-LC(I,JJ)
 C
-C             Privilegier secteur dans lequel on se trouve.
+C             Privilegier sector in which we are.
               IF(LBX >= ZERO .AND. LCX >= ZERO)THEN
                 LX=ZERO
               ELSE
@@ -762,9 +740,9 @@ C             Privilegier secteur dans lequel on se trouve.
 c            if(itab(nsvg(i))==5750)
 c     .  print *,'lx',jj,dmin,dd(i,jj),lx,far(i,jj),pent(i,jj)
               IF(LX < LD(I)) THEN
-          	SUBTRIA_N(I)= JJ
-          	DIST(I)     = DD(I,JJ)
-          	LD(I)=LX
+          SUBTRIA_N(I)= JJ
+          DIST(I)     = DD(I,JJ)
+          LD(I)=LX
               END IF
 
             END IF
@@ -781,7 +759,7 @@ C-----
 #include  "vectorize.inc"
       DO I=1,JLT
 C
-        IF(STIF(I) == ZERO)CYCLE
+        IF(STIF(I) <= ZERO)CYCLE
 C
         ITOLD=SUBTRIA(I)
 C
@@ -838,26 +816,25 @@ C         Condition for sliding :
               IRTLM_FI(NIN)%P(2,N-NSN) = -IRTLM_FI(NIN)%P(2,N-NSN) 
             END IF
           END IF
-c	 it1=it
-c	 if(it==0)it1=1
-cc	 if(itafi(nin)%p(n-nsn)==28139)
-c	  if(itafi(nin)%p(n-nsn)==2421446.or.
+c   it1=it
+c   if(it==0)it1=1
+cc   if(itafi(nin)%p(n-nsn)==28139)
+c    if(itafi(nin)%p(n-nsn)==2421446.or.
 c     .       itab(ix1(i))==2421446.or.itab(ix2(i))==2421446.or.itab(ix3(i))==2421446.or.itab(ix4(i))==2421446)
 c     .      print *,'dst1 rem',ispmd+1,IRTLM_FI(NIN)%P(1,n-nsn),cand_e(i),TIME_SFI(NIN)%P(2*(N-NSN-1)+1),
-c     .  	       itafi(nin)%p(n-nsn),itab(ix1(i)),itab(ix2(i)),itab(ix3(i)),itab(ix4(i)),
-c     .  	       itold,pent(i,itold),far(i,itold),
-c     .  	       it,pent(i,it1),far(i,it1)
+c     .           itafi(nin)%p(n-nsn),itab(ix1(i)),itab(ix2(i)),itab(ix3(i)),itab(ix4(i)),
+c     .           itold,pent(i,itold),far(i,itold),
+c     .           it,pent(i,it1),far(i,it1)
         END IF
       END DO
 C-----
       RETURN
       END
-Chd|====================================================================
-Chd|  I25GLOB_1                     source/interfaces/int25/i25dst3_1.F
-Chd|-- called by -----------
-Chd|        I25COMP_1                     source/interfaces/int25/i25comp_1.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i25glob_1   ../engine/source/interfaces/int25/i25dst3_1.F
+!||--- called by ------------------------------------------------------
+!||    i25comp_1   ../engine/source/interfaces/int25/i25comp_1.F
+!||====================================================================
       SUBROUTINE I25GLOB_1(
      1                  JLT    ,CAND_N ,CAND_E ,
      2                  NIN    ,NSN    ,IX1    ,IX2    ,IX3    ,
@@ -873,16 +850,7 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "com01_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "task_c.inc"
 #include      "comlock.inc"
-#include      "scr05_c.inc"
-#include      "com08_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -912,13 +880,13 @@ C--------------------------------------------------------
       END DO
       RETURN
       END
-Chd|====================================================================
-Chd|  I25GLOB                       source/interfaces/int25/i25dst3_1.F
-Chd|-- called by -----------
-Chd|        I25COMP_2                     source/interfaces/int25/i25comp_2.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25glob     ../engine/source/interfaces/int25/i25dst3_1.F
+!||--- called by ------------------------------------------------------
+!||    i25comp_2   ../engine/source/interfaces/int25/i25comp_2.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box     ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25GLOB(
      1                  JLT    ,CAND_N ,CAND_E ,
      2                  NIN    ,NSN    ,IX1    ,IX2    ,IX3    ,
@@ -939,16 +907,7 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "com01_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "task_c.inc"
 #include      "comlock.inc"
-#include      "scr05_c.inc"
-#include      "com08_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -964,7 +923,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IT, I, J, L, N, MGLOB
+      INTEGER IT, I, J
 C--------------------------------------------------------
 C      Back to global arrays
 C--------------------------------------------------------

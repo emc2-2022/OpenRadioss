@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25ASSE0                      source/interfaces/int25/i25asse.F
-Chd|-- called by -----------
-Chd|        I25FOR3E                      source/interfaces/int25/i25for3e.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25asse0   ../engine/source/interfaces/int25/i25asse.F
+!||--- called by ------------------------------------------------------
+!||    i25for3e   ../engine/source/interfaces/int25/i25for3e.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box    ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25ASSE0(JLT  ,CS_LOC,N1   ,N2   ,M1   ,
      2                   M2   ,HS1   ,HS2  ,HM1  ,HM2  ,
      3                   FX1  ,FY1   ,FZ1  ,FX2  ,FY2  ,
@@ -42,14 +42,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "assert.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -99,7 +93,7 @@ C
       DO I=1,JLT
         IF(PENE(I)==ZERO) CYCLE
 C
-        IF(CS_LOC(I).LE.NEDGE) THEN
+        IF(CS_LOC(I)<=NEDGE) THEN
           J1=N1(I)
           A(1,J1)=A(1,J1)+FX1(I)
           A(2,J1)=A(2,J1)+FY1(I)
@@ -145,13 +139,13 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I25ASSE05                     source/interfaces/int25/i25asse.F
-Chd|-- called by -----------
-Chd|        I25FOR3E                      source/interfaces/int25/i25for3e.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25asse05   ../engine/source/interfaces/int25/i25asse.F
+!||--- called by ------------------------------------------------------
+!||    i25for3e    ../engine/source/interfaces/int25/i25for3e.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box     ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25ASSE05(JLT  ,CS_LOC ,N1    ,N2   ,M1   ,
      2                    M2   ,HS1   ,HS2   ,HM1  ,HM2  ,
      3                    FX1  ,FY1   ,FZ1   ,FX2  ,FY2  ,
@@ -168,15 +162,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -233,7 +218,7 @@ C
       DO I=1,JLT
         IF(PENE(I)==ZERO) CYCLE
 C
-        IF(CS_LOC(I).LE.NEDGE) THEN
+        IF(CS_LOC(I)<=NEDGE) THEN
           J1=N1(I)
           A(1,J1)=A(1,J1)+FX1(I)
           A(2,J1)=A(2,J1)+FY1(I)
@@ -285,17 +270,18 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I25ASSE2                      source/interfaces/int25/i25asse.F
-Chd|-- called by -----------
-Chd|        I25FOR3E                      source/interfaces/int25/i25for3e.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25asse2      ../engine/source/interfaces/int25/i25asse.F
+!||--- called by ------------------------------------------------------
+!||    i25for3e      ../engine/source/interfaces/int25/i25for3e.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||    tri25ebox     ../engine/share/modules/tri25ebox.F
+!||    tri7box       ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25ASSE2(JLT   ,CS_LOC ,N1    ,N2    ,M1      ,
      2                   M2    ,HS1    ,HS2   ,HM1   ,HM2     ,
      3                   FX1   ,FY1    ,FZ1   ,FX2   ,FY2     ,
@@ -321,11 +307,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "parit_c.inc"
-#include      "units_c.inc"
-#include      "i25edge_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -344,16 +326,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, NISKYL1, NISKYL,IGP,IGM, NISKYFIEL
+      INTEGER I, NISKYL1, NISKYL,IGP,IGM, NISKYFIEL
 C     WRITE(6,*) __FILE__,"[IN] I25ASS2"
 C
       NISKYL1 = 0
       DO I = 1, JLT
         IF (PENE(I)==ZERO.AND.TAGIP(I)==0) CYCLE
-        IF (HM1(I).NE.ZERO.OR.TAGIP(I)==1) NISKYL1 = NISKYL1 + 1
-        IF (HM2(I).NE.ZERO.OR.TAGIP(I)==1) NISKYL1 = NISKYL1 + 1
-        IF ((HM1(I).NE.ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) NISKYL1 = NISKYL1 + 1
-        IF ((HM2(I).NE.ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) NISKYL1 = NISKYL1 + 1
+        IF (HM1(I)/=ZERO.OR.TAGIP(I)==1) NISKYL1 = NISKYL1 + 1
+        IF (HM2(I)/=ZERO.OR.TAGIP(I)==1) NISKYL1 = NISKYL1 + 1
+        IF ((HM1(I)/=ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) NISKYL1 = NISKYL1 + 1
+        IF ((HM2(I)/=ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) NISKYL1 = NISKYL1 + 1
       ENDDO
 
       IGP = 0
@@ -361,7 +343,7 @@ C
 
       DO I=1,JLT
         IF(PENE(I)==ZERO.AND.TAGIP(I)==0) CYCLE
-        IF(CS_LOC(I).LE.NEDGE) THEN
+        IF(CS_LOC(I)<=NEDGE) THEN
            IGP = IGP+2
            IF(IBM(I)>=0) IGP=IGP+2
         ELSE
@@ -380,11 +362,11 @@ C
 C     WRITE(6,*) "Force remote=",IGM,"/",NISKYFIEL
 
 
-      IF (NISKYL+NISKYL1+IGP .GT. LSKYI) THEN
+      IF (NISKYL+NISKYL1+IGP > LSKYI) THEN
          CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
          CALL ARRET(2)
       ENDIF
-      IF (NISKYFIEL+IGM .GT. NLSKYFIE(NIN)) THEN
+      IF (NISKYFIEL+IGM > NLSKYFIE(NIN)) THEN
         CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
         CALL ARRET(2)
       ENDIF
@@ -395,7 +377,7 @@ C
         IF(PENE(I)==ZERO.AND.TAGIP(I)==0) CYCLE
 C
 
-        IF(CS_LOC(I).LE.NEDGE) THEN
+        IF(CS_LOC(I)<=NEDGE) THEN
           NISKYL = NISKYL + 1
           FSKYI(NISKYL,1)=FX1(I)
           FSKYI(NISKYL,2)=FY1(I)
@@ -471,7 +453,7 @@ C
       DO I=1,JLT
        IF(PENE(I)==ZERO.AND.TAGIP(I)==0) CYCLE
 C
-       IF (HM1(I).NE.ZERO.OR.TAGIP(I)==1) THEN
+       IF (HM1(I)/=ZERO.OR.TAGIP(I)==1) THEN
         NISKYL = NISKYL + 1
         FSKYI(NISKYL,1)=FX3(I)
         FSKYI(NISKYL,2)=FY3(I)
@@ -480,7 +462,7 @@ C
         ISKY(NISKYL) = M1(I)
        ENDIF
 C
-       IF ((HM1(I).NE.ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) THEN
+       IF ((HM1(I)/=ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) THEN
         NISKYL = NISKYL + 1
         FSKYI(NISKYL,1)=FX3(I)
         FSKYI(NISKYL,2)=FY3(I)
@@ -492,7 +474,7 @@ C
       DO I=1,JLT
        IF(PENE(I)==ZERO.AND.TAGIP(I)==0) CYCLE
 C
-       IF (HM2(I).NE.ZERO.OR.TAGIP(I)==1) THEN
+       IF (HM2(I)/=ZERO.OR.TAGIP(I)==1) THEN
         NISKYL = NISKYL + 1
         FSKYI(NISKYL,1)=FX4(I)
         FSKYI(NISKYL,2)=FY4(I)
@@ -501,7 +483,7 @@ C
         ISKY(NISKYL) = M2(I)
        ENDIF
 C
-       IF ((HM2(I).NE.ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) THEN
+       IF ((HM2(I)/=ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) THEN
         NISKYL = NISKYL + 1
         FSKYI(NISKYL,1)=FX4(I)
         FSKYI(NISKYL,2)=FY4(I)
@@ -516,16 +498,17 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I25ASSE25                     source/interfaces/int25/i25asse.F
-Chd|-- called by -----------
-Chd|        I25FOR3E                      source/interfaces/int25/i25for3e.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25asse25     ../engine/source/interfaces/int25/i25asse.F
+!||--- called by ------------------------------------------------------
+!||    i25for3e      ../engine/source/interfaces/int25/i25for3e.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||    tri7box       ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25ASSE25(JLT   ,CS_LOC ,N1    ,N2      ,M1    ,
      2                    M2    ,HS1    ,HS2   ,HM1     ,HM2   ,
      3                    FX1   ,FY1    ,FZ1   ,FX2     ,FY2   ,
@@ -551,10 +534,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "parit_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -574,21 +554,21 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, NISKYL1, NISKYL,IGP,IGM, NISKYFIEL
+      INTEGER I, NISKYL1, NISKYL,IGP,IGM, NISKYFIEL
 C
       NISKYL1 = 0
       DO I = 1, JLT
         IF(PENE(I)==ZERO.AND.TAGIP(I)==0) CYCLE
-        IF (HM1(I).NE.ZERO.OR.TAGIP(I)==1) NISKYL1 = NISKYL1 + 1
-        IF (HM2(I).NE.ZERO.OR.TAGIP(I)==1) NISKYL1 = NISKYL1 + 1
-        IF ((HM1(I).NE.ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) NISKYL1 = NISKYL1 + 1
-        IF ((HM2(I).NE.ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) NISKYL1 = NISKYL1 + 1
+        IF (HM1(I)/=ZERO.OR.TAGIP(I)==1) NISKYL1 = NISKYL1 + 1
+        IF (HM2(I)/=ZERO.OR.TAGIP(I)==1) NISKYL1 = NISKYL1 + 1
+        IF ((HM1(I)/=ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) NISKYL1 = NISKYL1 + 1
+        IF ((HM2(I)/=ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) NISKYL1 = NISKYL1 + 1
       ENDDO
 
       IGP = 0
       IGM = 0
       DO I=1,JLT
-        IF(CS_LOC(I).LE.NEDGE) THEN
+        IF(CS_LOC(I)<=NEDGE) THEN
            IGP = IGP+2 !4
         ELSE
            IGM = IGM+1 !2
@@ -602,11 +582,11 @@ C
       NISKYFIE = NISKYFIE + IGM
 #include "lockoff.inc"
 C
-      IF (NISKYL+NISKYL1+IGP .GT. LSKYI) THEN
+      IF (NISKYL+NISKYL1+IGP > LSKYI) THEN
         CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
         CALL ARRET(2)
       ENDIF
-      IF (NISKYFIEL+IGM .GT. NLSKYFIE(NIN)) THEN
+      IF (NISKYFIEL+IGM > NLSKYFIE(NIN)) THEN
         CALL ANCMSG(MSGID=26,ANMODE=ANINFO)
         CALL ARRET(2)
       ENDIF
@@ -614,7 +594,7 @@ C
       DO I=1,JLT
         IF(PENE(I)==ZERO.AND.TAGIP(I)==0) CYCLE
 C
-        IF(CS_LOC(I).LE.NEDGE) THEN
+        IF(CS_LOC(I)<=NEDGE) THEN
           NISKYL = NISKYL + 1
           FSKYI(NISKYL,1)=FX1(I)
           FSKYI(NISKYL,2)=FY1(I)
@@ -685,7 +665,7 @@ C
       DO I=1,JLT
         IF(PENE(I)==ZERO.AND.TAGIP(I)==0) CYCLE
 C
-        IF (HM1(I).NE.ZERO.OR.TAGIP(I)==1) THEN
+        IF (HM1(I)/=ZERO.OR.TAGIP(I)==1) THEN
          NISKYL = NISKYL + 1
          FSKYI(NISKYL,1)=FX3(I)
          FSKYI(NISKYL,2)=FY3(I)
@@ -695,7 +675,7 @@ C
          ISKY(NISKYL) = M1(I)
         ENDIF
 C
-        IF ((HM1(I).NE.ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) THEN
+        IF ((HM1(I)/=ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) THEN
          NISKYL = NISKYL + 1
          FSKYI(NISKYL,1)=FX3(I)
          FSKYI(NISKYL,2)=FY3(I)
@@ -708,7 +688,7 @@ C
       DO I=1,JLT
         IF(PENE(I)==ZERO.AND.TAGIP(I)==0) CYCLE
 C
-        IF (HM2(I).NE.ZERO.OR.TAGIP(I)==1) THEN
+        IF (HM2(I)/=ZERO.OR.TAGIP(I)==1) THEN
          NISKYL = NISKYL + 1
          FSKYI(NISKYL,1)=FX4(I)
          FSKYI(NISKYL,2)=FY4(I)
@@ -718,7 +698,7 @@ C
          ISKY(NISKYL) = M2(I)
         ENDIF
 C
-        IF ((HM2(I).NE.ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) THEN
+        IF ((HM2(I)/=ZERO.OR.TAGIP(I)==1).AND.IBM(I)>=0) THEN
          NISKYL = NISKYL + 1
          FSKYI(NISKYL,1)=FX4(I)
          FSKYI(NISKYL,2)=FY4(I)

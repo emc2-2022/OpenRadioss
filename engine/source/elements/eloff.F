@@ -1,48 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ELOFF                         source/elements/eloff.F       
-Chd|-- called by -----------
-Chd|        DESACTI                       source/elements/desacti.F     
-Chd|-- calls ---------------
-Chd|        S10NXT4                       source/elements/solid/solide10/s10nxt4.F
-Chd|        S4VOLUME                      source/elements/solid/solide4/s4volume.F
-Chd|        S8ETEMPER                     source/elements/solid/solide8e/s8etemper.F
-Chd|        S8EVOLUME                     source/elements/solid/solide8e/s8evolume.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    eloff          ../engine/source/elements/eloff.F
+!||--- called by ------------------------------------------------------
+!||    desacti        ../engine/source/elements/desacti.F
+!||--- calls      -----------------------------------------------------
+!||    s10nxt4        ../engine/source/elements/solid/solide10/s10nxt4.F
+!||    s4volume       ../engine/source/elements/solid/solide4/s4volume.F
+!||    s8etemper      ../engine/source/elements/solid/solide8e/s8etemper.F
+!||    s8evolume      ../engine/source/elements/solid/solide8e/s8evolume.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||====================================================================
        SUBROUTINE ELOFF(IXS     ,IXQ     ,IXC      ,IXP     ,IXT      ,
      .                  IXR     ,IXTG    ,IPARG    , 
      .                  IACTIV  ,TIME    ,IFLAG    ,NN      ,ELBUF_TAB,
      .                  X       ,TEMP    ,MCP      ,PM      ,IGROUPS  ,
      .                  MCP_OFF ,IGRBRIC ,IGRQUAD  ,IGRSH4N ,IGRSH3N  ,
-     .                  IGRTRUSS,IGRBEAM ,IGRSPRING)
+     .                  IGRTRUSS,IGRBEAM ,IGRSPRING,ITHERM_FE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
       USE GROUPDEF_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixr,nixp,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -56,16 +59,12 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: ITHERM_FE
       INTEGER IACTIV(LACTIV,*),IPARG(NPARG,*),
      .   IXS(NIXS,*), IXQ(NIXQ,*),IXC(NIXC,*), 
      .   IXT(NIXT,*),IXP(NIXP,*), IXR(NIXR,*), IXTG(NIXTG,*),
@@ -89,7 +88,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,II,J,NG,NEL,MLW,NFT,ITY,IGOF,
-     .        ISENS,IGSH,IGSH3,IGBR,IGQU,IGBM,IGTR,IGSP,
+     .        IGSH,IGSH3,IGBR,IGQU,IGBM,IGTR,IGSP,
      .        JTHE, IFORM, ISOLNOD, ITETRA4
       INTEGER NELA,NPTR,NPTS,NPTT,IR,IS,IT,IP,K,KK
       INTEGER INDEX(MVSIZ)
@@ -119,7 +118,7 @@ C======================================================================|
 C      
       IF (IFLAG==0) THEN
 C------------------------------
-C       ACTIVATION DES ELEMENTS
+C       ELEMENT ACTIVATION
 C------------------------------
 
        IF (IGBR /= 0) THEN
@@ -128,7 +127,7 @@ C------------------------------
            NG = IGROUPS(II)                
            NFT= IPARG(3,NG)
            MLW=IPARG(1,NG)
-           IF (MLW == 0 .OR. MLW == 13) CYCLE  ! loi0, pas de off
+           IF (MLW == 0 .OR. MLW == 13) CYCLE  ! law0, no off
            I  = II - NFT
            INDEX2(1,NG) = INDEX2(1,NG) + 1
            NELA = INDEX2(1,NG) 
@@ -145,7 +144,7 @@ C------------------------------
          NFT=IPARG(3,NG)
          ITY=IPARG(5,NG)
          JTHE=IPARG(13,NG)    
-         IF (MLW == 0 .OR. MLW == 13) CYCLE  ! loi0, pas de off
+         IF (MLW == 0 .OR. MLW == 13) CYCLE  ! law0, no off
 C         
          IF(ITY==1)THEN       
 C---       ELEMENTS SOLIDES
@@ -163,7 +162,7 @@ C
              NPTS   = ELBUF_TAB(NG)%NPTS
              NPTT   = ELBUF_TAB(NG)%NPTT
              FACVOL=ONE
-             IF(ISOLNOD == 4 .AND. ITETRA4 == 1) FACVOL=FOUR			   
+             IF(ISOLNOD == 4 .AND. ITETRA4 == 1) FACVOL=FOUR         
 
              DO I=1,NELA
                 J=INDEX(I)+NFT
@@ -185,7 +184,7 @@ C
                 MCP_OFF(NC7(I)) = ONE
                 MCP_OFF(NC8(I)) = ONE
              ENDDO
-			 
+           
              IF(IFORM == 2) THEN
                RHOCP=PM(69,IXS(1,1+NFT))
                DO I=1,NELA
@@ -213,13 +212,13 @@ C---      TEMPERATURE AT ACTIVATION TIME
                  NC4(I)=IXS(6,J)
                ENDDO
                CALL S4VOLUME(X, VOLGN, NELA, NC1, NC2, NC3, NC4)
-			   
+             
                IF(ITETRA4 == 1) THEN
                  IF(JTHE < 0) CALL S10NXT4(NXT4,NELA)
                  DO IP=1,NPTR
                    DO I=1,NELA
                     VOLPN(I,IP) = FOURTH*VOLGN(I)
-				    IF(JTHE >= 0 ) CYCLE
+              IF(JTHE >= 0 ) CYCLE
                     TEMPN(I,IP) = NXT4(I,1,IP)*TEMP(NC1(I))+NXT4(I,2,IP)*TEMP(NC2(I))+
      .                            NXT4(I,3,IP)*TEMP(NC3(I))+NXT4(I,4,IP)*TEMP(NC4(I))
                    ENDDO
@@ -227,7 +226,7 @@ C---      TEMPERATURE AT ACTIVATION TIME
                ELSE
                  DO I=1,NELA
                   VOLPN(I,1) = VOLGN(I)
-				  IF(JTHE >= 0 ) CYCLE
+            IF(JTHE >= 0 ) CYCLE
                   TEMPN(I,1) = FOURTH*(TEMP(NC1(I))+TEMP(NC2(I))+TEMP(NC3(I))+TEMP(NC4(I)))
                  ENDDO
                ENDIF
@@ -399,7 +398,7 @@ C
         ENDDO
       ELSE IF (IFLAG == 1) THEN
 C-----------------------
-C     DEACTIVATION DES ELEMENTS
+C     ELEMENT DEACTIVATION
 C-----------------------
 !       Solids
         IF (IGBR /= 0) THEN
@@ -414,13 +413,13 @@ C-----------------------
           ITY=IPARG(5,NG)
           ISOLNOD=IPARG(28,NG)    
           ITETRA4=IPARG(41,NG)
-          IF (MLW == 0 .OR. MLW == 13) CYCLE  ! loi0, pas de off
+          IF (MLW == 0 .OR. MLW == 13) CYCLE  ! law0, no off
           I = II - NFT
           OFFG(I) = ZERO
           WRITE(IOUT,'(A,I10,A,G13.5)')' BRICK DEACTIVATION:',IXS(11,II),' AT TIME:',TIME
           IF(ITHERM_FE > 0 .AND. IFORM == 2) THEN
             FACVOL=ONE
-            IF(ISOLNOD == 4 .AND. ITETRA4 == 1) FACVOL=FOUR			   
+            IF(ISOLNOD == 4 .AND. ITETRA4 == 1) FACVOL=FOUR         
             RHOCP=PM(69,IXS(1,II))
             MCPS=ONE_OVER_8*RHOCP*VOLG(I)*FACVOL
             DO K=2,9
@@ -436,7 +435,7 @@ C-----------------------
          NEL=IPARG(2,NG)
          NFT=IPARG(3,NG)
          ITY=IPARG(5,NG)
-         IF (MLW == 0 .OR. MLW == 13) CYCLE  ! loi0, pas de off
+         IF (MLW == 0 .OR. MLW == 13) CYCLE  ! law0, no off
          IF(ITY==1) THEN       
 C---     ELEMENTS SOLIDES
            OFFG => ELBUF_TAB(NG)%GBUF%OFF
@@ -607,7 +606,7 @@ C Set MCP_OFF(i) == 0 if all solids connected to i are deactivated
             NFT=IPARG(3,NG)
             ITY=IPARG(5,NG)
             I = II - NFT
-            IF(OFFG(I) .NE. 0) THEN
+            IF(OFFG(I) /= 0) THEN
              ! put one to all nodes that belong to at least one
              ! activated element
              DO K=2,9

@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CBAVISC                       source/elements/shell/coqueba/cbavisc.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|        CDK6FORC3                     source/elements/sh3n/coquedk6/cdk6forc3.F
-Chd|        CDKFORC3                      source/elements/sh3n/coquedk/cdkforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbavisc     ../engine/source/elements/shell/coqueba/cbavisc.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3    ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||    cdk6forc3   ../engine/source/elements/sh3n/coquedk6/cdk6forc3.F
+!||    cdkforc3    ../engine/source/elements/sh3n/coquedk/cdkforc3.F
+!||====================================================================
       SUBROUTINE CBAVISC(JFT    ,JLT   ,VDEF  ,AMU  ,OFF ,
      2                   SHF    ,NU    ,RHO   ,SSP  ,AREA,
      3                   THK    ,FOR   ,MOM   ,NPT  ,MTN ,
@@ -56,7 +55,7 @@ C-----------------------------------------------
      .   DTINV,VISC(MVSIZ),GG,GS,FAC,FX,FY,FXY,DV(MVSIZ)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
 C
-        IF (NPT .EQ. 1.AND.MTN .NE. 1) THEN
+        IF (NPT == 1.AND.MTN /= 1) THEN
           FAC =ZERO
         ELSE
           FAC =ONE
@@ -74,7 +73,7 @@ C
           MX = IPARTC(I)
           EVIS(8,MX)=EVIS(8,MX)+(FX*VDEF(I,1)+FY*VDEF(I,2))*DV(I)
         ENDDO
-        IF (NPT .NE. 1) THEN
+        IF (NPT /= 1) THEN
          DO I=JFT,JLT
           VISC(I)    =ZEP3*THK(I)*VISC(I)
           GG =HALF/(ONE+NU(I))
@@ -93,12 +92,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CBAVISNP1                     source/elements/shell/coqueba/cbavisc.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbavisnp1   ../engine/source/elements/shell/coqueba/cbavisc.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3    ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBAVISNP1(JFT, JLT,VXYZ,RXYZ,VCORE,
      1                     AMU, OFF,RHO ,SSP ,AREA,THK  ,
      2                     G  ,DT1 ,VF  ,
@@ -109,13 +107,6 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "param_c.inc"
 #include      "mvsiz_p.inc"
-#include      "parit_c.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

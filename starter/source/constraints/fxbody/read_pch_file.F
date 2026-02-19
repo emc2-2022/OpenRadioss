@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  READ_PCH_FILE                 source/constraints/fxbody/read_pch_file.F
-Chd|-- called by -----------
-Chd|        HM_READ_FXB1                  source/constraints/fxbody/hm_read_fxb.F
-Chd|        HM_SETFXRBYON                 source/constraints/fxbody/hm_setfxrbyon.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FXRLINE                       source/constraints/fxbody/hm_read_fxb.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    read_pch_file          ../starter/source/constraints/fxbody/read_pch_file.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_fxb1           ../starter/source/constraints/fxbody/hm_read_fxb.F
+!||    hm_setfxrbyon          ../starter/source/constraints/fxbody/hm_setfxrbyon.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fxrline                ../starter/source/constraints/fxbody/hm_read_fxb.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE READ_PCH_FILE(FLAG,MATRIX,ITAG,MATRIX_ADD,CPT_STIFF,
      .                         CPT_MASS,ITABM1,PCH_FILE,ID,TITR)
 C-----------------------------------------------
@@ -39,31 +39,23 @@ C   M o d u l e s
 C-----------------------------------------------
       USE INOUTFILE_MOD
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "scr17_c.inc"
-C#include      "fxbcom.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ID,ITABM1(*),ITAG(*),MATRIX_ADD(4,*), CPT_STIFF,CPT_MASS,FLAG
-      my_real 
-     .        MATRIX(*)
-      CHARACTER PCH_FILE*100,TITR*nchartitle
+      my_real MATRIX(*)
+      CHARACTER PCH_FILE*100
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,NFX,REF,IFO,TIN,TOUT,POLAR,NCOL,DUM,DUM2,SIZE,TRIANGLE,
-     .        ID_NOD1,ID_NOD2,J,K,ISTOP
-      my_real 
-     .        RELL
+      INTEGER I,REF,IFO,TIN,TOUT,POLAR,NCOL,DUM,ID_NOD1,ID_NOD2,J,ISTOP
+      my_real RELL
       CHARACTER DEBUT*8,NAME*8,MATRIX_TYPE*16,NWLINE*100,MESS*40
 
       INTEGER :: LEN_TMP_NAME,I_ERR
@@ -91,17 +83,17 @@ C
 C
       IF ((IFO == 6).AND.(TIN < 3)) THEN
 C
-C-------  Symetric matrix - real (no imaginary part) -----------
+C-------  Symmetric matrix - real (no imaginary part) -----------
 C
 C       Reading of a new block --
         DO WHILE (I_ERR == 0)
 C
           ISTOP=0
-          DO WHILE (ISTOP.EQ.0)
+          DO WHILE (ISTOP==0)
             READ(REF,'(A)',END=100) NWLINE
-            IF (NWLINE(1:5).EQ.'DMIG ') THEN
+            IF (NWLINE(1:5)=='DMIG ') THEN
               READ(NWLINE,'((A,A,5I8,I16))') DEBUT,NAME,DUM,IFO,TIN,TOUT,POLAR,NCOL
-            ELSEIF ((NWLINE(1:1).NE.'#').AND.((NWLINE(1:1).NE.'$')).AND.((LEN_TRIM(NWLINE)/=0))) THEN
+            ELSEIF ((NWLINE(1:1)/='#').AND.((NWLINE(1:1)/='$')).AND.((LEN_TRIM(NWLINE)/=0))) THEN
               ISTOP=1
             ENDIF
           ENDDO

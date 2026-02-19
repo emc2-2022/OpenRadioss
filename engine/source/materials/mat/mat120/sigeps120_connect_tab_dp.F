@@ -1,41 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS120_CONNECT_TAB_DP      source/materials/mat/mat120/sigeps120_connect_tab_dp.F
-Chd|-- called by -----------
-Chd|        SIGEPS120_CONNECT_MAIN        source/materials/mat/mat120/sigeps120_connect_main.F
-Chd|-- calls ---------------
-Chd|        TABLE_VINTERP                 source/tools/curve/table_tools.F
-Chd|        INTERFACE_TABLE_MOD           share/modules/table_mod.F     
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps120_connect_tab_dp   ../engine/source/materials/mat/mat120/sigeps120_connect_tab_dp.F
+!||--- called by ------------------------------------------------------
+!||    sigeps120_connect_main     ../engine/source/materials/mat/mat120/sigeps120_connect_main.F
+!||--- calls      -----------------------------------------------------
+!||    table_vinterp              ../engine/source/tools/curve/table_tools.F
+!||--- uses       -----------------------------------------------------
+!||    interface_table_mod        ../engine/share/modules/table_mod.F
+!||    table_mod                  ../engine/share/modules/table_mod.F
+!||====================================================================
       SUBROUTINE SIGEPS120_CONNECT_TAB_DP(
      1     NEL     ,NGL     ,TIME    ,TIMESTEP,UPARAM  ,OFF     ,
      2     EPSD    ,STIFM   ,THICK   ,JTHE    ,
      3     AREA    ,DEPSZZ  ,DEPSYZ  ,DEPSZX  ,NUPARAM ,
      4     SIGOZZ  ,SIGOYZ  ,SIGOZX  ,SIGNZZ  ,SIGNYZ  ,SIGNZX  ,
      5     PLA     ,JSMS    ,DMELS   ,UVAR    ,NUVAR   ,
-     6     NUMTABL ,ITABLE  ,TABLE   ,NVARTMP ,VARTMP  ,TEMP    )
+     6     NUMTABL ,ITABLE  ,TABLE   ,NVARTMP ,VARTMP  ,TEMP   ,DMG )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -67,7 +68,7 @@ c
       my_real ,DIMENSION(NEL) ,INTENT(OUT) :: EPSD
       my_real ,DIMENSION(NEL) ,INTENT(OUT) :: 
      .                   SIGNZZ,SIGNYZ,SIGNZX
-      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: OFF,PLA,STIFM,DMELS
+      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: OFF,PLA,STIFM,DMELS,DMG
       my_real ,DIMENSION(NEL,NUVAR) ,INTENT(INOUT) :: UVAR
       INTEGER,DIMENSION(NEL,NVARTMP) ,INTENT(INOUT) :: VARTMP
       TYPE(TTABLE) ,DIMENSION(NTABLE) ,INTENT(IN)    :: TABLE
@@ -80,24 +81,24 @@ C----------------------------------------------------------------
       INTEGER :: NDIM_YLD,FUNC_YLD
       my_real :: XVEC1(NEL,1), XVEC2(NEL,2), XVEC3(NEL,3)
       INTEGER  ,DIMENSION(NEL) :: INDX,INDF
-      my_real :: YOUNG,NU,G,G2,BULK,YLD0,QQ,BETA,HH,C11,C12,
-     .   A1F,A2F,AS,D1C,D2C,D1F,D2F,D_TRX,D_JC,DM,EXPN,A1H,A2H
+      my_real :: YOUNG,NU,G,G2,BULK,YLD0,QQ,BETA,HH,
+     .   A1F,A2F,AS,D1C,D2C,D1F,D2F,D_TRX,D_JC,EXPN,A1H,A2H
 c     Johnson & Cook rate-dependency
-      my_real CC,EPSDREF,EPSDMAX,FRATE,FCUT,ALPHA,ALPHAI,EPSDOT
+      my_real CC,EPSDREF,EPSDMAX,FCUT,ALPHA,ALPHAI,EPSDOT
 c     Local variables
-      my_real FACR,TRIAX,RVOCE,I1P,IP,JP,TP,FACT,FACD,DFAC,DTINV,
-     .   DLAM,DDEP,DFDLAM,DYLD_DPLA,DPLA_DLAM,DPHI_DLAM,DFDPLA,DTB,
-     .   GAMC,GAMF,NP_XX,NP_YY,NP_ZZ,NP_XY,NP_YZ,NP_ZX,
-     .   NF_XX,NF_YY,NF_ZZ,NF_XY,NF_YZ,NF_ZX,DPXX,DPYY,DPZZ,DPXY,DPYZ,DPZX
-      my_real ,DIMENSION(NEL) :: A1, A2, I1,J2,YLD,PHI,DAM,FDAM,JCRATE,STF,HARDP,HARDP_I,FVM,
-     .   SXX,SYY,SZZ,SXY,SYZ,SZX,DPLA,JCR_LOG,GAMMA,DGAMM,PLA_NL,DPDT_NL,YLD_I,FDP
+      my_real FACR,TRIAX,I1P,IP,JP,TP,FACT,FACD,DFAC,DTINV,
+     .   DLAM,DDEP,DFDLAM,DPLA_DLAM,DPHI_DLAM,DFDPLA,DTB,
+     .   GAMC,GAMF,NP_XX,NP_YY,NP_ZZ,NP_YZ,NP_ZX,
+     .   NF_XX,NF_YY,NF_ZZ,NF_YZ,NF_ZX,DPZZ,DPYZ,DPZX
+      my_real ,DIMENSION(NEL) :: A1, A2, I1,J2,YLD,PHI,DAM,FDAM,JCRATE,STF,HARDP,HARDP_I,
+     .   SXX,SYY,SZZ,SYZ,SZX,DPLA,JCR_LOG,GAMMA,DGAMM,YLD_I,FDP
 C---------------------------------------------
 
       YOUNG = UPARAM(1)
       NU    = UPARAM(2)
       G     = UPARAM(3)
       BULK  = UPARAM(4)
-c     Paramters of yield function/hardening law and flow potential
+c     Parameters of yield function/hardening law and flow potential
       YLD0  = UPARAM(5)
       QQ    = UPARAM(6)
       BETA  = UPARAM(7)
@@ -142,7 +143,8 @@ C---------------------------------------------
       STF(1:NEL)     = YOUNG *  AREA(1:NEL)                                            
       STIFM(1:NEL)   = STIFM(1:NEL)  + STF(1:NEL)*OFF(1:NEL)                                              
 C---------------------------------------------
-      DAM (1:NEL) = UVAR(1:NEL,2)
+      DAM (1:NEL) = DMG(1:NEL)
+      DPLA(1:NEL) = ZERO
       FDAM(1:NEL) = ONE - DAM(1:NEL)
       DO I = 1,NEL
         IF (OFF(I) < 0.001) OFF(I) = ZERO
@@ -185,7 +187,7 @@ c----------------------------------------------------
         XVEC1(1:NEL,1) = PLA(1:NEL)
         IPOS1(1:NEL,1) = VARTMP(1:NEL,1)
 c
-        CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,IPOS1,XVEC1,YLD,HARDP)
+        CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,NEL,IPOS1,XVEC1,YLD,HARDP)
 c
         YLD(1:NEL)   = YLD(1:NEL)   * YSCALE * JCRATE(1:NEL)
         HARDP(1:NEL) = HARDP(1:NEL) * YSCALE * JCRATE(1:NEL)
@@ -197,7 +199,7 @@ c
         IPOS2(1:NEL,1) = VARTMP(1:NEL,1)
         IPOS2(1:NEL,2) = 1
 c
-        CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,IPOS2,XVEC2,YLD,HARDP)
+        CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,NEL,IPOS2,XVEC2,YLD,HARDP)
 c
         YLD(1:NEL)   = YLD(1:NEL)   * YSCALE
         HARDP(1:NEL) = HARDP(1:NEL) * YSCALE
@@ -215,7 +217,7 @@ c
         IPOS3(1:NEL,2) = 1
         IPOS3(1:NEL,3) = 1
 c
-        CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,IPOS3,XVEC3,YLD,HARDP)
+        CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,NEL,IPOS3,XVEC3,YLD,HARDP)
 c
         YLD(1:NEL)   = YLD(1:NEL)   * YSCALE
         HARDP(1:NEL) = HARDP(1:NEL) * YSCALE
@@ -277,7 +279,6 @@ c
             DFDPLA    = THIRD*(SQR3*A1H*YLD0*I1(I) + A2H*I1P**2)
 
             DPLA_DLAM = TWO*SQRT((J2(I) + TP*AS*I1(I)))
-            DPLA_DLAM = DPLA_DLAM / FDAM(I)
 c
             DPHI_DLAM = DFDLAM + (DFDPLA - TWO*YLD(I)*HARDP(I))*DPLA_DLAM            
 c----------------------------------------------------------------
@@ -308,7 +309,7 @@ c
               IPOS1(II,1) = VARTMP(I,1)
             ENDDO
 c      
-            CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,IPOS1,XVEC1,YLD_I,HARDP_I)
+            CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,NEL,IPOS1,XVEC1,YLD_I,HARDP_I)
 c      
             DO II = 1, NINDX 
               I = INDX(II)
@@ -325,7 +326,7 @@ c
               IPOS2(II,1) = VARTMP(I,1)
             ENDDO
 c      
-            CALL TABLE_VINTERP(TABLE(FUNC_YLD),NINDX,IPOS2,XVEC2,YLD_I,HARDP_I)
+            CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,NINDX,IPOS2,XVEC2,YLD_I,HARDP_I)
 c      
             DO II = 1, NINDX 
               I = INDX(II)
@@ -343,7 +344,7 @@ c
               IPOS3(II,1) = VARTMP(I,1)
             ENDDO
 c      
-            CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,IPOS3,XVEC3,YLD_I,HARDP_I)
+            CALL TABLE_VINTERP(TABLE(FUNC_YLD),NEL,NEL,IPOS3,XVEC3,YLD_I,HARDP_I)
 c      
             DO II = 1, NINDX 
               I = INDX(II)
@@ -392,13 +393,15 @@ c
         DO II = 1,NINDX
           I = INDX(II)
 c
+          TRIAX = ZERO
+          FACT = ONE
           FACR = ONE + D_JC * JCR_LOG(I)  ! total strain rate factor on damage
-          IF (ITRX == 1) THEN
-            TRIAX = THIRD * I1(I) / SQRT(THREE*J2(I))
+          IF ( J2(I)/= ZERO)TRIAX = THIRD * I1(I) / SQRT(THREE*J2(I))
+          IF (ITRX == 1 ) THEN
             FACT  = EXP(-D_TRX*TRIAX)
-          ELSE IF (I1(I) <= ZERO) THEN  ! ITRX = 2 => no triaxiality influence in compression
-            FACT = ONE
-          END IF
+          ELSE
+           IF (TRIAX > ZERO )FACT  = EXP(-D_TRX*TRIAX)
+          ENDIF
           GAMC = (D1C + D2C * FACT) * FACR
           GAMF = (D1F + D2F * FACT) * FACR
           IF (GAMMA(I) > GAMC) THEN
@@ -416,7 +419,7 @@ c
               DAM(I) = ONE
               OFF(I) = FOUR_OVER_5
             END IF
-            UVAR(I,2) = DAM(I)
+            DMG(I) = DAM(I)
           END IF ! GAMMA > GAMC
         ENDDO
 c       Update damaged stress

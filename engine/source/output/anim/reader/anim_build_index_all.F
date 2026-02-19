@@ -1,41 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ANIM_BUILD_INDEX_ALL          source/output/anim/reader/anim_build_index_all.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
-      SUBROUTINE ANIM_BUILD_INDEX_ALL(ISPMD   ,MCHECK ,LSENSOR ,IGEO    ,GEO    )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    anim_build_index_all   ../engine/source/output/anim/reader/anim_build_index_all.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../engine/source/input/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../engine/source/output/message/message.F
+!||    arret                  ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    sensor_mod             ../common_source/modules/sensor_mod.F90
+!||    stack_mod              ../engine/share/modules/stack_mod.F
+!||====================================================================
+      SUBROUTINE ANIM_BUILD_INDEX_ALL(ISPMD   ,MCHECK ,SENSORS ,IGEO    ,GEO    )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE STACK_MOD    
+      USE SENSOR_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,9 +54,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ISPMD, MCHECK, LSENSOR(NSENSI,*), IGEO(NPROPGI,*)
+      INTEGER ISPMD, MCHECK, IGEO(NPROPGI,*)
       my_real
      .        GEO(NPROPG,*)
+      TYPE (SENSORS_) ,INTENT(INOUT) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -61,45 +65,49 @@ C-----------------------------------------------
      .   IUS,IPT,IGTYP,NPT,NPTS,NPTR,NPTT,NPTT_PLY,CPtPLY,NMAX,IGTYP15,
      .   IDX,NIPMAX_BEAM, NIPMAX_SOL,ICSTR,N14R,N14S,N14T
 C-------------------------------------------
-      IF(ISPMD == 0.AND.MCHECK == 0) THEN
+      NIPMAX = 0
+      NIPMAX_BEAM = 0
+      NIPMAX_SOL = 0
+      NPTS = 1
+      NPTT = 0
+      NPTR= 1
+      NPTT_PLY = 0
+      IF (MCHECK == 0) THEN
+        ALLOCATE (SENSORS%ANIM(SENSORS%NANIM))
+        SENSORS%ANIM(:) = 0
+      END IF
+
+      IF (ISPMD == 0 .AND. MCHECK == 0) THEN
 C-----------------------
-C      ANIM/LSENSOR Initializations
+C       /ANIM/SENSOR and /ANIM/LSENSOR Initializations
 C-----------------------       
-        IANIS0=IANISENS
-        IF(IANIS0 /= 0)THEN
-          DO I=1,NSENSOR
-            IF(IANIS0 == LSENSOR(1,I))IANISENS=I
+        IANIS0 = SENSORS%ANIM_ID
+        IF (IANIS0 /= 0) THEN
+          DO I=1,SENSORS%NSENSOR
+            IF (IANIS0 == SENSORS%SENSOR_TAB(I)%SENS_ID) SENSORS%ANIM_ID=I
           ENDDO
         ENDIF
-        DO K=1,NLSENS
+c
+        DO K=1,SENSORS%NANIM
           IOK = 0
-          IANIS0=LANISENS(K)
-          IF(IANIS0 /= 0)THEN
-            DO I=1,NSENSOR
-              IF(IANIS0 == LSENSOR(1,I))THEN
-                LANISENS(K)=I
+          IANIS0 = SENSORS%ANIM_TMP(K)
+          IF (IANIS0 > 0) THEN
+            DO I=1,SENSORS%NSENSOR
+              IF (IANIS0 == SENSORS%SENSOR_TAB(I)%SENS_ID) THEN
+                SENSORS%ANIM(K)=I
                 IOK = 1
                 EXIT
               ENDIF
             ENDDO
           ENDIF
-          IF(IOK == 0) THEN
+          IF (IOK == 0) THEN
             CALL ANCMSG(MSGID=228,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=IANIS0)
             CALL ARRET(2)
           ENDIF
         ENDDO
-C-----------------------       
-      ELSEIF(ISPMD == 0 .AND. MCHECK /= 0) THEN
-C-----------------------
-C     ANIM/LSENSOR Iniializations
-C-----------------------   
-         IANISENS = IANISENS_OLD
-         DO K=1,IANISENS_OLD
-           LANISENS(K) = LANISENS_OLD(K)
-         ENDDO
-      END IF                    !(ISPMD.EQ.0.AND.MCHECK.EQ.0)
+      END IF                    !(ISPMD==0.AND.MCHECK==0)
 C-------------------------------------------
-      IF(MCHECK == 0 ) THEN
+      IF (MCHECK == 0 ) THEN
        IF( ISTRESALL == 1 .OR. ISTRAIALL  == 1      .OR.
      .    IEPSDOALL == 1 .OR. IEPSPALL   == 1      .OR.
      .                        IPHIALL    == 1      .OR.
@@ -121,7 +129,11 @@ C-------------------------------------------
      .                        IEPSDOFULL > 0       .OR.
      .                        IWPLAALL > 0         .OR.
      .                        IWPLAFULL > 0        .OR.
-     .                        IBEAM_EPSPALL > 0       ) THEN
+     .                        IBEAM_EPSPALL > 0    .OR.
+     .                        IEPSPNLALL == 1      .OR.
+     .                        IEPSDNLALL == 1      .OR.
+     .                        ITSAIWUALL > 0       .OR.
+     .                        ITSAIWUFULL > 0)     THEN
          NIPMAX = 0
          DO I=1,NUMGEO
            NIPMAX = MAX(NIPMAX,NINT(GEO(6,I)))
@@ -146,12 +158,12 @@ C-------------------------------------------
              ANIM_CT(4)    = 1
              NCT_ANI = NCT_ANI + 1
            ENDIF
-           IF(NIPMAX.LE.100)THEN
+C           IF(NIPMAX<=100)THEN
              DO I=1,NIPMAX
                ANIM_CT(100+I) = 1
                NCT_ANI = NCT_ANI + 1
              ENDDO
-           ENDIF
+C           ENDIF
          ENDIF
          IF (ISTRAIALL == 1)THEN
            IF (ANIM_CT(7) == 0) THEN
@@ -162,7 +174,7 @@ C-------------------------------------------
              ANIM_CT(8)    = 1
              NCT_ANI = NCT_ANI + 1
            ENDIF
-           IF(NIPMAX.LE.100)THEN
+           IF(NIPMAX<=100)THEN
              DO I=1,NIPMAX
                ANIM_CT(200+I) = 1
                NCT_ANI = NCT_ANI + 1
@@ -178,7 +190,7 @@ C-------------------------------------------
              ANIM_CT(94)    = 1
              NCT_ANI = NCT_ANI + 1
            ENDIF
-           IF(NIPMAX.LE.100)THEN
+           IF(NIPMAX<=100)THEN
              DO I=1,NIPMAX
                ANIM_CT(300+I) = 1
                NCT_ANI = NCT_ANI + 1
@@ -194,7 +206,7 @@ C-------------------------------------------
              ANIM_CE(2041)    = 1
              NCE_ANI = NCE_ANI + 1
            ENDIF
-           IF(NIPMAX.LE.100)THEN
+           IF(NIPMAX<=100)THEN
              DO I=1,NIPMAX
                IF (ANIM_CE(2041+I) == 0) THEN
                  ANIM_CE(2041+I) = 1
@@ -261,7 +273,7 @@ C-------------------------------------------
          ENDIF ! IF (ISTRESFULL == 1)
 C-------------
          IF (IPHIALL == 1)THEN
-           IF(NIPMAX.LE.100)THEN
+           IF(NIPMAX<=100)THEN
              DO I=1,NIPMAX
                ANIM_CE(10139+I) = 1
                NCE_ANI = NCE_ANI + 1
@@ -284,7 +296,7 @@ C
        ENDIF !
 C
        IF (IDAMAALL == 1)THEN
-         IF(NIPMAX.LE.100)THEN
+         IF(NIPMAX<=100)THEN
            DO I=1,NIPMAX
              ANIM_CE(10259+I) = 1
              NCE_ANI = NCE_ANI + 1
@@ -293,7 +305,7 @@ C
        ENDIF
 C
        IF (INXTFALL == 1)THEN
-         IF(NIPMAX.LE.100)THEN
+         IF(NIPMAX<=100)THEN
            DO I=1,NIPMAX
              ANIM_CE(10362+I) = 1
              NCE_ANI = NCE_ANI + 1
@@ -302,7 +314,7 @@ C
        ENDIF
 C
        IF (SIGH1ALL == 1)THEN
-         IF(NIPMAX.LE.100)THEN
+         IF(NIPMAX<=100)THEN
            DO I=1,NIPMAX
              ANIM_CE(10465+I) = 1
              NCE_ANI = NCE_ANI + 1
@@ -311,7 +323,7 @@ C
        ENDIF
 C
        IF (SIGH2ALL == 1)THEN
-         IF(NIPMAX.LE.100)THEN
+         IF(NIPMAX<=100)THEN
            DO I=1,NIPMAX
              ANIM_CE(10568+I) = 1
              NCE_ANI = NCE_ANI + 1
@@ -352,7 +364,7 @@ C
          CPTPLY = 0
          DO I=1,NUMGEO
            IF(IGEO(11,I) == 19) THEN
-             DO IPT=1,IGEO(4,I)
+             DO IPT=1,IGEO(44,I)
                CPTPLY = CPTPLY + 1
                PLY_ANIM_STRESS( 3 * (CPTPLY - 1) + 1) = IGEO(1,I)
                PLY_ANIM_STRESS( 3 * (CPTPLY - 1) + 2) = 2
@@ -387,7 +399,7 @@ C
          CPTPLY = 0
          DO I=1,NUMGEO
            IF(IGEO(11,I) == 19) THEN
-             DO IPT=1,IGEO(4,I)
+             DO IPT=1,IGEO(44,I)
                CPTPLY = CPTPLY + 1
                PLY_ANIM_STRAIN( 3 * (CPTPLY - 1) + 1) = IGEO(1,I)
                PLY_ANIM_STRAIN( 3 * (CPTPLY - 1) + 2) = 3
@@ -422,7 +434,7 @@ C
          CPTPLY = 0
          DO I=1,NUMGEO
            IF(IGEO(11,I) == 19) THEN
-             DO IPT=1,IGEO(4,I)
+             DO IPT=1,IGEO(44,I)
                CPTPLY = CPTPLY + 1
                PLY_ANIM_EPSDOT( 3 * (CPTPLY - 1) + 1) = IGEO(1,I)
                PLY_ANIM_EPSDOT( 3 * (CPTPLY - 1) + 2) = 6
@@ -518,28 +530,34 @@ c
          CPTPLY = 0
          DO I=1,NUMGEO
            IF(IGEO(11,I) == 19) THEN
-             CPTPLY = CPTPLY + 1
-             PLY_ANIM_PHI( 3 * (CPTPLY - 1) + 1) = IGEO(1,I)
-             PLY_ANIM_PHI( 3 * (CPTPLY - 1) + 2) = 4
+            DO IPT=1,IGEO(44,I)
+              CPTPLY = CPTPLY + 1
+              PLY_ANIM_PHI( 3 * (CPTPLY - 1) + 1) = IGEO(1,I)
+              PLY_ANIM_PHI( 3 * (CPTPLY - 1) + 2) = 4
+              PLY_ANIM_PHI( 3 * (CPTPLY - 1) + 3) = IPT
              IF( CPTPLY < MX_PLY_ANIM) THEN
                ANIM_CE( (11925 + MX_PLY_ANIM) + CPTPLY) = 1
                NCE_ANI = NCE_ANI + 1 
              ELSE
                CALL ANCMSG(MSGID=268,MSGTYPE=MSGWARNING,I1=MX_PLY_ANIM,ANMODE=ANINFO)
              ENDIF
+            ENDDO  
            ENDIF
          ENDDO
 c
          DO I=1,NUMPLY
+           DO IPT=1,PLY_INFO(2,I)
            CPTPLY = CPTPLY + 1
            PLY_ANIM_PHI( 3 * (CPTPLY - 1) + 1) = PLY_INFO(1,I)
            PLY_ANIM_PHI( 3 * (CPTPLY - 1) + 2) = 4
+           PLY_ANIM_PHI( 3 * (CPTPLY - 1) + 3) = IPT
            IF( CPTPLY < 11925) THEN
              ANIM_CE( (11925 + MX_PLY_ANIM) + CPTPLY) = 1
              NCE_ANI = NCE_ANI + 1 
            ELSE
              CALL ANCMSG(MSGID=268,MSGTYPE=MSGWARNING,I1=MX_PLY_ANIM,ANMODE=ANINFO)
            ENDIF
+          ENDDO 
          ENDDO
        ENDIF !
 C
@@ -547,7 +565,7 @@ C
          CPTPLY = 0
          DO I=1,NUMGEO
            IF(IGEO(11,I) == 19) THEN
-             DO IPT=1,IGEO(4,I)
+             DO IPT=1,IGEO(44,I)
                CPTPLY = CPTPLY + 1
                PLY_ANIM_EPSP( 3 * (CPTPLY - 1) + 1) = IGEO(1,I)
                PLY_ANIM_EPSP( 3 * (CPTPLY - 1) + 2) = 5
@@ -582,7 +600,7 @@ C
          CPTPLY = 0
          DO I=1,NUMGEO
            IF(IGEO(11,I) == 19) THEN
-             DO IPT=1,IGEO(4,I)
+             DO IPT=1,IGEO(44,I)
                CPTPLY = CPTPLY + 1
                PLY_ANIM_DAMA( 3 * (CPTPLY - 1) + 1) = IGEO(1,I)
                PLY_ANIM_DAMA( 3 * (CPTPLY - 1) + 2) = 5
@@ -650,7 +668,7 @@ c
         NPTT= 1
         IGTYP15 = 0
         DO I=1,NUMGEO
-          NPT = IGEO(4,I)
+          NPT = IGEO(44,I)
           IHBE = IGEO(10,I)
           IGTYP = IGEO(11,I)
           ICSTR= IGEO(14,I)
@@ -685,9 +703,9 @@ C--------due to existing Anim designs: fix thickness dir to J and limite other d
                   CASE(1)
                     IF (N14R==0) N14R= IGEO(15,I)
                 END SELECT
-c              NPTR= MAX(NPTR,N14R)
-c              NPTS= MAX(NPTS,N14S)
-c              NPTT= MAX(NPTT,N14T)
+C              NPTR= MAX(NPTR,N14R)
+C              NPTS= MAX(NPTS,N14S)
+C              NPTT= MAX(NPTT,N14T)
               N14S=MAX(N14R,N14S,N14T)
               NPTR= MAX(NPTR,2)
               NPTS= MAX(NPTS,IGEO(15,I),N14S)
@@ -705,14 +723,22 @@ C              IGTYP15 = 1
             END SELECT
           ENDIF
         ENDDO
+!----special case for tet10  :
+        IF (NUMELS10>0) THEN
+           NPTR= MAX(NPTR,2)
+           NPTS= MAX(NPTS,2)
+           NPTT= MAX(NPTT,2)
+        END IF 
       ENDIF !---
 C       
        NPTT_PLY = 0
        DO I=1,NUMGEO
-           NPT = IGEO(4,I)
            IGTYP = IGEO(11,I)
-           IF(IGTYP == 19 .OR. IGTYP == 52)  NPTT_PLY = MAX (NPTT_PLY, NPT)
+           IF(IGTYP == 19)  NPTT_PLY = MAX (NPTT_PLY, IGEO(44,I))
        ENDDO
+       DO I=1,NUMPLY
+           NPTT_PLY = MAX( NPTT_PLY, PLY_INFO(2,I))
+       ENDDO   
 C       
        IF (IWPLAALL == 1)THEN
          IDX =   13247 + 4*MX_PLY_ANIM
@@ -851,6 +877,94 @@ c
            ENDDO
          ENDIF
        ENDIF
+!---
+       ! NON-LOCAL PLASTIC STRAIN FOR SHELLS
+       IF (IEPSPNLALL == 1) THEN
+         IDX = 4*MX_PLY_ANIM + 14567
+         IF (ANIM_CE(IDX) == 0) THEN
+           ANIM_CE(IDX)      = 1
+           NCE_ANI = NCE_ANI + 1
+         ENDIF
+         IF (ANIM_CE(IDX+1) == 0) THEN
+           ANIM_CE(IDX+1)    = 1
+           NCE_ANI = NCE_ANI + 1
+         ENDIF
+         IF (ANIM_CE(IDX+2) == 0) THEN
+           ANIM_CE(IDX+2)    = 1
+           NCE_ANI = NCE_ANI + 1
+         ENDIF
+         IF (NIPMAX <= 11)THEN
+           DO I=1,NIPMAX
+             IF (ANIM_CE(IDX+2+I) == 0) THEN
+               ANIM_CE(IDX+2+I) = 1
+               NCE_ANI = NCE_ANI + 1
+             ENDIF
+           ENDDO
+         ENDIF
+       ENDIF
+!---
+       ! NON-LOCAL PLASTIC STRAIN RATE FOR SHELLS
+       IF (IEPSDNLALL == 1) THEN
+         IDX = 4*MX_PLY_ANIM + 14581
+         IF (ANIM_CE(IDX) == 0) THEN
+           ANIM_CE(IDX)      = 1
+           NCE_ANI = NCE_ANI + 1
+         ENDIF
+         IF (ANIM_CE(IDX+1) == 0) THEN
+           ANIM_CE(IDX+1)    = 1
+           NCE_ANI = NCE_ANI + 1
+         ENDIF
+         IF (ANIM_CE(IDX+2) == 0) THEN
+           ANIM_CE(IDX+2)    = 1
+           NCE_ANI = NCE_ANI + 1
+         ENDIF
+         IF (NIPMAX <= 11)THEN
+           DO I=1,NIPMAX
+             IF (ANIM_CE(IDX+2+I) == 0) THEN
+               ANIM_CE(IDX+2+I) = 1
+               NCE_ANI = NCE_ANI + 1
+             ENDIF
+           ENDDO
+         ENDIF
+       ENDIF
+C       
+!   ...TSAIWU/ALL 
+       IF (ITSAIWUALL == 1)THEN
+         IDX = 14597 + 4*MX_PLY_ANIM
+         NMAX = MIN(100,NIPMAX)
+         DO I=1,NMAX
+           IF (ANIM_CE(IDX + I) == 0) THEN
+             ANIM_CE(IDX + I) = 1
+             NCE_ANI = NCE_ANI + 1
+           ENDIF
+         ENDDO
+       ELSEIF (ITSAIWUALL == 2) THEN
+!   ...TSAIWU/ALL/ALL
+         IDX  = 14897 + 4*MX_PLY_ANIM
+         NMAX = MIN(100,NIPMAX)
+         DO I=1,NMAX
+           DO J=1,NPTT_PLY
+             IUS = 10*(I-1) + J
+             IF (ANIM_CE(IDX + IUS) == 0) THEN
+               ANIM_CE(IDX + IUS) = 1
+               NCE_ANI = NCE_ANI + 1
+             ENDIF
+           ENDDO
+         ENDDO
+       ENDIF 
+
+       IF (ITSAIWUFULL > 0) THEN
+!   ...TSAIWU/N1/ALL
+         IDX = 14897 + 4*MX_PLY_ANIM
+         ITSAIWUFULL = MIN(100,ITSAIWUFULL)
+         DO J=1,NPTT_PLY
+           IUS = 10*(ITSAIWUFULL-1) + J
+           IF (ANIM_CE(IDX + IUS) == 0) THEN
+             ANIM_CE(IDX + IUS) = 1
+             NCE_ANI = NCE_ANI + 1
+           ENDIF
+         ENDDO
+       ENDIF
 C
       ELSE ! IF(MCHECK == 0 ) THEN
        DO I = 1,MX_ANI
@@ -867,7 +981,7 @@ C
        ENDDO
        IF(ANIM_V(12) == 1)NV_ANI=NV_ANI+1
        IF(ANIM_V(4)==1.AND.ANIMCONT == 0) NV_ANI=NV_ANI-1
-       IF(ANIM_V(27).EQ.1)NV_ANI=NV_ANI+1
+       IF(ANIM_V(27)==1)NV_ANI=NV_ANI+1
       ENDIF
 C-----
       RETURN

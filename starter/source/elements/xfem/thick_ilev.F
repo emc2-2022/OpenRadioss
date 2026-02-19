@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  THICK_ILEV                    source/elements/xfem/thick_ilev.F
-Chd|-- called by -----------
-Chd|        CBUFXFE                       source/elements/xfem/cbufxfe.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    thick_ilev     ../starter/source/elements/xfem/thick_ilev.F
+!||--- called by ------------------------------------------------------
+!||    cbufxfe        ../starter/source/elements/xfem/cbufxfe.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE THICK_ILEV(ELBUF_STR,XFEM_STR,
      .                      LFT      ,LLT  ,NLAY  ,IR  ,IS  ,
      .                      NPTT     ,IXFEM,THKLY ,POSLY,IREP,IXEL)
@@ -40,8 +39,6 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
 #include  "mvsiz_p.inc"
-#include  "param_c.inc"
-#include  "com01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -54,7 +51,7 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,ILAY,IT,J,IPT,L_DIRA,L_DIRB
+      INTEGER I, II, ILAY, J, L_DIRA, L_DIRB
       my_real 
      .   THKT
       my_real,

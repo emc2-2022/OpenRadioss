@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_SUBMODEL              source/model/assembling/hm_read_submodel.F
-Chd|-- called by -----------
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_submodel     ../starter/source/model/assembling/hm_read_submodel.F
+!||--- called by ------------------------------------------------------
+!||    starter0             ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg               ../starter/source/output/message/message.F
+!||    hm_option_count      ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_read_key   ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start      ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod   ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod          ../starter/share/message_module/message_mod.F
+!||    submodel_mod         ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_SUBMODEL(LSUBMODEL)
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
@@ -52,19 +53,14 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD   
       USE HM_OPTION_READ_MOD
+      USE USER_ID_MOD , ONLY : ID_LIMIT
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "nchar_c.inc"
-#include      "submod_c.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -74,7 +70,7 @@ C OUTPUT ARGUMENTS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER  I,CUR_SUBMOD,ISUB_HIERARCHY,ISUBSKEW,STAT
+      INTEGER  I, CUR_SUBMOD, ISUBSKEW, STAT
       INTEGER, DIMENSION(:), ALLOCATABLE :: NOSUBMOD,IFATHER,LEVEL,UID_SUB
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: OFFSETS
       INTEGER  NB_BEGIN,SCHAR,SUB_INDEX,NBUNIT_SUB
@@ -143,58 +139,25 @@ C
         LSUBMODEL(I)%IFATHER = IFATHER(I)
         LSUBMODEL(I)%NOSUBMOD = NOSUBMOD(I) 
         LSUBMODEL(I)%LEVEL = LEVEL(I)  
-        LSUBMODEL(I)%UID = UID_SUB(I) 
-
-        LSUBMODEL(I)%OFF_DEF0 =  OFFSETS(1,I)    
-        LSUBMODEL(I)%OFF_NOD0 =  OFFSETS(2,I)     
-        LSUBMODEL(I)%OFF_EL0 =  OFFSETS(3,I)  
-        LSUBMODEL(I)%OFF_PART0 =  OFFSETS(4,I)  
-        LSUBMODEL(I)%OFF_MAT0 =  OFFSETS(5,I)  
-        LSUBMODEL(I)%OFF_PROP0 =  OFFSETS(6,I)  
-        LSUBMODEL(I)%OFF_SUBMOD0 =  OFFSETS(7,I)  
+        LSUBMODEL(I)%UID = UID_SUB(I)
+        LSUBMODEL(I)%OFF_DEF    = OFFSETS(1,I)
+        LSUBMODEL(I)%OFF_NOD    = OFFSETS(2,I)
+        LSUBMODEL(I)%OFF_EL     = OFFSETS(3,I)
+        LSUBMODEL(I)%OFF_PART   = OFFSETS(4,I)
+        LSUBMODEL(I)%OFF_MAT    = OFFSETS(5,I)
+        LSUBMODEL(I)%OFF_PROP   = OFFSETS(6,I)
+        LSUBMODEL(I)%OFF_SUBMOD = OFFSETS(7,I)
       ENDDO
 c
       ISUBSKEW = 1000000000
       DO I=1,NSUBMOD
         ISUBSKEW = ISUBSKEW + 1
-        IF (LSUBMODEL(I)%OFF_NOD0 == 0)    LSUBMODEL(I)%OFF_NOD0    = LSUBMODEL(I)%OFF_DEF0
-        IF (LSUBMODEL(I)%OFF_EL0 == 0)     LSUBMODEL(I)%OFF_EL0     = LSUBMODEL(I)%OFF_DEF0
-        IF (LSUBMODEL(I)%OFF_PART0 == 0)   LSUBMODEL(I)%OFF_PART0   = LSUBMODEL(I)%OFF_DEF0
-        IF (LSUBMODEL(I)%OFF_MAT0 == 0)    LSUBMODEL(I)%OFF_MAT0    = LSUBMODEL(I)%OFF_DEF0
-        IF (LSUBMODEL(I)%OFF_PROP0 == 0)   LSUBMODEL(I)%OFF_PROP0   = LSUBMODEL(I)%OFF_DEF0
-        IF (LSUBMODEL(I)%OFF_SUBMOD0 == 0) LSUBMODEL(I)%OFF_SUBMOD0 = LSUBMODEL(I)%OFF_DEF0
         IF (LSUBMODEL(I)%SKEW == 0) LSUBMODEL(I)%SKEW = ISUBSKEW
       ENDDO
-      IF (NSUBMOD .NE. 0) THEN
+      IF (NSUBMOD /= 0) THEN
         DO I=1,NSUBMOD
           CUR_SUBMOD = I
-          LSUBMODEL(I)%OFF_DEF = LSUBMODEL(I)%OFF_DEF0
-          LSUBMODEL(I)%OFF_NOD = LSUBMODEL(I)%OFF_NOD0
-          LSUBMODEL(I)%OFF_EL = LSUBMODEL(I)%OFF_EL0
-          LSUBMODEL(I)%OFF_PART = LSUBMODEL(I)%OFF_PART0 
-          LSUBMODEL(I)%OFF_MAT = LSUBMODEL(I)%OFF_MAT0
-          LSUBMODEL(I)%OFF_PROP = LSUBMODEL(I)%OFF_PROP0
-          LSUBMODEL(I)%OFF_SUBMOD = LSUBMODEL(I)%OFF_SUBMOD0
-          DO WHILE (LSUBMODEL(CUR_SUBMOD)%IFATHER .NE. 0)
-            CUR_SUBMOD = LSUBMODEL(CUR_SUBMOD)%IFATHER
-            LSUBMODEL(I)%OFF_DEF = LSUBMODEL(I)%OFF_DEF + LSUBMODEL(CUR_SUBMOD)%OFF_DEF0 
-            LSUBMODEL(I)%OFF_NOD = LSUBMODEL(I)%OFF_NOD + LSUBMODEL(CUR_SUBMOD)%OFF_NOD0 
-            LSUBMODEL(I)%OFF_EL = LSUBMODEL(I)%OFF_EL + LSUBMODEL(CUR_SUBMOD)%OFF_EL0 
-            LSUBMODEL(I)%OFF_PART = LSUBMODEL(I)%OFF_PART + LSUBMODEL(CUR_SUBMOD)%OFF_PART0 
-            LSUBMODEL(I)%OFF_MAT = LSUBMODEL(I)%OFF_MAT + LSUBMODEL(CUR_SUBMOD)%OFF_MAT0 
-            LSUBMODEL(I)%OFF_PROP = LSUBMODEL(I)%OFF_PROP + LSUBMODEL(CUR_SUBMOD)%OFF_PROP0
-            LSUBMODEL(I)%OFF_SUBMOD = LSUBMODEL(I)%OFF_SUBMOD + LSUBMODEL(CUR_SUBMOD)%OFF_SUBMOD0
-            IF(LSUBMODEL(I)%NOSUBMOD .NE. 0)
-     .        LSUBMODEL(I)%NOSUBMOD = LSUBMODEL(I)%NOSUBMOD + LSUBMODEL(CUR_SUBMOD)%OFF_SUBMOD0 
-            IF(LSUBMODEL(I)%UID .NE. 0)
-     .        LSUBMODEL(I)%UID = LSUBMODEL(I)%UID  + LSUBMODEL(CUR_SUBMOD)%OFF_DEF0 
-          ENDDO
-        ENDDO
-      ENDIF
-      IF (NSUBMOD .NE. 0) THEN
-        DO I=1,NSUBMOD
-          CUR_SUBMOD = I
-          DO WHILE (LSUBMODEL(CUR_SUBMOD)%IFATHER .NE. 0)
+          DO WHILE (LSUBMODEL(CUR_SUBMOD)%IFATHER /= 0)
             CUR_SUBMOD = LSUBMODEL(CUR_SUBMOD)%IFATHER
             LSUBMODEL(I)%LEVEL = LSUBMODEL(I)%LEVEL + 1
           ENDDO
@@ -205,14 +168,14 @@ C
       IF(NSUBMOD > 0)THEN
         CALL HM_OPTION_COUNT('/BEGIN',NB_BEGIN)
         SCHAR = 20
-        IF (NB_BEGIN .NE. 0) THEN
+        IF (NB_BEGIN /= 0) THEN
           CALL HM_OPTION_START('/BEGIN')
           DO I=1,NB_BEGIN
             CALL HM_OPTION_READ_KEY(LSUBMODEL,
      .                              SUBMODEL_INDEX = SUB_INDEX)
-            IF (SUB_INDEX .NE. 0) THEN
+            IF (SUB_INDEX /= 0) THEN
               NBUNIT_SUB = NBUNIT_SUB + 1
-              LSUBMODEL(SUB_INDEX)%UID = ID_UNIT_AUTO + NBUNIT_SUB
+              LSUBMODEL(SUB_INDEX)%UID = ID_LIMIT%UNIT + NBUNIT_SUB
             ENDIF
           ENDDO
 c

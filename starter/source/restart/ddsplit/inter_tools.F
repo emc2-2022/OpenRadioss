@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  W_INTBUF_SIZE                 source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    w_intbuf_size      ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    arret              ../starter/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE W_INTBUF_SIZE(INTBUF_TAB_L)
 c
 c write on disk all sizes of INTBUF_TAB arrays (INTEGERs then REALs)
@@ -42,22 +41,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(INTBUF_STRUCT_) INTBUF_TAB_L
-C-----------------------------------------------
-C   F u n c t i o n
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -309,6 +299,10 @@ C=======================================================================
       INTBUF_SIZE(N) = INTBUF_TAB_L%S_KREMNODE_E2S
       N = N+1
       INTBUF_SIZE(N) = INTBUF_TAB_L%S_REMNODE_E2S
+      N = N+1
+      INTBUF_SIZE(N) = INTBUF_TAB_L%S_IELEM_M
+      N = N+1
+      INTBUF_SIZE(N) = INTBUF_TAB_L%S_PROC_MVOISIN
 
 C=======================================================================
 C real arrays sizes
@@ -358,6 +352,10 @@ C=======================================================================
       N = N+1
       INTBUF_SIZE(N) = INTBUF_TAB_L%S_PENIS
       N = N+1
+      INTBUF_SIZE(N) = INTBUF_TAB_L%S_STIFMSDT_S
+      N = N+1
+      INTBUF_SIZE(N) = INTBUF_TAB_L%S_STIFMSDT_M
+      N = N+1
       INTBUF_SIZE(N) = INTBUF_TAB_L%S_GAP_M
       N = N+1
       INTBUF_SIZE(N) = INTBUF_TAB_L%S_GAP_S
@@ -388,6 +386,8 @@ C=======================================================================
       INTBUF_SIZE(N) = INTBUF_TAB_L%S_GAP_E_L
       N = N+1
       INTBUF_SIZE(N) = INTBUF_TAB_L%S_STFE
+      N = N+1
+      INTBUF_SIZE(N) = INTBUF_TAB_L%S_STIFMSDT_EDG
       N = N+1
       INTBUF_SIZE(N) = INTBUF_TAB_L%S_FTSAVX
       N = N+1
@@ -607,14 +607,13 @@ C=======================================================================
 C GENERIC ROUTINES TO SPLIT & WRITE ON DISK
 C=======================================================================
 
-Chd|====================================================================
-Chd|  SPLIT_NODE_IVAL               source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_node_ival    ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_NODE_IVAL(TAB,DIM1,DIM2,TAG)
 c
 c split & write node array (type INTEGER) with global value
@@ -628,15 +627,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -662,14 +652,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  FILTER_NODE_NODLOC            source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    filter_node_nodloc   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces     ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE FILTER_NODE_NODLOC(TAB,DIM1,TAG,NODLOCAL) 
 c
 c Filter & write node array (type INTEGER) with local value
@@ -682,15 +671,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -716,14 +696,13 @@ c     WRITE(6,*) __FILE__,__LINE__,IBUF(1:DIM1)
 
       RETURN
       END
-Chd|====================================================================
-Chd|  COPY_NODE_NODLOC              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    copy_node_nodloc   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE COPY_NODE_NODLOC(TAB,DIM1,NODLOCAL) 
 c
 c Copy & write node array (type INTEGER) with local value
@@ -737,15 +716,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -768,14 +738,13 @@ c
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SPLIT_NODE_NODLOC             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_node_nodloc   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_NODE_NODLOC(TAB,DIM1,TAG,NODLOCAL) 
 c
 c split & write node array (type INTEGER) with local value
@@ -789,15 +758,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -819,14 +779,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_NODE_RVAL               source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_node_rval    ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_NODE_RVAL(TAB,DIM1,DIM2,TAG)
 c
 c split & write node array (type REAL) with global value
@@ -839,15 +798,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -874,14 +824,58 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_SEG_NODLOC              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_node_rval_dummy   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces        ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE SPLIT_NODE_RVAL_DUMMY(DIM1,DIM2,TAG)
+c
+c split & write node array (type REAL) with global value
+c
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE INTBUFDEF_MOD 
+C-----------------------------------------------
+C   I m p l i c i t   T y p e s
+C-----------------------------------------------
+#include      "implicit_f.inc"
+C-----------------------------------------------
+C   D u m m y   A r g u m e n t s
+C-----------------------------------------------
+      INTEGER TAG(*),DIM1,DIM2
+C-----------------------------------------------
+C   L o c a l   V a r i a b l e s
+C-----------------------------------------------
+      INTEGER I,J,K
+
+      my_real, DIMENSION(:),ALLOCATABLE :: RBUF
+C ----------------------------------------
+      ALLOCATE(RBUF(DIM1*DIM2))
+      DO I=1, DIM1
+        K=TAG(I)
+        DO J=1,DIM2
+          RBUF(DIM2*(I-1)+J) = 0
+        ENDDO
+      ENDDO
+
+      !CALL WRITE_DB(RBUF,DIM1*DIM2)
+      IF(DIM1*DIM2 > 0) CALL COMPRESS_R_NNZ(RBUF,DIM1*DIM2)
+      DEALLOCATE(RBUF)
+
+      RETURN
+      END
+ 
+!||====================================================================
+!||    split_seg_nodloc   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_SEG_NODLOC(TAB,DIM1,DIM2,TAG_SEG,NODLOCAL)
 c
 c split & write segments array (type INTEGER) with local value
@@ -895,29 +889,24 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER TAB(*),TAG_SEG(*),DIM1,DIM2,NODLOCAL(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K
+      INTEGER I,J,K,NOD
       INTEGER, DIMENSION(:),ALLOCATABLE :: IBUF
 C ----------------------------------------
       ALLOCATE(IBUF(DIM1*DIM2))
+      IBUF = 0
       DO I=1, DIM1
         K=TAG_SEG(I)
         DO J=1,DIM2
-          IBUF(DIM2*(I-1)+J) = NODLOCAL(TAB(DIM2*(K-1)+J))
+          NOD = TAB(DIM2*(K-1)+J)
+          IF (NOD > 0) THEN
+            IBUF(DIM2*(I-1)+J) = NODLOCAL(NOD)
+          ENDIF
         ENDDO
       ENDDO
       CALL WRITE_I_C(IBUF,DIM1*DIM2)
@@ -926,14 +915,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_SEG_SEGLOC              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_seg_segloc   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_SEG_SEGLOC(TAB,DIM1,DIM2,TAG_SEG,SEGLOCAL)
 c
 c split & write segments array (type INTEGER) with local value
@@ -946,15 +934,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -988,14 +967,14 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  COPY_IVAL                     source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+
+!||====================================================================
+!||    copy_ival          ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE COPY_IVAL(TAB,DIM1,DIM2)
 c 
 c copy and write array value (type INTEGER)
@@ -1008,15 +987,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1040,15 +1010,14 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  COPY_IVAL_IGEO                source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE COPY_IVAL_IGEO(TAB,DIM1,DIM2,OFFSET)
+!||====================================================================
+!||    copy_ival_dummy    ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE COPY_IVAL_DUMMY(DIM1,DIM2)
 c 
 c copy and write array value (type INTEGER)
 c
@@ -1061,14 +1030,47 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
+C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-#include      "analyse_name.inc"
+      INTEGER DIM1,DIM2
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
+C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
+      INTEGER I,J
+      INTEGER, DIMENSION(:),ALLOCATABLE :: IBUF
+C ----------------------------------------
+      ALLOCATE(IBUF(DIM1*DIM2))
+
+      DO I=1, DIM1
+        DO J=1, DIM2
+          IBUF(DIM2*(I-1)+J) = 0 
+        ENDDO
+      ENDDO
+      IF(DIM1*DIM2 >0) CALL COMPRESS_I_NNZ(IBUF,DIM1*DIM2)
+      DEALLOCATE(IBUF)
+
+      RETURN
+      END
+ 
+!||====================================================================
+!||    copy_ival_igeo     ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE COPY_IVAL_IGEO(TAB,DIM1,DIM2,OFFSET)
+c 
+c copy and write array value (type INTEGER)
+c
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE INTBUFDEF_MOD 
+C-----------------------------------------------
+C   I m p l i c i t   T y p e s
+C-----------------------------------------------
+#include      "implicit_f.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1092,14 +1094,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  COPY_RVAL                     source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    copy_rval          ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE COPY_RVAL(TAB,DIM1,DIM2)
 c 
 c copy and write array value (type REAL)
@@ -1112,15 +1113,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1147,14 +1139,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_NODE_NODLOC_P0          source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_node_nodloc_p0   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces       ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_NODE_NODLOC_P0(TAB,DIM1,DIM2,NODLOCAL)
 c
 c same routine as SPLIT_NODE_NODLOC for interfaces splited 
@@ -1168,15 +1159,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1199,13 +1181,12 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_CAND            source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_cand   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces     ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_CAND(INTBUF_TAB, TAG_SEGM2, II_STOK, TAG_II)
 C-----------------------------------------------
 C   M o d u l e s
@@ -1215,15 +1196,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1241,7 +1213,7 @@ C ----------------------------------------
       C_II = 0
       DO K = 1, II_STOK
         E = INTBUF_TAB%CAND_E(K)
-        IF (TAG_SEGM2(E).NE.0) THEN
+        IF (TAG_SEGM2(E)/=0) THEN
           C_II = C_II + 1
           TAG_II(C_II) = K
         ENDIF
@@ -1249,14 +1221,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_CAND_IVAL               source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_ival    ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_CAND_IVAL(TAB    , II_STOK_L, TAG_II,
      .                           MULTIMP, NCONT )
 c
@@ -1270,15 +1241,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1302,14 +1264,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_CAND_RVAL               source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_rval    ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_CAND_RVAL(TAB,II_STOK_L,TAG_II,MULTIMP,NCONT)
 c
 c split & write candidates (REALs arrays sized MULTIMP*NCONT)
@@ -1322,15 +1283,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1356,6 +1308,52 @@ C ----------------------------------------
 
       RETURN
       END
+!||====================================================================
+!||    split_cand_rval_dummy   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces        ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE SPLIT_CAND_RVAL_DUMMY(II_STOK_L,TAG_II,MULTIMP,NCONT)
+c
+c split & write candidates (REALs arrays sized MULTIMP*NCONT)
+c
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE INTBUFDEF_MOD 
+C-----------------------------------------------
+C   I m p l i c i t   T y p e s
+C-----------------------------------------------
+#include      "implicit_f.inc"
+C-----------------------------------------------
+C   D u m m y   A r g u m e n t s
+C-----------------------------------------------
+      INTEGER TAG_II(*),II_STOK_L,MULTIMP,NCONT
+
+C-----------------------------------------------
+C   L o c a l   V a r i a b l e s
+C-----------------------------------------------
+      INTEGER I,K
+      my_real, DIMENSION(:),ALLOCATABLE :: RBUF
+C ----------------------------------------
+      ALLOCATE(RBUF(MULTIMP*NCONT))
+      RBUF(1:MULTIMP*NCONT) = 0
+
+      DO I=1, II_STOK_L
+        K=TAG_II(I)
+        RBUF(I) =  0
+      ENDDO
+
+      !CALL WRITE_DB(RBUF,MULTIMP*NCONT)
+    
+      IF(MULTIMP * NCONT > 0) CALL COMPRESS_R_NNZ(RBUF,MULTIMP*NCONT)
+      DEALLOCATE(RBUF)
+
+      RETURN
+      END
+
 
 C=======================================================================
 C END GENERIC ROUTINES TO SPLIT & WRITE ON DISK
@@ -1364,14 +1362,13 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT2
 C=======================================================================
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I2              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_i2   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod          ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_I2(PROC, INTBUF_TAB  , NSN     , NMN      ,
      +                            NRTM, TAG_NODE_2RY, TAG_SEGM, TAG_SEGM2,
      +                            TAG_IRTL, TAG     , ITABI2M , NODLOCAL ,
@@ -1385,15 +1382,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1435,7 +1423,7 @@ C ----------------------------------------
 
       CNRTM_L = 0
       DO K=1,NRTM
-        IF(TAG(K).EQ.1) THEN
+        IF(TAG(K)==1) THEN
             CNRTM_L = CNRTM_L + 1
             TAG_SEGM(CNRTM_L) = K
             TAG_SEGM2(K) = CNRTM_L
@@ -1456,7 +1444,7 @@ C ----------------------------------------
       DO K = 1, NMN
         N = INTBUF_TAB%MSR(K)
         IF( NODLOCAL( N )/=0.AND.NODLOCAL( N )<=NUMNOD_L ) THEN
-          IF(NBDDI2M.GT.0)ITABI2M(NODLOCAL(N)) = 1
+          IF(NBDDI2M>0)ITABI2M(NODLOCAL(N)) = 1
           CNMN_L = CNMN_L + 1
           TAG_IRTL(CNMN_L) = K
         ENDIF
@@ -1464,16 +1452,15 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_NODE_IVAL2              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_node_ival2   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_NODE_IVAL2(TAB,DIM1,DIM2,TAG_SEGM2,TAG_NODE_2RY)
-c specific type2, need use of 2 TAG arrays (one for main segment, one for secnd node)
+c specific type2, need use of 2 TAG arrays (one for main segment, one for second node)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -1482,15 +1469,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1515,17 +1493,16 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_SEG_IVAL2               source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_seg_ival2    ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_SEG_IVAL2(TAB,DIM1,TAG,TAG2)
 c
-c split segment array with global value specifi type2
+c split segment array with global value specific type2
 c
 C-----------------------------------------------
 C   M o d u l e s
@@ -1535,15 +1512,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1574,16 +1542,14 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT7
 C=======================================================================
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I7              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        I7I10SPLITMOD                 share/modules1/i710split_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_i7   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod          ../starter/share/modules1/front_mod.F
+!||    i7i10splitmod      ../starter/share/modules1/i710split_mod.F
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_I7(PROC     ,   INTBUF_TAB  , IPARI       ,
      .                            INTERCEP ,   TAG_NODE_2RY, TAG_SEGM    ,
      .                            TAG_SEGM2,   TAG_NM      , TAG_NODE_MSR,
@@ -1601,15 +1567,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1631,7 +1588,7 @@ C-----------------------------------------------
 !                 used for optimize the initialization
 !                 of TAG_XXX array (XXX = NM or SCRT for SCRATCH)
 !                 allocated array in lectur and threadprivate array
-!       NINDX_XXX : number of non-zero TAG_XXX valuee
+!       NINDX_XXX : number of non-zero TAG_XXX value
 !       TAG_XXX : size = NUMNOD
 !                array used to tag an element for 
 !                a given interface ; allocated in lectur
@@ -1672,7 +1629,7 @@ C ----------------------------------------
       ENDIF
 
       CNSN_L = 0
-      IF (MULTI_FVM%IS_USED .AND. ABS(IPARI(22)) .EQ. 7) THEN
+      IF (MULTI_FVM%IS_USED .AND. ABS(IPARI(22)) == 7) THEN
 C     Interface type 18 law 151
          DO K=1, NSN0
             N=INTBUF_TAB%NSV(K)
@@ -1696,7 +1653,7 @@ C     Interface type 18 law 151
                INDX_SCRT(NINDX_SCRT) = N
             ENDIF
          ENDDO
-         DO K=NSN0+1, NSN0 + NSN_IGE ! Specifique surface IGEO
+         DO K=NSN0+1, NSN0 + NSN_IGE ! Specific Igeo surface
             N=INTBUF_TAB%NSV(K)
             IF(TAG_SCRATCH(N)==0) THEN
                CNSN_L = CNSN_L+1
@@ -1771,23 +1728,22 @@ C     Interface type 18 law 151
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_CAND_I7                 source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        PLIST_IFRONT                  source/spmd/node/ddtools.F    
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_i7      ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../starter/source/output/message/message.F
+!||    nlocal             ../starter/source/spmd/node/ddtools.F
+!||    plist_ifront       ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_CAND_I7(PROC     , INTBUF_TAB, NSN    , NSN_L       ,
      .                         TAG_SEGM2, II_STOK   , MULTIMP, NCONT       ,
      .                         NOINT    , INACTI    , TAG_SCRATCH ,
      .                         II_STOK_L, ITYP ,NINDX_SCRT,INDX_SCRT , NODLOCAL,
-     .                         NUMNOD_L)
+     .                         NUMNOD_L,NUMNOD,NUMELS,LEN_CEP,CEP,TYPE18_LAW151)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -1798,26 +1754,24 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER PROC,NSN,NSN_L,II_STOK,MULTIMP,NCONT,
      .        TAG_SEGM2(*),NOINT,INACTI,
      .        TAG_SCRATCH(*) , II_STOK_L, ITYP   
-      INTEGER, INTENT(IN) :: NUMNOD_L
+      INTEGER, INTENT(IN) :: NUMNOD_L !< number of node of the current proc
       INTEGER, INTENT(INOUT) :: NINDX_SCRT
       INTEGER, DIMENSION(*), INTENT(INOUT) :: INDX_SCRT
       INTEGER, DIMENSION(*), INTENT(IN) :: NODLOCAL
-
+      INTEGER, INTENT(IN) :: NUMNOD !< total number of node
+      INTEGER, INTENT(in) :: NUMELS !< number of solid element
+      INTEGER, INTENT(in) :: LEN_CEP !< size of CEP array
+      INTEGER, DIMENSION(LEN_CEP), INTENT(in) :: CEP !< element -> proc connectivity array
+      LOGICAL, INTENT(in) :: TYPE18_LAW151
       TYPE(INTBUF_STRUCT_) :: INTBUF_TAB
 !       -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 !       INDX_SCRT : size = NUMNOD + NUMELS + I24MAXNSNE2
@@ -1825,7 +1779,7 @@ C-----------------------------------------------
 !                 used for optimize the initialization
 !                 of TAG_XXX array (XXX = NM or SCRT for SCRATCH)
 !                 allocated array in lectur and threadprivate array
-!       NINDX_SCRT : number of non-zero TAG_XXX valuee
+!       NINDX_SCRT : number of non-zero TAG_XXX value
 !       TAG_SCRATCH : size = NUMNOD + NUMELS + I24MAXNSNE2
 !                array used to tag an element for 
 !                a given interface ; allocated in lectur
@@ -1859,36 +1813,50 @@ C ----------------------------------------
       IBUF_N(1:MULTIMP*NCONT) = 0
       II_STOK_L = 0 !mandatory in case of inacti ne 5,6,7 
 
-      IF(ITYP.EQ.23.OR.INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7) THEN 
-        IF(NSN.GT.0) THEN
+      IF(ITYP==23.OR.INACTI==5.OR.INACTI==6.OR.INACTI==7) THEN 
+        IF(NSN>0) THEN
           ALLOCATE(NSNLOCAL(NSN))
           ALLOCATE(CPULOCAL(NSN))
           ALLOCATE(CANDR(NSN))
         END IF
-
         NUMP(1:NSPMD) = 0
 
         ALLOCATE(PLIST(NSPMD)) 
         PLIST(1:NSPMD) = -1
         DO K=1,NSN
           N = INTBUF_TAB%NSV(K)
-c          IF(N.GT.NUMNOD) CYCLE
+c          IF(N>NUMNOD) CYCLE
           NSNLOCAL(K) = 0
-          IF(TAG_SCRATCH(N).EQ.0) THEN 
-            SPLIST=0 
-            CALL PLIST_IFRONT(PLIST,N,SPLIST) 
-            DO I=1,SPLIST
-              P=PLIST(I)
+          IF(TAG_SCRATCH(N)==0) THEN 
+            SPLIST=0
+            ! ---------------------
+            ! law151 + interface type 18 : N is a brick id N € [1;NUMELS]
+            ! 
+            IF(TYPE18_LAW151) THEN
+              P = CEP(N) + 1
               NUMP(P) = NUMP(P)+1
-            ENDDO
-            IF( NODLOCAL(N)/=0.AND.NODLOCAL(N)<=NUMNOD_L ) THEN
-              NSNLOCAL(K) = NUMP(PROC+1)
-              CPULOCAL(K) = PROC+1
+              IF(P==PROC+1) THEN
+                NSNLOCAL(K) = NUMP(P)
+                CPULOCAL(K) = P
+              ENDIF
+            ! ---------------------
+            ! other kind of interface : N is a node id N € [1;NUMNOD]
             ELSE
-              P = PLIST(1)
-              NSNLOCAL(K) = NUMP(P)
-              CPULOCAL(K) = P
+                CALL PLIST_IFRONT(PLIST,N,SPLIST) 
+                DO I=1,SPLIST
+                    P=PLIST(I)
+                    NUMP(P) = NUMP(P)+1
+                ENDDO
+                IF( NODLOCAL(N)/=0.AND.NODLOCAL(N)<=NUMNOD_L ) THEN
+                    NSNLOCAL(K) = NUMP(PROC+1)
+                    CPULOCAL(K) = PROC+1
+                ELSE
+                    P=PLIST(1)
+                    NSNLOCAL(K) = NUMP(P)
+                    CPULOCAL(K) = P
+                ENDIF              
             ENDIF
+            ! ---------------------
             TAG_SCRATCH(N) = 1
             NINDX_SCRT = NINDX_SCRT + 1
             INDX_SCRT(NINDX_SCRT) = N
@@ -1904,24 +1872,31 @@ c          IF(N.GT.NUMNOD) CYCLE
         ENDDO
         NINDX_SCRT = 0
 C
-C Reperage des candidats se trouvant sur des procs distants
+C Locating candidates on remote processors
 C
         C_NSNR = 0
 
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             N = INTBUF_TAB%CAND_N(K)
-            IF(TAG_SCRATCH(N).EQ.0) THEN
+            IF(TAG_SCRATCH(N)==0) THEN
               TAG_SCRATCH(N) = 1
               NINDX_SCRT = NINDX_SCRT + 1
               INDX_SCRT(NINDX_SCRT) = N
               MY_NODE = INTBUF_TAB%NSV(N)
-c              IF(INTBUF_TAB%NSV(N).GT.NUMNOD) CYCLE
-              IF( NODLOCAL( MY_NODE )==0.OR.NODLOCAL(MY_NODE)>NUMNOD_L ) THEN
-                C_NSNR = C_NSNR + 1
-                CANDR(C_NSNR) = N
-              END IF
+c              IF(INTBUF_TAB%NSV(N)>NUMNOD) CYCLE
+              IF(TYPE18_LAW151) THEN
+                  IF(CEP(MY_NODE)/=PROC) THEN
+                    C_NSNR = C_NSNR + 1
+                    CANDR(C_NSNR) = N
+                  ENDIF
+              ELSE
+                  IF( NODLOCAL( MY_NODE )==0.OR.NODLOCAL(MY_NODE)>NUMNOD_L ) THEN
+                    C_NSNR = C_NSNR + 1
+                    CANDR(C_NSNR) = N
+                  END IF
+              ENDIF
             END IF
           ENDIF
         ENDDO
@@ -1929,7 +1904,7 @@ c              IF(INTBUF_TAB%NSV(N).GT.NUMNOD) CYCLE
         !reflush TAG_SCRATCH to zero only when value has changes
 !        DO K=1, II_STOK  
 !         E = INTBUF_TAB%CAND_E(K)
-!          IF (TAG_SEGM2(E).NE.0) THEN
+!          IF (TAG_SEGM2(E)/=0) THEN
 !            N = INTBUF_TAB%CAND_N(K)
 !            TAG_SCRATCH(N) = 0
 !          ENDIF
@@ -1941,9 +1916,9 @@ c              IF(INTBUF_TAB%NSV(N).GT.NUMNOD) CYCLE
         ENDDO
         NINDX_SCRT = 0
 C
-C Tris des candidats remote par proc et par nsv local croissant
+C Sorting remote candidates by proc and by ascending local nsv
 C
-        IF(C_NSNR.GT.0) THEN
+        IF(C_NSNR>0) THEN
           ALLOCATE(INDEX(2*C_NSNR))
           ALLOCATE(ITRI(2,C_NSNR))
         END IF
@@ -1966,12 +1941,12 @@ C
         C_NSNR = 0
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             II_STOK_L = II_STOK_L + 1
           END IF
         END DO
 
-        IF(II_STOK_L.GT.MULTIMP*NCONT)THEN
+        IF(II_STOK_L>MULTIMP*NCONT)THEN
           MULTOK= II_STOK_L/NCONT
           CALL ANCMSG(MSGID=626,
      .                MSGTYPE=MSGERROR,
@@ -1983,16 +1958,16 @@ C
 C
           DO K = 1, II_STOK
             E = INTBUF_TAB%CAND_E(K)
-            IF (TAG_SEGM2(E).NE.0) THEN
+            IF (TAG_SEGM2(E)/=0) THEN
               N = INTBUF_TAB%CAND_N(K)
               II_STOK_L = II_STOK_L + 1
               IBUF_E(II_STOK_L)=TAG_SEGM2(E)
-c              IF(INTBUF_TAB%NSV(N).GT.NUMNOD) CYCLE
+c              IF(INTBUF_TAB%NSV(N)>NUMNOD) CYCLE
               MY_NODE = INTBUF_TAB%NSV(N)
               IF( NODLOCAL( MY_NODE )/=0.AND.NODLOCAL(MY_NODE)<=NUMNOD_L ) THEN
                 IBUF_N(II_STOK_L)=NSNLOCAL(N)
               ELSE
-C noeud remote : numerotation pre calculee ci-dessus
+C remote node : numbering pre-calculated above
 c                IF(TAG(N)==0) THEN
                 IF(TAG_SCRATCH(N)==0) THEN
                   C_NSNR = C_NSNR + 1
@@ -2004,14 +1979,14 @@ c                IF(TAG(N)==0) THEN
                   IBUF_N(II_STOK_L) = TAG_SCRATCH(N)
                 END IF ! TAG(N)==0
               END IF ! NODLOCAL/=0
-            ENDIF !TAG_SEGM_2(E).NE.0
+            ENDIF !TAG_SEGM_2(E)/=0
           ENDDO !K = 1, II_STOK
-        END IF !II_STOK_L.GT.MULTIMP*NCONT
+        END IF !II_STOK_L>MULTIMP*NCONT
 
         !reflush TAG_SCRATCH to zero only when value has changes
 !        DO K=1, II_STOK  
 !         E = INTBUF_TAB%CAND_E(K)
-!          IF (TAG_SEGM2(E).NE.0) THEN
+!          IF (TAG_SEGM2(E)/=0) THEN
 !            N = INTBUF_TAB%CAND_N(K)
 !            TAG_SCRATCH(N) = 0
 !          ENDIF
@@ -2023,11 +1998,11 @@ c                IF(TAG(N)==0) THEN
         ENDDO
         NINDX_SCRT = 0
   
-        IF(NSN.GT.0) DEALLOCATE(NSNLOCAL,CPULOCAL,CANDR)
-        IF(C_NSNR.GT.0) DEALLOCATE(INDEX,ITRI)
+        IF(NSN>0) DEALLOCATE(NSNLOCAL,CPULOCAL,CANDR)
+        IF(C_NSNR>0) DEALLOCATE(INDEX,ITRI)
 
-c        IF(ITYP.EQ.23.OR.INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7.
-c     .          OR.IFQ.GT.0)IPARI_L(24,NI)= C_NRTSR
+c        IF(ITYP==23.OR.INACTI==5.OR.INACTI==6.OR.INACTI==7.
+c     .Or.ifq> 0) iPari_l (24, ni) = c_nrtsr
          
       ENDIF !END INACTI=5,6,7 
 
@@ -2038,15 +2013,14 @@ c     .          OR.IFQ.GT.0)IPARI_L(24,NI)= C_NRTSR
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_REMNODE_I7              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_remnode_i7   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_REMNODE_I7(PROC     , INTBUF_TAB, NRTM    , NRTM_L,
      .                            TAG_SEGM2, NREMNODE  , NODLOCAL, ITAB  ,NUMNOD_L)
 C-----------------------------------------------
@@ -2059,15 +2033,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2110,7 +2078,7 @@ C ----------------------------------------
       SIZ_TMP(1:NRTM) = 0
 
       DO K=1,NRTM
-        IF(TAG_SEGM2(K) .NE. 0)THEN
+        IF(TAG_SEGM2(K) /= 0)THEN
           SIZ_TMP(TAG_SEGM2(K)) = INTBUF_TAB%KREMNODE(K+1)
      .              -INTBUF_TAB%KREMNODE(K)
         ENDIF
@@ -2123,7 +2091,7 @@ C ----------------------------------------
       SIZ1 = 0
       SIZ2 = 0
       DO K=1,NRTM
-        IF(TAG_SEGM2(K) .NE. 0)THEN
+        IF(TAG_SEGM2(K) /= 0)THEN
 
           SIZ = SIZ_TMP(TAG_SEGM2(K))
           IBUF1(1+2*TAG_SEGM2(K)) =IBUF1(1+2*(TAG_SEGM2(K)-1)) + SIZ
@@ -2172,13 +2140,12 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_CAND_I25_EDGE   source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_cand_i25_edge   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces              ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
             SUBROUTINE PREPARE_SPLIT_CAND_I25_EDGE(INTBUF_TAB,SEGLOC,
      .                             TAG_EDGE, NEDGE_L, TAG_EDGE2, NEDGE,
      .                             II_STOK_E, II_STOK_E_L, TAG_II_E2E,
@@ -2195,15 +2162,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "assert.inc"
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "assert.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -2216,8 +2177,8 @@ C-----------------------------------------------
       INTEGER :: II_STOK_E, II_STOK_E_L 
       INTEGER :: II_STOK_S, II_STOK_S_L
       INTEGER :: PROC, IREMI2, FLAGREMNODE, NRTM
-      INTEGER :: TAG_JJ_E2E(*) !Gobal id of global E2E cand (OUT)
-      INTEGER :: TAG_JJ_E2S(*) !Globa id of global E2S cand (OUT)
+      INTEGER :: TAG_JJ_E2E(*) !Global id of global E2E cand (OUT)
+      INTEGER :: TAG_JJ_E2S(*) !Global id of global E2S cand (OUT)
 
       TYPE(INTBUF_STRUCT_) :: INTBUF_TAB
 C-----------------------------------------------
@@ -2230,7 +2191,7 @@ C-----------------------------------------------
       INTEGER :: NB_BOUNDARY_EDGES_LOCAL  ! boundary edges treated by current domain 
       INTEGER :: NB_BOUNDARY_EDGES_REMOTE ! boundary edges treated by the other domain 
       INTEGER, DIMENSION(:),ALLOCATABLE :: KCANDMS,ICANDMS,CANDMS
-      INTEGER, DIMENSION(:),ALLOCATABLE :: TAGREMCAND_E2E, TAGREMCAND_E2S ! tabs to tag edges to be desactivated 
+      INTEGER, DIMENSION(:),ALLOCATABLE :: TAGREMCAND_E2E, TAGREMCAND_E2S ! tabs to tag edges to be deactivated 
 C ----------------------------------------
 
 ! prepare split candidates
@@ -2462,15 +2423,14 @@ C            master sgmt is local
       DEALLOCATE(TAGREMCAND_E2E,TAGREMCAND_E2S)
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_CAND_I25_EDGE           source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        I25_FIE_MOD                   share/modules1/i25_fie_mod.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_i25_edge   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces      ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    i25_fie_mod           ../starter/share/modules1/i25_fie_mod.F
+!||====================================================================
             SUBROUTINE SPLIT_CAND_I25_EDGE(INTBUF_TAB,SEGLOC,PROC,NIN,
      .                             TAG_EDGE, NEDGE_L, TAG_EDGE2, NEDGE,
      .                             II_STOK_E, II_STOK_E_L, TAG_II_E2E,
@@ -2486,16 +2446,11 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "assert.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
 #include      "param_c.inc"
+#include      "assert.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2507,8 +2462,8 @@ C-----------------------------------------------
       INTEGER :: TAG_II_E2S(*) !local id of global E2S cand (OUT)
       INTEGER :: II_STOK_E, II_STOK_E_L 
       INTEGER :: II_STOK_S, II_STOK_S_L
-      INTEGER :: TAG_JJ_E2E(II_STOK_E) !Gobal id of global E2E cand (OUT)
-      INTEGER :: TAG_JJ_E2S(II_STOK_S) !Globa id of global E2S cand (OUT)
+      INTEGER :: TAG_JJ_E2E(II_STOK_E) !Global id of global E2E cand (OUT)
+      INTEGER :: TAG_JJ_E2S(II_STOK_S) !Global id of global E2S cand (OUT)
 
 
       TYPE(INTBUF_STRUCT_) :: INTBUF_TAB
@@ -2538,11 +2493,10 @@ C       main edge is local
         ID = ID + 1 
         CANDM_E2E(ID) = TAG_EDGE2(INTBUF_TAB%CANDM_E2E(I)) 
         IF(INTBUF_TAB%LEDGE(9+(INTBUF_TAB%CANDS_E2E(I)-1)*NLEDGE) == PROC ) THEN
-C       Secnd is also local
+C       Second is also local
           CANDS_E2E(ID) = TAG_EDGE2(INTBUF_TAB%CANDS_E2E(I))
         ELSE
-C       Remote secnd
-C         ASSERT(.FALSE.)
+C       Remote second C         ASSERT(.FALSE.)
 C         CANDS_E2E(ID) = -INTBUF_TAB%CANDS_E2E(I)
           CANDS_E2E(ID) = ABS(I25_SPLIT_CAND(NIN,PROC+1)%CANDS_E2E(JJ)) + NEDGE_L
 
@@ -2565,12 +2519,11 @@ C       main edge is local
         CANDM_E2S(ID) = SEGLOC(INTBUF_TAB%CANDM_E2S(I)) 
 C       IF(TAG_EDGE2(INTBUF_TAB%CANDS_E2S(I)) > 0) THEN
         IF(INTBUF_TAB%LEDGE(9+(INTBUF_TAB%CANDS_E2S(I)-1)*NLEDGE) == PROC ) THEN
-C       Secnd is also local
+C       Second is also local
           CANDS_E2S(ID) = TAG_EDGE2(INTBUF_TAB%CANDS_E2S(I))
           ASSERT(CANDS_E2S(ID) == I25_SPLIT_CAND(NIN,PROC+1)%CANDS_E2S(JJ))
         ELSE
-C       Remote secnd
-C         ASSERT(.FALSE.)
+C       Remote second C         ASSERT(.FALSE.)
           CANDS_E2S(ID) = ABS(I25_SPLIT_CAND(NIN,PROC+1)%CANDS_E2S(JJ)) + NEDGE_L
 C         CANDS_E2S(ID) = - INTBUF_TAB%CANDS_E2S(I)
         ENDIF
@@ -2588,16 +2541,15 @@ C         CANDS_E2S(ID) = - INTBUF_TAB%CANDS_E2S(I)
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SPLIT_REMNODE_I25             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_remnode_i25   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    front_mod           ../starter/share/modules1/front_mod.F
+!||    message_mod         ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_REMNODE_I25(PROC     , INTBUF_TAB, NRTM    , NRTM_L ,
      .                            TAG_SEGM2 , NREMNODE  , NODLOCAL ,NREMNOR,
      .                            NSN       , NSN_L     ,TAG_NODE_2RY2,ITAB,
@@ -2613,15 +2565,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2664,7 +2610,7 @@ C ----------------------------------------
       SIZ_TMP(1:NRTM) = 0
 
       DO K=1,NRTM
-        IF(TAG_SEGM2(K) .NE. 0)THEN
+        IF(TAG_SEGM2(K) /= 0)THEN
           SIZ_TMP(TAG_SEGM2(K)) = INTBUF_TAB%KREMNODE(K+1)
      .              -INTBUF_TAB%KREMNODE(K)
         ENDIF
@@ -2677,7 +2623,7 @@ C ----------------------------------------
       SIZ1 = 0
       SIZ2 = 0
       DO K=1,NRTM
-        IF(TAG_SEGM2(K) .NE. 0)THEN
+        IF(TAG_SEGM2(K) /= 0)THEN
 
           SIZ = SIZ_TMP(TAG_SEGM2(K))
           IBUF1(1+2*TAG_SEGM2(K)) =IBUF1(1+2*(TAG_SEGM2(K)-1)) + SIZ
@@ -2724,7 +2670,7 @@ C ----------------------------------------
 
       DEALLOCATE(IBUF1, IBUF2)
 
-C----Tab Main segment removed for each secnd node----
+C----Tab Main segment removed for each second node----
 c   1st : reorganizing the tab : keep only local main segments
 
          ALLOCATE(IBUF1(NSN_L+1),IBUF2(NREMNOR))
@@ -2737,7 +2683,7 @@ c   1st : reorganizing the tab : keep only local main segments
         DO N=1,NSN
 
            NS = TAG_NODE_2RY2(N)
-           IF(NS .NE. 0)THEN
+           IF(NS /= 0)THEN
               SIZ = INTBUF_TAB%KREMNOR(N+1)-INTBUF_TAB%KREMNOR(N)
 
               L=INTBUF_TAB%KREMNOR(N)
@@ -2745,7 +2691,7 @@ c   1st : reorganizing the tab : keep only local main segments
 c
              DO M=1,SIZ
                 I = INTBUF_TAB%REMNOR(L+M)
-                IF(TAG_SEGM2(I).NE.0) THEN
+                IF(TAG_SEGM2(I)/=0) THEN
                    NODDEL(SIZ1+1) = TAG_SEGM2(I)
                    SIZ1 = SIZ1+1
                 ENDIF
@@ -2774,15 +2720,14 @@ c
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_NISUB_I7                source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_nisub_i7     ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_NISUB_I7(INTBUF_TAB, NSN_L , TAG_NODE_2RY, NRTM_L,
      .                          TAG_SEGM  , NISUBS, NISUBM )
 C-----------------------------------------------
@@ -2794,16 +2739,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2877,15 +2812,14 @@ C
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_NISUB_I25               source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_nisub_i25    ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_NISUB_I25(INTBUF_TAB, NSN_L , TAG_NODE_2RY, NRTM_L,
      1                          TAG_SEGM  , NISUBS, NISUBM ,
      2       IEDGE,
@@ -2906,14 +2840,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -3037,14 +2965,12 @@ C       CALL COPY_IVAL(INTBUF_TAB(NI)%INFLG_SUBE,NISUBE_L,1)
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_XSAV                    source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_xsav      ../starter/source/restart/ddsplit/inter_tools.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal          ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_XSAV(INTBUF_TAB, NUMNOD_L, NSN, NSN_L,
      .                      NMN       , NMN_L , TAG_SCRATCH, TAG_NODE_MSR,
      .                      TAG_NM    , NODLOCAL, PROC     , NI ,I710XSAV,
@@ -3059,15 +2985,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3106,16 +3026,16 @@ C NSN+NMN < NUMNOD
           TAG_SCRATCH(N) = 0
         ENDDO
         NINDX_SCRT = 0
-      IF (NSN+NMN.LE.NUMNOD)THEN
+      IF (NSN+NMN<=NUMNOD)THEN
 C NSN_L + NMN_L < NUMNOD_L
-       IF (NSN_L+NMN_L.LE.NUMNOD_L)THEN
-C 1ere partie NSN
+       IF (NSN_L+NMN_L<=NUMNOD_L)THEN
+C 1st part nsn
         NSN_L2 = 0
 !        TAG_SCRATCH(1:NUMNOD)=0
         DO K=1,NSN
           N=INTBUF_TAB%NSV(K)
           IF(NLOCAL(N,PROC+1)==1.AND.
-     .      TAG_SCRATCH(N).EQ.0) THEN
+     .      TAG_SCRATCH(N)==0) THEN
             RBUF(3*(NSN_L2)+1) =
      *                                   INTBUF_TAB%XSAV(3*(K-1)+1)
             RBUF(3*(NSN_L2)+2) =
@@ -3129,7 +3049,7 @@ C 1ere partie NSN
           ENDIF
         ENDDO
 
-C 2eme partie NMN
+C 2nd part NMN
         DO K=1,NMN
           N = INTBUF_TAB%MSR(K)
           IF(NLOCAL(N,PROC+1)==1)THEN
@@ -3151,13 +3071,13 @@ C 2eme partie NMN
 
        ELSE
 C NSN_L + NMN_L > NUMNOD_L
-C 1ere partie NSN
+C 1st part nsn
         NSN_L2 = 0
 !        TAG_SCRATCH(1:NUMNOD)=0
         DO K=1,NSN
           N = INTBUF_TAB%NSV(K)
           IF(NLOCAL(N,PROC+1)==1.AND.
-     .      TAG_SCRATCH(N).EQ.0) THEN
+     .      TAG_SCRATCH(N)==0) THEN
             N2 = NODLOCAL(N)
             RBUF(3*(N2-1)+1) =
      *                                   INTBUF_TAB%XSAV(3*(K-1)+1)
@@ -3172,7 +3092,7 @@ C 1ere partie NSN
           ENDIF
         ENDDO
 
-C 2eme partie NMN
+C 2nd part NMN
         NMN_L2 = 0
         DO K=1,NMN
           N=INTBUF_TAB%MSR(K)
@@ -3283,16 +3203,15 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT8
 C=======================================================================
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I8              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INT8_MOD                      ../common_source/modules/int8_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_i8   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal             ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod          ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_I8(PROC     ,   INTBUF_TAB  , IPARI       ,
      .                            INTERCEP ,   TAG_NODE_2RY, TAG_SEGM    ,
      .                            TAG_SEGM2,   TAG_NM      , TAG_NODE_MSR,
@@ -3312,15 +3231,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3410,7 +3323,7 @@ C ----------------------------------------
       ENDDO  
 
 C     WRITE(6,*) __FILE__,__LINE__,CNMN_L,CNRTM_L,NRTM
-c     IF(NI .EQ. 1) THEN
+c     IF(NI == 1) THEN
 c     DO I=1,NMN
 c       N = INTBUF_TAB%MSR(I)
 c       !if the node is local
@@ -3462,7 +3375,7 @@ C Compute TAG_LMSR,TAG_LMSR2,TAG_NSEG
       IF(NSPMD > 1) THEN
       ! renumber MAIN_ID locally 
        DO P2=1,NSPMD
-          IF(P2.NE.PROC + 1) THEN
+          IF(P2/=PROC + 1) THEN
           DO I = 1,T8%BUFFER(P2)%NBMAIN
              T8%BUFFER(P2)%MAIN_ID(I) =
      .       TAG_NODE_MSR2(T8%BUFFER(P2)%MAIN_ID(I)) 
@@ -3491,15 +3404,15 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT 9
 C=======================================================================
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I9              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_i9   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal             ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod          ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_I9(PROC        , INTBUF_TAB  , IPARI       ,
      .                            TAG_NODE_2RY, TAG_NODE_MSR, TAG_SCRATCH ,
      .                            TAG_IELES   , TAG_IELEM    , 
@@ -3513,15 +3426,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3627,15 +3531,15 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT 11
 C=======================================================================
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I11             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_i11   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal              ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod           ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_I11(PROC        , INTBUF_TAB, IPARI       ,
      .                             TAG_NODE_2RY, TAG_SEGM  , TAG_SEGM2   ,
      .                             TAG_NM      , TAG_SEGS  , TAG_NODE_MSR,
@@ -3651,14 +3555,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3755,18 +3654,16 @@ C IRECTS
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_CAND_I11                source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_i11     ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal             ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod          ../starter/share/modules1/front_mod.F
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_CAND_I11(PROC       , INTBUF_TAB, NRTS   , NRTS_L ,
      .                          TAG_SEGM2  , TAG_SEGS  , II_STOK, MULTIMP,
      .                          NCONT      , NOINT     , INACTI ,
@@ -3782,10 +3679,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -3828,8 +3721,8 @@ C ----------------------------------------
 
       II_STOK_L = 0
 
-      IF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7) THEN 
-        IF(NRTS.GT.0) THEN
+      IF(INACTI==5.OR.INACTI==6.OR.INACTI==7) THEN 
+        IF(NRTS>0) THEN
           ALLOCATE(NRTSLOCAL(NRTS))
           ALLOCATE(CPULOCAL(NRTS))
           ALLOCATE(CANDR(NRTS))
@@ -3853,18 +3746,18 @@ C ----------------------------------------
         ENDDO
         DEALLOCATE(PLIST) 
 C
-C Reperage des candidats se trouvant sur des procs distants
+C Locating candidates on remote processors
 C
         C_NRTSR = 0
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             N = INTBUF_TAB%CAND_N(K)
-            IF(TAG_SCRATCH(N).EQ.0) THEN
+            IF(TAG_SCRATCH(N)==0) THEN
               TAG_SCRATCH(N) = 1
               NINDX_SCRT = NINDX_SCRT + 1
               INDX_SCRT(NINDX_SCRT) = N
-              IF(NLOCAL(INTBUF_TAB%NSV(N),PROC+1).NE.1)THEN
+              IF(NLOCAL(INTBUF_TAB%NSV(N),PROC+1)/=1)THEN
                 C_NRTSR = C_NRTSR + 1
                 CANDR(C_NRTSR) = N
               END IF
@@ -3876,7 +3769,7 @@ C
 #include "vectorize.inc"
         DO K=1, NINDX_SCRT
 !         E = INTBUF_TAB%CAND_E(K)
-!          IF (TAG_SEGM2(E).NE.0) THEN
+!          IF (TAG_SEGM2(E)/=0) THEN
             N = INDX_SCRT(K)
             TAG_SCRATCH(N) = 0
 !          ENDIF
@@ -3884,9 +3777,9 @@ C
         NINDX_SCRT = 0
 
 C
-C Tris des candidats remote par proc et par nsv local croissant
+C Sorting remote candidates by proc and by ascending local nsv
 C
-        IF(C_NRTSR.GT.0) THEN
+        IF(C_NRTSR>0) THEN
           ALLOCATE(INDEX(2*C_NRTSR))
           ALLOCATE(ITRI(2,C_NRTSR))
         END IF
@@ -3909,7 +3802,7 @@ C
         C_NRTSR = 0
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             II_STOK_L = II_STOK_L + 1
             IBUF_E(II_STOK_L)=TAG_SEGM2(E)
             L = INTBUF_TAB%CAND_N(K)
@@ -3918,8 +3811,8 @@ C
             IF(CPULOCAL(L) == (PROC+1))THEN
               IBUF_N(II_STOK_L) = NRTSLOCAL(L)
             ELSE
-C noeud remote : numerotation pre calculee ci-dessus
-              IF(TAG_SCRATCH(L).EQ.0) THEN
+C remote node : numbering pre-calculated above
+              IF(TAG_SCRATCH(L)==0) THEN
                 C_NRTSR =C_NRTSR + 1
                 IBUF_N(II_STOK_L) = INDEX(C_NRTSR)+NRTS_L
                 TAG_SCRATCH(L) = INDEX(C_NRTSR)+NRTS_L
@@ -3933,10 +3826,10 @@ C noeud remote : numerotation pre calculee ci-dessus
         ENDDO
 
      
-        IF(NRTS.GT.0) DEALLOCATE(NRTSLOCAL,CPULOCAL,CANDR)
-        IF(C_NRTSR.GT.0) DEALLOCATE(INDEX,ITRI)
+        IF(NRTS>0) DEALLOCATE(NRTSLOCAL,CPULOCAL,CANDR)
+        IF(C_NRTSR>0) DEALLOCATE(INDEX,ITRI)
 
-        IF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7)IPARI_L(24,NI)= C_NRTSR
+        IF(INACTI==5.OR.INACTI==6.OR.INACTI==7)IPARI_L(24,NI)= C_NRTSR
 
       ENDIF !END INACTI=5,6,7
 
@@ -3954,15 +3847,15 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT 17
 C=======================================================================
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I17             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_i17   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal              ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod           ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_I17(PROC        , INTBUF_TAB   , IPARI  ,
      .                            TAG_NODE_2RY , TAG_NODE_MSR , 
      .                            CEP          , CEL          , IGRBRIC ,
@@ -3978,15 +3871,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4023,7 +3910,7 @@ C ----------------------------------------
       CNSN_L = 0
       DO K=1, NSN
         IE = IGRBRIC(IGN)%ENTITY(K)
-C       IF(CEP(IE).EQ.PROC) THEN
+C       IF(CEP(IE)==PROC) THEN
           CNSN_L = CNSN_L+1
           TAG_NODE_2RY(CNSN_L) = K
 C       ENDIF
@@ -4031,7 +3918,7 @@ C       ENDIF
       CNME_L = 0 
       DO K=1,NME
         IE = IGRBRIC(IGE)%ENTITY(K)
-C       IF(CEP(IE).EQ.PROC)THEN
+C       IF(CEP(IE)==PROC)THEN
           CNME_L = CNME_L + 1
           TAG_NODE_MSR(CNME_L) = K
 C       ENDIF
@@ -4046,15 +3933,15 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT20
 C=======================================================================
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I20             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_i20   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal              ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod           ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_I20(
      .              PROC        , INTBUF_TAB, IPARI    ,
      .              TAG_NODE_2RY, TAG_SEGM  , TAG_NODE_MSR,
@@ -4072,10 +3959,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -4128,8 +4011,8 @@ C ----------------------------------------
       NSNE   = IPARI(55)
       NMNE   = IPARI(56)
 
-      ! for type20, TAG_NM is used to tag main nodes, secnd nodes,
-      ! line secnd, line main
+      ! for type20, TAG_NM is used to tag main nodes, second nodes,
+      ! second line, line main
 
       ! prepare SPLIT_NRTM_R
       CNRTM_L = 0
@@ -4201,15 +4084,14 @@ C ----------------------------------------
 
       !reflush to zero only part of TAG_SCRATCH that has been used
 #include "vectorize.inc"
-        DO K=1,NINDX_SCRT  
-          N = INDX_SCRT(K)
-          TAG_SCRATCH(N) = 0
-        ENDDO
-        NINDX_SCRT = 0
-
+      DO K=1,NINDX_SCRT  
+        N = INDX_SCRT(K)
+        TAG_SCRATCH(N) = 0
+      ENDDO
+      NINDX_SCRT = 0
 C
-C Partie ligne
-C
+C Line part
+CTAG_SCRATCH(K)
       CNLINS_L = 0
       CNLINSA_L= 0
       CNLINM_L = 0
@@ -4226,30 +4108,30 @@ C
           CNLINS_L = CNLINS_L + 1
           TAG_NLINS(CNLINS_L) = K
           TAG_NLINS2(K) = CNLINS_L
-C comptage ligne active
-          IF(K.LE.NLINSA)CNLINSA_L = CNLINSA_L + 1
-          IF (TAG_SCRATCH(N1).EQ.0) THEN
+C Active line count
+          IF(K<=NLINSA)CNLINSA_L = CNLINSA_L + 1
+          IF (TAG_SCRATCH(N1)==0) THEN
             CNSNE_L = CNSNE_L + 1
             TAG_NSNE(CNSNE_L) = N1
             TAG_NSVE(CNSNE_L) = N1L
             TAG_SCRATCH(N1) = 1
             NINDX_SCRT = NINDX_SCRT + 1
             INDX_SCRT(NINDX_SCRT) = N1
-            IF(TAG_NM(N1).EQ.0)THEN
+            IF(TAG_NM(N1)==0)THEN
               CNLN_L = CNLN_L + 1
               TAG_NM(N1) = 1
               NINDX_NM = NINDX_NM + 1
               INDX_NM(NINDX_NM) = N1
             END IF
           ENDIF
-          IF (TAG_SCRATCH(N2).EQ.0) THEN
+          IF (TAG_SCRATCH(N2)==0) THEN
             CNSNE_L = CNSNE_L + 1
             TAG_NSNE(CNSNE_L) = N2
             TAG_NSVE(CNSNE_L) = N2L
             TAG_SCRATCH(N2) = 1
             NINDX_SCRT = NINDX_SCRT + 1
             INDX_SCRT(NINDX_SCRT) = N2
-            IF(TAG_NM(N2).EQ.0)THEN
+            IF(TAG_NM(N2)==0)THEN
               CNLN_L = CNLN_L + 1
               TAG_NM(N2) = 1
               NINDX_NM = NINDX_NM + 1
@@ -4258,15 +4140,17 @@ C comptage ligne active
           ENDIF
         ENDIF
       ENDDO
-
       !reflush to zero only part of TAG_SCRATCH that has been used
 #include "vectorize.inc"
-        DO K=1,NINDX_SCRT  
-          N = INDX_SCRT(K)
-          TAG_SCRATCH(N) = 0
+        DO K=1,NLINS
+          N1L = INTBUF_TAB%IXLINS(2*(K-1)+1)
+          N2L = INTBUF_TAB%IXLINS(2*(K-1)+2)
+          N1  = INTBUF_TAB%NLG(N1L)
+          N2  = INTBUF_TAB%NLG(N2L)
+          TAG_SCRATCH(N1) = 0
+          TAG_SCRATCH(N2) = 0
         ENDDO
         NINDX_SCRT = 0
-
       DO K=1,NLINM
         N1L = INTBUF_TAB%IXLINM(2*(K-1)+1)
         N2L = INTBUF_TAB%IXLINM(2*(K-1)+2)
@@ -4276,30 +4160,30 @@ C comptage ligne active
           CNLINM_L = CNLINM_L + 1
           TAG_NLINM(CNLINM_L) = K
           TAG_NLINM2(K) = CNLINM_L
-C comptage ligne active
-          IF(K.LE.NLINMA)CNLINMA_L = CNLINMA_L + 1
-          IF (TAG_SCRATCH(N1).EQ.0) THEN
+C Active line count
+          IF(K<=NLINMA)CNLINMA_L = CNLINMA_L + 1
+          IF (TAG_SCRATCH(N1)==0) THEN
             CNMNE_L = CNMNE_L + 1
             TAG_NMNE(CNMNE_L) = N1
             TAG_MSRE(CNMNE_L) = N1L
             TAG_SCRATCH(N1) = 1
             NINDX_SCRT = NINDX_SCRT + 1
             INDX_SCRT(NINDX_SCRT) = N1
-            IF(TAG_NM(N1).EQ.0)THEN
+            IF(TAG_NM(N1)==0)THEN
               CNMN_L = CNMN_L + 1
               TAG_NM(N1) = 1
               NINDX_NM = NINDX_NM + 1
               INDX_NM(NINDX_NM) = N1
           END IF
           ENDIF
-          IF (TAG_SCRATCH(N2).EQ.0) THEN
+          IF (TAG_SCRATCH(N2)==0) THEN
             CNMNE_L = CNMNE_L + 1
             TAG_NMNE(CNMNE_L) = N2
             TAG_MSRE(CNMNE_L) = N2L
             TAG_SCRATCH(N2) = 1
             NINDX_SCRT = NINDX_SCRT + 1
             INDX_SCRT(NINDX_SCRT) = N2
-            IF(TAG_NM(N2).EQ.0)THEN
+            IF(TAG_NM(N2)==0)THEN
               CNMN_L = CNMN_L + 1
               TAG_NM(N2) = 1
               NINDX_NM = NINDX_NM + 1
@@ -4311,28 +4195,31 @@ C comptage ligne active
 
       !reflush to zero only part of TAG_SCRATCH that has been used
 #include "vectorize.inc"
-        DO K=1,NINDX_SCRT  
-          N = INDX_SCRT(K)
-          TAG_SCRATCH(N) = 0
-        ENDDO
-        NINDX_SCRT = 0
+      DO K=1,NLINM
+        N1L = INTBUF_TAB%IXLINM(2*(K-1)+1)
+        N2L = INTBUF_TAB%IXLINM(2*(K-1)+2)
+        N1  = INTBUF_TAB%NLG(N1L)
+        N2  = INTBUF_TAB%NLG(N2L)
+        TAG_SCRATCH(N1) = 0
+        TAG_SCRATCH(N2) = 0
+      ENDDO
 C
-C Calcul de NCONT en prenant le max des edge et non edge
+C Calculating NCONT taking the max of edge and non edge
 C
       NCONT1 = 0
-      IF(NMN.NE.0) THEN
+      IF(NMN/=0) THEN
         RCONT = CNMN_L
         RCONT = RCONT/NMN
         NCONT = NINT(NSN*RCONT)
-        IF(CNMN_L.GT.0.AND.NSN.GT.0) NCONT1 = MAX(NCONT,1)
+        IF(CNMN_L>0.AND.NSN>0) NCONT1 = MAX(NCONT,1)
       ENDIF
 
       NCONT2 = 0
-      IF(NMNE.NE.0) THEN
+      IF(NMNE/=0) THEN
         RCONT = CNMNE_L
         RCONT = RCONT/NMNE
         NCONT = NINT(NSNE*RCONT)
-        IF(CNMNE_L.GT.0.AND.NSNE.GT.0) NCONT2 = MAX(NCONT,1)
+        IF(CNMNE_L>0.AND.NSNE>0) NCONT2 = MAX(NCONT,1)
       ENDIF
       NCONT = MAX(NCONT1,NCONT2)
 
@@ -4344,7 +4231,7 @@ c fill node global to local
         I = INTBUF_TAB%NLG(L)
         IF(TAG_NM(I) == 1) THEN
           K = K + 1
-C TAGG(I) = K => noeud I vers numero local de noeud d interface sur le proc
+C TAGG(I) = K => node I to local interface node number on the proc
           TAG_NLG(K) = L
           TAG_NLG2(I) = K
         END IF
@@ -4360,14 +4247,11 @@ C TAGG(I) = K => noeud I vers numero local de noeud d interface sur le proc
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_SEG_RVAL_I20            source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_seg_rval_i20   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_SEG_RVAL_I20(TAB,DIM1,DIM2,TAG_SEG)
 C-----------------------------------------------
 C   M o d u l e s
@@ -4377,15 +4261,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4412,14 +4287,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_SEG_IVAL_I20            source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_seg_ival_i20   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces     ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_SEG_IVAL_I20(TAB,TAB_NLG,DIM1,DIM2,TAG,TAG_NLG)
 C-----------------------------------------------
 C   M o d u l e s
@@ -4429,15 +4303,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4462,14 +4327,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_SEG_IVAL_I20_2          source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_seg_ival_i20_2   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces       ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_SEG_IVAL_I20_2(TAG_SEG,DIM1,TAG_NLG)
 c specific inter 20 + redirection local to global
 C-----------------------------------------------
@@ -4480,15 +4344,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4510,13 +4365,12 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_CAND_I20_EDGE   source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_cand_i20_edge   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces              ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_CAND_I20_EDGE(INTBUF_TAB, TAG_NLINS2, II_STOK, TAG_II)
 C-----------------------------------------------
 C   M o d u l e s
@@ -4526,15 +4380,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4552,7 +4397,7 @@ C ----------------------------------------
       C_II = 0
       DO K = 1, II_STOK
         E = INTBUF_TAB%LCAND_N(K)
-        IF (TAG_NLINS2(E).NE.0) THEN
+        IF (TAG_NLINS2(E)/=0) THEN
           C_II = C_II + 1
           TAG_II(C_II) = K
         ENDIF
@@ -4560,19 +4405,17 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_CAND_I20                source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        PLIST_IFRONT                  source/spmd/node/ddtools.F    
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_i20     ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../starter/source/output/message/message.F
+!||    nlocal             ../starter/source/spmd/node/ddtools.F
+!||    plist_ifront       ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_CAND_I20(PROC     , INTBUF_TAB, NSN    , NSN_L       ,
      .                         TAG_SEGM2 , II_STOK   , MULTIMP, NCONT       ,
      .                         NOINT     , INACTI    , TAG_SCRATCH ,
@@ -4586,10 +4429,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -4630,8 +4469,8 @@ C ----------------------------------------
       IBUF_N(1:MULTIMP*NCONT) = 0
       II_STOK_L = 0 !mandatory in case of inacti ne 5,6,7 
 
-      IF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7) THEN 
-        IF(NSN.GT.0) THEN
+      IF(INACTI==5.OR.INACTI==6.OR.INACTI==7) THEN 
+        IF(NSN>0) THEN
           ALLOCATE(NSNLOCAL(NSN))
           ALLOCATE(CPULOCAL(NSN))
           ALLOCATE(CANDR(NSN))
@@ -4641,10 +4480,11 @@ C ----------------------------------------
 
         ALLOCATE(PLIST(NSPMD)) 
         PLIST(1:NSPMD) = -1
+        NINDX_SCRT=0
         DO K=1,NSN
           N = INTBUF_TAB%NSV(K)
           NSNLOCAL(K) = 0
-          IF(TAG_SCRATCH(N).EQ.0) THEN 
+          IF(TAG_SCRATCH(N)==0) THEN 
             SPLIST=0 
             CALL PLIST_IFRONT(PLIST,N,SPLIST) 
             DO I=1,SPLIST
@@ -4674,19 +4514,19 @@ C ----------------------------------------
         ENDDO
         NINDX_SCRT = 0
 C
-C Reperage des candidats se trouvant sur des procs distants
+C Locating candidates on remote processors
 C
         C_NSNR = 0
 
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             N = INTBUF_TAB%CAND_N(K)
-            IF(TAG_SCRATCH(N).EQ.0) THEN
+            IF(TAG_SCRATCH(N)==0) THEN
               TAG_SCRATCH(N) = 1
               NINDX_SCRT = NINDX_SCRT + 1
               INDX_SCRT(NINDX_SCRT) = N
-              IF(NLOCAL(INTBUF_TAB%NSV(N),PROC+1).NE.1)THEN
+              IF(NLOCAL(INTBUF_TAB%NSV(N),PROC+1)/=1)THEN
                 C_NSNR = C_NSNR + 1
                 CANDR(C_NSNR) = N
               END IF
@@ -4702,9 +4542,9 @@ C
         ENDDO
         NINDX_SCRT = 0
 C
-C Tris des candidats remote par proc et par nsv local croissant
+C Sorting remote candidates by proc and by ascending local nsv
 C
-        IF(C_NSNR.GT.0) THEN
+        IF(C_NSNR>0) THEN
           ALLOCATE(INDEX(2*C_NSNR))
           ALLOCATE(ITRI(2,C_NSNR))
         END IF
@@ -4727,12 +4567,12 @@ C
         C_NSNR = 0
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             II_STOK_L = II_STOK_L + 1
           END IF
         END DO
 
-        IF(II_STOK_L.GT.MULTIMP*NCONT)THEN
+        IF(II_STOK_L>MULTIMP*NCONT)THEN
           MULTOK= II_STOK_L/NCONT
           CALL ANCMSG(MSGID=626,
      .                MSGTYPE=MSGERROR,
@@ -4744,7 +4584,7 @@ C
 C
           DO K = 1, II_STOK
             E = INTBUF_TAB%CAND_E(K)
-            IF (TAG_SEGM2(E).NE.0) THEN
+            IF (TAG_SEGM2(E)/=0) THEN
               N = INTBUF_TAB%CAND_N(K)
               II_STOK_L = II_STOK_L + 1
               IBUF_E(II_STOK_L)=TAG_SEGM2(E)
@@ -4752,7 +4592,7 @@ C
               IF(NLOCAL(INTBUF_TAB%NSV(N),PROC+1)==1) THEN
                 IBUF_N(II_STOK_L)=NSNLOCAL(N)
               ELSE
-C noeud remote : numerotation pre calculee ci-dessus
+C remote node : numbering pre-calculated above
 c                IF(TAG(N)==0) THEN
                 IF(TAG_SCRATCH(N)==0) THEN
                   C_NSNR = C_NSNR + 1
@@ -4764,9 +4604,9 @@ c                IF(TAG(N)==0) THEN
                   IBUF_N(II_STOK_L) = TAG_SCRATCH(N)
                 END IF ! TAG(N)==0
               END IF ! NLOCAL(INTBUF_TAB%NSV(N),PROC+1)==1
-            ENDIF !TAG_SEGM_2(E).NE.0
+            ENDIF !TAG_SEGM_2(E)/=0
           ENDDO !K = 1, II_STOK
-        END IF !II_STOK_L.GT.MULTIMP*NCONT
+        END IF !II_STOK_L>MULTIMP*NCONT
 
         !reflush TAG_SCRATCH to zero only when value has changes
 #include "vectorize.inc"
@@ -4776,10 +4616,10 @@ c                IF(TAG(N)==0) THEN
         ENDDO
         NINDX_SCRT = 0
   
-        IF(NSN.GT.0) DEALLOCATE(NSNLOCAL,CPULOCAL,CANDR)
-        IF(C_NSNR.GT.0) DEALLOCATE(INDEX,ITRI)
+        IF(NSN>0) DEALLOCATE(NSNLOCAL,CPULOCAL,CANDR)
+        IF(C_NSNR>0) DEALLOCATE(INDEX,ITRI)
 
-        IF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7)IPARI_L(24,NI)= C_NSNR
+        IF(INACTI==5.OR.INACTI==6.OR.INACTI==7)IPARI_L(24,NI)= C_NSNR
          
       ENDIF !END INACTI=5,6,7
 
@@ -4790,17 +4630,15 @@ c                IF(TAG(N)==0) THEN
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_CAND_I20_EDGE           source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_i20_edge   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces      ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal                ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_CAND_I20_EDGE(PROC      , INTBUF_TAB, NLINS  , NLINS_L     ,
      .                               TAG_NLINS2, II_STOKE  , MULTIMP, NCONTE      ,
      .                               NOINT     , INACTI    , TAG_SCRATCH ,
@@ -4815,10 +4653,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -4858,8 +4692,8 @@ C ----------------------------------------
       IBUF_N(1:MULTIMP*NCONTE) = 0
       II_STOKE_L = 0 !mandatory in case of inacti ne 5,6,7 
 
-      IF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7) THEN 
-        IF(NLINS.GT.0) THEN
+      IF(INACTI==5.OR.INACTI==6.OR.INACTI==7) THEN 
+        IF(NLINS>0) THEN
           ALLOCATE(NRTSLOCAL(NLINS))
           ALLOCATE(CPULOCAL(NLINS))
           ALLOCATE(CANDR(NLINS))
@@ -4880,9 +4714,9 @@ C ----------------------------------------
             CPULOCAL(K) = PROC+1
           END IF
           DO P = 1, NSPMD
-            IF(P.NE.PROC+1.AND.NLOCAL(N1,P)==1.AND.
+            IF(P/=PROC+1.AND.NLOCAL(N1,P)==1.AND.
      .         NLOCAL(N2,P)==1) THEN
-              IF(NRTSLOCAL(K).EQ.0) THEN
+              IF(NRTSLOCAL(K)==0) THEN
                 NUMP(P) = NUMP(P) + 1
                 NRTSLOCAL(K) = NUMP(P)
                 CPULOCAL(K) = P
@@ -4891,15 +4725,15 @@ C ----------------------------------------
           END DO
         ENDDO
 C
-C Reperage des candidats se trouvant sur des procs distants
+C Locating candidates on remote processors
 C
         !TAG_SCRATCH must have been reflush correctly to 0
         C_NLINSR = 0
         DO K = 1, II_STOKE
           E = INTBUF_TAB%LCAND_N(K)
-          IF (TAG_NLINS2(E).NE.0) THEN
+          IF (TAG_NLINS2(E)/=0) THEN
             N = INTBUF_TAB%LCAND_S(K)
-            IF(TAG_SCRATCH(N).EQ.0) THEN
+            IF(TAG_SCRATCH(N)==0) THEN
               TAG_SCRATCH(N) = 1
               NINDX_SCRT = NINDX_SCRT + 1
               INDX_SCRT(NINDX_SCRT) = N
@@ -4907,7 +4741,7 @@ C
               N2L = INTBUF_TAB%IXLINS(2*(N-1)+2)
               N1 =  INTBUF_TAB%NLG(N1L)
               N2 =  INTBUF_TAB%NLG(N2L)
-              IF(CPULOCAL(N).NE.PROC+1)THEN
+              IF(CPULOCAL(N)/=PROC+1)THEN
                 C_NLINSR = C_NLINSR + 1
                 CANDR(C_NLINSR) = N
               END IF
@@ -4923,9 +4757,9 @@ C
         ENDDO
         NINDX_SCRT = 0
 C
-C Tris des candidats remote par proc et par nsv local croissant
+C Sorting remote candidates by proc and by ascending local nsv
 C
-        IF(C_NLINSR.GT.0) THEN
+        IF(C_NLINSR>0) THEN
           ALLOCATE(INDEX(2*C_NLINSR))
           ALLOCATE(ITRI(2,C_NLINSR))
         END IF
@@ -4949,7 +4783,7 @@ C
 C
         DO K = 1, II_STOKE
           E = INTBUF_TAB%LCAND_N(K)
-          IF (TAG_NLINS2(E).NE.0) THEN
+          IF (TAG_NLINS2(E)/=0) THEN
             II_STOKE_L = II_STOKE_L + 1
             IBUF_E(II_STOKE_L)=TAG_NLINS2(E)
             L = INTBUF_TAB%LCAND_N(K)
@@ -4960,8 +4794,8 @@ C
             IF(CPULOCAL(L) == PROC+1)THEN
               IBUF_N(II_STOKE_L)=NRTSLOCAL(L)
             ELSE
-C noeud remote : numerotation pre calculee ci-dessus
-              IF(TAG_SCRATCH(L).EQ.0) THEN
+C remote node : numbering pre-calculated above
+              IF(TAG_SCRATCH(L)==0) THEN
                 C_NLINSR = C_NLINSR + 1
                 IBUF_N(II_STOKE_L) = INDEX(C_NLINSR)+NLINS_L
                 TAG_SCRATCH(L) = INDEX(C_NLINSR)+NLINS_L
@@ -4971,7 +4805,7 @@ C noeud remote : numerotation pre calculee ci-dessus
                 IBUF_N(II_STOKE_L) = TAG_SCRATCH(L)
               END IF
             END IF
-          ENDIF !TAG_NLINS2(E).NE.0
+          ENDIF !TAG_NLINS2(E)/=0
         ENDDO !K = 1, II_STOKE
 
         !reflush TAG_SCRATCH to zero only when value has changes
@@ -4982,10 +4816,10 @@ C noeud remote : numerotation pre calculee ci-dessus
         ENDDO
         NINDX_SCRT = 0
   
-        IF(NLINS.GT.0) DEALLOCATE(NRTSLOCAL,CPULOCAL,CANDR)
-        IF(C_NLINSR.GT.0) DEALLOCATE(INDEX,ITRI)
+        IF(NLINS>0) DEALLOCATE(NRTSLOCAL,CPULOCAL,CANDR)
+        IF(C_NLINSR>0) DEALLOCATE(INDEX,ITRI)
 
-        IF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7) IPARI_L(57,NI)= C_NLINSR
+        IF(INACTI==5.OR.INACTI==6.OR.INACTI==7) IPARI_L(57,NI)= C_NLINSR
          
       ENDIF !END INACTI=5,6,7
 
@@ -5003,16 +4837,16 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT 21
 C=======================================================================
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I21             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        PLIST_IFRONT                  source/spmd/node/ddtools.F    
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_i21   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal              ../starter/source/spmd/node/ddtools.F
+!||    plist_ifront        ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod           ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_I21(PROC        , INTBUF_TAB  , IPARI       ,
      .                             TAG_NODE_2RY, TAG_SEGM    , TAG_NODE_2RY2,
      .                             TAG_SEGS    , TAG_NODE_MSR,
@@ -5029,15 +4863,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5114,7 +4943,7 @@ C ----------------------------------------
       CNMN_L = 0 
       DO I=1,NMN
         N = INTBUF_TAB%MSR(I)
-        IF(NLOCAL(N,PROC+1)==1.AND.TAG_SCRATCH(N).EQ.0) THEN
+        IF(NLOCAL(N,PROC+1)==1.AND.TAG_SCRATCH(N)==0) THEN
           CNMN_L = CNMN_L + 1
           TAG_NODE_MSR(CNMN_L) = I
           TAG_SCRATCH(N)=1
@@ -5161,14 +4990,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_CAND_IVAL_I21           source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_ival_i21   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces      ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_CAND_IVAL_I21(TAB    , II_STOK_L, TAG_II,
      .                               DIM1, DIM2 )
 C introduce a second dimension
@@ -5180,15 +5008,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5215,14 +5034,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_2RY_CAND_IVAL_I21       source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_2ry_cand_ival_i21   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces          ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_2RY_CAND_IVAL_I21(TAB    , II_STOK_L, TAG_II,TAG_NODE_2RY2,
      .                               DIM1 )
 C introduce a second dimension
@@ -5234,15 +5052,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5268,14 +5077,14 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_CAND_I21        source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_cand_i21   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces         ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal                   ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_CAND_I21(INTBUF_TAB, TAG_NODE_2RY2, II_STOK, TAG_II,C_II,PROC)
 C-----------------------------------------------
 C   M o d u l e s
@@ -5285,15 +5094,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5334,14 +5134,16 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT 24
 C=======================================================================
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I24             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    prepare_split_i24         ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces          ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal                    ../starter/source/spmd/node/ddtools.F
+!||    secnd_surface_on_domain   ../starter/source/interfaces/inter3d1/i24setnodes.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod                 ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE PREPARE_SPLIT_I24(PROC     , INTBUF_TAB  , IPARI       ,
      .                            INTERCEP , TAG_NODE_2RY, TAG_SEGM    ,
      .                            TAG_SEGM2, TAG_NM      , TAG_NODE_MSR,
@@ -5361,14 +5163,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5547,7 +5344,7 @@ C Nitsche Method
          ENDIF
        ENDDO  
 
-      !TAG_IELEM for IELNRTS tab writting
+      !TAG_IELEM for IELNRTS tab writing
 
         DO I = 1, CNRTS_L ! NRTS = NRTM only if NRT_SH = 0
           K = TAG_SEGSS(I) 
@@ -5563,17 +5360,16 @@ c          ENDIF
  
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_NODE_IVAL_I24           source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_node_ival_i24   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces      ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_NODE_IVAL_I24(TAB,DIM1,TAG,TAG2)
 c
-c split node array with global value specifi type24 & type25
+c split node array with global value specific type24 & type25
 c (see SPLIT_NODE_NODLOC for local values)
 c
 C-----------------------------------------------
@@ -5584,15 +5380,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5622,14 +5409,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_SEG_NODLOC_I24          source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_seg_nodloc_i24   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces       ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_SEG_NODLOC_I24(TAB,DIM1,DIM2,TAG_SEG,NODLOCAL)
 C-----------------------------------------------
 C   M o d u l e s
@@ -5639,15 +5425,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5678,14 +5455,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_SEGEDGE_NODLOC_I24      source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_segedge_nodloc_i24   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces           ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_SEGEDGE_NODLOC_I24(TAB,DIM1,TAG_SEG,NODLOCAL,NI)
 C-----------------------------------------------
 C   M o d u l e s
@@ -5695,15 +5471,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5736,20 +5503,17 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_CAND_I24                source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        PLIST_IFRONT                  source/spmd/node/ddtools.F    
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_i24     ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../starter/source/output/message/message.F
+!||    plist_ifront       ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod          ../starter/share/modules1/front_mod.F
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_CAND_I24(PROC    , INTBUF_TAB, NSN    , NSN_L        ,
      .                         TAG_SEGM2, II_STOK   , MULTIMP, NCONT        ,
      .                         NOINT    , INACTI    , TAG_SCRATCH ,II_STOK_L,
@@ -5766,15 +5530,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5794,7 +5553,7 @@ C-----------------------------------------------
 !                 used for optimize the initialization
 !                 of TAG_XXX array (XXX = NM or SCRT for SCRATCH)
 !                 allocated array in lectur and threadprivate array
-!       NINDX_XXX : number of non-zero TAG_XXX valuee
+!       NINDX_XXX : number of non-zero TAG_XXX value
 !       TAG_XXX : size = NUMNOD + NUMELS + I24MAXNSNE2
 !                array used to tag an element for 
 !                a given interface ; allocated in lectur
@@ -5831,7 +5590,7 @@ C ----------------------------------------
       IBUF_N(1:MULTIMP*NCONT) = 0
       II_STOK_L = 0 !mandatory in case of inacti ne 5,6,7 
 
-        IF(NSN.GT.0) THEN
+        IF(NSN>0) THEN
           ALLOCATE(NSNLOCAL(NSN))
           ALLOCATE(CPULOCAL(NSN))
           ALLOCATE(CANDR(NSN))
@@ -5844,9 +5603,9 @@ C ----------------------------------------
         DO K=1,NSN
           N = INTBUF_TAB%NSV(K)
           NSNLOCAL(K) = 0
-          IF(TAG_SCRATCH(N).EQ.0) THEN 
+          IF(TAG_SCRATCH(N)==0) THEN 
             SPLIST=0 
-            IF(N.LE.NUMNOD)THEN
+            IF(N<=NUMNOD)THEN
               CALL PLIST_IFRONT(PLIST,N,SPLIST) 
               DO I=1,SPLIST
                 P=PLIST(I)
@@ -5885,20 +5644,20 @@ C T24 E2E Nodes can be on 1 SPMD domain only
         ENDDO
         NINDX_SCRT = 0
 C
-C Reperage des candidats se trouvant sur des procs distants
+C Locating candidates on remote processors
 C
         C_NSNR = 0
 
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             N = INTBUF_TAB%CAND_N(K)
 C            IF (INTBUF_TAB%NSV(N)> NUMNOD) CYCLE
-            IF(TAG_SCRATCH(N).EQ.0) THEN
+            IF(TAG_SCRATCH(N)==0) THEN
               TAG_SCRATCH(N) = 1
               NINDX_SCRT = NINDX_SCRT + 1
               INDX_SCRT(NINDX_SCRT) = N
-              IF(INTBUF_TAB%NSV(N) .LE. NUMNOD)THEN
+              IF(INTBUF_TAB%NSV(N) <= NUMNOD)THEN
                  MY_NODE = INTBUF_TAB%NSV(N)
                  IF( NODLOCAL( MY_NODE ) ==0.OR.NODLOCAL( MY_NODE )>NUMNOD_L ) THEN
                    C_NSNR = C_NSNR + 1
@@ -5908,7 +5667,7 @@ C            IF (INTBUF_TAB%NSV(N)> NUMNOD) CYCLE
                  NN = INTBUF_TAB%NSV(N) - NUMNOD
                  SE1 = INTBUF_TAB%IS2SE(2*(NN-1)+1)
                  P = INTERCEP2%P(SE1)
-                 IF(P.NE. (PROC+1) ) THEN
+                 IF(P/= (PROC+1) ) THEN
                     C_NSNR = C_NSNR + 1
                     CANDR(C_NSNR) = N
                  ENDIF
@@ -5925,9 +5684,9 @@ C            IF (INTBUF_TAB%NSV(N)> NUMNOD) CYCLE
         ENDDO
         NINDX_SCRT = 0
 C
-C Tris des candidats remote par proc et par nsv local croissant
+C Sorting remote candidates by proc and by ascending local nsv
 C
-        IF(C_NSNR.GT.0) THEN
+        IF(C_NSNR>0) THEN
           ALLOCATE(INDEX(2*C_NSNR))
           ALLOCATE(ITRI(2,C_NSNR))
         END IF
@@ -5950,12 +5709,12 @@ C
         C_NSNR = 0
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             II_STOK_L = II_STOK_L + 1
           END IF
         END DO
 
-        IF(II_STOK_L.GT.MULTIMP*NCONT)THEN
+        IF(II_STOK_L>MULTIMP*NCONT)THEN
           MULTOK= II_STOK_L/NCONT
           CALL ANCMSG(MSGID=626,
      .                MSGTYPE=MSGERROR,
@@ -5967,7 +5726,7 @@ C
 C
           DO K = 1, II_STOK
             E = INTBUF_TAB%CAND_E(K)
-            IF (TAG_SEGM2(E).NE.0) THEN
+            IF (TAG_SEGM2(E)/=0) THEN
               N = INTBUF_TAB%CAND_N(K)
               II_STOK_L = II_STOK_L + 1
               IBUF_E(II_STOK_L)=TAG_SEGM2(E)
@@ -5985,7 +5744,7 @@ C
               IF(P==1 ) THEN
                 IBUF_N(II_STOK_L)=NSNLOCAL(N)
               ELSE
-C noeud remote : numerotation pre calculee ci-dessus
+C remote node : numbering pre-calculated above
 c                IF(TAG(N)==0) THEN
                 IF(TAG_SCRATCH(N)==0) THEN
                   C_NSNR = C_NSNR + 1
@@ -5997,9 +5756,9 @@ c                IF(TAG(N)==0) THEN
                   IBUF_N(II_STOK_L) = TAG_SCRATCH(N)
                 END IF ! TAG(N)==0
               END IF ! NLOCAL(INTBUF_TAB%NSV(N),PROC+1)==1
-            ENDIF !TAG_SEGM_2(E).NE.0
+            ENDIF !TAG_SEGM_2(E)/=0
           ENDDO !K = 1, II_STOK
-        END IF !II_STOK_L.GT.MULTIMP*NCONT
+        END IF !II_STOK_L>MULTIMP*NCONT
 
         !reflush TAG_SCRATCH to zero only when value has changes
 #include "vectorize.inc"
@@ -6009,8 +5768,8 @@ c                IF(TAG(N)==0) THEN
         ENDDO
         NINDX_SCRT = 0
   
-        IF(NSN.GT.0) DEALLOCATE(NSNLOCAL,CPULOCAL,CANDR)
-        IF(C_NSNR.GT.0) DEALLOCATE(INDEX,ITRI)
+        IF(NSN>0) DEALLOCATE(NSNLOCAL,CPULOCAL,CANDR)
+        IF(C_NSNR>0) DEALLOCATE(INDEX,ITRI)
 
          
       CALL WRITE_I_C(IBUF_E,MULTIMP*NCONT)
@@ -6021,17 +5780,13 @@ c                IF(TAG(N)==0) THEN
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPLIT_SEG_EDGE                source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|====================================================================
+!||====================================================================
+!||    split_seg_edge     ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_SEG_EDGE(NSNE_L,IS2SE,TAG_NSNE,TAG_SEG2,NI)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -6071,17 +5826,16 @@ C=======================================================================
 C=======================================================================
 C SPECIFIC ROUTINES INT 25
 C=======================================================================
-Chd|====================================================================
-Chd|  SPLIT_NODE_IVAL_I25           source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_node_ival_i25   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces      ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_NODE_IVAL_I25(TAB,DIMO,DIMN,TAG,TAG2)
 c
-c split node array with global value specifi type24 & type25
+c split node array with global value specific type24 & type25
 c (see SPLIT_NODE_NODLOC for local values)
 c
 C-----------------------------------------------
@@ -6092,15 +5846,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6140,20 +5885,22 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  PREPARE_SPLIT_I25             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE PREPARE_SPLIT_I25(PROC     , INTBUF_TAB  , IPARI       ,
-     .                            INTERCEP , TAG_NODE_2RY, TAG_SEGM    ,
-     .                            TAG_SEGM2, TAG_NM      , TAG_NODE_MSR,
-     .                            TAG_SCRATCH, TAG_SM ,KNOR2MSR,NOR2MSR,
-     .                            TAG_NODE_2RY2,NINDX_NM,INDX_NM,NINDX_SCRT,INDX_SCRT)
+!||====================================================================
+!||    prepare_split_i25   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal              ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod           ../starter/share/modules1/front_mod.F
+!||====================================================================
+      SUBROUTINE PREPARE_SPLIT_I25(PROC     , INTBUF_TAB   , IPARI          ,
+     .                            INTERCEP  , TAG_NODE_2RY , TAG_SEGM       ,
+     .                            TAG_SEGM2 , TAG_NM       , TAG_NODE_MSR   ,
+     .                            TAG_SCRATCH, TAG_SM       ,KNOR2MSR       ,
+     .                            NOR2MSR    ,TAG_NODE_2RY2,NINDX_NM        ,
+     .                            INDX_NM    ,NINDX_SCRT   ,INDX_SCRT       ,
+     .                            NRTM_L)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -6163,15 +5910,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6195,7 +5933,7 @@ C-----------------------------------------------
       INTEGER 
      .        NSN,NRTM,NMN,
      .        I,J,K,L,N,N1,N2,N3,N4,E,
-     .        CNSN_L,CNRTM_L,CNMN_L,NADMSR_L
+     .        CNSN_L,CNRTM_L,CNMN_L,NADMSR_L,NRTM_L
 C ----------------------------------------
       NRTM = IPARI(4)
       NSN  = IPARI(5)
@@ -6280,7 +6018,7 @@ C ----------------------------------------
             NADMSR_L=NADMSR_L+1
             TAG_SM(N4)=NADMSR_L
           END IF
-        ENDIF
+        ENDIF       
       ENDDO 
 
       CNMN_L = 0 
@@ -6293,7 +6031,7 @@ C ----------------------------------------
       ENDDO
 
 C-----------------------------------------------
-C Pre construction ADRESSES
+C PRETHING Addresses
 C    
       DO I=1,NRTM
         IF(INTERCEP%P(I)==PROC+1)THEN
@@ -6305,7 +6043,7 @@ C
             N = TAG_SM(INTBUF_TAB%ADMSR(4*(I-1)+4))
             KNOR2MSR(N) = KNOR2MSR(N) + 1
           END IF
-        END IF
+        END IF  
       END DO
 C
       DO I=1,NADMSR_L
@@ -6317,7 +6055,7 @@ C
       END DO
       KNOR2MSR(1)=0
 C
-C Construction de la matrice Nod -> Shell elt
+C Construction of the Nod -> Shell elt matrix
 C
       DO I=1,NRTM
         IF(INTERCEP%P(I)==PROC+1)THEN
@@ -6341,14 +6079,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_LEDGE_I25               source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_ledge_i25    ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_LEDGE_I25(NEDGE,
      .                          NEDGE_L,
      .                          IRECTM,
@@ -6371,16 +6108,11 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "assert.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
 #include      "param_c.inc"
+#include      "assert.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6461,6 +6193,7 @@ C orientation  segment 1
           ELSEIF(IRECTM(JAS,IAS)==N2.AND.IRECTM(MOD(JAS,4)+1,IAS)==N1)THEN
             IS=-1
           ELSE
+            IS = -HUGE(IS)
             ASSERT(.FALSE.)
           END IF
           IBUF(CMPT) = IS 
@@ -6803,19 +6536,17 @@ C      WRITE(6,*) "NB_BOUNDARY_EDGES_REMOTE=",NB_BOUNDARY_EDGES_REMOTE
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SPLIT_CAND_I25                source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        PLIST_IFRONT                  source/spmd/node/ddtools.F    
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cand_i25     ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../starter/source/output/message/message.F
+!||    nlocal             ../starter/source/spmd/node/ddtools.F
+!||    plist_ifront       ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_CAND_I25(PROC     , INTBUF_TAB, NSN    , NSN_L       ,
      .                         TAG_SEGM2, II_STOK   , MULTIMP, NCONT        ,
      .                         NOINT    , INACTI    , TAG_SCRATCH ,II_STOK_L,
@@ -6830,15 +6561,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6874,7 +6600,7 @@ C ----------------------------------------
       IBUF_N(1:MULTIMP*NCONT) = 0
       II_STOK_L = 0 !mandatory in case of inacti ne 5,6,7 
 
-        IF(NSN.GT.0) THEN
+        IF(NSN>0) THEN
           ALLOCATE(NSNLOCAL(NSN))
           ALLOCATE(CPULOCAL(NSN))
           ALLOCATE(CANDR(NSN))
@@ -6887,7 +6613,7 @@ C ----------------------------------------
         DO K=1,NSN
           N = INTBUF_TAB%NSV(K)
           NSNLOCAL(K) = 0
-          IF(TAG_SCRATCH(N).EQ.0) THEN 
+          IF(TAG_SCRATCH(N)==0) THEN 
             SPLIST=0 
             CALL PLIST_IFRONT(PLIST,N,SPLIST) 
             DO I=1,SPLIST
@@ -6917,20 +6643,20 @@ C ----------------------------------------
         ENDDO
         NINDX_SCRT = 0
 C
-C Reperage des candidats se trouvant sur des procs distants
+C Locating candidates on remote processors
 C
         C_NSNR = 0
 
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             N = INTBUF_TAB%CAND_N(K)
             IF (INTBUF_TAB%NSV(N)> NUMNOD) CYCLE
-            IF(TAG_SCRATCH(N).EQ.0) THEN
+            IF(TAG_SCRATCH(N)==0) THEN
               TAG_SCRATCH(N) = 1
               NINDX_SCRT = NINDX_SCRT + 1
               INDX_SCRT(NINDX_SCRT) = N
-              IF(NLOCAL(INTBUF_TAB%NSV(N),PROC+1).NE.1)THEN
+              IF(NLOCAL(INTBUF_TAB%NSV(N),PROC+1)/=1)THEN
                 C_NSNR = C_NSNR + 1
                 CANDR(C_NSNR) = N
               END IF
@@ -6946,9 +6672,9 @@ C
         ENDDO
         NINDX_SCRT = 0
 C
-C Tris des candidats remote par proc et par nsv local croissant
+C Sorting remote candidates by proc and by ascending local nsv
 C
-C       IF(C_NSNR.GT.0) THEN
+C       IF(C_NSNR>0) THEN
           ALLOCATE(INDEX(2*C_NSNR))
           ALLOCATE(ITRI(2,C_NSNR))
 C       END IF
@@ -6971,12 +6697,12 @@ C
         C_NSNR = 0
         DO K = 1, II_STOK
           E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             II_STOK_L = II_STOK_L + 1
           END IF
         END DO
 
-        IF(II_STOK_L.GT.MULTIMP*NCONT)THEN
+        IF(II_STOK_L>MULTIMP*NCONT)THEN
           MULTOK= II_STOK_L/NCONT
           CALL ANCMSG(MSGID=626,
      .                MSGTYPE=MSGERROR,
@@ -6988,7 +6714,7 @@ C
 C
           DO K = 1, II_STOK
             E = INTBUF_TAB%CAND_E(K)
-            IF (TAG_SEGM2(E).NE.0) THEN
+            IF (TAG_SEGM2(E)/=0) THEN
               N = INTBUF_TAB%CAND_N(K)
               II_STOK_L = II_STOK_L + 1
               IBUF_E(II_STOK_L)=TAG_SEGM2(E)
@@ -6997,7 +6723,7 @@ C
               ELSEIF(NLOCAL(INTBUF_TAB%NSV(N),PROC+1)==1) THEN
                 IBUF_N(II_STOK_L)=NSNLOCAL(N)
               ELSE
-C noeud remote : numerotation pre calculee ci-dessus
+C remote node : numbering pre-calculated above
 c                IF(TAG(N)==0) THEN
                 IF(TAG_SCRATCH(N)==0) THEN
                   C_NSNR = C_NSNR + 1
@@ -7009,20 +6735,20 @@ c                IF(TAG(N)==0) THEN
                   IBUF_N(II_STOK_L) = TAG_SCRATCH(N)
                 END IF ! TAG(N)==0
               END IF ! NLOCAL(INTBUF_TAB%NSV(N),PROC+1)==1
-            ENDIF !TAG_SEGM_2(E).NE.0
+            ENDIF !TAG_SEGM_2(E)/=0
           ENDDO !K = 1, II_STOK
-        END IF !II_STOK_L.GT.MULTIMP*NCONT
+        END IF !II_STOK_L>MULTIMP*NCONT
 
         !reflush TAG_SCRATCH to zero only when value has changes
         DO K=1, II_STOK  
               E = INTBUF_TAB%CAND_E(K)
-          IF (TAG_SEGM2(E).NE.0) THEN
+          IF (TAG_SEGM2(E)/=0) THEN
             N = INTBUF_TAB%CAND_N(K)
             IF (INTBUF_TAB%NSV(N)<= NUMNOD) TAG_SCRATCH(N) = 0
           ENDIF
         ENDDO
   
-        IF(NSN.GT.0) DEALLOCATE(NSNLOCAL,CPULOCAL,CANDR)
+        IF(NSN>0) DEALLOCATE(NSNLOCAL,CPULOCAL,CANDR)
         DEALLOCATE(INDEX,ITRI)
 
          
@@ -7034,15 +6760,14 @@ c                IF(TAG(N)==0) THEN
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SPLIT_ADSKYN_25               source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_adskyn_25    ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    front_mod          ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_ADSKYN_25(ADSKYN,IADNOR,NADMSR,ADMSR,NADMSR_L,
      .                           NRTM_L,TAG_SEGM,TAG_SM,INTERCEP)
 c
@@ -7057,15 +6782,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7108,14 +6824,13 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_LBOUND_I25              source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_lbound_i25   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces   ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_LBOUND_I25(NADMSR,NADMSR_L,LBOUND,TAG_SM)
 c
 C-----------------------------------------------
@@ -7126,15 +6841,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7170,14 +6876,13 @@ C ----------------------------------------
 C=======================================================================
 C END SPECIFIC ROUTINES INT25
 C=======================================================================
-Chd|====================================================================
-Chd|  SPLIT_ISEGPT_IVAL             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_isegpt_ival   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPLIT_ISEGPT_IVAL(ISEGPT,NSN_L,DIM2,TAG_NODE_2RY,NI,TAG_2RY_INV,PROC)
 c
 c split & write node array (type INTEGER) with global value
@@ -7191,15 +6896,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7240,17 +6936,16 @@ C ----------------------------------------
 
       RETURN
       END
-Chd|====================================================================
-Chd|  SPLIT_REMNODE_I24             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_remnode_i24   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal              ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod           ../starter/share/modules1/front_mod.F
+!||    message_mod         ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_REMNODE_I24(PROC     , INTBUF_TAB, NRTM    , NRTM_L,
      .                            TAG_SEGM2, NREMNODE  , NODLOCAL, ITAB   ,
      .                             IS2ID   ,INTERCEP2  ,NSNE ,NODLOCAL24)
@@ -7265,15 +6960,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7308,7 +6997,7 @@ C ----------------------------------------
       SIZ_TMP(1:NRTM) = 0
 
       DO K=1,NRTM
-        IF(TAG_SEGM2(K) .NE. 0)THEN
+        IF(TAG_SEGM2(K) /= 0)THEN
           SIZ_TMP(TAG_SEGM2(K)) = INTBUF_TAB%KREMNODE(K+1)
      .              -INTBUF_TAB%KREMNODE(K)
         ENDIF
@@ -7321,7 +7010,7 @@ C ----------------------------------------
       SIZ1 = 0
       SIZ2 = 0
       DO K=1,NRTM
-        IF(TAG_SEGM2(K) .NE. 0)THEN
+        IF(TAG_SEGM2(K) /= 0)THEN
 
           SIZ = SIZ_TMP(TAG_SEGM2(K))
           IBUF1(1+2*TAG_SEGM2(K)) =IBUF1(1+2*(TAG_SEGM2(K)-1)) + SIZ
@@ -7356,7 +7045,7 @@ c--------add if N<=NUMNOD else IS2ID(N-NUMNOD)
               SIZ2 = SIZ2+1
             ENDIF
            ELSE
-            IF(NLOCAL(N,PROC+1).NE.1) THEN
+            IF(NLOCAL(N,PROC+1)/=1) THEN
               NODDELREMOTE(SIZ2+1) = ITAB(N)
               SIZ2 = SIZ2+1
             ENDIF
@@ -7393,15 +7082,14 @@ c      print *,'NREMNODE,SIZ1,SIZ2=',NREMNODE,SIZ1,SIZ2
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SPLIT_REMNODE_I11             source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_remnode_i11   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces    ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod         ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_REMNODE_I11(PROC     , INTBUF_TAB, NRTM    , NRTM_L,
      .                            TAG_SEGM2, NODLOCAL, ITAB  ,NUMNOD_L, TAG_SEGS2,
      .                            NREMNODE_L)
@@ -7414,16 +7102,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7457,14 +7135,14 @@ C---  Split of KERMNODE -> IBUF1
       INDEX1 = 1
       CPT_L = 0
       DO K=1,NRTM
-        IF(TAG_SEGM2(K) .NE. 0)THEN
+        IF(TAG_SEGM2(K) /= 0)THEN
           SIZ = INTBUF_TAB%KREMNODE(K+1)-INTBUF_TAB%KREMNODE(K)
           L=INTBUF_TAB%KREMNODE(K)
           SIZ1 = 0
           SIZ2 = 0
           DO M=1,SIZ
             N = INTBUF_TAB%REMNODE(L+M-1)
-            IF (TAG_SEGS2(N).NE.0) THEN
+            IF (TAG_SEGS2(N)/=0) THEN
 C--           Local segment - local id is stored
               SIZ1 = SIZ1 + 1
             ELSE
@@ -7484,7 +7162,7 @@ C
 C---  Split of ERMNODE -> IBUF2
       CPT_L = 0
       DO K=1,NRTM
-        IF(TAG_SEGM2(K) .NE. 0)THEN
+        IF(TAG_SEGM2(K) /= 0)THEN
 C
           CPT_L = CPT_L + 1
           L=INTBUF_TAB%KREMNODE(K)
@@ -7494,7 +7172,7 @@ C
 C
           DO M=1,SIZ
             N = INTBUF_TAB%REMNODE(L+M-1)
-            IF (TAG_SEGS2(N).NE.0) THEN
+            IF (TAG_SEGS2(N)/=0) THEN
 C-- Local segment - local id is stored
               IBUF2(SIZ1) = TAG_SEGS2(N)
               SIZ1 = SIZ1+1
@@ -7517,15 +7195,14 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SPLIT_REMNODE_I25_EDGE        source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_remnode_i25_edge   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces         ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_REMNODE_I25_EDGE(PROC     , INTBUF_TAB, NEDGE    , NEDGE_L,
      .                                 TAG_EDGE  , TAG_EDGE2 , SEGLOC   ,ITAB    ,
      .                                 NUMNOD_L  ,  NREMNODE_EDG_L)
@@ -7539,14 +7216,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -7586,11 +7257,11 @@ C---  Split of KERMNODE -> IBUF1
         K = TAG_EDGE(IK)
         EM1=INTBUF_TAB%LEDGE(1+(K-1)*NLEDGE)
         KM1=0
-        IF(EM1.NE..0) KM1=SEGLOC(EM1)
+        IF(EM1/=.0) KM1=SEGLOC(EM1)
         EM2=INTBUF_TAB%LEDGE(3+(K-1)*NLEDGE)
         KM2=0
-        IF(EM2.NE.0) KM2=SEGLOC(EM2)
-        IF(KM1 .NE. 0.OR.KM2.NE.0)THEN
+        IF(EM2/=0) KM2=SEGLOC(EM2)
+        IF(KM1 /= 0.OR.KM2/=0)THEN
           SIZ = INTBUF_TAB%KREMNODE_EDG(K+1)-INTBUF_TAB%KREMNODE_EDG(K)
           L=INTBUF_TAB%KREMNODE_EDG(K)
           SIZ1 = 0
@@ -7599,11 +7270,11 @@ C---  Split of KERMNODE -> IBUF1
             N = INTBUF_TAB%REMNODE_EDG(L+M-1)
             ES1=INTBUF_TAB%LEDGE(1+(N-1)*NLEDGE)
             KS1=0
-            IF(ES1.NE.0) KS1=SEGLOC(ES1)
+            IF(ES1/=0) KS1=SEGLOC(ES1)
             ES2=INTBUF_TAB%LEDGE(3+(N-1)*NLEDGE)
             KS2 = 0
-            IF(ES2.NE.0) KS2=SEGLOC(ES2)
-            IF (KM1 .NE. 0.AND.KM2.NE.0.AND.KS1.NE.0.AND.KS2.NE.0) THEN
+            IF(ES2/=0) KS2=SEGLOC(ES2)
+            IF (KM1 /= 0.AND.KM2/=0.AND.KS1/=0.AND.KS2/=0) THEN
 C--           Local segment - local id is stored
               SIZ1 = SIZ1 + 1
             ELSE
@@ -7627,11 +7298,11 @@ C---  Split of ERMNODE -> IBUF2
         K = TAG_EDGE(IK)
         EM1=INTBUF_TAB%LEDGE(1+(K-1)*NLEDGE)
         KM1=0
-        IF(EM1.NE.0) KM1=SEGLOC(EM1)
+        IF(EM1/=0) KM1=SEGLOC(EM1)
         EM2=INTBUF_TAB%LEDGE(3+(K-1)*NLEDGE)
         KM2=0
-        IF(EM2.NE.0) KM2=SEGLOC(EM2)
-        IF(KM1 .NE. 0.OR.KM2.NE.0)THEN
+        IF(EM2/=0) KM2=SEGLOC(EM2)
+        IF(KM1 /= 0.OR.KM2/=0)THEN
 C
           CPT_L = CPT_L + 1
           L=INTBUF_TAB%KREMNODE_EDG(K)
@@ -7643,11 +7314,11 @@ C
             N = INTBUF_TAB%REMNODE_EDG(L+M-1)
             KS1=0
             ES1=INTBUF_TAB%LEDGE(1+(N-1)*NLEDGE)
-            IF(ES1.NE.0) KS1=SEGLOC(ES1)
+            IF(ES1/=0) KS1=SEGLOC(ES1)
             ES2=INTBUF_TAB%LEDGE(3+(N-1)*NLEDGE)
             KS2 = 0
-            IF(ES2.NE.0) KS2=SEGLOC(ES2)
-            IF (KM1 .NE. 0.AND.KM2.NE.0.AND.KS1.NE.0.AND.KS2.NE.0) THEN
+            IF(ES2/=0) KS2=SEGLOC(ES2)
+            IF (KM1 /= 0.AND.KM2/=0.AND.KS1/=0.AND.KS2/=0) THEN
 C-- Local segment - local id is stored
               IBUF2(SIZ1) = TAG_EDGE2(N)
               SIZ1 = SIZ1+1
@@ -7670,15 +7341,14 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SPLIT_REMNODE_I25_E2S         source/restart/ddsplit/inter_tools.F
-Chd|-- called by -----------
-Chd|        SPLIT_INTERFACES              source/restart/ddsplit/split_interfaces.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_remnode_i25_e2s   ../starter/source/restart/ddsplit/inter_tools.F
+!||--- called by ------------------------------------------------------
+!||    split_interfaces        ../starter/source/restart/ddsplit/split_interfaces.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod             ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SPLIT_REMNODE_I25_E2S(PROC     , INTBUF_TAB, NRTM    , NRTM_L,
      .                                 TAG_EDGE  , TAG_EDGE2 , SEGLOC   ,ITAB    ,
      .                                 NUMNOD_L  ,  NREMNODE_E2S_L)
@@ -7692,14 +7362,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s

@@ -1,44 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LAW69_UPD                     source/materials/mat/mat069/law69_upd.F
-Chd|-- called by -----------
-Chd|        UPDMAT                        source/materials/updmat.F     
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        LAW69_NLSQF                   source/materials/tools/nlsqf.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TABLE_MOD                     share/modules1/table_mod.F    
-Chd|====================================================================
-      SUBROUTINE LAW69_UPD(IOUT,TITR    ,MAT_ID,UPARAM,NFUNC,
-     .                      IFUNC, FUNC_ID,NPC   ,PLD   ,PM,IPM)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    law69_upd              ../starter/source/materials/mat/mat069/law69_upd.F
+!||--- called by ------------------------------------------------------
+!||    updmat                 ../starter/source/materials/updmat.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    arret                  ../starter/source/system/arret.F
+!||    law69_nlsqf            ../starter/source/materials/tools/nlsqf.F
+!||    law69_nlsqf_auto       ../starter/source/materials/tools/law69_nlsqf_auto.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    table_mod              ../starter/share/modules1/table_mod.F
+!||====================================================================
+      SUBROUTINE LAW69_UPD(IOUT,TITR    ,MAT_ID,UPARAM,NFUNC,NFUNCT,
+     .                      IFUNC, FUNC_ID,NPC   ,PLD   ,PM,IPM, GAMA_INF)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE TABLE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,16 +49,17 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      CHARACTER*nchartitle  :: TITR
-      INTEGER MAT_ID,IOUT, NFUNC
-      INTEGER NPC(*), FUNC_ID(*) ,IPM(NPROPMI)
+      CHARACTER(LEN=NCHARTITLE)  :: TITR
+      INTEGER MAT_ID,IOUT
+      INTEGER ,INTENT(IN) :: NFUNC
+      INTEGER ,INTENT(IN) :: NFUNCT
+      INTEGER NPC(*), FUNC_ID(NFUNCT) ,IPM(NPROPMI)
       my_real 
      .         UPARAM(*),PLD(*),PM(NPROPM)
+      my_real , INTENT(IN)    ::  GAMA_INF
       INTEGER, DIMENSION(NFUNC):: IFUNC
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -64,7 +67,7 @@ C-----------------------------------------------
 
 c
       INTEGER N_NETWORK,N,K,ITEST,ICHECK,II,JJ,NSTART,IC1,IC2,NOGD,NDATA,NMULA,
-     .        TAB,NMUAL,IFLAG,IS,I,INDX
+     .        TAB,NMUAL,IFLAG,IS,I,INDX,LAWID, ITAG,IS_ENCRYPTED
       my_real
      .   MU(5),AL(5),LAM_MIN,LAM_MAX,STRAIN_MIN,STRAIN_MAX,
      .   D11,D22,D12,LAM1,LAM2,LAM3,LAM12,INVD1,INVD2
@@ -74,21 +77,19 @@ c
      .   AMULA(2),MUAL(10),DY
       my_real , DIMENSION(:), ALLOCATABLE :: STRESS,STRETCH
       INTEGER , DIMENSION(:), ALLOCATABLE :: ITAB_ON_A,INDEX
-!      
-      LOGICAL  IS_CRYPTED         
+!             
 C==================================================================== 
 C=======================================================================
 !       IDENTIFICATION
 !====================================================================       
-       IS_CRYPTED = .FALSE.
-       CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+
        IF(IFUNC(2) == 0 )  RETURN
 C      
        NMUAL = 2*UPARAM(18)
        IFLAG = NINT(UPARAM(13))
        ICHECK = NINT(UPARAM(19))
        NSTART = NINT(UPARAM(20))
-       ERRTOL = UPARAM(21)
+       IS_ENCRYPTED = NINT(UPARAM(21))
        ERRTOL = FIVEEM3 
 C      
        IC1 = NPC(IFUNC(2))
@@ -108,12 +109,14 @@ C
        RBULK=ZERO                                            
        GS=ZERO                                               
        LAM_MAX= ZERO                                         
-       LAM_MIN= ZERO      
+       LAM_MIN= ZERO   
+       ITAG  =  0   
        IS = IFUNC(2)                                   
        DO II = IC1,IC2-2,2                                   
             JJ=JJ+1                                          
             STRETCH(JJ) = PLD(II) + ONE                       
-            STRESS(JJ)  = PLD(II+1)  
+            STRESS(JJ)  = PLD(II+1)
+            IF(PLD(II) < ZERO .AND. STRESS(JJ) < ZERO ) ITAG = 1
               IF(PLD(II) <=  -ONE) THEN
                 CALL ANCMSG(MSGID=1175,
      .                       MSGTYPE=MSGERROR,
@@ -127,7 +130,7 @@ C
 C  check if the curve is monotonic
         DO JJ =1,NOGD - 1                                 
           DX = STRETCH(JJ+1) - STRETCH(JJ)                
-          DY = STRESS(JJ + 1) - STRESS(JJ)                
+          DY = STRESS(JJ + 1) - STRESS(JJ) 
           IF(DX <= ZERO .OR. DY <= ZERO) THEN             
             CALL ANCMSG(MSGID=1176,                      
      .             MSGTYPE=MSGERROR,                   
@@ -151,25 +154,38 @@ C  check if the curve is monotonic
          MUAL(2*II-1)=FIVE                                
          MUAL(2*II)=TWO                                  
        ENDDO 
+!      
+        WRITE(IOUT,277)  
+        WRITE(IOUT,270)TRIM(TITR),MAT_ID  
+        IF(IS_ENCRYPTED > 0) WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
 !       
-       IF(IS_CRYPTED)THEN
-          WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
-       ELSE 
-         WRITE(IOUT,277)    
-         WRITE(IOUT,270)TRIM(TITR),MAT_ID
-       ENDIF  
-!       
-       IF (IFLAG .EQ. 1 .OR. IFLAG .EQ. 2) THEN
-          CALL LAW69_NLSQF(IFLAG,STRETCH,STRESS,10,NMUAL,NOGD,MUAL,
-     $                             ICHECK, NSTART, ERRTOL,MAT_ID,TITR)
-       ENDIF 
+       IF (IFLAG == 1 .OR. IFLAG == 2) THEN
+           LAWID = IFLAG 
+           CALL LAW69_NLSQF(LAWID,STRETCH,STRESS,10,NMUAL,NOGD,MUAL,
+     $                             ICHECK, NSTART, ERRTOL,MAT_ID,TITR,IS_ENCRYPTED)
+       ELSEIF(IFLAG == -1) THEN
+           LAWID = 2
+           IF(ITAG == 0) ICHECK = ABS(ICHECK)
+           CALL LAW69_NLSQF_AUTO(LAWID,STRETCH,STRESS,10,NMUAL,NOGD,MUAL,
+     $                             ICHECK, NSTART, ERRTOL,MAT_ID,TITR,IS_ENCRYPTED)
+           UPARAM(18) = NMUAL / 2    
+       ENDIF
        DEALLOCATE (STRETCH)                                                  
        DEALLOCATE (STRESS)                                                   
-       DO II=1,5                                                             
-         UPARAM(II)=MUAL(2*II-1)                                        
-         UPARAM(II+5)=MUAL(2*II)                                        
-         GS=GS+MUAL(2*II-1)*MUAL(2*II)                                       
-       ENDDO                                                                 
+       IF(GAMA_INF < ONE) THEN
+         DO II=1,5                                                           
+           UPARAM(II)=MUAL(2*II-1)/GAMA_INF                                     
+           UPARAM(II+5)=MUAL(2*II)                                      
+           GS=GS + MUAL(2*II-1)*MUAL(2*II)                                     
+         ENDDO 
+         IF(IS_ENCRYPTED == 0) WRITE(IOUT,100)  MAT_ID
+       ELSE 
+         DO II=1,5                                                           
+           UPARAM(II)=MUAL(2*II-1)                                      
+           UPARAM(II+5)=MUAL(2*II)                                      
+           GS=GS+MUAL(2*II-1)*MUAL(2*II)                                     
+         ENDDO   
+       ENDIF                                                              
        G=GS/TWO                                                            
        NU = UPARAM(14)                                   
        RBULK=GS*(ONE+UPARAM(14))                                         
@@ -189,8 +205,8 @@ C     Formulation for solid elements time step computation.
        PM(105) = GS/(RBULK + TWO_THIRD*G)       
        
 C                                                        
-      IF(.NOT.IS_CRYPTED) THEN 
-         IF (UPARAM(13).NE.2) THEN                                      
+      IF(IS_ENCRYPTED == 0) THEN 
+         IF (LAWID /= 2) THEN                                      
            WRITE(IOUT,278)                                                   
      &  UPARAM(1),UPARAM(2),UPARAM(3),UPARAM(4),         
      &  UPARAM(5),UPARAM(6),UPARAM(7),UPARAM(8),         
@@ -348,6 +364,11 @@ C
         DEALLOCATE (INDEX)    
 C --------------------------------------------------------
       RETURN
+ 100  FORMAT
+     & (//5X, 'MODIFIED  FITTED MATERIAL RIGIDITY    ' ,/,
+     &    5X, ' ---------------------------', /,
+     &    5X, 'MATERIAL LAW =  LAW69 ',/,
+     &    5X, 'MATERIAL NUMBER =',I10,//) 
  277  FORMAT
      & (//5X, 'FITTED PARAMETERS FOR HYPERELASTIC_MATERIAL LAW69' ,/,
      &    5X, ' ----------------------------------------')
@@ -369,7 +390,7 @@ C --------------------------------------------------------
      & ,5X,  'INITIAL SHEAR MODULUS . . . . . . . . .=',1PG20.13/
      & ,5X,  'BULK MODULUS. . . . . . . . . . . . . .=',1PG20.13//)
  279   FORMAT(
-     &  5X,  'MOOONEY-RIVLIN LAW PARAMETERS:',/
+     &  5X,  'MOONEY-RIVLIN LAW PARAMETERS:',/
      & ,5X,  'MU1 . . . . . . . . . . . . . . . . . .=',1PG20.13/
      & ,5X,  'MU2 . . . . . . . . . . . . . . . . . .=',1PG20.13/
      & ,5X,  'AL1 . . . . . . . . . . . . . . . . . .=',1PG20.13/

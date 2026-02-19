@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPGAUGE                       source/elements/sph/spgauge.F 
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|-- calls ---------------
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|        WEIGHT0                       source/elements/sph/weight.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spgauge         ../engine/source/elements/sph/spgauge.F
+!||--- called by ------------------------------------------------------
+!||    forintp         ../engine/source/elements/forintp.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||    sum_6_float     ../engine/source/system/parit.F
+!||    weight0         ../engine/source/elements/sph/weight.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    initbuf_mod     ../engine/share/resol/initbuf.F
+!||    sphbox          ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPGAUGE(LGAUGE  ,GAUGE ,KXSP   ,IXSP  ,
      1                   SPBUF   ,IPARG ,ELBUF_TAB,ISPSYM ,XSPSYM,
      2                   NOD2SP  ,X       ,ITASK  ,WA     ,WASIGSM,
@@ -47,20 +48,12 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr01_c.inc"
 #include      "sphcom.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
-#include      "vect01_c.inc"
 #include      "parit_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -75,59 +68,59 @@ C     REAL
       DOUBLE PRECISION SPHG_F6(4,6,NBGAUGE)
 C-----------------------------------------------
 c     GAUGE(3,*)
-c 1:  -Isolid				   -(NUMELS_G+1) if SPH gauge
+c 1:  -Isolid           -(NUMELS_G+1) if SPH gauge
 c 2:  GaugeId
 c 3:  +Node or -Shell
 c
 c     => GAUGE(LLGAUGE,*), LLGAUGE = 37
-c 1:  Dist (distance from Shell)	   Dist (distance from Shell)
-c 2:  XG				   XG
-c 3:  YG				   YG
-c 4:  ZG				   ZG
-c 5:  Alpha (Solid penetration ratio)	   not yet used
-c 6:    				   XSAV (SPH sorting)
-c 7:    				   YSAV (SPH sorting)
-c 8:    				   ZSAV (SPH sorting)
-c 9:    				   FF (sph only)
-c 10:   				   intantaneous Pressure
-c 11:   				   not yet available
-c 12:   				   intantaneous Rho
-c 13:   				   intantaneous E
-c 14:   				   ! Butterworth !
-c 15:   				   ! Butterworth !
-c 16:   				   ! Butterworth !
-c 17:   				   ! Butterworth !
-c 18:   				   ! Butterworth !
-c 19:   				   ! Butterworth !
-c 20:   			           ! Butterworth !
-c 21: 				           ! Butterworth !
-c 22: 				           ! Butterworth !
-c 23: 				           ! Butterworth !  
-c 24:   				   ! Butterworth !
-c 25:   				   ! Butterworth !
-c 26:   				   ! Butterworth !
-c 27:   				   ! Butterworth !
-c 28:   				   ! Butterworth !
-c 29:   				   ! Butterworth !
-c 30:  Pressure      		  	   filtered Pressure
-c 31:  PA            			   not yet available
-c 32:  Rho           			   filtered Rho
-c 33:  E             			   filtered E	     
-c 34:   				   ! Butterworth !
-c 35:   				   ! Butterworth !
-c 36:   				   ! Butterworth !
-c 37:   				   ! Butterworth !
+c 1:  Dist (distance from Shell)     Dist (distance from Shell)
+c 2:  XG           XG
+c 3:  YG           YG
+c 4:  ZG           ZG
+c 5:  Alpha (Solid penetration ratio)     not yet used
+c 6:               XSAV (SPH sorting)
+c 7:               YSAV (SPH sorting)
+c 8:               ZSAV (SPH sorting)
+c 9:               FF (sph only)
+c 10: Intantaneous Pressure
+c 11:              not yet available
+c 12:              intantaneous Rho
+c 13:              intantaneous E
+c 14:              ! Butterworth !
+c 15:              ! Butterworth !
+c 16:              ! Butterworth !
+c 17:              ! Butterworth !
+c 18:              ! Butterworth !
+c 19:              ! Butterworth !
+c 20:                    ! Butterworth !
+c 21:                    ! Butterworth !
+c 22:                    ! Butterworth !
+c 23:                    ! Butterworth !  
+c 24:              ! Butterworth !
+c 25:              ! Butterworth !
+c 26:              ! Butterworth !
+c 27:              ! Butterworth !
+c 28:              ! Butterworth !
+c 29:              ! Butterworth !
+c 30:  Pressure                 filtered Pressure
+c 31:  PA                     not yet available
+c 32:  Rho                    filtered Rho
+c 33:  E                      filtered E       
+c 34:              ! Butterworth !
+c 35:              ! Butterworth !
+c 36:              ! Butterworth !
+c 37:              ! Butterworth !
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,N,INOD,JNOD,J,NVOIS,M,
-     .        NVOISS,SM,JS,NC,NS,NN,
-     .        IG,NEL,KAD,NG,K,KK,SFGAUGE,FR_RL(NSPMD+2)
+      INTEGER I, N, JNOD, J, NVOIS, M, 
+     . NVOISS,SM,JS,NC,
+     . IG,K,SFGAUGE,FR_RL(NSPMD+2)
       my_real
-     .       XI,YI,ZI,DI,RHOI,XJ,YJ,ZJ,DJ,RHOJ,VJ,
+     . XI,YI,ZI,XJ,YJ,ZJ,DJ,RHOJ,VJ,
      .       WGHT,ALPHAI,WCOMPI,
-     .       PP,EE,PRESS,ENER,RHO
-      TYPE(G_BUFEL_)  ,POINTER :: GBUF
+     . PP,PRESS,ENER,RHO
+ 
       my_real
      .       , DIMENSION(:), ALLOCATABLE :: FGAUGE1,FGAUGE2,FGAUGE3,FGAUGE4        
 C-----------------------------------------------
@@ -145,38 +138,38 @@ C------
         ENER   =ZERO
         RHO    =ZERO
 C------
-     	NVOIS=KXSP(4,N)
+          NVOIS=KXSP(4,N)
 C------
         SFGAUGE = KXSP(4,N) + KXSP(6,N)
         ALLOCATE(FGAUGE1(SFGAUGE),FGAUGE2(SFGAUGE),FGAUGE3(SFGAUGE),FGAUGE4(SFGAUGE))
 C------
-     	DO J=1,NVOIS
-     	  JNOD=IXSP(J,N)
-     	  IF(JNOD.GT.0)THEN
-     	    M=NOD2SP(JNOD)
-            IF(KXSP(2,M).LE.0) CYCLE
-     	    XJ=X(1,JNOD)
-     	    YJ=X(2,JNOD)
-     	    ZJ=X(3,JNOD)
-     	    DJ  =SPBUF(1,M)
-     	    RHOJ=SPBUF(2,M)
-     	    VJ=SPBUF(12,M)/MAX(EM20,RHOJ)
-     	    CALL WEIGHT0(XI,YI,ZI,XJ,YJ,ZJ,DJ,WGHT)
+          DO J=1,NVOIS
+            JNOD=IXSP(J,N)
+            IF(JNOD>0)THEN
+              M=NOD2SP(JNOD)
+            IF(KXSP(2,M)<=0) CYCLE
+              XJ=X(1,JNOD)
+              YJ=X(2,JNOD)
+              ZJ=X(3,JNOD)
+              DJ  =SPBUF(1,M)
+              RHOJ=SPBUF(2,M)
+              VJ=SPBUF(12,M)/MAX(EM20,RHOJ)
+              CALL WEIGHT0(XI,YI,ZI,XJ,YJ,ZJ,DJ,WGHT)
             WCOMPI=VJ*WGHT
             PP=-THIRD*(WA(1,M)+WA(2,M)+WA(3,M))
             FGAUGE1(J) = WCOMPI
             FGAUGE2(J) = VJ*WGHT*PP
             FGAUGE3(J) = VJ*WGHT*RHOJ
             FGAUGE4(J) = ENER
-     	  END IF
-     	ENDDO
+            END IF
+          ENDDO
 C------
-C       partie symetrique.
+C       symmetrical part.
         NVOISS=KXSP(6,N)
         K = NVOIS
         DO J=KXSP(5,N)+1,KXSP(5,N)+NVOISS
           JS=IXSP(J,N)
-          IF(JS.GT.0)THEN
+          IF(JS>0)THEN
             SM=JS/(NSPCOND+1)
             NC=MOD(JS,NSPCOND+1)
             JS=ISPSYM(NC,SM)
@@ -197,7 +190,7 @@ C       partie symetrique.
           END IF
         ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
         DO K = 1, 6
           SPHG_F6(1,K,IG) = ZERO
@@ -257,12 +250,11 @@ C energy not yet available
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SPGAUGE_F                     source/elements/sph/spgauge.F 
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spgauge_f   ../engine/source/elements/sph/spgauge.F
+!||--- called by ------------------------------------------------------
+!||    resol       ../engine/source/engine/resol.F
+!||====================================================================
       SUBROUTINE SPGAUGE_F(P,FF,P0,P1,P2,N)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -271,9 +263,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "r4r8_p.inc"
 #include      "com08_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -284,12 +274,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER J,IFIRST
+      INTEGER J
       my_real
      . PI1,PI8,PI38,SPI8,SPI38,C0,C1,C2,C3,C4,C5,C6,C7,C8,C9,
      , X1,X2,X3,Y1,Y2,Y3,Z1,Z2,Z3,D,DD,D2,DP,E,G,F
 C
-      IF(FF.EQ.ZERO)THEN
+      IF(FF==ZERO)THEN
         DO J=1,N
           P2(J,1) = P(J)
         ENDDO
@@ -298,7 +288,7 @@ C
 C
       F = MIN(FF,ZEP4/DT2)
 C-----------------------------------------------
-C INITIALIALISATION DES COEFFICIENTS DU FILTRE
+C INITIALIZATION OF FILTER COEFFICIENTS
 C-----------------------------------------------
       PI1   = TWO*ATAN2(ONE,ZERO)
       PI8  = PI1*ONE_OVER_8

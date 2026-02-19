@@ -1,39 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVMESH0                       source/airbag/fvmesh0.F       
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        FVBRIC                        source/airbag/fvbric.F        
-Chd|        FVMESH1                       source/airbag/fvmesh.F        
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvmesh0       ../engine/source/airbag/fvmesh0.F
+!||--- called by ------------------------------------------------------
+!||    resol         ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    fvbric        ../engine/source/airbag/fvbric.F
+!||    fvmesh1       ../engine/source/airbag/fvmesh.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||    fvbag_mod     ../engine/share/modules/fvbag_mod.F
+!||====================================================================
       SUBROUTINE FVMESH0(MONVOL, X, VOLMON, IXS)
 C-----------------------------------------------
 C   M o d u l e s 
 C-----------------------------------------------
       USE FVBAG_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -44,9 +47,7 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -67,10 +68,10 @@ C
       KK1=1
       DO N=1,NVOLU
          ITYP=MONVOL(K1-1+2)
-         IF (ITYP.EQ.6.OR.ITYP.EQ.8) THEN
+         IF (ITYP==6.OR.ITYP==8) THEN
            IFV=MONVOL(K1-1+45)
            IMESH=MONVOL(K1-1+56)
-           IF (IMESH.NE.0) THEN
+           IF (IMESH/=0) THEN
             NNS=MONVOL(K1-1+32)
             NTG=MONVOL(K1-1+33)
             NNI =MONVOL(K1-1+68)
@@ -92,7 +93,7 @@ C
             NBY=MONVOL(K1-1+55)          
             NBRIC=NBX*NBY          
             NNB=(NBX+1)*(NBY+1)*2
-            IF (ISPMD.NE.FVSPMD(IFV)%PMAIN-1) THEN
+            IF (ISPMD/=FVSPMD(IFV)%PMAIN-1) THEN
                ALLOCATE(FVDATA(IFV)%BRIC(8,0),
      .                  FVDATA(IFV)%TBRIC(13,0),
      .                  FVDATA(IFV)%XB(3,0),

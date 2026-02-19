@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21GAP3                       source/interfaces/inter3d1/i21gap3.F
-Chd|-- called by -----------
-Chd|        ININT3_THKVAR                 source/interfaces/inter3d1/inint3_thkvar.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        I4GMX3                        source/interfaces/inter3d1/i4gmx3.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21gap3                ../starter/source/interfaces/inter3d1/i21gap3.F
+!||--- called by ------------------------------------------------------
+!||    inint3_thkvar          ../starter/source/interfaces/inter3d1/inint3_thkvar.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    i4gmx3                 ../starter/source/interfaces/inter3d1/i4gmx3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I21GAP3(
      1 X     ,IRECTS ,IRECTM ,NRTS  ,NRTM  ,
      2 GEO   ,PM    ,IXS     ,IXC   ,IXTG  ,
@@ -41,15 +42,14 @@ Chd|====================================================================
      9 DEPTH    ,GAP_S0      ,AREA_S0  ,XM0     ,LXM    ,
      A LYM      ,LZM         ,INTTH    ,DRAD    ,IPARTS ,
      B IPARTC   ,IPARTG      ,THK_PART ,THKNOD0 ,ID     ,
-     C TITR     ,DGAPLOAD    )
+     C TITR     ,DGAPLOAD    ,RESORT  )
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only :nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -59,12 +59,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr08_c.inc"
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -75,6 +70,7 @@ C-----------------------------------------------
      .   KNOD2ELS(*), KNOD2ELC(*), KNOD2ELTG(*), NOD2ELS(*), NOD2ELC(*), 
      .   NOD2ELTG(*),IELES(*), 
      .   MSR(*), ITAB(*), IKINE(*), IPARTS(*), IPARTC(*), IPARTG(*)
+      INTEGER , INTENT (IN) :: RESORT
 C     REAL
       my_real  , INTENT(IN) :: DGAPLOAD
       my_real
@@ -84,18 +80,17 @@ C     REAL
      .   GAP_S(*), THKNOD(*), STF(*), STFN(*), 
      .   GAP_S0(*), AREA_S0(*), XM0(3,*),THK_PART(*),THKNOD0(*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NDX, I, J, II, INRT, NELS, NELC, NELTG, NEL,
+      INTEGER NDX, I, J, II, INRT, NEL,
      .        N1,N2,N3,N4, IX, N, L, LLT, NN, IP, STAT
       INTEGER ITMP(NUMNOD)
 C     REAL
       my_real
-     .   DXM, GAPMX, GAPMN, AREA, DX,GAPS1,GAPS2, GAPM, DDX, 
-     .   GAPTMP, XXX, YYY, ZZZ, X0, X1, Y0, Y1, Z0, Z1
+     .   DXM, GAPMX, GAPMN, DX,GAPS1,GAPS2, GAPM, 
+     .    XXX, YYY, ZZZ, X0, X1, Y0, Y1, Z0, Z1
       my_real
      .        X12(MVSIZ),Y12(MVSIZ),Z12(MVSIZ),
      .        X13(MVSIZ),Y13(MVSIZ),Z13(MVSIZ),
@@ -104,7 +99,7 @@ C     REAL
       my_real, DIMENSION(:), ALLOCATABLE :: THK_PART_NODS
 C--------------------------------------------------------------
       DXM=ZERO
-      NDX=ZERO
+      NDX = 0
       GAPMX=EP30
       GAPMN=EP30
       GAPS1=ZERO
@@ -118,9 +113,9 @@ C------------------------------------
         CALL I4GMX3(X,IRECTS,INRT,GAPMX)
   250 CONTINUE
 C-------------------------------------------------------
-C     THICKNESS PART ON SECND NODES FOR GAP CALCULATION
+C     THICKNESS PART ON SECOND NODES FOR GAP CALCULATION
 C-------------------------------------------------------
-      IF(IGAP.GE.1)THEN
+      IF(IGAP>=1)THEN
          ALLOCATE (THK_PART_NODS(NUMNOD)        ,STAT=stat)
          IF (STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,
      .                                     MSGTYPE=MSGERROR,
@@ -128,13 +123,13 @@ C-------------------------------------------------------
          THK_PART_NODS(1:NUMNOD) = ZERO        
          DO I=1,NRTS
             NEL = IELES(I)
-            IF(NEL.LE.NUMELS) THEN ! SOLID ELEMENT
+            IF(NEL<=NUMELS) THEN ! SOLID ELEMENT
                IP = IPARTS(NEL)
                DO N =1,4
                   NN = IRECTS(N,I)
                   THK_PART_NODS(NN) = MAX(THK_PART_NODS(N),THK_PART(IP))
                ENDDO
-            ELSEIF(NEL.LE.(NUMELS+NUMELC)) THEN ! SHELL ELEMENT
+            ELSEIF(NEL<=(NUMELS+NUMELC)) THEN ! SHELL ELEMENT
                IP = IPARTC(NEL-NUMELS)
                DO N =1,4
                   NN = IRECTS(N,I)
@@ -151,11 +146,11 @@ C-------------------------------------------------------
       ENDIF
 
 C------------------------------------
-C     GAP VARIABLE NOEUDS SECONDS
+C     GAP VARIABLE NODES SECONDS
 C------------------------------------
-      IF(IGAP.GE.1)THEN
+      IF(IGAP>=1)THEN
        DO I=1,NSN
-         IF(THK_PART_NODS(NSV(I)).NE.ZERO) THEN  ! IF a contact thickness is defined
+         IF(THK_PART_NODS(NSV(I))/=ZERO) THEN  ! IF a contact thickness is defined
             DX      = THK_PART_NODS(NSV(I))*GAPSCALE
          ELSE
         DX      = THKNOD(NSV(I))*GAPSCALE
@@ -179,9 +174,9 @@ C------------------------------------
 C     GAP 
 C------------------------------------
        GAPMX=SQRT(GAPMX)
-       IF(IGAP.EQ.0)THEN
+       IF(IGAP==0)THEN
 C GAP FIXE
-         IF(GAP.LE.ZERO)THEN
+         IF(GAP<=ZERO)THEN
            DO I=1,NSN
             DX      = THKNOD(NSV(I))
 C                                =====
@@ -191,29 +186,29 @@ C                                 =====
             NDX=NDX+1
            ENDDO
            GAP = HALF*DXM/NDX
-           WRITE(IOUT,1000)GAP
+           IF (RESORT==0) WRITE(IOUT,1000)GAP
          ENDIF
          GAPMIN = GAP
          GAPMAX = GAP
        ELSE
-C SUP DES GAPS VARIABLES
-         IF(GAP.GT.ZERO)GAPMIN=GAP
-         WRITE(IOUT,1000)GAPMIN
+C UPPER SIDE OF VARIABLE GAPS
+         IF(GAP>ZERO)GAPMIN=GAP
+         IF (RESORT==0) WRITE(IOUT,1000)GAPMIN
 C
-C        GAP n'est pas utilise pour Igap > 0 ; Gapmin peut etre egal a 0.
-         IF(GAPMAX.EQ.ZERO)GAPMAX=EP30
-         WRITE(IOUT,1500)GAPMAX
+C        Gap is not used for IGAP> 0;Gapmin can be equal to 0.
+         IF(GAPMAX==ZERO)GAPMAX=EP30
+         IF (RESORT==0) WRITE(IOUT,1500)GAPMAX
          GAP = MIN(GAP,GAPMAX)
        ENDIF
 C---------------------------------------------
 C---------------------------------------------
-C SUP DES GAPS VARIABLES
+C UPPER SIDE OF VARIABLE GAPS
        GAP = MIN(GAPMAX,MAX(GAPS2,GAPMIN))    
 C---------------------------------------------
 C
-C Calcul du gap reel a utiliser lors du critere de retri
+C Calculation of the real gap to be used during the retri criterion
 C
-      IF (IGAP.EQ.0) THEN
+      IF (IGAP==0) THEN
         CRITER=GAP 
       ELSE
         CRITER=EP30
@@ -225,20 +220,19 @@ C
 C
        IF(DGAPLOAD > ZERO) CRITER=MAX(CRITER,EM01*(GAP + DGAPLOAD))
 C
-      IF(DEPTH.EQ.ZERO)THEN
-C Valeur par defaut de Depth = max( sup des gaps , largeur des elts )
+      IF(DEPTH==ZERO)THEN
+C Default value of Depth = max( upper side of gaps , width of elts )
         DEPTH=MAX(GAP,GAPMX)
-C cest encore necessaire au tri dans le starter
-      ELSEIF(DEPTH.LT.GAP)THEN
-C Depth est tjrs superieur au gap (sup des gaps si variable)
+C this is still necessary for sorting in the starter
+      ELSEIF(DEPTH<GAP)THEN
+C Depth is always superior to the CAP (sup of the gaps so variable)
         DEPTH=GAP
       END IF
-      WRITE(IOUT,2000)DEPTH
+      IF (RESORT==0) WRITE(IOUT,2000)DEPTH
 C
       CRITER=MAX(CRITER,EM01*DEPTH)
 C
-Ce warning pour les performances du tri.
-      IF(DEPTH.GT.GAPMX)THEN
+      IF(DEPTH>GAPMX .AND. RESORT==0 )THEN
        CALL ANCMSG(MSGID=687,
      .             MSGTYPE=MSGWARNING,
      .             ANMODE=ANINFO_BLIND_2,
@@ -250,20 +244,16 @@ Ce warning pour les performances du tri.
       ENDIF
 C
       IF(INTTH/=0)THEN
-        IF(DRAD.EQ.ZERO)THEN
-C Valeur par defaut de Drad = max( sup des gaps , largeur des elts )
+        IF(DRAD==ZERO)THEN
           DRAD=MAX(GAP,GAPMX)
-C je ne sais plus si cest necessaire au tri
-        ELSEIF(DRAD.LT.GAP)THEN
-C Drad est tjrs superieur au gap (sup des gaps si variable)
+        ELSEIF(DRAD<GAP)THEN
           DRAD=GAP
         END IF
-        WRITE(IOUT,2001)DRAD
+        IF (RESORT==0)  WRITE(IOUT,2001)DRAD
 C
         CRITER=MAX(CRITER,EM01*DRAD)
 C
-Ce warning pour les performances du tri.
-        IF(DRAD.GT.GAPMX)THEN
+        IF(DRAD>GAPMX .AND. RESORT==0)THEN
          CALL ANCMSG(MSGID=918,
      .               MSGTYPE=MSGWARNING,
      .               ANMODE=ANINFO_BLIND_2,
@@ -281,13 +271,13 @@ C------------------------------------
         STF(I)=ONE
       END DO
 C---------------------------------------------
-C     MISE A ONE DU MULTIPLICATEUR NODALE DES RIGIDITES 
+C     SETTING TO ONE OF THE NODAL RIGIDITY MULTIPLIER
 C---------------------------------------------
       DO I=1,NSN
         STFN(I) = ONE
       END DO
 C------------------------------------
-      IF(IGAP.EQ.2)THEN
+      IF(IGAP==2)THEN
         DO I=1,NSN
           GAP_S0(I) = MIN(GAP_S(I),GAPMAX)
           GAP_S0(I) = MAX(GAPMIN  ,GAP_S0(I))

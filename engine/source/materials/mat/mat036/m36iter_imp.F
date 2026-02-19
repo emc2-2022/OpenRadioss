@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  M36ITER_IMP                   source/materials/mat/mat036/m36iter_imp.F
-Chd|-- called by -----------
-Chd|        SIGEPS36                      source/materials/mat/mat036/sigeps36.F
-Chd|-- calls ---------------
-Chd|        IMP_STOP                      source/implicit/imp_solv.F    
-Chd|        VINTER2                       source/tools/curve/vinter.F   
-Chd|        VINTER2DP                     source/tools/curve/vinter.F   
-Chd|        FINTER2                       source/tools/curve/vinter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    m36iter_imp   ../engine/source/materials/mat/mat036/m36iter_imp.F
+!||--- called by ------------------------------------------------------
+!||    sigeps36      ../engine/source/materials/mat/mat036/sigeps36.F
+!||--- calls      -----------------------------------------------------
+!||    finter2       ../engine/source/tools/curve/vinter.F
+!||    imp_stop      ../engine/source/implicit/imp_solv.F
+!||    vinter2       ../engine/source/tools/curve/vinter.F
+!||    vinter2dp     ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE M36ITER_IMP( SIGNXX,  SIGNYY,  SIGNZZ,
      $                        SIGNXY,  SIGNYZ,  SIGNZX,
      $                        PLA,        YLD,      G3,
@@ -68,7 +68,7 @@ c    YFAC    = scaling factor of sigma-eps_plast relation
 c
 c    TF      = array containing discrete sigma-eps_plast relation
 c    IAD1,  ILEN1 = pre-computed data required by interpolation
-c                         routine "VINTER"
+c                         "VINTER" routine
 c    NEL     = size of the element group being processed
 c    FISOKIN = indicator for isotropic/kinematic/moixed hardening
 c    UVAR    = array containing various state variables 
@@ -110,7 +110,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
 #include      "parit_c.inc"
 #include      "scr05_c.inc"
 #include      "units_c.inc"
@@ -178,7 +177,7 @@ c
           PFAC(I)  =  ONE
         ENDDO
 c
-        IF (IPFLAG == NEL.AND.(IMACH.NE.3.OR.IPARIT == 0)) THEN
+        IF (IPFLAG == NEL.AND.(IPARIT == 0)) THEN
           DO I=1,NEL
             IPOSP(I) = VARTMP(I,2)
             IADP(I)  = NPF(IPFUN) / 2 + 1
@@ -205,8 +204,8 @@ c
 c    -- end of computation of pressure-scaling factor --
 c
 c
-c    -- store eqivalent plastic strain at the beginning of time-step
-c    -- store "fractional" eqivalent plastic strain
+c    -- store equivalent plastic strain at the beginning of time-step
+c    -- store "fractional" equivalent plastic strain
 c
        DO I=1,NEL
          PLA0(I) = PLA(I)
@@ -234,7 +233,7 @@ c     ... temporarily stores elastic predictor
           syz = SIGNYZ(I)
           szx = SIGNZX(I)
 c
-          IF(i_bilin.ne.1 )THEN !..  general, nonlinear hardening
+          IF(i_bilin/=1 )THEN !..  general, nonlinear hardening
 c
             XSI = ZERO ! .. plastic strain rate multiplier ..
 c
@@ -248,7 +247,7 @@ c          -- von Mises stress at elastic predictor --
 c
 c
 c          -- COMPARE VM with PREVIOUS TIME-STEP YIELD STRESS --
-c          -- YLD is already muliplied by PFAC (at pressure)
+c          -- YLD is already multiplied by PFAC (at pressure)
 c
             IF( VM > YLD(I) )then ! .. plastically active process
 c
@@ -379,7 +378,7 @@ C          -- update equivalent plastic strain --
 c
 c
 c          -- convergence criterion should be stringent --           
-              IF( ABS(DXSI).LT.EM10 ) GO TO 90
+              IF( ABS(DXSI)<EM10 ) GO TO 90
 c
  80         CONTINUE ! -- ITER --
 c          --  we need a warning here --
@@ -407,7 +406,7 @@ c
               SIGNYZ(I) = SIGNYZ(I) * ALPHA_RADIAL
               SIGNZX(I) = SIGNZX(I) * ALPHA_RADIAL
 c
-            ELSEIF(FISOKIN > ZERO.and.FISOKIN.LE.ONE)then
+            ELSEIF(FISOKIN > ZERO.and.FISOKIN<=ONE)then
 c
 c          -- update "fractional" equivalent plastic strain --  
               PLAM(I) = (ONE - FISOKIN)*PLA(I) !. for mixed hardeneing
@@ -476,7 +475,7 @@ c           --adds the back stresses  to shifted stresses
              SIGNYZ(I) = SIGNYZ(I) + SIGBYZ(I) 
              SIGNZX(I) = SIGNZX(I) + SIGBZX(I) 
 c
-            ENDIF ! ..FISOKIN > ZERO.and.FISOKIN.LE.ONE .. 
+            ENDIF ! ..FISOKIN > ZERO.and.FISOKIN<=ONE .. 
 c
 c
 c        .. updates yield stress.

@@ -1,46 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_INTER_TYPE20          source/interfaces/int20/hm_read_inter_type20.F
-Chd|-- called by -----------
-Chd|        HM_READ_INTER_STRUCT          source/interfaces/reader/hm_read_inter_struct.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        ID                            source/boundary_conditions/ebcs/hm_read_ebcs_inlet.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_inter_type20   ../starter/source/interfaces/int20/hm_read_inter_type20.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_inter_struct   ../starter/source/interfaces/reader/hm_read_inter_struct.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_INTER_TYPE20(
-     1        IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,NI       ,
+     1        IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,
      2        IGRNOD     ,IGRSURF    ,IGRSLIN    ,XFILTR    ,FRIC_P   ,  
      3        UNITAB     ,LSUBMODEL  ,TITR     )
-C============================================================================
-C
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -48,70 +44,53 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE UNITAB_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "sms_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ISU1,ISU2,NI
+      INTEGER ISU1,ISU2
       INTEGER IPARI(*)
-      my_real
-     .   STFAC,XFILTR
-      my_real
-     .   FRIGAP(*),FRIC_P(*)
-      CHARACTER TITR*nchartitle,TITR1*nchartitle
+      my_real STFAC,XFILTR
+      my_real FRIGAP(*),FRIC_P(10)
+      CHARACTER(LEN=NCHARTITLE),INTENT(IN) :: TITR
 C-----------------------------------------------
       TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
       TYPE (SURF_)   ,TARGET , DIMENSION(NSURF)   :: IGRSURF
       TYPE (SURF_)   ,TARGET , DIMENSION(NSLIN)   :: IGRSLIN
-      TYPE(SUBMODEL_DATA) LSUBMODEL(*)
+      TYPE(SUBMODEL_DATA) LSUBMODEL(NSUBMOD)
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr06_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
-#include      "intstamp_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "fluid_scr_c.inc"
 #include      "scr12_c.inc"
-#include      "remesh_c.inc"
-#include      "sysunit.inc"
-#include      "thknod_c.inc"
-#include      "inter22.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,L,IBC1, IBC2, IBC3, NOINT, NTYP, IBID,
+
+      INTEGER I,IBC1, IBC2, IBC3, NOINT, NTYP,
      .    INACTI, IBC1M, IBC2M, IBC3M, IGSTI,IS1,IS2,
-     .    IGAP,MULTIMP,MFROT,IFQ,IBAG,MODFR,IERR1,IVIS2, 
-     .    ISYM,NOD1,IDUM,IGNORE,KK,II,IGAP0,IDELKEEP,
-     .    IRSTH,ICURV,NA1,NA2,IFORM,IADM,IEDGE,NRADM,ISU10,ISU20,
-     .    NOD10,NOD20,LINE10,LINE20,IBID1,IBID2,IDEL7N,LINE1,
+     .    IGAP,MULTIMP,MFROT,IFQ,IBAG,MODFR,IVIS2, 
+     .    ISYM,NOD1,IDELKEEP,
+     .    IFORM,IADM,IEDGE,NRADM,ISU10,ISU20,
+     .    NOD10,LINE10,LINE20,IDEL7N,LINE1,
      .    LINE2
       my_real
      .   FRIC,GAP,STARTT,BUMULT,STOPT,C1,C2,C3,C4,C5,C6,ALPHA,
-     .   VISC,VISCF,EGDE_ANGL,FPENMAX,EDG_ANGL,GAPSOL,STMIN,STMAX,
+     .   VISC,VISCF,FPENMAX,EDG_ANGL,GAPSOL,STMIN,STMAX,
      .   PADM,ANGLADM,CADM,GAPMAX,GAPSCALE
-      CHARACTER MESS*40, MSGTITL*nchartitle
-      CHARACTER OPT*ncharkey,KEY*ncharkey,KEY1*ncharkey,
-     .          BCFLAG*ncharfield, BCFLAGM*ncharfield
+
 !
       INTEGER, DIMENSION(:), POINTER :: INGR2USR
 C-----------------------------------------------
@@ -225,14 +204,14 @@ C
 C
       CALL HM_GET_FLOATV('Xfreq',ALPHA,IS_AVAILABLE,LSUBMODEL,UNITAB)
 C
-      IF (MFROT.GT.0) THEN
+      IF (MFROT>0) THEN
          CALL HM_GET_FLOATV('C1',C1,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C2',C2,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C3',C3,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C4',C4,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C5',C5,IS_AVAILABLE,LSUBMODEL,UNITAB)
       ENDIF
-      IF (MFROT.GT.1) THEN
+      IF (MFROT>1) THEN
         CALL HM_GET_FLOATV('C6',C6,IS_AVAILABLE,LSUBMODEL,UNITAB)
       ENDIF
 
@@ -274,7 +253,7 @@ C
       IF (ISU1 == 0 .AND. ISU2 == 0) IEDGE = -1
       IPARI(58)=IEDGE
 
-      IF(IEDGE==3 .and. EDG_ANGL==ZERO) EDG_ANGL=NINTY+ONE
+      IF(IEDGE==3 .and. EDG_ANGL==ZERO) EDG_ANGL=NINETY+ONE
       FRIGAP(26)  = COS((HUNDRED80-EDG_ANGL)*PI/HUNDRED80)
 
       INGR2USR => IGRNOD(1:NGRNOD)%ID
@@ -319,10 +298,10 @@ C
           IDEL7N=ABS(IDEL7N)
         END IF
         IPARI(61)=IDELKEEP
-        IF (IDEL7N.GT.2.OR.N2D.EQ.1) IDEL7N = 0
+        IF (IDEL7N>2.OR.N2D==1) IDEL7N = 0
         IPARI(17)=IDEL7N
 
-        IF (IBAG.NE.0.AND.NVOLU.EQ.0 .AND. IALELAG == 0 ) THEN
+        IF (IBAG/=0.AND.NVOLU==0 .AND. IALELAG == 0 ) THEN
              CALL ANCMSG(MSGID=614,
      .                   MSGTYPE=MSGWARNING,
      .                   ANMODE=ANINFO_BLIND_2,
@@ -341,13 +320,13 @@ C
 C....* Card4  *.............
 C
 
-       IF(IGAP.EQ.2)THEN
-          IF(GAPSCALE.EQ.ZERO)GAPSCALE=ONE
+       IF(IGAP==2)THEN
+          IF(GAPSCALE==ZERO)GAPSCALE=ONE
           FRIGAP(13) = GAPSCALE
           FRIGAP(16) = GAPMAX
         END IF
 
-        IF(FRIGAP(16).EQ.ZERO)THEN
+        IF(FRIGAP(16)==ZERO)THEN
            GAPMAX=EP30
            FRIGAP(16)=GAPMAX
         END IF
@@ -358,9 +337,9 @@ C
 C
 C....* Card6  *.............
 C
-        IF(IGSTI.GT.1)THEN
+        IF(IGSTI>1)THEN
             I7STIFS=1
-            IF(STMAX.EQ.ZERO)STMAX=EP30
+            IF(STMAX==ZERO)STMAX=EP30
             FRIGAP(17) = STMIN
             FRIGAP(18) = STMAX
         ELSE
@@ -368,7 +347,7 @@ C
             STMAX = EP30
         END IF
 
-        IF(STFAC.EQ.ZERO.AND.IGSTI.NE.1) THEN
+        IF(STFAC==ZERO.AND.IGSTI/=1) THEN
           STFAC=ONE
         ENDIF
         IF (STFAC == ZERO )STFAC = ONE_FIFTH
@@ -386,13 +365,13 @@ C....* Card7  *.............
 C
 
 C Hidden flag no more read using HM reader
-c        IF (BCFLAGM(LFIELD-2:LFIELD-2).EQ. '1') IBC1M = 1
-c        IF (BCFLAGM(LFIELD-1:LFIELD-1).EQ. '1') IBC2M = 1
-c        IF (BCFLAGM(LFIELD  :LFIELD  ).EQ. '1') IBC3M = 1
+c        IF (BCFLAGM(LFIELD-2:LFIELD-2)== '1') IBC1M = 1
+c        IF (BCFLAGM(LFIELD-1:LFIELD-1)== '1') IBC2M = 1
+c        IF (BCFLAGM(LFIELD  :LFIELD  )== '1') IBC3M = 1
 
-        IF(FRIC.NE.ZERO.AND.VISCF.EQ.ZERO)VISCF=ONE
-          IF(VISC.EQ.ZERO)THEN
-            IF(IVIS2.EQ.5)THEN
+        IF(FRIC/=ZERO.AND.VISCF==ZERO)VISCF=ONE
+          IF(VISC==ZERO)THEN
+            IF(IVIS2==5)THEN
               VISC=ONE
             ELSE
               VISC=FIVEEM2
@@ -406,27 +385,27 @@ C
 C....* Card8 : FRICTION data *.............
 C
 
-         IF (MFROT.NE.0.AND.VISCF.EQ.0.0) VISCF=ONE
+         IF (MFROT/=0.AND.VISCF==0.0) VISCF=ONE
 
-         IF (ALPHA.EQ.0.) IFQ = 0
+         IF (ALPHA==0.) IFQ = 0
 
-         IF (MODFR.EQ.0) MODFR = 2
-         IF (MODFR.EQ.2.AND.IFQ.LT.10) IFQ = IFQ + 10
-         IF(MODFR.EQ.2)VISCF=ZERO
+         IF (MODFR==0) MODFR = 2
+         IF (MODFR==2.AND.IFQ<10) IFQ = IFQ + 10
+         IF(MODFR==2)VISCF=ZERO
 
-         IF (IFQ.GT.0) THEN
-             IF (IFQ.EQ.10) XFILTR = ONE
-             IF (MOD(IFQ,10).EQ.1) XFILTR = ALPHA
-             IF (MOD(IFQ,10).EQ.2) XFILTR=FOUR*ATAN2(ONE,ZERO) / ALPHA
-             IF (MOD(IFQ,10).EQ.3) XFILTR=FOUR*ATAN2(ONE,ZERO) * ALPHA
-             IF (XFILTR.LT.ZERO) THEN
+         IF (IFQ>0) THEN
+             IF (IFQ==10) XFILTR = ONE
+             IF (MOD(IFQ,10)==1) XFILTR = ALPHA
+             IF (MOD(IFQ,10)==2) XFILTR=FOUR*ATAN2(ONE,ZERO) / ALPHA
+             IF (MOD(IFQ,10)==3) XFILTR=FOUR*ATAN2(ONE,ZERO) * ALPHA
+             IF (XFILTR<ZERO) THEN
                CALL ANCMSG(MSGID=554,
      .                     MSGTYPE=MSGERROR,
      .                     ANMODE=ANINFO_BLIND_1,
      .                     I1=NOINT,
      .                     C1=TITR,
      .                     R1=ALPHA)
-         ELSEIF (XFILTR.GT.1.AND.MOD(IFQ,10).LE.2) THEN
+         ELSEIF (XFILTR>1.AND.MOD(IFQ,10)<=2) THEN
                 CALL ANCMSG(MSGID=554,
      .                      MSGTYPE=MSGERROR,
      .                      ANMODE=ANINFO_BLIND_1,
@@ -464,7 +443,7 @@ C------------------------------------------------------------
         FRIGAP(25)=CADM
 
 C BUMULT is increased for big models
-      IF(BUMULT.EQ.ZERO) THEN
+      IF(BUMULT==ZERO) THEN
         BUMULT = BMUL0
         IF(NUMNOD > 2500000) THEN
           BUMULT = BMUL0*TWO
@@ -495,42 +474,37 @@ C
 
 C        
 C--------------------------------------------------------------
-      IF(IS1.EQ.0)THEN
+      IF(IS1==0)THEN
         WRITE(IOUT,'(6X,A)')'NO SECONDARY SURFACE INPUT'
-      ELSEIF(IS1.EQ.1)THEN
+      ELSEIF(IS1==1)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.2)THEN
+      ELSEIF(IS1==2)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY NODES'
-      ELSEIF(IS1.EQ.3)THEN
+      ELSEIF(IS1==3)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.4 )THEN
+      ELSEIF(IS1==4 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY BRICKS'
-      ELSEIF(IS1.EQ.5 )THEN
+      ELSEIF(IS1==5 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY SOLID ELEMENTS'        
       ENDIF
-      IF(IS2.EQ.0)THEN
+      IF(IS2==0)THEN
         WRITE(IOUT,'(6X,A)')'NO MAIN SURFACE INPUT'
-      ELSEIF(IS2.EQ.1)THEN
+      ELSEIF(IS2==1)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.2)THEN
+      ELSEIF(IS2==2)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY NODES'
-      ELSEIF(IS2.EQ.3)THEN
+      ELSEIF(IS2==3)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.4)THEN
+      ELSEIF(IS2==4)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE REFERS ',
      .                      'TO HYPER-ELLIPSOIDAL SURFACE'
       ENDIF
 C
 C--------------------------------------------------------------
- 1000 FORMAT(/1X,'  INTERFACE NUMBER :',I10,1X,A)
- 1300 FORMAT(    /1X,'   INTERFACES               ' /
-     .            1X,' --------------             '// )
 C------------
       RETURN
- 999  CALL FREERR(3)
-      RETURN
  3507 FORMAT(//
-     .    '    TYPE.EQ.20  PARALLEL/AUTO IMPACTING           ' //,
+     .    '    TYPE==20  PARALLEL/AUTO IMPACTING           ' //,
      .    '    FIRST SURFACE ID. . . . . . . . . . . . . ',I10/,
      .    '    SECOND SURFACE ID . . . . . . . . . . . . ',I10/,
      .    '    SYMMETRY FLAG . . . . . . . . . . . . . . ',I10/,
@@ -539,9 +513,9 @@ C------------
      .    '     =1 Edges from surface border'/,
      .    '     =2 Edges from each segment(element) edge'/,
      .    '     =3 same as 1 + sharp edges between segment'/,
-     .    '    NOD GROUP ID (ADDITIONNAL). . . . . . . . ',I10/,
-     .    '    FIRST LINE ID (ADDITIONNAL) . . . . . . . ',I10/,
-     .    '    SECOND LINE ID (ADDITIONNAL). . . . . . . ',I10/,
+     .    '    NOD GROUP ID (ADDITIONAL) . . . . . . . . ',I10/,
+     .    '    FIRST LINE ID (ADDITIONAL). . . . . . . . ',I10/,
+     .    '    SECOND LINE ID (ADDITIONAL) . . . . . . . ',I10/,
      .    '    ANGLE FOR EDGE COMPUTATION (Iedge=3). . . ',1PG20.13/,
      .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
      .    '       SECONDARY NODE  (1:YES 0:NO)          Y DIR  ',I1/,

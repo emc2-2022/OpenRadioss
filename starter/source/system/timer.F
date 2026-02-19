@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INITIME                       source/system/timer.F         
-Chd|-- called by -----------
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    initime        ../starter/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    starter0       ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE INITIME()
-C     initialisation des timers
+C     TIMER INITIALIZATION
 C     timer                       signification
 C
 C     1                           translator
@@ -36,7 +36,7 @@ c     3                           ddsplit
 c     4                           freeform
 c     5                           IPARI_L_INI
 c     6                           INTBUF_INI
-c     7				  SPLIT_INTERFACES
+c     7          SPLIT_INTERFACES
 c     8                           W_FI
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -54,15 +54,12 @@ C-----------------------------------------------
       COMMON /RCLOCK/ELAPSED
       DOUBLE PRECISION ELAPSED
 
-#if _OPENMP
+#ifdef _OPENMP
        INTEGER OMP_GET_THREAD_NUM, OMP_GET_NUM_THREADS
        EXTERNAL OMP_GET_THREAD_NUM, OMP_GET_NUM_THREADS
        REAL(kind=8) OMP_get_wtime
        external OMP_get_wtime
 #endif
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -74,26 +71,26 @@ C-----------------------------------------------
           REALTIME(J,I) = ZERO
         ENDDO 
       ENDDO
-      CALL SYSTEM_CLOCK(CLOCK0)   ! recuperation du temps de debut dans clock0
-      ELAPSED = ZERO  ! initialisation a zero de l'elapsed time
+      CALL SYSTEM_CLOCK(CLOCK0)   ! GETTING START TIME IN CLOCK0
+      ELAPSED = ZERO  ! initialize elapsed time to zero
 
-#if _OPENMP
+#ifdef _OPENMP
         OMP_STARTING_TIME = OMP_GET_WTIME( )
 #endif
 
       RETURN
       END
-Chd|====================================================================
-Chd|  STARTIME                      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        MY_ETIME                      source/system/machine.F       
-Chd|====================================================================
+!||====================================================================
+!||    startime       ../starter/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit        ../starter/source/restart/ddsplit/ddsplit.F
+!||    lectur         ../starter/source/starter/lectur.F
+!||    starter0       ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    my_etime       ../starter/source/system/machine.F
+!||====================================================================
       SUBROUTINE STARTIME(EVENT,ITASK)
-C     routine d'incrementation du timer event
+C     Timer Event Incormenting Routine
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -112,44 +109,39 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-#if _OPENMP
+#ifdef _OPENMP
        REAL(kind=8) OMP_GET_WTIME
        external OMP_GET_WTIME
 #endif
 C
       CALL MY_ETIME(TIMER(1,EVENT,ITASK))
-#if _OPENMP
+#ifdef _OPENMP
       OMP_INITIME(EVENT,ITASK) = OMP_GET_WTIME( )
 #else
       CALL SYSTEM_CLOCK(CLOCKINI(EVENT,ITASK))
 #endif
       RETURN
       END
-Chd|====================================================================
-Chd|  STOPTIME                      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        MY_ETIME                      source/system/machine.F       
-Chd|====================================================================
+!||====================================================================
+!||    stoptime       ../starter/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit        ../starter/source/restart/ddsplit/ddsplit.F
+!||    lectur         ../starter/source/starter/lectur.F
+!||    starter0       ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    my_etime       ../starter/source/system/machine.F
+!||====================================================================
       SUBROUTINE STOPTIME(EVENT,ITASK)
-C     routine incrementation du timer event
+C     Timer Event Incontation Routine
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr05_c.inc"
 #include      "timer_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -158,7 +150,7 @@ C-----------------------------------------------
       DOUBLE PRECISION  SECS
       INTEGER CLOCK1, CLOCKRATE, NBMAX
       REAL(KIND=8) :: OMP_ENDING_TIME
-#if _OPENMP
+#ifdef _OPENMP
        REAL(kind=8) OMP_GET_WTIME
        external OMP_GET_WTIME
 #endif
@@ -167,29 +159,29 @@ C-----------------------------------------------
       CPUTIME(EVENT,ITASK) = CPUTIME(EVENT,ITASK) +
      .                       TIMER(3,EVENT,ITASK)-TIMER(1,EVENT,ITASK)
 
-#if _OPENMP
+#ifdef _OPENMP
       OMP_ENDING_TIME = OMP_GET_WTIME( )
       SECS = OMP_ENDING_TIME - OMP_INITIME(EVENT,ITASK)
 #else
       CALL SYSTEM_CLOCK(COUNT=CLOCK1, COUNT_RATE=CLOCKRATE,
      +                  COUNT_MAX=NBMAX                   )
-      SECS = CLOCK1-CLOCKINI(EVENT,ITASK)    ! diff temps courant - temps initial
-      IF(SECS.LT.ZERO) SECS = SECS + NBMAX   ! cas depassement nb de periode maximum
+      SECS = CLOCK1-CLOCKINI(EVENT,ITASK)    ! Different time common - Initial time
+      IF(SECS<ZERO) SECS = SECS + NBMAX   ! case overflow of maximum period number
       SECS = SECS/CLOCKRATE
 #endif
       REALTIME(EVENT,ITASK)=REALTIME(EVENT,ITASK)+SECS
 
       RETURN
       END
-Chd|====================================================================
-Chd|  PRINTIME                      source/system/timer.F         
-Chd|-- called by -----------
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        ELAPSTIME                     source/system/timer.F         
-Chd|====================================================================
-      SUBROUTINE PRINTIME(ITASK,GOT_TIMER,STARTDATE,STARTTIME)
-C     routine d'affichage des timers
+!||====================================================================
+!||    printime        ../starter/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    starter0        ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    elapstime       ../starter/source/system/timer.F
+!||====================================================================
+      SUBROUTINE PRINTIME(ITASK,GOT_TIMER,STARTDATE,STARTTIME,ENDDATE,ENDTIME)
+C     timers display routine
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -208,6 +200,9 @@ C-----------------------------------------------
         DOUBLE PRECISION ELAPSED
         CHARACTER(len=8), INTENT(IN) ::  STARTDATE
         CHARACTER(len=10), INTENT(IN) :: STARTTIME
+        CHARACTER(len=8), INTENT(OUT) ::  ENDDATE
+        CHARACTER(len=10), INTENT(OUT) :: ENDTIME
+
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -227,6 +222,8 @@ C-----------------------------------------------
         IS=SECS-IH*3600-IM*60
 
         CALL DATE_AND_TIME(DATE,TIME) 
+        ENDDATE = DATE
+        ENDTIME = TIME
 
         WRITE(IOUT,*)  ' '
         WRITE(ISTDO,*) ' '
@@ -288,7 +285,7 @@ c---Standard output
 
                 WRITE(ISTDO,'(A)') ' ' 
                 WRITE(ISTDO,'(A,E9.4)') '                  CONVERTER : ', REALTIME(15,1)
-                WRITE(ISTDO,'(A,E9.4)') '            RD INTPUT BUILD : ', REALTIME(16,1)
+                WRITE(ISTDO,'(A,E9.4)') '             RD INPUT BUILD : ', REALTIME(16,1)
                 WRITE(ISTDO,'(A)') ' ' 
                 WRITE(ISTDO,'(A,E9.4)') '       RD GROUPS & SURFACES : ', REALTIME(19,1)
                 WRITE(ISTDO,'(A)') ' ' 
@@ -359,14 +356,14 @@ c---Format
 
       RETURN
       END
-Chd|====================================================================
-Chd|  ELAPSTIME                     source/system/timer.F         
-Chd|-- called by -----------
-Chd|        PRINTIME                      source/system/timer.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    elapstime      ../starter/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    printime       ../starter/source/system/timer.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
         SUBROUTINE ELAPSTIME(ETIME)
-C       reset timer elapsed time et calcul du temps elapsed courant
+C       reset timer elapsed time and calculate current elapsed time
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -392,7 +389,7 @@ C-----------------------------------------------
         INTEGER CLOCK1, CLOCKRATE, NBMAX
         DOUBLE PRECISION  SECS
         REAL(KIND=8) :: OMP_ENDING_TIME
-#if _OPENMP
+#ifdef _OPENMP
         REAL(kind=8) OMP_GET_WTIME
         external OMP_GET_WTIME
 #endif
@@ -406,24 +403,23 @@ C-----------------------------------------------
         SECS = OMP_ENDING_TIME-OMP_STARTING_TIME
         ELAPSED = SECS
 #else    
-        SECS = CLOCK1-CLOCK0         ! diff temps courant - temps initial (qui peut ne pas etre 0 !)
-        IF(SECS.LT.ZERO) SECS = SECS + NBMAX   ! cas depassement nb de periode maximum
+        SECS = CLOCK1-CLOCK0         ! Different time common - Initial time (which may not be 0!)
+        IF(SECS<ZERO) SECS = SECS + NBMAX   ! case overflow of maximum period number
         SECS = SECS/CLOCKRATE
         ELAPSED = ELAPSED + SECS
 #endif
 
-        CLOCK0 = CLOCK1              ! recuperation du temps courant dans clock0
+        CLOCK0 = CLOCK1              ! GETTING CURRENT TIME IN CLOCK0
         ETIME = ELAPSED
 
         RETURN
         END SUBROUTINE ELAPSTIME
 
-Chd|====================================================================
-Chd|  ELAPSTIME_OMP                 source/system/timer.F         
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    elapstime_omp   ../starter/source/system/timer.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit         ../starter/source/restart/ddsplit/ddsplit.F
+!||====================================================================
         SUBROUTINE ELAPSTIME_OMP(ETIME)
 !       compute the current elapsed time 
 C-----------------------------------------------
@@ -448,14 +444,17 @@ C-----------------------------------------------
         real(kind=8) :: SECS
         real(kind=8) :: OMP_ENDING_TIME
         real(kind=8) :: OMP_GET_WTIME
+#ifdef _OPENMP
         external OMP_GET_WTIME
 C-----------------------------------------------  
-
-
         OMP_ENDING_TIME = OMP_GET_WTIME( )
         SECS = OMP_ENDING_TIME-OMP_STARTING_TIME
 
         ETIME = SECS
+#else
+        SECS = 0
+        ETIME = SECS
+#endif
 
         RETURN
         END SUBROUTINE ELAPSTIME_OMP

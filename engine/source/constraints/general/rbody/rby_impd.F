@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RBY_IMPD                      source/constraints/general/rbody/rby_impd.F
-Chd|-- called by -----------
-Chd|        RECUKIN                       source/implicit/recudis.F     
-Chd|-- calls ---------------
-Chd|        RBY_IMP2                      source/constraints/general/rbody/rby_impd.F
-Chd|        RBY_IMP5                      source/constraints/general/rbody/rby_impd.F
-Chd|        RBY_IMP7                      source/constraints/general/rbody/rby_impd.F
-Chd|        RBY_IMRD                      source/constraints/general/rbody/rby_impd.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rby_impd   ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- called by ------------------------------------------------------
+!||    recukin    ../engine/source/implicit/recudis.F
+!||--- calls      -----------------------------------------------------
+!||    rby_imp2   ../engine/source/constraints/general/rbody/rby_impd.F
+!||    rby_imp5   ../engine/source/constraints/general/rbody/rby_impd.F
+!||    rby_imp7   ../engine/source/constraints/general/rbody/rby_impd.F
+!||    rby_imrd   ../engine/source/constraints/general/rbody/rby_impd.F
+!||====================================================================
       SUBROUTINE RBY_IMPD(NRBYAC,IRBYAC,X  ,RBY,LPBY,
      1                   NPBY,SKEW,ISKEW,ITAB,WEIGHT,
-     2                   MS ,IN  ,SENSOR,NDOF ,D   ,
+     2                   MS ,IN   ,NDOF ,D   ,
      3                   DR ,IXR )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -42,7 +42,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
@@ -52,14 +51,14 @@ C-----------------------------------------------
       INTEGER NDOF(*),NRBYAC,IRBYAC(*),IXR(*)
 C     REAL
       my_real
-     .   X(3,*), RBY(NRBY,*), SKEW(LSKEW,*), SENSOR(NSENSR,*),
+     .   X(3,*), RBY(NRBY,*), SKEW(LSKEW,*),
      .   IN(*),MS(*),D(3,*), DR(3,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, N,K
 C-----------------------------------------------
-      IF( IMP_LR .GT. 0 ) THEN
+      IF( IMP_LR > 0 ) THEN
         DO I=1,NRBYAC
           N=IRBYAC(I)
           K=IRBYAC(I+NRBYKIN)+1
@@ -68,7 +67,7 @@ C-----------------------------------------------
      2                MS       ,IN  ,NDOF ,D   ,DR   )
         END DO
       ELSE
-       IF (ITRMAX.EQ.0) THEN
+       IF (ITRMAX==0) THEN
         DO I=1,NRBYAC
          N=IRBYAC(I)
          K=IRBYAC(I+NRBYKIN)+1
@@ -87,21 +86,20 @@ C-----------------------------------------------
        END IF
       END IF
 
-      IF (NUMELR.GT.0) THEN
+      IF (NUMELR>0) THEN
        CALL RBY_IMRD(NRBYAC,IRBYAC,X  ,RBY,LPBY,
      1               NPBY,SKEW,ISKEW,ITAB,WEIGHT,
-     2               MS ,IN  ,SENSOR,NDOF ,D   ,
+     2               MS ,IN   ,NDOF ,D   ,
      3               DR ,IXR )
       ENDIF
 
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMP2                      source/constraints/general/rbody/rby_impd.F
-Chd|-- called by -----------
-Chd|        RBY_IMPD                      source/constraints/general/rbody/rby_impd.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rby_imp2   ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- called by ------------------------------------------------------
+!||    rby_impd   ../engine/source/constraints/general/rbody/rby_impd.F
+!||====================================================================
       SUBROUTINE RBY_IMP2(
      1                  X  ,RBY ,NOD  ,
      1                  NBY,SKEW,ISKEW,ITAB,WEIGHT,
@@ -115,31 +113,22 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NOD(*), NBY(*), ISKEW(*),ITAB(*), WEIGHT(*)
       INTEGER NDOF(*)
-C     REAL
-      my_real
-     .   X(3,*), RBY(*),SKEW(LSKEW,*),IN(*),MS(*),D(3,*),DR(3,*)
+      my_real X(3,*), RBY(*),SKEW(LSKEW,*),IN(*),MS(*),D(3,*),DR(3,*)
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "units_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER M, NSN,  I, N
-C     REAL
-      my_real
-     .   XS,YS,ZS
+      my_real XS,YS,ZS
 C-----------------------------------------------
       M    =NBY(1)
 C optimisation spmd
-      IF (IMACH.EQ.3.AND.M.LT.0) RETURN
+      IF (M<0) RETURN
       NSN  =NBY(2)
-C       IF (NDOF(M).LT.6) WRITE(*,*)'WARNING'
+C       IF (NDOF(M)<6) WRITE(*,*)'WARNING'
        DO I=1,NSN
         N = NOD(I)
         XS=X(1,N)-X(1,M)
@@ -148,7 +137,7 @@ C       IF (NDOF(M).LT.6) WRITE(*,*)'WARNING'
         D(1,N)=D(1,M)+DR(2,M)*ZS-DR(3,M)*YS
         D(2,N)=D(2,M)-DR(1,M)*ZS+DR(3,M)*XS
         D(3,N)=D(3,M)+DR(1,M)*YS-DR(2,M)*XS
-        IF (NDOF(N).GT.3) THEN
+        IF (NDOF(N)>3) THEN
          DR(1,N)= DR(1,M)
          DR(2,N)= DR(2,M)
          DR(3,N)= DR(3,M)
@@ -157,12 +146,11 @@ C       IF (NDOF(M).LT.6) WRITE(*,*)'WARNING'
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMP3                      source/constraints/general/rbody/rby_impd.F
-Chd|-- called by -----------
-Chd|        FR_U2DD                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rby_imp3   ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- called by ------------------------------------------------------
+!||    fr_u2dd    ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE RBY_IMP3(X   ,M   ,N   ,D   ,DR   ,
      .                    A   ,AR  )
 C-----------------------------------------------
@@ -170,13 +158,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER M,N
-C     REAL
       my_real
      .   X(3,*), D(3,*),DR(3,*), A(3,*), AR(3,*)
 C-----------------------------------------------
@@ -186,7 +170,7 @@ C     REAL
       my_real
      .   XS,YS,ZS
 C-----------------------------------------------
-      IF (M.LT.0) RETURN
+      IF (M<0) RETURN
         XS=X(1,N)-X(1,M)
         YS=X(2,N)-X(2,M)
         ZS=X(3,N)-X(3,M)
@@ -205,17 +189,20 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMRD                      source/constraints/general/rbody/rby_impd.F
-Chd|-- called by -----------
-Chd|        RBY_IMPD                      source/constraints/general/rbody/rby_impd.F
-Chd|-- calls ---------------
-Chd|        RBY_IMP4                      source/constraints/general/rbody/rby_impd.F
-Chd|====================================================================
+!||====================================================================
+!||    rby_imrd      ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- called by ------------------------------------------------------
+!||    rby_impd      ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- calls      -----------------------------------------------------
+!||    rby_imp4      ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE RBY_IMRD(NRBYAC,IRBYAC,X  ,RBY,LPBY,
      1                   NPBY,SKEW,ISKEW,ITAB,WEIGHT,
-     2                   MS ,IN  ,SENSOR,NDOF ,D   ,
+     2                   MS ,IN  ,NDOF ,D   ,
      3                   DR ,IXR )
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -224,7 +211,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -233,7 +219,7 @@ C-----------------------------------------------
       INTEGER NDOF(*),NRBYAC,IRBYAC(*),IXR(NIXR,*)
 C     REAL
       my_real
-     .   X(3,*), RBY(NRBY,*), SKEW(LSKEW,*), SENSOR(NSENSR,*),
+     .   X(3,*), RBY(NRBY,*), SKEW(LSKEW,*),
      .   IN(*),MS(*),D(3,*), DR(3,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -249,7 +235,7 @@ C
          K=IRBYAC(I+NRBYKIN)
          M=NPBY(1,N)
          NSN=NPBY(2,N)
-         IF (M.GT.0) THEN
+         IF (M>0) THEN
           DO J=1,NSN
            NS=LPBY(K+J)
            ITAG(NS) =M
@@ -260,19 +246,18 @@ C
         DO I=1,NUMELR
          N1= IXR(2,I)
          N2= IXR(3,I)
-         IF (ITAG(N1).GT.0.AND.ITAG(N1).EQ.ITAG(N2)) THEN
+         IF (ITAG(N1)>0.AND.ITAG(N1)==ITAG(N2)) THEN
           CALL RBY_IMP4( X  ,N1 ,N2  ,ITAG(N1),D  ,DR )
          ENDIF
         ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMP4                      source/constraints/general/rbody/rby_impd.F
-Chd|-- called by -----------
-Chd|        RBY_IMRD                      source/constraints/general/rbody/rby_impd.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rby_imp4   ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- called by ------------------------------------------------------
+!||    rby_imrd   ../engine/source/constraints/general/rbody/rby_impd.F
+!||====================================================================
       SUBROUTINE RBY_IMP4(X  ,N1 ,N2  ,M   ,D  ,DR )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -282,17 +267,11 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER N1,N2,M
-C     REAL
-      my_real
-     .   X(3,*),D(3,*),DR(3,*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
+      my_real X(3,*),D(3,*),DR(3,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N ,K,IT,NP
-C     REAL
+      INTEGER  K,IT,NP
       my_real
      .   XS,YS,ZS,X1(3),X2(3),DRX,DRY,DRZ,L0,L1,S
 C-----------------------------------------------
@@ -338,7 +317,7 @@ C
        YS=X(2,N2)-X(2,N1)
        ZS=X(3,N2)-X(3,N1)
        L0 = SQRT(XS*XS+YS*YS+ZS*ZS)
-       IF (L0.LT.EM10) THEN
+       IF (L0<EM10) THEN
         D(1,N2)=D(1,N1)
         D(2,N2)=D(2,N1)
         D(3,N2)=D(3,N1)
@@ -356,12 +335,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMP5                      source/constraints/general/rbody/rby_impd.F
-Chd|-- called by -----------
-Chd|        RBY_IMPD                      source/constraints/general/rbody/rby_impd.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rby_imp5   ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- called by ------------------------------------------------------
+!||    rby_impd   ../engine/source/constraints/general/rbody/rby_impd.F
+!||====================================================================
       SUBROUTINE RBY_IMP5(
      1                  X  ,RBY ,NOD  ,ITRMAX,
      1                  NBY,SKEW,ISKEW,ITAB,WEIGHT,
@@ -375,32 +353,21 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NOD(*), NBY(*), ISKEW(*),ITAB(*), WEIGHT(*)
       INTEGER NDOF(*),ITRMAX
-C     REAL
-      my_real
-     .   X(3,*), RBY(*),SKEW(LSKEW,*),IN(*),MS(*),D(3,*),DR(3,*)
+      my_real X(3,*), RBY(*),SKEW(LSKEW,*),IN(*),MS(*),D(3,*),DR(3,*)
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "units_c.inc"
-#include      "parit_c.inc"
-#include      "com01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER M, NSN,  I, N,NP,J
-C     REAL
-      my_real
-     .   XS,YS,ZS,LMAX,RMAX,LSM1,DRX,DRY,DRZ,A,B
-      my_real,
-     .         DIMENSION(:),ALLOCATABLE :: LSM
+      my_real XS,YS,ZS,LMAX,RMAX,LSM1,DRX,DRY,DRZ,A
+      my_real,DIMENSION(:),ALLOCATABLE :: LSM
 C-----------------------------------------------
       M    =NBY(1)
 C optimisation spmd
-      IF (IMACH.EQ.3.AND.M.LT.0) RETURN
+      IF (M<0) RETURN
       NSN  =NBY(2)
 C---determine iteration num.
       LMAX = ZERO
@@ -411,12 +378,12 @@ C---determine iteration num.
         XS=X(1,N)-X(1,M)
         YS=X(2,N)-X(2,M)
         ZS=X(3,N)-X(3,M)
-	LSM(I) = XS*XS+YS*YS+ZS*ZS
+          LSM(I) = XS*XS+YS*YS+ZS*ZS
         LMAX = MAX(LMAX,LSM(I))
        ENDDO
-       NP = RMAX*SQRT(LMAX)*FIVEUANTE
+       NP = RMAX*SQRT(LMAX)*FIFTY
        NP = MIN(ITRMAX,NP)
-      IF (NP.LE.1) THEN
+      IF (NP<=1) THEN
        DO I=1,NSN
         N = NOD(I)
         XS=X(1,N)-X(1,M)
@@ -425,7 +392,7 @@ C---determine iteration num.
         D(1,N)=D(1,M)+DR(2,M)*ZS-DR(3,M)*YS
         D(2,N)=D(2,M)-DR(1,M)*ZS+DR(3,M)*XS
         D(3,N)=D(3,M)+DR(1,M)*YS-DR(2,M)*XS
-        IF (NDOF(N).GT.3) THEN
+        IF (NDOF(N)>3) THEN
          DR(1,N)= DR(1,M)
          DR(2,N)= DR(2,M)
          DR(3,N)= DR(3,M)
@@ -460,22 +427,22 @@ C---determine iteration num.
           D(1,N)=D(1,M)+D(1,N)-X(1,N)
           D(2,N)=D(2,M)+D(2,N)-X(2,N)
           D(3,N)=D(3,M)+D(3,N)-X(3,N)
-         IF (NDOF(N).GT.3) THEN
+         IF (NDOF(N)>3) THEN
           DR(1,N)= DR(1,M)
           DR(2,N)= DR(2,M)
           DR(3,N)= DR(3,M)
          ENDIF
         ENDDO
-      END IF !(NP.LE.1) THEN
+      END IF !(NP<=1) THEN
 C
        DO I=1,NSN
-        IF (LSM(I).GT.EM10) THEN
+        IF (LSM(I)>EM10) THEN
          N = NOD(I)
          XS=X(1,N)-X(1,M)+D(1,N)-D(1,M)
          YS=X(2,N)-X(2,M)+D(2,N)-D(2,M)
          ZS=X(3,N)-X(3,M)+D(3,N)-D(3,M)
-	 LSM1 =XS*XS+YS*YS+ZS*ZS
-	 A = SQRT(LSM(I)/LSM1)-ONE
+           LSM1 =XS*XS+YS*YS+ZS*ZS
+           A = SQRT(LSM(I)/LSM1)-ONE
          D(1,N)=D(1,N)+A*XS
          D(2,N)=D(2,N)+A*YS
          D(3,N)=D(3,N)+A*ZS
@@ -485,13 +452,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBY_IMP7                      source/constraints/general/rbody/rby_impd.F
-Chd|-- called by -----------
-Chd|        RBY_IMPD                      source/constraints/general/rbody/rby_impd.F
-Chd|-- calls ---------------
-Chd|        VELROT                        source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+!||====================================================================
+!||    rby_imp7   ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- called by ------------------------------------------------------
+!||    rby_impd   ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- calls      -----------------------------------------------------
+!||    velrot     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBY_IMP7(
      1                  X  ,RBY ,NOD  ,
      1                  NBY,SKEW,ISKEW,ITAB,WEIGHT,
@@ -504,19 +471,13 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NOD(*), NBY(*), ISKEW(*),ITAB(*), WEIGHT(*)
-      INTEGER NDOF(*),ITRMAX
+      INTEGER NDOF(*)
 C     REAL
       my_real
      .   X(3,*), RBY(*),SKEW(LSKEW,*),IN(*),MS(*),D(3,*),DR(3,*)
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "units_c.inc"
-#include      "parit_c.inc"
-#include      "com01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C PURPOSE: calculate displacement increment of secnd node by displacement increment of main node.
@@ -524,7 +485,7 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER M, NSN,  I, N,NP,J,K
+      INTEGER M, NSN,  I, N,J
 C     REAL
       DOUBLE PRECISION
      . XS(3), DS(3), VRM(3)
@@ -532,7 +493,7 @@ C-----------------------------------------------
 
       M = NBY(1)
 C optimisation spmd
-      IF (IMACH.EQ.3.AND.M.LT.0) RETURN
+      IF (M<0) RETURN
 
       DO I = 1, 3
         VRM(I) = DR(I,M)
@@ -549,7 +510,7 @@ C optimisation spmd
           D(J,N) = D(J,M) + DS(J)
         END DO
 
-        IF (NDOF(N).GT.3) THEN
+        IF (NDOF(N)>3) THEN
          DR(1,N)= DR(1,M)
          DR(2,N)= DR(2,M)
          DR(3,N)= DR(3,M)

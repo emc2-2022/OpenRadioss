@@ -1,38 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R27DEF3                       source/elements/spring/r27def3.F
-Chd|-- called by -----------
-Chd|        RFORC3                        source/elements/spring/rforc3.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
-      SUBROUTINE R27DEF3(F       ,E       ,DL      ,AL0     ,
-     2                   IPOS    ,GEO     ,IGEO    ,
-     3                   NPF     ,TF      ,V       ,OFF     ,ANIM    ,
-     4                   AL0_ERR ,X1DP    ,X2DP    ,NGL     ,
-     5                   MGN     ,EX      ,EY      ,EZ      ,XK      ,
-     6                   XM      ,XC      ,FSCALE  )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r27def3               ../engine/source/elements/spring/r27def3.F
+!||--- called by ------------------------------------------------------
+!||    rforc3                ../engine/source/elements/spring/rforc3.F
+!||--- calls      -----------------------------------------------------
+!||    finter                ../engine/source/tools/curve/finter.F
+!||--- uses       -----------------------------------------------------
+!||    python_funct_mod      ../common_source/modules/python_mod.F90
+!||====================================================================
+      SUBROUTINE R27DEF3(PYTHON,
+     1   F,       E,       DL,      AL0,
+     2   IPOS,    GEO,     IGEO,    NPF,
+     3   TF,      V,       OFF,     ANIM,
+     4   AL0_ERR, X1DP,    X2DP,    NGL,
+     5   MGN,     EX,      EY,      EZ,
+     6   XK,      XM,      XC,      FSCALE,
+     7   NEL,     NFT,     CRIT)
+       USE python_funct_mod
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,15 +53,14 @@ C-----------------------------------------------
 #include      "units_c.inc"
 #include      "scr17_c.inc"
 #include      "scr14_c.inc"
-#include      "scr03_c.inc"
 #include      "param_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "vect01_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      type(python_), intent(inout) :: PYTHON
+      INTEGER, INTENT(IN) :: NEL
+      INTEGER, INTENT(IN) :: NFT
       INTEGER NPF(*),IGEO(NPROPGI,*),NGL(*),MGN(*)
 C     REAL
       my_real
@@ -65,11 +69,13 @@ C     REAL
      .   AL0_ERR(*),EX(MVSIZ),EY(MVSIZ),EZ(MVSIZ),XK(MVSIZ),
      .   XM(MVSIZ),XC(MVSIZ),FSCALE(MVSIZ)
       DOUBLE PRECISION X1DP(3,*),X2DP(3,*)
+      my_real, DIMENSION(NEL), INTENT(INOUT) :: 
+     .   CRIT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER  I,J,NINDX,PID
-      INTEGER NC1(MVSIZ), NC2(MVSIZ),INDX(MVSIZ),IFUNC(MVSIZ),
+      INTEGER  INDX(MVSIZ),IFUNC(MVSIZ),
      .        IFUNC2(MVSIZ),IFAIL(MVSIZ),ILENG(MVSIZ),ITENS(MVSIZ),
      .        FSMOOTH(MVSIZ)
 C     REAL
@@ -79,9 +85,11 @@ C     REAL
      .   FSCALE2(MVSIZ),ASCALE(MVSIZ),ASCALE2(MVSIZ),FOLD(MVSIZ),
      .   NEXP(MVSIZ),FCUT(MVSIZ),ALPHA(MVSIZ),FKOLD(MVSIZ)
       my_real
-     .    BID,SUM,DT11,DAMP,DAMM
+     .    SUM,DT11,DAMP,DAMM
       DOUBLE PRECISION EXDP(MVSIZ),EYDP(MVSIZ),EZDP(MVSIZ),ALDP(MVSIZ),
      .                 AL0DP(MVSIZ)
+      LOGICAL :: ANY_PYTHON_FUNCTION
+      INTEGER :: NFUNCT,PYID
 C-----------------------------------------------
 C   E x t e r n a l
 C-----------------------------------------------
@@ -93,7 +101,10 @@ c
 C     ==================================================================
 C     RECOVERING SPRING PARAMETERS
 C     ==================================================================
-      DO I=LFT,LLT
+      ANY_PYTHON_FUNCTION = .FALSE.
+      NFUNCT = PYTHON%FUNCT_OFFSET + PYTHON%nb_functs - PYTHON%nb_sensors! OFFSET = nb of non-python functions
+
+      DO I=1,NEL
         PID        = MGN(I) 
         XM(I)      = GEO(1,PID)          ! Spring mass
         XK(I)      = GEO(2,PID)          ! Spring linear stiffness
@@ -114,13 +125,23 @@ C     ==================================================================
         IFUNC(I)   = IGEO(101,PID)       ! Function ID for stiffness tabulated force
         IFUNC2(I)  = IGEO(102,PID)       ! Function ID for damping tabulated force
         IF (IFUNC2(I) /= 0) XC(I) = GEO(141,PID)
+        PYID = python_funct_id(nfunct, IFUNC(I),NPF)  
+        IF(PYID > 0) THEN
+          ANY_PYTHON_FUNCTION = .TRUE.
+          IFUNC(I) = -PYID
+        ENDIF
+        PYID = python_funct_id(nfunct, IFUNC2(I),NPF)
+        IF(PYID > 0) THEN
+          ANY_PYTHON_FUNCTION = .TRUE.
+          IFUNC2(I) = -PYID
+        ENDIF 
       ENDDO
 C     ==================================================================
 C
 C     ==================================================================
 C     COMPUTATION OF THE NEW SPRING LENGTH
 C     ==================================================================
-      DO I=LFT,LLT
+      DO I=1,NEL
         EXDP(I)  = X2DP(1,I)-X1DP(1,I)
         EYDP(I)  = X2DP(2,I)-X1DP(2,I)
         EZDP(I)  = X2DP(3,I)-X1DP(3,I)
@@ -130,18 +151,18 @@ C     ==================================================================
 C
       ! Conversion DOUBLE -> MY_REAL if TT = ZERO
       IF (TT == ZERO) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           AL0(I)     = ALDP(I)             ! cast double to My_real
           AL0_ERR(I) = ALDP(I)-AL0(I)      ! difference between double and My_real
         ENDDO
       ENDIF
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         AL0DP(I) = AL0(I)                  ! cast My_real to double
-        AL0DP(I) = AL0DP(I) + AL0_ERR(I)   ! AL_DP doit etre recalcule ainsi afin de garantir la coherence absolue entre AL0_DP et AL_DP   
+        AL0DP(I) = AL0DP(I) + AL0_ERR(I)   ! AL_DP must be recalculated as well in order to guarantee the absolute coherence between al0_dp and al_dp   
       ENDDO
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         SUM     = MAX(ALDP(I),EM15)
         EXDP(I) = EXDP(I)/SUM
         EYDP(I) = EYDP(I)/SUM
@@ -152,12 +173,12 @@ C
       ENDDO
 C
       ! Spring total elongation
-      DO I=LFT,LLT
+      DO I=1,NEL
         DL(I) = ALDP(I) - AL0DP(I)
       ENDDO
 C
       ! ILENG flag 
-      DO I=LFT,LLT
+      DO I=1,NEL
         ! Value per length unit
         IF (ILENG(I) /= 0) THEN
           XL0(I) = AL0DP(I)
@@ -176,7 +197,7 @@ C     ==================================================================
       IF (DT11 == ZERO) DT11 = EP30
 C
       ! Recovering spring variables + Unit conversion if needed (ILENG)
-      DO I = LFT,LLT
+      DO I = 1,NEL
         ! Current total elongation
         DL(I)    = DL(I)/XL0(I)
         ! Old elongation
@@ -194,15 +215,16 @@ C
 C     ------------------------------------------------------------------
 C     LOOP OVER THE ELEMENTS
 C     ------------------------------------------------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
 c
         ! Computation if the element is not broken only
         IF ((OFF(I) == ONE).AND.(DL(I) < GAP(I) .OR. ITENS(I) > 0)) THEN 
-          ! Stiffness part
+          ! Stiffness leaves
           !   Computation of the tabulated stiffness force
           IF (IFUNC(I) > 0) THEN
             FK(I) = FSCALE(I)*FINTER(IFUNC(I),(DL(I)-GAP(I))/ASCALE(I),NPF,TF,DF1)
-          !   Computation of linear elastic stiffness force (non-linear if NEXP > 1)
+          ELSEIF(IFUNC(I) < 0) THEN
+             CALL python_call_funct1D(PYTHON, -IFUNC(I),(DL(I)-GAP(I))/ASCALE(I), FK(I))
           ELSE
             IF (ABS(DL(I)-GAP(I)) > ZERO) THEN 
               FK(I) = SIGN(ONE,(DL(I)-GAP(I)))*XK(I)*EXP(NEXP(I)*LOG(ABS(DL(I)-GAP(I))))
@@ -227,6 +249,8 @@ c
           IF (IFUNC2(I) > 0) THEN
             FD(I) = FSCALE2(I)*FINTER(IFUNC2(I),DVL(I)/ASCALE2(I),NPF,TF,DF2)
           !   Computation of the linear damping
+          ELSEIF(IFUNC2(I) < 0) THEN
+             CALL python_call_funct1D(PYTHON, -IFUNC2(I),DVL(I)/ASCALE2(I), FD(I))
           ELSE
             FD(I) = XC(I)*DVL(I)
           ENDIF
@@ -254,7 +278,7 @@ c
 C
       ! Computation of damage variable for animations
       IF (ANIM_FE(11) /= 0) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           J = I+NFT
           IF (IFAIL(I) == 1) THEN 
             IF (ITENS(I) > 0) THEN 
@@ -280,7 +304,7 @@ C
       ENDIF
 c
       ! Computation of the Spring energy + Unit conversion if needed (ILENG)
-      DO I=LFT,LLT
+      DO I=1,NEL
         E(I)     = E(I) + (DL(I)-DLOLD(I))*(F(I)+FOLD(I)) * HALF
         E(I)     = E(I)*XL0(I)
         DL(I)    = DL(I)*XL0(I)
@@ -295,18 +319,26 @@ C     ==================================================================
 C     CHECKING BROKEN SPRINGS
 C     ==================================================================
       NINDX = 0
-      DO I=LFT,LLT
+      DO I=1,NEL
         IF (OFF(I) == ONE .AND. IFAIL(I) /= 0) THEN
           IF (IFAIL(I) == 1) THEN
             IF (ITENS(I) > 0) THEN
+              CRIT(I) = MAX(DL(I)/(DMX(I)*XL0(I)),DL(I)/(DMN(I)*XL0(I)))
+              CRIT(I) = MIN(CRIT(I),ONE)
+              CRIT(I) = MAX(CRIT(I),ZERO)
               IF (DL(I) > DMX(I)*XL0(I) .OR. DL(I) < DMN(I)*XL0(I)) THEN
+                CRIT(I) = ONE
                 OFF(I) = ZERO
                 NINDX  = NINDX + 1
                 INDX(NINDX) = I
                 IDEL7NOK = 1
               ENDIF
             ELSE
+              CRIT(I) = DL(I)/(DMN(I)*XL0(I))
+              CRIT(I) = MIN(CRIT(I),ONE)
+              CRIT(I) = MAX(CRIT(I),ZERO)
               IF (DL(I) < DMN(I)*XL0(I)) THEN
+                CRIT(I) = ONE
                 OFF(I) = ZERO
                 NINDX  = NINDX + 1
                 INDX(NINDX) = I
@@ -314,15 +346,23 @@ C     ==================================================================
               ENDIF
             ENDIF
           ELSEIF (IFAIL(I) == 2) THEN
-            IF (ITENS(I) > 0) THEN 
+            IF (ITENS(I) > 0) THEN
+              CRIT(I) = MAX(F(I)/DMX(I),F(I)/DMN(I)) 
+              CRIT(I) = MIN(CRIT(I),ONE)
+              CRIT(I) = MAX(CRIT(I),ZERO)
               IF (F(I)  > DMX(I) .OR. F(I)  < DMN(I)) THEN
+                CRIT(I) = ONE
                 OFF(I) = ZERO
                 NINDX  = NINDX + 1
                 INDX(NINDX) = I
                 IDEL7NOK = 1
               ENDIF
             ELSE
+              CRIT(I) = F(I)/DMN(I)
+              CRIT(I) = MIN(CRIT(I),ONE)
+              CRIT(I) = MAX(CRIT(I),ZERO)
               IF (F(I)  < DMN(I)) THEN
+                CRIT(I) = ONE
                 OFF(I) = ZERO
                 NINDX  = NINDX + 1
                 INDX(NINDX) = I

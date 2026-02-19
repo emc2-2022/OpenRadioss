@@ -1,35 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FATHER                        source/model/remesh/build_admesh.F
-Chd|-- called by -----------
-Chd|        ORIGIN                        source/model/remesh/build_admesh.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    father        ../starter/source/model/remesh/build_admesh.F
+!||--- called by ------------------------------------------------------
+!||    origin        ../starter/source/model/remesh/build_admesh.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       INTEGER FUNCTION FATHER(NN,IXC,IPARTC,IPART,SONTYPE)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -39,11 +37,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
-#include      "param_c.inc"
-#include      "remesh_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -53,7 +46,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 
-      IF(NN.LE.NUMELC0)THEN
+      IF(NN<=NUMELC0)THEN
         FATHER=NN
         SONTYPE=0
       ELSE
@@ -62,18 +55,22 @@ C-----------------------------------------------
       END IF
       RETURN
       END     
-Chd|====================================================================
-Chd|  ORIGIN                        source/model/remesh/build_admesh.F
-Chd|-- called by -----------
-Chd|        I11REMLINE                    source/interfaces/inter3d1/i11remlin.F
-Chd|        I25REMLINE                    source/interfaces/int25/i25remlin.F
-Chd|-- calls ---------------
-Chd|        FATHER                        source/model/remesh/build_admesh.F
-Chd|====================================================================
+!||====================================================================
+!||    origin                 ../starter/source/model/remesh/build_admesh.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_frm            ../starter/source/tools/skew/hm_read_frm.F
+!||    hm_read_monvol_type6   ../starter/source/airbag/hm_read_monvol_type6.F
+!||    hm_read_monvol_type8   ../starter/source/airbag/hm_read_monvol_type8.F
+!||    hm_read_skw            ../starter/source/tools/skew/hm_read_skw.F
+!||    i11remline             ../starter/source/interfaces/inter3d1/i11remlin.F
+!||    i25remline             ../starter/source/interfaces/int25/i25remlin.F
+!||    th_titles              ../starter/source/output/th/th_titles.F90
+!||--- calls      -----------------------------------------------------
+!||    father                 ../starter/source/model/remesh/build_admesh.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       INTEGER FUNCTION ORIGIN(NN,IXC,IPARTC,IPART)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -83,11 +80,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
-#include      "param_c.inc"
-#include      "remesh_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -103,7 +95,7 @@ C-----------------------------------------------
       EXTERNAL FATHER
 C-----------------------------------------------
       LEVEL=0
-      DO WHILE(NN.GT.NUMELC0)
+      DO WHILE(NN>NUMELC0)
         NN=FATHER(NN,IXC,IPARTC,IPART,SONTYPE)
         LEVEL=LEVEL+1
       END DO
@@ -111,10 +103,19 @@ C-----------------------------------------------
       ORIGIN=NN
       RETURN
       END     
+!||====================================================================
+!||    identson4      ../starter/source/model/remesh/build_admesh.F
+!||--- called by ------------------------------------------------------
+!||    build_admesh   ../starter/source/model/remesh/build_admesh.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       RECURSIVE SUBROUTINE IDENTSON4(LEVEL,NN,IXC,SH4TREE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE USER_ID_MOD , ONLY : ID_LIMIT
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -126,9 +127,6 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "remesh_c.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER LEVEL,NN,IXC(NIXC,*),SH4TREE(KSH4TREE,*)
@@ -138,10 +136,10 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER PP
       IF(LEVEL==0)THEN
-        ID=ID_LIMIT_ADMESH+(NN-1)*((4**(LEVELMAX+1)-1)/3-1)
+        ID=ID_LIMIT%ADMESH+(NN-1)*((4**(LEVELMAX+1)-1)/3-1)
       END IF
       PP=SH4TREE(2,NN)
-      IF(PP.NE.0) THEN
+      IF(PP/=0) THEN
 
         ID=ID+1
         IXC(NIXC,PP)=ID
@@ -162,10 +160,19 @@ C-----------------------------------------------
       END IF
       RETURN
       END     
+!||====================================================================
+!||    identson3      ../starter/source/model/remesh/build_admesh.F
+!||--- called by ------------------------------------------------------
+!||    build_admesh   ../starter/source/model/remesh/build_admesh.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       RECURSIVE SUBROUTINE IDENTSON3(LEVEL,NN,IXTG,SH3TREE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+        USE USER_ID_MOD , ONLY : ID_LIMIT
+        use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -177,9 +184,6 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "remesh_c.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER LEVEL,NN,IXTG(NIXTG,*),SH3TREE(KSH3TREE,*)
@@ -189,10 +193,10 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER PP
       IF(LEVEL==0)THEN
-        ID=ID_LIMIT_ADMESH+(NN-1)*((4**(LEVELMAX+1)-1)/3-1)
+        ID=ID_LIMIT%ADMESH+(NN-1)*((4**(LEVELMAX+1)-1)/3-1)
       END IF
       PP=SH3TREE(2,NN)
-      IF(PP.NE.0) THEN
+      IF(PP/=0) THEN
 
         ID=ID+1
         IXTG(NIXTG,PP)=ID
@@ -214,39 +218,38 @@ C-----------------------------------------------
 
       RETURN
       END     
-Chd|====================================================================
-Chd|  BUILD_ADMESH                  source/model/remesh/build_admesh.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        CONSTIT                       source/elements/nodes/constit.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    build_admesh           ../starter/source/model/remesh/build_admesh.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    constit                ../starter/source/elements/nodes/constit.F
+!||    identson3              ../starter/source/model/remesh/build_admesh.F
+!||    identson4              ../starter/source/model/remesh/build_admesh.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE BUILD_ADMESH(
      .                    IPART ,IPARTC,IPARTTG,IXC   ,IXTG  ,
      .                    X     ,ITAB  ,ITABM1 ,SH4TREE,SH3TREE,
      .                    IPADMESH,PADMESH)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "remesh_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -255,9 +258,7 @@ C-----------------------------------------------
      .        IXC(NIXC,*), IXTG(NIXTG,*),ITAB(*),ITABM1(*),
      .        SH4TREE(KSH4TREE,*), SH3TREE(KSH3TREE,*),
      .        IPADMESH(KIPADMESH,*)
-C     REAL
-      my_real
-     .       X(3,*), PADMESH(KPADMESH,*)
+      my_real X(3,*), PADMESH(KPADMESH,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -274,11 +275,9 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:,:),ALLOCATABLE :: TAG
       my_real
      .  ANGL,XA,XB
-C     REAL
-      CHARACTER MESS*40,TITR*nchartitle,KEY*ncharkey
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY) :: KEY
 C-----------------------------------------------
       DATA MESS /'OPTIONS FOR ADAPTIVE MESHING DEFINITION '/
 C-----------------------------------------------
@@ -300,7 +299,7 @@ C------
       NUMELC_LEV =NUMELC_OLD-NUMELC_OLD_OLD
       NUMELTG_LEV=NUMELTG_OLD-NUMELTG_OLD_OLD
 C
-C     connectivite inverse au niveau precedent
+C     Reverse connectivity at the previous level
 C
       ALLOCATE(KNOD2SH(0:NUMNOD_NEW),STAT=stat)
       IF(STAT /= 0) CALL ANCMSG(MSGID=268,ANMODE=ANINFO,
@@ -365,9 +364,9 @@ C
         NN=NUMELC_OLD_OLD+N
         IP  =IPARTC(NN)
         NLEV=IPART(10,IP)
-        IF(NLEV.LT.LEVEL) CYCLE
+        IF(NLEV<LEVEL) CYCLE
         DO I=1,4
-          IF(TAG(I,N).EQ.0)THEN
+          IF(TAG(I,N)==0)THEN
             NI=IXC(I+1,NN)
             NJ=IXC(MOD(I,4)+2,NN)
             
@@ -378,11 +377,11 @@ C
             END DO
             DO K=KNOD2SH(NI-1)+1,KNOD2SH(NI)
               P=NOD2SH(K)
-              IF(P.NE.N)THEN
+              IF(P/=N)THEN
                 DO L=KNOD2SH(NJ-1)+1,KNOD2SH(NJ)
                   Q=NOD2SH(L)
                   IF(Q==P)THEN
-                    IF(Q.LE.NUMELC_LEV)THEN
+                    IF(Q<=NUMELC_LEV)THEN
                       QQ=NUMELC_OLD_OLD+Q
                       DO J=1,4
                         NK=IXC(J+1,QQ)
@@ -417,7 +416,7 @@ C
         NN=NUMELC_OLD_OLD+N
         IP  =IPARTC(NN)
         NLEV=IPART(10,IP)
-        IF(NLEV.LT.LEVEL) CYCLE
+        IF(NLEV<LEVEL) CYCLE
         NUMNOD_NEW=NUMNOD_NEW+1
         TAG(5,N)=NUMNOD_NEW
         NI=TAG(1,N)
@@ -435,9 +434,9 @@ C
         NN=NUMELTG_OLD_OLD+N
         IP  =IPARTTG(NN)
         NLEV=IPART(10,IP)
-        IF(NLEV.LT.LEVEL) CYCLE
+        IF(NLEV<LEVEL) CYCLE
         DO I=1,3
-          IF(TAG(I,N+NUMELC_LEV).EQ.0)THEN
+          IF(TAG(I,N+NUMELC_LEV)==0)THEN
             NI=IXTG(I+1,NN)
             NJ=IXTG(MOD(I,3)+2,NN)
 
@@ -448,11 +447,11 @@ C
             END DO
             DO K=KNOD2SH(NI-1)+1,KNOD2SH(NI)
               P=NOD2SH(K)
-              IF(P.NE.N+NUMELC)THEN
+              IF(P/=N+NUMELC)THEN
                 DO L=KNOD2SH(NJ-1)+1,KNOD2SH(NJ)
                   Q=NOD2SH(L)
                   IF(Q==P)THEN
-                    IF(Q.LE.NUMELC_LEV)THEN
+                    IF(Q<=NUMELC_LEV)THEN
                       QQ=NUMELC_OLD_OLD+Q
                       DO J=1,4
                         NK=IXC(J+1,QQ)
@@ -488,7 +487,7 @@ C
         NN=NUMELC_OLD_OLD+N
         IP  =IPARTC(NN)
         NLEV=IPART(10,IP)
-        IF(NLEV.LT.LEVEL) CYCLE
+        IF(NLEV<LEVEL) CYCLE
  
         DO J=1,NIXC
           DO I=1,4
@@ -546,7 +545,7 @@ C
         NN=NUMELTG_OLD_OLD+N
         IP  =IPARTTG(NN)
         NLEV=IPART(10,IP)
-        IF(NLEV.LT.LEVEL) CYCLE
+        IF(NLEV<LEVEL) CYCLE
  
         DO J=1,NIXTG
           DO I=1,4
@@ -658,25 +657,25 @@ C
 C      DO N=1,NUMELC0
 C        IP  =IPARTC(N)
 C        NLEV=IPART(10,IP)
-C        IF(NLEV.EQ.0) CYCLE
+C        IF(NLEV==0) CYCLE
 C        DO I=1,4
 C          NI=IXC(I+1,N)
 C          NJ=IXC(MOD(I,4)+2,N)
 C
 C          DO K=KNOD2SH(NI-1)+1,KNOD2SH(NI)
 C            P=NOD2SH(K)
-C            IF(P.NE.N)THEN
+C            IF(P/=N)THEN
 C              DO L=KNOD2SH(NJ-1)+1,KNOD2SH(NJ)
-C          	Q=NOD2SH(L)
-C          	IF(Q==P)THEN
-C                  IF(SH4NEIGHB(I,N).NE.0)THEN
+C            Q=NOD2SH(L)
+C            IF(Q==P)THEN
+C                  IF(SH4NEIGHB(I,N)/=0)THEN
 C                    CALL ANSTCKI(IXC(NIXC,N))
 C                    CALL ANSTCKI(IPART(1,IP))
 C                    CALL ANCERR(640,ANINFO_BLIND_1)
 C                  ELSE
 C                    SH4NEIGHB(I,N)=Q
 C                  END IF
-C          	END IF
+C            END IF
 C              END DO
 C            END IF
 C          END DO
@@ -686,25 +685,25 @@ C
 C      DO N=1,NUMELTG0
 C        IP  =IPARTTG(N)
 C        NLEV=IPART(10,IP)
-C        IF(NLEV.EQ.0) CYCLE
+C        IF(NLEV==0) CYCLE
 C        DO I=1,3
 C          NI=IXTG(I+1,N)
 C          NJ=IXTG(MOD(I,3)+2,N)
 C
 C          DO K=KNOD2SH(NI-1)+1,KNOD2SH(NI)
 C            P=NOD2SH(K)
-C            IF(P.NE.N)THEN
+C            IF(P/=N)THEN
 C              DO L=KNOD2SH(NJ-1)+1,KNOD2SH(NJ)
-C          	Q=NOD2SH(L)
-C          	IF(Q==P)THEN
-C                  IF(SH3NEIGHB(I,N).NE.0)THEN
+C            Q=NOD2SH(L)
+C            IF(Q==P)THEN
+C                  IF(SH3NEIGHB(I,N)/=0)THEN
 C                    CALL ANSTCKI(IXTG(NIXTG,N))
 C                    CALL ANSTCKI(IPART(1,IP))
 C                    CALL ANCERR(641,ANINFO_BLIND_1)
 C                  ELSE
 C                    SH3NEIGHB(I,N)=Q
-C          	  END IF
-C          	END IF
+C              END IF
+C            END IF
 C              END DO
 C            END IF
 C          END DO
@@ -713,10 +712,8 @@ C      END DO
 C-------------------------------------
       NUMNOD=NUMNOD_NEW
 C--------------------------------------------------
-C     RE-CONSTITUTION DU TABLEAU INVERSE DES NOEUDS
+C     rebuilding the inverse node table
       CALL CONSTIT(ITAB,ITABM1,NUMNOD)
       RETURN
 C-------------------------------------
-  999 CALL FREERR(1)
-      RETURN
       END

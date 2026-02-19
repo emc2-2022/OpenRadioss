@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  IN12R                         source/interfaces/inter3d1/in12r.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    in12r    ../starter/source/interfaces/inter3d1/in12r.F
+!||--- called by ------------------------------------------------------
+!||    inint3   ../starter/source/interfaces/inter3d1/inint3.F
+!||====================================================================
       SUBROUTINE IN12R(X,FRIGAP,NSV,NSN,FLAG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -37,17 +36,12 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN,FLAG
       INTEGER NSV(*)
-C     REAL
       my_real
      .   X(3,*), FRIGAP(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER II, I
-C     REAL
       my_real
      .  XX,YY,ZZ,XT,YT,ZT,XC,YC,ZC,XR,YR,ZR,TETA,CS,SN,XCT,YCT,ZCT,
      .  AX,AY,AZ,BX,BY,BZ,BN,
@@ -72,9 +66,9 @@ C-----------------------------------------------
        YCT=YC+YT
        ZCT=ZC+ZT
 C
-       IF(FLAG.EQ.1)THEN
+       IF(FLAG==1)THEN
        BN=SQRT(YR**2+ZR**2)
-        IF(BN.LT.EM3)THEN
+        IF(BN<EM3)THEN
          S11=ONE
          S21=ZERO
          S31=ZERO
@@ -117,7 +111,7 @@ C
          S23=S23/BN
          S33=S33/BN
 C
-C TRANSFORMATION TEMPORAIRE POUR TROUVER LES RELATIONS main SECND
+C Temporary transformation to find main-secondary relationships
         DO II=1,NSN
          I=NSV(II)
          XX=X(1,I)-XC

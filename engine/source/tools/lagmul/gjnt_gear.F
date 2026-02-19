@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  GJNT_GEAR                     source/tools/lagmul/gjnt_gear.F
-Chd|-- called by -----------
-Chd|        LAG_GJNT                      source/tools/lagmul/lag_gjnt.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    gjnt_gear   ../engine/source/tools/lagmul/gjnt_gear.F
+!||--- called by ------------------------------------------------------
+!||    lag_gjnt    ../engine/source/tools/lagmul/lag_gjnt.F
+!||====================================================================
       SUBROUTINE GJNT_GEAR(SK     ,L1     ,L2     ,ALPHA  ,X      ,
      2                     IADLL  ,LLL    ,JLL    ,SLL    ,XLL    ,
      3                     N0     ,N1     ,N2     ,NC     )
@@ -42,16 +41,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IK,IC,IAD
+      INTEGER IK
       my_real 
      .        XT1(3),YT1(3),ZT1(3),XT2(3),YT2(3),ZT2(3),
      .        X0,Y0,Z0,X1,Y1,Z1,X2,Y2,Z2,XR,YR,ZR,XM,YM,ZM,NORM
 C-----------------------------------------------
-C        NC : nombre de condition cinematique 
-C        IC : numero de la condition cinematique (1,NC)
+C        NC: number of cinematic condition 
+C        ic: number of the kinematic condition (1,nc)
 C        IK : 
-C        I  : numero global du noeud (1,NUMNOD)
-C        J  : direction 1,2,3,4,5,6
+C        I  : global node number (1,NUMNOD)
+C        J ': direction 1,2,3,4,5,6
 C------
 C        IADLL(NC)        : IAD = IADLL(IC)
 C        IK = IAD,IAD+1,IAD+2,...
@@ -66,7 +65,7 @@ C---  Node 1 skew
       XT1(1) = XT1(1)*NORM
       XT1(2) = XT1(2)*NORM
       XT1(3) = XT1(3)*NORM
-      IF (ABS(XT1(1)).GT.ZEP99) THEN
+      IF (ABS(XT1(1))>ZEP99) THEN
         ZT1(1) =-XT1(3)
         ZT1(2) = ZERO
         ZT1(3) = XT1(1)
@@ -90,7 +89,7 @@ C---  Node 2 skew
       XT2(1) = XT2(1)*NORM
       XT2(2) = XT2(2)*NORM
       XT2(3) = XT2(3)*NORM
-      IF (ABS(XT2(1)).GT.ZEP99) THEN
+      IF (ABS(XT2(1))>ZEP99) THEN
         ZT2(1) =-XT2(3)
         ZT2(2) = ZERO
         ZT2(3) = XT2(1)

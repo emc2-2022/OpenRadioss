@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LEC_INISTATE_TRI              source/elements/initia/lec_inistate_tri.F
-Chd|-- called by -----------
-Chd|        LEC_INISTATE                  source/elements/initia/lec_inistate.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        UEL2SYS                       source/initial_conditions/inista/yctrl.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lec_inistate_tri   ../starter/source/elements/initia/lec_inistate_tri.F
+!||--- called by ------------------------------------------------------
+!||    lec_inistate       ../starter/source/elements/initia/lec_inistate.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../starter/source/output/message/message.F
+!||    uel2sys            ../starter/source/initial_conditions/inista/yctrl.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LEC_INISTATE_TRI(
      1                  IXS        ,IXQ          ,IXC          ,IXT          ,IXP       ,
      2                  IXR        ,KXSP         ,IXTG         ,INDEX        ,ITRI      ,
@@ -39,28 +39,21 @@ Chd|====================================================================
      6                  PTSPRI     ,PTBEAM       ,PTTRUSS      ,SIGI         ,SIGSH     ,
      7                  SIGSP      ,SIGSPH       ,SIGRS        ,SIGBEAM      ,SIGTRUSS  ,
      8                  ID_SIGSH   ,ID_SOLID_SIGI,ID_QUAD_SIGI ,ID_SIGSPRI ,ID_SIGBEAM  ,
-     9                  ID_SIGTRUSS,WORK )
+     9                  ID_SIGTRUSS,WORK         ,ID_SIGSPHCEL ,IS_STATE)
 C-----------------------------------------------
 C   M o d u l e s
-C-----------------------------------------------                     
-      USE MESSAGE_MOD      
+C-----------------------------------------------
+      USE MESSAGE_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 #include      "scry_c.inc"
 #include      "sphcom.inc"
 C-----------------------------------------------
@@ -76,6 +69,9 @@ C-----------------------------------------------
       my_real
      .   SIGI(NSIGS,*),SIGSH(MAX(1,NSIGSH),*),SIGTRUSS(NSIGTRUSS,*),
      .   SIGSP(NSIGI,*),SIGSPH(NSIGSPH,*),SIGRS(NSIGRS,*),SIGBEAM(NSIGBEAM,*)
+      
+      INTEGER,  INTENT(INOUT) :: ID_SIGSPHCEL(NUMSPH)
+      LOGICAL,  INTENT(IN)    :: IS_STATE
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -89,386 +85,448 @@ C----------------------------------------------------------------------
 C
 C SHELL 4-NODES
 C
-       NUMSHEL0=NUMSHEL
-       IF(NUMSHEL.GT.0)THEN
-C        tri des elts du Y000 par ID croissant
-         DO ISYS = 1, NUMSHEL
-           ITRI(ISYS) =ID_SIGSH(ISYS)
-         END DO
-         CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSHEL,1)
+        NUMSHEL0 = NUMSHEL
+        IF(NUMSHEL>0)THEN
+C        sorting elements of Y000 by ascending id
+          
+          DO ISYS = 1, NUMSHEL
+            ITRI(ISYS) =ID_SIGSH(ISYS)
+          END DO
+          CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSHEL,1)
 C        checking INISHE : search for multiply define
-         ISYS=INDEX(1)
-         IE  =ID_SIGSH(ISYS)
-         DO J = 2, NUMSHEL
-           JSYS=INDEX(J)
-           JE  =ID_SIGSH(JSYS)
-           IF(JE == IE)THEN
-             DO K=2,NSIGSH
-               IF(SIGSH(K,JSYS).NE.ZERO)THEN
-                 IF(SIGSH(K,ISYS).NE.ZERO.AND.
-     .            SIGSH(K,ISYS).NE.SIGSH(K,JSYS))THEN
-                   CALL ANCMSG(MSGID=595,
-     .                         MSGTYPE=MSGERROR,
-     .                         ANMODE=ANINFO_BLIND_1,
-     .                         I1=IE)
-                 ELSE
-                   SIGSH(K,ISYS)=SIGSH(K,JSYS)
-                 END IF
-               END IF
-             END DO
-             SIGSH(1,JSYS)=ZERO
-             ID_SIGSH(JSYS)=0
-           ELSE
-             IE  =JE
-             ISYS=JSYS
-           END IF
-         END DO
-         COMPT=0
-         DO J=1,NUMSHEL
-           IE=ID_SIGSH(J)
-           IF(IE.NE.0)THEN
-             COMPT=COMPT+1
-             IF(COMPT.LT.J)THEN
-               DO K=1,NSIGSH
-                 SIGSH(K,COMPT)=SIGSH(K,J)
-               END DO
-               ID_SIGSH(COMPT)=ID_SIGSH(J)
+          ISYS = INDEX(1)
+          IE  = ID_SIGSH(ISYS)
+          DO J = 2, NUMSHEL
+            JSYS=INDEX(J)
+            JE  =ID_SIGSH(JSYS)
+            IF(JE == IE)THEN
+              DO K=2,NSIGSH
+                IF(SIGSH(K,JSYS)/=ZERO)THEN
+                  IF(SIGSH(K,ISYS)/=ZERO.AND.
+     .             SIGSH(K,ISYS)/=SIGSH(K,JSYS))THEN
+                    CALL ANCMSG(MSGID=595,
+     .                          MSGTYPE=MSGERROR,
+     .                          ANMODE=ANINFO_BLIND_1,
+     .                          I1=IE)
+                  ELSE
+                    SIGSH(K,ISYS)=SIGSH(K,JSYS)
+                  END IF
+                END IF
+              END DO
+              SIGSH(1,JSYS)=ZERO
+              ID_SIGSH(JSYS)=0
+            ELSE
+              IE  =JE
+              ISYS=JSYS
+            END IF
+          END DO
+          COMPT=0
+          DO J=1,NUMSHEL
+            IE=ID_SIGSH(J)
+            IF(IE/=0)THEN
+              COMPT=COMPT+1
+              IF(COMPT<J)THEN
+                DO K=1,NSIGSH
+                  SIGSH(K,COMPT)=SIGSH(K,J)
+                END DO
+                ID_SIGSH(COMPT)=ID_SIGSH(J)
 
-               SIGSH(1,J)=ZERO
-               ID_SIGSH(J)=0
-             END IF
-           END IF
-         END DO
-         NUMSHEL=COMPT
-       ENDIF
+                SIGSH(1,J)=ZERO
+                ID_SIGSH(J)=0
+              END IF
+            END IF
+          END DO
+          NUMSHEL=COMPT
+        ENDIF
 C
-       IF(NUMSHEL.GT.0)THEN
-C        tri des elts du Y000 par ID croissant
-         DO ISYS = 1, NUMSHEL
-           ITRI(ISYS) = ID_SIGSH(ISYS)
-         END DO
-         CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSHEL,1)
-         DO J = 1, NUMSHEL
-           ISYS=INDEX(J)
-           KSYSUSR(J)=ID_SIGSH(ISYS)
-           KSYSUSR(NUMSHEL+J)=ISYS
-         END DO
+        IF(NUMSHEL>0)THEN
+C        sorting elements of Y000 by ascending id
+         
+          DO ISYS = 1,NUMSHEL 
+              ITRI(ISYS) = ID_SIGSH(ISYS)
+          END DO
+          CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSHEL,1)
+          DO J = 1, NUMSHEL
+            ISYS=INDEX(J)
+            KSYSUSR(J)=ID_SIGSH(ISYS)
+            KSYSUSR(NUMSHEL+J)=ISYS
+          END DO
 C
-C        Nos systeme dans le Y000, des elts du D00
-         DO I=1,NUMELC
-           ISYS=UEL2SYS(IXC(NIXC,I),KSYSUSR,NUMSHEL)
-           PTSHEL(I) =ISYS
-         END DO
-       ENDIF
+C        our system in Y000, elements of D00
+          DO I=1,NUMELC
+            ISYS=UEL2SYS(IXC(NIXC,I),KSYSUSR,NUMSHEL)
+            PTSHEL(I) =ISYS
+          END DO
+        ENDIF
 C
 C SHELL 3-NODES
 C
-       IF(NUMSH3N.GT.0)THEN
-C        tri des elts du Y000 par ID croissant
-         DO ISYS = 1, NUMSH3N
-           II=NUMSHEL0+ISYS
-           ITRI(ISYS) = ID_SIGSH(II)
-         END DO
-         CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSH3N,1)
+        IF(NUMSH3N>0)THEN
+C        sorting elements of Y000 by ascending id
+          DO ISYS = 1, NUMSH3N
+            II= NUMSHEL0 + ISYS
+            ITRI(ISYS) = ID_SIGSH(II)
+          END DO
+          CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSH3N,1)
 C
-         ISYS=NUMSHEL0+INDEX(1)
-         IE  =ID_SIGSH(ISYS)
-         DO J = 2, NUMSH3N
-           JSYS=NUMSHEL0+INDEX(J)
-           JE  =ID_SIGSH(JSYS)
-           IF(JE == IE)THEN
-             DO K=2,NSIGSH
-               IF(SIGSH(K,JSYS).NE.ZERO)THEN
-                IF(SIGSH(K,ISYS).NE.ZERO.AND.
-     .            SIGSH(K,ISYS).NE.SIGSH(K,JSYS))THEN
-                 CALL ANCMSG(MSGID=596,
-     .                       MSGTYPE=MSGERROR,
-     .                       ANMODE=ANINFO_BLIND_1,
-     .                       I1=IE)
-               ELSE
-                 SIGSH(K,ISYS)=SIGSH(K,JSYS)
-               END IF
-              END IF
-             END DO
-             SIGSH(1,JSYS)=ZERO
-             ID_SIGSH(JSYS)=0
-           ELSE
-             IE  =JE
-             ISYS=JSYS
-           END IF
-         END DO
-         COMPT=0
-         DO J=1,NUMSH3N
-           IE=ID_SIGSH(NUMSHEL0+J)
-           IF(IE.NE.0)THEN
-             COMPT=COMPT+1
-             IF(NUMSHEL+COMPT.LT.NUMSHEL0+J)THEN
-               DO K=1,NSIGSH
-                 SIGSH(K,NUMSHEL+COMPT)=SIGSH(K,NUMSHEL0+J)
-               END DO
-               ID_SIGSH(NUMSHEL+COMPT)=ID_SIGSH(NUMSHEL0+J)
+          ISYS = NUMSHEL0 + INDEX(1)
+          IE   = ID_SIGSH(ISYS)
+          DO J = 2, NUMSH3N
+            JSYS=NUMSHEL0+INDEX(J)
+            JE  =ID_SIGSH(JSYS)
+            IF(JE == IE)THEN
+              DO K=2,NSIGSH
+                IF(SIGSH(K,JSYS)/=ZERO)THEN
+                  IF(SIGSH(K,ISYS)/=ZERO.AND.
+     .              SIGSH(K,ISYS)/=SIGSH(K,JSYS))THEN
+                    CALL ANCMSG(MSGID=596,
+     .                          MSGTYPE=MSGERROR,
+     .                          ANMODE=ANINFO_BLIND_1,
+     .                          I1=IE)
+                  ELSE
+                    SIGSH(K,ISYS)=SIGSH(K,JSYS)
+                  END IF
+                END IF
+              END DO
+              SIGSH(1,JSYS)=ZERO
+              ID_SIGSH(JSYS)=0
+            ELSE
+              IE  =JE
+              ISYS=JSYS
+            END IF
+          END DO
+          COMPT=0
+          DO J=1,NUMSH3N
+            IE=ID_SIGSH(NUMSHEL0 + J)
+            IF(IE /=0 )THEN
+              COMPT=COMPT+1
+              IF(NUMSHEL+COMPT<NUMSHEL0+J)THEN
+                DO K=1,NSIGSH
+                  SIGSH(K,NUMSHEL+COMPT)=SIGSH(K,NUMSHEL0+J)
+                END DO
+                ID_SIGSH(NUMSHEL+COMPT)=ID_SIGSH(NUMSHEL0+J)
 
-               SIGSH(1,NUMSHEL0+J)=ZERO
-               ID_SIGSH(NUMSHEL0+J)=0
-             END IF
-           END IF
-         END DO
-         NUMSH3N=COMPT
-       END IF
+                SIGSH(1,NUMSHEL0+J)=ZERO
+                ID_SIGSH(NUMSHEL0+J)=0
+              END IF
+            END IF
+          END DO
+          NUMSH3N=COMPT
+        END IF
 C
-       IF (NUMSH3N > 0) THEN
-C        tri des elts du Y000 par ID croissant
-         DO ISYS = 1, NUMSH3N
-           II=NUMSHEL+ISYS
-           ITRI(ISYS) = ID_SIGSH(II)
-         END DO
-         CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSH3N,1)
+        IF (NUMSH3N > 0) THEN
+C        sorting elements of Y000 by ascending id
+          DO ISYS = 1, NUMSH3N
+            II = ISYS + NUMSHEL0
+            ITRI(ISYS) = ID_SIGSH(II)
+          END DO
+          CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSH3N,1)
 C
-         DO J = 1, NUMSH3N
-           ISYS=INDEX(J)
-           II=NUMSHEL+ISYS
-           KSYSUSR(J)=ID_SIGSH(II)
-           KSYSUSR(NUMSH3N+J)=ISYS
-         END DO
+          DO J = 1, NUMSH3N
+            ISYS = INDEX(J)
+            II   = ISYS + NUMSHEL0
+            KSYSUSR(J) = ID_SIGSH(II)
+            KSYSUSR(NUMSH3N + J) = ISYS
+          END DO
 C
-C        Nos systeme dans le Y000, des elts du D00
-         DO I=1,NUMELTG
-           ISYS=UEL2SYS(IXTG(NIXTG,I),KSYSUSR,NUMSH3N)
-           PTSH3N(I) =ISYS
-         END DO
-       ENDIF
+C        our system in Y000, elements of D00
+          DO I=1,NUMELTG
+            ISYS = UEL2SYS(IXTG(NIXTG,I),KSYSUSR,NUMSH3N)
+            PTSH3N(I) =  ISYS 
+          END DO
+        ENDIF
 C
 C BRICK
 C
-!!       IF(NSLASH(KINIBRI).NE.0)THEN
-       IF(NUMSOL.GT.0)THEN
+        IF(NUMSOL>0)THEN
 C
-C        tri des elts de SIGI par ID croissant
-         DO ISYS = 1, NUMSOL
-           ITRI(ISYS) = ID_SOLID_SIGI(ISYS)
-         END DO
-         CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSOL,1)
+C        sorting elements of SIGI by ascending id
+          DO ISYS = 1, NUMSOL
+            ITRI(ISYS) = ID_SOLID_SIGI(ISYS)
+          END DO
+          CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSOL,1)
 C
 C        checking (search for multiply define) and compacting INISOL
-         ISYS=INDEX(1)
-         IE  =ID_SOLID_SIGI(ISYS)
-         DO J = 2, NUMSOL
-           JSYS=INDEX(J)
-           JE  =ID_SOLID_SIGI(JSYS)
-           IF(JE == IE)THEN
-             DO K=1,6
-               IF((SIGI(K,JSYS).NE.ZERO) .AND.
-     .            (SIGI(K,ISYS).NE.SIGI(K,JSYS))   )THEN
-                 IF(SIGI(K,ISYS).NE.ZERO)THEN
-                   CALL ANCMSG(MSGID=597,
-     .                         MSGTYPE=MSGERROR,
-     .                         ANMODE=ANINFO_BLIND_1,
-     .                         I1=IE)
-                 ELSE
-                   SIGI(K,ISYS)=SIGI(K,JSYS)
-                 END IF
-               END IF
-             END DO
-             DO K=8,10
-               IF(SIGI(K,JSYS).NE.ZERO .AND.
-     .            (SIGI(K,ISYS).NE.SIGI(K,JSYS))   )THEN
-                 IF(SIGI(K,ISYS).NE.ZERO)THEN
-                   CALL ANCMSG(MSGID=597,
-     .                         MSGTYPE=MSGERROR,
-     .                         ANMODE=ANINFO_BLIND_1,
-     .                         I1=IE)
-                 ELSE
-                   SIGI(K,ISYS)=SIGI(K,JSYS)
-                 END IF
-               END IF
-             END DO
-             DO K=1,NSIGI
-               IF(SIGSP(K,JSYS).NE.ZERO .AND.
-     .            (SIGSP(K,ISYS).NE.SIGSP(K,JSYS))   )THEN
-                 IF(SIGSP(K,ISYS).NE.ZERO)THEN
-                   CALL ANCMSG(MSGID=597,
-     .                         MSGTYPE=MSGERROR,
-     .                         ANMODE=ANINFO_BLIND_1,
-     .                         I1=IE)
-                 ELSE
-                   SIGSP(K,ISYS)=SIGSP(K,JSYS)
-                 END IF
-               END IF
-             END DO
-             ID_SOLID_SIGI(JSYS)=0
-           ELSE
-             IE  =JE
-             ISYS=JSYS
-           END IF
-         END DO
-         COMPT=0
-         DO J=1,NUMSOL
-           IE=ID_SOLID_SIGI(J)
-           IF(IE.NE.0)THEN
-             COMPT=COMPT+1
-             IF(COMPT.LT.J)THEN
-               DO K=1,6
-                 SIGI(K,COMPT)=SIGI(K,J)
-               END DO
-               ID_SOLID_SIGI(COMPT)=ID_SOLID_SIGI(J)
-               DO K=8,10
-                 SIGI(K,COMPT)=SIGI(K,J)
-               END DO
-               DO K=1,NSIGI
-                 SIGSP(K,COMPT)=SIGSP(K,J)
-               END DO
-               ID_SOLID_SIGI(J)=0
-             END IF
-           END IF
-         END DO
-         NUMSOL=COMPT
-       END IF
+          ISYS=INDEX(1)
+          IE  =ID_SOLID_SIGI(ISYS)
+          DO J = 2, NUMSOL
+            JSYS=INDEX(J)
+            JE  =ID_SOLID_SIGI(JSYS)
+            IF(JE == IE)THEN
+              DO K=1,6
+                IF((SIGI(K,JSYS)/=ZERO) .AND.
+     .             (SIGI(K,ISYS)/=SIGI(K,JSYS))   )THEN
+                  IF(SIGI(K,ISYS)/=ZERO)THEN
+                    CALL ANCMSG(MSGID=597,
+     .                          MSGTYPE=MSGERROR,
+     .                          ANMODE=ANINFO_BLIND_1,
+     .                          I1=IE)
+                  ELSE
+                    SIGI(K,ISYS)=SIGI(K,JSYS)
+                  END IF
+                END IF
+              END DO
+              DO K=8,10
+                IF(SIGI(K,JSYS)/=ZERO .AND.
+     .             (SIGI(K,ISYS)/=SIGI(K,JSYS))   )THEN
+                  IF(SIGI(K,ISYS)/=ZERO)THEN
+                    CALL ANCMSG(MSGID=597,
+     .                          MSGTYPE=MSGERROR,
+     .                          ANMODE=ANINFO_BLIND_1,
+     .                          I1=IE)
+                  ELSE
+                    SIGI(K,ISYS)=SIGI(K,JSYS)
+                  END IF
+                END IF
+              END DO
+              DO K=1,NSIGI
+                IF(SIGSP(K,JSYS)/=ZERO .AND.
+     .             (SIGSP(K,ISYS)/=SIGSP(K,JSYS))   )THEN
+                  IF(SIGSP(K,ISYS)/=ZERO)THEN
+                    CALL ANCMSG(MSGID=597,
+     .                          MSGTYPE=MSGERROR,
+     .                          ANMODE=ANINFO_BLIND_1,
+     .                          I1=IE)
+                  ELSE
+                    SIGSP(K,ISYS)=SIGSP(K,JSYS)
+                  END IF
+                END IF
+              END DO
+              ID_SOLID_SIGI(JSYS)=0
+            ELSE
+              IE  =JE
+              ISYS=JSYS
+            END IF
+          END DO
+          COMPT=0
+          DO J=1,NUMSOL
+            IE=ID_SOLID_SIGI(J)
+            IF(IE/=0)THEN
+              COMPT=COMPT+1
+              IF(COMPT<J)THEN
+                DO K=1,6
+                  SIGI(K,COMPT)=SIGI(K,J)
+                END DO
+                ID_SOLID_SIGI(COMPT)=ID_SOLID_SIGI(J)
+                DO K=8,10
+                  SIGI(K,COMPT)=SIGI(K,J)
+                END DO
+                DO K=1,NSIGI
+                  SIGSP(K,COMPT)=SIGSP(K,J)
+                END DO
+                ID_SOLID_SIGI(J)=0
+              END IF
+            END IF
+          END DO
+          NUMSOL=COMPT
+        END IF
 C
-       IF(NUMSOL.GT.0)THEN
+        IF(NUMSOL>0)THEN
 C
-C        tri des elts du Y000 par ID croissant
-         DO ISYS = 1, NUMSOL
-             ITRI(ISYS) = ID_SOLID_SIGI(ISYS)
-         END DO
-         CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSOL,1)
-         DO J = 1, NUMSOL
-           ISYS=INDEX(J)
-           KSYSUSR(J)=ID_SOLID_SIGI(ISYS)
-           KSYSUSR(NUMSOL+J)=ISYS
-         END DO
+C        sorting elements of Y000 by ascending id
+          DO ISYS = 1, NUMSOL
+            ITRI(ISYS) = ID_SOLID_SIGI(ISYS)
+          END DO
+          CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSOL,1)
+          DO J = 1, NUMSOL
+            ISYS=INDEX(J)
+            KSYSUSR(J)=ID_SOLID_SIGI(ISYS)
+            KSYSUSR(NUMSOL+J)=ISYS
+          END DO
 C
-C        Nos systeme dans le Y000, des elts du D00
-         DO I=1,NUMELS
-           ISYS=UEL2SYS(IXS(NIXS,I),KSYSUSR,NUMSOL)
-           PTSOL(I) =ISYS
-         END DO
-       END IF
+C        our system in Y000, elements of D00
+          DO I=1,NUMELS
+            ISYS=UEL2SYS(IXS(NIXS,I),KSYSUSR,NUMSOL)
+            PTSOL(I) =ISYS
+          END DO
+        END IF
 C
 C QUAD 2D
 C
-!!       IF(NSLASH(KINIQUA).NE.0)THEN
-       IF(NUMQUAD.GT.0)THEN
+        IF(NUMQUAD>0)THEN
 C
-C        tri des elts de SIGI par ID croissant
-         DO ISYS = 1, NUMQUAD
-           ITRI(ISYS) = ID_QUAD_SIGI(ISYS)
-         END DO
-         CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMQUAD,1)
+C        sorting elements of SIGI by ascending id
+          DO ISYS = 1, NUMQUAD
+            ITRI(ISYS) = ID_QUAD_SIGI(ISYS)
+          END DO
+          CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMQUAD,1)
 C
 C        checking (search for multiply define) and compacting INIQUA
-         ISYS=INDEX(1)
-         IE  =ID_QUAD_SIGI(ISYS)
-         DO J = 2, NUMQUAD
-           JSYS=INDEX(J)
-           JE  =ID_QUAD_SIGI(JSYS)
-           IF(JE == IE)THEN
-             DO K=1,6
-               IF(SIGI(K,JSYS).NE.ZERO)THEN
-                 IF(SIGI(K,ISYS).NE.ZERO)THEN
-                   CALL ANCMSG(MSGID=598,
-     .                         MSGTYPE=MSGERROR,
-     .                         ANMODE=ANINFO_BLIND_1,
-     .                         I1=IE)
-                 ELSE
-                   SIGI(K,ISYS)=SIGI(K,JSYS)
-                 END IF
-               END IF
-             END DO
-             DO K=8,10
-               IF(SIGI(K,JSYS).NE.ZERO)THEN
-                 IF(SIGI(K,ISYS).NE.ZERO)THEN
-                   CALL ANCMSG(MSGID=598,
-     .                         MSGTYPE=MSGERROR,
-     .                         ANMODE=ANINFO_BLIND_1,
-     .                         I1=IE)
-                 ELSE
-                   SIGI(K,ISYS)=SIGI(K,JSYS)
-                 END IF
-               END IF
-             END DO
-             ID_QUAD_SIGI(JSYS)=ZERO
-           ELSE
-             IE  =JE
-             ISYS=JSYS
-           END IF
-         END DO
-         COMPT=0
-         DO J=1,NUMQUAD
-           IE=ID_QUAD_SIGI(J)
-           IF(IE.NE.0)THEN
-             COMPT=COMPT+1
-             IF(COMPT.LT.J)THEN
-               DO K=1,6
-                 SIGI(K,COMPT)=SIGI(K,J)
-               END DO
-               ID_QUAD_SIGI(COMPT)= ID_QUAD_SIGI(J)
-               DO K=8,10
-                 SIGI(K,COMPT)=SIGI(K,J)
-               END DO
-               ID_QUAD_SIGI(J)=ZERO
-             END IF
-           END IF
-         END DO
-         NUMQUAD=COMPT
-       END IF
+          ISYS=INDEX(1)
+          IE  =ID_QUAD_SIGI(ISYS)
+          DO J = 2, NUMQUAD
+            JSYS=INDEX(J)
+            JE  =ID_QUAD_SIGI(JSYS)
+            IF(JE == IE)THEN
+              DO K=1,6
+                IF(SIGI(K,JSYS)/=ZERO)THEN
+                  IF(SIGI(K,ISYS)/=ZERO)THEN
+                    CALL ANCMSG(MSGID=598,
+     .                          MSGTYPE=MSGERROR,
+     .                          ANMODE=ANINFO_BLIND_1,
+     .                          I1=IE)
+                  ELSE
+                    SIGI(K,ISYS)=SIGI(K,JSYS)
+                  END IF
+                END IF
+              END DO
+              DO K=8,10
+                IF(SIGI(K,JSYS)/=ZERO)THEN
+                  IF(SIGI(K,ISYS)/=ZERO)THEN
+                    CALL ANCMSG(MSGID=598,
+     .                          MSGTYPE=MSGERROR,
+     .                          ANMODE=ANINFO_BLIND_1,
+     .                          I1=IE)
+                  ELSE
+                    SIGI(K,ISYS)=SIGI(K,JSYS)
+                  END IF
+                END IF
+              END DO
+              ID_QUAD_SIGI(JSYS) = 0
+            ELSE
+              IE  =JE
+              ISYS=JSYS
+            END IF
+          END DO
+          COMPT=0
+          DO J=1,NUMQUAD
+            IE=ID_QUAD_SIGI(J)
+            IF(IE/=0)THEN
+              COMPT=COMPT+1
+              IF(COMPT<J)THEN
+                DO K=1,6
+                  SIGI(K,COMPT)=SIGI(K,J)
+                END DO
+                ID_QUAD_SIGI(COMPT)= ID_QUAD_SIGI(J)
+                DO K=8,10
+                  SIGI(K,COMPT)=SIGI(K,J)
+                END DO
+                ID_QUAD_SIGI(J) = 0
+              END IF
+            END IF
+          END DO
+          NUMQUAD=COMPT
+        END IF
 C
-       IF(NUMQUAD.GT.0)THEN
+        IF(NUMQUAD>0)THEN
 C
-C        tri des elts du Y000 par ID croissant
-         DO ISYS = 1, NUMQUAD
-             ITRI(ISYS) = ID_QUAD_SIGI(ISYS)
-         END DO
-         CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMQUAD,1)
-         DO J = 1, NUMQUAD
-           ISYS=INDEX(J)
-           KSYSUSR(J)=ID_QUAD_SIGI(ISYS)
-           KSYSUSR(NUMQUAD+J)=ISYS
-         END DO
+C        sorting elements of Y000 by ascending id
+          DO ISYS = 1, NUMQUAD
+            ITRI(ISYS) = ID_QUAD_SIGI(ISYS)
+          END DO
+          CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMQUAD,1)
+          DO J = 1, NUMQUAD
+            ISYS=INDEX(J)
+            KSYSUSR(J)=ID_QUAD_SIGI(ISYS)
+            KSYSUSR(NUMQUAD+J)=ISYS
+          END DO
 C
-C        Nos systeme dans le Y000, des elts du D00
-         DO I=1,NUMELQ
-           ISYS=UEL2SYS(IXQ(NIXQ,I),KSYSUSR,NUMQUAD)
-           PTQUAD(I) =ISYS
-         END DO
-       END IF
+C        our system in Y000, elements of D00
+          DO I=1,NUMELQ
+            ISYS=UEL2SYS(IXQ(NIXQ,I),KSYSUSR,NUMQUAD)
+            PTQUAD(I) =ISYS
+          END DO
+        END IF
 C
       END IF ! IF (ABS(ISIGI) == 3.OR.ABS(ISIGI) == 4.OR.ABS(ISIGI) == 5)
 C
 C SPH
 C
-      IF(NUMSPHY.GT.0)THEN
-C
-C       tri des elts du Y000 par ID croissant
+      IF(NUMSPHY>0 .AND. IS_STATE)THEN
+C      sorting elements Ids
         DO ISYS = 1, NUMSPHY
+          ITRI(ISYS) = ID_SIGSPHCEL(ISYS)
+        END DO
+        CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSPHY,1)
+C        checking INISPHCEL : search for multiply define
+        ISYS=INDEX(1)
+        IE = ID_SIGSPHCEL(ISYS)
+        
+        DO J = 2, NUMSPHY
+          JSYS=INDEX(J)
+          JE = ID_SIGSPHCEL(JSYS)
+          IF (JE == IE) THEN
+            DO K=1,NSIGSPH
+              IF (SIGSPH(K,JSYS) /= ZERO) THEN
+                IF (SIGSPH(K,ISYS) /= ZERO .AND.
+     .              SIGSPH(K,ISYS) /= SIGSPH(K,JSYS)) THEN
+                  CALL ANCMSG(MSGID=1234,
+     .                        MSGTYPE=MSGERROR,
+     .                        ANMODE=ANINFO_BLIND_1,
+     .                        I1=IE)
+                ELSE
+                  SIGSPH(K,ISYS)=SIGSPH(K,JSYS)
+                ENDIF
+              ENDIF
+            ENDDO
+            SIGSPH(1,JSYS)=ZERO
+            ID_SIGSPHCEL(JSYS)=0
+          ELSE
+            IE  =JE
+            ISYS=JSYS
+          ENDIF
+        ENDDO
+        COMPT=0
+        DO J=1,NUMSPHY
+          IE = ID_SIGSPHCEL(J)
+          IF (IE /= 0) THEN
+            COMPT=COMPT+1
+            IF (COMPT < J) THEN
+              DO K=1,NSIGSPH
+                SIGSPH(K,COMPT)=SIGSPH(K,J)
+              ENDDO
+              ID_SIGSPHCEL(COMPT)=ID_SIGSPHCEL(J)
+              SIGSPH(1,J)=ZERO
+              ID_SIGSPHCEL(J)=0
+            ENDIF
+          ENDIF
+        ENDDO
+        NUMSPHY=COMPT
+
+
+      ENDIF ! IF (NUMSPHY > 0)
+
+
+
+
+      IF (NUMSPHY > 0) THEN
+C      sorting elements Ids
+        DO ISYS = 1, NUMSPHY
+          IF(IS_STATE) THEN 
+            ITRI(ISYS) = ID_SIGSPHCEL(ISYS)
+          ELSE
             ITRI(ISYS) = NINT(SIGSPH(7,ISYS))
+          ENDIF
         END DO
         CALL MY_ORDERS(0,WORK,ITRI,INDEX,NUMSPHY,1)
         DO J = 1, NUMSPHY
           ISYS=INDEX(J)
-          KSYSUSR(J)=NINT(SIGSPH(7,ISYS))
+          IF(IS_STATE) THEN 
+            KSYSUSR(J) = ID_SIGSPHCEL(ISYS)
+          ELSE
+            KSYSUSR(J) = NINT(SIGSPH(7,ISYS))
+          ENDIF
           KSYSUSR(NUMSPHY+J)=ISYS
         END DO
 C
-C       Nos systeme dans le Y000, des elts du D00
         DO I=1,NUMSPH
           ISYS=UEL2SYS(KXSP(NISP*I),KSYSUSR,NUMSPHY)
           PTSPH(I) =ISYS
         END DO
       END IF
 C
-C Bizarement place (FA)
-      IF (ABS(ISIGI).LT.3) THEN
+      IF (ABS(ISIGI)<3) THEN
         KSIGSH3=1+NUMELC
       ELSE
         KSIGSH3=1+NUMSHEL
-      END IF 
+      END IF
 C
 C  SPRING
 C
       IF (NUMSPRI > 0) THEN
 C
         INISPRI = 1
-C        tri des elts du Y000 par ID croissant
+C        sorting elements of Y000 by ascending id
         DO ISYS = 1, NUMSPRI
           ITRI(ISYS) =ID_SIGSPRI(ISYS)
         ENDDO
@@ -519,7 +577,7 @@ C        checking INISPRI : search for multiply define
       ENDIF ! IF (NUMSPRI > 0)
 C
       IF (NUMSPRI > 0) THEN
-C       tri des elts du Y000 par ID croissant
+C       sorting elements of Y000 by ascending id
         DO ISYS = 1, NUMSPRI
           ITRI(ISYS) = ID_SIGSPRI(ISYS)
         ENDDO
@@ -530,7 +588,7 @@ C       tri des elts du Y000 par ID croissant
           KSYSUSR(NUMSPRI+J)=ISYS
         ENDDO
 C
-C        Nos systeme dans le Y000, des elts du D00
+C        our system in Y000, elements of D00
         DO I=1,NUMELR
           ISYS=UEL2SYS(IXR(NIXR,I),KSYSUSR,NUMSPRI)
           PTSPRI(I) =ISYS
@@ -540,7 +598,7 @@ C
 C  BEAM
 C
       IF (NUMBEAM > 0) THEN
-C        tri des elts du Y000 par ID croissant
+C        sorting elements of Y000 by ascending id
         DO ISYS = 1, NUMBEAM
           ITRI(ISYS) =ID_SIGBEAM(ISYS)
         ENDDO
@@ -591,7 +649,7 @@ C        checking INIBEAM : search for multiply define
       ENDIF ! IF (NUMBEAM > 0)
 C
       IF (NUMBEAM > 0) THEN
-C        tri des elts du Y000 par ID croissant
+C        sorting elements of Y000 by ascending id
         DO ISYS = 1, NUMBEAM
           ITRI(ISYS) = ID_SIGBEAM(ISYS)
         ENDDO
@@ -602,7 +660,7 @@ C        tri des elts du Y000 par ID croissant
           KSYSUSR(NUMBEAM+J)=ISYS
         ENDDO
 C
-C        Nos systeme dans le Y000, des elts du D00
+C        our system in Y000, elements of D00
         DO I=1,NUMELP
           ISYS=UEL2SYS(IXP(NIXP,I),KSYSUSR,NUMBEAM)
           PTBEAM(I) =ISYS
@@ -612,7 +670,7 @@ C
 C TRUSS
 C
       IF (NUMTRUS > 0) THEN
-C        tri des elts du Y000 par ID croissant
+C        sorting elements of Y000 by ascending id
         DO ISYS = 1, NUMTRUS
           ITRI(ISYS) =ID_SIGTRUSS(ISYS)
         ENDDO
@@ -663,7 +721,7 @@ C        checking INITRUSS : search for multiply define
       ENDIF ! IF (NUMTRUS > 0)
 C
       IF (NUMTRUS > 0) THEN
-C        tri des elts du Y000 par ID croissant
+C        sorting elements of Y000 by ascending id
         DO ISYS = 1, NUMTRUS
           ITRI(ISYS) = ID_SIGTRUSS(ISYS)
         ENDDO
@@ -674,7 +732,7 @@ C        tri des elts du Y000 par ID croissant
           KSYSUSR(NUMTRUS+J)=ISYS
         ENDDO
 C
-C        Nos systeme dans le Y000, des elts du D00
+C        our system in Y000, elements of D00
         DO I=1,NUMELT
           ISYS=UEL2SYS(IXT(NIXT,I),KSYSUSR,NUMTRUS)
           PTTRUSS(I) =ISYS

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMOM43                        source/elements/solid/sconnect/smom43.F
-Chd|-- called by -----------
-Chd|        SUSER43                       source/elements/solid/sconnect/suser43.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    smom43    ../engine/source/elements/solid/sconnect/smom43.F
+!||--- called by ------------------------------------------------------
+!||    suser43   ../engine/source/elements/solid/sconnect/suser43.F
+!||====================================================================
       SUBROUTINE SMOM43(NEL   ,
      .     F1X   ,F2X   ,F3X   ,F4X   ,F5X   ,F6X   ,F7X   ,F8X   ,
      .     F1Y   ,F2Y   ,F3Y   ,F4Y   ,F5Y   ,F6Y   ,F7Y   ,F8Y   ,
@@ -63,7 +62,7 @@ C     REAL
       my_real
      .  MXX(NEL),MYY(NEL),MZZ(NEL)
       my_real
-     .  MYZ,MZY,MZX,MXZ,MXY,MYX,FXX,FYY,FZZ,FA,FB,RAX,RBX,RAY,RBY,
+     .  MYZ,MZY,MZX,MXZ,MXY,MYX,FXX,FYY,FA,FB,RAX,RBX,RAY,RBY,
      .  D1,D2,DD
 C=======================================================================
       DO I=1,NEL
@@ -98,6 +97,7 @@ c
 c
 c---    Moments Mx, MY
 c
+        
         IF(TTHICK >ZERO)THEN
         MYZ = R1Y(I)*F1Z(I)+R2Y(I)*F2Z(I)+R3Y(I)*F3Z(I)+R4Y(I)*F4Z(I)
      .       +R5Y(I)*F5Z(I)+R6Y(I)*F6Z(I)+R7Y(I)*F7Z(I)+R8Y(I)*F8Z(I)
@@ -146,3 +146,4 @@ C---
 C-----------
       RETURN
       END
+

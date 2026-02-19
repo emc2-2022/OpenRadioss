@@ -1,53 +1,59 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 #include "my_real.inc"
-Chd|====================================================================
-Chd|  FINTER_SMOOTH                 source/tools/curve/finter_smooth.F
-Chd|-- called by -----------
-Chd|        DAASOLV                       source/fluid/daasolv.F        
-Chd|        DAASOLVP                      source/fluid/daasolvp.F       
-Chd|        FORCE                         source/loads/general/force.F  
-Chd|        FORCEFINGEO                   source/loads/general/forcefingeo.F
-Chd|        FORCEPINCH                    source/loads/general/forcepinch.F
-Chd|        GRAVIT                        source/loads/general/grav/gravit.F
-Chd|        GRAVIT_FVM_FEM                source/loads/general/grav/gravit_fvm_fem.F
-Chd|        GRAVIT_IMP                    source/loads/general/grav/gravit_imp.F
-Chd|        H3D_PRE_SKIN_SCALAR           source/output/h3d/h3d_results/h3d_skin_scalar.F
-Chd|        H3D_SKIN_VECTOR               source/output/h3d/h3d_results/h3d_skin_vector.F
-Chd|        INCPFLOW                      source/fluid/incpflow.F       
-Chd|        LAG_FXV                       source/tools/lagmul/lag_fxv.F 
-Chd|        LAG_FXVP                      source/tools/lagmul/lag_fxv.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    finter_smooth         ../engine/source/tools/curve/finter_smooth.F
+!||--- called by ------------------------------------------------------
+!||    daasolv               ../engine/source/fluid/daasolv.F
+!||    daasolvp              ../engine/source/fluid/daasolvp.F
+!||    ebcs11_propellant     ../engine/source/boundary_conditions/ebcs/ebcs11_propellant.F90
+!||    finter_mixed_mod      ../engine/source/tools/finter_mixed.F90
+!||    force                 ../engine/source/loads/general/force.F90
+!||    forcefingeo           ../engine/source/loads/general/forcefingeo.F
+!||    forcepinch            ../engine/source/loads/general/forcepinch.F
+!||    gravit                ../engine/source/loads/general/grav/gravit.F
+!||    gravit_fvm_fem        ../engine/source/loads/general/grav/gravit_fvm_fem.F
+!||    gravit_imp            ../engine/source/loads/general/grav/gravit_imp.F
+!||    h3d_pre_skin_scalar   ../engine/source/output/h3d/h3d_results/h3d_skin_scalar.F
+!||    h3d_skin_vector       ../engine/source/output/h3d/h3d_results/h3d_skin_vector.F
+!||    incpflow              ../engine/source/fluid/incpflow.F
+!||    lag_fxv               ../engine/source/tools/lagmul/lag_fxv.F
+!||    lag_fxvp              ../engine/source/tools/lagmul/lag_fxv.F
+!||====================================================================
       my_real FUNCTION FINTER_SMOOTH(IFUNC,XX,NPF,TF,DERI)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-      INTEGER IFUNC,NPF(*),I
-      my_real TF(*),DERI,XX,DX,DERI1,DERI2,DERI3,DX1,DX2,DIV0,DIV,
-     . XX_FIRST,XX_LAST
 C-----------------------------------------------
+C   L o c a l   V a r i a b l e s
+C-----------------------------------------------
+      INTEGER IFUNC,NPF(*),I
+      my_real TF(*),DERI,XX,DERI1,DERI2,DERI3,DX1,DX2,DIV0,DIV,XX_FIRST,XX_LAST
+C-----------------------------------------------
+C   B o d y
+C-----------------------------------------------
+      FINTER_SMOOTH = ZERO
 !
 !  smooth interpolation
 !
@@ -56,7 +62,7 @@ C-----------------------------------------------
       XX_LAST  = TF(NPF(IFUNC+1)-2)
 !
       IF ((NPF(IFUNC+1)-NPF(IFUNC)) == 2) THEN
-!     constant function
+!     Constant Function
         FINTER_SMOOTH = TF(NPF(IFUNC)+1)
         RETURN
       ELSE
@@ -102,12 +108,11 @@ C-----------------------------------------------
 !---
       RETURN
       END
-Chd|====================================================================
-Chd|  FINTER2_SMOOTH                source/tools/curve/finter_smooth.F
-Chd|-- called by -----------
-Chd|        FIXFINGEO                     source/constraints/general/impvel/fixfingeo.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    finter2_smooth   ../engine/source/tools/curve/finter_smooth.F
+!||--- called by ------------------------------------------------------
+!||    fixfingeo        ../engine/source/constraints/general/impvel/fixfingeo.F
+!||====================================================================
       my_real FUNCTION FINTER2_SMOOTH(TF,IAD,IPOS,ILEN,XX,DYDX)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s

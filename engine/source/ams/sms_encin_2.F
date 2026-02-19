@@ -1,54 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_ENCIN_2                   source/ams/sms_encin_2.F      
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_BCS                       source/ams/sms_bcs.F          
-Chd|        SMS_BCSCYC                    source/ams/sms_bcscyc.F       
-Chd|        SMS_FIXVEL                    source/ams/sms_fixvel.F       
-Chd|        SMS_MAV_LT                    source/ams/sms_pcg.F          
-Chd|        SMS_RBE3T1                    source/ams/sms_rbe3.F         
-Chd|        SMS_RBE_CNDS                  source/ams/sms_rbe2.F         
-Chd|        SMS_RBE_CORR                  source/ams/sms_rbe2.F         
-Chd|        SPMD_EXCH_A_RB6               source/mpi/kinematic_conditions/spmd_exch_a_rb6.F
-Chd|        SPMD_LIST_SMS                 source/mpi/ams/spmd_sms.F     
-Chd|        SPMD_MIJ_SMS                  source/mpi/ams/spmd_sms.F     
-Chd|        INTSTAMP_MOD                  share/modules/intstamp_mod.F  
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE SMS_ENCIN_2(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_encin_2       ../engine/source/ams/sms_encin_2.F
+!||--- called by ------------------------------------------------------
+!||    resol             ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg            ../engine/source/output/message/message.F
+!||    arret             ../engine/source/system/arret.F
+!||    my_barrier        ../engine/source/system/machine.F
+!||    sms_bcs           ../engine/source/ams/sms_bcs.F
+!||    sms_bcscyc        ../engine/source/ams/sms_bcscyc.F
+!||    sms_fixvel        ../engine/source/ams/sms_fixvel.F
+!||    sms_mav_lt        ../engine/source/ams/sms_pcg.F
+!||    sms_rbe3t1        ../engine/source/ams/sms_rbe3.F
+!||    sms_rbe_cnds      ../engine/source/ams/sms_rbe2.F
+!||    sms_rbe_corr      ../engine/source/ams/sms_rbe2.F
+!||    spmd_exch_a_rb6   ../engine/source/mpi/kinematic_conditions/spmd_exch_a_rb6.F
+!||    spmd_list_sms     ../engine/source/mpi/ams/spmd_sms.F
+!||    spmd_mij_sms      ../engine/source/mpi/ams/spmd_sms.F
+!||--- uses       -----------------------------------------------------
+!||    intstamp_mod      ../engine/share/modules/intstamp_mod.F
+!||    message_mod       ../engine/share/message_module/message_mod.F
+!||    output_mod        ../common_source/modules/output/output_mod.F90
+!||    sensor_mod        ../common_source/modules/sensor_mod.F90
+!||    timer_mod         ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE SMS_ENCIN_2(TIMERS,
      1        ITASK    ,NODFT    ,NODLT    ,NODXI_SMS,
      2        MS       ,JAD_SMS  ,JDI_SMS  ,LT_SMS    ,INDX1_SMS,
      3        DIAG_SMS ,IAD_ELEM ,FR_ELEM  ,WEIGHT    ,V        ,
      4        A        ,WV       ,WMV      ,WDG       ,XMOM_SMS ,
      5        ICODT    ,ICODR    ,ISKEW    ,SKEW      ,IBFV     ,
      6        VEL      ,NPC      ,TF       ,X         ,D        ,
-     7        SENSOR   ,LSENSOR  ,IFRAME   ,XFRAME    ,JADI_SMS ,
+     7        SENSORS  ,IFRAME   ,XFRAME    ,JADI_SMS ,
      8        JDII_SMS ,LTI_SMS  ,ISKYI_SMS ,MSKYI_SMS ,FR_SMS  ,
      9        FR_RMS   ,NPBY     ,TAGSLV_RBY_SMS,INTSTAMP,CPTREAC,
      A        NODREAC  ,FTHREAC  ,AR        ,VR        ,
@@ -57,19 +61,21 @@ Chd|====================================================================
      D        LRBE3    ,FRBE3    ,IAD_RBE3M,FR_RBE3M  ,FR_RBE3MP ,
      E        RRBE3    ,RRBE3_PON,IAD_RBY  ,FR_RBY6   ,RBY6      ,
      F        LPBY     ,TAGMSR_RBY_SMS,R3SIZE,NODII_SMS,INDX2_SMS,
-     G        IBCSCYC  ,LBCSCYC  )
+     G        IBCSCYC  ,LBCSCYC  ,OUTPUT, MSKYI_FI_SMS,LIST_SMS,
+     H        LIST_RMS ,VFI,sz_mw6,mw6)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE MOD_SMS_WORK
+      USE TIMER_MOD
       USE INTSTAMP_MOD
       USE MESSAGE_MOD
+      USE SENSOR_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -77,23 +83,22 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "intstamp_c.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
 #include      "scr07_c.inc"
 #include      "sms_c.inc"
 #include      "stati_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_) ,INTENT(INOUT) :: TIMERS
       INTEGER  ITASK, NODFT, NODLT, NODXI_SMS(*),
      .         JAD_SMS(*), JDI_SMS(*), INDX1_SMS(*),
      .         IAD_ELEM(2,NSPMD+1) ,FR_ELEM(*), WEIGHT(*),
      .         ICODT(*), ICODR(*), ISKEW(*),
-     .         NPC(*), IBFV(NIFV,*), LSENSOR(NSENSI,*), IFRAME(LISKN,*),
+     .         NPC(*), IBFV(NIFV,*),IFRAME(LISKN,*),
      .         JADI_SMS(*), JDII_SMS(*),CPTREAC,NODREAC(*),
      .         FR_SMS(NSPMD+1), FR_RMS(NSPMD+1), ISKYI_SMS(*),
      .         NPBY(NNPBY,*), TAGSLV_RBY_SMS(*),
@@ -106,22 +111,29 @@ C-----------------------------------------------
      .    MS(*), DIAG_SMS(*), LT_SMS(*),
      .    V(3,*), A(3,*), WV(3,*), WMV(3,*), WDG(*),  XMOM_SMS(3,*),
      .    SKEW(*), X(3,*), D(3,*), TF(*), VEL(LFXVELR,*),
-     .    SENSOR(NSENSR,*), XFRAME(NXFRAME,*),
-     .    LTI_SMS(*), MSKYI_SMS(*),FTHREAC(6,*),
+     .    XFRAME(NXFRAME,*),LTI_SMS(*), MSKYI_SMS(*),FTHREAC(6,*),
      .    AR(3,*), VR(3,*), DR(3,*), IN(*), RBY(NRBY,*),
      .    FRBE3(*), RRBE3(*)
+      my_real,dimension(fr_rms(nspmd+1)),intent(inout) :: MSKYI_FI_SMS
+      integer,dimension(fr_sms(nspmd+1)),intent(inout) :: LIST_SMS
+      integer,dimension(fr_rms(nspmd+1)),intent(inout) :: LIST_RMS
+      my_real, DIMENSION(3,FR_RMS(NSPMD+1)+FR_SMS(NSPMD+1) ), intent(inout):: VFI
+      integer,intent(in) :: SZ_mw6
+      my_real,dimension(6,SZ_mw6),intent(inout) :: MW6
       DOUBLE PRECISION RRBE3_PON(*)
       DOUBLE PRECISION RBY6(8,6,NRBYKIN)
       TYPE(INTSTAMP_DATA) INTSTAMP(*)
+      TYPE (SENSORS_)  ,INTENT(IN) :: SENSORS
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT !< output structure
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
       INTEGER NODFT1_SMS, NODLT1_SMS
       INTEGER NODFT2_SMS, NODLT2_SMS
-      INTEGER N, IBID, IPRI, INFO, ITHIS, IT, M, MSR, NN, IERROR,
-     .        I, IAD, NSN, K, KI, NRBDIM
+      INTEGER N, IPRI, INFO, ITHIS, IT, M, MSR, IERROR,
+     .        I, K, NRBDIM
       my_real
-     .        RBID, DT05, MAS, P1, P2, P3
+     .         DT05, MAS
 C-----
       INTEGER, DIMENSION(:), ALLOCATABLE :: IMV
       my_real
@@ -132,13 +144,13 @@ C-----
       DATA IT/0/
 C-----------------------------------------------
       IPRI=1
-      IF(T1S.EQ.TT)IPRI=MOD(NCYCLE,IABS(NCPRI))
+      IF(T1S==TT)IPRI=MOD(NCYCLE,IABS(NCPRI))
       INFO=MDESS-MANIM
       ITHIS=0
-      IF(TT.LT.THIS)ITHIS=1
-      IF(IPRI.NE.0.AND.ITHIS.NE.0.AND.
-     .   INFO.LE.0.AND.ISTAT.EQ.0
-     .   .AND.NTH.EQ.0.AND.NANIM.EQ.0) RETURN
+      IF(TT<OUTPUT%TH%THIS)ITHIS=1
+      IF(IPRI/=0.AND.ITHIS/=0.AND.
+     .   INFO<=0.AND.ISTAT==0
+     .   .AND.NTH==0.AND.NANIM==0) RETURN
 C
       IF(IPARIT/=0)THEN
         IF(DEBUG(9)==0)THEN
@@ -157,25 +169,7 @@ C
      .                C1='(/DT/.../AMS)')
           CALL ARRET(2)
         ENDIF
-        IF(ITASK==0)THEN
-          ALLOCATE(MW6(6,3*NUMNOD),STAT=IERROR)
-          IF(IERROR/=0) THEN
-            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .                  C1='(/DT/.../AMS)')
-            CALL ARRET(2)
-          ENDIF
-        END IF
       END IF
-      IF(ITASK==0)THEN
-        ALLOCATE(LIST_SMS(FR_SMS(NSPMD+1)),LIST_RMS(FR_RMS(NSPMD+1)),
-     .        MSKYI_FI_SMS(FR_RMS(NSPMD+1)),
-     .        VFI(3,FR_RMS(NSPMD+1)+FR_SMS(NSPMD+1)),STAT=IERROR)
-        IF(IERROR/=0) THEN
-          CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .                C1='(/DT/.../AMS)')
-          CALL ARRET(2)
-        ENDIF
-      ENDIF
 C
       IF(NSPMD > 1)THEN
         IF(ITASK==0)THEN
@@ -239,14 +233,14 @@ C
 C
         CALL MY_BARRIER()
 C
-        IF(ITASK==0) THEN   ! comm sur 1er thread
+        IF(ITASK==0) THEN   ! communication on the first thread
           CALL SPMD_MIJ_SMS(
      1           ISKYI_SMS,FR_SMS,FR_RMS,LIST_RMS,MSKYI_SMS,
      2           MSKYI_FI_SMS)
         END IF
       END IF
 C----
-      CALL SMS_MAV_LT(
+      CALL SMS_MAV_LT(TIMERS,
      1        NODFT   ,NODLT   ,NUMNOD ,JAD_SMS  ,JDI_SMS  ,
      2        ITASK   ,WDG     ,LT_SMS ,WV       ,WMV      ,
      3        NODFT1_SMS,NODLT1_SMS,INDX1_SMS,NODXI_SMS,IAD_ELEM ,
@@ -332,11 +326,11 @@ C       reimp wmv=0
 C
         IF(ITASK==0)
      .  CALL SMS_FIXVEL(IBFV   ,WMV     ,V     ,NPC    ,TF     ,
-     2                  VEL    ,DIAG_SMS,X     ,SKEW   ,SENSOR ,
-     3                  LSENSOR,WEIGHT  ,D     ,IFRAME ,XFRAME ,
+     2                  VEL    ,DIAG_SMS,X     ,SKEW   ,SENSORS%SENSOR_TAB,
+     3                  WEIGHT  ,D     ,IFRAME ,XFRAME ,SENSORS%NSENSOR,
      4                  -(IT+1),DIAG_SMS,NODXI_SMS,CPTREAC,
      5                  NODREAC,FTHREAC ,AR     ,VR       ,DR  ,
-     6                  IN     ,RBY     )
+     6                  IN     ,RBY     ,OUTPUT%TH%WFEXT)
       END IF
 C
       CALL MY_BARRIER
@@ -353,7 +347,7 @@ C----
 C-----------------------------------
 C RBE2
 C-----------------------------------
-      IF (NRBE2.GT.0.OR.R2SIZE.GT.0) THEN      
+      IF (NRBE2>0.OR.R2SIZE>0) THEN      
 C
         CALL MY_BARRIER
 C
@@ -376,7 +370,7 @@ C
 C-----------------------------------
 C RBE3
 C-----------------------------------
-      IF (NRBE3.GT.0)THEN
+      IF (NRBE3>0)THEN
         IF(ITASK==0)THEN
           CALL SMS_RBE3T1(
      1      IRBE3 ,LRBE3  ,X        ,XMOM_SMS,FRBE3    ,
@@ -388,11 +382,8 @@ C
 C
       END IF
 C
-      IF(ITASK==0)DEALLOCATE(LIST_SMS,LIST_RMS,
-     .        MSKYI_FI_SMS,VFI)
       IF(IPARIT/=0)THEN
         DEALLOCATE(IMV, MV, MV6)
-        IF(ITASK==0)DEALLOCATE(MW6)
       END IF
 C
 C     fin section //

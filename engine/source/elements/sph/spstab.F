@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPSTABW                       source/elements/sph/spstab.F  
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|-- calls ---------------
-Chd|        WEIGHT0                       source/elements/sph/weight.F  
-Chd|        GET_U_GEO                     source/user_interface/upidmid.F
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spstabw   ../engine/source/elements/sph/spstab.F
+!||--- called by ------------------------------------------------------
+!||    forintp   ../engine/source/elements/forintp.F
+!||--- calls      -----------------------------------------------------
+!||    weight0   ../engine/source/elements/sph/weight.F
+!||--- uses       -----------------------------------------------------
+!||    sphbox    ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPSTABW(
      1    ITASK     ,IPARG     ,NGROUNC   ,IGROUNC   ,KXSP      ,
      2    ISPCOND   ,ISPSYM    ,WASPACT   ,SPH2SOL   ,WA        ,
@@ -38,37 +38,24 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE SPHBOX
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr02_c.inc"
 #include      "scr17_c.inc"
-#include      "scr18_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ITASK, IPARG(NPARG,*), NGROUNC, IGROUNC(*), KXSP(NISP,*),
      .        ISPCOND(NISPCOND,*),  ISPSYM(NSPCOND,*), WASPACT(*), 
      .        SPH2SOL(*), IXSP(KVOISPH,*), NOD2SP(*), IPART(LIPART1,*),
      .        IPARTSP(*)
-C     REAL
       my_real
      .   WA(KWASPH,*), WASIGSM(6,*), WAR(10,*), STAB(7,*), 
      .   SPBUF(NSPBUF,*), X(3,*), XSPSYM(3,*)
@@ -79,12 +66,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, NS, INOD, JNOD, M, NVOIS, NN, 
-     .        NSPACTF, NSPACTL, IPRT, IGEO, ID, IS,
-     .        NVOISS, JS, SM, NC, IACT
+      INTEGER  J, N, NS, INOD, JNOD, M, NVOIS, NN, 
+     .        NSPACTF, NSPACTL, IPRT, IGEO,
+     .          IACT
       my_real
-     .       XI, YI, ZI, XJ, YJ, ZJ, DI, DMIN, DD, WGHT,
-     .       XS, YS, ZS, ZSTAB,NUL,UNO
+     .       XI, YI, ZI, DI, DD, WGHT,
+     .          ZSTAB,NUL,UNO
 C-----------------------------------------------
       NUL=ZERO
       UNO=ONE
@@ -102,18 +89,18 @@ C-----------------------------------------------
         IGEO  =IPART(2,IPRT)
         ZSTAB =GET_U_GEO(7,IGEO)
 C
-C indique si il faut calculer SI =-MAX(ZERO,SI)
-C         <=> ZSTAB/=0 et il existe voisin a prendre en compte dans spforcp.F
+C Indicate if it is necessary to calculate if = -Max (zero, if)
+C         <=> zstab/= 0 and there is neighbor to take into account in Sporcp.f
         STAB(7,N)=ZERO
         IF(ZSTAB/=ZERO.AND.NVOIS/=0)THEN
           IACT=0
           DO J=1,NVOIS
            JNOD=IXSP(J,N)
-           IF(JNOD.GT.0)THEN
+           IF(JNOD>0)THEN
             M=NOD2SP(JNOD)
 C
 C Solids to SPH, no interaction if both particles are inactive
-            IF(KXSP(2,N).GT.0.OR.KXSP(2,M).GT.0)THEN
+            IF(KXSP(2,N)>0.OR.KXSP(2,M)>0)THEN
               IACT=1
               EXIT
             END IF
@@ -121,7 +108,7 @@ C Solids to SPH, no interaction if both particles are inactive
             NN = -JNOD
 C
 C Solidds to SPH, no interaction if both particles are inactive
-            IF(KXSP(2,N).GT.0.OR.XSPHR(13,NN).GT.0)THEN
+            IF(KXSP(2,N)>0.OR.XSPHR(13,NN)>0)THEN
               IACT=1
               EXIT
             END IF
@@ -130,8 +117,8 @@ C Solidds to SPH, no interaction if both particles are inactive
           IF(IACT==1) THEN
 C-- W(DP)-- DP is the distance of the PPV in initial configuration
 C-- DD = DP/H
-            IF (SPBUF(13,N).GT.EM30) THEN
-              DD = SPBUF(13,N)
+            IF (SPBUF(15,N)>EM30) THEN
+              DD = SPBUF(15,N)
             ELSE
               DD=TWO/THREE
             ENDIF
@@ -143,17 +130,18 @@ C-- DD = DP/H
 C----------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SPSTABS                       source/elements/sph/spstab.F  
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPH_VALPVEC                   source/elements/sph/spstab.F  
-Chd|        STARTIMEG                     source/system/timer.F         
-Chd|        STOPTIMEG                     source/system/timer.F         
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|====================================================================
+!||====================================================================
+!||    spstabs       ../engine/source/elements/sph/spstab.F
+!||--- called by ------------------------------------------------------
+!||    forintp       ../engine/source/elements/forintp.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier    ../engine/source/system/machine.F
+!||    sph_valpvec   ../engine/source/elements/sph/spstab.F
+!||    startimeg     ../engine/source/system/timer.F
+!||    stoptimeg     ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    sphbox        ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPSTABS(
      1    ITASK     ,IPARG     ,NGROUNC   ,IGROUNC   ,KXSP      ,
      2    ISPCOND   ,ISPSYM    ,WASPACT   ,SPH2SOL   ,WA        ,
@@ -163,7 +151,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE SPHBOX
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
@@ -175,18 +163,10 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr02_c.inc"
-#include      "scr17_c.inc"
-#include      "scr18_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ITASK, IPARG(NPARG,*), NGROUNC, IGROUNC(*), KXSP(NISP,*),
@@ -202,14 +182,14 @@ C-----------------------------------------------
       INTEGER I, J, N, NINDX, INDEX(MVSIZ), KS, JS, SM, SS, KR, NR,
      .        IG, NELEM, NG, OFFSET, NEL,
      .        NC, IC, IS, ISLIDE, NSPHRFT, NSPHRLT, L, SIZE,
-     .        NS, INOD, JNOD, M, NVOIS, 
+     .          
      .        NSPACTF, NSPACTL
       my_real
      .       SIGPRV(3,MVSIZ), DIRPRV(3,3,MVSIZ),
-     .       R1, R2, R3, XI, YI, ZI, XJ, YJ, ZJ, DI, DMIN, DD, WGHT,
-     .       XS, YS, ZS, SIG(6,MVSIZ)
+     .       R1, R2, R3,
+     .          SIG(6,MVSIZ)
 C-----------------------------------------------
-C Boucle parallele dynamique SMP
+C SMP dynamic parallel loop
 C
 !$OMP DO SCHEDULE(DYNAMIC,1)
 c------------------------
@@ -217,8 +197,8 @@ c------------------------
         NG = IGROUNC(IG)         
 C--------
 C Solids to SPH, particles must be computed when cloud active
-        IF(IPARG(8,NG).EQ.1)GOTO 350
-        IF (IDDW.GT.0) CALL STARTIMEG(NG)
+        IF(IPARG(8,NG)==1)GOTO 350
+        IF (IDDW>0) CALL STARTIMEG(NG)
         DO NELEM = 1,IPARG(2,NG),NVSIZ
           OFFSET = NELEM - 1
           NEL   =IPARG(2,NG)
@@ -229,7 +209,7 @@ C Solids to SPH, particles must be computed when cloud active
           IPARTSPH=0
           LFT=1
           LLT=MIN(NVSIZ,NEL-NELEM+1)
-          IF(ITY.EQ.51) THEN
+          IF(ITY==51) THEN
 C-----------
             NINDX=0
             DO I=LFT,LLT
@@ -240,10 +220,10 @@ C-----------
               END IF
             END DO
 C----------------------------------
-C           Eigenvalues needed to be calcultated in double precision
+C           Eigenvalues needed to be calculated in double precision
 C           for a simple precision executing
             SIZE=KWASPH
-c           IF (IRESP.EQ.1) THEN
+c           IF (IRESP==1) THEN
 c             CALL VALPVECDP(AV,SIGPRV,DIRPRV,NEL)
 c           ELSE
             CALL SPH_VALPVEC(NINDX,INDEX,SIZE,WA(1,NFT+1),SIGPRV,DIRPRV)
@@ -280,7 +260,7 @@ c          STAB(5,N)=ZERO
 c          STAB(6,N)=ZERO
             END DO
           ENDIF
-          IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+          IF (IDDW>0) CALL STOPTIMEG(NG)
         END DO
 C--------
  350    CONTINUE
@@ -299,10 +279,10 @@ C----------------------------------
           END IF
         ENDDO
 C----------------------------------
-C       Eigenvalues needed to be calcultated in double precision
+C       Eigenvalues needed to be calculated in double precision
 C       for a simple precision executing
         SIZE=10
-c       IF (IRESP.EQ.1) THEN
+c       IF (IRESP==1) THEN
 c         CALL VALPVECDP(AV,SIGPRV,DIRPRV,NEL)
 c       ELSE
         CALL SPH_VALPVEC(NINDX,INDEX,SIZE,WAR(1,N),SIGPRV,DIRPRV)
@@ -343,7 +323,7 @@ c          STAB(6,KR)=ZERO
       END DO
 C----------------------------------
 C
-C Particules symetriques
+C Symmetrical particles
 C
 C     /---------------/
        CALL MY_BARRIER
@@ -354,12 +334,12 @@ C     /---------------/
         IC=ISPCOND(2,NC)
         IS=ISPCOND(3,NC)
         ISLIDE=ISPCOND(5,NC)
-        IF(ISLIDE.EQ.0)THEN
+        IF(ISLIDE==0)THEN
           DO SS=NSPACTF,NSPACTL
            SM=WASPACT(SS)
            JS=ISPSYM(NC,SM)
            KS=NUMSPH+NSPHR+JS
-           IF(JS.GT.0.AND.STAB(7,SM)/=ZERO)THEN
+           IF(JS>0.AND.STAB(7,SM)/=ZERO)THEN
 C nothing changes
              STAB(1,KS)=STAB(1,SM)
              STAB(2,KS)=STAB(2,SM)
@@ -369,7 +349,7 @@ C nothing changes
              STAB(6,KS)=STAB(6,SM)
            END IF
           END DO
-        ELSE !IF(ISLIDE.EQ.0)THEN
+        ELSE !IF(ISLIDE==0)THEN
          DO IS=NSPACTF,NSPACTL,MVSIZ
            NINDX=0
            DO L=1,MIN(NSPACTL-IS+1,MVSIZ)
@@ -377,7 +357,7 @@ C nothing changes
              SM=WASPACT(SS)
              JS=ISPSYM(NC,SM)
              KS=NUMSPH+NSPHR+JS
-             IF(JS.GT.0.AND.STAB(7,SM)/=ZERO)THEN
+             IF(JS>0.AND.STAB(7,SM)/=ZERO)THEN
                NINDX=NINDX+1
                INDEX(NINDX)=NINDX
                SIG(1,NINDX)=WASIGSM(1,JS)
@@ -396,7 +376,7 @@ C nothing changes
              SM=WASPACT(SS)
              JS=ISPSYM(NC,SM)
              KS=NUMSPH+NSPHR+JS
-             IF(JS.GT.0.AND.STAB(7,SM)/=ZERO)THEN
+             IF(JS>0.AND.STAB(7,SM)/=ZERO)THEN
                NINDX=NINDX+1
                R1=-MAX(ZERO,SIGPRV(1,NINDX))
                R2=-MAX(ZERO,SIGPRV(2,NINDX))
@@ -432,17 +412,17 @@ c          STAB(6,KS)=ZERO
       END DO
 C-----
 C
-C Particules symetriques de particules remotes
+C Symmetrical particles of remote particles
 C
       DO NC=1,NSPCOND
         IC=ISPCOND(2,NC)
         IS=ISPCOND(3,NC)
         ISLIDE=ISPCOND(5,NC)
-        IF(ISLIDE.EQ.0)THEN
+        IF(ISLIDE==0)THEN
           DO SS=NSPHRFT,NSPHRLT
            JS=ISPSYMR(NC,SS)
            KS=NUMSPH+NSPHR+JS
-           IF(JS.GT.0.AND.STAB(7,NUMSPH+SS)/=ZERO)THEN
+           IF(JS>0.AND.STAB(7,NUMSPH+SS)/=ZERO)THEN
 C nothing changes
              STAB(1,KS)=STAB(1,NUMSPH+SS)
              STAB(2,KS)=STAB(2,NUMSPH+SS)
@@ -452,14 +432,14 @@ C nothing changes
              STAB(6,KS)=STAB(6,NUMSPH+SS)
            END IF
           END DO
-        ELSE !IF(ISLIDE.EQ.0)THEN
+        ELSE !IF(ISLIDE==0)THEN
          DO IS=NSPHRFT,NSPHRLT,MVSIZ
            NINDX=0
            DO L=1,MIN(NSPHRLT-IS+1,MVSIZ)
              SS=IS+L-1
              JS=ISPSYMR(NC,SS)
              KS=NUMSPH+NSPHR+JS
-             IF(JS.GT.0.AND.STAB(7,NUMSPH+SS)/=ZERO)THEN
+             IF(JS>0.AND.STAB(7,NUMSPH+SS)/=ZERO)THEN
                NINDX=NINDX+1
                INDEX(NINDX)=NINDX
                SIG(1,NINDX)=WASIGSM(1,JS)
@@ -477,7 +457,7 @@ C nothing changes
              SS=IS+L-1
              JS=ISPSYMR(NC,SS)
              KS=NUMSPH+NSPHR+JS
-             IF(JS.GT.0.AND.STAB(7,NUMSPH+SS)/=ZERO)THEN
+             IF(JS>0.AND.STAB(7,NUMSPH+SS)/=ZERO)THEN
                NINDX=NINDX+1
                R1=-MAX(ZERO,SIGPRV(1,NINDX))
                R2=-MAX(ZERO,SIGPRV(2,NINDX))
@@ -515,13 +495,13 @@ C----------------------------------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPH_VALPVEC                   source/elements/sph/spstab.F  
-Chd|-- called by -----------
-Chd|        SPSTABS                       source/elements/sph/spstab.F  
-Chd|-- calls ---------------
-Chd|        FLOATMIN                      ../common_source/tools/math/precision.c
-Chd|====================================================================
+!||====================================================================
+!||    sph_valpvec   ../engine/source/elements/sph/spstab.F
+!||--- called by ------------------------------------------------------
+!||    spstabs       ../engine/source/elements/sph/spstab.F
+!||--- calls      -----------------------------------------------------
+!||    floatmin      ../common_source/tools/math/precision.c
+!||====================================================================
       SUBROUTINE SPH_VALPVEC(NINDX,INDEX,SIZE,SIG,VAL,VEC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -532,10 +512,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "sphcom.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NINDX, INDEX(*), SIZE
@@ -544,7 +520,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, L, N, II, NN, LMAX, LMAXV(MVSIZ),
+      INTEGER   N, II, NN, LMAX, LMAXV(MVSIZ),
      .       NINDEX1, NINDEX2, NINDEX3, 
      .       INDEX1(MVSIZ), INDEX2(MVSIZ), INDEX3(MVSIZ)
       my_real
@@ -552,21 +528,21 @@ C-----------------------------------------------
      .   XMAG(3,MVSIZ), PR, AA, BB, AAA(MVSIZ),
      .   CC, ANGP, DD, FTPI, TTPI, STRMAX,
      .   TOL1(MVSIZ), TOL2(MVSIZ), XMAXV(MVSIZ), NORMINF(MVSIZ), 
-     .   VMAG, S11,
-     .   S21, S31, S12, S22, S32, S13, S23, S33, A11, A12, A13, A21,
-     .   A22, A23, A31, A32, A33,
+     .   VMAG,
+     .      
+     .       
      .   MDEMI, XMAXINV, FLM
       REAL FLMIN
 C-----------------------------------------------
 C     DATA FTPI,TTPI / 4.188790205, 2.094395102 /
 C     FTPI=(4/3)*PI, TTPI=(2/3)*PI
 C
-C     DEVIATEUR PRINCIPAL DE CONTRAINTE
+C     PRINCIPAL STRESS DEVIATOR
 C . . . . . . . . . . . . . . . . . . .
       MDEMI = -HALF
       TTPI = ACOS(MDEMI)
       FTPI = TWO*TTPI
-C precision minimum dependant du type REAL ou DOUBLE
+C minimum precision depending on REAL or DOUBLE type
       CALL FLOATMIN(CS(1),CS(2),FLMIN)
       FLM = TWO*SQRT(FLMIN)
       NINDEX3=0  
@@ -607,9 +583,9 @@ C
         VAL(1,NN) = STR(1,NN)-PR
         VAL(2,NN) = STR(2,NN)-PR
         VAL(3,NN) = STR(3,NN)-PR
-C renforcement de precision en compression----
-        IF(ABS(STR(3,NN)).GT.ABS(STR(1,NN))
-     &     .AND.AAA(NN).GT.NORMINF(NN)) THEN
+C accuracy reinforcement in compression ----
+        IF(ABS(STR(3,NN))>ABS(STR(1,NN))
+     &     .AND.AAA(NN)>NORMINF(NN)) THEN
          AA=STR(1,NN)
          STR(1,NN)=STR(3,NN)
          STR(3,NN)=AA
@@ -661,14 +637,14 @@ C
       DO II = 1, NINDX
         NN=INDEX(II)
         XMAXV(NN)=MAX(XMAG(1,NN),XMAG(2,NN),XMAG(3,NN))
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
         ENDIF
-        IF(AAA(NN).LT.NORMINF(NN)) THEN
+        IF(AAA(NN)<NORMINF(NN)) THEN
           VAL(1,NN) = SIG(1,NN)
           VAL(2,NN) = SIG(2,NN)
           VAL(3,NN) = SIG(3,NN)
@@ -679,7 +655,7 @@ C
           V(2,2,NN) = ONE
           V(3,2,NN) = ZERO
 
-        ELSEIF(XMAXV(NN).GT.TOL1(NN)) THEN
+        ELSEIF(XMAXV(NN)>TOL1(NN)) THEN
           NINDEX1 = NINDEX1 + 1
           INDEX1(NINDEX1) = NN
         ELSE
@@ -719,9 +695,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX1
         NN = INDEX1(N)
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -729,7 +705,7 @@ C
 C
         VMAG=SQRT(V(1,1,NN)**2+V(2,1,NN)**2)
         LMAX = LMAXV(NN)
-        IF(XMAXV(NN).GT.TOL2(NN))THEN
+        IF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,3,NN)=B(1,LMAX,NN)*XMAXINV
           V(2,3,NN)=B(2,LMAX,NN)*XMAXINV
@@ -741,7 +717,7 @@ C
           V(1,2,NN)=V(1,2,NN)*VMAG
           V(2,2,NN)=V(2,2,NN)*VMAG
           V(3,2,NN)=V(3,2,NN)*VMAG
-        ELSEIF(VMAG.GT.TOL2(NN))THEN
+        ELSEIF(VMAG>TOL2(NN))THEN
           V(1,2,NN)=-V(2,1,NN)/VMAG
           V(2,2,NN)=V(1,1,NN)/VMAG
           V(3,2,NN)=ZERO
@@ -766,9 +742,9 @@ C
 #include      "vectorize.inc"
       DO N = 1, NINDEX2
         NN = INDEX2(N)
-        IF(XMAG(1,NN).EQ.XMAXV(NN)) THEN
+        IF(XMAG(1,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 1
-        ELSEIF(XMAG(2,NN).EQ.XMAXV(NN)) THEN
+        ELSEIF(XMAG(2,NN)==XMAXV(NN)) THEN
           LMAXV(NN) = 2
         ELSE
           LMAXV(NN) = 3
@@ -776,7 +752,7 @@ C
 C
         LMAX = LMAXV(NN)
         IF(MAX(ABS(A(3,1,NN)),ABS(A(3,2,NN)),ABS(A(3,3,NN)))
-     &       .LT.TOL2(NN))THEN
+     &       <TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,1,NN)= ZERO
           V(2,1,NN)= ZERO
@@ -785,7 +761,7 @@ C
           V(2,2,NN)= A(1,LMAX,NN)*XMAXINV
           V(3,2,NN)= ZERO
 C
-        ELSEIF(XMAXV(NN).GT.TOL2(NN))THEN
+        ELSEIF(XMAXV(NN)>TOL2(NN))THEN
           XMAXINV = ONE/XMAXV(NN)
           V(1,1,NN)=-A(2,LMAX,NN)*XMAXINV
           V(2,1,NN)= A(1,LMAX,NN)*XMAXINV
@@ -803,7 +779,7 @@ C
           V(3,1,NN) = ZERO
           V(1,2,NN) = ZERO
           V(2,2,NN) = ONE
-          V(3,2,NN) = ZERO	  
+          V(3,2,NN) = ZERO    
         ENDIF
       ENDDO
 C
@@ -819,10 +795,10 @@ C
         VEC(8,NN)=VEC(3,NN)*VEC(4,NN)-VEC(1,NN)*VEC(6,NN)
         VEC(9,NN)=VEC(1,NN)*VEC(5,NN)-VEC(2,NN)*VEC(4,NN)
       ENDDO
-C reecriture pour contourner probleme sur itanium2 comp 9. + latency=16
+C Rewriting to bypass problem on itanium2 comp 9. + latency = 16
       DO N = 1, NINDEX3
         NN = INDEX3(N)
-C str utilise com tableau temporaire au lieu de scalaires temporaires
+C Str uses temporary table instead of temporary scalars
         STR(1,NN)=VEC(7,NN)
         STR(2,NN)=VEC(8,NN)
         STR(3,NN)=VEC(9,NN)

@@ -1,54 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  C_FRONT                       source/restart/ddsplit/c_front.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        C_IFRONT                      source/spmd/node/ddtools.F    
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    c_front            ../starter/source/restart/ddsplit/c_front.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit            ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    c_ifront           ../starter/source/spmd/node/ddtools.F
+!||    nlocal             ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod          ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE C_FRONT(PROC     ,NBDDACC,NBDDKIN,NBDDNRB,
      2                   NPBY     ,NRBYKIN_L,LJOINT ,NBDDNCJ,IBVEL  ,
      3                   NBDDNRBM ,IADLL    ,LLL    ,NLAGF_L,FRONT_RM,
-     4                   NRBYMK_L ,NBDDNRBYM, USERNODS,SFR_USERWI_L,
+     4                   NRBYMK_L ,NBDDNRBYM, 
      5                   SDD_R2R_ELEM,ADDCSRECT,CSRECT,NBDDNORT,NBDDNOR_MAX,
      6                   NBCCNOR,NBCCFR25,NBDDEDGT  ,NBDDEDG_MAX,NRTMX25   ,
      7                   IPARI  ,INTBUF_TAB,INTERCEP,NODGLOB    ,NODLOCAL  ,
-     8                   NUMNOD_L)
+     8                   NUMNOD_L,NLOC_DMG)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE FRONT_MOD
-      USE INTBUFDEF_MOD  
+      USE INTBUFDEF_MOD
+      USE USER_WINDOWS_MOD  
+      USE NLOCAL_REG_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -57,7 +58,6 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "lagmult.inc"
 #include      "r2r_c.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -66,13 +66,14 @@ C-----------------------------------------------
      .          NBDDNOR_MAX, NBCCNOR, NBCCFR25, NBDDEDGT,NBDDEDG_MAX,NRTMX25,
      .          NPBY(NNPBY,*), LJOINT(*),
      .          IBVEL(NBVELP,*) , IADLL(*), LLL(*),FRONT_RM(NRBYM,*),
-     .          USERNODS(*),SFR_USERWI_L,SDD_R2R_ELEM,
+     .          SDD_R2R_ELEM,
      .          ADDCSRECT(*), CSRECT(*), IPARI(NPARI,*)
        INTEGER, INTENT(IN) :: NUMNOD_L
        INTEGER, DIMENSION(NUMNOD_L), INTENT(IN) :: NODGLOB
        INTEGER, DIMENSION(NUMNOD), INTENT(IN) :: NODLOCAL
        TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
        TYPE(INTERSURFP) :: INTERCEP(3,NINTER)
+       TYPE (NLOCAL_STR_), TARGET, INTENT(IN)  :: NLOC_DMG
 !       -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 !       NODGLOB   : integer, dimension=NUMNOD_L
 !                   gives the global ID of a local element
@@ -97,7 +98,7 @@ C-----------------------------------------------
      .        IFRLAG(NSPMD),CPT,
      .        NADMSR, NADMSR_L, NI, NTY, NI25, NBDDNOR, NRTM, ISHIFT,
      .        N1, N2, N3, N4, ISBOUND,
-     .        NRTM_L, NBDDEDG, II
+     .        NRTM_L, NBDDEDG, II, NB
       INTEGER, DIMENSION(:), ALLOCATABLE :: TAG_SM, TAG_MS, ITAG
       INTEGER TAGP(NSPMD)
 ! ------------------------------------------------------------
@@ -105,7 +106,7 @@ C-----------------------------------------------
       ALLOCATE( ITAG(NUMNOD) )
 ! ------------------------------
 C
-C Frontiere domdec pure
+C Pure Domdec boundary
 C
       NBDDACC = 0
       NBDDKIN = 0
@@ -116,13 +117,13 @@ C
           CALL C_IFRONT(I,CPT)
           !returns in CPT the number of procs on which node I is sticked  
           IF(FLAGKIN(I)==0)THEN
-           !FLAGKIN array identies boundary nodes with kinematic constraints
+           !FLAGKIN array identities boundary nodes with kinematic constraints
            !(FLAGKIN(N)=1 <=> old FRONT TAG=10)  
            !FLAGKIN(N) can be set to one only for first SPMD domain       
            !Add CPT-1 in order to don't take into account current proc himself
             NBDDACC = NBDDACC + (CPT - 1)
           ELSE
-            IF(PROC.NE.1)THEN
+            IF(PROC/=1)THEN
               !add only one time when PROC ne 1 and FLAGKIN(I)=1
               NBDDKIN = NBDDKIN + 1
               !do not count proc itself and proc 1
@@ -134,14 +135,18 @@ C
           ENDIF
       ENDDO
 C
-C Frontiere Multidomaines
+C Multidoman boundary
 C      
       SDD_R2R_ELEM = 0       
-      IF ((NSUBDOM.GT.0).AND.(IDDOM.EQ.0)) THEN
-        SDD_R2R_ELEM = 2*(NBDDKIN + NBDDACC)       
+      IF ((NSUBDOM>0).AND.(IDDOM==0)) THEN
+        IF (NLOC_DMG%IMOD > 0) THEN
+          SDD_R2R_ELEM = 4*(NBDDKIN + NBDDACC)
+        ELSE
+          SDD_R2R_ELEM = 2*(NBDDKIN + NBDDACC)
+        ENDIF       
       ENDIF     
 C
-C Frontiere RBY (main nodes)
+C RBY boundary (main nodes)
 C
       NBDDNRB = 0
       NRBYKIN_L = 0
@@ -150,7 +155,7 @@ C
         IF(NODLOCAL(M)/=0.AND.NODLOCAL(M)<=NUMNOD_L)THEN
           NRBYKIN_L = NRBYKIN_L + 1
           DO P = 1, NSPMD
-            IF(P.NE.PROC) THEN
+            IF(P/=PROC) THEN
               IF(NLOCAL(M,P)==1) THEN
                 NBDDNRB = NBDDNRB + 1
               ENDIF
@@ -159,7 +164,7 @@ C
         ENDIF
       ENDDO
 C
-C Frontiere Cyl. JOINT (proc0)
+C CYL front.Joint (PROC0)
 C
       NBDDNCJ = 0
       K = 1
@@ -167,13 +172,13 @@ C
         NSN=LJOINT(K)
         DO J = 1, NSN
           M = LJOINT(K+J)
-          IF(PROC.NE.1) THEN
-C proc <> 0, frontiere si noeud sur le proc
+          IF(PROC/=1) THEN
+C proc <> 0, boundary if node is on the processor
              IF(NODLOCAL(M)/=0.AND.NODLOCAL(M)<=NUMNOD_L)THEN
               NBDDNCJ = NBDDNCJ + 1
             END IF
           ELSE
-C proc = 0, recherche des autres procs ayant le noeud
+C proc = 0, search for other processors having the node
             DO P = 2, NSPMD
               IF(NLOCAL(M,P)==1) THEN
                 NBDDNCJ = NBDDNCJ + 1
@@ -184,14 +189,14 @@ C proc = 0, recherche des autres procs ayant le noeud
         K = K + NSN + 1
       END DO
 C
-C Frontiere RBY MOU (main nodes)
+C MOU RBY Frontier (Nodes)
 C
       NBDDNRBM = 0
       DO N = 1, NIBVEL
         M=IBVEL(4,N)
         IF(NODLOCAL(M)/=0.AND.NODLOCAL(M)<=NUMNOD_L)THEN
           DO P = 1, NSPMD
-            IF(P.NE.PROC) THEN
+            IF(P/=PROC) THEN
               IF(NLOCAL(M,P)==1) THEN         
                 NBDDNRBM = NBDDNRBM + 1
               ENDIF
@@ -205,11 +210,11 @@ C
       NBDDNRBYM = 0
       NRBYMK_L = 0
       DO N = 1, NRBYM
-        IF(MOD(FRONT_RM(N,PROC),10).EQ.1)THEN
+        IF(MOD(FRONT_RM(N,PROC),10)==1)THEN
           NRBYMK_L = NRBYMK_L + 1
           DO P = 1, NSPMD
-            IF(P.NE.PROC) THEN
-              IF(MOD(FRONT_RM(N,P),10).EQ.1) THEN
+            IF(P/=PROC) THEN
+              IF(MOD(FRONT_RM(N,P),10)==1) THEN
                 NBDDNRBYM = NBDDNRBYM + 1
               ENDIF
             ENDIF
@@ -217,9 +222,9 @@ C
         ENDIF
       ENDDO
 C
-C Frontiere LAG MULT
+C Lag Mult boundary
 C
-      IF(LAG_NCF.GT.0) THEN
+      IF(LAG_NCF>0) THEN
         DO N = 1, NUMNOD
           ITAG(N) = 0
         END DO
@@ -231,7 +236,7 @@ C
          IKN = IADLL(IC+1)-1
          DO IK = IK0,IKN
           N = LLL(IK)
-          IF(ITAG(N).EQ.0) THEN
+          IF(ITAG(N)==0) THEN
             ITAG(N) = 1
             DO P = 1, NSPMD
               IF(NLOCAL(N,P)==1)THEN          
@@ -299,7 +304,7 @@ C ---------------------
                 NADMSR_L=NADMSR_L+1
                 TAG_SM(N4)=NADMSR_L
               END IF
-            ENDIF
+            ENDIF            
           ENDDO 
           
           DO I = 1, NADMSR  
@@ -308,22 +313,23 @@ C ---------------------
                TAG_MS(K)=I
             END IF
           END DO
-
           DO I = 1, NADMSR_L         
             N = TAG_MS(I) + ISHIFT
             ISBOUND=0
             TAGP(1:NSPMD)=0
+            NB = 0
             DO J = ADDCSRECT(N), ADDCSRECT(N+1)-1
                K = CSRECT(J)
                P = INTERCEP(1,NI)%P(K)
+               NB = NB+1
                IF(P /= PROC.AND.TAGP(P)==0) THEN
                  NBDDNOR = NBDDNOR + 1
                  ISBOUND = 1
                  TAGP(P) = 1
                ENDIF
             ENDDO
-            NBCCFR25 = NBCCFR25 + (ADDCSRECT(N+1)- ADDCSRECT(N))*ISBOUND
-            NBCCNOR  = NBCCNOR + (ADDCSRECT(N+1)- ADDCSRECT(N))
+            NBCCFR25 = NBCCFR25 + NB*ISBOUND
+            NBCCNOR  = NBCCNOR + NB
           ENDDO
           ISHIFT=ISHIFT+NADMSR
 
@@ -401,31 +407,5 @@ C ---------------------
 
       END IF ! NINTER25/=0
 C
-C ---------------------
-C Fontiere UserWindow comptage de la taille du tableau FR_USERW
-C ---------------------
-      SFR_USERWI_L = 0
-      IF (IUSERWI /= 0)THEN
-        IF(PROC/=1)THEN
-C pour les procs autre que le premier on note les noeuds
-C dont on va recevoir les accels.
-          DO II=1,NUMNOD_L
-            I=NODGLOB(II)
-            IF(USERNODS(I)==1)THEN
-               SFR_USERWI_L=SFR_USERWI_L+1
-            ENDIF
-          ENDDO
-        ELSE
-          DO I=1,NUMNOD
-             IF(USERNODS(I)==1)THEN
-               DO P=2,NSPMD
-                 IF(NLOCAL(I,P)==1)THEN          
-                    SFR_USERWI_L=SFR_USERWI_L+1
-                 ENDIF
-               ENDDO
-             ENDIF
-          ENDDO
-        ENDIF
-      ENDIF
       RETURN
       END

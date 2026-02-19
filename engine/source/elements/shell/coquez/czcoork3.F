@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CZCOORK3                      source/elements/shell/coquez/czcoork3.F
-Chd|-- called by -----------
-Chd|        CZKE3                         source/elements/shell/coquez/czke3.F
-Chd|        CZKEL3                        source/elements/shell/coquez/czkel3.F
-Chd|-- calls ---------------
-Chd|        CLSKEW3                       source/elements/sh3n/coquedk/cdkcoor3.F
-Chd|        CORTDIR3                      source/elements/shell/coque/cortdir3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    czcoork3       ../engine/source/elements/shell/coquez/czcoork3.F
+!||--- called by ------------------------------------------------------
+!||    czke3          ../engine/source/elements/shell/coquez/czke3.F
+!||--- calls      -----------------------------------------------------
+!||    clskew3        ../engine/source/elements/sh3n/coquedk/cdkcoor3.F
+!||    cortdir3       ../engine/source/elements/shell/coque/cortdir3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
         SUBROUTINE CZCOORK3(JFT  ,JLT  ,X     ,IXC  ,PM    ,
      1                      OFFG ,AREA ,AREA_I,VQN  ,VQ    ,
      2                      X13  ,X24  ,Y13   ,Y24  ,MX13  ,
@@ -43,6 +44,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include      "implicit_f.inc"
 c-----------------------------------------------
@@ -50,7 +52,6 @@ c   g l o b a l   p a r a m e t e r s
 c-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
 #include      "impl1_c.inc"
 #include      "comlock.inc"
 #include      "units_c.inc"
@@ -78,16 +79,16 @@ C-----------------------------------------------
       INTEGER NNOD,I,J,K,L,M,II(6),SPLAT,JPLAT(MVSIZ),MAT_1
       PARAMETER (NNOD = 4)
       my_real 
-     .   LXYZ0(3),DETA,DETA1(MVSIZ),RX(MVSIZ), RY(MVSIZ), RZ(MVSIZ),
+     .   LXYZ0(3),DETA1(MVSIZ),RX(MVSIZ), RY(MVSIZ), RZ(MVSIZ),
      .   SX(MVSIZ),SY(MVSIZ),R11(MVSIZ),R12(MVSIZ),R13(MVSIZ),
      .   R21(MVSIZ),R22(MVSIZ),R23(MVSIZ),R31(MVSIZ),R32(MVSIZ),
      .   R33(MVSIZ),XL2(MVSIZ),XL3(MVSIZ),XL4(MVSIZ),YL2(MVSIZ),
      .   YL3(MVSIZ),YL4(MVSIZ),SSZ(MVSIZ),
-     .   VCORE(3,NNOD),L13(MVSIZ),L24(MVSIZ),LL(MVSIZ),
+     .   L13(MVSIZ),L24(MVSIZ),LL(MVSIZ),
      .   TOL,X13_2(MVSIZ),Y13_2(MVSIZ),X24_2(MVSIZ),Y24_2(MVSIZ),
-     .   Z2(MVSIZ),A_4,SZ,SZ1,SZ2,SL,C1,C2,S1,
-     .   AR(3),AD(NNOD),BTB(3),XX,YY,ZZ,XY,D(6), 
-     .   ALR(3),ALD(NNOD),DBAD(3),BTB_C,J0,J1,J2
+     .   Z2(MVSIZ),A_4,SZ,SZ1,SZ2,SL,S1,
+     .    
+     .   J0,J1,J2
       MY_REAL 
      .   XX1,XX2,XX3,XX4,YY1,YY2,YY3,YY4,ZZ1,ZZ2,ZZ3,ZZ4
 C-----------------------------------------------
@@ -170,9 +171,9 @@ C
 C----------------------------
 C     SMALL STRAIN
 C----------------------------
-      IF(ISMSTR.EQ.1.OR.ISMSTR.EQ.2)THEN
+      IF(ISMSTR==1.OR.ISMSTR==2)THEN
         DO I=JFT,JLT
-          IF(ABS(OFFG(I)).EQ.TWO)THEN
+          IF(ABS(OFFG(I))==TWO)THEN
             XL2(I)=SMSTR(II(1)+I)
             YL2(I)=SMSTR(II(2)+I)
             XL3(I)=SMSTR(II(3)+I)
@@ -193,13 +194,13 @@ C----------------------------
          ENDIF
         ENDDO
       ENDIF
-      IF(ISMSTR.EQ.1)THEN
+      IF(ISMSTR==1)THEN
         DO I=JFT,JLT
-            IF(OFFG(I).EQ.ONE)OFFG(I)=TWO
+            IF(OFFG(I)==ONE)OFFG(I)=TWO
         ENDDO
       ENDIF
 C----------------------------
-C     ORTHOTROPY (plus tard)
+C     Orthotropy (later)
 C----------------------------
       IF (IREP > 0) THEN
        CALL CORTDIR3(ELBUF_STR,DIR_A,DIR_B ,JFT    ,JLT    ,
@@ -238,10 +239,10 @@ C
         L13(I)=X13_2(I)+Y13_2(I)
         L24(I)=X24_2(I)+Y24_2(I)
         LL(I)=HALF*(L13(I)+L24(I))
-	       S1=EM01*THK(I)*THK(I)
+                 S1=EM01*THK(I)*THK(I)
         LL(I)=MAX(LL(I),S1)
       ENDDO
-      IF (IMP_CHK .GT. 0) THEN
+      IF (IMP_CHK > 0) THEN
        S1 =.577350269189626
        DO I=JFT,JLT
         J1=(MX23(I)*MY13(I)-MX13(I)*MY23(I))*S1
@@ -251,9 +252,9 @@ C
         XX2=J0+J2+J1
         XX3=J0-J2+J1
         XX4=J0-J2-J1
-        IF(OFFG(I).NE.ZERO)THEN
-         IF(XX1.LE.ZERO.OR.XX2.LE.ZERO.OR.
-     .      XX3.LE.ZERO.OR.XX4.LE.ZERO)THEN
+        IF(OFFG(I)/=ZERO)THEN
+         IF(XX1<=ZERO.OR.XX2<=ZERO.OR.
+     .      XX3<=ZERO.OR.XX4<=ZERO)THEN
 #include "lockon.inc"
             WRITE(IOUT ,2001) NGL(I)
 #include "lockoff.inc"
@@ -266,61 +267,57 @@ C
 C--------------------------
       DO I=JFT,JLT
        Z2(I)=Z1(I)*Z1(I)
-       IF (Z2(I).LT.LL(I)*TOL.OR.NPT.EQ.1) THEN
+       IF (Z2(I)<LL(I)*TOL.OR.NPT==1) THEN
          Z1(I)=ZERO
-c         PLAT(I)=.TRUE.
        ELSE
-c         PLAT(I)=.FALSE.
 C--------------------------------------------------
-C TRAITEMENT SPECIAL POUR ELEMENT GAUCHE
+C WARPING SPECIAL TREATMENT
 C full projection eliminer drilling rotations and rigid rotations
 C--------------------------------------------------------------------------  
-        A_4=AREA(I)*FOURTH
-C
+         A_4=AREA(I)*FOURTH
 C----------  node N ----------
-        SZ1=MX13(I)*Y24(I)-MY13(I)*X24(I)
-        SZ2=A_4+SZ1
-        SZ=Z2(I)*L24(I)
-        SL=ONE/SQRT(SZ+SZ2*SZ2)
-        VQN(I,1,1)=-Z1(I)*Y24(I)
-        VQN(I,2,1)= Z1(I)*X24(I)
-        VQN(I,3,1)= SZ2*SL
-        VQN(I,1,3)=-VQN(I,1,1)
-        VQN(I,2,3)=-VQN(I,2,1)
-        VQN(I,1,1)= VQN(I,1,1)*SL
-        VQN(I,2,1)= VQN(I,2,1)*SL
+         SZ1=MX13(I)*Y24(I)-MY13(I)*X24(I)
+         SZ2=A_4+SZ1
+         SZ=Z2(I)*L24(I)
+         SL=ONE/SQRT(SZ+SZ2*SZ2)
+         VQN(I,1,1)=-Z1(I)*Y24(I)
+         VQN(I,2,1)= Z1(I)*X24(I)
+         VQN(I,3,1)= SZ2*SL
+         VQN(I,1,3)=-VQN(I,1,1)
+         VQN(I,2,3)=-VQN(I,2,1)
+         VQN(I,1,1)= VQN(I,1,1)*SL
+         VQN(I,2,1)= VQN(I,2,1)*SL
 C
-        SZ2=A_4-SZ1
-        SL=ONE/SQRT(SZ+SZ2*SZ2)
-        VQN(I,1,3)= VQN(I,1,3)*SL
-        VQN(I,2,3)= VQN(I,2,3)*SL
-        VQN(I,3,3)= SZ2*SL
+         SZ2=A_4-SZ1
+         SL=ONE/SQRT(SZ+SZ2*SZ2)
+         VQN(I,1,3)= VQN(I,1,3)*SL
+         VQN(I,2,3)= VQN(I,2,3)*SL
+         VQN(I,3,3)= SZ2*SL
 C
-        SZ1=MX13(I)*Y13(I)-MY13(I)*X13(I)
-        SZ2=A_4+SZ1
-        SZ=Z2(I)*L13(I)
-        SL=ONE/SQRT(SZ+SZ2*SZ2)
-        VQN(I,1,2)=-Z1(I)*Y13(I)
-        VQN(I,2,2)= Z1(I)*X13(I)
-        VQN(I,3,2)= SZ2*SL
-        VQN(I,1,4)=-VQN(I,1,2)
-        VQN(I,2,4)=-VQN(I,2,2)
-        VQN(I,1,2)= VQN(I,1,2)*SL
-        VQN(I,2,2)= VQN(I,2,2)*SL
+         SZ1=MX13(I)*Y13(I)-MY13(I)*X13(I)
+         SZ2=A_4+SZ1
+         SZ=Z2(I)*L13(I)
+         SL=ONE/SQRT(SZ+SZ2*SZ2)
+         VQN(I,1,2)=-Z1(I)*Y13(I)
+         VQN(I,2,2)= Z1(I)*X13(I)
+         VQN(I,3,2)= SZ2*SL
+         VQN(I,1,4)=-VQN(I,1,2)
+         VQN(I,2,4)=-VQN(I,2,2)
+         VQN(I,1,2)= VQN(I,1,2)*SL
+         VQN(I,2,2)= VQN(I,2,2)*SL
 C
-        SZ2=A_4-SZ1
-        SL=ONE/SQRT(SZ+SZ2*SZ2)
-        VQN(I,1,4)= VQN(I,1,4)*SL
-        VQN(I,2,4)= VQN(I,2,4)*SL
-        VQN(I,3,4)= SZ2*SL
+         SZ2=A_4-SZ1
+         SL=ONE/SQRT(SZ+SZ2*SZ2)
+         VQN(I,1,4)= VQN(I,1,4)*SL
+         VQN(I,2,4)= VQN(I,2,4)*SL
+         VQN(I,3,4)= SZ2*SL
        ENDIF
-C
       ENDDO
 C
       NPLAT=JFT-1
       SPLAT= 0
       DO I=JFT,JLT
-       IF (Z1(I).EQ.ZERO) THEN
+       IF (Z1(I)==ZERO) THEN
         NPLAT=NPLAT+1
         IPLAT(NPLAT)=I
        ELSE
@@ -337,6 +334,5 @@ C
       ENDDO
 C
       RETURN
- 2001 FORMAT(/' ZERO OR NEGATIVE SHELL SUB-AREA : ELEMENT NB:',
-     .          I8/)
+ 2001 FORMAT(/' ZERO OR NEGATIVE SHELL SUB-AREA : ELEMENT NB:',I8/)
       END

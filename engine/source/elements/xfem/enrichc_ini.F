@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ENRICHC_INI                   source/elements/xfem/enrichc_ini.F
-Chd|-- called by -----------
-Chd|        INIXFEM                       source/elements/xfem/inixfem.F
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        CLSKEW3                       source/elements/sh3n/coquedk/cdkcoor3.F
-Chd|        LSINT4                        source/elements/xfem/crklayer4n_adv.F
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    enrichc_ini     ../engine/source/elements/xfem/enrichc_ini.F
+!||--- called by ------------------------------------------------------
+!||    inixfem         ../engine/source/elements/xfem/inixfem.F
+!||--- calls      -----------------------------------------------------
+!||    arret           ../engine/source/system/arret.F
+!||    clskew3         ../engine/source/elements/sh3n/coquedk/cdkcoor3.F
+!||    lsint4          ../engine/source/elements/xfem/crklayer4n_adv.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod   ../engine/share/modules/crackxfem_mod.F
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE ENRICHC_INI(ELBUF_STR,XFEM_STR,
      .      IXC      ,NFT     ,JFT     ,JLT    ,NXLAY   ,
      .      IADC_CRK ,IEL_CRK ,INOD_CRK,ELCUTC ,NODEDGE ,
@@ -38,6 +40,7 @@ Chd|====================================================================
 C-----------------------------------------------
       USE CRACKXFEM_MOD
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,10 +52,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com_xfem1.inc"
-#include      "param_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -84,13 +84,34 @@ C-----------------------------------------------
      .   YL2(MVSIZ),XL3(MVSIZ),YL3(MVSIZ),XL4(MVSIZ),YL4(MVSIZ),
      .   FIT(4,MVSIZ),OFFG(MVSIZ),XIN(2,MVSIZ),YIN(2,MVSIZ),
      .   XXL(4,MVSIZ),YYL(4,MVSIZ),XN(4),YN(4),DX(8),XM(2),YM(2)
-      my_real XXX,YYY,ZZZ,FI,BETA,X10,Y10,Z10,X20,Y20,Z20,
+      my_real XXX,YYY,ZZZ,FI,BETA,
      .   X1,Y1,X2,Y2,X3,Y3,X4,Y4,AREA1,AREA2,AREA3
       DATA DD/2,3,4,1/
       DATA DX/1,2,3,4,1,2,3,4/
 C=======================================================================
 C     COORDONNEES (GLOBAL)
 C-----------------------
+      X1 = ZERO
+      X2 = ZERO
+      X3 = ZERO
+      X4 = ZERO
+      Y1 = ZERO
+      Y2 = ZERO
+      Y3 = ZERO
+      Y4 = ZERO
+      AREA1 = ZERO
+      AREA2 = ZERO
+      AREA3 = ZERO
+      NX1 = 0
+      NX2 = 0
+      NX3 = 0
+      NX4 = 0
+      NM = 0
+      NP = 0
+      p1 = 0
+      p2 = 0
+      pp1 = 0
+      pp2 = 0
       DO I=JFT,JLT
         X1G(I)=X(1,IXC(2,I+NFT))
         Y1G(I)=X(2,IXC(2,I+NFT))

@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RBE2V                         source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2V1                        source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE2VL1                       source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rbe2v     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    resol     ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2   ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2v1    ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe2vl1   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBE2V(IRBE2 ,LRBE2 ,X    ,A     ,AR    ,
      1                 V     ,VR    ,SKEW  )
 C-----------------------------------------------
@@ -36,13 +36,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -55,8 +50,8 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, M, NS ,NML, IAD,JJ,IROT,IADS,
-     .        JT(3,NRBE2),JR(3,NRBE2),NM,NN,K,ISK,NSN,IRAD
+      INTEGER   N, M , IAD,
+     .        JT(3,NRBE2),JR(3,NRBE2),ISK,NSN,IRAD,NSN_G
 C     REAL
 C======================================================================|
       CALL PRERBE2(IRBE2 ,JT  ,JR   )
@@ -66,39 +61,28 @@ C======================================================================|
         NSN = IRBE2(5,N)
         ISK = IRBE2(7,N)
         IRAD = IRBE2(11,N)
-	IF (ISK.GT.1) THEN
+        NSN_G = IRBE2(12,N)
+        IF (ISK>1) THEN
            CALL RBE2VL1(NSN   ,LRBE2(IAD+1),X     ,A     ,AR    ,
      1                  V     ,VR    ,JT(1,N),JR(1,N),M     ,
-     2                  SKEW(1,ISK),IRAD  )
+     2                  SKEW(1,ISK),IRAD  ,NSN_G)
         ELSE
            CALL RBE2V1(NSN   ,LRBE2(IAD+1),X     ,A     ,AR    ,
-     1                  V     ,VR    ,JT(1,N),JR(1,N),M  ,IRAD  )
+     1                 V     ,VR    ,JT(1,N),JR(1,N),M  ,IRAD  ,NSN_G)
         END IF
       ENDDO
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2V0                        source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rbe2v0   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBE2V0(NSL   ,ISL   ,X     ,A     ,AR    ,
      1                  V     ,VR    ,JT    ,JR    ,M     )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -109,30 +93,30 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, NS
+      INTEGER I, J, NS
 C     REAL
       my_real
      .     XS, YS, ZS,VRM(3)
 C======================================================================|
         DO J = 1,3
-	 IF (JT(J).NE.0) THEN
+           IF (JT(J)/=0) THEN
           DO I=1,NSL
            NS = ISL(I)
-C	   V(J,NS)= V(J,M)
-	   A(J,NS)= A(J,M)
-	  ENDDO
+C     V(J,NS)= V(J,M)
+             A(J,NS)= A(J,M)
+            ENDDO
          ENDIF
         ENDDO
-       IF ((JR(1)+JR(2)+JR(3)).GT.0) THEN
+       IF ((JR(1)+JR(2)+JR(3))>0) THEN
         DO J = 1,3
-	 IF (JR(J).NE.0) THEN
+           IF (JR(J)/=0) THEN
           DO I=1,NSL
            NS = ISL(I)
-C	   VR(J,NS)= VR(J,M)
-	   AR(J,NS)= AR(J,M)
-	  ENDDO
+C     VR(J,NS)= VR(J,M)
+             AR(J,NS)= AR(J,M)
+            ENDDO
          ENDIF
-	 VRM(J)= AR(J,M)*JR(J)
+           VRM(J)= AR(J,M)*JR(J)
         ENDDO
         DO I=1,NSL
          NS = ISL(I)
@@ -147,11 +131,9 @@ C	   VR(J,NS)= VR(J,M)
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2VL                        source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rbe2vl   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBE2VL(NSN   ,ISL   ,X     ,A     ,AR    ,
      1                  V     ,VR    ,JT    ,JR    ,M     ,
      2                  SKEW  )
@@ -159,16 +141,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -179,7 +151,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, NS
+      INTEGER I, NS
 C     REAL
       my_real
      .   XS, YS, ZS,RX, RY,RZ,LRX, LRY,LRZ,RVX,RVY,RVZ,
@@ -197,7 +169,7 @@ C======================================================================|
         A(2,NS) =A(2,NS)-VVX*SKEW(2)-VVY*SKEW(5)-VVZ*SKEW(8)
         A(3,NS) =A(3,NS)-VVX*SKEW(3)-VVY*SKEW(6)-VVZ*SKEW(9)
       ENDDO
-      IF ((JR(1)+JR(2)+JR(3)).GT.0) THEN
+      IF ((JR(1)+JR(2)+JR(3))>0) THEN
        DO I=1,NSN
         NS = ISL(I)
         XS=X(1,NS)-X(1,M)
@@ -235,29 +207,24 @@ C======================================================================|
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_IMPD                     source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RECUKIN                       source/implicit/recudis.F     
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2D0                        source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE2DL2                       source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE2DL3                       source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_impd   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    recukin     ../engine/source/implicit/recudis.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2     ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2d0      ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe2dl2     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe2dl3     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBE2_IMPD(IRBE2 ,LRBE2 ,X    ,D     ,DR    ,SKEW )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "impl1_c.inc"
@@ -271,8 +238,8 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, M, NS ,NML, IAD,JJ,ISK,
-     .        JT(3,NRBE2),JR(3,NRBE2),NM,NN,K,NSL,IRAD
+      INTEGER   N, M , IAD,ISK,
+     .        JT(3,NRBE2),JR(3,NRBE2),NSL,IRAD
 C     REAL
 C======================================================================|
       CALL PRERBE2(IRBE2 ,JT  ,JR   )
@@ -282,8 +249,8 @@ C======================================================================|
         NSL = IRBE2(5,N)
         ISK = IRBE2(7,N)
         IRAD= IRBE2(11,N)
-	  IF (ISK.GT.1) THEN
-	    IF( IMP_LR .EQ. 0 ) THEN
+            IF (ISK>1) THEN
+              IF( IMP_LR == 0 ) THEN
             CALL RBE2DL2(NSL   ,LRBE2(IAD+1),X     ,D     ,DR    ,
      1                 JT(1,N),JR(1,N),M     ,SKEW(1,ISK),IRAD  )
           ELSE
@@ -298,13 +265,13 @@ C======================================================================|
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2D0                        source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPD                     source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|        VELROT                        source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2d0      ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impd   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- calls      -----------------------------------------------------
+!||    velrot      ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBE2D0(NSL   ,ISL   ,X     ,V     ,VR    ,
      1                  JT    ,JR    ,M     ,IRAD  )
 C-----------------------------------------------
@@ -314,14 +281,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 #include      "impl1_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -332,63 +292,63 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, NS
+      INTEGER I, J, NS
 C     REAL
       my_real
      .     XS, YS, ZS,VRM(3),LSM(3),VS(3)
 C======================================================================|
         DO J = 1,3
-	 IF (JT(J).NE.0) THEN
+           IF (JT(J)/=0) THEN
           DO I=1,NSL
            NS = ISL(I)
-	   V(J,NS)= V(J,M)
-	  ENDDO
+             V(J,NS)= V(J,M)
+            ENDDO
          ENDIF
         ENDDO
-       IF ((JR(1)+JR(2)+JR(3)).GT.0) THEN
+       IF ((JR(1)+JR(2)+JR(3))>0) THEN
         DO J = 1,3
-	 IF (JR(J).NE.0) THEN
+           IF (JR(J)/=0) THEN
           DO I=1,NSL
            NS = ISL(I)
-	   VR(J,NS)= VR(J,M)
-	  ENDDO
+             VR(J,NS)= VR(J,M)
+            ENDDO
          ENDIF
         ENDDO
        END IF
 C
-       IF (IRAD.EQ.0) THEN
+       IF (IRAD==0) THEN
         DO J = 1,3
-	 VRM(J)= VR(J,M)
+           VRM(J)= VR(J,M)
         ENDDO
         DO I=1,NSL
          NS = ISL(I)
          XS=X(1,NS)-X(1,M)
          YS=X(2,NS)-X(2,M)
          ZS=X(3,NS)-X(3,M)
-         IF( IMP_LR .EQ. 0)THEN
-           IF (JT(1).NE.0) V(1,NS)=V(1,NS)+VRM(2)*ZS-VRM(3)*YS
-           IF (JT(2).NE.0) V(2,NS)=V(2,NS)-VRM(1)*ZS+VRM(3)*XS
-           IF (JT(3).NE.0) V(3,NS)=V(3,NS)+VRM(1)*YS-VRM(2)*XS
+         IF( IMP_LR == 0)THEN
+           IF (JT(1)/=0) V(1,NS)=V(1,NS)+VRM(2)*ZS-VRM(3)*YS
+           IF (JT(2)/=0) V(2,NS)=V(2,NS)-VRM(1)*ZS+VRM(3)*XS
+           IF (JT(3)/=0) V(3,NS)=V(3,NS)+VRM(1)*YS-VRM(2)*XS
          ELSE
            LSM(1) = XS
            LSM(2) = YS
            LSM(3) = ZS
            CALL VELROT(VRM, LSM,VS)
-           IF (JT(1).NE.0) V(1,NS)=V(1,NS) + VS(1)
-           IF (JT(2).NE.0) V(2,NS)=V(2,NS) + VS(2)
-           IF (JT(3).NE.0) V(3,NS)=V(3,NS) + VS(3)
+           IF (JT(1)/=0) V(1,NS)=V(1,NS) + VS(1)
+           IF (JT(2)/=0) V(2,NS)=V(2,NS) + VS(2)
+           IF (JT(3)/=0) V(3,NS)=V(3,NS) + VS(3)
          END IF
         ENDDO
-       ELSEIF ((JR(1)+JR(2)+JR(3)).GT.0) THEN
+       ELSEIF ((JR(1)+JR(2)+JR(3))>0) THEN
         DO J = 1,3
-	 VRM(J)= VR(J,M)*JR(J)
+           VRM(J)= VR(J,M)*JR(J)
         ENDDO
         DO I=1,NSL
          NS = ISL(I)
          XS=X(1,NS)-X(1,M)
          YS=X(2,NS)-X(2,M)
          ZS=X(3,NS)-X(3,M)
-         IF( IMP_LR .EQ. 0 ) THEN
+         IF( IMP_LR == 0 ) THEN
            V(1,NS)=V(1,NS)+VRM(2)*ZS-VRM(3)*YS
            V(2,NS)=V(2,NS)-VRM(1)*ZS+VRM(3)*XS
            V(3,NS)=V(3,NS)+VRM(1)*YS-VRM(2)*XS
@@ -406,27 +366,15 @@ C
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2DL                        source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rbe2dl   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBE2DL(NSN   ,ISL   ,X     ,V     ,VR    ,
      1                  JT    ,JR    ,M     ,SKEW  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -455,7 +403,7 @@ C======================================================================|
         V(2,NS) =V(2,NS)-VVX*SKEW(2)-VVY*SKEW(5)-VVZ*SKEW(8)
         V(3,NS) =V(3,NS)-VVX*SKEW(3)-VVY*SKEW(6)-VVZ*SKEW(9)
       ENDDO
-      IF ((JR(1)+JR(2)+JR(3)).GT.0) THEN
+      IF ((JR(1)+JR(2)+JR(3))>0) THEN
        DO I=1,NSN
         NS = ISL(I)
         XS=X(1,NS)-X(1,M)
@@ -493,30 +441,20 @@ C======================================================================|
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2DL2                       source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPD                     source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|        CDI_BCN1                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2D_BCL                     source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2dl2     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impd   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- calls      -----------------------------------------------------
+!||    cdi_bcn1    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2d_bcl   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBE2DL2(NSN   ,ISL   ,X     ,V     ,VR    ,
      1                   JT    ,JR    ,M     ,SKEW  ,IRAD  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -530,17 +468,17 @@ C-----------------------------------------------
       INTEGER I, NS ,NT,NR,ICT,ICR
 C     REAL
       my_real
-     .   XS, YS, ZS,RX, RY,RZ,LRX, LRY,LRZ,RVX,RVY,RVZ,
-     .   DVX,DVY,DVZ,VVX,VVY,VVZ,KTR(3,3)
+     .   XS, YS, ZS,RX, RY,RZ,
+     .   KTR(3,3)
 C======================================================================|
         NT=JT(1)+JT(2)+JT(3)
         NR=JR(1)+JR(2)+JR(3)
         ICT=JT(1)*4 +JT(2)*2 +JT(3)
         ICR=JR(1)*4 +JR(2)*2 +JR(3)
-      IF (NT.GT.0.AND.NT.LT.3) THEN
+      IF (NT>0.AND.NT<3) THEN
        CALL RBE2D_BCL(ICT  ,NSN   ,ISL   ,M     ,V     ,
      1               SKEW  )
-      ELSEIF (NT.EQ.3) THEN
+      ELSEIF (NT==3) THEN
        DO I=1,NSN
         NS = ISL(I)
         V(1,NS)=V(1,M)
@@ -549,11 +487,11 @@ C======================================================================|
        ENDDO
       ENDIF
 C
-      IF (NR.GT.0) THEN
-       IF (NR.LT.3) THEN
+      IF (NR>0) THEN
+       IF (NR<3) THEN
         CALL RBE2D_BCL(ICR  ,NSN   ,ISL   ,M     ,VR    ,
      1                 SKEW )
-       ELSEIF (NR.EQ.3) THEN
+       ELSEIF (NR==3) THEN
         DO I=1,NSN
          NS = ISL(I)
          VR(1,NS)=VR(1,M)
@@ -563,7 +501,7 @@ C
        ENDIF
       END IF
 C
-      IF (IRAD.EQ.0.OR.NR.GT.0) THEN
+      IF (IRAD==0.OR.NR>0) THEN
        DO I=1,NSN
         NS = ISL(I)
         RX=VR(1,M)
@@ -581,16 +519,16 @@ C
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2D_BCL                     source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RBE2DL2                       source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE2VL1                       source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE2_FRD                      source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|        DIR_RBE2                      source/constraints/general/rbe2/rbe2v.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2d_bcl   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_frd    ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe2dl2     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe2vl1     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- calls      -----------------------------------------------------
+!||    dir_rbe2    ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    l_dir       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||====================================================================
       SUBROUTINE RBE2D_BCL(ICT  ,NSN   ,ISL   ,M     ,V     ,
      1                    SKEW  )
 C-----------------------------------------------
@@ -610,7 +548,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,J1,L,NS
+      INTEGER I,J,K,J1,NS
       my_real
      .   VQ(3,3),EJ(3),EJ1(3),VLM(3),VV(3),VLS(3),S
 C----------------------------------------
@@ -626,31 +564,31 @@ C----------------------------------------
         VLM(2)  =SKEW(4)*VV(1)+SKEW(5)*VV(2)+SKEW(6)*VV(3)
         VLM(3)  =SKEW(7)*VV(1)+SKEW(8)*VV(2)+SKEW(9)*VV(3)
 C-------------------100---------------------
-      IF (ICT .EQ. 4 ) THEN
+      IF (ICT == 4 ) THEN
           EJ(1)=SKEW(1)
           EJ(2)=SKEW(2)
           EJ(3)=SKEW(3)
           CALL L_DIR(EJ,J)
-	  J1=0
+            J1=0
           CALL DIR_RBE2(J    ,J1    ,K     )
 C-------------------010---------------------
-       ELSEIF (ICT .EQ. 2) THEN
+       ELSEIF (ICT == 2) THEN
           EJ(1)=SKEW(4)
           EJ(2)=SKEW(5)
           EJ(3)=SKEW(6)
           CALL L_DIR(EJ,J)
-	  J1=0
+            J1=0
           CALL DIR_RBE2(J    ,J1    ,K     )
 C-------------------001---------------------
-       ELSEIF (ICT .EQ. 1) THEN
+       ELSEIF (ICT == 1) THEN
           EJ(1)=SKEW(7)
           EJ(2)=SKEW(8)
           EJ(3)=SKEW(9)
           CALL L_DIR(EJ,J)
-	  J1=0
+            J1=0
           CALL DIR_RBE2(J    ,J1    ,K     )
 C-------------------011---------------------
-       ELSEIF (ICT .EQ. 3) THEN
+       ELSEIF (ICT == 3) THEN
           EJ(1)=SKEW(7)
           EJ(2)=SKEW(8)
           EJ(3)=SKEW(9)
@@ -659,20 +597,20 @@ C-------------------011---------------------
           EJ1(2)=SKEW(5)
           EJ1(3)=SKEW(6)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
           ENDIF
           VLS(3)=VLM(3)
           VLS(2)=VLM(2)
           CALL DIR_RBE2(J    ,J1    ,K     )
-	  IF (ABS(VQ(1,K)).LT.EM20) THEN
-	   S= ZERO
-	  ELSE
-	   S= ONE/VQ(1,K)
-	  ENDIF
+            IF (ABS(VQ(1,K))<EM20) THEN
+             S= ZERO
+            ELSE
+             S= ONE/VQ(1,K)
+            ENDIF
 C-------------------101---------------------
-       ELSEIF (ICT .EQ. 5) THEN
+       ELSEIF (ICT == 5) THEN
           EJ(1)=SKEW(7)
           EJ(2)=SKEW(8)
           EJ(3)=SKEW(9)
@@ -681,20 +619,20 @@ C-------------------101---------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
           ENDIF
           VLS(3)=VLM(3)
           VLS(1)=VLM(1)
           CALL DIR_RBE2(J    ,J1    ,K     )
-	  IF (ABS(VQ(2,K)).LT.EM20) THEN
-	   S= ZERO
-	  ELSE
-	   S= ONE/VQ(2,K)
-	  ENDIF
+            IF (ABS(VQ(2,K))<EM20) THEN
+             S= ZERO
+            ELSE
+             S= ONE/VQ(2,K)
+            ENDIF
 C-------------------110---------------------
-       ELSEIF (ICT .EQ. 6) THEN
+       ELSEIF (ICT == 6) THEN
           EJ(1)=SKEW(4)
           EJ(2)=SKEW(5)
           EJ(3)=SKEW(6)
@@ -703,44 +641,44 @@ C-------------------110---------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
           ENDIF
           VLS(2)=VLM(2)
           VLS(1)=VLM(1)
           CALL DIR_RBE2(J    ,J1    ,K     )
-	  IF (ABS(VQ(3,K)).LT.EM20) THEN
-	   S= ZERO
-	  ELSE
-	   S= ONE/VQ(3,K)
-	  ENDIF
+            IF (ABS(VQ(3,K))<EM20) THEN
+             S= ZERO
+            ELSE
+             S= ONE/VQ(3,K)
+            ENDIF
        ENDIF
        DO I=1,NSN
         NS = ISL(I)
 C-------------------100---------------------
-         IF (ICT .EQ. 4 ) THEN
+         IF (ICT == 4 ) THEN
           V(J,NS) = VLM(1)/SKEW(J)-EJ(J1)*V(J1,NS)-EJ(K)*V(K,NS)
 C-------------------010---------------------
-         ELSEIF (ICT .EQ. 2) THEN
+         ELSEIF (ICT == 2) THEN
           V(J,NS) = VLM(2)/SKEW(3+J)-EJ(J1)*V(J1,NS)-EJ(K)*V(K,NS)
 C-------------------001---------------------
-         ELSEIF (ICT .EQ. 1) THEN
+         ELSEIF (ICT == 1) THEN
           V(J,NS) = VLM(3)/SKEW(6+J)-EJ(J1)*V(J1,NS)-EJ(K)*V(K,NS)
 C-------------------011---------------------
-         ELSEIF (ICT .EQ. 3) THEN
+         ELSEIF (ICT == 3) THEN
           VLS(1)=(V(K,NS)-VLS(3)*VQ(3,K)-VLS(2)*VQ(2,K))*S
           V(1,NS) =VLS(1)*SKEW(1)+VLS(2)*SKEW(4)+VLS(3)*SKEW(7)
           V(2,NS) =VLS(1)*SKEW(2)+VLS(2)*SKEW(5)+VLS(3)*SKEW(8)
           V(3,NS) =VLS(1)*SKEW(3)+VLS(2)*SKEW(6)+VLS(3)*SKEW(9)
 C-------------------101---------------------
-         ELSEIF (ICT .EQ. 5) THEN
+         ELSEIF (ICT == 5) THEN
           VLS(2)=(V(K,NS)-VLS(3)*VQ(3,K)-VLS(1)*VQ(1,K))*S
           V(1,NS) =VLS(1)*SKEW(1)+VLS(2)*SKEW(4)+VLS(3)*SKEW(7)
           V(2,NS) =VLS(1)*SKEW(2)+VLS(2)*SKEW(5)+VLS(3)*SKEW(8)
           V(3,NS) =VLS(1)*SKEW(3)+VLS(2)*SKEW(6)+VLS(3)*SKEW(9)
 C-------------------110---------------------
-         ELSEIF (ICT .EQ. 6) THEN
+         ELSEIF (ICT == 6) THEN
           VLS(3)=(V(K,NS)-VLS(2)*VQ(2,K)-VLS(1)*VQ(1,K))*S
           V(1,NS) =VLS(1)*SKEW(1)+VLS(2)*SKEW(4)+VLS(3)*SKEW(7)
           V(2,NS) =VLS(1)*SKEW(2)+VLS(2)*SKEW(5)+VLS(3)*SKEW(8)
@@ -750,37 +688,33 @@ C-------------------110---------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  DIR_RBE2                      source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        BCL_IMPD                      source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_FI2                        source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPD2D                      source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDF2D                     source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDFR2                     source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDK2D                     source/constraints/general/bcs/bc_imp0.F
-Chd|        CDI_BCN                       source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        CDI_BCN1                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        FVBC_COMPA0                   source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_UPDKD2                     source/constraints/general/bcs/bc_imp0.F
-Chd|        GETBCL_J                      source/constraints/general/impvel/fv_imp0.F
-Chd|        GFVBC2_IND                    source/constraints/general/impvel/fv_imp0.F
-Chd|        RBE2D_BCL                     source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE2FLSN                      source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2FLSNFR                    source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2IMPBSN                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_BCL                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        SELECT_DOF                    source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    dir_rbe2      ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    bc_fi2        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_upd2d      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updf2d     ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updfr2     ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updk2d     ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bcl_impd      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    cdi_bcn       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    cdi_bcn1      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    fv_updkd2     ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    fvbc_compa0   ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    getbcl_j      ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    gfvbc2_ind    ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    rbe2_bcl      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2d_bcl     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe2flsn      ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2flsnfr    ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2impbsn    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    select_dof    ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE DIR_RBE2(J    ,J1    ,K     )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -789,45 +723,45 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       K = J + 1
-      IF (K.GT.3) K = K - 3
-      IF (J1.EQ.0) THEN
+      IF (K>3) K = K - 3
+      IF (J1==0) THEN
        J1 = J + 2
-       IF (J1.GT.3) J1 = J1 - 3
-      ELSEIF (K.EQ.J1) THEN
+       IF (J1>3) J1 = J1 - 3
+      ELSEIF (K==J1) THEN
        K = J + 2
-       IF (K.GT.3) K = K - 3
+       IF (K>3) K = K - 3
       ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2V1                        source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RBE2V                         source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rbe2v1                ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    rbe2v                 ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- calls      -----------------------------------------------------
+!||    velrot_explicit       ../engine/source/constraints/general/rbody/velrot_explicit.F90
+!||--- uses       -----------------------------------------------------
+!||    velrot_explicit_mod   ../engine/source/constraints/general/rbody/velrot_explicit.F90
+!||====================================================================
       SUBROUTINE RBE2V1(NSL   ,ISL   ,X     ,A     ,AR    ,
      1                  V     ,VR    ,JT    ,JR    ,M     ,
-     2                  IRAD  )
+     2                  IRAD  ,NSL_G )
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE VELROT_EXPLICIT_MOD, ONLY : VELROT_EXPLICIT
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "com08_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NSL,ISL(*),JT(3),JR(3),M,IRAD
+      INTEGER NSL,ISL(*),JT(3),JR(3),M,IRAD,NSL_G
 C     REAL
       my_real
      .   X(3,*), A(3,*), AR(3,*), V(3,*), VR(3,*)
@@ -838,53 +772,65 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   V1X2, V2X1, V2X3, V3X2, V3X1, V1X3,USDT,DT05,
-     .   VX1, VX2, VX3,VG(3)
+     .   VX1, VX2, VX3,VG(3),LSM(3),VS(3),AS(3)
 C======================================================================|
 C-------change As=Am to Vs=Vm------
         USDT = ONE/DT12
         DO J = 1,3
-	 IF (JT(J).NE.0) THEN
+           IF (JT(J)/=0) THEN
           DO I=1,NSL
            NS = ISL(I)
-	   A(J,NS)= A(J,M)+(V(J,M)-V(J,NS))*USDT
-	  ENDDO
+             A(J,NS)= A(J,M)+(V(J,M)-V(J,NS))*USDT
+            ENDDO
          ENDIF
         ENDDO
 C
-       IF ((JR(1)+JR(2)+JR(3)).GT.0.OR.IRAD.EQ.0) THEN
+       IF ((JR(1)+JR(2)+JR(3))>0.OR.IRAD==0) THEN
         DO J = 1,3
          VG(J)=VR(J,M)+AR(J,M)*DT12
-	 IF (JR(J).NE.0) THEN
+           IF (JR(J)/=0) THEN
           DO I=1,NSL
            NS = ISL(I)
            AR(J,NS)= (VG(J)-VR(J,NS)) * USDT
-	  ENDDO
+          ENDDO
          ENDIF
         ENDDO
        END IF
 C
-       IF (IRAD.EQ.0) THEN
+       IF (IRAD==0) THEN
         DT05 = HALF*DT2
-        DO I=1,NSL
-         NS = ISL(I)
-         V1X2=VG(1)*(X(2,NS)-X(2,M))
-         V2X1=VG(2)*(X(1,NS)-X(1,M))
-         V2X3=VG(2)*(X(3,NS)-X(3,M))
-         V3X2=VG(3)*(X(2,NS)-X(2,M))
-         V3X1=VG(3)*(X(1,NS)-X(1,M))
-         V1X3=VG(1)*(X(3,NS)-X(3,M))
-C
-         VX1=V2X3-V3X2
-         VX2=V3X1-V1X3
-         VX3=V1X2-V2X1
-	 IF (JT(1).NE.0)
-     .   A(1,NS)= A(1,NS)+(VX1+DT05*(VG(2)*VX3-VG(3)*VX2))*USDT
-	 IF (JT(2).NE.0)
-     .   A(2,NS)= A(2,NS)+(VX2+DT05*(VG(3)*VX1-VG(1)*VX3))*USDT
-	 IF (JT(3).NE.0)
-     .   A(3,NS)= A(3,NS)+(VX3+DT05*(VG(1)*VX2-VG(2)*VX1))*USDT
-        ENDDO
-       ELSEIF ((JR(1)+JR(2)+JR(3)).GT.0) THEN
+        IF (NSL_G<=2) THEN
+          DO I=1,NSL
+           NS = ISL(I)
+           LSM(1:3) = X(1:3,NS)-X(1:3,M)
+           CALL VELROT_EXPLICIT(VG, LSM,VS,DT12)
+           AS(1) = USDT*(VS(1)+DT05*(VG(2)*VS(3)-VG(3)*VS(2)))
+           AS(2) = USDT*(VS(2)+DT05*(VG(3)*VS(1)-VG(1)*VS(3)))
+           AS(3) = USDT*(VS(3)+DT05*(VG(1)*VS(2)-VG(2)*VS(1)))
+           A(1:3,NS)= A(1:3,NS)+AS(1:3)*JT(1:3)
+          ENDDO 
+        ELSE
+          DO I=1,NSL
+           NS = ISL(I)
+           V1X2=VG(1)*(X(2,NS)-X(2,M))
+           V2X1=VG(2)*(X(1,NS)-X(1,M))
+           V2X3=VG(2)*(X(3,NS)-X(3,M))
+           V3X2=VG(3)*(X(2,NS)-X(2,M))
+           V3X1=VG(3)*(X(1,NS)-X(1,M))
+           V1X3=VG(1)*(X(3,NS)-X(3,M))
+C         
+           VX1=V2X3-V3X2
+           VX2=V3X1-V1X3
+           VX3=V1X2-V2X1
+             IF (JT(1)/=0)
+     .     A(1,NS)= A(1,NS)+(VX1+DT05*(VG(2)*VX3-VG(3)*VX2))*USDT
+             IF (JT(2)/=0)
+     .     A(2,NS)= A(2,NS)+(VX2+DT05*(VG(3)*VX1-VG(1)*VX3))*USDT
+             IF (JT(3)/=0)
+     .     A(3,NS)= A(3,NS)+(VX3+DT05*(VG(1)*VX2-VG(2)*VX1))*USDT
+          ENDDO
+        END IF !(NSL_G<=2) THEN
+       ELSEIF ((JR(1)+JR(2)+JR(3))>0) THEN
         DT05 = HALF*DT2
         DO J = 1,3
          VG(J)=JR(J)*VG(J)
@@ -910,50 +856,51 @@ C
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2VL1                       source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RBE2V                         source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|        CDI_BCN1                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2D_BCL                     source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2vl1               ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    rbe2v                 ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- calls      -----------------------------------------------------
+!||    cdi_bcn1              ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2d_bcl             ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    velrot_explicit       ../engine/source/constraints/general/rbody/velrot_explicit.F90
+!||--- uses       -----------------------------------------------------
+!||    velrot_explicit_mod   ../engine/source/constraints/general/rbody/velrot_explicit.F90
+!||====================================================================
       SUBROUTINE RBE2VL1(NSL   ,ISL   ,X     ,A     ,AR    ,
      1                   V     ,VR    ,JT    ,JR    ,M     ,
-     2                   SKEW  ,IRAD  )
+     2                   SKEW  ,IRAD  ,NSL_G )
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE VELROT_EXPLICIT_MOD, ONLY : VELROT_EXPLICIT
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "com08_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NSL,ISL(*),JT(3),JR(3),M,IRAD
+      INTEGER NSL,ISL(*),JT(3),JR(3),M,IRAD,NSL_G
 C     REAL
       my_real
      .   X(3,*), A(3,*), AR(3,*), V(3,*), VR(3,*),SKEW(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, NS,ICR
+      INTEGER I, J, NS,ICR
 C     REAL
       my_real
-     .   XS, YS, ZS,RX, RY,RZ,LRX, LRY,LRZ,RVX,RVY,RVZ,
+     .   XS, YS, ZS,RX, RY,RZ,
      .   DVX,DVY,DVZ,VVX,VVY,VVZ,LXS(NSL),LYS(NSL),LZS(NSL)
       my_real
-     .   V1X2, V2X1, V2X3, V3X2, V3X1, V1X3,USDT,DT05,
-     .   VX1, VX2, VX3,VRG(3),VRL(3),USDT1(3),KTR(3,3)
+     .      USDT,DT05,
+     .   VX1, VX2, VX3,VRG(3),USDT1(3),KTR(3,3),
+     .   LSM(3),VS(3),AS(3)
 C----we modify A,AR(*,NS) so that V,VR(*,NS) follow the constraint equations     
 C======================================================================|
         USDT = ONE/DT12
@@ -1022,7 +969,7 @@ C
          VRG(J)=VR(J,M)+AR(J,M)*DT12
        ENDDO
        DT05 = HALF*DT2
-       IF (IRAD.EQ.0) THEN
+       IF (IRAD==0) THEN
         DO J = 1,3
          USDT1(J)=USDT*JT(J)
         ENDDO
@@ -1031,35 +978,48 @@ C
          USDT1(J)=USDT
         ENDDO
        END IF
-       DO I=1,NSL
-        NS = ISL(I)
-        RX=VRG(1)
-        RY=VRG(2)
-        RZ=VRG(3)
-        XS=X(1,NS)-X(1,M)
-        YS=X(2,NS)-X(2,M)
-        ZS=X(3,NS)-X(3,M)
-        CALL CDI_BCN1(XS,YS,ZS,JT,JR,SKEW,KTR,IRAD)
-        VX1 =KTR(1,1)*RX+KTR(1,2)*RY+KTR(1,3)*RZ
-        VX2 =KTR(2,1)*RX+KTR(2,2)*RY+KTR(2,3)*RZ
-        VX3 =KTR(3,1)*RX+KTR(3,2)*RY+KTR(3,3)*RZ
-        A(1,NS) =A(1,NS)+(VX1+DT05*(VRG(2)*VX3-VRG(3)*VX2))*USDT1(1)
-        A(2,NS) =A(2,NS)+(VX2+DT05*(VRG(3)*VX1-VRG(1)*VX3))*USDT1(2)
-        A(3,NS) =A(3,NS)+(VX3+DT05*(VRG(1)*VX2-VRG(2)*VX1))*USDT1(3)
-       ENDDO
-      END IF
+       IF (IRAD ==0.AND.NSL_G<=2 .AND.(JT(1)+JT(2)+JT(3))==3) THEN
+! Nastran formulation uses all rot dofs for translation	   
+        DO I=1,NSL
+         NS = ISL(I)
+         LSM(1:3) = X(1:3,NS)-X(1:3,M)
+         CALL VELROT_EXPLICIT(VRG, LSM,VS,DT12)
+         AS(1) = USDT*(VS(1)+DT05*(VRG(2)*VS(3)-VRG(3)*VS(2)))
+         AS(2) = USDT*(VS(2)+DT05*(VRG(3)*VS(1)-VRG(1)*VS(3)))
+         AS(3) = USDT*(VS(3)+DT05*(VRG(1)*VS(2)-VRG(2)*VS(1)))
+         A(1:3,NS)= A(1:3,NS)+AS(1:3)
+        ENDDO
+       ELSE
+        DO I=1,NSL
+         NS = ISL(I)
+         RX=VRG(1)
+         RY=VRG(2)
+         RZ=VRG(3)
+         XS=X(1,NS)-X(1,M)
+         YS=X(2,NS)-X(2,M)
+         ZS=X(3,NS)-X(3,M)
+         CALL CDI_BCN1(XS,YS,ZS,JT,JR,SKEW,KTR,IRAD)
+         VX1 =KTR(1,1)*RX+KTR(1,2)*RY+KTR(1,3)*RZ
+         VX2 =KTR(2,1)*RX+KTR(2,2)*RY+KTR(2,3)*RZ
+         VX3 =KTR(3,1)*RX+KTR(3,2)*RY+KTR(3,3)*RZ
+         A(1,NS) =A(1,NS)+(VX1+DT05*(VRG(2)*VX3-VRG(3)*VX2))*USDT1(1)
+         A(2,NS) =A(2,NS)+(VX2+DT05*(VRG(3)*VX1-VRG(1)*VX3))*USDT1(2)
+         A(3,NS) =A(3,NS)+(VX3+DT05*(VRG(1)*VX2-VRG(2)*VX1))*USDT1(3)
+        ENDDO
+       END IF
+      END IF! ((JR(1)+JR(2)+JR(3)) >0.OR.IRAD ==0 ) THEN
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_FRD                      source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        FR_U2DD                       source/mpi/implicit/imp_fri.F 
-Chd|        IMP3_U2X                      source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        CDI_BCN1                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2D_BCL                     source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_frd    ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    fr_u2dd     ../engine/source/mpi/implicit/imp_fri.F
+!||    imp3_u2x    ../engine/source/airbag/monv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    cdi_bcn1    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2d_bcl   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBE2_FRD(NS    ,M     ,X     ,V     ,VR    ,
      1                    JT    ,JR    ,SKEW0 ,ISK   ,IRAD  )
 C-----------------------------------------------
@@ -1067,14 +1027,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1086,53 +1040,53 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, NT,NR,ICT,ICR,NSN,ISL(1),K
+      INTEGER  NT,NR,ICT,ICR,NSN,ISL(1),K
 C     REAL
       my_real
-     .   XS, YS, ZS,RX, RY,RZ,LRX, LRY,LRZ,RVX,RVY,RVZ,
-     .   DVX,DVY,DVZ,VVX,VVY,VVZ,KTR(3,3),SKEW(LSKEW)
+     .   XS, YS, ZS,RX, RY,RZ,
+     .   KTR(3,3),SKEW(LSKEW)
 C======================================================================|
         NT=JT(1)+JT(2)+JT(3)
         NR=JR(1)+JR(2)+JR(3)
         ICT=JT(1)*4 +JT(2)*2 +JT(3)
         ICR=JR(1)*4 +JR(2)*2 +JR(3)
-	IF (ISK.GT.1) THEN
-	 DO K=1,LSKEW
-	  SKEW(K)=SKEW0(K)
-	 ENDDO
-	ELSE
-	 DO K=1,LSKEW
-	  SKEW(K)=ZERO
-	 ENDDO
-	  SKEW(1)=ONE
-	  SKEW(5)=ONE
-	  SKEW(9)=ONE
+          IF (ISK>1) THEN
+           DO K=1,LSKEW
+            SKEW(K)=SKEW0(K)
+           ENDDO
+          ELSE
+           DO K=1,LSKEW
+            SKEW(K)=ZERO
+           ENDDO
+            SKEW(1)=ONE
+            SKEW(5)=ONE
+            SKEW(9)=ONE
         ENDIF
-      IF (NT.GT.0.AND.NT.LT.3) THEN
+      IF (NT>0.AND.NT<3) THEN
        NSN=1
        ISL(1)=NS
        CALL RBE2D_BCL(ICT  ,NSN   ,ISL   ,M     ,V     ,
      1               SKEW  )
-      ELSEIF (NT.EQ.3) THEN
+      ELSEIF (NT==3) THEN
         V(1,NS)=V(1,M)
         V(2,NS)=V(2,M)
         V(3,NS)=V(3,M)
       ENDIF
 C
-      IF (NR.GT.0) THEN
-       IF (NR.LT.3) THEN
+      IF (NR>0) THEN
+       IF (NR<3) THEN
         NSN=1
         ISL(1)=NS
         CALL RBE2D_BCL(ICR  ,NSN   ,ISL   ,M     ,VR    ,
      1                 SKEW )
-       ELSEIF (NR.EQ.3) THEN
+       ELSEIF (NR==3) THEN
          VR(1,NS)=VR(1,M)
          VR(2,NS)=VR(2,M)
          VR(3,NS)=VR(3,M)
        END IF
       END IF
 C
-      IF (IRAD.EQ.0.OR.NR.GT.0) THEN
+      IF (IRAD==0.OR.NR>0) THEN
         RX=VR(1,M)
         RY=VR(2,M)
         RZ=VR(3,M)
@@ -1148,19 +1102,19 @@ C---
       RETURN
       END
 
-Chd|====================================================================
-Chd|  VELROT                        source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        FV_IMP                        source/constraints/general/impvel/fv_imp0.F
-Chd|        I2RECU0                       source/interfaces/interf/i2_imp2.F
-Chd|        I2RECU2                       source/interfaces/interf/i2_imp2.F
-Chd|        RBE2D0                        source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE2DL3                       source/constraints/general/rbe2/rbe2v.F
-Chd|        RBY_IMP7                      source/constraints/general/rbody/rby_impd.F
-Chd|        SPB_RM_RIG                    source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        CROSSPRODUCT                  source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+!||====================================================================
+!||    velrot         ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    fv_imp         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    i2recu0        ../engine/source/interfaces/interf/i2_imp2.F
+!||    i2recu2        ../engine/source/interfaces/interf/i2_imp2.F
+!||    rbe2d0         ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe2dl3        ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rby_imp7       ../engine/source/constraints/general/rbody/rby_impd.F
+!||    spb_rm_rig     ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    crossproduct   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE VELROT(VRM,LSM,VS)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1187,7 +1141,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 
-      INTEGER I , J , K
+      INTEGER I , J 
       my_real
      * ANGELV, RZ(3,3), LOCALZ(3), L, LOCALX(3), LSMUNI(3),TRANS(3,3),
      * LOCALY(3), LSMLOCAL(3), LSMLTR(3), LSMGTR(3)
@@ -1201,7 +1155,7 @@ C-----------------------------------------------
         L = L + LSM(I)*LSM(I)
       END DO
       L = SQRT(L)
-      IF( L .LT. EM20) THEN
+      IF( L < EM20) THEN
 C SECND NODE COINCIDE WITH main NODE, NO VELICITY IS CAUSED BY ROTATION
         RETURN
       END IF
@@ -1211,7 +1165,7 @@ C SECND NODE COINCIDE WITH main NODE, NO VELICITY IS CAUSED BY ROTATION
         ANGELV = ANGELV + VRM(I)*VRM(I)
       END DO
       ANGELV = SQRT(ANGELV)
-      IF( ANGELV .LE. EM20) THEN
+      IF( ANGELV <= EM20) THEN
 C NO ROTATION VELOCITY
         RETURN
       END IF
@@ -1230,7 +1184,7 @@ C NO ROTATION VELOCITY
         L = L + LOCALX(I)*LOCALX(I)
       END DO
       L = SQRT(L)
-      IF( L .LE. EM20 )THEN
+      IF( L <= EM20 )THEN
 C ROTATION AXIS COINCIDIE WITH THE VECTOR POINTING FROM main TO SECND.
 C SO NO VELOCITY WILL BE CAUSED BY THIS ROTATION
         RETURN
@@ -1299,12 +1253,11 @@ C SO NO VELOCITY WILL BE CAUSED BY THIS ROTATION
       END SUBROUTINE !VELROT
 
 
-Chd|====================================================================
-Chd|  CROSSPRODUCT                  source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        VELROT                        source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    crossproduct   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    velrot         ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE CROSSPRODUCT(X,Y,Z)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1325,31 +1278,21 @@ C         CALCULATE CROSSPRODUCT Z = X (X) Y
 
       END ! SUBROUTINE CROSSPRODUCT
 
-Chd|====================================================================
-Chd|  RBE2DL3                       source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPD                     source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|        SELECT_DOF                    source/constraints/general/rbe2/rbe2v.F
-Chd|        UPDATE_GLOBV                  source/constraints/general/rbe2/rbe2v.F
-Chd|        VELROT                        source/constraints/general/rbe2/rbe2v.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2dl3        ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impd      ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- calls      -----------------------------------------------------
+!||    select_dof     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    update_globv   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    velrot         ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE RBE2DL3(NSN   ,ISL   ,X     ,V     ,VR    ,
      1                   JT    ,JR    ,M     ,SKEW  ,IRAD  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1364,8 +1307,8 @@ C-----------------------------------------------
      .        TDOF1,TDOF2,TDOF3,RDOF1,RDOF2,RDOF3
 C     REAL
       my_real
-     .   RX, RY,RZ,LRX, LRY,LRZ,RVX,RVY,RVZ,
-     .   DVX,DVY,DVZ,VVX,VVY,VVZ,KTR(3,3), VLM(3),LOCALSM(3),GL0BLSM(3),
+     .    
+     .    VLM(3),LOCALSM(3),GL0BLSM(3),
      .   VLS(3), VRLM(3), VRLS(3),VSROT(3),VRTEMP(3)
 
 C======================================================================|
@@ -1413,12 +1356,12 @@ C       transform vector pointing from main node to secnd node to local coordina
           VRLS(J) = VRLM(J) * JR(J)
         END DO
 
-        IF( IRAD .EQ. 0) THEN ! NASTRAN FORMAT
+        IF( IRAD == 0) THEN ! NASTRAN FORMAT
            CALL VELROT(VRLM, LOCALSM,VSROT)
-           IF( JT(1) .NE. 0 ) VLS(1) = VLS(1) + VSROT(1)
-           IF( JT(2) .NE. 0 ) VLS(2) = VLS(2) + VSROT(2)
-           IF( JT(3) .NE. 0 ) VLS(3) = VLS(3) + VSROT(3)
-        ELSE IF( (JR(1)+JR(2)+JR(3)).GT.0) THEN ! RIGID LINK
+           IF( JT(1) /= 0 ) VLS(1) = VLS(1) + VSROT(1)
+           IF( JT(2) /= 0 ) VLS(2) = VLS(2) + VSROT(2)
+           IF( JT(3) /= 0 ) VLS(3) = VLS(3) + VSROT(3)
+        ELSE IF( (JR(1)+JR(2)+JR(3))>0) THEN ! RIGID LINK
           DO J = 1, 3
             VRTEMP(J) = VRLM(J) * JR(J)
           END DO
@@ -1427,7 +1370,7 @@ C       transform vector pointing from main node to secnd node to local coordina
             VLS(J) = VLS(J) + VSROT(J)
           END DO
 
-        END IF ! IRAD .EQ. 0
+        END IF ! IRAD == 0
 
 C       update dependent DOF(s) by independent DOF(s)
 
@@ -1443,14 +1386,14 @@ C---
       RETURN
       END ! SUBROUTINE RBE2DL3
 
-Chd|====================================================================
-Chd|  SELECT_DOF                    source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RBE2DL3                       source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|        DIR_RBE2                      source/constraints/general/rbe2/rbe2v.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    select_dof   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    rbe2dl3      ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- calls      -----------------------------------------------------
+!||    dir_rbe2     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    l_dir        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||====================================================================
       SUBROUTINE SELECT_DOF(ICT, SKEW, J, J1, K)
 #include "implicit_f.inc"
 
@@ -1465,15 +1408,15 @@ C WORK VARIABLE
      .        EJ(3), EJ1(3)
 
 C-------------------100---------------------
-      IF (ICT .EQ. 4 ) THEN
+      IF (ICT == 4 ) THEN
           EJ(1)=SKEW(1)
           EJ(2)=SKEW(2)
           EJ(3)=SKEW(3)
           CALL L_DIR(EJ,J)
-	    J1=0
+              J1=0
           CALL DIR_RBE2(J    ,J1    ,K     )
 C-------------------010---------------------
-       ELSEIF (ICT .EQ. 2) THEN
+       ELSEIF (ICT == 2) THEN
           EJ(1)=SKEW(4)
           EJ(2)=SKEW(5)
           EJ(3)=SKEW(6)
@@ -1481,15 +1424,15 @@ C-------------------010---------------------
           J1=0
           CALL DIR_RBE2(J    ,J1    ,K     )
 C-------------------001---------------------
-       ELSEIF (ICT .EQ. 1) THEN
+       ELSEIF (ICT == 1) THEN
           EJ(1)=SKEW(7)
           EJ(2)=SKEW(8)
           EJ(3)=SKEW(9)
           CALL L_DIR(EJ,J)
-	    J1=0
+              J1=0
           CALL DIR_RBE2(J    ,J1    ,K     )
 C-------------------011---------------------
-       ELSEIF (ICT .EQ. 3) THEN
+       ELSEIF (ICT == 3) THEN
           EJ(1)=SKEW(7)
           EJ(2)=SKEW(8)
           EJ(3)=SKEW(9)
@@ -1498,13 +1441,13 @@ C-------------------011---------------------
           EJ1(2)=SKEW(5)
           EJ1(3)=SKEW(6)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
           ENDIF
           CALL DIR_RBE2(J    ,J1    ,K     )
 C-------------------101---------------------
-       ELSEIF (ICT .EQ. 5) THEN
+       ELSEIF (ICT == 5) THEN
          EJ(1)=SKEW(7)
          EJ(2)=SKEW(8)
          EJ(3)=SKEW(9)
@@ -1513,13 +1456,13 @@ C-------------------101---------------------
          EJ1(2)=SKEW(2)
          EJ1(3)=SKEW(3)
          CALL L_DIR(EJ1,J1)
-         IF (J1.EQ.J) THEN
+         IF (J1==J) THEN
           EJ1(J)=ZERO
           CALL L_DIR(EJ1,J1)
          ENDIF
          CALL DIR_RBE2(J    ,J1    ,K     )
 C-------------------110---------------------
-       ELSEIF (ICT .EQ. 6) THEN
+       ELSEIF (ICT == 6) THEN
           EJ(1)=SKEW(4)
           EJ(2)=SKEW(5)
           EJ(3)=SKEW(6)
@@ -1528,7 +1471,7 @@ C-------------------110---------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
           ENDIF
@@ -1538,12 +1481,11 @@ C-------------------110---------------------
       END !SUBROUTINE SELECT_DOF
 
 
-Chd|====================================================================
-Chd|  UPDATE_GLOBV                  source/constraints/general/rbe2/rbe2v.F
-Chd|-- called by -----------
-Chd|        RBE2DL3                       source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    update_globv   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- called by ------------------------------------------------------
+!||    rbe2dl3        ../engine/source/constraints/general/rbe2/rbe2v.F
+!||====================================================================
       SUBROUTINE UPDATE_GLOBV(ICT,NS,VLS,V,SKEW,J, J1, K)
 #include "implicit_f.inc"
 #include "param_c.inc"
@@ -1569,19 +1511,19 @@ C  WORK VARIABLE
       END DO
 
 C-------------------100---------------------
-      IF (ICT .EQ. 4 ) THEN
+      IF (ICT == 4 ) THEN
         V(J,NS) = ONE/SKEW1(1,J)*(VLS(1)-SKEW1(1,J1)*V(J1,NS)
      .            -SKEW1(1,K)*V(K,NS ))
 C-------------------010---------------------
-      ELSEIF (ICT .EQ. 2) THEN
+      ELSEIF (ICT == 2) THEN
         V(J,NS) = ONE/SKEW1(2,J)*(VLS(2)-SKEW1(2,J1)*V(J1,NS)
      .            -SKEW1(2,K)*V(K,NS ))
 C-------------------001---------------------
-      ELSEIF (ICT .EQ. 1) THEN
+      ELSEIF (ICT == 1) THEN
         V(J,NS) = ONE/SKEW1(3,J)*(VLS(3)-SKEW1(3,J1)*V(J1,NS)
      .            -SKEW1(3,K)*V(K,NS ))
 C-------------------011---------------------
-      ELSEIF (ICT .EQ. 3) THEN
+      ELSEIF (ICT == 3) THEN
 
         ARRAY1(1) = VLS(2) - SKEW1(2,K) * V(K,NS)
         ARRAY1(2) = VLS(3) - SKEW1(3,K) * V(K,NS)
@@ -1596,7 +1538,7 @@ C-------------------011---------------------
         V(J1,NS) = ARRAY2(2,1) * ARRAY1(1) + ARRAY2(2,2) * ARRAY1(2)
 
 C-------------------101---------------------
-      ELSEIF (ICT .EQ. 5) THEN
+      ELSEIF (ICT == 5) THEN
 
         ARRAY1(1) = VLS(1) - SKEW1(1,K) * V(K,NS)
         ARRAY1(2) = VLS(3) - SKEW1(3,K) * V(K,NS)
@@ -1611,7 +1553,7 @@ C-------------------101---------------------
         V(J1,NS) = ARRAY2(2,1) * ARRAY1(1) + ARRAY2(2,2) * ARRAY1(2)
 
 C-------------------110---------------------
-      ELSEIF (ICT .EQ. 6) THEN
+      ELSEIF (ICT == 6) THEN
         ARRAY1(1) = VLS(2) - SKEW1(2,K) * V(K,NS)
         ARRAY1(2) = VLS(1) - SKEW1(1,K) * V(K,NS)
 
@@ -1625,7 +1567,7 @@ C-------------------110---------------------
         V(J1,NS) = ARRAY2(2,1) * ARRAY1(1) + ARRAY2(2,2) * ARRAY1(2)
 
 C-------------------110---------------------
-      ELSEIF( ICT .EQ. 7 ) THEN
+      ELSEIF( ICT == 7 ) THEN
         DO M = 1 , 3
           V(M,NS) = ZERO
           DO N = 1 , 3

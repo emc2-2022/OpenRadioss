@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BEFIL2                        source/ale/bimat/befil2.F     
-Chd|-- called by -----------
-Chd|        BFORC2                        source/ale/bimat/bforc2.F     
-Chd|-- calls ---------------
-Chd|        IDP_FREE                      source/system/machine.F       
-Chd|        IDP_LOCK                      source/system/machine.F       
-Chd|====================================================================
-      SUBROUTINE BEFIL2(PM,V,FILL,DFILL,IMS,X,ALPH1,ALPH2, 
-     .     AIRE, PY1, PY2, PZ1, PZ2, DALPH1, DALPH2, 
-     .     MAT, NC1, NC2, NC3, NC4)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    befil2     ../engine/source/ale/bimat/befil2.F
+!||--- called by ------------------------------------------------------
+!||    bforc2     ../engine/source/ale/bimat/bforc2.F
+!||--- calls      -----------------------------------------------------
+!||    idp_free   ../engine/source/system/machine.F
+!||    idp_lock   ../engine/source/system/machine.F
+!||====================================================================
+      SUBROUTINE BEFIL2(V,FILL,DFILL,IMS,X,
+     .     DALPH1, DALPH2,
+     .     NC1, NC2, NC3, NC4)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,52 +51,43 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IMS(NUMNOD,*)
       my_real
-     .   PM(NPROPM,*), V(3,*), FILL(NUMNOD,*), DFILL(NUMNOD,*),
-     .   X(3,*), ALPH1(*), ALPH2(*),
-     .   AIRE(*), PY1(*), PY2(*), PZ1(*), PZ2(*), DALPH1(*), DALPH2(*)
+     .   V(3,*), FILL(NUMNOD,*), DFILL(NUMNOD,*),
+     .   X(3,*),
+     .   DALPH1(*), DALPH2(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER MAT(MVSIZ), NC1(MVSIZ), NC2(MVSIZ), NC3(MVSIZ), NC4(MVSIZ), I, N1, N2, N3, N4,
+      INTEGER NC1(MVSIZ), NC2(MVSIZ), NC3(MVSIZ), NC4(MVSIZ), I, N1, N2, N3, N4,
      .   NP
       my_real
 !     .   GAMMA(MVSIZ), XMS(MVSIZ), 
      .   FI1(MVSIZ), FI2(MVSIZ), FI3(MVSIZ), FI4(MVSIZ), 
      .   FA(MVSIZ), VDY1(MVSIZ), VDY2(MVSIZ), VDY3(MVSIZ), VDY4(MVSIZ),
      .   VDZ1(MVSIZ), VDZ2(MVSIZ), VDZ3(MVSIZ), VDZ4(MVSIZ), VDY(MVSIZ), VDZ(MVSIZ), 
-     .   VY1, VY2, VY3, VY4,
-     .   VZ1, VZ2, VZ3, VZ4, ABF, DN, P1, P2, P3, P4, PT, PSY, PSZ, PTY,
-     .   PTZ, PS, PST, PTS, DS0, DT0, DS, DT, 
-     .    INC,     
+     .   ABF, DN, P1, P2, P3, P4, PT, PSY, PSZ, PTY,
+     .   PTZ, PS, PST, PTS, DS0, DT0, DS, DT,
      .   DF1(MVSIZ), DF2(MVSIZ), DF3(MVSIZ), DF4(MVSIZ)
 C-----------------------------------------------
-      !EQUIVALENCE (GAMMA,BV(1,61)),(XMS,BV(1,62))
-C-------------------------------
-!      DO I=LFT,LLT
-!        XMS(I)  = HALF/(PY1(I)*PZ2(I)-PY2(I)*PZ1(I))
-!        GAMMA(I)= ONE
-!      ENDDO
-C-------------------------------
       DO I=LFT,LLT
         FI1(I)=FILL(NC1(I),1)
         FI2(I)=FILL(NC2(I),1)
         FI3(I)=FILL(NC3(I),1)
         FI4(I)=FILL(NC4(I),1)
         ABF=ABS(FI1(I))+ABS(FI2(I))+ABS(FI3(I))+ABS(FI4(I))
-        N1=SIGN(ONE,FI1(I))
-        N2=SIGN(ONE,FI2(I))
-        N3=SIGN(ONE,FI3(I))
-        N4=SIGN(ONE,FI4(I))
-        NP=MAX(0,N1)+MAX(0,N2)+MAX(0,N3)+MAX(0,N4)
+        N1=MERGE(1, 0, FI1(I) > ZERO) ! indicator function
+        N2=MERGE(1, 0, FI2(I) > ZERO) ! indicator function
+        N3=MERGE(1, 0, FI3(I) > ZERO) ! indicator function
+        N4=MERGE(1, 0, FI4(I) > ZERO) ! indicator function
+        NP=N1+N2+N3+N4
         DN=DT1*NP
-        IF(DN.NE.ZERO)THEN
+        IF(DN/=ZERO)THEN
          FA(I)=-DALPH1(I)*ABF/DN
         ELSE
          FA(I)=ZERO
         ENDIF
       ENDDO
 C-----------------------------------------------
-C     CALCUL PAR NOEUD DE V MATIERE - V MAILLAGE
+C     CALCULATION PER NODE OF V MATERIAL - V MESH
 C-----------------------------------------------
       DO I=LFT,LLT
         VDY1(I)=V(2,NC1(I))
@@ -136,7 +127,7 @@ C-----------------------------------------------
         PTS=-PST
         DS0=-FOUR*(PTY*VDZ(I)-PTZ*VDY(I))/PTS
         DT0=-FOUR*(PSY*VDZ(I)-PSZ*VDY(I))/PST
-        IF(FI1(I).GE.ZERO)THEN
+        IF(FI1(I)>=ZERO)THEN
          DS=-FOUR*(PTY*VDZ1(I)-PTZ*VDY1(I))/PTS
          DT=-FOUR*(PSY*VDZ1(I)-PSZ*VDY1(I))/PST
         ELSE
@@ -150,7 +141,7 @@ C
      .              +(  TWO*DS        -DS*DT*DT1)*FI2(I)
      .              +(                  DS*DT*DT1)*FI3(I)
      .              +(          TWO*DT-DS*DT*DT1)*FI4(I) )
-        IF(FI2(I).GE.ZERO)THEN
+        IF(FI2(I)>=ZERO)THEN
          DS=-FOUR*(PTY*VDZ2(I)-PTZ*VDY2(I))/PTS
          DT=-FOUR*(PSY*VDZ2(I)-PSZ*VDY2(I))/PST
         ELSE
@@ -163,7 +154,7 @@ C
      .              +(  TWO*DS-TWO*DT-DS*DT*DT1)*FI2(I)
      .              +(         +TWO*DT+DS*DT*DT1)*FI3(I)
      .              +(                 -DS*DT*DT1)*FI4(I) )
-        IF(FI3(I).GE.ZERO)THEN
+        IF(FI3(I)>=ZERO)THEN
          DS=-FOUR*(PTY*VDZ3(I)-PTZ*VDY3(I))/PTS
          DT=-FOUR*(PSY*VDZ3(I)-PSZ*VDY3(I))/PST
         ELSE
@@ -176,7 +167,7 @@ C
      .              +(        -TWO*DT-DS*DT*DT1)*FI2(I)
      .              +(+TWO*DS+TWO*DT+DS*DT*DT1)*FI3(I)
      .              +(-TWO*DS        -DS*DT*DT1)*FI4(I) )
-        IF(FI4(I).GE.zERO)THEN
+        IF(FI4(I)>=zERO)THEN
          DS=-FOUR*(PTY*VDZ4(I)-PTZ*VDY4(I))/PTS
          DT=-FOUR*(PSY*VDZ4(I)-PSZ*VDY4(I))/PST
         ELSE
@@ -207,7 +198,7 @@ C
       CALL IDP_FREE(2)
 
 C-------------------------------
-      IF(JMULT.GT.1)THEN
+      IF(JMULT>1)THEN
 
       DO I=LFT,LLT
         FI1(I)=FILL(NC1(I),2)
@@ -215,13 +206,13 @@ C-------------------------------
         FI3(I)=FILL(NC3(I),2)
         FI4(I)=FILL(NC4(I),2)
         ABF=ABS(FI1(I))+ABS(FI2(I))+ABS(FI3(I))+ABS(FI4(I))
-        N1=SIGN(ONE,FI1(I))
-        N2=SIGN(ONE,FI2(I))
-        N3=SIGN(ONE,FI3(I))
-        N4=SIGN(ONE,FI4(I))
+        N1=NINT(SIGN(ONE,FI1(I)))
+        N2=NINT(SIGN(ONE,FI2(I)))
+        N3=NINT(SIGN(ONE,FI3(I)))
+        N4=NINT(SIGN(ONE,FI4(I)))
         NP=MAX(0,N1)+MAX(0,N2)+MAX(0,N3)+MAX(0,N4)
         DN=DT1*NP
-        IF(DN.NE.ZERO)THEN
+        IF(DN/=ZERO)THEN
          FA(I)=-DALPH2(I)*ABF/DN
         ELSE
          FA(I)=ZERO
@@ -252,7 +243,7 @@ C
         PTS=-PST
         DS0=-FOUR*(PTY*VDZ(I)-PTZ*VDY(I))/PTS
         DT0=-FOUR*(PSY*VDZ(I)-PSZ*VDY(I))/PST
-        IF(FI1(I).GE.ZERO)THEN
+        IF(FI1(I)>=ZERO)THEN
          DS=-FOUR*(PTY*VDZ1(I)-PTZ*VDY1(I))/PTS
          DT=-FOUR*(PSY*VDZ1(I)-PSZ*VDY1(I))/PST
         ELSE
@@ -266,7 +257,7 @@ C
      .              + ( TWO*DS        -DS*DT*DT1)*FI2(I)
      .              + (                 DS*DT*DT1)*FI3(I)
      .              + (         TWO*DT-DS*DT*DT1)*FI4(I) )
-        IF(FI2(I).GE.ZERO)THEN
+        IF(FI2(I)>=ZERO)THEN
          DS=-FOUR*(PTY*VDZ2(I)-PTZ*VDY2(I))/PTS
          DT=-FOUR*(PSY*VDZ2(I)-PSZ*VDY2(I))/PST
         ELSE
@@ -275,11 +266,11 @@ C
         ENDIF
         DS= MIN(ZERO,TWO*DS)
         DT= MAX(ZERO,TWO*DT)
-        DF2(I)=FOUR*((-TWO*DS       +DS*DT*DT1)*FI1(I)
+        DF2(I)=FOURTH*((-TWO*DS       +DS*DT*DT1)*FI1(I)
      .               +( TWO*DS-TWO*DT-DS*DT*DT1)*FI2(I)
      .               +(        +TWO*DT+DS*DT*DT1)*FI3(I)
      .               +(                -DS*DT*DT1)*FI4(I) )
-        IF(FI3(I).GE.ZERO)THEN
+        IF(FI3(I)>=ZERO)THEN
          DS=-FOUR*(PTY*VDZ3(I)-PTZ*VDY3(I))/PTS
          DT=-FOUR*(PSY*VDZ3(I)-PSZ*VDY3(I))/PST
         ELSE
@@ -292,7 +283,7 @@ C
      .           +(        -TWO*DT-DS*DT*DT1)*FI2(I)
      .           +(+TWO*DS+TWO*DT+DS*DT*DT1)*FI3(I)
      .           +(-TWO*DS        -DS*DT*DT1)*FI4(I) )
-        IF(FI4(I).GE.ZERO)THEN
+        IF(FI4(I)>=ZERO)THEN
          DS=-FOUR*(PTY*VDZ4(I)-PTZ*VDY4(I))/PTS
          DT=-FOUR*(PSY*VDZ4(I)-PSZ*VDY4(I))/PST
         ELSE
@@ -323,7 +314,7 @@ C
 
       CALL IDP_FREE(2)
 
-      ENDIF !(JMULT.GT.1)
+      ENDIF !(JMULT>1)
 C-------------------------------
 C
       RETURN

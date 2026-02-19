@@ -1,48 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_SETOFF_WIND_FRWAVE       source/materials/fail/fail_setoff_wind_frwave.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        FAILWAVE_MOD                  ../common_source/modules/failwave_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_setoff_wind_frwave   ../engine/source/materials/fail/fail_setoff_wind_frwave.F
+!||--- called by ------------------------------------------------------
+!||    mulawc                    ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell             ../engine/source/materials/mat_share/usermat_shell.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod              ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    failwave_mod              ../common_source/modules/failwave_mod.F
+!||    mat_elem_mod              ../common_source/modules/mat_elem/mat_elem_mod.F90
+!||    stack_mod                 ../engine/share/modules/stack_mod.F
+!||====================================================================
       SUBROUTINE FAIL_SETOFF_WIND_FRWAVE(
-     .           ELBUF_STR,GEO      ,PID      ,NGL      ,
-     .           NEL      ,IR       ,IS       ,NLAY     ,
-     .           NPTTOT   ,PTHKF    ,THK_LY   ,THKLY    ,
+     .           ELBUF_STR,MAT_ELEM ,GEO      ,PID      ,
+     .           NGL      ,NEL      ,IR       ,IS       ,
+     .           NLAY     ,NPTTOT   ,THK_LY   ,THKLY    ,
      .           OFF      ,NPG      ,STACK    ,ISUBSTACK,
      .           IGTYP    ,FAILWAVE ,FWAVE_EL ,DMG_FLAG ,
      .           TIME     ,TRELAX   ,TFAIL    ,DMG_SCALE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD
+      USE MAT_ELEM_MOD
       USE STACK_MOD
       USE FAILWAVE_MOD
+      USE ELBUFDEF_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,12 +53,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include "param_c.inc"
-#include "scr17_c.inc"
-#include "com01_c.inc"
-#include "com08_c.inc"
-#include "units_c.inc"
 #include "comlock.inc"
-#include "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -65,24 +62,25 @@ C-----------------------------------------------
       INTEGER, DIMENSION(NEL) :: NGL,FWAVE_EL
       my_real, DIMENSION(NPTTOT*NEL) :: THKLY
       my_real, DIMENSION(NPROPG,*) :: GEO
-      my_real, DIMENSION(NLAY,*)   :: PTHKF
       my_real, DIMENSION(NEL   )   :: OFF,TFAIL,DMG_SCALE
       my_real, DIMENSION(NEL,*)    :: THK_LY
       TYPE(ELBUF_STRUCT_)  ,TARGET :: ELBUF_STR
       TYPE (FAILWAVE_STR_) ,TARGET :: FAILWAVE 
+      TYPE (MAT_ELEM_) ,INTENT(INOUT) :: MAT_ELEM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,IEL,IPOS,IL,IFL,IP,IPT,IG,IPG,JPG,NPTR,NPTS,NPTT,
-     .   IDMG,COUNTPG,NINDXPG,NINDXLY,IPT_ALL,NFAIL,IPWEIGHT,IPTHKLY
-      INTEGER, DIMENSION(NEL) :: NPTF,INDXPG,INDXLY  
-      INTEGER, DIMENSION(10) :: ISTRESS
+      INTEGER IEL, IPOS, IL, IFL, IPT, IG, IPG, JPG, NPTR, NPTS, NPTT, IMAT, 
+     . COUNTPG,NINDXPG,NFAIL,IPWEIGHT,IPTHKLY
+      INTEGER, DIMENSION(NEL) :: INDXPG
+ 
       INTEGER, DIMENSION(:), POINTER :: OFFLY,OFFPG,FOFF
-      my_real, DIMENSION(NEL) :: UEL1,DFMAX,TDEL,NPTTF,SIGSCALE
+      my_real, DIMENSION(NLAY,100)   :: PTHKF
+ 
       my_real, DIMENSION(:), POINTER :: DMAX
-      my_real, DIMENSION(NLAY) :: WEIGHT,P_THKLY
-      my_real :: THK_LAY,P_THICKG,FAIL_EXP,THFACT,NORM,DFAIL
-      TYPE(L_BUFEL_) ,POINTER :: LBUF 
+ 
+      my_real :: P_THICKG, FAIL_EXP, THFACT
+ 
       TYPE (STACK_PLY) :: STACK    
 c-----------------------------------------------------------------------
 c     NPTT       NUMBER OF INTEGRATION POINTS IN CURRENT LAYER
@@ -104,6 +102,13 @@ c
       IPG  = (IS-1)*NPTR + IR     ! current Gauss point
       JPG  = (IPG-1)*NEL
 c                                                       
+      DO IL=1,NLAY
+        NFAIL = ELBUF_STR%BUFLY(IL)%NFAIL
+        IMAT  = ELBUF_STR%BUFLY(IL)%IMAT
+        DO IFL = 1,NFAIL
+          PTHKF(IL,IFL) = MAT_ELEM%MAT_PARAM(IMAT)%FAIL(IFL)%PTHK
+        END DO
+      END DO
 c------------------------------------
       IF (NLAY == 1) THEN
 c------------------------------------
@@ -200,9 +205,6 @@ c------------------
 c----------------------------------------
       ENDIF       ! PROPERTY TYPE
 c-------------------------------
- 2000 FORMAT(1X,'-- FAILURE OF LAYER',I3, ' ,SHELL ELEMENT NUMBER ',I10)
- 2100 FORMAT(1X,'-- FAILURE OF LAYER',I3, ' ,SHELL ELEMENT NUMBER ',I10,
-     .       1X,'AT TIME :',G11.4)
 c-----------
       RETURN
       END

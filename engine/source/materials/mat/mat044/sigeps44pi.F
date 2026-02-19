@@ -1,39 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS44PI                    source/materials/mat/mat044/sigeps44pi.F
-Chd|-- called by -----------
-Chd|        MULAWP                        source/elements/beam/mulawp.F 
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps44pi   ../engine/source/materials/mat/mat044/sigeps44pi.F
+!||--- called by ------------------------------------------------------
+!||    mulaw_ib     ../engine/source/elements/beam/mulaw_ib.F
+!||--- calls      -----------------------------------------------------
+!||    vinter       ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS44PI(
-     1               NEL     ,NUPARAM ,UPARAM  ,IPM     ,MAT     ,
+     1               NEL     ,NUPARAM ,UPARAM  ,IPM     ,IMAT    ,
      2               OFF     ,PLA     ,DEPSXX  ,DEPSXY  ,DEPSXZ  ,        
      3               SIGOXX  ,SIGOXY  ,SIGOXZ  ,EPST    ,EPSP    ,      
      4               SIGNXX  ,SIGNXY  ,SIGNXZ  ,ETSE    ,NUVAR   ,
      5               UVAR    ,IFUNC   ,NVARTMP ,VARTMP  ,NPF     ,
-     6               TF      ,NFUNC   )      
+     6               TF      ,NFUNC   ,SIGY, NGL,IPT)      
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -42,18 +42,18 @@ C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
+#include      "units_c.inc"
+#include      "comlock.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: IMAT,NGL(NEL),IPT
       INTEGER ,INTENT(IN) :: NEL,NUPARAM,NUVAR,
      .   NFUNC,IFUNC(NFUNC),NPF(*),NVARTMP
       INTEGER ,DIMENSION(NPROPMI,NUMMAT) ,INTENT(IN) :: IPM
-      INTEGER ,DIMENSION(NEL) ,INTENT(IN) :: MAT
       my_real ,DIMENSION(NEL) ,INTENT(IN) :: EPST,
      .   DEPSXX,DEPSXY,DEPSXZ,SIGOXX,SIGOXY,SIGOXZ
       my_real ,DIMENSION(*) ,INTENT(IN) :: UPARAM
@@ -66,6 +66,7 @@ C-----------------------------------------------
       my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: PLA,OFF,EPSP
       INTEGER :: VARTMP(NEL,NVARTMP)
       my_real ,DIMENSION(NEL,NUVAR) ,INTENT(INOUT):: UVAR
+      my_real ,DIMENSION(NEL) ,INTENT(INOUT)   :: SIGY     
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -78,8 +79,8 @@ C=======================================================================
       SHFACT = FIVE_OVER_6
       EPIF   = ZERO
 c
+      IADBUF   = IPM(7,IMAT)-1
       DO I=1,NEL
-        IADBUF   = IPM(7,MAT(I))-1
         E(I)     = UPARAM(IADBUF+1)
         NU(I)    = UPARAM(IADBUF+2)
         CA(I)    = UPARAM(IADBUF+3)
@@ -105,7 +106,7 @@ c
         DPLA(I) = ZERO
       ENDDO
 c        
-c---    Contraintes elastiques
+c--- Elastic constraints
 c
       DO I = 1,NEL
         GS = SHFACT*G(I)                         
@@ -170,7 +171,8 @@ c-------------------
 c     PROJECTION   -   radial return
 c-------------------
       DO I = 1,NEL
-        YLD(I) = MIN(YLD(I),YLDMAX(I))                  
+        YLD(I) = MIN(YLD(I),YLDMAX(I))     
+        SIGY(I)= YLD(I)              
         SVM    = SIGNXX(I)**2 + THREE*(SIGNXY(I)**2 + SIGNXZ(I)**2)
         IF (SVM > YLD(I)**2) THEN
           SVM = SQRT(SVM)                                        
@@ -178,8 +180,8 @@ c-------------------
           SIGNXX(I) = SIGNXX(I)*R                                  
           SIGNXY(I) = SIGNXY(I)*R                                  
           SIGNXZ(I) = SIGNXZ(I)*R   
-          DPLA(I) = OFF(I)*SVM*(ONE - R) / G3(I)                       
-          PLA(I) = PLA(I) + OFF(I)*SVM*(ONE - R) / G3(I)
+          DPLA(I) = OFF(I)*SVM*(ONE - R) / E(I)                    
+          PLA(I) = PLA(I) + OFF(I)*SVM*(ONE - R) / E(I)
         ENDIF                                   
       ENDDO     
 c--------------------------------
@@ -205,7 +207,10 @@ c--------------------------------
 c         test strain failure
           IF (DMG == ZERO .or. PLA(I) >= EPMAX(I)) THEN
             OFF(I)   = FOUR_OVER_5
-            IDEL7NOK = 1
+!#include "lockon.inc"
+            WRITE(IOUT, 1000) NGL(I),IPT
+            WRITE(ISTDO,1000) NGL(I),IPT
+!#include "lockoff.inc"
           ENDIF
           IF (VFLAG(I) == 1) THEN 
             ALPHA   = MIN(ONE, ASRATE(I)*DT1)
@@ -217,5 +222,8 @@ c
         ENDIF
       ENDDO                                          
 c-----------
+c---------------------------------------------------------
+ 1000 FORMAT(5X,' FAILURE BEAM ELEMENT NUMBER',I3,',  INTEGRATION POINT NUMBER ',I3)
+c---------------------------------------------------------
       RETURN
       END

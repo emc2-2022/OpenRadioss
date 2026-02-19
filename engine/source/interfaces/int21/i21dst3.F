@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21DST3                       source/interfaces/int21/i21dst3.F
-Chd|-- called by -----------
-Chd|        I21OPTCD                      source/interfaces/int21/i21optcd.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21dst3    ../engine/source/interfaces/int21/i21dst3.F
+!||--- called by ------------------------------------------------------
+!||    i21optcd   ../engine/source/interfaces/int21/i21optcd.F
+!||====================================================================
       SUBROUTINE I21DST3(
      1                  JLT    ,LIST   ,CAND_N ,CAND_E ,IX1    ,
      2                  IX2    ,IX3    ,IX4    ,GAPV   ,XI     ,
@@ -41,14 +40,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -68,7 +63,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG, J, IS, L, N, N4N
+      INTEGER I, IS, N, N4N
       INTEGER NSVG(MVSIZ), FAR(MVSIZ), I4N(MVSIZ),
      .        IRTLM_L(2,MVSIZ)
       my_real
@@ -90,10 +85,10 @@ C-----------------------------------------------
      .     YI1(MVSIZ),  YI2(MVSIZ),
      .     ZI1(MVSIZ),  ZI2(MVSIZ)
       my_real
-     .     S2,D1,D2,D3,D4,
-     .     X12,X23,X34,X41,XI0,
-     .     Y12,Y23,Y34,Y41,YI0,
-     .     Z12,Z23,Z34,Z41,ZI0,
+     .     S2,
+     .     
+     .     
+     .     
      .     XN1(MVSIZ),YN1(MVSIZ),ZN1(MVSIZ),
      .     XN2(MVSIZ),YN2(MVSIZ),ZN2(MVSIZ),
      .     XN3(MVSIZ),YN3(MVSIZ),ZN3(MVSIZ),
@@ -102,7 +97,7 @@ C-----------------------------------------------
      .     SY1(MVSIZ),SY2(MVSIZ),
      .     SZ1(MVSIZ),SZ2(MVSIZ),
      .     XI0V(MVSIZ),  YI0V(MVSIZ),  ZI0V(MVSIZ),
-     .     XH(MVSIZ),  YH(MVSIZ),  ZH(MVSIZ),
+     .         
      .     NX(MVSIZ),  NY(MVSIZ),  NZ(MVSIZ),
      .     GAP2(MVSIZ), NN, 
      .     X0H(MVSIZ), Y0H(MVSIZ), Z0H(MVSIZ),
@@ -114,7 +109,7 @@ C-----------------------------------------------
      .     SIDE, CRIT, CRITO, LBO, LCO, LB, LC, LA, SL,
      .     LAMBDA, XP, YP, ZP,GAPP2(MVSIZ)
       my_real
-     .     CMAJ(MVSIZ), CSTS_L(2,MVSIZ)
+     .      CSTS_L(2,MVSIZ)
 C--------------------------------------------------------
        DO I=1,JLT
          IS=LIST(I)
@@ -131,10 +126,10 @@ C
          CSTS_L(2,I) =-ONE
        END DO
 C--------------------------------------------------------
-C  CAS DES PAQUETS MIXTES
+C  CASE OF MIXED PACKETS
 C--------------------------------------------------------
        DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
          X0(I) = FOURTH*(X1(I)+X2(I)+X3(I)+X4(I))
          Y0(I) = FOURTH*(Y1(I)+Y2(I)+Y3(I)+Y4(I))
          Z0(I) = FOURTH*(Z1(I)+Z2(I)+Z3(I)+Z4(I)) 
@@ -147,7 +142,7 @@ C--------------------------------------------------------
 
        DO I=1,JLT
 
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           NNX0(I)=FOURTH*(NNX1(I)+NNX2(I)+NNX3(I)+NNX4(I))
           NNY0(I)=FOURTH*(NNY1(I)+NNY2(I)+NNY3(I)+NNY4(I))
           NNZ0(I)=FOURTH*(NNZ1(I)+NNZ2(I)+NNZ3(I)+NNZ4(I))
@@ -160,7 +155,7 @@ C--------------------------------------------------------
        ENDDO
 C
 c---------------------------------------------------------
-c      courbure cubique
+c      cubic curvature
 c---------------------------------------------------------
 c       IF(ICURV == 3)THEN
 c         CALL I7CMAJ(JLT    ,CMAJ   ,IRECT  ,NOD_NORMAL,CAND_E,
@@ -197,7 +192,7 @@ C
 C
        ENDDO
 C
-C normales aux triangles (recalculees ici pour pas les stocker).
+C normals to the triangles (recalculated here so as not to store them).
        DO I=1,JLT
 
         XN1(I) = Y01(I)*Z02(I) - Z01(I)*Y02(I)
@@ -281,7 +276,7 @@ C
 C
         ENDDO
 C
-C coordonnees locale dans le triangle //
+C local coordinates in the triangle //
         DO I=1,JLT
 C
           FAR(I)=0
@@ -333,17 +328,17 @@ C
      .        LB1(I)+LC1(I) > ONEP01) FAR(I)=1
         ENDDO
 C
-C  necessaire au calcul de distance // normale
+C  needed for distance // normale
         DO I=1,JLT
 C
          IF(FAR(I)==1)CYCLE
 C
-C normale interpolee dans le triangle //
+C interpolated normal in the triangle //
          NX(I)=(ONE-LB1(I)-LC1(I))*NNX0(I)+LB1(I)*NNX1(I)+LC1(I)*NNX2(I)
          NY(I)=(ONE-LB1(I)-LC1(I))*NNY0(I)+LB1(I)*NNY1(I)+LC1(I)*NNY2(I)
          NZ(I)=(ONE-LB1(I)-LC1(I))*NNZ0(I)+LB1(I)*NNZ1(I)+LC1(I)*NNZ2(I)
 C
-C projection sur triangle 1
+C projection on triangle 1
          NN = NX(I)*XN1(I)+ NY(I)*YN1(I)+ NZ(I)*ZN1(I)
          IF(NN <= ZERO) THEN
 C cas limite
@@ -392,8 +387,8 @@ C
          IF(FAR(I)==1)CYCLE
 C
 C=======================================================================
-C1   on a garde -zep01 < la,b,c < 0 pour retenir un contact dans le cas
-C    ou la surface main est concave
+C1   we kept -zep01 < la,b,c < 0 to retain a contact in the case
+C    where the main surface is concave
 C
 C            / \
 C           /   \
@@ -401,11 +396,11 @@ C          /  o  \
 C         /       \
 C
 C=======================================================================
-C2   on rabat la,b,c pour revenir sur l'element lorsqu'on calcule 
-C    le critere: 
-C    vu dans le cas de surface main convexe avec grand element, 
-C    la projection retenue est tres eloignee et peut-etre 
-C    hors de la boite lors du retri => parith on, KO
+C2   we fold la,b,c to return to the element when calculating
+C    the criterion:
+C    seen in the case of convex main surface with large element,
+C    the retained projection is very far and may be
+C    out of the box during retri => parith on, KO
 C
 C                /
 C               /
@@ -476,14 +471,14 @@ C
 C------
        N4N=0
        DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           N4N = N4N+1
           I4N(N4N)=I
         ELSE
         ENDIF
        ENDDO
 C------
-C 2eme triangle ...
+C 2nd triangle ...
        DO N=1,N4N
 C
         I=I4N(N)
@@ -551,7 +546,7 @@ C
 C
        ENDDO
 C
-C coordonnees locale dans le triangle //
+C local coordinates in the triangle //
        DO N=1,N4N
 C
          I=I4N(N)
@@ -605,19 +600,19 @@ C
      .        LB2(I)+LC2(I) > ONEP01) FAR(I)=1
        ENDDO
 C
-C  necessaire au calcul de distance // normale
+C  needed for distance // normale
        DO N=1,N4N
 C
          I=I4N(N)
 C
          IF(FAR(I)==1)CYCLE
 C
-C normale interpolee dans le triangle //
+C interpolated normal in the triangle //
          NX(I)=(ONE-LB2(I)-LC2(I))*NNX0(I)+LB2(I)*NNX2(I)+LC2(I)*NNX3(I)
          NY(I)=(ONE-LB2(I)-LC2(I))*NNY0(I)+LB2(I)*NNY2(I)+LC2(I)*NNY3(I)
          NZ(I)=(ONE-LB2(I)-LC2(I))*NNZ0(I)+LB2(I)*NNZ2(I)+LC2(I)*NNZ3(I)
 C
-C projection sur triangle 2
+C projection on triangle 2
          NN = NX(I)*XN2(I)+ NY(I)*YN2(I)+ NZ(I)*ZN2(I)
          IF(NN <= ZERO) THEN
 C cas limite
@@ -724,7 +719,7 @@ C        SIDE=NX2(I)*NX(I)+NY2(I)*NY(I)+NZ2(I)*NZ(I)
 C
        ENDDO
 C------
-C 3eme triangle ...
+C 3rd triangle ...
        DO N=1,N4N
 C
          I=I4N(N)
@@ -792,7 +787,7 @@ C
 C
        ENDDO
 C
-C coordonnees locale dans le triangle //
+C local coordinates in the triangle //
        DO N=1,N4N
 C
          I=I4N(N)
@@ -846,19 +841,19 @@ C
      .        LB3(I)+LC3(I) > ONEP01) FAR(I)=1
        ENDDO
 C
-C  necessaire au calcul de distance // normale
+C  needed for distance // normale
        DO N=1,N4N
 C
          I=I4N(N)
 C
          IF(FAR(I)==1)CYCLE
 C
-C normale interpolee dans le triangle //
+C interpolated normal in the triangle //
          NX(I)=(ONE-LB3(I)-LC3(I))*NNX0(I)+LB3(I)*NNX3(I)+LC3(I)*NNX4(I)
          NY(I)=(ONE-LB3(I)-LC3(I))*NNY0(I)+LB3(I)*NNY3(I)+LC3(I)*NNY4(I)
          NZ(I)=(ONE-LB3(I)-LC3(I))*NNZ0(I)+LB3(I)*NNZ3(I)+LC3(I)*NNZ4(I)
 C
-C projection sur triangle 3
+C projection on triangle 3
          NN = NX(I)*XN3(I)+ NY(I)*YN3(I)+ NZ(I)*ZN3(I)
          IF(NN <= ZERO) THEN
 C cas limite
@@ -965,7 +960,7 @@ C        SIDE=NX3(I)*NX(I)+NY3(I)*NY(I)+NZ3(I)*NZ(I)
 C
        END DO
 C------
-C 4eme triangle ...
+C 4th triangle ...
        DO N=1,N4N
 C
          I=I4N(N)
@@ -1033,7 +1028,7 @@ C
 C
        ENDDO
 C
-C coordonnees locale dans le triangle //
+C local coordinates in the triangle //
        DO N=1,N4N
 C
          I=I4N(N)
@@ -1087,19 +1082,19 @@ C
      .        LB4(I)+LC4(I) > ONEP01) FAR(I)=1
        ENDDO
 C
-C  necessaire au calcul de distance // normale
+C  needed for distance // normale
        DO N=1,N4N
 C
          I=I4N(N)
 C
          IF(FAR(I)==1)CYCLE
 C
-C normale interpolee dans le triangle //
+C interpolated normal in the triangle //
          NX(I)=(ONE-LB4(I)-LC4(I))*NNX0(I)+LB4(I)*NNX4(I)+LC4(I)*NNX1(I)
          NY(I)=(ONE-LB4(I)-LC4(I))*NNY0(I)+LB4(I)*NNY4(I)+LC4(I)*NNY1(I)
          NZ(I)=(ONE-LB4(I)-LC4(I))*NNZ0(I)+LB4(I)*NNZ4(I)+LC4(I)*NNZ1(I)
 C
-C projection sur triangle 4
+C projection onto triangle 4
          NN = NX(I)*XN4(I)+ NY(I)*YN4(I)+ NZ(I)*ZN4(I)
          IF(NN <= ZERO) THEN
 C cas limite

@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,47 +15,106 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 #include "hardware.inc"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 #include <sys/types.h>
-
-
 
 #define _FCALL 
 
-#if CPP_mach==CPP_p4win64_spmd ||  CPP_mach==CPP_win64_spmd || CPP_mach==CPP_p4win64 || CPP_mach==CPP_p4win32  || CPP_mach==CPP_wnt
 
+#ifdef _WIN64
+
+#include <Windows.h>
 #include <direct.h>
 
+#define my_getpid (int)GetCurrentProcessId()
+
+#else
+    
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
+
+#define my_getpid getpid()
+
+#endif
+
+
+#ifdef _WIN64
+
+
 char* tmpenv_c(){
+//  ---------------------------------------------------------------------------------------
+//  tmpenv_c : give TMPDIR environment variable. If not set,give current working directory
+//                 WINDOWS CODE
+//  ---------------------------------------------------------------------------------------
+//  INPUT
+//  OUTPUT
+//     char *       : returns tmpdir
+//   ----------------------------------------------------------------------------
   char * tmpdir;
-  tmpdir =  getenv("TMPDIR");
+  int sz_tmpdir;
+  DWORD fileattr;
+  
+  tmpdir=(char *)malloc(sizeof(char)*2048);
+  sz_tmpdir = GetEnvironmentVariable("TMPDIR",tmpdir,2048);
+
+  /* Check if TMPDIR is a directory */
+  if (sz_tmpdir > 0){
+    fileattr = GetFileAttributesA(tmpdir);
+
+    // Local directory : if directory does not exist or it is not a directory
+    if ( fileattr == INVALID_FILE_ATTRIBUTES || !(fileattr & FILE_ATTRIBUTE_DIRECTORY) ){  
+      sz_tmpdir = 0;
+    }
+  }
 
   /* second trial get current working directory */
-  if (tmpdir==NULL){
-    tmpdir = _getcwd( NULL, 0 );
+  if (sz_tmpdir == 0){
+      
+    sz_tmpdir = GetCurrentDirectory( 2048,tmpdir);
   }
+  fflush(stdout);
   return tmpdir;
 
 }
 
 #elif 1
-
+//  ---------------------------------------------------------------------------------------
+//  tmpenv_c : give TMPDIR environment variable. If not set,give current working directory
+//                 LINUX CODE
+//  ---------------------------------------------------------------------------------------
+//  INPUT
+//  OUTPUT
+//     char *       : returns tmpdir
+//   ----------------------------------------------------------------------------
 char* tmpenv_c(){
 
   char * tmpdir;
+  DIR* directory;
 
   tmpdir =  getenv("TMPDIR");
-  /* second trial get current working directory */
+  
+  if (tmpdir != NULL){
+     directory = opendir(tmpdir);   // check if directory exists 
+
+     if (directory == NULL){
+       tmpdir=NULL;
+     }else{
+       closedir(directory);
+     }
+   }
+
+  /* second trial get current working directory */  
   if (tmpdir==NULL){
     tmpdir = (char *)calloc(200,sizeof(char));
     getcwd(tmpdir,200);
@@ -67,16 +126,15 @@ char* tmpenv_c(){
 #endif
 
 
-/*int main(){
 
-  char * tmpenv =  tmpenv_c();
-  printf("output: %s\n",tmpenv);
-
-  return 1;
-}
-*/
-
-
+//  --------------------------------------------------------------------------------------------------
+//  tmpenv_c : give TMPDIR environment variable to Fortran. If not set,give current working directory
+//                 LINUX CODE
+//  --------------------------------------------------------------------------------------------------
+//  INPUT
+//  OUTPUT
+//     char *       : returns tmpdir
+//   ----------------------------------------------------------------------------
 void tmpenvf_(char* tmpdir,int *tmplen){
 
   char * tdir= tmpenv_c();
@@ -100,20 +158,39 @@ void _FCALL TMPENVF (char* tmpdir,int* tmplen){
   tmpenvf_(tmpdir,tmplen);
 }
 
-/*---------------------------------------------------*/
+
+//  ---------------------------------------------------------------------------------
+//  fgetpid : send processID back to Fortran
+//                 WINDOWS CODE
+//  ---------------------------------------------------------------------------------
+//  INPUT
+//  OUTPUT
+//     int *pid       : returns process id of Radioss
+//   ----------------------------------------------------------------------------
 void fgetpid_(int * pid){
-  *pid=getpid();
+  *pid=my_getpid;
 }
 
 void fgetpid__(int * pid){
-  *pid=getpid();
+  *pid=my_getpid;
 }
 
 void fgetpid(int * pid){
-  *pid=getpid();
+  *pid=my_getpid;
 }
-
 
 void _FCALL FGETPID(int * pid){
-  *pid=getpid();
+  *pid=my_getpid;
 }
+
+
+#ifdef MAIN
+int main()
+{
+  char * tmpenv =  tmpenv_c();
+  printf("output: %s\n",tmpenv);
+
+  return 1;
+}
+
+#endif

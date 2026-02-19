@@ -1,56 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CDKINIT3                      source/elements/sh3n/coquedk/cdkinit3.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        C1BUF3                        source/elements/shell/coque/c1buf3.F
-Chd|        C3COORI                       source/elements/sh3n/coque3n/c3coori.F
-Chd|        C3EPSCHK                      source/elements/sh3n/coque3n/c3init3.F
-Chd|        C3EVEC3                       source/elements/sh3n/coque3n/c3evec3.F
-Chd|        C3INMAS                       source/elements/sh3n/coque3n/c3inmas.F
-Chd|        C3VEOK3                       source/elements/sh3n/coque3n/c3veok3.F
-Chd|        CDKDERII                      source/elements/sh3n/coquedk/cdkderii.F
-Chd|        CDKEPSINI                     source/elements/sh3n/coquedk/cdkepsini.F
-Chd|        CDKEVEC3                      source/elements/sh3n/coquedk/cdkevec3.F
-Chd|        CFAILINI4                     source/elements/shell/coque/cfailini.F
-Chd|        CM35IN3                       source/materials/mat/mat035/cm35in3.F
-Chd|        CMAINI3                       source/elements/sh3n/coquedk/cmaini3.F
-Chd|        CMATINI4                      source/materials/mat_share/cmatini4.F
-Chd|        CORTH3                        source/elements/shell/coque/corth3.F
-Chd|        CSIGINI4                      source/elements/shell/coqueba/scigini4.F
-Chd|        CUSERINI4                     source/elements/shell/coqueba/cuserini4.F
-Chd|        LAYINI1                       source/elements/shell/coqueba/layini1.F
-Chd|        THICKINI                      source/elements/shell/coqueba/thickini.F
-Chd|        DRAPE_MOD                     share/modules1/drape_mod.F    
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|        STACK_MOD                     share/modules1/stack_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cdkinit3            ../starter/source/elements/sh3n/coquedk/cdkinit3.F
+!||--- called by ------------------------------------------------------
+!||    initia              ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg              ../starter/source/output/message/message.F
+!||    c1buf3              ../starter/source/elements/shell/coque/c1buf3.F
+!||    c3coori             ../starter/source/elements/sh3n/coque3n/c3coori.F
+!||    c3epschk            ../starter/source/elements/sh3n/coque3n/c3init3.F
+!||    c3evec3             ../starter/source/elements/sh3n/coque3n/c3evec3.F
+!||    c3inmas             ../starter/source/elements/sh3n/coque3n/c3inmas.F
+!||    c3veok3             ../starter/source/elements/sh3n/coque3n/c3veok3.F
+!||    cdkderii            ../starter/source/elements/sh3n/coquedk/cdkderii.F
+!||    cdkepsini           ../starter/source/elements/sh3n/coquedk/cdkepsini.F
+!||    cdkevec3            ../starter/source/elements/sh3n/coquedk/cdkevec3.F
+!||    cm35in3             ../starter/source/materials/mat/mat035/cm35in3.F
+!||    cmaini3             ../starter/source/elements/sh3n/coquedk/cmaini3.F
+!||    cmatini4            ../starter/source/materials/mat_share/cmatini4.F
+!||    corth3              ../starter/source/elements/shell/coque/corth3.F
+!||    csigini4            ../starter/source/elements/shell/coqueba/scigini4.F
+!||    cuserini4           ../starter/source/elements/shell/coqueba/cuserini4.F
+!||    initemp_shell       ../starter/source/materials/therm/initemp_shell.F90
+!||    layini1             ../starter/source/elements/shell/coqueba/layini1.F
+!||    thickini            ../starter/source/elements/shell/coqueba/thickini.F
+!||--- uses       -----------------------------------------------------
+!||    drape_mod           ../starter/share/modules1/drape_mod.F
+!||    initemp_shell_mod   ../starter/source/materials/therm/initemp_shell.F90
+!||    message_mod         ../starter/share/message_module/message_mod.F
+!||    stack_mod           ../starter/share/modules1/stack_mod.F
+!||====================================================================
       SUBROUTINE CDKINIT3(ELBUF_STR,GROUP_PARAM,
      1                   IXTG  ,PM    ,X     ,GEO   ,
      2                   XMAS  ,IN    ,NVC   ,DTELEM,
@@ -63,16 +62,21 @@ Chd|====================================================================
      B                   IPARG,CPT_ELTENS,PART_AREA ,NPF, TF   ,
      C                   SH3TRIM,ISUBSTACK,STACK,RNOISE ,DRAPE,
      D                   SH3ANG,GEO_STACK,IGEO_STACK,STRTG,
-     E                   PERTURB,IYLDINI,ELE_AREA,NLOC_DMG)
+     E                   PERTURB,IYLDINI,ELE_AREA,NLOC_DMG,
+     G                   IDRAPE ,DRAPEG,MAT_PARAM,GLOB_THERM,
+     H                   LTITR )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE MAT_ELEM_MOD            
       USE MESSAGE_MOD            
       USE STACK_MOD
-      USE MATPARAM_DEF_MOD
+      USE GROUP_PARAM_MOD
       USE NLOCAL_REG_MOD   
       USE DRAPE_MOD           
+      use glob_therm_mod
+      use initemp_shell_mod
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -86,13 +90,9 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com_xfem1.inc"
 #include      "param_c.inc"
-#include      "scr01_c.inc"
 #include      "scr03_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
-#include      "warn_c.inc"
 #include      "scry_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -101,7 +101,7 @@ C-----------------------------------------------
      .   ISH3N,NSIGSH,NLAY,NPTR,NPTS,NPTT,IL,IR,IS,IT,IYLDINI,
      .   IGEO(NPROPGI,*),IPM(NPROPMI,*),IUSER, NSHNOD(*),NPF(*),
      .   PTSH3N(*), SH3TREE(*),IPARG(*),CPT_ELTENS,SH3TRIM(*),
-     .   ISUBSTACK,IGEO_STACK(*),PERTURB(NPERTURB)
+     .   ISUBSTACK,IGEO_STACK(*),PERTURB(NPERTURB),IDRAPE,LTITR
       my_real
      .   PM(NPROPM,*),X(*),GEO(NPROPG,*),XMAS(*),
      .   IN(*),DTELEM(*), XREFTG(3,3,*),THK(*),SIGSH(NSIGSH,*),
@@ -111,15 +111,18 @@ C-----------------------------------------------
      .   RNOISE(*),SH3ANG(*),GEO_STACK(*),STRTG(*),ELE_AREA(*)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
       TYPE (STACK_PLY) :: STACK
-      TYPE (GRP_PARAM_STRUCT_)  :: GROUP_PARAM
+      TYPE (GROUP_PARAM_)  :: GROUP_PARAM
       TYPE (NLOCAL_STR_) :: NLOC_DMG
-      TYPE (DRAPE_) :: DRAPE(*)
+      TYPE (DRAPE_)  :: DRAPE(NUMELC_DRAPE + NUMELTG_DRAPE)
+      TYPE (DRAPEG_) :: DRAPEG
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
+      TYPE (glob_therm_) ,intent(in)      :: glob_therm
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER  I,J,NDEPAR,IGTYP,IMAT,IPROP,IGMAT,NVC,IHBE,NPG,MPT,
      .   PTM,PTF,PTS,NUVAR,NUVARR,ID,LENF,LENM,LENS,IREP,IPG
-      INTEGER JJ(5),IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),
+      INTEGER JJ(8),IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),
      .   MAT(MVSIZ),PID(MVSIZ),NGL(MVSIZ)
       INTEGER  LAYNPT_MAX,LAY_MAX,NPT_ALL
       my_real,
@@ -134,13 +137,15 @@ C-----------------------------------------------
      .        X31(MVSIZ), Y31(MVSIZ), Z31(MVSIZ),
      .        X2L(MVSIZ), X3L(MVSIZ), Y3L(MVSIZ)
       my_real, ALLOCATABLE, DIMENSION(:) :: DIR_A,DIR_B
+      
+      INTEGER, ALLOCATABLE, DIMENSION(:) :: INDX
       my_real,
      .   DIMENSION(:) ,POINTER  :: UVAR
       PARAMETER (LAYNPT_MAX = 10)
       PARAMETER (LAY_MAX = 100)
       INTEGER MATLY(MVSIZ*LAY_MAX)
       my_real
-     .   POSLY(MVSIZ,LAY_MAX*LAYNPT_MAX)
+     .   POSLY(MVSIZ,LAY_MAX*LAYNPT_MAX),NPGTH
 C-----------------------------------------------
       TYPE(BUF_LAY_) ,POINTER :: BUFLY
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
@@ -148,8 +153,8 @@ C-----------------------------------------------
 C=======================================================================
       GBUF => ELBUF_STR%GBUF
       IORTHLOC = 0
-      IMAT  = IXTG(1,1+NFT)          ! mat N°
-      IPROP = IXTG(NIXTG-1,1+NFT)    ! property N°
+      IMAT  = IXTG(1,1+NFT)          ! mat N
+      IPROP = IXTG(NIXTG-1,1+NFT)    ! property N
 C      IGTYP = GEO(12,IPROP)
       IGTYP = IGEO(11,IPROP)
       IGMAT = IGEO(98,IPROP)
@@ -166,7 +171,7 @@ C
       LENM = NEL*GBUF%G_MOMPG/NPG
       LENS = NEL*GBUF%G_STRPG/NPG
 !
-      DO I=1,5
+      DO I=1,8
         JJ(I) = NEL*(I-1)
       ENDDO
 C
@@ -184,30 +189,52 @@ C-----------------------------------------------
      .             Z1  ,Z2  ,Z3  ,E1X ,E2X ,E3X ,
      .             E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z ,
      .             X31, Y31, Z31 ,X2L ,X3L ,Y3L )
+C-----------------------------------------------------------------------
+!     Initialize element temperature from /initemp
+!      
+      IF (JTHE == 0 .and. GLOB_THERM%NINTEMP > 0) THEN
+        CALL INITEMP_SHELL(ELBUF_STR,TEMP,NEL,NUMNOD,NUMELTG,3,NIXTG,IXTG)    
+      END IF
+C-----------------------------------------------------------------------
+      IF(IDRAPE > 0 ) THEN
+        ALLOCATE(INDX(NUMELTG))
+        INDX = 0
+        INDX(1:NUMELTG) = DRAPEG%INDX(NUMELC + 1 : NUMELC + NUMELTG)
+      ELSE
+        ALLOCATE(INDX(0))
+      ENDIF        
       CALL C3INMAS(X,XREFTG(1,1,NFT+1),IXTG,GEO,PM,XMAS,IN,THK,
      .             PARTSAV,V,IPART(NFT+1),MSTG(NFT+1),INTG(NFT+1),
      .             PTG(1,NFT+1),IGEO    ,IMAT  ,IPROP   ,AREA    ,
      .             ETNOD,NSHNOD,STTG(NFT+1),SH3TREE,MCP   ,
      .             MCPS(NFT+1) , TEMP,SH3TRIM,ISUBSTACK,NLAY,
      .             ELBUF_STR,STACK,GBUF%THK_I,RNOISE,DRAPE ,
-     .             PERTURB,IX1   ,IX2      ,IX3    ,
-     .             X2L    ,X3L    ,Y3L   )
+     .             PERTURB,IX1   ,IX2      ,IX3    ,GLOB_THERM%NINTEMP,
+     .             X2L    ,X3L    ,Y3L   ,IDRAPE , INDX)
 C-----------------------------------------------
-      ALLOCATE(DIR_A(NLAY*NEL*2))
-      ALLOCATE(DIR_B(NLAY*NEL*2))
-      DIR_A = ZERO
-      DIR_B = ZERO
-      IF (MTN == 1 .OR. MTN == 3 .OR. MTN == 23) NPT = 0
       NPT_ALL = 0
       DO IL=1,NLAY
-        NPT_ALL = NPT_ALL + ELBUF_STR%BUFLY(IL)%NPTT
+          NPT_ALL = NPT_ALL + ELBUF_STR%BUFLY(IL)%NPTT
       ENDDO
       MPT  = MAX(1,NPT_ALL)
+      IF(NPT_ALL == 0 ) NPT_ALL = NLAY
       IF (IPARG(6) == 0.OR.NPT==0) MPT=0
 C
+      IF((IGTYP == 51 .OR. IGTYP == 52) .AND. IDRAPE > 0) THEN
+         ALLOCATE(DIR_A(NPT_ALL*NEL*2))
+         ALLOCATE(DIR_B(NPT_ALL*NEL*2))
+         DIR_A = ZERO
+         DIR_B = ZERO
+      ELSE
+         ALLOCATE(DIR_A(NLAY*NEL*2))
+         ALLOCATE(DIR_B(NLAY*NEL*2))
+         DIR_A = ZERO
+         DIR_B = ZERO
+         NPT_ALL = NLAY
+      ENDIF 
       NUVAR  = 0
       NUVARR = 0
-      IF (MTN.GE.29) THEN
+      IF (MTN>=29) THEN
         DO I=LFT,LLT
           IMAT = IXTG(1,I+NFT)
           NUVAR  = MAX(NUVAR,IPM(8,IMAT))
@@ -226,7 +253,8 @@ C------------
         DO I=LFT,LLT
           J = IPART(I+NFT)
 C         PART_AREA(J) = PART_AREA(J) + AREA(I)
-          ELE_AREA(I+NFT) = AREA(I)
+          ELE_AREA(NUMELC+I+NFT) = AREA(I)
+          IF (GBUF%G_AREA > 0) GBUF%AREA(I) = AREA(I)
         ENDDO
       ENDIF
 C------------
@@ -247,12 +275,13 @@ c---- Init UVAR
      .               NPTR,NPTS,NPTT,IGTYP)
       ENDIF
 C      
-       IF (( ISIGSH.NE.0 .OR. ITHKSHEL == 2) .and. MPT>0) THEN
+       IF (( ISIGSH/=0 .OR. ITHKSHEL == 2) .and. MPT>0) THEN
            CALL LAYINI1(
      .        ELBUF_STR  ,LFT        ,LLT        ,GEO        ,IGEO      ,
      .        MAT        ,PID        ,MATLY      ,POSLY      ,IGTYP     ,
-     .        NLAY       ,MPT        ,ISUBSTACK  ,STACK      ,DRAPE      ,
-     .        NFT        ,GBUF%THK   ,NEL        )
+     .        NLAY       ,MPT        ,ISUBSTACK  ,STACK      ,DRAPE     ,
+     .        NFT        ,GBUF%THK   ,NEL        ,IDRAPE     ,STDRAPE   ,
+     .        INDX)
         END IF
 C------------
       IS = 1
@@ -265,15 +294,16 @@ c
         CALL CMAINI3(ELBUF_STR,PM       ,GEO      ,NEL       ,NLAY     ,
      .               SKEW     ,IGEO ,IXTG(1,NFT+1),NIXTG     ,NUMELTG  ,
      .               NSIGSH   ,SIGSH    ,PTSH3N   ,IGTYP     ,IORTHLOC ,
-     .               IPM      ,ID       ,ALDT     ,BUFMAT    ,
+     .               IPM      ,ID       ,ALDT     ,MAT_PARAM,
      .               IR       ,IS       ,ISUBSTACK,STACK     ,IREP     ,
      .               DRAPE    ,SH3ANG(NFT+1),GEO_STACK,IGEO_STACK,
-     .               IGMAT    ,IMAT     ,IPROP   ,
+     .               IGMAT    ,IMAT     ,IPROP    ,NUMMAT,
      .               X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  ,
      .               Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4  ,
-     .               E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z ,X  )
+     .               E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z ,X ,
+     .               NPT_ALL  ,IDRAPE   ,STDRAPE ,INDX,LTITR)
 C-----------------------------------------------------------------------
-C       CALCUL DES CONTRAINTES INITIALES
+C       CALCULATION OF INITIAL STRESSES
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
         IF ((ISIGSH /= 0 .OR. ITHKSHEL == 2).AND. ISH3N == 30 ) THEN
            IF (MPT>0) 
@@ -281,7 +311,8 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
      .             NLAY     ,IREP    ,NEL     ,
      .             X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  ,
      .             Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4  ,
-     .             E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z )
+     .             E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z ,
+     .            IDRAPE, IGTYP)
           IHBE = 11
           CALL CSIGINI4(ELBUF_STR,IHBE   ,
      1               LFT     ,LLT    ,NFT      ,MPT      ,ISTRAIN,
@@ -292,20 +323,31 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
      6               GBUF%PLA,THK     ,IGTYP   ,NEL     ,ISIGSH ,
      7               E1X   ,E2X      ,E3X      ,E1Y   ,E2Y  ,E3Y,
      8               E1Z   ,E2Z      ,E3Z      ,DIR_A  ,DIR_B,POSLY )
+           IF (MPT == 0) THEN
+             DO I=LFT,LLT
+               GBUF%FORPG_G(PTF+I+JJ(1:5))=GBUF%FORPG(PTF+I+JJ(1:5))
+             END DO
+           END IF 
+           IF (ITHKSHEL == 2) THEN
+             NPGTH = ONE/NPG
+             DO I=LFT,LLT
+               GBUF%STRA(I+JJ(1:8))=GBUF%STRA(I+JJ(1:8))+
+     .                              NPGTH*GBUF%STRPG(PTS+I+JJ(1:8))
+             END DO
+           END IF 
           ELSEIF ( ITHKSHEL == 1 .AND. ISH3N == 30 ) THEN
            CALL THICKINI(LFT     ,LLT   ,NFT    ,PTSH3N,NUMELTG,
      2                   GBUF%THK,THK   ,IXTG   ,NIXTG ,NSIGSH ,
      3                   SIGSH   )
         ENDIF
 C
-        IF (IUSER == 1.AND.MTN.GE.28) THEN
+        IF (IUSER == 1.AND.MTN>=28) THEN
           CALL CUSERINI4(ELBUF_STR,
      1                 LFT     ,LLT    ,NFT     ,NEL     ,ISTRAIN  ,
      2                 SIGSH   ,NSIGSH ,NUMELC  ,IXTG    ,NIXTG    ,
      3                 NUMSH3N ,PTSH3N ,IR      ,IS      ,NPT      ,
      4                 IGTYP   ,IGEO   ,NLAY    ,NPG     ,IPG      )
         ENDIF
-C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
          IF (IYLDINI == 1 .AND. (MTN== 36.OR. MTN==87)) THEN
           CALL CMATINI4(ELBUF_STR,
@@ -318,24 +360,21 @@ C-----------------------------------------------------------------------
 C----------------------------------------
 c Failure model initialisation
 C----------------------------------------
-c	     IF ( NPERTURB .NE. 0 .OR. NVSHELL1 /= 0) THEN
-	       CALL CFAILINI4(ELBUF_STR,IXTG    ,NIXTG   ,NPTR    ,NPTS    ,
-     .                 NPTT     ,NLAY    ,IPM     ,SIGSH   ,NSIGSH  ,
-     .                 NUMELTG  ,PTSH3N  ,RNOISE  ,PERTURB ,BUFMAT  ,
-     .                 ALDT     ,THK     )
-c	     ENDIF
+	       CALL CFAILINI4(ELBUF_STR,NPTR    ,NPTS    ,NPTT    ,NLAY    ,
+     .                 SIGSH    ,NSIGSH  ,PTSH3N  ,RNOISE  ,PERTURB ,
+     .                 MAT_PARAM,ALDT    ,THK     )
 C-----------------------------------------------------------------------
 C     CALCUL DES DEFORMATIONS INITIALES (MEMBRANE)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
       IF (ISTRAIN == 1 .AND. NXREF > 0) THEN
         UVAR => ELBUF_STR%BUFLY(1)%MAT(1,1,1)%VAR  ! 
-        CALL CDKEPSINI(ELBUF_STR,
+        CALL CDKEPSINI(ELBUF_STR,MAT_PARAM(IMAT),
      .       LFT     ,LLT     ,ISMSTR    ,MTN      ,ITHK     ,
      .       PM      ,GEO     ,IXTG(1,NFT+1),X ,XREFTG(1,1,NFT+1),
      .       GBUF%FOR,GBUF%THK,GBUF%EINT,GBUF%STRA,
      .       PX2     ,PY2     ,PX3      ,PY3       ,X2S      ,
      .       Y2S     ,X3S     ,Y3S      ,GBUF%OFF  ,IMAT     ,
-     .       UVAR    ,BUFMAT  ,IPM      ,IGEO      ,NEL      ,
+     .       UVAR    ,IPM      ,NEL      ,
      .       NLAY    ,DIR_A   ,DIR_B    ,GBUF%SIGI ,NPF      ,
      .       TF      ,IREP    )
 c
@@ -376,7 +415,7 @@ C
         ENDDO
       ENDIF
 C-------------------------------------------
-C     CALCUL DES DT ELEMENTAIRES
+C     CALCULATION OF ELEMENTARY TIMESTEPS
 C-------------------------------------------
 c        IGTYP=GEO(12,IXTG(5,I+NFT))
          IF (IGTYP /= 0  .AND. IGTYP /= 1  .AND.
@@ -393,18 +432,23 @@ c        IGTYP=GEO(12,IXTG(5,I+NFT))
       DO I=LFT,LLT
         DTELEM(NDEPAR+I) = DT(I)
       ENDDO
+C------------
+      ! Compute the initial volume
+      DO I=LFT,LLT
+        IF (GBUF%G_VOL > 0) GBUF%VOL(I) = AREA(I)*GBUF%THK(I)
+      ENDDO
 C      
       DEALLOCATE(DIR_A)
       DEALLOCATE(DIR_B)
+      IF(ALLOCATED(INDX))     DEALLOCATE(INDX)
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  CDKPXPYI                      source/elements/sh3n/coquedk/cdkinit3.F
-Chd|-- called by -----------
-Chd|        CDKEPSINI                     source/elements/sh3n/coquedk/cdkepsini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cdkpxpyi    ../starter/source/elements/sh3n/coquedk/cdkinit3.F
+!||--- called by ------------------------------------------------------
+!||    cdkepsini   ../starter/source/elements/sh3n/coquedk/cdkepsini.F
+!||====================================================================
       SUBROUTINE CDKPXPYI(JFT ,JLT ,ISMSTR   ,
      .                    PX2G,PY2G,PX3G,PY3G,
      .                    PX2 ,PY2 ,PX3 ,PY3 ,
@@ -446,7 +490,7 @@ C-----------------------------------------------
      .        X31G(MVSIZ), Y31G(MVSIZ), Z31G(MVSIZ)
 C=======================================================================
 C
-      IF (ISMSTR.NE.3)THEN
+      IF (ISMSTR/=3)THEN
         DO I=JFT,JLT
           X21G(I)=X2G(I)-X1G(I)
           Y21G(I)=Y2G(I)-Y1G(I)
@@ -485,12 +529,11 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  CDKDEFOI                      source/elements/sh3n/coquedk/cdkinit3.F
-Chd|-- called by -----------
-Chd|        CDKEPSINI                     source/elements/sh3n/coquedk/cdkepsini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cdkdefoi    ../starter/source/elements/sh3n/coquedk/cdkinit3.F
+!||--- called by ------------------------------------------------------
+!||    cdkepsini   ../starter/source/elements/sh3n/coquedk/cdkepsini.F
+!||====================================================================
       SUBROUTINE CDKDEFOI(JFT  ,JLT  ,NEL  ,VL   ,GSTR ,
      .                    PX2  ,PY2  ,PX3  ,PY3  ,
      .                    E1X  ,E2X  ,E3X  ,E1Y  ,E2Y  ,
@@ -524,10 +567,8 @@ C-----------------------------------------------
       my_real VX1(MVSIZ) , VX2(MVSIZ) , VX3(MVSIZ) ,
      .        VY1(MVSIZ) , VY2(MVSIZ) , VY3(MVSIZ) ,
      .        VZ1(MVSIZ) , VZ2(MVSIZ) , VZ3(MVSIZ) ,
-     .        VX12(MVSIZ), VX13(MVSIZ), VX23(MVSIZ),
-     .        VY12(MVSIZ), VY13(MVSIZ), VY23(MVSIZ),
-     .        VZ12(MVSIZ), VZ13(MVSIZ), VZ23(MVSIZ)
-      my_real TMP1, TMP2, FAC1
+     .        VX12(MVSIZ), VX13(MVSIZ),
+     .        VY12(MVSIZ), VY13(MVSIZ)
 C=======================================================================
       DO I=JFT,JLT
         VX1(I)=E1X(I)*VL(1,1,I)+E1Y(I)*VL(2,1,I)+E1Z(I)*VL(3,1,I)

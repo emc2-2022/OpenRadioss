@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BEMSOLV                       source/fluid/bemsolv.F        
-Chd|-- called by -----------
-Chd|        INCPFLOW                      source/fluid/incpflow.F       
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GLBEM                         source/fluid/bemsolv.F        
-Chd|        GLSINF                        source/fluid/bemsolv.F        
-Chd|        INTGTG                        source/fluid/bemsolv.F        
-Chd|        INTHTG                        source/fluid/bemsolv.F        
-Chd|        PROGBAR_C                     ../common_source/sortie/progbar_c.c
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    bemsolv     ../engine/source/fluid/bemsolv.F
+!||--- called by ------------------------------------------------------
+!||    incpflow    ../engine/source/fluid/incpflow.F
+!||--- calls      -----------------------------------------------------
+!||    arret       ../engine/source/system/arret.F
+!||    glbem       ../engine/source/fluid/bemsolv.F
+!||    glsinf      ../engine/source/fluid/bemsolv.F
+!||    intgtg      ../engine/source/fluid/bemsolv.F
+!||    inthtg      ../engine/source/fluid/bemsolv.F
+!||    progbar_c   ../common_source/sortie/progbar_c.c
+!||====================================================================
       SUBROUTINE BEMSOLV(L_ASSEMB, ILVOUT, IFORM, NN    , NEL    ,
      .                   HBEM    , GBEM  , IBUF , TBEMTG, TELNOR ,
      .                   X       , Q     , PHI  , IPIV  , PHI_INF)
@@ -63,10 +63,10 @@ C 1- Assemblage
 C---------------------------------------------------
 #if defined(MYREAL8) && !defined(WITHOUT_LINALG) 
       IF (L_ASSEMB) THEN
-         IF (ILVOUT.GE.1) WRITE(ISTDO,'(A)') 
+         IF (ILVOUT>=1) WRITE(ISTDO,'(A)') 
      .   ' ** BEMSOLV : ASSEMBLY OF INTEGRAL OPERATORS'
-         IF (IFORM.EQ.1) THEN
-C Collocation BEM - Elements lineaires en potentiel, constants en flux
+         IF (IFORM==1) THEN
+C BEM collocation - Potential linear elements, constant flow
             DO IN=1,NN
                DO JN=1,NN
                   HBEM(IN,JN)=ZERO
@@ -77,7 +77,7 @@ C Collocation BEM - Elements lineaires en potentiel, constants en flux
                GBEM(IN,NEL+1)=ZERO
             ENDDO
             DO IEL=1,NEL
-               IF (ILVOUT.EQ.2) CALL PROGBAR_C(IEL,NEL)
+               IF (ILVOUT==2) CALL PROGBAR_C(IEL,NEL)
                N1=TBEMTG(1,IEL)
                N2=TBEMTG(2,IEL)
                N3=TBEMTG(3,IEL)
@@ -125,12 +125,12 @@ C Collocation BEM - Elements lineaires en potentiel, constants en flux
             DO IN=1,NN
                RSUM=ZERO
                DO JN=1,NN
-                  IF (IN.NE.JN) RSUM=RSUM+HBEM(IN,JN)
+                  IF (IN/=JN) RSUM=RSUM+HBEM(IN,JN)
                ENDDO
                HBEM(IN,IN)=-RSUM
             ENDDO
-         ELSEIF (IFORM.EQ.2) THEN
-C Galerkin BEM - Elements lineaires en potentiel, constants en flux
+         ELSEIF (IFORM==2) THEN
+C Galerkin BEM - Linear elements in potential, constant in flow
             DO IN=1,NN
                DO JN=1,NN
                   HBEM(IN,JN)=ZERO
@@ -141,7 +141,7 @@ C Galerkin BEM - Elements lineaires en potentiel, constants en flux
                GBEM(IN,NEL+1)=ZERO
             ENDDO
             DO IEL=1,NEL
-               IF (ILVOUT.EQ.2) CALL PROGBAR_C(IEL,NEL)
+               IF (ILVOUT==2) CALL PROGBAR_C(IEL,NEL)
                N1=TBEMTG(1,IEL)
                N2=TBEMTG(2,IEL)
                N3=TBEMTG(3,IEL)
@@ -182,17 +182,17 @@ C
 C---------------------------------------------------
 C 2- Resolution
 C---------------------------------------------------
-      IF (ILVOUT.GE.1) WRITE(ISTDO,'(A)') 
+      IF (ILVOUT>=1) WRITE(ISTDO,'(A)') 
      .' ** BEMSOLV : LINEAR SYSTEM SOLUTION'
       CALL DGEMV('N',   NN, NEL+1, ONE,   GBEM, 
      .           NN,    Q,  1,     ZERO, S,
      .           1    )
 C
-      IF (IFORM.EQ.1) THEN
+      IF (IFORM==1) THEN
          DO IN=1,NN
             S(IN)=S(IN)-PHI_INF(IN)
          ENDDO
-      ELSEIF (IFORM.EQ.2) THEN
+      ELSEIF (IFORM==2) THEN
          DO IEL=1,NEL
             N1=TBEMTG(1,IEL)
             N2=TBEMTG(2,IEL)
@@ -217,21 +217,17 @@ C
 #endif
       RETURN
       END
-Chd|====================================================================
-Chd|  GLSINF                        source/fluid/bemsolv.F        
-Chd|-- called by -----------
-Chd|        BEMSOLV                       source/fluid/bemsolv.F        
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    glsinf    ../engine/source/fluid/bemsolv.F
+!||--- called by ------------------------------------------------------
+!||    bemsolv   ../engine/source/fluid/bemsolv.F
+!||====================================================================
       SUBROUTINE GLSINF(N1     , N2, N3, JAC, S,
      .                  PHI_INF)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -307,13 +303,12 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INTHTG                        source/fluid/bemsolv.F        
-Chd|-- called by -----------
-Chd|        BEMSOLV                       source/fluid/bemsolv.F        
-Chd|        BEMSOLVP                      source/fluid/bemsolvp.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    inthtg     ../engine/source/fluid/bemsolv.F
+!||--- called by ------------------------------------------------------
+!||    bemsolv    ../engine/source/fluid/bemsolv.F
+!||    bemsolvp   ../engine/source/fluid/bemsolvp.F
+!||====================================================================
       SUBROUTINE INTHTG(NNJ, X1 , Y1,  Z1,   X2,
      .                  Y2,  Z2,  X3,  Y3,   Z3,
      .                  X0,  Y0,  Z0,  D2,   JAC,
@@ -323,9 +318,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -382,33 +374,33 @@ C
      .            .17561526,.17561526,
      .           -.14957004/
 C
-C DISTANCE A LA SOURCE
+C DISTANCE TO SOURCE
       XS=X(1,NNJ)
       YS=X(2,NNJ)
       ZS=X(3,NNJ)
       R2=(X0-XS)**2+(Y0-YS)**2+(Z0-ZS)**2
-C NOMBRE DE POINTS DE GAUSS
-      IF (R2.GT.HUNDRED*D2) THEN
+C NUMBER OF GAUSS POINTS
+      IF (R2>HUNDRED*D2) THEN
          NPG=1
          IAD=1
-      ELSEIF (R2.GT.TWENTY5*D2) THEN
+      ELSEIF (R2>TWENTY5*D2) THEN
          NPG=4
          IAD=2
-      ELSEIF (R2.GT.FOUR*D2) THEN
+      ELSEIF (R2>FOUR*D2) THEN
          NPG=7
          IAD=6
       ELSE
          NPG=13
          IAD=13
       ENDIF
-      IF (NN1.EQ.NNJ) NPG=-1
-      IF (NN2.EQ.NNJ) NPG=-1           
-      IF (NN3.EQ.NNJ) NPG=-1
+      IF (NN1==NNJ) NPG=-1
+      IF (NN2==NNJ) NPG=-1           
+      IF (NN3==NNJ) NPG=-1
 C INTEGRATION
       RVAL(1)=ZERO
       RVAL(2)=ZERO
       RVAL(3)=ZERO
-      IF (NPG.LT.0) RETURN           
+      IF (NPG<0) RETURN           
       IAD2=2*(IAD-1)+1
       DO IP=1,NPG
          W=WPG(IAD)
@@ -423,27 +415,26 @@ C INTEGRATION
          YG=VAL1*Y1+VAL2*Y2+VAL3*Y3
          ZG=VAL1*Z1+VAL2*Z2+VAL3*Z3
          R2=(XG-XS)**2+(YG-YS)**2+(ZG-ZS)**2
-         IF(R2.GT.EM20)THEN
+         IF(R2>EM20)THEN
            VALPHI=-FOURTH/PI/(R2**THREE_HALF)
      .            *(NRX*(XG-XS)+NRY*(YG-YS)+NRZ*(ZG-ZS))
            RVAL(1)=RVAL(1)+HALF*W*VAL1*VALPHI
            RVAL(2)=RVAL(2)+HALF*W*VAL2*VALPHI
            RVAL(3)=RVAL(3)+HALF*W*VAL3*VALPHI
          ENDIF
-C Remarque : la normale (NRX,NRY,NRZ) n'est pas normalisee
-C         il faudrait la diviser par JAC et comme on doit multiplier
-C         par JAC a la ligne d'en dessous...
+C Note: normal (nrx, nry, nrz) is not normalized
+C         it should be divided by JAC and as we must multiply
+C         by JAC in the line below...
       ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INTGTG                        source/fluid/bemsolv.F        
-Chd|-- called by -----------
-Chd|        BEMSOLV                       source/fluid/bemsolv.F        
-Chd|        BEMSOLVP                      source/fluid/bemsolvp.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    intgtg     ../engine/source/fluid/bemsolv.F
+!||--- called by ------------------------------------------------------
+!||    bemsolv    ../engine/source/fluid/bemsolv.F
+!||    bemsolvp   ../engine/source/fluid/bemsolvp.F
+!||====================================================================
       SUBROUTINE INTGTG(NNJ, X1 , Y1,  Z1,   X2,
      .                  Y2,  Z2,  X3,  Y3,   Z3,
      .                  X0,  Y0,  Z0,  D2,   JAC,
@@ -453,9 +444,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -545,19 +533,19 @@ C
       WPG4(14)=.652145154862546 * .347854845137454
       WPG4(15)=.652145154862546 * .347854845137454
       WPG4(16)=.652145154862546 * .652145154862546
-C DISTANCE A LA SOURCE
+C DISTANCE TO SOURCE
       XS=X(1,NNJ)
       YS=X(2,NNJ)
       ZS=X(3,NNJ)
       R2=(X0-XS)**2+(Y0-YS)**2+(Z0-ZS)**2
-C NOMBRE DE POINTS DE GAUSS
-      IF (R2.GT.HUNDRED*D2) THEN
+C NUMBER OF GAUSS POINTS
+      IF (R2>HUNDRED*D2) THEN
          NPG=1
          IAD=1
-      ELSEIF (R2.GT.TWENTY5*D2) THEN
+      ELSEIF (R2>TWENTY5*D2) THEN
          NPG=4
          IAD=2
-      ELSEIF (R2.GT.FOUR*D2) THEN
+      ELSEIF (R2>FOUR*D2) THEN
          NPG=7
          IAD=6
       ELSE
@@ -580,7 +568,7 @@ C INTEGRATION
          YG=VAL1*Y1+VAL2*Y2+VAL3*Y3
          ZG=VAL1*Z1+VAL2*Z2+VAL3*Z3
          R2=(XG-XS)**2+(YG-YS)**2+(ZG-ZS)**2
-         IF(R2.GT.EM20)THEN
+         IF(R2>EM20)THEN
            VALPHI=FOURTH/PI/SQRT(R2)
            RVAL(1)=RVAL(1)+HALF*W*VALPHI*JAC
          ENDIF
@@ -588,13 +576,13 @@ C INTEGRATION
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  GLBEM                         source/fluid/bemsolv.F        
-Chd|-- called by -----------
-Chd|        BEMSOLV                       source/fluid/bemsolv.F        
-Chd|-- calls ---------------
-Chd|        INTANL                        source/fluid/bemsolv.F        
-Chd|====================================================================
+!||====================================================================
+!||    glbem     ../engine/source/fluid/bemsolv.F
+!||--- called by ------------------------------------------------------
+!||    bemsolv   ../engine/source/fluid/bemsolv.F
+!||--- calls      -----------------------------------------------------
+!||    intanl    ../engine/source/fluid/bemsolv.F
+!||====================================================================
       SUBROUTINE GLBEM(X1    , Y1  , Z1    , X2  , Y2  ,
      .                 Z2    , X3  , Y3    , Z3  , X0  ,
      .                 Y0    , Z0  , TELNOR, HBEM, GBEM,
@@ -604,9 +592,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -735,13 +720,12 @@ C Matrice G
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INTANL                        source/fluid/bemsolv.F        
-Chd|-- called by -----------
-Chd|        GLBEM                         source/fluid/bemsolv.F        
-Chd|        GLBEMP                        source/fluid/bemsolvp.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    intanl   ../engine/source/fluid/bemsolv.F
+!||--- called by ------------------------------------------------------
+!||    glbem    ../engine/source/fluid/bemsolv.F
+!||    glbemp   ../engine/source/fluid/bemsolvp.F
+!||====================================================================
       SUBROUTINE INTANL(X1  , Y1  , Z1 , X2 , Y2 ,
      .                  Z2  , X3  , Y3 , Z3 , XS ,
      .                  YS  , ZS  , NRX, NRY, NRZ,
@@ -750,9 +734,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -787,7 +768,7 @@ C SIMPLIFICATION SI SOURCE LOIN DE L'ELEMENT
       L32=(X1-X3)**2+(Y1-Y3)**2+(Z1-Z3)**2
       LM2=MAX(L12,L22,L32)
 C
-C COORDONNEES LOCALES
+C local contact details
       VX1=X2-X1
       VY1=Y2-Y1
       VZ1=Z2-Z1
@@ -841,7 +822,7 @@ C
       I2=ZERO
       I3=ZERO
 C INTEGRALE DOUBLE COUCHE
-      IF (ZLS.NE.ZERO) THEN
+      IF (ZLS/=ZERO) THEN
          DO I=1,3
             I1=I1
      .   +ATAN((DETA(I)*((XLS-KSI(I))**2+ZLS**2)
@@ -858,7 +839,7 @@ C INTEGRALE SIMPLE COUCHE
          YC=YLS-ETA(I)
          V=XC*DETA(I)/S(I)-YC*DKSI(I)/S(I)
          ARG=(R(I)+R(I+1)-S(I))/(R(I)+R(I+1)+S(I))
-         IF (ARG.GT.ZERO) THEN
+         IF (ARG>ZERO) THEN
             FLN=-LOG(ARG)
             RVLG=RVLG+V*FLN
          ENDIF
@@ -873,7 +854,7 @@ C MOMENTS D'ORDRE 1 POUR DOUBLE COUCHE
          XC=XLS-KSI(I)
          YC=YLS-ETA(I)
          ARG=(R(I)+R(I+1)-S(I))/(R(I)+R(I+1)+S(I))
-         IF (ARG.GT.ZERO) THEN
+         IF (ARG>ZERO) THEN
             FLN=-LOG(ARG)
             I2=I2+ZLS*FLN*DETA(I)/S(I)
             I3=I3-ZLS*FLN*DKSI(I)/S(I)

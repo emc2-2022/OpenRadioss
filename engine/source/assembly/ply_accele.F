@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PLY_ACCELE                    source/assembly/ply_accele.F  
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        PLYA                          source/assembly/ply_accele.F  
-Chd|        PLYXFEM_MOD                   share/modules/plyxfem_mod.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ply_accele    ../engine/source/assembly/ply_accele.F
+!||--- called by ------------------------------------------------------
+!||    resol         ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    plya          ../engine/source/assembly/ply_accele.F
+!||--- uses       -----------------------------------------------------
+!||    plyxfem_mod   ../engine/share/modules/plyxfem_mod.F
+!||====================================================================
       SUBROUTINE PLY_ACCELE(INOD,MS_LAYER,ZI_LAYER,MS,NODFT,NODLT,
      .                     NPLYMAX,NPLYXFE,NDDIM,MSZ2 )
 C-----------------------------------------------
@@ -44,10 +45,7 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com08_c.inc"
 #include      "com06_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
 #include      "comlock.inc"
-#include      "scr18_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -60,11 +58,11 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER  
-     .       J,K,N,NN,NPT
+     .       J,N,NN,NPT
       my_real
-     .         RTMP, FN1,FN2,FN3,FAC,MSI,FM1,FM2,FM3,INER,
+     .         FAC,
      .         MASS,ALPHA(NDDIM),F1,F3,F2,MDT1,MDT2,MDT3,
-     .         FPLY, MPLY,DF1,DF2,DF3,KZI,MASS_NODE,BETA
+     .         FPLY, MPLY,KZI,MASS_NODE,BETA
 C----------------------------------------------------     
 C 
        ALPHA = ONE 
@@ -121,7 +119,7 @@ C for fail of ply ! is desactivated for checking
 C                               
                 ENDIF
              ENDDO
-C corre   ction des forces par plies
+C correction of forces by plies
                DO J=1,NPLYMAX
                 IF(MS_LAYER(N,J) > ZERO) THEN  
                   BETA  =  MS(NN)/MASS_NODE 
@@ -181,7 +179,7 @@ C is desactivated for checking
 C                               
                 ENDIF
              ENDDO
-C corre   ction des forces par plies
+C correction of forces by plies
                DO J=1,NPLYMAX
                 IF(MS_LAYER(N,J) > ZERO) THEN 
                   FPLY  = MS_LAYER(N,J)/MS(NN)
@@ -202,12 +200,11 @@ C
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  PLYA                          source/assembly/ply_accele.F  
-Chd|-- called by -----------
-Chd|        PLY_ACCELE                    source/assembly/ply_accele.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    plya         ../engine/source/assembly/ply_accele.F
+!||--- called by ------------------------------------------------------
+!||    ply_accele   ../engine/source/assembly/ply_accele.F
+!||====================================================================
       SUBROUTINE PLYA(J,NODFT,NODLT,NPLYXFE,INOD,ALPHA,MS,A)
 C-----------------------------------------------
 C   M o d u l e s
@@ -219,10 +216,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -233,10 +226,10 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER  K,N,NN
+      INTEGER  N,NN
       my_real
-     .         RTMP, FN1,FN2,FN3,FAC,MSI,FM1,FM2,FM3,INER,
-     .         MASS,F1,F2,F3
+     .         RTMP,
+     .         MASS
 C----------------------------------------------------     
 C      
 #include "vectorize.inc" 

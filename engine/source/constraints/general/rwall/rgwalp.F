@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RGWALP                        source/constraints/general/rwall/rgwalp.F
-Chd|-- called by -----------
-Chd|        RGWAL0                        source/constraints/general/rwall/rgwal0.F
-Chd|        RGWAL0_IMP                    source/constraints/general/rwall/rgwal0.F
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rgwalp        ../engine/source/constraints/general/rwall/rgwalp.F
+!||--- called by ------------------------------------------------------
+!||    rgwal0        ../engine/source/constraints/general/rwall/rgwal0.F
+!||    rgwal0_imp    ../engine/source/constraints/general/rwall/rgwal0.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier    ../engine/source/system/machine.F
+!||    sum_6_float   ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE RGWALP(X    ,A    ,V    ,RWL  ,NSW   ,
      1                  NSN  ,ITIED,MSR  ,MS   ,WEIGHT,
      2                  ICONT,FRWL6,IMP_S,NT_RW,IDDL  ,
-     3                  IKC  ,NDOF ,NODNX_SMS ,WEIGHT_MD)
+     3                  IKC  ,NDOF ,NODNX_SMS ,WEIGHT_MD,WFEXT,WFEXT_MD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -44,7 +44,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr03_c.inc"
 #include      "scr05_c.inc"
 #include      "scr11_c.inc"
 #include      "impl1_c.inc"
@@ -53,23 +52,18 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN, ITIED, MSR,ICONT,IMP_S,NT_RW
-      INTEGER NSW(*), WEIGHT(*), IDDL(*),IKC(*),NDOF(*), NODNX_SMS(*),
-     .        WEIGHT_MD(*)
-C     REAL
-      my_real
-     .   X(*), A(*), V(*), RWL(*), MS(*)
-      DOUBLE PRECISION 
-     .   FRWL6(7,6)
+      INTEGER NSW(*), WEIGHT(*), IDDL(*),IKC(*),NDOF(*), NODNX_SMS(*), WEIGHT_MD(*)
+      my_real X(*), A(*), V(*), RWL(*), MS(*)
+      DOUBLE PRECISION FRWL6(7,6)
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT,WFEXT_MD
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER M3, M2, M1, I, N, N3, N2, N1, K, J,JJ,NINDEX,
-     .        INDEX(NSN)
-C     REAL
+      INTEGER M3, M2, M1, I, N, N3, N2, N1, K, J,JJ,NINDEX, INDEX(NSN)
       my_real
      .   XWL, YWL, ZWL, VXW, VYW, VZW, TFXTN, FACT,
      .   TFXT, XL1, YL1, ZL1, XL2, YL2, ZL2, SX12, SY12, SZ12, S12,
-     .   VX, VY, VZ, XC, YC, ZC, DP, DN, XCP, YCP, ZCP,
+     .   VX, VY, VZ, XC, YC, ZC, DP, XCP, YCP, ZCP,
      .   SX1M, SY1M, SZ1M, PS, SM1, SXM2, SYM2, SZM2, SM2, DV, DA, DVT,
      .   FNXN, FNYN, FNZN, FNXT, FNYT, FNZT, FNDFN, FTDFT, FRIC, FRIC2,
      .   FCOE,AX,
@@ -80,9 +74,8 @@ C     REAL
       DOUBLE PRECISION 
      .   FRWL6_L(7,6)
 C-----------------------------------------------
-      IF(IRESP.EQ.1)THEN
-        PREC=EM07
-      END IF
+      PREC=EM07
+      AX = ONE
       ICONT=0
       CALL MY_BARRIER
 !       We need an OMP barrier here because each thread initializes 
@@ -90,7 +83,7 @@ C-----------------------------------------------
 !       thread in the !$OMP DO loop whereas another (late) thread initializes 
 !       ICONT to 0
 !       ICONT is a shared variable 
-      IF(MSR.EQ.0)THEN
+      IF(MSR==0)THEN
        XWL=RWL(4)
        YWL=RWL(5)
        ZWL=RWL(6)
@@ -106,7 +99,7 @@ C-----------------------------------------------
        M3=3*MSR
        M2=M3-1
        M1=M2-1
-Cel changement formulation : plus d'impasse sur contribution force
+C   changement formulation : plus d'impasse sur contribution force
        VXW=V(M1)+A(M1)*DT12
        VYW=V(M2)+A(M2)*DT12
        VZW=V(M3)+A(M3)*DT12
@@ -144,7 +137,7 @@ C----
         N3=3*N
         N2=N3-1
         N1=N2-1
-        IF(N2D.EQ.1)THEN
+        IF(N2D==1)THEN
          AX=X(N2)
         ELSE
          AX=ONE
@@ -166,13 +159,13 @@ C
         TOL=TWO*DT1*MAX(
      .   ABS( (VX-VXW)*RWL(1)+(VY-VYW)*RWL(2)+(VZ-VZW)*RWL(3) ),
      .   ABS(VN-VNOLD) )
-        IF(IRESP.EQ.1)THEN
+        IF(IRESP==1)THEN
           XPREC=PREC*MAX(ABS(XWL),ABS(YWL),ABS(ZWL),
      .              ABS(X(N1)),ABS(X(N2)),ABS(X(N3)),
      .              ABS(X(N1)-XWL),ABS(X(N2)-YWL),ABS(X(N3)-ZWL))
           TOL=MAX(TOL,XPREC)
         END IF
-        IF(DP.GT.ZERO.OR.DP0.LE.-TOL) CYCLE
+        IF(DP>ZERO.OR.DP0<=-TOL) CYCLE
 C
         XCP=XC-DP*RWL(1)
         YCP=YC-DP*RWL(2)
@@ -183,26 +176,26 @@ C
         SZ1M=XL1*YCP-YL1*XCP
         PS=SX12*SX1M+SY12*SY1M+SZ12*SZ1M
 C
-        IF(PS.LT.ZERO) CYCLE
+        IF(PS<ZERO) CYCLE
 C
         SM1=SX1M**2+SY1M**2+SZ1M**2
 C
-        IF(SM1.GT.S12) CYCLE
+        IF(SM1>S12) CYCLE
 C
         SXM2=YCP*ZL2-ZCP*YL2
         SYM2=ZCP*XL2-XCP*ZL2
         SZM2=XCP*YL2-YCP*XL2
         PS=SX12*SXM2+SY12*SYM2+SZ12*SZM2
 C
-        IF(PS.LT.ZERO) CYCLE
+        IF(PS<ZERO) CYCLE
 C
         SM2=SXM2**2+SYM2**2+SZM2**2
 C
-        IF(SM2.GT.S12) CYCLE
+        IF(SM2>S12) CYCLE
 C
         ICONT=1
-        IF((VX-VXW)*RWL(1)+(VY-VYW)*RWL(2)+(VZ-VZW)*RWL(3).GT.ZERO
-     .     .AND.DP0.GT.ZERO)CYCLE
+        IF((VX-VXW)*RWL(1)+(VY-VYW)*RWL(2)+(VZ-VZW)*RWL(3)>ZERO
+     .     .AND.DP0>ZERO)CYCLE
         NINDEX = NINDEX + 1
         INDEX(NINDEX) = I
        END DO
@@ -215,7 +208,7 @@ C
         N3=3*N
         N2=N3-1
         N1=N2-1
-        IF(N2D.EQ.1)THEN
+        IF(N2D==1)THEN
          AX=X(N2)
         ELSE
          AX=ONE
@@ -237,13 +230,13 @@ C
         TOL=TWO*DT1*MAX(
      .   ABS( (VX-VXW)*RWL(1)+(VY-VYW)*RWL(2)+(VZ-VZW)*RWL(3) ),
      .   ABS(VN-VNOLD) )
-        IF(IRESP.EQ.1)THEN
+        IF(IRESP==1)THEN
           XPREC=PREC*MAX(ABS(XWL),ABS(YWL),ABS(ZWL),
      .              ABS(X(N1)),ABS(X(N2)),ABS(X(N3)),
      .              ABS(X(N1)-XWL),ABS(X(N2)-YWL),ABS(X(N3)-ZWL))
           TOL=MAX(TOL,XPREC)
         END IF
-        IF(DP.GT.ZERO.OR.DP0.LE.-TOL)CYCLE
+        IF(DP>ZERO.OR.DP0<=-TOL)CYCLE
 C
         XCP=XC-DP*RWL(1)
         YCP=YC-DP*RWL(2)
@@ -254,26 +247,26 @@ C
         SZ1M=XL1*YCP-YL1*XCP
         PS=SX12*SX1M+SY12*SY1M+SZ12*SZ1M
 C
-        IF(PS.LT.ZERO) CYCLE
+        IF(PS<ZERO) CYCLE
 C
         SM1=SX1M**2+SY1M**2+SZ1M**2
 C
-        IF(SM1.GT.S12) CYCLE
+        IF(SM1>S12) CYCLE
 C
         SXM2=YCP*ZL2-ZCP*YL2
         SYM2=ZCP*XL2-XCP*ZL2
         SZM2=XCP*YL2-YCP*XL2
         PS=SX12*SXM2+SY12*SYM2+SZ12*SZM2
 C
-        IF(PS.LT.ZERO) CYCLE
+        IF(PS<ZERO) CYCLE
 C
         SM2=SXM2**2+SYM2**2+SZM2**2
 C
-        IF(SM2.GT.S12) CYCLE
+        IF(SM2>S12) CYCLE
 C
         ICONT=1
-        IF((VX-VXW)*RWL(1)+(VY-VYW)*RWL(2)+(VZ-VZW)*RWL(3).GT.ZERO
-     .     .AND.DP0.GT.ZERO)CYCLE
+        IF((VX-VXW)*RWL(1)+(VY-VYW)*RWL(2)+(VZ-VZW)*RWL(3)>ZERO
+     .     .AND.DP0>ZERO)CYCLE
         NINDEX = NINDEX + 1
         INDEX(NINDEX) = I
        END DO
@@ -281,7 +274,7 @@ C
       END IF
 C----  
       FACT=ONE/DT12
-      IF(ITIED.NE.0)THEN
+      IF(ITIED/=0)THEN
        DO 40 J = 1, NINDEX
        I = INDEX(J)
        N = NSW(I)
@@ -320,7 +313,7 @@ C
        FTDFT=FNXT**2+FNYT**2+FNZT**2
        FRIC=RWL(13)
        FRIC2=FRIC**2
-       IF(FTDFT.LE.FRIC2*FNDFN.OR.ITIED.EQ.1) THEN
+       IF(FTDFT<=FRIC2*FNDFN.OR.ITIED==1) THEN
 C        POINT SECND TIED
          A(N1)=ZERO
          A(N2)=ZERO
@@ -328,12 +321,14 @@ C        POINT SECND TIED
          V(N1)=VXW+DVX
          V(N2)=VYW+DVY
          V(N3)=VZW+DVZ
-          IF (IMP_S.EQ.1.AND.NDOF(N).GT.0) THEN
-            JJ=IDDL(N)+1
-            IF (IKC(JJ).EQ.0)IKC(JJ)=3
-            IF (IKC(JJ+1).EQ.0)IKC(JJ+1)=3
-            IF (IKC(JJ+2).EQ.0)IKC(JJ+2)=3
-          ENDIF
+         IF (IMP_S==1)THEN
+              IF(NDOF(N)>0) THEN
+                JJ=IDDL(N)+1
+                IF (IKC(JJ)==0)IKC(JJ)=3
+                IF (IKC(JJ+1)==0)IKC(JJ+1)=3
+                IF (IKC(JJ+2)==0)IKC(JJ+2)=3
+              ENDIF
+         ENDIF
        ELSE
 C        POINT SECND SLIDING
          FCOE=FRIC*SQRT(FNDFN/MAX(EM20,FTDFT))
@@ -346,13 +341,15 @@ C        POINT SECND SLIDING
          V(N1)=V(N1)-DV*RWL(1)+DVX
          V(N2)=V(N2)-DV*RWL(2)+DVY
          V(N3)=V(N3)-DV*RWL(3)+DVZ
-          IF (IMP_S.EQ.1.AND.NDOF(N).GT.0) THEN
-            V(N1)=-DV
-            A(N1)=RWL(1)
-            A(N2)=RWL(2)
-            A(N3)=RWL(3)    
-            JJ=IDDL(N)+1
-            IF (IKC(JJ).EQ.0)IKC(JJ)=10
+          IF (IMP_S==1)THEN
+            IF (NDOF(N)>0) THEN
+              V(N1)=-DV
+              A(N1)=RWL(1)
+              A(N2)=RWL(2)
+              A(N3)=RWL(3)    
+              JJ=IDDL(N)+1
+              IF (IKC(JJ)==0)IKC(JJ)=10
+            ENDIF
           ENDIF
          TFXT=TFXT-
      .      ((V(N1)-VXW)*FNXT+(V(N2)-VYW)*FNYT+(V(N3)-VZW)*FNZT)
@@ -405,16 +402,16 @@ C        POINT SECND SLIDING
        V(N1)=V(N1)-DV*RWL(1)+DVX
        V(N2)=V(N2)-DV*RWL(2)+DVY
        V(N3)=V(N3)-DV*RWL(3)+DVZ
-        IF(IMP_S.EQ.1) V(N1) = -DV+DP0DT
+        IF(IMP_S==1) V(N1) = -DV+DP0DT
  60    CONTINUE
       ENDIF
 C
-      IF(IMCONV.EQ.1)THEN          
+      IF(IMCONV==1)THEN          
           TFXT=TFXT+HALF*DT1*TFXTN
           TFXT2=TFXT2+HALF*DT1*TFXTN2
-#include "atomic.inc"
-          TFEXT=TFEXT+TFXT
-          TFEXT_MD=TFEXT_MD+TFXT2
+!$OMP ATOMIC
+          WFEXT=WFEXT+TFXT
+          WFEXT_MD=WFEXT_MD+TFXT2
 
           DO K = 1, 6
             FRWL6_L(1,K) = ZERO
@@ -446,12 +443,12 @@ C
 #include "lockoff.inc"
       ENDIF
       
-      IF (IMP_S.EQ.1) THEN
-        IF(ITIED.EQ.0)THEN
+      IF (IMP_S==1) THEN
+        IF(ITIED==0)THEN
           DO J=1,NINDEX
            I = INDEX(J)
            N=NSW(I)
-           IF (NDOF(N).GT.0) THEN
+           IF (NDOF(N)>0) THEN
            N3=3*N
            N2=N3-1
            N1=N2-1
@@ -459,16 +456,16 @@ C
            A(N2)=RWL(2)
            A(N3)=RWL(3)    
            JJ=IDDL(N)+1
-           IF (IKC(JJ).EQ.0)IKC(JJ)=10
+           IF (IKC(JJ)==0)IKC(JJ)=10
            ENDIF 
           ENDDO
         ENDIF
         DO J=1,NINDEX
           I = INDEX(J)
           N=NSW(I)
-          IF (NDOF(N).GT.0) THEN
+          IF (NDOF(N)>0) THEN
 C to be uncommented the day it is parallel in implicit
-#include "atomic.inc"
+!$OMP ATOMIC
             NT_RW = NT_RW + 1
           END IF
         ENDDO

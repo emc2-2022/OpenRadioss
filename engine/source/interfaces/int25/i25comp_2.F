@@ -1,41 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25COMP_2                     source/interfaces/int25/i25comp_2.F
-Chd|-- called by -----------
-Chd|        I25MAIND_2                    source/interfaces/int25/i25maind_2.F
-Chd|-- calls ---------------
-Chd|        I25CDCOR3                     source/interfaces/int25/i25mainf.F
-Chd|        I25COR3_21                    source/interfaces/int25/i25cor3.F
-Chd|        I25COR3_22                    source/interfaces/int25/i25cor3.F
-Chd|        I25DST3_21                    source/interfaces/int25/i25dst3_21.F
-Chd|        I25DST3_22                    source/interfaces/int25/i25dst3_22.F
-Chd|        I25GLOB                       source/interfaces/int25/i25dst3_1.F
-Chd|        I25GLOB_22                    source/interfaces/int25/i25dst3_22.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25comp_2       ../engine/source/interfaces/int25/i25comp_2.F
+!||--- called by ------------------------------------------------------
+!||    i25maind_2      ../engine/source/interfaces/int25/i25maind_2.F
+!||--- calls      -----------------------------------------------------
+!||    i25cdcor3       ../engine/source/interfaces/int25/i25mainf.F
+!||    i25cor3_21      ../engine/source/interfaces/int25/i25cor3.F
+!||    i25cor3_22      ../engine/source/interfaces/int25/i25cor3.F
+!||    i25dst3_21      ../engine/source/interfaces/int25/i25dst3_21.F
+!||    i25dst3_22      ../engine/source/interfaces/int25/i25dst3_22.F
+!||    i25glob         ../engine/source/interfaces/int25/i25dst3_1.F
+!||    i25glob_22      ../engine/source/interfaces/int25/i25dst3_22.F
+!||    my_barrier      ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25COMP_2(
      1                   IPARI   ,INTBUF_TAB ,X      ,ITAB   ,NIN        ,
      2                   LINDMAX ,KINET      ,JTASK  ,NB_DST2,V          ,
@@ -58,19 +59,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
 #include      "warn_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -85,13 +77,13 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER JD(50),KD(50), JFI, KFI,IEDGE,
-     .        I, J, L, H, I_STOK, JLT_NEW, JLT , NFT, IVIS2,
-     .        IBC, NOINT, NSEG, ISECIN, IBAG, IADM,
-     .        IGAP, INACTI, IFQ, MFROT, IGSTI, 
+      INTEGER JD(50),KD(50), JFI, KFI,
+     .        I, J, L, H, I_STOK, JLT_NEW, JLT , NFT, 
+     .         NSEG,  IADM,
+     .        IGAP, INACTI,  
      .        NB_LOC, I_STOK_LOC,DEBUT,
-     .        ILAGM, LENR, INTTH,IFORM,INTPLY,
-     .        NADMSR, I_STOK_GLO, MGLOB, MG, N, NSNR, NN, IERROR
+     .        ILAGM, LENR, INTTH,
+     .        I_STOK_GLO, MGLOB, MG, N, NN, IERROR
       INTEGER  LENT, MAXCC
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
      .        NSVG(MVSIZ), ISHEL(MVSIZ),
@@ -102,9 +94,7 @@ C-----------------------------------------------
       INTEGER, ALLOCATABLE, DIMENSION(:) :: INDEX2
 C     REAL
       my_real
-     .   FRIC, GAP, 
-     .   VISC,VISCF,STIGLO,GAPMIN,
-     .   KMIN, KMAX, GAPMAX,RSTIF,FHEAT,TINT,EPS
+     .   EPS
 C-----------------------------------------------
 C     REAL
       my_real
@@ -124,56 +114,22 @@ C     REAL
      .   LBH(MVSIZ,4), LCH(MVSIZ,4), GAP_NM(4,MVSIZ),
      .   DIST(MVSIZ), GAPMXL(MVSIZ)
       my_real
-     .     RCURVI(MVSIZ), ANGLMI(MVSIZ), ANGLT, PADM,PENMIN,MARGE,DRAD,DGAPLOAD
-      INTEGER NRTMFT, NRTMLT, NMNFT, NMNLT, NRADM
-      INTEGER ICURV,ILEV
+     .     RCURVI(MVSIZ), ANGLMI(MVSIZ),  PENMIN,MARGE,DRAD,DGAPLOAD
+      INTEGER NRTMFT, NRTMLT, NMNFT, NMNLT
+      INTEGER ILEV,NRTM,NSN
 C-----------------------------------------------
 C
       NRTM   =IPARI(4,NIN)
       NSN   =IPARI(5,NIN)
-      NSNR  =IPARI(24,NIN)
-      NTY   =IPARI(7,NIN)
-      IBC   =IPARI(11,NIN)
-      IVIS2 =IPARI(14,NIN)
-      IF(IPARI(33,NIN).EQ.1) RETURN
-      NOINT =IPARI(15,NIN)
+      IF(IPARI(33,NIN)==1) RETURN
       IGAP  =IPARI(21,NIN)
       INACTI=IPARI(22,NIN)
-      ISECIN=IPARI(28,NIN)
-      MFROT =IPARI(30,NIN)
-      IFQ =IPARI(31,NIN) 
-      IBAG =IPARI(32,NIN) 
-      IGSTI=IPARI(34,NIN)
-      ICURV =IPARI(39,NIN)
-      IEDGE =IPARI(58,NIN)
-      NADMSR=IPARI(67,NIN)
-
 C adaptive meshing
       IADM =IPARI(44,NIN) 
-      NRADM=IPARI(49,NIN) 
-      PADM =INTBUF_TAB%VARIABLES(24)
-      ANGLT=INTBUF_TAB%VARIABLES(25)
       MARGE=INTBUF_TAB%VARIABLES(25)
 C heat interface
       INTTH = IPARI(47,NIN)
-      IFORM = IPARI(48,NIN)
-      INTPLY = IPARI(66,NIN)
-C      
-      STIGLO=-INTBUF_TAB%STFAC(1)
-C  
-      FRIC  =INTBUF_TAB%VARIABLES(1)
-      GAP   =INTBUF_TAB%VARIABLES(2)
-      GAPMIN=INTBUF_TAB%VARIABLES(13)
-      VISC  =INTBUF_TAB%VARIABLES(14)
-      VISCF =INTBUF_TAB%VARIABLES(15)
 C
-      GAPMAX=INTBUF_TAB%VARIABLES(16)
-      KMIN  =INTBUF_TAB%VARIABLES(17)
-      KMAX  =INTBUF_TAB%VARIABLES(18)
-C
-      RSTIF   = INTBUF_TAB%VARIABLES(20)
-      FHEAT   = INTBUF_TAB%VARIABLES(21)
-      TINT    = INTBUF_TAB%VARIABLES(22)
       PENMIN  = INTBUF_TAB%VARIABLES(38)
       EPS     = INTBUF_TAB%VARIABLES(39)
       DRAD = ZERO
@@ -184,19 +140,19 @@ C
       ALLOCATE(INDEX2(LINDMAX))
 
 c----------------------------------------------------
-c   Rayon de courbure : calcul des normales nodales (normees)
+c   radius of curvature: calculation of nodal normals (normalized)
 C   IADM!=0 + Icurv!=0 non available (starter error).
 c----------------------------------------------------
-      IF(IADM.NE.0)THEN
-      END IF!(IADM.NE.0)
+      IF(IADM/=0)THEN
+      END IF!(IADM/=0)
 C-----------------------------------------------------------------------
 C
-C     decoupage statique
+C     static decoupage
 C
       I_STOK_GLO = INTBUF_TAB%I_STOK(2)
 C
       NB_LOC = I_STOK_GLO / NTHREAD
-      IF (JTASK.EQ.NTHREAD) THEN
+      IF (JTASK==NTHREAD) THEN
         I_STOK_LOC = I_STOK_GLO-NB_LOC*(NTHREAD-1)
       ELSE
         I_STOK_LOC = NB_LOC
@@ -226,17 +182,17 @@ C         candidates for sliding (IRTLM /= 0 and IRTLM /= MG) & non previously i
 C
       CALL MY_BARRIER
 C
-      IF (DEBUG(3).GE.1) THEN
+      IF (DEBUG(3)>=1) THEN
           NB_DST2 = NB_DST2 + I_STOK
       ENDIF
 
       DO NFT = 0 , I_STOK - 1 , NVSIZ
           JLT = MIN( NVSIZ, I_STOK - NFT )
-C preparation candidats retenus
-	  CALL I25CDCOR3(
+C preparation CANDIDATES retenus
+            CALL I25CDCOR3(
      1     JLT,INDEX2(NFT+1),INTBUF_TAB%CAND_OPT_E,INTBUF_TAB%CAND_OPT_N,
      2     CAND_E_N,CAND_N_N )
-C cand_n et cand_e remplace par cand_n_n et cand_e_n
+C cand_n and cand_e replaced by cand_n_n and cand_e_n
           CALL I25COR3_21(
      1  JLT       ,X          ,INTBUF_TAB%IRECTM,INTBUF_TAB%NSV  ,CAND_E_N  ,
      2  CAND_N_N  ,INTBUF_TAB%STFM  ,INTBUF_TAB%STFNS,STIF      ,IGAP       ,
@@ -295,19 +251,20 @@ C         candidates for sliding (IRTLM /= 0 and IRTLM /= MG) & non previously i
         END IF
       ENDDO
 C
-C     CALL MY_BARRIER
+C     barrier is needed, because will IRTLM be updated in i25dst3_22 
+      CALL MY_BARRIER
 C
-      IF (DEBUG(3).GE.1) THEN
+      IF (DEBUG(3)>=1) THEN
           NB_DST2 = NB_DST2 + I_STOK
       ENDIF
 
       DO NFT = 0 , I_STOK - 1 , NVSIZ
           JLT = MIN( NVSIZ, I_STOK - NFT )
-C preparation candidats retenus
+C preparation CANDIDATES retenus
           CALL I25CDCOR3(
      1     JLT,INDEX2(NFT+1),INTBUF_TAB%CAND_OPT_E,INTBUF_TAB%CAND_OPT_N,
      2     CAND_E_N,CAND_N_N )
-C cand_n et cand_e remplace par cand_n_n et cand_e_n
+C cand_n and cand_e replaced by cand_n_n and cand_e_n
           CALL I25COR3_22(
      1  JLT       ,X          ,INTBUF_TAB%IRECTM,INTBUF_TAB%NSV  ,CAND_E_N  ,
      2  CAND_N_N  ,INTBUF_TAB%STFM  ,INTBUF_TAB%STFNS,STIF      ,IGAP,

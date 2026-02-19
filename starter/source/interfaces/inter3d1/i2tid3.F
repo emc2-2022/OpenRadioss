@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2TID3                        source/interfaces/inter3d1/i2tid3.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        NOD2EL_MOD                    share/modules1/nod2el_mod.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2tid3                 ../starter/source/interfaces/inter3d1/i2tid3.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    kinset                 ../starter/source/constraints/general/kinset.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    nod2el_mod             ../starter/share/modules1/nod2el_mod.F
+!||====================================================================
       SUBROUTINE I2TID3(X     ,IRECT ,ST    ,MSR   ,NSV  ,
      2                  IRTL  ,ITAB  ,IKINE ,IKINE1,DMIN ,
      3                  IPARI ,TZINF ,IDDLEVEL,
@@ -42,25 +42,19 @@ C   M o d u l e s
 C----------------------------------------------- 
       USE MESSAGE_MOD
       USE INTBUFDEF_MOD
-      USE NOD2EL_MOD 
+      USE NOD2EL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only :nixs,nixc,nixtg
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
 #include      "scr03_c.inc"
-#include      "scr07_c.2.inc"
-#include      "scr17_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -72,19 +66,18 @@ C     REAL
       my_real
      .   X(3,*),ST(2,*),DMIN(*),TZINF,DSEARCH,STB(2,*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER II,JJ,I,J,K,L,M,IGNORE,ILEV,NUVAR,IDEL7N,
-     .   NSN, NMN,NSNU,NMNU,NRTM,INTTH,IDN,IIB,KK,COMMON_NODES,DOUBLON,IADD,IDIP
+     .   NSN, NMN,NSNU,NMNU,NRTM,INTTH,IIB,KK,COMMON_NODES,DOUBLON,IADD,IDIP
       INTEGER  CPT,N1,N2,N3,N4,FLAG_SOLID,FLAG_SHELL,NNOD,NB_LIST_COMPT,
      .         LIST_COMPT(2,NINTER),FOUND,FOUND_NOD(4)
       my_real
-     .   TT,LB1,LC1,LA1,AAA
+     .   LB1,LC1,LA1,AAA
         INTEGER, DIMENSION(:), ALLOCATABLE :: TAGS,TAGM
 C=======================================================================
       ALLOCATE( TAGS(NUMNOD),TAGM(NUMNOD) )
@@ -120,7 +113,7 @@ C
      .                R1=TZINF,
      .                I1=ITAB(I) ,
      .                PRMOD=MSG_CUMU)
-        ELSEIF (L == 0 .AND. IGNORE .GE. 2 .AND. DSEARCH == 0) THEN
+        ELSEIF (L == 0 .AND. IGNORE >= 2 .AND. DSEARCH == 0) THEN
           CALL ANCMSG(MSGID=1071,
      .                MSGTYPE=MSGWARNING,
      .                ANMODE=ANINFO_BLIND_1,
@@ -253,7 +246,7 @@ C
      .                PRMOD=MSG_PRINT )
 
       IF(CPT == NSN) THEN
-        IF (L == 0 .AND. IGNORE .GE. 2 .AND. DSEARCH == 0) THEN
+        IF (L == 0 .AND. IGNORE >= 2 .AND. DSEARCH == 0) THEN
         CALL ANCMSG(MSGID=1217,
      .                MSGTYPE=MSGWARNING,
      .                ANMODE=ANINFO_BLIND_1,
@@ -423,7 +416,7 @@ C---    Projection on edges is used only for the distribution of masses and iner
         DO II= 1,NSN
           IF (TAGS(II) == 1) THEN
            J = IRTL(II)
-           IF (IRECT(3,J).NE.IRECT(4,J)) THEN
+           IF (IRECT(3,J)/=IRECT(4,J)) THEN
 C--        square
              STB(1,II)= MIN(ONE,MAX(-1*ONE,ST(1,II)))
              STB(2,II)= MIN(ONE,MAX(-1*ONE,ST(2,II)))
@@ -498,7 +491,7 @@ C---    Projection on edges - used only for retrocompatibility with old iproj=1 
         DO II= 1,NSN
           IF (TAGS(II) == 1) THEN
            J = IRTL(II)
-           IF (IRECT(3,J).NE.IRECT(4,J)) THEN
+           IF (IRECT(3,J)/=IRECT(4,J)) THEN
 C--        square
              ST(1,II)= MIN(ONE,MAX(-1*ONE,ST(1,II)))
              ST(2,II)= MIN(ONE,MAX(-1*ONE,ST(2,II)))
@@ -910,7 +903,7 @@ C-----------
      +'     NODE   SEGMENT                                              S       T        DIST')
  2024 FORMAT(//'     PROJECTION ON 3 NODES SEGMENTS '//
      +'     SECONDARY  NEAREST        MAIN NODES                       SECONDARY '/
-     +'     NODE       SEGMENT                                S       T        DIST')   	    
+     +'     NODE       SEGMENT                                S       T        DIST')         
 C-----------
 
       DEALLOCATE( TAGS,TAGM )

@@ -1,50 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FORCEPINCH                    source/loads/general/forcepinch.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        FINTER_SMOOTH                 source/tools/curve/finter_smooth.F
-Chd|        GET_U_SENS_VALUE              source/user_interface/usensor.F
-Chd|        SET_U_SENS_VALUE              source/user_interface/usensor.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        PINCHTYPE_MOD                 ../common_source/modules/pinchtype_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    forcepinch            ../engine/source/loads/general/forcepinch.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    finter                ../engine/source/tools/curve/finter.F
+!||    finter_smooth         ../engine/source/tools/curve/finter_smooth.F
+!||    get_u_numsens         ../engine/source/user_interface/usensor.F
+!||    get_u_sens_fpar       ../engine/source/user_interface/usensor.F
+!||    get_u_sens_ipar       ../engine/source/user_interface/usensor.F
+!||    get_u_sens_value      ../engine/source/user_interface/usensor.F
+!||    set_u_sens_value      ../engine/source/user_interface/usensor.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod               ../engine/share/modules/h3d_mod.F
+!||    pinchtype_mod         ../common_source/modules/pinchtype_mod.F
+!||    python_funct_mod      ../common_source/modules/python_mod.F90
+!||    sensor_mod            ../common_source/modules/sensor_mod.F90
+!||====================================================================
       SUBROUTINE FORCEPINCH (IB     ,FAC     ,NPC    ,TF      ,A     ,
      2                  V      ,X       ,SKEW   ,AR      ,VR    ,
-     3                  SENSOR ,LSENSOR ,WEIGHT ,TFEXC   ,IADC  ,
+     3                  NSENSOR,SENSOR_TAB ,WEIGHT ,TFEXC   ,IADC  ,
      4                  FSKY   ,FSKYV   ,FEXT   ,H3D_DATA,
-     5                  APINCH ,VPINCH)
+     5                  APINCH ,VPINCH, PYTHON, WFEXT)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE H3D_MOD
       USE PINCHTYPE_MOD  
-C-----------------------------------------------
-C   M o d u l e s 
-C-----------------------------------------------
+      USE SENSOR_MOD
+      USE PYTHON_FUNCT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,18 +59,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "impl1_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
-#include      "alefvm.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   E x t e r n a l  F u n c t i o n s
 C-----------------------------------------------
@@ -76,15 +75,19 @@ C-----------------------------------------------
 C-----------------------------------------------,
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NSENSOR
       INTEGER NPC(*)
-      INTEGER IB(NIBCLD,*),LSENSOR(NSENSI,*)
+      INTEGER IB(NIBCLD,*)
       INTEGER WEIGHT(*), IADC(4,*)
       my_real
      .   FAC(LFACCLD,*), TF(*), A(3,*), V(3,*), AR(3,*), VR(3,*),
-     .   X(3,*), SKEW(LSKEW,*), SENSOR(NSENSR,*),TFEXC,
+     .   X(3,*), SKEW(LSKEW,*), TFEXC,
      .   FSKY(8,LSKY), FSKYV(LSKY,8),FEXT(3,*),
      .   APINCH(3,*),VPINCH(3,*)
       TYPE(H3D_DATABASE) :: H3D_DATA
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) :: SENSOR_TAB
+      TYPE(PYTHON_) :: PYTHON
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -93,7 +96,7 @@ C-----------------------------------------------
      .        ISMOOTH
       my_real
      .   NX, NY, NZ, AXI, AA, A0, VV, FX, FY, FZ, AX, DYDX, TS,
-     .   SIXTH,TFEXTT,X_OLD, F1, F2,XSENS,FCX,FCY
+     .   SIXTH,WFEXTT,X_OLD, F1, F2,XSENS,FCX,FCY
       my_real FINTER, ZFx,ZFy,ZFz, ZZFx,ZZFy,ZZFz,PS, Zx,Zy,Zz,FINTER_SMOOTH
       my_real 
      .    FCYPINCH, FXPINCH, FYPINCH, FZPINCH, AAPINCH
@@ -102,7 +105,7 @@ C-----------------------------------------------
 C=======================================================================
       SIXTH  = ONE_OVER_6
       TFEXC  = ZERO
-      TFEXTT = ZERO
+      WFEXTT = ZERO
       N_OLD  = 0
       X_OLD  = ZERO
       IANIM  = ANIM_V(5)+OUTP_V(5)+H3D_DATA%N_VECT_FINT+
@@ -121,36 +124,36 @@ C
        ISENS   = 0
        XSENS   = ONE
        DO K=1,NSENSOR
-         IF(IB(6,NL).EQ.LSENSOR(1,K))ISENS=K
+         IF(IB(6,NL)==SENSOR_TAB(K)%SENS_ID) ISENS=K
        ENDDO
-       IF(ISENS.EQ.0)THEN
+       IF(ISENS==0)THEN
           TS=TT
-       ELSEIF (LSENSOR(4,ISENS)==753096514 .AND. TT /= ZERO) THEN
-         IERR = SET_U_SENS_VALUE(ISENS,1,ZERO)
-         IERR = GET_U_SENS_VALUE(ISENS,2,XSENS)
        ELSE
-          TS = TT-SENSOR(2,ISENS)
+          TS = TT-SENSOR_TAB(ISENS)%TSTART
           IF(TS < ZERO) GOTO 10
        ENDIF
 C----------------
 C       PINCHING PRESSURE
 C----------------
-        IF(N_OLD.NE.N5.OR.X_OLD.NE.TS) THEN
+        IF(N_OLD/=N5.OR.X_OLD/=TS) THEN
 
           ISMOOTH = 0
           IF (N5 > 0) ISMOOTH = NPC(2*NFUNCT+N5+1)
 !!          F1 = FINTER(N5,TS*FCX,NPC,TF,DYDX)
           IF (ISMOOTH == 0) THEN
             F1 = FINTER(N5,TS*FCX,NPC,TF,DYDX)
-          ELSE
+          ELSE IF(ISMOOTH > 0) THEN
             F1 = FINTER_SMOOTH(N5,TS*FCX,NPC,TF,DYDX)
+          ELSE 
+            ISMOOTH = -ISMOOTH ! the id the python function is saved in the position of ISMOOTH in the NPC array 
+            CALL PYTHON_CALL_FUNCT1D(PYTHON, ISMOOTH,(TS)*FCX, F1)
           ENDIF ! IF (ISMOOTH == 0)
           N_OLD = N5
           X_OLD = TS
         ENDIF
         AAPINCH = FCYPINCH*F1*XSENS
 C
-        IF(N4.NE.0)THEN
+        IF(N4/=0)THEN
           NX = (X(2,N3)-X(2,N1))*(X(3,N4)-X(3,N2)) - (X(3,N3)-X(3,N1))*(X(2,N4)-X(2,N2))
           NY = (X(3,N3)-X(3,N1))*(X(1,N4)-X(1,N2)) - (X(1,N3)-X(1,N1))*(X(3,N4)-X(3,N2))
           NZ = (X(1,N3)-X(1,N1))*(X(2,N4)-X(2,N2)) - (X(2,N3)-X(2,N1))*(X(1,N4)-X(1,N2))
@@ -176,7 +179,7 @@ C
           APINCH(3,N4) = APINCH(3,N4) + FZPINCH
 C
 C
-          TFEXTT=TFEXTT+DT1*(FXPINCH*(VPINCH(1,N1)+VPINCH(1,N2)+VPINCH(1,N3)+VPINCH(1,N4))
+          WFEXTT=WFEXTT+DT1*(FXPINCH*(VPINCH(1,N1)+VPINCH(1,N2)+VPINCH(1,N3)+VPINCH(1,N4))
      1                       +FYPINCH*(VPINCH(2,N1)+VPINCH(2,N2)+VPINCH(2,N3)+VPINCH(2,N4))
      2                       +FZPINCH*(VPINCH(3,N1)+VPINCH(3,N2)+VPINCH(3,N3)+VPINCH(3,N4)))
 
@@ -205,9 +208,8 @@ C
          ENDIF        
  10    CONTINUE
 C
-#include "atomic.inc"
-       TFEXT = TFEXT + TFEXTT
-#include "atomend.inc"
+!$OMP ATOMIC
+       WFEXT = WFEXT + WFEXTT
 C
       RETURN
       END        

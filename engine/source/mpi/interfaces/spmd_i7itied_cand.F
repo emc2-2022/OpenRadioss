@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_I7ITIED_CAND             source/mpi/interfaces/spmd_i7itied_cand.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_i7itied_cand     ../engine/source/mpi/interfaces/spmd_i7itied_cand.F
+!||--- called by ------------------------------------------------------
+!||    inttri                ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod         ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
         SUBROUTINE SPMD_I7ITIED_CAND(FLAG,NBINTC,IPARI,INTLIST,INTBUF_TAB)
 
 C-----------------------------------------------
@@ -40,29 +42,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "com01_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "spmd_c.inc"
-#include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -124,13 +116,13 @@ C-----------------------------------------------
 !              1     NSNFI(1)%P(1)       NSNFI(1)%P(1)+NSNFI(1)%P(3)
 !              
 !                          
-!       lenght for the nth proc = SUM( NSNFI%P(n) ) for all NINTER interfaces
-!       total lenght the nth proc = SUM( NSNFI%P( 1-->NSPMD ) ) for all NINTER interfaces
+!       length for the nth proc = SUM( NSNFI%P(n) ) for all NINTER interfaces
+!       total length the nth proc = SUM( NSNFI%P( 1-->NSPMD ) ) for all NINTER interfaces
 !
 !
 !       to initialize the buffer, the I_STOCK candidate nodes are scanned
 !       if a candidate node is a remote node (--> CAND_N > NSN) AND its CAND_F value
-!       is non-zero, then this node must be transmited to the SI proc
+!       is non-zero, then this node must be transmitted to the SI proc
 !       for a remote node, CAND_N = NSN + SUM( NSNFI(NIN)%P(p)) + ii
 !       ii is the local index of the node
 !       --> so ii = CAND_N - NSN - SUM( NSNFI(NIN)%P(p)) is sent to the local proc SI
@@ -144,8 +136,8 @@ C-----------------------------------------------
 !              <----------->   <------->   <--------->
 !              |   |   |   | * |   |  |  * |  |        |* ...
 !       inter :  8   10  11       1  ...
-!       lenght for the nth proc = SUM( NSNSI%P(n) ) for all NINTER interfaces
-!       total lenght the nth proc = SUM( NSNSI%P( 1-->NSPMD ) ) for all NINTER interfaces
+!       length for the nth proc = SUM( NSNSI%P(n) ) for all NINTER interfaces
+!       total length the nth proc = SUM( NSNSI%P( 1-->NSPMD ) ) for all NINTER interfaces
 !
 !
 
@@ -176,11 +168,11 @@ C-----------------------------------------------
 
                 IADR(NSPMD+1)=LENRV+1
         !       allocate the sent/received buffer
-                IF(LENSD.GT.0) THEN
+                IF(LENSD>0) THEN
                         ALLOCATE(BBUFS(LENSD))
                         BBUFS(1:LENSD) = 0
                 ENDIF
-                IF(LENRV.GT.0) THEN
+                IF(LENRV>0) THEN
                         ALLOCATE(BBUFR(LENRV))
                         BBUFR(1:LENRV) = 0
                 ENDIF
@@ -191,7 +183,7 @@ C-----------------------------------------------
                         IF (SIZ > 0) THEN
                                 MSGTYP = MSGOFF
                                 CALL MPI_IRECV( BBUFR(IADR(P)),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .                                          MPI_COMM_WORLD,REQ_R(P),IERROR )
+     .                                          SPMD_COMM_WORLD,REQ_R(P),IERROR )
 
                         ENDIF
                 ENDDO
@@ -235,11 +227,11 @@ C-----------------------------------------------
                                         ENDIF
                                 ENDDO  ! DO NI=1,NBINTC
                                 SIZ = L-IADS(P)
-                                IF(SIZ.GT.0)THEN
+                                IF(SIZ>0)THEN
                                         MSGTYP = MSGOFF
 
                                         CALL MPI_ISEND(BBUFS(IADS(P)),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .                                                 MPI_COMM_WORLD,REQ_S(P),IERROR)
+     .                                                 SPMD_COMM_WORLD,REQ_S(P),IERROR)
                                 ENDIF
                         ENDIF ! ENDIF P/= LOC_PROC
                 ENDDO  ! DO P=1, NSPMD

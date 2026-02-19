@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I24BUCE                       source/interfaces/intsort/i24buce.F
-Chd|-- called by -----------
-Chd|        I24MAIN_TRI                   source/interfaces/intsort/i24main_tri.F
-Chd|-- calls ---------------
-Chd|        I24TRIVOX                     source/interfaces/intsort/i24trivox.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i24buce       ../engine/source/interfaces/intsort/i24buce.F
+!||--- called by ------------------------------------------------------
+!||    i24main_tri   ../engine/source/interfaces/intsort/i24main_tri.F
+!||--- calls      -----------------------------------------------------
+!||    i24trivox     ../engine/source/interfaces/intsort/i24trivox.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||    tri7box       ../engine/share/modules/tri7box.F
+!||====================================================================
        SUBROUTINE I24BUCE(
      1   X        ,V       ,IRECT   ,NSV      ,STFN     , 
      2   NMN      ,NRTM    ,NSN     ,CAND_E   ,CAND_N   ,
@@ -40,7 +41,7 @@ Chd|====================================================================
      8   ILEV     ,MSEGTYP ,EDGE_L2 ,IEDGE    ,ISEADD   ,
      9   ISEDGE   ,CAND_T ,FLAGREMNODE,KREMNOD,REMNOD   ,
      A   CAND_A   ,RENUM  ,NSNROLD  ,IRTSE    ,IS2SE    ,
-     B   NSNE     ,DGAPLOAD) 
+     B   NSNE     ,DGAPLOAD,INTHEAT,IDT_THERM,NODADT_THERM) 
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
@@ -54,19 +55,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
-#include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NMN, NRTM, NSN, NOINT,IDT,NIN, NSNR
+      INTEGER NMN, NRTM, NSN, NOINT, NIN, NSNR
       INTEGER IRECT(4,*),NSV(*),ITASK,ILEV,IEDGE,NSNE    
       INTEGER CAND_E(*),CAND_N(*),MSEGTYP(*)
       INTEGER NCONTACT,ESHIFT,ILD,NB_N_B, NCONT,I_MEM,
@@ -82,15 +76,13 @@ C     REAL
      .   X(3,*), V(3,*), STFN(*),PENE_OLD(5,NSN),
      .   STF(*), GAP_S(*), GAP_M(*),EDGE_L2(*)
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, IP0, IP1, MAXSIZ,
-     .        LOC_PROC, N, ISZNSNR,
-     .        NSNFIOLD(NSPMD)
+      INTEGER I, 
+     . ISZNSNR
+      INTEGER, INTENT(IN) :: INTHEAT
+      INTEGER, INTENT(IN) :: IDT_THERM
+      INTEGER, INTENT(IN) :: NODADT_THERM
 C     REAL
       my_real
      .        XYZM(6), AAA
@@ -110,7 +102,7 @@ C-----------------------------------------------
       PENE_OLD(4,NSNF:NSNL) = PENE_OLD(3,NSNF:NSNL)
 C-----------------------------------------------
 C
-C----- TRI DES ELEMENTS ET DES NOEUDS
+Csorting of elements and nodes
 C
 C-----------------------------------------------
 C
@@ -132,7 +124,7 @@ c        DELTA_PMAX_GAP = MAX((PENEmax(i)-GAP)-(PENEmax_Tri(i)-GAP)
 c
 C=============================================================================
 
-      IF( NMN .NE. 0) THEN
+      IF( NMN /= 0) THEN
         AAA = SQRT(NMN /
      .           ((BMINMA(1)-BMINMA(4))*(BMINMA(2)-BMINMA(5))
      .           +(BMINMA(2)-BMINMA(5))*(BMINMA(3)-BMINMA(6))
@@ -180,8 +172,8 @@ C=============================================================================
       ENDIF
 c      IF(MAX(NBX,NBY,NBZ) > 100) stop 678
 
-C     initialisation complete de VOXEL
-C (en // SMP il y a possibilite de redondance de traitement mais no pb)
+C     complete initialization of VOXEL
+C (in // SMP there is possibility of processing redundancy but no pb)
       DO I=INIVOXEL,(NBX+2)*(NBY+2)*(NBZ+2)
         VOXEL1(I)=0
       ENDDO
@@ -199,12 +191,11 @@ c      write(iout,*)'i24buce 2'
      8   MBINFLG ,ILEV     ,MSEGTYP  ,EDGE_L2 ,IEDGE    ,
      9   ISEADD  ,ISEDGE   ,CAND_T  ,FLAGREMNODE,KREMNOD,
      A   REMNOD  ,CAND_A   ,RENUM   ,NSNROLD  ,IRTSE    ,
-     B   IS2SE   ,NSNE     ,DGAPLOAD)
- 234  continue
+     B   IS2SE   ,NSNE     ,DGAPLOAD,INTHEAT,IDT_THERM,NODADT_THERM)
 c      write(iout,*)'i24buce 3'
 
 C
-C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATS
+C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATES
 
 c      write(iout,*)'i24buce 4'
 C

@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SZDERI3                       source/elements/solid/solidez/szderi3.F
-Chd|-- called by -----------
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    szderi3       ../starter/source/elements/solid/solidez/szderi3.F
+!||--- called by ------------------------------------------------------
+!||    sinit3        ../starter/source/elements/solid/solide/sinit3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SZDERI3(
      .              VOL  ,VEUL ,GEO  ,IGEO , 
      .              XD1  ,XD2  ,XD3  ,XD4  ,XD5   ,XD6  ,XD7   ,XD8   ,
@@ -41,14 +42,11 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE MESSAGE_MOD
+      USE MESSAGE_MOD , ONLY : ANCMSG, ANINFO, MSGERROR
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -83,45 +81,49 @@ C-----------------------------------------------
      .   JACI1(MVSIZ), JACI2(MVSIZ), JACI3(MVSIZ), JACI4(MVSIZ), 
      .   JACI5(MVSIZ), JACI6(MVSIZ), JACI7(MVSIZ), JACI8(MVSIZ), JACI9(MVSIZ), 
      .   JAC_59_68(MVSIZ), JAC_67_49(MVSIZ), JAC_48_57(MVSIZ),
-     .   X_17_46 , X_28_35 ,
-     .   Y_17_46 , Y_28_35 ,
-     .   Z_17_46 , Z_28_35
+     .   A17_46(MVSIZ),
+     .   A28_35(MVSIZ),
+     .   B17_46(MVSIZ),
+     .   B28_35(MVSIZ),
+     .   C17_46(MVSIZ),
+     .   C28_35(MVSIZ)
       DOUBLE PRECISION
-     .   X17, X28, X35, X46,
-     .   Y17, Y28, Y35, Y46,
-     .   Z17, Z28, Z35, Z46
+     .   X17(MVSIZ), X28(MVSIZ), X35(MVSIZ), X46(MVSIZ),
+     .   Y17(MVSIZ), Y28(MVSIZ), Y35(MVSIZ), Y46(MVSIZ),
+     .   Z17(MVSIZ), Z28(MVSIZ), Z35(MVSIZ), Z46(MVSIZ)
 C=======================================================================
-C
-C Jacobian matrix
       DO I=1,NEL
-        X17=XD7(I)-XD1(I)
-        X28=XD8(I)-XD2(I)
-        X35=XD5(I)-XD3(I)
-        X46=XD6(I)-XD4(I)
-        Y17=YD7(I)-YD1(I)
-        Y28=YD8(I)-YD2(I)
-        Y35=YD5(I)-YD3(I)
-        Y46=YD6(I)-YD4(I)
-        Z17=ZD7(I)-ZD1(I)
-        Z28=ZD8(I)-ZD2(I)
-        Z35=ZD5(I)-ZD3(I)
-        Z46=ZD6(I)-ZD4(I)
-C
-        JAC4(I)=X17+X28-X35-X46
-        JAC5(I)=Y17+Y28-Y35-Y46
-        JAC6(I)=Z17+Z28-Z35-Z46
-        X_17_46=X17+X46
-        X_28_35=X28+X35
-        Y_17_46=Y17+Y46
-        Y_28_35=Y28+Y35
-        Z_17_46=Z17+Z46
-        Z_28_35=Z28+Z35
-        JAC7(I)=X_17_46+X_28_35
-        JAC8(I)=Y_17_46+Y_28_35
-        JAC9(I)=Z_17_46+Z_28_35
-        JAC1(I)=X_17_46-X_28_35
-        JAC2(I)=Y_17_46-Y_28_35
-        JAC3(I)=Z_17_46-Z_28_35
+        X17(I)=XD7(I)-XD1(I)
+        X28(I)=XD8(I)-XD2(I)
+        X35(I)=XD5(I)-XD3(I)
+        X46(I)=XD6(I)-XD4(I)
+        Y17(I)=YD7(I)-YD1(I)
+        Y28(I)=YD8(I)-YD2(I)
+        Y35(I)=YD5(I)-YD3(I)
+        Y46(I)=YD6(I)-YD4(I)
+        Z17(I)=ZD7(I)-ZD1(I)
+        Z28(I)=ZD8(I)-ZD2(I)
+        Z35(I)=ZD5(I)-ZD3(I)
+        Z46(I)=ZD6(I)-ZD4(I)
+      ENDDO
+      DO I=1,NEL
+        JAC4(I)=X17(I)+X28(I)-X35(I)-X46(I)
+        JAC5(I)=Y17(I)+Y28(I)-Y35(I)-Y46(I)
+        JAC6(I)=Z17(I)+Z28(I)-Z35(I)-Z46(I)
+        A17_46(I)=X17(I)+X46(I)
+        A28_35(I)=X28(I)+X35(I)
+        B17_46(I)=Y17(I)+Y46(I)
+        B28_35(I)=Y28(I)+Y35(I)
+        C17_46(I)=Z17(I)+Z46(I)
+        C28_35(I)=Z28(I)+Z35(I)
+      ENDDO
+      DO I=1,NEL
+        JAC7(I)=A17_46(I)+A28_35(I)
+        JAC8(I)=B17_46(I)+B28_35(I)
+        JAC9(I)=C17_46(I)+C28_35(I)
+        JAC1(I)=A17_46(I)-A28_35(I)
+        JAC2(I)=B17_46(I)-B28_35(I)
+        JAC3(I)=C17_46(I)-C28_35(I)
       ENDDO
 C
       DO I=1,NEL
@@ -129,6 +131,7 @@ C
         JAC_67_49(I)=JAC6(I)*JAC7(I)-JAC4(I)*JAC9(I)
         JAC_48_57(I)=JAC4(I)*JAC8(I)-JAC5(I)*JAC7(I)
       ENDDO
+
 C
       DO I=1,NEL
        VOLDP(I)=ONE_OVER_64*(JAC1(I)*JAC_59_68(I)+JAC2(I)*JAC_67_49(I)+JAC3(I)*JAC_48_57(I))

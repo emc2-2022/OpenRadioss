@@ -1,50 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I24INISUR_NEI                 source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        COMM_SEG_EN                   source/interfaces/inter3d1/i24inisu_nei.F
-Chd|        MSG_ERR                       source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i24inisur_nei          ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    comm_seg_en            ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||    msg_err                ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I24INISUR_NEI(NRTM ,NSN,IRECT,IRTLM,MVOISIN,
      2                         NVOISIN,MSEGLO ,MSEGTYP,ITAB ,X ,
      3                         ID,TITR,IGEO )
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -52,8 +52,7 @@ C-----------------------------------------------
      .        MSEGLO(NRTM),IRTLM(2,NSN),MSEGTYP(NRTM),ITAB(*),
      .        IGEO(NPROPGI,*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -165,7 +164,7 @@ c        goto 6543
          I1 = IRECT(K1,I)
          I2 = IRECT(K2,I)
          J  = MVOISIN(K1,I)
-		 IF (J==0) CYCLE
+           IF (J==0) CYCLE
          J1 = IRECT(1,J)
          J2 = IRECT(2,J)
          J3 = IRECT(3,J)
@@ -204,17 +203,17 @@ c       print *,'NVOISIN(1,I)=',(ITAB(NVOISIN(J,I)),J=1,N_N(I))
 c      END DO
       RETURN
       END
-Chd|====================================================================
-Chd|  COMM_SEG_EN                   source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- called by -----------
-Chd|        I24INISUR_NEI                 source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- calls ---------------
-Chd|        COMM_SEG_E                    source/interfaces/inter3d1/i24inisu_nei.F
-Chd|        COMM_SEG_N                    source/interfaces/inter3d1/i24inisu_nei.F
-Chd|        REMOVEIC1                     source/interfaces/inter3d1/i24tools.F
-Chd|        RE_ORI                        source/interfaces/inter3d1/i24tools.F
-Chd|        SEG_OPP                       source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    comm_seg_en     ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- called by ------------------------------------------------------
+!||    i24inisur_nei   ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- calls      -----------------------------------------------------
+!||    comm_seg_e      ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||    comm_seg_n      ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||    re_ori          ../starter/source/interfaces/inter3d1/i24tools.F
+!||    removeic1       ../starter/source/interfaces/inter3d1/i24tools.F
+!||    seg_opp         ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE COMM_SEG_EN(N1,IED1,N2,IED2,NE,ICE,ISELF,
      .                       I1,I2,IRECT,IM2SH ,NN,ICN ,X  ,IE,IN ,IRR)
 C----6---------------------------------------------------------------7---------8
@@ -240,7 +239,7 @@ c  I   N2,IED2(N2)       - number and neighbour segment id list of node I2
 c  O   NE,ICE(NE)        - Number and neighbour segment id list of segment id ISELF
 c  I   ISELF,I1,I2       - input segment id ISELF w/ nodes I1,I2 (commun nodes)
 c  I   IRECT(4,*)        - connectivity of segment id *
-c  I   X(3,*)            - node co-ordinates
+c  I   X(3,*)            - node coordinates
 c  O   NN,ICN(NN)        - Number and neighbour node list
 c  O   IE(NE),IN(NN)     - final (reduced) neighbour segment,node arries
 C-----------------------------------------------
@@ -252,10 +251,10 @@ C---------------------
        NE0=NE
        NN0=NN
        IASYM = IABS(IM2SH(ISELF))
-C-------------neighbour segments-----------       
+C------------- Neighbour Segments --------------       
        CALL COMM_SEG_E(N1,IED1,N2,IED2,NE,ICE,ISELF,
      .                I1,I2,IRECT,IASYM )
-C-------------treatement of multi-neighbours (T form,shell) segments->reduce to 1----------
+C-------------treatment of multi-neighbours (T form,shell) segments->reduce to 1----------
        DNE = NE-NE0
        IF (DNE > 1) THEN
          CALL REMOVEIC1(DNE,ICE(NE0+1),ISELF,IRECT,X ,I1,I2,IASYM,IRR)
@@ -282,15 +281,15 @@ C        print *,'!!!error (report to developer)!!!',(NE-NE0),(NN-NN0)
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  COMM_SEG_E                    source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- called by -----------
-Chd|        COMM_SEG_EN                   source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- calls ---------------
-Chd|        ADD_ID                        source/interfaces/inter3d1/i24tools.F
-Chd|        INTAB                         source/interfaces/inter3d1/i24tools.F
-Chd|        SAME_SEG                      source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    comm_seg_e    ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- called by ------------------------------------------------------
+!||    comm_seg_en   ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- calls      -----------------------------------------------------
+!||    add_id        ../starter/source/interfaces/inter3d1/i24tools.F
+!||    intab         ../starter/source/interfaces/inter3d1/i24tools.F
+!||    same_seg      ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE COMM_SEG_E(N1,IED1,N2,IED2,N,IC,ISELF,
      .                      I1,I2,IRECT,IASYM)
 C----6---------------------------------------------------------------7---------8
@@ -303,9 +302,9 @@ C-----------------------------------------------
       INTEGER N1,IED1(*),N2,IED2(*),N,IC(*),ISELF,
      .        I1,I2,IRECT(4,*),IASYM
 C-----------------------------------------------
-c FUNCTION: find neighbour segment and which share the same nodes I1,I2
-c        ---neighbour node arry will be buid after taking into account of treatment w/ IC 
-c           (remains only one segment at the end)
+c FUNCTION: find neighbour segment which shares the same nodes I1,I2
+c        ---neighbour node array will be built after taking into account treatment w/ IC 
+c           (only one segment remains at the end)
 c
 c Note:
 c ARGUMENTS:  (I: input, O: output, IO: input * output, W: workspace)
@@ -326,7 +325,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,NEW,K,M,LING,NE,NN
       DATA LING/0/
-C----add commun ID--at end--------------------------
+C---- Common Add Id--And End --------------------------------------------------------------------
       IF (I1==I2) THEN
 C----add 0 in IC as convention ----------------------------
         CALL ADD_ID(N,IC,LING)
@@ -346,13 +345,13 @@ C----add 0 for IC if find nothing -> consisting w/ ICN------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  COMM_SEG_N                    source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- called by -----------
-Chd|        COMM_SEG_EN                   source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- calls ---------------
-Chd|        ADD_N_ID                      source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    comm_seg_n    ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- called by ------------------------------------------------------
+!||    comm_seg_en   ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- calls      -----------------------------------------------------
+!||    add_n_id      ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE COMM_SEG_N(NE0,NE,ICE,NN,ICN,ISELF,I1,I2,IRECT)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -378,7 +377,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,NEW,K,M,LING,NN0
       DATA LING/0/
-C----add commun ID--at end--------------------------
+C---- Common Add Id--And End --------------------------------------------------------------------
       IF (I1==I2) THEN
 C----add 0 in ICN as convention ----------------------------
         CALL ADD_N_ID(NN,ICN,LING)
@@ -409,31 +408,28 @@ C----add 0 for IC if find nothing -> consisting w/ ICN------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  I24INI_GAP_N                  source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i24ini_gap_n   ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- called by ------------------------------------------------------
+!||    inint3         ../starter/source/interfaces/inter3d1/inint3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I24INI_GAP_N(
      1 NRTM  ,IRECT ,IXS   ,GEO   ,IXC   ,IXTG  ,
      2 IXT   ,IXP   ,IPART  ,IPARTC   ,IPARTTG  ,
      3 THK   ,THK_PART,NVOISIN ,GAP_N ,GAP_M    ,
      4 NMN   ,MSR   ,GAPN_M,GAP_N0,INTPLY  ,
      5 GAPMAX_M ,IGEO,MSEGTYP)
+      use element_mod , only :nixs,nixc,nixtg,nixt,nixp
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
@@ -461,15 +457,15 @@ C
        END DO
 C        
 C------------------------------------
-C     GAP NOEUDS IN WA
+C     GAP NODES IN WA
 C------------------------------------
        DO I=1,NUMELC
          MG=IXC(6,I)
          IGTYP = IGEO(11,MG)
          IP = IPARTC(I)
-         IF ( THK_PART(IP) .NE. ZERO .AND. IINTTHICK .EQ. 0) THEN
+         IF ( THK_PART(IP) /= ZERO .AND. IINTTHICK == 0) THEN
            DX=HALF*THK_PART(IP)
-         ELSEIF ( THK(I) .NE. ZERO .AND. IINTTHICK .EQ. 0) THEN
+         ELSEIF ( THK(I) /= ZERO .AND. IINTTHICK == 0) THEN
            DX=HALF*THK(I)
          ELSEIF(IGTYP == 17) THEN
            DX=HALF*THK(I)
@@ -486,9 +482,9 @@ C
          MG=IXTG(5,I)
          IGTYP = IGEO(11,MG)
          IP = IPARTTG(I)
-         IF ( THK_PART(IP) .NE. ZERO .AND. IINTTHICK .EQ. 0) THEN
+         IF ( THK_PART(IP) /= ZERO .AND. IINTTHICK == 0) THEN
            DX=HALF*THK_PART(IP)
-         ELSEIF ( THK(NUMELC+I) .NE. ZERO .AND. IINTTHICK .EQ. 0) THEN
+         ELSEIF ( THK(NUMELC+I) /= ZERO .AND. IINTTHICK == 0) THEN
            DX=HALF*THK(NUMELC+I)
          ELSEIF(IGTYP == 17) THEN
            DX=HALF*THK(NUMELC+I)
@@ -499,7 +495,7 @@ C
          WA(IXTG(3,I))=MAX(WA(IXTG(3,I)),DX)
          WA(IXTG(4,I))=MAX(WA(IXTG(4,I)),DX)
        ENDDO
-C--------exclude lines in main surfaces
+C------- Excluded lines in main surfaces
 C       DO I=1,NUMELT
 C        MG=IXT(4,I)
 C        DX=HALF*SQRT(GEO(1,MG))
@@ -514,7 +510,7 @@ C        WA(IXP(2,I))=MAX(WA(IXP(2,I)),DX)
 C        WA(IXP(3,I))=MAX(WA(IXP(3,I)),DX)
 C       ENDDO
 C------------------------------------
-C     INI GAP_N (4 + 8 voisins), GAP_M is modified taking into accound nodal gap
+C     INI GAP_N (4 + 8 voisins), GAP_M is modified taking into account nodal gap
 C------------------------------------
 C -----due to the fact that if surf_M does not contain the defining w/ shell
 C-------> should not take into account GAP_shell    
@@ -532,7 +528,7 @@ C
        WA(M) = MIN(WA(M),GAPMAX_M)
        GAPN_M(I) = WA(M)
       END DO
-C		 
+C     
       IF(INTPLY == 0) THEN
           DO I=1,NRTM
              GAP_M(I) = ZERO

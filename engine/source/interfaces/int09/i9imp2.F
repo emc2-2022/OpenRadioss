@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I9IMP2                        source/interfaces/int09/i9imp2.F
-Chd|-- called by -----------
-Chd|        I9MAIN2                       source/interfaces/int09/i9main2.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i9imp2    ../engine/source/interfaces/int09/i9imp2.F
+!||--- called by ------------------------------------------------------
+!||    i9main2   ../engine/source/interfaces/int09/i9main2.F
+!||====================================================================
       SUBROUTINE I9IMP2(X     ,V     ,A     ,IRECT,MSR  ,
      1                  NSV   ,ILOC  ,IRTL  ,NSN  ,CST  ,
      2                  FRIGAP,NOR   )
@@ -48,11 +47,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IX(2), II, I, J, K, L, M, IMP, I3, I2, JJ, J3, J2, LOLD
+      INTEGER IX(2), II, I, J, K, L, M
 C     REAL
       my_real
      .   H(2), N2, N3, GAP, YM1, ZM1, YM2, ZM2, YS, ZS, T2, T3,
-     .   XL, ANS, SS, STIF, FNI, FYI, FZI, SS0, FTI, DS, ANST
+     .   XL, ANS, SS
 C-----------------------------------------------
       GAP =FRIGAP(2)
 C
@@ -81,15 +80,15 @@ C
 C
       ANS =N2*(YS-YM1)+N3*(ZS-ZM1)
       ANS =ANS-GAP
-      IF(ANS.GT.ZERO)THEN
+      IF(ANS>ZERO)THEN
         ILOC(II)=-ILOC(II)
       ELSE
         H(2)=T2*(YS-YM1)+T3*(ZS-ZM1)
         H(2)=H(2)/XL
         H(1)=ONE - H(2)
         SS=H(2)-H(1)
-        IF(SS.GT. ONEP05)ILOC(II)=-ILOC(II)
-        IF(SS.LT.-ONEP05)ILOC(II)=-ILOC(II)
+        IF(SS> ONEP05)ILOC(II)=-ILOC(II)
+        IF(SS<-ONEP05)ILOC(II)=-ILOC(II)
         SS= MAX(-ONE,SS)
         SS= MIN( ONE,SS)
         NOR(2,II)=N2

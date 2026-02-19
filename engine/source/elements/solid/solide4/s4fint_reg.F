@@ -1,39 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S4FINT_REG                    source/elements/solid/solide4/s4fint_reg.F
-Chd|-- called by -----------
-Chd|        S4FORC3                       source/elements/solid/solide4/s4forc3.F
-Chd|-- calls ---------------
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
-      SUBROUTINE S4FINT_REG(NLOC_DMG,VAR_REG  ,
-     .                      NEL     ,OFF      ,VOL      ,NC1     ,
-     .                      NC2     ,NC3      ,NC4      ,PX1     ,
-     .                      PX2     ,PX3      ,PX4      ,PY1     ,
-     .                      PY2     ,PY3      ,PY4      ,PZ1     ,
-     .                      PZ2     ,PZ3      ,PZ4      ,IMAT    ,
-     .                      ITASK   ,DT2T     )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s4fint_reg       ../engine/source/elements/solid/solide4/s4fint_reg.F
+!||--- called by ------------------------------------------------------
+!||    s4forc3          ../engine/source/elements/solid/solide4/s4forc3.F
+!||--- uses       -----------------------------------------------------
+!||    nlocal_reg_mod   ../common_source/modules/nlocal_reg_mod.F
+!||====================================================================
+      SUBROUTINE S4FINT_REG(
+     1   NLOC_DMG,VAR_REG, NEL,     OFF,
+     2   VOL,     NC1,     NC2,     NC3,
+     3   NC4,     PX1,     PX2,     PX3,
+     4   PX4,     PY1,     PY2,     PY3,
+     5   PY4,     PZ1,     PZ2,     PZ3,
+     6   PZ4,     IMAT,    ITASK,   DT2T,
+     7   VOL0,    NFT)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
@@ -45,20 +46,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "parit_c.inc"
-#include      "vect01_c.inc"
 #include      "scr02_c.inc"
 #include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NFT
       INTEGER ::  NEL, IMAT, ITASK
       INTEGER, DIMENSION(NEL) :: NC1,NC2,NC3,NC4
       my_real, INTENT(INOUT)                     ::
      .  DT2T
       my_real, DIMENSION(NEL), INTENT(IN) :: 
-     .   VOL,OFF,VAR_REG,
+     .   VOL,OFF,VAR_REG,VOL0,
      .   PX1,PX2,PX3,PX4,PY1,PY2,PY3,PY4,PZ1,PZ2,PZ3,PZ4
       TYPE(NLOCAL_STR_), TARGET :: NLOC_DMG 
 C-----------------------------------------------
@@ -66,10 +66,10 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,II,K,NNOD,N1,N2,N3,N4,L_NLOC
       my_real 
-     . DX, DY, DZ, L2,NTN,NTN_UNL,NTN_VNL,XI,NTVAR,A,
+     .    L2,NTN,NTN_UNL,NTN_VNL,XI,NTVAR,A,
      . B1,B2,B3,B4,ZETA,SSPNL,DTNL,LE_MAX,MAXSTIF
       my_real, DIMENSION(NEL) :: 
-     . F1,F2,F3,F4
+     . F1,F2,F3,F4,LC
       my_real, DIMENSION(:) ,ALLOCATABLE   :: 
      . BTB11,BTB12,BTB13,BTB14,BTB22,BTB23,BTB24,
      . BTB33,BTB34,BTB44,STI1,STI2,STI3,STI4
@@ -77,8 +77,6 @@ C-----------------------------------------------
      . POS1,POS2,POS3,POS4
       my_real, POINTER, DIMENSION(:) :: 
      . VNL,FNL,UNL,STIFNL,MASS,MASS0,VNL0
-      ! Coefficient for non-local stability to take into account damping
-      my_real, PARAMETER :: CDAMP = 0.7D0
 c-----------------------------------------------------------------------
 c     VAR_REG :  variable a regulariser (local cumulated plastic strain)
 c     NTVAR  =  NT * VAR_REG
@@ -91,6 +89,7 @@ C=======================================================================
       SSPNL  = NLOC_DMG%SSPNL(IMAT)
       LE_MAX = NLOC_DMG%LE_MAX(IMAT) ! Maximal length of convergence
       NTN    = FOUR*FOUR
+      LC(1:NEL) = ZERO
       ALLOCATE(BTB11(NEL),BTB12(NEL),BTB13(NEL),BTB14(NEL),BTB22(NEL),
      . BTB23(NEL),BTB24(NEL),BTB33(NEL),BTB34(NEL),BTB44(NEL),POS1(NEL),
      . POS2(NEL),POS3(NEL),POS4(NEL))
@@ -156,10 +155,10 @@ c
           ! Computing the product XDAMP*NtN*VNL
           NTN_VNL = (VNL(POS1(I)) + VNL(POS2(I)) + VNL(POS3(I)) + VNL(POS4(I))) / NTN
           IF (NODADT > 0) THEN 
-            NTN_VNL = (SQRT(MASS(POS1(I))/MASS0(POS1(I)))*VNL(POS1(I)) + 
-     .                 SQRT(MASS(POS2(I))/MASS0(POS2(I)))*VNL(POS2(I)) + 
-     .                 SQRT(MASS(POS3(I))/MASS0(POS3(I)))*VNL(POS3(I)) + 
-     .                 SQRT(MASS(POS4(I))/MASS0(POS4(I)))*VNL(POS4(I))) / NTN
+            NTN_VNL = MIN(SQRT(MASS(POS1(I))/MASS0(POS1(I))),
+     .                    SQRT(MASS(POS2(I))/MASS0(POS2(I))), 
+     .                    SQRT(MASS(POS3(I))/MASS0(POS3(I))), 
+     .                    SQRT(MASS(POS4(I))/MASS0(POS4(I))))*NTN_VNL
           ENDIF
 c
           ! Computation of the product LEN**2 * BtxB
@@ -203,16 +202,20 @@ c
 c
         ! If the element is broken, computation of absorbing forces
         ELSE
+c
+          ! Initial element characteristic length
+          LC(I) = VOL0(I)**THIRD  
+c
           IF (NODADT > 0) THEN     
             ! Non-local absorbing forces
             F1(I) = SQRT(MASS(POS1(I))/MASS0(POS1(I)))*ZETA*SSPNL*HALF*
-     .                          (VNL(POS1(I))+VNL0(POS1(I)))*(SQRT(THREE)/FOUR)*(LE_MAX**2)
+     .                          (VNL(POS1(I))+VNL0(POS1(I)))*(SQRT(THREE)/FOUR)*(LC(I)**2)
             F2(I) = SQRT(MASS(POS2(I))/MASS0(POS2(I)))*ZETA*SSPNL*HALF*
-     .                          (VNL(POS2(I))+VNL0(POS2(I)))*(SQRT(THREE)/FOUR)*(LE_MAX**2)
+     .                          (VNL(POS2(I))+VNL0(POS2(I)))*(SQRT(THREE)/FOUR)*(LC(I)**2)
             F3(I) = SQRT(MASS(POS3(I))/MASS0(POS3(I)))*ZETA*SSPNL*HALF*
-     .                          (VNL(POS3(I))+VNL0(POS3(I)))*(SQRT(THREE)/FOUR)*(LE_MAX**2)
+     .                          (VNL(POS3(I))+VNL0(POS3(I)))*(SQRT(THREE)/FOUR)*(LC(I)**2)
             F4(I) = SQRT(MASS(POS4(I))/MASS0(POS4(I)))*ZETA*SSPNL*HALF*
-     .                          (VNL(POS4(I))+VNL0(POS4(I)))*(SQRT(THREE)/FOUR)*(LE_MAX**2) 
+     .                          (VNL(POS4(I))+VNL0(POS4(I)))*(SQRT(THREE)/FOUR)*(LC(I)**2)
             ! Computing nodal equivalent stiffness
             STI1(I) = EM20
             STI2(I) = EM20
@@ -220,10 +223,10 @@ c
             STI4(I) = EM20        
           ELSE
             ! Non-local absorbing forces
-            F1(I) = ZETA*SSPNL*HALF*(VNL(POS1(I))+VNL0(POS1(I)))*(SQRT(THREE)/FOUR)*(LE_MAX**2)
-            F2(I) = ZETA*SSPNL*HALF*(VNL(POS2(I))+VNL0(POS2(I)))*(SQRT(THREE)/FOUR)*(LE_MAX**2)
-            F3(I) = ZETA*SSPNL*HALF*(VNL(POS3(I))+VNL0(POS3(I)))*(SQRT(THREE)/FOUR)*(LE_MAX**2)
-            F4(I) = ZETA*SSPNL*HALF*(VNL(POS4(I))+VNL0(POS4(I)))*(SQRT(THREE)/FOUR)*(LE_MAX**2)          
+            F1(I) = ZETA*SSPNL*HALF*(VNL(POS1(I))+VNL0(POS1(I)))*(SQRT(THREE)/FOUR)*(LC(I)**2)
+            F2(I) = ZETA*SSPNL*HALF*(VNL(POS2(I))+VNL0(POS2(I)))*(SQRT(THREE)/FOUR)*(LC(I)**2)
+            F3(I) = ZETA*SSPNL*HALF*(VNL(POS3(I))+VNL0(POS3(I)))*(SQRT(THREE)/FOUR)*(LC(I)**2)
+            F4(I) = ZETA*SSPNL*HALF*(VNL(POS4(I))+VNL0(POS4(I)))*(SQRT(THREE)/FOUR)*(LC(I)**2)          
           ENDIF
         ENDIF
       ENDDO

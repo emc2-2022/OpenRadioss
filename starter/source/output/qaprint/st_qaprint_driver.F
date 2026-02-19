@@ -1,132 +1,123 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ST_QAPRINT_ADMESH             source/output/qaprint/st_qaprint_admesh.F
-Chd|        ST_QAPRINT_ALE_OPTIONS_DRIVER source/output/qaprint/st_qaprint_ale_options_driver.F
-Chd|        ST_QAPRINT_CLUSTERS           source/output/qaprint/st_qaprint_clusters.F
-Chd|        ST_QAPRINT_COMPOSITE_OPTIONS  source/output/qaprint/st_qaprint_composite_options.F
-Chd|        ST_QAPRINT_CONSTRAINTS        source/output/qaprint/st_qaprint_constraints.F
-Chd|        ST_QAPRINT_DFS_DETONATORS     source/output/qaprint/st_qaprint_dfs_detonators.F
-Chd|        ST_QAPRINT_DFS_LASERS         source/output/qaprint/st_qaprint_dfs_lasers.F
-Chd|        ST_QAPRINT_EBCS               source/output/qaprint/st_qaprint_ebcs.F
-Chd|        ST_QAPRINT_ELEMENT            source/output/qaprint/st_qaprint_element.F
-Chd|        ST_QAPRINT_FRICTION           source/output/qaprint/st_qaprint_friction.F
-Chd|        ST_QAPRINT_GENERAL_CONTROLS   source/output/qaprint/st_qaprint_general_controls.F
-Chd|        ST_QAPRINT_GROUPS             source/output/qaprint/st_qaprint_groups.F
-Chd|        ST_QAPRINT_INITIAL_CONDITIONS source/output/qaprint/st_qaprint_initial_conditions.F
-Chd|        ST_QAPRINT_INITIAL_STATE      source/output/qaprint/st_qaprint_initial_state.F
-Chd|        ST_QAPRINT_INIVOL             source/output/qaprint/st_qaprint_inivol.F
-Chd|        ST_QAPRINT_INTERFACES         source/output/qaprint/st_qaprint_interfaces.F
-Chd|        ST_QAPRINT_LOADS              source/output/qaprint/st_qaprint_loads.F
-Chd|        ST_QAPRINT_MADYMO             source/output/qaprint/st_qaprint_madymo.F
-Chd|        ST_QAPRINT_MATERIALS          source/output/qaprint/st_qaprint_materials.F
-Chd|        ST_QAPRINT_MODEL_TOOLS        source/output/qaprint/st_qaprint_model_tools.F
-Chd|        ST_QAPRINT_MONVOL             source/output/qaprint/st_qaprint_monvol.F
-Chd|        ST_QAPRINT_MULTIDOMAINS       source/output/qaprint/st_qaprint_multidomains.F
-Chd|        ST_QAPRINT_NODES              source/output/qaprint/st_qaprint_nodes.F
-Chd|        ST_QAPRINT_OUTPUT_DATABASES   source/output/qaprint/st_qaprint_output_databases.F
-Chd|        ST_QAPRINT_PROPERTIES         source/output/qaprint/st_qaprint_properties.F
-Chd|        ST_QAPRINT_REFERENCE_STATE    source/output/qaprint/st_qaprint_reference_state.F
-Chd|        ST_QAPRINT_REFSTA             source/output/qaprint/st_qaprint_refsta.F
-Chd|        ST_QAPRINT_SEATBELTS          source/output/qaprint/st_qaprint_seatbelts.F
-Chd|        ST_QAPRINT_SET                source/output/qaprint/st_qaprint_set.F
-Chd|        ST_QAPRINT_SURF               source/output/qaprint/st_qaprint_surf.F
-Chd|        ST_QAPRINT_TIME_HISTORIES     source/output/qaprint/st_qaprint_time_histories.F
-Chd|        ST_QAPRINT_TRANSFORMATIONS    source/output/qaprint/st_qaprint_transformations.F
-Chd|        ST_QAPRINT_USERWI             source/output/qaprint/st_qaprint_userwi.F
-Chd|        ALE_EBCS_MOD                  ../common_source/modules/ale_ebcs_mod.F
-Chd|        CLUSTER_MOD                   share/modules1/cluster_mod.F  
-Chd|        DETONATORS_MOD                share/modules1/detonators_mod.F
-Chd|        DRAPE_MOD                     share/modules1/drape_mod.F    
-Chd|        EBCS_MOD                      ../common_source/modules/ebcs_mod.F
-Chd|        FUNC2D_MOD                    share/modules1/func2d_mod.F   
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INIMAP1D_MOD                  share/modules1/inimap1d_mod.F 
-Chd|        INIMAP2D_MOD                  share/modules1/inimap2d_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUF_FRIC_MOD               share/modules1/intbuf_fric_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        SENSOR_MOD                    share/modules1/sensor_mod.F   
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|        TABLE_MOD                     share/modules1/table_mod.F    
-Chd|====================================================================
-      SUBROUTINE ST_QAPRINT_DRIVER(IGEO      ,GEO       ,BUFGEO    ,IPM       ,PM        ,
-     2                             BUFMAT    ,NOM_OPT   ,INOM_OPT  ,NUMLOADP  ,ILOADP    ,
-     3                             LLOADP    ,LOADP     ,IBCL      ,FORC      ,IPRES     ,
-     4                             PRES      ,NPBY      ,LPBY      ,RBY       ,IBCR      ,
-     5                             FRADIA    ,IBCV      ,FCONV     ,IBFTEMP   ,FBFTEMP   ,
-     6                             IGRV      ,LGRV      ,AGRV      ,IBFFLUX   ,FBFFLUX   ,
-     7                             ITAB      ,V         ,VR        ,W         ,ICODE     ,
-     8                             ISKEW     ,ICFIELD   ,LCFIELD   ,CFIELD    ,DAMPR     ,
-     9                             TEMP      ,IBCSLAG   ,IPARI     ,INTBUF_TAB,CLUSTERS  ,
-     A                             IBOX      ,IPMAS     ,IBFVEL    ,FBFVEL    ,NIMPACC    ,
-     B                             LACCELM    ,ACCELM   ,NOM_SECT  ,NSTRF     ,SECBUF    ,
-     C                             SKEW      ,ISKWN     ,XFRAME    ,T_MONVOL  ,T_MONVOL_METADATA,
-     D                             I2RUPT    ,AREASL    ,INTBUF_FRIC_TAB, NPFRICORTH ,
-     E                             PFRICORTH ,IREPFORTH ,PHIFORTH  ,VFORTH    ,XREFC     ,
-     F                             XREFTG    ,XREFS     ,TAGXREF   ,IXS       ,IXC       ,
-     G                             IXTG      ,RWBUF     ,NPRW      ,LPRW      ,ITHGRP    ,
-     H                             ITHBUF    ,ITHVAR    ,IPART     ,SUBSETS   ,ITHGRPA   ,
-     I                             ITHGRPB   ,ITHGRPC   ,ITHGRPD   ,ITHGRPE   ,ITHGRPF   ,
-     J                             ITHGRPG   ,ITHGRPH   ,ITHGRPI   ,ITHBUFA   ,ITHBUFB   ,
-     K                             ITHBUFC   ,ITHBUFD   ,ITHBUFE   ,ITHBUFF   ,ITHBUFG   ,
-     L                             ITHBUFH   ,ITHBUFI   ,IPARTTH   ,NTHGRPMX  ,NIMPDISP  ,
-     M                             NIMPVEL   ,DETONATORS,IBCSCYC   ,NPC       ,PLD       ,
-     N                             TABLE     ,NPTS      ,IRBE3     ,LRBE3     ,FRBE3     ,
-     O                             MGRBY     ,IXS10     ,ISOLNOD   ,IXR       ,R_SKEW    ,
-     P                             IXP       ,IXT       ,X         ,THKE      ,SH4ANG    ,
-     Q                             THKEC     ,SH3ANG    ,SET       ,LSUBMODEL ,IGRNOD    ,
-     R                             IGRPART   ,IGRBRIC   ,IGRSH4N   ,IGRSH3N   ,IGRQUAD   ,
-     S                             IGRBEAM   ,IGRTRUSS  ,IGRSPRING ,IGRSURF   ,IGRSLIN   ,
-     T                             IXQ       ,ISPCOND   ,RTRANS    ,IRAND     ,ALEA      ,
-     U                             XSEED     ,XLAS      ,LAS       ,IRBE2     ,LRBE2     ,
-     V                             KXSP      ,IPARTSP   ,DRAPE     ,IXR_KJ    ,IACTIV    ,
-     W                             FACTIV    ,UNITAB    ,NPBYL     ,LPBYL     ,RBYL      ,
-     X                             XYZREF    ,SENSOR_TAB,LSENSOR   ,SENSOR    ,FUNC2D    ,
-     Y                             INICRACK  ,IPRELOAD  ,PRELOAD   ,IFLAG_BPRELOAD ,IBMPC,
-     Z                             IBMPC2    ,IBMPC3    ,IBMPC4    ,RBMPC     ,LJOINT    ,
-     A                             NNLINK    ,LNLINK    ,BUFSF     ,SBUFSF_   ,PM_STACK  ,
-     B                             GEO_STACK ,IGEO_STACK,
-     C                             LIFLOW, LRFLOW, IFLOW, RFLOW    ,IPADMESH  ,PADMESH   ,
-     D                             SH4TREE   ,SH3TREE   ,SH4TRIM   ,SH3TRIM   ,QP_IPERTURB,
-     E                             QP_RPERTURB,LLINAL   ,LINALE    , FVM_INIVEL,GJBUFI   ,
-     F                             GJBUFR    ,MS        ,IN        ,LGAUGE    , GAUGE    ,
-     G                             KXX       ,IXX       ,IPARTX    ,IXRI      ,IXS16     ,
-     H                             IEXMAD    ,FXBIPM    ,FXBFILE_TAB,EIGIPM   ,EIGRPM    ,
-     I                             ISPHIO    ,VSPHIO    ,EBCS_TAB  ,INIMAP1D  ,INIMAP2D  ,
-     J                             NSIGSH    ,SIGSH     ,NSIGI     ,SIGSP     ,NSIGS     ,
-     K                             SIGI      ,NSIGBEAM  ,SIGBEAM   ,NSIGTRUSS ,SIGTRUSS  ,
-     L                             NSIGRS    ,SIGRS     ,MERGE_NODE_TAB,MERGE_NODE_TOL   ,
-     M                             IMERGE    ,NMERGE_TOT,IEXLNK    ,NUVARI    ,NUVAR     ,
-     N                             IUSER     ,USER      )
-C============================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    st_qaprint_driver               ../starter/source/output/qaprint/st_qaprint_driver.F
+!||--- called by ------------------------------------------------------
+!||    lectur                          ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    st_qaprint_admesh               ../starter/source/output/qaprint/st_qaprint_admesh.F
+!||    st_qaprint_ale_options_driver   ../starter/source/output/qaprint/st_qaprint_ale_options_driver.F
+!||    st_qaprint_clusters             ../starter/source/output/qaprint/st_qaprint_clusters.F
+!||    st_qaprint_composite_options    ../starter/source/output/qaprint/st_qaprint_composite_options.F
+!||    st_qaprint_constraints          ../starter/source/output/qaprint/st_qaprint_constraints.F
+!||    st_qaprint_dfs_detonators       ../starter/source/output/qaprint/st_qaprint_dfs_detonators.F
+!||    st_qaprint_dfs_lasers           ../starter/source/output/qaprint/st_qaprint_dfs_lasers.F
+!||    st_qaprint_ebcs                 ../starter/source/output/qaprint/st_qaprint_ebcs.F
+!||    st_qaprint_element              ../starter/source/output/qaprint/st_qaprint_element.F
+!||    st_qaprint_friction             ../starter/source/output/qaprint/st_qaprint_friction.F
+!||    st_qaprint_general_controls     ../starter/source/output/qaprint/st_qaprint_general_controls.F
+!||    st_qaprint_groups               ../starter/source/output/qaprint/st_qaprint_groups.F
+!||    st_qaprint_initial_conditions   ../starter/source/output/qaprint/st_qaprint_initial_conditions.F
+!||    st_qaprint_initial_state        ../starter/source/output/qaprint/st_qaprint_initial_state.F
+!||    st_qaprint_inivol               ../starter/source/output/qaprint/st_qaprint_inivol.F
+!||    st_qaprint_interfaces           ../starter/source/output/qaprint/st_qaprint_interfaces.F
+!||    st_qaprint_internal_groups      ../starter/source/output/qaprint/st_qaprint_internal_groups.F
+!||    st_qaprint_loads                ../starter/source/output/qaprint/st_qaprint_loads.F
+!||    st_qaprint_madymo               ../starter/source/output/qaprint/st_qaprint_madymo.F
+!||    st_qaprint_materials            ../starter/source/output/qaprint/st_qaprint_materials.F
+!||    st_qaprint_model_tools          ../starter/source/output/qaprint/st_qaprint_model_tools.F
+!||    st_qaprint_monvol               ../starter/source/output/qaprint/st_qaprint_monvol.F
+!||    st_qaprint_multidomains         ../starter/source/output/qaprint/st_qaprint_multidomains.F
+!||    st_qaprint_nodes                ../starter/source/output/qaprint/st_qaprint_nodes.F
+!||    st_qaprint_output_databases     ../starter/source/output/qaprint/st_qaprint_output_databases.F
+!||    st_qaprint_properties           ../starter/source/output/qaprint/st_qaprint_properties.F
+!||    st_qaprint_reference_state      ../starter/source/output/qaprint/st_qaprint_reference_state.F
+!||    st_qaprint_refsta               ../starter/source/output/qaprint/st_qaprint_refsta.F
+!||    st_qaprint_seatbelts            ../starter/source/output/qaprint/st_qaprint_seatbelts.F
+!||    st_qaprint_set                  ../starter/source/output/qaprint/st_qaprint_set.F
+!||    st_qaprint_surf                 ../starter/source/output/qaprint/st_qaprint_surf.F
+!||    st_qaprint_time_histories       ../starter/source/output/qaprint/st_qaprint_time_histories.F
+!||    st_qaprint_transformations      ../starter/source/output/qaprint/st_qaprint_transformations.F
+!||    st_qaprint_userwi               ../starter/source/output/qaprint/st_qaprint_userwi.F
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod                     ../starter/share/modules1/cluster_mod.F
+!||    defaults_mod                    ../starter/source/modules/defaults_mod.F90
+!||    detonators_mod                  ../starter/share/modules1/detonators_mod.F
+!||    drape_mod                       ../starter/share/modules1/drape_mod.F
+!||    func2d_mod                      ../starter/share/modules1/func2d_mod.F
+!||    inimap1d_mod                    ../starter/share/modules1/inimap1d_mod.F
+!||    inimap2d_mod                    ../starter/share/modules1/inimap2d_mod.F
+!||    monvol_struct_mod               ../starter/share/modules1/monvol_struct_mod.F
+!||    submodel_mod                    ../starter/share/modules1/submodel_mod.F
+!||    table_mod                       ../starter/share/modules1/table_mod.F
+!||====================================================================
+      SUBROUTINE ST_QAPRINT_DRIVER(IGEO        ,GEO        ,BUFGEO          ,IPM            ,PM               ,
+     2                             BUFMAT      ,NOM_OPT    ,INOM_OPT        ,NUMLOADP       ,ILOADP           ,
+     3                             LLOADP      ,LOADP      ,IBCL            ,FORC           ,IPRES            ,
+     4                             PRES        ,NPBY       ,LPBY            ,RBY            ,IBCR             ,
+     5                             FRADIA      ,IBCV       ,FCONV           ,IBFTEMP        ,FBFTEMP          ,
+     6                             IGRV        ,LGRV       ,AGRV            ,IBFFLUX        ,FBFFLUX          ,
+     7                             ITAB        ,V          ,VR              ,W              ,ICODE            ,
+     8                             ISKEW       ,ICFIELD    ,LCFIELD         ,CFIELD         ,DAMPR            ,
+     9                             TEMP        ,IBCSLAG    ,IPARI           ,INTBUF_TAB     ,CLUSTERS         ,
+     A                             IBOX        ,IPMAS      ,IBFVEL          ,FBFVEL         ,NIMPACC          ,
+     B                             LACCELM      ,ACCELM    ,NOM_SECT        ,NSTRF          ,SECBUF           ,
+     C                             SKEW        ,ISKWN      ,XFRAME          ,T_MONVOL       ,T_MONVOL_METADATA,
+     D                             I2RUPT      ,AREASL     ,INTBUF_FRIC_TAB ,NPFRICORTH     ,MAT_ELEM         ,
+     E                             PFRICORTH   ,IREPFORTH  ,PHIFORTH        ,VFORTH         ,XREFC            ,
+     F                             XREFTG      ,XREFS      ,TAGXREF         ,IXS            ,IXC              ,
+     G                             IXTG        ,RWBUF      ,NPRW            ,LPRW           ,ITHVAR           ,
+     H                             IPART       ,SUBSETS    ,IPARTTH         ,NTHGRPMX       ,NIMPDISP         ,
+     M                             NIMPVEL     ,DETONATORS ,IBCSCYC         ,NPC            ,PLD              ,
+     N                             TABLE       ,NPTS       ,IRBE3           ,LRBE3          ,FRBE3            ,
+     O                             MGRBY       ,IXS10      ,ISOLNOD         ,IXR            ,R_SKEW           ,
+     P                             IXP         ,IXT        ,X               ,THKE           ,SH4ANG           ,
+     Q                             THKEC       ,SH3ANG     ,SET             ,LSUBMODEL      ,IGRNOD           ,
+     R                             IGRPART     ,IGRBRIC    ,IGRSH4N         ,IGRSH3N        ,IGRQUAD          ,
+     S                             IGRBEAM     ,IGRTRUSS   ,IGRSPRING       ,IGRSURF        ,IGRSLIN          ,
+     T                             IXQ         ,ISPCOND    ,RTRANS          ,IRAND          ,ALEA             ,
+     U                             XSEED       ,XLAS       ,LAS             ,IRBE2          ,LRBE2            ,
+     V                             KXSP        ,IPARTSP    ,DRAPE           ,IXR_KJ         ,IACTIV           ,
+     W                             FACTIV      ,UNITAB     ,NPBYL           ,LPBYL          ,RBYL             ,
+     X                             XYZREF      ,SENSORS    ,FUNC2D          ,
+     Y                             INICRACK    ,IPRELOAD   ,PRELOAD         ,IFLAG_BPRELOAD ,IBMPC,
+     Z                             IBMPC2      ,IBMPC3     ,IBMPC4          ,RBMPC          ,LJOINT           ,
+     A                             NNLINK      ,LNLINK     ,BUFSF           ,SBUFSF_        ,PM_STACK         ,
+     B                             GEO_STACK   ,IGEO_STACK ,IPARG           ,IPADMESH       ,PADMESH          ,
+     C                             LIFLOW      , LRFLOW    ,IFLOW           ,RFLOW          ,
+     D                             SH4TREE     ,SH3TREE    ,SH4TRIM         ,SH3TRIM        ,QP_IPERTURB      ,
+     E                             QP_RPERTURB ,LLINAL     ,LINALE          ,FVM_INIVEL     ,GJBUFI           ,
+     F                             GJBUFR      ,MS         ,IN              ,LGAUGE         ,GAUGE            ,
+     G                             KXX         ,IXX        ,IPARTX          ,IXRI           ,IXS16            ,
+     H                             IEXMAD      ,FXBIPM     ,FXBFILE_TAB     ,EIGIPM         ,EIGRPM           ,
+     I                             ISPHIO      ,VSPHIO     ,EBCS_TAB        ,INIMAP1D       ,INIMAP2D         ,
+     J                             NSIGSH      ,SIGSH      ,NSIGI           ,SIGSP          ,NSIGS            ,
+     K                             SIGI        ,NSIGBEAM   ,SIGBEAM         ,NSIGTRUSS      ,SIGTRUSS         ,
+     L                             NSIGRS      ,SIGRS      ,MERGE_NODE_TAB  ,MERGE_NODE_TOL ,
+     M                             IMERGE      ,NMERGE_TOT ,IEXLNK          ,DRAPEG         ,USER_WINDOWS     ,
+     N                             OUTPUT      ,DEFAULTS   ,GLOB_THERM      ,PBLAST         ,IBEAM_VECTOR     ,
+     O                             RBEAM_VECTOR,DAMP_RANGE_PART)
+C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE QA_OUT_MOD
@@ -149,6 +140,14 @@ C-----------------------------------------------
       USE EBCS_MOD
       USE INIMAP1D_MOD
       USE INIMAP2D_MOD
+      USE USER_WINDOWS_MOD
+      USE OUTPUT_MOD
+      USE MAT_ELEM_MOD
+      USE DEFAULTS_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use glob_therm_mod
+      USE PBLAST_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -158,19 +157,13 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
 #include      "lagmult.inc"
 #include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr10_c.inc"
 #include      "scr17_c.inc"
 #include      "scr23_c.inc"
 #include      "tabsiz_c.inc"
-#include      "thermal_c.inc"
-#include      "units_c.inc"
-#include      "submod_c.inc"
 #include      "sphcom.inc"
-#include      "drape_c.inc"
 #include      "com_xfem1.inc"
 #include      "fxbcom.inc"
 C-----------------------------------------------
@@ -180,22 +173,21 @@ C-----------------------------------------------
       INTEGER, INTENT(IN) :: ITAB(NUMNOD),IXR_KJ(5,*)
       INTEGER, INTENT(IN) :: NNLINK(10,SNNLINK), LNLINK(SLNLINK)
       TYPE (CLUSTER_) ,DIMENSION(NCLUSTER) :: CLUSTERS
-      INTEGER,INTENT(IN) :: NOM_SECT(SNOM_SECT),NSTRF(SNSTRF),IGEO_STACK(3* NPT_STACK+2,*)
+      INTEGER,INTENT(IN) :: NOM_SECT(SNOM_SECT),NSTRF(SNSTRF),IGEO_STACK(4* NPT_STACK+2,NS_STACK)
       my_real,INTENT(IN) :: SECBUF(SSECBUF)    
       TYPE(MONVOL_STRUCT_), DIMENSION(NVOLU), INTENT(IN) :: T_MONVOL
       TYPE(MONVOL_METADATA_), INTENT(IN) :: T_MONVOL_METADATA
       TYPE(SUBSET_), DIMENSION(NSUBS), INTENT(IN) :: SUBSETS
-      TYPE(DETONATOR_STRUCT_) :: DETONATORS
+      TYPE(DETONATORS_STRUCT_) :: DETONATORS
       my_real, INTENT(IN) :: XLAS(*)
       INTEGER, INTENT(IN) :: LAS(*)
-      TYPE (DRAPE_)       :: DRAPE(*)
+      TYPE (DRAPE_)       :: DRAPE(NUMELC_DRAPE +  NUMELTG_DRAPE)
+      TYPE (DRAPEG_)                         :: DRAPEG
       INTEGER, INTENT(IN) :: IACTIV(LACTIV,*)
-      my_real, INTENT(IN) :: FACTIV(LRACTIV,*),GEO_STACK(6*NPT_STACK+1,*),PM_STACK(20,*)
+      my_real, INTENT(IN) :: FACTIV(LRACTIV,*),GEO_STACK(6*NPT_STACK+1,NS_STACK),PM_STACK(20,NS_STACK)
       TYPE (UNIT_TYPE_) ::UNITAB
       my_real, INTENT(IN) :: XYZREF(SX)
-      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR), TARGET :: SENSOR_TAB
-      INTEGER ,DIMENSION(NSENSI,*)  ,INTENT(IN) :: LSENSOR
-      my_real ,DIMENSION(NSENSR,*)  ,INTENT(IN) :: SENSOR
+      TYPE (SENSORS_) ,INTENT(IN) :: SENSORS
       TYPE(FUNC2D_STRUCT), DIMENSION(NFUNC2D), INTENT(IN) :: FUNC2D
       TYPE (INICRACK_) , DIMENSION(NINICRACK) :: INICRACK
       INTEGER, INTENT(IN) :: LLINAL
@@ -223,9 +215,16 @@ C-----------------------------------------------
      .                       SIGRS(NSIGRS,*)
       INTEGER, INTENT(IN) :: IMERGE(*),MERGE_NODE_TAB(*),NMERGE_TOT
       my_real, INTENT(IN) :: MERGE_NODE_TOL(*)
-      INTEGER, INTENT(IN) :: NUVARI,NUVAR
-      INTEGER, INTENT(IN) :: IUSER(NUVARI+100)
-      my_real, INTENT(IN) :: USER(NUVAR)
+      INTEGER,INTENT(IN) :: IPARG(NPARG,NGROUP)
+      INTEGER, INTENT(IN) :: IBEAM_VECTOR(NUMELP)
+      my_real, INTENT(IN) :: RBEAM_VECTOR(3,NUMELP)
+      INTEGER ,INTENT(IN) :: DAMP_RANGE_PART(NPART)     !< flag to compute the damping range
+      TYPE(USER_WINDOWS_),INTENT(IN)      :: USER_WINDOWS
+      TYPE(OUTPUT_)      ,INTENT(IN)      :: OUTPUT
+      TYPE(MAT_ELEM_)    ,INTENT(IN)      :: MAT_ELEM
+      TYPE(DEFAULTS_)    ,INTENT(IN)      :: DEFAULTS             !< Defaults mod
+      TYPE(glob_therm_)  ,intent(in)      :: glob_therm
+      TYPE(PBLAST_)      ,INTENT(IN)      :: PBLAST
 C-----------------------------------------------
 C      NOM_OPT(LNOPT1,SNOM_OPT1) 
 C         * Possibly, NOM_OPT(1) = ID
@@ -282,8 +281,11 @@ C-----------------------------------------------
       INTEGER, INTENT(IN) :: IBCL(NIBCLD,NCONLD-NPRELD), IPRES(NIBCLD,NPRELD)
       INTEGER, INTENT(IN) :: IGRV(NIGRV,NGRAV), LGRV(*)
       INTEGER, INTENT(IN) :: NPBY(NNPBY,NRBYKIN), NPBYL(NNPBY,NRBYLAG), LPBY(*), LPBYL(*)
-      INTEGER, INTENT(IN) :: IBCR(NIRADIA,NUMRADIA),IBCV(NICONV,NUMCONV),IBFTEMP(NIFT,NFXTEMP),
-     .                       IBFFLUX(NITFLUX,NFXFLUX),IBFVEL(NIFV,NFXVEL)
+      INTEGER, INTENT(IN) :: IBCR(GLOB_THERM%NIRADIA,GLOB_THERM%NUMRADIA)
+      INTEGER, INTENT(IN) :: IBCV(GLOB_THERM%NICONV,GLOB_THERM%NUMCONV)
+      INTEGER, INTENT(IN) :: IBFTEMP(GLOB_THERM%NIFT,GLOB_THERM%NFXTEMP)
+      INTEGER, INTENT(IN) :: IBFFLUX(GLOB_THERM%NITFLUX,GLOB_THERM%NFXFLUX)
+      INTEGER, INTENT(IN) :: IBFVEL(NIFV,NFXVEL)
       INTEGER, INTENT(IN) :: ICODE(NUMNOD), ISKEW(NUMNOD)
       INTEGER, INTENT(IN) :: IBCSLAG(5,NBCSLAG)
       INTEGER, INTENT(IN) :: IPARI(NPARI,NINTER)
@@ -295,14 +297,8 @@ C-----------------------------------------------
       INTEGER, INTENT(IN) :: ISOLNOD(NUMELS),IXR(NIXR,*), R_SKEW(*),IXP(NIXP,*),IXT(NIXT,*),
      .                       IXQ(NIXQ,*),KXSP(NISP,*),IPARTSP(*),IPARTX(*)
       INTEGER, INTENT(IN) :: NPRW(NRWALL,NNPRW),LPRW(SLPRW)
-      INTEGER, INTENT(IN) :: ITHGRP(NITHGR,*),ITHBUF(SITHBUF),ITHVAR(SITHVAR),
+      INTEGER, INTENT(IN) :: ITHVAR(SITHVAR),
      .                       IPART(LIPART1*(NPART+NTHPART)),
-     .                       ITHGRPA(NITHGR,*),ITHGRPB(NITHGR,*),ITHGRPC(NITHGR,*),
-     .                       ITHGRPD(NITHGR,*),ITHGRPE(NITHGR,*),ITHGRPF(NITHGR,*),
-     .                       ITHGRPG(NITHGR,*),ITHGRPH(NITHGR,*),ITHGRPI(NITHGR,*),
-     .                       ITHBUFA(SITHBUFA),ITHBUFB(SITHBUFB),ITHBUFC(SITHBUFC),
-     .                       ITHBUFD(SITHBUFD),ITHBUFE(SITHBUFE),ITHBUFF(SITHBUFF),
-     .                       ITHBUFG(SITHBUFG),ITHBUFH(SITHBUFH),ITHBUFI(SITHBUFI),
      .                       IPARTTH(18*(NPART+NTHPART)),NTHGRPMX,IBCSCYC(*)
       INTEGER, INTENT(IN) :: NPTS,NPC(*),IRBE3(*),LRBE3(*),IRBE2(*),LRBE2(*)  
       INTEGER, INTENT(IN) :: MGRBY(NMGRBY,SMGRBY)
@@ -321,14 +317,14 @@ C-----------------------------------------------
      .                        LOADP(LFACLOAD,NLOADP), CFIELD(LFACLOAD,NLOADC),
      .                        FORC(LFACCLD,NCONLD-NPRELD), PRES(LFACCLD,NPRELD),
      .                        AGRV(LFACGRV,NGRAV),PRELOAD(6,*)  
-      my_real, INTENT(IN) ::
-     .                        RBY(NRBY,NRBYKIN),RBYL(NRBY,NRBYLAG),FRBE3(SFRBE3),GJBUFR(LKJNR,*),MS(*),IN(*)
-      my_real, INTENT(IN) ::  
-     .                        FRADIA(LFACTHER,NUMRADIA), FCONV(LFACTHER,NUMCONV),
-     .                        FBFTEMP(LFACTHER,NFXTEMP), FBFFLUX(LFACTHER,NFXFLUX),
-     .                        FBFVEL(LFXVELR,NFXVEL)
-      my_real, INTENT(IN) ::
-     .                        V(3,NUMNOD), VR(SVR) , ! SVR=3*NUMNOD*IRODDL
+      my_real, INTENT(IN) :: RBY(NRBY,NRBYKIN),RBYL(NRBY,NRBYLAG),FRBE3(SFRBE3)
+      my_real, INTENT(IN) :: GJBUFR(LKJNR,*),MS(*),IN(*)
+      my_real, INTENT(IN) :: FRADIA(GLOB_THERM%LFACTHER,GLOB_THERM%NUMRADIA)
+      my_real, INTENT(IN) :: FCONV(GLOB_THERM%LFACTHER,GLOB_THERM%NUMCONV)
+      my_real, INTENT(IN) :: FBFTEMP(GLOB_THERM%LFACTHER,GLOB_THERM%NFXTEMP)
+      my_real, INTENT(IN) :: FBFFLUX(GLOB_THERM%LFACTHER,GLOB_THERM%NFXFLUX)
+      my_real, INTENT(IN) :: FBFVEL(LFXVELR,NFXVEL)
+      my_real, INTENT(IN) :: V(3,NUMNOD), VR(SVR) , ! SVR=3*NUMNOD*IRODDL
      .                        W(SW)                  ! SW=3*NUMNOD*IALE
       my_real, INTENT(IN) ::
      .                        DAMPR(NRDAMP,*)
@@ -389,18 +385,13 @@ C-----------------------------------------------
 C--------------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, MY_ID, MY_PID, MY_MAT, MY_RBODY, MY_LOAD
-      CHARACTER *nchartitle TITR
-      CHARACTER (LEN=255) :: VARNAME
-      DOUBLE PRECISION TEMP_DOUBLE
-C-----------------------------------------------
 
       ! doqa is set in QA_OUT_MOD depending on DO_QA env variable setting
       ! we skip the specific QAPRINT treatment if doqa is != 1
       
-      IF ( doqa .ne. 1  ) RETURN
+      IF ( doqa /= 1  ) RETURN
 
-      CALL ST_QAPRINT_MATERIALS(IPM       ,PM        ,BUFMAT    )
+      CALL ST_QAPRINT_MATERIALS(MAT_ELEM   ,IPM       ,PM        ,BUFMAT    )
 
       CALL ST_QAPRINT_PROPERTIES(IGEO      ,GEO       ,BUFGEO    ,
      .                           PM_STACK  ,GEO_STACK ,IGEO_STACK)
@@ -419,47 +410,48 @@ C-----------------------------------------------
      7                            LPBYL     ,RBYL      ,IBMPC     ,IBMPC2    ,IBMPC3    ,
      8                            IBMPC4    ,RBMPC     ,LJOINT    ,NNLINK    ,LNLINK,
      9                            LLINAL    ,LINALE    ,GJBUFI    ,GJBUFR    ,MS        ,
-     9                            IN        ,FXBIPM    ,FXBFILE_TAB)
+     9                            IN        ,FXBIPM    ,FXBFILE_TAB,GLOB_THERM)
 
       CALL ST_QAPRINT_LOADS(NOM_OPT   ,INOM_OPT  ,NUMLOADP  ,ILOADP    ,LLOADP    ,
      2                      LOADP     ,IBCL      ,FORC      ,IPRES     ,PRES      ,
      3                      IBCR      ,FRADIA    ,IBCV      ,FCONV     ,IGRV      ,
      4                      LGRV      ,AGRV      ,ICFIELD   ,LCFIELD   ,CFIELD    ,
      5                      IPRELOAD  ,PRELOAD   ,IFLAG_BPRELOAD,
-     6                      LIFLOW, LRFLOW, IFLOW,RFLOW     ,ISPHIO    ,VSPHIO    )
+     6                      LIFLOW, LRFLOW, IFLOW,RFLOW     ,ISPHIO    ,VSPHIO,
+     7                      GLOB_THERM  ,PBLAST  )
 
       CALL ST_QAPRINT_GENERAL_CONTROLS(NOM_OPT   ,INOM_OPT  ,DAMPR, IRAND, ALEA, 
      1                                 XSEED     ,UNITAB    ,QP_IPERTURB       ,
-     2                                 QP_RPERTURB,EIGIPM   , EIGRPM)
+     2                                 QP_RPERTURB,EIGIPM   , EIGRPM, DEFAULTS ,
+     3                                 DAMP_RANGE_PART)
       CALL ST_QAPRINT_INTERFACES(NOM_OPT   ,INOM_OPT  ,IPARI  ,INTBUF_TAB,I2RUPT ,  
-     1                           AREASL)      
+     1                           AREASL,GLOB_THERM%INTHEAT)      
       CALL ST_QAPRINT_CLUSTERS(NOM_OPT   ,INOM_OPT  ,CLUSTERS)
       CALL ST_QAPRINT_OUTPUT_DATABASES(NOM_OPT, INOM_OPT, LACCELM ,ACCELM,LGAUGE,GAUGE)
       CALL ST_QAPRINT_MODEL_TOOLS(NOM_OPT, INOM_OPT, IBOX, IPMAS, NOM_SECT, NSTRF, SECBUF ,
      .                            SKEW   , ISKWN   , XFRAME, NPC,PLD,TABLE,NPTS, 
-     .                            IACTIV , FACTIV  ,SENSOR_TAB,LSENSOR   ,SENSOR, FUNC2D)
+     .                            IACTIV , FACTIV  ,SENSORS,FUNC2D)
       CALL ST_QAPRINT_MONVOL(T_MONVOL, T_MONVOL_METADATA)
       CALL ST_QAPRINT_FRICTION(NOM_OPT,INOM_OPT,INTBUF_FRIC_TAB,NPFRICORTH,PFRICORTH ,IREPFORTH,PHIFORTH,VFORTH) 
       CALL ST_QAPRINT_REFERENCE_STATE(XREFC     ,XREFTG    ,XREFS     ,TAGXREF   ,
      1                                IXS       ,IXC       ,IXTG      )
-      CALL ST_QAPRINT_TIME_HISTORIES(ITHGRP   ,ITHBUF   ,ITHVAR   ,IPART    ,SUBSETS  ,
-     1                               ITHGRPA  ,ITHGRPB  ,ITHGRPC  ,ITHGRPD  ,ITHGRPE  ,
-     2                               ITHGRPF  ,ITHGRPG  ,ITHGRPH  ,ITHGRPI  ,ITHBUFA  ,
-     3                               ITHBUFB  ,ITHBUFC  ,ITHBUFD  ,ITHBUFE  ,ITHBUFF  ,
-     4                               ITHBUFG  ,ITHBUFH  ,ITHBUFI  ,IPARTTH  ,NTHGRPMX )
+
+      CALL ST_QAPRINT_TIME_HISTORIES(OUTPUT%TH   ,ITHVAR   ,IPART    ,SUBSETS  ,
+     1                               IPARTTH  ,NTHGRPMX )
 
       CALL ST_QAPRINT_DFS_DETONATORS(DETONATORS)    
 
       CALL ST_QAPRINT_DFS_LASERS(XLAS,LAS)   
 
-      CALL ST_QAPRINT_NODES(ITAB ,X,IMERGE,MERGE_NODE_TOL, MERGE_NODE_TAB,NMERGE_TOT)
+      CALL ST_QAPRINT_NODES(ITAB ,X,IMERGE,MERGE_NODE_TOL, MERGE_NODE_TAB,NMERGE_TOT,MS)
 
       CALL ST_QAPRINT_ELEMENT(IXS ,IXS10 ,IPM ,IGEO ,ITAB ,
      1                        ISOLNOD,IXR,R_SKEW,ISKWN,IXP,
      2                        IXT    ,X  ,IXC   ,IXTG ,THKE,
      3                        SH4ANG ,THKEC,SH3ANG,KXSP,IPARTSP,
      4                        IPART  ,IXR_KJ,KXX, IXX ,IPARTX,
-     5                        IXRI   ,IXS16 ,IXQ )       
+     5                        IXRI   ,IXS16 ,IXQ, IBEAM_VECTOR,RBEAM_VECTOR)
+      
 !
       CALL ST_QAPRINT_SET(SET    ,LSUBMODEL,ITAB     ,IGRNOD ,IGRPART,
      .                    IPART  ,IGRBRIC  ,IGRSH4N  ,IGRSH3N,IGRQUAD,
@@ -467,7 +459,7 @@ C-----------------------------------------------
      .                    IXC    ,IXTG     ,IXQ      ,IXP    ,IXT    ,
      .                    IXR    ,IXS      )
       CALL ST_QAPRINT_TRANSFORMATIONS(RTRANS,LSUBMODEL,IGRNOD)
-      CALL ST_QAPRINT_COMPOSITE_OPTIONS(DRAPE)
+      CALL ST_QAPRINT_COMPOSITE_OPTIONS(DRAPE,DRAPEG)
       CALL ST_QAPRINT_ALE_OPTIONS_DRIVER
       CALL ST_QAPRINT_INIVOL()  
       CALL ST_QAPRINT_REFSTA(XREFC     ,XREFTG  ,XREFS    ,TAGXREF   ,IXS   ,IXC   ,IXTG   ,ITAB, XYZREF)   
@@ -484,7 +476,8 @@ C-----------------------------------------------
      .                    SIGI     ,NSIGBEAM ,SIGBEAM ,NSIGTRUSS,SIGTRUSS,
      .                    NSIGRS   ,SIGRS    )
       CALL ST_QAPRINT_MULTIDOMAINS(IPART,IEXLNK,IGRNOD)
-      CALL ST_QAPRINT_USERWI(NUVARI,NUVAR,IUSER,USER)
+      CALL ST_QAPRINT_USERWI(USER_WINDOWS)
+      CALL ST_QAPRINT_INTERNAL_GROUPS(IPARG)
 C-----------------------------------------------------------------------
 
       RETURN

@@ -1,63 +1,62 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ADMREGUL                      source/model/remesh/admregul.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ADMMAP3                       source/model/remesh/admmap3.F 
-Chd|        ADMMAP4                       source/model/remesh/admmap4.F 
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        SYNC_DATA                     source/system/machine.F       
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        REMESH_MOD                    share/modules/remesh_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    admregul       ../engine/source/model/remesh/admregul.F
+!||--- called by ------------------------------------------------------
+!||    resol          ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    admmap3        ../engine/source/model/remesh/admmap3.F
+!||    admmap4        ../engine/source/model/remesh/admmap4.F
+!||    my_barrier     ../engine/source/system/machine.F
+!||    my_orders      ../common_source/tools/sort/my_orders.c
+!||    sync_data      ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod   ../common_source/tools/memory/my_alloc.F90
+!||    remesh_mod     ../engine/share/modules/remesh_mod.F
+!||====================================================================
       SUBROUTINE ADMREGUL(IXC  ,IPARTC  ,IXTG ,IPARTTG,IPART,
      .                    ITASK,IPARG   ,X    ,MS     ,IN   ,
      .                    ELBUF_TAB,NODFT  ,NODLT ,IGEO   ,IPM  ,
      .                    SH4TREE,MSC  ,INC   ,SH3TREE,MSTG ,
      .                    INTG ,PTG    ,MSCND ,INCND  ,PM   ,
-     .                    MCP  ,MCPC   ,MCPTG )
+     .                    MCP  ,MCPC   ,MCPTG ,ITHERM_FE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE REMESH_MOD
       USE ELBUFDEF_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
-#include      "scr01_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
@@ -66,15 +65,13 @@ C-----------------------------------------------
 #include      "task_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXC(NIXC,*),IPARTC(*),IXTG(NIXTG,*),IPARTTG(*),
      .        IPART(LIPART1,*),ITASK,IPARG(NPARG,*),
      .        NODFT, NODLT, IGEO(NPROPGI,*), IPM(NPROPMI,*),
      .        SH4TREE(KSH4TREE,*),SH3TREE(KSH3TREE,*)
+      integer ,INTENT(IN) :: ITHERM_FE
       my_real
      .        X(3,*),MS(*),IN(*),MSC(*), INC(*),
      .        MSTG(*), INTG(*), PTG(3,*), MSCND(*), INCND(*),
@@ -92,16 +89,23 @@ C-----------------------------------------------
      .   MATLY,MY_NUVAR,MY_NUVARR,NUVAR,NUVARR,II,IVAR, 
      .   NA16A,NB16A,MPT,NPTM,NAM_S,NBM_S,IG,IH,IS,
      .   PTF,PTM,PTE,PTP,PTS,QTF,QTM,QTE,QTP,QTS,NPG
-      INTEGER LEVEL,NTMP,LEV,P,NI,MYLEV,IP,
-     .        KDIVIDE4(NUMELC),KDIVIDE3(NUMELTG)
-      INTEGER NSKYML, WORK(70000),
-     .        ITRI(MAX(NUMELC,NUMELTG)), INDEX(2*MAX(NUMELC,NUMELTG))
+      INTEGER LEVEL,NTMP,LEV,P,NI,MYLEV,IP
+      INTEGER NSKYML, WORK(70000)      
+      INTEGER,DIMENSION(:), ALLOCATABLE :: KDIVIDE4
+      INTEGER,DIMENSION(:), ALLOCATABLE :: KDIVIDE3
+      INTEGER,DIMENSION(:), ALLOCATABLE :: ITRI
+      INTEGER,DIMENSION(:), ALLOCATABLE :: INDEX1
       my_real
      .        MSBIG, INBIG, MCPM, MCPN
 C-----------------------------------------------
+      CALL MY_ALLOC(KDIVIDE4,NUMELC)
+      CALL MY_ALLOC(KDIVIDE3,NUMELTG)
+      CALL MY_ALLOC(ITRI,MAX(NUMELC,NUMELTG))
+      CALL MY_ALLOC(INDEX1,2*MAX(NUMELC,NUMELTG))
+
  10   CONTINUE 
 
-      IF(ITASK.EQ.0) THEN
+      IF(ITASK==0) THEN
 
         ILEVNOD=0
 
@@ -267,7 +271,7 @@ C         map fields to the son
         END DO
 C
         CALL ADMMAP4(N, IXC, X, IPARG, ELBUF_TAB,
-     .  	 IGEO, IPM ,SH4TREE)
+     .     IGEO, IPM ,SH4TREE)
 C
         N1 = IXC(2,N)
         N2 = IXC(3,N)
@@ -393,7 +397,7 @@ C         map fields to the son
         END DO
 C
         CALL ADMMAP3(N, IXTG, X, IPARG, ELBUF_TAB,
-     .  	 IGEO, IPM , SH3TREE)
+     .     IGEO, IPM , SH3TREE)
 C
         N1 = IXTG(2,N)
         N2 = IXTG(3,N)
@@ -445,10 +449,10 @@ C--
         DO I = 1, NSKYMSH4
           ITRI(I) = IXC(NIXC,ABS(MSH4SKY(I)))
         ENDDO
-        CALL MY_ORDERS(0,WORK,ITRI,INDEX,NSKYMSH4,1)
+        CALL MY_ORDERS(0,WORK,ITRI,INDEX1,NSKYMSH4,1)
         IF(ISTATCND==0)THEN
           DO J = 1, NSKYMSH4
-            N=MSH4SKY(INDEX(J))
+            N=MSH4SKY(INDEX1(J))
             IF(N < 0)THEN
               N=-N
               DO K=1,4
@@ -466,7 +470,7 @@ C--
           END DO
         ELSE
           DO J = 1, NSKYMSH4
-            N=MSH4SKY(INDEX(J))
+            N=MSH4SKY(INDEX1(J))
             IF(N < 0)THEN
               N=-N
               MSBIG=MSC(N)
@@ -490,7 +494,7 @@ C--
 C
         IF(ITHERM_FE > 0)THEN
           DO J = 1, NSKYMSH4
-            N=MSH4SKY(INDEX(J))
+            N=MSH4SKY(INDEX1(J))
             IF(N < 0)THEN
               N=-N
               DO K=1,4
@@ -512,10 +516,10 @@ C--
         DO I = 1, NSKYMSH3
           ITRI(I) = IXTG(NIXTG,ABS(MSH3SKY(I)))
         ENDDO
-        CALL MY_ORDERS(0,WORK,ITRI,INDEX,NSKYMSH3,1)
+        CALL MY_ORDERS(0,WORK,ITRI,INDEX1,NSKYMSH3,1)
         IF(ISTATCND==0)THEN
           DO J = 1, NSKYMSH3
-            N=MSH3SKY(INDEX(J))
+            N=MSH3SKY(INDEX1(J))
             IF(N < 0)THEN
               N=-N
               DO K=1,3
@@ -533,7 +537,7 @@ C--
           END DO
         ELSE
           DO J = 1, NSKYMSH3
-            N=MSH3SKY(INDEX(J))
+            N=MSH3SKY(INDEX1(J))
             IF(N < 0)THEN
               N=-N
               MSBIG=MSTG(N)
@@ -557,7 +561,7 @@ C--
 C
         IF(ITHERM_FE > 0)THEN
           DO J = 1, NSKYMSH3
-            N=MSH3SKY(INDEX(J))
+            N=MSH3SKY(INDEX1(J))
             IF(N < 0)THEN
               N=-N
               DO K=1,3
@@ -575,13 +579,13 @@ C
 C
       END IF
 C
-C     compactage de LSH4ACT
+C     compaction of LSH4ACT
       IF(ITASK==0)THEN
         NTMP   =NSH4ACT
         NSH4ACT=0
         DO NN=1,NTMP
           N=LSH4ACT(NN)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             NSH4ACT=NSH4ACT+1
             LSH4ACT(NSH4ACT)=N
           END IF
@@ -589,13 +593,13 @@ C     compactage de LSH4ACT
 
       END IF
 C
-C     compactage de LSH3ACT
+C     compaction of LSH3ACT
       IF(ITASK==0)THEN
         NTMP   =NSH3ACT
         NSH3ACT=0
         DO NN=1,NTMP
           N=LSH3ACT(NN)
-          IF(N.NE.0)THEN
+          IF(N/=0)THEN
             NSH3ACT=NSH3ACT+1
             LSH3ACT(NSH3ACT)=N
           END IF
@@ -604,5 +608,9 @@ C     compactage de LSH3ACT
 
       GO TO 10
 C----6---------------------------------------------------------------7---------8
+      DEALLOCATE(KDIVIDE4)
+      DEALLOCATE(KDIVIDE3)
+      DEALLOCATE(ITRI)
+      DEALLOCATE(INDEX1)
       RETURN
       END     

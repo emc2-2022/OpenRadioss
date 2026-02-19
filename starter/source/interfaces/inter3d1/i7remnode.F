@@ -1,39 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I7REMNODE                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        I25REMNOR                     source/interfaces/inter3d1/i7remnode.F
-Chd|        I7REMNODE_BUILD               source/interfaces/inter3d1/i7remnode.F
-Chd|        I7REMNODE_INIT                source/interfaces/inter3d1/i7remnode.F
-Chd|        MY_EXIT                       source/output/analyse/analyse.c
-Chd|        UPGRADE_REMNODE               source/interfaces/interf1/upgrade_remnode.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i7remnode              ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    get_list_remnode       ../starter/source/interfaces/inter3d1/get_list_remnode.F90
+!||    i25remnor              ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    i7remnode_init         ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- uses       -----------------------------------------------------
+!||    get_list_remnode_mod   ../starter/source/interfaces/inter3d1/get_list_remnode.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I7REMNODE(
      1         IREMNODE,NOINT   ,TITR     ,INTBUF_TAB ,NUMNOD ,
      1         X       ,NRTM    ,IRECT    ,NSV        ,NSN    ,
@@ -41,32 +39,26 @@ Chd|====================================================================
      3         GAP_S_L ,GAP_M_L ,IGAP     ,GAP        ,DRAD    ,
      4         NREMNODE,NTY     ,IPARI   ,I_MEM_REM   ,GAPM_MX ,
      5         GAPS_MX ,GAPM_L_MX,GAPS_L_MX ,ILEV     ,NBINFLG ,
-     6         MBINFLG ,DGAPLOAD)  
+     6         MBINFLG ,DGAPLOAD,npari)  
 C-----------------------------------------------
 C   M o d u l e s
-C----------------------------------------------- 
+C-----------------------------------------------
+      USE MY_ALLOC_MOD 
       USE MESSAGE_MOD
-      USE INTBUFDEF_MOD 
+      USE INTBUFDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use get_list_remnode_mod , only : get_list_remnode
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "vect07_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      integer, intent(in) :: npari !< dim of IPARI
       INTEGER IREMNODE, NOINT, NSN, NRTM, NUMNOD,IGAP, NREMNODE ,NTY, I_MEM_REM, ILEV
       INTEGER IRECT(4,NRTM),ITAB(*),NSV(NSN),IPARI(*),NBINFLG(*),MBINFLG(*)
       my_real
@@ -75,8 +67,7 @@ C-----------------------------------------------
       my_real
      .        X(3,*),GAP_S(*),GAP_M(*),GAP_S_L(*),GAP_M_L(*)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -122,44 +113,16 @@ C-----------------------------------------------
       IFIRST=1
       ILAST =NRTM
       I_MEM_REM=1
-      DO WHILE(I_MEM_REM==1)
-        I_MEM_REM=0
-        CALL I7REMNODE_BUILD(IFIRST,ILAST,
-     1         X       ,NRTM    ,IRECT    ,NSV     ,NSN    ,
-     2         ITAB    ,GAP_S   ,GAP_M    ,GAPMIN  ,GAPMAX ,
-     3         GAP_S_L ,GAP_M_L ,IGAP     ,INTBUF_TAB%KREMNODE,INTBUF_TAB%REMNODE ,
-     4         GAP     ,DRAD    ,NREMNODE ,NOD2EXPAND,
-     5         I_MEM_REM,GAPM_MX ,GAPS_MX ,
-     6         GAPM_L_MX ,GAPS_L_MX ,KNOD2SEG,NOD2SEG,TAGSECND,
-     7         GAPSECND ,NODDEL  ,TAGNOD   ,ID_NOD   ,DIST1  ,
-     8         GAPV    ,GAP_S_L_TMP,ITAGSEG ,MINSEG  ,DGAPLOAD)   
-C
-        IF (I_MEM_REM == 1) THEN
-          NREMNODE = NREMNODE + 5*NRTM
-          IF(NREMNODE < 0)THEN
-            IF(NTY == 7)THEN
-              CALL ANCMSG(MSGID=1736,
-     .                MSGTYPE=MSGWARNING,
-     .                ANMODE=ANSTOP,
-     .                I1=NOINT,
-     .                C1=TITR)
-            ELSEIF(NTY ==25)THEN
-              CALL ANCMSG(MSGID=1737,
-     .                MSGTYPE=MSGWARNING,
-     .                ANMODE=ANSTOP,
-     .                I1=NOINT,
-     .                C1=TITR)
-            END IF
-            DO I=IFIRST,ILAST
-C              end Starter properly without restart file.
-               INTBUF_TAB%KREMNODE(I+1)=INTBUF_TAB%KREMNODE(IFIRST) 
-            END DO
-            IREMNODE = IREMNODE + 1
-            CALL MY_EXIT(2)
-          END IF
-          CALL UPGRADE_REMNODE(IPARI,NREMNODE,INTBUF_TAB,NTY)
-        ENDIF
-      END DO
+      intbuf_tab%kremnode(1) = 0
+!$OMP PARALLEL
+      call get_list_remnode(nrtm,igap ,numnod,npari,irect,intbuf_tab%kremnode, 
+     .                      knod2seg,nod2seg,tagsecnd,    
+     .                      ipari,gapmin,gapmax,gap,drad,        
+     .                      gaps_mx,gaps_l_mx,  
+     .                      minseg,dgapload,x,gap_m,              
+     .                      gap_m_l,gapsecnd,gap_s_l_tmp,    
+     .                      intbuf_tab)
+!$OMP END PARALLEL
       IREMNODE = IREMNODE + 1
 C-----------------------------------------------
       IF(NTY==25)THEN
@@ -174,13 +137,11 @@ C-----------------------------------------------
 C-----------------------------------------------
       RETURN
       END  
-Chd|====================================================================
-Chd|  I7REMNODE_INIT                source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        I7REMNODE                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        BITGET                        source/interfaces/inter3d1/bitget.F
-Chd|====================================================================
+!||====================================================================
+!||    i7remnode_init   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    i7remnode        ../starter/source/interfaces/inter3d1/i7remnode.F
+!||====================================================================
       SUBROUTINE I7REMNODE_INIT(ISELF_IMPACTANT,NTY    ,
      1         X       ,NRTM    ,IRECT    ,NSV     ,NSN    ,NUMNOD ,
      2         ITAB    ,GAP_S   ,GAP_M    ,GAPMIN  ,GAPMAX ,
@@ -194,17 +155,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect07_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ISELF_IMPACTANT, NTY, NSN, NRTM, NUMNOD,IGAP, NREMNODE , I_MEM_REM, ILEV
@@ -217,11 +167,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,L,N,CPT,KMAX,IMS1,IMS2,ISS1,ISS2
+      INTEGER I,J,K,L,N,CPT,KMAX
+      LOGICAL :: IMS1,IMS2,ISS1,ISS2
       INTEGER, DIMENSION(:),ALLOCATABLE :: TAGNOD
-C-----------------------------------------------
-      INTEGER BITGET
-      EXTERNAL BITGET
 C-----------------------------------------------
 c Build inverse connectivity for segments
 C-----------------------------------------------
@@ -252,12 +200,12 @@ C
           DO J=1,4
             N = TAGSECND(IRECT(J,I))
             IF( N  /= 0 ) THEN
-              IMS1 = BITGET(MBINFLG(I),0)
-              IMS2 = BITGET(MBINFLG(I),1)
-              ISS1 = BITGET(NBINFLG(N),0)
-              ISS2 = BITGET(NBINFLG(N),1)
-              IF(((IMS1 == 1 .and. ISS2==1).or.
-     .            (IMS2 == 1 .and. ISS1==1)))THEN
+              IMS1 = BTEST(MBINFLG(I),0)
+              IMS2 = BTEST(MBINFLG(I),1)
+              ISS1 = BTEST(NBINFLG(N),0)
+              ISS2 = BTEST(NBINFLG(N),1)
+              IF(((IMS1 .and. ISS2).or.
+     .            (IMS2 .and. ISS1)))THEN
                 ISELF_IMPACTANT = 1
               END IF
             END IF
@@ -268,7 +216,7 @@ C
       IF (ISELF_IMPACTANT == 0) RETURN
 C
       DO I=1,NRTM
-        IF( IRECT(3,I) .NE. IRECT(4,I) ) THEN 
+        IF( IRECT(3,I) /= IRECT(4,I) ) THEN 
 
          MINSEG = MIN( MINSEG,
      .               (X(1,IRECT(1,I))-X(1,IRECT(2,I)))**2 + 
@@ -308,7 +256,7 @@ C
         DO K=1,KMAX
           IF(TAGSECND(IRECT(K,I))  /= 0) CPT = CPT + 1
         END DO
-        IF (CPT .NE. 0 ) THEN
+        IF (CPT /= 0 ) THEN
           DO K=1,KMAX
             N = IRECT(K,I)
             KNOD2SEG(N) = KNOD2SEG(N) + 1
@@ -333,7 +281,7 @@ C
         DO K=1,KMAX
           IF(TAGSECND(IRECT(K,I))  /= 0) CPT = CPT + 1
         END DO
-        IF (CPT .NE. 0) THEN
+        IF (CPT /= 0) THEN
           DO K=1,KMAX
             N = IRECT(K,I)
             KNOD2SEG(N) = KNOD2SEG(N) + 1
@@ -347,7 +295,7 @@ C
       END DO
       KNOD2SEG(1)=0
 C-----------------------------------------------
-C  Searching Algorith Connected nodes : D < SQRT(2.) * GAP
+C  Searching Algorithm Connected nodes : D < SQRT(2.) * GAP
 C-----------------------------------------------
       IF(IGAP >= 1)THEN
         DO I=1,NSN
@@ -363,256 +311,11 @@ C-----------------------------------------------
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I7REMNODE_BUILD               source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        I7REMNODE                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE I7REMNODE_BUILD(IFIRST,ILAST,
-     1         X       ,NRTM    ,IRECT    ,NSV     ,NSN    ,
-     2         ITAB    ,GAP_S   ,GAP_M    ,GAPMIN  ,GAPMAX ,
-     3         GAP_S_L ,GAP_M_L ,IGAP     ,KREMNODE,REMNODE ,
-     4         GAP     ,DRAD    ,NREMNODE ,NOD2EXPAND,
-     5         I_MEM_REM,GAPM_MX ,GAPS_MX ,
-     6         GAPM_L_MX ,GAPS_L_MX ,KNOD2SEG,NOD2SEG,TAGSECND,
-     7         GAPSECND ,NODDEL  ,TAGNOD   ,ID_NOD    ,DIST1  ,
-     8         GAPV    ,GAP_S_L_TMP,ITAGSEG,MINSEG    ,DGAPLOAD)  
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect07_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER IFIRST, ILAST, NSN, NRTM, IGAP, NREMNODE , I_MEM_REM
-      INTEGER IRECT(4,*),ITAB(*),NSV(*),KREMNODE(*),REMNODE(*)
-      INTEGER KNOD2SEG(*),NOD2SEG(4*NRTM),NODDEL(*),TAGNOD(*),ID_NOD(*),NOD2EXPAND(*),
-     .        TAGSECND(*),ITAGSEG(NRTM)
-       my_real
-     .        GAPMIN, GAPMAX, GAP, DRAD, GAPM_MX, GAPS_MX, GAPM_L_MX, GAPS_L_MX, MINSEG
-      my_real , INTENT(IN) :: DGAPLOAD
-      my_real
-     .        X(3,*),GAP_S(*),GAP_M(*),GAP_S_L(*),GAP_M_L(*)
-      my_real 
-     .        DIST1(*), GAPV(*), GAPSECND(*), GAP_S_L_TMP(*)
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I,J,K,SEG,ISEG,LEVEL,CPT,NBSEG,SEG1,L,CPT1,N,
-     .        NE,CPT_TOTAL,NS,LREMNORMAX
-      INTEGER LISTSEG(NRTM),LISTSEGTMP(NRTM),LISTSEGTOTAL(NRTM),CPTOPER
-      INTEGER :: JMAX,KMAX
-      my_real
-     .        MINDIST,DMAX,DIST,X0,Y0,Z0,X1,Y1,Z1,LMAX
-C-----------------------------------------------
-C  Searching Algorith Connected nodes : D < SQRT(2.) * GAP
-C-----------------------------------------------
-      CPTOPER   = 0
-      CPT       = 0
-      CPT_TOTAL = 0
-C
-      DO I=IFIRST,ILAST
-
-        IF(IGAP==0)THEN
-          DMAX  = SQRT(TWO) * MAX(GAP+DGAPLOAD,DRAD)
-        ELSEIF(IGAP==1 .OR. IGAP==2) THEN
-          DMAX  = SQRT(TWO) * MAX(GAP_M(I)+GAPS_MX+DGAPLOAD,DRAD)
-        ELSEIF(IGAP==3) THEN
-          DMAX  = SQRT(TWO) * MAX(MIN(GAP_M(I)+GAPS_MX,GAP_M_L(I)+GAPS_L_MX)+DGAPLOAD,DRAD)
-        END IF
-
-        CPTOPER = 0
-        LEVEL   = 1
-        SEG     = I
-        ITAGSEG(SEG) = LEVEL
-        NBSEG     =1
-        MINDIST   = ZERO
-        JMAX      = 4
-        CPT_TOTAL = 0
-        IF((IRECT(JMAX,SEG) == 0) .OR. IRECT(3,SEG) == IRECT(4,SEG) ) JMAX = 3
-        DO J=1,JMAX
-          TAGNOD(IRECT(J,SEG)) = 1
-          DIST1(IRECT(J,SEG)) = ZERO
-        ENDDO
-        LISTSEG(1)=SEG
-        DO WHILE( (MINDIST + MINSEG) <= DMAX .AND. NBSEG /= 0)
-          LEVEL   = LEVEL + 1
-          MINDIST = EP30
-          CPT     = 0
-
-          DO ISEG=1,NBSEG
-            SEG  = LISTSEG(ISEG)
-
-            JMAX = 4
-            IF((IRECT(JMAX,SEG) == 0) .OR. IRECT(3,SEG) == IRECT(4,SEG) ) JMAX = 3
-
-            TAGNOD(IRECT(1:JMAX,SEG))=2
-            
-            DO J=1,JMAX
-C 
-C             If we already started from this node AT THIS LEVEL
-C             <=> all paths from this node have been explored yet AT THIS LEVEL
-              IF(NOD2EXPAND(IRECT(J,SEG))/=0) CYCLE
-C 
-              NOD2EXPAND(IRECT(J,SEG))=1
-              DO K=KNOD2SEG(IRECT(J,SEG))+1,KNOD2SEG(IRECT(J,SEG)+1)
-                SEG1 = NOD2SEG(K)
-
-                KMAX = 4
-                IF((IRECT(KMAX,SEG1) == 0) .OR. IRECT(3,SEG1) == IRECT(4,SEG1) ) KMAX = 3
-
-                IF(ITAGSEG(SEG1) == 0 .OR. ITAGSEG(SEG1) == LEVEL) THEN
-                  IF(ITAGSEG(SEG1) == 0)THEN
-                    CPT = CPT + 1
-                    LISTSEGTMP(CPT)=SEG1
-                  ENDIF
-                  ITAGSEG(SEG1)=LEVEL
-c 
-                  DO L=1,KMAX
-                    
-                    IF(TAGSECND(IRECT(L,SEG1))== 0 .OR.
-     .                 TAGNOD(IRECT(L,SEG1)) == 2)CYCLE
-
-                    DIST1(IRECT(L,SEG1))=MIN(DIST1(IRECT(L,SEG1)),
-     .                DIST1(IRECT(J,SEG))+
-     .                  SQRT((X(1,IRECT(L,SEG1)) - X(1,IRECT(J,SEG)))**2 + 
-     .                       (X(2,IRECT(L,SEG1)) - X(2,IRECT(J,SEG)))**2 +
-     .                       (X(3,IRECT(L,SEG1)) - X(3,IRECT(J,SEG)))**2 ))
-                    MINDIST=MIN(MINDIST,DIST1(IRECT(L,SEG1)))
-                    IF(TAGNOD(IRECT(L,SEG1)) == 0) THEN
-                      CPTOPER = CPTOPER + 1
-                      TAGNOD(IRECT(L,SEG1)) = 1
-                      ID_NOD(CPTOPER)=IRECT(L,SEG1)
-                    ENDIF 
-
-                    IF(IGAP==1 .OR. IGAP==2)THEN
-                      GAPV(IRECT(L,SEG1))=GAPSECND(IRECT(L,SEG1))+GAP_M(I)
-                      GAPV(IRECT(L,SEG1))=MIN(GAPMAX,GAPV(IRECT(L,SEG1)))
-                      GAPV(IRECT(L,SEG1))=MAX(GAPMIN,GAPV(IRECT(L,SEG1)))
-                      GAPV(IRECT(L,SEG1))=MAX(DRAD,GAPV(IRECT(L,SEG1))+DGAPLOAD)
-                    ELSEIF(IGAP==3)THEN
-                      GAPV(IRECT(L,SEG1))=GAPSECND(IRECT(L,SEG1))+GAP_M(I)
-                      GAPV(IRECT(L,SEG1))=
-     .                   MIN(GAP_S_L_TMP(IRECT(L,SEG1))+GAP_M_L(I),GAPV(I))
-                      GAPV(IRECT(L,SEG1))=MIN(GAPMAX,GAPV(IRECT(L,SEG1)))
-                      GAPV(IRECT(L,SEG1))=MAX(GAPMIN,GAPV(IRECT(L,SEG1)))
-                      GAPV(IRECT(L,SEG1))=MAX(DRAD,GAPV(IRECT(L,SEG1))+DGAPLOAD)
-                    END IF
-
-                  ENDDO
-                ENDIF
-                 
-              ENDDO 
-C       
-            ENDDO
-
-            TAGNOD(IRECT(1:4,SEG))=1
-
-          ENDDO
-C
-C         Reset Starting Nodes
-          DO ISEG=1,NBSEG
-            SEG  = LISTSEG(ISEG)
-            JMAX = 4
-            IF((IRECT(JMAX,SEG) == 0) .OR. IRECT(3,SEG) == IRECT(4,SEG) ) JMAX = 3
-            DO J=1,JMAX
-              NOD2EXPAND(IRECT(J,SEG))=0
-            END DO
-          END DO
-C
-          NBSEG     = CPT
-          IF(NBSEG ==0)EXIT
-          DO J=1,CPT
-            LISTSEG(J)    =LISTSEGTMP(J)
-            LISTSEGTMP(J) = 0
-            LISTSEGTOTAL(J+CPT_TOTAL) = LISTSEG(J)
-          ENDDO
-          CPT_TOTAL = CPT_TOTAL + CPT
-
-        ENDDO
-        IF (LEVEL == 1) THEN
-          KREMNODE(I+1) = KREMNODE(I)
-          CYCLE
-        ENDIF
-C
-        DIST1(IRECT(1,I)) = EP30
-        DIST1(IRECT(2,I)) = EP30
-        DIST1(IRECT(3,I)) = EP30
-        DIST1(IRECT(4,I)) = EP30
-C
-        CPT1 = 0 
-        IF(IGAP==0)THEN
-          DO L=1,CPTOPER 
-            IF(DIST1(ID_NOD(L)) <= DMAX)THEN
-              CPT1 = CPT1 + 1
-              NODDEL(CPT1) = ID_NOD(L)
-            ENDIF
-          ENDDO
-        ELSE
-          DO L=1,CPTOPER 
-            IF(DIST1(ID_NOD(L)) <= SQRT(TWO)*GAPV(ID_NOD(L)))THEN
-              CPT1 = CPT1 + 1
-              NODDEL(CPT1) = ID_NOD(L)
-            ENDIF
-          ENDDO
-        END IF
-        IF(KREMNODE(I)+CPT1.GT.NREMNODE) THEN
-C
-C         Go to UPGRADE_REMNODE  ...
-          IFIRST=I
-C
-          DO L=1,CPTOPER
-            DIST1(ID_NOD(L)) = EP30
-          ENDDO
-          DO L=1,CPT_TOTAL
-            TAGNOD(IRECT(1:4, LISTSEGTOTAL(L))) = 0
-            ITAGSEG(LISTSEGTOTAL(L)) = 0
-            LISTSEGTOTAL(L) = 0
-          ENDDO
-          TAGNOD(IRECT(1:4,I)) = 0
-          ITAGSEG(I) = 0
-
-          I_MEM_REM=1
-          RETURN
-        ENDIF
-C
-        KREMNODE(I+1) = KREMNODE(I)+CPT1
-        DO L=1,CPT1
-          REMNODE(KREMNODE(I)+L) = NODDEL(L)
-        ENDDO
-        DO L=1,CPTOPER
-          DIST1(ID_NOD(L)) = EP30
-        ENDDO
-        DO L=1,CPT_TOTAL
-          TAGNOD(IRECT(1:4, LISTSEGTOTAL(L))) = 0
-          ITAGSEG(LISTSEGTOTAL(L)) = 0
-          LISTSEGTOTAL(L)          = 0
-        ENDDO
-        TAGNOD(IRECT(1:4,I)) = 0
-        ITAGSEG(I)           = 0
-
-      ENDDO
-C
-      RETURN
-      END
-Chd|====================================================================
-Chd|  I25REMNOR                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        I7REMNODE                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i25remnor   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    i7remnode   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||====================================================================
       SUBROUTINE I25REMNOR(
      1         NRTM    ,IRECT    ,NSV     ,NSN    ,NUMNOD ,
      2         KREMNODE,REMNODE  ,KREMNOR ,REMNOR  ,IPARI ,
@@ -621,17 +324,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect07_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -683,7 +375,7 @@ C----- Compute maximum number of MAIN segments banned for all SECONDARY nodes---
       LREMNORMAX = 0
       DO N=1,NSN
          L = KREMNOR(N+1)-KREMNOR(N)
-         IF( L.GT.LREMNORMAX) THEN
+         IF( L>LREMNORMAX) THEN
            LREMNORMAX = L
          ENDIF
       ENDDO
@@ -691,469 +383,11 @@ C----- Compute maximum number of MAIN segments banned for all SECONDARY nodes---
 
       RETURN
       END
-Chd|====================================================================
-Chd|  REMN_I2                       source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ADDINT2M                      source/interfaces/inter3d1/i7remnode.F
-Chd|        ADDINT2S                      source/interfaces/inter3d1/i7remnode.F
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ANOTHERN2                     source/interfaces/inter3d1/i7remnode.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE REMN_I2(IPARI   ,INTBUF_TAB   ,ITAB, NOM_OPT,NREMOV,IFLAG  )
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
-      USE MESSAGE_MOD
-      USE INTBUFDEF_MOD 
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER IPARI(NPARI,*), ITAB(*),NREMOV(*)
-      INTEGER NOM_OPT(LNOPT1,*)
-
-      TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "scr15_c.inc"
-#include      "scr17_c.inc"
-#include      "units_c.inc"
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER N,NTY
-      INTEGER ILEV,II,J,NMN,NSN,NRTS,NRTM,
-     .        NLINS,NLINM,IWOUT,INCOM,NM,N2,IFLAG,NRE,ip,IACT,
-     .        IF7,IF24,IF25,NN2
-      INTEGER, DIMENSION(:),ALLOCATABLE :: TAGN,TAGD
-      INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
-
-C-----------------------------------------------
-C----like Irem_gap of int7, creat list of SECONDARY nodes to be removed per M_seg
-C---------IFLAG=0 : DIM
-      ALLOCATE(TAGN(NUMNOD),TAGD(NUMNOD))
-      TAGN(1:NUMNOD)=0
-C----------only during dimensioning
-      IF (IFLAG==0) THEN
-       IACT=0  
-        DO N=1,NINTER
-         NTY=IPARI(7,N)
-         IF7 =IPARI(54,N)
-         IF24=IPARI(63,N)
-         IF25=IPARI(83,N)
-         IF(NTY==7 .AND. IF7>0 )THEN
-          IACT=1
-          CYCLE
-         ENDIF
-         IF(NTY==24 .AND. IF24>0 )THEN
-          IACT=1
-          CYCLE
-         ENDIF
-         IF(NTY==25 .AND. IF25>0 )THEN
-          IACT=1
-          CYCLE
-         ENDIF
-        ENDDO
-       IF (IACT==0) THEN
-        DO N=1,NINTER
-         NREMOV(N) = 0
-        ENDDO
-        RETURN
-       END IF
-      END IF !(IFLAG==0) THEN
-C-------tag int2 nodes------  
-       DO N=1,NINTER
-         NTY=IPARI(7,N)
-         IF(NTY.EQ.2)THEN
-          NRTS  =IPARI(3,N)
-          NRTM  =IPARI(4,N)
-          NSN   =IPARI(5,N)
-          NMN   =IPARI(6,N)
-          ILEV  =IPARI(20,N)
-C
-          DO II=1,NSN        
-            J=INTBUF_TAB(N)%NSV(II)
-            TAGN(J)=-N
-          ENDDO
-          DO II=1,NMN        
-            J=INTBUF_TAB(N)%MSR(II)
-            IF (TAGN(J)>0) THEN
-             TAGN(J)=N+NINTER
-            ELSE
-             TAGN(J)=N
-            END IF
-          ENDDO
-         ENDIF
-       ENDDO
-C-----
-       DO N=1,NINTER
-        NTY=IPARI(7,N)
-        NSN   =IPARI(5,N)
-        NRTS  =IPARI(3,N)
-        NRTM  =IPARI(4,N)
-        IF7   =IPARI(54,N)
-        IF24  =IPARI(63,N)
-        IF25  =IPARI(83,N)
-        IF (IFLAG==0) NREMOV(N) = 0
-
-        ID=NOM_OPT(1,N)
-        CALL FRETITL2(TITR,
-     .       NOM_OPT(LNOPT1-LTITR+1,N),LTITR)
-C----- --           
-        IF((NTY==7.AND.IF7>0).OR.(NTY==24.AND.IF24>0).OR.(NTY==25.AND.IF25>0))THEN
-          IF (IFLAG==0) NREMOV(N) = IPARI(62,N)
-          IF (IFLAG==1 .AND. IPARI(63,N) /= 2 ) CYCLE
-          IF (IFLAG==1) INTBUF_TAB(N)%KREMNODE(1) = 0
-          DO II=1,NRTM
-           IF (IFLAG==1) INTBUF_TAB(N)%KREMNODE(II+1) =INTBUF_TAB(N)%KREMNODE(II)
-           TAGD(1:NUMNOD)=0
-           DO J=1,4
-            NM = INTBUF_TAB(N)%IRECTM(4*(II-1)+J)
-C--------if it's a MAIN node (type2) ->add SECONDARY node(tagged) in the list
-            IF (TAGN(NM)>0) THEN            
-             N2 = TAGN(NM)
-             IF (N2 >NINTER) THEN
-              NN2=N2-NINTER
-              CALL ADDINT2S(NN2     ,INTBUF_TAB  ,IPARI   ,II      ,NM     ,
-     1                 NREMOV(N),INTBUF_TAB(N)%REMNODE,INTBUF_TAB(N)%KREMNODE,
-     2                 TAGD,IFLAG)    
-C-----------Another N2 (NN2 will be updated after ANOTHERN2 )
-              CALL ANOTHERN2(NN2     ,NINTER  ,INTBUF_TAB  ,IPARI   ,NM     )
-c              IF (N2==0) Message out                 
-              CALL ADDINT2S(NN2     ,INTBUF_TAB  ,IPARI   ,II      ,NM     ,
-     1                 NREMOV(N),INTBUF_TAB(N)%REMNODE,INTBUF_TAB(N)%KREMNODE,
-     2                 TAGD,IFLAG)    
-             ELSE
-              CALL ADDINT2S(N2     ,INTBUF_TAB  ,IPARI   ,II      ,NM     ,
-     1                 NREMOV(N),INTBUF_TAB(N)%REMNODE,INTBUF_TAB(N)%KREMNODE,
-     2                 TAGD,IFLAG)    
-             END IF     
-C--------if it's a SECONDARY node (type2) ->add MAIN nodes(tagged) in the list
-            ELSEIF (TAGN(NM)<0) THEN
-             N2 = -TAGN(NM)
-              CALL ADDINT2M(N2     ,INTBUF_TAB  ,IPARI   ,II      ,NM     ,
-     1                   NREMOV(N),INTBUF_TAB(N)%REMNODE,INTBUF_TAB(N)%KREMNODE,
-     2                   TAGD,IFLAG)    
-            END IF
-           END DO !DO J=1,4
-          END DO 
-C------------update of IPARI(62,N) is out of subroutine    
-         IF (IFLAG==0.AND.(NREMOV(N)>IPARI(62,N))) THEN
-          NRE = NREMOV(N)-IPARI(62,N)
-             CALL ANCMSG(MSGID=1053,
-     .                   MSGTYPE=MSGWARNING,
-     .                   ANMODE=ANINFO_BLIND_1,
-     .                   I1=ID,
-     .                   C1=TITR,
-     .                   I2=NRE,
-     .                   I3=NOM_OPT(1,N2))
-         END IF
-        END IF!(NTY==7.OR.NTY==24.OR.NTY==25)
-       END DO
-      DEALLOCATE(TAGN,TAGD)
-C----
-      RETURN
-      END
-Chd|====================================================================
-Chd|  ADDINT2S                      source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2                       source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        ADD_NS                        source/interfaces/inter3d1/i7remnode.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE ADDINT2S(N2     ,INTBUF_TAB  ,IPARI   ,MI      ,NM     ,
-     2                    NREMOV ,IREMOV  ,IADREM ,TAGD,IFLAG   )                  
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
-      USE INTBUFDEF_MOD 
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER N2, MI, NM, NREMOV,IPARI(NPARI,*),
-     .        IREMOV(*),IFLAG,IADREM(*),TAGD(*)
-
-      TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
-C----IFLAG=0 -> dim   , IREMOV : Global node num. (SECONDARY) 
-C     REAL
-C-----------------------------------------------
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I ,J  ,NEW,NSN,IADA,ip
-      INTEGER N, NTY
-C-----------------------------------------------
-        NEW = NREMOV
-        NSN   =IPARI(5,N2)
-        IF (IFLAG==1) IADA=IADREM(MI)+1
-        CALL ADD_NS(NSN,INTBUF_TAB(N2)%IRECTM,INTBUF_TAB(N2)%NSV,
-     1              INTBUF_TAB(N2)%IRTLM,NREMOV,IREMOV,IADA,NM,TAGD,IFLAG   )                  
-        NEW = NREMOV-NEW
-        IF (IFLAG==1) IADREM(MI+1)=IADREM(MI+1)+NEW
-C----
-      RETURN
-      END
-Chd|====================================================================
-Chd|  ADD_NS                        source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        ADDINT2S                      source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        INSERT_A                      source/interfaces/inter3d1/i7remnode.F
-Chd|        INTAB                         source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
-      SUBROUTINE ADD_NS(NSN    ,IRECT   ,NSV    ,IRTL     ,NREMOV  ,
-     2                 IREMOV  ,IADA    ,NM     ,TAGD,IFLAG    )                  
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "units_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER IRECT(4,*),NSV(*),IRTL(*), NM, NREMOV,
-     .        IREMOV(*),IFLAG,NSN,IADA,TAGD(*)
-C----IFLAG=0 -> dim   , IREMOV : Global node num. (SECONDARY) 
-C     REAL
-C-----------------------------------------------
-C   External function
-C-----------------------------------------------
-      LOGICAL INTAB
-      EXTERNAL INTAB
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER II ,I,J  ,IL, L
-C-----------------------------------------------
-        DO II=1,NSN
-          I=NSV(II)
-          L=IRTL(II)
-          IF (TAGD(I)>0) CYCLE
-          IF (INTAB(4,IRECT(1,L),NM)) THEN
-           IF (IFLAG==0) THEN
-            NREMOV =NREMOV+1
-            TAGD(I)=1
-           ELSE
-            CALL INSERT_A(NREMOV,IREMOV,I  ,IADA)
-            TAGD(I)=1
-           END IF 
-          ENDIF
-        END DO !II=1,NSN
-C----
-      RETURN
-      END
-Chd|====================================================================
-Chd|  ADDINT2M                      source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2                       source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        ADD_NM                        source/interfaces/inter3d1/i7remnode.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE ADDINT2M(N2     ,INTBUF_TAB  ,IPARI   ,MI      ,NS     ,
-     2                    NREMOV ,IREMOV  ,IADREM ,TAGD,IFLAG   )                  
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
-      USE INTBUFDEF_MOD
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER N2, MI, NS, NREMOV,IPARI(NPARI,*),
-     .        IREMOV(*),IFLAG,IADREM(*),TAGD(*)
-
-      TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
-C----IFLAG=0 -> dim   , IREMOV : Global node num. (SECONDARY) 
-C     REAL
-C-----------------------------------------------
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I ,J  ,NEW,NSN,IADA
-      INTEGER N, NTY
-C-----------------------------------------------
-        NEW = NREMOV
-        NSN   =IPARI(5,N2)
-        IF (IFLAG==1) IADA=IADREM(MI)+1
-        CALL ADD_NM(NSN,INTBUF_TAB(N2)%IRECTM,INTBUF_TAB(N2)%NSV,
-     1              INTBUF_TAB(N2)%IRTLM,NREMOV,IREMOV,IADA,NS,TAGD,IFLAG  )                  
-        NEW = NREMOV-NEW
-        IF (IFLAG==1)IADREM(MI+1)=IADREM(MI+1)+NEW
-C----
-      RETURN
-      END
-Chd|====================================================================
-Chd|  ADD_NM                        source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        ADDINT2M                      source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        INSERT_A                      source/interfaces/inter3d1/i7remnode.F
-Chd|====================================================================
-      SUBROUTINE ADD_NM(NSN     ,IRECT   ,NSV    ,IRTL     ,NREMOV  ,
-     2                  IREMOV  ,IADA    ,NS     ,TAGD  ,IFLAG    )                  
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER IRECT(4,*),NSV(*),IRTL(*), NS, NREMOV,
-     .        IREMOV(*),IFLAG,NSN,IADA  ,TAGD(*)  
-C----IFLAG=0 -> dim   , IREMOV : Global node num. (SECONDARY) 
-C     REAL
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER II ,I,J  ,IL, L,NM,NNOD
-C-----------------------------------------------
-        DO II=1,NSN
-          I=NSV(II)
-          IF (NS==I) THEN
-           NNOD=4
-           L=IRTL(II)
-           IF (IRECT(4,L)==IRECT(3,L)) NNOD=3
-           DO J=1,NNOD
-            NM =IRECT(J,L)
-            IF (IFLAG==0.AND.TAGD(NM)==0) THEN
-             NREMOV =NREMOV+1
-             TAGD(NM)=1
-            ELSEIF (TAGD(NM)==0) THEN
-             CALL INSERT_A(NREMOV,IREMOV,NM  ,IADA)
-             TAGD(NM)=1
-            END IF 
-           END DO
-          ENDIF
-        END DO !II=1,NSN
-C----
-      RETURN
-      END
-Chd|====================================================================
-Chd|  ANOTHERN2                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2                       source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE ANOTHERN2(N2     ,NINTER  ,INTBUF_TAB  ,IPARI   ,NM     )                  
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
-      USE INTBUFDEF_MOD 
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER N2, NM, IPARI(NPARI,*),NINTER
-
-      TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
-C     REAL
-C-----------------------------------------------
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I ,J  ,NEW,II
-      INTEGER N, NTY, INCOM,NMN
-C-----------------------------------------------
-       NEW=0
-       DO N=1,N2-1
-         NTY=IPARI(7,N)
-         IF(NTY.EQ.2)THEN
-          NMN   =IPARI(6,N)
-          INCOM  =IPARI(11,N)
-C
-          DO II=1,NMN        
-            J=INTBUF_TAB(N)%MSR(II)
-            IF (NM==J) THEN
-             NEW = N
-             CYCLE
-            END IF
-          ENDDO
-         ENDIF
-         IF (NEW>0) CYCLE
-       ENDDO
-       N2=NEW
-C----
-      RETURN
-      END
-Chd|====================================================================
-Chd|  INSERT_A                      source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        ADD_NM                        source/interfaces/inter3d1/i7remnode.F
-Chd|        ADD_NM1                       source/interfaces/inter3d1/i7remnode.F
-Chd|        ADD_NS                        source/interfaces/inter3d1/i7remnode.F
-Chd|        ADD_NSFIC                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    insert_a    ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    add_nsfic   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||====================================================================
       SUBROUTINE INSERT_A(N,IC,IA,ID)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -1178,19 +412,19 @@ C----add IA--at IC(ID)--------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  REMN_I2_EDG                   source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ADD_NSFIC                     source/interfaces/inter3d1/i7remnode.F
-Chd|        DIM_IEDGN2                    source/interfaces/inter3d1/i7remnode.F
-Chd|        IND_IEDGN2                    source/interfaces/inter3d1/i7remnode.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    remn_i2_edg     ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- calls      -----------------------------------------------------
+!||    add_nsfic       ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    dim_iedgn2      ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    ind_iedgn2      ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE REMN_I2_EDG(IPARI   ,INTBUF_TAB   ,ITAB, NREMOV,IFLAG  )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE INTBUFDEF_MOD 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1209,9 +443,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -1250,12 +482,11 @@ C-----
 C----
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_IEDGN2                    source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2_EDG                   source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    dim_iedgn2    ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2_edg   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||====================================================================
       SUBROUTINE DIM_IEDGN2(NE2,NSNE,IS2SE,IRTSE,TAGN)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -1294,12 +525,11 @@ C-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_IEDGN2                    source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2_EDG                   source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ind_iedgn2    ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2_edg   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||====================================================================
       SUBROUTINE IND_IEDGN2(NE2,NSNE,IS2SE,IRTSE,TAGN,IEDGN2)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -1343,14 +573,14 @@ C-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ADD_NSFIC                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2_EDG                   source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        INSERT_A                      source/interfaces/inter3d1/i7remnode.F
-Chd|        INTAB                         source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    add_nsfic     ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2_edg   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- calls      -----------------------------------------------------
+!||    insert_a      ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    intab         ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE ADD_NSFIC(NE2,NRTM,NSNE,IS2SE,NREMOV,KREMNODE,
      +                     REMNODE,IEDGN2,IFLAG)
 C----6---------------------------------------------------------------7---------8
@@ -1420,26 +650,32 @@ C------if one of edge nodes in %REMNODE(iad+1:iad+NNREM+1), add fictive nodes
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  REMN_I2OP                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        PRE_I2                        source/interfaces/inter3d1/i7remnode.F
-Chd|        REMN_I2OP_EDG25               source/interfaces/int25/i25remlin.F
-Chd|        UPGRADE_REMNODE2              source/interfaces/interf1/upgrade_remnode.F
-Chd|        ZERONM_TAGD                   source/interfaces/inter3d1/i7remnode.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE REMN_I2OP(IPARI   ,INTBUF_TAB   ,ITAB, NOM_OPT,NREMOV)
+!||====================================================================
+!||    remn_i2op              ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||    inintr                 ../starter/source/interfaces/interf1/inintr.F
+!||    inintr2                ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    pre_i2                 ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    remn_i2op_edg25        ../starter/source/interfaces/int25/i25remlin.F
+!||    upgrade_remnode2       ../starter/source/interfaces/interf1/upgrade_remnode.F
+!||    zeronm_tagd            ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE REMN_I2OP(LOWER_BOUND, UPPER_BOUND, IPARI,INTBUF_TAB,ITAB,NOM_OPT,NREMOV,IDDLEVEL,SKIP_TYPE25_EDGE_2_EDGE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
-      USE INTBUFDEF_MOD 
+      USE INTBUFDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE FORMAT_MOD , ONLY : FMW_10I
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1453,17 +689,16 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(NPARI,*), ITAB(*),NREMOV(*)
       INTEGER NOM_OPT(LNOPT1,*)
+      INTEGER, INTENT(in) :: IDDLEVEL
+      INTEGER, INTENT(in) :: SKIP_TYPE25_EDGE_2_EDGE !< flag for interface 25 :( : if edge to edge is used by interface type 25, need to do the computation after the initialization of LEDGE array | (0) no interface 25 with e2e --> nodes can be removed, (1) interface 25 with e2e --> other interfaces can be treated, (2) only the interface type 25 with e2e is treated 
+      INTEGER, INTENT(in) :: LOWER_BOUND, UPPER_BOUND !< lower and upper bound of the loop, necessary because this subroutine may be called once for all interface, or interface by interface
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr15_c.inc"
 #include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -1474,8 +709,7 @@ C-----------------------------------------------
      .        KI,KL,JJ,IEDGE,NEDGE
       INTEGER, DIMENSION(:),ALLOCATABLE :: TAGD
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 
       INTEGER :: COMPTEUR,I2NODE_SIZE,I,L,L1,IS,IIS,NS,IADA
       INTEGER :: TYP25_USE
@@ -1486,7 +720,7 @@ C-----------------------------------------------
         INTEGER :: III,JJJ,NNOD_2
         INTEGER :: FIRST,LAST,NNREM_SAVE,FLAGREMNODE_SAV
         INTEGER :: OFFSET, NBR_INTRA,NBR_EXTRA,TOTAL_INSERTED
-        INTEGER :: SIZE_INSERTED_NODE,OLDSIZE,MAX_INSERTED_NODE
+        INTEGER :: SIZE_INSERTED_NODE,OLDSIZE,MAX_INSERTED_NODE,LIMIT
         INTEGER, DIMENSION(:), ALLOCATABLE :: NBR_INSERT_II,ADRESS_II
         INTEGER, DIMENSION(:), ALLOCATABLE :: KREMNODE_SAVE,INSERTED_NODE,REMNODE,TMP
 !       -------------------------------
@@ -1500,7 +734,7 @@ C-----------------------------------------------
 !       TYP25_USE : integer, interface typ25 marker --> TYP25_USE = 1 if
 !                   an interface 25 is used, O otherwise!
 !       NBR_INSERT_II : integer, dimension = NRTM , number of inserted nodes for each II segment
-!       ADRESS_II : integer, dimension = NRTM , adress of the first inserted nodes for each II segment
+!       ADRESS_II : integer, dimension = NRTM , address of the first inserted nodes for each II segment
 !       KREMNODE_SAVE : integer, dimension = NRTM+1 , list of old nodes
 !       SIZE_INSERTED_NODE : integer, size of the INSERTED_NODE array ; SIZE_INSERTED_NODE is an upper bound, 
 !                            can be optimized!
@@ -1512,7 +746,7 @@ C----like Irem_gap of int7, creat list of SECONDARY nodes to be removed per M_se
 C----------only during dimensioning
         IACT=0  
         TYP25_USE = 0
-        DO N=1,NINTER
+        DO N=LOWER_BOUND,UPPER_BOUND
                 NTY=IPARI(7,N)
                 IF7 =IPARI(54,N)
                 IF24=IPARI(63,N)
@@ -1532,7 +766,7 @@ C----------only during dimensioning
                 ENDIF
         ENDDO
         IF (IACT==0) THEN
-                DO N=1,NINTER
+                DO N=LOWER_BOUND,UPPER_BOUND
                         NREMOV(N) = 0
                 ENDDO
                 RETURN
@@ -1556,7 +790,7 @@ C-------tag int2 nodes------
         DO N=1,NINTER
                 NTY=IPARI(7,N)
                 NREMOV(N) = 0
-                IF(NTY.EQ.2)THEN
+                IF(NTY==2)THEN
                         NSN   =IPARI(5,N)
                         DO II=1,NSN
                                 L=INTBUF_TAB(N)%IRTLM(II)                                   
@@ -1583,9 +817,9 @@ C-------tag int2 nodes------
 !           1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 !
 !           inserted nodes : 
-!           3 nodes for ii=1 ; adress of the 1st one = 3 ; iad1(1) --> iad1(3)
-!           1 nodes for ii=4 ; adress of the 1st one = 7 ; iad2(1) --> iad2(1)
-!           6 nodes for ii=1 ; adress of the 1st one = 10 ; iad3(1) --> iad3(6)
+!           3 nodes for ii=1 ; address of the 1st one = 3 ; iad1(1) --> iad1(3)
+!           1 nodes for ii=4 ; address of the 1st one = 7 ; iad2(1) --> iad2(1)
+!           6 nodes for ii=1 ; address of the 1st one = 10 ; iad3(1) --> iad3(6)
 !
 !           First insertion iad1 :
 !           1 | 2 | iad1(1) | 3 | 4 | 5 | 6 | 7 | 8 | 9
@@ -1636,10 +870,10 @@ C-------tag int2 nodes------
 !           else insert the remaining old nodes 
 !           1 | 2 | iad1(3) | iad1(2) | iad1(1) | 3 | iad2(1) | 4 | 5 | iad3(6) | ... | iad3(2) | iad3(1) | 6 | 7 | 8 | 9
 !   ------------------------------------------------
-
+        LIMIT = HUGE(N)
 
 C---------
-        DO N=1,NINTER
+        DO N=LOWER_BOUND,UPPER_BOUND
                     NTY=IPARI(7,N)
                     NSN   =IPARI(5,N)
                     NRTS  =IPARI(3,N)
@@ -1648,7 +882,14 @@ C---------
                     IF24  =IPARI(63,N)
                     IF25  =IPARI(83,N)
                     IEDGE = IPARI(58,N)
-
+                    IF(IDDLEVEL==0.AND.(NTY/=24.AND.NTY/=25)) CYCLE
+                    ! special case : interface type 25 with edge to edge 
+                    ! LEDGE array is initialized during the sorting                    
+                    ! interface type 25 with edge to edge must be treated after the %LEDGE initialization
+                    ! type25 + SKIP_TYPE25_EDGE_2_EDGE==1 --> skip the interface type 25 with e2e
+                    IF(IDDLEVEL==0.AND.NTY==25.AND.SKIP_TYPE25_EDGE_2_EDGE==1) CYCLE
+                    ! type/=25 + SKIP_TYPE25_EDGE_2_EDGE==2 -6> only compute the interface 25 with e2e
+                    IF(IDDLEVEL==0.AND.NTY/=25.AND.SKIP_TYPE25_EDGE_2_EDGE==2) CYCLE
                     ALLOCATE( NBR_INSERT_II(NRTM) )
                     ALLOCATE( ADRESS_II(NRTM) )
                     ALLOCATE( KREMNODE_SAVE(NRTM+1) )
@@ -1686,21 +927,17 @@ C--------dim first
                                 DO J=1,NNOD
                                     NM = INTBUF_TAB(N)%IRECTM(4*(II-1)+J)
                                     IF (POINTS_I2N(NM,1)==0) CYCLE
-                                    MAX_INSERTED_NODE = MAX( MAX_INSERTED_NODE,POINTS_I2N(NM,2)-POINTS_I2N(NM,1) )
-                                    
+                                    MAX_INSERTED_NODE = MAX( MAX_INSERTED_NODE,POINTS_I2N(NM,2)-POINTS_I2N(NM,1)+1 )                                    
                                 ENDDO
                             ENDDO
 
-                            IF(4*MAX_INSERTED_NODE * NRTM < 0 .OR. MAX_INSERTED_NODE * NRTM > 1 000 000) THEN
+                            IF( MAX_INSERTED_NODE > LIMIT / (4*NRTM) .OR. MAX_INSERTED_NODE > 1000000 / NRTM  )  THEN
                               SIZE_INSERTED_NODE =  4 * NRTM
                             ELSE
                               SIZE_INSERTED_NODE =  4 * NRTM *MAX_INSERTED_NODE
                             ENDIF
-C FOR TESTING ONLY: uncomment the following line to force reallocation
-C                          SIZE_INSERTED_NODE = MAX_INSERTED_NODE
-C
 
-                            MY_ALLOCATE(INSERTED_NODE,SIZE_INSERTED_NODE) 
+                            CALL MY_ALLOC(INSERTED_NODE,SIZE_INSERTED_NODE) 
 
                             DO II=1,NRTM
                                 NNREM_SAVE = NNREM
@@ -1721,11 +958,11 @@ C
                                     NNOD=4
                                 END IF   
                                
-                                IF(JJJ + MAX_INSERTED_NODE > SIZE_INSERTED_NODE) THEN
+                                IF(JJJ + NNOD * MAX_INSERTED_NODE > SIZE_INSERTED_NODE) THEN
 C extend INSERTED_NODE if needed
                                   OLDSIZE = SIZE_INSERTED_NODE
-                                  SIZE_INSERTED_NODE = SIZE_INSERTED_NODE  + MAX(NRTM,MAX_INSERTED_NODE)
-                                  MY_ALLOCATE(TMP,SIZE_INSERTED_NODE)
+                                  SIZE_INSERTED_NODE = SIZE_INSERTED_NODE  + MIN(NRTM,10*NNOD*MAX_INSERTED_NODE)
+                                  CALL MY_ALLOC(TMP,SIZE_INSERTED_NODE)
                                   TMP(1:OLDSIZE) = INSERTED_NODE(1:OLDSIZE)
 !                                 move_alloc deallocates TMP
                                   CALL MOVE_ALLOC(TMP,INSERTED_NODE)
@@ -1768,7 +1005,7 @@ C extend INSERTED_NODE if needed
                                 NBR_INSERT_II(II) = NNREM - NNREM_SAVE
                                 KREMNODE_SAVE(II) = KREMNODE_SAVE(II+1) - KREMNODE_SAVE(II)
                                 IADA = IADA + KREMNODE_SAVE(II)
-                                !   adress of the first inserted node
+                                !   address of the first inserted node
                                 ADRESS_II(II) = IADA
                                 KREMNODE_SAVE(II) = IADA + NBR_INSERT_II(II) - 1
                                 IADA = IADA + NBR_INSERT_II(II)
@@ -1868,14 +1105,19 @@ C
                                 INTBUF_TAB(N)%REMNODE(1:NNREM) = REMNODE(1:NNREM)
                                 INTBUF_TAB(N)%KREMNODE(2:NRTM+1) = KREMNODE_SAVE(1:NRTM)
                                 INTBUF_TAB(N)%KREMNODE(1)=0
+                                ! -----------------
+                                ! only print the message for the 2nd sorting
+                                IF(IDDLEVEL>0) THEN
 C------------update of IPARI(62,N) is out of subroutine    
-                                CALL ANCMSG(MSGID=1053,
-     .                                  MSGTYPE=MSGWARNING,
-     .                                  ANMODE=ANINFO_BLIND_1,
-     .                                  I1=ID,
-     .                                  C1=TITR,
-     .                                  I2=NNREM,
-     .                                  I3=NOM_OPT(1,N2))
+                                  CALL ANCMSG(MSGID=1053,
+     .                                    MSGTYPE=MSGWARNING,
+     .                                    ANMODE=ANINFO_BLIND_1,
+     .                                    I1=ID,
+     .                                    C1=TITR,
+     .                                    I2=NNREM,
+     .                                    I3=NOM_OPT(1,N2))
+                                ENDIF
+                                ! -----------------
 C----------used for Iedge=1     
                                 NREMOV(N) = NNREM
                             END IF !IF (NNREM>0) THEN
@@ -1930,7 +1172,7 @@ C-------  Compute maximum number of MAIN segments banned for all SECONDARY nodes
                             LREMNORMAX = 0
                             DO NS=1,NSN
                                 L = INTBUF_TAB(N)%KREMNOR(NS+1)-INTBUF_TAB(N)%KREMNOR(NS)
-                                IF( L.GT.LREMNORMAX) THEN
+                                IF( L>LREMNORMAX) THEN
                                     LREMNORMAX = L
                                 ENDIF
                             ENDDO
@@ -1963,8 +1205,10 @@ C       IremI2 for edge to edge contact type 25
 C-----------------------------------------------
 
                     IF(NTY==25.AND.IF25>0.AND.IEDGE>0)THEN
-                      CALL REMN_I2OP_EDG25(N          ,FLAGREMNODE_SAV ,IPARI   ,INTBUF_TAB   ,I2NODE,
-     .                                     POINTS_I2N ,I2NODE_SIZE     ,NOM_OPT  ,ITAB        )
+                      NEDGE = IPARI(68,N)
+                      IF (NEDGE >0) 
+     .                CALL REMN_I2OP_EDG25(N          ,FLAGREMNODE_SAV ,IPARI   ,INTBUF_TAB   ,I2NODE,
+     .                                     POINTS_I2N ,I2NODE_SIZE     ,NOM_OPT  ,ITAB,IDDLEVEL)
                     ENDIF      
         END DO 
 
@@ -1975,18 +1219,18 @@ C-----------------------------------------------
 C----
         RETURN
         END
-Chd|====================================================================
-Chd|  PRE_I2                        source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2OP                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    pre_i2          ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2op       ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PRE_I2(IPARI   ,INTBUF_TAB ,NSIZE, I2NODE,POINT_I2NODE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE INTBUFDEF_MOD 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1996,7 +1240,6 @@ C-----------------------------------------------
 C   A n a l y s e   M o d u l e
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -2005,9 +1248,6 @@ C-----------------------------------------------
       INTEGER IPARI(NPARI,*), I2NODE(NSIZE,3),POINT_I2NODE(NUMNOD,2)
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -2038,7 +1278,7 @@ C-----------------------------------------------
        COMPTEUR=1
        DO N=1,NINTER
          NTY=IPARI(7,N)
-         IF(NTY.EQ.2)THEN
+         IF(NTY==2)THEN
           NRTS  =IPARI(3,N)
           NRTM  =IPARI(4,N)
           NSN   =IPARI(5,N)
@@ -2128,79 +1368,16 @@ c       ALLOCATE(POINT_I2NODE(NUMNOD,2))
 C----
       RETURN
       END
-Chd|====================================================================
-Chd|  ADD_NM1                       source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        INSERT_A                      source/interfaces/inter3d1/i7remnode.F
-Chd|====================================================================
-      SUBROUTINE ADD_NM1(IS     ,IRECT   ,IRTL     ,NREMOV  ,IREMOV  ,
-     2                  IADA    ,TAGD   ,NEW       ,IFLAG    )                  
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER IRECT(4,*),IRTL(*), NREMOV,
-     .        IREMOV(*),IFLAG,IADA  ,TAGD(*)  ,NEW,IS
-C----IFLAG=0 -> dim   , IREMOV : Global node num. (SECONDARY) 
-C     REAL
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER II ,I,J  ,IL, L,NM,NNOD
-C-----------------------------------------------
-           I=IS
-           NNOD=4
-           L=IRTL(IS)
-           IF (IRECT(4,L)==IRECT(3,L)) NNOD=3
-           DO J=1,NNOD
-            NM =IRECT(J,L)
-            IF (IFLAG==0.AND.TAGD(NM)==0) THEN
-             NREMOV =NREMOV+1
-             TAGD(NM)=1
-            ELSEIF (TAGD(NM)==0) THEN
-             CALL INSERT_A(NREMOV,IREMOV,NM  ,IADA)
-             NEW =NEW+1
-             TAGD(NM)=1
-            END IF 
-           END DO
-C----
-      RETURN
-      END
-Chd|====================================================================
-Chd|  ZERONM_TAGD                   source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2OP                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    zeronm_tagd   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2op     ../starter/source/interfaces/inter3d1/i7remnode.F
+!||====================================================================
       SUBROUTINE ZERONM_TAGD(IS     ,IRECT   ,IRTL     ,TAGD   )                  
 C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
-C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2223,21 +1400,23 @@ C-----------------------------------------------
 C----
       RETURN
       END
-Chd|====================================================================
-Chd|  REMN_I2_EDGOP                 source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        ADD_NSFIC1                    source/interfaces/inter3d1/i7remnode.F
-Chd|        DIM_PTEDGN                    source/interfaces/inter3d1/i7remnode.F
-Chd|        PRE_I2EDGE                    source/interfaces/inter3d1/i7remnode.F
-Chd|        UPGRADE_REMNODE2              source/interfaces/interf1/upgrade_remnode.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    remn_i2_edgop      ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    inintr             ../starter/source/interfaces/interf1/inintr.F
+!||    inintr2            ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    add_nsfic1         ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    dim_ptedgn         ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    pre_i2edge         ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    upgrade_remnode2   ../starter/source/interfaces/interf1/upgrade_remnode.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE REMN_I2_EDGOP(IPARI   ,INTBUF_TAB   ,ITAB, NREMOV)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE INTBUFDEF_MOD 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -2256,7 +1435,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -2315,12 +1493,11 @@ C-----
 C----
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_PTEDGN                    source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2_EDGOP                 source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    dim_ptedgn      ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2_edgop   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||====================================================================
       SUBROUTINE DIM_PTEDGN(NSIZE,NSNE,IS2SE,IRTSE,TAGN)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -2361,13 +1538,12 @@ C-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  PRE_I2EDGE                    source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2_EDGOP                 source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|====================================================================
+!||====================================================================
+!||    pre_i2edge      ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2_edgop   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE PRE_I2EDGE(NSIZE,NSNE,IS2SE,IRTSE,TAGN,E2NODE,PT_E2NODE)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -2376,7 +1552,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -2456,12 +1631,11 @@ C-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ADD_NSFIC1                    source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        REMN_I2_EDGOP                 source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    add_nsfic1      ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    remn_i2_edgop   ../starter/source/interfaces/inter3d1/i7remnode.F
+!||====================================================================
       SUBROUTINE ADD_NSFIC1(NRTM,NREMOV,KREMNODE,REMNODE,E2NODE,PT_E2NODE,
      +                      TAGN,IFLAG)
 C----6---------------------------------------------------------------7---------8
@@ -2472,7 +1646,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2550,20 +1723,23 @@ C reset  TAGN(NN) =0
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  RI2_INT24P_INI                source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        RM_CAND24                     source/interfaces/inter3d1/i7remnode.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ri2_int24p_ini         ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    inintr                 ../starter/source/interfaces/interf1/inintr.F
+!||    inintr2                ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    rm_cand24              ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE RI2_INT24P_INI(IPARI   ,INTBUF_TAB   ,ITAB, NOM_OPT,NREMOV)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE INTBUFDEF_MOD 
+      USE MY_ALLOC_MOD
+      USE INTBUFDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -2582,15 +1758,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N,I_STOK,NTY,ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C----remove pene_ini of int24 with Irem_i2 
 C------INTBUF_TAB(N)%CAND_E,INTBUF_TAB(N)%CAND_N
@@ -2610,47 +1784,42 @@ C------INTBUF_TAB(N)%CAND_E,INTBUF_TAB(N)%CAND_N
 C----
       RETURN
       END
-Chd|====================================================================
-Chd|  RM_CAND24                     source/interfaces/inter3d1/i7remnode.F
-Chd|-- called by -----------
-Chd|        RI2_INT24P_INI                source/interfaces/inter3d1/i7remnode.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    rm_cand24              ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- called by ------------------------------------------------------
+!||    ri2_int24p_ini         ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE RM_CAND24(I_STOK,ID,TITR,CAND_N,CAND_E,KREMNODE  ,REMNOD ,
      *                     NSV   ,IRTLM,PENE_OLD,ITAB  )
 C
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE FORMAT_MOD , ONLY : FMW_10I
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
       INTEGER I_STOK,CAND_E(*),CAND_N(*),KREMNODE(*),IRTLM(2,*),REMNOD(*),
      *        NSV(*),ID,ITAB(*)
-C     REAL
       my_real
      .   PENE_OLD(5,*)
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------

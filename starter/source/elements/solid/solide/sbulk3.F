@@ -1,41 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SBULK3                        source/elements/solid/solide/sbulk3.F
-Chd|-- called by -----------
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        S10INIT3                      source/elements/solid/solide10/s10init3.F
-Chd|        S16INIT3                      source/elements/thickshell/solide16/s16init3.F
-Chd|        S20INIT3                      source/elements/solid/solide20/s20init3.F
-Chd|        S4INIT3                       source/elements/solid/solide4/s4init3.F
-Chd|        S6CINIT3                      source/elements/thickshell/solide6c/s6cinit3.F
-Chd|        S8CINIT3                      source/elements/thickshell/solide8c/s8cinit3.F
-Chd|        S8ZINIT3                      source/elements/solid/solide8z/s8zinit3.F
-Chd|        SCINIT3                       source/elements/thickshell/solidec/scinit3.F
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|        SUINIT3                       source/elements/elbuf_init/suinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sbulk3     ../starter/source/elements/solid/solide/sbulk3.F
+!||--- called by ------------------------------------------------------
+!||    inivoid    ../starter/source/elements/initia/inivoid.F
+!||    s10init3   ../starter/source/elements/solid/solide10/s10init3.F
+!||    s16init3   ../starter/source/elements/thickshell/solide16/s16init3.F
+!||    s20init3   ../starter/source/elements/solid/solide20/s20init3.F
+!||    s4init3    ../starter/source/elements/solid/solide4/s4init3.F
+!||    s6cinit3   ../starter/source/elements/thickshell/solide6c/s6cinit3.F
+!||    s6zinit3   ../starter/source/elements/solid/solide6z/s6zinit3.F90
+!||    s8cinit3   ../starter/source/elements/thickshell/solide8c/s8cinit3.F
+!||    s8zinit3   ../starter/source/elements/solid/solide8z/s8zinit3.F
+!||    scinit3    ../starter/source/elements/thickshell/solidec/scinit3.F
+!||    sinit3     ../starter/source/elements/solid/solide/sinit3.F
+!||    suinit3    ../starter/source/elements/elbuf_init/suinit3.F
+!||====================================================================
       SUBROUTINE SBULK3(
      1          VOLU    ,NC      ,NNC     ,MAT     ,PM      ,
      2          VOLNOD  ,BVOLNOD ,VNS     ,BNS     ,VNSX    ,
@@ -53,7 +53,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -67,7 +66,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IP, N1, N2, N11, N22, N,
+      INTEGER I, N1, N2, N11, N22, N,
      .        IPERM101(10),IPERM102(10),IPERM103(10),
      .        IPERM161(16),IPERM162(16),
      .        IPERM201(20),IPERM202(20)
@@ -84,11 +83,11 @@ C
       DATA IPERM202/0,0,0,0,0,0,0,0,2,3,4,1,5,6,7,8,6,7,8,5/
 C-----------------------------------------------------------------------
 C
-      IF(NNC.EQ.6) GOTO 60
-      IF(NNC.EQ.8) GOTO 80
-      IF(NNC.EQ.10)GOTO 100
-      IF(NNC.EQ.16)GOTO 160
-      IF(NNC.EQ.20)GOTO 200
+      IF(NNC==6) GOTO 60
+      IF(NNC==8) GOTO 80
+      IF(NNC==10)GOTO 100
+      IF(NNC==16)GOTO 160
+      IF(NNC==20)GOTO 200
 C 
 C     4 nodes tetrahedra
       DO I=LFT,LLT
@@ -152,7 +151,7 @@ C
 C     10 nodes tetrahedra :
 100   CONTINUE
       DO I=LFT,LLT
-       FAC=TRHEE_OVER_14
+       FAC=THREE_OVER_14
        AV1 = VOLU(I)*FAC/(FOUR*FAC+SIX)
        AV2 = VOLU(I)*ONE /(FOUR*FAC+SIX)
        VNS(1,I)=AV1
@@ -166,7 +165,7 @@ C     10 nodes tetrahedra :
        BNS(6,I)=CV1
        BNS(5,I)=CV1
        DO N=5,10         
-         IF(NC(I,N).NE.0)THEN
+         IF(NC(I,N)/=0)THEN
            VNSX(N-4,I)=AV2
            BNSX(N-4,I)=CV2
          ELSE
@@ -207,9 +206,9 @@ C     16 nodes thick shells :
        BNS(7,I)=CV1
        BNS(8,I)=CV1
        DO N=9,16        
-         IF(NC(I,N).NE.0)THEN
-           VNSX(N-4,I)=AV2
-           BNSX(N-4,I)=CV2
+         IF(NC(I,N)/=0)THEN
+           VNSX(N-8,I)=AV2
+           BNSX(N-8,I)=CV2
          ELSE
            N1=IPERM161(N)
            N2=IPERM162(N)
@@ -225,7 +224,7 @@ C
 C     20 nodes bricks :
 200   CONTINUE
       DO I=LFT,LLT
-       FAC=TRHEE_OVER_14
+       FAC=THREE_OVER_14
        AV1 = VOLU(I)*FAC/(EIGHT*FAC+TWELVE)
        AV2 = VOLU(I)*ONE /(EIGHT*FAC+TWELVE)
        VNS(1,I)=AV1
@@ -247,9 +246,9 @@ C     20 nodes bricks :
        BNS(7,I)=CV1
        BNS(8,I)=CV1
        DO N=9,20        
-         IF(NC(I,N).NE.0)THEN
-           VNSX(N-4,I)=AV2
-           BNSX(N-4,I)=CV2
+         IF(NC(I,N)/=0)THEN
+           VNSX(N-8,I)=AV2
+           BNSX(N-8,I)=CV2
          ELSE
            N1=IPERM201(N)
            N2=IPERM202(N)

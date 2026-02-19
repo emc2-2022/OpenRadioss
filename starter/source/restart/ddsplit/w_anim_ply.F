@@ -1,47 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  W_ANIM_PLY                    source/restart/ddsplit/w_anim_ply.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        GET_PLY_NOD                   source/spmd/spmd_anim_ply_init.F
-Chd|        PLYXFEM_MOD                   share/modules1/plyxfem_mod.F  
-Chd|====================================================================
+!||====================================================================
+!||    w_anim_ply    ../starter/source/restart/ddsplit/w_anim_ply.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit       ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    get_ply_nod   ../starter/source/spmd/spmd_anim_ply_init.F
+!||--- uses       -----------------------------------------------------
+!||    plyxfem_mod   ../starter/share/modules1/plyxfem_mod.F
+!||====================================================================
       SUBROUTINE W_ANIM_PLY(IXC,NUMELC_L,NODLOCAL,
      *                      NUMNOD_L,CEL,CEP,PROC)
       USE PLYXFEM_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -51,7 +50,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,K,P,ELEM,ND,NDSZ_L,ELSZ_L,ELPL,NCOUNT,EMPL
+      INTEGER I, K, ELEM, ND, NDSZ_L, ELSZ_L, ELPL, NCOUNT, EMPL
       INTEGER, DIMENSION(:), ALLOCATABLE :: ELNUM,ELEMIPT,ELEMXFEMID,
      *                                      NODNUM,NODEXTN,
      .                                      NODTAG,ELEMTAG,PLYSIZNG
@@ -71,8 +70,8 @@ C-----------------------------------------------
         ELEMTAG=0
 
         PLYSIZNG(K)=PLYNOD(K)%PLYNUMNODS
-C Premiere partie, sur 1 pli on tag les elements et
-C les noeuds du proc
+C First part, on 1 fold we tag the elements and
+C the nodes of the proc
         DO I=1,PLYSHELL(K)%PLYNUMSHELL
            ELEM = PLYSHELL(K)%SHID(I)
            IF (CEP(ELEM)==PROC)THEN
@@ -87,7 +86,7 @@ C les noeuds du proc
              NODTAG(NODLOCAL(ND))=ND
            ENDIF
         ENDDO
-C On les compte pour preparer les tableaux a envoyer a
+C They are counted to prepare the tables to be sent to
 C L engine
         ELSZ_L=0
         NDSZ_L =0
@@ -98,11 +97,11 @@ C L engine
           IF (NODTAG(I) > 0) NDSZ_L=NDSZ_L+1
         ENDDO
 
-C on prepare les tableaux a envoyer
+C we prepare the tables to send
         ELPL = 0
         ALLOCATE ( ELNUM(ELSZ_L),ELEMIPT(ELSZ_L),ELEMXFEMID(ELSZ_L) )
 
-C Tableaux locaux elements
+C Local tables elements
         DO I=1,NUMELC_L
           IF (ELEMTAG(I)  > 0) THEN
              ELPL=ELPL+1
@@ -113,7 +112,7 @@ C
              ELEMXFEMID(ELPL) = PLYSHELL(K)%SHELLID(ND)
           ENDIF
         ENDDO
-C Tableaux locaux noeuds xfem
+C XFEM local node paintings
         NCOUNT = 0
         ALLOCATE ( NODNUM(NDSZ_L), NODEXTN(NDSZ_L) )
         DO I=1,NUMNOD_L
@@ -126,13 +125,13 @@ C
             NODEXTN(NCOUNT) = PLYNOD(K)%PLYNODID(EMPL)
           ENDIF
         ENDDO
-C Ecriture par ply des tableaux
-C Coques ply
+C Writing by fold of the tables
+C Ply shells
         CALL WRITE_I_C(ELSZ_L    , 1     )
         CALL WRITE_I_C(ELNUM     , ELSZ_L)
         CALL WRITE_I_C(ELEMIPT   , ELSZ_L)
         CALL WRITE_I_C(ELEMXFEMID, ELSZ_L)
-C noeuds ply
+C ply nodes
         CALL WRITE_I_C(NDSZ_L    , 1     )
         CALL WRITE_I_C(NODNUM    , NDSZ_L)
         CALL WRITE_I_C(NODEXTN   , NDSZ_L)

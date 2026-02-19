@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FV_RWL                        source/constraints/general/rwall/srw_imp.F
-Chd|-- called by -----------
-Chd|        RGWAL0_IMP                    source/constraints/general/rwall/rgwal0.F
-Chd|-- calls ---------------
-Chd|        L_DIR0                        source/constraints/general/bcs/bc_imp0.F
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fv_rwl       ../engine/source/constraints/general/rwall/srw_imp.F
+!||--- called by ------------------------------------------------------
+!||    rgwal0_imp   ../engine/source/constraints/general/rwall/rgwal0.F
+!||--- calls      -----------------------------------------------------
+!||    l_dir0       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_rwl      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE FV_RWL(IDDL   ,IKC   ,NDOF  ,UD    ,V    ,A    )
 C-----------------------------------------------
 C   M o d u l e s
@@ -37,7 +38,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -53,17 +53,17 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, I, J, K,I1,J1,K1,ND,ID,NL,IERR1,IERR2
+      INTEGER  I, J,ND,NL,IERR1,IERR2
 C     REAL
 C-----------------------------------------------
       N_RWL = 0
       DO I = 1,NUMNOD
-       IF (NDOF(I).GT.0) THEN
+       IF (NDOF(I)>0) THEN
         ND = IDDL(I)+1
-        IF (IKC(ND).EQ.10) N_RWL=N_RWL+1
+        IF (IKC(ND)==10) N_RWL=N_RWL+1
        ENDIF
       ENDDO
-      IF (N_RWL.EQ.0) RETURN
+      IF (N_RWL==0) RETURN
 C--------allocation------ 
       IF(ALLOCATED(IN_RWL)) DEALLOCATE(IN_RWL)
       ALLOCATE(IN_RWL(N_RWL),STAT=IERR1)
@@ -71,9 +71,9 @@ C--------allocation------
       ALLOCATE(NOR_RWL(3,N_RWL),STAT=IERR2)
       NL = 0
       DO I = 1,NUMNOD
-       IF (NDOF(I).GT.0) THEN
+       IF (NDOF(I)>0) THEN
         ND = IDDL(I)
-        IF (IKC(ND+1).EQ.10) THEN
+        IF (IKC(ND+1)==10) THEN
          NL=NL+1
          IN_RWL(NL)=I
          NOR_RWL(1,NL) = A(1,I)
@@ -89,15 +89,16 @@ C--------allocation------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  FV_RWL0                       source/constraints/general/rwall/srw_imp.F
-Chd|-- called by -----------
-Chd|        FV_RW0                        source/constraints/general/impvel/fv_imp0.F
-Chd|-- calls ---------------
-Chd|        FV_UPDK                       source/constraints/general/impvel/fv_imp0.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    fv_rwl0   ../engine/source/constraints/general/rwall/srw_imp.F
+!||--- called by ------------------------------------------------------
+!||    fv_rw0    ../engine/source/constraints/general/impvel/fv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    fv_updk   ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    l_dir     ../engine/source/constraints/general/bcs/bc_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_rwl   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE FV_RWL0(IDDL   ,IFIX  ,NDOF  ,IADK  ,JDIK ,
      1                   DIAG_K ,LT_K  ,UD    ,B     )
 C-----------------------------------------------
@@ -109,9 +110,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER 
@@ -122,7 +120,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, I, J, K,IR
+      INTEGER N, I, J,IR
 C     REAL
       my_real
      .   EJ(3)
@@ -140,15 +138,16 @@ C----------------sliding RW ->FXVEL local---------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RWL_IMPD                      source/constraints/general/rwall/srw_imp.F
-Chd|-- called by -----------
-Chd|        RECUKIN                       source/implicit/recudis.F     
-Chd|-- calls ---------------
-Chd|        BC_UPDD                       source/constraints/general/bcs/bc_imp0.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    rwl_impd   ../engine/source/constraints/general/rwall/srw_imp.F
+!||--- called by ------------------------------------------------------
+!||    recukin    ../engine/source/implicit/recudis.F
+!||--- calls      -----------------------------------------------------
+!||    bc_updd    ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    l_dir      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_rwl    ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE RWL_IMPD(UD)
 C-----------------------------------------------
 C   M o d u l e s
@@ -159,12 +158,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
       my_real
      .  UD(3,*)
 C-----------------------------------------------
@@ -186,16 +181,17 @@ C---------------------------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  FV_RWLR0                      source/constraints/general/rwall/srw_imp.F
-Chd|-- called by -----------
-Chd|        EXT_RHS                       source/implicit/upd_glob_k.F  
-Chd|        UPD_RHS                       source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        BC_UPDB                       source/constraints/general/bcs/bc_imp0.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    fv_rwlr0   ../engine/source/constraints/general/rwall/srw_imp.F
+!||--- called by ------------------------------------------------------
+!||    ext_rhs    ../engine/source/implicit/upd_glob_k.F
+!||    upd_rhs    ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    bc_updb    ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    l_dir      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_rwl    ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE FV_RWLR0(IDDL   ,B     )
 C-----------------------------------------------
 C   M o d u l e s
@@ -205,9 +201,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -219,7 +212,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, I, J, K,IR,ID
+      INTEGER N, I, J,IR,ID
 C     REAL
       my_real
      .   EJ(3)

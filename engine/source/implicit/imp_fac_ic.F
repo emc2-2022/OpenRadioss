@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C  ------incomplete cholesky using jennings diagnal modif----
-Chd|====================================================================
-Chd|  IMP_FAC_ICJ                   source/implicit/imp_fac_ic.F  
-Chd|-- called by -----------
-Chd|        IMP_FSAI                      source/implicit/imp_fsa_inv.F 
-Chd|-- calls ---------------
-Chd|        ERR_MEM                       source/implicit/lin_solv.F    
-Chd|====================================================================
+!||====================================================================
+!||    imp_fac_icj   ../engine/source/implicit/imp_fac_ic.F
+!||--- called by ------------------------------------------------------
+!||    imp_fsai      ../engine/source/implicit/imp_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    err_mem       ../engine/source/implicit/lin_solv.F
+!||====================================================================
       SUBROUTINE IMP_FAC_ICJ(
      1                    NDDL  ,NNZ   ,IADK  ,JDIK  ,DIAG_K ,   
      2                    LT_K  ,IADM  ,JDIM  ,DIAG_M,LT_M   ,
@@ -37,11 +37,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -73,21 +68,21 @@ C
       DO I=1,NDDL
        AII = DIAG_M(I)
        K0 = IADK(I+1) - 1
-       IF (K0.GT.0) THEN
+       IF (K0>0) THEN
         J0 = JDIK(K0)
-        IF (J0.GT.MAXK) MAXK=J0
+        IF (J0>MAXK) MAXK=J0
        ENDIF 
        DO J = IADK(I),K0
         K1= JDIK(J)
         LI(K1) = LT_K(J)
 C----------ISKY(J)=I for LT_K(I,J)-----
-        IF (ISKY(K1).EQ.K1) ISKY(K1)=I
+        IF (ISKY(K1)==K1) ISKY(K1)=I
        ENDDO
        KFT =ISKY(I)
        DO K = KFT,I-1
         LSKY = ISKY(K)
-C        IF (LSKY.GE.IADM(K+1)) write(*,*)'found 1',i       
-        IF (LSKY.LT.IADM(K+1).AND.JDIM(LSKY).EQ.I) THEN
+C        IF (LSKY>=IADM(K+1)) write(*,*)'found 1',i       
+        IF (LSKY<IADM(K+1).AND.JDIM(LSKY)==I) THEN
          LKIK = LT_M(LSKY)/DIAG_M(K)
          AII = AII -LT_M(LSKY)*LKIK 
          ISKY(K)=LSKY+1
@@ -99,17 +94,17 @@ C----------voir ici quand ca tombre sur diagonal---
         ENDIF 
        ENDDO 
        DO 100 J = I+1 , MAXK
-        IF (ISKY(J).EQ.J) GOTO 100
+        IF (ISKY(J)==J) GOTO 100
         S = LI(J)
-        IF (S.NE.ZERO) THEN
+        IF (S/=ZERO) THEN
          LI(J)=ZERO
          AJJ = DIAG_M(J)
-         IF (PSI.EQ.ZERO) THEN
+         IF (PSI==ZERO) THEN
           NNZM = NNZM +1
-          IF (NNZM.GT.MAX_L) CALL ERR_MEM(NNZM)
+          IF (NNZM>MAX_L) CALL ERR_MEM(NNZM)
           LT_M(NNZM)=S
           JDIM(NNZM)=J
-         ELSEIF (S*S.LT.PSI*AII*AJJ) THEN
+         ELSEIF (S*S<PSI*AII*AJJ) THEN
           S =ABS(S)
           FAC = SQRT(AII/AJJ)
           AII = AII +S*FAC 
@@ -117,13 +112,13 @@ C----------voir ici quand ca tombre sur diagonal---
           REJ = REJ +1
          ELSE
           NNZM = NNZM +1
-          IF (NNZM.GT.MAX_L) CALL ERR_MEM(NNZM)
+          IF (NNZM>MAX_L) CALL ERR_MEM(NNZM)
           LT_M(NNZM)=S
           JDIM(NNZM)=J
          ENDIF 
         ENDIF 
  100   CONTINUE
-       IF (AII.LT.EM20) THEN
+       IF (AII<EM20) THEN
         NNE=NNE+1
         AII=SIGN(MAX(ABS(AII),EM20),AII)
        ENDIF 
@@ -133,9 +128,9 @@ C----------voir ici quand ca tombre sur diagonal---
         LT_M(J)=LT_M(J)*DIAG_M(I)
        ENDDO
        ISKY(I)=IADM(I)
-       IF (ISKY(I).GT.NNZM) ISKY(I)= IADM(I)
+       IF (ISKY(I)>NNZM) ISKY(I)= IADM(I)
       ENDDO
-c      IF (NNE.GT.0) then
+c      IF (NNE>0) then
 c       write(*,*)'--WARNING: PIVOT PROBLEM',NNE
 c      DO I=1,NDDL
 c       write(*,*)'diag,i,iadm=',DIAG_M(I),I,IADM(I)
@@ -146,21 +141,14 @@ c      ENDDO
 c      endif
       RETURN
       END
-Chd|====================================================================
-Chd|  DIAGMOD                       source/implicit/imp_fac_ic.F  
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    diagmod   ../engine/source/implicit/imp_fac_ic.F
+!||====================================================================
       SUBROUTINE DIAGMOD(J0, J1, LI, DIAG_M ,AII,ISKY)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -176,14 +164,14 @@ C-----------------------------------------------
      .   AJJ,S,FAC
 C-----------------------------------------------
        DO J = J0, J1
-        IF (ISKY(J).NE.J) THEN
+        IF (ISKY(J)/=J) THEN
          S = LI(J)
-         IF (S.NE.ZERO) THEN
+         IF (S/=ZERO) THEN
           AJJ = DIAG_M(J)
           S =ABS(S)
           FAC = SQRT(ABS(AII/AJJ))
           AII = AII +S*FAC 
-          IF (abs(aii).LT.EP30) THEN
+          IF (abs(aii)<EP30) THEN
           ELSE
           ENDIF
           DIAG_M(J) = AJJ +S/FAC

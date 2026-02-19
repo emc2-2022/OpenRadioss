@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-C     routine reectite en 50c
-Chd|====================================================================
-Chd|  CNVEC3                        source/elements/shell/coque/cnvec3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|-- calls ---------------
-Chd|        CORTDIR3                      source/elements/shell/coque/cortdir3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+C     Routine Reactite in 50c
+!||====================================================================
+!||    cnvec3         ../engine/source/elements/shell/coque/cnvec3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3         ../engine/source/elements/shell/coque/cforc3.F
+!||    cforc3_crk     ../engine/source/elements/xfem/cforc3_crk.F
+!||--- calls      -----------------------------------------------------
+!||    cortdir3       ../engine/source/elements/shell/coque/cortdir3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE CNVEC3(ELBUF_STR,DIR_A  ,DIR_B  ,
      1           JFT     ,JLT    ,IREP   ,IGTYP  ,NLAY   ,       
      2           X1      ,X2     ,X3     ,X4     ,Y1     ,Y2     ,       
@@ -48,7 +49,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -61,8 +61,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -72,7 +70,7 @@ C     REAL
       my_real
      .   SUMA,S1,S2,X21,X32,X34,X41,Y21,Y32,Y34,Y41,Z21,Z32,Z34,Z41
       my_real, DIMENSION(MVSIZ) :: 
-     .   E11,E12,E13,E21,E22,E23,RX,RY,RZ,SX,SY,SZ
+     .   RX,RY,RZ,SX,SY,SZ
 C=======================================================================
       DO I=JFT,JLT                          
         X21 = X2(I)-X1(I)                   
@@ -113,10 +111,10 @@ C=======================================================================
         ENDDO
       ENDIF
 C
-C---  orthogonalisation du repere local
+C---  orthogonalization of local coordinate system
 C
       IF (ISHFRAM == 0 .OR. IGTYP == 16 ) THEN
-C---    Repere convecte symetrique - version 5 (default)
+C--- Symetrical convected frame- Version 5 (Default)
         DO I=JFT,JLT                         
           SUMA   = E3X(I)*E3X(I)+E3Y(I)*E3Y(I)+E3Z(I)*E3Z(I)
           SUMA   = ONE / MAX(SQRT(SUMA),EM20)                  
@@ -142,7 +140,7 @@ C
           E2Z(I) = E3X(I) * E1Y(I) - E3Y(I) * E1X(I)
         ENDDO
       ELSEIF (ISHFRAM == 2) THEN
-C---    Repere convecte nonsymetrique - version 4
+C--- Nononstymmetrical convected frame- Version 4
         DO I=JFT,JLT
           SUMA   = E2X(I)*E2X(I)+E2Y(I)*E2Y(I)+E2Z(I)*E2Z(I)
           E1X(I) = E1X(I)*SUMA + E2Y(I)*E3Z(I)-E2Z(I)*E3Y(I)
@@ -171,7 +169,7 @@ C
         ENDDO
       ENDIF
 C
-C---  directions orthotropie / anisotropie convectes
+C--- Orthotropy / anisotropy convectes directions
 C
       CALL CORTDIR3(ELBUF_STR,DIR_A  ,DIR_B  ,JFT    ,JLT    ,
      .              NLAY     ,IREP   ,RX     ,RY     ,RZ     ,

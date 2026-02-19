@@ -1,49 +1,52 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2FOR27_PEN                   source/interfaces/interf/i2for27_pen.F
-Chd|-- called by -----------
-Chd|        I2FOR27                       source/interfaces/interf/i2for27.F
-Chd|-- calls ---------------
-Chd|        I2LOCEQ                       ../common_source/interf/i2loceq.F
-Chd|        I2PEN_ROT27                   ../common_source/interf/i2pen_rot.F
-Chd|        I2REP                         ../common_source/interf/i2rep.F
-Chd|        I2SMS27                       source/interfaces/interf/i2sms27.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2for27_pen   ../engine/source/interfaces/interf/i2for27_pen.F
+!||--- called by ------------------------------------------------------
+!||    i2for27       ../engine/source/interfaces/interf/i2for27.F
+!||--- calls      -----------------------------------------------------
+!||    i2forces      ../engine/source/interfaces/interf/i2forces.F
+!||    i2loceq       ../common_source/interf/i2loceq.F
+!||    i2pen_rot27   ../common_source/interf/i2pen_rot.F
+!||    i2rep         ../common_source/interf/i2rep.F
+!||    i2sms27       ../engine/source/interfaces/interf/i2sms27.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod       ../engine/share/modules/h3d_mod.F
+!||    outmax_mod    ../common_source/modules/outmax_mod.F
+!||====================================================================
       SUBROUTINE I2FOR27_PEN(X       ,V       ,VR      ,A       ,AR      ,
      .                   MS_PENA ,IN      ,STIFN   ,STIFR   ,WEIGHT  ,
      .                   NSV     ,IRTL    ,CRST    ,SKEW    ,DX      ,
      .                   DR      ,FINI    ,FSAV    ,FNCONT  ,NSN     ,
      .                   STFN    ,STFR    ,VISC    ,PENFLAG ,IROTB   ,
      .                   NOINT   ,NODNX_SMS,DMINT2 ,SAV_FOR_PENA,IRECT,
-     .                   DT2T    ,NELTST   ,ITYPTST,
-     .                   INDXP   ,MINER   ,H3D_DATA,MSEGTYP2,
-     .                   FNCONTP ,FTCONTP)
+     .                   DT2T    ,NELTST  ,ITYPTST ,INDXP   ,SAV_INER_POFF,
+     .                   H3D_DATA,MSEGTYP2,FNCONTP ,FTCONTP)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTMAX_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -68,17 +71,14 @@ C     REAL
      .   CRST(2,*),FSAV(*),FNCONT(3,*),
      .   DMINT2(4,*),SAV_FOR_PENA(8,*),FNCONTP(3,*)   ,FTCONTP(3,*) 
       my_real
-     .   MINER(*)
+     .   SAV_INER_POFF(*)
       TYPE (H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
 #include      "com01_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
 #include      "scr11_c.inc"
 #include      "scr14_c.inc"
 #include      "sms_c.inc"
@@ -86,27 +86,27 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR,I,J,II,JJ,L,W,NN,KK,K,LLT,
+      INTEGER NIR,I,J,II,L,W,KK,K,LLT,
      .        IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
      .        NSVG(MVSIZ)
 C     REAL
       my_real
      .   S,T,SP,SM,TP,TM,ECONTT,ECONVT,E1X,E1Y,E1Z,E2X,E2Y,E2Z,E3X,E3Y,E3Z,
-     .   FNORM,FLX,FLY,FLZ,FSX,FSY,FSZ,XSM,YSM,ZSM,XM,YM,ZM,
+     .   FLX,FLY,FLZ,FS(3),XSM,YSM,ZSM,XM,YM,ZM,
      .   X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,X0,Y0,Z0,XS,YS,ZS,STIFM(MVSIZ),
      .   VX1,VX2,VX3,VX4,VY1,VY2,VY3,VY4,VZ1,VZ2,VZ3,VZ4,DLX,DLY,DLZ,
-     .   VX0,VY0,VZ0,VSX,VSY,VSZ,VMX,VMY,VMZ,VX,VY,VZ,DTINV,STF,
+     .   VX0,VY0,VZ0,VSX,VSY,VSZ,VMX,VMY,VMZ,VX,VY,VZ,STF,
      .   FXV,FYV,FZV,DRX,DRY,DRZ,STBRK,DTI,MHARM,DKM,DET,B1,B2,B3,C1,C2,C3,
-     .   A1,A2,A3,MTTX,MTTY,MTTZ,DERX,DERY,DERZ,DXT
+     .   DXT
       my_real
-     .   H(4,MVSIZ),FN(3),FT(3),FX(4),FY(4),FZ(4),FMX(4),FMY(4),FMZ(4),
-     .   RX(4),RY(4),RZ(4),RM(3),RS(3),V0(3),VS(3),VM(3),
+     .   H(4,MVSIZ),FX(4),FY(4),FZ(4),FMX(4),FMY(4),FMZ(4),
+     .   RX(4),RY(4),RZ(4),RM(3),RS(3),VS(3),VM(3),
      .   STIF(MVSIZ), VIS(MVSIZ), VA(3),VB(3),VC(3),VD(3)
       my_real
-     .   VRX0,VRX1,VRX2,VRX3,VRX4,VRY0,VRY1,VRY2,VRY3,VRY4,VRZ0,VRZ1,VRZ2,VRZ3,VRZ4,
+     .   VRX1,VRX2,VRX3,VRX4,VRY1,VRY2,VRY3,VRY4,VRZ1,VRZ2,VRZ3,VRZ4,
      .   VRSX,VRSY,VRSZ,VRX,VRY,VRZ,MLX,MLY,MLZ,MX(4),MY(4),MZ(4),MRX,MRY,MRZ,FTX,FTY,FTZ,
-     .   MGX,MGY,MGZ,MSX,MSY,MSZ,MVX,MVY,MVZ,STR,VISR(MVSIZ),DKI,INHARM,VRMX,VRMY,VRMZ,
-     .   LEN2,FAC_TRIANG,IROT, VRM(3),VRS(3)
+     .   MGX,MGY,MGZ,MVX,MVY,MVZ,STR,VISR(MVSIZ),DKI,INHARM,VRMX,VRMY,VRMZ,
+     .   LEN2,FAC_TRIANG,IROT, VRM(3),VRS(3),HL(4)
 C
 C=======================================================================
       I7KGLO = 1
@@ -114,6 +114,8 @@ C=======================================================================
       ECONVT = ZERO
 C
       NSVG(1:MVSIZ) = 0
+      VRS(1:3)=ZERO
+      VRM(1:3)=ZERO
 C----------------    
       DO KK=1,NSN,MVSIZ
 C
@@ -136,13 +138,14 @@ C
           IX3(K) = IRECT(3,L)                                       
           IX4(K) = IRECT(4,L)
 C
-          IF ((MSEGTYP2(L)==1).AND.(IN(I)>EM20)) THEN
-C-- shell main segment --
-            IROT = ONE
-          ELSE
 C-- solid main segment --
-            IROT = ZERO
-          ENDIF 
+          IROT = ZERO
+          IF ((MSEGTYP2(L)==1)) THEN
+C-- shell main segment --
+            IF(SAV_INER_POFF(I) > EM20) THEN
+              IROT = ONE
+            ENDIF 
+          ENDIF
 C
           IF (IX3(K) == IX4(K)) THEN
 C--        Shape functions of triangles
@@ -390,14 +393,14 @@ C
           VRY =  VRS(2) - VRM(2)
           VRZ =  VRS(3) - VRM(3)
 
-C-------------  vers increm en vitesses
+C-------------  vers increm en velocities
           DLX = VX*DT1
           DLY = VY*DT1
           DLZ = VZ*DT1
           DRX = VRX*DT1
           DRY = VRY*DT1
           DRZ = VRZ*DT1
-C-------------  DX == deplacement relatif
+C-------------- DX == Relative displacement
           DX(1,II) = DX(1,II) + DLX
           DX(2,II) = DX(2,II) + DLY
           DX(3,II) = DX(3,II) + DLZ
@@ -406,7 +409,7 @@ C-------------  DX == deplacement relatif
           DR(3,II) = DR(3,II) + DRZ
 C
 C------------------------------------------------                  
-C         Calcul de la force
+C         force calculation
 C------------------------------------------------
 C                           
           FLX = DX(1,II) * STFN(II)
@@ -435,9 +438,9 @@ C
           FZV = VIS(K) * VZ
 c
           DXT = DX(1,II)**2 + DX(2,II)**2 + DX(3,II)**2
-          ECONTT = ECONTT + HALF*STFN(II)*DXT
+          ECONTT = ECONTT + HALF*STFN(II)*DXT*W
 
-          ECONVT = ECONVT + (FXV*VX + FYV*VY + FZV*VZ)*DT1
+          ECONVT = ECONVT + (FXV*VX + FYV*VY + FZV*VZ)*DT1*W
 c
           FLX = FLX + FXV
           FLY = FLY + FYV
@@ -457,25 +460,26 @@ C
           STIFM(K)=ZERO
 C
 C------------------------------------------------                  
-C         Calcul du Moment
+C         moment calculation
 C------------------------------------------------
 C
           IF (IROT > ZERO) THEN
 C
-C--   Secnd node shell of  spring 
+C--   Second node shell of  spring 
 C
-          IF(IN(I)==ZERO.OR.MINER(IX1(K))==ZERO.OR.
-     .                      MINER(IX2(K))==ZERO.OR.
-     .                      MINER(IX3(K))==ZERO.OR.
-     .                      MINER(IX4(K))==ZERO)THEN
+          IF(SAV_INER_POFF(I)==ZERO.OR.SAV_INER_POFF(IX1(K))==ZERO.OR.
+     .                      SAV_INER_POFF(IX2(K))==ZERO.OR.
+     .                      SAV_INER_POFF(IX3(K))==ZERO.OR.
+     .                      SAV_INER_POFF(IX4(K))==ZERO)THEN
             INHARM = ZERO
           ELSEIF(NIR==4)THEN
-            INHARM = ONE/IN(I) + 
-     .              ONE/MINER(IX1(K)) + ONE/MINER(IX2(K)) + ONE/MINER(IX3(K)) + ONE/MINER(IX4(K))
+            INHARM = ONE/SAV_INER_POFF(I) + 
+     .               ONE/SAV_INER_POFF(IX1(K)) + ONE/SAV_INER_POFF(IX2(K)) +
+     .               ONE/SAV_INER_POFF(IX3(K)) + ONE/SAV_INER_POFF(IX4(K))
             INHARM = ONE/INHARM
           ELSE
-            INHARM = ONE/IN(I) + 
-     .              ONE/MINER(IX1(K)) + ONE/MINER(IX2(K)) + ONE/MINER(IX3(K))
+            INHARM = ONE/SAV_INER_POFF(I) + 
+     .               ONE/SAV_INER_POFF(IX1(K)) + ONE/SAV_INER_POFF(IX2(K)) + ONE/SAV_INER_POFF(IX3(K))
             INHARM = ONE/INHARM
           END IF
 C
@@ -491,11 +495,11 @@ C
           MVZ = VISR(K) * VRZ
 C
           DXT = DR(1,II)**2  + DR(2,II)**2 + DR(3,II)**2
-          ECONTT = ECONTT + HALF*STFR(II)*DXT
+          ECONTT = ECONTT + HALF*STFR(II)*DXT*W
 
           ECONVT = ECONVT    + (MVX*VRX 
      .                       +  MVY*VRY 
-     .                       +  MVZ*VRZ)*DT1
+     .                       +  MVZ*VRZ)*DT1*W
 C
           MLX = MLX + MVX
           MLY = MLY + MVY
@@ -520,7 +524,7 @@ C
 C
           ELSE
 C
-C--   Secnd node of solids
+C--   Second node of solids
 C
           MX(1:4) = ZERO
           MY(1:4) = ZERO
@@ -539,22 +543,22 @@ C
             FZ(J) = E1Z*FMX(J) + E2Z*FMY(J) + E3Z*FMZ(J) 
           ENDDO
 C
-          FTX = ZERO
-          FTY = ZERO
-          FTZ = ZERO
+          FS(1) = ZERO
+          FS(2) = ZERO
+          FS(3) = ZERO
           DO J=1,NIR
-            FTX = FTX + FX(J)
-            FTY = FTY + FY(J)
-            FTZ = FTZ + FZ(J)
+            FS(1) = FS(1) + FX(J)
+            FS(2) = FS(2) + FY(J)
+            FS(3) = FS(3) + FZ(J)
           ENDDO
 C
 C----------------------------------------------------
-C         Secnd forces/moments -> global coordinates 
+C         Second forces/moments -> global coordinates 
 C----------------------------------------------------
 C
-          SAV_FOR_PENA(1,I) = SAV_FOR_PENA(1,I) - FTX
-          SAV_FOR_PENA(2,I) = SAV_FOR_PENA(2,I) - FTY   
-          SAV_FOR_PENA(3,I) = SAV_FOR_PENA(3,I) - FTZ 
+          SAV_FOR_PENA(1,I) = SAV_FOR_PENA(1,I) - FS(1)
+          SAV_FOR_PENA(2,I) = SAV_FOR_PENA(2,I) - FS(2)  
+          SAV_FOR_PENA(3,I) = SAV_FOR_PENA(3,I) - FS(3) 
           SAV_FOR_PENA(4,I) = SAV_FOR_PENA(4,I) + STF
 C
 C         for SMS ::
@@ -630,84 +634,30 @@ C------------------------------------------------
             FINI(6,II) = MLZ
           ENDIF
 C------------------------------------------------
-C         composantes N/T de la forces nodale -> output
+C         n/t components of the nodal forces -> output
 C------------------------------------------------
-          FNORM = E3X*FLX + E3Y*FLY + E3Z*FLZ
-          FN(1) = E3X*FNORM
-          FN(2) = E3Y*FNORM
-          FN(3) = E3Z*FNORM
+          HL(1:4) = H(1:4,K)
+          CALL I2FORCES(X       ,FS     ,FX     ,FY      ,FZ     ,
+     .                  IRECT(1,L),NIR  ,FSAV   ,FNCONT  ,FNCONTP,
+     .                  FTCONTP ,WEIGHT ,H3D_DATA,I      ,HL) 
 C
-          FT(1) = FLX - FN(1)
-          FT(2) = FLY - FN(2)
-          FT(3) = FLZ - FN(3)
-C
-          FSAV(1) = FSAV(1) + FN(1)*DT1*W
-          FSAV(2) = FSAV(2) + FN(2)*DT1*W
-          FSAV(3) = FSAV(3) + FN(3)*DT1*W
-          FSAV(4) = FSAV(4) + FT(1)*DT1*W
-          FSAV(5) = FSAV(5) + FT(2)*DT1*W
-          FSAV(6) = FSAV(6) + FT(3)*DT1*W
-C
-          IF (ANIM_V(13)+H3D_DATA%N_VECT_CONT2 > 0) THEN
-            FNCONT(1,I)  = FNCONT(1,I)  + FTX * W
-            FNCONT(2,I)  = FNCONT(2,I)  + FTY * W
-            FNCONT(3,I)  = FNCONT(3,I)  + FTZ * W
-            FNCONT(1,IX1(K)) = FNCONT(1,IX1(K)) + FX(1)*W
-            FNCONT(2,IX1(K)) = FNCONT(2,IX1(K)) + FY(1)*W
-            FNCONT(3,IX1(K)) = FNCONT(3,IX1(K)) + FZ(1)*W
-            FNCONT(1,IX2(K)) = FNCONT(1,IX2(K)) + FX(2)*W
-            FNCONT(2,IX2(K)) = FNCONT(2,IX2(K)) + FY(2)*W
-            FNCONT(3,IX2(K)) = FNCONT(3,IX2(K)) + FZ(2)*W
-            FNCONT(1,IX3(K)) = FNCONT(1,IX3(K)) + FX(3)*W
-            FNCONT(2,IX3(K)) = FNCONT(2,IX3(K)) + FY(3)*W
-            FNCONT(3,IX3(K)) = FNCONT(3,IX3(K)) + FZ(3)*W
-            FNCONT(1,IX4(K)) = FNCONT(1,IX4(K)) + FX(4)*W
-            FNCONT(2,IX4(K)) = FNCONT(2,IX4(K)) + FY(4)*W
-            FNCONT(3,IX4(K)) = FNCONT(3,IX4(K)) + FZ(4)*W
-          ENDIF
-
-          IF(ANIM_V(27)+H3D_DATA%N_VECT_PCONT2.GT.0) THEN ! Normal/Tangential forces output
-
-            FNCONTP(1,I) = FNCONTP(1,I)  - FN(1) * W
-            FNCONTP(2,I) = FNCONTP(2,I)  - FN(2) * W
-            FNCONTP(3,I) = FNCONTP(3,I)  - FN(3) * W
-
-            FNCONTP(1,IX1(K)) = FNCONTP(1,IX1(K)) + FN(1)*H(1,K)*W
-            FNCONTP(2,IX1(K)) = FNCONTP(2,IX1(K)) + FN(2)*H(1,K)*W
-            FNCONTP(3,IX1(K)) = FNCONTP(3,IX1(K)) + FN(3)*H(1,K)*W
-
-            FNCONTP(1,IX2(K)) = FNCONTP(1,IX2(K)) + FN(1)*H(2,K)*W
-            FNCONTP(2,IX2(K)) = FNCONTP(2,IX2(K)) + FN(2)*H(2,K)*W
-            FNCONTP(3,IX2(K)) = FNCONTP(3,IX2(K)) + FN(3)*H(2,K)*W
-
-            FNCONTP(1,IX3(K)) = FNCONTP(1,IX3(K)) + FN(1)*H(3,K)*W
-            FNCONTP(2,IX3(K)) = FNCONTP(2,IX3(K)) + FN(2)*H(3,K)*W
-            FNCONTP(3,IX3(K)) = FNCONTP(3,IX3(K)) + FN(3)*H(3,K)*W
-
-            FNCONTP(1,IX4(K)) = FNCONTP(1,IX4(K)) + FN(1)*H(4,K)*W
-            FNCONTP(2,IX4(K)) = FNCONTP(2,IX4(K)) + FN(2)*H(4,K)*W
-            FNCONTP(3,IX4(K)) = FNCONTP(3,IX4(K)) + FN(3)*H(4,K)*W
-
-            FTCONTP(1,I) = FTCONTP(1,I)  - FT(1) * W
-            FTCONTP(2,I) = FTCONTP(2,I)  - FT(2) * W
-            FTCONTP(3,I) = FTCONTP(3,I)  - FT(3) * W
-
-            FTCONTP(1,IX1(K)) = FTCONTP(1,IX1(K)) + FT(1)*H(1,K)*W
-            FTCONTP(2,IX1(K)) = FTCONTP(2,IX1(K)) + FT(2)*H(1,K)*W
-            FTCONTP(3,IX1(K)) = FTCONTP(3,IX1(K)) + FT(3)*H(1,K)*W
-
-            FTCONTP(1,IX2(K)) = FTCONTP(1,IX2(K)) + FT(1)*H(2,K)*W
-            FTCONTP(2,IX2(K)) = FTCONTP(2,IX2(K)) + FT(2)*H(2,K)*W
-            FTCONTP(3,IX2(K)) = FTCONTP(3,IX2(K)) + FT(3)*H(2,K)*W
-
-            FTCONTP(1,IX3(K)) = FTCONTP(1,IX3(K)) + FT(1)*H(3,K)*W
-            FTCONTP(2,IX3(K)) = FTCONTP(2,IX3(K)) + FT(2)*H(3,K)*W
-            FTCONTP(3,IX3(K)) = FTCONTP(3,IX3(K)) + FT(3)*H(3,K)*W
-
-            FTCONTP(1,IX4(K)) = FTCONTP(1,IX4(K)) + FT(1)*H(4,K)*W
-            FTCONTP(2,IX4(K)) = FTCONTP(2,IX4(K)) + FT(2)*H(4,K)*W
-            FTCONTP(3,IX4(K)) = FTCONTP(3,IX4(K)) + FT(3)*H(4,K)*W
-         ENDIF
+          IF ((H3D_DATA%N_VECT_CONT2M > 0).AND.(IROT > 0)) THEN ! Moment output in h3d
+             MCONT2(1,I) =  (-MGX + MRX)*W
+             MCONT2(2,I) =  (-MGY + MRY)*W
+             MCONT2(3,I) =  (-MGZ + MRZ)*W
+             MCONT2(1,IX1(K)) = MCONT2(1,IX1(K)) + MX(1)*H(1,K)*W
+             MCONT2(2,IX1(K)) = MCONT2(2,IX1(K)) + MY(1)*H(1,K)*W
+             MCONT2(3,IX1(K)) = MCONT2(3,IX1(K)) + MZ(1)*H(1,K)*W
+             MCONT2(1,IX2(K)) = MCONT2(1,IX2(K)) + MX(2)*H(2,K)*W
+             MCONT2(2,IX2(K)) = MCONT2(2,IX2(K)) + MY(2)*H(2,K)*W
+             MCONT2(3,IX2(K)) = MCONT2(3,IX2(K)) + MZ(2)*H(2,K)*W
+             MCONT2(1,IX3(K)) = MCONT2(1,IX3(K)) + MX(3)*H(3,K)*W
+             MCONT2(2,IX3(K)) = MCONT2(2,IX3(K)) + MY(3)*H(3,K)*W
+             MCONT2(3,IX3(K)) = MCONT2(3,IX3(K)) + MZ(3)*H(3,K)*W
+             MCONT2(1,IX4(K)) = MCONT2(1,IX4(K)) + MX(4)*H(4,K)*W
+             MCONT2(2,IX4(K)) = MCONT2(2,IX4(K)) + MY(4)*H(4,K)*W
+             MCONT2(3,IX4(K)) = MCONT2(3,IX4(K)) + MZ(4)*H(4,K)*W
+          ENDIF    
 
 C----------
         ELSE
@@ -727,7 +677,7 @@ C
          CALL I2SMS27(LLT   ,IX1   ,IX2  ,IX3  ,IX4   ,
      2                NSVG  ,H     ,STIF ,NOINT,DMINT2(1,KK),
      3                NODNX_SMS ,VIS   ,STIFM  ,DTI)
-         IF(DTI.LT.DT2T)THEN
+         IF(DTI<DT2T)THEN
            DT2T    = DTI
            NELTST  = NOINT
            ITYPTST = 10
@@ -736,7 +686,7 @@ C
       ENDDO
 C----------
 #include "lockon.inc"
-      ECONT  = ECONT + ECONTT   ! Elatic Energy
+      ECONT  = ECONT + ECONTT  ! Elastic Energy
       ECONTD = ECONTD + ECONVT ! Damping Energy
       FSAV(26) = FSAV(26) + ECONTT
       FSAV(28) = FSAV(28) + ECONVT

@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  H3D_VELVECZ22                 source/output/h3d/h3d_results/h3d_velvecz22.F
-Chd|-- called by -----------
-Chd|        H3D_NODAL_VECTOR              source/output/h3d/h3d_results/h3d_nodal_vector.F
-Chd|-- calls ---------------
-Chd|        H3D_WRITE_VECTOR              source/output/h3d/h3d_results/h3d_write_vector.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    h3d_velvecz22      ../engine/source/output/h3d/h3d_results/h3d_velvecz22.F
+!||--- called by ------------------------------------------------------
+!||    h3d_nodal_vector   ../engine/source/output/h3d/h3d_results/h3d_nodal_vector.F
+!||--- calls      -----------------------------------------------------
+!||    h3d_write_vector   ../engine/source/output/h3d/h3d_results/h3d_write_vector.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod       ../common_source/modules/groupdef_mod.F
+!||    i22bufbric_mod     ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22edge_mod        ../common_source/modules/interfaces/cut-cell-buffer_mod.F
+!||    i22tri_mod         ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    initbuf_mod        ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE H3D_VELVECZ22(ELBUF_TAB,IPARG,IPARI,IGRNOD,X,IXS,IXQ,ITAB,IFLG,
      .                         IOK_PART,IS_WRITTEN_NODE,NODAL_VECTOR)
 C-----------------------------------------------
@@ -49,6 +52,7 @@ C-----------------------------------------------
       USE I22EDGE_MOD    
       USE I22TRI_MOD
       USE GROUPDEF_MOD
+      use element_mod , only : nixs,nixq
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -56,13 +60,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "scr17_c.inc"
-#include      "spmd_c.inc"
 #include      "param_c.inc"
 #include      "inter22.inc"
 C-----------------------------------------------
@@ -73,15 +72,15 @@ C-----------------------------------------------
       INTEGER, INTENT(IN)    :: IOK_PART(*),IS_WRITTEN_NODE(*)
       my_real, INTENT(INOUT) :: X(3,NUMNOD)
       my_real, INTENT(INOUT) :: NODAL_VECTOR(3,*)
-      REAL R4
+ 
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB      
       TYPE (GROUP_)  , DIMENSION(NGRNOD) :: IGRNOD
 C-----------------------------------------------
 C   L o c a l   A r g u m e n t s
 C----------------------------------------------- 
-      INTEGER :: ICELLM,NCELL,NBF,NBL,ICELL,NIN,NODE_ID,IB,NG,I
-      INTEGER :: IAD0, NNODES, II, NFACE, J, K, IE,IGR
-      my_real :: rho_cell, RHO(4)
+      INTEGER :: NCELL, NBF, NBL, ICELL, NIN, NODE_ID, IB, I
+      INTEGER :: NNODES, II, J, IE, IGR
+ 
       REAL,DIMENSION(:,:),ALLOCATABLE :: BUFFER
       LOGICAL :: lStillNode
       my_real VALUE(3)
@@ -89,8 +88,8 @@ C-----------------------------------------------
 C   P r e - C o n d i t i o n s
 C----------------------------------------------- 
        NIN = 1
-       IF(INT22.EQ.0)        RETURN
-       IF(IPARI(82,NIN).EQ.0)RETURN
+       IF(INT22==0)        RETURN
+       IF(IPARI(82,NIN)==0)RETURN
 C-----------------------------------------------
 C   S o u r c e   C o d e
 C----------------------------------------------- 
@@ -110,13 +109,13 @@ C-----------------------------------------------
          IE                    = BRICK_LIST(NIN,IB)%ID
          ICELL                 =  0                                                                
          NCELL                 = BRICK_LIST(NIN,IB)%NBCUT                                                                                                          
-         DO WHILE (ICELL.LE.NCELL) ! loop on polyhedron {1:NCELL} U {9}                                                                            
+         DO WHILE (ICELL<=NCELL) ! loop on polyhedron {1:NCELL} U {9}                                                                            
            ICELL               = ICELL +1                                                                                                                        
            IF (ICELL>NCELL .AND. NCELL/=0)ICELL=9   
            IF(.NOT.lStillNode) CYCLE
           ! nFACE               = BRICK_LIST(NIN,IB)%NFACE_Cell(ICELL)                                                                               
            DO J=1, 6
-             IF(II.GT.NNODES)THEN
+             IF(II>NNODES)THEN
                lStillNode  = .FALSE. 
                print *, "** Warning inter22 : no more node in group to mark cell center"  
                EXIT                                                                                   
@@ -148,11 +147,11 @@ C-----------------------------------------------
        ENDDO
         
        DO I=1,NUMNOD   
-	 VALUE(1)=BUFFER(1,I)
-	 VALUE(2)=BUFFER(2,I)
-	 VALUE(3)=BUFFER(3,I)
+           VALUE(1)=BUFFER(1,I)
+           VALUE(2)=BUFFER(2,I)
+           VALUE(3)=BUFFER(3,I)
          CALL H3D_WRITE_VECTOR(IOK_PART,IS_WRITTEN_NODE,NODAL_VECTOR,I,0,0,
-     .   				 VALUE)
+     .            VALUE)
        ENDDO
           
        DEALLOCATE(BUFFER)  

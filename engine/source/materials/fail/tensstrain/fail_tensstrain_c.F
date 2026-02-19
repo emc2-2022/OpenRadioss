@@ -1,39 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_TENSSTRAIN_C             source/materials/fail/tensstrain/fail_tensstrain_c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_tensstrain_c   ../engine/source/materials/fail/tensstrain/fail_tensstrain_c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc              ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell       ../engine/source/materials/mat_share/usermat_shell.F
+!||--- calls      -----------------------------------------------------
+!||    finter              ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE FAIL_TENSSTRAIN_C(
      1     NEL      ,NFUNC    ,NUPARAM  ,NUVAR    ,IFUNC    ,
      2     UPARAM   ,UVAR     ,NPF      ,TF       ,TIME     ,
      3     NGL      ,IPG      ,ILAY     ,IPT      ,EPSP     ,
      4     EPSXX    ,EPSYY    ,EPSXY    ,EPSYZ    ,EPSZX    ,
-     5     OFF      ,FOFF     ,PTHKF    ,DFMAX    ,TDEL     ,
+     5     OFF      ,FOFF     ,DFMAX    ,TDEL     ,
      6     DMG_FLAG ,DMG_SCALE,ALDT     ,TSTAR    ,ISMSTR   )
 C-----------------------------------------------
 C    tension strain failure model
@@ -67,7 +67,6 @@ C ...     |         |   |   |
 C---------+---------+---+---+--------------------------------------------
 C OFF     | NEL     | F | R | DELETED ELEMENT FLAG (=1. ON, =0. OFF)
 C FOFF    | NEL     | I |R/W| DELETED INTEGRATION POINT FLAG (=1 ON, =0 OFF)
-C PTHKF   |  1      | F | W | PERCENTAGE OF LAYER THICKNESS TO FAIL
 C DFMAX   | NEL     | F |R/W| MAX DAMAGE FACTOR 
 C TDEL    | NEL     | F | W | FAILURE TIME
 C DMG_FLAG|  1      | I | W | STRESS REDUCTION FLAG DUE TO DAMAGE
@@ -91,7 +90,6 @@ C   I N P U T   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ,INTENT(OUT) :: DMG_FLAG
       INTEGER ,DIMENSION(NEL) ,INTENT(INOUT) :: FOFF
-      my_real ,INTENT(OUT) :: PTHKF
       my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: DFMAX
       my_real ,DIMENSION(NEL) ,INTENT(OUT)   :: TDEL,DMG_SCALE
       my_real ,DIMENSION(NEL,NUVAR) ,INTENT(INOUT) :: UVAR
@@ -122,7 +120,6 @@ C=======================================================================
       DMG_FLAG     = 1
       S_FLAG       = 1
       SCALE_FLAG   = 1
-      PTHKF        = EM06      ! % of thickness to fail <=> 1 integration point
       EPSF1        = UPARAM(1)
       EPSF2        = UPARAM(2)
       EPSP1        = UPARAM(3)
@@ -131,7 +128,7 @@ C=======================================================================
 
       DAMAGE(1:NEL)=ZERO
 C-----------------------------------------------
-C!  Initialization of inintial el.length
+C!  Initialization of initial el.length
 C-----------------------------------------------
       SC_EL      = UPARAM(5)
       EL_REF     = UPARAM(6)
@@ -141,29 +138,28 @@ C-----------------------------------------------
       STRDEF= INT(UPARAM(10))
       STRFLAG    = 0
 c
-      IF (TIME == ZERO) THEN
+      IF (UVAR(1,1) == ZERO) THEN
         DO I=1,NEL
           UVAR(I,1) = ALDT(I) 
-
           SELECT CASE (S_FLAG)
-          CASE (2)
-            IF (IFUNC(2) .NE. 0)THEN
-              LAMBDA = UVAR(I,1) / EL_REF
-              FAC = SC_EL * FINTER(IFUNC(2),LAMBDA,NPF,TF,DF) 
-              UVAR(I,1) = FAC
-            ELSE
-              UVAR(I,1) = ONE
-            ENDIF
-          CASE (3)
-            IF (IFUNC(2) .NE. 0)THEN
-              LAMBDA = UVAR(I,1) / EL_REF
-              FAC = SC_EL * FINTER(IFUNC(2),LAMBDA,NPF,TF,DF) 
-              UVAR(I,1) = FAC
-            ELSE
-              UVAR(I,1) = ONE
-            ENDIF
-          CASE DEFAULT    ! old formulation, backward compatibility only
-            UVAR(I,1) = EPSP1
+            CASE (2)
+              IF (IFUNC(2) /= 0)THEN
+                LAMBDA = UVAR(I,1) / EL_REF
+                FAC = SC_EL * FINTER(IFUNC(2),LAMBDA,NPF,TF,DF) 
+                UVAR(I,1) = FAC
+              ELSE
+                UVAR(I,1) = ONE
+              ENDIF
+            CASE (3)
+              IF (IFUNC(2) /= 0)THEN
+                LAMBDA = UVAR(I,1) / EL_REF
+                FAC = SC_EL * FINTER(IFUNC(2),LAMBDA,NPF,TF,DF) 
+                UVAR(I,1) = FAC
+              ELSE
+                UVAR(I,1) = ONE
+              ENDIF
+            CASE DEFAULT    ! old formulation, backward compatibility only
+              UVAR(I,1) = EPSP1
           END SELECT
         ENDDO
       ENDIF
@@ -188,7 +184,7 @@ c------------------------------------
 c
         CASE (1,2)      ! equivalent strain criterion
           IF (STRFLAG == 1 .or. STRFLAG == 4) THEN
-            DO I=1,NEL          
+            DO I=1,NEL          !COMPUTE THE 2 PRINCIPAL VALUES
               EPST_A = HALF*(EPSXX(I)+EPSYY(I))
               EPST_B = SQRT( (HALF*(EPSXX(I)-EPSYY(I)))**2 + (HALF*EPSXY(I))**2)
               EPST1(I)  = EPST_A + EPST_B
@@ -206,13 +202,9 @@ c
           DO I=1,NEL          
             EPST_A = HALF*(EPSXX(I)+EPSYY(I))
             EPST_B = SQRT((HALF*(EPSXX(I)-EPSYY(I)))**2 + (HALF*EPSXY(I))**2)
-            EPST1(I)  = EPST_A + EPST_B
-            EPST2(I)  = EPST_A - EPST_B
-            IF (EPST1(I) > -EPST2(I)) THEN
-              EPS_MAX(I) = EPST1(I)
-            ELSE
-              EPS_MAX(I) = ZERO
-            END IF
+            EPST1(I)   = EPST_A + EPST_B
+            EPST2(I)   = EPST_A - EPST_B
+            EPS_MAX(I) = EPST1(I)
           ENDDO
       END SELECT
 c----------------------------------------------
@@ -378,7 +370,7 @@ c
                 IF (EPSP2 > ZERO) THEN
                   E22 = HALF*( EPSXX(I)+EPSYY(I)
      .                - SQRT( (EPSXX(I)-EPSYY(I))*(EPSXX(I)-EPSYY(I))
-     .                + EPSXY(I)*EPSXY(I) ) )
+     .                + EPSXY(I)*EPSXY(I) ) ) !PRINCIPAL STRAIN MIN
                   IF (STRFLAG == 1) THEN
                     E22 = SQRT(E22 + ONE) - ONE
                   ELSE IF (STRFLAG == 2) THEN
@@ -440,11 +432,11 @@ c
           IF (S_FLAG == 3) THEN
 #include  "lockon.inc"
             WRITE(IOUT, 3001) NGL(I),IPG,ILAY,IPT,EPS_MAX(I)
-            WRITE(ISTDO,3101) NGL(I),IPG,ILAY,IPT,EPS_MAX(I),TIME
+            WRITE(ISTDO,3101) NGL(I),IPG,ILAY,IPT,TIME,EPS_MAX(I)
 #include  "lockoff.inc"
           ELSE
             WRITE(IOUT, 3002) NGL(I),IPG,ILAY,IPT,EPS_MAX(I)
-            WRITE(ISTDO,3102) NGL(I),IPG,ILAY,IPT,EPS_MAX(I),TIME
+            WRITE(ISTDO,3102) NGL(I),IPG,ILAY,IPT,TIME,EPS_MAX(I)
           ENDIF
         END DO
       END IF              
@@ -454,7 +446,7 @@ c
           I = INDX1(J)
 #include  "lockon.inc"
           WRITE(IOUT, 4000) NGL(I),IPG,ILAY,IPT,EPS_MAX(I)
-          WRITE(ISTDO,4100) NGL(I),IPG,ILAY,IPT,EPS_MAX(I),TIME
+          WRITE(ISTDO,4100) NGL(I),IPG,ILAY,IPT,TIME,EPS_MAX(I)
 #include  "lockoff.inc"
         END DO
       END IF              
@@ -464,7 +456,7 @@ c
           I = INDX2(J)
 #include  "lockon.inc"
           WRITE(IOUT, 5000) NGL(I),IPG,ILAY,IPT,EPS_MAX(I)
-          WRITE(ISTDO,5100) NGL(I),IPG,ILAY,IPT,EPS_MAX(I),TIME
+          WRITE(ISTDO,5100) NGL(I),IPG,ILAY,IPT,TIME,EPS_MAX(I)
 #include  "lockoff.inc"
         END DO
       END IF              

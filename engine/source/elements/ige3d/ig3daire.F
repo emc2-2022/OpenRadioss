@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  IGE3DAIRE                     source/elements/ige3d/ig3daire.F
-Chd|-- called by -----------
-Chd|        IG3DUFORC3                    source/elements/ige3d/ig3duforc3.F
-Chd|-- calls ---------------
-Chd|        DERSBASISFUNS                 source/elements/ige3d/dersbasisfuns.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ige3daire       ../engine/source/elements/ige3d/ig3daire.F
+!||--- called by ------------------------------------------------------
+!||    ig3duforc3      ../engine/source/elements/ige3d/ig3duforc3.F
+!||--- calls      -----------------------------------------------------
+!||    dersbasisfuns   ../engine/source/elements/ige3d/dersbasisfuns.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE IGE3DAIRE(ITEL , N     , XXI   , YYI   , ZZI ,
      1                     WWI  , IDX   , IDY   , IDZ   , AIRE, 
      2                     NCTRL, GAUSSX, GAUSSY, GAUSSZ, KX  ,
@@ -100,7 +101,7 @@ C BUILD NUMERATORS AND DENOMINATORS
       SUMXI(2)=ZERO
       SUMXI(3)=ZERO
 
-C BOUCLE SUR TOUT LES POINTS DE CONTROLE 
+C LOOP OVER ALL CONTROL POINTS
 
       DO K = 0,PZ
         DO J = 0,PY

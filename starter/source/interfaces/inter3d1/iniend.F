@@ -1,45 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIEND                        source/interfaces/inter3d1/iniend.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        I6PEN3                        source/interfaces/inter3d1/i6pen3.F
-Chd|        I6STI3                        source/interfaces/inter3d1/i6sti3.F
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        ININT0                        source/interfaces/interf1/inint0.F
-Chd|        INVOI3                        source/interfaces/inter3d1/invoi3.F
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE INIEND(INSCR,X    ,IXS  ,
-     .                  IXC  ,PM   ,GEO  ,IPARI,NOIN ,
-     .                  INTC ,ITAB ,MS   ,NPBY ,LPBY ,
-     .                  MWA  ,IKINE,IN   ,STIFINT,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    iniend                 ../starter/source/interfaces/inter3d1/iniend.F
+!||--- called by ------------------------------------------------------
+!||    inintr2                ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    i6pen3                 ../starter/source/interfaces/inter3d1/i6pen3.F
+!||    i6sti3                 ../starter/source/interfaces/inter3d1/i6sti3.F
+!||    ifrontplus             ../starter/source/spmd/node/frontplus.F
+!||    inint0                 ../starter/source/interfaces/interf1/inint0.F
+!||    invoi3                 ../starter/source/interfaces/inter3d1/invoi3.F
+!||    nlocal                 ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod              ../starter/share/modules1/front_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE INIEND(INSCR,X    ,IXS       ,
+     .                  IXC  ,PM   ,GEO       ,IPARI    ,NOIN ,
+     .                  INTC ,ITAB ,MS        ,NPBY     ,LPBY ,
+     .                  MWA  ,IKINE,IN        ,STIFINT  ,
      .                  ID   ,TITR ,INTBUF_TAB,STIFINTR  )
 C-----------------------------------------------
 C   M o d u l e s
@@ -47,23 +47,16 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE FRONT_MOD
       USE INTBUFDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -74,8 +67,7 @@ C     REAL
       my_real
      .   X(*), PM(*), GEO(*), MS(*), IN(*), STIFINT(*),STIFINTR(*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
 C-----------------------------------------------
@@ -108,39 +100,39 @@ C=======================================================================
       ICOR  =IPARI(58)
 C
       IF (NSPMD > 1) THEN
-C      les interfaces type 7 sont distribuees, les autres centralisees sur P0
+C      interfaces of type 7 are distributed, the others centralized on P0
        INCREM = 1
-C pas de NSN defini en type 16 et interface non spmd compatible
-       IF(NTY.EQ.16.OR.NTY.EQ.17) RETURN
+C No NSN Defini in type 16 and non -SPMD interface compatible
+       IF(NTY==16.OR.NTY==17) RETURN
 C
-       IF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.11.OR.
-     .    NTY.EQ.20.OR.NTY.EQ.21.OR.NTY.EQ.22.OR.
-     .    NTY.EQ.23.OR.NTY.EQ.24.OR.NTY.EQ.25) INCREM = 100
+       IF(NTY==7.OR.NTY==10.OR.NTY==11.OR.
+     .    NTY==20.OR.NTY==21.OR.NTY==22.OR.
+     .    NTY==23.OR.NTY==24.OR.NTY==25) INCREM = 100
 C
-       IF(NTY.EQ.8) THEN
+       IF(NTY==8) THEN
          DO P=1,NSPMD
            DO I=1,NSN
-         !Comment ne donner les SECONDARYs qu'aux procs
+         !How to give the secondarys only to the procs
          
              CALL IFRONTPLUS(INTBUF_TAB%NSV(I),P)
            END DO
          ENDDO
 C
-       ELSEIF(NTY.NE.2) THEN
-	     IF(INCREM==1)THEN
+       ELSEIF(NTY/=2) THEN
+               IF(INCREM==1)THEN
             DO I=1,NSN
-	           CALL IFRONTPLUS(INTBUF_TAB%NSV(I),1)
+                     CALL IFRONTPLUS(INTBUF_TAB%NSV(I),1)
             END DO
             DO I=1,NMN
-               CALL IFRONTPLUS(INTBUF_TAB%MSR(I),1)	   
+               CALL IFRONTPLUS(INTBUF_TAB%MSR(I),1)     
             END DO
-	     ENDIF
+               ENDIF
 C  interface ALE -> c. c. traitees par P0
-         IF(NTY.EQ.1.OR.NTY.EQ.9.OR.NTY.EQ.12)THEN
+         IF(NTY==1.OR.NTY==9.OR.NTY==12)THEN
            INCREM = 10
            DO I=1,NSN
              !set FLAGKIN to 1 for boundary node with
-	            !kinematic constraints (old FRONT TAG=10)	   
+                      !kinematic constraints (old FRONT TAG=10)     
              FLAGKIN(INTBUF_TAB%NSV(I)) = 1
            END DO
            DO I=1,NMN
@@ -148,7 +140,7 @@ C  interface ALE -> c. c. traitees par P0
            END DO
          ENDIF
        ELSE
-         IF (N2D.EQ.0) THEN
+         IF (N2D==0) THEN
            NIR = 4
          ELSE
            NIR = 2
@@ -160,12 +152,12 @@ C  interface ALE -> c. c. traitees par P0
              IF (NLOCAL(N,P)==0) THEN
                GO TO 200
              ENDIF
-c            pas d optimisation possible
+c            No optimization possible
  100         DO JJ=1,NIR
                K = INTBUF_TAB%IRECTM((L-1)*4+JJ)
                CALL IFRONTPLUS(K,P)
              ENDDO
-c            optimisation possible
+c            possible optimization
  200         CONTINUE
            ENDDO
          ENDDO
@@ -173,7 +165,7 @@ c            optimisation possible
       ENDIF
 C
 C
-      IF(NTY.EQ.6) THEN
+      IF(NTY==6) THEN
 C
       !flushed between 2 domain decomposition
       INTBUF_TAB%LNSV(1:NST) = 0
@@ -182,9 +174,9 @@ C
 
        WRITE(IOUT,2001)NOINT,NTY
        CALL ININT0(X,INTBUF_TAB%IRECTS,INTBUF_TAB%NSEGS,INTBUF_TAB%LNSV,INTBUF_TAB%NSV,
-     1               INTBUF_TAB%MSR,INTBUF_TAB%ILOCM,NMN,NSN,NRTS)
+     1               INTBUF_TAB%MSR,INTBUF_TAB%ILOCM,NMN,NSN,NRTS,INTBUF_TAB%S_IRECTS,INTBUF_TAB%S_LNSV)
        CALL ININT0(X,INTBUF_TAB%IRECTM,INTBUF_TAB%NSEGM,INTBUF_TAB%LMSR,INTBUF_TAB%MSR,
-     1               INTBUF_TAB%NSV,INTBUF_TAB%ILOCS,NSN,NMN,NRTM)
+     1               INTBUF_TAB%NSV,INTBUF_TAB%ILOCS,NSN,NMN,NRTM,INTBUF_TAB%S_IRECTM,INTBUF_TAB%S_LMSR)
        CALL I6STI3(INTBUF_TAB%IRECTS,INTBUF_TAB%STFS,NRTS,INTBUF_TAB%STFNS,NSN,
      1             INTBUF_TAB%NSV,XMAS1,MS,NPBY,LPBY,NOINT,ITAB,ID,TITR)
        CALL I6STI3(INTBUF_TAB%IRECTM,INTBUF_TAB%STFM,NRTM,INTBUF_TAB%STFNM,NMN,
@@ -199,19 +191,19 @@ C
        WRITE(IOUT,2002)
        CALL I6PEN3
      1   (X         ,INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,INTBUF_TAB%NSV  ,INTBUF_TAB%ILOCS,
-     2    INTBUF_TAB%IRTLM,INTBUF_TAB%CSTS,INTBUF_TAB%IRTLOM,INTBUF_TAB%VARIABLES(2),NSN	 ,
+     2    INTBUF_TAB%IRTLM,INTBUF_TAB%CSTS,INTBUF_TAB%IRTLOM,INTBUF_TAB%VARIABLES(2),NSN   ,
      3    ITAB      ,IWPENE    ,INTBUF_TAB%FCONT,ICOR        ,ID,
      4    INACTI    ,TITR)
        WRITE(IOUT,2003)
        CALL I6PEN3
      1   (X         ,INTBUF_TAB%IRECTS,INTBUF_TAB%NSV,INTBUF_TAB%MSR  ,INTBUF_TAB%ILOCM,
-     2    INTBUF_TAB%IRTLS,INTBUF_TAB%CSTM,INTBUF_TAB%IRTLOS,INTBUF_TAB%VARIABLES(2),NMN	 ,
+     2    INTBUF_TAB%IRTLS,INTBUF_TAB%CSTM,INTBUF_TAB%IRTLOS,INTBUF_TAB%VARIABLES(2),NMN   ,
      3    ITAB      ,IWPENE    ,INTBUF_TAB%FCONT,ICOR        ,ID,
      4    INACTI    ,TITR)
 C
       ENDIF
 C
-      IF(IWPENE.NE.0) THEN
+      IF(IWPENE/=0) THEN
          CALL ANCMSG(MSGID=342,
      .               MSGTYPE=MSGWARNING,
      .               ANMODE=ANINFO_BLIND_1,
@@ -352,17 +344,16 @@ C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
       END
 
-C nouvelle routine servant uniquement a l initialisation de front pour le spmd
-Chd|====================================================================
-Chd|  INIEND2D                      source/interfaces/inter3d1/iniend.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    iniend2d        ../starter/source/interfaces/inter3d1/iniend.F
+!||--- called by ------------------------------------------------------
+!||    inintr2         ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    ifrontplus      ../starter/source/spmd/node/frontplus.F
+!||    nlocal          ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod       ../starter/share/modules1/front_mod.F
+!||====================================================================
       SUBROUTINE INIEND2D(IPARI,NOIN,MS,INTBUF_TAB )
 C-----------------------------------------------
 C   M o d u l e s
@@ -377,19 +368,12 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NOIN
-      INTEGER IPARI(*)
-      my_real
-     .   MS(*)
+      INTEGER :: NOIN
+      INTEGER :: IPARI(*)
+      my_real :: MS(*)
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
 C-----------------------------------------------
@@ -400,8 +384,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NRTS, NRTM, NSN, NMN, NTY, NOINT,
-     .   I, INCREM, P, II,JJ,NIR,K,N,L
+      INTEGER NRTS, NRTM, NSN, NMN, NTY, NOINT, I, INCREM, P, II,JJ,NIR,K,N,L
 C=======================================================================
       NRTS  =IPARI(3)
       NRTM  =IPARI(4)
@@ -410,12 +393,12 @@ C=======================================================================
       NTY   =IPARI(7)
       NOINT =IPARI(15)
 C
-      IF(IMACH.EQ.3.AND.NSPMD.GT.1) THEN
-C      les interfaces type 7 sont distribuees, les autres centralisees sur P0
+      IF(NSPMD>1) THEN
+C      interfaces of type 7 are distributed, the others centralized on P0
        INCREM = 1
-       IF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.11.OR.NTY.EQ.22) INCREM = 100
+       IF(NTY==7.OR.NTY==10.OR.NTY==11.OR.NTY==22) INCREM = 100
 C
-       IF(NTY.NE.2) THEN
+       IF(NTY/=2) THEN
          IF(INCREM==1)THEN
             DO I=1,NSN
                CALL IFRONTPLUS(INTBUF_TAB%NSV(I),1)
@@ -425,11 +408,11 @@ C
             END DO
          ENDIF
 C interface ALE -> c. c. traitees par P0
-         IF(NTY.EQ.1.OR.NTY.EQ.9.OR.NTY.EQ.12)THEN
+         IF(NTY==1.OR.NTY==9.OR.NTY==12)THEN
            INCREM = 10
            DO I=1,NSN
               !set FLAGKIN to 1 for boundary node with
-	      !kinematic constraints (old FRONT TAG=10)
+                !kinematic constraints (old FRONT TAG=10)
               FLAGKIN(INTBUF_TAB%NSV(I)) = 1
            END DO
            DO I=1,NMN
@@ -437,7 +420,7 @@ C interface ALE -> c. c. traitees par P0
            END DO
          ENDIF
        ELSE
-         IF (N2D.EQ.0) THEN
+         IF (N2D==0) THEN
            NIR = 4
          ELSE
            NIR = 2
@@ -449,12 +432,12 @@ C interface ALE -> c. c. traitees par P0
              IF (NLOCAL(N,P)==0) THEN
                GO TO 200
              ENDIF
-C pas d optimisation possible
+C No optimization possible
  100         DO JJ=1,NIR
                K = INTBUF_TAB%IRECTM((L-1)*4+JJ)
-	           CALL IFRONTPLUS(K,P)
+                     CALL IFRONTPLUS(K,P)
              ENDDO
-C optimisation possible
+C possible optimization
  200         CONTINUE
            ENDDO
          ENDDO

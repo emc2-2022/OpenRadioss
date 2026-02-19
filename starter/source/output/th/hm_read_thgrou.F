@@ -1,75 +1,98 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_THGROU                source/output/th/hm_read_thgrou.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_READ_THGRKI                source/output/th/hm_read_thgrki.F
-Chd|        HM_READ_THGRKI_RBODY          source/output/th/hm_read_thgrki_rbody.F
-Chd|        HM_READ_THGRNE                source/output/th/hm_read_thgrne.F
-Chd|        HM_READ_THGRNS                source/output/th/hm_read_thgrns.F
-Chd|        HM_READ_THGRPA                source/output/th/hm_read_thgrpa.F
-Chd|        HM_READ_THGRPA_SUB            source/output/th/hm_read_thgrpa.F
-Chd|        HM_READ_THGRSURF              source/output/th/hm_read_thgrsurf.F
-Chd|        HM_THGRKI_VENT                source/output/th/hm_thgrki_vent.F
-Chd|        THPRIN                        source/output/th/thprin.F     
-Chd|        THPRIN_SUB                    source/output/th/thprin.F     
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MAPPING_OPTION_MOD            share/modules1/dichotomy_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_thgrou                ../starter/source/output/th/hm_read_thgrou.F
+!||--- called by ------------------------------------------------------
+!||    lectur                        ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                        ../starter/source/output/message/message.F
+!||    fretitl                       ../starter/source/starter/freform.F
+!||    hm_option_count               ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_read_key            ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start               ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_read_thchecksum            ../starter/source/output/th/hm_read_thchecksum.F90
+!||    hm_read_thgrki                ../starter/source/output/th/hm_read_thgrki.F
+!||    hm_read_thgrki_rbody          ../starter/source/output/th/hm_read_thgrki_rbody.F
+!||    hm_read_thgrne                ../starter/source/output/th/hm_read_thgrne.F
+!||    hm_read_thgrns                ../starter/source/output/th/hm_read_thgrns.F
+!||    hm_read_thgrpa                ../starter/source/output/th/hm_read_thgrpa.F
+!||    hm_read_thgrpa_sub            ../starter/source/output/th/hm_read_thgrpa.F
+!||    hm_read_thgrsens              ../starter/source/output/th/hm_read_thgrsens.F
+!||    hm_read_thgrsurf              ../starter/source/output/th/hm_read_thgrsurf.F
+!||    hm_thgrki_vent                ../starter/source/output/th/hm_thgrki_vent.F
+!||    th_titles                     ../starter/source/output/th/th_titles.F90
+!||    thprin                        ../starter/source/output/th/thprin.F
+!||    thprin_sub                    ../starter/source/output/th/thprin.F
+!||    udouble                       ../starter/source/system/sysfus.F
+!||    ulist2s                       ../starter/source/system/sysfus.F
+!||    usr2sys                       ../starter/source/system/sysfus.F
+!||    write_thnms1                  ../starter/source/output/th/write_thnms1.F90
+!||--- uses       -----------------------------------------------------
+!||    checksum_starter_option_mod   ../starter/source/output/checksum/checksum_option.F90
+!||    hm_option_read_mod            ../starter/share/modules1/hm_option_read_mod.F
+!||    hm_read_th_checksum_mod       ../starter/source/output/th/hm_read_thchecksum.F90
+!||    mapping_option_mod            ../starter/share/modules1/dichotomy_mod.F
+!||    message_mod                   ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod             ../starter/share/modules1/monvol_struct_mod.F
+!||    submodel_mod                  ../starter/share/modules1/submodel_mod.F
+!||    th_titles_mod                 ../starter/source/output/th/th_titles.F90
+!||    write_thnms1_mod              ../starter/source/output/th/write_thnms1.F90
+!||====================================================================
       SUBROUTINE HM_READ_THGROU(
-     1      ITHGRP,ITHBUF,ITAB   ,ITABM1,IXUR  ,IXTG  ,
-     2      IXS   ,IXQ   ,IXC    ,IXT   ,IXP   ,IXR   ,
-     3      KXX   ,IXX   ,IPART  ,IFI   ,
-     4      NTHWA ,KXSP  ,IXRI  ,ISKWN ,IFRAME ,
-     5      NTHGRP2 ,PATHID ,SUTHID ,FXBIPM ,IPARTH ,NPARTH ,
-     6      NVPARTH ,NVSUBTH,IMERGE ,ITHVAR ,
-     7      FLAGABF,NVARABF ,NOM_OPT,PTR_NOPT_FXBY,PTR_NOPT_INTER,
-     8      PTR_NOPT_RWALL,PTR_NOPT_SECT,PTR_NOPT_JOINT,
-     9      PTR_NOPT_MONV,PTR_NOPT_ACC,PTR_NOPT_SKW,PTR_NOPT_GAU,
-     A      PTR_NOPT_CLUS,PTR_NOPT_SPHIO,ISPHIO,RFI,T_MONVOL,
-     B      IGRSURF ,SUBSET ,ITHFLAG,NPBY,LSUBMODEL,IPARG,
-     C      IPARTS  ,IPARTQ ,IPARTC ,IPARTT  ,IPARTP  ,IPARTR ,
-     D      IPARTG  ,IPARTX ,IPARTSP ,IPARTIG3D, LITHBUFMX,
-     E      MAP_TABLES, IFLAG,PTR_NOPT_SLIPRING,PTR_NOPT_RETRACTOR)
+     1      ITHGRP        ,ITHBUF        ,ITAB             ,ITABM1            ,IXTG          ,
+     2      IXS           ,IXQ           ,IXC              ,IXT               ,IXP           ,
+     3      IXR           ,KXX           ,IXX              ,IPART             ,IFI           ,
+     4      NTHWA         ,KXSP          ,IXRI             ,ISKWN             ,IFRAME        ,
+     5      NTHGRP2       ,PATHID        ,SUTHID           ,FXBIPM            ,IPARTH        ,
+     6      NPARTH        ,NVPARTH       ,NVSUBTH          ,IMERGE            ,ITHVAR        ,
+     7      FLAGABF       ,NVARABF       ,NOM_OPT          ,PTR_NOPT_FXBY     ,PTR_NOPT_INTER,
+     8      PTR_NOPT_RWALL,PTR_NOPT_SECT ,PTR_NOPT_JOINT   ,
+     9      PTR_NOPT_MONV ,PTR_NOPT_ACC  ,PTR_NOPT_SKW     ,PTR_NOPT_GAU,
+     A      PTR_NOPT_CLUS ,PTR_NOPT_SPHIO,ISPHIO           ,RFI               ,T_MONVOL      ,
+     B      IGRSURF       ,SUBSET        ,ITHFLAG          ,NPBY              ,LSUBMODEL     ,IPARG,
+     C      IPARTS        ,IPARTQ        ,IPARTC           ,IPARTT            ,IPARTP        ,IPARTR ,
+     D      IPARTG        ,IPARTX        ,IPARTSP          ,IPARTIG3D         ,LITHBUFMX     ,
+     E      MAP_TABLES    ,IFLAG         ,PTR_NOPT_SLIPRING,PTR_NOPT_RETRACTOR,SENSORS       ,
+     F      INTERFACES    ,IPARI         ,DUMP_THNMS1_FILE ,ITHERM_FE         ,CHECKSUM      ,
+     G      NSUBDOM       ,IPRI)
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
       USE MONVOL_STRUCT_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
       USE MAPPING_OPTION_MOD
+      USE SENSOR_MOD
+      USE INTERFACES_MOD
+      USE th_titles_mod
+      USE write_thnms1_mod
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARLINE
+      USE USER_ID_MOD , ONLY : ID_LIMIT
+      USE checksum_output_option_mod
+      USE checksum_starter_option_mod
+      use hm_read_th_checksum_mod
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -79,29 +102,26 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr23_c.inc"
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com10_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
 #include      "sphcom.inc"
 #include      "fxbcom.inc"
-#include      "submod_c.inc"
-#include      "r2r_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER,INTENT(IN) :: NSUBDOM
+      INTEGER,INTENT(IN) :: IPRI
       INTEGER,INTENT(IN) :: LITHBUFMX
-      INTEGER ITAB(*),ITABM1(*), IFLAG,
-     .        IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*),IXT(NIXT,*),
-     .        IXP(NIXP,*),IXR(NIXR,*),IXTG(NIXTG,*),KXX(NIXX,*),
+      INTEGER,INTENT(IN) :: ITHERM_FE
+      INTEGER ITAB(NUMNOD),ITABM1(*), IFLAG,
+     .        IXS(NIXS,NUMELS),IXQ(NIXQ,NUMELQ),IXC(NIXC,NUMELC),IXT(NIXT,NUMELT),
+     .        IXP(NIXP,NUMELP),IXR(NIXR,NUMELR),IXTG(NIXTG,NUMELTG),KXX(NIXX,*),
      .        IXX(*),IPART(LIPART1,*),ITHGRP(NITHGR,*),ITHBUF(LITHBUFMX),
-     .        IXUR(NIXUR,*),IMERGE(*),
+     .        IMERGE(*),
      .        IFI,NTHWA,KXSP(NISP,*),IXRI(4,*),
-     .        IFRAME(LISKN,*), NTHGRP2,PATHID(*),SUTHID(*),
+     .        IFRAME(LISKN,NUMFRAM+1), NTHGRP2,PATHID(*),SUTHID(*),
      .        FXBIPM(NBIPM,*),ISKWN(LISKN,*),
      .        NPARTH,IPARTH(NPARTH,*),NVPARTH,ITYP,
      .        NVSUBTH,ITHVAR(*),FLAGABF,NVARABF,
@@ -115,26 +135,33 @@ C-----------------------------------------------
       INTEGER, TARGET :: IPARTS(NUMELS),IPARTQ(NUMELQ),IPARTC(NUMELC),
      .        IPARTT(NUMELT),IPARTP(NUMELP),IPARTR(NUMELR),IPARTG(NUMELTG),
      .        IPARTX(NUMELX),IPARTSP(NUMSPH),IPARTIG3D(NUMELIG3D)
+      INTEGER,INTENT(INOUT) :: IPARI(NPARI,NINTER)
       TYPE(MONVOL_STRUCT_), DIMENSION(NVOLU), INTENT(IN) :: T_MONVOL
-      TYPE(SUBMODEL_DATA) LSUBMODEL(*)
-      TYPE(MAPPING_STRUCT_), INTENT(IN) :: MAP_TABLES
+      TYPE (SUBMODEL_DATA) ,DIMENSION(NSUBMOD) ,INTENT(IN) :: LSUBMODEL
+      TYPE(MAPPING_STRUCT_),INTENT(IN) :: MAP_TABLES
+      TYPE (INTERFACES_)   ,INTENT(INOUT):: INTERFACES
+      TYPE (SENSORS_) ,INTENT(IN) :: SENSORS
 C-----------------------------------------------
       TYPE (SUBSET_) , DIMENSION(NSUBS) :: SUBSET
       TYPE (SURF_)   , DIMENSION(NSURF) :: IGRSURF
+      INTEGER, INTENT(IN)::  DUMP_THNMS1_FILE
+      TYPE(checksum_option_) , INTENT(IN) :: checksum
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER J,JJ,II, I,ISU,ID,NOSYS,J10(10),NTOT,KK,IER,
      .        OK,IGS,IGRS,NSU,K,L,CONT,IAD0,IADV,NTRI,NL,
      .        IFITMP,IADFIN,NUMEL,NV,NVAR,M,N,IAD2,IAD,NSNE,NNE,ISK,
-     .        NVALL,TAGP,TAGS,IFIX_TMP,IBID
-      CHARACTER TITR*nchartitle,MESS*40,KEY*ncharline,COPT*ncharline,
-     .        TITR1*nchartitle
-C
-      INTEGER NVARN,NVARS,NVARC,NVART,NVARP,NVARR,NVARUR
+     .        NVALL,TAGP,TAGS,IFIX_TMP,IBID,NIN
+      CHARACTER(LEN=NCHARTITLE) :: TITR,TITR1
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARLINE) :: KEY,COPT
+      INTEGER NVARN,NVARN1,NVARN1A,NVARN2,NVARNPINCH,NVARS,NVARC,NVART,NVARP,NVARR,NVARUR
+      INTEGER NVARS1,NVARS2,NVARS3,NVARS4,NVARS5,NVARS6,NVARS7,NVARS8,NVARS9,NVARS10,NVARSNLOC
       INTEGER NVARNS,NVARSPH
       INTEGER NVARIN,NVARRW,NVARRB,NVARAC,NVARSE,NVARJO,NVARFX,NVARFXM
-      INTEGER NVARAB,NVARMV4,NVARMV,NVARPA,NVARMVENT
+      INTEGER NVARAB,NVARMV4,NVARMV,NVARPA,NVARMVENT,NVARSENS,NVARSENSG
+      INTEGER NVARCHECKSUM,NVARCHECKSUMG
       INTEGER NVARF1,NVARFR,NVARGAU,NVARCLUS,NVARCLUSG,NVARFLOW,NVARSURF
       INTEGER NVARRIV,NVARRIVG,NVARSLIP,NVARRET,NSELRT,INOUT
       INTEGER HM_NTHGRP,NTHACCEL,NTHINTER,NTHRWALL,NTHSECTIO,NTHCLUS
@@ -142,29 +169,39 @@ C
       INTEGER NTHMONVOL,HM_NTHPART ,NUMTHPART, HM_NTHSUBS, HM_NTHSURF
       INTEGER HM_NTHSPHCEL, HM_NTHQUAD, HM_NTHSPHFLOW
       INTEGER HM_NTHGAUGE, HM_NTHFXBODY, HM_NTHFRAME, HM_NTHCYLJO, HM_NTHNSTRAND   
-      INTEGER HM_NTHTRIA,HM_NTHSLIPRING,HM_NTHRETRACTOR
+      INTEGER HM_NTHTRIA,HM_NTHSLIPRING,HM_NTHRETRACTOR,HM_NTHSENS,HM_NTHCHECKSUM
       PARAMETER (NVARRIV = 10,NVARRIVG = 1)
       INTEGER IVARRIV(18,NVARRIVG)
       CHARACTER*10 VARRIV(NVARRIV),VARRIVG(NVARRIVG)
 C-----------------------------------------------
-      PARAMETER (NVARN = 637,NVARS =239552 ,NVARC = 37854,NVART = 6)
-      PARAMETER (NVARP = 8,NVARR = 65,NVARUR = 12)
+      PARAMETER (NVARN1 = 19,NVARN1A = 600,NVARN2 = 10 ,NVARNPINCH = 9)
+      PARAMETER (NVARS1 = 196,NVARS2 = 567,NVARS3 = 369,NVARS4 = 492,NVARS5 = 22)
+      PARAMETER (NVARS6 = 97200,NVARS7 = 97200,NVARS8 = 516,NVARS9 = 6,NVARS10 = 1,NVARSNLOC = 2)
+      PARAMETER (NVARS =239555 ,NVARC = 37856,NVART = 6)
+      PARAMETER (NVARP = 337,NVARR = 66,NVARUR = 12)
       PARAMETER (NVARNS = 4,NVARSPH = 41)
-      PARAMETER (NVARIN = 28,NVARRW = 6,NVARRB =15,NVARFX =4)
+      PARAMETER (NVARIN = 29,NVARRW = 6,NVARRB =15,NVARFX =4)
       PARAMETER (NVARFXM = 3)
       PARAMETER (NVARAC = 6,NVARSE =39,NVARJO = 6)
       PARAMETER (NVARAB = 7,NVARMV4= 9,NVARMV = 19,NVARMVENT = 150)
-      PARAMETER (NVARPA =28)
-      PARAMETER (NVARF1 = 18,NVARFR = 24,NVARGAU = 8,NVARCLUS=11,NVARFLOW=1,
-     .           NVARSURF = 3,NVARSLIP=6,NVARRET=3)
-      CHARACTER*10 VARN(NVARN),VARS(NVARS),VARC(NVARC),VART(NVART)
+      PARAMETER (NVARPA = 32)
+      PARAMETER (NVARF1 = 18,NVARFR = 24,NVARGAU = 8,NVARCLUS=11,NVARFLOW=1,NVARSURF = 6,NVARSLIP=6,NVARRET=3)
+      CHARACTER*10, DIMENSION(:), ALLOCATABLE :: VARN
+      CHARACTER*10 :: VART(NVART)
       CHARACTER*10 VARP(NVARP),VARR(NVARR),VARUR(NVARUR)
-      CHARACTER*10 VARS1(196),VARS2(567), VARS3(369), VARS4(492),
-     .             VARS5(22),VARS6(118692),VARS7(118692),VARN1(19),
-     .             VARN2(9),
-     .             VARNPINCH(9),
-     .             VARSG1(202),VARSG2(19782),VARSG3(19782),VARSG4(1),
-     .             VARS8(516),VARS9(6)
+      CHARACTER(LEN=10),DIMENSION(:),ALLOCATABLE::VARS
+      CHARACTER(LEN=10),DIMENSION(:),ALLOCATABLE::VARC
+      CHARACTER*10 VARS1(NVARS1),VARS2(NVARS2), VARS3(NVARS3), VARS4(NVARS4),
+     .             VARS5(NVARS5),VARS8(NVARS8),VARS9(NVARS9),VARS10(NVARS10),
+     .             VARN1(NVARN1),VARN1A(NVARN1A),
+     .             VARN2(NVARN2),
+     .             VARNPINCH(NVARNPINCH),
+     .             VARSG1(202),VARSG4(1),
+     .             VARSNLOC(NVARSNLOC)
+      CHARACTER(LEN=10),DIMENSION(:),ALLOCATABLE::VARS6
+      CHARACTER(LEN=10),DIMENSION(:),ALLOCATABLE::VARS7
+      CHARACTER(LEN=10),DIMENSION(:),ALLOCATABLE::VARSG2
+      CHARACTER(LEN=10),DIMENSION(:),ALLOCATABLE::VARSG3
       CHARACTER*10 VARNS(NVARNS),VARSPH(NVARSPH)
       CHARACTER*10 VARIN(NVARIN),VARRW(NVARRW),VARRB(NVARRB)
       CHARACTER*10 VARAC(NVARAC),VARSE(NVARSE),VARJO(NVARJO)
@@ -190,20 +227,25 @@ C-----------------------------------------------
       PARAMETER (NVARPAG = 1)
       PARAMETER (NVARF1G = 3,NVARFRG = 4,NVARGAUG = 1,NVARCLUSG=2,NVARFLOWG=1,
      .           NVARSURFG = 1,NVARSLIPG=1,NVARRETG = 1)
-      CHARACTER*10 VARNG(NVARNG),VARSG(NVARSG)
+      PARAMETER (NVARSENS = 1,NVARSENSG = 1)
+      PARAMETER (NVARCHECKSUM = 1,NVARCHECKSUMG = 1)
+      CHARACTER*10 VARNG(NVARNG)
       CHARACTER*10 VARCG(NVARCG),VARTG(NVARTG)
       CHARACTER*10 VARPG(NVARPG),VARRG(NVARRG),VARURG(NVARURG)
       CHARACTER*10 VARNSG(NVARNSG),VARSPG(NVARSPG)
       CHARACTER*10 VARING(NVARING),VARRWG(NVARRWG),VARRBG(NVARRBG)
       CHARACTER*10 VARACG(NVARACG),VARSEG(NVARSEG),VARJOG(NVARJOG)
       CHARACTER*10 VARABG(NVARABG),VARMVG4(NVARMG4),VARMVG(NVARMVG),
-     .             VARMVENTG(NVARMVENTG)
+     .             VARMVENTG(NVARMVENTG),VARSENS(NVARSENS),VARSENSG(NVARSENSG),
+     .             VARCHECKSUM(NVARCHECKSUM),VARCHECKSUMG(NVARCHECKSUMG)
       CHARACTER*10 VARPAG(NVARPAG),VARFXG(NVARFXG),VARFXMG(NVARFXMG)
       CHARACTER*10 VARF1G(NVARF1G),VARFRG(NVARFRG),VARGAUG(NVARGAUG)
       CHARACTER*10 VARCLUSG(NVARCLUSG),VARFLOWG(NVARFLOWG)
       CHARACTER*10 VARSURFG(NVARSURFG),VARSLIPG(NVARSLIPG),VARRETG(NVARRETG)
+      INTEGER,DIMENSION(:,:),ALLOCATABLE :: IVARSG
+      CHARACTER(LEN=10),DIMENSION(:),ALLOCATABLE:: VARSG
 C-----------------------------------------------
-      INTEGER IVARNG(18,NVARNG),IVARSG(18,NVARSG)
+      INTEGER IVARNG(18,NVARNG)
       INTEGER IVARCG(18,NVARCG),IVARTG(18,NVARTG)
       INTEGER IVARPG(18,NVARPG),IVARRG(18,NVARRG),IVARURG(18,NVARURG)
       INTEGER IVARNSG(18,NVARNSG),IVARSPG(18,NVARSPG),IVNS2R(18,NVARNSG)
@@ -212,12 +254,13 @@ C-----------------------------------------------
       INTEGER IVARSEG(18,NVARSEG),IVARJOG(18,NVARJOG)
       INTEGER IVARABG(18,NVARABG),IVARMG4(18,NVARMG4),
      .        IVARMVG(18,NVARMVG),IVARMVENTG(18,NVARMVENTG)
-      INTEGER IVARPAG(18,NVARPAG),IVARFXG(18,NVARFXG)
+      INTEGER IVARPAG(18,NVARPAG),IVARFXG(18,NVARFXG),IVARSENSG(18,NVARSENSG)
       INTEGER IVARFXMG(18,NVARFXMG)
       INTEGER IVARF1G(18,NVARF1G),IVARFRG(18,NVARFRG),
      .        IVARGAUG(18,NVARGAUG),IVARCLUSG(18,NVARCLUSG),
      .        IVARFLOWG(18,NVARFLOWG),IVARSURFG(18,NVARSURFG),
-     .        IVARSLIPG(18,NVARSLIPG),IVARRETG(18,NVARRETG)
+     .        IVARSLIPG(18,NVARSLIPG),IVARRETG(18,NVARRETG),
+     .        IVARCHECKSUMG(18,NVARCHECKSUMG)
       INTEGER NSMA
       INTEGER IUN,INODACC,INODFRA
       INTEGER NNOD, NSHEL, NTRUS, NBEAM, NSPRG, NCHTG, NCHINT, NCHJNT,
@@ -231,11 +274,31 @@ C-----------------------------------------------
        CHARACTER  CHI*1,CHJ*3,CHK*1,CHJS*1
        CHARACTER*10 VARC2(574),VARC1(208),VARCG1(167),VARCG2(407), VAR ,
      .              VAR_TMP,VARC3(500),VARCG3(100),
-     .              VARCGPINCH(1),VARCPINCH(7)
+     .              VARCGPINCH(1),VARCPINCH(7),VARCNLOC(2)
        CHARACTER*80 STR, MES
        LOGICAL :: IS_AVAILABLE
       INTEGER, DIMENSION(:), POINTER :: IPARTEL_P
       CHARACTER THFILE*4
+      
+      CHARACTER(LEN=100),DIMENSION(:),ALLOCATABLE:: VARN1_TITLE,VARN1A_TITLE,VARN2_TITLE,VARNPINCH_TITLE,
+     .                              VARP_TITLE,VARR_TITLE,VART_TITLE,
+     .                              VARS1_TITLE,VARS2_TITLE,VARS3_TITLE,VARS4_TITLE,
+     .                              VARS5_TITLE,VARS6_TITLE,VARS7_TITLE,VARS8_TITLE,VARS9_TITLE,VARS10_TITLE,
+     .                              VARC_TITLE,
+     .                              VARSNLOC_TITLE,VARNS_TITLE,VARSPH_TITLE,
+     .                              VARIN_TITLE,VARRW_TITLE,VARRB_TITLE,
+     .                              VARMV_TITLE,VARSE_TITLE,VARAC_TITLE,
+     .                              VARJO_TITLE,VARMVENT_TITLE,
+     .                              VARPA_TITLE,VARFX_TITLE,
+     .                              VARGAU_TITLE,VARFR_TITLE,
+     .                              VARSLIP_TITLE,VARRET_TITLE,
+     .                              VARCLUS_TITLE,VARFLOW_TITLE,
+     .                              VARSURF_TITLE,VARSENS_TITLE
+     
+        INTEGER :: LEN_TITLE
+        INTEGER :: LEN_CHECKSUM
+        CHARACTER(LEN=NCHARLINE):: CHECKSUM_TITLE
+        CHARACTER(LEN=64):: DECK_CHECKSUM
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -245,9 +308,74 @@ C   D a t a
 C-----------------------------------------------
       DATA MESS/'TH GROUP DEFINITION                     '/
       DATA IUN/1/
+      
+C-----------------------------------------------
+C   TH TITLES
+C   DON T MISS TO ADD TH TITLES FOR NEW TH OPTIONS 
+C-----------------------------------------------
+
+      NVARN = NVARN1 + NVARN1A + NVARN2 + NVARNPINCH
+      ALLOCATE(VARN(NVARN))
+
+
+      ALLOCATE(VARN1_TITLE(NVARN1),VARN1A_TITLE(NVARN1A),VARN2_TITLE(NVARN2),VARNPINCH_TITLE(NVARNPINCH),
+     .         VARP_TITLE(NVARP),VARR_TITLE(NVARR),VART_TITLE(NVART),
+     .         VARS1_TITLE(NVARS1),VARS2_TITLE(NVARS2),VARS3_TITLE(NVARS3),VARS4_TITLE(NVARS4),
+     .         VARS5_TITLE(NVARS5),VARS6_TITLE(NVARS6),VARS7_TITLE(NVARS7),VARS8_TITLE(NVARS8),VARS9_TITLE(NVARS9),
+     .         VARC_TITLE(NVARC),VARS10_TITLE(NVARS10),
+     .         VARSNLOC_TITLE(NVARSNLOC),VARNS_TITLE(NVARNS),VARSPH_TITLE(NVARSPH),
+     .         VARIN_TITLE(NVARIN),VARRW_TITLE(NVARRW),VARRB_TITLE(NVARRB),
+     .         VARMV_TITLE(NVARMV),VARSE_TITLE(NVARSE),VARAC_TITLE(NVARAC),
+     .         VARJO_TITLE(NVARJO),VARMVENT_TITLE(NVARMVENT),
+     .         VARPA_TITLE(NVARPA),VARFX_TITLE(NVARFX),
+     .         VARGAU_TITLE(NVARGAU),VARFR_TITLE(NVARFR),
+     .         VARSLIP_TITLE(NVARSLIP),VARRET_TITLE(NVARRET),
+     .         VARCLUS_TITLE(NVARCLUS),VARFLOW_TITLE(NVARFLOW),
+     .         VARSURF_TITLE(NVARSURF),VARSENS_TITLE(1))
+
+    
+      CALL TH_TITLES(
+     1      NVARN1        ,NVARN1A       ,NVARN2           ,NVARNPINCH        ,NVARS1           ,
+     1      NVARS2        ,NVARS3        ,NVARS4           ,NVARS5            ,NVARS6           ,
+     1      NVARS7        ,NVARS8        ,NVARS9           ,NVARS10           ,NVARSNLOC        ,
+     1      NVARP         ,NVARR         ,NVART            ,NVARNS            ,NVARSPH          ,
+     2      NVARIN        ,NVARRW        ,NVARRB           ,NVARMV            ,NVARSE           ,
+     3      NVARAC        ,NVARJO        ,NVARMVENT        ,NVARPA            ,NVARFX           ,
+     4      NVARGAU       ,NVARFR        ,NVARSLIP         ,NVARRET           ,NVARCLUS         ,
+     5      NVARFLOW      ,NVARSURF      ,NVARC            ,NVARSENS          ,
+     a      VARN1_TITLE   ,VARN1A_TITLE  ,VARN2_TITLE      ,
+     a      VARNPINCH_TITLE,VARP_TITLE   ,VARR_TITLE       ,VART_TITLE        ,
+     6      VARS1_TITLE   ,VARS2_TITLE   ,VARS3_TITLE      ,VARS4_TITLE       ,VARS5_TITLE      ,
+     6      VARS6_TITLE   ,VARS7_TITLE   ,VARS8_TITLE      ,VARS9_TITLE       ,VARSNLOC_TITLE   ,
+     6      VARC_TITLE    ,VARS10_TITLE  ,
+     7      VARNS_TITLE   ,VARSPH_TITLE  ,VARIN_TITLE      ,
+     8      VARRW_TITLE   ,VARRB_TITLE   ,VARMV_TITLE      ,VARSE_TITLE       ,VARAC_TITLE      ,
+     9      VARJO_TITLE   ,VARMVENT_TITLE,VARPA_TITLE      ,VARFX_TITLE       ,VARGAU_TITLE     ,
+     A      VARFR_TITLE   ,VARSLIP_TITLE ,VARRET_TITLE     ,VARCLUS_TITLE     ,VARFLOW_TITLE    ,
+     B      VARSURF_TITLE ,VARSENS_TITLE )
+
 C-----------------------------------------------
 C   TH VARIABLES
 C-----------------------------------------------
+      ! Allocate temporary Arrays
+      ! Character Arrays - ue ALLOCATEkm
+      ALLOCATE(VARS6(97200))
+      VARS6(1:97200) = ' '
+      ALLOCATE(VARS7(97200))
+      VARS7(1:97200) = ' '
+      ALLOCATE(VARSG2(19782))
+      VARSG2(1:19782) = ' '
+      ALLOCATE(VARSG3(19782))
+      VARSG3(1:19782) = ' '
+      ALLOCATE(VARS(NVARS))
+      VARS(1:NVARS) = ' '
+      ALLOCATE(VARC(NVARC))
+      VARC(1:NVARC) = ' '
+      ALLOCATE(VARSG(NVARSG))
+      VARSG(1:NVARSG) = ' '
+
+      ! INTEGER Arrays - use MY_ALLOC
+      CALL MY_ALLOC(IVARSG,18,NVARSG)
 C   nodes
       DATA VARN1/'DX      ','DY      ','DZ      ',
      .           'VX      ','VY      ','VZ      ',
@@ -258,7 +386,8 @@ C   nodes
      .           'TEMP    '/
       DATA VARN2/'REACX   ','REACY   ','REACZ   ',
      .           'REACXX  ','REACYY  ','REACZZ  ',
-     .           'DRX     ','DRY     ','DRZ     '/
+     .           'DRX     ','DRY     ','DRZ     ',
+     .           'PEXT    '/
       DATA VARNPINCH/
      .          'APINCHX ','APINCHY ','APINCHZ ',
      .          'VPINCHX ','VPINCHY ','VPINCHZ ',
@@ -551,9 +680,9 @@ C
 C Definition of VARS6 : strain for /PROP/TYPE22
 C=======================================================================
       DO J=1,200
-        IF (J .LE. 9) THEN
+        IF (J <= 9) THEN
           WRITE(CHJ,'(I1.1)')J
-        ELSEIF (J .LE. 99) THEN
+        ELSEIF (J <= 99) THEN
           WRITE(CHJ,'(I2.2)')J
         ELSE
           WRITE(CHJ,'(I3.3)')J
@@ -577,9 +706,9 @@ C=======================================================================
       ENDDO
 C Definition of VARS7 : stress for /PROP/TYPE22
       DO J=1,200
-        IF (J .LE. 9) THEN
+        IF (J <= 9) THEN
           WRITE(CHJ,'(I1.1)')J
-        ELSEIF (J .LE. 99) THEN
+        ELSEIF (J <= 99) THEN
           WRITE(CHJ,'(I2.2)')J
         ELSE
           WRITE(CHJ,'(I3.3)')J
@@ -660,6 +789,13 @@ C Definition of VARS8 : strain matrix output
       DATA VARS9/
      . 'VX      ','VY      ','VZ      ','SSP     ','MACH    ',
      . 'VK      '/
+
+      DATA VARSNLOC/
+     . 'NL_PLAS ','NL_PLSR '/
+
+      DATA VARS10/
+     . 'VSTRAIN ' /
+
 
 C   shells
 c  VARC = VARC1 + VARC2 + VARC3
@@ -885,6 +1021,8 @@ c  VARC = VARC1 + VARC2 + VARC3
       DATA VARCPINCH/
      .'EPINCHXZ','EPINCHYZ','EPINCHZZ','FPINCH  ','MPINCHXZ','MPINCHYZ',
      .'THK     '/
+      DATA VARCNLOC/
+     .'NL_PLAS ','NL_EPSD '/
 C   trusses
       DATA VART/
      . 'OFF     ','F       ','IE      ','A       ','L       ',
@@ -892,7 +1030,73 @@ C   trusses
 C   beams
       DATA VARP/
      . 'OFF     ','F1      ','F2      ','F3      ','M1      ',
-     . 'M2      ','M3      ','IE      '/
+     . 'M2      ','M3      ','IE      ','SX      ','SXY     ',
+     . 'SZX     ','SX_1    ','SXY_1   ','SZX_1   ','SX_2    ',
+     . 'SXY_2   ','SZX_2   ','SX_3    ','SXY_3   ','SZX_3   ',
+     . 'SX_4    ','SXY_4   ','SZX_4   ','SX_5    ','SXY_5   ',
+     . 'SZX_5   ','SX_6    ','SXY_6   ','SZX_6   ','SX_7    ',
+     . 'SXY_7   ','SZX_7   ','SX_8    ','SXY_8   ','SZX_8   ',
+     . 'SX_9    ','SXY_9   ','SZX_9   ','SX_10   ','SXY_10  ',
+     . 'SZX_10  ','SX_11   ','SXY_11  ','SZX_11  ','SX_12   ',
+     . 'SXY_12  ','SZX_12  ','SX_13   ','SXY_13  ','SZX_13  ',
+     . 'SX_14   ','SXY_14  ','SZX_14  ','SX_15   ','SXY_15  ',
+     . 'SZX_15  ','SX_16   ','SXY_16  ','SZX_16  ','SX_17   ',
+     . 'SXY_17  ','SZX_17  ','SX_18   ','SXY_18  ','SZX_18  ',
+     . 'SX_19   ','SXY_19  ','SZX_19  ','SX_20   ','SXY_20  ',
+     . 'SZX_20  ','SX_21   ','SXY_21  ','SZX_21  ','SX_22   ',
+     . 'SXY_22  ','SZX_22  ','SX_23   ','SXY_23  ','SZX_23  ',
+     . 'SX_24   ','SXY_24  ','SZX_24  ','SX_25   ','SXY_25  ',
+     . 'SZX_25  ','SX_26   ','SXY_26  ','SZX_26  ','SX_27   ',
+     . 'SXY_27  ','SZX_27  ','SX_28   ','SXY_28  ','SZX_28  ',
+     . 'SX_29   ','SXY_29  ','SZX_29  ','SX_30   ','SXY_30  ',
+     . 'SZX_30  ','SX_31   ','SXY_31  ','SZX_31  ','SX_32   ',
+     . 'SXY_32  ','SZX_32  ','SX_33   ','SXY_33  ','SZX_33  ',
+     . 'SX_34   ','SXY_34  ','SZX_34  ','SX_35   ','SXY_35  ',
+     . 'SZX_35  ','SX_36   ','SXY_36  ','SZX_36  ','SX_37   ',
+     . 'SXY_37  ','SZX_37  ','SX_38   ','SXY_38  ','SZX_38  ',
+     . 'SX_39   ','SXY_39  ','SZX_39  ','SX_40   ','SXY_40  ',
+     . 'SZX_40  ','SX_41   ','SXY_41  ','SZX_41  ','SX_42   ',
+     . 'SXY_42  ','SZX_42  ','SX_43   ','SXY_43  ','SZX_43  ',
+     . 'SX_44   ','SXY_44  ','SZX_44  ','SX_45   ','SXY_45  ',
+     . 'SZX_45  ','SX_46   ','SXY_46  ','SZX_46  ','SX_47   ',
+     . 'SXY_47  ','SZX_47  ','SX_48   ','SXY_48  ','SZX_48  ',
+     . 'SX_49   ','SXY_49  ','SZX_49  ','SX_50   ','SXY_50  ',
+     . 'SZX_50  ','SX_51   ','SXY_51  ','SZX_51  ','SX_52   ',
+     . 'SXY_52  ','SZX_52  ','SX_53   ','SXY_53  ','SZX_53  ',
+     . 'SX_54   ','SXY_54  ','SZX_54  ','SX_55   ','SXY_55  ',
+     . 'SZX_55  ','SX_56   ','SXY_56  ','SZX_56  ','SX_57   ',
+     . 'SXY_57  ','SZX_57  ','SX_58   ','SXY_58  ','SZX_58  ',
+     . 'SX_59   ','SXY_59  ','SZX_59  ','SX_60   ','SXY_60  ',
+     . 'SZX_60  ','SX_61   ','SXY_61  ','SZX_61  ','SX_62   ',
+     . 'SXY_62  ','SZX_62  ','SX_63   ','SXY_63  ','SZX_63  ',
+     . 'SX_64   ','SXY_64  ','SZX_64  ','SX_65   ','SXY_65  ',
+     . 'SZX_65  ','SX_66   ','SXY_66  ','SZX_66  ','SX_67   ',
+     . 'SXY_67  ','SZX_67  ','SX_68   ','SXY_68  ','SZX_68  ',
+     . 'SX_69   ','SXY_69  ','SZX_69  ','SX_70   ','SXY_70  ',
+     . 'SZX_70  ','SX_71   ','SXY_71  ','SZX_71  ','SX_72   ',
+     . 'SXY_72  ','SZX_72  ','SX_73   ','SXY_73  ','SZX_73  ',
+     . 'SX_74   ','SXY_74  ','SZX_74  ','SX_75   ','SXY_75  ',
+     . 'SZX_75  ','SX_76   ','SXY_76  ','SZX_76  ','SX_77   ',
+     . 'SXY_77  ','SZX_77  ','SX_78   ','SXY_78  ','SZX_78  ',
+     . 'SX_79   ','SXY_79  ','SZX_79  ','SX_80   ','SXY_80  ',
+     . 'SZX_80  ','SX_81   ','SXY_81  ','SZX_81  ','EPSP    ',
+     . 'EPSP_1  ','EPSP_2  ','EPSP_3  ','EPSP_4  ','EPSP_5  ',
+     . 'EPSP_6  ','EPSP_7  ','EPSP_8  ','EPSP_9  ','EPSP_10 ',
+     . 'EPSP_11 ','EPSP_12 ','EPSP_13 ','EPSP_14 ','EPSP_15 ',
+     . 'EPSP_16 ','EPSP_17 ','EPSP_18 ','EPSP_19 ','EPSP_20 ',
+     . 'EPSP_21 ','EPSP_22 ','EPSP_23 ','EPSP_24 ','EPSP_25 ',
+     . 'EPSP_26 ','EPSP_27 ','EPSP_28 ','EPSP_29 ','EPSP_30 ',
+     . 'EPSP_31 ','EPSP_32 ','EPSP_33 ','EPSP_34 ','EPSP_35 ',
+     . 'EPSP_36 ','EPSP_37 ','EPSP_38 ','EPSP_39 ','EPSP_40 ',
+     . 'EPSP_41 ','EPSP_42 ','EPSP_43 ','EPSP_44 ','EPSP_45 ',
+     . 'EPSP_46 ','EPSP_47 ','EPSP_48 ','EPSP_49 ','EPSP_50 ',
+     . 'EPSP_51 ','EPSP_52 ','EPSP_53 ','EPSP_54 ','EPSP_55 ',
+     . 'EPSP_56 ','EPSP_57 ','EPSP_58 ','EPSP_59 ','EPSP_60 ',
+     . 'EPSP_61 ','EPSP_62 ','EPSP_63 ','EPSP_64 ','EPSP_65 ',
+     . 'EPSP_66 ','EPSP_67 ','EPSP_68 ','EPSP_69 ','EPSP_70 ',
+     . 'EPSP_71 ','EPSP_72 ','EPSP_73 ','EPSP_74 ','EPSP_75 ',
+     . 'EPSP_76 ','EPSP_77 ','EPSP_78 ','EPSP_79 ','EPSP_80 ',
+     . 'EPSP_81 ','EPSD    '/
 C   springs
       DATA VARR/
      . 'OFF     ','FX      ','FY      ','FZ      ','MX      ',
@@ -907,7 +1111,8 @@ C   springs
      . 'D2G_Z   ','D1L_X   ','D1L_Y   ','D1L_Z   ','D2L_X   ',
      . 'D2L_Y   ','D2L_Z   ','R1G_X   ','R1G_Y   ','R1G_Z   ',
      . 'R2G_X   ','R2G_Y   ','R2G_Z   ','R1L_X   ','R1L_Y   ',
-     . 'G1L_Z   ','G2L_X   ','G2L_Y   ','G2L_Z   ','LENGTH  '/
+     . 'R1L_Z   ','R2L_X   ','R2L_Y   ','R2L_Z   ','LENGTH  ',
+     . 'FAIL    '/
 
       DATA VARNS/
      . 'OFF     ','FX      ','LX      ','IE      '/
@@ -933,7 +1138,7 @@ C   interfaces
      . '||FN||  ','|FX|    ','|FY|    ','|FZ|    ','||F||   ',
      . 'PVOL    ','PSURF   ','PMED    ','DELTAP  ','VOL     ',
      . 'SURF    ','MX      ','MY      ','MZ      ','QFRIC   ',
-     . 'CE_ELAST','CE_FRIC ','CE_DAMP '/
+     . 'CE_ELAST','CE_FRIC ','CE_DAMP ','CAREA   '/
 C   rigid wall
       DATA VARRW/
      . 'FNX     ','FNY     ','FNZ     ','FTX     ','FTY     ',
@@ -981,6 +1186,9 @@ C   monitored volume
      . 'AO      ','UO      ','AC      ','UC      ','CP      ',
      . 'CV      ','GAMA    ','DTBAG   ','NFV     ','MASS-IN ',
      . 'ENTHA-IN','ENER-INT','WORK    ','UPCRIT  '/
+C
+C Caution : all variables added or defined in VARMV/ must be added also in VARMVENT/
+C
       DATA VARMVENT/
      . 'MASS    ','VOL     ','P       ','A       ','T       ',
      . 'AO      ','UO      ','AC      ','UC      ','CP      ',
@@ -1018,8 +1226,9 @@ C   part
      . 'MASS    ','HE      ','TURBKE  ','XCG     ','YCG     ',
      . 'ZCG     ','XXMOM   ','YYMOM   ','ZZMOM   ','IXX     ',
      . 'IYY     ','IZZ     ','IXY     ','IYZ     ','IZX     ',
-     . 'RIE     ','KERB    ','RKERB   ','RKE     ','UNUSED  ',
-     . 'UNUSED  ','UNUSED  ','HEAT    '/
+     . 'RIE     ','KERB    ','RKERB   ','RKE     ','ERODED  ',
+     . 'UNUSED  ','UNUSED  ','HEAT    ','VX      ','VY      ',
+     . 'VZ      ','PW      '/
 C   rivets
       DATA VARRIV/
      . 'OFF     ','F1X     ','F1Y     ','F1Z     ','F2X     ',
@@ -1039,7 +1248,7 @@ C   frames
       DATA VARGAU/
      . 'P       ','IE      ','DENS    ','T       ','PA      ',
      . 'PAX     ','PAY     ','PAZ     '/
-C     element cluster
+C     cluster element
       DATA VARCLUS/
      . 'FX      ','FY      ','FZ      ','MX      ','MY      ',
      . 'MZ      ','FS      ','FN      ','MS      ','MN      ',
@@ -1047,13 +1256,19 @@ C     element cluster
       DATA VARFLOW/
      . 'FLOW    '/
       DATA VARSURF/
-     . 'AREA    ','MASSFLOW','VELOCITY'/
+     . 'AREA    ','MASSFLOW','VELOCITY','P       ','A       ','MASS    '/
 C
       DATA VARSLIP/
      . 'RINGSLIP','FN      ','F1      ','F2      ','THETA   ','GAMMA   '/
 C
       DATA VARRET/
      . 'SLIP','FN      ','LOCK    '/
+c
+      DATA VARSENS/
+     . 'STATUS   '/
+c
+      DATA VARCHECKSUM/
+     . 'CHECKSUM '/
 C-----------------------------------------------
 C   TH GENERIC VARIABLES
 C-----------------------------------------------
@@ -1068,7 +1283,7 @@ C-----------------------------------------------
      .         10,11,12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      .         13,14,15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
      .         16,17,18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-     .         629,630,631,632,633,634,635,636,637, 0, 0, 0, 0, 0, 0, 0, 0, 0/
+     .         630,631,632,633,634,635,636,637,638, 0, 0, 0, 0, 0, 0, 0, 0, 0/
       DATA VARSG1/
      .'DEF     ','STRESS  ','LOCSTRS ','SXGP    ','SYGP    ','SZGP    ',
      .'SXYGP   ','SYZGP   ','SXZGP   ','LSXGP   ','LSYGP   ','LSZGP   ',
@@ -1111,9 +1326,9 @@ C
 c      DATA VARSG2
 C Definition of VARSG2 : strain for /PROP/TYPE22
       DO J=1,200
-        IF (J .LE. 9) THEN
+        IF (J <= 9) THEN
           WRITE(CHJ,'(I1.1)')J
-        ELSEIF (J .LE. 99) THEN
+        ELSEIF (J <= 99) THEN
           WRITE(CHJ,'(I2.2)')J
         ELSE
           WRITE(CHJ,'(I3.3)')J
@@ -1131,9 +1346,9 @@ C Definition of VARSG2 : strain for /PROP/TYPE22
 c      DATA VARSG3
 C Definition of VARSG3 : stress for /PROP/TYPE22
       DO J=1,200
-        IF (J .LE. 9) THEN
+        IF (J <= 9) THEN
           WRITE(CHJ,'(I1.1)')J
-        ELSEIF (J .LE. 99) THEN
+        ELSEIF (J <= 99) THEN
           WRITE(CHJ,'(I2.2)')J
         ELSE
           WRITE(CHJ,'(I3.3)')J
@@ -1529,7 +1744,7 @@ C
      .     150, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
       DATA VARPAG/'DEF     '/
       DATA IVARPAG
-     .         / 1, 2, 3, 4, 5, 6, 7,28, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
+     .         / 1, 2, 3, 4, 5, 6, 7,28, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0/
       DATA VARRIVG/'DEF     '/
       DATA IVARRIV
      .         / 1, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
@@ -1557,50 +1772,65 @@ C   frames
      .         / 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
       DATA VARSURFG/'DEF     '/
       DATA IVARSURFG
-     .         / 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
+     .         / 1, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
       DATA VARSLIPG/'DEF     '/
       DATA IVARSLIPG
      .         / 1, 2, 3, 4, 5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
       DATA VARRETG/'DEF     '/
       DATA IVARRETG
      .         / 1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
+      DATA VARSENSG/
+     . 'DEF      '/
+      DATA IVARSENSG
+     .         / 1, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
+      DATA VARCHECKSUMG/
+     . 'DEF      '/
+      DATA IVARCHECKSUMG
+     .         / 1, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0/
 C=======================================================================
       TAGP=0
       TAGS=0
       IBID = 0
       BID = 0
+      NSNE = 0
 C-----------------------------------------------
 C  Brick
 C ------------------------------------------
 C   (VARS1, VARS2, VARS3, VARS4, VARS5, VARS6, VARS7 )----> VARS
-      DO I=1,196
+      DO I=1,NVARS1
        VARS(I) = VARS1(I)
       ENDDO
 C
-      DO I=1,567
-       VARS(196+ I) = VARS2(I)
+      DO I=1,NVARS2
+       VARS(NVARS1+ I) = VARS2(I)
       ENDDO
 C
-      DO I=1,369
-       VARS(196+ 567 + I) = VARS3(I)
+      DO I=1,NVARS3
+       VARS(NVARS1+ NVARS2 + I) = VARS3(I)
       ENDDO
-      DO I=1,492
-       VARS(196+ 567 + 369 + I) = VARS4(I)
+      DO I=1,NVARS4
+       VARS(NVARS1+ NVARS2 + NVARS3 + I) = VARS4(I)
       ENDDO
-      DO I=1,22
+      DO I=1,NVARS5
        VARS(1624 + I) = VARS5(I)
       ENDDO
-      DO I=1,97200
+      DO I=1,NVARS6
        VARS(1646 + I) = VARS6(I)
       ENDDO
-      DO I=1,97200
+      DO I=1,NVARS7
        VARS(98846 + I) = VARS7(I)
       ENDDO
-      DO I=1,516
+      DO I=1,NVARS8
        VARS(239030 + I) = VARS8(I)
       ENDDO
-      DO I=1,6
+      DO I=1,NVARS9
        VARS(239546 + I) = VARS9(I)
+      ENDDO
+      DO I=1,NVARSNLOC
+       VARS(239552 + I) = VARSNLOC(I)
+      ENDDO
+      DO I=1,NVARS10
+       VARS(239554 + I) = VARS10(I)
       ENDDO
 C   (VARSG1, VARSG2, VARSG3 )----> VARSG
       DO I=1,202
@@ -1663,14 +1893,14 @@ C   options 20--->100  IVSG=196
        ENDDO
        IVSG = IVSG + 7
       ENDDO
-C  Options  101--->118 IVSG= 763
+C  Options 101 ---> 118 IVSG = 763
       DO I=101,118
        DO J=1,7
         IVARSG(J,I)= IVSG + J
        ENDDO
        IVSG = IVSG + 7
       ENDDO
-C  Options  118--->199 IVSG= 889
+C  Options 118 ---> 199 IVSG = 889
       DO I=119,199
        DO J=1,9
         IVARSG(J,I)= IVSG + J
@@ -1681,28 +1911,28 @@ C  Options  118--->199 IVSG= 889
         IVARSG(J,200)= IVSG + J
        ENDDO
          IVSG = IVSG + 6
-C  Options 201--->202 IVSG= 1624
+C  Options 201 ---> 202 IVSG = 1624
       DO I=201,202
        DO J=1,11
         IVARSG(J,I)= IVSG + J
        ENDDO
        IVSG = IVSG + 11
       ENDDO
-C  Options 203--->19984    IVSG= 1646
+C  Options 203 ---> 19984 IVSG = 1646
       DO I=203,19984
        DO J=1,6
         IVARSG(J,I)= IVSG + J
        ENDDO
        IVSG = IVSG + 6
       ENDDO
-C  Options 203--->19984    IVSG= 120338
+C  Options 203 ---> 19984 IVSG = 120338
       DO I=19985,39766
        DO J=1,6
         IVARSG(J,I)= IVSG + J
        ENDDO
        IVSG = IVSG + 6
       ENDDO
-C  Option LOCSTRN
+C  Locstrn option
       DO J=1,6
        IVARSG(J,39767)= 239030 + J
       ENDDO
@@ -1801,7 +2031,7 @@ C  DAM3ILYKK ( KK=001,200)
 C  DAM4ILYKK ( KK=001,200)
 C  EINTILKK
         DO KK = 1, 199
-C  3 stresss + 3 strain  + 3 average stress + 3 average strain + 4 max damage 
+C  3 stress + 3 strain + 3 average stress + 3 average strain + 4 max damage 
 C   + EINT          
           II = 30882 + (KK -1)*(6*4 + 11)
           DO J = 1,4
@@ -1845,6 +2075,10 @@ C
 C---pinching
        DO I=1,7
          VARC(37847+I) = VARCPINCH(I)
+       ENDDO
+C---non-local
+       DO I=1,2
+         VARC(37854+I) = VARCNLOC(I)
        ENDDO
 C
 C  NVC =   30882 + 199*34 = 37847     
@@ -1941,15 +2175,15 @@ C keyword  564
 c keyword  565 -----> 573
         DO J = 565,573
          DO I = 1,10
-	  IVARCG(I,J)= IVCG + 1
-	  IVCG = IVCG + 1
-	 ENDDO
-	ENDDO
+            IVARCG(I,J)= IVCG + 1
+            IVCG = IVCG + 1
+           ENDDO
+          ENDDO
 c keyword  574
         DO I = 1,9
-	 IVARCG(I,574)= IVCG + 1
-	 IVCG = IVCG + 1
-	ENDDO
+           IVARCG(I,574)= IVCG + 1
+           IVCG = IVCG + 1
+          ENDDO
 C keyword de 575 -----> 674
         DO J = 575, 674
          DO I = 1,5
@@ -1964,27 +2198,30 @@ C pinching
 C  
 C to ctrole the value of ivcg                    
 C icvg = 30882  
-Csm end . ivcg = ivcg  + 4*99*60 + 5 + 99  + 100
+C   end . ivcg = ivcg  + 4*99*60 + 5 + 99  + 100
 C--------------fin --------------------
 C--------------fin --------------------
 C  ---- node + displacement by ply for shell
-      DO I=1,19
+      DO I=1,NVARN1
        VARN(I) = VARN1(I)
       ENDDO
        DO J= 1,200
         WRITE(CHJJ,'(I3.3)')J
           VAR ='DX_'//CHJJ
-          VARN(19 + (J-1)*3  + 1 )= VAR
+          VARN(NVARN1 + (J-1)*3  + 1 )= VAR
+          VARN1A((J-1)*3  + 1 )= VAR
           VAR ='DY_'//CHJJ
-          VARN(19 + (J-1)*3  + 2) = VAR
+          VARN(NVARN1 + (J-1)*3  + 2) = VAR
+          VARN1A((J-1)*3  + 2 )= VAR
           VAR ='DZ_'//CHJJ
-          VARN(19 + (J-1)*3  + 3) = VAR
+          VARN(NVARN1 + (J-1)*3  + 3) = VAR
+          VARN1A((J-1)*3  + 3 )= VAR
        ENDDO
-      DO I=1,9
-       VARN(619+I) = VARN2(I)
+      DO I=1,NVARN2
+       VARN(NVARN1+NVARN1A+I) = VARN2(I)
       ENDDO
-      DO I=1,9 
-       VARN(628+I) = VARNPINCH(I)
+      DO I=1,NVARNPINCH
+       VARN(NVARN1+NVARN1A+NVARN2+I) = VARNPINCH(I)
       ENDDO
       NNOD = 0
       CHNOD = 78
@@ -2020,7 +2257,6 @@ C
       IS_AVAILABLE = .FALSE.
       IGS=0
       IAD=1
-      IREAC=0
       HM_NTHGRP=0
 c
       ! Choose TH file type 
@@ -2076,7 +2312,7 @@ C
      3      NVARAC   ,VARAC    ,NACCELM      ,VARACG   ,
      4      NVARACG  ,IVARACG  ,NSNE   ,NVALL,ITHVAR   ,
      5      FLAGABF  ,NVARABF  ,NOM_OPT,IGS  ,LSUBMODEL,LITHBUFMX)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))
         ENDDO
       ENDIF
       !-------------------------------------------
@@ -2105,7 +2341,18 @@ C
      3      NVARIN   ,VARIN    ,NINTER+NINTSUB,VARING  ,NVARING  ,
      4      IVARING  ,NSNE     ,NVALL  ,ITHVAR,FLAGABF ,NVARABF   ,
      5      NOM_OPT  ,IGS      ,LSUBMODEL, LITHBUFMX)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))
+          DO JJ = ITHGRP(7,IGS),ITHGRP(5,IGS)
+             IF(ITHBUF(JJ) ==29) INTERFACES%PARAMETERS%INTCAREA =1
+          ENDDO
+          IF(INTERFACES%PARAMETERS%INTCAREA > 0 ) THEN
+            DO JJ = ITHGRP(5,IGS),ITHGRP(5,IGS)+ITHGRP(4,IGS)-1
+               NIN = ITHBUF(JJ)
+               IF(NIN <= NINTER) THEN 
+                  IF(IPARI(7,NIN)==24.OR. IPARI(7,NIN)==25) IPARI(99,NIN) = 1
+               ENDIF
+            ENDDO
+          ENDIF
         ENDDO
       ENDIF
       !-------------------------------------------
@@ -2132,7 +2379,7 @@ C
      3      NVARRW   ,VARRW    ,NRWALL ,VARRWG  ,NVARRWG  ,
      4      IVARRWG  ,NSNE     ,NVALL,ITHVAR  ,FLAGABF ,NVARABF  ,
      5      NOM_OPT  ,IGS      ,LSUBMODEL, LITHBUFMX)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))
         ENDDO
       ENDIF
       !-------------------------------------------
@@ -2159,7 +2406,7 @@ C
      3      NVARSE   ,VARSE    ,NSECT ,VARSEG ,NVARSEG ,
      4      IVARSEG  ,NSNE     ,NVALL ,ITHVAR ,FLAGABF ,NVARABF ,
      5      NOM_OPT  ,IGS      ,LSUBMODEL, LITHBUFMX)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF
       !-------------------------------------------
@@ -2187,7 +2434,7 @@ C
      4      NVARCLUS ,VARCLUS ,NCLUSTER     ,VARCLUSG ,NVARCLUSG  ,
      5      IVARCLUSG,NSNE    ,NVALL ,ITHVAR,FLAGABF  ,NVARABF    ,
      6      NOM_OPT  ,IGS     ,LSUBMODEL, LITHBUFMX    )    
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF
       !-------------------------------------------
@@ -2203,16 +2450,17 @@ C
           IGS = IGS+1
           CALL FRETITL(TITR,ITHGRP(NITHGR-LTITR+1,IGS),LTITR)
           ITHGRP(1,IGS) = ID
-          NVALL = 8
+          NVALL = 11
           ITYP  = 5
           KEY   = 'BEAM      ' 
           CALL HM_READ_THGRNE(
      1      ITYP  ,KEY   ,ITAB  ,ITABM1,IXP    ,
      3      NIXP  ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,
      4      NVARP ,VARP  ,NUMELP,VARPG ,NVARPG   ,
-     5      IVARPG,NSELP,NVALL,IMERGE,ITHVAR   ,
+     5      IVARPG,NSELP,NVALL,IMERGE,ITHVAR   ,ITHERM_FE,
      6      FLAGABF,NVARABF,RFI,LSUBMODEL,MAP_TABLES%IBEAMM, NUMELP)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF  
       !-------------------------------------------
@@ -2235,9 +2483,9 @@ C
      1      ITYP  ,KEY   ,ITAB  ,ITABM1,IXT    ,
      3      NIXT  ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,    
      4      NVART ,VART  ,NUMELT,VARTG ,NVARTG   ,         
-     5      IVARTG,NSELT,NVALL,IMERGE,ITHVAR   ,           
+     5      IVARTG,NSELT,NVALL,IMERGE,ITHVAR   ,ITHERM_FE,           
      6      FLAGABF,NVARABF,RFI,LSUBMODEL,MAP_TABLES%ITRUSSM, NUMELT)                          
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF 
       !-------------------------------------------
@@ -2260,9 +2508,9 @@ C
      1      ITYP  ,KEY   ,ITAB  ,ITABM1,IXR    ,
      3      NIXR  ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,    
      4      NVARR ,VARR  ,NUMELR,VARRG ,NVARRG   ,         
-     5      IVARRG,NSELR,NVALL,IMERGE,ITHVAR   ,           
+     5      IVARRG,NSELR,NVALL,IMERGE,ITHVAR   ,ITHERM_FE,           
      6      FLAGABF,NVARABF,RFI,LSUBMODEL,MAP_TABLES%ISPRINGM, NUMELR)                           
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF 
       !-------------------------------------------
@@ -2285,9 +2533,9 @@ C
      1      ITYP  ,KEY   ,ITAB  ,ITABM1,IXS    ,
      3      NIXS  ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,
      4      NVARS ,VARS  ,NUMELS,VARSG ,NVARSG   ,
-     5      IVARSG,NSELS,NVALL,IMERGE,ITHVAR   ,
+     5      IVARSG,NSELS,NVALL,IMERGE,ITHVAR   ,ITHERM_FE,
      6      FLAGABF,NVARABF,RFI,LSUBMODEL,MAP_TABLES%ISOLM, NUMELS)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF 
       !-------------------------------------------
@@ -2310,9 +2558,9 @@ C
      1      ITYP  ,KEY   ,ITAB  ,ITABM1  ,IXS    ,         
      3      NIXS  ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,    
      4      NVARN ,VARN  ,0     ,VARNG   ,NVARNG   ,       
-     5      IVARNG,NSNOD ,NVALL ,IMERGE  ,ITHVAR   ,       
+     5      IVARNG,NSNOD ,NVALL ,IMERGE  ,ITHVAR   ,ITHERM_FE,       
      6      FLAGABF,NVARABF,RFI,LSUBMODEL,IBID,IBID)                          
-C         decode les numeros de skews.                               
+C         decode les numeros de skews.
           NNE =ITHGRP(4,IGS)                                         
           IAD2=ITHGRP(5,IGS)+NNE                                     
           DO K=1,NNE                                                 
@@ -2323,7 +2571,7 @@ C         decode les numeros de skews.
              GO TO 110                                               
             ENDIF                                                    
  100       CONTINUE                                                  
-C          decode les numeros de frames.                             
+C          decode les numeros de frames.
            DO 101 J=(NUMSKW+1)+MIN(IUN,NSPCOND)*NUMSPH+1+NSUBMOD,    
      .              (NUMSKW+1)+MIN(IUN,NSPCOND)*NUMSPH+NSUBMOD+      
      .               (NUMFRAM+1)                                     
@@ -2341,7 +2589,7 @@ C          decode les numeros de frames.
  110       CONTINUE                                                  
            IAD2=IAD2+1                                               
           ENDDO                                                      
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF 
       !-------------------------------------------
@@ -2364,9 +2612,9 @@ C          decode les numeros de frames.
      1      ITYP  ,KEY   ,ITAB  ,ITABM1,IXC    ,
      3      NIXC  ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,
      4      NVARC ,VARC  ,NUMELC,VARCG ,NVARCG   ,
-     5      IVARCG,NSELC,NVALL,IMERGE,ITHVAR   ,
+     5      IVARCG,NSELC,NVALL,IMERGE,ITHVAR   ,ITHERM_FE,
      6      FLAGABF,NVARABF,RFI,LSUBMODEL,MAP_TABLES%ISH4NM, NUMELC)                           
-C         decode les numeros de skews.                                  
+C         decode les numeros de skews.
           NNE =ITHGRP(4,IGS)                                            
           IAD2=ITHGRP(5,IGS)+3*NNE                                      
           DO K=1,NNE                                                    
@@ -2395,7 +2643,7 @@ C          frame numbers user -> internal
  210       CONTINUE                                                     
            IAD2=IAD2+1                                                  
           ENDDO                                                         
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF 
       !-------------------------------------------
@@ -2418,7 +2666,7 @@ C          frame numbers user -> internal
      1      ITYP  ,KEY   ,ITAB  ,ITABM1,IXTG   ,
      3      NIXTG ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,    
      4      NVARC ,VARC  ,NUMELTG,VARCG ,NVARCG ,          
-     5      IVARCG,NSELTG,NVALL,IMERGE,ITHVAR   ,          
+     5      IVARCG,NSELTG,NVALL,IMERGE,ITHVAR   ,ITHERM_FE,          
      6      FLAGABF,NVARABF,RFI,LSUBMODEL,MAP_TABLES%ISH3NM, NUMELTG)                              
 C          skew numbers user -> internal          
           NNE =ITHGRP(4,IGS)                                                   
@@ -2449,7 +2697,7 @@ C          frame numbers user -> internal
  310       CONTINUE                                                            
            IAD2=IAD2+1                                                         
           ENDDO                                                                
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF  
       !-------------------------------------------
@@ -2474,7 +2722,7 @@ C          frame numbers user -> internal
      4          NVARRB ,VARRB  ,NRBODY       ,VARRBG   ,NVARRBG,
      5          IVARRBG,NSRBY  ,NVALL        ,ITHVAR   ,FLAGABF,NVARABF,
      6          NOM_OPT,IGS    ,NPBY         ,LSUBMODEL    )    
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF      
       !-------------------------------------------
@@ -2502,24 +2750,25 @@ C          frame numbers user -> internal
           NVALL = 9                                               
           IGS=IGS+1                                               
           TITR1(1:5)='VENT '                                      
-   	      DO J=1,nchartitle-5                                 
-   	        TITR1(J+5:J+5) = TITR(J:J)                        
-   	      ENDDO                                               
+                DO J=1,nchartitle-5                                 
+                  TITR1(J+5:J+5) = TITR(J:J)                        
+                ENDDO                                               
           CALL FRETITL(TITR1,ITHGRP(NITHGR-LTITR+1,IGS),LTITR)    
-          ITHGRP(1,IGS)=ID_TH_AUTO                                
-          ID_TH_AUTO = ID_TH_AUTO + 1                             
+          ITHGRP(1,IGS)=ID_LIMIT%TH
+          ID_LIMIT%TH  = ID_LIMIT%TH  + 1
           CALL HM_THGRKI_VENT(                                       
      1      ITYP      ,KEY       ,PTR_NOPT_MONV,                        
      3      IAD       ,IFI       ,ITHGRP(1,IGS),ITHBUF ,                
      4      NVARMVENT ,VARMVENT  ,NVOLU        ,VARMVENTG, NVARMVENTG,    
      5      IVARMVENTG,NSNE      ,NVALL        ,ITHVAR   , FLAGABF   ,NVARABF,         
      6      NOM_OPT   ,IGS       ,T_MONVOL     ,NVARMVENT, LSUBMODEL)                       
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF    
       !-------------------------------------------
       ! /TH/PART
       !-------------------------------------------
+      !HM_NTHPART: total number of /TH/PART in 0000.rad
       CALL HM_OPTION_COUNT(TRIM(THFILE)//'/PART' ,HM_NTHPART)  
       IF (HM_NTHPART > 0) THEN 
         CALL HM_OPTION_START(TRIM(THFILE)//'/PART') 
@@ -2536,11 +2785,14 @@ C          frame numbers user -> internal
       !-------------------------------------------
       ! /TH/SUBS
       !-------------------------------------------
+      !HM_NTHSUBS: total number of /TH/SUBS in 0000.rad
       CALL HM_OPTION_COUNT(TRIM(THFILE)//'/SUBS' ,HM_NTHSUBS)
       IF (HM_NTHSUBS > 0) THEN 
         CALL HM_OPTION_START(TRIM(THFILE)//'/SUBS') 
         HM_NTHGRP = HM_NTHGRP + HM_NTHSUBS
+        ! HM_NTHGRP: Number of /TH/ Group in 0000.rad   
         DO I = 1, HM_NTHSUBS
+        ! TAGS: Total number of SUBS for the TIME history output   
           CALL HM_READ_THGRPA_SUB(
      .         IAD      ,IFI      ,ITHBUF   ,NVARPA   ,VARPA    ,
      .         VARPAG   ,NVARPAG  ,IVARPAG  ,PATHID   ,
@@ -2567,9 +2819,9 @@ C          frame numbers user -> internal
      1        2     ,KEY   ,ITAB  ,ITABM1,IXQ    ,
      3        NIXQ  ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,
      4        NVARS ,VARS  ,NUMELQ,VARSG ,NVARSG   ,
-     5        IVARSG,NSELQ,NVALL,IMERGE,ITHVAR   ,
+     5        IVARSG,NSELQ,NVALL,IMERGE,ITHVAR   ,ITHERM_FE,
      6        FLAGABF,NVARABF,RFI,LSUBMODEL,MAP_TABLES%IQUADM, NUMELQ) 
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF 
       !-------------------------------------------
@@ -2591,9 +2843,9 @@ C          frame numbers user -> internal
      1       51   ,KEY   ,ITAB  ,ITABM1,KXSP    ,
      2       NISP  ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,
      4       NVARSPH,VARSPH,NUMSPH,VARSPG,NVARSPG ,
-     5       IVARSPG,NSELSP,NVALL,IMERGE,ITHVAR   ,
+     5       IVARSPG,NSELSP,NVALL,IMERGE,ITHVAR   ,ITHERM_FE,
      6       FLAGABF,NVARABF,RFI,LSUBMODEL,MAP_TABLES%ISPHM,NUMSPH) 
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF    
       !-------------------------------------------
@@ -2617,7 +2869,7 @@ C          frame numbers user -> internal
      3      NVARJO   ,VARJO    ,NJOINT,VARJOG,NVARJOG,
      4      IVARJOG  ,NSNE     ,NVALL ,ITHVAR ,FLAGABF ,NVARABF ,
      5      NOM_OPT  ,IGS      ,LSUBMODEL, LITHBUFMX)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF    
       !-------------------------------------------
@@ -2641,7 +2893,7 @@ C          frame numbers user -> internal
      3      NVARFX   ,VARFX    ,NFXBODY       ,VARFXG  ,NVARFXG,
      4      IVARFXG  ,NSNE     ,NVALL ,ITHVAR ,FLAGABF ,NVARABF ,
      5      NOM_OPT  ,IGS      ,LSUBMODEL, LITHBUFMX )
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF   
       !-------------------------------------------
@@ -2665,15 +2917,17 @@ C          frame numbers user -> internal
      3      NVARFR   ,VARFR    ,NUMFRAM+1     ,VARFRG, NVARFRG  ,
      4      IVARFRG  ,NSNE     ,NVALL ,ITHVAR ,FLAGABF ,NVARABF ,
      5      NOM_OPT  ,IGS      ,LSUBMODEL, LITHBUFMX)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF   
       !-------------------------------------------
       ! /TH/GAUGE
       !-------------------------------------------
+      !HM_NTHGAUGE: total number of /TH/GAUGE in 0000.rad
       CALL HM_OPTION_COUNT(TRIM(THFILE)//'/GAUGE' ,HM_NTHGAUGE)
       IF (HM_NTHGAUGE > 0) THEN 
         CALL HM_OPTION_START(TRIM(THFILE)//'/GAUGE')
+        ! HM_NTHGRP: Number of /TH/ Group in 0000.rad   
         HM_NTHGRP = HM_NTHGRP + HM_NTHGAUGE
         DO I = 1, HM_NTHGAUGE
           TITR = ''   
@@ -2689,7 +2943,7 @@ C          frame numbers user -> internal
      3      NVARGAU  ,VARGAU   ,NBGAUGE       ,VARGAUG,NVARGAUG  ,
      4      IVARGAUG ,NSNE     ,NVALL ,ITHVAR ,FLAGABF ,NVARABF ,
      5      NOM_OPT  ,IGS      ,LSUBMODEL, LITHBUFMX)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF                           
       !-------------------------------------------
@@ -2716,7 +2970,7 @@ C          frame numbers user -> internal
 C             error message if type of inout is not correct
               DO J=1,ITHGRP(4,IGS)
                 INOUT = ITHBUF(ITHGRP(5,IGS)+J-1)
-                IF (INOUT.GT.0) THEN
+                IF (INOUT>0) THEN
                   IF (ISPHIO(1,INOUT) == 1) THEN
                     CALL ANCMSG(MSGID=1111,
      .                     MSGTYPE=MSGERROR,
@@ -2727,7 +2981,7 @@ C             error message if type of inout is not correct
                   ENDIF
                 ENDIF
               END DO     
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF       
       !-------------------------------------------
@@ -2752,7 +3006,7 @@ C             error message if type of inout is not correct
      4          NVARNS ,VARNS ,VARNSG ,NVARNSG ,IVARNSG,
      5          NSELR  ,IVNS2R,NVALL  ,ID,TITR,
      6          ITHVAR,FLAGABF,NVARABF,LSUBMODEL)           
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF          
       !-------------------------------------------
@@ -2777,7 +3031,7 @@ C             error message if type of inout is not correct
      4          NVARSURF,VARSURF,NSURF,VARSURFG,NVARSURFG ,
      5          IVARSURFG,NSNE,NVALL,ITHVAR,FLAGABF,NVARABF,
      6          IGRSURF,IGS,LSUBMODEL)          
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF  
       !-------------------------------------------
@@ -2800,9 +3054,9 @@ C             error message if type of inout is not correct
      1      ITYP  ,KEY   ,ITAB  ,ITABM1,IXTG   ,
      3      NIXTG ,IAD   ,IFI   ,ITHGRP(1,IGS),ITHBUF ,    
      4      NVARS ,VARS  ,NUMELTG,VARSG ,NVARSG ,          
-     5      IVARSG,NSELTG,NVALL,IMERGE,ITHVAR   ,          
+     5      IVARSG,NSELTG,NVALL,IMERGE,ITHVAR   ,ITHERM_FE,         
      6      FLAGABF,NVARABF,RFI,LSUBMODEL,MAP_TABLES%ITRIAM, NUMELTG)        
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS)) 
         ENDDO
       ENDIF
       !-------------------------------------------
@@ -2827,7 +3081,7 @@ C             error message if type of inout is not correct
      3      NVARSLIP ,VARSLIP  ,NSLIPRING  ,VARSLIPG,NVARSLIPG  ,
      4      IVARSLIPG,NSNE     ,NVALL ,ITHVAR ,FLAGABF ,NVARABF ,
      5      NOM_OPT  ,IGS      ,LSUBMODEL, LITHBUFMX)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF
       !-------------------------------------------
@@ -2852,63 +3106,65 @@ C             error message if type of inout is not correct
      3      NVARRET  ,VARRET   ,NRETRACTOR  ,VARRETG,NVARRETG  ,
      4      IVARRETG ,NSNE     ,NVALL ,ITHVAR ,FLAGABF ,NVARABF ,
      5      NOM_OPT  ,IGS      ,LSUBMODEL, LITHBUFMX)
-          IF(IGS.NE.0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
         ENDDO
       ENDIF
+      !-------------------------------------------
+      ! /TH/SENSOR
+      !-------------------------------------------
+      CALL HM_OPTION_COUNT(TRIM(THFILE)//'/SENSOR' ,HM_NTHSENS  )  
+      IF (HM_NTHSENS > 0) THEN 
+        CALL HM_OPTION_START(TRIM(THFILE)//'/SENSOR')
+        HM_NTHGRP = HM_NTHGRP + HM_NTHSENS
+        DO I = 1, HM_NTHSENS
+          TITR = ''   
+          CALL HM_OPTION_READ_KEY(LSUBMODEL, OPTION_ID=ID, OPTION_TITR=TITR)   
+          IGS = IGS+1
+          CALL FRETITL(TITR,ITHGRP(NITHGR-LTITR+1,IGS),LTITR)
+          ITHGRP(1,IGS) = ID
+          NVALL = 1
+          ITYP  = 120
+          KEY   = 'SENSOR    ' 
+          CALL HM_READ_THGRSENS(SENSORS,
+     .      ITYP     ,KEY      ,IGS      ,LITHBUFMX ,ITHBUF    ,
+     .      IAD      ,IFI      ,ITHGRP(1,IGS),ITHVAR,NVALL     ,
+     .      NVARSENS ,NVARSENSG,VARSENS  ,VARSENSG  ,IVARSENSG ,
+     .      NSNE     ,NVARABF   ,LSUBMODEL )
+c
+          IF(IGS/=0) NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+        ENDDO
+      ENDIF
+      !-------------------------------------------
+      ! /TH/CHECKSUM ( activated automaticaly if /CHECKSUM is used )
+      !-------------------------------------------
+      HM_NTHCHECKSUM=CHECKSUM%checksum_count
+      IF (HM_NTHCHECKSUM > 0) THEN 
+        HM_NTHGRP = HM_NTHGRP + 1
+        IGS = IGS+1
+        CHECKSUM_TITLE = ''
+        DECK_CHECKSUM = ''
+          
+        TITR = 'CHECKSUM  '
+        CALL FRETITL(TITR,ITHGRP(NITHGR-LTITR+1,IGS),LTITR)
+
+
+        ITHGRP(1,IGS) = 100000
+        NVALL = 1
+        ITYP  = 121
+        KEY   = 'CHECKSUM  ' 
+        CALL HM_READ_THCHECKSUM(
+     1      121            ,KEY      ,IAD          ,IFI          ,NSNE ,
+     2      ITHGRP(1:,IGS) ,ITHBUF   ,NVARCHECKSUM ,VARCHECKSUM  ,LITHBUFMX,
+     3      CHECKSUM       ,NSUBDOM  ,NITHGR       ,LTITR        ,IPRI )
+c
+        NTHWA=MAX(NTHWA,ITHGRP(4,IGS)*ITHGRP(6,IGS))    
+      ENDIF
 C
-C=======================================================================
-C NB of UNDEFINED TH SELECTED NODE FOR INVERS.GE.40
-C ( for INVERS LT 40, REFER TO LECNOD )
-C=======================================================================
-c      CHNOD = 9
-c      CALL ANCHECK(CHNOD)
-C=======================================================================
-C NB of UNDEFINED TH SELECTED SHEL FOR INVERS.GE.40
-C ( for INVERS LT 40, REFER TO LEC16C )
-C=======================================================================
-c      CHELT = 19
-c      CALL ANCHECK(CHELT)
-C=======================================================================
-C NB of UNDEFINED TH SELECTED TRUSS FOR INVERS.GE.40
-C ( for INVERS LT 40, REFER TO LEC16T )
-C=======================================================================
-c      CHELT = 25
-c      CALL ANCHECK(CHELT)
-C=======================================================================
-C NB of UNDEFINED TH SELECTED BEAM FOR INVERS.GE.40
-C ( for INVERS LT 40, REFER TO LEC16P )
-C=======================================================================
-c      CHELT = 32
-c      CALL ANCHECK(CHELT)
-C=======================================================================
-C NB of UNDEFINED TH SELECTED SPRING FOR INVERS.GE.40
-C ( for INVERS LT 40, REFER TO LECELR )
-C=======================================================================
-c      CHELT = 39
-c      CALL ANCHECK(CHELT)
-C=======================================================================
-C NB of UNDEFINED TH SELECTED SHELL3N FOR INVERS.GE.40
-C ( for INVERS LT 40, REFER TO C3LECEL )
-C=======================================================================
-c      CHELT = 46
-c      CALL ANCHECK(CHELT)
-C=======================================================================
-C NB of UNDEFINED TH SELECTED INTERFACE FOR INVERS.GE.40
-C ( for INVERS LT 40, REFER TO  )
-C=======================================================================
-c      CHELT = 62
-c      CALL ANCHECK(CHELT)
-C=======================================================================
-C NB of UNDEFINED TH SELECTED JOINT FOR INVERS.GE.40
-C ( for INVERS LT 40, REFER TO  )
-C=======================================================================
-c      CHELT = 84
-c      CALL ANCHECK(CHELT)
       DO N=1,NPART
-        IF(IPART(8,N).GT.0) NSMAT=NSMAT+1
+        IF(IPART(8,N)>0) NSMAT=NSMAT+1
       ENDDO
 C=======================================================================
-C Tag des groupes avec des parts dans les TH PART et SUBSET non DEF
+C Tag groups with shares in th part and subset not def
 C=======================================================================
       DO NG=1,NGROUP
         NEL=IPARG(2,NG)
@@ -2938,12 +3194,12 @@ C=======================================================================
         DO J=NFT+1,NFT+NEL
           IF(IPARG(80,NG) == 1) EXIT
           NUMPART = IPARTEL_P(J)
-          IF(IPARTH(NVPARTH,NUMPART).GT.0) THEN
+          IF(IPARTH(NVPARTH,NUMPART)>0) THEN
             NVAR =IPARTH(NVPARTH,NUMPART)       
             IAD  =IPARTH(NVPARTH+1,NUMPART)       
             DO N=IAD,IAD+NVAR-1
               K=ITHBUF(N)
-              IF(K.GT.7.AND.K.NE.28) THEN
+              IF(K>7.AND.K/=28) THEN
                 IPARG(80,NG) = 1
                 EXIT
               ENDIF
@@ -2952,7 +3208,7 @@ C=======================================================================
         ENDDO
       ENDDO
 C=======================================================================
-C print groupe de PART et SUBSET
+C print group of PART and SUBSET
 C=======================================================================
       CALL THPRIN(
      1          'PART      ',IPART ,LIPART1    ,4     ,
@@ -2961,11 +3217,11 @@ C=======================================================================
      1          'SUBSET    ',SUBSET ,ITHFLAG  ,1     ,
      2          NVSUBTH  ,ITHBUF    ,VARPA    ,NSUBS )
 C
-C     LES GROUPES TH PART ET SUBSET NE SONT PLUS UTILISES
+C     TH GROUPS PART AND SUBSET ARE NO LONGER USED
 C
       NTHGRP2=IGS
 C------------------------------------------------
-C Recherce des parts ou subsets dans plusieurs TH
+C Search for shares or subsets in several th
 C------------------------------------------------
       DO I=1,TAGP
         DO J=1, TAGP
@@ -2994,5 +3250,72 @@ C Recherche des ID doubles
 C-------------------------------------
       CALL UDOUBLE(ITHGRP,NITHGR,NTHGRP2,MESS,0,BID)
 C
+C-------------------------------------
+C Write th.nms1 file
+C-------------------------------------
+
+      IF(DUMP_THNMS1_FILE == 1) THEN
+        CALL WRITE_THNMS1(
+     1      NVARN1        ,NVARN1A       ,NVARN2           ,NVARNPINCH        ,NVARS1           ,
+     2      NVARS2        ,NVARS3        ,NVARS4           ,NVARS5            ,NVARS6           ,
+     3      NVARS7        ,NVARS8        ,NVARS9           ,NVARS10           ,NVARSNLOC        ,
+     4      NVARP         ,NVARR         ,NVART            ,NVARNS            ,NVARSPH          ,
+     5      NVARIN        ,NVARRW        ,NVARRB           ,NVARSE            ,
+     5      NVARAC        ,NVARJO        ,NVARMVENT        ,NVARPA            ,NVARFX           ,
+     6      NVARGAU       ,NVARFR        ,NVARSLIP         ,NVARRET           ,NVARCLUS         ,
+     7      NVARFLOW      ,NVARSURF      ,NVARC            ,NVARSENS          ,
+     8      VARN1_TITLE   ,VARN1A_TITLE  ,VARN2_TITLE      ,
+     9      VARNPINCH_TITLE,VARP_TITLE   ,VARR_TITLE       ,VART_TITLE        ,
+     A      VARS1_TITLE   ,VARS2_TITLE   ,VARS3_TITLE      ,VARS4_TITLE       ,VARS5_TITLE      ,
+     B      VARS6_TITLE   ,VARS7_TITLE   ,VARS8_TITLE      ,VARS9_TITLE       ,VARSNLOC_TITLE   ,
+     C      VARC_TITLE    ,VARS10_TITLE  ,
+     D      VARNS_TITLE   ,VARSPH_TITLE  ,VARIN_TITLE      ,
+     E      VARRW_TITLE   ,VARRB_TITLE   ,VARSE_TITLE      ,VARAC_TITLE       ,
+     F      VARJO_TITLE   ,VARMVENT_TITLE,VARPA_TITLE      ,VARFX_TITLE       ,VARGAU_TITLE     ,
+     G      VARFR_TITLE   ,VARSLIP_TITLE ,VARRET_TITLE     ,VARCLUS_TITLE     ,VARFLOW_TITLE    ,
+     H      VARSURF_TITLE ,VARSENS_TITLE ,
+     I      VARN1         ,VARN1A        ,VARN2            ,VARNPINCH         ,
+     J      VARP          ,VARR          ,VART             ,VARS1             ,VARS2            ,
+     K      VARS3         ,VARS4         ,VARS5            ,VARS6             ,VARS7            ,
+     L      VARS8         ,VARS9         ,VARS10           ,VARSNLOC          ,
+     M      VARC          ,
+     N      VARNS         ,VARSPH        ,VARIN            ,
+     O      VARRW         ,VARRB         ,VARSE            ,VARAC             ,
+     P      VARJO         ,VARMVENT      ,VARPA            ,VARFX             ,VARGAU           ,
+     Q      VARFR         ,VARSLIP       ,VARRET           ,VARCLUS           ,VARFLOW          ,
+     R      VARSURF       ,VARSENS       )
+      ENDIF
+C-------------------------------------
+
+
+     
+      ! Deallocate Variables
+      DEALLOCATE(VARS6)
+      DEALLOCATE(VARS7)
+      DEALLOCATE(VARSG2)
+      DEALLOCATE(VARSG3)
+      DEALLOCATE(VARS)
+      DEALLOCATE(VARC)
+      DEALLOCATE(VARSG)
+      DEALLOCATE(IVARSG)
+      
+      DEALLOCATE(VARN1_TITLE,VARN1A_TITLE,VARN2_TITLE,VARNPINCH_TITLE,
+     .           VARP_TITLE,VARR_TITLE,VART_TITLE,
+     .           VARS1_TITLE,VARS2_TITLE,VARS3_TITLE,VARS4_TITLE,
+     .           VARS5_TITLE,VARS6_TITLE,VARS7_TITLE,VARS8_TITLE,VARS9_TITLE,
+     .           VARC_TITLE,VARS10_TITLE,
+     .           VARNS_TITLE,VARSPH_TITLE,
+     .           VARIN_TITLE,VARRW_TITLE,VARRB_TITLE,
+     .           VARMV_TITLE,VARSE_TITLE,VARAC_TITLE,
+     .           VARJO_TITLE,VARMVENT_TITLE,
+     .           VARPA_TITLE,VARFX_TITLE,
+     .           VARGAU_TITLE,VARFR_TITLE,
+     .           VARSLIP_TITLE,VARRET_TITLE,
+     .           VARCLUS_TITLE,VARFLOW_TITLE,
+     .           VARSURF_TITLE,VARSENS_TITLE)
+
+      DEALLOCATE(VARN)
+      
+
       RETURN
       END

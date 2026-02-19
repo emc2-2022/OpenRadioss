@@ -1,35 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECGROUP                      source/groups/lecgroup.F      
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        HM_LECGRE                     source/groups/hm_lecgre.F     
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lecgroup        ../starter/source/groups/lecgroup.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    hm_lecgre       ../starter/source/groups/hm_lecgre.F
+!||--- uses       -----------------------------------------------------
+!||    submodel_mod    ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE LECGROUP(
      1      ITAB     ,ITABM1             ,ISUBMOD  ,
      2      X        ,IXS      ,IXQ      ,IXC      ,IXT      ,IXP      ,
@@ -49,27 +48,18 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE GROUPDEF_MOD
       USE OPTIONDEF_MOD
+      use element_mod , only : nixs, nixq, nixc, nixt, nixp, nixr, nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "remesh_c.inc"
-#include      "sphcom.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -103,7 +93,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER KK,K
       INTEGER ADMBID
       DATA ADMBID/0/
 C-----------------------------------------------
@@ -112,7 +101,7 @@ C    IGRELEM(IGS)%TITLE : GROUP title
 C    IGRELEM(IGS)%NENTITY : Entities (elements) number of the GROUP
 C    IGRELEM(IGS)%GRTYPE : TYPE ( 0-NOEUDS, 1-BRIC, 2-QUAD,   3-SHELL_4N,
 !                                 4-TRUSS,  5-BEAM, 6-SPRINGS,7-SHELL_3N)
-!!                   GRTYPE --- > OBSOLETTE
+!!                   GRTYPE --- > OBSOLETE
 C    IGRELEM(IGS)%SORTED  : FLAG for sorted/unsorted elements
 !                    = 0 -> sorted
 !                    = 1 -> unsorted
@@ -122,12 +111,12 @@ C    IGRELEM(IGS)%GRPGRP : TYPE of element GROUP
 !                                 = 3 SUBSET,PART,MAT,PROP
 !                                 = 4 BOX,GENE
 !                                 = 5 SUBMOD
-C    IGRELEM(IGS)%LEVEL  : Hierachy level
+C    IGRELEM(IGS)%LEVEL  : Hierarchy level
 !                             (FLAG 'SUBLEVEL DONE' FOR GROUPS OF GROUPS)
 !                            = 0 ---> not yet initialized
 !                            = 1 ---> done
 C-----------------------------------------------
-C     LECTURE DES GROUPES D'ELEMENTS
+C     READING ELEMENT GROUPS
 C=======================================================================
 C-----------------------------------------------
 C     BRICK
@@ -210,7 +199,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     SH_3N GROUP
 C-----------------------------------------------
-      IF (NGRSH3N > 0 .AND. N2D.EQ.0)THEN
+      IF (NGRSH3N > 0 .AND. N2D==0)THEN
         CALL HM_LECGRE(
      1      IGRSH3N   ,IXTG      ,
      2      3         ,NIXTG     ,NUMELTG   ,NGRSH3N       ,7       ,
@@ -223,7 +212,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     TRIA GROUP
 C-----------------------------------------------
-      IF (NGRSH3N > 0 .AND. N2D.NE.0)THEN
+      IF (NGRSH3N > 0 .AND. N2D/=0)THEN
         CALL HM_LECGRE(
      1      IGRSH3N   ,IXTG      ,
      2      3         ,NIXTG     ,NUMELTG   ,NGRSH3N      ,7        ,

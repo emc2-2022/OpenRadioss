@@ -1,48 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_INIMAP2D              source/initial_conditions/inimap/hm_read_inimap2d.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        LEC_INIMAP2D_FILE             source/initial_conditions/inimap/lec_inimap2d_file.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        FUNC2D_MOD                    share/modules1/func2d_mod.F   
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        INIMAP2D_MOD                  share/modules1/inimap2d_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_inimap2d           ../starter/source/initial_conditions/inimap/hm_read_inimap2d.F
+!||--- called by ------------------------------------------------------
+!||    lectur                     ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string              ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_read_key         ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start            ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    lec_inimap2d_file          ../starter/source/initial_conditions/inimap/lec_inimap2d_file.F
+!||    usr2sys                    ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    func2d_mod                 ../starter/share/modules1/func2d_mod.F
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    inimap2d_mod               ../starter/share/modules1/inimap2d_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_INIMAP2D(INIMAP2D, FUNC2D, ITABM1, XGRID, IGRBRIC,
      .                        IGRQUAD , IGRSH3N, UNITAB, LSUBMODEL)
 C-----------------------------------------------
@@ -55,6 +54,7 @@ C-----------------------------------------------
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -63,10 +63,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr17_c.inc"
 !NFUNCT
 #include      "com04_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -87,18 +85,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      CHARACTER MESS*40, KEY2*ncharline, TITR*nchartitle
-      INTEGER :: II, JJ, LL, IFUNC1, IFUNC2, IFUNC3, LNODID1, LNODID2, LNODID3, KK, ID, UID, J
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARLINE) :: KEY2
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      INTEGER :: JJ, LL, IFUNC1, IFUNC2, IFUNC3, LNODID1, LNODID2, LNODID3, KK, ID, UID, J
       my_real :: NORM
       DATA MESS/'INFILE'/
-      INTEGER :: GRBRICID_LOC, GRQUADID_LOC, GRSH3NID_LOC, IAD1, IAD2, SIZE
+      INTEGER :: GRBRICID_LOC, GRQUADID_LOC, GRSH3NID_LOC, SIZE
       my_real :: X0(3), X1(3), X2(3), VEC3(3), FAC1, FAC2, FAC_VEL
       LOGICAL :: FOUND
-      CHARACTER FILENAME*ncharline
+      CHARACTER(LEN=NCHARLINE) :: FILENAME
       CHARACTER MSG_DESCRIPTION*32
       LOGICAL :: IS_AVAILABLE
 
-      IF (NINIMAP2D .GT. 0) THEN
+      IF (NINIMAP2D > 0) THEN
          WRITE(IOUT, 2000)
       ENDIF
 
@@ -116,13 +116,13 @@ C-----------------------------------------------
          INIMAP2D(KK)%ID = ID
          INIMAP2D(KK)%FILE = .FALSE.
                      
-         IF (KEY2(1:2) .EQ. 'VP') THEN
+         IF (KEY2(1:2) == 'VP') THEN
             INIMAP2D(KK)%FORMULATION = 1
             WRITE(IOUT, 2010)
-         ELSE IF (KEY2(1:2) .EQ. 'VE') THEN
+         ELSE IF (KEY2(1:2) == 'VE') THEN
             INIMAP2D(KK)%FORMULATION = 2
             WRITE(IOUT, 2020)
-         ELSE IF (KEY2(1:5) .EQ. 'FILE ') THEN
+         ELSE IF (KEY2(1:5) == 'FILE ') THEN
             INIMAP2D(KK)%FORMULATION = 1
             INIMAP2D(KK)%FILE = .TRUE.
             WRITE(IOUT, 2025)
@@ -144,14 +144,14 @@ C     Error message here
 C     ==============
 C     Check if found
 C     ==============
-         IF (INIMAP2D(KK)%GRBRICID + INIMAP2D(KK)%GRQUADID + INIMAP2D(KK)%GRSH3NID .EQ. 0) THEN
+         IF (INIMAP2D(KK)%GRBRICID + INIMAP2D(KK)%GRQUADID + INIMAP2D(KK)%GRSH3NID == 0) THEN
             CALL ANCMSG(MSGID=1554, MSGTYPE=MSGWARNING, ANMODE=ANINFO, 
      .           C1='IN /INIMAP2D OPTION')
          ELSE
             GRBRICID_LOC = -1
             GRQUADID_LOC = -1
             GRSH3NID_LOC = -1
-            IF (INIMAP2D(KK)%GRBRICID .NE. 0) THEN
+            IF (INIMAP2D(KK)%GRBRICID /= 0) THEN
                DO J = 1,NGRBRIC
                   IF (INIMAP2D(KK)%GRBRICID == IGRBRIC(J)%ID) THEN
                      GRBRICID_LOC  = J
@@ -159,7 +159,7 @@ C     ==============
                      EXIT
                   ENDIF
                ENDDO
-               IF (GRBRICID_LOC .EQ. -1) THEN
+               IF (GRBRICID_LOC == -1) THEN
                   CALL ANCMSG(MSGID=1554,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO,
@@ -167,7 +167,7 @@ C     ==============
      .                 I1=INIMAP2D(KK)%GRBRICID)
                ENDIF
             ENDIF
-            IF (INIMAP2D(KK)%GRQUADID .NE. 0) THEN
+            IF (INIMAP2D(KK)%GRQUADID /= 0) THEN
                DO J = 1,NGRQUAD
                   IF (INIMAP2D(KK)%GRQUADID == IGRQUAD(J)%ID) THEN
                      GRQUADID_LOC = J
@@ -175,7 +175,7 @@ C     ==============
                      EXIT
                   ENDIF
                ENDDO
-               IF (GRQUADID_LOC .EQ. -1) THEN
+               IF (GRQUADID_LOC == -1) THEN
                   CALL ANCMSG(MSGID=1554,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO,
@@ -183,7 +183,7 @@ C     ==============
      .                 I1=INIMAP2D(KK)%GRQUADID)
                ENDIF
             ENDIF
-            IF (INIMAP2D(KK)%GRSH3NID .NE. 0) THEN
+            IF (INIMAP2D(KK)%GRSH3NID /= 0) THEN
                DO J = 1,NGRSH3N
                   IF (INIMAP2D(KK)%GRSH3NID == IGRSH3N(J)%ID) THEN
                      GRSH3NID_LOC = J
@@ -191,7 +191,7 @@ C     ==============
                      EXIT
                   ENDIF
                ENDDO
-               IF (GRSH3NID_LOC .EQ. -1) THEN
+               IF (GRSH3NID_LOC == -1) THEN
                   CALL ANCMSG(MSGID=1554,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO,
@@ -316,21 +316,23 @@ C     ==============
            WRITE(IOUT, 2026)TRIM(FILENAME)
            CALL LEC_INIMAP2D_FILE(INIMAP2D(KK), FILENAME, ID, TITR )
         ENDIF
-
-         IF (INIMAP2D(KK)%NODEID1 .GT. 0) THEN
+        LNODID1 = 0
+        LNODID2 = 0
+        LNODID3 = 0
+         IF (INIMAP2D(KK)%NODEID1 > 0) THEN
             LNODID1 = USR2SYS(INIMAP2D(KK)%NODEID1, ITABM1, MESS, INIMAP2D(KK)%NODEID1)
             INIMAP2D(KK)%NODEID1 = LNODID1
          ENDIF
-         IF (INIMAP2D(KK)%NODEID2 .GT. 0) THEN
+         IF (INIMAP2D(KK)%NODEID2 > 0) THEN
             LNODID2 = USR2SYS(INIMAP2D(KK)%NODEID2, ITABM1, MESS, INIMAP2D(KK)%NODEID2)
             INIMAP2D(KK)%NODEID2 = LNODID2
          ENDIF
-         IF (INIMAP2D(KK)%NODEID3 .GT. 0) THEN
+         IF (INIMAP2D(KK)%NODEID3 > 0) THEN
             LNODID3 = USR2SYS(INIMAP2D(KK)%NODEID3, ITABM1, MESS, INIMAP2D(KK)%NODEID3)
             INIMAP2D(KK)%NODEID3 = LNODID3
          ENDIF
 
-         IF (LNODID1 * LNODID2 * LNODID3 .EQ. 0) THEN
+         IF (LNODID1==0 .or. LNODID2==0 .or. LNODID3==0) THEN
 C       Error here, we need 3 nodes to define a plane
          ELSE
             X0(1:3) = XGRID(1:3, LNODID1)
@@ -362,13 +364,6 @@ C       Error here, we need 3 nodes to define a plane
          ENDIF
                    
       ENDDO ! KK = 1, NINIMAP2D
-      RETURN
-      
- 998  CALL ANCMSG(MSGID = 1893, ANMODE = ANINFO, MSGTYPE = MSGERROR,I1=INIMAP2D(KK)%ID, C1=INIMAP2D(KK)%TITLE,C2=MSG_DESCRIPTION)
-      CALL FREERR(3)
-      RETURN
-
- 999  CALL FREERR(3)
       RETURN
 
 

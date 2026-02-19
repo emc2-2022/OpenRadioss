@@ -1,40 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LAGM_INI                      source/tools/lagmul/lagm_ini.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        LGMINI_BC                     source/tools/lagmul/lgmini_bc.F
-Chd|        LGMINI_FXV                    source/tools/lagmul/lgmini_fxv.F
-Chd|        LGMINI_GJ                     source/tools/lagmul/lgmini_gj.F
-Chd|        LGMINI_I2                     source/tools/lagmul/lgmini_i2.F
-Chd|        LGMINI_MPC                    source/tools/lagmul/lgmini_mpc.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lagm_ini        ../starter/source/tools/lagmul/lagm_ini.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../starter/source/output/message/message.F
+!||    lgmini_bc       ../starter/source/tools/lagmul/lgmini_bc.F
+!||    lgmini_fxv      ../starter/source/tools/lagmul/lgmini_fxv.F
+!||    lgmini_gj       ../starter/source/tools/lagmul/lgmini_gj.F
+!||    lgmini_i2       ../starter/source/tools/lagmul/lgmini_i2.F
+!||    lgmini_mpc      ../starter/source/tools/lagmul/lgmini_mpc.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LAGM_INI(NHF    ,IADHF       ,IADLL  ,JLL    ,LLL    ,
      2                    IPARI  ,INTBUF_TAB  ,IGRNOD ,        IBCSLAG,
      3                    MASS   ,INER        ,GJBUFI ,IBUFNC ,IBUFNN ,
@@ -59,9 +58,6 @@ C-----------------------------------------------
 #include      "lagmult.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NHF
@@ -80,7 +76,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER, ALLOCATABLE, DIMENSION(:,:) :: LTSM
-      INTEGER IC, IK, J, JC, NCF, HIJ, ERR
+      INTEGER IC, IK, JC, NCF, HIJ, ERR
 C======================================================================|
       ALLOCATE(LTSM(6,NUMNOD),  STAT=ERR)
       IF (ERR /= 0) THEN

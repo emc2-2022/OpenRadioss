@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_TRI25VOX0                source/mpi/interfaces/spmd_tri25vox0.F
-Chd|-- called by -----------
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|-- calls ---------------
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_tri25vox0   ../engine/source/mpi/interfaces/spmd_tri25vox0.F
+!||--- called by ------------------------------------------------------
+!||    i25main_tri      ../engine/source/interfaces/intsort/i25main_tri.F
+!||--- uses       -----------------------------------------------------
+!||    tri25ebox        ../engine/share/modules/tri25ebox.F
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_TRI25VOX0(
      1   X      ,BMINMAL ,NRTM  ,STF   ,MARGE  ,
      2   CURV_MAX,GAP_M  ,IRECT  ,GAP  ,BGAPSMX,
@@ -44,15 +44,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "assert.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -76,23 +71,21 @@ C-----------------------------------------------
      .        NBX,NBY,NBZ,NE,M1,M2,M3,M4,
      .        IX1,IY1,IZ1,IX2,IY2,IZ2,IX,IY,IZ
       my_real
-     .        RATIO, AAA,
+     . AAA,
      .        XMAXB,YMAXB,ZMAXB,XMINB,YMINB,ZMINB,
      .        XMINE,YMINE,ZMINE,XMAXE,YMAXE,ZMAXE,
      .        XX1,XX2,XX3,XX4,YY1,YY2,YY3,YY4,ZZ1,ZZ2,ZZ3,ZZ4
 
       INTEGER :: SOL_EDGE,SH_EDGE
-      INTEGER :: IE,N1,N2
       my_real :: DX,DY,DZ
-      INTEGER :: IDS(4)
       INTEGER :: TMP
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
 C=======================================================================
-C     tag des boites contenant des facettes
-C     et creation des candidats
+C     tag of boxes containing facets
+C     and creation of candidates
 C=======================================================================
 
       SOL_EDGE =IEDGE/10 ! solids
@@ -112,17 +105,17 @@ C=======================================================================
       ZMINB = BMINMAL(6)
 
       DO NE=1,NRTM
-C on ne retient pas les facettes detruites
-        IF(STF(NE) == ZERO)CYCLE
+C We do not retain the Destruit facets
+        IF(STF(NE) <= ZERO)CYCLE
          AAA = MARGE+CURV_MAX(NE)+VMAXDT
      +       + MAX(MAX(PMAX_GAP,BGAPSMX+GAP_M(NE))+DGAPLOAD,DRAD)
 
 
-C verifier avec 
+C verify with
          IF(SOL_EDGE > 0) AAA = MAX(AAA,MARGE+BGAPEMX+DGAPLOAD)
 
-c     il est possible d'ameliorer l'algo en decoupant la facette
-c     en 2(4,3,6,9...) si la facette est grande devant AAA et inclinee
+c     It is possible to improve the algo by cutting the facet
+c     in 2 (4,3,6,9 ...) if the facet is large in front of AAA and inclinee
 
          M1 = IRECT(1,NE)
          M2 = IRECT(2,NE)
@@ -162,7 +155,7 @@ c     en 2(4,3,6,9...) si la facette est grande devant AAA et inclinee
            ZMINE=ZMINE-DZ
          ENDIF
 
-c        indice des voxels occupes par la facette
+c        index of voxels occupied by the facet
 
          IX1=INT(NBX*(XMINE-AAA-XMINB)/(XMAXB-XMINB))
          IY1=INT(NBY*(YMINE-AAA-YMINB)/(YMAXB-YMINB))
@@ -186,7 +179,7 @@ c        indice des voxels occupes par la facette
              DO IX = IX1, IX2
                TMP=IBSET(TMP,IX)
              END DO
-#include "atomic.inc"
+!$OMP ATOMIC
              CRVOXEL25(IY,IZ,1,LOC_PROC)=IOR(CRVOXEL25(IY,IZ,1,LOC_PROC),TMP)
            END DO
          END DO
@@ -195,14 +188,14 @@ c        indice des voxels occupes par la facette
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SPMD_TRI25VOX0_EDGE           source/mpi/interfaces/spmd_tri25vox0.F
-Chd|-- called by -----------
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|-- calls ---------------
-Chd|        TRI25EBOX                     share/modules/tri25ebox.F     
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_tri25vox0_edge   ../engine/source/mpi/interfaces/spmd_tri25vox0.F
+!||--- called by ------------------------------------------------------
+!||    i25main_tri           ../engine/source/interfaces/intsort/i25main_tri.F
+!||--- uses       -----------------------------------------------------
+!||    tri25ebox             ../engine/share/modules/tri25ebox.F
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_TRI25VOX0_EDGE(
      1   X      ,BMINMAL ,NRTM  ,STFE   ,MARGE  ,
      2   CURV_MAX,GAP_M  ,IRECT  ,GAP  ,BGAPSMX,
@@ -219,14 +212,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -247,13 +236,13 @@ C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
       INTEGER LOC_PROC,
-     .        NBX,NBY,NBZ,NE,M1,M2,M3,M4,
+     . NBX,NBY,NBZ,M1,
      .        IX1,IY1,IZ1,IX2,IY2,IZ2,IX,IY,IZ
       my_real
-     .        RATIO, AAA,
+     . AAA,
      .        XMAXB,YMAXB,ZMAXB,XMINB,YMINB,ZMINB,
      .        XMINE,YMINE,ZMINE,XMAXE,YMAXE,ZMAXE,
-     .        XX1,XX2,XX3,XX4,YY1,YY2,YY3,YY4,ZZ1,ZZ2,ZZ3,ZZ4
+     . XX1,XX2,YY1,YY2,ZZ1,ZZ2
 
       INTEGER :: SOL_EDGE,SH_EDGE
       INTEGER :: IE,N1,N2
@@ -264,8 +253,8 @@ C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
 C=======================================================================
-C     tag des boites contenant des facettes
-C     et creation des candidats
+C     tag of boxes containing facets
+C     and creation of candidates
 C=======================================================================
 
       SOL_EDGE =IEDGE/10 ! solids
@@ -287,7 +276,7 @@ C=======================================================================
 !$OMP DO
       DO IE = 1, NEDGE
 C check with :
-        IF(STFE(IE) == ZERO ) CYCLE
+        IF(STFE(IE) <= ZERO ) CYCLE
         IF(LEDGE(9,IE) == 0) CYCLE ! not main of secnd edge 
 
         M1 = LEDGE(1,IE)
@@ -345,7 +334,7 @@ C       END IF
              DO IX = IX1, IX2
                TMP=IBSET(TMP,IX)
              END DO
-#include "atomic.inc"
+!$OMP ATOMIC
              CRVOXEL25(IY,IZ,1,LOC_PROC)=IOR(CRVOXEL25(IY,IZ,1,LOC_PROC),TMP)
            END DO
          END DO

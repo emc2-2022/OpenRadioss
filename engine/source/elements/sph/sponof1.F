@@ -1,46 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPONOF1                       source/elements/sph/sponof1.F 
-Chd|-- called by -----------
-Chd|        SPHPREP                       source/elements/sph/sphprep.F 
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPHREQS                       source/elements/sph/sphreq.F  
-Chd|        GET_U_GEO                     source/user_interface/upidmid.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sponof1        ../engine/source/elements/sph/sponof1.F
+!||--- called by ------------------------------------------------------
+!||    sphprep        ../engine/source/elements/sph/sphprep.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    initbuf        ../engine/share/resol/initbuf.F
+!||    sphreqs        ../engine/source/elements/sph/sphreq.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||    initbuf_mod    ../engine/share/resol/initbuf.F
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||    sph_mod        ../engine/share/modules/sph_mod.F
+!||====================================================================
       SUBROUTINE SPONOF1(X ,V       ,D       ,MS      ,SPBUF   ,
      2             ITAB    ,KXSP    ,IXSP    ,NOD2SP  ,NPC     ,
      3             PLD     ,IPARG   ,ELBUF_TAB,ISPHIO  ,VSPHIO  ,
      4             PM      ,IPART   ,IPARTSP ,IGRSURF ,
      5             LPRTSPH ,LONFSPH ,MWA     ,WA      ,VNORMAL ,
-     6             XDP, IBUFSSG_IO  ,OFF_SPH_R2R)
+     6             XDP, IBUFSSG_IO  ,OFF_SPH_R2R, WFEXT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -48,14 +49,13 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD            
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
-C----6---------------------------------------------------------------7---------8
+      USE SPH_MOD, ONLY : XI_RES, YI_RES, ZI_RES
+C----6------------------------------------------
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -66,22 +66,17 @@ C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "sphcom.inc"
-#include      "scr01_c.inc"
 #include      "scr05_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "tabsiz_c.inc"
-#include      "task_c.inc"
 #include      "scr17_c.inc"
 #include      "rad2r_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),ITAB(*),NPC(*),
      .        IPARG(NPARG,*),ISPHIO(NISPHIO,*),IPART(LIPART1,*),
      .        LPRTSPH(2,0:NPART),LONFSPH(*),
      .        MWA(*), IBUFSSG_IO(SIBUFSSG_IO),IPARTSP(*),OFF_SPH_R2R(*)
-C     REAL
       my_real
      .   X(3,*) ,V(3,*) ,D(3,*) ,MS(*) ,SPBUF(NSPBUF,*) ,
      .   PLD(*) ,VSPHIO(*) ,PM(NPROPM,*) ,WA(*),
@@ -90,27 +85,27 @@ C     REAL
      .   XDP(3,*)
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION (NGROUP) :: ELBUF_TAB
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, ITYPE, IVAD,IX, N2ENTER,
      .        II,IPT,JJ,NPF,
-     .        IFVITS,IFDENS,IFPRES,IFENER,
+     .        IFVITS,IFDENS,IFENER,
      .        INACTIV,J,N,INOD,IACTIVE,
      .        ISU,NSEG,IN1,IN2,IN3,IN4,
      .        IMAT,IPROP,IPRT,NEL,KAD,NG,K,
      .        KP,NP2SORT,NBAND,
      .        KNSX,KISX,KNSY,KISY,KNSZ,KISZ,
-     .        KNPX,KIPX,KNPY,KIPY,KNPZ,KIPZ,KVNORM,KXPROJ,KF,
+     .        KNPX,KIPX,KNPY,KIPY,KNPZ,KIPZ,KVNORM,
      .        IUN,IAD2,NSEGB
-C     REAL
       my_real
      .       PENTV,VT,VN,VV,
-     .       PENTR,RHON,RHO0,PENTP,PN,PSHFT,PENTE,EN,EI,
-     .       T05,SSEG,MP,TFEXTT,VOLO,
+     .       PENTR,RHON,RHO0,PENTE,EN,EI,
+     .       T05,SSEG,MP,WFEXTT,VOLO,
      .       X1,X2,X3,X4,XP,Y1,Y2,Y3,Y4,YP,Z1,Z2,Z3,Z4,ZP,
-     .       X12,Y12,Z12,X23,Y23,Z23,X31,Y31,Z31,NX,NY,NZ,NN,
-     .       XI,YI,ZI,DD,DIAM,DMAX,DPS,VOL,BID
+     .       X12,Y12,Z12,X23,Y23,Z23,NX,NY,NZ,NN,
+     .       XI,YI,ZI,DIAM,DMAX,DPS,VOL,BID
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C-----------------------------------------------
       my_real
@@ -118,10 +113,12 @@ C-----------------------------------------------
       EXTERNAL GET_U_GEO
       DATA IUN/1/
 C-----------------------------------------------
-      TFEXTT=ZERO
+      WFEXTT=ZERO
       BID=ZERO
+      EN = 0
+      RHON = ZERO
 C-------
-C     reset active particles states.
+C     Active reset Particecutes States.
       DO I=1,NSPHIO
        IPRT   =ISPHIO(2,I)
 C      loop over active particles related to IPRT.
@@ -133,7 +130,7 @@ C      loop over active particles related to IPRT.
 C-----------------------------------------------
       DO I=1,NSPHIO
       ITYPE=ISPHIO(1,I)
-      IF(ITYPE.EQ.1)THEN
+      IF(ITYPE==1)THEN
        IPRT   =ISPHIO(2,I)
 C------
 C      general inlet.
@@ -142,19 +139,19 @@ C      general inlet.
 C
        IFVITS=ISPHIO(8,I)
        VN    =ZERO
-       IF(IFVITS.NE.0)THEN
+       IF(IFVITS/=0)THEN
         NPF = (NPC(IFVITS+1)-NPC(IFVITS))/2
         II  = NPC(IFVITS)
-        IF (T05.LE.PLD(II)) THEN
+        IF (T05<=PLD(II)) THEN
           PENTV=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
           VN   =PLD(II+1)+PENTV*(T05-PLD(II))
-        ELSEIF (T05.GE.PLD(II+2*(NPF-1))) THEN
+        ELSEIF (T05>=PLD(II+2*(NPF-1))) THEN
           JJ=II+2*(NPF-1)
           PENTV=(PLD(JJ+1)-PLD(JJ-1))/(PLD(JJ)-PLD(JJ-2))
           VN   =PLD(JJ+1)+MAX(-PLD(JJ+1),PENTV*(T05-PLD(JJ)))
         ELSE
           DO IPT=1,NPF-1
-           IF (PLD(II).LE.T05.AND.T05.LE.PLD(II+2)) THEN
+           IF (PLD(II)<=T05.AND.T05<=PLD(II+2)) THEN
             PENTV=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
             VN   =PLD(II+1)+PENTV*(T05-PLD(II))
             GOTO 20
@@ -169,21 +166,21 @@ C------
        VT =VV*VV
 C------
        IFDENS=ISPHIO(5,I)
-       IF(IFDENS.EQ.0)THEN
+       IF(IFDENS==0)THEN
         RHON=VSPHIO(IVAD)
        ELSE
         NPF = (NPC(IFDENS+1)-NPC(IFDENS))/2
         II  = NPC(IFDENS)
-        IF (TT.LE.PLD(II)) THEN
+        IF (TT<=PLD(II)) THEN
           PENTR=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
           RHON =PLD(II+1)+PENTR*(TT-PLD(II))
-        ELSEIF (TT.GE.PLD(II+2*(NPF-1))) THEN
+        ELSEIF (TT>=PLD(II+2*(NPF-1))) THEN
           JJ=II+2*(NPF-1)
           PENTR=(PLD(JJ+1)-PLD(JJ-1))/(PLD(JJ)-PLD(JJ-2))
           RHON =PLD(JJ+1)+MAX(-PLD(JJ+1),PENTR*(TT-PLD(JJ)))
         ELSE
           DO IPT=1,NPF-1
-           IF (PLD(II).LE.TT.AND.TT.LE.PLD(II+2)) THEN
+           IF (PLD(II)<=TT.AND.TT<=PLD(II+2)) THEN
             PENTR=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
             RHON =PLD(II+1)+PENTR*(TT-PLD(II))
             GOTO 30
@@ -196,21 +193,21 @@ C------
        ENDIF
 C------
        IFENER=ISPHIO(7,I)
-       IF(IFENER.EQ.0)THEN
+       IF(IFENER==0)THEN
         EN=VSPHIO(IVAD+2)
        ELSE
         NPF = (NPC(IFENER+1)-NPC(IFENER))/2
         II  = NPC(IFENER)
-        IF (TT.LE.PLD(II)) THEN
+        IF (TT<=PLD(II)) THEN
           PENTE=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
           EN   =PLD(II+1)+PENTE*(TT-PLD(II))
-        ELSEIF (TT.GE.PLD(II+2*(NPF-1))) THEN
+        ELSEIF (TT>=PLD(II+2*(NPF-1))) THEN
           JJ=II+2*(NPF-1)
           PENTE=(PLD(JJ+1)-PLD(JJ-1))/(PLD(JJ)-PLD(JJ-2))
           EN   =PLD(JJ+1)+MAX(-PLD(JJ+1),PENTE*(TT-PLD(JJ)))
         ELSE
           DO IPT=1,NPF-1
-           IF (PLD(II).LE.TT.AND.TT.LE.PLD(II+2)) THEN
+           IF (PLD(II)<=TT.AND.TT<=PLD(II+2)) THEN
             PENTE=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
             EN   =PLD(II+1)+PENTE*(TT-PLD(II))
             GOTO 50
@@ -230,13 +227,13 @@ C      specific energy related to V0=MP/RHO0.
        EI   =EN*(RHO0/RHON)
        
 c default value        
-       IF(DIAM.EQ.ZERO) THEN
+       IF(DIAM==ZERO) THEN
          MP  = GET_U_GEO(1,IPROP)
          VOL = MP/RHO0
          DIAM= (SQR2*VOL)**THIRD
        END IF             
 C------
-C      boite englobante / surface entiere.
+C      Enclosure box / entire surface.
        XBMIN =EP20
        YBMIN =EP20
        ZBMIN =EP20
@@ -247,10 +244,10 @@ C------
        ISU =ISPHIO(3,I)
 c NSEGB on split surface (IBUFSSG)
        NSEGB=IGRSURF(ISU)%NSEG
-c NSEG on complete surface (IBUFSSG_IO)
+c Nseg we complete surface (ibufssg_io)
        NSEG=ISPHIO(10,I)
-c IAD on split surface (IBUFSSG)
-c IAD2 on complete surface (IBUFSSG_IO)
+c IAD on Split Surface (Ibufssg)
+c IAD2 we complete surface (ibufssg_io)
        IAD2 =ISPHIO(11,I)
        DMAX=VSPHIO(IVAD+3)
 
@@ -288,7 +285,7 @@ c call of SPHREQS with IBUFSSG_IO
           XBMAX=MAX(XBMAX,XP)
           YBMAX=MAX(YBMAX,YP)
           ZBMAX=MAX(ZBMAX,ZP)
-          IF(IN4.NE.IN3)THEN
+          IF(IN4/=IN3)THEN
            XP=X(1,IN4)
            YP=X(2,IN4)
            ZP=X(3,IN4)
@@ -314,8 +311,8 @@ C------
         XI=X(1,INOD)
         YI=X(2,INOD)
         ZI=X(3,INOD)
-        IF(     XI.GT.XBMIN.AND.YI.GT.YBMIN.AND.ZI.GT.ZBMIN
-     .     .AND.XI.LT.XBMAX.AND.YI.LT.YBMAX.AND.ZI.LT.ZBMAX)THEN
+        IF(     XI>XBMIN.AND.YI>YBMIN.AND.ZI>ZBMIN
+     .     .AND.XI<XBMAX.AND.YI<YBMAX.AND.ZI<ZBMAX)THEN
          NP2SORT=NP2SORT+1
          MWA(NP2SORT)=IACTIVE
         ENDIF
@@ -346,7 +343,7 @@ C      bucket.
           DBUCS=MAX(DBUCS,ABS(X3-X1))
           DBUCS=MAX(DBUCS,ABS(Y3-Y1))
           DBUCS=MAX(DBUCS,ABS(Z3-Z1))
-          IF(IN4.NE.IN3)THEN
+          IF(IN4/=IN3)THEN
            X4=X(1,IN4)
            Y4=X(2,IN4)
            Z4=X(3,IN4)
@@ -394,11 +391,11 @@ C------
 C      check active particles within distance / re-impose kinematic condition.
        DO KP=1,NP2SORT
         DPS=WA(KP)
-        IF(DPS.GE.0..AND.DPS.LT.DMAX)THEN
+        IF(DPS>=0..AND.DPS<DMAX)THEN
          IACTIVE=MWA(KP)
          N=LONFSPH(IACTIVE)
          INOD=KXSP(3,N)
-         TFEXTT=TFEXTT + HALF*MS(INOD)*(VT-
+         WFEXTT=WFEXTT + HALF*MS(INOD)*(VT-
      . (V(1,INOD)*V(1,INOD)+V(2,INOD)*V(2,INOD)+V(3,INOD)*V(3,INOD)))
          VNORMAL(1,N)=-WA(KVNORM+3*(N-1))
          VNORMAL(2,N)=-WA(KVNORM+3*(N-1)+1)
@@ -420,17 +417,17 @@ c multiple count of cells to enter and to activate in SPMD
        DO J=0,(NSEGB-1)
         SSEG =VSPHIO(IX+1)
         VSPHIO(IX)=VSPHIO(IX)+RHON*SSEG*VV*DT1
-        IF(VSPHIO(IX).GE.MP)THEN
+        IF(VSPHIO(IX)>=MP)THEN
          N2ENTER=N2ENTER+1
         ENDIF
         IX=IX+2
        ENDDO
 C------
-       IF(N2ENTER.GT.0)THEN
+       IF(N2ENTER>0)THEN
         ISPHBUC=1
 C       find N2ENTER inactive particles related to same part.
         INACTIV=LPRTSPH(2,IPRT)-LPRTSPH(1,IPRT)
-        IF(INACTIV.LT.N2ENTER)THEN
+        IF(INACTIV<N2ENTER)THEN
           CALL ANCMSG(MSGID=175,ANMODE=ANINFO,
      .            I1=ISPHIO(NISPHIO,I))
           CALL ARRET(2)
@@ -441,7 +438,7 @@ C       enter N2ENTER particles.
         IX=IVAD+4
         IACTIVE=LPRTSPH(1,IPRT)
         DO J=0,(NSEGB-1)
-        IF(VSPHIO(IX).GE.MP)THEN
+        IF(VSPHIO(IX)>=MP)THEN
 C--------
          IACTIVE=IACTIVE+1
           N     =LONFSPH(IACTIVE)
@@ -465,13 +462,13 @@ c          IN4=IBUFSSG_IO(IAD2+NIBSPH*(J-1)+3)
           X3=X(1,IN3)
           Y3=X(2,IN3)
           Z3=X(3,IN3)
-         IF(IN4.NE.IN3)THEN
+         IF(IN4/=IN3)THEN
           X4=X(1,IN4)
           Y4=X(2,IN4)
           Z4=X(3,IN4)
           XP=FOURTH*(X1+X2+X3+X4)
           YP=FOURTH*(Y1+Y2+Y3+Y4)
-          ZP=FOURTH*(Z1+Z2+Z3+Z4)	  
+          ZP=FOURTH*(Z1+Z2+Z3+Z4)    
          ELSE
           X4=X3
           Y4=Y3
@@ -486,7 +483,7 @@ C--------
          Z12=HALF*(Z2+Z3-Z1-Z4)
          X23=HALF*(X3+X4-X1-X2)
          Y23=HALF*(Y3+Y4-Y1-Y2)
-         Z23=HALF*(Z3+Z4-Z1-Z2)	 
+         Z23=HALF*(Z3+Z4-Z1-Z2)   
          NX = Y12*Z23-Z12*Y23
          NY =-X12*Z23+Z12*X23
          NZ = X12*Y23-Y12*X23
@@ -496,30 +493,36 @@ C--------
          NZ=NN*NZ
 C--------
          INOD=KXSP(3,N)
-         D(1,INOD)=XP-X(1,INOD)
-         D(2,INOD)=YP-X(2,INOD)
-         D(3,INOD)=ZP-X(3,INOD)
+         IF (ITAB(INOD) >= 1000000000) THEN
+           D(1,INOD)=XP-XI_RES
+           D(2,INOD)=YP-YI_RES
+           D(3,INOD)=ZP-ZI_RES
+         ELSE
+           D(1,INOD)=XP-X(1,INOD)+D(1,INOD)
+           D(2,INOD)=YP-X(2,INOD)+D(2,INOD)
+           D(3,INOD)=ZP-X(3,INOD)+D(3,INOD)
+         ENDIF
          X(1,INOD)=XP
          X(2,INOD)=YP
          X(3,INOD)=ZP
-         IF (IRESP.EQ.1) THEN
+         IF (IRESP==1) THEN
            XDP(1,INOD)=XP
            XDP(2,INOD)=YP
            XDP(3,INOD)=ZP
          END IF
-         TFEXTT=TFEXTT+HALF*MP*VT
+         WFEXTT=WFEXTT+HALF*MP*VT
          VNORMAL(1,N)=NX
          VNORMAL(2,N)=NY
          VNORMAL(3,N)=NZ
          V(1,INOD)=VN*NX
          V(2,INOD)=VN*NY
          V(3,INOD)=VN*NZ
-         IF (R2R_SIU.NE.0)  OFF_SPH_R2R(INOD) = 2
+         IF (R2R_SIU/=0)  OFF_SPH_R2R(INOD) = 2
 C--------
           NG=-KXSP(2,N)
           IPARG(8,NG) =0
           IPARG(10,NG)=IPARG(10,NG)+1
-          CALL INITBUF (IPARG    ,NG      ,                   
+          CALL INITBUF(IPARG    ,NG      ,                   
      2       MTN     ,NEL     ,NFT     ,KAD     ,ITY     ,    
      3       NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,    
      4       JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,    
@@ -529,7 +532,7 @@ C--------
           GBUF => ELBUF_TAB(NG)%GBUF
           K=N-NFT
           VOLO=GBUF%VOL(K)
-          TFEXTT=TFEXTT+EI*VOLO
+          WFEXTT=WFEXTT+EI*VOLO
           GBUF%EINT(K) =EI
           GBUF%OFF(K)  =ONE
           GBUF%RHO(K)  =RHON
@@ -547,9 +550,8 @@ C        reset MASS FLOW for this segment.
       ENDIF
       ENDDO
 C-------------------------------------------
-#include "atomic.inc"
-       TFEXT=TFEXT+TFEXTT
-#include "atomend.inc"
+!$OMP ATOMIC
+       WFEXT=WFEXT+WFEXTT
 C-------------------------------------------
       RETURN
       END

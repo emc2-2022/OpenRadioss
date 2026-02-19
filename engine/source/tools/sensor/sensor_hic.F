@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C=======================================================================
-Chd|====================================================================
-Chd|  SENSOR_HIC                    source/tools/sensor/sensor_hic.F
-Chd|-- called by -----------
-Chd|        SENSOR1                       source/tools/sensor/sensor1.F 
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        SENSOR_MOD                    share/modules/sensor_mod.F    
-Chd|====================================================================
+!||====================================================================
+!||    sensor_hic     ../engine/source/tools/sensor/sensor_hic.F
+!||--- called by ------------------------------------------------------
+!||    sensor_base    ../engine/source/tools/sensor/sensor_base.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||    sensor_mod     ../common_source/modules/sensor_mod.F90
+!||====================================================================
       SUBROUTINE SENSOR_HIC(SENSOR ,ACCN, ACCEL)
 C-----------------------------------------------
 C   M o d u l e s
@@ -46,10 +46,7 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "units_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -59,13 +56,13 @@ C-----------------------------------------------
 C----------------------------------------------------------
 C Local Variables
 C----------------------------------------------------------
-      INTEGER I,J,IPOINT,IDIR,IACC,ISENSOR_TYPE,NPOINT,INDX,NVAR
+      INTEGER I,J,IDIR,IACC,ISENSOR_TYPE,NPOINT,INDX,NVAR,ICRIT
 c
       my_real :: TIME_UNIT,TIME,xINDX, INTEGRAL,INCREMENT,TIME_INTERVAL
       my_real :: HIC_PERIOD,HIC_CRIT,HIC,HIC_PREC,HIC_TMP
       my_real :: TIME_PREC,TEST_TIME,DELTA_T,BETA
       my_real :: ACC_X,ACC_Y,ACC_Z,ACC,ACCG,ACC_PREC,CURRENT_VALUE,GRAVITY
-      my_real :: PERIOD_TMP,OPT_PERIOD,T1,T2
+      my_real :: PERIOD_TMP,OPT_PERIOD,T1,T2,TMIN,TDELAY
       my_real ,DIMENSION(:) ,POINTER :: VALUE_TABLE
 c
       DATA NVAR/4/
@@ -77,8 +74,10 @@ c        SENSOR%VAR(3) :  Index of current time interval in data table
 c        SENSOR%VAR(4) :  Previous HIC value
 c        SENSOR%VAR(5...5+NPOINT)  : average acceleration data table by time intervals
 C=======================================================================
-      IF (SENSOR%STATUS == 3) RETURN   ! already activated
+      IF (SENSOR%STATUS == 1) RETURN   ! already activated
 c
+      TMIN   = SENSOR%TMIN
+      TDELAY = SENSOR%TDELAY
       ISENSOR_TYPE = SENSOR%IPARAM(1)
       IACC         = SENSOR%IPARAM(2)
       NPOINT       = SENSOR%IPARAM(3)
@@ -109,7 +108,7 @@ c
         ACC = ACC_X   
       ELSEIF (IDIR == 3) THEN    !  Y
         ACC = ACC_Y  
-      ELSEIF (IDIR == 4) THEN    !  Z
+      ELSE    !  Z
         ACC = ACC_Z    
       END IF
       ACCG = ACC / GRAVITY
@@ -120,7 +119,8 @@ c...  Get last sensor state variables
       ACC_PREC  = SENSOR%VAR(2)
       xINDX     = SENSOR%VAR(3)
       HIC_PREC  = SENSOR%VAR(4)
-      INDX = NINT(xINDX)
+      INDX  = NINT(xINDX)
+      ICRIT = 0
 c
       TIME_INTERVAL = HIC_PERIOD / NPOINT
       TEST_TIME = TIME_PREC + TIME_INTERVAL
@@ -168,32 +168,32 @@ c       Save sensor status, for next step
         SENSOR%VAR(1) = TIME
         SENSOR%VAR(2) = ZERO       ! reinitialize integral for next time interval
         SENSOR%VAR(3) = INDX
-        IF (HIC > HIC_PREC) THEN
+        IF (HIC >= HIC_PREC) THEN
           SENSOR%VAR(4) = HIC
+          ICRIT = 1
         ENDIF 
 c
 c.......Check Sensor State
-        IF (HIC >= HIC_CRIT) THEN
-          IF (SENSOR%STATUS == 0) THEN
-            SENSOR%STATUS = 1
-            SENSOR%TCRIT  = TIME + SENSOR%TMIN
+        IF (SENSOR%TCRIT + TMIN > TT) THEN
+          IF (ICRIT == 0) THEN
+            SENSOR%TCRIT = INFINITY
+          ELSE IF (SENSOR%TCRIT == INFINITY) THEN
+            SENSOR%TCRIT = MIN(SENSOR%TCRIT, TT)
           END IF
-          IF (SENSOR%TCRIT <= TIME) THEN
-            SENSOR%STATUS = 2
-          END IF
-          IF (SENSOR%STATUS == 2 .and. 
-     .        SENSOR%TCRIT + SENSOR%TDELAY <= TIME) THEN
-            SENSOR%STATUS = 3   ! activate
-            SENSOR%TSTART = TIME
-          END IF
-        ENDIF ! Fin test HIC
+        ELSE IF (SENSOR%TSTART == INFINITY) THEN
+          SENSOR%TSTART = SENSOR%TCRIT + TMIN + TDELAY
+        END IF
+c
+        IF (SENSOR%TSTART <= TT) THEN   ! sensor activation
+          SENSOR%STATUS = 1
+        END IF
 c
       ELSE    ! TIME < TEST_TIME
 c       Calculate acceleration integral within current time interval 
         SENSOR%VAR(2) = SENSOR%VAR(2) + ACCG*DT12
       ENDIF  ! Fin of TIME test
 c-----------------------------------------------------------------------      
-      IF (SENSOR%STATUS == 3 .and. ISPMD == 0) THEN
+      IF (SENSOR%STATUS == 1 .and. ISPMD == 0) THEN
 #include "lockon.inc"
         WRITE (ISTDO,1100 ) SENSOR%SENS_ID,SENSOR%TSTART
         WRITE (IOUT ,1100 ) SENSOR%SENS_ID,SENSOR%TSTART
@@ -204,7 +204,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------      
 1100  FORMAT(' SENSOR NUMBER ',I10,' ,ACTIVATED AT TIME ',1PE12.5)
 1200  FORMAT('      HIC     = ',1PE12.5,'  ,HIC PERIOD  = ',1PE12.5)           
-1300  FORMAT('      TIME T1 = ' 1PE12.5,'  ,TIME T2 = ',1PE12.5)
+1300  FORMAT('      TIME T1 = ',1PE12.5,'  ,TIME T2 = ',1PE12.5)
 c-----------------------------------------------------------------------      
       RETURN
       END SUBROUTINE

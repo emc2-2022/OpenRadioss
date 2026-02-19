@@ -1,44 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_THPART                source/output/thpart/hm_read_thpart.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        NINTRIGR                      source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_thpart           ../starter/source/output/thpart/hm_read_thpart.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    fretitl                  ../starter/source/starter/freform.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    nintrigr                 ../starter/source/system/nintrr.F
+!||    udouble                  ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_THPART(IPART    ,IGRBRIC ,IGRQUAD  ,IGRSH4N ,IGRSH3N,
      .                     IGRTRUSS ,IGRBEAM ,IGRSPRING, LSUBMODEL)
 C-----------------------------------------------
@@ -48,6 +47,7 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -61,9 +61,7 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com10_c.inc"
-#include      "param_c.inc"
 #include      "warn_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -77,23 +75,19 @@ C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRSPRI) :: IGRSPRING
       TYPE(SUBMODEL_DATA) LSUBMODEL(NSUBMOD)
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER PID,MID,SID,ID,I,IMID,IPID,ISID,K,ITH,IGTYP,N,
-     .   GR,IGR
-      CHARACTER TITR*nchartitle,MESS*40,TYP*6
-      INTEGER IDS, CNT, FLAG_FMT, FLAG_FMT_TMP, IFIX_TMP,NGROU,ITYP
-      CHARACTER*nchartitle,TITR1
-      CHARACTER*ncharkey KEY
+      INTEGER ID, I, GR, IGR
+      CHARACTER(LEN=NCHARTITLE) :: TITR,TITR1
+      CHARACTER MESS*40,TYP*6
+      INTEGER ITYP
+      CHARACTER(LEN=NCHARKEY) :: KEY
       LOGICAL IS_ENCRYPTED,IS_AVAILABLE,IS_FOUND_SURF
       my_real BID
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER NINTRI,NINTRIGR
+      INTEGER NINTRIGR
       DATA MESS/' THPART DEFINITION                      '/
 C-----------------------------------------------
 C   S o u r c e   L i n e s
@@ -114,7 +108,7 @@ C-----------------------------------------------
         TITR = ''
         TYP  = ''            
         CALL HM_OPTION_READ_KEY(LSUBMODEL,OPTION_ID = ID,OPTION_TITR = TITR ,KEYWORD2 = KEY   )
-        CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED)
+        CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 
         TYP(1:6)=KEY(1:6)
         TITR1=TITR
@@ -128,6 +122,9 @@ C        4 TRUSS,
 C        5 BEAM, 
 C        6 SPRINGS,
 C        7 SHELL_3N
+
+        ITYP = 0
+        IGR = 0
 
         IF (TYP(1:6) == 'GRBRIC') THEN
           ITYP = 1
@@ -185,12 +182,10 @@ C        7 SHELL_3N
       ENDDO
 
       !-------------------------------------
-      ! Recherche des ID doubles
+      ! Search for duplicate IDs
       !-------------------------------------
       CALL UDOUBLE(IPART(4,1),LIPART1,NPART+NTHPART,MESS,0,BID)
 
-      RETURN
- 999  CALL FREERR(1)
       RETURN
 C
       END

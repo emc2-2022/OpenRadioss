@@ -1,50 +1,61 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R3DEF3                        source/elements/spring/r3def3.F
-Chd|-- called by -----------
-Chd|        RFORC3                        source/elements/spring/rforc3.F
-Chd|-- calls ---------------
-Chd|        REDEF3                        source/elements/spring/redef3.F
-Chd|        TABLE_INTERP                  source/tools/curve/table_tools.F
-Chd|        INTERFACE_TABLE_MOD           share/modules/table_mod.F     
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
-      SUBROUTINE R3DEF3(
-     1                  GEO    ,F     ,AL0    ,E     ,DL     ,
-     2                  NPF    ,TF    ,OFF    ,DPL   ,FEP    ,
-     3                  DPX2   ,DFS   ,V      ,IXR   ,DF     ,
-     4                  ANIM   ,IPOS  ,FR_WAVE,IGEO  ,AL0_ERR,
-     5                  X1DP   ,X2DP  ,X3DP   ,YIELD ,TABLE  ,
-     6                  INIFRIC,NGL   ,MGN    ,EX    ,EY     ,
-     7                  EZ     ,XK    ,XM     ,XC    ,AK     ,
-     8                  EX2    ,EY2   ,EZ2    ,NC1   ,NC2    ,
-     9                  NC3    ,NUVAR ,UVAR   ,DL0   )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r3def3                ../engine/source/elements/spring/r3def3.F
+!||--- called by ------------------------------------------------------
+!||    rforc3                ../engine/source/elements/spring/rforc3.F
+!||--- calls      -----------------------------------------------------
+!||    redef3                ../engine/source/elements/spring/redef3.F90
+!||    table_interp          ../engine/source/tools/curve/table_tools.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    interface_table_mod   ../engine/share/modules/table_mod.F
+!||    python_funct_mod      ../common_source/modules/python_mod.F90
+!||    redef3_mod            ../engine/source/elements/spring/redef3.F90
+!||    table_mod             ../engine/share/modules/table_mod.F
+!||====================================================================
+      SUBROUTINE R3DEF3( PYTHON,
+     1   GEO,     F,       AL0,     E,
+     2   DL,      NPF,     TF,      OFF,
+     3   DPL,     FEP,     DPX2,    DFS,
+     4   V,       IXR,     DF,      ANIM,
+     5   IPOS,    IGEO,    AL0_ERR,
+     6   X1DP,    X2DP,    X3DP,    YIELD,
+     7   TABLE,   INIFRIC, NGL,     MGN,
+     8   EX,      EY,      EZ,      XK,
+     9   XM,      XC,      AK,      EX2,
+     A   EY2,     EZ2,     NC1,     NC2,
+     B   NC3,     NUVAR,   UVAR,    DL0,
+     C   NEL,     NFT,     STF,     SANIN,
+     D   IRESP,   SNPC)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE REDEF3_MOD
       USE TABLE_MOD
       USE INTERFACE_TABLE_MOD
+      USE python_funct_mod
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -62,26 +73,32 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr03_c.inc"
 #include      "scr14_c.inc"
-#include      "vect01_c.inc"
 #include      "com01_c.inc"
 #include      "impl1_c.inc" 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NPF(*),IXR(NIXR,*),IGEO(NPROPGI,*),NGL(*),MGN(*),
+      type(python_), intent(inout) :: PYTHON
+      INTEGER, INTENT(IN) :: SANIN
+      INTEGER, INTENT(IN) :: STF !< Size of TF
+      INTEGER, INTENT(IN) :: NFT
+      INTEGER, INTENT(IN) :: NEL
+      INTEGER, INTENT(IN) :: IRESP !< Single Presision Flag
+      INTEGER, INTENT(IN) :: SNPC   !< Size of NPF
+      INTEGER NPF(SNPC),IXR(NIXR,*),IGEO(NPROPGI,*),NGL(*),MGN(*),
      .        NC1(*),NC2(*),NC3(*),NUVAR
 C     REAL
       my_real
-     .   GEO(NPROPG,*), F(*), AL0(*), E(*), DL(*), TF(*), OFF(*),
+     .   GEO(NPROPG,*), F(*), AL0(*), E(*), DL(*), TF(STF), OFF(*),
      .   DPL(*), FEP(*), DPX2(*),DFS(*),V(3,*),DF(*),ANIM(*),
-     .   IPOS(*),FR_WAVE(*),AL0_ERR(*),YIELD(*),INIFRIC(*),
+     .   IPOS(*),AL0_ERR(*),YIELD(*),INIFRIC(*),
      .   EX(MVSIZ),EY(MVSIZ),EZ(MVSIZ),XK(MVSIZ),
      .   XM(MVSIZ),XC(MVSIZ),AK(MVSIZ),EX2(MVSIZ),EY2(MVSIZ),EZ2(MVSIZ),
      .   UVAR(NUVAR,*),DL0(*)
       DOUBLE PRECISION X1DP(3,*),X2DP(3,*),X3DP(3,*)
       TYPE(TTABLE) TABLE(*)
+      TARGET :: UVAR
 C-----------------------------------------------
 c   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -94,27 +111,31 @@ C     REAL
      .     XL0(MVSIZ),DMN(MVSIZ),DMX(MVSIZ),
      .     DLOLD(MVSIZ),B(MVSIZ), D(MVSIZ), DV(MVSIZ),
      .     FF(MVSIZ),LSCALE(MVSIZ),EE(MVSIZ),
-     .     GF3(MVSIZ),FRIC(MVSIZ),XSCALF(MVSIZ),GX(MVSIZ),YSCALF(MVSIZ),
+     .     GF3(MVSIZ),FRIC(MVSIZ),XSCALF(MVSIZ),YSCALF(MVSIZ),
      .     F_MIN(MVSIZ),F_MAX(MVSIZ),EPLA(MVSIZ)
       my_real
      .     BETA, MU,FMAX, DDX ,VX21,VY21,VZ21,VL21,
-     .     VX32,VY32,VZ32,VL32,NOT_USED
+     .     VX32,VY32,VZ32,VL32,NOT_USED,NOT_USED2(2)
       my_real,
      .        DIMENSION(1) :: XX
       DOUBLE PRECISION EXDP(MVSIZ) ,EYDP(MVSIZ) ,EZDP(MVSIZ),
      .                 EX2DP(MVSIZ),EY2DP(MVSIZ),EZ2DP(MVSIZ),
      .                 AL1DP(MVSIZ),AL2DP(MVSIZ),ALDP(MVSIZ),
      .                 AL0DP(MVSIZ)
+      my_real :: MAX_SLOPE(MVSIZ)
+      my_real ,DIMENSION(:), POINTER :: XX_OLD
+      TARGET :: NOT_USED2
 C-----------------------------------------------
 C
       NOT_USED = ZERO
+      NOT_USED2 = ZERO
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         EPLA(I) = ZERO
         IPID = MGN(I)
         XM(I)  =GEO(1,IPID)
-        XK(I)  =GEO(2,IPID)
-        XC(I)  =GEO(3,IPID) 
+        XK(I)  =GEO(2,IPID) ! K?
+        XC(I)  =GEO(3,IPID) ! C? 
         IECROU(I)=NINT(GEO(7,IPID))
         AK(I)    = GEO(10,IPID)
         B(I)     = GEO(11,IPID)
@@ -136,9 +157,10 @@ C
         F_MIN(I) = GEO(138,IPID)
         F_MAX(I) = GEO(139,IPID)
         YSCALF(I)= GEO(140,IPID)
+        MAX_SLOPE(I) = GEO(141,IPID)
       ENDDO
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         EXDP(I)=X2DP(1,I)-X1DP(1,I)
         EYDP(I)=X2DP(2,I)-X1DP(2,I)
         EZDP(I)=X2DP(3,I)-X1DP(3,I)
@@ -149,12 +171,12 @@ C
       ENDDO
 C
       IF (INISPRI /= 0 .and. TT == ZERO) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           DLOLD(I)=DL0(I)
         ENDDO
       ENDIF
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         AL1DP(I)=SQRT(EXDP(I)*EXDP(I)+EYDP(I)*EYDP(I)+EZDP(I)*EZDP(I))
         AL2DP(I)=SQRT(EX2DP(I)*EX2DP(I)+EY2DP(I)*EY2DP(I)+
      .                                  EZ2DP(I)*EZ2DP(I))
@@ -169,7 +191,7 @@ C
         EZ2DP(I)= EZ2DP(I)/AL2DP(I)
       ENDDO
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         EX(I) = EXDP(I) 
         EY(I) = EYDP(I) 
         EZ(I) = EZDP(I) 
@@ -179,7 +201,7 @@ C
       ENDDO
 !
       IF (INISPRI /= 0 .and. TT == ZERO) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           XL0(I)= AL0(I)
 ! if not initialized length
           IF (XL0(I) == ZERO) XL0(I) = ALDP(I)
@@ -187,37 +209,37 @@ C
       ENDIF
 !
       IF (TT == ZERO) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           AL0(I)= ALDP(I)               ! cast double vers My_real
         ENDDO
       ENDIF
 C
       IF (SCODVER >= 101) THEN
         IF (TT == ZERO) THEN
-          DO I=LFT,LLT
-            AL0_ERR(I)=ALDP(I)-AL0(I)     ! difference entre double et My_real
+          DO I=1,NEL
+            AL0_ERR(I)=ALDP(I)-AL0(I)     ! difference between double and my_real
           ENDDO
         ENDIF
       ENDIF
 !
       IF ( INISPRI /= 0 .and. TT == ZERO) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           AL0(I)= XL0(I)
         ENDDO
       ENDIF
 !
-      DO I=LFT,LLT
+      DO I=1,NEL
         AL0DP(I)= AL0(I)                ! cast My_real en double
       ENDDO
 !
       IF (SCODVER >= 101) THEN
-        DO I=LFT,LLT
-          AL0DP(I)= AL0DP(I)+AL0_ERR(I)   ! AL_DP doit   tre recalcul   ainsi afin de garantir la coh  rence absolue entre AL0_DP et AL_DP
+        DO I=1,NEL
+          AL0DP(I)= AL0DP(I)+AL0_ERR(I)   ! Al_dp must be recalculated as well in order to guarantee the absolute coh rence between al0_dp and al_dp
         ENDDO
       ENDIF
 C
       IF (ISMDISP > 0) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           VX21= V(1,NC2(I)) - V(1,NC1(I)) 
           VY21= V(2,NC2(I)) - V(2,NC1(I)) 
           VZ21= V(3,NC2(I)) - V(3,NC1(I)) 
@@ -229,12 +251,12 @@ C
           DL(I)= DLOLD(I)+(VL21+VL32)*DT1
         ENDDO
       ELSE
-        DO I=LFT,LLT
+        DO I=1,NEL
           DL(I)= (ALDP(I)-AL0DP(I))
         ENDDO
-      ENDIF !(ISMDISP.GT.0) THEN
+      ENDIF !(ISMDISP>0) THEN
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         ILENG=NINT(GEO(93,MGN(I)))
         IF (ILENG /= 0) THEN
           XL0(I)=AL0DP(I)
@@ -243,16 +265,26 @@ C
         ENDIF
       ENDDO
 C
-      CALL REDEF3(F       ,XK     ,DL    ,FEP        ,DLOLD ,
-     .            DPL     ,TF     ,NPF   ,XC         ,OFF   ,
-     .            E       ,DPX2   ,ANIM  ,ANIM_FE(11),IPOS  ,
-     .            FR_WAVE ,XL0    ,DMN   ,DMX        ,DV    ,
-     .            FF      ,LSCALE ,EE    ,GF3        ,IFUNC3,
-     .            YIELD   ,ALDP   ,AK    ,B          ,D     ,
-     .            IECROU  ,IFUNC  ,IFV   ,IFUNC2     ,EPLA  ,
-     .            UVAR(1,1),NOT_USED,NOT_USED,NOT_USED)
+      IF (NUVAR > 0) THEN 
+         XX_OLD => UVAR(1,1:NEL) 
+      ELSE 
+         XX_OLD => NOT_USED2
+      ENDIF 
+      CALL REDEF3(PYTHON,
+     1   F,          XK,         DL,         FEP,
+     2   DLOLD,      DPL,        TF,         NPF,
+     3   XC,         OFF,        E,          DPX2,
+     4   ANIM,       ANIM_FE(11),IPOS,       
+     5   XL0,        DMN,        DMX,        DV,
+     6   FF,         LSCALE,     EE,         GF3,
+     7   IFUNC3,     YIELD,      ALDP,       AK,
+     8   B,          D,          IECROU,     IFUNC,
+     9   IFV,        IFUNC2,     EPLA,       XX_OLD,
+     A   NEL, NFT,   STF,        SANIN,      DT1,
+     B   IRESP,      IMPL_S,     IDYNA,      SNPC,
+     C   MAX_SLOPE=MAX_SLOPE)
       NINDX = 0
-      DO I=LFT,LLT
+      DO I=1,NEL
         IF (OFF(I) == ONE .AND. DMX(I) /= ZERO .AND. DMN(I) /= ZERO) THEN
           IF (DL(I) > DMX(I) .OR. DL(I) < DMN(I)) THEN
             OFF(I)=ZERO
@@ -271,14 +303,16 @@ C
 #include "lockoff.inc"
       ENDDO
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         XM(I)=XM(I)*XL0(I)
         XK(I)=XK(I)/XL0(I)
 C--- for time step compute adding +max slope of h
-        XC(I)=(XC(I)+GEO(141,MGN(I)))/XL0(I)
+C Should it be replaced by the 
+C       XC(I)=(XC(I)+GEO(141,MGN(I)))/XL0(I)
+        XC(I) = (XC(I) + MAX_SLOPE(i)) / XL0(I)
       ENDDO
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         IF (IFRIC(I) == 0) THEN ! old approach
           IF (ITABF(I) > ZERO) THEN
             DDX =  EXDP(I) * (V(1,NC2(I)) - V(1,NC1(I)))
@@ -311,8 +345,8 @@ C
             FMAX  = MIN(FMAX,ABS(DFS(I)))
             DFS(I)= SIGN(FMAX,DFS(I))
             DF(I) = DFS(I)
-C         df=dfs pour compatibilite des restarts si fric=0 
-C         et dfs=ev(nb9) non existant avant 23f et ancien 23f
+C         df=dfs for restart compatibility if fric=0
+C         and DFS = EV (NB9) not existing before 23F and old 23F
           ELSE
             DF(I)= ZERO
           ENDIF ! IF (ITABF(I) > ZERO)
@@ -363,7 +397,7 @@ C---
             DF(I)= ZERO
           ENDIF ! IF (ITABF(I) > ZERO)
         ENDIF ! IF (IFRIC(I) == 0)
-      ENDDO ! DO I=LFT,LLT
+      ENDDO ! DO I=1,NEL
 C---
  1000 FORMAT(1X,'-- RUPTURE OF SPRING ELEMENT NUMBER ',I10)
  1100 FORMAT(1X,'-- RUPTURE OF SPRING ELEMENT :',I10,' AT TIME :',G11.4)

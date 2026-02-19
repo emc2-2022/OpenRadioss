@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  SPMD_EXCH_A_RB6G              source/mpi/kinematic_conditions/spmd_exch_a_rb6g.F
-Chd|-- called by -----------
-Chd|        RBYFOR                        source/constraints/general/rbody/rbyfor.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_a_rb6g      ../engine/source/mpi/kinematic_conditions/spmd_exch_a_rb6g.F
+!||--- called by ------------------------------------------------------
+!||    rbyfor                ../engine/source/constraints/general/rbody/rbyfor.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_A_RB6G(NPBY,RBF6)
-C realise le cumul des acc et stiffness des noeuds main de rigid bodies
-C dans le cas ou tous les procs sont concernes gather/scatter proc0
+C accumulates the acceleration and stiffness of the main nodes of rigid bodies
+C In the case where all the procs are concerned Gather/Scatter PROC0
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -38,14 +40,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -77,12 +77,12 @@ C-----------------------------------------------
       LOC_PROC = ISPMD + 1
       LEN=NRBYKIN*(A_AR+1)
       IDEB=1
-      IF(LOC_PROC.EQ.PMAIN) THEN
+      IF(LOC_PROC==PMAIN) THEN
         DO P = 2, NSPMD
           MSGTYP = MSGOFF 
           CALL MPI_IRECV(
      .      BUF(IDEB),LEN,MPI_DOUBLE_PRECISION,IT_SPMD(P),
-     .      MSGTYP,MPI_COMM_WORLD,REQ(P-1),IERROR    )
+     .      MSGTYP,SPMD_COMM_WORLD,REQ(P-1),IERROR    )
           IDEB = IDEB+LEN
         END DO
         DO IRB = 1, NRBYKIN
@@ -199,7 +199,7 @@ C-----------------------------------------------
         ENDDO
         LEN=NRBYKIN*A_AR
         CALL MPI_BCAST(RBF6,LEN,MPI_DOUBLE_PRECISION,IT_SPMD(PMAIN),
-     .                 MPI_COMM_WORLD,IERROR)
+     .                 SPMD_COMM_WORLD,IERROR)
 C
       ELSE
         IDEB = 1
@@ -262,10 +262,10 @@ C
         MSGTYP = MSGOFF 
         LEN=IDEB-1
         CALL MPI_SEND(BUF,LEN,MPI_DOUBLE_PRECISION,IT_SPMD(PMAIN),
-     .                MSGTYP,MPI_COMM_WORLD,IERROR)
+     .                MSGTYP,SPMD_COMM_WORLD,IERROR)
         LEN=NRBYKIN*A_AR
         CALL MPI_BCAST(RBF6,LEN,MPI_DOUBLE_PRECISION,IT_SPMD(PMAIN),
-     .                 MPI_COMM_WORLD,IERROR)
+     .                 SPMD_COMM_WORLD,IERROR)
 C
       END IF
 C

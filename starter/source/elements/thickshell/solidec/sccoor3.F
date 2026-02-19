@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SCCOOR3                       source/elements/thickshell/solidec/sccoor3.F
-Chd|-- called by -----------
-Chd|        SCINIT3                       source/elements/thickshell/solidec/scinit3.F
-Chd|-- calls ---------------
-Chd|        MOD_CLOSE                     source/elements/solid/solide/mod_close.F
-Chd|        SCORTHO3                      source/elements/thickshell/solidec/scortho3.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sccoor3          ../starter/source/elements/thickshell/solidec/sccoor3.F
+!||--- called by ------------------------------------------------------
+!||    scinit3          ../starter/source/elements/thickshell/solidec/scinit3.F
+!||--- calls      -----------------------------------------------------
+!||    checkvolume_8n   ../starter/source/elements/solid/solide/checksvolume.F
+!||    mod_close        ../starter/source/elements/solid/solide/mod_close.F
+!||    scortho3         ../starter/source/elements/thickshell/solidec/scortho3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SCCOOR3(
      .         X    ,IXS  ,GEO  ,MXT  ,NGEO ,NGL  ,                    
      .         IX1  ,IX2  ,IX3  ,IX4  ,IX5  ,IX6  ,IX7  ,IX8  ,
@@ -37,29 +39,24 @@ Chd|====================================================================
      .         Z1   ,Z2   ,Z3   ,Z4   ,Z5   ,Z6   ,Z7   ,Z8   ,  
      .         RX   ,RY   ,RZ   ,SX   ,SY   ,SZ   ,TX   ,TY   ,TZ   ,
      .         R11  ,R21  ,R31  ,R12  ,R22  ,R32  ,R13  ,R23  ,R33  ,
-     .         F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0, TEMP)
+     .         F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0, TEMP,NINTEMP)
+
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "param_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NINTEMP
       INTEGER IXS(NIXS,*),MXT(*),NGL(*),NGEO(*),
      .   IX1(*),IX2(*),IX3(*),IX4(*),IX5(*),IX6(*),IX7(*),IX8(*)        
       my_real
@@ -73,7 +70,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J
+      INTEGER I
       my_real
      .   XL,YL,ZL
 C-----------------------------------------------
@@ -82,7 +79,7 @@ C-----------------------------------------------
       my_real
      .  CHECKVOLUME_8N
 C=======================================================================
-C     CONNECTIVITES ET NUMERO DE MATERIAU ET PID
+C     CONNECTIVITIES AND MATERIAL NUMBER AND PID
 C--------------------------------------------------
       DO I=LFT,LLT
         MXT(I)=IXS(1,I)
@@ -154,13 +151,13 @@ C----------------------------
         F2Z(I) = Z3(I) + Z3(I) - Z1(I) - Z4(I)
       ENDDO
 C
-       IF(JCLOS.NE.0) CALL MOD_CLOSE(GEO,NGEO,
+       IF(JCLOS/=0) CALL MOD_CLOSE(GEO,NGEO,
      .   X1, X2, X3, X4, X5, X6, X7, X8,
      .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
      .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8)
 C
 C-----------
-C     REPERE CONVECTE .
+C     convected frame .
 C-----------
        CALL SCORTHO3(
      .   X1, X2, X3, X4, X5, X6, X7, X8,
@@ -220,7 +217,7 @@ C
         Z8(I)=ZL
        ENDDO
 C
-       IF(JTHE < 0 ) THEN                                    
+        IF (JTHE < 0 .or. NINTEMP > 0) THEN             
          IF(NINTEMP > 0 ) THEN                                
            DO I= LFT,LLT                                      
              IF(TEMP(IX1(I))== ZERO) TEMP(IX1(I)) = TEMP0(I)  

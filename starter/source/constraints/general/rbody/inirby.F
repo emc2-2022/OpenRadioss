@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIRBY                        source/constraints/general/rbody/inirby.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        CHBAS                         source/constraints/general/rbody/chbas.F
-Chd|        INEPRI                        source/materials/mat/mat019/inepri.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inirby                 ../starter/source/constraints/general/rbody/inirby.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    chbas                  ../starter/source/constraints/general/rbody/chbas.F
+!||    inepri                 ../starter/source/materials/mat/mat019/inepri.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||====================================================================
       SUBROUTINE INIRBY(NRB   ,RBY   ,M     ,LPBY  ,
      .                  MS    ,IN    ,X     ,ITAB  ,SKEW  ,
      .                  B1    ,B2    ,B3    ,B5    ,B6    ,
@@ -51,6 +52,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE R2R_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -63,10 +65,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
 #include      "com04_c.inc"
-#include      "warn_c.inc"
 #include      "r2r_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
@@ -75,7 +74,6 @@ C-----------------------------------------------
       INTEGER NPBY(NNPBY,*), M, ISPH, NRB
       INTEGER ITAB(*), RBYID,ITAGND(*)
       INTEGER, TARGET :: LPBY(*)
-C     REAL
       my_real
      .   RBY(NRBY,*), MS(*), IN(*), X(3,*), SKEW(LSKEW,*),
      .   B1, B2, B3, B5, B6, B9,TOTMAS ,XGT ,YGT ,
@@ -83,8 +81,7 @@ C     REAL
      .   II1,II2,II3,II4,II5,II6,II7,II8,II9,
      .   RBY_R2R(9),RBY_INIAXIS(7,*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -101,7 +98,7 @@ C
       TOL=ONE+EM04
 C
       NSL = NPBY(2,NRB) ! Nombre total de noeuds SECONDARY 
-      LSN => LPBY(NPBY(11,NRB)+1:NPBY(11,NRB)+NSL) ! Liste des noeuds SECONDARY
+      LSN => LPBY(NPBY(11,NRB)+1:NPBY(11,NRB)+NSL) ! List of SECONDARY nodes
       RBLEVEL = NPBY(12,NRB)
       ALLOCATE (MS_LOC(NSL))
       ALLOCATE (IN_LOC(NSL))
@@ -114,21 +111,21 @@ C-------------------------------------------------------------------------------
          IN_LOC(I)=IN(N)
       ENDDO
 C-----------Multidomaines : on ne compte l'ajout de masse et d'inertie uniquement d'1 cote-------------
-      IF ((NSUBDOM.GT.0).AND.(IPID.EQ.0)) THEN
-        IF (TAGNO(M+N_PART).EQ.3) THEN
-	   FLAG = 1
-	   DO J=1,9
-	     RBY(J,NRB) = ZERO
-	   END DO
-C-----------Multidomaines : on evite de compter 2 fois la masse et l'inertie des noeuds communs--------
+      IF ((NSUBDOM>0).AND.(IPID==0)) THEN
+        IF (TAGNO(M+N_PART)==3) THEN
+             FLAG = 1
+             DO J=1,9
+               RBY(J,NRB) = ZERO
+             END DO
+C-----------Multidomains: avoid counting the mass and inertia of common nodes twice--------
            DO I=1,NSL
              N=LSN(I)
-             IF (TAGNO(N+N_PART).GT.3) MS_LOC(I)= 0
-             IF (TAGNO(N+N_PART).GT.3) IN_LOC(I)= 0
-             IF (TAGNO(N+N_PART).EQ.0) MS_LOC(I)= 0
-             IF (TAGNO(N+N_PART).EQ.0) IN_LOC(I)= 0
+             IF (TAGNO(N+N_PART)>3) MS_LOC(I)= 0
+             IF (TAGNO(N+N_PART)>3) IN_LOC(I)= 0
+             IF (TAGNO(N+N_PART)==0) MS_LOC(I)= 0
+             IF (TAGNO(N+N_PART)==0) IN_LOC(I)= 0
            ENDDO
-	ENDIF
+          ENDIF
       ENDIF
 C------------------------------------------------------------------------------------------------------
        IF (NS10E>0) THEN
@@ -143,13 +140,13 @@ C-------------------------------------------------------------------------------
 C
       NSL_XTRA = NPBY(14,NRB)+NPBY(15,NRB)+NPBY(16,NRB)
       NSL = NPBY(2,NRB) - NSL_XTRA
-      LSN => LPBY(NPBY(11,NRB)+1:NPBY(11,NRB)+NSL) ! Liste des noeuds SECONDARY
+      LSN => LPBY(NPBY(11,NRB)+1:NPBY(11,NRB)+NSL) ! List of SECONDARY nodes
 C------------------------------------------------------------------------------------------------------
 
       MS(M)=MS(M)+RBY(1,NRB)
-       IF(MS(M).EQ.ZERO) MS(M)=EM20
+       IF(MS(M)==ZERO) MS(M)=EM20
 
-C NUMERO EXTERNE DU NOEUD (DEPLACEE PAR JBM LE 30/9/96)
+C EXTERNAL NUMBER OF THE NODE (MOVED BY JBM ON 30/9/96)
       NONOD=ITAB(M)
 C
       ICDG = NPBY(3,NRB)
@@ -161,8 +158,8 @@ C
       RBY(4,NRB)=RBY(5,NRB)
       RBY(5,NRB)=RBY(3,NRB)
       RBY(3,NRB)=RBY(7,NRB)
-C CAS DU REPERE SKEW POUR LE RB
-      IF(NOSKEW.NE.0) THEN
+C CASE OF THE SKEW REFERENCE FOR THE RB
+      IF(NOSKEW/=0) THEN
         CALL CHBAS(SKEW(1,NOSKEW),RBY(1,NRB))
       ENDIF
 C
@@ -172,8 +169,8 @@ C
       IN(M) = (RBY(1,NRB) + RBY(5,NRB) + RBY(9,NRB)) * THIRD
 C
 C---------------------------------
-C     CORRECTION DE LA MASSE ET DU
-C     CENTRE DE GRAVITE DU MAIN
+C     CORRECTION OF THE MASS AND
+C     CENTER OF GRAVITY OF THE HAND
 C---------------------------------
 C
       XMG=MS(M)
@@ -185,8 +182,8 @@ C-----INITIAL COORDINATES ARE STORED FOR INIVEL/AXIS correction
         ENDDO
       ENDIF
 
-C-----CDG DES NOEUDS SECONDS + MAIN
-      IF(ICDG.EQ.1)THEN
+C-----CDG DES NODES SECONDS + MAIN
+      IF(ICDG==1)THEN
         MASRB=MS(M)
         DO J=1,3
           XG(J)=X(J,M)
@@ -200,7 +197,7 @@ C-----CDG DES NOEUDS SECONDS + MAIN
          MASRB   = MASRB+MS_LOC(I)
         ENDDO
 C
-        IF(MASRB.LE.1.E-30) THEN
+        IF(MASRB<=1.E-30) THEN
            CALL ANCMSG(MSGID=679,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -213,8 +210,8 @@ C
           X(J,M)=X(J,M)/MASRB
         ENDDO
 C
-C-----CDG DES NOEUDS SECONDS
-      ELSEIF(ICDG.EQ.2)THEN
+C-----CG OF SECONDARY NODES
+      ELSEIF(ICDG==2)THEN
         MASRB=ZERO
         DO J=1,3
           X(J,M)=ZERO
@@ -226,9 +223,9 @@ C-----CDG DES NOEUDS SECONDS
          ENDDO
          MASRB   = MASRB+MS_LOC(I)
         ENDDO
-	IF (FLAG.EQ.1) MASRB = MAX(MASRB,EM20)	
+          IF (FLAG==1) MASRB = MAX(MASRB,EM20)
 C
-        IF(MASRB.LE.EM30) THEN
+        IF(MASRB<=EM30) THEN
            CALL ANCMSG(MSGID=679,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -245,8 +242,8 @@ C
 C
         MASRB=MASRB+MS(M)
 C
-C-----CDG DU NOEUD MAIN
-      ELSEIF(ICDG.EQ.3)THEN
+C-----CG OF THE MAIN NODE
+      ELSEIF(ICDG==3)THEN
         DO J=1,3
           XG(J)=X(J,M)
         ENDDO
@@ -256,7 +253,7 @@ C-----CDG DU NOEUD MAIN
          MASRB   = MASRB+MS_LOC(I)
         ENDDO
 C
-        IF(MASRB.LE.EM30) THEN
+        IF(MASRB<=EM30) THEN
            CALL ANCMSG(MSGID=679,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -265,14 +262,14 @@ C
            RETURN
         ENDIF
 C
-C-----CDG DU NOEUD MAIN (MASSE DES SECONDS IGNOREE)
-      ELSEIF(ICDG.EQ.4)THEN
+C-----CG OF THE MAIN NODE (MASS OF SECONDS IGNORED)
+      ELSEIF(ICDG==4)THEN
         DO J=1,3
           XG(J)=X(J,M)
         ENDDO
         MASRB=MS(M)
 C
-        IF(MASRB.LE.EM30) THEN
+        IF(MASRB<=EM30) THEN
            CALL ANCMSG(MSGID=679,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -285,7 +282,7 @@ C
       ENDIF
 
 C--------------------------------------
-C     ASSEMBLAGE DES XTRA NODES DANS LA MASSE ET COG
+C     ASSEMBLY OF XTRA NODES IN THE MASS AND COG
 C--------------------------------------
       IF(NPBY(15,NRB) > 0) THEN ! MASS/INERTIA ADD, COG ACTUALIZED
         LSN_XTRA => LPBY(NPBY(11,NRB)+NSL+NPBY(14,NRB)+1:
@@ -320,10 +317,10 @@ C
       ENDIF
 C 
 C--------------------------------------
-C     CORRECTION DE L'INERTIE DU MAIN
+C     CORRECTION OF THE HAND'S INERTIA
 C--------------------------------------
-      IF(ICDG.LE.3)THEN
-        IF(N2D.EQ.0)THEN
+      IF(ICDG<=3)THEN
+        IF(N2D==0)THEN
 C        ANALYSE 3D
           XX=(XG(1)-X(1,M))*(XG(1)-X(1,M))
           XY=(XG(1)-X(1,M))*(XG(2)-X(2,M))
@@ -341,11 +338,11 @@ C        ANALYSE 3D
           RBY(8,NRB)=RBY(8,NRB)-YZ*XMG
           RBY(9,NRB)=RBY(9,NRB)+(XX+YY)*XMG
 
-	  IF (NSL.EQ.1) THEN
+            IF (NSL==1) THEN
             RBY(1,NRB)=RBY(1,NRB)+EM20
             RBY(5,NRB)=RBY(5,NRB)+EM20
             RBY(9,NRB)=RBY(9,NRB)+EM20
-	  ENDIF
+            ENDIF
 C
           DO I=1,NSL
            N=LSN(I)
@@ -367,7 +364,7 @@ C
           ENDDO
 
         ELSEIF(N2D==1) THEN
-C        ANALYSE 2D : Axisymetry  
+C        ANALYSE 2D : Axisymmetry  
 C             I= A 0 0
 C                0 A 0
 C                0 0 B 
@@ -385,11 +382,11 @@ C
           RBY(8,NRB)=ZERO
           RBY(9,NRB)=RBY(9,NRB)+YY*XMG
 
-	  IF (NSL.EQ.1) THEN
+            IF (NSL==1) THEN
             RBY(1,NRB)=RBY(1,NRB)+EM20
             RBY(5,NRB)=RBY(5,NRB)+EM20
             RBY(9,NRB)=RBY(9,NRB)+EM20
-	  ENDIF
+            ENDIF
 C
           DO I=1,NSL
            N=LSN(I)
@@ -419,11 +416,11 @@ c
           RBY(8,NRB)=RBY(8,NRB)-YZ*XMG
           RBY(9,NRB)=RBY(9,NRB)+YY*XMG
 
-	  IF (NSL.EQ.1) THEN
+            IF (NSL==1) THEN
             RBY(1,NRB)=RBY(1,NRB)+EM20
             RBY(5,NRB)=RBY(5,NRB)+EM20
             RBY(9,NRB)=RBY(9,NRB)+EM20
-	  ENDIF
+            ENDIF
 C
           DO I=1,NSL
            N=LSN(I)
@@ -442,14 +439,14 @@ c
       ENDIF
 c
 C--------------------------------------
-C     AJOUT DE L'INERTIE DES XTRA NODES
+C     ADDITION OF THE INERTIA OF XTRA NODES
 C--------------------------------------
       IF((NPBY(15,NRB)+NPBY(16,NRB)) > 0) THEN
 
         LSN_XTRA => LPBY(NPBY(11,NRB)+NSL+NPBY(14,NRB)+1:
      .                   NPBY(11,NRB)+NSL+NPBY(14,NRB)+NPBY(15,NRB)+NPBY(16,NRB))
 
-        IF(N2D.EQ.0)THEN
+        IF(N2D==0)THEN
          DO I=1,NPBY(15,NRB)+NPBY(16,NRB)
           N=LSN_XTRA(I)
           XX=(X(1,N)-X(1,M))*(X(1,N)-X(1,M))
@@ -493,12 +490,12 @@ C--------------------------------------
       ENDIF
 C
 C--------------------------------------
-C     ASSEMBLAGE DES MASSES DES RIGID BODY SECONDARYS ET MAJ POSITION DU COG
+C     ASSEMBLY OF THE MASSES OF SECONDARY RIGID BODIES AND UPDATE OF COG POSITION
 C--------------------------------------
       DO I=NRB-1,1,-1
         IF((NPBY(12,I)) == RBLEVEL-1) THEN ! Merge with Rb level n-1 
           DO J=1,3
-            XG(J)=X(J,M)  ! centre de gravite du rb main avant modif
+            XG(J)=X(J,M)  ! center of gravity of the rb main before modification
           ENDDO
           XMG=MASRB  ! masse du RB main avant modif
 c
@@ -523,7 +520,7 @@ C--------------------------------------
 C     TRANSFERT DES INERTIES AU COG
 C--------------------------------------
           IF(OPT_MERGE == 2) THEN
-           IF(N2D.EQ.0)THEN
+           IF(N2D==0)THEN
             XX=(XG(1)-X(1,M))*(XG(1)-X(1,M))
             XY=(XG(1)-X(1,M))*(XG(2)-X(2,M))
             XZ=(XG(1)-X(1,M))*(XG(3)-X(3,M))
@@ -567,7 +564,7 @@ C--------------------------------------
            ENDIF
           ENDIF
           IF(OPT_MERGE > 1) THEN
-           IF(N2D.EQ.0)THEN
+           IF(N2D==0)THEN
             XX=(X(1,M_I)-X(1,M))*(X(1,M_I)-X(1,M))  
             XY=(X(1,M_I)-X(1,M))*(X(2,M_I)-X(2,M))
             XZ=(X(1,M_I)-X(1,M))*(X(3,M_I)-X(3,M))
@@ -600,7 +597,7 @@ C--------------------------------------
             RBY(9,NRB)=RBY(9,NRB)+RBY(9,I)+YY*RBY(14,I)
            ENDIF !N2D
           ENDIF   
-c         mise a zero des donnees rb SECONDARY
+c         set a zero des donnees rb SECONDARY
           RBY(1:15,I)=ZERO           
           IN(M_I)=ZERO 
           MS(M_I)=ZERO    
@@ -610,8 +607,8 @@ c         mise a zero des donnees rb SECONDARY
       ENDDO
 c
 C----------------------------------------------
-C    NSL est complete par les noeuds SECONDARY des rigid body SECONDARYs
-C    LSN est actualisee
+C    NSL is completed by the SECONDARY nodes of the SECONDARY rigid bodies
+C    LSN is updated
 C----------------------------------------------
       IF(RBLEVEL == 0) THEN ! IF THIS RIGID BODY IS THE TOP MAIN
         IF(NRBMERGE > 0) THEN
@@ -623,17 +620,17 @@ C----------------------------------------------
           ALLOCATE (IN_LOC(NSL))
 C
 C-----------Multidomaines : on ne compte l'ajout de masse et d'inertie uniquement d'1 cote-------------
-          IF ((NSUBDOM.GT.0).AND.(IPID.EQ.0)) THEN
-            IF (TAGNO(M+N_PART).EQ.3) THEN
-C-----------Multidomaines : on evite de compter 2 fois la masse et l'inertie des noeuds communs--------
+          IF ((NSUBDOM>0).AND.(IPID==0)) THEN
+            IF (TAGNO(M+N_PART)==3) THEN
+C-----------Multidomains: avoid counting the mass and inertia of common nodes twice--------
                DO I=1,NSL
                  N=LSN(I)
-                 IF (TAGNO(N+N_PART).GT.3) MS_LOC(I)= 0
-                 IF (TAGNO(N+N_PART).GT.3) IN_LOC(I)= 0
-                 IF (TAGNO(N+N_PART).EQ.0) MS_LOC(I)= 0
-                 IF (TAGNO(N+N_PART).EQ.0) IN_LOC(I)= 0
+                 IF (TAGNO(N+N_PART)>3) MS_LOC(I)= 0
+                 IF (TAGNO(N+N_PART)>3) IN_LOC(I)= 0
+                 IF (TAGNO(N+N_PART)==0) MS_LOC(I)= 0
+                 IF (TAGNO(N+N_PART)==0) IN_LOC(I)= 0
               ENDDO
-	    ENDIF
+              ENDIF
           ENDIF
 C
           IF (NS10E>0) THEN
@@ -657,16 +654,16 @@ C
         ENDIF
 C
 C-----------Multidomaines : on stoke la matrice assembl   e--------------
-        IF(NSUBDOM.GT.0)THEN
-          IF(TAGNO(M+N_PART).EQ.3)THEN
+        IF(NSUBDOM>0)THEN
+          IF(TAGNO(M+N_PART)==3)THEN
             DO J=1,9
-	      RBY_R2R(J)=RBY(J,NRB)
-	    END DO
+                RBY_R2R(J)=RBY(J,NRB)
+              END DO
           END IF
         ENDIF
 
 C----------------------------------------------
-C     MISE A ZERO DES MASSES ET INERTIES SECONDARYS
+C     Resetting the masses and inertias of the secondary nodes
 C----------------------------------------------
 C      DO I=1,NSL
 C       N=LSN(I)
@@ -696,15 +693,15 @@ C
          ZGT = ZGT - MS_LOC(I)*X(3,N)
          TOTMAS = TOTMAS - MS_LOC(I)
         ENDDO
-        IF(ISPH.NE.1)THEN
+        IF(ISPH/=1)THEN
          B1 = B1 + RBY(1,NRB)
          B2 = B2 + RBY(2,NRB)
          B3 = B3 + RBY(3,NRB)
          B5 = B5 + RBY(5,NRB)
          B6 = B6 + RBY(6,NRB)
          B9 = B9 + RBY(9,NRB)
-         IF(NSUBDOM.GT.0)THEN
-           IF(TAGNO(M+N_PART).EQ.3) THEN
+         IF(NSUBDOM>0)THEN
+           IF(TAGNO(M+N_PART)==3) THEN
              WRITE(IOUT,1300) RBYID
              WRITE(IOUT,1400)
            ELSE
@@ -718,7 +715,7 @@ C
         ENDIF
 
 C----------------------------------------------------------------
-C     CALCUL DU REPERE D'INERTIE PRINCIPALE
+C     CALCULATION DU frame D'INERTIE PRINCIPALE
 C----------------------------------------------------------------
         IF(N2D == 1) THEN
           RBY(10,NRB) = RBY(1,NRB)
@@ -731,7 +728,7 @@ C----------------------------------------------------------------
           CALL INEPRI(RBY(10,NRB),RBY(1,NRB))
         ENDIF
 C
-        IF(ISPH.EQ.1)THEN
+        IF(ISPH==1)THEN
           XIIN = (RBY(10,NRB) + RBY(11,NRB) + RBY(12,NRB)) * THIRD
           RBY(10,NRB) = XIIN
           RBY(11,NRB) = XIIN
@@ -740,8 +737,8 @@ C
           B1 = B1 + XIIN
           B5 = B5 + XIIN
           B9 = B9 + XIIN
-          IF(NSUBDOM.GT.0)THEN
-            IF(TAGNO(M+N_PART).EQ.3)THEN
+          IF(NSUBDOM>0)THEN
+            IF(TAGNO(M+N_PART)==3)THEN
               WRITE(IOUT,1300) RBYID
               WRITE(IOUT,1400)
             ELSE
@@ -778,8 +775,8 @@ C
         ENDIF
 
       
-        IF(NSUBDOM.GT.0)THEN
-          IF(TAGNO(M+N_PART).EQ.3)GOTO 350
+        IF(NSUBDOM>0)THEN
+          IF(TAGNO(M+N_PART)==3)GOTO 350
         END IF
 
 
@@ -788,8 +785,8 @@ C
         WRITE(IOUT,1101)
         WRITE(IOUT,1102) (ITAB(LPBY(I+NPBY(11,NRB))),I=1,NSL)
 
-        IF(RBY(10,NRB).GE.RBY(11,NRB).AND.RBY(10,NRB).GE.RBY(12,NRB))THEN
-          IF(RBY(10,NRB).GT.(RBY(11,NRB)+RBY(12,NRB))*TOL)THEN
+        IF(RBY(10,NRB)>=RBY(11,NRB).AND.RBY(10,NRB)>=RBY(12,NRB))THEN
+          IF(RBY(10,NRB)>(RBY(11,NRB)+RBY(12,NRB))*TOL)THEN
            CALL ANCMSG(MSGID=542,
      .                 MSGTYPE=MSGWARNING,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -799,8 +796,8 @@ C
      .                 R2=RBY(11,NRB),
      .                 R3=RBY(12,NRB))
           ENDIF
-        ELSEIF(RBY(11,NRB).GE.RBY(10,NRB).AND.RBY(11,NRB).GE.RBY(12,NRB))THEN
-          IF(RBY(11,NRB).GT.(RBY(10,NRB)+RBY(12,NRB))*TOL)THEN
+        ELSEIF(RBY(11,NRB)>=RBY(10,NRB).AND.RBY(11,NRB)>=RBY(12,NRB))THEN
+          IF(RBY(11,NRB)>(RBY(10,NRB)+RBY(12,NRB))*TOL)THEN
            CALL ANCMSG(MSGID=542,
      .                 MSGTYPE=MSGWARNING,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -810,8 +807,8 @@ C
      .                 R2=RBY(10,NRB),
      .                 R3=RBY(12,NRB))
           ENDIF
-        ELSEIF(RBY(12,NRB).GE.RBY(10,NRB).AND.RBY(12,NRB).GE.RBY(11,NRB))THEN
-          IF(RBY(12,NRB).GT.(RBY(10,NRB)+RBY(11,NRB))*TOL)THEN
+        ELSEIF(RBY(12,NRB)>=RBY(10,NRB).AND.RBY(12,NRB)>=RBY(11,NRB))THEN
+          IF(RBY(12,NRB)>(RBY(10,NRB)+RBY(11,NRB))*TOL)THEN
            CALL ANCMSG(MSGID=542,
      .                 MSGTYPE=MSGWARNING,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -844,7 +841,7 @@ C
       DEALLOCATE(IN_LOC)
 c
 C----------------------------------------------------------------
-C     TRAITEMENT DU RIGID BODY QUI N'A PAS DE MAIN
+C     processing the rigid body without a main node
 C----------------------------------------------------------------
 c
       IF(RBLEVEL == 0) THEN ! IF THIS RIGID BODY IS THE TOP MAIN
@@ -864,7 +861,7 @@ C
          YGT = YGT - MS(M)*X(2,M) + MASRB*X(2,M)
          ZGT = ZGT - MS(M)*X(3,M) + MASRB*X(3,M)
 C
-C Rigidite au noeud main pour estimation DT.
+C Rigidity at main node to estimate DT.
          IF (NS10E>0) THEN
            DO I=1,NSL
              N = LSN(I)
@@ -886,7 +883,7 @@ C Rigidite au noeud main pour estimation DT.
             END DO
          END IF !(NS10E>0) THEN
 
-C MATRICE d'inertie -> repere global
+C MATRICE d'inertie -> frame global
          II1=RBY(10,NRB)*RBY(1,NRB)
          II2=RBY(10,NRB)*RBY(2,NRB)
          II3=RBY(10,NRB)*RBY(3,NRB)
@@ -917,7 +914,7 @@ C
          YGT = YGT - MS(M)*X(2,M) + MASRB*X(2,M)
          ZGT = ZGT - MS(M)*X(3,M) + MASRB*X(3,M)
 C
-C Rigidite au noeud main pour estimation DT.
+C Rigidity at main node to estimate DT.
 
          IF (NS10E>0) THEN
            DO I=1,NSL
@@ -940,7 +937,7 @@ C Rigidite au noeud main pour estimation DT.
             END DO
          END IF !(NS10E>0) THEN
 
-C MATRICE d'inertie -> repere global
+C MATRICE d'inertie -> frame global
          RBY(17,NRB)=RBY(10,NRB)
          RBY(18,NRB)=ZERO
          RBY(19,NRB)=ZERO
@@ -960,7 +957,7 @@ C MATRICE d'inertie -> repere global
          YGT = YGT - MS(M)*X(2,M) + MASRB*X(2,M)
          ZGT = ZGT - MS(M)*X(3,M) + MASRB*X(3,M)
 C
-C Rigidite au noeud main pour estimation DT.
+C Rigidity at main node to estimate DT.
          IF (NS10E>0) THEN
            DO I=1,NSL
              N = LSN(I)
@@ -982,7 +979,7 @@ C Rigidite au noeud main pour estimation DT.
            END DO
          END IF !(NS10E>0) THEN
 
-C MATRICE d'inertie -> repere global
+C MATRICE d'inertie -> frame global
          II1=RBY(10,NRB)*RBY(1,NRB)
          II2=ZERO
          II3=ZERO
@@ -1003,10 +1000,10 @@ C
          RBY(24,NRB)=RBY(6,NRB)*II5 + RBY(9,NRB)*II8
          RBY(25,NRB)=RBY(6,NRB)*II6 + RBY(9,NRB)*II9
        ENDIF
-C-----------Multidomaines : on ignore l'erreur generee par le calcul des val propres et le chgt de repere--------------
-C------------------> on reinjecte les ancienne valeures de la matrice dans le repere global <--------------------------
-       IF(NSUBDOM.GT.0)THEN
-         IF(TAGNO(M+N_PART).EQ.3)THEN
+C-----------Multidomains: ignoring the error generated by the eigenvalue calculation and the change of reference frame--------------
+C------------------> reinjecting the old matrix values into the global reference frame <--------------------------
+       IF(NSUBDOM>0)THEN
+         IF(TAGNO(M+N_PART)==3)THEN
            DO J=1,9
              RBY(16+J,NRB)=RBY_R2R(J)
            END DO
@@ -1106,15 +1103,16 @@ C
       END
 
 
-Chd|====================================================================
-Chd|  INIRBYS                       source/constraints/general/rbody/inirby.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        INEPRI                        source/materials/mat/mat019/inepri.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    inirbys                ../starter/source/constraints/general/rbody/inirby.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    inepri                 ../starter/source/materials/mat/mat019/inepri.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE INIRBYS(NRB ,RBY  ,M     ,LPBY ,
      .                   MS  ,IN   ,X     ,ITAB,SKEW,
      .                   B1  ,B2   ,B3    ,B5  ,B6,
@@ -1122,6 +1120,7 @@ Chd|====================================================================
      .                   ZGT ,NPBY ,IWA   ,V   ,VR, 
      .                   RBYID,ID  ,TITR  ,ITAGND ,RBY_INIAXIS)
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C=======================================================================
 C    RBY    EN SORTIE DE INIRBY
 C     1 -> 9 :  MATRICE ROTATION
@@ -1135,14 +1134,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "com01_c.inc"
@@ -1160,8 +1154,7 @@ C     REAL
      .   B1, B2, B3, B5, B6, B9,TOTMAS ,XGT ,YGT ,
      .   ZGT,RBY_INIAXIS(7,*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -1180,7 +1173,7 @@ C
 C
       NSL_XTRA = NPBY(14,NRB)+NPBY(15,NRB)+NPBY(16,NRB)
       NSL = NPBY(2,NRB) - NSL_XTRA
-      LSN => LPBY(NPBY(11,NRB)+1:NPBY(11,NRB)+NSL) ! Liste des noeuds SECONDARY
+      LSN => LPBY(NPBY(11,NRB)+1:NPBY(11,NRB)+NSL) ! List of secondary nodes
       RBLEVEL = NPBY(12,NRB)
 C
       RBY(1,NRB)=ZERO
@@ -1191,12 +1184,12 @@ C
       RBY(8,NRB)=ZERO
       RBY(9,NRB)=ZERO
 C---------------------------------
-C     RECHERCHE DES NOEUDS SECONDS
-C     DE SOUS RBY (NOEUD MAIN PARMI LES SECONDS)
+C     Searching for secondary nodes
+C     From sub RBY (main node among the secondary nodes)
 C---------------------------------
       DO I=1,NSL
          N=LSN(I)
-         IF(IWA(N).GT.0)THEN
+         IF(IWA(N)>0)THEN
            K=0
            DO NI=1,IWA(N)-1
              NSLI=NPBY(2,NI)
@@ -1205,13 +1198,13 @@ C---------------------------------
            NSLI=NPBY(2,IWA(N))
            DO II=1,NSLI
              NI=LPBY(K+II)
-             IF(IWA(NI).EQ.0)IWA(NI)=-1
+             IF(IWA(NI)==0)IWA(NI)=-1
            ENDDO
          ENDIF
       ENDDO
 C---------------------------------
-C     CORRECTION DE LA MASSE ET DU
-C     CENTRE DE GRAVITE DU MAIN
+C     Correction of the mass and
+C     Center of gravity of the main node
 C---------------------------------
 C
 C---INITIAL COORDINATES ARE STORED FOR INIVEL/AXIS correction
@@ -1221,7 +1214,7 @@ C---INITIAL COORDINATES ARE STORED FOR INIVEL/AXIS correction
         ENDDO
       ENDIF
 
-C-----CDG DES NOEUDS SECONDS
+C-----Center of gravity of the secondary nodes
       MASRB=ZERO
       DO J=1,3
           X(J,M)=ZERO
@@ -1239,7 +1232,7 @@ C-----CDG DES NOEUDS SECONDS
       ELSE
       DO I=1,NSL
        N=LSN(I)
-       IF(IWA(N).GE.0)THEN
+       IF(IWA(N)>=0)THEN
          DO J=1,3
           X(J,M)    = X(J,M)+X(J,N)*MS(N)
          ENDDO
@@ -1248,7 +1241,7 @@ C-----CDG DES NOEUDS SECONDS
       ENDDO
       END IF !(NS10E>0) THEN
 C
-      IF(MASRB.LE.1.E-30) THEN
+      IF(MASRB<=1.E-30) THEN
          CALL ANCMSG(MSGID=679,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO_BLIND_1,
@@ -1264,7 +1257,7 @@ C
       ENDDO
 C
 C--------------------------------------
-C     ASSEMBLAGE DES XTRA NODES DANS LA MASSE ET COG
+C     Assembly of extra nodes in the mass and center of gravity
 C--------------------------------------
       IF(NPBY(15,NRB) > 0) THEN ! MASS/INERTIA ADD, COG ACTUALIZED
         LSN_XTRA => LPBY(NPBY(11,NRB)+NSL+NPBY(14,NRB)+1:
@@ -1301,14 +1294,14 @@ C
       ENDIF
 C 
 C--------------------------------------
-C     CORRECTION DE L'INERTIE DU MAIN
+C     Correction of the inertia of the main node
 C--------------------------------------
       IF(N2D==0)THEN
 C        ANALYSE 3D
          DO I=1,NSL
            N=LSN(I)
            NI=IWA(N)
-           IF(NI.EQ.0)THEN
+           IF(NI==0)THEN
             XX=(X(1,N)-X(1,M))*(X(1,N)-X(1,M))
             XY=(X(1,N)-X(1,M))*(X(2,N)-X(2,M))
             XZ=(X(1,N)-X(1,M))*(X(3,N)-X(3,M))
@@ -1324,8 +1317,8 @@ C        ANALYSE 3D
             RBY(7,NRB)=RBY(7,NRB)-XZ*MS(N)
             RBY(8,NRB)=RBY(8,NRB)-YZ*MS(N)
             RBY(9,NRB)=RBY(9,NRB)+IN(N)+(XX+YY)*MS(N)
-           ELSEIF(NI.GT.0)THEN
-C MAIN DE SOUS RBY
+           ELSEIF(NI>0)THEN
+C Main of sub RBY
             XX=(X(1,N)-X(1,M))*(X(1,N)-X(1,M))
             XY=(X(1,N)-X(1,M))*(X(2,N)-X(2,M))
             XZ=(X(1,N)-X(1,M))*(X(3,N)-X(3,M))
@@ -1349,7 +1342,7 @@ C        ANALYSE 2D : Axisymetrie
          DO I=1,NSL
            N=LSN(I)
            NI=IWA(N)
-           IF(NI.EQ.0)THEN
+           IF(NI==0)THEN
             YY=(X(2,N)-X(2,M))*(X(2,N)-X(2,M))
             YZ=(X(2,N)-X(2,M))*(X(3,N)-X(3,M))
             ZZ=(X(3,N)-X(3,M))*(X(3,N)-X(3,M))
@@ -1357,13 +1350,13 @@ C        ANALYSE 2D : Axisymetrie
             RBY(2,NRB)=ZERO
             RBY(3,NRB)=ZERO
             RBY(4,NRB)=ZERO
-            RBY(5,NRB)=RBY(5,NRB)+IN(N)+(ZZ+XX)*MS(N)
+            RBY(5,NRB)=RBY(5,NRB)+IN(N)+ZZ*MS(N) 
             RBY(6,NRB)=ZERO
             RBY(7,NRB)=ZERO
             RBY(8,NRB)=ZERO
-            RBY(9,NRB)=RBY(9,NRB)+IN(N)+(XX+YY)*MS(N)
-           ELSEIF(NI.GT.0)THEN
-C MAIN DE SOUS RBY
+            RBY(9,NRB)=RBY(9,NRB)+IN(N)+YY*MS(N)
+           ELSEIF(NI>0)THEN
+C Main of sub RBY
             YY=(X(2,N)-X(2,M))*(X(2,N)-X(2,M))
             YZ=(X(2,N)-X(2,M))*(X(3,N)-X(3,M))
             ZZ=(X(3,N)-X(3,M))*(X(3,N)-X(3,M))
@@ -1371,11 +1364,11 @@ C MAIN DE SOUS RBY
             RBY(2,NRB)=ZERO
             RBY(3,NRB)=ZERO
             RBY(4,NRB)=ZERO
-            RBY(5,NRB)=RBY(5,NRB)+(ZZ+XX)*MS(N)+RBY(21,NI)
+            RBY(5,NRB)=RBY(5,NRB)+ZZ*MS(N)+RBY(21,NI)
             RBY(6,NRB)=ZERO
             RBY(7,NRB)=ZERO
             RBY(8,NRB)=ZERO
-            RBY(9,NRB)=RBY(9,NRB)+(XX+YY)*MS(N)+RBY(25,NI)
+            RBY(9,NRB)=RBY(9,NRB)+YY*MS(N)+RBY(25,NI)
            ENDIF
          ENDDO
 C
@@ -1384,7 +1377,7 @@ C        ANALYSE 2D : Strain Plane
          DO I=1,NSL
            N=LSN(I)
            NI=IWA(N)
-           IF(NI.EQ.0)THEN
+           IF(NI==0)THEN
             YY=(X(2,N)-X(2,M))*(X(2,N)-X(2,M))
             YZ=(X(2,N)-X(2,M))*(X(3,N)-X(3,M))
             ZZ=(X(3,N)-X(3,M))*(X(3,N)-X(3,M))
@@ -1397,8 +1390,8 @@ C        ANALYSE 2D : Strain Plane
             RBY(7,NRB)=ZERO
             RBY(8,NRB)=RBY(8,NRB)-YZ*MS(N)
             RBY(9,NRB)=RBY(9,NRB)+IN(N)+YY*MS(N)
-           ELSEIF(NI.GT.0)THEN
-C MAIN DE SOUS RBY
+           ELSEIF(NI>0)THEN
+C Main of sub RBY
             YY=(X(2,N)-X(2,M))*(X(2,N)-X(2,M))
             YZ=(X(2,N)-X(2,M))*(X(3,N)-X(3,M))
             ZZ=(X(3,N)-X(3,M))*(X(3,N)-X(3,M))
@@ -1417,14 +1410,14 @@ C
       ENDIF
 C
 C--------------------------------------
-C     AJOUT DE L'INERTIE DES XTRA NODES
+C     Addition of the inertia of the extra nodes
 C--------------------------------------
       IF((NPBY(15,NRB)+NPBY(16,NRB)) > 0) THEN
 
         LSN_XTRA => LPBY(NPBY(11,NRB)+NSL+NPBY(14,NRB)+1:
      .                   NPBY(11,NRB)+NSL+NPBY(14,NRB)+NPBY(15,NRB)+NPBY(16,NRB))
 
-        IF(N2D.EQ.0)THEN
+        IF(N2D==0)THEN
          DO I=1,NPBY(15,NRB)+NPBY(16,NRB)
           N=LSN_XTRA(I)
           IF (ITAGND(N)/=0) CYCLE
@@ -1471,12 +1464,12 @@ C--------------------------------------
       ENDIF
 C
 C--------------------------------------
-C     ASSEMBLAGE DES MASSES DES RIGID BODY SECONDARYS ET MAJ POSITION DU COG
+C     Assembly of the masses of the secondary rigid bodies and update of the center of gravity position
 C--------------------------------------
       DO I=NRB-1,1,-1
         IF((NPBY(12,I)) == RBLEVEL-1) THEN
           DO J=1,3
-            XG(J)=X(J,M)  ! centre de gravite du rb main avant modif
+            XG(J)=X(J,M)  ! Center of gravity of the main rigid body before modification
           ENDDO
           XMG=MASRB  ! masse du RB main avant modif
 c
@@ -1501,7 +1494,7 @@ C--------------------------------------
 C     TRANSFERT DES INERTIES AU COG
 C--------------------------------------
           IF(OPT_MERGE == 2) THEN ! COG ACTUALISE, TRANSFERT INERTIE MAIN
-           IF(N2D.EQ.0)THEN
+           IF(N2D==0)THEN
             XX=(XG(1)-X(1,M))*(XG(1)-X(1,M))
             XY=(XG(1)-X(1,M))*(XG(2)-X(2,M))
             XZ=(XG(1)-X(1,M))*(XG(3)-X(3,M))
@@ -1545,7 +1538,7 @@ C--------------------------------------
            ENDIF
           ENDIF
           IF(OPT_MERGE > 1) THEN ! TRANSFERT INERTIE SECONDARY 
-           IF(N2D.EQ.0)THEN
+           IF(N2D==0)THEN
             XX=(X(1,M_I)-X(1,M))*(X(1,M_I)-X(1,M))  
             XY=(X(1,M_I)-X(1,M))*(X(2,M_I)-X(2,M))
             XZ=(X(1,M_I)-X(1,M))*(X(3,M_I)-X(3,M))
@@ -1578,7 +1571,7 @@ C--------------------------------------
             RBY(9,NRB)=RBY(9,NRB)+RBY(9,I)+YY*RBY(14,I)
            ENDIF !N2D
           ENDIF   
-c         mise a zero des donnees rb SECONDARY
+c         set a zero des donnees rb SECONDARY
           RBY(1:15,I)=ZERO           
           IN(M_I)=ZERO 
           MS(M_I)=ZERO    
@@ -1588,8 +1581,8 @@ c         mise a zero des donnees rb SECONDARY
       ENDDO
 c
 C----------------------------------------------
-C    NSL est complete par les noeuds SECONDARY des rigid body SECONDARYs
-C    LSN est actualisee
+C    NSL is completed by the secondary nodes of the secondary rigid bodies
+C    LSN is updated
 C----------------------------------------------
       IF(RBLEVEL == 0) THEN ! IF THIS RIGID BODY IS THE TOP MAIN
         NSL = NPBY(2,NRB) ! Liste totale des noeuds SECONDARY
@@ -1597,7 +1590,7 @@ C----------------------------------------------
 c
         WRITE(IOUT,1000)
 
-        IF(ISPH.EQ.1)THEN
+        IF(ISPH==1)THEN
         ELSE
 
           WRITE(IOUT,1100) RBYID,NONOD,X(1,M),X(2,M),X(3,M),
@@ -1605,7 +1598,7 @@ c
      .         RBY(2,NRB),RBY(6,NRB),RBY(3,NRB)
         ENDIF
 C----------------------------------------------------------------
-C     CALCUL DU REPERE D'INERTIE PRINCIPALE
+C     CALCULATION DU frame D'INERTIE PRINCIPALE
 C
         IF(N2D == 1) THEN
           RBY(11,NRB) = RBY(5,NRB)

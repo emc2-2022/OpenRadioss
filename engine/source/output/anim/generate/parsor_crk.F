@@ -1,40 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PARSOR_CRK                    source/output/anim/generate/parsor_crk.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_IGET_PARTN               source/mpi/anim/spmd_iget_partn.F
-Chd|        SPMD_IGLOB_PARTN              source/mpi/anim/spmd_iglob_partn.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    parsor_crk         ../engine/source/output/anim/generate/parsor_crk.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_iget_partn    ../engine/source/mpi/anim/spmd_iget_partn.F
+!||    spmd_iglob_partn   ../engine/source/mpi/anim/spmd_iglob_partn.F
+!||    write_i_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod      ../engine/share/modules/crackxfem_mod.F
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE PARSOR_CRK(IPARG  ,IXC     ,IXTG  ,EL2FA,IDCRK   ,
      .                      IAD_CRK,IAD_CRKG,NBF_L ,NBF  ,IEL_CRK ,
      .                      NODGLOBXFE,INDX_CRK,ITAB     )
 C-----------------------------------------------
       USE CRACKXFEM_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,11 +51,7 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com_xfem1.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "task_c.inc"
-#include      "rnur_c.inc"
-#include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -59,13 +60,14 @@ C-----------------------------------------------
      .        NBF_L,NBF,NODGLOBXFE(*),ITAB(*)
 C-----------------------------------------------
 C     REAL
-      my_real OFF
-      INTEGER IE,NG,ITY,LFT,LLT,N,I,J,NEL,NFT,JJ,K,BUF,IXFEM,
-     .        IPT,ELC,CRKS,ICRK,IE_EL2FA,NEL_CRK,EMPL,NLEVXF
-      INTEGER II(4),NP(NBF_L*4)
+      INTEGER IE, NG, ITY, LFT, LLT, N, I, NEL, NFT, JJ, BUF, IXFEM, 
+     . CRKS,ICRK,IE_EL2FA,NEL_CRK,NLEVXF
+      INTEGER II(4)
+      INTEGER,DIMENSION(:),ALLOCATABLE::NP
 C=======================================================================
 C     CRK ELEMS INIT
 C-----------------------------------------------
+      CALL my_alloc(NP, NBF_L*4)
       NEL_CRK = 0
       JJ = 0
       IE = 0
@@ -74,7 +76,7 @@ C-----------------------------------------------
         ICRK = INDX_CRK(CRKS)
         IE_EL2FA = 0
 C
-C en spmd il faut envoyer l'info meme qd on a 0 elem local
+C In SPMD you must send the info even qd we have 0 local elem
 C
         DO NG=1,NGROUP
           NEL   =IPARG(2,NG)
@@ -155,7 +157,7 @@ C
       ENDDO  !  DO CRKS = 1,NCRKPART
 c----------------------------------------
       IF (NSPMD > 1) THEN
-Cel construction tableau global des parts sur p0
+C   build global part array on proc 0
         IF(ISPMD == 0)THEN
           CALL SPMD_IGLOB_PARTN(IAD_CRK,NCRKPART,IAD_CRKG,NCRKPART)
           BUF = 4 * NBF
@@ -166,11 +168,12 @@ Cel construction tableau global des parts sur p0
           CALL SPMD_IGET_PARTN(4,JJ,NP,NCRKPART,IAD_CRKG,BUF,1)
         ENDIF
 C
-      ELSE ! remplissage IADG pour compatibilite mono/multi
+      ELSE ! IADG filling for mono/multi compatibility
         DO I = 1, NCRKPART
           IAD_CRKG(1,I) = IAD_CRK(I)
         END DO
       ENDIF
 C-----------
+      DEALLOCATE(NP)
       RETURN
       END

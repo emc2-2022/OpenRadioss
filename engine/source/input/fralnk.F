@@ -1,43 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FRALNK                        source/input/fralnk.F         
-Chd|-- called by -----------
-Chd|        FREFORM                       source/input/freform.F        
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        READ10                        source/input/read10.F         
-Chd|        WRIUSC2                       source/input/wriusc2.F        
-Chd|        IXYZ                          source/input/ixyz.F           
-Chd|        NVAR                          source/input/nvar.F           
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE FRALNK(IKAD,KEY0,KVEL,NALELK,IFID)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fralnk                 ../engine/source/input/fralnk.F
+!||--- called by ------------------------------------------------------
+!||    freform                ../engine/source/input/freform.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../engine/source/output/message/message.F
+!||    arret                  ../engine/source/system/arret.F
+!||    ixyz                   ../engine/source/input/ixyz.F
+!||    read10                 ../engine/source/input/read10.F
+!||    wriusc2                ../engine/source/input/wriusc2.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    names_and_titles_mod   ../common_source/modules/names_and_titles_mod.F
+!||====================================================================
+      SUBROUTINE FRALNK(IKAD,KEY0,KVEL,NALELK)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD, ONLY: NCHARLINE100
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,16 +47,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IKAD(0:*),
-     .        KVEL,NALELK,IFID
+      INTEGER IKAD(0:*),KVEL,NALELK
       CHARACTER KEY0(*)*5
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr07_c.inc"
 #include      "units_c.inc"
-#include      "nchara_c.inc"
-#include      "chara_c.inc"
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -62,11 +61,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-
       INTEGER I, N, NBC, K, KK, NS, K4,IKEY, M1, M2,IERR
-      CHARACTER KEYA*80, CARTE*ncharline, KEY2*5, KEY3*5, KEY4*5
-C
+      CHARACTER KEY2*5, KEY3*5, KEY4*5
+      CHARACTER(LEN=NCHARLINE100) :: CARTE
+C-----------------------------------------------
+C   S o u r c e   L i n e s
+C-----------------------------------------------
       K=0
+      KK = 0
       IERR=0
       IKEY=KVEL
       
@@ -77,13 +79,13 @@ C
      .        ERR=9990)
      .          KEY2,KEY3,K4,KEY4,NBC
          K=K+1
-         IF(KEY2.EQ.'TRA  '.OR.KEY2.EQ.'ROT  ')THEN
+         IF(KEY2=='TRA  '.OR.KEY2=='ROT  ')THEN
            K=K+NBC
            CYCLE
          ENDIF
          CALL WRIUSC2(IKAD(IKEY)+K,1,KEY0(IKEY))
          READ(IUSC2,*,ERR=9990,END=9990)M1,M2
-         IF(M1.LE.0.OR.M2.LE.0)GOTO 9990      !Negative main node null or negative not allowed
+         IF(M1<=0.OR.M2<=0)GOTO 9990      !Negative main node null or negative not allowed
          !IF(KEY4(1:5)=='GRNOD')M1=-M1         !Tag on ale link for specific treatment in lectur.F
          
          !---------------------------------!
@@ -123,7 +125,7 @@ C
            DO I=1,NBC-1
              READ(IUSC1,REC=IKAD(IKEY)+K,FMT='(A)',ERR=9990)CARTE
              K=K+1
-             IF(NVAR(CARTE)>1.AND.M1.LT.0)THEN !one single id per line
+             IF(NVAR(CARTE)>1.AND.M1<0)THEN !one single id per line
                IERR=1
              ENDIF
              IF(NVAR(CARTE)==1.AND.NS>0)THEN !grnod already defined on a previous line
@@ -158,24 +160,26 @@ C
       CALL ARRET(0)
       END
 C format v12
-Chd|====================================================================
-Chd|  FRALNK2                       source/input/fralnk.F         
-Chd|-- called by -----------
-Chd|        FREFORM                       source/input/freform.F        
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        READ10                        source/input/read10.F         
-Chd|        WRIUSC2                       source/input/wriusc2.F        
-Chd|        IXYZ                          source/input/ixyz.F           
-Chd|        NVAR                          source/input/nvar.F           
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE FRALNK2(IKAD,KEY0,KALELINK,NALELK,IFID)
+!||====================================================================
+!||    fralnk2                ../engine/source/input/fralnk.F
+!||--- called by ------------------------------------------------------
+!||    freform                ../engine/source/input/freform.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../engine/source/output/message/message.F
+!||    arret                  ../engine/source/system/arret.F
+!||    ixyz                   ../engine/source/input/ixyz.F
+!||    read10                 ../engine/source/input/read10.F
+!||    wriusc2                ../engine/source/input/wriusc2.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    names_and_titles_mod   ../common_source/modules/names_and_titles_mod.F
+!||====================================================================
+      SUBROUTINE FRALNK2(IKAD,KEY0,KALELINK,NALELK)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD, ONLY: NCHARLINE100
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -183,15 +187,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IKAD(0:*),
-     .        KALELINK,NALELK,IFID
+      INTEGER IKAD(0:*),KALELINK,NALELK
       CHARACTER KEY0(*)*5
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr07_c.inc"
 #include      "units_c.inc"
-#include      "chara_c.inc"
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -199,9 +201,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, NBC, K, KK, NS, K4,IKEY, M1, M2, IFORM,IERR
-      CHARACTER KEYA*80, CARTE*ncharline, KEY1*5, KEY2*5, KEY3*5,
-     .          KEY4*5, IOPT*5
+      INTEGER I, N, NBC, K, KK, NS, IKEY, M1, M2, IFORM,IERR
+      CHARACTER KEY1*5, KEY2*5, KEY3*5, KEY4*5
+      CHARACTER(LEN=NCHARLINE100) :: CARTE
 C
       K=0
       IERR=0
@@ -256,7 +258,7 @@ C
           K=K+1
           CALL WRIUSC2(IKAD(IKEY)+K,1,KEY0(IKEY))
           READ(IUSC2,*,ERR=9990,END=9990)M1,M2
-          IF(M1.LE.0.OR.M2.LE.0)GOTO 9990      !Negative main node null or negative not allowed                 
+          IF(M1<=0.OR.M2<=0)GOTO 9990      !Negative main node null or negative not allowed                 
           K=K+1
           KK=K
           NS=0    
@@ -279,7 +281,7 @@ C
             DO I=1,NBC-1
               READ(IUSC1,REC=IKAD(IKEY)+K,FMT='(A)',ERR=9990)CARTE
               K=K+1
-              IF(NVAR(CARTE)>1.AND.M1.LT.0)THEN !one single id per line
+              IF(NVAR(CARTE)>1.AND.M1<0)THEN !one single id per line
                 IERR=1
               ENDIF
               IF(NVAR(CARTE)==1.AND.NS>0)THEN !grnod already defined on a previous line

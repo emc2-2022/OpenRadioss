@@ -1,47 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS104C                    source/materials/mat/mat104/sigeps104c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        MAT104C_LDAM_NEWTON           source/materials/mat/mat104/mat104c_ldam_newton.F
-Chd|        MAT104C_LDAM_NICE             source/materials/mat/mat104/mat104c_ldam_nice.F
-Chd|        MAT104C_NLDAM_NEWTON          source/materials/mat/mat104/mat104c_nldam_newton.F
-Chd|        MAT104C_NLDAM_NICE            source/materials/mat/mat104/mat104c_nldam_nice.F
-Chd|        MAT104C_NODAM_NEWTON          source/materials/mat/mat104/mat104c_nodam_newton.F
-Chd|        MAT104C_NODAM_NICE            source/materials/mat/mat104/mat104c_nodam_nice.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps104c             ../engine/source/materials/mat/mat104/sigeps104c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc                 ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    mat104c_ldam_newton    ../engine/source/materials/mat/mat104/mat104c_ldam_newton.F
+!||    mat104c_ldam_nice      ../engine/source/materials/mat/mat104/mat104c_ldam_nice.F
+!||    mat104c_nldam_newton   ../engine/source/materials/mat/mat104/mat104c_nldam_newton.F
+!||    mat104c_nldam_nice     ../engine/source/materials/mat/mat104/mat104c_nldam_nice.F
+!||    mat104c_nodam_newton   ../engine/source/materials/mat/mat104/mat104c_nodam_newton.F
+!||    mat104c_nodam_nice     ../engine/source/materials/mat/mat104/mat104c_nodam_nice.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE SIGEPS104C(
      1     NEL     ,NGL     ,IPG     ,ILAY    ,IPT     ,NUPARAM ,NUVAR   ,
-     2     NFUNC   ,IFUNC   ,NPF     ,TF      ,TIMESTEP,TIME    ,UPARAM  ,
-     3     UVAR    ,JTHE    ,RHO     ,TEMPEL  ,PLA     ,DPLA    ,SOUNDSP ,
-     4     OFFL    ,EPSD    ,GS      ,DEPSXX  ,DEPSYY  ,DEPSXY  ,DEPSYZ  ,
-     5     DEPSZX  ,THKLY   ,OFF     ,SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,
-     6     SIGOZX  ,THK     ,SIGNXX  ,SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,
-     7     VISCMAX ,SIGY    ,ET      ,VARNL   ,DMG     ,TEMP    ,SEQ     ,
-     8     NPTR    ,NPTS    ,NPTT    ,BUFLY   ,INLOC   )
+     2     TIMESTEP,TIME    ,UPARAM  ,UVAR    ,JTHE    ,RHO     ,TEMPEL  ,
+     3     PLA     ,DPLA    ,SOUNDSP ,OFFL    ,EPSD    ,GS      ,
+     4     DEPSXX  ,DEPSYY  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,THKLY   ,OFF     ,
+     5     SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
+     6     SIGNXX  ,SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,THK     ,SIGY    ,
+     7     ET      ,VARNL   ,DMG     ,L_DMG   ,TEMP    ,SEQ     ,INLOC   ,
+     8     NPTR    ,NPTS    ,NPTT    ,BUFLY   ,PLA_NL  ,L_PLANL ,PLAP_NL ,
+     9     L_EPSDNL,IOFF_DUCT)
      
       USE ELBUFDEF_MOD
 C-----------------------------------------------
@@ -51,73 +53,64 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C O M M O N
 C-----------------------------------------------
-#include      "param_c.inc" 
-#include      "com01_c.inc"
-#include      "scr17_c.inc"
-#include      "mvsiz_p.inc"
-#include      "parit_c.inc"
-#include      "scr05_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "units_c.inc"
-#include      "impl1_c.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL,NUPARAM,NUVAR,NFUNC,JTHE,IPG,ILAY,IPT,INLOC
-      INTEGER NPF(*),NGL(NEL),IFUNC(NFUNC),NPTR,NPTS,NPTT
+      INTEGER NEL,NUPARAM,NUVAR,JTHE,IPG,ILAY,IPT,INLOC
+      INTEGER NGL(NEL),NPTR,NPTS,NPTT
+      INTEGER, INTENT(IN) :: L_PLANL,L_EPSDNL,L_DMG
+      INTEGER, DIMENSION(NEL), INTENT(INOUT) :: IOFF_DUCT
       my_real 
-     .   TIMESTEP,TIME,TF(*),UPARAM(NUPARAM)
+     .   TIMESTEP,TIME,UPARAM(NUPARAM)
       my_real,DIMENSION(NEL), INTENT(IN) :: 
      .   RHO, 
      .   DEPSXX,DEPSYY,DEPSXY,DEPSYZ,DEPSZX,
      .   SIGOXX,SIGOYY,SIGOXY,SIGOYZ,SIGOZX,
      .   TEMPEL, THKLY,GS
-c
+      my_real, DIMENSION(NEL*L_PLANL), INTENT(IN) :: 
+     .   PLA_NL
+      my_real, DIMENSION(NEL*L_EPSDNL), INTENT(IN) :: 
+     .   PLAP_NL
+c 
       my_real ,DIMENSION(NEL), INTENT(OUT)   :: 
      .   SOUNDSP,
      .   SIGNXX,SIGNYY,SIGNXY,SIGNYZ,SIGNZX
 c
       my_real ,DIMENSION(NEL) :: 
-     .   SIGY,ET,VISCMAX
+     .   SIGY,ET
       my_real ,DIMENSION(NEL), INTENT(INOUT) :: 
-     .   PLA,EPSD,OFFL,THK,OFF,VARNL,DMG,TEMP,SEQ,DPLA
+     .   PLA,EPSD,OFFL,THK,OFF,VARNL,TEMP,SEQ,DPLA
+      my_real ,DIMENSION(NEL*L_DMG), INTENT(INOUT) :: 
+     .   DMG
       my_real ,DIMENSION(NEL,NUVAR), INTENT(INOUT) :: 
      .   UVAR
-      TYPE(BUF_LAY_) :: BUFLY
+      TYPE(BUF_LAY_), INTENT(IN) :: BUFLY
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,II,IGURSON,NSP,ITER,NITER,NINDX,NICE,INDEX(NEL),INDX(NEL),
+      INTEGER I,J,IGURSON,NINDX,NICE,INDX(NEL),
      .        IR,IS,IT
 C=======================================================================
-c      UVAR(1)     
-c      UVAR(2)     
-C      DEPIJ = PLASTIC STRAIN TENSOR COMPONENT
-C      DEPSIJ = TOTAL STRAIN  TENSOR COMPONENT (EL+PL)
-C=======================================================================
-c  
        NICE    = NINT(UPARAM(11))! Plastic projection method
                                  !  = 1 => Nice method
                                  !  = 2 => Newton-iteration method
-                                 !  = 3 => Nice method with elastic update
-       IGURSON = NINT(UPARAM(30)) ! Gurson switch flag: 
+       IGURSON = NINT(UPARAM(30))! Gurson switch flag: 
                                  !  = 0 => Drucker material law with no damage model
-                                 !  = 1 => local Gurson damage model
-                                 !  = 2 => non local (Forest - micromorphic) damage model
-                                 !  = 3 => non local (Peerlings) damage model
+                                 !  = 1 => Local Gurson damage model
+                                 !  = 2 => Non local (Forest - micromorphic) damage model
+                                 !  = 3 => Non local (Peerlings) damage model
 c--------------------------                        
       SELECT CASE (IGURSON)
 c      
         CASE(0)
 c     
-c
-c
           IF ((NICE == 1).OR.(NICE == 3)) THEN 
             CALL MAT104C_NODAM_NICE(
      1         NEL     ,NGL     ,NUPARAM ,NUVAR   , 
-     2         TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFF     ,
+     2         TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFFL    ,
      3         GS      ,RHO     ,PLA     ,DPLA    ,EPSD    ,SOUNDSP ,
      4         DEPSXX  ,DEPSYY  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,
      5         SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
@@ -127,7 +120,7 @@ c
           ELSE  ! Newton
             CALL MAT104C_NODAM_NEWTON(
      1         NEL     ,NGL     ,NUPARAM ,NUVAR   , 
-     2         TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFF     ,
+     2         TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFFL    ,
      3         GS      ,RHO     ,PLA     ,DPLA    ,EPSD    ,SOUNDSP ,
      4         DEPSXX  ,DEPSYY  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,
      5         SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
@@ -147,18 +140,19 @@ c
      5         SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
      6         SIGNXX  ,SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,THKLY   ,
      7         THK     ,SIGY    ,ET      ,TEMPEL  ,VARNL   ,DMG     ,
-     8         TEMP    ,SEQ     )
+     8         TEMP    ,SEQ     ,PLA_NL  ,L_PLANL ,PLAP_NL ,L_EPSDNL)
           ELSE  ! Newton
             CALL MAT104C_LDAM_NEWTON(
-     1           NEL     ,NGL     ,NUPARAM ,NUVAR   , 
-     2           TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFFL    ,
-     3           GS      ,RHO     ,PLA     ,DPLA    ,EPSD    ,SOUNDSP ,
-     4           DEPSXX  ,DEPSYY  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,
-     5           SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
-     6           SIGNXX  ,SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,THKLY   ,
-     7           THK     ,SIGY    ,ET      ,TEMPEL  ,VARNL   ,DMG     ,
-     8           TEMP    ,SEQ     )
-          ENDIF      
+     1         NEL     ,NGL     ,NUPARAM ,NUVAR   , 
+     2         TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFFL    ,
+     3         GS      ,RHO     ,PLA     ,DPLA    ,EPSD    ,SOUNDSP ,
+     4         DEPSXX  ,DEPSYY  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,
+     5         SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
+     6         SIGNXX  ,SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,THKLY   ,
+     7         THK     ,SIGY    ,ET      ,TEMPEL  ,VARNL   ,DMG     ,
+     8         TEMP    ,SEQ     ,PLA_NL  ,L_PLANL ,PLAP_NL ,L_EPSDNL)
+          ENDIF  
+c    
         CASE(3)
 c
           IF ((NICE == 1).OR.(NICE == 3)) THEN 
@@ -170,19 +164,22 @@ c
      5         SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
      6         SIGNXX  ,SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,THKLY   ,
      7         THK     ,SIGY    ,ET      ,TEMPEL  ,VARNL   ,DMG     ,
-     8         TEMP    ,SEQ     )
+     8         TEMP    ,SEQ     ,PLA_NL  ,PLAP_NL )
           ELSE  ! Newton
             CALL MAT104C_NLDAM_NEWTON(
-     1           NEL     ,NGL     ,NUPARAM ,NUVAR   , 
-     2           TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFFL    ,
-     3           GS      ,RHO     ,PLA     ,DPLA    ,EPSD    ,SOUNDSP ,
-     4           DEPSXX  ,DEPSYY  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,
-     5           SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
-     6           SIGNXX  ,SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,THKLY   ,
-     7           THK     ,SIGY    ,ET      ,TEMPEL  ,VARNL   ,DMG     ,
-     8           TEMP    ,SEQ     )
+     1         NEL     ,NGL     ,NUPARAM ,NUVAR   , 
+     2         TIME    ,TIMESTEP,UPARAM  ,UVAR    ,JTHE    ,OFFL    ,
+     3         GS      ,RHO     ,PLA     ,DPLA    ,EPSD    ,SOUNDSP ,
+     4         DEPSXX  ,DEPSYY  ,DEPSXY  ,DEPSYZ  ,DEPSZX  ,
+     5         SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,SIGOZX  ,
+     6         SIGNXX  ,SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,THKLY   ,
+     7         THK     ,SIGY    ,ET      ,TEMPEL  ,VARNL   ,DMG     ,
+     8         TEMP    ,SEQ     ,PLA_NL  ,PLAP_NL )
           ENDIF      
       END SELECT        
+c
+      ! Ductile failure activation
+      IOFF_DUCT(1:NEL) = 1
 c--------------------------
       ! Integration point failure
       IF (IGURSON>0) THEN 
@@ -226,6 +223,11 @@ c--------------------------
 #include "lockoff.inc"
           ENDDO
         ENDIF
+      ELSE
+        DO I=1,NEL
+          IF (OFF(I) < EM01) OFF(I) = ZERO
+          IF (OFF(I) < ONE)  OFF(I) = OFF(I)*FOUR_OVER_5 
+        ENDDO 
       ENDIF
 c
  2000 FORMAT(1X,'FAILURE (GURSON) IN SHELL ELEMENT ',I10,1X,',GAUSS PT',I2,1X,',THICKNESS INTG. PT',I3)

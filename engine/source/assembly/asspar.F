@@ -1,39 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ASSPAR                        source/assembly/asspar.F      
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        PINCHTYPE_MOD                 ../common_source/modules/pinchtype_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    asspar          ../engine/source/assembly/asspar.F
+!||--- called by ------------------------------------------------------
+!||    resol           ../engine/source/engine/resol.F
+!||--- uses       -----------------------------------------------------
+!||    pinchtype_mod   ../common_source/modules/pinchtype_mod.F
+!||====================================================================
       SUBROUTINE ASSPAR(NTHREAD ,NUMNOD,NODFT ,NODLT,IRODDL,
      .                  NPART,PARTFT ,PARTLT,A    ,AR    ,
      .                  PARTSAV,STIFN ,STIFR,VISCN       ,
-     .                  FTHE ,ITHERM_FE ,STCND,GREFT,GRELT ,
+     .                  FTHE ,ITHERM_FE ,NODADT_THERM,STCND,GREFT,GRELT ,
      .                  GRESAV,NGPE     ,NTHPART,IALELAG,AF,
-     .                  DMSPH ,CONDN,
-     .                  APINCH,STIFPINCH) 
+     .                  DMSPH ,CONDN,APINCH,STIFPINCH) 
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
@@ -50,8 +49,11 @@ C-----------------------------------------------
 #include      "scr18_c.inc"
 #include      "sphcom.inc"
 C
+C-----------------------------------------------------------------------
+      INTEGER :: NODADT_THERM
+      INTEGER :: ITHERM_FE
       INTEGER NTHREAD,NUMNOD,NODFT,NODLT,IRODDL,
-     .              NPART,PARTFT,PARTLT,ITHERM_FE,GREFT,GRELT,NGPE,
+     .              NPART,PARTFT,PARTLT,GREFT,GRELT,NGPE,
      .              NTHPART,IALELAG
       INTEGER K,KN,IKN,IKN1,IKN2,I,KM,KM1,KM2,NUM7,NUM8,KM3,KM4,KM5
       my_real 
@@ -59,7 +61,7 @@ C
      .  FTHE(*), STCND(*),GRESAV(*),AF(3,*), DMSPH(*),CONDN(*)
       my_real
      .       APINCH(3,*),STIFPINCH(*)
-C
+C-----------------------------------------------------------------------
       NUM7 = NPSAV*NPART
       NUM8 = NPSAV*NGPE
 C
@@ -96,7 +98,7 @@ C     2 TASKS
             ENDDO
           ENDIF
 
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
 #include "vectorize.inc"
            DO 140 I=NODFT,NODLT
             IKN = I + NUMNOD
@@ -151,7 +153,7 @@ C
           ENDIF   
 
 C         viscosite
-          IF(KDTINT.NE.0)THEN
+          IF(KDTINT/=0)THEN
 #include "vectorize.inc"
             DO I=NODFT,NODLT
              IKN  = I    + NUMNOD
@@ -217,7 +219,7 @@ C     3 TASKS
          ENDIF
 
 
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
 #include "vectorize.inc"
            DO 240 I=NODFT,NODLT
             IKN  = I   + NUMNOD
@@ -270,7 +272,7 @@ C
           ENDIF            
 C
 C         viscosite
-          IF(KDTINT.NE.0)THEN
+          IF(KDTINT/=0)THEN
 #include "vectorize.inc"
             DO I=NODFT,NODLT
              IKN  = I    + NUMNOD
@@ -319,7 +321,7 @@ C
  260      CONTINUE
           KM3 = NUM8
           KM4 = NUM8 + NUM8
-          IF (NTHPART .GT. 0) THEN
+          IF (NTHPART > 0) THEN
 #include "vectorize.inc"
             DO 270 I=GREFT,GRELT
              GRESAV(I) = GRESAV(I) + GRESAV(I+KM3) + GRESAV(I+KM4)
@@ -380,7 +382,7 @@ C     4 TASKS
            ENDDO
          ENDIF
 
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
 #include "vectorize.inc"
            DO 340 I=NODFT,NODLT
             IKN  = I    + NUMNOD
@@ -467,7 +469,7 @@ C
           ENDIF
 C
 C         viscosite
-          IF(KDTINT.NE.0)THEN
+          IF(KDTINT/=0)THEN
 #include "vectorize.inc"
             DO I=NODFT,NODLT
              IKN  = I    + NUMNOD
@@ -508,7 +510,7 @@ C
           KM3 = NUM8
           KM4 = KM3 + NUM8
           KM5 = KM4 + NUM8
-          IF (NTHPART .GT. 0) THEN
+          IF (NTHPART > 0) THEN
 #include "vectorize.inc"
             DO 370 I=GREFT,GRELT
              GRESAV(I) = GRESAV(I) + GRESAV(I+KM3) +
@@ -555,7 +557,7 @@ C     NTHREADS > 4
            ENDDO
          ENDIF
 
-          IF (IRODDL.NE.0) THEN
+          IF (IRODDL/=0) THEN
 #include "vectorize.inc"
            DO 935 I=NODFT,NODLT
             IKN = I+KN
@@ -609,7 +611,7 @@ C
              ENDDO
           ENDIF
 C         viscosite
-          IF(KDTINT.NE.0)THEN
+          IF(KDTINT/=0)THEN
 #include "vectorize.inc"
               DO I=NODFT,NODLT
                 IKN = I+KN
@@ -618,7 +620,7 @@ C         viscosite
               ENDDO
           ENDIF
 C         
-          IF(SOL2SPH_FLAG.NE.0)THEN
+          IF(SOL2SPH_FLAG/=0)THEN
 #include "vectorize.inc"
             DO I=NODFT,NODLT
               IKN = I+KN
@@ -634,7 +636,7 @@ C
            PARTSAV(I+KM) = ZERO
  940      CONTINUE
           KM3 = KM3 + NUM8
-          IF (NTHPART .GT. 0) THEN
+          IF (NTHPART > 0) THEN
 #include "vectorize.inc"
             DO 960 I=GREFT,GRELT
              GRESAV(I) = GRESAV(I) + GRESAV(I+KM3)

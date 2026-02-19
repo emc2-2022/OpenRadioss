@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
         
-Chd|====================================================================
-Chd|  SPLIT_CFD_SOLIDE              source/spmd/split_cfd_solide.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        PLIST_IFRONT                  source/spmd/node/ddtools.F    
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        SPLIT_CFD_MOD                 share/modules1/split_cfd_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    split_cfd_solide       ../starter/source/spmd/split_cfd_solide.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    plist_ifront           ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    split_cfd_mod          ../starter/share/modules1/split_cfd_mod.F
+!||====================================================================
         SUBROUTINE SPLIT_CFD_SOLIDE(NUMELS,ALE_CONNECTIVITY,IXS,ALE_ELM,SIZE_ALE_ELM)
 !$COMMENT
 !       SPLIT_CFD_SOLIDE description :
@@ -48,11 +48,11 @@ C   M o d u l e s
 C-----------------------------------------------
         USE SPLIT_CFD_MOD
         USE ALE_CONNECTIVITY_MOD
+        use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -75,9 +75,6 @@ C-----------------------------------------------
 !                 during the domain splitting (ALE part)
 !       -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*
 C-----------------------------------------------
-C   F u n c t i o n
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
         LOGICAL, DIMENSION(NSPMD) :: BOOL
@@ -99,39 +96,39 @@ C ----------------------------------------
                 !       -----------------------------
                 ! check if a neighbouring element is used
                 BOOL(1:NSPMD)=.FALSE.
+                IAD1 = ALE_CONNECTIVITY%ee_connect%iad_connect(I)
+                LGTH = ALE_CONNECTIVITY%ee_connect%iad_connect(I+1)-ALE_CONNECTIVITY%ee_connect%iad_connect(I)
                 DO J=1,8
-                        NS = IXS(J+1,I)
-                        IAD1 = ALE_CONNECTIVITY%ee_connect%iad_connect(I)
-                        LGTH = ALE_CONNECTIVITY%ee_connect%iad_connect(I+1)-ALE_CONNECTIVITY%ee_connect%iad_connect(I)
-                        DO K=1,LGTH
-                                SOLV = ALE_CONNECTIVITY%ee_connect%connected(IAD1 + K - 1)
-                                IF (SOLV.GT.0) THEN
-                                        DO L=1,8
-                                                N = IXS(L+1,SOLV)
-                                                CALL PLIST_IFRONT(ID_SPMD,N,NBR_PROC)
-                                                DO ISPMD=1,NBR_PROC
-                                                        BOOL(ID_SPMD(ISPMD)) = .TRUE.
-                                                ENDDO
-                                        ENDDO
-                                ENDIF
+                  NS = IXS(J+1,I)
+                  DO K=1,LGTH
+                    SOLV = ALE_CONNECTIVITY%ee_connect%connected(IAD1 + K - 1)
+                    IF (SOLV>0) THEN
+                      DO L=1,8
+                        N = IXS(L+1,SOLV)
+                        CALL PLIST_IFRONT(ID_SPMD,N,NBR_PROC)
+                        DO ISPMD=1,NBR_PROC
+                          BOOL(ID_SPMD(ISPMD)) = .TRUE.
                         ENDDO
+                      ENDDO
+                    ENDIF
+                  ENDDO
                 ENDDO
                 !       -----------------------------
                 !       fill the ALE_ELM array / increase the size
                 DO ISPMD=1,NSPMD
-                        IF( BOOL(ISPMD) ) THEN
-                                II(ISPMD) = II(ISPMD) + 1
-                                IF( II(ISPMD)>SIZE_ALE_ELM(ISPMD) ) THEN
-                                        !       need to check the size for small test, ie. when NUMELS < NSPMS
-                                        MIN_SIZE=MAX(1,5* NUMELS/ ( 4*NSPMD ))
-                                        NEW_SIZE_II = SIZE_ALE_ELM(ISPMD) + MIN_SIZE
-                                        ALLOCATE( TMP( NEW_SIZE_II ) )
-                                        TMP(1:SIZE_ALE_ELM(ISPMD)) = ALE_ELM(ISPMD)%SOL_ID( 1:SIZE_ALE_ELM(ISPMD) )
-                                        CALL MOVE_ALLOC(FROM=TMP,TO=ALE_ELM(ISPMD)%SOL_ID)
-                                        SIZE_ALE_ELM(ISPMD) = NEW_SIZE_II                                        
-                                ENDIF
-                                ALE_ELM(ISPMD)%SOL_ID(II(ISPMD)) = I   
-                        ENDIF
+                  IF( BOOL(ISPMD) ) THEN
+                    II(ISPMD) = II(ISPMD) + 1
+                    IF( II(ISPMD)>SIZE_ALE_ELM(ISPMD) ) THEN
+                      !       need to check the size for small test, ie. when NUMELS < NSPMS
+                      MIN_SIZE=MAX(1,5* NUMELS/ ( 4*NSPMD ))
+                      NEW_SIZE_II = SIZE_ALE_ELM(ISPMD) + MIN_SIZE
+                      ALLOCATE( TMP( NEW_SIZE_II ) )
+                      TMP(1:SIZE_ALE_ELM(ISPMD)) = ALE_ELM(ISPMD)%SOL_ID( 1:SIZE_ALE_ELM(ISPMD) )
+                      CALL MOVE_ALLOC(FROM=TMP,TO=ALE_ELM(ISPMD)%SOL_ID)
+                      SIZE_ALE_ELM(ISPMD) = NEW_SIZE_II
+                    ENDIF
+                    ALE_ELM(ISPMD)%SOL_ID(II(ISPMD)) = I
+                  ENDIF
                 ENDDO
                 !       -----------------------------
         ENDDO
@@ -144,13 +141,13 @@ C ----------------------------------------
 
 
 
-Chd|====================================================================
-Chd|  DEALLOCATE_SPLIT_CFD_SOLIDE   source/spmd/split_cfd_solide.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        SPLIT_CFD_MOD                 share/modules1/split_cfd_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    deallocate_split_cfd_solide   ../starter/source/spmd/split_cfd_solide.F
+!||--- called by ------------------------------------------------------
+!||    lectur                        ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    split_cfd_mod                 ../starter/share/modules1/split_cfd_mod.F
+!||====================================================================
         SUBROUTINE DEALLOCATE_SPLIT_CFD_SOLIDE(ALE_ELM)
 !$COMMENT
 !       DEALLOCATE_SPLIT_CFD_SOLIDE description :
@@ -167,7 +164,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -180,9 +176,6 @@ C-----------------------------------------------
 !       ALE_ELM : split_cfd_type ; dimension=NSPMD ; solid element ID used 
 !                 during the domain splitting (ALE part)
 !       -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*-*-*-*-*
-C-----------------------------------------------
-C   F u n c t i o n
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------

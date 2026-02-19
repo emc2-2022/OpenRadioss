@@ -1,47 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_FRICTION_MODELS       source/interfaces/friction/reader/hm_read_friction_models.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        HM_READ_FRICTION              source/interfaces/friction/reader/hm_read_friction.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        INTBUF_FRIC_MOD               share/modules1/intbuf_fric_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_friction_models   ../starter/source/interfaces/friction/reader/hm_read_friction_models.F
+!||--- called by ------------------------------------------------------
+!||    lectur                    ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                    ../starter/source/output/message/message.F
+!||    hm_option_read_key        ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start           ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    hm_read_friction          ../starter/source/interfaces/friction/reader/hm_read_friction.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod        ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod               ../starter/share/message_module/message_mod.F
+!||    r2r_mod                   ../starter/share/modules1/r2r_mod.F
+!||    reader_old_mod            ../starter/share/modules1/reader_old_mod.F90
+!||    submodel_mod              ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_FRICTION_MODELS(
-     1        NOM_OPT   ,UNITAB     ,IGRPART     ,IPART     ,TAGPRT_FRIC,
+     1        NOM_OPT                ,UNITAB          ,IGRPART          ,IPART         ,TAGPRT_FRIC,
      2        TABCOUPLEPARTS_FRIC_TMP,TABCOEF_FRIC_TMP,INTBUF_FRIC_TAB  ,
-     .                                          NSETFRICTOT  ,
-     3        IFLAG   ,COEFSLEN, IORTHFRICMAX  ,IFRICORTH_TMP,NGRPF        ,
-     4        LENGRPF ,LENG    ,NSETMAX        ,LSUBMODEL )
+     .        NSETFRICTOT            ,
+     3        IFLAG                  ,COEFSLEN        ,IORTHFRICMAX     ,IFRICORTH_TMP ,NGRPF      ,
+     4        LENGRPF                ,LENG            ,NSETMAX          ,LSUBMODEL )
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
@@ -52,28 +52,18 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE READER_OLD_MOD , ONLY : IREC
 C-----------------------------------------------      
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com02_c.inc"
-#include      "com03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
 #include      "scr17_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -94,8 +84,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NIF ,NIN , NSET ,NGRPF0 ,NOINTF ,SUB_ID ,UID ,IFLAGUNIT ,J
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C
 C=======================================================================
 C     READING FRICTION Model /FRICTION
@@ -129,16 +118,16 @@ C--------------------------------------------------
 C CHECK IF UID IS EXISTING
 C--------------------------------------------------
         IFLAGUNIT = 0
-        DO J=1,NUNITS
+        DO J=1,UNITAB%NUNITS
           IF (UNITAB%UNIT_ID(J) == UID) THEN    
             IFLAGUNIT = 1
             EXIT
           ENDIF
         ENDDO
-        IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+        IF (UID/=0.AND.IFLAGUNIT==0) THEN
            CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,
-     .  	       I2=UID,I1=NOINTF,C1='FRITION',
-     .  	       C2='FRICTION',
+     .           I2=UID,I1=NOINTF,C1='FRITION',
+     .           C2='FRICTION',
      .                 C3=TITR)
         ENDIF
 

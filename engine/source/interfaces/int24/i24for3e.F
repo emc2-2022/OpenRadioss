@@ -1,55 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I24FOR3E                      source/interfaces/int24/i24for3e.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i24for3e   ../engine/source/interfaces/int24/i24for3e.F
+!||====================================================================
       SUBROUTINE I24FOR3E() 
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I24FORC_FIC                   source/interfaces/int24/i24for3e.F
-Chd|-- called by -----------
-Chd|        I24ASS0                       source/interfaces/int24/i24for3.F
-Chd|        I24ASS2                       source/interfaces/int24/i24for3.F
-Chd|        I24SMS2                       source/interfaces/int24/i24for3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i24forc_fic   ../engine/source/interfaces/int24/i24for3e.F
+!||--- called by ------------------------------------------------------
+!||    i24ass0       ../engine/source/interfaces/int24/i24for3.F
+!||    i24ass2       ../engine/source/interfaces/int24/i24for3.F
+!||    i24sms2       ../engine/source/interfaces/int24/i24for3.F
+!||====================================================================
       SUBROUTINE I24FORC_FIC(NPT     ,IRTSE   ,NSNE    ,IS2SE   ,IS2PT   ,
      +                       NS      ,NFIC    ,FICI    ,FICS    ,IXSS    )
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -69,12 +59,12 @@ C-----------------------------------------------
 ! | .     o3    . |
 ! 1---o1------o2--2 NPT=3
 C----- NLS : Num. of element with active edge----
-      INTEGER I,J,K,NSN0,IP,NS1,NS2,IE,NP0
+      INTEGER J,K,IP,NS1,NS2,IE,NP0
       INTEGER IK1(4),IK2(4),IE1,IE2,IED
       DATA IK1 /1,2,3,4/
       DATA IK2 /2,3,4,1/
       my_real
-     .   FX,FY,FZ,S,STI,FICT(NFIC)
+     .   S,FICT(NFIC)
 C=======================================================================
 C----IRTSE(5,*) -> id of edge
 C=======================================================================
@@ -102,7 +92,7 @@ C=======================================================================
 c         FICT(K) = FICI(K)/NPT
         END DO    
        IF (IP==NPT) THEN
-C---equi_balance to NS1,NS2 and element center   
+C--- Equi_Balance to ns1, ns2 and element center   
 C-------seg center------- 
         IF (IRTSE(3,IE)/=IRTSE(4,IE)) THEN
          DO J =1,4
@@ -145,13 +135,13 @@ C---------left side
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24FOR1_FIC                   source/interfaces/int24/i24for3e.F
-Chd|-- called by -----------
-Chd|        I24FOR3                       source/interfaces/int24/i24for3.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i24for1_fic   ../engine/source/interfaces/int24/i24for3e.F
+!||--- called by ------------------------------------------------------
+!||    i24for3       ../engine/source/interfaces/int24/i24for3.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box       ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24FOR1_FIC(NPT     ,IRTSE   ,NSNE    ,IS2SE   ,IS2PT   ,
      +                       NS      ,FXI     ,FYI     ,FZI     ,FOR1    ,
      +                       INEGA   )
@@ -160,13 +150,6 @@ C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -186,7 +169,7 @@ C-----------------------------------------------
 ! | .     o3    . |
 ! 1---o1------o2--2 NPT=3
 C----- NLS : Num. of element with active edge----
-      INTEGER I,J,K,NSN0,IP,NS1,NS2,IE,NP0,IX
+      INTEGER J,IP,NS1,NS2,IE,NP0,IX
       INTEGER IK1(4),IK2(4),IE1,IE2,IED
       DATA IK1 /1,2,3,4/
       DATA IK2 /2,3,4,1/
@@ -218,7 +201,7 @@ C=======================================================================
         print *,'probleme EDGENS,IE1,IE2=',NS,IE1,IE2
        END IF
        IF (IP==NPT) THEN
-C---equi_balance to NS1,NS2 and element center       
+C--- Equi_Balance to ns1, ns2 and element center       
          FX = FXI
          FY = FYI
          FZ = FZI         
@@ -289,13 +272,13 @@ C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  I24FOR1_FICR                  source/interfaces/int24/i24for3e.F
-Chd|-- called by -----------
-Chd|        I24FOR3                       source/interfaces/int24/i24for3.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i24for1_ficr   ../engine/source/interfaces/int24/i24for3e.F
+!||--- called by ------------------------------------------------------
+!||    i24for3        ../engine/source/interfaces/int24/i24for3.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box        ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24FOR1_FICR(NPT     ,IRTSE   ,NSNE    ,IS2SE   ,IS2PT   ,
      +                       NS      ,FXI     ,FYI     ,FZI     ,FOR1    ,
      +                       INEGA  ,NI )
@@ -304,14 +287,6 @@ C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -331,7 +306,7 @@ C-----------------------------------------------
 ! | .     o3    . |
 ! 1---o1------o2--2 NPT=3
 C----- NLS : Num. of element with active edge----
-      INTEGER I,J,K,NSN0,IP,NS1,NS2,IE,NP0,IX
+      INTEGER J,IP,NS1,NS2,IE,NP0,IX
       INTEGER IK1(4),IK2(4),IE1,IE2,IED
       DATA IK1 /1,2,3,4/
       DATA IK2 /2,3,4,1/
@@ -363,7 +338,7 @@ C=======================================================================
         print *,'probleme EDGENS,IE1,IE2=',NS,IE1,IE2
        END IF
        IF (IP==NPT) THEN
-C---equi_balance to NS1,NS2 and element center       
+C--- Equi_Balance to ns1, ns2 and element center       
          FX = FXI
          FY = FYI
          FZ = FZI         
@@ -418,7 +393,7 @@ C---------left side
        IF (INEGA==-1) THEN
         DO J =1,4
          IX = IRTSE(J,IE)
-c         IF(IX .GT.NLSKYFI(NI))print*,ispmd,NI,'ERROR:',IX,NLSKYFI(NI)
+c         IF(IX >NLSKYFI(NI))print*,ispmd,NI,'ERROR:',IX,NLSKYFI(NI)
          FOR1(1,IX) = FOR1(1,IX) - FXS(J)
          FOR1(2,IX) = FOR1(2,IX) - FYS(J)
          FOR1(3,IX) = FOR1(3,IX) - FZS(J)
@@ -435,14 +410,15 @@ C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  I24XVFIC_UPD                  source/interfaces/int24/i24for3e.F
-Chd|-- called by -----------
-Chd|        I24E2E_FICTIVE_NODES_UPDATE   source/interfaces/int24/i24for3e.F
-Chd|-- calls ---------------
-Chd|        I24XFIC_INI                   source/interfaces/int24/i24for3e.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i24xvfic_upd                  ../engine/source/interfaces/int24/i24for3e.F
+!||--- called by ------------------------------------------------------
+!||    i24e2e_fictive_nodes_update   ../engine/source/interfaces/int24/i24for3e.F
+!||--- calls      -----------------------------------------------------
+!||    i24xfic_ini                   ../engine/source/interfaces/int24/i24for3e.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod                 ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE I24XVFIC_UPD(IPARI  ,INTBUF_TAB   ,X    ,V ,NPT ,ITAB )
 C-----------------------------------------------
 C   M o d u l e s
@@ -453,13 +429,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(*) ,NPT,ITAB(*)
@@ -469,7 +438,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,NRTSE,NSNE,NSN
+      INTEGER NRTSE,NSNE,NSN
 C=======================================================================
           NRTSE   = IPARI(52)
           NSNE    = IPARI(55)
@@ -483,13 +452,13 @@ C=======================================================================
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24XFIC_INI                   source/interfaces/int24/i24for3e.F
-Chd|-- called by -----------
-Chd|        I24XVFIC_UPD                  source/interfaces/int24/i24for3e.F
-Chd|-- calls ---------------
-Chd|        I24FIC_GETN                   source/interfaces/int24/i24for3e.F
-Chd|====================================================================
+!||====================================================================
+!||    i24xfic_ini    ../engine/source/interfaces/int24/i24for3e.F
+!||--- called by ------------------------------------------------------
+!||    i24xvfic_upd   ../engine/source/interfaces/int24/i24for3e.F
+!||--- calls      -----------------------------------------------------
+!||    i24fic_getn    ../engine/source/interfaces/int24/i24for3e.F
+!||====================================================================
       SUBROUTINE I24XFIC_INI(NRTSE   ,IRTSE   ,NSNE    ,IS2SE   ,IS2PT   ,
      4                       NSN     ,NSV     ,X       ,XFIC ,NPT , ITAB ,FLG)
 C============================================================================
@@ -497,15 +466,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "task_c.inc"
 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -527,7 +490,7 @@ C-----------------------------------------------
 ! | .     o3    . |
 ! 1---o1------o2--2 NPT=3
 C----- NLS : Num. of element with active edge----
-      INTEGER I,J,K,NSN0,NS,IP,NS1,NS2,IE,NP0,ipr
+      INTEGER I,NSN0,NS,IP,NS1,NS2,IE,NP0,ipr
       my_real
      .   X0,Y0,Z0,XE0,YE0,ZE0,S
 C=======================================================================
@@ -601,13 +564,13 @@ C---------left side
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24FICS_INI                   source/interfaces/int24/i24for3e.F
-Chd|-- called by -----------
-Chd|        I24E2E_FICTIVE_NODES_UPDATE   source/interfaces/int24/i24for3e.F
-Chd|-- calls ---------------
-Chd|        I24FIC_GETN                   source/interfaces/int24/i24for3e.F
-Chd|====================================================================
+!||====================================================================
+!||    i24fics_ini                   ../engine/source/interfaces/int24/i24for3e.F
+!||--- called by ------------------------------------------------------
+!||    i24e2e_fictive_nodes_update   ../engine/source/interfaces/int24/i24for3e.F
+!||--- calls      -----------------------------------------------------
+!||    i24fic_getn                   ../engine/source/interfaces/int24/i24for3e.F
+!||====================================================================
       SUBROUTINE I24FICS_INI(IRTSE   ,NSNE    ,IS2SE   ,IS2PT  ,NSN     ,
      4                       NSV     ,S       ,FICS    ,NPT   ,ITAB )
 C============================================================================
@@ -615,13 +578,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -641,7 +600,7 @@ C-----------------------------------------------
 ! | .     o3    . |
 ! 1---o1------o2--2 NPT=3
 C----- NLS : Num. of element with active edge----
-      INTEGER I,J,K,NSN0,NS,IP,NS1,NS2,IE,NP0
+      INTEGER I,NSN0,NS,IP,NS1,NS2,IE,NP0
       my_real
      .   S0,SE0,FAC
 C=======================================================================
@@ -684,15 +643,16 @@ C---------left side
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24FIC_GETN                   source/interfaces/int24/i24for3e.F
-Chd|-- called by -----------
-Chd|        I24COR3                       source/interfaces/int24/i24cor3.F
-Chd|        I24FICS_INI                   source/interfaces/int24/i24for3e.F
-Chd|        I24TRIVOX                     source/interfaces/intsort/i24trivox.F
-Chd|        I24XFIC_INI                   source/interfaces/int24/i24for3e.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i24fic_getn   ../engine/source/interfaces/int24/i24for3e.F
+!||--- called by ------------------------------------------------------
+!||    i24cor3       ../engine/source/interfaces/int24/i24cor3.F
+!||    i24fics_ini   ../engine/source/interfaces/int24/i24for3e.F
+!||    i24trivox     ../engine/source/interfaces/intsort/i24trivox.F
+!||    i24xfic_ini   ../engine/source/interfaces/int24/i24for3e.F
+!||--- calls      -----------------------------------------------------
+!||    arret         ../engine/source/system/arret.F
+!||====================================================================
       SUBROUTINE I24FIC_GETN(NS      ,IRTSE   ,IS2SE   ,IE    ,NS1     ,
      4                       NS2     )
 C============================================================================
@@ -700,20 +660,13 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IRTSE(5,*) ,NS,IS2SE(2,*),NS1,NS2,IE
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C----- get edge NS1,NS2 and--Secnd seg id :IE-
+C----- get edge NS1,NS2 and--Second seg id :IE-
       INTEGER IK1(4),IK2(4),IE1,IE2,IED
       DATA IK1 /1,2,3,4/
       DATA IK2 /2,3,4,1/
@@ -740,17 +693,18 @@ C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  I24E2E_FICTIVE_NODES_UPDATE   source/interfaces/int24/i24for3e.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        I24FICS_INI                   source/interfaces/int24/i24for3e.F
-Chd|        I24XVFIC_UPD                  source/interfaces/int24/i24for3e.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i24e2e_fictive_nodes_update   ../engine/source/interfaces/int24/i24for3e.F
+!||--- called by ------------------------------------------------------
+!||    resol                         ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    i24fics_ini                   ../engine/source/interfaces/int24/i24for3e.F
+!||    i24xvfic_upd                  ../engine/source/interfaces/int24/i24for3e.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod                 ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE I24E2E_FICTIVE_NODES_UPDATE(INTLIST,NBINTC,IPARI,INTBUF_TAB,
-     *            X,V,MS,ITAB)
+     *            X,V,MS,ITAB,XYZ,NUMNOD,NSH_OFFSET)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -762,19 +716,18 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
       INTEGER INTLIST(*),NBINTC
+      INTEGER, INTENT(IN) :: NUMNOD,NSH_OFFSET
       INTEGER IPARI(NPARI,*),ITAB(*)
       my_real
-     *    X(3,*),V(3,*),MS(3,*)
+     *    X(3,*),V(3,*),MS(3,*),XYZ(3,NUMNOD)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -790,11 +743,15 @@ C-----------------------------------------------
          IEDGE4 = IPARI(59,N)
          TS  = INTBUF_TAB(N)%VARIABLES(3)
 
-         IF(NTY == 24.AND.IEDGE4>0.AND.TT.GE.TS)THEN
+         IF(NTY == 24.AND.IEDGE4>0.AND.TT>=TS)THEN
 
 C Move XFIC & VFIC to another place for SPMD coherency
             NFIC = 3   
-            CALL I24XVFIC_UPD(IPARI(1,N),INTBUF_TAB(N),X   ,V ,NFIC  ,ITAB)
+           IF (NSH_OFFSET>0) THEN 
+            CALL I24XVFIC_UPD(IPARI(1,N),INTBUF_TAB(N),XYZ   ,V ,NFIC  ,ITAB) 
+           ELSE
+              CALL I24XVFIC_UPD(IPARI(1,N),INTBUF_TAB(N),X   ,V ,NFIC  ,ITAB)
+           END IF
 
 C Move fictive Mass node computation to another place for SPMD coherency
 
@@ -806,3 +763,5 @@ C Move fictive Mass node computation to another place for SPMD coherency
       ENDDO 
 
       END
+
+

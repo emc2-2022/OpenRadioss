@@ -1,45 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SFINT_REG                     source/elements/solid/solide/sfint_reg.F
-Chd|-- called by -----------
-Chd|        SFORC3                        source/elements/solid/solide/sforc3.F
-Chd|        SZFORC3                       source/elements/solid/solidez/szforc3.F
-Chd|-- calls ---------------
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
-      SUBROUTINE SFINT_REG(NLOC_DMG,VAR_REG  ,
-     .                     NEL     ,OFF      ,VOL      ,NC1     ,
-     .                     NC2     ,NC3      ,NC4      ,NC5     ,
-     .                     NC6     ,NC7      ,NC8      ,PX1     ,
-     .                     PX2     ,PX3      ,PX4      ,PY1     ,
-     .                     PY2     ,PY3      ,PY4      ,PZ1     ,
-     .                     PZ2     ,PZ3      ,PZ4      ,IMAT    ,
-     .                     ITASK   ,DT2T     )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sfint_reg        ../engine/source/elements/solid/solide/sfint_reg.F
+!||--- called by ------------------------------------------------------
+!||    sforc3           ../engine/source/elements/solid/solide/sforc3.F
+!||    szforc3          ../engine/source/elements/solid/solidez/szforc3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    nlocal_reg_mod   ../common_source/modules/nlocal_reg_mod.F
+!||====================================================================
+      SUBROUTINE SFINT_REG(
+     1   NLOC_DMG,VAR_REG, NEL,     OFF,
+     2   VOL,     NC1,     NC2,     NC3,
+     3   NC4,     NC5,     NC6,     NC7,
+     4   NC8,     PX1,     PX2,     PX3,
+     5   PX4,     PY1,     PY2,     PY3,
+     6   PY4,     PZ1,     PZ2,     PZ3,
+     7   PZ4,     IMAT,    ITASK,   DT2T,
+     8   VOL0,    NFT)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE NLOCAL_REG_MOD
+      USE ELBUFDEF_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,57 +50,93 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "parit_c.inc"
-#include      "vect01_c.inc"
 #include      "scr02_c.inc"
 #include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ::  NEL, IMAT, ITASK
-      INTEGER, DIMENSION(NEL) :: NC1,NC2,NC3,NC4,NC5,NC6,NC7,NC8
-      my_real, INTENT(INOUT)                     ::
-     .  DT2T
-      my_real, DIMENSION(NEL), INTENT(IN) :: 
-     .   VOL,OFF,VAR_REG,
-     .   PX1,PX2,PX3,PX4,PY1,PY2,PY3,PY4,PZ1,PZ2,PZ3,PZ4
-      TYPE(NLOCAL_STR_), TARGET :: NLOC_DMG 
+      TYPE(NLOCAL_STR_), INTENT(INOUT), TARGET :: NLOC_DMG !< Non-local data structure
+      my_real, DIMENSION(NEL), INTENT(IN) :: VAR_REG !< Variable to regularize
+      INTEGER, INTENT(IN)     :: NEL              !< Number of elements in the group
+      my_real, DIMENSION(NEL), INTENT(IN) :: OFF  !< Flag for element deletion
+      my_real, DIMENSION(NEL), INTENT(IN) :: VOL  !< Current volume of the element
+      INTEGER, DIMENSION(NEL) :: NC1              !< Node 1 of the elements
+      INTEGER, DIMENSION(NEL) :: NC2              !< Node 2 of the elements
+      INTEGER, DIMENSION(NEL) :: NC3              !< Node 3 of the elements
+      INTEGER, DIMENSION(NEL) :: NC4              !< Node 4 of the elements
+      INTEGER, DIMENSION(NEL) :: NC5              !< Node 5 of the elements
+      INTEGER, DIMENSION(NEL) :: NC6              !< Node 6 of the elements
+      INTEGER, DIMENSION(NEL) :: NC7              !< Node 7 of the elements
+      INTEGER, DIMENSION(NEL) :: NC8              !< Node 8 of the elements
+      my_real, DIMENSION(NEL), INTENT(IN) :: PX1  !< Derivative of the first node shape function along x
+      my_real, DIMENSION(NEL), INTENT(IN) :: PX2  !< Derivative of the second node shape function along x
+      my_real, DIMENSION(NEL), INTENT(IN) :: PX3  !< Derivative of the third node shape function along x
+      my_real, DIMENSION(NEL), INTENT(IN) :: PX4  !< Derivative of the fourth node shape function along x
+      my_real, DIMENSION(NEL), INTENT(IN) :: PY1  !< Derivative of the first node shape function along y
+      my_real, DIMENSION(NEL), INTENT(IN) :: PY2  !< Derivative of the second node shape function along y
+      my_real, DIMENSION(NEL), INTENT(IN) :: PY3  !< Derivative of the third node shape function along y
+      my_real, DIMENSION(NEL), INTENT(IN) :: PY4  !< Derivative of the fourth node shape function along y
+      my_real, DIMENSION(NEL), INTENT(IN) :: PZ1  !< Derivative of the first node shape function along z
+      my_real, DIMENSION(NEL), INTENT(IN) :: PZ2  !< Derivative of the second node shape function along z
+      my_real, DIMENSION(NEL), INTENT(IN) :: PZ3  !< Derivative of the third node shape function along z
+      my_real, DIMENSION(NEL), INTENT(IN) :: PZ4  !< Derivative of the fourth node shape function along z
+      INTEGER, INTENT(IN)     :: IMAT             !< Material internal Id
+      INTEGER, INTENT(IN)     :: ITASK            !< Number of the thread
+      my_real, INTENT(INOUT)  :: DT2T             !< Element critical timestep
+      my_real, DIMENSION(NEL), INTENT(IN) :: VOL0 !< Initial volume of the element
+      INTEGER, INTENT(IN)     :: NFT              !< Address of the first element of the group
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,K,NNOD,N1,N2,N3,N4,N5,N6,N7,N8,L_NLOC
-      my_real 
-     . DX, DY, DZ, L2,NTN,NTN_UNL,NTN_VNL,XI,NTVAR,A,
-     . B1,B2,B3,B4,B5,B6,B7,B8,ZETA,SSPNL,DTNL,LE_MAX,
-     . MAXSTIF
-      my_real, DIMENSION(NEL) :: 
-     . F1,F2,F3,F4,F5,F6,F7,F8
-      my_real, DIMENSION(:) ,ALLOCATABLE   :: 
-     . BTB11,BTB12,BTB13,BTB14,BTB22,BTB23,BTB24,
-     . BTB33,BTB34,BTB44,STI1,STI2,STI3,STI4,STI5,
-     . STI6,STI7,STI8
+      INTEGER I,II,K,N1,N2,N3,N4,N5,N6,N7,N8,L_NLOC
       INTEGER, DIMENSION(:), ALLOCATABLE   ::
-     . POS1,POS2,POS3,POS4,POS5,POS6,POS7,POS8
+     .   POS1,POS2,POS3,POS4,POS5,POS6,POS7,POS8
+      my_real 
+     .   L2,NTN_UNL,NTN_VNL,XI,NTVAR,A,
+     .   B1,B2,B3,B4,B5,B6,B7,B8,ZETA,SSPNL,DTNL,LE_MAX,
+     .   MAXSTIF,NTN
+      my_real, DIMENSION(:) ,ALLOCATABLE   :: 
+     .   BTB11,BTB12,BTB13,BTB14,BTB22,BTB23,BTB24,
+     .   BTB33,BTB34,BTB44,STI1,STI2,STI3,STI4,STI5,
+     .   STI6,STI7,STI8,F1,F2,F3,F4,F5,F6,F7,F8,LC
       my_real, POINTER, DIMENSION(:) :: 
-     . VNL,FNL,UNL,STIFNL,MASS,MASS0,VNL0
+     .   VNL,FNL,UNL,STIFNL,MASS,MASS0,VNL0
       ! Coefficient for non-local stability to take into account damping
-      my_real, PARAMETER :: CDAMP = 0.7D0
+      my_real, target :: nothing(1)
 c-----------------------------------------------------------------------
 c     VAR_REG :  variable a regulariser (local cumulated plastic strain)
 c     NTVAR  =  NT * VAR_REG
 C=======================================================================
-      L2     = NLOC_DMG%LEN(IMAT)**2
-      XI     = NLOC_DMG%DAMP(IMAT)
-      NNOD   = NLOC_DMG%NNOD
-      L_NLOC = NLOC_DMG%L_NLOC
-      ZETA   = NLOC_DMG%DENS(IMAT)
-      SSPNL  = NLOC_DMG%SSPNL(IMAT)
-      LE_MAX = NLOC_DMG%LE_MAX(IMAT) ! Maximal length of convergence
-      NTN  = EIGHT*EIGHT
+c 
+      nothing = ZERO
+      VNL => nothing
+      FNL => nothing
+      UNL => nothing
+      STIFNL => nothing
+      MASS => nothing
+      MASS0 => nothing
+      VNL0 => nothing
+      
+      ! Recover non-local parameters
+      L2     = NLOC_DMG%LEN(IMAT)**2 !< Squared internal length 
+      XI     = NLOC_DMG%DAMP(IMAT)   !< Damping parameter
+      L_NLOC = NLOC_DMG%L_NLOC       !< Size of non-local tables
+      ZETA   = NLOC_DMG%DENS(IMAT)   !< Density parameter
+      SSPNL  = NLOC_DMG%SSPNL(IMAT)  !< Non-local "Sound speed"
+      LE_MAX = NLOC_DMG%LE_MAX(IMAT) !< Maximal length of convergence
+c
+      ! Allocation of variable table
       ALLOCATE(BTB11(NEL),BTB12(NEL),BTB13(NEL),BTB14(NEL),BTB22(NEL),
      . BTB23(NEL),BTB24(NEL),BTB33(NEL),BTB34(NEL),BTB44(NEL),POS1(NEL),
-     . POS2(NEL),POS3(NEL),POS4(NEL),POS5(NEL),POS6(NEL),POS7(NEL),POS8(NEL))
+     . POS2(NEL),POS3(NEL),POS4(NEL),POS5(NEL),POS6(NEL),POS7(NEL),POS8(NEL),
+     . F1(NEL),F2(NEL),F3(NEL),F4(NEL),F5(NEL),F6(NEL),F7(NEL),F8(NEL),LC(NEL))
+c
+      ! Factor for non-local forces
+      NTN = EIGHT*EIGHT
+c
+      ! Local variables initialization
+      LC(1:NEL) = ZERO
       ! For nodal timestep
       IF (NODADT > 0) THEN
         ! Non-local nodal stifness
@@ -108,15 +147,17 @@ C=======================================================================
         ! Initial non-local mass
         MASS0 => NLOC_DMG%MASS0(1:L_NLOC)
       ENDIF
+      ! Current timestep non-local velocities
       VNL  => NLOC_DMG%VNL(1:L_NLOC)
+      ! Previous timestep non-local velocities
       VNL0 => NLOC_DMG%VNL_OLD(1:L_NLOC)
+      ! Non-local displacements
       UNL  => NLOC_DMG%UNL(1:L_NLOC)
 c
-      !-----------------------------------------------------------------------
-      ! Computation of the element volume and the BtB matrix product
-      !-----------------------------------------------------------------------
+      !--------------------------------------------------------------------------------
+      ! Computation of the position of the non-local d.o.fs and the BtB matrix product
+      !--------------------------------------------------------------------------------
       ! Loop over elements
-# include "vectorize.inc"
       DO I=1,NEL
 c
         ! Recovering the nodes of the brick element
@@ -150,14 +191,13 @@ c
         BTB33(I) = PX3(I)**2 + PY3(I)**2 + PZ3(I)**2
         BTB34(I) = PX3(I)*PX4(I) + PY3(I)*PY4(I) + PZ3(I)*PZ4(I)
         BTB44(I) = PX4(I)**2 + PY4(I)**2 + PZ4(I)**2
-c        
+c
       ENDDO
 c      
       !-----------------------------------------------------------------------
       ! Computation of non-local forces
       !-----------------------------------------------------------------------
       ! Loop over elements
-# include "vectorize.inc"
       DO I = 1, NEL
 c     
         ! If the element is not broken, normal computation
@@ -165,20 +205,20 @@ c
 c
           ! Computing the product NtN*UNL
           NTN_UNL = (UNL(POS1(I)) + UNL(POS2(I)) + UNL(POS3(I)) + UNL(POS4(I))
-     .        +  UNL(POS5(I)) + UNL(POS6(I)) + UNL(POS7(I)) + UNL(POS8(I))) / NTN
+     .            +  UNL(POS5(I)) + UNL(POS6(I)) + UNL(POS7(I)) + UNL(POS8(I))) / NTN
 c        
-          ! Computing the product XDAMP*NtN*VNL
+          ! Computing the product NtN*VNL
           NTN_VNL = (VNL(POS1(I)) + VNL(POS2(I)) + VNL(POS3(I)) + VNL(POS4(I))
-     .        +  VNL(POS5(I)) + VNL(POS6(I)) + VNL(POS7(I)) + VNL(POS8(I))) / NTN
+     .            +  VNL(POS5(I)) + VNL(POS6(I)) + VNL(POS7(I)) + VNL(POS8(I))) / NTN
           IF (NODADT > 0) THEN 
-            NTN_VNL = (SQRT(MASS(POS1(I))/MASS0(POS1(I)))*VNL(POS1(I)) + 
-     .                 SQRT(MASS(POS2(I))/MASS0(POS2(I)))*VNL(POS2(I)) + 
-     .                 SQRT(MASS(POS3(I))/MASS0(POS3(I)))*VNL(POS3(I)) + 
-     .                 SQRT(MASS(POS4(I))/MASS0(POS4(I)))*VNL(POS4(I)) +
-     .                 SQRT(MASS(POS5(I))/MASS0(POS5(I)))*VNL(POS5(I)) + 
-     .                 SQRT(MASS(POS6(I))/MASS0(POS6(I)))*VNL(POS6(I)) + 
-     .                 SQRT(MASS(POS7(I))/MASS0(POS7(I)))*VNL(POS7(I)) + 
-     .                 SQRT(MASS(POS8(I))/MASS0(POS8(I)))*VNL(POS8(I))) / NTN
+            NTN_VNL = MIN(SQRT(MASS(POS1(I))/MASS0(POS1(I))), 
+     .                    SQRT(MASS(POS2(I))/MASS0(POS2(I))), 
+     .                    SQRT(MASS(POS3(I))/MASS0(POS3(I))), 
+     .                    SQRT(MASS(POS4(I))/MASS0(POS4(I))),
+     .                    SQRT(MASS(POS5(I))/MASS0(POS5(I))), 
+     .                    SQRT(MASS(POS6(I))/MASS0(POS6(I))), 
+     .                    SQRT(MASS(POS7(I))/MASS0(POS7(I))), 
+     .                    SQRT(MASS(POS8(I))/MASS0(POS8(I))))*NTN_VNL
           ENDIF
 c        
           ! Computation of the product LEN**2 * BtxB
@@ -214,7 +254,7 @@ c
      .     - BTB23(I)*UNL(POS3(I)) - BTB24(I)*UNL(POS4(I)) + BTB23(I)*UNL(POS5(I))
      .     + BTB24(I)*UNL(POS6(I)) + BTB12(I)*UNL(POS7(I)) + BTB22(I)*UNL(POS8(I)))       
 c
-          ! Multiplication by the volume of the element    
+          ! Multiplication by the volume of the element (and damping parameter XI)
           NTN_UNL = NTN_UNL * VOL(I)
           NTN_VNL = NTN_VNL * XI * VOL(I)
 c
@@ -262,25 +302,29 @@ c
 c            
         ! If the element is broken, the non-local wave is absorbed  
         ELSE
+c
+          ! Initial element characteristic length
+          LC(I) = VOL0(I)**THIRD  
+c
           IF (NODADT > 0) THEN
      
             ! Non-local absorbing forces
             F1(I) = SQRT(MASS(POS1(I))/MASS0(POS1(I)))*ZETA*SSPNL*HALF*
-     .                                (VNL(POS1(I))+VNL0(POS1(I)))*(THREE/FOUR)*(LE_MAX**2)
+     .                                (VNL(POS1(I))+VNL0(POS1(I)))*(THREE/FOUR)*(LC(I)**2)
             F2(I) = SQRT(MASS(POS2(I))/MASS0(POS2(I)))*ZETA*SSPNL*HALF*
-     .                                (VNL(POS2(I))+VNL0(POS2(I)))*(THREE/FOUR)*(LE_MAX**2)
+     .                                (VNL(POS2(I))+VNL0(POS2(I)))*(THREE/FOUR)*(LC(I)**2)
             F3(I) = SQRT(MASS(POS3(I))/MASS0(POS3(I)))*ZETA*SSPNL*HALF*
-     .                                (VNL(POS3(I))+VNL0(POS3(I)))*(THREE/FOUR)*(LE_MAX**2)
+     .                                (VNL(POS3(I))+VNL0(POS3(I)))*(THREE/FOUR)*(LC(I)**2)
             F4(I) = SQRT(MASS(POS4(I))/MASS0(POS4(I)))*ZETA*SSPNL*HALF*
-     .                                (VNL(POS4(I))+VNL0(POS4(I)))*(THREE/FOUR)*(LE_MAX**2)
+     .                                (VNL(POS4(I))+VNL0(POS4(I)))*(THREE/FOUR)*(LC(I)**2)
             F5(I) = SQRT(MASS(POS5(I))/MASS0(POS5(I)))*ZETA*SSPNL*HALF*
-     .                                (VNL(POS5(I))+VNL0(POS5(I)))*(THREE/FOUR)*(LE_MAX**2)
+     .                                (VNL(POS5(I))+VNL0(POS5(I)))*(THREE/FOUR)*(LC(I)**2)
             F6(I) = SQRT(MASS(POS6(I))/MASS0(POS6(I)))*ZETA*SSPNL*HALF*
-     .                                (VNL(POS6(I))+VNL0(POS6(I)))*(THREE/FOUR)*(LE_MAX**2)
+     .                                (VNL(POS6(I))+VNL0(POS6(I)))*(THREE/FOUR)*(LC(I)**2)
             F7(I) = SQRT(MASS(POS7(I))/MASS0(POS7(I)))*ZETA*SSPNL*HALF*
-     .                                (VNL(POS7(I))+VNL0(POS7(I)))*(THREE/FOUR)*(LE_MAX**2)
+     .                                (VNL(POS7(I))+VNL0(POS7(I)))*(THREE/FOUR)*(LC(I)**2)
             F8(I) = SQRT(MASS(POS8(I))/MASS0(POS8(I)))*ZETA*SSPNL*HALF*
-     .                                (VNL(POS8(I))+VNL0(POS8(I)))*(THREE/FOUR)*(LE_MAX**2)
+     .                                (VNL(POS8(I))+VNL0(POS8(I)))*(THREE/FOUR)*(LC(I)**2)
             ! Computing nodal equivalent stiffness
             STI1(I) = EM20
             STI2(I) = EM20
@@ -292,14 +336,14 @@ c
             STI8(I) = EM20
           ELSE
             ! Non-local absorbing forces
-            F1(I) = ZETA*SSPNL*HALF*(VNL(POS1(I))+VNL0(POS1(I)))*(THREE/FOUR)*(LE_MAX**2)
-            F2(I) = ZETA*SSPNL*HALF*(VNL(POS2(I))+VNL0(POS2(I)))*(THREE/FOUR)*(LE_MAX**2)
-            F3(I) = ZETA*SSPNL*HALF*(VNL(POS3(I))+VNL0(POS3(I)))*(THREE/FOUR)*(LE_MAX**2)
-            F4(I) = ZETA*SSPNL*HALF*(VNL(POS4(I))+VNL0(POS4(I)))*(THREE/FOUR)*(LE_MAX**2)
-            F5(I) = ZETA*SSPNL*HALF*(VNL(POS5(I))+VNL0(POS5(I)))*(THREE/FOUR)*(LE_MAX**2)
-            F6(I) = ZETA*SSPNL*HALF*(VNL(POS6(I))+VNL0(POS6(I)))*(THREE/FOUR)*(LE_MAX**2)
-            F7(I) = ZETA*SSPNL*HALF*(VNL(POS7(I))+VNL0(POS7(I)))*(THREE/FOUR)*(LE_MAX**2)
-            F8(I) = ZETA*SSPNL*HALF*(VNL(POS8(I))+VNL0(POS8(I)))*(THREE/FOUR)*(LE_MAX**2)          
+            F1(I) = ZETA*SSPNL*HALF*(VNL(POS1(I))+VNL0(POS1(I)))*(THREE/FOUR)*(LC(I)**2)
+            F2(I) = ZETA*SSPNL*HALF*(VNL(POS2(I))+VNL0(POS2(I)))*(THREE/FOUR)*(LC(I)**2)
+            F3(I) = ZETA*SSPNL*HALF*(VNL(POS3(I))+VNL0(POS3(I)))*(THREE/FOUR)*(LC(I)**2)
+            F4(I) = ZETA*SSPNL*HALF*(VNL(POS4(I))+VNL0(POS4(I)))*(THREE/FOUR)*(LC(I)**2)
+            F5(I) = ZETA*SSPNL*HALF*(VNL(POS5(I))+VNL0(POS5(I)))*(THREE/FOUR)*(LC(I)**2)
+            F6(I) = ZETA*SSPNL*HALF*(VNL(POS6(I))+VNL0(POS6(I)))*(THREE/FOUR)*(LC(I)**2)
+            F7(I) = ZETA*SSPNL*HALF*(VNL(POS7(I))+VNL0(POS7(I)))*(THREE/FOUR)*(LC(I)**2)
+            F8(I) = ZETA*SSPNL*HALF*(VNL(POS8(I))+VNL0(POS8(I)))*(THREE/FOUR)*(LC(I)**2)          
           ENDIF
         ENDIF
       ENDDO
@@ -310,6 +354,7 @@ c-----------------------------------------------------------------------
       IF (IPARIT == 0) THEN 
         FNL => NLOC_DMG%FNL(1:L_NLOC,ITASK+1)
         IF (NODADT > 0) STIFNL => NLOC_DMG%STIFNL(1:L_NLOC,ITASK+1) ! Non-local equivalent nodal stiffness
+        ! Loop over elements
         DO I=1,NEL
           ! Assembling the forces in the classic way 
           FNL(POS1(I)) = FNL(POS1(I)) - F1(I)
@@ -338,6 +383,7 @@ c
       ! If PARITH/ON
       ELSE
 c
+        ! Loop over elements
         DO I=1,NEL
           II  = I + NFT
 c
@@ -416,6 +462,14 @@ c
       IF (ALLOCATED(POS6))  DEALLOCATE(POS6) 
       IF (ALLOCATED(POS7))  DEALLOCATE(POS7)
       IF (ALLOCATED(POS8))  DEALLOCATE(POS8)
+      IF (ALLOCATED(F1))    DEALLOCATE(F1)
+      IF (ALLOCATED(F2))    DEALLOCATE(F2) 
+      IF (ALLOCATED(F3))    DEALLOCATE(F3)
+      IF (ALLOCATED(F4))    DEALLOCATE(F4) 
+      IF (ALLOCATED(F5))    DEALLOCATE(F5)
+      IF (ALLOCATED(F6))    DEALLOCATE(F6) 
+      IF (ALLOCATED(F7))    DEALLOCATE(F7)
+      IF (ALLOCATED(F8))    DEALLOCATE(F8)
       IF (ALLOCATED(STI1))  DEALLOCATE(STI1)
       IF (ALLOCATED(STI2))  DEALLOCATE(STI2) 
       IF (ALLOCATED(STI3))  DEALLOCATE(STI3)
@@ -424,5 +478,6 @@ c
       IF (ALLOCATED(STI6))  DEALLOCATE(STI6) 
       IF (ALLOCATED(STI7))  DEALLOCATE(STI7)
       IF (ALLOCATED(STI8))  DEALLOCATE(STI8)
+      IF (ALLOCATED(LC))    DEALLOCATE(LC)
 c-----------
       END

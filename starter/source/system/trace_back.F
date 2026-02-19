@@ -1,38 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 #define NIVEAU_MAX 50
-Chd|====================================================================
-Chd|  TRACE_IN1                     source/system/trace_back.F    
-Chd|-- called by -----------
-Chd|        HM_READ_INIVOL                source/initial_conditions/inivol/hm_read_inivol.F
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        MY_EXIT                       source/output/analyse/analyse.c
-Chd|        TRACE_PRINT                   source/system/trace_back.F    
-Chd|        TRACE_PILE                    source/system/trace_back.F    
-Chd|====================================================================
+!||====================================================================
+!||    trace_in1              ../starter/source/system/trace_back.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_inivol         ../starter/source/initial_conditions/inivol/hm_read_inivol.F90
+!||    lectur                 ../starter/source/starter/lectur.F
+!||    starter0               ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    my_exit                ../starter/source/output/analyse/analyse.c
+!||    trace_pile             ../starter/source/system/trace_back.F
+!||    trace_print            ../starter/source/system/trace_back.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE TRACE_IN1(MY_CHAR,ILEN)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -44,24 +49,23 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
 #include      "warn_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      CHARACTER*ncharline MY_CHAR
+      CHARACTER(LEN=NCHARLINE) :: MY_CHAR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER ILEN
-      CHARACTER*ncharline LINE1
+      CHARACTER(LEN=NCHARLINE):: LINE1
       INTEGER TRACE_PILE
       EXTERNAL TRACE_PILE
       INTEGER NIVEAU_PILE
 C-----------------------------------------------
-      IF(ITRACE.NE.1)RETURN
+      IF(ITRACE/=1)RETURN
       WRITE(LINE1,'(A)')MY_CHAR(1:MIN(ILEN,ncharline))
       NIVEAU_PILE = TRACE_PILE(1)
-      IF(NIVEAU_PILE.GE.NIVEAU_MAX)THEN
+      IF(NIVEAU_PILE>=NIVEAU_MAX)THEN
         WRITE(IOUT,'(A)')
      .' +=============================================================+'
         WRITE(IOUT,'(A,A)')
@@ -77,21 +81,24 @@ C-----------------------------------------------
         CALL MY_EXIT(3)
       END IF
 C-----------------------------------------------
-C-----------------------------------------------
       CALL TRACE_PRINT(LINE1,NIVEAU_PILE,0)
 C-----------------------------------------------
       RETURN
 C
       END
 #define NSUB_MAX 127
-Chd|====================================================================
-Chd|  TRACE_IN                      source/system/trace_back.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        TRACE_PRINT                   source/system/trace_back.F    
-Chd|        TRACE_PILE                    source/system/trace_back.F    
-Chd|====================================================================
+!||====================================================================
+!||    trace_in               ../starter/source/system/trace_back.F
+!||--- calls      -----------------------------------------------------
+!||    trace_pile             ../starter/source/system/trace_back.F
+!||    trace_print            ../starter/source/system/trace_back.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE TRACE_IN(NSUB,ITAB,ATAB)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        USE NAMES_AND_TITLES_MOD , ONLY : NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -101,20 +108,17 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "warn_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSUB,ITAB(*)
-      my_real
-     .   ATAB(*)
+      my_real ATAB(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      CHARACTER*ncharline LINE1
-      CHARACTER*ncharline LINES( NSUB_MAX )
+      CHARACTER(LEN=NCHARLINE):: LINE1
+      CHARACTER(LEN=NCHARLINE):: LINES( NSUB_MAX )
       INTEGER TRACE_PILE,LL( NSUB_MAX ) ,TYP( NSUB_MAX )
       EXTERNAL TRACE_PILE
       INTEGER NIVEAU_PILE
@@ -228,27 +232,6 @@ C-----------------------------------------------
      .'CLOSING STARTER',
      .'    ',
      .'    '/
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      12345678901234567890 12345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
-c      1234567890123456789012345678901234567890
       DATA LL /
      .     15,12, 6, 5,
      .  10, 9,12,12,10,
@@ -300,14 +283,14 @@ c      1234567890123456789012345678901234567890
      1   1, 1, 1, 1, 1,
      .   1, 1, 1, 1/
 C-----------------------------------------------
-      IF(ITRACE.NE.1)RETURN
+      IF(ITRACE/=1)RETURN
       NIVEAU_PILE = TRACE_PILE(1)
-      IF(NIVEAU_PILE.GE.NIVEAU_MAX-1)THEN
+      IF(NIVEAU_PILE>=NIVEAU_MAX-1)THEN
          CALL TRACE_PRINT(LINE1,-2,1)
          RETURN
       ENDIF
 C-----------------------------------------------
-      IF(NSUB.LE.0.OR.NSUB.GT. NSUB_MAX )THEN
+      IF(NSUB<=0.OR.NSUB> NSUB_MAX )THEN
           LINE1=' ?????? '  
       ELSE
         GOTO(1,2,3)TYP(NSUB)
@@ -330,14 +313,18 @@ C-----------------------------------------------
       RETURN
 C
       END
-Chd|====================================================================
-Chd|  TRACE_OUT                     source/system/trace_back.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        TRACE_PRINT                   source/system/trace_back.F    
-Chd|        TRACE_PILE                    source/system/trace_back.F    
-Chd|====================================================================
+!||====================================================================
+!||    trace_out              ../starter/source/system/trace_back.F
+!||--- calls      -----------------------------------------------------
+!||    trace_pile             ../starter/source/system/trace_back.F
+!||    trace_print            ../starter/source/system/trace_back.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE TRACE_OUT(NSUB)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        USE NAMES_AND_TITLES_MOD , ONLY : NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -355,34 +342,35 @@ C-----------------------------------------------
       EXTERNAL TRACE_PILE
       INTEGER NIVEAU_PILE
 C-----------------------------------------------
-      IF(ITRACE.NE.1)RETURN
+      IF(ITRACE/=1)RETURN
       LINE1(1:ncharline)=' '
       CALL TRACE_PRINT(LINE1,NSUB,-1)
       NIVEAU_PILE = TRACE_PILE(-1)
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  TRACE_OUT1                    source/system/trace_back.F    
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        MY_EXIT                       source/output/analyse/analyse.c
-Chd|        TRACE_PRINT                   source/system/trace_back.F    
-Chd|        TRACE_PILE                    source/system/trace_back.F    
-Chd|====================================================================
+!||====================================================================
+!||    trace_out1             ../starter/source/system/trace_back.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||    starter0               ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    my_exit                ../starter/source/output/analyse/analyse.c
+!||    trace_pile             ../starter/source/system/trace_back.F
+!||    trace_print            ../starter/source/system/trace_back.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE TRACE_OUT1()
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "warn_c.inc"
 #include      "units_c.inc"
-#include      "scr17_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -393,10 +381,10 @@ C-----------------------------------------------
       CHARACTER(LEN=ncharline) :: LINE1
 C-----------------------------------------------
       LINE1(1:ncharline)=' '
-      IF(ITRACE.NE.1)RETURN
+      IF(ITRACE/=1)RETURN
       NIVEAU_PILE = TRACE_PILE(-1)
       NSUB=TRACE_PILE(0)
-      IF (NIVEAU_PILE.LT.0) THEN
+      IF (NIVEAU_PILE<0) THEN
         WRITE(IOUT,'(A)')
      .' +=============================================================+'
         WRITE(IOUT,'(A)')
@@ -412,56 +400,51 @@ C-----------------------------------------------
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  TRACE_PILE                    source/system/trace_back.F    
-Chd|-- called by -----------
-Chd|        TRACE_IN                      source/system/trace_back.F    
-Chd|        TRACE_IN1                     source/system/trace_back.F    
-Chd|        TRACE_OUT                     source/system/trace_back.F    
-Chd|        TRACE_OUT1                    source/system/trace_back.F    
-Chd|        TRACE_PRINT                   source/system/trace_back.F    
-Chd|-- calls ---------------
-Chd|====================================================================
-      INTEGER FUNCTION TRACE_PILE(INOUT)
+!||====================================================================
+!||    trace_pile    ../starter/source/system/trace_back.F
+!||--- called by ------------------------------------------------------
+!||    trace_in      ../starter/source/system/trace_back.F
+!||    trace_in1     ../starter/source/system/trace_back.F
+!||    trace_out     ../starter/source/system/trace_back.F
+!||    trace_out1    ../starter/source/system/trace_back.F
+!||    trace_print   ../starter/source/system/trace_back.F
+!||====================================================================
+      INTEGER FUNCTION TRACE_PILE(VAL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "scr01_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER INOUT
+      INTEGER VAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIVEAU_PILE,IT
+      INTEGER NIVEAU_PILE
       DATA NIVEAU_PILE/0/
       SAVE NIVEAU_PILE
 C-----------------------------------------------
-      NIVEAU_PILE = NIVEAU_PILE + INOUT
+      NIVEAU_PILE = NIVEAU_PILE + VAL
       TRACE_PILE = NIVEAU_PILE
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  TRACE_CF                      source/system/trace_back.F    
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        TRACE_PRINT                   source/system/trace_back.F    
-Chd|====================================================================
+!||====================================================================
+!||    trace_cf               ../starter/source/system/trace_back.F
+!||--- calls      -----------------------------------------------------
+!||    trace_print            ../starter/source/system/trace_back.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE TRACE_CF(SIGNAL,IW)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        USE NAMES_AND_TITLES_MOD , ONLY : NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -469,7 +452,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      CHARACTER*ncharline LINE1
+      CHARACTER(LEN=NCHARLINE):: LINE1
       INTEGER I
 C-----------------------------------------------
       DO I=1,ncharline
@@ -478,39 +461,41 @@ C-----------------------------------------------
       CALL TRACE_PRINT(LINE1,SIGNAL,IW)
       RETURN
       END
-Chd|====================================================================
-Chd|  TRACE_PRINT                   source/system/trace_back.F    
-Chd|-- called by -----------
-Chd|        TRACE_CF                      source/system/trace_back.F    
-Chd|        TRACE_IN                      source/system/trace_back.F    
-Chd|        TRACE_IN1                     source/system/trace_back.F    
-Chd|        TRACE_OUT                     source/system/trace_back.F    
-Chd|        TRACE_OUT1                    source/system/trace_back.F    
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_EXIT                       source/output/analyse/analyse.c
-Chd|        TRACE_PILE                    source/system/trace_back.F    
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    trace_print            ../starter/source/system/trace_back.F
+!||--- called by ------------------------------------------------------
+!||    trace_cf               ../starter/source/system/trace_back.F
+!||    trace_in               ../starter/source/system/trace_back.F
+!||    trace_in1              ../starter/source/system/trace_back.F
+!||    trace_out              ../starter/source/system/trace_back.F
+!||    trace_out1             ../starter/source/system/trace_back.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    my_exit                ../starter/source/output/analyse/analyse.c
+!||    trace_pile             ../starter/source/system/trace_back.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE TRACE_PRINT(LINE1,NS_SIGNAL,IW)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "scr01_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      CHARACTER*ncharline LINE1
+      CHARACTER(LEN=NCHARLINE):: LINE1
       INTEGER NS_SIGNAL,IW
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -518,32 +503,31 @@ C-----------------------------------------------
       INTEGER TRACE_PILE
       EXTERNAL TRACE_PILE
       INTEGER NIVEAU_PILE
-      INTEGER CHECK_PILE(0:NIVEAU_MAX)
-      CHARACTER*ncharline BLANC
-      CHARACTER*ncharline TEXT(0:NIVEAU_MAX)
-      INTEGER I,IP,IL,NLIGNES,IT
+      INTEGER CHECK_PILE(0:NIVEAU_MAX) 
+      CHARACTER(LEN=NCHARLINE):: BLANC
+      CHARACTER(LEN=NCHARLINE):: TEXT(0:NIVEAU_MAX)
+      INTEGER I
+      DATA CHECK_PILE/0,NIVEAU_MAX*0/
       SAVE TEXT,CHECK_PILE
-C-----------------------------------------------
 C-----------------------------------------------
       DO I=1,ncharline
         BLANC(I:I)=' '
       END DO
-c            123456789012345678901234567890
       NIVEAU_PILE = TRACE_PILE(0)
 C
-      IF(IW.EQ.0) THEN
+      IF(IW==0) THEN
 C------------------------------------------------------------------------
-C       Ajout d'une ligne a TEXT (1 ou plusieurs X par descente de pile)
+C       Addition of a text line (1 or more x by battery descent)
 C------------------------------------------------------------------------
         TEXT(NIVEAU_PILE)(1:NIVEAU_PILE)=BLANC(1:NIVEAU_PILE)
         TEXT(NIVEAU_PILE)(NIVEAU_PILE+1:ncharline)=
      .            LINE1(1:ncharline-NIVEAU_PILE)
         CHECK_PILE(NIVEAU_PILE) = NS_SIGNAL
-      ELSEIF(IW.EQ.-1) THEN
+      ELSEIF(IW==-1) THEN
 C------------------------------------------
-C       remonte de pile 
+C       pile
 C------------------------------------------
-        IF(NS_SIGNAL.EQ.CHECK_PILE(NIVEAU_PILE))THEN
+        IF(NS_SIGNAL==CHECK_PILE(NIVEAU_PILE))THEN
           TEXT(NIVEAU_PILE+1)=BLANC
         ELSE
           NS_SIGNAL = -1
@@ -551,29 +535,29 @@ C------------------------------------------
         ENDIF
       ENDIF
 C
-      IF(IW.GT.0) THEN
+      IF(IW>0) THEN
 C------------------------------------------
-C       Ecriture du Trace Back et Arret
+C       Writing the trace back and stop
 C------------------------------------------
-        IF(NIVEAU_PILE.LE.0)CALL MY_EXIT(3)
+        IF(NIVEAU_PILE<=0)CALL MY_EXIT(3)
 C
         WRITE(IOUT,'(A)')
      .' +=============================================================+'
         WRITE(IOUT,'(A)')
      .' |     ABNORMAL END                                            |'
-        IF(NS_SIGNAL.EQ.-1)THEN
+        IF(NS_SIGNAL==-1)THEN
           WRITE(IOUT,'(A)')
      .' |          Trace back error (pile)                            |'
-        ELSEIF(NS_SIGNAL.EQ.-2)THEN
+        ELSEIF(NS_SIGNAL==-2)THEN
           WRITE(IOUT,'(A)')
      .' |          Trace back error (pile level)                      |'
-        ELSEIF(NS_SIGNAL.EQ.1)THEN
+        ELSEIF(NS_SIGNAL==1)THEN
           WRITE(IOUT,'(A)')
      .' |          Bus Error                                          |'
-        ELSEIF(NS_SIGNAL.EQ.2)THEN
+        ELSEIF(NS_SIGNAL==2)THEN
           WRITE(IOUT,'(A)')
      .' |          Floating Point Exception                           |'
-        ELSEIF(NS_SIGNAL.EQ.3)THEN
+        ELSEIF(NS_SIGNAL==3)THEN
           WRITE(IOUT,'(A)')
      .' |          Segmentation Violation                             |'
         ENDIF

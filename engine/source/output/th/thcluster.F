@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
  
 c TWO SOLUTIONS : 
-C - mettre l'user ID dans ITHBUF(J)
-C - rajouter CLUSTER(ILOC)%ID_GLOB dans le cluster (*)
-Chd|====================================================================
-Chd|  THCLUSTER                     source/output/th/thcluster.F  
-Chd|-- called by -----------
-Chd|        HIST2                         source/output/th/hist2.F      
-Chd|-- calls ---------------
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        WRTDES                        source/output/th/wrtdes.F     
-Chd|        CLUSTER_MOD                   share/modules/cluster_mod.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+C - Put User ID in ITHBUF (J)
+C add CLUSTER(ILOC)%ID_GLOB in the cluster (*)
+!||====================================================================
+!||    thcluster         ../engine/source/output/th/thcluster.F
+!||--- called by ------------------------------------------------------
+!||    hist2             ../engine/source/output/th/hist2.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_glob_dsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    wrtdes            ../engine/source/output/th/wrtdes.F
+!||--- uses       -----------------------------------------------------
+!||    cluster_mod       ../engine/share/modules/cluster_mod.F
+!||    elbufdef_mod      ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod       ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE THCLUSTER(WA   ,IAD   ,IADV   ,NN      ,NVAR     ,
      .                     ITTYP,ITHBUF,CLUSTER,SKEW    ,X        ,
      .                     IXS  ,IPARG )
@@ -42,6 +44,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD         
       USE CLUSTER_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -63,11 +66,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-        INTEGER :: I,J,L,II,JJ,KK,IVAR,ICLUSTER_L,IWA_L,NNOD,ISKN,
+        INTEGER :: J,L,II,JJ,KK,IVAR,ICLUSTER_L,IWA_L,NNOD,ISKN,
      .             N1,N2,N3,N4,NG,NFT
         my_real :: XM,YM,ZM,NORM,SX,SY,SZ,TX,TY,TZ,FS,FN,MB,MT
         my_real ,DIMENSION(3) :: VX,VY,VN,X1,FLOC,MLOC
 C=======================================================================
+      FLOC(1:3) = ZERO
+      MLOC(1:3) = ZERO
       II = -1
       WA(1:NN*NVAR) = ZERO
       DO J=IAD,IAD+NN-1

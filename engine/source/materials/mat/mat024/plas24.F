@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PLAS24                        source/materials/mat/mat024/plas24.F
-Chd|-- called by -----------
-Chd|        CONC24                        source/materials/mat/mat024/conc24.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    plas24   ../engine/source/materials/mat/mat024/plas24.F
+!||--- called by ------------------------------------------------------
+!||    conc24   ../engine/source/materials/mat/mat024/conc24.F
+!||====================================================================
       SUBROUTINE PLAS24(NEL   ,NINDX ,INDX  ,NGL   ,PM   ,
      .                  SIG   ,DAM   ,CRAK  ,
      .                  RHO   ,EINT  ,VK0   ,VK   ,ROB  ,CDAM ,
@@ -40,9 +39,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com08_c.inc"
 #include      "comlock.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -63,7 +60,7 @@ C-----------------------------------------------
      .   BT, AC, HBP, ALI0, ALF0, VKY, TOL, ROK0, RO0, HV0, VMAX, EXPO,
      .   YOUNG, NU, G, DEN,  RATE, FAC, ROK, R2, AJ3, CS3T,
      .   BB, DF, RF, RF2, AJ2, AJJ, DKDSM, DRFDSM, B0, DRF3, B1,
-     .   B2, ALPHA, PHI, DFDTO1, DFDTO2, TO, SQ32, DFDTO, HPV, HP, ECR,
+     .   B2, ALPHA, PHI, DFDTO1, DFDTO2, TO, DFDTO, HPV, HP, ECR,
      .   TS1, TS2, TS3, TS4, TS5, TS6, DFS1, DFS2, DFS3, DFS4, DFS5,
      .   DFS6, DGS1, DGS2, DGS3, DGS4, DGS5, DGS6, H1A, H2A, H3A, H4A,
      .   H5A, H6A, H1N, H2N, H3N, H4N, H5N, H6N, HH, CP11, CP12, CP13,
@@ -101,7 +98,7 @@ C=======================================================================
 c
       TOL   = (RT - RC)/TWENTY
 c------------------------------------------------
-C  RETOUR SUR LE CRITERE ,SIG ,CDAM,CRAK,...
+C  return to the criterion, sig, cdam, crak, ...
 c------------------------------------------------
       DO J = 1,NINDX
         I = INDX(J)
@@ -176,14 +173,14 @@ c------------------------------------------------
         E5(I) = FAC * E5(I)
         E6(I) = FAC * E6(I)
 c---------------------------------------------------------
-c ...   DEBUT DES ITERATIONS
+c ...   start of the iterations
 c---------------------------------------------------------
         DO ITER=1,NITER
 c--------------------
           ROK = ROK0+ROB(I)-RO0
           R2  = S1(I)**2+S2(I)**2+S3(I)**2
      .        + TWO*S4(I)**2+TWO*S5(I)**2+TWO*S6(I)**2
-          IF (SM(I) .GE. RT-TOL)THEN
+          IF (SM(I) >= RT-TOL)THEN
             VK(I)=ONE
           ELSEIF (SM(I) > RC) THEN
             VK(I)=ONE +(ONE-VK0(I))*(RCT1-TWO*RC*SM(I)+SM(I)**2)/RCT2
@@ -220,7 +217,7 @@ C                       B2:1/CONT**2  DFDTO:ADIM  DRFDSM:ADIM DKDSM:1/CONT
 C . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
 C PRINCIPALES DERIVEES
           SM(I) = MAX(ROB(I),SM(I))
-          IF(SM(I) .GE. RT-TOL)THEN
+          IF(SM(I) >= RT-TOL)THEN
             DKDSM =ZERO
           ELSEIF(SM(I)>RC)THEN
             DKDSM = TWO*(ONE -VK0(I))*(SM(I)-RC)/RCT2
@@ -271,7 +268,7 @@ C PLASTICITE VOLUMIQUE COMPACTANCE/DILATANCE
             IF (B0 < -EM02) ALPHA = MIN(ALPHA,-ZEP4/B0)
             IF (B0 > EM02)  ALPHA = MAX(ALPHA,-ZEP4/B0)
           ENDIF
-          IF (EINT(I).LE.ZERO) ALPHA=ZERO
+          IF (EINT(I)<=ZERO) ALPHA=ZERO
 c         AJOUT DILATANCE PLASTIQUE MAX fp 09/16 
           IF (RHO(I) < RHO0) ALPHA = ZERO
           IF (AJJ > EM3*FC) THEN                 
@@ -296,7 +293,7 @@ c         AJOUT DILATANCE PLASTIQUE MAX fp 09/16
             DGS6=ZERO                           
           ENDIF                                 
 c         ECROUISSAGE
-          HPV = HV0*EXP( MIN(FIVEUANTE,(ROB(I)-RO0)*EXPO))
+          HPV = HV0*EXP( MIN(FIFTY,(ROB(I)-RO0)*EXPO))
           IF(SM(I)>ROK0)THEN
             HP=HBP
           ELSE
@@ -307,7 +304,7 @@ c
             PHI  = (ALPHA*THREE*SM(I)+AJJ)
             DFDTO1=B0-SQRT(TWO_THIRD)
             DFDTO2=THREE*B0
-            IF(DFDTO1.LE.DFDTO2)THEN
+            IF(DFDTO1<=DFDTO2)THEN
               TO=SQR3_2*VK(I)*RF
               DFDTO=DFDTO1
             ELSE
@@ -318,8 +315,8 @@ c
           ELSE
             DFDTO1=B0-SQRT(TWO_THIRD)
             DFDTO2=THREE*B0
-C            IF(DFDTO2.GE.ZERO)THEN
-            IF(DFDTO1.LE.DFDTO2)THEN
+C            IF(DFDTO2>=ZERO)THEN
+            IF(DFDTO1<=DFDTO2)THEN
               TO=SQR3_2*VK(I)*RF
               PHI  = (ALPHA*THREE*SM(I)+AJJ)/TO
               DFDTO=DFDTO1
@@ -429,13 +426,13 @@ C . .       . . . . . . . . . . . . . . . . . . . . . . . . . .
      .                   +CP64*E4(I)+CP65*E5(I)+CP66*E6(I)
           ELSE
 c           PURE TRIAXIAL TO SOLVE UNDETERMINATION
-	           DP = BULK*HPV/(BULK+HPV)*(E1(I)+E2(I)+E3(I))
-	           SIG(I,1)=SIG(I,1)+DP
-	           SIG(I,2)=SIG(I,2)+DP
-          	 SIG(I,3)=SIG(I,3)+DP
+                     DP = BULK*HPV/(BULK+HPV)*(E1(I)+E2(I)+E3(I))
+                     SIG(I,1)=SIG(I,1)+DP
+                     SIG(I,2)=SIG(I,2)+DP
+           SIG(I,3)=SIG(I,3)+DP
           ENDIF
 C . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
-C RECALCUL DES DEFORMATION ELASTIQUES POUR REOUVERTURE DES FISSURES
+C recalculation of elastic strains for crack reopening
 C . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
           C11 = ONE/DE1(I)/YOUNG
           C12 = -NU*SCAL1(I)*SCAL2(I)/YOUNG
@@ -516,7 +513,7 @@ C
           VK(I) = RR/MAX(RF,EM20)
           VKMAX=ONE
 C
-c         CORRECTION SI EN DEHORS DU CRITERE DE RUPTURE
+c         correction if outside the failure criterion
           IF (VK(I) > VKMAX)THEN
             FAC = VKMAX/VK(I)
             IF(SCAL1(I) > ZEP9) SIG(I,1) =  S1(I)*FAC+SM(I)
@@ -584,7 +581,7 @@ C
           VK(I) = MIN(VK(I),ONE)
           VK0(I)= MAX(VK(I),VK0(I))
 c-----------
-c         FIN DES ITERATIONS
+c         end of the iterations
         ENDDO ! ITER
 c-----------
       ENDDO ! NINDX

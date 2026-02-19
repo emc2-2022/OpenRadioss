@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I24DST3E                      source/interfaces/int24/i24dst3e.F
-Chd|-- called by -----------
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|-- calls ---------------
-Chd|        BITGET                        source/interfaces/intsort/i20sto.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i24dst3e   ../engine/source/interfaces/int24/i24dst3e.F
+!||--- called by ------------------------------------------------------
+!||    i24mainf   ../engine/source/interfaces/int24/i24main.F
+!||--- calls      -----------------------------------------------------
+!||    bitget     ../engine/source/interfaces/intsort/i20sto.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod    ../engine/share/modules/h3d_mod.F
+!||    tri7box    ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I24DST3E(
      1                  JLT    ,A      ,X      ,CAND_N ,CAND_E ,
      2                  MBINFLG,ISEADD ,ISEDGE ,NSVG   ,NIN    ,
@@ -57,7 +58,7 @@ C-----------------------------------------------
      .        CAND_E(*),MBINFLG(*),ISEDGE(*),ISEADD(*),CAND_T(*)
       INTEGER ISKY(*),IXX(MVSIZ,13)
       my_real
-     .     N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PMAX_GAP,
+     .        PMAX_GAP,
      .     XI(MVSIZ), YI(MVSIZ), ZI(MVSIZ), STIF(MVSIZ),
      .     FSKYI(LSKYI,NFSKYI),X(3,*),A(3,*),FCONT(3,*),
      .     XX(MVSIZ,17),YY(MVSIZ,17),ZZ(MVSIZ,17)
@@ -65,29 +66,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr11_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K, IFSEG,IK1(4),IK2(4),IK14(4),IK5(4),ICONT,
-     .        JM,JP,JG,JMG,JPG,NES,IAD,K1,K2,K5,K14,KJ,IFE,IX(4),
+      INTEGER I, J, K,IK1(4),IK2(4),IK14(4),IK5(4),ICONT,
+     .        JM,JG,JMG,JPG,NES,IAD,K1,K2,K5,K14,KJ,IX(4),
      .        NISKYL,M,IG
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ)
       my_real
@@ -98,7 +84,7 @@ C-----------------------------------------------
      .  SXSM,SYSM,SZSM,NXIJ,NYIJ,NZIJ,XSM,XS2M2,YS2M2,ZS2M2,
      .  TX12,TY12,TZ12,XJ,YJ,ZJ,DIST,NXSM,NYSM,NZSM,H1M,H2M,
      .  SXS1,SYS1,SZS1,SXS2,SYS2,SZS2,SXS,SYS,SZS,XS2,H1S,H2S,
-     .  NX12,NY12,NZ12,TXIJ,TYIJ,TZIJ,F1,F2,UNP,ZEROM,EPS,FI,FJ,FSJ
+     .  NX12,NY12,NZ12,TXIJ,TYIJ,TZIJ,F1,F2,UNP,ZEROM,EPS,FI,FJ
       INTEGER BITGET
       EXTERNAL BITGET
 
@@ -168,7 +154,7 @@ c afaire !!!!!!!!!!!!!!!!!!!!!!!!!
           Y14 = YY(I,K14) - Y1
           Z14 = ZZ(I,K14) - Z1
  
-c         deux vecteurs surfaces du diedre MAIN
+c         Two vectors of the Diedre Main
           SXM1 = Y12*Z15 - Z12*Y15
           SYM1 = Z12*X15 - X12*Z15
           SZM1 = X12*Y15 - Y12*X15
@@ -249,9 +235,9 @@ c check if convex
             SZS = SZS1 + SZS2
 
             AAA = SXS*SXM+SYS*SYM+SZS*SZM
-            IF(AAA > ZERO) CYCLE ! MAIN and SECONDARY dihedral are not loocking each other
+            IF(AAA > ZERO) CYCLE ! MAIN and SECONDARY dihedral are not locking each other
 
-c           vecteur SECONDARY MAIN 
+c           Secondary Main vector 
             SXSM = Y12*ZIJ - Z12*YIJ
             SYSM = Z12*XIJ - X12*ZIJ
             SZSM = X12*YIJ - Y12*XIJ

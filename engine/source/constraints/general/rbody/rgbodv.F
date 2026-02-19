@@ -1,34 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RGBODV                        source/constraints/general/rbody/rgbodv.F
-Chd|-- called by -----------
-Chd|        RBYVIT                        source/constraints/general/rbody/rbyvit.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rgbodv                ../engine/source/constraints/general/rbody/rgbodv.F
+!||--- called by ------------------------------------------------------
+!||    rbyvit                ../engine/source/constraints/general/rbody/rbyvit.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||    velrot_explicit       ../engine/source/constraints/general/rbody/velrot_explicit.F90
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    velrot_explicit_mod   ../engine/source/constraints/general/rbody/velrot_explicit.F90
+!||====================================================================
       SUBROUTINE RGBODV(V     ,VR   ,X     ,RBY ,NOD  ,
      2                  NBY   ,SKEW ,ISKEW ,FS  ,ITAB ,
      3                  WEIGHT,A    ,AR    ,MS  ,IN   ,
@@ -39,6 +42,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      USE VELROT_EXPLICIT_MOD, ONLY : VELROT_EXPLICIT
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -60,39 +64,35 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "my_allocate.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER M, NSN, ICODR, ISK, I, N,ISENS, J, L
+      INTEGER M, NSN, I, N,ISENS, L,NSN_G
 C     REAL
       my_real
-     .   XDUM(3), VG(3), VI(3),
-     .   V1X2, V2X1, V2X3, V3X2, V3X1, V1X3,USDT,DT05,
-     .   VX1, VX2, VX3, MAS,AM1,AM2,AM3,VXX1,VXX2,VXX3,VY1
+     .    VG(3),
+     .   V1X2, V2X1, V2X3, V3X2, V3X1, V1X3,USDT,
+     .   VX1, VX2, VX3,AM1,AM2,AM3,VXX1,VXX2,VXX3,VY1
       my_real
-     .   UX, UY, UZ, NN, FN, FT
+     .   UX, UY, UZ, NN, FN, FT,LSM(3),VS(3)
       my_real, DIMENSION(:,:), ALLOCATABLE :: 
      .   R, RR
 C-----------------------------------------------
       M    =NBY(1)
 C optimisation spmd
-      IF (M.LT.0) RETURN
+      IF (M<0) RETURN
       NSN  =NBY(2)
-C en spmd il ne faut sommer qu'une fois la vitesse du centre d'inertie
+      NSN_G = NBY(19)
+C en spmd il ne faut sommer qu'une fois la velocity du centre d'inertie
       FS(7)=FS(7)+VR(1,M)*DT2*WEIGHT(M)
       FS(8)=FS(8)+VR(2,M)*DT2*WEIGHT(M)
       FS(9)=FS(9)+VR(3,M)*DT2*WEIGHT(M)
 C
-      IF(DT2*DT2*(VR(1,M)**2+VR(2,M)**2+VR(3,M)**2).GT.1.0)THEN
+      IF(DT2*DT2*(VR(1,M)**2+VR(2,M)**2+VR(3,M)**2)>1.0.AND.NSN_G>2)THEN 
          CALL ANCMSG(MSGID=110,ANMODE=ANINFO,
      .            I1=ID)
          CALL ARRET(2)
@@ -109,9 +109,27 @@ C
         AM1 = A(1,M)
         AM2 = A(2,M)
         AM3 = A(3,M)
-Cel vectorisation si nsn.ge.10 ou si p/on active
-Cel sinon attention aux differences en mode vectoriel !
-        IF (NSN.GE.10.OR.IPARIT.GT.0) THEN
+       IF (NSN_G<=2) THEN 
+          DO I=1,NSN
+            N = NOD(I)
+            AR(1:3,N)= (VG(1:3)-VR(1:3,N)) * USDT
+            A(1:3,N)=  A(1:3,M)+(V(1:3,M)-V(1:3,N))*USDT
+C
+            LSM(1:3) = X(1:3,N)-X(1:3,M)
+            CALL VELROT_EXPLICIT(VG, LSM,VS,DT12)
+C  
+            VX1=VS(1)
+            VX2=VS(2)
+            VX3=VS(3)
+
+            A(1,N)= A(1,N) +
+     .         (VX1+HALF*DT2*(VG(2)*VX3-VG(3)*VX2))*USDT
+            A(2,N)= A(2,N) +
+     .         (VX2+HALF*DT2*(VG(3)*VX1-VG(1)*VX3))*USDT
+            A(3,N)= A(3,N) +
+     .         (VX3+HALF*DT2*(VG(1)*VX2-VG(2)*VX1))*USDT
+          ENDDO
+       ELSE
           DO I=1,NSN
             N = NOD(I)
             AR(1,N)= (VG(1)-VR(1,N)) * USDT
@@ -136,32 +154,7 @@ C
             A(3,N)= AM3 +
      .        (V(3,M)+VX3+HALF*DT2*(VG(1)*VX2-VG(2)*VX1)-V(3,N))*USDT
           ENDDO
-        ELSE
-#include "scalar.inc"
-          DO I=1,NSN
-            N = NOD(I)
-            AR(1,N)= (VG(1)-VR(1,N)) * USDT
-            AR(2,N)= (VG(2)-VR(2,N)) * USDT
-            AR(3,N)= (VG(3)-VR(3,N)) * USDT
-C
-            V1X2=VG(1)*(X(2,N)-X(2,M))
-            V2X1=VG(2)*(X(1,N)-X(1,M))
-            V2X3=VG(2)*(X(3,N)-X(3,M))
-            V3X2=VG(3)*(X(2,N)-X(2,M))
-            V3X1=VG(3)*(X(1,N)-X(1,M))
-            V1X3=VG(1)*(X(3,N)-X(3,M))
-C  
-            VX1=V2X3-V3X2
-            VX2=V3X1-V1X3
-            VX3=V1X2-V2X1
-            A(1,N)= AM1 +
-     .        (V(1,M)+VX1+HALF*DT2*(VG(2)*VX3-VG(3)*VX2)-V(1,N))*USDT
-            A(2,N)= AM2 +
-     .        (V(2,M)+VX2+HALF*DT2*(VG(3)*VX1-VG(1)*VX3)-V(2,N))*USDT
-            A(3,N)= AM3 +
-     .        (V(3,M)+VX3+HALF*DT2*(VG(1)*VX2-VG(2)*VX1)-V(3,N))*USDT
-          ENDDO
-        ENDIF
+       END IF ! (NSN<=2) THEN 
       ELSEIF(N2D ==1) THEN
         VG(1)=ZERO
         VG(2)=ZERO
@@ -172,9 +165,6 @@ C
         AM1 = ZERO
         AM2 = A(2,M)
         AM3 = A(3,M)
-Cel vectorisation si nsn.ge.10 ou si p/on active
-Cel sinon attention aux differences en mode vectoriel !
-        IF (NSN.GE.10.OR.IPARIT.GT.0) THEN
          DO I=1,NSN
            N = NOD(I)
            AR(1,N)= ZERO
@@ -188,22 +178,6 @@ C
            A(2,N)= AM2 + (V(2,M)+VX1+HALF*DT2*VG(3)*VY1-V(2,N))*USDT
            A(3,N)= AM3 + (V(3,M)-V(3,N))*USDT
          ENDDO
-        ELSE
-#include "scalar.inc"
-         DO I=1,NSN
-           N = NOD(I)
-           AR(1,N)= ZERO
-           AR(2,N)= ZERO
-           AR(3,N)= (VG(3)-VR(3,N)) * USDT
-C  
-           VX1= VG(3)*(X(1,N)-X(1,M))
-           VY1=-VG(3)*(X(2,N)-X(2,M))
-
-           A(1,N)= AM1 + (V(1,M)+VY1-HALF*DT2*VG(3)*VX1-V(1,N))*USDT
-           A(2,N)= AM2 + (V(2,M)+VX1+HALF*DT2*VG(3)*VY1-V(2,N))*USDT
-           A(3,N)= AM3 + (V(3,M)-V(3,N))*USDT
-         ENDDO
-        ENDIF
       ELSEIF(N2D ==2) THEN
         VG(1)=VR(1,M)+AR(1,M)*DT12
         VG(2)=ZERO
@@ -214,30 +188,6 @@ C
         AM1 = ZERO
         AM2 = A(2,M)
         AM3 = A(3,M)
-Cel vectorisation si nsn.ge.10 ou si p/on active
-Cel sinon attention aux differences en mode vectoriel !
-        IF (NSN.GE.10.OR.IPARIT.GT.0) THEN
-         DO I=1,NSN
-           N = NOD(I)
-           AR(1,N)= (VG(1)-VR(1,N)) * USDT
-           AR(2,N)= ZERO
-           AR(3,N)= ZERO
-C  
-           VX1=ZERO
-           VX2=-VG(1)*(X(3,N)-X(3,M))
-           VX3=VG(1)*(X(2,N)-X(2,M))
-           VXX1=ZERO
-           VXX2=-VG(1)*VG(1)*(X(2,N)-X(2,M))
-           VXX3=-VG(1)*VG(1)*(X(3,N)-X(3,M))
-  
-           A(1,N)= ZERO
-           A(2,N)= AM2 +
-     .       (V(2,M)+VX2+HALF*DT2*VXX2-V(2,N))*USDT
-           A(3,N)= AM3 +
-     .       (V(3,M)+VX3+HALF*DT2*VXX3-V(3,N))*USDT
-         ENDDO
-        ELSE
-#include "scalar.inc"
          DO I=1,NSN
            N = NOD(I)
            AR(1,N)= (VG(1)-VR(1,N)) * USDT
@@ -256,7 +206,6 @@ C
            A(3,N)= AM3 +
      .       (V(3,M)+VX3+HALF*DT2*VXX3-V(3,N))*USDT
          ENDDO
-        ENDIF
       ENDIF
 C-----------------------------------------------
       IF (IREAC == 0 .AND. IFAIL /= 1) RETURN
@@ -264,8 +213,8 @@ C-----------------------------------------------
 C     Reaction forces and/or failure
 C       Note : At this stage, Freac contains Fint+Fext+Fcont (Freac has not been finalized yet)
 C-----------------------------------------------
-      MY_ALLOCATE2D(R ,3,NSN)
-      MY_ALLOCATE2D(RR,3,NSN)
+      ALLOCATE(R (3,NSN))
+      ALLOCATE(RR(3,NSN))
 C
       DO I=1,NSN
         N = NOD(I)

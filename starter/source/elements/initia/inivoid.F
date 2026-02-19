@@ -1,57 +1,60 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIVOID                       source/elements/initia/inivoid.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        C3COORI                       source/elements/sh3n/coque3n/c3coori.F
-Chd|        C3EVEC3                       source/elements/sh3n/coque3n/c3evec3.F
-Chd|        C3INMAS                       source/elements/sh3n/coque3n/c3inmas.F
-Chd|        C3VEOK3                       source/elements/sh3n/coque3n/c3veok3.F
-Chd|        CCOORI                        source/elements/shell/coque/ccoori.F
-Chd|        CEVECI                        source/elements/shell/coque/ceveci.F
-Chd|        CINMAS                        source/elements/shell/coque/cinmas.F
-Chd|        CVEOK3                        source/elements/shell/coque/cveok3.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        PCOORI                        source/elements/beam/pcoori.F 
-Chd|        PMASS                         source/elements/beam/pmass.F  
-Chd|        R23MASS                       source/elements/spring/rmass.F
-Chd|        S4COOR3                       source/elements/solid/solide4/s4coor3.F
-Chd|        S4DERI3                       source/elements/solid/solide4/s4deri3.F
-Chd|        S4MASS3                       source/elements/solid/solide4/s4mass3.F
-Chd|        SBULK3                        source/elements/solid/solide/sbulk3.F
-Chd|        SCOOR3                        source/elements/solid/solide/scoor3.F
-Chd|        SDERI3                        source/elements/solid/solide/sderi3.F
-Chd|        SDLEN3                        source/elements/solid/solide/sdlen3.F
-Chd|        SMASS3                        source/elements/solid/solide/smass3.F
-Chd|        TCOORI                        source/elements/truss/tcoori.F
-Chd|        TMASS                         source/elements/truss/tmass.F 
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        STACK_MOD                     share/modules1/stack_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inivoid                ../starter/source/elements/initia/inivoid.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    c3coori                ../starter/source/elements/sh3n/coque3n/c3coori.F
+!||    c3evec3                ../starter/source/elements/sh3n/coque3n/c3evec3.F
+!||    c3inmas                ../starter/source/elements/sh3n/coque3n/c3inmas.F
+!||    c3veok3                ../starter/source/elements/sh3n/coque3n/c3veok3.F
+!||    ccoori                 ../starter/source/elements/shell/coque/ccoori.F
+!||    ceveci                 ../starter/source/elements/shell/coque/ceveci.F
+!||    cinmas                 ../starter/source/elements/shell/coque/cinmas.F
+!||    cveok3                 ../starter/source/elements/shell/coque/cveok3.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    pcoori                 ../starter/source/elements/beam/pcoori.F
+!||    pmass                  ../starter/source/elements/beam/pmass.F
+!||    r23mass                ../starter/source/elements/spring/rmass.F
+!||    s4coor3                ../starter/source/elements/solid/solide4/s4coor3.F
+!||    s4deri3                ../starter/source/elements/solid/solide4/s4deri3.F
+!||    s4mass3                ../starter/source/elements/solid/solide4/s4mass3.F
+!||    sbulk3                 ../starter/source/elements/solid/solide/sbulk3.F
+!||    scoor3                 ../starter/source/elements/solid/solide/scoor3.F
+!||    sderi3                 ../starter/source/elements/solid/solide/sderi3.F
+!||    sdlen3                 ../starter/source/elements/solid/solide/sdlen3.F
+!||    smass3                 ../starter/source/elements/solid/solide/smass3.F
+!||    tcoori                 ../starter/source/elements/truss/tcoori.F
+!||    tmass                  ../starter/source/elements/truss/tmass.F
+!||--- uses       -----------------------------------------------------
+!||    defaults_mod           ../starter/source/modules/defaults_mod.F90
+!||    drape_mod              ../starter/share/modules1/drape_mod.F
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    stack_mod              ../starter/share/modules1/stack_mod.F
+!||====================================================================
       SUBROUTINE INIVOID(ELBUF_STR   ,
      +                   IXC    ,IXS    ,IXTG   ,X      ,V      ,
      1                   PM     ,GEO    ,MS     ,IN     ,PTG    ,
@@ -68,13 +71,20 @@ Chd|====================================================================
      C                   IXP    ,MST    ,MSP    ,STT    ,STP    ,
      D                   STRP   ,INP    ,STIFINT,MCPP   ,INR    ,
      E                   MSR    ,MSRT   ,STR    ,IPARTR ,ITAB   ,
-     F                   IXR    ,IMERGE2 , IADMERGE2,NEL)
+     F                   IXR    ,IMERGE2 , IADMERGE2,NEL,DEFAULTS,
+     G                   GLOB_THERM,IBEAM_VECTOR,RBEAM_VECTOR)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
       USE STACK_MOD
       USE MESSAGE_MOD
+      USE DEFAULTS_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE FORMAT_MOD , ONLY : FMT_10I
+      use glob_therm_mod
+      USE DRAPE_MOD
+      use element_mod , only : nixs,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -94,21 +104,19 @@ C-----------------------------------------------
 #include      "scr12_c.inc"
 #include      "units_c.inc"
 #include      "random_c.inc"
-#include      "warn_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NVC, IHBE, ISOLNOD, NDDIM, ILEV,ISUBSTACK
+      INTEGER NVC, IHBE, ISOLNOD, ISUBSTACK
       INTEGER IXC(NIXC,*),IXS(NIXS,*),IXTG(NIXTG,*),
      .        IPARTS(*),IPARTC(*),IPARTT(*),IGEO(NPROPGI,*),
      .        NSHNOD(*), SH4TREE(*), SH3TREE(*),SH3TRIM(*),
      .        PERTURB(NPERTURB),IXT(NIXT,*),IPARTTR(*),IXP(NIXP,*),IPARTP(*),
      .        ITAB(*),IXR(NIXR,*),IMERGE2(NUMNOD+1),NEL,IPARTR(*),
-     .        IADMERGE2(NUMNOD+1)
-
+     .        IADMERGE2(NUMNOD+1)      
       INTEGER*8 I8MI(6,*)
-
+      INTEGER,INTENT(IN) :: IBEAM_VECTOR(NUMELP)
       my_real
      .   PM(NPROPM,*), GEO(NPROPG,*),MS(*),MSC(*),MSS(8,*),
      .   MSTG(*),INTG(*),PTG(3,*),IN(*),INC(*),THKC(*),THKT(*),
@@ -119,17 +127,21 @@ C-----------------------------------------------
      .   BVOLNOD(*), BNS(8,*), VNS(8,*),RNOISE(*),PART_AREA(*),ELE_AREA(*),
      .   MST(*),MSP(*),STT(*),STP(*),STRP(*),INP(*),STIFINT(*),MCPP(*),
      .   INR(3,*),MSR(3,*),MSRT(*),STR(*)
+      my_real,INTENT(IN) :: RBEAM_VECTOR(3,NUMELP)
       TYPE(ELBUF_STRUCT_), TARGET :: ELBUF_STR
+      TYPE(DEFAULTS_), INTENT(IN) :: DEFAULTS             
+      type(glob_therm_) ,intent(inout) :: glob_therm
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, IGTYP,IMAT,IPROP, NDEPAR, NREFSTA, NCC, NF1
       INTEGER MXT(MVSIZ), PID(MVSIZ), NGL(MVSIZ),
      .   IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),IX4(MVSIZ),
-     .   IX5(MVSIZ),IX6(MVSIZ),IX7(MVSIZ),IX8(MVSIZ),IBID(MVSIZ),IP,II(6),
-     .   ID, IPID, J, I0,I1,I2,I3,ITMP, KK, K,ILENG,IMASS,KK1
+     .   IX5(MVSIZ),IX6(MVSIZ),IX7(MVSIZ),IX8(MVSIZ),IBID(MVSIZ),II(6),
+     .   ID, IPID, J, I0,I1,I2,I3,ITMP, KK, K,IMASS,KK1,IMAS_DS,
+     .   IVECT(MVSIZ)
       my_real
-     .   AREA(MVSIZ), VOID(MVSIZ),RHO(MVSIZ),VOL(MVSIZ),
+     .   AREA(MVSIZ), RHO(MVSIZ),VOL(MVSIZ),
      .   X1(MVSIZ),X2(MVSIZ),X3(MVSIZ),X4(MVSIZ),X5(MVSIZ),X6(MVSIZ),
      .   X7(MVSIZ),X8(MVSIZ),Y1(MVSIZ),Y2(MVSIZ),Y3(MVSIZ),Y4(MVSIZ),
      .   Y5(MVSIZ),Y6(MVSIZ),Y7(MVSIZ),Y8(MVSIZ),Z1(MVSIZ),Z2(MVSIZ),
@@ -144,10 +156,11 @@ C-----------------------------------------------
      .   PX1(MVSIZ),PX2(MVSIZ),PX3(MVSIZ),PX4(MVSIZ),
      .   PY1(MVSIZ),PY2(MVSIZ),PY3(MVSIZ),PY4(MVSIZ),
      .   PZ1(MVSIZ),PZ2(MVSIZ),PZ3(MVSIZ),PZ4(MVSIZ),VOLU(MVSIZ),
-     .   X2L(MVSIZ),X3L(MVSIZ),Y2L(MVSIZ),Y3L(MVSIZ),
-     .   X31(MVSIZ),Y31(MVSIZ),Z31(MVSIZ), DELTAX(MVSIZ),STIFNTMP(NUMNOD),
+     .   X2L(MVSIZ),X3L(MVSIZ),Y3L(MVSIZ),
+     .   X31(MVSIZ),Y31(MVSIZ),Z31(MVSIZ), DELTAX(MVSIZ),
      .   BIDON, NOISE, XL(MVSIZ),LENGTH,UINER(MVSIZ),MASSR(MVSIZ),
-     .   XM, XINE,RATIO,STI,KX,EMS(MVSIZ),RHOR
+     .   XM, XINE,RATIO,KX,EMS(MVSIZ),RHOR,VECT(3,MVSIZ)
+         my_real, DIMENSION(:), ALLOCATABLE :: STIFNTMP !numnod
       DOUBLE PRECISION
      .   XD1(MVSIZ), XD2(MVSIZ), XD3(MVSIZ), XD4(MVSIZ),
      .   XD5(MVSIZ), XD6(MVSIZ), XD7(MVSIZ), XD8(MVSIZ),
@@ -155,13 +168,15 @@ C-----------------------------------------------
      .   YD5(MVSIZ), YD6(MVSIZ), YD7(MVSIZ), YD8(MVSIZ),
      .   ZD1(MVSIZ), ZD2(MVSIZ), ZD3(MVSIZ), ZD4(MVSIZ),
      .   ZD5(MVSIZ), ZD6(MVSIZ), ZD7(MVSIZ), ZD8(MVSIZ),VOLDP(MVSIZ)
-       CHARACTER*nchartitle,
-     .   TITR
+       CHARACTER(LEN=NCHARTITLE) :: TITR
 C
       TYPE(ELBUF_STRUCT_) ,POINTER :: BIDBUF
       TYPE (STACK_PLY) :: STACK
       TYPE(G_BUFEL_),POINTER :: GBUF
+      TYPE (DRAPE_), DIMENSION(NUMELC_DRAPE + NUMELTG_DRAPE) :: DRAPE
+
 C-----------------------------------------------
+      ALLOCATE(STIFNTMP(NUMNOD))
       GBUF => ELBUF_STR%GBUF
 
       BIDBUF => NULL()
@@ -172,6 +187,7 @@ C
       NXREF = 0
       NF1=NFT+1
       IF (ITY == 1.AND. ISMSTR == 10) ISMSTR = 4
+      IMAS_DS = DEFAULTS%SOLID%IMAS
 C--------------------------------------
       IF(ITY == 1.AND.ISOLNOD == 4)THEN
 C Solid 4 nodes tetrahedron
@@ -202,7 +218,7 @@ C Solid 4 nodes tetrahedron
      2      IPARTS(NFT+1),MSS(1,NFT+1),MSNF   ,MSSF(1,NFT+1),WMA ,
      3      RHOCP        ,MCP         ,MCPS(1,NFT+1)          ,TEMP0,
      4      TEMP         ,MSSA        ,IX1     ,IX2    ,IX3    ,IX4 ,
-     5      FILL, VOLU)
+     5      FILL, VOLU   ,IMAS_DS  ,GLOB_THERM%NINTEMP)
         ENDIF
         IF(I7STIFS /= 0)THEN
           NCC=4
@@ -231,7 +247,7 @@ C Solid  8 nodes brick
      .           Z1   ,Z2   ,Z3   ,Z4   ,Z5   ,Z6   ,Z7   ,Z8   ,
      .           RX   ,RY   ,RZ   ,SX   ,SY   ,SZ   ,TX   ,TY   ,TZ   ,
      .           E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y  ,E3Z  ,
-     .           F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0, TEMP,
+     .           F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0, TEMP,GLOB_THERM%NINTEMP,
      .           XD1  ,XD2  ,XD3  ,XD4  ,XD5  ,XD6  ,XD7  ,XD8   ,
      .           YD1  ,YD2  ,YD3  ,YD4  ,YD5  ,YD6  ,YD7  ,YD8   ,
      .           ZD1  ,ZD2  ,ZD3  ,ZD4  ,ZD5  ,ZD6  ,ZD7  ,ZD8   )
@@ -299,8 +315,8 @@ C
      .              NSHNOD ,STC(NFT+1),SH4TREE ,MCP   ,MCPC(NFT+1) ,
      .              TEMP    ,BID , BID,BID,BID,
      .              BID,BID,ISUBSTACK,IBID,BIDBUF,
-     .              STACK,BIDG ,RNOISE,BID,
-     .              PERTURB,IX1     ,IX2      ,IX3     ,IX4      )
+     .              STACK,BIDG ,RNOISE,DRAPE,GLOB_THERM%NINTEMP,
+     .              PERTURB,IX1     ,IX2      ,IX3     ,IX4     ,IBID, IBID)
 
         NDEPAR=NUMELS+NFT
         DO I=1,NEL
@@ -334,9 +350,9 @@ C
      .               PTG(1,NFT+1),IGEO ,IMAT  ,IPROP   ,AREA    ,
      .               ETNOD,NSHNOD,STTG(NFT+1), SH3TREE,MCP   ,
      .               MCPS(1,NFT+1) , TEMP,SH3TRIM,ISUBSTACK,IBID,
-     .               BIDBUF, STACK,BIDG ,RNOISE,
-     .               BID,PERTURB,IX1   ,IX2      ,IX3    ,
-     .               X2L      ,X3L    ,Y3L   )
+     .               BIDBUF, STACK,BIDG ,RNOISE, DRAPE,
+     .               PERTURB,IX1   ,IX2      ,IX3    ,GLOB_THERM%NINTEMP,
+     .               X2L      ,X3L    ,Y3L   ,IBID, IBID)
 
         NDEPAR=NUMELS+NUMELC+NUMELT+NUMELP+NUMELR+NFT
         DO I=1,NEL
@@ -361,17 +377,18 @@ C Avoid fail in output subroutine (Anim division by AREA)
 C--------------------------------------
        ELSEIF(ITY == 5)THEN
 C Beam element
-        STIFNTMP(1:NUMNOD)=ZERO
+        STIFNTMP(1:NUMNOD)=ZERO 
         CALL PCOORI(X,IXP(1,NFT+1),
-     .                    MXT,PID ,IX1,IX2,IX3,DELTAX,
-     .                    X1,X2,X3, Y1,Y2,Y3, Z1,Z2,Z3)
+     .              MXT,PID ,IX1,IX2,IX3,DELTAX,
+     .              X1,X2,X3, Y1,Y2,Y3, Z1,Z2,Z3,
+     .              IBEAM_VECTOR(NFT+1),RBEAM_VECTOR(1,NFT+1),IVECT,VECT)
 c
-c        CALL PEVECI(GBUF%SKEW, X1,X3, Y1,Y3, Z1,Z3)
-        CALL PMASS(GEO,PM,MS,IN,
+        CALL PMASS(GEO,PM,
      .             STIFNTMP,STIFNTMP,PARTSAV,V,IPARTP(NFT+1),
-     .             MSP(NFT+1),INP(NFT+1),IGEO , STIFINT, STP(NFT+1),
+     .             MSP(NFT+1),INP(NFT+1),IGEO , STP(NFT+1),
      .             X1,X2, Y1,Y2, Z1,Z2,
-     .             IX1,IX2,MXT,PID,AREA,DELTAX,STRP(NFT+1),MCP,MCPP,TEMP)
+     .             IX1,IX2,MXT,PID,AREA,DELTAX,STRP(NFT+1),
+     .             MCPP,TEMP,GLOB_THERM%NINTEMP)
           NDEPAR=NUMELS+NUMELC+NUMELT+NFT
           DO I=1,NEL
             DTELEM(NDEPAR+I)=EP30
@@ -526,6 +543,7 @@ C Compute element time step and nodal time step
       ENDIF ! ITY element type
 C
       NXREF = NREFSTA
+      DEALLOCATE(STIFNTMP)
 C-----------
  1000 FORMAT('LIST OF POSSIBLE CNODES MERGED WITH NODE ID=',I10)
       RETURN

@@ -1,63 +1,62 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SREFSTA3                      source/elements/solid/solide/srefsta3.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        SDEFO3                        source/elements/solid/solide/sdefo3.F
-Chd|        SDEFOT3                       source/elements/solid/solide/srefsta3.F
-Chd|        SJAC_I                        source/elements/solid/solide/sderi3.F
-Chd|        SORDEFT3                      source/elements/solid/solide/srefsta3.F
-Chd|        SORTHO3                       source/elements/solid/solide/sortho3.F
-Chd|        SREFDERI3                     source/elements/solid/solide/srefsta3.F
-Chd|        SREPISO3                      source/elements/solid/solide/srepiso3.F
-Chd|        SRHO3                         source/elements/solid/solide/srho3.F
-Chd|        SRORTH3                       source/elements/solid/solide/srorth3.F
-Chd|        SRROTA3                       source/elements/solid/solide/srrota3.F
-Chd|        STORTH3                       source/elements/solid/solidez/szorth3.F
-Chd|        SZORDEF3                      source/elements/solid/solidez/szorth3.F
-Chd|        SZREFDERI3                    source/elements/solid/solide/srefsta3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    srefsta3               ../starter/source/elements/solid/solide/srefsta3.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    mmain                  ../starter/source/materials/mat_share/mmain.F
+!||    sdefo3                 ../starter/source/elements/solid/solide/sdefo3.F
+!||    sdefot3                ../starter/source/elements/solid/solide/srefsta3.F
+!||    sjac_i                 ../starter/source/elements/solid/solide/sderi3.F
+!||    sordeft3               ../starter/source/elements/solid/solide/srefsta3.F
+!||    sortho3                ../starter/source/elements/solid/solide/sortho3.F
+!||    srefderi3              ../starter/source/elements/solid/solide/srefsta3.F
+!||    srepiso3               ../starter/source/elements/solid/solide/srepiso3.F
+!||    srho3                  ../starter/source/elements/solid/solide/srho3.F
+!||    srorth3                ../starter/source/elements/solid/solide/srorth3.F
+!||    srrota3                ../starter/source/elements/solid/solide/srrota3.F
+!||    storth3                ../starter/source/elements/solid/solidez/szorth3.F
+!||    szordef3               ../starter/source/elements/solid/solidez/szorth3.F
+!||    szrefderi3             ../starter/source/elements/solid/solide/srefsta3.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SREFSTA3(ELBUF_STR,IXS     ,PM     ,GEO     ,IPARG  ,
      .                    IPM      ,IGEO    ,SKEW   ,X       ,XREFS  ,
-     .                    NEL      ,IPARTS  ,IPART  ,BUFMAT  ,
-     .                    NPF      ,TF      )
+     .                    NEL      ,IPARTS  ,IPART  ,BUFMAT  ,MAT_PARAM,
+     .                    NPF      ,TF      ,NUMMAT )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
-      USE MESSAGE_MOD             
+      USE MAT_ELEM_MOD
+      USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -65,31 +64,26 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr01_c.inc"
 #include      "scr03_c.inc"
 #include      "scr17_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
-#include      "warn_c.inc"
-#include      "titr_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NUMMAT
       INTEGER IXS(NIXS,*), IPARG(*),IPARTS(*), IGEO(*),
      .    IPM(NPROPMI,*),IPART(LIPART1,*), NEL, NPF(*)
-C     REAL
       my_real
      .   PM(NPROPM,*), X(3,*), XREFS(8,3,*), GEO(NPROPG,*),
      .   SKEW(LSKEW,*), BUFMAT(*), TF(*)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NF1, I,II(6), N, JHBE, IREP, IGTYP, ITRS, IBID,
-     .        NITSAV,J,I1,I2,ID,MAT_ID
+     .        NITSAV,J,I1,I2,ID,IMAT,MAT_ID
       INTEGER MAT(MVSIZ), PID(MVSIZ), NGL(MVSIZ),
      .   IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),IX4(MVSIZ),
      .   IX5(MVSIZ),IX6(MVSIZ),IX7(MVSIZ),IX8(MVSIZ)
@@ -136,7 +130,7 @@ C-----------------------------------------------
      .   FAC, XT, YT, ZT
 C-----
       TYPE(G_BUFEL_) ,POINTER :: GBUF 
-      CHARACTER*nchartitle , TITR
+      CHARACTER(LEN=NCHARTITLE):: TITR
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C=======================================================================
@@ -163,13 +157,14 @@ C--------------------------------------------------
       IF (NXREF > 0 .AND. JLAG/=0 .AND. JSPH==0)THEN
 
         IF(MTN /= 35 .AND.MTN /= 38 .AND. MTN /= 42 .AND.
-     .     MTN /= 70 .AND. MTN /= 90)THEN
+     .     MTN /= 70 .AND. MTN /= 90.AND. MTN /= 1)THEN
           NITRS=NITSAV
 C         message moved to hm_read_xref
           RETURN
         END IF
 
-        IF (JCVT <= 0 .OR. (JHBE/=1.AND.JHBE/=2.AND.JHBE/=24))THEN
+        IF (JCVT <= 0 .OR. (JHBE/=1.AND.JHBE/=2.
+     .      AND.JHBE/=24.AND.JHBE/=14.AND.JHBE/=17))THEN
           NITRS=NITSAV
 C         message
           RETURN
@@ -177,6 +172,7 @@ C         message
 C---------------------------------------------------------
 C Element connectivities, material number, property number
 C---------------------------------------------------------
+        MAT(1) = 0
         DO I=1,NEL
           N=NFT+I
           MAT(I)=IXS(1,N)
@@ -191,6 +187,7 @@ C---------------------------------------------------------
           PID(I)=IXS(NIXS-1,N)
           NGL(I)=IXS(NIXS,N)
         END DO
+        IMAT = MAT(1)
 C----------------------------
 C Coordinates
 C----------------------------
@@ -636,8 +633,8 @@ C-----------
 C-----------
           CALL MMAIN(PM   ,ELBUF_STR,IXS    ,NIXS    ,X      ,
      2             GEO    ,IPARG    ,NEL    ,SKEW    ,BUFMAT ,
-     3             IPART   ,IPARTS ,
-     4             MAT    ,IPM      ,NGL    ,PID     ,NPF    ,
+     3             IPART  ,IPARTS   ,NUMMAT ,MAT_PARAM,
+     4             IMAT   ,IPM      ,NGL    ,PID     ,NPF    ,
      5             TF     ,MFXX     ,MFXY   ,MFXZ    ,MFYX   ,
      6             MFYY   ,MFYZ     ,MFZX   ,MFZY    ,MFZZ   ,
      7             RX     ,RY       ,RZ     ,SX      ,SY     ,
@@ -652,12 +649,11 @@ C ======================================================================
       RETURN
       END SUBROUTINE SREFSTA3
 C
-Chd|====================================================================
-Chd|  SDEFOT3                       source/elements/solid/solide/srefsta3.F
-Chd|-- called by -----------
-Chd|        SREFSTA3                      source/elements/solid/solide/srefsta3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sdefot3    ../starter/source/elements/solid/solide/srefsta3.F
+!||--- called by ------------------------------------------------------
+!||    srefsta3   ../starter/source/elements/solid/solide/srefsta3.F
+!||====================================================================
       SUBROUTINE SDEFOT3(NEL,
      .   PX1, PX2, PX3, PX4,
      .   PY1, PY2, PY3, PY4,
@@ -675,9 +671,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER :: NEL
@@ -691,9 +684,6 @@ C-----------------------------------------------
      .   DXX(*), DXY(*), DXZ(*),
      .   DYX(*), DYY(*), DYZ(*),
      .   DZX(*), DZY(*), DZZ(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -743,12 +733,11 @@ C                                                                     12
 C-----------
       RETURN
       END SUBROUTINE SDEFOT3
-Chd|====================================================================
-Chd|  SORDEFT3                      source/elements/solid/solide/srefsta3.F
-Chd|-- called by -----------
-Chd|        SREFSTA3                      source/elements/solid/solide/srefsta3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sordeft3   ../starter/source/elements/solid/solide/srefsta3.F
+!||--- called by ------------------------------------------------------
+!||    srefsta3   ../starter/source/elements/solid/solide/srefsta3.F
+!||====================================================================
       SUBROUTINE SORDEFT3( NEL, MXX, MXY, MXZ,  
      .                     MYX, MYY, MYZ, MZX, MZY, MZZ,
      .                     G1X,G1Y,G1Z,G2X,G2Y,G2Z,G3X,G3Y,G3Z)
@@ -757,10 +746,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER :: NEL
@@ -768,9 +753,6 @@ C-----------------------------------------------
      .   MXX(*), MXY(*), MXZ(*),MYX(*), MYY(*), MYZ(*),  
      .   MZX(*), MZY(*), MZZ(*),G1X(*),G1Y(*),G1Z(*),
      .   G2X(*),G2Y(*),G2Z(*),G3X(*),G3Y(*),G3Z(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -810,14 +792,15 @@ C-----------------------------------------------
 C-----------
       RETURN
       END SUBROUTINE SORDEFT3
-Chd|====================================================================
-Chd|  SREFDERI3                     source/elements/solid/solide/srefsta3.F
-Chd|-- called by -----------
-Chd|        SREFSTA3                      source/elements/solid/solide/srefsta3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    srefderi3     ../starter/source/elements/solid/solide/srefsta3.F
+!||--- called by ------------------------------------------------------
+!||    srefsta3      ../starter/source/elements/solid/solide/srefsta3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SREFDERI3(NEL ,JEUL ,
      .              VOL  ,VEUL ,GEO  ,IGEO , 
      .              X1   ,X2   ,X3   ,X4   ,X5   ,X6   ,X7   ,X8   ,
@@ -830,7 +813,6 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -972,7 +954,7 @@ C
 C
       DO I=1,NEL
         IF (DET(I) > ZERO) CYCLE
-        IF (IGEO(11,NGEO(I)).NE.0 .AND. IGEO(11,NGEO(I)).NE.43) THEN
+        IF (IGEO(11,NGEO(I))/=0 .AND. IGEO(11,NGEO(I))/=43) THEN
           CALL ANCMSG(MSGID=245,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -1058,14 +1040,15 @@ C---
 C-----------
       RETURN
       END SUBROUTINE SREFDERI3
-Chd|====================================================================
-Chd|  SZREFDERI3                    source/elements/solid/solide/srefsta3.F
-Chd|-- called by -----------
-Chd|        SREFSTA3                      source/elements/solid/solide/srefsta3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    szrefderi3    ../starter/source/elements/solid/solide/srefsta3.F
+!||--- called by ------------------------------------------------------
+!||    srefsta3      ../starter/source/elements/solid/solide/srefsta3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SZREFDERI3(NEL,JEUL ,
      .              VOL  ,VEUL ,GEO  ,IGEO , 
      .              X1   ,X2   ,X3   ,X4   ,X5   ,X6   ,X7   ,X8   , 

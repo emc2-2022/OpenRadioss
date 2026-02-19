@@ -1,34 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-	SUBROUTINE CBAFORI(JFT  ,JLT   ,NG    ,CDET ,THK0,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbafori    ../engine/source/elements/shell/coqueba/cbafori.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
+          SUBROUTINE CBAFORI(JFT  ,JLT   ,NG    ,CDET ,THK0,
      2                     TH12 ,FF0   ,MM0   ,NEL  ,BM  ,
      3                     BMF  ,BF    ,BC    ,TC   ,VF  ,
      4                     VM   ,NPLAT ,IPLAT ,VOL  ) 
 C--------------------------------------------------------------------------------------------------
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C	CALCUL DES FORCES INTERNES AUX NOEUDS 
-C	ENTREES :  NEL,MNT,NPT,NP,NG,NIXC,IXC,HZ,OFF,CDET,EPAIS,BUFCON,VQN,BM,BMF,BF,BC
-C	SORTIES : VF,VM
+C  CALCUL DES FORCES INTERNES AUX NOEUDS 
+C  ENTREES :  NEL,MNT,NPT,NP,NG,NIXC,IXC,HZ,OFF,CDET,EPAIS,BUFCON,VQN,BM,BMF,BF,BC
+C  SORTIES : VF,VM
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C--------------------------------------------------------------------------------------------------
 C-----------------------------------------------
@@ -49,7 +54,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER EP,I,J
+      INTEGER EP,I
       MY_REAL 
      .   FF(MVSIZ,5),MM(MVSIZ,3) 
 C--------------------------------------------------------------------------------------------------
@@ -268,12 +273,11 @@ C
 C    
       RETURN
       END
-Chd|====================================================================
-Chd|  CBAFORCT                      source/elements/shell/coqueba/cbafori.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbaforct   ../engine/source/elements/shell/coqueba/cbafori.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
         SUBROUTINE CBAFORCT(JFT   ,JLT  ,VOL   ,X13  ,X24  ,
      2                      Y13   ,Y24  ,VSTRE ,VF   ,NPLAT,
      3                      IPLAT ,OFF  ,NEL   )
@@ -300,7 +304,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I ,J,EP
+        INTEGER I ,EP
         my_real SX1, SX2, SY1, SY2, THOFF 
 C
 #include "vectorize.inc"
@@ -345,12 +349,11 @@ C
 C
        RETURN
        END
-Chd|====================================================================
-Chd|  CBAFORRZ                      source/elements/shell/coqueba/cbafori.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbaforrz   ../engine/source/elements/shell/coqueba/cbafori.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
         SUBROUTINE CBAFORRZ(JFT  ,JLT  ,VOL  ,FF   ,VSRZ ,
      2                      VF   ,VMZ  ,BM   ,BMRZ ,BRZ  ,
      3                      KRZ  ,VRLZ ,EINT ,OFF  ,DT1C ,
@@ -373,7 +376,7 @@ C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
         INTEGER I ,J,EP
         my_real
-     .     S1, C2, A05,ERZ,DEV,C3,FX3,FY3,CSRZ
+     .      C2,ERZ,DEV,C3,FX3,FY3,CSRZ
 C    -------- sig_rz added here----a verifier EINT(QEPH sans A)-----
 #include "vectorize.inc"
        DO I=JFT,JLT
@@ -445,13 +448,18 @@ C
 C
        RETURN
        END
-	SUBROUTINE CBAFORI1(JFT  ,JLT  ,FF  ,BM  ,VF,
+!||====================================================================
+!||    cbafori1   ../engine/source/elements/shell/coqueba/cbafori.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
+          SUBROUTINE CBAFORI1(JFT  ,JLT  ,FF  ,BM  ,VF,
      .                      NPLAT,IPLAT,VOL ,NEL ) 
 C--------------------------------------------------------------------------------------------------
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C	CALCUL DES FORCES INTERNES AUX NOEUDS (MEMBRANE ONLY)
-C	ENTREES :  NEL,MNT,NPT,NP,NG,NIXC,IXC,HZ,OFF,CDET,EPAIS,BUFCON,VQN,BM,BMF,BF,BC
-C	SORTIES : VF,VM
+C  CALCUL DES FORCES INTERNES AUX NOEUDS (MEMBRANE ONLY)
+C  ENTREES :  NEL,MNT,NPT,NP,NG,NIXC,IXC,HZ,OFF,CDET,EPAIS,BUFCON,VQN,BM,BMF,BF,BC
+C  SORTIES : VF,VM
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C--------------------------------------------------------------------------------------------------
 C-----------------------------------------------
@@ -468,9 +476,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER EP,I,J
+      INTEGER EP,I
       MY_REAL 
-     .    C1,C2
+     .    C2
 C--------------------------------------------------------------------------------------------------
 #include "vectorize.inc"
        DO I=JFT,NPLAT 

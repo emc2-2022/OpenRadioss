@@ -1,32 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_EXCH_NOR                 source/mpi/interfaces/spmd_exch_nor.F
-Chd|-- called by -----------
-Chd|        I25NORMP                      source/interfaces/int25/i25norm.F
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_exch_nor         ../engine/source/mpi/interfaces/spmd_exch_nor.F
+!||--- called by ------------------------------------------------------
+!||    i25normp              ../engine/source/interfaces/int25/i25norm.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod         ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_NOR(
      1   NI25,IAD_FREDG,FR_EDG,NOD_NORMAL,WNOD_NORMAL,SIZE,NADMSR,
      2   REQ_R  ,REQ_S  ,IRINDEX,ISINDEX,IAD_RECV    ,
@@ -40,30 +42,18 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com_xfem1.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "spmd_c.inc"
-#include      "units_c.inc"
-#include      "timeri_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
-#include      "tabsiz_c.inc"
-#include      "sphcom.inc"
-#include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -78,14 +68,15 @@ C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER MSGTYP,I,NOD,LOC_PROC,IERROR,INDEX, N, M, E, IS,
-     .        SIZ,J,K,L0,L,CC,II, MSGOFF,
+      INTEGER MSGTYP,I,NOD,LOC_PROC,IERROR,INDEX, M, E, IS,
+     .        SIZ,J,L0,L,CC,II, MSGOFF,
      .        STATUS(MPI_STATUS_SIZE)
       REAL*4 RZERO
       DATA MSGOFF/6014/
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
+      !SIZE = 3 here
       RZERO = 0.
 C
       LOC_PROC = ISPMD + 1
@@ -106,11 +97,11 @@ C
 
 
            IF(SOL_EDGE/=0)THEN
-            IF(IAD_FRNOR(NI25,I+1)-IAD_FRNOR(NI25,I).GT.0) THEN
+            IF(IAD_FRNOR(NI25,I+1)-IAD_FRNOR(NI25,I)>0) THEN
               DO J=IAD_FRNOR(NI25,I),IAD_FRNOR(NI25,I+1)-1
                 NOD = ISHIFT + FR_NOR(J)
                 DO CC = ADDCSRECT(NOD),ADDCSRECT(NOD+1)-1
-                  IF(PROCNOR(CC).EQ.I) THEN
+                  IF(PROCNOR(CC)==I) THEN
                     L = L + SIZE
                   ENDIF
                 END DO
@@ -119,14 +110,14 @@ C
            ENDIF
 
             SIZ = L-L0
-c                  print *,'recoit siz',ispmd+1,i,siz
+c                  print *,'recoit siz',ispmd+1,i,ni25,siz
             IF(SIZ > 0)THEN
               MSGTYP = MSGOFF
               NBIRECV = NBIRECV + 1
               IRINDEX(NBIRECV) = I
               CALL MPI_IRECV(
      S          RBUF(L0),SIZ,MPI_REAL4,IT_SPMD(I),MSGTYP,
-     G          MPI_COMM_WORLD,REQ_R(NBIRECV),IERROR)
+     G          SPMD_COMM_WORLD,REQ_R(NBIRECV),IERROR)
             ENDIF
           ENDIF
           IAD_RECV(I+1) = L
@@ -138,7 +129,7 @@ C
 
           IF(I/=LOC_PROC)THEN
             L0 = L
-            IF(IAD_FREDG(NI25,I+1)-IAD_FREDG(NI25,I).GT.0) THEN
+            IF(IAD_FREDG(NI25,I+1)-IAD_FREDG(NI25,I)>0) THEN
               DO J=IAD_FREDG(NI25,I),IAD_FREDG(NI25,I+1)-1
                 M = FR_EDG(1,J)
                 E=  FR_EDG(2,J)
@@ -152,9 +143,11 @@ C                WRITE(6,"(2I10,A,I10,3Z20)") E,M," SEND TO",I-1,NOD_NORMAL(1,E,
 C                ENDIF
 C#endif 
 c                  print *,'envoi',ispmd+1,i,j-IAD_FREDG(NI25,I)+1,mseglo(m),mvoisin(e,m)
+c       if((ispmd==1.or.ispmd==3).and.(i==2.or.i==4).and.ni25==1)print *,'envoi',ispmd+1,NI25,i,j-IAD_FREDG(NI25,I)+1,mseglo(m),mvoisin(e,m)
+
               ENDDO
             ENDIF
-            IF(IAD_FRNOR(NI25,I+1)-IAD_FRNOR(NI25,I).GT.0) THEN
+            IF(IAD_FRNOR(NI25,I+1)-IAD_FRNOR(NI25,I)>0) THEN
               DO J=IAD_FRNOR(NI25,I),IAD_FRNOR(NI25,I+1)-1
                 IS = FR_NOR(J)
                 SBUF(L)   = VTX_BISECTOR(1,1,IS)
@@ -172,11 +165,11 @@ c                  print *,'envoi',ispmd+1,i,j-IAD_FREDG(NI25,I)+1,mseglo(m),mvo
 
            IF(SOL_EDGE/=0)THEN
 
-             IF(IAD_FRNOR(NI25,I+1)-IAD_FRNOR(NI25,I).GT.0) THEN
+             IF(IAD_FRNOR(NI25,I+1)-IAD_FRNOR(NI25,I)>0) THEN
               DO J=IAD_FRNOR(NI25,I),IAD_FRNOR(NI25,I+1)-1
                 NOD = ISHIFT + FR_NOR(J)
                 DO CC = ADDCSRECT(NOD),ADDCSRECT(NOD+1)-1
-                  IF(PROCNOR(CC).EQ.LOC_PROC) THEN
+                  IF(PROCNOR(CC)==LOC_PROC) THEN
                     SBUF(L)   =  FSKYN(1,CC)
                     SBUF(L+1) = FSKYN(2,CC)
                     SBUF(L+2) = FSKYN(3,CC)
@@ -188,14 +181,14 @@ c                  print *,'envoi',ispmd+1,i,j-IAD_FREDG(NI25,I)+1,mseglo(m),mvo
             ENDIF
 
             SIZ = L-L0
-c                  print *,'envoi siz',ispmd+1,i,siz
+c                  print *,'envoi siz',ispmd+1,i,ni25,siz
             IF(SIZ > 0)THEN
               MSGTYP = MSGOFF
               NBISEND = NBISEND + 1
               ISINDEX(NBISEND)=I
               CALL MPI_ISEND(
      S        SBUF(L0),SIZ,MPI_REAL4,IT_SPMD(I),MSGTYP,
-     G        MPI_COMM_WORLD,REQ_S(I),IERROR)
+     G        SPMD_COMM_WORLD,REQ_S(I),IERROR)
             ENDIF
           END IF
         ENDDO
@@ -278,7 +271,7 @@ c                print *,'recoit',ispmd+1,i,j-IAD_FREDG(NI25,I)+1,mseglo(m),mvoi
            DO J=IAD_FRNOR(NI25,I),IAD_FRNOR(NI25,I+1)-1
             NOD = ISHIFT + FR_NOR(J)
             DO CC = ADDCSRECT(NOD),ADDCSRECT(NOD+1)-1
-              IF(PROCNOR(CC).EQ.I) THEN
+              IF(PROCNOR(CC)==I) THEN
                 FSKYN(1,CC) = RBUF(L)
                 FSKYN(2,CC) = RBUF(L+1)
                 FSKYN(3,CC) = RBUF(L+2)

@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LAG_I2MAIN                    source/tools/lagmul/lag_i2main.F
-Chd|-- called by -----------
-Chd|        LAG_MULT                      source/tools/lagmul/lag_mult.F
-Chd|        LAG_MULTP                     source/tools/lagmul/lag_mult.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        I2LAGM                        source/tools/lagmul/lag_i2main.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lag_i2main      ../engine/source/tools/lagmul/lag_i2main.F
+!||--- called by ------------------------------------------------------
+!||    lag_mult        ../engine/source/tools/lagmul/lag_mult.F
+!||    lag_multp       ../engine/source/tools/lagmul/lag_mult.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../engine/source/output/message/message.F
+!||    arret           ../engine/source/system/arret.F
+!||    i2lagm          ../engine/source/tools/lagmul/lag_i2main.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod     ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LAG_I2MAIN(
      1      IPARI    ,INTBUF_TAB,IADLL    ,LLL      ,JLL      ,    
      2      SLL      ,XLL      ,COMNTAG  ,LTSM     ,ICFTAG   ,
@@ -53,8 +54,6 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
-#include      "units_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -77,8 +76,8 @@ C======================================================================|
 C ---------------------
         NTY   = IPARI(7,NINT)
         ILAGM = IPARI(33,NINT)
-        IF(NTY.EQ.2 .AND. ILAGM.EQ.1)THEN
-          IF(ISPMD.EQ.0 .AND. NSPMD > 1)THEN
+        IF(NTY==2 .AND. ILAGM==1)THEN
+          IF(ISPMD==0 .AND. NSPMD > 1)THEN
             CALL ANCMSG(MSGID=113,ANMODE=ANINFO,
      .                  C1='INT 2')
             CALL ARRET(2)
@@ -101,13 +100,13 @@ C
 C---
       RETURN
       END
-Chd|====================================================================
-Chd|  I2LAGM                        source/tools/lagmul/lag_i2main.F
-Chd|-- called by -----------
-Chd|        LAG_I2MAIN                    source/tools/lagmul/lag_i2main.F
-Chd|-- calls ---------------
-Chd|        LAG_DIRECT                    source/tools/lagmul/lag_direct.F
-Chd|====================================================================
+!||====================================================================
+!||    i2lagm       ../engine/source/tools/lagmul/lag_i2main.F
+!||--- called by ------------------------------------------------------
+!||    lag_i2main   ../engine/source/tools/lagmul/lag_i2main.F
+!||--- calls      -----------------------------------------------------
+!||    lag_direct   ../engine/source/tools/lagmul/lag_direct.F
+!||====================================================================
       SUBROUTINE I2LAGM(
      1   IRECT    ,NSV      ,IRTL     ,
      2   IADLL    ,LLL      ,
@@ -120,29 +119,22 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN, NINT, NC, ISKIP, NCF_S
       INTEGER LLL(*), JLL(*), SLL(*), IADLL(*),
      .        IRECT(4,*),NSV(*),IRTL(*),COMNTAG(*),ICFTAG(*),JCFTAG(*)
-C     REAL
       my_real
      .   LTSM(*),XLL(*),X(3,*),MS(*),IN(*),V(3,*),VR(3,*),
      .   A(3,*),AR(3,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER INOD(5), I,J,K,L,IC,JC,II,JJ,IK,ISK,IAD,NIR,NDL, 
+      INTEGER INOD(5),K,L,IC,II,JJ,IK,IAD,NIR,NDL, 
      .   NC_INI,NCL,COMFLAG
-C     REAL
       my_real
-     .   RX(4),RY(4),RZ(4),HLOC(6,6),LLOC(6),
-     .   B1,B2,B3,C1,C2,C3,DET,S,HIJ,
+     .   RX(4),RY(4),RZ(4),
+     .   B1,B2,B3,C1,C2,C3,DET,
      .   X0,X1,X2,X3,X4,XS,Y0,Y1,Y2,Y3,Y4,YS,Z0,Z1,Z2,Z3,Z4,ZS,
      .   X12,X22,X32,X42,Y12,Y22,Y32,Y42,Z12,Z22,Z32,Z42,
      .   XX,YY,ZZ,XXX,YYY,ZZZ,XY,YZ,ZX,XY2,YZ2,ZX2,FACT
@@ -154,17 +146,17 @@ C-----------------------------------------------
         DO JJ=1,NIR
           INOD(JJ) = IRECT(JJ,L)
         ENDDO
-        IF(INOD(4).EQ.INOD(3)) NIR=3
+        IF(INOD(4)==INOD(3)) NIR=3
         FACT = ONE / NIR
         INOD(NIR+1) = NSV(II)
         NDL = 3*NIR+1
         NC_INI  = NC
         COMFLAG = 0
         DO JJ=1,NIR+1
-          IF (COMNTAG(INOD(JJ)).GT.1) COMFLAG = 1
+          IF (COMNTAG(INOD(JJ))>1) COMFLAG = 1
         ENDDO
 C------------------------------
-        IF (NIR.EQ.4) THEN
+        IF (NIR==4) THEN
           X1=X(1,INOD(1))
           Y1=X(2,INOD(1))
           Z1=X(3,INOD(1))
@@ -224,7 +216,7 @@ C------------------------------
           XY=X1*Y1 + X2*Y2 + X3*Y3 + X4*Y4
           YZ=Y1*Z1 + Y2*Z2 + Y3*Z3 + Y4*Z4
           ZX=Z1*X1 + Z2*X2 + Z3*X3 + Z4*X4
-        ELSEIF (NIR.EQ.3) THEN
+        ELSEIF (NIR==3) THEN
           X1=X(1,INOD(1))
           Y1=X(2,INOD(1))
           Z1=X(3,INOD(1))
@@ -503,7 +495,7 @@ C---    Solving local Lagrange multipliers
      1           IADLL    ,LLL      ,JLL      ,XLL      ,LTSM     ,
      2           V        ,VR       ,A        ,AR       ,MS       ,
      3           IN       ,NC_INI   ,NCL      )
-        IF (COMFLAG.EQ.0) THEN
+        IF (COMFLAG==0) THEN
           ISKIP   = ISKIP + NCL
           NC = NC_INI
         ELSE

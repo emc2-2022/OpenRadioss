@@ -1,101 +1,112 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        I10MAIN_OPT_TRI               source/interfaces/intsort/i10opt_opt_tri.F
-Chd|        I10MAIN_TRI                   source/interfaces/intsort/i10main_tri.F
-Chd|        I11MAIN_CRIT_TRI              source/interfaces/intsort/i11main_crit_tri.F
-Chd|        I11MAIN_OPT_TRI               source/interfaces/intsort/i11main_opt_tri.F
-Chd|        I11MAIN_TRI                   source/interfaces/intsort/i11main_tri.F
-Chd|        I17MAIN_CRIT_TRI              source/interfaces/int17/i17main_pena.F
-Chd|        I17MAIN_TRI                   source/interfaces/int17/i17main_pena.F
-Chd|        I20MAIN_CRIT_TRI              source/interfaces/intsort/i20main_crit_tri.F
-Chd|        I20MAIN_OPT_TRI               source/interfaces/intsort/i20main_opt_tri.F
-Chd|        I20MAIN_TRI                   source/interfaces/intsort/i20main_tri.F
-Chd|        I21MAIN_CRIT_TRI              source/interfaces/intsort/i21main_crit_tri.F
-Chd|        I21MAIN_GAP                   source/interfaces/int21/i21main_gap.F
-Chd|        I21MAIN_OPT_TRI               source/interfaces/intsort/i21main_opt_tri.F
-Chd|        I21MAIN_TRI                   source/interfaces/intsort/i21main_tri.F
-Chd|        I21RESET                      source/interfaces/int21/i21reset.F
-Chd|        I21_ICRIT                     source/interfaces/intsort/i21_icrit.F
-Chd|        I22MAIN_TRI                   source/interfaces/intsort/i22main_tri.F
-Chd|        I22SUBVOL                     source/interfaces/int22/i22subvol.F
-Chd|        I23MAIN_OPT_TRI               source/interfaces/intsort/i23main_opt_tri.F
-Chd|        I23MAIN_TRI                   source/interfaces/intsort/i23main_tri.F
-Chd|        I24MAIN_CRIT_TRI              source/interfaces/intsort/i24main_crit_tri.F
-Chd|        I24MAIN_OPT_TRI               source/interfaces/intsort/i24main_opt_tri.F
-Chd|        I24MAIN_TRI                   source/interfaces/intsort/i24main_tri.F
-Chd|        I25MAIND_2                    source/interfaces/int25/i25maind_2.F
-Chd|        I25MAIN_CRIT_TRI              source/interfaces/intsort/i25main_crit_tri.F
-Chd|        I25MAIN_FREE                  source/interfaces/intsort/i25main_free.F
-Chd|        I25MAIN_GAP                   source/interfaces/int25/i25main_gap.F
-Chd|        I25MAIN_NORM                  source/interfaces/int25/i25main_norm.F
-Chd|        I25MAIN_OPT_TRI               source/interfaces/intsort/i25main_opt_tri.F
-Chd|        I25MAIN_SLID                  source/interfaces/int25/i25main_slid.F
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|        I7MAIN_CRIT_TRI               source/interfaces/intsort/i7main_crit_tri.F
-Chd|        I7MAIN_OPT_TRI                source/interfaces/intsort/i7main_opt_tri.F
-Chd|        I7MAIN_TRI                    source/interfaces/intsort/i7main_tri.F
-Chd|        INT18_LAW151_NSV_SHIFT        source/interfaces/int18/int18_law151_nsv_shift.F
-Chd|        INTCRIT                       source/interfaces/intsort/intcrit.F
-Chd|        INTER_CHECK_SORT              source/interfaces/generic/inter_check_sort.F
-Chd|        INTER_DEALLOCATE_WAIT         source/interfaces/generic/inter_deallocate_wait.F
-Chd|        INTER_PREPARE_SORT            source/interfaces/generic/inter_prepare_sort.F
-Chd|        INTER_SORT                    source/interfaces/generic/inter_sort.F
-Chd|        INTER_TRC_7                   source/interfaces/int07/inter_trc_7.F
-Chd|        INT_STARTIME                  source/system/timer_interf.F  
-Chd|        INT_STOPTIME                  source/system/timer_interf.F  
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_ALLGLOB_ISUM9            source/mpi/generic/spmd_allglob_isum9.F
-Chd|        SPMD_BARRIER                  source/mpi/generic/spmd_barrier.F
-Chd|        SPMD_GET_INACTI_GLOBAL        source/mpi/interfaces/spmd_get_inacti_global.F
-Chd|        SPMD_GET_STIF25_EDG           source/mpi/interfaces/spmd_getstif25_edg.F
-Chd|        SPMD_I25FRONT_NOR             source/mpi/interfaces/spmd_i25front.F
-Chd|        SPMD_I7ITIED_CAND             source/mpi/interfaces/spmd_i7itied_cand.F
-Chd|        SPMD_IFRONT                   source/mpi/interfaces/spmd_ifront.F
-Chd|        SPMD_IFRONT_STAMP             source/mpi/interfaces/send_cand.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFMOD                     share/modules/restart_mod.F   
-Chd|        INTER_SORTING_MOD             share/modules/inter_sorting_mod.F
-Chd|        INTER_STRUCT_MOD              share/modules/inter_struct_mod.F
-Chd|        INTSTAMP_MOD                  share/modules/intstamp_mod.F  
-Chd|        METRIC_MOD                    ../common_source/modules/metric_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE INTTRI(
-     1       IPARI    ,X       ,W       ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inttri                       ../engine/source/interfaces/intsort/inttri.F
+!||--- called by ------------------------------------------------------
+!||    resol                        ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    i10main_opt_tri              ../engine/source/interfaces/intsort/i10opt_opt_tri.F
+!||    i10main_tri                  ../engine/source/interfaces/intsort/i10main_tri.F
+!||    i11main_crit_tri             ../engine/source/interfaces/intsort/i11main_crit_tri.F
+!||    i11main_opt_tri              ../engine/source/interfaces/intsort/i11main_opt_tri.F
+!||    i11main_tri                  ../engine/source/interfaces/intsort/i11main_tri.F
+!||    i17main_crit_tri             ../engine/source/interfaces/int17/i17main_pena.F
+!||    i17main_tri                  ../engine/source/interfaces/int17/i17main_pena.F
+!||    i20main_crit_tri             ../engine/source/interfaces/intsort/i20main_crit_tri.F
+!||    i20main_opt_tri              ../engine/source/interfaces/intsort/i20main_opt_tri.F
+!||    i20main_tri                  ../engine/source/interfaces/intsort/i20main_tri.F
+!||    i21_icrit                    ../engine/source/interfaces/intsort/i21_icrit.F
+!||    i21main_crit_tri             ../engine/source/interfaces/intsort/i21main_crit_tri.F
+!||    i21main_gap                  ../engine/source/interfaces/int21/i21main_gap.F
+!||    i21main_opt_tri              ../engine/source/interfaces/intsort/i21main_opt_tri.F
+!||    i21main_tri                  ../engine/source/interfaces/intsort/i21main_tri.F
+!||    i21reset                     ../engine/source/interfaces/int21/i21reset.F
+!||    i22main_tri                  ../engine/source/interfaces/intsort/i22main_tri.F
+!||    i22subvol                    ../engine/source/interfaces/int22/i22subvol.F
+!||    i23main_opt_tri              ../engine/source/interfaces/intsort/i23main_opt_tri.F
+!||    i23main_tri                  ../engine/source/interfaces/intsort/i23main_tri.F
+!||    i24main_crit_tri             ../engine/source/interfaces/intsort/i24main_crit_tri.F
+!||    i24main_opt_tri              ../engine/source/interfaces/intsort/i24main_opt_tri.F
+!||    i24main_tri                  ../engine/source/interfaces/intsort/i24main_tri.F
+!||    i25main_crit_tri             ../engine/source/interfaces/intsort/i25main_crit_tri.F
+!||    i25main_free                 ../engine/source/interfaces/intsort/i25main_free.F
+!||    i25main_gap                  ../engine/source/interfaces/int25/i25main_gap.F
+!||    i25main_norm                 ../engine/source/interfaces/int25/i25main_norm.F
+!||    i25main_opt_tri              ../engine/source/interfaces/intsort/i25main_opt_tri.F
+!||    i25main_slid                 ../engine/source/interfaces/int25/i25main_slid.F
+!||    i25main_tri                  ../engine/source/interfaces/intsort/i25main_tri.F
+!||    i25maind_2                   ../engine/source/interfaces/int25/i25maind_2.F
+!||    i7main_crit_tri              ../engine/source/interfaces/intsort/i7main_crit_tri.F
+!||    i7main_opt_tri               ../engine/source/interfaces/intsort/i7main_opt_tri.F
+!||    i7main_tri                   ../engine/source/interfaces/intsort/i7main_tri.F
+!||    int18_law151_nsv_shift       ../common_source/interf/int18_law151_nsv_shift.F
+!||    int_startime                 ../engine/source/system/timer_interf.F
+!||    int_stoptime                 ../engine/source/system/timer_interf.F
+!||    intcrit                      ../engine/source/interfaces/intsort/intcrit.F
+!||    inter_check_sort             ../engine/source/interfaces/generic/inter_check_sort.F
+!||    inter_deallocate_wait        ../engine/source/interfaces/generic/inter_deallocate_wait.F
+!||    inter_prepare_sort           ../engine/source/interfaces/generic/inter_prepare_sort.F
+!||    inter_sort                   ../engine/source/interfaces/generic/inter_sort.F
+!||    inter_trc_7                  ../engine/source/interfaces/int07/inter_trc_7.F
+!||    intmass_update               ../engine/source/interfaces/interf/intmass_update.F
+!||    my_barrier                   ../engine/source/system/machine.F
+!||    spmd_allglob_isum9           ../engine/source/mpi/generic/spmd_allglob_isum9.F
+!||    spmd_barrier                 ../engine/source/mpi/spmd_mod.F90
+!||    spmd_exch_sorting_efric      ../engine/source/mpi/interfaces/spmd_exch_sorting_efric.F
+!||    spmd_get_inacti_global       ../engine/source/mpi/interfaces/spmd_get_inacti_global.F
+!||    spmd_get_stif25_edg          ../engine/source/mpi/interfaces/spmd_getstif25_edg.F
+!||    spmd_i25front_nor            ../engine/source/mpi/interfaces/spmd_i25front.F
+!||    spmd_i7itied_cand            ../engine/source/mpi/interfaces/spmd_i7itied_cand.F
+!||    spmd_ifront                  ../engine/source/mpi/interfaces/spmd_ifront.F
+!||    spmd_ifront_stamp            ../engine/source/mpi/interfaces/send_cand.F
+!||    startime                     ../engine/source/system/timer_mod.F90
+!||    stoptime                     ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod         ../common_source/modules/ale/ale_connectivity_mod.F
+!||    elbufdef_mod                 ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod                  ../common_source/modules/elements/element_mod.F90
+!||    glob_therm_mod               ../common_source/modules/mat_elem/glob_therm_mod.F90
+!||    groupdef_mod                 ../common_source/modules/groupdef_mod.F
+!||    h3d_mod                      ../engine/share/modules/h3d_mod.F
+!||    i22bufbric_mod               ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod                   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    int18_law151_nsv_shift_mod   ../common_source/interf/int18_law151_nsv_shift.F
+!||    intbufdef_mod                ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    inter_sorting_mod            ../engine/share/modules/inter_sorting_mod.F
+!||    inter_struct_mod             ../engine/share/modules/inter_struct_mod.F
+!||    interfaces_mod               ../common_source/modules/interfaces/interfaces_mod.F90
+!||    intstamp_mod                 ../engine/share/modules/intstamp_mod.F
+!||    metric_mod                   ../common_source/modules/interfaces/metric_mod.F
+!||    multi_fvm_mod                ../common_source/modules/ale/multi_fvm_mod.F90
+!||    output_mod                   ../common_source/modules/output/output_mod.F90
+!||    sensor_mod                   ../common_source/modules/sensor_mod.F90
+!||    spmd_mod                     ../engine/source/mpi/spmd_mod.F90
+!||    timer_mod                    ../engine/source/system/timer_mod.F90
+!||    tri25ebox                    ../engine/share/modules/tri25ebox.F
+!||    tri7box                      ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE INTTRI(OUTPUT ,TIMERS,
+     1       IPARI    ,X       ,W       , ERRORS, 
      2       V        ,MS      ,IN      ,IAD_ELEM ,
      3       FR_ELEM  ,VR      ,ISENDTO ,IRECVFROM,
      4       NEWFRONT ,ITASK   ,WAG     ,DT2T     ,
@@ -111,7 +122,7 @@ Chd|====================================================================
      E       XMSR     ,VSLV    ,VMSR    ,SIZE_T   ,
      F       NODNX_SMS,DXANCG  ,IKINE   ,DIAG_SMS ,
      G       COUNT_REMSLV, COUNT_REMSLVE,ALE_CONNECTIVITY,
-     H       IXTG      ,SENSOR ,DELTA_PMAX_GAP    ,
+     H       IXTG     ,SENSORS  ,DELTA_PMAX_GAP    ,
      I       INTBUF_TAB ,DELTA_PMAX_GAP_NODE,
      .                                IAD_FRNOR,FR_NOR,
      J       NB25_CANDT,NB25_IMPCT,NB25_DST1,NB25_DST2,INTLIST25,
@@ -119,18 +130,19 @@ Chd|====================================================================
      L       MULTI_FVM,IPARG  ,ELBUF_TAB, H3D_DATA ,T2MAIN_SMS,
      M       LSKYI_SMS_NEW,FORNEQS,INT7ITIED,IDEL7NOK_SAV,MAXDGAP,
      N       T2FAC_SMS,ICODT,ISKEW,FSKYN25,ADDCSRECT,PROCNOR,
-     O       INTER_STRUCT,SORT_COMM,RENUM_SIZ,NODNX_SMS_SIZ,TEMP_SIZ)
+     O       INTER_STRUCT,SORT_COMM,RENUM_SIZ,NODNX_SMS_SIZ,TEMP_SIZ,
+     P       INTERFACES,GLOB_THERM,component)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE SPMD_MOD, ONLY : SPMD_BARRIER
+      USE TIMER_MOD
       USE ELBUFDEF_MOD  
-      USE INTBUFMOD
       USE INTSTAMP_MOD
       USE TRI7BOX
       USE INTBUFDEF_MOD  
       USE I22TRI_MOD
       USE I22BUFBRIC_MOD      
-      USE MOD_I25MAIN_NORM
       USE MULTI_FVM_MOD
       USE H3D_MOD
       USE METRIC_MOD
@@ -138,6 +150,13 @@ C-----------------------------------------------
       USE ALE_CONNECTIVITY_MOD
       USE INTER_STRUCT_MOD
       USE INTER_SORTING_MOD
+      USE OUTPUT_MOD
+      USE SENSOR_MOD
+      USE INTERFACES_MOD
+      USE GLOB_THERM_MOD
+      USE INT18_LAW151_NSV_SHIFT_MOD , ONLY : INT18_LAW151_NSV_SHIFT
+      use element_mod , only : nixtg
+      USE TRI25EBOX , ONLY : NEDGE_REMOTE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -153,23 +172,17 @@ C-----------------------------------------------
 #include      "impl1_c.inc"
 #include      "intstamp_c.inc"
 #include      "param_c.inc"
-#include      "scr04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "secur_c.inc"
-#include      "spmd_c.inc"
 #include      "task_c.inc"
 #include      "timeri_c.inc"
 #include      "warn_c.inc" 
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "tabsiz_c.inc"
-#include      "inter18.inc"
 #include      "inter22.inc"
-#include      "ige3d_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE (OUTPUT_) :: OUTPUT
+      TYPE(TIMER_), INTENT(inout) :: TIMERS
+      INTEGER, INTENT(INOUT) :: ERRORS !< number of interfaces that could not be sorted
       INTEGER, INTENT(in) :: NODNX_SMS_SIZ
       INTEGER IPARI(NPARI,*), IXS(*), IXS16(*), IXS20(*),
      .        ITAB(*),
@@ -183,7 +196,7 @@ C-----------------------------------------------
      .        IND_IMP(*),NUM_IMP(*),RENUM(*), NSNFIOLD(NSPMD),
      .        NODNX_SMS(NODNX_SMS_SIZ),IKINE(NUMNOD),I_MEM,COUNT_REMSLV(*),
      .        COUNT_REMSLVE(*), IXTG(NIXTG,*),DELTA_PMAX_GAP_NODE(*),
-     .        IAD_FRNOR(*), FR_NOR(*), IAD_FREDG(*), FR_EDG(*), 
+     .        IAD_FRNOR(NINTER25,*), FR_NOR(*), IAD_FREDG(NINTER25,*), FR_EDG(*), 
      .        NB25_CANDT(PARASIZ), NB25_IMPCT(PARASIZ), 
      .        NB25_DST1(PARASIZ), NB25_DST2(PARASIZ), IPARG(NPARG,*),
      .        INTLIST25(*), MAIN_PROC(*), NATIV_SMS(*), I_OPT_STOK(NINTER),
@@ -204,7 +217,7 @@ C-----------------------------------------------
      .        THKNOD(*),DELTA_PMAX_GAP(NINTER),
      .        XSLV(18,NINTER),XMSR(12,NINTER),X21MSR(3,NINTSTAMP),
      .        VSLV(6,NINTER),VMSR(6,NINTER),V21MSR(3,NINTSTAMP),
-     .        SIZE_T(NINTER),DXANCG(3,*), DIAG_SMS(*), SENSOR(NSENSR,*),
+     .        SIZE_T(NINTER),DXANCG(3,*), DIAG_SMS(*),
      .        FORNEQS(*), MAXDGAP(NINTER), T2FAC_SMS(*)
       my_real, TARGET ::  X(3*NUMNOD),V(3*NUMNOD),W(3,NUMNOD)
       my_real, DIMENSION(*), TARGET :: MS
@@ -216,15 +229,19 @@ C-----------------------------------------------
       TYPE(H3D_DATABASE) :: H3D_DATA
       TYPE(t_ale_connectivity), INTENT(IN) :: ALE_CONNECTIVITY
       INTEGER, INTENT(in) :: RENUM_SIZ
-      TYPE(inter_struct_type), DIMENSION(NINTER), INTENT(inout) :: INTER_STRUCT   !   struture for interface
+      TYPE(inter_struct_type), DIMENSION(NINTER), INTENT(inout) :: INTER_STRUCT   !   structure for interface
       TYPE(sorting_comm_type), DIMENSION(NINTER), INTENT(inout) :: SORT_COMM   ! structure for interface sorting comm
+      TYPE (INTERFACES_) ,INTENT(IN) :: INTERFACES
+      TYPE (SENSORS_)    ,INTENT(IN) :: SENSORS
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRBRIC) :: IGRBRIC
       TYPE (GROUP_)  , DIMENSION(NGRSH3N) :: IGRSH3N
+      TYPE (glob_therm_) ,INTENT(IN) :: GLOB_THERM
+      type(component_), dimension(ninter), intent(inout) :: component
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, KK,LL, RETRI, NBLIST,
+      INTEGER N, KK,LL, RETRI, NBLIST,NSENSOR,
      .        IAD17, IGN, IGE, NME, NMES,I,J,K,
      .        IDUM, IADI, ISTAMP, NRTM_T, NME_T, NEDGE_T, ESHIFT, SSHIFT, MULTIMP,
      .        ISENS,NBF,NBL,IB, NIN,NSNE_MAX,NFIC,L_FIC,NNOD3,NSNE3,
@@ -245,7 +262,9 @@ C-----------------------------------------------
       INTEGER :: MAX_IGE,SIZE_X_IGE
       INTEGER :: NB_INTER_SORTED        !   number of interfaces that need to be sorted
       INTEGER, DIMENSION(NBINTC) :: LIST_INTER_SORTED   !   list of interfaces that need to be sorted
+      INTEGER :: NTY
 C-----------------------------------------------
+      NSENSOR = SENSORS%NSENSOR
 C Single region
       I_MEM = 0
 !$OMP SINGLE
@@ -253,11 +272,11 @@ C Single region
 
       IF (IMONM > 0) THEN
         IF(IMONM == 2 .AND. NSPMD > 1)THEN
-          CALL STARTIME(56,1)
+          CALL STARTIME(TIMERS,56)
           CALL SPMD_BARRIER()
-          CALL STOPTIME(56,1)
+          CALL STOPTIME(TIMERS,56)
         END IF 
-        CALL STARTIME(15,1)
+        CALL STARTIME(TIMERS,15)
       ENDIF
      
       !Init variable globale interface
@@ -312,7 +331,7 @@ C Single region
         SIZE_T(N)=ZERO  
         DELTA_PMAX_DGAP(N)=ZERO    
       END DO
-      ! idem pour interface 21
+      ! same for interface 21
       DO KK=1,NINTSTAMP
         N = INTSTAMP(KK)%NOINTER
         XSLV(1,N)= -EP30
@@ -340,7 +359,7 @@ C Single region
         VMSR(5,N)= EP30
         VMSR(6,N)= EP30
       END DO
-C-----int24 edge pourait etre optimis  e apres
+C----- int24 edge could be optimistic after
       NSNE_MAX=0    
       MAX_IGE = 0  
       DO KK=1,NBINTC
@@ -351,19 +370,19 @@ C        Look if interface is activated
         ISENS = 0
         IF(NTY == 7.OR.NTY == 11.OR.NTY == 24.OR.NTY == 25) 
      .    ISENS = IPARI(64,N)  
-        IF(ISENS.NE.0)  THEN         ! Interface activated by sensor
-           TS = SENSOR(2,ISENS)
+        IF (ISENS > 0)  THEN         ! Interface activated by sensor
+           TS = SENSORS%SENSOR_TAB(ISENS)%TSTART
         ELSE
            TS = TT
         ENDIF
-        IF(NTY == 24.AND.TT.GE.TS)THEN
+        IF(NTY == 24.AND.TT>=TS)THEN
          NSNE_MAX = MAX(NSNE_MAX,IPARI(55,N))
 C-- 
 ccc         NFIC = 3   
 ccc         CALL I24XVFIC_UPD(IPARI(1,N),INTBUF_TAB(N),X   ,V ,NFIC  ,ITAB)
         END IF
 
-        IF(INTBUF_TAB(N)%S_NIGE.NE.0) THEN
+        IF(INTBUF_TAB(N)%S_NIGE/=0) THEN
             MAX_IGE = MAX(MAX_IGE,INTBUF_TAB(N)%S_NIGE)
         ENDIF
       END DO
@@ -392,7 +411,7 @@ C end of single region
 
       ! If law151+int18 : shift NSV array
       IF( MULTI_FVM%IS_INT18_LAW151 ) THEN
-        CALL INT18_LAW151_NSV_SHIFT('+',ITASK,MULTI_FVM,IPARI,INTBUF_TAB)
+        CALL INT18_LAW151_NSV_SHIFT('+',ITASK,NTHREAD,MULTI_FVM,IPARI,INTBUF_TAB,npari,ninter,numnod)
         CALL MY_BARRIER()
       ENDIF
 
@@ -406,10 +425,24 @@ C   Inter Type 21 ithe=2 : prepare to communicate tri criteria
           INTLIST21(NBINTC21) = KK
        ENDIF
       END DO
+
+C   Stiffness based on mass and time step for Int 24/25
+C       Cyle 1 : update secondary and main nodal masses
+      IF(NCYCLE == 1 ) THEN
+         DO KK=1,NBINTC
+            N = INTLIST(KK)
+            NTY = IPARI(7,N)
+            IF (NTY == 24 .OR. NTY == 25 ) THEN
+               IF(IPARI(97,N) > 0.AND.IPARI(98,N)==2) THEN
+                  CALL INTMASS_UPDATE( N   ,IPARI(1,N), INTBUF_TAB(N), MS  )
+              ENDIF
+            ENDIF
+          ENDDO   
+       ENDIF  
 C
-C Critere de retri interface
+C interface resorting criterion
 C
-      IF(ITASK==0)CALL STARTIME(120,1)
+      IF(ITASK==0)CALL STARTIME(TIMERS,120)
       DO KK=1,NBINTC
         N      = INTLIST(KK)
         NTY    = IPARI(7,N)
@@ -419,22 +452,24 @@ C
         IF(IMONM > 0 ) THEN
          IF(ITASK == 0) CALL INT_STARTIME(INTBUF_TAB(N)%METRIC,I_MAIN_CRIT_TRI)  
         ENDIF
+!$OMP ATOMIC WRITE
         IPARI(29,N) = 0
+!$OMP END ATOMIC
         NTY   =IPARI(7,N)
         ! Look if interface is activated 
         ISENS = 0
         IF(NTY == 7.OR.NTY == 11.OR.NTY == 24.OR.NTY == 25) ISENS = IPARI(64,N)  
-        IF(ISENS.NE.0)  THEN         ! Interface activated by sensor
-           TS = SENSOR(2,ISENS)
+        IF (ISENS > 0)  THEN         ! Interface activated by sensor
+           TS = SENSORS%SENSOR_TAB(ISENS)%TSTART
         ELSE
            TS = TT
         ENDIF
 C-----------------------------------------------
-        IF((NTY == 7.AND.TT.GE.TS).OR.NTY == 10.OR.NTY == 18)THEN
+        IF((NTY == 7.AND.TT>=TS).OR.NTY == 10.OR.NTY == 18)THEN
 C-----------------------------------------------
           I7KGLO = 1
           !IF(INTER18_AUTOPARAM == 1)I7KGLO = 0
-          IF(INTBUF_TAB(N)%S_NIGE.NE.0) THEN
+          IF(INTBUF_TAB(N)%S_NIGE/=0) THEN
             X_IGE(3*NUMNOD+1:3*(NUMNOD+INTBUF_TAB(N)%S_NIGE)) = INTBUF_TAB(N)%XIGE(1:3*INTBUF_TAB(N)%S_NIGE)
             PTR_X => X_IGE
             V_IGE(3*NUMNOD+1:3*(NUMNOD+INTBUF_TAB(N)%S_NIGE)) = INTBUF_TAB(N)%VIGE(1:3*INTBUF_TAB(N)%S_NIGE)
@@ -446,14 +481,12 @@ C-----------------------------------------------
             PTR_X => X
             PTR_V => V
           ENDIF
-
        CALL I7MAIN_CRIT_TRI(
      1      IPARI ,PTR_X        ,N        ,
      2      ITASK ,PTR_V        ,XSLV(1,N)    ,XMSR(1,N),VSLV(1,N),
      3      VMSR(1,N),INTBUF_TAB(N))
-
 C-----------------------------------------------
-        ELSEIF(NTY == 24.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 24.AND.TT>=TS)THEN
 C-----------------------------------------------
           I7KGLO = 1
 C         IPARI(4,N) = NRTM ; IPARI(5,N)=NSN  
@@ -478,9 +511,11 @@ C        ELSE
 C        END IF !(NSNE_MAX>0 ) THEN
 
 C-----------------------------------------------
-        ELSEIF(NTY == 25.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 25.AND.TT>=TS)THEN
 C-----------------------------------------------
+!$OMP ATOMIC WRITE
           I7KGLO = 1
+!$OMP END ATOMIC
 C         IPARI(4,N) = NRTM ; IPARI(5,N)=NSN  
           CALL I25MAIN_CRIT_TRI(
      1      IPARI ,INTBUF_TAB(N),X            ,N        ,
@@ -495,11 +530,13 @@ C ITHK = 1 : main gap should be modified as per change in thickness
      1        IPARI  ,INTBUF_TAB(N)  ,N    ,ITASK  ,
      2        THKNOD, MAXDGAP(N))
           ELSE
+!$OMP ATOMIC WRITE
                MAXDGAP(N) = ZERO
+!$OMP END ATOMIC
           ENDIF
 C
 C-----------------------------------------------
-        ELSEIF(NTY == 11.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 11.AND.TT>=TS)THEN
 C-----------------------------------------------
           I7KGLO = 1
           CALL I11MAIN_CRIT_TRI(
@@ -539,7 +576,7 @@ C-----------------------------------------------
 C-----------------------------------------------
           I7KGLO = 1
 C         IPARI(4,N) = NRTM ; IPARI(5,N)=NSN
-          CALL I20MAIN_CRIT_TRI(
+          CALL I20MAIN_CRIT_TRI(OUTPUT ,
      1      IPARI ,X        ,N        ,
      2      ITASK ,V            ,XSLV(1,N)    ,XMSR(1,N),VSLV(1,N),
      3      VMSR(1,N),MS        ,DXANCG       ,IKINE    ,DIAG_SMS ,
@@ -568,14 +605,14 @@ C
       DO KK=1,NINTSTAMP
         N = INTSTAMP(KK)%NOINTER
         ISENS = IPARI(64,N)       ! INTERFACE SENSOR NUMBER
-        IF(ISENS.NE.0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
-           TS = SENSOR(2,ISENS)
+        IF (ISENS > 0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
+           TS = SENSORS%SENSOR_TAB(ISENS)%TSTART
         ELSE
            TS = TT
         ENDIF
         X21MSR(1:3,KK) = ZERO
         V21MSR(1:3,KK) = ZERO
-        IF(TT.GE.TS)THEN          ! INTERFACE SENSOR IS ACTIVATED
+        IF(TT>=TS)THEN          ! INTERFACE SENSOR IS ACTIVATED
           IPARI(29,N) = 0
           NTY   =IPARI(7,N)
           I7KGLO = 1
@@ -583,7 +620,7 @@ C
      1          IPARI ,INTBUF_TAB(N),N     ,ITASK ,
      2          THKNOD)
 C
-C       remet a 0 le segment main le plus proche (IRTLM): avt barrier
+C       Gets the nearest main segment to 0 (IRTLM): Avt Barrier
           CALL I21RESET(
      1          IPARI ,INTBUF_TAB(N),N     ,ITASK )
 C
@@ -596,41 +633,43 @@ C
 C
        CALL MY_BARRIER
 C
-C Partie non parallele smt
+C SMT non -parallel part
 C
 !$OMP SINGLE
 
       IF (IMONM > 0) THEN
-        CALL STOPTIME(15,1)
+        CALL STOPTIME(TIMERS,15)
         IF(IMONM == 2 .AND. NSPMD > 1)THEN
-          CALL STARTIME(57,1)
+          CALL STARTIME(TIMERS,57)
           CALL SPMD_BARRIER()
-          CALL STOPTIME(57,1)
+          CALL STOPTIME(TIMERS,57)
         END IF 
-        CALL STARTIME(16,1)
+        CALL STARTIME(TIMERS,16)
        ENDIF 
 C
-C Communication critere de tri
+C communication sorting criterion
 C
-      CALL INTCRIT(
-     1    IPARI   ,NEWFRONT ,ISENDTO  ,
+      CALL INTCRIT(TIMERS,
+     1    ERRORS, IPARI   ,NEWFRONT ,ISENDTO  ,NSENSOR  , 
      2    IRECVFROM ,DT2T    ,NELTST  ,ITYPTST  ,ITAB      ,
      3    XSLV      ,XMSR    ,VSLV    ,VMSR     ,INTLIST   ,
-     4    NBINTC    ,SIZE_T  ,SENSOR  ,DELTA_PMAX_GAP,
-     5    INTBUF_TAB,DELTA_PMAX_GAP_NODE,IDEL7NOK_SAV,MAXDGAP)
+     4    NBINTC    ,SIZE_T  ,SENSORS%SENSOR_TAB,DELTA_PMAX_GAP,
+     5    INTBUF_TAB,DELTA_PMAX_GAP_NODE,IDEL7NOK_SAV,MAXDGAP,V)
+
+
 C
-C (barriere par interface)
+C (barrier per interface)
       IF(NINTSTAMP/=0)THEN
         CALL I21_ICRIT(
-     1    INTBUF_TAB       ,IPARI   ,DT2T     ,NELTST    ,
+     1    INTBUF_TAB       ,IPARI   ,DT2T ,NELTST ,NSENSOR ,
      2    ITYPTST  ,XSLV   ,XMSR  ,VSLV   ,VMSR    ,
-     3    INTSTAMP ,X21MSR ,V21MSR,SENSOR,NBINTC21 ,
+     3    INTSTAMP ,X21MSR ,V21MSR,SENSORS%SENSOR_TAB,NBINTC21 ,
      4    INTLIST21)
       END IF
 C
       IF (IMONM > 0) THEN
-        CALL STOPTIME(16,1)
-        CALL STARTIME(17,1)
+        CALL STOPTIME(TIMERS,16)
+        CALL STARTIME(TIMERS,17)
       ENDIF
 
       IF(TT>ZERO.AND.INT7ITIED/=0) THEN
@@ -638,27 +677,37 @@ C
         CALL SPMD_I7ITIED_CAND(2,NBINTC,IPARI,INTLIST,INTBUF_TAB)
       ENDIF
 
-C Fin Partie non parallele smt
+C End non -parallel part SMT
 !$OMP END SINGLE
 
-      IF(ITASK==0)CALL STOPTIME(120,1) 
+      IF(IMPL_S/=1)THEN
 
+       IF((NSPMD>1.AND.ITASK==0).AND.(H3D_DATA%N_SCAL_CSE_FRIC > 0.OR.OUTPUT%DATA%NINEFRIC > 0).AND.TT > ZERO) THEN
+         CALL SPMD_EXCH_SORTING_EFRIC(output,
+     1        IPARI   ,INTLIST ,NBINTC  ,ISLEN7 ,IRLEN7  ,
+     2        IRLEN7T ,ISLEN7T ,IRLEN20 ,ISLEN20,IRLEN20T,
+     3        ISLEN20T,INTBUF_TAB,H3D_DATA  )
+       ENDIF
+      ENDIF
+
+      IF(ITASK==0)CALL STOPTIME(TIMERS,120) 
 
       RETRI = 0
       ! ------------------------
-      ! new sorting algorythm     
+      ! new sorting algorithm     
       IF(ITASK==0) NEED_TO_SORT = 0
       ! find the list of interface (for the moment : type7) that needs to be sorted
-      CALL INTER_CHECK_SORT( ITASK,NEED_TO_SORT,NBINTC,INTLIST,IPARI,
-     .                           INTBUF_TAB,SENSOR,NB_INTER_SORTED,LIST_INTER_SORTED,INTER_STRUCT)
+      CALL INTER_CHECK_SORT( ITASK,NEED_TO_SORT,NBINTC,INTLIST,IPARI,NSENSOR,
+     .     INTBUF_TAB,SENSORS%SENSOR_TAB,NB_INTER_SORTED,LIST_INTER_SORTED,INTER_STRUCT)
       ! globalize NEED_TO_SORT : 1= one or several interface(s) must be sorted 
       IF(NSPMD>1.AND.ITASK==0) CALL SPMD_ALLGLOB_ISUM9(NEED_TO_SORT,1)
       CALL MY_BARRIER()
+
       ! ------------------------
 
       ! ------------------------
       ! explicit part
-      IF(IMPL_S.NE.1)THEN
+      IF(IMPL_S/=1)THEN
             ! -----------
 !$OMP SINGLE
             CALL INTER_TRC_7( ITASK,NIN,IPARI,IND_IMP,
@@ -685,25 +734,27 @@ C Fin Partie non parallele smt
      .                               IPARI,IAD_ELEM,FR_ELEM,X,V,
      .                               MS,TEMP,KINET,NODNX_SMS,ITAB,
      .                               WEIGHT,INTBUF_TAB,INTER_STRUCT,SORT_COMM,NODNX_SMS_SIZ,
-     .                               TEMP_SIZ )
+     .                               TEMP_SIZ,component )
             ! -----------
             ! sorting computation
-            CALL INTER_SORT( ITASK,NB_INTER_SORTED,LIST_INTER_SORTED,RETRI,IPARI,
-     1                       ISENDTO,IRECVFROM,INTBUF_TAB,X,ITAB,
-     2                       RENUM,NSNFIOLD,MULTI_FVM,H3D_DATA,SENSOR,
-     3                       INTER_STRUCT,SORT_COMM ,RENUM_SIZ)
+            CALL INTER_SORT(TIMERS, ITASK,NB_INTER_SORTED,LIST_INTER_SORTED,RETRI,IPARI,
+     1                       NSENSOR,ISENDTO,IRECVFROM,INTBUF_TAB,X,ITAB,
+     2                       RENUM,NSNFIOLD,MULTI_FVM,H3D_DATA,SENSORS%SENSOR_TAB,
+     3                       INTER_STRUCT,SORT_COMM ,RENUM_SIZ,GLOB_THERM)
       ENDIF
-      ! end : new sorting algorythm
+      ! end : new sorting algorithm
       ! ------------------------  
 
 
       ! ------------------------
-      ! old sorting algorythm   
+      ! old sorting algorithm   
 C=======================================================================
 C     non implicit options-------
 C=======================================================================
 C
-      IF(IMPL_S.NE.1)THEN
+      IF(IMPL_S/=1)THEN
+
+
        IDUM = 0
        DO KK=1,NBINTC
         N   = INTLIST(KK)
@@ -718,14 +769,14 @@ C
           INTBUF_TAB(N)%METRIC%NCONT   = IPARI(18,N)
           INTBUF_TAB(N)%METRIC%MULTIMP = IPARI(23,N)
           INTBUF_TAB(N)%METRIC%NSNR   = MAX(INTBUF_TAB(N)%METRIC%NSNR , IPARI(24,N))
-          INTBUF_TAB(N)%METRIC%NSN    = NSN 
+          INTBUF_TAB(N)%METRIC%NSN    = IPARI(5,N) 
           CALL INT_STARTIME(INTBUF_TAB(N)%METRIC,I_MAIN_TRI)   
         ENDIF
 
         ISENS = 0
         IF(NTY == 7.OR.NTY == 11.OR.NTY == 24.OR.NTY == 25) ISENS = IPARI(64,N)  
-        IF(ISENS.NE.0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
-           TS = SENSOR(2,ISENS)
+        IF (ISENS > 0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
+           TS = SENSORS%SENSOR_TAB(ISENS)%TSTART
         ELSE
            TS = TT
         ENDIF
@@ -734,8 +785,8 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          IF(INTBUF_TAB(N)%S_NIGE.NE.0) THEN
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          IF(INTBUF_TAB(N)%S_NIGE/=0) THEN
             X_IGE(3*NUMNOD+1:3*(NUMNOD+INTBUF_TAB(N)%S_NIGE)) = INTBUF_TAB(N)%XIGE(1:3*INTBUF_TAB(N)%S_NIGE)
             PTR_X => X_IGE
             V_IGE(3*NUMNOD+1:3*(NUMNOD+INTBUF_TAB(N)%S_NIGE)) = INTBUF_TAB(N)%VIGE(1:3*INTBUF_TAB(N)%S_NIGE)
@@ -753,38 +804,38 @@ c-----------------------------------------------------------------------
             PTR_MS => MS(1:NUMNOD)
             PTR_KINET => KINET(1:NUMNOD)
           ENDIF
-       CALL I7MAIN_TRI(
+       CALL I7MAIN_TRI(TIMERS,
      1 IPARI   ,PTR_X   ,PTR_V   ,
-     2 PTR_MS  ,N            ,ITASK        ,WAG     ,WEIGHT  ,
+     2 PTR_MS  ,N            ,ITASK        ,WEIGHT  ,
      3 ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4 ITAB    ,PTR_KINET    ,TEMP         ,NRTM_T ,RENUM   ,
      5 NSNFIOLD,ESHIFT       ,IDUM         ,IDUM    ,NODNX_SMS ,
-     6 INTBUF_TAB(N),H3D_DATA,IXS,MULTI_FVM)
+     6 INTBUF_TAB(N),H3D_DATA,IXS,MULTI_FVM,GLOB_THERM)
 c-----------------------------------------------------------------------
         ELSEIF(NTY == 10)THEN
 c-----------------------------------------------------------------------
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          CALL I10MAIN_TRI(
-     1 IPARI(1,N),X       ,V         ,
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          CALL I10MAIN_TRI(TIMERS,
+     1 npari     ,IPARI(1,N),X       ,V         ,
      2 MS        ,N            ,ITASK        ,WAG     ,WEIGHT    ,
      3 ISENDTO   ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM   ,
      4 NRTM_T    ,RENUM        ,NSNFIOLD     ,ESHIFT  ,IDUM      ,
      5 IDUM      ,NODNX_SMS    ,ITAB         ,INTBUF_TAB(N)      ,
-     6 H3D_DATA   )
+     6 H3D_DATA  ,GLOB_THERM)
 c-----------------------------------------------------------------------
-        ELSEIF(NTY == 11.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 11.AND.TT>=TS)THEN
 c-----------------------------------------------------------------------
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          CALL I11MAIN_TRI(
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          CALL I11MAIN_TRI(TIMERS,
      1 IPARI      ,X       ,V        ,
      2 MS         ,N            ,ITASK        ,WEIGHT  ,ISENDTO  ,
      3 IRECVFROM  ,RETRI        ,IAD_ELEM     ,FR_ELEM ,ITAB     ,
      4 NRTM_T     ,ESHIFT       ,NODNX_SMS    ,RENUM   ,NSNFIOLD ,
-     5 INTBUF_TAB(N),TEMP       )
+     5 INTBUF_TAB(N),TEMP       ,GLOB_THERM%NODADT_THERM)
 c-----------------------------------------------------------------------
         ELSEIF(NTY == 17)THEN
 c-----------------------------------------------------------------------
@@ -808,8 +859,8 @@ C
             NME   =IGRBRIC(IGE)%NENTITY
             NME_T = NME/NTHREAD
             ESHIFT = ITASK*NME_T
-            IF(ITASK.EQ.NTHREAD-1)NME_T=NME-(NTHREAD-1)*(NME/NTHREAD)
-            CALL I17MAIN_TRI(
+            IF(ITASK==NTHREAD-1)NME_T=NME-(NTHREAD-1)*(NME/NTHREAD)
+            CALL I17MAIN_TRI(TIMERS,
      1 IPARI       ,INTBUF_TAB(N),X       ,N       ,
      2 ITASK       ,IGRBRIC      ,NME     ,NMES    ,
      3 EMINX(IAD17),IXS          ,IXS16        ,IXS20   ,WEIGHT  ,
@@ -821,28 +872,28 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          CALL I20MAIN_TRI(
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          CALL I20MAIN_TRI(TIMERS,
      1 IPARI   ,X       ,V       ,
      2 MS      ,N            ,ITASK        ,WAG     ,WEIGHT  ,
      3 ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4 ITAB    ,KINET        ,TEMP         ,NRTM_T  ,RENUM   ,
      5 NSNFIOLD,ESHIFT       ,IDUM         ,IDUM    ,DIAG_SMS,
-     6 NODNX_SMS,INTBUF_TAB(N),H3D_DATA)
+     6 NODNX_SMS,INTBUF_TAB(N),H3D_DATA,GLOB_THERM )
 c-----------------------------------------------------------------------
         ELSEIF(NTY == 22)THEN
 c-----------------------------------------------------------------------         
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          CALL I22MAIN_TRI(
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          CALL I22MAIN_TRI(TIMERS,
      1                     IPARI       ,X            ,V            ,
      2                     MS          ,N            ,ITASK        ,WAG            ,WEIGHT       ,
      3                     ISENDTO     ,IRECVFROM    ,RETRI        ,IAD_ELEM       ,FR_ELEM      ,
      4                     ITAB        ,KINET        ,TEMP         ,NRTM_T         ,RENUM        ,
      5                     NSNFIOLD    ,ESHIFT       ,IDUM         ,IDUM           ,NODNX_SMS    ,
      6                     IXS         ,IGRBRIC      ,ALE_CONNECTIVITY  ,INTBUF_TAB(N),
-     7                     COUNT_REMSLV,H3D_DATA     ,MULTI_FVM)
+     7                     COUNT_REMSLV,H3D_DATA     ,MULTI_FVM,GLOB_THERM%NODADT_THERM)
 
           CALL I22SUBVOL(
      1                   X       ,N            ,ITASK        ,IPARI(48:50,N) ,ITAB         ,
@@ -884,23 +935,23 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          CALL I23MAIN_TRI(
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          CALL I23MAIN_TRI(TIMERS,
      1 IPARI   ,X            ,INTBUF_TAB(N),V       ,
      2 MS      ,N            ,ITASK        ,WAG     ,WEIGHT  ,
      3 ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4 ITAB    ,KINET        ,NRTM_T       ,RENUM   ,
      5 NSNFIOLD,ESHIFT       ,IDUM         ,IDUM    ,NODNX_SMS ,
-     6 H3D_DATA,MULTI_FVM)
+     6 H3D_DATA,MULTI_FVM,GLOB_THERM%INTHEAT,GLOB_THERM%IDT_THERM,GLOB_THERM%NODADT_THERM)
 c-----------------------------------------------------------------------
-        ELSEIF(NTY == 24.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 24.AND.TT>=TS)THEN
 c-----------------------------------------------------------------------
 c          NRTM_T = IPARI(4,N)/NTHREAD
 c          ESHIFT = ITASK*NRTM_T
-c          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+c          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
           NRTM_T = (IPARI(4,N)-IPARI(42,N))/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=(IPARI(4,N)-IPARI(42,N))
+          IF(ITASK==NTHREAD-1)NRTM_T=(IPARI(4,N)-IPARI(42,N))
      +                                -(NTHREAD-1)*NRTM_T
          NSNE3 = 3*IPARI(55,N)
         IF (NSNE3 >0 ) THEN
@@ -909,41 +960,43 @@ c          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
          XE(NNOD3+1:(NNOD3+NSNE3)) = INTBUF_TAB(N)%XFIC(1:NSNE3)
          VE(NNOD3+1:(NNOD3+NSNE3)) = INTBUF_TAB(N)%VFIC(1:NSNE3)
 !$OMP END SINGLE
-         CALL I24MAIN_TRI(
+         CALL I24MAIN_TRI(TIMERS,
      1 IPARI   ,XE      ,VE  ,INTBUF_TAB(N),
      2 MS      ,N            ,ITASK        ,WAG     ,WEIGHT  ,
      3 ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4 ITAB    ,KINET        ,TEMP         ,NRTM_T  ,RENUM     ,
      5 NSNFIOLD,ESHIFT       ,IDUM         ,IDUM    ,NODNX_SMS ,
-     6 H3D_DATA,T2MAIN_SMS ,FORNEQS      ,T2FAC_SMS)
+     6 H3D_DATA,T2MAIN_SMS ,FORNEQS      ,T2FAC_SMS,INTERFACES%PARAMETERS,
+     7 GLOB_THERM%INTHEAT,GLOB_THERM%IDT_THERM,GLOB_THERM%NODADT_THERM)
         ELSE
-       CALL I24MAIN_TRI(
+       CALL I24MAIN_TRI(TIMERS,
      1 IPARI   ,X       ,V   ,INTBUF_TAB(N),
      2 MS      ,N            ,ITASK        ,WAG     ,WEIGHT  ,
      3 ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4 ITAB    ,KINET        ,TEMP         ,NRTM_T  ,RENUM     ,
      5 NSNFIOLD,ESHIFT       ,IDUM         ,IDUM    ,NODNX_SMS ,
-     6 H3D_DATA,T2MAIN_SMS ,FORNEQS      ,T2FAC_SMS)
+     6 H3D_DATA,T2MAIN_SMS ,FORNEQS      ,T2FAC_SMS ,INTERFACES%PARAMETERS,
+     7 GLOB_THERM%INTHEAT,GLOB_THERM%IDT_THERM,GLOB_THERM%NODADT_THERM)
         END IF !(NSNE >0 ) THEN
 c-----------------------------------------------------------------------
-        ELSEIF(NTY == 25.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 25.AND.TT>=TS)THEN
 c-----------------------------------------------------------------------
           NEDGE_T = IPARI(68,N)/NTHREAD
           ESHIFT = ITASK*NEDGE_T
-          IF(ITASK.EQ.NTHREAD-1)NEDGE_T=IPARI(68,N)
+          IF(ITASK==NTHREAD-1)NEDGE_T=IPARI(68,N)
      +                                -(NTHREAD-1)*NEDGE_T
           NRTM_T = (IPARI(4,N)-IPARI(42,N))/NTHREAD
           SSHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=(IPARI(4,N)-IPARI(42,N))
+          IF(ITASK==NTHREAD-1)NRTM_T=(IPARI(4,N)-IPARI(42,N))
      +                                -(NTHREAD-1)*NRTM_T
-          CALL I25MAIN_TRI(
+          CALL I25MAIN_TRI(TIMERS,
      1      IPARI   ,X       ,V   ,INTBUF_TAB(N),
      2      MS      ,N            ,ITASK        ,WEIGHT  ,
      3      ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4      ITAB    ,KINET        ,TEMP         ,RENUM     ,
      5      NSNFIOLD,IDUM         ,IDUM         ,NODNX_SMS ,
      6      H3D_DATA,ESHIFT       ,NEDGE_T      ,SSHIFT    ,NRTM_T ,
-     7      ICODT   ,ISKEW        )
+     7      ICODT   ,ISKEW        ,INTERFACES%PARAMETERS,GLOB_THERM%NODADT_THERM)
 C-----------------------------------------------------------------------
         ENDIF
         IF(IMONM > 0) THEN
@@ -956,17 +1009,17 @@ C
        DO KK=1,NINTSTAMP
           N = INTSTAMP(KK)%NOINTER
           ISENS = IPARI(64,N)       ! INTERFACE SENSOR NUMBER
-          IF(ISENS.NE.0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
-            TS = SENSOR(2,ISENS)
+          IF (ISENS > 0) THEN       ! IF INTERFACE IS ACTIVATED BY SENSOR 
+            TS = SENSORS%SENSOR_TAB(ISENS)%TSTART
           ELSE
             TS = TT
           ENDIF
-          IF(TT.GE.TS)THEN
+          IF(TT>=TS)THEN
             RETRI21(N) = 0
-            CALL I21MAIN_TRI(
+            CALL I21MAIN_TRI(TIMERS,
      1          IPARI   ,X       ,N            ,
      2          ITASK  ,WEIGHT   ,RETRI21(N)   ,IDUM    ,IDUM    ,
-     3          INTSTAMP(KK) ,WAG,INTBUF_TAB(N) )
+     3          INTSTAMP(KK) ,WAG,INTBUF_TAB(N),nspmd)
            IF(RETRI21(N)==1) RETRI = 1 
           ENDIF
        ENDDO
@@ -977,26 +1030,26 @@ C=======================================================================
       IADI = 1
       DO KK=1,NBINTC
         N   = INTLIST(KK)
-C
+        NTY = IPARI(7,N)
+
         ISENS = 0
         IF(NTY == 7.OR.NTY == 11.OR.NTY == 24.OR.NTY == 25) ISENS = IPARI(64,N)  
-        IF(ISENS.NE.0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
-           TS = SENSOR(2,ISENS)
+        IF (ISENS > 0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
+           TS = SENSORS%SENSOR_TAB(ISENS)%TSTART
         ELSE
            TS = TT
         ENDIF
 C
-        NTY = IPARI(7,N)
         TYPE18 = .FALSE.
         INACTI = IPARI(22,N)
         IF(NTY == 7 .AND. INACTI ==7)TYPE18=.TRUE.
 C-----------------------------------------------------------------------
-        IF((NTY == 7.AND.TT.GE.TS).OR.NTY == 18)THEN
+        IF((NTY == 7.AND.TT>=TS).OR.NTY == 18)THEN
 C-----------------------------------------------------------------------
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          IF(INTBUF_TAB(N)%S_NIGE.NE.0) THEN
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          IF(INTBUF_TAB(N)%S_NIGE/=0) THEN
             X_IGE(3*NUMNOD+1:3*(NUMNOD+INTBUF_TAB(N)%S_NIGE)) = INTBUF_TAB(N)%XIGE(1:3*INTBUF_TAB(N)%S_NIGE)
             PTR_X => X_IGE
             V_IGE(3*NUMNOD+1:3*(NUMNOD+INTBUF_TAB(N)%S_NIGE)) = INTBUF_TAB(N)%VIGE(1:3*INTBUF_TAB(N)%S_NIGE)
@@ -1014,25 +1067,25 @@ C-----------------------------------------------------------------------
             PTR_MS => MS(1:NUMNOD)
             PTR_KINET => KINET(1:NUMNOD)
           ENDIF
-      CALL I7MAIN_TRI(
+      CALL I7MAIN_TRI(TIMERS,
      1 IPARI   ,PTR_X   ,PTR_V   ,
-     2 PTR_MS  ,N            ,ITASK        ,WAG     ,WEIGHT  ,
+     2 PTR_MS  ,N            ,ITASK        ,WEIGHT  ,
      3 ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4 ITAB    ,PTR_KINET    ,TEMP         ,NRTM_T        ,RENUM     ,
      5 NSNFIOLD,ESHIFT       ,NUM_IMP(N)   ,IND_IMP(IADI) ,NODNX_SMS ,
-     6 INTBUF_TAB(N),H3D_DATA,IXS,MULTI_FVM)
+     6 INTBUF_TAB(N),H3D_DATA,IXS,MULTI_FVM,GLOB_THERM)
             IADI = IADI+NUM_IMP(N)
 c-----------------------------------------------------------------------
-        ELSEIF(NTY == 24.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 24.AND.TT>=TS)THEN
 c-----------------------------------------------------------------------
 c          NRTM_T = IPARI(4,N)/NTHREAD
 c          ESHIFT = ITASK*NRTM_T
-c          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+c          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
           NRTM_T = (IPARI(4,N)-IPARI(42,N))/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=(IPARI(4,N)-IPARI(42,N))
+          IF(ITASK==NTHREAD-1)NRTM_T=(IPARI(4,N)-IPARI(42,N))
      +                                -(NTHREAD-1)*NRTM_T
-C-------  KINET,MS used for commu remot secnd, for the moment no need.   
+C-------  KINET,MS used for commu remot second, for the moment no need.   
          NSNE3 = 3*IPARI(55,N)
         IF (NSNE3 >0 ) THEN
          CALL MY_BARRIER
@@ -1040,71 +1093,73 @@ C-------  KINET,MS used for commu remot secnd, for the moment no need.
          XE(NNOD3+1:(NNOD3+NSNE3)) = INTBUF_TAB(N)%XFIC(1:NSNE3)
          VE(NNOD3+1:(NNOD3+NSNE3)) = INTBUF_TAB(N)%VFIC(1:NSNE3)
 !$OMP END SINGLE
-       CALL I24MAIN_TRI(
+       CALL I24MAIN_TRI(TIMERS,
      1 IPARI   ,XE      ,VE      ,INTBUF_TAB(N),
      2 MS      ,N            ,ITASK        ,WAG     ,WEIGHT  ,
      3 ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4 ITAB    ,KINET        ,TEMP         ,NRTM_T  ,RENUM     ,
      5 NSNFIOLD,ESHIFT       ,NUM_IMP(N)   ,IND_IMP(IADI),NODNX_SMS ,
-     6 H3D_DATA,T2MAIN_SMS ,FORNEQS      ,T2FAC_SMS)
+     6 H3D_DATA,T2MAIN_SMS ,FORNEQS        ,T2FAC_SMS,INTERFACES%PARAMETERS,
+     7 GLOB_THERM%INTHEAT,GLOB_THERM%IDT_THERM,GLOB_THERM%NODADT_THERM)
             IADI = IADI+NUM_IMP(N)
         ELSE
-       CALL I24MAIN_TRI(
+       CALL I24MAIN_TRI(TIMERS,
      1 IPARI   ,X       ,V       ,INTBUF_TAB(N),
      2 MS      ,N            ,ITASK        ,WAG     ,WEIGHT  ,
      3 ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4 ITAB    ,KINET        ,TEMP         ,NRTM_T  ,RENUM     ,
      5 NSNFIOLD,ESHIFT       ,NUM_IMP(N)   ,IND_IMP(IADI),NODNX_SMS ,
-     6 H3D_DATA,T2MAIN_SMS ,FORNEQS      ,T2FAC_SMS)
+     6 H3D_DATA,T2MAIN_SMS ,FORNEQS        ,T2FAC_SMS,INTERFACES%PARAMETERS,
+     7 GLOB_THERM%INTHEAT,GLOB_THERM%IDT_THERM,GLOB_THERM%NODADT_THERM)
             IADI = IADI+NUM_IMP(N)
         END IF !(NSNE >0 ) THEN
 c-----------------------------------------------------------------------
-        ELSEIF(NTY == 25.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 25.AND.TT>=TS)THEN
 c-----------------------------------------------------------------------
           NEDGE_T = IPARI(68,N)/NTHREAD
           ESHIFT  = ITASK*NEDGE_T
-          IF(ITASK.EQ.NTHREAD-1)NEDGE_T=IPARI(68,N)
+          IF(ITASK==NTHREAD-1)NEDGE_T=IPARI(68,N)
      +                                -(NTHREAD-1)*NEDGE_T
           NRTM_T = (IPARI(4,N)-IPARI(42,N))/NTHREAD
           SSHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=(IPARI(4,N)-IPARI(42,N))
+          IF(ITASK==NTHREAD-1)NRTM_T=(IPARI(4,N)-IPARI(42,N))
      +                                -(NTHREAD-1)*NRTM_T
-C-------  KINET,MS used for commu remot secnd, for the moment no need.   
-          CALL I25MAIN_TRI(
+C-------  KINET,MS used for commu remot second, for the moment no need.   
+          CALL I25MAIN_TRI(TIMERS,
      1      IPARI   ,X       ,V       ,INTBUF_TAB(N),
      2      MS      ,N            ,ITASK        ,WEIGHT  ,
      3      ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4      ITAB    ,KINET        ,TEMP         ,RENUM     ,
      5      NSNFIOLD,NUM_IMP(N)   ,IND_IMP(IADI),NODNX_SMS ,
      6      H3D_DATA,ESHIFT,NEDGE_T ,SSHIFT     ,NRTM_T    ,
-     7      ICODT   ,ISKEW        )
+     7      ICODT   ,ISKEW        ,INTERFACES%PARAMETERS,GLOB_THERM%NODADT_THERM)
             IADI = IADI+NUM_IMP(N)
 C-----------------------------------------------------------------------
         ELSEIF(NTY == 10)THEN
 C-----------------------------------------------------------------------
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          CALL I10MAIN_TRI(
-     1 IPARI(1,N),X       ,V         ,
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          CALL I10MAIN_TRI(TIMERS,
+     1 npari     ,IPARI(1,N),X       ,V         ,
      2 MS        ,N            ,ITASK        ,WAG     ,WEIGHT    ,
      3 ISENDTO   ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM   ,
      4 NRTM_T    ,RENUM        ,NSNFIOLD     ,ESHIFT  ,NUM_IMP(N),
      5 IND_IMP(IADI) ,NODNX_SMS,ITAB         ,INTBUF_TAB(N)      ,
-     6 H3D_DATA)
-            IADI = IADI+NUM_IMP(N)
+     6 H3D_DATA, GLOB_THERM)
+        IADI = IADI+NUM_IMP(N)
 C-----------------------------------------------------------------------
-        ELSEIF(NTY == 11.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 11.AND.TT>=TS)THEN
 C-----------------------------------------------------------------------
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          CALL I11MAIN_TRI(
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          CALL I11MAIN_TRI(TIMERS,
      1 IPARI      ,X       ,V        ,
      2 MS         ,N            ,ITASK        ,WEIGHT  ,ISENDTO  ,
      3 IRECVFROM  ,RETRI        ,IAD_ELEM     ,FR_ELEM ,ITAB     ,
      4 NRTM_T     ,ESHIFT       ,NODNX_SMS    ,RENUM   ,NSNFIOLD ,
-     5 INTBUF_TAB(N),TEMP )
+     5 INTBUF_TAB(N),TEMP , GLOB_THERM%NODADT_THERM)
 C-----------------------------------------------------------------------
         ELSEIF(NTY == 17)THEN
 C-----------------------------------------------------------------------
@@ -1115,8 +1170,8 @@ C-----------------------------------------------------------------------
             NME   =IGRBRIC(IGE)%NENTITY
             NME_T = NME/NTHREAD
             ESHIFT = ITASK*NME_T
-            IF(ITASK.EQ.NTHREAD-1)NME_T=NME-(NTHREAD-1)*(NME/NTHREAD)
-            CALL I17MAIN_TRI(
+            IF(ITASK==NTHREAD-1)NME_T=NME-(NTHREAD-1)*(NME/NTHREAD)
+            CALL I17MAIN_TRI(TIMERS,
      1 IPARI       ,INTBUF_TAB(N),X       ,N       ,
      2 ITASK       ,IGRBRIC      ,NME     ,NMES    ,
      3 EMINX(IAD17),IXS          ,IXS16        ,IXS20   ,WEIGHT  ,
@@ -1129,14 +1184,15 @@ C-----------------------------------------------------------------------
 C-----------------------------------------------------------------------
           NRTM_T = IPARI(4,N)/NTHREAD
           ESHIFT = ITASK*NRTM_T
-          IF(ITASK.EQ.NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
-          CALL I20MAIN_TRI(
+          IF(ITASK==NTHREAD-1)NRTM_T=IPARI(4,N)-(NTHREAD-1)*NRTM_T
+          CALL I20MAIN_TRI(TIMERS,
      1 IPARI   ,X       ,V       ,
      2 MS      ,N            ,ITASK        ,WAG     ,WEIGHT  ,
      3 ISENDTO ,IRECVFROM    ,RETRI        ,IAD_ELEM,FR_ELEM ,
      4 ITAB    ,KINET        ,TEMP         ,NRTM_T    ,RENUM        ,
      5 NSNFIOLD,ESHIFT       ,NUM_IMP(N)   ,IND_IMP(IADI),DIAG_SMS,
-     6 NODNX_SMS,INTBUF_TAB(N),H3D_DATA)
+     6 NODNX_SMS,INTBUF_TAB(N),H3D_DATA,GLOB_THERM)
+
             IADI = IADI+NUM_IMP(N)
 C-----------------------------------------------------------------------
         ENDIF
@@ -1151,17 +1207,18 @@ C=======================================================================
 C     OPTIMISATION DU TRI A CHAQUE CYCLE, T25
 C=======================================================================
       IF(NINTER25 /= 0)THEN
+        IF(ITASK == 0) CALL STOPTIME(TIMERS,17)
 
         IF(IDEL7NOK_SAV/=0)THEN
-          CALL STOPTIME(2,1)  
-          CALL STARTIME(8,1)  
-          CALL I25MAIN_FREE(ITASK, IPARI  ,INTBUF_TAB ,INTLIST25, ISENDTO,
+          IF(ITASK == 0) CALL STOPTIME(TIMERS,2)  
+          IF(ITASK == 0) CALL STARTIME(TIMERS,8)  
+          CALL I25MAIN_FREE(TIMERS,ITASK, IPARI  ,INTBUF_TAB ,INTLIST25, ISENDTO,
      2                      IRECVFROM)
 C
           CALL MY_BARRIER()
 C
-          CALL STARTIME(2,1)  
-          CALL STOPTIME(8,1)  
+          IF(ITASK == 0) CALL STARTIME(TIMERS,2)  
+          IF(ITASK == 0) CALL STOPTIME(TIMERS,8)  
         END IF
 
         DO KK=1,NINTER25
@@ -1175,13 +1232,13 @@ C--------TEST IF INTERFACE IS ACTIVE WHEN USING SENSOR-----------
          ENDIF
 
          ISENS = IPARI(64,N)      
-         IF   (ISENS   .NE.0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
-            TS = SENSOR(2,ISENS)
+         IF   (ISENS > 0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
+            TS = SENSORS%SENSOR_TAB(ISENS)%TSTART
          ELSE
             TS = TT
          ENDIF
 C
-         IF(TT.GE.TS)THEN
+         IF(TT>=TS)THEN
 C-----------------------------------------------------------------------
           CALL I25MAIN_OPT_TRI(
      1       N       ,IPARI  ,INTBUF_TAB(N),X            ,V      ,
@@ -1198,33 +1255,34 @@ C-----------------------------------------------------------------------
         ENDDO     
 C=======================================================================
 C
-C       Calcul // des normales
+C       parallel calculation of normals
 C
-C       il FAUT garder une barriere avant i25main_norm !!!
+C       must garder une barriere avant i25main_norm !!!
         CALL MY_BARRIER
 C
-        IF (IMON.GT.0 .AND. ITASK.EQ.0) THEN
-          CALL STOPTIME(2,1)  
-          CALL STARTIME(8,1)  
-          CALL STARTIME(MACRO_TIMER_T25NORM,1)  
+        IF (IMON>0 .AND. ITASK==0) THEN
+          CALL STOPTIME(TIMERS,2)  
+          CALL STARTIME(TIMERS,8)  
+          CALL STARTIME(TIMERS,MACRO_TIMER_T25NORM)  
         ENDIF
 
         CALL I25MAIN_NORM(
      1      INTLIST25,IPARI   ,INTBUF_TAB ,ITASK+1  ,X      ,
-     2      ITAB    ,SENSOR ,IAD_FRNOR,FR_NOR   ,
+     2      ITAB    ,NSENSOR,SENSORS%SENSOR_TAB,IAD_FRNOR,FR_NOR   ,
      3      IAD_FREDG,FR_EDG,IAD_ELEM ,FR_ELEM  ,FSKYN25    ,
      4      ADDCSRECT,PROCNOR)
 
        CALL MY_BARRIER
-       IF (IMON.GT.0 .AND. ITASK.EQ.0) THEN
-         CALL STOPTIME(MACRO_TIMER_T25NORM,1)
-         CALL STARTIME(MACRO_TIMER_T25STFE,1)
+       IF (IMON>0 .AND. ITASK==0) THEN
+         CALL STOPTIME(TIMERS,MACRO_TIMER_T25NORM)
+         CALL STARTIME(TIMERS,MACRO_TIMER_T25STFE)
        ENDIF
        
 !$OMP SINGLE
        IF(IDEL7NOK_SAV > 0) THEN
          DO N = 1,NINTER25
           NIN = INTLIST25(N)
+          NEDGE_REMOTE = IPARI(69,NIN)
           IF(IPARI(MACRO_IEDGE,NIN) > 0) THEN
 C
 C           Also needed in SMP for resetting STFE !
@@ -1238,63 +1296,63 @@ C           Also needed in SMP for resetting STFE !
 !$OMP END SINGLE
 
 C
-        IF (IMON.GT.0 .AND. ITASK.EQ.0) THEN
-          CALL STOPTIME(MACRO_TIMER_T25STFE,1)
-          CALL STOPTIME(8,1)  
-          CALL STARTIME(2,1)  
+        IF (IMON>0 .AND. ITASK==0) THEN
+          CALL STOPTIME(TIMERS,MACRO_TIMER_T25STFE)
+          CALL STOPTIME(TIMERS,8)  
+          CALL STARTIME(TIMERS,2)  
         END IF
 
 C=======================================================================
         CALL MY_BARRIER
 C
-        IF (IMON.GT.0 .AND. ITASK.EQ.0) THEN
-          CALL STOPTIME(2,1) 
-          CALL STARTIME(8,1)  
-          CALL STARTIME(MACRO_TIMER_T25SLIDING,1)
+        IF (IMON>0 .AND. ITASK==0) THEN
+          CALL STOPTIME(TIMERS,2) 
+          CALL STARTIME(TIMERS,8)  
+          CALL STARTIME(TIMERS,MACRO_TIMER_T25SLIDING)
         END IF 
 C
-C statistique interface
-        IF (DEBUG(3).GE.1.AND.NCYCLE.EQ.0) THEN
+C Interface Statistics
+        IF (DEBUG(3)>=1.AND.NCYCLE==0) THEN
           NB25_CANDT(ITASK+1) = 0
           NB25_IMPCT(ITASK+1) = 0
           NB25_DST1(ITASK+1)  = 0
           NB25_DST2(ITASK+1)  = 0
         ENDIF
-      
+
         CALL I25MAIN_SLID(
-     1      IPARI    ,IAD_ELEM ,FR_ELEM   ,ITAB     ,SENSOR ,
-     2      INTLIST25,INTBUF_TAB ,IAD_FRNOR,FR_NOR ,
+     1      IPARI    ,IAD_ELEM ,FR_ELEM   ,ITAB     ,SENSORS%SENSOR_TAB,
+     2      NSENSOR  ,INTLIST25,INTBUF_TAB ,IAD_FRNOR,FR_NOR ,
      3      X        ,V       ,MS      ,TEMP   ,KINET      ,
      4      NATIV_SMS,ITASK+1 ,NB25_DST2, MAIN_PROC,
      5      NEWFRONT ,ISENDTO ,IRECVFROM ,NBINTC,
-     6      INTLIST ,ISLEN7   ,IRLEN7  ,IRLEN7T  ,ISLEN7T,
-     7      NB25_DST1(ITASK+1),H3D_DATA, 
-     8      ICODT,
-     9      ISKEW)
+     6      INTLIST  ,ISLEN7   ,IRLEN7  ,IRLEN7T  ,ISLEN7T,
+     7      NB25_DST1,H3D_DATA,  ICODT,ISKEW,INTERFACES%PARAMETERS,GLOB_THERM%NODADT_THERM)
 C
         CALL MY_BARRIER
 C
-        IF (IMON.GT.0 .AND. ITASK.EQ.0) THEN
-          CALL STOPTIME(MACRO_TIMER_T25SLIDING,1)
-          CALL STOPTIME(8,1)  
-          CALL STARTIME(2,1)  
+        IF (IMON>0 .AND. ITASK==0) THEN
+          CALL STOPTIME(TIMERS,MACRO_TIMER_T25SLIDING)
+          CALL STOPTIME(TIMERS,8)  
+          CALL STARTIME(TIMERS,2)  
         END IF
+
+        IF(ITASK == 0) CALL STARTIME(TIMERS,17)
 C
       END IF
-      ! end : old sorting algorythm 
+      ! end : old sorting algorithm 
       ! ------------------------
 
       ! ------------------------------
-      ! new sorting algorythm 
+      ! new sorting algorithm 
       ! deallocation & wait
       CALL MY_BARRIER()
       ! ------------------------
       ! explicit part
-      IF(IMPL_S.NE.1)THEN
-        CALL INTER_DEALLOCATE_WAIT( ITASK,NB_INTER_SORTED,LIST_INTER_SORTED,IPARI,ISENDTO,
-     1                                IRECVFROM,INTBUF_TAB,SENSOR,INTER_STRUCT,SORT_COMM )
+      IF(IMPL_S/=1)THEN
+        CALL INTER_DEALLOCATE_WAIT( ITASK,NB_INTER_SORTED,LIST_INTER_SORTED,IPARI,
+     1       NSENSOR,IRECVFROM,SENSORS%SENSOR_TAB,INTER_STRUCT,SORT_COMM )
       ENDIF
-      ! end : new sorting algorythm 
+      ! end : new sorting algorithm 
       ! ------------------------------
 C=======================================================================
 C
@@ -1302,36 +1360,36 @@ C Partie non parallele
 C
 !$OMP SINGLE
       IF (IMONM > 0) THEN
-        CALL STOPTIME(17,1)
+        CALL STOPTIME(TIMERS,17)
         IF(IMONM == 2 .AND. NSPMD > 1)THEN
-          CALL STARTIME(58,1)
+          CALL STARTIME(TIMERS,58)
           CALL SPMD_BARRIER()
-          CALL STOPTIME(58,1)
+          CALL STOPTIME(TIMERS,58)
         END IF
       END IF 
       IF (NSPMD > 1 .AND. (RETRI == 1 .OR. NINTER25 > 0 ) ) THEN        
 C
-C Communication apres retri
+C Communication after sorting
 C
-        IF (IMONM > 0) CALL STARTIME(18,1)
+        IF (IMONM > 0) CALL STARTIME(TIMERS,18)
         CALL SPMD_IFRONT(
      1    IPARI   ,NEWFRONT,ISENDTO ,IRECVFROM,
-     2    NBINTC  ,INTLIST ,ISLEN7  ,IRLEN7   ,
+     2    NSENSOR ,NBINTC  ,INTLIST ,ISLEN7  ,IRLEN7   ,
      3    ISLEN11 ,IRLEN11 ,ISLEN17 ,IRLEN17 ,IRLEN7T  ,
      4    ISLEN7T ,IRLEN20 ,ISLEN20 ,IRLEN20T,ISLEN20T ,
-     5    IRLEN20E,ISLEN20E,SENSOR  ,INTBUF_TAB, 1 )
+     5    IRLEN20E,ISLEN20E,SENSORS%SENSOR_TAB,INTBUF_TAB, 1 )
 
         IF(NINTSTAMP /= 0.AND.FTEMPVAR21==1) THEN
           CALL SPMD_IFRONT_STAMP(
-     1      IPARI   ,INTBUF_TAB, RETRI21,TEMP    ,SENSOR,  ITAB,
+     1      IPARI   ,NSENSOR ,INTBUF_TAB, RETRI21,TEMP    ,SENSORS%SENSOR_TAB, 
      2      NBINTC21,INTLIST21)
         ENDIF
          
 C Fin Partie non parallele
-        IF (IMONM > 0) CALL STOPTIME(18,1)
+        IF (IMONM > 0) CALL STOPTIME(TIMERS,18)
       ENDIF
 C
-      IF (IMONM > 0)  CALL STARTIME(19,1)
+      IF (IMONM > 0)  CALL STARTIME(TIMERS,19)
 !$OMP END SINGLE
 C
 C=======================================================================
@@ -1351,8 +1409,8 @@ C--------TEST IF INTERFACE IS ACTIVE WHEN USING SENSOR-----------
 
 
         IF(NTY == 7.OR.NTY == 11.OR.NTY == 24.OR.NTY == 25) ISENS = IPARI(64,N)      
-        IF   (ISENS   .NE.0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
-           TS = SENSOR(2,ISENS)
+        IF (ISENS > 0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
+           TS = SENSORS%SENSOR_TAB(ISENS)%TSTART
         ELSE
            TS = TT
         ENDIF
@@ -1362,10 +1420,10 @@ C--------TEST IF INTERFACE IS ACTIVE WHEN USING SENSOR-----------
         IF(NTY == 7 .AND. INACTI ==7)TYPE18=.TRUE.
 C
 C-----------------------------------------------------------------------
-        IF(NTY == 7.AND.TT.GE.TS)THEN
+        IF(NTY == 7.AND.TT>=TS)THEN
 C-----------------------------------------------------------------------
 
-          IF(INTBUF_TAB(N)%S_NIGE.NE.0) THEN
+          IF(INTBUF_TAB(N)%S_NIGE/=0) THEN
             X_IGE(3*NUMNOD+1:3*(NUMNOD+INTBUF_TAB(N)%S_NIGE)) = INTBUF_TAB(N)%XIGE(1:3*INTBUF_TAB(N)%S_NIGE)
             PTR_X => X_IGE
             V_IGE(3*NUMNOD+1:3*(NUMNOD+INTBUF_TAB(N)%S_NIGE)) = INTBUF_TAB(N)%VIGE(1:3*INTBUF_TAB(N)%S_NIGE)
@@ -1380,20 +1438,22 @@ C-----------------------------------------------------------------------
 
           CALL I7MAIN_OPT_TRI(
      1       IPARI     ,PTR_X        ,PTR_V,
-     2       N         ,ITASK        ,COUNT_REMSLV ,INTBUF_TAB(N))
+     2       N         ,ITASK        ,COUNT_REMSLV ,INTBUF_TAB(N),
+     3       LSKYI_SMS_NEW)
           
 C-----------------------------------------------------------------------
         ELSEIF(NTY == 10)THEN
 C-----------------------------------------------------------------------
           CALL I10MAIN_OPT_TRI(
      1       IPARI(1,N),X  ,V  ,
-     2       N         ,ITASK        ,COUNT_REMSLV ,INTBUF_TAB(N))
+     2       N         ,ITASK        ,COUNT_REMSLV ,INTBUF_TAB(N),LSKYI_SMS_NEW)
 C-----------------------------------------------------------------------
-        ELSEIF(NTY == 11.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 11.AND.TT>=TS)THEN
 C-----------------------------------------------------------------------
           CALL I11MAIN_OPT_TRI(
      1       IPARI     ,INTBUF_TAB(N),X  ,V  ,
-     2       N         ,ITASK        ,COUNT_REMSLV )
+     2       N         ,ITASK        ,COUNT_REMSLV,
+     3       LSKYI_SMS_NEW )
 C-----------------------------------------------------------------------
         ELSEIF(NTY == 20)THEN
 C-----------------------------------------------------------------------
@@ -1412,7 +1472,7 @@ C-----------------------------------------------------------------------
      1      IPARI     ,INTBUF_TAB(N),N   ,ITASK  ,
      2      COUNT_REMSLV,X          )
 C-----------------------------------------------------------------------
-        ELSEIF(NTY == 24.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 24.AND.TT>=TS)THEN
 C-----------------------------------------------------------------------
          NSNE3 = 3*IPARI(55,N)
          IF (NSNE3 >0 ) THEN
@@ -1430,7 +1490,7 @@ C-----------------------------------------------------------------------
      2       N         ,ITASK        ,COUNT_REMSLV, T2MAIN_SMS,LSKYI_SMS_NEW)
          ENd IF !(NSNE >0 ) THEN
 C-----------------------------------------------------------------------
-        ELSEIF(NTY == 25.AND.TT.GE.TS)THEN
+        ELSEIF(NTY == 25.AND.TT>=TS)THEN
 C-----------------------------------------------------------------------
 C          CALL I25MAIN_OPT_TRI(
 C     1       N       ,IPARI  ,INTBUF_TAB(N),X            ,V      ,
@@ -1447,8 +1507,8 @@ C-----------------------------------------------------------------------
 
       ENDDO     
 C
-      IF (NINTSTAMP.NE.0) THEN
-         IF (DEBUG(3).GE.1.AND.NCYCLE.EQ.0) THEN
+      IF (NINTSTAMP/=0) THEN
+         IF (DEBUG(3)>=1.AND.NCYCLE==0) THEN
             NB_STOK_N(ITASK+1)=0
             NB_JLT(ITASK+1)=0
          ENDIF
@@ -1458,24 +1518,24 @@ C
           N = INTSTAMP(KK)%NOINTER
 C
           ISENS = IPARI(64,N)       ! INTERFACE SENSOR NUMBER
-          IF(ISENS.NE.0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
-           TS = SENSOR(2,ISENS)
+          IF (ISENS > 0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
+           TS = SENSORS%SENSOR_TAB(ISENS)%TSTART
          ELSE
            TS = TT
          ENDIF
-        IF(TT.GE.TS)THEN          ! INTERFACE SENSOR IS ACTIVATED
+        IF(TT>=TS)THEN          ! INTERFACE SENSOR IS ACTIVATED
 C
-          CALL I21MAIN_OPT_TRI(
+          CALL I21MAIN_OPT_TRI(TIMERS,
      1      IPARI     ,INTBUF_TAB(N),N   ,ITASK  ,
      2      INTSTAMP(KK),NB_STOK_N,NB_JLT)
 C
        ENDIF
       ENDDO
 
-      IF (NINTSTAMP.NE.0) THEN
-       IF (DEBUG(3).GE.1) THEN
-          IF(MOD(NCYCLE+1,DEBUG(3)).EQ.0)THEN
-           IF (NB_JLT(ITASK+1).EQ.0) THEN
+      IF (NINTSTAMP/=0) THEN
+       IF (DEBUG(3)>=1) THEN
+          IF(MOD(NCYCLE+1,DEBUG(3))==0)THEN
+           IF (NB_JLT(ITASK+1)==0) THEN
             PCT1= ZERO
            ELSE
             PCT1 = HUNDRED - HUNDRED*NB_STOK_N(ITASK+1)/NB_JLT(ITASK+1)
@@ -1499,38 +1559,38 @@ C
       CALL MY_BARRIER()
 C
 !$OMP SINGLE
-      IF (IMONM > 0) CALL STOPTIME(19,1)
+      IF (IMONM > 0) CALL STOPTIME(TIMERS,19)
       IF (NSNE_MAX>0 ) DEALLOCATE(XE,VE)
 !$OMP END SINGLE  
 
       ! If law151+int18 : shift NSV array
       IF( MULTI_FVM%IS_INT18_LAW151 ) THEN
         CALL MY_BARRIER()
-        CALL INT18_LAW151_NSV_SHIFT('-',ITASK,MULTI_FVM,IPARI,INTBUF_TAB)
+        CALL INT18_LAW151_NSV_SHIFT('-',ITASK,NTHREAD,MULTI_FVM,IPARI,INTBUF_TAB,npari,ninter,numnod)
       ENDIF   
 C
 C=======================================================================
-C Partie parallele
+C Parallel
       IF(NINTER25 /= 0)THEN
 C
-C       il FAUT garder une barriere apres i25main_opt_tri !!!
+C       You have to keep a barrier after i25main_opt_tri !!!
         CALL MY_BARRIER()
 C
-        IF (IMON.GT.0 .AND. ITASK.EQ.0) THEN
-          CALL STOPTIME(2,1) 
-          CALL STARTIME(8,1)  
+        IF (IMON>0 .AND. ITASK==0) THEN
+          CALL STOPTIME(TIMERS,2) 
+          CALL STARTIME(TIMERS,8)  
         END IF 
       
         CALL I25MAIND_2(
-     1      IPARI    ,ITAB     ,SENSOR ,INTLIST25,INTBUF_TAB ,
+     1      IPARI    ,ITAB    ,SENSORS%SENSOR_TAB,INTLIST25,INTBUF_TAB ,
      2      X        ,V       ,KINET      ,ITASK+1 ,NB25_DST2,
-     3      ICODT    ,ISKEW   )
+     3      ICODT    ,ISKEW   ,NSENSOR    )
 C 
 C       CALL MY_BARRIER() ! Barrier vs timer only     
 C
-        IF (IMON.GT.0 .AND. ITASK.EQ.0) THEN
-          CALL STOPTIME(8,1)  
-          CALL STARTIME(2,1)
+        IF (IMON>0 .AND. ITASK==0) THEN
+          CALL STOPTIME(TIMERS,8)  
+          CALL STARTIME(TIMERS,2)
         END IF
 C
       END IF
@@ -1543,16 +1603,16 @@ C
 ! If ifront is done at this cycle (retri or ninter25>0
 ! and not already terminated because of type25 edge2edge 
 C
-C Communication apres retri
+C Communication after Retri
 C
-        IF (IMONM > 0) CALL STARTIME(18,1)
+        IF (IMONM > 0) CALL STARTIME(TIMERS,18)
 
         CALL SPMD_IFRONT(
      1    IPARI   ,NEWFRONT,ISENDTO ,IRECVFROM,
-     2    NBINTC  ,INTLIST ,ISLEN7  ,IRLEN7   ,
+     2    NSENSOR ,NBINTC  ,INTLIST ,ISLEN7  ,IRLEN7   ,
      3    ISLEN11 ,IRLEN11 ,ISLEN17 ,IRLEN17 ,IRLEN7T  ,
      4    ISLEN7T ,IRLEN20 ,ISLEN20 ,IRLEN20T,ISLEN20T ,
-     5    IRLEN20E,ISLEN20E,SENSOR  ,INTBUF_TAB, 2)
+     5    IRLEN20E,ISLEN20E,SENSORS%SENSOR_TAB,INTBUF_TAB, 2)
 
        IF(NINTER25E > 0) THEN
          CALL SPMD_I25FRONT_NOR(IPARI,
@@ -1563,7 +1623,7 @@ C
 
 
 C Fin Partie non parallele
-        IF (IMONM > 0) CALL STOPTIME(18,1)
+        IF (IMONM > 0) CALL STOPTIME(TIMERS,18)
 
       ENDIF
 

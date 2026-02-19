@@ -1,60 +1,67 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_SORT_SMS                 source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_sort_sms         ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    my_alloc_mod          ../common_source/tools/memory/my_alloc.F90
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_SORT_SMS(ISKYI_SMS,MSKYI_SMS,FR_SMS)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE MY_ALLOC_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "parit_c.inc"
 #include      "sms_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ISKYI_SMS(LSKYI_SMS,*), FR_SMS(NSPMD+1)
-      my_real
-     .        MSKYI_SMS(*)
+      my_real MSKYI_SMS(*)
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, I2SORT(NISKY_SMS,3), NN, P, Q, PP, kk
+      INTEGER N,NN, P, Q, PP, kk
+      INTEGER,DIMENSION(:,:),ALLOCATABLE ::  I2SORT
       INTEGER LP(NSPMD+1), NP(NSPMD+1)
-      my_real
-     .        M2SORT(NISKY_SMS)
+      my_real, DIMENSION(:), ALLOCATABLE :: M2SORT
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
+      CALL MY_ALLOC( I2SORT,NISKY_SMS,3)
+      CALL MY_ALLOC(M2SORT,NISKY_SMS)
 C
       DO N = 1, NISKY_SMS
         I2SORT(N,1)= ISKYI_SMS(N,1)
@@ -91,30 +98,31 @@ C
         NP(P)=NP(P)+1
       ENDDO
 C
+      DEALLOCATE(I2SORT)
+      DEALLOCATE(M2SORT)
+
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  AMS_PREPARE_POFF_ASSEMBLY     source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ams_prepare_poff_assembly   ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    resol                       ../engine/source/engine/resol.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod         ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE AMS_PREPARE_POFF_ASSEMBLY(IAD_ELEM,FR_ELEM,NB_FR,    FR_LOC,
      *                                     IAD_I2M, FR_I2M, NB_FRI2M, FR_LOC_I2M)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "parit_c.inc"
-#include      "sms_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -164,34 +172,34 @@ C Interface type2
       RETURN
       END
 C
-#include "hardware.inc"
-#if defined(MPI)
-Chd|====================================================================
-Chd|  SPMD_NLIST_SMS                source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_nlist_sms        ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_NLIST_SMS(FR_SMS,FR_RMS)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#include "mpif.h"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "sms_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER FR_SMS(NSPMD+1), FR_RMS(NSPMD+1)
+#ifdef MPI
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -221,7 +229,7 @@ C-----------------------------------------------
       SIZ = 1
 
       ! Buffer copy can be avoided using MPI_INPLACE but has not been tested with all MPI implementations
-      CALL MPI_ALLTOALL(BUFFER_SEND,SIZ,MPI_INTEGER,BUFFER_RECV,SIZ,MPI_INTEGER,MPI_COMM_WORLD,IERROR) 
+      CALL MPI_ALLTOALL(BUFFER_SEND,SIZ,MPI_INTEGER,BUFFER_RECV,SIZ,MPI_INTEGER,SPMD_COMM_WORLD,IERROR) 
 
       FR_RMS(1) = 1 
       DO I=1,NSPMD
@@ -235,35 +243,37 @@ C-----------------------------------------------
 c
       DEALLOCATE(BUFFER_SEND,BUFFER_RECV)
 C
+#endif
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_LIST_SMS                 source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        SMS_BUILD_MAT_2               source/ams/sms_build_mat_2.F  
-Chd|        SMS_ENCIN_2                   source/ams/sms_encin_2.F      
-Chd|        SMS_MASS_SCALE_2              source/ams/sms_mass_scale_2.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_list_sms         ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    sms_build_mat_2       ../engine/source/ams/sms_build_mat_2.F
+!||    sms_encin_2           ../engine/source/ams/sms_encin_2.F
+!||    sms_mass_scale_2      ../engine/source/ams/sms_mass_scale_2.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_LIST_SMS(
      1           ISKYI_SMS,FR_SMS,FR_RMS,LIST_SMS,LIST_RMS,
      2           NPBY     ,TAGSLV_RBY_SMS)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#include "mpif.h"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
 #include      "sms_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
@@ -272,6 +282,7 @@ C-----------------------------------------------
       INTEGER ISKYI_SMS(LSKYI_SMS,*), FR_SMS(NSPMD+1),
      .        FR_RMS(NSPMD+1), LIST_SMS(*), LIST_RMS(*),
      .        NPBY(NNPBY,*), TAGSLV_RBY_SMS(*)
+#ifdef MPI
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -293,12 +304,12 @@ C-----------------------------------------------
       L = 1
       DO I=1,NSPMD
         SIZ = 2*(FR_RMS(I+1)-FR_RMS(I))
-        IF(SIZ.NE.0)THEN
+        IF(SIZ/=0)THEN
 c          print *,'irecv1',loc_proc,i,siz
           MSGTYP = MSGOFF 
           CALL MPI_IRECV(
      S      RBUF(L),SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(I),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(I),IERROR)
           L = L + SIZ
         ENDIF
       END DO
@@ -324,19 +335,19 @@ C
 C   echange messages
 C
       DO I=1,NSPMD
-       IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I).GT.0)THEN
+       IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I)>0)THEN
           MSGTYP = MSGOFF 
           SIZ = 2*(FR_SMS(I+1)-FR_SMS(I))
 c          print *,'isend1',loc_proc,i,siz
           L = 2*FR_SMS(I)-1
           CALL MPI_ISEND(
      S      SBUF(L),SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_S(I),IERROR)
+     G      SPMD_COMM_WORLD,REQ_S(I),IERROR)
        ENDIF        
       ENDDO
 C
       DO I = 1, NSPMD
-        IF(FR_RMS(I+1)-FR_RMS(I).GT.0)THEN
+        IF(FR_RMS(I+1)-FR_RMS(I)>0)THEN
           CALL MPI_WAIT(REQ_R(I),STATUS,IERROR)
 
           L = 2*FR_RMS(I)-1
@@ -353,7 +364,7 @@ C
       END DO
 C
       DO I = 1, NSPMD
-        IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I).GT.0)THEN
+        IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I)>0)THEN
           CALL MPI_WAIT(REQ_S(I),STATUS,IERROR)
         ENDIF
       END DO
@@ -362,12 +373,12 @@ C  rby
       L = 1
       DO I=1,NSPMD
         SIZ = FR_SMS(I+1)-FR_SMS(I)
-        IF(I/=LOC_PROC.AND.SIZ.GT.0)THEN
+        IF(I/=LOC_PROC.AND.SIZ>0)THEN
 c          print *,'irecv2',loc_proc,i,siz
           MSGTYP = MSGOFF2                               
           CALL MPI_IRECV(
      S      RBUF(L),SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(I),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(I),IERROR)
           L = L + SIZ
         ELSE
           L = L + SIZ
@@ -376,7 +387,7 @@ c          print *,'irecv2',loc_proc,i,siz
 C
       L = 1
       DO I=1,NSPMD
-        IF(FR_RMS(I+1)-FR_RMS(I).GT.0)THEN
+        IF(FR_RMS(I+1)-FR_RMS(I)>0)THEN
 #include      "vectorize.inc"
           DO J=FR_RMS(I),FR_RMS(I+1)-1
 C           LIST_RMS(J) ?= 0 
@@ -387,20 +398,20 @@ C           LIST_RMS(J) ?= 0
       ENDDO
 C
       DO I=1,NSPMD
-       IF(FR_RMS(I+1)-FR_RMS(I).GT.0)THEN
+       IF(FR_RMS(I+1)-FR_RMS(I)>0)THEN
           MSGTYP = MSGOFF2 
           SIZ = FR_RMS(I+1)-FR_RMS(I)
 c          print *,'isend2',loc_proc,i,siz
           L = FR_RMS(I)
           CALL MPI_ISEND(
      S      SBUF(L),SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_S(I),IERROR)
+     G      SPMD_COMM_WORLD,REQ_S(I),IERROR)
        ENDIF        
       ENDDO
 C
       M = 1
       DO I = 1, NSPMD
-        IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I).GT.0)THEN
+        IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I)>0)THEN
           CALL MPI_WAIT(REQ_R(I),STATUS,IERROR)
 
           L = FR_SMS(I)
@@ -416,39 +427,41 @@ C
       END DO
 C
       DO I = 1, NSPMD
-        IF(FR_RMS(I+1)-FR_RMS(I).GT.0)THEN
+        IF(FR_RMS(I+1)-FR_RMS(I)>0)THEN
           CALL MPI_WAIT(REQ_S(I),STATUS,IERROR)
         ENDIF
       END DO
 C--------------------------------------------------------------------
+#endif
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_MIJ_SMS                  source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        SMS_BUILD_DIAG                source/ams/sms_build_diag.F   
-Chd|        SMS_ENCIN_2                   source/ams/sms_encin_2.F      
-Chd|        SMS_MASS_SCALE_2              source/ams/sms_mass_scale_2.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_mij_sms          ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    sms_build_diag        ../engine/source/ams/sms_build_diag.F
+!||    sms_encin_2           ../engine/source/ams/sms_encin_2.F
+!||    sms_mass_scale_2      ../engine/source/ams/sms_mass_scale_2.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_MIJ_SMS(
      1           ISKYI_SMS,FR_SMS,FR_RMS,LIST_RMS,MSKYI_SMS,
      2           MIJ_SMS)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#include "mpif.h"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "parit_c.inc"
 #include      "sms_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
@@ -458,6 +471,7 @@ C-----------------------------------------------
      .        FR_RMS(NSPMD+1), LIST_RMS(*)
       my_real
      .        MSKYI_SMS(*), MIJ_SMS(*)
+#ifdef MPI
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -476,12 +490,12 @@ C-----------------------------------------------
       L = 1
       DO I=1,NSPMD
         SIZ = FR_RMS(I+1)-FR_RMS(I)
-        IF(SIZ.NE.0)THEN
+        IF(SIZ/=0)THEN
           MSGTYP = MSGOFF 
 c          print *,'mij-irecv',loc_proc,i,siz
           CALL MPI_IRECV(
      S      MIJ_SMS(L),SIZ,REAL,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(I),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(I),IERROR)
           L = L + SIZ
         ENDIF
       END DO
@@ -501,49 +515,52 @@ C
 C   echange messages
 C
       DO I=1,NSPMD
-       IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I).GT.0)THEN
+       IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I)>0)THEN
           MSGTYP = MSGOFF 
           SIZ = FR_SMS(I+1)-FR_SMS(I)
 c          print *,'mij-isend',loc_proc,i,siz
           L = FR_SMS(I)
           CALL MPI_ISEND(
      S      SBUF(L),SIZ,REAL,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_S(I),IERROR)
+     G      SPMD_COMM_WORLD,REQ_S(I),IERROR)
        ENDIF        
       ENDDO
 C
       DO I = 1, NSPMD
-        IF(FR_RMS(I+1)-FR_RMS(I).GT.0)THEN
+        IF(FR_RMS(I+1)-FR_RMS(I)>0)THEN
           CALL MPI_WAIT(REQ_R(I),STATUS,IERROR)
         ENDIF
       END DO
 C
       DO I = 1, NSPMD
-        IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I).GT.0)THEN
+        IF(I/=LOC_PROC.AND.FR_SMS(I+1)-FR_SMS(I)>0)THEN
           CALL MPI_WAIT(REQ_S(I),STATUS,IERROR)
         ENDIF
       ENDDO
 C
 C--------------------------------------------------------------------
 C
+#endif
       RETURN
       END
-Chd|====================================================================
-Chd|  SPMD_GLOB_LMIN                source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        SMS_CHECK                     source/ams/sms_fsa_inv.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_glob_lmin        ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    sms_check             ../engine/source/ams/sms_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_GLOB_LMIN(LMIN,IMIN)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#include "mpif.h"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -554,6 +571,7 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IMIN
       my_real LMIN
+#ifdef MPI
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -572,7 +590,7 @@ C-----------------------------------------------
           MSGTYP = MSGOFF
           CALL MPI_RECV(
      S      SBUF,SIZ,MPI_DOUBLE_PRECISION,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,STATUS,IERROR)
+     G      SPMD_COMM_WORLD,STATUS,IERROR)
           IF(SBUF(1)<LMIN)THEN
             LMIN=SBUF(1)
             IMIN=NINT(SBUF(2))
@@ -584,27 +602,29 @@ C-----------------------------------------------
         MSGTYP = MSGOFF 
         CALL MPI_SEND(
      S    SBUF,SIZ,MPI_DOUBLE_PRECISION,IT_SPMD(1),MSGTYP,
-     G    MPI_COMM_WORLD,IERROR)
+     G    SPMD_COMM_WORLD,IERROR)
       END IF
 C
+#endif
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_GLOB_LMAX                source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_glob_lmax        ../engine/source/mpi/ams/spmd_sms.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_GLOB_LMAX(LMAX,IMAX)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#include "mpif.h"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -618,6 +638,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
+#ifdef MPI
       INTEGER MSGTYP,I,LOC_PROC,IERROR,
      .        SIZ,STATUS(MPI_STATUS_SIZE)
       DOUBLE PRECISION SBUF(2)
@@ -633,7 +654,7 @@ C-----------------------------------------------
           MSGTYP = MSGOFF                              
           CALL MPI_RECV(
      S      SBUF,SIZ,MPI_DOUBLE_PRECISION,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,STATUS,IERROR)
+     G      SPMD_COMM_WORLD,STATUS,IERROR)
           IF(SBUF(1) > LMAX)THEN
             LMAX=SBUF(1)
             IMAX=NINT(SBUF(2))
@@ -645,38 +666,37 @@ C-----------------------------------------------
         MSGTYP = MSGOFF                              
         CALL MPI_SEND(
      S    SBUF,SIZ,MPI_DOUBLE_PRECISION,IT_SPMD(1),MSGTYP,
-     G    MPI_COMM_WORLD,IERROR)
+     G    SPMD_COMM_WORLD,IERROR)
       END IF
 C
       RETURN
+#endif
       END
 C
-Chd|====================================================================
-Chd|  SPMD_NNDFT_SMS                source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        SMS_CHECK                     source/ams/sms_fsa_inv.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_nndft_sms        ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    sms_check             ../engine/source/ams/sms_fsa_inv.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_NNDFT_SMS(
      1           FR_SMS ,FR_RMS,LIST_SMS,LIST_RMS,IAD_ELEM,
      2           FR_ELEM,NNDFT0,NNDFT1,ISORTND)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#include "mpif.h"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "sms_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -684,6 +704,7 @@ C-----------------------------------------------
       INTEGER FR_SMS(NSPMD+1), FR_RMS(NSPMD+1), 
      .        LIST_SMS(*), LIST_RMS(*), IAD_ELEM(2,*), FR_ELEM(*),
      .        NNDFT0,NNDFT1,ISORTND(*)
+#ifdef MPI
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -744,35 +765,35 @@ C
           ITAG(NOD)=1
         END IF
       END DO
+#endif
 C--------------------------------------------------------------------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_NNZ_SMS                  source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        SMS_CHECK                     source/ams/sms_fsa_inv.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_nnz_sms          ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    sms_check             ../engine/source/ams/sms_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_NNZ_SMS(
      1           FR_SMS ,FR_RMS,LIST_SMS,LIST_RMS,IAD_ELEM,
      2           FR_ELEM,NNZM  ,IADK    ,KADM    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#include "mpif.h"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "sms_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -780,6 +801,7 @@ C-----------------------------------------------
       INTEGER FR_SMS(NSPMD+1), FR_RMS(NSPMD+1), 
      .        LIST_SMS(*), LIST_RMS(*), IAD_ELEM(2,*), FR_ELEM(*),
      .        NNZM, IADK(*), KADM(*)
+#ifdef MPI
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -817,11 +839,11 @@ C
           MSGTYP = MSGOFF 
           CALL MPI_SEND(
      S      NNZP(P),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     G      MPI_COMM_WORLD,IERROR)
+     G      SPMD_COMM_WORLD,IERROR)
           MSGTYP = MSGOFF 
           CALL MPI_RECV(
      S      MNZP(P),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     G      MPI_COMM_WORLD,STATUS,IERROR)
+     G      SPMD_COMM_WORLD,STATUS,IERROR)
         END IF
       END DO
 C
@@ -829,9 +851,9 @@ C   echange messages
 C
 c      SIZ=1
 c      CALL MPI_ALLTOALL(NNZP,SIZ,MPI_INTEGER,MNZP,SIZ,MPI_INTEGER,
-c     .  		MPI_COMM_WORLD,IERROR)
+c     .      SPMD_COMM_WORLD,IERROR)
 C
-C sur dimensionne
+C over dimensioned
       DO P = 1, NSPMD
        NNZM=NNZM+MNZP(P)
       END DO
@@ -839,59 +861,62 @@ C-----
       L = 1
       DO P=1,NSPMD
 C
-	SIZ = IAD_ELEM(1,P+1)-IAD_ELEM(1,P)
-	IF(SIZ/=0)THEN
-	  MSGTYP = MSGOFF2 
-	  CALL MPI_IRECV(
+          SIZ = IAD_ELEM(1,P+1)-IAD_ELEM(1,P)
+          IF(SIZ/=0)THEN
+            MSGTYP = MSGOFF2 
+            CALL MPI_IRECV(
      .      RBUF(L),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .      MPI_COMM_WORLD,REQ_R(P),IERROR    )
+     .      SPMD_COMM_WORLD,REQ_R(P),IERROR    )
 C
-	  DO J=IAD_ELEM(1,P), IAD_ELEM(1,P+1)-1
-	    NOD = FR_ELEM(J)
-	    SBUF(J)=IADK(NOD+1)-IADK(NOD)
-	  END DO
+            DO J=IAD_ELEM(1,P), IAD_ELEM(1,P+1)-1
+              NOD = FR_ELEM(J)
+              SBUF(J)=IADK(NOD+1)-IADK(NOD)
+            END DO
 C
-	  MSGTYP= MSGOFF2
-	  CALL MPI_ISEND(
+            MSGTYP= MSGOFF2
+            CALL MPI_ISEND(
      .      SBUF(L),SIZ,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .      MPI_COMM_WORLD,REQ_S(P),IERROR    )
-	  L = L + SIZ
-	END IF
+     .      SPMD_COMM_WORLD,REQ_S(P),IERROR    )
+            L = L + SIZ
+          END IF
 C
       END DO
 C
       L = 1
       DO P=1,NSPMD
-	SIZ = IAD_ELEM(1,P+1)-IAD_ELEM(1,P)
-	IF(SIZ/=0)THEN
-	  CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
-	  DO J=IAD_ELEM(1,P),IAD_ELEM(1,P+1)-1
-	    NOD = FR_ELEM(J)
-	    KADM(NOD)=KADM(NOD)+RBUF(L)
-	    L = L + 1
-	  END DO
-	END IF
+          SIZ = IAD_ELEM(1,P+1)-IAD_ELEM(1,P)
+          IF(SIZ/=0)THEN
+            CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
+            DO J=IAD_ELEM(1,P),IAD_ELEM(1,P+1)-1
+              NOD = FR_ELEM(J)
+              KADM(NOD)=KADM(NOD)+RBUF(L)
+              L = L + 1
+            END DO
+          END IF
       END DO
 C
       DO P=1,NSPMD
-	IF(IAD_ELEM(1,P+1)-IAD_ELEM(1,P)/=0)THEN
-	  CALL MPI_WAIT(REQ_S(P),STATUS,IERROR)
-	END IF
+          IF(IAD_ELEM(1,P+1)-IAD_ELEM(1,P)/=0)THEN
+            CALL MPI_WAIT(REQ_S(P),STATUS,IERROR)
+          END IF
       END DO
 C--------------------------------------------------------------------
+#endif
       RETURN
       END
 C
 C
-Chd|====================================================================
-Chd|  SPMD_EXCHM_SMS                source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        SMS_CHECK                     source/ams/sms_fsa_inv.F      
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exchm_sms        ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    sms_check             ../engine/source/ams/sms_fsa_inv.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCHM_SMS(
      1           FR_SMS ,FR_RMS,LIST_SMS,LIST_RMS,IAD_ELEM,
      2           FR_ELEM,IADK  ,JDIK    ,LT_K    ,KADM    , 
@@ -903,22 +928,18 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#include "mpif.h"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "sms_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -927,6 +948,7 @@ C-----------------------------------------------
      .        IADK(*), JDIK(*), KADM(*), JDIM(*), INVND(*)
       my_real
      .        LT_K(*), LT_M(*)
+#ifdef MPI
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -964,7 +986,7 @@ C
           MSGTYP = MSGOFF                        
           CALL MPI_IRECV(
      .      SIZR(P),1,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .      MPI_COMM_WORLD,REQ_R(P),IERROR    )
+     .      SPMD_COMM_WORLD,REQ_R(P),IERROR    )
 C
           IF(IAD_ELEM(1,P+1)-IAD_ELEM(1,P)/=0)THEN
             DO J=IAD_ELEM(1,P), IAD_ELEM(1,P+1)-1
@@ -987,14 +1009,14 @@ C
           MSGTYP = MSGOFF                               
           CALL MPI_ISEND(
      .      SIZS(P),1,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .      MPI_COMM_WORLD,REQ_S(P),IERROR    )
+     .      SPMD_COMM_WORLD,REQ_S(P),IERROR    )
 C
           SIZ = SIZ + SIZS(P)
         END IF
       END DO
 C
       ALLOCATE(SBUF(SIZ),STAT=IERROR)
-      IF(IERROR.NE.0) THEN
+      IF(IERROR/=0) THEN
         CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
      .              C1='FOR FSAI')
         CALL ARRET(2)
@@ -1009,7 +1031,7 @@ C
       END DO
 C
       ALLOCATE(RBUF(SIZ),STAT=IERROR)
-      IF(IERROR.NE.0) THEN
+      IF(IERROR/=0) THEN
         CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
      .              C1='FOR FSAI')
         CALL ARRET(2)
@@ -1022,7 +1044,7 @@ C
           IF(SIZR(P)/=0)THEN
             MSGTYP = MSGOFF2                          
             CALL MPI_IRECV(RBUF(L),SIZR(P),REAL ,IT_SPMD(P),
-     .    		  MSGTYP,MPI_COMM_WORLD,REQ_R(P),IERROR)
+     .          MSGTYP,SPMD_COMM_WORLD,REQ_R(P),IERROR)
             L = L +SIZR(P)
           END IF
         END IF
@@ -1043,17 +1065,17 @@ C
             DO K=IADK(NOD),IADK(NOD+1)-1
               M=JDIK(K)
               IF(ITAG(M)/=0.AND.ITAG(M)<ITAG(NOD))THEN
-        	SBUF(LL  ) = ITAG(NOD)
-        	SBUF(LL+1) = ITAG(M)
-        	SBUF(LL+2) = LT_K(K)
-        	LL = LL + 3
+          SBUF(LL  ) = ITAG(NOD)
+          SBUF(LL+1) = ITAG(M)
+          SBUF(LL+2) = LT_K(K)
+          LL = LL + 3
               END IF
             END DO
           END DO
 C
           MSGTYP = MSGOFF2                               
           CALL MPI_ISEND(SBUF(L),SIZS(P),REAL ,IT_SPMD(P),
-     .  		MSGTYP,MPI_COMM_WORLD,REQ_S2(P),IERROR)
+     .      MSGTYP,SPMD_COMM_WORLD,REQ_S2(P),IERROR)
           L = L + SIZS(P)
 C
 C reset
@@ -1093,39 +1115,39 @@ C
         END IF
       END DO
 C--------------------------------------------------------------------
+#endif
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_EXCH_AWORK               source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_awork       ../engine/source/mpi/ams/spmd_sms.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_AWORK(
      1   A      ,IAD_ELEM ,FR_ELEM,SIZE,LENR     )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#include "mpif.h"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr06_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IAD_ELEM(2,*),FR_ELEM(*), SIZE, LENR
       my_real
      .        A(3,*)
+#ifdef MPI
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -1147,11 +1169,11 @@ C-----------------------------------------------
       IAD_RECV(1) = 1
       DO I=1,NSPMD
         SIZ = SIZE*(IAD_ELEM(1,I+1)-IAD_ELEM(1,I))
-        IF(SIZ.NE.0)THEN
+        IF(SIZ/=0)THEN
           MSGTYP = MSGOFF
           CALL MPI_IRECV(
      S      RBUF(L),SIZ,REAL,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(I),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(I),IERROR)
           L = L + SIZ
         ENDIF
         IAD_RECV(I+1) = L
@@ -1177,14 +1199,14 @@ C
       DO I=1,NSPMD
 C--------------------------------------------------------------------
 C envoi a N+I mod P
-Cel test si msg necessaire a envoyer a completer par test interface
-       IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I).GT.0)THEN
+C   test if msg requires to send to complete by test interface
+       IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I)>0)THEN
           MSGTYP = MSGOFF 
           SIZ = IAD_SEND(I+1)-IAD_SEND(I)
           L = IAD_SEND(I)
           CALL MPI_ISEND(
      S      SBUF(L),SIZ,REAL,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_S(I),IERROR)
+     G      SPMD_COMM_WORLD,REQ_S(I),IERROR)
        ENDIF
 C--------------------------------------------------------------------
       ENDDO
@@ -1192,9 +1214,9 @@ C
 C decompactage
 C
       DO I = 1, NSPMD
-Cel test si msg necessaire a envoyer a completer par test interface
+C   test if msg requires to send to complete by test interface
         NB_NOD = IAD_ELEM(1,I+1)-IAD_ELEM(1,I)
-        IF(NB_NOD.GT.0)THEN
+        IF(NB_NOD>0)THEN
           CALL MPI_WAIT(REQ_R(I),STATUS,IERROR)
           L = IAD_RECV(I)
 #include        "vectorize.inc"
@@ -1209,47 +1231,47 @@ C ---
         ENDIF
       END DO
 C
-Cel wait terminaison isend
+C   wait terminaison isend
 C
       DO I = 1, NSPMD
-        IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I).GT.0)THEN
+        IF(IAD_ELEM(1,I+1)-IAD_ELEM(1,I)>0)THEN
           CALL MPI_WAIT(REQ_S(I),STATUS,IERROR)
         ENDIF
       ENDDO
 C
+#endif
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SPMD_EXCH_RBE3_NODNX          source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        SMS_RBE3_NODXI                source/ams/sms_rbe3.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_rbe3_nodnx   ../engine/source/mpi/ams/spmd_sms.F
+!||--- called by ------------------------------------------------------
+!||    sms_rbe3_nodxi         ../engine/source/ams/sms_rbe3.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod    ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_RBE3_NODNX(
      1   NODNX_SMS,FR_M   ,IAD_M ,LCOMM  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER LCOMM, FR_M(*), IAD_M(*), NODNX_SMS(*)
+#ifdef MPI
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -1268,13 +1290,13 @@ C
       L = 0
       DO I = 1, NSPMD
         SIZ = IAD_M(I+1)-IAD_M(I)
-        IF(SIZ.GT.0) THEN
+        IF(SIZ>0) THEN
           L=L+1
           INDEXI(L)=I
           MSGTYP = MSGOFF                         
           CALL MPI_IRECV(
      S      RBUF(IDEB),SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(L),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(L),IERROR)
           IDEB = IDEB + SIZ
         ENDIF
       ENDDO
@@ -1300,7 +1322,7 @@ C
         MSGTYP = MSGOFF 
         CALL MPI_ISEND(
      S    SBUF(IDEB),SIZ,MPI_INTEGER,IT_SPMD(I),MSGTYP,
-     G    MPI_COMM_WORLD,REQ_S(L),IERROR)
+     G    SPMD_COMM_WORLD,REQ_S(L),IERROR)
         IDEB = IDEB + SIZ
       ENDDO
 C
@@ -1323,49 +1345,5 @@ C
       ENDDO
 C
       RETURN
-      END
-C
-#elif 1
-C
-Chd|====================================================================
-Chd|  SPMD_NLIST_SMS                source/mpi/ams/spmd_sms.F     
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE SPMD_NLIST_SMS(IDUM1,IDUM2)
-C-----------------------------------------------
-#include "implicit_f.inc"
-C-----------------------------------------------
-      INTEGER
-     .        IDUM1, IDUM2, IDUM3, IDUM4, IDUM5,
-     .        IDUM6, IDUM7, IDUM8, IDUM9, IDUM10
-      my_real
-     .        RDUM1, RDUM2, RDUM3, RDUM4, RDUM5,
-     .        RDUM6
-      ENTRY SPMD_LIST_SMS(
-     1   IDUM1,IDUM2,IDUM3,IDUM4,IDUM5,
-     2   IDUM6,IDUM7)
-      ENTRY SPMD_MIJ_SMS(
-     1   IDUM1,IDUM2,IDUM3,IDUM4,RDUM1,
-     2   RDUM2)
-      ENTRY SPMD_GLOB_LMIN(RDUM1,IDUM1)
-      ENTRY SPMD_GLOB_LMAX(RDUM1,IDUM1)
-      ENTRY SPMD_NNDFT_SMS(
-     1           IDUM1, IDUM2, IDUM3, IDUM4, IDUM5,
-     2           IDUM6, IDUM7, IDUM8, IDUM9)
-      ENTRY SPMD_NNZ_SMS(
-     1           IDUM1, IDUM2, IDUM3, IDUM4, IDUM5,
-     2           IDUM6, IDUM7, IDUM8, IDUM9)
-      ENTRY SPMD_EXCHM_SMS(
-     1           IDUM1, IDUM2, IDUM3, IDUM4, IDUM5,
-     2           IDUM6, IDUM7, IDUM8, RDUM1, IDUM9,
-     3           IDUM10,RDUM2)
-      ENTRY SPMD_EXCH_AWORK(
-     1   RDUM1  ,IDUM1 ,IDUM2  ,IDUM3  ,IDUM4 )
-      ENTRY SPMD_EXCH_RBE3_NODNX(
-     1   IDUM1, IDUM2, IDUM3, IDUM4)
-      END
-
 #endif
-
+      END

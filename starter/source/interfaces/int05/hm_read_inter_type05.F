@@ -1,44 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_INTER_TYPE05          source/interfaces/int05/hm_read_inter_type05.F
-Chd|-- called by -----------
-Chd|        HM_READ_INTER_STRUCT          source/interfaces/reader/hm_read_inter_struct.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        INTER_DCOD_SENSOR             source/interfaces/reader/inter_dcod_sensor.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_inter_type05   ../starter/source/interfaces/int05/hm_read_inter_type05.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_inter_struct   ../starter/source/interfaces/reader/hm_read_inter_struct.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    inter_dcod_sensor      ../starter/source/interfaces/reader/inter_dcod_sensor.F
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_INTER_TYPE05(
      1        IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,NI       ,    
      2        IGRNOD     ,IGRSURF    ,NOM_OPT    ,XFILTR    ,FRIC_P   ,
-     3        LSENSOR    ,UNITAB     ,LSUBMODEL  ,TITR       )
+     3        SENSORS    ,UNITAB     ,LSUBMODEL  ,TITR      ,NPARI    ,
+     4        NPARIR )
 C============================================================================
 C
 C-----------------------------------------------
@@ -48,13 +48,12 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE UNITAB_MOD
+      USE SENSOR_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -63,48 +62,31 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NOM_OPT(LNOPT1,*)
-      INTEGER ISU1,ISU2,ILAGM,NI,NOINT
-      INTEGER IPARI(*),LSENSOR(NSENSI,*)
-      my_real
-     .   STFAC,XFILTR
-      my_real
-     .   FRIGAP(*),FRIC_P(*)
-      CHARACTER TITR*nchartitle,TITR1*nchartitle
+      INTEGER,INTENT(IN) :: NPARI, NPARIR !< array sizes (IPARI and FRIGAP)
+      INTEGER ISU1,ISU2,NI,NOINT
+      INTEGER NOM_OPT(LNOPT1,*),IPARI(NPARI)
+      my_real STFAC,XFILTR
+      my_real FRIGAP(NPARIR),FRIC_P(10)
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
       TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
       TYPE (SURF_)   ,TARGET , DIMENSION(NSURF)   :: IGRSURF
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
-      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
+      TYPE (UNIT_TYPE_),INTENT(IN) :: UNITAB 
+      TYPE (SENSORS_)  ,INTENT(IN) :: SENSORS
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "scr12_c.inc"
-#include      "sysunit.inc"
 #include      "remesh_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,L,IBC1, IBC2, IBC3, IBUC,  NTYP, IVOID,
-     .    INACTI, IBC1M, IBC2M, IBC3M, IGSTI, IS1, IS2,
-     .    ILEV, MFROT,IFQ,IBAG,MODFR, IDEL5,IDSENS,IDELKEEP,
-     .    INTKG,IADM,MULTIMP,IBID,IRM,NRADM
-      my_real
-     .   FRIC,GAP,STARTT,STOPT,C1,C2,C3,C4,C5,C6,ALPHA,
-     .   VISC,VISCF,PTMAX,PADM,ANGLADM
-      CHARACTER MESS*40, MSGTITL*nchartitle
-      CHARACTER OPT*ncharkey,KEY*ncharkey,KEY1*ncharkey,
-     .          BCFLAG*ncharfield, BCFLAGM*ncharfield
-!
+      INTEGER I,IBC1, IBC2, IBC3, IBUC,  NTYP, INACTI, IBC1M, IBC2M, IBC3M, IGSTI, IS1, IS2
+      INTEGER ILEV, MFROT,IFQ,IBAG,IDEL5,IDSENS,IDELKEEP, INTKG,IADM,MULTIMP,IRM,NRADM
+      my_real FRIC,GAP,STARTT,STOPT,C1,C2,C3,C4,C5,C6,ALPHA,VISC,PTMAX,PADM,ANGLADM
       INTEGER, DIMENSION(:), POINTER :: INGR2USR
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -200,14 +182,14 @@ C
       CALL HM_GET_FLOATV('Xfreq',ALPHA,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('Ptlim',PTMAX,IS_AVAILABLE,LSUBMODEL,UNITAB)
 C
-      IF (MFROT.GT.0) THEN
+      IF (MFROT>0) THEN
          CALL HM_GET_FLOATV('C1',C1,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C2',C2,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C3',C3,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C4',C4,IS_AVAILABLE,LSUBMODEL,UNITAB)
          CALL HM_GET_FLOATV('C5',C5,IS_AVAILABLE,LSUBMODEL,UNITAB)
       ENDIF
-      IF (MFROT.GT.1) THEN
+      IF (MFROT>1) THEN
         CALL HM_GET_FLOATV('C6',C6,IS_AVAILABLE,LSUBMODEL,UNITAB)
       ENDIF
 
@@ -237,7 +219,7 @@ C
            IDEL5=ABS(IDEL5)
         END IF
         IPARI(61)=IDELKEEP
-        IF (IDEL5.GT.2.OR.N2D.EQ.1) IDEL5 = 0
+        IF (IDEL5>2.OR.N2D==1) IDEL5 = 0
         IPARI(17)=IDEL5
 
         IF (IBAG/=0.AND.NVOLU==0.AND.IALELAG==0.AND.NSPHSOL==0) THEN
@@ -251,7 +233,7 @@ C
         IPARI(32)=IBAG
 
 C         Iadm has not been implemented for TYPE5 yet.
-        IF (IADM.NE.0.AND.NADMESH.EQ.0) THEN
+        IF (IADM/=0.AND.NADMESH==0) THEN
              CALL ANCMSG(MSGID=647,
      .                   MSGTYPE=MSGWARNING,
      .                   ANMODE=ANINFO_BLIND_2,
@@ -291,12 +273,12 @@ C
         IF(PTMAX==ZERO) PTMAX=EP30
         FRIGAP(16)=PTMAX
 
-       IF (ALPHA.EQ.0) IFQ = 0
-       IF (IFQ.GT.0) THEN
-          IF (IFQ.EQ.1) XFILTR = ALPHA
-          IF (IFQ.EQ.2) XFILTR = FOUR*ATAN2(ONE,ZERO) / ALPHA
-          IF (IFQ.EQ.3) XFILTR = FOUR*ATAN2(ONE,ZERO) * ALPHA
-          IF (XFILTR.LT.0.OR.(IFQ.LE.2.AND.XFILTR.GT.1.)) THEN
+       IF (ALPHA==0) IFQ = 0
+       IF (IFQ>0) THEN
+          IF (IFQ==1) XFILTR = ALPHA
+          IF (IFQ==2) XFILTR = FOUR*ATAN2(ONE,ZERO) / ALPHA
+          IF (IFQ==3) XFILTR = FOUR*ATAN2(ONE,ZERO) * ALPHA
+          IF (XFILTR<0.OR.(IFQ<=2.AND.XFILTR>1.)) THEN
                CALL ANCMSG(MSGID=554,
      .                     MSGTYPE=MSGERROR,
      .                     ANMODE=ANINFO_BLIND_1,
@@ -328,19 +310,19 @@ C------------------------------------------------------------
 C     RENUMBERING OF FUNCTIONS AND SENSOR - USER TO INTERNAL ID
 C------------------------------------------------------------
 C
-        CALL INTER_DCOD_SENSOR (NTYP,NI,IPARI,NOM_OPT,LSENSOR)
+        CALL INTER_DCOD_SENSOR (NTYP,NI,IPARI,NOM_OPT,SENSORS)
 C
 C------------------------------------------------------------
 C     PRINTOUT
 C------------------------------------------------------------
 C
-        IF(IDSENS.NE.0) THEN
+        IF(IDSENS/=0) THEN
            WRITE(IOUT,1505)IBC1,IBC2,IBC3,STFAC,GAP,IDSENS,IRM,PTMAX
         ELSE
            WRITE(IOUT,1516)IBC1,IBC2,IBC3,STFAC,GAP,STARTT,STOPT,IRM,PTMAX 
         ENDIF
         WRITE(IOUT,4000)INACTI
-        IF(IDEL5.NE.0) THEN
+        IF(IDEL5/=0) THEN
           WRITE(IOUT,'(A,A,I5/)')
      . '    DELETION FLAG ON FAILURE OF MAIN ELEMENT',
      . ' (1:YES-ALL/2:YES-ANY) SET TO ',IDEL5
@@ -350,23 +332,23 @@ C
           ENDIF         
         ENDIF
         WRITE(IOUT,1520)IFQ, XFILTR
-        IF(MFROT.EQ.0)THEN
+        IF(MFROT==0)THEN
           WRITE(IOUT,1524) FRIC
-        ELSEIF(MFROT.EQ.1)THEN
+        ELSEIF(MFROT==1)THEN
           WRITE(IOUT,1515)FRIC_P(1),FRIC_P(2),FRIC_P(3),
      .    FRIC_P(4),FRIC_P(5)
-        ELSEIF(MFROT.EQ.2)THEN
+        ELSEIF(MFROT==2)THEN
           WRITE(IOUT,1522)FRIC,FRIC_P(1),FRIC_P(2),FRIC_P(3),
      .    FRIC_P(4),FRIC_P(5),FRIC_P(6)
-        ELSEIF(MFROT.EQ.3)THEN
+        ELSEIF(MFROT==3)THEN
           WRITE(IOUT,1523)FRIC_P(1),FRIC_P(2),FRIC_P(3),
      .    FRIC_P(4),FRIC_P(5),FRIC_P(6)
         ENDIF
-        IF(IBAG.NE.0) THEN
+        IF(IBAG/=0) THEN
           WRITE(IOUT,*)'    AIRBAG POROSITY COUPLING ON   '
         ENDIF
-        IF(IADM.NE.0) THEN
-          WRITE(IOUT,*)'    MESH REFINMENT CASE OF CONTACT',
+        IF(IADM/=0) THEN
+          WRITE(IOUT,*)'    MESH REFINEMENT CASE OF CONTACT',
      .' (0:NO/1:DUE TO CURVATURE/2:DUE TO CURVATURE OR PENETRATION)',
      .' SET TO ',IADM
           IF(IADM==2)THEN
@@ -375,42 +357,38 @@ C
         ENDIF
 
 C--------------------------------------------------------------
-      IF(IS1.EQ.0)THEN
+      IF(IS1==0)THEN
         WRITE(IOUT,'(6X,A)')'NO SECONDARY SURFACE INPUT'
-      ELSEIF(IS1.EQ.1)THEN
+      ELSEIF(IS1==1)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.2)THEN
+      ELSEIF(IS1==2)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY NODES'
-      ELSEIF(IS1.EQ.3)THEN
+      ELSEIF(IS1==3)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.4 )THEN
+      ELSEIF(IS1==4 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY BRICKS'
-      ELSEIF(IS1.EQ.5 )THEN
+      ELSEIF(IS1==5 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY SOLID ELEMENTS'        
       ENDIF
-      IF(IS2.EQ.0)THEN
+      IF(IS2==0)THEN
         WRITE(IOUT,'(6X,A)')'NO MAIN SURFACE INPUT'
-      ELSEIF(IS2.EQ.1)THEN
+      ELSEIF(IS2==1)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.2)THEN
+      ELSEIF(IS2==2)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY NODES'
-      ELSEIF(IS2.EQ.3)THEN
+      ELSEIF(IS2==3)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.4)THEN
+      ELSEIF(IS2==4)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE REFERS ',
      .                      'TO HYPER-ELLIPSOIDAL SURFACE'
       ENDIF
 C
 C--------------------------------------------------------------
- 1000 FORMAT(/1X,'  INTERFACE NUMBER :',I10,1X,A)
-C------------
-      RETURN
- 999  CALL FREERR(3)
       RETURN
 
 C------------
  1505 FORMAT(//
-     .    '    TYPE.EQ.5  SLIDING AND VOIDS(NON SYMETRIC)' //,
+     .    '    TYPE==5  SLIDING AND VOIDS(NON SYMMETRIC)' //,
      .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
      .    '       (1:YES 0:NO)                      Y DIR  ',I1/,
      .    '                                         Z DIR  ',I1/,
@@ -420,7 +398,7 @@ C------------
      .    '    MAIN SURFACE REORDERING FLAG. . . . . . . ',I1/,
      .    '    TANGENTIAL PRESSURE LIMIT. . .. . . . . . . ',1PG20.13/)
  1516 FORMAT(//
-     .    '    TYPE.EQ.5  SLIDING AND VOIDS(NON SYMETRIC)' //,
+     .    '    TYPE==5  SLIDING AND VOIDS(NON SYMMETRIC)' //,
      .    '    BOUND. COND. DELETED AFTER IMPACT IN X DIR  ',I1/,
      .    '       (1:YES 0:NO)                      Y DIR  ',I1/,
      .    '                                         Z DIR  ',I1/,
@@ -441,10 +419,6 @@ C------------
      .    '    C4 . . . . . . . . . . . . . . . . . . . ',1PG20.13/,
      .    '    C5 . . . . . . . . . . . . . . . . . . . ',1PG20.13/,
      .    '    TANGENTIAL PRESSURE LIMIT. . .. . . . . .',1PG20.13/)
- 1518 FORMAT( '    FRICTION FORMULATION: INCREMENTAL (STIFFNESS) ',
-     .             'FORMULATION')
- 1519 FORMAT( '    FRICTION FORMULATION: TOTAL (VISCOUS) ',
-     .             'FORMULATION')
  1520 FORMAT(
      .    '    FRICTION FILTERING FLAG. . . . . . . . . ',I10/,
      .    '    FILTERING FACTOR . . . . . . . . . . . . ',1PG20.13)
@@ -469,12 +443,6 @@ C------------
  1524 FORMAT(/
      .    '    FRICTION MODEL 0 (Coulomb Law) :'/,
      .    '      FRICTION COEFFICIENT . . . . . . . . . ',1PG20.13/)
- 1525   FORMAT(//
-     .    '    FRICTION MODEL 0 (Coulomb Law) :'/,
-     .  '   Function for FRICTION COEFFICIENT wrt TEMPERATURE',I10/,
-     .      '    Abscissa scale factor on IFUNTCF. . . .  . ',1PG20.13/,
-     .      '    Ordinate scale factor on IFUNTCF .  . .  . ',1PG20.13/)
-
  1557 FORMAT(
      .'  NUMBER OF ELEMENTS WITHIN A 90 DEGREES FILLET         ',I5/,
      .'  ---------------------------------------------         '/,

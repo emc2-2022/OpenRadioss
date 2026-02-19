@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_XELEM                 source/elements/reader/hm_read_xelem.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ANODSET                       source/output/analyse/analyse_node.c
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        NODGRNR5                      source/starter/freform.F      
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_xelem    ../starter/source/elements/reader/hm_read_xelem.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg           ../starter/source/output/message/message.F
+!||    anodset          ../starter/source/output/analyse/analyse_node.c
+!||    nodgrnr5         ../starter/source/starter/freform.F
+!||    udouble          ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod      ../starter/share/message_module/message_mod.F
+!||    submodel_mod     ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_XELEM(IGRNOD   ,ITAB ,ITABM1,IPART,IPARTX,
      .                  IPM,IGEO ,KXX ,IXX, LSUBMODEL)
 C-----------------------------------------------
@@ -76,15 +76,10 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "scr23_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
 #include      "units_c.inc"
 #include      "param_c.inc"
-#include      "submod_c.inc"
-#include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -103,9 +98,8 @@ C OUTPUT ARGUMENTS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, I1, I2,PID,N,ID,IDS,J,STAT,MID,IAD,NNOD,IGS
-      INTEGER INDEX_PART,OFF_DEF(NSUBMOD),OFF_EL(NSUBMOD),
-     .        OFF_PART(NSUBMOD)
+      INTEGER I, I1, I2,PID,N,J,STAT,MID,IAD,NNOD,IGS
+      INTEGER INDEX_PART
       INTEGER TABIDS(NUMELX)
       CHARACTER MESS*40
       my_real
@@ -117,14 +111,6 @@ C-----------------------------------------------
       INTEGER NODGRNR5
       DATA MESS /'MULTI-PURPOSE ELEMENTS DEFINITION       '/
 C=======================================================================
-C--------------------------------------------------
-C      HM OFFSETS IDs
-C--------------------------------------------------
-      DO I=1,NSUBMOD
-        OFF_DEF(I) = LSUBMODEL(I)%OFF_DEF
-        OFF_EL(I) = LSUBMODEL(I)%OFF_EL
-        OFF_PART(I) = LSUBMODEL(I)%OFF_PART
-      ENDDO
 C--------------------------------------------------
 C      ALLOCS & INITS
 C--------------------------------------------------
@@ -151,24 +137,16 @@ C--------------------------------------------------
 
       IAD =1
       DO N=1,NUMELX
-C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-        IF(SUB_XELEM(N) .NE. 0)THEN
-          IF(IPARTX(N) .NE. 0) IPARTX(N) = IPARTX(N) + OFF_PART(SUB_XELEM(N)) 
-          IF(IDEX(N) .NE. 0) IDEX(N) = IDEX(N) + OFF_EL(SUB_XELEM(N)) 
-          IF(IDGU(N) .NE. 0) IDGU(N) = IDGU(N) + OFF_DEF(SUB_XELEM(N))
-        ENDIF
 
 C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-        IF( IPART(4,INDEX_PART) .NE. IPARTX(N) )THEN  
+        IF( IPART(4,INDEX_PART) /= IPARTX(N) )THEN  
           DO J=1,NPART                            
-            IF(IPART(4,J).EQ. IPARTX(N) ) INDEX_PART = J            
+            IF(IPART(4,J)== IPARTX(N) ) INDEX_PART = J            
           ENDDO  
         ENDIF
-        IF(IPART(4,INDEX_PART) .NE. IPARTX(N)) THEN
+        IF(IPART(4,INDEX_PART) /= IPARTX(N)) THEN
           CALL ANCMSG(MSGID=402,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -189,7 +167,7 @@ C
         NNOD = NODGRNR5(IDGU(N)   ,IGS     ,IXX(IAD),IGRNOD   ,
      .                    ITABM1 ,MESS    )
 C       check non sorted nodes group type.
-        IF (IGS.NE.0.AND.IGRNOD(IGS)%SORTED.NE.1) THEN
+        IF (IGS/=0.AND.IGRNOD(IGS)%SORTED/=1) THEN
            CALL ANCMSG(MSGID=411,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -210,7 +188,7 @@ C
            CALL ANODSET(IXX(IAD+I), CHECK_USED)
  10     CONTINUE
         KXX(3,N)=NNOD
-        IF (NNOD.GT.MAXNX) MAXNX=NNOD
+        IF (NNOD>MAXNX) MAXNX=NNOD
         ISUMNX  =ISUMNX+NNOD
 C
         IAD     =IAD+NNOD
@@ -221,7 +199,7 @@ C-----------
      .            ANMODE=ANINFO_BLIND_1,    
      .            PRMOD=MSG_PRINT)
 C-------------------------------------
-C Recherche des ID doubles
+C Search for double IDs
 C-------------------------------------
       DO I=1,NUMELX
          TABIDS(I)= KXX(NIXX,I)
@@ -243,7 +221,7 @@ C
        WRITE (IOUT,'(A)') 'END OF ELEMENT TRACEBACK'
 c      call flush(IOUT)
   100 CONTINUE
-      IF(I2.EQ.NUMELX)GOTO 200
+      IF(I2==NUMELX)GOTO 200
       I1=I1+50
       I2=MIN0(I2+50,NUMELX)
       GOTO 90

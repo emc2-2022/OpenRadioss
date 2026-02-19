@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3LKE3                        source/elements/sh3n/coque3n/c3lke3.F
-Chd|-- called by -----------
-Chd|        C3KE3                         source/elements/sh3n/coque3n/c3ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3lke3   ../engine/source/elements/sh3n/coque3n/c3lke3.F
+!||--- called by ------------------------------------------------------
+!||    c3ke3    ../engine/source/elements/sh3n/coque3n/c3ke3.F
+!||====================================================================
        SUBROUTINE C3LKE3(JFT,JLT,AREA,THK0,THK2,HM,HF,HC,HZ,
      1                      PX1,PY1,PY2,VOL,
      2                      K11,K12,K13,K22,K23,K33,
@@ -60,7 +59,7 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER EP,I,J,L,K,I1,J1,IN(2),NF
+      INTEGER EP,I
       MY_REAL 
      .    DM(2,2,MVSIZ),DF(2,2,MVSIZ),DCX(MVSIZ),DCY(MVSIZ),
      .    PX1PX1(MVSIZ),PX1PY1(MVSIZ),PX1PY2(MVSIZ),PX1PY3(MVSIZ),
@@ -73,8 +72,8 @@ C-----------------------------------------------
      .    H11(MVSIZ),H12(MVSIZ),H22(MVSIZ),H13(MVSIZ),H23(MVSIZ),
      .    DM5(MVSIZ),DM6(MVSIZ),DF5(MVSIZ),DF6(MVSIZ),DM5_2(MVSIZ),
      .    DM6_2(MVSIZ),DF5_2(MVSIZ),DF6_2(MVSIZ),
-     .    DMF(3,3,MVSIZ),MFIJ(2,2,MVSIZ)
-C-----------Attention Matrice sym Kii ne calcul que la moitie---------72
+     .    DMF(3,3,MVSIZ)
+C----------- CAPTE Matrix Sym KII only calculates half ---------- 72
        DO EP=JFT,JLT 
         C2=VOL(EP)
         C1=THK2(EP)*C2
@@ -106,7 +105,7 @@ C-------PX2=-PX1 ,PX3=0---------------
         PY2PY3(EP)=PY2(EP)*PY3(EP)
         PY3PY3(EP)=PY3(EP)*PY3(EP)
        ENDDO
-C------Membrainaires-----------
+C------ Membrainous ----------
        DO EP=JFT,JLT 
         K11(1,1,EP)=PX1PX1(EP)*DM(1,1,EP)
         K11(1,2,EP)=PX1PY1(EP)*DM(1,2,EP)
@@ -190,7 +189,7 @@ C
         M23(1,2,EP)=M23(1,2,EP)+GPX1PY3
         M23(2,2,EP)=M23(2,2,EP)+PY2PY3(EP)*GF(EP)
        ENDDO
-       IF (IORTH.EQ.1) THEN
+       IF (IORTH==1) THEN
 #include "vectorize.inc"
         DO EP=JFT,JLT 
          C2=VOL(EP)
@@ -206,7 +205,7 @@ C
          DF5_2(EP)=TWO*DF5(EP)
          DF6_2(EP)=TWO*DF6(EP)
         ENDDO
-C----Px2=-Px1,--Px3=0---
+C---- Px2 = -px1,-PX3 = 0 ---
         DO EP=JFT,JLT
          K11(1,1,EP)=K11(1,1,EP)+PX1PY1(EP)*DM5_2(EP)
          K11(1,2,EP)=K11(1,2,EP)+
@@ -260,7 +259,7 @@ C
          M33(1,2,EP)=M33(1,2,EP)-PY3PY3(EP)*DF6(EP)
         ENDDO
         DO EP=JFT,JLT 
- 	     C2=VOL(EP)*THK0(EP)
+               C2=VOL(EP)*THK0(EP)
          DMF(1,1,EP)=HMFOR(EP,1)*C2
          DMF(2,2,EP)=HMFOR(EP,2)*C2
          DMF(1,2,EP)=HMFOR(EP,3)*C2
@@ -494,7 +493,7 @@ C---
         FM23(2,3,EP)=BCYY2*PY3DY
        ENDDO
 C
-C------ Mzz  pour tous-------
+C------ Mzz  for all-------
         DO EP=JFT,JLT
          M11(3,3,EP)=M11(3,3,EP)+DHZ(EP)*(PX1PX1(EP)+PY1PY1(EP))
          M12(3,3,EP)=M12(3,3,EP)+DHZ(EP)*(PY1PY2(EP)-PX1PX1(EP))
@@ -504,7 +503,7 @@ C------ Mzz  pour tous-------
          M33(3,3,EP)=M33(3,3,EP)+DHZ(EP)*PY3PY3(EP)
        ENDDO
 C------ renforce positive  ----------
-      IF (NEIG.EQ.0) THEN
+      IF (NEIG==0) THEN
        DO EP=JFT,JLT
         C1 = EM8*M11(3,3,EP)
         C2 = EM8*M22(3,3,EP)
@@ -542,7 +541,7 @@ C---------membrane--only-----
         ENDDO
        ENDDO
 C------ renforce positive  ----------
-        IF (NEIG.EQ.0.AND.IDRIL==0.AND.IORTH>0) THEN
+        IF (NEIG==0.AND.IDRIL==0.AND.IORTH>0) THEN
          DO EP=JFT,JLT
           C1 = MIN(H11(EP),H22(EP),H33(EP))
           IF (C1 < ZERO) THEN
@@ -558,12 +557,11 @@ C------ renforce positive  ----------
 C
        RETURN
        END
-Chd|====================================================================
-Chd|  C3LKERZ3                      source/elements/sh3n/coque3n/c3lke3.F
-Chd|-- called by -----------
-Chd|        C3KE3                         source/elements/sh3n/coque3n/c3ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    c3lkerz3   ../engine/source/elements/sh3n/coque3n/c3lke3.F
+!||--- called by ------------------------------------------------------
+!||    c3ke3      ../engine/source/elements/sh3n/coque3n/c3ke3.F
+!||====================================================================
       SUBROUTINE C3LKERZ3(JFT,JLT,HM,HZ,
      1                   PX1,PY1,PY2,VOL,AREA,
      2                   K11,K12,K13,K22,K23,K33,
@@ -577,7 +575,6 @@ C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "mvsiz_p.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -605,7 +602,7 @@ c  I   JFT,JLT           - element id limit
 c  I   HM(4,NEL)         - membrane stiffness modulus (plane stress)
 c  I   HZ(NEL)           -drilling dof modulus
 C  I   PX1,PY1,PX2=-PX1,PY2(NEL): standard [B] of Tria
-c  I   VOL,AREA          - element volume,AREA
+c  I   Area - Volume element, Area
 c  IO  Kij,FMij,MFij,Mij(3,3,NEL)   sub-stiffness matrix
 C---------------|[KIJ][MFIJ]|----
 C-----KE(6x6)=  |           |
@@ -627,7 +624,7 @@ C-----------------------------------------------
      .    PX1PX1(MVSIZ),PX1PY1(MVSIZ),PX1PY2(MVSIZ),PX1PY3(MVSIZ),
      .    PY1PY1(MVSIZ),PY1PY2(MVSIZ),PY1PY3(MVSIZ),PY3(MVSIZ),
      .    PY2PY2(MVSIZ),PY2PY3(MVSIZ),PY3PY3(MVSIZ),
-     .    C1,C2,DHZ(MVSIZ),C3,
+     .    C2,DHZ(MVSIZ),
      .    KZ11(2,2,MVSIZ),KZ12(2,2,MVSIZ),KZ22(2,2,MVSIZ),
      .    KZ13(2,2,MVSIZ),KZ23(2,2,MVSIZ),KZ33(2,2,MVSIZ)
        PARAMETER (NPG = 3)
@@ -642,7 +639,7 @@ C-----------------------------------------------
 C---------------|[KIJ][MFIJ]|----
 C-----KE(6x6)=  |           |
 C---------------|[FMIJ]{MIJ]|----
-C-----------Attention Matrice sym Kii ne calcul que la moitie---------72
+C----------- CAPTE Matrix Sym KII only calculates half ---------- 72
 C--------Bi: Bi*A--- DM: DM/A
        DO EP=JFT,JLT
         A_I(EP)=ONE/MAX(AREA(EP),EM20)
@@ -659,7 +656,7 @@ C--------Bi: Bi*A--- DM: DM/A
         DM(1,3,EP)=ZERO
         DM(2,3,EP)=ZERO
        ENDDO
-       IF (IORTH.EQ.1) THEN
+       IF (IORTH==1) THEN
         DO EP=JFT,JLT
          C2=VOL(EP)
          DM(1,3,EP)=HMOR(EP,1)*C2
@@ -885,11 +882,11 @@ C------ Mzz  ----------
         M33(3,3,EP)=M33(3,3,EP)+PRX(3,EP)*CBRX(3,EP)+
      .              PRY(3,EP)*CBRY(3,EP)+PRXY(3,EP)*CBRZ(3,EP)
        ENDDO
-       IF (IORTH.GT.0) THEN
+       IF (IORTH>0) THEN
 C ----add mem-bending coupling terms of orthotrope--coplanar first---
 #include "vectorize.inc"
         DO EP=JFT,JLT 
- 	 C2=VOL(EP)*THK0(EP)
+           C2=VOL(EP)*THK0(EP)
          DMF(1,1,EP)=HMFOR(EP,1)*C2
          DMF(2,2,EP)=HMFOR(EP,2)*C2
          DMF(1,2,EP)=HMFOR(EP,3)*C2
@@ -946,7 +943,7 @@ C
           M23(3,1,EP)=-PY3(EP)*CBRY(2,EP)
           M23(3,2,EP)=                   PY3(EP)*CBRZ(2,EP)
         ENDDO
-       ENDIF !IF (IORTH.EQ.1)
+       ENDIF !IF (IORTH==1)
 C
        RETURN
        END

@@ -1,50 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I9WAL3                        source/interfaces/int09/i9wal3.F
-Chd|-- called by -----------
-Chd|        I9WALE                        source/interfaces/int09/i9wale.F
-Chd|-- calls ---------------
-Chd|        BCS2                          source/constraints/general/bcs/bcs2.F
-Chd|        I9GRD3                        source/interfaces/int09/i9grd3.F
-Chd|        SHAPEH                        source/ale/inter/shapeh.F     
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_GLOB_ISUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_IBCAST                   source/mpi/generic/spmd_ibcast.F
-Chd|        SPMD_RBCAST                   source/mpi/generic/spmd_rbcast.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i9wal3            ../engine/source/interfaces/int09/i9wal3.F
+!||--- called by ------------------------------------------------------
+!||    i9wale            ../engine/source/interfaces/int09/i9wale.F
+!||--- calls      -----------------------------------------------------
+!||    bcs2              ../engine/source/constraints/general/bcs/bcs2.F
+!||    i9grd3            ../engine/source/interfaces/int09/i9grd3.F
+!||    shapeh            ../engine/source/ale/inter/shapeh.F
+!||    spmd_glob_dsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_glob_isum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_ibcast       ../engine/source/mpi/generic/spmd_ibcast.F
+!||    spmd_rbcast       ../engine/source/mpi/generic/spmd_rbcast.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod      ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod       ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE I9WAL3(X    ,V         ,W         ,A     ,CRST     ,
      2          NSV      ,ILOC      ,IRTL      ,ICODE     ,ISKEW    ,
      3          SKEW     ,MSR       ,LMSR      ,NSEG      ,IRECTS   ,
      4          IRECT    ,UPW       ,IXS       ,ELBUF_TAB,
      5          IPARG    ,PM        ,NALE      ,EE        ,IELES    ,
      6          IELEM    ,TSTIF     ,INTTH     ,IEULT     ,STENS    ,
-     7          NOR      ,ISIZES    ,ISIZEM    )
+     7          NOR      ,ISIZES    ,ISIZEM    ,NRTS, NRTM, NSN,NMN  )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixs            
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,16 +57,14 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com08_c.inc"
-#include      "scr04_c.inc"
-#include      "scr08_s_c.inc"
 #include      "scr08_a_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IRECT(4,*), NSV(*), ILOC(*), IRTL(*), ICODE(*), ISKEW(*),
+      INTEGER, INTENT(IN) :: NRTS, NRTM, NSN,NMN 
+      INTEGER IRECT(4,*), NSV(NSN), ILOC(*), IRTL(NSN), ICODE(*), ISKEW(*),
      .   MSR(*), IRECTS(4,*), LMSR(*), NSEG(*),IXS(NIXS,*),
      .   IPARG(NPARG,*), IELES(*), IELEM(*),NALE(*) ,
      .   INTTH, IEULT, ISIZES, ISIZEM
@@ -92,15 +93,15 @@ C     REAL
      .   T3X, T3Y, T3Z, STENSX, STENSY, STENSZ,
      .   COMAREA(ISIZEM+ISIZES),COMSTF(ISIZEM+ISIZES),
      .   COMT(ISIZEM+ISIZES),COMVOL(ISIZEM+ISIZES),COMBUF(ISIZEM+ISIZES)
-      TYPE(G_BUFEL_)  ,POINTER :: GBUF     
+ 
 c
       DATA IPERM/ 4, 1, 2, 3, 4, 1/
 C-----------------------------------------------
 C
-C Phase de Preparation pour SPMD
+C preparation phase for spmd
 C
-      IF(INTTH.NE.ZERO) THEN
-       IF(ISPMD.EQ.0) THEN
+      IF(INTTH/=ZERO) THEN
+       IF(ISPMD==0) THEN
         DO II = 1, NRTS
           TAGS(II) = 0
         ENDDO
@@ -111,7 +112,7 @@ C
         IM = 0
         DO II = 1, NSN
           L = IRTL(II)
-          IF(ILOC(II).GT.0.AND.NMN.GT.0.AND.TAGM(L).EQ.0)THEN
+          IF(ILOC(II)>0.AND.NMN>0.AND.TAGM(L)==0)THEN
             IM = IM + 1
             LISTM(IM) = L
             TAGM(L) = IM
@@ -119,7 +120,7 @@ C
             LL2=NSEG(II+1)-1
             DO LL=LL1,LL2
               LG  = LMSR(LL)
-              IF(TAGS(LG).EQ.0) THEN
+              IF(TAGS(LG)==0) THEN
                 IS = IS + 1
                 LISTS(IS) = LG
                 TAGS(LG) = IS
@@ -128,13 +129,13 @@ C
           ENDIF
         ENDDO
 C
-C Compactage listes elem
+C Elem lists compacting
 C
         ITEMP(1) = IS
         ITEMP(2) = IM
        ENDIF
 C
-C Envoi liste facettes seconds/mains en contact
+C Sending second/mains facet list in contact
 C
        IF(NSPMD > 1) THEN
          CALL SPMD_IBCAST(ITEMP,ITEMP,1,2,0,2)
@@ -150,7 +151,7 @@ C
          IX(2) = MSR(IRECT(2,L))
          IX(3) = MSR(IRECT(3,L))
          IX(4) = MSR(IRECT(4,L))
-         IF(IELEM(L).GT.0) THEN
+         IF(IELEM(L)>0) THEN
            CALL I9GRD3(
      1       IERR ,COMAREA(II),COMSTF(II),COMT(II),COMVOL(II),
      2       IELEM(L)   ,X         ,IXS(1,IELEM(L)), IX,
@@ -176,7 +177,7 @@ C
          IXX(2)=NSV(IRECTS(2,L))
          IXX(3)=NSV(IRECTS(3,L))
          IXX(4)=NSV(IRECTS(4,L))
-         IF(IELES(L).GT.0) THEN
+         IF(IELES(L)>0) THEN
           CALL I9GRD3(
      1     IERR ,COMAREA(IM+II),COMSTF(IM+II),COMT(IM+II),COMVOL(IM+II),
      2     IELES(L)      ,X,IXS(1,IELES(L))        ,IXX          ,
@@ -198,28 +199,28 @@ C
 C
        IF (NSPMD > 1) THEN
 C
-C gather des valeurs
+C gather values
 C
          CALL SPMD_GLOB_DSUM9(COMAREA,ILEN)
          CALL SPMD_GLOB_DSUM9(COMSTF,ILEN)
          CALL SPMD_GLOB_DSUM9(COMT,ILEN)
          CALL SPMD_GLOB_DSUM9(COMVOL,ILEN)
          CALL SPMD_GLOB_ISUM9(ICOMERR,ILEN)
- 	       CALL SPMD_GLOB_ISUM9(ICOMNGR,ILEN)
- 	       CALL SPMD_GLOB_ISUM9(ICOMNEL,ILEN)
-Cel partie noeud sur P0 uniquement
-         IF(ISPMD.NE.0) GOTO 900
+                 CALL SPMD_GLOB_ISUM9(ICOMNGR,ILEN)
+                 CALL SPMD_GLOB_ISUM9(ICOMNEL,ILEN)
+C   node part on P0 only
+         IF(ISPMD/=0) GOTO 900
        END IF
-Cel interface traitee par p0
+C   interface processed by p0
       ELSE
-       IF(ISPMD.NE.0) RETURN
+       IF(ISPMD/=0) RETURN
       ENDIF
 C
       DO 800 II=1,NSN
       LL1=NSEG(II)
       LL2=NSEG(II+1)-1
       N=NSV(II)
-      IF(ILOC(II).GT.0.AND.NMN.GT.0)THEN
+      IF(ILOC(II)>0.AND.NMN>0)THEN
 C---------------------------------
 C       CONTACT
 C---------------------------------
@@ -230,7 +231,7 @@ C---------------------------------
 C
         CALL SHAPEH(H,CRST(1,II),CRST(2,II))
 C---------------------------------
-C       VITESSE DE MAILLAGE
+C       mesh velocity
 C---------------------------------
         VMX=ZERO
         VMY=ZERO
@@ -248,39 +249,10 @@ C
         W(2,N) = W(2,N) + DVN * NOR(2,II)
         W(3,N) = W(3,N) + DVN * NOR(3,II)
 C
-C        W(1,N)=VMX
-C        W(2,N)=VMY
-C        W(3,N)=VMZ
 C---------------------------------
 C       PONT THERMIQUE
 C---------------------------------
-        IF(INTTH.NE.ZERO)THEN
-c         IF(IMACH.NE.3) THEN
-c          CALL I9GRD3(
-c     1       IERR  ,AREAM   ,TSTIFM,TM             ,VOLM      ,
-c     2       NB3M  ,IELEM(L),X     ,IXS(1,IELEM(L)),IX        ,
-c     3       IPARG ,PM      ,ELBUF )
-c          IF(IERR.EQ.0) THEN
-c            EFRIC = HALF * EE(II) / (LL2-LL1+1)
-c            DO 80 LL=LL1,LL2
-c             LG  = LMSR(LL)
-c             IXX(1)=NSV(IRECTS(1,LG))
-c             IXX(2)=NSV(IRECTS(2,LG))
-c             IXX(3)=NSV(IRECTS(3,LG))
-c             IXX(4)=NSV(IRECTS(4,LG))
-c             CALL I9GRD3(
-c     1        IERR  ,AREAS    ,TSTIFS,TS              ,VOLS    ,
-c     2        NB3S  ,IELES(LG),X     ,IXS(1,IELES(LG)),IXX     ,
-c     3        IPARG ,PM       ,ELBUF )
-c             IF(IERR.EQ.0) THEN
-c               TSTIFT = TSTIFM + TSTIFS + TSTIF
-c               PHI = AREAS * DT1 * (TM-TS) / TSTIFT
-c               ELBUF(NB3S) = ELBUF(NB3S) + (EFRIC+PHI)/VOLS
-c               ELBUF(NB3M) = ELBUF(NB3M) + (EFRIC-PHI)/VOLM
-c             ENDIF
-c 80         CONTINUE
-c          ENDIF
-c         ELSEIF(ISPMD.EQ.0)THEN
+        IF(INTTH/=ZERO)THEN
            KK = TAGM(L)
            EFRIC = HALF * EE(II) / (LL2-LL1+1)
            IERR = ICOMERR(KK)
@@ -288,7 +260,7 @@ c         ELSEIF(ISPMD.EQ.0)THEN
            TSTIFM = COMSTF(KK)
            TM = COMT(KK)
            VOLM = COMVOL(KK)
-           IF(IERR.EQ.0) THEN
+           IF(IERR==0) THEN
              DO LL = LL1,LL2
                LG = LMSR(LL)
                JJ = TAGS(LG) + IM
@@ -297,7 +269,7 @@ c         ELSEIF(ISPMD.EQ.0)THEN
                TSTIFS = COMSTF(JJ)
                TS = COMT(JJ)
                VOLS = COMVOL(JJ)
-               IF(IERR.EQ.0) THEN
+               IF(IERR==0) THEN
                  TSTIFT = TSTIFM + TSTIFS + TSTIF
                  PHI = AREAS * DT1 * (TM-TS) / TSTIFT
                  COMBUF(JJ) = COMBUF(JJ)
@@ -310,9 +282,9 @@ c         ELSEIF(ISPMD.EQ.0)THEN
 c         ENDIF
         ENDIF
 C
-      ELSEIF(ILOC(II).LT.0.OR.NMN.EQ.0)THEN
+      ELSEIF(ILOC(II)<0.OR.NMN==0)THEN
 C------------------------------------------------------
-C       BOUCLE SUR LES FACETTES CONNECTEES AU NOEUD II
+C       loop over facets connected to node ii
 C------------------------------------------------------
         ILOC(II) = -ILOC(II)
 C
@@ -324,16 +296,16 @@ C
         NNY = ZERO
         NNZ = ZERO
 C------------------------------------------------------
-C       BOUCLE SUR LES FACETTES CONNECTEES AU NOEUD II
+C       loop over facets connected to node ii
 C------------------------------------------------------
         DO 300 LL=LL1,LL2
          LG=LMSR(LL)
          DO 200 KKK=1,4
           KK=KKK
- 200     IF(IRECTS(KK,LG).EQ.II) GO TO 250
+ 200     IF(IRECTS(KK,LG)==II) GO TO 250
  250     CONTINUE
 C------------------------------------------------------
-C         CALCUL DE LA NORMALE AVEC UPWIND SUR L'AMONT
+C         calculation of the normal with upwind on the upstream side
 C------------------------------------------------------
           K1 = IPERM(KK-1)
           K2 = IPERM(KK+1)
@@ -360,9 +332,9 @@ C          FAC = P / MAX(EM30,SQRT(NX**2+NY**2+NZ**2))
           NNY = NNY + NY*FAC
           NNZ = NNZ + NZ*FAC
 C-------------------------------------
-C       TENSION DE SURFACE
+C       surface tension
 C-------------------------------------
-          IF(STENS.GT.ZERO)THEN
+          IF(STENS>ZERO)THEN
             T2X = -X1 + X2
             T2Y = -Y1 + Y2
             T2Z = -Z1 + Z2
@@ -386,12 +358,12 @@ C-------------------------------------
         NNZ = NNZ/FAC
 C
 C---------------------------------
-C       W LAGRANGIEN SUIVANT N
+C       W LAGRANGIEN ACCORDING TO N
 C---------------------------------
 C---------------------------------
-C       BCS DE GRILLE
+C       grid boundary conditions
 C---------------------------------
-        IF(ICODE(N).NE.0)THEN
+        IF(ICODE(N)/=0)THEN
           DVN = VX * NNX + VY * NNY + VZ * NNZ
           W(1,N) = W(1,N) + DVN * NNX
           W(2,N) = W(2,N) + DVN * NNY
@@ -400,18 +372,18 @@ C---------------------------------
           VN = V(1,N)*NNX + V(2,N)*NNY + V(3,N)*NNZ
           WN = W(1,N)*NNX + W(2,N)*NNY + W(3,N)*NNZ
 C-------------------------------------
-C         W LAGRANGIEN SUIVANT N + BCS
+C         W LAGRANGIEN ACCORDING TO N + BCS
 C-------------------------------------
-          IF(ABS(WN).GT.EM30)THEN
+          IF(ABS(WN)>EM30)THEN
             FAC = VN / WN
             W(1,N) = W(1,N) * FAC
             W(2,N) = W(2,N) * FAC
             W(3,N) = W(3,N) * FAC
           ENDIF
-        ELSEIF(IEULT.NE.0)THEN
+        ELSEIF(IEULT/=0)THEN
 C-------------------------------------
-C         W LAGRANGIEN SUIVANT N
-C         W EULERIEN SUIVANT T
+C         W LAGRANGIEN ACCORDING TO N
+C         W EULERIEN ACCORDING TO T
 C---------------------------------
           VN = V(1,N)*NNX + V(2,N)*NNY + V(3,N)*NNZ
           W(1,N) = VN * NNX
@@ -419,8 +391,8 @@ C---------------------------------
           W(3,N) = VN * NNZ
         ELSE
 C-------------------------------------
-C         W LAGRANGIEN SUIVANT N
-C         LIBRE SUIVANT T
+C         W LAGRANGIEN ACCORDING TO N
+C         LIBRE ACCORDING TO T
 C---------------------------------
           DVN = VX * NNX + VY * NNY + VZ * NNZ
           W(1,N) = W(1,N) + DVN * NNX
@@ -431,22 +403,22 @@ C---------------------------------
 C
   800 CONTINUE
 C
-C Phase de Finalisation pour SPMD
+C finalization phase for spmd
 C
   900 CONTINUE
-      IF(INTTH.NE.ZERO) THEN
+      IF(INTTH/=ZERO) THEN
        IF(NSPMD > 1) THEN
 C
-C Envoi buffer elems updates
+C Envoi buffer elements updates
 C
          CALL SPMD_RBCAST(COMBUF,COMBUF,1,ILEN,0,2)
        END IF
 C
-C Mise a jour ELBUF local
+C Local Elbuf update
 C
        DO II = 1, IM
          L = LISTM(II)
-         IF(IELEM(L).GT.0) THEN
+         IF(IELEM(L)>0) THEN
            IGROU = ICOMNGR(II)
            IELN  = ICOMNEL(II)
            ELBUF_TAB(IGROU)%GBUF%EINT(IELN) = 
@@ -456,7 +428,7 @@ C
 C
        DO II = 1, IS
          L =  LISTS(II)
-         IF(IELES(L).GT.0) THEN
+         IF(IELES(L)>0) THEN
            IGROU = ICOMNGR(IM+II)
            IELN  = ICOMNEL(IM+II)
            ELBUF_TAB(IGROU)%GBUF%EINT(IELN) = 

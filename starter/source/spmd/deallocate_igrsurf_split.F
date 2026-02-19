@@ -1,37 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DEALLOCATE_IGRSURF_SPLIT      source/spmd/deallocate_igrsurf_split.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!> \brief This routine deallocates the local IGSURF_PROC arrays
+!!
+!! \details loop over the NVOLU airbaig and NSURF surfaces to deallote the structure
+!!
+!||====================================================================
+!||    deallocate_igrsurf_split   ../starter/source/spmd/deallocate_igrsurf_split.F
+!||--- called by ------------------------------------------------------
+!||    lectur                     ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||    monvol_struct_mod          ../starter/share/modules1/monvol_struct_mod.F
+!||====================================================================
         SUBROUTINE DEALLOCATE_IGRSURF_SPLIT(T_MONVOL,IGRSURF_PROC)
 !$COMMENT
 !       DEALLOCATE_IGRSURF_SPLIT description
-!       DEALLOCATE_IGRSURF_SPLIT deallocates the local IGSURF_PROC arraies
+!       DEALLOCATE_IGRSURF_SPLIT deallocates the local IGSURF_PROC arrays
 !       
 !       DEALLOCATE_IGRSURF_SPLIT organization :
 !       -loop over NVOLU in order to deallocate the array
@@ -65,14 +68,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-        INTEGER :: NV,IS,NN,J
-        INTEGER :: ITY,II,PROC,K1
-        INTEGER :: OFFC,OFFTG   
-        INTEGER, DIMENSION(NSPMD) :: JJ
+        INTEGER :: NV,IS
+        INTEGER :: PROC,K1
 C-----------------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------------
-        !       --------------------------------------
+        ! --------------------------------------
+        ! Airbag
         K1 = 1
         DO NV=1,NVOLU                   !       NVOLU = number of volume
                 IS = T_MONVOL(NV)%EXT_SURFID  
@@ -88,7 +90,19 @@ C-----------------------------------------------------
                 ! deallocation of NUMBER_TRI_PER_PROC :
                  DEALLOCATE( T_MONVOL(NV)%NUMBER_TRI_PER_PROC )
                 ! --------------------
-        ENDDO        
-        !       --------------------------------------
+        ENDDO   
+        ! --------------------------------------  
+
+
+        ! --------------------------------------    
+        ! Surface 
+        DO IS=1,NSURF
+            DO PROC=1,NSPMD
+                IF(ALLOCATED( IGRSURF_PROC(IS,PROC)%LOCAL_SEG )) DEALLOCATE( IGRSURF_PROC(IS,PROC)%LOCAL_SEG )
+                IF(ALLOCATED( IGRSURF_PROC(IS,PROC)%ELTYP ))DEALLOCATE( IGRSURF_PROC(IS,PROC)%ELTYP ) 
+                IF(ALLOCATED( IGRSURF_PROC(IS,PROC)%ELEM ))DEALLOCATE( IGRSURF_PROC(IS,PROC)%ELEM ) 
+            ENDDO
+        ENDDO
+        ! --------------------------------------
         RETURN
         END SUBROUTINE DEALLOCATE_IGRSURF_SPLIT

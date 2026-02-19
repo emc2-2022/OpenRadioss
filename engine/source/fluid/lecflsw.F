@@ -1,38 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECFLSW                       source/fluid/lecflsw.F        
-Chd|-- called by -----------
-Chd|        LECTUR                        source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        NINTRN                        source/fluid/nintrn.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lecflsw       ../engine/source/fluid/lecflsw.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../engine/source/input/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||    nintrn        ../engine/source/fluid/nintrn.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LECFLSW (NSFLSW,NTFLSW,NEFLSW,NNFLSW,CRFLSW,
      .                    X,IXS,IPARG,ITMP)
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -67,12 +70,12 @@ C-----------------------------------------------
       WRITE (IOUT, 1000)
       DO 200 I = 1, NSFLSW
 C
-C     LECTURE DU NUMERO DE LA SECTION ET DU NOMBRE DE FACES
+C     READ SECTION NUMBER AND NUMBER OF FACES
 C
         READ (IIN, '(2I5,3F10.0)') IS, NEL, CRX, CRY, CRZ
 C
 C
-C     LECTURE DES FACES PAR SECTION
+C     READ FACES PER SECTION
 C
         NEFLSW(I) = NEL
         CRFLSW(1,I) = CRX
@@ -84,22 +87,22 @@ C
   100   CONTINUE
   200 CONTINUE
 C
-C     TEST SI LE NOMBRE TOTALE DE FACES EST EGALE A NTFLSW
+C     TEST IF TOTAL NUMBER OF FACES EQUALS NTFLSW
 C
-      IF (IL .NE. NTFLSW) THEN
+      IF (IL /= NTFLSW) THEN
         CALL ANCMSG(MSGID=16,ANMODE=ANINFO,
      .              I1=IL,I2=NTFLSW)
         CALL ARRET(2)
       END IF
 C
-C     CALCUL DE LA NUMEROTATION INTERNE DES ELEMENTS ET L'ADRESSE
-C     DANS LE BUFFER D'ELEMENTS
-C       IL               :  NUMERO LOCALE DE LA FACE ET DE L'ELEMENT
-C       IE               :  NUMERO EXTERNE DE L'ELEMENT
-C       NEL=NNFLSW(1,IL) :  NOMBRE D'ELEMENTS DANS LE GROUPE D'ELEMENTS
-C       IB2=NNFLSW(7,IL) :  ADRESSE DE LA PRESSION (ECRASE NUMERO EXTERNE)
-C       IB3=NNFLSW(8,IL) :  ADRESSE DE L'ENERGIE
-C       ITMP(II) = IL    :  NUMERATION LOCALE DES ELEMENTS DES SECTIONS
+C     CALCULATE INTERNAL NUMBERING OF ELEMENTS AND ADDRESS
+C     IN THE ELEMENTS BUFFER
+C       IL               :  LOCAL NUMBER OF THE FACE AND ELEMENT
+C       IE               :  EXTERNAL NUMBER OF THE ELEMENT
+C       NEL=NNFLSW(1,IL) :  NUMBER OF ELEMENTS IN THE ELEMENT GROUP
+C       IB2=NNFLSW(7,IL) :  ADDRESS OF THE PRESSURE (OVERWRITES EXTERNAL NUMBER)
+C       IB3=NNFLSW(8,IL) :  ADDRESS OF THE ENERGY
+C       ITMP(II) = IL    :  LOCAL NUMBERING OF SECTION ELEMENTS
 C
       DO 300 I = 1, NUMELS
         ITMP(I) = 0
@@ -109,12 +112,12 @@ C
         IE = NNFLSW(7,IL)
         II = NINTRN(IE,IXS,11,NUMELS)
         ITMP(II) = IL
-        IF (NNFLSW(6,IL) .EQ. 0) NNFLSW(6,IL) = 4
+        IF (NNFLSW(6,IL) == 0) NNFLSW(6,IL) = 4
   310 CONTINUE
 C
       DO 350 NG=1,NGROUP
         ITY = IPARG(5,NG)
-        IF(ITY.GT.1) GO TO 350
+        IF(ITY>1) GO TO 350
         LFT = 1
         LLT = IPARG(2,NG)
         NFT = IPARG(3,NG)
@@ -122,7 +125,7 @@ C
         DO 330 I = LFT,LLT
           N = I+NFT
           IL = ITMP(N)
-          IF (IL .GT. 0) THEN
+          IF (IL > 0) THEN
             NNFLSW(7,IL) = NB1 +   LLT + 6*I - 6
             NNFLSW(8,IL) = NB1 + 7*LLT +   I - 1
             NNFLSW(1,IL) = LLT
@@ -130,7 +133,7 @@ C
   330   CONTINUE
   350 CONTINUE
 C
-C     CALCUL DES SURFACES ET DE LA NORMALE PAR SECTION
+C     CALCULATE SURFACES AND NORMALS PER SECTION
 C
       IL = 0
       I2 = 0

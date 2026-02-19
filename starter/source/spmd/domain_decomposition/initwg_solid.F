@@ -1,45 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INITWG_SOLID                  source/spmd/domain_decomposition/initwg_solid.F
-Chd|-- called by -----------
-Chd|        INITWG                        source/spmd/domain_decomposition/initwg.F
-Chd|-- calls ---------------
-Chd|        BIDON                         source/system/machine.F       
-Chd|        DDWEIGHTS_MOD                 share/modules1/ddweights_mod.F
-Chd|        MID_PID_MOD                   share/modules1/mid_pid_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    initwg_solid       ../starter/source/spmd/domain_decomposition/initwg_solid.F
+!||--- called by ------------------------------------------------------
+!||    initwg             ../starter/source/spmd/domain_decomposition/initwg.F
+!||--- calls      -----------------------------------------------------
+!||    bidon              ../starter/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    ddweights_mod      ../starter/share/modules1/ddweights_mod.F
+!||    mid_pid_mod        ../starter/share/modules1/mid_pid_mod.F
+!||====================================================================
       SUBROUTINE INITWG_SOLID(WD,PM,GEO,IXS,IGEO,ISOLNOD,
      .            NUMELS,IPM, SIZE_IRUP,
      .            NUMMAT,NUMGEO,
      .            POIN_PART_SOL,MID_PID_SOL,IPARTS,BUFMAT,
      .            MID_OLD,PID_OLD,MLN_OLD,RECHERCHE,ISOL_OLD,
-     .            TELT_PRO,TABMP_L,NPART)
+     .            TELT_PRO,TABMP_L,NPART,MAT_PARAM)
 C-----------------------------------------------
 C            M o d u l e s
 C-----------------------------------------------
       USE DDWEIGHTS_MOD
       USE MID_PID_MOD
+      USE MATPARAM_DEF_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,12 +52,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "com_xfem1.inc"
-#include      "scr21_c.inc"
-#include      "scr05_c.inc"
 #include      "tablen_c.inc"
-#include      "scr23_c.inc"
-#include      "spmd_c.inc" 
 #include      "ddspmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -65,7 +63,7 @@ C-----------------------------------------------
      .  IXS(NIXS,*),IGEO(NPROPGI,NUMGEO),ISOLNOD(*),
      .  IPM(NPROPMI,*),TABMP_L,NPART
       INTEGER, INTENT(IN) :: SIZE_IRUP
-C     REAL OU REAL*8
+C     REAL OR REAL*8
       my_real
      .    PM(NPROPM,*), GEO(NPROPG,*),BUFMAT(*)
       REAL WD(*)
@@ -75,14 +73,15 @@ C     REAL OU REAL*8
       INTEGER, DIMENSION(2,NPART,*), INTENT(IN) :: POIN_PART_SOL
       INTEGER, DIMENSION(*), INTENT(IN) :: IPARTS
       TYPE(MID_PID_TYPE), DIMENSION(NUMMAT,*), INTENT(INOUT) :: MID_PID_SOL
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT), INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
       INTEGER OFF, NPN, MID, PID, JHBE, IGT, MLN,
      .    ISTRAIN, ITHK, IHBE, IPLA, ISSN, MTN, I, J, K,L,
-     .    NFUNC,MPT,NPTS,NPTT,NPTR,NPTOT,IFLAG,JSROT,
+     .    NFUNC,MPT,NPTS,NPTT,NPTR,NPTOT,IFLAG,JSROT,IVISC,
      .    I_MID,I_PID,I_MID_OLD,I_PID_OLD,PUID,MUID,
      .    ELM_TYP,ELM_TYP_OLD,ILAW,ILAW_OLD,TEST_MAT,
      .    I_PRO,ISOL2,MUID_OLD,PUID_OLD,
-     .    TEST,NFUNC1,NFUNC2,IRUP,IRUP2,
+     .    TEST,NFUNC1,NFUNC2,NFAIL,IRUP2,
      .    ISOL,INDI,IAD,INDI2,MULT
       INTEGER :: INDI3,ADD_OPTION,INDI_OPT_1,INDI_OPT_2
       INTEGER :: IRUP_TAB(SIZE_IRUP)
@@ -102,9 +101,17 @@ C-----------------------------------------------
       INTEGER :: OVERCOST_ELM ,ICPR,NUMBER_LAYER
       INTEGER :: NLAY,COMPOSITE_MID,COMPOSITE_MLN
       LOGICAL :: COMPOSITE_OPTION
+      
+      LOGICAL :: ISMSTR_COST
+      INTEGER :: ISMSTR,ISMSTR_L,ISM0,ICP0
+      my_real :: ADD_OVER_COST,VISC_PRONY
 
       DATA WTYPE /1.6 ,1. ,1. ,.9 ,1.1 ,1.4 ,0.65 ,.9 ,2.0/     
 C-----------------------------------------------
+      OVERCOST_ELM = 0
+      TELT = 0
+      JSROT = 0
+      NFUNC = 0
        CALL BIDON()
 !     DD_OPTIMIZATION = 0 --> default case, DD optimized for Broadwell processor
 !     DD_OPTIMIZATION = 1 --> DD optimized for Skylake processor 
@@ -135,7 +142,8 @@ C -------------------------------
 C Element Property initialization
 C -------------------------------
         NPN = 1
-        JHBE=IHBE_D
+!        JHBE=IHBE_D  ! IHBE_D is used for shell
+        JHBE = 1 ! not be important for PID=0
         MID= IXS(1,I)
         PID= IXS(10,I)
         
@@ -167,22 +175,23 @@ C -------------------------------
           INDI3 = 9
         ENDIF
         ! -----------------
-        IF (PID.NE.0) THEN
+        IF (PID/=0) THEN
          JHBE  = IGEO(10,PID)
          IGT   = IGEO(11,PID)
          NPN   = IGEO(4,PID)
          JSROT = IGEO(20,PID)
         ENDIF
-        IRUP = IPM(220,ABS(MID))
-        IRUP_TAB(1:IRUP) = 0
-        IF(IRUP/=0) THEN          ! up to 6 failure models per material
-         DO J=1,IRUP
-          IRUP_TAB(J) = IPM(111+15*(J-1),ABS(MID))
+        NFAIL = MAT_PARAM(ABS(MID))%NFAIL
+        IRUP_TAB(1:NFAIL) = 0
+        IF(NFAIL/=0) THEN          ! up to 6 failure models per material
+         DO J=1,NFAIL
+          IRUP_TAB(J) = MAT_PARAM(ABS(MID))%FAIL(J)%IRUPT
          ENDDO
         ENDIF
         TMAT = 0.
         TRUP = 0.
         TMATADD = 0.
+        VISC_PRONY = 0.
         OPT_1 = ZERO
         OPT_2 = ZERO
         ADD_OPTION = 0
@@ -194,80 +203,142 @@ C -------------------------------
         !   -------------
         !   check if composite material is used
         COMPOSITE_OPTION = .FALSE.
-        IF(IGEO(30,PID)>0) THEN
+        IF (IGEO(30,PID)>0 .AND. IGEO(11,PID)==22) THEN
             COMPOSITE_OPTION = .TRUE.
         ENDIF
         !   -------------
+
+        ISMSTR = IGEO(5,PID) ! get the value of ismstr
+
+        ISMSTR_COST = .FALSE.
+        ADD_OVER_COST = ZERO
         IF((MLN<28).OR.(MLN==49).OR.(MLN==59)) THEN
          IRUP2 = 1
         ELSE
          IRUP2 = 2
         ENDIF
-        IF (MLN.EQ.2) THEN
-           CC = PM(43,MID)
-           IF (CC.NE.0) THEN
+
+        ISMSTR_L = ISMSTR
+        IF(ISMSTR<1) THEN
+          ISM0 = MAT_PARAM(ABS(MID))%SMSTR
+          ICP0 = MAT_PARAM(ABS(MID))%STRAIN_FORMULATION
+          IF (ICP0 ==2.AND.JHBE/=16) THEN
+            IF (ISM0==1) THEN
+              ISMSTR_L = 11
+            ELSE
+              ISMSTR_L = 10
+            END IF
+          ELSE
+            IF (ISM0==1) THEN
+              ISMSTR_L = 1
+            ELSE
+              ISMSTR_L = 2
+            END IF
+          END IF
+          IF (MLN == 1.AND.JHBE/=16) ISMSTR_L = 12
+        ENDIF
+
+        
+        IF ( MLN==1.OR.MLN==38.OR.
+     .       MLN==90.OR.MLN==92.OR.MLN==94 ) THEN 
+          IF (ISMSTR_L==10.OR.ISMSTR_L==12) THEN
+            ISMSTR_COST = .TRUE.
             INDI = 2
-           ELSE
+          ELSE
             INDI = 1
-           ENDIF
+          ENDIF
+          IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+            VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+          ENDIF
+        ELSEIF (MLN==2) THEN
+          CC = PM(43,MID)
+          IF (CC/=0) THEN
+            INDI = 2
+          ELSE
+            INDI = 1
+          ENDIF
+          IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+            VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+          ENDIF
+        ! ----------------
+        ! law 25 : 2 sub-option
+        ELSEIF(MLN==25) THEN
+          IF (MAT_PARAM(ABS(MID))%iparam(1)==1) THEN
+            INDI = 2
+          ELSE
+            INDI = 1
+          ENDIF
+          IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+            VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+          ENDIF
+        ! ----------------
         ELSEIF (MLN == 36)THEN
-           NFUNC = MAX(IPM(10,MID) - 3,1)
-           IF (NFUNC.LE.2) THEN
+          NFUNC = MAX(IPM(10,MID) - 3,1)
+          IF (NFUNC<=2) THEN
             INDI = 1
-           ELSEIF (NFUNC.GT.2.AND.NFUNC.LE.7) THEN
+          ELSEIF (NFUNC>2.AND.NFUNC<=7) THEN
             INDI = 2
-           ELSEIF (NFUNC.GT.7) THEN
+          ELSEIF (NFUNC>7) THEN
             INDI = 3
-           ENDIF
+          ENDIF
+          IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+            VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+          ENDIF
         ELSEIF (MLN==33) THEN
-           NFUNC1 = IPM(11,MID)
-           NFUNC2 = IPM(12,MID)
-           IF((NFUNC1/=0).OR.(NFUNC2/=0)) THEN
+          NFUNC1 = IPM(11,MID)
+          NFUNC2 = IPM(12,MID)
+          IF((NFUNC1/=0).OR.(NFUNC2/=0)) THEN
             INDI = 2
-           ELSE
+          ELSE
             INDI = 1
-           ENDIF
+          ENDIF
+          IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+            VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+          ENDIF
         ELSEIF((MLN==42).OR.(MLN==62).OR.(MLN==69)) THEN
 !       check the NPRONY model
-           IAD=IPM(7,ABS(MID))-1
-           IF(MLN==42) NFUNC = NINT(BUFMAT(IAD+16))
-           IF(MLN==62) NFUNC = NINT(BUFMAT(IAD+3))
-           IF(MLN==69) THEN
-            NFUNC = 0
-            IF(IPM(222,ABS(MID)) > 0) THEN 
-             IAD = IPM(223,ABS(MID))
-             NFUNC =  NINT(BUFMAT(IAD +1 ))
+          NFUNC = 0
+          IF (MLN==42) NFUNC = MAT_PARAM(ABS(MID))%IPARAM(2)
+          IF (MLN==62) THEN
+            IAD = IPM(7,ABS(MID))-1
+            NFUNC = NINT(BUFMAT(IAD+3))
+          END IF
+          IF (NFUNC==0) THEN
+            INDI  = 1
+            IVISC = MAT_PARAM(ABS(MID))%IVISC
+            IF (IVISC == 1 .or. IVISC == 2) THEN 
+              VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
             ENDIF
-           ENDIF
-           IF(NFUNC==0) THEN
-            INDI = 1
-           ELSEIF(NFUNC==1) THEN
+          ELSEIF(NFUNC==1) THEN
             INDI = 2
-           ELSEIF(NFUNC==2) THEN
+          ELSEIF(NFUNC==2) THEN
             INDI = 3
-           ELSEIF(NFUNC>2) THEN
+          ELSEIF(NFUNC>2) THEN
             INDI = 3
             MULT = NFUNC - 2
             INDI2 = 2            
-           ENDIF
+          ENDIF
         ELSEIF((MLN==82)) THEN
-           IAD=IPM(7,ABS(MID))-1
-           NFUNC=NINT(BUFMAT(IAD+1))
-           IF(NFUNC<=1) THEN
+          IAD=IPM(7,ABS(MID))-1
+          NFUNC=NINT(BUFMAT(IAD+1))
+          IF(NFUNC<=1) THEN
             INDI = 1
-           ELSEIF(NFUNC==2) THEN
+            IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+              VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+            ENDIF
+          ELSEIF(NFUNC==2) THEN
             INDI = 2
-           ELSEIF(NFUNC==3) THEN
+          ELSEIF(NFUNC==3) THEN
             INDI = 3
-           ELSEIF(NFUNC>3) THEN
+          ELSEIF(NFUNC>3) THEN
             INDI = 3
             MULT = NFUNC - 3
             INDI2 = 2            
-           ENDIF
+          ENDIF
         ELSEIF(MLN==100) THEN
         !       SPECIAL TREATMENT :
         !       LAW 100 : material cost = base cost + viscosity cost + N * network cost
-        !                                              (optionnal)        (optionnal)
+        !                                               (optional)         (optional)
         !                                   INDI        INDI_OPT_1         INDI_OPT_2
            INDI=1
            IAD=IPM(7,ABS(MID))-1
@@ -315,10 +386,18 @@ C -------------------------------
            ELSEIF(FLAG_GURSON==3) THEN
              SPE_I_2 = 3
            ENDIF                
-           FLAG_NON_LOCAL = IPM(253,ABS(MID))
+           FLAG_NON_LOCAL = MAT_PARAM(ABS(MID))%NLOC
+            IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+              VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+            ENDIF
         ELSE
            INDI = 1
+           IF (MAT_PARAM(ABS(MID))%IVISC > 0) THEN 
+             VISC_PRONY = VISC_PRONY_COST * MAT_PARAM(ABS(MID))%VISC%IPARAM(1)
+           ENDIF
         ENDIF
+        IF(ISMSTR_COST) ADD_OVER_COST = ELM_OVER_COST(1)
+       
         MULT_SPE = 0.
         SPE_I_3 = 1
         IF(FLAG_NON_LOCAL/=0) THEN
@@ -330,7 +409,7 @@ C -------------------------------
 !       ---------------------------
 !       TETRA 4
 !       ---------------------------       
-        IF (ISOL.EQ.4.AND. (JSROT .NE. 1)) THEN
+        IF (ISOL==4.AND. (JSROT /= 1)) THEN
         ! check if the (mid,pid) cost must be initialized from a previous run
          IF(RECHERCHE==0.AND.TEST_POIDS/=0) THEN
            POIN_PART = IPARTS(I)
@@ -356,22 +435,22 @@ C -------------------------------
            ENDIF
 !          --------------
 !          Failure
-           IF(IRUP/=0) THEN
-            DO J=1,IRUP
+           IF(NFAIL/=0) THEN
+            DO J=1,NFAIL
              TRUP = TRUP + RUPTURE_TET4(IRUP_TAB(J),IRUP2)
             ENDDO
            ENDIF
 !          --------------            
-           TELT = TMAT + TET4TELT(1)  + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
+           TELT = TMAT + TET4TELT(1)  + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + ADD_OVER_COST + VISC_PRONY
          ENDIF
 !****************************************
 !       ---------------------------
 !       TETRA 10 or TETRA4 + JSROT
 !       ---------------------------
-        ELSEIF ((ISOL.EQ.10).OR.(ISOL.EQ.4.AND. JSROT==1)) THEN
+        ELSEIF ((ISOL==10).OR.(ISOL==4.AND. JSROT==1)) THEN
         ! check if the (mid,pid) cost must be initialized from a previous run
          IF(RECHERCHE==0.AND.TEST_POIDS/=0) THEN
-           IF(ISOL.EQ.10) THEN
+           IF(ISOL==10) THEN
             POIN_PART = IPARTS(I)
             POIN_MID = POIN_PART_SOL(1,POIN_PART,2)
             POIN_PID = POIN_PART_SOL(2,POIN_PART,2)
@@ -384,7 +463,7 @@ C -------------------------------
                  TELT = MID_PID_SOL(POIN_MID,POIN_ELM_TYP)%COST1D(POIN_PID)
              ENDIF
             ENDIF
-           ELSEIF(ISOL.EQ.4.AND. JSROT==1) THEN
+           ELSEIF(ISOL==4.AND. JSROT==1) THEN
             POIN_PART = IPARTS(I)
             POIN_MID = POIN_PART_SOL(1,POIN_PART,6)
             POIN_PID = POIN_PART_SOL(2,POIN_PART,6)
@@ -411,15 +490,15 @@ C -------------------------------
             ENDIF
 !           --------------
 !           Failure
-            IF(IRUP/=0) THEN
-             DO J=1,IRUP
+            IF(NFAIL/=0) THEN
+             DO J=1,NFAIL
               TRUP = TRUP + RUPTURE_TET10(IRUP_TAB(J),IRUP2)
              ENDDO
             ENDIF
 !           --------------
-             IF(ISOL.EQ.10) TELT = TET10TELT(1)
-             IF(ISOL.EQ.4.AND. JSROT==1) TELT = TET4TELT(2)
-             TELT = TMAT + TELT + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
+             IF(ISOL==10) TELT = TET10TELT(1)
+             IF(ISOL==4.AND. JSROT==1) TELT = TET4TELT(2)
+             TELT = TMAT + TELT + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + 4.*(ADD_OVER_COST + VISC_PRONY)
          ENDIF
         ELSE
 !****************************************
@@ -453,7 +532,7 @@ C -------------------------------
            ENDIF
         ! the (mid,pid) cost must be initialized from .inc file
            IF(COST_CHECK==0) THEN
-            IF (JHBE.EQ.1) THEN
+            IF (JHBE==1) THEN
 !           Solides ISOLD1
               IF( DDWEIGHTS(1,1,IABS(MID))/=0)THEN
                TMAT = DDWEIGHTS(1,1,IABS(MID)) * TPSREF
@@ -465,14 +544,14 @@ C -------------------------------
               ENDIF
 !             --------------
 !             Failure
-              IF(IRUP/=0) THEN
-               DO J=1,IRUP
+              IF(NFAIL/=0) THEN
+               DO J=1,NFAIL
                 TRUP = TRUP + RUPTURE_SOL(IRUP_TAB(J),IRUP2)
                ENDDO
               ENDIF
 !             -------------- 
-              TELT = TMAT + SOLTELT(1)  + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
-            ELSEIF (JHBE.EQ.2) THEN
+              TELT = TMAT + SOLTELT(1)  + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + ADD_OVER_COST + VISC_PRONY
+            ELSEIF (JHBE==2) THEN
 !           Solides ISOLD2
               IF( DDWEIGHTS(1,1,IABS(MID))/=0)THEN
                 TMAT = DDWEIGHTS(1,1,IABS(MID)) * TPSREF
@@ -484,14 +563,14 @@ C -------------------------------
               ENDIF
 !             --------------
 !             Failure
-              IF(IRUP/=0) THEN
-               DO J=1,IRUP
+              IF(NFAIL/=0) THEN
+               DO J=1,NFAIL
                 TRUP = TRUP + RUPTURE_SOL(IRUP_TAB(J),IRUP2)
                ENDDO
               ENDIF
 !             -------------- 
-              TELT = TMAT + SOLTELT(2) + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
-            ELSEIF (JHBE.EQ.24.OR.JHBE.EQ.104) THEN
+              TELT = TMAT + SOLTELT(2) + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + ADD_OVER_COST + VISC_PRONY
+            ELSEIF (JHBE==24.OR.JHBE==104) THEN
 !           Solides ISOLD24  - HEPH
               IF( DDWEIGHTS(1,1,IABS(MID))/=0)THEN
                 TMAT = DDWEIGHTS(1,1,IABS(MID)) * TPSREF
@@ -503,16 +582,16 @@ C -------------------------------
               ENDIF
 !             --------------
 !             Failure
-              IF(IRUP/=0) THEN
-               DO J=1,IRUP
+              IF(NFAIL/=0) THEN
+               DO J=1,NFAIL
                 TRUP = TRUP + RUPTURE_SOL(IRUP_TAB(J),IRUP2)
                ENDDO
               ENDIF
 !             -------------- 
-              TELT = TMAT + SOLTELT(3) + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
+              TELT = TMAT + SOLTELT(3) + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + ADD_OVER_COST + VISC_PRONY
 C
-            ELSEIF (JHBE.EQ.12) THEN
-!           Solides ISOLD12 - std 8 node integ point
+            ELSEIF (JHBE==12) THEN
+!           Solids Insd12 - STD 8 NODE INTEG Point
               IF( DDWEIGHTS(1,1,IABS(MID))/=0)THEN
                 TMAT = DDWEIGHTS(1,1,IABS(MID)) * TPSREF
               ELSE
@@ -523,14 +602,14 @@ C
               ENDIF
 !             --------------
 !             Failure
-              IF(IRUP/=0) THEN
-               DO J=1,IRUP
+              IF(NFAIL/=0) THEN
+               DO J=1,NFAIL
                 TRUP = TRUP + RUPTURE_SOL12(IRUP_TAB(J),IRUP2)
                ENDDO
               ENDIF
 !             -------------- 
-              TELT = TMAT + SOLTELT(4) + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
-            ELSEIF ( (JHBE.EQ.14.OR.(JHBE.GE.222.AND.JHBE.LE.999)).AND.(IGT/=20.AND.IGT/=21.AND.IGT/=22)) THEN
+              TELT = TMAT + SOLTELT(4) + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + 8.*(ADD_OVER_COST + VISC_PRONY)
+            ELSEIF ( (JHBE==14.OR.(JHBE>=222.AND.JHBE<=999)).AND.(IGT/=20.AND.IGT/=21.AND.IGT/=22)) THEN
 !           Solides HA8
                MPT = ABS (NPN)
                NPTR = MAX(MPT/100,1)
@@ -548,8 +627,8 @@ C
                ENDIF
 !              --------------
 !              Failure
-               IF(IRUP/=0) THEN
-                DO J=1,IRUP
+               IF(NFAIL/=0) THEN
+                DO J=1,NFAIL
                  TRUP = TRUP + RUPTURE_SOL(IRUP_TAB(J),IRUP2)
                 ENDDO
                ENDIF
@@ -558,8 +637,9 @@ C
                ! if NPT > 8, element weight = reference weight + (NPT-8) * overweight 
                OVERCOST_ELM = 0
                IF(NPTOT>8) OVERCOST_ELM = NPTOT-8
-               TELT = NPTOT*(TMAT+TRUP)+SOLTELT(5) +OVERCOST_ELM *SOLTELT(6) + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
-            ELSEIF(JHBE.EQ.14.AND.(IGT==20.OR.IGT==21.OR.IGT==22)) THEN
+               TELT = NPTOT*(TMAT+TRUP+ADD_OVER_COST+VISC_PRONY)+SOLTELT(5) +OVERCOST_ELM *SOLTELT(6) +
+     .                MULT_SPE*NLOCAL_OPTION(SPE_I_3)
+            ELSEIF(JHBE==14.AND.(IGT==20.OR.IGT==21.OR.IGT==22)) THEN
 !           Solides Thick shell
                MPT = ABS (NPN)
                NPTR = MAX(MPT/100,1)
@@ -583,9 +663,9 @@ C
                     !   ICPR = ijk = rst ( i=r / j=s / k=t)
                     IF(ICPR==100) THEN  !   r direction
                         OVERCOST_ELM = NPTS*NPTT
-                    ELSEIF(ICPR==10) THEN  !   s direction
+                    ELSEIF(ICPR==10) THEN  !   Sharp
                         OVERCOST_ELM = NPTT*NPTR
-                    ELSE                !   t direction
+                    ELSE                !   Directorate
                         OVERCOST_ELM = NPTS*NPTR
                     ENDIF
                 ELSE
@@ -596,10 +676,10 @@ C
                     IF(ICPR==100) THEN  !   r direction
                         NUMBER_LAYER = NPTR
                         OVERCOST_ELM = NPTS*NPTT
-                    ELSEIF(ICPR==10) THEN  !   s direction
+                    ELSEIF(ICPR==10) THEN  !   Sharp
                         NUMBER_LAYER = NPTS
                         OVERCOST_ELM = NPTT*NPTR
-                    ELSE                !   t direction
+                    ELSE                !   Directorate
                         NUMBER_LAYER = NPTT
                         OVERCOST_ELM = NPTS*NPTR
                     ENDIF          
@@ -619,17 +699,44 @@ C
                ENDIF
 !              --------------
 !              Failure
-               IF(IRUP/=0) THEN
-                DO J=1,IRUP
+               IF(NFAIL/=0) THEN
+                DO J=1,NFAIL
                  TRUP = TRUP + RUPTURE_SOL(IRUP_TAB(J),IRUP2)
                 ENDDO
                ENDIF
 !              --------------
                ! 4 NPT = 202 = 4 * reference weight 
                ! if NPT > 4, element weight = reference weight + overcost
-               TELT = OVERCOST_ELM*TMAT+NPTOT*TRUP + 
-     .                OVERCOST_ELM*NUMBER_LAYER*SOLTELT(10) + MULT_SPE*NLOCAL_OPTION(SPE_I_3)     
-            ELSEIF (JHBE.EQ.17) THEN   
+               TELT = OVERCOST_ELM*(TMAT+VISC_PRONY)+NPTOT*TRUP + 
+     .                OVERCOST_ELM*NUMBER_LAYER*SOLTELT(10) + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + 
+     .                OVERCOST_ELM * ADD_OVER_COST
+            ELSEIF(JHBE==15) THEN
+               ! -------------- 
+               ! Solid Thick shell
+               ! -------------- 
+               IF( DDWEIGHTS(1,1,IABS(MID))/=0)THEN
+                TMAT = DDWEIGHTS(1,1,IABS(MID)) * TPSREF
+               ELSE
+                IF(MULT/=0) TMATADD = MULT * (SOL1TNL(MLN,INDI)-SOL1TNL(MLN,INDI2))
+                IF(ADD_OPTION/=0) TMATADD = OPT_1 * SOL1TNL(MLN,INDI_OPT_1) + OPT_2 * SOL1TNL(MLN,INDI_OPT_2)
+                IF(SPECIAL_OPTION/=0) TMATADD = TMATADD + SOL_OPTION(SPE_I_1,SPE_I_2) 
+                TMAT = SOL1TNL(MLN,INDI) + TMATADD
+               ENDIF
+!              --------------
+!              Failure
+               IF(NFAIL/=0) THEN
+                DO J=1,NFAIL
+                 TRUP = TRUP + RUPTURE_SOL(IRUP_TAB(J),IRUP2)
+                ENDDO
+               ENDIF
+
+               NPTOT = ABS (NPN)
+              ! --------------
+               ! jhbe=15 : weight = element weight + element extracost + mat + rupture
+               TELT = NPTOT*(TMAT+TRUP+VISC_PRONY) + SOLTELT(11) + NPTOT*SOLTELT(12) +
+     .                MULT_SPE*NLOCAL_OPTION(SPE_I_3) + ADD_OVER_COST
+              ! --------------  
+            ELSEIF (JHBE==17) THEN   
 !           ISOLIDE=17 H8C Standard 8-nodes compatible 
 !           solid full integration formulation 2*2*2 integration points, no hourglass
                IF( DDWEIGHTS(1,1,IABS(MID))/=0)THEN
@@ -642,14 +749,14 @@ C
                ENDIF
 !              --------------
 !              Failure
-               IF(IRUP/=0) THEN
-                DO J=1,IRUP
+               IF(NFAIL/=0) THEN
+                DO J=1,NFAIL
                  TRUP = TRUP + RUPTURE_SOL(IRUP_TAB(J),IRUP2)
                 ENDDO
                ENDIF
 !              -------------- 
-               TELT =  (TMAT+TRUP)*8 + SOLTELT(7) + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
-            ELSEIF (JHBE.EQ.18) THEN   
+               TELT =  (TMAT+TRUP+ADD_OVER_COST+VISC_PRONY)*8 + SOLTELT(7) + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
+            ELSEIF (JHBE==18) THEN   
 !           ISOLIDE=18
                IF( DDWEIGHTS(1,1,IABS(MID))/=0)THEN
                 TMAT = DDWEIGHTS(1,1,IABS(MID)) * TPSREF
@@ -661,23 +768,24 @@ C
                ENDIF
 !              --------------
 !              Failure
-               IF(IRUP/=0) THEN
-                DO J=1,IRUP
+               IF(NFAIL/=0) THEN
+                DO J=1,NFAIL
                  TRUP = TRUP + RUPTURE_SOL(IRUP_TAB(J),IRUP2)
                 ENDDO
                ENDIF
 !              -------------- 
-               TELT =  (TMAT+TRUP)*8 + SOLTELT(9) + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
+               TELT =  (TMAT+TRUP+ADD_OVER_COST+VISC_PRONY)*8 + SOLTELT(9) + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
             ELSE
 !             --------------
 !             Failure
-              IF(IRUP/=0) THEN
-               DO J=1,IRUP
+              IF(NFAIL/=0) THEN
+               DO J=1,NFAIL
                 TRUP = TRUP + RUPTURE_SOL(IRUP_TAB(J),IRUP2)
                ENDDO
               ENDIF
 !             -------------- 
-              TELT = SOL1TNL(MLN,1) + SOLTELT(1) + TRUP + MULT_SPE*NLOCAL_OPTION(SPE_I_3)
+              TELT = SOL1TNL(MLN,1) + SOLTELT(1) + TRUP 
+     .               + MULT_SPE*NLOCAL_OPTION(SPE_I_3) + ADD_OVER_COST + VISC_PRONY
             ENDIF
            ENDIF
         ENDIF      
@@ -685,12 +793,12 @@ C
           POIDS = TELT * INVTREF
           ! --------------------
           IF(RECHERCHE==0) THEN
-           IF (WD_LOCAL.EQ.0..AND.MLN.NE.0)THEN
+           IF (WD_LOCAL==0..AND.MLN/=0)THEN
              WD(I) = POIDS
              POIN_PART = IPARTS(I)
-             IF (ISOL.EQ.4.AND. (JSROT .NE. 1)) THEN
+             IF (ISOL==4.AND. (JSROT /= 1)) THEN
                 POIN_ELM_TYP = 6
-             ELSEIF( (ISOL.EQ.10).OR.(ISOL.EQ.4.AND. JSROT==1) ) THEN
+             ELSEIF( (ISOL==10).OR.(ISOL==4.AND. JSROT==1) ) THEN
                 IF(ISOL==10) THEN
                         POIN_ELM_TYP = 2
                 ELSE
@@ -713,7 +821,7 @@ C
              POIN_MID = POIN_PART_SOL(1,POIN_PART,POIN_ELM_TYP)
              POIN_PID = POIN_PART_SOL(2,POIN_PART,POIN_ELM_TYP)
              IF(POIN_MID/=0.AND.POIN_PID/=0) MID_PID_SOL(POIN_MID,POIN_ELM_TYP)%COST1D(POIN_PID) = TELT
-           ELSEIF(MLN.EQ.0)THEN
+           ELSEIF(MLN==0)THEN
              WD(I) = 0.0001
            END IF
           ELSE

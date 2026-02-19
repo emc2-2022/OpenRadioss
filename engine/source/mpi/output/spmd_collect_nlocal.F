@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_COLLECT_NLOCAL           source/mpi/output/spmd_collect_nlocal.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        DEBUG_MOD                     share/modules/debug_mod.F     
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_collect_nlocal   ../engine/source/mpi/output/spmd_collect_nlocal.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    debug_mod             ../engine/share/modules/debug_mod.F
+!||    inoutfile_mod         ../common_source/modules/inoutfile_mod.F
+!||    nlocal_reg_mod        ../common_source/modules/nlocal_reg_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_COLLECT_NLOCAL(A      ,SIZEA   ,NUMNOD_LOCAL,
      .                               POSI   ,NLOC_DMG,SIZP0       ,
      .                               NODGLOB,ITAB    )
@@ -39,35 +41,29 @@ Chd|====================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
 #include      "spmd_c.inc"
 #include      "chara_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER ITAB(*),NUMNOD_LOCAL,NODGLOB(*)
       INTEGER NPOS,SIZP0
-      INTEGER MSGOFF,MSGOFF0,MSGTYP,INFO,I,K,NG,N,
+      INTEGER MSGOFF,MSGOFF0,MSGTYP,I,K,N,
      .        EMPL,SDNODG(NUMNODM),FILEN 
       DOUBLE PRECISION
      .        AGLOB(2,NUMNODM),RECGLOB(2,SIZP0) 
-C     REAL
-
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -90,7 +86,7 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
       RECGLOB(1:2,1:SIZP0) = -1
-      IF (ISPMD.NE.0) THEN
+      IF (ISPMD/=0) THEN
       N=0
       DO I = 1,NUMNOD_LOCAL
         NPOS = POSI(I)                              ! Position of its first d.o.f in A
@@ -105,25 +101,25 @@ C-----------------------------------------------
         MSGTYP=MSGOFF0
         CALL MPI_SEND(SDNODG,N,MPI_INTEGER,
      .                IT_SPMD(1),MSGTYP,
-     .                MPI_COMM_WORLD,IERROR)
+     .                SPMD_COMM_WORLD,IERROR)
         MSGTYP=MSGOFF
         CALL MPI_SEND(AGLOB,2*N,MPI_DOUBLE_PRECISION,
      .                IT_SPMD(1),MSGTYP,
-     .                MPI_COMM_WORLD,IERROR)
+     .                SPMD_COMM_WORLD,IERROR)
       ELSE
 
         DO K=2,NSPMD
             MSGTYP=MSGOFF0
             CALL MPI_RECV(SDNODG,NUMNODM,MPI_INTEGER,
      .                    IT_SPMD(K),MSGTYP,
-     .                    MPI_COMM_WORLD,STATUS,IERROR)
+     .                    SPMD_COMM_WORLD,STATUS,IERROR)
 
             CALL MPI_GET_COUNT(STATUS,MPI_INTEGER,N,ierror)
 
             MSGTYP=MSGOFF
             CALL MPI_RECV(AGLOB,2*N,MPI_DOUBLE_PRECISION,
      .                    IT_SPMD(K),MSGTYP,
-     .                    MPI_COMM_WORLD,STATUS,IERROR)
+     .                    SPMD_COMM_WORLD,STATUS,IERROR)
 
 
             DO I=1,N

@@ -1,42 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_EREF                  source/loads/reference_state/eref/hm_read_eref.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        NINTRI                        source/system/nintrr.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_eref             ../starter/source/loads/reference_state/eref/hm_read_eref.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    nintri                   ../starter/source/system/nintrr.F
+!||    usr2sys                  ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_EREF(ITABM1  ,IPART ,IPARTC ,IPARTG   ,IPARTS,
      .                        IXC     ,IXTG  ,IXS    ,X        ,XREFC   ,
      .                        XREFTG  ,XREFS ,LSUBMODEL,IDDLEVEL,ITAB   ,
@@ -47,26 +47,19 @@ C-----------------------------------------------
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
-      USE HM_OPTION_READ_MOD  
+      USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "com04_c.inc"
-#include      "sysunit.inc"
-#include      "r2r_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   G l o b a l   V a r i a b l e s
@@ -80,18 +73,22 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER  TAGELC(NUMELC),TAGELTG(NUMELTG),TAGELS(NUMELS8)
-      INTEGER  TAGNOD(NUMNOD)
+      INTEGER, DIMENSION(:), ALLOCATABLE :: TAGELC,TAGELTG,TAGELS
+      INTEGER, DIMENSION(:), ALLOCATABLE :: TAGNOD
       INTEGER  I,IX(8),IE,J,IN,ID,IP,IR,NN,PARTID,UID,ITYP
       INTEGER  SUB_ID,MM, NEL
-      CHARACTER TITLE*ncharline,KEY1*ncharkey,KEY*ncharkey,MESS*40
+      CHARACTER(LEN=NCHARLINE) :: TITLE
+      CHARACTER(LEN=NCHARKEY) :: KEY1,KEY
+      CHARACTER MESS*40
       LOGICAL :: IS_AVAILABLE
       DATA MESS/'EREF ELEMENT REFERENCE GEOMETRY'/              
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER USR2SYS,R2R_SYS,NINTRI
+      INTEGER USR2SYS, NINTRI
 C=======================================================================
+
+      ALLOCATE(TAGELC(NUMELC),TAGELTG(NUMELTG),TAGELS(NUMELS8),TAGNOD(NUMNOD))
 C
       IS_AVAILABLE = .FALSE.
 C
@@ -140,7 +137,7 @@ C
         CALL HM_GET_INTV('component',PARTID,IS_AVAILABLE,LSUBMODEL)
 C
         IF (KEY1(1:4) == 'EREF')THEN
-          IF(IDDLEVEL == 0) WRITE(IOUT,1001) TITLE,PARTID			
+          IF(IDDLEVEL == 0) WRITE(IOUT,1001) TITLE,PARTID
           IP = 0
           DO I = 1,NPART
             IF (IPART(4,I) == PARTID) IP = I
@@ -196,7 +193,7 @@ C
                 DO IN=1,4
                   NN = USR2SYS(IX(IN),ITABM1,MESS,ID)
                   MM = IXC(IN+1,IE)
-                  TAGNOD(MM) = 1				  
+                  TAGNOD(MM) = 1          
                   XREFC(IN,1,IE) = X(1,NN)
                   XREFC(IN,2,IE) = X(2,NN)
                   XREFC(IN,3,IE) = X(3,NN)
@@ -204,8 +201,8 @@ C
                 IF(IDDLEVEL == 0.AND.IPRI >= 5) WRITE(IOUT,'(5X,5(1X,I10))') ID,(IX(IN),IN=1,4)
               ENDIF
             ENDDO
-            IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1010) NEL	
-C	
+            IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1010) NEL
+C
           ELSEIF(KEY(1:4)=='SH3N') THEN
             IF(IDDLEVEL == 0.AND.IPRI >= 5) WRITE(IOUT,'(9X,A7,4(9X,A2))') 'ELEM-ID','N1','N2','N3'
             CALL HM_GET_INTV('table_count',NEL,IS_AVAILABLE,LSUBMODEL)
@@ -235,13 +232,13 @@ C
                 IF(IDDLEVEL == 0.AND.IPRI >= 5) WRITE(IOUT,'(5X,4(1X,I10))') ID,(IX(IN),IN=1,3)
               ENDIF
             ENDDO
-            IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1020) NEL		
+            IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1020) NEL
           ENDIF
 C
           CASE (2)
           IF(KEY(1:5)=='BRICK') THEN
 C
-	    IF(IDDLEVEL == 0.AND.IPRI >= 5)WRITE(IOUT,'(9X,A7,8(9X,A2))')'ELEM-ID','N1','N2','N3','N4','N5','N6','N7','N8'
+              IF(IDDLEVEL == 0.AND.IPRI >= 5)WRITE(IOUT,'(9X,A7,8(9X,A2))')'ELEM-ID','N1','N2','N3','N4','N5','N6','N7','N8'
             CALL HM_GET_INTV('table_count',NEL,IS_AVAILABLE,LSUBMODEL)
 C
             DO I=1,NEL
@@ -274,9 +271,9 @@ C
                 IF(IDDLEVEL == 0.AND.IPRI >= 5) WRITE(IOUT,'(5X,9(1X,I10))') ID,(IX(IN),IN=1,8)
               ENDIF
             ENDDO
-            IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1030) NEL		
+            IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1030) NEL
           ELSEIF(KEY(1:6)=='TETRA4') THEN
-	    IF(IDDLEVEL == 0.AND.IPRI >= 5) WRITE(IOUT,'(9X,A7,4(9X,A2))') 'ELEM-ID','N1','N2','N3','N4'
+              IF(IDDLEVEL == 0.AND.IPRI >= 5) WRITE(IOUT,'(9X,A7,4(9X,A2))') 'ELEM-ID','N1','N2','N3','N4'
             CALL HM_GET_INTV('table_count',NEL,IS_AVAILABLE,LSUBMODEL)
 C
             DO I=1,NEL
@@ -310,7 +307,7 @@ C
                 IF(IDDLEVEL == 0.AND.IPRI >= 5) WRITE(IOUT,'(5X,5(1X,I10))') ID,IX(1),IX(3),IX(6),IX(5)
               ENDIF
             ENDDO
-            IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1040) NEL		
+            IF(IDDLEVEL == 0.AND.IPRI < 5) WRITE(IOUT,1040) NEL
           ENDIF
           END SELECT 
 C
@@ -318,29 +315,31 @@ C
       ENDDO
 C------------------------------------------
 C  CHECK COMPATIBILITY WITH XREF AND REFSTA
+
 C------------------------------------------
-      IF(IDDLEVEL == 1) RETURN
-      IF( NXREF /= 0) THEN
-        DO IN=1,NUMNOD
-           IF(TAGNOD(IN) == 0) CYCLE
-           IF(TAGXREF(IN) == 1) THEN
-             CALL ANCMSG(MSGID=1098,MSGTYPE=MSGERROR,ANMODE=ANINFO,
-     .                   I1=ITAB(IN))
-           ENDIF
-        ENDDO
-      ENDIF
-      IF( IREFSTA /= 0) THEN
-        DO IN=1,NUMNOD
-           IF(TAGNOD(IN) == 0) CYCLE
-           IF(TAGREFSTA(IN) == 1) THEN
-             CALL ANCMSG(MSGID=1099,MSGTYPE=MSGERROR,ANMODE=ANINFO,
-     .                   I1=ITAB(IN))
-           ENDIF
-        ENDDO
+
+      IF(IDDLEVEL == 1) THEN 
+        
+      ELSE
+        IF( NXREF /= 0) THEN
+          DO IN=1,NUMNOD
+             IF(TAGNOD(IN) == 0) CYCLE
+             IF(TAGXREF(IN) == 1) THEN
+               CALL ANCMSG(MSGID=1098,MSGTYPE=MSGERROR,ANMODE=ANINFO, I1=ITAB(IN))
+             ENDIF
+          ENDDO
+        ENDIF
+        IF( IREFSTA /= 0) THEN
+          DO IN=1,NUMNOD
+             IF(TAGNOD(IN) == 0) CYCLE
+             IF(TAGREFSTA(IN) == 1) THEN
+               CALL ANCMSG(MSGID=1099,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=ITAB(IN))
+             ENDIF
+          ENDDO
+        ENDIF
       ENDIF
 C
-      RETURN
- 999  CALL FREERR(3)
+      DEALLOCATE(TAGELC,TAGELTG,TAGELS,TAGNOD)
       RETURN
  1000 FORMAT(//
      & 5X,'    REFERENCE STATE (EREF)  ',/

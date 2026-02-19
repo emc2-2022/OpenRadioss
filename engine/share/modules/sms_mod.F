@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_MOD                       share/modules/sms_mod.F       
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|        WRRESTP                       source/output/restart/wrrestp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_mod   ../engine/share/modules/sms_mod.F
+!||--- called by ------------------------------------------------------
+!||    resol     ../engine/source/engine/resol.F
+!||    wrrestp   ../engine/source/output/restart/wrrestp.F
+!||====================================================================
       MODULE SMS_MOD
 C-----------------------------------------------
 C   m y _ r e a l
@@ -59,18 +58,17 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:,:),ALLOCATABLE :: ISKYI_SMS
 C-----------------------------------------------
       END MODULE SMS_MOD
-Chd|====================================================================
-Chd|  SMS_PCG_PROJ                  share/modules/sms_mod.F       
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|        SMS_INISI                     source/ams/sms_proj.F         
-Chd|        SMS_INIST                     source/ams/sms_proj.F         
-Chd|        SMS_INIX                      source/ams/sms_proj.F         
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|        SMS_PRO_P                     source/ams/sms_proj.F         
-Chd|        SMS_UPDST                     source/ams/sms_proj.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_pcg_proj   ../engine/share/modules/sms_mod.F
+!||--- called by ------------------------------------------------------
+!||    resol          ../engine/source/engine/resol.F
+!||    sms_inisi      ../engine/source/ams/sms_proj.F
+!||    sms_inist      ../engine/source/ams/sms_proj.F
+!||    sms_inix       ../engine/source/ams/sms_proj.F
+!||    sms_pcg        ../engine/source/ams/sms_pcg.F
+!||    sms_pro_p      ../engine/source/ams/sms_proj.F
+!||    sms_updst      ../engine/source/ams/sms_proj.F
+!||====================================================================
       MODULE SMS_PCG_PROJ
 #include      "my_real.inc"
       my_real,

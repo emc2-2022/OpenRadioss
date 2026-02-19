@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  M11VS3                        source/materials/mat/mat011/m11vs3.F
-Chd|-- called by -----------
-Chd|        M11LAW                        source/materials/mat/mat011/m11law.F
-Chd|-- calls ---------------
-Chd|        ALEFVM_MOD                    ../common_source/modules/alefvm_mod.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    m11vs3                 ../engine/source/materials/mat/mat011/m11vs3.F
+!||--- called by ------------------------------------------------------
+!||    m11law                 ../engine/source/materials/mat/mat011/m11law.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    alefvm_mod             ../common_source/modules/ale/alefvm_mod.F
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE M11VS3(PM    , IPARG, IXS  , ALE_CONNECT  , ELBUF_TAB  , V  ,
      2                  X     , DVP  , VN   , W      , VEL        , VD2,
      3                  VDX   , VDY  , VDZ  , MAT    , RHOV       , PV ,
@@ -42,6 +43,7 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD 
       USE ALEFVM_MOD           
       USE ALE_CONNECTIVITY_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -56,15 +58,12 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "vect01_c.inc"
 #include      "param_c.inc"
-#include      "alefvm.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IPARG(NPARG,*), IXS(NIXS,*), MAT(*),IALEFVM_FLG,
-     .        NEL
+      INTEGER IPARG(NPARG,*), IXS(NIXS,*), MAT(*),IALEFVM_FLG,NEL
       my_real ::
      . PM(NPROPM,*), V(3,*),X(3,*),DVP(*),VN(MVSIZ),W(3,*),
      . VEL(MVSIZ),VD2(MVSIZ),VDX(MVSIZ) , VDY(MVSIZ) , VDZ(MVSIZ), 
@@ -84,14 +83,14 @@ C-----------------------------------------------
       my_real
      .   X13, Y13, Z13, X24, Y24, Z24, XN, YN, ZN, FAC, VN1, VN2,
      .   VN3, VN4, VX1, VX2, VX3, VX4, VY1, VY2, VY3, VY4,
-     .   VZ1, VZ2, VZ3, VZ4, MassV, Mass    
+     .   VZ1, VZ2, VZ3, VZ4, MassV    
       TYPE(G_BUFEL_)  ,POINTER :: GBUF  
       LOGICAL                  :: bFOUND   
 C-----------------------------------------------
       DATA ICF/1,4,3,2,3,4,8,7,5,6,7,8,1,2,6,5,2,3,7,6,1,5,8,4/
 C-----------------------------------------------
-      MT = MAT(LFT)
-      DO I=LFT,LLT
+      MT = MAT(1)
+      DO I=1,NEL
         II=I+NFT
 !
         IAD2 = ALE_CONNECT%ee_connect%iad_connect(II)
@@ -105,14 +104,14 @@ C-----------------------------------------------
         DO  J=1,6
          IVOI=ALE_CONNECT%ee_connect%connected(IAD2 + J - 1)
          ML=11
-         IF(IVOI.NE.0)ML=NINT(PM(19,IXS(1,IVOI)))
-         IF(ML.NE.11)EXIT
+         IF(IVOI/=0)ML=NINT(PM(19,IXS(1,IVOI)))
+         IF(ML/=11)EXIT
         ENDDO
-        IF(ML.NE.11)THEN
+        IF(ML /= 11)THEN
           !
           !      ADJACENT VALUES
           !       
-          IF(IVOI.LE.NUMELS)THEN
+          IF(IVOI<=NUMELS)THEN
             !                                                        
             !  LOCAL ADJACENT ELEM : REFER TO GBUF%
             !    
@@ -121,7 +120,7 @@ C-----------------------------------------------
                KTY   = IPARG(5,N)                             
                KLT   = IPARG(2,N)                             
                MFT   = IPARG(3,N)                             
-               IF (KTY.EQ.1 .AND. IVOI.LE.KLT+MFT)THEN      
+               IF (KTY==1 .AND. IVOI<=KLT+MFT)THEN      
                  bFOUND = .TRUE.                            
                  EXIT                                       
                ENDIF                                        
@@ -147,9 +146,11 @@ C-----------------------------------------------
               RKV(I) = GBUF%RK(IS+1)
               REV(I) = GBUF%RE(IS+1)
             ENDIF
-            IF (JTHE>0) TV(I) = GBUF%TEMP(IS+1)
+            IF (GBUF%G_TEMP > 0) THEN
+              TV(I) = GBUF%TEMP(IS+1)  ! The adjacent cell must have an allocated temperature; otherwise, TV is set to T0 as initialized.
+            END IF
             !MOMENTUM
-            IF(IALEFVM==1)THEN
+            IF(ALEFVM_Param%IEnabled==1)THEN
             !USE INPUT VALUE, NOT THIS!
               IS       = IVOI-MFT
               MassV    = RHOV(I)*GBUF%VOL(IS)
@@ -158,7 +159,7 @@ C-----------------------------------------------
               VzV(I)   = GBUF%MOM(JJ(3) + IS)/MassV  
               XmomV(I) = GBUF%MOM(JJ(1) + IS)
               YmomV(I) = GBUF%MOM(JJ(2) + IS)
-              ZmomV(I) = GBUF%MOM(JJ(3) + IS)					
+              ZmomV(I) = GBUF%MOM(JJ(3) + IS)
             ENDIF
           ELSE
             !                                                        
@@ -203,7 +204,7 @@ C-----------------------------------------------
           !
           !      STANDARD FEM FOR MOMENTUM (VELOCITY ON NODES)
           !       
-          IF(IALEFVM_FLG .LE. 1)THEN
+          IF(IALEFVM_FLG <= 1)THEN
             !
             !      SUPG&ITG
             !
@@ -216,7 +217,7 @@ C-----------------------------------------------
               VDZ(I)=VDZ(I)-FOURTH*(W(3,IX1)+W(3,IX2)+W(3,IX3)+W(3,IX4))           
             ENDIF                                                                 
             VD2(I)=VDX(I)**2+VDY(I)**2+VDZ(I)**2                                  
-            IF(VDX(I)*XN+VDY(I)*YN+VDZ(I)*ZN .LE.ZERO)THEN                        
+            IF(VDX(I)*XN+VDY(I)*YN+VDZ(I)*ZN <=ZERO)THEN                        
               VDX(I)=ZERO                                                         
               VDY(I)=ZERO                                                         
               VDZ(I)=ZERO                                                         
@@ -225,7 +226,7 @@ C-----------------------------------------------
             ! NON REFLECTING BOUNDARY : VN et DVP
             !
             INOD=NINT(PM(51,MT))
-            IF(INOD.GE.1)THEN
+            IF(INOD>=1)THEN
               VN(I)=V(1,INOD)*XN+V(2,INOD)*YN+V(3,INOD)*ZN
               DVP(I)=ZERO
             ELSE
@@ -235,7 +236,7 @@ C-----------------------------------------------
               VN4=V(1,IX4)*XN+V(2,IX4)*YN+V(3,IX4)*ZN
               VEL(I)=(MIN(VN1,VN2,VN3,VN4))**2
               VN(I)=FOURTH*(VN1+VN2+VN3+VN4)
-              IF(VN(I).GE.ZERO)VEL(I)=ZERO
+              IF(VN(I)>=ZERO)VEL(I)=ZERO
               VX1=V(1,IX1)-VN1*XN
               VY1=V(2,IX1)-VN1*YN
               VZ1=V(3,IX1)-VN1*ZN
@@ -262,13 +263,13 @@ C-----------------------------------------------
           !
           !      SWITCH TO FVM FOR MOMENTUM (VELOCITY ON CELL CENTROID)
           !              
-          ELSE ! => (IALEFVM_FLG .GE. 2)
+          ELSE ! => (IALEFVM_FLG >= 2)
         
             VDX(I)   = HALF * (Vx(I) + VxV(I))
             VDY(I)   = HALF * (Vy(I) + VyV(I))
             VDZ(I)   = HALF * (Vz(I) + VzV(I)) 
             VD2(I)   = VDX(I)**2 + VDY(I)**2 + VDZ(I)**2                                  
-            IF(VDX(I)*XN + VDY(I)*YN + VDZ(I)*ZN .LE. ZERO)THEN                        
+            IF(VDX(I)*XN + VDY(I)*YN + VDZ(I)*ZN <= ZERO)THEN                        
               VDX(I) = ZERO                                                         
               VDY(I) = ZERO                                                         
               VDZ(I) = ZERO                                                         
@@ -278,20 +279,20 @@ C-----------------------------------------------
             ! NON REFLECTING BOUNDARY : VN et DVP
             !
             INOD=NINT(PM(51,MT))
-            IF(INOD.GE.1)THEN
+            IF(INOD>=1)THEN
               VN(I)  = V(1,INOD)*XN+V(2,INOD)*YN+V(3,INOD)*ZN
               DVP(I) = ZERO
             ELSE
               VN(I)  = VDX(I)*XN + VDY(I)*YN + VDZ(I)*ZN
               VEL(I) = VN(I)**2
-              IF(VN(I).GE.ZERO)VEL(I)=ZERO
+              IF(VN(I)>=ZERO)VEL(I)=ZERO
               DVP(I) = ZERO !NOT YET CALCULATED : USUALLY NOT USED : EXPERIMENTAL FORMULATION
             ENDIF
                                             
             
-          ENDIF! IF(IALEFVM_FLG .LE. 1)THEN
+          ENDIF! IF(IALEFVM_FLG <= 1)THEN
          
-        ELSE! => ML.EQ.11
+        ELSE! => ML==11
           VDX(I)     = ZERO     
           VDY(I)     = ZERO     
           VDZ(I)     = ZERO     

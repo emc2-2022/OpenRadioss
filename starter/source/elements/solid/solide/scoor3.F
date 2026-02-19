@@ -1,60 +1,63 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SCOOR3                        source/elements/solid/solide/scoor3.F
-Chd|-- called by -----------
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        INISOLDIST                    source/initial_conditions/inivol/inisoldist.F
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        MULTIFLUID_INIT3              source/multifluid/multifluid_init3.F
-Chd|        S8CINIT3                      source/elements/thickshell/solide8c/s8cinit3.F
-Chd|        S8ZINIT3                      source/elements/solid/solide8z/s8zinit3.F
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|        SUINIT3                       source/elements/elbuf_init/suinit3.F
-Chd|-- calls ---------------
-Chd|        MOD_CLOSE                     source/elements/solid/solide/mod_close.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    scoor3             ../starter/source/elements/solid/solide/scoor3.F
+!||--- called by ------------------------------------------------------
+!||    inirig_mat         ../starter/source/elements/initia/inirig_mat.F
+!||    inisoldist         ../starter/source/initial_conditions/inivol/inisoldist.F
+!||    inivoid            ../starter/source/elements/initia/inivoid.F
+!||    multifluid_init3   ../starter/source/multifluid/multifluid_init3.F
+!||    s8cinit3           ../starter/source/elements/thickshell/solide8c/s8cinit3.F
+!||    s8zinit3           ../starter/source/elements/solid/solide8z/s8zinit3.F
+!||    sinit3             ../starter/source/elements/solid/solide/sinit3.F
+!||    suinit3            ../starter/source/elements/elbuf_init/suinit3.F
+!||--- calls      -----------------------------------------------------
+!||    checkvolume_8n     ../starter/source/elements/solid/solide/checksvolume.F
+!||    mod_close          ../starter/source/elements/solid/solide/mod_close.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SCOOR3(
      .         X    ,XREFS,IXS  ,GEO  ,MXT  ,NGEO ,NGL  ,
      .         IX1  ,IX2  ,IX3  ,IX4  ,IX5  ,IX6  ,IX7  ,IX8 ,
      .         X1   ,X2   ,X3   ,X4   ,X5   ,X6   ,X7   ,X8  ,   
      .         Y1   ,Y2   ,Y3   ,Y4   ,Y5   ,Y6   ,Y7   ,Y8  ,   
      .         Z1   ,Z2   ,Z3   ,Z4   ,Z5   ,Z6   ,Z7   ,Z8  ,   
-     .         RX   ,RY   ,RZ   ,SX   ,SY   ,SZ   ,TX   ,TY   ,TZ   ,
-     .         E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y  ,E3Z  ,
-     .         F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0, TEMP,
+     .         RX   ,RY   ,RZ   ,SX   ,SY   ,SZ   ,TX   ,TY  ,TZ     ,
+     .         E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y ,E3Z    ,
+     .         F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,TEMP0,TEMP,NINTEMP,
      .         XD1  ,XD2  ,XD3  ,XD4  ,XD5  ,XD6  ,XD7  ,XD8   ,
      .         YD1  ,YD2  ,YD3  ,YD4  ,YD5  ,YD6  ,YD7  ,YD8   ,
      .         ZD1  ,ZD2  ,ZD3  ,ZD4  ,ZD5  ,ZD6  ,ZD7  ,ZD8   )
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -63,7 +66,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "param_c.inc"
 #include      "scr03_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
@@ -71,6 +73,7 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXS(NIXS,*), MXT(*), NGL(*), NGEO(*),
      .   IX1(*),IX2(*),IX3(*),IX4(*),IX5(*),IX6(*),IX7(*),IX8(*)        
+      INTEGER ,INTENT(IN) :: NINTEMP
       my_real 
      .   X(3,*),GEO(*),TEMP0(MVSIZ),
      .   TEMP(*),XREFS(8,3,*)
@@ -91,7 +94,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J
+      INTEGER I
       my_real
      .   SUMA
 C-----------------------------------------------
@@ -100,7 +103,7 @@ C-----------------------------------------------
       my_real
      .    CHECKVOLUME_8N
 C=======================================================================
-C     CONNECTIVITES ET NUMERO DE MATERIAU ET PID
+C     CONNECTIVITIES AND MATERIAL NUMBER AND PID
 C--------------------------------------------------
       DO I=LFT,LLT
         MXT(I)=IXS(1,I)
@@ -272,7 +275,7 @@ C
           ZD8(I) = Z8(I)
         ENDDO
 C        
-      IF(JCLOS.NE.0) CALL MOD_CLOSE(GEO,NGEO,
+      IF(JCLOS/=0) CALL MOD_CLOSE(GEO,NGEO,
      .   X1, X2, X3, X4, X5, X6, X7, X8,
      .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
      .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8)
@@ -296,7 +299,7 @@ C
         SY(I)  = Y5(I)+Y6(I)+Y7(I)+Y8(I)-Y1(I)-Y2(I)-Y3(I)-Y4(I) 
         SZ(I)  = Z5(I)+Z6(I)+Z7(I)+Z8(I)-Z1(I)-Z2(I)-Z3(I)-Z4(I) 
       ENDDO
-C     Orthogonalisation du repere
+C     Orthogonalization of the reference frame
 C       E1=R, E3=R^S, E2=E3^E1                            
 C
       DO I=LFT,LLT                                      
@@ -322,41 +325,45 @@ C
         E2Y(I) = E2Y(I)*SUMA                             
         E2Z(I) = E2Z(I)*SUMA                             
       ENDDO
-        IF(JTHE < 0 ) THEN             
-           IF(NINTEMP > 0 ) THEN  
-            DO I= LFT,LLT
-              IF(TEMP(IX1(I))== ZERO) TEMP(IX1(I)) = TEMP0(I)
-              IF(TEMP(IX2(I))== ZERO) TEMP(IX2(I)) = TEMP0(I) 
-              IF(TEMP(IX3(I))== ZERO) TEMP(IX3(I)) = TEMP0(I)
-              IF(TEMP(IX4(I))== ZERO) TEMP(IX4(I)) = TEMP0(I) 
-              IF(TEMP(IX5(I))== ZERO) TEMP(IX5(I)) = TEMP0(I)
-              IF(TEMP(IX6(I))== ZERO) TEMP(IX6(I)) = TEMP0(I) 
-              IF(TEMP(IX7(I))== ZERO) TEMP(IX7(I)) = TEMP0(I)
-              IF(TEMP(IX8(I))== ZERO) TEMP(IX8(I)) = TEMP0(I)
-            ENDDO        
-           ELSE
-            DO I=LFT,LLT
-              TEMP(IX1(I))=TEMP0(I)
-              TEMP(IX2(I))=TEMP0(I)
-              TEMP(IX3(I))=TEMP0(I)
-              TEMP(IX4(I))=TEMP0(I)
-              TEMP(IX5(I))=TEMP0(I)
-              TEMP(IX6(I))=TEMP0(I)
-              TEMP(IX7(I))=TEMP0(I)
-              TEMP(IX8(I))=TEMP0(I)
-            ENDDO              
-           ENDIF
-         ENDIF        
+      IF (JTHE < 0 .or. NINTEMP > 0) THEN             
+        IF (NINTEMP > 0) THEN  
+         DO I= LFT,LLT
+           IF(TEMP(IX1(I))== ZERO) TEMP(IX1(I)) = TEMP0(I)
+           IF(TEMP(IX2(I))== ZERO) TEMP(IX2(I)) = TEMP0(I) 
+           IF(TEMP(IX3(I))== ZERO) TEMP(IX3(I)) = TEMP0(I)
+           IF(TEMP(IX4(I))== ZERO) TEMP(IX4(I)) = TEMP0(I) 
+           IF(TEMP(IX5(I))== ZERO) TEMP(IX5(I)) = TEMP0(I)
+           IF(TEMP(IX6(I))== ZERO) TEMP(IX6(I)) = TEMP0(I) 
+           IF(TEMP(IX7(I))== ZERO) TEMP(IX7(I)) = TEMP0(I)
+           IF(TEMP(IX8(I))== ZERO) TEMP(IX8(I)) = TEMP0(I)
+         ENDDO        
+        ELSE
+         DO I=LFT,LLT
+           TEMP(IX1(I))=TEMP0(I)
+           TEMP(IX2(I))=TEMP0(I)
+           TEMP(IX3(I))=TEMP0(I)
+           TEMP(IX4(I))=TEMP0(I)
+           TEMP(IX5(I))=TEMP0(I)
+           TEMP(IX6(I))=TEMP0(I)
+           TEMP(IX7(I))=TEMP0(I)
+           TEMP(IX8(I))=TEMP0(I)
+         ENDDO              
+        ENDIF
+      ENDIF        
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  SGSAVINI                      source/elements/solid/solide/scoor3.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sgsavini         ../starter/source/elements/solid/solide/scoor3.F
+!||--- called by ------------------------------------------------------
+!||    initia           ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    checkvolume_4n   ../starter/source/elements/solid/solide/checksvolume.F
+!||    checkvolume_6n   ../starter/source/elements/solid/solide/checksvolume.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SGSAVINI(NPE,X,IXS,SAV,NEL)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -369,7 +376,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -379,6 +385,11 @@ C-----------------------------------------------
      .  X(3,*)
       DOUBLE PRECISION
      .  SAV(NEL,3*(NPE-1))
+C-----------------------------------------------
+C   E x t e r n a l  F u n c t i o n s
+C-----------------------------------------------
+      my_real
+     .   CHECKVOLUME_4N,CHECKVOLUME_6N
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -391,13 +402,50 @@ c      my_real
 C-----------------------------------------------
 C
       NPE1=NPE-1
-      IF (NPE.EQ.4) THEN
+      IF (NPE==4) THEN
+        DO I=LFT,LLT
+          IF (CHECKVOLUME_4N(X ,IXS(1,I)) < ZERO) THEN
+C           renumber connectivity
+            NC(I,2)=IXS(6,I)
+            NC(I,4)=IXS(4,I)
+            IXS(4,I)=NC(I,2)
+            IXS(6,I)=NC(I,4)
+            IXS(5,I)=NC(I,2)
+            IXS(9,I)=NC(I,4)
+          ENDIF
+       ENDDO
        DO I=LFT,LLT
         NC(I,1)=IXS(2,I)
         NC(I,2)=IXS(4,I)
         NC(I,3)=IXS(7,I)
         NC(I,4)=IXS(6,I)
        ENDDO
+      ELSEIF (NPE == 6) THEN 
+        DO I=LFT,LLT
+          IF (CHECKVOLUME_6N(X ,IXS(1,I)) < ZERO) THEN
+C         renumber connectivity reorganised in negative volume case
+            NC(I,1)=IXS(6,I) 
+            NC(I,2)=IXS(7,I)
+            NC(I,3)=IXS(8,I)
+            NC(I,4)=IXS(2,I)
+            NC(I,5)=IXS(3,I)
+            NC(I,6)=IXS(4,I)
+            IXS(2,I)=NC(I,1)
+            IXS(3,I)=NC(I,2)
+            IXS(4,I)=NC(I,3)
+            IXS(6,I)=NC(I,4)
+            IXS(7,I)=NC(I,5)
+            IXS(8,I)=NC(I,6)
+          ENDIF 
+        ENDDO  
+          DO I=LFT,LLT
+            NC(I,1)=IXS(2,I)
+            NC(I,2)=IXS(3,I)
+            NC(I,3)=IXS(4,I)
+            NC(I,4)=IXS(6,I)
+            NC(I,5)=IXS(7,I)
+            NC(I,6)=IXS(8,I)
+          ENDDO       
       ELSE
        DO N=1,NPE
         DO I=LFT,LLT
@@ -416,6 +464,7 @@ C
          SAV(I,N)       = X(1,NC(I,N))-XL(I)
          SAV(I,N+NPE1)  = X(2,NC(I,N))-YL(I)
          SAV(I,N+2*NPE1)= X(3,NC(I,N))-ZL(I)
+
         ENDDO
        ENDDO 
 C

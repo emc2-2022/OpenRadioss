@@ -1,42 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_PROP_READ21                source/properties/thickshell/hm_read_prop21.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        SUBROTVECT                    source/model/submodel/subrot.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_prop_read21           ../starter/source/properties/thickshell/hm_read_prop21.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties       ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    subrotvect               ../starter/source/model/submodel/subrot.F
+!||--- uses       -----------------------------------------------------
+!||    defaults_mod             ../starter/source/modules/defaults_mod.F90
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_PROP_READ21(GEO   ,IGEO      ,IG    ,ISKN   ,UNITAB ,
-     .                       RTRANS   ,LSUBMODEL ,SUB_ID,IDTITL ,IGTYP  ,PROP_TAG)
+     .                       RTRANS   ,LSUBMODEL ,SUB_ID,IDTITL ,IGTYP  ,
+     .                        PROP_TAG, DEFAULTS_SOLID)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -44,23 +46,18 @@ C-----------------------------------------------
       USE ELBUFTAG_MOD            
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
+      USE DEFAULTS_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
-#include      "scr21_c.inc"
 #include      "tablen_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -71,16 +68,17 @@ C-----------------------------------------------
       my_real RTRANS(NTRANSF,*)
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
+      TYPE(SOLID_DEFAULTS_), INTENT(IN) :: DEFAULTS_SOLID
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER IHBE,ISMSTR,IPLAST,ICPRE,ICSTR,NPT,NPTR,NPTS,NPTT,
-     .    IINT,JCVT,IP,ISK,IREP,IDSK,ISTRAIN
+     .    IINT,JCVT,IP,ISK,IREP,IDSK,ISTRAIN,NLY
       my_real
-     .    CVIS,QA,QB,VX,VY,VZ,ANGLE,DTMIN,PUN
-      INTEGER J
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
-      CHARACTER IDTITL*nchartitle
+     .    CVIS,QA,QB,VX,VY,VZ,ANGLE,DTMIN,PUN,VDEFMIN,VDEFMAX,ASPMAX,ASPTET
+      INTEGER J,IHBE_DS,ISST_DS,ICONTROL_D,ICONTROL
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
+      CHARACTER(LEN=NCHARTITLE)::IDTITL
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -91,7 +89,7 @@ C      21  ORTHOTROPIC THICK SHELL
 C----------------------
 C======================================================================|
 
-       IS_CRYPTED = .FALSE.
+       IS_ENCRYPTED = .FALSE.
        IS_AVAILABLE = .FALSE.
 
 C HIDDEN FLAGS
@@ -102,6 +100,10 @@ C----------------------
        IINT = 1
        ICPRE = 0
 
+!--- defaults values      
+      IHBE_DS=  DEFAULTS_SOLID%ISOLID
+      ISST_DS=  DEFAULTS_SOLID%ISMSTR
+      ICONTROL_D=DEFAULTS_SOLID%ICONTROL
 C      Double stockage temporaire - supprimer GEO(12,I)=IGTYP apres tests
        IGEO( 1)=IG
        IGEO(11)=IGTYP
@@ -112,7 +114,7 @@ C      Double stockage temporaire - supprimer GEO(12,I)=IGTYP apres tests
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
@@ -122,6 +124,7 @@ C--------------------------------------------------
       CALL HM_GET_INTV('NBP',NPT,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('SKEW_CSID',IDSK,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV('Iorth',IREP,IS_AVAILABLE,LSUBMODEL)
+      CALL HM_GET_INTV('Icontrol',ICONTROL,IS_AVAILABLE,LSUBMODEL)
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
 C--------------------------------------------------
@@ -133,10 +136,14 @@ C--------------------------------------------------
       CALL HM_GET_FLOATV('qa',QA,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('qb',QB,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('deltaT_min',DTMIN,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('vdef_min',VDEFMIN,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('vdef_max',VDEFMAX,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('ASP_max',ASPMAX,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('COL_min',ASPTET,IS_AVAILABLE,LSUBMODEL,UNITAB)
 C----------------------
 Capply submodel transform to V (VX,VY,VZ) 
 C
-      IF (SUB_ID .NE. 0)
+      IF (SUB_ID /= 0)
      .         CALL SUBROTVECT(VX,VY,VZ,RTRANS,SUB_ID,LSUBMODEL)
 
 C-----------------------
@@ -164,6 +171,9 @@ C  smstr
 C
 C  icpre/icstr
 C
+C      ICPRE = 0  
+      IP = 0
+      IF (IHBE == 14 .AND. ICSTR == 0) ICSTR = 10
       IF (IHBE == 14 .AND.
      .    (ICSTR /= 1.AND.ICSTR /= 10.AND.ICSTR /= 100)) THEN
          CALL ANCMSG(MSGID=677,
@@ -185,6 +195,7 @@ C
 C
 C  npt
 C
+      NLY = 0
       SELECT CASE (IHBE)
       CASE(15)
         IF (NPT == 0) NPT = 3
@@ -197,11 +208,20 @@ C
      .                I2=NPT,
      .                I3=IHBE)
         ENDIF
+        NLY = NPT
       CASE(14)
         IF (NPT == 0) NPT = 222
         NPTR= NPT/100
         NPTS= MOD(NPT/10,10)
         NPTT= MOD(NPT,10)
+        SELECT CASE(ICSTR)
+          CASE(1)
+            NLY = NPTT
+          CASE(10)
+            NLY = NPTS
+          CASE(100)
+            NLY = NPTR
+        END SELECT 
         IF (IHBE == 14 .AND.
      .     (NPTR < 1 .OR. NPTS < 1 .OR. NPTT < 1 .OR.
      .      NPTR > 9 .OR. NPTS > 9 .OR. NPTT > 9)) THEN
@@ -214,6 +234,9 @@ C
      .                I3=IHBE)
         ENDIF
       END SELECT
+!     
+      IF (ICONTROL==0) ICONTROL=ICONTROL_D
+      IF (ICONTROL>1) ICONTROL=0
 C
 C  viscosity
 C
@@ -231,9 +254,9 @@ C
       IF (IHBE /= 14) IP = 3
 C
       ISK = 0
-      IF (IDSK.NE.0) THEN
+      IF (IDSK/=0) THEN
         DO J=0,NUMSKW
-          IF(IDSK.EQ.ISKN(4,J+1)) THEN
+          IF(IDSK==ISKN(4,J+1)) THEN
             ISK=J+1
             GO TO 10
           ENDIF
@@ -248,7 +271,7 @@ C
      .              I2=IDSK)
  10     CONTINUE
       ENDIF
-      IF (IP .LE. 0) THEN
+      IF (IP <= 0) THEN
         DO J=0,NUMSKW
           IF(ISK == ISKN(4,J+1)) THEN
             IP=-(J+1)
@@ -275,6 +298,8 @@ C
       IGEO(14) = ICSTR
       IGEO(15) = IINT
       IGEO(16) = JCVT-1
+      IGEO(30) = NLY
+      IGEO(97) = ICONTROL
 C
       GEO(1)   = ANGLE
       GEO(7)   = VX
@@ -284,14 +309,19 @@ C
       GEO(14)  = QA
       GEO(15)  = QB
       GEO(172) = DTMIN
+      GEO(172) = DTMIN
+      GEO(190)= VDEFMIN
+      GEO(191)= VDEFMAX
+      GEO(192)= ASPMAX
+      GEO(193)= ASPTET
 C----
-      IF(.NOT.IS_CRYPTED)THEN
+      IF(.NOT.IS_ENCRYPTED)THEN
         IF(IGEO(31) == 1)THEN
           WRITE(IOUT,1100)IG,IHBE,ISMSTR,NPT,ICSTR,
-     .                  CVIS,QA,QB,DTMIN
+     .                  CVIS,QA,QB,DTMIN,ICONTROL
         ELSE
           WRITE(IOUT,1000)IG,IHBE,ISMSTR,NPT,ICSTR,
-     .                  CVIS,QA,QB,DTMIN
+     .                  CVIS,QA,QB,DTMIN,ICONTROL
         ENDIF
         IF(ISK == 0)THEN
             WRITE(IOUT,1002) GEO(7),GEO(8),GEO(9),IREP,ANGLE
@@ -301,6 +331,11 @@ C----
       ELSE
         WRITE(IOUT,1099) IG
       ENDIF
+      IF((VDEFMIN+VDEFMAX+ASPMAX+ASPTET)>ZERO) THEN
+        IF (VDEFMAX==ZERO) VDEFMAX=EP10
+        IF (ASPMAX==ZERO) ASPMAX=EP10
+        WRITE(IOUT,3000) VDEFMIN,VDEFMAX,ASPMAX,ASPTET 
+      END IF          
 C
       IF(GEO( 3)/=ZERO.AND.IGEO( 5)== 0) IGEO( 5)=NINT(GEO( 3))
       IF(GEO(39)/=ZERO.AND.IGEO( 9)== 0) IGEO( 9)=NINT(GEO(39))
@@ -334,8 +369,6 @@ C         Probably useless for PID21 (but addressed in thsol.F ...)
 
 C----
       RETURN
- 999  CALL FREERR(3)
-      RETURN
 C---
  1000 FORMAT(
      & 5X,'ORTHOTROPIC THICK SHELL PROPERTY SET'/,
@@ -347,7 +380,8 @@ C---
      & 5X,'HOURGLASS NUMERICAL DAMPING . . . . . .=',1PG20.13/,
      & 5X,'QUADRATIC BULK VISCOSITY. . . . . . . .=',1PG20.13/,
      & 5X,'LINEAR BULK VISCOSITY . . . . . . . . .=',1PG20.13/,
-     & 5X,'BRICK MINIMUM TIME STEP................=',1PG20.13)
+     & 5X,'BRICK MINIMUM TIME STEP................=',1PG20.13/,
+     & 5X,'SOLID DISTORTION CONTROL FLAG . . . . .=',I10/)
  1001 FORMAT(
      & 5X,'ORTHOTROPIC SKEW FRAME. . . . . . . . .=',I10/,
      & 5X,'LOCAL ORTHOTROPY SYSTEM FORMULATION . .=',I10/,
@@ -376,6 +410,12 @@ C---
      & 5X,'DEFAULT VALUE FOR LINEAR BULK . . . . . ',/,
      & 5X,'     VISCOSITY (QB) WILL BE USED . . . =',1PG20.13/,
      & 5X,'EXCEPT IN CASE LAW 70 WHERE QB = 0.     ',/,
-     & 5X,'BRICK MINIMUM TIME STEP................=',1PG20.13/)
+     & 5X,'BRICK MINIMUM TIME STEP................=',1PG20.13/,
+     & 5X,'SOLID DISTORTION CONTROL FLAG . . . . .=',I10/)
+ 3000 FORMAT(
+     & 5X,'SOLID MINIMUM VOLUMETRIC STRAIN........=',1PG20.13/,
+     & 5X,'SOLID MAXIMUM VOLUMETRIC STRAIN........=',1PG20.13/,
+     & 5X,'SOLID MAXIMUM ASPECT RATIO.............=',1PG20.13/,
+     & 5X,'SOLID MINIMUM COLLAPSE RATIO...........=',1PG20.13/)
 C---
       END SUBROUTINE HM_PROP_READ21

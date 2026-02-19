@@ -1,60 +1,62 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALEFLOW                       source/ale/porous/aleflow.F   
-Chd|-- called by -----------
-Chd|        SFORC3                        source/elements/solid/solide/sforc3.F
-Chd|-- calls ---------------
-Chd|        ALECONVE                      source/ale/porous/aleconv.F   
-Chd|        ALEFLUX                       source/ale/porous/aleflux.F   
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    aleflow                ../engine/source/ale/porous/aleflow.F
+!||--- called by ------------------------------------------------------
+!||    sforc3                 ../engine/source/elements/solid/solide/sforc3.F
+!||--- calls      -----------------------------------------------------
+!||    aleconve               ../engine/source/ale/porous/aleconv.F
+!||    aleflux                ../engine/source/ale/porous/aleflux.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE ALEFLOW(
-     .         PM    ,IPM      ,MAT         ,X      ,IPARG   ,
-     .         MBUF  ,NEL      ,NPF         ,TF     ,RHON    ,
-     .         D     ,IXS      ,ALE_CONNECT ,V      ,A       ,
-     .         W     ,DFE      ,FRHO0       ,ALPHA  ,
-     .         NC1   ,NC2      ,NC3         ,NC4    ,NC5     ,NC6  ,
-     .         NC7   ,NC8      ,X1          ,X2     ,X3      ,X4   ,
-     .         X5    ,X6       ,X7          ,X8     ,Y1      ,Y2   ,
-     .         Y3    ,Y4       ,Y5          ,Y6     ,Y7      ,Y8   ,
-     .         Z1    ,Z2       ,Z3          ,Z4     ,Z5      ,Z6   ,
-     .         Z7    ,Z8       ,PHI1        ,PHI2   ,FLUX    ,FLU1 ,
-     .         VX1   ,VX2      ,VX3         ,VX4    ,VX5     ,VX6  ,
-     .         VX7   ,VX8      ,VY1         ,VY2    ,VY3     ,VY4  ,
-     .         VY5   ,VY6      ,VY7         ,VY8    ,VZ1     ,VZ2  ,
-     .         VZ3   ,VZ4      ,VZ5         ,VZ6    ,VZ7     ,VZ8  ,
-     .         VDX1  ,VDX2     ,VDX3        ,VDX4   ,VDX5    ,VDX6 ,
-     .         VDX7  ,VDX8     ,VDY1        ,VDY2   ,VDY3    ,VDY4 ,
-     .         VDY5  ,VDY6     ,VDY7        ,VDY8   ,VDZ1    ,VDZ2 ,
-     .         VDZ3  ,VDZ4     ,VDZ5        ,VDZ6   ,VDZ7    ,VDZ8 ,
-     .         VDX   ,VDY      ,VDZ         ,VD2    ,NGL     ,
-     .         LVX1  ,LVX2     ,LVX3        ,LVX4   ,LVX5    ,LVX6 ,
-     .         LVX7  ,LVX8     ,LVY1        ,LVY2   ,LVY3    ,LVY4 ,
-     .         LVY5  ,LVY6     ,LVY7        ,LVY8   ,LVZ1    ,LVZ2 ,
-     .         LVZ3  ,LVZ4     ,LVZ5        ,LVZ6   ,LVZ7    ,LVZ8 ,
-     .         POR   ,ICONTACT ,IFOAM)
+     .         PM    ,MAT          ,X            ,
+     .         MBUF  ,NEL          ,
+     .         IXS   ,ALE_CONNECT  ,V           ,A      ,
+     .         W     ,DFE          ,FRHO0       ,ALPHA  ,
+     .         NC1   ,NC2          ,NC3         ,NC4    ,NC5     ,NC6  ,
+     .         NC7   ,NC8          ,X1          ,X2     ,X3      ,X4   ,
+     .         X5    ,X6           ,X7          ,X8     ,Y1      ,Y2   ,
+     .         Y3    ,Y4           ,Y5          ,Y6     ,Y7      ,Y8   ,
+     .         Z1    ,Z2           ,Z3          ,Z4     ,Z5      ,Z6   ,
+     .         Z7    ,Z8           ,PHI1        ,PHI2   ,FLUX    ,FLU1 ,
+     .         VX1   ,VX2          ,VX3         ,VX4    ,VX5     ,VX6  ,
+     .         VX7   ,VX8          ,VY1         ,VY2    ,VY3     ,VY4  ,
+     .         VY5   ,VY6          ,VY7         ,VY8    ,VZ1     ,VZ2  ,
+     .         VZ3   ,VZ4          ,VZ5         ,VZ6    ,VZ7     ,VZ8  ,
+     .         VDX1  ,VDX2         ,VDX3        ,VDX4   ,VDX5    ,VDX6 ,
+     .         VDX7  ,VDX8         ,VDY1        ,VDY2   ,VDY3    ,VDY4 ,
+     .         VDY5  ,VDY6         ,VDY7        ,VDY8   ,VDZ1    ,VDZ2 ,
+     .         VDZ3  ,VDZ4         ,VDZ5        ,VDZ6   ,VDZ7    ,VDZ8 ,
+     .         VDX   ,VDY          ,VDZ         ,VD2    ,
+     .         LVX1  ,LVX2         ,LVX3        ,LVX4   ,LVX5    ,LVX6 ,
+     .         LVX7  ,LVX8         ,LVY1        ,LVY2   ,LVY3    ,LVY4 ,
+     .         LVY5  ,LVY6         ,LVY7        ,LVY8   ,LVZ1    ,LVZ2 ,
+     .         LVZ3  ,LVZ4         ,LVZ5        ,LVZ6   ,LVZ7    ,LVZ8 ,
+     .         POR   ,ICONTACT     ,IFOAM)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -64,6 +66,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD            
       USE ALE_CONNECTIVITY_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -73,32 +76,19 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com02_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "units_c.inc"
-#include      "parit_c.inc"
-#include      "task_c.inc"
-#include      "spmd_c.inc"
-#include      "vale_c.inc"
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NEL
-      INTEGER 
-     .   IPARG(NPARG,NGROUP),IPM(NPROPMI,NUMMAT),
-     .   NC1(*),NC2(*),NC3(*),NC4(*),NC5(*),NC6(*),
-     ,   NC7(*),NC8(*),IXS(NIXS,*),MAT(*),NGL(*),
-     .   ICONTACT(*),IFOAM(*)
+      INTEGER NC1(*),NC2(*),NC3(*),NC4(*),NC5(*),NC6(*),NC7(*),NC8(*),IXS(NIXS,*),MAT(*),ICONTACT(*),IFOAM(*)
       my_real
      .  V(3,NUMNOD),W(3,NUMNOD)   ,FLUX(MVSIZ,6),
-     .  PHI1(*),PHI2(*),D(3,*),A(3,NUMNOD),
+     .  PHI1(*),PHI2(*),A(3,NUMNOD),
      .  FLU1(*)  ,X1(*)  ,X2(*)   ,X3(*)    ,X4(*)  ,
      .  X5(*)    ,X6(*)  ,X7(*)   ,X8(*)    ,Y1(*)  ,Y2(*)  ,
      .  Y3(*)    ,Y4(*)  ,Y5(*)   ,Y6(*)    ,Y7(*)  ,Y8(*)  ,
@@ -113,7 +103,7 @@ C-----------------------------------------------
      .  VDY5(*) ,VDY6(*) ,VDY7(*) ,VDY8(*) ,VDZ1(*) ,VDZ2(*) ,
      .  VDZ3(*) ,VDZ4(*) ,VDZ5(*) ,VDZ6(*) ,VDZ7(*) ,VDZ8(*),
      .  DFE(MVSIZ,3), FRHO0(*),PM(NPROPM,NUMMAT), ALPHA(*),VDX(*),
-     .  VDY(*), VDZ(*),VD2(*),X(3,*),RHON(*),  
+     .  VDY(*), VDZ(*),VD2(*),X(3,*),
      .  LVX1(*) ,LVX2(*) ,LVX3(*) ,LVX4(*) ,LVX5(*) ,LVX6(*)  ,
      .  LVX7(*) ,LVX8(*) ,LVY1(*) ,LVY2(*) ,LVY3(*) ,LVY4(*) ,
      .  LVY5(*) ,LVY6(*) ,LVY7(*) ,LVY8(*) ,LVZ1(*) ,LVZ2(*) ,
@@ -121,38 +111,19 @@ C-----------------------------------------------
      .  POR(*) 
 C-----------------------------------------------,   
       TYPE(BUF_MAT_) :: MBUF  
-      TYPE(t_ale_connectivity), INTENT(IN) :: ALE_CONNECT   
-C-----------------------------------------------
-C   VARIABLES FOR INTERPOLATION FUNCTIONS
-C-----------------------------------------------
-      INTEGER NPF(*)
-      my_real TF(*),FINTER
-      EXTERNAL FINTER
-C   EXTERNAL FINTER
-C        Y = FINTER(IFUNC(J),X,NPF,TF,DYDX)
-C        Y       : y = f(x)
-C        X       : x
-C        DYDX    : f'(x) = dy/dx
-C        IFUNC(J): FUNCTION INDEX
-C              J : FIRST(J=1), SECOND(J=2) .. FUNCTION USED FOR THIS LAW
-C        NPF,TF  : FUNCTION PARAMETER
-C ---------------------------------------------------------------
+      TYPE(t_ale_connectivity), INTENT(IN) :: ALE_CONNECT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER J,IV,IE,MX,IAD2
-      my_real FAC, VFE(3),AFE(3),
-     .        DTINV,RV,
-     .        REXCH(MVSIZ,6), ALPHA0,
-     .        RHOEXT(MVSIZ),EIEXT(MVSIZ),
-     .        KK(MVSIZ)
+      my_real FAC, VFE(3),AFE(3),DTINV,RV,REXCH(MVSIZ,6), ALPHA0,RHOEXT(MVSIZ),EIEXT(MVSIZ),KK(MVSIZ)
       my_real AA,BB,TAUX
       INTEGER NVAR,I
       INTEGER ICLOS,II,ICONGAS
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------   
-       DO I = LFT, LLT
+       DO I = 1, NEL
         RHOEXT(I)  = ZERO
         EIEXT(I) = ZERO
           
@@ -248,7 +219,7 @@ C coordinates
        ENDDO
 
 C different Alpha values
-       DO  I=LFT,LLT 
+       DO  I=1,NEL 
            IE =NFT+I
            IAD2 = ALE_CONNECT%ee_connect%iad_connect(IE)
            ALPHA(I) = POR(IE)
@@ -262,10 +233,10 @@ C different Alpha values
           ENDDO
         ENDDO
 C External gas
-       MX = MAT(LFT)
+       MX = MAT(1)
        ICONGAS = NINT(PM(201, MX))
        IF(ICONGAS > 0) THEN
-         DO I= LFT,LLT 
+         DO I= 1,NEL 
            RHOEXT(I) = PM(199, MX)
            EIEXT(I)  = PM(200, MX)
          ENDDO
@@ -275,7 +246,7 @@ C with interface
 C 
        ICLOS = NINT(PM(198, MAT(1)))
        IF(ICLOS == 2 .AND. INTBAG > 0  ) THEN
-          DO  I=LFT,LLT 
+          DO  I=1,NEL 
              IAD2 = ALE_CONNECT%ee_connect%iad_connect(I+NFT)
             II=ALE_CONNECT%ee_connect%connected(IAD2 + 1 - 1)
             IF(II == 0) THEN
@@ -335,7 +306,7 @@ C
 
       IF(ICLOS == 1 ) THEN      
 #include "lockon.inc"
-       DO  I=LFT,LLT 
+       DO  I=1,NEL 
           IAD2 = ALE_CONNECT%ee_connect%iad_connect(I + NFT)
            II=ALE_CONNECT%ee_connect%connected(IAD2 + 1 - 1)
            IF(II == 0)THEN
@@ -574,7 +545,7 @@ C
 #include "lockoff.inc"       
       ELSEIF(ICLOS == 2 .AND. INTBAG > 0  ) THEN
 #include "lockon.inc"
-          DO  I=LFT,LLT 
+          DO  I=1,NEL 
              IAD2 = ALE_CONNECT%ee_connect%iad_connect(I + NFT)
            II=ALE_CONNECT%ee_connect%connected(IAD2 + 1 - 1)
            IF(II == 0 .AND. REXCH(I,1) < EM15 )THEN
@@ -814,19 +785,19 @@ C       CALCULATION OF CONVECTIVE FLUXES
 C       MASSES SET TO ZERO
 C-----------------------------
 C            
-        CALL ALEFLUX(PM ,IXS  ,NC1 ,NC2 ,NC3 ,NC4 ,NC5 ,
-     .               NC6 ,NC7,NC8 ,X1  ,X2  ,X3  ,X4  ,
+        CALL ALEFLUX(PM ,IXS  ,
+     .               X1  ,X2  ,X3  ,X4  ,
      .               X5  ,X6 ,X7  ,X8  ,Y1  ,Y2  ,Y3  ,
      .               Y4  ,Y5 ,Y6  ,Y7  ,Y8  ,Z1  ,Z2  ,
-     .               Z3  ,Z4 ,Z5  ,Z6  ,Z7 ,Z8   ,V   ,
+     .               Z3  ,Z4 ,Z5  ,Z6  ,Z7 ,Z8   ,
      .               VDX1,VDX2,VDX3,VDX4,VDX5,VDX6,VDX7,VDX8,
      .               VDY1,VDY2,VDY3,VDY4,VDY5,VDY6,VDY7,VDY8,
      .               VDZ1,VDZ2,VDZ3,VDZ4,VDZ5,VDZ6,VDZ7,VDZ8,
-     .               W  ,FLUX,FLU1,ALE_CONNECT,REXCH , NGL)
+     .               FLUX,FLU1,ALE_CONNECT,REXCH )
      
         IF(ICONGAS == 0) THEN
 #include "lockon.inc"
-          DO  I=LFT,LLT 
+          DO  I=1,NEL 
              IAD2 = ALE_CONNECT%ee_connect%iad_connect(I + NFT)
            II=ALE_CONNECT%ee_connect%connected(IAD2 + 1 - 1)
            IF(II == 0 .AND. FLUX(I,1) < ZERO )THEN
@@ -1066,64 +1037,45 @@ C-----------------------------
 C       CONVECTION OF ENERGY AND MASS ...
 C-----------------------------
             NVAR = 1
-            CALL ALECONVE(MBUF%VAR((NVAR-1)*NEL+1),FLUX  ,FLU1  ,
-     .                    PHI1   ,ALE_CONNECT  ,RHOEXT ,NGL   ,NVAR  )
+            CALL ALECONVE(MBUF%VAR((NVAR-1)*NEL+1),FLUX  ,FLU1  ,PHI1   ,ALE_CONNECT  ,RHOEXT )
             NVAR = 2
-            CALL ALECONVE(MBUF%VAR((NVAR-1)*NEL+1),FLUX  ,FLU1  ,
-     .                    PHI2   ,ALE_CONNECT  ,EIEXT  ,NGL   ,NVAR  )     
+            CALL ALECONVE(MBUF%VAR((NVAR-1)*NEL+1),FLUX  ,FLU1  ,PHI2   ,ALE_CONNECT  ,EIEXT  )
 C-----------
 C Darcy force computed from flow velocity 
 C------------
-
       AA   = PM(194,MAT(1))
       BB   = PM(195,MAT(1))
       TAUX = PM(196,MAT(1))
-
            
       DTINV = DT1/MAX(DT1*DT1, EM20)  
     
-      MX = MAT(LFT) 
-      DO I=LFT,LLT
+      MX = MAT(1) 
+      DO I=1,NEL
         FRHO0(I) =PM(192,MX) 
          KK(I) = MBUF%VAR(21*NEL + I)
          FAC = ONE_OVER_8*(ONE - ALPHA(I))/MAX(EM20,KK(I))       
 
-        VDX(I)=ONE_OVER_8*(VDX1(I)+VDX2(I)+VDX3(I)+VDX4(I)
-     .               +VDX5(I)+VDX6(I)+VDX7(I)+VDX8(I))
-        VDY(I)=ONE_OVER_8*(VDY1(I)+VDY2(I)+VDY3(I)+VDY4(I)
-     .               +VDY5(I)+VDY6(I)+VDY7(I)+VDY8(I))
-        VDZ(I)=ONE_OVER_8*(VDZ1(I)+VDZ2(I)+VDZ3(I)+VDZ4(I)
-     .               +VDZ5(I)+VDZ6(I)+VDZ7(I)+VDZ8(I))
+        VDX(I)=ONE_OVER_8*(VDX1(I)+VDX2(I)+VDX3(I)+VDX4(I)+VDX5(I)+VDX6(I)+VDX7(I)+VDX8(I))
+        VDY(I)=ONE_OVER_8*(VDY1(I)+VDY2(I)+VDY3(I)+VDY4(I)+VDY5(I)+VDY6(I)+VDY7(I)+VDY8(I))
+        VDZ(I)=ONE_OVER_8*(VDZ1(I)+VDZ2(I)+VDZ3(I)+VDZ4(I)+VDZ5(I)+VDZ6(I)+VDZ7(I)+VDZ8(I))
         VD2(I)=(VDX(I)**2+VDY(I)**2+VDZ(I)**2)    
 C  darcy forces       
-        VFE(1) = ONE_OVER_8*(VDX1(I) + VDX2(I) + VDX3(I) + VdX4(I) +
-     .                   VDX5(I) + VDX6(I) + VDX7(I) + VDX8(I))
-        VFE(2) = ONE_OVER_8*(VDY1(I) + VDY2(I) + VDY3(I) + VDY4(I) +
-     .                   VDY5(I) + VDY6(I) + VDY7(I) + VDY8(I)) 
-        VFE(3) = ONE_OVER_8*(VDZ1(I) + VDZ2(I) + VDZ3(I) + VDZ4(I) +
-     .                   VDZ5(I) + VDZ6(I) + VDZ7(I) + VDZ8(I))
+        VFE(1) = ONE_OVER_8*(VDX1(I) + VDX2(I) + VDX3(I) + VdX4(I) +VDX5(I) + VDX6(I) + VDX7(I) + VDX8(I))
+        VFE(2) = ONE_OVER_8*(VDY1(I) + VDY2(I) + VDY3(I) + VDY4(I) +VDY5(I) + VDY6(I) + VDY7(I) + VDY8(I))
+        VFE(3) = ONE_OVER_8*(VDZ1(I) + VDZ2(I) + VDZ3(I) + VDZ4(I) +VDZ5(I) + VDZ6(I) + VDZ7(I) + VDZ8(I))
 C acceleration 
 C But is always A=Zero is not activated. Is the Gaz acceleration .
 C if is required we should use the relative acceleration as velocity
 C   A= (A_gaz - A_foam).     
-        AFE(1) = ONE_OVER_8*(A(1,NC1(I)) + A(1,NC2(I)) + A(1,NC3(I)) + 
-     .                   A(1,NC4(I)) + A(1,NC5(I)) + A(1,NC6(I)) +
-     .                   A(1,NC7(I)) + A(1,NC8(I)))
+        AFE(1) = ONE_OVER_8*(A(1,NC1(I)) + A(1,NC2(I)) + A(1,NC3(I)) +
+     .                                     A(1,NC4(I)) + A(1,NC5(I)) + A(1,NC6(I)) + A(1,NC7(I)) + A(1,NC8(I)))
 C     
         AFE(2) = ONE_OVER_8*(A(2,NC1(I)) + A(2,NC2(I)) + A(2,NC3(I)) + 
-     .                   A(2,NC4(I)) + A(2,NC5(I)) + A(2,NC6(I)) +
-     .                   A(2,NC7(I)) + A(2,NC8(I)))
+     .                                     A(2,NC4(I)) + A(2,NC5(I)) + A(2,NC6(I)) + A(2,NC7(I)) + A(2,NC8(I)))
 C     
         AFE(3) = ONE_OVER_8*(A(3,NC1(I)) + A(3,NC2(I)) + A(3,NC3(I)) + 
-     .                   A(3,NC4(I)) + A(3,NC5(I)) + A(3,NC6(I)) +
-     .                   A(3,NC7(I)) + A(3,NC8(I)))     
-C        
-
-C stablit condition 
-cc         F1 =  FOURTH*VFE(1)*MASS*DTINV
-cc         F2 =  FOURTH*VFE(2)*MASS*DTINV   
-cc         F3 =  FOURTH*VFE(3)*MASS*DTINV 
-C                 
+     .                                     A(3,NC4(I)) + A(3,NC5(I)) + A(3,NC6(I)) + A(3,NC7(I)) + A(3,NC8(I)))
+C
          DFE(I,1)=FAC*(AA*VFE(1) + BB*ABS(VFE(1))*VFE(1) + TAUX*AFE(1))
          DFE(I,2)=FAC*(AA*VFE(2) + BB*ABS(VFE(2))*VFE(2) + TAUX*AFE(2))
          DFE(I,3)=FAC*(AA*VFE(3) + BB*ABS(VFE(3))*VFE(3) + TAUX*AFE(3))   

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS01GPINCH                source/materials/mat/mat001/sigeps01gpinch.F
-Chd|-- called by -----------
-Chd|        MULAWGLCPINCH                 source/elements/shell/coqueba/mulawglcpinch.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps01gpinch   ../engine/source/materials/mat/mat001/sigeps01gpinch.F
+!||--- called by ------------------------------------------------------
+!||    mulawglcpinch    ../engine/source/elements/shell/coqueba/mulawglcpinch.F
+!||====================================================================
       SUBROUTINE SIGEPS01GPINCH(
      1                     JFT     ,JLT     ,G       ,THK     ,OFF     ,
      2                     GS      ,A1      ,A2      ,NU      ,THK0    ,
@@ -50,13 +49,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr06_c.inc"
-#include      "com08_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A R G U M E N T S
 C-----------------------------------------------
@@ -86,7 +78,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,MX,J
+      INTEGER I
 C     REAL
       my_real
      .   PA1(MVSIZ),PA2(MVSIZ),PA3(MVSIZ),PA4(MVSIZ),PA5(MVSIZ),
@@ -96,7 +88,7 @@ C-----------------------------------------------
 C
       DO I=JFT,JLT
 C         [PM] reverse engineer E and ANU from A11 and A12
-C         [PM] cant use A11/A12 since they correspond to shell (plane stress)
+C         [PM] can't use A11/A12 since they correspond to shell (plane stress)
           E(I)   = A1(I)*(ONE-NU(I)**2)
 C
 C         PA1 = C1111, C2222, C3333

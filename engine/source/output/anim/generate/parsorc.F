@@ -1,45 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PARSORC                       source/output/anim/generate/parsorc.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        FACNOR                        source/output/anim/generate/facnor.F
-Chd|        SPMD_IGET_PARTN               source/mpi/anim/spmd_iget_partn.F
-Chd|        SPMD_IGLOB_PARTN              source/mpi/anim/spmd_iglob_partn.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    parsorc            ../engine/source/output/anim/generate/parsorc.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    facnor             ../engine/source/output/anim/generate/facnor.F
+!||    spmd_iget_partn    ../engine/source/mpi/anim/spmd_iget_partn.F
+!||    spmd_iglob_partn   ../engine/source/mpi/anim/spmd_iglob_partn.F
+!||    write_i_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE PARSORC(X    ,D    ,XNORM,IADD ,CDG  ,
      .                  BUFEL,IPARG,IXQ  ,IXC  ,IXTG ,
-     .                  ELBUF_TAB,INVERT,EL2FA,IXUR,IADG,
+     .                  ELBUF_TAB,INVERT,EL2FA,IADG,
      .                  MATER,IPARTQ,IPARTC,IPARTUR,IPARTTG,
      .                  NODGLOB)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD         
+      USE ELBUFDEF_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixq,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,12 +55,8 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "task_c.inc"
-#include      "rnur_c.inc"
 #include      "spmd_c.inc"
-#include      "scr01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -63,7 +64,7 @@ C     REAL
       my_real
      .   X(*),D(*),XNORM(3,*),CDG(*),BUFEL(*)
       INTEGER IXC(NIXC,*),IXTG(NIXTG,*),IADD(*),IPARG(NPARG,*),
-     .        IXQ(NIXQ,*),IXUR(NIXUR,*),
+     .        IXQ(NIXQ,*),
      .        INVERT(*), EL2FA(*),MATER(*),
      .        IADG(NSPMD,*),
      .        IPARTQ(*),IPARTC(*),IPARTTG(*),IPARTUR(*),NODGLOB(*)
@@ -73,10 +74,12 @@ C     REAL
       my_real
      .   OFF
       INTEGER II(4),IE,NG, ITY, LFT, LLT, N, I, J, 
-     .        IPRT, NEL, IAD, NPAR, NFT, IMID,IALEL,MTN,
+     .        IPRT, NEL, IAD, NPAR, NFT,MTN,
      .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,
-     .        JJ, K, SH_IH, BUF
-      INTEGER NP((NUMELQ + NUMELC + NUMELTG + NUMELUR)*4)
+     .        JJ, K, BUF
+      INTEGER,DIMENSION(:),ALLOCATABLE::NP
+C-----------------------------------------------
+      CALL MY_ALLOC(NP,(NUMELQ + NUMELC + NUMELTG)*4)
 C-----------------------------------------------
 C     NORMALE
 C-----------------------------------------------
@@ -99,16 +102,13 @@ C
       NN7 = NN6
       NN8 = NN7
       NN9 = NN8
-      NN10= NN9 + NUMELUR
+      NN10= NN9
 C-----------------------------------------------
       NPAR = 0
 C
 C-----------------------------------------------
 C     PART
 C-----------------------------------------------
-C en spmd il faut envoyer l'info meme qd on a 0 elem local
-c      IF(NUMELQ + NUMELC + NUMELTG + NUMELUR
-c     .   /=0.OR.IMACH == 3)THEN
       JJ = 0
 
       DO 500 IPRT=1,NPART
@@ -219,32 +219,6 @@ C-----------------------------------------------
              EL2FA(NN5+N) = IE
              JJ = JJ + 4
  170     CONTINUE
-C-----------------------------------------------
-C       RNUR
-C-----------------------------------------------
-        ELSEIF(ITY == 50)THEN
-         DO 199 I=LFT,LLT
-          N = I + NFT
-          IF(IPARTUR(N)/=IPRT)GOTO 199
-          IF (MTN /= 0 .AND. MTN /= 13) OFF = BUFEL(IAD+I-1)
-          IF (NSPMD == 1) THEN
-             II(1) = IXUR(2,N)-1
-             II(2) = IXUR(3,N)-1
-             II(3) = IXUR(4,N)-1
-             II(4) = IXUR(5,N)-1
-             CALL WRITE_I_C(II,4)
-          ELSE
-               NP(JJ+1) = NODGLOB(II(1))-1
-               NP(JJ+2) = NODGLOB(II(2))-1
-               NP(JJ+3) = NODGLOB(II(3))-1
-               NP(JJ+4) = NODGLOB(II(4))-1
-
-          ENDIF
-          IE = IE + 1
-          INVERT(IE) = 0
-          EL2FA(NN9+N) = IE
-          JJ = JJ + 4
- 199      CONTINUE
         ELSE
         ENDIF
  490   CONTINUE
@@ -257,13 +231,13 @@ C-----------------------------------------------
  500  CONTINUE
 c      ENDIF
       IF (NSPMD > 1) THEN
-Cel construction tableau global des parts sur p0
+C   build global part array on proc 0
 
         IF (ISPMD == 0) THEN
 
            CALL SPMD_IGLOB_PARTN(IADD,NPAR,IADG,NPART)
 
-           BUF = (NUMELQG+NUMELCG+NUMELTGG+NUMELURG)*4
+           BUF = (NUMELQG+NUMELCG+NUMELTGG)*4
            CALL SPMD_IGET_PARTN(4,JJ,NP,NPAR,IADG,BUF,1)
 
         ELSE
@@ -272,11 +246,12 @@ Cel construction tableau global des parts sur p0
            CALL SPMD_IGET_PARTN(4,JJ,NP,NPAR,IADG,BUF,1)
 
         ENDIF
-      ELSE ! remplissage IADG pour compatibilite mono/multi
+      ELSE ! IADG filling for mono/multi compatibility
         DO I = 1, NPART
           IADG(1,I) = IADD(I)
         END DO
       ENDIF
+      DEALLOCATE(NP)
 C-----------------------------------------------
       RETURN
       END

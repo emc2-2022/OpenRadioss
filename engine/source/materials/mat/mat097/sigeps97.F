@@ -1,50 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS97                      source/materials/mat/mat097/sigeps97.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps97         ../engine/source/materials/mat/mat097/sigeps97.F
+!||--- called by ------------------------------------------------------
+!||    mulaw            ../engine/source/materials/mat_share/mulaw.F90
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
       SUBROUTINE SIGEPS97 (
-     1     NEL    ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC    ,TBURN  ,
-     2     NPF    ,TF     ,TIME    ,TIMESTEP,UPARAM   ,BFRAC  ,
-     3     RHO0   ,RHO    ,VOLUME  ,EINT    ,SIGY     ,DELTAX ,
-     4     EPSPXX ,EPSPYY ,EPSPZZ  ,EPSPXY  ,EPSPYZ   ,EPSPZX ,
-     5     DEPSXX ,DEPSYY ,DEPSZZ  ,DEPSXY  ,DEPSYZ   ,DEPSZX ,
-     6     EPSXX  ,EPSYY  ,EPSZZ   ,EPSXY   ,EPSYZ    ,EPSZX  ,
-     7     SIGOXX ,SIGOYY ,SIGOZZ  ,SIGOXY  ,SIGOYZ   ,SIGOZX ,
-     8     SIGNXX ,SIGNYY ,SIGNZZ  ,SIGNXY  ,SIGNYZ   ,SIGNZX ,
-     9     SIGVXX ,SIGVYY ,SIGVZZ  ,SIGVXY  ,SIGVYZ   ,SIGVZX ,
-     A     SOUNDSP,VISCMAX,UVAR    ,OFF     ,NFT      ,V      ,
-     B     W      ,X      ,IX      ,N48     ,NIX      ,JTHE   ,
-     C     GEO    ,PID    ,ILAY    ,NG      ,ELBUF_TAB,PM     , 
-     D     IPARG  ,BUFVOIS ,IPM     ,BUFMAT   ,STIFN  ,
-     E     VD2    ,VDX    ,VDY     ,VDZ     ,MAT      ,VOLN   ,
-     F     QNEW   ,DDVOL  ,QOLD)  
+     1     NEL    ,NUPARAM ,NUVAR   ,TBURN    ,
+     2     TIME   ,UPARAM  ,BFRAC   ,
+     3     RHO0   ,RHO     ,EINT    ,DELTAX ,
+     4     EPSPXX ,EPSPYY ,EPSPZZ  ,
+     8     SIGNXX ,SIGNYY  ,SIGNZZ  ,SIGNXY  ,SIGNYZ   ,SIGNZX ,
+     9     SIGVXX ,SIGVYY  ,SIGVZZ  ,SIGVXY  ,SIGVYZ   ,SIGVZX ,
+     A     SOUNDSP,VISCMAX ,UVAR    ,OFF     ,
+     C     GEO    ,PID     ,ILAY    ,NG      ,ELBUF_TAB,
+     E     VOLN   ,
+     F     QNEW   ,QOLD    ,DPDE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -60,35 +55,20 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com06_c.inc"
 #include      "com01_c.inc"
 #include      "com08_c.inc"
 #include      "mvsiz_p.inc"
-#include      "inter22.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL, NUPARAM, NUVAR,NFT,N48,NIX,JTHE,
-     .        IX(NIX,*), PID(*), ILAY, NG,PM(NPROPM,*),IPARG(*),MAT(*),
-     .        IPM(NPROPMI,*)
+      INTEGER NEL, NUPARAM, NUVAR, PID(*), ILAY, NG
       my_real 
-     .   TIME         ,TIMESTEP   ,UPARAM(NUPARAM),
-     .   SIGY(NEL)    ,VK(NEL)    ,
-     .   RHO(NEL)     ,RHO0(NEL)  ,VOLUME(NEL),
-     .   EINT(NEL)    ,BUFVOIS(*) ,QNEW(NEL)    ,
-     .   DDVOL(NEL)   ,QOLD(NEL)  ,
+     .   TIME         ,UPARAM(NUPARAM),
+     .   RHO(NEL)     ,RHO0(NEL)  ,
+     .   EINT(NEL)    ,QNEW(NEL)  ,
+     .   QOLD(NEL)    ,
      .   EPSPXX(NEL)  ,EPSPYY(NEL),EPSPZZ(NEL),
-     .   EPSPXY(NEL)  ,EPSPYZ(NEL),EPSPZX(NEL),
-     .   DEPSXX(NEL)  ,DEPSYY(NEL),DEPSZZ(NEL),
-     .   DEPSXY(NEL)  ,DEPSYZ(NEL),DEPSZX(NEL),
-     .   EPSXX(NEL)   ,EPSYY(NEL) ,EPSZZ(NEL) ,
-     .   EPSXY(NEL)   ,EPSYZ(NEL) ,EPSZX(NEL) ,
-     .   SIGOXX(NEL)  ,SIGOYY(NEL),SIGOZZ(NEL),
-     .   SIGOXY(NEL)  ,SIGOYZ(NEL),SIGOZX(NEL),
-     .   V(3,*)       ,W(3,*)     ,X(3,*)     ,
-     .   GEO(NPROPG,*),BUFMAT(*)  ,
-     .   STIFN(MVSIZ) ,VD2(*)     ,VDX(*)     ,
-     .   VDY(*)       ,VDZ(*)     ,SSP        ,
+     .   GEO(NPROPG,*),SSP        ,
      .   VOLN(*)
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
 C-----------------------------------------------
@@ -100,6 +80,7 @@ C-----------------------------------------------
      .    SIGVXX(NEL),SIGVYY(NEL),SIGVZZ(NEL),
      .    SIGVXY(NEL),SIGVYZ(NEL),SIGVZX(NEL),
      .    SOUNDSP(NEL),VISCMAX(NEL)
+      my_real,INTENT(INOUT) :: DPDE(NEL)
 C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
@@ -107,15 +88,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   VARIABLES FOR FUNCTION INTERPOLATION 
 C-----------------------------------------------
-      INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
-      my_real FINTER ,TF(*)
-      EXTERNAL FINTER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 c      my_real
 c     .     B1, B2, R1, R2, W1, D, PCJ, E0, C1, VCJ,
-c     .     EADD, TBEGIN, TEND, TFEXTT,BHE,
+c     .     EADD, TBEGIN, TEND,BHE,
 c     .     PSH,REACTION_RATE,REACTION_RATE2,A_MIL,M_MIL,N_MIL,ALPHA_UNIT,
 c     .     DPDMU,
 c     .     R1V, R2V, ER1M, ER2M, MUP1, MU, AA,BB, P0, P, VOLD, POLD,
@@ -125,11 +103,10 @@ c      INTEGER :: IBID, IBFRAC, QOPT, I
 c      my_real :: XL, MASS, DF, TB
       
       my_real
-     .     W1, D, PCJ, E0, P0, VCJ,C,PSH,
+     .     D, PCJ, E0, P0, VCJ,C,PSH,
      .     A(5),R(5),AL(5),BL(5),RL(5),
-     .     DPDMU,
-     .     PNEW,FACM,ESPE,DVOL,
-     .     QA,QB,QAL,QBL,DD,TFEXTT,BHE, 
+     .     PNEW,ESPE,DVOL,
+     .     QA,QB,QAL,QBL,DD,BHE,
      .     LAMBDA1,LAMBDA2,LAMBDA3,LAMBDA4,LAMBDA5,
      .     LAMBDA,
      .     DLDV1,DLDV2,DLDV3,DLDV4,DLDV5,
@@ -140,11 +117,10 @@ c      my_real :: XL, MASS, DF, TB
      .     RV1,RV2,RV3,RV4,RV5,
      .     RHOC2_1,RHOC2_2,RHOC2_3,RHOC2_4,RHOC2_5,
      .     Dv, vv, vv_,
-     .     EINC,
-     .     WW, DENOM, POLD, P, V0
+     .     WW, DENOM,  P, V0
      
-      INTEGER :: IBID, IBFRAC, I      
-      my_real :: XL, MASS, DF, TB
+      INTEGER :: IBFRAC, I
+      my_real :: XL,  DF, TB
       
       TYPE(G_BUFEL_)  ,POINTER :: GBUF
       TYPE(L_BUFEL_)  ,POINTER :: LBUF      
@@ -152,7 +128,6 @@ c      my_real :: XL, MASS, DF, TB
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      TFEXTT =  ZERO
       GBUF   => ELBUF_TAB(NG)%GBUF           
       LBUF   => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)
       BUFLY  => ELBUF_TAB(NG)%BUFLY(ILAY)      
@@ -280,7 +255,7 @@ C-----------------------------------------------
 
       P0     = UPARAM(01)    
       PSH    = UPARAM(02)    
-      IBFRAC = UPARAM(03)    
+      IBFRAC = NINT(UPARAM(03))
       D      = UPARAM(04)    
       PCJ    = UPARAM(05)    
       E0     = UPARAM(06)    
@@ -348,6 +323,8 @@ C-----------------------------------------------
         LAMBDA5       = (AL(5)*vv+BL(5))*ERLV5
         
         LAMBDA        = LAMBDA1 + LAMBDA2 + LAMBDA3 + LAMBDA4 + LAMBDA5 + WW
+
+        DPDE(I)       = LAMBDA/DF
         
         DLDV1         = AL(1)*ERLV1-(AL(1)*vv+BL(1))*RL(1)*ERLV1
         DLDV2         = AL(2)*ERLV2-(AL(2)*vv+BL(2))*RL(2)*ERLV2
@@ -380,8 +357,7 @@ C-----------------------------------------------
         !EINC          = -HALF*(UVAR(I,5)+P+PSH+PSH)*Dv
         
         RHOC2         = RHOC2_1 + RHOC2_2 + RHOC2_3 + RHOC2_4 + RHOC2_5 
-        RHOC2         = RHOC2 + C*((WW+ONE)*(ONE-LAMBDA/WW)+vv*DLDV/WW)*EXP(-WW*LOG(vv)) 
-        !RHOC2         = RHOC2 + (ESPE+EINC)*LAMBDA + LAMBDA*vv*P - (ESPE+EINC)*vv*DLDV
+        RHOC2         = RHOC2 + C*((WW+ONE)*(ONE-LAMBDA/WW)+vv*DLDV/WW)*EXP(-WW*LOG(vv))
         RHOC2         = RHOC2 + (ESPE)*LAMBDA + LAMBDA*vv*(P+PSH) - (ESPE)*vv*DLDV         
 
         SSP           = SQRT(MAX(RHOC2/RHO0(I),EM20)) 

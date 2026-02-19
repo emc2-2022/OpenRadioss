@@ -1,41 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP12                source/properties/spring/hm_read_prop12.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        NL                            source/output/message/message.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop12           ../starter/source/properties/spring/hm_read_prop12.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties       ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim        ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP12(GEO, IGEO, UNITAB, IGTYP, IG,
      .                          PROP_TAG,IDTITL,LSUBMODEL)
 C============================================================================
@@ -44,22 +43,17 @@ C-----------------------------------------------
       USE UNITAB_MOD
       USE MESSAGE_MOD
       USE ELBUFTAG_MOD   
-      USE SUBMODEL_MOD     
+      USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
 #include      "tablen_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -68,8 +62,7 @@ C-----------------------------------------------
       INTEGER  IGEO(NPROPGI),IGTYP,IG
 C     REAL
       my_real GEO(NPROPG)
-      CHARACTER*nchartitle,
-     .   IDTITL
+      CHARACTER(LEN=NCHARTITLE) :: IDTITL
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
 C-----------------------------------------------
@@ -79,18 +72,16 @@ C-----------------------------------------------
      .         ILENG,FTAB_ID,IFRIC
 C     REAL
       my_real
-     .  A, B, D, E, F, DN, DX, FRIC, LSCALE, FSCALE, RSCALE, PUN, GF3,
+     .  A, B, D, E, F, DN, DX, FRIC, LSCALE, PUN, GF3,
      .  YSCALEF,XSCALEF,FMAX,FMIN
       my_real
      .   A_UNIT,D_UNIT,E_UNIT,F_UNIT,LSCALE_UNIT,GF3_UNIT,RUP_UNIT,XSCALE_UNIT,FMIN_UNIT
-      CHARACTER*nchartitle,
-     .   SLASH
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
 C=======================================================================
 c
       PUN = EM01
 C
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 
 C     Double stockage temporaire - supprimer GEO(12,I)=IGTYP apres tests
@@ -101,7 +92,7 @@ C
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
@@ -148,63 +139,63 @@ c
       CALL HM_GET_FLOATV_DIM('scale3',XSCALE_UNIT,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV_DIM('P12_SPR_PUL_F_min',FMIN_UNIT,IS_AVAILABLE,LSUBMODEL,UNITAB) 
 C----                             
-      IF(GEO(2).EQ.ZERO.AND.GEO(3).EQ.ZERO.AND.IFUNC.EQ.ZERO) THEN 
+      IF(GEO(2)==ZERO.AND.GEO(3)==ZERO.AND.IFUNC==ZERO) THEN 
          CALL ANCMSG(MSGID=602,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO_BLIND_1,
      .               I1=IG,
      .               C1=IDTITL)
       END IF                                                       
-      IF(GEO(1).LE.EM15)THEN                                       
+      IF(GEO(1)<=EM15)THEN                                       
          CALL ANCMSG(MSGID=229,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO_BLIND_1,
      .               I1=IG,
      .               C1=IDTITL)
       ENDIF                                                        
-!      IF(IFUNC.NE.0.AND.IECROU.GE.1.AND.GEO(2).EQ.ZERO)THEN        
+!      IF(IFUNC/=0.AND.IECROU>=1.AND.GEO(2)==ZERO)THEN        
 !         CALL ANCMSG(MSGID=230,
 !     .               MSGTYPE=MSGERROR,
 !     .               ANMODE=ANINFO_BLIND_1,
 !     .               I1=IG,
 !     .               C1=TITR)
 !      ENDIF                                                        
-      IF(IECROU.EQ.4.AND.(IFUNC.EQ.0.OR.IFUNC2.EQ.0))THEN          
+      IF(IECROU==4.AND.(IFUNC==0.OR.IFUNC2==0))THEN          
          CALL ANCMSG(MSGID=231,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO_BLIND_1,
      .               I1=IG,
      .               C1=IDTITL)
       ENDIF                                                        
-      IF(IECROU.EQ.4.AND.GEO(2).EQ.ZERO)THEN                        
+      IF(IECROU==4.AND.GEO(2)==ZERO)THEN                        
          CALL ANCMSG(MSGID=230,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO_BLIND_1,
      .               I1=IG,
      .               C1=IDTITL)
       ENDIF                                                        
-      IF(IECROU.EQ.5.AND.(IFUNC.EQ.0.OR.IFUNC2.EQ.0))THEN          
+      IF(IECROU==5.AND.(IFUNC==0.OR.IFUNC2==0))THEN          
          CALL ANCMSG(MSGID=231,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO_BLIND_1,
      .               I1=IG,
      .               C1=IDTITL)
       ENDIF                                                        
-       IF(IECROU.EQ.6.AND.(IFUNC.EQ.0.OR.IFUNC2.EQ.0))THEN
+       IF(IECROU==6.AND.(IFUNC==0.OR.IFUNC2==0))THEN
           CALL ANCMSG(MSGID=1057,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
      .                I1=IG,
      .                C1=IDTITL)
        ENDIF
-       IF(IECROU.EQ.7.AND.IFUNC==0)THEN
+       IF(IECROU==7.AND.IFUNC==0)THEN
           CALL ANCMSG(MSGID=1058,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
      .                I1=IG,
      .                C1=IDTITL)
        
-       ELSEIF(IECROU.EQ.7.AND.IFUNC2.EQ.0)THEN
+       ELSEIF(IECROU==7.AND.IFUNC2==0)THEN
           CALL ANCMSG(MSGID=1059,
      .                MSGTYPE=MSGWARNING,
      .                ANMODE=ANINFO_BLIND_1,
@@ -244,16 +235,16 @@ c
       IF (FMIN == ZERO) FMIN = -EP30
       IF (FMAX == ZERO) FMAX =  EP30
 C------------------------
-      IF(IS_CRYPTED)THEN                                    
+      IF(IS_ENCRYPTED)THEN                                    
         WRITE(IOUT,1000)IG                                     
       ELSE                                                     
-       IF (IECROU.NE.5) THEN                                   
+       IF (IECROU/=5) THEN                                   
         WRITE(IOUT,1400)IG,(GEO(J),J=1,3),IFUNC,LSCALE,IFUNC2,F,IECROU, 
-     .                A,B,D,E,IFV,GF3,IFUNC3,DN,DX,ISENS,IFL,ILENG,FRIC,   
+     .                A,B,D,E,IFV,GF3,IFUNC3,DN,DX,ABS(ISENS),IFL,ILENG,FRIC,   
      .                FTAB_ID,IFRIC,YSCALEF,XSCALEF,FMIN,FMAX
        ELSE                                                    
         WRITE(IOUT,1500)IG,(GEO(J),J=1,3),IFUNC,LSCALE,IFUNC2,F,IECROU, 
-     .                A,B,D,E,IFV,GF3,IFUNC3,DN,DX,ISENS,IFL,ILENG,FRIC,
+     .                A,B,D,E,IFV,GF3,IFUNC3,DN,DX,ABS(ISENS),IFL,ILENG,FRIC,
      .                FTAB_ID,IFRIC,YSCALEF,XSCALEF,FMIN,FMAX
        ENDIF                                                   
       ENDIF                                               
@@ -281,7 +272,7 @@ C----
       GEO(139) = FMAX
       GEO(140) = YSCALEF
       IGEO(3) = ISENS
-C--   If H=6 - addditional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
+C--   If H=6 - additional internal variables must be stored in UVAR -  - GEO(25) = NUVAR
       IF (IECROU == 6) THEN
         GEO(25) = 1
       ENDIF
@@ -309,7 +300,7 @@ C
       PROP_TAG(IGTYP)%G_LENGTH_ERR = 1
       PROP_TAG(IGTYP)%G_DFS = 1
       PROP_TAG(IGTYP)%G_INIFRIC = 1
-      PROP_TAG(IGTYP)%G_NUVAR = MAX(PROP_TAG(IGTYP)%G_NUVAR,NINT(GEO(25))) ! addtional internal variables for h=6
+      PROP_TAG(IGTYP)%G_NUVAR = MAX(PROP_TAG(IGTYP)%G_NUVAR,NINT(GEO(25))) ! additional internal variables for h=6
       PROP_TAG(IGTYP)%G_DEFINI = 1
       PROP_TAG(IGTYP)%G_FORINI = 1
 C
@@ -396,10 +387,6 @@ C------------------------
      & 5X,'FORCE ABSCISSA SCALE IN FRICTION TABLE.=',1PG20.13/
      & 5X,'NON REVERSIBLE NEGATIVE LIMIT FORCE . .=',1PG20.13/
      & 5X,'NON REVERSIBLE POSITIVE LIMIT FORCE . .=',1PG20.13/)
-c-----------
-      RETURN
-c-----------
- 999  CALL FREERR(1)
 c-----------
       RETURN
       END

@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2FOR28                       source/interfaces/interf/i2for28.F
-Chd|-- called by -----------
-Chd|        INTTI2F                       source/interfaces/interf/intti2f.F
-Chd|-- calls ---------------
-Chd|        I2FOR28_CIN                   source/interfaces/interf/i2for28_cin.F
-Chd|        I2FOR28_PEN                   source/interfaces/interf/i2for28_pen.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2for28       ../engine/source/interfaces/interf/i2for28.F
+!||--- called by ------------------------------------------------------
+!||    intti2f       ../engine/source/interfaces/interf/intti2f.F
+!||--- calls      -----------------------------------------------------
+!||    i2for28_cin   ../engine/source/interfaces/interf/i2for28_cin.F
+!||    i2for28_pen   ../engine/source/interfaces/interf/i2for28_pen.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod       ../engine/share/modules/h3d_mod.F
+!||====================================================================
       SUBROUTINE I2FOR28(
      .           X           ,V           ,VR          ,A           ,AR          ,
      .           MS          ,IN          ,STIFN       ,STIFR       ,WEIGHT      ,
@@ -39,7 +40,7 @@ Chd|====================================================================
      .           NOINT       ,NODNX_SMS   ,DMINT2      ,DT2T        ,NELTST      ,
      .           ITYPTST     ,NSN         ,NMN         ,IDEL2       ,PENFLAG     ,
      .           IROT        ,SKEW        ,
-     .           DPARA       ,NMAS        ,DMAST       ,ADM         ,MINER       ,
+     .           DPARA       ,NMAS        ,DMAST       ,ADM        ,SAV_INER_POFF,
      .           H3D_DATA    ,FNCONTP     ,FTCONTP     )
 C-----------------------------------------------
 C   M o d u l e s
@@ -65,20 +66,12 @@ C-----------------------------------------------
      .   FTCONTP(3,*) 
       my_real
      .   DPARA(7,*),DMAST,ADM(*),
-     .   NMAS(*),MINER(*)
+     .   NMAS(*),SAV_INER_POFF(*)
       TYPE (H3D_DATABASE) :: H3D_DATA
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
-#include      "com01_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,NI,NINDXC,NINDXP
+      INTEGER I,NINDXC,NINDXP
       INTEGER INDXC(NSN),INDXP(NSN)
 C=======================================================================
       INDXC(1:NSN) = 0      
@@ -102,8 +95,8 @@ c-----------
      2   MSR       ,NSV       ,IRTLM     ,MS         ,WEIGHT    ,
      3   AR        ,IN        ,X         ,STIFN      ,STIFR     ,
      4   FSAV      ,DMAST     ,ADM       ,NMAS       ,IDEL2     ,
-     5   SMAS      ,SINER     ,V         ,CSTS       ,FNCONT    ,
-     6   INDXC     ,MINER     ,H3D_DATA  ,FNCONTP    ,FTCONTP   )
+     5   SMAS      ,SINER     ,CSTS      ,FNCONT     ,INDXC     ,
+     6   SAV_INER_POFF,H3D_DATA,FNCONTP  ,FTCONTP   )
 C
       ENDIF
 c
@@ -115,9 +108,8 @@ c
      .       DR        ,FINI      ,FSAV      ,FNCONT      ,NSN       ,
      .       STFN_PEN  ,STFR_PEN  ,VISC      ,PENFLAG     ,IROT      ,
      .       NOINT     ,NODNX_SMS ,DMINT2    ,SAV_FOR_PENA,IRECTM    ,
-     .       DT2T      ,NELTST    ,ITYPTST   ,
-     .       INDXP     ,MINER     ,H3D_DATA    ,FNCONTP   ,
-     .       FTCONTP   )
+     .       DT2T      ,NELTST    ,ITYPTST   ,INDXP       ,SAV_INER_POFF,
+     .       H3D_DATA  ,FNCONTP   ,FTCONTP)
 c
       ENDIF                                                            
 c-----------

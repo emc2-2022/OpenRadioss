@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS43C                     source/materials/mat/mat043/sigeps43c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps43c   ../engine/source/materials/mat/mat043/sigeps43c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||    vinter      ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS43C(
      1     NEL      ,NUPARAM  ,NUVAR    ,NPF      ,TF       ,
      2     NFUNC    ,IFUNC    ,ISRATE   ,TIME     ,TIMESTEP ,
@@ -40,7 +40,7 @@ Chd|====================================================================
      9     SOUNDSP  ,THK      ,PLA      ,UVAR     ,OFF      ,
      A     NGL      ,ETSE     ,HARDM    ,SIGY     ,GS       , 
      B     DPLA1    ,EPSP     ,SHF      ,INLOC    ,DPLANL   ,
-     C     SEQ      )
+     C     SEQ      ,LOFF     ,ASRATE   ,EPSD_PG  )
 C=======================================================================
 C   Tabulated Hill material model
 C=======================================================================
@@ -51,13 +51,14 @@ C-----------------------------------------------
 C   G L O B A L   P A R A M E T E R S
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A R G U M E N T S
 C-----------------------------------------------
       INTEGER NEL, NUPARAM, NUVAR, NFUNC ,ISRATE,INLOC
       INTEGER NGL(NEL),IFUNC(NFUNC)
+      my_real ,INTENT(IN) :: ASRATE
+      my_real ,DIMENSION(NEL) ,INTENT(IN)    :: EPSD_PG
+      my_real ,DIMENSION(NEL) ,INTENT(INOUT) :: EPSP
       my_real 
      .   TIME,TIMESTEP,UPARAM(NUPARAM),AREA(NEL),RHO0(NEL),EINT(NEL,2),
      .   THKLY(NEL),PLA(NEL),EPSPXX(NEL),EPSPYY(NEL),GS(NEL),SHF(NEL),
@@ -69,6 +70,7 @@ C-----------------------------------------------
      .   SIGOXX(NEL),SIGOYY(NEL),
      .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL),SIGY(NEL),HARDM(NEL),
      .   DPLANL(NEL),SEQ(NEL)
+      my_real, DIMENSION(NEL), INTENT(IN) :: LOFF
 C-----------------------------------------------
 C   O U T P U T   A R G U M E N T S
 C-----------------------------------------------
@@ -78,8 +80,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I N P U T   O U T P U T   A R G U M E N T S 
 C-----------------------------------------------
-      my_real UVAR(NEL,NUVAR), OFF(NEL),THK(NEL),
-     .        DPLA1(NEL),EPSP(NEL)
+      my_real UVAR(NEL,NUVAR), OFF(NEL),THK(NEL),DPLA1(NEL)
 C-----------------------------------------------
 C   VARIABLES FOR FUNCTION INTERPOLATION 
 C-----------------------------------------------
@@ -93,21 +94,21 @@ C-----------------------------------------------
      .   IAD2(MVSIZ),IPOS2(MVSIZ),ILEN2(MVSIZ),
      .   JJ(MVSIZ),INDEX(MVSIZ)
       my_real 
-     .   A,B,S12,FAC,DEZZ,SIGZ,S1,S2,S3,DPLA,VM2,EPST,
+     .   A,B,S12,FAC,DEZZ,S1,S2,S3,EPST,
      .   A_1,A_2,A_3,P_1,P_2,P_3,PP1,PP2,PP3,DR,DR0,
      .   E(MVSIZ),A1(MVSIZ),A2(MVSIZ),G(MVSIZ),G3(MVSIZ),
      .   A01,A02,A03,A12,
      .   AXX(MVSIZ),AYY(MVSIZ),AXY(MVSIZ),A_XY(MVSIZ),
      .   DYDX1(MVSIZ),DYDX2(MVSIZ),RATE(MVSIZ,2),SVM(MVSIZ),
-     .   SVM0(MVSIZ),YLD(MVSIZ),Y1(MVSIZ),Y2(MVSIZ),
+     .   YLD(MVSIZ),Y1(MVSIZ),Y2(MVSIZ),
      .   YFAC(MVSIZ,2),NNU1,NU,NU2(MVSIZ),
      .   NU3(MVSIZ),NU4(MVSIZ),NU5(MVSIZ),JQ(MVSIZ),JQ2(MVSIZ),
      .   DPLA_I(MVSIZ),DPLA_J(MVSIZ),FAIL(MVSIZ),EPSMAX,
      .   EPSR1,EPSR2,S11(MVSIZ),S22(MVSIZ),
      .   B_1(MVSIZ),B_2(MVSIZ),B_3(MVSIZ),Q12(MVSIZ),Q21(MVSIZ),
-     .   ERR,F,DF,PLA_I,YLD_I,H(MVSIZ),
+     .   F,DF,YLD_I,H(MVSIZ),
      .   FISOKIN,HK(MVSIZ),FHK,FA01,FA02,FA03,NU1,
-     .   CE,EINF,ESCALE(MVSIZ),C1(MVSIZ),NORMXX,NORMYY,
+     .   CE,EINF,ESCALE(MVSIZ),NORMXX,NORMYY,
      .   DYDXE(MVSIZ)
       DATA NMAX/2/,NS/10/
 C=======================================================================
@@ -165,22 +166,8 @@ c------------------------------------------------------
            ENDIF                                                                    
         ENDDO
       ENDIF
-
 c--------------------------------------------------------------
-c      IF (TIME == ZERO) THEN  
-c        DO I=1,NEL            
-c          DO J=1,NRATE(I)     
-c            UVAR(I,J+4) = ONE
-c          ENDDO               
-c        ENDDO                 
-c      ENDIF                   
-C
-      DO I=1,NEL
-!        SIGOXX(I) = SIGOXX(I) - UVAR(I,2)
-!        SIGOYY(I) = SIGOYY(I) - UVAR(I,3)
-!        SIGOXY(I) = SIGOXY(I) - UVAR(I,4)
-        DPLA1(I) = ZERO           
-      ENDDO
+      DPLA1(1:NEL) = ZERO           
       DO I=1,NEL
         SIGNXX(I)=SIGOXX(I) - UVAR(I,2) +A1(I)*DEPSXX(I)+A2(I)*DEPSYY(I)
         SIGNYY(I)=SIGOYY(I) - UVAR(I,3) +A2(I)*DEPSXX(I)+A1(I)*DEPSYY(I)
@@ -191,12 +178,14 @@ C
         SOUNDSP(I) = SQRT(A1(I)/RHO0(I))
         ETSE(I) = ONE
 C-------------------
-C     STRAIN RATE
+C       STRAIN RATE
 C-------------------
         IF (ISRATE == 0) THEN
           EPSP(I) = HALF*( ABS(EPSPXX(I)+EPSPYY(I))
      .            + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
      .            + EPSPXY(I)*EPSPXY(I) ) )
+        ELSE
+          EPSP(I) = ASRATE*EPSD_PG(I) + (ONE-ASRATE)*EPSP(I)
         ENDIF
 C-------------------
 C     STRAIN 
@@ -215,7 +204,7 @@ C-------------------
       ENDDO
       DO I=1,NEL
         DO J=2,NRATE-1
-          IF(EPSP(I).GE.UPARAM(NS+J)) JJ(I) = J
+          IF(EPSP(I)>=UPARAM(NS+J)) JJ(I) = J
         ENDDO
         RATE(I,1)=UPARAM(NS+JJ(I))
         RATE(I,2)=UPARAM(NS+JJ(I)+1)
@@ -274,7 +263,7 @@ C     GATHER PLASTIC FLOW
 C-------------------------
       NINDX=0
       DO I=1,NEL
-        IF(SVM(I).GT.YLD(I).AND.OFF(I) == ONE) THEN
+        IF(SVM(I)>YLD(I).AND.OFF(I) == ONE) THEN
           NINDX=NINDX+1
           INDEX(NINDX)=I
         ENDIF
@@ -288,7 +277,7 @@ C---------------------------
          I=INDEX(J)
          DPLA_J(I)=(SVM(I)-YLD(I))/(G3(I)+H(I))
          ETSE(I)= H(I)/(H(I)+E(I))
-C        +++cette partie peut etre neglige quand FHK est tres petit
+C        +++ This part can be Neglige when FHK is very small
          HK(I) = H(I)*FISOKIN
          FHK = FOUR_OVER_3*HK(I)/A1(I)
          FA01 =A01*FHK
@@ -304,12 +293,12 @@ C        ---
          S2=A02*NU1*TWO-A03-FA03
          S12=A03-NU1*(A01+A02)+FA03
          S3=SQRT(NU2(I)*(A01-A02)*(A01-A02)+S12*S12)
-         IF (ABS(S1).LT.EM20) THEN 
+         IF (ABS(S1)<EM20) THEN 
            Q12(I)=ZERO
          ELSE
            Q12(I)=-(A01-A02+S3+FA01-FA02)/S1
          ENDIF
-         IF (ABS(S2).LT.EM20) THEN 
+         IF (ABS(S2)<EM20) THEN 
            Q21(I)=ZERO
          ELSE
            Q21(I)=(A01-A02+S3+FA01-FA02)/S2
@@ -339,7 +328,7 @@ C
           DO J=1,NINDX
            I=INDEX(J)
            DPLA_I(I)=DPLA_J(I)
-           IF(DPLA_I(I).GT.ZERO) THEN
+           IF(DPLA_I(I)>ZERO) THEN
            YLD_I =YLD(I)+H(I)*DPLA_I(I)
            DR  =A1(I)*DPLA_I(I)/YLD_I
            P_1=ONE/(ONE + B_1(I)*DR)
@@ -371,7 +360,7 @@ C------------------------------------------
           DR  =A1(I)*DR0
           P_1=ONE/(ONE + B_1(I)*DR)
           P_2=ONE/(ONE + B_2(I)*DR)
-          P_3=ONE/(ONE + B_3(I)*DR)	
+          P_3=ONE/(ONE + B_3(I)*DR)
          S1=S11(I)*P_1
          S2=S22(I)*P_2
          SIGNXX(I)=JQ(I)*(S1-S2*Q12(I))
@@ -395,7 +384,7 @@ C------------------------------------------
         ENDDO
 C
         DO I=1,NEL
-          IF(PLA(I).GT.EPSMAX.AND.OFF(I) == ONE)OFF(I)=FOUR_OVER_5
+          IF(PLA(I)>EPSMAX.AND.OFF(I) == ONE)OFF(I)=FOUR_OVER_5
         ENDDO
       ENDIF
       DO I=1,NEL
@@ -418,7 +407,7 @@ C---------------------------------------------------------------
         S3      = A03*SIGNXX(I)*SIGNYY(I)
         AXY(I)  = A12*SIGNXY(I)*SIGNXY(I)
         SEQ(I)  = SQRT(S1+S2-S3+AXY(I)) 
-        IF (INLOC > 0) THEN 
+        IF ((INLOC > 0).AND.(LOFF(I) == ONE)) THEN 
           NORMXX  = (TWO*A01*SIGNXX(I) - A03*SIGNYY(I))/(MAX(TWO*SEQ(I),EM20))
           NORMYY  = (TWO*A02*SIGNYY(I) - A03*SIGNXX(I))/(MAX(TWO*SEQ(I),EM20))
           DEZZ    = MAX(DPLANL(I),ZERO)*(NORMXX + NORMYY)

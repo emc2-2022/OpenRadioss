@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FSIGCINI                      source/constraints/fxbody/fsigcini.F
-Chd|-- called by -----------
-Chd|        FXBSINI                       source/constraints/fxbody/fxbsini.F
-Chd|-- calls ---------------
-Chd|        CCOEFI                        source/constraints/fxbody/fsigcini.F
-Chd|        CCURVI                        source/constraints/fxbody/fsigcini.F
-Chd|        CDEFLI                        source/constraints/fxbody/fsigcini.F
-Chd|        CEVECI                        source/elements/shell/coque/ceveci.F
-Chd|        CM1INIF                       source/elements/shell/coque/cm1inif.F
-Chd|        CPXPYI                        source/elements/shell/coque/cepsini.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fsigcini      ../starter/source/constraints/fxbody/fsigcini.F
+!||--- called by ------------------------------------------------------
+!||    fxbsini       ../starter/source/constraints/fxbody/fxbsini.F
+!||--- calls      -----------------------------------------------------
+!||    ccoefi        ../starter/source/constraints/fxbody/fsigcini.F
+!||    ccurvi        ../starter/source/constraints/fxbody/fsigcini.F
+!||    cdefli        ../starter/source/constraints/fxbody/fsigcini.F
+!||    ceveci        ../starter/source/elements/shell/coque/ceveci.F
+!||    cm1inif       ../starter/source/elements/shell/coque/cm1inif.F
+!||    cpxpyi        ../starter/source/elements/shell/coque/cepsini.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE FSIGCINI(FXBELM, IPARG , X     , PM, IXC , 
-     .                    GEO   , FXBMOD, FXBSIG, R , NELC) 
+     .                    GEO   , FXBMOD, FXBSIG, R , NELC)
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -59,7 +61,6 @@ C-----------------------------------------------
       INTEGER IG,OFFSET,FIRST,LAST,NFT,I,NG,IEL,
      .        N1,N2,N3,N4,ISM,ITHK,NPT,NFS
       INTEGER MAT(MVSIZ), PROP(MVSIZ)
-      INTEGER II,J
       my_real
      .   D11, D12, D13, D21, D22, D23, D31, D32, D33, D41, D42, D43,
      .   DR11, DR12, DR13, DR21, DR22, DR23, DR31, DR32, DR33,
@@ -222,13 +223,12 @@ C
 C-----------
       RETURN
       END SUBROUTINE FSIGCINI
-Chd|====================================================================
-Chd|  CCOEFI                        source/constraints/fxbody/fsigcini.F
-Chd|-- called by -----------
-Chd|        FSIGCINI                      source/constraints/fxbody/fsigcini.F
-Chd|        FSIGTINI                      source/constraints/fxbody/fsigtini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ccoefi     ../starter/source/constraints/fxbody/fsigcini.F
+!||--- called by ------------------------------------------------------
+!||    fsigcini   ../starter/source/constraints/fxbody/fsigcini.F
+!||    fsigtini   ../starter/source/constraints/fxbody/fsigtini.F
+!||====================================================================
       SUBROUTINE CCOEFI(NEL , PM  , GEO, NU ,
      .                  G   , A1  , A2 , GS , THK,
      .                  MAT , PROP, NPT, AREA )
@@ -278,12 +278,11 @@ C=======================================================================
 C
       RETURN
       END SUBROUTINE CCOEFI
-Chd|====================================================================
-Chd|  CDEFLI                        source/constraints/fxbody/fsigcini.F
-Chd|-- called by -----------
-Chd|        FSIGCINI                      source/constraints/fxbody/fsigcini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cdefli     ../starter/source/constraints/fxbody/fsigcini.F
+!||--- called by ------------------------------------------------------
+!||    fsigcini   ../starter/source/constraints/fxbody/fsigcini.F
+!||====================================================================
       SUBROUTINE CDEFLI (NEL  ,VL   ,GSTR ,
      .                   PX1  ,PX2  ,PY1  ,PY2  ,
      .                   E1X  ,E2X  ,E3X  ,E1Y  ,E2Y  ,E3Y ,E1Z ,E2Z ,E3Z ,
@@ -367,12 +366,11 @@ C
       ENDDO
       RETURN
       END SUBROUTINE CDEFLI
-Chd|====================================================================
-Chd|  CCURVI                        source/constraints/fxbody/fsigcini.F
-Chd|-- called by -----------
-Chd|        FSIGCINI                      source/constraints/fxbody/fsigcini.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ccurvi     ../starter/source/constraints/fxbody/fsigcini.F
+!||--- called by ------------------------------------------------------
+!||    fsigcini   ../starter/source/constraints/fxbody/fsigcini.F
+!||====================================================================
       SUBROUTINE CCURVI(NEL  ,VRL  ,
      .                  PX1  ,PX2  ,PY1  ,PY2  ,
      .                  E1X  ,E2X  ,E3X  ,E1Y  ,E2Y  ,E3Y ,E1Z ,E2Z ,E3Z ,

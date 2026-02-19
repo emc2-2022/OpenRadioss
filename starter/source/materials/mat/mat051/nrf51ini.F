@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  NRF51INI                      source/materials/mat/mat051/nrf51ini.F
-Chd|-- called by -----------
-Chd|        M51INIT                       source/materials/mat/mat051/m51init.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE NRF51INI(IPM  ,    PM,     X, NIX,  IX,
-     .                    ALE_CONNECTIVITY,BUFMAT,UPARAM, NV46,RHO0,
-     .                    UVAR ,NUVAR ,NEL   , RHO
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    nrf51ini               ../starter/source/materials/mat/mat051/nrf51ini.F
+!||--- called by ------------------------------------------------------
+!||    m51init                ../starter/source/materials/mat/mat051/m51init.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE NRF51INI(IPM             ,     PM,      X, NIX,     IX,
+     .                    ALE_CONNECTIVITY, BUFMAT, UPARAM, RHO0,
+     .                    UVAR            , NUVAR , NEL   , RHO , NUMEL
      .                   )
 C-----------------------------------------------
 C   D e s c r i p t i o n
@@ -39,49 +39,47 @@ C-----------------------------------------------
 C This subroutines is automatically initializing
 C law51-NRF parameter according state from adjacent
 C element. User is no longer asked to copy/paste
-C parameters. Starter is doing it automatically
+C material parameters. Starter is doing it automatically
 C
 C NRF READS
 C AV, RHO, E, PMIN, P0, SSP
 C 0.0 means automatic initialisation
 C otherwise use read
+C
+C NUMEL : total number of solid elements (2d or 3d)
+C NEL   : Number of element in current group (<=MVSIZ)
+C IX    : element connectivity + mat_id
+C IPM   : material properties (integer)
+C PM    : material properties (real)
+C
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE ALE_CONNECTIVITY_MOD
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS, M51_TCP_REF, M51_lSET_IFLG6, M51_LC0MAX, M51_SSP0MAX, M51_ILOOP_NRF
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr10_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
 #include      "com04_c.inc"
-#include      "scr11_c.inc"
-#include      "mmale51_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER,INTENT(IN)    :: NIX,IX(NIX,*),IPM(NPROPMI,*),NV46,NUVAR,NEL
-      my_real               :: PM(NPROPM,*), X(3,*),  UPARAM(*),  RHO0
+      INTEGER,INTENT(IN)    :: NUMEL,NIX,IX(NIX,NUMEL),IPM(NPROPMI,NUMMAT),NUVAR,NEL
+      my_real               :: PM(NPROPM,NUMMAT), X(3,NUMNOD),  UPARAM(*),  RHO0
       my_real,TARGET        :: BUFMAT(*)
       my_real,INTENT(INOUT) :: UVAR(NEL,NUVAR), RHO(NEL)
       TYPE(t_ale_connectivity), INTENT(INOUT) :: ALE_CONNECTIVITY
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IVMAT,IMAT, IID, MLN, J, J2, IADBUF,
-     .        IFLGv, IE, IEV, NUPARAM,MUID,K,IFORM,IAD1,LGTH
+      INTEGER I, IVMAT,IMAT,IID,MLN,J,J2,IADBUF,IFLGv,IE,IEV,NUPARAM,K,IFORM,IAD1,LGTH
       my_real
      .   C01,C02,C03,C04,         C01v,C02v,C03v,C04v,
      .   C11,C12,C13,C14,         C11v,C12v,C13v,C14v,
@@ -98,7 +96,7 @@ C-----------------------------------------------
      .   GG1v,GG2v,GG3v,
      .   DPDMU1v, DPDMU2v,DPDMU3v,
      .   PEXT, PEXTv, P0_NRF, P0_NRFv, AVSUM,
-     .   LC,Xmin,Ymin,Zmin,Xmax,Ymax,Zmax, SSP0,TCP, TMP,
+     .   LC,Xmin,Ymin,Zmin,Xmax,Ymax,Zmax, SSP0, TMP,
      .   AV(4)
      
       my_real,POINTER,DIMENSION(:) :: UPRM
@@ -109,8 +107,6 @@ C-----------------------------------------------
 C=======================================================================
 C   GET ADJACENT VALUES AND SET INITIAL STATE
 C=======================================================================
-
-
         AV1        = UPARAM(04)                                                                                              
         AV2        = UPARAM(05)                                                                                              
         AV3        = UPARAM(06)                                                                                              
@@ -161,8 +157,7 @@ C=======================================================================
         P01        = C01+C41*E01
         P02        = C02+C42*E02
         P03        = C03+C43*E03
-        P04        = C04
-                     
+        P04        = C04     
 
         DO I=LFT,LLT
           IE                   = I + NFT
@@ -171,24 +166,25 @@ C=======================================================================
           lFOUND_51            = 0
           lFOUND_other         = 0
           NUPARAM              = IPM(9,IMAT)
-          UVAR(I,4)            =  P0_NRF  ! initialisation par defaut pour les element en coin	
+          UVAR(I,4)            =  P0_NRF  ! default initialization for corner elems
           IAD1 = ALE_CONNECTIVITY%ee_connect%iad_connect(IE)
           LGTH = ALE_CONNECTIVITY%ee_connect%iad_connect(IE+1) - IAD1
+          IVMAT = 0
           DO J=1,LGTH
             IEV = ALE_CONNECTIVITY%ee_connect%connected(IAD1 + J - 1)
             IF(IEV == 0)CYCLE
             IVMAT              = ABS(IX(1,IEV))
             MLN                = NINT(PM(19,IVMAT))
             IFLGv              = 0
-            IF(MLN.NE.51)lFOUND_other = lFOUND_other + 1
+            IF(MLN/=51)lFOUND_other = lFOUND_other + 1
             IADBUF             = IPM(7,IVMAT)
             IFLGv              = NINT(BUFMAT(IADBUF-1+31))            
-            IF(IFLGv.GE.2 .AND. IFLGv.LE.6 )CYCLE
+            IF(IFLGv>=2 .AND. IFLGv<=6 )CYCLE
             lFOUND_51          = lFOUND_51 + 1
             !-----------------------------------------!
             ! GET ADJACENT LAW51 PARAMETER            !
-            !   necessarly defined - check by lecm51  !
-            !-----------------------------------------!            
+            !   necessarily defined - check by lecm51 !
+            !-----------------------------------------!
             AV1v    = BUFMAT(IADBUF-1+04)    ; 
             AV2v    = BUFMAT(IADBUF-1+05)    ; 
             AV3v    = BUFMAT(IADBUF-1+06)    ; 
@@ -212,7 +208,7 @@ C=======================================================================
             C31v    = BUFMAT(IADBUF-1+18)    ; 
             C32v    = BUFMAT(IADBUF-1+19)    ; 
             C33v    = BUFMAT(IADBUF-1+20)    ; 
-            C34v    = ZERO                   ;  				
+            C34v    = ZERO                   ;  
             C41v    = BUFMAT(IADBUF-1+22)    ; 
             C42v    = BUFMAT(IADBUF-1+23)    ; 
             C43v    = BUFMAT(IADBUF-1+24)    ; 
@@ -244,35 +240,34 @@ C=======================================================================
             GG1v    = BUFMAT(IADBUF-1+28)
             GG2v    = BUFMAT(IADBUF-1+29)
             GG3v    = BUFMAT(IADBUF-1+30)                                                          
-            IF(RHO01v .NE. ZERO) SSP1v  = SQRT( (DPDMU1v + TWO_THIRD*GG1v) / RHO01v )   !achtung GG1v = 2*G1v   =>  TWO_THIRD*GG = FOUR_OVER_3*G
-            IF(RHO02v .NE. ZERO) SSP2v  = SQRT( (DPDMU2v + TWO_THIRD*GG2v) / RHO02v )
-            IF(RHO03v .NE. ZERO) SSP3v  = SQRT( (DPDMU3v + TWO_THIRD*GG3v) / RHO03v )
-                                 SSP4v  = BUFMAT(IADBUF-1+42)  !VDETv            
+            IF(RHO01v /= ZERO) SSP1v  = SQRT( (DPDMU1v + TWO_THIRD*GG1v) / RHO01v )   !warning GG1v = 2*G1v   =>  TWO_THIRD*GG = FOUR_OVER_3*G
+            IF(RHO02v /= ZERO) SSP2v  = SQRT( (DPDMU2v + TWO_THIRD*GG2v) / RHO02v )
+            IF(RHO03v /= ZERO) SSP3v  = SQRT( (DPDMU3v + TWO_THIRD*GG3v) / RHO03v )
+                               SSP4v  = BUFMAT(IADBUF-1+42)  !VDETv            
             !-----------------------------------------!
             ! SET AUTOMATIC LAW51 PARAMETERS          !
             !-----------------------------------------!
             UVAR(I,4)  =  P0_NRF
             P0_NRFv    =  AV1v*P01v + AV2v*P02v + AV3v*P03v + AV4v*P04v
-            IF(P0_NRF.EQ.ZERO)UVAR(I,4)  =  P0_NRFv
-            
+            IF(P0_NRF==ZERO)UVAR(I,4)  =  P0_NRFv
 
             AVSUM = AV1+AV2+AV3+AV4            
-            IF(AVSUM.EQ.ZERO) THEN
+            IF(AVSUM==ZERO) THEN
                AV(1) = AV1v
                AV(2) = AV2v
                AV(3) = AV3v
                AV(4) = AV4v
               ! 
-               K=N0PHAS+(1-1)*NVPHAS
+               K=M51_N0PHAS+(1-1)*M51_NVPHAS
                UVAR(I,K+01)=AV1v
                UVAR(I,K+23)=AV1v
-               K=N0PHAS+(2-1)*NVPHAS
+               K=M51_N0PHAS+(2-1)*M51_NVPHAS
                UVAR(I,K+01)=AV2v
                UVAR(I,K+23)=AV2v
-               K=N0PHAS+(3-1)*NVPHAS
+               K=M51_N0PHAS+(3-1)*M51_NVPHAS
                UVAR(I,K+01)=AV3v
                UVAR(I,K+23)=AV3v
-               K=N0PHAS+(4-1)*NVPHAS
+               K=M51_N0PHAS+(4-1)*M51_NVPHAS
                UVAR(I,K+01)=AV4v
                UVAR(I,K+23)=AV4v
             ELSE
@@ -280,25 +275,22 @@ C=======================================================================
                AV(2) = AV2
                AV(3) = AV3
                AV(4) = AV4
-               K=N0PHAS+(1-1)*NVPHAS
+               K=M51_N0PHAS+(1-1)*M51_NVPHAS
                UVAR(I,K+01)=AV1
                UVAR(I,K+23)=AV1
-               K=N0PHAS+(2-1)*NVPHAS
+               K=M51_N0PHAS+(2-1)*M51_NVPHAS
                UVAR(I,K+01)=AV2
                UVAR(I,K+23)=AV2
-               K=N0PHAS+(3-1)*NVPHAS
+               K=M51_N0PHAS+(3-1)*M51_NVPHAS
                UVAR(I,K+01)=AV3
                UVAR(I,K+23)=AV3
-               K=N0PHAS+(4-1)*NVPHAS
+               K=M51_N0PHAS+(4-1)*M51_NVPHAS
                UVAR(I,K+01)=AV4
                UVAR(I,K+23)=AV4
             ENDIF   
-            
-            
-            !WARNING : intial state muste be updated later in case of /LOAD/HYDRO or /INITIA : it will no longer be in UPARAM but in UVAR
 
-            K=N0PHAS+(1-1)*NVPHAS                          
-            IF(RHO01.EQ.ZERO)THEN
+            K=M51_N0PHAS+(1-1)*M51_NVPHAS                          
+            IF(RHO01==ZERO)THEN
               UVAR(I,K+09)= RHO01v
               UVAR(I,K+12)= RHO01v
               UVAR(I,K+20)= RHO01v
@@ -308,19 +300,19 @@ C=======================================================================
               UVAR(I,K+12)= RHO01
               UVAR(I,K+20)= RHO01
             ENDIF
-            IF(E01.EQ.ZERO)THEN
+            IF(E01==ZERO)THEN
               UVAR(I,K+08)= E01v
               UVAR(I,K+21)= E01v
             ELSE
               UVAR(I,K+08)= E01
               UVAR(I,K+21)= E01
             ENDIF
-            IF(C01.EQ.ZERO)THEN
+            IF(C01==ZERO)THEN
               UVAR(I,K+18)= P01v
             ELSE
               UVAR(I,K+18)= P01
             ENDIF
-            IF(SSP1.EQ.ZERO)THEN
+            IF(SSP1==ZERO)THEN
               UVAR(I,K+22)= SSP1v
               SSP1 = SSP1v
               SSP0 = MAX(SSP0,SSP1)
@@ -329,8 +321,8 @@ C=======================================================================
               SSP0 = MAX(SSP0,SSP1)
             ENDIF
 
-            K=N0PHAS+(2-1)*NVPHAS                          
-            IF(RHO02.EQ.ZERO)THEN
+            K=M51_N0PHAS+(2-1)*M51_NVPHAS                          
+            IF(RHO02==ZERO)THEN
               UVAR(I,K+09)= RHO02v
               UVAR(I,K+12)= RHO02v
               UVAR(I,K+20)= RHO02v
@@ -340,19 +332,19 @@ C=======================================================================
               UVAR(I,K+12)= RHO02
               UVAR(I,K+20)= RHO02
             ENDIF
-            IF(E02.EQ.ZERO)THEN
+            IF(E02==ZERO)THEN
               UVAR(I,K+08)= E02v
               UVAR(I,K+21)= E02v
             ELSE
               UVAR(I,K+08)= E02
               UVAR(I,K+21)= E02
             ENDIF
-            IF(C02.EQ.ZERO)THEN
+            IF(C02==ZERO)THEN
               UVAR(I,K+18)= P02v
             ELSE
               UVAR(I,K+18)= P02
             ENDIF
-            IF(SSP2.EQ.ZERO)THEN
+            IF(SSP2==ZERO)THEN
               UVAR(I,K+22)= SSP2v
               SSP2 = SSP2v
               SSP0 = MAX(SSP0,SSP2)
@@ -361,8 +353,8 @@ C=======================================================================
               SSP0 = MAX(SSP0,SSP2)
             ENDIF         
 
-            K=N0PHAS+(3-1)*NVPHAS                          
-            IF(RHO03.EQ.ZERO)THEN
+            K=M51_N0PHAS+(3-1)*M51_NVPHAS                          
+            IF(RHO03==ZERO)THEN
               UVAR(I,K+09)= RHO03v
               UVAR(I,K+12)= RHO03v
               UVAR(I,K+20)= RHO03v
@@ -372,19 +364,19 @@ C=======================================================================
               UVAR(I,K+12)= RHO03
               UVAR(I,K+20)= RHO03
             ENDIF
-            IF(E03.EQ.ZERO)THEN
+            IF(E03==ZERO)THEN
               UVAR(I,K+08)= E03v
               UVAR(I,K+21)= E03v
             ELSE
               UVAR(I,K+08)= E03
               UVAR(I,K+21)= E03
             ENDIF
-            IF(C03.EQ.ZERO)THEN
+            IF(C03==ZERO)THEN
               UVAR(I,K+18)= P03v
             ELSE
               UVAR(I,K+18)= P03
             ENDIF
-            IF(SSP3.EQ.ZERO)THEN
+            IF(SSP3==ZERO)THEN
               UVAR(I,K+22)= SSP3v
               SSP3 = SSP3v
               SSP0 = MAX(SSP0,SSP3)
@@ -393,8 +385,8 @@ C=======================================================================
               SSP0 = MAX(SSP0,SSP3)
             ENDIF 
 
-            K=N0PHAS+(4-1)*NVPHAS                          
-            IF(RHO04.EQ.ZERO)THEN
+            K=M51_N0PHAS+(4-1)*M51_NVPHAS                          
+            IF(RHO04==ZERO)THEN
               UVAR(I,K+09)= RHO04v
               UVAR(I,K+12)= RHO04v
               UVAR(I,K+20)= RHO04v
@@ -404,19 +396,19 @@ C=======================================================================
               UVAR(I,K+12)= RHO04
               UVAR(I,K+20)= RHO04
             ENDIF
-            IF(E04.EQ.ZERO)THEN
+            IF(E04==ZERO)THEN
               UVAR(I,K+08)= E04v
               UVAR(I,K+21)= E04v
             ELSE
               UVAR(I,K+08)= E04
               UVAR(I,K+21)= E04
             ENDIF
-            IF(C04.EQ.ZERO)THEN
+            IF(C04==ZERO)THEN
               UVAR(I,K+18)= P04v
             ELSE
               UVAR(I,K+18)= P04
             ENDIF
-            IF(SSP4.EQ.ZERO)THEN
+            IF(SSP4==ZERO)THEN
               UVAR(I,K+22)= SSP4v
               SSP4 = SSP4v
               SSP0 = MAX(SSP0,SSP4)
@@ -429,51 +421,24 @@ C=======================================================================
             PM( 1,IMAT) = RHO0 !NINT(PM(1,IVMAT))
             PM(89,IMAT) = RHO0 !NINT(PM(19,IVMAT))
             RHO(I)      = RHO0
-                                 
-            !rho*c**2
-            !UPARAM(126) = UPARAM(09)*UPARAM(124)*UPARAM(124)
-            !UPARAM(176) = UPARAM(10)*UPARAM(174)*UPARAM(174)
-            !UPARAM(226) = UPARAM(11)*UPARAM(224)*UPARAM(224)
-            !UPARAM(275) = UPARAM(47)*UPARAM(273)*UPARAM(273)    
-
-            !WARNING : intial state muste be updated later in case of /LOAD/HYDRO or /INITIA : it will no longer be in UPARAM but in UVAR
-                                 
-            !K=N0PHAS+(1-1)*NVPHAS
-            !UVAR(I,K+20)=RHO01v
-            !UVAR(I,K+21)=E01v
-            !UVAR(I,K+22)=SSP1v
-            !K=N0PHAS+(2-1)*NVPHAS
-            !UVAR(I,K+20)=RHO02v
-            !UVAR(I,K+21)=E02v  
-            !UVAR(I,K+22)=SSP2v          
-            !K=N0PHAS+(3-1)*NVPHAS
-            !UVAR(I,K+20)=RHO03v
-            !UVAR(I,K+21)=E03v
-            !UVAR(I,K+22)=SSP3v
-            !K=N0PHAS+(4-1)*NVPHAS
-            !UVAR(I,K+20)=RHO04v
-            !UVAR(I,K+21)=E04v
-            !UVAR(I,K+22)=SSP4v
-                                                                                                                   
+                                                                                                                      
             EXIT
           ENDDO! next J          
-          !Verification de la mise en donnees
-          !2 voisins par element frontiere : esch net normal.
+          !checking input file
+          !2 adjacent elem in computation domain: this is not expected. 1 boundary elem => 1  adjacent elem
           DO J2=J+1,LGTH
             IEV = ALE_CONNECTIVITY%ee_connect%connected(IAD1 + J2 - 1)
             IF(IEV /= 0)THEN
               MLN        = NINT(PM(19,IVMAT))
               IFLGv      = 0
               IVMAT      = ABS(IX(1,IEV))              
-              IF(MLN.NE.51 )lFOUND_other = lFOUND_other + 1
+              IF(MLN/=51 )lFOUND_other = lFOUND_other + 1
               IADBUF     = IPM(7,IVMAT)
               IFLGv      = NINT(BUFMAT(IADBUF-1+31))
-              IF(IFLGv.GE.2 .AND. IFLGv.LE.6 )CYCLE 
+              IF(IFLGv>=2 .AND. IFLGv<=6 )CYCLE 
               lFOUND_51  = lFOUND_51 + 1
             ENDIF
           ENDDO
-          !Verification de la mise en donnees
-          !2 voisins par element frontiere : esch net normal.
           IF(lFOUND_other /= 0)THEN
               CALL ANCMSG(MSGID   = 122     ,
      .                    MSGTYPE = MSGERROR,
@@ -488,7 +453,7 @@ C=======================================================================
      .                    I1      = IID     ,
      .                    C1      = "HAS NO ADJACENT FACE IN COMPUTATION DOMAIN" )
           ENDIF              
-          IF(lFOUND_51 .GE. 2)THEN
+          IF(lFOUND_51 >= 2)THEN
               CALL ANCMSG(MSGID   = 122     ,
      .                    MSGTYPE = MSGERROR,
      .                    ANMODE  = ANINFO  ,
@@ -497,47 +462,38 @@ C=======================================================================
           ENDIF
         ENDDO !next I
 
-        SSP0MAX=MAX(SSP0MAX,SSP0)
-
-
-
-
+        M51_SSP0MAX=MAX(M51_SSP0MAX,SSP0)
 
 C=======================================================================
 C   AUTOMATIC CHARACTERISTIC LENGTH COMPUTATION
 C=======================================================================
        
-      ! attention sortir de la boucle sur les NG poru ensuite faire 1:NUMELS
-      ! ou ne boucler que sur le groupe lft:llt pour ssp0
-      ! puis faire 1 fois 1:numnod (bool)
        !-----------------------------!
-       ! CALCUL DE SSP0MAX           !
+       ! SSP0MAX  (sound speed)      !
        !-----------------------------!
-       IF(ILOOP_NRF51==0)THEN
-         !!IF(SSP0MAX .EQ. ZERO)THEN
+       IF(M51_ILOOP_NRF==0)THEN
           DO I=1,NUMELS+NUMELQ
             IMAT   = IX(1,I)
             MLN    = IPM(2,IMAT)
             IADBUF = IPM(7,IMAT)
-            IF(MLN.NE.51)CYCLE
-            UPRM => BUFMAT(IADBUF:IADBUF+275)
+            NUPARAM = IPM(9,IMAT)
+            IF(MLN/=51)CYCLE
+            UPRM => BUFMAT(IADBUF:IADBUF+NUPARAM-1)
             TMP  = UPRM(31)
             IFORM = NINT(TMP)
-            IF(IFORM.GT.1)CYCLE
+            IF(IFORM>1)CYCLE
             SSP0 = UPRM(124)
-              !  pointer sur uvar si c'est un ssp par elem, ou alors sur UPARAM mais pas de materiau frontiere (cycle)
             SSP0 = MAX(SSP0,UPRM(174))
             SSP0 = MAX(SSP0,UPRM(224))
             SSP0 = MAX(SSP0,UPRM(273))
           ENDDO
-          SSP0MAX = SSP0
-         !!ENDIF 
-         ILOOP_NRF51 = 1
+          M51_SSP0MAX = SSP0
+         M51_ILOOP_NRF = 1
        ENDIF    
        !-----------------------------!
-       ! ESTIMATEUR DE LC            !
+       ! Characteristic Length LC    !
        !-----------------------------!
-       IF(LC0MAX.EQ.ZERO)THEN
+       IF(M51_LC0MAX==ZERO)THEN
         Xmin   = X(1,1)
         Ymin   = X(2,1)
         Zmin   = X(3,1)
@@ -555,23 +511,21 @@ C=======================================================================
         LC     = Xmax-Xmin
         LC     = MAX(LC,Ymax-Ymin)
         LC     = MAX(LC,Zmax-Zmin)
-        LC0MAX = LC   
+        M51_LC0MAX = LC
        ENDIF
        !-----------------------------!
-       ! CALCUL ET AFFECTATION : Tcp !
+       ! Tcp : characteric time      !
        !-----------------------------!       
-       TCP_REF    = LC0MAX/TWO/SSP0MAX/LOG(TWO)       
-       !Si Tcp=0 alors calcul automatique
-       IF(UPARAM(70).EQ.ZERO)THEN
-         UPARAM(70) = TCP_REF
+       M51_TCP_REF    = M51_LC0MAX/TWO/M51_SSP0MAX/LOG(TWO)
+       !If TCP = 0 then automatic calculation
+       IF(UPARAM(70)==ZERO)THEN
+         UPARAM(70) = M51_TCP_REF
          lSET = 1
        ELSE
          lSET = 0
        ENDIF     
        
-       if(lSET==1) lSET_51_IFLG6 = 1  
- 
+       if(lSET==1) M51_lSET_IFLG6 = 1
+C----------------------------------------------- 
       RETURN
       END SUBROUTINE NRF51INI
-      
-

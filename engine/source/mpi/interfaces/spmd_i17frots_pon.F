@@ -1,38 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  SPMD_I17FROTS_PON             source/mpi/interfaces/spmd_i17frots_pon.F
-Chd|-- called by -----------
-Chd|        I17FOR3                       source/interfaces/int17/i17for3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        INTCONTP                      source/mpi/interfaces/spmd_i7tool.F
-Chd|        SORTI20                       source/mpi/interfaces/spmd_i7tool.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_i17frots_pon     ../engine/source/mpi/interfaces/spmd_i17frots_pon.F
+!||--- called by ------------------------------------------------------
+!||    i17for3               ../engine/source/interfaces/int17/i17for3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||    intcontp              ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    sorti20               ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_I17FROTS_PON(
      1      NSKYI17 ,ISKYI17,FSKYI17,NRSKYI17,IRSKYI17,
      2      FRSKYI17,NIN    ,LSKYI17,NOINT   )
@@ -44,27 +46,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr18_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "timeri_c.inc"
-#include      "warn_c.inc"
-#include      "spmd_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -78,7 +70,7 @@ C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
       INTEGER P, L, ADD, LL, NB, LEN, SIZ, LOC_PROC,
-     .        IDEB, N, MSGTYP, IERROR, IDEBI, NI, NOD,
+     .        IDEB, N, MSGTYP, IERROR, IDEBI,
      .        IALLOCS, IALLOCR, IES, I, NN, MSGOFF, MSGOFF2,
      .        STATUS(MPI_STATUS_SIZE),
      .        REQ_SI(NSPMD),REQ_S(NSPMD),REQ_R(NSPMD),
@@ -95,7 +87,7 @@ C-----------------------------------------------
 C
       LEN = 5
 C
-C Init + ireceive sur taille communication
+C INIT + IREceive on Communication Size
 C
         DO P = 1, NSPMD
           ISIZRCV(1,P)=0
@@ -104,14 +96,14 @@ C
           ISIZENV(2,P) = 0
           NSNFITOT(P) = 0
           NSNSITOT(P) = 0
-          IF(P.NE.LOC_PROC)THEN
+          IF(P/=LOC_PROC)THEN
             SIZ = NSNSI(NIN)%P(P)
-            IF(SIZ.GT.0)THEN
+            IF(SIZ>0)THEN
               NSNSITOT(P) = SIZ
               MSGTYP = MSGOFF
               CALL MPI_IRECV(
      .          ISIZRCV(1,P),2,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .          MPI_COMM_WORLD,REQ_R(P),IERROR   )
+     .          SPMD_COMM_WORLD,REQ_R(P),IERROR   )
             ENDIF
           ENDIF
         ENDDO
@@ -120,27 +112,27 @@ C Partie 1 envoi et preparation buffer reception
 C
 
 C
-        IF(NRSKYI17.GT.0) THEN
+        IF(NRSKYI17>0) THEN
           CALL SORTI20(NRSKYI17,IRSKYI17,FRSKYI17,4)
         END IF
-C precomptage du nombre de contacts par processeur+calcul nsnfi total
+C precomputation of the number of contacts per processor + total nsnfi calculation
         CALL INTCONTP(
      +    NRSKYI17,IRSKYI17,NSNFI(NIN)%P(1),ISIZENV,NSNFITOT,LEN)
 C
         IALLOCS = 0
         DO P = 1, NSPMD
-          IF(P.NE.LOC_PROC.AND.NSNFITOT(P).GT.0) THEN
+          IF(P/=LOC_PROC.AND.NSNFITOT(P)>0) THEN
             MSGTYP = MSGOFF
             CALL MPI_ISEND(
      .        ISIZENV(1,P),2,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .        MPI_COMM_WORLD,REQ_S(P),IERROR    )
+     .        SPMD_COMM_WORLD,REQ_S(P),IERROR    )
             IALLOCS = IALLOCS + ISIZENV(1,P)
           ENDIF
         END DO
         IERROR=0
-        IF(IALLOCS.GT.0)
+        IF(IALLOCS>0)
      +    ALLOCATE(BBUFS(IALLOCS+NSPMD),STAT=IERROR)
-        IF(IERROR.NE.0) THEN
+        IF(IERROR/=0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
         END IF
@@ -151,18 +143,18 @@ C
         IDEBI = 1
         L = 0
         DO P = 1, NSPMD
-          IF(P.NE.LOC_PROC.AND.ISIZENV(1,P).GT.0)THEN
+          IF(P/=LOC_PROC.AND.ISIZENV(1,P)>0)THEN
             ADD = L+1
             NB = NSNFI(NIN)%P(P)
-            IF(NB.GT.0) THEN
+            IF(NB>0) THEN
               LL = L+1
               L = L + 1
               DO N = 1, NB
-                IF(NSVFI(NIN)%P(IDEB+N).LT.0)THEN
-C facette element generant une force
+                IF(NSVFI(NIN)%P(IDEB+N)<0)THEN
+C Facet element generating a force
                   IES = -NSVFI(NIN)%P(IDEB+N)
-                  IF(IDEBI.LE.NRSKYI17) THEN
-                    ITEST = IRSKYI17(IDEBI).EQ.IDEB+N
+                  IF(IDEBI<=NRSKYI17) THEN
+                    ITEST = IRSKYI17(IDEBI)==IDEB+N
                   ELSE
                     ITEST = .FALSE.
                   ENDIF
@@ -174,8 +166,8 @@ C facette element generant une force
                     BBUFS(L+5) = FRSKYI17(4,IDEBI)
                     IDEBI = IDEBI + 1
                     L = L + LEN
-                    IF(IDEBI.LE.NRSKYI17) THEN
-                      ITEST = IRSKYI17(IDEBI).EQ.IDEB+N
+                    IF(IDEBI<=NRSKYI17) THEN
+                      ITEST = IRSKYI17(IDEBI)==IDEB+N
                     ELSE
                       ITEST = .FALSE.
                     ENDIF
@@ -189,45 +181,45 @@ C facette element generant une force
             MSGTYP = MSGOFF2 
             CALL MPI_ISEND(
      .        BBUFS(ADD),SIZ,REAL     ,IT_SPMD(P),MSGTYP,
-     .        MPI_COMM_WORLD,REQ_SI(P),IERROR    )
-          ELSEIF(P.NE.LOC_PROC)THEN
+     .        SPMD_COMM_WORLD,REQ_SI(P),IERROR    )
+          ELSEIF(P/=LOC_PROC)THEN
             IDEB = IDEB + NSNFI(NIN)%P(P)
           END IF
         END DO
 C
-C Receive 1er message : taille communication
+C Receive 1st message: Communication size
 C
         IALLOCR = 0
         DO P = 1, NSPMD
-          IF(NSNSITOT(P).GT.0)THEN
+          IF(NSNSITOT(P)>0)THEN
             CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
-            IALLOCR = MAX(IALLOCR,ISIZRCV(1,P))   ! pour comm bloquantes
+            IALLOCR = MAX(IALLOCR,ISIZRCV(1,P))   ! for blocking comm
           END IF
         END DO
 C
         IERROR=0
-        IF(IALLOCR.GT.0)
+        IF(IALLOCR>0)
      .    ALLOCATE(BBUFR(IALLOCR+1),STAT=IERROR)
-        IF(IERROR.NE.0) THEN
+        IF(IERROR/=0) THEN
           CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
           CALL ARRET(2)
         ENDIF
 C
-C Reception buffer et decompactage
+C Reception buffer and decompression
 C
         DO P = 1, NSPMD
-          IF(ISIZRCV(1,P).GT.0) THEN
+          IF(ISIZRCV(1,P)>0) THEN
             MSGTYP = MSGOFF2
             L = 1
             CALL MPI_RECV(
      .        BBUFR(L),ISIZRCV(1,P)+1,REAL  ,IT_SPMD(P),MSGTYP,
-     .        MPI_COMM_WORLD       ,STATUS,IERROR    )
+     .        SPMD_COMM_WORLD       ,STATUS,IERROR    )
 C
-            IF(NSNSI(NIN)%P(P).GT.0)THEN
+            IF(NSNSI(NIN)%P(P)>0)THEN
               NB = NINT(BBUFR(L))
               L = L + 1
 C
-             IF (NSKYI17+NB .GT. LSKYI17) THEN
+             IF (NSKYI17+NB > LSKYI17) THEN
                CALL ANCMSG(MSGID=25,ANMODE=ANINFO_BLIND,
      .                     I1=NOINT)
                CALL ARRET(2)
@@ -246,21 +238,21 @@ C
             END IF
           ENDIF
         ENDDO
-        IF(IALLOCR.GT.0) DEALLOCATE(BBUFR)
+        IF(IALLOCR>0) DEALLOCATE(BBUFR)
 C
 C Attente ISEND
 C
         DO P = 1, NSPMD
-          IF(P.NE.LOC_PROC)THEN
-            IF(NSNFITOT(P).GT.0) THEN
+          IF(P/=LOC_PROC)THEN
+            IF(NSNFITOT(P)>0) THEN
               CALL MPI_WAIT(REQ_S(P),STATUS,IERROR)
             END IF
-            IF(ISIZENV(1,P).GT.0)THEN
+            IF(ISIZENV(1,P)>0)THEN
               CALL MPI_WAIT(REQ_SI(P),STATUS,IERROR)
             END IF
           END IF
         END DO
-        IF(IALLOCS.GT.0) DEALLOCATE(BBUFS)
+        IF(IALLOCS>0) DEALLOCATE(BBUFS)
 C
 #endif
       RETURN

@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  WRITE_JOINT                   source/constraints/general/cyl_joint/write_joint.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        JOINT_MOD                     share/modules1/joint_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    write_joint   ../starter/source/constraints/general/cyl_joint/write_joint.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit       ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    joint_mod     ../starter/share/modules1/joint_mod.F
+!||====================================================================
             SUBROUTINE WRITE_JOINT(LJOINT,CEP,CEL,PROC,
      +                   NODLOCAL,LJOINT_L,LEN_IA,NUMNOD_L)
 !$COMMENT
@@ -44,12 +44,10 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "param_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -57,12 +55,9 @@ C-----------------------------------------------
         INTEGER  PROC, LJOINT_L, LEN_IA, NODLOCAL(*),
      .          LJOINT(*), CEP(*), CEL(*),NUMNOD_L
 C-----------------------------------------------
-C   F u n c t i o n
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-        INTEGER N,NN,K,J,P,I,NUMBER_MAIN_NODE,IS_SMS_AVAILABLE
+        INTEGER N, K, P, I, IS_SMS_AVAILABLE
         INTEGER, DIMENSION(:), ALLOCATABLE :: BUF_W
         INTEGER, DIMENSION(NSPMD) :: NB_NODE_WEIGHT
         INTEGER, DIMENSION(2) :: MAIN_NODE
@@ -106,9 +101,9 @@ C
                 DO I=1,CYL_JOIN(N)%NB_NODE(P)
                     SECONDARY_NODE(I) = NODLOCAL(CYL_JOIN(N)%PROC(P)%NODE(I))
                 ENDDO
-                !   number of node for the curent processor and joint
+                !   number of node for the current processor and joint
                 CALL WRITE_I_C(SECONDARY_NODE,CYL_JOIN(N)%NB_NODE(P))
-                !   weight array (0 or 1) for the curent processor and joint
+                !   weight array (0 or 1) for the current processor and joint
                 CALL WRITE_I_C(CYL_JOIN(N)%PROC(P)%WEIGHT,CYL_JOIN(N)%NB_NODE(P))
                 DEALLOCATE( SECONDARY_NODE )
             ENDIF

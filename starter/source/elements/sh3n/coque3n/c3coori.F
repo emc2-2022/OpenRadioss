@@ -1,42 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3COORI                       source/elements/sh3n/coque3n/c3coori.F
-Chd|-- called by -----------
-Chd|        C3INIT3                       source/elements/sh3n/coque3n/c3init3.F
-Chd|        CDKINIT3                      source/elements/sh3n/coquedk/cdkinit3.F
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        LSLOCAL                       source/elements/xfem/lslocal.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3coori       ../starter/source/elements/sh3n/coque3n/c3coori.F
+!||--- called by ------------------------------------------------------
+!||    c3init3       ../starter/source/elements/sh3n/coque3n/c3init3.F
+!||    cdkinit3      ../starter/source/elements/sh3n/coquedk/cdkinit3.F
+!||    inirig_mat    ../starter/source/elements/initia/inirig_mat.F
+!||    inivoid       ../starter/source/elements/initia/inivoid.F
+!||    lslocal       ../starter/source/elements/xfem/lslocal.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE C3COORI(X ,XREFTG,IXP ,NGL ,         
      .                   X1  ,X2  ,X3  ,Y1  ,Y2  ,Y3  , 
      .                   Z1  ,Z2  ,Z3  ,IX1 ,IX2 ,IX3 )
 C-----------------------------------------------
       USE MESSAGE_MOD
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,11 +51,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr03_c.inc"
-#include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "vect01_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C      V a r i a b l e s
 C-----------------------------------------------
@@ -70,7 +68,7 @@ C-----------------------------------------------
       my_real E3X, E3Y, E3Z, SURF,
      .    XN13, XN23, XN12, X13, Y13, Z13, X12, Y12, Z12
 C=======================================================================
-C     CONNECTIVITES ET MATERIEL                  
+C     CONNECTIVITIES AND MATERIAL
 C--------------------------------------------------
       DO I=LFT,LLT                                                     
         NGL(I)=IXP(6,I)                                                  
@@ -124,26 +122,26 @@ C
         TEST0=0
         TEST1=0
         TEST2=0
-        IF(XN13+XN12.LT.EM20) THEN
+        IF(XN13+XN12<EM20) THEN
            CALL ANCMSG(MSGID=35,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
      .                 I1=IXP(NIXTG,I))
            TEST0=1
-         ELSE IF(SURF.LE.EM20) THEN
+         ELSE IF(SURF<=EM20) THEN
            CALL ANCMSG(MSGID=35,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
      .                 I1=IXP(NIXTG,I))
            TEST1=1
-        ELSE IF(XN12.LE.EM20.OR.XN23.LE.EM20.OR.XN13.LE.EM20) THEN
+        ELSE IF(XN12<=EM20.OR.XN23<=EM20.OR.XN13<=EM20) THEN
            CALL ANCMSG(MSGID=36,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
      .                 I1=IXP(NIXTG,I))
            TEST2=1
         ENDIF  
-        IF(TEST0.EQ.1.OR.TEST1.EQ.1.OR.TEST2.EQ.1) THEN
+        IF(TEST0==1.OR.TEST1==1.OR.TEST2==1) THEN
           X1(I)=ZERO
           Y1(I)=ZERO
           Z1(I)=ZERO

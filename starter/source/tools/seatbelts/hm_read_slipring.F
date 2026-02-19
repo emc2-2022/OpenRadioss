@@ -1,61 +1,62 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_SLIPRING              source/tools/seatbelts/hm_read_slipring.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        MYQSORT                       ../common_source/tools/sort/myqsort.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        NINTRI                        source/system/nintrr.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SEATBELT_MOD                  ../common_source/modules/seatbelt_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_slipring       ../starter/source/tools/seatbelts/hm_read_slipring.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    arret                  ../starter/source/system/arret.F
+!||    fretitl                ../starter/source/starter/freform.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim      ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||    nintri                 ../starter/source/system/nintrr.F
+!||    udouble                ../starter/source/system/sysfus.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_SLIPRING(LSUBMODEL,ITABM1,IXR,ITAB,UNITAB,
      .                            X,FUNC_ID,NOM_OPT,ALEA,IGRNOD,
      .                            IGRSH4N,IXC,IPM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE UNITAB_MOD
       USE SEATBELT_MOD
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      use element_mod , only : nixc,nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -65,13 +66,10 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "com04_c.inc"
-#include      "submod_c.inc"
 #include      "random_c.inc"
 #include      "tabsiz_c.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -92,11 +90,15 @@ C-----------------------------------------------
       INTEGER :: IFUNC(4),IFUNC_LOC(4),NFRAM,ISHELL,GR_NOD,GR_SHEL1,GR_SHEL2,GRN_LOC,GRS1_LOC,GRS2_LOC
       INTEGER :: N_FIRST,N_LAST,NJ,NODE,IPOS,IERROR,NJ_NEXT,MID,MTYP
       INTEGER , DIMENSION(:), ALLOCATABLE:: TAGNO,ELEM1_NOD,ELEM2_NOD,CORES1,CORES2,IPOS1_NOD,IPOS2_NOD,JPERM
+      INTEGER :: SIZE_COM_NOD,CPT_COM_NOD
+      INTEGER , DIMENSION(:), ALLOCATABLE:: COM_NOD
       my_real :: DISTN,DIST1,DIST2,DIST3,A,ED_FACTOR,FRICD,XSCALE1,YSCALE2,XSCALE2,FRICS,XSCALE3,YSCALE4,XSCALE4
       my_real :: XSCALE1_UNIT,XSCALE2_UNIT,NN(3),NORM,N1(3),N2(3),N3(3),SCAL,ALEA_MAX,TOLE_2,NORMJ
       my_real :: DIST_MIN,VECT(3),VECTJ(3)
       my_real , DIMENSION(:), ALLOCATABLE:: DIST
-      CHARACTER             :: TITR*nchartitle,KEY*ncharkey,MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY) :: KEY
+      CHARACTER MESS*40
       INTEGER, DIMENSION(:), POINTER :: INGR2USR
 !
       LOGICAL :: IS_AVAILABLE
@@ -112,10 +114,11 @@ C-----------------------------------------------
       IERR1      = 0
 C
       IF(NSLIPRING > 0 ) THEN
+        NODE1 = 0
 C
         WRITE(IOUT,1000)
 C
-        MY_ALLOCATE (SLIPRING,NSLIPRING)
+        ALLOCATE(SLIPRING(NSLIPRING))
         DO I=1,NSLIPRING
           SLIPRING(I)%ID = 0
           SLIPRING(I)%IDG = 0
@@ -123,6 +126,7 @@ C
           SLIPRING(I)%IFUNC = 0
           SLIPRING(I)%SENSID = 0
           SLIPRING(I)%FL_FLAG = 0
+          SLIPRING(I)%RBODY = 0
           SLIPRING(I)%A = ZERO
           SLIPRING(I)%DC = ZERO
           SLIPRING(I)%FRIC = ZERO
@@ -184,9 +188,9 @@ C
             IF (XSCALE4== ZERO) XSCALE4 = ONE*XSCALE2_UNIT  
           ENDIF
 C
-C---------CHeck of sensors is done in creat_seatblet as sensors are not yet avaialble
+C---------Check of sensors is done in creat_seatblet as sensors are not yet available
 C
-C---------CHeck of functions
+C---------Check of functions
 C
           IFUNC_LOC(1:4) = 0
 C              
@@ -224,7 +228,7 @@ C
           SLIPRING(I)%FAC_S(2) = XSCALE4
           SLIPRING(I)%FAC_S(3) = YSCALE4    
 C
-          IF (KEY(1:6).EQ.'SPRING') THEN
+          IF (KEY(1:6)=='SPRING') THEN
 C
 C---------- SLIPRING/SPRING------------------------------------------------------------------
 C
@@ -271,11 +275,11 @@ C
      .                                     I1=ID,I2=EL2) 
             ENDIF
 C
-C--------   Initialisaton of fram structure
+C--------   Initialisation of fram structure
 C
             NFRAM = 1
             SLIPRING(I)%NFRAM = 1
-            MY_ALLOCATE (SLIPRING(I)%FRAM,NFRAM)
+            ALLOCATE(SLIPRING(I)%FRAM(NFRAM))
 C
             DO J=1,NFRAM
               SLIPRING(I)%FRAM(J)%UPDATE = 0
@@ -290,8 +294,10 @@ C
               SLIPRING(I)%FRAM(J)%VECTOR = ZERO
               SLIPRING(I)%FRAM(J)%ORIENTATION_ANGLE = ZERO
               SLIPRING(I)%FRAM(J)%MATERIAL_FLOW = ZERO
+              SLIPRING(I)%FRAM(J)%MATERIAL_FLOW_OLD = ZERO
               SLIPRING(I)%FRAM(J)%DFS = ZERO
               SLIPRING(I)%FRAM(J)%RESIDUAL_LENGTH = ZERO
+              SLIPRING(I)%FRAM(J)%CURRENT_LENGTH = ZERO
               SLIPRING(I)%FRAM(J)%RINGSLIP = ZERO
               SLIPRING(I)%FRAM(J)%BETA = ZERO
               SLIPRING(I)%FRAM(J)%GAMMA = ZERO
@@ -427,7 +433,7 @@ C
 C
             ENDIF
 C
-          ELSEIF (KEY(1:5).EQ.'SHELL') THEN
+          ELSEIF (KEY(1:5)=='SHELL') THEN
 C
 C---------  SLIPRING/SHELL --------------------------------------------------------
 C
@@ -447,10 +453,10 @@ C
             GRS1_LOC = NGR2USR(GR_SHEL1,INGR2USR,NGRSHEL)
             GRS2_LOC = NGR2USR(GR_SHEL2,INGR2USR,NGRSHEL)
 C
-C--------   Initialisaton of fram structure
+C--------   Initialisation of fram structure
 C
             SLIPRING(I)%NFRAM = NFRAM
-            MY_ALLOCATE (SLIPRING(I)%FRAM,NFRAM)
+            ALLOCATE(SLIPRING(I)%FRAM(NFRAM))
             DO J=1,NFRAM
               SLIPRING(I)%FRAM(J)%UPDATE = 0
               SLIPRING(I)%FRAM(J)%ANCHOR_NODE = 0
@@ -464,8 +470,10 @@ C
               SLIPRING(I)%FRAM(J)%VECTOR = ZERO
               SLIPRING(I)%FRAM(J)%ORIENTATION_ANGLE = ZERO
               SLIPRING(I)%FRAM(J)%MATERIAL_FLOW = ZERO
+              SLIPRING(I)%FRAM(J)%MATERIAL_FLOW_OLD = ZERO
               SLIPRING(I)%FRAM(J)%DFS = ZERO
               SLIPRING(I)%FRAM(J)%RESIDUAL_LENGTH = ZERO
+              SLIPRING(I)%FRAM(J)%CURRENT_LENGTH = ZERO
               SLIPRING(I)%FRAM(J)%RINGSLIP = ZERO
               SLIPRING(I)%FRAM(J)%BETA = ZERO
               SLIPRING(I)%FRAM(J)%GAMMA = ZERO
@@ -475,9 +483,9 @@ C
               SLIPRING(I)%FRAM(J)%INTVAR_STR2 = ZERO
             ENDDO
 C
-C--------   CHeck of alignement of anchorage nodes
-            MY_ALLOCATE(DIST,NFRAM)
-            MY_ALLOCATE(JPERM,NFRAM)
+C--------   Check of alignment of anchorage nodes
+            CALL MY_ALLOC(DIST,NFRAM)
+            CALL MY_ALLOC(JPERM,NFRAM)
             JPERM(1:NFRAM) = 0
             N_FIRST = IGRNOD(GRN_LOC)%ENTITY(1)
             N_LAST = IGRNOD(GRN_LOC)%ENTITY(IGRNOD(GRN_LOC)%NENTITY)
@@ -495,7 +503,7 @@ C--------   CHeck of alignement of anchorage nodes
               VECTJ(2) = (X(2,N_FIRST)-X(2,NJ))/NORMJ
               VECTJ(3) = (X(3,N_FIRST)-X(3,NJ))/NORMJ 
               SCAL =  ONE - ABS(VECT(1)*VECTJ(1)+VECT(2)*VECTJ(2)+VECT(3)*VECTJ(3))
-              IF (ABS(SCAL) > EM08) THEN
+              IF (ABS(SCAL) > EM07) THEN
                 CALL ANCMSG(MSGID=2051,
      .                      MSGTYPE=MSGERROR,
      .                      ANMODE=ANINFO_BLIND_1,
@@ -503,7 +511,7 @@ C--------   CHeck of alignement of anchorage nodes
               ENDIF
             ENDDO
 
-C--------   CHeck of distance between anchorage nodes (sorting by distance to first node)
+C--------   Check of distance between anchorage nodes (sorting by distance to first node)
             CALL MYQSORT(NFRAM,DIST,JPERM,IERROR)
             DO J=1,NFRAM-1
               IF (DIST(J)==DIST(J+1)) THEN
@@ -519,13 +527,16 @@ C--------   CHeck of distance between anchorage nodes (sorting by distance to fi
 C
 C--------   Identification of node 2 for each frame
 C
-            MY_ALLOCATE(ELEM1_NOD,NFRAM)
-            MY_ALLOCATE(ELEM2_NOD,NFRAM)
-            MY_ALLOCATE(IPOS1_NOD,NFRAM)
-            MY_ALLOCATE(IPOS2_NOD,NFRAM)
-            MY_ALLOCATE(CORES1,NFRAM)
-            MY_ALLOCATE(CORES2,NFRAM)
-            MY_ALLOCATE(TAGNO,NUMNOD)
+            SIZE_COM_NOD = 4*(IGRSH4N(GRS1_LOC)%NENTITY
+     .                       +IGRSH4N(GRS2_LOC)%NENTITY)
+            CALL MY_ALLOC(ELEM1_NOD,NFRAM)
+            CALL MY_ALLOC(ELEM2_NOD,NFRAM)
+            CALL MY_ALLOC(IPOS1_NOD,NFRAM)
+            CALL MY_ALLOC(IPOS2_NOD,NFRAM)
+            CALL MY_ALLOC(CORES1,NFRAM)
+            CALL MY_ALLOC(CORES2,NFRAM)
+            CALL MY_ALLOC(TAGNO,NUMNOD)
+            CALL MY_ALLOC(COM_NOD,SIZE_COM_NOD)
             CORES1(1:NFRAM) = 0
             CORES1(1:NFRAM) = 0
             IPOS1_NOD(1:NFRAM) = 0
@@ -533,7 +544,31 @@ C
             IPOS2_NOD(1:NFRAM) = 0
             ELEM2_NOD(1:NFRAM) = 0
             TAGNO(1:NUMNOD) = 0
+            COM_NOD(1:SIZE_COM_NOD) = 0
 C
+C--         Tag and identification of common nodes between GRS1 and GRS2
+            DO K=1,IGRSH4N(GRS1_LOC)%NENTITY
+              ISHELL = IGRSH4N(GRS1_LOC)%ENTITY(K)
+              DO L = 1,4
+                NODE = IXC(1+L,ISHELL)
+                TAGNO(NODE)=1
+              ENDDO    
+            ENDDO
+            CPT_COM_NOD = 0
+            DO K=1,IGRSH4N(GRS2_LOC)%NENTITY
+              ISHELL = IGRSH4N(GRS2_LOC)%ENTITY(K)
+              DO L = 1,4
+                NODE = IXC(1+L,ISHELL)
+                IF (TAGNO(NODE)==1) THEN
+                  CPT_COM_NOD = CPT_COM_NOD+1
+                  COM_NOD(CPT_COM_NOD) = NODE
+                ENDIF                  
+              ENDDO    
+            ENDDO        
+C
+C---------- Check that all nodes of 2d slipring are on location of common nodes of gr1 and gr2
+C
+            TAGNO(1:NUMNOD) = 0
             DO J=1,NFRAM
               NJ = IGRNOD(GRN_LOC)%ENTITY(J)
 C--           Search for closest node on element set 1 for each anchorage node 
@@ -598,12 +633,33 @@ C
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_1,
      .                  I1=ID,
-     .                  PRMOD=MSG_PRINT)     
+     .                  PRMOD=MSG_PRINT)
+C
+C---------- Check that all common nodes of gr1 and gr2 are on location of slipring nodes
+C          
+            DO J=1,CPT_COM_NOD
+              IF (TAGNO(COM_NOD(J))==0) THEN
+                CALL ANCMSG(MSGID=3041,
+     .                      MSGTYPE=MSGERROR,
+     .                      ANMODE=ANINFO_BLIND_1,
+     .                      I1=ITAB(COM_NOD(J)),
+     .                      PRMOD=MSG_CUMU)
+              ENDIF  
+            ENDDO
+C        
+            CALL ANCMSG(MSGID=3041,
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO_BLIND_1,
+     .                  I1=ID,
+     .                  PRMOD=MSG_PRINT)  
 C
 C---------- Fill of fram structure
 C
             DO J=1,NFRAM
 C
+              NODE1 = -HUGE(NODE1)
+              NODE2 = -HUGE(NODE2)
+              NODE3 = -HUGE(NODE3)
               NODE_ID = IGRNOD(GRN_LOC)%ENTITY(J)
               SLIPRING(I)%FRAM(J)%ANCHOR_NODE = NODE_ID
               SLIPRING(I)%FRAM(J)%ORIENTATION_NODE = 0
@@ -657,7 +713,8 @@ C
 C
             ENDDO
 C
-            DEALLOCATE(ELEM1_NOD,IPOS1_NOD,ELEM2_NOD,IPOS2_NOD,CORES1,CORES2,TAGNO)   
+            DEALLOCATE(ELEM1_NOD,IPOS1_NOD,ELEM2_NOD,IPOS2_NOD,CORES1,CORES2,
+     .                 TAGNO,COM_NOD)   
 C
           ENDIF
 C
@@ -672,7 +729,7 @@ C
       ENDIF
 C                         
 C-------------------------------------
-C     Recherche des ID doubles
+C     search for duplicate ids
 C-------------------------------------
       CALL UDOUBLE(SLIP_ID,1,NSLIPRING,MESS,0,BID)
       RETURN

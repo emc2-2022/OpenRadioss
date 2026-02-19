@@ -1,57 +1,79 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MONVOL_STRUCT_MOD             share/modules/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        MONVOL0                       source/airbag/monvol0.F       
-Chd|        RADIOSS2                      source/engine/radioss2.F      
-Chd|        RDRESB                        source/output/restart/rdresb.F
-Chd|        RESOL                         source/engine/resol.F         
-Chd|        RESOL_HEAD                    source/engine/resol_head.F    
-Chd|        VOLUM0                        source/airbag/volum0.F        
-Chd|        WRRESTP                       source/output/restart/wrrestp.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    monvol_struct_mod             ../engine/share/modules/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    get_volume_area               ../engine/source/airbag/get_volume_area.F90
+!||    init_global_frontier_monvol   ../engine/source/airbag/init_global_monvol_frontier.F90
+!||    init_monvol_omp_structure     ../engine/source/airbag/init_monvol_omp_structure.F90
+!||    monvol0                       ../engine/source/airbag/monvol0.F
+!||    python_monvol                 ../engine/source/coupling/python/python_monvol.F90
+!||    radioss2                      ../engine/source/engine/radioss2.F
+!||    rdresb                        ../engine/source/output/restart/rdresb.F
+!||    resol                         ../engine/source/engine/resol.F
+!||    resol_head                    ../engine/source/engine/resol_head.F
+!||    spmd_glob_minv                ../engine/source/mpi/generic/spmd_glob_minv.F
+!||    volum0                        ../engine/source/airbag/volum0.F
+!||    wrrestp                       ../engine/source/output/restart/wrrestp.F
+!||--- uses       -----------------------------------------------------
+!||    precision_mod                 ../common_source/modules/precision_mod.F90
+!||====================================================================
       MODULE MONVOL_STRUCT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
-#include "my_real.inc"
+       USE precision_mod, only : WP
 C-----------------------------------------------
 C     C o m m o n   B l o c k s
 C-----------------------------------------------
+      ! ---------
+      ! type for OMP accumulation
+      TYPE MONVOL_OMP_
+        INTEGER :: NODE_NUMBER !< number of /= node
+        INTEGER :: TOTAL_CONTRIBUTION_NUMBER !< total number of contribution (if only shells = 4 * NODE_NUMBER)
+        INTEGER, DIMENSION(:), ALLOCATABLE  :: NODE_ID !< node id
+
+        INTEGER, DIMENSION(:), ALLOCATABLE  :: CONTRIBUTION_NUMBER !< number of contribution per node
+        INTEGER, DIMENSION(:,:), ALLOCATABLE  :: CONTRIBUTION_INDEX !< index to the array CONTRIBUTION
+        real(kind=WP), DIMENSION(:,:), ALLOCATABLE  :: CONTRIBUTION !< contribution array, the force are saved here
+      END TYPE MONVOL_OMP_
+      ! ---------
+
       TYPE MONVOL_STRUCT_
 !     Automatic surface hole filling
       INTEGER :: NB_FILL_TRI
       INTEGER, DIMENSION(:), ALLOCATABLE :: FILL_TRI
+      real(kind=WP), DIMENSION(:,:), ALLOCATABLE  :: NORMAL !< normal
+      real(kind=WP) :: volume, pressure, temperature, area 
+      INTEGER :: uid !< unique id of the monitored volume
+      TYPE(MONVOL_OMP_) :: OMP_OUTPUT
       END TYPE MONVOL_STRUCT_
+
       
       CONTAINS
-Chd|====================================================================
-Chd|  MONVOL_DEALLOCATE             share/modules/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    monvol_deallocate   ../engine/share/modules/monvol_struct_mod.F
+!||====================================================================
       SUBROUTINE MONVOL_DEALLOCATE(NVOLU, T_MONVOL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s

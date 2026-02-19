@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  QRCOOR2                       source/elements/solid_2d/quad/qrcoor2.F
-Chd|-- called by -----------
-Chd|        Q4KE2                         source/elements/solid_2d/quad4/q4ke2.F
-Chd|        QFORC2                        source/elements/solid_2d/quad/qforc2.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE QRCOOR2(X ,NCP     ,Y1      ,Y2      ,Y3      ,
-     2             Y4      ,Z1      ,Z2      ,Z3      ,Z4      ,
-     3             NC1     ,NC2     ,NC3     ,NC4     ,NGL     ,
-     4             MAT     ,NGEO    ,VD2     ,R11     ,R12     ,
-     5             R13     ,R21     ,R22     ,R23     ,R31     ,
-     6             R32     ,R33     ,GAMA    ,Y234    ,Y124    ,
-     7             VIS     )
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    qrcoor2   ../engine/source/elements/solid_2d/quad/qrcoor2.F
+!||--- called by ------------------------------------------------------
+!||    q4ke2     ../engine/source/elements/solid_2d/quad4/q4ke2.F
+!||    qforc2    ../engine/source/elements/solid_2d/quad/qforc2.F
+!||====================================================================
+      SUBROUTINE QRCOOR2(
+     1   X,       NCP,     Y1,      Y2,
+     2   Y3,      Y4,      Z1,      Z2,
+     3   Z3,      Z4,      NC1,     NC2,
+     4   NC3,     NC4,     NGL,     MAT,
+     5   NGEO,    VD2,     R11,     R12,
+     6   R13,     R21,     R22,     R23,
+     7   R31,     R32,     R33,     GAMA,
+     8   Y234,    Y124,    VIS,     NEL,
+     9   ISORTH)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,6 +47,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NEL
+      INTEGER, INTENT(IN) :: ISORTH
       INTEGER NC1(*), NC2(*), NC3(*), NC4(*), MAT(*), NGL(*), NGEO(*),
      .        NCP(7,*)
 C     REAL
@@ -57,12 +61,11 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,IV
+      INTEGER I
       my_real
      .   SY(MVSIZ) , SZ(MVSIZ) ,
      .   TY(MVSIZ) , TZ(MVSIZ) , 
@@ -70,7 +73,7 @@ C-----------------------------------------------
      .   G22,G23,G32,G33,
      .   T22,T23,T32,T33,CS,CT
 C-----------------------------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
         NGEO(I)=NCP(6,I)
         NGL(I)=NCP(7,I)
         MAT(I)=NCP(1,I)
@@ -81,9 +84,9 @@ C-----------------------------------------------
       END DO
 C
 C----------------------------
-C     COORDONNEES NODALES
+C     NODE COORDINATES
 C----------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
         Y1(I)=X(2,NC1(I))
         Z1(I)=X(3,NC1(I))
         Y2(I)=X(2,NC2(I))
@@ -94,25 +97,25 @@ C----------------------------
         Z4(I)=X(3,NC4(I))
       END DO
 C----------------------------
-      IF(N2D.EQ.1)THEN
-        DO I=LFT,LLT
+      IF(N2D==1)THEN
+        DO I=1,NEL
           Y234(I)=Y2(I)+Y3(I)+Y4(I)
           Y124(I)=Y1(I)+Y2(I)+Y4(I)
         END DO
       END IF
 C---------------------------------------
-C     REPERE LOCAL
+C     LOCAL REFERENCE FRAME
 C---------------------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
         SY(I)=HALF*(Y2(I)+Y3(I)-Y1(I)-Y4(I))
         SZ(I)=HALF*(Z2(I)+Z3(I)-Z1(I)-Z4(I))
         TY(I)=HALF*(Y3(I)+Y4(I)-Y1(I)-Y2(I))
         TZ(I)=HALF*(Z3(I)+Z4(I)-Z1(I)-Z2(I))
       END DO
 C-----------
-C     REPERE CONVECTE : Same than the shell
+C     convected frame : Same than the shell
 C-----------
-      DO I=LFT,LLT
+      DO I=1,NEL
         CT = TY(I)*TY(I)+TZ(I)*TZ(I)
         CS = SY(I)*SY(I)+SZ(I)*SZ(I)
         IF(CS /= ZERO) THEN
@@ -126,13 +129,13 @@ C-----------
         END IF 
       ENDDO
 
-      DO I=LFT,LLT
+      DO I=1,NEL
         SUMA=ONE/MAX(SQRT(SY(I)*SY(I)+SZ(I)*SZ(I)),EM20)
         SY(I)=SY(I)*SUMA
         SZ(I)=SZ(I)*SUMA
       ENDDO
 
-      DO I=LFT,LLT
+      DO I=1,NEL
         R11(I)= ONE
         R21(I)= ZERO
         R31(I)= ZERO
@@ -144,7 +147,7 @@ C-----------
         R33(I)= SY(I)
       END DO
 C-----------
-      DO I=LFT,LLT
+      DO I=1,NEL
         YL=R22(I)*Y1(I)+R32(I)*Z1(I)
         ZL=R23(I)*Y1(I)+R33(I)*Z1(I)
         Y1(I)=YL
@@ -163,10 +166,10 @@ C-----------
         Z4(I)=ZL
       END DO
 C-----------
-C     PASSAGE AU REPERE ORTHOTROPE.
+C     PASSAGE AU ORTHOTROPIC FRAME.
 C-----------
       IF (ISORTH /= 0)THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
 C         Extration de G tq Xortho=Transpose(G) Xcvt
 C                                 =Transpose(G) Transpose(R) Xglobal.
           G22=GAMA(I,2)
@@ -190,7 +193,7 @@ C
           ZL=G23*Y4(I)+G33*Z4(I)
           Y4(I)=YL
           Z4(I)=ZL
-C         MATRICE DE PASSAGE GLOBAL -> ORTHOTROPE.
+C         TRANSFORMATION MATRIX GLOBAL -> ORTHOTROPIC.
           T22=R22(I)*G22+R23(I)*G32
           T23=R22(I)*G23+R23(I)*G33
           T32=R32(I)*G22+R33(I)*G32
@@ -202,7 +205,7 @@ C         MATRICE DE PASSAGE GLOBAL -> ORTHOTROPE.
         ENDDO
       ENDIF
 C-----------
-      DO I=LFT,LLT
+      DO I=1,NEL
         VD2(I)=ZERO
         VIS(I)=ZERO
       END DO

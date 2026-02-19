@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FXBSGMAJ                      source/constraints/fxbody/fxbsgmaj.F
-Chd|-- called by -----------
-Chd|        FXBODFP1                      source/constraints/fxbody/fxbodfp.F
-Chd|-- calls ---------------
-Chd|        SCHREP                        source/constraints/fxbody/fxbsgmaj.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fxbsgmaj       ../engine/source/constraints/fxbody/fxbsgmaj.F
+!||--- called by ------------------------------------------------------
+!||    fxbodfp1       ../engine/source/constraints/fxbody/fxbodfp.F
+!||--- calls      -----------------------------------------------------
+!||    schrep         ../engine/source/constraints/fxbody/fxbsgmaj.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE FXBSGMAJ(ELBUF, FXBELM , FXBSIG, FXBDEP, FXBIPM ,
      .                    EIEL , PARTSAV, RT    , ITN   , IPARG  ,
      .                    NFX  , LVSIG  , IRCS  ,ELBUF_TAB)
@@ -63,8 +64,8 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NELS, NELC, NELTG, NML, NME, IM, IG, OFFSET, NFT, NFS,
-     .        LAST, IAD1, IAD2, IAD3, I, MX, NFT1, II, OFF, NG,
-     .        IGOF, IFILE, NFS2, J, IAD, NELT, NELP,IEL,JJ(6),NEL
+     .        LAST, I, MX, NFT1, II, OFF, NG,
+     .        IGOF, IFILE, NFS2, J, IAD, NELT, NELP,IEL,JJ(6),NEL,AELM
       my_real
      .   FAC,FAC2,SIGL(MVSIZ,6),SIG(MVSIZ,6),
      .   EIELC(NPART),EIELP(NPART), VSIG(LVSIG)
@@ -78,7 +79,9 @@ C=======================================================================
       NELP=FXBIPM(35)
       NELTG=FXBIPM(23)
 C
-      NFT=0
+      AELM=FXBIPM(19)
+C
+      NFT=AELM-1
       NFS=0
       DO I=1,NPART
          EIELC(I)=ZERO
@@ -223,16 +226,16 @@ C
             NFT=NFT+9
          ENDDO
       ENDDO
-      IF (ITN.NE.0) GOTO 100
+      IF (ITN/=0) GOTO 100
 C
       IFILE=FXBIPM(29)
       NFS=0
       DO IM=1,NML
-         IF (IFILE.EQ.0) THEN
+         IF (IFILE==0) THEN
             DO I=1,LVSIG
                VSIG(I)=FXBSIG(NFS+I)
             ENDDO
-         ELSEIF (IFILE.EQ.1) THEN
+         ELSEIF (IFILE==1) THEN
             IAD=0
             DO I=1,LVSIG/6
                IRCS=IRCS+1
@@ -240,14 +243,14 @@ C
                IAD=IAD+6
             ENDDO
             II=LVSIG-(LVSIG/6)*6
-            IF (II.NE.0) THEN
+            IF (II/=0) THEN
                IRCS=IRCS+1
                READ(IFXS,REC=IRCS) (VSIG(IAD+J),J=1,II)
             ENDIF
          ENDIF
          FAC=FXBDEP(NME+IM)
          FAC2=FAC*FAC
-         NFT=0
+         NFT=AELM-1
          NFS2=0
          DO IG=1,NELS,NVSIZ
             OFFSET=IG-1
@@ -388,7 +391,7 @@ C
          ENDDO
       ENDDO
 C
-      NFT=0
+      NFT=AELM-1
       DO IG=1,NELS,NVSIZ
          OFFSET=IG-1
          LAST=MIN(NVSIZ,NELS-OFFSET)
@@ -440,12 +443,11 @@ C
 C
       RETURN
       END SUBROUTINE FXBSGMAJ
-Chd|====================================================================
-Chd|  SCHREP                        source/constraints/fxbody/fxbsgmaj.F
-Chd|-- called by -----------
-Chd|        FXBSGMAJ                      source/constraints/fxbody/fxbsgmaj.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    schrep     ../engine/source/constraints/fxbody/fxbsgmaj.F
+!||--- called by ------------------------------------------------------
+!||    fxbsgmaj   ../engine/source/constraints/fxbody/fxbsgmaj.F
+!||====================================================================
       SUBROUTINE SCHREP(NEL, SIG, SIGL, R)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -455,9 +457,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

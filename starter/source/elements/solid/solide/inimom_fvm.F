@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIMOM_FVM                    source/elements/solid/solide/inimom_fvm.F
-Chd|-- called by -----------
-Chd|        SINIT3                        source/elements/solid/solide/sinit3.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        ALEFVM_MOD                    ../common_source/modules/alefvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inimom_fvm    ../starter/source/elements/solid/solide/inimom_fvm.F
+!||--- called by ------------------------------------------------------
+!||    sinit3        ../starter/source/elements/solid/solide/sinit3.F
+!||--- calls      -----------------------------------------------------
+!||    finter        ../starter/source/tools/curve/finter.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE INIMOM_FVM( 
      .                       V  ,   RHO, VOL   , MOM ,IXS ,
      .                       IPM,   MAT, IPARG1, NPF ,TF  ,
@@ -37,6 +37,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ALEFVM_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -48,12 +49,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "vect01_c.inc"
 #include      "param_c.inc"
-#include      "alefvm.inc"
 #include      "inter22.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -102,7 +99,7 @@ C Check activation flag for FVM momentum
 
         IALEL = IPARG1(7)+IPARG1(11)
         IF(IALEL == 0)RETURN
-        IF(IALEFVM.EQ.0)RETURN !global unplug if option not present in input file
+        IF(ALEFVM_Param%IEnabled==0)RETURN !global unplug if option not present in input file
                 
 C-----------------------------------------------
 C   S o u r c e   L i n e s 
@@ -113,25 +110,25 @@ C-----------------------------------------------
       !-----------------------------------------      
       !automatic FVM SOLVER for ALE
       IF(INT22>0)THEN
-        IF(I_ALE_SOLVER.LE.1) THEN
-          I_ALE_SOLVER=5
-          IF(IALEFVM_IPRINT_1.EQ.0)THEN
+        IF(ALEFVM_Param%ISOLVER<=1) THEN
+          ALEFVM_Param%ISOLVER=5
+          IF(ALEFVM_Param%IPRINT_1==0)THEN
             !print *, "** WARNING INT22 : UNDEFINED /ALE/SOLVER CARD"
-            !print *, "                   ENABLING IT AUTOMATICALY WITH IMOM_VEL=5"
-            IALEFVM_IPRINT_1 = 1
+            !print *, "                   ENABLING IT AUTOMATICALLY WITH IMOM_VEL=5"
+            ALEFVM_Param%IPRINT_1 = 1
           ENDIF
-        ELSEIF(I_ALE_SOLVER.NE.5)THEN
-          I_ALE_SOLVER=5
-          IF(IALEFVM_IPRINT_2.EQ.0)THEN
+        ELSEIF(ALEFVM_Param%ISOLVER/=5)THEN
+          ALEFVM_Param%ISOLVER=5
+          IF(ALEFVM_Param%IPRINT_2==0)THEN
             print *, "** WARNING INT22 : /ALE/SOLVER CARD"
-            print *, "                   RECOMMANDED VALUE IS IMOM_VEL=5"
-            IALEFVM_IPRINT_2 = 1
+            print *, "                   RECOMMENDED VALUE IS IMOM_VEL=5"
+            ALEFVM_Param%IPRINT_2 = 1
           ENDIF
         ENDIF
       ENDIF
       
-      IF(I_ALE_SOLVER.GT.0)THEN
-        IPM(251,MAT(1)) = I_ALE_SOLVER
+      IF(ALEFVM_Param%ISOLVER>0)THEN
+        IPM(251,MAT(1)) = ALEFVM_Param%ISOLVER
         ! 0: Default = 1 expect if /ALE/MAT or /EULER/MAT has IFROM flag defined.
         ! 1 : FEM
         ! 2 : FVM U average
@@ -149,8 +146,6 @@ C-----------------------------------------------
       IF(MLW /= 11) THEN
 
         DO  I=LFT,LLT
-c          IALEFVM_FLG = IPM(251,MAT(I))
-c          IF(IALEFVM_FLG.EQ.0)CYCLE       
           II          = I+NFT
           !---nod-1
           VX1(I)      = V(1,IXS(2,II))
@@ -199,12 +194,12 @@ c          IF(IALEFVM_FLG.EQ.0)CYCLE
         !write(*,*) "MOMENTUM from inimom_fvm.F"
         DO I=LFT,LLT
           II          = I+NFT
-          FCELL(1,II) = MOM(I,1)
-          FCELL(2,II) = MOM(I,2)
-          FCELL(3,II) = MOM(I,3)  
-          FCELL(4,II) = RHO(I) 
-          FCELL(5,II) = SSP(I)
-          FCELL(6,II) = -THIRD*(SIG(I,1)+SIG(I,2)+SIG(I,3)) 
+          ALEFVM_Buffer%FCELL(1,II) = MOM(I,1)
+          ALEFVM_Buffer%FCELL(2,II) = MOM(I,2)
+          ALEFVM_Buffer%FCELL(3,II) = MOM(I,3)  
+          ALEFVM_Buffer%FCELL(4,II) = RHO(I) 
+          ALEFVM_Buffer%FCELL(5,II) = SSP(I)
+          ALEFVM_Buffer%FCELL(6,II) = -THIRD*(SIG(I,1)+SIG(I,2)+SIG(I,3)) 
         ENDDO
         
       !-----------------------------------------
@@ -225,19 +220,19 @@ c          IF(IALEFVM_FLG.EQ.0)CYCLE
         IF(ITYP == 2)THEN
           T0 = ZERO
           
-          IF(IVxFUN.GT.0)THEN
+          IF(IVxFUN>0)THEN
             Vx = Vx0*FINTER(IVxFUN,T0,NPF,TF,DYDX)
           ELSE
             Vx = Vx0
           ENDIF  
 
-          IF(IVyFUN.GT.0)THEN
+          IF(IVyFUN>0)THEN
             Vy = Vy0*FINTER(IVyFUN,T0,NPF,TF,DYDX)
           ELSE
             Vy = Vy0
           ENDIF  
 
-          IF(IVzFUN.GT.0)THEN
+          IF(IVzFUN>0)THEN
             Vz = Vz0*FINTER(IVzFUN,T0,NPF,TF,DYDX)
           ELSE
             Vz = Vz0
@@ -245,15 +240,15 @@ c          IF(IALEFVM_FLG.EQ.0)CYCLE
           
           DO I=LFT,LLT
             II          = I+NFT
-            MOM(I,1)	= Vx*RHO(I)
-            MOM(I,2)	= Vy*RHO(I)
-            MOM(I,3)	= Vz*RHO(I)		    
-            FCELL(1,II) = MOM(I,1)
-            FCELL(2,II) = MOM(I,2)
-            FCELL(3,II) = MOM(I,3)  
-            FCELL(4,II) = RHO(I)
-            FCELL(5,II) = SSP(I)
-            FCELL(6,II) = -THIRD*(SIG(I,1)+SIG(I,2)+SIG(I,3))
+            MOM(I,1)  = Vx*RHO(I)
+            MOM(I,2)  = Vy*RHO(I)
+            MOM(I,3)  = Vz*RHO(I)        
+            ALEFVM_Buffer%FCELL(1,II) = MOM(I,1)
+            ALEFVM_Buffer%FCELL(2,II) = MOM(I,2)
+            ALEFVM_Buffer%FCELL(3,II) = MOM(I,3)  
+            ALEFVM_Buffer%FCELL(4,II) = RHO(I)
+            ALEFVM_Buffer%FCELL(5,II) = SSP(I)
+            ALEFVM_Buffer%FCELL(6,II) = -THIRD*(SIG(I,1)+SIG(I,2)+SIG(I,3))
           ENDDO                              
         ELSEIF(ITYP == 3)THEN
           T0 = ZERO
@@ -262,15 +257,15 @@ c          IF(IALEFVM_FLG.EQ.0)CYCLE
           Vz=ZERO
           DO I=LFT,LLT
             II          = I+NFT
-            MOM(I,1)	= Vx*RHO(I)
-            MOM(I,2)	= Vy*RHO(I)
-            MOM(I,3)	= Vz*RHO(I)		    
-            FCELL(1,II) = MOM(I,1)
-            FCELL(2,II) = MOM(I,2)
-            FCELL(3,II) = MOM(I,3)  
-            FCELL(4,II) = RHO(I)
-            FCELL(5,II) = SSP(I)
-            FCELL(6,II) = -THIRD*(SIG(I,1)+SIG(I,2)+SIG(I,3))
+            MOM(I,1)  = Vx*RHO(I)
+            MOM(I,2)  = Vy*RHO(I)
+            MOM(I,3)  = Vz*RHO(I)        
+            ALEFVM_Buffer%FCELL(1,II) = MOM(I,1)
+            ALEFVM_Buffer%FCELL(2,II) = MOM(I,2)
+            ALEFVM_Buffer%FCELL(3,II) = MOM(I,3)  
+            ALEFVM_Buffer%FCELL(4,II) = RHO(I)
+            ALEFVM_Buffer%FCELL(5,II) = SSP(I)
+            ALEFVM_Buffer%FCELL(6,II) = -THIRD*(SIG(I,1)+SIG(I,2)+SIG(I,3))
           ENDDO                              
         ENDIF
         

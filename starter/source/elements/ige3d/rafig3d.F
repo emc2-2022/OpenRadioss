@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RAFIG3D                       source/elements/ige3d/rafig3d.F
-Chd|-- called by -----------
-Chd|        PRERAFIG3D                    source/elements/ige3d/prerafig3d.F
-Chd|-- calls ---------------
-Chd|        MESHSURFIG3D_MOD              source/elements/ige3d/meshsurfig3d_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rafig3d            ../starter/source/elements/ige3d/rafig3d.F
+!||--- called by ------------------------------------------------------
+!||    prerafig3d         ../starter/source/elements/ige3d/prerafig3d.F
+!||--- uses       -----------------------------------------------------
+!||    meshsurfig3d_mod   ../starter/source/elements/ige3d/meshsurfig3d_mod.F
+!||====================================================================
       SUBROUTINE RAFIG3D(KNOTLOCPC,DEG,DEGTANG1,DEGTANG2,IAD_KNOT,
      .                   NKNOT1,NKNOT2,NKNOT3,GAMA,DIR,
      .                   NEWKNOT,X,D,V,MS,
@@ -34,10 +34,10 @@ Chd|====================================================================
      .                   DECALGEO,TABCONPATCH,NUMPATCH,KXIG3D,
      .                   IXIG3D,TAB_STAY,FLAG_PRE)
 C----------------------------------------------------------------------
-C   ROUTINE QUI VA INSERER LE NOUVEAU KNOT DANS LE PATCH EN CREANT DE
-C   NOUVELLES FONCTIONS, EN EN SUPPRIMANT CERTAINES, TOUT EN TENANT 
-C   COMPTE DES FONCTIONS EXISTANTES, SUR LE PATCHS OU SUR LES AUTRES PATCHS
-C   ET QUI MODIFIE LES COORDONNES X, V, D DES POINTS SI BESOIN
+C   routine that will insert the new knot into the patch by creating
+C   new functions, deleting some of them, while taking into account
+C   count of existing functions, on the patch or on the other patches
+C   and which modifies the x, v, d coordinates of the points if needed
 C----------------------------------------------------------------------
 C-----------------------------------------------
 C   M o d u l e s
@@ -48,21 +48,16 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "tabsiz_c.inc"
 #include      "ige3d_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IXIG3D(*),KXIG3D(NIXIG3D,*),IAD_KNOT,NKNOT1,NKNOT2,NKNOT3,
-     .        DEG,DEGTANG1,DEGTANG2,IEL,DIR,
+     .        DEG,DEGTANG1,DEGTANG2,DIR,
      .        TAB_REMOVE(*),TAB_STAY(*),TAB_FCTCUT(*),
      .        L_TAB_FCTCUT,DECALGEO,TAB_NEWFCT(*),
      .        FLAG_PRE,NUMPATCH
@@ -80,15 +75,15 @@ c
       NEWKNOTLOC = 0
       TOL = EM06
 c
-      IF(DIR.EQ.1) THEN
+      IF(DIR==1) THEN
         DIRTANG1 = 2
         DIRTANG2 = 3
         OFFSET_KNOT = IAD_KNOT
-      ELSEIF(DIR.EQ.2) THEN
+      ELSEIF(DIR==2) THEN
         DIRTANG1 = 3
         DIRTANG2 = 1
         OFFSET_KNOT = IAD_KNOT+NKNOT1
-      ELSEIF(DIR.EQ.3) THEN
+      ELSEIF(DIR==3) THEN
         DIRTANG1 = 1
         DIRTANG2 = 2
         OFFSET_KNOT = IAD_KNOT+NKNOT1+NKNOT2
@@ -98,28 +93,28 @@ c
 
         IDFCTCOUPEE = TAB_FCTCUT(ITFCT)
 c
-        IF(NEWKNOT.LT.KNOTLOCPC(1,DIR,DECALGEO+IDFCTCOUPEE).OR.
-     .     NEWKNOT.GT.KNOTLOCPC(DEG+1,DIR,DECALGEO+IDFCTCOUPEE)) CYCLE
+        IF(NEWKNOT<KNOTLOCPC(1,DIR,DECALGEO+IDFCTCOUPEE).OR.
+     .     NEWKNOT>KNOTLOCPC(DEG+1,DIR,DECALGEO+IDFCTCOUPEE)) CYCLE
 c
-C       CALCUL DES COEFFICIENTS ALPHA1 ET ALPHA2
+C       calculation of the alpha1 and alpha2 coefficients
 c
-        IF(NEWKNOT.GE.KNOTLOCPC(DEG,DIR,DECALGEO+IDFCTCOUPEE)) THEN 
+        IF(NEWKNOT>=KNOTLOCPC(DEG,DIR,DECALGEO+IDFCTCOUPEE)) THEN 
           ALPHA1=1
         ELSE
           ALPHA1=(NEWKNOT-KNOTLOCPC(1,DIR,DECALGEO+IDFCTCOUPEE))/
      /           (KNOTLOCPC(DEG,DIR,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(1,DIR,DECALGEO+IDFCTCOUPEE))
         ENDIF
-        IF(NEWKNOT.LE.KNOTLOCPC(2,DIR,DECALGEO+IDFCTCOUPEE)) THEN 
+        IF(NEWKNOT<=KNOTLOCPC(2,DIR,DECALGEO+IDFCTCOUPEE)) THEN 
           ALPHA2=1
         ELSE
           ALPHA2=(KNOTLOCPC(DEG+1,DIR,DECALGEO+IDFCTCOUPEE)-NEWKNOT)/
      /           (KNOTLOCPC(DEG+1,DIR,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(2,DIR,DECALGEO+IDFCTCOUPEE))
         ENDIF
 c
-c       ASSEMBLAGE DES NOUVEAUX KNOT
+c       assembly of the new knots
 c        
         I=DEG+1
-        DO WHILE (KNOTLOCPC(I-1,DIR,DECALGEO+IDFCTCOUPEE).GE.NEWKNOT)
+        DO WHILE (KNOTLOCPC(I-1,DIR,DECALGEO+IDFCTCOUPEE)>=NEWKNOT)
           NEWKNOTLOC(I,1)=KNOTLOCPC(I-1,DIR,DECALGEO+IDFCTCOUPEE)
           NEWKNOTLOC(I,2)=KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE)
           I=I-1
@@ -130,41 +125,41 @@ c
         NEWKNOTLOC(I,1)=KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE)
         NEWKNOTLOC(I,2)=NEWKNOT
         I=I-1
-        DO WHILE (I.GT.2)
+        DO WHILE (I>2)
           NEWKNOTLOC(I,1)=KNOTLOCPC(I-1,DIR,DECALGEO+IDFCTCOUPEE)
           NEWKNOTLOC(I,2)=KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE)
           I=I-1
         ENDDO
-        DO WHILE (I.GE.1)
+        DO WHILE (I>=1)
           NEWKNOTLOC(I,1)=KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE)
           NEWKNOTLOC(I,2)=KNOTLOCPC(I+1,DIR,DECALGEO+IDFCTCOUPEE)
           I=I-1
         ENDDO
 c
-c       Recherche si la fonction rajoutee existe deja dans les anciens points
+c       search if the added function already exists in the old points
 c
         DO J=1,L_TAB_FCTCUT
           IDFCTCOUPEE1 = TAB_FCTCUT(J)
           DO I=1,DEGTANG1+1
-            IF(ABS(KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE1)).GT.TOL) EXIT
+            IF(ABS(KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE1))>TOL) EXIT
           ENDDO
-          IF(I.GT.DEGTANG1+1) THEN
+          IF(I>DEGTANG1+1) THEN
            DO I=1,DEGTANG2+1
-             IF(ABS(KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE1)).GT.TOL) EXIT
+             IF(ABS(KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE1))>TOL) EXIT
            ENDDO
           ENDIF
-          IF(I.GT.DEGTANG2+1) THEN
+          IF(I>DEGTANG2+1) THEN
            DO I=1,DEG+1
-             IF(ABS(NEWKNOTLOC(I,1)-KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE1)).GT.TOL) EXIT
+             IF(ABS(NEWKNOTLOC(I,1)-KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE1))>TOL) EXIT
            ENDDO
           ENDIF
-          IF(I.GT.DEG+1) EXIT
+          IF(I>DEG+1) EXIT
          ENDDO
-         IF(I.GT.DEG+1) THEN  ! La fonction existe deja
+         IF(I>DEG+1) THEN  ! the function already exists
 c
-c      modification d'un ancien point existant
+c      Modification of an old existing point
 c
-           IF(FLAG_PRE.EQ.1) THEN
+           IF(FLAG_PRE==1) THEN
             X(:,IDFCTCOUPEE1)=(X(:,IDFCTCOUPEE1)*GAMA(IDFCTCOUPEE1)+
      .                      X(:,IDFCTCOUPEE)*GAMA(IDFCTCOUPEE)*ALPHA1)/
      .                     (GAMA(IDFCTCOUPEE1)+ALPHA1*GAMA(IDFCTCOUPEE))
@@ -183,30 +178,30 @@ c
           ENDIF
           GAMA(IDFCTCOUPEE1) = GAMA(IDFCTCOUPEE1)+ALPHA1*GAMA(IDFCTCOUPEE)
           KNOTLOCPC(:,DIR,DECALGEO+IDFCTCOUPEE1) = NEWKNOTLOC(:,1)
-        ELSEIF(I.LE.DEG+1) THEN  ! Il faut chercher dans les nouveaux points
-         DO J=1,NEWFCT  ! les nouvelles fonctions de cette meshsurf
+        ELSEIF(I<=DEG+1) THEN  ! need to search in the new points
+         DO J=1,NEWFCT  ! the new functions of this meshsurf
           IDFCTCOUPEE1 = NUMNODIGE0+OFFSET_NEWFCT+J
           DO I=1,DEGTANG1+1
-            IF(ABS(KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE1)).GT.TOL) EXIT
+            IF(ABS(KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE1))>TOL) EXIT
           ENDDO
-          IF(I.GT.DEGTANG1+1) THEN
+          IF(I>DEGTANG1+1) THEN
            DO I=1,DEGTANG2+1
-             IF(ABS(KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE1)).GT.TOL) EXIT
+             IF(ABS(KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE1))>TOL) EXIT
            ENDDO
           ENDIF
-          IF(I.GT.DEGTANG2+1) THEN
+          IF(I>DEGTANG2+1) THEN
            DO I=1,DEG+1
-             IF(ABS(NEWKNOTLOC(I,1)-KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE1)).GT.TOL) EXIT
+             IF(ABS(NEWKNOTLOC(I,1)-KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE1))>TOL) EXIT
            ENDDO
           ENDIF
-          IF(I.GT.DEG+1) EXIT
+          IF(I>DEG+1) EXIT
          ENDDO
         ENDIF
-        IF(I.GT.DEG+1) THEN  ! La fonction existe deja
+        IF(I>DEG+1) THEN  ! the function already exists
 c
-c      modification d'un point existant
+c      Modification of an existing point
 c
-          IF(FLAG_PRE.EQ.1) THEN
+          IF(FLAG_PRE==1) THEN
             X(:,NUMNODIGE0+OFFSET_NEWFCT+J)=(X(:,NUMNODIGE0+OFFSET_NEWFCT+J)*GAMA(IDFCTCOUPEE1)+
      .                      X(:,IDFCTCOUPEE)*GAMA(IDFCTCOUPEE)*ALPHA1)/
      .                     (GAMA(IDFCTCOUPEE1)+ALPHA1*GAMA(IDFCTCOUPEE))
@@ -228,7 +223,7 @@ c
         ELSE
           NEWFCT = NEWFCT+1
           L_TAB_NEWFCT = L_TAB_NEWFCT+1
-          IF(FLAG_PRE.EQ.1) THEN
+          IF(FLAG_PRE==1) THEN
             X(:,NUMNODIGE0+OFFSET_NEWFCT+NEWFCT)  = X(:,IDFCTCOUPEE)
             D(:,NUMNODIGE0+OFFSET_NEWFCT+NEWFCT)  = D(:,IDFCTCOUPEE)
             V(:,NUMNODIGE0+OFFSET_NEWFCT+NEWFCT)  = V(:,IDFCTCOUPEE)
@@ -245,25 +240,25 @@ c
         DO J=1,L_TAB_FCTCUT
           IDFCTCOUPEE2 = TAB_FCTCUT(J)
           DO I=1,DEGTANG1+1
-            IF(ABS(KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE2)).GT.TOL) EXIT
+            IF(ABS(KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE2))>TOL) EXIT
           ENDDO
-          IF(I.GT.DEGTANG1+1) THEN
+          IF(I>DEGTANG1+1) THEN
            DO I=1,DEGTANG2+1
-             IF(ABS(KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE2)).GT.TOL) EXIT
+             IF(ABS(KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE2))>TOL) EXIT
            ENDDO
           ENDIF
-          IF(I.GT.DEGTANG2+1) THEN
+          IF(I>DEGTANG2+1) THEN
             DO I=1,DEG+1
-             IF(ABS(NEWKNOTLOC(I,2)-KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE2)).GT.TOL) EXIT
+             IF(ABS(NEWKNOTLOC(I,2)-KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE2))>TOL) EXIT
            ENDDO
           ENDIF
-          IF(I.GT.DEG+1) EXIT
+          IF(I>DEG+1) EXIT
         ENDDO
-        IF(I.GT.DEG+1) THEN  ! La fonction existe deja
+        IF(I>DEG+1) THEN  ! the function already exists
 c
-c      modification d'un point existant
+c      Modification of an existing point
 c
-          IF(FLAG_PRE.EQ.1) THEN
+          IF(FLAG_PRE==1) THEN
             X(:,IDFCTCOUPEE2)=(X(:,IDFCTCOUPEE2)*GAMA(IDFCTCOUPEE2)+
      .                      X(:,IDFCTCOUPEE)*GAMA(IDFCTCOUPEE)*ALPHA2)/
      .                      (GAMA(IDFCTCOUPEE2)+ALPHA2*GAMA(IDFCTCOUPEE))
@@ -282,30 +277,30 @@ c
           ENDIF
           GAMA(IDFCTCOUPEE2) = GAMA(IDFCTCOUPEE2)+ALPHA2*GAMA(IDFCTCOUPEE)
           KNOTLOCPC(:,DIR,DECALGEO+IDFCTCOUPEE2) = NEWKNOTLOC(:,2)
-        ELSEIF(I.LE.DEG+1) THEN  ! Il faut chercher dans les nouveaux points
-         DO J=1,NEWFCT  ! les nouvelles fonctions de cette meshsurf
+        ELSEIF(I<=DEG+1) THEN  ! need to search in the new points
+         DO J=1,NEWFCT  ! the new functions of this meshsurf
           IDFCTCOUPEE2 = NUMNODIGE0+OFFSET_NEWFCT+J
           DO I=1,DEGTANG1+1
-            IF(ABS(KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE2)).GT.TOL) EXIT
+            IF(ABS(KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG1,DECALGEO+IDFCTCOUPEE2))>TOL) EXIT
           ENDDO
-          IF(I.GT.DEGTANG1+1) THEN
+          IF(I>DEGTANG1+1) THEN
            DO I=1,DEGTANG2+1
-             IF(ABS(KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE2)).GT.TOL) EXIT
+             IF(ABS(KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE)-KNOTLOCPC(I,DIRTANG2,DECALGEO+IDFCTCOUPEE2))>TOL) EXIT
            ENDDO
           ENDIF
-          IF(I.GT.DEGTANG2+1) THEN
+          IF(I>DEGTANG2+1) THEN
            DO I=1,DEG+1
-             IF(ABS(NEWKNOTLOC(I,2)-KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE2)).GT.TOL) EXIT
+             IF(ABS(NEWKNOTLOC(I,2)-KNOTLOCPC(I,DIR,DECALGEO+IDFCTCOUPEE2))>TOL) EXIT
            ENDDO
           ENDIF
-          IF(I.GT.DEG+1) EXIT
+          IF(I>DEG+1) EXIT
          ENDDO
         ENDIF
-        IF(I.GT.DEG+1) THEN  ! La fonction existe deja
+        IF(I>DEG+1) THEN  ! the function already exists
 c
-c      modification d'un point existant
+c      Modification of an existing point
 c
-          IF(FLAG_PRE.EQ.1) THEN
+          IF(FLAG_PRE==1) THEN
             X(:,NUMNODIGE0+OFFSET_NEWFCT+J)=(X(:,NUMNODIGE0+OFFSET_NEWFCT+J)*GAMA(IDFCTCOUPEE2)+
      .                      X(:,IDFCTCOUPEE)*GAMA(IDFCTCOUPEE)*ALPHA2)/
      .                      (GAMA(IDFCTCOUPEE2)+ALPHA2*GAMA(IDFCTCOUPEE))
@@ -327,7 +322,7 @@ c
         ELSE
           NEWFCT = NEWFCT+1
           L_TAB_NEWFCT = L_TAB_NEWFCT+1
-          IF(FLAG_PRE.EQ.1) THEN
+          IF(FLAG_PRE==1) THEN
             X(:,NUMNODIGE0+OFFSET_NEWFCT+NEWFCT)  = X(:,IDFCTCOUPEE)
             D(:,NUMNODIGE0+OFFSET_NEWFCT+NEWFCT)  = D(:,IDFCTCOUPEE)
             V(:,NUMNODIGE0+OFFSET_NEWFCT+NEWFCT)  = V(:,IDFCTCOUPEE)
@@ -341,16 +336,16 @@ c
           TAB_NEWFCT(L_TAB_NEWFCT) = NUMNODIGE0+OFFSET_NEWFCT+NEWFCT 
         ENDIF
 c
-ccc si la fonction est sur un autre patch aussi, elle ne doit pas etre supprimee. 
-ccc Elle sera supprimee de la connectivite du patch raffine mais restera
-ccc avec son numero de fct pour le patch voisin
+cif the function is also on another patch, it must not be deleted.
+cit will be removed from the connectivity of the refined patch but will remain
+cwith its function number for the neighboring patch
 c
         FLAG_REMOVE=1
         DO I=1,NBPART_IG3D
-          IF(I.EQ.NUMPATCH) CYCLE ! pas sur le patch sur lequel on travaille 
+          IF(I==NUMPATCH) CYCLE ! not on the patch we are working on
           DO J=1,TABCONPATCH(I)%L_TAB_IG3D
             DO ITNCTRL=1,KXIG3D(3,TABCONPATCH(I)%TAB_IG3D(J))
-              IF(IXIG3D(KXIG3D(4,TABCONPATCH(I)%TAB_IG3D(J))+ITNCTRL-1).EQ.IDFCTCOUPEE) THEN
+              IF(IXIG3D(KXIG3D(4,TABCONPATCH(I)%TAB_IG3D(J))+ITNCTRL-1)==IDFCTCOUPEE) THEN
 c                print*,'finallement on garde', IDFCTCOUPEE
                 FLAG_REMOVE=0
               ENDIF
@@ -358,7 +353,7 @@ c                print*,'finallement on garde', IDFCTCOUPEE
           ENDDO
         ENDDO
 
-        IF(FLAG_REMOVE.EQ.1) THEN
+        IF(FLAG_REMOVE==1) THEN
           L_TAB_REMOVE = L_TAB_REMOVE+1
           TAB_REMOVE(L_TAB_REMOVE) = IDFCTCOUPEE
         ELSE

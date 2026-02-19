@@ -1,38 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  IMPBUFDEF_MOD                 share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DEALLOC_IMPBUF                source/implicit/imp_solv.F    
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_FOUT                      source/implicit/imp_solv.F    
-Chd|        IMP_RESTARCP                  source/implicit/imp_sol_init.F
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|        IMP_SOL_INIT                  source/implicit/imp_sol_init.F
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    impbufdef_mod    ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    dealloc_impbuf   ../engine/source/implicit/imp_solv.F
+!||    imp_buck         ../engine/source/implicit/imp_buck.F
+!||    imp_chkm         ../engine/source/implicit/imp_solv.F
+!||    imp_fout         ../engine/source/implicit/imp_solv.F
+!||    imp_restarcp     ../engine/source/implicit/imp_sol_init.F
+!||    imp_sol_init     ../engine/source/implicit/imp_sol_init.F
+!||    imp_solv         ../engine/source/implicit/imp_solv.F
+!||    resol            ../engine/source/engine/resol.F
+!||    wrrestp          ../engine/source/output/restart/wrrestp.F
+!||====================================================================
       MODULE IMPBUFDEF_MOD
 C----------------------------------------------------------------------- 
 #include "my_real.inc"
@@ -41,31 +41,31 @@ c DEFINE SIZES (integers arrays)
 C=======================================================================
         integer ::   S_IADK               
         integer ::   S_JDIK     
-		integer ::   S_ISIJ 
-		integer ::   S_IMIJ 
-		integer ::   S_NSS  
-		integer ::   S_ISS  
-		integer ::   S_ISIJ2
-		integer ::   S_NSS2 
-		integer ::   S_ISS2 
-		integer ::   S_NSC2 
-		integer ::   S_NROWK
-		integer ::   S_ICOK 
-		integer ::   S_ICOKM
-		integer ::   S_NMIJ2
-		integer ::   S_NSS3 
-		integer ::   S_ISB2 
-		integer ::   S_NSRB2
-	    integer ::   S_IKC  
-	    integer ::   S_IKUD 
-	    integer ::   S_W_DDL
-	    integer ::   S_IADM 
+          integer ::   S_ISIJ 
+          integer ::   S_IMIJ 
+          integer ::   S_NSS  
+          integer ::   S_ISS  
+          integer ::   S_ISIJ2
+          integer ::   S_NSS2 
+          integer ::   S_ISS2 
+          integer ::   S_NSC2 
+          integer ::   S_NROWK
+          integer ::   S_ICOK 
+          integer ::   S_ICOKM
+          integer ::   S_NMIJ2
+          integer ::   S_NSS3 
+          integer ::   S_ISB2 
+          integer ::   S_NSRB2
+              integer ::   S_IKC  
+              integer ::   S_IKUD 
+              integer ::   S_W_DDL
+              integer ::   S_IADM 
         integer ::   S_JDIM     
-	    integer ::   S_NDOFI
-	    integer ::   S_IDDLI
-	    integer ::   S_IKINW
-		integer ::   S_INBUF_C
-C-		
+              integer ::   S_NDOFI
+              integer ::   S_IDDLI
+              integer ::   S_IKINW
+          integer ::   S_INBUF_C
+C-
         integer ::   S_I_STOK     !  replace NUM_IMP            
         integer ::   S_CAND_N     !  replace NS_IMP  
         integer ::   S_CAND_E     !  replace NE_IMP   
@@ -77,25 +77,25 @@ C=======================================================================
         integer ::   S_LT_K           
         integer ::   S_DIAG_M           
         integer ::   S_LT_M           
-	    integer ::   S_LB
-	    integer ::   S_LB0
-	    integer ::   S_BKUD
-	    integer ::   S_D_IMP
-	    integer ::   S_DR_IMP
+              integer ::   S_LB
+              integer ::   S_LB0
+              integer ::   S_BKUD
+              integer ::   S_D_IMP
+              integer ::   S_DR_IMP
         integer ::   S_ELBUF_C
-		integer ::   S_BUFMAT_C
-		integer ::   S_X_C
-		integer ::   S_DD
-		integer ::   S_DDR
-		integer ::   S_X_A
-		integer ::   S_FEXT
-		integer ::   S_DG
-		integer ::   S_DGR
-		integer ::   S_DG0
-		integer ::   S_DGR0
-		integer ::   S_BUFIN_C
-		integer ::   S_AC
-		integer ::   S_ACR
+          integer ::   S_BUFMAT_C
+          integer ::   S_X_C
+          integer ::   S_DD
+          integer ::   S_DDR
+          integer ::   S_X_A
+          integer ::   S_FEXT
+          integer ::   S_DG
+          integer ::   S_DGR
+          integer ::   S_DG0
+          integer ::   S_DGR0
+          integer ::   S_BUFIN_C
+          integer ::   S_AC
+          integer ::   S_ACR
 c=======================================================================      
 c define type IMPBUF_STRUCT_ for implicit structure array
 c=======================================================================      
@@ -127,30 +127,30 @@ C=======================================================================
         integer, DIMENSION(:) , ALLOCATABLE ::  INLOC    
         integer, DIMENSION(:) , ALLOCATABLE ::  IADK    
         integer, DIMENSION(:) , ALLOCATABLE ::  JDIK    
-		integer, DIMENSION(:) , ALLOCATABLE ::  ISIJ 
-		integer, DIMENSION(:) , ALLOCATABLE ::  IMIJ 
-		integer, DIMENSION(:) , ALLOCATABLE ::  NSS  
-		integer, DIMENSION(:) , ALLOCATABLE ::  ISS  
-		integer, DIMENSION(:) , ALLOCATABLE ::  ISIJ2
-		integer, DIMENSION(:) , ALLOCATABLE ::  NSS2 
-		integer, DIMENSION(:) , ALLOCATABLE ::  ISS2 
-		integer, DIMENSION(:) , ALLOCATABLE ::  NSC2 
-		integer, DIMENSION(:) , ALLOCATABLE ::  NROWK
-		integer, DIMENSION(:) , ALLOCATABLE ::  ICOK 
-		integer, DIMENSION(:) , ALLOCATABLE ::  ICOKM
-		integer, DIMENSION(:) , ALLOCATABLE ::  NMIJ2
-		integer, DIMENSION(:) , ALLOCATABLE ::  NSS3 
-		integer, DIMENSION(:) , ALLOCATABLE ::  ISB2 
-		integer, DIMENSION(:) , ALLOCATABLE ::  NSRB2
-	    integer, DIMENSION(:) , ALLOCATABLE ::  IKC  
-	    integer, DIMENSION(:) , ALLOCATABLE ::  IKUD 
-	    integer, DIMENSION(:) , ALLOCATABLE ::  W_DDL
-	    integer, DIMENSION(:) , ALLOCATABLE ::  IADM 
-	    integer, DIMENSION(:) , ALLOCATABLE ::  JDIM 
-	    integer, DIMENSION(:) , ALLOCATABLE ::  NDOFI
-	    integer, DIMENSION(:) , ALLOCATABLE ::  IDDLI
-	    integer, DIMENSION(:) , ALLOCATABLE ::  IKINW
-	    integer, DIMENSION(:) , ALLOCATABLE ::  INBUF_C
+          integer, DIMENSION(:) , ALLOCATABLE ::  ISIJ 
+          integer, DIMENSION(:) , ALLOCATABLE ::  IMIJ 
+          integer, DIMENSION(:) , ALLOCATABLE ::  NSS  
+          integer, DIMENSION(:) , ALLOCATABLE ::  ISS  
+          integer, DIMENSION(:) , ALLOCATABLE ::  ISIJ2
+          integer, DIMENSION(:) , ALLOCATABLE ::  NSS2 
+          integer, DIMENSION(:) , ALLOCATABLE ::  ISS2 
+          integer, DIMENSION(:) , ALLOCATABLE ::  NSC2 
+          integer, DIMENSION(:) , ALLOCATABLE ::  NROWK
+          integer, DIMENSION(:) , ALLOCATABLE ::  ICOK 
+          integer, DIMENSION(:) , ALLOCATABLE ::  ICOKM
+          integer, DIMENSION(:) , ALLOCATABLE ::  NMIJ2
+          integer, DIMENSION(:) , ALLOCATABLE ::  NSS3 
+          integer, DIMENSION(:) , ALLOCATABLE ::  ISB2 
+          integer, DIMENSION(:) , ALLOCATABLE ::  NSRB2
+              integer, DIMENSION(:) , ALLOCATABLE ::  IKC  
+              integer, DIMENSION(:) , ALLOCATABLE ::  IKUD 
+              integer, DIMENSION(:) , ALLOCATABLE ::  W_DDL
+              integer, DIMENSION(:) , ALLOCATABLE ::  IADM 
+              integer, DIMENSION(:) , ALLOCATABLE ::  JDIM 
+              integer, DIMENSION(:) , ALLOCATABLE ::  NDOFI
+              integer, DIMENSION(:) , ALLOCATABLE ::  IDDLI
+              integer, DIMENSION(:) , ALLOCATABLE ::  IKINW
+              integer, DIMENSION(:) , ALLOCATABLE ::  INBUF_C
 C---for contact
         integer, DIMENSION(:) , ALLOCATABLE ::  I_STOK      
         integer, DIMENSION(:) , ALLOCATABLE ::  CAND_N      
@@ -164,49 +164,47 @@ C=======================================================================
         my_real, DIMENSION(:) , ALLOCATABLE ::   LT_K           
         my_real, DIMENSION(:) , ALLOCATABLE ::   DIAG_M           
         my_real, DIMENSION(:) , ALLOCATABLE ::   LT_M           
-	    my_real, DIMENSION(:) , ALLOCATABLE ::   LB
-	    my_real, DIMENSION(:) , ALLOCATABLE ::   LB0
-	    my_real, DIMENSION(:) , ALLOCATABLE ::   BKUD
-	    my_real, DIMENSION(:) , ALLOCATABLE ::   D_IMP
-	    my_real, DIMENSION(:) , ALLOCATABLE ::   DR_IMP
+              my_real, DIMENSION(:) , ALLOCATABLE ::   LB
+              my_real, DIMENSION(:) , ALLOCATABLE ::   LB0
+              my_real, DIMENSION(:) , ALLOCATABLE ::   BKUD
+              my_real, DIMENSION(:) , ALLOCATABLE ::   D_IMP
+              my_real, DIMENSION(:) , ALLOCATABLE ::   DR_IMP
         my_real, DIMENSION(:) , ALLOCATABLE ::   ELBUF_C
-		my_real, DIMENSION(:) , ALLOCATABLE ::   BUFMAT_C
-		my_real, DIMENSION(:) , ALLOCATABLE ::   X_C
-		my_real, DIMENSION(:) , ALLOCATABLE ::   DD
-		my_real, DIMENSION(:) , ALLOCATABLE ::   DDR
-		my_real, DIMENSION(:) , ALLOCATABLE ::   X_A
-		my_real, DIMENSION(:) , ALLOCATABLE ::   FEXT
-		my_real, DIMENSION(:) , ALLOCATABLE ::   DG
-		my_real, DIMENSION(:) , ALLOCATABLE ::   DGR
-		my_real, DIMENSION(:) , ALLOCATABLE ::   DG0
-		my_real, DIMENSION(:) , ALLOCATABLE ::   DGR0
-		my_real, DIMENSION(:) , ALLOCATABLE ::   BUFIN_C
-		my_real, DIMENSION(:) , ALLOCATABLE ::   AC
-		my_real, DIMENSION(:) , ALLOCATABLE ::   ACR
+          my_real, DIMENSION(:) , ALLOCATABLE ::   BUFMAT_C
+          my_real, DIMENSION(:) , ALLOCATABLE ::   X_C
+          my_real, DIMENSION(:) , ALLOCATABLE ::   DD
+          my_real, DIMENSION(:) , ALLOCATABLE ::   DDR
+          my_real, DIMENSION(:) , ALLOCATABLE ::   X_A
+          my_real, DIMENSION(:) , ALLOCATABLE ::   FEXT
+          my_real, DIMENSION(:) , ALLOCATABLE ::   DG
+          my_real, DIMENSION(:) , ALLOCATABLE ::   DGR
+          my_real, DIMENSION(:) , ALLOCATABLE ::   DG0
+          my_real, DIMENSION(:) , ALLOCATABLE ::   DGR0
+          my_real, DIMENSION(:) , ALLOCATABLE ::   BUFIN_C
+          my_real, DIMENSION(:) , ALLOCATABLE ::   AC
+          my_real, DIMENSION(:) , ALLOCATABLE ::   ACR
 C=======================================================================
       END TYPE IMPBUF_STRUCT_
 C=======================================================================
 c---------------
       END MODULE IMPBUFDEF_MOD
-Chd|====================================================================
-Chd|  IMP_KTAN_DEF                  share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        CMATCH3                       source/elements/shell/coqueba/cmatc3.F
-Chd|        CMATIP3                       source/elements/shell/coqueba/cmatc3.F
-Chd|        ETFAC_INI                     source/implicit/imp_init.F    
-Chd|        GETHKT3                       source/elements/solid/solide8z/mmats.F
-Chd|        GET_ETFAC_S                   source/elements/solid/solide8z/mmats.F
-Chd|        IKTMAT_INI                    source/implicit/imp_init.F    
-Chd|        KTBUF_INI                     source/implicit/imp_init.F    
-Chd|        MMATS                         source/elements/solid/solide8z/mmats.F
-Chd|        NUL_ETFAC_S                   source/elements/solid/solide8z/mmats.F
-Chd|        PUTSIGNOR3                    source/elements/solid/solide8z/mmats.F
-Chd|        PUTSIGNORC3                   source/elements/shell/coqueba/cmatc3.F
-Chd|        PUT_ETFAC                     source/elements/solid/solide8z/mmats.F
-Chd|        SKTCONS2                      source/elements/solid/solide8z/mmats.F
-Chd|        IMP_KTAN                      share/modules/impbufdef_mod.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_ktan_def   ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    cmatch3        ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    cmatip3        ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    etfac_ini      ../engine/source/implicit/imp_init.F
+!||    get_etfac_s    ../engine/source/elements/solid/solide8z/get_etfac_s.F
+!||    gethkt3        ../engine/source/elements/solid/solide8z/gethkt3.F
+!||    iktmat_ini     ../engine/source/implicit/imp_init.F
+!||    imp_ktan       ../engine/share/modules/impbufdef_mod.F
+!||    ktbuf_ini      ../engine/source/implicit/imp_init.F
+!||    mmats          ../engine/source/elements/solid/solide8z/mmats.F
+!||    put_etfac      ../engine/source/elements/solid/solide8z/put_etfac.F
+!||    putsignor3     ../engine/source/elements/solid/solide8z/putsignor3.F
+!||    putsignorc3    ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    sktcons2       ../engine/source/elements/solid/solide8z/sktcons2.F
+!||====================================================================
       MODULE IMP_KTAN_DEF
 #include "my_real.inc"
 C------
@@ -235,90 +233,89 @@ C----------------|  sym       | GG(L_SUBKT) |
       END TYPE L_KTBUFGM_
 
       TYPE KTBUF_STRUCT_
-C------the following interger arguments are not necessary for the moment
+C------the following integer arguments are not necessary for the moment
 c        integer     :: MLAW           !  1
 c        integer     :: NEL            !  2
 c        integer     :: NPTR           !  3
 c        integer     :: NPTS           !  4
 c        integer     :: NPTT           !  5
 C ------------add MLAW_TAG here to avoid pass everywhere the arguments
-        my_real  ,          DIMENSION(:)       , ALLOCATABLE :: ETFAC   ! relative tangent modulus ratio - per element(global)
+        my_real  ,          DIMENSION(:)       , ALLOCATABLE :: ETFAC   ! Relative tangent modulus ratio - per element (global)
         TYPE(MLAW_TAG_)   , DIMENSION(:)       , ALLOCATABLE :: MLAW_TAG ! variable dimensions - per element(global)
         TYPE (L_KTBUFEP_) , DIMENSION(:,:,:)   , ALLOCATABLE :: KTBUFEP  ! EP mat - per integration point
         TYPE (L_KTBUFGM_) , DIMENSION(:,:,:)   , ALLOCATABLE :: KTBUFMG  ! ET mat - per integration point
       END TYPE KTBUF_STRUCT_
 C      
       END MODULE IMP_KTAN_DEF
-Chd|====================================================================
-Chd|  IMP_BFGS                      share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        BFGS_0                        source/implicit/imp_bfgs.F    
-Chd|        BFGS_1                        source/implicit/imp_bfgs.F    
-Chd|        BFGS_1P                       source/implicit/imp_bfgs.F    
-Chd|        BFGS_2                        source/implicit/imp_bfgs.F    
-Chd|        BFGS_2P                       source/implicit/imp_bfgs.F    
-Chd|        BFGS_H1                       source/implicit/imp_bfgs.F    
-Chd|        BFGS_H1P                      source/implicit/imp_bfgs.F    
-Chd|        BFGS_H2                       source/implicit/imp_bfgs.F    
-Chd|        BFGS_H2P                      source/implicit/imp_bfgs.F    
-Chd|        BFGS_INI                      source/implicit/imp_bfgs.F    
-Chd|        BFGS_LS                       source/implicit/imp_bfgs.F    
-Chd|        DEALLOCM_IMP                  source/implicit/imp_solv.F    
-Chd|        GET_SLIN                      source/implicit/imp_bfgs.F    
-Chd|        NSLOAN_0                      source/implicit/imp_bfgs.F    
-Chd|        NSLOAN_5                      source/implicit/imp_bfgs.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_bfgs       ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    bfgs_0         ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_1         ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_1p        ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_2         ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_2p        ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_h1        ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_h1p       ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_h2        ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_h2p       ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_ini       ../engine/source/implicit/imp_bfgs.F
+!||    bfgs_ls        ../engine/source/implicit/imp_bfgs.F
+!||    deallocm_imp   ../engine/source/implicit/imp_solv.F
+!||    get_slin       ../engine/source/implicit/imp_bfgs.F
+!||    nsloan_0       ../engine/source/implicit/imp_bfgs.F
+!||    nsloan_5       ../engine/source/implicit/imp_bfgs.F
+!||====================================================================
       MODULE IMP_BFGS
 C
 #include "my_real.inc"
       INTEGER N_BFGS,IACTB
       my_real S_LIN
 C
-C tableau de int de : V,W pour BFGS algorithm----
+C integer array of: V,W for BFGS algorithm----
       my_real, DIMENSION(:,:), ALLOCATABLE :: BFGS_V,BFGS_W
 C 
       END MODULE IMP_BFGS
-Chd|====================================================================
-Chd|  IMP_DYNA                      share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DEALLOCM_IMP                  source/implicit/imp_solv.F    
-Chd|        DU_INI                        source/implicit/imp_solv.F    
-Chd|        DU_INI_HP                     source/implicit/imp_solv.F    
-Chd|        DYNA_CPK0                     source/implicit/imp_dyna.F    
-Chd|        DYNA_CPR0                     source/implicit/imp_dyna.F    
-Chd|        DYNA_IN0                      source/implicit/imp_dyna.F    
-Chd|        DYNA_INA                      source/implicit/imp_dyna.F    
-Chd|        DYNA_INI                      source/implicit/imp_dyna.F    
-Chd|        DYNA_INIV                     source/implicit/imp_dyna.F    
-Chd|        DYNA_IVFAC                    source/implicit/imp_dyna.F    
-Chd|        DYNA_WEX                      source/implicit/imp_dyna.F    
-Chd|        ECRIT                         source/output/ecrit.F         
-Chd|        FREIMPL                       source/input/freimpl.F        
-Chd|        FV_FINT0                      source/constraints/general/impvel/fv_imp0.F
-Chd|        GETDYNA_A                     source/implicit/imp_dyna.F    
-Chd|        IMPRREST                      source/output/restart/rdresb.F
-Chd|        IMPWREST                      source/output/restart/wrrest.F
-Chd|        IMP_DYCRB                     source/implicit/imp_dyna.F    
-Chd|        IMP_DYKV                      source/implicit/imp_dyna.F    
-Chd|        IMP_DYKV0                     source/implicit/imp_dyna.F    
-Chd|        IMP_DYNAM                     source/implicit/imp_dyna.F    
-Chd|        IMP_DYNAR                     source/implicit/imp_dyna.F    
-Chd|        IMP_FHHT                      source/implicit/imp_dyna.F    
-Chd|        IMP_FHHT1                     source/implicit/imp_dyna.F    
-Chd|        INTE_DYNA                     source/implicit/imp_dyna.F    
-Chd|        RBE2COR                       source/constraints/general/rbody/rgbcor.F
-Chd|        RBE2COR0                      source/constraints/general/rbody/rgbcor.F
-Chd|        RBYCOR                        source/constraints/general/rbody/rbycor.F
-Chd|        RGBCOR                        source/constraints/general/rbody/rgbcor.F
-Chd|        WFV_IMP                       source/constraints/general/impvel/fv_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_dyna       ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    deallocm_imp   ../engine/source/implicit/imp_solv.F
+!||    du_ini         ../engine/source/implicit/imp_solv.F
+!||    du_ini_hp      ../engine/source/implicit/imp_solv.F
+!||    dyna_cpk0      ../engine/source/implicit/imp_dyna.F
+!||    dyna_cpr0      ../engine/source/implicit/imp_dyna.F
+!||    dyna_in0       ../engine/source/implicit/imp_dyna.F
+!||    dyna_ina       ../engine/source/implicit/imp_dyna.F
+!||    dyna_ini       ../engine/source/implicit/imp_dyna.F
+!||    dyna_iniv      ../engine/source/implicit/imp_dyna.F
+!||    dyna_ivfac     ../engine/source/implicit/imp_dyna.F
+!||    dyna_wex       ../engine/source/implicit/imp_dyna.F
+!||    ecrit          ../engine/source/output/ecrit.F
+!||    freimpl        ../engine/source/input/freimpl.F
+!||    fv_fint0       ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    getdyna_a      ../engine/source/implicit/imp_dyna.F
+!||    imp_dycrb      ../engine/source/implicit/imp_dyna.F
+!||    imp_dykv       ../engine/source/implicit/imp_dyna.F
+!||    imp_dykv0      ../engine/source/implicit/imp_dyna.F
+!||    imp_dynam      ../engine/source/implicit/imp_dyna.F
+!||    imp_dynar      ../engine/source/implicit/imp_dyna.F
+!||    imp_fhht       ../engine/source/implicit/imp_dyna.F
+!||    imp_fhht1      ../engine/source/implicit/imp_dyna.F
+!||    imprrest       ../engine/source/output/restart/rdresb.F
+!||    impwrest       ../engine/source/output/restart/wrrest.F
+!||    inte_dyna      ../engine/source/implicit/imp_dyna.F
+!||    rbe2cor        ../engine/source/constraints/general/rbody/rgbcor.F
+!||    rbe2cor0       ../engine/source/constraints/general/rbody/rgbcor.F
+!||    rbycor         ../engine/source/constraints/general/rbody/rbycor.F
+!||    rgbcor         ../engine/source/constraints/general/rbody/rgbcor.F
+!||    stop_sensor    ../engine/source/tools/sensor/stop_sensor.F
+!||    wfv_imp        ../engine/source/constraints/general/impvel/fv_imp0.F
+!||====================================================================
       MODULE IMP_DYNA
 C
 #include "my_real.inc"
 C
-C tableau de travail :  implicit dynamic ----
+C working array :  implicit dynamic ----
       my_real  DY_G,DY_B,DY_EDAMP
       my_real, DIMENSION(:,:), ALLOCATABLE :: DY_D,DY_DR,DY_V
       my_real, DIMENSION(:,:), ALLOCATABLE :: DY_VR,DY_A,DY_AR
@@ -330,28 +327,27 @@ C tableau de travail :  implicit dynamic ----
       INTEGER, DIMENSION(:), ALLOCATABLE :: DY_IADK0,DY_JDIK0
 C 
       END MODULE IMP_DYNA
-Chd|====================================================================
-Chd|  IMP_MONV                      share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        ID_MVINI                      source/airbag/monv_imp0.F     
-Chd|        MONV_DIAG                     source/airbag/monv_imp0.F     
-Chd|        MONV_FVL                      source/airbag/monv_imp0.F     
-Chd|        MONV_M3                       source/airbag/monv_imp0.F     
-Chd|        MONV_PREM                     source/airbag/monv_imp0.F     
-Chd|        MV_MATV                       source/airbag/monv_imp0.F     
-Chd|        RECU_KDIS                     source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_monv    ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    id_mvini    ../engine/source/airbag/monv_imp0.F
+!||    monv_diag   ../engine/source/airbag/monv_imp0.F
+!||    monv_fvl    ../engine/source/airbag/monv_imp0.F
+!||    monv_m3     ../engine/source/airbag/monv_imp0.F
+!||    monv_prem   ../engine/source/airbag/monv_imp0.F
+!||    mv_matv     ../engine/source/airbag/monv_imp0.F
+!||    recu_kdis   ../engine/source/airbag/monv_imp0.F
+!||====================================================================
       MODULE IMP_MONV
 #include "my_real.inc"
       INTEGER NUMN_MV,NI2_MV,NRB_MV,NNMAX_MV,NBC_MV,NFX_MV,NRW_MV,
      .        NRBE3_MV,R3M_MAX,NSPC_MV,NRBE2_MV
-C  int de taille NUMN_MV :noeuds locales de mv 
+C  integer of size NUMN_MV: local nodes of mv
       INTEGER, DIMENSION(:), ALLOCATABLE :: IN_MV
-C  int IDDL de taille 3*NUMN_MV,6*(NRB_FR ,4*NI2_FR)
+C  int IDDL of size 3*NUMN_MV, 6*(nrb_fr, 4*ni2_fr)
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: ID_MV,ID_MVM,ID_MVM4
       INTEGER, DIMENSION(:,:,:), ALLOCATABLE :: ID_MVM2,ID_MVM3
-C int de taille NI2_MV,NRB_MV :------
+C int of size Ni2_MV, nrb_mv: -------
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: II2_MV,IRB_MV,IRBE2_MV
       INTEGER, DIMENSION(:), ALLOCATABLE ::   IRBE3_MV
 C  K_DIAG reels de taille (3,NUMN_MV) 
@@ -367,135 +363,128 @@ C int (3,NBC_MV),(2,NFX_MV),(NRW_MV)
       my_real, DIMENSION(:), ALLOCATABLE :: FCDI_MV,MCDI_MV
 C      
       END MODULE IMP_MONV
-Chd|====================================================================
-Chd|  IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DIAG_INT                      source/mpi/implicit/imp_fri.F 
-Chd|        DIM_KINKN                     source/implicit/imp_int_k.F   
-Chd|        FR_U2DD                       source/mpi/implicit/imp_fri.F 
-Chd|        FV_RWL                        source/constraints/general/rwall/srw_imp.F
-Chd|        FV_RWL0                       source/constraints/general/rwall/srw_imp.F
-Chd|        FV_RWLR0                      source/constraints/general/rwall/srw_imp.F
-Chd|        IMP3_A2B                      source/airbag/monv_imp0.F     
-Chd|        IMP3_U2X                      source/airbag/monv_imp0.F     
-Chd|        IND_KINEFR                    source/mpi/implicit/imp_fri.F 
-Chd|        IND_KINFRK                    source/mpi/implicit/imp_fri.F 
-Chd|        INI_KINKN                     source/implicit/imp_int_k.F   
-Chd|        MONV_FVL                      source/airbag/monv_imp0.F     
-Chd|        RWL_IMPD                      source/constraints/general/rwall/srw_imp.F
-Chd|        UPDK_MV                       source/airbag/monv_imp0.F     
-Chd|        UPD_FR                        source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_rwl      ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    diag_int     ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_kinkn    ../engine/source/implicit/imp_int_k.F
+!||    fr_u2dd      ../engine/source/mpi/implicit/imp_fri.F
+!||    fv_rwl       ../engine/source/constraints/general/rwall/srw_imp.F
+!||    fv_rwl0      ../engine/source/constraints/general/rwall/srw_imp.F
+!||    fv_rwlr0     ../engine/source/constraints/general/rwall/srw_imp.F
+!||    imp3_a2b     ../engine/source/airbag/monv_imp0.F
+!||    imp3_u2x     ../engine/source/airbag/monv_imp0.F
+!||    ind_kinefr   ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_kinfrk   ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_kinkn    ../engine/source/implicit/imp_int_k.F
+!||    monv_fvl     ../engine/source/airbag/monv_imp0.F
+!||    rwl_impd     ../engine/source/constraints/general/rwall/srw_imp.F
+!||    upd_fr       ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_kml      ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_ksl      ../engine/source/mpi/implicit/imp_fri.F
+!||    updk_mv      ../engine/source/airbag/monv_imp0.F
+!||====================================================================
       MODULE IMP_RWL
 #include "my_real.inc"
       INTEGER N_RWL
-C tableau de int de taille N_RWL :noeuds secnds de sliding RW 
+C integer array of size N_RWL: secondary nodes of sliding RW
       INTEGER, DIMENSION(:), ALLOCATABLE :: IN_RWL
-C tableau de Direction normale reels de taille (3,N_RWL) 
+C real normal direction array of size (3,N_RWL)
       my_real, DIMENSION(:,:),ALLOCATABLE :: NOR_RWL
 C      
       END MODULE IMP_RWL
-Chd|====================================================================
-Chd|  IMP_LINTF                     share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DIAG_KIF                      source/implicit/imp_solv.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|        INI_KIF                       source/implicit/imp_solv.F    
-Chd|        MATV_KIF                      source/implicit/imp_solv.F    
-Chd|        SAVE_KIF                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_lintf   ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    diag_kif    ../engine/source/implicit/imp_solv.F
+!||    imp_solv    ../engine/source/implicit/imp_solv.F
+!||    ini_kif     ../engine/source/implicit/imp_solv.F
+!||    matv_kif    ../engine/source/implicit/imp_solv.F
+!||    save_kif    ../engine/source/implicit/imp_solv.F
+!||====================================================================
       MODULE IMP_LINTF
 #include "my_real.inc"
       INTEGER NDDLIF,NZIF
-C tableau de int de la [k] interface 
+C integer array of the [k] interface
       INTEGER, DIMENSION(:), ALLOCATABLE :: IADIF,JDIIF,IFTOK
-C tableau de reels de la [k] interface 
+C real array of the [k] interface
       my_real, DIMENSION(:),ALLOCATABLE :: DIAG_IF,LT_IF
 C      
       END MODULE IMP_LINTF
-Chd|====================================================================
-Chd|  IMP_REST                      share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        IMPRREST                      source/output/restart/rdresb.F
-Chd|        IMPWREST                      source/output/restart/wrrest.F
-Chd|        IMP_TRANS                     source/output/restart/wrrest.F
-Chd|        IMP_TRANS0                    source/output/restart/wrrest.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_rest     ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    imp_trans    ../engine/source/output/restart/wrrest.F
+!||    imp_trans0   ../engine/source/output/restart/wrrest.F
+!||    imprrest     ../engine/source/output/restart/rdresb.F
+!||    impwrest     ../engine/source/output/restart/wrrest.F
+!||====================================================================
       MODULE IMP_REST
 #include "my_real.inc"
-C tableau de reels de R-file 
+C real array of R-file
       my_real, DIMENSION(:),ALLOCATABLE :: IMP_RR
 C      
       END MODULE IMP_REST
 C
-Chd|====================================================================
-Chd|  IMP_PPAT                      share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DIM_SPAN                      source/implicit/ind_glob_k.F  
-Chd|        FIL_SPAN0                     source/implicit/ind_glob_k.F  
-Chd|        FIL_SPAN1                     source/implicit/ind_glob_k.F  
-Chd|        IND_SPAN                      source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_ppat    ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    dim_span    ../engine/source/implicit/ind_glob_k.F
+!||    fil_span0   ../engine/source/implicit/ind_glob_k.F
+!||    fil_span1   ../engine/source/implicit/ind_glob_k.F
+!||    ind_span    ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       MODULE IMP_PPAT
-C tableau de int de pre-filtrage 
+C integer array of pre-filtering
       INTEGER, DIMENSION(:),ALLOCATABLE :: PRE_FPAT
 C      
       END MODULE IMP_PPAT
-Chd|====================================================================
-Chd|  IMP_QSTAT                     share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DEALLOCM_IMP                  source/implicit/imp_solv.F    
-Chd|        DIS_CP                        source/implicit/imp_solv.F    
-Chd|        QSTAT_END                     source/implicit/imp_dyna.F    
-Chd|        QSTAT_INI                     source/implicit/imp_dyna.F    
-Chd|        QSTAT_IT                      source/implicit/imp_dyna.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_qstat      ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    deallocm_imp   ../engine/source/implicit/imp_solv.F
+!||    dis_cp         ../engine/source/implicit/imp_solv.F
+!||    qstat_end      ../engine/source/implicit/imp_dyna.F
+!||    qstat_ini      ../engine/source/implicit/imp_dyna.F
+!||    qstat_it       ../engine/source/implicit/imp_dyna.F
+!||====================================================================
       MODULE IMP_QSTAT
 C
 #include "my_real.inc"
 C
-C tableau de travail :  linear quasi-static (iterative)----
+C Workboard: Linear Quasi-Static (iterative) ----
       my_real, DIMENSION(:), ALLOCATABLE :: QS_U,QS_D
-C tableau de travail : D_n-1 used for Gravity case
+C working array : D_n-1 used for Gravity case
       my_real, DIMENSION(:), ALLOCATABLE :: D_N_1,DR_N_1
 C 
       END MODULE IMP_QSTAT
-Chd|====================================================================
-Chd|  IMP_KBCS                      share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DEALLOCM_IMP                  source/implicit/imp_solv.F    
-Chd|        FREIMPL                       source/input/freimpl.F        
-Chd|        IMP_INIT                      source/implicit/imp_init.F    
-Chd|        IMP_MUMPS1                    source/implicit/imp_mumps.F   
-Chd|        LECIMPL                       source/input/lectur.F         
-Chd|        PROUT_BUCK                    source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_kbcs       ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    deallocm_imp   ../engine/source/implicit/imp_solv.F
+!||    freimpl        ../engine/source/input/freimpl.F
+!||    imp_init       ../engine/source/implicit/imp_init.F
+!||    imp_mumps1     ../engine/source/implicit/imp_mumps.F
+!||    lecimpl        ../engine/source/input/lectur.F
+!||    prout_buck     ../engine/source/input/lectur.F
+!||====================================================================
       MODULE IMP_KBCS
-C tableau de travail de BCS-EXT 
+C work array of BCS-EXT
       INTEGER  MEM_BCS
       my_real, DIMENSION(:),ALLOCATABLE :: HOLD
       INTEGER  MSGL_B,MAXSET_B,MSG_LVL,B_ORDER,B_MCORE,LMEMN
       my_real  EMIN_B,EMAX_B,SHIFT_B
 C      
       END MODULE IMP_KBCS
-Chd|====================================================================
-Chd|  IMP_KNON                      share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DEALLOCM                      source/implicit/imp_solv.F    
-Chd|        INT_MATV                      source/implicit/imp_int_k.F   
-Chd|        INT_MATVP                     source/implicit/imp_int_k.F   
-Chd|        KIN_KNL                       source/implicit/imp_int_k.F   
-Chd|        RECU_KDIS0                    source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_knon     ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    deallocm     ../engine/source/implicit/imp_solv.F
+!||    int_matv     ../engine/source/implicit/imp_int_k.F
+!||    int_matvp    ../engine/source/implicit/imp_int_k.F
+!||    kin_knl      ../engine/source/implicit/imp_int_k.F
+!||    recu_kdis0   ../engine/source/implicit/lin_solv.F
+!||====================================================================
       MODULE IMP_KNON
 #include "my_real.inc"
       INTEGER NUMN_KN,NI2_KN,NRB_KN,NBC_KN,NFX_KN,NRW_KN,NRBE3_KN,
@@ -509,32 +498,31 @@ Chd|====================================================================
       my_real, DIMENSION(:), ALLOCATABLE :: FCDI_KN,MCDI_KN
 C      
       END MODULE IMP_KNON
-Chd|====================================================================
-Chd|  IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        BC_IMP2                       source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_IMPA                       source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_IMPR1                      source/constraints/general/bcs/bc_imp0.F
-Chd|        DIAG_INT                      source/mpi/implicit/imp_fri.F 
-Chd|        DIM_KINKN                     source/implicit/imp_int_k.F   
-Chd|        FR_U2DD                       source/mpi/implicit/imp_fri.F 
-Chd|        GET_NSPC                      source/constraints/general/bcs/bc_imp0.F
-Chd|        IMP3_A2B                      source/airbag/monv_imp0.F     
-Chd|        IMP3_U2X                      source/airbag/monv_imp0.F     
-Chd|        IMP_INIT                      source/implicit/imp_init.F    
-Chd|        IND_KINEFR                    source/mpi/implicit/imp_fri.F 
-Chd|        IND_KINFRK                    source/mpi/implicit/imp_fri.F 
-Chd|        INI_KINKN                     source/implicit/imp_int_k.F   
-Chd|        KIN_KNL                       source/implicit/imp_int_k.F   
-Chd|        MONV_FVL                      source/airbag/monv_imp0.F     
-Chd|        PUT_NSPC                      source/constraints/general/bcs/bc_imp0.F
-Chd|        UPDK_MV                       source/airbag/monv_imp0.F     
-Chd|        UPD_ASPC0                     source/constraints/general/bcs/bc_imp0.F
-Chd|        UPD_FR                        source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_aspc     ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    bc_imp2      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_impa      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_impr1     ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    diag_int     ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_kinkn    ../engine/source/implicit/imp_int_k.F
+!||    fr_u2dd      ../engine/source/mpi/implicit/imp_fri.F
+!||    get_nspc     ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    imp3_a2b     ../engine/source/airbag/monv_imp0.F
+!||    imp3_u2x     ../engine/source/airbag/monv_imp0.F
+!||    imp_init     ../engine/source/implicit/imp_init.F
+!||    ind_kinefr   ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_kinfrk   ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_kinkn    ../engine/source/implicit/imp_int_k.F
+!||    kin_knl      ../engine/source/implicit/imp_int_k.F
+!||    monv_fvl     ../engine/source/airbag/monv_imp0.F
+!||    put_nspc     ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    upd_aspc0    ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    upd_fr       ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_kml      ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_ksl      ../engine/source/mpi/implicit/imp_fri.F
+!||    updk_mv      ../engine/source/airbag/monv_imp0.F
+!||====================================================================
       MODULE IMP_ASPC
       INTEGER NSPCL,NSPCNT
 #include "my_real.inc"
@@ -543,13 +531,12 @@ Chd|====================================================================
 C      
       END MODULE IMP_ASPC
 C
-Chd|====================================================================
-Chd|  IMP_WORKI                     share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_worki   ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    imp_chkm    ../engine/source/implicit/imp_solv.F
+!||    imp_solv    ../engine/source/implicit/imp_solv.F
+!||====================================================================
       MODULE IMP_WORKI
 #include      "my_real.inc"
       INTEGER, DIMENSION(:),ALLOCATABLE :: IADI,JDII,ITOK
@@ -559,29 +546,28 @@ Chd|====================================================================
  
       END MODULE IMP_WORKI
 C
-Chd|====================================================================
-Chd|  IMP_WORKH                     share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DEALLOCM_IMP                  source/implicit/imp_solv.F    
-Chd|        IMP_PCGH                      source/implicit/imp_pcg.F     
-Chd|        IMP_PPCGH                     source/implicit/imp_pcg.F     
-Chd|        INI_K0H                       source/implicit/imp_solv.F    
-Chd|        INI_KISC                      source/implicit/lin_solv.F    
-Chd|        LIN_SOLV                      source/implicit/lin_solv.F    
-Chd|        LIN_SOLVH0                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVH1                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVHM                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVIH2                   source/implicit/lin_solv.F    
-Chd|        MAV_LIUH                      source/implicit/produt_v.F    
-Chd|        MAV_LUI_H                     source/implicit/produt_v.F    
-Chd|        MAV_LU_H                      source/implicit/produt_v.F    
-Chd|        MMAV_LTH                      source/implicit/produt_v.F    
-Chd|        PREC5HC_SOLV                  source/implicit/prec_solv.F   
-Chd|        PRODUT_UH                     source/implicit/produt_v.F    
-Chd|        PRODUT_UH2                    source/implicit/produt_v.F    
-Chd|        PRODUT_VMH                    source/implicit/produt_v.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_workh      ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    deallocm_imp   ../engine/source/implicit/imp_solv.F
+!||    imp_pcgh       ../engine/source/implicit/imp_pcg.F
+!||    imp_ppcgh      ../engine/source/implicit/imp_pcg.F
+!||    ini_k0h        ../engine/source/implicit/imp_solv.F
+!||    ini_kisc       ../engine/source/implicit/lin_solv.F
+!||    lin_solv       ../engine/source/implicit/lin_solv.F
+!||    lin_solvh0     ../engine/source/implicit/lin_solv.F
+!||    lin_solvh1     ../engine/source/implicit/lin_solv.F
+!||    lin_solvhm     ../engine/source/implicit/lin_solv.F
+!||    lin_solvih2    ../engine/source/implicit/lin_solv.F
+!||    mav_liuh       ../engine/source/implicit/produt_v.F
+!||    mav_lu_h       ../engine/source/implicit/produt_v.F
+!||    mav_lui_h      ../engine/source/implicit/produt_v.F
+!||    mmav_lth       ../engine/source/implicit/produt_v.F
+!||    prec5hc_solv   ../engine/source/implicit/prec_solv.F
+!||    produt_uh      ../engine/source/implicit/produt_v.F
+!||    produt_uh2     ../engine/source/implicit/produt_v.F
+!||    produt_vmh     ../engine/source/implicit/produt_v.F
+!||====================================================================
       MODULE IMP_WORKH
 #include      "my_real.inc"
       INTEGER  W_MAXL,ISTOP_H
@@ -608,12 +594,11 @@ Chd|====================================================================
  
       END MODULE IMP_WORKH
 C
-Chd|====================================================================
-Chd|  IMP_WORKG                     share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_workg   ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    imp_buck    ../engine/source/implicit/imp_buck.F
+!||====================================================================
       MODULE IMP_WORKG
 #include      "my_real.inc"
       INTEGER  IPRMES_EL(30)
@@ -622,18 +607,17 @@ Chd|====================================================================
  
       END MODULE IMP_WORKG
 C
-Chd|====================================================================
-Chd|  IMP_FVBCL                     share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        BC_IMPR1                      source/constraints/general/bcs/bc_imp0.F
-Chd|        FVBC_ALLO                     source/constraints/general/impvel/fv_imp0.F
-Chd|        FVBC_DEALLO                   source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_IMP1                       source/constraints/general/impvel/fv_imp0.F
-Chd|        RECUKIN                       source/implicit/recudis.F     
-Chd|        RECU_UL                       source/constraints/general/impvel/fv_imp0.F
-Chd|        UPD_GLOB_K                    source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_fvbcl     ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    bc_impr1      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    fv_imp1       ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fvbc_allo     ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fvbc_deallo   ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    recu_ul       ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    recukin       ../engine/source/implicit/recudis.F
+!||    upd_glob_k    ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       MODULE IMP_FVBCL
 #include      "my_real.inc"
       INTEGER  NFVBCL,NKUD_L,NKUD_1
@@ -643,23 +627,22 @@ Chd|====================================================================
  
       END MODULE IMP_FVBCL
 C
-Chd|====================================================================
-Chd|  IMP_PCG_PROJ                  share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DEALLOCM_IMP                  source/implicit/imp_solv.F    
-Chd|        FREIMPL                       source/input/freimpl.F        
-Chd|        IMP_INISI                     source/implicit/imp_pcg.F     
-Chd|        IMP_INIST                     source/implicit/imp_pcg.F     
-Chd|        IMP_INIX                      source/implicit/imp_pcg.F     
-Chd|        IMP_PPCGH                     source/implicit/imp_pcg.F     
-Chd|        IMP_PRO_P                     source/implicit/imp_pcg.F     
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|        IMP_UPDST                     source/implicit/imp_pcg.F     
-Chd|        IMP_UPDV2                     source/implicit/imp_pcg.F     
-Chd|        INI_K0H                       source/implicit/imp_solv.F    
-Chd|        LECIMPL                       source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_pcg_proj   ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    deallocm_imp   ../engine/source/implicit/imp_solv.F
+!||    freimpl        ../engine/source/input/freimpl.F
+!||    imp_inisi      ../engine/source/implicit/imp_pcg.F
+!||    imp_inist      ../engine/source/implicit/imp_pcg.F
+!||    imp_inix       ../engine/source/implicit/imp_pcg.F
+!||    imp_ppcgh      ../engine/source/implicit/imp_pcg.F
+!||    imp_pro_p      ../engine/source/implicit/imp_pcg.F
+!||    imp_solv       ../engine/source/implicit/imp_solv.F
+!||    imp_updst      ../engine/source/implicit/imp_pcg.F
+!||    imp_updv2      ../engine/source/implicit/imp_pcg.F
+!||    ini_k0h        ../engine/source/implicit/imp_solv.F
+!||    lecimpl        ../engine/source/input/lectur.F
+!||====================================================================
       MODULE IMP_PCG_PROJ
 #include      "my_real.inc"
       INTEGER  M_VS,NCG_RUN
@@ -672,46 +655,44 @@ Chd|====================================================================
  
       END MODULE IMP_PCG_PROJ
 C
-Chd|====================================================================
-Chd|  IMP_KTAN                      share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        CMATCH3                       source/elements/shell/coqueba/cmatc3.F
-Chd|        CMATIP3                       source/elements/shell/coqueba/cmatc3.F
-Chd|        ETFAC_INI                     source/implicit/imp_init.F    
-Chd|        GETHKT3                       source/elements/solid/solide8z/mmats.F
-Chd|        GET_ETFAC_S                   source/elements/solid/solide8z/mmats.F
-Chd|        IKTMAT_INI                    source/implicit/imp_init.F    
-Chd|        KTBUF_INI                     source/implicit/imp_init.F    
-Chd|        MMATS                         source/elements/solid/solide8z/mmats.F
-Chd|        NUL_ETFAC_S                   source/elements/solid/solide8z/mmats.F
-Chd|        PUTSIGNOR3                    source/elements/solid/solide8z/mmats.F
-Chd|        PUTSIGNORC3                   source/elements/shell/coqueba/cmatc3.F
-Chd|        PUT_ETFAC                     source/elements/solid/solide8z/mmats.F
-Chd|        SKTCONS2                      source/elements/solid/solide8z/mmats.F
-Chd|-- calls ---------------
-Chd|        IMP_KTAN_DEF                  share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    imp_ktan       ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    cmatch3        ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    cmatip3        ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    etfac_ini      ../engine/source/implicit/imp_init.F
+!||    get_etfac_s    ../engine/source/elements/solid/solide8z/get_etfac_s.F
+!||    gethkt3        ../engine/source/elements/solid/solide8z/gethkt3.F
+!||    iktmat_ini     ../engine/source/implicit/imp_init.F
+!||    ktbuf_ini      ../engine/source/implicit/imp_init.F
+!||    mmats          ../engine/source/elements/solid/solide8z/mmats.F
+!||    put_etfac      ../engine/source/elements/solid/solide8z/put_etfac.F
+!||    putsignor3     ../engine/source/elements/solid/solide8z/putsignor3.F
+!||    putsignorc3    ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    sktcons2       ../engine/source/elements/solid/solide8z/sktcons2.F
+!||--- uses       -----------------------------------------------------
+!||    imp_ktan_def   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       MODULE IMP_KTAN
 
       USE IMP_KTAN_DEF
 
       TYPE(KTBUF_STRUCT_),TARGET,DIMENSION(:),ALLOCATABLE :: KTBUF_STR
       END MODULE IMP_KTAN
-Chd|====================================================================
-Chd|  IMP_SPBRM                     share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DEALLOCM_IMP                  source/implicit/imp_solv.F    
-Chd|        FREIMPL                       source/input/freimpl.F        
-Chd|        LECIMPL                       source/input/lectur.F         
-Chd|        SPBRM_PRE                     source/implicit/imp_solv.F    
-Chd|        SPB_IEREF3                    source/implicit/imp_solv.F    
-Chd|        SPB_IEREF_BC                  source/implicit/imp_solv.F    
-Chd|        SPB_REF_NDS                   source/implicit/imp_solv.F    
-Chd|        SPB_RM_RIG                    source/implicit/imp_solv.F    
-Chd|        SPMD_E_REF                    source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_N_REF                    source/mpi/implicit/imp_spmd.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_spbrm      ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    deallocm_imp   ../engine/source/implicit/imp_solv.F
+!||    freimpl        ../engine/source/input/freimpl.F
+!||    lecimpl        ../engine/source/input/lectur.F
+!||    spb_ieref3     ../engine/source/implicit/imp_solv.F
+!||    spb_ieref_bc   ../engine/source/implicit/imp_solv.F
+!||    spb_ref_nds    ../engine/source/implicit/imp_solv.F
+!||    spb_rm_rig     ../engine/source/implicit/imp_solv.F
+!||    spbrm_pre      ../engine/source/implicit/imp_solv.F
+!||    spmd_e_ref     ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_n_ref     ../engine/source/mpi/implicit/imp_spmd.F
+!||====================================================================
       MODULE IMP_SPBRM
 
       INTEGER  E_REF(4),NBC_B,NE_BC4,NE_BC3,IKCE(6),N_SEG,ILSKEW,LSKEW_G
@@ -726,51 +707,50 @@ C-------N_SEG=3 3N seg, 0 : no ref;  ----
 
       END MODULE IMP_SPBRM
 C
-Chd|====================================================================
-Chd|  IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|-- called by -----------
-Chd|        DIM_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        DIM_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|        FR_DLFT                       source/mpi/implicit/imp_fri.F 
-Chd|        GETNDDLI_G                    source/mpi/implicit/imp_fri.F 
-Chd|        GET_IKIN2G                    source/mpi/implicit/imp_fri.F 
-Chd|        IMP_PCGH                      source/implicit/imp_pcg.F     
-Chd|        IND_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        IND_FR_K0                     source/mpi/implicit/imp_fri.F 
-Chd|        IND_KINE_KP                   source/mpi/implicit/imp_fri.F 
-Chd|        IND_NRFR                      source/mpi/implicit/imp_fri.F 
-Chd|        INI_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        KIN_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|        KIN_NRMAX0                    source/mpi/implicit/imp_fri.F 
-Chd|        NDDLI_FRB                     source/mpi/implicit/imp_fri.F 
-Chd|        PR_DEB                        source/implicit/imp_solv.F    
-Chd|        PR_MATRIX                     source/implicit/imp_solv.F    
-Chd|        PR_SOLNFO                     source/implicit/imp_solv.F    
-Chd|        SET_IKIN2G                    source/mpi/implicit/imp_fri.F 
-Chd|        SPC_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        SPMD_INF_G                    source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_MAX_IV                   source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_SUMFC_V                  source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_SUMF_K                   source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_SUMF_V                   source/mpi/implicit/imp_spmd.F
-Chd|        UPD_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|        ZERO_IKIN2G                   source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_frk        ../engine/share/modules/impbufdef_mod.F
+!||--- called by ------------------------------------------------------
+!||    dim_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_nrmax      ../engine/source/mpi/implicit/imp_fri.F
+!||    fr_dlft        ../engine/source/mpi/implicit/imp_fri.F
+!||    get_ikin2g     ../engine/source/mpi/implicit/imp_fri.F
+!||    getnddli_g     ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_pcgh       ../engine/source/implicit/imp_pcg.F
+!||    ind_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_fr_k0      ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_kine_kp    ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_nrfr       ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_nrmax      ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_nrmax0     ../engine/source/mpi/implicit/imp_fri.F
+!||    nddli_frb      ../engine/source/mpi/implicit/imp_fri.F
+!||    pr_deb         ../engine/source/implicit/imp_solv.F
+!||    pr_matrix      ../engine/source/implicit/imp_solv.F
+!||    pr_solnfo      ../engine/source/implicit/imp_solv.F
+!||    set_ikin2g     ../engine/source/mpi/implicit/imp_fri.F
+!||    spc_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_inf_g     ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_max_iv    ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_sumf_k    ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_sumf_v    ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_sumfc_v   ../engine/source/mpi/implicit/imp_spmd.F
+!||    upd_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||    zero_ikin2g    ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       MODULE IMP_FRK
 C
       INTEGER NRMAX,N_FRNN,NDDLFR,NZKFR,NDFRMAX,LEN_V,LEN_K
-C     NDDLFRB :nb de noeuds fr. partages par au moins 3 proc,----
-C  50d1m     DDLP0 :dernier ddl de noeuds fr.avec procs precedents ----
-C  50d1m     DDLP1 :premier ddl de noeuds fr.avec procs suivants ----
+C     Nddlfrb: nb de nodes fr.shared by at least 3 proc, ----
+C  50d1m     DDLP0 :last degree of freedom of nodes with previous processors ----
+C  50D1M DDLP1: First DDL de nodes fr.with following -----
       INTEGER NDDLFRB,NDDLFRB1,DDLP0,DDLP1
 C
-C tableau de int de : connectivite des noeuds FR. locaux----
+C integer array of: connectivity of local FR. nodes----
       INTEGER, DIMENSION(:), ALLOCATABLE :: IFRLOC
       INTEGER, DIMENSION(:), ALLOCATABLE :: IAD_RL,FR_ICOL
-C tableau de int de taille NKINE indice loc->global: ----
+C integer array of size NKINE local->global index: ----
       INTEGER, DIMENSION(:), ALLOCATABLE :: IKIN2G
-C tableau de int de : matrice locale des noeuds FR. locaux par proc----
+C integer array of: local matrix of local FR. nodes per processor----
       INTEGER, DIMENSION(:), ALLOCATABLE :: ND_FR,IADFR,JDIFR,IDDLFR
 #if defined knf
 !dec$ attributes offload:mic :: IFR2K

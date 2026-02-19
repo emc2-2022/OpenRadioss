@@ -1,47 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I22MAINF                      source/interfaces/int22/i22mainf.F
-Chd|-- called by -----------
-Chd|        INTFOP2                       source/interfaces/interf/intfop2.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        I22COR3                       source/interfaces/int22/i22cor3.F
-Chd|        I22FOR3                       source/interfaces/int22/i22for3.F
-Chd|        I22WETSURF                    source/interfaces/int22/i22wetsurf.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        SUM_6_FLOAT_SENS              source/system/parit.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE I22MAINF(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i22mainf           ../engine/source/interfaces/int22/i22mainf.F
+!||--- called by ------------------------------------------------------
+!||    intfop2            ../engine/source/interfaces/interf/intfop2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../engine/source/output/message/message.F
+!||    arret              ../engine/source/system/arret.F
+!||    i22cor3            ../engine/source/interfaces/int22/i22cor3.F
+!||    i22for3            ../engine/source/interfaces/int22/i22for3.F
+!||    i22wetsurf         ../engine/source/interfaces/int22/i22wetsurf.F
+!||    my_barrier         ../engine/source/system/machine.F
+!||    startime           ../engine/source/system/timer_mod.F90
+!||    stoptime           ../engine/source/system/timer_mod.F90
+!||    sum_6_float_sens   ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    groupdef_mod       ../common_source/modules/groupdef_mod.F
+!||    h3d_mod            ../engine/share/modules/h3d_mod.F
+!||    i22tri_mod         ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    intbufdef_mod      ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod        ../engine/share/message_module/message_mod.F
+!||    output_mod         ../common_source/modules/output/output_mod.F90
+!||    timer_mod          ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE I22MAINF(OUTPUT,TIMERS,
      1                   IPARI     ,INTBUF_TAB ,X          ,A      ,
      2                   ICODT     ,FSAV       ,V          ,MS        ,DT2T     ,  
      3                   NELTST    ,ITYPTST    ,ITAB       ,STIFN     ,FSKYI    ,  
@@ -62,13 +65,14 @@ C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE OUTPUT_MOD
+      USE TIMER_MOD
       USE ELBUFDEF_MOD 
-      USE MOD_NODNORM
       USE I22TRI_MOD
       USE INTBUFDEF_MOD
       USE H3D_MOD
@@ -89,22 +93,16 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
 #include      "warn_c.inc"
 #include      "task_c.inc"
 #include      "parit_c.inc"
 #include      "timeri_c.inc"
-#include      "impl1_c.inc"
-#include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
-      
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS 
       INTEGER NELTST,ITYPTST,NIN,NEWFRONT,NSTRF(*),
      .        NRTMDIM, IAD17,NV46, ISENSINT(*), DIMFB
       INTEGER IPARI(NPARI,NINTER), ICODT(*),ICONTACT(*),
@@ -186,6 +184,7 @@ C-----------------------------------------------
       INTEGER ICURV
       my_real, DIMENSION(:,:,:), ALLOCATABLE,TARGET  :: FSAVPARIT
       my_real, POINTER                               :: pFSAVparit
+      INTEGER :: NRTM, NSN, NTY
 
       IADM      = 0
       
@@ -194,7 +193,7 @@ C-----------------------------------------------
       NTY       = IPARI(7,NIN)
       NOINT     = IPARI(15,NIN)
       INACTI    = IPARI(22,NIN)    ! unused
-      IBAG      = IPARI(32,NIN)     ! Pressure correction 
+      IBAG      = IPARI(32,NIN)     ! Pressure Correction 
       NISUB     = IPARI(36,NIN)    
       ISU1      = IPARI(45,NIN)
       INTTH     = IPARI(47,NIN)
@@ -223,14 +222,14 @@ C
       !-------------------------------!
       !UNPLUG CONDITIONS              !
       !-------------------------------!      
-      IF(STARTT.GT.TT) RETURN
-      IF(TT.GT.STOPT)  RETURN
+      IF(STARTT>TT) RETURN
+      IF(TT>STOPT)  RETURN
 
       !-------------------------------!
       !STATIC CUTTING                 !
       !-------------------------------!
           NB_LOC = I_STOK / NTHREAD
-          IF (JTASK.EQ.NTHREAD) THEN
+          IF (JTASK==NTHREAD) THEN
             I_STOK_LOC = I_STOK-NB_LOC*(NTHREAD-1)
           ELSE
             I_STOK_LOC = NB_LOC
@@ -239,10 +238,10 @@ C
         I_STOK = 0
       
       !-------------------------------!
-      !RECALCULATE DU I_STOK          !
+      !recalculate du i_stok
       !-------------------------------!
           DO I = DEBUT+1, DEBUT+I_STOK_LOC
-            IF(INTBUF_TAB%CAND_N(I).NE.0) THEN
+            IF(INTBUF_TAB%CAND_N(I)/=0) THEN
               I_STOK = I_STOK + 1
               INDEX2(I_STOK) = I
             ENDIF
@@ -251,14 +250,14 @@ C
       !-------------------------------!
       !/DEBUG/CAND/NN                 !
       !-------------------------------!          
-        IF (DEBUG(3).GE.1) THEN
+        IF (DEBUG(3)>=1) THEN
           NB_JLT    = NB_JLT + I_STOK_LOC
           NB_STOK_N = NB_STOK_N + I_STOK
         ENDIF
         
 c------------------------------------------------
       CALL MY_BARRIER()
-      IF(JTASK.EQ.1)THEN
+      IF(JTASK==1)THEN
        ALLOCATE(SURF(3,NRTMDIM))
        ALLOCATE(PRES(NRTMDIM))
        DO I = 1, NRTM
@@ -270,7 +269,7 @@ c------------------------------------------------
 
 !PARITH/ON    TO BE DONE LATER
 
-!       IF(IPARIT.NE.0)THEN
+!       IF(IPARIT/=0)THEN
 !       !C sort depending on user node ids
 !       !C calculate parith/on pressure
 !       !C for a given face, node order must be the same one
@@ -289,7 +288,7 @@ C
             SFSAVPARIT = SFSAVPARIT + 1
           ENDIF
         ENDDO
-        IF (SFSAVPARIT .NE. 0) THEN
+        IF (SFSAVPARIT /= 0) THEN
           ALLOCATE(FSAVPARIT(NISUB+1,11,I_STOK),STAT=IERROR)
           IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
@@ -323,7 +322,7 @@ C
 !          print *, "    JLT = ", JLT        
 !          print *, "================================================"        
 !        endif
-	       
+                 
         ! cand_b & cand_e replaced with cand_b_n & cand_e_n
         CALL I22COR3(
      1  JLT              ,X                 , INTBUF_TAB%IRECTM         ,INTBUF_TAB%NSV            ,CAND_E_N         ,
@@ -366,12 +365,12 @@ C
         JLT_NEW =1
         !-------!
         
-        IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(20,1)
-        IF(JLT_NEW.NE.0) THEN
+        IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(TIMERS,20)
+        IF(JLT_NEW/=0) THEN
           IPARI(29,NIN) = 1
-          IF (DEBUG(3).GE.1)NB_JLT_NEW = NB_JLT_NEW + JLT_NEW
-          IF (SFSAVPARIT .NE. 0) pFSAVparit => FSAVPARIT(1,1,NFT+1)
-          CALL I22FOR3(
+          IF (DEBUG(3)>=1)NB_JLT_NEW = NB_JLT_NEW + JLT_NEW
+          IF (SFSAVPARIT /= 0) pFSAVparit => FSAVPARIT(1,1,NFT+1)
+          CALL I22FOR3(output,
      1    JLT                ,A                 ,V                 ,IBC               ,ICODT              ,
      2    FSAV               ,GAP               ,FRIC              ,MS                ,VISC               ,
      3    VISCF              ,NOINT             ,INTBUF_TAB%STFNS  ,ITAB              ,CB_LOC             ,
@@ -400,19 +399,19 @@ C
      4    Z2                 ,Z3                ,Z4                ,IXS               ,NV46               ,
      5    Delta              ,ISENSINT          ,pFSAVparit        ,IPARG             ,H3D_DATA           )                 
         ENDIF
-        IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(20,1)
+        IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(TIMERS,20)
       ENDDO
 c
 c
       IF (SFSAVPARIT /= 0)THEN
           CALL SUM_6_FLOAT_SENS(FSAVPARIT, NISUB+1, 11, I_STOK,1,I_STOK,
-     .  			FBSAV6, 12, 6, DIMFB, ISENSINT )
+     .        FBSAV6, 12, 6, DIMFB, ISENSINT )
       ENDIF
       IF (ALLOCATED(FSAVPARIT)) DEALLOCATE (FSAVPARIT)
 C
-      IF(INACTI==7.AND.IBAG.NE.0)THEN                         
+      IF(INACTI==7.AND.IBAG/=0)THEN                         
         CALL MY_BARRIER()                                     
-        IF(JTASK.EQ.1) THEN                                   
+        IF(JTASK==1) THEN                                   
 !            CALL ASS18(NRTM  ,INTBUF_TAB%IRECTM,A   ,X   ,SURF   ,
 !     2                 PRES  ,FCONT        ,IBAG,FSAV,FSAVBAG,
 !     3                 FR_I18,ISKY         ,FSKYI    )      
@@ -423,7 +422,7 @@ C
 
 
       CALL MY_BARRIER()  
-	      
+                
       IF(JTASK == 1) THEN
         IF(ALLOCATED(SURF))DEALLOCATE(SURF)
         IF(ALLOCATED(PRES))DEALLOCATE(PRES)        

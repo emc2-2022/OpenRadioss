@@ -1,49 +1,54 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  EXECARGCHECK                  source/engine/execargcheck.F  
-Chd|-- called by -----------
-Chd|        RADIOSS0                      source/engine/radioss0.F      
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        BUILD_MSG                     source/output/message/build_msg.F
-Chd|        ISANARGUMENT                  source/engine/execargcheck.F  
-Chd|        PEXECINFO                     source/engine/execargcheck.F  
-Chd|        PHELPINFO                     source/engine/execargcheck.F  
-Chd|        READ_MSGFILE                  source/output/message/read_msgfile.F
-Chd|        UPCASE                        source/engine/execargcheck.F  
-Chd|        CHECK_MOD                     ../common_source/modules/check_mod.F
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    execargcheck            ../engine/source/engine/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    radioss0                ../engine/source/engine/radioss0.F
+!||--- calls      -----------------------------------------------------
+!||    arret                   ../engine/source/system/arret.F
+!||    build_msg               ../common_source/tools/memory/my_alloc.F90
+!||    isanargument            ../engine/source/engine/execargcheck.F
+!||    pexecinfo               ../engine/source/engine/execargcheck.F
+!||    phelpinfo               ../engine/source/engine/execargcheck.F
+!||    read_msgfile            ../engine/source/output/message/read_msgfile.F
+!||    upcase                  ../engine/source/engine/execargcheck.F
+!||--- uses       -----------------------------------------------------
+!||    check_mod               ../common_source/modules/check_mod.F
+!||    command_line_args_mod   ../engine/share/modules/command_line_args.F
+!||    inoutfile_mod           ../common_source/modules/inoutfile_mod.F
+!||    message_mod             ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod     ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE EXECARGCHECK(GOT_INPUT,INPUT,LENI, 
      *                        GOT_PATH,  PATH,  LENP)
       USE MESSAGE_MOD
       USE CHECK_MOD
       USE INOUTFILE_MOD
+      USE COMMAND_LINE_ARGS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -60,19 +65,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-       INTEGER ARGN,J,K,L
+       INTEGER ARGN
        INTEGER PHELPI,PEXECI,PINPUTI, PNTHI,PUSERLNAMI,MDS_PATHI
+       INTEGER :: MDS_DIRI             !< Flag for -mdsdir - stores Iteration in command line
        INTEGER I,STRL,STRLN,ERR,LENLIST,ISIN,BEGIN,IERRMSG
        INTEGER IDUM
-       CHARACTER*2096  ARGS,INPUTC,INPUTR,ARGP,MSG,STRING,INPUTE,
-     .                 ARGREAD
+       CHARACTER*2096  ARGS,INPUTC,INPUTR,MSG,STRING
        LOGICAL :: CONDITION
        CHARACTER C
        INTEGER IARGC,CDL_CASE,IJK
        CHARACTER :: LAST_LETTER,SEPARATOR
-       character(len=2096) ARGS2,ARGS_REDUCE
-       CHARACTER(len=4096) ULIBC
-       PARAMETER (LENLIST=18)
+       CHARACTER(LEN=2096) ARGS2,ARGS_REDUCE,ARGP
+       CHARACTER(LEN=4096) ULIBC
+       PARAMETER (LENLIST=20)
        CHARACTER(LEN=12):: ARGLIST(LENLIST)
        EXTERNAL IARGC
        DATA ARGLIST/
@@ -86,8 +91,9 @@ C-----------------------------------------------
      .    '-DYLIB',
      .    '-MEM-MAP' ,
      .    '-INSPIRE',
+     .    '-PREVIEW',
      .    '-INSPIRE_ALM','-NORST',
-     .    '-MDS_LIBPATH'/
+     .    '-MDS_LIBPATH','-MDSDIR'/
 C-----------------------------------------------
        IDUM=-1
        GOT_INPUT = 0
@@ -106,6 +112,8 @@ C-----------------------------------------------
        GOT_INSPIRE_ALM=0
        MDS_PATH_LEN = 0
        MDS_PATHI = 0
+       MDS_DIRI = 0
+       GOT_PREVIEW= 0
 
        ! Initialize MDS_PATH Array
        MDS_PATH=''
@@ -114,7 +122,7 @@ C-----------------------------------------------
        !    default = write restart files
        RESTART_FILE = 1
        ! ---------------------
-       ! infile / outfile cdl line
+       ! Infile / Outfile CDL Line
        INFILE_NAME_LEN = 0
        INFILE_NAME(1:INFILE_CHAR_LEN) = ''
        INFILE_BOOL=.FALSE.
@@ -181,6 +189,7 @@ C------------------------------------------------
 C Madymo Option
           CASE ( '--')
              ERR = 0
+C------------------------------------------------
 C -NTHREAD, -NT
           CASE ( '-NTHREAD')
              IF (PNTHI==0) PNTHI = I
@@ -197,9 +206,15 @@ C -MDS_LIBPATH
             CASE ( '-MDS_LIBPATH')
                 IF (MDS_PATHI==0) MDS_PATHI=I
 C------------------------------------------------
+C -MDSDIR
+            CASE ( '-MDSDIR')
+                IF (MDS_DIRI==0) MDS_DIRI=I
+C------------------------------------------------
 C -MEM-MAP
           CASE ( '-MEM-MAP')
              GOT_MEM_MAP=1
+          CASE ( '-PREVIEW')  
+             GOT_PREVIEW=1
           CASE ( '-INSPIRE_ALM')
              GOT_INSPIRE_ALM=1
           CASE ( '-INSPIRE')
@@ -209,7 +224,7 @@ C -NORST : no restart file command
           CASE ( '-NORST')
              RESTART_FILE = 0
 C------------------------------------------------
-C Lignes de commande qui ne sont pas definies
+C Command lines that are not defined
           CASE DEFAULT
              ERR = 0
              IF (I == 1)THEN
@@ -219,11 +234,11 @@ C Lignes de commande qui ne sont pas definies
                CALL UPCASE(ARGP)
                STRLN=LEN_TRIM(ARGP)
 C Check if argument string is a variable to an argument
-               IF (ARGP == '-I'      .OR. ARGP =='-INPUT' .OR.
-     *             ARGP == '-RST'    .OR. ARGP =='-NT'    .OR.
-     *             ARGP == '-NTHREAD'.OR. 
-     *             ARGP == '-DYLIB'  .OR. ARGP =='-DYNAMIC_LIB'.OR.
-     *             ARGP == '-MDS_LIBPATH')THEN
+               IF (ARGP == '-I'           .OR. ARGP =='-INPUT' .OR.
+     *             ARGP == '-RST'         .OR. ARGP =='-NT'    .OR.
+     *             ARGP == '-NTHREAD'     .OR. 
+     *             ARGP == '-DYLIB'       .OR. ARGP =='-DYNAMIC_LIB'.OR.
+     *             ARGP == '-MDS_LIBPATH' .OR. ARGP == '-MDSDIR' )THEN
                  ERR = 0
                ELSE
                  ERR = 1
@@ -231,7 +246,7 @@ C Check if argument string is a variable to an argument
              ENDIF
 C
 C Specificife Radioss Madymo
-             IF (ERR == 1.AND.strl.GT.4)THEN
+             IF (ERR == 1.AND.strl>4)THEN
                IF (ARGS(strl-3:strl)=='.XML')THEN
                  ERR = 0
                ENDIF
@@ -300,7 +315,7 @@ C------------------------------------------------
 C------------------------------------------------
 C -ERROR_MSG SET
 C------------------------------------------------
-       IF (IERRMSG .NE. 0)THEN
+       IF (IERRMSG /= 0)THEN
          IF (IERRMSG+1  > ARGN) THEN
 
 C          Case -I is last argument in the list.
@@ -335,7 +350,7 @@ C check if -i has got an argument or if the next string is an input command
 C------------------------------------------------
 C -INPUT SET
 C------------------------------------------------
-       IF (PINPUTI .NE. 0)THEN
+       IF (PINPUTI /= 0)THEN
          IF (PINPUTI+1  > ARGN) THEN
 
 C          Case -I is last argument in the list.
@@ -395,7 +410,7 @@ C check if -i has got an argument or if the next string is an input command
 C------------------------------------------------
 C -NTHREAD SET
 C------------------------------------------------
-       IF (PNTHI .NE. 0)THEN
+       IF (PNTHI /= 0)THEN
          IF (PNTHI+1  > ARGN) THEN
 C case -nt is last argument in the list.
            CALL GETARG(PNTHI,ARGP)
@@ -435,7 +450,7 @@ c           CALL GETARG(PNTHI,ARGP)
 C------------------------------------------------
 C -DYLIB SET
 C------------------------------------------------
-       IF (PUSERLNAMI .NE. 0)THEN
+       IF (PUSERLNAMI /= 0)THEN
          IF (PUSERLNAMI+1  > ARGN) THEN
 
 C          Case -DYLIB is last argument in the list.
@@ -463,11 +478,10 @@ C check if -dylib has got an argument or if the next string is an input command
 
          ENDIF     !         IF (PUSERLNAMI+1  > ARGN) THEN
        ENDIF
- 3000  CONTINUE
 C------------------------------------------------
 C -MDS_LIBPATH
 C------------------------------------------------
-       IF (MDS_PATHI .NE. 0)THEN
+       IF (MDS_PATHI /= 0)THEN
 
          IF (MDS_PATHI+1  > ARGN) THEN
 
@@ -497,27 +511,58 @@ C check if -mds has got an argument or if the next string is an input command
 
          ENDIF     !         IF (MDS_PATHI+1  > ARGN) THEN
        ENDIF
- 4000  CONTINUE
+C------------------------------------------------
+C -MDSDIR
+C------------------------------------------------
+      IF (MDS_DIRI /= 0)THEN
+
+        IF (MDS_DIRI+1  > ARGN) THEN
+
+C          Case -DYLIB is last argument in the list.
+           CALL GET_COMMAND_ARGUMENT(MDS_DIRI,ARGP)
+           STRLN=LEN_TRIM(ARGP) 
+           CALL PHELPINFO(1,ARGP,STRLN)
+
+        ELSE
+
+           CALL GET_COMMAND_ARGUMENT(MDS_DIRI+1,MDS_PATH)       
+           MDS_PATH_LEN=LEN_TRIM(MDS_PATH)
+
+           !  check if -mdsdir has got an argument or if the next string is an input command
+           ULIBC=''
+           ULIBC(1:MDS_PATH_LEN) = MDS_PATH(1:MDS_PATH_LEN)
+           CALL UPCASE(ULIBC)
+           ISIN = 0
+           CALL ISANARGUMENT(ARGLIST,LENLIST,ULIBC,ISIN)
+
+           IF ( ISIN==1 )THEN
+              CALL GETARG(MDS_DIRI,ARGP)
+              STRLN=LEN_TRIM(ARGP) 
+              CALL PHELPINFO(1,ARGP,STRLN)
+              CALL ARRET(7)
+           ENDIF 
+
+        ENDIF     !         IF (MDS_DIRI+1  > ARGN) THEN
+      ENDIF
 C------------------------------------------------
 
        END
 
 
 
-Chd|====================================================================
-Chd|  UPCASE                        source/engine/execargcheck.F  
-Chd|-- called by -----------
-Chd|        EXECARGCHECK                  source/engine/execargcheck.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    upcase                ../engine/source/engine/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    execargcheck          ../engine/source/engine/execargcheck.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE UPCASE (STRING) 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -525,7 +570,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-       INTEGER  STLEN,LS,LC
+       INTEGER  LS,LC
 C
        LS = LEN (STRING)
 C
@@ -539,20 +584,19 @@ C
        END DO
        RETURN
        END
-Chd|====================================================================
-Chd|  ISANARGUMENT                  source/engine/execargcheck.F  
-Chd|-- called by -----------
-Chd|        EXECARGCHECK                  source/engine/execargcheck.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    isanargument          ../engine/source/engine/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    execargcheck          ../engine/source/engine/execargcheck.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
        SUBROUTINE ISANARGUMENT(ARGLIST,LENLIST,ARG,ISIN)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -582,40 +626,54 @@ C-----------------------------------------------
 
 
 
-	SUBROUTINE PEXECINFO(IDUM)
+!||====================================================================
+!||    pexecinfo             ../engine/source/engine/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    execargcheck          ../engine/source/engine/execargcheck.F
+!||--- calls      -----------------------------------------------------
+!||    my_exit               ../engine/source/system/my_exit.c
+!||    prexecinfo            ../engine/source/engine/execargcheck.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
+          SUBROUTINE PEXECINFO(IDUM)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
+#include "spmd.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER STATUS(MPI_STATUS_SIZE),IERROR,ICODE
+      INTEGER IERROR
       INTEGER MYRANK, NNODES
       INTEGER KEY, IERR
 #endif
       INTEGER IDUM
+      INTEGER :: COLOUR
+      LOGICAL :: VALID
 C-----------------------------------------------
 #ifdef MPI
         KEY = 0
         call MPI_INITIALIZED(KEY, IERR)
         CALL MPI_INIT(IERROR)
-        CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NNODES, IERROR)
-        CALL MPI_COMM_RANK(MPI_COMM_WORLD, MYRANK, IERROR)
 
-        if (MYRANK.EQ.0) CALL PREXECINFO(IDUM)
+        CALL MPI_COMM_GET_ATTR(MPI_COMM_WORLD, MPI_APPNUM,
+     *                            COLOUR, VALID, IERROR)
+        CALL MPI_COMM_SPLIT(MPI_COMM_WORLD,COLOUR,KEY,
+     *                      SPMD_COMM_WORLD,IERROR)
+
+        CALL MPI_COMM_SIZE(SPMD_COMM_WORLD, NNODES, IERROR)
+        CALL MPI_COMM_RANK(SPMD_COMM_WORLD, MYRANK, IERROR)
+
+        if (MYRANK==0) CALL PREXECINFO(IDUM)
         
-        CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
+        CALL MPI_BARRIER(SPMD_COMM_WORLD,IERROR)
 
         CALL MPI_FINALIZE(IERROR)
 
@@ -625,10 +683,18 @@ C-----------------------------------------------
         CALL MY_EXIT(0)
         END
 
-	SUBROUTINE PREXECINFO(IDUM)
+!||====================================================================
+!||    prexecinfo            ../engine/source/engine/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    pexecinfo             ../engine/source/engine/execargcheck.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
+          SUBROUTINE PREXECINFO(IDUM)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 #include      "r4r8_p.inc"
 C-----------------------------------------------
@@ -637,19 +703,15 @@ C-----------------------------------------------
 #include      "build_info.inc"
 #include      "titr_c.inc"
 C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
         CHARACTER*256 RFLEXNAM,GPUTITLE,ARCHTIT*66
         INTEGER LEN,LBT
-C machine.inc include
         INTEGER RDFLEXCOMP
         INTEGER IDUM
-
 C-----------------------------------------------
 #include "machine.inc"
+C-----------------------------------------------
 
          LBT = LEN_TRIM(BTAG)
          WRITE(6,'(A,A)') ' '
@@ -670,41 +732,58 @@ C-----------------------------------------------
 
         END
 
-	SUBROUTINE PHELPINFO(ERRN,EMSG,SMSG)
+!||====================================================================
+!||    phelpinfo             ../engine/source/engine/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    execargcheck          ../engine/source/engine/execargcheck.F
+!||    get_file_name_info    ../engine/source/system/get_file_name_info.F
+!||--- calls      -----------------------------------------------------
+!||    arret                 ../engine/source/system/arret.F
+!||    prhelpinfo            ../engine/source/engine/execargcheck.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
+          SUBROUTINE PHELPINFO(ERRN,EMSG,SMSG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ERRN,STRLN,SMSG
+      INTEGER ERRN,SMSG
       CHARACTER*256 ARGP,EMSG*256
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
-      INTEGER STATUS(MPI_STATUS_SIZE),IERROR,ICODE
+      INTEGER STATUS(MPI_STATUS_SIZE),IERROR
       INTEGER MYRANK, NNODES
       INTEGER KEY, IERR
 #endif
+      INTEGER :: COLOUR
+      LOGICAL :: VALID
 C-----------------------------------------------
 #ifdef MPI
         KEY = 0
-        call MPI_INITIALIZED(KEY, IERR)
+        CALL MPI_INITIALIZED(KEY, IERR)
         CALL MPI_INIT(IERROR)
-        CALL MPI_COMM_SIZE(MPI_COMM_WORLD, NNODES, IERROR)
-        CALL MPI_COMM_RANK(MPI_COMM_WORLD, MYRANK, IERROR)
 
-        if (MYRANK.EQ.0) CALL PRHELPINFO(ERRN,EMSG,SMSG)
+        CALL MPI_COMM_GET_ATTR(MPI_COMM_WORLD, MPI_APPNUM,
+     *                            COLOUR, VALID, IERROR)
+        CALL MPI_COMM_SPLIT(MPI_COMM_WORLD,COLOUR,KEY,
+     *                      SPMD_COMM_WORLD,IERROR)
+        CALL MPI_COMM_SIZE(SPMD_COMM_WORLD, NNODES, IERROR)
+        CALL MPI_COMM_RANK(SPMD_COMM_WORLD, MYRANK, IERROR)
+
+        if (MYRANK==0) CALL PRHELPINFO(ERRN,EMSG,SMSG)
         
-        CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
+        CALL MPI_BARRIER(SPMD_COMM_WORLD,IERROR)
 
         CALL MPI_FINALIZE(IERROR)
 
@@ -714,16 +793,18 @@ C-----------------------------------------------
         CALL ARRET(7)
         END
 
-Chd|====================================================================
-Chd|  PRHELPINFO                    source/engine/execargcheck.F  
-Chd|-- called by -----------
-Chd|        PHELPINFO                     source/engine/execargcheck.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prhelpinfo            ../engine/source/engine/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    phelpinfo             ../engine/source/engine/execargcheck.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
        SUBROUTINE PRHELPINFO(ERRN,EMSG,SMSG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -732,11 +813,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ERRN,SMSG,STRLNA
-      CHARACTER EMSG*256, ARGP*256
+      INTEGER ERRN,SMSG
+      CHARACTER EMSG*256
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
 C-----------------------------------------------
        IF (ERRN == 1)THEN
          WRITE(6,'(A)') ' '
@@ -772,37 +852,35 @@ C-----------------------------------------------
 
        IF (ERRN == 6)THEN
          WRITE(6,'(A)') ' '
-         WRITE(6,'(A)') '*** ERROR : No input deck set. Use -input [Starter input file] '
+         WRITE(6,'(A)') '*** ERROR : No input deck set. Use -input [Engine input file] '
        ENDIF
 
        WRITE(6,'(A)') ' '
        WRITE(6,'(A,A)') 'RADIOSS Engine version ',VERS(1:LEN_VERS)
        WRITE(6,'(A)') ' '
        WRITE(6,'(A)')   'Command line arguments help: '
-       WRITE(6,'(A,A)') '  -help         / -h                  : ',
+       WRITE(6,'(A,A)') '  -help         / -h                   : ',
      *                  'Print this message'
-       WRITE(6,'(A,A)') '  -version      / -v                  : ',
+       WRITE(6,'(A,A)') '  -version      / -v                   : ',
      *                  'Print RADIOSS release information'
-       WRITE(6,'(A,A)') '  -input [FILE] / -i [FILE]           : ',
-     *                  'Set RADIOSS Starter input file'
-       WRITE(6,'(A,A)') '  -nthread [INTEGER] / -nt [INTEGER]  : ',
+       WRITE(6,'(A,A)') '  -input [FILE] / -i [FILE]            : ',
+     *                  'Set RADIOSS Engine input file'
+       WRITE(6,'(A,A)') '  -nthread [INTEGER] / -nt [INTEGER]   : ',
      *                  'Set Number of SMP threads per SPMD domain'
-       WRITE(6,'(A,A)') '  -gpuid [INTEGER]                    : ',
-     *                  'Set GPU device number'
-       WRITE(6,'(A,A)') '  -notrap                             : ',
+       WRITE(6,'(A,A)') '  -notrap                              : ',
      *                  'Disable error trapping'
-       WRITE(6,'(A,A)') '  -norst                              : ',
+       WRITE(6,'(A,A)') '  -norst                               : ',
      *                  'Do not write restart files'
-       WRITE(6,'(A,A)') '  -dynamic_lib [FILE] / -dylib [FILE] : ',
+       WRITE(6,'(A,A)') '  -dynamic_lib [FILE] / -dylib [FILE]  : ',
      *                  'Set name to the dynamic library for Radioss User Interface'
-       WRITE(6,'(A,A)') '  -mds_libpath [PATH]                 : ',
+       WRITE(6,'(A,A)') '  -mdsdir [PATH] / -mds_libpath [PATH] : ',
 #ifdef _WIN32
      *                  'Set directory to MDS Library (default is %ALTAIR_HOME%/hwsolver/MultiscaleDesigner/%arch%)'
 #else
      *                  'Set directory to MDS Library (default is $ALTAIR_HOME/hwsolver/MultiscaleDesigner/$arch)'
 #endif
 
-       WRITE(6,'(A,A)') '  -outfile=[PATH]                     : ',
+       WRITE(6,'(A,A)') '  -outfile=[PATH]                      : ',
      *                  'Set output file directory for all output and created files'
        WRITE(6,'(A)') ' '
 

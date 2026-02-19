@@ -1,59 +1,61 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_RETRACTOR             source/tools/seatbelts/hm_read_retractor.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        GET_U_FUNC                    source/user_interface/uaccess.F
-Chd|        NINTRI                        source/system/nintrr.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SEATBELT_MOD                  ../common_source/modules/seatbelt_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_retractor      ../starter/source/tools/seatbelts/hm_read_retractor.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    arret                  ../starter/source/system/arret.F
+!||    fretitl                ../starter/source/starter/freform.F
+!||    get_u_func             ../starter/source/user_interface/uaccess.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim      ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    nintri                 ../starter/source/system/nintrr.F
+!||    udouble                ../starter/source/system/sysfus.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_RETRACTOR(LSUBMODEL,ITABM1,IXR,ITAB,UNITAB,
      .                             X,FUNC_ID,NOM_OPT,ALEA,IPM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE UNITAB_MOD
       USE SEATBELT_MOD
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -63,13 +65,10 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "com04_c.inc"
-#include      "submod_c.inc"
 #include      "random_c.inc"
 #include      "tabsiz_c.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -87,7 +86,9 @@ C-----------------------------------------------
       INTEGER               :: NODE1,NODE2,EL_LOC,BID,ISENS(2),IFUNC(3),IFUNC_LOC(3),TENS_TYP,MID,MTYP
       my_real               :: FORCE,ELEM_SIZE,DIST1,DIST2,DIST3,PULL,YSCALE1,XSCALE1,XSCALE1_UNIT,YSCALE1_UNIT
       my_real               :: YSCALE2,XSCALE2,XSCALE2_UNIT,YSCALE2_UNIT,XX,DXDY,GET_U_FUNC,ALEA_MAX,TOLE_2
-      CHARACTER             :: TITR*nchartitle, KEY2*ncharkey,MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARKEY) :: KEY2
+      CHARACTER :: MESS*40
       LOGICAL :: IS_AVAILABLE
       EXTERNAL GET_U_FUNC
 C-----------------------------------------------
@@ -95,7 +96,7 @@ C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
       INTEGER USR2SYS,NINTRI
 C=======================================================================
-      DATA MESS/'RETRACTOR DEFINITION                     '/
+      DATA MESS/'RETRACTOR DEFINITION                    '/
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
@@ -105,7 +106,7 @@ C
 C
         WRITE(IOUT,1000)
 C
-        MY_ALLOCATE (RETRACTOR,NRETRACTOR)
+        ALLOCATE(RETRACTOR(NRETRACTOR))
         DO I=1,NRETRACTOR
           RETRACTOR(I)%ID = 0
           RETRACTOR(I)%IDG = 0
@@ -118,6 +119,7 @@ C
           RETRACTOR(I)%ISENS = 0
           RETRACTOR(I)%TENS_TYP = 0
           RETRACTOR(I)%LOCKED = 0
+          RETRACTOR(I)%LOCKED_FREEZE = 0
           RETRACTOR(I)%PRETENS_ACTIV = 0
           RETRACTOR(I)%INACTI_NNOD = 0
           RETRACTOR(I)%INACTI_NNOD_MAX = 0
@@ -131,6 +133,7 @@ C
           RETRACTOR(I)%PULLOUT = ZERO
           RETRACTOR(I)%UNLOCK_FORCE = ZERO
           RETRACTOR(I)%LOCK_PULL = ZERO
+          RETRACTOR(I)%LOCK_PULL_SAV = ZERO
           RETRACTOR(I)%LOCK_OFFSET = ZERO
           RETRACTOR(I)%LOCK_YIELD_FORCE = ZERO
           RETRACTOR(I)%RINGSLIP = ZERO
@@ -211,9 +214,9 @@ C
      .                                   I1=ID,I2=EL_ID) 
           ENDIF
 C
-C---------CHeck of sensors is done in creat_seatblet as sensors are not yet avaialble
+C---------Check of sensors is done in creat_seatblet as sensors are not yet available
 C
-C---------CHeck of functions
+C---------Check of functions
 C
           IFUNC_LOC(1:3) = 0
 C              
@@ -353,7 +356,7 @@ C
       ENDIF                       
 C                         
 C-------------------------------------
-C     Recherche des ID doubles
+C     search for duplicate ids
 C-------------------------------------
       CALL UDOUBLE(RET_ID,1,NRETRACTOR,MESS,0,BID)
       RETURN

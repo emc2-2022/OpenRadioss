@@ -1,43 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MULAWGLC                      source/materials/mat_share/mulawglc.F
-Chd|-- called by -----------
-Chd|        CMAIN3                        source/materials/mat_share/cmain3.F
-Chd|-- calls ---------------
-Chd|        ROTO                          source/airbag/roto.F          
-Chd|        SIGEPS01G                     source/materials/mat/mat001/sigeps01g.F
-Chd|        SIGEPS02G                     source/materials/mat/mat002/sigeps02g.F
-Chd|        SIGEPS22G                     source/materials/mat/mat022/sigeps22g.F
-Chd|        SIGEPS36G                     source/materials/mat/mat036/sigeps36g.F
-Chd|        SIGEPS43G                     source/materials/mat/mat043/sigeps43g.F
-Chd|        SIGEPS56G                     source/materials/mat/mat056/sigeps56g.F
-Chd|        SIGEPS60G                     source/materials/mat/mat060/sigeps60g.F
-Chd|        SIGEPS86G                     source/materials/mat/mat086/sigeps86g.F
-Chd|        UROTO                         source/airbag/uroto.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    mulawglc                      ../engine/source/materials/mat_share/mulawglc.F
+!||--- called by ------------------------------------------------------
+!||    cmain3                        ../engine/source/materials/mat_share/cmain3.F
+!||--- calls      -----------------------------------------------------
+!||    damping_range_shell           ../engine/source/general_controls/damping/damping_range_shell.F90
+!||    damping_range_shell_mom       ../engine/source/general_controls/damping/damping_range_shell_mom.F90
+!||    roto                          ../engine/source/airbag/roto.F
+!||    sigeps01g                     ../engine/source/materials/mat/mat001/sigeps01g.F
+!||    sigeps02g                     ../engine/source/materials/mat/mat002/sigeps02g.F
+!||    sigeps22g                     ../engine/source/materials/mat/mat022/sigeps22g.F
+!||    sigeps36g                     ../engine/source/materials/mat/mat036/sigeps36g.F
+!||    sigeps43g                     ../engine/source/materials/mat/mat043/sigeps43g.F
+!||    sigeps56g                     ../engine/source/materials/mat/mat056/sigeps56g.F
+!||    sigeps60g                     ../engine/source/materials/mat/mat060/sigeps60g.F
+!||    sigeps86g                     ../engine/source/materials/mat/mat086/sigeps86g.F
+!||    uroto                         ../engine/source/airbag/uroto.F
+!||--- uses       -----------------------------------------------------
+!||    damping_range_shell_mod       ../engine/source/general_controls/damping/damping_range_shell.F90
+!||    damping_range_shell_mom_mod   ../engine/source/general_controls/damping/damping_range_shell_mom.F90
+!||    elbufdef_mod                  ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    mat_elem_mod                  ../common_source/modules/mat_elem/mat_elem_mod.F90
+!||    table_mod                     ../engine/share/modules/table_mod.F
+!||====================================================================
       SUBROUTINE MULAWGLC(ELBUF_STR,
      1           JFT    ,JLT    ,PM     ,FOR   ,MOM   ,THK   ,
      2           EINT   ,OFF    ,GSTR   ,DIR   ,SHF   ,
@@ -46,12 +52,16 @@ Chd|====================================================================
      5           PID    ,TF     ,NPF    ,MTN   ,DT1C  ,A1    ,
      6           BUFMAT ,SSP    ,RHO    ,VISCMX,IOFC  ,A2    ,
      7           INDX   ,NGL    ,ZCFAC  ,GS    ,SIGY  ,G     ,
-     8           THK0   ,EPSP   ,IPLA   ,IGEO  ,IPM   ,TABLE ,
+     8           THK0   ,epsd_glob,IPLA ,IGEO  ,IPM   ,TABLE ,
      9           IR     ,IS     ,F_DEF  ,ISMSTR,NU    ,VOL0  ,
-     A           KFTS   )
+     A           KFTS   ,ZSHIFT ,idamp_freq_range,mat_elem,damp_buf,
+     B           FOR_G  )
 C-----------------------------------------------
       USE TABLE_MOD
       USE ELBUFDEF_MOD
+      use mat_elem_mod
+      use damping_range_shell_mod
+      use damping_range_shell_mom_mod
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -65,34 +75,37 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr06_c.inc"
 #include      "scr17_c.inc"
 #include      "param_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "com20_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT, JLT, MTN, IOFC, IPLA,NEL,IR,IS,ISMSTR,KFTS
       INTEGER MAT(*), PID(*), NPF(*),NGL(*), INDX(*),IPM(NPROPMI,*)
+      integer, intent(in) :: idamp_freq_range      ! flag for damping frequency range
       my_real DM
       my_real FOR(NEL,5), MOM(NEL,3), THK(*), EINT(JLT,2),PM(NPROPM,*),
      .   OFF(*), GSTR(NEL,8), DIR(*),VISCMX(*),
      .   AREA(*),TF(*),DT1C(*),
-     .   EXX(*), EYY(*), EXY(*), EXZ(*), EYZ(*), EPSP(*),
+     .   EXX(*), EYY(*), EXY(*), EXZ(*), EYZ(*),
      .   KXX(*), KYY(*), KXY(*),BUFMAT(*),SSP(*),RHO(*),
      .   ZCFAC(MVSIZ,2),GS(*),SIGY(*),THK0(*),SHF(*),F_DEF(MVSIZ,8),
      .   A1(MVSIZ),A2(MVSIZ),G(MVSIZ),NU(MVSIZ),VOL0(*)
+      my_real, INTENT(IN) :: ZSHIFT
+      my_real, intent(in),dimension(mvsiz) :: epsd_glob !< global strain rate by Gauss pt
+      my_real, DIMENSION(NEL,5), INTENT(INOUT) :: FOR_G
       TYPE(TTABLE) TABLE(*)
       TYPE(ELBUF_STRUCT_), TARGET :: ELBUF_STR
+      type (mat_elem_) ,intent(in) ,target      :: mat_elem
+      type (buf_damp_range_) ,intent(in)        :: damp_buf      ! buffer of damp frequency range
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IGTYP, I, NUVAR ,NINDX,IGEO(NPROPGI,*),NVARTMP,
-     .        MX,IOFF_DUCT(MVSIZ),ISRATE
-C     REAL
+      INTEGER IGTYP, I, NUVAR,NINDX,IGEO(NPROPGI,*),NVARTMP,
+     .        MX,IOFF_DUCT(MVSIZ),ISRATE,NUVARV,NVAR_DAMP,IMAT,
+     .        FLAG_INCR
       my_real 
      .   DEGMB(MVSIZ) ,DEGFX(MVSIZ) ,THKN(MVSIZ),
      .   DEPSXX(MVSIZ),DEPSYY(MVSIZ),DEPSXY(MVSIZ),DEPSYZ(MVSIZ),
@@ -103,26 +116,30 @@ C     REAL
      .   SIGNXX(MVSIZ),SIGNYY(MVSIZ),SIGNXY(MVSIZ),SIGNYZ(MVSIZ),
      .   SIGNZX(MVSIZ),SIGVXX(MVSIZ),SIGVYY(MVSIZ),SIGVXY(MVSIZ),
      .   SIGVYZ(MVSIZ),SIGVZX(MVSIZ),TENS(5,MVSIZ), 
-     .   EPS_M2,EPS_K2,YOUNG, VISC, VOL2, ASRATE
+     .   YOUNG, VISC, VOL2, DTINV,ASRATE,SH_OFFSET
       my_real
      .   DEPBXX(MVSIZ),DEPBYY(MVSIZ),DEPBXY(MVSIZ),
      .   MOMOXX(MVSIZ),MOMOYY(MVSIZ),MOMOXY(MVSIZ),
      .   MOMNXX(MVSIZ),MOMNYY(MVSIZ),MOMNXY(MVSIZ),
      .   ETSE(MVSIZ)  ,EPSPL(MVSIZ),EPSP_LOC(MVSIZ)
-      my_real,
-     .  DIMENSION(:) ,POINTER :: UVAR
-      my_real, DIMENSION(MVSIZ) :: DT_INV
+      my_real, DIMENSION(:) ,POINTER :: UVAR
+      my_real, DIMENSION(:) ,POINTER :: UVARV
+      my_real, DIMENSION(NEL) :: OFF_OLD
 C-------------------------------------
       INTEGER, DIMENSION(:), POINTER :: VARTMP
       TYPE(L_BUFEL_) ,POINTER :: LBUF
-C-------------------------------------
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
+      type(matparam_struct_) , pointer :: matparam
+C-----------------------------------------------
+C   S o u r c e   L i n es
+C-----------------------------------------------
 C
       LBUF => ELBUF_STR%BUFLY(1)%LBUF(IR,IS,1)
 C
-C     pour les lois user pid(i)=pid(1)
-      IGTYP  = IGEO(11,PID(1))
-      IF(MTN==43.OR.MTN==56.OR.MTN==60.OR.MTN==86) THEN
+      IMAT = ELBUF_STR%BUFLY(1)%IMAT
+C     for user material laws : pid(i)=pid(1)
+      IGTYP = IGEO(11,PID(1))
+      IMAT  = ELBUF_STR%BUFLY(1)%IMAT
+      IF (MTN==43.OR.MTN==56.OR.MTN==60.OR.MTN==86) THEN
         NUVAR  = ELBUF_STR%BUFLY(1)%NVAR_MAT
         UVAR  =>ELBUF_STR%BUFLY(1)%MAT(IR,IS,1)%VAR
       ENDIF
@@ -142,46 +159,29 @@ C
       DO I=JFT,JLT
         THKN(I) = THK(I)
       ENDDO
-!       compute the inverse of dt and save the result 
-      DO I=JFT,JLT
-        DT_INV(I) = DT1C(I)/MAX(DT1C(I)**2,EM20)
-      ENDDO
-C-----------------------------------------------------------
-C     EPS POINT EQUIVALENT (au sens energetique)
-C-----------------------------------------------------------
-C     e = 1/t integ[1/2 E (eps_m + k z)^2 dz ]
-C     e = 1/2 E eps_eq^2
-C     eps_eq = sqrt[ eps_m^2 + 1/12 k^2t^2 ]
-      MX = MAT(JFT)
+      ETSE(1:MVSIZ) = ZERO   
+      OFF_OLD(1:NEL) = OFF(1:NEL)   
+      FOR(JFT:JLT,1:5) = FOR_G(JFT:JLT,1:5)   
+!       compute the inverse of dt and save the result
+      dtinv = dt1 / max(dt1**2,em20)  ! inverse of dt
+!----------------------------------------------------------------------
+      ! global strain rate for materials which still use it
+      ! it may be overloaded by local material law strain rate 
+      ! the same value should be used in material and failure models 
 !
-      ISRATE = IPM(3,MX)
-      IF (ISRATE == 1) THEN
-!#include "vectorize.inc" 
-        DO I=JFT,JLT
-          EPS_K2 = (KXX(I)*KXX(I)+KYY(I)*KYY(I)+KXX(I)*KYY(I)
-     .           + FOURTH*KXY(I)*KXY(I)) *THK(I)*THK(I)*ONE_OVER_9
-          EPS_M2 = FOUR_OVER_3*(EXX(I)*EXX(I)+EYY(I)*EYY(I)+EXX(I)*EYY(I)
-     .           + FOURTH*EXY(I)*EXY(I))
-          EPSP_LOC(I) = SQRT(EPS_K2 + EPS_M2)*DT_INV(I)
-        END DO
-      ELSE IF (ISRATE > 1) THEN
-!#include "vectorize.inc" 
-        DO I=JFT,JLT
-          EPS_M2  = FOUR_OVER_3*(EXX(I)*EXX(I)+EYY(I)*EYY(I)+EXX(I)*EYY(I)
-     .            + FOURTH*EXY(I)*EXY(I))
-          EPSP_LOC(I) = SQRT(EPS_M2)*DT_INV(I)
-        END DO
-      ENDIF
-!
-      IF (ISRATE > 0) THEN    ! strain rate filtering with exponential average
-        DO I=JFT,JLT
-          ASRATE = MIN(ONE,PM(9,MX)*DT1C(I))
-          EPSP(I) = ASRATE*EPSP_LOC(I) + (ONE-ASRATE)*EPSP(I)
-          EPSPL(I) = EPSP(I)
-        END DO
-      ENDIF
+      israte = ipm(3,imat)
+      if (israte > 0) then
+        asrate = min(one, pm(9,imat)*dt1)
+      else
+        asrate = one
+      end if
+      if (elbuf_str%bufly(1)%l_epsd > 0) then
+        epspl(1:nel)  = asrate*epsd_glob(1:nel) + (one-asrate)*lbuf%epsd(1:nel)
+      else
+        epspl(1:nel) = zero
+      end if       
 C-----------------------
-C     PLASTICITE GLOBALE
+C     GLOBAL PLASTICITY
 C-----------------------
       DO I=JFT,JLT
         SIGNXX(I) = ZERO
@@ -198,7 +198,7 @@ C-----------------------
       DO I=JFT,JLT
         MOMNXX(I) = ZERO
         MOMNYY(I) = ZERO
-        MOMNXY(I) = ZERO          
+        MOMNXY(I) = ZERO         
       ENDDO
 C
       IF (IGTYP == 1) THEN
@@ -302,15 +302,15 @@ C
       ENDIF ! IF (IGTYP == 1)
 C
       DO I=JFT,JLT
-        EPSPXX(I) = DEPSXX(I)*DT_INV(I)
-        EPSPYY(I) = DEPSYY(I)*DT_INV(I)
-        EPSPXY(I) = DEPSXY(I)*DT_INV(I)
-        EPSPYZ(I) = DEPSYZ(I)*DT_INV(I)
-        EPSPZX(I) = DEPSZX(I)*DT_INV(I)
+        EPSPXX(I) = DEPSXX(I)*DTINV
+        EPSPYY(I) = DEPSYY(I)*DTINV
+        EPSPXY(I) = DEPSXY(I)*DTINV
+        EPSPYZ(I) = DEPSYZ(I)*DTINV
+        EPSPZX(I) = DEPSZX(I)*DTINV
       ENDDO
 C-------------------------------------------
-C      CONTRAINTES ELASTIQUES + 
-C      CONTRAINTES PLASTIQUEMENT ADMISSIBLES
+C      ELASTIC STRESS + 
+C      PLASTICLY ADMISSIBLE STRESS
 C-------------------------------------------
       IF (MTN == 1) THEN
         CALL SIGEPS01G(JFT     ,JLT     ,G       ,THKN    ,OFF     ,
@@ -320,13 +320,13 @@ C-------------------------------------------
      4                 DEPBXY  ,SIGOXX  ,SIGOYY  ,SIGOXY  ,SIGOYZ  ,
      5                 SIGOZX  ,MOMOXX  ,MOMOYY  ,MOMOXY  ,SIGNXX  ,
      6                 SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,MOMNXX  ,
-     7                 MOMNYY  ,MOMNXY  )
+     7                 MOMNYY  ,MOMNXY  ,ZSHIFT  )
       ELSEIF (MTN == 2) THEN
-        CALL SIGEPS02G(ELBUF_STR,
-     1                 JFT     ,JLT     ,PM      ,FOR     ,MOM     ,
+        CALL SIGEPS02G(ELBUF_STR,mat_elem%mat_param(imat),
+     1                 JFT     ,JLT     ,FOR     ,MOM     ,
      2                 THKN    ,EINT    ,OFF     ,DT1C    ,ISRATE  ,
      3                 G       ,A1      ,A2      ,VOL0    ,NU      ,
-     4                 THK0    ,GS      ,EPSP    ,IOFC    ,KFTS    ,
+     4                 THK0    ,GS      ,EPSPL   ,IOFC    ,KFTS    ,
      5                 NGL     ,INDX    ,IPLA    ,IR      ,IS      ,
      6                 DEGMB   ,DEGFX   ,DEPSXX  ,DEPSYY  ,MX      ,
      7                 DEPSXY  ,DEPSYZ  ,DEPSZX  ,DEPBXX  ,DEPBYY  ,
@@ -334,12 +334,12 @@ C-------------------------------------------
      9                 SIGOZX  ,MOMOXX  ,MOMOYY  ,MOMOXY  ,SIGNXX  ,
      A                 SIGNYY  ,SIGNXY  ,SIGNYZ  ,SIGNZX  ,MOMNXX  ,
      B                 MOMNYY  ,MOMNXY  ,ETSE    ,EXZ     ,EYZ     ,
-     C                 NEL    ,IOFF_DUCT)
+     C                 NEL    ,IOFF_DUCT,NUVAR  ,UVAR )
       ELSEIF (MTN == 22) THEN
         CALL SIGEPS22G(ELBUF_STR,
      1            JFT     ,JLT     ,PM      ,FOR     ,MOM      ,
      2            THKN    ,OFF     ,DT1C    ,NU      ,THK0     ,
-     3            GS      ,EPSP    ,IOFC    ,INDX    ,NEL      ,
+     3            GS      ,EPSPL   ,IOFC    ,INDX    ,NEL      ,
      4            NGL     ,EXZ     ,EYZ     ,MX      ,IOFF_DUCT,
      5            DEGMB   ,DEGFX   ,DEPSXX  ,DEPSYY  ,DEPSXY   ,
      6            DEPSYZ  ,DEPSZX  ,DEPBXX  ,DEPBYY  ,DEPBXY   ,
@@ -381,7 +381,7 @@ C-------------------------------------------
      9     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
      A     SSP    ,VISCMX ,THKN    ,LBUF%PLA,UVAR   ,
      B     OFF    ,NGL    ,IPM     ,MAT     ,ETSE   ,
-     C     GS     ,SIGY   ,SHF     ,LBUF%SEQ,EPSP   )
+     C     GS     ,SIGY   ,SHF     ,LBUF%SEQ,EPSPL  )
       ELSEIF (MTN == 56) THEN
         CALL SIGEPS56G(
      1     JLT    ,NUVAR  ,NPF     ,
@@ -417,7 +417,7 @@ C-------------------------------------------
      B     OFF    ,NGL    ,IPM      ,MAT     ,ETSE   ,
      C     GS     ,SIGY   ,EPSPL   ,ISRATE  ,IPLA    ,
      D     SHF    )
-      ELSEIF (MTN == 86) THEN
+      ELSEIF (MTN == 86) THEN 
         CALL SIGEPS86G(
      1     JLT    ,NUVAR  ,NPF     ,
      2     TF     ,TT     ,BUFMAT  ,RHO     ,
@@ -435,6 +435,25 @@ C-------------------------------------------
      B     OFF    ,NGL    ,IPM     ,MAT     ,ETSE   ,
      C     GS     ,SIGY   ,EPSPL   ,ISRATE  ,IPLA)
       ENDIF ! IF (MTN == 1) THEN
+C-----------------------
+C     DAMPING
+C-----------------------      
+      if (idamp_freq_range > 0) then 
+        NUVARV = ELBUF_STR%BUFLY(1)%NVAR_VISC
+        UVARV  => ELBUF_STR%BUFLY(1)%VISC(IR,IS,1)%VAR
+        nvar_damp = 28 + 16     
+        flag_incr = 1
+        call damping_range_shell(damp_buf,nel     ,nuvarv  ,nvar_damp,dt1      ,
+     .                           rho     ,ssp    ,mat_elem%mat_param(imat)%young,mat_elem%mat_param(imat)%shear,
+     .                           epspxx  ,epspyy ,epspxy  ,epspyz   ,epspzx   ,
+     .                           sigvxx  ,sigvyy ,sigvxy  ,sigvyz   ,sigvzx   ,
+     .                           uvarv   ,off    ,etse    ,flag_incr)
+     
+        call damping_range_shell_mom(damp_buf,nel     ,nuvarv  ,dt1     ,dtinv  ,
+     .                               mat_elem%mat_param(imat)%young,mat_elem%mat_param(imat)%shear,depbxx  ,depbyy  ,depbxy  ,                           
+     .                               momnxx  ,momnyy  ,momnxy  ,thk0    ,uvarv   ,
+     .                               off     ,etse)
+      endif        
 C-----------------------
 C      ORTHOTROPE
 C-----------------------
@@ -484,18 +503,19 @@ C-----------------------
         ENDDO
       ENDIF ! IF (IGTYP /= 1)
 C-----------------------
-C      FORCES ET MOMENTS
+C      forces and moments
 C-----------------------
       DO I=JFT,JLT
-        FOR(I,1) = SIGNXX(I)+SIGVXX(I)
-        FOR(I,2) = SIGNYY(I)+SIGVYY(I)
-        FOR(I,3) = SIGNXY(I)+SIGVXY(I)
-        FOR(I,4) = SIGNYZ(I)+SIGVYZ(I)
-        FOR(I,5) = SIGNZX(I)+SIGVZX(I)
+        FOR_G(I,1) = SIGNXX(I)+SIGVXX(I)
+        FOR_G(I,2) = SIGNYY(I)+SIGVYY(I)
+        FOR_G(I,3) = SIGNXY(I)+SIGVXY(I)
+        FOR_G(I,4) = SIGNYZ(I)+SIGVYZ(I)
+        FOR_G(I,5) = SIGNZX(I)+SIGVZX(I)
         MOM(I,1) = MOMNXX(I)
         MOM(I,2) = MOMNYY(I)
         MOM(I,3) = MOMNXY(I)
       ENDDO
+      FOR(JFT:JLT,1:5) = FOR_G(JFT:JLT,1:5)   
 C----------------------
 C     THICKNESS UPDATE
 C----------------------
@@ -503,22 +523,22 @@ C----------------------
         THK(I) = MAX(THKN(I),EM30)
       ENDDO
 C-----------------------------------------------
-C     FACTEURS POUR COQUES B.L. (Zeng&Combescure)
+C     FACTORS FOR B.L. SHELLS (Zeng&Combescure)
 C-----------------------------------------------
       DO I=JFT,JLT
         ZCFAC(I,1) = ETSE(I)
         ZCFAC(I,2) = ZCFAC(I,1)
       ENDDO
 C---------------------------
-C     VISCOSITE DE MEMBRANE
+C     membrane viscosity
 C---------------------------
       IF (DM > ZERO) THEN
         DO I=JFT,JLT                                                   
           VISCMX(I) = MAX(VISCMX(I),DM)
-          VISC = ONEP414*DM*RHO(I)*SSP(I)*SQRT(AREA(I))*DT_INV(I)        
-          FOR(I,1) = FOR(I,1) + VISC*(EXX(I)+HALF*EYY(I))		  
-          FOR(I,2) = FOR(I,2) + VISC*(EYY(I)+HALF*EXX(I))		  
-          FOR(I,3) = FOR(I,3) + VISC* EXY(I)*THIRD			     
+          VISC = ONEP414*DM*RHO(I)*SSP(I)*SQRT(AREA(I))*dtinv      
+          FOR(I,1) = FOR(I,1) + VISC*(EXX(I)+HALF*EYY(I))      
+          FOR(I,2) = FOR(I,2) + VISC*(EYY(I)+HALF*EXX(I))      
+          FOR(I,3) = FOR(I,3) + VISC* EXY(I)*THIRD           
         ENDDO
       ENDIF
 C
@@ -543,8 +563,8 @@ C
         EINT(I,2) = EINT(I,2) + DEGFX(I)*THK0(I)*VOL2
       ENDDO
 C----------------------------
-C     TEST DE RUPTURE DUCTILE
-C     INDX utilise dans IELOF
+C     Ductile rupture test
+C     INDX used in IELOF
 C----------------------------
       NINDX=0
       DO I=JFT,JLT
@@ -554,8 +574,16 @@ C----------------------------
           INDX(NINDX)=I
         ENDIF
       ENDDO
+c--------------------------------------------------------
+c     SHOOTING NODES ALGORITHM ACTIVATION
+c--------------------------------------------------------
+      DO I = 1,NEL
+        IF ((OFF_OLD(I) > ZERO) .AND. (OFF(I) == ZERO)) THEN 
+          IDEL7NOK = 1
+        ENDIF
+      ENDDO       
+c--------------------------------------------------------
       IF (NINDX > 0) THEN
-        IDEL7NOK = 1
         IF (IMCONV == 1) THEN
           DO I = 1, NINDX
 #include "lockon.inc"

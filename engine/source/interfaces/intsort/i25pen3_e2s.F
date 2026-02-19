@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25PEN3_E2S                   source/interfaces/intsort/i25pen3_e2s.F
-Chd|-- called by -----------
-Chd|        I25STO_E2S                    source/interfaces/intsort/i25sto_e2s.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25pen3_e2s   ../engine/source/interfaces/intsort/i25pen3_e2s.F
+!||--- called by ------------------------------------------------------
+!||    i25sto_e2s    ../engine/source/interfaces/intsort/i25sto_e2s.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box       ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25PEN3_E2S(JLT ,CAND_S ,CAND_M  ,DRAD  ,IGAP0   ,
      .                    NEDGE  ,LEDGE  ,MARGE   ,GAP_M ,GAP_M_L ,
      .                    GAPE  ,GAP_E_L ,IGAP    ,X     ,IRECT   ,
@@ -49,10 +49,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "i25edge_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -66,12 +63,9 @@ C-----------------------------------------------
      .     X(3,*), GAP_M(*), GAP_M_L(*), GAPE(*), GAP_E_L(*), PENE(MVSIZ)
       REAL*4 EDG_BISECTOR(3,4,*), VTX_BISECTOR(3,2,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG, NI, N1, N2, K, IE, JE, JL, I1, I2, I3, I4, NLS, NLT, LIST(MVSIZ)
+      INTEGER I, NI, N1, N2, K, IE, JE, I1, I2, I3, I4, NLS, NLT, LIST(MVSIZ)
       my_real
      .     XXS1(MVSIZ) ,XXS2(MVSIZ) ,YYS1(MVSIZ) ,YYS2(MVSIZ) ,ZZS1(MVSIZ) ,ZZS2(MVSIZ) ,
      .     XX1,YY1,ZZ1,XX2,YY2,ZZ2,XX3,YY3,ZZ3,XX4,YY4,ZZ4,
@@ -93,7 +87,7 @@ CDIR$ NOFUSION
         IE = CAND_M(I)
         IF(CAND_S(I) <= NEDGE) THEN
           JE = CAND_S(I)
-          GAPV(I)=GAPE(JE) ! Peut etre considere comme nul pour l instant
+          GAPV(I)=GAPE(JE) ! Maybe consider void for the moment
 C
           IF(IGAP == 3)
      .       GAPV(I)=MIN(GAP_M_L(IE)+GAP_E_L(JE),GAPV(I)) ! under-estimated ...
@@ -102,7 +96,7 @@ C
 C
           IF(IGAP == 3) 
      .      GAPV(I)=MIN(GAP_M_L(IE)+XREM_EDGE(E_GAPL,CAND_S(I)-NEDGE),GAPV(I))
-C verifier si E_GAPL  est bien ce qu'on veut ici 
+C Check if e_gapl is what we want here 
         ENDIF
         GAPV(I)=MAX(DRAD,GAPV(I)+DGAPLOAD)+MARGE
       ENDDO
@@ -215,7 +209,7 @@ CDIR$ NOFUSION
         XXB=E1X(I)*XXS2(I)+E1Y(I)*YYS2(I)+E1Z(I)*ZZS2(I)
         XMINS = MIN(XXA,XXB)
         XMAXS = MAX(XXA,XXB)
-        IF (XMAXS.GE.XMINM.AND.XMAXM.GE.XMINS) THEN
+        IF (XMAXS>=XMINM.AND.XMAXM>=XMINS) THEN
          NLS=NLS+1
          LIST(NLS)=I
         ENDIF
@@ -240,7 +234,7 @@ CDIR$ NOFUSION
         YYB=E2X(I)*XXS2(I)+E2Y(I)*YYS2(I)+E2Z(I)*ZZS2(I)
         YMINS = MIN(YYA,YYB)
         YMAXS = MAX(YYA,YYB)
-        IF (YMAXS.GE.YMINM.AND.YMAXM.GE.YMINS) THEN
+        IF (YMAXS>=YMINM.AND.YMAXM>=YMINS) THEN
          NLS=NLS+1
          LIST(NLS)=I
         ENDIF
@@ -264,7 +258,7 @@ CDIR$ NOFUSION
         ZZB=E3X(I)*XXS2(I)+E3Y(I)*YYS2(I)+E3Z(I)*ZZS2(I)
         ZMINS = MIN(ZZA,ZZB)
         ZMAXS = MAX(ZZA,ZZB)
-        IF (ZMAXS.GE.ZMINM.AND.ZMAXM.GE.ZMINS) THEN
+        IF (ZMAXS>=ZMINM.AND.ZMAXM>=ZMINS) THEN
          NLS=NLS+1
          LIST(NLS)=I
         ENDIF

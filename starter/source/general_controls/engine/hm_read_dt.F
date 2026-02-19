@@ -1,33 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_DT                    source/general_controls/engine/hm_read_dt.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ID                            source/boundary_conditions/ebcs/hm_read_ebcs_inlet.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_dt     ../starter/source/general_controls/engine/hm_read_dt.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_DT(IGRPART)
 C-----------------------------------------------
 C   M o d u l e s
@@ -53,9 +50,6 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(GROUP_)  ,DIMENSION(NGRPART) :: IGRPART
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -122,11 +116,11 @@ C     Printing
 C-----------------------------------------------
       WRITE(IOUT,1000)
       IF(IDT1SH /=0)   WRITE(IOUT,4720)
-      IF(IDTHEPH /= 0) WRITE(IOUT,4710)
+      IF(IDT1SOL /= 0) WRITE(IOUT,4710)
       IF(IDT1SOL/=0)   WRITE(IOUT,4730)
       IF(IDT1TET10/=0) WRITE(IOUT,4740)
       IF(NODADT == 0)THEN
-	IF (MIN_ASPECT+MIN_DEFV > ZERO) THEN
+          IF (MIN_ASPECT+MIN_DEFV > ZERO) THEN
            WRITE(IOUT,1115) DTFAC1(1),DTMIN1(1),IDTMIN(1),
      +                 MIN_ASPECT,MIN_DEFV,
      +                 DTFAC1(2),DTMIN1(2),IDTMIN(2),
@@ -147,7 +141,7 @@ C-----------------------------------------------
      +                 DTFAC1(9),DTMIN1(9),IDTMIN(9),
      +                 DTFAC1(10),DTMIN1(10),IDTMIN(10)
           ! WRITE(IOUT,4710) DTFAC1(102),DTMIN1(102)
-	END IF
+          END IF
         IF(IDTMIN(11) == 3 .OR. IDTMIN(11) == 8) THEN
           WRITE(IOUT,1107)DTFAC1(11),DTMIN1(11),IDTMIN(11)
         ENDIF
@@ -168,7 +162,7 @@ C-----------------------------------------------
         IF(IDTMIN(11)==3.OR.IDTMIN(11) == 8)THEN
           WRITE(IOUT,1106) DTFAC1(11),DTMIN1(11),IDTMIN(11)
         END IF
-	IF (MIN_ASPECT+MIN_DEFV > ZERO) THEN
+          IF (MIN_ASPECT+MIN_DEFV > ZERO) THEN
           WRITE(IOUT,1115) DTFAC1(1),DTMIN1(1),IDTMIN(1),
      +                MIN_ASPECT,MIN_DEFV,
      +                DTFAC1(2),DTMIN1(2),IDTMIN(2),
@@ -189,7 +183,7 @@ C-----------------------------------------------
      +                 DTFAC1(9),DTMIN1(9),IDTMIN(9),
      +                 DTFAC1(10),DTMIN1(10),IDTMIN(10)
           ! WRITE(IOUT,4710) DTFAC1(102),DTMIN1(102)
-	END IF ! (MIN_ASPECT+MIN_DEFV > ZERO) THEN
+          END IF ! (MIN_ASPECT+MIN_DEFV > ZERO) THEN
         IF(IDTMINS_INT/=0)THEN
           WRITE(IOUT,1208) DTFACS_INT,DTMINS_INT
         END IF
@@ -205,7 +199,7 @@ C
      .                         IGRPART(IDTGRS)%ID
             END IF
           ELSE
-C--         /DT/CST_AMS >- automatic element selection
+C- /DT /CST_AMS>- Automatic election
             DT_CRIT = DTMINS / MAX(EM20,DTFAC1(11))
             IF(IDTGRS<=0)THEN
               WRITE(IOUT,2108) DTFACS,DTMINS,TOL_SMS,

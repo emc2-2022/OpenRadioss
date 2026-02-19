@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CUPDT3_CRK                    source/elements/xfem/xfemfsky.F
-Chd|-- called by -----------
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|-- calls ---------------
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cupdt3_crk      ../engine/source/elements/xfem/xfemfsky.F
+!||--- called by ------------------------------------------------------
+!||    cforc3_crk      ../engine/source/elements/xfem/cforc3_crk.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod   ../engine/share/modules/crackxfem_mod.F
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CUPDT3_CRK(
      .           JFT     ,JLT     ,NFT   ,IXC    ,OFF     ,IADC    ,
      .           F11     ,F21     ,F31   ,F12    ,F22     ,F32     ,
@@ -38,6 +39,7 @@ Chd|====================================================================
      .           ILAY    ,CRKSKY  )
 C-----------------------------------------------
       USE CRACKXFEM_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,16 +48,14 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
-#include      "com01_c.inc"
 #include      "com_xfem1.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IADC(4,*),IADC_CRK(4,*),IXC(NIXC,*),IEL_CRK(*),
      .  ELCUTC(2,*),INOD_CRK(*),IPARTC(*)
-      INTEGER JFT,JLT,NFT,IXFEM,ILEV,ILAY
+      INTEGER JFT,JLT,NFT,ILEV,ILAY
       my_real
      .  FSKY(8,LSKY),OFF(*),OFFG(*),
      .  F11(*),F21(*),F31(*),F12(*),F22(*),F32(*),
@@ -261,13 +261,14 @@ C---
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  CUPDTN3_CRK                   source/elements/xfem/xfemfsky.F
-Chd|-- called by -----------
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|-- calls ---------------
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    cupdtn3_crk     ../engine/source/elements/xfem/xfemfsky.F
+!||--- called by ------------------------------------------------------
+!||    czforc3_crk     ../engine/source/elements/xfem/czforc3_crk.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod   ../engine/share/modules/crackxfem_mod.F
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CUPDTN3_CRK(
      .          JFT   ,JLT  ,NFT  ,IXC   ,OFF     ,IADC   ,
      .          F11   ,F21  ,F31  ,F12   ,F22     ,F32    ,
@@ -279,6 +280,7 @@ Chd|====================================================================
      .          IPARTC,ILAY    ,CRKSKY   )
 C-----------------------------------------------
       USE CRACKXFEM_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -287,16 +289,14 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
-#include      "com01_c.inc"
 #include      "com_xfem1.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT,JLT,NFT,IADC(4,*),IADC_CRK(4,*),IXC(NIXC,*),
      . IEL_CRK(*),ILEV,ELCUTC(2,*),INOD_CRK(*),IPARTC(*),
-     . IXFEM,ILAY
+     . ILAY
       my_real
      .  FSKY(8,LSKY),OFF(*),
      .  F11(*),F21(*),F31(*),F12(*),F22(*),F32(*),
@@ -502,13 +502,14 @@ C---
 C-------------
       RETURN
       END
-Chd|====================================================================
-Chd|  C3UPDT3_CRK                   source/elements/xfem/xfemfsky.F
-Chd|-- called by -----------
-Chd|        C3FORC3_CRK                   source/elements/xfem/c3forc3_crk.F
-Chd|-- calls ---------------
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    c3updt3_crk     ../engine/source/elements/xfem/xfemfsky.F
+!||--- called by ------------------------------------------------------
+!||    c3forc3_crk     ../engine/source/elements/xfem/c3forc3_crk.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod   ../engine/share/modules/crackxfem_mod.F
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE C3UPDT3_CRK(
      .          JFT  ,JLT  ,NFT  ,IXTG  ,OFF     ,IADC   ,
      .          F11  ,F21  ,F31  ,F12   ,F22     ,F32    ,
@@ -519,6 +520,7 @@ Chd|====================================================================
      .          ILEV ,ILAY ,OFFG ,CRKSKY)
 C-----------------------------------------------
       USE CRACKXFEM_MOD
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -526,16 +528,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
-#include      "com01_c.inc"
 #include      "com_xfem1.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT,JLT,NFT,IADC(3,*),IAD_CRKTG(3,*),IXTG(NIXTG,*),
-     . IEL_CRKTG(*),ILEV,ELCUTC(2,*),IXFEM,ILAY
+     . IEL_CRKTG(*),ILEV,ELCUTC(2,*),ILAY
 C     REAL
       my_real
      .  FSKY(8,LSKY),OFF(*),OFFG(*),
@@ -549,7 +548,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,K,KK,ELCUT,ELCRK,ELCRKTG,ENR,IOFF
-      INTEGER IAD(3),IADXFE(3),UNENR0(3,JLT)
+ 
       my_real OFF_L,AREAP
 C=======================================================================
       IOFF=0
@@ -706,14 +705,15 @@ C---
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  SPMD_CRK_ADV                  source/elements/xfem/xfemfsky.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        SPMD_EXCH_NODENR              source/mpi/elements/spmd_xfem.F
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    spmd_crk_adv       ../engine/source/elements/xfem/xfemfsky.F
+!||--- called by ------------------------------------------------------
+!||    resol              ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exch_nodenr   ../engine/source/mpi/elements/spmd_xfem.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod      ../engine/share/modules/crackxfem_mod.F
+!||====================================================================
       SUBROUTINE SPMD_CRK_ADV(IAD_ELEM ,FR_ELEM, INOD_CRK ,ENRTAG)
 C-----------------------------------------------
       USE CRACKXFEM_MOD
@@ -727,9 +727,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com_xfem1.inc"
-#include      "param_c.inc"
-#include      "task_c.inc"
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

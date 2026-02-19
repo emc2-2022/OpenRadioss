@@ -1,57 +1,57 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  UPD_GLOB_K                    source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_K_EIG                     stub/imp_k_eig.F              
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        BC_IMP0                       source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_IMP1                       source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_IMPA                       source/constraints/general/bcs/bc_imp0.F
-Chd|        CONDENS_B                     source/implicit/upd_glob_k.F  
-Chd|        CONDENS_K                     source/implicit/upd_glob_k.F  
-Chd|        DIM_FVBCL                     source/constraints/general/impvel/fv_imp0.F
-Chd|        FVBC_ALLO                     source/constraints/general/impvel/fv_imp0.F
-Chd|        FVBC_IMPL                     source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_IMP0                       source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_IMPL                       source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_RW0                        source/constraints/general/impvel/fv_imp0.F
-Chd|        I2_IMP0                       source/interfaces/interf/i2_imp0.F
-Chd|        INI_DOFSPC                    source/implicit/upd_glob_k.F  
-Chd|        RBE2_IMP0                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE3_IMP0                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBY_IMP0                      source/constraints/general/rbody/rby_imp0.F
-Chd|        RM_IMP0                       source/model/remesh/rm_imp0.F 
-Chd|        UPD_ASPC                      source/constraints/general/bcs/bc_imp0.F
-Chd|        IMP_FVBCL                     share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    upd_glob_k      ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_buck        ../engine/source/implicit/imp_buck.F
+!||    imp_chkm        ../engine/source/implicit/imp_solv.F
+!||    imp_k_eig       ../engine/stub/imp_k_eig.F
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    bc_imp0         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_imp1         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_impa         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    condens_b       ../engine/source/implicit/upd_glob_k.F
+!||    condens_k       ../engine/source/implicit/upd_glob_k.F
+!||    dim_fvbcl       ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_imp0         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_impl         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_rw0          ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fvbc_allo       ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fvbc_impl       ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    i2_imp0         ../engine/source/interfaces/interf/i2_imp0.F
+!||    ini_dofspc      ../engine/source/implicit/upd_glob_k.F
+!||    rbe2_imp0       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe3_imp0       ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rby_imp0        ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    rm_imp0         ../engine/source/model/remesh/rm_imp0.F
+!||    upd_aspc        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_fvbcl       ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE UPD_GLOB_K(ICODT ,ICODR ,ISKEW ,IBFV    ,NPC    ,
-     1                      TF    ,VEL   ,SENSOR ,LSENSOR,XFRAME ,
+     1                      TF    ,VEL   ,XFRAME ,
      2                      RBY   ,X     ,SKEW   ,LPBY   ,NPBY   ,
      3                      ITAB  ,WEIGHT,MS     ,IN     ,NRBYAC ,
      4                      IRBYAC,NSC   ,ISIJ   ,NMC    ,IMIJ   ,
@@ -75,16 +75,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NPC(*),IBFV(NIFV,*),LSENSOR(NSENSI,*),
+      INTEGER NPC(*),IBFV(NIFV,*),
      .        ICODT(*),ICODR(*),ISKEW(*),NSC(*),ISIJ(*),
      .        NMC,IMIJ(*),NSS(*),ISS(*),NINT2 ,IINT2(*),NT_RW,
      .        NSC2(*),ISIJ2(*),NSS2(*),ISS2(*),NKUD(*) ,IKUD(*),
@@ -97,7 +95,7 @@ C-----------------------------------------------
       my_real
      .   RBY(NRBY,*) ,X(3,*) ,SKEW(*),IN(*),MS(*)
       my_real
-     .  TF(*),VEL(LFXVELR,*),UD(3,*),SENSOR(NSENSR,*),DIAG_K(*),LT_K(*),
+     .  TF(*),VEL(LFXVELR,*),UD(3,*),DIAG_K(*),LT_K(*),
      .  B(*) ,BKUD(*),RD(3,*),XFRAME(NXFRAME,*),FRBE3(*)
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
@@ -111,7 +109,7 @@ C----IKC(NDDL) : 1->fix_global,2->Ud_global,3,4->fv_rw,5->Int2_0,6->Int2_1,7->RB
 C----a faire (8->fix_local,9->Ud_local)-----10,11->sliding rw---12->remesh,13->RBE3,14->AUTO-SPC
 C----15->AUTO-SPC-in local sys,16->RBE2,
 C----No ddl -> IDDL(NDDL)+NDOF(NUMNOD)-MIN(IKC,1)---
-      IF(NINT2.GT.0)THEN
+      IF(NINT2>0)THEN
        CALL I2_IMP0(NINT2 ,IINT2 ,
      1              IPARI,INTBUF_TAB,X,MS   ,IN   ,
      1              NMC2  ,IMIJ2 ,ITAB   ,
@@ -120,29 +118,29 @@ C----No ddl -> IDDL(NDDL)+NDOF(NUMNOD)-MIN(IKC,1)---
      4              IADK  ,JDIK   ,DIAG_K ,LT_K  ,B      )
       ENDIF
 c
-      IF(NRBE2.GT.0)THEN
+      IF(NRBE2>0)THEN
        CALL RBE2_IMP0(
      1                IRBE2  ,LRBE2  ,X      ,NSRB2  ,ISB2   ,
      2                IKC    ,NDOF   ,IDDL   ,IADK   ,JDIK   ,
      3                DIAG_K ,LT_K   ,B      ,WEIGHT ,ITAB   ,
      4                SKEW   )
       ENDIF
-      IF(NRBE3.GT.0)THEN
+      IF(NRBE3>0)THEN
        CALL RBE3_IMP0(
      1              IRBE3  ,LRBE3 ,FRBE3  ,X     ,SKEW    ,
      2              ISS3   ,IKC   ,NDOF   ,IDDL  ,IADK    ,
      3              JDIK   ,DIAG_K,LT_K   ,B     ,WEIGHT  ,
      4              ITAB  )
       ENDIF
-      IF(NRBYAC.GT.0)THEN
+      IF(NRBYAC>0)THEN
        CALL RBY_IMP0(X     ,RBY   ,LPBY  ,NPBY  ,SKEW  ,
      1               NRBYAC,IRBYAC,NSC   ,ISIJ  ,NMC   ,
      2               IMIJ  ,NSS   ,ISS   ,ISKEW ,ITAB  ,
-     3               WEIGHT,MS    ,IN    ,SENSOR,
+     3               WEIGHT,MS    ,IN    ,
      4               NDDL  ,IADK  ,JDIK  ,DIAG_K,
      5               LT_K  ,NDOF  ,IDDL  ,IKC   ,B     )
       ENDIF
-      IF(NADMESH.NE.0)THEN
+      IF(NADMESH/=0)THEN
             CALL RM_IMP0(
      4                   NDDL  ,IADK  ,JDIK  ,DIAG_K ,LT_K  ,
      5                   NDOF  ,IDDL  ,IKC   ,B      ,ITAB  )
@@ -175,7 +173,7 @@ C
      1             NDOF  ,IDDL  ,IADK  ,JDIK  ,DIAG_K,
      2             LT_K  )
       END IF
-      IF(NFXVEL.GT.0) THEN
+      IF(NFXVEL>0) THEN
        CALL FV_IMPL(IBFV   ,SKEW  ,XFRAME ,LJ   ,IDDL   ,
      1              IKC    ,NDOF  ,IADK   ,JDIK ,DIAG_K ,
      2              LT_K   ,UD    ,RD     ,B    )
@@ -184,18 +182,18 @@ C
      2              BKUD   ,NDDL  ,RD    )
       ENDIF
 C
-      IF(NT_RW.GT.0) THEN
+      IF(NT_RW>0) THEN
        CALL FV_RW0(IDDL   ,IKC   ,NDOF  ,IADK  ,JDIK ,
      1             DIAG_K ,LT_K  ,UD    ,B     )
       ENDIF
-      IF(IAUTSPC.GT.0) THEN
+      IF(IAUTSPC>0) THEN
        ALLOCATE(DOFSPC(NUMNOD))
        CALL INI_DOFSPC(
      1    NPBY      ,LPBY      ,NRBYAC    ,IRBYAC    ,NINT2     ,
      2    IINT2     ,IPARI     ,INTBUF_TAB,NDOF      ,IRBE3     ,
      3    LRBE3     ,IRBE2     ,LRBE2     ,X         ,DOFSPC    )
        DO I=1,NDDL
-        IF (IKC(I).EQ.14.OR.IKC(I).EQ.15) IKC(I)=0
+        IF (IKC(I)==14.OR.IKC(I)==15) IKC(I)=0
        END DO
        CALL UPD_ASPC(NDDL  ,DOFSPC,IDDL  ,IKC    ,ITAB  ,
      .               IADK  ,JDIK  ,DIAG_K,LT_K   )
@@ -210,15 +208,14 @@ C -----update---condense-IKC>=1------------------------------------
 C
       RETURN
       END
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  CONDENS_K                     source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        UPD_GLOB_K                    source/implicit/upd_glob_k.F  
-Chd|        UPD_INT_K                     source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        CONDENS_K0                    source/implicit/upd_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    condens_k    ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    upd_glob_k   ../engine/source/implicit/upd_glob_k.F
+!||    upd_int_k    ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    condens_k0   ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       SUBROUTINE CONDENS_K(
      1                      NDDL  ,NNZ   ,IADK   ,JDIK   ,
      2                      LT_K  ,IKC   )
@@ -264,13 +261,11 @@ C
 C
       RETURN
       END
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  CONDENS_K0                    source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        CONDENS_K                     source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    condens_k0   ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    condens_k    ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       SUBROUTINE CONDENS_K0(
      1                      NDDL  ,NNZ   ,IADK   ,JDIK   ,NL    ,
      2                      LT_K  ,IKC   ,IFIX   ,NDF    ,NDL   ,
@@ -279,10 +274,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -311,13 +302,13 @@ C
        DO NI = 1,NDL
         I=NI+NDF
         IFIX(I) = NL
-        IF (IKC(I).LT.1) THEN
+        IF (IKC(I)<1) THEN
          NDDL=NDDL+1
          IADK(NDDL)=NNZ+1
          DO J = IADK1(NI),IADK1(NI+1)-1
           JI=J-NZF
           K= JDIK1(JI)
-          IF (IKC(K).LT.1) THEN
+          IF (IKC(K)<1) THEN
            NNZ=NNZ+1
            JDIK(NNZ)=K
            LT_K(NNZ)=LT_K1(JI)
@@ -330,20 +321,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CONDENS_IND                   source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        UPD_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    condens_ind   ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    upd_fr_k      ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE CONDENS_IND(NDDL  ,NNZ   ,IADK  ,JDIK   ,IKC   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -354,7 +341,7 @@ C-----------------------------------------------
       INTEGER IADK1(NDDL+1),JDIK1(NNZ),IFIX(NDDL)
       INTEGER I,J,K,I1,J1,ND,NI,JI,NL
 C -----update---condense-IKC>=1------------------------------------
-       IF (NDDL.EQ.0) RETURN
+       IF (NDDL==0) RETURN
         DO I = 1,NDDL+1
          IADK1(I)=IADK(I)
         ENDDO
@@ -367,12 +354,12 @@ C
        NL = 0
        DO I = 1,NDDL
         IFIX(I) = NL
-        IF (IKC(I).LT.1) THEN
+        IF (IKC(I)<1) THEN
          ND=ND+1
          IADK(ND)=NNZ+1
          DO J = IADK1(I),IADK1(I+1)-1
           K= JDIK1(J)
-          IF (IKC(K).LT.1) THEN
+          IF (IKC(K)<1) THEN
            NNZ=NNZ+1
            JDIK(NNZ)=K
           ENDIF
@@ -391,34 +378,29 @@ C
 C
       RETURN
       END
-C   ----  nouvelle routine---NDDL n'est pas modifie------
-Chd|====================================================================
-Chd|  CONDENS_B                     source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        D_TO_U                        source/implicit/produt_v.F    
-Chd|        EXT_RHS                       source/implicit/upd_glob_k.F  
-Chd|        GET_FEXT                      source/implicit/imp_solv.F    
-Chd|        IMP_FHHT1                     source/implicit/imp_dyna.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|        PRODUT_U                      source/implicit/produt_v.F    
-Chd|        PRODUT_U2                     source/implicit/produt_v.F    
-Chd|        PRODUT_UH                     source/implicit/produt_v.F    
-Chd|        PRODUT_UH2                    source/implicit/produt_v.F    
-Chd|        PRODUT_UHP                    source/implicit/produt_v.F    
-Chd|        PRODUT_UHP2                   source/implicit/produt_v.F    
-Chd|        UPD_GLOB_K                    source/implicit/upd_glob_k.F  
-Chd|        UPD_INT_K                     source/implicit/upd_glob_k.F  
-Chd|        UPD_RHS                       source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    condens_b     ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    d_to_u        ../engine/source/implicit/produt_v.F
+!||    ext_rhs       ../engine/source/implicit/upd_glob_k.F
+!||    get_fext      ../engine/source/implicit/imp_solv.F
+!||    imp_fhht1     ../engine/source/implicit/imp_dyna.F
+!||    imp_solv      ../engine/source/implicit/imp_solv.F
+!||    produt_u      ../engine/source/implicit/produt_v.F
+!||    produt_u2     ../engine/source/implicit/produt_v.F
+!||    produt_uh     ../engine/source/implicit/produt_v.F
+!||    produt_uh2    ../engine/source/implicit/produt_v.F
+!||    produt_uhp    ../engine/source/implicit/produt_v.F
+!||    produt_uhp2   ../engine/source/implicit/produt_v.F
+!||    upd_glob_k    ../engine/source/implicit/upd_glob_k.F
+!||    upd_int_k     ../engine/source/implicit/upd_glob_k.F
+!||    upd_rhs       ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       SUBROUTINE CONDENS_B(NDDL  ,IKC   ,B   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -439,7 +421,7 @@ C
       ND=0
 C
       DO I = 1,NDDL
-       IF (IKC(I).LT.1) THEN
+       IF (IKC(I)<1) THEN
         ND=ND+1
         B(ND)=B1(I)
        ENDIF
@@ -447,29 +429,29 @@ C
 C
       RETURN
       END
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  UPD_INT_K                     source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_INT_K                     source/implicit/imp_int_k.F   
-Chd|-- calls ---------------
-Chd|        BC_IMP0                       source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_IMP1                       source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_IMPA                       source/constraints/general/bcs/bc_imp0.F
-Chd|        CONDENS_B                     source/implicit/upd_glob_k.F  
-Chd|        CONDENS_K                     source/implicit/upd_glob_k.F  
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|        FV_IMPI                       source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_IMPL                       source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_RW0                        source/constraints/general/impvel/fv_imp0.F
-Chd|        I2_IMPI                       source/interfaces/interf/i2_imp0.F
-Chd|        RBE2_IMPI                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE3_IMPI                     source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBY_IMPI                      source/constraints/general/rbody/rby_imp0.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    upd_int_k       ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_int_k       ../engine/source/implicit/imp_int_k.F
+!||--- calls      -----------------------------------------------------
+!||    bc_imp0         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_imp1         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_impa         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    condens_b       ../engine/source/implicit/upd_glob_k.F
+!||    condens_k       ../engine/source/implicit/upd_glob_k.F
+!||    cp_real         ../engine/source/implicit/produt_v.F
+!||    fv_impi         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_impl         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_rw0          ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    i2_impi         ../engine/source/interfaces/interf/i2_imp0.F
+!||    rbe2_impi       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe3_impi       ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rby_impi        ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE UPD_INT_K(ICODT  ,ICODR ,ISKEW ,IBFV    ,NPC    ,
-     1                      TF    ,VEL   ,SENSOR ,LSENSOR,XFRAME ,
+     1                      TF    ,VEL   ,XFRAME ,
      2                      RBY   ,X     ,SKEW   ,LPBY   ,NPBY  ,
      3                      ITAB  ,WEIGHT,MS     ,IN     ,NRBYAC,
      4                      IRBYAC,NSS   ,ISS    ,IPARI  ,INTBUF_TAB,
@@ -489,19 +471,15 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NPC(*),IBFV(NIFV,*),LSENSOR(NSENSI,*),LUJ(*),
+      INTEGER NPC(*),IBFV(NIFV,*),LUJ(*),
      .        ICODT(*),ICODR(*),ISKEW(*),ITOK(*),NDDL,NT_RW
       INTEGER WEIGHT(*),LPBY(*),NPBY(NNPBY,*),ITAB(*),
      .        IPARI(NPARI,*), NRBYAC,IRBYAC(*),
@@ -513,7 +491,7 @@ C-----------------------------------------------
       my_real
      .   RBY(NRBY,*) ,X(3,*) ,SKEW(*),IN(*),MS(*)
       my_real
-     .  TF(*), VEL(LFXVELR,*),SENSOR(NSENSR,*),DIAG_K(*),LT_K(*),
+     .  TF(*), VEL(LFXVELR,*),DIAG_K(*),LT_K(*),
      .  DIAG_I(*),LT_I(*),LB(*),UD(3,*),XFRAME(NXFRAME,*),FRBE3(*)
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
@@ -531,32 +509,32 @@ C
       DO I=1,NDDLI
        IAD=ITOK(I)
        IIC(I)=0
-       IF (IKC(IAD).EQ.2.OR.IKC(IAD).EQ.9) IIC(I)=IKC(IAD)
-       IF (IKC(IAD).EQ.3.OR.IKC(IAD).EQ.4.OR.
-     .       IKC(IAD).EQ.10.OR.IKC(IAD).EQ.11) IIC(I)=IKC(IAD)
-       IF (IKC(IAD).EQ.14.OR.IKC(IAD).EQ.15) IIC(I)=IKC(IAD)
-       IF (IKC(IAD).LT.1) THEN
+       IF (IKC(IAD)==2.OR.IKC(IAD)==9) IIC(I)=IKC(IAD)
+       IF (IKC(IAD)==3.OR.IKC(IAD)==4.OR.
+     .       IKC(IAD)==10.OR.IKC(IAD)==11) IIC(I)=IKC(IAD)
+       IF (IKC(IAD)==14.OR.IKC(IAD)==15) IIC(I)=IKC(IAD)
+       IF (IKC(IAD)<1) THEN
         LBI(I)=LB(IAD)
        ELSE
         LBI(I)=ZERO
        ENDIF
        ITOK1(I)=IAD
       ENDDO
-      IF(NINT2.GT.0.OR.NRBYAC.GT.0.OR.NRBE3.GT.0)
+      IF(NINT2>0.OR.NRBYAC>0.OR.NRBE3>0)
      .    CALL CP_REAL(NDDLI,LBI,LB0)
       NDDL0=NDDLI
       NNZK0=NNZI
 C -----update---due to kinematic conditions-----------------------------------
 C----IKC(NDDL) : 1->fix_global,2->Ud_global,3->fix_local,4->Ud_local,5->Int2_0,6->Int2_1,7->RB------
 C-----l'interface 2 ------
-      IF(NINT2.GT.0)THEN
+      IF(NINT2>0)THEN
        CALL I2_IMPI(NINT2  ,IINT2 ,IPARI ,INTBUF_TAB ,
      1              X      ,MS    ,IN    ,NSS2  ,ISS2  ,
      2              WEIGHT ,IIC   ,NDOFI ,NDDLI ,IDDLI ,
      3              IADI   ,JDII  ,DIAG_I,LT_I  ,IAINT2,
      4              LB0    ,ITAB  )
       ENDIF
-      IF(NRBE2.GT.0)THEN
+      IF(NRBE2>0)THEN
        CALL RBE2_IMPI(
      1                IRBE2  ,LRBE2 ,X     ,SKEW   ,
      2                NSB2   ,ISB2  ,IIC   ,NDOFI  ,IDDLI  ,
@@ -564,7 +542,7 @@ C-----l'interface 2 ------
      4                WEIGHT ,ITAB  )
       ENDIF
 C-----rbe3 ------
-      IF(NRBE3.GT.0)THEN
+      IF(NRBE3>0)THEN
        CALL RBE3_IMPI(
      1              IRBE3  ,LRBE3 ,FRBE3  ,X     ,SKEW    ,
      2              NSS3   ,ISS3  ,IIC   ,NDOFI  ,IDDLI   ,
@@ -572,10 +550,10 @@ C-----rbe3 ------
      4              WEIGHT ,ITAB  )
       ENDIF
 C-----RIGID BODIES-------
-      IF(NRBYAC.GT.0)THEN
+      IF(NRBYAC>0)THEN
        CALL RBY_IMPI(X     ,RBY   ,LPBY  ,NPBY  ,SKEW  ,
      1               NRBYAC,IRBYAC,NSS   ,ISS   ,ISKEW ,
-     2               ITAB  ,WEIGHT,MS    ,IN    ,SENSOR,
+     2               ITAB  ,WEIGHT,MS    ,IN    ,
      3               NDDLI ,IADI ,JDII   ,DIAG_I,
      4               LT_I  ,NDOFI ,IDDLI ,IIC   ,LB0   )
       ENDIF
@@ -584,14 +562,14 @@ C------------
       CALL BC_IMP1(ICODT ,ICODR ,ISKEW ,SKEW  ,IIC   ,
      1             NDOFI ,IDDLI ,IADI  ,JDII  ,DIAG_I,
      2             LT_I  )
-      IF(IAUTSPC.GT.0) THEN
+      IF(IAUTSPC>0) THEN
        CALL BC_IMPA(IADI  ,JDII   ,DIAG_I,LT_I  ,NDOFI ,
      1              IDDLI ,IIC    )
       ENDIF
-      IF(NFXVEL.GT.0) THEN
+      IF(NFXVEL>0) THEN
         DO I=1,NFXVEL
          N=IABS(IBFV(1,I))
-         IF (NDOFI(N).GT.0.AND.LUJ(I).LE.3) THEN
+         IF (NDOFI(N)>0.AND.LUJ(I)<=3) THEN
           LUJI(I) = LUJ(I)
          ELSE
           LUJI(I) = 0
@@ -603,20 +581,20 @@ C------------
         CALL FV_IMPI(IDDLI  ,IIC   ,NDOFI ,IADI  ,JDII   ,
      1               DIAG_I ,LT_I  ,UD    ,LBI   ,NDDLI  )
       ENDIF
-      IF(NT_RW.GT.0) THEN
+      IF(NT_RW>0) THEN
        CALL FV_RW0(IDDLI  ,IIC   ,NDOFI ,IADI  ,JDII ,
      1             DIAG_I ,LT_I  ,UD    ,LBI   )
       ENDIF
 C -----diak=0------------------------------------
-      IF (INTP_C.GE.0) THEN
+      IF (INTP_C>=0) THEN
       DO I=1,NDDLI
-      IF (IIC(I).LT.1.AND.DIAG_I(I).LE.EM20) IIC(I)=10
+      IF (IIC(I)<1.AND.DIAG_I(I)<=EM20) IIC(I)=10
       ENDDO
       ENDIF
 C -----update---LB------------------------------------
       DO I=1,NDDLI
        IAD=ITOK(I)
-       IF (IIC(I).LT.1) LB(IAD)=LBI(I)
+       IF (IIC(I)<1) LB(IAD)=LBI(I)
       ENDDO
 C -----update---condense-IKC>=1------------------------------------
       CALL CONDENS_B(NDDLI ,IIC    ,DIAG_I)
@@ -624,7 +602,7 @@ C -----update---condense-IKC>=1------------------------------------
 C -----update---ITOK------------------------------------
       ND=0
       DO I = 1,NDDL
-       IF (IKC(I).LT.1) THEN
+       IF (IKC(I)<1) THEN
         ND=ND+1
         IDEN(I)=ND
        ELSE
@@ -634,45 +612,46 @@ C -----update---ITOK------------------------------------
 C
       ND=0
       DO I = 1,NDDL0
-       IF (IIC(I).LT.1) THEN
+       IF (IIC(I)<1) THEN
         ND=ND+1
         L1=ITOK1(I)
         L2=IDEN(L1)
-        IF (L2.LE.0)WRITE(*,*)'---ERROR ITOK:---',I,L1,L2
+        IF (L2<=0)WRITE(*,*)'---ERROR ITOK:---',I,L1,L2
         ITOK(ND)=L2
        ENDIF
       ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPD_RHS                       source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        BC_IMPR1                      source/constraints/general/bcs/bc_imp0.F
-Chd|        CONDENS_B                     source/implicit/upd_glob_k.F  
-Chd|        EXT_RHS                       source/implicit/upd_glob_k.F  
-Chd|        FV_IMPRL                      source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_RWLR0                      source/constraints/general/rwall/srw_imp.F
-Chd|        I2_IMPR1                      source/interfaces/interf/i2_imp1.F
-Chd|        I2_IMPR2                      source/interfaces/interf/i2_imp1.F
-Chd|        IMP_DYCRB                     source/implicit/imp_dyna.F    
-Chd|        IMP_DYNAR                     source/implicit/imp_dyna.F    
-Chd|        IMP_FHHT                      source/implicit/imp_dyna.F    
-Chd|        IMP_FHHT1                     source/implicit/imp_dyna.F    
-Chd|        IMP_SETB                      source/implicit/imp_setb.F    
-Chd|        IMP_SETBA                     source/implicit/imp_setb.F    
-Chd|        IMP_SETBP                     source/implicit/imp_setb.F    
-Chd|        RBE2_IMPR1                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE3_IMPR1                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBE3_IMPR2                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBY_IMPR1                     source/constraints/general/rbody/rby_imp0.F
-Chd|        RBY_IMPR2                     source/constraints/general/rbody/rby_imp0.F
-Chd|        SPMD_SUMF_V                   source/mpi/implicit/imp_spmd.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    upd_rhs         ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_chkm        ../engine/source/implicit/imp_solv.F
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    bc_impr1        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    condens_b       ../engine/source/implicit/upd_glob_k.F
+!||    ext_rhs         ../engine/source/implicit/upd_glob_k.F
+!||    fv_imprl        ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_rwlr0        ../engine/source/constraints/general/rwall/srw_imp.F
+!||    i2_impr1        ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2_impr2        ../engine/source/interfaces/interf/i2_imp1.F
+!||    imp_dycrb       ../engine/source/implicit/imp_dyna.F
+!||    imp_dynar       ../engine/source/implicit/imp_dyna.F
+!||    imp_fhht        ../engine/source/implicit/imp_dyna.F
+!||    imp_fhht1       ../engine/source/implicit/imp_dyna.F
+!||    imp_setb        ../engine/source/implicit/imp_setb.F
+!||    imp_setba       ../engine/source/implicit/imp_setb.F
+!||    imp_setbp       ../engine/source/implicit/imp_setb.F
+!||    rbe2_impr1      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe3_impr1      ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rbe3_impr2      ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rby_impr1       ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    rby_impr2       ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    spmd_sumf_v     ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE UPD_RHS(ICODT ,ICODR ,ISKEW ,IBFV    ,XFRAME ,
      1                   RBY   ,X     ,SKEW   ,LPBY   ,NPBY   ,
      2                   NRBYAC,IRBYAC,NINT2  ,IINT2  ,IPARI  ,
@@ -695,9 +674,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -721,19 +698,19 @@ C-----------------------------------------------
      .         DIMENSION(:,:),ALLOCATABLE :: MA,INA
       my_real,
      .         DIMENSION(:),ALLOCATABLE :: B0
-C-------int2,RBE3,rby speciale (Fext seulement)----------
-        IF (IUPD.EQ.0) THEN
+C-------int2,RBE3,special rby (external force only)----------
+        IF (IUPD==0) THEN
          DO I=1,NINT2
           N=IINT2(I)
           CALL I2_IMPR1(IPARI(1,N),INTBUF_TAB(N) ,
      .                  X  ,NDOF ,IDDL    ,B  )
          ENDDO
-         IF (NRBE2.GT.0) THEN
+         IF (NRBE2>0) THEN
           CALL RBE2_IMPR1(
      1                    IRBE2  ,LRBE2 ,X     ,SKEW   ,NDOF   ,
      2                    IDDL   ,B     ,WEIGHT)
          ENDIF
-         IF (NRBE3.GT.0) THEN
+         IF (NRBE3>0) THEN
           CALL RBE3_IMPR1(
      1                    IRBE3  ,LRBE3 ,FRBE3  ,X     ,SKEW   ,
      2                    NDOF   ,IDDL  ,B      ,WEIGHT)
@@ -751,7 +728,7 @@ C-------int2,rby speciale (elems deleted)----------
           CALL I2_IMPR2(IPARI(1,N),INTBUF_TAB(N) ,AC    ,ACR  ,
      .                  X  ,NDOF ,IDDL    ,B  )
          ENDDO
-         IF (NRBE3.GT.0) THEN
+         IF (NRBE3>0) THEN
           CALL RBE3_IMPR2(
      1                    IRBE3  ,LRBE3 ,FRBE3  ,X     ,SKEW   ,
      2                    NDOF   ,IDDL  ,B      ,WEIGHT,AC     ,
@@ -763,9 +740,9 @@ C-------int2,rby speciale (elems deleted)----------
           CALL RBY_IMPR2(X, RBY(1,N),LPBY(K1),NPBY(1,N),
      1                   NDOF  ,IDDL   ,B    ,AC    ,ACR  )
          ENDDO
-        IF (IDYNA.GT.0) THEN
+        IF (IDYNA>0) THEN
           ALLOCATE(MA(3,NUMNOD))
-          IF (IRODDL.NE.0) ALLOCATE(INA(3,NUMNOD))
+          IF (IRODDL/=0) ALLOCATE(INA(3,NUMNOD))
           CALL IMP_DYNAR(MA   ,INA   ,MS   ,IN     ,A    ,AR    ,
      .                   V    ,VR    )
          DO I=1,NRBYAC
@@ -774,7 +751,7 @@ C-------int2,rby speciale (elems deleted)----------
      .                   WEIGHT,ICODR  ,ISKEW  ,SKEW   )
          ENDDO
         ENDIF
-        IF (IRFLAG.GT.0) THEN
+        IF (IRFLAG>0) THEN
          CALL EXT_RHS(ICODT ,ICODR ,ISKEW ,IBFV    ,XFRAME ,
      1                X     ,SKEW  ,NDOF  ,IDDL    ,IKC    ,
      2                NDDL0 ,B     ,INLOC  ,LJ     ,AC     ,
@@ -785,13 +762,13 @@ C-------int2,rby speciale (elems deleted)----------
      1                X     ,SKEW  ,NDOF  ,IDDL    ,IKC    ,
      2                NDDL0 ,B0    ,INLOC  ,LJ     ,A      ,
      3                AR    ,NT_RW ,W_DDL  ,NDDL   ,R02    )
-         IF (IDYNA.GT.0) THEN
+         IF (IDYNA>0) THEN
          CALL IMP_SETB(MA   ,INA   ,IDDL  ,NDOF    ,B0     )
          CALL EXT_RHS(ICODT ,ICODR ,ISKEW ,IBFV    ,XFRAME ,
      1                X     ,SKEW  ,NDOF  ,IDDL    ,IKC    ,
      2                NDDL0 ,B0    ,INLOC  ,LJ     ,MA     ,
      3                INA   ,NT_RW ,W_DDL  ,NDDL   ,R02    )
-         END IF !(IDYNA.GT.0) THEN
+         END IF !(IDYNA>0) THEN
          DEALLOCATE(B0)
         ENDIF
 C -----add Fint---------------------
@@ -803,7 +780,7 @@ C -----add Fint---------------------
          A(2,I) = A(2,I) + AC(2,I)
          A(3,I) = A(3,I) + AC(3,I)
         ENDDO
-        IF (IRODDL.NE.0) THEN
+        IF (IRODDL/=0) THEN
          DO I = 1,NUMNOD
           AR(1,I) = AR(1,I) + ACR(1,I)
           AR(2,I) = AR(2,I) + ACR(2,I)
@@ -811,10 +788,10 @@ C -----add Fint---------------------
          ENDDO
         ENDIF
 C+++
-        IF (IDYNA.GT.0) THEN
+        IF (IDYNA>0) THEN
 C-------------
          CALL IMP_FHHT(NDDL0  ,B    )
-C -----add Ma----M,IN sont deja condenses-----------------
+C -----add Ma----M,IN are already condensed-----------------
          CALL IMP_SETBA(MA    ,INA     ,IDDL   ,NDOF  ,B     ,
      1                  IFLAG )
          DO I = 1,NUMNOD
@@ -822,7 +799,7 @@ C -----add Ma----M,IN sont deja condenses-----------------
           A(2,I) = A(2,I) + MA(2,I)
           A(3,I) = A(3,I) + MA(3,I)
          ENDDO
-         IF (IRODDL.NE.0) THEN
+         IF (IRODDL/=0) THEN
           DO I = 1,NUMNOD
            AR(1,I) = AR(1,I) + INA(1,I)
            AR(2,I) = AR(2,I) + INA(2,I)
@@ -830,7 +807,7 @@ C -----add Ma----M,IN sont deja condenses-----------------
           ENDDO
          ENDIF
           DEALLOCATE(MA)
-          IF (IRODDL.NE.0) DEALLOCATE(INA)
+          IF (IRODDL/=0) DEALLOCATE(INA)
         ENDIF
 C ---
 C
@@ -838,14 +815,14 @@ C
        CALL BC_IMPR1(ICODT ,ICODR ,ISKEW ,SKEW  ,NDOF  ,
      1               IDDL  ,B     )
 C
-       IF(NFXVEL.GT.0) THEN
+       IF(NFXVEL>0) THEN
          CALL FV_IMPRL(IBFV   ,SKEW  ,XFRAME ,LJ   ,IDDL   ,
      1                 NDOF   ,B     )
        ENDIF
 C
-       IF(NT_RW.GT.0) CALL FV_RWLR0(IDDL   ,B     )
+       IF(NT_RW>0) CALL FV_RWLR0(IDDL   ,B     )
 C
-       IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
+       IF (NSPMD>1) THEN
 C ----------B->dB---------------------
         IFLAG = 0
         CALL IMP_SETBA(A     ,AR      ,IDDL   ,NDOF  ,B     ,
@@ -858,26 +835,26 @@ C ----------B->dB---------------------
         CALL CONDENS_B(NDDL0  ,IKC  ,B    )
        ENDIF
 C-------------
-       IF (IDYNA.GT.0) CALL IMP_FHHT1(NDDL0  ,NDDL    ,B    ,IKC )
+       IF (IDYNA>0) CALL IMP_FHHT1(NDDL0  ,NDDL    ,B    ,IKC )
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  EXT_RHS                       source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        UPD_RHS                       source/implicit/upd_glob_k.F  
-Chd|        UPD_RHS_FR                    source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        BC_IMPR1                      source/constraints/general/bcs/bc_imp0.F
-Chd|        CONDENS_B                     source/implicit/upd_glob_k.F  
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|        FV_IMPRL                      source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_RWLR0                      source/constraints/general/rwall/srw_imp.F
-Chd|        IMP_SETBA                     source/implicit/imp_setb.F    
-Chd|        IMP_SETBP                     source/implicit/imp_setb.F    
-Chd|        PRODUT_W                      source/implicit/produt_v.F    
-Chd|        SPMD_SUMF_V                   source/mpi/implicit/imp_spmd.F
-Chd|====================================================================
+!||====================================================================
+!||    ext_rhs       ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    upd_rhs       ../engine/source/implicit/upd_glob_k.F
+!||    upd_rhs_fr    ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    bc_impr1      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    condens_b     ../engine/source/implicit/upd_glob_k.F
+!||    cp_real       ../engine/source/implicit/produt_v.F
+!||    fv_imprl      ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_rwlr0      ../engine/source/constraints/general/rwall/srw_imp.F
+!||    imp_setba     ../engine/source/implicit/imp_setb.F
+!||    imp_setbp     ../engine/source/implicit/imp_setb.F
+!||    produt_w      ../engine/source/implicit/produt_v.F
+!||    spmd_sumf_v   ../engine/source/mpi/implicit/imp_spmd.F
+!||====================================================================
       SUBROUTINE EXT_RHS(ICODT ,ICODR ,ISKEW ,IBFV    ,XFRAME ,
      1                   X     ,SKEW  ,NDOF  ,IDDL    ,IKC    ,
      4                   NDDL0 ,B     ,INLOC  ,LJ     ,AC     ,
@@ -891,9 +868,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -914,13 +889,13 @@ C------------------------------------------
         CALL CP_REAL(NDDL0,B,LB)
         CALL BC_IMPR1(ICODT ,ICODR ,ISKEW ,SKEW  ,NDOF  ,
      1                IDDL  ,LB    )
-        IF(NFXVEL.GT.0) THEN
+        IF(NFXVEL>0) THEN
          CALL FV_IMPRL(IBFV   ,SKEW  ,XFRAME ,LJ   ,IDDL   ,
      1                 NDOF   ,LB    )
         ENDIF
-        IF(NT_RW.GT.0) CALL FV_RWLR0(IDDL   ,LB    )
+        IF(NT_RW>0) CALL FV_RWLR0(IDDL   ,LB    )
 C
-       IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
+       IF (NSPMD>1) THEN
 C ----------LB->dB---------------------
         IFLAG = 0
         CALL IMP_SETBA(AC     ,ACR      ,IDDL   ,NDOF  ,LB    ,
@@ -938,21 +913,22 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RER02                         source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_SETBP                     source/implicit/imp_setb.F    
-Chd|        PRODUT_W                      source/implicit/produt_v.F    
-Chd|        RECUKIN                       source/implicit/recudis.F     
-Chd|        RER_INT_V                     source/implicit/upd_glob_k.F  
-Chd|        SPMD_SUMF_V                   source/mpi/implicit/imp_spmd.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    rer02           ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_setbp       ../engine/source/implicit/imp_setb.F
+!||    produt_w        ../engine/source/implicit/produt_v.F
+!||    recukin         ../engine/source/implicit/recudis.F
+!||    rer_int_v       ../engine/source/implicit/upd_glob_k.F
+!||    spmd_sumf_v     ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE RER02(RBY   ,LPBY  ,NPBY  ,SKEW  ,ISKEW ,
-     1                   ITAB  ,WEIGHT,MS    ,IN    ,SENSOR,
-     2                   IBFV  ,VEL   ,LSENSOR,ICODT,ICODR ,
+     1                   ITAB  ,WEIGHT,MS    ,IN    ,
+     2                   IBFV  ,VEL   ,ICODT,ICODR ,
      3                   NRBYAC,IRBYAC,NINT2 ,IINT2 ,IPARI ,
      4                   INTBUF_TAB    ,NDOF  ,D     ,DR    ,
      5                   X     ,XFRAME,LJ    ,IXR   ,IXC   ,
@@ -975,15 +951,13 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "remesh_c.inc"
 #include      "units_c.inc"
 #include      "impl1_c.inc"
 #include      "task_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IBFV(NIFV,*),LSENSOR(NSENSI,*),LJ(*)
+      INTEGER IBFV(NIFV,*),LJ(*)
       INTEGER WEIGHT(*),LPBY(*),NPBY(NNPBY,*),ITAB(*),
      .        IPARI(NPARI,*), ISKEW(*),
      .        NRBYAC,IRBYAC(*),NINT2 ,IINT2(*),IXR(*)
@@ -993,7 +967,7 @@ C-----------------------------------------------
       INTEGER NDDL,IADK(*),JDIK(*),IDDL(*),IKC(*) ,INLOC(*),
      .        NUM_IMP(*),NS_IMP(*),NE_IMP(*),INDEX2(*),W_DDL(*)
       my_real
-     .   RBY(NRBY,*) ,SKEW(*),IN(*),MS(*),SENSOR(NSENSR,*),
+     .   RBY(NRBY,*) ,SKEW(*),IN(*),MS(*),
      .   VEL(LFXVELR,*), XFRAME(NXFRAME,*),FRBE3(*),X_C(*)
       my_real
      .  X(3,*),D(3,*),DR(3,*),DIAG_K(*),LT_K(*),A(3,*),AR(3,*),R02
@@ -1011,7 +985,7 @@ C-------D=0 for free dof------------
          A(2,N)= D(2,N)
          A(3,N)= D(3,N)
        ENDDO
-       IF (IRODDL.NE.0) THEN
+       IF (IRODDL/=0) THEN
         DO N =1,NUMNOD
          AR(1,N)= DR(1,N)
          AR(2,N)= DR(2,N)
@@ -1022,18 +996,18 @@ C-------D=0 for free dof------------
         I=INLOC(N)
         DO J=1,MIN(3,NDOF(I))
          ND = IDDL(I)+J
-         IF (IKC(ND).EQ.0) A(J,I) =ZERO
+         IF (IKC(ND)==0) A(J,I) =ZERO
         ENDDO
         DO J=4,NDOF(I)
          ND = IDDL(I)+J
-         IF (IKC(ND).EQ.0) AR(J-3,I) =ZERO
+         IF (IKC(ND)==0) AR(J-3,I) =ZERO
         ENDDO
        ENDDO
 C
        IF(IMP_LR > 0)THEN
          CALL RECUKIN(RBY   ,LPBY  ,NPBY  ,SKEW  ,ISKEW ,
-     1                ITAB  ,WEIGHT,MS    ,IN    ,SENSOR,
-     2                IBFV  ,VEL   ,LSENSOR,ICODT,ICODR ,
+     1                ITAB  ,WEIGHT,MS    ,IN    ,
+     2                IBFV  ,VEL   ,ICODT,ICODR ,
      3                NRBYAC,IRBYAC,NINT2 ,IINT2 ,IPARI ,
      4                INTBUF_TAB,NDOF  ,A     ,AR    ,
      5                X_C   ,XFRAME,LJ    ,IXR   ,IXC   ,
@@ -1041,14 +1015,14 @@ C
      7                FRBE3 ,IRBE2 ,LRBE2 )
        ELSE
          CALL RECUKIN(RBY   ,LPBY  ,NPBY  ,SKEW  ,ISKEW ,
-     1                ITAB  ,WEIGHT,MS    ,IN    ,SENSOR,
-     2                IBFV  ,VEL   ,LSENSOR,ICODT,ICODR ,
+     1                ITAB  ,WEIGHT,MS    ,IN    ,
+     2                IBFV  ,VEL   ,ICODT,ICODR ,
      3                NRBYAC,IRBYAC,NINT2 ,IINT2 ,IPARI ,
      4                INTBUF_TAB ,NDOF  ,A     ,AR    ,
      5                X     ,XFRAME,LJ    ,IXR   ,IXC   ,
      6                IXTG  ,SH4TREE,SH3TREE,IRBE3 ,LRBE3,
      7                FRBE3 ,IRBE2 ,LRBE2 )
-       END IF !(IMP_LR .GT. 0)THEN
+       END IF !(IMP_LR > 0)THEN
 C
         CALL RER_INT_V(
      1    IPARI     ,INTBUF_TAB,NUM_IMP   ,NS_IMP    ,NE_IMP    ,
@@ -1067,11 +1041,11 @@ c        CALL MAV_LT(
 c     1               NDDL  ,NNZ   ,IADK  ,JDIK  ,DIAG_K ,
 c     2               LT_K  ,U     ,F     )
         CALL PRODUT_W( NDDL  ,F   ,F  ,W_DDL  , R2)
-        IF (R2.GT.R02.AND.IMCONV.GE.0.AND.
-     .         (LPRINT.NE.0.OR.NPRINT.NE.0)) THEN
-         IF(IMACH.NE.3.OR.ISPMD.EQ.0) THEN
+        IF (R2>R02.AND.IMCONV>=0.AND.
+     .         (LPRINT/=0.OR.NPRINT/=0)) THEN
+         IF(ISPMD==0) THEN
             WRITE(IOUT,1006)SQRT(R2)
-           IF(NPRINT.LT.0) THEN
+           IF(NPRINT<0) THEN
             WRITE(ISTDO,1006)SQRT(R2)
            ENDIF
          ENDIF
@@ -1082,16 +1056,17 @@ C
      .       ' REFERENCE RESIDUAL(F) NORM HAS BEEN CHANGED TO:',E11.4)
       RETURN
       END
-Chd|====================================================================
-Chd|  RER_INT_V                     source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        RER02                         source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        UD_INT11                      source/implicit/upd_glob_k.F  
-Chd|        UD_INT5                       source/implicit/upd_glob_k.F  
-Chd|        UD_INT7                       source/implicit/upd_glob_k.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    rer_int_v       ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    rer02           ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    ud_int11        ../engine/source/implicit/upd_glob_k.F
+!||    ud_int5         ../engine/source/implicit/upd_glob_k.F
+!||    ud_int7         ../engine/source/implicit/upd_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE RER_INT_V(
      1    IPARI     ,INTBUF_TAB,NUM_IMP   ,NS_IMP    ,NE_IMP    ,
      2    X         ,UD             )
@@ -1099,21 +1074,16 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INTBUFDEF_MOD
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(NPARI,*),NUM_IMP(*),
@@ -1134,9 +1104,9 @@ C-----------------------------------------------
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
 C
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
           CALL UD_INT5(
      1       IPARI(1,NIN),INTBUF_TAB(NIN) ,X       ,
      2       NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD)  ,UD    )
@@ -1148,19 +1118,19 @@ C
        NTY   =IPARI(7,NIN)
        NSN   =IPARI(5,NIN)
 C
-       IF(NTY.EQ.3)THEN
-       ELSEIF(NTY.EQ.4)THEN
-       ELSEIF(NTY.EQ.5)THEN
-       ELSEIF(NTY.EQ.6)THEN
+       IF(NTY==3)THEN
+       ELSEIF(NTY==4)THEN
+       ELSEIF(NTY==5)THEN
+       ELSEIF(NTY==6)THEN
 C------------verify effect, if R02 is too high-----
-       ELSEIF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.24)THEN
+       ELSEIF(NTY==7.OR.NTY==10.OR.NTY==24)THEN
 C
         CALL UD_INT7(
      1    NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),INTBUF_TAB(NIN)%IRECTM,
      .    INTBUF_TAB(NIN)%NSV,
      2    NSN         ,X          ,UD         )
         IAD=IAD+NUM_IMP(NIN)
-       ELSEIF(NTY.EQ.11)THEN
+       ELSEIF(NTY==11)THEN
 C
         NRTS   =IPARI(3,NIN)
         CALL UD_INT11(
@@ -1173,27 +1143,21 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ----
-Chd|====================================================================
-Chd|  UD_INT7                       source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        RER_INT_V                     source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        INIHI7                        source/implicit/upd_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    ud_int7     ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    rer_int_v   ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    inihi7      ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       SUBROUTINE UD_INT7(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT    ,NSV       ,
      2    NSN       ,X         ,UD          )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NS_IMP(*),NE_IMP(*),IRECT(4,*),NSV(*),NSN
@@ -1210,7 +1174,7 @@ C-------Missed SPMD----------------------------------------
        DO I = 1, JLT
 C--------secnd node-----add case Ud_s >0
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         N1 = NSV(IG)
         NE=NE_IMP(I)
         DO J = 1, 4
@@ -1222,9 +1186,9 @@ C--------secnd node-----add case Ud_s >0
           US(1) = H(J)*UD(1,N1)
           US(2) = H(J)*UD(2,N1)
           US(3) = H(J)*UD(3,N1)
-         IF (ABS(US(1)).GT.ABS(UD(1,M(J)))) UD(1,M(J))= US(1)
-         IF (ABS(US(2)).GT.ABS(UD(2,M(J)))) UD(2,M(J))= US(2)
-         IF (ABS(US(3)).GT.ABS(UD(3,M(J)))) UD(3,M(J))= US(3)
+         IF (ABS(US(1))>ABS(UD(1,M(J)))) UD(1,M(J))= US(1)
+         IF (ABS(US(2))>ABS(UD(2,M(J)))) UD(2,M(J))= US(2)
+         IF (ABS(US(3))>ABS(UD(3,M(J)))) UD(3,M(J))= US(3)
          ENDDO
         ELSE
          US(1) = ZERO
@@ -1235,36 +1199,30 @@ C--------secnd node-----add case Ud_s >0
          US(2) = US(2)+ H(J)*UD(2,M(J))
          US(3) = US(3)+ H(J)*UD(3,M(J))
          ENDDO
-         IF (ABS(US(1)).GT.ABS(UD(1,N1))) UD(1,N1)= US(1)
-         IF (ABS(US(2)).GT.ABS(UD(2,N1))) UD(2,N1)= US(2)
-         IF (ABS(US(3)).GT.ABS(UD(3,N1))) UD(3,N1)= US(3)
+         IF (ABS(US(1))>ABS(UD(1,N1))) UD(1,N1)= US(1)
+         IF (ABS(US(2))>ABS(UD(2,N1))) UD(2,N1)= US(2)
+         IF (ABS(US(3))>ABS(UD(3,N1))) UD(3,N1)= US(3)
         END IF 
        ENDIF
        ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  UD_INT11                      source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        RER_INT_V                     source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        INIHI11                       source/implicit/upd_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    ud_int11    ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    rer_int_v   ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    inihi11     ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       SUBROUTINE UD_INT11(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECTS   ,IRECTM    ,
      2    NSN       ,X         ,UD        )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NS_IMP(*),NE_IMP(*),IRECTS(2,*),IRECTM(2,*),NSN
@@ -1281,7 +1239,7 @@ C-----------------------------------------------
        DO I = 1, JLT
 C--------secnd node-----
         IG = NS_IMP(I)
-       IF (IG.LE.NSN) THEN
+       IF (IG<=NSN) THEN
         NS(1) = IRECTS(1,IG)
         NS(2) = IRECTS(2,IG)
         NE=NE_IMP(I)
@@ -1292,20 +1250,19 @@ C--------secnd node-----
          VM = HM(1)*UD(J,NM(1))+HM(2)*UD(J,NM(2))
          US(J,1)=HS(1)*VM
          US(J,2)=HS(2)*VM
-         IF (ABS(US(J,1)).GT.ABS(UD(J,NS(1)))) UD(J,NS(1))= US(J,1)
-         IF (ABS(US(J,2)).GT.ABS(UD(J,NS(2)))) UD(J,NS(2))= US(J,2)
+         IF (ABS(US(J,1))>ABS(UD(J,NS(1)))) UD(J,NS(1))= US(J,1)
+         IF (ABS(US(J,2))>ABS(UD(J,NS(2)))) UD(J,NS(2))= US(J,2)
         ENDDO
        ENDIF
        ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INIHI7                        source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        UD_INT7                       source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    inihi7    ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ud_int7   ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       SUBROUTINE INIHI7(NS,IRECT,X    ,H)
 C
 C-----------------------------------------------
@@ -1319,9 +1276,6 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   X(3,*)    ,H(4)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -1419,7 +1373,7 @@ C
       NZ=NZ+ZN3
 C
       AN= MAX(EM20,SQRT(NX*NX+NY*NY+NZ*NZ))
-      IF(AN.LE.EM19) RETURN
+      IF(AN<=EM19) RETURN
       NX=NX/AN
       NY=NY/AN
       NZ=NZ/AN
@@ -1453,29 +1407,29 @@ C
       AB1=A23*B41
       AB2=B23*A41
 C
-      IF(ABS(AB1+AB2)/AREA.GT.EM10)THEN
+      IF(ABS(AB1+AB2)/AREA>EM10)THEN
        SSC=(AB1-AB2)/(AB1+AB2)
       ELSE
        SSC=ZERO
       ENDIF
-      IF(ABS(A34/AREA).GT.EM10)THEN
+      IF(ABS(A34/AREA)>EM10)THEN
        AB1=B12*A34
        AB2=B34*A12
        TTC=(AB1-AB2)/(AB1+AB2)
       ELSE
        TTC=(B12-A12)/A12
-       IF(B23.LE.ZERO.AND.B41.LE.ZERO)THEN
-         IF(-B23/A12.LE.ALP.AND.-B41/A12.LE.ALP)SSC=ZERO
-       ELSEIF(B23.LE.ZERO)THEN
-         IF(-B23/A12.LE.ALP)SSC=ONE
-       ELSEIF(B41.EQ.ZERO)THEN
-         IF(B41.LT.ZERO.AND.-B41/A12.LE.ALP)SSC=-ONE
+       IF(B23<=ZERO.AND.B41<=ZERO)THEN
+         IF(-B23/A12<=ALP.AND.-B41/A12<=ALP)SSC=ZERO
+       ELSEIF(B23<=ZERO)THEN
+         IF(-B23/A12<=ALP)SSC=ONE
+       ELSEIF(B41==ZERO)THEN
+         IF(B41<ZERO.AND.-B41/A12<=ALP)SSC=-ONE
        ENDIF
       ENDIF
 C
-      IF(ABS(SSC).GT.ONE+ALP.OR.ABS(TTC).GT.ONE+ALP) RETURN
-      IF(ABS(SSC).GT.ONE)SSC=SSC/ABS(SSC)
-      IF(ABS(TTC).GT.ONE)TTC=TTC/ABS(TTC)
+      IF(ABS(SSC)>ONE+ALP.OR.ABS(TTC)>ONE+ALP) RETURN
+      IF(ABS(SSC)>ONE)SSC=SSC/ABS(SSC)
+      IF(ABS(TTC)>ONE)TTC=TTC/ABS(TTC)
 C
       TP=FOURTH*(ONE+TTC)
       TM=FOURTH*(ONE-TTC)
@@ -1489,12 +1443,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INIHI11                       source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        UD_INT11                      source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    inihi11    ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ud_int11   ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       SUBROUTINE INIHI11(NS, NM, X  ,HS ,HM)
 C
 C-----------------------------------------------
@@ -1508,9 +1461,6 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   X(3,*)    ,HS(2),HM(2)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -1547,18 +1497,18 @@ C
 C
        XS2 = MAX(XS2,EM20)
        XM2 = MAX(XM2,EM20)
-       IF(HM(1).LT.ZERO)THEN
+       IF(HM(1)<ZERO)THEN
          HM(1) = ZERO
          HS(1) = -XA / XS2
-       ELSEIF(HM(1).GT.ONE)THEN
+       ELSEIF(HM(1)>ONE)THEN
          HM(1) = ONE
          HS(1) = -(XA + XSM) / XS2
        ENDIF
 C
-       IF(HS(1).LT.ZERO)THEN
+       IF(HS(1)<ZERO)THEN
          HS(1) = ZERO
          HM(1) = -XB / XM2
-       ELSEIF(HS(1).GT.ONE)THEN
+       ELSEIF(HS(1)>ONE)THEN
          HS(1) = ONE
          HM(1) = -(XB + XSM) / XM2
        ENDIF
@@ -1572,18 +1522,19 @@ C
       RETURN
       END
 C   --------- ----
-Chd|====================================================================
-Chd|  UD_INT5                       source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        RER_INT_V                     source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        I3CST3                        source/interfaces/inter3d/i3cst3.F
-Chd|        I3DIS3                        source/interfaces/inter3d/i3dis3.F
-Chd|        I3GAP3                        source/interfaces/inter3d/i3gap3.F
-Chd|        I5CORK3                       source/interfaces/inter3d/i5cork3.F
-Chd|        UD_INTG5                      source/implicit/upd_glob_k.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ud_int5         ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    rer_int_v       ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    i3cst3          ../engine/source/interfaces/inter3d/i3cst3.F
+!||    i3dis3          ../engine/source/interfaces/inter3d/i3dis3.F
+!||    i3gap3          ../engine/source/interfaces/inter3d/i3gap3.F
+!||    i5cork3         ../engine/source/interfaces/inter3d/i5cork3.F
+!||    ud_intg5        ../engine/source/implicit/upd_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE UD_INT5(
      1                   IPARI ,INTBUF_TAB,X    ,NUM_IMP,
      2                   CAND_N,CAND_E ,UD   )
@@ -1602,14 +1553,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr04_c.inc"
-#include      "scr07_c.inc"
-#include      "scr05_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1650,41 +1594,50 @@ C     REAL
       my_real, DIMENSION(MVSIZ) :: H1,H2,H3,H4
 C-----------------------------------------------
       INTY   = IPARI(7)
-C-------NSN defined in scr04_c.inc--
        GAP  =INTBUF_TAB%VARIABLES(2)
         DO NFT = 0 , NUM_IMP - 1 , NVSIZ
           LFT=1
           LLT = MIN( NVSIZ, NUM_IMP - NFT )
-          CALL I5CORK3(X ,INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,
-     .                INTBUF_TAB%NSV,
-     .                INTBUF_TAB%IRTLM,CAND_N(NFT+1),CAND_E(NFT+1),
-     .                NSVG  ,JX1   ,JX2     ,JX3   ,JX4   ,
-     2                X1    ,X2    ,X3      ,
-     3                X4    ,Y1    ,Y2    ,Y3    ,Y4      ,
-     4                Z1    ,Z2    ,Z3    ,Z4    ,XFACE   ,
-     5                XI    ,YI    ,ZI    ,IX1   ,IX2     ,
-     6                IX3   ,IX4)
-          CALL I3CST3(  X1    ,X2      ,X3    ,X4    ,XI ,
-     1                  Y1    ,Y2      ,Y3    ,Y4    ,YI ,
-     2                  Z1    ,Z2      ,Z3    ,Z4    ,ZI ,
-     3                  XFACE ,N1      ,N2    ,N3    ,SSC,
-     4                  TTC   ,X0      ,Y0    ,Z0    ,XX1,
-     5                  XX2   ,XX3     ,XX4   ,YY1   ,YY2,
-     6                  YY3   ,YY4     ,ZZ1   ,ZZ2   ,ZZ3,
-     7                  ZZ4   ,XI1     ,XI2   ,XI3   ,XI4,
-     8                  YI1   ,YI2     ,YI3   ,YI4   ,ZI1,
-     9                  ZI2   ,ZI3     ,ZI4   ,XN1   ,XN2,
-     1                  XN3   ,XN4     ,YN1   ,YN2   ,YN3,
-     2                  YN4   ,ZN1     ,ZN2   ,ZN3   ,ZN4,
-     3                  AREA)
-          CALL I3GAP3(GAP,AREA,THK,ALP)
-          CALL I3DIS3(IGIMP,INTY,DIST,X1    ,X2 ,
-     1              X3   ,X4  ,XI  ,Y1    ,Y2 ,
-     2              Y3   ,Y4  ,YI  ,Z1    ,Z2 ,
-     3              Z3   ,Z4  ,ZI  ,XFACE ,N1 ,
-     4              N2   ,N3  ,SSC ,TTC   ,ALP,
-     5              ANS  ,XP  ,YP  ,ZP    ,H1 ,
-     6              H2   ,H3  ,H4)
+          CALL I5CORK3(
+     1   X,                INTBUF_TAB%IRECTM,INTBUF_TAB%MSR,   INTBUF_TAB%NSV,
+     2   INTBUF_TAB%IRTLM, CAND_N(NFT+1),    CAND_E(NFT+1),    NSVG,
+     3   JX1,              JX2,              JX3,              JX4,
+     4   X1,               X2,               X3,               X4,
+     5   Y1,               Y2,               Y3,               Y4,
+     6   Z1,               Z2,               Z3,               Z4,
+     7   XFACE,            XI,               YI,               ZI,
+     8   IX1,              IX2,              IX3,              IX4,
+     9   LFT,              LLT,              NFT)
+          CALL I3CST3(
+     1   X1,      X2,      X3,      X4,
+     2   XI,      Y1,      Y2,      Y3,
+     3   Y4,      YI,      Z1,      Z2,
+     4   Z3,      Z4,      ZI,      XFACE,
+     5   N1,      N2,      N3,      SSC,
+     6   TTC,     X0,      Y0,      Z0,
+     7   XX1,     XX2,     XX3,     XX4,
+     8   YY1,     YY2,     YY3,     YY4,
+     9   ZZ1,     ZZ2,     ZZ3,     ZZ4,
+     A   XI1,     XI2,     XI3,     XI4,
+     B   YI1,     YI2,     YI3,     YI4,
+     C   ZI1,     ZI2,     ZI3,     ZI4,
+     D   XN1,     XN2,     XN3,     XN4,
+     E   YN1,     YN2,     YN3,     YN4,
+     F   ZN1,     ZN2,     ZN3,     ZN4,
+     G   AREA,    LFT,     LLT)
+          CALL I3GAP3(
+     1   GAP,     AREA,    THK,     ALP,
+     2   LFT,     LLT)
+          CALL I3DIS3(
+     1   IGIMP,   INTY,    DIST,    X1,
+     2   X2,      X3,      X4,      XI,
+     3   Y1,      Y2,      Y3,      Y4,
+     4   YI,      Z1,      Z2,      Z3,
+     5   Z4,      ZI,      XFACE,   N1,
+     6   N2,      N3,      SSC,     TTC,
+     7   ALP,     ANS,     XP,      YP,
+     8   ZP,      H1,      H2,      H3,
+     9   H4,      LFT,     LLT)
           CALL UD_INTG5(LFT    ,LLT    ,NSVG   ,JX1    ,JX2    ,
      .                  JX3    ,JX4    ,UD     ,H1     ,H2     ,
      2                  H3     ,H4     ,XFACE)
@@ -1693,12 +1646,11 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ----
-Chd|====================================================================
-Chd|  UD_INTG5                      source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        UD_INT5                       source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ud_intg5   ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ud_int5    ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       SUBROUTINE UD_INTG5(LFT    ,LLT    ,NSVG   ,JX1    ,JX2    ,
      .                    JX3    ,JX4    ,UD     ,H1     ,H2     ,
      2                    H3     ,H4     ,XFACE)
@@ -1726,9 +1678,6 @@ C-----------------------------------------------
       my_real
      .   H(4),US(3)
 C-----------------------------------------------
-!      EQUIVALENCE (H1,BV(1,25)) ,(H2,BV(1,26)) ,(H3,BV(1,27))
-!      EQUIVALENCE (H4,BV(1,28)) ,(XFACE,BV(1,29))
-C-----------------------------------------------
        DO I = LFT    ,LLT
 C--------secnd node-----
         NS = NSVG(I)
@@ -1748,21 +1697,22 @@ C--------secnd node-----
          US(2) = US(2)+ H(J)*UD(2,M(J))
          US(3) = US(3)+ H(J)*UD(3,M(J))
         ENDDO
-        IF (ABS(US(1)).GT.ABS(UD(1,NS))) UD(1,NS)= US(1)
-        IF (ABS(US(2)).GT.ABS(UD(2,NS))) UD(2,NS)= US(2)
-        IF (ABS(US(3)).GT.ABS(UD(3,NS))) UD(3,NS)= US(3)
+        IF (ABS(US(1))>ABS(UD(1,NS))) UD(1,NS)= US(1)
+        IF (ABS(US(2))>ABS(UD(2,NS))) UD(2,NS)= US(2)
+        IF (ABS(US(3))>ABS(UD(3,NS))) UD(3,NS)= US(3)
        ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_DOFSPC                    source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        UPD_GLOB_K                    source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        COLINEAR3                     source/implicit/upd_glob_k.F  
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ini_dofspc      ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    upd_glob_k      ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    colinear3       ../engine/source/implicit/upd_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE INI_DOFSPC(
      1    NPBY      ,LPBY      ,NRBYAC    ,IRBYAC    ,NINT2     ,
      2    IINT2     ,IPARI     ,INTBUF_TAB,NDOF      ,IRBE3     ,
@@ -1771,21 +1721,16 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INTBUFDEF_MOD
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPBY(NNPBY,*),NRBYAC,IRBYAC(*),LPBY(*),DOFSPC(*)
@@ -1811,36 +1756,36 @@ C
        N=IRBYAC(I)
        K=IRBYAC(I+NRBYKIN)
        M=NPBY(1,N)
-       IF (M.LE.0) CYCLE
+       IF (M<=0) CYCLE
        DOFSPC(M)=0
        NSN  =NPBY(2,N)
        ICOL = 1
        DO N =1,NSN
         NS=LPBY(K+N)
-        IF (NDOF(NS).GT.3) THEN
+        IF (NDOF(NS)>3) THEN
          ICOL = 0
          CYCLE
         ENDIF
        END DO
-       IF (ICOL.EQ.1) THEN
-        IF (NSN.LE.2) THEN
+       IF (ICOL==1) THEN
+        IF (NSN<=2) THEN
          DOFSPC(M)=NDOF(M)
         ELSE
          CALL COLINEAR3(LPBY(K+1),LPBY(K+2),LPBY(K+3),X,ICOL)
-         IF (ICOL.EQ.1) THEN
+         IF (ICOL==1) THEN
           N1=LPBY(K+2)
           N2=LPBY(K+3)
            DO N =4,NSN
             N3=LPBY(K+N)
             CALL COLINEAR3(N1,N2,N3,X,ICOL)
-            IF (ICOL.EQ.0) CYCLE
+            IF (ICOL==0) CYCLE
             N1=N2
             N2=N3
            END DO
-           IF (ICOL.EQ.1) DOFSPC(M)=NDOF(M)
+           IF (ICOL==1) DOFSPC(M)=NDOF(M)
          END IF
         END IF
-       END IF !(ICOL.EQ.1) THEN
+       END IF !(ICOL==1) THEN
       ENDDO
 C------interface 2-----------
       DO I=1,NINT2
@@ -1859,7 +1804,7 @@ C------MSR(NMN)-----
 C------IRTL(NSN)--main el number---
 c       DO J=1,NSN
 c        NS=INBUF(K12+J)
-c        IF (NDOF(NS).GT.0) THEN
+c        IF (NDOF(NS)>0) THEN
 c         L=INBUF(K14+J)
 c         ID=K11+4*(L-1)
 c         DO M=1,4
@@ -1877,7 +1822,7 @@ C
       DO I=1,NRBE3
        IAD=IRBE3(1,I)
        NS =IRBE3(3,I)
-       IF (NS.EQ.0) CYCLE
+       IF (NS==0) CYCLE
        NMN=IRBE3(5,I)
        DO J=1,NMN
          NM=LRBE3(IAD+J)
@@ -1889,48 +1834,47 @@ C
        J=IRBE2(3,I)
        IAD=IRBE2(1,I)
        NSN = IRBE2(5,I)
-       IF (NSN.EQ.0) CYCLE
+       IF (NSN==0) CYCLE
        ICOL = 1
        DOFSPC(J)=0
        DO N =1,NSN
         NS = LRBE2(IAD+N)
-        IF (NDOF(NS).GT.3) THEN
+        IF (NDOF(NS)>3) THEN
          ICOL = 0
          CYCLE
         ENDIF
        END DO
-       IF (ICOL.EQ.1) THEN
-        IF (NSN.EQ.1) THEN
+       IF (ICOL==1) THEN
+        IF (NSN==1) THEN
          DOFSPC(J)=NDOF(J)
-        ELSEIF (NSN.EQ.2) THEN
+        ELSEIF (NSN==2) THEN
          CALL COLINEAR3(J,LRBE2(IAD+1),LRBE2(IAD+2),X,ICOL)
-         IF (ICOL.EQ.1) DOFSPC(J)=NDOF(J)
+         IF (ICOL==1) DOFSPC(J)=NDOF(J)
         ELSE
          CALL COLINEAR3(J,LRBE2(IAD+1),LRBE2(IAD+2),X,ICOL)
-         IF (ICOL.EQ.1) THEN
+         IF (ICOL==1) THEN
           N1=LRBE2(IAD+1)
           N2=LRBE2(IAD+2)
            DO N =3,NSN
             N3=LRBE2(IAD+N)
             CALL COLINEAR3(N1,N2,N3,X,ICOL)
-            IF (ICOL.EQ.0) CYCLE
+            IF (ICOL==0) CYCLE
             N1=N2
             N2=N3
            END DO
-           IF (ICOL.EQ.1) DOFSPC(J)=NDOF(J)
+           IF (ICOL==1) DOFSPC(J)=NDOF(J)
          END IF
         END IF
-       END IF !(ICOL.EQ.1) THEN
+       END IF !(ICOL==1) THEN
       END DO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  COLINEAR3                     source/implicit/upd_glob_k.F  
-Chd|-- called by -----------
-Chd|        INI_DOFSPC                    source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    colinear3    ../engine/source/implicit/upd_glob_k.F
+!||--- called by ------------------------------------------------------
+!||    ini_dofspc   ../engine/source/implicit/upd_glob_k.F
+!||====================================================================
       SUBROUTINE COLINEAR3(N1,N2,N3,X,ICOL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1961,11 +1905,11 @@ C
        Z31=X(3,N3)-X(3,N1)
 C       -----------------
        PR = Y21 * Z31 - Z21 * Y31
-       IF (ABS(PR).LE.EM10) THEN
+       IF (ABS(PR)<=EM10) THEN
         PR = Z21 * X31 - X21 * Z31
-        IF (ABS(PR).LE.EM10) THEN
+        IF (ABS(PR)<=EM10) THEN
          PR = X21 * Y31 - Y21 * X31
-         IF (ABS(PR).LE.EM10) ICOL=1
+         IF (ABS(PR)<=EM10) ICOL=1
         END IF
        END IF
 C

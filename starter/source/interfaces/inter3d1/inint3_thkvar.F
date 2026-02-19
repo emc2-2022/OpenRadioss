@@ -1,43 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ININT3_THKVAR                 source/interfaces/inter3d1/inint3_thkvar.F
-Chd|-- called by -----------
-Chd|        ININTR_THKVAR                 source/interfaces/interf1/inintr_thkvar.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        I21BUC1                       source/interfaces/inter3d1/i21buc3.F
-Chd|        I21DST3                       source/interfaces/inter3d1/i21dst3.F
-Chd|        I21GAP3                       source/interfaces/inter3d1/i21gap3.F
-Chd|        I21NORM3                      source/interfaces/inter3d1/i21norm3.F
-Chd|        I21PWR3                       source/interfaces/inter3d1/i21pwr3.F
-Chd|        I21RCURV                      source/interfaces/inter3d1/i21norm3.F
-Chd|        I21RESET                      source/interfaces/inter3d1/i21reset.F
-Chd|        I21ROT                        source/interfaces/inter3d1/i21rot.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTSTAMP_MOD                  share/modules1/intstamp_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inint3_thkvar          ../starter/source/interfaces/inter3d1/inint3_thkvar.F
+!||--- called by ------------------------------------------------------
+!||    inintr_thkvar          ../starter/source/interfaces/interf1/inintr_thkvar.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    i21buc1                ../starter/source/interfaces/inter3d1/i21buc3.F
+!||    i21dst3                ../starter/source/interfaces/inter3d1/i21dst3.F
+!||    i21gap3                ../starter/source/interfaces/inter3d1/i21gap3.F
+!||    i21norm3               ../starter/source/interfaces/inter3d1/i21norm3.F
+!||    i21pwr3                ../starter/source/interfaces/inter3d1/i21pwr3.F
+!||    i21rcurv               ../starter/source/interfaces/inter3d1/i21norm3.F
+!||    i21reset               ../starter/source/interfaces/inter3d1/i21reset.F
+!||    i21rot                 ../starter/source/interfaces/inter3d1/i21rot.F
+!||--- uses       -----------------------------------------------------
+!||    intstamp_mod           ../starter/share/modules1/intstamp_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ININT3_THKVAR(
      1               INTBUF_TAB  ,INSCR      ,X    ,IXS     ,
      2               IXC    ,IXTG   ,PM      ,GEO  ,IPARI   ,
@@ -54,14 +54,13 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE INTSTAMP_MOD
-      USE INTBUFDEF_MOD 
+      USE INTBUFDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only :nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -69,15 +68,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
 #include      "units_c.inc"
 #include      "vect07_c.inc"
-#include      "warn_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -90,19 +85,14 @@ C-----------------------------------------------
      .   NPBY(NNPBY,*), LPBY(*), IPARTS(*), IPARTC(*), IPARTG(*)
       TYPE(INTSTAMP_DATA) INTSTAMP
       INTEGER NOM_OPT(LNOPT1,*)
-C     REAL
       my_real
      .   X(3,*), PM(*), GEO(*),RWA(6,*),
      .   THKSH4_VAR(*), THKSH3_VAR(*), THKNOD(*),
      .   SKEW(LSKEW,*), MS(*), IN(*), V(3,*), VR(3,*), RBY(NRBY,*),
      .   THK_PART(*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
-      TYPE(INTBUF_STRUCT_) INTBUF_TAB
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      TYPE(INTBUF_STRUCT_) :: INTBUF_TAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -134,7 +124,7 @@ C     REAL
       my_real
      .   MAXBOX,MINBOX
       my_real
-     .   GAPV(MVSIZ), PENE(MVSIZ)
+     .   GAPV(MVSIZ), PENE(MVSIZ),GAP0
       CHARACTER MESS*40
       DATA MESS/'/INTER/TYPE21 INITIALIZATIONS           '/
 C-----------------------------------------------
@@ -165,22 +155,40 @@ C
       END IF
 C
 C=======================================================================
-      IF(NTY.EQ.21) THEN
+      IF(NTY==21) THEN
 C=======================================================================
 C
-C      CALCUL DU GAP, apres INITIA (lecture des epaisseurs).
+C      CALCULATION OF THE GAP, after INITIA (reading of thicknesses).
 C
        IF(IGAP == 2) THEN
-         GAP_S0 => INTBUF_TAB%GAP_S(1+NSN:2*NSN)
-       ELSE
-         GAP_S0 => GAPS0_BID
-       ENDIF
-
-       CALL I21GAP3(
+         GAP0 = INTBUF_TAB%VARIABLES(2)
+         CALL I21GAP3(
      1 X         ,INTBUF_TAB%IRECTS,INTBUF_TAB%IRECTM,NRTS,NRTM,
      2 GEO       ,PM        ,IXS       ,IXC         ,IXTG      ,
      3 -NUMINT   ,NTY       ,NOINT     ,NSN         ,INTBUF_TAB%NSV,
-     4 INTBUF_TAB%VARIABLES(2),IGAP    ,INTBUF_TAB%GAP_S,INTBUF_TAB%VARIABLES(13),
+     4 GAP0,IGAP    ,INTBUF_TAB%GAP_S,INTBUF_TAB%VARIABLES(13),
+     .                                             INTBUF_TAB%VARIABLES(6),
+     5 INTBUF_TAB%VARIABLES(16),INTBUF_TAB%IELES,INTBUF_TAB%STF,
+     .                  NMN          ,INTBUF_TAB%MSR   ,
+     6 KNOD2ELS  ,KNOD2ELC   ,KNOD2ELTG ,NOD2ELS      ,NOD2ELC   ,
+     7 NOD2ELTG  ,THKNOD         ,
+     8 IKINE        ,ITAB         ,INACTI  ,INTBUF_TAB%VARIABLES(19),
+     .                                              INTBUF_TAB%STFNS,
+     9 INTBUF_TAB%VARIABLES(23),INTBUF_TAB%GAP_S(1+NSN:2*NSN),INTBUF_TAB%AREAS,
+     .                             INTBUF_TAB%XM0,INTBUF_TAB%VARIABLES(27),
+     A INTBUF_TAB%VARIABLES(28),INTBUF_TAB%VARIABLES(29),INTTH  ,INTBUF_TAB%VARIABLES(32),
+     .                                           IPARTS          , 
+     B IPARTC, IPARTG, THK_PART,INTBUF_TAB%THKNOD0      ,ID,TITR ,
+     C INTBUF_TAB%VARIABLES(46),RESORT )
+
+       ELSE
+         GAP_S0 => GAPS0_BID
+         GAP0 = INTBUF_TAB%VARIABLES(2)
+         CALL I21GAP3(
+     1 X         ,INTBUF_TAB%IRECTS,INTBUF_TAB%IRECTM,NRTS,NRTM,
+     2 GEO       ,PM        ,IXS       ,IXC         ,IXTG      ,
+     3 -NUMINT   ,NTY       ,NOINT     ,NSN         ,INTBUF_TAB%NSV,
+     4 GAP0,IGAP    ,INTBUF_TAB%GAP_S,INTBUF_TAB%VARIABLES(13),
      .                                             INTBUF_TAB%VARIABLES(6),
      5 INTBUF_TAB%VARIABLES(16),INTBUF_TAB%IELES,INTBUF_TAB%STF,
      .                  NMN          ,INTBUF_TAB%MSR   ,
@@ -193,9 +201,11 @@ C
      A INTBUF_TAB%VARIABLES(28),INTBUF_TAB%VARIABLES(29),INTTH  ,INTBUF_TAB%VARIABLES(32),
      .                                           IPARTS          , 
      B IPARTC, IPARTG, THK_PART,INTBUF_TAB%THKNOD0      ,ID,TITR ,
-     C INTBUF_TAB%VARIABLES(46))
+     C INTBUF_TAB%VARIABLES(46),RESORT )
+
+       ENDIF
 C
-C      INITIALISATIONS (PRE-CALCUL DES NORMALES, etc)
+C      Initializations (normal pre-celucculus, etc.)
 C
        CALL I21NORM3(
      1 X        ,INTBUF_TAB%IRECTM,NRTM  ,NMN          ,INTBUF_TAB%MSR ,
@@ -209,14 +219,14 @@ C
 C
        CALL I21RESET(NSN, INTBUF_TAB%IRTLM, INTBUF_TAB%CSTS)
 C
-C      IL FAUT ENCORE FAIRE ONE BUCKET SORT DANS LE STARTER
+C      STILL NEED TO DO A BUCKET SORT IN THE STARTER
 C
        MAXBOX = INTBUF_TAB%VARIABLES(9)
        MINBOX = INTBUF_TAB%VARIABLES(12)
        CALL I21BUC1(
      1   X  ,INTBUF_TAB%IRECTM  ,INTBUF_TAB%NSV,INTBUF_TAB%VARIABLES(4),NSEG ,
      2   NMN         ,NRTM        ,MWA       ,NSN       ,INTBUF_TAB%CAND_E ,
-     3   INTBUF_TAB%CAND_N  ,INTBUF_TAB%VARIABLES(2),RWA ,NOINT,I_STOK    ,
+     3   INTBUF_TAB%CAND_N  ,GAP0,RWA ,NOINT,I_STOK    ,
      4   INTBUF_TAB%VARIABLES(5),INTBUF_TAB%VARIABLES(8),MAXBOX ,MINBOX ,INTBUF_TAB%MSR,
      5   INTBUF_TAB%STF  ,MULTIMP   ,ITAB        ,INTBUF_TAB%GAP_S  ,IGAP  ,
      6   INTBUF_TAB%VARIABLES(13),INTBUF_TAB%VARIABLES(16) ,INACTI ,NRTS ,INTBUF_TAB%IRECTS,
@@ -233,18 +243,19 @@ C
      8   LB1 ,LB2    ,LB3    ,LB4    ,LC1    ,
      9   LC2 ,LC3    ,LC4    ,PENE1   ,PROV_N ,
      1   PROV_E,N11  ,N21    ,N31    ,INTBUF_TAB%VARIABLES(46))
-
+         IF (I_MEM == 2 ) RESORT = RESORT + 1
          IF (I_MEM == 2 ) RETURN
        INTBUF_TAB%VARIABLES(9)  = MAXBOX
        INTBUF_TAB%VARIABLES(12) = MINBOX
+       INTBUF_TAB%VARIABLES(2) = GAP0
 C
-C      PUIS CALCULER LES PENETRATIONS INITIALES AVEC ONE I21DST3
+C      THEN CALCULATE THE INITIAL PENETRATIONS WITH ONE I21DST3
 C
        NGROUS=1+(I_STOK-1)/NVSIZ
 C
        DO 700 NG=1,NGROUS
 
-        IF(IPRI.GE.1) WRITE(IOUT,2007)
+        IF(IPRI>=1) WRITE(IOUT,2007)
         NFT = (NG-1) * NVSIZ
         LFT = 1
         LLT = MIN0( NVSIZ, I_STOK - NFT )
@@ -266,11 +277,11 @@ C
      .                                                INTBUF_TAB%VARIABLES(23),
      4   NSN    ,MWA   ,INTBUF_TAB%VARIABLES(32),ID,TITR)
 
-       IF(IWPENE.EQ.0.AND.(INACTI.EQ.5.OR.INACTI.EQ.6))
-     .   IPARI(22) = -INACTI     ! passage en negatif pour dimensionnenment
+       IF(IWPENE==0.AND.(INACTI==5.OR.INACTI==6))
+     .   IPARI(22) = -INACTI     ! Negative passage for sizing
        INTBUF_TAB%I_STOK(1)=IWPENE
 C
-C      IF(NUMELS10.GT.0)CALL
+C      IF(NUMELS10>0)CALL
 C    .        INSOLT10(IXS(1,NUMELS8+1),IXS(1,NUMELS+1),INTBUF_TAB%IRECTM),
 C    .                 NOINT,NRTM,ITAB,KNOD2ELS,NOD2ELS)
 C=======================================================================
@@ -323,7 +334,7 @@ C
           END IF
         END DO
 C----------------------------------------------------------------
-C         PASSAGE DE NOD_NORMAL et XM0 en COORD LOCALES
+C         PASSAGE OF NOD_NORMAL and XM0 in LOCAL COORDS
 C             - DS REP INERTIES PRINCIPALES)
 C----------------------------------------------------------------
         IROT=INTSTAMP%IROT

@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS43G                     source/materials/mat/mat043/sigeps43g.F
-Chd|-- called by -----------
-Chd|        MULAWGLC                      source/materials/mat_share/mulawglc.F
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps43g   ../engine/source/materials/mat/mat043/sigeps43g.F
+!||--- called by ------------------------------------------------------
+!||    mulawglc    ../engine/source/materials/mat_share/mulawglc.F
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||    vinter      ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS43G(
      1     NEL    ,NUVAR  ,NPF     ,
      2     TF     ,TIME   ,UPARAM  ,RHO0    ,
@@ -100,18 +100,18 @@ C-----------------------------------------------
      .        JJ(MVSIZ),INDEX(MVSIZ),IFUNC(100), IFUNCE,MX,ISRATE
       my_real 
      .        E(MVSIZ),NU,A,B,C,FAC,DEZZ,S1,S2,S12,S3,
-     .        DPLA,EPST,A1(MVSIZ),A2(MVSIZ),G(MVSIZ),G3(MVSIZ),
+     .        EPST,A1(MVSIZ),A2(MVSIZ),G(MVSIZ),G3(MVSIZ),
      .        DYDX1(MVSIZ),DYDX2(MVSIZ),RATE(MVSIZ,2),SVM(MVSIZ),
      .        YLD(MVSIZ),Y1(MVSIZ),Y2(MVSIZ),DR,F1,F2,
-     .        YFAC(MVSIZ,2),NNU1,NU1(MVSIZ),
+     .        YFAC(MVSIZ,2),NNU1,
      .        NU2(MVSIZ),NU3(MVSIZ),NU4(MVSIZ),NU5(MVSIZ),DPLA_I,
      .        FAIL(MVSIZ),EPSMAX,EPSR1,EPSR2,
-     .        ERR,F,DF,YLD_I,DPLA_J(MVSIZ),
+     .        F,DF,YLD_I,DPLA_J(MVSIZ),
      .        AA1,AA2,AA3,FN(3),FM(3),FNM(3),SN1,SN2,SM1,SM2,
      .        PN(3),P_M(3),DFN(3),DFM(3),DFNM(3),DJAC(3),JAC(3),C1,
      .        XP(3),PNM1(3),PNM2(3),JQ(MVSIZ),JQ2(MVSIZ),S(MVSIZ),
      .        GM(MVSIZ),CM(MVSIZ),QTIER(MVSIZ),CNM(MVSIZ),
-     .        NUM1(MVSIZ),NUM2(MVSIZ),AN(MVSIZ),BN(MVSIZ),
+     .        
      .        AM1(MVSIZ),AM2(MVSIZ),GAMA(MVSIZ),GAMA2(MVSIZ),
      .        H(MVSIZ),EINF,CE,DYDXE(MVSIZ),
      .        ESCALE(MVSIZ)
@@ -145,8 +145,8 @@ C-----------------------------------------------
        NRATE = NINT(UPARAM(IADBUF+1))
        EPSMAX=UPARAM(IADBUF+NS+2*NRATE+1)
 C
-       IF(EPSMAX.EQ.ZERO)THEN
-         IF(TF(NPF(IFUNC(1)+1)-1).EQ.ZERO)THEN
+       IF(EPSMAX==ZERO)THEN
+         IF(TF(NPF(IFUNC(1)+1)-1)==ZERO)THEN
           EPSMAX=TF(NPF(IFUNC(1)+1)-2)
        ELSE
           EPSMAX= EP30
@@ -205,8 +205,8 @@ C
          ENDDO           
        ENDIF
 C
-      IF (ISIGI.EQ.0) THEN
-      IF(TIME.EQ.0.0)THEN
+      IF (ISIGI==0) THEN
+      IF(TIME==0.0)THEN
         DO I=1,NEL
          UVAR(I,1)=ZERO
          UVAR(I,2)=ZERO
@@ -256,7 +256,7 @@ C-------------------
       DO I=1,NEL
         IADBUF = IPM(7,MAT(I))-1
         DO J=2,NRATE-1
-          IF(EPSP(I).GE.UPARAM(IADBUF+NS+J)) JJ(I) = J
+          IF(EPSP(I)>=UPARAM(IADBUF+NS+J)) JJ(I) = J
         ENDDO
         RATE(I,1)=UPARAM(IADBUF+NS+JJ(I))
         RATE(I,2)=UPARAM(IADBUF+NS+JJ(I)+1)
@@ -324,12 +324,12 @@ C     GATHER PLASTIC FLOW
 C-------------------------
       NINDX=0
       DO I=1,NEL
-      IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+      IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
         NINDX=NINDX+1
         INDEX(NINDX)=I
       ENDIF
       ENDDO
-      IF(NINDX.EQ.0) RETURN
+      IF(NINDX==0) RETURN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
@@ -345,12 +345,12 @@ C---------------------------
        S2=A02*NU*TWO - A03
        S12=A03-NU*(A01+A02)
        S3=SQRT(NU2(I)*(A01-A02)*(A01-A02)+S12*S12)
-       IF (ABS(S1).LT.EM20) THEN 
+       IF (ABS(S1)<EM20) THEN 
         Q12(I)=ZERO
        ELSE
         Q12(I)=-(A01-A02+S3)/S1
        ENDIF
-       IF (ABS(S2).LT.EM20) THEN 
+       IF (ABS(S2)<EM20) THEN 
         Q21(I)=ZERO
        ELSE
         Q21(I)=(A01-A02+S3)/S2
@@ -383,7 +383,7 @@ C---------------------------
        B_3(I)=A12*NU4(I)
       ENDDO
 C-------------------------------
-C     TIENT COMPTE DU COUPLAGE
+C     TAKES COUPLING INTO ACCOUNT
 C-------------------------------
        DO N=1,NMAX
        DO J=1,NINDX
@@ -424,9 +424,9 @@ C-------------------------------
         SFNM=A*(ANMXX(I)-ANM_XY(I))+B*(ANMYY(I)-AMN_XY(I))
      .      +C*ANMXY(I)
         C1=ABS(SFNM)/MAX(SFN,SFM)
-        IF (C1.LT.TOL) THEN
+        IF (C1<TOL) THEN
               S(I)=ZERO
-        ELSEIF (SFNM.LT.ZERO) THEN
+        ELSEIF (SFNM<ZERO) THEN
          S(I)=-ONE
         ELSE
          S(I)=ONE
@@ -508,7 +508,7 @@ C------------------------------------------
       ENDDO
 C
       DO I=1,NEL
-       IF(PLA(I).GT.EPSMAX.AND.OFF(I).EQ.ONE)OFF(I)=FOUR_OVER_5
+       IF(PLA(I)>EPSMAX.AND.OFF(I)==ONE)OFF(I)=FOUR_OVER_5
       ENDDO
 C
       RETURN

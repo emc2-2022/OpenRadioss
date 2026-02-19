@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MULTI_FLUXES_COMPUTATION      source/multifluid/multi_fluxes_computation.F
-Chd|-- called by -----------
-Chd|        MULTI_TIMEEVOLUTION           source/multifluid/multi_timeevolution.F
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    multi_fluxes_computation   ../engine/source/multifluid/multi_fluxes_computation.F
+!||--- called by ------------------------------------------------------
+!||    multi_timeevolution        ../engine/source/multifluid/multi_timeevolution.F
+!||--- calls      -----------------------------------------------------
+!||    arret                      ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod       ../common_source/modules/ale/ale_connectivity_mod.F
+!||    elbufdef_mod               ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod                ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod                ../engine/share/resol/initbuf.F
+!||    multi_fvm_mod              ../common_source/modules/ale/multi_fvm_mod.F90
+!||====================================================================
       SUBROUTINE MULTI_FLUXES_COMPUTATION(NG, ELBUF_TAB, IPARG, ITASK, IXS, IXQ, IXTG,
      .     PM, IPM, MULTI_FVM, ALE_CONNECTIVITY, WGRID, XGRID, ITAB, NBMAT, CURRENT_TIME, BUFMAT,
      .     ID_GLOBAL_VOIS,NPF,TF)
@@ -48,15 +50,13 @@ Chd|====================================================================
 !           
 !$ENDCOMMENT
 C-----------------------------------------------
-C     D e s c r i p t i o n
-C-----------------------------------------------
-C-----------------------------------------------
 C     M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD      
       USE ELBUFDEF_MOD
       USE MULTI_FVM_MOD
       USE ALE_CONNECTIVITY_MOD
+      use element_mod , only : nixs,nixq,nixtg
 C-----------------------------------------------
 C     I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -68,10 +68,8 @@ C-----------------------------------------------
 ! NUMELS      
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 #include      "mvsiz_p.inc"
 !     DTFAC1
-#include      "scr18_c.inc" 
       COMMON /TABLESIZF/ STF,SNPC
       INTEGER STF,SNPC
 C-----------------------------------------------
@@ -136,7 +134,7 @@ C-----------------------------------------------
 
       PSHIFT = MULTI_FVM%PRES_SHIFT
 
-      IF (NBMAT .GT. 1) THEN
+      IF (NBMAT > 1) THEN
 !DIR$ NOVECTOR
          DO IMAT = 1, NBMAT
             LBUFS(IMAT)%LBUF => ELBUF_TAB(NG)%BUFLY(IMAT)%LBUF(1, 1, 1)
@@ -156,7 +154,7 @@ C     3D
             GLOBAL_ID_CURRENT_ELM(II) = IXS(NIXS,I)
          ENDDO
       CASE (1, 2)
-         IF (ITY .EQ. 2) THEN
+         IF (ITY == 2) THEN
 C     QUADS
             NB_FACE = 4
             NUMEL_SPMD = NUMELQ
@@ -167,7 +165,7 @@ C     QUADS
             I = II + NFT
             GLOBAL_ID_CURRENT_ELM(II) = IXQ(NIXQ,I)
          ENDDO
-         ELSEIF (ITY .EQ. 7) THEN
+         ELSEIF (ITY == 7) THEN
 C     TRIANGLES
             NB_FACE = 3
             NUMEL_SPMD = NUMELTG
@@ -183,7 +181,7 @@ C     TRIANGLES
          CALL ARRET(2)
       END SELECT
 
-C     Flux computation
+C     Computation flow
       DO II = 1, NEL
          I = II + NFT
          IAD = ALE_CONNECTIVITY%ee_connect%iad_connect(I)
@@ -204,7 +202,7 @@ C     Face normal
             ID_GLOBAL_VOIS_1 = GLOBAL_ID_CURRENT_ELM(II)            
             ID_GLOBAL_VOIS_2 = ID_GLOBAL_VOIS( NB_FACE * (I_OLD - 1) + KFACE3 )
 !   -----------------------------------------------
-            IF (J_OLD .GT. 0 .AND. I_OLD .LT. J_OLD) THEN
+            IF (J_OLD > 0 .AND. I_OLD < J_OLD) THEN
                ! ----------------------
                KFACE_OLD = KFACE3
                KFACE2_OLD = MULTI_FVM%FVM_CONNECTIVITY%KVOIS(NB_FACE * (I_OLD - 1) + KFACE3)
@@ -283,7 +281,7 @@ C     Specific for Low Mach number corrections
 C     Intermediate pressure
                PSTAR2 = PII + RHOII * (SSTAR - NORMAL_VELII) * (SL - NORMAL_VELII)
 C               PSTAR2 = HALF * (PSTAR + PJJ + RHOJJ * (SSTAR - NORMAL_VELJJ) * (SR - NORMAL_VELJJ))
-               IF (MIN(MACHII, MACHJJ) .LT. EM01) THEN
+               IF (MIN(MACHII, MACHJJ) < EM01) THEN
                   THETA = MIN(MACHII, MACHJJ)
                ELSE
                   THETA = ONE
@@ -303,7 +301,7 @@ C               PSTAR2 = HALF * (PSTAR + PJJ + RHOJJ * (SSTAR - NORMAL_VELJJ) * 
                   PP(5) = SSTAR * (PSTAR2 + PSHIFT)
                ENDIF
 
-               IF (SL .GT. NORMALW) THEN
+               IF (SL > NORMALW) THEN
 C     Take the fluxes of cell II
 C     ===
 C     Global fluxes
@@ -312,7 +310,7 @@ C     Global fluxes
                   VII(3) = RHOII * VYII
                   VII(4) = RHOII * VZII
                   VII(5) = MULTI_FVM%EINT(I) + HALF * RHOII * VELII2
-C     Normal physical flux curent element
+C     Normal physical flux current element
                   FII(1) = VII(1) * NORMAL_VELII
                   FII(2) = VII(2) * NORMAL_VELII + PII * NX
                   FII(3) = VII(3) * NORMAL_VELII + PII * NY
@@ -323,7 +321,7 @@ C     Normal physical flux curent element
                   massflux1 = MULTI_FVM%FLUXES(1, KFACE_OLD, I_OLD)
 C     ===
 C     Submaterial fluxes
-                  IF (NBMAT .GT. 1) THEN
+                  IF (NBMAT > 1) THEN
                      massflux2 = ZERO
                      DO IMAT = 1, NBMAT
                         ALPHAII = MULTI_FVM%PHASE_ALPHA(IMAT, I)
@@ -343,14 +341,14 @@ C     Submaterial fluxes
                      ENDDO
                   ENDIF                  
 C     
-               ELSEIF (SL .LE. NORMALW .AND. NORMALW .LE. SSTAR) THEN
+               ELSEIF (SL <= NORMALW .AND. NORMALW <= SSTAR) THEN
 C     Global fluxes
                   VII(1) = RHOII
                   VII(2) = RHOII * VXII
                   VII(3) = RHOII * VYII
                   VII(4) = RHOII * VZII
                   VII(5) = MULTI_FVM%EINT(I) + HALF * RHOII * VELII2
-C     Normal physical flux curent element
+C     Normal physical flux current element
                   FII(1) = VII(1) * NORMAL_VELII
                   FII(2) = VII(2) * NORMAL_VELII + PII * NX
                   FII(3) = VII(3) * NORMAL_VELII + PII * NY
@@ -368,7 +366,7 @@ C     Global fluxes
                   massflux1 = MULTI_FVM%FLUXES(1, KFACE_OLD, I_OLD)
 C     ===
 C     Submaterial fluxes
-                  IF (NBMAT .GT. 1) THEN
+                  IF (NBMAT > 1) THEN
                      massflux2 = ZERO
                      DO IMAT = 1, NBMAT
                         MATLAW(IMAT) = IPM(2, LOCAL_MATID(IMAT))
@@ -378,7 +376,7 @@ C     Submaterial fluxes
                         ALPHASTAR = ALPHAII
                         SUB_RHOSTAR = SUB_RHOII * (NORMAL_VELII - SL) / (SSTAR - SL)
                         SUB_PII = MULTI_FVM%PHASE_PRES(IMAT, I)
-                        IF (ALPHASTAR .GT. ZERO) THEN
+                        IF (ALPHASTAR > ZERO) THEN
 c$$$                           CALL ENERGY_JUMP(MATLAW(IMAT), LOCAL_MATID(IMAT), PM, IPM, NPROPM, NPROPMI, 
 c$$$     .                          SUB_RHOEINTII / SUB_RHOII, SUB_RHOSTAR, SUB_PII, (SSTAR - NORMAL_VELII) / (SSTAR - SL), 
 c$$$     .                          LBUFS(IMAT)%LBUF%BFRAC(II), GBUF%TB(II), GBUF%DELTAX(II), CURRENT_TIME,
@@ -402,14 +400,14 @@ c$$$     .                          SUB_ESTAR, BUFMAT)
                         massflux2 = massflux2 + MULTI_FVM%SUBMASS_FLUXES(IMAT, KFACE_OLD, I_OLD)
                      ENDDO
                   ENDIF
-               ELSEIF (SSTAR .LT. NORMALW .AND. NORMALW .LE. SR) THEN
+               ELSEIF (SSTAR < NORMALW .AND. NORMALW <= SR) THEN
 C     Global fluxes
                   VII(1) = RHOJJ
                   VII(2) = RHOJJ * VXJJ
                   VII(3) = RHOJJ * VYJJ
                   VII(4) = RHOJJ * VZJJ
                   VII(5) = MULTI_FVM%EINT(J) + HALF * RHOJJ * VELJJ2
-C     Normal physical flux curent element
+C     Normal physical flux current element
                   FII(1) = VII(1) * NORMAL_VELJJ
                   FII(2) = VII(2) * NORMAL_VELJJ + PJJ * NX
                   FII(3) = VII(3) * NORMAL_VELJJ + PJJ * NY
@@ -427,7 +425,7 @@ C     Global fluxes
                   massflux1 = MULTI_FVM%FLUXES(1, KFACE_OLD, I_OLD)
 C     ===
 C     Submaterial fluxes
-                  IF (NBMAT .GT. 1) THEN
+                  IF (NBMAT > 1) THEN
                      massflux2 = ZERO
                      DO IMAT = 1, NBMAT
                         MATLAW(IMAT) = IPM(2, LOCAL_MATID(IMAT))
@@ -437,7 +435,7 @@ C     Submaterial fluxes
                         ALPHASTAR = ALPHAII
                         SUB_RHOSTAR = SUB_RHOII * (NORMAL_VELJJ - SR) / (SSTAR - SR)
                         SUB_PII = MULTI_FVM%PHASE_PRES(IMAT, J)
-                        IF (ALPHASTAR .GT. ZERO) THEN
+                        IF (ALPHASTAR > ZERO) THEN
 c$$$                           CALL ENERGY_JUMP(MATLAW(IMAT), LOCAL_MATID(IMAT), PM, IPM, NPROPM, NPROPMI, 
 c$$$     .                          SUB_RHOEINTII / SUB_RHOII, SUB_RHOSTAR, SUB_PII, (SSTAR - NORMAL_VELJJ) / (SSTAR - SR), 
 c$$$     .                          LBUFS(IMAT)%LBUF%BFRAC(II), GBUF%TB(II), GBUF%DELTAX(II), CURRENT_TIME,
@@ -462,7 +460,7 @@ c$$$     .                          SUB_ESTAR, BUFMAT)
                         massflux2 = massflux2 + MULTI_FVM%SUBMASS_FLUXES(IMAT, KFACE_OLD, I_OLD)
                      ENDDO
                   ENDIF
-               ELSE IF (SR .LT. NORMALW) THEN
+               ELSE IF (SR < NORMALW) THEN
 C     Take the fluxes of cell JJ
 C     ===
 C     Global fluxes
@@ -471,7 +469,7 @@ C     Global fluxes
                   VII(3) = RHOJJ * VYJJ
                   VII(4) = RHOJJ * VZJJ
                   VII(5) = MULTI_FVM%EINT(J) + HALF * RHOJJ * VELJJ2
-C     Normal physical flux curent element
+C     Normal physical flux current element
                   FII(1) = VII(1) * NORMAL_VELJJ
                   FII(2) = VII(2) * NORMAL_VELJJ + PJJ * NX
                   FII(3) = VII(3) * NORMAL_VELJJ + PJJ * NY
@@ -482,7 +480,7 @@ C     Normal physical flux curent element
                   massflux1 = MULTI_FVM%FLUXES(1, KFACE_OLD, I_OLD)
 C     ===
 C     Submaterial fluxes
-                  IF (NBMAT .GT. 1) THEN
+                  IF (NBMAT > 1) THEN
                      massflux2 = ZERO
                      DO IMAT = 1, NBMAT
                         ALPHAII = MULTI_FVM%PHASE_ALPHA(IMAT, J)
@@ -506,9 +504,9 @@ C     Submaterial fluxes
 C
                ENDIF
 
-               IF (J_OLD .LE. NUMEL_SPMD) THEN
+               IF (J_OLD <= NUMEL_SPMD) THEN
                   MULTI_FVM%FLUXES(1:6, KFACE2_OLD, J_OLD) = -MULTI_FVM%FLUXES(1:6, KFACE_OLD, I_OLD)
-                  IF (NBMAT .GT. 1) THEN
+                  IF (NBMAT > 1) THEN
                      DO IMAT = 1, NBMAT
                         MULTI_FVM%SUBVOL_FLUXES(IMAT, KFACE2_OLD, J_OLD) = -MULTI_FVM%SUBVOL_FLUXES(IMAT, KFACE_OLD, I_OLD)
                         MULTI_FVM%SUBMASS_FLUXES(IMAT, KFACE2_OLD, J_OLD) = -MULTI_FVM%SUBMASS_FLUXES(IMAT, KFACE_OLD, I_OLD)
@@ -519,7 +517,7 @@ C
                   !PRINT*, "VOISIN DOMAINE"
                ENDIF
 !   -----------------------------------------------
-            ELSE IF(J_OLD .LE. 0) THEN
+            ELSE IF(J_OLD <= 0) THEN
                ELEMID = I_OLD
                VX = MULTI_FVM%VEL(1, ELEMID)
                VY = MULTI_FVM%VEL(2, ELEMID)
@@ -547,7 +545,7 @@ C     Intermediate wave speed
                MULTI_FVM%FLUXES(6, KFACE3, ELEMID) = SURF * NORMALW
 C     ===
 C     Submaterial fluxes
-               IF (NBMAT .GT. 1) THEN
+               IF (NBMAT > 1) THEN
                   DO IMAT = 1, NBMAT
                      MULTI_FVM%SUBVOL_FLUXES(IMAT, KFACE3, I_OLD) = ZERO
                      MULTI_FVM%SUBMASS_FLUXES(IMAT, KFACE3, I_OLD) = ZERO
@@ -565,78 +563,3 @@ C     Boundary fluxes
 C----------------------
       END SUBROUTINE MULTI_FLUXES_COMPUTATION
 
-Chd|====================================================================
-Chd|  ENERGY_JUMP                   source/multifluid/multi_fluxes_computation.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        MULTI_SUBMATLAW               source/multifluid/multi_submatlaw.F
-Chd|====================================================================
-      SUBROUTINE ENERGY_JUMP(MATLAW, LOCAL_MATID, PM, IPM, NPROPM, NPROPMI, 
-     .     EINT, RHOSTAR, PRES, ALPHA, 
-     .     BURNFRAC, BURNTIME, DELTAX, CURRENT_TIME,
-     .     ESTAR, BUFMAT,SIG,NPF,TF)
-C-----------------------------------------------
-C     I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-#include      "tabsiz_c.inc"
-      INTEGER, INTENT(IN) :: MATLAW, LOCAL_MATID, NPROPM, NPROPMI
-      my_real, INTENT(IN) :: PM(NPROPM, *)
-      INTEGER, INTENT(IN) :: IPM(NPROPMI, *)
-      my_real, INTENT(IN) :: EINT, PRES, ALPHA,SIG(6)
-      my_real, INTENT(INOUT) :: BURNFRAC, BURNTIME, DELTAX, CURRENT_TIME, BUFMAT(*), RHOSTAR
-      my_real, INTENT(OUT) :: ESTAR
-      INTEGER, INTENT(IN) :: NPF(SNPC)
-      my_real, INTENT(IN) :: TF(STF)
-
-      INTEGER :: ITER, MAX_ITER
-      my_real :: TOL, ERROR
-      my_real :: FUNC, DFUNC, PSTAR, GRUN, SSP, VOL, INCR, TEMP
-      LOGICAL :: CONT
-      my_real :: OFF
-      
-      MAX_ITER = 50
-      TOL = EM06
-      ERROR = ONE
-      OFF = ONE
-C     Dummy
-      VOL = ONE
-
-C     Initialization
-      ESTAR = EINT
-      TEMP = ZERO
-      ITER = 0
-      CONT = .TRUE.
-      DO WHILE(CONT .AND. ITER .LT. MAX_ITER) 
-         ITER = ITER + 1
-         CALL MULTI_SUBMATLAW(0, MATLAW, LOCAL_MATID, 1, RHOSTAR * ESTAR, PSTAR, RHOSTAR, SSP, VOL, GRUN, 
-     .        PM, IPM, NPROPM, NPROPMI, BUFMAT, OFF, TEMP, 
-     .        BURNFRAC, BURNTIME, DELTAX, CURRENT_TIME,SIG(1:6),NPF,TF)
-
-         IF (GRUN .EQ. ZERO) THEN
-            ERROR = ZERO
-            CONT = .FALSE.
-            ESTAR = EINT
-         ELSE
-
-            FUNC = ESTAR - EINT + ALPHA / RHOSTAR * HALF * (PSTAR + PRES)
-            DFUNC = ONE + ALPHA * HALF * GRUN
-            INCR = - FUNC / DFUNC
-c$$$  IF (INCR .LT. ZERO) THEN
-c$$$  INCR = MAX(INCR, - HALF * ESTAR)
-c$$$  ENDIF
-            ESTAR = ESTAR + INCR
-            ERROR = ABS(INCR)
-            IF (ERROR .LT. TOL * ABS(ESTAR)) THEN
-               CONT = .FALSE.
-            ENDIF
-         ENDIF
-      ENDDO
-      
-      IF (ERROR .GT. TOL * ABS(ESTAR)) THEN
-!         PRINT*, "ESTAR NOT FOUND"
-         ESTAR = EINT
-         PSTAR = PRES
-      ENDIF
-
-      END SUBROUTINE ENERGY_JUMP

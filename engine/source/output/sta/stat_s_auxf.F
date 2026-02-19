@@ -1,38 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_S_AUXF                   source/output/sta/stat_s_auxf.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_RGATHER9_DP              source/mpi/interfaces/spmd_outp.F
-Chd|        SPMD_STAT_PGATHER             source/mpi/output/spmd_stat.F 
-Chd|        STRS_TXT50                    source/output/sta/sta_txt.F   
-Chd|        TAB_STRS_TXT50                source/output/sta/sta_txt.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_s_auxf         ../engine/source/output/sta/stat_s_auxf.F
+!||--- called by ------------------------------------------------------
+!||    genstat             ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf             ../engine/share/resol/initbuf.F
+!||    spmd_rgather9_dp    ../engine/source/mpi/interfaces/spmd_outp.F
+!||    spmd_stat_pgather   ../engine/source/mpi/output/spmd_stat.F
+!||    strs_txt50          ../engine/source/output/sta/sta_txt.F
+!||    tab_strs_txt50      ../engine/source/output/sta/sta_txt.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod         ../engine/share/resol/initbuf.F
+!||    my_alloc_mod        ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE STAT_S_AUXF(ELBUF_TAB ,IPARG ,IPM ,IGEO ,IXS ,
      2                        WA,WAP0 ,IPARTS, IPART_STATE,
      3                        STAT_INDXS,IPART,SIZP0)
@@ -40,7 +43,9 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD         
+      USE ELBUFDEF_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,13 +54,9 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "scr03_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "vect01_c.inc"
@@ -63,7 +64,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER SIZLOC,SIZP0
+      INTEGER SIZP0
       INTEGER IXS(NIXS,*),
      .        IPARG(NPARG,*),IPM(NPROPMI,*),IGEO(NPROPGI,*),
      .        IPARTS(*), IPART_STATE(*), STAT_INDXS(*),IPART(LIPART1,*)
@@ -73,9 +74,10 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,N,J,K,JJ,LEN,ISOLNOD,IUS,NLAY,NPTR,NPTS,NPTT,NPTG,
-     .        NG, NEL, MLW,ID, IPRT0, IPRT, NPG,IPG,IPT, NUVAR,IE,
+     .        NG, NEL, MLW,ID, IPRT0, IPRT,IPT, NUVAR,IE,
      .        IL,IR,IS,IT,PID,IOFF
-      INTEGER PTWA(STAT_NUMELS), PTWA_P0(0:MAX(1,STAT_NUMELS_G))
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA_P0
       CHARACTER*100 DELIMIT,LINE
       DATA DELIMIT(1:60)
      ./'#---1----|----2----|----3----|----4----|----5----|----6----|'/
@@ -88,6 +90,9 @@ C----
 C-----------------------------------------------
 C     8 NODES BRICK
 C======================================================================|
+      CALL MY_ALLOC(PTWA,STAT_NUMELS)
+      ALLOCATE(PTWA_P0(0:MAX(1,STAT_NUMELS_G)))
+C-----------------------------------------------
       JJ = 0
       IE = 0
       IF(STAT_NUMELS==0) GOTO 200
@@ -104,7 +109,7 @@ C======================================================================|
         PID = IPART(2,IPRT)
 c
         IF (ITY == 1) THEN
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -123,51 +128,104 @@ C          JHBE   = IGEO(10,PID)
           NPTT = ELBUF_TAB(NG)%NPTT                        
           NPT  = NPTR * NPTS * NPTT * NLAY
           IF (JHBE==17.AND.IINT==2) JHBE = 18
+          IF (JHBE==1.AND.IINT==3) JHBE = 5
           IF (MLW < 28) THEN 
             NUVAR = 0
-          ELSE
+          ELSEIF (MLW == 112) THEN 
+            NUVAR = 3
+          ELSE 
             NUVAR = IPM(8,IXS(1,NFT+1))   
           ENDIF
+c-------------------------------
+          IF (ISOLNOD == 16) THEN
 c
-          DO I=LFT,LLT                                       
-            N = I + NFT                                      
-            IPRT=IPARTS(N)                                   
-            IF (IPART_STATE(IPRT)==0) CYCLE                    
-            WA(JJ+1) = GBUF%VOL(I)             
-            WA(JJ+2) = IPRT                                  
-            WA(JJ+3) = IXS(NIXS,N)                           
-            WA(JJ+4) = NLAY                                          
-            WA(JJ+5) = NPTR                                
-            WA(JJ+6) = NPTS                                
-            WA(JJ+7) = NPTT                                
-            WA(JJ+8) = ISOLNOD                                
-            WA(JJ+9) = NUVAR                                  
-            WA(JJ+10)= JHBE   
-            WA(JJ+11) = GBUF%OFF(I)                                                                                                                 
-            JJ = JJ + 11  
-            DO IL=1,NLAY                                               
-             DO IR=1,NPTR                                             
-              DO IS=1,NPTS                                           
-               DO IT=1,NPTT                                         
-                 MBUF => ELBUF_TAB(NG)%BUFLY(IL)%MAT(IR,IS,IT)
-                 DO IUS = 1,NUVAR   
-                   WA(JJ + 1) = MBUF%VAR(I + (IUS-1)*NEL)
-                   JJ = JJ +1                                     
-                 ENDDO                                             
-               ENDDO                                                 
-              ENDDO                                                   
-             ENDDO                                                    
-            ENDDO                 
-            IE=IE+1                          
-C           pointeur de fin de zone dans WA  
-            PTWA(IE)=JJ                      
-          ENDDO  !  I=LFT,LLT                                     
+            DO I=LFT,LLT                                       
+              N = I + NFT                                      
+              IPRT=IPARTS(N)                                   
+              IF (IPART_STATE(IPRT)==0) CYCLE                    
+              WA(JJ+1) = GBUF%VOL(I)             
+              WA(JJ+2) = IPRT                                  
+              WA(JJ+3) = IXS(NIXS,N)                           
+              WA(JJ+4) = NLAY                                          
+              WA(JJ+5) = NPTR                                
+              WA(JJ+6) = NPTS                                
+              WA(JJ+7) = NPTT                                
+              WA(JJ+8) = ISOLNOD                                
+              WA(JJ+9) = NUVAR                                  
+              WA(JJ+10)= JHBE   
+              WA(JJ+11) = GBUF%OFF(I)                                                                                                                 
+              JJ = JJ + 11  
+              IS = 1 
+              DO IT=1,NPTT                                         
+               DO IL=1,NLAY                                               
+                DO IR=1,NPTR      
+                  IF (MLW == 112) THEN
+                    DO IUS = 1,3
+                      WA(JJ + 1) = ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)%PLA(I + IUS*NEL)
+                      JJ = JJ +1                          
+                    ENDDO
+                  ELSE                                        
+                    MBUF => ELBUF_TAB(NG)%BUFLY(IL)%MAT(IR,IS,IT)
+                    DO IUS = 1,NUVAR   
+                      WA(JJ + 1) = MBUF%VAR(I + (IUS-1)*NEL)
+                      JJ = JJ +1                                     
+                    ENDDO     
+                  ENDIF                                        
+                ENDDO                                                 
+               ENDDO                                                    
+              ENDDO                 
+              IE=IE+1                          
+C             end-of-zone pointer in wa
+              PTWA(IE)=JJ                      
+            ENDDO  !  I=LFT,LLT                                     
+          ELSE
+            DO I=LFT,LLT                                       
+              N = I + NFT                                      
+              IPRT=IPARTS(N)                                   
+              IF (IPART_STATE(IPRT)==0) CYCLE                    
+              WA(JJ+1) = GBUF%VOL(I)             
+              WA(JJ+2) = IPRT                                  
+              WA(JJ+3) = IXS(NIXS,N)                           
+              WA(JJ+4) = NLAY                                          
+              WA(JJ+5) = NPTR                                
+              WA(JJ+6) = NPTS                                
+              WA(JJ+7) = NPTT                                
+              WA(JJ+8) = ISOLNOD                                
+              WA(JJ+9) = NUVAR                                  
+              WA(JJ+10)= JHBE   
+              WA(JJ+11) = GBUF%OFF(I)                                                                                                                 
+              JJ = JJ + 11  
+              DO IL=1,NLAY                                               
+               DO IT=1,NPTT
+                DO IS=1,NPTS
+                 DO IR=1,NPTR
+                    IF (MLW == 112) THEN
+                      DO IUS = 1,3
+                        WA(JJ + 1) = ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)%PLA(I + IUS*NEL)
+                        JJ = JJ +1                          
+                      ENDDO
+                    ELSE 
+                      MBUF => ELBUF_TAB(NG)%BUFLY(IL)%MAT(IR,IS,IT)
+                      DO IUS = 1,NUVAR   
+                        WA(JJ + 1) = MBUF%VAR(I + (IUS-1)*NEL)
+                        JJ = JJ +1                                     
+                      ENDDO            
+                    ENDIF                                 
+                 ENDDO                                                   
+                ENDDO                                                    
+               ENDDO                 
+              ENDDO                 
+              IE=IE+1                          
+C             end-of-zone pointer in wa
+              PTWA(IE)=JJ                      
+            ENDDO  !  I=LFT,LLT                                     
+          ENDIF !  ISOLNOD == 16
         ENDIF    !  ITY = 1
       ENDDO
  200  CONTINUE
 c------------------------------------------------------------
       IF(NSPMD == 1)THEN
-C       recopies inutiles pour simplification du code.
+C       unnecessary copies for code simplification
         PTWA_P0(0)=0
         DO N=1,STAT_NUMELS
           PTWA_P0(N)=PTWA(N)
@@ -177,18 +235,18 @@ C       recopies inutiles pour simplification du code.
           WAP0(J)=WA(J)
         END DO
       ELSE
-C       construit les pointeurs dans le tableau global WAP0
+C       builds the pointers in the global array wap0
         CALL SPMD_STAT_PGATHER(PTWA,STAT_NUMELS,PTWA_P0,STAT_NUMELS_G)
         LEN = 0
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
       END IF
 c------------------------------------------------------------
-      IF(ISPMD.EQ.0.AND.LEN.GT.0) THEN
+      IF(ISPMD==0.AND.LEN>0) THEN
         IPRT0=0
         DO N=1,STAT_NUMELS_G
-C         retrouve le nieme elt dans l'ordre d'id croissant
+C         find the nieme elt in the order of an increasing id
           K=STAT_INDXS(N)
-C         retrouve l'adresse dans WAP0
+C         Find the address in WAP0
           J=PTWA_P0(K-1)
           IPRT  = NINT(WAP0(J + 2))
           IOFF    = NINT(WAP0(J + 11)) 
@@ -246,14 +304,14 @@ c
             NPTG   = NLAY*NPTR*NPTS*NPTT
             J = J + 11
 c
-            IF(ISOLNOD.EQ.8.AND.JHBE.EQ.14 )THEN 
+            IF(ISOLNOD==8.AND.JHBE==14 )THEN 
               IF (IZIPSTRS == 0) THEN
                 WRITE(IUGEO,'(7I10)') ID,NPTG,ISOLNOD,JHBE,0,0,NUVAR
               ELSE
                 WRITE(LINE,'(7I10)') ID,NPTG,ISOLNOD,JHBE,0,0,NUVAR
                 CALL STRS_TXT50(LINE,100)
               ENDIF 
-              IF (NUVAR .NE. 0) THEN
+              IF (NUVAR /= 0) THEN
                IF (IZIPSTRS == 0) THEN
                 DO IPT=1,NPTG
                   WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=1,NUVAR)
@@ -266,15 +324,15 @@ c
                 ENDDO
                ENDIF
               ENDIF
-            ELSEIF(ISOLNOD.EQ.8 .OR. ISOLNOD.EQ.6 .OR. ISOLNOD.EQ.4 .OR.
-     .             ISOLNOD.EQ.10 .OR. ISOLNOD.EQ.16 .OR. ISOLNOD.EQ.20)THEN
+            ELSEIF(ISOLNOD==8 .OR. ISOLNOD==6 .OR. ISOLNOD==4 .OR.
+     .             ISOLNOD==10 .OR. ISOLNOD==16 .OR. ISOLNOD==20)THEN
               IF (IZIPSTRS == 0) THEN
                 WRITE(IUGEO,'(7I10)') ID,NPTG,ISOLNOD,JHBE,0,0,NUVAR
               ELSE
                 WRITE(LINE,'(7I10)') ID,NPTG,ISOLNOD,JHBE,0,0,NUVAR
                 CALL STRS_TXT50(LINE,100)
               ENDIF 
-              IF (NUVAR .NE. 0) THEN
+              IF (NUVAR /= 0) THEN
                IF (IZIPSTRS == 0) THEN
                 DO IPT=1,NPTG
                   WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=1,NUVAR)
@@ -289,8 +347,11 @@ c
               ENDIF
             ENDIF
          ENDIF  !  IF (IOFF == 1)              
-        ENDDO		    
+        ENDDO        
       ENDIF
+c-----------
+      DEALLOCATE(PTWA)
+      DEALLOCATE(PTWA_P0)
 c-----------
       RETURN
       END

@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ST_QAPRINT_GROUPS             source/output/qaprint/st_qaprint_groups.F
-Chd|-- called by -----------
-Chd|        ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|-- calls ---------------
-Chd|        QA_PRINT_GROUPS               source/output/qaprint/st_qaprint_groups.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    st_qaprint_groups   ../starter/source/output/qaprint/st_qaprint_groups.F
+!||--- called by ------------------------------------------------------
+!||    st_qaprint_driver   ../starter/source/output/qaprint/st_qaprint_driver.F
+!||--- calls      -----------------------------------------------------
+!||    qa_print_groups     ../starter/source/output/qaprint/st_qaprint_groups.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE ST_QAPRINT_GROUPS(IGRNOD ,IGRPART ,IGRBRIC  ,IGRSH4N   ,IGRSH3N   ,
      .                       IGRQUAD,IGRBEAM ,IGRTRUSS ,IGRSPRING )
 C-----------------------------------------------
@@ -42,13 +42,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr10_c.inc"
-#include      "scr17_c.inc"
-#include      "tabsiz_c.inc"
-#include      "units_c.inc"
-#include      "nchar_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
@@ -148,13 +141,13 @@ C-----------------------------------------------
       END
 
 
-Chd|====================================================================
-Chd|  QA_PRINT_GROUPS               source/output/qaprint/st_qaprint_groups.F
-Chd|-- called by -----------
-Chd|        ST_QAPRINT_GROUPS             source/output/qaprint/st_qaprint_groups.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    qa_print_groups     ../starter/source/output/qaprint/st_qaprint_groups.F
+!||--- called by ------------------------------------------------------
+!||    st_qaprint_groups   ../starter/source/output/qaprint/st_qaprint_groups.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE QA_PRINT_GROUPS(PTR_IGRELEM, GROUP_NAME)
 C-----------------------------------------------
 C   M o d u l e s

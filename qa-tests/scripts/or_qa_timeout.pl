@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 # Copyright>        OpenRadioss
-# Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
+# Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
 # Copyright>    
 # Copyright>        This program is free software: you can redistribute it and/or modify
 # Copyright>        it under the terms of the GNU Affero General Public License as published by
@@ -155,7 +155,7 @@ while ($timeout > 0) {
         print "KILLING $pid1\n" if ($debug);
         system("$mykill $pid1");
 
-        # We try to print TIMEOUT in the extract file after each kill, beacause in case of using QAPRINT
+        # We try to print TIMEOUT in the extract file after each kill, because in case of using QAPRINT
         # We can't write in it (on windows) since the file is locked
         # When starter is killed, so we are able to print in it
         if (! $print_ok) {

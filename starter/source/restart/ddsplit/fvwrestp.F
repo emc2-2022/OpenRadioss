@@ -1,37 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  FVWRESTP                      source/restart/ddsplit/fvwrestp.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        FVBAG_MOD                     share/modules1/fvbag_mod.F    
-Chd|        FVMBAG_MESHCONTROL_MOD        ../common_source/modules/fvmbag_meshcontrol_mod.F
-Chd|====================================================================
-	  SUBROUTINE FVWRESTP(PROC)
+!||====================================================================
+!||    fvwrestp                 ../starter/source/restart/ddsplit/fvwrestp.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit                  ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod                ../starter/share/modules1/fvbag_mod.F
+!||====================================================================
+            SUBROUTINE FVWRESTP(PROC)
 C-----------------------------------------------
 C   M o d u l e s 
 C-----------------------------------------------
@@ -42,12 +40,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "scr05_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER PROC
@@ -57,19 +49,19 @@ C-----------------------------------------------
       INTEGER LEN, I, NNS, NNTR, LENP, NPOLY, LENH, NPOLH, TABI(11),
      .        LENP_ANIM, NPOLH_ANIM, LENH_ANIM, NNS_ANIM
 C--------------------------------------
-C     ECRITURE DES DIMENSIONS
+C     WRITING OF DIMENSIONS
 C--------------------------------------
       LEN=1
         CALL WRITE_I_C(NFVBAG,LEN)
 C
       DO I=1,NFVBAG
-	 CALL WRITE_I_C(FVDATA(I)%L_TYPE,1)
-	 CALL WRITE_I_C(FVDATA(I)%ID_DT_OPTION,1)
-	 CALL WRITE_DB(FVDATA(I)%LAMBDA,1)
-	 CALL WRITE_DB(FVDATA(I)%DTOLD,1)
+           CALL WRITE_I_C(FVDATA(I)%L_TYPE,1)
+           CALL WRITE_I_C(FVDATA(I)%ID_DT_OPTION,1)
+           CALL WRITE_DB(FVDATA(I)%LAMBDA,1)
+           CALL WRITE_DB(FVDATA(I)%DTOLD,1)
          
-	 CALL WRITE_DB(FVDATA(I)%CFL_COEF,1)
-	 CALL WRITE_DB(FVDATA(I)%DTMIN,1)
+           CALL WRITE_DB(FVDATA(I)%CFL_COEF,1)
+           CALL WRITE_DB(FVDATA(I)%DTMIN,1)
          TABI(1)=FVSPMD(I)%NN_L
          TABI(2)=FVSPMD(I)%NNA_L
          TABI(3)=FVSPMD(I)%NNSA_L
@@ -79,34 +71,34 @@ C
          TABI(7)=FVSPMD(I)%PMAIN
          TABI(8)=FVSPMD(I)%NNI_L
          LEN=8
-	 CALL WRITE_I_C(TABI,LEN)
-	 
+           CALL WRITE_I_C(TABI,LEN)
+           
          LEN=2*(FVSPMD(I)%NN_L+FVSPMD(I)%NNI_L)
-         IF (LEN.GT.0) THEN
+         IF (LEN>0) THEN
               CALL WRITE_I_C(FVSPMD(I)%IBUF_L,LEN)
               DEALLOCATE(FVSPMD(I)%IBUF_L)
          ENDIF
          LEN=2*FVSPMD(I)%NNA_L
-         IF (LEN.GT.0) THEN
+         IF (LEN>0) THEN
               CALL WRITE_I_C(FVSPMD(I)%IBUFA_L,LEN)
               DEALLOCATE(FVSPMD(I)%IBUFA_L)
          ENDIF
          LEN=2*FVSPMD(I)%NNSA_L
-         IF (LEN.GT.0) THEN
+         IF (LEN>0) THEN
               CALL WRITE_I_C(FVSPMD(I)%IBUFSA_L,LEN)
               DEALLOCATE(FVSPMD(I)%IBUFSA_L)
          ENDIF
-	 LEN = 1
-	 CALL WRITE_I_C(KMESH(FVID(I)), LEN)
-         IF (PROC.NE.FVSPMD(I)%PMAIN) CYCLE
+           LEN = 1
+           CALL WRITE_I_C(KMESH(FVID(I)), LEN)
+         IF (PROC/=FVSPMD(I)%PMAIN) CYCLE
 C
          LEN=8*FVSPMD(I)%NSA
-         IF (LEN.GT.0) THEN
+         IF (LEN>0) THEN
               CALL WRITE_I_C(FVSPMD(I)%IXSA,LEN)
               DEALLOCATE(FVSPMD(I)%IXSA)
          ENDIF
          LEN=3*FVSPMD(I)%NELSA
-         IF (LEN.GT.0) THEN
+         IF (LEN>0) THEN
               CALL WRITE_I_C(FVSPMD(I)%ELEMSA,LEN)
               DEALLOCATE(FVSPMD(I)%ELEMSA)
          ENDIF
@@ -118,7 +110,7 @@ C
          LENH=FVDATA(I)%LENH
          NPOLH=FVDATA(I)%NPOLH
          NPOLH_ANIM=FVDATA(I)%NPOLH_ANIM
-         IF (NPOLH_ANIM.GT.0) THEN
+         IF (NPOLH_ANIM>0) THEN
             LENP_ANIM=FVDATA(I)%IFVTADR_ANIM(NPOLY+1)
             LENH_ANIM=FVDATA(I)%IFVPADR_ANIM(NPOLH_ANIM+1)
             NNS_ANIM=FVDATA(I)%NNS_ANIM
@@ -140,10 +132,10 @@ C
          TABI(10)=NNS_ANIM
          TABI(11)=FVDATA(I)%ID
          LEN=11
-	 CALL WRITE_I_C(TABI,LEN)
+           CALL WRITE_I_C(TABI,LEN)
        
 C--------------------------------------
-C     ECRITURE DES ENTIERS
+C     WRITING OF INTEGERS
 C--------------------------------------
          LEN=3*NNS
            CALL WRITE_I_C(FVDATA(I)%IFVNOD,LEN)
@@ -156,7 +148,7 @@ C--------------------------------------
            CALL WRITE_I_C(FVDATA(I)%IDPOLH,NPOLH)
            CALL WRITE_I_C(FVDATA(I)%IBPOLH,NPOLH)
 C
-         IF (NPOLH_ANIM.GT.0) THEN
+         IF (NPOLH_ANIM>0) THEN
               CALL WRITE_I_C(FVDATA(I)%IFVPOLY_ANIM,LENP_ANIM)
               CALL WRITE_I_C(FVDATA(I)%IFVTADR_ANIM,NPOLY+1)
               CALL WRITE_I_C(FVDATA(I)%IFVPOLH_ANIM,LENH_ANIM)
@@ -166,11 +158,11 @@ C
               CALL WRITE_I_C(FVDATA(I)%REDIR_ANIM,NNS_ANIM)
          ENDIF
 C--------------------------------------
-C     ECRITURE DES REELS
+C     WRITING OF REAL NUMBERS
 C--------------------------------------
-	 LEN = 1
-	 CALL WRITE_DB(FVDATA(I)%PDISP_OLD,LEN)
-	 CALL WRITE_DB(FVDATA(I)%PDISP,LEN)
+           LEN = 1
+           CALL WRITE_DB(FVDATA(I)%PDISP_OLD,LEN)
+           CALL WRITE_DB(FVDATA(I)%PDISP,LEN)
          LEN=2*NNS
            CALL WRITE_DB(FVDATA(I)%RFVNOD,LEN)
            CALL WRITE_DB(FVDATA(I)%MPOLH,NPOLH)
@@ -192,7 +184,7 @@ C--------------------------------------
            CALL WRITE_DB(FVDATA(I)%DLH,1)
            CALL WRITE_DB(FVDATA(I)%DTPOLH,NPOLH)
 C
-         IF (NPOLH_ANIM.GT.0) THEN
+         IF (NPOLH_ANIM>0) THEN
             LEN=3*NNS_ANIM
               CALL WRITE_DB(FVDATA(I)%NOD_ANIM,LEN)
          ENDIF

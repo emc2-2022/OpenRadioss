@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTER_TRC_7                   source/interfaces/int07/inter_trc_7.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        I7TRC                         source/interfaces/intsort/i7trc.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTER_STRUCT_MOD              share/modules/inter_struct_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inter_trc_7        ../engine/source/interfaces/int07/inter_trc_7.F
+!||--- called by ------------------------------------------------------
+!||    inttri             ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||    i7trc              ../engine/source/interfaces/intsort/i7trc.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod      ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    inter_struct_mod   ../engine/share/modules/inter_struct_mod.F
+!||====================================================================
         SUBROUTINE INTER_TRC_7( ITASK,NIN,IPARI,IND_IMP,
      1                          INTBUF_TAB,NB_INTER_SORTED,LIST_INTER_SORTED,INTER_STRUCT)
 !$COMMENT
@@ -45,27 +46,11 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-#ifdef MPI
-#include      "mpif.h"
-#endif
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "warn_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "timeri_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -75,14 +60,14 @@ C-----------------------------------------------
         TYPE(INTBUF_STRUCT_),DIMENSION(NINTER) :: INTBUF_TAB    ! interface data
         INTEGER, INTENT(in) :: NB_INTER_SORTED        !   number of interfaces that need to be sorted
         INTEGER, DIMENSION(NB_INTER_SORTED), INTENT(in) :: LIST_INTER_SORTED   !   list of interfaces that need to be sorted
-        TYPE(inter_struct_type), DIMENSION(NINTER), INTENT(inout) :: INTER_STRUCT   !   struture for interface
+        TYPE(inter_struct_type), DIMENSION(NINTER), INTENT(inout) :: INTER_STRUCT   !   structure for interface
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
         INTEGER :: NIN
         INTEGER :: INACTI,IFQ,NSN,NSNROLD,INACIMP
-        INTEGER :: I,N,K,NN,NI,ITIED
-        INTEGER :: I_STOK,CAND_T,CAND_TF
+        INTEGER :: ITIED
+        INTEGER :: I_STOK
         INTEGER :: NUM_IMP
         INTEGER :: KK
 C-----------------------------------------------
@@ -98,17 +83,17 @@ C-----------------------------------------------
             INTER_STRUCT(NIN)%INACTII = INACTI
 
             NSN     =IPARI(5,NIN)
-            IF( INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7.OR.IFQ.GT.0.OR.
-     .          NUM_IMP.GT.0.OR.ITIED.NE.0 )THEN
+            IF( INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.IFQ>0.OR.
+     .          NUM_IMP>0.OR.ITIED/=0 )THEN
                 NSNROLD = IPARI(24,NIN)
             ELSE
                 NSNROLD = 0
             ENDIF
 
-            IF( INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7.OR.IFQ.GT.0.OR.
-     .          NUM_IMP.GT.0.OR.ITIED.NE.0)THEN
+            IF( INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.IFQ>0.OR.
+     .          NUM_IMP>0.OR.ITIED/=0)THEN
                 INTER_STRUCT(NIN)%INACTII=INACTI
-                IF (NUM_IMP.GT.0.AND.(INACTI.NE.5.AND.INACTI.NE.6.AND.IFQ.LE.0)) THEN
+                IF (NUM_IMP>0.AND.(INACTI/=5.AND.INACTI/=6.AND.IFQ<=0)) THEN
                     INACIMP = 0
                 ELSE
                     INACIMP = 1
@@ -123,7 +108,7 @@ C-----------------------------------------------
                 ENDIF
 
 C=============================================
-C     LES NOEUDS DELETES DEVIENNENT NSN+NSNROLD+1 
+C     LES NODES DELETES DEVIENNENT NSN+NSNROLD+1 
 C=============================================
 C------for travelling nodes detected in imp_solv----- 
                 I_STOK = INTBUF_TAB(NIN)%I_STOK(1)
@@ -134,7 +119,7 @@ C------for travelling nodes detected in imp_solv-----
      4            NUM_IMP          ,IND_IMP          ,INTBUF_TAB(NIN)%STFNS ,NIN              ,
      5            NSN ,ITIED,INTBUF_TAB(NIN)%CAND_F)
 
-                IF(INTER_STRUCT(NIN)%I_SK_OLD.EQ.0) THEN
+                IF(INTER_STRUCT(NIN)%I_SK_OLD==0) THEN
                     INTER_STRUCT(NIN)%INACTI=-ABS(INACTI)
                 ENDIF
                 INTBUF_TAB(NIN)%I_STOK(1)=INTER_STRUCT(NIN)%I_SK_OLD

@@ -1,37 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MULTI_VAR2BUF                 source/multifluid/multi_var2buf.F
-Chd|-- called by -----------
-Chd|        ALEMAIN                       source/ale/alemain.F          
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    multi_var2buf   ../engine/source/multifluid/multi_var2buf.F
+!||--- called by ------------------------------------------------------
+!||    alemain         ../engine/source/ale/alemain.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    multi_fvm_mod   ../common_source/modules/ale/multi_fvm_mod.F90
+!||====================================================================
       SUBROUTINE MULTI_VAR2BUF(ITASK, IPARG, MULTI_FVM, ELBUF_TAB)
-C-----------------------------------------------
-C     D e s c r i p t i o n
-C-----------------------------------------------
 C-----------------------------------------------
 C     M o d u l e s
 C-----------------------------------------------
@@ -87,7 +84,7 @@ C     Velocity
                GBUF%SIG(II + 1 * NEL) = -MULTI_FVM%PRES(I)
                GBUF%SIG(II + 2 * NEL) = -MULTI_FVM%PRES(I)
             ENDDO
-            IF (NBMAT .GT. 1) THEN
+            IF (NBMAT > 1) THEN
                CUMUL_ALPHA(1:NEL) = ZERO
 C     Fill partial values
                DO IMAT = 1, NBMAT
@@ -117,7 +114,7 @@ C     PRessure
                   ENDDO
                ENDDO
 CCCCC 
-               IF (MULTI_FVM%MUSCL .GT. 0) THEN
+               IF (MULTI_FVM%MUSCL > 0) THEN
                   DO II = 1, NEL
                      I = II + NFT
                      MULTI_FVM%RHO(I) = ZERO

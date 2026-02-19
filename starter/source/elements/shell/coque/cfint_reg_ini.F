@@ -1,36 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CFINT_REG_INI                 source/elements/shell/coque/cfint_reg_ini.F
-Chd|-- called by -----------
-Chd|        NLOCAL_INIT_STA               source/materials/fail/nlocal_init_sta.F
-Chd|-- calls ---------------
-Chd|        CEVECI                        source/elements/shell/coque/ceveci.F
-Chd|        CNLOC_MATINI                  source/materials/mat_share/cnloc_matini.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cfint_reg_ini     ../starter/source/elements/shell/coque/cfint_reg_ini.F
+!||--- called by ------------------------------------------------------
+!||    nlocal_init_sta   ../starter/source/materials/fail/nlocal_init_sta.F
+!||--- calls      -----------------------------------------------------
+!||    ceveci            ../starter/source/elements/shell/coque/ceveci.F
+!||    cnloc_matini      ../starter/source/materials/mat_share/cnloc_matini.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod       ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE CFINT_REG_INI(ELBUF_TAB,NLOC_DMG ,AREA     ,IXC      ,
      .                         DT_NL    ,X        ,XREFC    ,NFT      ,
      .                         NEL      ,NG       ,IPM      ,BUFMAT   ,
@@ -41,6 +40,7 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD            
       USE MESSAGE_MOD
       USE NLOCAL_REG_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,12 +51,7 @@ C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "my_allocate.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -251,7 +246,7 @@ C
            POS4(I) = NLOC_DMG%POSI(N4)
          ENDDO
 c         
-         ! Non-local variable transfert at Gauss point 
+         ! Non-local variable transfer at Gauss point 
          ! Loop over Gauss points in the thickness 
          DO K = 1,NDOF
            ! Loop over element
@@ -328,7 +323,7 @@ c
            ENDDO
            DO K = 1,NDNOD
              DO I = 1,NEL
-               ! Reseting non-local forces
+               ! Resetting non-local forces
                FNLTH(I,K) = ZERO
              ENDDO
            ENDDO
@@ -398,7 +393,7 @@ c
              ENDDO
            ENDDO
 c
-           ! Transfert at the integration point
+           ! Transfer at the integration point
            DO K = 1, NDOF
              !Computation of shape functions value
              IF ((NDOF==2).AND.(K==2)) THEN

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I5KEG3                        source/interfaces/inter3d/i5keg3.F
-Chd|-- called by -----------
-Chd|        I5KE3                         source/interfaces/inter3d/i5ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i5keg3   ../engine/source/interfaces/inter3d/i5keg3.F
+!||--- called by ------------------------------------------------------
+!||    i5ke3    ../engine/source/interfaces/inter3d/i5ke3.F
+!||====================================================================
       SUBROUTINE I5KEG3(LFT    ,LLT   ,FRIC   ,SCALK  ,
      3                  TNJ    ,KI11  ,KI12   ,KJ11   ,KJ12  ,
      4                  KK11   ,KK12   ,KL11  ,KL12   ,OFF   ,
@@ -39,9 +38,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -65,11 +61,7 @@ C-----------------------------------------------
      .   PREC,Q11,Q12,Q13,Q22,Q23,Q33,H00,VTX,VTY,VTZ,VT,
      .   KT1,KT2,KT3,KT4,Q1,Q2
 C-----------------------------------------------
-!      EQUIVALENCE (N1,BV(1,19)) ,(N2,BV(1,20)) ,(N3,BV(1,21))
-!      EQUIVALENCE (H1,BV(1,25)) ,(H2,BV(1,26)) ,(H3,BV(1,27))
-!      EQUIVALENCE (H4,BV(1,28)) ,(STIF,BV(1,30))
-C---------------------------------
-C    ----sans frottement d'abord--- 
+C    ---- Without friction first --- 
       DO I=LFT,LLT
         FAC=STIF(I)*SCALK
         KN(1,I)=FAC*H1(I)
@@ -110,8 +102,8 @@ C
        KL11(2,3,I)=KN(4,I)*Q23
        KL11(3,3,I)=KN(4,I)*Q33
       ENDDO
-C    ----avec frottement --- 
-      IF (FRIC.GT.ZERO) THEN
+C    with friction
+      IF (FRIC>ZERO) THEN
 C    ----tangent vector --- 
        FAC= FRIC*SCALK
        DO I=LFT,LLT
@@ -144,7 +136,7 @@ C
          ENDDO
         ENDDO
        ENDDO
-      END IF !(FRIC.GT.ZERO) THEN
+      END IF !(FRIC>ZERO) THEN
 C
        DO J=1,3 
         DO K=J,3 
@@ -173,12 +165,11 @@ C
 C
        RETURN
       END
-Chd|====================================================================
-Chd|  I5FRIK3                       source/interfaces/inter3d/i5keg3.F
-Chd|-- called by -----------
-Chd|        I5KE3                         source/interfaces/inter3d/i5ke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i5frik3   ../engine/source/interfaces/inter3d/i5keg3.F
+!||--- called by ------------------------------------------------------
+!||    i5ke3     ../engine/source/interfaces/inter3d/i5ke3.F
+!||====================================================================
       SUBROUTINE I5FRIK3(LFT   ,LLT   ,I_N  ,I_E   ,IPARI  ,
      2                  X     ,IRECT ,MSR   ,NSV   ,IRTL   ,
      3                  CST   ,IRTLO ,FRIC0 ,FRIC  ,FREQ   ,
@@ -197,15 +188,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
-#include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -235,30 +218,17 @@ C     REAL
      .   VV1,VV2,V21,DMU,AA
       my_real, DIMENSION(MVSIZ) :: FXI,FYI,FZI,FNI
 C-----------------------------------------------
-!      EQUIVALENCE (IX1,IV(1,1)) ,(IX2,IV(1,2)) ,(IX3,IV(1,3))
-!      EQUIVALENCE (IX4,IV(1,4))
-C
-!      EQUIVALENCE (XI,BV(1,13)),(YI,BV(1,14)),(ZI,BV(1,15))
-!      EQUIVALENCE (XP,BV(1,16)),(YP,BV(1,17)),(ZP,BV(1,18))
-!      EQUIVALENCE (N1,BV(1,19)) ,(N2,BV(1,20)) ,(N3,BV(1,21))
-!      EQUIVALENCE (ANS,BV(1,22)),(SSC,BV(1,23)),(TTC,BV(1,24))
-!      EQUIVALENCE (H1,BV(1,25)) ,(H2,BV(1,26)) ,(H3,BV(1,27))
-!      EQUIVALENCE (H4,BV(1,28)) ,(XFACE,BV(1,29)),(STIF,BV(1,30))
-!      EQUIVALENCE (FNI,BV(1,40))                                       --> local
-!      EQUIVALENCE (FXI,BV(1,41)),(FYI,BV(1,42)),(FZI,BV(1,43))         --> local
-!      EQUIVALENCE (AREA,BV(1,71))
-C
       DO I=LFT,LLT
        L=I_E(I)
        STIF(I)=HALF*STFM(L)
       ENDDO
 C      
-      IF (FRIC.EQ.ZERO) RETURN
+      IF (FRIC==ZERO) RETURN
 C      
       DO 300 I=LFT,LLT
        IL=I_N(I)
        LOLD=IABS(IRTLO(IL))
-       IF(LOLD.EQ.0)THEN
+       IF(LOLD==0)THEN
 C-------------------------------
 C       POINT NON IMPACTE PRECEDEMENT:::diff than explicit
 C-------------------------------
@@ -267,7 +237,7 @@ c        TN2=ZERO
 c        TN3=ZERO
          TN3=ZERO
          TN=SQRT(N1(I)*N1(I)+N2(I)*N2(I))
-         IF(TN.NE.ZERO)THEN
+         IF(TN/=ZERO)THEN
           TN2=-N1(I)/TN
           TN1=N2(I)/TN
          ELSE
@@ -319,12 +289,12 @@ C
         FYI(I)=FYI(I) + ANSY*STF
         FZI(I)=FZI(I) + ANSZ*STF
           IFQ = IPARI(31)
-          IF (IFQ.GT.0) THEN
-	    IF (IFQ.EQ.3) FREQ = MAX(ONE,FREQ*DT12)
+          IF (IFQ>0) THEN
+              IF (IFQ==3) FREQ = MAX(ONE,FREQ*DT12)
             ALPHA = FREQ
             ALPHI = ONE - ALPHA
             K = 3*(IL-1)
-	    IF (FNI(I).NE.ZERO) THEN
+              IF (FNI(I)/=ZERO) THEN
               FXI(I)= ALPHA*FXI(I) + ALPHI*FTSAV(K+1)
               FYI(I)= ALPHA*FYI(I) + ALPHI*FTSAV(K+2)
               FZI(I)= ALPHA*FZI(I) + ALPHI*FTSAV(K+3)
@@ -337,14 +307,14 @@ C
         TN2=FYI(I)-N2(I)*FN
         TN3=FZI(I)-N3(I)*FN
         TN=SQRT(TN1*TN1+TN2*TN2+TN3*TN3)
-        IF(TN.NE.ZERO)THEN
+        IF(TN/=ZERO)THEN
          TN1=TN1/TN
          TN2=TN2/TN
          TN3=TN3/TN
         ELSE
          TN3=ZERO
          TN=SQRT(N1(I)*N1(I)+N2(I)*N2(I))
-         IF(TN.NE.ZERO)THEN
+         IF(TN/=ZERO)THEN
           TN2=-N1(I)/TN
           TN1=N2(I)/TN
          ELSE
@@ -354,9 +324,9 @@ C
         ENDIF
 C
        ENDIF
-        TNJ(1,I)=TN1	
-        TNJ(2,I)=TN2	
-        TNJ(3,I)=TN3	
+        TNJ(1,I)=TN1
+        TNJ(2,I)=TN2
+        TNJ(3,I)=TN3
 C
  300  CONTINUE
       RETURN

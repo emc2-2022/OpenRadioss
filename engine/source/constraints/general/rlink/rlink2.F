@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RLINK2                        source/constraints/general/rlink/rlink2.F
-Chd|-- called by -----------
-Chd|        RLINK10                       source/constraints/general/rlink/rlink10.F
-Chd|        RLINK11                       source/constraints/general/rlink/rlink10.F
-Chd|-- calls ---------------
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rlink2        ../engine/source/constraints/general/rlink/rlink2.F
+!||--- called by ------------------------------------------------------
+!||    rlink10       ../engine/source/constraints/general/rlink/rlink10.F
+!||    rlink11       ../engine/source/constraints/general/rlink/rlink10.F
+!||--- calls      -----------------------------------------------------
+!||    sum_6_float   ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE RLINK2(MS,IN,A,AR,V,
      2                  VR,NSN,IC,ICR,NOD,
      3                  SKEW,WEIGHT,FRL6,IFLAG)
@@ -35,12 +35,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -82,7 +76,7 @@ C Init Parith/ON
          FRL6(15,K) = ZERO
        END DO
 
-       IF(IC.EQ.0)GOTO 150
+       IF(IC==0)GOTO 150
 C
 c      AX  =ZERO
 c      AY  =ZERO
@@ -94,7 +88,7 @@ c      MASS=ZERO
 C
        DO I=1,NSN
         N = NOD(I)
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F1(I)=MS(N)
           F2(I)=MS(N)*A(1,N)
           F3(I)=MS(N)*A(2,N)
@@ -113,7 +107,7 @@ C
         ENDIF
        ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
        CALL SUM_6_FLOAT(1  ,NSN  ,F1, FRL6(1,1), 15)
        CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1), 15)
@@ -124,7 +118,7 @@ C
        CALL SUM_6_FLOAT(1  ,NSN  ,F7, FRL6(7,1), 15)
 C
 C
-  150 IF(ICR.EQ.0)RETURN
+  150 IF(ICR==0)RETURN
 C
 c      AX  =ZERO
 c      AY  =ZERO
@@ -136,7 +130,7 @@ c      INER=ZERO
 C
       DO I=1,NSN
         N = NOD(I)
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F1(I)=IN(N)
           F2(I)=IN(N)*AR(1,N)
           F3(I)=IN(N)*AR(2,N)
@@ -155,7 +149,7 @@ C
         ENDIF
       ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
        CALL SUM_6_FLOAT(1  ,NSN  ,F1, FRL6(8,1), 15)
        CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(9,1), 15)
@@ -167,7 +161,7 @@ C
 C
       ELSEIF(IFLAG == 2)THEN
 C
-      IF(IC.EQ.0)GOTO 250
+      IF(IC==0)GOTO 250
        IC1=IC/4
        ICC=IC-4*IC1
        IC2=ICC/2
@@ -219,13 +213,13 @@ C
 C
        END DO
 
-  250  IF(ICR.EQ.0)RETURN
+  250  IF(ICR==0)RETURN
        IC1=ICR/4
        ICC=ICR-4*IC1
        IC2=ICC/2
        IC3=ICC-2*IC2
 
-       IF(INER.EQ.ZERO)RETURN
+       IF(INER==ZERO)RETURN
 C
        INER = FRL6(8,1)+FRL6(8,2)+FRL6(8,3)+
      +        FRL6(8,4)+FRL6(8,5)+FRL6(8,6)

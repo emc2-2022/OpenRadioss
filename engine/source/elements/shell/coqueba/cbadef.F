@@ -1,41 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CBADEF                        source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbadef     ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBADEF(JFT,JLT,NG,VCORE,AREA,CDET,VQN,VQ,VJFI,
      1                  VXYZ,RXYZ,VDEF,VNRM,VASTN,
      2                  HX,HY,VETA,VKSI,BM,BMF,BF,BC,TC,NPLAT,IPLAT,
      3                  ISROT,BRZ )
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C        CALCUL DES DEFORMATIONS GENERALISEES AUX POINTS DE GAUSS ET [B]
+C        CALCULATION OF GENERALIZED DEFORMATIONS AT GAUSS POINTS AND [B]
 C        ENTREES :  NEL,NG,VCORE,VQN,VXYZ,RXYZ,VNRM,VASM,VASTN
 C        SORTIES : VDEF,BM (MEMBRANE),BMF(COUPLAGE MEM-FLEXION),BF (FLEXION),BC(C.T)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C-----------------------------------------------
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -61,7 +59,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER PT,PT00,PT0,I,J,EP,IUN,NG1,K
+      INTEGER I, EP, IUN
       MY_REAL 
      .   VPG(2,NPG),PG1,PG,THK,DETJ,DET,
      .   TFN(3,2),BCX,BCY,BXY(3),BYX(3),
@@ -116,14 +114,14 @@ C-------VCORE(12):BX0(2),BY0(2),GAMA(2),MX23,MY23,MX34,MY34,MX13,MY13
         KSI1=VCORE(EP,12)+VCORE(EP,10)*VPG(1,NG)
        BETA2=VCORE(EP,11)+VCORE(EP,7)*VPG(2,NG)
         KSI2=VCORE(EP,11)+VCORE(EP,9)*VPG(1,NG)
-C-------NOEUD--- 1
+C-------NODE--- 1
        BC(EP,1)=-C11-C12
        BC(EP,2)=-C21-C22
        BC(EP,3)= BETA1*C11+KSI1*C12
        BC(EP,4)= BETA1*C21+KSI1*C22
        BC(EP,5)= -BETA2*C11-KSI2*C12
        BC(EP,6)= -BETA2*C21-KSI2*C22
-C-------NOEUD--- 2
+C-------NODE--- 2
        BC(EP,7)= C11-C12
        BC(EP,8)= C21-C22
        BC(EP,9)= BETA1*C11-KSI1*C12
@@ -135,15 +133,15 @@ C
         KSI1=VCORE(EP,10)+VCORE(EP,12)*VPG(1,NG)
        BETA2=VCORE(EP,7)+VCORE(EP,11)*VPG(2,NG)
         KSI2=VCORE(EP,9)+VCORE(EP,11)*VPG(1,NG)
-C-----PARTIE SYM---------
-C-------NOEUD--- 1
+C-----PART SYM---------
+C-------NODE--- 1
        BC(EP,13)=C11*VPG(2,NG)+C12*VPG(1,NG)
        BC(EP,14)=C21*VPG(2,NG)+C22*VPG(1,NG)
        BC(EP,15)=-BETA1*C11-KSI1*C12
        BC(EP,16)=-BETA1*C21-KSI1*C22
        BC(EP,17)=C11*BETA2+C12*KSI2
        BC(EP,18)=C21*BETA2+C22*KSI2
-C-------NOEUD--- 2
+C-------NODE--- 2
        BC(EP,19)=-BC(EP,13)
        BC(EP,20)=-BC(EP,14)
        BC(EP,21)=BC(EP,15)
@@ -162,7 +160,7 @@ C
      3            +BC(EP,6)*RXYZ(EP,2)+BC(EP,12)*RXYZ(EP,4)
      4            +BC(EP,18)*RXYZ(EP,8)
        ENDDO
-       IF (ISROT.GT.0) THEN
+       IF (ISROT>0) THEN
 #include "vectorize.inc"
         DO I=JFT,NPLAT
          EP=IPLAT(I)
@@ -172,13 +170,13 @@ C----------no more constant shear-----------
      1             +BM(EP,5)*VXYZ(EP,1)+BM(EP,6)*VXYZ(EP,4)
      1             +BM(EP,7)*VXYZ(EP,7)
         END DO
-       END IF !(ISROT.GT.0) THEN
+       END IF !(ISROT>0) THEN
 C------------ELEMENT GAUCH-------------------
 #include "vectorize.inc"
        DO 150 I=NPLAT+1,JLT 
         EP=IPLAT(I)
 C---------------------------------------------------
-C  CALCUL DE [FN] 
+C  CALCULATION OF [FN]
 C---------------------------------------------------
           TFN(1,1)=VKSI(1,NG)*VQN(EP,7,1)+VKSI(2,NG)*VQN(EP,7,2)
      1            +VKSI(3,NG)*VQN(EP,7,3)+VKSI(4,NG)*VQN(EP,7,4)
@@ -227,7 +225,7 @@ C------------------------------
           TBC(1,2)=TBI(1,1)*TC(EP,1,2)+TBI(1,2)*TC(EP,2,2)
           TBC(2,2)=TBI(2,1)*TC(EP,1,2)+TBI(2,2)*TC(EP,2,2)
 C--------------------------
-C     CONSTRUIRE LA MATRICE [B] ET DEFORMATION
+C     BUILD [B] MATRIX AND DEFORMATION
 C--------------------------
 C--------------------------
 C     DEFORMATION IN-PLANE
@@ -236,12 +234,10 @@ C      [BM](3,3*NPG),[BMF](3,3*NPG),
 C      [BF](3,2*NPG),VDEF(8), 
 C--------------------------
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C---------- BOUCLE SUR LES NOEUDS---
+C---------- LOOP OVER NODES---
 C--------J=1         II =0 KK = 0
-C----------VT1=<T1>*VXYZ AU CHAQUE NOEUD---------
          VT1=VQ(EP,1,1,NG)*VXYZ(EP,1)+VQ(EP,2,1,NG)*VXYZ(EP,2)
      1        +VQ(EP,3,1,NG)*VXYZ(EP,3)
-C----------VT2=<T2>*VXYZ AU CHAQUE NOEUD---------
          VT2=VQ(EP,1,2,NG)*VXYZ(EP,1)+VQ(EP,2,2,NG)*VXYZ(EP,2)
      1        +VQ(EP,3,2,NG)*VXYZ(EP,3)
 C--------TERMES DE [B0]=<T>CI-------
@@ -251,7 +247,7 @@ C--------TERMES ASSOCIEES AUX U,V,W DE [B1]=<T>BCI-------
          BC1=VKSI(1,NG)*TBC(1,1)+VETA(1,NG)*TBC(2,1)
          BC2=VKSI(1,NG)*TBC(1,2)+VETA(1,NG)*TBC(2,2)
 C          I = 1; JJ = 3*KK =0
-         IF (ISROT.GT.0) THEN
+         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -310,9 +306,7 @@ C---------PRODUIT SCALAIRE <T(PG)>*<-T^2 T^1>----------
      1           +VQ(EP,3,2,NG)*VQN(EP,3,1)
          V2(1)=-(VQ(EP,1,2,NG)*VQN(EP,4,1)+VQ(EP,2,2,NG)*VQN(EP,5,1)
      1           +VQ(EP,3,2,NG)*VQN(EP,6,1))
-C----------RV1=<V1>*RXYZ AU CHAQUE NOEUD---------
           RV1=V1(1)*RXYZ(EP,1)+V1(2)*RXYZ(EP,2)
-C----------RV2=<V2>*RXYZ AU CHAQUE NOEUD---------
           RV2=V2(1)*RXYZ(EP,1)+V2(2)*RXYZ(EP,2)
 C----------TERMES ASSOCIEES AUX BETA DE [B01]--
 C           JJ = 3*II =0
@@ -328,10 +322,8 @@ C---------DEF DE FLEXION ASSOCIEE AUX THETA1,THETA2------
           VDEF(EP,8)= VDEF(EP,8)+C1*RV2+C2*RV1
 C
 C--------J=2---II=(J-1)*2 =2  KK = 3*(J-1) =3
-C----------VT1=<T1>*VXYZ AU CHAQUE NOEUD---------
          VT1=VQ(EP,1,1,NG)*VXYZ(EP,4)+VQ(EP,2,1,NG)*VXYZ(EP,5)
      1        +VQ(EP,3,1,NG)*VXYZ(EP,6)
-C----------VT2=<T2>*VXYZ AU CHAQUE NOEUD---------
          VT2=VQ(EP,1,2,NG)*VXYZ(EP,4)+VQ(EP,2,2,NG)*VXYZ(EP,5)
      1        +VQ(EP,3,2,NG)*VXYZ(EP,6)
 C--------- [B0], [B01]---------
@@ -343,7 +335,7 @@ C--------TERMES ASSOCIEES AUX U,V,W DE [B1]=<T>BCI-------
          BC2=VKSI(2,NG)*TBC(1,2)+VETA(2,NG)*TBC(2,2)
 C
 C         I = 1; JJ = 3*KK =9
-         IF (ISROT.GT.0) THEN
+         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -401,9 +393,7 @@ C---------PRODUIT SCALAIRE <T(PG)>*<-T^2 T^1>----------
      1           +VQ(EP,3,2,NG)*VQN(EP,3,2)
          V2(1)=-(VQ(EP,1,2,NG)*VQN(EP,4,2)+VQ(EP,2,2,NG)*VQN(EP,5,2)
      1           +VQ(EP,3,2,NG)*VQN(EP,6,2))
-C----------RV1=<V1>*RXYZ AU CHAQUE NOEUD---------
           RV1=V1(1)*RXYZ(EP,2+1)+V1(2)*RXYZ(EP,2+2)
-C----------RV2=<V2>*RXYZ AU CHAQUE NOEUD---------
           RV2=V2(1)*RXYZ(EP,2+1)+V2(2)*RXYZ(EP,2+2)
 C----------TERMES ASSOCIEES AUX BETA DE [B01]--
 C           JJ = 3*II=6
@@ -419,10 +409,8 @@ C---------DEF DE FLEXION ASSOCIEE AUX THETA1,THETA2------
           VDEF(EP,8)= VDEF(EP,8)+C1*RV2+C2*RV1
 C
 C--------J=3---II=(J-1)*2 =4 KK = 3*(J-1)=6
-C----------VT1=<T1>*VXYZ AU CHAQUE NOEUD---------
          VT1=VQ(EP,1,1,NG)*VXYZ(EP,7)+VQ(EP,2,1,NG)*VXYZ(EP,8)
      1        +VQ(EP,3,1,NG)*VXYZ(EP,9)
-C----------VT2=<T2>*VXYZ AU CHAQUE NOEUD---------
          VT2=VQ(EP,1,2,NG)*VXYZ(EP,7)+VQ(EP,2,2,NG)*VXYZ(EP,8)
      1        +VQ(EP,3,2,NG)*VXYZ(EP,9)
 C--------- [B0], [B01]---------
@@ -433,7 +421,7 @@ C--------TERMES ASSOCIEES AUX U,V,W DE [B1]=<T>BCI-------
          BC1=VKSI(3,NG)*TBC(1,1)+VETA(3,NG)*TBC(2,1)
          BC2=VKSI(3,NG)*TBC(1,2)+VETA(3,NG)*TBC(2,2)
 C         I = 1;JJ = 3*KK=18
-         IF (ISROT.GT.0) THEN
+         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -479,8 +467,6 @@ C----------[B01]---------
           VDEF(EP,6)= VDEF(EP,6)+ BC1*VT1
           VDEF(EP,7)= VDEF(EP,7)+ BC2*VT2
           VDEF(EP,8)= VDEF(EP,8)+ BC1*VT2+BC2*VT1
-C---------- TERMES ASSOCIEES AU BETA ----------
-C---------PRODUIT SCALAIRE <T(PG)>*<-T^2 T^1>----------
          V1(2)=VQ(EP,1,1,NG)*VQN(EP,1,3)+VQ(EP,2,1,NG)*VQN(EP,2,3)
      1           +VQ(EP,3,1,NG)*VQN(EP,3,3)
          V1(1)=-(VQ(EP,1,1,NG)*VQN(EP,4,3)+VQ(EP,2,1,NG)*VQN(EP,5,3)
@@ -489,27 +475,20 @@ C---------PRODUIT SCALAIRE <T(PG)>*<-T^2 T^1>----------
      1           +VQ(EP,3,2,NG)*VQN(EP,3,3)
          V2(1)=-(VQ(EP,1,2,NG)*VQN(EP,4,3)+VQ(EP,2,2,NG)*VQN(EP,5,3)
      1           +VQ(EP,3,2,NG)*VQN(EP,6,3))
-C----------RV1=<V1>*RXYZ AU CHAQUE NOEUD---------
           RV1=V1(1)*RXYZ(EP,4+1)+V1(2)*RXYZ(EP,4+2)
-C----------RV2=<V2>*RXYZ AU CHAQUE NOEUD---------
           RV2=V2(1)*RXYZ(EP,4+1)+V2(2)*RXYZ(EP,4+2)
-C----------TERMES ASSOCIEES AUX BETA DE [B01]--
-C           JJ = 3*II =12
             BF(EP,13)=V1(1)*C1
             BF(EP,14)=V2(1)*C2
             BF(EP,15)=V1(1)*C2+V2(1)*C1
             BF(EP,16)=V1(2)*C1
             BF(EP,17)=V2(2)*C2
             BF(EP,18)=V1(2)*C2+V2(2)*C1
-C---------DEF DE FLEXION ASSOCIEE AUX THETA1,THETA2------
           VDEF(EP,6)= VDEF(EP,6)+C1*RV1
           VDEF(EP,7)= VDEF(EP,7)+C2*RV2
           VDEF(EP,8)= VDEF(EP,8)+C1*RV2+C2*RV1
 C--------J=4---II=(J-1)*2  =6 KK = 3*(J-1)=9
-C----------VT1=<T1>*VXYZ AU CHAQUE NOEUD---------
          VT1=VQ(EP,1,1,NG)*VXYZ(EP,10)+VQ(EP,2,1,NG)*VXYZ(EP,11)
      1        +VQ(EP,3,1,NG)*VXYZ(EP,12)
-C----------VT2=<T2>*VXYZ AU CHAQUE NOEUD---------
          VT2=VQ(EP,1,2,NG)*VXYZ(EP,10)+VQ(EP,2,2,NG)*VXYZ(EP,11)
      1        +VQ(EP,3,2,NG)*VXYZ(EP,12)
 C--------- [B0], [B01]---------
@@ -520,7 +499,7 @@ C--------TERMES ASSOCIEES AUX U,V,W DE [B1]=<T>BCI-------
          BC1=VKSI(4,NG)*TBC(1,1)+VETA(4,NG)*TBC(2,1)
          BC2=VKSI(4,NG)*TBC(1,2)+VETA(4,NG)*TBC(2,2)
 C         I = 1; JJ = 3*KK =27
-         IF (ISROT.GT.0) THEN
+         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -562,7 +541,7 @@ C---------DEF MEMBRANE------
           VDEF(EP,1)= VDEF(EP,1)+ C1*VT1
           VDEF(EP,2)= VDEF(EP,2)+ C2*VT2
 C---------DEF DE FLEXION ASSOCIEE AUX U,V,W ([BMF]=2H[B0]+[B01])------
-C----------SEULEMENT LA PARTIE DE [B01]---------
+C----------ONLY THE [B01] PART---------
           VDEF(EP,6)= VDEF(EP,6)+ BC1*VT1
           VDEF(EP,7)= VDEF(EP,7)+ BC2*VT2
           VDEF(EP,8)= VDEF(EP,8)+ BC1*VT2+BC2*VT1
@@ -576,11 +555,8 @@ C---------PRODUIT SCALAIRE <T(PG)>*<-T^2 T^1>----------
      1           +VQ(EP,3,2,NG)*VQN(EP,3,4)
          V2(1)=-(VQ(EP,1,2,NG)*VQN(EP,4,4)+VQ(EP,2,2,NG)*VQN(EP,5,4)
      1           +VQ(EP,3,2,NG)*VQN(EP,6,4))
-C----------RV1=<V1>*RXYZ AU CHAQUE NOEUD---------
           RV1=V1(1)*RXYZ(EP,6+1)+V1(2)*RXYZ(EP,6+2)
-C----------RV2=<V2>*RXYZ AU CHAQUE NOEUD---------
           RV2=V2(1)*RXYZ(EP,6+1)+V2(2)*RXYZ(EP,6+2)
-C----------TERMES ASSOCIEES AUX BETA DE [B01]--
 C           JJ = 3*II=18
             BF(EP,19)=V1(1)*C1
             BF(EP,20)=V2(1)*C2
@@ -588,7 +564,6 @@ C           JJ = 3*II=18
             BF(EP,22)=V1(2)*C1
             BF(EP,23)=V2(2)*C2
             BF(EP,24)=V1(2)*C2+V2(2)*C1
-C---------DEF DE FLEXION ASSOCIEE AUX THETA1,THETA2------
           VDEF(EP,6)= VDEF(EP,6)+THK*VDEF(EP,1)+C1*RV1
           VDEF(EP,7)= VDEF(EP,7)+THK*VDEF(EP,2)+C2*RV2
           VDEF(EP,8)= VDEF(EP,8)+THK*VDEF(EP,3)+C1*RV2+C2*RV1
@@ -739,16 +714,15 @@ C
  150   CONTINUE
        RETURN
        END
-Chd|====================================================================
-Chd|  CBADEFSH                      source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbadefsh   ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
         SUBROUTINE CBADEFSH(JFT  ,JLT  ,X13  ,X24  ,Y13  ,Y24  ,
      1                                 BM, VDEF, VXYZ , NPLAT, IPLAT)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C        CALCUL 'membrane shear traitement' use only PARTIE CONSTANTE
+C        CALCUL 'membrane shear traitement' use only PART CONSTANTE
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -767,7 +741,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I ,J,EP
+        INTEGER I, EP
 C
        DO EP=JFT,NPLAT 
         I=IPLAT(EP)
@@ -791,14 +765,14 @@ C
        ENDDO
        RETURN
        END
-Chd|====================================================================
-Chd|  CBADERIRZ                     source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|        CBAKE3                        source/elements/shell/coqueba/cbake3.F
-Chd|-- calls ---------------
-Chd|        CBADERIRZ0                    source/elements/shell/coqueba/cbadef.F
-Chd|====================================================================
+!||====================================================================
+!||    cbaderirz    ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3     ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||    cbake3       ../engine/source/elements/shell/coqueba/cbake3.F
+!||--- calls      -----------------------------------------------------
+!||    cbaderirz0   ../engine/source/elements/shell/coqueba/cbadef.F
+!||====================================================================
         SUBROUTINE CBADERIRZ(JFT  ,JLT  ,AREA ,X13 ,X24   ,
      2                       Y13  ,Y24  ,BM0RZ,BMKRZ,BMERZ,
      3                       VCORE,NPLAT,IPLAT,ISMSTR)
@@ -816,7 +790,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,J,EP
+      INTEGER I, EP
       my_real 
      .   MX13(MVSIZ),MX23(MVSIZ),MX34(MVSIZ),MY13(MVSIZ),
      .   MY23(MVSIZ),MY34(MVSIZ),A1(MVSIZ),
@@ -861,12 +835,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CBADEFRZ                      source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbadefrz   ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
         SUBROUTINE CBADEFRZ(JFT ,JLT  ,AREA  ,RLZ   ,VDEF ,
      1                     VXYZ ,BM0RZ,BMKRZ,BMERZ  ,VRLZ ,
      2                     BMRZ ,BRZ  ,BM   ,NPLAT  ,IPLAT,
@@ -951,13 +924,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CBADERIRZ0                    source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBADERIRZ                     source/elements/shell/coqueba/cbadef.F
-Chd|-- calls ---------------
-Chd|        CBPATCH                       source/elements/shell/coqueba/cbadef.F
-Chd|====================================================================
+!||====================================================================
+!||    cbaderirz0   ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaderirz    ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- calls      -----------------------------------------------------
+!||    cbpatch      ../engine/source/elements/shell/coqueba/cbadef.F
+!||====================================================================
         SUBROUTINE CBADERIRZ0(JFT ,JLT  ,AREA ,X13 ,X24   ,
      2                       Y13  ,Y24  ,MX13 ,MX23,MX34  ,
      3                       MY13 ,MY23 ,MY34 ,BM0RZ,BMKRZ,
@@ -1104,14 +1077,13 @@ C--------BM0RZ(I,3,1)->(NxI,y+NyI,x) -;BM0RZ(I,4,1)->(-NxI,y+NyI,x -2NI)-----
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CBPATCH                       source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBADERIRZ0                    source/elements/shell/coqueba/cbadef.F
-Chd|        CZDERIRZ                      source/elements/shell/coquez/czdef.F
-Chd|        CZDERIRZT                     source/elements/shell/coquez/czdef.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbpatch      ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaderirz0   ../engine/source/elements/shell/coqueba/cbadef.F
+!||    czderirz     ../engine/source/elements/shell/coquez/czdef.F
+!||    czderirzt    ../engine/source/elements/shell/coquez/czdef.F
+!||====================================================================
         SUBROUTINE CBPATCH(JFT  ,JLT  ,BM0RZ,BMKRZ,BMERZ  ,AREA ,
      3                     MX13 ,MX23,MX34  ,MY13 ,MY23 ,MY34)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
@@ -1127,7 +1099,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,J,EP,NPG,NG,IAC
+      INTEGER I, J, NPG, NG, IAC
       PARAMETER (NPG = 4)
       my_real
      .   BM0RZM(MVSIZ,4,4),J1,J2,J0,JAC(MVSIZ,4),DET,JK_A,JE_A
@@ -1141,10 +1113,10 @@ C--------------------------
       DATA VPG/PG1,PG1,PG,PG1,PG,PG,PG1,PG/
 C-------------Correction of BM0RZ to pass Patch test- IAC: analytical compute
       IAC = 1
-	  IF (IAC>0) THEN
+            IF (IAC>0) THEN
       DO I=JFT,JLT
-	   JK_A=FOUR_OVER_3*(MX23(I)*MY13(I)-MX13(I)*MY23(I))/AREA(I)
-	   JE_A=FOUR_OVER_3*(MX13(I)*MY34(I)-MX34(I)*MY13(I))/AREA(I)
+             JK_A=FOUR_OVER_3*(MX23(I)*MY13(I)-MX13(I)*MY23(I))/AREA(I)
+             JE_A=FOUR_OVER_3*(MX13(I)*MY34(I)-MX34(I)*MY13(I))/AREA(I)
 C--------NxI,x ------
        BM0RZ(I,1,1) = -BMKRZ(I,1,1)*JK_A-BMERZ(I,1,1)*JE_A
        BM0RZ(I,1,2) = -BMKRZ(I,1,2)*JK_A-BMERZ(I,1,2)*JE_A
@@ -1167,8 +1139,8 @@ C -------NyI,y -------------
        BM0RZ(I,4,4) = -BMKRZ(I,4,4)*JK_A-BMERZ(I,4,4)*JE_A
       ENDDO
       RETURN
-	  END IF !(ICN>0) THEN
-C	  
+            END IF !(ICN>0) THEN
+C    
       DO I=JFT,JLT
         J1=(MX23(I)*MY13(I)-MX13(I)*MY23(I))*PG
         J2=-(MX13(I)*MY34(I)-MX34(I)*MY13(I))*PG
@@ -1190,7 +1162,7 @@ C
 C
       DO NG= 1,4
       DO I=JFT,JLT
-	   DET=JAC(I,NG)/AREA(I)
+             DET=JAC(I,NG)/AREA(I)
        DO J=1,4
         BM0RZM(I,1,J) = BM0RZM(I,1,J)+ (BMKRZ(I,1,J)*VPG(1,NG)+
      .                  BMERZ(I,1,J)*VPG(2,NG))*DET
@@ -1204,7 +1176,7 @@ C
        ENDDO
       ENDDO
       ENDDO
-C	  
+C    
       DO I=JFT,JLT
        DO J=1,4
         BM0RZ(I,1,J) = -BM0RZM(I,1,J)
@@ -1217,20 +1189,18 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CBADEF1                       source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbadef1    ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBADEF1(JFT,JLT,NG,VCORE,VXYZ,VDEF,
      1                  HX,HY,BM,NPLAT,IPLAT,ISROT)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C        CALCUL DES DEFORMATIONS GENERALISEES AUX POINTS DE GAUSS ET [B] (MEMBRANE ONLY)
+C        CALCULATION OF GENERALIZED DEFORMATIONS AT GAUSS POINTS AND [B] (MEMBRANE ONLY)
 C        ENTREES :  NEL,NG,VCORE,VXYZ
 C        SORTIES : VDEF,BM (MEMBRANE)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C-----------------------------------------------
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -1250,7 +1220,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER PT,PT00,PT0,I,J,EP,IUN,NG1,K
+      INTEGER I, EP
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 #include "vectorize.inc"
        DO I=JFT,NPLAT 
@@ -1276,7 +1246,7 @@ C
         VDEF(EP,7)=ZERO
         VDEF(EP,8)=ZERO
        ENDDO
-       IF (ISROT.GT.0) THEN
+       IF (ISROT>0) THEN
 #include "vectorize.inc"
         DO I=JFT,NPLAT
          EP=IPLAT(I)
@@ -1286,16 +1256,15 @@ C----------no more constant shear-----------
      1             +BM(EP,5)*VXYZ(EP,1)+BM(EP,6)*VXYZ(EP,4)
      1             +BM(EP,7)*VXYZ(EP,7)
         END DO
-       END IF !(ISROT.GT.0) THEN
+       END IF !(ISROT>0) THEN
 C       
        RETURN
        END
-Chd|====================================================================
-Chd|  CBADEFT                       source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbadeft    ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBADEFT(JFT,JLT,VXYZ,RLZ,VDEF,
      2                   BM,NPLAT,IPLAT,ISROT,BMRZ )
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
@@ -1317,13 +1286,12 @@ C-----------------------------------------------
 C     .   BM(9,4,*),BMF(9,4,*),BF(6,4,*),VDEF(8,*)
       MY_REAL 
      .   BMRZ(MVSIZ,4,4)
-#include      "com01_c.inc"
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C---VDEF: 1:8 exx eyy,exy,eyx,byx,bxx,byy,bxy
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER PT,PT00,PT0,I,J,EP,IUN,NG1,K
+      INTEGER I, EP
 C
       MY_REAL 
      .   A_1,C11,C12,C21,C22,CDEMI
@@ -1431,7 +1399,7 @@ C     +           BF(3,1,I)*RXYZ(1,1,I)+BF(3,2,I)*RXYZ(1,2,I)+
 C     +           BF(3,3,I)*RXYZ(1,3,I)+BF(3,4,I)*RXYZ(1,4,I)
 C      
       END DO
-      IF (ISROT.GT.0) THEN
+      IF (ISROT>0) THEN
 #include "vectorize.inc"
        DO I=JFT,JLT
 C---------------
@@ -1449,21 +1417,19 @@ C---------------
      1                BMRZ(I,4,1)*RLZ(EP,1)+BMRZ(I,4,2)*RLZ(EP,2)
      2               +BMRZ(I,4,3)*RLZ(EP,3)+BMRZ(I,4,4)*RLZ(EP,4)
        ENDDO
-      END IF !(ISROT.GT.0) THEN
+      END IF !(ISROT>0) THEN
 C      
        RETURN
        END
-Chd|====================================================================
-Chd|  CBADEFT1                      source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbadeft1   ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBADEFT1(JFT,JLT,NG,VCORE,VXYZ,VDEF,
      1                    HX,HY,BM,NPLAT,IPLAT,ISROT,
      2                    BMRZ,RXYZ,WXY )
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C-----------------------------------------------
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -1485,7 +1451,7 @@ C---VDEF: 1:8 exx eyy,exy,eyx,byx,bxx,byy,bxy
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER PT,PT00,PT0,I,J,EP,IUN,NG1,K
+      INTEGER I, EP
 C
       MY_REAL 
      .   A_1,C11,C12,C21,C22,CDEMI
@@ -1524,7 +1490,7 @@ C-------- exy---
          VDEF(EP,3)=BM(EP,5,1)*VXYZ(EP,1,1)+BM(EP,6,1)*VXYZ(EP,1,2)
      1             +BM(EP,7,1)*VXYZ(EP,1,3)
        ENDDO
-      IF (ISROT.GT.0) THEN
+      IF (ISROT>0) THEN
 #include "vectorize.inc"
        DO I=JFT,NPLAT
 C---------------
@@ -1542,21 +1508,20 @@ C---------------
      1                BMRZ(I,4,1)*RXYZ(EP,1)+BMRZ(I,4,2)*RXYZ(EP,2)
      2               +BMRZ(I,4,3)*RXYZ(EP,3)+BMRZ(I,4,4)*RXYZ(EP,4)
        ENDDO
-      END IF !(ISROT.GT.0) THEN
+      END IF !(ISROT>0) THEN
 C      
        RETURN
        END
-Chd|====================================================================
-Chd|  CBADERIT1                     source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbaderit1   ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3    ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBADERIT1(JFT,JLT,NG,VCORE,VQ,VJFI,
      2                  HX,HY,VETA,VKSI,BM,NPLAT,IPLAT,
      3                  ISROT)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C        CALCUL DES DEFORMATIONS GENERALISEES AUX POINTS DE GAUSS ET [B]
+C        CALCULATION OF GENERALIZED DEFORMATIONS AT GAUSS POINTS AND [B]
 C        ENTREES :  NEL,NG,VCORE,VQN,VXYZ,RXYZ,VNRM,VASM,VASTN
 C        SORTIES : VDEF,BM (MEMBRANE),BMF(COUPLAGE MEM-FLEXION),BF (FLEXION),BC(C.T)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
@@ -1578,7 +1543,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER PT,PT00,PT0,I,J,EP,IUN,NG1,K
+      INTEGER I, EP, IUN
       MY_REAL 
      .   VPG(2,NPG),PG1,PG,THK,DETJ,DET,
      .   TFN(3,2),BCX,BCY,BXY(3),BYX(3),
@@ -1624,7 +1589,7 @@ C---------------------------
           TC(EP,2,2)=VJFI(EP,1,2,NG)*VQ(EP,1,2,NG)+VJFI(EP,2,2,NG)
      +             *VQ(EP,2,2,NG)+ VJFI(EP,3,2,NG)*VQ(EP,3,2,NG)
 C--------------------------
-C     CONSTRUIRE LA MATRICE [B] ET DEFORMATION
+C     BUILD [B] MATRIX AND DEFORMATION
 C--------------------------
 C--------------------------
 C     DEFORMATION IN-PLANE
@@ -1635,7 +1600,7 @@ C--------TERMES DE [B0]=<T>CI-------
          C1=VKSI(1,NG)*TC(EP,1,1)+VETA(1,NG)*TC(EP,2,1)
          C2=VKSI(1,NG)*TC(EP,1,2)+VETA(1,NG)*TC(EP,2,2)
 C          I = 1; JJ = 3*KK =0
-c         IF (ISROT.GT.0) THEN
+c         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -1662,7 +1627,7 @@ C--------TERMES DE [B0]=<T>CI-------
          C1=VKSI(2,NG)*TC(EP,1,1)+VETA(2,NG)*TC(EP,2,1)
          C2=VKSI(2,NG)*TC(EP,1,2)+VETA(2,NG)*TC(EP,2,2)
 C         I = 1; JJ = 3*KK =9
-c         IF (ISROT.GT.0) THEN
+c         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -1689,7 +1654,7 @@ C--------- [B0], [B01]---------
 C--------TERMES DE [B0]=<T>CI-------
          C1=VKSI(3,NG)*TC(EP,1,1)+VETA(3,NG)*TC(EP,2,1)
          C2=VKSI(3,NG)*TC(EP,1,2)+VETA(3,NG)*TC(EP,2,2)
-c         IF (ISROT.GT.0) THEN
+c         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -1712,7 +1677,7 @@ C---------- TERMES ASSOCIEES AU BETA ----------
 C--------TERMES DE [B0]=<T>CI-------
          C1=VKSI(4,NG)*TC(EP,1,1)+VETA(4,NG)*TC(EP,2,1)
          C2=VKSI(4,NG)*TC(EP,1,2)+VETA(4,NG)*TC(EP,2,2)
-c         IF (ISROT.GT.0) THEN
+c         IF (ISROT>0) THEN
           BXY(1)=VQ(EP,1,1,NG)*C2
           BXY(2)=VQ(EP,2,1,NG)*C2
           BXY(3)=VQ(EP,3,1,NG)*C2
@@ -1734,15 +1699,14 @@ C
  150   CONTINUE
        RETURN
        END
-Chd|====================================================================
-Chd|  CBADERIRZT                    source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbaderirzt   ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3     ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBADERIRZT(JFT,JLT,NG,BM0RZ,BMKRZ,BMERZ,BMRZ)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C        CALCUL DES DEFORMATIONS GENERALISEES AUX POINTS DE GAUSS ET [B]
+C        CALCULATION OF GENERALIZED DEFORMATIONS AT GAUSS POINTS AND [B]
 C        ENTREES :  JFT,JLT,NG,BM0RZ,BMKRZ,BMERZ
 C        SORTIES : BMRZ
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
@@ -1789,12 +1753,11 @@ C---+BMRZ(3,J,I): NXY ,BMRZ(4,J,I):NYX
       ENDDO
        RETURN
        END
-Chd|====================================================================
-Chd|  CBADEFTW                      source/elements/shell/coqueba/cbadef.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cbadeftw   ../engine/source/elements/shell/coqueba/cbadef.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3   ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||====================================================================
       SUBROUTINE CBADEFTW(JFT,JLT,VXYZ,RXYZ,
      2                    BM,BMF,BF,NPLAT,IPLAT,
      3                    WXY )
@@ -1814,13 +1777,12 @@ C-----------------------------------------------
       MY_REAL 
      .   RXYZ(MVSIZ,2,4),VXYZ(MVSIZ,3,4),
      .   BM(MVSIZ,9,4),BMF(MVSIZ,9,4),BF(MVSIZ,6,4),WXY(*)
-#include      "com01_c.inc"
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C---VDEF: 1:8 exx eyy,exy,eyx,byx,bxx,byy,bxy
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,J,EP,K
+      INTEGER I, EP
 C
       MY_REAL 
      .   A_1,C11,C12,C21,C22,CDEMI,KXY,KYX

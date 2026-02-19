@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  RBYACT                        source/constraints/general/rbody/rbyact.F
-Chd|-- called by -----------
-Chd|        RBYPID                        source/constraints/general/rbody/rbypid.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        INEPRI                        source/constraints/general/rbody/inepri.F
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    rbyact          ../engine/source/constraints/general/rbody/rbyact.F
+!||--- called by ------------------------------------------------------
+!||    rbypid          ../engine/source/constraints/general/rbody/rbypid.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../engine/source/output/message/message.F
+!||    arret           ../engine/source/system/arret.F
+!||    inepri          ../engine/source/constraints/general/rbody/inepri.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||    sum_6_float     ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE RBYACT(RBY,M,LSN ,NSL ,MS  ,
      .                  IN ,X,ITAB,SKEW,ISPH,
      .                  IWA,NPBYI,RBYI,LSNI ,
@@ -49,8 +50,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "param_c.inc"
 #include      "com01_c.inc"
@@ -89,7 +88,7 @@ C
       MASRB=MS(M)
       NONOD=ITAB(M)
 C
-c      IF(NSPMD.GT.1) THEN
+c      IF(NSPMD>1) THEN
 c        RBY(1)=RBY(1)*WEIGHT(M)
 c        RBY(5)=RBY(5)*WEIGHT(M)
 c        RBY(9)=RBY(9)*WEIGHT(M)
@@ -97,12 +96,12 @@ c        MASRB=MASRB*WEIGHT(M)
 c        XMG=XMG*WEIGHT(M)
 c      ENDIF
 C---------------------------------
-C     RECHERCHE DES NOEUDS SECONDS
-C     DE SOUS RBY (NOEUD MAIN PARMI LES SECONDS)
+C     search for secondary nodes
+C     of sub rby (main node among the secondary nodes)
 C---------------------------------
       DO I=1,NSL
          N=LSN(I)
-         IF(IWA(N).GT.0)THEN
+         IF(IWA(N)>0)THEN
            K=0
            DO NI=1,IWA(N)-1
              NSLI=NPBYI(2,NI)
@@ -111,13 +110,13 @@ C---------------------------------
            NSLI=NPBYI(2,IWA(N))
            DO II=1,NSLI
              NI=LSNI(K+II)
-             IF(IWA(NI).EQ.0)IWA(NI)=-1
+             IF(IWA(NI)==0)IWA(NI)=-1
            ENDDO
          ENDIF
       ENDDO
 C---------------------------------
-C     CORRECTION DE LA MASSE ET DU
-C     CENTRE DE GRAVITE DU MAIN
+C     correction of the mass and of the
+C     center of gravity of the main node
 C---------------------------------
       DO J=1,3
          XG(J)=X(J,M)
@@ -131,7 +130,7 @@ C       ANALYSE 2D
 C
       DO I=1,NSL
         N=LSN(I)
-        IF(IWA(N).GE.0.AND.WEIGHT(N).EQ.1)THEN
+        IF(IWA(N)>=0.AND.WEIGHT(N)==1)THEN
           F1(I) =  X(1,N)*MS(N)
           F2(I) =  X(2,N)*MS(N)
           F3(I) =  X(3,N)*MS(N)
@@ -147,7 +146,7 @@ C inertie meme si iwa(n)==0
         ENDIF
       ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
       DO K = 1, 6
         RBF6(1,K) = ZERO
@@ -164,7 +163,7 @@ C
       CALL SUM_6_FLOAT(1  ,NSL  ,F5, RBF6(5,1), 5)
 
       
-      IF(NSPMD.GT.1) THEN
+      IF(NSPMD>1) THEN
         CALL SPMD_EXCH_FR6(ICOMM,RBF6,5*6)
       ENDIF
 
@@ -183,8 +182,8 @@ C
       INERT   =RBF6(5,1)+RBF6(5,2)+RBF6(5,3)+
      +         RBF6(5,4)+RBF6(5,5)+RBF6(5,6)
 
-      IF(MASRB.LE.ZERO)THEN
-        IF (ISPMD+1.EQ.PMAIN) THEN
+      IF(MASRB<=ZERO)THEN
+        IF (ISPMD+1==PMAIN) THEN
           CALL ANCMSG(MSGID=109,ANMODE=ANINFO,
      .            I1=NONOD)
         ENDIF
@@ -196,7 +195,7 @@ C
       ENDDO
 
 C--------------------------------------
-C     CORRECTION DE L'INERTIE DU MAIN
+C     correction of the inertia of the main node
 C--------------------------------------
       RBY(1)=RBY(1)+INERT
       RBY(5)=RBY(5)+INERT
@@ -223,7 +222,7 @@ C
         DO I=1,NSL
           N=LSN(I)
           NI=IWA(N)
-         IF(NI.EQ.0.AND.WEIGHT(N).EQ.1)THEN
+         IF(NI==0.AND.WEIGHT(N)==1)THEN
            XX=(X(1,N)-X(1,M))*(X(1,N)-X(1,M))
            XY=(X(1,N)-X(1,M))*(X(2,N)-X(2,M))
            XZ=(X(1,N)-X(1,M))*(X(3,N)-X(3,M))
@@ -239,8 +238,8 @@ C
            F7(I)=-XZ*MS(N)
            F8(I)=-YZ*MS(N)
            F9(I)=(XX+YY)*MS(N)
-         ELSEIF(NI.GT.0.AND.WEIGHT(N).EQ.1)THEN
-C main DE SOUS RBY
+         ELSEIF(NI>0.AND.WEIGHT(N)==1)THEN
+C main node of sub rby
            RBY(1)=RBY(1)-IN(N)
            RBY(5)=RBY(5)-IN(N)
            RBY(9)=RBY(9)-IN(N)
@@ -310,7 +309,7 @@ C
         DO I=1,NSL
           N=LSN(I)
           NI=IWA(N)
-         IF(NI.EQ.0.AND.WEIGHT(N).EQ.1)THEN
+         IF(NI==0.AND.WEIGHT(N)==1)THEN
            YY=(X(2,N)-X(2,M))*(X(2,N)-X(2,M))
            YZ=(X(2,N)-X(2,M))*(X(3,N)-X(3,M))
            ZZ=(X(3,N)-X(3,M))*(X(3,N)-X(3,M))
@@ -323,8 +322,8 @@ C
            F7(I)=ZERO
            F8(I)=-YZ*MS(N)
            F9(I)=YY*MS(N)
-         ELSEIF(NI.GT.0.AND.WEIGHT(N).EQ.1)THEN
-C main DE SOUS RBY
+         ELSEIF(NI>0.AND.WEIGHT(N)==1)THEN
+C main node of sub rby
            RBY(1)=RBY(1)-IN(N)
            RBY(5)=RBY(5)-IN(N)
            RBY(9)=RBY(9)-IN(N)
@@ -371,7 +370,7 @@ C
         ENDDO
       ENDIF
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
       DO K = 1, 6
         RBFB6(1,K) = ZERO
@@ -396,7 +395,7 @@ C
       CALL SUM_6_FLOAT(1  ,NSL  ,F9, RBFB6(9,1), 9)
 
 
-      IF(NSPMD.GT.1) THEN
+      IF(NSPMD>1) THEN
         CALL SPMD_EXCH_FR6(ICOMM,RBFB6,9*6)
       ENDIF
 
@@ -421,13 +420,13 @@ C
 C----------------------------------------------
 C     MISE A ZERO DES MASSES ET INERTIES SECNDS voir up
 C----------------------------------------------
-      IF (ISPMD+1.EQ.PMAIN) THEN
+      IF (ISPMD+1==PMAIN) THEN
         WRITE(IOUT,1000)
         WRITE(IOUT,1100) NONOD,X(1,M),X(2,M),X(3,M),
      .        MASRB,RBY(1),RBY(5),RBY(9),RBY(2),RBY(3),RBY(6)
       ENDIF
 C----------------------------------------------------------------
-C     CALCUL DU REPERE D'INERTIE PRINCIPALE
+C     COMPUTATION OF THE PRINCIPAL INERTIA FRAME
 C----------------------------------------------------------------
       IF(N2D == 1) THEN
         RBY(10) = RBY(1)

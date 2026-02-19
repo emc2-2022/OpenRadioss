@@ -1,42 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  S4MASS3                       source/elements/solid/solide4/s4mass3.F
-Chd|-- called by -----------
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|        INIVOID                       source/elements/initia/inivoid.F
-Chd|        MULTIFLUID_INIT3T             source/multifluid/multifluid_init3t.F
-Chd|        S4INIT3                       source/elements/solid/solide4/s4init3.F
-Chd|-- calls ---------------
-Chd|        S4FRACA                       source/elements/solid/solide4/s4mass3.F
-Chd|====================================================================
+!||====================================================================
+!||    s4mass3             ../starter/source/elements/solid/solide4/s4mass3.F
+!||--- called by ------------------------------------------------------
+!||    inirig_mat          ../starter/source/elements/initia/inirig_mat.F
+!||    inivoid             ../starter/source/elements/initia/inivoid.F
+!||    multifluid_init3t   ../starter/source/multifluid/multifluid_init3t.F
+!||    s4init3             ../starter/source/elements/solid/solide4/s4init3.F
+!||--- calls      -----------------------------------------------------
+!||    s4fraca             ../starter/source/elements/solid/solide4/s4mass3.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE S4MASS3(
      1   RHO  ,MS ,PARTSAV,X   ,V,
      2   IPART,MSS,MSNF   ,MSSF,WMA,
      3   RHOCP,MCP,MCPS   ,TEMP0 ,TEMP,
      4   MSSA ,IX1   ,IX2   ,IX3   ,IX4,
-     5   FILL, VOLU)
+     5   FILL, VOLU  ,IMAS_DS ,NINTEMP)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE ALE_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,15 +55,13 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com07_c.inc"
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
 #include      "sms_c.inc"
-#include      "ale_param.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) ::  IMAS_DS
+      INTEGER, INTENT(IN) ::  NINTEMP
       INTEGER IPART(*), IX1(*), IX2(*), IX3(*), IX4(*)
       my_real
      .   RHO(*), MS(*),X(3,*),V(3,*),PARTSAV(20,*),MSNF(*), MSS(8,*),
@@ -67,13 +70,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,IP,I1,I2,I3,I4,j
+      INTEGER I,IP,I1,I2,I3,I4
       my_real
      .   XX,YY,ZZ,XY,YZ,ZX, MASS(MVSIZ),RCP,PTG(4,MVSIZ)
 C
 C-----------------------------------------------------------------------
       IF(ISMS==0)
-     .  CALL S4FRACA(X,IX1 ,IX2,IX3 ,IX4 ,PTG   )
+     .  CALL S4FRACA(X,IX1 ,IX2,IX3 ,IX4 ,PTG ,IMAS_DS  )
       DO I=LFT,LLT
        MASS(I)=FILL(I)*RHO(I)*VOLU(I)*FOURTH
 C
@@ -176,7 +179,7 @@ C
        ENDDO      
       ENDIF
 C
-      IF(JALE > 0 .AND. NWALE == 4)THEN
+      IF(JALE > 0 .AND. ALE%GRID%NWALE == 4)THEN
         DO I=LFT,LLT
           I1 = IX1(I)
           I2 = IX2(I)
@@ -217,12 +220,11 @@ C
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  S4FRAC                        source/elements/solid/solide4/s4mass3.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        DIS_N1N2                      source/elements/solid/solide4/s4mass3.F
-Chd|====================================================================
+!||====================================================================
+!||    s4frac     ../starter/source/elements/solid/solide4/s4mass3.F
+!||--- calls      -----------------------------------------------------
+!||    dis_n1n2   ../starter/source/elements/solid/solide4/s4mass3.F
+!||====================================================================
       SUBROUTINE S4FRAC(X,IX1 ,IX2,IX3 ,IX4 ,PTG   )
 C----------------------------------------------
 C     MASS PARTITION IN FUNCTION OF NODAL ANGLES
@@ -234,9 +236,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -250,9 +249,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,N,IP,I1,I2,I3,I4
+      INTEGER I
       my_real
-     .   XX,YY,ZZ,XY,YZ,ZX,P1,P2,P3,P4,S
+     .   P1,P2,P3,P4,S
       my_real
      .   A2(MVSIZ), B2(MVSIZ), C2(MVSIZ),D2(MVSIZ),E2(MVSIZ),F2(MVSIZ),
      .   AA(MVSIZ), BB(MVSIZ), CC(MVSIZ),DD(MVSIZ),EE(MVSIZ),FF(MVSIZ)
@@ -300,12 +299,11 @@ C
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  DIS_N1N2                      source/elements/solid/solide4/s4mass3.F
-Chd|-- called by -----------
-Chd|        S4FRAC                        source/elements/solid/solide4/s4mass3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    dis_n1n2   ../starter/source/elements/solid/solide4/s4mass3.F
+!||--- called by ------------------------------------------------------
+!||    s4frac     ../starter/source/elements/solid/solide4/s4mass3.F
+!||====================================================================
       SUBROUTINE DIS_N1N2(X,N1 ,N2 ,S ,S2   )
 C----------------------------------------------
 C     S=L(N1,N2)
@@ -313,12 +311,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -332,9 +324,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K
+      INTEGER I
       my_real
-     .   XX,YY,ZZ,XY,YZ,ZX
+     .   XX,YY,ZZ
 C=======================================================================
       DO I=LFT,LLT
         XX = X(1,N2(I))-X(1,N1(I))
@@ -346,14 +338,14 @@ C=======================================================================
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  S4FRACA                       source/elements/solid/solide4/s4mass3.F
-Chd|-- called by -----------
-Chd|        S4MASS3                       source/elements/solid/solide4/s4mass3.F
-Chd|-- calls ---------------
-Chd|        AREA_TRIA                     source/elements/solid/solide4/s4mass3.F
-Chd|====================================================================
-      SUBROUTINE S4FRACA(X,IX1 ,IX2,IX3 ,IX4 ,PTG   )
+!||====================================================================
+!||    s4fraca     ../starter/source/elements/solid/solide4/s4mass3.F
+!||--- called by ------------------------------------------------------
+!||    s4mass3     ../starter/source/elements/solid/solide4/s4mass3.F
+!||--- calls      -----------------------------------------------------
+!||    area_tria   ../starter/source/elements/solid/solide4/s4mass3.F
+!||====================================================================
+      SUBROUTINE S4FRACA(X,IX1 ,IX2,IX3 ,IX4 ,PTG ,IMAS_DS  )
 C----------------------------------------------
 C     MASS PARTITION IN FUNCTION OF NODAL ANGLES by AREA
 C-----------------------------------------------
@@ -365,25 +357,22 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr21_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) ::  IMAS_DS
       INTEGER IX1(*), IX2(*), IX3(*),IX4(*)
       my_real
      .   X(3,*),PTG(4,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,N,IP,I1,I2,I3,I4
+      INTEGER I,J
       my_real
-     .   XX,YY,ZZ,XY,YZ,ZX,P1,P2,P3,P4,S
+     .   S
       my_real
      .   A1(MVSIZ), A2(MVSIZ), A3(MVSIZ),A4(MVSIZ)
 C=======================================================================
@@ -411,13 +400,12 @@ C
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  AREA_TRIA                     source/elements/solid/solide4/s4mass3.F
-Chd|-- called by -----------
-Chd|        S4FRACA                       source/elements/solid/solide4/s4mass3.F
-Chd|        S4FRACA10                     source/elements/solid/solide10/s10mass3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    area_tria   ../starter/source/elements/solid/solide4/s4mass3.F
+!||--- called by ------------------------------------------------------
+!||    s4fraca     ../starter/source/elements/solid/solide4/s4mass3.F
+!||    s4fraca10   ../starter/source/elements/solid/solide10/s10mass3.F
+!||====================================================================
       SUBROUTINE AREA_TRIA(X,N1 ,N2 ,N3, A2 )
 C----------------------------------------------
 C-----------------------------------------------
@@ -428,9 +416,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -444,13 +429,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K
+      INTEGER I
       my_real
      .    X1(MVSIZ),X2(MVSIZ),X3(MVSIZ),
      .    Y1(MVSIZ),Y2(MVSIZ),Y3(MVSIZ),
      .    Z1(MVSIZ),Z2(MVSIZ),Z3(MVSIZ),
      .    X13, Y13, Z13, X12, Y12, Z12, 
-     .    E3X, E3Y, E3Z, SURF
+     .    E3X, E3Y, E3Z
 C=======================================================================
         DO I=LFT,LLT
           X1(I)=X(1,N1(I))   

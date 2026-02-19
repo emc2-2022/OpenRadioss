@@ -1,37 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  SPMD_EXCH_I24                 source/mpi/interfaces/spmd_exch_i24.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    spmd_exch_i24         ../engine/source/mpi/interfaces/spmd_exch_i24.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                ../engine/source/output/message/message.F
+!||    arret                 ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod         ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box               ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE SPMD_EXCH_I24(IPARI    ,INTBUF_TAB     ,ITAB,
      *                         IAD_ELEM ,FR_ELEM,INTLIST,NBINTC,
      *                         IAD_I24  ,FR_I24  ,SFR_I24,I24MAXNSNE,FLAG,
@@ -45,26 +47,18 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "com01_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
 #include      "spmd_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
@@ -81,20 +75,18 @@ C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
 #ifdef MPI
       INTEGER STATUS(MPI_STATUS_SIZE),
-     *        REQ_SI(PARASIZ),REQ_RI(PARASIZ),REQ_S(PARASIZ),
+     * REQ_SI(PARASIZ),REQ_S(PARASIZ),
      *        REQ_S2(PARASIZ),REQ_R(PARASIZ),REQ_R2(PARASIZ)
       INTEGER P,LENSD,LENRV,IADS(PARASIZ+1),IADR(PARASIZ+1),IERROR,
-     *        SIZ,LOC_PROC,MSGTYP,IDEB(NINTER),IDB,PROC,
+     * SIZ,LOC_PROC,MSGTYP,IDEB(NINTER),IDB,
      *        MSGOFF,MSGOFF2,MSGOFF3,MSGOFF4,MSGOFF5
-      INTEGER IADINT(NINTER,NSPMD)
-
-      INTEGER I,J,L,NB,NL,NN,K,N,NOD,MODE,LEN,ALEN,ND,FLG,NIN,NTY,
-     *        NSN,SN,SSIZ,NBI,NSI,IEDG4,
-     *        SNREMOTE,SURF,SURFR,I_STOK,IT,LEN_NSNSI,CT,SEG,MS,NSNR,
-     *        SNREMOTEBIS,NI,ILEN,RLEN,LI,LR,IGSTI,NFIT
-      INTEGER IWORK(70000)
+      INTEGER I, L, NB, NN, K, N, NOD, LEN, ALEN, ND, NIN, NTY, 
+     * NSN,SN,NSI,IEDG4,
+     * SURF,SURFR,I_STOK,MS,NSNR,
+     * NI,ILEN,RLEN,LI,LR,IGSTI
+ 
       my_real
-     *    TMP,TMPR,SEND_PMAX(NINTER),REC_PMAX(NINTER),TIME_S,TIME_SR
+     * SEND_PMAX(NINTER),TIME_S,TIME_SR
       my_real ,
      *   DIMENSION(:), ALLOCATABLE :: BBUFS, BBUFR,RRECBUF
       my_real ,
@@ -103,10 +95,8 @@ C-----------------------------------------------
      
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: ISENDBUF
       INTEGER, DIMENSION(:), ALLOCATABLE :: IRECBUF
-      INTEGER, DIMENSION(:), ALLOCATABLE :: SNIDX
-      INTEGER, DIMENSION(:), ALLOCATABLE :: ITRI,INDTRI,ISCANDR,ISCAND
-      my_real
-     *  SQLEN,SQLENR
+ 
+      INTEGER, DIMENSION(:), ALLOCATABLE :: ISCAND
       DATA MSGOFF/156/
       DATA MSGOFF2/157/
       DATA MSGOFF3/158/
@@ -129,17 +119,17 @@ C--------------------------------------------------------
            IF(NSPMD == 1)RETURN
 
 C ----------------------------------      
-C IFLAG=1 partie1 - Send   
+C Iflag = 1 part 1 - Send   
 C ----------------------------------      
       IF(FLAG==1)THEN
 
 C----------------------------------------------------------------------------------------------------
-C Partie Zero  IRTLM & TIME_S sont mis a zero quand les noeuds seconds locaux ne sont pas candidats
+C IRTLM & TIME_S are put to ZERO when the local second nodes are not candidates
 C----------------------------------------------------------------------------------------------------
            ALLOCATE(ISCAND(NUMNOD+I24MAXNSNE))
            ISCAND(1:NUMNOD+I24MAXNSNE)=0
            DO NI=1,NBINTC
-	     NIN = INTLIST(NI)
+               NIN = INTLIST(NI)
              NTY   = IPARI( 7,NIN)
              NSN   = IPARI( 5,NIN)
              NSNR   = IPARI( 24,NIN)
@@ -175,13 +165,13 @@ C-------------------------------------------------------------------------------
 
 C--------------------------------------------------------
 
-C Comm sur l'interface type 24
-C 1ere partie, on ramene sur le proc qui a les neouds slv les valeurs de IRTLM_FI + TIME_SFI & traitements
-C 2eme partie on les traite sur le proc  qui a les neouds slv les valeurs
-C 3eme partie on renvoie sur les procs remotes lesvaleurs globalisees
+C Comm on the Type 24 interface
+C First part, we bring back to the proc that has the secondary nodes the values of IRTLM_FI + TIME_SFI & treatments
+C Second part, we process them on the proc that has the secondary nodes the values
+C 3rd part we refer to the remotes of the globalized values on the
 
 C--------------------------------------------------------
-C 1ere partie, on ramene sur le proc qui a les neouds slv les valeurs de IRTLM_FI + TIME_SFI
+C First part, we bring back to the proc that has the secondary nodes the values of IRTLM_FI + TIME_SFI
 C--------------------------------------------------------
 
       LOC_PROC = ISPMD+1
@@ -193,11 +183,11 @@ C--------------------------------------------------------
       ALEN=10
 
 
-C Comptage des tailles de buffer  Reception et envoi
+C counting buffer sizes for reception and sending
       DO P=1,NSPMD
          IADR(P)=LENRV+1
          DO NI=1,NBINTC
-	   NIN = INTLIST(NI)
+             NIN = INTLIST(NI)
            NTY=IPARI(7,NIN)
            IF(NTY==24)THEN
               LENSD = LENSD + NSNFI(NIN)%P(P)*ALEN
@@ -207,20 +197,20 @@ C Comptage des tailles de buffer  Reception et envoi
       ENDDO
       IADR(NSPMD+1)=LENRV+1
 
-C Preparation du send
-      IF(LENSD.GT.0)THEN
+C preparation of send
+      IF(LENSD>0)THEN
           ALLOCATE(BBUFS(LENSD),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
       ENDIF
 
 C ---------------------------------------------
-C Preparation du recieve
-      IF(LENRV.GT.0)THEN
+C preparation of receive
+      IF(LENRV>0)THEN
           ALLOCATE(BBUFR(LENRV),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
@@ -231,7 +221,7 @@ C Preparation du recieve
           IF (SIZ > 0) THEN
             MSGTYP = MSGOFF2
             CALL MPI_IRECV( BBUFR(IADR(P)),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     *                     MPI_COMM_WORLD,REQ_R(P),IERROR )
+     *                     SPMD_COMM_WORLD,REQ_R(P),IERROR )
           ENDIF
       ENDDO
 
@@ -243,7 +233,7 @@ C Send
        IADS(P)=L
        IF (P/= LOC_PROC) THEN
          DO NI=1,NBINTC
-	   NIN = INTLIST(NI)
+             NIN = INTLIST(NI)
            NTY   =IPARI(7,NIN)
            IF(NTY==24) THEN
              NB = NSNFI(NIN)%P(P)
@@ -256,19 +246,19 @@ C Send
                BBUFS(L+5)=SECND_FRFI(NIN)%P(3,NN+IDEB(NIN))
                BBUFS(L+6)=PENE_OLDFI(NIN)%P(1,NN+IDEB(NIN))
                BBUFS(L+7)=STIF_OLDFI(NIN)%P(1,NN+IDEB(NIN))
-	       BBUFS(L+8)=PENE_OLDFI(NIN)%P(3,NN+IDEB(NIN))
-	       BBUFS(L+9)=PENE_OLDFI(NIN)%P(5,NN+IDEB(NIN))
+                 BBUFS(L+8)=PENE_OLDFI(NIN)%P(3,NN+IDEB(NIN))
+                 BBUFS(L+9)=PENE_OLDFI(NIN)%P(5,NN+IDEB(NIN))
                L=L+10
              ENDDO
              IDEB(NIN)=IDEB(NIN)+NB
            ENDIF
          ENDDO  ! DO NIN=1,NINTER
          SIZ = L-IADS(P)
-         IF(SIZ.GT.0)THEN
+         IF(SIZ>0)THEN
               MSGTYP = MSGOFF2
               CALL MPI_ISEND(
      .          BBUFS(IADS(P)),SIZ,REAL     ,IT_SPMD(P),MSGTYP,
-     .          MPI_COMM_WORLD,REQ_SI(P),IERROR    )
+     .          SPMD_COMM_WORLD,REQ_SI(P),IERROR    )
          ENDIF
        ENDIF ! ENDIF P/= LOC_PROC
       ENDDO  ! DO P=1, NSPMD
@@ -296,7 +286,7 @@ C WAIT
            CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
 
            DO NI=1,NBINTC
-	     NIN = INTLIST(NI)
+               NIN = INTLIST(NI)
              NTY   =IPARI(7,NIN)
 
              IF(NTY==24)THEN
@@ -316,10 +306,10 @@ C Merge IRTLM & TIME_S
 
                    IF (BBUFR(IADR(P)+L)==0 
      *                               .AND.BBUFR(IADR(P)+L+2)==ZERO) THEN
-C Si IRTLM(1, == 0 et TIME_S(SNR)==0. Alors il n'est pas candidat retenu   
+C If IRTLM (1, == 0 and time_s (SNR) == 0. Then he is not chosen candidate   
                   
-		   ELSEIF (INTBUF_TAB(NIN)%IRTLM(2*(ND-1)+1) == 0 
-     *  			    .AND. INTBUF_TAB(NIN)%TIME_S(ND) ==ZERO)THEN
+             ELSEIF (INTBUF_TAB(NIN)%IRTLM(2*(ND-1)+1) == 0 
+     *            .AND. INTBUF_TAB(NIN)%TIME_S(ND) ==ZERO)THEN
 C Si candidat local n'est pas retenu, on copie simplement                 
                      INTBUF_TAB(NIN)%IRTLM(2*(ND-1)+1) = BBUFR(IADR(P)+L)
                      INTBUF_TAB(NIN)%IRTLM(2*(ND-1)+2) = BBUFR(IADR(P)+L+1)
@@ -368,8 +358,8 @@ C nothing to do
                      ENDIF
                    ENDIF 
 C Merge SECND_FR
-		   
-		   IF(ABS(BBUFR(IADR(P)+L+3)) > 
+             
+             IF(ABS(BBUFR(IADR(P)+L+3)) > 
      *                ABS(INTBUF_TAB(NIN)%SECND_FR(6*(ND-1)+1)))
      *                    INTBUF_TAB(NIN)%SECND_FR(6*(ND-1)+1)   = BBUFR(IADR(P)+L+3)
 C
@@ -423,14 +413,14 @@ cc                   ENDIF
           L=L+SIZ
       ENDDO        ! DO P=1, NSPMD
 
-C Fin du send
+C end of send
       DO P = 1, NSPMD
           IF (P==NSPMD)THEN
              SIZ=LENSD-IADS(P)
           ELSE
              SIZ=IADS(P+1)-IADS(P)
           ENDIF
-          IF(SIZ.GT.0) THEN
+          IF(SIZ>0) THEN
             CALL MPI_WAIT(REQ_SI(P),STATUS,IERROR)
           ENDIF
       ENDDO
@@ -448,11 +438,11 @@ C               2/ This Edge is impacting, eg fictive node has IRTLM not NULL
 C
 C     Note for Parallelism - at this Stage Remote nodes & nodes on Marter processor are merged.
 C     Fictive nodes (& secnd surface IRTS) are only affected to 1 SPMD Domain. They can only be
-C     either Local or remote (not neighbourg in term of SPMD domain).
-C     One can start to merge here and spred the info to the neighboug domains.
+C     either Local or remote (not neighbour in term of SPMD domain).
+C     One can start to merge here and spread the info to the neighboug domains.
       IF(INT24E2EUSE == 1)THEN
          DO NI=1,NBINTC
-	    NIN = INTLIST(NI)
+              NIN = INTLIST(NI)
             NTY = IPARI(7,NIN)
             IEDG4 = IPARI(59,NIN)
             IF(NTY==24 .AND. IEDG4 > 0)THEN
@@ -476,8 +466,8 @@ C Basic case : Secnd node is not part of an Edge
           ENDDO
       ENDIF
 C-----------------------------------------------------------
-C 2eme partie - echanges sur les noeuds seconds frontieres
-C               pour toutes les interface type 24.
+C Second part - exchanges on the secondary boundary nodes
+C               for all interface type 24.
 C-----------------------------------------------------------
       LEN=3
       IADS(1:NSPMD+1)=0
@@ -486,7 +476,7 @@ C-----------------------------------------------------------
         IADS(I)=IAD_I24(1,I)
       ENDDO
       IADS(NSPMD+1)=SFR_I24+1
-C Preparation du send
+C preparation of send
       ILEN=4
       RLEN=8
       ALLOCATE(ISENDBUF(4,SFR_I24))
@@ -494,23 +484,23 @@ C Preparation du send
       ALLOCATE(RSENDBUF(8,SFR_I24))
       ALLOCATE(RRECBUF(RLEN*SFR_I24))
 
-C mise en place du irecieve
+C implementation of the IRECIEVE
       DO P=1,NSPMD
         SIZ = IADS(P+1)-IADS(P)
-        IF(SIZ.NE.0)THEN
+        IF(SIZ/=0)THEN
           LI = (IADS(P)-1)*ILEN+1
-	  LR = (IADS(P)-1)*RLEN+1
+            LR = (IADS(P)-1)*RLEN+1
           MSGTYP = MSGOFF3
           LEN = SIZ*4
           CALL MPI_IRECV(
      S      IRECBUF(LI),LEN,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(P),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(P),IERROR)
 
           MSGTYP = MSGOFF4 
           LEN = SIZ*8
           CALL MPI_IRECV(
      S      RRECBUF(LR),LEN,REAL,IT_SPMD(P),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R2(P),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R2(P),IERROR)
 
         ENDIF
        ENDDO
@@ -518,11 +508,11 @@ C mise en place du irecieve
        NB = 1
        DO P = 1, NSPMD
           DO NI=1,NBINTC
-	     NIN=INTLIST(NI)
+               NIN=INTLIST(NI)
              NTY    = IPARI(7,NIN)
              NSN    = IPARI(5,NIN)
              IEDG4 = IPARI(59,NIN)
-	     IF(NTY==24) THEN
+               IF(NTY==24) THEN
 
                DO I=IAD_I24(NI,P),IAD_I24(NI+1,P)-1
                 
@@ -561,12 +551,12 @@ C
            L = IADS(P)
            CALL MPI_ISEND(
      S        ISENDBUF(1,L),SIZ*4,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     G        MPI_COMM_WORLD,REQ_S(P),IERROR)
+     G        SPMD_COMM_WORLD,REQ_S(P),IERROR)
      
            MSGTYP = MSGOFF4
            CALL MPI_ISEND(
      S        RSENDBUF(1,L),SIZ*8,REAL,IT_SPMD(P),MSGTYP,
-     G        MPI_COMM_WORLD,REQ_S2(P),IERROR)
+     G        SPMD_COMM_WORLD,REQ_S2(P),IERROR)
          ENDIF   ! IF (SIZ >0)
       ENDDO      ! DO P=1,NSPMD
 C--------------------------------------------------------------------
@@ -585,21 +575,21 @@ C ----------------------------------
 C Reception
       DO P=1,NSPMD
         SIZ = IADS(P+1)-IADS(P)
-        IF(SIZ.NE.0)THEN
+        IF(SIZ/=0)THEN
           IDB = IADS(P)
           CALL MPI_WAIT(REQ_R (P),STATUS,IERROR)
 
           CALL MPI_WAIT(REQ_R2(P),STATUS,IERROR)
 
-C Traitements
-	
+C Treatments
+
          DO NI=1,NBINTC
            NIN = INTLIST(NI)
-	    
+              
            NTY    = IPARI(7,NIN)
            NSN    = IPARI(5,NIN)
            IEDG4 = IPARI(59,NIN)
-	   IF (NTY == 24)THEN
+             IF (NTY == 24)THEN
 
              DO K=IAD_I24(NI,P),IAD_I24(NI+1,P)-1 
                 SN = FR_I24(K)
@@ -608,18 +598,18 @@ C Traitements
                 SURFR  = IRECBUF(2+(IDB-1)*ILEN)
                 TIME_SR    = RRECBUF(1+(IDB-1)*RLEN)
                 IF (TIME_SR==0 .AND. SURFR==0)THEN
-C Rien    faire
+C Nothing
 
                    ELSEIF (TIME_S==0 .AND.SURF==0)THEN
-C On impose la valeur du nd candidat
+C We impose the value of the candidate node
                      INTBUF_TAB(NIN)%TIME_S(SN) = TIME_SR
                      INTBUF_TAB(NIN)%IRTLM(2*(SN-1)+1)   = IRECBUF(2+(IDB-1)*ILEN)
                      INTBUF_TAB(NIN)%IRTLM(2*(SN-1)+2) = IRECBUF(3+(IDB-1)*ILEN)
 
-C maintenant la maj vient bien d un candidat
+C now the update comes from a candidate
 
                    ELSEIF( TIME_S == -EP20 .AND. SURF == 0)THEN
-C Rien    faire
+C Nothing
 
                    ELSEIF( SURFR == 0 .AND.  TIME_SR == -EP20)THEN
                       INTBUF_TAB(NIN)%TIME_S(SN) = -EP20
@@ -640,7 +630,7 @@ C We choose the highest value
                       ENDIF
                      
                    ELSEIF(  SURF > 0 .AND.  TIME_S == -EP20)THEN
-c rien a faire
+c nothing to do
                    
                    ELSEIF( SURFR > 0 .AND.  TIME_SR == -EP20)THEN
                       INTBUF_TAB(NIN)%TIME_S(SN) = -EP20
@@ -657,26 +647,26 @@ c rien a faire
      *                                           IRECBUF(3+(IDB-1)*ILEN)
                            ENDIF
                     ELSEIF (TIME_S <= TIME_SR ) THEN
-			   INTBUF_TAB(NIN)%TIME_S(SN) = TIME_SR
-			   INTBUF_TAB(NIN)%IRTLM(2*(SN-1)+1)   = 
-     *  					 IRECBUF(2+(IDB-1)*ILEN)
-			   INTBUF_TAB(NIN)%IRTLM(2*(SN-1)+2) = 
-     *  					 IRECBUF(3+(IDB-1)*ILEN)
+             INTBUF_TAB(NIN)%TIME_S(SN) = TIME_SR
+             INTBUF_TAB(NIN)%IRTLM(2*(SN-1)+1)   = 
+     *             IRECBUF(2+(IDB-1)*ILEN)
+             INTBUF_TAB(NIN)%IRTLM(2*(SN-1)+2) = 
+     *             IRECBUF(3+(IDB-1)*ILEN)
                         ENDIF
                     ENDIF
                  
-C Max pour les SECND_FR
-		    IF (ABS(RRECBUF(2+(IDB-1)*RLEN)) > 
+C Max for SECND_FR
+              IF (ABS(RRECBUF(2+(IDB-1)*RLEN)) > 
      *                 (ABS(INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+1)) ) )
-     *                 	INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+1) = RRECBUF(2+(IDB-1)*RLEN)
+     *                   INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+1) = RRECBUF(2+(IDB-1)*RLEN)
      
- 		    IF (ABS(RRECBUF(3+(IDB-1)*RLEN)) > 
+              IF (ABS(RRECBUF(3+(IDB-1)*RLEN)) > 
      *                  ABS(INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+2)) )
-     *                 	INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+2) = RRECBUF(3+(IDB-1)*RLEN)
+     *                   INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+2) = RRECBUF(3+(IDB-1)*RLEN)
      
- 		    IF (ABS(RRECBUF(4+(IDB-1)*RLEN)) > 
+              IF (ABS(RRECBUF(4+(IDB-1)*RLEN)) > 
      *                  ABS(INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+3)) )
-     *                 	INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+3) = RRECBUF(4+(IDB-1)*RLEN)
+     *                   INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+3) = RRECBUF(4+(IDB-1)*RLEN)
 
 C Case equal abs but opposite sign
                     IF (RRECBUF(2+(IDB-1)*RLEN)==-INTBUF_TAB(NIN)%SECND_FR(6*(SN-1)+1) )
@@ -717,13 +707,13 @@ C T24 E2E Merge ISPT2
              ENDDO        ! K=,IAD_I24(NI,P),IAD_I24(NI+1,P)-1 
            ENDIF          ! IF (NTY == 24)THEN
          ENDDO            ! DO NI=1,NBINTC
-        ENDIF             !IF(SIZ.NE.0)THEN
+        ENDIF             !IF(SIZ/=0)THEN
       ENDDO               ! DO P=1,NSPMD
 
 C Fin send
       DO P=1,NSPMD
         SIZ = IADS(P+1)-IADS(P)
-        IF(SIZ.NE.0)THEN
+        IF(SIZ/=0)THEN
           CALL MPI_WAIT(REQ_S(P),STATUS,IERROR)
           CALL MPI_WAIT(REQ_S2(P),STATUS,IERROR)
         ENDIF
@@ -732,7 +722,7 @@ C Fin send
 C Treat PENE_OLD(5
       
            DO NI=1,NBINTC
-	     NIN = INTLIST(NI)
+               NIN = INTLIST(NI)
              NTY   = IPARI( 7,NIN)
              NSN   = IPARI( 5,NIN)
              NSNR   = IPARI( 24,NIN)
@@ -751,7 +741,7 @@ C Treat PENE_OLD(5
       IF(ALLOCATED(RRECBUF))DEALLOCATE(RRECBUF)
 
 C ------------------------------------------------------------------
-C 3e partie on renvoie les valeurs globalisees sur les procs remote
+C Third part we send back the globalized values to the remote procs
 C ------------------------------------------------------------------
       LEN=6
       LOC_PROC = ISPMD+1
@@ -761,7 +751,7 @@ C ------------------------------------------------------------------
       LENRV = 0
 
       ALEN=11
-C Comptage des tailles de buffer  Receeption et envoi
+C counting buffer sizes for reception and sending
       DO P=1,NSPMD
          IADR(P)=LENRV+1
          DO NIN=1,NINTER
@@ -774,18 +764,18 @@ C Comptage des tailles de buffer  Receeption et envoi
       ENDDO
       IADR(NSPMD+1)=LENRV+1
 
-      IF(LENSD.GT.0)THEN
+      IF(LENSD>0)THEN
           ALLOCATE(BBUFS(LENSD),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
       ENDIF
 
-C Preparation du recieve
-      IF(LENRV.GT.0)THEN
+C preparation of receive
+      IF(LENRV>0)THEN
           ALLOCATE(BBUFR(LENRV),STAT=IERROR)
-          IF(IERROR.NE.0) THEN
+          IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
             CALL ARRET(2)
           ENDIF
@@ -797,7 +787,7 @@ C Preparation du recieve
           IF (SIZ > 0) THEN
             MSGTYP = MSGOFF5
             CALL MPI_IRECV( BBUFR(IADR(P)),SIZ,REAL,IT_SPMD(P),MSGTYP,
-     *                     MPI_COMM_WORLD,REQ_R(P),IERROR )
+     *                     SPMD_COMM_WORLD,REQ_R(P),IERROR )
          ENDIF
       ENDDO
       
@@ -808,12 +798,12 @@ C Send
        IADS(P)=L
        IF (P/= LOC_PROC) THEN
          DO NI=1,NBINTC
-	   NIN = INTLIST(NI)
+             NIN = INTLIST(NI)
            NTY   =IPARI(7,NIN)
            IF(NTY==24)THEN
                IEDG4 = IPARI(59,NIN)
                NB = NSNSI(NIN)%P(P)
-C Preparation du send
+C preparation of send
                DO NN=1,NB
                  ND = NSVSI(NIN)%P(IDEB(NIN)+NN)
                  NOD=INTBUF_TAB(NIN)%NSV(ND)
@@ -839,12 +829,12 @@ C Preparation du send
          ENDDO
 
          SIZ = L-IADS(P)
-         IF(SIZ.GT.0)THEN
+         IF(SIZ>0)THEN
               MSGTYP = MSGOFF5
 C Send
               CALL MPI_ISEND(
      .          BBUFS(IADS(P)),SIZ,REAL     ,IT_SPMD(P),MSGTYP,
-     .          MPI_COMM_WORLD,REQ_SI(P),IERROR    )
+     .          SPMD_COMM_WORLD,REQ_SI(P),IERROR    )
          ENDIF
        ENDIF
       ENDDO
@@ -872,9 +862,9 @@ C Recieve
           SIZ=IADR(P+1)-IADR(P)
           IF (SIZ > 0) THEN
            
-	   CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
+             CALL MPI_WAIT(REQ_R(P),STATUS,IERROR)
            DO NI=1,NBINTC
-	     NIN=INTLIST(NI)
+               NIN=INTLIST(NI)
              NTY   = IPARI(7,NIN)
              IGSTI = IPARI(34,NIN)
 
@@ -889,7 +879,7 @@ C--------------keep  STIF_OLDFI(NIN)%P(1,
                     IRTLM_FI(NIN)%P(1,IDEB(NIN)+K)=BBUFR(IADR(P)+L)
                     IRTLM_FI(NIN)%P(2,IDEB(NIN)+K)=BBUFR(IADR(P)+L+1)
                     TIME_SFI(NIN)%P(IDEB(NIN)+K)=BBUFR(IADR(P)+L+2)
-C Same initialiation than in i24optcd :
+C Same initialization than in i24optcd :
 C           copy SECND_FRFI(1,2,3) into SECND_FRFI(4,5,6) & Flush SECND_FRFI to zero
                     SECND_FRFI(NIN)%P(1,IDEB(NIN)+K)=ZERO
                     SECND_FRFI(NIN)%P(2,IDEB(NIN)+K)=ZERO
@@ -899,8 +889,8 @@ C           copy SECND_FRFI(1,2,3) into SECND_FRFI(4,5,6) & Flush SECND_FRFI to 
                     SECND_FRFI(NIN)%P(6,IDEB(NIN)+K)=BBUFR(IADR(P)+L+5)
                     PENE_OLDFI(NIN)%P(1,IDEB(NIN)+K)=ZERO
                     PENE_OLDFI(NIN)%P(2,IDEB(NIN)+K)=BBUFR(IADR(P)+L+6)
-		    PENE_OLDFI(NIN)%P(3,IDEB(NIN)+K)=BBUFR(IADR(P)+L+7)
-		    PENE_OLDFI(NIN)%P(5,IDEB(NIN)+K)=BBUFR(IADR(P)+L+9)
+              PENE_OLDFI(NIN)%P(3,IDEB(NIN)+K)=BBUFR(IADR(P)+L+7)
+              PENE_OLDFI(NIN)%P(5,IDEB(NIN)+K)=BBUFR(IADR(P)+L+9)
                     STIF_OLDFI(NIN)%P(2,IDEB(NIN)+K)=BBUFR(IADR(P)+L+8)
                     IF(IEDG4 > 0)THEN
                        ISPT2_FI(NIN)%P(IDEB(NIN)+K)=BBUFR(IADR(P)+L+10)
@@ -912,7 +902,7 @@ C           copy SECND_FRFI(1,2,3) into SECND_FRFI(4,5,6) & Flush SECND_FRFI to 
                     IRTLM_FI(NIN)%P(1,IDEB(NIN)+K)=BBUFR(IADR(P)+L)
                     IRTLM_FI(NIN)%P(2,IDEB(NIN)+K)=BBUFR(IADR(P)+L+1)
                     TIME_SFI(NIN)%P(IDEB(NIN)+K)=BBUFR(IADR(P)+L+2)
-C Same initialiation than in i24optcd :
+C Same initialization than in i24optcd :
 C           copy SECND_FRFI(1,2,3) into SECND_FRFI(4,5,6) & Flush SECND_FRFI to zero
                     SECND_FRFI(NIN)%P(1,IDEB(NIN)+K)=ZERO
                     SECND_FRFI(NIN)%P(2,IDEB(NIN)+K)=ZERO
@@ -922,8 +912,8 @@ C           copy SECND_FRFI(1,2,3) into SECND_FRFI(4,5,6) & Flush SECND_FRFI to 
                     SECND_FRFI(NIN)%P(6,IDEB(NIN)+K)=BBUFR(IADR(P)+L+5)
                     PENE_OLDFI(NIN)%P(1,IDEB(NIN)+K)=ZERO
                     PENE_OLDFI(NIN)%P(2,IDEB(NIN)+K)=BBUFR(IADR(P)+L+6)
-		    PENE_OLDFI(NIN)%P(3,IDEB(NIN)+K)=BBUFR(IADR(P)+L+7)
-		    PENE_OLDFI(NIN)%P(5,IDEB(NIN)+K)=BBUFR(IADR(P)+L+9)
+              PENE_OLDFI(NIN)%P(3,IDEB(NIN)+K)=BBUFR(IADR(P)+L+7)
+              PENE_OLDFI(NIN)%P(5,IDEB(NIN)+K)=BBUFR(IADR(P)+L+9)
                     STIF_OLDFI(NIN)%P(1,IDEB(NIN)+K)=ZERO
                     STIF_OLDFI(NIN)%P(2,IDEB(NIN)+K)=BBUFR(IADR(P)+L+8)
                     IF(IEDG4 > 0)THEN
@@ -939,14 +929,14 @@ C           copy SECND_FRFI(1,2,3) into SECND_FRFI(4,5,6) & Flush SECND_FRFI to 
           ENDIF
       ENDDO
 
-C Fin du send
+C end of send
       DO P = 1, NSPMD
           IF (P==NSPMD)THEN
              SIZ=LENSD-IADS(P)
           ELSE
              SIZ=IADS(P+1)-IADS(P)
           ENDIF
-          IF(SIZ.GT.0) THEN
+          IF(SIZ>0) THEN
             CALL MPI_WAIT(REQ_SI(P),STATUS,IERROR)
           ENDIF
       ENDDO

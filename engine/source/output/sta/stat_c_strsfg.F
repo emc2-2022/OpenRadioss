@@ -1,55 +1,60 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_C_STRSFG                 source/output/sta/stat_c_strsfg.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        GET_Q4LSYS                    source/output/sta/sta_c_get_q4lsys.F
-Chd|        GET_T3LSYS                    source/output/sta/sta_c_get_t3lsys.F
-Chd|        LAYINI                        source/elements/shell/coque/layini.F
-Chd|        ORTH2LOC                      source/output/sta/stat_c_strsfg.F
-Chd|        SHELL2G                       source/output/sta/stat_c_strafg.F
-Chd|        SHEML2G                       source/output/sta/stat_c_strsfg.F
-Chd|        SPMD_RGATHER9_DP              source/mpi/interfaces/spmd_outp.F
-Chd|        SPMD_STAT_PGATHER             source/mpi/output/spmd_stat.F 
-Chd|        STRS_TXT50                    source/output/sta/sta_txt.F   
-Chd|        TAB_STRS_TXT50                source/output/sta/sta_txt.F   
-Chd|        DRAPE_MOD                     share/modules/drape_mod.F     
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_c_strsfg       ../engine/source/output/sta/stat_c_strsfg.F
+!||--- called by ------------------------------------------------------
+!||    genstat             ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    get_q4lsys          ../engine/source/output/sta/sta_c_get_q4lsys.F
+!||    get_t3lsys          ../engine/source/output/sta/sta_c_get_t3lsys.F
+!||    layini              ../engine/source/elements/shell/coque/layini.F
+!||    orth2loc            ../engine/source/output/sta/stat_c_strsfg.F
+!||    shell2g             ../engine/source/output/sta/stat_c_strafg.F
+!||    sheml2g             ../engine/source/output/sta/stat_c_strsfg.F
+!||    spmd_rgather9_dp    ../engine/source/mpi/interfaces/spmd_outp.F
+!||    spmd_stat_pgather   ../engine/source/mpi/output/spmd_stat.F
+!||    strs_txt50          ../engine/source/output/sta/sta_txt.F
+!||    tab_strs_txt50      ../engine/source/output/sta/sta_txt.F
+!||--- uses       -----------------------------------------------------
+!||    drape_mod           ../engine/share/modules/drape_mod.F
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod        ../common_source/tools/memory/my_alloc.F90
+!||    stack_mod           ../engine/share/modules/stack_mod.F
+!||====================================================================
       SUBROUTINE STAT_C_STRSFG(ELBUF_TAB,
      1                        X    ,IPARG ,IPM ,IGEO ,IXC ,
      2                        IXTG  ,WA,WAP0 ,IPARTC, IPARTTG,
      3                        IPART_STATE,STAT_INDXC,STAT_INDXTG,THKE,SIZP0,
-     4                        GEO   ,STACK,DRAPE_Q4,DRAPE_T3)
+     4                        GEO   ,STACK,DRAPE_SH4N,DRAPE_SH3N,DRAPEG)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD         
       USE STACK_MOD
       USE DRAPE_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -62,16 +67,13 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "scr03_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER SIZLOC,SIZP0
+      INTEGER SIZP0
       INTEGER IXC(NIXC,*),IXTG(NIXTG,*),
      .        IPARG(NPARG,*),IPM(NPROPMI,*),IGEO(NPROPGI,*),
      .        IPARTC(*), IPARTTG(*), IPART_STATE(*),
@@ -80,7 +82,8 @@ C-----------------------------------------------
      .   THKE(*),X(3,*),GEO(*)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
       TYPE (STACK_PLY) :: STACK
-      TYPE (DRAPE_)  :: DRAPE_Q4, DRAPE_T3
+      TYPE (DRAPE_)  :: DRAPE_SH4N(NUMELC_DRAPE), DRAPE_SH3N(NUMELTG_DRAPE)
+      TYPE (DRAPEG_) :: DRAPEG
       double precision WA(*),WAP0(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -88,9 +91,10 @@ C-----------------------------------------------
       INTEGER I,J,K,N,II,JJ,LEN,IOFF,IE,NG,NEL,NFT,LFT,NPT,
      .   LLT,ITY,MLW,IH,IHBE, ID, IPRT0, IPRT,IR,IS,IT,J1,J2,
      .   NPG,IPG,MPT,IPT,NPTR,NPTS,NPTT,NLAY,L_PLA,ITHK,NF3,
-     .   IGTYP,NPT_ALL,IL,KK(12),NF1,IREL,IBID0,MAT_1,PID_1,ILAY
-      INTEGER PTWA(MAX(STAT_NUMELC ,STAT_NUMELTG)),
-     .        PTWA_P0(0:MAX(1,STAT_NUMELC_G,STAT_NUMELTG_G))
+     .   IGTYP,NPT_ALL,IL,KK(12),NF1,IREL,IBID0,MAT_1,PID_1,ILAY,IDRAPE,
+     .   SEDRAPE,NUMEL_DRAPE
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA_P0
       double precision   
      .  THK, EM, EB, H1, H2, H3
       my_real   
@@ -100,17 +104,16 @@ C-----------------------------------------------
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
       TYPE(L_BUFEL_)  ,POINTER :: LBUF     
       TYPE(BUF_LAY_)  ,POINTER :: BUFLY     
-      INTEGER LAYNPT_MAX,LAY_MAX,ISUBSTACK,IPT_ALL,JDIR,L_DIRA,L_DIRB,IREP
-      PARAMETER (LAYNPT_MAX = 10)
-      PARAMETER (LAY_MAX = 100)
-      INTEGER MATLY(MVSIZ*LAY_MAX),ILAW
+      INTEGER LAYNPT_MAX,NLAY_MAX,ISUBSTACK,IPT_ALL,JDIR,L_DIRA,L_DIRB,IREP,
+     .    ILAW
       my_real, 
      .   DIMENSION(:),POINTER  :: DIR_A,DIR_B    
       my_real 
      .   QT(9,MVSIZ),TENS(6),ZH,THKP ,THK0(MVSIZ)   
-      my_real
-     .   THKLY(MVSIZ*LAY_MAX*LAYNPT_MAX),POSLY(MVSIZ,LAY_MAX*LAYNPT_MAX),
-     .   THK_LY(MVSIZ,LAY_MAX*LAYNPT_MAX)
+
+      INTEGER, DIMENSION(:)   , ALLOCATABLE :: MATLY   
+      my_real, DIMENSION(:)   , ALLOCATABLE :: THKLY    
+      my_real, DIMENSION(:,:) , ALLOCATABLE :: POSLY,THK_LY  
       my_real, ALLOCATABLE, DIMENSION(:) , TARGET :: DIRA,DIRB
 C-----------------------------------------------
       PARAMETER (PG = .577350269189626)
@@ -120,9 +123,12 @@ C-----------------------------------------------
      ./'#---1----|----2----|----3----|----4----|----5----|----6----|'/
       DATA DELIMIT(61:100)
      ./'----7----|----8----|----9----|----10---|'/
+!
+      CALL MY_ALLOC(PTWA,MAX(STAT_NUMELC ,STAT_NUMELTG))
+      ALLOCATE(PTWA_P0(0:MAX(1,STAT_NUMELC_G,STAT_NUMELTG_G)))
 C=======================================================================
 C     4-NODE SHELLS
-C-----------------------------------------------
+C----------------------------------------------- 
       JJ = 0
       IF (STAT_NUMELC==0) GOTO 200
 C
@@ -140,6 +146,7 @@ C
           IGTYP= IPARG(38,NG)
           IREP = IPARG(35,NG)
           ISUBSTACK=IPARG(71,NG)
+          IDRAPE= IPARG(92,NG)
           NPTR = ELBUF_TAB(NG)%NPTR    
           NPTS = ELBUF_TAB(NG)%NPTS    
           NPTT = ELBUF_TAB(NG)%NPTT    
@@ -158,7 +165,7 @@ C
            IREL=1
          END IF
 !
-          DO I=1,12  ! lenght max of GBUF%G_HOURG = 12
+          DO I=1,12  ! length max of GBUF%G_HOURG = 12
             KK(I) = NEL*(I-1)
           ENDDO
 !
@@ -170,11 +177,27 @@ C
          ELSE
           THK0(LFT:LLT) = THKE(LFT+NFT:LLT+NFT)
          END IF
+           ! Npt_max
+         LAYNPT_MAX = 1
+         IF(IGTYP == 51 .OR. IGTYP == 52) THEN
+          DO ILAY=1, ELBUF_TAB(NG)%NLAY
+           LAYNPT_MAX = MAX(LAYNPT_MAX ,  ELBUF_TAB(NG)%BUFLY(ILAY)%NPTT)
+          ENDDO  
+         ENDIF
+         NLAY_MAX   = MAX(NLAY,NPT,  ELBUF_TAB(NG)%NLAY)
+         ALLOCATE(MATLY(MVSIZ*NLAY_MAX), THKLY(MVSIZ*NLAY_MAX*LAYNPT_MAX),
+     .         POSLY(MVSIZ,NLAY_MAX*LAYNPT_MAX),THK_LY(NEL,NLAY_MAX*LAYNPT_MAX))
+         MATLY  = 0
+         THKLY  = ZERO
+         POSLY  = ZERO
+         THK_LY = ZERO   
+         NUMEL_DRAPE = NUMELC_DRAPE  
+         SEDRAPE = SCDRAPE
          CALL LAYINI(ELBUF_TAB(NG),LFT      ,LLT      ,GEO      ,IGEO    ,
      .              MAT_1    ,PID_1    ,THKLY    ,MATLY    ,POSLY    , 
      .              IGTYP    ,IBID0    ,IBID0    ,NLAY     ,MPT      ,   
-     .              ISUBSTACK,STACK    ,DRAPE_Q4 ,NFT      ,THK0     ,
-     .              NEL      ,THK_LY   )
+     .              ISUBSTACK,STACK    ,DRAPE_SH4N ,NFT    ,THKE     ,
+     .              NEL      ,THK_LY   ,DRAPEG%INDX_SH4N,SEDRAPE,NUMEL_DRAPE)
          L_DIRA = ELBUF_TAB(NG)%BUFLY(1)%LY_DIRA
          L_DIRB = ELBUF_TAB(NG)%BUFLY(1)%LY_DIRB
          ALLOCATE(DIRA(NLAY*NEL*L_DIRA))
@@ -184,11 +207,19 @@ C
          IF (L_DIRA == 0) THEN
            CONTINUE
          ELSEIF (IREP == 0) THEN
+          IF(IDRAPE > 0 .AND. (IGTYP == 51 .OR. IGTYP == 52)) THEN
+            DO J=1,NLAY
+             J1 = 1+(J-1)*L_DIRA*NEL
+             J2 = J*L_DIRA*NEL
+             DIRA(J1:J2) = ELBUF_TAB(NG)%BUFLY(J)%LBUF_DIR(1)%DIRA(1:NEL*L_DIRA)
+           ENDDO
+          ELSE
            DO J=1,NLAY
              J1 = 1+(J-1)*L_DIRA*NEL
              J2 = J*L_DIRA*NEL
              DIRA(J1:J2) = ELBUF_TAB(NG)%BUFLY(J)%DIRA(1:NEL*L_DIRA)
            ENDDO
+          ENDIF 
          ENDIF
          DIR_A => DIRA(1:NLAY*NEL*L_DIRA)
          DIR_B => DIRB(1:NLAY*NEL*L_DIRB)
@@ -196,7 +227,7 @@ C
      .                  IREL ,QT  ,NLAY   ,IREP ,NEL    ,
      .                  DIR_A ,DIR_B,ELBUF_TAB(NG))
 C
-C pre counting of all NPTT (especialy for PID_51)
+C pre counting of all NPTT (especially for PID_51)
 C
           NPT_ALL = 0
           DO IL=1,NLAY
@@ -266,7 +297,7 @@ c---------6 x2 +1(eps) for MPT=0
               IF (MPT == 0) THEN  ! global integration
                 IF (MLW == 0 .or. MLW == 13) THEN
                   DO IPG=1,NPG 
-                    DO J=1,13        ! forces and moments           	
+                    DO J=1,13        ! forces and moments           
                       JJ = JJ + 1
                       WA(JJ) = ZERO
                     ENDDO                                                               
@@ -288,13 +319,13 @@ c
 c
                   JJ = JJ + 1                                      
                   IF (GBUF%G_PLA > 0) THEN    
-            	    WA(JJ) = GBUF%PLA(I)       
+              WA(JJ) = GBUF%PLA(I)       
                   ELSE                         
                     WA(JJ) = ZERO              
                   ENDIF                        
                 ELSE  ! NPG > 1
-                  DO IR=1,NPTR                                                         
-                    DO IS=1,NPTS 
+                  DO IS=1,NPTS 
+                    DO IR=1,NPTR                                                         
                       LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,1)
                       IPG = NPTR*(IS-1) + IR
                       K = (IPG-1)*NEL*5
@@ -308,7 +339,7 @@ C
 c
                       JJ = JJ + 1
                       IF (GBUF%G_PLA > 0) THEN    
-            	        WA(JJ) = LBUF%PLA(I)
+                  WA(JJ) = LBUF%PLA(I)
                       ELSE                         
                         WA(JJ) = ZERO              
                       ENDIF                        
@@ -355,15 +386,15 @@ C           (MPT >0 ):
                         END DO
                         JJ = JJ + 1
                         IF (BUFLY%L_PLA > 0) THEN
-            	          WA(JJ) = LBUF%PLA(I)
+                    WA(JJ) = LBUF%PLA(I)
                         ELSE
                           WA(JJ) = ZERO
                         ENDIF
                         JJ    = JJ + 1
                         WA(JJ) = POSLY(I,IPT)*TWO
                       ENDDO
-                    ENDDO	    
-                  ENDDO	    
+                    ENDDO      
+                  ENDDO      
                   IPT_ALL = IPT_ALL + NPTT
                 ENDDO
               ENDIF    ! MPT, NLAY
@@ -392,7 +423,7 @@ c---------
                   ENDDO               
                 ELSE
                   DO IPG=1,NPG
-              	   DO J=1,8         
+             DO J=1,8         
                      JJ = JJ + 1      
                      WA(JJ) = ZERO
                    ENDDO                                                               
@@ -416,19 +447,19 @@ c
               IF (MPT == 0 .and. MLW /= 0 .and. MLW /= 13) THEN
                 DO IPG=1,NPG
                   TENS(1:2) = GBUF%FOR(KK(1:2)+I)
-     .	    	             + ST(1:2)*QPG(2,IPG)+SK(1:2)*QPG(1,IPG)
+     .                     + ST(1:2)*QPG(2,IPG)+SK(1:2)*QPG(1,IPG)
                   TENS(3) = GBUF%FOR(KK(3)+I)
                   TENS(4) = GBUF%FOR(KK(4)+I)
-     .	    	           + SHT(2)*QPG(2,IPG)+SHK(2)*QPG(1,IPG)
+     .                   + SHT(2)*QPG(2,IPG)+SHK(2)*QPG(1,IPG)
                   TENS(5) = GBUF%FOR(KK(5)+I)
-     .	    	           + SHT(1)*QPG(2,IPG)+SHK(1)*QPG(1,IPG)
+     .                   + SHT(1)*QPG(2,IPG)+SHK(1)*QPG(1,IPG)
                   CALL SHELL2G(TENS,QT(1,I))
                   DO J =1,6
                    JJ = JJ + 1                                      
                    WA(JJ) = TENS(J)             
                   END DO
                   TENS(1:2) = GBUF%MOM(KK(1:2)+I)
-     .	    	            + MT(1:2)*QPG(2,IPG)+MK(1:2)*QPG(1,IPG)
+     .                    + MT(1:2)*QPG(2,IPG)+MK(1:2)*QPG(1,IPG)
                   TENS(3) = GBUF%MOM(KK(3)+I)
                   CALL SHEML2G(TENS,QT(1,I))
                   DO J =1,6
@@ -438,7 +469,7 @@ c
 c
                   JJ = JJ + 1                                      
                   IF (GBUF%G_PLA > 0) THEN    
-            	    WA(JJ) = GBUF%PLA(I)       
+              WA(JJ) = GBUF%PLA(I)       
                   ELSE                         
                     WA(JJ) = ZERO              
                   ENDIF                        
@@ -462,9 +493,9 @@ c
      .                           + (SK(1:2)+ZZ*MK(1:2))*QPG(1,IPG)              
                       TENS(3) = LBUF%SIG(KK(3)+I)
                       TENS(4) = LBUF%SIG(KK(4)+I)
-     .	    	               + SHT(2)*QPG(2,IPG)+SHK(2)*QPG(1,IPG)
+     .                       + SHT(2)*QPG(2,IPG)+SHK(2)*QPG(1,IPG)
                       TENS(5) = LBUF%SIG(KK(5)+I)
-     .	    	               + SHT(1)*QPG(2,IPG)+SHK(1)*QPG(1,IPG)
+     .                       + SHT(1)*QPG(2,IPG)+SHK(1)*QPG(1,IPG)
                       CALL ORTH2LOC(TENS,DIR_A,DIR_B,II,ILAW,IGTYP,NEL)
                       CALL SHELL2G(TENS,QT(1,I))
                       DO J =1,6
@@ -473,7 +504,7 @@ c
                       END DO
                       JJ = JJ + 1                                      
                       IF (L_PLA > 0) THEN    
-            	        WA(JJ) = LBUF%PLA(I)       
+                  WA(JJ) = LBUF%PLA(I)       
                       ELSE                         
                         WA(JJ) = ZERO              
                       ENDIF                        
@@ -487,13 +518,14 @@ c
             ENDIF
 C
             IE=IE+1
-C         pointeur de fin de zone dans WA
+C         end-of-zone pointer in wa
             PTWA(IE)=JJ
           ENDDO  !  DO I=LFT,LLT
 c------- end loop over 4 node shell elements
-        ENDIF ! ITY == 3
-        IF (ALLOCATED(DIRB)) DEALLOCATE(DIRB)                                                          
-        IF (ALLOCATED(DIRA)) DEALLOCATE(DIRA)                                                          
+         IF(ALLOCATED(DIRB))  DEALLOCATE(DIRB)                                                          
+         IF(ALLOCATED(DIRA))  DEALLOCATE(DIRA)  
+         DEALLOCATE(MATLY, THKLY, POSLY, THK_LY)  
+        ENDIF ! ITY == 3       
       ENDDO   ! NG = 1, NGROUP
 C
  200  CONTINUE
@@ -510,7 +542,7 @@ c-----------------------------------------------------------------------
           WAP0(J)=WA(J)
         ENDDO
       ELSE
-C       construit les pointeurs dans le tableau global WAP0
+C       builds the pointers in the global array wap0
         CALL SPMD_STAT_PGATHER(PTWA,STAT_NUMELC,PTWA_P0,STAT_NUMELC_G)
         LEN = 0
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
@@ -519,9 +551,9 @@ c-------------------------------------
       IF (ISPMD == 0.AND.LEN > 0) THEN
         IPRT0=0
         DO N=1,STAT_NUMELC_G
-C         retrouve le nieme elt dans l'ordre d'id croissant
+C         find the nieme elt in the order of an increasing id
           K=STAT_INDXC(N)
-C         retrouve l'adresse dans WAP0
+C         Find the address in WAP0
           J=PTWA_P0(K-1)
 
           IOFF = NINT(WAP0(J + 1))
@@ -616,6 +648,7 @@ c
                   CALL TAB_STRS_TXT50(WAP0(1),9,J,SIZP0,3)
                   CALL TAB_STRS_TXT50(WAP0(10),4,J,SIZP0,4)
                 ENDIF
+                J = J + 13
               ENDDO
             ELSE
               DO IT=1,NPT
@@ -681,11 +714,27 @@ C
           NF3 = NFT+NUMELC
           THK0(LFT:LLT) = THKE(LFT+NF3:LLT+NF3)
          END IF
+         ! Npt_max
+          LAYNPT_MAX = 1
+         IF(IGTYP == 51 .OR. IGTYP == 52) THEN
+          DO ILAY=1, ELBUF_TAB(NG)%NLAY
+           LAYNPT_MAX = MAX(LAYNPT_MAX ,  ELBUF_TAB(NG)%BUFLY(ILAY)%NPTT)
+          ENDDO  
+         ENDIF
+         NLAY_MAX   = MAX(NLAY,NPT,  ELBUF_TAB(NG)%NLAY)
+         ALLOCATE(MATLY(MVSIZ*NLAY_MAX), THKLY(MVSIZ*NLAY_MAX*LAYNPT_MAX),
+     .         POSLY(MVSIZ,NLAY_MAX*LAYNPT_MAX),THK_LY(NEL,NLAY_MAX*LAYNPT_MAX))
+         MATLY  = 0
+         THKLY  = ZERO
+         POSLY  = ZERO
+         THK_LY = ZERO   
+         NUMEL_DRAPE = NUMELTG_DRAPE  
+         SEDRAPE = STDRAPE
          CALL LAYINI(ELBUF_TAB(NG),LFT      ,LLT      ,GEO      ,IGEO    ,
      .              MAT_1    ,PID_1    ,THKLY    ,MATLY    ,POSLY    , 
      .              IGTYP    ,IBID0    ,IBID0    ,NLAY     ,MPT      ,   
-     .              ISUBSTACK,STACK    ,DRAPE_T3 ,NFT      ,THK0     ,
-     .              NEL      ,THK_LY   )
+     .              ISUBSTACK,STACK    ,DRAPE_SH3N ,NFT      ,THKE     ,
+     .              NEL      ,THK_LY   ,DRAPEG%INDX_SH3N, SEDRAPE,NUMEL_DRAPE)
 !
          L_DIRA = ELBUF_TAB(NG)%BUFLY(1)%LY_DIRA
          L_DIRB = ELBUF_TAB(NG)%BUFLY(1)%LY_DIRB
@@ -708,7 +757,7 @@ C
      .                   IREL   ,QT     ,NLAY   ,IREP ,NEL    ,
      .                   DIR_A   ,DIR_B,ELBUF_TAB(NG))
 C
-C pre counting of all NPTT (especialy for PID_51)
+C pre counting of all NPTT (especially for PID_51)
 C
           NPT_ALL = 0
           DO IL=1,NLAY
@@ -789,15 +838,13 @@ c
 c
                   JJ = JJ + 1                                      
                   IF (GBUF%G_PLA > 0) THEN    
-            	    WA(JJ) = GBUF%PLA(I)       
+              WA(JJ) = GBUF%PLA(I)       
                   ELSE                         
                     WA(JJ) = ZERO              
                   ENDIF                        
               ELSE                                              
-                  DO IR=1,NPTR                                                         
-                    DO IS=1,NPTS 
-                      LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,IS,1)
-                      IPG = NPTR*(IS-1) + IR
+                  DO IPG=1,NPG                                     
+                      LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IPG,1,1)
                       K = (IPG-1)*NEL*5
 C                      
                       TENS(1:5) = GBUF%FORPG(K+KK(1:5)+I)
@@ -809,7 +856,7 @@ C
 c
                       JJ = JJ + 1
                       IF (GBUF%G_PLA > 0) THEN    
-            	        WA(JJ) = LBUF%PLA(I)
+                        WA(JJ) = LBUF%PLA(I)
                       ELSE                         
                         WA(JJ) = ZERO              
                       ENDIF                        
@@ -821,7 +868,6 @@ c
                        JJ = JJ + 1                                      
                        WA(JJ) = TENS(J)             
                       END DO
-                    ENDDO                                                               
                   ENDDO
               ENDIF  !  IF (MLW == 0 .or. MLW == 13)
             ELSE ! MPT > 0
@@ -855,26 +901,28 @@ c
                       END DO
                       JJ = JJ + 1
                       IF (BUFLY%L_PLA > 0) THEN
-            	        WA(JJ) = LBUF%PLA(I)
+                  WA(JJ) = LBUF%PLA(I)
                       ELSE
                         WA(JJ) = ZERO
                       ENDIF
                       JJ    = JJ + 1
                       WA(JJ) = POSLY(I,IPT)*TWO
-                    ENDDO !IPG=1,NPG	    
-                  ENDDO	    
+                    ENDDO !IPG=1,NPG      
+                  ENDDO      
                   IPT_ALL = IPT_ALL + NPTT
                 ENDDO
               ENDIF  !  IF (MLW == 0 .or. MLW == 13)
             ENDIF  !  IF (MPT == 0)
 C
             IE=IE+1
-C         pointeur de fin de zone
+C         end-of-zone pointer
             PTWA(IE)=JJ
           ENDDO  !  DO I=LFT,LLT
-        ENDIF  !  IF (ITY == 7)
-        IF (ALLOCATED(DIRB)) DEALLOCATE(DIRB)                                                          
-        IF (ALLOCATED(DIRA)) DEALLOCATE(DIRA)                                                          
+         
+         IF(ALLOCATED(DIRB))  DEALLOCATE(DIRB)                                                          
+         IF(ALLOCATED(DIRA))  DEALLOCATE(DIRA)  
+         DEALLOCATE(MATLY, THKLY, POSLY, THK_LY)      
+        ENDIF  !  IF (ITY == 7)                            
       ENDDO  !  DO NG=1,NGROUP
 C
  300  CONTINUE
@@ -889,7 +937,7 @@ c-----------------------------------------------------------------------
           PTWA_P0(N)=PTWA(N)
         ENDDO
       ELSE
-C       construit les pointeurs dans le tableau global WAP0
+C       builds the pointers in the global array wap0
         CALL SPMD_STAT_PGATHER(PTWA,STAT_NUMELTG,PTWA_P0,STAT_NUMELTG_G)
         LEN = 0
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
@@ -898,9 +946,9 @@ C       construit les pointeurs dans le tableau global WAP0
       IF (ISPMD == 0.AND.LEN > 0) THEN
         IPRT0=0
         DO N=1,STAT_NUMELTG_G
-C         retrouve le nieme elt dans l'ordre d'id croissant
+C         find the nieme elt in the order of an increasing id
           K=STAT_INDXTG(N)
-C         retrouve l'adresse dans WAP0
+C         Find the address in WAP0
           J=PTWA_P0(K-1)
 C
           IOFF = NINT(WAP0(J + 1))
@@ -997,6 +1045,7 @@ C
                   CALL TAB_STRS_TXT50(WAP0(1),9,J,SIZP0,3)
                   CALL TAB_STRS_TXT50(WAP0(10),4,J,SIZP0,4)
                 ENDIF
+                J = J + 13
               ENDDO
             ELSE
               DO IT=1,NPT
@@ -1015,7 +1064,12 @@ C
           ENDIF  !  IF (IOFF >= 1)
         ENDDO  !  DO N=1,STAT_NUMELTG_G
       ENDIF  !  IF (ISPMD == 0.AND.LEN > 0)
+
 C
+c----------
+      DEALLOCATE(PTWA)
+      DEALLOCATE(PTWA_P0)
+c-----------
       RETURN
       END
 c                        TENS(JFT:JLT,1) = SIGNXX(JFT:JLT)                     
@@ -1023,36 +1077,28 @@ c                        TENS(JFT:JLT,2) = SIGNYY(JFT:JLT)
 c                        TENS(JFT:JLT,3) = SIGNXY(JFT:JLT)
 c                        TENS(JFT:JLT,4) = SIGNYZ(JFT:JLT)
 c                        TENS(JFT:JLT,5) = SIGNZX(JFT:JLT)
-Chd|====================================================================
-Chd|  ORTH2LOC                      source/output/sta/stat_c_strsfg.F
-Chd|-- called by -----------
-Chd|        STAT_C_STRSFG                 source/output/sta/stat_c_strsfg.F
-Chd|-- calls ---------------
-Chd|        UROTOVS                       source/output/sta/stat_c_strsfg.F
-Chd|====================================================================
+!||====================================================================
+!||    orth2loc        ../engine/source/output/sta/stat_c_strsfg.F
+!||--- called by ------------------------------------------------------
+!||    stat_c_strsfg   ../engine/source/output/sta/stat_c_strsfg.F
+!||--- calls      -----------------------------------------------------
+!||    urotovs         ../engine/source/output/sta/stat_c_strsfg.F
+!||====================================================================
       SUBROUTINE ORTH2LOC(TENS,DIR_A,DIR_B,II,ILAW,IGTYP,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER II,ILAW,IGTYP,NEL
-C     REAL
       my_real
      .   TENS(5), DIR_A(*),DIR_B(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER J
-C     REAL
+ 
       my_real
      .   R1,R2,R3,S1,S2,S3,R12A,R22A,S12B,S22B,RS1,RS2,RS3,
      .   T1,T2,T3,PHI,SUM1,SUM2,FACT,R3R3,S3S3 
@@ -1118,34 +1164,25 @@ c
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UROTOVS                       source/output/sta/stat_c_strsfg.F
-Chd|-- called by -----------
-Chd|        ORTH2LOC                      source/output/sta/stat_c_strsfg.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    urotovs    ../engine/source/output/sta/stat_c_strsfg.F
+!||--- called by ------------------------------------------------------
+!||    orth2loc   ../engine/source/output/sta/stat_c_strsfg.F
+!||====================================================================
       SUBROUTINE UROTOVS(SIG,DIR1,DIR2)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
       my_real
      .   SIG(5), DIR1,DIR2
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I
-C     REAL
+ 
       my_real
      .   S1, S2, S3, S4, S5
 C-----------------------------------------------
@@ -1166,12 +1203,11 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SHEML2G                       source/output/sta/stat_c_strsfg.F
-Chd|-- called by -----------
-Chd|        STAT_C_STRSFG                 source/output/sta/stat_c_strsfg.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sheml2g         ../engine/source/output/sta/stat_c_strsfg.F
+!||--- called by ------------------------------------------------------
+!||    stat_c_strsfg   ../engine/source/output/sta/stat_c_strsfg.F
+!||====================================================================
       SUBROUTINE SHEML2G(MOM,QT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1185,7 +1221,7 @@ C-----------------------------------------------
 C------------------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I
+ 
       my_real 
      .       TXX,TYY,TZZ,TXY,TYZ,TZX,UXX,UYY,UZZ,UXY,UYZ,UZX,A,B,C
 C--convention input MOM : mxx,myy,mxy,0,0,0; output mxx,myy,mzz,mxy,myz,mzx

@@ -1,5 +1,5 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
 Copyright>    
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
@@ -20,28 +20,26 @@ Copyright>
 Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
 Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
 Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-C.../COM06/
-C...mis a zero par defaut en spmd
+
       INTEGER LCOM06
       PARAMETER (LCOM06 = 60)
-C
-      COMMON /COM06/ DTDES, DTHIS, DTFAC, DTMIN, VOLMIN,
-     .               REINT, DTPAT, TPAT,  DTANIM,
-     .               TANIM, UREINT,ECONTV,EHOUR, DTOUTP,
-     .               TOUTP, T1S,   DT2S,  EPOR,  USREINT,
+
+      COMMON /COM06/ DTFAC, DTMIN, VOLMIN,
+     .               REINT,
+     .                      UREINT,ECONTV,EHOUR, DTOUTP,
+     .               TOUTP, T1S,   DT2S,  EPOR, 
      .               R2RFX1,R2RFX2,DAMPA, DAMPB, DAMPW,
-     .               DTHIS1(9),DWMAD,T1SH,SHFTBUCK,DTSTAT,
+     .               DWMAD,T1SH,SHFTBUCK,DTSTAT,
      .               TSTAT,DTABF(10),DTABFWR(10),DTFACX,
-     .               ECONTD,ECONT_CUMU,DTDYNAIN, TDYNAIN
-	  COMMON /COM06DP/TFEXT 
-C     REAL ou REAL*8
+     .               ECONTD,ECONT_CUMU
+
       my_real
-     .               DTDES, DTHIS, DTFAC, DTMIN, VOLMIN,
-     .               REINT, DTPAT, TPAT,  DTANIM,
-     .               TANIM, UREINT,ECONTV,EHOUR, DTOUTP,
-     .               TOUTP, T1S,   DT2S,  EPOR,  USREINT,
+     .               DTFAC, DTMIN, VOLMIN,
+     .               REINT,
+     .                      UREINT,ECONTV,EHOUR, DTOUTP,
+     .               TOUTP, T1S,   DT2S,  EPOR, 
      .               R2RFX1,R2RFX2,DAMPA, DAMPB, DAMPW,
-     .               DTHIS1,DWMAD ,T1SH,  SHFTBUCK,DTSTAT,
+     .               DWMAD ,T1SH,  SHFTBUCK,DTSTAT,
      .               TSTAT,DTABF,DTABFWR ,DTFACX,ECONTD  ,
-     .               ECONT_CUMU,DTDYNAIN, TDYNAIN
-      DOUBLE PRECISION TFEXT
+     .               ECONT_CUMU
+

@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SENSOR_TEMP0                  source/tools/sensor/sensor_temp0.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        SPMD_ALLREDUCE_DB             source/mpi/generic/spmd_allreduce_db.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        SENSOR_MOD                    share/modules/sensor_mod.F    
-Chd|====================================================================
-      SUBROUTINE SENSOR_TEMP0(SENSOR,IGRNOD,TEMP,WEIGHT)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sensor_temp0     ../engine/source/tools/sensor/sensor_temp0.F
+!||--- called by ------------------------------------------------------
+!||    resol            ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    sum_6_float      ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod     ../common_source/modules/groupdef_mod.F
+!||    sensor_mod       ../common_source/modules/sensor_mod.F90
+!||    spmd_mod         ../engine/source/mpi/spmd_mod.F90
+!||====================================================================
+      SUBROUTINE SENSOR_TEMP0(NSENSOR,SENSOR_TAB,IGRNOD,TEMP,WEIGHT,COMM_SENS17,SENSOR_STRUCT)
 c-----------------------------------------------------------------------
 !$COMMENT
 !       SENSOR_TEMP description :
@@ -43,6 +44,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------
 C   M o d u l e s
 c-----------------------------------------------
+      USE SPMD_MOD
       USE GROUPDEF_MOD
       USE SENSOR_MOD
 C-----------------------------------------------
@@ -53,21 +55,19 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "units_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr17_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NSENSOR
       my_real :: TEMP(NUMNOD)
       TYPE(GROUP_)  ,DIMENSION(NGRNOD) ,INTENT(IN) :: IGRNOD
-      TYPE (SENSOR_STR_),DIMENSION(NSENSOR), INTENT(INOUT) :: SENSOR
+      TYPE (SENSOR_STR_),DIMENSION(NSENSOR), INTENT(INOUT) :: SENSOR_TAB
+      TYPE (sensor_comm),INTENT(INOUT) :: COMM_SENS17
+      TYPE (SENSOR_TYPE),INTENT(INOUT),DIMENSION(NSENSOR) :: SENSOR_STRUCT
       INTEGER, DIMENSION(NUMNOD), INTENT(in) :: WEIGHT
 C----------------------------------------------------------
 C Local Variables
@@ -97,15 +97,15 @@ C=======================================================================
         !   --------------------------
         !   loop over the sensor temp
         DO IJK=1,COMM_SENS17%NUM_SENS
-          ISENS = COMM_SENS17%ID_SENS(IJK)     ! id of sensor temp
-          IF (SENSOR(ISENS)%STATUS == 3) CYCLE   ! already activated
+          ISENS = COMM_SENS17%ID_SENS(IJK)       ! id of sensor temp
+          IF (SENSOR_TAB(ISENS)%STATUS == 1) CYCLE   ! already activated
 c
-          IF (TT == ZERO) SENSOR(ISENS)%VAR(2) = EP20   ! initialize Temp min
-          IGN    = SENSOR(ISENS)%IPARAM(1)
+          IF (TT == ZERO) SENSOR_TAB(ISENS)%VAR(2) = EP20   ! initialize Temp min
+          IGN    = SENSOR_TAB(ISENS)%IPARAM(1)
 c      
           NNOD   = IGRNOD(IGN)%NENTITY
-          TEMP_MAX(IJK) = SENSOR(ISENS)%VAR(1)
-          TEMP_MIN(IJK) = SENSOR(ISENS)%VAR(2)
+          TEMP_MAX(IJK) = SENSOR_TAB(ISENS)%VAR(1)
+          TEMP_MIN(IJK) = SENSOR_TAB(ISENS)%VAR(2)
           TEMP_AVG(IJK) = ZERO
           ALLOCATE( TEMP_NODE(NNOD) )
           INDEX_SUM6FLOAT = 0
@@ -153,8 +153,9 @@ c
             !   --------------------
             ! reduction with mpi comm
             IF (NSPMD > 1) THEN
-                CALL SPMD_ALLREDUCE_DB(SBUFF_MAX,RBUFF_MAX,COMM_SENS17%BUFFER_SIZE_MIN_MAX,"MAX" )
-                CALL SPMD_ALLREDUCE_DB(SBUFF_MIN,RBUFF_MIN,COMM_SENS17%BUFFER_SIZE_MIN_MAX,"MIN" )
+                CALL SPMD_ALLREDUCE(SBUFF_MAX,RBUFF_MAX,COMM_SENS17%BUFFER_SIZE_MIN_MAX,SPMD_MAX )
+                CALL SPMD_ALLREDUCE(SBUFF_MIN,RBUFF_MIN,COMM_SENS17%BUFFER_SIZE_MIN_MAX,SPMD_MIN)
+                 
             ELSE
                 RBUFF_MAX(:) = SBUFF_MAX(:)
                 RBUFF_MIN(:) = SBUFF_MIN(:)
@@ -167,8 +168,8 @@ c
             DO IJK=1,COMM_SENS17%NUM_SENS
               ISENS = COMM_SENS17%ID_SENS(IJK)
               INDEX_MIN_MAX = INDEX_MIN_MAX + 1
-              SENSOR(ISENS)%VAR(1) = RBUFF_MAX(INDEX_MIN_MAX) ! max temp
-              SENSOR(ISENS)%VAR(2) =-RBUFF_MIN(INDEX_MIN_MAX) ! min temp 
+              SENSOR_TAB(ISENS)%VAR(1) = RBUFF_MAX(INDEX_MIN_MAX) ! max temp
+              SENSOR_TAB(ISENS)%VAR(2) =-RBUFF_MIN(INDEX_MIN_MAX) ! min temp 
             ENDDO
             !   --------------------
             DEALLOCATE( SBUFF_MAX )
@@ -188,7 +189,7 @@ c
               DIM_FOR_MEAN = 1
           ENDIF
           !   ----------------
-          !   initialiaze the buffer
+          !   initialize the buffer
           INDEX_MEAN = 0
           DO IJK=1,COMM_SENS17%NUM_SENS
               ISENS = COMM_SENS17%ID_SENS(IJK)
@@ -200,7 +201,7 @@ c
           !   ----------------
           ! reduction with mpi comm
           IF (NSPMD > 1) THEN
-              CALL SPMD_ALLREDUCE_DB( SBUFF_MEAN,RBUFF_MEAN,COMM_SENS17%BUFFER_SIZE_MEAN,"SUM" )
+               CALL SPMD_ALLREDUCE(SBUFF_MEAN,RBUFF_MEAN,COMM_SENS17%BUFFER_SIZE_MEAN,SPMD_SUM )
           ELSE
               RBUFF_MEAN(:) = SBUFF_MEAN(:)
           ENDIF
@@ -226,8 +227,8 @@ c
      .                  SENSOR_STRUCT(ISENS)%FBSAV6_SENS(1,KJI,1)
                 ENDDO
             ENDIF
-            TOTAL_NUMBER_NOD = SENSOR(ISENS)%IPARAM(2)
-            SENSOR(ISENS)%VAR(3) = SENSOR_STRUCT(ISENS)%FBSAV6_SENS(1,1,1) / TOTAL_NUMBER_NOD
+            TOTAL_NUMBER_NOD = SENSOR_TAB(ISENS)%IPARAM(2)
+            SENSOR_TAB(ISENS)%VAR(3) = SENSOR_STRUCT(ISENS)%FBSAV6_SENS(1,1,1) / TOTAL_NUMBER_NOD
             DO KJI=1,DIM_FOR_MEAN
                 SENSOR_STRUCT(ISENS)%FBSAV6_SENS(1,KJI,1) = ZERO
             ENDDO

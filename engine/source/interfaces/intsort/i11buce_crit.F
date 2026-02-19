@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I11BUCE_CRIT                  source/interfaces/intsort/i11buce_crit.F
-Chd|-- called by -----------
-Chd|        I11MAIN_CRIT_TRI              source/interfaces/intsort/i11main_crit_tri.F
-Chd|-- calls ---------------
-Chd|        SPMD_GET_PENIS                source/mpi/interfaces/send_cand.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i11buce_crit       ../engine/source/interfaces/intsort/i11buce_crit.F
+!||--- called by ------------------------------------------------------
+!||    i11main_crit_tri   ../engine/source/interfaces/intsort/i11main_crit_tri.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_get_penis     ../engine/source/mpi/interfaces/send_cand.F
+!||====================================================================
        SUBROUTINE I11BUCE_CRIT(
      1    X     ,NSV   ,MSR   ,NSN   ,NMN   ,
      2    ITASK ,XSAV  ,PENIS ,PENIM ,INACTI,
@@ -40,14 +40,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -58,10 +54,6 @@ C-----------------------------------------------
      .   XSLV_G(*),XMSR_G(*),STFS(*), V(3,*),
      .   VSLV_G(*), VMSR_G(*)
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NSNF,NMNF,NSNL,NMNL,I,J,II,
@@ -69,58 +61,59 @@ C-----------------------------------------------
       my_real
      .        XSLV(6),XMSR(6), VSLV(6), VMSR(6)
 C-----------------------------------------------
-C   G l o b a l   V a r i a b l e s
-C-----------------------------------------------
-C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-#include "sync_dir.inc"
 C
 C     maj pene
 C
       NRTSF = 1 + ITASK * NRTS / NTHREAD
       NRTSL = (ITASK+1) * NRTS / NTHREAD
-      IF(INACTI.EQ.5.OR.INACTI.EQ.6)THEN
+      IF(INACTI==5.OR.INACTI==6)THEN
         NRTMF = 1 + ITASK * NRTM / NTHREAD
         NRTML = (ITASK+1) * NRTM / NTHREAD
 
 C-----------------------------------------------
-C  maj PENIS sur partie non locale
+C  update PENIS on non -local part
 C-----------------------------------------------
-        IF(NSPMD.GT.1 .AND. TT > ZERO) THEN ! frontieres partiellement baties a tt=0 
+        IF(NSPMD>1 .AND. TT > ZERO) THEN ! Partially BATIE boundarys at tt = 0 
 C
-C Partie non parallele smt
+C SMT non -parallel part
 C
 !$OMP SINGLE
 
-          CALL SPMD_GET_PENIS(NRTS,PENIS,NIN)
+          CALL SPMD_GET_PENIS(PENIS,NIN)
 
-C Fin Partie non parallele smt
+C End non -parallel part SMT
 !$OMP END SINGLE
 
         END IF
 C-----------------------------------------------
-
-        DO I=NRTSF,NRTSL
+!$OMP DO SCHEDULE(guided)
+        DO I=1,NRTS
           PENIS(1,I)=MIN(PENIS(1,I),PENIS(2,I))
           PENIS(2,I)=ZERO
         ENDDO
-        DO I=NRTMF,NRTML
+!$OMP END DO NOWAIT
+!$OMP DO SCHEDULE(guided)
+        DO I=1,NRTM
           PENIM(1,I)=MIN(PENIM(1,I),PENIM(2,I))
           PENIM(2,I)=ZERO
         ENDDO
+!$OMP END DO NOWAIT
       ENDIF
 C
-C si NSPMD > 1 traitement effectue dans SPMD_GET_STIF11
-C car reperage comm sur stfs < ZERO
+C If nspmd> 1 treatment performs in SPMD_Get_Stif11
+C Because LEDRAGE COMM SUR STFS <ZERO
 C
-      IF (NSPMD.EQ.1) THEN
-        DO I=NRTSF,NRTSL
+      IF (NSPMD==1) THEN
+!$OMP DO SCHEDULE(guided)
+        DO I=1,NRTS
           STFS(I)=MAX(STFS(I),ZERO)
         ENDDO
+!$OMP END DO NOWAIT
       END IF
 C
-C     0- CALCUL DU CRITERE POUR SAVOIR SI ON DOIT TRIER OU NON
+C     0- calculation of the criterion to know whether we should sort or not
 C
       XSLV(1) = -EP30
       XSLV(2) = -EP30
@@ -153,12 +146,13 @@ C
       NMNF = 1 + ITASK*NMN / NTHREAD
       NMNL = (ITASK+1)*NMN / NTHREAD
 C
-      IF(NSN+NMN.LT.NUMNOD)THEN
+      IF(NSN+NMN<NUMNOD)THEN
 C
-        DO I=NSNF,NSNL
+!$OMP DO SCHEDULE(guided)
+        DO I=1,NSN
          J=NSV(I)
 C shooting nodes
-         IF(J.GT.0) THEN
+         IF(J>0) THEN
           XSLV(1)=MAX(XSLV(1),X(1,J)-XSAV(1,I))
           XSLV(2)=MAX(XSLV(2),X(2,J)-XSAV(2,I))
           XSLV(3)=MAX(XSLV(3),X(3,J)-XSAV(3,I))
@@ -174,11 +168,14 @@ C
           VSLV(6)=MIN(VSLV(6),V(3,J))
          ENDIF
         END DO
-        DO I=NMNF,NMNL
+!$OMP END DO NOWAIT
+
+!$OMP DO SCHEDULE(guided)
+        DO I=1,NMN
          II = I+NSN
          J=MSR(I)
 C shooting nodes
-         IF(J.GT.0) THEN
+         IF(J>0) THEN
           XMSR(1)=MAX(XMSR(1),X(1,J)-XSAV(1,II))
           XMSR(2)=MAX(XMSR(2),X(2,J)-XSAV(2,II))
           XMSR(3)=MAX(XMSR(3),X(3,J)-XSAV(3,II))
@@ -195,12 +192,14 @@ C
 C
          ENDIF
         END DO
+!$OMP END DO NOWAIT
       ELSE
 C
-        DO I=NSNF,NSNL
+!$OMP DO SCHEDULE(guided)
+        DO I=1,NSN
          J=NSV(I)
 C shooting nodes
-         IF(J.GT.0) THEN
+         IF(J>0) THEN
           XSLV(1)=MAX(XSLV(1),X(1,J)-XSAV(1,J))
           XSLV(2)=MAX(XSLV(2),X(2,J)-XSAV(2,J))
           XSLV(3)=MAX(XSLV(3),X(3,J)-XSAV(3,J))
@@ -216,11 +215,13 @@ C
           VSLV(6)=MIN(VSLV(6),V(3,J))
          ENDIF
         END DO
+!$OMP END DO NOWAIT
 C
-        DO I=NMNF,NMNL
+!$OMP DO SCHEDULE(guided)
+        DO I=1,NMN
          J=MSR(I)
 C shooting nodes
-         IF(J.GT.0) THEN
+         IF(J>0) THEN
           XMSR(1)=MAX(XMSR(1),X(1,J)-XSAV(1,J))
           XMSR(2)=MAX(XMSR(2),X(2,J)-XSAV(2,J))
           XMSR(3)=MAX(XMSR(3),X(3,J)-XSAV(3,J))
@@ -237,6 +238,7 @@ C
 C
          ENDIF
         END DO
+!$OMP END DO NOWAIT
       ENDIF
 C
 #include "lockon.inc"

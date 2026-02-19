@@ -1,37 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  THERMC                        source/materials/mat_share/thermc.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    thermc        ../engine/source/materials/mat_share/thermc.F
+!||--- called by ------------------------------------------------------
+!||    cforc3        ../engine/source/elements/shell/coque/cforc3.F
+!||    cforc3_crk    ../engine/source/elements/xfem/cforc3_crk.F
+!||    czforc3       ../engine/source/elements/shell/coquez/czforc3.F
+!||    czforc3_crk   ../engine/source/elements/xfem/czforc3_crk.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE THERMC(JFT  ,JLT   ,PM   ,MAT   ,THK   ,IXC , 
-     2                  PX1  ,PX2   ,PY1  ,PY2   ,AREA   ,DT1C ,
-     3                  TEMPNC ,TEL   ,DIE  ,FPHI)
+     2                  PX1  ,PX2   ,PY1  ,PY2   ,AREA  ,DT1C ,
+     3                  TEMPNC ,TEMPEL   ,DIE  ,FPHI    ,THEACCFACT)
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,32 +47,26 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT, JLT,MAT(*),IXC(NIXC,*)
-C     REAL
+      my_real ,INTENT(IN) :: THEACCFACT
       my_real
      .   AREA(*), PX1(*), PX2(*), PY1(*), PY2(*),
      .   TEMPNC(*), FPHI(MVSIZ,4), PM(NPROPM,*),DIE(*),
-     .   DT1C(*), THK(*),TEL(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com08_c.inc"
+     .   DT1C(*), THK(*),TEMPEL(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J,MX
-C     REAL
-      my_real
-     .  CA,CB ,KC ,PHIX,PHIY,A
-C --- calcul de la tempurature au CG 
-
+      INTEGER I,MX
+      my_real :: CA,CB ,KC ,PHIX,PHIY,A
+!=======================================================================
         MX  =MAT(JFT)
         CA = PM(75,MX)
         CB = PM(76,MX)
+!
         DO I=JFT,JLT
 C 
 C - flux
 C      
-          KC = (CA + CB*TEL(I))*DT1C(I)/MAX(EM20,AREA(I))
+          KC = (CA + CB*TEMPEL(I))*DT1C(I)/MAX(EM20,AREA(I))*THEACCFACT
           PHIX =  TEMPNC(IXC(2,I))*PX1(I) + TEMPNC(IXC(3,I))*PX2(I)  -
      .            TEMPNC(IXC(4,I))*PX1(I) - TEMPNC(IXC(5,I))*PX2(I)
           
@@ -80,7 +76,7 @@ C
           PHIX = KC*PHIX*THK(I)
           PHIY = KC*PHIY*THK(I)
 C
-C force thermique nodale
+C         nodal thermal force
 C
           A = FOURTH * DIE(I)
           FPHI(I,1) = A - (PHIX*PX1(I) + PHIY*PY1(I))

@@ -1,41 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C BERGSTROM BOYCE
-Chd|====================================================================
-Chd|  SIGEPS95                      source/materials/mat/mat095/sigeps95.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        CALCMATB                      source/materials/mat/mat100/calcmatb.F
-Chd|        KMATINV3                      source/materials/tools/kmatinv.F
-Chd|        POLYSTRESS2                   source/materials/mat/mat100/sigpoly.F
-Chd|        POLYSTREST2                   source/materials/mat/mat100/sigpoly.F
-Chd|        PRODAAT                       source/materials/tools/prodAAT.F
-Chd|        PRODMAT                       source/materials/tools/prodmat.F
-Chd|        ROTTOGLOB                     source/materials/mat/mat095/sigeps95.F
-Chd|        ROTTOLOC                      source/materials/mat/mat095/sigeps95.F
-Chd|        VISCBB                        source/materials/mat/mat100/viscbb.F
-Chd|====================================================================
+!||====================================================================
+!||    sigeps95      ../engine/source/materials/mat/mat095/sigeps95.F
+!||--- called by ------------------------------------------------------
+!||    mulaw         ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    calcmatb      ../engine/source/materials/mat/mat100/calcmatb.F
+!||    finter        ../engine/source/tools/curve/finter.F
+!||    kmatinv3      ../engine/source/materials/tools/kmatinv.F
+!||    polystress2   ../engine/source/materials/mat/mat100/sigpoly.F
+!||    polystrest2   ../engine/source/materials/mat/mat100/sigpoly.F
+!||    prodaat       ../engine/source/materials/tools/prodAAT.F
+!||    prodmat       ../engine/source/materials/tools/prodmat.F
+!||    rottoglob     ../engine/source/materials/mat/mat095/sigeps95.F
+!||    rottoloc      ../engine/source/materials/mat/mat095/sigeps95.F
+!||    viscbb        ../engine/source/materials/mat/mat100/viscbb.F
+!||====================================================================
        SUBROUTINE SIGEPS95(
      1      NEL    , NUPARAM, NUVAR   , NFUNC  , IFUNC , 
      2      NPF    ,TF      , TIME    , TIMESTEP, UPARAM, 
@@ -49,41 +50,33 @@ Chd|====================================================================
      A      MFXX   ,MFXY    ,MFXZ,MFYX, MFYY  , MFYZ  ,  
      B      MFZX   ,MFZY    ,MFZZ     ,                  
      C      SOUNDSP, VISCMAX, UVAR    , OFF   , ISMSTR, ET  ,
-     D      IHET   ,OFFG    , EPSTH3  , IEXPAN,
+     D      IHET   ,OFFG    , EPSTH3  , IEXPAN, NPARF ,
      E      UPARAMF,UVARF   ,NVARF    ,JCVT   ,GAMA_R)
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G L O B A L   P A R A M E T E R S
-C-----------------------------------------------
-#include "scr17_c.inc"
-C-----------------------------------------------
 C   C O M M O N 
 C-----------------------------------------------
-#include "scr05_c.inc"
 #include "impl1_c.inc"
-#include "units_c.inc"
-#include "com01_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
-      INTEGER       NEL, JCVT,    NUPARAM, NUVAR,ISMSTR,NGL(*),IHET,IEXPAN,NVARF 
-      my_real
-     .      TIME       , TIMESTEP   , UPARAM(NUPARAM),UPARAMF(NUPARAM),
-     .      RHO   (NEL), RHO0  (NEL), VOLUME(NEL), EINT(NEL),
-     .      EPSPXX(NEL), EPSPYY(NEL), EPSPZZ(NEL),
-     .      EPSPXY(NEL), EPSPYZ(NEL), EPSPZX(NEL),
-     .      DEPSXX(NEL), DEPSYY(NEL), DEPSZZ(NEL),
-     .      DEPSXY(NEL), DEPSYZ(NEL), DEPSZX(NEL),
-     .      EPSXX (NEL), EPSYY (NEL), EPSZZ (NEL),
-     .      EPSXY (NEL), EPSYZ (NEL), EPSZX (NEL),
-     .      SIGOXX(NEL), SIGOYY(NEL), SIGOZZ(NEL),
-     .      SIGOXY(NEL), SIGOYZ(NEL), SIGOZX(NEL),OFFG(NEL),
-     .      MFXX(NEL)  , MFXY(NEL)  ,MFXZ(NEL)  ,MFYX(NEL) ,
-     .      MFYY(NEL)  , MFYZ(NEL)  ,MFZX(NEL)  ,MFZY(NEL)  ,MFZZ(NEL), 
-     .      EPSTH3(NEL), GAMA_R(NEL,6)
+      INTEGER ,INTENT(IN) ::  NPARF
+      INTEGER ,INTENT(IN) ::  NEL,JCVT,NVARF,NUPARAM,NUVAR,ISMSTR,IHET,IEXPAN
+      INTEGER ,INTENT(IN) ::  NGL(NEL)
+      my_real :: TIME,TIMESTEP
+      my_real ,DIMENSION(NUPARAM) ,INTENT(IN) :: UPARAM
+      my_real ,DIMENSION(NPARF)   ,INTENT(IN) :: UPARAMF
+      my_real ,DIMENSION(NEL)  ::  RHO,RHO0,VOLUME,EINT,EPSTH3,
+     .      EPSPXX, EPSPYY, EPSPZZ, EPSPXY, EPSPYZ, EPSPZX,
+     .      DEPSXX, DEPSYY, DEPSZZ, DEPSXY, DEPSYZ, DEPSZX,
+     .      EPSXX , EPSYY , EPSZZ , EPSXY , EPSYZ , EPSZX ,
+     .      SIGOXX, SIGOYY, SIGOZZ, SIGOXY, SIGOYZ, SIGOZX,OFFG,
+     .      MFXX,MFXY,MFXZ,MFYX,MFYY,MFYZ,MFZX,MFZY,MFZZ
+   
+      my_real ::  GAMA_R(NEL,6)
 C----------------------------------------------------------------
 C  O U T P U T   A R G U M E N T S
 C----------------------------------------------------------------
@@ -102,31 +95,31 @@ C----------------------------------------------------------------
 C  VARIABLES FOR FUNCTION INTERPOLATION 
 C----------------------------------------------------------------
       INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
-      my_real FINTER,FINTTE,TF(*),FINT2V
+      my_real FINTER,FINTTE,TF(*)
       EXTERNAL FINTER,FINTTE
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
-      INTEGER   I,J,K,KK,LL,FLAGBB,DIRECT,ITER,NITER,FLAG_MUL,IAVIS
+      INTEGER   I,FLAG_MUL,IAVIS,IFORM
 
       my_real
-     .   ET1,ET2,ET3,A1,A10,KSI,MU,D,LAM,G,RBULK,AA,BB,CC,SB, TEMP,
-     .   TEMP2,MAXL,STIFF0,DSIG,DEPS,COEF1,COEF2,COEF3,COEF4,COEF5,COEF6,
-     .   AA1,B1,C1,DD1,AA2,B2,C2,DD2,AA3,B3,C3,DD3,INV12,INV22,INV32,
-     .   EVB12,EVB22,EVB32,JDET2,JM1,ETVOL,FACTOR,TAUREF,R3R3,R2R2,R1R1,
-     .   C10,C01,C20,C11,C02,C30,C21,C12,C03,D1,D2,D3,EXPC,EXPM,R(3),JCST(3),
-     .   BI1(NEL),BI2(NEL),JDET(NEL),STIFF(NEL),
-     .   TA1(NEL), TA2(NEL),TA3(NEL),T1(NEL), T2(NEL),T3(NEL),LPCHAIN(NEL), 
-     .   TB1(NEL), TB2(NEL),TB3(NEL),TRACE(NEL),TRACEB(NEL),ETA(NEL),ETB(NEL),
+     .   A1,A10,KSI,G,RBULK,SB,
+     .   MAXL,STIFF0,
+     .   
+     .   FACTOR,TAUREF,R3R3,
+     .   C10,C01,C20,C11,C02,C30,C21,C12,C03,D1,D2,D3,EXPC,EXPM,
+     .   BI1(NEL),BI2(NEL),JDET(NEL),
+     .     
+     .    TRACEB(NEL),
      .   SB1(NEL), SB2(NEL),SB3(NEL),SB4(NEL), SB5(NEL),SB6(NEL),
      .   TBNORM(NEL),DGAMMA(NEL),
-     .   DEVB1(NEL),DEVB2(NEL),DEVB3(NEL),DEVB4(NEL),DEVB5(NEL),DEVB6(NEL),
+     .   
      .   R1X(NEL),R1Y(NEL),R1Z(NEL),R2X(NEL),R2Y(NEL),R2Z(NEL),R3X(NEL),R3Y(NEL),R3Z(NEL),
-     .   NB(NEL,3),
-     .   F(NEL,3,3),FT(NEL,3,3),FE(NEL,3,3),INVFE(NEL,3,3),FET(NEL,3,3),FP(NEL,3,3),
-     .   FFT(NEL,3,3),INVFPO(NEL,3,3),MATB(NEL,3,3),FPO(NEL,3,3),BPO(NEL,3,3),INVSN(NEL,3,3),
-     .   SIG(NEL,3,3),SIGB(NEL,3,3),SIGA(NEL,3,3),SN(NEL,3,3),FEDP(NEL,3,3),
-     .   DFP(NEL,3,3),LB(NEL,3,3),DFP2(NEL,3,3),FPDOT(NEL,3,3),
+     .   
+     .   F(NEL,3,3),FE(NEL,3,3),INVFE(NEL,3,3),FP(NEL,3,3),
+     .   FFT(NEL,3,3),INVFPO(NEL,3,3),MATB(NEL,3,3),FPO(NEL,3,3),
+     .   SIGB(NEL,3,3),SIGA(NEL,3,3),SN(NEL,3,3),FEDP(NEL,3,3),
+     .   DFP(NEL,3,3),LB(NEL,3,3),
      .   CAII(NEL,3),CBII(NEL,3),C_MAX(NEL),CII(3)
       my_real
      .    COEFR,BETAF ,COEFM
@@ -157,11 +150,12 @@ c    material parameters
       G    =  UPARAM(19) 
       RBULK=  UPARAM(20) 
       TAUREF= UPARAM(22) 
+      IFORM = NINT(UPARAM(23))
       !
       STIFF0 = FOUR_OVER_3*G + RBULK
       MAXL = ONE
-	  IAVIS =1
-	  IF (A10*SB==ZERO) IAVIS=0
+            IAVIS =1
+            IF (A10*SB==ZERO) IAVIS=0
 
       FLAG_MUL   =  UPARAM(21)  !CALCULATED IN UPDMAT = 1 IF IRUP==33
       IF (FLAG_MUL > ZERO)THEN
@@ -170,23 +164,10 @@ c    material parameters
        COEFM = UPARAMF(3)    
       ENDIF
 
-      IF(TIME == ZERO)THEN
-        DO  I = 1, NEL
-         UVAR(I,1) = ONE
-         UVAR(I,2) = ONE
-         UVAR(I,3) = ONE
-         UVAR(I,4) = ZERO
-         UVAR(I,5) = ZERO
-         UVAR(I,6) = ZERO
-         UVAR(I,7) = ZERO
-         UVAR(I,8) = ZERO
-         UVAR(I,9) = ZERO
-        ENDDO
-      ENDIF
-C	  
-      IF (IAVIS>0) THEN	  
+C    
+      IF (IAVIS>0) THEN    
       DO  I = 1, NEL
-         !retreive previous viscous deformation gradient
+         !Retrieve Previous Viscous Deformation Gradient
          FPO(I,1,1)  = UVAR(I,1) 
          FPO(I,2,2)  = UVAR(I,2) 
          FPO(I,3,3)  = UVAR(I,3) 
@@ -244,14 +225,15 @@ C
       !-------------------------
       !entry B=F*FT matrix --  output hyperelastic stress 
        CALL POLYSTREST2(
-     1                NEL , FFT , C10, C01, C20, 
-     2                C11 ,C02, C30, C21, C12,
-     3                C03 ,D1 ,D2  ,  D3, SIGA ,
-     4                BI1,BI2,JDET ,FLAG_MUL,
-     5                NVARF,COEFR, BETAF,COEFM  ,UVARF,CAII)
+     1                NEL  , FFT , C10 , C01, C20, 
+     2                C11  ,C02  , C30 , C21, C12,
+     3                C03  ,D1   , D2  ,  D3, SIGA ,
+     4                BI1  ,BI2  ,JDET ,FLAG_MUL,
+     5                NVARF,COEFR,BETAF,COEFM   ,
+     6                UVARF,CAII ,RBULK,IFORM)
      
       
-      IF (IAVIS>0) THEN	  
+      IF (IAVIS>0) THEN    
       !-------------------------
       !chain B: compute stress : 
       !-------------------------
@@ -279,7 +261,8 @@ C
      2                C11 ,C02, C30, C21, C12,
      3                C03 ,D1 ,D2  ,  D3, SIGB ,
      4                BI1,BI2,JDET ,FLAG_MUL,
-     5                NVARF,COEFR, BETAF,COEFM  ,UVARF)
+     5                NVARF,COEFR, BETAF,COEFM ,
+     6                UVARF,RBULK,IFORM)
      
      
         DO I=1,NEL  !     scale trial cauchy stress in chain B
@@ -313,6 +296,7 @@ C
      .                EXPM, KSI, TAUREF  , DGAMMA ) 
 
 
+        IF (TIME == ZERO) DGAMMA(1:NEL) = UVAR(1:NEL,10)
         DO I=1,NEL ! calcul lde Lb
           UVAR(I,10)= DGAMMA(I)
           FACTOR    = DGAMMA(I)/TBNORM(I)
@@ -330,7 +314,7 @@ C
         !------------------------------------   
         !Solve F_n+1 viscous :   
         !------------------------------------  
-        !PRODMAT(A, B, C, NEL) computes C(NEL,3,3) wich is the product [C] = [A][B] 
+        !PRODMAT(A, B, C, NEL) computes C(NEL,3,3) which is the product [C] = [A][B] 
         CALL KMATINV3(FE , INVFE, NEL)       !  INVFE  = INVERSE (FE)   
         CALL PRODMAT (LB ,    FE, FEDP, NEL) !  FEDP   = Lb * FE
         CALL PRODMAT(INVFE ,FEDP, DFP , NEL) !  DFP    = INVFE  * Lb * FE
@@ -359,7 +343,8 @@ C
      2                C11 ,C02, C30, C21, C12,
      3                C03 ,D1 ,D2  ,  D3, SIGB ,
      4                BI1,BI2,JDET ,FLAG_MUL,
-     5                NVARF,COEFR, BETAF,COEFM  ,UVARF,CBII)
+     5                NVARF,COEFR, BETAF,COEFM  ,
+     6                UVARF,CBII,RBULK,IFORM)
 
         DO I=1,NEL  !     scale  cauchy stress in chain B
          SIGB(I,1,1) = SB *  SIGB(I,1,1)
@@ -385,13 +370,13 @@ C
          UVAR(I,8)   =   FP(I,3,2)
          UVAR(I,9)   =   FP(I,1,3)               
        ENDDO
-C----- A10*SB=0 ->sigB=sigA		
-	  ELSE	
+C----- A10*SB=0 ->sigB=sigA
+            ELSE
         DO I=1,NEL  !     scale  cauchy stress in chain B
          SIGB(I,1:3,1:3) = SB *  SIGA(I,1:3,1:3)
-		 CBII(I,1:3) = CAII(I,1:3)
+           CBII(I,1:3) = CAII(I,1:3)
         ENDDO
-      END IF !(IAVIS>0) THEN	  
+      END IF !(IAVIS>0) THEN    
 
       !--------------------
       !UPDATE TOTAL STRESS : sum of the stresses of each network
@@ -408,7 +393,7 @@ C----- A10*SB=0 ->sigB=sigA
       
        DO I=1,NEL  
          CII(1:3)=CAII(I,1:3)+SB*CBII(I,1:3)
-		 C_MAX(I)=MAX(STIFF0,CII(1),CII(2),CII(3))
+           C_MAX(I)=MAX(STIFF0,CII(1),CII(2),CII(3))
        ENDDO
 
        DO I=1,NEL
@@ -438,22 +423,18 @@ C
 C   
       RETURN
       END
-Chd|====================================================================
-Chd|  ROTTOLOC                      source/materials/mat/mat095/sigeps95.F
-Chd|-- called by -----------
-Chd|        SIGEPS100                     source/materials/mat/mat100/sigeps100.F
-Chd|        SIGEPS95                      source/materials/mat/mat095/sigeps95.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rottoloc    ../engine/source/materials/mat/mat095/sigeps95.F
+!||--- called by ------------------------------------------------------
+!||    sigeps100   ../engine/source/materials/mat/mat100/sigeps100.F90
+!||    sigeps95    ../engine/source/materials/mat/mat095/sigeps95.F
+!||====================================================================
       SUBROUTINE ROTTOLOC(NEL,FP,
      .                         R1X, R1Y, R1Z,R2X,R2Y,R2Z,R3X,R3Y,R3Z)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -502,22 +483,18 @@ C-----------------------------------------------
 C-----------
       RETURN
       END SUBROUTINE ROTTOLOC
-Chd|====================================================================
-Chd|  ROTTOGLOB                     source/materials/mat/mat095/sigeps95.F
-Chd|-- called by -----------
-Chd|        SIGEPS100                     source/materials/mat/mat100/sigeps100.F
-Chd|        SIGEPS95                      source/materials/mat/mat095/sigeps95.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    rottoglob   ../engine/source/materials/mat/mat095/sigeps95.F
+!||--- called by ------------------------------------------------------
+!||    sigeps100   ../engine/source/materials/mat/mat100/sigeps100.F90
+!||    sigeps95    ../engine/source/materials/mat/mat095/sigeps95.F
+!||====================================================================
       SUBROUTINE ROTTOGLOB(NEL,FP,
      .                         R1X, R1Y, R1Z,R2X,R2Y,R2Z,R3X,R3Y,R3Z)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

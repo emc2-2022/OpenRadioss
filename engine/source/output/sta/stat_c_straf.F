@@ -1,36 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_C_STRAF                  source/output/sta/stat_c_straf.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        SPMD_RGATHER9_DP              source/mpi/interfaces/spmd_outp.F
-Chd|        SPMD_STAT_PGATHER             source/mpi/output/spmd_stat.F 
-Chd|        STRS_TXT50                    source/output/sta/sta_txt.F   
-Chd|        TAB_STRS_TXT50                source/output/sta/sta_txt.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_c_straf        ../engine/source/output/sta/stat_c_straf.F
+!||--- called by ------------------------------------------------------
+!||    genstat             ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_rgather9_dp    ../engine/source/mpi/interfaces/spmd_outp.F
+!||    spmd_stat_pgather   ../engine/source/mpi/output/spmd_stat.F
+!||    strs_txt50          ../engine/source/output/sta/sta_txt.F
+!||    tab_strs_txt50      ../engine/source/output/sta/sta_txt.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    my_alloc_mod        ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE STAT_C_STRAF(ELBUF_TAB,IPARG ,IPM ,IGEO ,IXC ,
      2                        IXTG  ,WA,WAP0 ,IPARTC, IPARTTG,
      3                      IPART_STATE,STAT_INDXC,STAT_INDXTG,THKE,SIZP0)
@@ -38,6 +41,8 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD         
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,16 +54,13 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER SIZLOC,SIZP0
+      INTEGER SIZP0
       INTEGER IXC(NIXC,*),IXTG(NIXTG,*),
      .        IPARG(NPARG,*),IPM(NPROPMI,*),IGEO(NPROPGI,*),
      .        IPARTC(*), IPARTTG(*), IPART_STATE(*),
@@ -73,14 +75,14 @@ C-----------------------------------------------
       INTEGER I,J,K,N,II,JJ,LEN, IOFF, NG, NEL, NFT, ITY, LFT, NPT,
      .    LLT, MLW, ISTRAIN,ID, IPRT0, IPRT,NPG,IPG,IE,NPTR,NPTS,G_STRA,
      .    ITHK,KK(8)
-      INTEGER PTWA(MAX(STAT_NUMELC ,STAT_NUMELTG)),
-     .        PTWA_P0(0:MAX(1,STAT_NUMELC_G,STAT_NUMELTG_G))
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA_P0
       double precision   
      .   THK, EM, EB, H1, H2, H3
       CHARACTER*100 DELIMIT,LINE
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
-      TYPE(L_BUFEL_)  ,POINTER :: LBUF     
-      TYPE(BUF_LAY_)  ,POINTER :: BUFLY     
+ 
+ 
       my_real, 
      .   DIMENSION(:),POINTER  :: STRAIN    
 C-----------------------------------------------
@@ -90,6 +92,9 @@ C-----------------------------------------------
      ./'----7----|----8----|----9----|----10---|'/
 C-----------------------------------------------
 C     4-NODE SHELLS
+C-----------------------------------------------
+      CALL MY_ALLOC(PTWA,MAX(STAT_NUMELC ,STAT_NUMELTG))
+      ALLOCATE(PTWA_P0(0:MAX(1,STAT_NUMELC_G,STAT_NUMELTG_G)))
 C-----------------------------------------------
       JJ = 0
       IF(STAT_NUMELC==0) GOTO 200
@@ -111,7 +116,7 @@ C-----------------------------------------------
          LLT=NEL
          G_STRA = GBUF%G_STRA
 !
-         DO J=1,8  ! lenght max of GBUF%G_STRA = 8
+         DO J=1,8  ! length max of GBUF%G_STRA = 8
            KK(J) = NEL*(J-1)
          ENDDO
 !
@@ -123,7 +128,7 @@ c--------------------
           IF(IPART_STATE(IPRT)==0)CYCLE
 
           JJ = JJ + 1
-          IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+          IF (MLW /= 0 .AND. MLW /= 13) THEN
             WA(JJ) = GBUF%OFF(I)
           ELSE
             WA(JJ) = ZERO
@@ -137,7 +142,7 @@ c--------------------
           JJ = JJ + 1
           WA(JJ) = NPG
           JJ = JJ + 1
-          IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+          IF (MLW /= 0 .AND. MLW /= 13) THEN
            IF (ITHK >0 ) THEN
             WA(JJ) = GBUF%THK(I)
            ELSE
@@ -171,7 +176,7 @@ c         Strain in Gauss points
           END IF
 
           IE=IE+1
-C         pointeur de fin de zone dans WA
+C         end-of-zone pointer in wa
           PTWA(IE)=JJ
 c
          ENDDO  ! I=LFT,LLT
@@ -190,20 +195,20 @@ c
           WAP0(J)=WA(J)
         END DO
       ELSE
-C       construit les pointeurs dans le tableau global WAP0
+C       builds the pointers in the global array wap0
         CALL SPMD_STAT_PGATHER(PTWA,STAT_NUMELC,PTWA_P0,STAT_NUMELC_G)
         LEN = 0
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
       END IF
 
-      IF(ISPMD.EQ.0.AND.LEN.GT.0) THEN
+      IF(ISPMD==0.AND.LEN>0) THEN
 
         IPRT0=0
         DO N=1,STAT_NUMELC_G
 
-C         retrouve le nieme elt dans l'ordre d'id croissant
+C         find the nieme elt in the order of an increasing id
           K=STAT_INDXC(N)
-C         retrouve l'adresse dans WAP0
+C         Find the address in WAP0
           J=PTWA_P0(K-1)
 
           IOFF  = NINT(WAP0(J + 1))
@@ -269,9 +274,10 @@ C         retrouve l'adresse dans WAP0
                 CALL TAB_STRS_TXT50(WAP0(1),5,J,SIZP0,5)
                 CALL TAB_STRS_TXT50(WAP0(6),3,J,SIZP0,3)
               ENDIF
+              J = J + 8
             END DO
           END IF
-        ENDDO		    
+        ENDDO        
       ENDIF
 
 C-----------------------------------------------
@@ -297,7 +303,7 @@ C-----------------------------------------------
          LFT=1
          LLT=NEL
 !
-         DO J=1,8  ! lenght max of GBUF%G_STRA = 8
+         DO J=1,8  ! length max of GBUF%G_STRA = 8
            KK(J) = NEL*(J-1)
          ENDDO
 !
@@ -310,7 +316,7 @@ c--------------------
 
 
           JJ = JJ + 1
-          IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+          IF (MLW /= 0 .AND. MLW /= 13) THEN
             WA(JJ) = GBUF%OFF(I)
           ELSE
             WA(JJ) = ZERO
@@ -324,7 +330,7 @@ c--------------------
           JJ = JJ + 1
           WA(JJ) = NPG
           JJ = JJ + 1
-          IF (MLW .NE. 0 .AND. MLW .NE. 13) THEN
+          IF (MLW /= 0 .AND. MLW /= 13) THEN
            IF (ITHK >0 ) THEN
             WA(JJ) = GBUF%THK(I)
            ELSE
@@ -359,7 +365,7 @@ c         Strain in Gauss points
           END IF  ! ISTRAIN /=0
 
           IE=IE+1
-C         pointeur de fin de zone
+C         end-of-zone pointer
           PTWA(IE)=JJ
 c
          ENDDO  ! I=LFT,LLT
@@ -378,20 +384,20 @@ c
           PTWA_P0(N)=PTWA(N)
         END DO
       ELSE
-C       construit les pointeurs dans le tableau global WAP0
+C       builds the pointers in the global array wap0
         CALL SPMD_STAT_PGATHER(PTWA,STAT_NUMELTG,PTWA_P0,STAT_NUMELTG_G)
         LEN = 0
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
       END IF
 
-      IF(ISPMD.EQ.0.AND.LEN.GT.0) THEN
+      IF(ISPMD==0.AND.LEN>0) THEN
 
         IPRT0=0
         DO N=1,STAT_NUMELTG_G
 
-C         retrouve le nieme elt dans l'ordre d'id croissant
+C         find the nieme elt in the order of an increasing id
           K=STAT_INDXTG(N)
-C         retrouve l'adresse dans WAP0
+C         Find the address in WAP0
           J=PTWA_P0(K-1)
 
           IOFF  = NINT(WAP0(J + 1))
@@ -456,11 +462,15 @@ C         retrouve l'adresse dans WAP0
                 CALL TAB_STRS_TXT50(WAP0(1),5,J,SIZP0,5)
                 CALL TAB_STRS_TXT50(WAP0(6),3,J,SIZP0,3)
               ENDIF
+              J = J + 8
             END DO
           END IF
 
-        ENDDO		    
+        ENDDO        
       ENDIF
-
+c-----------
+      DEALLOCATE(PTWA)
+      DEALLOCATE(PTWA_P0)
+c-----------
       RETURN
       END

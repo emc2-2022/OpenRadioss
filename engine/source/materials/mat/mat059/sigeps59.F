@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS59                      source/materials/mat/mat059/sigeps59.F
-Chd|-- called by -----------
-Chd|        SUSER43                       source/elements/solid/sconnect/suser43.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps59   ../engine/source/materials/mat/mat059/sigeps59.F
+!||--- called by ------------------------------------------------------
+!||    suser43    ../engine/source/elements/solid/sconnect/suser43.F
+!||--- calls      -----------------------------------------------------
+!||    finter     ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE SIGEPS59(
      1     NEL     ,TIME    ,TIMESTEP,UPARAM  ,OFF     ,
      2     EPSD    ,STIFM   ,NUPARAM ,
@@ -76,18 +76,11 @@ C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
 C---------+---------+---+---+--------------------------------------------
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr17_c.inc"
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "com08_c.inc"
 #include      "sms_c.inc"
-#include      "units_c.inc"
 C----------------------------------------------------------
 C   D u m m y   A r g u m e n t s  
 C----------------------------------------------------------
-      INTEGER NEL,NUPARAM,NUVAR,MAXFUNC, JSMS
+      INTEGER NEL,NUPARAM,MAXFUNC, JSMS
       INTEGER IFUNC(*),NPF(*)
       my_real
      .   TIME,TIMESTEP
@@ -102,13 +95,13 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I1,I2,I,J,IEL,IRATE,NRATE,IFILTR,NTRAC
-      INTEGER IFUNN(MAXFUNC),IFUNT(MAXFUNC),JJ(NEL),ELTRAC(NEL),II(NEL)
+      INTEGER IFUNN(MAXFUNC),IFUNT(MAXFUNC),ELTRAC(NEL),II(NEL)
       my_real
-     .   E,ECOMP,G,G3,G12,G23,FCUT,DYDX1,DYDX2,Y1,Y2,R,DSIG,DEPLA,
-     .   SVM,SIGT,DTB
+     .   E,ECOMP,G,G3,FCUT,DYDX1,DYDX2,Y1,Y2,R,DSIG,DEPLA,
+     .   SVM,DTB
       my_real
      .   DSIGX(NEL),DSIGY(NEL),DSIGZ(NEL),YFAC(MAXFUNC),RATE(MAXFUNC),
-     .   YLD(2,NEL),HC(2,NEL),DEPST(NEL),STF(NEL),FAC(NEL)
+     .   YLD(2,NEL),HC(2,NEL),STF(NEL),FAC(NEL)
 C----------------------------------------------------------
 C   E x t e r n a l  F u n c t i o n
 C----------------------------------------------------------
@@ -129,12 +122,12 @@ c
         ELTRAC(1:NEL) = 0
         NTRAC  = 0
         DO IEL=1,NEL
-          IF (EPSZZ(IEL) > ZERO) THEN   ! element in traction
+          IF (EPSZZ(IEL) > ZERO) THEN   ! In traction element
             STF(IEL)    = (E+G) * AREA(IEL)                                          
             DSIGZ(IEL)  = E*DEPSZZ(IEL)                                 
             NTRAC = NTRAC + 1
             ELTRAC(NTRAC) = IEL
-          ELSE                          ! element in compression
+          ELSE                          ! in compression
             STF(IEL)    = (ECOMP+G) * AREA(IEL)                                          
             DSIGZ(IEL)  = ECOMP*DEPSZZ(IEL)
           ENDIF

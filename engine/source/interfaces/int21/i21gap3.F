@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21GAP3                       source/interfaces/int21/i21gap3.F
-Chd|-- called by -----------
-Chd|        I21MAIN_GAP                   source/interfaces/int21/i21main_gap.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21gap3       ../engine/source/interfaces/int21/i21gap3.F
+!||--- called by ------------------------------------------------------
+!||    i21main_gap   ../engine/source/interfaces/int21/i21main_gap.F
+!||====================================================================
       SUBROUTINE I21GAP3(
      1 ITASK ,IRECTS ,NRTS ,NSN   ,NSV   ,
      2 GAP   ,IGAP  ,GAP_S ,GAPMIN,CRITER,
@@ -56,17 +55,17 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NSNF, NSNL, I, J, NELS, NELC, NELTG, NEL
+      INTEGER NSNF, NSNL, I
 C     REAL
       my_real
-     .   GAPM, CRITERL, GAPSUPL
+     .    CRITERL, GAPSUPL
 C------------------------------------
-C     GAP VARIABLE NOEUDS SECONDS
+C     GAP VARIABLE FOR SECONDARY NODES
 C------------------------------------
       NSNF = 1 + ITASK*NSN / NTHREAD
       NSNL = (ITASK+1)*NSN / NTHREAD
       
-      IF(IGAP.GE.2)THEN
+      IF(IGAP>=2)THEN
        DO I=NSNF,NSNL
         GAP_S(I) = MAX(HALF*GAPSCALE*(THKNOD(NSV(I))-THKNOD0(I))
      .                                            +GAP_S0(I),ZERO)
@@ -74,9 +73,9 @@ C------------------------------------
       ENDIF
 C---------------------------------------------
 C
-C Calcul du gap reel a utiliser lors du critere de retri
+C Calculation of the real gap to be used during the retry criterion
 C
-      IF (IGAP.EQ.0) THEN
+      IF (IGAP==0) THEN
         CRITER =MAX(GAP,EM01*MAX(DEPTH,DRAD,GAP+DGAPLOAD))
         DIST   =TZINF-MAX(GAP+DGAPLOAD,DEPTH,DRAD)
       ELSE
@@ -95,7 +94,7 @@ C gap_s/=0 <=> node is still connected through non deleted shells
         CRITER=MIN(CRITER,CRITERL)
         DIST  =MIN(DIST,TZINF-MAX(GAPSUPL+DGAPLOAD,DEPTH,DRAD))
         IF( TZINF-GAPSUPL <= ZERO)THEN
-C assure le retri et remet la marge initiale (on a forcement depth  <= gapsupl)
+C ensures the retry and resets the initial margin (we necessarily have depth  <= gapsupl)
           TZINF= GAPSUPL+MARGE
           DIST =-ONE
         END IF

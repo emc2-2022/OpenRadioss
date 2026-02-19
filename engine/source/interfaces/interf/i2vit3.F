@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2VIT3N                       source/interfaces/interf/i2vit3.F
-Chd|-- called by -----------
-Chd|        INTTI2V                       source/interfaces/interf/intti2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2vit3n   ../engine/source/interfaces/interf/i2vit3.F
+!||--- called by ------------------------------------------------------
+!||    intti2v   ../engine/source/interfaces/interf/intti2v.F
+!||====================================================================
       SUBROUTINE I2VIT3N(
      1 NSN   , NMN   , A   , IRECT, CRST,
      2 MSR   , NSV   , IRTL, V    , MS  ,
@@ -49,18 +48,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, ISK, ICOD, II, L, JJ,
-     .   NN
+      INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, II, L, JJ
 C     REAL
       my_real
-     .   H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM,MAS
+     . H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM
 C-----------------------------------------------
       NIR=2
-      IF(N2D.EQ.0)NIR=4
+      IF(N2D==0)NIR=4
 C
       DO II=1,NSN
         I=NSV(II)
-        IF(I.GT.0)THEN
+        IF(I>0)THEN
           L=IRTL(II)
 C
           SS=CRST(1,II)
@@ -107,13 +105,12 @@ C
 C-----------
       RETURN
       END
-Cel|         INTTI12V                        /interf/intti12.F
-Chd|====================================================================
-Chd|  I2VIT3                        source/interfaces/interf/i2vit3.F
-Chd|-- called by -----------
-Chd|        INTTI2V                       source/interfaces/interf/intti2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+C  |         INTTI12V                        /interf/intti12.F
+!||====================================================================
+!||    i2vit3    ../engine/source/interfaces/interf/i2vit3.F
+!||--- called by ------------------------------------------------------
+!||    intti2v   ../engine/source/interfaces/interf/intti2v.F
+!||====================================================================
       SUBROUTINE I2VIT3(
      1 NSN   , NMN   , A   , IRECT, CRST,
      2 MSR   , NSV   , IRTL, V    , MS  ,
@@ -137,18 +134,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, ISK, ICOD, II, L, JJ,
-     .   NN
+      INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, II, L, JJ
 C     REAL
       my_real
-     .   H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM,MAS
+     . H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM
 C-----------------------------------------------
       NIR=2
-      IF(N2D.EQ.0)NIR=4
+      IF(N2D==0)NIR=4
 C
       DO 70 II=1,NSN
        I=NSV(II)
-       IF(I.GT.0)THEN
+       IF(I>0)THEN
         L=IRTL(II)
 C
         SS=CRST(1,II)
@@ -170,7 +166,7 @@ C
         VMX=ZERO
         VMY=ZERO
         VMZ=ZERO    
-Cel   XMSI=MS(I)*WEIGHT(I)
+C     XMSI=MS(I)*WEIGHT(I)
 C
         DO JJ=1,NIR
 C          J3=3*MSR(IRECT(JJ,L))
@@ -185,7 +181,7 @@ C          J3=3*MSR(IRECT(JJ,L))
           VMY=VMY+V(J2)*H(JJ)
           VMZ=VMZ+V(J3)*H(JJ)
 CFP (RESET MASSE MAIN)
-Cel     MS(J)=MS(J)-XMSI*H(JJ)
+C       MS(J)=MS(J)-XMSI*H(JJ)
         ENDDO
         A(I1)=AMX
         A(I2)=AMY
@@ -197,7 +193,7 @@ Cel     MS(J)=MS(J)-XMSI*H(JJ)
 C
  70   CONTINUE
 C
-Cel restitution de la masse initiale sur noeuds main
+C   initial mass restitution on main nodes
       DO II=1,NMN
         J=MSR(II)
         MS(J)=MMASS(II)
@@ -205,18 +201,21 @@ Cel restitution de la masse initiale sur noeuds main
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I2ROT3                        source/interfaces/interf/i2vit3.F
-Chd|-- called by -----------
-Chd|        INTTI2V                       source/interfaces/interf/intti2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2rot3    ../engine/source/interfaces/interf/i2vit3.F
+!||--- called by ------------------------------------------------------
+!||    intti2v   ../engine/source/interfaces/interf/intti2v.F
+!||====================================================================
       SUBROUTINE I2ROT3(NSN,NMN,AR  ,IRECT,CRST,MSR ,
      2                  NSV,IRTL,VR  ,IN  ,A   ,V    ,X   )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
+C-----------------------------------------------
+C   C o m m o n   B l o c k s
+C-----------------------------------------------
+#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -227,24 +226,23 @@ C     REAL
      .   AR(3,*), CRST(2,*), VR(3,*),
      .   IN(*), A(3,*),  V(3,*), X(3,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, I3, J3, I2, J2, I1, J1, ISK, ICOD, II, L, JJ,
-     .   NN
+      INTEGER I, J, II, L, JJ, 
+     . NIR
       my_real
-     .   H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,INM,
-     .   X0,X1,X2,X3,X4,Y0,Y1,Y2,Y3,Y4,Z0,Z1,Z2,Z3,Z4,AA,
-     .   NX,NY,NZ,X13,X24,Y13,Y24,Z13,Z24,XC0,YC0,ZC0,SP,SM,TP,TM,
-     .   XC,YC,ZC,VMXX,VMYY,VMZZ
+     . H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,
+     .
+     . XC0,YC0,ZC0,SP,SM,TP,TM,
+     . VMXX,VMYY,VMZZ
 C-----------------------------------------------
+C
+      NIR=2
+      IF(N2D==0)NIR=4
 C
       DO 70 II=1,NSN
        I=NSV(II)
-       IF(I.GT.0)THEN
+       IF(I>0)THEN
         L=IRTL(II)
 C
         SS=CRST(1,II)
@@ -262,14 +260,14 @@ C
         YC0 = X(2,I)
         ZC0 = X(3,I)
 C  
-        AMX=ZERO	
+        AMX=ZERO
         AMY=ZERO
         AMZ=ZERO
         VMX=ZERO
         VMY=ZERO
         VMZ=ZERO     
 C
-        DO JJ=1,4
+        DO JJ=1,NIR
 C          J=MSR(IRECT(JJ,L))
           J=IRECT(JJ,L)
           AMX=AMX+AR(1,J)*H(JJ)
@@ -307,13 +305,12 @@ C
       RETURN
       END
 C=======================================================================
-Chd|====================================================================
-Chd|  I2VIROT3                      source/interfaces/interf/i2vit3.F
-Chd|-- called by -----------
-Chd|        I2VIT28                       source/interfaces/interf/i2vit28.F
-Chd|        INTTI2V                       source/interfaces/interf/intti2v.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2virot3   ../engine/source/interfaces/interf/i2vit3.F
+!||--- called by ------------------------------------------------------
+!||    i2vit28    ../engine/source/interfaces/interf/i2vit28.F
+!||    intti2v    ../engine/source/interfaces/interf/intti2v.F
+!||====================================================================
       SUBROUTINE I2VIROT3(NSN,NMN,A   ,IRECT,DPARA,MSR ,
      2                  NSV,IRTL,V   ,MS    ,AR  ,VR   ,
      3                  X  ,WEIGHT )
@@ -337,20 +334,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR, I, J, J1, J2, J3, J4, ISK, ICOD, II, L, JJ,
-     .   NN,I1
+      INTEGER NIR, I, J1, J2, J3, J4, II, L
 C     REAL
       my_real
-     .   H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM,MAS,
+     . AMX, AMY, AMZ, VMX, VMY, VMZ,
      .   MRX,MRY,MRZ,MGX,MGY,MGZ,DET,ARX,ARY,ARZ,
      .   X0,X1,X2,X3,X4,XS,Y0,Y1,Y2,Y3,Y4,YS,Z0,Z1,Z2,Z3,Z4,ZS,
-     .   X12,X22,X32,X42,Y12,Y22,Y32,Y42,Z12,Z22,Z32,Z42,
-     .   XX,YY,ZZ,XXX,YYY,ZZZ,XY,YZ,ZX,XY2,YZ2,ZX2,
-     .   VRX,VRY,VRZ,B1,B2,B3,C1,C2,C3,
-     .   XMSI     
+     . ZZXYZ222,
+     .   VRX,VRY,VRZ,B1,B2,B3,C1,C2,C3
 C-----------------------------------------------
       NIR=2
-      IF(N2D.EQ.0)NIR=4
+      IF(N2D==0)NIR=4
 CFP (RESET MASSE MAIN)
 C      DO II=1,NSN
 C        I=NSV(II)
@@ -373,11 +367,11 @@ C         MS(J)=MS(J)-XMSI*H(JJ)
 C        ENDDO
 C      ENDDO
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of secondary nodes
 C------------------------------------
       DO II=1,NSN
        I=NSV(II)
-       IF(I.GT.0)THEN
+       IF(I>0)THEN
         L=IRTL(II)
 C          J1=MSR(IRECT(1,L))
 C          J2=MSR(IRECT(2,L))
@@ -388,16 +382,16 @@ C          J4=MSR(IRECT(4,L))
         J3=IRECT(3,L)
         J4=IRECT(4,L)
 C----------------------------------------
-C       VITESSE MOYENNE DU SEGMENT MAIN
+C       VELOCITY MOYENNE DU SEGMENT MAIN
 C----------------------------------------
         VMX=FOURTH*(V(1,J1)+V(1,J2)+V(1,J3)+V(1,J4))
         VMY=FOURTH*(V(2,J1)+V(2,J2)+V(2,J3)+V(2,J4))
         VMZ=FOURTH*(V(3,J1)+V(3,J2)+V(3,J3)+V(3,J4))
         AMX=FOURTH*(A(1,J1)+A(1,J2)+A(1,J3)+A(1,J4))
         AMY=FOURTH*(A(2,J1)+A(2,J2)+A(2,J3)+A(2,J4))
-        AMZ=FOURTH*(A(3,J1)+A(3,J2)+A(3,J3)+A(3,J4))	
+        AMZ=FOURTH*(A(3,J1)+A(3,J2)+A(3,J3)+A(3,J4))
 C----------------------------------------------------
-C       VITESSE DE ROTATION MOYENNE DU SEGMENT MAIN
+C       average rotation velocity of the main segment
 C----------------------------------------------------
         X1=X(1,J1)
         Y1=X(2,J1)
@@ -413,7 +407,7 @@ C----------------------------------------------------
         Z4=X(3,J4)
         X0=FOURTH*(X1+X2+X3+X4)
         Y0=FOURTH*(Y1+Y2+Y3+Y4)
-        Z0=FOURTH*(Z1+Z2+Z3+Z4)	
+        Z0=FOURTH*(Z1+Z2+Z3+Z4)
         X1=X1-X0
         Y1=Y1-Y0
         Z1=Z1-Z0
@@ -495,7 +489,7 @@ C
         ARZ=DET*(MRZ*B3+MRX*C2+MRY*C1)
 C
 C----------------------------------------------------
-C       VITESSE DE ROTATION DU NOEUD SECOND
+C       rotation velocity of the secondary node
 C----------------------------------------------------
         IF (IRODDL == 1) THEN
           VR(1,I)=VRX
@@ -506,7 +500,7 @@ C----------------------------------------------------
           AR(3,I)=ARZ
         ENDIF
 C----------------------------------------------------
-C       VITESSE DU NOEUD SECOND
+C       velocity of the secondary node
 C----------------------------------------------------
         V(1,I)=VMX + VRY*ZS - VRZ*YS
         V(2,I)=VMY + VRZ*XS - VRX*ZS
@@ -519,12 +513,11 @@ C----------------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I2ROT3_27                     source/interfaces/interf/i2vit3.F
-Chd|-- called by -----------
-Chd|        I2VIT27                       source/interfaces/interf/i2vit27.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2rot3_27   ../engine/source/interfaces/interf/i2vit3.F
+!||--- called by ------------------------------------------------------
+!||    i2vit27     ../engine/source/interfaces/interf/i2vit27.F
+!||====================================================================
       SUBROUTINE I2ROT3_27(NSN,NMN,AR  ,IRECT,CRST,MSR ,
      2                  NSV,IRTL,VR  ,IN  ,A   ,V    ,X,
      3                  SINER,DPARA,MSEGTYP2)
@@ -548,13 +541,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, I3, J3, I2, J2, I1, J1, ISK, ICOD, II, L, JJ,
-     .   NN,J4
+      INTEGER I, J, J3, J2, J1, II, L, JJ, 
+     . J4
       my_real
-     .   H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,INM,
-     .   X0,X1,X2,X3,X4,Y0,Y1,Y2,Y3,Y4,Z0,Z1,Z2,Z3,Z4,AA,
-     .   NX,NY,NZ,X13,X24,Y13,Y24,Z13,Z24,XC0,YC0,ZC0,SP,SM,TP,TM,
-     .   XC,YC,ZC,MGX,MGY,MGZ,MRX,MRY,MRZ,VMXX,VMYY,VMZZ,
+     . H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,
+     . X0,X1,X2,X3,X4,Y0,Y1,Y2,Y3,Y4,Z0,Z1,Z2,Z3,Z4,
+     . XC0,YC0,ZC0,SP,SM,TP,TM,
+     . MGX,MGY,MGZ,MRX,MRY,MRZ,VMXX,VMYY,VMZZ,
      .   DET,C1,C2,C3,B1,B2,B3  
 C
 C-----------------------------------------------
@@ -563,7 +556,7 @@ C
       DO 70 II=1,NSN
        I=NSV(II)
 C
-       IF(I.GT.0)THEN
+       IF(I>0)THEN
         L=IRTL(II)
 C
         SS=CRST(1,II)
@@ -632,7 +625,7 @@ C
             Y0=FOURTH*(Y1+Y2+Y3+Y4)
             Z0=FOURTH*(Z1+Z2+Z3+Z4)
           ENDIF
-C	
+C
           X1=X1-X0
           Y1=Y1-Y0
           Z1=Z1-Z0
@@ -686,7 +679,7 @@ C--------------------------------------------------C
 C--- shell / shell - shell / solide  --------------C
 C--------------------------------------------------C
 C
-          AMX=ZERO	
+          AMX=ZERO
           AMY=ZERO
           AMZ=ZERO
           VMX=ZERO
@@ -730,12 +723,11 @@ C
  70   CONTINUE
       RETURN
       END
-Chd|====================================================================
-Chd|  I2VIT3_27                     source/interfaces/interf/i2vit3.F
-Chd|-- called by -----------
-Chd|        I2VIT27                       source/interfaces/interf/i2vit27.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2vit3_27   ../engine/source/interfaces/interf/i2vit3.F
+!||--- called by ------------------------------------------------------
+!||    i2vit27     ../engine/source/interfaces/interf/i2vit27.F
+!||====================================================================
       SUBROUTINE I2VIT3_27(
      1 NSN   , NMN   , A   , IRECT, CRST,
      2 MSR   , NSV   , IRTL, V    , MS  ,
@@ -759,18 +751,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, ISK, ICOD, II, L, JJ,
-     .   NN
+      INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, II, L, JJ
 C     REAL
       my_real
-     .   H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM,MAS
+     . H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM
 C-----------------------------------------------
       NIR=2
-      IF(N2D.EQ.0)NIR=4
+      IF(N2D==0)NIR=4
 C
       DO II=1,NSN
         I=NSV(II)
-        IF(I.GT.0)THEN
+        IF(I>0)THEN
           L=IRTL(II)
 C
           SS=CRST(1,II)

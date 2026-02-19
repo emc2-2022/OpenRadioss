@@ -1,43 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT15                 source/materials/mat/mat015/hm_read_mat15.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_MAT15(LSUBMODEL, MTAG, UNITAB, IPM, PM,
-     .                         MAT_ID   , TITR,MATPARAM)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat15            ../starter/source/materials/mat/mat015/hm_read_mat15.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat              ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword         ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_MAT15(
+     .             LSUBMODEL,MTAG     ,UNITAB   ,IPM      ,PM       ,
+     .             MAT_ID   ,TITR     ,MATPARAM ,ISRATE   ,PARMAT   )
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -50,6 +50,7 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE MATPARAM_DEF_MOD    
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,38 +59,34 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "sysunit.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(SUBMODEL_DATA),INTENT(IN)        :: LSUBMODEL(*)
       TYPE(MLAW_TAG_), INTENT(INOUT)   :: MTAG
-      CHARACTER*nchartitle, INTENT(IN)       :: TITR
+      CHARACTER(LEN=NCHARTITLE), INTENT(IN) :: TITR
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER, INTENT(IN)                    :: MAT_ID
-      INTEGER, INTENT(INOUT) :: IPM(NPROPMI)
+      INTEGER, INTENT(INOUT) :: IPM(NPROPMI),ISRATE
       my_real, INTENT(INOUT) :: PM(NPROPM)
       TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
+      my_real, DIMENSION(100),INTENT(INOUT) :: PARMAT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER IOFF,ICC,IFLAG,ISRATE
+      INTEGER IOFF,ICC,IFLAG
       my_real
-     .   N12, N21, E11, E22, G12, G23, G31, EPST1, EPST2, CB, CN,
+     .   N12, N21, E11, E22, G12, G23, G31, CB, CN,
      .   FMAX, SIGYT1, SIGYT2, SIGYC1, SIGYC2, SIGYT12, SIGYC12, 
      .   C1, SSP, F1, F2, F11, F22, F33, F12, FT1, WPLAMX,
-     .   EPSM1, EPSM2, DMAX, SHRDAM, SHRMAX, SHRDMAX,ALPHA,CC,EPS0,
-     .   CBT1,CNT1,SIGMXT1,CCT1,CBT2,CNT2,SIGMXT2,CCT2,DETC, DE,
-     .   CBC1,CNC1,SIGMXC1,CCC1,CBC2,CNC2,SIGMXC2,CCC2,FCUT,
-     .   CBT12,CNT12,SIGMXT12,CCT12,CBC12,CNC12,SIGMXC12,CCC12,
-     .   EPS1T1,EPS2T1,SIGRST1,WPLAMXT1,EPS1T2,EPS2T2,SIGRST2,
-     .   WPLAMXT2,EPS1C1,EPS2C1,SIGRSC1,WPLAMXC1,EPS1C2,EPS2C2,
-     .   SIGRSC2,WPLAMXC2,EPS1T12,EPS2T12,SIGRST12,WPLAMXT12,
+     .      ALPHA,CC,EPS0,
+     .   DETC, DE,
+     .   FCUT,
+     .   
+     .   EPS1T1,EPS2T1,EPS1T2,EPS2T2,
+     .   
+     .   
      .   BETA, TMAX,S1,S2,S12,C11,C22,WPLAREF,RHO0,RHOR
       LOGICAL :: IS_ENCRYPTED, IS_AVAILABLE
 C-----------------------------------------------
@@ -101,7 +98,7 @@ C-----------------------------------------------
       IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 
-      CALL HM_OPTION_IS_CRYPTED(IS_ENCRYPTED) 
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED) 
     
       CALL HM_GET_FLOATV('MAT_RHO'    ,RHO0        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Refer_Rho'  ,RHOR        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -168,8 +165,8 @@ C
       CALL HM_GET_FLOATV('MCHANG_C1', C11, IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MCHANG_C2', C22, IS_AVAILABLE, LSUBMODEL, UNITAB)
     
-      IF(E11.EQ.ZERO .OR. E22.EQ.ZERO .OR.
-     &   G12.EQ.ZERO .OR. G23.EQ.ZERO.OR. G31.EQ.ZERO) THEN
+      IF(E11==ZERO .OR. E22==ZERO .OR.
+     &   G12==ZERO .OR. G23==ZERO.OR. G31==ZERO) THEN
          CALL ANCMSG(MSGID=306,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -187,30 +184,31 @@ C-----
      .                C1=TITR)
        ENDIF 
 C-------------------------------------
-       IF(ICC.NE.2.AND.ISRATE.EQ.0.AND.FCUT.NE.ZERO)ISRATE=1
-       IF(CN.EQ.ZERO)    CN    = ONE
-       IF(FMAX.EQ.ZERO)   FMAX  = INFINITY    
-       IF(WPLAMX.EQ.ZERO)WPLAMX = INFINITY
+       IF (ICC/=2.AND.ISRATE==0.AND.FCUT/=ZERO) ISRATE=1
+       IF (ISRATE > 0 .AND. FCUT == ZERO) FCUT = INFINITY
+       IF(CN==ZERO)    CN    = ONE
+       IF(FMAX==ZERO)   FMAX  = INFINITY    
+       IF(WPLAMX==ZERO)WPLAMX = INFINITY
        IF (WPLAREF == ZERO) WPLAREF = ONE        
        WPLAMX = WPLAMX / WPLAREF
-       IF(ALPHA.EQ.ZERO)ALPHA = ONE
-       IF(CC.EQ.ZERO)  EPS0  = ONE
-       IF(ICC.EQ.ZERO)  ICC  = 1
+       IF(ALPHA==ZERO)ALPHA = ONE
+       IF(CC==ZERO)  EPS0  = ONE
+       IF(ICC==ZERO)  ICC  = 1
        IFLAG = 0
-       IF(S1.EQ.ZERO.AND.S2.EQ.ZERO.AND.S12.EQ.ZERO.AND.
-     . C11.EQ.ZERO.AND.C22.EQ.ZERO) IFLAG = 1
+       IF(S1==ZERO.AND.S2==ZERO.AND.S12==ZERO.AND.
+     . C11==ZERO.AND.C22==ZERO) IFLAG = 1
        
-       IF(S1.EQ.ZERO) S1 = INFINITY
-       IF(S2.EQ.ZERO) S2 = INFINITY 
-       IF(S12.EQ.ZERO) S12 = INFINITY
-       IF(C11.EQ.ZERO) C11= INFINITY
-       IF(C22.EQ.ZERO) C22= INFINITY   
+       IF(S1==ZERO) S1 = INFINITY
+       IF(S2==ZERO) S2 = INFINITY 
+       IF(S12==ZERO) S12 = INFINITY
+       IF(C11==ZERO) C11= INFINITY
+       IF(C22==ZERO) C22= INFINITY   
 C--------------------------------------------------------
-      IF(TMAX.EQ.ZERO)WRITE(*,*)'STOP ERROR IN TMAX INPUT'   
+      IF(TMAX==ZERO)WRITE(*,*)'STOP ERROR IN TMAX INPUT'   
 C--------------------------------------------------------
       N21=N12*E22/E11
       DETC=ONE-N12*N21
-      IF(DETC.LE.ZERO) THEN
+      IF(DETC<=ZERO) THEN
          CALL ANCMSG(MSGID=307,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -218,7 +216,7 @@ C--------------------------------------------------------
      .               C1=TITR)
       ENDIF
 C--------------------------------------------------------
-      IF(CN.GT.ONE) THEN
+      IF(CN>ONE) THEN
          CALL ANCMSG(MSGID=213,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -246,8 +244,6 @@ C
         WRITE(IOUT,2700) S1,S2,S12,C11,C22        
       ENDIF
 C-------------------------------------------------
-      PM(8) =ISRATE
-      PM(9) =FCUT*TWO*PI
       PM(20)= MAX(E11,E22)/DETC
       PM(24)= PM(20)
       PM(26)=FIVE_OVER_6
@@ -272,10 +268,13 @@ C-----------------------------------------
       PM(32)= C1
       PM(27)= SSP
       PM(52)=ONEP414*PM(17)*PM(1)*SSP
+C-----------------------------------------
+      PARMAT(4) = ISRATE
+      PARMAT(5) = FCUT
 C----------------------------------------
 C     CONSTANTS FOR THE YIELD FUNCTION
 C-------------------------------------------
-      IF (SIGYT1.LE.0.) THEN
+      IF (SIGYT1<=0.) THEN
          CALL ANCMSG(MSGID=538,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -283,7 +282,7 @@ C-------------------------------------------
      .               C1=TITR,
      .               C2='SIGYT1')
       ENDIF
-      IF (SIGYC1.LE.0.) THEN
+      IF (SIGYC1<=0.) THEN
          CALL ANCMSG(MSGID=538,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -291,7 +290,7 @@ C-------------------------------------------
      .               C1=TITR,
      .               C2='SIGYC1')
       ENDIF
-      IF (SIGYT2.LE.0.) THEN
+      IF (SIGYT2<=0.) THEN
          CALL ANCMSG(MSGID=538,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -299,7 +298,7 @@ C-------------------------------------------
      .               C1=TITR,
      .               C2='SIGYT2')
       ENDIF
-      IF (SIGYC2.LE.0.) THEN
+      IF (SIGYC2<=0.) THEN
          CALL ANCMSG(MSGID=538,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -307,7 +306,7 @@ C-------------------------------------------
      .               C1=TITR,
      .               C2='SIGYC2')
       ENDIF
-      IF (SIGYT12.LE.0.) THEN
+      IF (SIGYT12<=0.) THEN
          CALL ANCMSG(MSGID=538,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -315,7 +314,7 @@ C-------------------------------------------
      .               C1=TITR,
      .               C2='SIGYT12')
       ENDIF
-      IF (SIGYC12.LE.0.) THEN
+      IF (SIGYC12<=0.) THEN
          CALL ANCMSG(MSGID=538,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -324,7 +323,7 @@ C-------------------------------------------
      .               C2='SIGYC12')
       ENDIF
 C
-      IF((SIGYC1.GT.0.).AND.(SIGYC2.GT.0.))THEN
+      IF((SIGYC1>0.).AND.(SIGYC2>0.))THEN
        F1  = ONE/SIGYT1-ONE/SIGYC1
        F2  = ONE/SIGYT2-ONE/SIGYC2
        F11 = ONE/(SIGYT1*SIGYC1)
@@ -336,7 +335,7 @@ C
        IF(IS_ENCRYPTED)THEN
          WRITE(IOUT,1650) F1,F2,F11,F22,F33,F12
        ENDIF
-C      IF (FT1.LT.0.) WRITE (IOUT,5560) FT1
+C      IF (FT1<0.) WRITE (IOUT,5560) FT1
 C
        PM(54)=F1
        PM(55)=F2
@@ -355,12 +354,12 @@ C
       ENDIF    
       PM(60)= BETA
       PM(61)= TMAX
-	
+
 C
       PM(50)=CC
       PM(51)=EPS0
       PM(53)=ICC
-      IF(EPS0.EQ.ZERO) THEN
+      IF(EPS0==ZERO) THEN
         CALL ANCMSG(MSGID=298,
      .              MSGTYPE=MSGERROR,
      .              ANMODE=ANINFO,
@@ -382,10 +381,19 @@ C---
       PM(151) = C22
       PM(152)  =S12
 c
-C---- Definition des variables internes (stockage elementaire)
+C---- Definition of internal variables (Elementary storage)
 c
-      MTAG%G_PLA   = 1    
-      MTAG%L_PLA   = 1   ! NB10
+      MTAG%G_PLA    = 1    
+      MTAG%L_PLA    = 1   ! NB10
+      MTAG%G_TSAIWU = 1
+      MTAG%L_TSAIWU = 1
+
+      ! MATPARAM keywords
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ORTHOTROPIC")
+
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ORTHOTROPIC")
+      
 c-----------
       CALL INIT_MAT_KEYWORD(MATPARAM,"ELASTO_PLASTIC")
       CALL INIT_MAT_KEYWORD(MATPARAM,"COMPRESSIBLE")
@@ -457,11 +465,10 @@ c
      & 5X,'SMOOTH STRAIN RATE OPTION . . . . . . .=',I10/,
      & 5X,'STRAIN RATE CUTTING FREQUENCY . . . . .=',1PG20.13/)
  2700 FORMAT(
-     & 5X,'LONGITUDINAL TENSILE STRENTH  . . . . . .=',1PG20.13/,
-     & 5X,'TRANSVERSE   TENSION STRENTH  . . . . . .=',1PG20.13/,
-     & 5X,'SHEAR STRENGH . . . . . . . .  .  . . . .=',1PG20.13/,
-     & 5X,' LONGITUDINAL COMPRESSIVE STRENTH . . . .=',1PG20.13/,
-     & 5X,' TRANSVERSE   COMPRESSIVE STRENTH. . . . =',1PG20.13//)
- 999  CALL FREERR(3)
+     & 5X,'LONGITUDINAL TENSILE STRENGTH . . . . . .=',1PG20.13/,
+     & 5X,'TRANSVERSE   TENSION STRENGTH . . . . . .=',1PG20.13/,
+     & 5X,'SHEAR STRENGTH  . . . . . . . . . . . . .=',1PG20.13/,
+     & 5X,' LONGITUDINAL COMPRESSIVE STRENGTH  . . .=',1PG20.13/,
+     & 5X,' TRANSVERSE   COMPRESSIVE STRENGTH  . . .=',1PG20.13//)
       RETURN
       END

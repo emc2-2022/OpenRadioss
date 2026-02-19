@@ -1,41 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DELTAX22                      source/interfaces/int22/deltax22.F
-Chd|-- called by -----------
-Chd|        SFORC3                        source/elements/solid/solide/sforc3.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
-      SUBROUTINE DELTAX22(VOL,VEUL,VOLN,DELTAX,IAD22,
-     .                  IXS)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    deltax22         ../engine/source/interfaces/int22/deltax22.F
+!||--- called by ------------------------------------------------------
+!||    sforc3           ../engine/source/elements/solid/solide/sforc3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
+      SUBROUTINE DELTAX22(
+     1   VOL,     VEUL,    VOLN,    DELTAX,
+     2   IAD22,   IXS,     LFT,     LLT,
+     3   JALE,    JEUL)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C this subroutines update VOLN for cut cells.
 C Main cells have extended values of volume due
@@ -48,34 +51,31 @@ C-----------------------------------------------
       USE I22BUFBRIC_MOD 
       USE I22TRI_MOD
       USE ELBUFDEF_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com06_c.inc"
-#include      "vect01_c.inc"
 #include      "param_c.inc"
-#include      "fluid_scr_c.inc"
 #include      "inter22.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: LFT
+      INTEGER, INTENT(INOUT) :: LLT
+      INTEGER, INTENT(INOUT) :: JALE
+      INTEGER, INTENT(INOUT) :: JEUL
       my_real :: VOL(*), VEUL(LVEUL,*), VOLN(*),DELTAX(*)
       my_real :: IAD22(*)
       INTEGER :: IXS(NIXS,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: I, II, IB, NCELL, IPOS, MCELL, NIN , NSecnds, IBV, ICELLv, NumSecnd,ISECND,NBCUT,K
-      my_real :: VAR, AREAM, VOLM, VOLsecnds, FACE0, FACE0M, VOLMAST
+      INTEGER :: I, IB, NCELL, MCELL, NIN , NSecnds,NBCUT,K
+      my_real ::  AREAM, VOLM, VOLsecnds, FACE0, FACE0M, VOLMAST
       TYPE(POLY_ENTITY),DIMENSION(:),    POINTER    :: pIsMain 
 C-----------------------------------------------
 C   P r e - C o n d i t i o n s
@@ -100,7 +100,7 @@ C-----------------------------------------------
            ENDIF
           
            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-           !           CHARACTERISTIC LENGTH           !
+           !           Characteristic Length!
            !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
            NSecnds     = BRICK_LIST(NIN,IB)%SecndList%Num
            VOLsecnds   = SUM(BRICK_LIST(NIN,IB)%SecndList%VOL(1:NSecnds))
@@ -123,10 +123,10 @@ C-----------------------------------------------
            !---meth2:supercell dx estimated with main cell dx (minorant)
            !DELTAX(I)   = VOLM/AREAM  
             
-           !---meth3:isomorph supercell to equivlent brick(cube) 
+           !---meth3:isomorph supercell to equivalent brick(cube)
            !DELTAX(I)   = (VOLN(I))**THIRD
            
-           !---meth4:isomorph main cell only to equivlent brick(cube) 
+           !---meth4:isomorph main cell only to equivalent brick(cube)
            !DELTAX(I)   = VOLM**THIRD  
                     
            !---meth5: no specific treatment (FAST but only valid if time step scale factor <= 0.5 in engine file)

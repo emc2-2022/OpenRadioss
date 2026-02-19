@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CDEFO3                        source/elements/shell/coque/cdefo3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cdefo3       ../engine/source/elements/shell/coque/cdefo3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3       ../engine/source/elements/shell/coque/cforc3.F
+!||    cforc3_crk   ../engine/source/elements/xfem/cforc3_crk.F
+!||====================================================================
       SUBROUTINE CDEFO3(JFT,JLT,VL1,VL2,VL3,VL4,
      1            DT1C,PX1 ,PX2,PY1,PY2,AREA,
      2            EXX ,EYY,EXY,EXZ,EYZ ,X2  ,X3 ,X4 ,Y2 ,Y3  ,
@@ -44,7 +43,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com08_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -68,7 +66,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J
+      INTEGER I
       my_real
      .     ZZ2(MVSIZ), EXZZ2(MVSIZ), EYZZ2(MVSIZ), EXZ2PY2(MVSIZ), 
      .     EXZ2PY1(MVSIZ), EYZ2PX2(MVSIZ), EYZ2PX1(MVSIZ),ZZZ(MVSIZ), 
@@ -102,12 +100,12 @@ C
 C
       ENDDO
 C
-      IF(IHBE.LE.1)THEN
+      IF(IHBE<=1)THEN
         DO I=JFT,JLT
-C z2 mis a zero pour non equilibre des foreces et moments d'hourglass
+C z2 set to zero for imbalance of hourglass forces and moments
           Z2(I) = ZERO
           DT1V4 = FOURTH*DT1C(I)
-          IF(IMPL_S.GT.0) DT1V4=ZERO
+          IF(IMPL_S>0) DT1V4=ZERO
           TMP2A(I)=PY2(I)+PY1(I)
           TMP3A(I)=SIGN(MAX(ABS(TMP2A(I)),EM20),TMP2A(I))
           TMP1A(I)=DT1V4*(VZ13(I)-VZ24(I))*(VZ13(I)-VZ24(I))/TMP3A(I)
@@ -131,11 +129,11 @@ C
           EYY(I)=PY1(I)*VY13(I)+PY2(I)*VY24(I)
         ENDDO
 C
-      ELSEIF(IHBE.EQ.2.OR.IHBE.EQ.3)THEN
+      ELSEIF(IHBE==2.OR.IHBE==3)THEN
 C
         DO I=JFT,JLT
           DT1V4 = HALF*DT1C(I)
-          IF(IMPL_S.GT.0) DT1V4=ZERO
+          IF(IMPL_S>0) DT1V4=ZERO
 C
           GZX(I)  = EXZ(I)/AREA(I)
           EXZZ2(I)= GZX(I)*Z2(I)
@@ -172,12 +170,12 @@ C
           EYY(I)=PY1(I)*VY13(I)+PY2(I)*VY24(I)
         ENDDO
 C
-      ELSEIF(IHBE.EQ.4)THEN
+      ELSEIF(IHBE==4)THEN
 C    old
         DO I=JFT,JLT
           DT1V4 = HALF*DT1C(I)
-          IF(IMPL_S.GT.0) DT1V4=ZERO
-c wraping z1=z3=0 z4=z2 => modif des vitesses pour l'hourglass membrane
+          IF(IMPL_S>0) DT1V4=ZERO
+c wrapping z1 = z3 = 0 z4 = z2 => velocity modification for the lurglass membrane
           ZZ2(I)=HALF*Z2(I)
 C
           GZX(I)     = EXZ(I)/AREA(I)
@@ -217,12 +215,11 @@ c-----------
       RETURN
       END
 c
-Chd|====================================================================
-Chd|  CDEFOT3                       source/elements/shell/coque/cdefo3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cdefot3   ../engine/source/elements/shell/coque/cdefo3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3    ../engine/source/elements/shell/coque/cforc3.F
+!||====================================================================
       SUBROUTINE CDEFOT3(JFT ,JLT  ,PX1  ,PX2  ,PY1   ,
      2                   PY2 ,VX13 ,VX24  ,VY13  ,VY24   ,
      3                   F_DEF )
@@ -235,15 +232,9 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "impl1_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT, JLT
-C     REAL
       my_real
      .   PX1(MVSIZ), PX2(MVSIZ), PY1(MVSIZ), PY2(MVSIZ),
      .   VX13(MVSIZ), VX24(MVSIZ), VY13(MVSIZ), VY24(MVSIZ),
@@ -251,9 +242,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J
-      my_real
-     .     S
+      INTEGER I
 C=======================================================================
         DO I=JFT,JLT
           F_DEF(I,1)=PX1(I)*VX13(I)+PX2(I)*VX24(I)

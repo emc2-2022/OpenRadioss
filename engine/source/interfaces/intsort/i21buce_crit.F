@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21BUCE_CRIT                  source/interfaces/intsort/i21buce_crit.F
-Chd|-- called by -----------
-Chd|        I21MAIN_CRIT_TRI              source/interfaces/intsort/i21main_crit_tri.F
-Chd|-- calls ---------------
-Chd|        INTSTAMP_MOD                  share/modules/intstamp_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21buce_crit       ../engine/source/interfaces/intsort/i21buce_crit.F
+!||--- called by ------------------------------------------------------
+!||    i21main_crit_tri   ../engine/source/interfaces/intsort/i21main_crit_tri.F
+!||--- uses       -----------------------------------------------------
+!||    intstamp_mod       ../engine/share/modules/intstamp_mod.F
+!||====================================================================
        SUBROUTINE I21BUCE_CRIT(
      1       X       ,NSV   ,NSN   ,INTSTAMP,ITASK   ,
      2       XSAV  ,NIN   ,STFN    ,V       ,XSLV_G  ,
@@ -45,9 +45,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -58,20 +56,16 @@ C-----------------------------------------------
      .   X21MSR(*), V21MSR(*), XLOC(3,*)
       TYPE(INTSTAMP_DATA) INTSTAMP
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NSNF,NSNL, I, J, II, N, IROT
+      INTEGER NSNF,NSNL, I, J, IROT
       my_real
      .   XSLV(6), VSLV(6), XX, YY, ZZ
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
-C     0- CALCUL DU CRITERE POUR SAVOIR SI ON DOIT TRIER OU NON
+C     0- calculate criterion to know if we should sort or not
 C
       XSLV(1) = -EP30
       XSLV(2) = -EP30
@@ -95,7 +89,7 @@ C
        DO I=NSNF,NSNL
          J=NSV(I)
 C stfn = 0 <=> shooting nodes
-         IF(STFN(I).NE.ZERO) THEN
+         IF(STFN(I)/=ZERO) THEN
 c xloc in main local frame
            XLOC(1,I)=X(1,J)-INTSTAMP%XG(1)
            XLOC(2,I)=X(2,J)-INTSTAMP%XG(2)
@@ -107,7 +101,7 @@ c xloc in main local frame
        DO I=NSNF,NSNL
          J=NSV(I)
 C stfn = 0 <=> shooting nodes
-         IF(STFN(I).NE.ZERO) THEN
+         IF(STFN(I)/=ZERO) THEN
 c xloc in main local frame
            XX=X(1,J)-INTSTAMP%XG(1)
            YY=X(2,J)-INTSTAMP%XG(2)
@@ -131,7 +125,7 @@ C
 #include "vectorize.inc"
       DO I=NSNF,NSNL
         J=NSV(I)
-        IF(STFN(I).NE.ZERO) THEN
+        IF(STFN(I)/=ZERO) THEN
           XSLV(1)=MAX(XSLV(1),X(1,J)-XSAV(1,I))
           XSLV(2)=MAX(XSLV(2),X(2,J)-XSAV(2,I))
           XSLV(3)=MAX(XSLV(3),X(3,J)-XSAV(3,I))
@@ -214,10 +208,10 @@ C
       END IF
 C
 
-C dist calcule une fois pour toutes les interfaces dans I21_ICRIT
+C dist calculated once for all interfaces in I21_ICRIT
 C
-      IF(NSPMD.EQ.1) THEN
-C traitement deplace dans SPMD_GET_STIF en SPMD
+      IF(NSPMD==1) THEN
+C Deplace treatment in SPMD_Get_Stif in SPMD
         DO I=NSNF,NSNL
           STFN(I)=MAX(STFN(I),ZERO)
         ENDDO

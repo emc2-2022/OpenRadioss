@@ -1,44 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALEW5                         source/ale/grid/alew5.F       
-Chd|-- called by -----------
-Chd|        ALEWDX                        source/ale/grid/alewdx.F      
-Chd|-- calls ---------------
-Chd|        ALEWDX_GRID_BCS               source/ale/grid/alewdx_grid_bcs.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_XVOIS                    source/mpi/fluid/spmd_cfd.F   
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    alew5                  ../engine/source/ale/grid/alew5.F
+!||--- called by ------------------------------------------------------
+!||    alewdx                 ../engine/source/ale/grid/alewdx.F
+!||--- calls      -----------------------------------------------------
+!||    alewdx_grid_bcs        ../engine/source/ale/grid/alewdx_grid_bcs.F
+!||    my_barrier             ../engine/source/system/machine.F
+!||    spmd_xvois             ../engine/source/mpi/fluid/spmd_cfd.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    ale_mod                ../common_source/modules/ale/ale_mod.F
+!||====================================================================
       SUBROUTINE ALEW5( 
-     1     X         ,D       ,V       ,W       ,WA      ,
-     2     ALE_NN_CONNECT     ,NALE    ,NODFT   ,NODLT   ,ITASK   ,
-     3     NBRCVOIS  ,NBSDVOIS,LNRCVOIS,LNSDVOIS,ITAB    ,
-     4     SKEW,ISKEW, ICODT)
+     1     X               ,V       ,W       , WA      ,
+     2     ALE_NN_CONNECT  ,NALE    ,NODFT   , NODLT   ,
+     3     NBRCVOIS        ,NBSDVOIS,LNRCVOIS, LNSDVOIS,
+     4     SKEW            ,ISKEW   ,ICODT  )
 C-----------------------------------------------
 C     M o d u l e s
 C-----------------------------------------------
       USE ALE_CONNECTIVITY_MOD
+      USE ALE_MOD
 C-----------------------------------------------
 C     D e s c r i p t i o n
 C-----------------------------------------------
@@ -63,13 +66,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com07_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "timeri_c.inc"    
 #include      "tabsiz_c.inc"  
 C-----------------------------------------------
 C     D u m m y   A r g u m e n t s
@@ -79,24 +79,24 @@ C-----------------------------------------------
 !  (1:3, NUMNOD+1:) additional nodes (also on adjacent domains but connected to the boundary of the current domain)
 !      idem with D(SD), and V(SV)
 C-----------------------------------------------
-      INTEGER NALE(NUMNOD), NODFT, NODLT, ITASK,
+      INTEGER NALE(NUMNOD), NODFT, NODLT,
      .     NBRCVOIS(*),NBSDVOIS(*),
-     .     LNRCVOIS(*),LNSDVOIS(*),ITAB(NUMNOD),ISKEW(*),ICODT(*)
-      my_real X(3,SX/3), D(3,SD/3), V(3,SV/3), W(3,SW/3), WA(3,*), SKEW(LSKEW,*)   
+     .     LNRCVOIS(*),LNSDVOIS(*),ISKEW(*),ICODT(*)
+      my_real X(3,SX/3),V(3,SV/3), W(3,SW/3), WA(3,*), SKEW(LSKEW,*)
       TYPE(t_connectivity), INTENT(IN) :: ALE_NN_CONNECT
 C-----------------------------------------------
 C     L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, LENCOM, K, ITER,NITER,NUM
-      my_real VEC(3),LAMBDA,ETA,IFORM, WEIGHT(6),SOM,SOM2,MIN_DIST,MAX_DIST
+      my_real VEC(3),LAMBDA,IFORM, WEIGHT(6),SOM,SOM2,MIN_DIST,MAX_DIST
       my_real, DIMENSION(:), ALLOCATABLE :: DIST
       INTEGER :: IAD, IAD1, IAD2, NODE_ID
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      LAMBDA=ALPHA
-      NITER=NINT(VGX)
-      IFORM=NINT(GAMMA)
+      LAMBDA=ALE%GRID%ALPHA
+      NITER=NINT(ALE%GRID%VGX)
+      IFORM=NINT(ALE%GRID%GAMMA)
       
       WA(1:3,NODFT:NODLT)=X(1:3,NODFT:NODLT)      
       CALL MY_BARRIER
@@ -131,7 +131,7 @@ C-----------------------------------------------
                   VEC(3) = VEC(3) / NUM - WA(3,I)     
 
                   !update VEC depending on boundary conditions
-                  CALL ALEWDX_GRID_BCS(SKEW, ISKEW,  ICODT, VEC, NALE, ITASK, I)   !set VEC to 0 depending on user BCS
+                  CALL ALEWDX_GRID_BCS(SKEW, ISKEW,  ICODT, VEC, NALE, I)   !set VEC to 0 depending on user BCS
                   W(1,I) = WA(1,I) + LAMBDA * VEC(1)
                   W(2,I) = WA(2,I) + LAMBDA * VEC(2)
                   W(3,I) = WA(3,I) + LAMBDA * VEC(3)
@@ -181,7 +181,7 @@ C-----------------------------------------------
                   ENDDO
                            
                   !update VEC depending on boundary conditions
-                  CALL ALEWDX_GRID_BCS(SKEW, ISKEW,  ICODT, VEC ,NALE, ITASK, I)
+                  CALL ALEWDX_GRID_BCS(SKEW, ISKEW,  ICODT, VEC ,NALE, I)
                   W(1,I) = WA(1,I) + LAMBDA * VEC(1)
                   W(2,I) = WA(2,I) + LAMBDA * VEC(2)
                   W(3,I) = WA(3,I) + LAMBDA * VEC(3)                  

@@ -1,5 +1,5 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
 Copyright>    
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
@@ -30,11 +30,7 @@ C ALLOC
       INTEGER IADI,IADR,IXDP,IADIF,IADRF
 C----------------------------------------------------------------------
 C
-#if CPP_mach == CPP_p4win32
-      CPUNAM ='win32'
-      ARCHTITLE='Windows 32 bits, Intel compiler'
-C
-#elif CPP_mach == CPP_p4win64
+#if CPP_mach == CPP_p4win64
 #if CPP_rel == 10
       CPUNAM ='win64 plmpi'
       ARCHTITLE='Windows 64 bits, Intel compiler, Platform MPI'
@@ -49,24 +45,6 @@ C
       ARCHTITLE='Windows 64 bits, Intel compiler'
 #endif
 C
-#elif CPP_mach == CPP_linux
-      CPUNAM ='linux32 pgi'
-      ARCHTITLE='Linux 32 bits, PGI compiler'
-C
-#elif CPP_mach == CPP_p4linux932
-      CPUNAM ='linux32'
-      ARCHTITLE='Linux 32 bits, Intel compiler'
-C
-#elif CPP_mach == CPP_linux964
-      CPUNAM ='pgi_linux64'
-      ARCHTITLE='Linux 64 bits, PGI compiler'
-C
-#elif CPP_mach == CPP_linux64_spmd
-#if CPP_rel == 60
-      CPUNAM='linux64 pgi plmpi'
-      ARCHTITLE='Linux 64 bits, PGI compiler, Platform MPI'
-#endif
-C
 #elif CPP_mach == CPP_p4linux964_spmd || CPP_mach == CPP_p4linux964
 #if CPP_rel==20
       CPUNAM='linux64 plmpi'
@@ -77,6 +55,9 @@ C
 #elif CPP_rel == 40
       CPUNAM='linux64 bmpi'
       ARCHTITLE='Linux 64 bits, Intel compiler, OpenMPI'
+#elif CPP_rel == 96
+      CPUNAM='linux64 AMD'
+      ARCHTITLE='Linux 64 bits, AMD AOCC compiler'
 #elif CPP_rel == 70
 #if defined(MPI)
         CPUNAM='linuxa64 ompi'
@@ -84,6 +65,14 @@ C
 #elif 1
         CPUNAM='linuxa64'
         ARCHTITLE='Linux 64 bits, ARM compiler'
+#endif
+#elif CPP_rel == 75
+#if defined(MPI)
+        CPUNAM='linuxa64_gf ompi'
+        ARCHTITLE='Linux 64 bits, ARM, GFortran compiler, OpenMPI'
+#elif 1
+        CPUNAM='linuxa64'
+        ARCHTITLE='Linux 64 bits, ARM, GFortran compiler'
 #endif
 #elif CPP_rel == 80
 #if defined(MPI)
@@ -104,42 +93,6 @@ C
 #endif
 #endif
 C
-#elif CPP_mach == CPP_il
-      CPUNAM = 'linuxia64'
-      ARCHTITLE='Linux Itanium 64 bits, Intel compiler'
-C
-#elif CPP_mach == CPP_il_spmd
-#if CPP_rel == 10
-      CPUNAM = 'linuxia64 plmpi'
-      ARCHTITLE='Linux Itanium 64 bits, Intel compiler, Platform MPI'
-#elif CPP_rel == 30
-      CPUNAM = 'linuxia64 sgimpi'
-      ARCHTITLE='Linux Itanium 64 bits, Intel compiler, SGI MPI'
-#endif
-C
-#elif CPP_mach == CPP_pwr4 ||  CPP_mach == CPP_pwr4_spmd
-#if defined(MPI)
-      CPUNAM ='aix64 aixmpi'
-      ARCHTITLE='AIX 64 bits, IBM compiler, POE MPI'
-C
-#elif 1
-      CPUNAM ='aix64'
-      ARCHTITLE='AIX 64 bits, IBM compiler'
-#endif
-C
-#elif CPP_mach == CPP_sun25
-#if CPP_rel == 1000
-      CPUNAM ='solarisx64'
-      ARCHTITLE='Solaris 64 bits, SUN compiler'
-#endif
-C
-#elif CPP_mach == CPP_sol10x64_spmd
-      CPUNAM ='solarisx64 sunmpi'
-      ARCHTITLE='Solaris 64 bits, SUN compiler, SUN MPI'
-C
-#elif CPP_mach == CPP_macosx64
-      CPUNAM ='macosx'
-      ARCHTITLE='Mac OS/X 64 bits, Intel compiler'
 #elif 1
 C (elif 1) remplace (else) qui ne marche pas sur sgi6 avec des (elif)
       DATA CPUNAM /'UNKNOWN PLATFORM'/

@@ -1,62 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MOD_SPLISSV                   source/elements/sph/splissv.F 
-Chd|-- called by -----------
-Chd|        SPLISSV                       source/elements/sph/splissv.F 
-Chd|        SPONFV                        source/elements/sph/sponfv.F  
-Chd|-- calls ---------------
-Chd|====================================================================
-      MODULE MOD_SPLISSV
-      implicit none
-#include      "my_real.inc"
-      DOUBLE PRECISION, DIMENSION(:,:,:), ALLOCATABLE :: AS6, A6
-      my_real
-     .       , DIMENSION(:,:), ALLOCATABLE :: AS
-      my_real
-     .       , DIMENSION(:,:), ALLOCATABLE :: ASPHR
-      INTEGER, DIMENSION(:), ALLOCATABLE ::  ITAG
-      END MODULE MOD_SPLISSV
-Chd|====================================================================
-Chd|  SPLISSV                       source/elements/sph/splissv.F 
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        FOAT_TO_6_FLOAT               source/system/parit.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_EXCH_A_SOL2SPH           source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETF                  source/mpi/elements/spmd_sph.F
-Chd|        STARTIMEG                     source/system/timer.F         
-Chd|        STOPTIMEG                     source/system/timer.F         
-Chd|        WEIGHT0                       source/elements/sph/weight.F  
-Chd|        GET_U_GEO                     source/user_interface/upidmid.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MOD_SPLISSV                   source/elements/sph/splissv.F 
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    splissv               ../engine/source/elements/sph/splissv.F
+!||--- called by ------------------------------------------------------
+!||    resol                 ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    foat_to_6_float       ../engine/source/system/parit.F
+!||    my_barrier            ../engine/source/system/machine.F
+!||    spmd_exch_a_sol2sph   ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetf          ../engine/source/mpi/elements/spmd_sph.F
+!||    startimeg             ../engine/source/system/timer.F
+!||    stoptimeg             ../engine/source/system/timer.F
+!||    weight0               ../engine/source/elements/sph/weight.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    my_alloc_mod          ../common_source/tools/memory/my_alloc.F90
+!||    sph_work_mod          ../common_source/modules/mat_elem/sph_work.F90
+!||    sphbox                ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPLISSV(
      1    X       ,V       ,MS      ,A       ,SPBUF   ,
      2    WA      ,ITAB    ,KXSP    ,IXSP    ,NOD2SP  ,
@@ -66,23 +49,21 @@ Chd|====================================================================
      6    WACOMP  ,WSMCOMP ,WASPACT ,IPART   ,ITASK   ,
      7    SPH2SOL ,SOL2SPH ,IRST    ,IXS     ,IPARG   ,
      8    NGROUNC ,IGROUNC ,ELBUF_TAB,IAD_ELEM,FR_ELEM,
-     9    IGEO    ,SOL2SPH_TYP)
+     9    IGEO    ,SOL2SPH_TYP,SPH_WORK)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE ELBUFDEF_MOD         
       USE MESSAGE_MOD
       USE SPHBOX
-      USE MOD_SPLISSV
-C----6---------------------------------------------------------------7---------8
+      USE SPH_WORK_MOD
+      use element_mod , only : nixs
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -93,13 +74,9 @@ C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr05_c.inc"
 #include      "scr17_c.inc"
-#include      "scr18_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),ITAB(*),
@@ -117,6 +94,7 @@ C     REAL
      .   XFRAME(NXFRAME,*), WASPSYM(3,*), PARTSAV(NPSAV,*),
      .   WACOMP(16,*), WSMCOMP(6,*)
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
+      TYPE (SPH_WORK_) :: SPH_WORK
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -124,16 +102,16 @@ C-----------------------------------------------
      .        IPROP,IMAT,I,
      .        NVOISS,SM,NC,JS,
      .        IS,IC,ISLIDE,IPRT,NS,MYADRN, 
-     .        NSOL, NSKI, N1, N2, N3, N4, N5, N6, N7, N8, 
+     .        NSOL, N1, N2, N3, N4, N5, N6, N7, N8, 
      .        IR, IT, NSPHDIR, KP, NP,NELEM, OFFSET, NEL, IG, NG, 
-     .        II, II1, SIZE, LENR, IERROR
+     .        II, II1, SZ, LENR
       my_real
-     .       XI,YI,ZI,DI,RHOI,PRESI,XJ,YJ,ZJ,DJ,PRESJ,RHOJ,DIJ,
+     .       XI,YI,ZI,DI,RHOI,XJ,YJ,ZJ,DJ,RHOJ,DIJ,
      .       VXI,VYI,VZI,VXJ,VYJ,VZJ,
-     .       VJ,VJX,VJY,VJZ,
-     .       DRHO,WGHT,DIVV,
-     .       MUIJ,MUMAX,
-     .       ALPCI,ALPCJ,FACT,FACI,FACJ,
+     .       
+     .       WGHT,
+     .       
+     .       ALPCI,FACT,FACI,
      .       WAX,WAY,WAZ,AXI,AYI,AZI,AXJ,AYJ,AZJ,AN,
      .       VV,KV,EHOURT,DTINV,
      .       OX,OY,OZ,NX,NY,NZ,AXS,AYS,AZS,
@@ -148,7 +126,7 @@ C-----------------------------------------------
       my_real  GET_U_GEO
       EXTERNAL GET_U_GEO
 C-----
-      TYPE(G_BUFEL_) ,POINTER :: GBUF, GBUFSP
+      TYPE(G_BUFEL_) ,POINTER :: GBUF
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(BUF_MAT_) ,POINTER :: MBUF  
 C-----------------------------------------------
@@ -216,35 +194,16 @@ C
       IF(SOL2SPH_FLAG/=0)THEN
         IF(ITASK==0)THEN
 C
-          ALLOCATE(AS(3,8*NSPHACT),STAT=IERROR)
-          IF(IERROR/=0) THEN
-            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .           C1='(SOL2SPH)')
-            CALL ARRET(2)
-          END IF
-C
-          ALLOCATE(AS6(6,3,8*NSPHACT),STAT=IERROR)
-          IF(IERROR/=0) THEN
-            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .           C1='(SOL2SPH)')
-            CALL ARRET(2)
-          END IF
-C
-          ALLOCATE(A6(6,3,NUMNOD),STAT=IERROR)
-          IF(IERROR/=0) THEN
-            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .           C1='(SOL2SPH)')
-            CALL ARRET(2)
-          END IF
-          A6  = ZERO
-C
-          ALLOCATE(ITAG(NUMNOD),STAT=IERROR)
-          IF(IERROR/=0) THEN
-            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .           C1='(SOL2SPH)')
-            CALL ARRET(2)
-          END IF
-          ITAG= 0
+          SPH_WORK%A6(1:6,1:3,1:NUMNOD)  = ZERO
+          IF (ALLOCATED(SPH_WORK%AS))DEALLOCATE(SPH_WORK%AS)
+          CALL MY_ALLOC(SPH_WORK%AS,3,8*NSPHACT)
+          SPH_WORK%AS= ZERO
+
+          IF (ALLOCATED(SPH_WORK%AS))DEALLOCATE(SPH_WORK%AS6)
+          CALL MY_ALLOC(SPH_WORK%AS6,6,3,8*NSPHACT)
+          SPH_WORK%AS6= ZERO
+
+          SPH_WORK%ITAG= 0
         END IF
       ENDIF
 C
@@ -260,8 +219,8 @@ C-----------------------------------------------
 !$OMP DO SCHEDULE(DYNAMIC,1)
         DO IG = 1, NGROUNC
           NG = IGROUNC(IG)        
-          IF(IPARG(8,NG).EQ.1)GOTO 250
-          IF (IDDW.GT.0) CALL STARTIMEG(NG)
+          IF(IPARG(8,NG)==1)GOTO 250
+          IF (IDDW>0) CALL STARTIMEG(NG)
           DO NELEM = 1,IPARG(2,NG),NVSIZ
             OFFSET = NELEM - 1
             NEL   =IPARG(2,NG)
@@ -271,19 +230,19 @@ C-----------------------------------------------
             IPARTSPH=IPARG(69,NG)
             LFT=1
             LLT=MIN(NVSIZ,NEL-NELEM+1)
-            IF(ITY.EQ.1.AND.IPARTSPH.NE.0) THEN
+            IF(ITY==1.AND.IPARTSPH/=0) THEN
 C-----------
              GBUF => ELBUF_TAB(NG)%GBUF
              LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
              MBUF => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)     
 C-----
-             IF (IPARG(28,NG).EQ.4) THEN
+             IF (IPARG(28,NG)==4) THEN
 C-----
 C----TETRA---
 C-----
               DO I=LFT,LLT
                 N=NFT+I
-                IF(GBUF%OFF(I).EQ.ZERO) CYCLE
+                IF(GBUF%OFF(I)==ZERO) CYCLE
 C
 C               SOL2SPH(1,N)+1<=I<=SOLSPH(2,N) <=> N==SPH2SOL(I)
                 N1=IXS(2,N)
@@ -337,7 +296,7 @@ C----HEXA---
 C-----
               DO I=LFT,LLT
                 N=NFT+I
-                IF(GBUF%OFF(I).EQ.ZERO) CYCLE
+                IF(GBUF%OFF(I)==ZERO) CYCLE
 C
 C               SOL2SPH(1,N)+1<=I<=SOLSPH(2,N) <=> N==SPH2SOL(I)
                 N1=IXS(2,N)
@@ -408,7 +367,7 @@ C-----
              ENDIF
 C-----
             ENDIF
-            IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+            IF (IDDW>0) CALL STOPTIMEG(NG)
           END DO
 C--------
  250      CONTINUE
@@ -417,13 +376,13 @@ C--------
       END IF
 
 C-----------------------------------------------
-C Comm H et A sur cellules remotes
+C Communication H and A on remote cells
 C-----------------------------------------------
-      IF(NSPMD.GT.1)THEN
-        IF(ITASK.EQ.0) THEN
-          ALLOCATE(ASPHR(4,NSPHR))
-          CALL SPMD_SPHGETF(KXSP,SPBUF,A,MS,ASPHR)
-c          IF(NSPHIO.NE.0.AND.NSPHACT.NE.0)THEN 
+      IF(NSPMD>1)THEN
+        IF(ITASK==0) THEN
+          ALLOCATE(SPH_WORK%ASPHR(4,NSPHR))
+          CALL SPMD_SPHGETF(KXSP,SPBUF,A,MS,SPH_WORK%ASPHR)
+c          IF(NSPHIO/=0.AND.NSPHACT/=0)THEN 
 c               CALL SPMD_SPHGETV(KXSP,SPBUF,V,MS)
 c          ENDIF
         END IF
@@ -445,7 +404,7 @@ C-----------------------------------------------
         DO NS =ITASK+1,NSPHACT,NTHREAD
          N=WASPACT(NS)
          JS=ISPSYM(NC,N)
-         IF(JS.GT.0)THEN
+         IF(JS>0)THEN
           INOD=KXSP(3,N)
           XI =X(1,INOD)
           YI =X(2,INOD)
@@ -453,7 +412,7 @@ C-----------------------------------------------
           AXI=A(1,INOD)
           AYI=A(2,INOD)
           AZI=A(3,INOD)
-          IF(ISLIDE.EQ.0)THEN
+          IF(ISLIDE==0)THEN
            AXS=-AXI
            AYS=-AYI
            AZS=-AZI
@@ -461,7 +420,7 @@ C-----------------------------------------------
            AN=AXI*NX+AYI*NY+AZI*NZ
            AXS=AXI-TWO*AN*NX
            AYS=AYI-TWO*AN*NY
-           AZS=AZI-TWO*AN*NZ	   
+           AZS=AZI-TWO*AN*NZ     
           ENDIF
           WASPSYM(1,JS)=AXS
           WASPSYM(2,JS)=AYS
@@ -469,18 +428,18 @@ C-----------------------------------------------
          ENDIF
         ENDDO
 C
-C Particules symetriques de particules remotes
+C Symmetrical particles of remote particles
 C
         DO NS = ITASK+1,NSPHR,NTHREAD
          JS=ISPSYMR(NC,NS)
-         IF(JS.GT.0)THEN
+         IF(JS>0)THEN
           XI =XSPHR(3,NS)
           YI =XSPHR(4,NS)
           ZI =XSPHR(5,NS)
-          AXI=ASPHR(1,NS)
-          AYI=ASPHR(2,NS)
-          AZI=ASPHR(3,NS)
-          IF(ISLIDE.EQ.0)THEN
+          AXI=SPH_WORK%ASPHR(1,NS)
+          AYI=SPH_WORK%ASPHR(2,NS)
+          AZI=SPH_WORK%ASPHR(3,NS)
+          IF(ISLIDE==0)THEN
            AXS=-AXI
            AYS=-AYI
            AZS=-AZI
@@ -488,7 +447,7 @@ C
            AN=AXI*NX+AYI*NY+AZI*NZ
            AXS=AXI-TWO*AN*NX
            AYS=AYI-TWO*AN*NY
-           AZS=AZI-TWO*AN*NZ	   
+           AZS=AZI-TWO*AN*NZ     
           ENDIF
           WASPSYM(1,JS)=AXS
           WASPSYM(2,JS)=AYS
@@ -557,11 +516,11 @@ C------
 C-----
         DO J=1,NVOIS
          JNOD=IXSP(J,N)
-         IF(JNOD.GT.0)THEN
+         IF(JNOD>0)THEN
           M=NOD2SP(JNOD)
 C
 C Solids to SPH, no interaction if both particles are inactive
-          IF(KXSP(2,N).LT.0.AND.KXSP(2,M).LT.0)CYCLE
+          IF(KXSP(2,N)<0.AND.KXSP(2,M)<0)CYCLE
           XJ=X(1,JNOD)
           YJ=X(2,JNOD)
           ZJ=X(3,JNOD)
@@ -591,7 +550,7 @@ C Solids to SPH, no interaction if both particles are inactive
           NN = -JNOD
 C
 C Solids to SPH, no interaction if both particles are inactive
-          IF(KXSP(2,N).LE.0.AND.XSPHR(13,NN).LE.0)CYCLE
+          IF(KXSP(2,N)<=0.AND.XSPHR(13,NN)<=0)CYCLE
           XJ=XSPHR(3,NN)
           YJ=XSPHR(4,NN)
           ZJ=XSPHR(5,NN)
@@ -599,9 +558,9 @@ C Solids to SPH, no interaction if both particles are inactive
           VXJ=XSPHR(9,NN)
           VYJ=XSPHR(10,NN)
           VZJ=XSPHR(11,NN)
-          AXJ=ASPHR(1,NN)
-          AYJ=ASPHR(2,NN)
-          AZJ=ASPHR(3,NN)
+          AXJ=SPH_WORK%ASPHR(1,NN)
+          AYJ=SPH_WORK%ASPHR(2,NN)
+          AZJ=SPH_WORK%ASPHR(3,NN)
           DJ=XSPHR(2,NN)
           DIJ=HALF*(DI+DJ)
           CALL WEIGHT0(XI,YI,ZI,XJ,YJ,ZJ,DIJ,WGHT)
@@ -623,15 +582,15 @@ C Solids to SPH, no interaction if both particles are inactive
          WA(MYADRN+3)=WA(MYADRN+3)+FACI*WAZ
         END DO
 C-----
-C       partie symetrique.
+C       symmetrical part.
         NVOISS=KXSP(6,N)
         DO J=KXSP(5,N)+1,KXSP(5,N)+NVOISS
          JS=IXSP(J,N)
-         IF(JS.GT.0)THEN
+         IF(JS>0)THEN
           SM=JS/(NSPCOND+1)
 C
 C Solids to SPH, no interaction if both particles are inactive
-          IF(KXSP(2,N).LE.0.AND.KXSP(2,SM).LE.0)CYCLE
+          IF(KXSP(2,N)<=0.AND.KXSP(2,SM)<=0)CYCLE
           NC=MOD(JS,NSPCOND+1)
           JS=ISPSYM(NC,SM)
           XJ=XSPSYM(1,JS)
@@ -662,11 +621,11 @@ C         BETAZJ=WACOMP(4,SM)
           WAX=AXJ-AXI+MS(INOD)*(VXJ-VXI)*DTINV
           WAY=AYJ-AYI+MS(INOD)*(VYJ-VYI)*DTINV
           WAZ=AZJ-AZI+MS(INOD)*(VZJ-VZI)*DTINV
-         ELSE                     ! particule symetrique de particule remote
+         ELSE                     ! Symmetrical particle particle Remote
           SM=-JS/(NSPCOND+1)
 C
 C Solids to SPH, no interaction if both particles are inactive
-          IF(KXSP(2,N).LE.0.AND.XSPHR(13,SM).LE.0)CYCLE
+          IF(KXSP(2,N)<=0.AND.XSPHR(13,SM)<=0)CYCLE
           NC=MOD(-JS,NSPCOND+1)
           JS=ISPSYMR(NC,SM)
           XJ=XSPSYM(1,JS)
@@ -704,12 +663,12 @@ C         BETAZJ=WACOMPR(4,SM)
       END DO
 C-----
 
-C barrier sur A & ASPHR
+C barrier on A & ASPHR
 C    /---------------/
       CALL MY_BARRIER
 C    /---------------/
 
-C     Assemblage des forces dans A
+C     Force assembly in A
       IF(NSPHSOL==0)THEN
         DO NS=ITASK+1,NSPHACT,NTHREAD
           N=WASPACT(NS)
@@ -732,7 +691,7 @@ C a paralleliser smp
             A(2,INOD)=A(2,INOD)+WA(MYADRN+2)
             A(3,INOD)=A(3,INOD)+WA(MYADRN+3)
 C
-          ELSEIF (SOL2SPH_TYP(SPH2SOL(N)).EQ.4) THEN
+          ELSEIF (SOL2SPH_TYP(SPH2SOL(N))==4) THEN
 C---------------
 C------ TETRA -- 
 C---------------
@@ -764,24 +723,24 @@ C
             PHI4=ONE_OVER_8*(ONE+KSI)*(ONE-ETA)*(ONE-ZETA)
 C
             II=II+1
-            AS(1,II)=PHI1*WA(MYADRN+1)
-            AS(2,II)=PHI1*WA(MYADRN+2)
-            AS(3,II)=PHI1*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI1*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI1*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI1*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI2*WA(MYADRN+1)
-            AS(2,II)=PHI2*WA(MYADRN+2)
-            AS(3,II)=PHI2*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI2*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI2*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI2*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI3*WA(MYADRN+1)
-            AS(2,II)=PHI3*WA(MYADRN+2)
-            AS(3,II)=PHI3*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI3*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI3*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI3*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI4*WA(MYADRN+1)
-            AS(2,II)=PHI4*WA(MYADRN+2)
-            AS(3,II)=PHI4*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI4*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI4*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI4*WA(MYADRN+3)
 C
           ELSE
 C---------------
@@ -823,55 +782,55 @@ C
             PHI8=ONE_OVER_8*(ONE+KSI)*(ONE+ETA)*(ONE-ZETA)
 C
             II=II+1
-            AS(1,II)=PHI1*WA(MYADRN+1)
-            AS(2,II)=PHI1*WA(MYADRN+2)
-            AS(3,II)=PHI1*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI1*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI1*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI1*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI2*WA(MYADRN+1)
-            AS(2,II)=PHI2*WA(MYADRN+2)
-            AS(3,II)=PHI2*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI2*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI2*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI2*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI3*WA(MYADRN+1)
-            AS(2,II)=PHI3*WA(MYADRN+2)
-            AS(3,II)=PHI3*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI3*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI3*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI3*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI4*WA(MYADRN+1)
-            AS(2,II)=PHI4*WA(MYADRN+2)
-            AS(3,II)=PHI4*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI4*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI4*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI4*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI5*WA(MYADRN+1)
-            AS(2,II)=PHI5*WA(MYADRN+2)
-            AS(3,II)=PHI5*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI5*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI5*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI5*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI6*WA(MYADRN+1)
-            AS(2,II)=PHI6*WA(MYADRN+2)
-            AS(3,II)=PHI6*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI6*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI6*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI6*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI7*WA(MYADRN+1)
-            AS(2,II)=PHI7*WA(MYADRN+2)
-            AS(3,II)=PHI7*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI7*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI7*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI7*WA(MYADRN+3)
 
             II=II+1
-            AS(1,II)=PHI8*WA(MYADRN+1)
-            AS(2,II)=PHI8*WA(MYADRN+2)
-            AS(3,II)=PHI8*WA(MYADRN+3)
+            SPH_WORK%AS(1,II)=PHI8*WA(MYADRN+1)
+            SPH_WORK%AS(2,II)=PHI8*WA(MYADRN+2)
+            SPH_WORK%AS(3,II)=PHI8*WA(MYADRN+3)
 C
           END IF
         ENDDO
 C------
-        CALL FOAT_TO_6_FLOAT(1,3*II,AS,AS6)
+        CALL FOAT_TO_6_FLOAT(1,3*II,SPH_WORK%AS,SPH_WORK%AS6)
 C------
         II=0
         DO NS=1,NSPHACT
           N=WASPACT(NS)
           IF(SPH2SOL(N)/=0)THEN
-           IF (SOL2SPH_TYP(SPH2SOL(N)).EQ.4) THEN
+           IF (SOL2SPH_TYP(SPH2SOL(N))==4) THEN
 C---------------
 C------ TETRA -- 
 C---------------
@@ -883,32 +842,32 @@ C
             N3=IXS(4,NSOL)
             N4=IXS(5,NSOL)
 C
-            ITAG(N1)=1
-            ITAG(N2)=1
-            ITAG(N3)=1
-            ITAG(N4)=1
+            SPH_WORK%ITAG(N1)=1
+            SPH_WORK%ITAG(N2)=1
+            SPH_WORK%ITAG(N3)=1
+            SPH_WORK%ITAG(N4)=1
 C
             II1=II
             DO J=1,6
               II=II1+1
-              A6(J,1,N1)=A6(J,1,N1)+AS6(J,1,II)
-              A6(J,2,N1)=A6(J,2,N1)+AS6(J,2,II)
-              A6(J,3,N1)=A6(J,3,N1)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N1)=SPH_WORK%A6(J,1,N1)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N1)=SPH_WORK%A6(J,2,N1)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N1)=SPH_WORK%A6(J,3,N1)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N2)=A6(J,1,N2)+AS6(J,1,II)
-              A6(J,2,N2)=A6(J,2,N2)+AS6(J,2,II)
-              A6(J,3,N2)=A6(J,3,N2)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N2)=SPH_WORK%A6(J,1,N2)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N2)=SPH_WORK%A6(J,2,N2)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N2)=SPH_WORK%A6(J,3,N2)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N3)=A6(J,1,N3)+AS6(J,1,II)
-              A6(J,2,N3)=A6(J,2,N3)+AS6(J,2,II)
-              A6(J,3,N3)=A6(J,3,N3)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N3)=SPH_WORK%A6(J,1,N3)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N3)=SPH_WORK%A6(J,2,N3)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N3)=SPH_WORK%A6(J,3,N3)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N4)=A6(J,1,N4)+AS6(J,1,II)
-              A6(J,2,N4)=A6(J,2,N4)+AS6(J,2,II)
-              A6(J,3,N4)=A6(J,3,N4)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N4)=SPH_WORK%A6(J,1,N4)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N4)=SPH_WORK%A6(J,2,N4)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N4)=SPH_WORK%A6(J,3,N4)+SPH_WORK%AS6(J,3,II)
 C
             END DO
 C
@@ -928,56 +887,56 @@ C
             N7=IXS(8,NSOL)
             N8=IXS(9,NSOL)
 C
-            ITAG(N1)=1
-            ITAG(N2)=1
-            ITAG(N3)=1
-            ITAG(N4)=1
-            ITAG(N5)=1
-            ITAG(N6)=1
-            ITAG(N7)=1
-            ITAG(N8)=1
+            SPH_WORK%ITAG(N1)=1
+            SPH_WORK%ITAG(N2)=1
+            SPH_WORK%ITAG(N3)=1
+            SPH_WORK%ITAG(N4)=1
+            SPH_WORK%ITAG(N5)=1
+            SPH_WORK%ITAG(N6)=1
+            SPH_WORK%ITAG(N7)=1
+            SPH_WORK%ITAG(N8)=1
 C
             II1=II
             DO J=1,6
               II=II1+1
-              A6(J,1,N1)=A6(J,1,N1)+AS6(J,1,II)
-              A6(J,2,N1)=A6(J,2,N1)+AS6(J,2,II)
-              A6(J,3,N1)=A6(J,3,N1)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N1)=SPH_WORK%A6(J,1,N1)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N1)=SPH_WORK%A6(J,2,N1)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N1)=SPH_WORK%A6(J,3,N1)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N2)=A6(J,1,N2)+AS6(J,1,II)
-              A6(J,2,N2)=A6(J,2,N2)+AS6(J,2,II)
-              A6(J,3,N2)=A6(J,3,N2)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N2)=SPH_WORK%A6(J,1,N2)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N2)=SPH_WORK%A6(J,2,N2)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N2)=SPH_WORK%A6(J,3,N2)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N3)=A6(J,1,N3)+AS6(J,1,II)
-              A6(J,2,N3)=A6(J,2,N3)+AS6(J,2,II)
-              A6(J,3,N3)=A6(J,3,N3)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N3)=SPH_WORK%A6(J,1,N3)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N3)=SPH_WORK%A6(J,2,N3)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N3)=SPH_WORK%A6(J,3,N3)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N4)=A6(J,1,N4)+AS6(J,1,II)
-              A6(J,2,N4)=A6(J,2,N4)+AS6(J,2,II)
-              A6(J,3,N4)=A6(J,3,N4)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N4)=SPH_WORK%A6(J,1,N4)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N4)=SPH_WORK%A6(J,2,N4)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N4)=SPH_WORK%A6(J,3,N4)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N5)=A6(J,1,N5)+AS6(J,1,II)
-              A6(J,2,N5)=A6(J,2,N5)+AS6(J,2,II)
-              A6(J,3,N5)=A6(J,3,N5)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N5)=SPH_WORK%A6(J,1,N5)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N5)=SPH_WORK%A6(J,2,N5)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N5)=SPH_WORK%A6(J,3,N5)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N6)=A6(J,1,N6)+AS6(J,1,II)
-              A6(J,2,N6)=A6(J,2,N6)+AS6(J,2,II)
-              A6(J,3,N6)=A6(J,3,N6)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N6)=SPH_WORK%A6(J,1,N6)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N6)=SPH_WORK%A6(J,2,N6)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N6)=SPH_WORK%A6(J,3,N6)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N7)=A6(J,1,N7)+AS6(J,1,II)
-              A6(J,2,N7)=A6(J,2,N7)+AS6(J,2,II)
-              A6(J,3,N7)=A6(J,3,N7)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N7)=SPH_WORK%A6(J,1,N7)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N7)=SPH_WORK%A6(J,2,N7)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N7)=SPH_WORK%A6(J,3,N7)+SPH_WORK%AS6(J,3,II)
 C
               II=II+1
-              A6(J,1,N8)=A6(J,1,N8)+AS6(J,1,II)
-              A6(J,2,N8)=A6(J,2,N8)+AS6(J,2,II)
-              A6(J,3,N8)=A6(J,3,N8)+AS6(J,3,II)
+              SPH_WORK%A6(J,1,N8)=SPH_WORK%A6(J,1,N8)+SPH_WORK%AS6(J,1,II)
+              SPH_WORK%A6(J,2,N8)=SPH_WORK%A6(J,2,N8)+SPH_WORK%AS6(J,2,II)
+              SPH_WORK%A6(J,3,N8)=SPH_WORK%A6(J,3,N8)+SPH_WORK%AS6(J,3,II)
 C
             END DO
 C
@@ -991,21 +950,21 @@ C
 C-----
       IF ((SOL2SPH_FLAG > 0).AND.(ITASK==0)) THEN
         IF(NSPMD > 1)THEN
-          SIZE=19
+          SZ=19
           LENR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
           CALL SPMD_EXCH_A_SOL2SPH(
-     1   A6       ,ITAG   ,IAD_ELEM ,FR_ELEM,SIZE,
+     1   SPH_WORK%A6       ,SPH_WORK%ITAG   ,IAD_ELEM ,FR_ELEM,SZ,
      2   LENR     )
         END IF
 C-----
         DO N=1,NUMNOD
-          IF(ITAG(N)/=0)THEN
-            A(1,N)=A(1,N)+A6(1,1,N)+A6(2,1,N)+A6(3,1,N)
-     .                   +A6(4,1,N)+A6(5,1,N)+A6(6,1,N)
-            A(2,N)=A(2,N)+A6(1,2,N)+A6(2,2,N)+A6(3,2,N)
-     .                   +A6(4,2,N)+A6(5,2,N)+A6(6,2,N)
-            A(3,N)=A(3,N)+A6(1,3,N)+A6(2,3,N)+A6(3,3,N)
-     .                   +A6(4,3,N)+A6(5,3,N)+A6(6,3,N)
+          IF(SPH_WORK%ITAG(N)/=0)THEN
+            A(1,N)=A(1,N)+SPH_WORK%A6(1,1,N)+SPH_WORK%A6(2,1,N)+SPH_WORK%A6(3,1,N)
+     .                   +SPH_WORK%A6(4,1,N)+SPH_WORK%A6(5,1,N)+SPH_WORK%A6(6,1,N)
+            A(2,N)=A(2,N)+SPH_WORK%A6(1,2,N)+SPH_WORK%A6(2,2,N)+SPH_WORK%A6(3,2,N)
+     .                   +SPH_WORK%A6(4,2,N)+SPH_WORK%A6(5,2,N)+SPH_WORK%A6(6,2,N)
+            A(3,N)=A(3,N)+SPH_WORK%A6(1,3,N)+SPH_WORK%A6(2,3,N)+SPH_WORK%A6(3,3,N)
+     .                   +SPH_WORK%A6(4,3,N)+SPH_WORK%A6(5,3,N)+SPH_WORK%A6(6,3,N)
           END IF
         END DO
       ENDIF
@@ -1029,13 +988,11 @@ C
           IPRT=IPARTSP(N)
           PARTSAV(8,IPRT)=PARTSAV(8,IPRT)-KV
         ENDDO
-#include "atomic.inc"
+!$OMP ATOMIC
         EHOUR=EHOUR+EHOURT
-#include "atomend.inc"
       ENDIF
 C
-      IF(NSPMD.GT.1 .AND. ITASK.EQ.0.AND.ALLOCATED(ASPHR)) DEALLOCATE(ASPHR)
-      IF(ITASK.EQ.0.AND.SOL2SPH_FLAG/=0) DEALLOCATE(AS,AS6,A6,ITAG)
+      IF(NSPMD>1 .AND. ITASK==0.AND.ALLOCATED(SPH_WORK%ASPHR)) DEALLOCATE(SPH_WORK%ASPHR)
 C-------------------------------------------
       RETURN
       END

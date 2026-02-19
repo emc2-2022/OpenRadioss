@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I11KEG3                       source/interfaces/int11/i11keg3.F
-Chd|-- called by -----------
-Chd|        I11KE3                        source/interfaces/int11/i11ke3.F
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i11keg3    ../engine/source/interfaces/int11/i11keg3.F
+!||--- called by ------------------------------------------------------
+!||    i11ke3     ../engine/source/interfaces/int11/i11ke3.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||    tri7box    ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I11KEG3(
      1                  JLT    ,A     ,V        ,GAP    ,FRIC   ,
      2                  MS     ,CS_LOC ,CM_LOC  ,STIGLO ,STIF   ,
@@ -58,20 +58,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr03_c.inc"
 #include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr11_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
-#include      "parit_c.inc"
-#include      "couple_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -93,21 +80,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, J , K0,K1S,K, NI,ISF,NN,NS,JLTF,NE,NN1,NN2
+      INTEGER I, J, K, NI, ISF, NN, NS, JLTF, NE, NN1, NN2
       my_real
      .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ),PENE(MVSIZ),
-     .   VNX, VNY, VNZ, AA, VMAX,S2,DIST,RDIST,
-     .   V2, FM2, DT1INV, VISCA,  FAC,  FF,
-     .   FX, FY, FZ, F2, MAS2, FACM1, PPLUS
+     . S2,
+     . FAC,
+     . PPLUS
       my_real
      .   PREC,FACT(MVSIZ),KN(4,MVSIZ),Q(3,3,MVSIZ),
      .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ)
       my_real
-     .   Q11,Q12,Q13,Q22,Q23,Q33,H00,VTX,VTY,VTZ,VT,
+     . Q11,Q12,Q13,Q22,Q23,Q33,VTX,VTY,VTZ,VT,
      .   KT1,KT2,KT3,KT4,Q1,Q2,FACF
 C-----------------------------------------------
-#include "sync_dir.inc"
-      IF (IRESP .EQ. 1) THEN
+      IF (IRESP == 1) THEN
          PREC = FIVEEM4
       ELSE 
          PREC = EM10
@@ -122,23 +108,9 @@ C
          NZ(I) = NZ(I)*S2
       ENDDO
 C
-      IF(INACTI.EQ.5)THEN
-       IF(IMACH.NE.3) THEN
-#include "lockon.inc"
+      IF(INACTI==5)THEN
         DO I=1,JLT
-        PENIS(2,CS_LOC(I)) = MAX(PENIS(2,CS_LOC(I)),HALF*PENE(I))
-        PENIM(2,CM_LOC(I)) = MAX(PENIM(2,CM_LOC(I)),HALF*PENE(I))
-        ENDDO
-#include "lockoff.inc"
-        DO I=1,JLT
-         PENE(I) = PENE(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
-         PENE(I) = MAX(PENE(I),ZERO)
-         IF(PENE(I).EQ.ZERO)STIF(I)=ZERO
-         GAPV(I) = GAPV(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
-        ENDDO
-       ELSE
-        DO I=1,JLT
-         IF(CS_LOC(I).LE.NRTS) THEN
+         IF(CS_LOC(I)<=NRTS) THEN
            PENIS(2,CS_LOC(I)) = MAX(PENIS(2,CS_LOC(I)),HALF*PENE(I))
          ELSE
            NI = CS_LOC(I)-NRTS
@@ -147,39 +119,23 @@ C
          PENIM(2,CM_LOC(I)) = MAX(PENIM(2,CM_LOC(I)),HALF*PENE(I))
         ENDDO
         DO I=1,JLT
-         IF(CS_LOC(I).LE.NRTS) THEN
+         IF(CS_LOC(I)<=NRTS) THEN
            PENE(I) = PENE(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
            PENE(I) = MAX(PENE(I),ZERO)
-           IF(PENE(I).EQ.ZERO)STIF(I)=ZERO
+           IF(PENE(I)==ZERO)STIF(I)=ZERO
            GAPV(I) = GAPV(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
          ELSE
            NI = CS_LOC(I)-NRTS
            PENE(I) = PENE(I) - PENFI(NIN)%P(1,NI) - PENIM(1,CM_LOC(I))
            PENE(I) = MAX(PENE(I),ZERO)
-           IF(PENE(I).EQ.ZERO)STIF(I)=ZERO
+           IF(PENE(I)==ZERO)STIF(I)=ZERO
            GAPV(I) = GAPV(I) - PENFI(NIN)%P(1,NI) - PENIM(1,CM_LOC(I))
          END IF
         END DO
-       END IF
-      ELSE IF(INACTI.EQ.6)THEN
-       IF(IMACH.NE.3) THEN
-#include "lockon.inc"
-        DO I=1,JLT
-        PPLUS=HALF*(PENE(I)+FIVEEM2*(GAPV(I)-PENE(I)))
-        PENIS(2,CS_LOC(I)) = MAX(PENIS(2,CS_LOC(I)),PPLUS)
-        PENIM(2,CM_LOC(I)) = MAX(PENIM(2,CM_LOC(I)),PPLUS)
-        ENDDO
-#include "lockoff.inc"
-        DO I=1,JLT
-         PENE(I) = PENE(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
-         PENE(I) = MAX(PENE(I),ZERO)
-         IF(PENE(I).EQ.ZERO)STIF(I)=ZERO
-         GAPV(I) = GAPV(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
-        ENDDO
-       ELSE
+      ELSE IF(INACTI==6)THEN
         DO I=1,JLT
          PPLUS=HALF*(PENE(I)+FIVEEM2*(GAPV(I)-PENE(I)))
-         IF(CS_LOC(I).LE.NRTS) THEN
+         IF(CS_LOC(I)<=NRTS) THEN
            PENIS(2,CS_LOC(I)) = MAX(PENIS(2,CS_LOC(I)),PPLUS)
          ELSE
            NI = CS_LOC(I)-NRTS
@@ -188,20 +144,19 @@ C
          PENIM(2,CM_LOC(I)) = MAX(PENIM(2,CM_LOC(I)),PPLUS)
         ENDDO
         DO I=1,JLT
-         IF(CS_LOC(I).LE.NRTS) THEN
+         IF(CS_LOC(I)<=NRTS) THEN
            PENE(I) = PENE(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
            PENE(I) = MAX(PENE(I),ZERO)
-           IF(PENE(I).EQ.ZERO)STIF(I)=ZERO
+           IF(PENE(I)==ZERO)STIF(I)=ZERO
            GAPV(I) = GAPV(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
          ELSE
            NI = CS_LOC(I)-NRTS
            PENE(I) = PENE(I) - PENFI(NIN)%P(1,NI) - PENIM(1,CM_LOC(I))
            PENE(I) = MAX(PENE(I),ZERO)
-           IF(PENE(I).EQ.ZERO)STIF(I)=ZERO
+           IF(PENE(I)==ZERO)STIF(I)=ZERO
            GAPV(I) = GAPV(I) - PENFI(NIN)%P(1,NI) - PENIM(1,CM_LOC(I))
          END IF
         END DO
-       END IF
       ENDIF
 C
       DO I=1,JLT
@@ -220,15 +175,15 @@ C
       ENDDO
 C-------------------------------------------
 C
-      IF(IMP_INT7.GE.2)THEN
+      IF(IMP_INT7>=2)THEN
        DO I=1,JLT
          STIF(I) = HALF*STIF(I) 
        ENDDO
-      ELSEIF(IMP_INT7.EQ.1)THEN
+      ELSEIF(IMP_INT7==1)THEN
        DO I=1,JLT
         FAC = GAPV(I)/MAX( EM10,( GAPV(I)-PENE(I) ) )
-        IF(( (GAPV(I)-PENE(I))/GAPV(I) ).LT.PREC .AND. 
-     .                                STIF(I).GT.ZERO ) THEN
+        IF(( (GAPV(I)-PENE(I))/GAPV(I) )<PREC .AND. 
+     .                                STIF(I)>ZERO ) THEN
          STIF(I) = ZERO
          PENE(I)= ZERO
          IDESAC = 1
@@ -239,8 +194,8 @@ C
       ELSE
       DO I=1,JLT
        FAC = GAPV(I)/MAX( EM10,( GAPV(I)-PENE(I) ) )
-       IF(( (GAPV(I)-PENE(I))/GAPV(I) ).LT.PREC .AND. 
-     .                                STIF(I).GT.ZERO ) THEN
+       IF(( (GAPV(I)-PENE(I))/GAPV(I) )<PREC .AND. 
+     .                                STIF(I)>ZERO ) THEN
          STIF(I) = ZERO
          PENE(I)= ZERO
          IDESAC = 1
@@ -253,18 +208,18 @@ C
      .            MAX((GAPV(I) - PENE(I)),EM10) 
       ENDDO
 C
-      END IF !(IMP_INT7.GE.2)
-      IF(IDESAC.GT.0) RETURN
+      END IF !(IMP_INT7>=2)
+      IF(IDESAC>0) RETURN
 C
 C---------------------------------
-C    ----sans frottement d'abord--- 
+C    ---- Without friction first --- 
 C---------------------------------
       DO I=1,JLT
         VTX = VX(I) -VN(I)*NX(I)
         VTY = VY(I) -VN(I)*NY(I)
         VTZ = VZ(I) -VN(I)*NZ(I)
         VT  = VTX*VTX+VTY*VTY+VTZ*VTZ
-        IF (VT.GT.EM20) THEN
+        IF (VT>EM20) THEN
          S2=ONE/SQRT(VT)
          Q(1,1,I)=VTX*S2
          Q(1,2,I)=VTY*S2
@@ -280,18 +235,18 @@ C---------------------------------
          FACT(I)=ZERO
         ENDIF
       ENDDO
-      IF (SCALK.LT.0) THEN
+      IF (SCALK<0) THEN
        ISF=1
       ELSE
        ISF=0
       ENDIF
       FACF=ABS(SCALK)
-      IF (ISF.EQ.1) THEN
+      IF (ISF==1) THEN
        DO I=1,JLT
-        IF (VN(I).GT.ZERO) THEN
+        IF (VN(I)>ZERO) THEN
          FAC=STIF(I)*FACF
 c         write(iout,*)'FAC+,VN(I)=',FAC,VN(I),I
-        ELSEIF (VN(I).LT.ZERO) THEN
+        ELSEIF (VN(I)<ZERO) THEN
          FAC=STIF(I)/FACF
 c        write(iout,*)'FAC-,VN(I)=',FAC,VN(I),I
         ELSE
@@ -345,11 +300,11 @@ c        write(iout,*)'FAC-,VN(I)=',FAC,VN(I),I
        K2J11(2,3,I)=KN(4,I)*Q23
        K2J11(3,3,I)=KN(4,I)*Q33
       ENDDO
-C    ----avec frottement --- 
+C    with friction
        DO J=1,3 
         DO K=J,3 
          DO I=1,JLT
-          IF (FACT(I).GT.ZERO) THEN
+          IF (FACT(I)>ZERO) THEN
            Q1 =Q(1,J,I)*Q(1,K,I)
            Q2 =Q(2,J,I)*Q(2,K,I)
            FAC=FACT(I)*(Q1+Q2)
@@ -391,74 +346,74 @@ C
         OFF(I)=ONE
        ENDDO
 C
-       IF (IMACH.EQ.3.AND.NSPMD.GT.1) THEN
-       IF ((INTP_D).GT.0) THEN
+       IF (NSPMD>1) THEN
+       IF ((INTP_D)>0) THEN
         DO I=1,JLT
-         IF(CS_LOC(I).GT.NRTS) THEN
-	  NN=CS_LOC(I)-NRTS
-	  NS=IND_INT(NIN)%P(NN)
-C---------pour temporairement diag_ss---
+         IF(CS_LOC(I)>NRTS) THEN
+            NN=CS_LOC(I)-NRTS
+            NS=IND_INT(NIN)%P(NN)
+Cfor temporary diag_ss
           NN1 = NS
-	  FFI(1,NN1)=ZERO
-	  FFI(2,NN1)=ZERO
-	  FFI(3,NN1)=ZERO
-	  DFI(1,NN1)=ZERO
-	  DFI(2,NN1)=ZERO
-	  DFI(3,NN1)=ZERO
+            FFI(1,NN1)=ZERO
+            FFI(2,NN1)=ZERO
+            FFI(3,NN1)=ZERO
+            DFI(1,NN1)=ZERO
+            DFI(2,NN1)=ZERO
+            DFI(3,NN1)=ZERO
           NN2 = NN1 + 1
-	  FFI(1,NN2)=ZERO
-	  FFI(2,NN2)=ZERO
-	  FFI(3,NN2)=ZERO
-	  DFI(1,NN2)=ZERO
-	  DFI(2,NN2)=ZERO
-	  DFI(3,NN2)=ZERO
-	 ENDIF
+            FFI(1,NN2)=ZERO
+            FFI(2,NN2)=ZERO
+            FFI(3,NN2)=ZERO
+            DFI(1,NN2)=ZERO
+            DFI(2,NN2)=ZERO
+            DFI(3,NN2)=ZERO
+           ENDIF
         ENDDO
        ELSE
         JLTF = 0
         DO I=1,JLT
-         IF(CS_LOC(I).GT.NRTS) THEN
+         IF(CS_LOC(I)>NRTS) THEN
           JLTF = JLTF + 1
-	  NE=SHF_INT(NIN) + JLTF +LREM
-	  NN=CS_LOC(I)-NRTS
-	  NS=IND_INT(NIN)%P(NN)
-	  STIFS(NE)=STIF(I)
-	  H_E(1,NE)=HS1(I)
-	  H_E(2,NE)=HS2(I)
-	  H_E(3,NE)=HM1(I)
-	  H_E(4,NE)=HM2(I)
-	  N_E(1,NE)=NX(I)
-	  N_E(2,NE)=NY(I)
-	  N_E(3,NE)=NZ(I)
-C---------pour temporairement diag_ss---
+            NE=SHF_INT(NIN) + JLTF +LREM
+            NN=CS_LOC(I)-NRTS
+            NS=IND_INT(NIN)%P(NN)
+            STIFS(NE)=STIF(I)
+            H_E(1,NE)=HS1(I)
+            H_E(2,NE)=HS2(I)
+            H_E(3,NE)=HM1(I)
+            H_E(4,NE)=HM2(I)
+            N_E(1,NE)=NX(I)
+            N_E(2,NE)=NY(I)
+            N_E(3,NE)=NZ(I)
+Cfor temporary diag_ss
           NN1 = NS
-	  FFI(1,NN1)=ZERO
-	  FFI(2,NN1)=ZERO
-	  FFI(3,NN1)=ZERO
-	  DFI(1,NN1)=ZERO
-	  DFI(2,NN1)=ZERO
-	  DFI(3,NN1)=ZERO
+            FFI(1,NN1)=ZERO
+            FFI(2,NN1)=ZERO
+            FFI(3,NN1)=ZERO
+            DFI(1,NN1)=ZERO
+            DFI(2,NN1)=ZERO
+            DFI(3,NN1)=ZERO
           NN2 = NN1 + 1
-	  FFI(1,NN2)=ZERO
-	  FFI(2,NN2)=ZERO
-	  FFI(3,NN2)=ZERO
-	  DFI(1,NN2)=ZERO
-	  DFI(2,NN2)=ZERO
-	  DFI(3,NN2)=ZERO
-	 ENDIF
+            FFI(1,NN2)=ZERO
+            FFI(2,NN2)=ZERO
+            FFI(3,NN2)=ZERO
+            DFI(1,NN2)=ZERO
+            DFI(2,NN2)=ZERO
+            DFI(3,NN2)=ZERO
+           ENDIF
         ENDDO
        ENDIF 
        ENDIF 
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I11FRF3                       source/interfaces/int11/i11keg3.F
-Chd|-- called by -----------
-Chd|        I11FORCF3                     source/interfaces/int11/i11ke3.F
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    i11frf3     ../engine/source/interfaces/int11/i11keg3.F
+!||--- called by ------------------------------------------------------
+!||    i11forcf3   ../engine/source/interfaces/int11/i11ke3.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE I11FRF3(JLT    ,A      ,V      ,FRIC   ,HS1    ,
      1                  HS2     ,HM1    ,HM2    ,NX     ,NY     ,
      2                  NZ      ,MS1    ,MS2    ,MM1    ,MM2    ,
@@ -482,9 +437,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT,NIN
@@ -503,7 +455,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, J, K,IG,ISF,NN,NS,NI,NJ
+      INTEGER I, ISF, NI, NJ
       my_real
      .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ), 
      .   DX(MVSIZ), DY(MVSIZ), DZ(MVSIZ), DN(MVSIZ), 
@@ -511,10 +463,8 @@ C-----------------------------------------------
      .   DNI(MVSIZ),DT(MVSIZ), DTI(MVSIZ), 
      .   S2,FACN(MVSIZ),FACF, FACT(MVSIZ)
       my_real
-     .   FX,FY,FZ,FN,FT,FNI,FTI,VTX,VTY,VTZ,VT,
-     .   T1(MVSIZ), T2(MVSIZ), T3(MVSIZ),
-     .   KT1,KT2,KT3,KT4,Q1,Q2
-
+     . FX,FY,FZ,FN,FT,FNI,VTX,VTY,VTZ,VT,
+     .   T1(MVSIZ), T2(MVSIZ), T3(MVSIZ)
 C-----------------------------------------------
 C
       DO I=1,JLT
@@ -541,7 +491,7 @@ C-------------------------------------------
         VTY = VY(I) -VN(I)*NY(I)
         VTZ = VZ(I) -VN(I)*NZ(I)
         VT  = VTX*VTX+VTY*VTY+VTZ*VTZ
-        IF (VT.GT.EM20) THEN
+        IF (VT>EM20) THEN
          S2=ONE/SQRT(VT)
          T1(I)=VTX*S2
          T2(I)=VTY*S2
@@ -558,17 +508,17 @@ C-------------------------------------------
        DT(I) = T1(I)*DX(I) + T2(I)*DY(I) + T3(I)*DZ(I)
        DTI(I) = T1(I)*DXI(I) + T2(I)*DYI(I) + T3(I)*DZI(I)
       ENDDO
-      IF (SCALK.LT.0) THEN
+      IF (SCALK<0) THEN
        ISF=1
       ELSE
        ISF=0
       ENDIF
       FACF=ABS(SCALK)
-      IF (ISF.EQ.1) THEN
+      IF (ISF==1) THEN
        DO I=1,JLT
-        IF (VN(I).GT.ZERO) THEN
+        IF (VN(I)>ZERO) THEN
          FACN(I)=STIF(I)*FACF
-        ELSEIF (VN(I).LT.ZERO) THEN
+        ELSEIF (VN(I)<ZERO) THEN
          FACN(I)=STIF(I)/FACF
         ELSE
          FACN(I)=STIF(I)
@@ -581,13 +531,13 @@ C-------------------------------------------
         FACT(I)=FACN(I)*FACT(I)
        ENDDO
       ENDIF
-C--------partie NML-------
+C-------- part nml --------
       DO I=1,JLT
         FN = -FACN(I)*DNI(I)
         FX=FN*NX(I)
         FY=FN*NY(I)
         FZ=FN*NZ(I)
-        IF (FACT(I).NE.ZERO) THEN
+        IF (FACT(I)/=ZERO) THEN
          FT = -FACT(I)*DTI(I)
          FX = FX + FT*T1(I)
          FY = FY + FT*T2(I)
@@ -600,13 +550,13 @@ C--------partie NML-------
         A(2,M2(I))=A(2,M2(I))+FY*HM2(I)
         A(3,M2(I))=A(3,M2(I))+FZ*HM2(I)
       ENDDO
-C--------partie NSL-------
+C-------- part nsl --------
       DO I=1,JLT
         FNI = FACN(I)*DN(I)
         FX=FNI*NX(I)
         FY=FNI*NY(I)
         FZ=FNI*NZ(I)
-        IF (FACT(I).NE.ZERO) THEN
+        IF (FACT(I)/=ZERO) THEN
          FT = FACT(I)*DT(I)
          FX = FX + FT*T1(I)
          FY = FY + FT*T2(I)
@@ -624,14 +574,14 @@ C--------partie NSL-------
 C
        RETURN
       END
-Chd|====================================================================
-Chd|  I11KFOR3                      source/interfaces/int11/i11keg3.F
-Chd|-- called by -----------
-Chd|        I11FKU3                       source/interfaces/int11/i11ke3.F
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i11kfor3   ../engine/source/interfaces/int11/i11keg3.F
+!||--- called by ------------------------------------------------------
+!||    i11fku3    ../engine/source/interfaces/int11/i11ke3.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||    tri7box    ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I11KFOR3(
      1                  JLT    ,A       ,V       ,GAP    ,MS     ,
      2                  CS_LOC ,CM_LOC  ,STIF    ,FRIC   ,
@@ -661,16 +611,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "scr03_c.inc"
 #include      "scr05_c.inc"
-#include      "parit_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JLT,INACTI,NRTS,NIN,LREM,IDESAC
+      INTEGER JLT, INACTI, NRTS, NIN, IDESAC
       INTEGER CS_LOC(MVSIZ), CM_LOC(MVSIZ),N1(MVSIZ), N2(MVSIZ),
      .        M1(MVSIZ), M2(MVSIZ) 
       my_real
@@ -688,7 +634,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, J , K0,K1S,K, NI,NN,NS,JLTF,NE,NN1,NN2,NM1,NM2
+      INTEGER I, NI, NN, NS, NN1, NN2, NM1, NM2
       my_real
      .   DXM1(MVSIZ),DYM1(MVSIZ),DZM1(MVSIZ),DXM2(MVSIZ),
      .   DYM2(MVSIZ),DZM2(MVSIZ),
@@ -696,51 +642,50 @@ C-----------------------------------------------
      .   DX(MVSIZ), DY(MVSIZ), DZ(MVSIZ), DN(MVSIZ),
      .   DXI(MVSIZ),DYI(MVSIZ), DZI(MVSIZ),DNI(MVSIZ), 
      .   FXI(MVSIZ),FYI(MVSIZ), FZI(MVSIZ),FNI(MVSIZ), 
-     .   VNX, VNY, VNZ, AA, VMAX,S2,DIST,RDIST,
-     .   V2, FM2, VISCA,  FAC,  FF,DXT,T1,T2,T3,FTN,
-     .   FX, FY, FZ, F2, MAS2, FACM1, PPLUS,GAP2,PENE2,PREC
+     . VNX, VNY, VNZ, AA,S2,
+     . V2, FAC,DXT,T1,T2,T3,FTN,
+     . FX, FY, FZ, PPLUS,GAP2,PENE2,PREC
 C-----------------------------------------------
-#include "sync_dir.inc"
-      IF (IRESP .EQ. 1) THEN
+      IF (IRESP == 1) THEN
          PREC = FIVEEM4
       ELSE 
          PREC = EM10
       ENDIF
         DO I=1,JLT
-	  NM1 = M1(I)
-	  NM2 = M2(I)
-	  DXM1(I) = D(1,NM1)
-	  DYM1(I) = D(2,NM1)
-	  DZM1(I) = D(3,NM1)
-	  DXM2(I) = D(1,NM2)
-	  DYM2(I) = D(2,NM2)
-	  DZM2(I) = D(3,NM2)
+            NM1 = M1(I)
+            NM2 = M2(I)
+            DXM1(I) = D(1,NM1)
+            DYM1(I) = D(2,NM1)
+            DZM1(I) = D(3,NM1)
+            DXM2(I) = D(1,NM2)
+            DYM2(I) = D(2,NM2)
+            DZM2(I) = D(3,NM2)
         ENDDO
 c        DO I=1,JLT
-c         IF(CS_LOC(I).GT.NRTS) THEN
-c	  DXS1(I) = ZERO
-c	  DYS1(I) = ZERO
-c	  DZS1(I) = ZERO
-c	  DXS2(I) = ZERO
-c	  DYS2(I) = ZERO
-c	  DZS2(I) = ZERO
+c         IF(CS_LOC(I)>NRTS) THEN
+c    DXS1(I) = ZERO
+c    DYS1(I) = ZERO
+c    DZS1(I) = ZERO
+c    DXS2(I) = ZERO
+c    DYS2(I) = ZERO
+c    DZS2(I) = ZERO
 c         ELSE
-c	  NN1 = N1(I)
-c	  NN2 = N2(I)
-c	  DXS1(I) = D(1,NN1)
-c	  DYS1(I) = D(2,NN1)
-c	  DZS1(I) = D(3,NN1)
-c	  DXS2(I) = D(1,NN2)
-c	  DYS2(I) = D(2,NN2)
-c	  DZS2(I) = D(3,NN2)
-c	 ENDIF
+c    NN1 = N1(I)
+c    NN2 = N2(I)
+c    DXS1(I) = D(1,NN1)
+c    DYS1(I) = D(2,NN1)
+c    DZS1(I) = D(3,NN1)
+c    DXS2(I) = D(1,NN2)
+c    DYS2(I) = D(2,NN2)
+c    DZS2(I) = D(3,NN2)
+c   ENDIF
 c        ENDDO
-C	
+C
       DO I=1,JLT
        GAP2 = GAPV(I)*GAPV(I)
        PENE2 = GAP2 - NX(I)*NX(I) - NY(I)*NY(I) - NZ(I)*NZ(I)
        PENE2 = MAX(ZERO,PENE2) 
-       IF(PENE2.EQ.ZERO) STIF(I) = ZERO
+       IF(PENE2==ZERO) STIF(I) = ZERO
       ENDDO
 C
       DO I=1,JLT
@@ -752,22 +697,9 @@ C
          NZ(I) = NZ(I)*S2
       ENDDO
 C
-      IF(INACTI.EQ.5)THEN
-       IF(IMACH.NE.3) THEN
-#include "lockon.inc"
+      IF(INACTI==5)THEN
         DO I=1,JLT
-        PENIS(2,CS_LOC(I)) = MAX(PENIS(2,CS_LOC(I)),HALF*PENE(I))
-        PENIM(2,CM_LOC(I)) = MAX(PENIM(2,CM_LOC(I)),HALF*PENE(I))
-        ENDDO
-#include "lockoff.inc"
-        DO I=1,JLT
-         PENE(I) = PENE(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
-         PENE(I) = MAX(PENE(I),ZERO)
-         GAPV(I) = GAPV(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
-        ENDDO
-       ELSE
-        DO I=1,JLT
-         IF(CS_LOC(I).LE.NRTS) THEN
+         IF(CS_LOC(I)<=NRTS) THEN
            PENIS(2,CS_LOC(I)) = MAX(PENIS(2,CS_LOC(I)),HALF*PENE(I))
          ELSE
            NI = CS_LOC(I)-NRTS
@@ -776,7 +708,7 @@ C
          PENIM(2,CM_LOC(I)) = MAX(PENIM(2,CM_LOC(I)),HALF*PENE(I))
         ENDDO
         DO I=1,JLT
-         IF(CS_LOC(I).LE.NRTS) THEN
+         IF(CS_LOC(I)<=NRTS) THEN
            PENE(I) = PENE(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
            PENE(I) = MAX(PENE(I),ZERO)
            GAPV(I) = GAPV(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
@@ -787,25 +719,10 @@ C
            GAPV(I) = GAPV(I) - PENFI(NIN)%P(1,NI) - PENIM(1,CM_LOC(I))
          END IF
         END DO
-       END IF
-      ELSE IF(INACTI.EQ.6)THEN
-       IF(IMACH.NE.3) THEN
-#include "lockon.inc"
-        DO I=1,JLT
-        PPLUS=HALF*(PENE(I)+FIVEEM2*(GAPV(I)-PENE(I)))
-        PENIS(2,CS_LOC(I)) = MAX(PENIS(2,CS_LOC(I)),PPLUS)
-        PENIM(2,CM_LOC(I)) = MAX(PENIM(2,CM_LOC(I)),PPLUS)
-        ENDDO
-#include "lockoff.inc"
-        DO I=1,JLT
-         PENE(I) = PENE(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
-         PENE(I) = MAX(PENE(I),ZERO)
-         GAPV(I) = GAPV(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
-        ENDDO
-       ELSE
+      ELSE IF(INACTI==6)THEN
         DO I=1,JLT
          PPLUS=HALF*(PENE(I)+FIVEEM2*(GAPV(I)-PENE(I)))
-         IF(CS_LOC(I).LE.NRTS) THEN
+         IF(CS_LOC(I)<=NRTS) THEN
            PENIS(2,CS_LOC(I)) = MAX(PENIS(2,CS_LOC(I)),PPLUS)
          ELSE
            NI = CS_LOC(I)-NRTS
@@ -814,7 +731,7 @@ C
          PENIM(2,CM_LOC(I)) = MAX(PENIM(2,CM_LOC(I)),PPLUS)
         ENDDO
         DO I=1,JLT
-         IF(CS_LOC(I).LE.NRTS) THEN
+         IF(CS_LOC(I)<=NRTS) THEN
            PENE(I) = PENE(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
            PENE(I) = MAX(PENE(I),ZERO)
            GAPV(I) = GAPV(I) - PENIS(1,CS_LOC(I)) - PENIM(1,CM_LOC(I))
@@ -825,7 +742,6 @@ C
            GAPV(I) = GAPV(I) - PENFI(NIN)%P(1,NI) - PENIM(1,CM_LOC(I))
          END IF
         END DO
-       END IF
       ENDIF
 C
       DO I=1,JLT
@@ -849,15 +765,15 @@ C
       ENDDO
 C-------------------------------------------
 C
-      IF(IMP_INT7.GE.2)THEN
+      IF(IMP_INT7>=2)THEN
        DO I=1,JLT
          STIF(I) = HALF*STIF(I) 
        ENDDO
-      ELSEIF(IMP_INT7.EQ.1)THEN
+      ELSEIF(IMP_INT7==1)THEN
        DO I=1,JLT
         FAC = GAPV(I)/MAX( EM10,( GAPV(I)-PENE(I) ) )
-        IF(( (GAPV(I)-PENE(I))/GAPV(I) ).LT.PREC .AND. 
-     .                                STIF(I).GT.ZERO ) THEN
+        IF(( (GAPV(I)-PENE(I))/GAPV(I) )<PREC .AND. 
+     .                                STIF(I)>ZERO ) THEN
          STIF(I) = ZERO
          PENE(I)= ZERO
          IDESAC = 1
@@ -868,8 +784,8 @@ C
       ELSE
       DO I=1,JLT
        FAC = GAPV(I)/MAX( EM10,( GAPV(I)-PENE(I) ) )
-       IF(( (GAPV(I)-PENE(I))/GAPV(I) ).LT.PREC .AND. 
-     .                                STIF(I).GT.ZERO ) THEN
+       IF(( (GAPV(I)-PENE(I))/GAPV(I) )<PREC .AND. 
+     .                                STIF(I)>ZERO ) THEN
          STIF(I) = ZERO
          PENE(I)= ZERO
          IDESAC = 1
@@ -882,7 +798,7 @@ C
      .            MAX((GAPV(I) - PENE(I)),EM10) 
       ENDDO
 C
-      END IF !(IMP_INT7.GE.2)
+      END IF !(IMP_INT7>=2)
 C      
        FAC =   ABS(SCALK)   
        DO I=1,JLT
@@ -895,7 +811,7 @@ C
 C---------------------------------
 C     FRICTION
 C---------------------------------
-      IF(FRIC.NE.ZERO)THEN
+      IF(FRIC/=ZERO)THEN
        DO I=1,JLT
         VNX = NX(I)*DN(I)
         VNY = NY(I)*DN(I)
@@ -922,8 +838,8 @@ C
 C--------main part-------
 c
        DO I=1,JLT
-	NM1 = M1(I)
-	NM2 = M2(I)
+          NM1 = M1(I)
+          NM2 = M2(I)
         A(1,NM1)=A(1,NM1)+FXI(I)*HM1(I)
         A(2,NM1)=A(2,NM1)+FYI(I)*HM1(I)
         A(3,NM1)=A(3,NM1)+FZI(I)*HM1(I)
@@ -931,30 +847,30 @@ c
         A(2,NM2)=A(2,NM2)+FYI(I)*HM2(I)
         A(3,NM2)=A(3,NM2)+FZI(I)*HM2(I)
        ENDDO
-C--------secnd part-------
+C------- Secondary part --------
        DO I=1,JLT
-         IF(CS_LOC(I).LE.NRTS) THEN
-	  NN1 = N1(I)
-	  NN2 = N2(I)
+         IF(CS_LOC(I)<=NRTS) THEN
+            NN1 = N1(I)
+            NN2 = N2(I)
           A(1,NN1)=A(1,NN1)-FXI(I)*HS1(I)
           A(2,NN1)=A(2,NN1)-FYI(I)*HS1(I)
           A(3,NN1)=A(3,NN1)-FZI(I)*HS1(I)
           A(1,NN2)=A(1,NN2)-FXI(I)*HS2(I)
           A(2,NN2)=A(2,NN2)-FYI(I)*HS2(I)
           A(3,NN2)=A(3,NN2)-FZI(I)*HS2(I)
-	 ELSE
-	  NN=CS_LOC(I)-NRTS
-	  NS=IND_INT(NIN)%P(NN)
-C---------pour temporairement diag_ss---
+           ELSE
+            NN=CS_LOC(I)-NRTS
+            NS=IND_INT(NIN)%P(NN)
+Cfor temporary diag_ss
           NN1 = NS
-	  FFI(1,NN1)=FFI(1,NN1)-FXI(I)*HS1(I)
-	  FFI(2,NN1)=FFI(2,NN1)-FYI(I)*HS1(I)
-	  FFI(3,NN1)=FFI(3,NN1)-FZI(I)*HS1(I)
+            FFI(1,NN1)=FFI(1,NN1)-FXI(I)*HS1(I)
+            FFI(2,NN1)=FFI(2,NN1)-FYI(I)*HS1(I)
+            FFI(3,NN1)=FFI(3,NN1)-FZI(I)*HS1(I)
           NN2 = NN1 + 1
-	  FFI(1,NN2)= FFI(1,NN2)-FXI(I)*HS2(I)
-	  FFI(2,NN2)= FFI(2,NN2)-FYI(I)*HS2(I)
-	  FFI(3,NN2)= FFI(3,NN2)-FZI(I)*HS2(I)
-	 ENDIF
+            FFI(1,NN2)= FFI(1,NN2)-FXI(I)*HS2(I)
+            FFI(2,NN2)= FFI(2,NN2)-FYI(I)*HS2(I)
+            FFI(3,NN2)= FFI(3,NN2)-FZI(I)*HS2(I)
+           ENDIF
        ENDDO
 C
       RETURN

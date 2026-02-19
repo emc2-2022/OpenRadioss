@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FRICTIONPARTS_MODEL_ORTHO     source/interfaces/int07/frictionparts_model.F
-Chd|-- called by -----------
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    frictionparts_model_ortho   ../engine/source/interfaces/int07/frictionparts_model.F
+!||--- called by ------------------------------------------------------
+!||    i24mainf                    ../engine/source/interfaces/int24/i24main.F
+!||    i25mainf                    ../engine/source/interfaces/int25/i25mainf.F
+!||    i7mainf                     ../engine/source/interfaces/int07/i7mainf.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box                     ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE FRICTIONPARTS_MODEL_ORTHO(
      1         INTFRIC     , JLT       ,IPARTFRICSI  ,IPARTFRICMI  ,ADPARTS_FRIC  ,
      2         NSET        , TABCOUPLEPARTS_FRIC,NPARTFRIC ,TABPARTS_FRIC ,TABCOEF_FRIC    ,             
@@ -55,15 +55,9 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER INTFRIC,JLT,NFRIC_P ,NSET ,NPARTFRIC ,NTY ,MFROT ,IORTHFRIC ,NFORTH ,
+      INTEGER INTFRIC,JLT ,NSET ,NPARTFRIC ,NTY ,MFROT ,IORTHFRIC ,NFORTH ,
      .        NFISOT ,JLT_TIED
       INTEGER IPARTFRICSI(MVSIZ), IPARTFRICMI(MVSIZ), ADPARTS_FRIC(NPARTFRIC+1),
      .        TABCOUPLEPARTS_FRIC(NSET ),TABPARTS_FRIC(NPARTFRIC) ,INDEXORTH(MVSIZ),
@@ -82,7 +76,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I ,J ,K ,IPS ,IPM ,IP ,IPMID ,ADRI ,ADRF ,ADRCOEF ,IPSL ,IPML ,IPI ,IPF , 
-     .       L , IREP ,IORTH,NI,NN ,LENC
+     .       L , IREP ,IORTH ,LENC
       my_real ADR ,E1X ,E1Y ,E1Z ,E2X ,E2Y ,E2Z ,E3X ,E3Y ,E3Z ,RX ,RY ,RZ ,SX ,SY ,SZ ,
      .        SUMA ,S1 ,S2 ,AA ,BB ,V1 ,V2 ,V3 ,VR ,VS  
 C
@@ -102,7 +96,7 @@ C--------Default coefficients define in friction interface
       ELSE
         LENC = 8
       ENDIF 
-      IF(MFROT.NE.0) THEN
+      IF(MFROT/=0) THEN
          DO I=1,JLT-JLT_TIED
             DO J=1,6
                FRIC_COEFS(I,J) = TABCOEF_FRIC(J+2)
@@ -132,7 +126,7 @@ c
             IPM = 0
          ENDIF
 c
-         IF(IPS.NE.0.AND.IPM.NE.0) THEN
+         IF(IPS/=0.AND.IPM/=0) THEN
            IF(IPSL > IPML ) THEN
               IP = IPS
               IPS = IPM
@@ -334,16 +328,17 @@ C
       END
 
 
-Chd|====================================================================
-Chd|  FRICTIONPARTS_MODEL_ISOT      source/interfaces/int07/frictionparts_model.F
-Chd|-- called by -----------
-Chd|        I11MAINF                      source/interfaces/int11/i11mainf.F
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+!||====================================================================
+!||    frictionparts_model_isot   ../engine/source/interfaces/int07/frictionparts_model.F
+!||--- called by ------------------------------------------------------
+!||    i11mainf                   ../engine/source/interfaces/int11/i11mainf.F
+!||    i21mainf                   ../engine/source/interfaces/int21/i21mainf.F
+!||    i24mainf                   ../engine/source/interfaces/int24/i24main.F
+!||    i25mainf                   ../engine/source/interfaces/int25/i25mainf.F
+!||    i7mainf                    ../engine/source/interfaces/int07/i7mainf.F
+!||--- calls      -----------------------------------------------------
+!||    finter                     ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE FRICTIONPARTS_MODEL_ISOT(
      1         INTFRIC     , JLT       ,IPARTFRICSI  ,IPARTFRICMI  ,ADPARTS_FRIC  ,
      2         NSET        , TABCOUPLEPARTS_FRIC,NPARTFRIC ,TABPARTS_FRIC ,TABCOEF_FRIC    ,             
@@ -367,15 +362,9 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER INTFRIC,JLT,NFRIC_P ,NSET ,NPARTFRIC ,NTY ,MFROT ,IORTHFRIC ,IFRIC ,
+      INTEGER INTFRIC,JLT ,NSET ,NPARTFRIC ,NTY ,MFROT ,IORTHFRIC ,IFRIC ,
      .        JLT_TIED ,IFORM
       INTEGER IPARTFRICSI(*), IPARTFRICMI(*), ADPARTS_FRIC(NPARTFRIC+1),
      .        TABCOUPLEPARTS_FRIC(NSET),TABPARTS_FRIC(NPARTFRIC) ,NPC(*) ,
@@ -392,7 +381,7 @@ C-----------------------------------------------
      .    LENC 
       my_real ADR  ,THI ,TM ,DYDX
       my_real 
-     .   FINTER,TOTAL 
+     .   FINTER 
       EXTERNAL FINTER
 C
 C-----------------------------------------------
@@ -405,7 +394,7 @@ C-----------------------------------------------
       IF (INTFRIC == 0) THEN
 
          DO I=1,JLT-JLT_TIED
-           IF(MFROT.NE.0) FRIC_COEFS(I,1:10) = FROT_P(1:10)
+           IF(MFROT/=0) FRIC_COEFS(I,1:10) = FROT_P(1:10)
            VISCFFRIC(I) = VISCF
            FRICC(I) = FRIC
          ENDDO 
@@ -433,13 +422,13 @@ C--------Default coefficients define in friction interface
         DO I=1,JLT-JLT_TIED
            FRICC(I) = TABCOEF_FRIC(1)
            VISCFFRIC(I) = TABCOEF_FRIC(2)
-           IF(MFROT.NE.0) THEN
+           IF(MFROT/=0) THEN
              DO J=1,6
                 FRIC_COEFS(I,J) = TABCOEF_FRIC(J+2)
              ENDDO
            ENDIF
         ENDDO
-        IF(NTY == 24.OR.NTY == 25) THEN
+        IF(NTY == 24.OR.NTY == 25.OR.NTY==21) THEN
           DO I=1,JLT-JLT_TIED
            VISCFFRIC(I) = ZERO
           ENDDO
@@ -460,7 +449,7 @@ c
              IPM = 0
           ENDIF
 c
-          IF(IPS.NE.0.AND.IPM.NE.0) THEN
+          IF(IPS/=0.AND.IPM/=0) THEN
             IF(IPSL > IPML ) THEN
                IP = IPS
                IPS = IPM

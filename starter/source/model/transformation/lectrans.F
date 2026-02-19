@@ -1,51 +1,60 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LECTRANS                      source/model/transformation/lectrans.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        EULER_MROT                    source/model/submodel/euler_mrot.F
-Chd|        EULER_VROT                    source/model/submodel/euler_vrot.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        POINTS_TO_FRAME               source/model/submodel/3points_to_frame.F
-Chd|        SUBROTPOINT                   source/model/submodel/subrot.F
-Chd|        SUBROTVECT                    source/model/submodel/subrot.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        USRTOS                        source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lectrans                                ../starter/source/model/transformation/lectrans.F
+!||--- called by ------------------------------------------------------
+!||    lectur                                  ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                                  ../starter/source/output/message/message.F
+!||    euler_mrot                              ../starter/source/model/submodel/euler_mrot.F
+!||    euler_vrot                              ../starter/source/model/submodel/euler_vrot.F
+!||    hm_get_floatv                           ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv                             ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string                           ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_count                         ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_read_key                      ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start                         ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    min_dist_grnod_to_surface               ../starter/source/model/transformation/min_distance_grnod_to_surface.F90
+!||    min_dist_grnod_to_xyzpos                ../starter/source/model/transformation/min_distance_grnod_to_xyzpos.F90
+!||    ngr2usr                                 ../starter/source/system/nintrr.F
+!||    points_to_frame                         ../starter/source/model/submodel/3points_to_frame.F
+!||    subrotpoint                             ../starter/source/model/submodel/subrot.F
+!||    subrotvect                              ../starter/source/model/submodel/subrot.F
+!||    transform_translate_in_local_skew       ../starter/source/model/transformation/transform_translate_in_local_skew.F90
+!||    usrtos                                  ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod                              ../starter/share/modules1/format_mod.F90
+!||    hm_option_read_mod                      ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                             ../starter/share/message_module/message_mod.F
+!||    min_dist_grnod_to_surface_mod           ../starter/source/model/transformation/min_distance_grnod_to_surface.F90
+!||    min_dist_grnod_to_xyzpos_mod            ../starter/source/model/transformation/min_distance_grnod_to_xyzpos.F90
+!||    submodel_mod                            ../starter/share/modules1/submodel_mod.F
+!||    transform_translate_in_local_skew_mod   ../starter/source/model/transformation/transform_translate_in_local_skew.F90
+!||====================================================================
       SUBROUTINE LECTRANS(X        ,IGRNOD ,ITAB   ,ITABM1,UNITAB,
-     .                    LSUBMODEL,RTRANS )
+     .                    LSUBMODEL,RTRANS ,IGRSURF,ISKWN ,SKEW  ,
+     .                    LISKN    ,LSKEW  ,NSPCOND,NUMSPH,SISKWN,
+     .                    SSKEW    )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -54,6 +63,11 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARLINE, NCHARFIELD
+      USE FORMAT_MOD , ONLY : LFIELD
+      USE min_dist_grnod_to_surface_mod, ONLY : min_dist_grnod_to_surface
+      USE min_dist_grnod_to_xyzpos_mod, ONLY : min_dist_grnod_to_xyzpos
+      USE transform_translate_in_local_skew_mod, ONLY : transform_translate_in_local_skew
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -61,19 +75,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr03_c.inc"
-#include      "scr17_c.inc"
-#include      "param_c.inc"
 #include      "units_c.inc"
-#include      "sysunit.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER ITAB(*),ITABM1(*)
+      INTEGER, INTENT(IN) :: LISKN,LSKEW,NSPCOND,NUMSPH,SISKWN,SSKEW
+      INTEGER, INTENT(IN) :: ISKWN(LISKN,SISKWN/LISKN)
+      my_real, INTENT(IN) :: SKEW(LSKEW,SSKEW/LSKEW)
       my_real
      .   X(3,*)
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
@@ -81,6 +93,7 @@ C-----------------------------------------------
      .   RTRANS(NTRANSF,*)
 C-----------------------------------------------
       TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
+      TYPE (SURF_)   ,TARGET, DIMENSION(NSURF)   :: IGRSURF
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -88,19 +101,24 @@ C-----------------------------------------------
      .          N0,N1,N2,N3,N4,N5,N6,IERROR,
      .   J,IS,ID,UID,IGU,IGS,NN,NTRANS,STAT,
      .   IFLAGUNIT,ITRANSSUB,SUB_ID,K,
-     .   IBID,CPT
+     .   IBID,CPT,IGSURF,ISURF,ISKEW,IDIR,PFLAG,PFLAG0,XYZFLAG(3),
+     .    NSEG,NNO,SURFNOD,SUB_INDEX,ISK,ISK0,XYZFLAG0(3)
       my_real
      .   LX,LY,LZ,TX,TY,TZ,R,S,RX,RY,RZ,SX,SY,SZ,ANGLE,AT,FAC_L,
-     .   TRANS1,TRANS2,TRANS3,XP,YP,ZP
+     .   XP,YP,ZP,GAP
       my_real
      .   VR(3),X0(3),X1(3),X2(3),X3(3),X4(3),X5(3),X6(3),
      .   ROT(9),PP(3,3),QQ(3,3),P(3),NORM1, NORM2, NORM3, SCAL1, 
-     .   SCAL2, SCAL3, EPS
-      CHARACTER KEY*10
-      CHARACTER MOT1*ncharfield,TITR*nchartitle,SOLVERKEYWORD*ncharline
+     .   SCAL2, SCAL3, EPS,XYZPOS(3),XYZPOS0(3)
+      CHARACTER(LEN=NCHARFIELD) :: KEY
+      CHARACTER(LEN=NCHARFIELD) :: MOT1
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER(LEN=NCHARLINE) ::SOLVERKEYWORD
+      CHARACTER(LEN=NCHARFIELD) :: DIR
 !
       INTEGER, DIMENSION(:), POINTER :: INGR2USR
-      LOGICAL IS_AVAILABLE
+      LOGICAL IS_AVAILABLE,IS_FOUND
+      INTEGER, DIMENSION(:), ALLOCATABLE :: INO, TAGNODE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -128,6 +146,7 @@ C--------------------------------------------------
      .                       OPTION_ID = ID,
      .                       UNIT_ID = UID,
      .                       SUBMODEL_ID = SUB_ID,
+     .                       SUBMODEL_INDEX = SUB_INDEX,
      .                       OPTION_TITR = TITR,
      .                       KEYWORD2 = KEY)
         RTRANS(I,19) = ID
@@ -140,19 +159,16 @@ C--------------------------------------------------
           CALL HM_GET_INTV('node1',N0,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('node2',N1,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('SUBMODEL',ITRANSSUB,IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INTV('skew_ID',ISK0,IS_AVAILABLE,LSUBMODEL)
+          IF( ISK0 == 0 .AND. SUB_INDEX /= 0 ) ISK0 = LSUBMODEL(SUB_INDEX)%SKEW
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
 C--------------------------------------------------
           CALL HM_GET_FLOATV('translation_x',TX,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('translation_y',TY,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('translation_z',TZ,IS_AVAILABLE,LSUBMODEL,UNITAB)
-C--------------------------------------------------
-C APPLY //SUBMODEL TRANSFORMATIONs
-C--------------------------------------------------
-          IF(SUB_ID .NE. 0)
-     .          CALL SUBROTVECT(TX,TY,TZ,RTRANS,SUB_ID,LSUBMODEL)
 c---------------------
-          IF (ITRANSSUB .NE. 0) CYCLE
+          IF (ITRANSSUB /= 0) CYCLE
 c---------------------
           RTRANS(I,2) = 1
 c---------------------
@@ -167,7 +183,28 @@ c---------------------
      .                  I2= IGU)
           ENDIF
           RTRANS(I,18)=IGS
+
+          ISK = 0
+          IF (ISK0 > 0) THEN
+              IS_FOUND = .FALSE.
+              DO J=0,NUMSKW+MIN(1,NSPCOND)*NUMSPH+NSUBMOD
+                IF (ISK0 == ISKWN(4,J+1)) THEN
+                  ISK=J+1
+                  IS_FOUND = .TRUE.
+                  EXIT
+                ENDIF
+              ENDDO
+              IF(.NOT. IS_FOUND)THEN
+                CALL ANCMSG(MSGID=3117,
+     .                      MSGTYPE=MSGERROR,
+     .                      ANMODE=ANINFO,
+     .                      I1= ID,
+     .                      C1= TITR,
+     .                      I2= ISK0)
+              ENDIF
+          ENDIF
           IF (N0 > 0 .OR. N1 > 0) THEN
+            ISK = 0
             I0 = USRTOS(N0,ITABM1)
             I1 = USRTOS(N1,ITABM1)
             IF (I0 == 0) THEN
@@ -194,17 +231,17 @@ c---------------------
             TY = TY * FAC_L 
             TZ = TZ * FAC_L 
           ENDIF
-          DO J=1,IGRNOD(IGS)%NENTITY
-            IS=IGRNOD(IGS)%ENTITY(J)
-            X(1,IS)=X(1,IS)+TX
-            X(2,IS)=X(2,IS)+TY
-            X(3,IS)=X(3,IS)+TZ
-          ENDDO
+
+          CALL transform_translate_in_local_skew(
+     .                 IGRNOD(IGS)%ENTITY ,IGRNOD(IGS)%NENTITY ,X    ,NUMNOD   , ISK  ,
+     .                 TX                 ,TY                  ,TZ   ,SKEW     , LSKEW,
+     .                 SSKEW              )
+
           S = SQRT(TX*TX + TY*TY + TZ*TZ)
 C
           WRITE(IOUT,500) ID,IGU   
           IF (N0 > 0 .AND. N1 > 0) WRITE(IOUT,200) N0,N1
-          WRITE(IOUT,510) S,TX,TY,TZ
+          WRITE(IOUT,510) S,TX,TY,TZ,ISK0
           IF (IPRI > 3) THEN                                          
             WRITE (IOUT,3000)                                            
             DO J=1,IGRNOD(IGS)%NENTITY
@@ -234,13 +271,13 @@ C--------------------------------------------------
 C--------------------------------------------------
 C APPLY //SUBMODEL TRANSFORMATIONs
 C--------------------------------------------------
-          IF(SUB_ID .NE. 0)
+          IF(SUB_ID /= 0)
      .    CALL SUBROTPOINT(X0(1),X0(2),X0(3),RTRANS,SUB_ID,LSUBMODEL)
 c---------------------
-          IF(SUB_ID .NE. 0)
+          IF(SUB_ID /= 0)
      .    CALL SUBROTPOINT(X1(1),X1(2),X1(3),RTRANS,SUB_ID,LSUBMODEL)
 c---------------------
-          IF (ITRANSSUB .NE. 0) CYCLE
+          IF (ITRANSSUB /= 0) CYCLE
 c---------------------
           RTRANS(I,2) = 2
 c---------------------
@@ -322,7 +359,7 @@ C--------------------------------------------------
           CALL HM_GET_INTV('GR_NODE',IGU,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('node1',N0,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('node2',N1,IS_AVAILABLE,LSUBMODEL)
-c          CALL HM_GET_INTV('SUBMODEL',ITRANSSUB,IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INTV('SUBMODEL',ITRANSSUB,IS_AVAILABLE,LSUBMODEL)
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
 C--------------------------------------------------
@@ -332,10 +369,14 @@ C--------------------------------------------------
           CALL HM_GET_FLOATV('reflect_point2_x',X1(1),IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('reflect_point2_y',X1(2),IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('reflect_point2_z',X1(3),IS_AVAILABLE,LSUBMODEL,UNITAB)
+c---------------------
+          IF (ITRANSSUB /= 0) CYCLE
+c---------------------
+          RTRANS(I,2) = 5
 C--------------------------------------------------
-          IF(SUB_ID .NE. 0)
+          IF(SUB_ID /= 0)
      .      CALL SUBROTPOINT(X0(1),X0(2),X0(3),RTRANS,SUB_ID,LSUBMODEL)
-          IF(SUB_ID .NE. 0)
+          IF(SUB_ID /= 0)
      .      CALL SUBROTPOINT(X1(1),X1(2),X1(3),RTRANS,SUB_ID,LSUBMODEL)
 C--------------------------------------------------
           INGR2USR => IGRNOD(1:NGRNOD)%ID
@@ -417,18 +458,22 @@ C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
           CALL HM_GET_INTV('GR_NODE',IGU,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('node1',N0,IS_AVAILABLE,LSUBMODEL)
-c          CALL HM_GET_INTV('SUBMODEL',ITRANSSUB,IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INTV('SUBMODEL',ITRANSSUB,IS_AVAILABLE,LSUBMODEL)
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
 C--------------------------------------------------
           CALL HM_GET_FLOATV('scalefactor_x',TX,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('scalefactor_y',TY,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('scalefactor_z',TZ,IS_AVAILABLE,LSUBMODEL,UNITAB)
+c---------------------
+          IF (ITRANSSUB /= 0) CYCLE
+c---------------------
+          RTRANS(I,2) = 6
 C--------------------------------------------------
           IF (TX == ZERO) TX = ONE
           IF (TY == ZERO) TY = ONE
           IF (TZ == ZERO) TZ = ONE
-          IF(SUB_ID .NE. 0)
+          IF(SUB_ID /= 0)
      .      CALL SUBROTVECT(TX,TY,TZ,RTRANS,SUB_ID,LSUBMODEL)
 C--------------------------------------------------
           INGR2USR => IGRNOD(1:NGRNOD)%ID
@@ -495,7 +540,7 @@ C----
           CALL HM_GET_FLOATV('position_z',RTRANS(I,17),IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_INTV('SUBMODEL',ITRANSSUB,IS_AVAILABLE,LSUBMODEL)
 c---------------------
-          IF (ITRANSSUB .NE. 0) CYCLE
+          IF (ITRANSSUB /= 0) CYCLE
 c---------------------
           RTRANS(I,2) = 3
 c---------------------
@@ -510,18 +555,17 @@ c---------------------
      .                  I2= IGU)
           ENDIF
           RTRANS(I,18)=IGS
-
-          TRANS1 = TRANS1 * FAC_L
-          TRANS2 = TRANS2 * FAC_L
-          TRANS3 = TRANS3 * FAC_L
 c
           EPS   = EM3
-          NORM1 = SQRT(ROT(1)**2+ROT(4)**2+ROT(7)**2)
-          NORM2 = SQRT(ROT(2)**2+ROT(5)**2+ROT(8)**2)
-          NORM3 = SQRT(ROT(3)**2+ROT(6)**2+ROT(9)**2)
-          SCAL1 = ROT(1)*ROT(2)+ROT(4)*ROT(5)+ROT(7)*ROT(8)
-          SCAL2 = ROT(1)*ROT(3)+ROT(4)*ROT(6)+ROT(7)*ROT(9)
-          SCAL3 = ROT(2)*ROT(3)+ROT(5)*ROT(6)+ROT(8)*ROT(9)
+          NORM1 = SQRT(RTRANS(I,3)**2+RTRANS(I,6)**2+RTRANS(I,9)**2)
+          NORM2 = SQRT(RTRANS(I,4)**2+RTRANS(I,7)**2+RTRANS(I,10)**2)
+          NORM3 = SQRT(RTRANS(I,5)**2+RTRANS(I,8)**2+RTRANS(I,11)**2)
+          SCAL1 = RTRANS(I,3)*RTRANS(I,4)+RTRANS(I,6)*RTRANS(I,7)+
+     .            RTRANS(I,9)*RTRANS(I,10)
+          SCAL2 = RTRANS(I,3)*RTRANS(I,5)+RTRANS(I,6)*RTRANS(I,8)+
+     .            RTRANS(I,9)*RTRANS(I,11)
+          SCAL3 = RTRANS(I,4)*RTRANS(I,5)+RTRANS(I,7)*RTRANS(I,8)+
+     .            RTRANS(I,10)*RTRANS(I,11)
           IF(ABS(ONE-NORM1) > EPS .OR. ABS(ONE-NORM2) > EPS .OR.
      .       ABS(ONE-NORM3) > EPS .OR. 
      .      SCAL1 > (EPS * NORM1*NORM2) .OR. SCAL2 > (EPS * NORM1*NORM3)
@@ -533,12 +577,12 @@ c
 c---------------------
           DO J=1,IGRNOD(IGS)%NENTITY
             IS=IGRNOD(IGS)%ENTITY(J)
-            XP = ROT(1)*X(1,IS) + ROT(2)*X(2,IS) + ROT(3)*X(3,IS) 
-     .           + TRANS1     
-            YP = ROT(4)*X(1,IS) + ROT(5)*X(2,IS) + ROT(6)*X(3,IS) 
-     .           + TRANS2   
-            ZP = ROT(7)*X(1,IS) + ROT(8)*X(2,IS) + ROT(9)*X(3,IS) 
-     .           + TRANS3                                  
+            XP = RTRANS(I,3)*X(1,IS) + RTRANS(I,6)*X(2,IS) + RTRANS(I,9)*X(3,IS) 
+     .           + RTRANS(I,15)     
+            YP = RTRANS(I,4)*X(1,IS) + RTRANS(I,7)*X(2,IS) + RTRANS(I,10)*X(3,IS) 
+     .           + RTRANS(I,16)   
+            ZP = RTRANS(I,5)*X(1,IS) + RTRANS(I,8)*X(2,IS) + RTRANS(I,11)*X(3,IS) 
+     .           + RTRANS(I,17)                                  
             X(1,IS) = XP
             X(2,IS) = YP
             X(3,IS) = ZP
@@ -547,9 +591,9 @@ c
           WRITE(IOUT,900) ID,IGU
 c
           WRITE(IOUT,910) 
-     .         ROT(1),ROT(2),ROT(3),TRANS1,
-     .         ROT(4),ROT(5),ROT(6),TRANS2,
-     .         ROT(7),ROT(8),ROT(9),TRANS3
+     .         RTRANS(I,3),RTRANS(I,6),RTRANS(I,9),RTRANS(I,15),
+     .         RTRANS(I,4),RTRANS(I,7),RTRANS(I,10),RTRANS(I,16),
+     .         RTRANS(I,5),RTRANS(I,8),RTRANS(I,11),RTRANS(I,17)
 C----
         ELSEIF (KEY(1:8) == 'POSITION') THEN
 C--------------------------------------------------
@@ -583,13 +627,13 @@ C
           CALL HM_GET_FLOATV('Y_Point_6',X6(2),IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('Z_Point_6',X6(3),IS_AVAILABLE,LSUBMODEL,UNITAB)
 c---------------------
-          IF (ITRANSSUB .NE. 0) CYCLE
+          IF (ITRANSSUB /= 0) CYCLE
 c---------------------
           RTRANS(I,2) = 4
 C--------------------------------------------------
 C APPLY //SUBMODEL TRANSFORMATIONs
 C--------------------------------------------------
-          IF(SUB_ID .NE. 0)THEN
+          IF(SUB_ID /= 0)THEN
             CALL SUBROTPOINT(X1(1),X1(2),X1(3),RTRANS,SUB_ID,LSUBMODEL)
             CALL SUBROTPOINT(X2(1),X2(2),X2(3),RTRANS,SUB_ID,LSUBMODEL)
             CALL SUBROTPOINT(X3(1),X3(2),X3(3),RTRANS,SUB_ID,LSUBMODEL)
@@ -792,11 +836,163 @@ C
               WRITE(IOUT,3500) ITAB(IS),X(1,IS),X(2,IS),X(3,IS)                                
             ENDDO                                              
           ENDIF
+        ELSEIF (KEY(1:12) == 'AUTOPOSITION') THEN
+
+          RTRANS(I,2) = 7
+
+          ! read line 1
+
+          CALL HM_GET_INTV('GR_NODE',IGU,IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INTV('GR_SURF',IGSURF,IS_AVAILABLE,LSUBMODEL)
+          
+          CALL HM_GET_INTV('skew_ID',ISK0,IS_AVAILABLE,LSUBMODEL)
+
+          IF( ISK0 == 0 .AND. SUB_INDEX /= 0 ) ISK0 = LSUBMODEL(SUB_INDEX)%SKEW
+          
+          CALL HM_GET_STRING('Dir',DIR,ncharfield,IS_AVAILABLE)
+          DO K = 1,LFIELD
+            IF(DIR(K:K) == 'X'.OR.DIR(K:K) == 'x')IDIR = 1
+            IF(DIR(K:K) == 'Y'.OR.DIR(K:K) == 'y')IDIR = 2
+            IF(DIR(K:K) == 'Z'.OR.DIR(K:K) == 'z')IDIR = 3
+          ENDDO
+          CALL HM_GET_FLOATV('Gap',GAP,IS_AVAILABLE,LSUBMODEL,UNITAB)
+          CALL HM_GET_INTV('Pflag',PFLAG,IS_AVAILABLE,LSUBMODEL)
+          !CALL HM_GET_INTV('SUBMODEL',ITRANSSUB,IS_AVAILABLE,LSUBMODEL)
+
+          ! read line 2
+
+          CALL HM_GET_FLOATV('Xpos',XYZPOS(1),IS_AVAILABLE,LSUBMODEL,UNITAB)
+          CALL HM_GET_FLOATV('Ypos',XYZPOS(2),IS_AVAILABLE,LSUBMODEL,UNITAB)
+          CALL HM_GET_FLOATV('Zpos',XYZPOS(3),IS_AVAILABLE,LSUBMODEL,UNITAB)
+          
+          CALL HM_GET_INTV('Xflag',XYZFLAG(1),IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INTV('Yflag',XYZFLAG(2),IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INTV('Zflag',XYZFLAG(3),IS_AVAILABLE,LSUBMODEL)
+
+          !---------------------
+          !IF (ITRANSSUB /= 0) CYCLE
+          !---------------------
+          PFLAG0 = PFLAG
+          XYZPOS0(:) = XYZPOS(:)
+          XYZFLAG0(:) = XYZFLAG(:)
+          !---------------------
+          if(PFLAG == 0) PFLAG = 1 ! by default
+          !
+          ISK = 0
+          IF (ISK0 > 0) THEN
+              IS_FOUND = .FALSE.
+              DO J=0,NUMSKW+MIN(1,NSPCOND)*NUMSPH+NSUBMOD
+                IF (ISK0 == ISKWN(4,J+1)) THEN
+                  ISK=J+1
+                  IS_FOUND = .TRUE.
+                  EXIT
+                ENDIF
+              ENDDO
+              IF(.NOT. IS_FOUND)THEN
+                CALL ANCMSG(MSGID=3112,
+     .                      MSGTYPE=MSGERROR,
+     .                      ANMODE=ANINFO,
+     .                      I1= ID,
+     .                      C1= TITR,
+     .                      I2= ISK0)
+              ENDIF
+          ENDIF
+
+          INGR2USR => IGRNOD(1:NGRNOD)%ID
+          IGS = NGR2USR(IGU,INGR2USR,NGRNOD)
+
+          IF (IGS == 0) THEN           
+            CALL ANCMSG(MSGID=1865,
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO,
+     .                  I1= ID,
+     .                  C1= TITR,
+     .                  I2= IGU)
+          ENDIF
+          !
+          RTRANS(I,18)=IGS
+          !
+          ISURF = 0
+          NNO=0
+          IF (IGSURF > 0) THEN
+            DO J=1,NSURF
+              NSEG=IGRSURF(J)%NSEG
+              IF(IGRSURF(J)%ID == IGSURF) THEN
+                ISURF = J
+              ENDIF
+            ENDDO
+          !
+            IF (ISURF == 0 . AND. IGSURF > 0) THEN
+                 CALL ANCMSG(MSGID=3110,
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO,
+     .                  I1=ID,
+     .                  C1=TITR,
+     .                  I2=IGSURF)
+            ENDIF
+          !
+          ! create a list of nodes from the surface group
+          !
+            ALLOCATE(INO(1:4*IGRSURF(ISURF)%NSEG))
+            INO(1:4*IGRSURF(ISURF)%NSEG)=0
+            ALLOCATE(TAGNODE(1:NUMNOD))
+            TAGNODE(1:NUMNOD)=0
+          !
+            DO J=1,IGRSURF(ISURF)%NSEG
+             DO K=1,4
+                SURFNOD = IGRSURF(ISURF)%NODES(J,K)
+                IF(SURFNOD /= 0) THEN
+                  IF (TAGNODE(SURFNOD) == 0) THEN
+                    NNO=NNO+1
+                    INO(NNO)=SURFNOD
+                    TAGNODE(SURFNOD)=1
+                  ENDIF
+                ENDIF
+              ENDDO
+            ENDDO
+          ENDIF
+          !
+          !--------------------------------------
+          ! igrnod is defined to be the node group to be moved
+          !--------------------------------------
+          IF (IGS > 0) THEN
+            IF (ISURF > 0) THEN
+              ! surface defined - transform nodes by positioning them at minimum distance
+              ! from the surface with a gap GAP in the direction IDIR
+              CALL min_dist_grnod_to_surface(
+     .                 IGRNOD(IGS)%ENTITY, IGRNOD(IGS)%NENTITY, INO   , NNO    ,X   ,
+     .                 NUMNOD            , PFLAG              , IDIR  , GAP    ,ISK ,
+     .                 SKEW              , LSKEW              , SSKEW )
+            ELSE
+              ! no surface defined - transform nodes by positioning them at XYZPOS
+              ! with flags XYZFLAG
+              CALL min_dist_grnod_to_xyzpos(
+     .                 IGRNOD(IGS)%ENTITY, IGRNOD(IGS)%NENTITY, XYZPOS, XYZFLAG, X     ,
+     .                 NUMNOD            , ISK                , SKEW  , LSKEW  , SSKEW )
+            ENDIF
+          ENDIF
+          !
+          !---------------------------
+          !
+          IF(ALLOCATED(INO)) DEALLOCATE(INO)
+          IF(ALLOCATED(TAGNODE)) DEALLOCATE(TAGNODE)
+          !
+          WRITE(IOUT,2000) ID,IGU   
+          WRITE(IOUT,2100) IGSURF,ISK0,DIR(1:1),GAP,PFLAG0,
+     .                     XYZPOS0(1),XYZPOS0(2),XYZPOS0(3),
+     .                     XYZFLAG0(1),XYZFLAG0(2),XYZFLAG0(3)
+          !
+          IF (IPRI > 3) THEN                                          
+            WRITE (IOUT,3000)                                            
+            DO J=1,IGRNOD(IGS)%NENTITY
+              IS=IGRNOD(IGS)%ENTITY(J)
+              WRITE(IOUT,3500) ITAB(IS),X(1,IS),X(2,IS),X(3,IS)                                
+            ENDDO
+          ENDIF 
         ENDIF
       ENDDO
 C-----------------------
       RETURN
- 999  CALL FREERR(3)
 C-----------------------
  100  FORMAT(//
      .'  NODAL TRANSFORMATIONS       '/,
@@ -811,7 +1007,8 @@ C-----------------------
  510  FORMAT(10X,'   VALUE. . . . . . . . . . . . .= ',E20.13/,
      . '             COORDINATES     X. . . . . . .= ',E20.13/,
      . '                             Y. . . . . . .= ',E20.13/,
-     . '                             Z. . . . . . .= ',E20.13)
+     . '                             Z. . . . . . .= ',E20.13/,
+     . '             Skew_ID  . . . . . . . . . . .= ',I10)
  600  FORMAT(/
      . '    NODAL ROTATION, TRANSFORMATION ID.     = ',I10/,                       
      . '       NODE GROUP ID. . . . . . . . . . . .= ',I10/,
@@ -868,6 +1065,20 @@ C-----------------------
      .         3E20.13/,
      . ' . . . . . . . . M31 . . . . . . . . M32 . . . . . . . . M33',/,
      .         3E20.13/)
+ 2000  FORMAT(/
+     . '    NODAL AUTOPOSITION, TRANSFORMATION ID  = ',I10/,                        
+     . '       NODE GROUP ID. . . . . . . . . . . .= ',I10)
+ 2100  FORMAT(10X,'   Surf_ID            . . . . . .= ',I10/,
+     .        10X,'   Skew_ID            . . . . . .= ',I10/,
+     .        10X,'   Motion direction   . . . . . .= ',A10/,
+     .        10X,'   Minimum distance Gap . . . . .= ',E20.13/,
+     .        10X,'   Positioning flag   . . . . . .= ',I10/,
+     .        10X,'   Xpos               . . . . . .= ',E20.13/,
+     .        10X,'   Ypos               . . . . . .= ',E20.13/,
+     .        10X,'   Zpos               . . . . . .= ',E20.13/,
+     .        10X,'   Xflag              . . . . . .= ',I10/,
+     .        10X,'   Yflag              . . . . . .= ',I10/,
+     .        10X,'   Zflag              . . . . . .= ',I10)
  3000 FORMAT(/10X,'NEW NODE COORDINATES',14X,'X',24X,'Y',24X,'Z')
  3500 FORMAT( 17X,I10,3(5X,E20.13))
 C-----------------------

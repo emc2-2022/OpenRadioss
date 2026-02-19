@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.  
-Chd|====================================================================
-Chd|  SPMD_CELL_SIZE_EXCHANGE       source/mpi/interfaces/spmd_cell_size_exchange.F
-Chd|-- called by -----------
-Chd|        SPMD_CELL_LIST_EXCHANGE       source/mpi/interfaces/spmd_cell_list_exchange.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MYQSORT_INT                   ../common_source/tools/sort/myqsort_int.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTER_SORTING_MOD             share/modules/inter_sorting_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_cell_size_exchange   ../engine/source/mpi/interfaces/spmd_cell_size_exchange.F
+!||--- called by ------------------------------------------------------
+!||    spmd_cell_list_exchange   ../engine/source/mpi/interfaces/spmd_cell_list_exchange.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                    ../engine/source/output/message/message.F
+!||    arret                     ../engine/source/system/arret.F
+!||    my_orders                 ../common_source/tools/sort/my_orders.c
+!||    myqsort_int               ../common_source/tools/sort/myqsort_int.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod             ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    inter_sorting_mod         ../engine/share/modules/inter_sorting_mod.F
+!||    message_mod               ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod       ../engine/source/mpi/spmd_comm_world.F90
+!||    tri7box                   ../engine/share/modules/tri7box.F
+!||====================================================================
         SUBROUTINE SPMD_CELL_SIZE_EXCHANGE(IRCVFROM,ISENDTO,WEIGHT,
      .                    IAD_ELEM,FR_ELEM,X,V,MS,TEMP,KINET,NODNX_SMS,ITAB,INTBUF_TAB,IPARI,NIN,REMOTE_PROC_ID,
      .                    ALREADY_SEND,INDEX_ALREADY_SEND,SORT_COMM,NODNX_SMS_SIZ,TEMP_SIZE)
@@ -46,7 +48,7 @@ Chd|====================================================================
 !                  secondary nodes must be sorted according to theirs global IDs (for parith/on purpose)
 !       SPMD_CELL_SIZE_EXCHANGE organization :
 !       loop over the cells of the remote proc and :
-!           * check if 1 or several secondary nodes are in the currect remote proc & send the number of secondary nodes to the remote proc           
+!           * check if 1 or several secondary nodes are in the correct remote proc & send the number of secondary nodes to the remote proc           
 !           * if yes: - save the ID of the secondary nodes
 !                     - sort the ID according to the global secondary node ID (parith/on)!                     
 !                     - fill the buffer with the data of the secondary nodes (position/velocity...)                  
@@ -61,29 +63,18 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr02_c.inc"
-#include      "scr18_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "timeri_c.inc"
 #include      "sms_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
@@ -113,29 +104,28 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C----------------------------------------------- 
 #ifdef MPI        
-        INTEGER :: I,J,NOD,L,L2,KK,IJK,KJI
-        INTEGER :: P,P_LOC
-        INTEGER :: ADRESS,SHIFT_
-        INTEGER :: ISIZ,RSIZ,IDEB,JDEB
+        INTEGER :: I,J,NOD,L,L2,IJK,KJI
+        INTEGER :: P
+        INTEGER :: SHIFT_
+        INTEGER :: ISIZ,RSIZ
         INTEGER :: NSN,NMN,IGAP,INTTH,INTFRIC,ITYP,ITIED
         INTEGER :: IFQ,INACTI
 
-        INTEGER IERROR1,STATUS(MPI_STATUS_SIZE),IERROR
+        INTEGER IERROR
 
         INTEGER :: LOC_PROC
-        INTEGER :: IX,IY,IZ,NB
-        INTEGER, DIMENSION(NUMNOD) :: INDEX
+        INTEGER :: NB
+        INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX
         INTEGER :: ISHIFT,RSHIFT
 
         INTEGER :: MSGOFF, MSGOFF2, MSGOFF3, MSGOFF4, MSGOFF5
-        INTEGER :: MSGTYP,INFO
+        INTEGER :: MSGTYP
 
         INTEGER :: ERROR_SORT
         INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX_2,ITRI
         INTEGER, DIMENSION(:), ALLOCATABLE ::  WORK
         INTEGER :: CELL_X_ID,CELL_Y_ID,CELL_Z_ID
         INTEGER :: DISPL
-        LOGICAL :: NEED_TO_RCV
 
         INTEGER :: NB_INDEX_ALREADY_SEND,VALUE,NB_SAVE
 !   --------------------------------------------------------------------  
@@ -163,7 +153,7 @@ C-----------------------------------------------
         IF(IRCVFROM(NIN,LOC_PROC)/=0.OR.ISENDTO(NIN,LOC_PROC)/=0) THEN
             ! ---------------------------------
             ! only the proc with secondary nodes send theirs data
-            IF(ISENDTO(NIN,LOC_PROC).NE.0) THEN   !   local nsn >0
+            IF(ISENDTO(NIN,LOC_PROC)/=0) THEN   !   local nsn >0
 
                 P=SORT_COMM(NIN)%PROC_LIST(REMOTE_PROC_ID)   !   proc ID
                 ! ----------------------------
@@ -176,13 +166,14 @@ C-----------------------------------------------
 
                 SORT_COMM(NIN)%NB(P) = 0
                 NB = 0
+                ALLOCATE(INDEX(2*NUMNOD))
                 !   --------------------------
                 IF(ITIED/=0.AND.ITYP==7) THEN
                     !   itied/=0 --> need to send all nodes 
                     DO I=1,NSN
                         NOD = INTBUF_TAB(NIN)%NSV(I)
-                        IF(WEIGHT(NOD).EQ.1)THEN
-                            IF(CANDF_SI(NIN)%P(I)/=0.AND.INTBUF_TAB(NIN)%STFNS(I).GT.ZERO)THEN
+                        IF(WEIGHT(NOD)==1)THEN
+                            IF(CANDF_SI(NIN)%P(I)/=0.AND.INTBUF_TAB(NIN)%STFNS(I)>ZERO)THEN
                                 NB = NB + 1
                                 INDEX(NB) = I
                             ENDIF
@@ -215,8 +206,8 @@ C-----------------------------------------------
                         I = SORT_COMM(NIN)%VOXEL(CELL_X_ID,CELL_Y_ID,CELL_Z_ID)                    
                         DO WHILE(I/=0)                       
                             NOD = INTBUF_TAB(NIN)%NSV(I)
-                            IF(WEIGHT(NOD).EQ.1)THEN
-                                IF(INTBUF_TAB(NIN)%STFNS(I).GT.ZERO)THEN
+                            IF(WEIGHT(NOD)==1)THEN
+                                IF(INTBUF_TAB(NIN)%STFNS(I)>ZERO)THEN
                                     NB = NB + 1
                                     INDEX(NB) = I
                                 ENDIF
@@ -292,14 +283,14 @@ C-----------------------------------------------
                 SORT_COMM(NIN)%NBSEND_NB=SORT_COMM(NIN)%NBSEND_NB+1
                 SORT_COMM(NIN)%SEND_NB(SORT_COMM(NIN)%NBSEND_NB)=P   !   proc with nmn>0
                 CALL MPI_ISEND(SORT_COMM(NIN)%NB(P),1,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     .                         MPI_COMM_WORLD,SORT_COMM(NIN)%REQUEST_NB_S(SORT_COMM(NIN)%NBSEND_NB),IERROR)
+     .                         SPMD_COMM_WORLD,SORT_COMM(NIN)%REQUEST_NB_S(SORT_COMM(NIN)%NBSEND_NB),IERROR)
 
                 !   --------------------------
                 !   buffer allocation & buffer initialization
-                IF (NB.GT.0) THEN
+                IF (NB>0) THEN
                     ALLOCATE( SORT_COMM(NIN)%DATA_PROC(P)%RBUF(RSIZ*NB),STAT=IERROR)
                     ALLOCATE( SORT_COMM(NIN)%DATA_PROC(P)%IBUF(ISIZ*NB),STAT=IERROR)
-                    IF(IERROR.NE.0) THEN
+                    IF(IERROR/=0) THEN
                         CALL ANCMSG(MSGID=20,ANMODE=ANINFO)
                         CALL ARRET(2)
                     ENDIF
@@ -337,7 +328,7 @@ c shift for integer variables (prepare for next setting)
 
 c specific cases
 c IGAP=1 or IGAP=2                 
-                    IF(IGAP.EQ.1 .OR. IGAP.EQ.2)THEN
+                    IF(IGAP==1 .OR. IGAP==2)THEN
                         L = 0            
                         IGAPXREMP = RSHIFT        
 #include      "vectorize.inc"               
@@ -348,7 +339,7 @@ c IGAP=1 or IGAP=2
                         ENDDO
                         RSHIFT = RSHIFT + 1                      
 c IGAP=3                       
-                    ELSEIF(IGAP.EQ.3)THEN 
+                    ELSEIF(IGAP==3)THEN 
                         L = 0         
                         IGAPXREMP = RSHIFT        
 #include      "vectorize.inc"                 
@@ -362,7 +353,7 @@ c IGAP=3
                     ENDIF
                          
 C thermic
-                    IF(INTTH.GT.0)THEN
+                    IF(INTTH>0)THEN
                         L = 0
                         L2 = 0                     
 #include      "vectorize.inc"                                          
@@ -379,7 +370,7 @@ C thermic
                         ISHIFT = ISHIFT + 1               
                     ENDIF
 C Friction
-                    IF(INTFRIC.GT.0)THEN
+                    IF(INTFRIC>0)THEN
                         L2 = 0                     
 #include      "vectorize.inc"                                          
                         DO J = 1, NB
@@ -402,7 +393,7 @@ C -- IDTMINS==2
                         END DO
                         ISHIFT = ISHIFT + 2              
 C -- IDTMINS_INT /= 0               
-                    ELSEIF(IDTMINS_INT.NE.0)THEN
+                    ELSEIF(IDTMINS_INT/=0)THEN
                         L2 = 0                 
 #include      "vectorize.inc"              
                         DO J = 1, NB
@@ -426,6 +417,7 @@ C -- IDTMINS_INT /= 0
                         L2 = L2 + ISIZ
                     END DO  
                 ENDIF   !   if nb/=0
+                DEALLOCATE(INDEX)
                 !   ------------------------------
             ENDIF      
         ENDIF ! nsn>0 or nmn > 0

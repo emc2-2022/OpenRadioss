@@ -1,39 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_WIERZBICKI_S             source/materials/fail/wierzbicki/fail_wierzbicki_s.F
-Chd|-- called by -----------
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MMAIN8                        source/materials/mat_share/mmain8.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_wierzbicki_s   ../engine/source/materials/fail/wierzbicki/fail_wierzbicki_s.F
+!||--- called by ------------------------------------------------------
+!||    mmain               ../engine/source/materials/mat_share/mmain.F90
+!||    mmain8              ../engine/source/materials/mat_share/mmain8.F
+!||    mulaw               ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8              ../engine/source/materials/mat_share/mulaw8.F90
+!||    usermat_solid       ../engine/source/materials/mat_share/usermat_solid.F
+!||====================================================================
       SUBROUTINE FAIL_WIERZBICKI_S(
-     1     NEL    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC   ,
-     2     NPF    ,TF     ,TIME   ,TIMESTEP ,UPARAM  ,
-     3     NGL    ,IPM    ,MAT,
+     1     NEL    ,NUPARAM,NUVAR   ,
+     2     TIME   ,TIMESTEP ,UPARAM  ,NGL    ,
      4     SIGNXX ,SIGNYY ,SIGNZZ  ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
      5     DPLA   ,PLA    ,UVAR    ,OFF     ,DFMAX   ,
      6     TDELE  )
@@ -49,11 +47,6 @@ C---------+---------+---+---+--------------------------------------------
 C NEL     |  1      | I | R | SIZE OF THE ELEMENT GROUP NEL 
 C NUPARAM |  1      | I | R | SIZE OF THE USER PARAMETER ARRAY
 C NUVAR   |  1      | I | R | NUMBER OF FAILURE ELEMENT VARIABLES
-C---------+---------+---+---+--------------------------------------------
-C MFUNC   |  1      | I | R | NUMBER FUNCTION USED FOR THIS USER LAW not used
-C KFUNC   | NFUNC   | I | R | FUNCTION INDEX not used
-C NPF     |  *      | I | R | FUNCTION ARRAY   
-C TF      |  *      | F | R | FUNCTION ARRAY 
 C---------+---------+---+---+--------------------------------------------
 C TIME    |  1      | F | R | CURRENT TIME
 C TIMESTEP|  1      | F | R | CURRENT TIME STEP
@@ -77,8 +70,7 @@ C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
 C
-      INTEGER NEL, NUPARAM, NUVAR,NGL(NEL),IPM(NPROPMI,*),
-     .        MAT(NEL)
+      INTEGER NEL, NUPARAM, NUVAR,NGL(NEL)
       my_real TIME,TIMESTEP,UPARAM(*),
      .   SIGNXX(NEL),SIGNYY(NEL),SIGNZZ(NEL),
      .   SIGNXY(NEL),SIGNYZ(NEL),SIGNZX(NEL),
@@ -92,11 +84,6 @@ C-----------------------------------------------
 C   I N P U T   O U T P U T   A r g u m e n t s 
 C-----------------------------------------------
       my_real UVAR(NEL,NUVAR), OFF(NEL),DFMAX(NEL),TDELE(NEL)
-C-----------------------------------------------
-C   VARIABLES FOR FUNCTION INTERPOLATION 
-C-----------------------------------------------
-      INTEGER NPF(*), MFUNC, KFUNC(MFUNC)
-      my_real TF(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -115,32 +102,26 @@ C--------------------------------------------------------------
       CN = UPARAM(6)
       IFLAG = INT(UPARAM(8))
       IMOY  = INT( UPARAM(9))
-C         
-      IF(TIME == ZERO)THEN
-        DO I=1,NEL
-         TDELE(I)  = ZERO
-        ENDDO   
-      ENDIF 
 Cc
       IDEL=0
       IDEV=0
-      IF(IFLAG.EQ.1)THEN
+      IF(IFLAG==1)THEN
          IDEL=1
-      ELSEIF(IFLAG.EQ.2)THEN
+      ELSEIF(IFLAG==2)THEN
          IDEV =1
       END IF
 C...
-      IF(IDEL.EQ.1)THEN
+      IF(IDEL==1)THEN
         DO I=1,NEL
-          IF(OFF(I).LT.0.1) OFF(I)=0.0
-          IF(OFF(I).LT.1.0) OFF(I)=OFF(I)*0.8
+          IF(OFF(I)<0.1) OFF(I)=0.0
+          IF(OFF(I)<1.0) OFF(I)=OFF(I)*0.8
         END DO
       END IF
 C      
-      IF(IDEL.EQ.1)THEN
+      IF(IDEL==1)THEN
        NINDX=0  
        DO I=1,NEL
-        IF(IFLAG.EQ.1.AND.OFF(I).EQ.1.AND.DPLA(I).NE.ZERO)THEN
+        IF(IFLAG==1.AND.OFF(I)==1.AND.DPLA(I)/=ZERO)THEN
          P = THIRD*(SIGNXX(I) + SIGNYY(I) + SIGNZZ(I))
          SXX = SIGNXX(I) - P
          SYY = SIGNYY(I) - P
@@ -156,7 +137,7 @@ C third invariant
           ETA = P / MAX(EM20,SVM)
           XI  = HALF*(TWENTY + SEVEN)*J3/MAX(EM20,SVM**3)
 c
-          IF(IMOY.EQ.1)THEN 
+          IF(IMOY==1)THEN 
            UVAR(I,1) = UVAR(I,1) + ETA*DPLA(I)
            UVAR(I,2) = UVAR(I,2) +  XI*DPLA(I)
            ETA = UVAR(I,1)/MAX(EM20,PLA(I))
@@ -167,18 +148,17 @@ c
      .        - (C3*EXP(-C4*ETA))**CN
            EPSF = EPSF * MAX(ZERO,(ONE - XI**CM))**(ONE/CM)
           EPSF = ((C1*EXP(-C2*ETA))**CN - EPSF)**(ONE/CN)
-         IF(EPSF.GT.ZERO)
+         IF(EPSF>ZERO)
      .     DFMAX(I) = DFMAX(I) + DPLA(I)*(ONE/EPSF)
-         IF(DFMAX(I).GE.ONE.AND.OFF(I).EQ.ONE) THEN
+         IF(DFMAX(I)>=ONE.AND.OFF(I)==ONE) THEN
           OFF(I)=FOUR_OVER_5
           NINDX=NINDX+1
           INDX(NINDX)=I
-          IDEL7NOK = 1 
           TDELE(I) = TIME  
          ENDIF
         ENDIF 
        ENDDO
-       IF(NINDX.GT.0.AND.IMCONV.EQ.1)THEN
+       IF(NINDX>0.AND.IMCONV==1)THEN
         DO J=1,NINDX
 #include "lockon.inc"
          WRITE(IOUT, 1000) NGL(INDX(J))
@@ -188,12 +168,12 @@ c
        END IF         
       ENDIF
 Cc deviatoric will vanish     
-      IF(IDEV.EQ.1)THEN
+      IF(IDEV==1)THEN
        NINDX=0 
        NINDEX = 0 
        DO I=1,NEL
-        IF(IFLAG.EQ.2.AND.OFF(I).EQ.ONE)THEN 
-         IF(DFMAX(I).LT.ONE)THEN
+        IF(IFLAG==2.AND.OFF(I)==ONE)THEN 
+         IF(DFMAX(I)<ONE)THEN
          P = THIRD*(SIGNXX(I) + SIGNYY(I) + SIGNZZ(I))
          SXX = SIGNXX(I) - P
          SYY = SIGNYY(I) - P
@@ -209,7 +189,7 @@ C third invariant
          ETA = P / MAX(EM20,SVM)
          XI  = HALF*(TWENTY + SEVEN)*J3/MAX(EM20,SVM**3)
 C average valeur
-          IF(IMOY.EQ.1)THEN
+          IF(IMOY==1)THEN
            UVAR(I,1) = UVAR(I,1) + ETA*DPLA(I)
            UVAR(I,2) = UVAR(I,2) +  XI*DPLA(I)
            ETA = UVAR(I,1)/MAX(EM20,PLA(I))
@@ -220,8 +200,8 @@ CC
      .        - (C3*EXP(-C4*ETA))**CN
          EPSF = EPSF * MAX(ZERO,(ONE - XI**CM))**(ONE/CM)
          EPSF = ((C1*EXP(-C2*ETA))**CN - EPSF)**(ONE/CN)
-          IF(EPSF.GT.ZERO) DFMAX(I) = DFMAX(I) + DPLA(I)/EPSF
-          IF(DFMAX(I).GE.ONE.AND.OFF(I).EQ.ONE) THEN
+          IF(EPSF>ZERO) DFMAX(I) = DFMAX(I) + DPLA(I)/EPSF
+          IF(DFMAX(I)>=ONE.AND.OFF(I)==ONE) THEN
            NINDX=NINDX+1
            INDX(NINDX)=I
            SIGNXX(I) =   P
@@ -243,7 +223,7 @@ c UVAR> 1
          ENDIF
         ENDIF  
        ENDDO
-       IF(NINDX.GT.0.AND.IMCONV.EQ.1)THEN
+       IF(NINDX>0.AND.IMCONV==1)THEN
         DO J=1,NINDX
          I = INDX(J)
 #include "lockon.inc"

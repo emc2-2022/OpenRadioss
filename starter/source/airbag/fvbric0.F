@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVBRIC0                       source/airbag/fvbric0.F       
-Chd|-- called by -----------
-Chd|        INIT_MONVOL                   source/airbag/init_monvol.F   
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvbric0                ../starter/source/airbag/fvbric0.F
+!||--- called by ------------------------------------------------------
+!||    init_monvol            ../starter/source/airbag/init_monvol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    arret                  ../starter/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE FVBRIC0(IBUF   ,IXS    ,ITYP    ,NBRIC   ,
      .                   MONVID ,ILVOUT ,TITR    ,TAGNODBR,
      .                   TBRIC  ,TFAC   ,NB_NODE ,IGRBRIC,IBRIC,FVTYPE)
@@ -38,20 +38,17 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : nchartitle
+      use element_mod , only : nixs      
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -60,17 +57,16 @@ C-----------------------------------------------
      .        NB_NODE,IBRIC,ITYP, FVTYPE
       INTEGER, DIMENSION(2, NBRIC), INTENT(INOUT) :: TBRIC
       INTEGER, DIMENSION(12, NBRIC), INTENT(INOUT) :: TFAC
-      CHARACTER*nchartitle,
-     .        TITR
+      CHARACTER(len=nchartitle) :: TITR
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRBRIC) :: IGRBRIC
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER, DIMENSION(:), ALLOCATABLE :: ADSKY, ADDCNEL, CNE
-      INTEGER I, J, NG, NNO, NFAC, NV, NG2, NNF, NNF2, NNOF, NNOF2, 
-     .        NC, NNO2, K, TNC(4), TNV(5,6), KK, L, NN1, K2, 
-     .        LL, NTYPE, NTYPE2, NODEID 
+      INTEGER I, J, NG, NNO, NG2, NNF, NNF2, NNOF, NNOF2,
+     .        NNO2, K, KK, K2,
+     .        NTYPE, NTYPE2, NODEID
       INTEGER, TARGET :: REDIRT(4), REDIRP(6), REDIRB(8), REDIRPY(5)
       INTEGER, DIMENSION(:), POINTER :: REDIR2, REDIR
 C
@@ -79,6 +75,8 @@ C
       INTEGER :: IAD, IAD1, IAD2, NNODEF(4), N1(8), N2(8), IP1(8), IP2(8), IS, NB_COMMON_NODE
       INTEGER, DIMENSION(:, :), POINTER :: FAC, FAC2
       INTEGER, DIMENSION(:), POINTER :: NOD, NOD2
+      integer, dimension(1,1), target :: nothing
+      
       DATA FAC4 /1,5,3,
      .           3,5,6,
      .           6,5,1,
@@ -109,6 +107,16 @@ C
       LOGICAL :: ERROR_RAISED, FACE_OK, FACE2_OK
 C     INITIALIZE ERROR FLAG
       ERROR_RAISED = .FALSE.
+      FACE_OK = .FALSE.
+      FACE2_OK = .FALSE.   
+      ng = 0
+C-----------------------------------------------
+      FAC2 => nothing 
+      FAC => nothing
+      NOD2 => nothing(:,1)
+      NOD => nothing(:,1)
+      REDIR => nothing(:,1)
+      REDIR2 => nothing(:,1)
 
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
 C     TETRA indirection
@@ -153,7 +161,10 @@ C     PYRAMIDE indirection
 !   tetra
            NG = IBUF(I)
          ENDIF
-         TFAC(1:12, I) = 0
+         TFAC(1:12, I) = 0 
+         NNO= -HUGE(NNO)
+         NTYPE= -HUGE(NTYPE)
+         REDIR => NULL()
          IF (IXS(9,NG) == IXS(6,NG).AND.IXS(8,NG) == IXS(7,NG).AND.
      .        IXS(5,NG) == IXS(4,NG).AND.IXS(3,NG) == IXS(2,NG)) THEN
             NNO=4               !TETRAEDRE
@@ -316,7 +327,9 @@ C     Loop over the adjacent elements
                      FAC2 => FAC5(1:4, 1:5)
                      NOD2 => NOD5(1:5)
                   CASE DEFAULT
-C     ERROR
+                     REDIR2 => NULL()
+                     FAC2 => NULL()
+                     NOD2 => NULL()
                   END SELECT
                   
                   DO K2 = 1, NNO2

@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RLINK0                        source/constraints/general/rlink/rlink0.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rlink0          ../engine/source/constraints/general/rlink/rlink0.F
+!||--- called by ------------------------------------------------------
+!||    lectur          ../engine/source/input/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||    sum_6_float     ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE RLINK0(V    ,VR    ,MS    ,IN  ,NLIK ,
      2                  IDIR ,IDROT ,NOD   ,NSN ,IC   ,
      3                  ICR  ,ISKW  ,ISK   ,SKEW,ISKWN,
@@ -41,7 +41,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -67,14 +66,14 @@ C
       IDROT=ICR
       NLIK =NSN
       DO 10 I=0,NUMSKW
-      IF(ISK.NE.ISKWN(4,I+1))GOTO 10
+      IF(ISK/=ISKWN(4,I+1))GOTO 10
        ISKW=I+1
        GOTO 20
   10  CONTINUE
 C
   20  CONTINUE
 C
-      IF(IC.EQ.0)GOTO 150
+      IF(IC==0)GOTO 150
       IC1=IC/4
       ICC=IC-4*IC1
       IC2=ICC/2
@@ -87,7 +86,7 @@ C
 C
       DO I=1,NSN
         N = NOD(I)
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F1(I)=MS(N)
           F2(I)=MS(N)*V(1,N)
           F3(I)=MS(N)*V(2,N)
@@ -100,7 +99,7 @@ C
         ENDIF
       ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
       DO K = 1, 6
        FRL6(1,K) = ZERO
@@ -112,8 +111,8 @@ C
       CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1), 4)
       CALL SUM_6_FLOAT(1  ,NSN  ,F3, FRL6(3,1), 4)
       CALL SUM_6_FLOAT(1  ,NSN  ,F4, FRL6(4,1), 4)
-      IF(NSPMD.GT.1) THEN
-        IF(FR_RL(ISPMD+1).NE.0) THEN
+      IF(NSPMD>1) THEN
+        IF(FR_RL(ISPMD+1)/=0) THEN
           CALL SPMD_EXCH_FR6(FR_RL,FRL6,4*6)
         END IF
       END IF
@@ -145,7 +144,7 @@ C
         V(3,N) =V(3,N)-VVX*SKEW(3)-VVY*SKEW(6)-VVZ*SKEW(9)
       ENDDO
 C
-  150 IF(ICR.EQ.0)RETURN
+  150 IF(ICR==0)RETURN
       IC1=ICR/4
       ICC=ICR-4*IC1
       IC2=ICC/2
@@ -158,7 +157,7 @@ C
 C
       DO I=1,NSN
         N = NOD(I)
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F1(I)=IN(N)
           F2(I)=IN(N)*VR(1,N)
           F3(I)=IN(N)*VR(2,N)
@@ -171,7 +170,7 @@ C
         ENDIF
       ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith/ON processing before exchange
 C
       DO K = 1, 6
         FRL6(1,K) = ZERO
@@ -183,8 +182,8 @@ C
       CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1), 4)
       CALL SUM_6_FLOAT(1  ,NSN  ,F3, FRL6(3,1), 4)
       CALL SUM_6_FLOAT(1  ,NSN  ,F4, FRL6(4,1), 4)
-      IF(NSPMD.GT.1) THEN
-        IF(FR_RL(ISPMD+1).NE.0) THEN
+      IF(NSPMD>1) THEN
+        IF(FR_RL(ISPMD+1)/=0) THEN
           CALL SPMD_EXCH_FR6(FR_RL,FRL6,4*6)
         END IF
       END IF
@@ -197,7 +196,7 @@ C
       VZ = FRL6(4,1)+FRL6(4,2)+FRL6(4,3)+
      +     FRL6(4,4)+FRL6(4,5)+FRL6(4,6)
 C
-      IF(INER.EQ.ZERO)RETURN
+      IF(INER==ZERO)RETURN
 C
       VX=VX/INER
       VY=VY/INER

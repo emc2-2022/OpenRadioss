@@ -1,58 +1,65 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SUFORC3                       source/user_interface/suforc3.F
-Chd|-- called by -----------
-Chd|        FORINT                        source/elements/forint.F      
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        ENG_USERLIB_SUSER             source/user_interface/dyn_userlib.c
-Chd|        SFILLOPT                      source/elements/solid/solide/sfillopt.F
-Chd|        SUCOOR3                       source/user_interface/suforc3.F
-Chd|        SUCUMU3                       source/user_interface/suforc3.F
-Chd|        SUCUMU3P                      source/user_interface/suforc3.F
-Chd|        SUSER43                       source/elements/solid/sconnect/suser43.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
-      SUBROUTINE SUFORC3(ELBUF_STR,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    suforc3             ../engine/source/user_interface/suforc3.F
+!||--- called by ------------------------------------------------------
+!||    forint              ../engine/source/elements/forint.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg              ../engine/source/output/message/message.F
+!||    arret               ../engine/source/system/arret.F
+!||    sfillopt            ../engine/source/elements/solid/solide/sfillopt.F
+!||    sucoor3             ../engine/source/user_interface/suforc3.F
+!||    sucumu3             ../engine/source/user_interface/suforc3.F
+!||    sucumu3p            ../engine/source/user_interface/suforc3.F
+!||    suser43             ../engine/source/elements/solid/sconnect/suser43.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    mat_elem_mod        ../common_source/modules/mat_elem/mat_elem_mod.F90
+!||    message_mod         ../engine/share/message_module/message_mod.F
+!||    table_mod           ../engine/share/modules/table_mod.F
+!||    timer_mod           ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE SUFORC3(TIMERS, ELBUF_STR,
      1           LFT      ,LLT      ,NFT     ,NEL     ,IXS     ,       
      2           PM       ,GEO      ,IPM     ,IGEO    ,X       ,       
      3           A        ,AR       ,V       ,VR      ,W       ,       
      4           D        ,MS       ,IN      ,TF      ,NPF     ,       
-     5           BUFMAT   ,IPARG    ,IPARTS  ,PARTSAV ,         
+     5           BUFMAT   ,IPARG    ,IPARTS  ,PARTSAV ,MAT_PARAM,         
      6           FSKY     ,FR_WAVE  ,IADS    ,EANI    ,STIFN   ,
      7           STIFR    ,FX       ,FY      ,FZ      ,IFAILURE,
      8           MTN      ,IGTYP    ,NPT     ,JSMS    ,MSSA    ,
-     9           DMELS    ,ITASK    ,IOUTPRT ,JTHE    ,TABLE )
+     9           DMELS    ,ITASK    ,IOUTPRT ,JTHE    ,TABLE   ,
+     A           IDTMINS  ,DTFACS   ,DTMINS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE TIMER_MOD
       USE TABLE_MOD
-      USE ELBUFDEF_MOD
+      USE MAT_ELEM_MOD
       USE MESSAGE_MOD
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -66,24 +73,22 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr07_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr06_c.inc"
 #include      "parit_c.inc"
 #include      "units_c.inc"
 #include      "param_c.inc"
 #include      "userlib.inc"
-#include      "chara_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS
       INTEGER LFT, LLT,NEL,NFT,MTN,IGTYP,IFAILURE,NPT, JSMS,IOUTPRT,JTHE
       INTEGER IXS(NIXS,*), IPARG(*), NPF(*),IADS(8,*),
      .        IPARTS(*), IGEO(NPROPGI,*), IPM(NPROPMI,*),ITASK
+      INTEGER ,INTENT(IN) :: IDTMINS
+      my_real ,INTENT(IN) :: DTFACS
+      my_real ,INTENT(IN) :: DTMINS
 C     REAL
 C     REAL
       my_real
@@ -94,10 +99,11 @@ C     REAL
      .   MSSA(*), DMELS(*)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
       TYPE (TTABLE)  , DIMENSION(NTABLE) ::  TABLE
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NF1,IFLAG,NUPARAM,IG,IGT,
+      INTEGER I,J,NF1,NUPARAM,IG,IGT,
      .   NUVAR,NUVARP,II(6)
 C-----
       INTEGER IMAT(MVSIZ),SID(MVSIZ),IPROP(MVSIZ),NC(MVSIZ,8)
@@ -105,7 +111,7 @@ C-----
      .   MX(MVSIZ,8),MY(MVSIZ,8) , MZ(MVSIZ,8),
      .   STI(MVSIZ),STIR(MVSIZ), VISCM(MVSIZ) ,VISCR(MVSIZ)
       my_real
-     .   OFF(MVSIZ) , RHOO(MVSIZ),FR_W_E(MVSIZ),
+     . OFF(MVSIZ) ,FR_W_E(MVSIZ),
      .   XX(MVSIZ,8), YY(MVSIZ,8),  ZZ(MVSIZ,8), 
      .   UX(MVSIZ,8), UY(MVSIZ,8),  UZ(MVSIZ,8),
      .   VX(MVSIZ,8), VY(MVSIZ,8),  VZ(MVSIZ,8),
@@ -121,7 +127,11 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C=======================================================================
       GBUF  => ELBUF_STR%GBUF
-      UVAR  => ELBUF_STR%BUFLY(1)%MAT(1,1,1)%VAR
+
+      ! output is using BUFLY data instead of GBUF (see dfunc6.F)
+      NUVAR = ELBUF_STR%BUFLY(1)%NVAR_MAT         !NUVAR = ELBUF_STR%GBUF%G_NUVAR
+      UVAR => ELBUF_STR%BUFLY(1)%MAT(1,1,1)%VAR      !UVAR  => ELBUF_STR%GBUF%VAR
+
       NF1=NFT+1
 !
       DO I=1,6
@@ -134,12 +144,12 @@ C GATHER NODAL VARIABLES
      .             XX ,YY ,ZZ, UX  ,UY  ,UZ , 
      .             VX ,VY ,VZ, VRX ,VRY ,VRZ, 
      .             GBUF%OFF,OFF, NC,SID,IMAT,IPROP)
-      NUVAR   = IPM(8,IMAT(1))
+
       NUPARAM = IPM(9,IMAT(1))
 C-----------
       IG =IPROP(1)
       IGT=IGEO(11,IG)
-      IF (IGT.GE.29)THEN
+      IF (IGT>=29)THEN
         NUVARP=NINT(GEO(25,IG))
       ELSE
         NUVARP=0
@@ -147,7 +157,7 @@ C-----------
 C----------------------------
 C     INTERNAL FORCES
 C----------------------------
-      IF(IGTYP.EQ.29)THEN
+      IF(IGTYP==29)THEN
        DO I=LFT,LLT
          SIG_LOC(1,I) = GBUF%SIG(II(1)+I)
          SIG_LOC(2,I) = GBUF%SIG(II(2)+I)
@@ -188,14 +198,22 @@ C----------------------------
      K MZ(1,1),MZ(1,2),MZ(1,3),MZ(1,4),MZ(1,5),MZ(1,6),MZ(1,7),MZ(1,8),
      L STI    ,STIR   ,VISCM  ,VISCR)
        IF(NFILSOL/=0) THEN
-        CALL SFILLOPT(GBUF%FILL,STI,
-     B    FX(1,1),FX(1,2),FX(1,3),FX(1,4),FX(1,5),FX(1,6),FX(1,7),FX(1,8),     
-     F    FY(1,1),FY(1,2),FY(1,3),FY(1,4),FY(1,5),FY(1,6),FY(1,7),FY(1,8),     
-     G    FZ(1,1),FZ(1,2),FZ(1,3),FZ(1,4),FZ(1,5),FZ(1,6),FZ(1,7),FZ(1,8))     
-        CALL SFILLOPT(GBUF%FILL,STIR,
-     B    MX(1,1),MX(1,2),MX(1,3),MX(1,4),MX(1,5),MX(1,6),MX(1,7),MX(1,8),     
-     F    MY(1,1),MY(1,2),MY(1,3),MY(1,4),MY(1,5),MY(1,6),MY(1,7),MY(1,8),     
-     G    MZ(1,1),MZ(1,2),MZ(1,3),MZ(1,4),MZ(1,5),MZ(1,6),MZ(1,7),MZ(1,8)) 
+        CALL SFILLOPT(
+     1   GBUF%FILL,STI,      FX(1,1),  FX(1,2),
+     2   FX(1,3),  FX(1,4),  FX(1,5),  FX(1,6),
+     3   FX(1,7),  FX(1,8),  FY(1,1),  FY(1,2),
+     4   FY(1,3),  FY(1,4),  FY(1,5),  FY(1,6),
+     5   FY(1,7),  FY(1,8),  FZ(1,1),  FZ(1,2),
+     6   FZ(1,3),  FZ(1,4),  FZ(1,5),  FZ(1,6),
+     7   FZ(1,7),  FZ(1,8),  NEL)
+        CALL SFILLOPT(
+     1   GBUF%FILL,STIR,     MX(1,1),  MX(1,2),
+     2   MX(1,3),  MX(1,4),  MX(1,5),  MX(1,6),
+     3   MX(1,7),  MX(1,8),  MY(1,1),  MY(1,2),
+     4   MY(1,3),  MY(1,4),  MY(1,5),  MY(1,6),
+     5   MY(1,7),  MY(1,8),  MZ(1,1),  MZ(1,2),
+     6   MZ(1,3),  MZ(1,4),  MZ(1,5),  MZ(1,6),
+     7   MZ(1,7),  MZ(1,8),  NEL)
         END IF    
        ELSE
         ! ----------------
@@ -219,7 +237,7 @@ C----------------------------
          GBUF%RHO(I) = RHO_LOC(I)
        ENDDO
 
-      ELSEIF(IGTYP.EQ.30)THEN
+      ELSEIF(IGTYP==30)THEN
        DO I=LFT,LLT
          SIG_LOC(1,I) = GBUF%SIG(II(1)+I)
          SIG_LOC(2,I) = GBUF%SIG(II(2)+I)
@@ -259,14 +277,22 @@ C----------------------------
      K MZ(1,1),MZ(1,2),MZ(1,3),MZ(1,4),MZ(1,5),MZ(1,6),MZ(1,7),MZ(1,8),
      L STI    ,STIR   ,VISCM  ,VISCR)
        IF(NFILSOL/=0) THEN
-        CALL SFILLOPT(GBUF%FILL,STI,
-     B    FX(1,1),FX(1,2),FX(1,3),FX(1,4),FX(1,5),FX(1,6),FX(1,7),FX(1,8),     
-     F    FY(1,1),FY(1,2),FY(1,3),FY(1,4),FY(1,5),FY(1,6),FY(1,7),FY(1,8),     
-     G    FZ(1,1),FZ(1,2),FZ(1,3),FZ(1,4),FZ(1,5),FZ(1,6),FZ(1,7),FZ(1,8))     
-        CALL SFILLOPT(GBUF%FILL,STIR,
-     B    MX(1,1),MX(1,2),MX(1,3),MX(1,4),MX(1,5),MX(1,6),MX(1,7),MX(1,8),     
-     F    MY(1,1),MY(1,2),MY(1,3),MY(1,4),MY(1,5),MY(1,6),MY(1,7),MY(1,8),     
-     G    MZ(1,1),MZ(1,2),MZ(1,3),MZ(1,4),MZ(1,5),MZ(1,6),MZ(1,7),MZ(1,8)) 
+        CALL SFILLOPT(
+     1   GBUF%FILL,STI,      FX(1,1),  FX(1,2),
+     2   FX(1,3),  FX(1,4),  FX(1,5),  FX(1,6),
+     3   FX(1,7),  FX(1,8),  FY(1,1),  FY(1,2),
+     4   FY(1,3),  FY(1,4),  FY(1,5),  FY(1,6),
+     5   FY(1,7),  FY(1,8),  FZ(1,1),  FZ(1,2),
+     6   FZ(1,3),  FZ(1,4),  FZ(1,5),  FZ(1,6),
+     7   FZ(1,7),  FZ(1,8),  NEL)
+        CALL SFILLOPT(
+     1   GBUF%FILL,STIR,     MX(1,1),  MX(1,2),
+     2   MX(1,3),  MX(1,4),  MX(1,5),  MX(1,6),
+     3   MX(1,7),  MX(1,8),  MY(1,1),  MY(1,2),
+     4   MY(1,3),  MY(1,4),  MY(1,5),  MY(1,6),
+     5   MY(1,7),  MY(1,8),  MZ(1,1),  MZ(1,2),
+     6   MZ(1,3),  MZ(1,4),  MZ(1,5),  MZ(1,6),
+     7   MZ(1,7),  MZ(1,8),  NEL)
         END IF    
        ELSE
         ! ----------------
@@ -290,7 +316,7 @@ C----------------------------
          GBUF%RHO(I) = RHO_LOC(I)
        ENDDO
 
-      ELSEIF(IGTYP.EQ.31)THEN
+      ELSEIF(IGTYP==31)THEN
        DO I=LFT,LLT
          SIG_LOC(1,I) = GBUF%SIG(II(1)+I)
          SIG_LOC(2,I) = GBUF%SIG(II(2)+I)
@@ -330,14 +356,22 @@ C----------------------------
      K MZ(1,1),MZ(1,2),MZ(1,3),MZ(1,4),MZ(1,5),MZ(1,6),MZ(1,7),MZ(1,8),
      L STI    ,STIR   ,VISCM  ,VISCR)
        IF(NFILSOL/=0) THEN
-        CALL SFILLOPT(GBUF%FILL,STI,
-     B    FX(1,1),FX(1,2),FX(1,3),FX(1,4),FX(1,5),FX(1,6),FX(1,7),FX(1,8),     
-     F    FY(1,1),FY(1,2),FY(1,3),FY(1,4),FY(1,5),FY(1,6),FY(1,7),FY(1,8),     
-     G    FZ(1,1),FZ(1,2),FZ(1,3),FZ(1,4),FZ(1,5),FZ(1,6),FZ(1,7),FZ(1,8))     
-        CALL SFILLOPT(GBUF%FILL,STIR,
-     B    MX(1,1),MX(1,2),MX(1,3),MX(1,4),MX(1,5),MX(1,6),MX(1,7),MX(1,8),     
-     F    MY(1,1),MY(1,2),MY(1,3),MY(1,4),MY(1,5),MY(1,6),MY(1,7),MY(1,8),     
-     G    MZ(1,1),MZ(1,2),MZ(1,3),MZ(1,4),MZ(1,5),MZ(1,6),MZ(1,7),MZ(1,8)) 
+        CALL SFILLOPT(
+     1   GBUF%FILL,STI,      FX(1,1),  FX(1,2),
+     2   FX(1,3),  FX(1,4),  FX(1,5),  FX(1,6),
+     3   FX(1,7),  FX(1,8),  FY(1,1),  FY(1,2),
+     4   FY(1,3),  FY(1,4),  FY(1,5),  FY(1,6),
+     5   FY(1,7),  FY(1,8),  FZ(1,1),  FZ(1,2),
+     6   FZ(1,3),  FZ(1,4),  FZ(1,5),  FZ(1,6),
+     7   FZ(1,7),  FZ(1,8),  NEL)
+        CALL SFILLOPT(
+     1   GBUF%FILL,STIR,     MX(1,1),  MX(1,2),
+     2   MX(1,3),  MX(1,4),  MX(1,5),  MX(1,6),
+     3   MX(1,7),  MX(1,8),  MY(1,1),  MY(1,2),
+     4   MY(1,3),  MY(1,4),  MY(1,5),  MY(1,6),
+     5   MY(1,7),  MY(1,8),  MZ(1,1),  MZ(1,2),
+     6   MZ(1,3),  MZ(1,4),  MZ(1,5),  MZ(1,6),
+     7   MZ(1,7),  MZ(1,8),  NEL)
         END IF    
        ELSE
         ! ----------------
@@ -370,7 +404,7 @@ C-----------
         MX = ZERO
         MY = ZERO
         MZ = ZERO
-        CALL SUSER43(
+        CALL SUSER43(TIMERS,
      1  ELBUF_STR ,IOUT   ,IPROP(1),IMAT(1),SID  ,TT     ,DT1  ,FR_W_E,       
      2  XX(1,1),XX(1,2),XX(1,3),XX(1,4),XX(1,5),XX(1,6),XX(1,7),XX(1,8), 
      3  YY(1,1),YY(1,2),YY(1,3),YY(1,4),YY(1,5),YY(1,6),YY(1,7),YY(1,8),     
@@ -386,23 +420,28 @@ C-----------
      G  FZ(1,1),FZ(1,2),FZ(1,3),FZ(1,4),FZ(1,5),FZ(1,6),FZ(1,7),FZ(1,8),     
      H  STI    ,STIR   ,VISCM  ,VISCR  ,PARTSAV,IPARTS ,BUFMAT ,IOUTPRT,     
      L  IFAILURE,NPF   ,TF     ,IPM    ,IGEO   ,NPT    ,NEL    ,JSMS   ,     
-     M  DMELS  ,PM     ,GEO    ,ITASK  ,JTHE   ,TABLE )   
+     M  DMELS  ,PM     ,GEO    ,ITASK  ,JTHE   ,TABLE  ,MAT_PARAM      ,
+     N  IDTMINS,DTFACS ,DTMINS)   
        IF(NFILSOL/=0) THEN
-        CALL SFILLOPT(GBUF%FILL,STI,
-     B    FX(1,1),FX(1,2),FX(1,3),FX(1,4),FX(1,5),FX(1,6),FX(1,7),FX(1,8),     
-     F    FY(1,1),FY(1,2),FY(1,3),FY(1,4),FY(1,5),FY(1,6),FY(1,7),FY(1,8),     
-     G    FZ(1,1),FZ(1,2),FZ(1,3),FZ(1,4),FZ(1,5),FZ(1,6),FZ(1,7),FZ(1,8))     
+        CALL SFILLOPT(
+     1   GBUF%FILL,STI,      FX(1,1),  FX(1,2),
+     2   FX(1,3),  FX(1,4),  FX(1,5),  FX(1,6),
+     3   FX(1,7),  FX(1,8),  FY(1,1),  FY(1,2),
+     4   FY(1,3),  FY(1,4),  FY(1,5),  FY(1,6),
+     5   FY(1,7),  FY(1,8),  FZ(1,1),  FZ(1,2),
+     6   FZ(1,3),  FZ(1,4),  FZ(1,5),  FZ(1,6),
+     7   FZ(1,7),  FZ(1,8),  NEL)
         END IF    
 C
       ENDIF
 C--------------------------------------------
 C     Front wave
 C--------------------------------------------
-      IF(IFRWV.NE.0)THEN
+      IF(IFRWV/=0)THEN
 #include "lockon.inc"
         DO J=1,8
          DO I=LFT,LLT
-          IF(FR_WAVE(NC(I,J)).EQ.ZERO)FR_WAVE(NC(I,J))=-FR_W_E(I)
+          IF(FR_WAVE(NC(I,J))==ZERO)FR_WAVE(NC(I,J))=-FR_W_E(I)
          ENDDO
         ENDDO
 #include "lockoff.inc"
@@ -421,12 +460,11 @@ C-----------
       END
 
 
-Chd|====================================================================
-Chd|  SUCUMU3                       source/user_interface/suforc3.F
-Chd|-- called by -----------
-Chd|        SUFORC3                       source/user_interface/suforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sucumu3   ../engine/source/user_interface/suforc3.F
+!||--- called by ------------------------------------------------------
+!||    suforc3   ../engine/source/user_interface/suforc3.F
+!||====================================================================
       SUBROUTINE SUCUMU3(A     ,AR    ,NC    ,STIFN ,STIFR ,
      .                   STI   ,STIR  ,FX    ,FY    ,FZ    ,
      .                   MX    ,MY    ,MZ    )
@@ -481,12 +519,11 @@ c
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  SUCUMU3P                      source/user_interface/suforc3.F
-Chd|-- called by -----------
-Chd|        SUFORC3                       source/user_interface/suforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sucumu3p   ../engine/source/user_interface/suforc3.F
+!||--- called by ------------------------------------------------------
+!||    suforc3    ../engine/source/user_interface/suforc3.F
+!||====================================================================
       SUBROUTINE SUCUMU3P(FSKY,FSKYV,IADS,STI,STIR,
      .   FX,FY,FZ,MX,MY,MZ)
 C-----------------------------------------------
@@ -517,7 +554,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, II, K, J
+      INTEGER I, K, J
 C=======================================================================
       IF (IVECTOR == 1) THEN
         DO J=1,8
@@ -569,16 +606,18 @@ c
 c-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  SUCOOR3                       source/user_interface/suforc3.F
-Chd|-- called by -----------
-Chd|        SUFORC3                       source/user_interface/suforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sucoor3       ../engine/source/user_interface/suforc3.F
+!||--- called by ------------------------------------------------------
+!||    suforc3       ../engine/source/user_interface/suforc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE SUCOOR3(IXS,X  ,V,VR,W,D,FR_WAVE ,FR_W_E  ,
      .                   XX , YY, ZZ, UX, UY, UZ, 
      .                   VX , VY, VZ, VRX, VRY, VRZ,
      .                   OFFG,OFF,NC ,SID,IMAT,IPROP)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -592,8 +631,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "vect01_c.inc"
-#include      "scr18_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -649,7 +686,7 @@ C----------------------------
 C--------------------------------------------
 C     Front wave
 C--------------------------------------------
-      IF(IFRWV.NE.0)THEN
+      IF(IFRWV/=0)THEN
         DO I=LFT,LLT
           FR_W_E(I)=ZERO
         ENDDO

@@ -1,38 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  R12KE3                        source/elements/spring/r12ke3.F
-Chd|-- called by -----------
-Chd|        IMP_GLOB_K                    source/implicit/imp_glob_k.F  
-Chd|        IMP_GLOB_K0                   source/implicit/imp_glob_k.F  
-Chd|-- calls ---------------
-Chd|        ASSEM_R3                      source/implicit/assem_r3.F    
-Chd|        ELEOFF                        source/implicit/imp_glob_k.F  
-Chd|        R12MAT3                       source/elements/spring/r12mat3.F
-Chd|        R12SUMG3                      source/elements/spring/r12sumg3.F
-Chd|        R3COORK3                      source/elements/spring/r3coork3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    r12ke3         ../engine/source/elements/spring/r12ke3.F
+!||--- called by ------------------------------------------------------
+!||    imp_glob_k     ../engine/source/implicit/imp_glob_k.F
+!||    imp_glob_k0    ../engine/source/implicit/imp_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    assem_r3       ../engine/source/implicit/assem_r3.F
+!||    eleoff         ../engine/source/implicit/imp_glob_k.F
+!||    r12mat3        ../engine/source/elements/spring/r12mat3.F
+!||    r12sumg3       ../engine/source/elements/spring/r12sumg3.F
+!||    r3coork3       ../engine/source/elements/spring/r3coork3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE R12KE3(JFT    ,JLT   ,NEL   ,MTN      ,PM    ,
      1                  GEO    ,IXR   ,X     ,ELBUF_TAB,NPF   ,
      2                  TF     ,SKEW  ,OFFSET,FR_WAVE  ,IGEO  ,
@@ -43,6 +45,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixr
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -64,7 +67,7 @@ C-----------------------------------------------
      .         ETAG(*),IDDL(*)  ,NDOF(*)  ,IADK(*) ,JDIK(*)
 
 C     REAL
-      my_real DT2T ,
+      my_real
      .   GEO(NPROPG,*),X(*),TF(*),SKEW(LSKEW,*),
      .   FR_WAVE(*),PM(*),KE11(9,MVSIZ),KE12(9,MVSIZ),KE22(9,MVSIZ),
      .   KE33(9,MVSIZ),KE13(9,MVSIZ),KE23(9,MVSIZ),
@@ -79,9 +82,6 @@ C     REAL
      .     KX(MVSIZ),DKX(MVSIZ),EX(MVSIZ),EY(MVSIZ),EZ(MVSIZ),
      .     EX2(MVSIZ),EY2(MVSIZ),EZ2(MVSIZ),BETA(MVSIZ)
       INTEGER  PID(MVSIZ),NGL(MVSIZ)
-      INTEGER NB1, NB2, NB3, NB4, NB5, NB6, NB7, NB8, NB9, NB10,
-     .   NB11, NB12,  NEL3, NEL4,NB15,  NB16,NBFI
-C
       TYPE(G_BUFEL_)  ,POINTER :: GBUF
 C-----------------------------------------------
       GBUF => ELBUF_TAB%GBUF
@@ -96,7 +96,7 @@ C=======================================================================
 c       NB3 =NB2  + NEL
 c       NB4 =NB3  + NEL
 c       NB5 =NB4  + NEL
-c       IF (SCODVER.LT.101) THEN
+c       IF (SCODVER<101) THEN
 c         NB6 =NB5  + NEL
 c       ELSE
 c         NB6 =NB5  + 2*NEL
@@ -121,7 +121,7 @@ c       NB15 =NB15  + 4 * OFFSET
      1             DKX    ,BETA   ,GBUF%LENGTH,GBUF%FOR,GBUF%TOTDEPL,
      2             TF     ,NPF    ,GBUF%POSX,IGEO  )
 C-------------------------
-C     MATRICE de RIGIDITE
+C     STIFFNESS MATRIX
 C-------------------------
       CALL R12SUMG3(JFT    ,JLT    ,KX      ,DKX    ,EX     ,
      1              EY     ,EZ     ,EX2     ,EY2    ,EZ2    ,
@@ -129,7 +129,7 @@ C-------------------------
      3              KE33   )
 C-----------------------------------------------\
 
-              IF (NEIG.GT.0) CALL ELEOFF(
+              IF (NEIG>0) CALL ELEOFF(
      1                   JFT, JLT, IXR,NIXR ,3  , ETAG, OFF)
          CALL ASSEM_R3(NIXR    ,3        ,
      1       IXR       ,NEL       ,IDDL      ,NDOF      ,K_DIAG    ,

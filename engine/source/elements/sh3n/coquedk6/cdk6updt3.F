@@ -1,31 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CDK6UPDT3                     source/elements/sh3n/coquedk6/cdk6updt3.F
-Chd|-- called by -----------
-Chd|        CDK6FORC3                     source/elements/sh3n/coquedk6/cdk6forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cdk6updt3     ../engine/source/elements/sh3n/coquedk6/cdk6updt3.F
+!||--- called by ------------------------------------------------------
+!||    cdk6forc3     ../engine/source/elements/sh3n/coquedk6/cdk6forc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CDK6UPDT3(JFT  ,JLT ,F ,M , NVC  ,
      2                   OFFG ,OFF ,STI ,STIR,STIFN,
      3                   STIFR,IXTG,IXTG1, F11  ,
@@ -33,18 +34,11 @@ Chd|====================================================================
      5                   F31    ,F32  ,F33 ,F14 ,F15  ,
      7                   F16    ,F24  ,F25 ,F26 ,F34 ,
      8                   F35    ,F36  ,NVS ,IVS )
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -60,12 +54,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NVC1, NVC2, NVC3, I, J, EP
-      INTEGER NC1, NC2, NC3,NC,NCJ
+      INTEGER    I, EP
+      INTEGER   NC,NCJ
 C-----------------------------------------------
 C
       DO 20 I=JFT,JLT
-        IF(OFF(I).LT.1.)OFFG(I) = OFF(I)
+        IF(OFF(I)<1.)OFFG(I) = OFF(I)
  20   CONTINUE
 C
 C      NVC1= NVC/8
@@ -93,7 +87,7 @@ C
         F(3,NC)=F(3,NC)-F33(I)
         STIFN(NC)=STIFN(NC)+STI(I)
        ENDDO
-C---------avec voisins----------------------
+C---------with neighbors----------------------
        DO EP=JFT,NVS
         I =IVS(EP)
         NCJ = IXTG1(1,I)
@@ -119,7 +113,7 @@ C---------sans voisins----------------------
        DO EP=NVS+1,JLT
         I =IVS(EP)
         NCJ = IXTG1(1,I)
-        IF (NCJ .GT. 0) THEN
+        IF (NCJ > 0) THEN
          F(1,NCJ)=F(1,NCJ)-F14(I)
          F(2,NCJ)=F(2,NCJ)-F24(I)
          F(3,NCJ)=F(3,NCJ)-F34(I)
@@ -128,7 +122,7 @@ C---------sans voisins----------------------
        DO EP=NVS+1,JLT
         I =IVS(EP)
         NCJ = IXTG1(2,I)
-        IF (NCJ .GT. 0) THEN
+        IF (NCJ > 0) THEN
          F(1,NCJ)=F(1,NCJ)-F15(I)
          F(2,NCJ)=F(2,NCJ)-F25(I)
          F(3,NCJ)=F(3,NCJ)-F35(I)
@@ -137,7 +131,7 @@ C---------sans voisins----------------------
        DO EP=NVS+1,JLT
         I =IVS(EP)
         NCJ = IXTG1(3,I)
-        IF (NCJ .GT. 0) THEN
+        IF (NCJ > 0) THEN
          F(1,NCJ)=F(1,NCJ)-F16(I)
          F(2,NCJ)=F(2,NCJ)-F26(I)
          F(3,NCJ)=F(3,NCJ)-F36(I)
@@ -146,12 +140,11 @@ C---------sans voisins----------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CDK6UPDT3P                    source/elements/sh3n/coquedk6/cdk6updt3.F
-Chd|-- called by -----------
-Chd|        CDK6FORC3                     source/elements/sh3n/coquedk6/cdk6forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cdk6updt3p   ../engine/source/elements/sh3n/coquedk6/cdk6updt3.F
+!||--- called by ------------------------------------------------------
+!||    cdk6forc3    ../engine/source/elements/sh3n/coquedk6/cdk6forc3.F
+!||====================================================================
       SUBROUTINE CDK6UPDT3P(JFT,JLT ,OFFG ,OFF,STI,
      2                   STIR,FSKY,FSKYV,IADTG,IADTG1,
      4             F11    ,F12  ,F13  ,F21 ,F22 ,
@@ -163,12 +156,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "task_c.inc"
 #include      "parit_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -185,13 +174,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, II, K
+      INTEGER I, K
 C-----------------------------------------------
       DO 20 I=JFT,JLT
-        IF(OFF(I).LT.1.)OFFG(I) = OFF(I)
+        IF(OFF(I)<1.)OFFG(I) = OFF(I)
  20   CONTINUE
 C
-      IF (IVECTOR.EQ.1) THEN
+      IF (IVECTOR==1) THEN
 #include "vectorize.inc"
         DO I=JFT,JLT
           K = IADTG(1,I)
@@ -212,19 +201,19 @@ C
         ENDDO
         DO I=JFT,JLT
           K = IADTG1(1,I)
-          IF (K.GT.0) THEN
+          IF (K>0) THEN
            FSKYV(K,1)=-F14(I)
            FSKYV(K,2)=-F24(I)
            FSKYV(K,3)=-F34(I)
           ENDIF 
           K = IADTG1(2,I)
-          IF (K.GT.0) THEN
+          IF (K>0) THEN
            FSKYV(K,1)=-F15(I)
            FSKYV(K,2)=-F25(I)
            FSKYV(K,3)=-F35(I)
           ENDIF 
           K = IADTG1(3,I)
-          IF (K.GT.0) THEN
+          IF (K>0) THEN
            FSKYV(K,1)=-F16(I)
            FSKYV(K,2)=-F26(I)
            FSKYV(K,3)=-F36(I)
@@ -250,19 +239,19 @@ C
         ENDDO
         DO I=JFT,JLT
           K = IADTG1(1,I)
-          IF (K.GT.0) THEN
+          IF (K>0) THEN
            FSKY(1,K)=-F14(I)
            FSKY(2,K)=-F24(I)
            FSKY(3,K)=-F34(I)
           ENDIF 
           K = IADTG1(2,I)
-          IF (K.GT.0) THEN
+          IF (K>0) THEN
            FSKY(1,K)=-F15(I)
            FSKY(2,K)=-F25(I)
            FSKY(3,K)=-F35(I)
           ENDIF 
           K = IADTG1(3,I)
-          IF (K.GT.0) THEN
+          IF (K>0) THEN
            FSKY(1,K)=-F16(I)
            FSKY(2,K)=-F26(I)
            FSKY(3,K)=-F36(I)

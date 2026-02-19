@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS28                      source/materials/mat/mat028/sigeps28.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|-- calls ---------------
-Chd|        VINTER2                       source/tools/curve/vinter.F   
-Chd|        VINTER2DP                     source/tools/curve/vinter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps28    ../engine/source/materials/mat/mat028/sigeps28.F
+!||--- called by ------------------------------------------------------
+!||    mulaw       ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8      ../engine/source/materials/mat_share/mulaw8.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||    vinter2     ../engine/source/tools/curve/vinter.F
+!||    vinter2dp   ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS28 (
      1     NEL    ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC   ,NPF    ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0    ,RHO    ,
@@ -85,7 +86,7 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -148,22 +149,22 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,IADBUF,IF1,IF2,AUX,IC,II,K,
+      INTEGER I,J,IADBUF,IF1,IF2,AUX,IC,II,
      .        IAD1(MVSIZ),IPOS1(MVSIZ),ILEN1(MVSIZ),
      .        INDEX(MVSIZ),
      .        NINDX,INDX(MVSIZ)
       my_real
      .        E11,E22,E33,G12,G23,G31,
-     .        Y11,Y22,Y33,Y12,Y23,Y31,EP1,EP2,EP3,EP4,EP5,EP6,
+     .        
      .        YC(MVSIZ),FAC1(MVSIZ),FAC2(MVSIZ),
      .        FAC3(MVSIZ),FAC4(MVSIZ),FAC5(MVSIZ),FAC6(MVSIZ),
-     .        DYDX,DYDXV(MVSIZ),EP(MVSIZ,6),EPC(MVSIZ),
-     .        EMX11,EMX22,EMX33,EMX12,EMX23,EMX31,AMUV
+     .        DYDXV(MVSIZ),EP(MVSIZ,6),EPC(MVSIZ),
+     .        EMX11,EMX22,EMX33,EMX12,EMX23,EMX31
 C=======================================================================
 C     USER VARIABLES INITIALIZATION
 C-----------------------------------------------
-      IF(TIME.EQ.ZERO)THEN
-       IF (NUVAR.GT.0) THEN
+      IF(TIME==ZERO)THEN
+       IF (NUVAR>0) THEN
         DO 100 J=1,NUVAR
         DO 100 I=1,NEL
            UVAR(I,J)=ZERO
@@ -208,19 +209,18 @@ C
         FAC4(I) = UPARAM(IADBUF+18) 
         FAC5(I) = UPARAM(IADBUF+19) 
         FAC6(I) = UPARAM(IADBUF+20) 
-        IF((EPSXX(I).GT.EMX11.OR.                                  
-     .      EPSYY(I).GT.EMX22.OR.                                  
-     .      EPSZZ(I).GT.EMX33.OR.                                  
-     .      ABS(EPSXY(I)/TWO).GT.EMX12.OR.                             
-     .      ABS(EPSYZ(I)/TWO).GT.EMX23.OR.                             
-     .      ABS(EPSZX(I)/TWO).GT.EMX31).AND.OFF(I).NE.ZERO) THEN       
+        IF((EPSXX(I)>EMX11.OR.                                  
+     .      EPSYY(I)>EMX22.OR.                                  
+     .      EPSZZ(I)>EMX33.OR.                                  
+     .      ABS(EPSXY(I)/TWO)>EMX12.OR.                             
+     .      ABS(EPSYZ(I)/TWO)>EMX23.OR.                             
+     .      ABS(EPSZX(I)/TWO)>EMX31).AND.OFF(I)/=ZERO) THEN       
           OFF(I) = ZERO                                            
-          IDEL7NOK = 1                                             
           NINDX=NINDX+1  
           INDX(NINDX)=I  
         ENDIF                                                      
       ENDDO
-      IF(NINDX.GT.0)THEN
+      IF(NINDX>0)THEN
         DO J=1,NINDX
 #include "lockon.inc"
           WRITE(IOUT, 1000) NGL(INDX(J))
@@ -241,20 +241,20 @@ c        AMU = RHO(I)/RHO0(I) - ONE ! Change using AMU(I) to take into account T
         IADBUF = IPM(7,MAT(I))     
         IF1=NINT(UPARAM(IADBUF+6)) 
         IF2=NINT(UPARAM(IADBUF+7)) 
-        IF(IF1.EQ.1)THEN           
+        IF(IF1==1)THEN           
           EP(I,1) = EPSXX(I)       
           EP(I,2) = EPSYY(I)       
           EP(I,3) = EPSZZ(I)       
-        ELSEIF(IF1.EQ.-1)THEN      
+        ELSEIF(IF1==-1)THEN      
           EP(I,1) = -EPSXX(I)      
           EP(I,2) = -EPSYY(I)      
           EP(I,3) = -EPSZZ(I)      
         ENDIF                      
-        IF(IF2.EQ.1)THEN           
+        IF(IF2==1)THEN           
           EP(I,4) = EPSXY(I)       
           EP(I,5) = EPSYZ(I)       
           EP(I,6) = EPSZX(I)       
-        ELSEIF(IF2.EQ.-1)THEN      
+        ELSEIF(IF2==-1)THEN      
           EP(I,4) = -EPSXY(I)      
           EP(I,5) = -EPSYZ(I)      
           EP(I,6) = -EPSZX(I)      
@@ -265,9 +265,9 @@ C---------------------------
         IC = 0
         DO I = 1, NEL
           NFUNC  = IPM(10,MAT(I))
-          IF (NFUNC.GE.J) THEN
+          IF (NFUNC>=J) THEN
            AUX = IPM(10+J,MAT(I))
-           IF (AUX.NE.0) THEN
+           IF (AUX/=0) THEN
             IC = IC + 1
             INDEX(IC) = I
             IPOS1(IC) = NINT(UVAR(I,J))
@@ -278,48 +278,48 @@ C---------------------------
           ENDIF
         ENDDO
 
-        IF (IRESP.EQ.1) THEN
+        IF (IRESP==1) THEN
           CALL VINTER2DP(TF,IAD1,IPOS1,ILEN1,IC,EPC,DYDXV,YC)
         ELSE
           CALL VINTER2(TF,IAD1,IPOS1,ILEN1,IC,EPC,DYDXV,YC)
         ENDIF
 C
-        IF (J.EQ.1) THEN
+        IF (J==1) THEN
 #include "vectorize.inc"
           DO II = 1, IC
             I = INDEX(II)
             UVAR(I,J)=IPOS1(II)
             SIGNXX(I)=SIGN(MIN(ABS(SIGNXX(I)),YC(II)*FAC1(I)),SIGNXX(I))
           ENDDO
-        ELSEIF (J.EQ.2) THEN
+        ELSEIF (J==2) THEN
 #include "vectorize.inc"
           DO II = 1, IC
             I = INDEX(II)
             UVAR(I,J)=IPOS1(II) 
             SIGNYY(I)=SIGN(MIN(ABS(SIGNYY(I)),YC(II)*FAC2(I)),SIGNYY(I))
           ENDDO
-        ELSEIF (J.EQ.3) THEN
+        ELSEIF (J==3) THEN
 #include "vectorize.inc"
           DO II = 1, IC
             I = INDEX(II)
             UVAR(I,J)=IPOS1(II) 
             SIGNZZ(I)=SIGN(MIN(ABS(SIGNZZ(I)),YC(II)*FAC3(I)),SIGNZZ(I))
           ENDDO
-        ELSEIF (J.EQ.4) THEN
+        ELSEIF (J==4) THEN
 #include "vectorize.inc"
           DO II = 1, IC
             I = INDEX(II)
             UVAR(I,J)=IPOS1(II) 
             SIGNXY(I)=SIGN(MIN(ABS(SIGNXY(I)),YC(II)*FAC4(I)),SIGNXY(I))
           ENDDO
-        ELSEIF (J.EQ.5) THEN
+        ELSEIF (J==5) THEN
 #include "vectorize.inc"
           DO II = 1, IC
             I = INDEX(II)
             UVAR(I,J)=IPOS1(II) 
             SIGNYZ(I)=SIGN(MIN(ABS(SIGNYZ(I)),YC(II)*FAC5(I)),SIGNYZ(I))
           ENDDO
-        ELSEIF (J.EQ.6) THEN
+        ELSEIF (J==6) THEN
 #include "vectorize.inc"
           DO II = 1, IC
             I = INDEX(II)

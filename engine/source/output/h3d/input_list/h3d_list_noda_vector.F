@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  H3D_LIST_NODAL_VECTOR         source/output/h3d/input_list/h3d_list_noda_vector.F
-Chd|-- called by -----------
-Chd|        LECH3D                        source/output/h3d/h3d_build_fortran/lech3d.F
-Chd|-- calls ---------------
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    h3d_list_nodal_vector   ../engine/source/output/h3d/input_list/h3d_list_noda_vector.F
+!||--- called by ------------------------------------------------------
+!||    lech3d                  ../engine/source/output/h3d/h3d_build_fortran/lech3d.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod                 ../engine/share/modules/h3d_mod.F
+!||    message_mod             ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE H3D_LIST_NODAL_VECTOR(H3D_KEYWORD_NODAL_VECTOR,GEO,NKEY)
 C-----------------------------------------------
 C   M o d u l e s
@@ -39,33 +39,27 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
+C   C o m m o n   B l o c k s
+C-----------------------------------------------
+#include      "param_c.inc"
+#include      "com04_c.inc"
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (H3D_KEYWORD) H3D_KEYWORD_NODAL_VECTOR(*)
-      my_real
-     .      GEO(NPROPG,*)
+      my_real GEO(NPROPG,NUMGEO)
       INTEGER, INTENT(INOUT) :: NKEY
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "chara_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NIPMAX
+      INTEGER I
 C=========================================================================
       I = 0
 c-----------------------------------------------
       I = I + 1
       H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'VEL'
       H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Velocity'
-      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 
-     .'Node translational velocity'
+      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 'Node translational velocity'
 c-----------------------------------------------
       I = I + 1
       H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'DIS'
@@ -125,6 +119,10 @@ c-----------------------------------------------
       H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Tied Contact Forces'
 c-----------------------------------------------
       I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'CONT2/MOMENT'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Tied Contact Moments'
+c-----------------------------------------------
+      I = I + 1
       H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'DROT'
       H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Rotational DOF'
       H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  ='drot=1 must also be set in /IOFLAG otherwise, rotational dof are not computed'
@@ -178,9 +176,19 @@ c-----------------------------------------------
       H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'inter22 - Centroid Internal Force'
 c-----------------------------------------------
       I = I + 1
-      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'CONT/MAX'
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'CONT/TMAX'
       H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Maximum Contact Forces Over time'
       H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 'Node contact force (Maximum over time)'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'CONT2/TMAX'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Maximum Tied Contact Forces Over time'
+      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 'Node contact force (Maximum over time)'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'CONT2/TMIN'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Minimum Tied Contact Forces Over time'
+      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 'Node contact force (Minimum over time)'
 c-----------------------------------------------
       I = I + 1
       H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'PCONT2/NORMAL'
@@ -191,18 +199,54 @@ c-----------------------------------------------
       H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Tied Contact Pressure / Tangent'
 c-----------------------------------------------
       I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'MAXPCONT/NORMAL'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Maximum Over Time Contact Pressure / Normal'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'MAXPCONT/TANGENT'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Maximum Over Time Contact Pressure / Tangent'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'MAXPCONT2/NORMAL'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Maximum Over Time Tied Contact Pressure / Normal'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'MAXPCONT2/TANGENT'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Maximum Over Time Tied Contact Pressure / Tangent'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'MINPCONT2/NORMAL'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Minimum Over Time Tied Contact Pressure / Normal'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'MINPCONT2/TANGENT'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Minimum Over Time Tied Contact Pressure / Tangent'
+c-----------------------------------------------
+      I = I + 1
       H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'VEL/TMAX'
       H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Max_Velocity'
-      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 
-     .'Maximum node translational velocity over time'
+      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 'Maximum node translational velocity over time'
 c-----------------------------------------------
       I = I + 1
       H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'DIS/TMAX'
       H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Max_Displacement'
-      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 
-     .'Maximum node displacement over time'
+      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 'Maximum node displacement over time'
 c-----------------------------------------------
-
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'AROT'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Rotational Acceleration'
+      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 'drot=1 must also be set in /IOFLAG otherwise, rotational dof are not computed'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'VEL/GRID'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Grid Velocity'
+      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 'ALE only'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_NODAL_VECTOR(I)%KEY3  = 'SHELL_OFFSET'
+      H3D_KEYWORD_NODAL_VECTOR(I)%TEXT1  = 'Shell offset vector'
+      H3D_KEYWORD_NODAL_VECTOR(I)%COMMENT  = 'Nodal shell offset used for contact'
+c-----------------------------------------------
 
       NKEY=I
       END

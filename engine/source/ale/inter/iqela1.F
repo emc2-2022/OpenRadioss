@@ -1,40 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  IQELA1                        source/ale/inter/iqela1.F     
-Chd|-- called by -----------
-Chd|        INTAL2                        source/ale/inter/intal2.F     
-Chd|-- calls ---------------
-Chd|        SHAPEH                        source/ale/inter/shapeh.F     
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE IQELA1(X,SKEW,A,E,MSM,IRECT,LMSR,CRST,MSR,
-     1                 NSV,ILOC,IRTL,MS,NOR,LCODE,ISKEW,FSAV,ITAB,
-     2                 FCONT,FNCONT,FTCONT,H3D_DATA)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    iqela1       ../engine/source/ale/inter/iqela1.F
+!||--- called by ------------------------------------------------------
+!||    intal2       ../engine/source/ale/inter/intal2.F
+!||--- calls      -----------------------------------------------------
+!||    shapeh       ../engine/source/ale/inter/shapeh.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod      ../engine/share/modules/h3d_mod.F
+!||    output_mod   ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE IQELA1(OUTPUT,A,E,MSM,IRECT,CRST,MSR,
+     1                 NSV,ILOC,IRTL,MS,NOR,LCODE,ISKEW,FSAV,
+     2                 FCONT,FNCONT,H3D_DATA,NSN,NMN)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -51,9 +54,7 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr04_c.inc"
 #include      "scr07_c.inc"
-#include      "scr08_s_c.inc"
 #include      "scr08_a_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
@@ -63,9 +64,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER,INTENT(INOUT) :: IRECT(4,*), LMSR(4,*), MSR(*), NSV(*), ILOC(*), IRTL(*),LCODE(*), ISKEW(*),ITAB(NUMNOD)
-      my_real,INTENT(INOUT) :: X(3,NUMNOD), SKEW(LSKEW,*), A(SA), E(*), MSM(*), CRST(2,*), MS(*),NOR(3,*),FSAV(*)
-      my_real,INTENT(INOUT) :: FCONT(3,*),FNCONT(3,*),FTCONT(3,*)
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
+      INTEGER,INTENT(INOUT) :: IRECT(4,*), MSR(*), NSV(*), ILOC(*), IRTL(*),LCODE(*), ISKEW(*)
+      my_real,INTENT(INOUT) :: A(SA), E(*), MSM(*), CRST(2,*), MS(*),NOR(3,*),FSAV(*)
+      my_real,INTENT(INOUT) :: FCONT(3,*),FNCONT(3,*)
+      INTEGER, INTENT(IN) :: NSN,NMN
       TYPE(H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -82,7 +85,7 @@ C-----------------------------------------------
       IANIM  = .FALSE.
       ICONT  = (ANIM_V(4)+OUTP_V(4) > 0+H3D_DATA%N_VECT_CONT)
       IF(ANIM_V(12)+OUTP_V(12)+H3D_DATA%N_VECT_PCONT > 0)THEN      
-       IF(TT >= TANIM.OR.TT >= TOUTP.OR.TT >= H3D_DATA%TH3D.OR.
+       IF( (TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP) .OR.TT >= TOUTP.OR.TT >= H3D_DATA%TH3D.OR.
      .      (MANIM >= 4.AND.MANIM <= 15).OR. H3D_DATA%MH3D /= 0)THEN
          IPCONT = .TRUE.
        ENDIF
@@ -108,7 +111,7 @@ C-----------------------------------------------
        E(I3)=ZERO
       ENDDO
 
-      !secnd nodes
+      !second nodes
       DO II=1,NSN
        I=NSV(II)
        J=ILOC(II)
@@ -118,7 +121,7 @@ C-----------------------------------------------
           NN=IRECT(JJ,L)
           IY(JJ)=NN
          ENDDO
-         !parametric ccordinates on main face
+         !parametric coordinates on main face
          SSS=CRST(1,II)
          TTT=CRST(2,II)
          !normal

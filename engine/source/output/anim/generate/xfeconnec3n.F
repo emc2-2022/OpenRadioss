@@ -1,38 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  XFECONNEC3N                   source/output/anim/generate/xfeconnec3n.F
-Chd|-- called by -----------
-Chd|        XFECUT                        source/output/anim/generate/xfecut.F
-Chd|-- calls ---------------
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    xfeconnec3n     ../engine/source/output/anim/generate/xfeconnec3n.F
+!||--- called by ------------------------------------------------------
+!||    xfecut          ../engine/source/output/anim/generate/xfecut.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod   ../engine/share/modules/crackxfem_mod.F
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE XFECONNEC3N(
      .     JFT      ,JLT      ,NFT     ,IXTG        ,ELCUTC   ,
      .     IEL_CRKTG,IAD_CRKTG,ILEV    ,NODEDGE     ,CRKEDGE  ,
      .     XEDGE3N  )
 C----------------------------------------------- 
-      USE CRACKXFEM_MOD        
+      USE CRACKXFEM_MOD
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -42,15 +44,10 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "comlock.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com_xfem1.inc"
-#include      "parit_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -60,11 +57,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,K1,K2,K3,KK,p,P1,P2,P3,IFI1,IFI2,
+      INTEGER I,K,K1,K2,K3,KK,P1,P2,P3,IFI1,IFI2,
      .  EDGE,IEDGE1,IEDGE2,EDGE1,EDGE2,IED1,IED2,
      .  IADC1,IADC2,IADC3,ILAY,IXEL,ELCUT,ELCRK,ELCRKTG,
      .  IED0,IFI10,NOD1,NOD2,ITRI,NX1,NX2,NX3
-      INTEGER IFI0(3,MVSIZ),NEG(2),D1(3),D2(3),DX(6)
+      INTEGER IFI0(3,MVSIZ),D1(3),D2(3),DX(6)
       my_real
      .   XIN(3,MVSIZ),YIN(3,MVSIZ),ZIN(3,MVSIZ),
      .   XX(3,MVSIZ),YY(3,MVSIZ),ZZ(3,MVSIZ)
@@ -75,10 +72,13 @@ C-------------------
       DATA DX/1,2,3,1,2,3/        
 c      DATA ED/1,3,2,1,3,2/
 C=======================================================================
-c     Re-build phantom element connectivities
+c     Re-built phantom connectivities
 C-----------------------------------------------
       IXEL = MOD(ILEV-1, NXEL) + 1
       ILAY = (ILEV-IXEL)/NXEL  + 1
+      P1 = 0
+      P2 = 0
+      P3 = 0
 c
       DO I=JFT,JLT
         XIN(1,I) = ZERO

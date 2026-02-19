@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2_DTN_28                     source/interfaces/inter3d1/i2_dtn_28.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        I2_DTN_28_CIN                 source/interfaces/inter3d1/i2_dtn_28.F
-Chd|        I2_DTN_28_PEN                 source/interfaces/inter3d1/i2_dtn_28.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2_dtn_28       ../starter/source/interfaces/inter3d1/i2_dtn_28.F
+!||--- called by ------------------------------------------------------
+!||    inintr2         ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    i2_dtn_28_cin   ../starter/source/interfaces/inter3d1/i2_dtn_28.F
+!||    i2_dtn_28_pen   ../starter/source/interfaces/inter3d1/i2_dtn_28.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I2_DTN_28(X,INTBUF_TAB,IPARI,STIFN,MS,IN,N,NSN)
 C-----------------------------------------------
 C   M o d u l e s
@@ -38,21 +38,15 @@ C=======================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARI(NPARI,*),NSN,N
-C     REAL
       my_real
      .   X(3,*),STIFN(*),MS(*),IN(*)
 C
@@ -60,7 +54,7 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,NI,NINDXC,NINDXP
+      INTEGER I,NINDXC,NINDXP
 C=======================================================================
       NINDXC = 0     
       NINDXP = 0     
@@ -74,25 +68,24 @@ C----------------
       ENDDO
 c-----------
       IF (NINDXC > 0) THEN
-        CALL I2_DTN_28_CIN(X,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%MSR,INTBUF_TAB(N)%NSV,INTBUF_TAB(N)%IRTLM,
+        CALL I2_DTN_28_CIN(X,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%NSV,INTBUF_TAB(N)%IRTLM,
      .                     IPARI(1,N),STIFN, STIFN(NUMNOD+1),MS,IN,INTBUF_TAB(N)%IRUPT)
       ENDIF
 c-----------
       IF (NINDXP > 0) THEN
         CALL I2_DTN_28_PEN(X,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%CSTS,INTBUF_TAB(N)%NSV,INTBUF_TAB(N)%IRTLM,
-     .                     IPARI(1,N),INTBUF_TAB(N)%MSEGTYP2,STIFN,STIFN(NUMNOD+1),INTBUF_TAB(N)%SPENALTY,
+     .                     IPARI(1,N),STIFN,INTBUF_TAB(N)%SPENALTY,
      .                     INTBUF_TAB(N)%STFR_PENALTY,INTBUF_TAB(N)%VARIABLES(14),IN,INTBUF_TAB(N)%IRUPT)
-      ENDIF	    
+      ENDIF      
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I2_DTN_28_CIN                 source/interfaces/inter3d1/i2_dtn_28.F
-Chd|-- called by -----------
-Chd|        I2_DTN_28                     source/interfaces/inter3d1/i2_dtn_28.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE I2_DTN_28_CIN(X,IRECT , MSR   ,NSV  ,IRTL  ,
+!||====================================================================
+!||    i2_dtn_28_cin   ../starter/source/interfaces/inter3d1/i2_dtn_28.F
+!||--- called by ------------------------------------------------------
+!||    i2_dtn_28       ../starter/source/interfaces/inter3d1/i2_dtn_28.F
+!||====================================================================
+      SUBROUTINE I2_DTN_28_CIN(X,IRECT , NSV  ,IRTL  ,
      2                         IPARI, STIFN, STIFR, MS, IN,IRUPT)
 C-----------------------------------------------
 C   M o d u l e s
@@ -102,36 +95,20 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr07_c.2.inc"
-#include      "scr17_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IRECT(4,*), MSR(*), NSV(*),IRTL(*),
-     .        IPARI(*),IRUPT(*)
-C     REAL
-      my_real
-     .   X(3,*),STIFN(*),STIFR(*), MS(*),IN(*)
+      INTEGER IRECT(4,*), NSV(*),IRTL(*),IPARI(*),IRUPT(*)
+      my_real X(3,*),STIFN(*),STIFR(*), MS(*), IN(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER II,I,J,JJ,L,J1,J2,J3,J4,NIR,NRTM,NSN,NMN
+      INTEGER II,I,L,J1,J2,J3,J4,NRTM,NSN,NMN
       my_real
      .   X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,XS,YS,ZS,X0,Y0,Z0,
      .   XX,YY,ZZ,XXX,YYY,ZZZ,XY,YZ,ZX,XY2,YZ2,ZX2,
      .   X12,X22,X32,X42,Y12,Y22,Y32,Y42,Z12,Z22,Z32,Z42,
-     .   A1,A2,A3,B1,B2,B3,C1,C2,C3,MR,MRX,MRY,MRZ,INX,INY,INZ,STF,FACT,
+     .   B1,B2,B3,C1,C2,C3,MR,MRX,MRY,MRZ,INX,STF,FACT,
      .   DET,XMSI
 C=======================================================================
       NRTM   = IPARI(4)
@@ -224,9 +201,9 @@ C
         MR=DET*INX*MAX(MRX,MRY,MRZ)
 C
         FACT = ONE
-        IF (IRODDL.EQ.1) THEN
-        IF (IN(J1).GT.ZERO.AND.IN(J2).GT.ZERO.AND.IN(J3).GT.ZERO.AND.IN(J4).GT.ZERO) THEN
-C--       Inertie transmise sous forme d'inertie
+        IF (IRODDL==1) THEN
+        IF (IN(J1)>ZERO.AND.IN(J2)>ZERO.AND.IN(J3)>ZERO.AND.IN(J4)>ZERO) THEN
+C- inertia transmitted in the form of inertia
           FACT = ZERO
         ENDIF
         ENDIF
@@ -251,7 +228,7 @@ C
         STIFN(J3)=STIFN(J3) + STF
         STIFN(J4)=STIFN(J4) + STF
 C
-        IF (IRODDL.EQ.1) THEN
+        IF (IRODDL==1) THEN
           IN(J1)=IN(J1)+INX*FOURTH*(ONE-FACT)
           IN(J2)=IN(J2)+INX*FOURTH*(ONE-FACT)
           IN(J3)=IN(J3)+INX*FOURTH*(ONE-FACT)
@@ -261,63 +238,48 @@ C
         MS(I)=ZERO
         STIFN(I)=EM20
 C  
-        IF (IRODDL.EQ.1) THEN
+        IF (IRODDL==1) THEN
           IN(I)=ZERO
           STIFR(I)=EM20
         ENDIF
 C
       ENDDO
-C	    
+C      
 C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  I2_DTN_28_PEN                 source/interfaces/inter3d1/i2_dtn_28.F
-Chd|-- called by -----------
-Chd|        I2_DTN_28                     source/interfaces/inter3d1/i2_dtn_28.F
-Chd|-- calls ---------------
-Chd|        I2PEN_ROT28                   ../common_source/interf/i2pen_rot.F
-Chd|        I2REP                         ../common_source/interf/i2rep.F
-Chd|====================================================================
+!||====================================================================
+!||    i2_dtn_28_pen   ../starter/source/interfaces/inter3d1/i2_dtn_28.F
+!||--- called by ------------------------------------------------------
+!||    i2_dtn_28       ../starter/source/interfaces/inter3d1/i2_dtn_28.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I2_DTN_28_PEN(X,IRECT ,CRST    ,NSV  ,IRTL,
-     2                         IPARI,MSEGTYP2,STIFN, STIFR,STFN,
+     2                         IPARI,STIFN, STFN,
      3                         STFR,VISC,IN,IRUPT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER  IRECT(4,*),NSV(*),IRTL(*),MSEGTYP2(*),IPARI(*),IRUPT(*)
-C     REAL
-      my_real
-     .   X(3,*),IN(*),STIFN(*),STIFR(*),STFN(*),STFR(*),CRST(2,*),VISC
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "param_c.inc"
+      INTEGER  IRECT(4,*),NSV(*),IRTL(*),IPARI(*),IRUPT(*)
+      my_real X(3,*),IN(*),STIFN(*),STFN(*),STFR(*),CRST(2,*),VISC
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR,I,J,II,JJ,L,W,NN,KK,
-     .        IX1, IX2, IX3, IX4,NSVG,NSN
-C     REAL
+      INTEGER NIR,I,II,L,
+     .        IX1, IX2, IX3, IX4,NSN
       my_real
      .   S,T,SP,SM,TP,TM,E1X,E1Y,E1Z,E2X,E2Y,E2Z,E3X,E3Y,E3Z,
      .   XSM,YSM,ZSM,XM,YM,ZM,X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,X0,Y0,Z0,XS,YS,ZS,STF_MOM,
      .   STF,STR,STBRK
       my_real
-     .   H(4),H2(4),RX(4),RY(4),RZ(4),RM(3),RS(3),STIF,VIS
+     .   H(4),H2(4),RX(4),RY(4),RZ(4),RM(3),RS(3)
       my_real
-     .   LEN2,FAC_TRIANG,IROT,SKEW(9),TT,DERX,DERY,DERZ,DET,B1,B2,B3,C1,C2,C3,BID,BID3(3)  
+     .   LEN2,FAC_TRIANG,SKEW(9),TT,DERX,DERY,DERZ,DET,B1,B2,B3,C1,C2,C3,BID,BID3(3)  
 C=======================================================================
       NSN    = IPARI(5)
 C
@@ -374,19 +336,19 @@ C------------------------------------------------
           X1  = X(1,IX1)                                       
           Y1  = X(2,IX1)                                          
           Z1  = X(3,IX1)                                          
-          X2  = X(1,IX2)					     
-          Y2  = X(2,IX2)					     
-          Z2  = X(3,IX2)					     
-          X3  = X(1,IX3)					     
-          Y3  = X(2,IX3)					     
-          Z3  = X(3,IX3)					     
-          X4  = X(1,IX4)					     
-          Y4  = X(2,IX4)					     
-          Z4  = X(3,IX4)					     
+          X2  = X(1,IX2)               
+          Y2  = X(2,IX2)               
+          Z2  = X(3,IX2)               
+          X3  = X(1,IX3)               
+          Y3  = X(2,IX3)               
+          Z3  = X(3,IX3)               
+          X4  = X(1,IX4)               
+          Y4  = X(2,IX4)               
+          Z4  = X(3,IX4)               
           XS  = X(1,I)                                          
           YS  = X(2,I)                                         
           ZS  = X(3,I)                                           
-							
+
 C---------------------
           CALL I2REP(X1     ,X2     ,X3     ,X4     ,
      .               Y1     ,Y2     ,Y3     ,Y4     ,
@@ -471,9 +433,9 @@ c
         RZ(4) = E3X*X4 + E3Y*Y4 + E3Z*Z4         
 C
         IF (NIR==3) THEN
- 	  RX(4)=ZERO
- 	  RY(4)=ZERO
- 	  RZ(4)=ZERO
+            RX(4)=ZERO
+            RY(4)=ZERO
+            RZ(4)=ZERO
         END IF
 C
 C---------

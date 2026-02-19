@@ -1,50 +1,54 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S6CDERI3                      source/elements/thickshell/solide6c/s6cderi3.F
-Chd|-- called by -----------
-Chd|        S6CFORC3                      source/elements/thickshell/solide6c/s6cforc3.F
-Chd|        S6CKE3                        source/elements/thickshell/solide6c/s6cke3.F
-Chd|        S6CKEL3                       source/elements/thickshell/solide6c/s6cke3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE S6CDERI3(OFF,DET,NGL,
-     .   X1, X2, X3, X4, X5, X6, 
-     .   Y1, Y2, Y3, Y4, Y5, Y6, 
-     .   Z1, Z2, Z3, Z4, Z5, Z6, 
-     .   PX1, PX2, PX3, PX4,
-     .   PY1, PY2, PY3, PY4,
-     .   PZ1, PZ2, PZ3, PZ4,
-     .   PX1H, PX2H, PX3H, 
-     .   PY1H, PY2H, PY3H, 
-     .   PZ1H, PZ2H, PZ3H, 
-     .   JACOB5,JACOB6,JACOB4,
-     .   JACOB8,JACOB9,JACOB7,
-     .   JACI33,B1X,B1Y,B2Y,B2X,B1122,B1221,B2212,B1121,
-     .   B1XH,B1YH,B2XH,B2YH,B1122H,B1221H,B2212H,B1121H,
-     .   VZL,VOLG,SAV,OFFG,NEL)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s6cderi3      ../engine/source/elements/thickshell/solide6c/s6cderi3.F
+!||--- called by ------------------------------------------------------
+!||    s6cforc3      ../engine/source/elements/thickshell/solide6c/s6cforc3.F
+!||    s6cke3        ../engine/source/elements/thickshell/solide6c/s6cke3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE S6CDERI3(
+     1   OFF,     DET,     NGL,     X1,
+     2   X2,      X3,      X4,      X5,
+     3   X6,      Y1,      Y2,      Y3,
+     4   Y4,      Y5,      Y6,      Z1,
+     5   Z2,      Z3,      Z4,      Z5,
+     6   Z6,      PX1,     PX2,     PX3,
+     7   PX4,     PY1,     PY2,     PY3,
+     8   PY4,     PZ1,     PZ2,     PZ3,
+     9   PZ4,     PX1H,    PX2H,    PX3H,
+     A   PY1H,    PY2H,    PY3H,    PZ1H,
+     B   PZ2H,    PZ3H,    JACOB5,  JACOB6,
+     C   JACOB4,  JACOB8,  JACOB9,  JACOB7,
+     D   JACI33,  B1X,     B1Y,     B2Y,
+     E   B2X,     B1122,   B1221,   B2212,
+     F   B1121,   B1XH,    B1YH,    B2XH,
+     G   B2YH,    B1122H,  B1221H,  B2212H,
+     H   B1121H,  VZL,     VOLG,    SAV,
+     I   OFFG,    NEL,     ISMSTR)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -63,13 +67,13 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com06_c.inc"
 #include      "units_c.inc"
-#include      "vect01_c.inc"
 #include      "scr07_c.inc"
 #include      "scr17_c.inc"
 #include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: ISMSTR
       INTEGER :: NEL, NGL(*)
 C
       my_real
@@ -169,107 +173,52 @@ C
       DET(I)=ONE_OVER_8*(JAC1(I)*JAC_59_68(I)+JAC2(I)*JAC_67_49(I)+JAC3(I)*JAC_48_57(I))
       END DO
 C
-      IF(IDTMIN(1).EQ.1)THEN
+!  /NEGVOL/
         ICOR = 0
         DO I=1,NEL
-           IF(OFF(I) .EQ.ZERO)THEN
+          IF(OFF(I) ==ZERO)THEN
             DET(I)=ONE
-          ELSEIF((DET(I).LE.VOLMIN).OR.(DET(I).LE.ZERO))THEN
+          ELSEIF(DET(I)<=ZERO)THEN
             ICOR = 1
           ENDIF
         ENDDO
-        IF (ICOR.GT.0) THEN
-          DO I=1,NEL
-           IF(OFF(I).NE.ZERO)THEN
-             IF(DET(I).LE.VOLMIN)THEN
+        IF (ICOR>0.AND.ISMSTR<10) THEN
+          IF (INEG_V==0) THEN
+            DO I=1,NEL
+             IF(DET(I)<=ZERO.AND.OFFG(I) <= ONE.AND.OFFG(I) /= ZERO)THEN
               DET(I)=ONE
               OFF(I)=ZERO
+              OFFG(I)=ZERO
 #include "lockon.inc"
-                WRITE(ISTDO,2000) NGL(I)
-                WRITE(IOUT ,2000) NGL(I)
+              CALL ANCMSG(MSGID=280,ANMODE=ANINFO,I1=NGL(I))
 #include "lockoff.inc"
-             ELSEIF(DET(I).LE.ZERO)THEN
-               CALL ANCMSG(MSGID=166,ANMODE=ANINFO,
-     .                     I1=NGL(I))
-               MSTOP = 1
-             ENDIF
-           ENDIF
-          ENDDO
-        ENDIF
-      ELSEIF(IDTMIN(1).EQ.2)THEN
-        ICOR = 0
-        DO I=1,NEL
-          IF(OFF(I) .EQ.ZERO)THEN
-            DET(I)=ONE
-           ELSEIF((DET(I).LE.VOLMIN).OR.(DET(I).LE.ZERO))THEN
-            ICOR=1
-          ENDIF
-        ENDDO
-        IF (ICOR.GT.0) THEN
-          DO I=1,NEL
-            IF((OFF(I).NE.ZERO).AND.
-     .         (DET(I).LE.VOLMIN.OR.DET(I).LE.ZERO))THEN
+             END IF
+            END DO
+           MSTOP = 1
+          ELSE IF (INEG_V==2) THEN  !deletion
+            DO I=1,NEL
+             IF(DET(I)<=ZERO.AND.OFFG(I) <= ONE.AND.OFFG(I) /= ZERO)THEN
               DET(I)=ONE
               OFF(I)=ZERO
+              OFFG(I)=ZERO
 #include "lockon.inc"
-                WRITE(ISTDO,2000) NGL(I)
-                WRITE(IOUT ,2000) NGL(I)
+              CALL ANCMSG(MSGID=318,ANMODE=ANINFO,I1=NGL(I))
 #include "lockoff.inc"
               IDEL7NOK = 1
-            ENDIF
-          ENDDO
-        ENDIF
-      ELSEIF (ISMSTR /=4 ) THEN
-        ICOR = 0
-        DO I=1,NEL
-          IF(OFF(I) .EQ.ZERO)THEN
-            DET(I)=ONE
-          ELSEIF((DET(I).LE.VOLMIN).OR.(DET(I).LE.ZERO))THEN
-            ICOR = 1
-          ENDIF
-        ENDDO
-        IF (ICOR.GT.0) THEN
-        DO I=1,NEL
-          IF(OFF(I) == ZERO)THEN
-            DET(I)=ONE
-          ELSEIF(OFFG(I) > ONE)THEN
-	  
-          ELSEIF((DET(I)<=VOLMIN).OR.(DET(I)<=ZERO))THEN
-            NNEGA=NNEGA+1
-	    INDEX(NNEGA)=I
+             END IF
+            END DO
+          ELSE ! switch to small strain
+            DO I=1,NEL
+             IF(DET(I)<=ZERO.AND.OFFG(I) <= ONE.AND.OFFG(I) /= ZERO)THEN
+               NNEGA=NNEGA+1
+               INDEX(NNEGA)=I
 #include "lockon.inc"
-            WRITE(ISTDO,3000) NGL(I)
-            WRITE(IOUT ,3000) NGL(I)
+               CALL ANCMSG(MSGID=259,ANMODE=ANINFO,I1=NGL(I))
 #include "lockoff.inc"
-          ENDIF
-        ENDDO
-          IF (INEG_V==0) THEN
-           CALL ANCMSG(MSGID=280,ANMODE=ANINFO)
-           MSTOP = 1
-          ENDIF
-        END IF !(ICOR.GT.0) THEN
-      ELSE
-C
-        ICOR = 0
-        DO I=1,NEL
-          IF(OFF(I) .EQ.ZERO)THEN
-            DET(I)=ONE
-          ELSEIF(DET(I).LE.ZERO)THEN
-            ICOR=1
-          ENDIF
-        ENDDO
-        IF (ICOR.GT.0) THEN
-          DO I=1,NEL
-           IF(OFF(I).NE.ZERO)THEN
-            IF(DET(I).LE.ZERO)THEN
-              CALL ANCMSG(MSGID=166,ANMODE=ANINFO,
-     .                    I1=NGL(I))
-              MSTOP = 1
-            ENDIF
-           ENDIF
-          ENDDO
-        ENDIF
-      ENDIF
+             END IF
+            END DO
+          END IF
+      END IF !(ICOR>0) THEN
 C
 C Projection is not changed---
       IF (NNEGA>0) THEN
@@ -403,7 +352,7 @@ C
        B2212H(I)=FAC*(Y54(I)*Y64(I)-Y21(I)*Y31(I))
        B1121H(I)=B2212H(I)
       ENDDO
-C Non constant part
+C Non -constant part
       DO I=1,NEL
        JAC1(I)=-X21(I)+X54(I)
        JAC2(I)=-Y21(I)+Y54(I)
@@ -455,8 +404,4 @@ C                                                                     12
        ENDDO
       RETURN
 C
- 1000 FORMAT(/' ZERO OR NEGATIVE VOLUME : 3D-ELEMENT NB',I10/)
- 2000 FORMAT(/' ZERO OR NEGATIVE VOLUME : DELETE 3D-ELEMENT NB',I10/)
- 3000 FORMAT(/' ZERO OR NEGATIVE VOLUME : 3D-ELEMENT NB:',I10/,
-     +    ' SOLID-SHELL ELEMENT IS SWITCHED TO SMALL STRAIN OPTION'/) 
-      END SUBROUTINE S6CDERI3
+      END

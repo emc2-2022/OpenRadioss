@@ -1,45 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CHECKRBY                      source/constraints/general/rbody/checkrby.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ANODSET                       source/output/analyse/analyse_node.c
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    checkrby               ../starter/source/constraints/general/rbody/checkrby.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    anodset                ../starter/source/output/analyse/analyse_node.c
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    ifrbody_off            ../starter/source/constraints/general/rbody/ifrbody_off.F90
+!||    kinset                 ../starter/source/constraints/general/kinset.F
+!||--- uses       -----------------------------------------------------
+!||    ifrbody_off_mod        ../starter/source/constraints/general/rbody/ifrbody_off.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE CHECKRBY(RBY     ,NPBY    ,LPBY    ,ITAB    ,
-     2                    IKINE   ,IDDLEVEL,NOM_OPT ,NUMSL   )
+     2                    IKINE   ,IDDLEVEL,NOM_OPT ,NUMSL   ,
+     3                    ROOTNAM ,ROOTLEN )
 C-------------------------------------
 C     LECTURE STRUCTURE RIGIDES IFORM8=2
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE ifrbody_off_mod , ONLY : ifrbody_off
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,31 +56,28 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPBY(NNPBY,*), LPBY(*), ITAB(*)
       INTEGER IKINE(*), IDDLEVEL, NUMSL
-C     REAL
-      my_real
-     .   RBY(NRBY,*)
+      my_real RBY(NRBY,*)
       INTEGER NOM_OPT(LNOPT1,*)
+      INTEGER, INTENT(IN) :: ROOTLEN
+      CHARACTER(LEN=ROOTLEN) :: ROOTNAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,L,K,KK,M,N,NSL,NSKEW,IC,
-     .   ISPHER,IDIR,P,IG,ID,ICDG,NSL_XTRA,
-     .   IKINE1(3*NUMNOD),NRB,NUMSL_TMP
-      CHARACTER TITR*nchartitle
+      INTEGER I,J,K,KK,N,NSL,
+     .   ISPHER,IDIR,ID,ICDG,NSL_XTRA,
+     .   NRB,NUMSL_TMP,IFOUND,IM_ID(NRBYKIN),NM,IM,IACTI
+      CHARACTER(LEN=NCHARTITLE)::TITR
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: TABSL
-      INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX
+      INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX,IKINE1
       INTEGER IWORK(70000),IOLD
       INTEGER IFLAGI1,IFLAGDBL,IRB
 C-----------------------------------
@@ -108,6 +110,7 @@ C=======================================================================
       KK=0
       NRB = 0
 C
+      ALLOCATE(IKINE1(3*NUMNOD))
       DO I=1,3*NUMNOD
         IKINE1(I) = 0
       ENDDO
@@ -148,7 +151,7 @@ C
       ENDDO
       NUMSL_TMP=KK
 C-------------------------------------
-C Bilan secnd nodes doubles (sans les XTRA_NODES qui sont teste avant)
+C Report of secondary double nodes (excluding XTRA_NODES which are tested beforemain)
 C-------------------------------------
       IF (NRBYKIN > 1) THEN
       IWORK=0
@@ -167,22 +170,51 @@ C-------------------------------------
           IFLAGDBL=1
         ELSE
           IF (IFLAGDBL/=0) THEN
+            NM =0 
+            IACTI = 1
             DO J=IFLAGI1,I-1
               IRB=TABSL(2,INDEX(J))
-              ID=NOM_OPT(1,IRB)
-              CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,IRB),LTITR)
+              IM = ITAB(NPBY(1,IRB))
+              NM = NM + 1
+              IM_ID(NM) = IM
+              IF (NPBY(7,IRB)==0) IACTI = 0 
+            END DO
+            call ifrbody_off(NM,IM_ID,ROOTNAM,ROOTLEN,NRBYKIN,IFOUND)
+            IF (IFOUND==0.AND.IACTI>0) THEN ! error out
+              DO J=IFLAGI1,I-1
+                IRB=TABSL(2,INDEX(J))
+                ID=NOM_OPT(1,IRB)
+                CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,IRB),LTITR)
+                CALL ANCMSG(MSGID=3121,
+     .                      MSGTYPE=MSGERROR,
+     .                      ANMODE=ANINFO_BLIND_2,
+     .                      I1=ID,
+     .                      C1=TITR,
+     .                      PRMOD=MSG_CUMU)
+              END DO
+              CALL ANCMSG(MSGID=3121,
+     .                    MSGTYPE=MSGERROR,
+     .                    ANMODE=ANINFO_BLIND_1,
+     .                    I1=TABSL(1,INDEX(IFLAGI1)),
+     .                    PRMOD=MSG_PRINT)
+            ELSEIF (IFOUND==0.AND.IACTI==0) THEN ! warning out sensor effect will be treated later
+              DO J=IFLAGI1,I-1
+                IRB=TABSL(2,INDEX(J))
+                ID=NOM_OPT(1,IRB)
+                CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,IRB),LTITR)
+                CALL ANCMSG(MSGID=1026,
+     .                      MSGTYPE=MSGWARNING,
+     .                      ANMODE=ANINFO_BLIND_2,
+     .                      I1=ID,
+     .                      C1=TITR,
+     .                      PRMOD=MSG_CUMU)
+              END DO
               CALL ANCMSG(MSGID=1026,
      .                    MSGTYPE=MSGWARNING,
-     .                    ANMODE=ANINFO_BLIND_2,
-     .                    I1=ID,
-     .                    C1=TITR,
-     .                    PRMOD=MSG_CUMU)
-            END DO
-            CALL ANCMSG(MSGID=1026,
-     .                  MSGTYPE=MSGWARNING,
-     .                  ANMODE=ANINFO_BLIND_1,
-     .                  I1=TABSL(1,INDEX(IFLAGI1)),
-     .                  PRMOD=MSG_PRINT)
+     .                    ANMODE=ANINFO_BLIND_1,
+     .                    I1=TABSL(1,INDEX(IFLAGI1)),
+     .                    PRMOD=MSG_PRINT)
+            END IF ! (IFOUND==0.AND.IACTI>0)
             IFLAGDBL=0
           END IF
         END IF
@@ -194,6 +226,7 @@ C
 C------------------------------------
       IF(ALLOCATED(TABSL))DEALLOCATE(TABSL)
       IF(ALLOCATED(INDEX))DEALLOCATE(INDEX)
+      IF(ALLOCATED(IKINE1)) DEALLOCATE(IKINE1)
 C------------------------------------
       RETURN
 C

@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SOLID_SURFACE_BUFFER          source/model/sets/solid_surface_buffer.F
-Chd|-- called by -----------
-Chd|        SURFACE_BUFFER                source/model/sets/surface_buffer.F
-Chd|-- calls ---------------
-Chd|        SURF_SEGMENT                  source/model/sets/solid_surface_buffer.F
-Chd|        SETDEF_MOD                    ../common_source/modules/setdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    solid_surface_buffer   ../starter/source/model/sets/solid_surface_buffer.F
+!||--- called by ------------------------------------------------------
+!||    surface_buffer         ../starter/source/model/sets/surface_buffer.F
+!||--- calls      -----------------------------------------------------
+!||    surf_segment           ../starter/source/model/sets/solid_surface_buffer.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SOLID_SURFACE_BUFFER(
      .                        IXS      ,IXS10    ,IXC      ,IXTG      ,CLAUSE   ,
      .                        KNOD2ELS ,NOD2ELS  ,KNOD2ELC ,NOD2ELC   ,KNOD2ELTG,
@@ -36,15 +36,15 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE SETDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARFIELD
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "scr17_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -53,18 +53,20 @@ C-----------------------------------------------
      .        KNOD2ELS(*),NOD2ELS(*),KNOD2ELC(*),NOD2ELC(*),
      .        KNOD2ELTG(*),NOD2ELTG(*),BUFTMPSURF(*),IPARTS(*),
      .        IPARTC(*),IPARTG(*)
-      CHARACTER KEYSET*ncharfield
+      CHARACTER(LEN=NCHARFIELD) :: KEYSET
 !
       TYPE (SET_) ::  CLAUSE
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N,J,K,JS,KS,II,JJ,K1,K2,LL,FACE(4),FC10(3),NN,KK,I1,
+      INTEGER J,K,JS,KS,II,JJ,K1,K2,LL,FACE(4),FC10(3),NN,KK,I1,
      .        NI(4),NS(4),MI(4),MS(4),NMIN,MMIN,NF,MF,IPERM,N1,N2,I
-      INTEGER NODTAG(NUMNOD),FASTAG(NUMELS),FACES(4,6),PWR(7),
-     .        FACES10(3,6),NNS,ISHEL,ISEG,NB_SOLID,IND
+      INTEGER FACES(4,6),PWR(7),
+     .        FACES10(3,6),NNS,ISHEL,NB_SOLID,IND
       INTEGER, DIMENSION(:), ALLOCATABLE:: SOLID_TAG,PART_TAG
-
+      INTEGER, DIMENSION(:), ALLOCATABLE :: NODTAG
+      INTEGER, DIMENSION(:), ALLOCATABLE :: FASTAG
+  
 !
       DATA FACES/4,3,2,1,
      .           5,6,7,8,
@@ -80,35 +82,36 @@ C-----------------------------------------------
      .             4,5,1/
       DATA PWR/1,2,4,8,16,32,64/
 C=======================================================================
-      ALLOCATE(SOLID_TAG(NUMELS))
-      ALLOCATE(PART_TAG(NPART))
+      CALL MY_ALLOC(SOLID_TAG,NUMELS)
+      CALL MY_ALLOC(PART_TAG,NPART)
+      CALL MY_ALLOC(NODTAG,NUMNOD)
+      CALL MY_ALLOC(FASTAG,NUMELS)
+
       SOLID_TAG(1:NUMELS)=0
       PART_TAG(1:NPART)=0
-      
-      IF(KEYSET == 'PART' )THEN
-        DO I=1, CLAUSE%NB_PART
-            PART_TAG(CLAUSE%PART(I))=1
-        ENDDO
-      ENDIF
-      IF(KEYSET == 'SOLID' )THEN
-        DO I=1, CLAUSE%NB_SOLID
-            SOLID_TAG(CLAUSE%SOLID(I))=1
-        ENDDO
-      ENDIF
+
+      DO I=1, CLAUSE%NB_PART
+        PART_TAG(CLAUSE%PART(I))=1
+      ENDDO
+
+      DO I=1, CLAUSE%NB_SOLID
+        SOLID_TAG(CLAUSE%SOLID(I))=1
+      ENDDO
 
       FASTAG=0
 C
-      IF (IEXT == 1) THEN
+      IF (IEXT == 1 .OR. IEXT == 2) THEN
 C
         NB_SOLID = CLAUSE%NB_SOLID
         DO IND=1,NB_SOLID
           JS = CLAUSE%SOLID(IND)
+          IF (SOLID_TAG(JS)==0) CYCLE          !case of tagged elems
           DO JJ=1,6
             DO II=1,4
               NS(II)=IXS(FACES(II,JJ)+1,JS)
             END DO
 C
-C           keep only 1 occurence of each node (triangles, degenerated cases...)
+C           keep only 1 occurrence of each node (triangles, degenerated cases...)
 C
             DO K1=1,3
               DO K2=K1+1,4
@@ -146,8 +149,6 @@ C
             DO K=KNOD2ELS(NI(1))+1,KNOD2ELS(NI(1)+1)
               KS=NOD2ELS(K)
               IF (KS==JS .OR. KS > NUMELS8+NUMELS10) CYCLE
-!!              IF (CLAUSE%NB_SOLID > 0 .AND. CLAUSE%SOLID(KS)==0) CYCLE
-!!              IF (CLAUSE%NB_PART > 0  .AND. CLAUSE%PART(IPARTS(KS))==0) CYCLE
               IF (KEYSET == 'SOLID' .AND. SOLID_TAG(KS)==0) CYCLE
               IF (KEYSET == 'PART'  .AND. PART_TAG(IPARTS(KS))==0) CYCLE
 !
@@ -167,7 +168,7 @@ C
                     MS(II)=IXS(FACES(II,KK)+1,KS)
                   END DO
 C
-C                 keep only 1 occurence of each node (triangles, degenerated cases...)
+C                 keep only 1 occurrence of each node (triangles, degenerated cases...)
 C
                   DO K1=1,3
                     DO K2=K1+1,4
@@ -200,7 +201,7 @@ C
                     END IF
                   END DO
                   IF(MI(1)==NI(1).AND.MI(NF)==NI(2))THEN
-C                    FACTAG(JS) moins face jj
+C                    Factag (JS) Less Face JJ
                      FASTAG(JS)=FASTAG(JS)+PWR(JJ)
                      GO TO 300
                   END IF
@@ -210,7 +211,7 @@ C                    FACTAG(JS) moins face jj
  300        CONTINUE
           END DO
         END DO ! DO IND=1,NB_SOLID
-      END IF ! IF(IEXT==1)THEN
+      END IF ! IF(IEXT==2)THEN
 C-----------
 
 
@@ -224,6 +225,7 @@ C-----------
         NB_SOLID = CLAUSE%NB_SOLID
         DO IND=1,NB_SOLID
           JS = CLAUSE%SOLID(IND)
+          IF (SOLID_TAG(JS)==0) CYCLE
 !
           IF (JS > NUMELS8) CYCLE   ! HEXA8 ONLY
 !
@@ -268,13 +270,12 @@ C---   find shells SURF/PART/EXT
                 IF (ISHEL == 3)EXIT
                 KS = 0
               ENDDO
+
               IF(KS == 0)THEN
                 NSEG = NSEG + 1
                 CALL SURF_SEGMENT(FACE(1)    ,FACE(2) ,FACE(3) ,FACE(3) ,JS  ,
      .                         BUFTMPSURF ,IAD_SURF ,1)
-!!              ELSEIF (CLAUSE%NB_PART > 0 .AND.
-              ELSEIF (KEYSET == 'PART' .AND.
-     .                IABS(PART_TAG(IPARTG(KS))) .NE. 1)THEN
+              ELSEIF (PART_TAG(IPARTG(KS)) /= 1)THEN
                 NSEG = NSEG + 1
                 CALL SURF_SEGMENT(FACE(1)    ,FACE(2) ,FACE(3) ,FACE(3) ,JS  ,
      .                         BUFTMPSURF ,IAD_SURF ,1)
@@ -297,9 +298,7 @@ C---   find shells SURF/PART/EXT
                NSEG = NSEG + 1
                 CALL SURF_SEGMENT(FACE(1)    ,FACE(2) ,FACE(3) ,FACE(4) ,JS  ,
      .                         BUFTMPSURF ,IAD_SURF ,1)
-!!              ELSEIF (CLAUSE%NB_PART > 0 .AND.
-              ELSEIF (KEYSET == 'PART' .AND.
-     .                IABS(PART_TAG(IPARTC(KS))) .NE. 1 ) THEN
+              ELSEIF (PART_TAG(IPARTC(KS)) /= 1 ) THEN
                NSEG = NSEG + 1
                 CALL SURF_SEGMENT(FACE(1)    ,FACE(2) ,FACE(3) ,FACE(4) ,JS  ,
      .                         BUFTMPSURF ,IAD_SURF ,1)
@@ -321,6 +320,7 @@ C---
         NB_SOLID = CLAUSE%NB_SOLID
         DO IND=1,NB_SOLID
           JS = CLAUSE%SOLID(IND)
+          IF (SOLID_TAG(JS)==0) CYCLE
 !
           J = JS - NUMELS8  ! TETRA10 ONLY
           IF (J <= 0) CYCLE  ! TETRA10 ONLY
@@ -413,28 +413,22 @@ C---
           END DO ! DO JJ=3,6
         END DO ! DO IND=1,NB_SOLID
 C-----------
+        DEALLOCATE(NODTAG)
+        DEALLOCATE(FASTAG)
       RETURN
       END
-Chd|====================================================================
-Chd|  SURF_SEGMENT                  source/model/sets/solid_surface_buffer.F
-Chd|-- called by -----------
-Chd|        QUAD_SURFACE_BUFFER           source/model/sets/quad_surface_buffer.F
-Chd|        SOLID_SURFACE_BUFFER          source/model/sets/solid_surface_buffer.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    surf_segment           ../starter/source/model/sets/solid_surface_buffer.F
+!||--- called by ------------------------------------------------------
+!||    quad_surface_buffer    ../starter/source/model/sets/quad_surface_buffer.F
+!||    solid_surface_buffer   ../starter/source/model/sets/solid_surface_buffer.F
+!||====================================================================
       SUBROUTINE SURF_SEGMENT(N1         ,N2       ,N3      ,N4      ,ELEM,
      .                        BUFTMPSURF ,IAD_SURF ,ELTYP  )
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------

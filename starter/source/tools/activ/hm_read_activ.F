@@ -1,42 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_ACTIV                 source/tools/activ/hm_read_activ.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_ACTIV(IACTIV   ,FACTIV   ,LSENSOR ,SENSOR   ,IGRBRIC,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_activ          ../starter/source/tools/activ/hm_read_activ.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_ACTIV(IACTIV   ,FACTIV   ,SENSORS,IGRBRIC,
      .                   IGRQUAD  ,IGRSH4N  ,IGRSH3N ,IGRTRUSS ,IGRBEAM,
      .                   IGRSPRING,LSUBMODEL,UNITAB)
 C-----------------------------------------------
@@ -47,25 +46,23 @@ C-----------------------------------------------
       USE HM_OPTION_READ_MOD
       USE SUBMODEL_MOD
       USE UNITAB_MOD
+      USE SENSOR_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IACTIV(LACTIV,*),LSENSOR(NSENSI,*)
-      my_real FACTIV(LRACTIV,*),SENSOR(NSENSR,*)
+      INTEGER IACTIV(LACTIV,*) 
+      my_real FACTIV(LRACTIV,*)
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRBRIC) :: IGRBRIC
       TYPE (GROUP_)  , DIMENSION(NGRQUAD) :: IGRQUAD
@@ -76,14 +73,15 @@ C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRSPRI) :: IGRSPRING
       TYPE (SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
       TYPE (UNIT_TYPE_),INTENT(IN) :: UNITAB 
+      TYPE (SENSORS_)  ,INTENT(IN) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,ID,ISEN,IGSH,IGSH3,IGBR,IGQU,IGBM,IGTR,IGSP,IERR1
-      INTEGER IDUM,IFORM, NPRI
+      INTEGER IFORM
       my_real STARTT, STOPT
       LOGICAL :: IS_AVAILABLE
-      CHARACTER  TITR*nchartitle
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C======================================================================|
       CALL HM_OPTION_START('/ACTIV')
       DO I=1,NACTIV
@@ -118,8 +116,8 @@ C
 C
         IF (ISEN  >  0) THEN
           IERR1 = 1
-          DO J=1,NSENSOR
-            IF (ISEN  ==  LSENSOR(1,J)) THEN
+          DO J=1,SENSORS%NSENSOR
+            IF (ISEN  ==  SENSORS%SENSOR_TAB(J)%SENS_ID) THEN
               IACTIV(2,I) = J
               IERR1 = 0
               EXIT
@@ -135,18 +133,18 @@ C
           ENDIF
         ENDIF
 C
-        IF(IFORM == 2) THEN
+        IF (IFORM == 2) THEN
           CALL HM_GET_FLOATV('ACTIV_Tstart' ,STARTT ,IS_AVAILABLE ,LSUBMODEL ,UNITAB)
           CALL HM_GET_FLOATV('ACTIV_Tstop' ,STOPT ,IS_AVAILABLE ,LSUBMODEL ,UNITAB)
-          IF(STOPT == ZERO) STOPT= EP30
-          IF(ISEN > 0) THEN
+          IF (STOPT == ZERO) STOPT= INFINITY
+          IF (ISEN > 0) THEN
              J = IACTIV(2,I)
-             FACTIV(1,I) = STARTT + SENSOR(2,J)  
-             FACTIV(2,I) = STOPT  + SENSOR(2,J)
+             FACTIV(1,I) = STARTT + SENSORS%SENSOR_TAB(J)%TCRIT
+             FACTIV(2,I) = STOPT  + SENSORS%SENSOR_TAB(J)%TCRIT
           ELSE
              FACTIV(1,I) = STARTT  
              FACTIV(2,I) = STOPT
-          ENDIF			 
+          ENDIF       
         ENDIF
 C
         IF (IGBR > 0) THEN
@@ -293,7 +291,6 @@ C
       ENDDO      
 C
       RETURN
- 999  CALL FREERR(3)
 C
  1000 FORMAT(//
      . '      ELEMENT ACTIVATION-DEACTIVATION   '/

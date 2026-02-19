@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  IMP_FRI                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_INTFR                     source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FRSL                      source/mpi/implicit/imp_fri.F 
-Chd|        SPMD_SUMF_V                   source/mpi/implicit/imp_spmd.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    imp_fri         ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_chkm        ../engine/source/implicit/imp_solv.F
+!||    imp_intfr       ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_frkd        ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_frki        ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_frsl        ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_sumf_v     ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IMP_FRI(
      1    NUM_IMP   ,NS_IMP    ,NE_IMP    ,IPARI     ,INTBUF_TAB,
      2    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,
@@ -50,13 +51,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------------------------
@@ -83,12 +79,12 @@ C-----------------------------------------------
 C-----------------------------------------------
         CALL IMP_FRSL(NBINTC,NSREM ,NSL   )
 C-----------------------------------------------
-       IF (INTP_C.GT.0) THEN
+       IF (INTP_C>0) THEN
         ALLOCATE(LB0(NDDL))
             LB0=ZERO
        ENDIF
-       IF ((NSREM+NSL).GT.0) THEN
-        IF (INTP_C.LE.0) THEN
+       IF ((NSREM+NSL)>0) THEN
+        IF (INTP_C<=0) THEN
          CALL IMP_FRKI(
      1      IPARI     ,INTBUF_TAB,NUM_IMP   ,NS_IMP    ,NE_IMP    ,
      2      NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
@@ -112,7 +108,7 @@ C-----------------------------------------------
          IKPAT = IKPAT0
         ENDIF
        ENDIF
-       IF (INTP_C.GT.0) THEN
+       IF (INTP_C>0) THEN
         CALL SPMD_SUMF_V(LB0)
         DO I=1,NDDL
          LB(I) = LB(I)+LB0(I)
@@ -122,19 +118,20 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FRFV                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_INTFR                     source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        FR_MATV                       source/mpi/implicit/imp_fri.F 
-Chd|        INI_DD0                       source/mpi/implicit/imp_fri.F 
-Chd|        INI_DDFV                      source/mpi/implicit/imp_fri.F 
-Chd|        PRODUT_VMHP                   source/implicit/produt_v.F    
-Chd|        SPMD_SUMF_V                   source/mpi/implicit/imp_spmd.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_frfv        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_chkm        ../engine/source/implicit/imp_solv.F
+!||    imp_intfr       ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    fr_matv         ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_dd0         ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_ddfv        ../engine/source/mpi/implicit/imp_fri.F
+!||    produt_vmhp     ../engine/source/implicit/produt_v.F
+!||    spmd_sumf_v     ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IMP_FRFV(
      1    NUM_IMP   ,NS_IMP    ,NE_IMP    ,IPARI     ,INTBUF_TAB,
      2    IDDL      ,IKC       ,NDOF      ,NSREM     ,
@@ -151,10 +148,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -184,7 +177,7 @@ C-----------------------------------------------
       my_real,
      .         DIMENSION(:),ALLOCATABLE :: DD_TMP,DDR_TMP
 C-----------------------------------------------
-       IF (ILINE.GT.0) THEN
+       IF (ILINE>0) THEN
           DO I =1,NDDL
            LX(I)=ZERO
           ENDDO
@@ -197,7 +190,7 @@ C-----------------------------------------------
           DO I =1,NDDL
            LB(I) = LB(I)-LX(I)
           ENDDO
-         IF ((NSREM+NSL).GT.0)
+         IF ((NSREM+NSL)>0)
      .   CALL INI_DD0(IDDL ,IKC   ,NDOF  ,IPARI ,INTBUF_TAB,
      .                D_IMP,DR_IMP,NSL   ,IRBE3,LRBE3 ,
      .                IRBE2,LRBE2 )
@@ -205,11 +198,11 @@ C-----------------------------------------------
         L=3*NUMNOD
         ALLOCATE(DD_TMP(L))
         DD_TMP=ZERO
-        IF (IRODDL.NE.0) THEN
+        IF (IRODDL/=0) THEN
          ALLOCATE(DDR_TMP(L))
          DDR_TMP=ZERO
         END IF
-        IF ((NSREM+NSL).GT.0)
+        IF ((NSREM+NSL)>0)
      .   CALL INI_DDFV(IDDL ,IKC   ,NDOF  ,IPARI ,INTBUF_TAB,
      .                 D_IMP,DR_IMP,DD_TMP,DDR_TMP,NSL   ,
      .                 IRBE3,LRBE3 ,IRBE2 ,LRBE2 )
@@ -222,39 +215,40 @@ C-----------------------------------------------
      3                     NSREM ,NSL    ,IBFV ,SKEW   ,XFRAME  ,
      4                     LX    ,IRBE3  ,LRBE3 ,IRBE2 ,LRBE2   )
           DEALLOCATE(DD_TMP)
-          IF (IRODDL.NE.0) DEALLOCATE(DDR_TMP)
+          IF (IRODDL/=0) DEALLOCATE(DDR_TMP)
           CALL SPMD_SUMF_V(LX)
           DO I =1,NDDL
            LB(I) = LB(I)-LX(I)
           ENDDO
-C------calcul DE for L_search as DD,DDR will be updated           
+C------calculate DE for L_search as DD,DDR will be updated           
           CALL PRODUT_VMHP(NDDL0 ,NDDL  ,IDDL  ,NDOF  ,IKC   ,
      .                     DD    ,DDR   ,LB    ,DE    ,W_DDL )
-        IF ((NSREM+NSL).GT.0)
+        IF ((NSREM+NSL)>0)
      .   CALL INI_DD0(IDDL ,IKC   ,NDOF  ,IPARI ,INTBUF_TAB ,
      .                DD    ,DDR  ,NSL   ,IRBE3,LRBE3  ,
      .                IRBE2 ,LRBE2)
-       ENDIF !(ILINE.GT.0) THEN
+       ENDIF !(ILINE>0) THEN
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRI                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        DIAG_INT                      source/mpi/implicit/imp_fri.F 
-Chd|        DIM_KINEFR                    source/mpi/implicit/imp_fri.F 
-Chd|        IDDL_INT                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FRSN                      source/mpi/implicit/imp_fri.F 
-Chd|        IND_KINEFR                    source/mpi/implicit/imp_fri.F 
-Chd|        INI_INTM                      source/mpi/implicit/imp_fri.F 
-Chd|        SPMD_IFC1                     source/mpi/implicit/imp_spmd.F
-Chd|        TAG_INTM                      source/mpi/implicit/imp_fri.F 
-Chd|        TAG_INTM11                    source/mpi/implicit/imp_fri.F 
-Chd|        TAG_INTS                      source/mpi/implicit/imp_fri.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_frki        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_fri         ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    diag_int        ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_kinefr      ../engine/source/mpi/implicit/imp_fri.F
+!||    iddl_int        ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_frsn        ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_kinefr      ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_intm        ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_ifc1       ../engine/source/mpi/implicit/imp_spmd.F
+!||    tag_intm        ../engine/source/mpi/implicit/imp_fri.F
+!||    tag_intm11      ../engine/source/mpi/implicit/imp_fri.F
+!||    tag_ints        ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IMP_FRKI(
      1    IPARI     ,INTBUF_TAB,NUM_IMP   ,NS_IMP    ,NE_IMP    ,
      2    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
@@ -272,13 +266,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------------------------
@@ -303,39 +292,39 @@ C-----------------------------------------------
      .        LRS2,LRSS2
       my_real
      .       KSS(6,NSL)
-C------com. tableau de noeuds secnds remotes (a proc origine) et diag_ss
+C------comm. table of remote secondary nodes (to origin proc) and diag_ss
       CALL SPMD_IFC1(NSREM  ,NSL ,KSS )
-      IF (NSL.GT.0) CALL IMP_FRSN(IPARI ,INTBUF_TAB  ,NBINTC,INTLIST)
-C      IF ((NSREM+NSL).EQ.0) RETURN
+      IF (NSL>0) CALL IMP_FRSN(IPARI ,INTBUF_TAB  ,NBINTC,INTLIST)
+C      IF ((NSREM+NSL)==0) RETURN
       DO N =1,NUMNOD
        ILOCP(N)=0
       ENDDO
-C--------tag noeuds supp eventuellement dependants----
+C--------tag additional nodes possibly dependent----
       N_KINE=0
 C
       CALL TAG_INTS(NSL    ,ILOCP     ,N_KINE)
       N_KINE_M=N_KINE
-      IF (NSREM.GT.0) THEN
+      IF (NSREM>0) THEN
        IAD=1
        DO NIN=1,NINTER
         NTY   =IPARI(7,NIN)
-        IF(NTY.EQ.5) IAD=IAD+NUM_IMP(NIN)
+        IF(NTY==5) IAD=IAD+NUM_IMP(NIN)
        ENDDO
        DO NIN=1,NINTER
         NSN   =IPARI(5,NIN)
         NTY   =IPARI(7,NIN)
-        IF(NTY.EQ.3)THEN
-        ELSEIF(NTY.EQ.4)THEN
-        ELSEIF(NTY.EQ.5)THEN
-        ELSEIF(NTY.EQ.6)THEN
-        ELSEIF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.24)THEN
+        IF(NTY==3)THEN
+        ELSEIF(NTY==4)THEN
+        ELSEIF(NTY==5)THEN
+        ELSEIF(NTY==6)THEN
+        ELSEIF(NTY==7.OR.NTY==10.OR.NTY==24)THEN
 C
          CALL TAG_INTM(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                 INTBUF_TAB(NIN)%IRECTM,INTBUF_TAB(NIN)%NSV , ILOCP    ,
      .                 N_KINE  ,NSN   )
          IAD=IAD+NUM_IMP(NIN)
 C
-        ELSEIF(NTY.EQ.11)THEN
+        ELSEIF(NTY==11)THEN
          NRTS   =IPARI(3,NIN)
          CALL TAG_INTM11(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                 INTBUF_TAB(NIN)%IRECTS,INTBUF_TAB(NIN)%IRECTM, ILOCP   ,
@@ -354,10 +343,10 @@ C-------iddlm-----------------
        IDDLM(I)=IDDL(I)-NKC
        DO J=1,NDOF(I)
         ND = IDDL(I)+J
-        IF (IKC(ND).NE.0) NKC = NKC + 1
+        IF (IKC(ND)/=0) NKC = NKC + 1
        ENDDO
       ENDDO
-C-----couplage avec cond. kine ------
+C-----coupling with kinematic constraints ------
       CALL DIM_KINEFR(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,ILOCP,
@@ -374,23 +363,23 @@ C-----couplage avec cond. kine ------
       CALL IDDL_INT(NSL    ,IDDL    ,IKC    ,NDOF     ,IDDLM   ,
      .              IPARI  ,INTBUF_TAB ,IRBE3  ,LRBE3    ,FRBE3   ,
      .              X      ,SKEW    ,IRBE2  ,LRBE2    )
-      IF (NSL.GT.0)
+      IF (NSL>0)
      . CALL DIAG_INT(NSL    ,NDOF    ,IPARI  ,INTBUF_TAB,
      .               KSS    ,X       ,IBFV   ,SKEW    ,XFRAME  ,
      .               IRBE3  ,LRBE3   ,IRBE2  ,LRBE2   )
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-C  ------retouve ISL en num global(par chaque proc)---
-Chd|====================================================================
-Chd|  IMP_FRSN                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+C  ------retrieve ISL in global num (by each proc)---
+!||====================================================================
+!||    imp_frsn        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd        ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_frki        ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IMP_FRSN(IPARI ,INTBUF_TAB  ,NBINTC,INTLIST)
 C-----------------------------------------------
 C   M o d u l e s
@@ -402,14 +391,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -425,15 +410,15 @@ C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
         L = 0
-C -----tri par proc---independant interface structure------
+C -----sort by proc---independent interface structure------
         DO I = 1, NSPMD
-          IF(IAD_SL(I+1).GT.IAD_SL(I))THEN
+          IF(IAD_SL(I+1)>IAD_SL(I))THEN
             DO II = 1, NBINTC
               NIN = INTLIST(II)
               NB = INBSL(II,I)
-              IF(NB.GT.0)THEN
+              IF(NB>0)THEN
                NTY  = IPARI(7,NIN)
-               IF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.24) THEN
+               IF(NTY==7.OR.NTY==10.OR.NTY==24) THEN
                   DO J = 1, NB
                    L = L + 1
                    N0 = ISL(L)
@@ -441,7 +426,7 @@ C -----tri par proc---independant interface structure------
                    ISL(L) = N
                   ENDDO
 C
-               ELSEIF(NTY.EQ.11) THEN
+               ELSEIF(NTY==11) THEN
                   DO J = 1, NB/2
                    L = L + 1
                    N0 = ISL(L)
@@ -460,13 +445,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FRII                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_SOL_INIT                  source/implicit/imp_sol_init.F
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    imp_frii       ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_sol_init   ../engine/source/implicit/imp_sol_init.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm       ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE IMP_FRII(NINTER)
 C-----------------------------------------------
 C   M o d u l e s
@@ -476,9 +461,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -509,16 +491,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FR7I                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    imp_fr7i        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_chkm        ../engine/source/implicit/imp_solv.F
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    tri7box         ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE IMP_FR7I(IPARI ,INTBUF_TAB,NUM_IMP ,NS_IMP ,NSREM ,
      1                    NBINTC,INTLIST)
 C-----------------------------------------------
@@ -531,9 +513,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -565,13 +544,13 @@ C----init
           DEBUTI(NIN) = 0
         ENDDO
         DO I = 1, NSPMD
-          IF(I.NE.LOC_PROC)THEN
+          IF(I/=LOC_PROC)THEN
             DO II = 1, NBINTC
               NIN = INTLIST(II)
               NB = NSNFI(NIN)%P(I)
               NTY  = IPARI(7,NIN)
-              IF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.11.OR.NTY.EQ.24) THEN
-               IF(NB.GT.0) THEN
+              IF(NTY==7.OR.NTY==10.OR.NTY==11.OR.NTY==24) THEN
+               IF(NB>0) THEN
                    DEBUTI(NIN) = DEBUTI(NIN) + NB
                END IF
               END IF
@@ -585,16 +564,16 @@ C
        L = 0
        DO NIN=1,NINTER
         NTY   =IPARI(7,NIN)
-        IF(NTY.EQ.5) IAD=IAD+NUM_IMP(NIN)
+        IF(NTY==5) IAD=IAD+NUM_IMP(NIN)
        ENDDO
        DO NIN=1,NINTER
         NUM=0
         NTY   =IPARI(7,NIN)
         NSN   =IPARI(5,NIN)
         SHF_INT(NIN) = L
-        IF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.24) THEN
+        IF(NTY==7.OR.NTY==10.OR.NTY==24) THEN
           DO I=1,NUM_IMP(NIN)
-           IF (NS_IMP(I+IAD).GT.NSN) THEN
+           IF (NS_IMP(I+IAD)>NSN) THEN
             NN=NS_IMP(I+IAD)-NSN
 C -------tag impact nodes-------
             NSVFI(NIN)%P(NN)=-ABS(NSVFI(NIN)%P(NN))
@@ -602,11 +581,11 @@ C -------tag impact nodes-------
            ENDIF
           ENDDO
           IAD=IAD+NUM_IMP(NIN)
-        ELSEIF(NTY.EQ.11)THEN
+        ELSEIF(NTY==11)THEN
 C
          NRTS   =IPARI(3,NIN)
           DO I=1,NUM_IMP(NIN)
-           IF (NS_IMP(I+IAD).GT.NRTS) THEN
+           IF (NS_IMP(I+IAD)>NRTS) THEN
             NN=NS_IMP(I+IAD)-NRTS
 C -------tag impact nodes-------
             NSVFI(NIN)%P(NN)=-ABS(NSVFI(NIN)%P(NN))
@@ -621,15 +600,15 @@ C
         L = L + NUM
         IF(ASSOCIATED(IND_INT(NIN)%P)) DEALLOCATE(IND_INT(NIN)%P)
         L1=DEBUTI(NIN)
-        IF (L1.GT.0) ALLOCATE(IND_INT(NIN)%P(L1),STAT=IERROR1)
+        IF (L1>0) ALLOCATE(IND_INT(NIN)%P(L1),STAT=IERROR1)
        ENDDO
 C---------
 C
-C Allocation des tableaux de frontieres interfaces pour implicit
+C Allocation of boundary interface arrays for implicit
 C
 C
         NCONT = NSREM-NSREM11
-      IF (INTP_D.EQ.0) THEN
+      IF (INTP_D==0) THEN
         IF(ALLOCATED(STIFS)) DEALLOCATE(STIFS)
         ALLOCATE(STIFS(NCONT),STAT=IERROR3)
         IF(ALLOCATED(H_E)) DEALLOCATE(H_E)
@@ -650,7 +629,7 @@ C
       ALLOCATE(IAD_SREM(NSPMD+1),STAT=IERROR8)
       IF(ALLOCATED(INBSL)) DEALLOCATE(INBSL)
       ALLOCATE(INBSL(NBINTC,NSPMD),STAT=IERROR9)
-C -----tri par proc---independant interface structure------
+C -----sort by proc---independent interface structure------
         DO II = 1, NBINTC
           NIN = INTLIST(II)
           DEBUT(NIN) = 0
@@ -660,7 +639,7 @@ C -----tri par proc---independant interface structure------
 C
        IAD_SREM(1) = L
         DO I = 1, NSPMD
-          IF(I.NE.LOC_PROC)THEN
+          IF(I/=LOC_PROC)THEN
             DO II = 1, NBINTC
               NIN = INTLIST(II)
               IDEB = DEBUT(NIN)
@@ -669,11 +648,11 @@ C
               NTY  = IPARI(7,NIN)
               NSN  = IPARI(5,NIN)
               L1 = L
-              IF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.11.OR.NTY.EQ.24) THEN
-               IF(NB.GT.0) THEN
-                IF(NTY.EQ.7.OR.NTY.EQ.10.OR.NTY.EQ.24) THEN
+              IF(NTY==7.OR.NTY==10.OR.NTY==11.OR.NTY==24) THEN
+               IF(NB>0) THEN
+                IF(NTY==7.OR.NTY==10.OR.NTY==24) THEN
                   DO N = 1, NB
-                    IF(NSVFI(NIN)%P(IDEB+N).LT.0)THEN
+                    IF(NSVFI(NIN)%P(IDEB+N)<0)THEN
                       NSVFI(NIN)%P(IDEB+N)=-NSVFI(NIN)%P(IDEB+N)
                       FR_SREM(L) = NSVFI(NIN)%P(IDEB+N)
                       IND_INT(NIN)%P(IDEBI+N)=L
@@ -682,9 +661,9 @@ C
                   ENDDO
                   DEBUTI(NIN) = DEBUTI(NIN) + NB
 C
-                ELSEIF(NTY.EQ.11) THEN
+                ELSEIF(NTY==11) THEN
                   DO N = 1, NB
-                    IF(NSVFI(NIN)%P(IDEB+N).LT.0)THEN
+                    IF(NSVFI(NIN)%P(IDEB+N)<0)THEN
                       NSVFI(NIN)%P(IDEB+N)=-NSVFI(NIN)%P(IDEB+N)
                       FR_SREM(L) = NSVFI(NIN)%P(IDEB+N)
                       IND_INT(NIN)%P(IDEBI+N)=L
@@ -704,19 +683,20 @@ C
           ENDIF
           IAD_SREM(I+1)=L
         ENDDO
-        IF(IAD_SREM(NSPMD+1).GT.1)NSREM=IAD_SREM(NSPMD+1)-1
+        IF(IAD_SREM(NSPMD+1)>1)NSREM=IAD_SREM(NSPMD+1)-1
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FRSL                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRI                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        SPMD_INIS                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_INISL                    source/mpi/implicit/imp_spmd.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    imp_frsl     ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_fri      ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_inis    ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_inisl   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm     ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE IMP_FRSL(NBINTC,NSREM ,NSL   )
 C-----------------------------------------------
 C   M o d u l e s
@@ -726,9 +706,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -748,7 +725,7 @@ C-----------------------------------------------
 C
       IF(ALLOCATED(IAD_SL)) DEALLOCATE(IAD_SL)
       ALLOCATE(IAD_SL(NSPMD+1),STAT=IERROR1)
-      IF (NSREM.EQ.0) THEN
+      IF (NSREM==0) THEN
         IF(ALLOCATED(IAD_SREM)) DEALLOCATE(IAD_SREM)
         ALLOCATE(IAD_SREM(NSPMD+1),STAT=IERROR2)
         DO I = 1, NSPMD+1
@@ -758,7 +735,7 @@ C
 C
        CALL SPMD_INIS(IAD_SREM,IAD_SL)
        NSL=IAD_SL(NSPMD+1)-1
-       IF (NSREM.EQ.0) THEN
+       IF (NSREM==0) THEN
          IF(ALLOCATED(INBSL)) DEALLOCATE(INBSL)
          ALLOCATE(INBSL(NBINTC,NSPMD),STAT=IERROR5)
          DO I = 1, NSPMD
@@ -768,11 +745,11 @@ C
          ENDDO
        ENDIF
        CALL SPMD_INISL(NBINTC,INBSL)
-       IF (NSL.GT.0) THEN
+       IF (NSL>0) THEN
         IF(ALLOCATED(ISL)) DEALLOCATE(ISL)
         ALLOCATE(ISL(NSL),STAT=IERROR3)
 C
-        IF (INTP_D.EQ.0) THEN
+        IF (INTP_D==0) THEN
         IF(ALLOCATED(DIAG_S)) DEALLOCATE(DIAG_S)
         ALLOCATE(DIAG_S(3,NSL),STAT=IERROR4)
         IF(ALLOCATED(ISLM)) DEALLOCATE(ISLM)
@@ -785,12 +762,11 @@ C
       RETURN
       END
 C   --------- ----
-Chd|====================================================================
-Chd|  TAG_INTM                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    tag_intm   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frki   ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE TAG_INTM(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT    ,NSV       ,
      2    ILOC      ,N_IMPN    ,NSN         )
@@ -798,9 +774,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -816,20 +789,20 @@ C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG
 C-----------------------------------------------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.GT.NSN) THEN
+       IF (IG>NSN) THEN
         NE=NE_IMP(I)
         DO J=1,3
          N=IRECT(J,NE)
-         IF (ILOC(N).EQ.0) THEN
+         IF (ILOC(N)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(N)=N_IMPN
          ENDIF
         ENDDO
-        IF (IRECT(3,NE).NE.IRECT(4,NE)) THEN
+        IF (IRECT(3,NE)/=IRECT(4,NE)) THEN
          N=IRECT(4,NE)
-         IF (ILOC(N).EQ.0) THEN
+         IF (ILOC(N)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(N)=N_IMPN
          ENDIF
@@ -840,14 +813,14 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ----
-Chd|====================================================================
-Chd|  TAG_INTS                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|        KIN_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    tag_ints   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frki   ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_ksl    ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE TAG_INTS(NSL       ,ILOC      ,N_IMPN     )
 C-----------------------------------------------
 C   M o d u l e s
@@ -857,12 +830,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -873,18 +840,18 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG
 C-----------------------------------------------
-      IF (INTP_D.GT.0) THEN
+      IF (INTP_D>0) THEN
        DO I = 1, NSL
-C--------secnd node--------------
+C--------second node--------------
         N = ISL(I)
-        IF (ILOC(N).EQ.0) ILOC(N)=I
+        IF (ILOC(N)==0) ILOC(N)=I
        ENDDO
       ELSE
 
        DO I = 1, NSL
-C--------secnd node-----
+C--------second node-----
         N = ISL(I)
-        IF (ILOC(N).EQ.0) THEN
+        IF (ILOC(N)==0) THEN
          N_IMPN=N_IMPN+1
          ILOC(N)=N_IMPN
 C
@@ -899,14 +866,14 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_DDFV                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRFV                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ini_ddfv        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frfv        ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE INI_DDFV(IDDL ,IKC  ,NDOF  ,IPARI ,INTBUF_TAB ,
      .                    D    ,DR   ,DD    ,DDR   ,NSL   ,
      .                    IRBE3,LRBE3,IRBE2 ,LRBE2 )
@@ -923,13 +890,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -947,17 +910,17 @@ C-----------------------------------------------
       INTEGER M,NSN,JI,L,NNOD,NJ,NL,NI
 C-----------------------------------------------
        DO I = 1, NSL
-C--------local secnd node-----
+C--------local second node-----
         N = ISL(I)
          DO J = 1, MIN(3,NDOF(N))
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DD(J,N)=D(J,N)
           ENDIF
          ENDDO
          DO J = 3, NDOF(N)
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DDR(J-3,N)=DR(J-3,N)
           ENDIF
          ENDDO
@@ -968,13 +931,13 @@ C--------local main node-----
         N = IML(I)
          DO J = 1, MIN(3,NDOF(N))
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DD(J,N)=D(J,N)
           ENDIF
          ENDDO
          DO J = 3, NDOF(N)
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DDR(J-3,N)=DR(J-3,N)
           ENDIF
          ENDDO
@@ -984,13 +947,13 @@ C------Rigid bodies-----
         M=IFRSR(1,I)
         DO J=1,MIN(3,NDOF(M))
          ND = IDDL(M)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DD(J,M)=D(J,M)
           ENDIF
         ENDDO
         DO J=3,NDOF(M)
          ND = IDDL(M)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DDR(J-3,M)=DR(J-3,M)
           ENDIF
         ENDDO
@@ -1003,23 +966,23 @@ C------int2-------
          NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+         IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C-------if main node is also dependent-----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
           DO J = 1 , MIN(3,NDOF(NJ))
                ND = IDDL(NJ) + J
-           IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+           IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
             DD(J,NJ)=D(J,NJ)
            ENDIF
           ENDDO
           DO J = 3 , NDOF(NJ)
                ND = IDDL(NJ) + J
-           IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+           IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
             DDR(J-3,NJ)=DR(J-3,NJ)
            ENDIF
           ENDDO
@@ -1030,18 +993,18 @@ C------RBE3-------
          N=IFRS3(I)
          NNOD=IRBE3(5,N)
          IAD=IRBE3(1,N)
-C-------si noeud main est dependant aussi-----
+C-------if main node is also dependent-----
          DO M=1,NNOD
           NJ=LRBE3(IAD+M)
           DO J = 1 , MIN(3,NDOF(NJ))
                ND = IDDL(NJ) + J
-           IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+           IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
             DD(J,NJ)=D(J,NJ)
            ENDIF
           ENDDO
           DO J = 3 , NDOF(NJ)
                ND = IDDL(NJ) + J
-           IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+           IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
             DDR(J-3,NJ)=DR(J-3,NJ)
            ENDIF
           ENDDO
@@ -1053,13 +1016,13 @@ C------RBE2-------
          M=IRBE2(3,N)
         DO J=1,MIN(3,NDOF(M))
          ND = IDDL(M)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DD(J,M)=D(J,M)
           ENDIF
         ENDDO
         DO J=3,NDOF(M)
          ND = IDDL(M)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DDR(J-3,M)=DR(J-3,M)
           ENDIF
         ENDDO
@@ -1067,14 +1030,14 @@ C------RBE2-------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_DD0                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRFV                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ini_dd0         ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frfv        ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE INI_DD0(IDDL ,IKC  ,NDOF  ,IPARI ,INTBUF_TAB ,
      .                   DD   ,DDR  ,NSL   ,IRBE3 ,LRBE3 ,
      .                   IRBE2,LRBE2 )
@@ -1087,9 +1050,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1111,17 +1071,17 @@ C-----------------------------------------------
       INTEGER M,NSN,L,NNOD,NJ,NL,NI
 C-----------------------------------------------
        DO I = 1, NSL
-C--------local secnd node-----
+C--------local second node-----
         N = ISL(I)
          DO J = 1, MIN(3,NDOF(N))
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DD(J,N)=ZERO
           ENDIF
          ENDDO
          DO J = 3, NDOF(N)
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DDR(J-3,N)=ZERO
           ENDIF
          ENDDO
@@ -1132,13 +1092,13 @@ C--------local main node-----
         N = IML(I)
          DO J = 1, MIN(3,NDOF(N))
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DD(J,N)=ZERO
           ENDIF
          ENDDO
          DO J = 3, NDOF(N)
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DDR(J-3,N)=ZERO
           ENDIF
          ENDDO
@@ -1148,13 +1108,13 @@ C------Rigid bodies-------
         M=IFRSR(1,I)
         DO J=1,MIN(3,NDOF(M))
          ND = IDDL(M)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DD(J,M)=ZERO
           ENDIF
         ENDDO
          DO J = 3, NDOF(M)
           ND = IDDL(M)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DDR(J-3,M)=ZERO
           ENDIF
          ENDDO
@@ -1167,23 +1127,23 @@ C------int2-------
          NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C-------if main node is also dependent-----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
           DO J = 1 , MIN(3,NDOF(NJ))
                ND = IDDL(NJ) + J
-           IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+           IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
             DD(J,NJ)=ZERO
            ENDIF
           ENDDO
           DO J = 3 , NDOF(NJ)
                ND = IDDL(NJ) + J
-           IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+           IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
             DDR(J-3,NJ)=ZERO
            ENDIF
           ENDDO
@@ -1194,18 +1154,18 @@ C------RBE3-------
          N=IFRS3(I)
          NNOD=IRBE3(5,N)
          IAD=IRBE3(1,N)
-C-------si noeud main est dependant aussi-----
+C-------if main node is also dependent-----
          DO M=1,NNOD
           NJ=LRBE3(IAD+M)
           DO J = 1 , MIN(3,NDOF(NJ))
                ND = IDDL(NJ) + J
-           IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+           IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
             DD(J,NJ)=ZERO
            ENDIF
           ENDDO
           DO J = 3 , NDOF(NJ)
                ND = IDDL(NJ) + J
-           IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+           IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
             DDR(J-3,NJ)=ZERO
            ENDIF
           ENDDO
@@ -1217,13 +1177,13 @@ C------RBE2-------
         M=IRBE2(3,N)
         DO J=1,MIN(3,NDOF(M))
          ND = IDDL(M)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DD(J,M)=ZERO
           ENDIF
         ENDDO
          DO J = 3, NDOF(M)
           ND = IDDL(M)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            DDR(J-3,M)=ZERO
           ENDIF
          ENDDO
@@ -1232,13 +1192,13 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ----
-Chd|====================================================================
-Chd|  INI_INTM                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    ini_intm   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frki   ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE INI_INTM(ILOC  ,N_IMPS,N_IMPN )
 C-----------------------------------------------
 C   M o d u l e s
@@ -1248,9 +1208,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1267,11 +1224,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C
       NML=N_IMPN-N_IMPS
-      IF (NML.GT.0) THEN
+      IF (NML>0) THEN
        IF(ALLOCATED(IML)) DEALLOCATE(IML)
        ALLOCATE(IML(NML),STAT=IERROR1)
        DO N = 1, NUMNOD
-        IF (ILOC(N).GT.N_IMPS) THEN
+        IF (ILOC(N)>N_IMPS) THEN
          I=ILOC(N)-N_IMPS
          IML(I)=N
         ENDIF
@@ -1280,13 +1237,13 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_KINEFR                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_kinefr      ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frki        ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_KINEFR(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,INLOC     ,
@@ -1302,16 +1259,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1339,9 +1290,9 @@ C----------------------------
        JI=IPARI(1,N)
        DO I=1,NSN
         NI=INTBUF_TAB(N)%NSV(I)
-        IF (INLOC(NI).GT.0) THEN
+        IF (INLOC(NI)>0) THEN
          LNS2=LNS2+1
-         IF (INLOC(NI).LE.NK_M) LNSS2=LNSS2+1
+         IF (INLOC(NI)<=NK_M) LNSS2=LNSS2+1
         ENDIF
        ENDDO
       ENDDO
@@ -1350,10 +1301,10 @@ C--------RBE3--------------------
       LNSS3=0
       DO N=1,NRBE3
        NI = IRBE3(3,N)
-       IF (NI.EQ.0) CYCLE
-       IF (INLOC(NI).GT.0) THEN
+       IF (NI==0) CYCLE
+       IF (INLOC(NI)>0) THEN
          LNS3=LNS3+1
-         IF (INLOC(NI).LE.NK_M) LNSS3=LNSS3+1
+         IF (INLOC(NI)<=NK_M) LNSS3=LNSS3+1
        ENDIF
       ENDDO
 CC-----active rigid body main nodes------
@@ -1367,10 +1318,10 @@ CC-----active rigid body main nodes------
         DO I=1,NSN
          ID = I+K
          NI=LPBY(ID)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           LNS=LNS+1
-          IF (INLOC(NI).LE.NK_M) LNSS=LNSS+1
-          IF (INLOC(M).EQ.0) INLOC(M) = 1
+          IF (INLOC(NI)<=NK_M) LNSS=LNSS+1
+          IF (INLOC(M)==0) INLOC(M) = 1
          ENDIF
        ENDDO
       ENDDO
@@ -1384,26 +1335,26 @@ C--------RBE2--------------------
         DO I=1,NSN
          ID = IAD+I
          NI=LRBE2(ID)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           LNR2=LNR2+1
-          IF (INLOC(NI).LE.NK_M) LNRS2=LNRS2+1
-          IF (INLOC(M).EQ.0) INLOC(M) = 2
+          IF (INLOC(NI)<=NK_M) LNRS2=LNRS2+1
+          IF (INLOC(M)==0) INLOC(M) = 2
          ENDIF
        ENDDO
       ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_KINEFR                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ind_kinefr      ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frki        ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IND_KINEFR(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,INLOC     ,
@@ -1423,13 +1374,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------------------------
@@ -1453,10 +1399,10 @@ C-----------------------------------------------
 c----------------------
       NI2_FR=0
       NI2_FRS=0
-      IF (NSS2.GT.0) THEN
+      IF (NSS2>0) THEN
        IF(ALLOCATED(IFRS2)) DEALLOCATE(IFRS2)
        ALLOCATE(IFRS2(2,NSS2),STAT=IERROR1)
-       IF (NSS2_S.GT.0) THEN
+       IF (NSS2_S>0) THEN
         IF(ALLOCATED(IFRS2_S)) DEALLOCATE(IFRS2_S)
         ALLOCATE(IFRS2_S(NSS2_S),STAT=IERROR3)
        ENDIF
@@ -1466,52 +1412,52 @@ c----------------------
         JI=IPARI(1,N)
         DO I=1,NSN
          NI=INTBUF_TAB(N)%NSV(I)
-         IF (INLOC(NI).GT.0) THEN
+         IF (INLOC(NI)>0) THEN
           NI2_FR=NI2_FR+1
           IFRS2(1,NI2_FR)=N
           IFRS2(2,NI2_FR)=I
-          IF (INLOC(NI).LE.KN_M)THEN
+          IF (INLOC(NI)<=KN_M)THEN
            NI2_FRS=NI2_FRS+1
            IFRS2_S(NI2_FRS)=NI2_FR
           ENDIF
          ENDIF
         ENDDO
        ENDDO
-       IF (NI2_FR.NE.NSS2.OR.NI2_FRS.NE.NSS2_S)
+       IF (NI2_FR/=NSS2.OR.NI2_FRS/=NSS2_S)
      .        WRITE(*,*)'pb cal NI2_FR'
       ENDIF
 c-------RBE3---------------
       NRBE3_FR=0
       NRBE3_FRS=0
-      IF (NSS3.GT.0) THEN
+      IF (NSS3>0) THEN
        IF(ALLOCATED(IFRS3)) DEALLOCATE(IFRS3)
        ALLOCATE(IFRS3(NSS3),STAT=IERROR1)
-       IF (NSS3_S.GT.0) THEN
+       IF (NSS3_S>0) THEN
         IF(ALLOCATED(IFRS3_S)) DEALLOCATE(IFRS3_S)
         ALLOCATE(IFRS3_S(NSS3_S),STAT=IERROR3)
        ENDIF
        DO N=1,NRBE3
          NI=IRBE3(3,N)
-         IF (NI.EQ.0) CYCLE
-         IF (INLOC(NI).GT.0) THEN
+         IF (NI==0) CYCLE
+         IF (INLOC(NI)>0) THEN
           NRBE3_FR=NRBE3_FR+1
           IFRS3(NRBE3_FR)=N
-          IF (INLOC(NI).LE.KN_M)THEN
+          IF (INLOC(NI)<=KN_M)THEN
            NRBE3_FRS=NRBE3_FRS+1
            IFRS3_S(NRBE3_FRS)=NRBE3_FR
           ENDIF
          ENDIF
        ENDDO
-       IF (NRBE3_FR.NE.NSS3.OR.NRBE3_FRS.NE.NSS3_S)
+       IF (NRBE3_FR/=NSS3.OR.NRBE3_FRS/=NSS3_S)
      .        WRITE(*,*)'pb cal NRBE3_FR'
       ENDIF
 C-----active rigid body main nodes------
       NRB_FR=0
       NRB_FRS=0
-      IF (NSS.GT.0) THEN
+      IF (NSS>0) THEN
        IF(ALLOCATED(IFRSR)) DEALLOCATE(IFRSR)
        ALLOCATE(IFRSR(2,NSS),STAT=IERROR2)
-       IF (NSS_S.GT.0) THEN
+       IF (NSS_S>0) THEN
         IF(ALLOCATED(IFRSR_S)) DEALLOCATE(IFRSR_S)
         ALLOCATE(IFRSR_S(NSS_S),STAT=IERROR4)
        ENDIF
@@ -1519,16 +1465,16 @@ C-----active rigid body main nodes------
         N=IRBYAC(J)
         K=IRBYAC(J+NRBYKIN)
         M  =NPBY(1,N)
-        IF (INLOC(M).GT.0) THEN
+        IF (INLOC(M)>0) THEN
          NSN  =NPBY(2,N)
          DO I=1,NSN
           ID = I+K
           NI=LPBY(ID)
-          IF (INLOC(NI).GT.0) THEN
+          IF (INLOC(NI)>0) THEN
            NRB_FR=NRB_FR+1
            IFRSR(1,NRB_FR)=M
            IFRSR(2,NRB_FR)=NI
-           IF (INLOC(NI).LE.KN_M) THEN
+           IF (INLOC(NI)<=KN_M) THEN
             NRB_FRS=NRB_FRS+1
             IFRSR_S(NRB_FRS)=NRB_FR
            ENDIF
@@ -1540,17 +1486,17 @@ C-----active rigid body main nodes------
 C
       NBC_FR = 0
       DO N=1,NUMNOD
-        IF (ISKEW(N).GT.1.AND.ICODT(N).NE.7) THEN
-         IF (INLOC(N).GT.0.AND.INLOC(N).LE.KN_M)NBC_FR = NBC_FR + 1
+        IF (ISKEW(N)>1.AND.ICODT(N)/=7) THEN
+         IF (INLOC(N)>0.AND.INLOC(N)<=KN_M)NBC_FR = NBC_FR + 1
         ENDIF
       ENDDO
-      IF (NBC_FR.GT.0) THEN
+      IF (NBC_FR>0) THEN
        IF(ALLOCATED(IBC_FR)) DEALLOCATE(IBC_FR)
        ALLOCATE(IBC_FR(3,NBC_FR),STAT=IERROR5)
        NBC_FR = 0
        DO N=1,NUMNOD
-        IF (ISKEW(N).GT.1.AND.ICODT(N).NE.7) THEN
-         IF (INLOC(N).GT.0.AND.INLOC(N).LE.KN_M) THEN
+        IF (ISKEW(N)>1.AND.ICODT(N)/=7) THEN
+         IF (INLOC(N)>0.AND.INLOC(N)<=KN_M) THEN
            NBC_FR = NBC_FR + 1
            IBC_FR(1,NBC_FR) = N
            IBC_FR(2,NBC_FR) = ISKEW(N)
@@ -1563,16 +1509,16 @@ C-------AUTOSPC
       NSPC_FR = 0
       DO I=1,NSPCL
         N = IN_SPC(I)
-        IF (INLOC(N).GT.0.AND.INLOC(N).LE.KN_M.AND.IC_SPC(I).LE.3)
+        IF (INLOC(N)>0.AND.INLOC(N)<=KN_M.AND.IC_SPC(I)<=3)
      .    NSPC_FR = NSPC_FR + 1
       ENDDO
-      IF (NSPC_FR.GT.0) THEN
+      IF (NSPC_FR>0) THEN
        IF(ALLOCATED(ISPC_FR)) DEALLOCATE(ISPC_FR)
        ALLOCATE(ISPC_FR(NSPC_FR),STAT=IERROR5)
        NSPC_FR = 0
        DO I=1,NSPCL
         N = IN_SPC(I)
-        IF (INLOC(N).GT.0.AND.INLOC(N).LE.KN_M.AND.IC_SPC(I).LE.3) THEN
+        IF (INLOC(N)>0.AND.INLOC(N)<=KN_M.AND.IC_SPC(I)<=3) THEN
              NSPC_FR = NSPC_FR + 1
              ISPC_FR(NSPC_FR)=I
             ENDIF
@@ -1581,19 +1527,19 @@ C-------AUTOSPC
 C---
       NFX_FR = 0
       DO J=1,NFXVEL
-        IF (LJ(J).GT.0.AND.LJ(J).LE.3) THEN
+        IF (LJ(J)>0.AND.LJ(J)<=3) THEN
          N=IABS(IBFV(1,J))
-         IF (INLOC(N).GT.0.AND.INLOC(N).LE.KN_M)NFX_FR = NFX_FR + 1
+         IF (INLOC(N)>0.AND.INLOC(N)<=KN_M)NFX_FR = NFX_FR + 1
         ENDIF
       ENDDO
-      IF (NFX_FR.GT.0) THEN
+      IF (NFX_FR>0) THEN
        IF(ALLOCATED(IFX_FR)) DEALLOCATE(IFX_FR)
        ALLOCATE(IFX_FR(2,NFX_FR),STAT=IERROR6)
        NFX_FR = 0
        DO J=1,NFXVEL
-        IF (LJ(J).GT.0.AND.LJ(J).LE.3) THEN
+        IF (LJ(J)>0.AND.LJ(J)<=3) THEN
          N=IABS(IBFV(1,J))
-         IF (INLOC(N).GT.0.AND.INLOC(N).LE.KN_M) THEN
+         IF (INLOC(N)>0.AND.INLOC(N)<=KN_M) THEN
            NFX_FR = NFX_FR + 1
            IFX_FR(1,NFX_FR) = J
            IFX_FR(2,NFX_FR) = LJ(J)
@@ -1605,15 +1551,15 @@ C
       NRW_FR = 0
       DO J=1,N_RWL
        N=IN_RWL(J)
-       IF (INLOC(N).GT.0) NRW_FR = NRW_FR + 1
+       IF (INLOC(N)>0) NRW_FR = NRW_FR + 1
       ENDDO
-      IF (NRW_FR.GT.0) THEN
+      IF (NRW_FR>0) THEN
        IF(ALLOCATED(IRW_FR)) DEALLOCATE(IRW_FR)
        ALLOCATE(IRW_FR(NRW_FR),STAT=IERROR7)
        NRW_FR = 0
        DO J=1,N_RWL
          N=IN_RWL(J)
-         IF (INLOC(N).GT.0) THEN
+         IF (INLOC(N)>0) THEN
            NRW_FR = NRW_FR + 1
            IRW_FR(NRW_FR) = J
          ENDIF
@@ -1623,26 +1569,26 @@ C
 C-----RBE2------
       NRBE2_FR=0
       NRBE2_FRS=0
-      IF (NSR2.GT.0) THEN
+      IF (NSR2>0) THEN
        IF(ALLOCATED(IFRS4)) DEALLOCATE(IFRS4)
        ALLOCATE(IFRS4(2,NSR2),STAT=IERROR2)
-       IF (NRS2_S.GT.0) THEN
+       IF (NRS2_S>0) THEN
         IF(ALLOCATED(IFRS4_S)) DEALLOCATE(IFRS4_S)
         ALLOCATE(IFRS4_S(NRS2_S),STAT=IERROR4)
        ENDIF
        DO N=1,NRBE2
         M  =IRBE2(3,N)
-        IF (INLOC(M).GT.0) THEN
+        IF (INLOC(M)>0) THEN
          IAD = IRBE2(1,N)
          NSN  =IRBE2(5,N)
          DO I=1,NSN
           ID = IAD+I
           NI=LRBE2(ID)
-          IF (INLOC(NI).GT.0) THEN
+          IF (INLOC(NI)>0) THEN
            NRBE2_FR=NRBE2_FR+1
            IFRS4(1,NRBE2_FR)=N
            IFRS4(2,NRBE2_FR)=NI
-           IF (INLOC(NI).LE.KN_M) THEN
+           IF (INLOC(NI)<=KN_M) THEN
             NRBE2_FRS=NRBE2_FRS+1
             IFRS4_S(NRBE2_FRS)=NRBE2_FR
            ENDIF
@@ -1654,15 +1600,16 @@ C-----RBE2------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IDDL_INT                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        RBE3CL                        source/constraints/general/rbe3/rbe3f.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    iddl_int        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frki        ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    rbe3cl          ../engine/source/constraints/general/rbe3/rbe3f.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IDDL_INT(NSL    ,IDDL    ,IKC     ,NDOF     ,IDDLM   ,
      .                    IPARI  ,INTBUF_TAB,IRBE3   ,LRBE3    ,FRBE3   ,
      .                     X     ,SKEW    ,IRBE2   ,LRBE2    )
@@ -1676,12 +1623,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -1703,7 +1646,7 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
-       IF (NML.GT.0) THEN
+       IF (NML>0) THEN
         IF(ALLOCATED(IDDML)) DEALLOCATE(IDDML)
         ALLOCATE(IDDML(3,NML),STAT=IERROR1)
 C--------initialization for ndof=0---
@@ -1713,7 +1656,7 @@ C--------initialization for ndof=0---
          NDD = 0
          DO J = 1 , MIN(3,NDOF(N))
               ID = IDDL(N) + J
-          IF (IKC(ID).LT.1) THEN
+          IF (IKC(ID)<1) THEN
            NDD = NDD + 1
            IDDML(J,I) = IDDLM(N) + NDD
           ELSE
@@ -1723,7 +1666,7 @@ C--------initialization for ndof=0---
         ENDDO
        ENDIF
 C
-       IF (NSL.GT.0) THEN
+       IF (NSL>0) THEN
         IF(ALLOCATED(IDDSL)) DEALLOCATE(IDDSL)
         ALLOCATE(IDDSL(3,NSL),STAT=IERROR2)
         IDDSL = -7
@@ -1732,7 +1675,7 @@ C
          NDD = 0
          DO J = 1 , MIN(3,NDOF(N))
               ID = IDDL(N) + J
-          IF (IKC(ID).LT.1) THEN
+          IF (IKC(ID)<1) THEN
            NDD = NDD + 1
            IDDSL(J,I) = IDDLM(N) + NDD
           ELSE
@@ -1742,7 +1685,7 @@ C
         ENDDO
        ENDIF
 C
-       IF (NRB_FR.GT.0) THEN
+       IF (NRB_FR>0) THEN
         IF(ALLOCATED(IDDMR)) DEALLOCATE(IDDMR)
         ALLOCATE(IDDMR(6,NRB_FR),STAT=IERROR3)
         DO I = 1, NRB_FR
@@ -1750,7 +1693,7 @@ C
          NDD = 0
          DO J = 1 , NDOF(N)
               ID = IDDL(N) + J
-          IF (IKC(ID).LT.1) THEN
+          IF (IKC(ID)<1) THEN
            NDD = NDD + 1
            IDDMR(J,I) = IDDLM(N) + NDD
           ELSE
@@ -1760,7 +1703,7 @@ C
         ENDDO
        ENDIF
 C
-       IF (NI2_FR.GT.0) THEN
+       IF (NI2_FR>0) THEN
         IF(ALLOCATED(IDDMI2)) DEALLOCATE(IDDMI2)
         ALLOCATE(IDDMI2(6,4,NI2_FR),STAT=IERROR4)
         DO I=1,NI2_FR
@@ -1770,18 +1713,18 @@ C
          NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C-------if main node is also dependent-----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
           NDD = 0
           DO J = 1 , NDOF(NJ)
                ID = IDDL(NJ) + J
-           IF (IKC(ID).LT.1) THEN
+           IF (IKC(ID)<1) THEN
             NDD = NDD + 1
             IDDMI2(J,M,I) = IDDLM(NJ) + NDD
            ELSE
@@ -1792,7 +1735,7 @@ C-------si noeud main est dependant aussi-----
         ENDDO
        ENDIF
 C-------RBE3-----------
-       IF (NRBE3_FR.GT.0) THEN
+       IF (NRBE3_FR>0) THEN
         IF(ALLOCATED(IDDMI3)) DEALLOCATE(IDDMI3)
         NDD = 0
         DO I=1,NRBE3_FR
@@ -1814,7 +1757,7 @@ C-------
           NDD = 0
           DO J = 1 , NDOF(NJ)
                ID = IDDL(NJ) + J
-           IF (IKC(ID).LT.1) THEN
+           IF (IKC(ID)<1) THEN
             NDD = NDD + 1
             IDDMI3(J,M,I) = IDDLM(NJ) + NDD
            ELSE
@@ -1826,7 +1769,7 @@ C-------
         ENDDO
         IF(ALLOCATED(FRCDI)) DEALLOCATE(FRCDI)
         ALLOCATE(FRCDI(18*NMT))
-        IF (IROTG.GT.0) THEN
+        IF (IROTG>0) THEN
          IF(ALLOCATED(MRCDI)) DEALLOCATE(MRCDI)
          ALLOCATE(MRCDI(18*NMT))
         ENDIF
@@ -1847,7 +1790,7 @@ C-------
         ENDDO
        ENDIF
 C-----------Rbe2-------------------
-       IF (NRBE2_FR.GT.0) THEN
+       IF (NRBE2_FR>0) THEN
         IF(ALLOCATED(IDDMR2)) DEALLOCATE(IDDMR2)
         ALLOCATE(IDDMR2(6,NRBE2_FR),STAT=IERROR3)
         DO I = 1, NRBE2_FR
@@ -1856,7 +1799,7 @@ C-----------Rbe2-------------------
          NDD = 0
          DO J = 1 , NDOF(M)
               ID = IDDL(M) + J
-          IF (IKC(ID).LT.1) THEN
+          IF (IKC(ID)<1) THEN
            NDD = NDD + 1
            IDDMR2(J,I) = IDDLM(M) + NDD
           ELSE
@@ -1868,27 +1811,28 @@ C-----------Rbe2-------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  DIAG_INT                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        BCL_IMPKD                     source/constraints/general/bcs/bc_imp0.F
-Chd|        FV_UPDKD                      source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_UPDKD2                     source/constraints/general/bcs/bc_imp0.F
-Chd|        I2_FRUP0                      source/interfaces/interf/i2_imp1.F
-Chd|        I2_FRUP1                      source/interfaces/interf/i2_imp1.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        PRERBE2FR                     source/constraints/general/rbe2/rbe2f.F
-Chd|        PRERBE3FR                     source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE2_IMPKD                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE3_FRUPD                    source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        UPDFR_RB                      source/constraints/general/rbody/rby_imp0.F
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    diag_int        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frki        ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    bcl_impkd       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    fv_updkd        ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_updkd2       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    i2_frup0        ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2_frup1        ../engine/source/interfaces/interf/i2_imp1.F
+!||    l_dir           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    prerbe2fr       ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    prerbe3fr       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe2_impkd      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe3_frupd      ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    updfr_rb        ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIAG_INT(NSL    ,NDOF    ,IPARI  ,INTBUF_TAB,
      .                    KSS    ,X       ,IBFV   ,SKEW    ,XFRAME,
      .                    IRBE3  ,LRBE3   ,IRBE2  ,LRBE2   )
@@ -1904,12 +1848,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1932,7 +1872,7 @@ C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
 C
-      IF (NRB_FRS.GT.0) THEN
+      IF (NRB_FRS>0) THEN
        IF(ALLOCATED(DIAG_MR)) DEALLOCATE(DIAG_MR)
        ALLOCATE(DIAG_MR(6,NRB_FRS),STAT=IERROR1)
        DO I1 = 1, NRB_FRS
@@ -1941,7 +1881,7 @@ C
         ENDDO
        ENDDO
       ENDIF
-      IF (NI2_FRS.GT.0) THEN
+      IF (NI2_FRS>0) THEN
        IF(ALLOCATED(DIAG_M2)) DEALLOCATE(DIAG_M2)
        ALLOCATE(DIAG_M2(6,4,NI2_FRS),STAT=IERROR2)
        DO I1=1,NI2_FRS
@@ -1952,7 +1892,7 @@ C
         ENDDO
        ENDDO
       ENDIF
-      IF (NRBE3_FRS.GT.0) THEN
+      IF (NRBE3_FRS>0) THEN
 C------RBE3---
         IADS=0
        DO I1=1,NRBE3_FRS
@@ -1965,17 +1905,17 @@ C------RBE3---
          DIAG_M3=ZERO
       ENDIF
 C-------------RBE2----------------------
-      IF (NRBE2_FRS.GT.0) THEN
+      IF (NRBE2_FRS>0) THEN
        IF(ALLOCATED(DIAG_MR2)) DEALLOCATE(DIAG_MR2)
        ALLOCATE(DIAG_MR2(6,NRBE2_FRS),STAT=IERROR1)
        DIAG_MR2=ZERO
       ENDIF
-C--------local secnd node-,d'abord independant----
+C--------local secondary node-, first independent----
        DO I = 1, NSL
         N = ISL(I)
         DO J = 1, MIN(3,NDOF(N))
          ID = IDDSL(J,I)
-         IF (ID.GT.0) DIAG_S(J,I)=KSS(J,I)
+         IF (ID>0) DIAG_S(J,I)=KSS(J,I)
         ENDDO
        ENDDO
 C
@@ -1987,9 +1927,9 @@ C
          NSN=IPARI(5,N)
          NS=INTBUF_TAB(N)%NSV(NI)
          DO IS = 1, NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
           ILEV  =IPARI(20,N)
-          IF (ILEV.EQ.1) THEN
+          IF (ILEV==1) THEN
            CALL I2_FRUP1(X   ,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA ,INTBUF_TAB(N)%NSV ,
      1               INTBUF_TAB(N)%IRTLM ,NS  ,KSS(1,IS),DIAG_M2(1,1,I1))
           ELSE
@@ -2018,7 +1958,7 @@ C--------remove ICR---
               KMM(K)=  ZERO
          ENDDO
          DO IS = 1, NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
           DO J=1,3
            KDD(J,J) = KSS(J,IS)
           ENDDO
@@ -2047,7 +1987,7 @@ C------RBE3---
          IROT=IRBE3(6,N)
          IAD=IRBE3(1,N)
          DO IS = 1, NSL
-         IF (ISL(IS).EQ.NI) THEN
+         IF (ISL(IS)==NI) THEN
 C-------
            CALL PRERBE3FR(IRBE3 ,N    ,JT  ,JR   )
            CALL RBE3_FRUPD(NNOD   ,LRBE3(IAD+1) ,FRCDI(IADS),
@@ -2063,7 +2003,7 @@ C------RBODY---
          M = IFRSR(1,I)
          N = IFRSR(2,I)
          DO IS = 1, NSL
-         IF (ISL(IS).EQ.N) THEN
+         IF (ISL(IS)==N) THEN
           XS=X(1,N)-X(1,M)
           YS=X(2,N)-X(2,M)
           ZS=X(3,N)-X(3,M)
@@ -2076,7 +2016,7 @@ C------RBODY---
         ISK= IBC_FR(2,I1)
         ICT= IBC_FR(3,I1)
          DO IS = 1, NSL
-         IF (ISL(IS).EQ.N) THEN
+         IF (ISL(IS)==N) THEN
           KII(1,1)=KSS(1,IS)
           KII(2,2)=KSS(2,IS)
           KII(3,3)=KSS(3,IS)
@@ -2097,7 +2037,7 @@ C-------AUTOSPC
             IAD = 6*(N-1)+1
             NN = IC_SPC(N)
          DO IS = 1, NSL
-         IF (ISL(IS).EQ.I) THEN
+         IF (ISL(IS)==I) THEN
           KII(1,1)=KSS(1,IS)
           KII(2,2)=KSS(2,IS)
           KII(3,3)=KSS(3,IS)
@@ -2107,13 +2047,13 @@ C-------AUTOSPC
           KII(2,1)=KII(1,2)
           KII(3,1)=KII(1,3)
           KII(3,2)=KII(2,3)
-          IF (NN.EQ.1) THEN
+          IF (NN==1) THEN
            EJ(1)=SKEW_SPC(IAD)
            EJ(2)=SKEW_SPC(IAD+1)
            EJ(3)=SKEW_SPC(IAD+2)
            CALL L_DIR(EJ,J)
            CALL FV_UPDKD(EJ    ,J    ,KII   ,DIAG_S(1,IS))
-          ELSEIF (NN.EQ.2) THEN
+          ELSEIF (NN==2) THEN
            CALL FV_UPDKD2(SKEW_SPC(IAD),SKEW_SPC(IAD+3),KII,
      .                    DIAG_S(1,IS))
           END IF
@@ -2127,11 +2067,11 @@ C-------AUTOSPC
           ISK=IBFV(2,N)/10
           IFM = IBFV(9,N)
           J=IBFV(2,N)
-          IF (IFM.LE.1) J=J-10*ISK
+          IF (IFM<=1) J=J-10*ISK
           K1=3*J-2
           K2=3*J-1
           K3=3*J
-            IF (ISK.GT.1) THEN
+            IF (ISK>1) THEN
               EJ(1)=SKEW(K1,ISK)
               EJ(2)=SKEW(K2,ISK)
               EJ(3)=SKEW(K3,ISK)
@@ -2141,7 +2081,7 @@ C-------AUTOSPC
               EJ(3)=XFRAME(K3,IFM)
             ENDIF
          DO IS = 1, NSL
-         IF (ISL(IS).EQ.I) THEN
+         IF (ISL(IS)==I) THEN
           KII(1,1)=KSS(1,IS)
           KII(2,2)=KSS(2,IS)
           KII(3,3)=KSS(3,IS)
@@ -2163,7 +2103,7 @@ C-------AUTOSPC
         I = IRW_FR(I1)
         N = IN_RWL(I)
          DO IS = 1, NSL
-         IF (ISL(IS).EQ.N) THEN
+         IF (ISL(IS)==N) THEN
           KII(1,1)=KSS(1,IS)
           KII(2,2)=KSS(2,IS)
           KII(3,3)=KSS(3,IS)
@@ -2184,17 +2124,18 @@ C-------AUTOSPC
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INTABFR                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        GET_IAD                       source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FVKM                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FVKSS                     source/mpi/implicit/imp_fri.F 
-Chd|        INI_FRUD                      source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    intabfr     ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    get_iad     ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_fvkm    ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_fvkss   ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_frud    ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_kml     ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_ksl     ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    intab       ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
        SUBROUTINE INTABFR(NIC,IC,N,INTAB)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -2208,10 +2149,10 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I
-C----6-----IC est deja en ordre croissante---------------------------7---------8
+C---- 6 ----- IC is already in an increasing order ----------------------------------- 7 -------- 8
       INTAB=0
        DO I =1,NIC
-        IF (N.EQ.IC(I)) THEN
+        IF (N==IC(I)) THEN
          INTAB=I
          RETURN
         ENDIF
@@ -2220,15 +2161,15 @@ C
       RETURN
       END
 C   --------- ----
-Chd|====================================================================
-Chd|  IMP_DIAGS                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        LIN_SOLVH1                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVIH2                   source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_diags       ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    lin_solvh1      ../engine/source/implicit/lin_solv.F
+!||    lin_solvih2     ../engine/source/implicit/lin_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IMP_DIAGS(DIAG_K,NDOF,NSL,IPARI,INTBUF_TAB,IRBE3,LRBE3,
      .                     IRBE2 )
 C-----------------------------------------------
@@ -2241,13 +2182,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2264,21 +2201,21 @@ C-----------------------------------------------
       INTEGER I,J,N,ID,I1,IAD
       INTEGER M,NSN,L,NNOD,NJ,NL,NI,JI
 C-----------------------------------------------
-      IF (INTP_D.GT.0) THEN
+      IF (INTP_D>0) THEN
        DO I = 1, NDDL_SL
         ID = IDDL_SL(I)
         DIAG_K(ID)=DIAG_K(ID)+DIAG_SL(I)
        ENDDO
       ELSE
        DO I = 1, NSL
-C--------local secnd node-----
+C--------local secondary node-----
         N = ISL(I)
          DO J = 1, MIN(3,NDOF(N))
           ID = IDDSL(J,I)
-          IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_S(J,I)
+          IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_S(J,I)
          ENDDO
        ENDDO
-C--------si il y a des noeuds independant-----
+C--------if there are independent nodes-----
        DO I1=1,NI2_FRS
          I=IFRS2_S(I1)
          N=IFRS2(1,I)
@@ -2287,7 +2224,7 @@ C--------si il y a des noeuds independant-----
          NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
@@ -2296,7 +2233,7 @@ C--------si il y a des noeuds independant-----
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
           DO J = 1 , NDOF(NJ)
                ID = IDDMI2(J,M,I)
-           IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_M2(J,M,I1)
+           IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_M2(J,M,I1)
           ENDDO
          ENDDO
        ENDDO
@@ -2310,7 +2247,7 @@ C--------RBE3-----
           NJ=LRBE3(IAD+M)
           DO J = 1 , NDOF(NJ)
                ID = IDDMI3(J,M,I)
-           IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_M3(J,M,I1)
+           IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_M3(J,M,I1)
           ENDDO
          ENDDO
        ENDDO
@@ -2319,7 +2256,7 @@ C--------RBE3-----
          N = IFRSR(1,I)
          DO J = 1 , NDOF(N)
               ID = IDDMR(J,I)
-          IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MR(J,I1)
+          IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MR(J,I1)
          ENDDO
        ENDDO
 C--------RBE2-----
@@ -2329,7 +2266,7 @@ C--------RBE2-----
          M = IRBE2(3,N)
          DO J = 1 , NDOF(M)
               ID = IDDMR2(J,I)
-          IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MR2(J,I1)
+          IF (ID>0) DIAG_K(ID)=DIAG_K(ID)+DIAG_MR2(J,I1)
          ENDDO
        ENDDO
 C
@@ -2338,15 +2275,15 @@ C----6---------------------------------------------------------------7---------8
       RETURN
       END
 C   --------- ----
-Chd|====================================================================
-Chd|  IMP_DIAGSN                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        LIN_SOLVH1                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVIH2                   source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_diagsn      ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    lin_solvh1      ../engine/source/implicit/lin_solv.F
+!||    lin_solvih2     ../engine/source/implicit/lin_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IMP_DIAGSN(DIAG_K,NDOF,NSL,IPARI,INTBUF_TAB,IRBE3,LRBE3,
      .                      IRBE2 )
 C-----------------------------------------------
@@ -2359,9 +2296,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
@@ -2381,21 +2315,21 @@ C-----------------------------------------------
       INTEGER I,J,N,ID,I1,IAD
       INTEGER M,NSN,L,NNOD,NJ,NL,NI,JI
 C-----------------------------------------------
-      IF (INTP_D.GT.0) THEN
+      IF (INTP_D>0) THEN
        DO I = 1, NDDL_SL
         ID = IDDL_SL(I)
         DIAG_K(ID)=DIAG_K(ID)-DIAG_SL(I)
        ENDDO
       ELSE
        DO I = 1, NSL
-C--------local secnd node-----
+C--------local secondary node-----
         N = ISL(I)
          DO J = 1, MIN(3,NDOF(N))
           ID = IDDSL(J,I)
-          IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_S(J,I)
+          IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_S(J,I)
          ENDDO
        ENDDO
-C--------si il y a des noeuds independant-----
+C--------if there are independent nodes-----
        DO I1=1,NI2_FRS
          I=IFRS2_S(I1)
          N=IFRS2(1,I)
@@ -2404,7 +2338,7 @@ C--------si il y a des noeuds independant-----
          NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
@@ -2413,7 +2347,7 @@ C--------si il y a des noeuds independant-----
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
           DO J = 1 , NDOF(NJ)
            ID = IDDMI2(J,M,I)
-           IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_M2(J,M,I1)
+           IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_M2(J,M,I1)
           ENDDO
          ENDDO
        ENDDO
@@ -2427,7 +2361,7 @@ C--------RBE3-----
           NJ=LRBE3(IAD+M)
           DO J = 1 , NDOF(NJ)
                ID = IDDMI3(J,M,I)
-           IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_M3(J,M,I1)
+           IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_M3(J,M,I1)
           ENDDO
          ENDDO
        ENDDO
@@ -2436,7 +2370,7 @@ C--------RBE3-----
          N = IFRSR(1,I)
          DO J = 1 , NDOF(N)
               ID = IDDMR(J,I)
-          IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MR(J,I1)
+          IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MR(J,I1)
          ENDDO
        ENDDO
 C--------RBE2-----
@@ -2446,7 +2380,7 @@ C--------RBE2-----
          M = IRBE2(3,N)
          DO J = 1 , NDOF(M)
               ID = IDDMR2(J,I)
-          IF (ID.GT.0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MR2(J,I1)
+          IF (ID>0) DIAG_K(ID)=DIAG_K(ID)-DIAG_MR2(J,I1)
          ENDDO
        ENDDO
 C
@@ -2454,27 +2388,28 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  FR_MATV                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRFV                      source/mpi/implicit/imp_fri.F 
-Chd|        MAV_LTH                       source/implicit/produt_v.F    
-Chd|        MAV_LTH0                      source/implicit/produt_v.F    
-Chd|        MAV_LTP                       source/implicit/produt_v.F    
-Chd|-- calls ---------------
-Chd|        FR_A2B                        source/mpi/implicit/imp_fri.F 
-Chd|        FR_A2BD                       source/mpi/implicit/imp_fri.F 
-Chd|        FR_U2D                        source/mpi/implicit/imp_fri.F 
-Chd|        FR_U2DD                       source/mpi/implicit/imp_fri.F 
-Chd|        I7MAINFR                      source/interfaces/int07/i7ke3.F
-Chd|        MAV_LTFR                      source/mpi/implicit/imp_fri.F 
-Chd|        SPMD_IFCD                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_IFCF                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_IFRF                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_IFRU                     source/mpi/implicit/imp_spmd.F
-Chd|        UPD_FR                        source/mpi/implicit/imp_fri.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    fr_matv         ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frfv        ../engine/source/mpi/implicit/imp_fri.F
+!||    mav_lth         ../engine/source/implicit/produt_v.F
+!||    mav_lth0        ../engine/source/implicit/produt_v.F
+!||    mav_ltp         ../engine/source/implicit/produt_v.F
+!||--- calls      -----------------------------------------------------
+!||    fr_a2b          ../engine/source/mpi/implicit/imp_fri.F
+!||    fr_a2bd         ../engine/source/mpi/implicit/imp_fri.F
+!||    fr_u2d          ../engine/source/mpi/implicit/imp_fri.F
+!||    fr_u2dd         ../engine/source/mpi/implicit/imp_fri.F
+!||    i7mainfr        ../engine/source/interfaces/int07/i7ke3.F
+!||    mav_ltfr        ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_ifcd       ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_ifcf       ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_ifrf       ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_ifru       ../engine/source/mpi/implicit/imp_spmd.F
+!||    upd_fr          ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE FR_MATV(  A     ,V     ,D      ,MS     ,X      ,
      1                     DR    ,AR    ,IPARI  ,INTBUF_TAB     ,
      2                     NDOF  ,NUM_IMP,NS_IMP,NE_IMP,LX      ,
@@ -2488,9 +2423,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -2513,33 +2445,33 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,IDF
 C-----------------------------------------------
-      IF ((NSREM+NSL).EQ.0) RETURN
+      IF ((NSREM+NSL)==0) RETURN
 C
-      IF (INTP_C.GT.0) THEN
-C-----renvoie U(NDDL_SL) et receive U(NDDL_SI)-----
+      IF (INTP_C>0) THEN
+C-----send U(NDDL_SL) and receive U(NDDL_SI)-----
        CALL SPMD_IFRU(LX )
        CALL MAV_LTFR(LX  ,F   )
-C-----renvoie F (NDDL_SI) et receive F (NDDL_SL)-----
+C-----send F (NDDL_SI) and receive F (NDDL_SL)-----
        CALL SPMD_IFRF(F )
       ELSE
 C
-C-----initialise D,A noeuds independant d'abord-----
+C-----initialize D,A independent nodes first-----
       CALL FR_U2D(NDOF  ,LX    ,D     ,A     ,NSREM, NSL )
-C-----noeuds kin -----
+C-----kinematic nodes -----
       CALL FR_U2DD(D    ,DR    ,X     ,IPARI  ,INTBUF_TAB,
      1             NDOF  ,A     ,AR     ,LX     ,
      2             IBFV ,SKEW  ,XFRAME,IRBE3,LRBE3    ,
      3             IRBE2,LRBE2 )
-C-----renvoie D (NSL) et receive DFI (NSREM)-----
+C-----send D (NSL) and receive DFI (NSREM)-----
       CALL SPMD_IFCD(D  ,NSL, NSREM)
-C-----calcul  force de contact ->A ,FFI-----
-      IF (NSREM.GT.0)
+C-----compute contact force ->A ,FFI-----
+      IF (NSREM>0)
      . CALL I7MAINFR(A     ,V     ,D      ,X      ,MS    ,
      1               IPARI ,INTBUF_TAB  ,NUM_IMP,NS_IMP,
      2               NE_IMP)
-C-----renvoie FFI (NSREM) et receive A (NSL)-----
+C-----send FFI (NSREM) and receive A (NSL)-----
       CALL SPMD_IFCF(A, NSREM  ,NSL)
-C-----Calcul A avec noeuds dependant---------
+C-----Compute A with dependent nodes---------
       CALL UPD_FR(A     ,AR     ,X     ,IPARI  ,INTBUF_TAB,
      1            NDOF   ,IBFV  ,SKEW   ,XFRAME ,
      2            IRBE3 ,LRBE3  ,IRBE2 ,LRBE2  )
@@ -2547,32 +2479,26 @@ C
        CALL FR_A2B(NDOF   ,F     ,A      ,NSL  )
        CALL FR_A2BD(NDOF  ,IPARI ,INTBUF_TAB,F     ,A     ,
      .              AR    ,IRBE3 ,LRBE3  ,IRBE2 ,LRBE2 )
-      END IF !(INTP_C.GT.0) THEN
+      END IF !(INTP_C>0) THEN
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  FR_MATV_GPU                   source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        MAV_LTFR_GPU                  source/mpi/implicit/imp_fri.F 
-Chd|        SPMD_IFRF_GPU                 source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_IFRU_GPU                 source/mpi/implicit/imp_spmd.F
-Chd|====================================================================
+!||====================================================================
+!||    fr_matv_gpu     ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    mav_ltfr_gpu    ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_ifrf_gpu   ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_ifru_gpu   ../engine/source/mpi/implicit/imp_spmd.F
+!||====================================================================
       SUBROUTINE FR_MATV_GPU(NSREM, NSL, LX ,F ,NINDEX)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "impl1_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2584,13 +2510,13 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I
 C-----------------------------------------------
-      IF ((NSREM+NSL).EQ.0) RETURN
+      IF ((NSREM+NSL)==0) RETURN
 C
-      IF (INTP_C.GT.0) THEN
-C-----renvoie U(NDDL_SL) et receive U(NDDL_SI)-----
+      IF (INTP_C>0) THEN
+C-----send U(NDDL_SL) and receive U(NDDL_SI)-----
        CALL SPMD_IFRU_GPU(LX,NINDEX)
        CALL MAV_LTFR_GPU(LX  ,F, NINDEX)
-C-----renvoie F (NDDL_SI) et receive F (NDDL_SL)-----
+C-----send F (NDDL_SI) and receive F (NDDL_SL)-----
        CALL SPMD_IFRF_GPU(F,NINDEX)
       ELSE
         PRINT*,'**ERROR OPTION NOT COMPATIBLE WITH GPU'
@@ -2599,13 +2525,13 @@ C-----renvoie F (NDDL_SI) et receive F (NDDL_SL)-----
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  FR_U2D                        source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        FR_MATV                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    fr_u2d     ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    fr_matv    ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE FR_U2D(NDOF  ,LX    ,D     ,A    ,NSREM ,NSL )
 C-----------------------------------------------
 C   M o d u l e s
@@ -2616,9 +2542,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NDOF(*),NSL,NSREM
@@ -2628,7 +2551,7 @@ C----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,ID,ND,M,N
-C----noeuds independant d'abord-----
+C----independent nodes first-----
       DO I = 1,NSREM
        FFI(1,I)=ZERO
        FFI(2,I)=ZERO
@@ -2638,8 +2561,8 @@ C----noeuds independant d'abord-----
        N=ISL(I)
         DO J=1,MIN(3,NDOF(N))
          ND = IDDSL(J,I)
-         IF (ND.GT.0) D(J,N)=LX(ND)
-C--------pour com avec FFI----
+         IF (ND>0) D(J,N)=LX(ND)
+C--------for communication with FFI----
          A(J,N)=ZERO
         ENDDO
       ENDDO
@@ -2647,35 +2570,36 @@ C--------pour com avec FFI----
        N=IML(I)
         DO J=1,MIN(3,NDOF(N))
          ND = IDDML(J,I)
-         IF (ND.GT.0) D(J,N)=LX(ND)
+         IF (ND>0) D(J,N)=LX(ND)
          A(J,N)=ZERO
         ENDDO
       ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  FR_U2DD                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        FR_MATV                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        BCL_IMPD                      source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPD2D                      source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDD                       source/constraints/general/bcs/bc_imp0.F
-Chd|        FV_IMPD                       source/constraints/general/impvel/fv_imp0.F
-Chd|        I2_FRRD0                      source/interfaces/interf/i2_imp2.F
-Chd|        I2_FRRD1                      source/interfaces/interf/i2_imp2.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        PRERBE2FR                     source/constraints/general/rbe2/rbe2f.F
-Chd|        PRERBE3FR                     source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE2_FRD                      source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE3_FRD                      source/constraints/general/rbe3/rbe3v.F
-Chd|        RBY_IMP3                      source/constraints/general/rbody/rby_impd.F
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    fr_u2dd         ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    fr_matv         ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    bc_upd2d        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updd         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bcl_impd        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    fv_impd         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    i2_frrd0        ../engine/source/interfaces/interf/i2_imp2.F
+!||    i2_frrd1        ../engine/source/interfaces/interf/i2_imp2.F
+!||    l_dir           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    prerbe2fr       ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    prerbe3fr       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe2_frd        ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe3_frd        ../engine/source/constraints/general/rbe3/rbe3v.F
+!||    rby_imp3        ../engine/source/constraints/general/rbody/rby_impd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE FR_U2DD( D     ,DR    ,X     ,IPARI  ,INTBUF_TAB,
      .                    NDOF  ,A     ,AR     ,LX     ,
      .                    IBFV  ,SKEW  ,XFRAME,IRBE3  ,LRBE3  ,
@@ -2692,13 +2616,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -2732,14 +2651,14 @@ C-----------------------------------------------
           I = IN_SPC(N)
               IAD = 6*(N-1)+1
               NN = IC_SPC(N)
-            IF (NN.EQ.1) THEN
+            IF (NN==1) THEN
              EJ(1)=SKEW_SPC(IAD)
              EJ(2)=SKEW_SPC(IAD+1)
              EJ(3)=SKEW_SPC(IAD+2)
           CALL L_DIR(EJ,J)
           D(J,I) = ZERO
           CALL BC_UPDD(I     ,EJ   ,J     ,D     )
-            ELSEIF (NN.EQ.2) THEN
+            ELSEIF (NN==2) THEN
           CALL BC_UPD2D(I     ,SKEW_SPC(IAD),SKEW_SPC(IAD+3),D     )
             END IF
           A(1,I)=ZERO
@@ -2747,7 +2666,7 @@ C-----------------------------------------------
           A(3,I)=ZERO
        ENDDO
 C
-       IF (NFX_FR.GT.0) THEN
+       IF (NFX_FR>0) THEN
         DO N=1,NFXVEL
          LJFR(N)=0
         ENDDO
@@ -2779,9 +2698,9 @@ C------Rigid bodies-------
         M=IFRSR(1,I)
          DO J = 1 , NDOF(M)
               ND = IDDMR(J,I)
-          IF (J.LE.3.AND.ND.GT.0) THEN
+          IF (J<=3.AND.ND>0) THEN
             D(J,M)=LX(ND)
-          ELSEIF (ND.GT.0) THEN
+          ELSEIF (ND>0) THEN
             DR(J-3,M)=LX(ND)
           ENDIF
          ENDDO
@@ -2801,10 +2720,10 @@ C--------RBE3-----
           NJ=LRBE3(IAD+M)
            DO J=1,NDOF(NJ)
             ND = IDDMI3(J,M,I)
-            IF (J.LE.3.AND.ND.GT.0) THEN
+            IF (J<=3.AND.ND>0) THEN
              D(J,NJ)=LX(ND)
              A(J,NJ)=ZERO
-            ELSEIF(ND.GT.0) THEN
+            ELSEIF(ND>0) THEN
              DR(J-3,NJ)=LX(ND)
              AR(J-3,NJ)=ZERO
             ENDIF
@@ -2821,10 +2740,10 @@ C------Rbe2------
         M=IRBE2(3,N)
          DO J = 1 , NDOF(M)
               ND = IDDMR2(J,I)
-          IF (J.LE.3.AND.ND.GT.0) THEN
+          IF (J<=3.AND.ND>0) THEN
             D(J,M)=LX(ND)
             A(J,M)=ZERO
-          ELSEIF (ND.GT.0) THEN
+          ELSEIF (ND>0) THEN
             DR(J-3,M)=LX(ND)
             AR(J-3,M)=ZERO
           ENDIF
@@ -2850,27 +2769,27 @@ C------int2-------
         NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C-------if main node is also dependent-----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
            DO J=1,NDOF(NJ)
             ND = IDDMI2(J,M,I)
-            IF (J.LE.3.AND.ND.GT.0) THEN
+            IF (J<=3.AND.ND>0) THEN
              D(J,NJ)=LX(ND)
              A(J,NJ)=ZERO
-            ELSEIF(ND.GT.0) THEN
+            ELSEIF(ND>0) THEN
              DR(J-3,NJ)=LX(ND)
              AR(J-3,NJ)=ZERO
             ENDIF
            ENDDO
          ENDDO
         ILEV  =IPARI(20,N)
-        IF (ILEV.EQ.1) THEN
+        IF (ILEV==1) THEN
          CALL I2_FRRD1(X   ,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA ,INTBUF_TAB(N)%NSV ,
      1                INTBUF_TAB(N)%IRTLM ,D   ,NI    )
         ELSE
@@ -2881,29 +2800,30 @@ C-------si noeud main est dependant aussi-----
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPD_FR                        source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        FR_MATV                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        BC_FI                         source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_FI2                        source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDF                       source/constraints/general/bcs/bc_imp0.F
-Chd|        FV_UPDF                       source/constraints/general/impvel/fv_imp0.F
-Chd|        I2_FRFM0                      source/interfaces/interf/i2_imp1.F
-Chd|        I2_FRFM1                      source/interfaces/interf/i2_imp1.F
-Chd|        KIN_UPDF                      source/constraints/general/impvel/fv_imp0.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        PRERBE2FR                     source/constraints/general/rbe2/rbe2f.F
-Chd|        PRERBE3FR                     source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE2FRF                       source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE3FRF                       source/constraints/general/rbe3/rbe3f.F
-Chd|        RBY_IMPF                      source/constraints/general/rbody/rby_imp0.F
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    upd_fr          ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    fr_matv         ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    bc_fi           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_fi2          ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updf         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    fv_updf         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    i2_frfm0        ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2_frfm1        ../engine/source/interfaces/interf/i2_imp1.F
+!||    kin_updf        ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    l_dir           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    prerbe2fr       ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    prerbe3fr       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe2frf         ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe3frf         ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rby_impf        ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE UPD_FR(  A     ,AR     ,X     ,IPARI  ,INTBUF_TAB,
      1                   NDOF   ,IBFV  ,SKEW   ,XFRAME ,
      2                   IRBE3  ,LRBE3  ,IRBE2 ,LRBE2  )
@@ -2919,14 +2839,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -2950,7 +2864,7 @@ C------int2-------
         NSN=IPARI(5,N)
         NI=IFRS2(2,I)
         ILEV  =IPARI(20,N)
-        IF (ILEV.EQ.1) THEN
+        IF (ILEV==1) THEN
          CALL I2_FRFM1(X   ,INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA ,INTBUF_TAB(N)%NSV ,
      1                INTBUF_TAB(N)%IRTLM ,A   ,NI   )
         ELSE
@@ -2992,7 +2906,7 @@ C------Rigid bodies-------
         CALL RBY_IMPF(X    ,M      ,NS     ,NDOF   ,A     ,
      .               AR    )
        ENDDO
-       IF (NBC_FR.GT.0) THEN
+       IF (NBC_FR>0) THEN
         CALL BC_UPDF(NBC_FR ,IBC_FR ,SKEW  ,A      )
        ENDIF
        DO I1=1,NSPC_FR
@@ -3000,18 +2914,18 @@ C------Rigid bodies-------
           I = IN_SPC(N)
               IAD = 6*(N-1)+1
               NN = IC_SPC(N)
-            IF (NN.EQ.1) THEN
+            IF (NN==1) THEN
              EJ(1)=SKEW_SPC(IAD)
              EJ(2)=SKEW_SPC(IAD+1)
              EJ(3)=SKEW_SPC(IAD+2)
           CALL L_DIR(EJ,J)
           CALL BC_FI(I    ,SKEW_SPC(IAD),J    ,A     )
-            ELSEIF (NN.EQ.2) THEN
+            ELSEIF (NN==2) THEN
           CALL BC_FI2(I   ,SKEW_SPC(IAD),SKEW_SPC(IAD+3),A    )
             END IF
        ENDDO
 C
-       IF (NFX_FR.GT.0) THEN
+       IF (NFX_FR>0) THEN
         CALL FV_UPDF(NFX_FR ,IFX_FR ,IBFV  ,SKEW  ,XFRAME,
      1               A      )
        ENDIF
@@ -3027,14 +2941,13 @@ C
 C
       RETURN
       END
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  FR_A2B                        source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        FR_MATV                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    fr_a2b     ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    fr_matv    ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE FR_A2B(NDOF  ,LB    ,A     ,NSL  )
 C-----------------------------------------------
 C   M o d u l e s
@@ -3044,9 +2957,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3060,10 +2970,10 @@ C-----------------------------------------------
 C---------
       DO I = 1,NSL
        N=ISLM(I)
-       IF (N.GT.0) THEN
+       IF (N>0) THEN
         DO J=1,MIN(3,NDOF(N))
          ND = IDDSL(J,I)
-         IF (ND.GT.0) LB(ND)=LB(ND)+A(J,N)
+         IF (ND>0) LB(ND)=LB(ND)+A(J,N)
         ENDDO
        ENDIF
       ENDDO
@@ -3071,21 +2981,20 @@ C---------
        N=IML(I)
         DO J=1,MIN(3,NDOF(N))
          ND = IDDML(J,I)
-         IF (ND.GT.0) LB(ND)=LB(ND)+A(J,N)
+         IF (ND>0) LB(ND)=LB(ND)+A(J,N)
         ENDDO
       ENDDO
 C
       RETURN
       END
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  FR_A2BD                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        FR_MATV                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    fr_a2bd         ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    fr_matv         ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE FR_A2BD(NDOF  ,IPARI ,INTBUF_TAB  ,LB    ,A     ,
      .                   AR    ,IRBE3 ,LRBE3  ,IRBE2 ,LRBE2  )
 C-----------------------------------------------
@@ -3100,7 +3009,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -3121,10 +3029,10 @@ C------Rigid bodies-------
         M=IFRSR(1,I)
          DO J=1,NDOF(M)
           ND = IDDMR(J,I)
-          IF (J.LE.3.AND.ND.GT.0) THEN
+          IF (J<=3.AND.ND>0) THEN
            LB(ND)=LB(ND)+A(J,M)
            A(J,M)=ZERO
-          ELSEIF(ND.GT.0) THEN
+          ELSEIF(ND>0) THEN
            LB(ND)=LB(ND)+AR(J-3,M)
            AR(J-3,M)=ZERO
           ENDIF
@@ -3138,20 +3046,20 @@ C------int2-------
         NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
-C-------si noeud main est dependant aussi-----
+C-------if main node is also dependent-----
          DO M=1,NNOD
           NJ=INTBUF_TAB(N)%IRECTM(NL+M)
            DO J=1,NDOF(NJ)
             ND = IDDMI2(J,M,I)
-            IF (J.LE.3.AND.ND.GT.0) THEN
+            IF (J<=3.AND.ND>0) THEN
              LB(ND)=LB(ND)+A(J,NJ)
              A(J,NJ)=ZERO
-            ELSEIF(ND.GT.0) THEN
+            ELSEIF(ND>0) THEN
              LB(ND)=LB(ND)+AR(J-3,NJ)
              AR(J-3,NJ)=ZERO
             ENDIF
@@ -3167,10 +3075,10 @@ C--------RBE3-----
           NJ=LRBE3(IAD+M)
            DO J=1,NDOF(NJ)
             ND = IDDMI3(J,M,I)
-            IF (J.LE.3.AND.ND.GT.0) THEN
+            IF (J<=3.AND.ND>0) THEN
              LB(ND)=LB(ND)+A(J,NJ)
              A(J,NJ)=ZERO
-            ELSEIF(ND.GT.0) THEN
+            ELSEIF(ND>0) THEN
              LB(ND)=LB(ND)+AR(J-3,NJ)
              AR(J-3,NJ)=ZERO
             ENDIF
@@ -3183,10 +3091,10 @@ C------RBE2-------
         M=IRBE2(3,N)
          DO J=1,NDOF(M)
           ND = IDDMR2(J,I)
-          IF (J.LE.3.AND.ND.GT.0) THEN
+          IF (J<=3.AND.ND>0) THEN
            LB(ND)=LB(ND)+A(J,M)
            A(J,M)=ZERO
-          ELSEIF(ND.GT.0) THEN
+          ELSEIF(ND>0) THEN
            LB(ND)=LB(ND)+AR(J-3,M)
            AR(J-3,M)=ZERO
           ENDIF
@@ -3195,14 +3103,13 @@ C------RBE2-------
 C
       RETURN
       END
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  DIM_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    dim_nrmax    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k   ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE DIM_NRMAX(NROW  ,FR_ELEM ,IAD_ELEM,NNMAX   )
 C-----------------------------------------------
 C   M o d u l e s
@@ -3225,12 +3132,12 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,N,NR
 C------------------------------------
-      IF (N_FRNN.EQ.0) RETURN
+      IF (N_FRNN==0) RETURN
 C
        DO I =1,NSPMD
         DO J=IAD_ELEM(1,I),IAD_ELEM(1,I+1)-1
           NR=IAD_RL(J+1)-IAD_RL(J)
-          IF (NR.GT.0)THEN
+          IF (NR>0)THEN
            N = FR_ELEM(J)
            NROW(N)=NROW(N)+NR
            NNMAX = MAX(NNMAX,NROW(N))
@@ -3240,14 +3147,15 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  KIN_NRMAX0                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    kin_nrmax0   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    dim_kinmax   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE KIN_NRMAX0(
      1    NNMAX     ,NKMAX     ,NROWK     ,ICOK      ,ICOKM     ,
      2    ILOC      ,INK       ,FR_ELEM   ,IAD_ELEM  )
@@ -3273,18 +3181,18 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,N,NL,NR,K,NN
 C------------------------------------
-      IF (N_FRNN.EQ.0) RETURN
+      IF (N_FRNN==0) RETURN
 C
        DO I =1,NSPMD
         DO J=IAD_ELEM(1,I),IAD_ELEM(1,I+1)-1
          N = FR_ELEM(J)
          NN = ILOC(N)
-         IF (NN.GT.INK)THEN
+         IF (NN>INK)THEN
           DO K=IAD_RL(J),IAD_RL(J+1)-1
            NL = FR_ICOL(K)+IAD_ELEM(1,I)-1
            CALL REORDER_A(NROWK(NN),ICOK(1,NN),FR_ELEM(NL))
           ENDDO
-         ELSEIF (NN.GT.0)THEN
+         ELSEIF (NN>0)THEN
           DO K=IAD_RL(J),IAD_RL(J+1)-1
            NL = FR_ICOL(K)+IAD_ELEM(1,I)-1
            CALL REORDER_A(NROWK(NN),ICOKM(1,NN),FR_ELEM(NL))
@@ -3295,15 +3203,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  KIN_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        DIM_KINMAX                    source/implicit/ind_glob_k.F  
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    kin_nrmax    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    dim_kinmax   ../engine/source/implicit/ind_glob_k.F
+!||    ind_glob_k   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE KIN_NRMAX(
      1    NNMAX     ,NKMAX     ,NROWK     ,ICOK      ,ICOKM     ,
      2    ILOC      ,INK       ,FR_ELEM   ,IAD_ELEM  )
@@ -3329,19 +3238,19 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,N,NL,NR,K,NK,NN
 C------------------------------------
-      IF (N_FRNN.EQ.0) RETURN
+      IF (N_FRNN==0) RETURN
 C
        DO I =1,NSPMD
         DO J=IAD_ELEM(1,I),IAD_ELEM(1,I+1)-1
          N = FR_ELEM(J)
          NN = ILOC(N)
-         IF (NN.GT.INK)THEN
+         IF (NN>INK)THEN
           NK=NN-INK
           DO K=IAD_RL(J),IAD_RL(J+1)-1
            NL = FR_ICOL(K)+IAD_ELEM(1,I)-1
            CALL REORDER_A(NROWK(NN),ICOKM(1,NK),FR_ELEM(NL))
           ENDDO
-         ELSEIF (NN.GT.0)THEN
+         ELSEIF (NN>0)THEN
           DO K=IAD_RL(J),IAD_RL(J+1)-1
            NL = FR_ICOL(K)+IAD_ELEM(1,I)-1
            CALL REORDER_A(NROWK(NN),ICOK(1,NN),FR_ELEM(NL))
@@ -3352,14 +3261,13 @@ C
 C
       RETURN
       END
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  IND_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_NRFR                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    ind_nrmax   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_nrfr    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a   ../engine/source/implicit/ind_glob_k.F
+!||====================================================================
       SUBROUTINE IND_NRMAX(
      1    NFT       ,NEL       ,NPN       ,NPPS      ,NNMAX     ,
      2    NROW      ,ICOL      ,IAD_RL    ,FR_ICOL   ,N_FRNN    )
@@ -3381,10 +3289,10 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,N,M,JLT,JLT1,NK,NFT1,ISH,L,NPP
 C------------------------------------
-       IF (N_FRNN.EQ.0) RETURN
+       IF (N_FRNN==0) RETURN
        JLT=NEL+NFT
        NPP=NUMNOD-NPPS
-       IF (NPN.GT.NFT) THEN
+       IF (NPN>NFT) THEN
         JLT1 = MIN( NEL, NPN - NFT )
         DO NK=1,JLT1
          J=NK+NFT
@@ -3393,7 +3301,7 @@ C------------------------------------
          ENDDO
         ENDDO
        ENDIF
-       IF (NPP.LT.JLT) THEN
+       IF (NPP<JLT) THEN
         NFT1 = MAX(NFT,NPP)+1
         ISH= NPP-NPN
         DO N=NFT1,JLT
@@ -3408,23 +3316,25 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  DIM_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        DIM_ELEMSP                    source/implicit/ind_glob_k.F  
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        SPMD_ICOL                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_NROW                     source/mpi/implicit/imp_spmd.F
-Chd|        INTAB                         source/implicit/ind_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    dim_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k     ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    dim_elemsp     ../engine/source/implicit/ind_glob_k.F
+!||    intab          ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a      ../engine/source/implicit/ind_glob_k.F
+!||    spmd_icol      ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_nrow      ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    imp_frk        ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE DIM_FR_K(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NDOF      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NDOF      ,
      4    NNMAX     ,INLOC     ,FR_ELEM   ,IAD_ELEM  ,N_FR      ,
      5    IGEO      ,FR_I2M    ,IAD_I2M   ,ELBUF_TAB )
 C-----------------------------------------------
@@ -3432,6 +3342,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE IMP_FRK
       USE ELBUFDEF_MOD            
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -3442,7 +3353,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3450,7 +3360,7 @@ C-----------------------------------------------
      .        FR_I2M(*),IAD_I2M(*)
       INTEGER
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*),IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),INLOC(*),FR_ELEM(*),IAD_ELEM(2,*)
 C     REAL
       my_real
@@ -3493,7 +3403,7 @@ c      RETURN
        CALL DIM_ELEMSP(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW(NF1),
+     3    IXS10     ,IXS20     ,IXS16     ,NROW(NF1),
      4    INLOC     ,NNMAX     ,ICOL(1,NF1),IGEO   ,ELBUF_TAB )
        DO J=1,JLT
         NK=J+NFT
@@ -3502,7 +3412,7 @@ c      RETURN
        ENDDO
       ENDDO
        CALL SPMD_NROW(NROW,FR_NROW,IAD_ELEM,N_FR)
-C------prepare comm.-----
+C------ prepare comm .-----
        LS=1
        LR=1
        IAD_S(1)=LS
@@ -3515,7 +3425,7 @@ C------prepare comm.-----
         IAD_S(IP+1)=LS
         IAD_R(IP+1)=LR
        ENDDO
-       IF ((LS+LR).GT.2) THEN
+       IF ((LS+LR)>2) THEN
         SSIZE=IAD_S(NSPMD+1)-1
         RSIZE=IAD_R(NSPMD+1)-1
 C
@@ -3526,7 +3436,7 @@ C
 C
        DO IP =1,NSPMD
         NR=IAD_I2M(IP+1)-IAD_I2M(IP)
-        IF (NR.GT.0) THEN
+        IF (NR>0) THEN
          JLT=IAD_ELEM(1,IP+1)-IAD_ELEM(1,IP)
          NFT=IAD_ELEM(1,IP)-1
          DO J=1,JLT
@@ -3540,10 +3450,10 @@ C
            DO L=IAD_I2M(IP),IAD_I2M(IP+1)-1
             NN=FR_I2M(L)
             NL=INLOC(NN)
-            IF (NL.GT.0.AND.NN.NE.N) THEN
+            IF (NL>0.AND.NN/=N) THEN
                  NRN = MAX(NROW(NK),FR_NROW(NK))
                  CALL REORDER_A(NRN,ICOL(1,NK),NL)
-                  IF (NRN.GT.MAX(NROW(NK),FR_NROW(NK))) FR_NROW(NK)=NRN
+                  IF (NRN>MAX(NROW(NK),FR_NROW(NK))) FR_NROW(NK)=NRN
             ENDIF
            ENDDO
           ENDIF
@@ -3554,7 +3464,7 @@ C
           N=FR_ELEM(NK)
           INLOC(N) = 0
          ENDDO
-        ENDIF !IF (NR.GT.0)
+        ENDIF !IF (NR>0)
        ENDDO !IP =1,NSPMD
        NRMAX = 0
        IF(ALLOCATED(IAD_RL)) DEALLOCATE(IAD_RL)
@@ -3563,7 +3473,7 @@ C
        IAD_RL(1)=LR
        DO IP =1,NSPMD
         DO NK=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
-         IF (NROW(NK).LT.FR_NROW(NK)) THEN
+         IF (NROW(NK)<FR_NROW(NK)) THEN
           NR=FR_NROW(NK)-NROW(NK)
           LR=LR+NR
           NRMAX = MAX(NRMAX,NR)
@@ -3572,8 +3482,8 @@ C
         ENDDO
        ENDDO
        N_FRNN=LR-1
-C-------d'abord c'est locale------------
-       IF (N_FRNN.GT.0) THEN
+C------- First it is local ------------
+       IF (N_FRNN>0) THEN
         IF(ALLOCATED(FR_ICOL)) DEALLOCATE(FR_ICOL)
         ALLOCATE(FR_ICOL(LR),STAT=IERROR2)
         DO IP =1,NSPMD
@@ -3586,7 +3496,7 @@ C-------d'abord c'est locale------------
          ENDDO
         ENDDO
        ENDIF
-C------definit IFRLOC (global)pour ind_glob_k---
+C------definit IFRLOC (global)for ind_glob_k---
        IF(ALLOCATED(IFRLOC)) DEALLOCATE(IFRLOC)
        ALLOCATE(IFRLOC(N_FR),STAT=IERROR1)
        NN=0
@@ -3596,35 +3506,37 @@ C------definit IFRLOC (global)pour ind_glob_k---
        DO IP =1,NSPMD
         DO NK=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
          N=FR_ELEM(NK)
-         IF (INLOC(N).EQ.0) THEN
+         IF (INLOC(N)==0) THEN
           NN = NN +1
           INLOC(N)=NN
           IFRLOC(NK)=NN
           ICOL(1,NN)=NK
          ELSE
           IFRLOC(NK)=-ICOL(1,INLOC(N))
-          IF (NROW(NK).LT.FR_NROW(NK))NRMAX=NRMAX+FR_NROW(NK)-NROW(NK)
+          IF (NROW(NK)<FR_NROW(NK))NRMAX=NRMAX+FR_NROW(NK)-NROW(NK)
          ENDIF
         ENDDO
        ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        DIM_ELEMSP                    source/implicit/ind_glob_k.F  
-Chd|        IND_FR_K0                     source/mpi/implicit/imp_fri.F 
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    ind_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k     ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    dim_elemsp     ../engine/source/implicit/ind_glob_k.F
+!||    ind_fr_k0      ../engine/source/mpi/implicit/imp_fri.F
+!||    reorder_a      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    imp_frk        ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE IND_FR_K(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NDOF      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NDOF      ,
      4    NNMAX     ,INLOC     ,FR_ELEM   ,IAD_ELEM  ,N_FR      ,
      5    IGEO      ,ELBUF_TAB )
 C-----------------------------------------------
@@ -3632,6 +3544,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE IMP_FRK
       USE ELBUFDEF_MOD            
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -3642,14 +3555,13 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARG(NPARG,*),NNMAX,N_FR ,NDOF(*),IGEO(*)
       INTEGER
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*),IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),INLOC(*),FR_ELEM(*),IAD_ELEM(2,*)
 C     REAL
       my_real
@@ -3661,7 +3573,7 @@ C-----------------------------------------------
       INTEGER I,J,N,NK,ICOL(NNMAX,N_FR),NROW(N_FR),IP,JLT,NFT,
      .        IERROR1,IERROR2,IERROR3,LS,LR,SSIZE,RSIZE,J0,L,NF1
 C   ----  creer NROW,ICOL aux front.---------
-      IF (N_FR.GT.0) THEN
+      IF (N_FR>0) THEN
       DO N =1,NUMNOD
        INLOC(N)=0
       ENDDO
@@ -3680,7 +3592,7 @@ C   ----  creer NROW,ICOL aux front.---------
        CALL DIM_ELEMSP(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW(NF1),
+     3    IXS10     ,IXS20     ,IXS16     ,NROW(NF1),
      4    INLOC     ,NNMAX     ,ICOL(1,NF1),IGEO   ,ELBUF_TAB )
        DO J=1,JLT
         NK=J+NFT
@@ -3689,7 +3601,7 @@ C   ----  creer NROW,ICOL aux front.---------
        ENDDO
       ENDDO
 C--------recupere fr_nrow --
-       IF (N_FRNN.GT.0) THEN
+       IF (N_FRNN>0) THEN
         DO IP =1,NSPMD
          DO NK=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
            DO L=IAD_RL(NK),IAD_RL(NK+1)-1
@@ -3698,23 +3610,24 @@ C--------recupere fr_nrow --
          ENDDO
         ENDDO
        ENDIF
-      ENDIF  ! (N_FR.GT.0)
-C------ind_ [k] de FR.------
+      ENDIF  ! (N_FR>0)
+C------ind_ [k] of FR.------
        CALL IND_FR_K0(
      1    NDOF      ,NROW      ,NNMAX     ,ICOL      ,FR_ELEM   ,
      2    IAD_ELEM  ,N_FR      )
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_NRFR                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        IND_NRMAX                     source/mpi/implicit/imp_fri.F 
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    ind_nrfr     ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    ind_nrmax    ../engine/source/mpi/implicit/imp_fri.F
+!||    reorder_a    ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE IND_NRFR(
      1    NFT       ,NEL       ,NPN       ,NPP       ,NNMAX     ,
      2    NROW      ,ICOL      ,FR_ELEM   ,IAD_ELEM  ,N_FR      ,
@@ -3731,8 +3644,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -3745,7 +3656,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,N,NK,NROWK(N_FR),IP,
      .        L,IAD_R(N_FR+1),FR_ICOL1(N_FRNN+1),LR,J0,NN,N_FRN
-C--------recupere fr_nrow et passe en global (par rap. a PROC) --
+C------- Recipation fr_nrow and goes through global (by rap)-
       IF (NNMAX <=0 ) RETURN
        DO IP =1,NSPMD
         DO NK=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
@@ -3758,11 +3669,11 @@ C--------recupere fr_nrow et passe en global (par rap. a PROC) --
          ENDDO
         ENDDO
        ENDDO
-C----cumule au cas ou les noeuds partient plusieurs frontieres--
+C----accumulate in case nodes belong to multiple interfaces--
        DO IP =1,NSPMD
         DO NK=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
          N = -IFRLOC(NK)
-             IF (N.GT.0) THEN
+             IF (N>0) THEN
            DO J=1,NROWK(NK)
             CALL REORDER_A(NROWK(N),ICOK(1,N),ICOK(J,NK))
            ENDDO
@@ -3775,19 +3686,19 @@ C------dim de IAD_R->NN+1--
        DO IP =1,NSPMD
         DO NK=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
          N = IFRLOC(NK)
-         IF (N.GT.0) THEN
+         IF (N>0) THEN
           LR=LR+NROWK(NK)
           IAD_R(N+1)=LR
          ENDIF
         ENDDO
        ENDDO
        N_FRN=LR-1
-       if (N_FRN.GT.N_FRNN) print *,'PROBLEM IN IND_NRFR'
-       IF (N_FRN.GT.0) THEN
+       if (N_FRN>N_FRNN) print *,'PROBLEM IN IND_NRFR'
+       IF (N_FRN>0) THEN
         DO IP =1,NSPMD
          DO NK=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
           N = IFRLOC(NK)
-          IF (N.GT.0) THEN
+          IF (N>0) THEN
            DO J=1,NROWK(NK)
             L=IAD_R(N)+J-1
             FR_ICOL1(L)=ICOK(J,NK)
@@ -3804,15 +3715,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_FR_K0                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        REORDER_L                     source/implicit/ind_glob_k.F  
-Chd|        SPMD_SUM_S                    source/mpi/implicit/imp_spmd.F
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    ind_fr_k0    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_fr_k     ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_l    ../engine/source/implicit/ind_glob_k.F
+!||    spmd_sum_s   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE IND_FR_K0(
      1    NDOF      ,NROW      ,NNMAX     ,ICOL      ,FR_ELEM   ,
      2    IAD_ELEM  ,N_FR      )
@@ -3845,8 +3757,8 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:),ALLOCATABLE :: ITAG
       my_real
      .        S1,STMP
-C------dim [k] pour chaque FR.-----
-      IF (IRODDL.EQ.0) THEN
+C------ Sun [K] for each fr .-----
+      IF (IRODDL==0) THEN
        NDOFJ=3
       ELSE
        NDOFJ=6
@@ -3866,7 +3778,7 @@ C------dim [k] pour chaque FR.-----
         DO K=1,NDOF(N)
 C-------termes knn-------
          DO J=1,NDOF(N)
-          IF (J.NE.K) NNZ(IP) = NNZ(IP)+1
+          IF (J/=K) NNZ(IP) = NNZ(IP)+1
          ENDDO
 C-------termes kn,nj-------
          DO J=1,NROW(NK)
@@ -3882,16 +3794,16 @@ C-------termes kn,nj-------
       ENDDO
       NZZK = NZZK/2+1
       STMP = ZERO
-      IF (NDDLFR.GT.0) THEN
+      IF (NDDLFR>0) THEN
        ALLOCATE(ITAG(N_FR))
        ITAG = 2
        DO NK=1,N_FR
         NB=-IFRLOC(NK)
-        IF (NB.GT.0) ITAG(NB) = ITAG(NB) + 1
+        IF (NB>0) ITAG(NB) = ITAG(NB) + 1
        ENDDO
        DO NK=1,N_FR
         NB=-IFRLOC(NK)
-        IF (NB.LT.0) NB = NK
+        IF (NB<0) NB = NK
         S1 = ONE/ITAG(NB)
         STMP = STMP + S1*NDOF(FR_ELEM(NB))
        ENDDO
@@ -3899,7 +3811,7 @@ C-------termes kn,nj-------
       ENDIF
       CALL SPMD_SUM_S(STMP)
       NDDLFRB = INT(STMP)
-      IF (NDDLFR.EQ.0) RETURN
+      IF (NDDLFR==0) RETURN
 C
       NDDL = NDDLFR + NSPMD
       IF(ALLOCATED(IADFR)) DEALLOCATE(IADFR)
@@ -3910,7 +3822,7 @@ C
       ALLOCATE(IDDLFR(N_FR),STAT=IERROR3)
       IF(ALLOCATED(IFR2K)) DEALLOCATE(IFR2K)
       ALLOCATE(IFR2K(NDDLFR),STAT=IERROR4)
-      IF (IPREC.GT.2.OR.IAUTSPC.GT.0) THEN
+      IF (IPREC>2.OR.IAUTSPC>0) THEN
        IF(ALLOCATED(JFR2K)) DEALLOCATE(JFR2K)
        ALLOCATE(JFR2K(NZZK),STAT=IERROR5)
       ENDIF
@@ -3922,7 +3834,7 @@ C
         NDDL0=NDDL0+NDOF(N)
        ENDDO
       ENDDO
-C------ind_ [k] pour chaque FR.-----
+C------ Ind_ [K] for each fr .-----
       NDDL0 = NDDL
       NZZK0 = NZZK
       NZZK=0
@@ -3936,7 +3848,7 @@ C------ind_ [k] pour chaque FR.-----
         N=FR_ELEM(NK)
         CALL REORDER_L(NROW(NK),ICOL(1,NK),NK-NK0,
      .                 IDDLFR(IAD_ELEM(1,IP)))
-        IF (NDOF(N).GT.0) THEN
+        IF (NDOF(N)>0) THEN
           DO K=1,NDOF(N)
 C-------termes knj,n-------
             DO J=1,NROW(NK)
@@ -3959,36 +3871,39 @@ C-------termes knj,n-------
        NZZK = NZZK +NZZ
        IAD = IAD + NDDL
       ENDDO
-      IF (NZZK.GT.NZZK0.OR.IAD.NE.NDDL0)
+      IF (NZZK>NZZK0.OR.IAD/=NDDL0)
      .    WRITE(*,*)'--MEMERY PROBLEM 3--:',NZZK,NZZK0,IAD,NDDL0
       NZKFR = NZZK
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        DIM_ELEMSP                    source/implicit/ind_glob_k.F  
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        SPMD_ICOL                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_NROW                     source/mpi/implicit/imp_spmd.F
-Chd|        INTAB                         source/implicit/ind_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    ini_fr_k       ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k     ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    dim_elemsp     ../engine/source/implicit/ind_glob_k.F
+!||    intab          ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a      ../engine/source/implicit/ind_glob_k.F
+!||    spmd_icol      ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_nrow      ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    imp_frk        ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE INI_FR_K(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NDOF      ,
+     3    IXS10     ,IXS20     ,IXS16     ,NDOF      ,
      4    NNMAX     ,INLOC     ,FR_ELEM   ,IAD_ELEM  ,N_FR      ,
      5    IGEO      ,FR_I2M    ,IAD_I2M   ,ELBUF_TAB ,NNRMAX    )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE IMP_FRK
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg         
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -3999,8 +3914,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "impl1_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4008,7 +3921,7 @@ C-----------------------------------------------
      .        FR_I2M(*),IAD_I2M(*),NNRMAX
       INTEGER
      .   IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*), IXT(NIXT,*),IXP(NIXP,*),
-     .   IXR(NIXR,*), IXTG(NIXTG,*),IXUR(*),IXS10(6,*),IXS20(12,*),
+     .   IXR(NIXR,*), IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),
      .   IXS16(8,*),IXTG1(4,*),INLOC(*),FR_ELEM(*),IAD_ELEM(2,*)
 C     REAL
       my_real
@@ -4026,7 +3939,7 @@ C-----------------------------------------------
      .        FR_NROW(N_FR),L,IAD_S(NSPMD+1),IAD_R(NSPMD+1),
      .        IERROR1,IERROR2,IERROR3,LS,LR,SSIZE,RSIZE,J0,NN,NR,NL,NRN,
      .        NR2,NF1
-C   ----  suite pb avec elem delete.---------
+C   ---- PB suite with Elem Delete .--------
 C     IF (N_FR <=0 .OR. NNMAX <=0) RETURN
       DO N =1,NUMNOD
        INLOC(N)=0
@@ -4046,7 +3959,7 @@ C     IF (N_FR <=0 .OR. NNMAX <=0) RETURN
        CALL DIM_ELEMSP(
      1    ELBUF     ,IPARG     ,IXS       ,IXQ       ,IXC       ,
      2    IXT       ,IXP       ,IXR       ,IXTG      ,IXTG1     ,
-     3    IXS10     ,IXS20     ,IXS16     ,IXUR      ,NROW(NF1),
+     3    IXS10     ,IXS20     ,IXS16     ,NROW(NF1),
      4    INLOC     ,NNMAX     ,ICOL(1,NF1),IGEO   ,ELBUF_TAB )
        DO J=1,JLT
         NK=J+NFT
@@ -4055,7 +3968,7 @@ C     IF (N_FR <=0 .OR. NNMAX <=0) RETURN
        ENDDO
       ENDDO
        CALL SPMD_NROW(NROW,FR_NROW,IAD_ELEM,N_FR)
-C------prepare comm.-----
+C------ prepare comm .-----
        LS=1
        LR=1
        IAD_S(1)=LS
@@ -4068,7 +3981,7 @@ C------prepare comm.-----
         IAD_S(IP+1)=LS
         IAD_R(IP+1)=LR
        ENDDO
-       IF ((LS+LR).GT.2) THEN
+       IF ((LS+LR)>2) THEN
         SSIZE=IAD_S(NSPMD+1)-1
         RSIZE=IAD_R(NSPMD+1)-1
 C
@@ -4078,10 +3991,10 @@ C
        ENDIF
 C
        NR2=IAD_I2M(NSPMD+1)-IAD_I2M(1)
-      IF (NR2.GT.0) THEN
+      IF (NR2>0) THEN
        DO IP =1,NSPMD
         NR=IAD_I2M(IP+1)-IAD_I2M(IP)
-        IF (NR.GT.0) THEN
+        IF (NR>0) THEN
          JLT=IAD_ELEM(1,IP+1)-IAD_ELEM(1,IP)
          NFT=IAD_ELEM(1,IP)-1
          DO J=1,JLT
@@ -4095,10 +4008,10 @@ C
            DO L=IAD_I2M(IP),IAD_I2M(IP+1)-1
             NN=FR_I2M(L)
             NL=INLOC(NN)
-            IF (NL.GT.0.AND.NN.NE.N) THEN
+            IF (NL>0.AND.NN/=N) THEN
              NRN = MAX(NROW(NK),FR_NROW(NK))
              CALL REORDER_A(NRN,ICOL(1,NK),NL)
-             IF (NRN.GT.MAX(NROW(NK),FR_NROW(NK))) FR_NROW(NK)=NRN
+             IF (NRN>MAX(NROW(NK),FR_NROW(NK))) FR_NROW(NK)=NRN
             ENDIF
            ENDDO
           ENDIF
@@ -4111,7 +4024,7 @@ C
          ENDDO
         ENDIF
        ENDDO
-      END IF !(NR2.GT.0) THEN
+      END IF !(NR2>0) THEN
 C
        IF(ALLOCATED(IAD_RL)) DEALLOCATE(IAD_RL)
        ALLOCATE(IAD_RL(N_FR+1),STAT=IERROR3)
@@ -4120,12 +4033,12 @@ C
        NRMAX = 0
        DO IP =1,NSPMD
         DO NK=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
-         IF (NROW(NK).LT.FR_NROW(NK)) THEN
+         IF (NROW(NK)<FR_NROW(NK)) THEN
           NR=FR_NROW(NK)-NROW(NK)
           LR=LR+NR
           NRMAX = MAX(NRMAX,NR)
           N=FR_ELEM(NK)
-          IF (INLOC(N).EQ.0) THEN
+          IF (INLOC(N)==0) THEN
            INLOC(N)=1
           ELSE
            NRMAX=NRMAX+NR
@@ -4138,7 +4051,7 @@ C
 C
        DO IP =1,NSPMD
         DO NK=IAD_ELEM(1,IP),IAD_ELEM(1,IP+1)-1
-         IF (NROW(NK).LT.FR_NROW(NK)) THEN
+         IF (NROW(NK)<FR_NROW(NK)) THEN
           N=FR_ELEM(NK)
           INLOC(N) = 0
          ENDIF
@@ -4146,8 +4059,8 @@ C
        ENDDO
 C
        N_FRNN=LR-1
-C-------d'abord c'est locale------------
-       IF (N_FRNN.GT.0) THEN
+C------- First it is local ------------
+       IF (N_FRNN>0) THEN
         IF(ALLOCATED(FR_ICOL)) DEALLOCATE(FR_ICOL)
         ALLOCATE(FR_ICOL(LR),STAT=IERROR2)
         DO IP =1,NSPMD
@@ -4163,20 +4076,21 @@ C-------d'abord c'est locale------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPD_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_K_EIG                     stub/imp_k_eig.F              
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        CONDENS_IND                   source/implicit/upd_glob_k.F  
-Chd|        SPMD_MAX_IV                   source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_SUM_S                    source/mpi/implicit/imp_spmd.F
-Chd|        INTAB0                        source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    upd_fr_k      ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_buck      ../engine/source/implicit/imp_buck.F
+!||    imp_chkm      ../engine/source/implicit/imp_solv.F
+!||    imp_k_eig     ../engine/stub/imp_k_eig.F
+!||    imp_solv      ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    condens_ind   ../engine/source/implicit/upd_glob_k.F
+!||    intab0        ../engine/source/implicit/imp_fsa_inv.F
+!||    spmd_max_iv   ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_sum_s    ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk       ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE UPD_FR_K(
      1    IADK     ,JDIK     ,NDOF      ,IKC      ,IDDL     ,
      2    INLOC    ,FR_ELEM  ,IAD_ELEM  ,NDDL     )
@@ -4221,17 +4135,17 @@ C
       DDLP1=NDDL
 C
       STMP = ZERO
-      IF (NDDLFR.GT.0) THEN
+      IF (NDDLFR>0) THEN
        N_FR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
        ALLOCATE(ITAG(N_FR))
        ITAG = 2
        DO NK=1,N_FR
         NB=-IFRLOC(NK)
-        IF (NB.GT.0) ITAG(NB) = ITAG(NB) + 1
+        IF (NB>0) ITAG(NB) = ITAG(NB) + 1
        ENDDO
       ENDIF
 C
-      IF (NDDLFR.GT.0) THEN
+      IF (NDDLFR>0) THEN
 C-------if not the same IKC (e.g. RBE3 Ns)      
 c       IKCFR (before condensation) for comm IKC
        IAD2 = 0
@@ -4261,11 +4175,11 @@ c       IKCFR (before condensation) for comm IKC
         IND = IFIX
         DO J=1,NDOF(N)
          IIC(ID+J)=IKCFR(ID+IAD2+J)
-         IF (IIC(ID+J).NE.0) IFIX=IFIX+1
+         IF (IIC(ID+J)/=0) IFIX=IFIX+1
         ENDDO
 C
         NB=-IFRLOC(NK)
-        IF (NB.LT.0) NB = NK
+        IF (NB<0) NB = NK
         S1 = ONE/ITAG(NB)
         STMP = STMP + S1*(IFIX-IND)
 C
@@ -4274,7 +4188,7 @@ C -----update---condense-IKC>=1------------------------------------
        ND = ND_FR(IP)
        NZZ=IADFR(IAD+ND_FR(IP)+1)-IADFR(IAD+1)
        IAD2 = IAD2 + ND_FR(IP)
-       IF (IFIX.GT.0) THEN
+       IF (IFIX>0) THEN
         NZZK=NZZ
         CALL CONDENS_IND(ND_FR(IP),NZZK,IADFR(IAD+1),JDIFR(JAD+1),IIC)
         II = II + IFIX
@@ -4286,16 +4200,16 @@ C -----update---condense-IKC>=1------------------------------------
        NZN(IP)=IJ
       ENDDO
       DEALLOCATE(ITAG)
-      ENDIF  ! (NDDLFR.GT.0)
+      ENDIF  ! (NDDLFR>0)
       CALL SPMD_SUM_S(STMP)
       NDDLFRB1 = NDDLFRB-INT(STMP)
-      IF (NDDLFR.LE.0) RETURN
-C-------s'il y a condensation-------
-      IF (NDN(NSPMD).GT.0) THEN
+      IF (NDDLFR<=0) RETURN
+C-------if there is condensation-------
+      IF (NDN(NSPMD)>0) THEN
        IAD = ND_FR(1) + 1
        DO IP =2,NSPMD
         II = NDN(IP-1)
-        IF (II.GT.0) THEN
+        IF (II>0) THEN
          II = II+IAD
          DO I=1,ND_FR(IP)+1
           IADFR(IAD+I)=IADFR(II+I)
@@ -4307,7 +4221,7 @@ C-------s'il y a condensation-------
        JAD = IADFR(IAD)-IADFR(1)
        DO IP =2,NSPMD
         IJ = NZN(IP-1)
-        IF (IJ.GT.0) THEN
+        IF (IJ>0) THEN
          IJ = IJ+JAD
          DO J=IADFR(IAD+1),IADFR(IAD+1+ND_FR(IP))-1
           JDIFR(J+JAD)= JDIFR(J+IJ)
@@ -4325,7 +4239,7 @@ C
          IDDLM(I)=IDDL(I)-IFIX
          DO J=1,NDOF(I)
           ND = IDDL(I)+J
-          IF (IKC(ND).NE.0) IFIX=IFIX+1
+          IF (IKC(ND)/=0) IFIX=IFIX+1
          ENDDO
        ENDDO
 C
@@ -4339,7 +4253,7 @@ C-------FR2K-------
         IDK=IDDL(N)
         IND=0
         DO J=1,NDOF(N)
-         IF (IKC(IDK+J).LT.1) THEN
+         IF (IKC(IDK+J)<1) THEN
           IND=IND+1
           IFR2K(ID+IND)=IDDLM(N)+IND
          ELSE
@@ -4352,7 +4266,7 @@ C-------FR2K-------
       LEN_V = IAD2
 C
        LEN_K = 0
-      IF (IPREC.GT.2) THEN
+      IF (IPREC>2) THEN
        IAD = 0
        IAD2 = 0
        JAD = 0
@@ -4364,10 +4278,10 @@ C
           JD = J + JAD
           K=JDIFR(JD)
           IJ = IFR2K(K+IAD2)
-          IF (II.GT.IJ) THEN
+          IF (II>IJ) THEN
            NC = IADK(II+1)-IADK(II)
            N=INTAB0(NC,JDIK(IADK(II)),IJ)
-           IF (N.GT.0) THEN
+           IF (N>0) THEN
             JFR2K(JD)=N+IADK(II)-1
            ELSE
             write(*,*)'index error in UPD_FR_K I>J',IJ,ip,nc
@@ -4376,7 +4290,7 @@ c           write(*,*)'i,j,ik,iad=',i,k,ii,iad
           ELSE
            NC = IADK(IJ+1)-IADK(IJ)
            N=INTAB0(NC,JDIK(IADK(IJ)),II)
-           IF (N.GT.0) THEN
+           IF (N>0) THEN
             JFR2K(JD)=N+IADK(IJ)-1
            ELSE
             write(*,*)'index error in UPD_FR_K J>I',II,ip,nc
@@ -4406,12 +4320,12 @@ C
          ID=IDDLFR(NK)+IAD2-IFIX
          IDK=IDDL(N)
          DO J=1,NDOF(N)
-          IF (IKC(IDK+J).GT.0) IFIX=IFIX+1
+          IF (IKC(IDK+J)>0) IFIX=IFIX+1
          ENDDO
-         IF(IFRLOC(NK).GT.0) THEN
+         IF(IFRLOC(NK)>0) THEN
           IND=0
           DO J=1,NDOF(N)
-           IF (IKC(IDK+J).LT.1) THEN
+           IF (IKC(IDK+J)<1) THEN
             IND=IND+1
             DDLP1=IFR2K(ID+IND)-1
             GOTO 100
@@ -4428,15 +4342,15 @@ c      write(*,*)'ND_FR=',(ND_FR(J),J=1,NSPMD),ISPMD
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  FR_DLFT                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_CHECM0                    source/implicit/imp_solv.F    
-Chd|        LIN_SOLVH1                    source/implicit/lin_solv.F    
-Chd|        LIN_SOLVIH2                   source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    fr_dlft       ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_checm0    ../engine/source/implicit/imp_solv.F
+!||    lin_solvh1    ../engine/source/implicit/lin_solv.F
+!||    lin_solvih2   ../engine/source/implicit/lin_solv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk       ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE FR_DLFT(NDDL,IDLFT0,IDLFT1)
 C-----------------------------------------------
 C   M o d u l e s
@@ -4446,11 +4360,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4468,13 +4377,13 @@ C
       RETURN
       END
 CCgw|     DIM_GLOB_K                       /implicit/ind_glob_k.F
-Chd|====================================================================
-Chd|  SET_IKIN2G                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        DIM_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    set_ikin2g   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    dim_glob_k   ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE SET_IKIN2G(NKINE,INLOC)
 C-----------------------------------------------
 C   M o d u l e s
@@ -4498,24 +4407,24 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,N,IERROR1
 C
-      IF (NKINE.LE.0) RETURN
+      IF (NKINE<=0) RETURN
       IF(ALLOCATED(IKIN2G)) DEALLOCATE(IKIN2G)
       ALLOCATE(IKIN2G(NKINE),STAT=IERROR1)
       DO I =1,NUMNOD
        N=INLOC(I)
-       IF (N.GT.0) IKIN2G(N)=I
+       IF (N>0) IKIN2G(N)=I
       ENDDO
 C
       RETURN
       END
 CCgw|     IND_GLOB_K                       /implicit/ind_glob_k.F
-Chd|====================================================================
-Chd|  GET_IKIN2G                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    get_ikin2g   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k   ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE GET_IKIN2G(NKINE,INK,ILOC)
 C-----------------------------------------------
 C   M o d u l e s
@@ -4525,9 +4434,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4551,13 +4457,13 @@ C
       RETURN
       END
 CCgw|     IND_GLOB_K                       /implicit/ind_glob_k.F
-Chd|====================================================================
-Chd|  ZERO_IKIN2G                   source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    zero_ikin2g   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k    ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk       ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE ZERO_IKIN2G(NKINE,ILOC)
 C-----------------------------------------------
 C   M o d u l e s
@@ -4567,9 +4473,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4587,15 +4490,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_KINE_KP                   source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        REORDER_J                     source/implicit/ind_glob_k.F  
-Chd|        REORDER_L                     source/implicit/ind_glob_k.F  
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    ind_kine_kp   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k    ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_j     ../engine/source/implicit/ind_glob_k.F
+!||    reorder_l     ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk       ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE IND_KINE_KP(
      1    NROWK     ,ICOK      ,ICOKM     ,NNMAX     ,NKMAX     ,
      2    NKINE     ,INK       ,IKPAT     ,IDDL      )
@@ -4607,9 +4511,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -4625,7 +4526,7 @@ C-----------------------------------------------
       INTEGER I,J,N,K,NL,NK,NJ,NRB
 c----------------------
       NRB=NKINE-INK
-      IF (IKPAT.EQ.0) THEN
+      IF (IKPAT==0) THEN
        DO NK =1,NRB
         J=IKIN2G(NK)
         CALL REORDER_J(NROWK(NK+INK),ICOKM(1,NK),J,IDDL)
@@ -4649,12 +4550,11 @@ c----------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  TAG_INTM11                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKI                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    tag_intm11   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frki     ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE TAG_INTM11(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECTS   ,IRECTM   ,
      2    ILOC      ,N_IMPN    ,NSN         )
@@ -4662,12 +4562,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4680,17 +4574,17 @@ C-----------------------------------------------
       INTEGER I,J,N,N1,N2,NE,IG,M1,M2
 C-----------------------------------------------
        DO I = 1, JLT
-C--------secnd node-----
+C--------second node-----
         IG = NS_IMP(I)
-       IF (IG.GT.NSN) THEN
+       IF (IG>NSN) THEN
         NE=NE_IMP(I)
          M1=IRECTM(1,NE)
          M2=IRECTM(2,NE)
-         IF (ILOC(M1).EQ.0) THEN
+         IF (ILOC(M1)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(M1)=N_IMPN
          ENDIF
-         IF (ILOC(M2).EQ.0) THEN
+         IF (ILOC(M2)==0) THEN
           N_IMPN=N_IMPN+1
           ILOC(M2)=N_IMPN
          ENDIF
@@ -4699,13 +4593,13 @@ C--------secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  MAV_LTFR                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        FR_MATV                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    mav_ltfr   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    fr_matv    ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE MAV_LTFR(V     ,W     )
 C-----------------------------------------------
 C   M o d u l e s
@@ -4715,11 +4609,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4758,13 +4647,13 @@ C
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  MAV_LTFR_GPU                  source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        FR_MATV_GPU                   source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    mav_ltfr_gpu   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    fr_matv_gpu    ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm       ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE MAV_LTFR_GPU(V     ,W     ,NINDEX)
 C-----------------------------------------------
 C   M o d u l e s
@@ -4774,12 +4663,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4822,21 +4705,22 @@ C
 C--------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        REORDER_FR                    source/mpi/implicit/imp_fri.F 
-Chd|        ROWFR_DIM                     source/mpi/implicit/imp_fri.F 
-Chd|        ROWFR_DIM11                   source/mpi/implicit/imp_fri.F 
-Chd|        ROWFR_DIM24                   source/mpi/implicit/imp_fri.F 
-Chd|        ROWFR_IND                     source/mpi/implicit/imp_fri.F 
-Chd|        ROWFR_IND11                   source/mpi/implicit/imp_fri.F 
-Chd|        ROWFR_IND24                   source/mpi/implicit/imp_fri.F 
-Chd|        SET_IND_FR                    source/mpi/implicit/imp_fri.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ind_frkd        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_fr      ../engine/source/mpi/implicit/imp_fri.F
+!||    rowfr_dim       ../engine/source/mpi/implicit/imp_fri.F
+!||    rowfr_dim11     ../engine/source/mpi/implicit/imp_fri.F
+!||    rowfr_dim24     ../engine/source/mpi/implicit/imp_fri.F
+!||    rowfr_ind       ../engine/source/mpi/implicit/imp_fri.F
+!||    rowfr_ind11     ../engine/source/mpi/implicit/imp_fri.F
+!||    rowfr_ind24     ../engine/source/mpi/implicit/imp_fri.F
+!||    set_ind_fr      ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IND_FRKD(
      1    IPARI     ,INTBUF_TAB,NUM_IMP   ,NS_IMP    ,NE_IMP    ,
      2    IDDL      ,IKC       ,NDOF      ,NSREM     ,IND_IMP   )
@@ -4849,13 +4733,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------------------------
@@ -4882,27 +4761,27 @@ C
        IAD=1
        DO NIN=1,NINTER
         NTY   =IPARI(7,NIN)
-        IF(NTY.EQ.5) IAD=IAD+NUM_IMP(NIN)
+        IF(NTY==5) IAD=IAD+NUM_IMP(NIN)
        ENDDO
        DO NIN=1,NINTER
         NSN   =IPARI(5,NIN)
         NTY   =IPARI(7,NIN)
-        IF(NTY.EQ.3)THEN
-        ELSEIF(NTY.EQ.4)THEN
-        ELSEIF(NTY.EQ.5)THEN
-        ELSEIF(NTY.EQ.6)THEN
-        ELSEIF(NTY.EQ.7.OR.NTY.EQ.10)THEN
+        IF(NTY==3)THEN
+        ELSEIF(NTY==4)THEN
+        ELSEIF(NTY==5)THEN
+        ELSEIF(NTY==6)THEN
+        ELSEIF(NTY==7.OR.NTY==10)THEN
 C
          CALL ROWFR_DIM(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                  INTBUF_TAB(NIN)%IRECTM,NROW   ,NSN   ,NIN     )
          IAD=IAD+NUM_IMP(NIN)
-        ELSEIF(NTY.EQ.24)THEN
+        ELSEIF(NTY==24)THEN
 C
          CALL ROWFR_DIM24(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                  INTBUF_TAB(NIN)%IRECTM,NROW   ,NSN   ,NIN     ,
      .                   IND_IMP  ,INTBUF_TAB(NIN)%NVOISIN)
          IAD=IAD+NUM_IMP(NIN)
-        ELSEIF(NTY.EQ.11)THEN
+        ELSEIF(NTY==11)THEN
          NRTS   =IPARI(3,NIN)
          CALL ROWFR_DIM11(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                    INTBUF_TAB(NIN)%IRECTM, NROW ,NRTS ,NIN      )
@@ -4920,28 +4799,28 @@ C--------ind Nrow----
        IAD=1
        DO NIN=1,NINTER
         NTY   =IPARI(7,NIN)
-        IF(NTY.EQ.5) IAD=IAD+NUM_IMP(NIN)
+        IF(NTY==5) IAD=IAD+NUM_IMP(NIN)
        ENDDO
        DO NIN=1,NINTER
         NSN   =IPARI(5,NIN)
         NTY   =IPARI(7,NIN)
-        IF(NTY.EQ.3)THEN
-        ELSEIF(NTY.EQ.4)THEN
-        ELSEIF(NTY.EQ.5)THEN
-        ELSEIF(NTY.EQ.6)THEN
-        ELSEIF(NTY.EQ.7.OR.NTY.EQ.10)THEN
+        IF(NTY==3)THEN
+        ELSEIF(NTY==4)THEN
+        ELSEIF(NTY==5)THEN
+        ELSEIF(NTY==6)THEN
+        ELSEIF(NTY==7.OR.NTY==10)THEN
 C
          CALL ROWFR_IND(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                  INTBUF_TAB(NIN)%IRECTM,NROW   ,ICOL  ,NNMAX   ,
      .                  NSN     ,NIN       )
          IAD=IAD+NUM_IMP(NIN)
-        ELSEIF(NTY.EQ.24)THEN
+        ELSEIF(NTY==24)THEN
 C
          CALL ROWFR_IND24(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                  INTBUF_TAB(NIN)%IRECTM,NROW   ,ICOL  ,NNMAX   ,
      .                  NSN     ,NIN  ,IND_IMP ,INTBUF_TAB(NIN)%NVOISIN)
          IAD=IAD+NUM_IMP(NIN)
-        ELSEIF(NTY.EQ.11)THEN
+        ELSEIF(NTY==11)THEN
          NRTS   =IPARI(3,NIN)
          CALL ROWFR_IND11(NUM_IMP(NIN),NS_IMP(IAD),NE_IMP(IAD),
      .                    INTBUF_TAB(NIN)%IRECTM, NROW ,ICOL  ,NNMAX   ,
@@ -4961,13 +4840,13 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROWFR_DIM                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    rowfr_dim   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE ROWFR_DIM(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NROW      ,
      2    NSN       ,NIN         )
@@ -4979,12 +4858,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -4997,10 +4870,10 @@ C-----------------------------------------------
 C-----------------------------------------------
        DO I = 1, JLT
         IG = NS_IMP(I)-NSN
-        IF (IG.GT.0) THEN
+        IF (IG>0) THEN
              NS=IND_INT(NIN)%P(IG)
          NE=NE_IMP(I)
-         IF (IRECT(3,NE).EQ.IRECT(4,NE)) THEN
+         IF (IRECT(3,NE)==IRECT(4,NE)) THEN
           NROW(NS)=NROW(NS)+3
          ELSE
           NROW(NS)=NROW(NS)+4
@@ -5010,13 +4883,13 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROWFR_DIM11                   source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    rowfr_dim11   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_frkd      ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm      ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE ROWFR_DIM11(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECTM    ,NROW      ,
      2    NSN       ,NIN         )
@@ -5028,12 +4901,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5046,7 +4913,7 @@ C-----------------------------------------------
 C-----------------------------------------------
        DO I = 1, JLT
         IG = NS_IMP(I)-NSN
-        IF (IG.GT.0) THEN
+        IF (IG>0) THEN
              NS1=IND_INT(NIN)%P(IG)
              NS2=NS1+1
          NE=NE_IMP(I)
@@ -5057,14 +4924,15 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROWFR_IND                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    rowfr_ind   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a   ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE ROWFR_IND(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NROW      ,
      2    ICOL      ,NNMAX     ,NSN         ,NIN       )
@@ -5076,12 +4944,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5096,7 +4958,7 @@ C-----------------------------------------------
 C-----------------------------------------------
        DO I = 1, JLT
         IG = NS_IMP(I)-NSN
-        IF (IG.GT.0) THEN
+        IF (IG>0) THEN
              NS=IND_INT(NIN)%P(IG)
          NE=NE_IMP(I)
          DO J = 1,4
@@ -5108,14 +4970,15 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROWFR_IND11                   source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    rowfr_ind11   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_frkd      ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a     ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm      ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE ROWFR_IND11(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECTM    ,NROW      ,
      2    ICOL      ,NNMAX     ,NSN       ,NIN         )
@@ -5127,12 +4990,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5147,7 +5004,7 @@ C-----------------------------------------------
 C-----------------------------------------------
        DO I = 1, JLT
         IG = NS_IMP(I)-NSN
-        IF (IG.GT.0) THEN
+        IF (IG>0) THEN
              NS1=IND_INT(NIN)%P(IG)
              NS2=NS1+1
          NE=NE_IMP(I)
@@ -5162,14 +5019,15 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROWFR_DIM24                   source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        I24MSEGV                      source/implicit/ind_glob_k.F  
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    rowfr_dim24   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_frkd      ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    i24msegv      ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm      ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE ROWFR_DIM24(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NROW      ,
      2    NSN       ,NIN       ,SUBTRIA     ,NVOISIN   )
@@ -5181,12 +5039,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5200,7 +5052,7 @@ C-----------------------------------------------
 C-----------------------------------------------
        DO I = 1, JLT
         IG = NS_IMP(I)-NSN
-        IF (IG.GT.0) THEN
+        IF (IG>0) THEN
              NS=IND_INT(NIN)%P(IG)
          NE=NE_IMP(I)
         IF (NE<0) THEN
@@ -5209,7 +5061,7 @@ C-----------------------------------------------
         ELSE
          IRTLM(1:4) = IRECT(1:4,NE)
         END IF
-         IF (IRTLM(3).EQ.IRTLM(4)) THEN
+         IF (IRTLM(3)==IRTLM(4)) THEN
           NROW(NS)=NROW(NS)+3
          ELSE
           NROW(NS)=NROW(NS)+4
@@ -5219,15 +5071,16 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ROWFR_IND24                   source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        I24MSEGV                      source/implicit/ind_glob_k.F  
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    rowfr_ind24   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_frkd      ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    i24msegv      ../engine/source/implicit/ind_glob_k.F
+!||    reorder_a     ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm      ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE ROWFR_IND24(
      1    JLT       ,NS_IMP    ,NE_IMP      ,IRECT     ,NROW      ,
      2    ICOL      ,NNMAX     ,NSN         ,NIN       ,SUBTRIA     ,
@@ -5240,12 +5093,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5260,7 +5107,7 @@ C-----------------------------------------------
 C-----------------------------------------------
        DO I = 1, JLT
         IG = NS_IMP(I)-NSN
-        IF (IG.GT.0) THEN
+        IF (IG>0) THEN
              NS=IND_INT(NIN)%P(IG)
          NE=NE_IMP(I)
          IF (NE<0) THEN
@@ -5278,14 +5125,15 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  SET_IND_FR                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        ZERO1                         source/system/zero.F          
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    set_ind_fr   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_frkd     ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    zero1        ../engine/source/system/zero.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm     ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE SET_IND_FR(
      1    NSREM     ,IDDL      ,NDOF      ,NROW      ,ICOL      ,
      2    NNMAX     )
@@ -5297,12 +5145,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5361,7 +5203,7 @@ C-------termes knj,n-------
         ENDDO
        ENDDO
        NZ_SI = NZ
-C-------save ICOL en forme compress-------
+C------- Save Icol in compress -------
        NZ = 0
        DO N=1,NSREM
         NZ = NZ+NROW(N)
@@ -5383,12 +5225,11 @@ C-------save ICOL en forme compress-------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  REORDER_FR                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    reorder_fr   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_frkd     ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE REORDER_FR(N,IC,IDDL)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -5403,18 +5244,18 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,II,IT,IIC,IMIN
 C
-C-----en ordre iddl croisante-----
+C---- In an increasing iddl order -----
       DO I =1,N
        IMIN=IDDL(IC(I))
        II=I
        DO J =I+1,N
         IIC = IDDL(IC(J))
-        IF (IIC.LT.IMIN) THEN
+        IF (IIC<IMIN) THEN
          IMIN=IIC
          II=J
         ENDIF
        ENDDO
-       IF (II.NE.I) THEN
+       IF (II/=I) THEN
         IT=IC(I)
         IC(I)=IC(II)
         IC(II)=IT
@@ -5423,12 +5264,11 @@ C-----en ordre iddl croisante-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  JDIFRTOK                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    jdifrtok   ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE JDIFRTOK(ITOK  )
 C-----------------------------------------------
 C   M o d u l e s
@@ -5457,40 +5297,41 @@ C-----pass IDDLI to IDDLJ  croisante-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRI                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        CP_IADD                       source/mpi/implicit/imp_fri.F 
-Chd|        DIM_FRKM                      source/mpi/implicit/imp_fri.F 
-Chd|        DIM_FRKM1                     source/mpi/implicit/imp_fri.F 
-Chd|        DIM_FVN                       source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FRKM                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FRKS                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FRSN                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FVKM                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FVKSL                     source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FVKSS                     source/mpi/implicit/imp_fri.F 
-Chd|        IND_FVN                       source/mpi/implicit/imp_fri.F 
-Chd|        IND_SLD                       source/mpi/implicit/imp_fri.F 
-Chd|        INI_FRFD                      source/mpi/implicit/imp_fri.F 
-Chd|        INI_FRKC                      source/mpi/implicit/imp_fri.F 
-Chd|        INI_FRUD                      source/mpi/implicit/imp_fri.F 
-Chd|        INI_KSI                       source/mpi/implicit/imp_fri.F 
-Chd|        KIN_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        KIN_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|        SCOM_FRK                      source/mpi/implicit/imp_fri.F 
-Chd|        SCOM_FRK1                     source/mpi/implicit/imp_fri.F 
-Chd|        SCOM_FRUD                     source/mpi/implicit/imp_fri.F 
-Chd|        SPMD_IFC1                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_IFRF                     source/mpi/implicit/imp_spmd.F
-Chd|        TAG_INTML                     source/mpi/implicit/imp_fri.F 
-Chd|        TRA_FRKM                      source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_frkd        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_fri         ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    cp_iadd         ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_frkm        ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_frkm1       ../engine/source/mpi/implicit/imp_fri.F
+!||    dim_fvn         ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_frkm        ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_frks        ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_frsn        ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_fvkm        ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_fvksl       ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_fvkss       ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_fvn         ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_sld         ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_frfd        ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_frkc        ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_frud        ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_ksi         ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_kml         ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_ksl         ../engine/source/mpi/implicit/imp_fri.F
+!||    scom_frk        ../engine/source/mpi/implicit/imp_fri.F
+!||    scom_frk1       ../engine/source/mpi/implicit/imp_fri.F
+!||    scom_frud       ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_ifc1       ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_ifrf       ../engine/source/mpi/implicit/imp_spmd.F
+!||    tag_intml       ../engine/source/mpi/implicit/imp_fri.F
+!||    tra_frkm        ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_kml         ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_ksl         ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IMP_FRKD(
      1      NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2      IPARI     ,INTBUF_TAB,NINT2     ,IINT2     ,IDDL      ,
@@ -5508,10 +5349,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -5559,33 +5396,33 @@ C-------iddlm-----------------
        IDDLM(I)=IDDL(I)-NKC
        DO J=1,NDOF(I)
         ND = IDDL(I)+J
-        IF (IKC(ND).NE.0) NKC = NKC + 1
+        IF (IKC(ND)/=0) NKC = NKC + 1
        ENDDO
       ENDDO
-      IF (NSL.GT.0) THEN
+      IF (NSL>0) THEN
        CALL IMP_FRSN(IPARI ,INTBUF_TAB  ,NBINTC,INTLIST)
        ALLOCATE(IAD_M(NSL+1))
       ENDIF
       DO I=1,NSREM
         NF_SI(I) = 0
       ENDDO
-C------s'il y a des neouds kin---IKC_SL(NSL)>0->IKC_SI----
+C------if there is des neouds kin---IKC_SL(NSL)>0->IKC_SI----
       CALL INI_FRKC(NSREM  ,NSL ,IKC ,NDOF ,IDDL)
-C------com. [Ksm] secnds remotes dependant--s.KSI;r.KSL-IKC_SI,SL->nb [Ksm]--
+C------com. [Ksm] seconds remotes dependant--s.KSI;r.KSL-IKC_SI,SL->nb [Ksm]--
       CALL DIM_FRKM(NSREM  ,NSL  ,LSI   ,LSL  )
       LSI0 = LSI
       LSG = LSI+LSL
 C      due to if (NSREM+NSL>0) outside CALL SPMD_MAX_I(LSG)
       IF (LSG >= 0) THEN
-       IF (IFDIS.GT.0) NFV = 0
-       IF (LSI.GT.0) THEN
+       IF (IFDIS>0) NFV = 0
+       IF (LSI>0) THEN
         ALLOCATE(KSI_FR(9*LSI),STAT=IER1)
         CALL INI_KSI(NSREM  ,KSI_FR ,IDDLI )
        ENDIF
-       IF (LSL.GT.0) ALLOCATE(KSL_FR(9*LSL),STAT=IER2)
+       IF (LSL>0) ALLOCATE(KSL_FR(9*LSL),STAT=IER2)
        CALL SCOM_FRK(KSI_FR,KSL_FR,LSI   ,LSL)
 C--------condense KSL_FR------
-       IF (LSL.GT.0) THEN
+       IF (LSL>0) THEN
         CALL KIN_KSL(
      1    IPARI     ,INTBUF_TAB,NINT2     ,IINT2     ,
      2    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
@@ -5594,7 +5431,7 @@ C--------condense KSL_FR------
      5    IAD_M     ,IRBE3     ,LRBE3     ,IRBE2     ,LRBE2     )
         LSI = IAD_M(NSL+1) -IAD_M(1)
         CALL IND_SLD(NSL  ,NDOF  ,KSS  )
-C-------utilise tempo KSI_FR pour K_SL modifie-(neouds mains)----------------
+C------- Use tempo ksi_fr for k_sl modifies- (handshakes) -----------------------------------------------------------
         IF(ALLOCATED(KSI_FR)) DEALLOCATE(KSI_FR)
         ALLOCATE(KSI_FR(9*LSI),STAT=IER3)
         CALL UPD_KSL(
@@ -5605,40 +5442,40 @@ C-------utilise tempo KSI_FR pour K_SL modifie-(neouds mains)----------------
      5    IDDL      ,IKC       ,NDOF      ,IDDLM     ,UD        ,
      6    A         ,LB        ,KSS       ,KSL_FR    ,KSI_FR    ,
      7    IRBE3     ,LRBE3     ,FRBE3     ,IRBE2     ,LRBE2     )
-C-------s'il y a imposed Ud(secnd local), il faut renvoyer UDSL->UDSI---------
+C-------if there is imposed Ud(local second), must return UDSL->UDSI---------
 C-------NFV: nb of /IMPVEL node in SL, use ISLM(NFV) to save node num.
-        IF (IFDIS.GT.0) THEN
+        IF (IFDIS>0) THEN
          CALL DIM_FVN(
      1    NDOF      ,IDDL      ,IKC       ,ILOCP     ,NFV      )
-         IF (NFV .GT. 0) THEN
+         IF (NFV > 0) THEN
           CALL IND_FVN(
      1    NDOF      ,IDDL      ,IKC       ,ILOCP     ,NFV     )
           ALLOCATE(UDSL(3*NFV))
-C-------modif LB due au KSS et ini UDSL---put KSS dans K_SL-------
+C------ Change the due to the kSS and ini USLD --- Put kSS in K_SL --------------------
           CALL IMP_FVKSS(
      1    KSS      ,IDDL      ,IDDLM     ,IKC       ,NSL      ,
      2    UD       ,LB        ,NFV       ,UDSL      ,ILOCP    ,
      3    NDOF     )
          ENDIF
-        ENDIF     ! IF (IFDIS.GT.0)
-       ENDIF      ! IF (LSL.GT.0)
-C-------dim pour re-copy KSI_FR (K_SL modifie) a K_SL (ne reste que IKC=0---------
+        ENDIF     ! IF (IFDIS>0)
+       ENDIF      ! IF (LSL>0)
+C------- Dim for re-copy ksi_fr (k_sl modifies) a k_sl (only remains ikc = 0 -----------------------
        CALL DIM_FRKM1(NSREM,NSL  ,IDDL ,IKC ,NDOF  ,
      .                NF_SI,NF_SL,LSI  ,LSL ,ISI ,ISL )
 C
-       IF (LSL.GT.0) THEN
+       IF (LSL>0) THEN
         IF(ALLOCATED(KSL_FR)) DEALLOCATE(KSL_FR)
         ALLOCATE(KSL_FR(9*LSL),IKCSL(3*ISL),STAT=IER5)
         IF (ISL>0) IKCSL=1
         CALL TRA_FRKM(NSL  ,IDDL ,IKC ,NDOF  ,IAD_M ,
      .               KSI_FR,KSL_FR,IKCSL)
         IF(ALLOCATED(KSI_FR)) DEALLOCATE(KSI_FR)
-        IF (IFDIS.GT.0) ALLOCATE(IFVSL(ISL))
+        IF (IFDIS>0) ALLOCATE(IFVSL(ISL))
        ENDIF
-       IF (LSI.GT.0) THEN
+       IF (LSI>0) THEN
         IF(ALLOCATED(KSI_FR)) DEALLOCATE(KSI_FR)
         ALLOCATE(KSI_FR(9*LSI),IKCSI(3*ISI),STAT=IER6)
-        IF (IFDIS.GT.0) ALLOCATE(IFVSI(ISI))
+        IF (IFDIS>0) ALLOCATE(IFVSI(ISI))
        ENDIF
 C-------s: KSL_FR, r:KSI_FR :[Ksm] condense-----
        LSG = LSI+LSL
@@ -5646,38 +5483,38 @@ C       CALL SPMD_MAX_I(LSG)
        IF (LSG >= 0)
      .  CALL SCOM_FRK1(KSL_FR,KSI_FR,NF_SL,NF_SI,IKCSL,IKCSI)
        IF(ALLOCATED(KSL_FR)) DEALLOCATE(KSL_FR)
-       IF (IFDIS.GT.0) THEN
-C-------ini LVSI pour recevoire Ud(lvsi)-----
+       IF (IFDIS>0) THEN
+C------- Ini lvsi for receiving UD (LVSI) ------
         CALL INI_FRUD(NSREM ,NSL   ,NFV   ,IFVSI ,IFVSL ,
      .                NF_SI ,NF_SL ,LVSI  )
-        IF (LVSI.GT.0) ALLOCATE(UDSI(3*LVSI))
+        IF (LVSI>0) ALLOCATE(UDSI(3*LVSI))
         CALL SCOM_FRUD(UDSL,UDSI,NF_SL,NF_SI,IFVSL,IFVSI)
-C-------modifie LB(mi) du au [Ksm]^t ,Ud(si)-----
-        IF (LVSI.GT.0) CALL IMP_FVKSL(
+C------ Modifies lb (Mi) from to [ksm]^t ', ud (si) ------
+        IF (LVSI>0) CALL IMP_FVKSL(
      1    IDDL      ,IDDLM     ,IKC       ,IFVSI      ,NF_SI     ,
      2    KSI_FR    ,LB        ,NSREM     ,UDSI       )
-        IF(ALLOCATED(UDSI).AND.LVSI.GT.0) DEALLOCATE(UDSI)
+        IF(ALLOCATED(UDSI).AND.LVSI>0) DEALLOCATE(UDSI)
        ENDIF
-        IF(ALLOCATED(UDSL).AND.NFV.GT.0) DEALLOCATE(UDSL)
-        IF(ALLOCATED(IFVSI).AND.ISI.GT.0) DEALLOCATE(IFVSI)
-        IF(ALLOCATED(IFVSL).AND.ISL.GT.0) DEALLOCATE(IFVSL)
-        IF(ALLOCATED(IKCSL).AND.ISL.GT.0) DEALLOCATE(IKCSL)
+        IF(ALLOCATED(UDSL).AND.NFV>0) DEALLOCATE(UDSL)
+        IF(ALLOCATED(IFVSI).AND.ISI>0) DEALLOCATE(IFVSI)
+        IF(ALLOCATED(IFVSL).AND.ISL>0) DEALLOCATE(IFVSL)
+        IF(ALLOCATED(IKCSL).AND.ISL>0) DEALLOCATE(IKCSL)
 C
-      ENDIF ! (LSG.GT.0)
-      IF (NSL.GT.0) THEN
+      ENDIF ! (LSG>0)
+      IF (NSL>0) THEN
        DEALLOCATE(IAD_M)
        CALL IMP_FRKS(NSL  ,IDDL ,IKC ,NDOF  ,IDDLM,KSS  ,IAD_SLD )
       ENDIF
 C
-      IF (IFDIS.GT.0) NFV = 0
-      IF (NSREM.GT.0) THEN
+      IF (IFDIS>0) NFV = 0
+      IF (NSREM>0) THEN
        DO N =1,NUMNOD
         ILOCP(N)=0
        ENDDO
-C--------N_KINE: NML---LSI nb. noeuds kin-
+C--------N_KINE: NML---LSI number of kinematic nodes-
        N_KINE=0
        CALL TAG_INTML(NSREM  ,ILOCP  ,N_KINE ,IDDL ,IKC ,NDOF ,LSI)
-       IF (LSI.GT.0) THEN
+       IF (LSI>0) THEN
         ALLOCATE(IAD_M(N_KINE+1))
         CALL KIN_KML(
      1    IPARI     ,INTBUF_TAB,NINT2     ,IINT2     ,
@@ -5686,7 +5523,7 @@ C--------N_KINE: NML---LSI nb. noeuds kin-
      4    ISKEW     ,ICODT     ,NDOF      ,ILOCP     ,NSREM     ,
      5    IDDL      ,IKC       ,IAD_M     ,N_KINE    ,IRBE3     ,
      6    LRBE3     ,IRBE2     ,LRBE2     )
-C-------utilise tempo KSL_FR pour KML_FR modifie-----------------
+C------- Use tempo ksl_fr for kml_fr modifies -------------------------------------------------
         LSL = IAD_M(N_KINE+1) -IAD_M(1)
         ALLOCATE(KSL_FR(9*LSL),STAT=IER7)
         CALL UPD_KML(
@@ -5698,10 +5535,10 @@ C-------utilise tempo KSL_FR pour KML_FR modifie-----------------
      6    A         ,KSL_FR    ,KSI_FR    ,NSREM     ,NF_SI     ,
      7    IDDLI     ,IRBE3     ,LRBE3     ,FRBE3     ,IRBE2     ,
      8    LRBE2     )
-        IF (IFDIS.GT.0) THEN
+        IF (IFDIS>0) THEN
          CALL DIM_FVN(
      1    NDOF      ,IDDL      ,IKC       ,ILOCP     ,NFV     )
-         IF (NFV .GT. 0) THEN
+         IF (NFV > 0) THEN
           CALL IND_FVN(
      1    NDOF      ,IDDL      ,IKC       ,ILOCP     ,NFV     )
           DO I=1,NSREM
@@ -5710,7 +5547,7 @@ C-------utilise tempo KSL_FR pour KML_FR modifie-----------------
            ENDDO
           ENDDO
           ALLOCATE(FDSI(3*LFSI))
-C-------modifie FDSI du au [Ksm] ,Ud(mi)-----
+C------- Modifies FDSI from AU [KSM], UD (Mi) -----
           CALL IMP_FVKM(
      1    KSI_FR   ,KSL_FR   ,IDDL      ,NDOF      ,IKC       ,
      2    ILOCP    ,IAD_M    ,NSREM     ,N_KINE    ,UD        ,
@@ -5719,7 +5556,7 @@ C-------modifie FDSI du au [Ksm] ,Ud(mi)-----
         ENDIF
        ENDIF
        LSI = LSI + ISI + LSI0
-C-------actualise [Ksm] et stock dans LT_SI----
+C-------updates [Ksm] and stores in LT_SI----
        CALL IMP_FRKM(
      1    NSREM     ,LSI       ,IKCSI   ,IKC     ,NDOF    ,
      2    IDDL      ,IDDLM     ,ILOCP   ,IAD_M   ,KSI_FR  ,
@@ -5728,23 +5565,24 @@ C-------actualise [Ksm] et stock dans LT_SI----
         IF(ALLOCATED(IAD_M)) DEALLOCATE(IAD_M)
         IF(ALLOCATED(KSI_FR)) DEALLOCATE(KSI_FR)
         IF(ALLOCATED(KSL_FR)) DEALLOCATE(KSL_FR)
-       IF (IFDIS.GT.0) CALL INI_FRFD(NSREM ,NFV ,IKCSI,NF_SI ,FDSI )
+       IF (IFDIS>0) CALL INI_FRFD(NSREM ,NFV ,IKCSI,NF_SI ,FDSI )
        CALL CP_IADD(NSL ,NSREM,IAD_SLD  ,IAD_MLD)
-       IF (IFDIS.GT.0) CALL SPMD_IFRF(LB )
-C ------passe IAD_SL,IAD_SREM en ddl-----
-        IF(ALLOCATED(IKCSI).AND.ISI.GT.0) DEALLOCATE(IKCSI)
-        IF(ALLOCATED(FDSI).AND.LFSI.GT.0) DEALLOCATE(FDSI)
+       IF (IFDIS>0) CALL SPMD_IFRF(LB )
+C ----- IAD_SL, IAD_SREM in DDL -----
+        IF(ALLOCATED(IKCSI).AND.ISI>0) DEALLOCATE(IKCSI)
+        IF(ALLOCATED(FDSI).AND.LFSI>0) DEALLOCATE(FDSI)
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_FRKC                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        SPMD_ISR                      source/mpi/implicit/imp_spmd.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    ini_frkc   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd   ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_isr   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE INI_FRKC(NSREM  ,NSL    ,IKC    ,NDOF   ,IDDL  )
 C-----------------------------------------------
 C   M o d u l e s
@@ -5754,11 +5592,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5780,25 +5613,26 @@ C--------------------------------------------
          DO J = 1 , MIN(3,NDOF(N))
            NDD = NDD + IKC(ID+J)
          ENDDO
-         IF (NDOF(N).EQ.0) NDD = 21
+         IF (NDOF(N)==0) NDD = 21
          IKC_SL(I) = NDD
         ENDDO
 C
         CALL SPMD_ISR(IAD_SL,IAD_SREM,IKC_SL,IKC_SI,NSL  ,NSREM  )
 C
-        IF (NSREM.EQ.0) NDDL_SI=0
+        IF (NSREM==0) NDDL_SI=0
         NDDL_SL=0
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_FRKM                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        SPMD_ISR                      source/mpi/implicit/imp_spmd.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    dim_frkm   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd   ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_isr   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE DIM_FRKM(NSREM  ,NSL    ,SSIZE,RSIZE)
 C-----------------------------------------------
 C   M o d u l e s
@@ -5809,11 +5643,6 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSREM  ,NSL ,SSIZE,RSIZE
@@ -5823,11 +5652,11 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,ID
 C--------------------------------------------
-C   -----renvoie Ksl,Ksm et recevoie Kss,Kslm a condenser
+C   ----- Returns KSL, KSM and receives KSS, KSLM A CONDENSER
         SSIZE = 0
         DO I = 1, NSREM
-         IF (IKC_SI(I).GT.0) THEN
-C   -----nb de [K}3x3--------
+         IF (IKC_SI(I)>0) THEN
+C   -----number of [K}3x3--------
           IKC_SI(I) = IAD_SINR(I+1)-IAD_SINR(I)
           SSIZE = SSIZE + IKC_SI(I)
          ENDIF
@@ -5836,19 +5665,20 @@ C   -----nb de [K}3x3--------
 C
         RSIZE = 0
         DO I = 1, NSL
-         IF (IKC_SL(I).GT.0) RSIZE = RSIZE + IKC_SL(I)
+         IF (IKC_SL(I)>0) RSIZE = RSIZE + IKC_SL(I)
         ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_KSI                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        GETFR_KIJ                     source/mpi/implicit/imp_fri.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    ini_ksi     ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    getfr_kij   ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE INI_KSI(NSREM  ,KSI  ,IDDL )
 C-----------------------------------------------
 C   M o d u l e s
@@ -5858,11 +5688,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -5878,7 +5703,7 @@ C--------------------------------------------
         ND = 3
         IAD = 0
         DO I = 1, NSREM
-         IF (IKC_SI(I).GT.0) THEN
+         IF (IKC_SI(I)>0) THEN
           ID = IDDL_SI(I)
           DO J = IAD_SINR(I), IAD_SINR(I+1)-1
            NM = JDI_SINR(J)
@@ -5892,32 +5717,33 @@ C--------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPD_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        BCL_FRK                       source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDFR                      source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDFR2                     source/constraints/general/bcs/bc_imp0.F
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|        FVL_FRK                       source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_UPDFR                      source/constraints/general/impvel/fv_imp0.F
-Chd|        GET_IAD                       source/mpi/implicit/imp_fri.F 
-Chd|        I2_FRK0                       source/interfaces/interf/i2_imp1.F
-Chd|        I2_FRK1                       source/interfaces/interf/i2_imp1.F
-Chd|        INTABFR                       source/mpi/implicit/imp_fri.F 
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        PRERBE2FR                     source/constraints/general/rbe2/rbe2f.F
-Chd|        PRERBE3FR                     source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE2_FRK                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE3_FR0                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBY_FRK                       source/constraints/general/rbody/rby_imp0.F
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    upd_ksl         ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd        ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    bc_updfr        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updfr2       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bcl_frk         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    cp_real         ../engine/source/implicit/produt_v.F
+!||    fv_updfr        ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fvl_frk         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    get_iad         ../engine/source/mpi/implicit/imp_fri.F
+!||    i2_frk0         ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2_frk1         ../engine/source/interfaces/interf/i2_imp1.F
+!||    intabfr         ../engine/source/mpi/implicit/imp_fri.F
+!||    l_dir           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    prerbe2fr       ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    prerbe3fr       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe2_frk        ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe3_fr0        ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rby_frk         ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE UPD_KSL(
      1    IPARI     ,INTBUF_TAB,NINT2     ,IINT2     ,
      2    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
@@ -5937,8 +5763,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -5976,7 +5800,7 @@ C----------Kss d'abord------------------------------
        IAD_M1(1) = 1
        DO N=1,NSL
         NL =0
-        IF (IKC_SL(N).GT.0) THEN
+        IF (IKC_SL(N)>0) THEN
          NR = IAD_SLNR(N+1)-IAD_SLNR(N)
          NL = MAX(1,NR)
         ENDIF
@@ -5990,7 +5814,7 @@ C------int2----------------------------------
          NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
@@ -5998,17 +5822,17 @@ C------int2----------------------------------
          ILEV  =IPARI(20,N)
 C
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
           NR = IAD_SLNR(IS+1)-IAD_SLNR(IS)
           DO K =1,NNOD
            NJ=INTBUF_TAB(N)%IRECTM(NL+K)
            CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(IS)),NJ,J)
-           IF (J.GT.0) THEN
+           IF (J>0) THEN
             IDM(K) = IDDL_SL(IAD_M1(IS)+J-1)
            ELSE
            ENDIF
           ENDDO
-          IF (ILEV.EQ.1) THEN
+          IF (ILEV==1) THEN
            CALL I2_FRK1(INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA,X  ,ITAB ,
      .                  INTBUF_TAB(N)%NSV,
      1                  INTBUF_TAB(N)%IRTLM,IKC  ,NDOF  ,IDDL ,IDDLM,
@@ -6037,10 +5861,10 @@ C------RBE2-------
 C--------remove ICR---
         IC =(IC/512)*512
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
           NR = IAD_SLNR(IS+1)-IAD_SLNR(IS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(IS)),M ,J)
-           IF (J.GT.0) THEN
+           IF (J>0) THEN
             IDM(1) = IDDL_SL(IAD_M1(IS)+J-1)
            ELSE
            ENDIF
@@ -6065,12 +5889,12 @@ C------RBE3----------------------------------
 C
         CALL PRERBE3FR(IRBE3 ,N    ,JT  ,JR   )
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
           NR = IAD_SLNR(IS+1)-IAD_SLNR(IS)
           DO K =1,NNOD
            NJ = LRBE3(IAD+K)
            CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(IS)),NJ,J)
-           IF (J.GT.0) THEN
+           IF (J>0) THEN
             IDLM(K) = IDDL_SL(IAD_M1(IS)+J-1)
            ELSE
            ENDIF
@@ -6088,10 +5912,10 @@ C------Rigid bodies-------
         M=IFRSR(1,I)
         NS=IFRSR(2,I)
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
           NR = IAD_SLNR(IS+1)-IAD_SLNR(IS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(IS)),M ,J)
-           IF (J.GT.0) THEN
+           IF (J>0) THEN
             IDM(1) = IDDL_SL(IAD_M1(IS)+J-1)
            ELSE
            ENDIF
@@ -6108,9 +5932,9 @@ C
         ISK= IBC_FR(2,I1)
         ICT= IBC_FR(3,I1)
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.N) THEN
+         IF (ISL(IS)==N) THEN
           NR = IAD_SLNR(IS+1)-IAD_SLNR(IS)
-          IF (NR.GT.0) THEN
+          IF (NR>0) THEN
            CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(IS)),N ,J)
             IDM(1) = IDDL_SL(IAD_M1(IS)+J-1)
           ELSE
@@ -6130,15 +5954,15 @@ C
             IAD = 6*(N-1)+1
             NN = IC_SPC(N)
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.I) THEN
+         IF (ISL(IS)==I) THEN
           NR = IAD_SLNR(IS+1)-IAD_SLNR(IS)
-          IF (NR.GT.0) THEN
+          IF (NR>0) THEN
            CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(IS)),I ,J)
             IDM(1) = IDDL_SL(IAD_M1(IS)+J-1)
           ELSE
             IDM(1) = IDDL_SL(IAD_M1(IS))
           ENDIF
-              IF (NN.EQ.1) THEN
+              IF (NN==1) THEN
                EJ(1)=SKEW_SPC(IAD)
                EJ(2)=SKEW_SPC(IAD+1)
                EJ(3)=SKEW_SPC(IAD+2)
@@ -6157,15 +5981,15 @@ C
        ENDDO
       ENDDO
 C
-      IF (NFX_FR.GT.0) THEN
+      IF (NFX_FR>0) THEN
        DO L=1,NFX_FR
         I = IFX_FR(1,L)
         J1 = IFX_FR(2,L)
         N=IABS(IBFV(1,I))
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.N) THEN
+         IF (ISL(IS)==N) THEN
           NR = IAD_SLNR(IS+1)-IAD_SLNR(IS)
-          IF (NR.GT.0) THEN
+          IF (NR>0) THEN
            CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(IS)),N ,J)
             IDM(1) = IDDL_SL(IAD_M1(IS)+J-1)
           ELSE
@@ -6188,9 +6012,9 @@ C
         EJ(3)=NOR_RWL(3,I)
         CALL L_DIR(EJ,J1)
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.N) THEN
+         IF (ISL(IS)==N) THEN
           NR = IAD_SLNR(IS+1)-IAD_SLNR(IS)
-          IF (NR.GT.0) THEN
+          IF (NR>0) THEN
            CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(IS)),N ,J)
             IDM(1) = IDDL_SL(IAD_M1(IS)+J-1)
           ELSE
@@ -6210,7 +6034,7 @@ C----------Ksm ------------------------------
        DO N=1,NSL
         IAD_M1(N+1) = IAD_M1(N)+IKC_SL(N)
        ENDDO
-C------cp KSL_FR dans KSI_FR-(pour des kin sans modif-----
+C------copy KSL_FR to KSI_FR-(for kin without modification-----
        DO I = 1,NSL
          NS = ISL(I)
          DO J = 1,IKC_SL(I)
@@ -6218,7 +6042,7 @@ C------cp KSL_FR dans KSI_FR-(pour des kin sans modif-----
            CALL CP_REAL(9,KSL_FR(1,IAD),KSM)
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,NS   ,I  ,
      1                  J     ,IKC_SL(I),NDOF ,IAD   )
-           IF (IAD.GT.0) CALL CP_REAL(9,KSM,KSI_FR(1,IAD))
+           IF (IAD>0) CALL CP_REAL(9,KSM,KSI_FR(1,IAD))
          ENDDO
        ENDDO
 C
@@ -6229,7 +6053,7 @@ C
          NSN=IPARI(5,N)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
@@ -6237,10 +6061,10 @@ C
          ILEV  =IPARI(20,N)
 C
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
          DO J = 1,IKC_SL(IS)
 C----------------int2 herarch-------
-          IF (INLOC(NS).GT.NSL) THEN
+          IF (INLOC(NS)>NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,NS   ,IS  ,
      1                   J     ,IKC_SL(IS),NDOF ,IAD   )
            CALL CP_REAL(9,KSI_FR(1,IAD),KSM)
@@ -6248,7 +6072,7 @@ C----------------int2 herarch-------
            IAD = IAD_M1(IS)+J
            CALL CP_REAL(9,KSL_FR(1,IAD),KSM)
           ENDIF
-          IF (ILEV.EQ.1) THEN
+          IF (ILEV==1) THEN
            CALL I2_FRK1(INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA,X  ,ITAB ,
      .                  INTBUF_TAB(N)%NSV,
      1                  INTBUF_TAB(N)%IRTLM,IKC  ,NDOF  ,IDDL ,IDDLM,
@@ -6268,7 +6092,7 @@ C----------------int2 herarch-------
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,NJ   ,IS  ,
      1                   J     ,IKC_SL(IS),NDOF ,IAD   )
            CALL CP_REAL(9,KNM(1,K),KSI_FR(1,IAD))
-           IF (NDOF(NJ).EQ.6)CALL CP_REAL(9,KRM(1,K),KSI_FR(1,IAD+1))
+           IF (NDOF(NJ)==6)CALL CP_REAL(9,KRM(1,K),KSI_FR(1,IAD+1))
           ENDDO
          ENDDO
          ENDIF
@@ -6285,10 +6109,10 @@ C------RBE2-------
 C--------remove ICR---
          IC =(IC/512)*512
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
          DO J = 1,IKC_SL(IS)
 C----------------ns main int2 -------
-          IF (INLOC(NS).GT.NSL) THEN
+          IF (INLOC(NS)>NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,NS   ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
            CALL CP_REAL(9,KSI_FR(1,IAD),KSM)
@@ -6324,10 +6148,10 @@ C ------RBE3
         IF (IROT>0) ALLOCATE(KRM3(9*NNOD))
 C
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
          DO J = 1,IKC_SL(IS)
 C----------------int2 herarch-------
-          IF (INLOC(NS).GT.NSL) THEN
+          IF (INLOC(NS)>NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,NS   ,IS  ,
      1                   J     ,IKC_SL(IS),NDOF ,IAD   )
            CALL CP_REAL(9,KSI_FR(1,IAD),KSM)
@@ -6346,7 +6170,7 @@ C----------------int2 herarch-------
      1                   J     ,IKC_SL(IS),NDOF ,IAD   )
            ID = 9*(K-1) +1
            CALL CP_REAL(9,KNM3(ID),KSI_FR(1,IAD))
-           IF (IROT>0.AND.NDOF(NJ).EQ.6)
+           IF (IROT>0.AND.NDOF(NJ)==6)
      +           CALL CP_REAL(9,KRM3(ID),KSI_FR(1,IAD+1))
           ENDDO
          ENDDO
@@ -6360,10 +6184,10 @@ C------Rigid bodies-------
         M=IFRSR(1,I)
         NS=IFRSR(2,I)
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.NS) THEN
+         IF (ISL(IS)==NS) THEN
          DO J = 1,IKC_SL(IS)
 C----------------ns main int2 -------
-          IF (INLOC(NS).GT.NSL) THEN
+          IF (INLOC(NS)>NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,NS   ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
            CALL CP_REAL(9,KSI_FR(1,IAD),KSM)
@@ -6389,9 +6213,9 @@ C
         ISK= IBC_FR(2,I1)
         ICT= IBC_FR(3,I1)
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.N) THEN
+         IF (ISL(IS)==N) THEN
          DO J = 1,IKC_SL(IS)
-          IF (INLOC(N).GT.NSL) THEN
+          IF (INLOC(N)>NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,N    ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
            CALL CP_REAL(9,KSI_FR(1,IAD),KSM)
@@ -6403,7 +6227,7 @@ C
      1                 SKEW   ,IKC   ,IAD_SS,JDI_SL,DIAG_SL,
      2                 LT_SL  ,B     ,A     ,KSS(1,IS),KSM   ,
      3                 IDM(1) ,IFSS  ,IFSM )
-          IF (INLOC(N).LE.NSL) THEN
+          IF (INLOC(N)<=NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,N    ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
           ENDIF
@@ -6419,9 +6243,9 @@ C
             IADR = 6*(N-1)+1
             NN = IC_SPC(N)
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.I) THEN
+         IF (ISL(IS)==I) THEN
          DO J = 1,IKC_SL(IS)
-          IF (INLOC(I).GT.NSL) THEN
+          IF (INLOC(I)>NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,I    ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
            CALL CP_REAL(9,KSI_FR(1,IAD),KSM)
@@ -6429,7 +6253,7 @@ C
            IAD = IAD_M1(IS)+J
            CALL CP_REAL(9,KSL_FR(1,IAD),KSM)
           ENDIF
-              IF (NN.EQ.1) THEN
+              IF (NN==1) THEN
                EJ(1)=SKEW_SPC(IADR)
                EJ(2)=SKEW_SPC(IADR+1)
                EJ(3)=SKEW_SPC(IADR+2)
@@ -6444,7 +6268,7 @@ C
      2                   B     ,A     ,KSS(1,IS),KSM   ,IDM(1),
      3                   IFSS  ,IFSM  )
               END IF
-          IF (INLOC(I).LE.NSL) THEN
+          IF (INLOC(I)<=NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,I    ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
           ENDIF
@@ -6454,15 +6278,15 @@ C
        ENDDO
       ENDDO
 C
-      IF (NFX_FR.GT.0) THEN
+      IF (NFX_FR>0) THEN
        DO L=1,NFX_FR
         I = IFX_FR(1,L)
         J1 = IFX_FR(2,L)
         N=IABS(IBFV(1,I))
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.N) THEN
+         IF (ISL(IS)==N) THEN
          DO J = 1,IKC_SL(IS)
-          IF (INLOC(N).GT.NSL) THEN
+          IF (INLOC(N)>NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,N    ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
            CALL CP_REAL(9,KSI_FR(1,IAD),KSM)
@@ -6474,7 +6298,7 @@ C
      1                 IDDL    ,IDDLM  ,IKC   ,IAD_SS  ,JDI_SL,
      2                 DIAG_SL ,LT_SL ,UD    ,B      ,A     ,
      3                 KSS(1,IS),KSM   ,IDM  ,IFSS  ,IFSM  )
-          IF (INLOC(N).LE.NSL) THEN
+          IF (INLOC(N)<=NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,N    ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
           ENDIF
@@ -6493,9 +6317,9 @@ C
         EJ(3)=NOR_RWL(3,I)
         CALL L_DIR(EJ,J1)
         DO IS = 1,NSL
-         IF (ISL(IS).EQ.N) THEN
+         IF (ISL(IS)==N) THEN
          DO J = 1,IKC_SL(IS)
-          IF (INLOC(N).GT.NSL) THEN
+          IF (INLOC(N)>NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,N    ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
            CALL CP_REAL(9,KSI_FR(1,IAD),KSM)
@@ -6507,7 +6331,7 @@ C
      1                 IKC    ,IAD_SS,JDI_SL,DIAG_SL,LT_SL   ,
      2                 UD     ,B     ,A     ,KSS(1,IS),KSM   ,
      3                 IDM(1) ,IFSS  ,IFSM)
-          IF (INLOC(N).LE.NSL) THEN
+          IF (INLOC(N)<=NSL) THEN
            CALL GET_IAD(IAD_M ,IAD_SLNR,JDI_SLNR,N    ,IS  ,
      1                  J     ,IKC_SL(IS),NDOF ,IAD   )
           ENDIF
@@ -6520,20 +6344,20 @@ C--------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  ASSEM_KSL                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ASSEM_KII                     source/implicit/imp_glob_k.F  
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    assem_ksl   ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    assem_kii   ../engine/source/implicit/imp_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE ASSEM_KSL(IDDL    ,K_DIAG    ,K_LT      ,IADK     ,
      1                     JDIK    ,KSS       ,NSL       )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE IMP_INTM
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
@@ -6543,14 +6367,10 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER
      .        IDDL(*)   ,IADK(*)  ,JDIK(*),NSL
-C     REAL
       my_real
      .   K_DIAG(*) ,K_LT(*)   ,KSS(6,*)
 C-----------------------------------------------
@@ -6566,7 +6386,7 @@ C------------------------------------
          JLT_NEW = 0
         DO I = 1 , JLT
          IS = NFT+I
-         IF (IKC_SI(IS).EQ.0) THEN
+         IF (IKC_SI(IS)==0) THEN
           JLT_NEW = JLT_NEW + 1
           DO J = 1 , 3
            K11(J,J,JLT_NEW) = KSS(J,IS)
@@ -6583,26 +6403,18 @@ C------------------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ASSFR_KIJ                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        ASS_SPMD                      source/implicit/assem_int.F   
-Chd|        ASS_SPMD11                    source/implicit/assem_int.F   
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    assfr_kij    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ass_spmd     ../engine/source/implicit/assem_int.F
+!||    ass_spmd11   ../engine/source/implicit/assem_int.F
+!||====================================================================
       SUBROUTINE ASSFR_KIJ( ID    ,JD   ,IADK  ,JDIK,K_LT  ,
      1                      KIJ   ,ND   )
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6619,14 +6431,14 @@ C----6---------------------------------------------------------------7---------8
          DO K=1,ND
           JDL= -1
           DO JJ = IADK(ID+K),IADK(ID+1+K)-1
-C---------find l'adress dans LT-----
-           IF (JDIK(JJ).EQ.(JD+1)) THEN
+C-------- Find l'Address in LT -----
+           IF (JDIK(JJ)==(JD+1)) THEN
             JDL = JJ-1
             GOTO 300
            ENDIF
           ENDDO
  300      CONTINUE
-         IF (JDL.GE.0) THEN
+         IF (JDL>=0) THEN
           DO L=1,ND
            K_LT(JDL+L) = K_LT(JDL+L) + KIJ(K,L)
           ENDDO
@@ -6637,28 +6449,20 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  GETFR_KIJ                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKM                      source/mpi/implicit/imp_fri.F 
-Chd|        IMP_FVKM                      source/mpi/implicit/imp_fri.F 
-Chd|        INI_KSI                       source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    getfr_kij   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkm    ../engine/source/mpi/implicit/imp_fri.F
+!||    imp_fvkm    ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_ksi     ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_kml     ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE GETFR_KIJ( ID    ,JD   ,IADK  ,JDIK,K_LT  ,
      1                      KIJ   ,NK   ,NL    )
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6675,14 +6479,14 @@ C----6---------------------------------------------------------------7---------8
          DO K=1,NK
           JDL=-1
           DO JJ = IADK(ID+K),IADK(ID+1+K)-1
-C---------find l'adress dans LT-----
-           IF (JDIK(JJ).EQ.(JD+1)) THEN
+C-------- Find l'Address in LT -----
+           IF (JDIK(JJ)==(JD+1)) THEN
             JDL = JJ-1
             GOTO 300
            ENDIF
           ENDDO
  300      CONTINUE
-         IF (JDL.GE.0) THEN
+         IF (JDL>=0) THEN
           DO L=1,NL
            KIJ(K,L) = K_LT(JDL+L)
           ENDDO
@@ -6693,24 +6497,15 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  PUTFR_KIJ                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    putfr_kij   ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE PUTFR_KIJ( ID    ,JD   ,IADK  ,JDIK,K_LT  ,
      1                      KIJ   ,NK   ,NL    )
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6727,8 +6522,8 @@ C----6---------------------------------------------------------------7---------8
          DO K=1,NK
           JDL=0
           DO JJ = IADK(ID+K),IADK(ID+1+K)-1
-C---------find l'adress dans LT-----
-           IF (JDIK(JJ).EQ.(JD+1)) THEN
+C-------- Find l'Address in LT -----
+           IF (JDIK(JJ)==(JD+1)) THEN
             JDL = JJ-1
             GOTO 300
            ENDIF
@@ -6742,18 +6537,19 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  KIN_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        DIM_KINFRK                    source/mpi/implicit/imp_fri.F 
-Chd|        DOUB_NRS                      source/mpi/implicit/imp_fri.F 
-Chd|        IND_KINFRK                    source/mpi/implicit/imp_fri.F 
-Chd|        INI_SLNR                      source/mpi/implicit/imp_fri.F 
-Chd|        TAG_INTS                      source/mpi/implicit/imp_fri.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    kin_ksl         ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd        ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    dim_kinfrk      ../engine/source/mpi/implicit/imp_fri.F
+!||    doub_nrs        ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_kinfrk      ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_slnr        ../engine/source/mpi/implicit/imp_fri.F
+!||    tag_ints        ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE KIN_KSL(
      1    IPARI     ,INTBUF_TAB,NINT2     ,IINT2     ,
      2    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
@@ -6769,13 +6565,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------------------------
@@ -6841,14 +6632,15 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DOUB_NRS                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        KIN_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    doub_nrs   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    kin_ksl    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int     ../engine/source/implicit/produt_v.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE DOUB_NRS(NSL  ,NNMAX ,NRS  ,ICOL   ,ILOCP     )
 C-----------------------------------------------
 C   M o d u l e s
@@ -6858,13 +6650,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6877,11 +6662,11 @@ C-----------------------------------------------
       INTEGER
      .        I,J,K,N,NJ
 C----------------------------
-C--- partie double--traitement diff.  srem puisque [k]rem est dja construit
+C--- Double part-Diff.srem since [K] Rem is Dja Built
       DO I=1,NSL
        N = ISL(I)
        K = ILOCP(N)
-       IF (NRS(I).LT.NRS(K)) THEN
+       IF (NRS(I)<NRS(K)) THEN
         CALL CP_INT(NRS(K),ICOL(1,K),ICOL(1,I))
         NRS(I) = NRS(K)
        ENDIF
@@ -6889,14 +6674,14 @@ C--- partie double--traitement diff.  srem puisque [k]rem est dja construit
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_SLNR                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        KIN_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        KIN_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    ini_slnr   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    kin_kml    ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_ksl    ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE INI_SLNR(NSL  ,NNMAX ,NRS  ,ICOL   ,NZ     ,
      .                    NDOF ,IAD_M )
 C-----------------------------------------------
@@ -6907,13 +6692,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -6943,14 +6721,14 @@ C----------------------------
        NZ = 0
        IAD_M(1) = NZ+1
        DO N=1,NSL
-        IF (IKC_SL(N).GT.0) THEN
+        IF (IKC_SL(N)>0) THEN
 C         I = ISL(N)
          DO J=1,MAX(1,NRS(N))
            NZ = NZ+IKC_SL(N)
-          IF (NRS(N).GT.0) THEN
+          IF (NRS(N)>0) THEN
                NJ = ICOL(J,N)
 C----------IKC_SL=NREMS when it's called by KIN_KML          
-           IF (NDOF(NJ).EQ.6) NZ = NZ+IKC_SL(N)
+           IF (NDOF(NJ)==6) NZ = NZ+IKC_SL(N)
           ENDIF
          ENDDO
         ENDIF
@@ -6959,14 +6737,14 @@ C----------IKC_SL=NREMS when it's called by KIN_KML
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_KINFRK                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        KIN_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        KIN_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    dim_kinfrk      ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    kin_kml         ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_ksl         ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE DIM_KINFRK(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,INLOC     ,
@@ -6982,13 +6760,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------------------------
@@ -7019,23 +6792,23 @@ C--------int2---------
        JI=IPARI(1,N)
        DO I=1,NSN
          NI=INTBUF_TAB(N)%NSV(I)
-        IF (INLOC(NI).GT.0) THEN
+        IF (INLOC(NI)>0) THEN
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
          NK = INLOC(NI)
-         IF (NK.GT.N_KINE ) NK = NK - N_KINE
+         IF (NK>N_KINE ) NK = NK - N_KINE
          NRS(NK) = NRS(NK)+NNOD
          IA2(J) = N
          LNS2 = LNS2+1
-C--------si Mi est aussi dependant------
+C------- if Mi is also dependent ------
           DO K =1,NNOD
            NJ=INTBUF_TAB(N)%IRECTM(NL+K)
-           IF (INLOC(NJ).EQ.0) INLOC(NJ) = N_KINE + INLOC(NI)
+           IF (INLOC(NJ)==0) INLOC(NJ) = N_KINE + INLOC(NI)
           ENDDO
         ENDIF
        ENDDO
@@ -7047,16 +6820,16 @@ C--------RBE3---------
         IAD=IRBE3(1,I)
         NI=IRBE3(3,I)
         NNOD=IRBE3(5,I)
-        IF (NI.EQ.0) CYCLE
-        IF (INLOC(NI).GT.0) THEN
+        IF (NI==0) CYCLE
+        IF (INLOC(NI)>0) THEN
          NK = INLOC(NI)
-         IF (NK.GT.N_KINE ) NK = NK - N_KINE
+         IF (NK>N_KINE ) NK = NK - N_KINE
          NRS(NK) = NRS(NK)+NNOD
          LNS3 = LNS3+1
-C--------si Mi est aussi dependant------
+C------- if Mi is also dependent ------
           DO K =1,NNOD
            NJ = LRBE3(IAD+K)
-           IF (INLOC(NJ).EQ.0) INLOC(NJ) = N_KINE + INLOC(NI)
+           IF (INLOC(NJ)==0) INLOC(NJ) = N_KINE + INLOC(NI)
           ENDDO
         ENDIF
       ENDDO
@@ -7073,12 +6846,12 @@ C-----active rigid body main nodes------
          ID = I+K
          NI=LPBY(ID)
          NK = INLOC(NI)
-         IF (NK.GT.N_KINE) NK = INLOC(NI)-N_KINE
-         IF (NK.GT.0) THEN
+         IF (NK>N_KINE) NK = INLOC(NI)-N_KINE
+         IF (NK>0) THEN
           NRS(NK) = NRS(NK)+1
           IA(J)=N
           LNS = LNS+1
-          IF (INLOC(M).EQ.0) INLOC(M) = N_KINE + INLOC(NI)
+          IF (INLOC(M)==0) INLOC(M) = N_KINE + INLOC(NI)
          ENDIF
        ENDDO
       ENDDO
@@ -7092,29 +6865,30 @@ C-----RBE2------
          ID = I+IAD
          NI=LRBE2(ID)
          NK = INLOC(NI)
-         IF (NK.GT.N_KINE) NK = INLOC(NI)-N_KINE
-         IF (NK.GT.0) THEN
+         IF (NK>N_KINE) NK = INLOC(NI)-N_KINE
+         IF (NK>0) THEN
           NRS(NK) = NRS(NK)+1
           LNS4 = LNS4+1
-          IF (INLOC(M).EQ.0) INLOC(M) = N_KINE + INLOC(NI)
+          IF (INLOC(M)==0) INLOC(M) = N_KINE + INLOC(NI)
          ENDIF
        ENDDO
       ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_KINFRK                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        KIN_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        KIN_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        REORDER_A                     source/implicit/ind_glob_k.F  
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ind_kinfrk      ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    kin_kml         ../engine/source/mpi/implicit/imp_fri.F
+!||    kin_ksl         ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    reorder_a       ../engine/source/implicit/ind_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE IND_KINFRK(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,INLOC     ,
@@ -7134,13 +6908,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------------------------
@@ -7165,19 +6934,19 @@ C-----------------------------------------------
 c----------------------
       NI2_FR=0
       NI2_FRS=0
-      IF (NSS2.GT.0) THEN
+      IF (NSS2>0) THEN
        IF(ALLOCATED(IFRS2)) DEALLOCATE(IFRS2)
        ALLOCATE(IFRS2(2,NSS2),STAT=IERROR1)
        DO J=1,NINT2
         N=IA2(J)
-        IF (N.GT.0) THEN
+        IF (N>0) THEN
          NSN = IPARI(5,N)
          JI=IPARI(1,N)
          DO I=1,NSN
           NI=INTBUF_TAB(N)%NSV(I)
           NK = INLOC(NI)
-          IF (NK.GT.N_KINE) NK =NK-N_KINE
-          IF (NK.GT.0) THEN
+          IF (NK>N_KINE) NK =NK-N_KINE
+          IF (NK>0) THEN
            L=INTBUF_TAB(N)%IRTLM(NI)
            NL=4*(L-1)
            DO K =1,4
@@ -7195,20 +6964,20 @@ c----------------------
 C-----RBE2------
       NRBE2_FR=0
       NRBE2_FRS=0
-      IF (LNS4.GT.0) THEN
+      IF (LNS4>0) THEN
        IF(ALLOCATED(IFRS4)) DEALLOCATE(IFRSR)
        ALLOCATE(IFRS4(2,LNS4),STAT=IERROR2)
        DO N=1,NRBE2
         IAD=IRBE2(1,N)
         M  =IRBE2(3,N)
-         IF (INLOC(M).GT.0) THEN
+         IF (INLOC(M)>0) THEN
           NSN  =IRBE2(5,N)
           DO I=1,NSN
            ID = I+IAD
            NI=LRBE2(ID)
            NK = INLOC(NI)
-           IF (NK.GT.N_KINE) NK = INLOC(NI)-N_KINE
-           IF (NK.GT.0) THEN
+           IF (NK>N_KINE) NK = INLOC(NI)-N_KINE
+           IF (NK>0) THEN
             CALL REORDER_A(NRS(NK),ICOL(1,NK),M)
             NRBE2_FR=NRBE2_FR+1
             IFRS4(1,NRBE2_FR)=N
@@ -7221,17 +6990,17 @@ C-----RBE2------
 c--------RBE3--------------
       NRBE3_FR=0
       NRBE3_FRS=0
-      IF (LNS3.GT.0) THEN
+      IF (LNS3>0) THEN
        IF(ALLOCATED(IFRS3)) DEALLOCATE(IFRS3)
        ALLOCATE(IFRS3(LNS3),STAT=IERROR1)
        DO N=1,NRBE3
         IAD=IRBE3(1,N)
         NI=IRBE3(3,N)
         NNOD=IRBE3(5,N)
-        IF (NI.EQ.0) CYCLE
-        IF (INLOC(NI).GT.0) THEN
+        IF (NI==0) CYCLE
+        IF (INLOC(NI)>0) THEN
           NK = INLOC(NI)
-          IF (NK.GT.N_KINE) NK =NK-N_KINE
+          IF (NK>N_KINE) NK =NK-N_KINE
            DO K =1,NNOD
             NJ = LRBE3(IAD+K)
             CALL REORDER_A(NRS(NK),ICOL(1,NK),NJ)
@@ -7244,22 +7013,22 @@ c--------RBE3--------------
 C-----active rigid body main nodes------
       NRB_FR=0
       NRB_FRS=0
-      IF (NSS.GT.0) THEN
+      IF (NSS>0) THEN
        IF(ALLOCATED(IFRSR)) DEALLOCATE(IFRSR)
        ALLOCATE(IFRSR(2,NSS),STAT=IERROR2)
        DO J=1,NRBYAC
         N=IA(J)
-        IF (N.GT.0) THEN
+        IF (N>0) THEN
          K=IRBYAC(J+NRBYKIN)
          M  =NPBY(1,N)
-         IF (INLOC(M).GT.0) THEN
+         IF (INLOC(M)>0) THEN
           NSN  =NPBY(2,N)
           DO I=1,NSN
            ID = I+K
            NI=LPBY(ID)
            NK = INLOC(NI)
-           IF (NK.GT.N_KINE) NK = INLOC(NI)-N_KINE
-           IF (NK.GT.0) THEN
+           IF (NK>N_KINE) NK = INLOC(NI)-N_KINE
+           IF (NK>0) THEN
             CALL REORDER_A(NRS(NK),ICOL(1,NK),M)
             NRB_FR=NRB_FR+1
             IFRSR(1,NRB_FR)=M
@@ -7273,17 +7042,17 @@ C-----active rigid body main nodes------
 C+++ BC. LOCAL
       NBC_FR = 0
       DO N=1,NUMNOD
-        IF (ISKEW(N).GT.1.AND.ICODT(N).NE.7) THEN
-         IF (INLOC(N).GT.0)NBC_FR = NBC_FR + 1
+        IF (ISKEW(N)>1.AND.ICODT(N)/=7) THEN
+         IF (INLOC(N)>0)NBC_FR = NBC_FR + 1
         ENDIF
       ENDDO
-      IF (NBC_FR.GT.0) THEN
+      IF (NBC_FR>0) THEN
        IF(ALLOCATED(IBC_FR)) DEALLOCATE(IBC_FR)
        ALLOCATE(IBC_FR(3,NBC_FR),STAT=IERROR5)
        NBC_FR = 0
        DO N=1,NUMNOD
-        IF (ISKEW(N).GT.1.AND.ICODT(N).NE.7) THEN
-         IF (INLOC(N).GT.0) THEN
+        IF (ISKEW(N)>1.AND.ICODT(N)/=7) THEN
+         IF (INLOC(N)>0) THEN
            NBC_FR = NBC_FR + 1
            IBC_FR(1,NBC_FR) = N
            IBC_FR(2,NBC_FR) = ISKEW(N)
@@ -7296,15 +7065,15 @@ C+++ AUTOSPC
       NSPC_FR = 0
       DO N=1,NSPCL
        I = IN_SPC(N)
-       IF (INLOC(N).GT.0.AND.IC_SPC(N).LE.3)NSPC_FR = NSPC_FR + 1
+       IF (INLOC(N)>0.AND.IC_SPC(N)<=3)NSPC_FR = NSPC_FR + 1
       ENDDO
-      IF (NSPC_FR.GT.0) THEN
+      IF (NSPC_FR>0) THEN
        IF(ALLOCATED(ISPC_FR)) DEALLOCATE(ISPC_FR)
        ALLOCATE(ISPC_FR(NSPC_FR),STAT=IERROR5)
        NSPC_FR = 0
        DO N=1,NSPCL
         I = IN_SPC(N)
-        IF (INLOC(N).GT.0.AND.IC_SPC(N).LE.3) THEN
+        IF (INLOC(N)>0.AND.IC_SPC(N)<=3) THEN
              NSPC_FR = NSPC_FR + 1
              ISPC_FR(NSPC_FR)= N
         ENDIF
@@ -7313,19 +7082,19 @@ C+++ AUTOSPC
 C +++ FV---local
       NFX_FR = 0
       DO J=1,NFXVEL
-        IF (LJ(J).GT.0.AND.LJ(J).LE.3) THEN
+        IF (LJ(J)>0.AND.LJ(J)<=3) THEN
          N=IABS(IBFV(1,J))
-         IF (INLOC(N).GT.0)NFX_FR = NFX_FR + 1
+         IF (INLOC(N)>0)NFX_FR = NFX_FR + 1
         ENDIF
       ENDDO
-      IF (NFX_FR.GT.0) THEN
+      IF (NFX_FR>0) THEN
        IF(ALLOCATED(IFX_FR)) DEALLOCATE(IFX_FR)
        ALLOCATE(IFX_FR(2,NFX_FR),STAT=IERROR6)
        NFX_FR = 0
        DO J=1,NFXVEL
-        IF (LJ(J).GT.0.AND.LJ(J).LE.3) THEN
+        IF (LJ(J)>0.AND.LJ(J)<=3) THEN
          N=IABS(IBFV(1,J))
-         IF (INLOC(N).GT.0) THEN
+         IF (INLOC(N)>0) THEN
            NFX_FR = NFX_FR + 1
            IFX_FR(1,NFX_FR) = J
            IFX_FR(2,NFX_FR) = LJ(J)
@@ -7338,15 +7107,15 @@ C +++  sliding rigid wall---
       NRW_FR = 0
       DO J=1,N_RWL
        N=IN_RWL(J)
-       IF (INLOC(N).GT.0) NRW_FR = NRW_FR + 1
+       IF (INLOC(N)>0) NRW_FR = NRW_FR + 1
       ENDDO
-      IF (NRW_FR.GT.0) THEN
+      IF (NRW_FR>0) THEN
        IF(ALLOCATED(IRW_FR)) DEALLOCATE(IRW_FR)
        ALLOCATE(IRW_FR(NRW_FR),STAT=IERROR7)
        NRW_FR = 0
        DO J=1,N_RWL
          N=IN_RWL(J)
-         IF (INLOC(N).GT.0) THEN
+         IF (INLOC(N)>0) THEN
            NRW_FR = NRW_FR + 1
            IRW_FR(NRW_FR) = J
          ENDIF
@@ -7356,28 +7125,21 @@ C ---
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  GET_IAD                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FVKM                      source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        INTABFR                       source/mpi/implicit/imp_fri.F 
-Chd|====================================================================
+!||====================================================================
+!||    get_iad    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_fvkm   ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_kml    ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_ksl    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    intabfr    ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE GET_IAD(IAD_M ,IAD_S ,JDI_S ,NM   ,IS  ,
      1                   J     ,NRJ   ,NDOF  ,IAD   )
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7392,14 +7154,14 @@ C----6---------------------------------------------------------------7---------8
         L = IAD_M(IS)
         NK =(IAD_M(IS+1)-IAD_M(IS))/NRJ
         IAD = L+(J-1)*NK
-        IF (NM.GT.0.AND.NR.GT.0) THEN
+        IF (NM>0.AND.NR>0) THEN
          I0=IAD_S(IS)
          CALL INTABFR(NR,JDI_S(I0),NM,ID)
-         IF (ID.GT.0) THEN
+         IF (ID>0) THEN
           NZ = 0
           DO I = 1,ID-1
            NJ = JDI_S(I0+I-1)
-           IF (NDOF(NJ).EQ.6) THEN
+           IF (NDOF(NJ)==6) THEN
             NZ = NZ + 2
            ELSE
             NZ = NZ +1
@@ -7414,13 +7176,12 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IKINCF                        source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        DIM_FRKM1                     source/mpi/implicit/imp_fri.F 
-Chd|        TRA_FRKM                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ikincf      ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    dim_frkm1   ../engine/source/mpi/implicit/imp_fri.F
+!||    tra_frkm    ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       LOGICAL FUNCTION IKINCF(I)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -7434,7 +7195,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
-       IF (I.EQ.0.OR.(I.GE.2.AND.I.LE.4).OR.I.EQ.9) THEN
+       IF (I==0.OR.(I>=2.AND.I<=4).OR.I==9) THEN
          IKINCF =.TRUE.
        ELSE
          IKINCF =.FALSE.
@@ -7442,15 +7203,16 @@ C----6---------------------------------------------------------------7---------8
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_FRKM1                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        SPMD_ISR                      source/mpi/implicit/imp_spmd.F
-Chd|        IKINCF                        source/mpi/implicit/imp_fri.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    dim_frkm1   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    ikincf      ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_isr    ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE DIM_FRKM1(NSREM,NSL  ,IDDL ,IKC ,NDOF  ,
      .                     NF_SI,NF_SL,LSI  ,LSL ,MSI,MSL)
 C-----------------------------------------------
@@ -7461,11 +7223,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7483,11 +7240,11 @@ C-----------------------------------------------
       INTEGER I,J,N,ID,NFAC,NJ
 C----------NF_SL : new nm times of [K]3x3- of dependant---------------------------
         DO I = 1, NSL
-        IF (IKC_SL(I).GT.0) THEN
+        IF (IKC_SL(I)>0) THEN
          N = ISL(I)
          ID = IDDL(N)
-         IF (NDOF(N).EQ.0.OR.(IKC(ID+1).NE.0.AND.IKC(ID+2).NE.0
-     .       .AND.IKC(ID+3).NE.0)) THEN
+         IF (NDOF(N)==0.OR.(IKC(ID+1)/=0.AND.IKC(ID+2)/=0
+     .       .AND.IKC(ID+3)/=0)) THEN
           NFAC=0
           DO J=IAD_SLNR(I),IAD_SLNR(I+1)-1
            NJ = JDI_SLNR(J)
@@ -7495,14 +7252,14 @@ C----------NF_SL : new nm times of [K]3x3- of dependant-------------------------
            IF (IKINCF(IKC(ID+1)).OR.IKINCF(IKC(ID+2)).OR.
      .         IKINCF(IKC(ID+3)))
      .      NFAC = NFAC +1
-           IF (NDOF(NJ).EQ.6) THEN
+           IF (NDOF(NJ)==6) THEN
            IF (IKINCF(IKC(ID+4)).OR.IKINCF(IKC(ID+5)).OR.
      .         IKINCF(IKC(ID+6)))
      .      NFAC = NFAC +1
            ENDIF
           ENDDO
-Ctmp cas particulier d_imp dans tous les directions
-          IF (NDOF(N).GT.0.AND.IAD_SLNR(I).EQ.IAD_SLNR(I+1))NFAC = 1
+Ctmp special case of d_imp in all directions
+          IF (NDOF(N)>0.AND.IAD_SLNR(I)==IAD_SLNR(I+1))NFAC = 1
          ELSE
           NFAC = 1
          ENDIF
@@ -7517,7 +7274,7 @@ C   -----new nb. [k] modifie SL,SI---for com---ISL for IKC(3,M)
         MSL = 0
         LSL = 0
         DO I = 1, NSL
-         IF (IKC_SL(I).GT.0) THEN
+         IF (IKC_SL(I)>0) THEN
            MSL = MSL + NF_SL(I)
            LSL = LSL + IKC_SL(I)*NF_SL(I)
          ENDIF
@@ -7526,7 +7283,7 @@ c
         MSI = 0
         LSI = 0
         DO I = 1, NSREM
-         IF (IKC_SI(I).GT.0) THEN
+         IF (IKC_SI(I)>0) THEN
            MSI = MSI +  NF_SI(I)
            LSI = LSI + IKC_SI(I)*NF_SI(I)
          ENDIF
@@ -7534,15 +7291,16 @@ c
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  TRA_FRKM                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|        IKINCF                        source/mpi/implicit/imp_fri.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    tra_frkm   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd   ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    cp_real    ../engine/source/implicit/produt_v.F
+!||    ikincf     ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE TRA_FRKM(NSL  ,IDDL ,IKC  ,NDOF  ,IAD_M,
      .                    KSI  ,KSL  ,IKCSL )
 C-----------------------------------------------
@@ -7553,11 +7311,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7579,12 +7332,12 @@ C-------------------------------------
         SIZE = 9
         IADL=1
         DO I = 1, NSL
-        IF (IKC_SL(I).GT.0) THEN
+        IF (IKC_SL(I)>0) THEN
          IADI=IAD_M(I)
          N = ISL(I)
          ID = IDDL(N)
-         IF (NDOF(N).EQ.0.OR.(IKC(ID+1).NE.0.AND.IKC(ID+2).NE.0
-     .       .AND.IKC(ID+3).NE.0)) THEN
+         IF (NDOF(N)==0.OR.(IKC(ID+1)/=0.AND.IKC(ID+2)/=0
+     .       .AND.IKC(ID+3)/=0)) THEN
           NODOF = .TRUE.
          ELSE
           NODOF = .FALSE.
@@ -7600,7 +7353,7 @@ C
             IADL=IADL+1
            ENDIF
            IADI=IADI+1
-           IF (NDOF(NJ).EQ.6) THEN
+           IF (NDOF(NJ)==6) THEN
             IF (NODOF.AND.(IKINCF(IKC(ID+4)).OR.IKINCF(IKC(ID+5)).OR.
      .          IKINCF(IKC(ID+6)))) THEN
              CALL CP_REAL(SIZE,KSI(1,IADI),KSL(1,IADL))
@@ -7609,9 +7362,9 @@ C
             IADI=IADI+1
            ENDIF
           ENDDO
-Ctmp cas particulier d_imp dans tous les directions
+Ctmp special case of d_imp in all directions
          IF (NODOF) THEN
-           IF (NDOF(N).GT.0.AND.IAD_SLNR(I).EQ.IAD_SLNR(I+1))THEN
+           IF (NDOF(N)>0.AND.IAD_SLNR(I)==IAD_SLNR(I+1))THEN
             NB = SIZE
             CALL CP_REAL(NB,KSI(1,IADI),KSL(1,IADL))
             IADL=IADL+1
@@ -7632,7 +7385,7 @@ C------init IKCSL-------
         IADI = 1
         DO I = 1, NSL
          N = ISL(I)
-         IF (IKC_SL(I).GT.0) THEN
+         IF (IKC_SL(I)>0) THEN
           DO J=IAD_SLNR(I),IAD_SLNR(I+1)-1
            NJ = JDI_SLNR(J)
            ID = IDDL(NJ)
@@ -7643,7 +7396,7 @@ C------init IKCSL-------
             ENDDO
             IADI = IADI + 1
            ENDIF
-           IF (NDOF(NJ).EQ.6) THEN
+           IF (NDOF(NJ)==6) THEN
             IF (IKINCF(IKC(ID+4)).OR.IKINCF(IKC(ID+5)).OR.
      .          IKINCF(IKC(ID+6))) THEN
              DO K =1,3
@@ -7654,7 +7407,7 @@ C------init IKCSL-------
            ENDIF
           ENDDO
 C----------other kin------------
-          IF (IAD_SLNR(I).EQ.IAD_SLNR(I+1).AND.NDOF(N)>0) THEN
+          IF (IAD_SLNR(I)==IAD_SLNR(I+1).AND.NDOF(N)>0) THEN
            ID = IDDL(N)
            IF (IKINCF(IKC(ID+1)).OR.IKINCF(IKC(ID+2)).OR.
      .         IKINCF(IKC(ID+3))) THEN
@@ -7669,16 +7422,17 @@ C----------other kin------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  KIN_KML                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        DIM_KINFRK                    source/mpi/implicit/imp_fri.F 
-Chd|        IND_KINFRK                    source/mpi/implicit/imp_fri.F 
-Chd|        INI_SLNR                      source/mpi/implicit/imp_fri.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    kin_kml         ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd        ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    dim_kinfrk      ../engine/source/mpi/implicit/imp_fri.F
+!||    ind_kinfrk      ../engine/source/mpi/implicit/imp_fri.F
+!||    ini_slnr        ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE KIN_KML(
      1    IPARI     ,INTBUF_TAB,NINT2     ,IINT2     ,     
      2    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
@@ -7695,14 +7449,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -7763,13 +7511,13 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  TAG_INTML                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    tag_intml   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE TAG_INTML(NSREM ,ILOC  ,N_IMPN ,IDDL ,IKC  ,
      .                     NDOF  ,LSI   )
 C-----------------------------------------------
@@ -7780,12 +7528,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -7799,7 +7541,7 @@ C-----------------------------------------------
        DO I = 1, NSREM
         DO J =IAD_SINR(I),IAD_SINR(I+1)-1
          IG = JDI_SINR(J)
-         IF (ILOC(IG).EQ.0) THEN
+         IF (ILOC(IG)==0) THEN
           N_IMPN = N_IMPN + 1
           ILOC(IG) = N_IMPN
          ENDIF
@@ -7827,21 +7569,22 @@ C--------use also IKC_SL for ml IFLAG_KC ONLY----
          DO J = 1 , MIN(3,NDOF(N))
            NDD = NDD + IKC(ID+J)
          ENDDO
-         IF (NDOF(N).EQ.0.OR.NDD.GT.0) NDD = NSREM
+         IF (NDOF(N)==0.OR.NDD>0) NDD = NSREM
          IKC_SL(I) = NDD
          LSI = LSI + NDD
         ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  SCOM_FRK                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        SPMD_EXCK                     source/mpi/implicit/imp_spmd.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    scom_frk    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exck   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE SCOM_FRK(KS11,KR11,SSIZE ,RSIZE)
 C-----------------------------------------------
 C   M o d u l e s
@@ -7886,15 +7629,16 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SCOM_FRK1                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        SPMD_EXCI                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_EXCK                     source/mpi/implicit/imp_spmd.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    scom_frk1   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exci   ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_exck   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE SCOM_FRK1(KS11,KR11,NFACS,NFACR,IKCS ,IKCR )
 C-----------------------------------------------
 C   M o d u l e s
@@ -7957,33 +7701,34 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        BCL_FRK                       source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDFR                      source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDFR2                     source/constraints/general/bcs/bc_imp0.F
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|        FVL_FRK                       source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_UPDFR                      source/constraints/general/impvel/fv_imp0.F
-Chd|        GETFR_KIJ                     source/mpi/implicit/imp_fri.F 
-Chd|        GET_IAD                       source/mpi/implicit/imp_fri.F 
-Chd|        I2_FRK0                       source/interfaces/interf/i2_imp1.F
-Chd|        I2_FRK1                       source/interfaces/interf/i2_imp1.F
-Chd|        INTABFR                       source/mpi/implicit/imp_fri.F 
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|        PRERBE2FR                     source/constraints/general/rbe2/rbe2f.F
-Chd|        PRERBE3FR                     source/constraints/general/rbe3/rbe3f.F
-Chd|        RBE2_FRK                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE3_FR0                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        RBY_FRK                       source/constraints/general/rbody/rby_imp0.F
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        IMP_RWL                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    upd_kml         ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd        ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    bc_updfr        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updfr2       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bcl_frk         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    cp_real         ../engine/source/implicit/produt_v.F
+!||    fv_updfr        ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fvl_frk         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    get_iad         ../engine/source/mpi/implicit/imp_fri.F
+!||    getfr_kij       ../engine/source/mpi/implicit/imp_fri.F
+!||    i2_frk0         ../engine/source/interfaces/interf/i2_imp1.F
+!||    i2_frk1         ../engine/source/interfaces/interf/i2_imp1.F
+!||    intabfr         ../engine/source/mpi/implicit/imp_fri.F
+!||    l_dir           ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    prerbe2fr       ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    prerbe3fr       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rbe2_frk        ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe3_fr0        ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    rby_frk         ../engine/source/constraints/general/rbody/rby_imp0.F
+!||--- uses       -----------------------------------------------------
+!||    imp_aspc        ../engine/share/modules/impbufdef_mod.F
+!||    imp_intm        ../engine/share/modules/imp_intm.F
+!||    imp_rwl         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE UPD_KML(
      1    IPARI     ,INTBUF_TAB,NINT2     ,IINT2     ,
      2    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
@@ -8004,8 +7749,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -8037,7 +7780,7 @@ C-----------------------------------------------
      .  EJ(3),KSM(9),KNM(9,4),KRM(9,4),RBID
       my_real,
      .         DIMENSION(:),ALLOCATABLE :: KNM3,KRM3
-C-----only [ksm] to update : secnd dependant :FRK_SI, secnd inde. LT_SI,
+C-----only [ksm] to update : second dependant :FRK_SI, second inde. LT_SI,
 C     ----       --added inde,:FRK_SL-----------
        IFSS = 0
        IFSM = 1
@@ -8061,22 +7804,22 @@ C------int2----------------------------------
          NS=INTBUF_TAB(N)%NSV(NI)
          L=INTBUF_TAB(N)%IRTLM(NI)
          NL=4*(L-1)
-         IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+         IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
           NNOD=3
          ELSE
           NNOD=4
          ENDIF
          ILEV  =IPARI(20,N)
 C
-         IF (INLOC(NS).GT.NSL) THEN
+         IF (INLOC(NS)>NSL) THEN
           NSS = INLOC(NS)-NSL
           NR=IAD_SLNR(NSS+1)- IAD_SLNR(NSS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NS,J)
-          IF (J.GT.0) THEN
+          IF (J>0) THEN
           DO IS = 1,NSREM
            IAD = IAD_M(NSS) + J + IS -2
            CALL CP_REAL(9,KSL(1,IAD),KSM)
-          IF (ILEV.EQ.1) THEN
+          IF (ILEV==1) THEN
            CALL I2_FRK1(INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA,X    ,ITAB ,
      .                  INTBUF_TAB(N)%NSV,
      1                  INTBUF_TAB(N)%IRTLM,IKC  ,NDOF  ,IDDL ,IDDLM,
@@ -8096,19 +7839,19 @@ C
            CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NJ,J)
            IAD = IAD_M(NSS) + J +IS -2
            CALL CP_REAL(9,KNM(1,K),KSL(1,IAD))
-           IF (NDOF(NJ).GT.3)CALL CP_REAL(9,KRM(1,K),KSL(1,IAD+NSREM))
+           IF (NDOF(NJ)>3)CALL CP_REAL(9,KRM(1,K),KSL(1,IAD+NSREM))
           ENDDO
           END DO ! IS = 1,NSREM
-          END IF !(J.GT.0) THEN
+          END IF !(J>0) THEN
          ELSE
           NSS = INLOC(NS)
           DO IS = 1,NSREM
            NR =IAD_SINR(IS+1)- IAD_SINR(IS)
            CALL INTABFR(NR,JDI_SINR(IAD_SINR(IS)),NS,J)
-           IF (J.GT.0) THEN
+           IF (J>0) THEN
            DO NF = 1,MAX(1,NF_SI(IS))
 C-------------------in KFR_SI----
-            IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+            IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
              N = 0
              CALL GET_IAD(IAD_M1,IAD_SINR,JDI_SINR,N    ,IS  ,
      1                   J    ,IKC_SI(IS),NDOF  ,IAD  )
@@ -8121,7 +7864,7 @@ C-------------------in KFR_SI----
              CALL GETFR_KIJ( ID    ,JD   ,IAD_SI ,JDI_SI,LT_SI  ,
      1                     KSM   ,ND   ,ND    )
             ENDIF
-            IF (ILEV.EQ.1) THEN
+            IF (ILEV==1) THEN
              CALL I2_FRK1(INTBUF_TAB(N)%IRECTM,INTBUF_TAB(N)%DPARA,X    ,ITAB ,
      .                  INTBUF_TAB(N)%NSV,
      1                  INTBUF_TAB(N)%IRTLM,IKC  ,NDOF  ,IDDL ,IDDLM,
@@ -8142,7 +7885,7 @@ C-------------------in KFR_SI----
              CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NJ,J)
              IAD = IAD_M(NSS) + J + IS -2
              CALL CP_REAL(9,KNM(1,K),KSL(1,IAD))
-             IF (NDOF(NJ).GT.3)CALL CP_REAL(9,KRM(1,K),KSL(1,IAD+NSREM))
+             IF (NDOF(NJ)>3)CALL CP_REAL(9,KRM(1,K),KSL(1,IAD+NSREM))
             ENDDO
            ENDDO
            ENDIF
@@ -8160,11 +7903,11 @@ C------RBE2-------
             IC = IRBE2(4,N)
 C--------remove ICR---
         IC =(IC/512)*512
-        IF (INLOC(NS).GT.NSL) THEN
+        IF (INLOC(NS)>NSL) THEN
           NSS = INLOC(NS)-NSL
           NR=IAD_SLNR(NSS+1)- IAD_SLNR(NSS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NS,J)
-             IF (J.GT.0) THEN
+             IF (J>0) THEN
          DO IS = 1,NSREM
           IAD = IAD_M(NSS) + J + IS -2
           CALL CP_REAL(9,KSL(1,IAD),KSM)
@@ -8179,16 +7922,16 @@ C--------remove ICR---
           CALL CP_REAL(9,KNM,KSL(1,IAD))
           CALL CP_REAL(9,KRM,KSL(1,IAD+NSREM))
          END DO ! IS = 1,NSREM
-             END IF !(J.GT.0) THEN
+             END IF !(J>0) THEN
         ELSE
          NSS = INLOC(NS)
          DO IS = 1,NSREM
           NR =IAD_SINR(IS+1)- IAD_SINR(IS)
           CALL INTABFR(NR,JDI_SINR(IAD_SINR(IS)),NS,J)
-          IF (J.GT.0) THEN
+          IF (J>0) THEN
           DO NF = 1,MAX(1,NF_SI(IS))
 C----------------in KFR_SI------
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             N = 0
             CALL GET_IAD(IAD_M1,IAD_SINR,JDI_SINR,N    ,IS  ,
      1                   J    ,IKC_SI(IS),NDOF  ,IAD  )
@@ -8229,11 +7972,11 @@ C------RBE3----------------------------------
         CALL PRERBE3FR(IRBE3 ,N    ,JT  ,JR   )
         ALLOCATE(KNM3(9*NNOD))
         IF (IROT>0) ALLOCATE(KRM3(9*NNOD))
-        IF (INLOC(NS).GT.NSL) THEN
+        IF (INLOC(NS)>NSL) THEN
           NSS = INLOC(NS)-NSL
           NR=IAD_SLNR(NSS+1)- IAD_SLNR(NSS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NS,J)
-           IF (J.GT.0) THEN
+           IF (J>0) THEN
           DO IS = 1,NSREM
            IAD = IAD_M(NSS) + J + IS -2
            CALL CP_REAL(9,KSL(1,IAD),KSM)
@@ -8252,16 +7995,16 @@ C------RBE3----------------------------------
      +           CALL CP_REAL(9,KRM3(ID),KSL(1,IAD+NSREM))
           ENDDO
           END DO ! IS = 1,NSREM
-           END IF !(J.GT.0) THEN
+           END IF !(J>0) THEN
          ELSE
           NSS = INLOC(NS)
           DO IS = 1,NSREM
            NR =IAD_SINR(IS+1)- IAD_SINR(IS)
            CALL INTABFR(NR,JDI_SINR(IAD_SINR(IS)),NS,J)
-           IF (J.GT.0) THEN
+           IF (J>0) THEN
            DO NF = 1,MAX(1,NF_SI(IS))
 C-------------------in KFR_SI----
-            IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+            IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
              N = 0
              CALL GET_IAD(IAD_M1,IAD_SINR,JDI_SINR,N    ,IS  ,
      1                   J    ,IKC_SI(IS),NDOF  ,IAD  )
@@ -8290,7 +8033,7 @@ C-------------------in KFR_SI----
      +           CALL CP_REAL(9,KRM3(ID),KSL(1,IAD+NSREM))
             ENDDO
            ENDDO
-           ENDIF !(J.GT.0)
+           ENDIF !(J>0)
           ENDDO
          ENDIF
          DEALLOCATE(KNM3)
@@ -8301,11 +8044,11 @@ C------Rigid bodies-------
        DO I=NRB_FR,1,-1
         M=IFRSR(1,I)
         NS=IFRSR(2,I)
-        IF (INLOC(NS).GT.NSL) THEN
+        IF (INLOC(NS)>NSL) THEN
           NSS = INLOC(NS)-NSL
           NR=IAD_SLNR(NSS+1)- IAD_SLNR(NSS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NS,J)
-             IF (J.GT.0) THEN
+             IF (J>0) THEN
          DO IS = 1,NSREM
           IAD = IAD_M(NSS) + J + IS -2
           CALL CP_REAL(9,KSL(1,IAD),KSM)
@@ -8318,16 +8061,16 @@ C------Rigid bodies-------
           CALL CP_REAL(9,KNM,KSL(1,IAD))
           CALL CP_REAL(9,KRM,KSL(1,IAD+NSREM))
          END DO ! IS = 1,NSREM
-             END IF !(J.GT.0) THEN
+             END IF !(J>0) THEN
         ELSE
          NSS = INLOC(NS)
          DO IS = 1,NSREM
           NR =IAD_SINR(IS+1)- IAD_SINR(IS)
           CALL INTABFR(NR,JDI_SINR(IAD_SINR(IS)),NS,J)
-          IF (J.GT.0) THEN
+          IF (J>0) THEN
           DO NF = 1,MAX(1,NF_SI(IS))
 C----------------in KFR_SI------
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             N = 0
             CALL GET_IAD(IAD_M1,IAD_SINR,JDI_SINR,N    ,IS  ,
      1                   J    ,IKC_SI(IS),NDOF  ,IAD  )
@@ -8359,11 +8102,11 @@ C
         NS = IBC_FR(1,I1)
         ISK= IBC_FR(2,I1)
         ICT= IBC_FR(3,I1)
-        IF (INLOC(NS).GT.NSL) THEN
+        IF (INLOC(NS)>NSL) THEN
           NSS = INLOC(NS)-NSL
           NR=IAD_SLNR(NSS+1)- IAD_SLNR(NSS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NS,J)
-             IF (J.GT.0) THEN
+             IF (J>0) THEN
          DO IS = 1,NSREM
           IAD = IAD_M(NSS) + J + IS -2
           CALL CP_REAL(9,KSL(1,IAD),KSM)
@@ -8373,16 +8116,16 @@ C
      3                 IBID   ,IFSS  ,IFSM  )
           CALL CP_REAL(9,KNM,KSL(1,IAD))
          END DO ! IS = 1,NSREM
-             END IF !(J.GT.0) THEN
+             END IF !(J>0) THEN
         ELSE
          NSS = INLOC(NS)
          DO IS = 1,NSREM
           NR =IAD_SINR(IS+1)- IAD_SINR(IS)
           CALL INTABFR(NR,JDI_SINR(IAD_SINR(IS)),NS,J)
-          IF (J.GT.0) THEN
+          IF (J>0) THEN
           DO NF = 1,MAX(1,NF_SI(IS))
 C----------------in KFR_SI------
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             N = 0
             CALL GET_IAD(IAD_M1,IAD_SINR,JDI_SINR,N    ,IS  ,
      1                   J    ,IKC_SI(IS),NDOF  ,IAD  )
@@ -8400,7 +8143,7 @@ C----------------in KFR_SI------
      2                 RBID   ,RBID  ,A     ,RBID  ,KSM   ,
      3                 IBID   ,IFSS  ,IFSM  )
 C--------------!!!!!!!!! still--in KFR_SI--!!!!!!----
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             CALL CP_REAL(9,KNM,KSI(1,IAD))
            ELSE
             IAD = IAD_M(NSS) + IS -1
@@ -8417,11 +8160,11 @@ C
         NS = IN_SPC(N)
             IADR = 6*(N-1)+1
             NN = IC_SPC(N)
-        IF (INLOC(NS).GT.NSL) THEN
+        IF (INLOC(NS)>NSL) THEN
           NSS = INLOC(NS)-NSL
           NR=IAD_SLNR(NSS+1)- IAD_SLNR(NSS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NS,J)
-             IF (J.GT.0) THEN
+             IF (J>0) THEN
          DO IS = 1,NSREM
           IAD = IAD_M(NSS) + J + IS -2
           CALL CP_REAL(9,KSL(1,IAD),KSM)
@@ -8429,7 +8172,7 @@ C
      1                  IKC   ,IBID  ,IBID  ,RBID  ,RBID   ,
      2                  RBID  ,A     ,RBID  ,KSM   ,IBID   ,
      3                  IFSS  ,IFSM  )
-              IF (NN.EQ.1) THEN
+              IF (NN==1) THEN
                EJ(1)=SKEW_SPC(IADR)
                EJ(2)=SKEW_SPC(IADR+1)
                EJ(3)=SKEW_SPC(IADR+2)
@@ -8446,16 +8189,16 @@ C
               END IF
           CALL CP_REAL(9,KNM,KSL(1,IAD))
          END DO ! IS = 1,NSREM
-             END IF !(J.GT.0) THEN
+             END IF !(J>0) THEN
         ELSE
          NSS = INLOC(NS)
          DO IS = 1,NSREM
           NR =IAD_SINR(IS+1)- IAD_SINR(IS)
           CALL INTABFR(NR,JDI_SINR(IAD_SINR(IS)),NS,J)
-          IF (J.GT.0) THEN
+          IF (J>0) THEN
           DO NF = 1,MAX(1,NF_SI(IS))
 C----------------in KFR_SI------
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             N = 0
             CALL GET_IAD(IAD_M1,IAD_SINR,JDI_SINR,N    ,IS  ,
      1                   J    ,IKC_SI(IS),NDOF  ,IAD  )
@@ -8468,7 +8211,7 @@ C----------------in KFR_SI------
             CALL GETFR_KIJ( ID    ,JD   ,IAD_SI ,JDI_SI,LT_SI  ,
      1                     KSM   ,ND   ,ND    )
            ENDIF
-               IF (NN.EQ.1) THEN
+               IF (NN==1) THEN
                 EJ(1)=SKEW_SPC(IADR)
                 EJ(2)=SKEW_SPC(IADR+1)
                 EJ(3)=SKEW_SPC(IADR+2)
@@ -8484,7 +8227,7 @@ C----------------in KFR_SI------
      3                   IFSS  ,IFSM  )
                END IF
 C--------------!!!!!!!!! still--in KFR_SI--!!!!!!----
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             CALL CP_REAL(9,KNM,KSI(1,IAD))
            ELSE
             IAD = IAD_M(NSS) + IS -1
@@ -8496,16 +8239,16 @@ C--------------!!!!!!!!! still--in KFR_SI--!!!!!!----
         ENDIF
       ENDDO
 C
-      IF (NFX_FR.GT.0) THEN
+      IF (NFX_FR>0) THEN
        DO L=1,NFX_FR
         I = IFX_FR(1,L)
         J1 = IFX_FR(2,L)
         NS=IABS(IBFV(1,I))
-        IF (INLOC(NS).GT.NSL) THEN
+        IF (INLOC(NS)>NSL) THEN
           NSS = INLOC(NS)-NSL
           NR=IAD_SLNR(NSS+1)- IAD_SLNR(NSS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NS,J)
-             IF (J.GT.0) THEN
+             IF (J>0) THEN
          DO IS = 1,NSREM
           IAD = IAD_M(NSS) + J + IS -2
           CALL CP_REAL(9,KSL(1,IAD),KSM)
@@ -8518,16 +8261,16 @@ C
           CALL CP_REAL(9,KNM,KSL(1,IAD))
           CALL CP_REAL(9,KRM,KSL(1,IAD+NSREM))
          END DO ! IS = 1,NSREM
-             END IF !(J.GT.0) THEN
+             END IF !(J>0) THEN
         ELSE
          NSS = INLOC(NS)
          DO IS = 1,NSREM
           NR =IAD_SINR(IS+1)- IAD_SINR(IS)
           CALL INTABFR(NR,JDI_SINR(IAD_SINR(IS)),NS,J)
-          IF (J.GT.0) THEN
+          IF (J>0) THEN
           DO NF = 1,MAX(1,NF_SI(IS))
 C----------------in KFR_SI------
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             N = 0
             CALL GET_IAD(IAD_M1,IAD_SINR,JDI_SINR,N    ,IS  ,
      1                   J    ,IKC_SI(IS),NDOF  ,IAD  )
@@ -8545,7 +8288,7 @@ C----------------in KFR_SI------
      2                 RBID    ,RBID   ,UD    ,RBID    ,A     ,
      3                 RBID    ,KSM    ,IBID  ,IFSS    ,IFSM  )
 C--------------!!!!!!!!! still--in KFR_SI--!!!!!!----
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             CALL CP_REAL(9,KNM,KSI(1,IAD))
            ELSE
             IAD = IAD_M(NSS) + IS -1
@@ -8565,11 +8308,11 @@ C
         EJ(2)=NOR_RWL(2,I)
         EJ(3)=NOR_RWL(3,I)
         CALL L_DIR(EJ,J1)
-        IF (INLOC(NS).GT.NSL) THEN
+        IF (INLOC(NS)>NSL) THEN
           NSS = INLOC(NS)-NSL
           NR=IAD_SLNR(NSS+1)- IAD_SLNR(NSS)
           CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NS,J)
-             IF (J.GT.0) THEN
+             IF (J>0) THEN
          DO IS = 1,NSREM
           IAD = IAD_M(NSS) + J + IS -2
           CALL CP_REAL(9,KSL(1,IAD),KSM)
@@ -8582,16 +8325,16 @@ C
           CALL CP_REAL(9,KNM,KSL(1,IAD))
           CALL CP_REAL(9,KRM,KSL(1,IAD+NSREM))
          END DO ! IS = 1,NSREM
-             END IF !(J.GT.0) THEN
+             END IF !(J>0) THEN
         ELSE
          NSS = INLOC(NS)
          DO IS = 1,NSREM
           NR =IAD_SINR(IS+1)- IAD_SINR(IS)
           CALL INTABFR(NR,JDI_SINR(IAD_SINR(IS)),NS,J)
-          IF (J.GT.0) THEN
+          IF (J>0) THEN
           DO NF = 1,MAX(1,NF_SI(IS))
 C----------------in KFR_SI------
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             N = 0
             CALL GET_IAD(IAD_M1,IAD_SINR,JDI_SINR,N    ,IS  ,
      1                   J    ,IKC_SI(IS),NDOF  ,IAD  )
@@ -8609,7 +8352,7 @@ C----------------in KFR_SI------
      2                 UD    ,RBID  ,A     ,RBID  ,KSM     ,
      3                 IBID  ,IFSS  ,IFSM  )
 C--------------!!!!!!!!! still--in KFR_SI--!!!!!!----
-           IF (IKC_SI(IS).GT.0.AND.NF_SI(IS).GT.0) THEN
+           IF (IKC_SI(IS)>0.AND.NF_SI(IS)>0) THEN
             CALL CP_REAL(9,KNM,KSI(1,IAD))
            ELSE
             IAD = IAD_M(NSS) +  IS -1
@@ -8624,16 +8367,17 @@ C--------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FRKM                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|        GETFR_KIJ                     source/mpi/implicit/imp_fri.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    imp_frkm    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int      ../engine/source/implicit/produt_v.F
+!||    cp_real     ../engine/source/implicit/produt_v.F
+!||    getfr_kij   ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE IMP_FRKM(
      1    NSREM     ,IKINM     ,IKCSI   ,IKC     ,NDOF    ,
      2    IDDL      ,IDDLM     ,INLOC   ,IAD_M   ,FRK_SI  ,
@@ -8646,9 +8390,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -8680,7 +8421,7 @@ c---------ini IAD_MLD----
        NL = 0
        NZ = 0
       IAD_MLD(1) = NL +1
-      IF (IKINM.EQ.0 ) THEN
+      IF (IKINM==0 ) THEN
        DO P=1,NSPMD
         DO I=IAD_SREM(P),IAD_SREM(P+1)-1
          NL = NL + NDOFI
@@ -8717,26 +8458,26 @@ c----------DIMENSION----
        NZ = 0
        IAD = 1
        DO I=1,NSREM
-C-----------SECND DEPEND.: FRK_SI---------
-        IF (IKC_SI(I).GT.0) THEN
+C-----------SECOND DEPEND.: FRK_SI---------
+        IF (IKC_SI(I)>0) THEN
          DO J =1, NF_SI(I)
           DO K = 1,NDOFI
-           IF (IKCSI(K,IAD).EQ.0) THEN
+           IF (IKCSI(K,IAD)==0) THEN
             NL = NL + 1
             DO J1 =IAD_SINR(I), IAD_SINR(I+1)-1
              NJ = JDI_SINR(J1)
              ID = IDDL(NJ)
              DO K1 = 1,NDOFI
-              IF (IKC(K1+ID).EQ.0) NZ = NZ + 1
+              IF (IKC(K1+ID)==0) NZ = NZ + 1
              ENDDO
 C-----------DEPEND. SUP-:FRK_SL--------
              NS = INLOC(NJ)
-            IF (IKC_SL(NS).GT.0) THEN
+            IF (IKC_SL(NS)>0) THEN
              DO L =IAD_SLNR(NS), IAD_SLNR(NS+1)-1
               NM = JDI_SLNR(L)
               ID = IDDL(NM)
               DO K1 = 1,NDOFI
-               IF (IKC(K1+ID).EQ.0) NZ = NZ + 1
+               IF (IKC(K1+ID)==0) NZ = NZ + 1
               ENDDO
              ENDDO
             ENDIF
@@ -8745,7 +8486,7 @@ C-----------DEPEND. SUP-:FRK_SL--------
           ENDDO
           IAD = IAD + 1
          ENDDO
-C-----------SECND INDEPEND.:LT,FRK_SL---------
+C-----------SECOND INDEPEND.:LT,FRK_SL---------
         ELSE
          DO K = 1,NDOFI
           NL = NL + 1
@@ -8753,24 +8494,24 @@ C-----------SECND INDEPEND.:LT,FRK_SL---------
            NJ = JDI_SINR(J1)
            ID = IDDL(NJ)
            NS = INLOC(NJ)
-           IF (IKC_SL(NS).GT.0) THEN
+           IF (IKC_SL(NS)>0) THEN
 C-----------DEPEND. SUP-:FRK_SL--------
 C-------------debug 257564: forget /BCS
             NR = IAD_SLNR(NS+1)-IAD_SLNR(NS)
                 IF (NR==0) THEN
               DO K1 = 1,NDOFI
-               IF (IKC(K1+ID).EQ.0) NZ = NZ + 1
+               IF (IKC(K1+ID)==0) NZ = NZ + 1
               ENDDO
                 ELSE
             DO L =IAD_SLNR(NS), IAD_SLNR(NS+1)-1
              NM = JDI_SLNR(L)
              ID = IDDL(NM)
               DO K1 = 1,NDOFI
-               IF (IKC(K1+ID).EQ.0) NZ = NZ + 1
+               IF (IKC(K1+ID)==0) NZ = NZ + 1
               ENDDO
              IF (NDOF(NM)==6) THEN
               DO K1 = 1,NDOFI
-               IF (IKC(K1+ID+3).EQ.0) NZ = NZ + 1
+               IF (IKC(K1+ID+3)==0) NZ = NZ + 1
               ENDDO
              END IF
             ENDDO
@@ -8788,7 +8529,7 @@ C
 C
        IF(ALLOCATED(IAD_SI)) DEALLOCATE(IAD_SI)
        ALLOCATE(IAD_SI(NL+1),STAT=IER1)
-      IF (NZ.GT.NZ_SI) THEN
+      IF (NZ>NZ_SI) THEN
        IF(ALLOCATED(JDI_SI)) DEALLOCATE(JDI_SI)
        ALLOCATE(JDI_SI(NZ),STAT=IER2)
        IF(ALLOCATED(LT_SI)) DEALLOCATE(LT_SI)
@@ -8802,12 +8543,12 @@ C
        IAD_SI(NL+1) = NZ+1
        DO P=1,NSPMD
         DO I=IAD_SREM(P),IAD_SREM(P+1)-1
-C-----------SECND DEPEND.: FRK_SI---------
-        IF (IKC_SI(I).GT.0) THEN
+C-----------SECOND DEPEND.: FRK_SI---------
+        IF (IKC_SI(I)>0) THEN
          NR = IAD_SINR(I+1)-IAD_SINR(I)
          DO J =1, NF_SI(I)
           DO K = 1,NDOFI
-           IF (IKCSI(K,IAD).EQ.0) THEN
+           IF (IKCSI(K,IAD)==0) THEN
             NL = NL + 1
             DO J1 =IAD_SINR(I), IAD_SINR(I+1)-1
              NJ = JDI_SINR(J1)
@@ -8817,7 +8558,7 @@ C-----------SECND DEPEND.: FRK_SI---------
              NKC = 0
              IADI = IAD_M1(I) +NF_SI(I)*(J1-IAD_SINR(I))+ J
              DO K1 = 1,NDOFI
-              IF (IKC(K1+ID).EQ.0) THEN
+              IF (IKC(K1+ID)==0) THEN
                NZ = NZ + 1
                JDI_SI(NZ) = IDM + K1-NKC
                LT_SI(NZ) = FRK_SI(K,K1,IADI)
@@ -8828,7 +8569,7 @@ C-----------SECND DEPEND.: FRK_SI---------
              END IF !(NDOF(NJ)>0) THEN
 C-----------DEPEND. SUP-:FRK_SL--------
              NS = INLOC(NJ)
-            IF (IKC_SL(NS).GT.0) THEN
+            IF (IKC_SL(NS)>0) THEN
              DO L =IAD_SLNR(NS), IAD_SLNR(NS+1)-1
               NM = JDI_SLNR(L)
               ID = IDDL(NM)
@@ -8837,7 +8578,7 @@ C-----------DEPEND. SUP-:FRK_SL--------
               NKC = 0
               IADI = IAD_M(NS) + L-IAD_SLNR(NS) + I
               DO K1 = 1,NDOFI
-               IF (IKC(K1+ID).EQ.0) THEN
+               IF (IKC(K1+ID)==0) THEN
                 NZ = NZ + 1
                 JDI_SI(NZ) = IDM + K1-NKC
                 LT_SI(NZ) = FRK_SL(K,K1,IADI)
@@ -8854,7 +8595,7 @@ C-----------DEPEND. SUP-:FRK_SL--------
           ENDDO
           IAD = IAD + 1
          ENDDO
-C-----------SECND INDEPEND.:LT,FRK_SL---------
+C-----------SECOND INDEPEND.:LT,FRK_SL---------
         ELSE
          DO K = 1,NDOFI
           NL = NL + 1
@@ -8866,7 +8607,7 @@ c           IF (NDOF(NJ)>0) THEN
 C
            NKC = 0
            NS = INLOC(NJ)
-           IF (IKC_SL(NS).GT.0) THEN
+           IF (IKC_SL(NS)>0) THEN
 C-----------DEPEND. SUP-:FRK_SL--------
             NR = IAD_SLNR(NS+1)-IAD_SLNR(NS)
 C-----------/BCS--------
@@ -8876,13 +8617,13 @@ C-----------/BCS--------
      1                       KIJ   ,NDOFI,NDOFI )
              NKC = 0
              DO K1 = 1,NDOFI
-               IF (IKC(K1+ID).EQ.0) THEN
+               IF (IKC(K1+ID)==0) THEN
                 NZ = NZ + 1
                 JDI_SI(NZ) = IDM + K1 -NKC
                 LT_SI(NZ) = KIJ(K,K1)
                ELSE
                 NKC = NKC + 1
-               END IF !(IKC(K1+ID).EQ.0) THEN
+               END IF !(IKC(K1+ID)==0) THEN
              ENDDO
                 ELSE
             DO L =IAD_SLNR(NS), IAD_SLNR(NS+1)-1
@@ -8892,7 +8633,7 @@ C-----------/BCS--------
              NKC = 0
              IADI = IAD_M(NS) + L-IAD_SLNR(NS) +I-1
               DO K1 = 1,NDOFI
-               IF (IKC(K1+ID).EQ.0) THEN
+               IF (IKC(K1+ID)==0) THEN
                 NZ = NZ + 1
                 JDI_SI(NZ) = IDM + K1-NKC
                 LT_SI(NZ) = FRK_SL(K1,K,IADI)
@@ -8902,7 +8643,7 @@ C-----------/BCS--------
               ENDDO
               IF (NDOF(NM)==6) THEN
                DO K1 = 4,NDOFI+3
-                IF (IKC(K1+ID).EQ.0) THEN
+                IF (IKC(K1+ID)==0) THEN
                  NZ = NZ + 1
                  JDI_SI(NZ) = IDM + K1-NKC
                  LT_SI(NZ) = FRK_SL(K1-3,K,IADI+NSREM)
@@ -8933,7 +8674,7 @@ C           END IF !(NDOF(NJ)>0) THEN
         ENDDO !DO I=
         IAD_MLD(P+1) = NL+1
        ENDDO ! DO P=
-      END IF !IF (IKINM.EQ.0 )
+      END IF !IF (IKINM==0 )
 C
        IF(ALLOCATED(IDDL_SI)) DEALLOCATE(IDDL_SI)
 c       IF(ALLOCATED(IKC_SI)) DEALLOCATE(IKC_SI)
@@ -8945,22 +8686,17 @@ c       IF(ALLOCATED(IKC_SI)) DEALLOCATE(IKC_SI)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  DIM_FVN                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    dim_fvn    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd   ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE DIM_FVN(
      1    NDOF      ,IDDL      ,IKC       ,INLOC     ,NFV      )
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -8979,27 +8715,27 @@ C----------------------------
       NFV=0
 C--------imposed velocity---------------
        DO N = 1, NUMNOD
-C--------local secnd node-----
-        IF (INLOC(N).GT.0) THEN
+C--------local second node-----
+        IF (INLOC(N)>0) THEN
          NS = 0
          DO J = 1, MIN(3,NDOF(N))
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) NS=1
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) NS=1
          ENDDO
-         IF (NS.EQ.1) NFV = NFV +1
+         IF (NS==1) NFV = NFV +1
         ENDIF
        ENDDO
 C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_FVN                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    ind_fvn    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd   ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE IND_FVN(
      1    NDOF      ,IDDL      ,IKC       ,INLOC     ,NFV     )
 C-----------------------------------------------
@@ -9010,10 +8746,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -9034,14 +8766,14 @@ C-----------use islm-----------------
       NF=0
 C--------imposed velocity---------------
        DO N = 1, NUMNOD
-C--------local secnd node-----
-        IF (INLOC(N).GT.0) THEN
+C--------local second node-----
+        IF (INLOC(N)>0) THEN
          NS=0
          DO J = 1, MIN(3,NDOF(N))
           ND = IDDL(N)+J
-          IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) NS = 1
+          IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) NS = 1
          ENDDO
-         IF (NS.EQ.1) THEN
+         IF (NS==1) THEN
           NF = NF + 1
           ISLM(NF) = N
          ENDIF
@@ -9050,16 +8782,17 @@ C--------local secnd node-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FVKSS                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        GET_KII                       source/implicit/imp_glob_k.F  
-Chd|        INTABFR                       source/mpi/implicit/imp_fri.F 
-Chd|        PUT_KII                       source/implicit/imp_glob_k.F  
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    imp_fvkss   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    get_kii     ../engine/source/implicit/imp_glob_k.F
+!||    intabfr     ../engine/source/mpi/implicit/imp_fri.F
+!||    put_kii     ../engine/source/implicit/imp_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE IMP_FVKSS(
      1    KSS      ,IDDL      ,IDDLM     ,IKC       ,NSL       ,
      2    D_IMP    ,LB        ,NFV       ,UDSL      ,INLOC     ,
@@ -9072,14 +8805,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -9101,7 +8826,7 @@ C----------------------------
          NN = 0
        DO I=1,NSL
         NL =0
-        IF (IKC_SL(I).GT.0) THEN
+        IF (IKC_SL(I)>0) THEN
          NR = IAD_SLNR(I+1)-IAD_SLNR(I)
          NL = MAX(1,NR)
          NN = NN + NL
@@ -9115,17 +8840,17 @@ C----------------------------
         IM = IDDLM(N)
         DO K = 1, 3
          ND = ID + K
-         IF ((IKC(ND).GE.2.AND.IKC(ND).LE.4).OR.IKC(ND).EQ.9) THEN
+         IF ((IKC(ND)>=2.AND.IKC(ND)<=4).OR.IKC(ND)==9) THEN
            UDSL(K,I) = D_IMP(K,N)
          ELSE
            UDSL(K,I) = ZERO
          ENDIF
         ENDDO
         DO IS = 1, NSL
-        IF (INLOC(N).GT.NSL) THEN
+        IF (INLOC(N)>NSL) THEN
          NR = IAD_SLNR(IS+1)-IAD_SLNR(IS)
          CALL INTABFR(NR,JDI_SLNR(IS),N,J)
-         IF (J.GT.0) THEN
+         IF (J>0) THEN
           NN = IAD_M1(IS) + J -1
           ND = NDOF(N)
           CALL GET_KII(NN ,IDDL_SL,IAD_SS,DIAG_SL,LT_SL,KII,ND)
@@ -9140,7 +8865,7 @@ C----------------------------
           ENDDO
           NKC = 1
           DO K = 1, ND
-           IF (IKC(ID+K).EQ.0) THEN
+           IF (IKC(ID+K)==0) THEN
             NM = IM + NKC
             LB(NM) = LB(NM) -F_IMP(K)
             NKC = NKC + 1
@@ -9148,7 +8873,7 @@ C----------------------------
           ENDDO
          ENDIF
         ELSE
-         IF (N.EQ.ISL(IS)) THEN
+         IF (N==ISL(IS)) THEN
               J = IS
           F_IMP(1) = KSS(1,J)*UDSL(1,I)+ KSS(4,J)*UDSL(2,I)+
      .              KSS(5,J)*UDSL(3,I)
@@ -9159,7 +8884,7 @@ C----------------------------
           ND = 3
           NKC = 1
           DO K = 1, ND
-           IF (IKC(ID+K).EQ.0) THEN
+           IF (IKC(ID+K)==0) THEN
             NM = IM + NKC
             LB(NM) = LB(NM) -F_IMP(K)
             NKC = NKC + 1
@@ -9182,15 +8907,16 @@ C----------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_FRUD                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        INTABFR                       source/mpi/implicit/imp_fri.F 
-Chd|        SPMD_EXCI                     source/mpi/implicit/imp_spmd.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    ini_frud    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    intabfr     ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_exci   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE INI_FRUD(NSREM ,NSL   ,NFV   ,IFVSI ,IFVSL ,
      .                    NF_SI ,NF_SL ,LVSI  )
 C-----------------------------------------------
@@ -9201,8 +8927,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -9221,7 +8945,7 @@ C-----------------------------------------------
 C--------------------------------------------
         IAD = 1
         DO I = 1, NSL
-         IF (IKC_SL(I).GT.0) THEN
+         IF (IKC_SL(I)>0) THEN
            DO K=1,NF_SL(I)
             IFVSL(IAD) = 0
             IAD = IAD + 1
@@ -9231,16 +8955,16 @@ C--------------------------------------------
 C
         IAD = 1
         DO I = 1, NSL
-         IF (IKC_SL(I).GT.0.AND.NF_SL(I).GT.0) THEN
+         IF (IKC_SL(I)>0.AND.NF_SL(I)>0) THEN
           N = ISL(I)
           CALL INTABFR(NFV,ISLM,N,J)
-          IF (J.GT.0) THEN
+          IF (J>0) THEN
            IFVSL(IAD) = J
           ELSE
            DO K=IAD_SLNR(I),IAD_SLNR(I+1)-1
             NJ = JDI_SLNR(K)
             CALL INTABFR(NFV,ISLM,NJ,L)
-            IF (L.GT.0) IFVSL(IAD+K-IAD_SLNR(I)) = L
+            IF (L>0) IFVSL(IAD+K-IAD_SLNR(I)) = L
            ENDDO
           ENDIF
           IAD = IAD + NF_SL(I)
@@ -9268,9 +8992,9 @@ C
       LVSI = 0
         IAD = 1
         DO I = 1, NSREM
-         IF (IKC_SI(I).GT.0) THEN
+         IF (IKC_SI(I)>0) THEN
            DO K=1,NF_SI(I)
-            IF (IFVSI(IAD) .GT. 0) LVSI = LVSI +1
+            IF (IFVSI(IAD) > 0) LVSI = LVSI +1
             IAD = IAD + 1
            ENDDO
          ENDIF
@@ -9278,14 +9002,15 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SCOM_FRUD                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        SPMD_EXCK                     source/mpi/implicit/imp_spmd.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    scom_frud   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exck   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE SCOM_FRUD(UDS,UDR,NF_S,NF_R,IKCS,IKCR )
 C-----------------------------------------------
 C   M o d u l e s
@@ -9337,7 +9062,7 @@ C-----------------------------------------------
        END DO
       SSIZE = IAD_S(NSPMD+1) - 1
       RSIZE = IAD_R(NSPMD+1) - 1
-      IF (SSIZE.GT.0) THEN
+      IF (SSIZE>0) THEN
        ALLOCATE(UDS1(3,SSIZE),STAT=IER1)
        IADS = 1
        DO I=1,NSPMD
@@ -9345,7 +9070,7 @@ C-----------------------------------------------
         DO J=IAD_SL(I),IAD_SL(I+1)-1
          DO K = 1,NF_S(J)
           ID0 = IKCS(IADS)
-              IF (ID0.GT.0) THEN
+              IF (ID0>0) THEN
            DO L = 1,3
             UDS1(L,ID) = UDS(L,ID0)
            END DO
@@ -9357,18 +9082,19 @@ C-----------------------------------------------
        END DO
       ENDIF
       CALL SPMD_EXCK(UDS1,UDR ,IAD_S,IAD_R,SIZE ,SSIZE,RSIZE)
-      IF (SSIZE.GT.0) DEALLOCATE(UDS1)
+      IF (SSIZE>0) DEALLOCATE(UDS1)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FVKSL                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_FVKSM                     source/mpi/implicit/imp_fri.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    imp_fvksl   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    imp_fvksm   ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE IMP_FVKSL(
      1    IDDL      ,IDDLM     ,IKC       ,IFVSI     ,NF_SI     ,
      2    KSI       ,LB        ,NSREM     ,UDSI      )
@@ -9380,14 +9106,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -9408,10 +9126,10 @@ C----------------------------
        IAD = 0
        IADU = 0
        DO I=1,NSREM
-        IF (IKC_SI(I).GT.0) THEN
+        IF (IKC_SI(I)>0) THEN
           DO J =1, NF_SI(I)
            IAD = IAD + 1
-           IF (IFVSI(IAD).GT.0) THEN
+           IF (IFVSI(IAD)>0) THEN
             IADU = IADU + 1
             DO J1 = IAD_SINR(I),IAD_SINR(I+1)-1
              NJ = JDI_SINR(J1)
@@ -9427,12 +9145,11 @@ C----------------------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FVKSM                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FVKSL                     source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_fvksm   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_fvksl   ../engine/source/mpi/implicit/imp_fri.F
+!||====================================================================
       SUBROUTINE IMP_FVKSM(
      1    NJ       ,IDDL      ,IDDLM     ,IKC       ,
      2    UDS      ,KSM       ,LB        )
@@ -9440,13 +9157,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -9471,7 +9181,7 @@ C
          DO K = 1, 3
           ND = IDDL(NJ)+K
           NM = IDDLM(NJ) + NKC
-          IF (IKC(ND).EQ.0) THEN
+          IF (IKC(ND)==0) THEN
            LB(NM) = LB(NM) -LBD(K)
            NKC = NKC + 1
           ENDIF
@@ -9479,16 +9189,17 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FVKM                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        GETFR_KIJ                     source/mpi/implicit/imp_fri.F 
-Chd|        GET_IAD                       source/mpi/implicit/imp_fri.F 
-Chd|        INTABFR                       source/mpi/implicit/imp_fri.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    imp_fvkm    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    get_iad     ../engine/source/mpi/implicit/imp_fri.F
+!||    getfr_kij   ../engine/source/mpi/implicit/imp_fri.F
+!||    intabfr     ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE IMP_FVKM(
      1    KFR_SI   ,KFR_SL    ,IDDL      ,NDOF      ,IKC       ,
      2    INLOC    ,IAD_M     ,NSREM     ,NSL       ,UD0       ,
@@ -9501,14 +9212,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -9539,7 +9242,7 @@ C----------------------------
         NS = ISLM(I)
         DO K =1,ND
          ID = IDDL(NS)+K
-         IF ((IKC(ID).GE.2.AND.IKC(ID).LE.4).OR.IKC(ID).EQ.9) THEN
+         IF ((IKC(ID)>=2.AND.IKC(ID)<=4).OR.IKC(ID)==9) THEN
           UD(K,I)=UD0(K,NS)
          ELSE
           UD(K,I)=ZERO
@@ -9552,23 +9255,23 @@ C----------------------------
           DO NF = 1,MAX(1,NF_SI(IS))
            IAD = IAD + 1
 C----------------in KFR_SL------
-           IF (INLOC(NS).GT.NSL) THEN
+           IF (INLOC(NS)>NSL) THEN
 C
                DO J = IAD_SINR(IS), IAD_SINR(IS+1)-1
             NJ = JDI_SINR(J)
             NSS = INLOC(NJ)
             NR=IAD_SLNR(NSS+1)- IAD_SLNR(NSS)
             CALL INTABFR(NR,JDI_SLNR(IAD_SLNR(NSS)),NS,J1)
-            IF (J1.GT.0) THEN
+            IF (J1>0) THEN
             IADI = IAD_M(NSS) + J1 + IS -2
             DO K =1,ND
              FDSI(K,IAD) = FDSI(K,IAD)+KFR_SL(1,K,IADI)*UD(1,I)+
      .              KFR_SL(2,K,IADI)*UD(2,I)+KFR_SL(3,K,IADI)*UD(3,I)
             ENDDO
-            ENDIF !(J1.GT.0)
+            ENDIF !(J1>0)
                ENDDO
 C----------------in KFR_SI------
-           ELSEIF (IKC_SI(IS).GT.0.AND.J.GT.0) THEN
+           ELSEIF (IKC_SI(IS)>0.AND.J>0) THEN
             N = 0
             CALL GET_IAD(IAD_M1,IAD_SLNR,JDI_SLNR,N    ,IS  ,
      1                   J    ,IKC_SI(IS),NDOF  ,IADI  )
@@ -9577,7 +9280,7 @@ C----------------in KFR_SI------
              FDSI(K,IAD) = FDSI(K,IAD)+KFR_SI(1,K,IADI)*UD(1,I)+
      .              KFR_SI(2,K,IADI)*UD(2,I)+KFR_SI(3,K,IADI)*UD(3,I)
             ENDDO
-           ELSEIF (J.GT.0) THEN
+           ELSEIF (J>0) THEN
             ID = IDDL_SI(IS)
             NM = JDI_SINR(IAD_SINR(IS)+J-1)
             JD = IDDLI(NM)
@@ -9594,13 +9297,13 @@ C----------------in KFR_SI------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INI_FRFD                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    ini_frfd   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd   ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE INI_FRFD(NSREM   ,NFV   ,IKCSI   ,NF_SI     ,FDSI )
 C-----------------------------------------------
 C   M o d u l e s
@@ -9610,13 +9313,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -9633,24 +9329,24 @@ C
         FSI(I) = ZERO
        ENDDO
 C
-       IF (NFV.EQ.0) RETURN
+       IF (NFV==0) RETURN
        NDOFI = 3
        NL = 0
        IAD = 1
        IADI = 1
        DO I=1,NSREM
-C-----------SECND DEPEND.: FRK_SI---------
-        IF (IKC_SI(I).GT.0) THEN
+C-----------SECOND DEPEND.: FRK_SI---------
+        IF (IKC_SI(I)>0) THEN
          DO J =1, NF_SI(I)
           DO K = 1,NDOFI
-           IF (IKCSI(K,IAD).EQ.0) THEN
+           IF (IKCSI(K,IAD)==0) THEN
             NL = NL + 1
             FSI(NL)=-FDSI(K,IADI+J-1)
            ENDIF
           ENDDO
           IAD = IAD + 1
          ENDDO
-C-----------SECND INDEPEND.:LT,FRK_SL---------
+C-----------SECOND INDEPEND.:LT,FRK_SL---------
         ELSE
          DO K = 1,NDOFI
           NL = NL + 1
@@ -9662,13 +9358,13 @@ C-----------SECND INDEPEND.:LT,FRK_SL---------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CP_SLNR                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    cp_slnr    ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int     ../engine/source/implicit/produt_v.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE CP_SLNR(IAD_CP  ,JDI_CP ,NSL  ,NZ)
 C-----------------------------------------------
 C   M o d u l e s
@@ -9678,13 +9374,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -9703,15 +9392,16 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  IND_SLD                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        PUT_KII                       source/implicit/imp_glob_k.F  
-Chd|        ZERO1                         source/system/zero.F          
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    ind_sld    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd   ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    put_kii    ../engine/source/implicit/imp_glob_k.F
+!||    zero1      ../engine/source/system/zero.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE IND_SLD(NSL  ,NDOF  ,KSS )
 C-----------------------------------------------
 C   M o d u l e s
@@ -9721,12 +9411,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -9742,10 +9426,10 @@ C-----------------------------------------------
       my_real
      .     KII(6,6)
 C-------------------------------------
-C------IDDL en fonction de noeuds kin d'abords-----
+C------IDDL as function of kinematic nodes first-----
        NN = 0
        DO I = 1,NSL
-        IF (IKC_SL(I).GT.0) THEN
+        IF (IKC_SL(I)>0) THEN
 C----------int2,rb-,others-----------
          NB = IAD_SLNR(I+1)-IAD_SLNR(I)
          NN = NN + MAX(1,NB)
@@ -9758,7 +9442,7 @@ C------dim--[K_SL]-partie depedant only----LT---
        NL = 0
        NZ = 0
        DO I = 1,NSL
-         IF (IKC_SL(I).GT.0) THEN
+         IF (IKC_SL(I)>0) THEN
 C----------int2,rb------------
           DO J=IAD_SLNR(I),IAD_SLNR(I+1)-1
            NN = NN +1
@@ -9779,7 +9463,7 @@ C------   mimj  -------
            ENDDO
           ENDDO
 C----------other kin------------
-          IF (IAD_SLNR(I).EQ.IAD_SLNR(I+1)) THEN
+          IF (IAD_SLNR(I)==IAD_SLNR(I+1)) THEN
            NN = NN +1
            IDDL_SL(NN) = NL
            N = ISL(I)
@@ -9805,7 +9489,7 @@ C
        NN = 0
        IAD_SS(NL+1) = NZ + 1
         DO I = 1, NSL
-         IF (IKC_SL(I).GT.0) THEN
+         IF (IKC_SL(I)>0) THEN
           IAD = NN
           DO J=IAD_SLNR(I),IAD_SLNR(I+1)-1
            NN = NN +1
@@ -9830,7 +9514,7 @@ C------   mii  ------
            ENDDO
           ENDDO
 C----------other kin------------
-          IF (IAD_SLNR(I).EQ.IAD_SLNR(I+1)) THEN
+          IF (IAD_SLNR(I)==IAD_SLNR(I+1)) THEN
            NN = NN +1
            N = ISL(I)
            DO K =1,MIN(3,NDOF(N))
@@ -9854,9 +9538,9 @@ C
 C----------initiation for the case /BCS       
        NN = 0
         DO I = 1, NSL
-         IF (IKC_SL(I).GT.0) THEN
+         IF (IKC_SL(I)>0) THEN
 C----------other kin------------
-          IF (IAD_SLNR(I).EQ.IAD_SLNR(I+1)) THEN
+          IF (IAD_SLNR(I)==IAD_SLNR(I+1)) THEN
            NN = NN +1
            N = ISL(I)
            ND = MIN(3,NDOF(N))
@@ -9876,17 +9560,18 @@ C----------other kin------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_FRKS                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        CP_REAL                       source/implicit/produt_v.F    
-Chd|        GET_KII                       source/implicit/imp_glob_k.F  
-Chd|        GET_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    imp_frks   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd   ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int     ../engine/source/implicit/produt_v.F
+!||    cp_real    ../engine/source/implicit/produt_v.F
+!||    get_kii    ../engine/source/implicit/imp_glob_k.F
+!||    get_kij    ../engine/source/implicit/imp_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE IMP_FRKS(NSL  ,IDDL ,IKC ,NDOF  ,IDDLM,
      .                    KSS  ,IAD_SLD )
 C-----------------------------------------------
@@ -9897,8 +9582,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -9920,11 +9603,11 @@ C-----------------------------------------------
       my_real
      .  KII(6,6),KIJ(6,6),LT_CP(NZ_SL),DIAG_CP(NDDL_SL)
 C-------------------------------------
-C----------s'il y a kin modif copy----
-      IF (NDDL_SL.GT.0) THEN
+C----------if there is kin modif copy----
+      IF (NDDL_SL>0) THEN
        NN = 0
        DO I = 1,NSL
-        IF (IKC_SL(I).GT.0) THEN
+        IF (IKC_SL(I)>0) THEN
 C----------int2,rb------------
          NB = IAD_SLNR(I+1)-IAD_SLNR(I)
          NN = NN + MAX(1,NB)
@@ -9940,35 +9623,35 @@ C------dim--[K_SL]-
        NL = 0
        NZ = 0
        DO I = 1,NSL
-         IF (IKC_SL(I).GT.0) THEN
+         IF (IKC_SL(I)>0) THEN
           DO J=IAD_SLNR(I),IAD_SLNR(I+1)-1
            NJ = JDI_SLNR(J)
            ID = IDDL(NJ)
            DO K =1,NDOF(NJ)
-            IF (IKC(ID+K).EQ.0) THEN
+            IF (IKC(ID+K)==0) THEN
              NL = NL + 1
 C----------mij----------
              DO J1=IAD_SLNR(I),J-1
               NK = JDI_SLNR(J1)
               IDJ = IDDL(NK)
               DO K1 =1,NDOF(NK)
-               IF (IKC(IDJ+K1).EQ.0) NZ = NZ + 1
+               IF (IKC(IDJ+K1)==0) NZ = NZ + 1
               ENDDO
              ENDDO
              DO K1 = 1, K-1
-              IF (IKC(ID+K1).EQ.0) NZ = NZ + 1
+              IF (IKC(ID+K1)==0) NZ = NZ + 1
              ENDDO
             ENDIF
            ENDDO
           ENDDO
-          IF (IAD_SLNR(I).EQ.IAD_SLNR(I+1)) THEN
+          IF (IAD_SLNR(I)==IAD_SLNR(I+1)) THEN
            N = ISL(I)
            ID = IDDL(N)
            DO K =1,MIN(3,NDOF(N))
-            IF (IKC(ID+K).EQ.0) THEN
+            IF (IKC(ID+K)==0) THEN
              NL = NL + 1
              DO K1 = 1, K-1
-              IF (IKC(ID+K1).EQ.0) NZ = NZ + 1
+              IF (IKC(ID+K1)==0) NZ = NZ + 1
              ENDDO
             ENDIF
            ENDDO
@@ -9987,14 +9670,14 @@ C------independent nodes---------
 C-----allocation------
        IF(ALLOCATED(IDDL_SL)) DEALLOCATE(IDDL_SL)
        ALLOCATE(IDDL_SL(NL),STAT=IER4)
-       IF (NL.GT.NDDL_SL) THEN
+       IF (NL>NDDL_SL) THEN
         IF(ALLOCATED(IAD_SS)) DEALLOCATE(IAD_SS)
         ALLOCATE(IAD_SS(NL+1),STAT=IER1)
 C---------iddl devient idtok---
         IF(ALLOCATED(DIAG_SL)) DEALLOCATE(DIAG_SL)
         ALLOCATE(DIAG_SL(NL),STAT=IER5)
        ENDIF
-       IF (NZ.GT.NZ_SL) THEN
+       IF (NZ>NZ_SL) THEN
         IF(ALLOCATED(JDI_SL)) DEALLOCATE(JDI_SL)
         ALLOCATE(JDI_SL(NZ),STAT=IER2)
         IF(ALLOCATED(LT_SL)) DEALLOCATE(LT_SL)
@@ -10010,7 +9693,7 @@ C
        IAD_SLD(1) = NL + 1
        DO P = 1,NSPMD
         DO I = IAD_SL(P), IAD_SL(P+1)-1
-         IF (IKC_SL(I).GT.0) THEN
+         IF (IKC_SL(I)>0) THEN
           IAD = NN
           DO J=IAD_SLNR(I),IAD_SLNR(I+1)-1
            NN = NN + 1
@@ -10020,7 +9703,7 @@ C
            CALL GET_KII(NN ,IDDL_CP,IAD_CP,DIAG_CP,LT_CP ,KII,NDOF(NJ))
            NKC =0
            DO K =1,NDOF(NJ)
-            IF (IKC(ID+K).EQ.0) THEN
+            IF (IKC(ID+K)==0) THEN
              NL = NL + 1
              IDDL_SL(NL) =IDM+K-NKC
              DIAG_SL(NL) = KII(K,K)
@@ -10034,7 +9717,7 @@ C----------mij----------
      .                     NDOF(NK),NDOF(NJ) ,IER1 )
               NKC1 = 0
               DO K1 =1,NDOF(NK)
-               IF (IKC(IDJ+K1).EQ.0) THEN
+               IF (IKC(IDJ+K1)==0) THEN
                 NZ = NZ + 1
                 JDI_SL(NZ) = IDJM +  K1- NKC1
                 LT_SL(NZ) = KIJ(K1,K)
@@ -10047,7 +9730,7 @@ C                LT_SL(NZ) = KIJ(K,K1)
 C----------mii----------
              NKC1 =0
              DO K1 = 1, K-1
-              IF (IKC(ID+K1).EQ.0) THEN
+              IF (IKC(ID+K1)==0) THEN
                NZ = NZ + 1
                JDI_SL(NZ) = IDM +  K1- NKC1
                LT_SL(NZ) = KII(K1,K)
@@ -10061,7 +9744,7 @@ C----------mii----------
             ENDIF
            ENDDO
           ENDDO
-          IF (IAD_SLNR(I).EQ.IAD_SLNR(I+1)) THEN
+          IF (IAD_SLNR(I)==IAD_SLNR(I+1)) THEN
            N = ISL(I)
            ID = IDDL(N)
            IDM = IDDLM(N)
@@ -10071,13 +9754,13 @@ C
            CALL GET_KII(NN ,IDDL_CP,IAD_CP,DIAG_CP,LT_CP ,KII,NDOFI)
            NKC =0
            DO K =1,NDOFI
-            IF (IKC(ID+K).EQ.0) THEN
+            IF (IKC(ID+K)==0) THEN
              NL = NL + 1
              IDDL_SL(NL) =IDM+K-NKC
              DIAG_SL(NL) = KII(K,K)
              NKC1 =0
              DO K1 = 1, K-1
-              IF (IKC(ID+K1).EQ.0) THEN
+              IF (IKC(ID+K1)==0) THEN
                NZ = NZ + 1
                JDI_SL(NZ) = IDM +  K1- NKC1
                LT_SL(NZ) = KII(K1,K)
@@ -10114,14 +9797,15 @@ C------independent nodes---------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CP_IADD                       source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_FRKD                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        CP_INT                        source/implicit/produt_v.F    
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    cp_iadd    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_frkd   ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    cp_int     ../engine/source/implicit/produt_v.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm   ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE CP_IADD(NSL ,NSREM,IAD_SLD  ,IAD_MLD)
 C-----------------------------------------------
 C   M o d u l e s
@@ -10131,10 +9815,6 @@ C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -10150,20 +9830,21 @@ C-----------------------------------------------
       INTEGER L
 C----------------------------
        L = NSPMD + 1
-       IF (NSL .GT.0) CALL CP_INT(L,IAD_SLD,IAD_SL)
-       IF (NSREM .GT.0) CALL CP_INT(L,IAD_MLD,IAD_SREM)
+       IF (NSL >0) CALL CP_INT(L,IAD_SLD,IAD_SL)
+       IF (NSREM >0) CALL CP_INT(L,IAD_MLD,IAD_SREM)
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  NDDLI_FRB                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        GETNDDLI_G                    source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        SPMD_NROW                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_SUM_S                    source/mpi/implicit/imp_spmd.F
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    nddli_frb    ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    getnddli_g   ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_nrow    ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_sum_s   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE NDDLI_FRB(
      1    NDOF      ,IKC       ,IDDL      ,NDOFI     ,NDDLIFB   ,
      2    FR_ELEM   ,IAD_ELEM  )
@@ -10179,9 +9860,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "impl1_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -10200,7 +9878,7 @@ C-----------------------------------------------
 C
       STMP = ZERO
       N_FR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
-      IF (N_FR.GT.0) THEN
+      IF (N_FR>0) THEN
        ALLOCATE(ITAG(N_FR),ICONT(N_FR))
        ITAG = 0
        DO IP =1,NSPMD
@@ -10209,7 +9887,7 @@ C
          IDK=IDDL(N)
          IFRE = 0
          DO J=1,MIN(NDOF(N),NDOFI(N))
-          IF (IKC(IDK+J).EQ.0) IFRE=IFRE+1
+          IF (IKC(IDK+J)==0) IFRE=IFRE+1
          ENDDO
          ITAG(NK) = IFRE
         ENDDO
@@ -10217,37 +9895,37 @@ C
        CALL SPMD_NROW(ITAG,ICONT,IAD_ELEM,N_FR)
        DO NK=1,N_FR
         ICONT(NK)=MIN(ITAG(NK),ICONT(NK))
-        IF (ICONT(NK).GT.0) THEN
+        IF (ICONT(NK)>0) THEN
          ICONT(NK) = ITAG(NK)
              ITAG(NK) = 2
         ENDIF
        ENDDO
        DO NK=1,N_FR
         NB=-IFRLOC(NK)
-        IF (NB.GT.0.AND.ICONT(NK).GT.0) ITAG(NB) = ITAG(NB) + 1
+        IF (NB>0.AND.ICONT(NK)>0) ITAG(NB) = ITAG(NB) + 1
        ENDDO
        DO NK=1,N_FR
-         IF (ICONT(NK).GT.0) THEN
+         IF (ICONT(NK)>0) THEN
           NB=-IFRLOC(NK)
-          IF (NB.LT.0) NB = NK
+          IF (NB<0) NB = NK
               S1 = ONE/ITAG(NB)
           STMP = STMP + S1*ICONT(NK)
          ENDIF
        ENDDO
        DEALLOCATE(ITAG,ICONT)
-      END IF !(N_FR.GT.0) THEN
+      END IF !(N_FR>0) THEN
       CALL SPMD_SUM_S(STMP)
       NDDLIFB = INT(STMP)
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  NDOFI_NSL                     source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        NDDLI_NS                      source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    ndofi_nsl   ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    nddli_ns    ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm    ../engine/share/modules/imp_intm.F
+!||====================================================================
       SUBROUTINE NDOFI_NSL(NSL   ,NDDLI     ,NDOFI     )
 C-----------------------------------------------
 C   M o d u l e s
@@ -10269,32 +9947,33 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C--------MIS  jour NDOFI pour NSL----
+C------- Updated ndofi for nsl ----
       INTEGER I,J,N,IDK,NC,NDOFII
        NDOFII = 3
-      IF (NDDLI.EQ.0) THEN
+      IF (NDDLI==0) THEN
        DO N =1,NUMNOD
          NDOFI(N)= 0
        ENDDO
       ENDIF
        DO I =1,NSL
          N=ISL(I)
-         IF(NDOFI(N).EQ.0) NDOFI(N)= -NDOFII
+         IF(NDOFI(N)==0) NDOFI(N)= -NDOFII
        ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  GETNDDLI_G                    source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        NDDLI_FRB                     source/mpi/implicit/imp_fri.F 
-Chd|        NDDLI_NS                      source/mpi/implicit/imp_fri.F 
-Chd|        SPMD_NDDLIG                   source/mpi/implicit/imp_spmd.F
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    getnddli_g      ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    nddli_frb       ../engine/source/mpi/implicit/imp_fri.F
+!||    nddli_ns        ../engine/source/mpi/implicit/imp_fri.F
+!||    spmd_nddlig     ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk         ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE GETNDDLI_G(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,NDOFI     ,
@@ -10313,11 +9992,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "impl1_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -10346,14 +10021,15 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  NDDLI_NS                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        GETNDDLI_G                    source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        NDOFI_NSL                     source/mpi/implicit/imp_fri.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    nddli_ns        ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    getnddli_g      ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    ndofi_nsl       ../engine/source/mpi/implicit/imp_fri.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE NDDLI_NS(
      1    NPBY      ,LPBY      ,ITAB      ,NRBYAC    ,IRBYAC    ,
      2    NINT2     ,IINT2     ,IPARI     ,INTBUF_TAB,NDOFI     ,
@@ -10368,13 +10044,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------------------------
@@ -10401,17 +10072,17 @@ C------------
        JI=IPARI(1,N)
        DO I=1,NSN
         NI=INTBUF_TAB(N)%NSV(I)
-        IF (NDOFI(NI).LT.0) THEN
+        IF (NDOFI(NI)<0) THEN
            L=INTBUF_TAB(N)%IRTLM(I)
            NL=4*(L-1)
-           IF (INTBUF_TAB(N)%IRECTM(NL+3).EQ.INTBUF_TAB(N)%IRECTM(NL+4)) THEN
+           IF (INTBUF_TAB(N)%IRECTM(NL+3)==INTBUF_TAB(N)%IRECTM(NL+4)) THEN
             NNOD=3
            ELSE
             NNOD=4
            ENDIF
            DO M=1,NNOD
             NM=INTBUF_TAB(N)%IRECTM(NL+M)
-            IF (NDOFI(NM).EQ.0) NDOFI(NM) = -6
+            IF (NDOFI(NM)==0) NDOFI(NM) = -6
            ENDDO
         ENDIF
        ENDDO
@@ -10424,8 +10095,8 @@ C----RBE2-----
         DO I=1,NSN
          ID = I+IAD
          NI=LRBE2(ID)
-         IF (NDOFI(NI).LT.0) THEN
-          IF (NDOFI(M).EQ.0) NDOFI(M) = -6
+         IF (NDOFI(NI)<0) THEN
+          IF (NDOFI(M)==0) NDOFI(M) = -6
          ENDIF
        ENDDO
       ENDDO
@@ -10433,12 +10104,12 @@ C--------RBE3----
       DO N=1,NRBE3
        IAD=IRBE3(1,N)
        NI=IRBE3(3,N)
-       IF (NI.EQ.0) CYCLE
+       IF (NI==0) CYCLE
        NNOD=IRBE3(5,N)
-        IF (NDOFI(NI).LT.0) THEN
+        IF (NDOFI(NI)<0) THEN
            DO M=1,NNOD
             NM=LRBE3(IAD+M)
-            IF (NDOFI(NM).EQ.0) NDOFI(NM) = -6
+            IF (NDOFI(NM)==0) NDOFI(NM) = -6
            ENDDO
         ENDIF
       ENDDO
@@ -10451,33 +10122,34 @@ C-----active rigid body main nodes------
         DO I=1,NSN
          ID = I+K
          NI=LPBY(ID)
-         IF (NDOFI(NI).LT.0) THEN
-          IF (NDOFI(M).EQ.0) NDOFI(M) = -6
+         IF (NDOFI(NI)<0) THEN
+          IF (NDOFI(M)==0) NDOFI(M) = -6
          ENDIF
        ENDDO
       ENDDO
-C-----mis  jour NDOFI pour NSL+kin------
+C---- Odded Ndofi for NSL+Kin -------
        NDDLINS = NDDLI
        DO N =1,NUMNOD
-         IF(NDOFI(N).LT.0) THEN
+         IF(NDOFI(N)<0) THEN
           NDOFII = MIN(-NDOFI(N),NDOF(N))
               ID=IDDL(N)
           DO J=1,NDOFII
-           IF (IKC(ID+J).EQ.0) NDDLINS = NDDLINS+1
+           IF (IKC(ID+J)==0) NDDLINS = NDDLINS+1
           ENDDO
          END IF
        ENDDO
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  SPC_FR_K                      source/mpi/implicit/imp_fri.F 
-Chd|-- called by -----------
-Chd|        IND_GLOB_K                    source/implicit/ind_glob_k.F  
-Chd|-- calls ---------------
-Chd|        INTAB0                        source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FRK                       share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    spc_fr_k     ../engine/source/mpi/implicit/imp_fri.F
+!||--- called by ------------------------------------------------------
+!||    ind_glob_k   ../engine/source/implicit/ind_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    intab0       ../engine/source/implicit/imp_fsa_inv.F
+!||--- uses       -----------------------------------------------------
+!||    imp_frk      ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE SPC_FR_K(
      1    IADK     ,JDIK     ,NDOF      ,IDDL     ,FR_ELEM  ,
      2    IAD_ELEM )
@@ -10493,9 +10165,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "impl1_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -10514,7 +10184,7 @@ C-----------------------------------------------
       INTEGER I,J,N,NK,IP,L,IFIX,II,IAD2,IJ,IND,N_FR,NB,
      .        K,ND,NZZK,NJ,NZZ,IAD,JAD,ID,JD,IDK,NC
 C
-      IF (NDDLFR.LE.0) RETURN
+      IF (NDDLFR<=0) RETURN
 C-------FR2K-------
       IAD2 = 0
       DO IP =1,NSPMD
@@ -10534,7 +10204,7 @@ C
        IAD = 0
        IAD2 = 0
        JAD = 0
-      IF (IKPAT.EQ.0) THEN
+      IF (IKPAT==0) THEN
        DO IP =1,NSPMD
         DO I=1,ND_FR(IP)
          ID = I+IAD
@@ -10543,10 +10213,10 @@ C
           JD = J + JAD
           K=JDIFR(JD)
           IJ = IFR2K(K+IAD2)
-          IF (II.LT.IJ) THEN
+          IF (II<IJ) THEN
            NC = IADK(II+1)-IADK(II)
            N=INTAB0(NC,JDIK(IADK(II)),IJ)
-           IF (N.GT.0) THEN
+           IF (N>0) THEN
             JFR2K(JD)=N+IADK(II)-1
            ELSE
             write(*,*)'index error in SPC_FR_K I<J',IJ,ip,nc
@@ -10554,7 +10224,7 @@ C
           ELSE
            NC = IADK(IJ+1)-IADK(IJ)
            N=INTAB0(NC,JDIK(IADK(IJ)),II)
-           IF (N.GT.0) THEN
+           IF (N>0) THEN
             JFR2K(JD)=N+IADK(IJ)-1
            ELSE
             write(*,*)'index error in SPC_FR_K J<I',II,ip,nc
@@ -10576,10 +10246,10 @@ C
           JD = J + JAD
           K=JDIFR(JD)
           IJ = IFR2K(K+IAD2)
-          IF (II.GT.IJ) THEN
+          IF (II>IJ) THEN
            NC = IADK(II+1)-IADK(II)
            N=INTAB0(NC,JDIK(IADK(II)),IJ)
-           IF (N.GT.0) THEN
+           IF (N>0) THEN
             JFR2K(JD)=N+IADK(II)-1
            ELSE
             write(*,*)'index error in SPC_FR_K I>J',IJ,ip,nc
@@ -10587,7 +10257,7 @@ C
           ELSE
            NC = IADK(IJ+1)-IADK(IJ)
            N=INTAB0(NC,JDIK(IADK(IJ)),II)
-           IF (N.GT.0) THEN
+           IF (N>0) THEN
             JFR2K(JD)=N+IADK(IJ)-1
            ELSE
             write(*,*)'index error in SPC_FR_K J>I',II,ip,nc
@@ -10600,7 +10270,7 @@ C
         IAD2 = IAD2 + ND_FR(IP)
         JAD = JAD + NZZK
        ENDDO
-      END IF  !(IKPAT.GT.0)
+      END IF  !(IKPAT>0)
        LEN_K = IAD2+JAD
 C
       RETURN

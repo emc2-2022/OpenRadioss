@@ -1,79 +1,84 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S8SFORC3                      source/elements/solid/solide8s/s8sforc3.F
-Chd|-- called by -----------
-Chd|        FORINT                        source/elements/forint.F      
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        BASIS8                        source/elements/solid/solide8/basis8.F
-Chd|        CSMALL3                       source/elements/solid/solide/csmall3.F
-Chd|        DEGENES8                      source/elements/solid/solide/sdlen3.F
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        S8EDEFOC3                     source/elements/solid/solide8e/s8edefo3.F
-Chd|        S8EDEFW3                      source/elements/solid/solide8e/s8edefo3.F
-Chd|        S8EDERIC3                     source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8EDERICM3                    source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8EDERIG3                     source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8EDERIPR3                    source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8EDERI_2                     source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8EFMOY3                      source/elements/solid/solide8e/s8efint3.F
-Chd|        S8EJACIP3                     source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8EPRST_INI                   source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8SBDEFO3                     source/elements/solid/solide8s/s8sdefo3.F
-Chd|        S8SDERI3                      source/elements/solid/solide8s/s8sderi3.F
-Chd|        S8SFINT3                      source/elements/solid/solide8s/s8sfint3.F
-Chd|        S8SFINT3_CRIMP                source/elements/solid/solide8s/s8sfint3_crimp.F
-Chd|        S8XREF_IMP                    source/elements/solid/solide8s/srcoor3_imp.F
-Chd|        S8ZDERIMS3                    source/elements/solid/solide8z/s8zderi3.F
-Chd|        S8ZFINTP3                     source/elements/solid/solide8z/s8zfint3.F
-Chd|        S8ZFINT_REG                   source/elements/solid/solide8z/s8zfint_reg.F
-Chd|        S8ZZERO3                      source/elements/solid/solide8z/s8zfint3.F
-Chd|        SBILAN                        source/elements/solid/solide/sbilan.F
-Chd|        SCUMU3                        source/elements/solid/solide/scumu3.F
-Chd|        SCUMU3P                       source/elements/solid/solide/scumu3.F
-Chd|        SDLEN_DEGE                    source/elements/solid/solide/sdlen3.F
-Chd|        SFILLOPT                      source/elements/solid/solide/sfillopt.F
-Chd|        SMALLB3                       source/elements/solid/solide/small3.F
-Chd|        SMALLG3                       source/elements/solid/solide/small3.F
-Chd|        SMALLGEO3                     source/elements/solid/solide/small3.F
-Chd|        SRBILAN                       source/elements/solid/solide/srbilan.F
-Chd|        SRCOOR3_IMP                   source/elements/solid/solide8s/srcoor3_imp.F
-Chd|        SRHO3                         source/elements/solid/solide/srho3.F
-Chd|        SSTRA3                        source/elements/solid/solide/sstra3.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MMAIN_MOD                     source/materials/mat_share/mmain.F
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
-      SUBROUTINE S8SFORC3(ELBUF_TAB,NG     ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s8sforc3               ../engine/source/elements/solid/solide8s/s8sforc3.F
+!||--- called by ------------------------------------------------------
+!||    forint                 ../engine/source/elements/forint.F
+!||--- calls      -----------------------------------------------------
+!||    basis8                 ../engine/source/elements/solid/solide8/basis8.F
+!||    csmall3                ../engine/source/elements/solid/solide/csmall3.F
+!||    degenes8               ../engine/source/elements/solid/solide/degenes8.F
+!||    mmain                  ../engine/source/materials/mat_share/mmain.F90
+!||    s8edefoc3              ../engine/source/elements/solid/solide8e/s8edefoc3.F
+!||    s8edefw3               ../engine/source/elements/solid/solide8e/s8edefw3.F
+!||    s8ederi_2              ../engine/source/elements/solid/solide8e/s8ederi_2.F
+!||    s8ederic3              ../engine/source/elements/solid/solide8e/s8ederic3.F
+!||    s8edericm3             ../engine/source/elements/solid/solide8e/s8edericm3.F
+!||    s8ederig3              ../engine/source/elements/solid/solide8e/s8ederig3.F
+!||    s8ederipr3             ../engine/source/elements/solid/solide8e/s8ederipr3.F
+!||    s8efmoy3               ../engine/source/elements/solid/solide8e/s8efmoy3.F
+!||    s8ejacip3              ../engine/source/elements/solid/solide8e/s8ejacip3.F
+!||    s8eprst_ini            ../engine/source/elements/solid/solide8e/s8eprst_ini.F
+!||    s8sbdefo3              ../engine/source/elements/solid/solide8s/s8sbdefo3.F
+!||    s8sderi3               ../engine/source/elements/solid/solide8s/s8sderi3.F
+!||    s8sfint3               ../engine/source/elements/solid/solide8s/s8sfint3.F
+!||    s8sfint3_crimp         ../engine/source/elements/solid/solide8s/s8sfint3_crimp.F
+!||    s8xref_imp             ../engine/source/elements/solid/solide8s/s8xref_imp.F
+!||    s8zderims3             ../engine/source/elements/solid/solide8z/s8zderims3.F
+!||    s8zfint_reg            ../engine/source/elements/solid/solide8z/s8zfint_reg.F
+!||    s8zfintp3              ../engine/source/elements/solid/solide8z/s8zfintp3.F
+!||    s8zzero3               ../engine/source/elements/solid/solide8z/s8zzero3.F
+!||    sbilan                 ../engine/source/elements/solid/solide/sbilan.F
+!||    scumu3                 ../engine/source/elements/solid/solide/scumu3.F
+!||    scumu3p                ../engine/source/elements/solid/solide/scumu3p.F
+!||    sdlen_dege             ../engine/source/elements/solid/solide/sdlen_dege.F
+!||    sfillopt               ../engine/source/elements/solid/solide/sfillopt.F
+!||    smallb3                ../engine/source/elements/solid/solide/smallb3.F
+!||    smallg3                ../engine/source/elements/solid/solide/smallg3.F
+!||    srbilan                ../engine/source/elements/solid/solide/srbilan.F
+!||    srcoor3_imp            ../engine/source/elements/solid/solide8s/srcoor3_imp.F
+!||    srho3                  ../engine/source/elements/solid/solide/srho3.F
+!||    sstra3                 ../engine/source/elements/solid/solide/sstra3.F
+!||    startime               ../engine/source/system/timer_mod.F90
+!||    stoptime               ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    dt_mod                 ../engine/source/modules/dt_mod.F
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    glob_therm_mod         ../common_source/modules/mat_elem/glob_therm_mod.F90
+!||    mat_elem_mod           ../common_source/modules/mat_elem/mat_elem_mod.F90
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    mmain_mod              ../engine/source/materials/mat_share/mmain.F90
+!||    nlocal_reg_mod         ../common_source/modules/nlocal_reg_mod.F
+!||    output_mod             ../common_source/modules/output/output_mod.F90
+!||    sensor_mod             ../common_source/modules/sensor_mod.F90
+!||    table_mod              ../engine/share/modules/table_mod.F
+!||    timer_mod              ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE S8SFORC3(TIMERS, OUTPUT, ELBUF_TAB,NG     ,
      1                    PM       ,GEO    ,IXS     ,X       ,
-     2                    A        ,V      ,MS      ,W       ,FLUX    ,
+     2                    A        ,V      ,MS      ,W       ,
      3                    FLU1     ,VEUL   ,FV      ,ALE_CONNECT   ,IPARG   ,
      4                    TF       ,NPF    ,BUFMAT  ,PARTSAV ,NLOC_DMG,
      5                    DT2T     ,NELTST ,ITYPTST ,STIFN   ,FSKY    ,
@@ -87,18 +92,25 @@ Chd|====================================================================
      D                    TEMP     ,FTHE   ,FTHESKY ,IEXPAN  ,GRESAV  ,
      E                    GRTH     ,IGRTH  ,MSSA    ,DMELS   ,TABLE   ,
      F                    IGEO     ,XDP    ,VOLN    ,CONDN   ,CONDNSKY,
-     G                    D       ,SENSOR  ,
-     H                    LSENSOR  ,IOUTPRT,MATPARAM_TAB,H3D_STRAIN)
+     G                    D        ,IOUTPRT,MAT_ELEM,H3D_STRAIN,SNPC,STF,
+     H                    SBUFMAT  ,SVIS,NSVOIS,IDTMINS,IRESP,IDTMIN,MAXFUNC,
+     I                    USERL_AVAIL,DT  ,GLOB_THERM,SENSORS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE TIMER_MOD
+      USE OUTPUT_MOD, only : OUTPUT_
       USE MMAIN_MOD
       USE TABLE_MOD
-      USE ELBUFDEF_MOD            
+      USE MAT_ELEM_MOD            
       USE MESSAGE_MOD
       USE NLOCAL_REG_MOD
       USE ALE_CONNECTIVITY_MOD
-      USE MATPARAM_DEF_MOD
+      USE ELBUFDEF_MOD
+      USE DT_MOD
+      use glob_therm_mod
+      USE SENSOR_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -112,29 +124,35 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "scr07_c.inc"
 #include      "vect01_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr06_c.inc"
 #include      "parit_c.inc"
 #include      "param_c.inc"
 #include      "timeri_c.inc"
 #include      "impl1_c.inc"
-#include      "warn_c.inc"
 #include      "scr17_c.inc"
-#include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_) , INTENT(INOUT) :: TIMERS
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
+      INTEGER, INTENT(IN) :: SNPC
+      INTEGER, INTENT(IN) :: STF
+      INTEGER, INTENT(IN) :: SBUFMAT
+      INTEGER, INTENT(IN) :: NSVOIS
+      INTEGER, INTENT(IN) :: IDTMINS
+      INTEGER ,INTENT(IN) :: IRESP
+      integer,dimension(102) :: IDTMIN
+      INTEGER ,INTENT(IN) :: MAXFUNC
+      INTEGER, INTENT(IN) :: USERL_AVAIL
+
       INTEGER IXS(NIXS,*), IPARG(NPARG,NGROUP),NPF(*),
      .    IADS(8,*),IPARTS(*), IPM(NPROPMI,*),GRTH(*),IGRTH(*),IGEO(*),
-     .    LSENSOR(NSENSI,*),IOUTPRT
+     .    IOUTPRT
 C          
       INTEGER NELTST,ITYPTST,OFFSET,NEL,ICP, 
-     .        ICSIG, NVC   ,ITASK, ISTRAIN,  IEXPAN,NG,H3D_STRAIN
+     . NVC ,ITASK, ISTRAIN, IEXPAN,NG,H3D_STRAIN
 
       DOUBLE PRECISION
      .        XDP(3,*)
@@ -143,7 +161,7 @@ C
 C
       my_real
      .   PM(NPROPM,*), GEO(*), X(*), A(*), V(*), MS(*), W(*), 
-     .   FLUX(6,*),FLU1(*), VEUL(*), FV(*), TF(*), 
+     .   FLU1(*), VEUL(*), FV(*), TF(*), 
      .   PARTSAV(*),STIFN(*), FSKY(*),EANI(*),BUFMAT(*),
      .   F11(MVSIZ),F21(MVSIZ),F31(MVSIZ),
      .   F12(MVSIZ),F22(MVSIZ),F32(MVSIZ),
@@ -154,18 +172,22 @@ C
      .   F17(MVSIZ),F27(MVSIZ),F37(MVSIZ),
      .   F18(MVSIZ),F28(MVSIZ),F38(MVSIZ),
      .   TEMP(*),FTHE(*),FTHESKY(*),GRESAV(*), MSSA(*), DMELS(*), VOLN(MVSIZ),
-     .   CONDN(*),CONDNSKY(*),D(*),SENSOR(NSENSR,*)
+     .   CONDN(*),CONDNSKY(*),D(*)
+      my_real, DIMENSION(MVSIZ,6), INTENT(INOUT) :: SVIS
       TYPE(TTABLE) TABLE(*)
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
       TYPE (NLOCAL_STR_)  , TARGET :: NLOC_DMG 
       TYPE(t_ale_connectivity), INTENT(IN) :: ALE_CONNECT
-      TYPE(MATPARAM_STRUCT_)  , DIMENSION(NUMMAT) :: MATPARAM_TAB
+      TYPE (MAT_ELEM_) ,INTENT(INOUT) :: MAT_ELEM
+      TYPE (DT_), INTENT(IN) :: DT
+      type (glob_therm_) ,intent(inout)   :: glob_therm
+      type (sensors_),INTENT(INOUT) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER LCO, NF1, IFLAG, I, 
-     .     ILAY,IP,IR,IS,IT,MPT,NPTR,NPTS,NPTT,ICR,ICS,ICT,j
-      INTEGER IBID,IBIDV(1), MX, IFVM22
+      INTEGER NF1, IFLAG, I, 
+     . ILAY,IP,IR,IS,IT,NPTR,NPTS,NPTT,j
+      INTEGER IBID, IBIDV(1), IFVM22
       INTEGER MXT(MVSIZ),NGL(MVSIZ),NGEO(MVSIZ)
       my_real
      . VD2(MVSIZ) , DVOL(MVSIZ),DELTAX(MVSIZ),
@@ -183,25 +205,25 @@ C-----------------------------------------------
      . AJP4(MVSIZ,8) , AJP5(MVSIZ,8) , AJP6(MVSIZ,8) ,
      . AJP7(MVSIZ,8) , AJP8(MVSIZ,8) , AJP9(MVSIZ,8) ,
      . VDX(MVSIZ) , VDY(MVSIZ) , VDZ(MVSIZ),SSP_EQ(MVSIZ),AIRE(MVSIZ),
-     . E0(MVSIZ),C1,FAC(MVSIZ) ,PR(8,8),PS(8,8),PT(8,8)
+     . FAC(MVSIZ) ,PR(8,8),PS(8,8),PT(8,8)
 C-----
-C   Variables utilisees en argument par les materiaux.
+C   variables used as arguments by the materials.
       my_real
      .   STI(MVSIZ),STIN(MVSIZ),GAMA(MVSIZ,6),
      .   WXX(MVSIZ) , WYY(MVSIZ) , WZZ(MVSIZ),
      .   WXX0(MVSIZ) , WYY0(MVSIZ) , WZZ0(MVSIZ),
      .   CONDE(MVSIZ), CONDEN(MVSIZ),DIVDE(MVSIZ)
-C   Variables utilisees en argument par les materiaux si SPH uniquement.
+C   Variables used in argument by materials if SPH only.
       my_real
      .   MUVOID(MVSIZ)
-      INTEGER IOFFS, N,ITET
+      INTEGER IOFFS
       my_real
      .   OFFS(MVSIZ),DSV(MVSIZ),SDV(MVSIZ)
+      INTEGER SZ_R1_FREE
 C-----
-C   Variables utilisees dans les routines solides uniquement (en arguments).
+C   variables used only in solid routines (as arguments).
       INTEGER NC1(MVSIZ), NC2(MVSIZ), NC3(MVSIZ), NC4(MVSIZ), 
-     .        NC5(MVSIZ), NC6(MVSIZ), NC7(MVSIZ), NC8(MVSIZ),
-     .        MAT(MVSIZ)
+     .        NC5(MVSIZ), NC6(MVSIZ), NC7(MVSIZ), NC8(MVSIZ)
      
       DOUBLE PRECISION 
      .   XD1(MVSIZ), XD2(MVSIZ), XD3(MVSIZ), XD4(MVSIZ),
@@ -229,14 +251,14 @@ C   Variables utilisees dans les routines solides uniquement (en arguments).
      .  PXC1(MVSIZ),PXC2(MVSIZ),PXC3(MVSIZ),PXC4(MVSIZ),
      .  PYC1(MVSIZ),PYC2(MVSIZ),PYC3(MVSIZ),PYC4(MVSIZ),
      .  PZC1(MVSIZ),PZC2(MVSIZ),PZC3(MVSIZ),PZC4(MVSIZ),
-     .  VDX1(MVSIZ),VDX2(MVSIZ),VDX3(MVSIZ),VDX4(MVSIZ),
-     .  VDX5(MVSIZ),VDX6(MVSIZ),VDX7(MVSIZ),VDX8(MVSIZ),
-     .  VDY1(MVSIZ),VDY2(MVSIZ),VDY3(MVSIZ),VDY4(MVSIZ),
-     .  VDY5(MVSIZ),VDY6(MVSIZ),VDY7(MVSIZ),VDY8(MVSIZ),
-     .  VDZ1(MVSIZ),VDZ2(MVSIZ),VDZ3(MVSIZ),VDZ4(MVSIZ),
-     .  VDZ5(MVSIZ),VDZ6(MVSIZ),VDZ7(MVSIZ),VDZ8(MVSIZ),
+     .
+     .
+     .
+     .
+     .
+     .
      .  VGXA(MVSIZ),VGYA(MVSIZ),VGZA(MVSIZ), VGA2(MVSIZ),
-     .   HX(MVSIZ,4), HY(MVSIZ,4),  HZ(MVSIZ,4),OFFG0(MVSIZ),
+     . HX(MVSIZ,4), HY(MVSIZ,4), HZ(MVSIZ,4),
      .  XGXA(MVSIZ),XGYA(MVSIZ),XGZA(MVSIZ),
      .  XGXYA(MVSIZ),XGYZA(MVSIZ),XGZXA(MVSIZ),
      .  XGXA2(MVSIZ),XGYA2(MVSIZ),XGZA2(MVSIZ)
@@ -251,10 +273,10 @@ C   Variables utilisees dans les routines solides uniquement (en arguments).
       my_real
      .   WI,SMAX(MVSIZ),VOLG(MVSIZ),PP(MVSIZ),BID(MVSIZ)
       my_real
-     .   SIGY(MVSIZ), ET(MVSIZ), NU(MVSIZ),NU1(MVSIZ),
-     . R1_FREE(MVSIZ),R3_FREE(MVSIZ),R4_FREE(MVSIZ)
+     . SIGY(MVSIZ), ET(MVSIZ), NU(MVSIZ),
+     . R1_FREE(MVSIZ),R3_FREE(MVSIZ)
       my_real
-     .   VX0(MVSIZ,8),VY0(MVSIZ,8),VZ0(MVSIZ,8),
+     .
      .   TEMPEL(MVSIZ),THEM(MVSIZ,8),DIE(MVSIZ)
       INTEGER NNPT,IDEG(MVSIZ)
       PARAMETER (NNPT = 8)
@@ -262,9 +284,9 @@ C   Variables utilisees dans les routines solides uniquement (en arguments).
      .    MFXX(MVSIZ,NNPT),MFXY(MVSIZ,NNPT),MFYX(MVSIZ,NNPT),
      .    MFYY(MVSIZ,NNPT),MFYZ(MVSIZ,NNPT),MFZY(MVSIZ,NNPT),
      .    MFZZ(MVSIZ,NNPT),MFZX(MVSIZ,NNPT),MFXZ(MVSIZ,NNPT),
-     .    BXX(MVSIZ,NNPT),BYY(MVSIZ,NNPT),BZZ(MVSIZ,NNPT),
-     .    BXY(MVSIZ,NNPT),BYZ(MVSIZ,NNPT),BXZ(MVSIZ,NNPT),
-     .    NI(8),DETF0(MVSIZ),JFAC(MVSIZ,NNPT)
+     .
+     .
+     . JFAC(MVSIZ,NNPT)
 C-----
       TYPE(G_BUFEL_) ,POINTER :: GBUF
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
@@ -289,20 +311,20 @@ c-----------------------------------------------------
      .   BZZ1(MVSIZ),BZZ2(MVSIZ),BZZ3(MVSIZ),BZZ4(MVSIZ),
      .   BZZ5(MVSIZ),BZZ6(MVSIZ),BZZ7(MVSIZ),BZZ8(MVSIZ)
 C
-      INTEGER NNEGA,INDEX(MVSIZ),ISELECT,iel,ipr
+      INTEGER NNEGA, INDEX(MVSIZ), ISELECT
       my_real
-     .   PXY1(MVSIZ),PXY2(MVSIZ),PXY3(MVSIZ),PXY4(MVSIZ),
-     .   PXY5(MVSIZ),PXY6(MVSIZ),PXY7(MVSIZ),PXY8(MVSIZ),
-     .   PYX1(MVSIZ),PYX2(MVSIZ),PYX3(MVSIZ),PYX4(MVSIZ),
-     .   PYX5(MVSIZ),PYX6(MVSIZ),PYX7(MVSIZ),PYX8(MVSIZ),
-     .   PXZ1(MVSIZ),PXZ2(MVSIZ),PXZ3(MVSIZ),PXZ4(MVSIZ),
-     .   PXZ5(MVSIZ),PXZ6(MVSIZ),PXZ7(MVSIZ),PXZ8(MVSIZ),
-     .   PZX1(MVSIZ),PZX2(MVSIZ),PZX3(MVSIZ),PZX4(MVSIZ),
-     .   PZX5(MVSIZ),PZX6(MVSIZ),PZX7(MVSIZ),PZX8(MVSIZ),
-     .   PYZ1(MVSIZ),PYZ2(MVSIZ),PYZ3(MVSIZ),PYZ4(MVSIZ),
-     .   PYZ5(MVSIZ),PYZ6(MVSIZ),PYZ7(MVSIZ),PYZ8(MVSIZ),
-     .   PZY1(MVSIZ),PZY2(MVSIZ),PZY3(MVSIZ),PZY4(MVSIZ),
-     .   PZY5(MVSIZ),PZY6(MVSIZ),PZY7(MVSIZ),PZY8(MVSIZ),
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
      . AJI1(MVSIZ,NNPT) , AJI2(MVSIZ,NNPT) , AJI3(MVSIZ,NNPT) ,
      . AJI4(MVSIZ,NNPT) , AJI5(MVSIZ,NNPT) , AJI6(MVSIZ,NNPT) ,
      . AJI7(MVSIZ,NNPT) , AJI8(MVSIZ,NNPT) , AJI9(MVSIZ,NNPT),
@@ -312,18 +334,18 @@ C
      .  PY5(MVSIZ,NNPT),PY6(MVSIZ,NNPT),PY7(MVSIZ,NNPT),PY8(MVSIZ,NNPT),
      .  PZ1(MVSIZ,NNPT),PZ2(MVSIZ,NNPT),PZ3(MVSIZ,NNPT),PZ4(MVSIZ,NNPT),
      .  PZ5(MVSIZ,NNPT),PZ6(MVSIZ,NNPT),PZ7(MVSIZ,NNPT),PZ8(MVSIZ,NNPT),
-     .   P0XY1(MVSIZ,2),P0XY2(MVSIZ,2),P0XY3(MVSIZ,2),P0XY4(MVSIZ,2),
-     .   P0XY5(MVSIZ,2),P0XY6(MVSIZ,2),P0XY7(MVSIZ,2),P0XY8(MVSIZ,2),
-     .   P0YX1(MVSIZ,2),P0YX2(MVSIZ,2),P0YX3(MVSIZ,2),P0YX4(MVSIZ,2),
-     .   P0YX5(MVSIZ,2),P0YX6(MVSIZ,2),P0YX7(MVSIZ,2),P0YX8(MVSIZ,2),
-     .   P0XZ1(MVSIZ,2),P0XZ2(MVSIZ,2),P0XZ3(MVSIZ,2),P0XZ4(MVSIZ,2),
-     .   P0XZ5(MVSIZ,2),P0XZ6(MVSIZ,2),P0XZ7(MVSIZ,2),P0XZ8(MVSIZ,2),
-     .   P0ZX1(MVSIZ,2),P0ZX2(MVSIZ,2),P0ZX3(MVSIZ,2),P0ZX4(MVSIZ,2),
-     .   P0ZX5(MVSIZ,2),P0ZX6(MVSIZ,2),P0ZX7(MVSIZ,2),P0ZX8(MVSIZ,2),
-     .   P0YZ1(MVSIZ,2),P0YZ2(MVSIZ,2),P0YZ3(MVSIZ,2),P0YZ4(MVSIZ,2),
-     .   P0YZ5(MVSIZ,2),P0YZ6(MVSIZ,2),P0YZ7(MVSIZ,2),P0YZ8(MVSIZ,2),
-     .   P0ZY1(MVSIZ,2),P0ZY2(MVSIZ,2),P0ZY3(MVSIZ,2),P0ZY4(MVSIZ,2),
-     .   P0ZY5(MVSIZ,2),P0ZY6(MVSIZ,2),P0ZY7(MVSIZ,2),P0ZY8(MVSIZ,2),
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
+     .
      .   PX1H1(MVSIZ), PX1H2(MVSIZ), PX1H3(MVSIZ), PX1H4(MVSIZ),  
      .   PX2H1(MVSIZ), PX2H2(MVSIZ), PX2H3(MVSIZ), PX2H4(MVSIZ),  
      .   PX3H1(MVSIZ), PX3H2(MVSIZ), PX3H3(MVSIZ), PX3H4(MVSIZ),  
@@ -332,9 +354,9 @@ C
      .   BB(6,24,MVSIZ),AMU(MVSIZ)
       DOUBLE PRECISION
      .   VOLP(MVSIZ,NNPT)
-C----- Variables utilisees pour le calcul de puissance iteree
+C----- Variables used for iterative power calculation
 C-----
-C     Variables utilis  es pour le non-local
+C     variables used for the non-local
       my_real,
      .  DIMENSION(:,:), ALLOCATABLE :: VAR_REG
       INTEGER :: INLOC, L_NLOC, INOD(8), IPOS(8), IMAT
@@ -355,7 +377,8 @@ C
       my_real
      .   A11(MVSIZ), A12(MVSIZ), A13(MVSIZ), 
      .   A21(MVSIZ), A22(MVSIZ), A23(MVSIZ), 
-     .   A31(MVSIZ), A32(MVSIZ), A33(MVSIZ)      
+     .   A31(MVSIZ), A32(MVSIZ), A33(MVSIZ)     
+      INTEGER SZ_IX 
 C
       my_real
      .  W_GAUSS(9,9),A_GAUSS(9,9)
@@ -418,8 +441,9 @@ C
 C
 c     Flag Bolt Preloading
       INTEGER IBOLTP,NBPRELD
-      my_real, 
-     .  DIMENSION(:), POINTER :: BPRELD
+      my_real, DIMENSION(:), POINTER :: BPRELD
+      integer :: fake_size = 0
+      my_real, dimension(1) :: fake_array       
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -433,6 +457,10 @@ C
       ALLOCATE(VAR_REG(NEL,NPTR*NPTS*NPTT))
       NBPRELD = GBUF%G_BPRELD
       BPRELD =>GBUF%BPRELD(1:NBPRELD*NEL)
+      TEMPEL(:) = ZERO
+      BID(:)    = ZERO
+      SZ_R1_FREE=MVSIZ
+      SZ_IX=NUMELQ+NUMELS+NSVOIS
 c
       ILAY   = 1
       IBID = 0
@@ -443,27 +471,6 @@ C------------------------shear locking is alleviated with ANS for shear
 C-----------
 C GATHER NODAL VARIABLES AND COMPUTE INTRINSIC ROTATION.
 C-----------
-!      IF (JCVT == 0) THEN
-!C GATHER NODAL VARIABLES
-!       CALL SCOOR3(X,IXS(1,NF1),V,W,GBUF%GAMA,GAMA,
-!     2   X1, X2, X3, X4, X5, X6, X7, X8,
-!     3   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
-!     4   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8,
-!     5   VX1, VX2, VX3, VX4, VX5, VX6, VX7, VX8,
-!     6   VY1, VY2, VY3, VY4, VY5, VY6, VY7, VY8,
-!     7   VZ1, VZ2, VZ3, VZ4, VZ5, VZ6, VZ7, VZ8,
-!     8   VDX1, VDX2, VDX3, VDX4, VDX5, VDX6, VDX7, VDX8,
-!     9   VDY1, VDY2, VDY3, VDY4, VDY5, VDY6, VDY7, VDY8,
-!     A   VDZ1, VDZ2, VDZ3, VDZ4, VDZ5, VDZ6, VDZ7, VDZ8,
-!     B   VDX,VDY,VDZ,VD2,VIS,GBUF%OFF,OFFG,GBUF%SMSTR,
-!     C   GBUF%RHO,RHOO,NC1,NC2,NC3,NC4,NC5,NC6,
-!     D   NC7,NC8,NGL,MXT,NGEO,
-!     E   BID,BID,BID,BID,BID,BID,
-!     F   XD1, XD2  , XD3, XD4, XD5, XD6, XD7, XD8,
-!     G   YD1, YD2  , YD3, YD4, YD5, YD6, YD7, YD8,
-!     H   ZD1, ZD2  , ZD3, ZD4, ZD5, ZD6, ZD7, ZD8,
-!     I   XDP, IPARG, NG , NEL)
-!      ELSE
 C GATHER NODAL VARIABLES AND COMPUTE INTRINSIC ROTATION.
        CALL SRCOOR3_IMP(X,IXS(1,NF1),V,W,GBUF%GAMA,GAMA,
      .   X1, X2, X3, X4, X5, X6, X7, X8,
@@ -487,276 +494,57 @@ c---
 C-----------
 C GATHER NODAL VARIABLES FOR TOTAL STRAIN CASE.
 C-----------
-!      IF (ISMSTR >= 10.AND.ISMSTR <= 12) THEN
-!       CALL SGCOOR3(TT,8,X,IXS(1,NF1),
-!     1   X0, Y0, Z0, VX0,VY0, VZ0, 
-!     2   GBUF%SMSTR,D ,GBUF%OFF,OFFG0,NEL)
-!C-----------Pij is in global system w/ Ismstr10 and local system w/ 11
-!       IF (ISMSTR == 11.AND.JCVT.GT.0) THEN
-!        CALL SRROTADP(
-!     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-!     .   X0(1,1), X0(1,2), X0(1,3), X0(1,4), 
-!     .   X0(1,5), X0(1,6), X0(1,7), X0(1,8),
-!     .   Y0(1,1), Y0(1,2), Y0(1,3), Y0(1,4), 
-!     .   Y0(1,5), Y0(1,6), Y0(1,7), Y0(1,8),
-!     .   Z0(1,1), Z0(1,2), Z0(1,3), Z0(1,4), 
-!     .   Z0(1,5), Z0(1,6), Z0(1,7), Z0(1,8) )
-!        CALL SRROTA3(
-!     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-!     .   VX0(1,1), VX0(1,2), VX0(1,3), VX0(1,4), 
-!     .   VX0(1,5), VX0(1,6), VX0(1,7), VX0(1,8),
-!     .   VY0(1,1), VY0(1,2), VY0(1,3), VY0(1,4), 
-!     .   VY0(1,5), VY0(1,6), VY0(1,7), VY0(1,8),
-!     .   VZ0(1,1), VZ0(1,2), VZ0(1,3), VZ0(1,4), 
-!     .   VZ0(1,5), VZ0(1,6), VZ0(1,7), VZ0(1,8))
-!       ENDIF
-!      ENDIF
 C-----------
       IOFFS=0
-      DO I=LFT,LLT
+      DO I=1,NEL
         OFFS(I)=EP20
         DELTAX(I)=EP30
         IDEG(I)=0
       ENDDO
-      IF(JTHE < 0) THEM(LFT:LLT,1:8) =ZERO
+      IF(JTHE < 0) THEM(1:NEL,1:8) =ZERO
 
-!      IF (ICP == 2) THEN
-!      MX = MXT(LFT)
-!       C1 =PM(32,MX)
-!       DO I=LFT,LLT
-!        NU(I)=MIN(HALF,PM(21,MX))
-!        E0(I) =THREE*(ONE-TWO*NU(I))*C1
-!       ENDDO
-!       CALL S8ZSIGP3(LFT  ,LLT       ,GBUF%SIG,E0  ,GBUF%PLA,
-!     2               FAC  ,GBUF%G_PLA,NEL     )
-!      ENDIF 
       CALL S8EPRST_INI(PR ,PS ,PT )
 C-------now [B](Pij) is always in global system w/ ISMSTR10
-!      IF (ISMSTR >= 10.AND.ISMSTR <= 12) THEN
-!       IF (ISMSTR == 11) THEN
-!        CALL S8EDERICT3(OFFG,VOLG,NGL,
-!     .   X0(1,1), X0(1,2), X0(1,3), X0(1,4), 
-!     .   X0(1,5), X0(1,6), X0(1,7), X0(1,8),
-!     .   Y0(1,1), Y0(1,2), Y0(1,3), Y0(1,4), 
-!     .   Y0(1,5), Y0(1,6), Y0(1,7), Y0(1,8),
-!     .   Z0(1,1), Z0(1,2), Z0(1,3), Z0(1,4), 
-!     .   Z0(1,5), Z0(1,6), Z0(1,7), Z0(1,8),
-!     .   PXC1, PXC2, PXC3, PXC4, 
-!     .   PYC1, PYC2, PYC3, PYC4, 
-!     .   PZC1, PZC2, PZC3, PZC4, 
-!     .   HX  ,HY  ,HZ  ,   
-!     .   AJC1,AJC2,AJC3,
-!     .   AJC4,AJC5,AJC6,
-!     .   AJC7,AJC8,AJC9,SMAX )
-!        CALL S8EJACIP3(
-!     .    HX,    HY,    HZ,   
-!     .    AJC1,AJC2,AJC3,
-!     .    AJC4,AJC5,AJC6,
-!     .    AJC7,AJC8,AJC9,
-!     .    AJP1,AJP2,AJP3,
-!     .    AJP4,AJP5,AJP6,
-!     .    AJP7,AJP8,AJP9)
-!        CALL SCOOR_CP2SP(X0,Y0,Z0,
-!     .   X1, X2, X3, X4, X5, X6, X7, X8,
-!     .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
-!     .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8)
-!        IF (IDTS6.GT.0) THEN
-!         CALL SDLEN_DEGE(VOLG,DELTAX,
-!     .   X1, X2, X3, X4, X5, X6, X7, X8,
-!     .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
-!     .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8,
-!     .   IXS(1,NF1),IDEG )
-!        END IF
-!        CALL SDLEN_SM11(VOLG,DELTAX,SMAX  ,IDEG )
-!       ELSE
-!        IF (ISMSTR == 12.AND.IDTMIN(1)==3.AND.JCVT == 0.AND.ISORTH==0) 
-!     .  THEN
-!C!!!!!!calcul local rep for ISMSTR 10 to 11 (offg>un) 
-!          CALL SRCOOR12(GBUF%OFF,X   ,XDP   ,
-!     .               NC1,NC2,NC3,NC4,NC5,NC6,NC7,NC8,
-!     .               R11, R12, R13, R21, R22, R23, R31, R32, R33 ) 
-!        END IF 
-!        CALL S8EDERICTO3(OFFG,VOLG,
-!     .   PXC1, PXC2, PXC3, PXC4, 
-!     .   PYC1, PYC2, PYC3, PYC4, 
-!     .   PZC1, PZC2, PZC3, PZC4, 
-!     .   GBUF%JAC_I)
-!C----------just for initialization     
-!         SMAX(LFT:LLT)=EP10
-!       END IF !(ISMSTR == 11) THEN
-!C     
-!       IF (ICP ==1) THEN
-!        CALL JACOB_F0(DETF0,
-!     .   PXC1, PXC2, PXC3, PXC4, 
-!     .   PYC1, PYC2, PYC3, PYC4, 
-!     .   PZC1, PZC2, PZC3, PZC4, 
-!     .    VX0(1,1), VX0(1,2), VX0(1,3), VX0(1,4), 
-!     .    VX0(1,5), VX0(1,6), VX0(1,7), VX0(1,8),
-!     .    VY0(1,1), VY0(1,2), VY0(1,3), VY0(1,4), 
-!     .    VY0(1,5), VY0(1,6), VY0(1,7), VY0(1,8),
-!     .    VZ0(1,1), VZ0(1,2), VZ0(1,3), VZ0(1,4), 
-!     .    VZ0(1,5), VZ0(1,6), VZ0(1,7), VZ0(1,8))
-!       END IF
-!       IF (ISMSTR == 11) THEN
-!C-----------[B] first
-!       DO IR=1,NPTR
-!        DO IS=1,NPTS
-!        DO IT=1,NPTT
-!C-----------
-!         IP = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
-!         WI = W_GAUSS(IR,NPTR)*W_GAUSS(IS,NPTS)*W_GAUSS(IT,NPTT)
-!         LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,IT)
-!C
-!         CALL S8EJACIT3(VOLP(1,IP),
-!     .    A_GAUSS(IR,NPTR),A_GAUSS(IS,NPTS),A_GAUSS(IT,NPTT),WI,
-!     .    AJP1(1,IP),AJP2(1,IP),AJP3(1,IP),
-!     .    AJP4(1,IP),AJP5(1,IP),AJP6(1,IP),
-!     .    AJP7(1,IP),AJP8(1,IP),AJP9(1,IP),
-!     .    AJI1(1,IP),AJI2(1,IP),AJI3(1,IP),
-!     .    AJI4(1,IP),AJI5(1,IP),AJI6(1,IP),
-!     .    AJI7(1,IP),AJI8(1,IP),AJI9(1,IP),
-!     .    LBUF%JAC_I)
-!        ENDDO    !  IT=1,NPTT
-!        ENDDO     !  IS=1,NPTS
-!       ENDDO      !  IR=1,NPTR
-!C------ISMSTR=10,12-----: w/ fixed PIJ---
-!       ELSE
-!       DO IR=1,NPTR
-!        DO IS=1,NPTS
-!        DO IT=1,NPTT
-!C-----------
-!         IP = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
-!         WI = W_GAUSS(IR,NPTR)*W_GAUSS(IS,NPTS)*W_GAUSS(IT,NPTT)
-!         LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,IT)
-!C
-!         CALL S8EGETPIJ(
-!     .    PX1(1,IP), PX2(1,IP), PX3(1,IP), PX4(1,IP),
-!     .    PX5(1,IP), PX6(1,IP), PX7(1,IP), PX8(1,IP),
-!     .    PY1(1,IP), PY2(1,IP), PY3(1,IP), PY4(1,IP),
-!     .    PY5(1,IP), PY6(1,IP), PY7(1,IP), PY8(1,IP),
-!     .    PZ1(1,IP), PZ2(1,IP), PZ3(1,IP), PZ4(1,IP),
-!     .    PZ5(1,IP), PZ6(1,IP), PZ7(1,IP), PZ8(1,IP),
-!     .    LBUF%PIJ , LLT  )
-!          VOLP(LFT:LLT,IP)=VOLG(LFT:LLT)
-!        ENDDO    !  IT=1,NPTT
-!        ENDDO     !  IS=1,NPTS
-!       ENDDO      !  IR=1,NPTR
-!C-----------Begin integrating points-----
-!      DO IR=1,NPTR
-!       DO IS=1,NPTS
-!        DO IT=1,NPTT
-!            LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,IT)
-!         IP = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
-!         WI = W_GAUSS(IR,NPTR)*W_GAUSS(IS,NPTS)*W_GAUSS(IT,NPTT)
-!C
-!         CALL S8EDERI_2(OFFG,OFF,VOLN,
-!     .    A_GAUSS(IR,NPTR),A_GAUSS(IS,NPTS),A_GAUSS(IT,NPTT),WI,
-!     .    PX1(1,IP), PX2(1,IP), PX3(1,IP), PX4(1,IP),
-!     .    PX5(1,IP), PX6(1,IP), PX7(1,IP), PX8(1,IP),
-!     .    PY1(1,IP), PY2(1,IP), PY3(1,IP), PY4(1,IP),
-!     .    PY5(1,IP), PY6(1,IP), PY7(1,IP), PY8(1,IP),
-!     .    PZ1(1,IP), PZ2(1,IP), PZ3(1,IP), PZ4(1,IP),
-!     .    PZ5(1,IP), PZ6(1,IP), PZ7(1,IP), PZ8(1,IP),
-!     .    PXC1, PXC2, PXC3, PXC4,
-!     .    PYC1, PYC2, PYC3, PYC4,
-!     .    PZC1, PZC2, PZC3, PZC4,
-!     .    BXY1, BXY2, BXY3, BXY4, BXY5, BXY6, BXY7, BXY8,
-!     .    BYX1, BYX2, BYX3, BYX4, BYX5, BYX6, BYX7, BYX8,
-!     .    BXZ1, BXZ2, BXZ3, BXZ4, BXZ5, BXZ6, BXZ7, BXZ8,
-!     .    BZX1, BZX2, BZX3, BZX4, BZX5, BZX6, BZX7, BZX8,
-!     .    BYZ1, BYZ2, BYZ3, BYZ4, BYZ5, BYZ6, BYZ7, BYZ8,
-!     .    BZY1, BZY2, BZY3, BZY4, BZY5, BZY6, BZY7, BZY8,
-!     .    BXX1, BXX2, BXX3, BXX4, BXX5, BXX6, BXX7, BXX8,
-!     .    BYY1, BYY2, BYY3, BYY4, BYY5, BYY6, BYY7, BYY8,
-!     .    BZZ1, BZZ2, BZZ3, BZZ4, BZZ5, BZZ6, BZZ7, BZZ8,
-!     .    AJP4(1,IP),AJP5(1,IP),AJP6(1,IP),
-!     .    AJP7(1,IP),AJP8(1,IP),AJP9(1,IP),
-!     .    AJ1,AJ2,AJ3,
-!     .    AJ4,AJ5,AJ6,
-!     .    SMAX,DELTAX,ICP,IDEG,NU ,VOLP(1,IP))
-!         CALL S8EDEFOT3(
-!     .    PX1(1,IP), PX2(1,IP), PX3(1,IP), PX4(1,IP),
-!     .    PX5(1,IP), PX6(1,IP), PX7(1,IP), PX8(1,IP),
-!     .    PY1(1,IP), PY2(1,IP), PY3(1,IP), PY4(1,IP),
-!     .    PY5(1,IP), PY6(1,IP), PY7(1,IP), PY8(1,IP),
-!     .    PZ1(1,IP), PZ2(1,IP), PZ3(1,IP), PZ4(1,IP),
-!     .    PZ5(1,IP), PZ6(1,IP), PZ7(1,IP), PZ8(1,IP),
-!     .    BXY1, BXY2, BXY3, BXY4, BXY5, BXY6, BXY7, BXY8,
-!     .    BYX1, BYX2, BYX3, BYX4, BYX5, BYX6, BYX7, BYX8,
-!     .    BXZ1, BXZ2, BXZ3, BXZ4, BXZ5, BXZ6, BXZ7, BXZ8,
-!     .    BZX1, BZX2, BZX3, BZX4, BZX5, BZX6, BZX7, BZX8,
-!     .    BYZ1, BYZ2, BYZ3, BYZ4, BYZ5, BYZ6, BYZ7, BYZ8,
-!     .    BZY1, BZY2, BZY3, BZY4, BZY5, BZY6, BZY7, BZY8,
-!     .    BXX1, BXX2, BXX3, BXX4, BXX5, BXX6, BXX7, BXX8,
-!     .    BYY1, BYY2, BYY3, BYY4, BYY5, BYY6, BYY7, BYY8,
-!     .    BZZ1, BZZ2, BZZ3, BZZ4, BZZ5, BZZ6, BZZ7, BZZ8,
-!     .    PXY1, PXY2, PXY3, PXY4, PXY5, PXY6, PXY7, PXY8,
-!     .    PYX1, PYX2, PYX3, PYX4, PYX5, PYX6, PYX7, PYX8,
-!     .    PXZ1, PXZ2, PXZ3, PXZ4, PXZ5, PXZ6, PXZ7, PXZ8,
-!     .    PZX1, PZX2, PZX3, PZX4, PZX5, PZX6, PZX7, PZX8,
-!     .    PYZ1, PYZ2, PYZ3, PYZ4, PYZ5, PYZ6, PYZ7, PYZ8,
-!     .    PZY1, PZY2, PZY3, PZY4, PZY5, PZY6, PZY7, PZY8,
-!     .    VX0(1,1), VX0(1,2), VX0(1,3), VX0(1,4), 
-!     .    VX0(1,5), VX0(1,6), VX0(1,7), VX0(1,8),
-!     .    VY0(1,1), VY0(1,2), VY0(1,3), VY0(1,4), 
-!     .    VY0(1,5), VY0(1,6), VY0(1,7), VY0(1,8),
-!     .    VZ0(1,1), VZ0(1,2), VZ0(1,3), VZ0(1,4), 
-!     .    VZ0(1,5), VZ0(1,6), VZ0(1,7), VZ0(1,8),
-!     .    MFXX(1,IP), MFXY(1,IP), MFXZ(1,IP), MFYX(1,IP), 
-!     .    MFYY(1,IP), MFYZ(1,IP), MFZX(1,IP), MFZY(1,IP),
-!     .    MFZZ(1,IP),ICP ,DETF0 ,JFAC(1,IP) ,NU ,ISELECT)
-!C     
-!         IF (JCVT > 0.AND.(ISMSTR==10.OR.ISMSTR==12)) THEN
-!          CALL SORDEFT3(LFT,LLT,MFXX(1,IP), MFXY(1,IP), MFXZ(1,IP),
-!     .         MFYX(1,IP), MFYY(1,IP), MFYZ(1,IP),
-!     .         MFZX(1,IP), MFZY(1,IP), MFZZ(1,IP),
-!     .         R11, R21, R31, R12, R22, R32, R13, R23, R33)
-!         ELSEIF (IDTMIN(1)==3.AND.ISMSTR == 12.AND.ISORTH==0) THEN
-!          CALL SORDEFT12(LFT,LLT,MFXX(1,IP), MFXY(1,IP), MFXZ(1,IP),
-!     .         MFYX(1,IP), MFYY(1,IP), MFYZ(1,IP),
-!     .         MFZX(1,IP), MFZY(1,IP), MFZZ(1,IP),
-!     .         R11, R21, R31, R12, R22, R32, R13, R23, R33,GBUF%OFF)
-!         ENDIF
-!C
-!        ENDDO 
-!       ENDDO 
-!      ENDDO
-!C
-!      END IF !(ISMSTR == 11) THEN
-!      ENDIF     ! (ISMSTR >= 10.AND.ISMSTR <= 12)
 C-----------------------------
 C----------JACOBIEN-inverse- in case of Vol<=0-------
       IF (ISMSTR/=11) THEN
-       CALL S8EDERIC3(OFFG,VOLG,NGL,
-     .   XD1, XD2, XD3, XD4, XD5, XD6, XD7, XD8,
-     .   YD1, YD2, YD3, YD4, YD5, YD6, YD7, YD8,
-     .   ZD1, ZD2, ZD3, ZD4, ZD5, ZD6, ZD7, ZD8,
-     .   PXC1, PXC2, PXC3, PXC4, 
-     .   PYC1, PYC2, PYC3, PYC4, 
-     .   PZC1, PZC2, PZC3, PZC4, 
-     .   PX1H1, PX1H2, PX1H3,PX1H4,  
-     .   PX2H1, PX2H2, PX2H3,PX2H4,  
-     .   PX3H1, PX3H2, PX3H3,PX3H4,  
-     .   PX4H1, PX4H2, PX4H3,PX4H4,  
-     .   HX,   HY,   HZ,   
-     .   JR_1,   JS_1,   JT_1,   
-     .   AJC1,AJC2,AJC3,
-     .   AJC4,AJC5,AJC6,
-     .   AJC7,AJC8,AJC9,SMAX,GBUF%SMSTR,GBUF%OFF,NEL)
+       CALL S8EDERIC3(
+     1   OFFG,      VOLG,      NGL,       XD1,
+     2   XD2,       XD3,       XD4,       XD5,
+     3   XD6,       XD7,       XD8,       YD1,
+     4   YD2,       YD3,       YD4,       YD5,
+     5   YD6,       YD7,       YD8,       ZD1,
+     6   ZD2,       ZD3,       ZD4,       ZD5,
+     7   ZD6,       ZD7,       ZD8,       PXC1,
+     8   PXC2,      PXC3,      PXC4,      PYC1,
+     9   PYC2,      PYC3,      PYC4,      PZC1,
+     A   PZC2,      PZC3,      PZC4,      PX1H1,
+     B   PX1H2,     PX1H3,     PX1H4,     PX2H1,
+     C   PX2H2,     PX2H3,     PX2H4,     PX3H1,
+     D   PX3H2,     PX3H3,     PX3H4,     PX4H1,
+     E   PX4H2,     PX4H3,     PX4H4,     HX,
+     F   HY,        HZ,        JR_1,      JS_1,
+     G   JT_1,      AJC1,      AJC2,      AJC3,
+     H   AJC4,      AJC5,      AJC6,      AJC7,
+     I   AJC8,      AJC9,      SMAX,      GBUF%SMSTR,
+     J   GBUF%OFF,  NEL,       ISMSTR,    JLAG)
          CALL S8EJACIP3(
-     .    HX,    HY,    HZ,   
-     .    AJC1,AJC2,AJC3,
-     .    AJC4,AJC5,AJC6,
-     .    AJC7,AJC8,AJC9,
-     .    AJP1,AJP2,AJP3,
-     .    AJP4,AJP5,AJP6,
-     .    AJP7,AJP8,AJP9)
-       IF (IDTS6.GT.0) THEN
-        CALL SDLEN_DEGE(VOLG,DELTAX,
-     .   X1, X2, X3, X4, X5, X6, X7, X8,
-     .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
-     .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8,
-     .   IXS(1,NF1),IDEG )
+     1   HX,      HY,      HZ,      AJC1,
+     2   AJC2,    AJC3,    AJC4,    AJC5,
+     3   AJC6,    AJC7,    AJC8,    AJC9,
+     4   AJP1,    AJP2,    AJP3,    AJP4,
+     5   AJP5,    AJP6,    AJP7,    AJP8,
+     6   AJP9,    NEL)
+       IF (IDTS6>0) THEN
+        CALL SDLEN_DEGE(
+     1   VOLG,      DELTAX,    X1,        X2,
+     2   X3,        X4,        X5,        X6,
+     3   X7,        X8,        Y1,        Y2,
+     4   Y3,        Y4,        Y5,        Y6,
+     5   Y7,        Y8,        Z1,        Z2,
+     6   Z3,        Z4,        Z5,        Z6,
+     7   Z7,        Z8,        IXS(1,NF1),IDEG,
+     8   NEL)
        END IF
       END IF !(ISMSTR/=11) THEN
 C----------JACOBIEN-inverse- in case of Vol<=0-------
@@ -769,29 +557,35 @@ c
           IP = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
           WI = W_GAUSS(IR,NPTR)*W_GAUSS(IS,NPTS)*W_GAUSS(IT,NPTT)
 C
-          CALL S8EDERIPR3(GBUF%OFF,VOLP(1,IP),NGL,WI,
-     .    AJP1(1,IP),AJP2(1,IP),AJP3(1,IP),
-     .    AJP4(1,IP),AJP5(1,IP),AJP6(1,IP),
-     .    AJP7(1,IP),AJP8(1,IP),AJP9(1,IP),
-     .    AJI1(1,IP),AJI2(1,IP),AJI3(1,IP),
-     .    AJI4(1,IP),AJI5(1,IP),AJI6(1,IP),
-     .    AJI7(1,IP),AJI8(1,IP),AJI9(1,IP),NNEGA,INDEX,IP)
+          CALL S8EDERIPR3(
+     1   GBUF%OFF,  VOLP(1,IP),NGL,       WI,
+     2   AJP1(1,IP),AJP2(1,IP),AJP3(1,IP),AJP4(1,IP),
+     3   AJP5(1,IP),AJP6(1,IP),AJP7(1,IP),AJP8(1,IP),
+     4   AJP9(1,IP),AJI1(1,IP),AJI2(1,IP),AJI3(1,IP),
+     5   AJI4(1,IP),AJI5(1,IP),AJI6(1,IP),AJI7(1,IP),
+     6   AJI8(1,IP),AJI9(1,IP),NNEGA,     INDEX,
+     7   IP    ,NEL       ,MSTOP )
         ENDDO  ! IT=1,NPTT
        ENDDO   ! IS=1,NPTS
       ENDDO    ! IR=1,NPTR
 C
       IF (NNEGA>0) THEN
-       CALL S8EDERICM3(VOLG,NGL,
-     .   XD1, XD2, XD3, XD4, XD5, XD6, XD7, XD8,
-     .   YD1, YD2, YD3, YD4, YD5, YD6, YD7, YD8,
-     .   ZD1, ZD2, ZD3, ZD4, ZD5, ZD6, ZD7, ZD8,      
-     .   PXC1, PXC2, PXC3, PXC4,
-     .   PYC1, PYC2, PYC3, PYC4,
-     .   PZC1, PZC2, PZC3, PZC4,
-     .   HX,   HY,   HZ,   
-     .   AJC1,AJC2,AJC3,
-     .   AJC4,AJC5,AJC6,
-     .   AJC7,AJC8,AJC9,SMAX,GBUF%SMSTR,GBUF%OFF,NNEGA,INDEX,NEL)
+       CALL S8EDERICM3(
+     1   VOLG,      NGL,       XD1,       XD2,
+     2   XD3,       XD4,       XD5,       XD6,
+     3   XD7,       XD8,       YD1,       YD2,
+     4   YD3,       YD4,       YD5,       YD6,
+     5   YD7,       YD8,       ZD1,       ZD2,
+     6   ZD3,       ZD4,       ZD5,       ZD6,
+     7   ZD7,       ZD8,       PXC1,      PXC2,
+     8   PXC3,      PXC4,      PYC1,      PYC2,
+     9   PYC3,      PYC4,      PZC1,      PZC2,
+     A   PZC3,      PZC4,      HX,        HY,
+     B   HZ,        AJC1,      AJC2,      AJC3,
+     C   AJC4,      AJC5,      AJC6,      AJC7,
+     D   AJC8,      AJC9,      SMAX,      GBUF%SMSTR,
+     E   GBUF%OFF,  NNEGA,     INDEX,     NEL,
+     F   ISMSTR)
        DO IR=1,NPTR
         DO IS=1,NPTS
          DO IT=1,NPTT
@@ -813,42 +607,34 @@ C
          ENDDO  ! IT=1,NPTT
         ENDDO   ! IS=1,NPTS
        ENDDO    ! IR=1,NPTR
-       IF (INEG_V ==0) THEN
-C---     /NEGAVOL/STOP       
-           CALL ANCMSG(MSGID=280,ANMODE=ANINFO)
-           MSTOP = 1
-       END IF !(INEG_V /=0) THEN
       END IF
+      IF (INEG_V ==2) THEN
+        DO I=LFT,LLT
+          IF (GBUF%OFF(I)==ZERO) OFFG(I)=ZERO
+        ENDDO
+      END IF 
 C --------------------------
 C  --- UPDATE REF CONFIGURATION (possible future change to small strain option)
 C  --- ! Total strain option doesn't change the Ref CONF.
 C --------------------------
-!      IF (ISMSTR <= 3.OR.(ISMSTR==4.AND.JLAG>0)) THEN
-!       IF (JCVT /= 0.AND.ISORTH/=0 ) THEN
-!       CALL S8SAVSR3(GBUF%OFF,GBUF%SMSTR ,X0   ,Y0   ,Z0, NEL) 
-!       ELSE
-!       CALL S8SAV3(GBUF%OFF,GBUF%SMSTR,
-!     .             XD1, XD2, XD3, XD4, XD5, XD6, XD7, XD8,
-!     .             YD1, YD2, YD3, YD4, YD5, YD6, YD7, YD8,
-!     .             ZD1, ZD2, ZD3, ZD4, ZD5, ZD6, ZD7, ZD8,
-!     .             NEL)
-!       END IF 
-!       print*,'GBUF%OFF s8esav3 s8sforc : ',GBUF%OFF(LFT)
-!      END IF !(ISMSTR <= 3) THEN
 C      
       IF (ICP==1.OR.ICP==2) THEN
        CALL S8EDEFOC3(
-     .    PXC1, PXC2, PXC3, PXC4, 
-     .    PYC1, PYC2, PYC3, PYC4, 
-     .    PZC1, PZC2, PZC3, PZC4, 
-     .    VX1, VX2, VX3, VX4, VX5, VX6, VX7, VX8,
-     .    VY1, VY2, VY3, VY4, VY5, VY6, VY7, VY8,
-     .    VZ1, VZ2, VZ3, VZ4, VZ5, VZ6, VZ7, VZ8,
-     .    DSV)
+     1   PXC1,    PXC2,    PXC3,    PXC4,
+     2   PYC1,    PYC2,    PYC3,    PYC4,
+     3   PZC1,    PZC2,    PZC3,    PZC4,
+     4   VX1,     VX2,     VX3,     VX4,
+     5   VX5,     VX6,     VX7,     VX8,
+     6   VY1,     VY2,     VY3,     VY4,
+     7   VY5,     VY6,     VY7,     VY8,
+     8   VZ1,     VZ2,     VZ3,     VZ4,
+     9   VZ5,     VZ6,     VZ7,     VZ8,
+     A   DSV,     NEL)
 C-----don't do it w/ degenerated elm, but limit to law28 after QA   
-        IF (IDTS6==0)  CALL DEGENES8(IXS(1,NF1),IDEG)
+        IF (IDTS6==0)  CALL DEGENES8(
+     1   IXS(1,NF1),IDEG,      NEL)
         IF (ICP==1.AND.MTN==28) THEN
-         DO I=LFT,LLT
+         DO I=1,NEL
           IF (IDEG(I)>0) IDEG(I) = IDEG(I) + 10
          ENDDO
         END IF !(ICP==1.AND.MTN==28) THEN
@@ -857,16 +643,21 @@ C-----------
 C INITIALIZATION---Before increment-----
 C-----------
       CALL S8ZZERO3(
-     .  F11, F21, F31, F12, F22, F32, F13, F23, F33, F14, F24, F34, 
-     .  F15, F25, F35, F16, F26, F36, F17, F27, F37, F18, F28, F38,
-     .  GBUF%SIG ,GBUF%EINT,GBUF%RHO,GBUF%QVIS, GBUF%PLA,
-     .  GBUF%EPSD,STIN     ,PP      ,GBUF%G_PLA,GBUF%G_EPSD, 
-     .  IEXPAN,   GBUF%EINTTH,NEL   ,CONDEN)
+     1   F11,        F21,        F31,        F12,
+     2   F22,        F32,        F13,        F23,
+     3   F33,        F14,        F24,        F34,
+     4   F15,        F25,        F35,        F16,
+     5   F26,        F36,        F17,        F27,
+     6   F37,        F18,        F28,        F38,
+     7   GBUF%SIG,   GBUF%EINT,  GBUF%RHO,   GBUF%QVIS,
+     8   GBUF%PLA,   GBUF%EPSD,  STIN,       PP,
+     9   GBUF%G_PLA, GBUF%G_EPSD,IEXPAN,     GBUF%EINTTH,
+     A   NEL,        CONDEN)
 C-------------------------------------------
 C    COMPUTE AVERAGE TEMPERATURE IN ELEMENT (for output)
 C-------------------------------------------
       IF(JTHE < 0 ) THEN 
-        DO I=LFT,LLT
+        DO I=1,NEL
            IF(GBUF%OFF(I) == ZERO) CYCLE
            TEMPEL(I) = ONE_OVER_8 *(  TEMP(NC1(I)) + TEMP(NC2(I))  
      .                          + TEMP(NC3(I)) + TEMP(NC4(I)) 
@@ -889,7 +680,7 @@ c-------------------------------------------
               ZT = A_GAUSS(IT,NPTT)
               IP = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
               CALL BASIS8 (ZR,ZS,ZT,H,PR2,PS2,PT2)
-              DO I=LFT,LLT
+              DO I=1,NEL
                 INOD(1) = NLOC_DMG%IDXI(NC1(I))
                 INOD(2) = NLOC_DMG%IDXI(NC2(I))
                 INOD(3) = NLOC_DMG%IDXI(NC3(I))
@@ -917,16 +708,16 @@ C-----------
          IP = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
 C
          CALL S8EDERIG3(
-     .    PX1(1,IP), PX2(1,IP), PX3(1,IP), PX4(1,IP),
-     .    PX5(1,IP), PX6(1,IP), PX7(1,IP), PX8(1,IP),
-     .    PY1(1,IP), PY2(1,IP), PY3(1,IP), PY4(1,IP),
-     .    PY5(1,IP), PY6(1,IP), PY7(1,IP), PY8(1,IP),
-     .    PZ1(1,IP), PZ2(1,IP), PZ3(1,IP), PZ4(1,IP),
-     .    PZ5(1,IP), PZ6(1,IP), PZ7(1,IP), PZ8(1,IP),
-     .    AJI1(1,IP),AJI2(1,IP),AJI3(1,IP),
-     .    AJI4(1,IP),AJI5(1,IP),AJI6(1,IP),
-     .    AJI7(1,IP),AJI8(1,IP),AJI9(1,IP),
-     .    PR(1,IP) ,PS(1,IP) ,PT(1,IP) )
+     1   PX1(1,IP), PX2(1,IP), PX3(1,IP), PX4(1,IP),
+     2   PX5(1,IP), PX6(1,IP), PX7(1,IP), PX8(1,IP),
+     3   PY1(1,IP), PY2(1,IP), PY3(1,IP), PY4(1,IP),
+     4   PY5(1,IP), PY6(1,IP), PY7(1,IP), PY8(1,IP),
+     5   PZ1(1,IP), PZ2(1,IP), PZ3(1,IP), PZ4(1,IP),
+     6   PZ5(1,IP), PZ6(1,IP), PZ7(1,IP), PZ8(1,IP),
+     7   AJI1(1,IP),AJI2(1,IP),AJI3(1,IP),AJI4(1,IP),
+     8   AJI5(1,IP),AJI6(1,IP),AJI7(1,IP),AJI8(1,IP),
+     9   AJI9(1,IP),PR(1,IP),  PS(1,IP),  PT(1,IP),
+     A   NEL)
         ENDDO    !  IT=1,NPTT
        ENDDO     !  IS=1,NPTS
       ENDDO      !  IR=1,NPTR
@@ -935,218 +726,214 @@ C-----------Begin integrating points-----
        DO IR=1,NPTR
         DO IT=1,NPTT
           LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,IT)
-C-----avoid multi-print	  
+C-----avoid multi-print    
           IF (IOFFS == 1)THEN
-           DO I=LFT,LLT
-            IF (OFFS(I).LE.TWO) LBUF%OFF(I)=OFFS(I)
+           DO I=1,NEL
+            IF (OFFS(I)<=TWO) LBUF%OFF(I)=OFFS(I)
            ENDDO
           END IF
 C-----------
          IP = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
          WI = W_GAUSS(IR,NPTR)*W_GAUSS(IS,NPTS)*W_GAUSS(IT,NPTT)
 C
-         CALL S8EDERI_2(OFFG,OFF,VOLN,
-     .    A_GAUSS(IR,NPTR),A_GAUSS(IS,NPTS),A_GAUSS(IT,NPTT),WI,
-     .    PX1(1,IP), PX2(1,IP), PX3(1,IP), PX4(1,IP),
-     .    PX5(1,IP), PX6(1,IP), PX7(1,IP), PX8(1,IP),
-     .    PY1(1,IP), PY2(1,IP), PY3(1,IP), PY4(1,IP),
-     .    PY5(1,IP), PY6(1,IP), PY7(1,IP), PY8(1,IP),
-     .    PZ1(1,IP), PZ2(1,IP), PZ3(1,IP), PZ4(1,IP),
-     .    PZ5(1,IP), PZ6(1,IP), PZ7(1,IP), PZ8(1,IP),
-     .    PXC1, PXC2, PXC3, PXC4,
-     .    PYC1, PYC2, PYC3, PYC4,
-     .    PZC1, PZC2, PZC3, PZC4,
-     .    BXY1, BXY2, BXY3, BXY4, BXY5, BXY6, BXY7, BXY8,
-     .    BYX1, BYX2, BYX3, BYX4, BYX5, BYX6, BYX7, BYX8,
-     .    BXZ1, BXZ2, BXZ3, BXZ4, BXZ5, BXZ6, BXZ7, BXZ8,
-     .    BZX1, BZX2, BZX3, BZX4, BZX5, BZX6, BZX7, BZX8,
-     .    BYZ1, BYZ2, BYZ3, BYZ4, BYZ5, BYZ6, BYZ7, BYZ8,
-     .    BZY1, BZY2, BZY3, BZY4, BZY5, BZY6, BZY7, BZY8,
-     .    BXX1, BXX2, BXX3, BXX4, BXX5, BXX6, BXX7, BXX8,
-     .    BYY1, BYY2, BYY3, BYY4, BYY5, BYY6, BYY7, BYY8,
-     .    BZZ1, BZZ2, BZZ3, BZZ4, BZZ5, BZZ6, BZZ7, BZZ8,
-     .    AJP4(1,IP),AJP5(1,IP),AJP6(1,IP),
-     .    AJP7(1,IP),AJP8(1,IP),AJP9(1,IP),
-     .    AJ1,AJ2,AJ3,
-     .    AJ4,AJ5,AJ6,
-     .    SMAX,DELTAX,ICP,IDEG,NU ,VOLP(1,IP))
+         CALL S8EDERI_2(
+     1   OFFG,            OFF,             VOLN,            A_GAUSS(IR,NPTR),
+     2   A_GAUSS(IS,NPTS),A_GAUSS(IT,NPTT),WI,              PX1(1,IP),
+     3   PX2(1,IP),       PX3(1,IP),       PX4(1,IP),       PX5(1,IP),
+     4   PX6(1,IP),       PX7(1,IP),       PX8(1,IP),       PY1(1,IP),
+     5   PY2(1,IP),       PY3(1,IP),       PY4(1,IP),       PY5(1,IP),
+     6   PY6(1,IP),       PY7(1,IP),       PY8(1,IP),       PZ1(1,IP),
+     7   PZ2(1,IP),       PZ3(1,IP),       PZ4(1,IP),       PZ5(1,IP),
+     8   PZ6(1,IP),       PZ7(1,IP),       PZ8(1,IP),       PXC1,
+     9   PXC2,            PXC3,            PXC4,            PYC1,
+     A   PYC2,            PYC3,            PYC4,            PZC1,
+     B   PZC2,            PZC3,            PZC4,            BXY1,
+     C   BXY2,            BXY3,            BXY4,            BXY5,
+     D   BXY6,            BXY7,            BXY8,            BYX1,
+     E   BYX2,            BYX3,            BYX4,            BYX5,
+     F   BYX6,            BYX7,            BYX8,            BXZ1,
+     G   BXZ2,            BXZ3,            BXZ4,            BXZ5,
+     H   BXZ6,            BXZ7,            BXZ8,            BZX1,
+     I   BZX2,            BZX3,            BZX4,            BZX5,
+     J   BZX6,            BZX7,            BZX8,            BYZ1,
+     K   BYZ2,            BYZ3,            BYZ4,            BYZ5,
+     L   BYZ6,            BYZ7,            BYZ8,            BZY1,
+     M   BZY2,            BZY3,            BZY4,            BZY5,
+     N   BZY6,            BZY7,            BZY8,            BXX1,
+     O   BXX2,            BXX3,            BXX4,            BXX5,
+     P   BXX6,            BXX7,            BXX8,            BYY1,
+     Q   BYY2,            BYY3,            BYY4,            BYY5,
+     R   BYY6,            BYY7,            BYY8,            BZZ1,
+     S   BZZ2,            BZZ3,            BZZ4,            BZZ5,
+     T   BZZ6,            BZZ7,            BZZ8,            AJP4(1,IP),
+     U   AJP5(1,IP),      AJP6(1,IP),      AJP7(1,IP),      AJP8(1,IP),
+     V   AJP9(1,IP),      AJ1,             AJ2,             AJ3,
+     W   AJ4,             AJ5,             AJ6,             SMAX,
+     X   DELTAX,          ICP,             IDEG,            NU,
+     Y   VOLP(1,IP),      NEL)
 C
-! sb
-! used for full integration
-!         CALL S8SDERI3(OFFG,OFF,VOLP(1,IP),NGL,
-!     .    A_GAUSS(IR,NPTR),A_GAUSS(IS,NPTS),A_GAUSS(IT,NPTT),WI,
-!     .    XD1,XD2,XD3,XD4,XD5,XD6,XD7,XD8,
-!     .    YD1,YD2,YD3,YD4,YD5,YD6,YD7,YD8,
-!     .    ZD1,ZD2,ZD3,ZD4,ZD5,ZD6,ZD7,ZD8,
-!     .    DN_X,DN_Y,DN_Z,VOLN)
-! used for ANS formulation
-         CALL S8SDERI3(OFFG,OFF,VOLP(1,IP),NGL,
-     .    A_GAUSS(IT,NPTT),A_GAUSS(IR,NPTR),A_GAUSS(IS,NPTS),WI,
-     .    XD1,XD2,XD3,XD4,XD5,XD6,XD7,XD8,
-     .    YD1,YD2,YD3,YD4,YD5,YD6,YD7,YD8,
-     .    ZD1,ZD2,ZD3,ZD4,ZD5,ZD6,ZD7,ZD8,
-     .    A11,A12,A13,A21,A22,A23,A31,A32,A33,
-     .    DN_R,DN_S,DN_T,INVJ,
-     .    DN_X,DN_Y,DN_Z,VOLN)
-!         CALL S8SDEFO3(
-!     .    ULX1, ULX2, ULX3, ULX4, ULX5, ULX6, ULX7, ULX8,
-!     .    ULY1, ULY2, ULY3, ULY4, ULY5, ULY6, ULY7, ULY8,
-!     .    ULZ1, ULZ2, ULZ3, ULZ4, ULZ5, ULZ6, ULZ7, ULZ8,
-!     .    DN_X, DN_Y, DN_Z,
-!     .    DXX, DXY, DXZ, DYX, DYY, DYZ, DZX, DZY, DZZ, D4, D5, D6,
-!     .    WXX, WYY, WZZ,LBUF%VOL,OFF,LBUF%EINT,GBUF%OFF,
-!     .    DSV, ICP, FAC,SDV ,ISELECT,IDEG)
+         CALL S8SDERI3(
+     1   OFFG,            OFF,             VOLP(1,IP),      NGL,
+     2   A_GAUSS(IT,NPTT),A_GAUSS(IR,NPTR),A_GAUSS(IS,NPTS),WI,
+     3   XD1,             XD2,             XD3,             XD4,
+     4   XD5,             XD6,             XD7,             XD8,
+     5   YD1,             YD2,             YD3,             YD4,
+     6   YD5,             YD6,             YD7,             YD8,
+     7   ZD1,             ZD2,             ZD3,             ZD4,
+     8   ZD5,             ZD6,             ZD7,             ZD8,
+     9   A11,             A12,             A13,             A21,
+     A   A22,             A23,             A31,             A32,
+     B   A33,             DN_R,            DN_S,            DN_T,
+     C   INVJ,            DN_X,            DN_Y,            DN_Z,
+     D   VOLN,            NEL)
         CALL S8SBDEFO3(
-     .    ULX1, ULX2, ULX3, ULX4, ULX5, ULX6, ULX7, ULX8,
-     .    ULY1, ULY2, ULY3, ULY4, ULY5, ULY6, ULY7, ULY8,
-     .    ULZ1, ULZ2, ULZ3, ULZ4, ULZ5, ULZ6, ULZ7, ULZ8,
-     .    XD1,XD2,XD3,XD4,XD5,XD6,XD7,XD8,
-     .    YD1,YD2,YD3,YD4,YD5,YD6,YD7,YD8,
-     .    ZD1,ZD2,ZD3,ZD4,ZD5,ZD6,ZD7,ZD8,
-     .    INVJ,A_GAUSS(IT,NPTT),A_GAUSS(IR,NPTR),A_GAUSS(IS,NPTS),
-     .    A11,A12,A13,A21,A22,A23,A31,A32,A33,
-     .    DN_R, DN_S, DN_T, BB,
-     .    DXX, DXY, DXZ, DYX, DYY, DYZ, DZX, DZY, DZZ, D4, D5, D6,
-     .    WXX, WYY, WZZ,LBUF%VOL,OFF,LBUF%EINT,GBUF%OFF,
-     .    DSV, ICP, FAC,SDV ,ISELECT,IDEG)
+     1   ULX1,            ULX2,            ULX3,            ULX4,
+     2   ULX5,            ULX6,            ULX7,            ULX8,
+     3   ULY1,            ULY2,            ULY3,            ULY4,
+     4   ULY5,            ULY6,            ULY7,            ULY8,
+     5   ULZ1,            ULZ2,            ULZ3,            ULZ4,
+     6   ULZ5,            ULZ6,            ULZ7,            ULZ8,
+     7   XD1,             XD2,             XD3,             XD4,
+     8   XD5,             XD6,             XD7,             XD8,
+     9   YD1,             YD2,             YD3,             YD4,
+     A   YD5,             YD6,             YD7,             YD8,
+     B   ZD1,             ZD2,             ZD3,             ZD4,
+     C   ZD5,             ZD6,             ZD7,             ZD8,
+     D   INVJ,            A_GAUSS(IT,NPTT),A_GAUSS(IR,NPTR),A_GAUSS(IS,NPTS),
+     E   A11,             A12,             A13,             A21,
+     F   A22,             A23,             A31,             A32,
+     G   A33,             DN_R,            DN_S,            DN_T,
+     H   BB,              DXX,             DXY,             DXZ,
+     I   DYX,             DYY,             DYZ,             DZX,
+     J   DZY,             DZZ,             D4,              D5,
+     K   D6,              WXX,             WYY,             WZZ,
+     L   LBUF%VOL,        OFF,             LBUF%EINT,       GBUF%OFF,
+     M   DSV,             ICP,             FAC,             SDV,
+     N   ISELECT,         IDEG,            NEL,             ISMSTR)
 c
-!         IF (IDTMIN(1)==3.AND.ISMSTR == 12.AND.ISORTH==0.AND.JCVT==0) THEN
-!          CALL SORDEF12(LFT,LLT,DXX, DYY, DZZ,
-!     .         D4, D5, D6,
-!     .         R11, R21, R31, R12, R22, R32, R13, R23, R33,OFFG0)
-!         ENDIF
-         DO I=LFT,LLT
+         DO I=1,NEL
            RHOO(I) = LBUF%RHO(I)
          ENDDO
           DIVDE(1:NEL) = DT1*(DXX(1:NEL)+ DYY(1:NEL)+ DZZ(1:NEL))+SDV(1:NEL)   
-          CALL SRHO3( PM         , LBUF%VOL  ,LBUF%RHO, LBUF%EINT, DIVDE,
-     2                FLUX(1,NF1), FLU1(NF1) ,VOLN    , DVOL     , NGL , MXT ,  OFF,
-     3                0          , GBUF%TAG22,VOLP(1,IP),LBUF%VOL0DP,AMU  ,GBUF%OFF )
+          CALL SRHO3(
+     1   PM,         LBUF%VOL,   LBUF%RHO,   LBUF%EINT,
+     2   DIVDE,      fake_array,FLU1(NF1),  VOLN,
+     3   DVOL,       NGL,        MXT,        OFF,
+     4   0,          GBUF%TAG22, VOLP(1,IP), LBUF%VOL0DP,
+     5   AMU,        GBUF%OFF,   NEL,        MTN,
+     6   JALE,       ISMSTR,     JEUL,       JLAG,
+     .   fake_size,fake_size,0)
 C                                       
-!       IF (ISMSTR == 12.AND.IDTMIN(1)==3.AND.ISORTH==0.AND.JCVT==0) THEN
-!         CALL SROTO12_SIG(LFT,LLT,LBUF%SIG,NEL,
-!     .           R11, R21, R31, R12, R22, R32, R13, R23, R33,OFFG0)
-!!! temporary replaced by (the same) SROTO12_SIG() in order to do not affect
-!!! the other multidimensional buffer ARRAYS which are still not modified
-!!!         CALL SROTO12(LFT,LLT,LBUF%SIG,
-!!!     .           R11, R21, R31, R12, R22, R32, R13, R23, R33,OFFG0)
-!    !   ENDIF ! (ISMSTR == 10.AND.IDTMIN(1)==3)
-!         IF (JCVT == 0) THEN
-!            CALL SROTA3(LBUF%SIG,S1   ,S2   ,S3   ,S4 ,
-!     .                  S5      ,S6   ,WXX  ,WYY  ,WZZ,
-!     .                  NEL     )
-!C-----------------------------
-!C      SMALL STRAIN
-!C-----------------------------
-!            CALL SMALLC3(GBUF%SMSTR,GBUF%OFF,OFF,WXX,WYY,
-!     .              WZZ,DXX,DYY,DZZ,LBUF%RHO,RHOO,
-!     .             DVOL,VOLN,SDV ,NEL)
-!
-!         ELSE
 C-----------------------------
 C      EXTRACT STRESSES + SMALL STRAIN
 C-----------------------------
             CALL CSMALL3(LBUF%SIG,S1,S2,S3,S4,S5,S6,
      .                   GBUF%OFF,OFF,NEL)
-!         ENDIF
 C
 C    for heat transfert
 C
-!      IF(JTHE < 0 ) THEN
-!            CALL S8ZTEMPEL(
-!     .           LFT,LLT,NI,
-!     .           A_GAUSS(IR,NPTR),A_GAUSS(IS,NPTS),A_GAUSS(IT,NPTT),
-!     .           NC1,NC2,NC3,NC4,NC5,NC6,NC7,NC8,
-!     .           TEMP,TEMPEL)
-!      ENDIF    
 C------------------------------------------------------
 C     CALCUL DES CONTRAINTES SUIVANT LOIS CONSTITUTIVES
 C     TIME STEP EST CALCULE ICI DT2T
 C------------------------------------------------------
-      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(35,1)
+      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(TIMERS,35)
 c
-!      IF(IBOLTP /= 0) CALL BOLTST(IBOLTP,IP,BPRELD,LBUF%SIG,TT,NEL,SENSOR,LSENSOR)
 c
-      CALL MMAIN(ELBUF_TAB,NG   ,PM     ,GEO        ,FV         ,ALE_CONNECT   ,
-     2           IXS    ,IPARG  ,V      ,TF         ,NPF        ,BUFMAT  ,
-     3           STI    ,X      ,DT2T   ,NELTST     ,ITYPTST    ,OFFSET  ,
-     4           NEL    ,W      ,OFF    ,NGEO       ,
-     6           MXT    ,NGL    ,VOLN   ,VD2        ,DVOL	,DELTAX  ,
-     7           VIS    ,QVIS   ,CXX    ,S1         ,S2 	,S3	 ,
-     8           S4     ,S5     ,S6     ,DXX        ,DYY	,DZZ	 ,
-     9           D4     ,D5     ,D6     ,WXX        ,WYY	,WZZ	 ,
-     A           AJ1    ,AJ2    ,AJ3    ,AJ4        ,AJ5	,AJ6	 ,
-     B           VDX    ,VDY    ,VDZ    ,MUVOID     ,SSP_EQ	,AIRE	 ,
-     C           SIGY   ,ET     ,R1_FREE,LBUF%PLA   ,R3_FREE	,AMU   ,
-     DMFXX(1,IP),MFXY(1,IP),MFXZ(1,IP),MFYX(1,IP)   ,MFYY(1,IP) ,MFYZ(1,IP), 
-     EMFZX(1,IP),MFZY(1,IP),MFZZ(1,IP)  ,IPM        ,GAMA	,BID	,
-     F           BID    ,BID    ,BID    ,BID        ,BID	,BID	,
-     G           ISTRAIN,TEMPEL ,DIE    ,IEXPAN     ,ILAY	,MSSA	,
-     H           DMELS  ,IR     ,IS     ,IT         ,TABLE	,BID	,
-     I           BID    ,BID    ,BID    ,IPARG(1,NG),IGEO   ,CONDE  ,
-     J           ITASK  ,NLOC_DMG,VAR_REG(1,IP),MATPARAM_TAB,H3D_STRAIN)
+      CALL MMAIN(TIMERS,OUTPUT,
+     1   ELBUF_TAB,    NG,           PM,           GEO,
+     2                 ALE_CONNECT,  IXS,          IPARG,
+     3   V,            TF,           NPF,          BUFMAT,
+     4   STI,          X,            DT2T,         NELTST,
+     5   ITYPTST,      OFFSET,       NEL,          W,
+     6   OFF,          NGEO,         MXT,          NGL,
+     7   VOLN,         VD2,          DVOL,         DELTAX,
+     8   VIS,          QVIS,         CXX,          S1,
+     9   S2,           S3,           S4,           S5,
+     A   S6,           DXX,          DYY,          DZZ,
+     B   D4,           D5,           D6,           WXX,
+     C   WYY,          WZZ,          AJ1,          AJ2,
+     D   AJ3,          AJ4,          AJ5,          AJ6,
+     E   VDX,          VDY,          VDZ,          MUVOID,
+     F   SSP_EQ,       AIRE,         SIGY,         ET,
+     G   R1_FREE,      LBUF%PLA,     R3_FREE,      AMU,
+     H   MFXX(1,IP),   MFXY(1,IP),   MFXZ(1,IP),   MFYX(1,IP),
+     I   MFYY(1,IP),   MFYZ(1,IP),   MFZX(1,IP),   MFZY(1,IP),
+     J   MFZZ(1,IP),   IPM,          GAMA,         BID,
+     K   BID,          BID,          BID,          BID,
+     L   BID,          BID,          ISTRAIN,      TEMPEL,
+     M   DIE,          IEXPAN,       ILAY,         MSSA,
+     N   DMELS,        IR,           IS,           IT,
+     O   TABLE,        BID,          BID,          BID,
+     P   BID,          IPARG(1,NG),  IGEO,         CONDE,
+     Q   ITASK,        NLOC_DMG,     VAR_REG(1,IP),MAT_ELEM,
+     R   H3D_STRAIN,   JPLASOL,      JSPH,         SZ_R1_FREE,
+     S   SNPC,         STF,          SBUFMAT,      GLOB_THERM,
+     *   SVIS,         SZ_IX,        IRESP,
+     T   N2D,          TH_STRAIN,    NGROUP,       TT, 
+     .   DT1,         NTABLE,      NUMELQ,      nummat,
+     .   numgeo,      numnod,      numels,
+     .   IDEL7NOK,    IDTMIN,      MAXFUNC,
+     .   IMON_MAT,    USERL_AVAIL, impl_s,
+     .   idyna,       DT,    BID   ,sensors)
 C
-!       IF (ISMSTR == 12.AND.IDTMIN(1)==3) THEN
-!        IF (ISORTH==0.AND.JCVT==0) THEN
-!         CALL SROTO12_SIG(LFT,LLT,LBUF%SIG,NEL,
-!     .           R11, R12, R13, R21, R22, R23, R31, R32, R33,OFFG0)
-!!! temporary replaced by (the same) SROTO12_SIG() in order to do not affect
-!!! the other multidimensional buffer ARRAYS which are still not modified
-!!!         CALL SROTO12(LFT,LLT,LBUF%SIG,
-!!!     .           R11, R12, R13, R21, R22, R23, R31, R32, R33,OFFG0)
-!         IF (ISTRAIN == 1) THEN 
-!          CALL SORDEF12(LFT,LLT,DXX, DXY, DXZ,
-!     .         D4, D5, D6,
-!     .         R11, R12, R13, R21, R22, R23, R31, R32, R33,OFFG0)
-!         ENDIF
-!        END IF 
-!       ENDIF ! (ISMSTR == 10.AND.IDTMIN(1)==3)
        IF (ISTRAIN == 1)THEN 
-        CALL SSTRA3(DXX,DYY,DZZ,D4,D5,
-     .              D6, LBUF%STRA, WXX, WYY, WZZ,
-     .              OFF,NEL)
+        CALL SSTRA3(
+     1   DXX,      DYY,      DZZ,      D4,
+     2   D5,       D6,       LBUF%STRA,WXX,
+     3   WYY,      WZZ,      OFF,      NEL,
+     4   JCVT)
        ENDIF
-      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STOPTIME(35,1)
+      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STOPTIME(TIMERS,35)
 C----------------------------
 C     INTERNAL FORCES
 C----------------------------
-      CALL S8SFINT3(LBUF%SIG,
-     .   F11,F21,F31,F12,F22,F32,F13,F23,F33,F14,F24,F34,
-     .   F15,F25,F35,F16,F26,F36,F17,F27,F37,F18,F28,F38,
-     .   DN_X, DN_Y, DN_Z, BB,
-     .   VOLN,QVIS,ICP,JFAC(1,IP),NEL ,ISELECT,IDEG) 
+      CALL S8SFINT3(
+     1   LBUF%SIG,  F11,       F21,       F31,
+     2   F12,       F22,       F32,       F13,
+     3   F23,       F33,       F14,       F24,
+     4   F34,       F15,       F25,       F35,
+     5   F16,       F26,       F36,       F17,
+     6   F27,       F37,       F18,       F28,
+     7   F38,       DN_X,      DN_Y,      DN_Z,
+     8   BB,        VOLN,      QVIS,      ICP,
+     9   JFAC(1,IP),NEL,       ISELECT,   IDEG,
+     A   ISMSTR,    SVIS)
       CALL S8EFMOY3(
-     .         LBUF%SIG,
-     .         VOLN   ,QVIS   ,PP     ,LBUF%EINT,LBUF%RHO,LBUF%QVIS,
-     .         LBUF%PLA,LBUF%EPSD,GBUF%EPSD,GBUF%SIG,GBUF%EINT,GBUF%RHO,
-     .         GBUF%QVIS,GBUF%PLA,VOLG ,STI    ,STIN    ,ICP     ,
-     .         OFF    ,LBUF%VOL,GBUF%VOL,GBUF%G_PLA,GBUF%G_EPSD,
-     .         LBUF%EINTTH,GBUF%EINTTH,IEXPAN,NEL,CONDE,CONDEN) 
+     1   LBUF%SIG,   VOLN,       QVIS,       PP,
+     2   LBUF%EINT,  LBUF%RHO,   LBUF%QVIS,  LBUF%PLA,
+     3   LBUF%EPSD,  GBUF%EPSD,  GBUF%SIG,   GBUF%EINT,
+     4   GBUF%RHO,   GBUF%QVIS,  GBUF%PLA,   VOLG,
+     5   STI,        STIN,       ICP,        OFF,
+     6   LBUF%VOL,   GBUF%VOL,   GBUF%G_PLA, GBUF%G_EPSD,
+     7   LBUF%EINTTH,GBUF%EINTTH,IEXPAN,     NEL,
+     8   CONDE,      CONDEN,SVIS,GLOB_THERM%NODADT_THERM,
+     9   GBUF%WPLA,  LBUF%WPLA, GBUF%G_WPLA)
 c-------------------------
 c     Virtual internal forces of regularized non local ddl 
 c--------------------------
       IF (INLOC > 0) THEN  
-        IMAT = MXT(LFT)
+        IMAT = MXT(1)
         ZR = A_GAUSS(IR,NPTR)
         ZS = A_GAUSS(IS,NPTS) 
         ZT = A_GAUSS(IT,NPTT)
         CALL BASIS8 (ZR,ZS,ZT,H,PR2,PS2,PT2)
-        CALL S8ZFINT_REG(NLOC_DMG ,    
-     .       VAR_REG(1,IP),NEL      ,GBUF%OFF ,VOLN     ,
-     .       NC1      ,NC2      ,NC3      ,NC4      ,
-     .       NC5      ,NC6      ,NC7      ,NC8      ,
-     .       PX1      ,PX2      ,PX3      ,PX4      ,
-     .       PX5      ,PX6      ,PX7      ,PX8      ,
-     .       PY1      ,PY2      ,PY3      ,PY4      ,
-     .       PY5      ,PY6      ,PY7      ,PY8      ,
-     .       PZ1      ,PZ2      ,PZ3      ,PZ4      ,
-     .       PZ5      ,PZ6      ,PZ7      ,PZ8      ,
-     .       IMAT     ,H        ,WI       ,IP       ,
-     .       ITASK    ,DT2T     )
+        CALL S8ZFINT_REG(
+     1   NLOC_DMG,     VAR_REG(1,IP),NEL,          GBUF%OFF,
+     2   VOLN,         NC1,          NC2,          NC3,
+     3   NC4,          NC5,          NC6,          NC7,
+     4   NC8,          PX1,          PX2,          PX3,
+     5   PX4,          PX5,          PX6,          PX7,
+     6   PX8,          PY1,          PY2,          PY3,
+     7   PY4,          PY5,          PY6,          PY7,
+     8   PY8,          PZ1,          PZ2,          PZ3,
+     9   PZ4,          PZ5,          PZ6,          PZ7,
+     A   PZ8,          IMAT,         H,            WI,
+     B   IP,           ITASK,        DT2T,         GBUF%VOL,
+     C   NFT)
        ENDIF
-       DO I=LFT,LLT
+       DO I=1,NEL
         OFFG(I)=MIN(OFFG(I),OFF(I))
-        IF (LBUF%OFF(I).GT.ONE .AND. GBUF%OFF(I) == ONE) THEN
+        IF (LBUF%OFF(I)>ONE .AND. GBUF%OFF(I) == ONE) THEN
           OFFS(I)=MIN(LBUF%OFF(I),OFFS(I))
           IOFFS  =1
         END IF
@@ -1155,28 +942,14 @@ C-------------------------
 c    finite element heat transfert  
 C--------------------------
 C
-!         IF(JTHE < 0) THEN
-!           CALL S8ETHERM(PM , MXT, VOLN,  NI,
-!     .                   NC1, NC2, NC3, NC4,
-!     .                   NC5, NC6, NC7, NC8,      
-!     .     PX1(1,IP), PX2(1,IP), PX3(1,IP), PX4(1,IP),
-!     .     PY1(1,IP), PY2(1,IP), PY3(1,IP), PY4(1,IP),
-!     .     PZ1(1,IP), PZ2(1,IP), PZ3(1,IP), PZ4(1,IP),
-!     .     PX5(1,IP), PX6(1,IP), PX7(1,IP), PX8(1,IP),
-!     .     PY5(1,IP), PY6(1,IP), PY7(1,IP), PY8(1,IP),
-!     .     PZ5(1,IP), PZ6(1,IP), PZ7(1,IP), PZ8(1,IP),
-!     .                   DT1, TEMP,TEMPEL,DIE,
-!     .                   THEM,GBUF%OFF,LBUF%OFF,
-!     .     PARTSAV, IPARTS, LBUF%VOL) 
-!          ENDIF  
         ENDDO    !  IT=1,NPTT
        ENDDO     !  IS=1,NPTS
       ENDDO      !  IR=1,NPTR
 C-----------End integrating points-----
 c
       IF (IOFFS == 1) THEN
-       DO I=LFT,LLT
-          IF (OFFS(I).LE.TWO) GBUF%OFF(I)=OFFS(I)
+       DO I=1,NEL
+          IF (OFFS(I)<=TWO) GBUF%OFF(I)=OFFS(I)
        END DO
 c-------------------
        DO IR=1,NPTR
@@ -1184,54 +957,63 @@ c-------------------
          DO IT=1,NPTT
             LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,IT)
           IP = IR + ( (IS-1) + (IT-1)*NPTS )*NPTR
-          DO I=LFT,LLT
+          DO I=1,NEL
               IF (GBUF%OFF(I) > ONE) LBUF%OFF(I)=GBUF%OFF(I)
           END DO
          END DO 
         END DO 
        END DO
       END IF   ! IOFFS == 1
-      IF(ICP.EQ.1.AND.ISMSTR/=10.AND.ISMSTR/=12) THEN
+      IF(ICP==1.AND.ISMSTR/=10.AND.ISMSTR/=12) THEN
        CALL S8ZFINTP3(
-     .   PXC1, PXC2, PXC3, PXC4,
-     .   PYC1, PYC2, PYC3, PYC4,
-     .   PZC1, PZC2, PZC3, PZC4,
-     .   F11,F21,F31,F12,F22,F32,F13,F23,F33,F14,F24,F34,
-     .   F15,F25,F35,F16,F26,F36,F17,F27,F37,F18,F28,F38,
-     .   VOLG,PP,IDEG)
+     1   PXC1,    PXC2,    PXC3,    PXC4,
+     2   PYC1,    PYC2,    PYC3,    PYC4,
+     3   PZC1,    PZC2,    PZC3,    PZC4,
+     4   F11,     F21,     F31,     F12,
+     5   F22,     F32,     F13,     F23,
+     6   F33,     F14,     F24,     F34,
+     7   F15,     F25,     F35,     F16,
+     8   F26,     F36,     F17,     F27,
+     9   F37,     F18,     F28,     F38,
+     A   VOLG,    PP,      IDEG,    NEL)
       ENDIF
 C-----------------------------
 C     SMALL STRAIN 
 C-----------------------------
-      CALL SMALLB3(GBUF%OFF,OFFG)
-      ITET = 0
-      CALL SMALLGEO3(NGL, GBUF%OFF ,VOLG ,DELTAX, GBUF%VOL ,ITET )
+      CALL SMALLB3(
+     1   GBUF%OFF,OFFG,    NEL,     ISMSTR)
       IF (ISMSTR==11.OR.(JCVT == 0 .AND. ISMSTR>0)) THEN
          CALL S8EDEFW3(
-     .    PXC1, PXC2, PXC3, PXC4, 
-     .    PYC1, PYC2, PYC3, PYC4, 
-     .    PZC1, PZC2, PZC3, PZC4, 
-     .    VX1, VX2, VX3, VX4, VX5, VX6, VX7, VX8,
-     .    VY1, VY2, VY3, VY4, VY5, VY6, VY7, VY8,
-     .    VZ1, VZ2, VZ3, VZ4, VZ5, VZ6, VZ7, VZ8,
-     .    WXX0, WYY0, WZZ0)
-         CALL SMALLG3(GBUF%SMSTR,OFFG,WXX0,WYY0,WZZ0,
-     .     R11, R12, R13, R21, R22, R23, R31, R32, R33,NEL)
+     1   PXC1,    PXC2,    PXC3,    PXC4,
+     2   PYC1,    PYC2,    PYC3,    PYC4,
+     3   PZC1,    PZC2,    PZC3,    PZC4,
+     4   VX1,     VX2,     VX3,     VX4,
+     5   VX5,     VX6,     VX7,     VX8,
+     6   VY1,     VY2,     VY3,     VY4,
+     7   VY5,     VY6,     VY7,     VY8,
+     8   VZ1,     VZ2,     VZ3,     VZ4,
+     9   VZ5,     VZ6,     VZ7,     VZ8,
+     A   WXX0,    WYY0,    WZZ0,    NEL)
+         CALL SMALLG3(
+     1   GBUF%SMSTR,OFFG,      WXX0,      WYY0,
+     2   WZZ0,      R11,       R12,       R13,
+     3   R21,       R22,       R23,       R31,
+     4   R32,       R33,       NEL,       ISMSTR,
+     5   JCVT)
       END IF
-!      IF (ISMSTR == 12.AND.IDTMIN(1)==3) THEN
-!        CALL S8SAV12(GBUF%OFF,OFFG0,GBUF%SMSTR,X  ,XDP   ,
-!     .     NC1   ,NC2   ,NC3   ,NC4   ,NC5   ,NC6   ,NC7   ,NC8   ,NEL)
-!      END IF
        IF (INCONV==1.AND.TT>ZERO ) THEN
-         CALL S8XREF_IMP(GBUF%OFF,GBUF%COR_XR ,
-     .   X1, X2, X3, X4, X5, X6, X7, X8,
-     .   Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
-     .   Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8,
-     .   GBUF%COR_FR, NEL)
+         CALL S8XREF_IMP(
+     1   GBUF%OFF,   GBUF%COR_XR,X1,         X2,
+     2   X3,         X4,         X5,         X6,
+     3   X7,         X8,         Y1,         Y2,
+     4   Y3,         Y4,         Y5,         Y6,
+     5   Y7,         Y8,         Z1,         Z2,
+     6   Z3,         Z4,         Z5,         Z6,
+     7   Z7,         Z8,         GBUF%COR_FR,NEL)
        END IF
 
 C--------------------------
-C       BILANS PAR MATERIAU
+C       balances by material
 C--------------------------
       IFLAG=MOD(NCYCLE,NCPRI)
       IF(IOUTPRT>0)THEN
@@ -1246,13 +1028,14 @@ C--------------------------
      .                  X1, X2, X3, X4, X5, X6, X7, X8,
      .                  Y1, Y2, Y3, Y4, Y5, Y6, Y7, Y8,
      .                  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8,
-     .                  ITASK,IPARG(1,NG))
+     .                  ITASK,IPARG(1,NG),SENSORS,GBUF%G_WPLA,GBUF%WPLA)
            ELSE
              CALL SRBILAN(PARTSAV,GBUF%EINT,GBUF%RHO,GBUF%RK,GBUF%VOL,
      .       VGXA, VGYA, VGZA, VGA2, VOLG,IPARTS,
      .       GRESAV,GRTH,IGRTH,GBUF%OFF,IEXPAN,GBUF%EINTTH,
      .       GBUF%FILL, XGXA, XGYA, XGZA,
-     .       XGXA2,XGYA2,XGZA2,XGXYA,XGYZA,XGZXA,ITASK,IPARG(1,NG))
+     .       XGXA2,XGYA2,XGZA2,XGXYA,XGYZA,XGZXA,ITASK,IPARG(1,NG),SENSORS,
+     .       NEL,GBUF%G_WPLA,GBUF%WPLA)
            ENDIF
       ENDIF
 C----------------------------
@@ -1263,28 +1046,56 @@ C----------------------------
      .   F15,F25,F35,F16,F26,F36,F17,F27,F37,F18,F28,F38,
      .   NEL   ) 
 C----------------------------
-      IF(NFILSOL/=0) CALL SFILLOPT(GBUF%FILL,STIN,
-     1   F11,F21,F31,F12,F22,F32,F13,F23,F33,F14,F24,F34,
-     2   F15,F25,F35,F16,F26,F36,F17,F27,F37,F18,F28,F38)    
+      IF(NFILSOL/=0) CALL SFILLOPT(
+     1   GBUF%FILL,STIN,     F11,      F21,
+     2   F31,      F12,      F22,      F32,
+     3   F13,      F23,      F33,      F14,
+     4   F24,      F34,      F15,      F25,
+     5   F35,      F16,      F26,      F36,
+     6   F17,      F27,      F37,      F18,
+     7   F28,      F38,      NEL)
 C----------------------------
       IF(IPARIT == 0)THEN
-          CALL SCUMU3(GBUF%OFF,A,NC1, NC2, NC3, NC4,
-     2             NC5, NC6, NC7, NC8,STIFN,STIN,
-     3   F11,F21,F31,F12,F22,F32,F13,F23,F33,F14,F24,F34,
-     4   F15,F25,F35,F16,F26,F36,F17,F27,F37,F18,F28,F38,
-     5   NVC,BID,BID,BID,
-     6   BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,
-     7   BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,
-     8   THEM, FTHE,CONDN,CONDEN)
+          CALL SCUMU3(
+     1   GBUF%OFF,A,       NC1,     NC2,
+     2   NC3,     NC4,     NC5,     NC6,
+     3   NC7,     NC8,     STIFN,   STIN,
+     4   F11,     F21,     F31,     F12,
+     5   F22,     F32,     F13,     F23,
+     6   F33,     F14,     F24,     F34,
+     7   F15,     F25,     F35,     F16,
+     8   F26,     F36,     F17,     F27,
+     9   F37,     F18,     F28,     F38,
+     A   NVC,     BID,     BID,     BID,
+     B   BID,     BID,     BID,     BID,
+     C   BID,     BID,     BID,     BID,
+     D   BID,     BID,     BID,     BID,
+     E   BID,     BID,     BID,     BID,
+     F   BID,     BID,     BID,     BID,
+     G   BID,     BID,     BID,     BID,
+     H   THEM,    FTHE,    CONDN,   CONDEN,
+     I   NEL,     JTHE,    ISROT,   IPARTSPH,GLOB_THERM%NODADT_THERM)
       ELSE
-          CALL SCUMU3P(GBUF%OFF,STIN,FSKY,FSKY,IADS,
-     2   F11,F21,F31,F12,F22,F32,F13,F23,F33,F14,F24,F34,
-     3   F15,F25,F35,F16,F26,F36,F17,F27,F37,F18,F28,F38,
-     4   NC1,NC2,NC3,NC4,NC5,NC6,NC7,NC8,
-     5   BID,BID,BID,
-     6   BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,
-     7   BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,BID,
-     8   THEM,FTHESKY,CONDNSKY,CONDEN)
+          CALL SCUMU3P(
+     1   GBUF%OFF,STIN,    FSKY,    FSKY,
+     2   IADS,    F11,     F21,     F31,
+     3   F12,     F22,     F32,     F13,
+     4   F23,     F33,     F14,     F24,
+     5   F34,     F15,     F25,     F35,
+     6   F16,     F26,     F36,     F17,
+     7   F27,     F37,     F18,     F28,
+     8   F38,     NC1,     NC2,     NC3,
+     9   NC4,     NC5,     NC6,     NC7,
+     A   NC8,     BID,     BID,     BID,
+     B   BID,     BID,     BID,     BID,
+     C   BID,     BID,     BID,     BID,
+     D   BID,     BID,     BID,     BID,
+     E   BID,     BID,     BID,     BID,
+     F   BID,     BID,     BID,     BID,
+     G   BID,     BID,     BID,     BID,
+     H   THEM,    FTHESKY, CONDNSKY,CONDEN,
+     I   NEL,     NFT,     JTHE,    ISROT,
+     J   IPARTSPH,GLOB_THERM%NODADT_THERM)
       ENDIF
 C-----------
       IF (ALLOCATED(VAR_REG)) DEALLOCATE(VAR_REG)

@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CHSTI3                        source/elements/shell/coque/chsti3.F
-Chd|-- called by -----------
-Chd|        CFORC3                        source/elements/shell/coque/cforc3.F
-Chd|        CFORC3_CRK                    source/elements/xfem/cforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    chsti3        ../engine/source/elements/shell/coque/chsti3.F
+!||--- called by ------------------------------------------------------
+!||    cforc3        ../engine/source/elements/shell/coque/cforc3.F
+!||    cforc3_crk    ../engine/source/elements/xfem/cforc3_crk.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CHSTI3(JFT ,JLT,THK,HOUR,OFF ,PX1,
      2                  PX2,PY1,PY2 ,SIGY,IXC,DT1C,
      3                  SSP,RHO,STI ,Z2 ,EANI,STIR,
@@ -40,6 +41,7 @@ Chd|====================================================================
      B   IPARTC ,PARTSAV,
      C   IHBE   ,NFT   ,ISMSTR ,SRH3 ,IGTYP ,
      D   IGMAT  ,A11R  ,NEL)
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -52,14 +54,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com06_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
 #include      "scr02_c.inc"
-#include      "scr06_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "scr17_c.inc"
@@ -93,7 +92,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, MX, J
+      INTEGER I, MX
 C     REAL
       my_real
      .   GAMA1(MVSIZ), GAMA2(MVSIZ), GAMA3(MVSIZ), GAMA4(MVSIZ),
@@ -101,16 +100,16 @@ C     REAL
      .   HG1(MVSIZ), HG2(MVSIZ) ,HP1(MVSIZ), HP2(MVSIZ) , 
      .   G(MVSIZ) ,  B1(MVSIZ),  B2(MVSIZ),  
      .   A11(MVSIZ) ,EHOU(MVSIZ),
-     .   PX1V, PX2V, PY1V, PY2V, SSPHVL,ZZ2,VV, 
-     .   SHFPR3, FAC, BB, HOUR1(MVSIZ), HOUR2(MVSIZ), HOUR3(MVSIZ), 
-     .   EHOURT, PX1VP,PX2VP,PY1VP,PY2VP, FMAX(MVSIZ),
-     .   HOUR1P,HOUR2P,HOUR3P,FMAX1,FMAXP1,FMAX2,FMAXP2,FMAXP,
+     .   PX1V, PX2V, PY1V, PY2V,VV, 
+     .   SHFPR3, FAC, HOUR1(MVSIZ), HOUR2(MVSIZ), HOUR3(MVSIZ), 
+     .   EHOURT, FMAX(MVSIZ),
+     .   
      .   SCALE(MVSIZ)
 C-----------------------------------------------
 C
       EHOURT = ZERO
 C
-      IF(ISMSTR.NE.3.AND.IHBE.NE.0)THEN
+      IF(ISMSTR/=3.AND.IHBE/=0)THEN
        DO I=JFT,JLT
          PX1V    = PX1(I)*VHX(I)
          PX2V    = PX2(I)*VHX(I)
@@ -119,7 +118,7 @@ C
          GAMA1(I)= OFF(I)*( ONE - PX1V-PY1V)
          GAMA3(I)= OFF(I)*( ONE + PX1V+PY1V)
          GAMA2(I)= OFF(I)*(-ONE - PX2V-PY2V)
-         GAMA4(I)= OFF(I)*(-ONE + PX2V+PY2V)	 
+         GAMA4(I)= OFF(I)*(-ONE + PX2V+PY2V)   
        ENDDO
       ELSE
        DO I=JFT,JLT
@@ -150,20 +149,20 @@ C-----------------------------------
 C     TRIANGLES
 C-----------------------------------
       DO I=JFT,JLT
-       IF(IXC(4,I).EQ.IXC(5,I))THEN
+       IF(IXC(4,I)==IXC(5,I))THEN
          H3Q(I)=ZERO
          H3L(I)=ZERO
          H1(I)=ZERO
-         H2(I)=ZERO	 
+         H2(I)=ZERO   
        ENDIF
       ENDDO
 C-----------------------------------
-C     RIGIDITE-DT
+C     STIFFNESS - DT
 C-----------------------------------
        DO I=JFT,JLT
           SCALE(I) = ZERO
       ENDDO
-      IF(NODADT.NE.0.OR.IDT1SH.EQ.1.OR.IDTMINS==2)THEN
+      IF(NODADT/=0.OR.IDT1SH==1.OR.IDTMINS==2)THEN
         DO I=JFT,JLT
           SCALE(I) = +MAX(GAMA1(I)*GAMA1(I),GAMA2(I)*GAMA2(I),
      .              GAMA3(I)*GAMA3(I),GAMA4(I)*GAMA4(I)) *
@@ -178,7 +177,7 @@ C
      .                                       .AND. IGMAT > 0)) THEN
           IF(NADMESH==0)THEN
              DO I=JFT,JLT
-              IF (OFF(I).EQ.ZERO) THEN
+              IF (OFF(I)==ZERO) THEN
                STI(I) = ZERO
                STIR(I) = ZERO          
              ELSE
@@ -192,7 +191,7 @@ C
              ENDDO
          ELSE
             DO I=JFT,JLT
-             IF (OFF(I).EQ.ZERO) THEN
+             IF (OFF(I)==ZERO) THEN
               STI(I) = ZERO
               STIR(I) = ZERO          
             ELSE
@@ -207,7 +206,7 @@ C
         ELSE ! IGTYP
           IF(NADMESH==0)THEN
              DO I=JFT,JLT
-              IF (OFF(I).EQ.ZERO) THEN
+              IF (OFF(I)==ZERO) THEN
                STI(I) = ZERO
                STIR(I) = ZERO          
              ELSE
@@ -220,7 +219,7 @@ c     ..                + 0.5 * SHF(I) * AREA(I) * G(I)/A11(I))
              ENDDO
          ELSE
             DO I=JFT,JLT
-             IF (OFF(I).EQ.ZERO) THEN
+             IF (OFF(I)==ZERO) THEN
               STI(I) = ZERO
               STIR(I) = ZERO          
             ELSE
@@ -234,7 +233,7 @@ c     ..                + 0.5 * SHF(I) * AREA(I) * G(I)/A11(I))
        ENDIF! igtyp
       ENDIF ! 
 C-----------------------------------
-C     FORCES ANTISABLIER DE MEMBRANE
+C     ANTI-HOURGLASS MEMBRANE FORCES
 C-----------------------------------
       DO I=JFT,JLT
         HG1(I)=VX1(I)*GAMA1(I)+VX2(I)*GAMA2(I)
@@ -263,7 +262,7 @@ C-----------------------------------
       ENDDO
 C
 C----------------------------------
-C     FORCES ANTISABLIER DE FLEXION
+C     ANTI-HOURGLASS BENDING FORCES
 C----------------------------------
       DO I=JFT,JLT
         HG1(I)=VZ1(I)*GAMA1(I)+VZ2(I)*GAMA2(I)
@@ -282,7 +281,7 @@ C----------------------------------
       ENDDO
 C
 C------------------------
-C     MOMENTS ANTISABLIER
+C     ANTI-HOURGLASS MOMENTS
 C------------------------
       DO I=JFT,JLT
        HG1(I)=RX1(I)-RX2(I)+RX3(I)-RX4(I)
@@ -310,16 +309,12 @@ C
          PARTSAV(8,MX)=PARTSAV(8,MX) + EHOU(I)
       ENDDO
 C
-#include "atomic.inc"
+!$OMP ATOMIC
         EHOUR = EHOUR + EHOURT
-#include "atomend.inc"
 C
-      IF((ANIM_E(25).EQ.1).OR.(ANIM_CE(25).EQ.1).OR.
-     &             (OUTP_CS(25).EQ.1)) THEN
-        DO I=JFT,JLT
-          EANI(NFT+NUMELS+I) = EANI(NFT+NUMELS+I)+EHOU(I)
-        ENDDO
-      ENDIF
+      DO I=JFT,JLT
+        EANI(NFT+NUMELS+I) = EANI(NFT+NUMELS+I)+EHOU(I)
+      ENDDO
 C
       RETURN
       END

@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS62                      source/materials/mat/mat062/sigeps62.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|-- calls ---------------
-Chd|        VALPVECDP_V                   source/materials/mat/mat033/sigeps33.F
-Chd|        VALPVEC_V                     source/materials/mat/mat033/sigeps33.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps62      ../engine/source/materials/mat/mat062/sigeps62.F
+!||--- called by ------------------------------------------------------
+!||    mulaw         ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8        ../engine/source/materials/mat_share/mulaw8.F90
+!||--- calls      -----------------------------------------------------
+!||    finter        ../engine/source/tools/curve/finter.F
+!||    valpvec_v     ../engine/source/materials/mat/mat033/sigeps33.F
+!||    valpvecdp_v   ../engine/source/materials/mat/mat033/sigeps33.F
+!||====================================================================
        SUBROUTINE SIGEPS62(
      1      NEL    , NUPARAM, NUVAR   , NFUNC , IFUNC , NPF   ,
      2      TF     , TIME   , TIMESTEP, UPARAM, RHO0  , RHO   ,
@@ -49,13 +50,11 @@ C-----------------------------------------------
 C   G L O B A L   P A R A M E T E R S
 C-----------------------------------------------
 #include "mvsiz_p.inc"
-#include "scr17_c.inc"
 C-----------------------------------------------
 C   C O M M O N 
 C-----------------------------------------------
 #include "scr05_c.inc"
 #include "impl1_c.inc"
-#include "com01_c.inc"
 C----------------------------------------------------------------
 C  I N P U T   A R G U M E N T S
 C----------------------------------------------------------------
@@ -91,29 +90,29 @@ C----------------------------------------------------------------
 C  VARIABLES FOR FUNCTION INTERPOLATION 
 C----------------------------------------------------------------
       INTEGER NPF(*), NFUNC, IFUNC(NFUNC)
-      my_real FINTER,FINTTE,TF(*),FINT2V
+      my_real FINTER,FINTTE,TF(*)
       EXTERNAL FINTER,FINTTE
 C----------------------------------------------------------------
 C  L O C A L  V A R I B L E S
 C----------------------------------------------------------------
-      INTEGER    I,J,K,II,NORDRE,NPRONY,ITYPE,IVISC
+      INTEGER    I,J,K,II,NORDRE,NPRONY,IVISC
       my_real
      .   MU(100),AL(100),TAUX(100), GAMA(100),GAMAINF,NU,
      .   GMAX,S(MVSIZ,3),SD(MVSIZ,3),
      .   EC(MVSIZ,3),HD(MVSIZ,3,100),
      .   EV(MVSIZ,3),AV(MVSIZ,6),DIRPRV(MVSIZ,3,3),
      .   RV(MVSIZ),P(MVSIZ),RBULK,
-     .   EVV(MVSIZ,3),SSP(MVSIZ,3),FAC, BETA,
-     .   DTINV,VISC,FAC1,
-     .   E1,E2,E3,E4,E5,E6,EPSP, VM,DAV,VISC1,SIGXX(MVSIZ),
-     .   SIGYY(MVSIZ),SIGZZ(MVSIZ),SIGXY(MVSIZ),SIGZX(MVSIZ),
-     .   SIGYZ(MVSIZ),DVISC,A11,A12,A13,A22,A21,A23,
+     .   EVV(MVSIZ,3),SSP(MVSIZ,3),FAC, BETA(100),
+     .   FAC1,
+     .    
+     .   
+     .   DVISC,A11,A12,A13,A22,A21,A23,
      .   A31,A32,A33,SDG0(MVSIZ,6),SDG(MVSIZ,6),HG(MVSIZ,6),HG0(6),H(MVSIZ,3,100)
      
       my_real
-     .   A(3,3),DPRA(3,3),EIGEN(3),AMAX,ETI(MVSIZ),EFAC,RV_PUI,RV_PUI_TAB(MVSIZ),
-     .   CJ(MVSIZ),LAM_AL(3),RVL,LAMIN,CIMAX(MVSIZ),GVIS,CMAX,CMAX0,
-     .   D11,D12,D13,D21,D22,D23,D31,D32,D33,MU2
+     .   AMAX,ETI(MVSIZ),EFAC,RV_PUI_TAB(MVSIZ),
+     .   CJ(MVSIZ),LAM_AL(3),RVL,CIMAX(MVSIZ),GVIS,CMAX,CMAX0,
+     .   D11,D22,D33,MU2
       my_real ,DIMENSION(NEL,3) :: AI,BI
 C----------------------------------------------------------------
 
@@ -125,26 +124,27 @@ C SET INITIAL MATERIAL CONSTANTS
       GAMAINF = UPARAM(4)
       RBULK   = UPARAM(5)
       DVISC   = UPARAM(6)
-      BETA = NU/(ONE - TWO*NU)
+!!      BETA = NU/(ONE - TWO*NU)
       DO I= 1,NORDRE
        MU(I) = UPARAM(6 + I)
        AL(I) = UPARAM(6 + NORDRE + I)
+       BETA(I) = UPARAM(2*NORDRE + 2*NPRONY + 7 + I)
 C       GMAX = GMAX + AL(I)*MU(I)
        GMAX = GMAX + MU(I)
       ENDDO
 !!      IVISC = 0
       IVISC =  UPARAM(2*NORDRE + 2*NPRONY + 7 )
-      IF(NPRONY .NE. ZERO)THEN
+      IF(NPRONY /= ZERO)THEN
         DO I=1,NPRONY 
           GAMA(I)  = UPARAM(6 + 2*NORDRE + I)
           TAUX(I)  = UPARAM(6 + 2*NORDRE + NPRONY + I)
         ENDDO 
       ENDIF 
 !!      IF(IVISC == 1 .AND.  ITYPE >= 2 ) IVISC = 2 
-Csm +1
+C   +1
        GMAX = TWO*GMAX      
-C iniialisation des variabesl users 
-      IF(TIME.EQ.ZERO)THEN
+C initialization of user variables
+      IF(TIME==ZERO)THEN
        DO J = 1,NUVAR
         DO  I = 1, NEL
          UVAR(I,J) = ZERO
@@ -159,9 +159,9 @@ C iniialisation des variabesl users
        AV(I,5)=EPSYZ(I)/2
        AV(I,6)=EPSZX(I)/2
       ENDDO       
-CEigenvalues needed to be calcultated in double precision
+CEigenvalues needed to be calculated in double precision
 C        for a simple precision executing
-      IF (IRESP.EQ.1) THEN
+      IF (IRESP==1) THEN
         CALL VALPVECDP_V(AV,EVV,DIRPRV,NEL)
       ELSE
        CALL VALPVEC_V(AV,EVV,DIRPRV,NEL)
@@ -170,7 +170,7 @@ C-ISMSTR=0-NO SMALL STRAIN OPTION:STRAINS ARE LOGARITHMIC, STRESS IS CAUCHY
 C-ISMSTR=1-SMALL STRAIN OPTION:STRAINS ARE ENGINEERING, STRESS IS CAUCHY
 C-ISMSTR=2-SMALL STRAIN OPTION:STRAINS ARE ENGINEERING, STRESS IS BIOT
 C-ISMSTR=3-NO SMALL STRAIN OPTION:STRESS IS BIOT
-      IF(ISMSTR.EQ.0.OR.ISMSTR.EQ.2.OR.ISMSTR.EQ.4) THEN
+      IF(ISMSTR==0.OR.ISMSTR==2.OR.ISMSTR==4) THEN
         DO I=1,NEL
 C ---- (STRAIN IS LOGARITHMIC)
          EV(I,1)=EXP(EVV(I,1))
@@ -183,7 +183,7 @@ C ---- (STRAIN IS LOGARITHMIC)
          EV(I,1)=SQRT(EVV(I,1)+ ONE)
          EV(I,2)=SQRT(EVV(I,2)+ ONE)
          EV(I,3)=SQRT(EVV(I,3)+ ONE)
-	ELSE
+          ELSE
          EV(I,1)=EVV(I,1)+ ONE
          EV(I,2)=EVV(I,2)+ ONE
          EV(I,3)=EVV(I,3)+ ONE
@@ -204,7 +204,7 @@ C----------------
          DO K= 1,NORDRE
 !         ETI  = ETI + MU(K)*AMAX**(AL(K)-ONE)
           DO I=1,NEL
-	   AMAX = EV(I,J)
+             AMAX = EV(I,J)
            IF(AMAX>ZERO) THEN
             IF(MU(K)/=ZERO) THEN
              IF((AL(K)-ONE)/=ZERO) THEN
@@ -235,7 +235,7 @@ C----  RV = RHO0/RHO = RELATIVE VOLUME = DET A (A = GRADIENT OF DEFORMATION)
 C----THERM STRESS COMPUTATION-----
       IF(IEXPAN > 0.AND.(ISMSTR==10.OR.ISMSTR==11.OR.ISMSTR==12)) RV(1:NEL)= RV(1:NEL)-EPSTH3(1:NEL)
 C
-C calcul de la pression
+C calculation of pressure
       P(1:NEL) = ZERO     
       DO II = 1,NORDRE
         FAC = TWO*MU(II)/(AL(II))
@@ -251,7 +251,7 @@ C calcul de la pression
      .       FAC1*THIRD*( EXP(AL(II)*LOG(EV(I,3)))    )   
      
             IF(RV(I)>ZERO) P(I) = P(I) 
-     .          - FAC1*EXP((-BETA*AL(II))*LOG(RV(I)))
+     .          - FAC1*EXP((-BETA(II)*AL(II))*LOG(RV(I)))
           ENDDO
          ELSE
           DO I=1,NEL
@@ -276,7 +276,7 @@ C compute de piola kirchoff stress 2emme espece---
           FAC1 = FAC/(EV(I,J)**2)
            IF(AL(II)/=ZERO) THEN
             IF(EV(I,J)>ZERO) S(I,J)= S(I,J) + FAC1*EXP(AL(II)*LOG(EV(I,J)))  
-            IF(RV(I)>ZERO) S(I,J)= S(I,J) - FAC1*EXP((-BETA*AL(II))*LOG(RV(I)))
+            IF(RV(I)>ZERO) S(I,J)= S(I,J) - FAC1*EXP((-BETA(II)*AL(II))*LOG(RV(I)))
            ELSE
             IF(EV(I,J)==ZERO) THEN
              S(I,J)= S(I,J) - FAC1
@@ -290,7 +290,7 @@ CCC devaitoric piola kirchoff stress 2nd espece SD
       DO I=1,NEL
        ! sd = rv**(dtier) * sd
        ! sd = pui * sd
-       ! if rv > 0 --> pui = exp(dtier * ln(rv))
+       ! If RV> 0 -> PUI = Exp (DTIER * LN (RV))
        ! else pui = 0
          IF(RV(I)>ZERO) THEN
             RV_PUI_TAB(I) =  EXP( TWO_THIRD*LOG(RV(I)) )
@@ -314,7 +314,7 @@ c        GMAX = TWO*GMAX
         SDG0(1:NEL,1:6) = UVAR(1:NEL,1:6)
         DO I=1,NEL 
 C 
-C compute SD ---> glabal repere
+C compute SD ---> global frame
 C
            SDG(I,1)   =  DIRPRV(I,1,1)*DIRPRV(I,1,1)*SD(I,1)
      .               + DIRPRV(I,1,2)*DIRPRV(I,1,2)*SD(I,2)
@@ -379,7 +379,7 @@ C
      .              + DIRPRV(I,3,2)*HG(I,3)
              A33 =    DIRPRV(I,1,3)*HG(I,6) + DIRPRV(I,2,3)*HG(I,5)
      .              + DIRPRV(I,3,3)*HG(I,3)
-C H dans la direction H               
+C H in the H direction
              H(I,1,II) = DIRPRV(I,1,1)*A11  + DIRPRV(I,2,1)*A21
      .                                      + DIRPRV(I,3,1)*A31 
              H(I,2,II) = DIRPRV(I,1,2)*A12  + DIRPRV(I,2,2)*A22
@@ -389,7 +389,7 @@ C H dans la direction H
            ENDDO
            DO J=1,3
             DO I=1,NEL 
-C calcul de la partie deviatorique        
+C calculation of the deviatoric part
              FAC = THIRD*(H(I,1,II)*EC(I,1) + H(I,2,II)*EC(I,2) 
      .                                      + H(I,3,II)*EC(I,3))
               HD(I,J,II) = H(I,J,II) - FAC/MAX(EM20,EC(I,J))
@@ -397,11 +397,11 @@ C calcul de la partie deviatorique
            ENDDO
         ENDDO            
       ENDIF  
-C calcul du tenseur de piola kirchoff   
+C calculation of the piola-kirchoff tensor
       IF(IVISC == 1) THEN ! viscosity is deviatoric
          DO I =1,NEL                                               
             ! FAC= GAMAINF*RV(I)**(-TWO_THIRD) = GAMAINF * PUI        
-            ! if rv > 0 --> pui = exp(-dtier * ln(rv))             
+            ! If RV> 0-> Pui = Exp (-dtier * Ln (RV))             
             ! else pui = 0                                         
             IF(RV(I)>ZERO) THEN                                    
                RV_PUI_TAB(I) = EXP( (-TWO_THIRD)*LOG(RV(I)) )                 
@@ -456,11 +456,11 @@ C-----
        DO II = 1,NORDRE
         IF(AL(II)/=ZERO) THEN
          FAC = ONE/AL(II)
-         FAC1 = BETA+FAC
+         FAC1 = BETA(II)+FAC
          MU2 = TWO*MU(II)
            DO I=1,NEL
             LAM_AL(1:3) = EXP(AL(II)*LOG(EV(I,1:3)))
-            RVL = FAC1*EXP(-BETA*AL(II)*LOG(RV(I)))
+            RVL = FAC1*EXP(-BETA(II)*AL(II)*LOG(RV(I)))
             CJ(I) = CJ(I) + MU2*RVL
             AI(I,1:3) = AI(I,1:3) + MU2*LAM_AL(1:3)
             BI(I,1:3) = BI(I,1:3) + FAC*MU2*LAM_AL(1:3)
@@ -504,7 +504,7 @@ C TRANSFORM PRINCIPAL PIOLA KIRCHOFF STRESSES TO GLOBAL DIRECTIONS
      .            + DIRPRV(I,3,1)*DIRPRV(I,1,1)*S(I,1)
      .            + DIRPRV(I,3,2)*DIRPRV(I,1,2)*S(I,2)
 C
-C calcul des contraintes visqueuse ----
+C calculation of viscous stresses ----
 C     
 * SET SOUND SPEED
         SOUNDSP(I)=SQRT(CIMAX(I)/RHO(I))

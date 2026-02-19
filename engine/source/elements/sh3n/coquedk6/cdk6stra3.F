@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CDK6STRA3                     source/elements/sh3n/coquedk6/cdk6stra3.F
-Chd|-- called by -----------
-Chd|        CDK6FORC3                     source/elements/sh3n/coquedk6/cdk6forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cdk6stra3   ../engine/source/elements/sh3n/coquedk6/cdk6stra3.F
+!||--- called by ------------------------------------------------------
+!||    cdk6forc3   ../engine/source/elements/sh3n/coquedk6/cdk6forc3.F
+!||====================================================================
       SUBROUTINE CDK6STRA3(JFT, JLT, NFT, VDEF, GSTR,
      2                   EXX, EYY, EXY, EXZ, EYZ,  
      3                   KXX, KYY, KXY, DT1C,EPSDOT,
@@ -39,13 +38,9 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JFT, JLT, NFT, IEPSDOT, ISTRAIN,NEL
-C     REAL
       my_real
      .   VDEF(MVSIZ,8), GSTR(NEL,8),
      .   EXX(MVSIZ),EYY(MVSIZ),EXY(MVSIZ),EXZ(MVSIZ),EYZ(MVSIZ),
@@ -55,9 +50,8 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
-C
-      IF(IEPSDOT.NE.0)THEN
+C-----------------------------------------------
+      IF(IEPSDOT/=0)THEN
        DO I=JFT,JLT
         J = I + NFT
         EPSDOT(1,J) = VDEF(I,1)
@@ -80,7 +74,7 @@ C
         KXY(I) = VDEF(I,8) * DT1C(I)
       ENDDO
 C
-      IF(ISTRAIN.NE.0)THEN
+      IF(ISTRAIN/=0)THEN
         DO I=JFT,JLT
          GSTR(I,1)=GSTR(I,1)+EXX(I)
          GSTR(I,2)=GSTR(I,2)+EYY(I)

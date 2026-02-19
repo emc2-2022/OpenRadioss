@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_WIND_XFEM                source/materials/fail/alter/fail_wind_xfem.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_wind_xfem   ../engine/source/materials/fail/alter/fail_wind_xfem.F
+!||--- called by ------------------------------------------------------
+!||    mulawc           ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell    ../engine/source/materials/mat_share/usermat_shell.F
+!||====================================================================
       SUBROUTINE FAIL_WIND_XFEM(
      1     NEL       ,NUPARAM   ,NUVAR     ,UPARAM    ,UVAR      ,
      2     TIME      ,TIMESTEP  ,SSP       ,ALDT      ,CRKLEN    ,
@@ -48,6 +47,7 @@ C-----------------------------------------------
 #include "units_c.inc"
 #include "comlock.inc"
 #include "com_xfem1.inc"
+#include "mvsiz_p.inc"
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
@@ -75,8 +75,8 @@ C-----------------------------------------------
       INTEGER ELCRKINI(NXLAYMAX,NEL),NGL(NEL)
       my_real TIME,TIMESTEP
       my_real, DIMENSION(NEL) :: SSP,ALDT,TDEL,CRKLEN,
-     .   SIGNXX,SIGNYY,SIGNZZ,SIGNXY,SIGNYZ,SIGNZX
-      my_real UPARAM(NUPARAM),DIR_A(NEL,2),CRKDIR(NEL,2),DIR1_CRK(NXLAYMAX,NEL),
+     . SIGNXX,SIGNYY,SIGNXY,SIGNYZ,SIGNZX
+      my_real UPARAM(NUPARAM),DIR_A(NEL,2),CRKDIR(NEL,2),DIR1_CRK(NXLAYMAX,MVSIZ),
      .   DIR2_CRK(NXLAYMAX,NEL)
       TARGET :: DIR1_CRK,DIR2_CRK
 C-----------------------------------------------
@@ -89,12 +89,12 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,NINDX,NINDXD,IDEB,ISRATE
       INTEGER , DIMENSION(NEL) :: INDX,INDXD,RFLAG
-      my_real SIGMAX,AA,BB,CC,S1,S2,S3,CR,K_IC,K_TH,V0,VC,TFACT,REFLEN,
+      my_real AA,BB,CC,S1,S2,S3,CR,K_IC,K_TH,V0,VC,TFACT,REFLEN,
      .   COSI,COSX,COSY,SINX,SINY,COS2,SIN2,DMG1,DMG3,
      .   SP1,SP2,SP3,GEORED,CR_FOIL,CR_AIR,CR_CORE,CR_EDGE,ALPHA,ALPHAI,EXP_N,EXP_M
       my_real, DIMENSION(NEL) :: DADV,TPROPG,AI,FORMF,SIGP_AKT,DMG_SCALE,
      .   SIGP1,SIGP2,SIGDT1,SIGDT2,SIG_DTF1,SIG_DTF2,SIGP_MIN,SIGP_MAX
-      my_real, DIMENSION(:), POINTER :: DIR1,DIR2
+ 
       CHARACTER (LEN=3) :: XCHAR
 c--------------------------------------------------------------------
 c!  cm(6):  initial crack depth in contact to foil
@@ -447,7 +447,7 @@ c
           endif
         ENDIF
 c
-      ELSEIF (IXEL > 0) THEN       ! phantom element                                      
+      ELSEIF (IXEL > 0) THEN       ! Phantom element                                      
         DO I = 1,NEL                                                 
           IF (OFF(I) == ONE) THEN                                     
             IF (ELCRKINI(ILAY,I) == 2) THEN  ! second crack arrived => delete phantom element 

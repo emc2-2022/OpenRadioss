@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RIGID_MAT                     source/materials/mat/mat019/rigid_mat.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        INEPRI                        source/materials/mat/mat019/inepri.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rigid_mat              ../starter/source/materials/mat/mat019/rigid_mat.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    inepri                 ../starter/source/materials/mat/mat019/inepri.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE RIGID_MAT(NRB, GNSL  ,LSN , NSLNRM  ,STIFN, 
      .                   STIFR, X, V     ,MS    ,IN   ,
      .                    RBYM, IRBYM ,LCRBM,NOM_OPT)
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C=======================================================================
 C    RBY    EN SORTIE DE INIRBY
 C a voir 
@@ -42,7 +44,7 @@ C    10 -> 12:  INERTIES PRINCIPALES RBODY
 C          13:  INERTIE MAIN INITIALE SPHERIQUE 
 C          14:  MASSE RBODY
 C          15:  MASSE MAIN INITIALE
-C    17 -> 20:  INERTIES DANS LE REPERE GLOBALE
+C    17 -> 20:  INERTIAS IN THE GLOBAL FRAME OF REFERENCE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,39 +52,27 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   A n a l y s e   M o d u l e
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "scr17_c.inc"
-
-
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NRB,GNSL
       INTEGER LSN(*), NSLNRM(*),IRBYM(NIRBYM,NRB) ,LCRBM(GNSL)
-C     REAL
-      my_real
-     .   RBYM(NFRBYM,*), MS(*), IN(*), X(3,*),V(3,*), STIFN(*),
-     .   STIFR(*)
+      my_real RBYM(NFRBYM,*), MS(*), IN(*), X(3,*),V(3,*), STIFN(*),STIFR(*)
       INTEGER NOM_OPT(LNOPT1,*)
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "warn_c.inc"
 #include      "com04_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER J, NOSKEW, I, N, NONOD,ICDG,KK,NR,NSL,IR
-C     REAL
-      my_real
-     .   XG(3), XM0(3), XMG, XX, XY, XZ, YY, YZ, ZZ, XIIN, INMIN,
-     .   MASRB,DD,TOL, II1,II2,II3,II4,II5,II6,II7,II8,II9,
-     .   RBY(20)
+      my_real XG(3), XM0(3), XMG, XX, XY, XZ, YY, YZ, ZZ, XIIN, INMIN,
+     .        MASRB,DD,TOL, II1,II2,II3,II4,II5,II6,II7,II8,II9,RBY(20)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C
       TOL=ONE+EM04
       KK = 0
@@ -91,13 +81,12 @@ C
         IRBYM(1,NR) = NR
         IRBYM(2,NR) = NSL
         ID=NOM_OPT(1,NRBYKIN+NR)
-        CALL FRETITL2(TITR,
-     .                NOM_OPT(LNOPT1-LTITR+1,NRBYKIN+NR),LTITR)
+        CALL FRETITL2(TITR, NOM_OPT(LNOPT1-LTITR+1,NRBYKIN+NR),LTITR)
 C---------------------------------
-C     CORRECTION DE LA MASSE ET DU
-C     CENTRE DE GRAVITE DU MAIN
+C     CORRECTION OF MASS AND
+C     CENTER OF GRAVITY OF THE HAND
 C---------------------------------
-C-----CDG DES NOEUDS SECONDS
+C-----CGS OF SECONDARY NODES
          MASRB=ZERO
          XG(1)=ZERO
          XG(2)= ZERO
@@ -115,7 +104,7 @@ C-----CDG DES NOEUDS SECONDS
          ENDDO
         
 C
-          IF(MASRB.LE.EM30) THEN
+          IF(MASRB<=EM30) THEN
 c            CALL ANSTCKI(RBYID)
             CALL ANCMSG(MSGID=679,
      .                  MSGTYPE=MSGERROR,
@@ -132,7 +121,7 @@ C
              RBYM(1 + J,NR) = XG(J) 
            ENDDO   
 C--------------------------------------
-C      L'INERTIE DU MAIN
+C      THE INERTIA OF THE HAND
 C--------------------------------------
           DO I=1,NSL
                N=LSN(I + KK)
@@ -153,7 +142,7 @@ C--------------------------------------
                RBY(9) = RBY(9) + IN(N)+(XX+YY)*MS(N)               
           ENDDO
 C
-C Rigidite au noeud main pour estimation DT.
+C Rigidity with a main node for estimation of DT.
 C
       DO I=1,NSL
         N = LSN(I + KK)
@@ -162,7 +151,7 @@ C
         RBYM(28,NR) = RBYM(28,NR) + (STIFR(I + KK) + DD*STIFN(I + KK))
       END DO        
 C----------------------------------------------------------------
-C     CALCUL DU REPERE D'INERTIE PRINCIPALE
+C     COMPUTATION OF THE PRINCIPAL INERTIA FRAME
 C----------------------------------------------------------------
           CALL INEPRI(RBY(10),RBY)
 c          IF(ISPH == 1)THEN
@@ -178,8 +167,8 @@ c          ELSE
             INMIN = MIN(RBY(10),RBY(11),RBY(12))
 c          ENDIF
 cc          WRITE(IOUT,1400) RBY(10),RBY(11),RBY(12)
-          IF(RBY(10).GE.RBY(11).AND.RBY(10).GE.RBY(12))THEN
-            IF(RBY(10).GT.(RBY(11)+RBY(12))*TOL)THEN
+          IF(RBY(10)>=RBY(11).AND.RBY(10)>=RBY(12))THEN
+            IF(RBY(10)>(RBY(11)+RBY(12))*TOL)THEN
              CALL ANCMSG(MSGID=542,
      .                   MSGTYPE=MSGWARNING,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -189,8 +178,8 @@ cc          WRITE(IOUT,1400) RBY(10),RBY(11),RBY(12)
      .                   R2=RBY(11),
      .                   R3=RBY(12))
             ENDIF
-          ELSEIF(RBY(11).GE.RBY(10).AND.RBY(11).GE.RBY(12))THEN
-            IF(RBY(11).GT.(RBY(10)+RBY(12))*TOL)THEN
+          ELSEIF(RBY(11)>=RBY(10).AND.RBY(11)>=RBY(12))THEN
+            IF(RBY(11)>(RBY(10)+RBY(12))*TOL)THEN
              CALL ANCMSG(MSGID=542,
      .                   MSGTYPE=MSGWARNING,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -200,8 +189,8 @@ cc          WRITE(IOUT,1400) RBY(10),RBY(11),RBY(12)
      .                   R2=RBY(10),
      .                   R3=RBY(12))
             ENDIF
-          ELSEIF(RBY(12).GE.RBY(10).AND.RBY(12).GE.RBY(11))THEN
-            IF(RBY(12).GT.(RBY(10)+RBY(11))*TOL)THEN
+          ELSEIF(RBY(12)>=RBY(10).AND.RBY(12)>=RBY(11))THEN
+            IF(RBY(12)>(RBY(10)+RBY(11))*TOL)THEN
              CALL ANCMSG(MSGID=542,
      .                   MSGTYPE=MSGWARNING,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -212,14 +201,14 @@ cc          WRITE(IOUT,1400) RBY(10),RBY(11),RBY(12)
      .                   R3=RBY(11))
             ENDIF
           ENDIF
-          IF(INMIN.LE.0.0)THEN
+          IF(INMIN<=0.0)THEN
 C             CALL ANSTCKI(RBYID)
              CALL ANCMSG(MSGID=274,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
      .                   I1=ID,
      .                   C1=TITR)
-          ELSEIF(INMIN.LE.1.E-10*MAX(RBY(10),RBY(11),RBY(12)))THEN
+          ELSEIF(INMIN<=1.E-10*MAX(RBY(10),RBY(11),RBY(12)))THEN
 c             CALL ANSTCKI(RBYID)
              CALL ANCMSG(MSGID=275,
      .                   MSGTYPE=MSGWARNING,
@@ -278,7 +267,6 @@ C
      .       /10X,'NEW MASS             ',1G14.7)
 c     .       /10X,'NEW INERTIA xx yy zz ',3G14.7
 c     .       /10X,'NEW INERTIA xy yz zx ',3G14.7)
-1200  FORMAT(10X,'PRINCIPAL INERTIE ',1P3G14.7)
 1300  FORMAT(10X,'SECONDARY NODES ')
 1400  FORMAT(10X,10I10)
       END

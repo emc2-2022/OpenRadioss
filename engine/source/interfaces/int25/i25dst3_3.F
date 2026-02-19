@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25DST3_3                     source/interfaces/int25/i25dst3_3.F
-Chd|-- called by -----------
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25dst3_3   ../engine/source/interfaces/int25/i25dst3_3.F
+!||--- called by ------------------------------------------------------
+!||    i25mainf    ../engine/source/interfaces/int25/i25mainf.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box     ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25DST3_3(
      1 JLT         ,CAND_N      ,CAND_E      ,CN_LOC      ,CE_LOC      ,
      2 IRTLM       ,XX          ,YY          ,ZZ          ,GAP_NM      ,
@@ -38,7 +38,7 @@ Chd|====================================================================
      7 INACTI      ,KINI        ,ITAB        ,LB          ,LC          ,
      8 PENMIN      ,EPS         ,PENE        ,PENE_OLD    ,SUBTRIA     , 
      9 GAPV        ,IVIS2       ,IF_ADH      ,IFADHI      ,BASE_ADH    ,
-     A MVOISN      ,IBOUND      ,VTX_BISECTOR,DIST       )
+     A MVOISN      ,IBOUND      ,VTX_BISECTOR,DIST        ,TIME )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -51,12 +51,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "com01_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "task_c.inc"
-#include      "impl1_c.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -79,17 +73,11 @@ C-----------------------------------------------
      .     PENE(MVSIZ), GAPMXL(MVSIZ), GAPV(MVSIZ), BASE_ADH(MVSIZ)
       REAL*4 VTX_BISECTOR(3,2,*)
       my_real  , INTENT(INOUT) :: DIST(MVSIZ)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com08_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
+      my_real  , INTENT(IN)    :: TIME
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K, L, N, I1, I2, JG, IT, ITRIA(2,4), I3, I4,
+      INTEGER I, K, N, I1, I2, JG, IT, ITRIA(2,4),
      .        IB1, IB2, IB3, IBX, IX, IY, IZ, NBORD, KBORD(MVSIZ)
       my_real
      .        AAA, NNI, NI2, H0, PENE_SHFT,
@@ -99,11 +87,11 @@ C-----------------------------------------------
      .        NX(MVSIZ), NY(MVSIZ), NZ(MVSIZ),
      .        NN1(MVSIZ), NN2(MVSIZ), NN3(MVSIZ), DD, S,
      .        EPSEG, AX, BX, CX, GAP_MM(MVSIZ),
-     .        LBS(MVSIZ), LCS(MVSIZ), XP(MVSIZ), YP(MVSIZ), ZP(MVSIZ), 
+     .          XP(MVSIZ), YP(MVSIZ), ZP(MVSIZ), 
      .        X0N(MVSIZ,4), Y0N(MVSIZ,4), Z0N(MVSIZ,4), 
-     .        N1X,N1Y,N1Z,N1N,
-     .        N2X,N2Y,N2Z,N2N,
-     .        LINTERP, LBM, LCM, LAM, XL, YL, ZL,
+     .        
+     .        
+     .           
      .        PN, VX, VY, VZ,
      .        NNE1,NNE2,NNE4
       DATA ITRIA/1,2,2,3,3,4,4,1/
@@ -137,7 +125,7 @@ C
 C
       ENDDO
 C--------------------------------------------------------
-C normales aux triangles (recalculees ici pour pas les stocker).
+C normals to triangles (recalculated here so as not to store them)
 C--------------------------------------------------------
       DO I=1,JLT
 C    
@@ -220,7 +208,7 @@ c               scharp angle bound nodal normal to 45 from segment normal
 C
               S   = LA(I)/EPSEG
 C
-C continuite de la normale a la frontiere de la zone limite d'interpolation
+C continuity of the normal at the boundary of the interpolation limit zone
               NN1(I)=(ONE-S)*NN1(I)+S*NX(I)
               NN2(I)=(ONE-S)*NN2(I)+S*NY(I)
               NN3(I)=(ONE-S)*NN3(I)+S*NZ(I)
@@ -321,7 +309,7 @@ c             scharp angle bound nodal normal to 45 from segment normal
             NN2(I)=NN2(I)*NN
             NN3(I)=NN3(I)*NN
 C
-C continuite de la normale a la frontiere de la zone limite d'interpolation
+C continuity of the normal at the boundary of the interpolation limit zone
             NN1(I)=(ONE-S)*NN1(I)+S*NX(I)
             NN2(I)=(ONE-S)*NN2(I)+S*NY(I)
             NN3(I)=(ONE-S)*NN3(I)+S*NZ(I)
@@ -382,7 +370,7 @@ C
           IB1=IBOUND(I1,I)
           IB2=IBOUND(I2,I)
 C
-C         Projection sur le plan et Distance signee au plan
+C         projection onto the plane and signed distance to the plane
           XH(I)=XI(I)+BB(I)*NX(I)
           YH(I)=YI(I)+BB(I)*NY(I)
           ZH(I)=ZI(I)+BB(I)*NZ(I)
@@ -416,7 +404,7 @@ C
             IBX=MAX(IB1,IB2)
             IF(IB1/=0)THEN
               IX =I1
-            ELSEIF(IB2/=0)THEN
+            ELSE !IF(IB2/=0)THEN
               IX =I2
             END IF
 
@@ -522,7 +510,7 @@ C
           IB2=IBOUND(2,I)
           IB3=IBOUND(3,I)
 C
-C         Projection sur le plan et Distance signee au plan
+C         projection onto the plane and signed distance to the plane
           XH(I)=XI(I)+BB(I)*NX(I)
           YH(I)=YI(I)+BB(I)*NY(I)
           ZH(I)=ZI(I)+BB(I)*NZ(I)
@@ -578,7 +566,7 @@ C
               IX =2
               IY =3
               IZ =1
-            ELSEIF(IB3/=0)THEN
+            ELSE !IF(IB3/=0)THEN
               IX =3
               IY =1
               IZ =2
@@ -872,7 +860,7 @@ C-------------------------------------------
         ENDDO
       END IF
 C--------------------------------------------------------
-C      Calculer PENE et Hi
+C      calculate pene and hi
 C--------------------------------------------------------
       DO I=1,JLT
 C
@@ -881,7 +869,7 @@ C
 C          
         IT = SUBTRIA(I)
 C
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
 C
           H0 = FOURTH * LA(I)
           IF(IT==1)THEN
@@ -920,6 +908,25 @@ C
 C-----------------------------------------------------------------------
 C      PENE_OLD(5) <=> Initial Penetration
 C-----------------------------------------------------------------------
+      IF (TIME==ZERO) THEN
+        IF (INACTI==5.AND.IVIS2/=-1) THEN
+          DO I=1,JLT
+           IF (PENE(I) == ZERO) CYCLE 
+           JG = NSVG(I)
+           N  = CAND_N(I)
+           IF(JG > 0)THEN
+             IF(IRTLM(1,N) > 0)THEN ! initial pen
+               PENE_OLD(5,N)=MAX(PENE(I),PENE_OLD(5,N))
+             END IF
+           ELSE
+             JG = -JG
+             IF(IRTLM_FI(NIN)%P(1,JG) > 0)THEN 
+               PENE_OLDFI(NIN)%P(5,JG)=MAX(PENE(I),PENE_OLDFI(NIN)%P(5,JG))
+             END IF
+           END IF
+          END DO 
+        END IF!(INACTI==5.AND.IVIS2/=-1) THEN
+      END IF
       IF(IVIS2/=-1) THEN
 C       IF(INACTI==5)THEN
         DO I=1,JLT
@@ -933,23 +940,12 @@ C
              PENE_OLD(5,N)=PENE(I)
            END IF
            PENE_SHFT = MAX(ZERO,PENE(I)-PENE_OLD(5,N))
-C         if(itab(jg)== 29687 .OR. ITAB(IX1(I)) == 29687 .OR. ITAB(IX2(I)) == 29687
-C    . .OR. ITAB(IX4(I)) == 29687 .OR. ITAB(IX3(I)) == 29687)
-C    .    THEN
-C              print *,ITAB(IX1(I)),ITAB(IX2(I)),ITAB(IX3(I)),ITAB(IX4(I)),
-C    . ITAB(JG),PENE_OLD(5,N),pene_shft
-C         ENDIF
           ELSE
            JG = -JG
            IF(IRTLM_FI(NIN)%P(1,JG) < 0)THEN ! new impact
              PENE_OLDFI(NIN)%P(5,JG)=PENE(I)
            END IF
            PENE_SHFT= MAX(ZERO,PENE(I)-PENE_OLDFI(NIN)%P(5,JG))
-C         if(itafi(nin)%p(jg)==29687 .OR. ITAB(IX1(I)) == 29687 .OR. ITAB(IX2(I)) == 29687
-C    ..OR.  ITAB(IX4(I)) == 29687 .OR. ITAB(IX3(I)) == 29687) THEN
-C              print *,ITAB(IX1(I)),ITAB(IX2(I)),ITAB(IX3(I)),ITAB(IX4(I)),
-C    . ITAB(JG),PENE_OLDFI(NIN)%P(5,JG),pene_shft
-C         endif
 
          ENDIF
          PENE(I) = PENE_SHFT
@@ -965,7 +961,7 @@ C pene_old(5,N) is defined from the real_gap, gap = 2*real_gap, pene is measured
             IF(IRTLM(1,N) < 0)THEN ! new impact
                PENE_OLD(5,N)= MAX(ZERO,PENE(I)-HALF*GAPV(I))              
             ENDIF
-            IF(PENE(I).GE.HALF*GAPV(I)) IF_ADH(N) = 1
+            IF(PENE(I)>=HALF*GAPV(I)) IF_ADH(N) = 1
             BASE_ADH(I) = PENE_OLD(5,N) + HALF*GAPV(I) 
             IFADHI(I) = IF_ADH(N)        
           ELSE
@@ -973,7 +969,7 @@ C pene_old(5,N) is defined from the real_gap, gap = 2*real_gap, pene is measured
             IF(IRTLM_FI(NIN)%P(1,JG) < 0)THEN 
               PENE_OLDFI(NIN)%P(5,JG)= MAX(ZERO,PENE(I)-HALF*GAPV(I))
             ENDIF
-            IF(PENE(I).GE.HALF*GAPV(I)) IF_ADHFI(NIN)%P(JG) = 1 
+            IF(PENE(I)>=HALF*GAPV(I)) IF_ADHFI(NIN)%P(JG) = 1 
             BASE_ADH(I) = PENE_OLDFI(NIN)%P(5,JG) + HALF*GAPV(I)
             IFADHI(I) = IF_ADHFI(NIN)%P(JG)  
           ENDIF

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I12VIT3                       source/interfaces/interf/i12vit3.F
-Chd|-- called by -----------
-Chd|        INTTI12V                      source/interfaces/interf/intti12.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i12vit3    ../engine/source/interfaces/interf/i12vit3.F
+!||--- called by ------------------------------------------------------
+!||    intti12v   ../engine/source/interfaces/interf/intti12.F
+!||====================================================================
       SUBROUTINE I12VIT3(NSN   , NMN,
      2 A     ,IRECT ,
      3 CRST  ,MSR   , NSV   , IRTL,
@@ -52,15 +51,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, ISK, ICOD, II, L, JJ,
-     .   NN,JL
+      INTEGER NIR, I, J, I3, J3, I2, J2, I1, J1, II, L, JJ
       my_real
-     .   H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM,MAS,
+     . H(4), SS, TT, AMX, AMY, AMZ, VMX, VMY, VMZ,SP,SM,TP,TM,
      .   P(9),AXR,AYR,AZR,CST,SST
 C-----------------------------------------------
       NIR=2
-      IF(N2D.EQ.0)NIR=4
-      IF(ILEV.EQ.1)THEN
+      IF(N2D==0)NIR=4
+      IF(ILEV==1)THEN
         DO I=1,9
           P(I)=SKEW(I,IREF+1)
         ENDDO
@@ -95,7 +93,7 @@ C-----------------------------------------------
       ENDIF
 
       DO II=1,NSN
-        IF(TAGKINE(II).LT.0)CYCLE
+        IF(TAGKINE(II)<0)CYCLE
         I=NSV(II)
         L=IRTL(II)
         SS=CRST(1,II)
@@ -117,8 +115,8 @@ C-----------------------------------------------
         VMX=ZERO
         VMY=ZERO
         VMZ=ZERO
-        IF(ILEV.EQ.1)THEN
-          IF(TETS(II).LT.10000.)THEN
+        IF(ILEV==1)THEN
+          IF(TETS(II)<10000.)THEN
             DO JJ=1,NIR
               J=IRECT(JJ,L)
               AMX=AMX+WA(1,J)*H(JJ)
@@ -155,7 +153,7 @@ C-----------------------------------------------
               VMY=VMY+V(J2)*H(JJ)
               VMZ=VMZ+V(J3)*H(JJ)
             ENDDO
-          ENDIF !(TETS(II).LT.10000.)
+          ENDIF !(TETS(II)<10000.)
         ELSE
           DO JJ=1,NIR
             J=MSR(IRECT(JJ,L))

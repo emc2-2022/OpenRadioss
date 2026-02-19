@@ -1,46 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_LOAD_CENTRI           source/loads/general/load_centri/hm_read_load_centri.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        NODGRNR5                      source/starter/freform.F      
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_load_centri    ../starter/source/loads/general/load_centri/hm_read_load_centri.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim      ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string          ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    nodgrnr5               ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_LOAD_CENTRI(ICFIELD,LCFIELD  ,CFIELD  ,ITAB     ,ITABM1 ,
-     .                               IGRNOD ,NPC      ,LSENSOR ,UNITAB   ,IFRAME ,
+     .                               IGRNOD ,NPC      ,SENSORS ,UNITAB   ,IFRAME ,
      .                               LSUBMODEL)
 C
 C-----------------------------------------------
@@ -55,6 +55,8 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE SENSOR_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -63,25 +65,19 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "r2r_c.inc"
-#include      "sysunit.inc"
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER ICFIELD(SIZFIELD,*), LCFIELD(*), ITAB(*), ITABM1(*), 
-     .  NPC(*),LSENSOR(NSENSI,*),IFRAME(LISKN,*)
+     .  NPC(*),IFRAME(LISKN,*)
       my_real CFIELD(LFACLOAD,*)
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD)  :: IGRNOD
-      TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
+      TYPE (SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
+      TYPE (SENSORS_) ,INTENT(IN) :: SENSORS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -91,9 +87,9 @@ C-----------------------------------------------
      .        UID,IAD,ID,IFLAGUNIT,NCURS,TSENS,IFRAS, IVAR, ISU, IDIR,
      .        SUB_INDEX, SUB_ID
       INTEGER FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP
-      CHARACTER MESS*40, XYZ*ncharfield, 
-     .          char_X*1, char_Y*1, char_Z*1, char_XX*2, char_YY*2, char_ZZ*2
-      CHARACTER TITR*nchartitle
+      CHARACTER MESS*40,char_X*1, char_Y*1, char_Z*1, char_XX*2, char_YY*2, char_ZZ*2
+      CHARACTER(LEN=NCHARFIELD) :: XYZ
+      CHARACTER(LEN=NCHARTITLE)::TITR
       LOGICAL IS_AVAILABLE
 
       DATA char_X/'X'/
@@ -169,13 +165,14 @@ C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
         CALL HM_GET_INTV('curveid',NCUR,IS_AVAILABLE,LSUBMODEL)
         CALL HM_GET_INTV('inputsystem',IFRA,IS_AVAILABLE,LSUBMODEL)
-        IF(IFRA == 0 .AND. SUB_ID .NE. 0 ) THEN
+        IF(IFRA == 0 .AND. SUB_ID /= 0 ) THEN
           CALL ANCMSG(MSGID   = 1712,
      .                ANMODE  = ANINFO,
      .                MSGTYPE = MSGWARNING,
      .                I1      = ID,
      .                I2      = SUB_ID,
-     .                C1      = TITR)  
+     .                C1      = '/LOAD/CENTRI - frame_ID=0',
+     .                C2      = TITR)  
         END IF
         CALL HM_GET_INTV('rad_sensor_id',ISENS,IS_AVAILABLE,LSUBMODEL)
         CALL HM_GET_INTV('entityid',IGU,IS_AVAILABLE,LSUBMODEL)
@@ -189,13 +186,13 @@ C--------------------------------------------------
         CALL HM_GET_FLOATV_DIM('magnitude',FAC_FCY,IS_AVAILABLE,LSUBMODEL,UNITAB)
 C--------------------------------------------------
         IFLAGUNIT = 0
-        DO J=1,NUNITS
+        DO J=1,UNITAB%NUNITS
           IF (UNITAB%UNIT_ID(J) == UID) THEN
             IFLAGUNIT = 1
             EXIT
           ENDIF
         ENDDO
-        IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+        IF (UID/=0.AND.IFLAGUNIT==0) THEN
           CALL ANCMSG(MSGID   = 659,
      .                ANMODE  = ANINFO,
      .                MSGTYPE = MSGERROR,
@@ -207,12 +204,12 @@ C--------------------------------------------------
         ENDIF
 C----------- 
         IDIR=0       
-        IF(XYZ(1:1).EQ.char_X) IDIR=1
-        IF(XYZ(1:1).EQ.char_Y) IDIR=2
-        IF(XYZ(1:1).EQ.char_Z) IDIR=3
-        IF(XYZ(1:2).EQ.char_XX)IDIR=4
-        IF(XYZ(1:2).EQ.char_YY)IDIR=5
-        IF(XYZ(1:2).EQ.char_ZZ)IDIR=6
+        IF(XYZ(1:1)==char_X) IDIR=1
+        IF(XYZ(1:1)==char_Y) IDIR=2
+        IF(XYZ(1:1)==char_Z) IDIR=3
+        IF(XYZ(1:2)==char_XX)IDIR=4
+        IF(XYZ(1:2)==char_YY)IDIR=5
+        IF(XYZ(1:2)==char_ZZ)IDIR=6
         IF(IDIR==0) THEN
            CALL ANCMSG(MSGID=881,
      .                 MSGTYPE=MSGERROR,
@@ -223,9 +220,9 @@ C-----------
 C-----------        
         NCURS=0
         DO J=1,NFUNCT
-          IF(NPC(NFUNCT+J+1).EQ.NCUR)NCURS=J
+          IF(NPC(NFUNCT+J+1)==NCUR)NCURS=J
         ENDDO
-        IF(NCURS.EQ.0)THEN
+        IF(NCURS==0)THEN
           CALL ANCMSG(MSGID=883,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -237,9 +234,9 @@ C-----------
         IF (FCX == ZERO) FCX = FAC_FCX
         IF (FCY == ZERO) FCY = FAC_FCY
 C-----------        
-        IF(IFRA .NE.0)THEN
+        IF(IFRA /=0)THEN
           DO J=0,NUMFRAM
-            IF(IFRA.EQ.IFRAME(4,J+1)) THEN
+            IF(IFRA==IFRAME(4,J+1)) THEN
               IFRAS=J
               EXIT
             ENDIF
@@ -259,26 +256,24 @@ C-----------
         ENDIF
 C-----------        
         TSENS = 0
-	IF(ISENS.NE.0) THEN
-          DO J=1,NSENSOR
-	    IF(ISENS.EQ.LSENSOR(1,J))TSENS=J
-	  ENDDO
-	  IF(TSENS.EQ.0)THEN
-            CALL ANCMSG(MSGID=884,
-     .                MSGTYPE=MSGERROR,
-     .                ANMODE=ANINFO_BLIND_1,
-     .                I1=ID,
-     .                C1=TITR,
-     .                I2=ISENS)
-	  ENDIF
-	ENDIF
+                 IF (ISENS/=0) THEN
+          DO J=1,SENSORS%NSENSOR
+                     IF (ISENS == SENSORS%SENSOR_TAB(J)%SENS_ID) TSENS=J
+                   ENDDO
+                   IF (TSENS==0) THEN
+             CALL ANCMSG(MSGID=884, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,
+     .            I1=ID,
+     .            C1=TITR,
+     .            I2=ISENS)
+                   ENDIF
+                 ENDIF
 C-----------        
         NN = NODGRNR5(IGU,IGS,LCFIELD(IAD),IGRNOD,ITABM1,MESS)
 C-----------        
         IF (IVAR == 0) IVAR = 1
 C-----------        
-	ICFIELD(1,K)  = NN
-	ICFIELD(2,K)  = IDIR
+                 ICFIELD(1,K)  = NN
+                 ICFIELD(2,K)  = IDIR
         ICFIELD(3,K)  = NCURS
         ICFIELD(4,K)  = IAD
         ICFIELD(5,K)  = 1 ! Type /LOAD/CENTRI

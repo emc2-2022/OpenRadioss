@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I6ASS3                        source/interfaces/inter3d/i6ass3.F
-Chd|-- called by -----------
-Chd|        I6MAIN                        source/interfaces/inter3d/i6main.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|====================================================================
-      SUBROUTINE I6ASS3(E       ,MSR     ,NSV     ,ES      ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i6ass3       ../engine/source/interfaces/inter3d/i6ass3.F
+!||--- called by ------------------------------------------------------
+!||    i6main       ../engine/source/interfaces/inter3d/i6main.F
+!||--- calls      -----------------------------------------------------
+!||    finter       ../engine/source/tools/curve/finter.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod      ../engine/share/modules/h3d_mod.F
+!||    output_mod   ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE I6ASS3(OUTPUT  ,E       ,MSR     ,NSV     ,ES      ,
      2                  EM      ,NPC     ,TF      ,ANSMX   ,
      3                  FMX     ,FMY     ,FMZ     ,XMAS    ,
      4                  IFUNC   ,V       ,NOINT   ,NSN     ,
@@ -41,6 +43,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE H3D_MOD
+      USE OUTPUT_MOD, ONLY: OUTPUT_
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,11 +52,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
@@ -62,6 +62,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(inout) :: OUTPUT
       INTEGER NELTST,ITYPTST, IFUNC,IFUN2, NOINT, NSN, NMN,HFLAG,ICOR
       INTEGER MSR(*), NSV(*), NPC(*), ISKY(*)
 C     REAL
@@ -75,10 +76,10 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NPOINT, IL, IG, IG3, IG2, IG1, IL3, IL2, IL1, NISKYL
+      INTEGER  IL, IG, IG3, IG2, IG1, IL3, IL2, IL1, NISKYL
 C     REAL
       my_real
-     .   VSMAX, VMMAX, VMAX, FT,FU,FF, XK, DTMI, FAC, FACDT, DX, FINTER
+     .   VSMAX, VMMAX, VMAX, FT,FU, XK, DTMI, FAC, FACDT, DX, FINTER
       EXTERNAL FINTER
 C=======================================================================
       IF (TT == ZERO) THEN
@@ -252,9 +253,9 @@ C
           ENDIF
         ENDIF
 C-------  parith      
-        IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT.GT.0.AND.                      
-     .    (TT.GE.TANIM.OR.TT.GE.TOUTP.OR.TT.GE.H3D_DATA%TH3D.OR.                     
-     .   (MANIM.GE.4.AND.MANIM.LE.15).OR. H3D_DATA%MH3D .NE. 0))THEN                   
+        IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT>0.AND.                      
+     .    ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT>=TOUTP.OR.(TT>=H3D_DATA%TH3D.AND.TT<=H3D_DATA%TH3D_STOP).OR.                     
+     .   (MANIM>=4.AND.MANIM<=15).OR. H3D_DATA%MH3D /= 0))THEN                   
 #include "lockon.inc"                                         
            DO IL=1,NSN                                        
             IL3=3*IL                                          
@@ -280,7 +281,7 @@ C
         DTMI = EM01*SQRT(XMAS/MAX(XK,EM20))
       ENDIF
 C-----------
-      IF(DTMI.LT.DT2T)THEN
+      IF(DTMI<DT2T)THEN
         DT2T    = DTMI   
         NELTST  = NOINT  
         ITYPTST = 10     

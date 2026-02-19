@@ -1,61 +1,65 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_THGRNE                source/output/th/hm_read_thgrne.F
-Chd|-- called by -----------
-Chd|        HM_READ_THGROU                source/output/th/hm_read_thgrou.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_GET_STRING_INDEX           source/devtools/hm_reader/hm_get_string_index.F
-Chd|        HORD3                         source/output/th/hord3.F      
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        ZEROIN                        source/system/zeroin.F        
-Chd|        HM_THVARC                     source/output/th/hm_read_thvarc.F
-Chd|        R2R_NIN                       source/coupling/rad2rad/routines_r2r.F
-Chd|        R2R_SYS                       source/coupling/rad2rad/routines_r2r.F
-Chd|        SET_USRTOS                    source/model/sets/ipartm1.F   
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_thgrne           ../starter/source/output/th/hm_read_thgrne.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_thgrou           ../starter/source/output/th/hm_read_thgrou.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    fretitl                  ../starter/source/starter/freform.F
+!||    fretitl2                 ../starter/source/starter/freform.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string_index      ../starter/source/devtools/hm_reader/hm_get_string_index.F
+!||    hm_thvarc                ../starter/source/output/th/hm_read_thvarc.F
+!||    hord3                    ../starter/source/output/th/hord3.F
+!||    nintrn                   ../starter/source/system/nintrn.F
+!||    r2r_nin                  ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    r2r_sys                  ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    set_usrtos               ../starter/source/model/sets/ipartm1.F
+!||    udouble                  ../starter/source/system/sysfus.F
+!||    ulist2s                  ../starter/source/system/sysfus.F
+!||    usr2sys                  ../starter/source/system/sysfus.F
+!||    zeroin                   ../starter/source/system/zeroin.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_THGRNE(
      1      ITYP   ,KEY    ,ITAB  ,ITABM1   ,IX     ,
      3      NIX    ,IAD    ,IFI   ,ITHGRP   ,ITHBUF ,
      4      NV     ,VARE   ,NUMEL ,VARG     ,NVG    ,
-     5      IVARG  ,NSNE   ,NV0   ,IMERGE   ,ITHVAR ,
+     5      IVARG  ,NSNE   ,NV0   ,IMERGE   ,ITHVAR ,ITHERM_FE,
      6      FLAGABF,NVARABF,RFI   ,LSUBMODEL,MAP    , 
-     7      MAPSIZE )
+     7      MAPSIZE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -69,10 +73,8 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "r2r_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -82,6 +84,7 @@ C-----------------------------------------------
      .        NV0,IMERGE(*),ITHVAR(*),FLAGABF,NVARABF,RFI
       CHARACTER*10 VARE(NV),KEY,VARG(NVG),KEY1
       INTEGER, INTENT(in) :: MAPSIZE
+      INTEGER, INTENT(in) :: ITHERM_FE
       INTEGER, DIMENSION(MAPSIZE,2), INTENT(in) :: MAP
       TYPE(SUBMODEL_DATA) :: LSUBMODEL(NSUBMOD)      
 C-----------------------------------------------
@@ -92,8 +95,8 @@ C-----------------------------------------------
      .        IFITMP,IADFIN,NVAR,M,N,IAD1,IAD2,ISK,IPROC,JC,
      .        IDSMAX,SIZ
       INTEGER :: ID_LOCAL
-      CHARACTER TITR*nchartitle,MESS*40,DIRMSG*3,
-     .          TITR1*nchartitle
+      CHARACTER(LEN=NCHARTITLE) :: TITR,TITR1
+      CHARACTER MESS*40,DIRMSG*3
       LOGICAL IS_AVAILABLE
       my_real BID       
 C-----------------------------------------------
@@ -127,7 +130,7 @@ C-----------------------------------------------
       ITHGRP(7)=IAD                                              
       IAD=IAD+NVAR                                               
       IFI=IFI+NVAR
-      RFI=0	                                              	                                              
+      RFI=0                                                                                                
 
       CONT=1
       NNE=0                                                      
@@ -151,7 +154,7 @@ C         Multidomains-> skipping entities which are not on current domain
         ELSE                                                                              
           NNE = NNE+1                                                                     
         ENDIF                                                                             
-      ENDDO	      
+      ENDDO        
 C------------------------
       ITHGRP(4)=NNE                                        
       ITHGRP(5)=IAD                                        
@@ -169,10 +172,10 @@ C------------------------
         SIZ=LEN_TRIM(TITR)
         TITR(SIZ+1:SIZ+1)=' '     
         IF (ITYP == 0) THEN                               
-C         Multidomains-> skipping nodes which are not on current domain 	    	 		  		  
-	  IF(NSUBDOM /= 0) THEN
+C         Multidomains-> skipping nodes which are not on current domain                      
+            IF(NSUBDOM /= 0) THEN
               IF (R2R_SYS(N,ITABM1,MESS) == 0) CYCLE
-	  ENDIF  
+            ENDIF  
           ITHBUF(IAD)=USR2SYS(N,ITABM1,MESS,ID)                          
           ITHBUF(IAD+NNE)=ISK                                         
           DO JC = 1,NMERGED                                           
@@ -180,10 +183,10 @@ C         Multidomains-> skipping nodes which are not on current domain
      .          ITHBUF(IAD)  = IMERGE(NUMCNOD+JC)                     
           ENDDO                                                         
         ELSE                                                                           
-C         Multidomains-> skipping elems which are not on current domain 		    	 		  		  
-	  IF(NSUBDOM /= 0) THEN                                   
-	      IF (R2R_NIN(N,IX,NIX,NUMEL) == 0) CYCLE             
-	  ENDIF  
+C         Multidomains-> skipping elems which are not on current domain                        
+            IF(NSUBDOM /= 0) THEN                                   
+                IF (R2R_NIN(N,IX,NIX,NUMEL) == 0) CYCLE             
+            ENDIF  
           ID_LOCAL = SET_USRTOS(N,MAP,MAPSIZE)
           IF(ID_LOCAL == 0) THEN
             CALL ANCMSG(MSGID=69, MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=ITHGRP(1),C1=TITR1,I2=N)
@@ -217,20 +220,12 @@ C
      .        ITHBUF(I) == 625)) IREAC = 1                       
          IF((ITHBUF(I) == 626 .OR. ITHBUF(I) == 627 .OR.        
      .       ITHBUF(I) == 628) .AND.                            
-     .      ((ISUB == 0.AND.ISECUT == 0.AND.IISROT == 0.AND.   
-     .       MSHSUB == 0.AND.IMPOSE_DR == 0 .AND. IDROT == 0) .OR.   
-     .       IRODDL == 0)) THEN                           
+     .      ((ISECUT == 0 .AND. IISROT == 0 .AND. IMPOSE_DR == 0 .AND. IDROT == 0) .OR. IRODDL == 0)) THEN
                IF (ITHBUF(I) == 626)DIRMSG='DRX'           
                IF (ITHBUF(I) == 627)DIRMSG='DRY'               
                IF (ITHBUF(I) == 628)DIRMSG='DRZ'            
                CALL FRETITL2(TITR,ITHGRP(NITHGR-LTITR+1),LTITR)
-               CALL ANCMSG(MSGID=774,
-     .                     MSGTYPE=MSGWARNING,
-     .                     ANMODE=ANINFO_BLIND_1,
-     .                     I1=ITHGRP(1),
-     .                     C1=TITR,
-     .                     I2=ITHGRP(1),
-     .                     C2=DIRMSG)
+               CALL ANCMSG(MSGID=774, MSGTYPE=MSGWARNING, ANMODE=ANINFO_BLIND_1, I1=ITHGRP(1), C1=TITR, I2=ITHGRP(1), C2=DIRMSG)
          ENDIF   
          IF(ITHBUF(I) == 19 .AND. ITHERM_FE == 0 ) THEN
                CALL FRETITL2(TITR,ITHGRP(NITHGR-LTITR+1),LTITR)
@@ -252,9 +247,12 @@ C
        CALL UDOUBLE(ITHBUF(IAD+2*nne),1,NNE,MESS,0,BID)              
       ELSE   ! Not used in the program. Now is used for saving skew number when it's defined                                                        
        DO I=1,NNE                                                    
-         K = ITHBUF(IAD)                                             
-         ITHBUF(IAD+2*NNE)=IX(NIX,K)                                 
-         IAD=IAD+1                                                   
+         K = ITHBUF(IAD) 
+         IF(K>0)THEN                                            
+           ITHBUF(IAD+2*NNE)=IX(NIX,K)                                 
+           IAD=IAD+1 
+           !if K==0, error msg id=69 is already displayed (see above)
+         ENDIF                                                   
        ENDDO                                                         
        IAD=ITHGRP(5)                                                 
        CALL UDOUBLE(ITHBUF(IAD+2*nne),1,NNE,MESS,0,BID)              

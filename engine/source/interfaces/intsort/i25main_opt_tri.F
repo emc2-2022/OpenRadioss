@@ -1,39 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25MAIN_OPT_TRI               source/interfaces/intsort/i25main_opt_tri.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        I25IRTLM                      source/interfaces/int25/i25irtlm.F
-Chd|        I25OPTCD                      source/interfaces/intsort/i25optcd.F
-Chd|        I25OPTCD_E2S                  source/interfaces/intsort/i25optcd_e2s.F
-Chd|        I25OPTCD_EDG                  source/interfaces/intsort/i25optcd_edg.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        UPGRADE_CAND_OPT              ../common_source/interf/upgrade_multimp.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25main_opt_tri    ../engine/source/interfaces/intsort/i25main_opt_tri.F
+!||--- called by ------------------------------------------------------
+!||    inttri             ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||    i25irtlm           ../engine/source/interfaces/int25/i25irtlm.F
+!||    i25optcd           ../engine/source/interfaces/intsort/i25optcd.F
+!||    i25optcd_e2s       ../engine/source/interfaces/intsort/i25optcd_e2s.F
+!||    i25optcd_edg       ../engine/source/interfaces/intsort/i25optcd_edg.F
+!||    my_barrier         ../engine/source/system/machine.F
+!||    upgrade_cand_opt   ../common_source/interf/upgrade_multimp.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod      ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    tri7box            ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25MAIN_OPT_TRI(
      1                  NIN   ,IPARI  ,INTBUF_TAB,X       ,V      ,
      2                  ITASK ,ITAB   ,KINET ,COUNT_REMSLV,
@@ -49,23 +50,13 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr04_c.inc"
-#include      "scr05_c.inc"
 #include      "warn_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -79,8 +70,9 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NSNR, IGAP, I_STOK_GLO, SIZOPT, IEDGE, NEDGE, IGAP0, I_STOK, L_STOK
+      INTEGER NSNR, IGAP, I_STOK_GLO, SIZOPT, IEDGE, NEDGE, IGAP0
       INTEGER N, NSNF, NSNL, NSNRF, NSNRL ,IFQ
+      INTEGER :: NRTM, NSN
 C     REAL
       my_real
      .   STARTT, STOPT, DRAD, DGAPLOAD
@@ -95,7 +87,7 @@ C-----------------------------------------------------------
 C-----------------------------------------------------------
       STARTT=INTBUF_TAB%VARIABLES(3)
       STOPT =INTBUF_TAB%VARIABLES(11)
-      IF(STARTT.GT.TT.OR.TT.GT.STOPT) RETURN
+      IF(STARTT>TT.OR.TT>STOPT) RETURN
 C-----------------------------------------------------------
       NRTM   =IPARI(4,NIN)
       NSN   =IPARI(5,NIN)
@@ -106,17 +98,19 @@ C-----------------------------------------------------------
       IF(IPARI(47,NIN) > 0) DRAD =INTBUF_TAB%VARIABLES(32)
       DGAPLOAD  =INTBUF_TAB%VARIABLES(46)
 C-----------------------------------------------------------
-C     Filtrage des candidats a l'impact
+C     Filtrage des CANDIDATES a l'impact
 C     (si candidat retenu, cand_n(i) = - cand_n(i))
 C-----------------------------------------------------------
        I_STOK_GLO = INTBUF_TAB%I_STOK(1)
-       IF (DEBUG(3).GE.1) THEN
+       IF (DEBUG(3)>=1) THEN
          IF(ITASK==0) NB_CANDT  = NB_CANDT  + I_STOK_GLO
        ENDIF
        SIZOPT = INTBUF_TAB%S_CAND_OPT_N
 C
 C      I_OPT_STOK modifie ds i25optcd, apres barriere !
+!$OMP SINGLE
        I_OPT_STOK = INTBUF_TAB%I_STOK(2)
+!$OMP END SINGLE NOWAIT
        CALL I25OPTCD(
      1 INTBUF_TAB%NSV,INTBUF_TAB%CAND_E,INTBUF_TAB%CAND_N,X,I_STOK_GLO    ,
      2 INTBUF_TAB%IRECTM,INTBUF_TAB%GAP_S,INTBUF_TAB%GAP_M,V,IPARI(39,NIN),
@@ -127,7 +121,7 @@ C      I_OPT_STOK modifie ds i25optcd, apres barriere !
      6 NRTM ,INTBUF_TAB%VARIABLES(23),I_OPT_STOK,INTBUF_TAB%CAND_OPT_E,
      .                                               INTBUF_TAB%CAND_OPT_N,
      7 SIZOPT,IGAP   ,INTBUF_TAB%GAP_SL,INTBUF_TAB%GAP_ML,DRAD,
-     8 DGAPLOAD)
+     8 DGAPLOAD,INTBUF_TAB%ICONT_I)
 C
 C      I_OPT_STOK modifie ds i25optcd, avant barriere
        IF(I_OPT_STOK > SIZOPT)THEN
@@ -151,11 +145,14 @@ C        I_OPT_STOK modifie ds i25optcd, apres barriere !
      6     NRTM ,INTBUF_TAB%VARIABLES(23),I_OPT_STOK,INTBUF_TAB%CAND_OPT_E,
      .                                                   INTBUF_TAB%CAND_OPT_N,
      7     SIZOPT,IGAP   ,INTBUF_TAB%GAP_SL,INTBUF_TAB%GAP_ML ,DRAD       ,
-     8     DGAPLOAD)
+     8     DGAPLOAD,INTBUF_TAB%ICONT_I)
        END IF
 C
 C      I_OPT_STOK modifie ds i25optcd, avant barriere
+!$OMP SINGLE
        INTBUF_TAB%I_STOK(2)=I_OPT_STOK
+       ! nowait is ok, because there is a barrier in INTTRI
+!$OMP END SINGLE NOWAIT
 C
 Cf barrier at the end of i25optcd
       NSNF = 1 + ITASK*NSN / NTHREAD
@@ -199,7 +196,6 @@ C
      7    INTBUF_TAB%FTSAVX_E2S,INTBUF_TAB%FTSAVY_E2S, INTBUF_TAB%FTSAVZ_E2S,DGAPLOAD)
       END IF
 
-C     call my_barrier ! pour timer only
 
 C-----------------------------------------------------------------------
       RETURN

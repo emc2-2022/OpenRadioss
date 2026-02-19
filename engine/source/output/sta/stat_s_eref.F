@@ -1,48 +1,53 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_S_EREF                   source/output/sta/stat_s_eref.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        GETCONFIG                     source/output/sta/stat_s_eref.F
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_RGATHER9_DP              source/mpi/interfaces/spmd_outp.F
-Chd|        SPMD_STAT_PGATHER             source/mpi/output/spmd_stat.F 
-Chd|        STRS_TXT50                    source/output/sta/sta_txt.F   
-Chd|        TAB_STRS_TXT50                source/output/sta/sta_txt.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_s_eref         ../engine/source/output/sta/stat_s_eref.F
+!||--- called by ------------------------------------------------------
+!||    genstat             ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    getconfig           ../engine/source/output/sta/stat_s_eref.F
+!||    initbuf             ../engine/share/resol/initbuf.F
+!||    spmd_rgather9_dp    ../engine/source/mpi/interfaces/spmd_outp.F
+!||    spmd_stat_pgather   ../engine/source/mpi/output/spmd_stat.F
+!||    strs_txt50          ../engine/source/output/sta/sta_txt.F
+!||    tab_strs_txt50      ../engine/source/output/sta/sta_txt.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod         ../engine/share/resol/initbuf.F
+!||    my_alloc_mod        ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE STAT_S_EREF(ELBUF_TAB,IPARG ,IPM ,IGEO ,IXS ,
-     1                        IXS10,IXS16,IXS20,X   ,
+     1                        IXS10,IXS16,IXS20,X   ,DR  ,
      2                        WA,WAP0 ,IPARTS, IPART_STATE,
      3                        STAT_INDXS,IPART,SIZP0)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD         
+      USE ELBUFDEF_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,43 +63,45 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "scr03_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
 #include      "vect01_c.inc"
 #include      "scr17_c.inc"
+#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER SIZLOC,SIZP0
+      INTEGER SIZP0
       INTEGER IXS(NIXS,*),IXS10(6,*),IXS16(8,*),IXS20(12,*),
      .        IPARG(NPARG,*),IPM(NPROPMI,*),IGEO(NPROPGI,*),
      .        IPARTS(*), IPART_STATE(*), STAT_INDXS(*),IPART(LIPART1,*)
       my_real
-     .   X(3,*)
+     .   X(3,*), DR(SDR)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
       double precision WA(*),WAP0(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,N,J,K,II,JJ,LEN,NLAY,NPTR,NPTS,NPTT,ISOLNOD0,
+      INTEGER I, N, J, K, JJ, LEN, ISOLNOD0, 
      .   ISOLNOD,ISTRAIN,NG, NEL, MLW, ID, IPRT0, IPRT,IE, 
-     .   NPG,IPG,IPT,IL,IR,IS,IT,IPID,PID,IOFF,KK(8),NC(20),NN1
-      INTEGER PTWA(STAT_NUMELS), PTWA_P0(0:MAX(1,STAT_NUMELS_G))
-      my_real
-     .   X0(MVSIZ,20), Y0(MVSIZ,20), Z0(MVSIZ,20)
+     .   NPG,IPG,IPT,IL,IR,IS,IT,IPID,PID,IOFF,KK(8),NC(20),
+     .   NN1,NN,NSROT
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA_P0
+      my_real X0(MVSIZ,20), Y0(MVSIZ,20), Z0(MVSIZ,20)
       CHARACTER*100 DELIMIT,LINE
       DATA DELIMIT(1:60)
      ./'#---1----|----2----|----3----|----4----|----5----|----6----|'/
       DATA DELIMIT(61:100)
      ./'----7----|----8----|----9----|----10---|'/
 C----  
-      TYPE(L_BUFEL_) ,POINTER :: LBUF     
+ 
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
 C======================================================================|
+      CALL MY_ALLOC(PTWA,STAT_NUMELS)
+      ALLOCATE(PTWA_P0(0:MAX(1,STAT_NUMELS_G)))
+C-----------------------------------------------
       JJ = 0
       IF(STAT_NUMELS==0) GOTO 200
 
@@ -111,12 +118,12 @@ C----- not output all solid element
         LFT = 1
         LLT = NEL
 !
-        DO I=1,8  ! lenght max of GBUF%G_STRA = 8
+        DO I=1,8  ! length max of GBUF%G_STRA = 8
           KK(I) = NEL*(I-1)
         ENDDO
 !
         IF (ITY == 1) THEN
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -124,8 +131,13 @@ C----- not output all solid element
      6          IREP    ,IINT    ,IGTYP   ,ISRAT   ,ISROT   ,  
      7          ICSEN   ,ISORTH  ,ISORTHG ,IFAILURE,JSMS    )
           IF (JHBE==17.AND.IINT==2) JHBE = 18
+          IF (JHBE==1.AND.IINT==3) JHBE = 5
           ISOLNOD0 = ISOLNOD
-          IF (ISOLNOD0==4 .AND. ISROT>0) ISOLNOD=10
+          NSROT = 0
+          IF (ISOLNOD0==4 .AND. ISROT==1) THEN
+            ISOLNOD=10
+            NSROT = 4
+          END IF
           GBUF => ELBUF_TAB(NG)%GBUF
           IPRT=IPARTS(LFT+NFT)
           PID = IPART(2,IPRT)
@@ -144,11 +156,12 @@ c------
               WA(JJ+ 4)= JHBE                                               
               WA(JJ+ 5)= ISMSTR 
               WA(JJ+ 6)= GBUF%OFF(I)                                                                                                      
-              JJ = JJ + 6
+              WA(JJ+ 7)= NSROT                                                                                                      
+              JJ = JJ + 7
               IF(ISMSTR==1.OR.ISMSTR>=10) THEN
                 IF(ISOLNOD == 8)THEN
-	             DO J = 1,ISOLNOD
-	               NC(J) = IXS(J+1,N)
+                       DO J = 1,ISOLNOD
+                         NC(J) = IXS(J+1,N)
                  ENDDO
                 ELSEIF(ISOLNOD0== 4)THEN
                   NC(1)=IXS(2,N)
@@ -172,13 +185,13 @@ c------
                     NC(J+4) = IXS10(J,NN1)
                   ENDDO
                 ELSEIF(ISOLNOD == 16)THEN
-	              NC(1:8) = IXS(2:9,N)
+                        NC(1:8) = IXS(2:9,N)
                   NN1 = N - (NUMELS8+NUMELS10+NUMELS20)
                   DO J=1,8
                    NC(J+8) = IXS16(J,NN1)
                   ENDDO
                 ELSEIF(ISOLNOD == 20)THEN
-	              NC(1:8) = IXS(2:9,N)
+                        NC(1:8) = IXS(2:9,N)
                   NN1 = N - (NUMELS8+NUMELS10)
                   DO J=1,12
                     NC(J+8) = IXS20(J,NN1)
@@ -192,9 +205,18 @@ c------
                 JJ = JJ + 1
                 WA(JJ)= Z0(I,J)                                        
                END DO              
+               DO J= 1, NSROT
+                NN = 3*(NC(J)-1)
+                JJ = JJ + 1
+                WA(JJ)= DR(1+NN)                                        
+                JJ = JJ + 1
+                WA(JJ)= DR(2+NN)                                               
+                JJ = JJ + 1
+                WA(JJ)= DR(3+NN)                                        
+               END DO              
               END IF    ! ISMSTR==1.OR.ISMSTR>=10
               IE=IE+1                                                       
-C             pointeur de fin de zone dans WA                                 
+C             end-of-zone pointer in wa
               PTWA(IE)=JJ                                                   
             END DO                                                
 C                                                                                       
@@ -203,7 +225,7 @@ C
  200  CONTINUE
 c-----------------------------------------------------------
       IF(NSPMD == 1)THEN
-C       recopies inutiles pour simplification du code.
+C       unnecessary copies for code simplification
         PTWA_P0(0)=0
         DO N=1,STAT_NUMELS
           PTWA_P0(N)=PTWA(N)
@@ -213,20 +235,20 @@ C       recopies inutiles pour simplification du code.
           WAP0(J)=WA(J)
         END DO
       ELSE
-C       construit les pointeurs dans le tableau global WAP0
+C       builds the pointers in the global array wap0
         CALL SPMD_STAT_PGATHER(PTWA,STAT_NUMELS,PTWA_P0,STAT_NUMELS_G)
         LEN = 0
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
       END IF
 c-----------------------------------------------------------
-      IF(ISPMD == 0.AND.LEN.GT.0) THEN
+      IF(ISPMD == 0.AND.LEN>0) THEN
 
         IPRT0=0
         DO N=1,STAT_NUMELS_G
 
-C         retrouve le nieme elt dans l'ordre d'id croissant
+C         find the nieme elt in the order of an increasing id
           K=STAT_INDXS(N)
-C         retrouve l'adresse dans WAP0
+C         Find the address in WAP0
           J=PTWA_P0(K-1)
           IOFF  = NINT(WAP0(J + 6))      
           IPRT  = NINT(WAP0(J + 1)) 
@@ -239,7 +261,7 @@ C         retrouve l'adresse dans WAP0
              WRITE(IUGEO,'(A)')
      .      '#------------------------ REPEAT -------------------------'
              WRITE(IUGEO,'(A)')
-     .      '#  BRICKID              ISOLNOD    ISOLID    ISMSTR' 
+     .      '#  BRICKID              ISOLNOD    ISOLID    ISMSTR     NSROT' 
              WRITE(IUGEO,'(A/A)')
      .      '# REPEAT K=1,ISOLNOD ',
      .      '#     X,   Y,   Z'
@@ -255,12 +277,17 @@ C         retrouve l'adresse dans WAP0
      .      '#------------------------ REPEAT -------------------------'
                CALL STRS_TXT50(LINE,100)  
                WRITE(LINE,'(A)')
-     .      '#  BRICKID              ISOLNOD    ISOLID    ISMSTR'
+     .      '#  BRICKID              ISOLNOD    ISOLID    ISMSTR     NSROT'
                CALL STRS_TXT50(LINE,100)  
                WRITE(LINE,'(A)')
      .      '# REPEAT K=1,ISOLNOD '
                CALL STRS_TXT50(LINE,100) 
                WRITE(LINE,'(A)')'#     X,   Y,   Z'
+               CALL STRS_TXT50(LINE,100) 
+               WRITE(LINE,'(A)')
+     .      '# REPEAT K=1,NSROT '
+               CALL STRS_TXT50(LINE,100) 
+               WRITE(LINE,'(A)')'#    RX,  RY,  RZ'
                CALL STRS_TXT50(LINE,100) 
                WRITE(LINE,'(A)')
      .      '#------------------------ REPEAT -------------------------'
@@ -273,16 +300,17 @@ C         retrouve l'adresse dans WAP0
             ID      = NINT(WAP0(J + 2))          
             ISOLNOD = NINT(WAP0(J + 3))          
             JHBE    = NINT(WAP0(J + 4))          
+            NSROT   = NINT(WAP0(J + 7))          
 c
-            J = J + 6
+            J = J + 7
 c------------------------------------------------
             IF (IZIPSTRS == 0) THEN 
-              WRITE(IUGEO,'(I10,10X,3I10)') ID,ISOLNOD,JHBE,ISMSTR
+              WRITE(IUGEO,'(I10,10X,4I10)') ID,ISOLNOD,JHBE,ISMSTR,NSROT
             ELSE
-              WRITE(LINE,'(I10,10X,3I10)') ID,ISOLNOD,JHBE,ISMSTR
+              WRITE(LINE,'(I10,10X,4I10)') ID,ISOLNOD,JHBE,ISMSTR,NSROT
               CALL STRS_TXT50(LINE,100)
             ENDIF
-            DO IPT = 1, ISOLNOD                                 
+            DO IPT = 1, ISOLNOD+NSROT                                 
               IF (IZIPSTRS == 0) THEN                        
                 WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=1,3) 
               ELSE                                           
@@ -292,17 +320,19 @@ c------------------------------------------------
             ENDDO                  
           ENDIF  !  IF (IOFF == 1)
 c---
-        ENDDO		    
+        ENDDO        
       ENDIF
+c-----------
+      DEALLOCATE(PTWA)
+      DEALLOCATE(PTWA_P0)
 c-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  GETCONFIG                     source/output/sta/stat_s_eref.F
-Chd|-- called by -----------
-Chd|        STAT_S_EREF                   source/output/sta/stat_s_eref.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    getconfig     ../engine/source/output/sta/stat_s_eref.F
+!||--- called by ------------------------------------------------------
+!||    stat_s_eref   ../engine/source/output/sta/stat_s_eref.F
+!||====================================================================
       SUBROUTINE GETCONFIG(IFT,ILT,NPE,ISMSTR,X0, Y0, Z0, SAV,NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -313,13 +343,9 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPE,NEL,IFT,ILT,ISMSTR
-C     REAL
       my_real
      .   X0(MVSIZ,*), Y0(MVSIZ,*), Z0(MVSIZ,*)
       DOUBLE PRECISION 
@@ -328,7 +354,6 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,NPE1,N,N2,N3
-C     REAL
 C-----------------------------------------------
 C
       NPE1=NPE-1

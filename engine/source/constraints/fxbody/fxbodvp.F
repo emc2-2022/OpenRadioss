@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FXBODVP1                      source/constraints/fxbody/fxbodvp.F
-Chd|-- called by -----------
-Chd|        FXBYVIT                       source/constraints/fxbody/fxbyvit.F
-Chd|-- calls ---------------
-Chd|        FXBSYS                        source/constraints/fxbody/fxbsys.F
-Chd|        FXLINK                        source/constraints/fxbody/fxbodv.F
-Chd|        SPLINK                        source/constraints/fxbody/fxbodv.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fxbodvp1   ../engine/source/constraints/fxbody/fxbodvp.F
+!||--- called by ------------------------------------------------------
+!||    fxbyvit    ../engine/source/constraints/fxbody/fxbyvit.F
+!||--- calls      -----------------------------------------------------
+!||    fxbsys     ../engine/source/constraints/fxbody/fxbsys.F
+!||    fxlink     ../engine/source/constraints/fxbody/fxbodv.F
+!||    splink     ../engine/source/constraints/fxbody/fxbodv.F
+!||====================================================================
       SUBROUTINE FXBODVP1(FXBRPM, FXBGLM, FXBLM , MVN   , MCD  ,
      .                    SE    , SV    , FXBVIT, FXBACC, NME  ,
      .                    NMOD  , ISH   , DMT   , FSAV  , FXBFC,
@@ -57,7 +57,7 @@ C-----------------------------------------------
      .        CR(6,NME), SR(6), MT(DMT,DMT), ST(DMT), ALPHA, FAC,
      .        DT05, VITN(NME+NMOD), GLM(NME,NME), ECIN, DWDAMP
 C
-      IF (IBLO.EQ.1) THEN
+      IF (IBLO==1) THEN
          DO I=1,NME
             FXBACC(I)=ZERO
          ENDDO
@@ -85,7 +85,7 @@ C
          ENDDO
          ST(NME+I)=-SR(I)
       ENDDO
-      IF (ISH.GT.0) CALL SPLINK(MT, ST, DT1, FXBRPM, FXBVIT,
+      IF (ISH>0) CALL SPLINK(MT, ST, DT1, FXBRPM, FXBVIT,
      .                          DMT)
 C
       CALL FXBSYS(MT,ST,DMT)      
@@ -98,11 +98,11 @@ C
 C
       ALPHA=FXBRPM(13)
       FAC=ONE+HALF*DT2*ALPHA
-      IF (NMOD.GT.0) THEN
+      IF (NMOD>0) THEN
          DO I=1,NMOD
             FXBACC(NME+I)=SV(I)/FXBLM(I)/FAC
          ENDDO
-         IF (IBLO.EQ.0) THEN
+         IF (IBLO==0) THEN
             DO I=1,NME
                IAD=NMOD*(I-1)
                DO II=1,NMOD
@@ -122,7 +122,7 @@ C
          DO II=I,NME
             IAD=IAD+1
             GLM(I,II)=FXBGLM(IAD)
-            IF (I.NE.II) GLM(II,I)=GLM(I,II)
+            IF (I/=II) GLM(II,I)=GLM(I,II)
          ENDDO
       ENDDO
       ECIN=ZERO
@@ -154,13 +154,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  FXBODVP2                      source/constraints/fxbody/fxbodvp.F
-Chd|-- called by -----------
-Chd|        FXBYVIT                       source/constraints/fxbody/fxbyvit.F
-Chd|-- calls ---------------
-Chd|        FXSPIN                        source/constraints/fxbody/fxbodv.F
-Chd|====================================================================
+!||====================================================================
+!||    fxbodvp2   ../engine/source/constraints/fxbody/fxbodvp.F
+!||--- called by ------------------------------------------------------
+!||    fxbyvit    ../engine/source/constraints/fxbody/fxbyvit.F
+!||--- calls      -----------------------------------------------------
+!||    fxspin     ../engine/source/constraints/fxbody/fxbodv.F
+!||====================================================================
       SUBROUTINE FXBODVP2(FXBRPM, FXBNOD , FXBMOD  , FXBVIT , FXBACC,
      .                    NME   , NMOD   , V       , VR     , A     ,
      .                    AR    , MS     , IN      , NSN    , IDMAST,
@@ -195,7 +195,7 @@ C-----------------------------------------------
      .        USDT, ECBIDT, ECBIDR, VV(6), DT05, VX, VY, VZ, VRX, VRY,
      .        VRZ
 C-----------------------------------------------
-C   RESTITUTION DES VITESSES SUR LES SECNDS
+C   restitution of velocities on the seconds
 C-----------------------------------------------
       CALL FXSPIN(FXBRPM, FXBVIT, SPIN, R12, DT2)
 C
@@ -203,7 +203,7 @@ C
          VT(1,I)=ZERO
          VT(2,I)=ZERO
          VT(3,I)=ZERO
-         IF (ISH.GT.0) THEN
+         IF (ISH>0) THEN
             VTR(1,I)=ZERO
             VTR(2,I)=ZERO
             VTR(3,I)=ZERO
@@ -218,7 +218,7 @@ C
          DO II=1,LMOD
             VMOD(II)=FXBMOD(IAD+II)
          ENDDO
-         IF (IFILE.EQ.1.AND.NSN.GT.NSNI) THEN
+         IF (IFILE==1.AND.NSN>NSNI) THEN
             IAD=NSNI*6
             DO II=1,NSN-NSNI
                IRCM=IRCM+1
@@ -237,13 +237,13 @@ C
             IAD=IAD+6
          ENDDO
       ENDDO
-      IF (ISH.GT.0) THEN
+      IF (ISH>0) THEN
          DO I=13,NME
             IAD=(I-1)*LMOD
             DO II=1,LMOD
                VMOD(II)=FXBMOD(IAD+II)
             ENDDO
-            IF (IFILE.EQ.1.AND.NSN.GT.NSNI) THEN
+            IF (IFILE==1.AND.NSN>NSNI) THEN
                IAD=NSNI*6
                DO II=1,NSN-NSNI
                   IRCM=IRCM+1
@@ -264,13 +264,13 @@ C
          ENDDO
       ENDIF   
 C     
-      IF (NMOD.GT.0) THEN
+      IF (NMOD>0) THEN
          DO I=1,NMOD
             IAD=(NME+I-1)*LMOD
             DO II=1,LMOD
                VMOD(II)=FXBMOD(IAD+II)
             ENDDO
-            IF (IFILE.EQ.1.AND.NSN.GT.NSNI) THEN
+            IF (IFILE==1.AND.NSN>NSNI) THEN
                IAD=NSNI*6
                DO II=1,NSN-NSNI
                   IRCM=IRCM+1
@@ -313,7 +313,7 @@ C
       DO I=1,NUMNOD
          IFAC(I)=1
       ENDDO
-      IF (NSPMD.GT.1) THEN
+      IF (NSPMD>1) THEN
          DO I=1,NSPMD
             DO J=IAD_ELEM(1,I),IAD_ELEM(1,I+1)-1
                JJ=FR_ELEM(J)
@@ -356,12 +356,12 @@ C
          ECBIDT=ECBIDT+HALF*MS(N)*(VX*VX+VY*VY+VZ*VZ)/IFAC(N)
          ECBIDR=ECBIDR+HALF*IN(N)*(VRX*VRX+VRY*VRY+VRZ*VRZ)/IFAC(N)
       ENDDO
-      IF (PMAIN.NE.ISPMD) FXBRPM(12)=ZERO  
+      IF (PMAIN/=ISPMD) FXBRPM(12)=ZERO  
       FXBRPM(12)=FXBRPM(12)-ECBIDT-ECBIDR
 C-----------------------------------------------
-C   RESTITUTION SUR LE MAIN
+C   restitution on the main
 C-----------------------------------------------
-      IF (IDMAST.NE.0) THEN
+      IF (IDMAST/=0) THEN
          A(1,IDMAST)=FXBACC(10)
          A(2,IDMAST)=FXBACC(11)
          A(3,IDMAST)=FXBACC(12)

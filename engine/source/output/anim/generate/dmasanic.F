@@ -1,41 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DMASANIC                      source/output/anim/generate/dmasanic.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dmasanic       ../engine/source/output/anim/generate/dmasanic.F
+!||--- called by ------------------------------------------------------
+!||    genani         ../engine/source/output/anim/generate/genani.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    stack_mod      ../engine/share/modules/stack_mod.F
+!||====================================================================
       SUBROUTINE DMASANIC(ELBUF_TAB,X   ,D    ,GEO  ,IPARG,
      .                    IXQ  ,IXC  ,IXTG ,MAS  ,PM   ,
-     .                    EL2FA,NBF  ,IXUR ,IGEO,STACK)
+     .                    EL2FA,NBF  ,IGEO,STACK)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD 
-      USE STACK_MOD           
+      USE STACK_MOD
+      use element_mod , only : nixq,nixc,nixtg       
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -43,13 +45,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -58,7 +56,7 @@ C     REAL
       my_real
      .   MAS(*) ,PM(NPROPM,*),GEO(NPROPG,*),X(3,*),
      .   D(3,*)
-      INTEGER IPARG(NPARG,*),IXC(NIXC,*),IXTG(NIXTG,*),IXUR(NIXUR,*),
+      INTEGER IPARG(NPARG,*),IXC(NIXC,*),IXTG(NIXTG,*),
      .        IXQ(NIXQ,*),EL2FA(*),NBF,IGEO(NPROPGI,*)
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
       TYPE (STACK_PLY) :: STACK
@@ -69,14 +67,14 @@ C     REAL
       my_real
      .   OFF, P, VONM2, VONM, S1, S2, S12, S3, VALUE,THK0,A0,AL0,
      .   RHO0,XX1,XX2,XX3,YY1,YY2,YY3,ZZ1,ZZ2,ZZ3
-      INTEGER I, NG, NEL, NFT, IAD, ITY, LFT, NPT, ISS, ISC,
+      INTEGER I, NG, NEL, NFT, IAD, ITY, LFT, NPT, 
      .        IADD, N, J, LLT, MLW, 
      .        ISTRAIN,NN, K1, K2,JTURB,MT,JALE, IMID, IALEL,IPID,
      .        N1,N2,N3,N4,
      .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,
      .        OFFSET,NEL_OLD,ITY_OLD,NFT_FA,N_FA
-      INTEGER ISUBSTACK,NTHK,IADR,IIGEO,IGTYP
-      REAL R4
+      INTEGER ISUBSTACK, IGTYP
+ 
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
       NN1 = 1
@@ -88,7 +86,7 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
       NN7 = NN6 
       NN8 = NN7 
       NN9 = NN8 
-      NN10= NN9 + NUMELUR
+      NN10= NN9
 C-----------------------------------------------
 C
       NEL_OLD = 0
@@ -98,8 +96,8 @@ C
         NEL   =IPARG(2,NG)
         ITY   =IPARG(5,NG)
         NPT   =IABS(IPARG(6,NG))
-        IF (IMACH.EQ.3.AND.ISPMD.EQ.0) THEN
-          IF (ITY.NE.ITY_OLD) THEN
+        IF (ISPMD==0) THEN
+          IF (ITY/=ITY_OLD) THEN
             NEL_OLD = 0
             ITY_OLD= ITY
           ENDIF
@@ -110,7 +108,7 @@ C
         IAD   =IPARG(4,NG)
         LFT=1
         LLT=NEL
-        IF (IMACH.EQ.3.AND.ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
             NFT_FA = NEL_OLD - NEL 
         ELSE
             NFT_FA = NFT
@@ -118,13 +116,13 @@ C
 C-----------------------------------------------
 C       QUAD
 C-----------------------------------------------
-        IF(ITY.EQ.2)THEN
+        IF(ITY==2)THEN
          IALEL=(IPARG(7,NG)+IPARG(11,NG))
 C
          DO I=LFT,LLT
                N = I + NFT
                N_FA = I + NFT_FA
-               IF(IALEL.EQ.0)THEN
+               IF(IALEL==0)THEN
                  MT=IXQ(1,N)
                  VALUE=PM(89,MT)*GBUF%VOL(I)
                ELSE
@@ -136,7 +134,7 @@ C
 C-----------------------------------------------
 C       COQUES 4 N
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.3)THEN
+        ELSEIF(ITY==3)THEN
 C
           ISUBSTACK=IPARG(71,NG)
           IGTYP   = IPARG(38,NG)
@@ -191,7 +189,7 @@ C
 C-----------------------------------------------
 C       COQUES 3 N
 C-----------------------------------------------
-        ELSEIF(ITY.EQ.7)THEN
+        ELSEIF(ITY==7)THEN
 C       
           ISUBSTACK=IPARG(71,NG)
           IGTYP   = IPARG(38,NG)
@@ -243,20 +241,10 @@ C
              ENDDO       
           ENDIF
 C
-C-----------------------------------------------
-C       RNUR
-C-----------------------------------------------
-        ELSEIF(ITY.EQ.50)THEN
-         DO I=LFT,LLT
-            N = I + NFT
-            N_FA = I + NFT_FA
-            MAS(EL2FA(NN9+N_FA)) = GEO(21,IXUR(1,N))
-         ENDDO
-C
         ELSE
         ENDIF
 C-----------------------------------------------
-C       FIN DE BOUCLE SUR LES OFFSET
+C       end of loop over offsets
 C-----------------------------------------------
  490  CONTINUE
 C-----------------------------------------------

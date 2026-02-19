@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DSRGNOR                       source/output/anim/dsrgnor.F  
-Chd|-- called by -----------
-Chd|        GENANI1                       source/output/anim/genani1.F  
-Chd|-- calls ---------------
-Chd|        WRITE_S_C                     source/output/tools/write_routines.c
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dsrgnor        ../starter/source/output/anim/dsrgnor.F
+!||--- called by ------------------------------------------------------
+!||    genani1        ../starter/source/output/anim/genani1.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE DSRGNOR(IGRSURF,BUFSF)
 C-----------------------------------------------
 C   M o d u l e s
@@ -41,9 +40,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s                                           
 C-----------------------------------------------                        
 #include      "com04_c.inc"                                             
-#include      "scr05_c.inc"                                             
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------                        
 C   D u m m y   A r g u m e n t s                                       
 C-----------------------------------------------                        
@@ -53,7 +49,7 @@ C-----------------------------------------------
 C-----------------------------------------------                        
 C   L o c a l   V a r i a b l e s                                       
 C-----------------------------------------------                        
-      INTEGER I3000,NXX,NYY,NZZ                                         
+      INTEGER I3000
       INTEGER N,ADRBUF                                                  
       INTEGER INOE, I, J, K, DGR                                        
       my_real XG,YG,ZG,A,B,C,ROT(9),                                    
@@ -81,10 +77,10 @@ C-----------------------------------------------
       I3000 = 3000                                                      
 C                                                                       
       DO 200 N=1,NSURF
-       IF (IGRSURF(N)%TYPE.NE.101) GOTO 200
+       IF (IGRSURF(N)%TYPE/=101) GOTO 200
        ADRBUF=IGRSURF(N)%IAD_BUFR
 C-------------------------------------------------------                
-c      Parametres de l'ellipsoide.                                      
+c      Parametres de l'ellipsoide.
 C-------------------------------------------------------                
        DGR=BUFSF(ADRBUF+36)                                             
        XG=BUFSF(ADRBUF+4)                                               
@@ -97,7 +93,7 @@ C-------------------------------------------------------
         ROT(I)=BUFSF(ADRBUF+7+I-1)                                      
        END DO                                                           
 C-------------------------------------------------------                
-C      - Calcul des noeuds sur le cube A,B,C.                           
+C      - Calculation of nodes on the cube A, B, c.
 C-------------------------------------------------------                
        INOE=0                                                           
        DO I = 1,6                                                       
@@ -123,7 +119,7 @@ C-------------------------------------------------------
         ENDDO                                                           
        ENDDO                                                            
 C-------------------------------------------------------                
-C      - Calcul de la normale : projection radiale.                     
+C      - Calculation of the normal : radial projection.
 C-------------------------------------------------------                
        AN=A**DGR                                                        
        BN=B**DGR                                                        
@@ -145,11 +141,11 @@ C
         ZL=ZL/E                                                         
 C                                                                       
         NXL=XL**(DGR-1)/AN                                              
-        IF (XL*NXL.LT.ZERO) NXL=-NXL                                    
+        IF (XL*NXL<ZERO) NXL=-NXL                                    
         NYL=YL**(DGR-1)/BN                                              
-        IF (YL*NYL.LT.ZERO) NYL=-NYL                                    
+        IF (YL*NYL<ZERO) NYL=-NYL                                    
         NZL=ZL**(DGR-1)/CN                                              
-        IF (ZL*NZL.LT.ZERO) NZL=-NZL                                    
+        IF (ZL*NZL<ZERO) NZL=-NZL                                    
         NX  =ROT(1)*NXL+ROT(4)*NYL+ROT(7)*NZL                           
         NY  =ROT(2)*NXL+ROT(5)*NYL+ROT(8)*NZL                           
         NZ  =ROT(3)*NXL+ROT(6)*NYL+ROT(9)*NZL                           
@@ -162,7 +158,7 @@ C
         NNOR(3,INOE)=THREE1000*NZ                                       
        END DO                                                           
 C-------------------------------------------------------                
-C      Ecriture des normales aux noeuds.                                
+C      Writing normal to nodes.                                
 C-------------------------------------------------------                
        INOE=0                                                           
        DO I=1,384                                                       

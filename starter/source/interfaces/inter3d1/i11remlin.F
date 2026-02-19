@@ -1,54 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I11REMLINE                    source/interfaces/inter3d1/i11remlin.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        I11PENE_LIN                   source/interfaces/inter3d1/i11remlin.F
-Chd|        ORIGIN                        source/model/remesh/build_admesh.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i11remline    ../starter/source/interfaces/inter3d1/i11remlin.F
+!||--- called by ------------------------------------------------------
+!||    inint3        ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    i11pene_lin   ../starter/source/interfaces/inter3d1/i11remlin.F
+!||    origin        ../starter/source/model/remesh/build_admesh.F
+!||====================================================================
       SUBROUTINE I11REMLINE(
      1         X,NRTM,IRECTM,NRTS,IRECTS,
      2         NUMNOD,GAP_S ,GAP_M, GAPMIN,IGAP,
      3         KREMNODE,REMNODE,GAP,DRAD,NREMNODE,
      4         I_START,I_MEM_REM,INOD2LIN,TAGSECND,NOD2LIN,
-     5         DGAPLOAD)
+     5         DGAPLOAD,GAP_S_L,GAP_M_L)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect07_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -58,13 +47,13 @@ C-----------------------------------------------
       my_real
      .        X(3,*),GAP_S(*),GAP_M(*),GAP,DRAD,GAPMIN
       my_real , INTENT(IN) :: DGAPLOAD
+      my_real , INTENT(IN) :: GAP_S_L(NRTS), GAP_M_L(NRTM)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,LIN,ILIN,LEVEL,CPT,NBLIN,LIN1,L,CPT1,N,NBLIN_MAX,CPT_TOTAL
-      INTEGER ITAG(NRTM),
-     .        LISTLIN(NRTM),LISTLINTMP(NRTM),LISTLINTOTAL(NRTM),
-     .        IM1,IM2
+      INTEGER, dimension(:),ALLOCATABLE :: ITAG,LISTLIN,LISTLINTMP,LISTLINTOTAL
+      INTEGER ::  IM1,IM2
       INTEGER, DIMENSION(:),ALLOCATABLE ::
      .        KNOD2LIN,TAGNOD,ORIGIN
       my_real
@@ -74,7 +63,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 c Build inverse connectivity for segments - only at first pass (I_START=1)
 C-----------------------------------------------
+      ALLOCATE(ITAG(NRTM))
+      ALLOCATE(LISTLIN(NRTM))
+      ALLOCATE(LISTLINTMP(NRTM))
+      ALLOCATE(LISTLINTOTAL(NRTM))
 C
+      CPT = 0
       IF (I_START ==1) THEN
 C
         ALLOCATE(KNOD2LIN(NUMNOD+1))
@@ -84,7 +78,6 @@ C
         KNOD2LIN(1:NUMNOD+1) = 0
         INOD2LIN(1:NUMNOD+1) = 0
         TAGSECND(1:NUMNOD)    = 0
-        CPT = 0
 C
         DO I=1,NRTS
           TAGSECND(IRECTS(1,I)) = 1
@@ -113,7 +106,7 @@ C
             DO K=1,2
               IF(TAGSECND(IRECTM(K,I)) == 1) CPT = CPT + 1
             END DO
-            IF (CPT .NE. 0 ) THEN
+            IF (CPT /= 0 ) THEN
               DO K=1,2
                 N = IRECTM(K,I)
                 KNOD2LIN(N) = KNOD2LIN(N) + 1
@@ -132,7 +125,7 @@ C
             DO K=1,2
               IF(TAGSECND(IRECTM(K,I)) == 1) CPT = CPT + 1
             END DO
-            IF (CPT .NE. 0) THEN
+            IF (CPT /= 0) THEN
               DO K=1,2
                 N = IRECTM(K,I)
                 NOD2LIN(KNOD2LIN(N)) = I
@@ -150,7 +143,7 @@ C
       IF (((I_START==1).AND.(CPT > 0)).OR.(I_START>1)) THEN
 C
 C-----------------------------------------------
-C  Searching Algorith Connected nodes : D < SQRT(2.) * GAP
+C  Searching Algorithm Connected nodes : D < SQRT(2.) * GAP
 C-----------------------------------------------
 C
         ALLOCATE(TAGNOD(NUMNOD),ORIGIN(NUMNOD),DIST1(NUMNOD))
@@ -273,7 +266,7 @@ C
               LIN = LISTLINTOTAL(L)
               IF ((IM1 /= IRECTM(1,LIN)).AND.(IM1 /= IRECTM(2,LIN))
      .           .AND.(IM2 /= IRECTM(1,LIN)).AND.(IM2 /= IRECTM(2,LIN))) THEN
-C--- lines with common nodes with main lines are aready removed - no need to store them in remnode
+C--- lines with common nodes with main lines are already removed - no need to store them in remnode
                 IF ((DIST1(IRECTM(1,LIN)) <= DMAX).OR.(DIST1(IRECTM(2,LIN)) <= DMAX)) THEN
                   REMNODE(KREMNODE(I)+CPT1) = LIN
                   CPT1 = CPT1 + 1
@@ -287,13 +280,14 @@ C--- lines with common nodes with main lines are aready removed - no need to sto
               ENDIF
             ENDDO
             KREMNODE(I+1) = KREMNODE(I) + CPT1
-          ELSEIF (IGAP == 1) THEN 
+          ELSE 
             DO L=1,CPT_TOTAL
               LIN = LISTLINTOTAL(L)
               IF ((IM1 /= IRECTM(1,LIN)).AND.(IM1 /= IRECTM(2,LIN))
      .           .AND.(IM2 /= IRECTM(1,LIN)).AND.(IM2 /= IRECTM(2,LIN))) THEN
-C--- lines with common nodes with main lines are aready removed - no need to store them in remnode
+C--- lines with common nodes with main lines are already removed - no need to store them in remnode
                 GAPV = GAP_S(LIN)+GAP_M(I)
+                IF(IGAP == 3) GAPV=MIN(GAP_S_L(LIN)+GAP_M_L(I),GAPV)
                 GAPV = SQRT(TWO)*MAX(DRAD,GAPMIN,GAPV+DGAPLOAD)
                 IF ((DIST1(IRECTM(1,LIN)) <= GAPV).OR.(DIST1(IRECTM(2,LIN)) <= GAPV)) THEN
                   REMNODE(KREMNODE(I)+CPT1) = LIN
@@ -338,31 +332,32 @@ C
 C
         ENDDO
 CC END DO NRTM
+        DEALLOCATE(DIST1,TAGNOD,ORIGIN)
 C
+      ELSE
+        I_START = NRTM  ! avoid infinite loop later
       ENDIF
-C
-      DEALLOCATE(DIST1,TAGNOD,ORIGIN)
+
+      DEALLOCATE(ITAG)
+      DEALLOCATE(LISTLIN)
+      DEALLOCATE(LISTLINTMP)
+      DEALLOCATE(LISTLINTOTAL)
 C
       RETURN
       END
 C
 C=======================================================================
-Chd|====================================================================
-Chd|  I11PENE_LIN                   source/interfaces/inter3d1/i11remlin.F
-Chd|-- called by -----------
-Chd|        I11REMLINE                    source/interfaces/inter3d1/i11remlin.F
-Chd|        I25REMLINE                    source/interfaces/int25/i25remlin.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i11pene_lin   ../starter/source/interfaces/inter3d1/i11remlin.F
+!||--- called by ------------------------------------------------------
+!||    i11remline    ../starter/source/interfaces/inter3d1/i11remlin.F
+!||    i25remline    ../starter/source/interfaces/int25/i25remlin.F
+!||====================================================================
       my_real FUNCTION I11PENE_LIN(X,N1,N2,M1,M2,GAP)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -374,8 +369,8 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       my_real
      .     XS12,YS12,ZS12,XM12,YM12,ZM12,XA,XB,
-     .     XS2,XM2,XSM,XS2M2,YS2,YM2,YSM,YS2M2,ZS2,ZM2,ZSM,ZS2M2,
-     .     XX,YY,ZZ,ALS,ALM,DET,H1S,H2S,H1M,H2M,NX,NY,NZ,GAP2
+     .     XS2,XM2,XSM,XS2M2,YS2M2,ZS2M2,
+     .     DET,H1S,H2S,H1M,H2M,NX,NY,NZ,GAP2
 C-----------------------------------------------
 C
 C      COMPTUTATION OF PENE*PENE FOR PENETRATION CHECK
@@ -412,7 +407,7 @@ C
        H2S = ONE - H1S
        H2M = ONE - H1M
 C !!!!!!!!!!!!!!!!!!!!!!!
-C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 C!!!!!!!!!!!!!!!!!!!!!!!!
        NX =  H1S*X(1,N1) + H2S*X(1,N2)
      .      - H1M*X(1,M1) - H2M*X(1,M2)

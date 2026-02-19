@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25PEN3_EDG                   source/interfaces/inter3d1/i25pen3_edg.F
-Chd|-- called by -----------
-Chd|        I25STO_EDG                    source/interfaces/inter3d1/i25sto_edg.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules1/tri7box.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25pen3_edg   ../starter/source/interfaces/inter3d1/i25pen3_edg.F
+!||--- called by ------------------------------------------------------
+!||    i25sto_edg    ../starter/source/interfaces/inter3d1/i25sto_edg.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box       ../starter/share/modules1/tri7box.F
+!||====================================================================
       SUBROUTINE I25PEN3_EDG(JLT ,CAND_S ,CAND_M  ,DRAD  ,IGAP0   ,
      .                    NEDGE  ,LEDGE  ,MARGE   ,GAPE  ,GAP_E_L ,
      .                    IGAP   ,X      ,IRECT   ,PENE  ,ADMSR   ,
@@ -48,8 +48,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-C#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -62,12 +60,9 @@ C-----------------------------------------------
      .     X(3,*), GAPE(*), GAP_E_L(*), PENE(MVSIZ)
       REAL*4 EDG_BISECTOR(3,4,*), VTX_BISECTOR(3,2,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG,N1,N2,M1,M2,NI,L,J, IE, JE, IL, JL
+      INTEGER I, N1, N2, M1, M2, IE, JE
       my_real
      .     XXS1(MVSIZ) ,XXS2(MVSIZ) ,XYS1(MVSIZ) ,XYS2(MVSIZ) ,XZS1(MVSIZ) ,XZS2(MVSIZ) ,
      .     XXM1(MVSIZ) ,XXM2(MVSIZ) ,XYM1(MVSIZ) ,XYM2(MVSIZ) ,XZM1(MVSIZ) ,XZM2(MVSIZ) ,
@@ -134,7 +129,7 @@ C       B = (XA*XSM-XB*XS2) / (XM2*XS2 - XSM*XSM)
 C       A = (XB*XSM-XA*XM2) / (XM2*XS2 - XSM*XSM)
 C--------------------------------------------------------
       DO I=1,JLT
-        IF(CAND_S(I).LE.NEDGE) THEN
+        IF(CAND_S(I)<=NEDGE) THEN
           N1 = LEDGE(5,CAND_S(I))
           N2 = LEDGE(6,CAND_S(I))
 
@@ -160,7 +155,7 @@ C--------------------------------------------------------
       END DO
 C
 C--------------------------------------------------------
-C     calcul d'un minorant de la distance
+C     calculation of a lower bound of the distance
 C--------------------------------------------------------
         DO I=1,JLT
           XMAX1 = MAX(XXS1(I),XXS2(I))
@@ -182,7 +177,7 @@ C--------------------------------------------------------
             CYCLE
           ENDIF
 
-c         calcul de la distance^2
+c         calculation of distance^2
 
           XM12 = XXM2(I)-XXM1(I)
           YM12 = XYM2(I)-XYM1(I)
@@ -212,7 +207,7 @@ C
           ALM = -(XB + ALS*XSM) / XM2
           ALM=MIN(ONE,MAX(ZERO,ALM))
 
-C  PENE = GAP^2 - DIST^2 UTILISE POUR TESTER SI NON NUL
+C  PENE = GAP^2 - DIST^2 USED TO TEST IF NON-NULL
 
           XX =  ALS*XXS1(I) + (ONE-ALS)*XXS2(I)
      .        - ALM*XXM1(I) - (ONE-ALM)*XXM2(I)

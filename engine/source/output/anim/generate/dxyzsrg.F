@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DXYZSRG                       source/output/anim/generate/dxyzsrg.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dxyzsrg        ../engine/source/output/anim/generate/dxyzsrg.F
+!||--- called by ------------------------------------------------------
+!||    genani         ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    write_r_c      ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||====================================================================
       SUBROUTINE DXYZSRG(NESRG,IGRSURF,BUFSF)
 C-----------------------------------------------
 C   M o d u l e s
@@ -41,10 +42,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -56,14 +54,14 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N, ADRBUF
-      INTEGER INOE, I, J, K, IDG, ITER
+      INTEGER INOE, I, J, K, IDG
       my_real XG,YG,ZG,A,B,C,ROT(9),
      1        DGR,AN,BN,CN,
-     2        XLN,YLN,ZLN,NXL,NYL,NZL,NORMN
+     2        XLN,YLN,ZLN
       my_real
      1   NCOR(3,384),
-     2   XA,XB,XC,LA,LB,LC,
-     3   XX,YY,ZZ,XL,YL,ZL,E,D
+     2   
+     3   XX,YY,ZZ,XL,YL,ZL,E
       my_real
      1   XX0,YY0,ZZ0,
      2   X0(6),Y0(6),Z0(6),DX0(6),DY0(6),DZ0(6),DX1(6),DY1(6),DZ1(6)
@@ -78,13 +76,13 @@ C-----------------------------------------------
       DATA Y0 /-3.5, 3.5,-3.5, 3.5,-3.5,-3.5/
       DATA Z0 /-3.5, 3.5, 3.5,-3.5,-3.5, 3.5/
 C-----------------------------------------------
-      IF (ISPMD.NE.0) GOTO 100
+      IF (ISPMD/=0) GOTO 100
 C-----------------------------------------------
       DO 200 N=1,NSURF
-       IF (IGRSURF(N)%TYPE.NE.101) GOTO 200
+       IF (IGRSURF(N)%TYPE/=101) GOTO 200
        ADRBUF=IGRSURF(N)%IAD_BUFR
 C-------------------------------------------------------
-c      Parametres de l'ellipsoide.
+c      ellipsoid parameters
 C-------------------------------------------------------
        DGR=BUFSF(ADRBUF+36)
        IDG=DGR
@@ -98,7 +96,7 @@ C-------------------------------------------------------
         ROT(I)=BUFSF(ADRBUF+7+I-1)
        END DO
 C-------------------------------------------------------
-C      - Calcul des noeuds sur le cube A,B,C
+C      compute nodes on the A,B,C cube
 C-------------------------------------------------------
        INOE=0
        DO I = 1,6
@@ -124,8 +122,8 @@ C-------------------------------------------------------
         ENDDO
        ENDDO
 C-------------------------------------------------------
-C      - Projection radiale sur l'ellipsoide.
-C      - Passage au repere global.
+C      - Radial projection on the ellipsoide.
+C      - Transformation to global reference frame.
 C-------------------------------------------------------
        AN=A**IDG
        BN=B**IDG
@@ -154,7 +152,7 @@ C
         NCOR(3,INOE)=ZZ+ZG
        END DO
 C-------------------------------------------------------
-C      Ecriture des noeuds.
+C      write nodes
 C-------------------------------------------------------
        INOE=0
        DO I=1,384

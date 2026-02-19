@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I20SURFI                      source/interfaces/inter3d1/i20surfi.F
-Chd|-- called by -----------
-Chd|        LECINS                        source/interfaces/interf1/lecins.F
-Chd|        LECINT                        source/interfaces/interf1/lecint.F
-Chd|-- calls ---------------
-Chd|        I20BORD                       source/interfaces/inter3d1/i20surfi.F
-Chd|        I20EDGE1                      source/interfaces/inter3d1/i20surfi.F
-Chd|        BITSET                        source/interfaces/inter3d1/bitget.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i20surfi       ../starter/source/interfaces/inter3d1/i20surfi.F
+!||--- called by ------------------------------------------------------
+!||    lecins         ../starter/source/interfaces/interf1/lecins.F
+!||    lecint         ../starter/source/interfaces/interf1/lecint.F
+!||--- calls      -----------------------------------------------------
+!||    bitset         ../starter/source/interfaces/inter3d1/bitget.F
+!||    i20bord        ../starter/source/interfaces/inter3d1/i20surfi.F
+!||    i20edge1       ../starter/source/interfaces/inter3d1/i20surfi.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod     ../starter/share/modules1/format_mod.F90
+!||====================================================================
       SUBROUTINE I20SURFI(IALLO   ,IPARI   ,IGRNOD  ,IGRSURF ,
      2                    IGRSLIN ,IRECT   ,FRIGAP  ,
      3                    NSV     ,MSR     ,IXLINS  ,IXLINM  ,
@@ -41,28 +42,18 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
+      USE FORMAT_MOD , ONLY : FMW_10I, FMW_4I, FMW_5I, FMW_I_3F
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com02_c.inc"
-#include      "com03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
-#include      "scr17_c.inc"
-#include      "conv_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -71,8 +62,7 @@ C-----------------------------------------------
      .        IRECT(4,*), NSV(*),IXLINS(2,*),
      .        IXLINM(2,*),MSR(*),ITAB(*),NSVE(*),MSRE(*),
      .        ISLINS(2,*),ISLINM(2,*),NLG(*),NBINFLG(*),MBINFLG(*)
-      my_real
-     .   X(3,*),FRIGAP(*)
+      my_real X(3,*),FRIGAP(*)
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD)  :: IGRNOD
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
@@ -85,8 +75,7 @@ C-----------------------------------------------
      .        NLINS,NLINM,LINE1,LINE2,STAT,IL,IG
       INTEGER TAG(NUMNOD),TAGS(NUMNOD),NEXTK(4),IWORK(70000),
      .        LNTAG(NUMNOD),TAGB(NUMNOD)
-      my_real
-     .   EDG_COS
+      my_real EDG_COS
       DATA NEXTK/1,1,1,-3/
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -96,7 +85,7 @@ C-----------------------------------------------
 C
       CHARACTER MESS*40
       DATA MESS/'INTERFACE INPUT                         '/
-
+      L = 0
       NSN   = 0
       NMN   = 0
       NRTM  = 0
@@ -131,7 +120,7 @@ c-----------------------------------------------------------------
       IF(ISYM == 1) NRTM = NRTM + NRTS
 
 c---------------------------------------
-c     copie des surfaces (IALLO == 2)
+c     Copy of surfaces (Iallo == 2)
 c---------------------------------------
       IF(IALLO == 2)THEN
         IF(ISU1 /= 0)THEN
@@ -153,7 +142,7 @@ c---------------------------------------
             MBINFLG(L) = BITSET(MBINFLG(L),1)
           ENDDO
         ENDIF
-        IF(IPRI.GE.1) THEN
+        IF(IPRI>=1) THEN
           WRITE(IOUT,'(/,A,/)')' SEGMENTS USED FOR SURFACE DEFINITION'
           DO I=1,NRTM
             WRITE(IOUT,FMT=FMW_4I)(ITAB(IRECT(K,I)),K=1,4)
@@ -161,10 +150,9 @@ c---------------------------------------
         ENDIF
       ENDIF
 C=======================================================================
-c     NOEUDS
-C=======================================================================
+c     NODES C=======================================================================
 c-----------------------------------------------------------------
-c     tag noeuds surfaces S1 S2
+c     tag nodes surfaces S1 S2
 c-----------------------------------------------------------------
       DO I=1,NUMNOD
         TAG(I)=0 ! initialisation 
@@ -194,7 +182,7 @@ c-----------------------------------------------------------------
         ENDDO
       ENDIF
 c-----------------------------------------------------------------
-c     noeuds de la surface S2
+c     nodes of surface S2
 c-----------------------------------------------------------------
       IF(ISU2 /= 0)THEN
         DO J=1,IGRSURF(ISU2)%NSEG
@@ -216,7 +204,7 @@ c-----------------------------------------------------------------
         ENDDO
       ENDIF
 c-----------------------------------------------------------------
-c     noeuds de la surface S1 si ISYM /= 2
+c     nodes of surface S1 if isym /= 2
 c-----------------------------------------------------------------
       IF(ISU1 /= 0)THEN
         DO J=1,IGRSURF(ISU1)%NSEG
@@ -239,7 +227,7 @@ c-----------------------------------------------------------------
         ENDDO
       ENDIF
 c-----------------------------------------------------------------
-c     noeuds du groupe de noeud NOD1
+c     nodes of the node group nod1
 c-----------------------------------------------------------------
       IF(NOD1 /= 0)THEN
         DO J=1,IGRNOD(NOD1)%NENTITY
@@ -274,7 +262,7 @@ C=======================================================================
      5                TAGB    ,6       ,ISU2      ,LINE2       )
       ENDIF
 C=======================================================================
-c     BORDS POUR CORRECTION GAP=0 sur bord de coque
+c     EDGES FOR GAP=0 CORRECTION on shell edge
 C=======================================================================
       IF(IALLO == 2)THEN
         IF(ISU1  /= 0)THEN
@@ -285,7 +273,7 @@ C=======================================================================
         ENDIF
       ENDIF
 c-----------------------------------------------------------------
-c     nombre de noeuds dans l'interface(secnd+main+edge)
+c     number of nodes in the interface (second+main+edge)
 c-----------------------------------------------------------------
       IF(IALLO == 1)THEN
         DO I=1,NUMNOD
@@ -325,16 +313,17 @@ c-----------------------------------------------------------------
 
 
 
-Chd|====================================================================
-Chd|  I20EDGE1                      source/interfaces/inter3d1/i20surfi.F
-Chd|-- called by -----------
-Chd|        I20SURFI                      source/interfaces/inter3d1/i20surfi.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        BITSET                        source/interfaces/inter3d1/bitget.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i20edge1      ../starter/source/interfaces/inter3d1/i20surfi.F
+!||--- called by ------------------------------------------------------
+!||    i20surfi      ../starter/source/interfaces/inter3d1/i20surfi.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||    bitset        ../starter/source/interfaces/inter3d1/bitget.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod    ../starter/share/modules1/format_mod.F90
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I20EDGE1(IALLO     ,NSEG0     ,NLIN0   ,NLIN    ,NACTIF  ,
      2                    IXLINE    ,MSVE      ,NSME    ,IEDGE   ,
      3                    SURF_NODES,SLIN_NODES,ITAB    ,
@@ -344,28 +333,17 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      USE FORMAT_MOD , ONLY : FMW_4I
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com02_c.inc"
-#include      "com03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
-#include      "scr17_c.inc"
-#include      "conv_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -373,21 +351,16 @@ C-----------------------------------------------
       INTEGER IXLINE(2,*),ITAB(*),MSVE(*),
      .        LNTAG(*) ,TAGB(*),ISLINE(2,*),SURF_NODES(NSEG0,4),
      .        SLIN_NODES(NLIN0,2)
-      my_real
-     .   X(3,*),EDG_COS
+      my_real X(3,*),EDG_COS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,L,NLMAX,STAT,LL,I1,I2,I3,I4,I5,I1M,I2M,NL,IS
       INTEGER NEXTK(4),IWORK(70000),NLL
-      my_real
-     .   NX,NY,NZ,MX,MY,MZ,AAA,D1X,D1Y,D1Z,D2X,D2Y,D2Z
-      INTEGER, DIMENSION(:,:), ALLOCATABLE :: 
-     .   LINEIX,LINEIX2,IXWORK
-      INTEGER, DIMENSION(:), ALLOCATABLE :: 
-     .   INDEX,TAG
-      my_real, DIMENSION(:,:), ALLOCATABLE :: 
-     .   XLINEIX
+      my_real NX,NY,NZ,MX,MY,MZ,AAA,D1X,D1Y,D1Z,D2X,D2Y,D2Z
+      INTEGER, DIMENSION(:,:), ALLOCATABLE :: LINEIX,LINEIX2,IXWORK
+      INTEGER, DIMENSION(:), ALLOCATABLE :: INDEX,TAG
+      my_real, DIMENSION(:,:), ALLOCATABLE :: XLINEIX
 
       INTEGER BITSET
       EXTERNAL BITSET
@@ -409,7 +382,7 @@ C=======================================================================
      .                         C1='LINEIX')
 
 c---------------------------------------
-c       recherche de toutes les lignes dans la surface
+c       search for all lines in the surface
 c---------------------------------------
       IF(ISU /= 0)THEN
         IS = 0
@@ -459,8 +432,8 @@ C
         CALL MY_ORDERS(0,IWORK,LINEIX,INDEX,LL,2)
 
 c---------------------------------------
-c       suppression des lignes doubles
-c       + calcul des angles(sin) inter-facettes
+c       removal of double lines
+c       + Calculation of angles (sin) inter-facet
 c---------------------------------------
         I1M = LINEIX(1,INDEX(1))
         I2M = LINEIX(2,INDEX(1))
@@ -499,12 +472,12 @@ c---------------------------------------
         ENDDO
 
 c---------------------------------------
-c       suppression des lignes internes (IEDGE == 1)
+c       Deletion of internal lines (iedge == 1)
 c---------------------------------------
         LL = NL
         NL = 0
         IF(IEDGE == 1)THEN
-c         seuls les bords sont conservs
+c         only the edges are kept
           DO L=1,LL
             IF(IXWORK(5,L) == 1)THEN
               NL = NL + 1
@@ -526,14 +499,14 @@ c         seuls les bords sont conservs
             ENDIF
           ENDDO
         ELSEIF(IEDGE == 2)THEN
-c         toutes les lignes sont conserves ET actives
+c         all lines are kept AND active
           DO L=1,LL
             NL = NL + 1
             IXWORK(5,L)=1 ! all on
           ENDDO
         ELSEIF(IEDGE == 3)THEN
-c         les bords sont conservs
-c         les artes vives sont conservs (EDG_COS)
+c         the edges are kept
+c         the live edges are kept (edg_cos)
           DO L=1,LL
             IF(IABS(IXWORK(5,L)) == 1)THEN
               NL = NL + 1
@@ -557,12 +530,12 @@ c         les artes vives sont conservs (EDG_COS)
         ENDIF
 C
       ELSE
-C       pas de surfaces
+C       no surfaces
         LL = 0
         NL = 0
       ENDIF
 c---------------------------------------
-c       nombre de lignes
+c       number of lines
 c---------------------------------------
       NLL    = LL      
       NLIN   = LL      
@@ -572,7 +545,7 @@ c---------------------------------------
         NACTIF = NACTIF + NLIN0
       ENDIF
 c---------------------------------------
-c     nombre de noeuds
+c     number of nodes
 c---------------------------------------
       NSME = 0
       DO I=1,NUMNOD
@@ -586,7 +559,7 @@ c---------------------------------------
         DO J=1,NLIN0
           TAG(SLIN_NODES(J,1)) = 1                             
           TAG(SLIN_NODES(J,2)) = 1                             
-          LNTAG(SLIN_NODES(J,1)) = 1			      
+          LNTAG(SLIN_NODES(J,1)) = 1            
           LNTAG(SLIN_NODES(J,2)) = 1
         ENDDO
       ENDIF
@@ -597,7 +570,7 @@ c---------------------------------------
         ENDIF                              
       ENDDO
 c---------------------------------------
-c     copie des lignes (IALLO == 2)
+c     Copy of lines (Iallo == 2)
 c---------------------------------------
       IF(IALLO == 2)THEN
         L = 0
@@ -607,7 +580,7 @@ c---------------------------------------
             IXLINE(1,L) = SLIN_NODES(J,1)   ! noeud 1
             IXLINE(2,L) = SLIN_NODES(J,2)   ! noeud 2
             ISLINE(1,L) = 0              ! surface
-            ISLINE(2,L) = 0              ! cot de la surface
+            ISLINE(2,L) = 0              ! side of the surface
           ENDDO
         ENDIF
 
@@ -617,18 +590,18 @@ c---------------------------------------
             IXLINE(1,L) = IXWORK(1,LL)    ! noeud 1
             IXLINE(2,L) = IXWORK(2,LL)    ! noeud 2
             ISLINE(1,L) = IXWORK(3,LL)    ! surface
-            ISLINE(2,L) = IXWORK(4,LL)    ! cot de la surface
+            ISLINE(2,L) = IXWORK(4,LL)    ! side of the surface
           ENDIF
         ENDDO
 
-c       lignes inactives
+c       inactive lines
         DO LL=1,NLL
           IF(IXWORK(5,LL) /= 1)THEN
             L = L+1                               
             IXLINE(1,L) = IXWORK(1,LL)    ! noeud 1
             IXLINE(2,L) = IXWORK(2,LL)    ! noeud 2
             ISLINE(1,L) = IXWORK(3,LL)    ! surface
-            ISLINE(2,L) = IXWORK(4,LL)    ! cot de la surface
+            ISLINE(2,L) = IXWORK(4,LL)    ! side of the surface
           ENDIF
         ENDDO
           
@@ -640,7 +613,7 @@ c       lignes inactives
           ENDDO      
         ENDIF
 
-c       noeuds
+c       nodes
         L = 0
         DO I=1,NUMNOD
           IF(TAG(I) == 1)THEN
@@ -662,16 +635,16 @@ C-----------
       END
 
 
-Chd|====================================================================
-Chd|  I20BORD                       source/interfaces/inter3d1/i20surfi.F
-Chd|-- called by -----------
-Chd|        I20SURFI                      source/interfaces/inter3d1/i20surfi.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        BITSET                        source/interfaces/inter3d1/bitget.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i20bord       ../starter/source/interfaces/inter3d1/i20surfi.F
+!||--- called by ------------------------------------------------------
+!||    i20surfi      ../starter/source/interfaces/inter3d1/i20surfi.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||    bitset        ../starter/source/interfaces/inter3d1/bitget.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I20BORD(NSEG  ,SURF_NODES ,TAGB,ISU)
 C-----------------------------------------------
 C   M o d u l e s
@@ -681,24 +654,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com02_c.inc"
-#include      "com03_c.inc"
-#include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
-#include      "scr17_c.inc"
-#include      "conv_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -720,6 +675,8 @@ C-----------------------------------------------
       DATA NEXTK/2,3,4,1/
 C=======================================================================
       NLMAX = 0
+      I1 = 0
+      I2 = 0
       IF(ISU /= 0)NLMAX = 4*NSEG
 
       ALLOCATE (LINEIX(2,NLMAX)    ,STAT=stat)
@@ -730,11 +687,11 @@ C=======================================================================
      .                         C1='LINEIX')
 
 c---------------------------------------
-c       recherche de toutes les lignes dans la surface
+c       search for all lines in the surface
 c---------------------------------------
+      LL = 0
       IF(ISU /= 0)THEN
         IS = 0
-        LL = 0
         DO J=1,NSEG
           IS = IS+1
           I1=SURF_NODES(J,1)
@@ -760,7 +717,7 @@ C
         CALL MY_ORDERS(0,IWORK,LINEIX,INDEX,LL,2)
 
 c---------------------------------------
-c       suppression des lignes doubles
+c       removal of double lines
 c---------------------------------------
         I1M = LINEIX(1,INDEX(1))
         I2M = LINEIX(2,INDEX(1))
@@ -770,13 +727,13 @@ c---------------------------------------
           I1 = LINEIX(1,INDEX(L))
           I2 = LINEIX(2,INDEX(L))
           IF(I1M == I2M)THEN
-c triangle on ne fait rien
+c triangle we do nothing
             BOLD=1
           ELSEIF(BOLD == 0)THEN
-c idem precedent on ne fait rien
+c ditto previous we do nothing
             BOLD=1
           ELSEIF(I2 == I2M .and. I1 == I1M)THEN
-c idem suivant pas de bord
+c idem according to pas de bord
             BORD=0
             BOLD=0
           ELSE
@@ -790,7 +747,7 @@ c idem suivant pas de bord
         ENDDO
 
         IF(BORD==1)THEN
-c         derniere arrete est un bord
+c         last edge is an edge
           TAGB(I1) = BITSET(TAGB(I1),7)
           TAGB(I2) = BITSET(TAGB(I2),7)
         ENDIF

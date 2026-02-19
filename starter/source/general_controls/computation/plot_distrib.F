@@ -1,35 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PLOT_DISTRIB                  source/general_controls/computation/plot_distrib.F
-Chd|-- called by -----------
-Chd|        HM_READ_PERTURB_FAIL          source/general_controls/computation/hm_read_perturb_fail.F
-Chd|        HM_READ_PERTURB_PART_SHELL    source/general_controls/computation/hm_read_perturb_part_shell.F
-Chd|        HM_READ_PERTURB_PART_SOLID    source/general_controls/computation/hm_read_perturb_part_solid.F
-Chd|-- calls ---------------
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    plot_distrib                 ../starter/source/general_controls/computation/plot_distrib.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_perturb_fail         ../starter/source/general_controls/computation/hm_read_perturb_fail.F
+!||    hm_read_perturb_part_shell   ../starter/source/general_controls/computation/hm_read_perturb_part_shell.F
+!||    hm_read_perturb_part_solid   ../starter/source/general_controls/computation/hm_read_perturb_part_solid.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod                  ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE PLOT_DISTRIB( ARRAY,S_ARRAY, NB_INTERV,SIZEY,X_MINVALUE,
      . X_MAXVALUE,Y_MAXVALUE,ECRIT)
 C-----------------------------------------------
@@ -39,20 +38,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
-#include      "remesh_c.inc"
-#include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -120,9 +108,9 @@ c
           ENDDO
        ENDDO
 
-       IF(Y_MAXVALUE .NE. ZERO) THEN
+       IF(Y_MAXVALUE /= ZERO) THEN
          WRITE(IOUT,'(10X,1PG20.13)')   Y_MAXVALUE
-       ELSEIF(X_MAXVALUE1 .NE. ZERO) THEN
+       ELSEIF(X_MAXVALUE1 /= ZERO) THEN
          WRITE(IOUT,'(15X,I10)')   MAX_DISTRIB
        ENDIF
 
@@ -169,9 +157,6 @@ c
 c
        WRITE(IOUT,*) ' '
        WRITE(IOUT,*) ' '
-C------------------------------ 
-      RETURN
- 999  CALL FREERR(1)
 C------------------------------ 
       RETURN
       END

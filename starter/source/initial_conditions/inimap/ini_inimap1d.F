@@ -1,43 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INI_INIMAP1D                  source/initial_conditions/inimap/ini_inimap1d.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        SOLVE_EINT                    source/initial_conditions/inimap/ini_inimap1d.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INIMAP1D_MOD                  share/modules1/inimap1d_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ini_inimap1d           ../starter/source/initial_conditions/inimap/ini_inimap1d.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    multi_solve_eint       ../starter/source/initial_conditions/inimap/multi_solve_eint.F90
+!||--- uses       -----------------------------------------------------
+!||    inimap1d_mod           ../starter/share/modules1/inimap1d_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    multi_solve_eint_mod   ../starter/source/initial_conditions/inimap/multi_solve_eint.F90
+!||====================================================================
       SUBROUTINE INI_INIMAP1D(INIMAP1D ,ELBUF_TAB ,IPART  ,IPARG   ,IPARTS   ,
      .                        IPARTQ   ,XGRID     ,VEL    ,IXS     ,IXQ      ,
      .                        IXTG     ,PM        ,IPM    ,BUFMAT  ,MULTI_FVM, 
      .                        PLD      ,NPC       ,IGRBRIC,IGRQUAD ,IGRSH3N  ,
-     .                        NPTS)
+     .                        NPTS     ,MAT_PARAM ,SNPC   ,STF)
 C-----------------------------------------------
 C     M o d u l e s
 C-----------------------------------------------
@@ -46,6 +45,11 @@ C-----------------------------------------------
       USE MULTI_FVM_MOD
       USE GROUPDEF_MOD
       USE MESSAGE_MOD
+      USE ALEFVM_MOD , only:ALEFVM_Param
+      USE MATPARAM_DEF_MOD
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
+      USE MULTI_SOLVE_EINT_MOD , ONLY : MULTI_SOLVE_EINT
+      use element_mod , only : nixs,nixq,nixtg
 C-----------------------------------------------
 C     I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -61,15 +65,10 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 !     MVSIZ
 #include      "mvsiz_p.inc"
-!     IOUT
-#include      "units_c.inc"
-!     IALEFVM
-#include      "alefvm.inc"
-!     N0PHAS, NVPHAS
-#include      "mmale51_c.inc"
 C-----------------------------------------------
 C     D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER,INTENT(IN) :: SNPC, STF !< array sizes
       TYPE(INIMAP1D_STRUCT), TARGET, DIMENSION(NINIMAP1D), INTENT(INOUT) :: INIMAP1D
       TYPE(ELBUF_STRUCT_), DIMENSION(NGROUP), INTENT(INOUT), TARGET :: ELBUF_TAB
       INTEGER, INTENT(IN) :: IPART(LIPART1, *), NPC(*)
@@ -79,6 +78,7 @@ C-----------------------------------------------
       my_real, INTENT(IN), TARGET :: PLD(2, NPTS/2)
       my_real, INTENT(INOUT) :: VEL(3, *)
       TYPE(MULTI_FVM_STRUCT), INTENT(INOUT) :: MULTI_FVM
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT), INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRBRIC) :: IGRBRIC
       TYPE (GROUP_)  , DIMENSION(NGRQUAD) :: IGRQUAD
@@ -112,6 +112,12 @@ C-----------------------------------------------
 
       CHARACTER*2 :: Str1, Str2      
       my_real :: VFRAC(MVSIZ,21),DENSFRAC 
+
+      TYPE(BUF_EOS_), POINTER :: EBUF
+      INTEGER NVAREOS
+      INTEGER GMID !< global material identifier (multimaterial law)
+      INTEGER :: NVARTMP_EOS
+      
 C-----------------------------------------------
 C     S o u r c e   L i n e s
 C-----------------------------------------------
@@ -140,6 +146,8 @@ C-----------------------------------------------
          NBMAT = INIMAP1D(KK)%NBMAT
          IF(NBMAT==0)CYCLE !something went wrong with reader
          ALLOCATE(PRES(MVSIZ, NBMAT), EINT(MVSIZ, NBMAT))
+         PRES(:,:)=ZERO
+         EINT(:,:)=ZERO
          IF (INIMAP1D(KK)%GRBRICID  /=  0) THEN
             GRBRICID = INIMAP1D(KK)%GRBRICID
          ELSEIF (INIMAP1D(KK)%GRQUADID  /=  0) THEN
@@ -238,7 +246,7 @@ C     IFIRST + SHIFT is the first element which ID is greater than NFT + NEL
                ILAST = NELEM
             ENDIF
 
-            !IF some elems are targeted in this current group NG, check material law
+            !IF some elements are targeted in this current group NG, check material law
             IF(IFIRST>0 .AND. IFIRST<=ILAST )THEN
               SELECT CASE(MLW)
               CASE (3, 4, 6, 49, 51, 151)
@@ -367,7 +375,7 @@ C     Alpha
                   IFUNC = INIMAP1D(KK)%FUNC_ALPHA(IMAT)
                   IF (IFUNC /= 0) THEN
                     IF(IFUNC>0)THEN
-                      !--function_identifier
+                      !--function_IDIDENTIFIFIE
                       NPT = (NPC(IFUNC + 1) - NPC(IFUNC)) / 2
                       FIRST = 1 + (NPC(IFUNC) - 1) / 2                      
                       PTRx => PLD_INV(1:NPTS/2,1)  !NPTS : 2*nb of all function points     NPT:for current function
@@ -388,7 +396,7 @@ C     Alpha
                     IF (SHIFT  ==  0) THEN                                                                               
                        RES = PTRy(FIRST)                                                                                 
                        IF (MLW == 51) THEN                                                                               
-                          KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS                                           
+                          KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS                                           
                           ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (1 + KPHASE - 1)) = RES             
                           ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (23 + KPHASE - 1)) = RES            
                        ELSE                                                                                              
@@ -401,7 +409,7 @@ C     Alpha
                        VALUE2 = PTRy(IND)                                                                                
                        RES = (VALUE1 + (VALUE2 - VALUE1) / (RAD2 - RAD1) * (RADIUS - RAD1))                              
                        IF (MLW == 51) THEN                                                                               
-                          KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS                                           
+                          KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS                                           
                           ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (1 + KPHASE - 1)) = RES             
                           ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (23 + KPHASE - 1)) = RES            
                        ELSE                                                                                              
@@ -410,7 +418,7 @@ C     Alpha
                     ELSE                                                                                                 
                        RES = PTRy(FIRST + NPT - 1)                                                                       
                        IF (MLW == 51) THEN                                                                               
-                          KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS                                           
+                          KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS                                           
                           ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (1 + KPHASE - 1)) = RES             
                           ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (23 + KPHASE - 1)) = RES            
                        ELSE                                                                                              
@@ -420,7 +428,7 @@ C     Alpha
                   ELSE
                     RES = ONE                                                                                  
                     IF (MLW == 51) THEN                                                                       
-                       KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS                                   
+                       KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS                                   
                        ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (1 + KPHASE - 1)) = RES     
                        ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (23 + KPHASE - 1)) = RES    
                     ELSE                                                                                      
@@ -432,7 +440,7 @@ C     RHO
                   IFUNC = INIMAP1D(KK)%FUNC_RHO(IMAT)
                   IF(IFUNC /= 0)THEN
                     IF(IFUNC > 0)THEN
-                      !--function_identifier
+                      !--function_IDIDENTIFIFIE
                       NPT = (NPC(IFUNC + 1) - NPC(IFUNC)) / 2
                       FIRST = 1 + (NPC(IFUNC) - 1) / 2                      
                       PTRx => PLD_INV(1:NPTS/2,1)  !NPTS : 2*nb of all function points     NPT:for current function
@@ -453,7 +461,7 @@ C     RHO
                      IF (SHIFT  ==  0) THEN
                         RES = PTRy(FIRST) * INIMAP1D(KK)%FAC_RHO(IMAT)  
                         IF (MLW == 51) THEN
-                           KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                           KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (9 + KPHASE - 1)) = RES
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (12 + KPHASE - 1)) = RES
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (20 + KPHASE - 1)) = RES
@@ -467,7 +475,7 @@ C     RHO
                         VALUE2 = PTRy(IND)
                         RES = (VALUE1 + (VALUE2 - VALUE1) / (RAD2 - RAD1) * (RADIUS - RAD1)) * INIMAP1D(KK)%FAC_RHO(IMAT)    
                         IF (MLW == 51) THEN
-                           KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                           KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (9 + KPHASE - 1)) = RES
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (12 + KPHASE - 1)) = RES
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (20 + KPHASE - 1)) = RES
@@ -477,7 +485,7 @@ C     RHO
                      ELSE
                         RES = PTRy(FIRST + NPT - 1) * INIMAP1D(KK)%FAC_RHO(IMAT)  
                         IF (MLW == 51) THEN
-                           KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                           KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (9 + KPHASE - 1)) = RES
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (12 + KPHASE - 1)) = RES
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (20 + KPHASE - 1)) = RES
@@ -488,7 +496,7 @@ C     RHO
                   ELSE
                      RES = INIMAP1D(KK)%FAC_RHO(IMAT)   
                      IF (MLW == 51) THEN
-                        KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                        KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                         ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (9 + KPHASE - 1)) = RES
                         ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (12 + KPHASE - 1)) = RES
                         ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (20 + KPHASE - 1)) = RES
@@ -513,7 +521,7 @@ C     EINT
                         IF (SHIFT  ==  0) THEN
                            RES = PTRy(FIRST) * INIMAP1D(KK)%FAC_PRES_ENER(IMAT)
                            IF (MLW == 51) THEN
-                              KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                              KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                               ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (8 + KPHASE - 1)) = RES
                               ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (21 + KPHASE - 1)) = RES
                            ELSE
@@ -526,7 +534,7 @@ C     EINT
                            VALUE2 = PTRy(IND)
                            RES = (VALUE1 + (VALUE2 - VALUE1) / (RAD2 - RAD1) * (RADIUS - RAD1)) * INIMAP1D(KK)%FAC_PRES_ENER(IMAT)
                            IF (MLW == 51) THEN
-                              KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                              KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                               ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (8 + KPHASE - 1)) = RES
                               ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (21 + KPHASE - 1)) = RES
                            ELSE
@@ -535,7 +543,7 @@ C     EINT
                         ELSE
                            RES = PTRy(FIRST + NPT - 1) * INIMAP1D(KK)%FAC_PRES_ENER(IMAT)
                            IF (MLW == 51) THEN
-                              KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                              KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                               ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (8 + KPHASE - 1)) = RES
                               ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (21 + KPHASE - 1)) = RES
                            ELSE
@@ -545,7 +553,7 @@ C     EINT
                      ELSE
                         RES = INIMAP1D(KK)%FAC_PRES_ENER(IMAT)
                         IF (MLW == 51) THEN
-                           KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                           KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (8 + KPHASE - 1)) = RES
                            ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (21 + KPHASE - 1)) = RES
                         ELSE
@@ -558,7 +566,7 @@ C     PRES
                      IFUNC = INIMAP1D(KK)%FUNC_PRES(IMAT)
                      IF(IFUNC /= 0)THEN
                        IF(IFUNC > 0)THEN
-                         !--function_identifier
+                         !--function_IDIDENTIFIFIE
                          NPT = (NPC(IFUNC + 1) - NPC(IFUNC)) / 2
                          FIRST = 1 + (NPC(IFUNC) - 1) / 2                      
                          PTRx => PLD_INV(1:NPTS/2,1)  !NPTS : 2*nb of all function points     NPT:for current function
@@ -606,7 +614,7 @@ C     PRES
                       ELBUF_TAB(NG)%GBUF%SIG(NEL*(2-1)+ELEMID-NFT)=-PRES(ELEMID - NFT, 1)
                       ELBUF_TAB(NG)%GBUF%SIG(NEL*(3-1)+ELEMID-NFT)=-PRES(ELEMID - NFT, 1)
                        IF(MLW==51)THEN
-                         KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                         KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                          !ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (2 + KPHASE - 1)) = -PRES(ELEMID - NFT, 1)
                          !ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (3 + KPHASE - 1)) = -PRES(ELEMID - NFT, 1)
                          !ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (4 + KPHASE - 1)) = -PRES(ELEMID - NFT, 1)                                            
@@ -621,10 +629,10 @@ C     PRES
 C     Burn Fraction / Detonation Times
                IF(ELBUF_TAB(NG)%GBUF%G_TB > 0)ELBUF_TAB(NG)%GBUF%TB(ELEMID - NFT) = 1E20
                IF (MLW == 51) THEN                                                                                                        
-                  KPHASE = N0PHAS - 1
+                  KPHASE = M51_N0PHAS - 1
                   ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (KPHASE - 1)) = ONE                                           
                   IF(ELBUF_TAB(NG)%GBUF%G_BFRAC > 0)ELBUF_TAB(NG)%GBUF%BFRAC(ELEMID - NFT) = ONE    
-                  KPHASE = N0PHAS + (4 - 1) * NVPHAS ! JWL is submat 4
+                  KPHASE = M51_N0PHAS + (4 - 1) * M51_NVPHAS ! JWL is submat 4
                   ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(1 + NEL * (15 + KPHASE - 1)) = 1E20                                                 
                ELSE                                                                                                                       
                   DO IMAT=1,NBMAT                                                                                                         
@@ -634,7 +642,7 @@ C     Burn Fraction / Detonation Times
                ENDIF  
                                                                                                                                    
 
-               IF (.NOT. MULTI_FVM%IS_USED .AND. IALEFVM  ==  0) THEN
+               IF (.NOT. MULTI_FVM%IS_USED .AND. ALEFVM_Param%IEnabled  ==  0) THEN
 C     VEL
                   DO INODE = 1, NBNODE
                      IF (ITY  ==  1) THEN
@@ -697,7 +705,7 @@ C     CYLINDRICAL
                            IFUNC = INIMAP1D(KK)%FUNC_VEL
                            IF(IFUNC /= 0)THEN
                              IF(IFUNC > 0)THEN                                                                           
-                               !--function_identifier                                                                    
+                               !--function_IDIDENTIFIFIE                                                                    
                                NPT = (NPC(IFUNC + 1) - NPC(IFUNC)) / 2                                                   
                                FIRST = 1 + (NPC(IFUNC) - 1) / 2                                                          
                                PTRx => PLD_INV(1:NPTS/2,1)  !NPTS : 2*nb of all function points     NPT:for current function 
@@ -744,7 +752,7 @@ C     Initialize cell centred velocities
                   IFUNC = INIMAP1D(KK)%FUNC_VEL
                   IF(IFUNC /= 0)THEN                                                                            
                     IF(IFUNC > 0)THEN                                                                           
-                      !--function_identifier                                                                    
+                      !--function_IDIDENTIFIFIE                                                                    
                       NPT = (NPC(IFUNC + 1) - NPC(IFUNC)) / 2                                                   
                       FIRST = 1 + (NPC(IFUNC) - 1) / 2                                                          
                       PTRx => PLD_INV(1:NPTS/2,1)  !NPTS : 2*nb of all function points     NPT:for current function 
@@ -806,7 +814,7 @@ C     CYLINDRICAL
                      MULTI_FVM%VEL(1, ELEMID) = VALUE * NX                                   
                      MULTI_FVM%VEL(2, ELEMID) = VALUE * NY                                   
                      MULTI_FVM%VEL(3, ELEMID) = VALUE * NZ                                   
-                  ELSE IF (IALEFVM  >  0) THEN                                              
+                  ELSE IF (ALEFVM_Param%IEnabled  >  0) THEN                                              
                      GBUF%MOM(ELEMID - NFT + 0 * NEL) = VALUE * NX * GBUF%RHO(ELEMID - NFT)  
                      GBUF%MOM(ELEMID - NFT + 1 * NEL) = VALUE * NY * GBUF%RHO(ELEMID - NFT)  
                      GBUF%MOM(ELEMID - NFT + 2 * NEL) = VALUE * NZ * GBUF%RHO(ELEMID - NFT)  
@@ -818,6 +826,7 @@ C     CYLINDRICAL
                DO II = IFIRST, ILAST
                   ELEMID = ELEM_LIST(II)
                   GBUF%EINT(ELEMID - NFT) = GBUF%EINT(ELEMID - NFT) * GBUF%RHO(ELEMID - NFT)
+                  GBUF%TEMP(ELEMID - NFT) = 300*(GBUF%RHO(ELEMID - NFT) )**0.4
                ENDDO
                
                IF (MLW /= 51 .AND. MLW /= 151) THEN
@@ -828,7 +837,7 @@ C     CYLINDRICAL
                  ENDDO               
                ELSE
                  DO IMAT=1,NBMAT               
-                   KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                   KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                    SUBMAT(IMAT)%TEMP(1:NEL) => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(1+NEL*(16+KPHASE-1) : NEL*(16+KPHASE )) 
                  ENDDO
                ENDIF     
@@ -843,42 +852,60 @@ C     Compute EINT from pressure
                   ELSEIF (ITY  ==  7) THEN
                      MATID = IXTG(1, 1 + NFT)
                   ENDIF
+                  NVARTMP_EOS = ELBUF_TAB(NG)%BUFLY(1)%NVARTMP_EOS
                   SUBMAT(1)%TEMP(1:NEL) => ELBUF_TAB(NG)%GBUF%TEMP(1:NEL)
-                  CALL SOLVE_EINT(MATID, NFT, NEL, PRES(:, 1), GBUF%EINT, GBUF%RHO, IFIRST, ILAST, ELEM_LIST, 
-     .                 IPM, PM, BUFMAT, MLW,NG,0,SUBMAT(1)%TEMP,NPC,PLD)
+                  EBUF => ELBUF_TAB(NG)%BUFLY(1)%EOS(1,1,1)
+                  NVAREOS = ELBUF_TAB(NG)%BUFLY(1)%NVAR_EOS 
+                  CALL MULTI_SOLVE_EINT(MATID, NFT, NEL, PRES(:, 1), GBUF%EINT, GBUF%RHO, IFIRST, ILAST, ELEM_LIST, 
+     .                 IPM, PM, BUFMAT, MLW, SUBMAT(1)%TEMP,SNPC,STF,NPC,PLD, EBUF%VAR, NVAREOS,
+     .                    MAT_PARAM(MATID),NVARTMP_EOS,EBUF%VARTMP,NUMMAT,NPROPMI,NPROPM)
                ELSE IF (MLW == 151) THEN
                   DO IMAT = 1, NBMAT
                      IF (ITY  ==  1) THEN
-                        MATID = IPM(20 + IMAT, IXS(1, 1 + NFT))
+                        GMID = IXS(1, 1 + NFT)
+                        MATID = MAT_PARAM(GMID)%MULTIMAT%MID(IMAT)
                      ELSEIF (ITY  ==  2) THEN
-                        MATID = IPM(20 + IMAT, IXQ(1, 1 + NFT))
+                        GMID = IXQ(1, 1 + NFT)
+                        MATID = MAT_PARAM(GMID)%MULTIMAT%MID(IMAT)
                      ELSEIF (ITY  ==  7) THEN
-                        MATID = IPM(20 + IMAT, IXTG(1, 1 + NFT))
+                        GMID = IXTG(1, 1 + NFT)
+                        MATID = MAT_PARAM(GMID)%MULTIMAT%MID(IMAT)
                      ENDIF
+                     NVARTMP_EOS = ELBUF_TAB(NG)%BUFLY(IMAT)%NVARTMP_EOS
                      SUBMAT(IMAT)%TEMP(1:NEL) => ELBUF_TAB(NG)%BUFLY(IMAT)%LBUF(1,1,1)%TEMP(1:NEL)
-                     CALL SOLVE_EINT(MATID, NFT, NEL, PRES(:, IMAT), ELBUF_TAB(NG)%BUFLY(IMAT)%LBUF(1,1,1)%EINT, 
+                     EBUF => ELBUF_TAB(NG)%BUFLY(IMAT)%EOS(1,1,1)
+                     NVAREOS = ELBUF_TAB(NG)%BUFLY(IMAT)%NVAR_EOS                      
+                     CALL MULTI_SOLVE_EINT(MATID, NFT, NEL, PRES(:, IMAT), ELBUF_TAB(NG)%BUFLY(IMAT)%LBUF(1,1,1)%EINT, 
      .                    ELBUF_TAB(NG)%BUFLY(IMAT)%LBUF(1,1,1)%RHO, IFIRST, ILAST, ELEM_LIST, 
-     .                    IPM, PM, BUFMAT, MLW, NG,IMAT,SUBMAT(IMAT)%TEMP,NPC,PLD)
+     .                    IPM, PM, BUFMAT, MLW,SUBMAT(IMAT)%TEMP,SNPC,STF,NPC,PLD,EBUF%VAR,NVAREOS,
+     .                    MAT_PARAM(MATID),NVARTMP_EOS,EBUF%VARTMP,NUMMAT,NPROPMI,NPROPM)
                   ENDDO
                ELSE
                   DO IMAT = 1, NBMAT
                      IF (ITY  ==  1) THEN
-                        MATID = IPM(20 + IMAT, IXS(1, 1 + NFT))
+                        GMID = IXS(1, 1 + NFT)
+                        MATID = MAT_PARAM(GMID)%MULTIMAT%MID(IMAT)
                      ELSEIF (ITY  ==  2) THEN
-                        MATID = IPM(20 + IMAT, IXQ(1, 1 + NFT))
+                        GMID = IXQ(1, 1 + NFT)
+                        MATID = MAT_PARAM(GMID)%MULTIMAT%MID(IMAT)
                      ELSEIF (ITY  ==  7) THEN
-                        MATID = IPM(20 + IMAT, IXTG(1, 1 + NFT))
+                        GMID = IXTG(1, 1 + NFT)
+                        MATID = MAT_PARAM(GMID)%MULTIMAT%MID(IMAT)
                      ENDIF
-                     KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                     NVARTMP_EOS = ELBUF_TAB(NG)%BUFLY(1)%NVARTMP_EOS
+                     KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                      SUBMAT(IMAT)%TEMP(1:NEL) => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(1+NEL*(16+KPHASE-1) : NEL*(16+KPHASE )) 
-                     CALL SOLVE_EINT(MATID, NFT, NEL, PRES(:, IMAT), EINT(:, IMAT), 
+                     EBUF => ELBUF_TAB(NG)%BUFLY(1)%EOS(1,1,1)
+                     NVAREOS = ELBUF_TAB(NG)%BUFLY(1)%NVAR_EOS                      
+                     CALL MULTI_SOLVE_EINT(MATID, NFT, NEL, PRES(:, IMAT), EINT(:, IMAT), 
      .                    ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(1 + NEL * (9 + KPHASE - 1):NEL + NEL * (9 + KPHASE - 1)), 
      .                    IFIRST, ILAST, ELEM_LIST, 
-     .                    IPM, PM, BUFMAT, MLW, NG,IMAT,SUBMAT(IMAT)%TEMP,NPC,PLD)
+     .                    IPM, PM, BUFMAT, MLW, SUBMAT(IMAT)%TEMP,SNPC,STF,NPC,PLD,EBUF%VAR,NVAREOS,
+     .                    MAT_PARAM(MATID),NVARTMP_EOS,EBUF%VARTMP,NUMMAT,NPROPMI,NPROPM)
                      DO II = IFIRST, ILAST
                         ELEMID = ELEM_LIST(II)
                         RES = EINT(ELEMID - NFT, IMAT)
-                        KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS
+                        KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS
                         ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (8 + KPHASE - 1)) = RES
                         ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(ELEMID - NFT + NEL * (21 + KPHASE - 1)) = RES
                      ENDDO
@@ -899,7 +926,7 @@ C     Compute EINT from pressure
                  DO II = 1,NEL   
                    ELBUF_TAB(NG)%GBUF%TEMP(II) = ZERO  
                    DO IMAT=1,NBMAT 
-                     KPHASE = N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * NVPHAS                                                                                                                  
+                     KPHASE = M51_N0PHAS + (M51_SUBMAT_ID(IMAT) - 1) * M51_NVPHAS                                                                                                                  
                      DENSFRAC = ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)%VAR(II + NEL * (12 + KPHASE - 1)) / ELBUF_TAB(NG)%GBUF%RHO(II)                                                                                                  
                      ELBUF_TAB(NG)%GBUF%TEMP(II) = ELBUF_TAB(NG)%GBUF%TEMP(II) + VFRAC(II,IMAT)*DENSFRAC * SUBMAT(IMAT)%TEMP(II)     
                    ENDDO 
@@ -918,133 +945,3 @@ C     ===================
 
       END SUBROUTINE INI_INIMAP1D
 
-Chd|====================================================================
-Chd|  SOLVE_EINT                    source/initial_conditions/inimap/ini_inimap1d.F
-Chd|-- called by -----------
-Chd|        INI_INIMAP1D                  source/initial_conditions/inimap/ini_inimap1d.F
-Chd|-- calls ---------------
-Chd|        EOSMAIN                       ../common_source/eos/eosmain.F
-Chd|====================================================================
-      SUBROUTINE SOLVE_EINT(MATID, NFT,    NEL, PRESIN, EINT, RHO,   IFIRST, ILAST, ELEM_LIST, IPM, 
-     .                      PM   , BUFMAT, MLW, NG,     IMAT, THETA, NPC,    TF)
-C-----------------------------------------------
-C     I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc" 
-C-----------------------------------------------
-C     C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
-!     MVSIZ
-#include      "mvsiz_p.inc"
-#include      "com04_c.inc"
-#include      "tabsiz_c.inc"
-C-----------------------------------------------
-C     D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER, INTENT(IN) :: MATID, NFT, NEL, IFIRST, ILAST, ELEM_LIST(*), IPM(NPROPMI, NUMMAT), MLW, NG
-      my_real, INTENT(IN) :: PM(NPROPM, NUMMAT), BUFMAT(*), RHO(NEL), PRESIN(NEL)
-      my_real, INTENT(OUT) :: EINT(NEL)
-      my_real, INTENT(INOUT) :: THETA(NEL)
-      INTEGER,INTENT(IN) :: IMAT !debug purpose
-      INTEGER,INTENT(IN)::NPC(SNPC)
-      my_real,INTENT(IN)::TF(STF)
-C-----------------------------------------------
-C     L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER :: II, ELEMID, LOCALID, REMAINING_ELTS, ITER, MAX_ITER
-      INTEGER :: EOSTYPE, MAT(NEL)
-      my_real :: VOL(NEL), ERROR(NEL), TOL, OFF(NEL), RHOZERO(NEL), RHO0
-      my_real :: MU(NEL), DF(NEL), MU2(NEL), ESPE(NEL), DVOL(NEL), PSH(NEL),
-     .     SSP(NEL), DPDE(NEL), ECOLD(NEL), PRES(NEL), POLD(NEL)
-      my_real :: FUNC, DFUNC, INCR,SIG(NEL,6),MUOLD(NEL)
-      LOGICAL :: CONVERGED(NEL)
-
-C-----------------------------------------------
-C     P r e C o n d i t i o n
-C-----------------------------------------------
-      IF(IFIRST>ILAST .OR. IFIRST<1)RETURN !DO NO INIT TO 0.
-      
-C-----------------------------------------------
-C     S o u r c e   L i n e s
-C-----------------------------------------------
-
-      EOSTYPE = IPM(4, MATID)
-      RHO0 = PM(1, MATID)
-
-      VOL(1:NEL) = ZERO
-      OFF(1:NEL) = ONE
-      ERROR(1:NEL) = ZERO
-      CONVERGED(1:NEL) = .TRUE.
-      REMAINING_ELTS = 0
-      RHOZERO(1:NEL) = RHO0
-      MAT(1:NEL) = MATID
-      PSH(1:NEL) = PM(88, MATID)
-      SIG(1:NEL,1)=-PM(31,MATID)
-      SIG(1:NEL,2)=-PM(31,MATID)
-      SIG(1:NEL,3)=-PM(31,MATID)
-      SIG(1:NEL,4)= ZERO
-      SIG(1:NEL,5)= ZERO
-      SIG(1:NEL,6)= ZERO
-      MUOLD(1:NEL)   = ZERO
-      THETA(1:NEL) = ZERO
-
-      DO II = IFIRST, ILAST
-         ELEMID = ELEM_LIST(II)
-         LOCALID = ELEMID - NFT
-         VOL(LOCALID) = ONE
-         ERROR(LOCALID) = EP30
-         CONVERGED(LOCALID) = .FALSE.
-         REMAINING_ELTS = REMAINING_ELTS + 1
-      ENDDO
-
-      MAX_ITER = 30
-      ITER = 0
-      TOL = EM06
-      POLD(1:NEL)=PRESIN(1:NEL)
-      DO II=1,NEL
-        SIG(II,1:3)=-POLD(II)
-      ENDDO
-      DO WHILE(REMAINING_ELTS  /=  0 .AND. ITER  <  MAX_ITER) 
-         ITER = ITER + 1
-         DO II = IFIRST, ILAST
-            ELEMID = ELEM_LIST(II)
-            LOCALID = ELEMID - NFT
-            MU(LOCALID) = RHO(LOCALID) / RHOZERO(LOCALID) - ONE
-            DF(LOCALID) = RHOZERO(LOCALID) / RHO(LOCALID)
-         ENDDO
-         
-         CALL EOSMAIN(2, NEL, EOSTYPE, PM, OFF, EINT(1:NEL), 
-     .        RHO(1:NEL), RHOZERO, MU, MU2, ESPE, 
-     .        DVOL, DF, VOL, MAT, PSH, 
-     .        PRES, SSP, DPDE, THETA, ECOLD, BUFMAT, SIG, MUOLD, MLW, POLD, NPC, TF)
-         
-         DO II = IFIRST, ILAST
-            ELEMID = ELEM_LIST(II)
-            LOCALID = ELEMID - NFT
-            IF (.NOT. CONVERGED(LOCALID)) THEN
-               FUNC  = PRES(LOCALID) - PRESIN(LOCALID)
-               DFUNC = DPDE(LOCALID) / (ONE + MU(LOCALID))      !variable is EINT=rho.e, but EoS solves P(mu,E:=rho0.e) and returns dPdE.  variable change : d(rho.e)=(1+mu)d(rho0.e)=(1+mu)dE  => dP/d(rho.e) = dPdE/(1+mu)
-               IF (DFUNC  ==  ZERO) THEN
-                  REMAINING_ELTS = REMAINING_ELTS - 1
-                  CONVERGED(LOCALID) = .TRUE.
-                  VOL(LOCALID) = ZERO
-               ELSE
-                  INCR = - FUNC / DFUNC
-                  ERROR(LOCALID) = ABS(INCR) / ABS(INCR + EINT(LOCALID))
-                  EINT(LOCALID) = EINT(LOCALID) + INCR
-                  IF (ERROR(LOCALID)  <  TOL) THEN
-                     REMAINING_ELTS = REMAINING_ELTS - 1
-                     CONVERGED(LOCALID) = .TRUE.
-                     VOL(LOCALID) = ZERO
-                  ENDIF
-               ENDIF
-            ENDIF
-         ENDDO
-      ENDDO
-      
-      IF (REMAINING_ELTS  /=  0) THEN
-         PRINT*, "*** Convergence issue in /INIMAP1D or /INIMAP2D option"
-      ENDIF
-
-      END SUBROUTINE SOLVE_EINT

@@ -1,41 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_INTER_TYPE08          source/interfaces/int08/hm_read_inter_type08.F
-Chd|-- called by -----------
-Chd|        HM_READ_INTER_STRUCT          source/interfaces/reader/hm_read_inter_struct.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_inter_type08   ../starter/source/interfaces/int08/hm_read_inter_type08.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_inter_struct   ../starter/source/interfaces/reader/hm_read_inter_struct.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_INTER_TYPE08(
-     1       IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,NI       ,
+     1       IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,
      2       IGRNOD     ,IGRSURF    ,UNITAB     ,LSUBMODEL ,TITR     )
 C============================================================================
 C
@@ -46,28 +45,24 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE UNITAB_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "sphcom.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ISU1,ISU2,NI,NOINT
+      INTEGER ISU1,ISU2,NOINT
       INTEGER IPARI(*)
       my_real
      .   STFAC
       my_real
      .   FRIGAP(*)
-      CHARACTER TITR*nchartitle,TITR1*nchartitle
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
       TYPE (GROUP_)  ,TARGET, DIMENSION(NGRNOD)  :: IGRNOD
       TYPE (SURF_)   ,TARGET , DIMENSION(NSURF)   :: IGRSURF
@@ -76,27 +71,18 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
-#include      "intstamp_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "scr12_c.inc"
 #include      "remesh_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,L, NTYP,IS1, IS2,IGSTI,IFT0,IFORM,IRM
+      INTEGER NTYP,IS1, IS2,IFT0,IFORM,IRM
       my_real
-     .   FRIC,STARTT,STOPT,FNOR,DBDEPTH,VISC,VISCF
-      CHARACTER MESS*40, MSGTITL*nchartitle
-      CHARACTER OPT*ncharkey
+     .   FRIC,STARTT,STOPT,FNOR,DBDEPTH,VISC,
+     .   FRIC_LAST,FNOR_LAST
+
 !
       INTEGER, DIMENSION(:), POINTER :: INGR2USR
 C-----------------------------------------------
@@ -122,6 +108,8 @@ C
       FNOR = ZERO
       DBDEPTH =ZERO
       VISC = ZERO
+      FRIC_LAST = ZERO
+      FNOR_LAST = ZERO
 C
       NTYP = 8
       IPARI(15)=NOINT
@@ -145,6 +133,9 @@ C--------------------------------------------------
       CALL HM_GET_FLOATV('PEXT',DBDEPTH,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('TSTART',STARTT,IS_AVAILABLE,LSUBMODEL,UNITAB)
       CALL HM_GET_FLOATV('TSTOP',STOPT,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('MU_LAST',FNOR_LAST,IS_AVAILABLE,LSUBMODEL,UNITAB)
+      CALL HM_GET_FLOATV('DBEAD_FORCE_LAST',FRIC_LAST,IS_AVAILABLE,LSUBMODEL,UNITAB)
+        
 C
 C--------------------------------------------------
 C CHECKS And  Storage IPARI FRIGAP 
@@ -169,7 +160,7 @@ C....* Card1 :flags  *.............
 
        INGR2USR => IGRNOD(1:NGRNOD)%ID
        ISU1=NGR2USR(ISU1,INGR2USR,NGRNOD)
-       IF(IGRNOD(ISU1)%SORTED.NE.1)THEN
+       IF(IGRNOD(ISU1)%SORTED/=1)THEN
            CALL ANCMSG(MSGID=112,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO,
@@ -195,11 +186,13 @@ C.....* Storage IPARI FRIGAP *.......
       FRIGAP(11)=STOPT
       FRIGAP(4)=FNOR
       FRIGAP(5)=DBDEPTH
-
+      FRIGAP(6)=FRIC_LAST
+      FRIGAP(7)=FNOR_LAST
+      IF(FRIC_LAST/= ZERO.OR.FNOR_LAST/= ZERO) IPARI(49) = 1 ! flag to activate linear force computation
 C------------------------------------------------------------
 
        IF(IFORM==2) THEN
-C VISC is a non documennted parameter
+C VISC is a non documented parameter
             IF(VISC==ZERO) VISC=EM01
        END IF
 
@@ -213,46 +206,96 @@ C------------------------------------------------------------
 C     PRINTOUT
 C------------------------------------------------------------
 C
+       IF(FNOR_LAST==ZERO.AND.FRIC_LAST==ZERO) THEN
         WRITE(IOUT,1508)FRIC,FNOR,DBDEPTH,STARTT,STOPT,IRM,IFORM,IFT0
+       ELSEIF(FNOR_LAST==ZERO) THEN
+        WRITE(IOUT,1509)FRIC,FRIC_LAST,FNOR,DBDEPTH,STARTT,STOPT,IRM,IFORM,IFT0
+       ELSEIF(FRIC_LAST==ZERO) THEN
+        WRITE(IOUT,1510)FRIC,FNOR,FNOR_LAST,DBDEPTH,STARTT,STOPT,IRM,IFORM,IFT0
+       ELSE
+        WRITE(IOUT,1511)FRIC,FRIC_LAST,FNOR,FNOR_LAST,DBDEPTH,STARTT,STOPT,IRM,IFORM,IFT0
+       ENDIF
 
 C--------------------------------------------------------------
-      IF(IS1.EQ.0)THEN
+      IF(IS1==0)THEN
         WRITE(IOUT,'(6X,A)')'NO SECONDARY SURFACE INPUT'
-      ELSEIF(IS1.EQ.1)THEN
+      ELSEIF(IS1==1)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.2)THEN
+      ELSEIF(IS1==2)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY NODES'
-      ELSEIF(IS1.EQ.3)THEN
+      ELSEIF(IS1==3)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.4 )THEN
+      ELSEIF(IS1==4 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY BRICKS'
-      ELSEIF(IS1.EQ.5 )THEN
+      ELSEIF(IS1==5 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY SOLID ELEMENTS'        
       ENDIF
-      IF(IS2.EQ.0)THEN
+      IF(IS2==0)THEN
         WRITE(IOUT,'(6X,A)')'NO MAIN SURFACE INPUT'
-      ELSEIF(IS2.EQ.1)THEN
+      ELSEIF(IS2==1)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.2)THEN
+      ELSEIF(IS2==2)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY NODES'
-      ELSEIF(IS2.EQ.3)THEN
+      ELSEIF(IS2==3)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.4)THEN
+      ELSEIF(IS2==4)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE REFERS ',
      .                      'TO HYPER-ELLIPSOIDAL SURFACE'
       ENDIF
 C
 C--------------------------------------------------------------
- 1000 FORMAT(/1X,'  INTERFACE NUMBER :',I10,1X,A)
 C------------
-      RETURN
- 999  CALL FREERR(3)
       RETURN
 
  1508 FORMAT(//
-     .    '    TYPE.EQ.8  DRAW-BEAD                       ' //,
+     .    '    TYPE==8  DRAW-BEAD                       ' //,
      .    '    RETRAINING DRAW-BEAD FORCE / UNIT LENGTH . ',1PG20.13/,
      .    '    NORMAL DRAW-BEAD FORCE / UNIT LENGTH . . . ',1PG20.13/,
+     .    '    DRAW-BEAD DEPTH . . . . . . . . . .  . . . ',1PG20.13/,
+     .    '    START TIME. . . . . . . . . . . . . . . . ',1PG20.13/,
+     .    '    STOP TIME . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .    '    MAIN SURFACE REORDERING FLAG. . . . . . ',I1/,
+     .    '    FORMULATION FOR TANGENTIAL FORCE COMPUTATION',/,
+     .    '            (1: VISCOUS, 2: INCREMENTAL) . . .',I1/,
+     .    '    DEACTIVATION FLAG FOR RETRAINING FORCE REDUCING',I1/)
+ 1509 FORMAT(//
+     .    '    TYPE==8  DRAW-BEAD                       ' //,
+     .    '    RETRAINING DRAW-BEAD FORCE / UNIT LENGTH . ',/,
+     .    '                AT THE FIRST NODE. . . . . . . ',1PG20.13/,
+     .    '    RETRAINING DRAW-BEAD FORCE / UNIT LENGTH . ',/,
+     .    '                AT THE LAST NODE . . . . . . . ',1PG20.13/,
+     .    '    NORMAL DRAW-BEAD FORCE / UNIT LENGTH . . . ',1PG20.13/,
+     .    '    DRAW-BEAD DEPTH . . . . . . . . . .  . . . ',1PG20.13/,
+     .    '    START TIME. . . . . . . . . . . . . . . . ',1PG20.13/,
+     .    '    STOP TIME . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .    '    MAIN SURFACE REORDERING FLAG. . . . . . ',I1/,
+     .    '    FORMULATION FOR TANGENTIAL FORCE COMPUTATION',/,
+     .    '            (1: VISCOUS, 2: INCREMENTAL) . . .',I1/,
+     .    '    DEACTIVATION FLAG FOR RETRAINING FORCE REDUCING',I1/)
+ 1510 FORMAT(//
+     .    '    TYPE==8  DRAW-BEAD                       ' //,
+     .    '    RETRAINING DRAW-BEAD FORCE / UNIT LENGTH . ',1PG20.13/,
+     .    '    NORMAL DRAW-BEAD FORCE / UNIT LENGTH . . . ',/,
+     .    '                AT THE FIRST NODE. . . . . . . ',1PG20.13/,
+     .    '    NORMAL DRAW-BEAD FORCE / UNIT LENGTH . . . ',/,
+     .    '                AT THE LAST NODE . . . . . . . ',1PG20.13/,
+     .    '    DRAW-BEAD DEPTH . . . . . . . . . .  . . . ',1PG20.13/,
+     .    '    START TIME. . . . . . . . . . . . . . . . ',1PG20.13/,
+     .    '    STOP TIME . . . . . . . . . . . . . . . . ',1PG20.13/,
+     .    '    MAIN SURFACE REORDERING FLAG. . . . . . ',I1/,
+     .    '    FORMULATION FOR TANGENTIAL FORCE COMPUTATION',/,
+     .    '            (1: VISCOUS, 2: INCREMENTAL) . . .',I1/,
+     .    '    DEACTIVATION FLAG FOR RETRAINING FORCE REDUCING',I1/)
+ 1511 FORMAT(//
+     .    '    TYPE==8  DRAW-BEAD                       ' //,
+     .    '    RETRAINING DRAW-BEAD FORCE / UNIT LENGTH . ',/,
+     .    '                AT THE FIRST NODE. . . . . . . ',1PG20.13/,
+     .    '    RETRAINING DRAW-BEAD FORCE / UNIT LENGTH . ',/,
+     .    '                AT THE LAST NODE . . . . . . . ',1PG20.13/,
+     .    '    NORMAL DRAW-BEAD FORCE / UNIT LENGTH . . . ',/,
+     .    '                AT THE FIRST NODE. . . . . . . ',1PG20.13/,
+     .    '    NORMAL DRAW-BEAD FORCE / UNIT LENGTH . . . ',/,
+     .    '                AT THE LAST NODE . . . . . . . ',1PG20.13/,
      .    '    DRAW-BEAD DEPTH . . . . . . . . . .  . . . ',1PG20.13/,
      .    '    START TIME. . . . . . . . . . . . . . . . ',1PG20.13/,
      .    '    STOP TIME . . . . . . . . . . . . . . . . ',1PG20.13/,

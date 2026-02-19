@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //    
 #include <stdio.h>
 #include <string.h>
@@ -79,16 +79,16 @@ extern "C"
 /*=================================================================*/
 
 void c_h3d_update_shell_scalar_(my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, int *IXC, int *NIXC, int *NUMELC, int *IPARTC,
-                           int *IXTG, int *NIXTG, int *NUMELTG, int *IPARTTG, my_real *FUNC ,int *ID_ELEM,int *CPT_DATATYPE,
-                           int *ITY_ELEM, int *NUMELS, int *NUMELQ , int *NUMELT , int *NUMELP , int *NUMELR, int *IS_WRITTEN)
+                           int *IXTG, int *NIXTG, int *NUMELTG, int *IPARTTG, float *FUNC ,int *ID_ELEM,int *CPT_DATATYPE,
+                           int *ITY_ELEM, int *NUMELS, int *NUMELQ , int *NUMELT , int *NUMELP , int *NUMELR, int *IS_WRITTEN,int *SHELL_STACKSIZE)
 {
+    int elt;
     int i;
     int offset;
     H3D_ID elem_id;
     H3D_ID comp_id;
 //
     // initialize 
-
     try {
         // create Subcase (Loadcase)
         unsigned int       max_sims = 10;
@@ -109,17 +109,19 @@ void c_h3d_update_shell_scalar_(my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, i
 
           rc = Hyper3DDatasetBegin(h3d_file, *NUMELC, sim_idx, subcase_id, H3D_DS_ELEM, 
                                         H3D_DS_SCALAR, num_corners, num_modes, *CPT_DATATYPE, 
-                                        NULL, sh4n_poolname_id, complex); 
+                                        0, sh4n_poolname_id, complex); 
           if( !rc ) throw rc;
 
           offset = 0;
 
-          for( i = 0; i < *NUMELC + *NUMELTG; i++ ) 
+          for( i = 0; i < *SHELL_STACKSIZE; i++ ) 
           {
-            if( ITY_ELEM[i] == 3  && IS_WRITTEN[i] == 1) 
+            elt=IS_WRITTEN[i]-1;
+            if( ITY_ELEM[elt] == 3  ) 
             { 
-              elem_id = ID_ELEM[i];
+              elem_id = ID_ELEM[elt];
               elem_result[0] = FUNC[i];
+              // printf("SH elem = %i, elem_result[elt] = %f\n",elem_id,elem_result[0]);
               rc = Hyper3DDatasetWrite(h3d_file, elem_id, &elem_result[0]);
             }
           }
@@ -136,15 +138,18 @@ void c_h3d_update_shell_scalar_(my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, i
 
           rc = Hyper3DDatasetBegin(h3d_file, *NUMELTG, sim_idx, subcase_id, H3D_DS_ELEM, 
                                         H3D_DS_SCALAR, num_corners, num_modes, *CPT_DATATYPE, 
-                                        NULL, sh3n_poolname_id, complex); 
+                                        0, sh3n_poolname_id, complex); 
           if( !rc ) throw rc;
 
-          for( i = 0; i < *NUMELC + *NUMELTG; i++ ) 
+          for( i = 0; i < *SHELL_STACKSIZE; i++ ) 
           {
-            if( ITY_ELEM[i] == 7 && IS_WRITTEN[i] == 1) 
+            elt = IS_WRITTEN[i]-1;
+            if( ITY_ELEM[elt] == 7 ) 
             { 
-              elem_id = ID_ELEM[i];
+            //  printf("%i - TR elem = %i, ID_ELEM[elt] = %i\n",i,elt,ID_ELEM[elt]);
+              elem_id = ID_ELEM[elt];
               elem_result[0] = FUNC[i];
+              // printf("TR elem = %i, elem_result[elt] = %f\n",elem_id,elem_result[0]);
               rc = Hyper3DDatasetWrite(h3d_file, elem_id, &elem_result[0]);
             }
           }
@@ -160,21 +165,21 @@ void c_h3d_update_shell_scalar_(my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, i
 }
 
 void _FCALL C_H3D_UPDATE_SHELL_SCALAR(my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, int *IXC, int *NIXC, int *NUMELC, int *IPARTC,
-                           int *IXTG, int *NIXTG, int *NUMELTG, int *IPARTTG, my_real *FUNC ,int *ID_ELEM,int *CPT_DATATYPE,
-                           int *ITY_ELEM, int *NUMELS, int *NUMELQ , int *NUMELT , int *NUMELP , int *NUMELR, int *IS_WRITTEN)
+                           int *IXTG, int *NIXTG, int *NUMELTG, int *IPARTTG, float *FUNC ,int *ID_ELEM,int *CPT_DATATYPE,
+                           int *ITY_ELEM, int *NUMELS, int *NUMELQ , int *NUMELT , int *NUMELP , int *NUMELR, int *IS_WRITTEN,int *SHELL_STACKSIZE)
 {c_h3d_update_shell_scalar_ (TT,IH3D,ITAB,NUMNOD,IXC,NIXC,NUMELC,IPARTC,IXTG,NIXTG,NUMELTG,IPARTTG,FUNC,ID_ELEM,CPT_DATATYPE,ITY_ELEM,
-                         NUMELS,NUMELQ,NUMELT,NUMELP,NUMELR,IS_WRITTEN);}
+                         NUMELS,NUMELQ,NUMELT,NUMELP,NUMELR,IS_WRITTEN,SHELL_STACKSIZE);}
 
 void c_h3d_update_shell_scalar__ (my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, int *IXC, int *NIXC, int *NUMELC, int *IPARTC,
-                           int *IXTG, int *NIXTG, int *NUMELTG, int *IPARTTG, my_real *FUNC ,int *ID_ELEM,int *CPT_DATATYPE,
-                           int *ITY_ELEM, int *NUMELS, int *NUMELQ , int *NUMELT , int *NUMELP , int *NUMELR, int *IS_WRITTEN)
+                           int *IXTG, int *NIXTG, int *NUMELTG, int *IPARTTG, float *FUNC ,int *ID_ELEM,int *CPT_DATATYPE,
+                           int *ITY_ELEM, int *NUMELS, int *NUMELQ , int *NUMELT , int *NUMELP , int *NUMELR, int *IS_WRITTEN,int *SHELL_STACKSIZE)
 {c_h3d_update_shell_scalar_ (TT,IH3D,ITAB,NUMNOD,IXC,NIXC,NUMELC,IPARTC,IXTG,NIXTG,NUMELTG,IPARTTG,FUNC,ID_ELEM,CPT_DATATYPE,ITY_ELEM,
-                         NUMELS,NUMELQ,NUMELT,NUMELP,NUMELR,IS_WRITTEN);}
+                         NUMELS,NUMELQ,NUMELT,NUMELP,NUMELR,IS_WRITTEN,SHELL_STACKSIZE);}
 
 void c_h3d_update_shell_scalar (my_real *TT,int *IH3D, int *ITAB, int *NUMNOD, int *IXC, int *NIXC, int *NUMELC, int *IPARTC,
-                           int *IXTG, int *NIXTG, int *NUMELTG, int *IPARTTG, my_real *FUNC ,int *ID_ELEM,int *CPT_DATATYPE,
-                           int *ITY_ELEM, int *NUMELS, int *NUMELQ , int *NUMELT , int *NUMELP , int *NUMELR, int *IS_WRITTEN)
+                           int *IXTG, int *NIXTG, int *NUMELTG, int *IPARTTG, float *FUNC ,int *ID_ELEM,int *CPT_DATATYPE,
+                           int *ITY_ELEM, int *NUMELS, int *NUMELQ , int *NUMELT , int *NUMELP , int *NUMELR, int *IS_WRITTEN,int *SHELL_STACKSIZE)
 {c_h3d_update_shell_scalar_ (TT,IH3D,ITAB,NUMNOD,IXC,NIXC,NUMELC,IPARTC,IXTG,NIXTG,NUMELTG,IPARTTG,FUNC,ID_ELEM,CPT_DATATYPE,ITY_ELEM,
-                         NUMELS,NUMELQ,NUMELT,NUMELP,NUMELR,IS_WRITTEN);}
+                         NUMELS,NUMELQ,NUMELT,NUMELP,NUMELR,IS_WRITTEN,SHELL_STACKSIZE);}
 
 }

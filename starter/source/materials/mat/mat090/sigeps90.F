@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS90                      source/materials/mat/mat090/sigeps90.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        VALPVEC                       source/materials/tools/matrix.F
-Chd|        VALPVECDP                     source/materials/tools/matrix.F
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps90    ../starter/source/materials/mat/mat090/sigeps90.F
+!||--- called by ------------------------------------------------------
+!||    mulaw       ../starter/source/materials/mat_share/mulaw.F
+!||--- calls      -----------------------------------------------------
+!||    finter      ../starter/source/tools/curve/finter.F
+!||    valpvec     ../starter/source/materials/tools/matrix.F
+!||    valpvecdp   ../starter/source/materials/tools/matrix.F
+!||====================================================================
       SUBROUTINE SIGEPS90(
      1     NEL    ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC   ,NPF    ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0    ,RHO    ,
@@ -43,11 +43,9 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "comlock.inc"
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C---------+---------+---+---+--------------------------------------------
 C VAR     | SIZE    |TYP| RW| DEFINITION
 C---------+---------+---+---+--------------------------------------------
@@ -87,17 +85,12 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
 C---------+---------+---+---+--------------------------------------------
-#include      "param_c.inc"
-#include      "scr17_c.inc"
 #include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "com08_c.inc"
-#include      "units_c.inc"
 C
       INTEGER, INTENT(IN) :: NEL, NUPARAM, NUVAR, NGL(NEL),ISMSTR
        
@@ -142,18 +135,18 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER  
-     .     II,I,J,K,I1,J1,J2,IFLAG,ILOAD(NEL,3),ILOADE(NEL),
+     .     II,I,K,IFLAG,ILOAD(NEL,3),ILOADE(NEL),
      .     IDAM,INDX_L(NEL),INDX_UNL(NEL),NE_L,NE_UNL
       my_real
-     . E0,AA,EPSMAX,G,NU,SHAPE,HYS,EMAX,
-     . YFAC,YFACJ1,YFACJ2,RATEJ1,RATEJ2, EPSE,EP1,
+     . E0,AA,G,NU,SHAPE,HYS,EMAX,
+     . YFAC, EPSE,EP1,
      . EP2,EP3,EP4,EP5,EP6,ERT11,ERT12,ERT13,ERT21,
-     . ERT22,ERT23,ERT31,ERT32,ERT33,SJ1,SJ2,FAC,T1,T2,T3,
-     . DAM,EPE,EMIN,E_MIN(NEL),E1,E2,TMP,QUASI_EINT
+     . ERT22,ERT23,ERT31,ERT32,ERT33,T1,T2,T3,
+     . DAM,EPE,EMIN,E_MIN(NEL)
       my_real
      .  AV(6,NEL), EVV(3,NEL),EV(NEL,3),STRAIN(NEL,3),
      .  STRAINRATE(NEL,3),S(NEL,3),SQSTAT(NEL,3),DF(3),
-     .  DIRPRV(3,3,NEL),EPSP(3),ECURENT(NEL),E(NEL),DEINT,
+     .  DIRPRV(3,3,NEL),EPSP(3),ECURENT(NEL),E(NEL),
      .  RATEEPS
 C-----------------------------------------------
 C     USER VARIABLES INITIALIZATION
@@ -176,9 +169,9 @@ C
              AV(5,I) = HALF*EPSYZ(I)
              AV(6,I) = HALF*EPSZX(I)
          ENDDO                     
-CEigenvalues needed to be calcultated in double precision
+CEigenvalues needed to be calculated in double precision
 C        for a simple precision executing*
-      IF (IRESP.EQ.1) THEN
+      IF (IRESP==1) THEN
           CALL VALPVECDP(AV,EVV,DIRPRV,NEL)
       ELSE
           CALL VALPVEC(AV,EVV,DIRPRV,NEL)
@@ -187,7 +180,7 @@ C-ISMSTR=0-NO SMALL STRAIN OPTION:STRAINS ARE LOGARITHMIC, STRESS IS CAUCHY
 C-ISMSTR=1-SMALL STRAIN OPTION:STRAINS ARE ENGINEERING, STRESS IS CAUCHY
 C-ISMSTR=2-SMALL STRAIN OPTION:STRAINS ARE ENGINEERING, STRESS IS BIOT
 C-ISMSTR=3-NO SMALL STRAIN OPTION:STRESS IS BIOT
-      IF(ISMSTR.EQ.0.OR.ISMSTR.EQ.2.OR.ISMSTR.EQ.4) THEN
+      IF(ISMSTR==0.OR.ISMSTR==2.OR.ISMSTR==4) THEN
         DO I=1,NEL
 C ---- (STRAIN IS LOGARITHMIC)
             EV(I,1)=EXP(EVV(1,I))
@@ -251,7 +244,7 @@ C computing energy increase
 !!                 DO K=1,3
 !!                   EPSE = STRAIN(I,K)
 !!                   SQSTAT(I,K) = YFAC*FINTER(IFUNC(1),EPSE,NPF,TF,DF(K))
-C compute curent energy
+C compute current energy
 !!                  QUASI_EINT= QUASI_EINT + HALF*STRAIN(I,K)*SQSTAT(I,K)
 !!                 ENDDO   
 !!                   DEINT  = QUASI_EINT - UVAR(I,9)
@@ -278,7 +271,7 @@ C
 
 !!        EPSD(I) = RATEEPS
       ENDDO
-C sous groupe  
+C under group  
          INDX_L(1:NEL) = 0
          INDX_UNL(1:NEL) = 0
          NE_L  = 0
@@ -308,7 +301,7 @@ C case with unloading stress-strain curve only the quasistatic curve is used
               E(I) = MAX(E0,Emax)
            ENDDO           
        ENDIF 
-C unloadind with damage based on the energy.
+C unloading with damage based on the energy.
        IF(IFLAG == 2) THEN
                DO I=1,NEL
                  YFAC = UPARAM(NFUNC + 11)
@@ -329,7 +322,7 @@ C computecurent energy
                    E(I) = MAX(E0,Emax)
                    E_MIN(I) =EMIN
                ENDDO 
-C  flag is a hidden falg, only idam=0 is activated, Idam > o not tested.     
+C  flag is a hidden flag, only idam=0 is activated, Idam > o not tested.     
               IF(IDAM == 0) THEN 
                 DO II=1,NE_UNL
                    I = INDX_UNL(II)

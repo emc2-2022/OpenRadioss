@@ -1,43 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I23DST3                       source/interfaces/int23/i23dst3.F
-Chd|-- called by -----------
-Chd|        I23MAINF                      source/interfaces/int23/i23mainf.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i23dst3    ../engine/source/interfaces/int23/i23dst3.F
+!||--- called by ------------------------------------------------------
+!||    i23mainf   ../engine/source/interfaces/int23/i23mainf.F
+!||====================================================================
       SUBROUTINE I23DST3(
-     1  		JLT    ,CAND_N_N ,CAND_E_N ,CN_LOC ,CE_LOC ,
-     2  		X1     ,X2     ,X3     ,X4     ,Y1     ,
-     3  		Y2     ,Y3     ,Y4     ,Z1     ,Z2     ,
-     4  		Z3     ,Z4     ,XI     ,YI     ,ZI     ,
-     6  		IX1    ,IX2    ,IX3    ,IX4    ,NSVG   ,
-     7  		GAPV   ,INACTI ,INDEX  ,
-     8  		VXM    ,VYM    ,VZM    ,H1     ,H2     ,
-     9  		H3     ,H4     ,IRECT  ,CAND_P ,
-     A  		IFPEN  ,NX     ,NY     ,NZ     ,FTXSAV ,
-     B  		FTYSAV ,FTZSAV ,FXT    ,FYT   ,FZT     ,
-     C  		PENE   ,V      ,VXI    ,VYI   ,VZI     ,
+     1      JLT    ,CAND_N_N ,CAND_E_N ,CN_LOC ,CE_LOC ,
+     2      X1     ,X2     ,X3     ,X4     ,Y1     ,
+     3      Y2     ,Y3     ,Y4     ,Z1     ,Z2     ,
+     4      Z3     ,Z4     ,XI     ,YI     ,ZI     ,
+     6      IX1    ,IX2    ,IX3    ,IX4    ,NSVG   ,
+     7      GAPV   ,INACTI ,INDEX  ,
+     8      VXM    ,VYM    ,VZM    ,H1     ,H2     ,
+     9      H3     ,H4     ,IRECT  ,CAND_P ,
+     A      IFPEN  ,NX     ,NY     ,NZ     ,FTXSAV ,
+     B      FTYSAV ,FTZSAV ,FXT    ,FYT   ,FZT     ,
+     C      PENE   ,V      ,VXI    ,VYI   ,VZI     ,
      D                  MSI    ,STIF   ,JLT_NEW,NSMS  ,KINI    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -47,10 +46,8 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "com01_c.inc"
 #include      "com08_c.inc"
 #include      "sms_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -65,21 +62,16 @@ C-----------------------------------------------
      .     XI(MVSIZ), YI(MVSIZ), ZI(MVSIZ), 
      .     GAPV(MVSIZ), PENE(MVSIZ), CAND_P(*),
      .     NX(MVSIZ),  NY(MVSIZ),  NZ(MVSIZ),
-     .     XG(MVSIZ),  YG(MVSIZ),  ZG(MVSIZ),
+     .         
      .     VXM(MVSIZ), VYM(MVSIZ), VZM(MVSIZ),
      .     FTXSAV(*),  FTYSAV(*),  FTZSAV(*),
      .     FXT(MVSIZ), FYT(MVSIZ), FZT(MVSIZ), 
      .     VXI(MVSIZ), VYI(MVSIZ), VZI(MVSIZ), MSI(MVSIZ), STIF(MVSIZ),
      .     H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ), V(3,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "parit_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IG, J, II, INPROJ(4,MVSIZ)
+      INTEGER I, J, INPROJ(4,MVSIZ)
       my_real
      .     LB1(MVSIZ), LC1(MVSIZ), P1(MVSIZ), 
      .     LB2(MVSIZ), LC2(MVSIZ), P2(MVSIZ), 
@@ -114,31 +106,31 @@ C-----------------------------------------------
      .     N13(MVSIZ), N23(MVSIZ), N33(MVSIZ),
      .     N14(MVSIZ), N24(MVSIZ), N34(MVSIZ),
      .     NVERS(4,MVSIZ), FIRSTIMP(4,MVSIZ),
-     .     XN1(MVSIZ),YN1(MVSIZ),ZN1(MVSIZ),
-     .     XN2(MVSIZ),YN2(MVSIZ),ZN2(MVSIZ),
-     .     XN3(MVSIZ),YN3(MVSIZ),ZN3(MVSIZ),
-     .     XN4(MVSIZ),YN4(MVSIZ),ZN4(MVSIZ),
-     .     SSC(MVSIZ),TTC(MVSIZ),
-     .     A12(MVSIZ),A23(MVSIZ),A34(MVSIZ),A41(MVSIZ),
-     .     B12(MVSIZ),B23(MVSIZ),B34(MVSIZ),B41(MVSIZ),
-     .     AB1(MVSIZ),AB2(MVSIZ),
+     .     
+     .     
+     .     
+     .     
+     .     
+     .     
+     .     
+     .     
      .     N1(MVSIZ),N2(MVSIZ),N3(MVSIZ),
-     .     XX1(MVSIZ),XX2(MVSIZ),XX3(MVSIZ),XX4(MVSIZ),
-     .     YY1(MVSIZ),YY2(MVSIZ),YY3(MVSIZ),YY4(MVSIZ),
-     .     ZZ1(MVSIZ),ZZ2(MVSIZ),ZZ3(MVSIZ),ZZ4(MVSIZ),
-     .     AREA(MVSIZ),ALP(MVSIZ),VAR
+     .     
+     .     
+     .     
+     .     AREA(MVSIZ)
       my_real
-     .     S2,NN,PS,
+     .     S2,NN,
      .     X12,X23,X34,X41,SX1,SX2,SX3,SX4,SX0,
      .     Y12,Y23,Y34,Y41,SY1,SY2,SY3,SY4,SY0,
      .     Z12,Z23,Z34,Z41,SZ1,SZ2,SZ3,SZ4,SZ0,
-     .     GAP2(MVSIZ), AAA, SIDE, DIST,
+     .     GAP2(MVSIZ), AAA, SIDE,
      .     LL, H
 C--------------------------------------------------------
-C  CAS DES PAQUETS MIXTES
+C  CASE OF MIXED PACKETS
 C--------------------------------------------------------
        DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
          X0(I) = FOURTH*(X1(I)+X2(I)+X3(I)+X4(I))
          Y0(I) = FOURTH*(Y1(I)+Y2(I)+Y3(I)+Y4(I))
          Z0(I) = FOURTH*(Z1(I)+Z2(I)+Z3(I)+Z4(I)) 
@@ -294,23 +286,23 @@ C
         Y12 = Y2(I) - Y1(I)
         Z12 = Z2(I) - Z1(I)
         LA = ONE - LB1(I) - LC1(I)
-Cel     HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X12*X12+Y12*Y12+Z12*Z12)
         HLA= LA*ABS(LA) * AAA
         INPROJ(1,I)=0
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB1(I).AND.HLA.LE.HLC1(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB1(I).AND.HLA<=HLC1(I))THEN
          LB1(I) = (XI2(I)*X12+YI2(I)*Y12+ZI2(I)*Z12) * AAA
          LB1(I) = MAX(ZERO,MIN(ONE,LB1(I)))
          LC1(I) = ONE - LB1(I)
          INPROJ(1,I)=1
-        ELSEIF(LB1(I).LT.ZERO.AND.
-     +         HLB1(I).LE.HLC1(I).AND.HLB1(I).LE.HLA)THEN
+        ELSEIF(LB1(I)<ZERO.AND.
+     +         HLB1(I)<=HLC1(I).AND.HLB1(I)<=HLA)THEN
          LB1(I) = ZERO
          LC1(I) = AL2(I)
          INPROJ(1,I)=1
-        ELSEIF(LC1(I).LT.ZERO.AND.
-     +         HLC1(I).LE.HLA.AND.HLC1(I).LE.HLB1(I))THEN
+        ELSEIF(LC1(I)<ZERO.AND.
+     +         HLC1(I)<=HLA.AND.HLC1(I)<=HLB1(I))THEN
          LC1(I) = ZERO
          LB1(I) = AL1(I)
          INPROJ(1,I)=1
@@ -323,23 +315,23 @@ C
         Y23 = Y3(I) - Y2(I)
         Z23 = Z3(I) - Z2(I)
         LA = ONE - LB2(I) - LC2(I)
-Cel     HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X23*X23+Y23*Y23+Z23*Z23)
         HLA= LA*ABS(LA) * AAA
         INPROJ(2,I)=0
-	IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB2(I).AND.HLA.LE.HLC2(I))THEN
-	  LB2(I) = (XI3(I)*X23+YI3(I)*Y23+ZI3(I)*Z23)*AAA
-	  LB2(I) = MAX(ZERO,MIN(ONE,LB2(I)))
-	  LC2(I) = ONE - LB2(I)
+          IF(LA<ZERO.AND.
+     +     HLA<=HLB2(I).AND.HLA<=HLC2(I))THEN
+            LB2(I) = (XI3(I)*X23+YI3(I)*Y23+ZI3(I)*Z23)*AAA
+            LB2(I) = MAX(ZERO,MIN(ONE,LB2(I)))
+            LC2(I) = ONE - LB2(I)
           INPROJ(2,I)=1
-	ELSEIF(LB2(I).LT.ZERO.AND.
-     +          HLB2(I).LE.HLC2(I).AND.HLB2(I).LE.HLA)THEN
+          ELSEIF(LB2(I)<ZERO.AND.
+     +          HLB2(I)<=HLC2(I).AND.HLB2(I)<=HLA)THEN
          LB2(I) = ZERO
          LC2(I) = AL3(I)
          INPROJ(2,I)=1
-        ELSEIF(LC2(I).LT.ZERO.AND.
-     +         HLC2(I).LE.HLA.AND.HLC2(I).LE.HLB2(I))THEN
+        ELSEIF(LC2(I)<ZERO.AND.
+     +         HLC2(I)<=HLA.AND.HLC2(I)<=HLB2(I))THEN
          LC2(I) = ZERO
          LB2(I) = AL2(I)
          INPROJ(2,I)=1
@@ -352,23 +344,23 @@ C
         Y34 = Y4(I) - Y3(I)
         Z34 = Z4(I) - Z3(I)
         LA = ONE - LB3(I) - LC3(I)
-Cel     HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X34*X34+Y34*Y34+Z34*Z34)
         HLA= LA*ABS(LA) * AAA
         INPROJ(3,I)=0
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB3(I).AND.HLA.LE.HLC3(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB3(I).AND.HLA<=HLC3(I))THEN
          LB3(I) = (XI4(I)*X34+YI4(I)*Y34+ZI4(I)*Z34)*AAA
          LB3(I) = MAX(ZERO,MIN(ONE,LB3(I)))
          LC3(I) = ONE - LB3(I)
          INPROJ(3,I)=1
-        ELSEIF(LB3(I).LT.ZERO.AND.
-     +         HLB3(I).LE.HLC3(I).AND.HLB3(I).LE.HLA)THEN
+        ELSEIF(LB3(I)<ZERO.AND.
+     +         HLB3(I)<=HLC3(I).AND.HLB3(I)<=HLA)THEN
          LB3(I) = ZERO
          LC3(I) = AL4(I)
          INPROJ(3,I)=1
-        ELSEIF(LC3(I).LT.ZERO.AND.
-     +         HLC3(I).LE.HLA.AND.HLC3(I).LE.HLB3(I))THEN
+        ELSEIF(LC3(I)<ZERO.AND.
+     +         HLC3(I)<=HLA.AND.HLC3(I)<=HLB3(I))THEN
          LC3(I) = ZERO
          LB3(I) = AL3(I)
          INPROJ(3,I)=1
@@ -381,23 +373,23 @@ C
         Y41 = Y1(I) - Y4(I)
         Z41 = Z1(I) - Z4(I)
         LA = ONE - LB4(I) - LC4(I)
-Cel     HLA, HLB1, HLC1 necessaires pour triangle angle obtu
+C       HLA, HLB1, HLC1 required for triangle sharp angle
         AAA = ONE / MAX(EM20,X41*X41+Y41*Y41+Z41*Z41)
         HLA= LA*ABS(LA) * AAA
         INPROJ(4,I)=0
-        IF(LA.LT.ZERO.AND.
-     +     HLA.LE.HLB4(I).AND.HLA.LE.HLC4(I))THEN
+        IF(LA<ZERO.AND.
+     +     HLA<=HLB4(I).AND.HLA<=HLC4(I))THEN
          LB4(I) = (XI1(I)*X41+YI1(I)*Y41+ZI1(I)*Z41)*AAA
          LB4(I) = MAX(ZERO,MIN(ONE,LB4(I)))
          LC4(I) = ONE - LB4(I)
          INPROJ(4,I)=1
-        ELSEIF(LB4(I).LT.ZERO.AND.
-     +         HLB4(I).LE.HLC4(I).AND.HLB4(I).LE.HLA)THEN
+        ELSEIF(LB4(I)<ZERO.AND.
+     +         HLB4(I)<=HLC4(I).AND.HLB4(I)<=HLA)THEN
          LB4(I) = ZERO
          LC4(I) = AL1(I)
          INPROJ(4,I)=1
-        ELSEIF(LC4(I).LT.ZERO.AND.
-     +         HLC4(I).LE.HLA.AND.HLC4(I).LE.HLB4(I))THEN
+        ELSEIF(LC4(I)<ZERO.AND.
+     +         HLC4(I)<=HLA.AND.HLC4(I)<=HLB4(I))THEN
          LC4(I) = ZERO
          LB4(I) = AL4(I)
          INPROJ(4,I)=1
@@ -582,8 +574,8 @@ C             SIDE   = -SIDE
          END IF
 C---------------------
 C
-C attention a la traversee de la coque => 1E20..., 
-C prendre normale = normale au triangle
+C attention to the crossing of the shell => 1E20...,
+C Take normal = normal at triangle
          NN=ONE/
      .      MAX(EM20,SQRT(N1(I)*N1(I)+N2(I)*N2(I)+N3(I)*N3(I)))
          N1(I)=N1(I)*NN
@@ -642,7 +634,7 @@ C---------------------------------
         VXM(I)=ZERO
         VYM(I)=ZERO
         VZM(I)=ZERO
-C utile que si IFPEN/=0
+C useful only if ifpen/= 0
         IF(PENE(I)/=0)THEN
           VXM(I)=H1(I)*V(1,IX1(I))+H2(I)*V(1,IX2(I))+
      .           H3(I)*V(1,IX3(I))+H4(I)*V(1,IX4(I))
@@ -664,7 +656,7 @@ C     JLT_NEW=JLT
 C     RETURN
 C
       DO I=1,JLT
-       IF(PENE(I).NE.ZERO.AND.STIF(I).NE.ZERO)THEN
+       IF(PENE(I)/=ZERO.AND.STIF(I)/=ZERO)THEN
         JLT_NEW = JLT_NEW + 1
         CN_LOC(JLT_NEW) = CAND_N_N(I)
         CE_LOC(JLT_NEW) = CAND_E_N(I)

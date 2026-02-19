@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RELFRAM                       source/tools/skew/relfram.F   
-Chd|-- called by -----------
-Chd|        THNOD                         source/output/th/thnod.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    relfram   ../engine/source/tools/skew/relfram.F
+!||--- called by ------------------------------------------------------
+!||    thnod     ../engine/source/output/th/thnod.F
+!||====================================================================
       SUBROUTINE RELFRAM(XG ,DG      ,VG      ,AG      ,VRG     ,
      2              ARG     ,XFRAME  ,XO      ,DO      ,VO      ,
      3              AO      ,XL      ,DL      ,VL      ,AL      ,
@@ -37,10 +36,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -53,7 +49,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, K
+      INTEGER  K
 C     REAL
       my_real
      .   ROT(9),ROT0(9),ROTDT05(9),ROTT05(9),
@@ -99,7 +95,7 @@ C-----------
        XL(2)=ROT(4)*OM(1)+ROT(5)*OM(2)+ROT(6)*OM(3)
        XL(3)=ROT(7)*OM(1)+ROT(8)*OM(2)+ROT(9)*OM(3)
 C-----------
-C      relative displacement at time T.
+C      Relative Displacement at Time T.
 C-----------
 C      relative displacement in global frame at time T-1/2.
        DREL(1)=DG(1)-DO(1)+(ROT0(1)-ROT(1))*XL(1)
@@ -116,7 +112,7 @@ C      relative displacement in local frame at time T-1/2.
        DL(2)=ROT0(4)*DREL(1)+ROT0(5)*DREL(2)+ROT0(6)*DREL(3)
        DL(3)=ROT0(7)*DREL(1)+ROT0(8)*DREL(2)+ROT0(9)*DREL(3)
 C-----------
-C      vitesse d'entrainement (T-1/2).
+C      Training velocity (T-1/2).
 C-----------
        DT05=0.5*DT1
        OM2(1)=OM(1)-DT05*(VG(1)-VO(1))
@@ -141,7 +137,7 @@ C       VL(1)=ROT(1)*VREL(1)+ROT(2)*VREL(2)+ROT(3)*VREL(3)
 C       VL(2)=ROT(4)*VREL(1)+ROT(5)*VREL(2)+ROT(6)*VREL(3)
 C       VL(3)=ROT(7)*VREL(1)+ROT(8)*VREL(2)+ROT(9)*VREL(3)
 C-------
-C      fully consistant VL would use rotation at time T-1/2 :
+C      fully consistent VL would use rotation at time T-1/2 :
        OMEGAX=W(1)*DT05
        OMEGAY=W(2)*DT05
        OMEGAZ=W(3)*DT05
@@ -217,7 +213,7 @@ C
        VL(1)=ROTT05(1)*VREL(1)+ROTT05(2)*VREL(2)+ROTT05(3)*VREL(3)
        VL(2)=ROTT05(4)*VREL(1)+ROTT05(5)*VREL(2)+ROTT05(6)*VREL(3)
        VL(3)=ROTT05(7)*VREL(1)+ROTT05(8)*VREL(2)+ROTT05(9)*VREL(3)
-C      end fully consistant VL.
+C      end fully consistent VL.
 C-----------
 C      relative angular velocity at time T-1/2.
 C-----------
@@ -253,10 +249,10 @@ C-----------
        AE(3)=AO(3)+DWDT(1)*OM(2)-DWDT(2)*OM(1)
      .            +W(1)*WOM(2)-W(2)*WOM(1)
 C-----------
-C      acceleration de Coriolis.
+C      Coriolis acceleration.
 C-----------
 C      second order correction.
-C      vitesse d'entrainement (T).
+C      Training velocity (T).
 C      VE(1)=VO(1)+WOM(1)
 C      VE(2)=VO(2)+WOM(2)
 C      VE(3)=VO(3)+WOM(3)
@@ -268,28 +264,27 @@ C      VREL(3)=VG(3)-VE(3)
        AC(2)=2.*(W(3)*VREL(1)-W(1)*VREL(3))
        AC(3)=2.*(W(1)*VREL(2)-W(2)*VREL(1))
 C-----------
-C      relative accelaration in global frame at time T.
+C      relative acceleration in global frame at time T.
 C-----------
        AREL(1)=AG(1)-AE(1)-AC(1)
        AREL(2)=AG(2)-AE(2)-AC(2)
        AREL(3)=AG(3)-AE(3)-AC(3)
-C      relative accelaration in local frame at time T.
+C      relative acceleration in local frame at time T.
        AL(1)=ROT(1)*AREL(1)+ROT(2)*AREL(2)+ROT(3)*AREL(3)
        AL(2)=ROT(4)*AREL(1)+ROT(5)*AREL(2)+ROT(6)*AREL(3)
        AL(3)=ROT(7)*AREL(1)+ROT(8)*AREL(2)+ROT(9)*AREL(3)
 C
 C-----------
-C      relative angular accelaration at time T.
+C      relative angular acceleration at time T.
 C-----------
-C      relative angular accelaration in global frame at time T.
+C      relative angular acceleration in global frame at time T.
        ARREL(1)=ARG(1)-DWDT(1)
        ARREL(2)=ARG(2)-DWDT(2)
        ARREL(3)=ARG(3)-DWDT(3)
-C      relative angular accelaration in local frame at time T.
+C      relative angular acceleration in local frame at time T.
        ARL(1)=ROT(1)*ARREL(1)+ROT(2)*ARREL(2)+ROT(3)*ARREL(3)
        ARL(2)=ROT(4)*ARREL(1)+ROT(5)*ARREL(2)+ROT(6)*ARREL(3)
        ARL(3)=ROT(7)*ARREL(1)+ROT(8)*ARREL(2)+ROT(9)*ARREL(3)
 C-----------------------------------------------
- 999  CONTINUE
       RETURN
       END

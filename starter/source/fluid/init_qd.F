@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INIT_QD                       source/fluid/init_qd.F        
-Chd|-- called by -----------
-Chd|        HM_READ_BEM                   source/loads/bem/hm_read_bem.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    init_qd       ../starter/source/fluid/init_qd.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_bem   ../starter/source/loads/bem/hm_read_bem.F
+!||====================================================================
       SUBROUTINE INIT_QD(IFLOW, IBUF, ELEM, X, XS, YS, ZS, XD, YD, ZD,
      .                   RFLOW, NORMAL, TA, AF, COSG, DCP)
 C-----------------------------------------------
@@ -48,7 +47,7 @@ C--------------------------------------------------------------
       INTEGER ILVOUT, NEL, IWAVE, FREESURF
       INTEGER N1, N2, N3, N4, N5, NN1, NN2, NN3, NN4, IEL, JEL
       my_real X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3, X4, Y4, Z4,
-     .        XP, YP, ZP, X13, Y13, Z13, X24, Y24, Z24,	  
+     .        XP, YP, ZP, X13, Y13, Z13, X24, Y24, Z24,    
      .        NRX, NRY, NRZ, AREA2, DCS, SSP, WI(4,2),
      .        XC, YC, ZC, DIRX, DIRY, DIRZ
 C
@@ -67,10 +66,10 @@ C-------------------------------------------------------------------
       WI(2,2)=THIRD
       WI(3,2)=ONE_OVER_6
       WI(4,2)=ONE_OVER_6
-      SSP=RFLOW(2)	  
+      SSP=RFLOW(2)    
       IF(IWAVE==1) THEN
-        XC =RFLOW(9)	  
-        YC =RFLOW(10)	  
+        XC =RFLOW(9)    
+        YC =RFLOW(10)    
         ZC =RFLOW(11)
         DCS=RFLOW(12)
       ELSEIF(IWAVE==2) THEN
@@ -78,7 +77,7 @@ C-------------------------------------------------------------------
         DIRY=RFLOW(10)
         DIRZ=RFLOW(11)
       ENDIF
-	  
+            
       DO IEL=1,NEL
          N1=ELEM(1,IEL)
          N2=ELEM(2,IEL)
@@ -138,7 +137,7 @@ C  Arrival time
          ENDIF
       ENDDO 
 
-      IF(ILVOUT.GE.2) THEN
+      IF(ILVOUT>=2) THEN
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8----+----9----+----1----+----2----+----3--
          WRITE (IOUT,'(//7X,2A)') 'ELEMENT   ARRIVAL TIME        AREA     DISTANCE   DIR.COSINE     ',
      .                            'NORMAL-X     NORMAL-Y     NORMAL-Z'
@@ -153,6 +152,6 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
             ENDDO
          ENDIF
       ENDIF
-	  
+            
       RETURN
       END

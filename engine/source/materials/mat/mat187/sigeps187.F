@@ -1,37 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS187                     source/materials/mat/mat187/sigeps187.F
-Chd|-- called by -----------
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps187   ../engine/source/materials/mat/mat187/sigeps187.F
+!||--- called by ------------------------------------------------------
+!||    mulaw       ../engine/source/materials/mat_share/mulaw.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||    vinter      ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS187(
      1     NEL    ,NUPARAM,NUVAR   ,NFUNC   ,IFUNC    ,
      2     NPF    ,TF     ,TIME    ,TIMESTEP,UPARAM   ,
-     3     RHO0   ,RHO    ,VOLUME  ,EINT    ,TEMPEL,NGL , 
+     3     RHO0   ,RHO    ,VOLUME  ,EINT    ,
      4     EPSPXX ,EPSPYY ,EPSPZZ  ,EPSPXY  ,EPSPYZ  ,EPSPZX   , 
      5     DEPSXX ,DEPSYY ,DEPSZZ  ,DEPSXY  ,DEPSYZ  ,DEPSZX   ,
      6     EPSXX  ,EPSYY  ,EPSZZ   ,EPSXY   ,EPSYZ   ,EPSZX  ,
@@ -39,7 +39,7 @@ Chd|====================================================================
      8     SIGNXX ,SIGNYY ,SIGNZZ  ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
      9     SIGVXX ,SIGVYY ,SIGVZZ  ,SIGVXY  ,SIGVYZ  ,SIGVZX , 
      A     SOUNDSP,VISCMAX,UVAR    ,OFF     ,YLD     ,PLA    ,
-     B     DPLA    ,ETSE   ,IPM     ,MAT     ,ISRATE ,
+     B     DPLA    ,ETSE   ,IPM    ,MAT     ,ISRATE ,
      C     FACYLDI ,EPSP     )  
 C=======================================================================
 C   BARLAT YLD2000 material model
@@ -52,9 +52,7 @@ C-----------------------------------------------
 C   G L O B A L   P A R A M E T E R S
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr17_c.inc"
 #include      "param_c.inc"
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   C O M M O N
 C-----------------------------------------------
@@ -97,7 +95,7 @@ C SIGVXX  | NEL     | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL     | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL     | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL     | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL     | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C UVAR    |NEL*NUVAR| F |R/W| USER ELEMENT VARIABLE ARRAY
 C OFF     | NEL     | F |R/W| DELETED ELEMENT FLAG (=1. ON, =0. OFF)
@@ -106,8 +104,8 @@ C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
 C
-      INTEGER NEL, NUPARAM, NUVAR,
-     .        IPM(NPROPMI,*),ISRATE(NEL),MAT(NEL), NGL(NEL)
+      INTEGER :: NEL, NUPARAM, NUVAR
+      INTEGER :: IPM(NPROPMI,*),ISRATE(NEL),MAT(NEL)
       my_real 
      .   TIME,TIMESTEP,UPARAM(NUPARAM),
      .   RHO(NEL),RHO0(NEL),VOLUME(NEL),EINT(NEL),
@@ -119,7 +117,7 @@ C
      .   EPSXY(NEL) ,EPSYZ(NEL) ,EPSZX(NEL) ,
      .   SIGOXX(NEL),SIGOYY(NEL),SIGOZZ(NEL),
      .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL),
-     .   TEMPEL(NEL),FACYLDI(NEL),EPSP(NEL)
+     .   FACYLDI(NEL),EPSP(NEL)
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -152,7 +150,7 @@ c     NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,J,K,NRATE,JJ(NEL),J1,J2,N,NINDX,IFLAG,IFLAGSR,EXPA,EXPAM2,
+      INTEGER I, II, J, K, NRATE, JJ(NEL), J1, J2, NINDX, IFLAG, IFLAGSR, EXPA, EXPAM2, 
      .        NMAX,INDX(NEL), IPOS1(NEL),ILEN1(NEL),IAD1(NEL),
      .       IPOS2(NEL),ILEN2(NEL),IAD2(NEL)
       my_real
@@ -162,38 +160,31 @@ C-----------------------------------------------
      .        PHIP(NEL),PHIPP(NEL),
      .        DELTAP(NEL), DELTAPP1(NEL), DELTAPP2(NEL), DELTAPP(NEL),
      .        DEPLXX(NEL),DEPLYY(NEL),DEPLXY(NEL),DEPLZZ(NEL),
-     .        DEELZZ(NEL),XP1(NEL),XP2(NEL),XPP1(NEL),
-     .        XPP2(NEL),SIG(NEL),H(NEL),SIGTRXX(NEL),SIGTRYY(NEL),
+     .        SIG(NEL),H(NEL),SIGTRXX(NEL),SIGTRYY(NEL),
      .        SIGTRXY(NEL),RATE(NEL),SIGTRYZ(NEL),SIGTRZZ(NEL),
      .        SIGTRZX(NEL),DEPLYZ(NEL),DEPLZX(NEL),DDEPLYZ(NEL),DDEPLZX(NEL),
      .        DDEPLXX(NEL),DDEPLYY(NEL),DDEPLXY(NEL),DDEPLZZ(NEL)
       my_real
-     .      E,NU,BULK,A1,A2,G,UNSA,DU,R,UMR,G2,LAMDA,
-     .      AL1, AL2 , AL3 , AL4 ,DSIGPL1,DSPL1,
-     .      AL5, AL6 , AL7 , AL8 ,DSIGPL2,DSPL2,
-     .      AL9, AL10, AL11, AL12,DSIGPL3,DSPL3,
-     .      YSCALE,CEPS,EPS0,EXPN,DAV,
-     .      LPP11,LPP12,LP13,LPP21,LPP22,LPP23,
-     .      LPP34,LPP45,LPP56,LPP13,LPP66,
-     .      FCT,FCTP,BPP,CPP,DPP,FP1,FP2,FP3,FP4,FP5,
-     .      KINT,FPP1,FPP2,FPP3,DFP1,DFP2,DFP3,FPP4,FPP5,
-     .      DFPP1,DFPP2,DFPP3,DP,AP,DF1,DF2,DF3,DF,DFP4,DFP5,DFP6,
-     .      DSDEPL1,DSDEPL2,DSDEPL3,NORMEF,EPSPI,DFPP4,DFPP5,DFPP6,
+     . E,NU,BULK,G,UNSA,DU,G2,LAMDA,
+     . AL1, AL2 , AL3 , AL4 ,
+     . AL5, AL6 , AL7 , AL8 ,
+     . AL9, AL10, AL11, AL12,
+     . DAV,
+     . LPP11,LPP12,LPP21,LPP22,LPP23,
+     . LPP34,LPP45,LPP56,LPP13,
+     . FCT,FP1,FP2,FP3,FP4,FP5,
+     . FPP1,FPP2,FPP3,DFP1,DFP2,DFP3,FPP4,FPP5,
+     . DFPP1,DFPP2,DFPP3,DF1,DF2,DF3,DF,DFP4,DFP5,DFP6,
+     . EPSPI,DFPP4,DFPP5,DFPP6,
      .      ASWIFT ,EPSO,QVOCE,BETA,KO,ALPHA,NEXP,DF4,DF5,DF6,
      .      EXPV,KSWIFT,KVOCE,UNSP,UNSC,PLA_I,YLD_I,
-     .      DSWIFT,DVOCE,DFEPSP,YLDP, p2,UNSPT,UNSCT,DFSR,
-     .      TPP1, TPP2,TPP3,TP1,TP2,fiptest,fipptest
-
+     . DSWIFT,DVOCE,DFEPSP,YLDP,UNSPT,UNSCT,
+     . TPP1, TPP2,TPP3,TP1
       my_real
-     .        HK(NEL),NU_1MNU(NEL),EPSF(NEL),PLAP(NEL),F_EPSP(NEL),
-     .        SVM2(NEL),YLD2(NEL),HI(NEL),G3(NEL),T_1PNU(NEL),
-     .        HKIN,NU110,NU210,dezz,svm,DPLA_I(NEL),dr(NEL),
-     .        AA(NEL),BB(NEL),DPLA_J(NEL),U_1MNU(NEL),     
-     .        PP(NEL),QQ(NEL),FAIL(NEL),SVMO(NEL),F_EPSPT(NEL),
-     .        NU11V(NEL),NU21V3(NEL),AANU11V(NEL),BBNU21V3(NEL),
-     .        HI2(NEL), ES2(NEL)
+     . PLAP(NEL),F_EPSP(NEL),
+     . F_EPSPT(NEL)
        my_real
-     .        YFAC(NEL,2),PUI_1,PUI_2
+     . YFAC(NEL,2),PUI_1
        DATA NMAX/5/
 c-----------------------------------------------
 c     USER VARIABLES INITIALIZATION
@@ -211,6 +202,7 @@ c    UVAR5  =IPOS
 c    UVAR6  =H
 c-----------------------------------------------
 C
+      YLDP  = ZERO
       E     =  UPARAM(1)  
       NU    =  UPARAM(2)  
       G     = UPARAM(23)
@@ -379,7 +371,7 @@ C      ----------------------------------------------------
        DO II=1,NINDX                                              
         I = INDX(II)                                             
         !IF (SIG(I)>YLD(I).AND.OFF(I) == ONE)THEN
-	   DPLA(I)= UVAR(I,3)+ EM09
+             DPLA(I)= UVAR(I,3)+ EM09
 
         !DPLA(I)= (SIG(I)-YLD(I))/(THREE*G+DYDX(I))
         DEPLXX(I)=ZERO
@@ -494,9 +486,9 @@ C
 c         DF = -TWO*G * (DU * DF1) **2 
 c     .        -TWO*G * (DU * DF2) **2 
 c     .        -TWO*G * (DU * DF3) **2 
-c     .        -G * (DU * DF4) **2 
-c     .        -G * (DU * DF5) **2 
-c     .        -G * (DU * DF6) **2 
+c     .        -g * (du * df4) **2
+c     .        -g * (du * df5) **2
+c     .        -g * (du * df6) **2
 
          DF = DF  - YLDP
          !CALCUL PAS PLASTIQUE
@@ -511,7 +503,7 @@ c     .        -G * (DU * DF6) **2
          DEPLYZ(I)=DPLA(I)*DF5*DU
          DEPLZX(I)=DPLA(I)*DF6*DU
 
-         !ACTUALISATION DES CONTRAINTES
+         !update of the stresses
          SIGNXX(I)=SIGTRXX(I)- G2*DEPLXX(I)            
          SIGNYY(I)=SIGTRYY(I)- G2*DEPLYY(I) 
          SIGNZZ(I)=SIGTRZZ(I)- G2*DEPLZZ(I)            
@@ -555,7 +547,7 @@ c     .        -G * (DU * DF6) **2
          ENDIF
   
         ENDDO  ! iter  
-	   UVAR(I,3)=DPLA(I)       
+             UVAR(I,3)=DPLA(I)       
        ENDDO ! NINDX
 C-------------------
 C-------------------
@@ -681,9 +673,9 @@ C     ----------------------------------------------------
         !--------------------
         !PLASTIC FLOW
         !--------------------
-	       !DPLA(I)= UVAR(I,3)
+                 !DPLA(I)= UVAR(I,3)
          !DPLA(I)= (SIG(I)-YLD(I))/(THREE*G+DYDX(I))
-	    DPLA(I)= UVAR(I,3)+ EM09
+              DPLA(I)= UVAR(I,3)+ EM09
          DEPLXX(I)=ZERO
          DEPLYY(I)=ZERO
          DEPLZZ(I)=ZERO
@@ -754,7 +746,7 @@ C     ----------------------------------------------------
      .         -G * (DU * DF5) **2 
      .         -G * (DU * DF6) **2 
 
-          DF = DF  - YLDP
+          DF = DF - DYDX(I)
 
           !CALCUL PAS PLASTIQUE
           DPLA(I)=DPLA(I)-FCT/DF
@@ -767,7 +759,7 @@ C     ----------------------------------------------------
           DEPLYZ(I)=DPLA(I)*DF5*DU
           DEPLZX(I)=DPLA(I)*DF6*DU
 
-          !ACTUALISATION DES CONTRAINTES
+          !update of the stresses
           SIGNXX(I)=SIGTRXX(I)- G2*DEPLXX(I)           
           SIGNYY(I)=SIGTRYY(I)- G2*DEPLYY(I) 
           SIGNZZ(I)=SIGTRZZ(I)- G2*DEPLZZ(I)           
@@ -810,7 +802,7 @@ C     ----------------------------------------------------
           ENDIF
 
          ENDDO !iter   
-	        UVAR(I,3)=DPLA(I)       
+                  UVAR(I,3)=DPLA(I)       
        ENDDO ! NINDX
 C=======================================================================
       ELSE !IFLAGSR PLASTIC STRAIN RATE ******************************
@@ -847,7 +839,7 @@ C=======================================================================
 
 
        
-	       !DPLA(I)= UVAR(I,3)
+                 !DPLA(I)= UVAR(I,3)
         !DPLA(I)= (SIG(I)-YLD(I))/(THREE*G+DYDX(I))
          DEPLXX(I)=ZERO
          DEPLYY(I)=ZERO
@@ -961,7 +953,7 @@ C=======================================================================
           DEPLYZ(I)=DPLA(I)*DF5*DU
           DEPLZX(I)=DPLA(I)*DF6*DU
 
-          !ACTUALISATION DES CONTRAINTES
+          !update of the stresses
           SIGNXX(I)=SIGTRXX(I)- G2*DEPLXX(I)           
           SIGNYY(I)=SIGTRYY(I)- G2*DEPLYY(I) 
           SIGNZZ(I)=SIGTRZZ(I)- G2*DEPLZZ(I)           

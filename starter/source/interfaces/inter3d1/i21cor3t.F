@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I21COR3T                      source/interfaces/inter3d1/i21cor3t.F
-Chd|-- called by -----------
-Chd|        I21BUC1                       source/interfaces/inter3d1/i21buc3.F
-Chd|        I21TRI                        source/interfaces/inter3d1/i21tri.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i21cor3t   ../starter/source/interfaces/inter3d1/i21cor3t.F
+!||--- called by ------------------------------------------------------
+!||    i21buc1    ../starter/source/interfaces/inter3d1/i21buc3.F
+!||    i21tri     ../starter/source/interfaces/inter3d1/i21tri.F
+!||====================================================================
       SUBROUTINE I21COR3T(X    ,IRECT ,NSV   ,CAND_E  ,CAND_N ,
      2                   GAPV  ,IGAP  ,GAP   ,GAP_S   ,GAPMIN ,
      3                   GAPMAX,XM0   ,DEPTH ,DRAD    ,IX1    ,
@@ -63,25 +62,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IL, L, NN, IG
-C     REAL
+      INTEGER I, L, NN, IG
 C-----------------------------------------------
-!      EQUIVALENCE (IX1,IV(1,1)) ,(IX2,IV(1,2)) ,(IX3,IV(1,3))
-!      EQUIVALENCE (IX4,IV(1,4)) ,(NSVG,IV(1,5))
-C
-!      EQUIVALENCE (X1,BV(1,1)) ,(Y1,BV(1,2)) ,(Z1,BV(1,3))
-!      EQUIVALENCE (X2,BV(1,4)) ,(Y2,BV(1,5)) ,(Z2,BV(1,6))
-!      EQUIVALENCE (X3,BV(1,7)) ,(Y3,BV(1,8)) ,(Z3,BV(1,9))
-!      EQUIVALENCE (X4,BV(1,10)),(Y4,BV(1,11)),(Z4,BV(1,12))
-!      EQUIVALENCE (XI,BV(1,13)),(YI,BV(1,14)),(ZI,BV(1,15))
-C-----------------------------------------------
-      IF(IGAP.EQ.0)THEN
+      IF(IGAP==0)THEN
         DO I=LFT,LLT
 C Depth >= gap
           GAPV(I)=MAX(DEPTH+DGAPLOAD,DRAD)
         END DO
       ELSE
-C ... on pourrait utiliser le fait Depth >= max(gapv) dans le starter ...
+C ... we could use the fact Depth >= max(gapv) in the starter ...
         DO I=LFT,LLT
           GAPV(I)=GAP_S(CAND_N(I))
           GAPV(I)=MIN(GAPV(I),GAPMAX)
@@ -103,7 +92,7 @@ C
 C
         L  = CAND_E(I)
 C
-C   attention nos locaux (1:NMN)
+C   Please note our premises (1: NMN)
         IX1(I)=IRECT(1,L)
         IX2(I)=IRECT(2,L)
         IX3(I)=IRECT(3,L)

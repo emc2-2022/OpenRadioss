@@ -1,80 +1,78 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        ALENO                         source/airbag/fvmbag1.F       
-Chd|        ALETG                         source/airbag/fvmbag1.F       
-Chd|        APPLYSORT2FVM                 source/airbag/fvmesh0.F       
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|        DEALLOCATE_IGRSURF_SPLIT      source/spmd/deallocate_igrsurf_split.F
-Chd|        DOMDEC2                       source/spmd/domdec2.F         
-Chd|        DOMETIS                       source/spmd/domain_decomposition/grid2mat.F
-Chd|        FILLCNE                       source/spmd/domdec2.F         
-Chd|        FVBAG_VERTEX                  source/spmd/domain_decomposition/grid2mat.F
-Chd|        FVBRIC1                       source/airbag/fvbric1.F       
-Chd|        FVDIM                         source/airbag/fvmesh.F        
-Chd|        FVMESH0                       source/airbag/fvmesh0.F       
-Chd|        FVNODI                        source/airbag/fvmbag1.F       
-Chd|        FVTGI                         source/airbag/fvmbag1.F       
-Chd|        HM_READ_MONVOL_TYPE1          source/airbag/hm_read_monvol_type1.F
-Chd|        HM_READ_MONVOL_TYPE10         source/airbag/hm_read_monvol_type10.F
-Chd|        HM_READ_MONVOL_TYPE11         source/airbag/hm_read_monvol_type11.F
-Chd|        HM_READ_MONVOL_TYPE2          source/airbag/hm_read_monvol_type2.F
-Chd|        HM_READ_MONVOL_TYPE3          source/airbag/hm_read_monvol_type3.F
-Chd|        HM_READ_MONVOL_TYPE4          source/airbag/hm_read_monvol_type4.F
-Chd|        HM_READ_MONVOL_TYPE5          source/airbag/hm_read_monvol_type5.F
-Chd|        HM_READ_MONVOL_TYPE6          source/airbag/hm_read_monvol_type6.F
-Chd|        HM_READ_MONVOL_TYPE7          source/airbag/hm_read_monvol_type7.F
-Chd|        HM_READ_MONVOL_TYPE8          source/airbag/hm_read_monvol_type8.F
-Chd|        HM_READ_MONVOL_TYPE9          source/airbag/hm_read_monvol_type9.F
-Chd|        HM_READ_THGROU                source/output/th/hm_read_thgrou.F
-Chd|        HM_THGRKI_VENT                source/output/th/hm_thgrki_vent.F
-Chd|        HYPERMESH_TETRA               stub/fvmbags_stub.F           
-Chd|        IGRSURF_SPLIT                 source/spmd/igrsurf_split.F   
-Chd|        INIT_MONVOL                   source/airbag/init_monvol.F   
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|        MESHGEMS_TETRA                stub/fvmbags_stub.F           
-Chd|        MONVOL_BUILD_EDGES            share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_CHECK_DELETE_DUPLICATEDsource/airbag/monvol_check_delete_duplicated.F
-Chd|        MONVOL_ORIENT_SURF            share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_REVERSE_NORMALS        share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_TRIANGULATE_SURFACE    source/airbag/monvol_triangulate_surface.F
-Chd|        READ_MONVOL                   source/airbag/read_monvol.F   
-Chd|        ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|        ST_QAPRINT_MONVOL             source/output/qaprint/st_qaprint_monvol.F
-Chd|        W_MONVOL                      source/restart/ddsplit/w_monvol.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    monvol_struct_mod                ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    aleno                            ../starter/source/airbag/fvmbag1.F
+!||    applysort2fvm                    ../starter/source/airbag/fvmesh0.F
+!||    ddsplit                          ../starter/source/restart/ddsplit/ddsplit.F
+!||    deallocate_igrsurf_split         ../starter/source/spmd/deallocate_igrsurf_split.F
+!||    domdec2                          ../starter/source/spmd/domdec2.F
+!||    dometis                          ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||    fillcne                          ../starter/source/spmd/domdec2.F
+!||    fvbag_vertex                     ../starter/source/spmd/domain_decomposition/grid2mat.F
+!||    fvbric1                          ../starter/source/airbag/fvbric1.F
+!||    fvdim                            ../starter/source/airbag/fvmesh.F
+!||    fvmesh0                          ../starter/source/airbag/fvmesh0.F
+!||    fvnodi                           ../starter/source/airbag/fvmbag1.F
+!||    hm_read_monvol_type1             ../starter/source/airbag/hm_read_monvol_type1.F
+!||    hm_read_monvol_type10            ../starter/source/airbag/hm_read_monvol_type10.F
+!||    hm_read_monvol_type11            ../starter/source/airbag/hm_read_monvol_type11.F
+!||    hm_read_monvol_type2             ../starter/source/airbag/hm_read_monvol_type2.F
+!||    hm_read_monvol_type3             ../starter/source/airbag/hm_read_monvol_type3.F
+!||    hm_read_monvol_type4             ../starter/source/airbag/hm_read_monvol_type4.F
+!||    hm_read_monvol_type5             ../starter/source/airbag/hm_read_monvol_type5.F
+!||    hm_read_monvol_type6             ../starter/source/airbag/hm_read_monvol_type6.F
+!||    hm_read_monvol_type7             ../starter/source/airbag/hm_read_monvol_type7.F
+!||    hm_read_monvol_type8             ../starter/source/airbag/hm_read_monvol_type8.F
+!||    hm_read_monvol_type9             ../starter/source/airbag/hm_read_monvol_type9.F
+!||    hm_read_thgrou                   ../starter/source/output/th/hm_read_thgrou.F
+!||    hm_thgrki_vent                   ../starter/source/output/th/hm_thgrki_vent.F
+!||    hypermesh_tetra                  ../starter/stub/fvmbags_stub.F
+!||    igrsurf_split                    ../starter/source/spmd/igrsurf_split.F
+!||    init_monvol                      ../starter/source/airbag/init_monvol.F
+!||    lectur                           ../starter/source/starter/lectur.F
+!||    monvol_build_edges               ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_check_delete_duplicated   ../starter/source/airbag/monvol_check_delete_duplicated.F
+!||    monvol_orient_surf               ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_reverse_normals           ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_triangulate_surface       ../starter/source/airbag/monvol_triangulate_surface.F
+!||    read_monvol                      ../starter/source/airbag/read_monvol.F
+!||    st_qaprint_driver                ../starter/source/output/qaprint/st_qaprint_driver.F
+!||    st_qaprint_monvol                ../starter/source/output/qaprint/st_qaprint_monvol.F
+!||    w_monvol                         ../starter/source/restart/ddsplit/w_monvol.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       MODULE MONVOL_STRUCT_MOD
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+        USE NAMES_AND_TITLES_MOD , ONLY : nchartitle
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "my_real.inc"
 C-----------------------------------------------
-C     C o m m o n   B l o c k s
-C-----------------------------------------------
-#include "nchar_c.inc"
       TYPE MONVOL_METADATA_
       INTEGER :: NVOLU
 !     Temporary
@@ -94,7 +92,7 @@ C-----------------------------------------------
       CHARACTER(LEN = nchartitle) :: TITLE
 !     External surface Id, Internal surface id (internal numbering)
       INTEGER :: EXT_SURFID, INT_SURFID
-!     IVOLU -> integer attribues
+!     IVOLU -> integer attributes
       INTEGER, DIMENSION(:), ALLOCATABLE :: IVOLU
 !     RVOLU -> double precision attributes
       my_real, DIMENSION(:), ALLOCATABLE :: RVOLU
@@ -104,7 +102,7 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:, :), ALLOCATABLE :: IBAGJET
 !     Real info on injectors (NJET x NRBJET)
       my_real, DIMENSION(:, :), ALLOCATABLE :: RBAGJET
-!     Vent holes and porous surfaces
+!     Wind Holes and Porous Surfaces
       INTEGER :: NVENT, NPORSURF
 !     Integer data
       INTEGER, DIMENSION(:, :), ALLOCATABLE :: IBAGHOL
@@ -117,7 +115,7 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:, :), ALLOCATABLE :: ELEM
       INTEGER, DIMENSION(:), ALLOCATABLE :: ITAGEL
       INTEGER, DIMENSION(:), ALLOCATABLE :: FVBAG_ELEMID
-!     Adress of element inside IXC and IXTG
+!     Address of element inside IXC and IXTG
       INTEGER, DIMENSION(:), ALLOCATABLE :: ELTG
 !     Store mat number of triagnel surface
       INTEGER, DIMENSION(:), ALLOCATABLE :: MATTG
@@ -147,7 +145,7 @@ C-----------------------------------------------
       LOGICAL :: EDGES_BUILT
       INTEGER :: NEDGE
       INTEGER, DIMENSION(:), ALLOCATABLE :: EDGE_NODE1, EDGE_NODE2, EDGE_ELEM, IAD_EDGE_ELEM
-!     Keep old adresses until full conversion is done
+!     Keep old addresses until full conversion is done
       INTEGER :: IADALE, IADALE2, IADALE3, IADALE4, IADALE5, IADALE6, IADALE7, IADALE8, IADALE9, 
      .     IADALE10, IADALE11, IADALE12, IADALE13, KRA5, KRA6, KR5
       LOGICAL :: OK_REORIENT
@@ -156,12 +154,11 @@ C-----------------------------------------------
       END TYPE MONVOL_STRUCT_
 
       CONTAINS
-Chd|====================================================================
-Chd|  COPY_TO_MONVOL                share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    copy_to_monvol   ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE COPY_TO_MONVOL(T_MONVOL, LICBAG, ICBAG, SMONVOL, MONVOL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -264,7 +261,6 @@ C-----------------------------------------------
             MONVOL(ICOPY) = T_MONVOL(N)%TAGELS(I)
             ICOPY = ICOPY + 1
          ENDDO
-!     Probleme d'adressage apparemment, IADALE8 n etait pas fittee au juste besoin
          ICOPY = T_MONVOL(N)%IADALE8 + SHIFT
          IF (T_MONVOL(N)%IADALE8 == 0) ICOPY = ICOPY + 1
          DO I = 1, T_MONVOL(N)%NNA
@@ -308,12 +304,11 @@ C-----------------------------------------------
       ENDDO
       END SUBROUTINE COPY_TO_MONVOL
 
-Chd|====================================================================
-Chd|  COPY_TO_VOLMON                share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    copy_to_volmon   ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    lectur           ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE COPY_TO_VOLMON(T_MONVOL, LRCBAG, RCBAG, SVOLMON, VOLMON)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -334,9 +329,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     L o c a l   v a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: II, JJ, KK, I, ICOPY, N
+      INTEGER :: II, JJ, KK, I, ICOPY
       INTEGER :: NVENT, NJET
-      INTEGER :: SHIFT
 !     *****    !
 !     RVOLU    !
 !     *****    !
@@ -403,26 +397,26 @@ C-----------------------------------------------
       ENDDO
       END SUBROUTINE COPY_TO_VOLMON
 
-Chd|====================================================================
-Chd|  MONVOL_CHECK_SURFCLOSE        share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        HM_READ_MONVOL_TYPE1          source/airbag/hm_read_monvol_type1.F
-Chd|        HM_READ_MONVOL_TYPE10         source/airbag/hm_read_monvol_type10.F
-Chd|        HM_READ_MONVOL_TYPE11         source/airbag/hm_read_monvol_type11.F
-Chd|        HM_READ_MONVOL_TYPE2          source/airbag/hm_read_monvol_type2.F
-Chd|        HM_READ_MONVOL_TYPE3          source/airbag/hm_read_monvol_type3.F
-Chd|        HM_READ_MONVOL_TYPE4          source/airbag/hm_read_monvol_type4.F
-Chd|        HM_READ_MONVOL_TYPE5          source/airbag/hm_read_monvol_type5.F
-Chd|        HM_READ_MONVOL_TYPE6          source/airbag/hm_read_monvol_type6.F
-Chd|        HM_READ_MONVOL_TYPE7          source/airbag/hm_read_monvol_type7.F
-Chd|        HM_READ_MONVOL_TYPE8          source/airbag/hm_read_monvol_type8.F
-Chd|        HM_READ_MONVOL_TYPE9          source/airbag/hm_read_monvol_type9.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MONVOL_BUILD_EDGES            share/modules1/monvol_struct_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monvol_check_surfclose   ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_monvol_type1     ../starter/source/airbag/hm_read_monvol_type1.F
+!||    hm_read_monvol_type10    ../starter/source/airbag/hm_read_monvol_type10.F
+!||    hm_read_monvol_type11    ../starter/source/airbag/hm_read_monvol_type11.F
+!||    hm_read_monvol_type2     ../starter/source/airbag/hm_read_monvol_type2.F
+!||    hm_read_monvol_type3     ../starter/source/airbag/hm_read_monvol_type3.F
+!||    hm_read_monvol_type4     ../starter/source/airbag/hm_read_monvol_type4.F
+!||    hm_read_monvol_type5     ../starter/source/airbag/hm_read_monvol_type5.F
+!||    hm_read_monvol_type6     ../starter/source/airbag/hm_read_monvol_type6.F
+!||    hm_read_monvol_type7     ../starter/source/airbag/hm_read_monvol_type7.F
+!||    hm_read_monvol_type8     ../starter/source/airbag/hm_read_monvol_type8.F
+!||    hm_read_monvol_type9     ../starter/source/airbag/hm_read_monvol_type9.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    monvol_build_edges       ../starter/share/modules1/monvol_struct_mod.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE MONVOL_CHECK_SURFCLOSE(T_MONVOLN, ITAB, SURF, X)
 C-----------------------------------------------
 C   M o d u l e s
@@ -457,14 +451,13 @@ C-----------------------------------------------
       INTEGER :: JJ, NEDGE, NELEM, IEDGE, NODE1, NODE2, INODE
       INTEGER :: NB_FREE_EDGE
       INTEGER(8) :: graph_ptr, tri_ptr, tri_ptr_global
-      INTEGER, DIMENSION(:), ALLOCATABLE :: FREE_EDGES_ID, FREE_EDGES, LOCAL_NODE_ID, 
-     .     GLOBAL_NODE_ID
-      INTEGER :: NB_CONNECTED_COMPS, TOTAL_SIZE, II, ITRI
+      INTEGER, DIMENSION(:), ALLOCATABLE :: FREE_EDGES_ID, FREE_EDGES, LOCAL_NODE_ID, GLOBAL_NODE_ID
+      INTEGER :: NB_CONNECTED_COMPS, TOTAL_SIZE, II
       INTEGER, DIMENSION(:), ALLOCATABLE :: PATHS, SIZES, CYCLES, SHIFT
-      INTEGER :: NPT, NTRI
+      INTEGER ::  NPT,NTRI
       my_real, DIMENSION(:), ALLOCATABLE :: NODE_COORD
       INTEGER, DIMENSION(:), ALLOCATABLE :: TRI_LIST
-      CHARACTER(LEN=1024) :: FILENAME
+      !CHARACTER(LEN=1024) :: FILENAME
 C-----------------------------------------------
 C     B e g i n n i n g   o f   s o u r c e
 C-----------------------------------------------
@@ -640,24 +633,23 @@ C-----------------------------------------------
      .     /5X, '  NUMBER OF REMAINING FREE EDGES: ',I10) 
       END SUBROUTINE MONVOL_CHECK_SURFCLOSE
 
-Chd|====================================================================
-Chd|  MONVOL_COMPUTE_VOLUME         share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        HM_READ_MONVOL_TYPE1          source/airbag/hm_read_monvol_type1.F
-Chd|        HM_READ_MONVOL_TYPE10         source/airbag/hm_read_monvol_type10.F
-Chd|        HM_READ_MONVOL_TYPE11         source/airbag/hm_read_monvol_type11.F
-Chd|        HM_READ_MONVOL_TYPE2          source/airbag/hm_read_monvol_type2.F
-Chd|        HM_READ_MONVOL_TYPE3          source/airbag/hm_read_monvol_type3.F
-Chd|        HM_READ_MONVOL_TYPE4          source/airbag/hm_read_monvol_type4.F
-Chd|        HM_READ_MONVOL_TYPE5          source/airbag/hm_read_monvol_type5.F
-Chd|        HM_READ_MONVOL_TYPE6          source/airbag/hm_read_monvol_type6.F
-Chd|        HM_READ_MONVOL_TYPE7          source/airbag/hm_read_monvol_type7.F
-Chd|        HM_READ_MONVOL_TYPE8          source/airbag/hm_read_monvol_type8.F
-Chd|        HM_READ_MONVOL_TYPE9          source/airbag/hm_read_monvol_type9.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monvol_compute_volume   ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_monvol_type1    ../starter/source/airbag/hm_read_monvol_type1.F
+!||    hm_read_monvol_type10   ../starter/source/airbag/hm_read_monvol_type10.F
+!||    hm_read_monvol_type11   ../starter/source/airbag/hm_read_monvol_type11.F
+!||    hm_read_monvol_type2    ../starter/source/airbag/hm_read_monvol_type2.F
+!||    hm_read_monvol_type3    ../starter/source/airbag/hm_read_monvol_type3.F
+!||    hm_read_monvol_type4    ../starter/source/airbag/hm_read_monvol_type4.F
+!||    hm_read_monvol_type5    ../starter/source/airbag/hm_read_monvol_type5.F
+!||    hm_read_monvol_type6    ../starter/source/airbag/hm_read_monvol_type6.F
+!||    hm_read_monvol_type7    ../starter/source/airbag/hm_read_monvol_type7.F
+!||    hm_read_monvol_type8    ../starter/source/airbag/hm_read_monvol_type8.F
+!||    hm_read_monvol_type9    ../starter/source/airbag/hm_read_monvol_type9.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod             ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE MONVOL_COMPUTE_VOLUME(T_MONVOLN, TITLE, IVOLU, SURF, 
      .     ITAB, NODE_COORD, PM, GEO, IXC, IXTG, 
      .     SA, ROT, VOL, VMIN, VEPS, SV)
@@ -666,6 +658,8 @@ C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : nchartitle
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -685,7 +679,7 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE(MONVOL_STRUCT_), INTENT(IN) :: T_MONVOLN
-      CHARACTER, INTENT(IN) :: TITLE*nchartitle
+      CHARACTER(LEN = nchartitle), INTENT(IN) :: TITLE
       INTEGER, INTENT(IN) :: IVOLU(NIMV), ITAB(*), IXC(NIXC, *), IXTG(NIXTG, *)
       TYPE(SURF_), INTENT(IN) :: SURF
       my_real, INTENT(IN) :: NODE_COORD(3, *), GEO(NPROPG, *), PM(NPROPM, *)
@@ -718,7 +712,7 @@ C-----------------------------------------------
          I4 = SURF%NODES(J,4)
          ISH34 = SURF%ELTYP(J)
          I = SURF%ELEM(J)
-         IF(ISH34.EQ.7)I4 = I3
+         IF(ISH34==7)I4 = I3
          XX =HALF*(NODE_COORD(1,I1)+NODE_COORD(1,I2))
          YY =HALF*(NODE_COORD(2,I1)+NODE_COORD(2,I2))
          ZZ =HALF*(NODE_COORD(3,I1)+NODE_COORD(3,I2))
@@ -738,9 +732,9 @@ C-----------------------------------------------
          SZ = SZ + NZ
          DS = SQRT(NX*NX+NY*NY+NZ*NZ)
          SA = SA + DS
-         IF(ISH34.EQ.3)THEN
+         IF(ISH34==3)THEN
             ROT = ROT + PM(1,IXC(1,I))*GEO(1,IXC(6,I))*DS
-         ELSEIF(ISH34.EQ.7)THEN
+         ELSEIF(ISH34==7)THEN
             ROT = ROT + PM(1,IXTG(1,I))*GEO(1,IXTG(5,I))*DS
          ENDIF
       ENDDO
@@ -784,24 +778,25 @@ C-----------------------------------------------
       RETURN 
       END SUBROUTINE MONVOL_COMPUTE_VOLUME
       
-Chd|====================================================================
-Chd|  MONVOL_CHECK_VENTHOLE_SURF    share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        HM_READ_MONVOL_TYPE11         source/airbag/hm_read_monvol_type11.F
-Chd|        HM_READ_MONVOL_TYPE4          source/airbag/hm_read_monvol_type4.F
-Chd|        HM_READ_MONVOL_TYPE5          source/airbag/hm_read_monvol_type5.F
-Chd|        HM_READ_MONVOL_TYPE6          source/airbag/hm_read_monvol_type6.F
-Chd|        HM_READ_MONVOL_TYPE7          source/airbag/hm_read_monvol_type7.F
-Chd|        HM_READ_MONVOL_TYPE8          source/airbag/hm_read_monvol_type8.F
-Chd|        HM_READ_MONVOL_TYPE9          source/airbag/hm_read_monvol_type9.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monvol_check_venthole_surf   ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_monvol_type11        ../starter/source/airbag/hm_read_monvol_type11.F
+!||    hm_read_monvol_type4         ../starter/source/airbag/hm_read_monvol_type4.F
+!||    hm_read_monvol_type5         ../starter/source/airbag/hm_read_monvol_type5.F
+!||    hm_read_monvol_type6         ../starter/source/airbag/hm_read_monvol_type6.F
+!||    hm_read_monvol_type7         ../starter/source/airbag/hm_read_monvol_type7.F
+!||    hm_read_monvol_type8         ../starter/source/airbag/hm_read_monvol_type8.F
+!||    hm_read_monvol_type9         ../starter/source/airbag/hm_read_monvol_type9.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                       ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod                  ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE MONVOL_CHECK_VENTHOLE_SURF(IPRI, T_MONVOLN, IGRSURF, IHOL, SHOL, X, IXC, IXTG)
       USE GROUPDEF_MOD
       USE MESSAGE_MOD
+      use element_mod , only : nixc,nixtg      
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -866,7 +861,7 @@ C-----------------------------------------------
          SHOL = SHOL + DS
       ENDDO
 C------------------------------------------------
-C     Ajout condition Svent incluse dans Surf airbag
+C     Adding Svent Save Include in Surf Airbag
 C------------------------------------------------
       CHKSURF=0
       NN =IGRSURF(ISUR)%NSEG
@@ -877,7 +872,7 @@ C------------------------------------------------
          IF(ITY == 7) JI=JI+NUMELC
          NN1 =IGRSURF(EXT_SURFID)%NSEG
          FOUND = .FALSE.
-C     Test surface externe
+C     External surface test
          DO J1=1,NN1
             JI1 =IGRSURF(EXT_SURFID)%ELEM(J1)
             ITY1=IGRSURF(EXT_SURFID)%ELTYP(J1)
@@ -955,12 +950,11 @@ C
  1487 FORMAT(6X,'SH3N  ELEMENT ID=',I10,' OF ',A17,1X,I10,' DOES NOT BELONG TO THE AIRBAG SURFACE')     
       END SUBROUTINE MONVOL_CHECK_VENTHOLE_SURF
 
-Chd|====================================================================
-Chd|  MONVOL_ALLOCATE               share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    monvol_allocate   ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    lectur            ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE MONVOL_ALLOCATE(NVOLU, T_MONVOL, T_MONVOL_METADATA)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1039,12 +1033,11 @@ C-----------------------------------------------
          T_MONVOL(II)%OK_REORIENT = .TRUE.
       ENDDO
       END SUBROUTINE MONVOL_ALLOCATE
-Chd|====================================================================
-Chd|  MONVOL_DEALLOCATE             share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    monvol_deallocate   ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    lectur              ../starter/source/starter/lectur.F
+!||====================================================================
       SUBROUTINE MONVOL_DEALLOCATE(NVOLU, T_MONVOL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1093,29 +1086,30 @@ C-----------------------------------------------
       ENDDO
       END SUBROUTINE MONVOL_DEALLOCATE
       END
-Chd|====================================================================
-Chd|  MONVOL_ORIENT_SURF            share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        HM_READ_MONVOL_TYPE1          source/airbag/hm_read_monvol_type1.F
-Chd|        HM_READ_MONVOL_TYPE10         source/airbag/hm_read_monvol_type10.F
-Chd|        HM_READ_MONVOL_TYPE11         source/airbag/hm_read_monvol_type11.F
-Chd|        HM_READ_MONVOL_TYPE2          source/airbag/hm_read_monvol_type2.F
-Chd|        HM_READ_MONVOL_TYPE3          source/airbag/hm_read_monvol_type3.F
-Chd|        HM_READ_MONVOL_TYPE4          source/airbag/hm_read_monvol_type4.F
-Chd|        HM_READ_MONVOL_TYPE5          source/airbag/hm_read_monvol_type5.F
-Chd|        HM_READ_MONVOL_TYPE6          source/airbag/hm_read_monvol_type6.F
-Chd|        HM_READ_MONVOL_TYPE7          source/airbag/hm_read_monvol_type7.F
-Chd|        HM_READ_MONVOL_TYPE8          source/airbag/hm_read_monvol_type8.F
-Chd|        HM_READ_MONVOL_TYPE9          source/airbag/hm_read_monvol_type9.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MONVOL_BUILD_EDGES            share/modules1/monvol_struct_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monvol_orient_surf      ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_monvol_type1    ../starter/source/airbag/hm_read_monvol_type1.F
+!||    hm_read_monvol_type10   ../starter/source/airbag/hm_read_monvol_type10.F
+!||    hm_read_monvol_type11   ../starter/source/airbag/hm_read_monvol_type11.F
+!||    hm_read_monvol_type2    ../starter/source/airbag/hm_read_monvol_type2.F
+!||    hm_read_monvol_type3    ../starter/source/airbag/hm_read_monvol_type3.F
+!||    hm_read_monvol_type4    ../starter/source/airbag/hm_read_monvol_type4.F
+!||    hm_read_monvol_type5    ../starter/source/airbag/hm_read_monvol_type5.F
+!||    hm_read_monvol_type6    ../starter/source/airbag/hm_read_monvol_type6.F
+!||    hm_read_monvol_type7    ../starter/source/airbag/hm_read_monvol_type7.F
+!||    hm_read_monvol_type8    ../starter/source/airbag/hm_read_monvol_type8.F
+!||    hm_read_monvol_type9    ../starter/source/airbag/hm_read_monvol_type9.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                  ../starter/source/output/message/message.F
+!||    arret                   ../starter/source/system/arret.F
+!||    monvol_build_edges      ../starter/share/modules1/monvol_struct_mod.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod             ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod       ../starter/share/modules1/monvol_struct_mod.F
+!||====================================================================
       SUBROUTINE MONVOL_ORIENT_SURF(T_MONVOLN, TITLE, IVOLU, ITAB, SURF, IXC, IXTG, X, ITYPE)
+      use element_mod , only : nixc,nixtg        
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -1193,7 +1187,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     L o c a l   v a r i a b l e s
 C-----------------------------------------------
-      INTEGER NSEG,ISH34,JJ,II(4),IIK(4),KK, IELEM_ADJ,IDX,IDX_A,IDX_B,IFIRST,ILAST,IREAD,ICUR,IPAIR,INBLOCK,NPAIR,NB_ADJACENT,LL
+      INTEGER NSEG,ISH34,JJ,II(4),KK, IELEM_ADJ,IDX,IDX_A,IDX_B,IPAIR,NPAIR,LL
       INTEGER IDX1,IDX2
       INTEGER NEDG, SUM_ADJ
       !temporary memory
@@ -1206,13 +1200,10 @@ C-----------------------------------------------
       INTEGER :: NPT_A, NPT_B, IELEM1, IELEM2, ELTYP1, ELTYP2, NB_COMMON_NODE, 
      .     NODELIST1(4), NODELIST2(4), ELEM1ID, ELEM2ID, ELEMTG, ELEMC, IELEMTG, IELEMC
       LOGICAL :: lFOUND, lFOUND_ADJ
-      INTEGER, POINTER, DIMENSION(:) :: ptrADJ
       INTEGER :: NB_DUPLICATED_ELTS
       INTEGER, DIMENSION(:), ALLOCATABLE :: DUPLICATED_ELTS
-      CHARACTER(LEN=1024) :: FILENAME, FILENAME1, FILENAME2
-      INTEGER(8) :: edge_ptr, duplicate_ptr
-      INTEGER, DIMENSION(3) :: FOUND_TABLE
-      INTEGER :: NOT_FOUND
+      CHARACTER(LEN=1024) :: FILENAME
+      INTEGER(8) :: duplicate_ptr
       LOGICAL debug_output
       INTEGER :: NTRI, NB_CON
       INTEGER, DIMENSION(:), ALLOCATABLE :: IAD_COMP_CONNEX
@@ -1372,7 +1363,7 @@ C-----------------------------------------------
             DO LL = KK + 1, NB_CON
                ELEM1ID = T_MONVOLN%EDGE_ELEM(T_MONVOLN%IAD_EDGE_ELEM(JJ) + KK - 1)
                ELEM2ID = T_MONVOLN%EDGE_ELEM(T_MONVOLN%IAD_EDGE_ELEM(JJ) + LL - 1)
-               IF (ELEM1ID * ELEM2ID /= 0) THEN
+               IF (ELEM1ID .NE.0 .AND. ELEM2ID .NE. 0) THEN
                   PAIR_LIST(IPAIR + 1) = ELEM1ID - 1
                   PAIR_LIST(IPAIR + 2) = ELEM2ID - 1
                   IPAIR = IPAIR + 2 
@@ -1412,63 +1403,63 @@ C-----------------------------------------------
       ! 7. DEBUG : HM TCL SCRIPT TO CHECK PATH !
       !----------------------------------------!
       debug_output=.FALSE.
-      if(debug_output)then
-        WRITE(FILENAME1, "(A,I0,A)") "surfmesh_",T_MONVOLN%ID,"_list_ids.tcl"
-        OPEN(UNIT = 220582, FILE = FILENAME1, FORM ='formatted')
-        write (220582,FMT='(A)')"set ids { \"
-        kk=0                                                                                                                           
-        do while (kk < sizes(1))                                                                                                       
-         if(kk+1<sizes(1))then                                                                                                         
-           ISH34 = SURF%ELTYP(1+PATHS(kk+1))                                                                                           
-           IF(ISH34==3)THEN                                                                                                            
-             write (220582,FMT='(I10,A,I10,A)')IXC(7,SURF%ELEM(1+PATHS(kk+1)) ) ," ",10000000+IXC(7,SURF%ELEM(1+PATHS(kk+1)) ),' \' 
-           ELSE                                                                                                                        
-             write (220582,FMT='(I10,A,I10,A)')IXTG(6,SURF%ELEM(1+PATHS(kk+1)) )," ",10000000+IXTG(6,SURF%ELEM(1+PATHS(kk+1)) ),' \'
-           ENDIF                                                                                                                       
-         endif                                                                                                                         
-         kk=kk+1                                                                                                                       
-        enddo    
-        write (220582,FMT='(A)') " } ; "  
-        CLOSE(220582)                                                                                                                   
-
-        WRITE(FILENAME2, "(A,I0,A)") "surfmesh_",T_MONVOLN%ID,"_list_types.tcl"
-        OPEN(UNIT = 220582, FILE = FILENAME2, FORM ='formatted')
-        write (220582,FMT='(A)')"set types { \"       
-        kk=0                                              
-        do while (kk < sizes(1))                          
-         if(kk+1<sizes(1))then                            
-           ISH34 = SURF%ELTYP(1+PATHS(kk+1))              
-           IF(ISH34==3)THEN                               
-             write (*,FMT='(I10,A,I10,A)')3 ,"  ",3,'  \' 
-           ELSE                                           
-             write (*,FMT='(I10,A,I10,A)')7,"  ",7,'  \'  
-           ENDIF                                          
-         endif                                            
-         kk=kk+1                                          
-        enddo   
-        CLOSE(220582)
-                                                  
-        WRITE(FILENAME, "(A,I0,A)") "surfmesh_",T_MONVOLN%ID,"_HM_TCL_MACTO.tcl"
-        OPEN(UNIT = 220582, FILE = FILENAME, FORM ='formatted')
-        write (220582,FMT='(A)') '#--$ids                                                                      '                
-        write (220582,FMT='(A)') '::hwt::Source "'//FILENAME1//'";'               
-        write (220582,FMT='(A)') '#--$types                                                                    '                
-        write (220582,FMT='(A)') '::hwt::Source "'//FILENAME2//'";'               
-        write (220582,FMT='(A)') '                                                                             '                
-        write (220582,FMT='(A)') 'for {set i 0} {$i < [llength $ids]} {incr i 2} {                             ' 
-        write (220582,FMT='(A)') '   set ityp [lindex $types $i]                                               '  
-        write (220582,FMT='(A)') '   set id [lindex $ids $i]                                                   '  
-        write (220582,FMT='(A)') '                                                                             '  
-        write (220582,FMT='(A)') '   if {$ityp == 3} {                                                         '  
-        write (220582,FMT='(A)') '     *createmark elements 1 [hm_getinternalid shell_idpool $id -bypoolname] ;'  
-        write (220582,FMT='(A)') ' } elseif {$ityp == 7} {                                                     '  
-        write (220582,FMT='(A)') '     *createmark elements 1 [hm_getinternalid sh3n_idpool $id -bypoolname] ; '  
-        write (220582,FMT='(A)') ' }                                                                           '  
-        write (220582,FMT='(A)') ' hm_redraw;                                                                  '  
-        write (220582,FMT='(A)') ' *movemark elements 1 \"COLOR\";                                             '  
-        write (220582,FMT='(A)') '}                                                                            '  
-        CLOSE(220582)                                                                                                                   
-      endif !(debug_output)
+C      if(debug_output)then
+C        WRITE(FILENAME1, "(A,I0,A)") "surfmesh_",T_MONVOLN%ID,"_list_ids.tcl"
+C        OPEN(UNIT = 220582, FILE = FILENAME1, FORM ='formatted')
+C        write (220582,FMT='(A)')"set ids { \"
+C        kk=0                                                                                                                           
+C        do while (kk < sizes(1))                                                                                                       
+C         if(kk+1<sizes(1))then                                                                                                         
+C           ISH34 = SURF%ELTYP(1+PATHS(kk+1))                                                                                           
+C           IF(ISH34==3)THEN                                                                                                            
+C             write (220582,FMT='(I10,A,I10,A)')IXC(7,SURF%ELEM(1+PATHS(kk+1)) ) ," ",10000000+IXC(7,SURF%ELEM(1+PATHS(kk+1)) ),' \' 
+C           ELSE                                                                                                                        
+C             write (220582,FMT='(I10,A,I10,A)')IXTG(6,SURF%ELEM(1+PATHS(kk+1)) )," ",10000000+IXTG(6,SURF%ELEM(1+PATHS(kk+1)) ),' \'
+C           ENDIF                                                                                                                       
+C         endif                                                                                                                         
+C         kk=kk+1                                                                                                                       
+C        enddo    
+C        write (220582,FMT='(A)') " } ; "  
+C        CLOSE(220582)                                                                                                                   
+C
+C        WRITE(FILENAME2, "(A,I0,A)") "surfmesh_",T_MONVOLN%ID,"_list_types.tcl"
+C        OPEN(UNIT = 220582, FILE = FILENAME2, FORM ='formatted')
+C        write (220582,FMT='(A)')"set types { \"       
+C        kk=0                                              
+C        do while (kk < sizes(1))                          
+C         if(kk+1<sizes(1))then                            
+C           ISH34 = SURF%ELTYP(1+PATHS(kk+1))              
+C           IF(ISH34==3)THEN                               
+C             write (*,FMT='(I10,A,I10,A)')3 ,"  ",3,'  \' 
+C           ELSE                                           
+C             write (*,FMT='(I10,A,I10,A)')7,"  ",7,'  \'  
+C           ENDIF                                          
+C         endif                                            
+C         kk=kk+1                                          
+C        enddo   
+C        CLOSE(220582)
+C                                                  
+C        WRITE(FILENAME, "(A,I0,A)") "surfmesh_",T_MONVOLN%ID,"_HM_TCL_MACTO.tcl"
+C        OPEN(UNIT = 220582, FILE = FILENAME, FORM ='formatted')
+C        write (220582,FMT='(A)') '#--$ids                                                                      '                
+C        write (220582,FMT='(A)') '::hwt::Source "'//FILENAME1//'";'               
+C        write (220582,FMT='(A)') '#--$types                                                                    '                
+C        write (220582,FMT='(A)') '::hwt::Source "'//FILENAME2//'";'               
+C        write (220582,FMT='(A)') '                                                                             '                
+C        write (220582,FMT='(A)') 'for {set i 0} {$i < [llength $ids]} {incr i 2} {                             ' 
+C        write (220582,FMT='(A)') '   set ityp [lindex $types $i]                                               '  
+C        write (220582,FMT='(A)') '   set id [lindex $ids $i]                                                   '  
+C        write (220582,FMT='(A)') '                                                                             '  
+C        write (220582,FMT='(A)') '   if {$ityp == 3} {                                                         '  
+C        write (220582,FMT='(A)') '     *createmark elements 1 [hm_getinternalid shell_idpool $id -bypoolname] ;'  
+C        write (220582,FMT='(A)') ' } elseif {$ityp == 7} {                                                     '  
+C        write (220582,FMT='(A)') '     *createmark elements 1 [hm_getinternalid sh3n_idpool $id -bypoolname] ; '  
+C        write (220582,FMT='(A)') ' }                                                                           '  
+C        write (220582,FMT='(A)') ' hm_redraw;                                                                  '  
+C        write (220582,FMT='(A)') ' *movemark elements 1 \"COLOR\";                                             '  
+C        write (220582,FMT='(A)') '}                                                                            '  
+C        CLOSE(220582)                                                                                                                   
+C      endif !(debug_output)
       
       !------------------------------------!
       ! 8. GET PATH                        !
@@ -1555,7 +1546,7 @@ C-----------------------------------------------
                IF (JJ <= NSEG) THEN
                   II(1:4) = SURF%NODES(JJ,1:4)                   
                   ISH34 = SURF%ELTYP(JJ)                  
-                  IF(ISH34.EQ.3.AND.II(3)/=II(4))THEN 
+                  IF(ISH34==3.AND.II(3)/=II(4))THEN 
                      EDGES_A(1:5)=(/ II(1:4), II(1) /)
                      NPT_A=4                                   
                   ELSE
@@ -1593,7 +1584,7 @@ C-----------------------------------------------
                IF (KK <= NSEG) THEN
                   II(1:4) = SURF%NODES(KK,1:4)                   
                   ISH34 = SURF%ELTYP(KK)                  
-                  IF(ISH34.EQ.3.AND.II(3)/=II(4))THEN 
+                  IF(ISH34==3.AND.II(3)/=II(4))THEN 
                      EDGES_B(1:5)=(/ II(1:4), II(1) /)
                      NPT_B=4                                   
                   ELSE
@@ -1672,7 +1663,7 @@ C-----------------------------------------------
                SURF%NODES(ELEM2ID, 1:4) = (/ II(1), II(4), II(3), II(2) /)
             ENDIF
          ELSE
-!     Target element is necesserily the triangle
+!     Target element is necessarily the triangle
             II(1:4) = SURF%NODES(ELEM2ID,1:4)  
             EDGES_A(1:5) = (/ II(1:3), II(1), 0 /) 
             NPT_A = 3 
@@ -1716,7 +1707,7 @@ C-----------------------------------------------
           JJ=1+PATHS(IELEM)
           II(1:4) = SURF%NODES(JJ,1:4)
           ISH34 = SURF%ELTYP(JJ)                  
-          IF(ISH34.EQ.3.AND.II(3)/=II(4))THEN 
+          IF(ISH34==3.AND.II(3)/=II(4))THEN 
             db_path(JJ) = IXC(7,SURF%ELEM((JJ)))
           else
             db_path(JJ) = IXTG(6,SURF%ELEM((JJ)))
@@ -1740,7 +1731,7 @@ C-----------------------------------------------
           ISH34 = SURF%ELTYP(JJ)     
           IF(CHECK_FLAG_ELEM(JJ)==-1)THEN
             idx=idx+1
-            IF(ISH34.EQ.3.AND.II(3)/=II(4))THEN 
+            IF(ISH34==3.AND.II(3)/=II(4))THEN 
               db_reversed(IDX) = IXC(7,SURF%ELEM((JJ)))
             else
               db_reversed(IDX) = IXTG(6,SURF%ELEM((JJ)))
@@ -1770,25 +1761,24 @@ C-----------------------------------------------
 
 
       END SUBROUTINE
-Chd|====================================================================
-Chd|  MONVOL_REVERSE_NORMALS        share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        HM_READ_MONVOL_TYPE1          source/airbag/hm_read_monvol_type1.F
-Chd|        HM_READ_MONVOL_TYPE10         source/airbag/hm_read_monvol_type10.F
-Chd|        HM_READ_MONVOL_TYPE11         source/airbag/hm_read_monvol_type11.F
-Chd|        HM_READ_MONVOL_TYPE2          source/airbag/hm_read_monvol_type2.F
-Chd|        HM_READ_MONVOL_TYPE3          source/airbag/hm_read_monvol_type3.F
-Chd|        HM_READ_MONVOL_TYPE4          source/airbag/hm_read_monvol_type4.F
-Chd|        HM_READ_MONVOL_TYPE5          source/airbag/hm_read_monvol_type5.F
-Chd|        HM_READ_MONVOL_TYPE6          source/airbag/hm_read_monvol_type6.F
-Chd|        HM_READ_MONVOL_TYPE7          source/airbag/hm_read_monvol_type7.F
-Chd|        HM_READ_MONVOL_TYPE8          source/airbag/hm_read_monvol_type8.F
-Chd|        HM_READ_MONVOL_TYPE9          source/airbag/hm_read_monvol_type9.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monvol_reverse_normals   ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_monvol_type1     ../starter/source/airbag/hm_read_monvol_type1.F
+!||    hm_read_monvol_type10    ../starter/source/airbag/hm_read_monvol_type10.F
+!||    hm_read_monvol_type11    ../starter/source/airbag/hm_read_monvol_type11.F
+!||    hm_read_monvol_type2     ../starter/source/airbag/hm_read_monvol_type2.F
+!||    hm_read_monvol_type3     ../starter/source/airbag/hm_read_monvol_type3.F
+!||    hm_read_monvol_type4     ../starter/source/airbag/hm_read_monvol_type4.F
+!||    hm_read_monvol_type5     ../starter/source/airbag/hm_read_monvol_type5.F
+!||    hm_read_monvol_type6     ../starter/source/airbag/hm_read_monvol_type6.F
+!||    hm_read_monvol_type7     ../starter/source/airbag/hm_read_monvol_type7.F
+!||    hm_read_monvol_type8     ../starter/source/airbag/hm_read_monvol_type8.F
+!||    hm_read_monvol_type9     ../starter/source/airbag/hm_read_monvol_type9.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod        ../starter/share/modules1/monvol_struct_mod.F
+!||====================================================================
       SUBROUTINE MONVOL_REVERSE_NORMALS(T_MONVOLN, TITLE, IVOLU, ITAB, SURF, IXC, IXTG, VOL, X, ITYPE)
 C-----------------------------------------------
 C   D e s c r i p t i o n
@@ -1802,6 +1792,7 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE MESSAGE_MOD
       USE MONVOL_STRUCT_MOD
+      use element_mod , only : nixc,nixtg      
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1907,16 +1898,16 @@ C-----------------------------------------------
       END SUBROUTINE      
       
 
-Chd|====================================================================
-Chd|  MONVOL_BUILD_EDGES            share/modules1/monvol_struct_mod.F
-Chd|-- called by -----------
-Chd|        MONVOL_CHECK_SURFCLOSE        share/modules1/monvol_struct_mod.F
-Chd|        MONVOL_ORIENT_SURF            share/modules1/monvol_struct_mod.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MONVOL_STRUCT_MOD             share/modules1/monvol_struct_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    monvol_build_edges       ../starter/share/modules1/monvol_struct_mod.F
+!||--- called by ------------------------------------------------------
+!||    monvol_check_surfclose   ../starter/share/modules1/monvol_struct_mod.F
+!||    monvol_orient_surf       ../starter/share/modules1/monvol_struct_mod.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    monvol_struct_mod        ../starter/share/modules1/monvol_struct_mod.F
+!||====================================================================
       SUBROUTINE MONVOL_BUILD_EDGES(T_MONVOLN, SURF)
 C-----------------------------------------------
 C   D e s c r i p t i o n
@@ -1949,7 +1940,7 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:), ALLOCATABLE :: EDGE_ARRAY_N1, EDGE_ARRAY_N2, EDGE_ARRAY_ELEM, 
      .     NB_CONNECT
       INTEGER(8) :: edge_ptr
-      INTEGER :: JJ, II(4), IDX, ELTYP, NEDG, KK
+      INTEGER :: JJ, II(4), IDX, ELTYP, NEDG
 C-----------------------------------------------
 C     S o u r c e   L i n e s
 C-----------------------------------------------

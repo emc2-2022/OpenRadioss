@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPECHAN                       source/elements/sph/spechan.F 
-Chd|-- called by -----------
-Chd|        SPHPREP                       source/elements/sph/sphprep.F 
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spechan        ../engine/source/elements/sph/spechan.F
+!||--- called by ------------------------------------------------------
+!||    sphprep        ../engine/source/elements/sph/sphprep.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf        ../engine/share/resol/initbuf.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    initbuf_mod    ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE SPECHAN(
      1    X       ,V       ,MS       ,SPBUF   ,ITAB    ,
      2    KXSP    ,IXSP    ,NOD2SP   ,ISPCOND ,XFRAME  ,
@@ -39,29 +40,18 @@ C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
       USE ELBUFDEF_MOD            
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "sphcom.inc"
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "scr01_c.inc"
-#include      "scr18_c.inc"
-#include      "task_c.inc"
-#include      "units_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),ITAB(*),
@@ -74,7 +64,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K,N,INOD,JS,
+      INTEGER N,INOD,
      .        IS,IC,NC,ISLIDE,ILEV,
      .        NG,NEL,I,II(6),NS,J
       my_real
@@ -87,9 +77,12 @@ C-----------------------------------------------
      .       VXX,VXY,VXZ,VYY,VYZ,VZZ
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C-----------------------------------------------
+      VX = ZERO
+      VY = ZERO
+      VZ = ZERO
       DO NC=1,NSPCOND
       ILEV=ISPCOND(1,NC)
-      IF(ILEV.EQ.1)THEN
+      IF(ILEV==1)THEN
        IS  =ISPCOND(3,NC)
        IC  =ISPCOND(2,NC)
        ISLIDE=ISPCOND(5,NC)
@@ -99,22 +92,22 @@ C-----------------------------------------------
        UX=XFRAME(3*(IC-1)+1,IS)
        UY=XFRAME(3*(IC-1)+2,IS)
        UZ=XFRAME(3*(IC-1)+3,IS)
-       IF(ISLIDE.EQ.1)THEN
-         IF (IC.EQ.1) THEN
+       IF(ISLIDE==1)THEN
+         IF (IC==1) THEN
             VX=XFRAME(4,IS)
             VY=XFRAME(5,IS)
             VZ=XFRAME(6,IS)
             WX=XFRAME(7,IS)
             WY=XFRAME(8,IS)
             WZ=XFRAME(9,IS)
-         ELSEIF (IC.EQ.2) THEN
+         ELSEIF (IC==2) THEN
             VX=XFRAME(7,IS)
             VY=XFRAME(8,IS)
             VZ=XFRAME(9,IS)
             WX=XFRAME(1,IS)
             WY=XFRAME(2,IS)
             WZ=XFRAME(3,IS)
-         ELSEIF (IC.EQ.3) THEN
+         ELSEIF (IC==3) THEN
             VX=XFRAME(1,IS)
             VY=XFRAME(2,IS)
             VZ=XFRAME(3,IS)
@@ -134,13 +127,13 @@ C-----------------------------------------------
           VZI=V(3,INOD)
           DI =SPBUF(1,N)
           DD=(XI-OX)*UX+(YI-OY)*UY+(ZI-OZ)*UZ
-          IF(DD.LT.-EM20*DI)THEN
+          IF(DD<-EM20*DI)THEN
 C--------------------------------
-C          Echange les positions et les vitesses
+C          Exchange positions and velocities
            XS=XI-TWO*DD*UX
            YS=YI-TWO*DD*UY
            ZS=ZI-TWO*DD*UZ
-           IF(ISLIDE.EQ.0)THEN
+           IF(ISLIDE==0)THEN
             VXS=-VXI
             VYS=-VYI
             VZS=-VZI
@@ -148,7 +141,7 @@ C          Echange les positions et les vitesses
             VN=VXI*UX+VYI*UY+VZI*UZ
             VXS=VXI-TWO*VN*UX
             VYS=VYI-TWO*VN*UY
-            VZS=VZI-TWO*VN*UZ	    
+            VZS=VZI-TWO*VN*UZ      
            ENDIF
            X(1,INOD)=XS
            X(2,INOD)=YS
@@ -161,13 +154,13 @@ C          A(1,INOD)=0.
 C          A(2,INOD)=0.
 C          A(3,INOD)=0.
 C--------------------------------
-C          Echange les contraintes 
-           IF(ISLIDE.EQ.1)THEN
+C          Exchange stresses
+           IF(ISLIDE==1)THEN
 C-----------
-C            Recherche du groupe d'appartenance.
+C            Search for the membership group.
              NG=MOD(KXSP(2,N),NGROUP+1)
-             IF(NG.GT.0)THEN
-              CALL INITBUF (IPARG    ,NG      ,
+             IF(NG>0)THEN
+              CALL INITBUF(IPARG    ,NG      ,
      2           MTN     ,NEL     ,NFT     ,IAD     ,ITY     ,
      3           NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,
      4           JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,
@@ -187,7 +180,7 @@ C-----------
               TYZ= GBUF%SIG(II(5)+I)
               TXZ= GBUF%SIG(II(6)+I)
 C----------
-C             Changmnt de repere.
+C             Change of reference frame.
               UXX=TXX*UX+TXY*UY+TXZ*UZ
               UXY=TXX*VX+TXY*VY+TXZ*VZ
               UXZ=TXX*WX+TXY*WY+TXZ*WZ

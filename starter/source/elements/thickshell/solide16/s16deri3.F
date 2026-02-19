@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S16DERI3                      source/elements/thickshell/solide16/s16deri3.F
-Chd|-- called by -----------
-Chd|        S16INIT3                      source/elements/thickshell/solide16/s16init3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s16deri3      ../starter/source/elements/thickshell/solide16/s16deri3.F
+!||--- called by ------------------------------------------------------
+!||    s16init3      ../starter/source/elements/thickshell/solide16/s16init3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE S16DERI3(NGL,OFF,R,S,T    ,W     ,
      2   DNIDR ,DNIDS ,DNIDT ,DXDR  ,DYDR  ,DZDR  ,
      3   DXDS  ,DYDS  ,DZDS  ,DXDT  ,DYDT  ,DZDT  ,
@@ -319,7 +320,7 @@ c         print *,'dx y z/dt='
 c         print *,DXDT(1),DYDT(1),DZDT(1)
 C-----------------------------------------------------------------------
 C          -1
-C       [J]          Inversion du jacobien
+C       [J]          Inversion of the jacobian
 C-----------------------------------------------------------------------
         DRDX(I)=DYDS(I)*DZDT(I)-DZDS(I)*DYDT(I)
         DRDY(I)=DZDS(I)*DXDT(I)-DXDS(I)*DZDT(I)
@@ -340,7 +341,7 @@ C
         VOLDP(I) = W * DETDP
         VOL(I) = VOLDP(I)
 C
-        IF(VOL(I).LE.ZERO)THEN
+        IF(VOL(I)<=ZERO)THEN
          CALL ANCMSG(MSGID=483,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -348,14 +349,14 @@ C
         ENDIF
       ENDDO
 C
-C      IF(IDTMIN(1).EQ.1)THEN
+C      IF(IDTMIN(1)==1)THEN
 C ...
 C      ENDIF
 C
       DO I=LFT,LLT
 C-----------------------------------------------------------------------
-C          -1            Inversion du jacobien suite
-C       [J]              et repere local r,s,t
+C          -1 inversion of the Jacobian suite
+C       [J]              and local frame r,s,t
 C-----------------------------------------------------------------------
         D = 1./DET(I)
         DRDX(I)=D*DRDX(I)
@@ -382,14 +383,14 @@ C-----------------------------------------------------------------------
         PX(I,6) = DNIDR(6)*DRDX(I) + DNIDS(6)*DSDX(I) + DNIDT(6)*DTDX(I)  
         PX(I,7) = DNIDR(7)*DRDX(I) + DNIDS(7)*DSDX(I) + DNIDT(7)*DTDX(I)  
         PX(I,8) = DNIDR(8)*DRDX(I) + DNIDS(8)*DSDX(I) + DNIDT(8)*DTDX(I)
-	R9  = DNIDR(9) *DRDX(I)  
-	R13 = DNIDR(13)*DRDX(I)  
-	S9  = DNIDS(9) *DSDX(I)  
-	S10 = DNIDS(10)*DSDX(I)  
-	S11 = DNIDS(11)*DSDX(I)  
-	S12 = DNIDS(12)*DSDX(I)  
-	T10 = DNIDT(10)*DTDX(I)  
-	T14 = DNIDT(14)*DTDX(I) 
+          R9  = DNIDR(9) *DRDX(I)  
+          R13 = DNIDR(13)*DRDX(I)  
+          S9  = DNIDS(9) *DSDX(I)  
+          S10 = DNIDS(10)*DSDX(I)  
+          S11 = DNIDS(11)*DSDX(I)  
+          S12 = DNIDS(12)*DSDX(I)  
+          T10 = DNIDT(10)*DTDX(I)  
+          T14 = DNIDT(14)*DTDX(I) 
         PX(I,9) = R9               + S9  + DNIDT(9)*DTDX(I)  
         PX(I,10)= DNIDR(10)*DRDX(I)+ S10 + T10  
         PX(I,11)=-R9               + S11 + DNIDT(11)*DTDX(I)  
@@ -408,14 +409,14 @@ C
         PY(I,6) = DNIDR(6)*DRDY(I) + DNIDS(6)*DSDY(I) + DNIDT(6)*DTDY(I)  
         PY(I,7) = DNIDR(7)*DRDY(I) + DNIDS(7)*DSDY(I) + DNIDT(7)*DTDY(I)  
         PY(I,8) = DNIDR(8)*DRDY(I) + DNIDS(8)*DSDY(I) + DNIDT(8)*DTDY(I)  
-	R9  = DNIDR(9) *DRDY(I)  
-	R13 = DNIDR(13)*DRDY(I)  
-	S9  = DNIDS(9) *DSDY(I)  
-	S10 = DNIDS(10)*DSDY(I)  
-	S11 = DNIDS(11)*DSDY(I)  
-	S12 = DNIDS(12)*DSDY(I)  
-	T10 = DNIDT(10)*DTDY(I)  
-	T14 = DNIDT(14)*DTDY(I) 
+          R9  = DNIDR(9) *DRDY(I)  
+          R13 = DNIDR(13)*DRDY(I)  
+          S9  = DNIDS(9) *DSDY(I)  
+          S10 = DNIDS(10)*DSDY(I)  
+          S11 = DNIDS(11)*DSDY(I)  
+          S12 = DNIDS(12)*DSDY(I)  
+          T10 = DNIDT(10)*DTDY(I)  
+          T14 = DNIDT(14)*DTDY(I) 
         PY(I,9) = R9               + S9  + DNIDT(9)*DTDY(I)  
         PY(I,10)= DNIDR(10)*DRDY(I)+ S10 + T10  
         PY(I,11)=-R9               + S11 + DNIDT(11)*DTDY(I)  
@@ -433,14 +434,14 @@ C
         PZ(I,6) = DNIDR(6)*DRDZ(I) + DNIDS(6)*DSDZ(I) + DNIDT(6)*DTDZ(I)  
         PZ(I,7) = DNIDR(7)*DRDZ(I) + DNIDS(7)*DSDZ(I) + DNIDT(7)*DTDZ(I)  
         PZ(I,8) = DNIDR(8)*DRDZ(I) + DNIDS(8)*DSDZ(I) + DNIDT(8)*DTDZ(I)  
-	R9  = DNIDR(9) *DRDZ(I)  
-	R13 = DNIDR(13)*DRDZ(I)  
-	S9  = DNIDS(9) *DSDZ(I)  
-	S10 = DNIDS(10)*DSDZ(I)  
-	S11 = DNIDS(11)*DSDZ(I)  
-	S12 = DNIDS(12)*DSDZ(I)  
-	T10 = DNIDT(10)*DTDZ(I)  
-	T14 = DNIDT(14)*DTDZ(I) 
+          R9  = DNIDR(9) *DRDZ(I)  
+          R13 = DNIDR(13)*DRDZ(I)  
+          S9  = DNIDS(9) *DSDZ(I)  
+          S10 = DNIDS(10)*DSDZ(I)  
+          S11 = DNIDS(11)*DSDZ(I)  
+          S12 = DNIDS(12)*DSDZ(I)  
+          T10 = DNIDT(10)*DTDZ(I)  
+          T14 = DNIDT(14)*DTDZ(I) 
         PZ(I,9) = R9               + S9  + DNIDT(9)*DTDZ(I)  
         PZ(I,10)= DNIDR(10)*DRDZ(I)+ S10 + T10  
         PZ(I,11)=-R9               + S11 + DNIDT(11)*DTDZ(I)  
@@ -484,12 +485,11 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  S16RST                        source/elements/thickshell/solide16/s16deri3.F
-Chd|-- called by -----------
-Chd|        S16INIT3                      source/elements/thickshell/solide16/s16init3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    s16rst     ../starter/source/elements/thickshell/solide16/s16deri3.F
+!||--- called by ------------------------------------------------------
+!||    s16init3   ../starter/source/elements/thickshell/solide16/s16init3.F
+!||====================================================================
       SUBROUTINE S16RST(R,S,T,
      2   NI   ,DNIDR ,DNIDS ,DNIDT )
 C-----------------------------------------------

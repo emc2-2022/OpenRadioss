@@ -1,42 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ST_QAPRINT_MODEL_TOOLS        source/output/qaprint/st_qaprint_model_tools.F
-Chd|-- called by -----------
-Chd|        ST_QAPRINT_DRIVER             source/output/qaprint/st_qaprint_driver.F
-Chd|-- calls ---------------
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        FUNC2D_MOD                    share/modules1/func2d_mod.F   
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        SENSOR_MOD                    share/modules1/sensor_mod.F   
-Chd|        TABLE_MOD                     share/modules1/table_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    st_qaprint_model_tools   ../starter/source/output/qaprint/st_qaprint_model_tools.F
+!||--- called by ------------------------------------------------------
+!||    st_qaprint_driver        ../starter/source/output/qaprint/st_qaprint_driver.F
+!||--- calls      -----------------------------------------------------
+!||    fretitl2                 ../starter/source/starter/freform.F
+!||--- uses       -----------------------------------------------------
+!||    func2d_mod               ../starter/share/modules1/func2d_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||    table_mod                ../starter/share/modules1/table_mod.F
+!||====================================================================
       SUBROUTINE ST_QAPRINT_MODEL_TOOLS(NOM_OPT   ,INOM_OPT  ,
      .           IBOX      ,IPMAS     ,NOM_SECT ,NSTRF ,SECBUF    ,
      .           SKEW      ,ISKWN     ,XFRAME   ,NPC   ,PLD       ,
-     .           TABLE     ,NPTS      ,IACTIV   ,FACTIV,SENSOR_TAB,
-     .           LSENSOR   ,SENSOR    ,FUNC2D)
+     .           TABLE     ,NPTS      ,IACTIV   ,FACTIV,SENSORS   ,
+     .           FUNC2D)
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
@@ -45,6 +44,8 @@ C-----------------------------------------------
       USE TABLE_MOD
       USE SENSOR_MOD
       USE FUNC2D_MOD
+      USE SUBMODEL_MOD , ONLY : NSUBMOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARLINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -52,14 +53,10 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "tabsiz_c.inc"
-#include      "units_c.inc"
-#include      "submod_c.inc"
 #include      "sphcom.inc"
 #include      "lagmult.inc"
 C-----------------------------------------------
@@ -70,18 +67,15 @@ C-----------------------------------------------
       TYPE (ADMAS_)  ,DIMENSION(NODMAS) ,INTENT(IN) :: IPMAS
       INTEGER, INTENT(IN) :: NPTS,NPC(*)
       INTEGER,INTENT(IN) :: NOM_SECT(SNOM_SECT),NSTRF(SNSTRF)
-      INTEGER ,DIMENSION(NSENSI,*)  ,INTENT(IN) :: LSENSOR
-      my_real ,DIMENSION(NSENSR,*)  ,INTENT(IN) :: SENSOR
       my_real,INTENT(IN) :: SECBUF(SSECBUF)  
       INTEGER, INTENT(IN) :: ISKWN(LISKN,*)
       my_real, INTENT(IN) :: SKEW(LSKEW,*)
       my_real, INTENT(IN) :: XFRAME(NXFRAME,*)
-      my_real, INTENT(IN) ::
-     .                        PLD(*)
+      my_real, INTENT(IN) :: PLD(*)
       INTEGER, INTENT(IN) :: IACTIV(LACTIV,*)
       my_real, INTENT(IN) :: FACTIV(LRACTIV,*)
       TYPE(TTABLE) TABLE(*)
-      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR), TARGET :: SENSOR_TAB
+      TYPE (SENSORS_) ,INTENT(IN) :: SENSORS
       TYPE(FUNC2D_STRUCT), DIMENSION(NFUNC2D), INTENT(IN) :: FUNC2D
 C-----------------------------------------------
 C      NOM_OPT(LNOPT1,SNOM_OPT1) 
@@ -139,18 +133,15 @@ C-----------------------------------------------
       CHARACTER(LEN=nchartitle)  :: TITR, TEMP_STRING
       DOUBLE PRECISION TEMP_DOUBLE
       INTEGER :: TEMP_INTEGER
-      INTEGER :: ISECT, K0, K1, K2, K3, K4, K5, K6, K7, K8, K9, K10, KR0
+      INTEGER :: ISECT, K0, K1, K2, K3, K4, K5, K6, K7, K8, K9, KR0
       INTEGER :: NNOD,NSEGS,NSEGQ,NSEGC,NSEGT,NSEGP,NSEGR,NSEGTG,NBINTER,
      .           ISEN,INTVAL
       INTEGER :: WORK(70000),INDEX(2*(NUMFRAM+1)),IFRAME,ITR1(NUMFRAM+1)
-      INTEGER :: INDEXS(2*(NSENSOR+1)),ITRS(NSENSOR+1)
+      INTEGER :: INDEXS(2*(SENSORS%NSENSOR+1)),ITRS(SENSORS%NSENSOR+1)
       LOGICAL :: OK_QA
       DOUBLE PRECISION :: TIME, FVAL, XX, YY, ZZ
       INTEGER :: NPT, ID, II, LENTITR, ICODE
       INTEGER, DIMENSION(NTABLE + NFUNC2D) :: IDX, IDS
-C-----------------------------------------------
-C   S o u r c e   L i n e s
-C-----------------------------------------------
 C-----------------------------------------------
 C     /BOX/...
 C-----------------------------------------------
@@ -270,14 +261,14 @@ C-----------------------------------------------
 C     SECTIONS : /SECT, /SECT/CIRCLE, /SECT/PARAL
 C-----------------------------------------------
       IF ( MYQAKEY('SECTIONS') ) THEN
-        DO I=1,30                                                                          
+        DO I=1,MIN(30,SNSTRF)                                                                         
           IF(NSTRF(I) /= 0)THEN                                               
             WRITE(VARNAME,'(A,I0)') 'SECTIONS__NSTRF_',I                                 
             TEMP_INTEGER = NSTRF(I)                                 
             CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)                  
           END IF                                                                           
         END DO                                                                             
-        DO I=1,10                                                                         
+        DO I=1,MIN(10,SSECBUF)                                                             
           IF(SECBUF(I) /= 0)THEN                                               
             WRITE(VARNAME,'(A,I0)') 'SECTIONS__SECBUF_',I                                 
             TEMP_DOUBLE = SECBUF(I)                                  
@@ -320,14 +311,14 @@ C-----------------------------------------------
           K7=K6+2*NSEGT
           K8=K7+2*NSEGP
           K9=K8+2*NSEGR          
-          DO I=K0,NSTRF(K0+24)-1
+          DO I=K0,MIN(NSTRF(K0+24)-1,SNSTRF)
             IF(NSTRF(I) /= 0)THEN
               WRITE(VARNAME,'(A,I0,A,I0)') 'SECTIONS__',OPT_ID,"_NSTRF_",I
               TEMP_INTEGER = NSTRF(I)
               CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),TEMP_INTEGER,0.0_8)
             END IF
           END DO              
-          DO I=KR0,NSTRF(K0+25)
+          DO I=KR0,MIN(SSECBUF,NSTRF(K0+25))
             IF(SECBUF(I) /= 0)THEN
           WRITE(VARNAME,'(A,I0,A,I0)') 'SECTIONS__',OPT_ID,"_SECBUF_",I
               TEMP_DOUBLE = SECBUF(I)
@@ -611,70 +602,53 @@ C     SENSORS
 C-----------------------------------------------
       IF (MYQAKEY('SENSOR') ) THEN
 C
-        DO ISEN=1,NSENSOR
-          ITRS(ISEN) = LSENSOR(1,ISEN)
+        DO ISEN=1,SENSORS%NSENSOR
+          ITRS(ISEN) = SENSORS%SENSOR_TAB(ISEN)%SENS_ID
         ENDDO 
-        CALL MY_ORDERS(0,WORK,ITRS,INDEXS,NSENSOR,1)
+        CALL MY_ORDERS(0,WORK,ITRS,INDEXS,SENSORS%NSENSOR,1)
 C
-        DO ISEN=1,NSENSOR
+        DO ISEN=1,SENSORS%NSENSOR
           IAD = INDEXS(ISEN)
-          OPT_ID = LSENSOR(1,IAD)
-          IF (OPT_ID > 0 .and. LSENSOR(2,IAD) >= 0 .and. SENSOR_TAB(IAD)%TYPE < 0) THEN
-            CALL QAPRINT('OLD SENSOR_NO_NAME', OPT_ID, 0.0_8)
-C
-            WRITE(VARNAME,'(A)') 'SENSOR_ID'     
-            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),LSENSOR(1,IAD),0.0_8)
-            WRITE(VARNAME,'(A)') 'SENSOR_TYPE'     
-            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),LSENSOR(2,IAD),0.0_8)
-c
-            DO I=3,NSENSI
-              INTVAL = LSENSOR(I,IAD)
-              IF (INTVAL /= 0) THEN
-C               VARNAME: variable name in ref.extract (without blanks)
-                WRITE(VARNAME,'(A,I0)') 'LSENSOR_',I      
-                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),INTVAL,0.0_8)
-              END IF
-            END DO
-c
-            DO I=1,NSENSR
-              FVAL = SENSOR(I,IAD)
-              IF (FVAL /= ZERO) THEN
-C               VARNAME: variable name in ref.extract (without blanks)
-                WRITE(VARNAME,'(A,I0)') 'RSENSOR_',I      
-                CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,FVAL)
-              END IF
-            END DO
-          END IF
-c
-        ENDDO
-c       
-c       new sensor data structure   
-C
-        DO ISEN=1,NSENSOR
-          IAD = INDEXS(ISEN)
-          OPT_ID = SENSOR_TAB(IAD)%SENS_ID
-          IF (OPT_ID > 0 .and. SENSOR_TAB(IAD)%TYPE >= 0) THEN
+          OPT_ID = SENSORS%SENSOR_TAB(IAD)%SENS_ID
+          IF (OPT_ID > 0 .and. SENSORS%SENSOR_TAB(IAD)%TYPE >= 0) THEN
             CALL QAPRINT('NEW SENSOR_NO_NAME', OPT_ID, 0.0_8)
 c
+            WRITE(VARNAME,'(A)') 'SENSOR_ID'    
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSORS%SENSOR_TAB(IAD)%SENS_ID,0.0_8)
             WRITE(VARNAME,'(A)') 'SENSOR_TYPE'    
-            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSOR_TAB(IAD)%TYPE,0.0_8)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSORS%SENSOR_TAB(IAD)%TYPE,0.0_8)
+            WRITE(VARNAME,'(A)') 'TDELAY'   
+            TEMP_DOUBLE = SENSORS%SENSOR_TAB(IAD)%TDELAY
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+            WRITE(VARNAME,'(A)') 'TMIN'
+            TEMP_DOUBLE = SENSORS%SENSOR_TAB(IAD)%TMIN  
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+            WRITE(VARNAME,'(A)') 'TCRIT' 
+            TEMP_DOUBLE = SENSORS%SENSOR_TAB(IAD)%TCRIT  
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+            WRITE(VARNAME,'(A)') 'TSTART' 
+            TEMP_DOUBLE = SENSORS%SENSOR_TAB(IAD)%TSTART   
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
+            WRITE(VARNAME,'(A)') 'VALUE'  
+            TEMP_DOUBLE = SENSORS%SENSOR_TAB(IAD)%VALUE
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,TEMP_DOUBLE)
             WRITE(VARNAME,'(A)') 'STATUS'    
-            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSOR_TAB(IAD)%STATUS,0.0_8)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSORS%SENSOR_TAB(IAD)%STATUS,0.0_8)
             WRITE(VARNAME,'(A)') 'NPARI'    
-            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSOR_TAB(IAD)%NPARI,0.0_8)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSORS%SENSOR_TAB(IAD)%NPARI,0.0_8)
             WRITE(VARNAME,'(A)') 'NPARR'    
-            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSOR_TAB(IAD)%NPARR,0.0_8)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSORS%SENSOR_TAB(IAD)%NPARR,0.0_8)
             WRITE(VARNAME,'(A)') 'NVAR'    
-            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSOR_TAB(IAD)%NVAR,0.0_8)
+            CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),SENSORS%SENSOR_TAB(IAD)%NVAR,0.0_8)
 c
-            DO I = 1,SENSOR_TAB(IAD)%NPARI
-              INTVAL = SENSOR_TAB(IAD)%IPARAM(I)
+            DO I = 1,SENSORS%SENSOR_TAB(IAD)%NPARI
+              INTVAL = SENSORS%SENSOR_TAB(IAD)%IPARAM(I)
               WRITE(VARNAME,'(A,I0)') 'IPARAM_',I      
               CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),INTVAL,0.0_8)
             END DO
 c
-            DO I=1,SENSOR_TAB(IAD)%NPARR
-              FVAL = SENSOR_TAB(IAD)%RPARAM(I)
+            DO I=1,SENSORS%SENSOR_TAB(IAD)%NPARR
+              FVAL = SENSORS%SENSOR_TAB(IAD)%RPARAM(I)
               WRITE(VARNAME,'(A,I0)') 'RPARAM_',I      
               CALL QAPRINT(VARNAME(1:LEN_TRIM(VARNAME)),0,FVAL)
             END DO

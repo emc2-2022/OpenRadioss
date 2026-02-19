@@ -1,43 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_INTER_TYPE12          source/interfaces/int12/hm_read_inter_type12.F
-Chd|-- called by -----------
-Chd|        HM_READ_INTER_FSI             source/interfaces/reader/hm_read_inter_fsi.F
-Chd|-- calls ---------------
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        NGR2USR                       source/system/nintrr.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_inter_type12   ../starter/source/interfaces/int12/hm_read_inter_type12.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_inter_fsi      ../starter/source/interfaces/reader/hm_read_inter_fsi.F
+!||--- calls      -----------------------------------------------------
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    ngr2usr                ../starter/source/system/nintrr.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_INTER_TYPE12(
-     1        IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,NI       ,
-     2        IGRSURF    ,ITAB       ,ITABM1     ,ISKN      ,TITR     ,
-     3        LSUBMODEL  ,UNITAB)
+     1        IPARI      ,STFAC      ,FRIGAP     ,NOINT     ,
+     2        IGRSURF    ,ITAB       ,ITABM1     ,ISKN      ,
+     3        LSUBMODEL  ,UNITAB     ,SITAB      ,SITABM1   ,
+     4        NPARI      ,NPARIR     ,SISKWN     ,LISKN)
 C============================================================================
 C
 C-----------------------------------------------
@@ -45,8 +45,9 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
-      USE SUBMODEL_MOD
+      USE SUBMODEL_MOD , ONLY : SUBMODEL_DATA, NSUBMOD
       USE UNITAB_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,56 +55,37 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com09_c.inc"
-#include      "intstamp_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "fluid_scr_c.inc"
-#include      "scr12_c.inc"
-#include      "remesh_c.inc"
-#include      "sysunit.inc"
-#include      "thknod_c.inc"
-#include      "inter22.inc"
-#include      "submod_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER ISU1,ISU2,NI,NOINT
-      INTEGER IPARI(*),ISKN(LISKN,*),ITAB(*),ITABM1(*)
-      my_real
-     .   STFAC
-      my_real
-     .   FRIGAP(*)
-      CHARACTER TITR*nchartitle,TITR1*nchartitle
-      TYPE(SUBMODEL_DATA) LSUBMODEL(NSUBMOD)
-      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
+      INTEGER,INTENT(IN) :: SITAB,SITABM1,NPARI,NPARIR,SISKWN,LISKN !< array sizes
+      INTEGER ISU1,ISU2,NOINT
+      INTEGER IPARI(NPARI),ISKN(LISKN,SISKWN/LISKN),ITAB(SITAB),ITABM1(SITABM1)
+      my_real STFAC
+      my_real FRIGAP(NPARIR)
+      TYPE(SUBMODEL_DATA),INTENT(IN) :: LSUBMODEL(NSUBMOD)
+      TYPE (UNIT_TYPE_),INTENT(IN) :: UNITAB
 C-----------------------------------------------
       TYPE (SURF_)   ,TARGET , DIMENSION(NSURF)   :: IGRSURF
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,L, NTYP,IS1, IS2,IGSTI,ILEV,ITIED,HIERA,
+      INTEGER J, NTYP,IS1, IS2,IGSTI,ILEV,ITIED,HIERA,
      .   BCOPT,ISKEW,ICENTER
       my_real
      .   FRIC,GAP,STARTT,STOPT,BID,XC,YC,ZC,XR,YR,ZR,TETA,
      .   XT,YT,ZT
-      CHARACTER MESS*40, MSGTITL*nchartitle
-      CHARACTER OPT*ncharkey,KEY*ncharkey,KEY1*ncharkey,
-     .          BCFLAG*ncharfield, BCFLAGM*ncharfield
+      CHARACTER(LEN=40)::MESS
 !
       INTEGER, DIMENSION(:), POINTER :: INGR2USR
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER USR2SYS,SUR2USR,NGR2USR
+      INTEGER USR2SYS,NGR2USR
 C-----------------------------------------------
 C=======================================================================
 C     READING ALE INTERFACE /INTER/TYPE12
@@ -139,9 +121,6 @@ C------------------------------------------------------------
       IGSTI=0
       HIERA=0
 
-      !READ(IIN,REC=IREC,ERR=999,FMT='(A)')LINE
-      !READ(LINE,ERR=999,FMT=FMT_6I_2X_F)ISU1,ISU2,IGSTI,ILEV,HIERA
-
 C....* CHECKS *.............
 
       IS1=1
@@ -159,15 +138,13 @@ C------------------------------------------------------------
 C  Card2
 C------------------------------------------------------------
       CALL HM_GET_FLOATV('type12_tol', GAP, IS_AVAILABLE, LSUBMODEL, UNITAB)
-      !READ(IIN,REC=IREC,ERR=999,FMT='(A)')LINE
-      !READ(LINE,ERR=999,FMT=FMT_5F)BID,BID,GAP,STARTT,STOPT
       BID=ZERO
       STARTT=ZERO
       STOPT=ZERO
 C
 C.....* CHECKS *.....
 C
-      IF(GAP.EQ.0.)GAP=TWO*EM02
+      IF(GAP==0.)GAP=TWO*EM02
 C------------------------------------------------------------
 C  Card3
 C------------------------------------------------------------
@@ -176,13 +153,10 @@ C------------------------------------------------------------
       CALL HM_GET_INTV('SKEW_CSID', ISKEW, IS_AVAILABLE, LSUBMODEL)
       CALL HM_GET_INTV('Node_C', ICENTER, IS_AVAILABLE, LSUBMODEL)
 
-      !READ(IIN,REC=IREC,ERR=999,FMT='(A)')LINE
-      !READ(LINE,ERR=999,FMT=FMT_4I) ITIED,BCOPT,ISKEW,ICENTER
-
 C.....* CHECKS *.....
 
-      IF(HIERA.EQ.0)HIERA=ITIED+1
-      IF(BCOPT.EQ.0)BCOPT=2
+      IF(HIERA==0)HIERA=ITIED+1
+      IF(BCOPT==0)BCOPT=2
       IPARI(26)=HIERA
       NHIN2=MAX(NHIN2,HIERA)
 
@@ -191,25 +165,20 @@ C
 C------------------------------------------------------------
 C  Optional Card4 Card5 Card6 : Transformation parameters 
 C------------------------------------------------------------
-      IF(ITIED.EQ.2)THEN
+      IF(ITIED==2)THEN
          CALL HM_GET_FLOATV('type12_Xc', XC, IS_AVAILABLE, LSUBMODEL, UNITAB)
          CALL HM_GET_FLOATV('type12_Yc', YC, IS_AVAILABLE, LSUBMODEL, UNITAB)
          CALL HM_GET_FLOATV('type12_Zc', ZC, IS_AVAILABLE, LSUBMODEL, UNITAB)
-         !READ(IIN,REC=IREC,ERR=999,FMT='(A)')LINE
-         !READ(LINE,ERR=999,FMT=FMT_3F)XC,YC,ZC
 
          CALL HM_GET_FLOATV('type12_XN', XR, IS_AVAILABLE, LSUBMODEL, UNITAB)
          CALL HM_GET_FLOATV('type12_YN', YR, IS_AVAILABLE, LSUBMODEL, UNITAB)
          CALL HM_GET_FLOATV('type12_ZN', ZR, IS_AVAILABLE, LSUBMODEL, UNITAB)
          CALL HM_GET_FLOATV('type12_theta', TETA, IS_AVAILABLE, LSUBMODEL, UNITAB)
-         !READ(IIN,REC=IREC,ERR=999,FMT='(A)')LINE
-         !READ(LINE,ERR=999,FMT=FMT_4F)XR,YR,ZR,TETA
 
          CALL HM_GET_FLOATV('type12_XT', XT, IS_AVAILABLE, LSUBMODEL, UNITAB)
          CALL HM_GET_FLOATV('type12_YT', YT, IS_AVAILABLE, LSUBMODEL, UNITAB)
          CALL HM_GET_FLOATV('type12_ZT', ZT, IS_AVAILABLE, LSUBMODEL, UNITAB)
-         !READ(IIN,REC=IREC,ERR=999,FMT='(A)')LINE
-         !READ(LINE,ERR=999,FMT=FMT_3F)XT,YT,ZT
+
        ENDIF
 
 C.....* Storage IPARI FRIGAP *.......
@@ -225,8 +194,8 @@ C------------------------------------------------------------
       FRIGAP(1)=ITIED+0.1
       FRIGAP(2)=GAP
 
-C FRIGAP 5->14 EST MIS A JOUR DANS IN12R
-      IF(ITIED.EQ.2) THEN
+C FRIGAP 5->14 IS UPDATED IN IN12R
+      IF(ITIED==2) THEN
         FRIGAP(4)=TETA
         FRIGAP(5)=XT
         FRIGAP(6)=YT
@@ -240,15 +209,15 @@ C FRIGAP 5->14 EST MIS A JOUR DANS IN12R
       ELSE
          IPARI(20)=ILEV
          IPARI(21)=0
-         IF(ICENTER.GT.0)THEN
+         IF(ICENTER>0)THEN
            IPARI(22)=USR2SYS(ICENTER,ITABM1,MESS,IPARI(15))
          ELSE
            IPARI(22)=0
          ENDIF
-         IF(ILEV.EQ.1)THEN
-          IF(ISKEW.GT.0)THEN
+         IF(ILEV==1)THEN
+          IF(ISKEW>0)THEN
            DO 640 J=0,NUMSKW
-            IF(ISKEW.EQ.ISKN(4,J+1)) THEN
+            IF(ISKEW==ISKN(4,J+1)) THEN
               ISKEW=J
               GO TO 660
             ENDIF
@@ -258,7 +227,7 @@ C FRIGAP 5->14 EST MIS A JOUR DANS IN12R
  641       FORMAT(' ** ERROR INTERF TYPE 12 WRONG SKEW SYSTEM NUMBER')
            IERR=IERR+1
  660       CONTINUE
-           IF(ISKN(1,J+1).EQ.0)THEN
+           IF(ISKN(1,J+1)==0)THEN
              WRITE(ISTDO,'(a)')'** WARNING INTERFACE 12'
              IWARN=IWARN+1
              WRITE(IOUT,642) ICENTER
@@ -286,47 +255,44 @@ C     PRINTOUT
 C------------------------------------------------------------
 C
         WRITE(IOUT,1512)GAP,ITIED,IPARI(11)
-        IF(IPARI(20).EQ.1)WRITE(IOUT,2512)IPARI(21),ICENTER
-        IF(IPARI(20).EQ.2)WRITE(IOUT,2513)IPARI(21)
-        IF(ITIED.EQ.2) WRITE(IOUT,1513)XT,YT,ZT,XC,YC,ZC,XR,YR,ZR,TETA
+        IF(IPARI(20)==1)WRITE(IOUT,2512)IPARI(21),ICENTER
+        IF(IPARI(20)==2)WRITE(IOUT,2513)IPARI(21)
+        IF(ITIED==2) WRITE(IOUT,1513)XT,YT,ZT,XC,YC,ZC,XR,YR,ZR,TETA
 
 C--------------------------------------------------------------
-      IF(IS1.EQ.0)THEN
+      IF(IS1==0)THEN
         WRITE(IOUT,'(6X,A)')'NO SECONDARY SURFACE INPUT'
-      ELSEIF(IS1.EQ.1)THEN
+      ELSEIF(IS1==1)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.2)THEN
+      ELSEIF(IS1==2)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY NODES'
-      ELSEIF(IS1.EQ.3)THEN
+      ELSEIF(IS1==3)THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS1.EQ.4 )THEN
+      ELSEIF(IS1==4 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY BRICKS'
-      ELSEIF(IS1.EQ.5 )THEN
+      ELSEIF(IS1==5 )THEN
         WRITE(IOUT,'(6X,A)')'SECONDARY SIDE INPUT BY SOLID ELEMENTS'        
       ENDIF
-      IF(IS2.EQ.0)THEN
+      IF(IS2==0)THEN
         WRITE(IOUT,'(6X,A)')'NO MAIN SURFACE INPUT'
-      ELSEIF(IS2.EQ.1)THEN
+      ELSEIF(IS2==1)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.2)THEN
+      ELSEIF(IS2==2)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY NODES'
-      ELSEIF(IS2.EQ.3)THEN
+      ELSEIF(IS2==3)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE INPUT BY SEGMENTS'
-      ELSEIF(IS2.EQ.4)THEN
+      ELSEIF(IS2==4)THEN
         WRITE(IOUT,'(6X,A)')'MAIN SURFACE REFERS ',
      .                      'TO HYPER-ELLIPSOIDAL SURFACE'
       ENDIF
 C
 C--------------------------------------------------------------
- 1000 FORMAT(/1X,'  INTERFACE NUMBER :',I10,1X,A)
 C------------
-      RETURN
- 999  CALL FREERR(3)
       RETURN
 
 
  1512 FORMAT(//
-     .    '    TYPE.EQ.12  FLUID/FLUID INTERFACE           ' //,
+     .    '    TYPE==12  FLUID/FLUID INTERFACE           ' //,
      .    '    TOLERANCE TO FIND MAIN SEGMENT  . . . . . ',1PG20.13/,
      .    '    ITIED . . . . . . . . . . . . . . . . . . . ',I1/,
      .    '       0: SLIDING (NOVOID)'/,

@@ -1,34 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S6RCOOR3                      source/elements/thickshell/solide6c/s6rcoor3.F
-Chd|-- called by -----------
-Chd|        S6CFORC3                      source/elements/thickshell/solide6c/s6cforc3.F
-Chd|-- calls ---------------
-Chd|        S6CORTHO3                     source/elements/thickshell/solide6c/s6cortho3.F
-Chd|        S6PROJ3                       source/elements/thickshell/solide6c/s6rcoor3.F
-Chd|        VRROTA3                       source/elements/thickshell/solide6c/vrrota3.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s6rcoor3      ../engine/source/elements/thickshell/solide6c/s6rcoor3.F
+!||--- called by ------------------------------------------------------
+!||    s6cforc3      ../engine/source/elements/thickshell/solide6c/s6cforc3.F
+!||--- calls      -----------------------------------------------------
+!||    s6cortho3     ../engine/source/elements/thickshell/solide6c/s6cortho3.F
+!||    s6proj3       ../engine/source/elements/thickshell/solide6c/s6proj3.F
+!||    vrrota3       ../engine/source/elements/thickshell/solide6c/vrrota3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE S6RCOOR3(
      .   X  ,IXS , V  , W  ,GAMA0,GAMA,
      .   X1 , X2 , X3 , X4 , X5 ,  X6   ,
@@ -43,6 +45,7 @@ Chd|====================================================================
      .   IOUTPRT, VGAX, VGAY, VGAZ, VGA2,DI,
      .   NEL, XGAX, XGAY, XGAZ, XGXA2, XGYA2, XGZA2,
      .   XGXYA, XGYZA, XGZXA, IPARG,GAMA_R)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,10 +57,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com08_c.inc"
 #include      "vect01_c.inc"
-#include      "scr18_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -94,15 +94,6 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I
 C     REAL
-      my_real
-     .   DT05
-      my_real
-     .   G11(MVSIZ),G12(MVSIZ),G13(MVSIZ),
-     .   G21(MVSIZ),G22(MVSIZ),G23(MVSIZ),
-     .   G31(MVSIZ),G32(MVSIZ),G33(MVSIZ),
-     .   T11(MVSIZ),T12(MVSIZ),T13(MVSIZ),
-     .   T21(MVSIZ),T22(MVSIZ),T23(MVSIZ),
-     .   T31(MVSIZ),T32(MVSIZ),T33(MVSIZ)
       my_real
      .   XL,YL,ZL
       my_real
@@ -171,9 +162,9 @@ C-----------
        VY6(I)=V(2,NC6(I))
        VZ6(I)=V(3,NC6(I))
       ENDDO
-      IF(OFF_L.LT.ZERO)THEN
+      IF(OFF_L<ZERO)THEN
         DO I=LFT,LLT
-          IF(OFFG(I).LT.ZERO)THEN
+          IF(OFFG(I)<ZERO)THEN
             VX1(I)=ZERO
             VY1(I)=ZERO
             VZ1(I)=ZERO
@@ -196,9 +187,9 @@ C-----------
         ENDDO
       ENDIF
 C-----------
-C     Prepare les sorties par part.
+C     prepares outputs by part.
 C-----------
-      IF(IOUTPRT.NE.0)THEN
+      IF(IOUTPRT/=0)THEN
        DO I=LFT,LLT
         VGAX(I)=VX1(I)+VX2(I)+VX3(I)+VX4(I)+VX5(I)+VX6(I)
         VGAY(I)=VY1(I)+VY2(I)+VY3(I)+VY4(I)+VY5(I)+VY6(I)
@@ -210,7 +201,7 @@ C-----------
      4         +VZ1(I)*VZ1(I)+VZ2(I)*VZ2(I)+VZ3(I)*VZ3(I)+VZ4(I)*VZ4(I)
      5         +VZ5(I)*VZ5(I)+VZ6(I)*VZ6(I)
        ENDDO
-       IF(IPARG(80).EQ.1) THEN
+       IF(IPARG(80)==1) THEN
          DO I=LFT,LLT
           XGAX(I)=X1(I)+X2(I)+X3(I)+X4(I)+X5(I)+X6(I)
           XGAY(I)=Y1(I)+Y2(I)+Y3(I)+Y4(I)+Y5(I)+Y6(I)
@@ -255,14 +246,19 @@ C  -----------
         Z6(I)=Z6(I)-ZL
       ENDDO
 C-----------
-C     REPERE CONVECTE 
+C     convected frame 
 C-----------
        CALL S6CORTHO3(
-     .   X1, X2, X3, X4, X5, X6,
-     .   Y1, Y2, Y3, Y4, Y5, Y6,
-     .   Z1, Z2, Z3, Z4, Z5, Z6, 
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   RX , RY , RZ , SX , SY , SZ , TX , TY , TZ )
+     1   X1,      X2,      X3,      X4,
+     2   X5,      X6,      Y1,      Y2,
+     3   Y3,      Y4,      Y5,      Y6,
+     4   Z1,      Z2,      Z3,      Z4,
+     5   Z5,      Z6,      R11,     R12,
+     6   R13,     R21,     R22,     R23,
+     7   R31,     R32,     R33,     RX,
+     8   RY,      RZ,      SX,      SY,
+     9   SZ,      TX,      TY,      TZ,
+     A   NEL)
 C------stocker [R] in %GAMA_R--------------     
        GAMA_R(LFT:LLT,1) = R11(LFT:LLT)                             
        GAMA_R(LFT:LLT,2) = R21(LFT:LLT)                             
@@ -271,7 +267,7 @@ C------stocker [R] in %GAMA_R--------------
        GAMA_R(LFT:LLT,5) = R22(LFT:LLT)                             
        GAMA_R(LFT:LLT,6) = R32(LFT:LLT)                             
 C-----------
-C     PASSAGE AU REPERE CONVECTE.
+C     Change to the convected frame.
 C-----------
 C   X=RX' <=> X'=t(R)X chgt de base.
       IF(ISMSTR<=4.AND.JLAG>0) THEN
@@ -354,7 +350,7 @@ C          ZL=R13(I)*X6(I)+R23(I)*Y6(I)+R33(I)*Z6(I)
         X6(I)=XL
         Y6(I)=YL
         Z6(I)=-Z3(I)
-C       SAV dans rep. local.
+C       sav in local frame.
 C       SAV(I,1)=X1(I)-X6(I)
 C       SAV(I,2)=Y1(I)-Y6(I)
 C       SAV(I,3)=Z1(I)-Z6(I)
@@ -376,14 +372,20 @@ C       SAV(I,15)=Z5(I)-Z6(I)
 C
       ELSE
       CALL VRROTA3(
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   X1, Y1, Z1)
+     1   R11,     R12,     R13,     R21,
+     2   R22,     R23,     R31,     R32,
+     3   R33,     X1,      Y1,      Z1,
+     4   NEL)
       CALL VRROTA3(
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   X2, Y2, Z2)
+     1   R11,     R12,     R13,     R21,
+     2   R22,     R23,     R31,     R32,
+     3   R33,     X2,      Y2,      Z2,
+     4   NEL)
       CALL VRROTA3(
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   X3, Y3, Z3)
+     1   R11,     R12,     R13,     R21,
+     2   R22,     R23,     R31,     R32,
+     3   R33,     X3,      Y3,      Z3,
+     4   NEL)
        DO I=LFT,LLT
         XL=R11(I)*X4(I)+R21(I)*Y4(I)+R31(I)*Z4(I)
         YL=R12(I)*X4(I)+R22(I)*Y4(I)+R32(I)*Z4(I)
@@ -408,26 +410,38 @@ C          ZL=R13(I)*X6(I)+R23(I)*Y6(I)+R33(I)*Z6(I)
 C
        ENDIF
 C-----------
-C     PASSAGE DES VITESSES AU REPERE CONVECTE (OU ORTHOTROPE).
+C     transfer of velocities to the convected (or orthotropic) frame.
 C-----------
       CALL VRROTA3(
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   VX1, VY1, VZ1)
+     1   R11,     R12,     R13,     R21,
+     2   R22,     R23,     R31,     R32,
+     3   R33,     VX1,     VY1,     VZ1,
+     4   NEL)
       CALL VRROTA3(
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   VX2, VY2, VZ2)
+     1   R11,     R12,     R13,     R21,
+     2   R22,     R23,     R31,     R32,
+     3   R33,     VX2,     VY2,     VZ2,
+     4   NEL)
       CALL VRROTA3(
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   VX3, VY3, VZ3)
+     1   R11,     R12,     R13,     R21,
+     2   R22,     R23,     R31,     R32,
+     3   R33,     VX3,     VY3,     VZ3,
+     4   NEL)
       CALL VRROTA3(
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   VX4, VY4, VZ4)
+     1   R11,     R12,     R13,     R21,
+     2   R22,     R23,     R31,     R32,
+     3   R33,     VX4,     VY4,     VZ4,
+     4   NEL)
       CALL VRROTA3(
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   VX5, VY5, VZ5)
+     1   R11,     R12,     R13,     R21,
+     2   R22,     R23,     R31,     R32,
+     3   R33,     VX5,     VY5,     VZ5,
+     4   NEL)
       CALL VRROTA3(
-     .   R11, R12, R13, R21, R22, R23, R31, R32, R33,
-     .   VX6, VY6, VZ6)
+     1   R11,     R12,     R13,     R21,
+     2   R22,     R23,     R31,     R32,
+     3   R33,     VX6,     VY6,     VZ6,
+     4   NEL)
 C-----------
       DO I=LFT,LLT
         VD2(I) = ZERO
@@ -458,7 +472,7 @@ C
         YYXZ2 = RTR(2)*RTR(5)*RTR(5)
         ZZXY2 = RTR(3)*RTR(4)*RTR(4)
         DETA = ABC + TWO*RTR(4)*RTR(5)*RTR(6)-XXYZ2-YYXZ2-ZZXY2
-        IF (DETA.LT.EM20) THEN
+        IF (DETA<EM20) THEN
           DETA=ONE
         ELSE
          DETA=ONE/DETA
@@ -471,165 +485,15 @@ C
         DI(I,6) = (RTR(4)*RTR(5)-RTR(6)*RTR(1))*DETA
       ENDDO
       CALL S6PROJ3(
-     .   X1, X2, X3, X4, X5, X6,
-     .   Y1, Y2, Y3, Y4, Y5, Y6,
-     .   Z1, Z2, Z3, Z4, Z5, Z6,
-     .   VX1, VX2, VX3, VX4, VX5, VX6, 
-     .   VY1, VY2, VY3, VY4, VY5, VY6,
-     .   VZ1, VZ2, VZ3, VZ4, VZ5, VZ6,
-     .   DI)
+     1   X1,      X2,      X3,      X4,
+     2   X5,      X6,      Y1,      Y2,
+     3   Y3,      Y4,      Y5,      Y6,
+     4   Z1,      Z2,      Z3,      Z4,
+     5   Z5,      Z6,      VX1,     VX2,
+     6   VX3,     VX4,     VX5,     VX6,
+     7   VY1,     VY2,     VY3,     VY4,
+     8   VY5,     VY6,     VZ1,     VZ2,
+     9   VZ3,     VZ4,     VZ5,     VZ6,
+     A   DI,      NEL)
       RETURN
       END
-C  |---- nouvelle routine---
-Chd|====================================================================
-Chd|  S6PROJ3                       source/elements/thickshell/solide6c/s6rcoor3.F
-Chd|-- called by -----------
-Chd|        S6CFORC3                      source/elements/thickshell/solide6c/s6cforc3.F
-Chd|        S6RCOOR3                      source/elements/thickshell/solide6c/s6rcoor3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE S6PROJ3(
-     .   X1, X2, X3, X4, X5, X6,
-     .   Y1, Y2, Y3, Y4, Y5, Y6,
-     .   Z1, Z2, Z3, Z4, Z5, Z6,
-     .   VX1, VX2, VX3, VX4, VX5, VX6, 
-     .   VY1, VY2, VY3, VY4, VY5, VY6,
-     .   VZ1, VZ2, VZ3, VZ4, VZ5, VZ6,
-     .   DI)
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect01_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C     REAL
-      my_real
-     .   X1(*), X2(*), X3(*), X4(*), X5(*), X6(*), 
-     .   Y1(*), Y2(*), Y3(*), Y4(*), Y5(*), Y6(*), 
-     .   Z1(*), Z2(*), Z3(*), Z4(*), Z5(*), Z6(*), 
-     .  VX1(*), VX2(*), VX3(*), VX4(*), VX5(*), VX6(*), 
-     .  VY1(*), VY2(*), VY3(*), VY4(*), VY5(*), VY6(*), 
-     .  VZ1(*), VZ2(*), VZ3(*), VZ4(*), VZ5(*), VZ6(*), 
-     .  DI(MVSIZ,6)
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I
-      my_real
-     .   XVY,XVZ,YVX,YVZ,ZVX,ZVY, 
-     .   AR(3),ALR(3)
-C-----------------------------------------------
-      DO I=LFT,LLT
-        XVY= X1(I)*VY1(I)+X2(I)*VY2(I)+X3(I)*VY3(I)
-     .      +X4(I)*VY4(I)+X5(I)*VY5(I)+X6(I)*VY6(I)
-        XVZ= X1(I)*VZ1(I)+X2(I)*VZ2(I)+X3(I)*VZ3(I)
-     .      +X4(I)*VZ4(I)+X5(I)*VZ5(I)+X6(I)*VZ6(I)
-        YVX= Y1(I)*VX1(I)+Y2(I)*VX2(I)+Y3(I)*VX3(I)
-     .      +Y4(I)*VX4(I)+Y5(I)*VX5(I)+Y6(I)*VX6(I)
-        YVZ= Y1(I)*VZ1(I)+Y2(I)*VZ2(I)+Y3(I)*VZ3(I)
-     .      +Y4(I)*VZ4(I)+Y5(I)*VZ5(I)+Y6(I)*VZ6(I)
-        ZVY= Z1(I)*VY1(I)+Z2(I)*VY2(I)+Z3(I)*VY3(I)
-     .      +Z4(I)*VY4(I)+Z5(I)*VY5(I)+Z6(I)*VY6(I)
-        ZVX= Z1(I)*VX1(I)+Z2(I)*VX2(I)+Z3(I)*VX3(I)
-     .      +Z4(I)*VX4(I)+Z5(I)*VX5(I)+Z6(I)*VX6(I)
-        AR(1)=-ZVY+YVZ
-        AR(2)= ZVX-XVZ
-        AR(3)=-YVX+XVY
-        ALR(1) =DI(I,1)*AR(1)+DI(I,4)*AR(2)+DI(I,5)*AR(3)
-        ALR(2) =DI(I,4)*AR(1)+DI(I,2)*AR(2)+DI(I,6)*AR(3)
-        ALR(3) =DI(I,5)*AR(1)+DI(I,6)*AR(2)+DI(I,3)*AR(3)
-C
-        VX1(I) = VX1(I)-(Z1(I)*ALR(2)-Y1(I)*ALR(3))
-        VY1(I) = VY1(I)-(X1(I)*ALR(3)-Z1(I)*ALR(1))
-        VZ1(I) = VZ1(I)-(Y1(I)*ALR(1)-X1(I)*ALR(2))
-        VX2(I) = VX2(I)-(Z2(I)*ALR(2)-Y2(I)*ALR(3))
-        VY2(I) = VY2(I)-(X2(I)*ALR(3)-Z2(I)*ALR(1))
-        VZ2(I) = VZ2(I)-(Y2(I)*ALR(1)-X2(I)*ALR(2))
-        VX3(I) = VX3(I)-(Z3(I)*ALR(2)-Y3(I)*ALR(3))
-        VY3(I) = VY3(I)-(X3(I)*ALR(3)-Z3(I)*ALR(1))
-        VZ3(I) = VZ3(I)-(Y3(I)*ALR(1)-X3(I)*ALR(2))
-        VX4(I) = VX4(I)-(Z4(I)*ALR(2)-Y4(I)*ALR(3))
-        VY4(I) = VY4(I)-(X4(I)*ALR(3)-Z4(I)*ALR(1))
-        VZ4(I) = VZ4(I)-(Y4(I)*ALR(1)-X4(I)*ALR(2))
-        VX5(I) = VX5(I)-(Z5(I)*ALR(2)-Y5(I)*ALR(3))
-        VY5(I) = VY5(I)-(X5(I)*ALR(3)-Z5(I)*ALR(1))
-        VZ5(I) = VZ5(I)-(Y5(I)*ALR(1)-X5(I)*ALR(2))
-        VX6(I) = VX6(I)-(Z6(I)*ALR(2)-Y6(I)*ALR(3))
-        VY6(I) = VY6(I)-(X6(I)*ALR(3)-Z6(I)*ALR(1))
-        VZ6(I) = VZ6(I)-(Y6(I)*ALR(1)-X6(I)*ALR(2))
-C
-      ENDDO
-      RETURN
-      END
-Chd|====================================================================
-Chd|  S6SAV3                        source/elements/thickshell/solide6c/s6rcoor3.F
-Chd|-- called by -----------
-Chd|        S6CFORC3                      source/elements/thickshell/solide6c/s6cforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE S6SAV3(OFFG   ,SAV   ,
-     .   XD1   ,XD2   ,XD3   ,XD4   ,XD5   ,XD6   ,
-     .   YD1   ,YD2   ,YD3   ,YD4   ,YD5   ,YD6   ,
-     .   ZD1   ,ZD2   ,ZD3   ,ZD4   ,ZD5   ,ZD6   ,
-     .   NEL   ) 
-C-----------------------------------------------
-C   I m p l i c i t   T y p e s
-C-----------------------------------------------
-#include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect01_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-      INTEGER NEL
-C     REAL
-      my_real
-     .   OFFG(*), SAV(NEL,15)
-      
-      my_real 
-     .   XD1(*), XD2(*), XD3(*), XD4(*), XD5(*), XD6(*),  
-     .   YD1(*), YD2(*), YD3(*), YD4(*), YD5(*), YD6(*),  
-     .   ZD1(*), ZD2(*), ZD3(*), ZD4(*), ZD5(*), ZD6(*)      
-C-----------------------------------------------
-C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
-      INTEGER I      
-C=======================================================================
-        DO I=LFT,LLT
-          IF(ABS(OFFG(I)) <= ONE )THEN
-           SAV(I,1)=XD1(I)-XD6(I)
-           SAV(I,2)=YD1(I)-YD6(I)
-           SAV(I,3)=ZD1(I)-ZD6(I)
-           SAV(I,4)=XD2(I)-XD6(I)
-           SAV(I,5)=YD2(I)-YD6(I)
-           SAV(I,6)=ZD2(I)-ZD6(I)
-           SAV(I,7)=XD3(I)-XD6(I)
-           SAV(I,8)=YD3(I)-YD6(I)
-           SAV(I,9)=ZD3(I)-ZD6(I)
-           SAV(I,10)=XD4(I)-XD6(I)
-           SAV(I,11)=YD4(I)-YD6(I)
-           SAV(I,12)=ZD4(I)-ZD6(I)
-           SAV(I,13)=XD5(I)-XD6(I)
-           SAV(I,14)=YD5(I)-YD6(I)
-           SAV(I,15)=ZD5(I)-ZD6(I)
-          ENDIF
-        ENDDO
-C-----------
-      RETURN
-      END
-

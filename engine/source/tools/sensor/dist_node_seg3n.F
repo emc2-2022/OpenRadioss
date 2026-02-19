@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DIST_NODE_SEG3N               source/tools/sensor/dist_node_seg3n.F
-Chd|-- called by -----------
-Chd|        SENSOR_DIST_SURF0             source/tools/sensor/sensor_dist_surf0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dist_node_seg3n     ../engine/source/tools/sensor/dist_node_seg3n.F
+!||--- called by ------------------------------------------------------
+!||    sensor_dist_surf0   ../engine/source/tools/sensor/sensor_dist_surf0.F
+!||====================================================================
         SUBROUTINE DIST_NODE_SEG3N (
      .             DIST,DMIN,DMAX,NOD_X,NOD_Y,NOD_Z,
      .             AX,AY,AZ,BX,BY,BZ,CX,CY,CZ)
@@ -46,9 +45,9 @@ C-----------------------------------------------
 C----------------------------------------------------------
 C Local Variables
 C----------------------------------------------------------
-      my_real :: ABX,ABY,ABZ,ACX,ACY,ACZ,BCX,BCY,BCZ,VECX,VECY,VECZ,NX,NY,NZ,
+      my_real :: ABX,ABY,ABZ,ACX,ACY,ACZ,BCX,BCY,BCZ,NX,NY,NZ,
      .   UX,UY,UZ,VX,VY,VZ,WX,WY,WZ,QX,QY,QZ,QA_X,QA_Y,QA_Z,QB_X,QB_Y,QB_Z,
-     .   QC_X,QC_Y,QC_Z,AREA,A1,A2,SX,SY,SZ,ALPHA,ALPHA2,D1,D2,D3,LEN,NORM
+     .   QC_X,QC_Y,QC_Z,AREA,A1,A2,SX,SY,SZ,ALPHA,D1,D2,D3,LEN,NORM
 C=======================================================================
 c     vect AB = P1-P2
 c     vect AC = P1-P3
@@ -90,7 +89,7 @@ c---------------------------------------------------
       QC_Y = CY - QY
       QC_Z = CZ - QZ
 c
-c     Surfaces de sous-triangles
+c     surfaces of sub-triangles
 c
       SX = QA_Y * QB_Z - QA_Z * QB_Y
       SY = QA_Z * QB_X - QA_X * QB_Z

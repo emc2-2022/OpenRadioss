@@ -1,38 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ALEW2                         source/ale/grid/alew2.F       
-Chd|-- called by -----------
-Chd|        ALEWDX                        source/ale/grid/alewdx.F      
-Chd|-- calls ---------------
-Chd|        SPMD_EXALEW                   source/mpi/fluid/spmd_cfd.F   
-Chd|        SPMD_EXALEW_PON               source/mpi/fluid/spmd_cfd.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    alew2             ../engine/source/ale/grid/alew2.F
+!||--- called by ------------------------------------------------------
+!||    alewdx            ../engine/source/ale/grid/alewdx.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exalew       ../engine/source/mpi/fluid/spmd_cfd.F
+!||    spmd_exalew_pon   ../engine/source/mpi/fluid/spmd_cfd.F
+!||--- uses       -----------------------------------------------------
+!||    ale_mod           ../common_source/modules/ale/ale_mod.F
+!||====================================================================
       SUBROUTINE ALEW2(
      1   X       ,D      ,V       ,W     ,WA    ,
      2   NALE    ,IPARG  ,NC      ,WB    ,
      3   IAD_ELEM,FR_ELEM,FR_NBCC ,SIZEN ,ADDCNE,
-     4   PROCNE  ,FSKY   ,FSKYV   ,IADS  ,ITAB)
+     4   PROCNE  ,FSKY   ,FSKYV   ,IADS  )
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -42,6 +44,10 @@ C     X,D,V are allocated to SX,SD,DV=3*(NUMNOD_L+NUMVVOIS_L)
 C      in grid subroutine it may needed to access nodes which
 C      are connected to a remote elem. They are sored in X(1:3,NUMNOD+1:)
 C      Consequently X is defined here X(3,SX/3) instead of X(3,NUMNOD) as usually
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE ALE_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -55,11 +61,8 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com07_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
@@ -71,8 +74,7 @@ C-----------------------------------------------
 !      idem with D(SD), and V(SV)
 C-----------------------------------------------
       INTEGER NALE(NUMNOD), IPARG(NPARG,NGROUP), NC(11,*), ADDCNE(*), PROCNE(*),
-     .        IAD_ELEM(2,*), FR_ELEM(*), FR_NBCC(2,*), IADS(8,*),ITAB(NUMNOD),
-     .        SIZEN
+     .        IAD_ELEM(2,*), FR_ELEM(*), FR_NBCC(2,*), IADS(8,*),SIZEN
       my_real X(3,SX/3), D(3,SD/3), V(3,SV/3), W(3,SW/3), WA(3,*), WB(3,*),
      .        FSKY(8,LSKY), FSKYV(LSKY,8)
 C-----------------------------------------------
@@ -107,11 +109,11 @@ C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
       DLMIN = EM01
-      GAM1=HALF*(GAMMA-ONE)
+      GAM1=HALF*(ALE%GRID%GAMMA-ONE)
       DO I=13,24
-       FAC(I)=VGY
+       FAC(I)=ALE%GRID%VGY
       ENDDO
-      BETA=SIX*(ONE + TWO*VGY)
+      BETA=SIX*(ONE + TWO*ALE%GRID%VGY)
 C-----------------------------------------------
 C SPMD code makes difference between Parith/ON & OFF
 C-----------------------------------------------
@@ -205,9 +207,9 @@ C
               DL(I)=(XX(I)*DX(I)+XY(I)*DY(I)+XZ(I)*DZ(I))/XL(I)
               DDL(I)=(XX(I)*DDX(I)+XY(I)*DDY(I)+XZ(I)*DDZ(I))/XL(I)
               DLM=MIN(DLM,DL(I)/XL(I))
-              DL1(I)=GAMMA+GAM1*MIN(DL(I)/XL(I),ZERO)
-              DL(I) = FAC(ITR)/XL(I) /ALPHA/ALPHA *DDL(I)*DL1(I)
-              DDL(I)= FAC(ITR)/XL(I) * VGX/ALPHA*DDL(I)
+              DL1(I)=ALE%GRID%GAMMA+GAM1*MIN(DL(I)/XL(I),ZERO)
+              DL(I) = FAC(ITR)/XL(I) /ALE%GRID%ALPHA/ALE%GRID%ALPHA *DDL(I)*DL1(I)
+              DDL(I)= FAC(ITR)/XL(I) * ALE%GRID%VGX/ALE%GRID%ALPHA*DDL(I)
             ENDDO!next I
            
             ! --- SPMD PARITH/OFF
@@ -291,7 +293,7 @@ C
         ENDIF!IF (ITY == 1 .AND. MQE == 1)
       ENDDO!next NG
 C
-      VGZ=DLM
+      ALE%GRID%VGZ=DLM
 C-----------------------------------------------
 C CODE SPMD : CUMUL WA WB
 C-----------------------------------------------

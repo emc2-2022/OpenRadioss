@@ -1,32 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CZLKECG3                      source/elements/shell/coquez/czlkecg3.F
-Chd|-- called by -----------
-Chd|        CZKE3                         source/elements/shell/coquez/czke3.F
-Chd|        CZKEL3                        source/elements/shell/coquez/czkel3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    czlkecg3   ../engine/source/elements/shell/coquez/czlkecg3.F
+!||--- called by ------------------------------------------------------
+!||    czke3      ../engine/source/elements/shell/coquez/czke3.F
+!||====================================================================
         SUBROUTINE CZLKECG3(JFT ,JLT   ,VOL  ,THK0 ,THK2 ,
      1                      PX1  ,PX2  ,PY1   ,PY2  ,RX   ,
      2                      RY   ,SX    ,SY   ,RX2  ,RY2  ,
@@ -71,7 +69,7 @@ C---------------|[FMIJ]{MIJ]|----
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER EP,I,J,NF,M
+      INTEGER EP,I,NF,M
       MY_REAL 
      .    C1,C2,
      .    PX1PX1(MVSIZ),PX1PX2(MVSIZ) ,PX2PX2(MVSIZ), 
@@ -81,10 +79,10 @@ C-----------------------------------------------
      .    FXX(MVSIZ),FYY(MVSIZ),FXY(MVSIZ),MXX(MVSIZ),MYY(MVSIZ),
      .    MXY(MVSIZ),FXY2(MVSIZ),MXY2(MVSIZ),SCX(MVSIZ),SCY(MVSIZ),
      .    CS1(MVSIZ),CS2(MVSIZ),CS3(MVSIZ)
-C-----------Attention Matrice sym Kii ne calcul que la moitie---------72
+C----------- CAPTE Matrix Sym KII only calculates half ---------- 72
        NF=NPLAT+1
 #include "vectorize.inc"
-C--------Constante parts---------------
+C------- Constant Parts --------------
        DO M=JFT,JLT 
         EP=IPLAT(M)
         C2=VOL(EP)
@@ -140,7 +138,7 @@ C---------membrane-------
         ENDDO
        ENDDO
 C------ renforce positive  ----------
-        IF (NEIG.EQ.0.AND.IDRIL==0.AND.IORTH >0) THEN
+        IF (NEIG==0.AND.IDRIL==0.AND.IORTH >0) THEN
          DO EP=JFT,JLT
           C1 = MIN(H11(EP),H22(EP),-H11(EP),-H22(EP))
           IF (C1 < ZERO) THEN

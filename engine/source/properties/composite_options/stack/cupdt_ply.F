@@ -1,42 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CUPDT_PLY                     source/properties/composite_options/stack/cupdt_ply.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|-- calls ---------------
-Chd|        PLYXFEM_MOD                   share/modules/plyxfem_mod.F   
-Chd|====================================================================
-      SUBROUTINE CUPDT_PLY(JFT  ,JLT   ,NVC    ,OFFG   ,OFF  ,IADC ,
-     2                     IEL , INOD  ,IXC    ,MS     ,IN   ,MS_PLY ,
-     3                     ZI_PLY,ISTACK,POSLY,
-     4                     FLY11 ,FLY12 ,FLY13  ,FLY14 ,FLY21 ,FLY22,
-     5                     FLY23 ,FLY24 ,FLY31  ,FLY32 ,FLY33,FLY34 ,
-     6                     FAC   ,STI   ,MSZ2) 
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cupdt_ply     ../engine/source/properties/composite_options/stack/cupdt_ply.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3      ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||    plyxfem_mod   ../engine/share/modules/plyxfem_mod.F
+!||====================================================================
+      SUBROUTINE CUPDT_PLY(
+     1   JFT,     JLT,     NVC,     OFFG,
+     2   OFF,     IADC,    IEL,     INOD,
+     3   IXC,     MS,      IN,      MS_PLY,
+     4   ZI_PLY,  ISTACK,  POSLY,   FLY11,
+     5   FLY12,   FLY13,   FLY14,   FLY21,
+     6   FLY22,   FLY23,   FLY24,   FLY31,
+     7   FLY32,   FLY33,   FLY34,   FAC,
+     8   STI,     MSZ2,    NFT,     NPT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
        USE PLYXFEM_MOD
+       use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,10 +51,7 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include     "vect01_c.inc"
 #include     "parit_c.inc"
-#include     "com04_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -57,6 +59,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NFT
+      INTEGER, INTENT(IN) :: NPT
       INTEGER JFT, JLT, NVC
       INTEGER IADC(4,*),IXC(NIXC,MVSIZ),ISTACK(MVSIZ,NPT),IEL(*),
      .        INOD(*)
@@ -72,7 +76,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NVC1, NVC2, NVC3, NVC4, I, J, MX,IOFF,IP,I1,I2,I3,I4,N,
+      INTEGER NVC1, NVC2, NVC3, NVC4, I, J, IP, I1, I2, I3, I4, N, 
      .        IN1,IN2,IN3,IN4
       my_real
      .   OFF_L,  
@@ -82,16 +86,16 @@ C-----------------------------------------------
      .   MPLY33,MPLY14,MPLY24,MPLY34
 C-----------------------------------------------
 C
-C cumul de l'energie des elements deletes AU moment du delete
+C accumulation of the energy of deleted elements at the time of deletion
 C
       OFF_L = ZERO
       DO I=JFT,JLT
-        IF(OFF(I).LT.ONE)OFFG(I) = OFF(I)
+        IF(OFF(I)<ONE)OFFG(I) = OFF(I)
         OFF_L = MIN(OFF_L,OFFG(I))
       ENDDO
-      IF(OFF_L.LT.ZERO)THEN
+      IF(OFF_L<ZERO)THEN
         DO I=JFT,JLT
-         IF(OFFG(I).LT.ZERO)THEN
+         IF(OFFG(I)<ZERO)THEN
           DO J=1,NPT
            FLY11(I,J)=ZERO
            FLY21(I,J)=ZERO
@@ -157,7 +161,6 @@ C
        ENDDO 
 
       ELSE  
-cc#include "cupdt3_pf.inc"
         DO I=JFT,JLT
         
          I1 = INOD(IXC(2,I))      

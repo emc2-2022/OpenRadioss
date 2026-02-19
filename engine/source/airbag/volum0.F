@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  VOLUM0                        source/airbag/volum0.F        
-Chd|-- called by -----------
-Chd|        MONVOL0                       source/airbag/monvol0.F       
-Chd|-- calls ---------------
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|        MONVOL_STRUCT_MOD             share/modules/monvol_struct_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    volum0              ../engine/source/airbag/volum0.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_exch_fr6       ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||    sum_6_float         ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    monvol_struct_mod   ../engine/share/modules/monvol_struct_mod.F
+!||====================================================================
       SUBROUTINE VOLUM0(IVOLU   ,RVOLU ,VOL  ,X  ,SURF_NODES,
      2                  N       ,NN    ,SURF_ELTYP,SURF_ELEM,
      3                  ICONTACT,PORO  ,FR_MV, T_MONVOLN)
@@ -43,10 +42,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -60,27 +57,24 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,IS,K,NOD1,NOD2,NOD3,NOD4
-      my_real
-     .   AREA,XX,YY,ZZ,X12,Y12,Z12,X13,Y13,Z13,X24,Y24,Z24,DIR,
-     .     NX, NY, NZ
+      INTEGER I,II,K,NOD1,NOD2,NOD3,NOD4
+      my_real AREA,XX,YY,ZZ,X13,Y13,Z13,X24,Y24,Z24,NX, NY, NZ
       my_real, DIMENSION(:), ALLOCATABLE :: F1, F2
-      DOUBLE PRECISION 
-     .   FRMV6(2,6)
+      DOUBLE PRECISION FRMV6(2,6)
 C--------------------------------------------------------------
-C CALCUL DU VOLUME (variable locale dans MONVOL0)
-C CALCUL DE LA SURFACE (stockee dans RVOLU(18))
-C PORO(*) : PORO=0 aucun noeud en contact
-C           PORO=1 tous les noeuds en contact ...
+C CALCULATION OF THE VOLUME (local variable in MONVOL0)
+C CALCULATION OF THE SURFACE (stored in RVOLU(18))
+C PORO(*) : PORO=0 no node in contact
+C           Poro = 1 All the nodes in contact ...
 C--------------------------------------------------------------
 
       ALLOCATE(F1(NN + T_MONVOLN%NB_FILL_TRI), F2(NN + T_MONVOLN%NB_FILL_TRI))
-      IF(INTBAG.EQ.0)THEN
+      IF(INTBAG==0)THEN
         DO I=1,NN
           II=SURF_ELEM(I)
-          IF(SURF_ELTYP(I).EQ.7)THEN
+          IF(SURF_ELTYP(I)==7)THEN
             II=II+NUMELC
-          ELSEIF(SURF_ELTYP(I).NE.3)THEN
+          ELSEIF(SURF_ELTYP(I)/=3)THEN
             II=I+NUMELC+NUMELTG
           ENDIF
           NOD1 = SURF_NODES(I,1)
@@ -109,25 +103,25 @@ C--------------------------------------------------------------
           NOD2 = SURF_NODES(I,2)
           NOD3 = SURF_NODES(I,3)
           NOD4 = SURF_NODES(I,4)
-          IF(SURF_ELTYP(I).EQ.3)THEN
+          IF(SURF_ELTYP(I)==3)THEN
             PORO(II)=ZERO
-            IF(ICONTACT(NOD1).NE.0)PORO(II)=PORO(II)+FOURTH
-            IF(ICONTACT(NOD2).NE.0)PORO(II)=PORO(II)+FOURTH
-            IF(ICONTACT(NOD3).NE.0)PORO(II)=PORO(II)+FOURTH
-            IF(ICONTACT(NOD4).NE.0)PORO(II)=PORO(II)+FOURTH
-          ELSEIF(SURF_ELTYP(I).EQ.7)THEN
+            IF(ICONTACT(NOD1)/=0)PORO(II)=PORO(II)+FOURTH
+            IF(ICONTACT(NOD2)/=0)PORO(II)=PORO(II)+FOURTH
+            IF(ICONTACT(NOD3)/=0)PORO(II)=PORO(II)+FOURTH
+            IF(ICONTACT(NOD4)/=0)PORO(II)=PORO(II)+FOURTH
+          ELSEIF(SURF_ELTYP(I)==7)THEN
             II=II+NUMELC
             PORO(II)=ZERO
-            IF(ICONTACT(NOD1).NE.0)PORO(II)=PORO(II)+THIRD
-            IF(ICONTACT(NOD2).NE.0)PORO(II)=PORO(II)+THIRD
-            IF(ICONTACT(NOD3).NE.0)PORO(II)=PORO(II)+THIRD
+            IF(ICONTACT(NOD1)/=0)PORO(II)=PORO(II)+THIRD
+            IF(ICONTACT(NOD2)/=0)PORO(II)=PORO(II)+THIRD
+            IF(ICONTACT(NOD3)/=0)PORO(II)=PORO(II)+THIRD
           ELSE
             II=I+NUMELC+NUMELTG
             PORO(II)=ZERO
-            IF(ICONTACT(NOD1).NE.0)PORO(II)=PORO(II)+FOURTH
-            IF(ICONTACT(NOD2).NE.0)PORO(II)=PORO(II)+FOURTH
-            IF(ICONTACT(NOD3).NE.0)PORO(II)=PORO(II)+FOURTH
-            IF(ICONTACT(NOD4).NE.0)PORO(II)=PORO(II)+FOURTH    
+            IF(ICONTACT(NOD1)/=0)PORO(II)=PORO(II)+FOURTH
+            IF(ICONTACT(NOD2)/=0)PORO(II)=PORO(II)+FOURTH
+            IF(ICONTACT(NOD3)/=0)PORO(II)=PORO(II)+FOURTH
+            IF(ICONTACT(NOD4)/=0)PORO(II)=PORO(II)+FOURTH    
           ENDIF
           XX=HALF*(X(1,NOD1)+X(1,NOD2))
           YY=HALF*(X(2,NOD1)+X(2,NOD2))

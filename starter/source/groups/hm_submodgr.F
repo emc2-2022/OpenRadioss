@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_SUBMODGRN                  source/groups/hm_submodgr.F   
-Chd|-- called by -----------
-Chd|        HM_LECGRN                     source/groups/hm_lecgrn.F     
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        GROUPS_GET_ELEM_LIST          source/groups/groups_get_elem_list.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_submodgrn           ../starter/source/groups/hm_submodgr.F
+!||--- called by ------------------------------------------------------
+!||    hm_lecgrn              ../starter/source/groups/hm_lecgrn.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    groups_get_elem_list   ../starter/source/groups/groups_get_elem_list.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_SUBMODGRN(
      .           ITAB   ,ITABM1    ,ISUBMOD  ,SID     ,
      .           NNOD   ,MESS      ,FLAG     ,TITR    ,
@@ -41,29 +42,21 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
       USE GROUPDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARLINE, NCHARFIELD, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  ITAB(*),ITABM1(*),ISUBMOD(*)
       INTEGER  SID,NNOD,FLAG,NN
       CHARACTER MESS(*)
-      CHARACTER*nchartitle,
-     .   TITR,TITR1
+      CHARACTER(LEN=NCHARTITLE) :: TITR,TITR1
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
 C-----------------------------------------------
       TYPE (GROUP_),TARGET  :: IGRNOD
@@ -73,7 +66,9 @@ C-----------------------------------------------
       INTEGER I,J,K,ISU,IDNOD,INUM,JREC,NTAG,CTAG,CUR_SUBMOD,ISELECT,IOK,
      .        ID,IDU,NBNODES,NENTITY,KK,JJ,NBCNODES
       INTEGER  TAGS(0:NSUBMOD),J10(10)
-      CHARACTER KEY*ncharkey,CART*ncharline,VERS_IN*ncharfield
+      CHARACTER(LEN=NCHARKEY) ::  KEY
+      CHARACTER(LEN=NCHARLINE) :: CART
+      CHARACTER(LEN=NCHARFIELD) ::VERS_IN
       INTEGER,DIMENSION(:),ALLOCATABLE :: LIST_ENTITY
       INTEGER, DIMENSION(:), ALLOCATABLE :: TAGNODSUB
       LOGICAL IS_AVAILABLE
@@ -84,7 +79,6 @@ C-----------------------------------------------
       INTERFACE
        SUBROUTINE GROUPS_GET_ELEM_LIST(arg1,arg2,arg3)
         USE SUBMODEL_MOD
-#include      "submod_c.inc"
         INTEGER,DIMENSION(:),ALLOCATABLE       :: arg1
         INTEGER,INTENT(INOUT)                  :: arg2
         TYPE(SUBMODEL_DATA)                    :: arg3(NSUBMOD)
@@ -105,18 +99,18 @@ C-------------------------
           DO K=1,NSUBMOD 
             CUR_SUBMOD = K
             ISELECT = 0
-            DO WHILE (CUR_SUBMOD .NE. 0 .AND. ISELECT .EQ. 0)
+            DO WHILE (CUR_SUBMOD /= 0 .AND. ISELECT == 0)
               IF (LSUBMODEL(CUR_SUBMOD)%NOSUBMOD == JJ) ISELECT = 1
               IF (LSUBMODEL(CUR_SUBMOD)%NOSUBMOD == -JJ) ISELECT = -1
               CUR_SUBMOD = LSUBMODEL(CUR_SUBMOD)%IFATHER
             ENDDO
-                				  
+            
             IF (ISELECT == 1) THEN
-              ISU=K			  
+              ISU=K        
               TAGS(K) = TAGS(K) + 1
               IOK = 1
             ELSEIF (ISELECT == -1) THEN
-              ISU=K			
+              ISU=K
               TAGS(K) = TAGS(K) - 1
               IOK = 1
             ENDIF
@@ -129,7 +123,7 @@ C-------------------------
      .                  C2=TITR1,
      .                  C3=TITR,
      .                  C4='SUBMODEL',
-     .                  I2=J10(J))                                              
+     .                  I2=JJ)
         ENDIF                                                
       ENDDO 
       IF(ALLOCATED(LIST_ENTITY))DEALLOCATE (LIST_ENTITY)
@@ -166,17 +160,17 @@ C-------------------------------------
 C-------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  HM_SUBMODGRE                  source/groups/hm_submodgr.F   
-Chd|-- called by -----------
-Chd|        HM_LECGRE                     source/groups/hm_lecgre.F     
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        GROUPS_GET_ELEM_LIST          source/groups/groups_get_elem_list.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    hm_submodgre           ../starter/source/groups/hm_submodgr.F
+!||--- called by ------------------------------------------------------
+!||    hm_lecgre              ../starter/source/groups/hm_lecgre.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    groups_get_elem_list   ../starter/source/groups/groups_get_elem_list.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_SUBMODGRE(
      .           ISUBMOD  ,IX      ,NIX      ,SID      ,
      .           NEL      ,NUMEL   ,IELT     ,MESS     ,
@@ -188,29 +182,22 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
       USE GROUPDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARFIELD, NCHARLINE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER  NIX,SID,NEL,NUMEL,IELT,FLAG,NN,IGS
       INTEGER  ISUBMOD(*),IX(NIX,*)
       CHARACTER MESS(*)
-      CHARACTER*nchartitle,
-     .   TITR,TITR1
+      CHARACTER(LEN=NCHARTITLE) :: TITR,TITR1
       TYPE(SUBMODEL_DATA) LSUBMODEL(NSUBMOD)
 C-----------------------------------------------
       TYPE (GROUP_) IGRELEM(*)
@@ -219,7 +206,9 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,ISU,IDEL,INUM,TAG,CUR_SUBMOD,ISELECT,IOK, ID,IDU,ELEMTYPE,KK,JJ
       INTEGER  TAGS(0:NSUBMOD)
-      CHARACTER KEY*ncharkey,CART*ncharline,VERS_IN*ncharfield
+      CHARACTER(LEN=NCHARKEY) :: KEY
+      CHARACTER(LEN=NCHARLINE) ::CART
+      CHARACTER(LEN=NCHARFIELD) ::VERS_IN
       INTEGER, DIMENSION(:), ALLOCATABLE :: TAGELEMSUB
       LOGICAL IS_AVAILABLE, IS_ENCRYPTED
       INTEGER,DIMENSION(:),ALLOCATABLE :: LIST_ELEM
@@ -228,14 +217,13 @@ C-----------------------------------------------
       INTERFACE
        SUBROUTINE GROUPS_GET_ELEM_LIST(arg1,arg2,arg3)
         USE SUBMODEL_MOD
-#include      "submod_c.inc"
         INTEGER,DIMENSION(:),ALLOCATABLE       :: arg1
         INTEGER,INTENT(INOUT)                  :: arg2
         TYPE(SUBMODEL_DATA)                    :: arg3(NSUBMOD)
        END SUBROUTINE  
       END INTERFACE     
 C-----------------------------------------------
-C     IELT = ELEMENT TYPE (0 POUR NOEUDS, 1 BRIC, 2 QUAD, 3 SHELL, 
+C     IELT = ELEMENT TYPE (0 FOR NODES, 1 BRIC, 2 QUAD, 3 SHELL, 
 C                          4 TRUSS, 5 BEAM, 6 SPRINGS,7 SHELL_3N)
 C=======================================================================
 C     Tag submodels
@@ -252,7 +240,7 @@ C-------------------------
             DO K=1,NSUBMOD                                                                    
               CUR_SUBMOD = K                                                                  
               ISELECT = 0                                                                     
-              DO WHILE (CUR_SUBMOD .NE. 0 .AND. ISELECT .EQ. 0)                               
+              DO WHILE (CUR_SUBMOD /= 0 .AND. ISELECT == 0)                               
                 IF (LSUBMODEL(CUR_SUBMOD)%NOSUBMOD == JJ) ISELECT = 1                         
                 IF (LSUBMODEL(CUR_SUBMOD)%NOSUBMOD == -JJ) ISELECT = -1                       
                 CUR_SUBMOD = LSUBMODEL(CUR_SUBMOD)%IFATHER                                    
@@ -295,7 +283,7 @@ c
 C-------------------------------------
 C Tag submodel ELEMS
 C-------------------------------------
-C     IELT = ELEMENT TYPE (0 POUR NOEUDS, 1 BRIC, 2 QUAD, 3 SHELL, 
+C     IELT = ELEMENT TYPE (0 FOR NODES, 1 BRIC, 2 QUAD, 3 SHELL, 
 C                          4 TRUSS, 5 BEAM, 6 SPRINGS,7 SHELL_3N)
       IF (IELT == 1) THEN
         ELEMTYPE = 208

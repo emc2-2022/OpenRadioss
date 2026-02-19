@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIMPLE_NODE_BOX               source/model/sets/simple_node_box.F
-Chd|-- called by -----------
-Chd|        FILL_CLAUSE_NODE_BOX          source/model/sets/fill_clause_node_box.F
-Chd|-- calls ---------------
-Chd|        CHECKCYL                      source/model/box/rdbox.F      
-Chd|        CHECKPARA                     source/model/box/rdbox.F      
-Chd|        CHECKSPHERE                   source/model/box/rdbox.F      
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    simple_node_box   ../starter/source/model/sets/simple_node_box.F
+!||--- called by ------------------------------------------------------
+!||    node_box          ../starter/source/model/sets/fill_clause_node_box.F
+!||--- calls      -----------------------------------------------------
+!||    checkcyl          ../starter/source/model/box/rdbox.F
+!||    checkpara         ../starter/source/model/box/rdbox.F
+!||    checksphere       ../starter/source/model/box/rdbox.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SIMPLE_NODE_BOX(
      .                    IBOX   ,X    ,SKEW  ,
      .                    IB, ND_ARRAY,ND_SIZE)
@@ -44,10 +44,10 @@ C
 C     NAME          DESCRIPTION                         
 C
 C     IBOX          BOX structure
-C     X             Node position 
+C     X node position 
 C     SKEW          SKEW array
 C     NOD_ARRAY     Result list of nodes
-C     ND_SIZE       nuber of stacked nodes
+C     ND_SIZE       number of stacked nodes
 C     IB            Box to treat
 C============================================================================
 C-----------------------------------------------
@@ -62,9 +62,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "scr17_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -77,7 +74,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,INSIDE,ISK,BOX_TYPE,NBOXBOX,IBX
+      INTEGER J, INSIDE, ISK, BOX_TYPE, IBX
       my_real
      .    XP1,YP1,ZP1,XP2,YP2,ZP2,DIAM,NODINB(3)
 C-----------------------------------------------

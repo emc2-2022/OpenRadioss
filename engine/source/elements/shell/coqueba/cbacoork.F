@@ -1,26 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-	SUBROUTINE CBACOORK(JFT,JLT,X,IXC,PM,OFFG,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbacoork       ../engine/source/elements/shell/coqueba/cbacoork.F
+!||--- called by ------------------------------------------------------
+!||    cbake3         ../engine/source/elements/shell/coqueba/cbake3.F
+!||--- calls      -----------------------------------------------------
+!||    clskew3        ../engine/source/elements/sh3n/coquedk/cdkcoor3.F
+!||    cortdir3       ../engine/source/elements/shell/coque/cortdir3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||====================================================================
+          SUBROUTINE CBACOORK(JFT,JLT,X,IXC,PM,OFFG,
      1                     GEO,AREA,VCORE,JAC,HX,HY,
      2                     VQN,VQG,VQ,VJFI,VNRM,VASTN,NPLAT,IPLAT,
      3                     X13_T  ,X24_T  ,Y13_T,Y24_T, 
@@ -31,6 +42,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE ELBUFDEF_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -57,13 +69,13 @@ C-----------------------------------------------
      .   VASTN(MVSIZ,4,NNOD),VNRM(MVSIZ,3,NNOD),
      .   JAC(MVSIZ,4),HX(MVSIZ,4),HY(MVSIZ,4),Y24_T(*),
      .   DIR_A(NEL,*),DIR_B(NEL,*),OFF(*),
-     .   X13_T(*),X24_T(*),Y13_T(*),OFF_L
+     .   X13_T(*),X24_T(*),Y13_T(*)
       DOUBLE PRECISION
      .  SMSTR(*)
       INTEGER IREP,NPT,ISMSTR,PID(*),MAT(*),NGL(*)
       TYPE(ELBUF_STRUCT_) :: ELBUF_STR
 C-----------------------------------------------
-c FUNCTION: premilitary compute for QBAT [K] build
+c FUNCTION: preliminary compute for QBAT [K] build
 c
 c Note:
 c ARGUMENTS:  (I: input, O: output, IO: input * output, W: workspace)
@@ -78,7 +90,7 @@ c  O   AREA(NEL) ,NPT     - Area (element), num. of integrating points in thickn
 c  O   VCORE(3,4,NEL)     - coordinates of 4 nodes in local system
 c                           BX0(2),BY0(2),GAMA(2),MX23,MY23,MX34,MY34,MX13,MY13
 c                           for plat element
-c  O  JAC,HX,HY(4,NEL)    -Jacobien,asymetric part(hourglass) at 4 Gauss points
+c  O  JAC,HX,HY(4,NEL)    - Jacobian,asymmetric part(hourglass) at 4 Gauss points
 c  O  VQ(9,NEL),VQN,VQG(9,4,NEL) - local system of element, nodal(4) and Gauss points(4)
 c  O  VJFI,VNRM,VASTN     - terms used for assumed strains
 c  O  NPLAT,IPLAT(NEL)    - num. of plat element and indice
@@ -87,25 +99,25 @@ c  IO XiS,YiS,ZiS(NEL)    - reference configurations used for small strain optio
 c  I  ISMSTR,IREP         - small strain and orthotrop flags 
 c  O  DIR_A,DIR_B(2,NEL)  - orthotropic directions
 c  I  ISROT               - drilling dof flag
-c  O  PID,MAT,NGL(NEL)    - geometric property id, material id and users' element id    
+c  O  PID,MAT,NGL(NEL)    - geometric property id, material id and users' element id
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
       INTEGER J,I,II(6),K,EP,SPLAT,JPLAT(MVSIZ),L,M,MAT_1
       MY_REAL
-     .    J0,J1,J2,DETA,X1,Y1,S1,PG
+     .    J0,J1,J2,PG
       MY_REAL
-     .    X13,X24,Y13,MX13,MX23,MX34,MY13,Y13_2,Z1,Z2,GAMA1,GAMA2,
-     .    X21,X34,Y21,Y34,Z21,Z34,X41,X32,Y41,Y32,Z_2,Z41,Z32,L12,L34,
-     .    A_4,SL,SZ2,SZ,JMX13,JMY13,JMZ13,J2MYZ,LM(MVSIZ),Y24,Y24_2,
-     .    MY23,MY34,SCAL,G1X1,G1X3,G1Y1,G1Y3,G2X1,G2X2,G2Y1,G2Y2
+     .    X13,X24,Y13,MX13,MX23,MX34,MY13,Z1,Z2,GAMA1,GAMA2,
+     .    X21,X34,Y21,Y34,Z21,Z34,X41,X32,Y41,Y32,Z41,Z32,L12,L34,
+     .    A_4,SL,SZ2,SZ,JMX13,JMY13,JMZ13,J2MYZ,Y24,
+     .    MY23,MY34,G1X1,G1X3,G1Y1,G1Y3,G2X1,G2X2,G2Y1,G2Y2
       my_real 
      .   LXYZ0(3),DETA1(MVSIZ),RX(MVSIZ), RY(MVSIZ), RZ(MVSIZ),
      .   SX(MVSIZ),SY(MVSIZ),R11(MVSIZ),R12(MVSIZ),R13(MVSIZ),
      .   R21(MVSIZ),R22(MVSIZ),R23(MVSIZ),R31(MVSIZ),R32(MVSIZ),
      .   R33(MVSIZ),XL2(MVSIZ),XL3(MVSIZ),XL4(MVSIZ),YL2(MVSIZ),
      .   YL3(MVSIZ),YL4(MVSIZ),ZL1(MVSIZ),AREA_I(MVSIZ),SSZ(MVSIZ),
-     .   L13(MVSIZ),L24(MVSIZ),XX,YY,ZZ,C1,C2,LL(MVSIZ)
+     .   L13(MVSIZ),L24(MVSIZ),C1,C2,LL(MVSIZ)
       MY_REAL 
      .   XX1,XX2,XX3,XX4,YY1,YY2,YY3,YY4,ZZ1,ZZ2,ZZ3,ZZ4,TOL
         DATA   PG/.577350269189626/
@@ -189,9 +201,9 @@ C
 C----------------------------
 C     SMALL STRAIN
 C----------------------------
-      IF(ISMSTR.EQ.1.OR.ISMSTR.EQ.2)THEN
+      IF(ISMSTR==1.OR.ISMSTR==2)THEN
         DO I=JFT,JLT
-          IF(ABS(OFFG(I)).EQ.TWO)THEN
+          IF(ABS(OFFG(I))==TWO)THEN
             XL2(I)=SMSTR(II(1)+I)
             YL2(I)=SMSTR(II(2)+I)
             XL3(I)=SMSTR(II(3)+I)
@@ -212,13 +224,13 @@ C----------------------------
          ENDIF
         ENDDO
       ENDIF
-      IF(ISMSTR.EQ.1)THEN
+      IF(ISMSTR==1)THEN
         DO I=JFT,JLT
-            IF(OFFG(I).EQ.ONE)OFFG(I)=TWO
+            IF(OFFG(I)==ONE)OFFG(I)=TWO
         ENDDO
       ENDIF
 C----------------------------
-C     ORTHOTROPY (plus tard)
+C     Orthotropy (later)
 C----------------------------
       IF (IREP > 0) THEN
        CALL CORTDIR3(ELBUF_STR,DIR_A,DIR_B ,JFT    ,JLT    ,
@@ -246,7 +258,7 @@ c
         L24(EP)=X24_T(EP)*X24_T(EP)+Y24_T(EP)*Y24_T(EP)
         LL(EP)=MAX(L13(EP),L24(EP))
       ENDDO 
-      IF (IMP_CHK .GT. 0) THEN
+      IF (IMP_CHK > 0) THEN
        DO EP=JFT,JLT
         MX13=(VCORE(EP,1,1)+VCORE(EP,1,3))*HALF
         MY13=(VCORE(EP,2,1)+VCORE(EP,2,3))*HALF
@@ -261,9 +273,9 @@ c
         JAC(EP,2)=J0+J2+J1
         JAC(EP,3)=J0-J2+J1
         JAC(EP,4)=J0-J2-J1
-        IF(OFFG(EP).NE.ZERO)THEN
-         IF(JAC(EP,1).LE.ZERO.OR.JAC(EP,2).LE.ZERO.OR.
-     .      JAC(EP,3).LE.ZERO.OR.JAC(EP,4).LE.ZERO)THEN
+        IF(OFFG(EP)/=ZERO)THEN
+         IF(JAC(EP,1)<=ZERO.OR.JAC(EP,2)<=ZERO.OR.
+     .      JAC(EP,3)<=ZERO.OR.JAC(EP,4)<=ZERO)THEN
 #include "lockon.inc"
             WRITE(IOUT ,2001) NGL(EP)
 #include "lockoff.inc"
@@ -273,12 +285,12 @@ c
         ENDIF 
        ENDDO
       ENDIF 
-C  -------vectoriser--un jour-faire index jft,nplat,jlt pour tous--
+C  ------- Vectorize- a day-to-day JFT, NPLAT, JLT for all--
       NPLAT=JFT-1
       SPLAT= 0
       DO EP=JFT,JLT
        Z2=ZL1(EP)*ZL1(EP)
-       IF (Z2.LT.TOL*LL(EP)) THEN
+       IF (Z2<TOL*LL(EP)) THEN
         NPLAT=NPLAT+1
         IPLAT(NPLAT)=EP
        ELSE
@@ -371,7 +383,7 @@ C--------------------------
 C     CONSTRUIRE [F], [Q], [NM], [A-S], [AS] AUX NOEUDS
 C--------------------------
 C----------------------------------------------------
-C  CALCUL DE [F] 
+C  CALCULATION OF [F]
 C----------------------------------------------------
 C--------- 
 C   2A1
@@ -464,64 +476,64 @@ C
         VQN(EP,5,4)= VQN(EP,9,4)*VQN(EP,1,4)-VQN(EP,7,4)*VQN(EP,3,4)
         VQN(EP,6,4)= VQN(EP,7,4)*VQN(EP,2,4)-VQN(EP,8,4)*VQN(EP,1,4)
 C--------------------------------------------------
-C   CALCUL DE AS N AU MILIEU DES COTES
+C   CALCULATION OF AS N AT THE MIDDLE OF SIDES
 C--------------------------------------------------
 C        J=1 COTE
-	VNRM(EP,1,1)=VQN(EP,7,1)+VQN(EP,7,2)
-	VNRM(EP,2,1)=VQN(EP,8,1)+VQN(EP,8,2)
-	VNRM(EP,3,1)=VQN(EP,9,1)+VQN(EP,9,2)
-	C1=SQRT(VNRM(EP,1,1)*VNRM(EP,1,1)+
+          VNRM(EP,1,1)=VQN(EP,7,1)+VQN(EP,7,2)
+          VNRM(EP,2,1)=VQN(EP,8,1)+VQN(EP,8,2)
+          VNRM(EP,3,1)=VQN(EP,9,1)+VQN(EP,9,2)
+          C1=SQRT(VNRM(EP,1,1)*VNRM(EP,1,1)+
      1      VNRM(EP,2,1)*VNRM(EP,2,1)+VNRM(EP,3,1)*VNRM(EP,3,1))
         C1 = MAX(EM20,C1)
-	VNRM(EP,1,1)=VNRM(EP,1,1)/C1
-	VNRM(EP,2,1)=VNRM(EP,2,1)/C1
-	VNRM(EP,3,1)=VNRM(EP,3,1)/C1
-	VASTN(EP,1,1)=ZERO
-	VASTN(EP,2,1)=L12
-	VASTN(EP,3,1)=VASTN(EP,1,1)
-	VASTN(EP,4,1)=VASTN(EP,2,1)
+          VNRM(EP,1,1)=VNRM(EP,1,1)/C1
+          VNRM(EP,2,1)=VNRM(EP,2,1)/C1
+          VNRM(EP,3,1)=VNRM(EP,3,1)/C1
+          VASTN(EP,1,1)=ZERO
+          VASTN(EP,2,1)=L12
+          VASTN(EP,3,1)=VASTN(EP,1,1)
+          VASTN(EP,4,1)=VASTN(EP,2,1)
 C        J=2 
-	VNRM(EP,1,2)=VQN(EP,7,4)+VQN(EP,7,3)
-	VNRM(EP,2,2)=VQN(EP,8,4)+VQN(EP,8,3)
-	VNRM(EP,3,2)=VQN(EP,9,4)+VQN(EP,9,3)
-	C1=SQRT(VNRM(EP,1,2)*VNRM(EP,1,2)+
+          VNRM(EP,1,2)=VQN(EP,7,4)+VQN(EP,7,3)
+          VNRM(EP,2,2)=VQN(EP,8,4)+VQN(EP,8,3)
+          VNRM(EP,3,2)=VQN(EP,9,4)+VQN(EP,9,3)
+          C1=SQRT(VNRM(EP,1,2)*VNRM(EP,1,2)+
      1      VNRM(EP,2,2)*VNRM(EP,2,2)+VNRM(EP,3,2)*VNRM(EP,3,2))
         C1 = MAX(EM20,C1)
-	VNRM(EP,1,2)=VNRM(EP,1,2)/C1
-	VNRM(EP,2,2)=VNRM(EP,2,2)/C1
-	VNRM(EP,3,2)=VNRM(EP,3,2)/C1
-	VASTN(EP,1,2)=ZERO
-	VASTN(EP,2,2)=L34
-	VASTN(EP,3,2)=VASTN(EP,1,2)
-	VASTN(EP,4,2)=VASTN(EP,2,2)
+          VNRM(EP,1,2)=VNRM(EP,1,2)/C1
+          VNRM(EP,2,2)=VNRM(EP,2,2)/C1
+          VNRM(EP,3,2)=VNRM(EP,3,2)/C1
+          VASTN(EP,1,2)=ZERO
+          VASTN(EP,2,2)=L34
+          VASTN(EP,3,2)=VASTN(EP,1,2)
+          VASTN(EP,4,2)=VASTN(EP,2,2)
 C        J=3 
-	VNRM(EP,1,3)=VQN(EP,7,1)+VQN(EP,7,4)
-	VNRM(EP,2,3)=VQN(EP,8,1)+VQN(EP,8,4)
-	VNRM(EP,3,3)=VQN(EP,9,1)+VQN(EP,9,4)
-	C1=SQRT(VNRM(EP,1,3)*VNRM(EP,1,3)+
+          VNRM(EP,1,3)=VQN(EP,7,1)+VQN(EP,7,4)
+          VNRM(EP,2,3)=VQN(EP,8,1)+VQN(EP,8,4)
+          VNRM(EP,3,3)=VQN(EP,9,1)+VQN(EP,9,4)
+          C1=SQRT(VNRM(EP,1,3)*VNRM(EP,1,3)+
      1      VNRM(EP,2,3)*VNRM(EP,2,3)+VNRM(EP,3,3)*VNRM(EP,3,3))
         C1 = MAX(EM20,C1)
-	VNRM(EP,1,3)=VNRM(EP,1,3)/C1
-	VNRM(EP,2,3)=VNRM(EP,2,3)/C1
-	VNRM(EP,3,3)=VNRM(EP,3,3)/C1
-	VASTN(EP,1,3)=-(X41*VQN(EP,4,1)+Y41*VQN(EP,5,1)+Z41*VQN(EP,6,1))
-	VASTN(EP,2,3)= X41*VQN(EP,1,1)+Y41*VQN(EP,2,1)+Z41*VQN(EP,3,1)
-	VASTN(EP,3,3)=-(X41*VQN(EP,4,4)+Y41*VQN(EP,5,4)+Z41*VQN(EP,6,4))
-	VASTN(EP,4,3)= X41*VQN(EP,1,4)+Y41*VQN(EP,2,4)+Z41*VQN(EP,3,4)
+          VNRM(EP,1,3)=VNRM(EP,1,3)/C1
+          VNRM(EP,2,3)=VNRM(EP,2,3)/C1
+          VNRM(EP,3,3)=VNRM(EP,3,3)/C1
+          VASTN(EP,1,3)=-(X41*VQN(EP,4,1)+Y41*VQN(EP,5,1)+Z41*VQN(EP,6,1))
+          VASTN(EP,2,3)= X41*VQN(EP,1,1)+Y41*VQN(EP,2,1)+Z41*VQN(EP,3,1)
+          VASTN(EP,3,3)=-(X41*VQN(EP,4,4)+Y41*VQN(EP,5,4)+Z41*VQN(EP,6,4))
+          VASTN(EP,4,3)= X41*VQN(EP,1,4)+Y41*VQN(EP,2,4)+Z41*VQN(EP,3,4)
 C        J=4 
-	VNRM(EP,1,4)=VQN(EP,7,2)+VQN(EP,7,3)
-	VNRM(EP,2,4)=VQN(EP,8,2)+VQN(EP,8,3)
-	VNRM(EP,3,4)=VQN(EP,9,2)+VQN(EP,9,3)
-	C1=SQRT(VNRM(EP,1,4)*VNRM(EP,1,4)+
+          VNRM(EP,1,4)=VQN(EP,7,2)+VQN(EP,7,3)
+          VNRM(EP,2,4)=VQN(EP,8,2)+VQN(EP,8,3)
+          VNRM(EP,3,4)=VQN(EP,9,2)+VQN(EP,9,3)
+          C1=SQRT(VNRM(EP,1,4)*VNRM(EP,1,4)+
      1      VNRM(EP,2,4)*VNRM(EP,2,4)+VNRM(EP,3,4)*VNRM(EP,3,4))
         C1 = MAX(EM20,C1)
-	VNRM(EP,1,4)=VNRM(EP,1,4)/C1
-	VNRM(EP,2,4)=VNRM(EP,2,4)/C1
-	VNRM(EP,3,4)=VNRM(EP,3,4)/C1
-	VASTN(EP,1,4)=-(X32*VQN(EP,4,2)+Y32*VQN(EP,5,2)+Z32*VQN(EP,6,2))
-	VASTN(EP,2,4)= X32*VQN(EP,1,2)+Y32*VQN(EP,2,2)+Z32*VQN(EP,3,2)
-	VASTN(EP,3,4)=-(X32*VQN(EP,4,3)+Y32*VQN(EP,5,3)+Z32*VQN(EP,6,3))
-	VASTN(EP,4,4)= X32*VQN(EP,1,3)+Y32*VQN(EP,2,3)+Z32*VQN(EP,3,3)
+          VNRM(EP,1,4)=VNRM(EP,1,4)/C1
+          VNRM(EP,2,4)=VNRM(EP,2,4)/C1
+          VNRM(EP,3,4)=VNRM(EP,3,4)/C1
+          VASTN(EP,1,4)=-(X32*VQN(EP,4,2)+Y32*VQN(EP,5,2)+Z32*VQN(EP,6,2))
+          VASTN(EP,2,4)= X32*VQN(EP,1,2)+Y32*VQN(EP,2,2)+Z32*VQN(EP,3,2)
+          VASTN(EP,3,4)=-(X32*VQN(EP,4,3)+Y32*VQN(EP,5,3)+Z32*VQN(EP,6,3))
+          VASTN(EP,4,4)= X32*VQN(EP,1,3)+Y32*VQN(EP,2,3)+Z32*VQN(EP,3,3)
 C---------- 
 C    CALCUL DE [QG] NG=1,4 
 C----------
@@ -550,24 +562,24 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
         G2X1=MX34-JMX13 
         G2Y1=MY34-JMY13
         C2 = SQRT(G2X1*G2X1 + G2Y1*G2Y1 +J2MYZ)
-	VJFI(EP,1,1)=(G2Y1*VQG(EP,9,1)+JMZ13*VQG(EP,8,1))
-	VJFI(EP,2,1)=(-JMZ13*VQG(EP,7,1)-G2X1*VQG(EP,9,1))
-	VJFI(EP,3,1)=(G2X1*VQG(EP,8,1)-G2Y1*VQG(EP,7,1))
+          VJFI(EP,1,1)=(G2Y1*VQG(EP,9,1)+JMZ13*VQG(EP,8,1))
+          VJFI(EP,2,1)=(-JMZ13*VQG(EP,7,1)-G2X1*VQG(EP,9,1))
+          VJFI(EP,3,1)=(G2X1*VQG(EP,8,1)-G2Y1*VQG(EP,7,1))
         VQG(EP,1,1)= G1X1*C2+VJFI(EP,1,1)*C1
         VQG(EP,2,1)= G1Y1*C2+VJFI(EP,2,1)*C1
         VQG(EP,3,1)= -JMZ13*C2+VJFI(EP,3,1)*C1
         SL=SL/PG
-	VJFI(EP,1,1)=VJFI(EP,1,1)*SL
-	VJFI(EP,2,1)=VJFI(EP,2,1)*SL
-	VJFI(EP,3,1)=VJFI(EP,3,1)*SL
+          VJFI(EP,1,1)=VJFI(EP,1,1)*SL
+          VJFI(EP,2,1)=VJFI(EP,2,1)*SL
+          VJFI(EP,3,1)=VJFI(EP,3,1)*SL
 C
-	VJFI(EP,4,1)=(-JMZ13*VQG(EP,8,1)-G1Y1*VQG(EP,9,1))*SL
-	VJFI(EP,5,1)=(G1X1*VQG(EP,9,1)+JMZ13*VQG(EP,7,1))*SL
-	VJFI(EP,6,1)=(G1Y1*VQG(EP,7,1)-G1X1*VQG(EP,8,1))*SL
+          VJFI(EP,4,1)=(-JMZ13*VQG(EP,8,1)-G1Y1*VQG(EP,9,1))*SL
+          VJFI(EP,5,1)=(G1X1*VQG(EP,9,1)+JMZ13*VQG(EP,7,1))*SL
+          VJFI(EP,6,1)=(G1Y1*VQG(EP,7,1)-G1X1*VQG(EP,8,1))*SL
 C
         SL = SQRT(VQG(EP,1,1)*VQG(EP,1,1) + VQG(EP,2,1)*VQG(EP,2,1)
      1            + VQG(EP,3,1)*VQG(EP,3,1))
-        IF ( SL.NE.ZERO) SL = ONE / SL
+        IF ( SL/=ZERO) SL = ONE / SL
         VQG(EP,1,1) = VQG(EP,1,1)*SL
         VQG(EP,2,1) = VQG(EP,2,1)*SL
         VQG(EP,3,1) = VQG(EP,3,1)*SL
@@ -591,24 +603,24 @@ C--------G2X3=G2X2------
         G2X2=MX34+JMX13 
         G2Y2=MY34+JMY13
         J2 = SQRT(G2X2*G2X2 + G2Y2*G2Y2 +J2MYZ)
-	VJFI(EP,1,3)=(G2Y2*VQG(EP,9,3)-JMZ13*VQG(EP,8,3))
-	VJFI(EP,2,3)=(JMZ13*VQG(EP,7,3)-G2X2*VQG(EP,9,3))
-	VJFI(EP,3,3)=(G2X2*VQG(EP,8,3)-G2Y2*VQG(EP,7,3))
+          VJFI(EP,1,3)=(G2Y2*VQG(EP,9,3)-JMZ13*VQG(EP,8,3))
+          VJFI(EP,2,3)=(JMZ13*VQG(EP,7,3)-G2X2*VQG(EP,9,3))
+          VJFI(EP,3,3)=(G2X2*VQG(EP,8,3)-G2Y2*VQG(EP,7,3))
         VQG(EP,1,3)= G1X3*J2+VJFI(EP,1,3)*J1
         VQG(EP,2,3)= G1Y3*J2+VJFI(EP,2,3)*J1
         VQG(EP,3,3)= JMZ13*J2+VJFI(EP,3,3)*J1
         SL=SL/PG
-	VJFI(EP,1,3)=VJFI(EP,1,3)*SL
-	VJFI(EP,2,3)=VJFI(EP,2,3)*SL
-	VJFI(EP,3,3)=VJFI(EP,3,3)*SL
+          VJFI(EP,1,3)=VJFI(EP,1,3)*SL
+          VJFI(EP,2,3)=VJFI(EP,2,3)*SL
+          VJFI(EP,3,3)=VJFI(EP,3,3)*SL
 C
-	VJFI(EP,4,3)=(JMZ13*VQG(EP,8,3)-G1Y3*VQG(EP,9,3))*SL
-	VJFI(EP,5,3)=(G1X3*VQG(EP,9,3)-JMZ13*VQG(EP,7,3))*SL
-	VJFI(EP,6,3)=(G1Y3*VQG(EP,7,3)-G1X3*VQG(EP,8,3))*SL
+          VJFI(EP,4,3)=(JMZ13*VQG(EP,8,3)-G1Y3*VQG(EP,9,3))*SL
+          VJFI(EP,5,3)=(G1X3*VQG(EP,9,3)-JMZ13*VQG(EP,7,3))*SL
+          VJFI(EP,6,3)=(G1Y3*VQG(EP,7,3)-G1X3*VQG(EP,8,3))*SL
 C
         SL = SQRT(VQG(EP,1,3)*VQG(EP,1,3) + VQG(EP,2,3)*VQG(EP,2,3)
      1            + VQG(EP,3,3)*VQG(EP,3,3))
-        IF ( SL.NE.ZERO) SL = ONE / SL
+        IF ( SL/=ZERO) SL = ONE / SL
         VQG(EP,1,3) = VQG(EP,1,3)*SL
         VQG(EP,2,3) = VQG(EP,2,3)*SL
         VQG(EP,3,3) = VQG(EP,3,3)*SL
@@ -630,24 +642,24 @@ C---------- NG =2----------
         VQG(EP,7,2)= VQG(EP,7,2)*SL
         VQG(EP,8,2)= VQG(EP,8,2)*SL
 C
-	VJFI(EP,1,2)=(G2Y2*VQG(EP,9,2)-JMZ13*VQG(EP,8,2))
-	VJFI(EP,2,2)=(JMZ13*VQG(EP,7,2)-G2X2*VQG(EP,9,2))
-	VJFI(EP,3,2)=(G2X2*VQG(EP,8,2)-G2Y2*VQG(EP,7,2))
+          VJFI(EP,1,2)=(G2Y2*VQG(EP,9,2)-JMZ13*VQG(EP,8,2))
+          VJFI(EP,2,2)=(JMZ13*VQG(EP,7,2)-G2X2*VQG(EP,9,2))
+          VJFI(EP,3,2)=(G2X2*VQG(EP,8,2)-G2Y2*VQG(EP,7,2))
         VQG(EP,1,2)= G1X1*J2+VJFI(EP,1,2)*C1
         VQG(EP,2,2)= G1Y1*J2+VJFI(EP,2,2)*C1
         VQG(EP,3,2)=-JMZ13*J2+VJFI(EP,3,2)*C1
         SL=SL/PG
-	VJFI(EP,1,2)=VJFI(EP,1,2)*SL
-	VJFI(EP,2,2)=VJFI(EP,2,2)*SL
-	VJFI(EP,3,2)=VJFI(EP,3,2)*SL
+          VJFI(EP,1,2)=VJFI(EP,1,2)*SL
+          VJFI(EP,2,2)=VJFI(EP,2,2)*SL
+          VJFI(EP,3,2)=VJFI(EP,3,2)*SL
 C
-	VJFI(EP,4,2)=(-JMZ13*VQG(EP,8,2)-G1Y1*VQG(EP,9,2))*SL
-	VJFI(EP,5,2)=(G1X1*VQG(EP,9,2)+JMZ13*VQG(EP,7,2))*SL
-	VJFI(EP,6,2)=(G1Y1*VQG(EP,7,2)-G1X1*VQG(EP,8,2))*SL
+          VJFI(EP,4,2)=(-JMZ13*VQG(EP,8,2)-G1Y1*VQG(EP,9,2))*SL
+          VJFI(EP,5,2)=(G1X1*VQG(EP,9,2)+JMZ13*VQG(EP,7,2))*SL
+          VJFI(EP,6,2)=(G1Y1*VQG(EP,7,2)-G1X1*VQG(EP,8,2))*SL
 C
         SL = SQRT(VQG(EP,1,2)*VQG(EP,1,2) + VQG(EP,2,2)*VQG(EP,2,2)
      1            + VQG(EP,3,2)*VQG(EP,3,2))
-        IF ( SL.NE.0.) SL = 1. / SL
+        IF ( SL/=0.) SL = 1. / SL
         VQG(EP,1,2) = VQG(EP,1,2)*SL
         VQG(EP,2,2) = VQG(EP,2,2)*SL
         VQG(EP,3,2) = VQG(EP,3,2)*SL
@@ -663,24 +675,24 @@ C---------- NG =4----------
         VQG(EP,8,4)= VQG(EP,8,4)*SL
         VQG(EP,9,4)= SZ2*SL
 C
-	VJFI(EP,1,4)=(G2Y1*VQG(EP,9,4)+JMZ13*VQG(EP,8,4))
-	VJFI(EP,2,4)=(-JMZ13*VQG(EP,7,4)-G2X1*VQG(EP,9,4))
-	VJFI(EP,3,4)=(G2X1*VQG(EP,8,4)-G2Y1*VQG(EP,7,4))
+          VJFI(EP,1,4)=(G2Y1*VQG(EP,9,4)+JMZ13*VQG(EP,8,4))
+          VJFI(EP,2,4)=(-JMZ13*VQG(EP,7,4)-G2X1*VQG(EP,9,4))
+          VJFI(EP,3,4)=(G2X1*VQG(EP,8,4)-G2Y1*VQG(EP,7,4))
         VQG(EP,1,4)= G1X3*C2+VJFI(EP,1,4)*J1
         VQG(EP,2,4)= G1Y3*C2+VJFI(EP,2,4)*J1
         VQG(EP,3,4)=JMZ13*C2+VJFI(EP,3,4)*J1
         SL=SL/PG
-	VJFI(EP,1,4)=VJFI(EP,1,4)*SL
-	VJFI(EP,2,4)=VJFI(EP,2,4)*SL
-	VJFI(EP,3,4)=VJFI(EP,3,4)*SL
+          VJFI(EP,1,4)=VJFI(EP,1,4)*SL
+          VJFI(EP,2,4)=VJFI(EP,2,4)*SL
+          VJFI(EP,3,4)=VJFI(EP,3,4)*SL
 C
-	VJFI(EP,4,4)=(JMZ13*VQG(EP,8,4)-G1Y3*VQG(EP,9,4))*SL
-	VJFI(EP,5,4)=(G1X3*VQG(EP,9,4)-JMZ13*VQG(EP,7,4))*SL
-	VJFI(EP,6,4)=(G1Y3*VQG(EP,7,4)-G1X3*VQG(EP,8,4))*SL
+          VJFI(EP,4,4)=(JMZ13*VQG(EP,8,4)-G1Y3*VQG(EP,9,4))*SL
+          VJFI(EP,5,4)=(G1X3*VQG(EP,9,4)-JMZ13*VQG(EP,7,4))*SL
+          VJFI(EP,6,4)=(G1Y3*VQG(EP,7,4)-G1X3*VQG(EP,8,4))*SL
 C
         SL = SQRT(VQG(EP,1,4)*VQG(EP,1,4) + VQG(EP,2,4)*VQG(EP,2,4)
      1            + VQG(EP,3,4)*VQG(EP,3,4))
-        IF ( SL.NE.ZERO) SL = ONE / SL
+        IF ( SL/=ZERO) SL = ONE / SL
         VQG(EP,1,4) = VQG(EP,1,4)*SL
         VQG(EP,2,4) = VQG(EP,2,4)*SL
         VQG(EP,3,4) = VQG(EP,3,4)*SL
@@ -694,7 +706,7 @@ C
        OFF(I)=OFFG(I)
       ENDDO
 C
-	 RETURN
+           RETURN
  2001 FORMAT(/' ZERO OR NEGATIVE SHELL SUB-AREA : ELEMENT NB:',
      .          I8/)
-	 END
+           END

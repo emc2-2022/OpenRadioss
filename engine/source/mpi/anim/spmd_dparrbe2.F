@@ -1,47 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  SPMD_DPARRBE2                 source/mpi/anim/spmd_dparrbe2.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_GLOB_ISUM9               source/mpi/interfaces/spmd_th.F
-Chd|        WRITE_I_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+!||====================================================================
+!||    spmd_dparrbe2         ../engine/source/mpi/anim/spmd_dparrbe2.F
+!||--- called by ------------------------------------------------------
+!||    genani                ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_glob_isum9       ../engine/source/mpi/interfaces/spmd_th.F
+!||    write_i_c             ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_DPARRBE2(LRBE2, IRBE2,NODGLOB,WEIGHT,NERBE2Y,
      *                         NERBE2T )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -69,9 +69,8 @@ C-----------------------------------------------
       INTEGER,  DIMENSION(:,:),ALLOCATABLE :: P0RECRBE2, IIN
 
 C MPI variables 
-      INTEGER LOC_PROC
-      INTEGER MSGOFF,MSGOFF2,MSGTYP,INFO,ATID,ATAG,ALEN
-      INTEGER STATUS(MPI_STATUS_SIZE),IERROR,ISD(NSPMD)
+      INTEGER MSGOFF,MSGOFF2,MSGTYP
+      INTEGER STATUS(MPI_STATUS_SIZE),IERROR
 
       DATA MSGOFF/7020/
       DATA MSGOFF2/7021/
@@ -80,9 +79,9 @@ C-----------------------------------------------
       ALLOCATE(PGLOBRBE2(NRBE2G))
       ALLOCATE(MAINNODS(NRBE2G))
 C-----------------------------------------------
-C     1ere etape - envoyer au proc 0 un tableau avec nombre
-C                  noeuds secnds locaux par RBE2 a envoyer
-C                  et preparation du buffer d envoi
+C     1st step - send to pro 0 a table with number
+C                  Local send nodes by Rbe2 to send
+C                  and preparation of the send buffer
 C                  (taille)
       NERBE2T = 0
       SNRBE2 = 0
@@ -95,17 +94,17 @@ C                  (taille)
           SZLOCRBE2(NGRBE) = 0
           NSN = IRBE2(5,I)
           DO N=1,NSN
-           IF (WEIGHT(LRBE2(IRBE2(1,I)+N)).EQ.1)
+           IF (WEIGHT(LRBE2(IRBE2(1,I)+N))==1)
      .       SZLOCRBE2(NGRBE) = SZLOCRBE2(NGRBE)  + 1
           ENDDO
           SBUFSIZ = SBUFSIZ + SZLOCRBE2(NGRBE)
 
       ENDDO
 
-C Envoi vers le proc 0 du tableau des tailles
+C Sending to proc 0 of the size table
 
       IF (ISPMD == 0) THEN
-C Proc zero reception des tailles
+C Procement reception of sizes
         ALLOCATE(P0RECRBE2(NRBE2G,NSPMD))
         DO I=1,NRBE2G
            P0RECRBE2(I,1) = SZLOCRBE2(I)
@@ -114,23 +113,23 @@ C Proc zero reception des tailles
         DO P=2,NSPMD
            MSGTYP = MSGOFF
            CALL MPI_RECV(P0RECRBE2(1,P),NRBE2G,MPI_INTEGER,IT_SPMD(P),
-     *                   MSGTYP,MPI_COMM_WORLD,STATUS,IERROR)
+     *                   MSGTYP,SPMD_COMM_WORLD,STATUS,IERROR)
         ENDDO
 
       ELSE
-C Procs autres envoi
+C Procs Other shipments
         MSGTYP = MSGOFF
         CALL MPI_SEND(SZLOCRBE2,NRBE2G,MPI_INTEGER,IT_SPMD(1),
-     .                MSGTYP,MPI_COMM_WORLD,IERROR)
+     .                MSGTYP,SPMD_COMM_WORLD,IERROR)
 
       ENDIF
 
 C --------------------------------------------------------------
-C Envoi vers le proc 0 des noeuds des RBE2 &   criture sur disque
+C Sending to proc 0 of the nodes of RBE2 & writing to disk
 C --------------------------------------------------------------
       IF (ISPMD /= 0) THEN
 C ------------------------
-C Procs autres que proc 0
+C Procs other than pro 0
 C ------------------------
          ALLOCATE(SENDBUF(SBUFSIZ))
          SNRBE2 = 0
@@ -148,20 +147,20 @@ C ------------------------
          IF (SNRBE2 > 0)THEN
            MSGTYP = MSGOFF2
            CALL  MPI_SEND(SENDBUF,SNRBE2,MPI_INTEGER,IT_SPMD(1),MSGTYP,
-     *                  MPI_COMM_WORLD,IERROR)
+     *                  SPMD_COMM_WORLD,IERROR)
          ENDIF
          DEALLOCATE(SENDBUF)
 
-C Envoi des noeuds secnds
+C Sending of secondary nodes
         MAINNODS = 0
         DO I=1,NRBE2
           MN = IRBE2(3,I)
-	  IF(MN.NE.0)THEN
+            IF(MN/=0)THEN
             IF (WEIGHT(MN)==1)THEN
               NGRBE = IRBE2(10,I)
               MAINNODS(NGRBE)=NODGLOB(MN)
             ENDIF
-	  ENDIF
+            ENDIF
         ENDDO
         CALL SPMD_GLOB_ISUM9(MAINNODS,NRBE2G)
         
@@ -170,8 +169,8 @@ C Envoi des noeuds secnds
 C --------------------------------------------------------------------
 C PROC 0
 C --------------------------------------------------------------------
-C P0RBE2BUF tableau de reception (tableau de reception = LRBE2 Global)
-C IADRBE2 pointeurs vers P0RBE2BUF global
+C P0RBE2BUF reception table (reception table = LRBE2 Global)
+C IADRBE2 Pointers to P0RBE2BUF Global
          ALLOCATE(IADRBE2(NRBE2G+1))
          ALLOCATE(P0RBE2BUF(NERBE2Y))
 
@@ -185,11 +184,11 @@ C preparation IADRBE2
            IADRBE2(I+1)=IADRBE2(I)+SNRBE2
          ENDDO
 
-C preparation P0RECRBE2 pour le proc0
+C preparation P0RECRBE2 for proc0
          DO I=1,NRBE2G
-	    PGLOBRBE2(I)=IADRBE2(I)
+              PGLOBRBE2(I)=IADRBE2(I)
          ENDDO
-	 
+           
          DO I=1,NRBE2
            NSN = IRBE2(5,I)
            IAD = IRBE2(1,I)
@@ -206,9 +205,9 @@ C preparation P0RECRBE2 pour le proc0
            PGLOBRBE2(NGRBE)=PGLOBRBE2(NGRBE) + SNRBE2
          ENDDO
 
-C Reception des RBE2 des autres procs
+C Reception of RBE2 from other procs
          DO P=2,NSPMD
-C Taille du buffer de reception
+C Size of the reception buffer
            SIZRBE2 = 0
            DO I=1,NRBE2G
              SIZRBE2 = SIZRBE2 + P0RECRBE2(I,P)
@@ -218,7 +217,7 @@ C Taille du buffer de reception
              ALLOCATE(RECBUF(SIZRBE2))
              MSGTYP = MSGOFF2 
              CALL MPI_RECV(RECBUF,SIZRBE2,MPI_INTEGER,IT_SPMD(P),MSGTYP,
-     *                   MPI_COMM_WORLD,STATUS,IERROR)
+     *                   SPMD_COMM_WORLD,STATUS,IERROR)
 
              PSNRBE2=0
              DO I=1,NRBE2G
@@ -232,7 +231,7 @@ C Taille du buffer de reception
              DEALLOCATE(RECBUF)
            ENDIF
          ENDDO
-C  Reception des Noeuds mains
+C  Reception of main Nodes
          MAINNODS=0
          DO I=1,NRBE2
            MN = IRBE2(3,I)
@@ -243,7 +242,7 @@ C  Reception des Noeuds mains
          ENDDO
          CALL SPMD_GLOB_ISUM9(MAINNODS,NRBE2G)
 
-C Ecriture sur disque
+C Writing to disk
          DO I=1,NRBE2G
            NSN = IADRBE2(I+1) - IADRBE2(I)
            IADG =IADRBE2(I)

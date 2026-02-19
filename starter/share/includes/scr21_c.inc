@@ -1,5 +1,5 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
 Copyright>    
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,6 @@ Copyright>        As an alternative to this open-source version, Altair also off
 Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
 Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
 C.../SCR21/
-      COMMON /SCR21/ IHBE_D,IPLA_D,ISTR_D,ITHK_D,ISHEA_D,ISST_D,
-     .            IHBE_DS,ISST_DS,IPLA_DS,ISH3N_D, ISTRA_D,
-     .            IFRAME_DS, NPTS_D,IDRIL_D,IMAS_DS,DEF_INTER(100),
-     .            ITET4_D,ITET10_D,ICPRE_D
-      INTEGER     IHBE_D,IPLA_D,ISTR_D,ITHK_D,ISHEA_D,ISST_D,
-     .            IHBE_DS,ISST_DS,IPLA_DS,ISH3N_D, ISTRA_D,
-     .            IFRAME_DS, NPTS_D,IDRIL_D,IMAS_DS,DEF_INTER,
-     .            ITET4_D,ITET10_D,ICPRE_D
+      COMMON /SCR21/ IDEFAULT
+      INTEGER     IDEFAULT
+! now all flags goes to defaults_mod, can be deleted       

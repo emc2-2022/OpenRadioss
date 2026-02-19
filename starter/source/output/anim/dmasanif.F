@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DMASANIF                      source/output/anim/dmasanif.F 
-Chd|-- called by -----------
-Chd|        GENANI1                       source/output/anim/genani1.F  
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dmasanif       ../starter/source/output/anim/dmasanif.F
+!||--- called by ------------------------------------------------------
+!||    genani1        ../starter/source/output/anim/genani1.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE DMASANIF(X     ,D    ,ELBUF_TAB,GEO  ,IPARG,                 
      .                    IXT   ,IXP  ,IXR      ,MAS  ,PM   ,                   
      .                    EL2FA ,NBF  )                                     
@@ -34,6 +33,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD
+      use element_mod , only : nixt,nixp,nixr
 C-----------------------------------------------                        
 C   I m p l i c i t   T y p e s                                         
 C-----------------------------------------------                        
@@ -96,7 +96,7 @@ C
 C-----------------------------------------------                        
 C       TRUSS                                                           
 C-----------------------------------------------                        
-        IF(ITY.EQ.4)THEN                                                
+        IF(ITY==4)THEN                                                
          DO I=LFT,LLT                                                   
             N = I + NFT                                                 
             N_FA = I + NFT_FA                                           
@@ -113,7 +113,7 @@ C-----------------------------------------------
 C-----------------------------------------------                        
 C       POUTRES                                                         
 C-----------------------------------------------                        
-        ELSEIF(ITY.EQ.5)THEN                                            
+        ELSEIF(ITY==5)THEN                                            
          DO I=LFT,LLT                                                   
             N = I + NFT                                                 
             N_FA = I + NFT_FA                                           
@@ -130,15 +130,15 @@ C-----------------------------------------------
 C-----------------------------------------------                        
 C       RESSORTS                                                        
 C-----------------------------------------------                        
-        ELSEIF(ITY.EQ.6)THEN                                            
-          IF(MLW.EQ.3)THEN                                              
+        ELSEIF(ITY==6)THEN                                            
+          IF(MLW==3)THEN                                              
            DO I=LFT,LLT                                                 
             N = I + NFT                                                 
             N_FA = I + NFT_FA                                           
               MAS(EL2FA(NN8+N_FA))   = HALF*GEO(1,IXR(1,N))           
               MAS(EL2FA(NN8+N_FA)+1) = HALF*GEO(1,IXR(1,N))           
            ENDDO                                                        
-          ELSEIF(MLW.EQ.5) THEN                                         
+          ELSEIF(MLW==5) THEN                                         
 cc           NB1 =IAD - 1                                                 
 cc           NB2 =NB1  + NEL                                              
            NUVAR =  NINT(GEO(25,IXR(1,1+NFT)))                          
@@ -172,7 +172,7 @@ cc            MAS(EL2FA(NN8+N_FA)) = BUFEL(NB16+I)
         ELSE                                                            
         ENDIF                                                           
 C-----------------------------------------------                        
-C       FIN DE BOUCLE SUR LES OFFSET                                    
+C       END OF LOOP ON OFFSETS
 C-----------------------------------------------                        
  490  CONTINUE                                                          
 C-----------------------------------------------                        

@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
-Chd|====================================================================
-Chd|  SPCLASV                       source/elements/sph/spclasv.F 
-Chd|-- called by -----------
-Chd|        SPTRI                         source/elements/sph/sptri.F   
-Chd|-- calls ---------------
-Chd|        MYQSORT                       ../common_source/tools/sort/myqsort.F
-Chd|====================================================================
+!||====================================================================
+!||    spclasv   ../starter/source/elements/sph/spclasv.F
+!||--- called by ------------------------------------------------------
+!||    sptri     ../starter/source/elements/sph/sptri.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       SUBROUTINE SPCLASV(X      ,SPBUF ,KXSP   ,IXSP   ,NOD2SP    ,
      1                   WASPACT,MYSPATRUE,IREDUCE,KREDUCE)
 C-----------------------------------------------
@@ -38,26 +37,14 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "bucki_c.inc"
-#include      "buckr_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "sphcom.inc"
-#include      "param_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),
      .        WASPACT(*), IREDUCE, KREDUCE(*)
-C     REAL
       my_real
      .   X(3,*),SPBUF(NSPBUF,*), MYSPATRUE
 C-----------------------------------------------
@@ -109,10 +96,10 @@ C
            IXSP(K1,N) = JK
          END DO
 C
-C--- Closest neighboor is stored for tensile instability treatment --
+C--- Closest neighbor is stored for tensile instability treatment --
 C
-         IF (NSPBUF.EQ.13) THEN
-           SPBUF(13,N)=TWO*SQRT(DVOIS(1))
+         IF (NSPBUF==15) THEN
+           SPBUF(15,N)=TWO*SQRT(DVOIS(1))
          ENDIF
 C
         END DO
@@ -120,15 +107,15 @@ C-----------------------------------------------
         LVOIRED = 0
         IF(IREDUCE==0)GO TO 100
 C-------------------------------------------
-C       tri voisins / ne garder que LVOISPH voisins effectifs
+C       Tri neighboring / keep only lvoisph neighbors effective
 C
         DO NS=1,NSPHACT
          N=WASPACT(NS)
          DWA(N)=ONE
          NVOIS1 =KXSP(4,N)
-         IF(KREDUCE(N)/=0.OR.NVOIS1.GT.LVOISPH)THEN
+         IF(KREDUCE(N)/=0.OR.NVOIS1>LVOISPH)THEN
 C
-           IF(NVOIS1.GT.LVOISPH)THEN
+           IF(NVOIS1>LVOISPH)THEN
              KREDUCE(N)=KREDUCE(N)+10
              LVOIRED = 1
            END IF

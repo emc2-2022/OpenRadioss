@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ROTLOC                        source/materials/mat/mat024/rotloc.F
-Chd|-- called by -----------
-Chd|        CONC24                        source/materials/mat/mat024/conc24.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE ROTLOC(NEL,GAMA,
-     .                  RX,RY,RZ,SX,SY,SZ,
-     .                  R11,R12,R13,R21,R22,
-     .                  R23,R31,R32,R33)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rotloc   ../engine/source/materials/mat/mat024/rotloc.F
+!||--- called by ------------------------------------------------------
+!||    conc24   ../engine/source/materials/mat/mat024/conc24.F
+!||====================================================================
+      SUBROUTINE ROTLOC(
+     1   NEL,     GAMA,    RX,      RY,
+     2   RZ,      SX,      SY,      SZ,
+     3   R11,     R12,     R13,     R21,
+     4   R22,     R23,     R31,     R32,
+     5   R33,     JCVT,    JSPH)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,6 +42,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: JCVT
+      INTEGER, INTENT(IN) :: JSPH
       INTEGER NEL
       my_real, DIMENSION(NEL), INTENT(INOUT)  :: RX,RY,RZ,SX,SY,SZ
       my_real, DIMENSION(NEL), INTENT(OUT)    :: R11,R12,R13,R21,R22,
@@ -50,8 +53,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "param_c.inc"
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -60,9 +61,9 @@ C-----------------------------------------------
       my_real, DIMENSION(NEL) :: S11,S12,S13,S21,S22,S23,S31,S32,S33,
      .   TX,TY,TZ
 C=======================================================================
-      IF (JSPH.EQ.0) THEN
-        IF (JCVT.EQ.0) THEN
-          IF(N2D.EQ.0)THEN
+      IF (JSPH==0) THEN
+        IF (JCVT==0) THEN
+          IF(N2D==0)THEN
             DO I = 1,NEL
             RR   =SQRT(RX(I)**2+RY(I)**2+RZ(I)**2)
             RX(I)=RX(I)/RR
@@ -89,10 +90,9 @@ C=======================================================================
             ENDDO
           ELSE
 C---------------------------------------------
-C            EN 2D LES CONTRAINTES SONT :
+C            in 2d the stresses are:
 C            1=YY 2=ZZ 3=TT 4=YZ 5=0 6=0
-C            EN CONTRADICTION AVEC X=T
-C            ATTENTION DGAMAER!
+C            CONTRADICTION WITH X=T
 C---------------------------------------------
             DO I = 1,NEL
             RR   = SQRT(SY(I)**2+SZ(I)**2)

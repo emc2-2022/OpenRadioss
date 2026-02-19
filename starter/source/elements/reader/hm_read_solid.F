@@ -1,41 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_SOLID                 source/elements/reader/hm_read_solid.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ANODSET                       source/output/analyse/analyse_node.c
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_solid      ../starter/source/elements/reader/hm_read_solid.F
+!||--- called by ------------------------------------------------------
+!||    lectur             ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../starter/source/output/message/message.F
+!||    anodset            ../starter/source/output/analyse/analyse_node.c
+!||    checkvolume_4n     ../starter/source/elements/solid/solide/checksvolume.F
+!||    checkvolume_6n     ../starter/source/elements/solid/solide/checksvolume.F
+!||    checkvolume_8n     ../starter/source/elements/solid/solide/checksvolume.F
+!||    udouble            ../starter/source/system/sysfus.F
+!||    usr2sys            ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../starter/share/message_module/message_mod.F
+!||    submodel_mod       ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_SOLID(IXS   ,PM     ,ITAB ,ITABM1,
      .                  IPART,IPARTS,ISOLNOD,IXS10 ,IXS20,IXS16 ,
-     .                  IGEO ,LSUBMODEL,IS_DYNA)
+     .                  IGEO ,LSUBMODEL,IS_DYNA,X  )
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -63,6 +66,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -75,14 +79,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
 #include      "param_c.inc"
-#include      "titr_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -92,8 +90,8 @@ C INPUT ARGUMENTS
       INTEGER,INTENT(IN)::IPART(LIPART1,*)
       INTEGER,INTENT(IN)::IGEO(NPROPGI,*)
       INTEGER,INTENT(IN)::IS_DYNA
-      my_real,
-     .  INTENT(IN)::PM(NPROPM,*)
+      my_real,INTENT(IN)::PM(NPROPM,*)
+      my_real, DIMENSION(3,NUMNOD), INTENT(IN):: X
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
 C OUTPUT ARGUMENTS
       INTEGER,INTENT(OUT)::ISOLNOD(*)
@@ -105,16 +103,18 @@ C OUTPUT ARGUMENTS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, MT, MLAW, JTUR, I1, I2, INEW,I10,I20,I16
-      INTEGER IC,IC1,IC2,IC3,IC4,IPID,ID,IDS,N,JC,NSPHDIR,STAT
-      INTEGER FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,NUMELS_READ,
-     .        IOUTN, IERROR, INDEX_PART,OFF_DEF(NSUBMOD),
-     .        OFF_NOD(NSUBMOD),OFF_EL(NSUBMOD),
-     .        OFF_PART(NSUBMOD)
-      my_real
-     .   BID 
+      INTEGER I, J, MT, I10,I20,I16
+      INTEGER IC1,IC2,IC3,IC4,IPID,N,STAT
+      INTEGER INDEX_PART,IXS10_SAV(6),IC5,IC6,
+     .        IC7,IC8
+      my_real BID
       CHARACTER MESS*40, MESS2*40
       INTEGER, DIMENSION(:), ALLOCATABLE :: SUB_SOL
+C-----------------------------------------------
+C   E x t e r n a l  F u n c t i o n s
+C-----------------------------------------------
+      my_real
+     .   CHECKVOLUME_4N,CHECKVOLUME_6N,CHECKVOLUME_8N
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -123,15 +123,6 @@ C
       DATA MESS/'3D SOLID ELEMENTS DEFINITION            '/
       DATA MESS2/'3D SOLID ELEMENTS SELECTION FOR TH PLOT '/
 C=======================================================================
-C--------------------------------------------------
-C      HM OFFSETS IDs
-C--------------------------------------------------
-      DO I=1,NSUBMOD
-        OFF_DEF(I) = LSUBMODEL(I)%OFF_DEF
-        OFF_NOD(I) = LSUBMODEL(I)%OFF_NOD
-        OFF_EL(I) = LSUBMODEL(I)%OFF_EL
-        OFF_PART(I) = LSUBMODEL(I)%OFF_PART
-      ENDDO
 C--------------------------------------------------
 C      ALLOCS & INITS
 C--------------------------------------------------
@@ -151,7 +142,11 @@ C--------------------------------------------------
       I = 0
       DO N=1,NUMBRICK
         I = I + 1
-        IF(IXS(6,I)+IXS(7,I)+IXS(8,I)+IXS(9,I).EQ.0)THEN
+        IF(IXS(6,I)+IXS(7,I)+IXS(8,I)+IXS(9,I)==0)THEN
+          DO J=2,5  
+            IXS(J,I)=USR2SYS(IXS(J,I),ITABM1,MESS,IXS(11,I))
+            CALL ANODSET(IXS(J,I), CHECK_VOLU)
+          ENDDO  
           IXS(9,I)=IXS(5,I)
           IXS(8,I)=IXS(4,I)
           IXS(7,I)=IXS(4,I)
@@ -160,35 +155,75 @@ C--------------------------------------------------
           IXS(4,I)=IXS(3,I)
           IXS(3,I)=IXS(2,I)
           ISOLNOD(I)=4
-        ELSEIF(IXS(8,I)+IXS(9,I).EQ.0)THEN
+          IF (CHECKVOLUME_4N(X ,IXS(1,I)) < ZERO) THEN
+            IC2=IXS(6,I)
+            IC4=IXS(4,I)
+            IXS(4,I)=IC2
+            IXS(6,I)=IC4
+            IXS(5,I)=IC2
+            IXS(9,I)=IC4
+          END IF
+        ELSEIF(IXS(8,I)+IXS(9,I)==0)THEN
+          DO J=2,7  
+            IXS(J,I)=USR2SYS(IXS(J,I),ITABM1,MESS,IXS(11,I))
+            CALL ANODSET(IXS(J,I), CHECK_VOLU)
+          ENDDO  
           IXS(9,I)=IXS(5,I)
           IXS(8,I)=IXS(7,I)
           IXS(7,I)=IXS(6,I)
           IXS(6,I)=IXS(5,I)
           IXS(5,I)=IXS(2,I)
           ISOLNOD(I)=6
+          IF (CHECKVOLUME_6N(X ,IXS(1,I)) < ZERO) THEN
+C           renumber connectivity
+            IC1 = IXS(6,I)
+            IC2 = IXS(7,I)
+            IC3 = IXS(8,I)
+            IC4 = IXS(2,I)
+            IC5 = IXS(3,I)
+            IC6 = IXS(4,I)
+            IXS(2,I) = IC1
+            IXS(3,I) = IC2
+            IXS(4,I) = IC3
+            IXS(6,I) = IC4
+            IXS(7,I) = IC5
+            IXS(8,I) = IC6
+          ENDIF 
         ELSE
+          DO J=2,9  
+            IXS(J,I)=USR2SYS(IXS(J,I),ITABM1,MESS,IXS(11,I))
+            CALL ANODSET(IXS(J,I), CHECK_VOLU)
+          ENDDO  
           ISOLNOD(I)=8
-        ENDIF
-C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-        IF(SUB_SOL(I) .NE. 0)THEN
-          IF(IPARTS(I) .NE. 0) IPARTS(I) = IPARTS(I) + OFF_PART(SUB_SOL(I)) 
-          IF(IXS(NIXS,I) .NE. 0) IXS(NIXS,I) = IXS(NIXS,I) + OFF_EL(SUB_SOL(I))
-          DO J=2,9
-            IF(IXS(J,I) .NE. 0) IXS(J,I) = IXS(J,I) + OFF_NOD(SUB_SOL(I))
-          ENDDO
+          IF (CHECKVOLUME_8N(X ,IXS(1,I)) < ZERO) THEN
+C         renumber connectivity
+            IC1 = IXS(6,I)
+            IC2 = IXS(7,I)
+            IC3 = IXS(8,I)
+            IC4 = IXS(9,I)
+            IC5 = IXS(2,I)
+            IC6 = IXS(3,I)
+            IC7 = IXS(4,I)
+            IC8 = IXS(5,I)
+            IXS(2,I) = IC1
+            IXS(3,I) = IC2
+            IXS(4,I) = IC3
+            IXS(5,I) = IC4
+            IXS(6,I) = IC5
+            IXS(7,I) = IC6
+            IXS(8,I) = IC7
+            IXS(9,I) = IC8
+          ENDIF
         ENDIF
 C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) )THEN  
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) )THEN  
           DO J=1,NPART 
-            IF(IPART(4,J).EQ. IPARTS(I) ) INDEX_PART = J
+            IF(IPART(4,J)== IPARTS(I) ) INDEX_PART = J
           ENDDO  
         ENDIF
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) ) THEN
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) ) THEN
           CALL ANCMSG(MSGID=402,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -202,11 +237,6 @@ C--------------------------------------------------
         IPID=IPART(2,INDEX_PART)               
         IXS(1,I)=MT                                
         IXS(10,I)=IPID 
-C--------------------------------------------------
-        DO J=2,9  
-          IXS(J,I)=USR2SYS(IXS(J,I),ITABM1,MESS,IXS(11,I))
-          CALL ANODSET(IXS(J,I), CHECK_VOLU)
-        ENDDO  
       ENDDO            
 C--------------------------------------------------
 C      READING TETRA4 INPUTS IN HM STRUCTURE
@@ -219,24 +249,14 @@ C--------------------------------------------------
       DO N=1,NUMTETRA4
         I = I + 1
 C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-        IF(SUB_SOL(I) .NE. 0)THEN
-          IF(IPARTS(I) .NE. 0) IPARTS(I) = IPARTS(I) + OFF_PART(SUB_SOL(I)) 
-          IF(IXS(NIXS,I) .NE. 0) IXS(NIXS,I) = IXS(NIXS,I) + OFF_EL(SUB_SOL(I))
-          DO J=2,5
-            IF(IXS(J,I) .NE. 0) IXS(J,I) = IXS(J,I) + OFF_NOD(SUB_SOL(I))
-          ENDDO
-        ENDIF
-C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) )THEN  
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) )THEN  
           DO J=1,NPART                            
-            IF(IPART(4,J).EQ. IPARTS(I) ) INDEX_PART = J  
+            IF(IPART(4,J)== IPARTS(I) ) INDEX_PART = J  
           ENDDO  
         ENDIF 
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) ) THEN
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) ) THEN
           CALL ANCMSG(MSGID=402,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -263,6 +283,14 @@ C--------------------------------------------------
         IXS(4,I)=IXS(3,I)
         IXS(3,I)=IXS(2,I)
         ISOLNOD(I)=4
+        IF (CHECKVOLUME_4N(X ,IXS(1,I)) < ZERO) THEN
+          IC2=IXS(6,I)
+          IC4=IXS(4,I)
+          IXS(4,I)=IC2
+          IXS(6,I)=IC4
+          IXS(5,I)=IC2
+          IXS(9,I)=IC4
+        END IF
       ENDDO
 C--------------------------------------------------
 C      READING PENTA6 INPUTS IN HM STRUCTURE
@@ -275,24 +303,14 @@ C--------------------------------------------------
       DO N=1,NUMPENTA6
         I = I + 1
 C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-        IF(SUB_SOL(I) .NE. 0)THEN
-          IF(IPARTS(I) .NE. 0) IPARTS(I) = IPARTS(I) + OFF_PART(SUB_SOL(I)) 
-          IF(IXS(NIXS,I) .NE. 0) IXS(NIXS,I) = IXS(NIXS,I) + OFF_EL(SUB_SOL(I))
-          DO J=2,7
-            IF(IXS(J,I) .NE. 0) IXS(J,I) = IXS(J,I) + OFF_NOD(SUB_SOL(I))
-          ENDDO
-        ENDIF
-C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) )THEN  
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) )THEN  
           DO J=1,NPART                            
-            IF(IPART(4,J).EQ. IPARTS(I) ) INDEX_PART = J             
+            IF(IPART(4,J)== IPARTS(I) ) INDEX_PART = J             
           ENDDO  
         ENDIF 
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) ) THEN
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) ) THEN
           CALL ANCMSG(MSGID=402,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -331,27 +349,14 @@ C--------------------------------------------------
         I = I + 1
         I10 = I10 + 1
 C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-        IF(SUB_SOL(I) .NE. 0)THEN
-          IF(IPARTS(I) .NE. 0) IPARTS(I) = IPARTS(I) + OFF_PART(SUB_SOL(I)) 
-          IF(IXS(NIXS,I) .NE. 0) IXS(NIXS,I) = IXS(NIXS,I) + OFF_EL(SUB_SOL(I))
-          DO J=2,5
-            IF(IXS(J,I) .NE. 0) IXS(J,I) = IXS(J,I) + OFF_NOD(SUB_SOL(I))
-          ENDDO
-          DO J=1,6
-            IF(IXS10(J,I10) .NE. 0) IXS10(J,I10) = IXS10(J,I10) + OFF_NOD(SUB_SOL(I))
-          ENDDO
-        ENDIF
-C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) )THEN  
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) )THEN  
           DO J=1,NPART                            
-            IF(IPART(4,J).EQ. IPARTS(I) ) INDEX_PART = J
+            IF(IPART(4,J)== IPARTS(I) ) INDEX_PART = J
           ENDDO  
         ENDIF
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) ) THEN
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) ) THEN
           CALL ANCMSG(MSGID=402,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -372,7 +377,7 @@ C--------------------------------------------------
         ENDDO
 C
         DO J=1,6
-          IF(IXS10(J,I10).NE.0)THEN
+          IF(IXS10(J,I10)/=0)THEN
             IXS10(J,I10)=USR2SYS(IXS10(J,I10),ITABM1,MESS,IXS(11,I))
             CALL ANODSET(IXS10(J,I10), CHECK_VOLU) 
           ENDIF
@@ -385,7 +390,20 @@ C
         IXS(5,I)=IXS(3,I)
         IXS(4,I)=IXS(3,I)
         IXS(3,I)=IXS(2,I)
-        ISOLNOD(I)=10   
+        ISOLNOD(I)=10
+        IF (CHECKVOLUME_4N(X ,IXS(1,I)) < ZERO) THEN
+            IC2=IXS(6,I)
+            IC4=IXS(4,I)
+            IXS10_SAV(1:6) = IXS10(1:6,I10)
+            IXS(4,I)=IC2
+            IXS(6,I)=IC4
+            IXS(5,I)=IC2
+            IXS(9,I)=IC4
+            IXS10(1,I10) = IXS10_SAV(4)
+            IXS10(2,I10) = IXS10_SAV(6)
+            IXS10(4,I10) = IXS10_SAV(1)
+            IXS10(6,I10) = IXS10_SAV(2)
+        END IF
       ENDDO
 C--------------------------------------------------
 C      READING BRIC20 INPUTS IN HM STRUCTURE
@@ -400,27 +418,14 @@ C--------------------------------------------------
         I = I + 1
         I20 = I20 + 1
 C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-        IF(SUB_SOL(I) .NE. 0)THEN
-          IF(IPARTS(I) .NE. 0) IPARTS(I) = IPARTS(I) + OFF_PART(SUB_SOL(I)) 
-          IF(IXS(NIXS,I) .NE. 0) IXS(NIXS,I) = IXS(NIXS,I) + OFF_EL(SUB_SOL(I))
-          DO J=2,9
-            IF(IXS(J,I) .NE. 0) IXS(J,I) = IXS(J,I) + OFF_NOD(SUB_SOL(I))
-          ENDDO
-          DO J=1,12
-            IF(IXS20(J,I20) .NE. 0) IXS20(J,I20) = IXS20(J,I20) + OFF_NOD(SUB_SOL(I))
-          ENDDO
-        ENDIF
-C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) )THEN  
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) )THEN  
           DO J=1,NPART                            
-            IF(IPART(4,J).EQ. IPARTS(I) ) INDEX_PART = J 
+            IF(IPART(4,J)== IPARTS(I) ) INDEX_PART = J 
           ENDDO  
         ENDIF 
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) ) THEN
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) ) THEN
           CALL ANCMSG(MSGID=402,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -441,7 +446,7 @@ C--------------------------------------------------
         ENDDO
 C
         DO J=1,12
-          IF(IXS20(J,I20).NE.0)THEN
+          IF(IXS20(J,I20)/=0)THEN
              IXS20(J,I20)=USR2SYS(IXS20(J,I20),ITABM1,MESS,IXS(11,I))
           CALL ANODSET(IXS20(J,I20), CHECK_VOLU)
           ENDIF
@@ -461,27 +466,14 @@ C--------------------------------------------------
         I = I + 1
         I16 = I16 + 1
 C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-        IF(SUB_SOL(I) .NE. 0)THEN
-          IF(IPARTS(I) .NE. 0) IPARTS(I) = IPARTS(I) + OFF_PART(SUB_SOL(I)) 
-          IF(IXS(NIXS,I) .NE. 0) IXS(NIXS,I) = IXS(NIXS,I) + OFF_EL(SUB_SOL(I))
-          DO J=2,9
-            IF(IXS(J,I) .NE. 0) IXS(J,I) = IXS(J,I) + OFF_NOD(SUB_SOL(I))
-          ENDDO
-          DO J=1,8
-            IF(IXS16(J,I16) .NE. 0) IXS16(J,I16) = IXS16(J,I16) + OFF_NOD(SUB_SOL(I))
-          ENDDO
-        ENDIF
-C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) )THEN  
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) )THEN  
           DO J=1,NPART                            
-            IF(IPART(4,J).EQ. IPARTS(I) ) INDEX_PART = J 
+            IF(IPART(4,J)== IPARTS(I) ) INDEX_PART = J 
           ENDDO  
         ENDIF 
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) ) THEN
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) ) THEN
           CALL ANCMSG(MSGID=402,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -502,7 +494,7 @@ C--------------------------------------------------
         ENDDO
 C
         DO J=1,8
-          IF(IXS16(J,I16).NE.0)THEN
+          IF(IXS16(J,I16)/=0)THEN
              IXS16(J,I16)=USR2SYS(IXS16(J,I16),ITABM1,MESS,IXS(11,I))
           CALL ANODSET(IXS16(J,I16), CHECK_VOLU)
           ENDIF
@@ -517,22 +509,20 @@ C-----------
 C-------------------------------------
       IF (ALLOCATED(SUB_SOL)) DEALLOCATE(SUB_SOL)
 C-------------------------------------
-C Recherche des ID doubles
+C Search for double IDs
 C-------------------------------------
       CALL UDOUBLE(IXS(NIXS,1),NIXS,NUMELS,MESS,0,BID)
       RETURN
- 999  CALL FREERR(1)
-      RETURN
       END
 C
-Chd|====================================================================
-Chd|  LCE16S3                       source/elements/reader/hm_read_solid.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        REORDR                        source/elements/solid_2d/quad/reordr.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    lce16s3        ../starter/source/elements/reader/hm_read_solid.F
+!||--- called by ------------------------------------------------------
+!||    lectur         ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    reordr         ../starter/source/elements/solid_2d/quad/reordr.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE LCE16S3(IXS    ,ISEL    ,PM      ,IPOINT  ,ITAB     ,ITABM1 ,
      .                   ICODE  ,IPARTS  ,IGRBRIC ,GEO     ,ISOLNOD  ,
      .                   IXS10  ,IPART   ,IXS20   ,IXS16   ,KNOD2ELS ,NOD2ELS,
@@ -541,6 +531,7 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -548,9 +539,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
 #include      "units_c.inc"
 #include      "scr03_c.inc"
 #include      "sphcom.inc"
@@ -564,22 +553,19 @@ C-----------------------------------------------
      .   ICODE(*),IPARTS(*),ISOLNOD(*),
      .   IXS10(6,*),IPART(LIPART1,*),IXS20(12,*),IXS16(8,*),
      .   KNOD2ELS(*),NOD2ELS(*),SPH2SOL(*),SOL2SPH(2,*)
-C     REAL
-      my_real
-     .   PM(NPROPM,*),GEO(NPROPG,*)
+      my_real PM(NPROPM,NUMMAT),GEO(NPROPG,*)
 C-----------------------------------------------
       TYPE (GROUP_)  ,DIMENSION(NGRBRIC)  :: IGRBRIC
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, MT, MLAW, JTUR, I1, I2, INEW, K, N, IAD, NN
-      INTEGER IC,IC1,IC2,IC3,IC4,MID,PID
+      INTEGER I, J, MT, MLAW, JTUR, I1, I2, INEW, K, N, NN
+      INTEGER IC,IC1,IC2,IC3,IC4
       CHARACTER MESS*40, MESS2*40
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER USR2SYS
 C
       DATA MESS/'3D SOLID ELEMENTS DEFINITION            '/
       DATA MESS2/'3D SOLID ELEMENTS SELECTION FOR TH PLOT '/
@@ -587,29 +573,29 @@ C
 C----------------------------------------------------
 C     DETECTION DES ELEMENTS LOIS 6 PAROI---->LOI 17
 C----------------------------------------------------
-C      LOI 17 SI LA BCS EST  111 (3D)
+C      LAW 17 IF THE BCS IS  111 (3D)
       DO I=1,NUMELS8
         MT=IXS(1,I)
         MLAW=NINT(PM(19,MT))
         JTUR=NINT(PM(70,MT))
         DO J=2,9
-          IF((MLAW.EQ.6.AND.JTUR.NE.0) .OR. MLAW.EQ.46) THEN
+          IF((MLAW==6.AND.JTUR/=0) .OR. MLAW==46) THEN
            IC=ICODE(IXS(J,I))
            IC1=IC/512
            IC2=(IC-512*IC1)/64
            IC3=(IC-512*IC1-64*IC2)/8
            IC4=(IC-512*IC1-64*IC2-8*IC3)
-           IF(IC1.EQ.7 .OR. IC4.EQ.7)IXS(1,I)=-IABS(IXS(1,I))
+           IF(IC1==7 .OR. IC4==7)IXS(1,I)=-IABS(IXS(1,I))
           ENDIF
         ENDDO
       ENDDO
 C----------------------------------------------------
-C     CLASSEMENT DES ELEMENTS PAR LOI DE MATERIAU
+C     CLASSIFICATION OF ELEMENTS BY MATERIAL LAW
 C----------------------------------------------------
       CALL REORDR(IXS   ,NIXS   ,NUMELS8,PM      ,IPOINT ,
-     .            IPARTS,NGRBRIC,IGRBRIC)
+     .            IPARTS,NGRBRIC,IGRBRIC,NUMMAT)
 C------------------------------------------
-C RENUMEROTATION POUR SURFACES
+C RENAMING FOR SURFACES
 C------------------------------------------
       DO I=1,NSURF
         NN =IGRSURF(I)%NSEG
@@ -621,7 +607,7 @@ C------------------------------------------
         ENDDO
       ENDDO
 C------------------------------------------
-C     RENUMEROTATION DES PARTICULES SPH 
+C     RENAMING OF SPH PARTICLES
 C------------------------------------------
       IF(NSPHSOL/=0)THEN
         DO I=1,NUMSPH
@@ -647,7 +633,7 @@ C Rebuild SOL2SPH, SOL2SPH(1,N)+1<=I<=SOLSPH(2,N) <=> N==SPH2SOL(I)
         END DO          
       END IF
 C------------------------------------------
-C     PERMUTATION DE ISOLNOD
+C     PERMUTATION OF ISOLNOD
 C------------------------------------------
       DO I=1,NUMELS8
         IPOINT(2,I)=ISOLNOD(I)
@@ -656,7 +642,7 @@ C------------------------------------------
         ISOLNOD(IPOINT(1,I))=IPOINT(2,I)
       ENDDO
 C------------------------------------------
-C Reconstruction de la matrice Nod -> Solid elt
+C Reconstruction of the matrix Nod -> Solid elt
 C------------------------------------------
       DO  K=2,9
         DO  I=1,NUMELS
@@ -706,7 +692,7 @@ C------------------------------------------
       I1=1
       I2=50
 C
-      IF(IPRI.GE.5)THEN
+      IF(IPRI>=5)THEN
         WRITE (IOUT,'(//A//)') TITRE(206)
    90   CONTINUE
         I2=MIN0(I2,NUMELS8)
@@ -720,11 +706,11 @@ C
           WRITE (IOUT,'(5I10)')
      .      IXS(11,INEW),INEW,IPART(4,IPARTS(INEW)),
      .      IPART(5,IPARTS(INEW)),IPART(6,IPARTS(INEW))
-          IF(ISOLNOD(INEW).EQ.4)THEN
+          IF(ISOLNOD(INEW)==4)THEN
             WRITE (IOUT,'(8I10)')
      .        ITAB(IXS(2,INEW)),ITAB(IXS(4,INEW)),
      .        ITAB(IXS(7,INEW)),ITAB(IXS(6,INEW))
-          ELSEIF(ISOLNOD(INEW).EQ.6)THEN
+          ELSEIF(ISOLNOD(INEW)==6)THEN
             WRITE (IOUT,'(6I10)')
      .        ITAB(IXS(5,INEW)),ITAB(IXS(3,INEW)),ITAB(IXS(4,INEW)),
      .        ITAB(IXS(6,INEW)),ITAB(IXS(7,INEW)),ITAB(IXS(8,INEW))
@@ -733,7 +719,7 @@ C
      .        (ITAB(IXS(J,INEW)),J=2,9)
           ENDIF
          ENDDO
-        IF(I2.EQ.NUMELS8)GOTO 200
+        IF(I2==NUMELS8)GOTO 200
         I1=I1+50
         I2=I2+50
         GOTO 90
@@ -760,7 +746,7 @@ C
      .        ITAB(IXS(7,INEW)),ITAB(IXS(6,INEW)),
      .        (ITAB(IXS10(J,I)),J=1,6)
         ENDDO
-        IF(I2.EQ.NUMELS10)GOTO 300
+        IF(I2==NUMELS10)GOTO 300
         I1=I1+50
         I2=I2+50
         GOTO 290
@@ -769,7 +755,7 @@ C
         I1=1
         I2=50
 C
-        DOWHILE(I1.LE.NUMELS20)
+        DOWHILE(I1<=NUMELS20)
          WRITE (IOUT,'(//A/A//A/A,A/A/A)')
      .        '            TWENTY NODE BRICK ELEMENTS',
      .        '            --------------------------',
@@ -794,7 +780,7 @@ C
         I1=1
         I2=50
 C
-        DOWHILE(I1.LE.NUMELS16)
+        DOWHILE(I1<=NUMELS16)
          WRITE (IOUT,'(//A/A//A/A,A/A,A)')
      .        '            SIXTEEN NODE SHELL ELEMENTS',
      .        '            ---------------------------',
@@ -820,13 +806,14 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  LCE16S4                       source/elements/reader/hm_read_solid.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    lce16s4       ../starter/source/elements/reader/hm_read_solid.F
+!||--- called by ------------------------------------------------------
+!||    lectur        ../starter/source/starter/lectur.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE LCE16S4(IXS,PM,ICODE)
+      use element_mod , only : nixs
 C
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -835,13 +822,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
 #include      "param_c.inc"
-#include      "titr_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -857,20 +839,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C     DETECTION DES ELEMENTS LOIS 6 PAROI---->LOI 17
 C----------------------------------------------------
-C     LOI 17 SI LA BCS EST  111 (3D)
+C     LAW 17 IF THE BCS IS  111 (3D)
       DO I=1,NUMELS8
         MT=IXS(1,I)
         IF(MT < 1)CYCLE
         MLAW=NINT(PM(19,MT))
         JTUR=NINT(PM(70,MT))
         DO J=2,9
-          IF((MLAW.EQ.6.AND.JTUR.NE.0) .OR. MLAW.EQ.46) THEN
+          IF((MLAW==6.AND.JTUR/=0) .OR. MLAW==46) THEN
            IC=ICODE(IXS(J,I))
            IC1=IC/512
            IC2=(IC-512*IC1)/64
            IC3=(IC-512*IC1-64*IC2)/8
            IC4=(IC-512*IC1-64*IC2-8*IC3)
-           IF(IC1.EQ.7 .OR. IC4.EQ.7)IXS(1,I)=-IABS(IXS(1,I))
+           IF(IC1==7 .OR. IC4==7)IXS(1,I)=-IABS(IXS(1,I))
           ENDIF
         ENDDO
       ENDDO
@@ -878,79 +860,59 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  HM_PRELCE16S                  source/elements/reader/hm_read_solid.F
-Chd|-- called by -----------
-Chd|        CONTRL                        source/starter/contrl.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_PRELCE16S(IPART   ,IGEO    ,IXS     ,NSPHSOL ,LSUBMODEL,
-     .                        IS_DYNA )
+!||====================================================================
+!||    hm_prelce16s      ../starter/source/elements/reader/hm_read_solid.F
+!||--- called by ------------------------------------------------------
+!||    contrl            ../starter/source/starter/contrl.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg            ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod       ../starter/share/message_module/message_mod.F
+!||    reader_old_mod    ../starter/share/modules1/reader_old_mod.F90
+!||    submodel_mod      ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_PRELCE16S(IPART, IGEO, IXS, NSPHSOL ,LSUBMODEL, IS_DYNA )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
-      USE SUBMODEL_MOD
+      USE SUBMODEL_MOD , ONLY : NSUBMOD, SUBMODEL_DATA
+      USE READER_OLD_MOD , ONLY : LINE
+      USE USER_ID_MOD , ONLY : ID_LIMIT
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
 #include      "param_c.inc"
-#include      "titr_c.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IPART(LIPART1,*), IGEO(NPROPGI,*), IXS(NIXS,*), NSPHSOL
-C     REAL
-      TYPE(SUBMODEL_DATA) LSUBMODEL(*)
+      INTEGER IPART(LIPART1,*), IGEO(NPROPGI,NUMGEO), IXS(NIXS,*), NSPHSOL
+      TYPE(SUBMODEL_DATA) LSUBMODEL(NSUBMOD)
       INTEGER,INTENT(IN)::IS_DYNA
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K, IT, NT
-      INTEGER IPID,ID,IDS,N,NSPHDIR,STAT
-      INTEGER FLAG_FMT,FLAG_FMT_TMP,IFIX_TMP,INDEX_PART,OFF_DEF(NSUBMOD),
-     .        OFF_NOD(NSUBMOD),OFF_EL(NSUBMOD),OFF_PART(NSUBMOD)
-      my_real
-     .   BID 
+      INTEGER I, J, IT, NT
+      INTEGER NSPHDIR,STAT
+      INTEGER FLAG_FMT,INDEX_PART
       CHARACTER MESS*40
       INTEGER, DIMENSION(:), ALLOCATABLE :: IPARTS
       INTEGER, DIMENSION(:), ALLOCATABLE :: SUB_SOL
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
-      INTEGER USR2SYS
 C
       DATA MESS/'3D SOLID ELEMENTS DEFINITION            '/
 C=======================================================================
         NSPHSOL=0
 C
-C--------------------------------------------------
-C      HM OFFSETS IDs
-C--------------------------------------------------
-      DO I=1,NSUBMOD
-        OFF_DEF(I) = LSUBMODEL(I)%OFF_DEF
-        OFF_NOD(I) = LSUBMODEL(I)%OFF_NOD
-        OFF_EL(I) = LSUBMODEL(I)%OFF_EL
-        OFF_PART(I) = LSUBMODEL(I)%OFF_PART
-      ENDDO
 C--------------------------------------------------
 C      ALLOCS & INITS
 C--------------------------------------------------
@@ -970,45 +932,39 @@ C      NSPHSOL NSPHDIR CALCULATION + CHECKS
 C--------------------------------------------------
       DO I=1,NUMBRICK
 C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-        IF(SUB_SOL(I) .NE. 0)THEN
-          IF(IPARTS(I) .NE. 0) IPARTS(I) = IPARTS(I) + OFF_PART(SUB_SOL(I)) 
-          IF(IXS(NIXS,I) .NE. 0) IXS(NIXS,I) = IXS(NIXS,I) + OFF_EL(SUB_SOL(I))
-          DO J=2,9
-            IF(IXS(J,I) .NE. 0) IXS(J,I) = IXS(J,I) + OFF_NOD(SUB_SOL(I))
-          ENDDO
-        ENDIF
-C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-        IF( IPART(4,INDEX_PART) .NE. IPARTS(I) )THEN  
+        IF( IPART(4,INDEX_PART) /= IPARTS(I) )THEN  
           DO J=1,NPART                            
-            IF(IPART(4,J).EQ. IPARTS(I) )INDEX_PART = J             
+            IF(IPART(4,J)== IPARTS(I) )INDEX_PART = J             
           ENDDO
         ENDIF 
         IPARTS(I) = INDEX_PART 
 C--------------------------------------------------
-        IF (IXS(11,I).GT.ID_LIMIT) THEN
+        IF (IXS(11,I)>ID_LIMIT%GLOBAL) THEN
           CALL ANCMSG(MSGID=509,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                I1=IXS(11,I),C1=LINE,C2='/SOLID')
         ENDIF
-        NSPHDIR=IGEO(37,IPART(2,IPARTS(I)))
-        IF(IXS(6,I)+IXS(7,I)+IXS(8,I)+IXS(9,I).EQ.0)THEN
-          NT=0
-          DO IT=1,NSPHDIR
-            NT=NT+IT
-            NSPHSOL=NSPHSOL+NT
-          END DO
-        ELSEIF(IXS(8,I)+IXS(9,I).EQ.0)THEN
-          NT=0
-          DO IT=1,NSPHDIR
-            NT=NT+IT
-          END DO
-          NSPHSOL=NSPHSOL+NSPHDIR*NT
-        ELSE
-          NSPHSOL=NSPHSOL+NSPHDIR*NSPHDIR*NSPHDIR
+C
+        IF (IPART(2,IPARTS(I)) > 0) THEN
+          NSPHDIR=IGEO(37,IPART(2,IPARTS(I)))
+          IF(IXS(6,I)+IXS(7,I)+IXS(8,I)+IXS(9,I)==0)THEN
+            NT=0
+            DO IT=1,NSPHDIR
+              NT=NT+IT
+              NSPHSOL=NSPHSOL+NT
+            END DO
+          ELSEIF(IXS(8,I)+IXS(9,I)==0)THEN
+            NT=0
+            DO IT=1,NSPHDIR
+              NT=NT+IT
+            END DO
+            NSPHSOL=NSPHSOL+NSPHDIR*NT
+          ELSE
+            NSPHSOL=NSPHSOL+NSPHDIR*NSPHDIR*NSPHDIR
+          ENDIF
         ENDIF
+C
       ENDDO
 C
         FLAG_FMT = 0
@@ -1022,28 +978,18 @@ C      NSPHSOL NSPHDIR CALCULATION + CHECKS
 C--------------------------------------------------
         DO I=NUMBRICK+1,NUMBRICK+NUMTETRA4
 C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-          IF(SUB_SOL(I) .NE. 0)THEN
-            IF(IPARTS(I) .NE. 0) IPARTS(I) = IPARTS(I) + OFF_PART(SUB_SOL(I)) 
-            IF(IXS(NIXS,I) .NE. 0) IXS(NIXS,I) = IXS(NIXS,I) + OFF_EL(SUB_SOL(I))
-            DO J=2,5
-              IF(IXS(J,I) .NE. 0) IXS(J,I) = IXS(J,I) + OFF_NOD(SUB_SOL(I))
-            ENDDO
-          ENDIF
-C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-          IF( IPART(4,INDEX_PART) .NE. IPARTS(I) )THEN  
+          IF( IPART(4,INDEX_PART) /= IPARTS(I) )THEN  
             DO J=1,NPART                            
-              IF(IPART(4,J).EQ. IPARTS(I) )INDEX_PART = J             
+              IF(IPART(4,J)== IPARTS(I) )INDEX_PART = J             
             ENDDO  
           ENDIF 
           IPARTS(I) = INDEX_PART 
 C--------------------------------------------------
 C
           NSPHDIR=IGEO(37,IPART(2,IPARTS(I)))
-          IF (IXS(11,I).GT.ID_LIMIT) THEN
+          IF (IXS(11,I)>ID_LIMIT%GLOBAL) THEN
             CALL ANCMSG(MSGID=509,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                  I1=IXS(11,I),C1=LINE,C2='/SOLID')
           ENDIF
@@ -1062,27 +1008,17 @@ C      NSPHSOL NSPHDIR CALCULATION + CHECKS
 C--------------------------------------------------
         DO I=NUMBRICK+NUMTETRA4+1,NUMBRICK+NUMTETRA4+NUMPENTA6
 C--------------------------------------------------
-C      SUBMODEL OFFSET
-C--------------------------------------------------
-          IF(SUB_SOL(I) .NE. 0)THEN
-            IF(IPARTS(I) .NE. 0) IPARTS(I) = IPARTS(I) + OFF_PART(SUB_SOL(I)) 
-            IF(IXS(NIXS,I) .NE. 0) IXS(NIXS,I) = IXS(NIXS,I) + OFF_EL(SUB_SOL(I))
-            DO J=2,7
-              IF(IXS(J,I) .NE. 0) IXS(J,I) = IXS(J,I) + OFF_NOD(SUB_SOL(I))
-            ENDDO
-          ENDIF
-C--------------------------------------------------
 C      INTERNAL PART ID
 C--------------------------------------------------
-          IF( IPART(4,INDEX_PART) .NE. IPARTS(I) )THEN  
+          IF( IPART(4,INDEX_PART) /= IPARTS(I) )THEN  
             DO J=1,NPART                            
-              IF(IPART(4,J).EQ. IPARTS(I) )INDEX_PART = J             
+              IF(IPART(4,J)== IPARTS(I) )INDEX_PART = J             
             ENDDO  
           ENDIF 
           IPARTS(I) = INDEX_PART 
 C--------------------------------------------------
           NSPHDIR=IGEO(37,IPARTS(I-NUMBRICK))
-          IF (IXS(11,I).GT.ID_LIMIT) THEN
+          IF (IXS(11,I)>ID_LIMIT%GLOBAL) THEN
             CALL ANCMSG(MSGID=509,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                  I1=IXS(11,I),C1=LINE,C2='/SOLID')
           ENDIF
@@ -1095,7 +1031,5 @@ C--------------------------------------------------
       IF (ALLOCATED(IPARTS)) DEALLOCATE(IPARTS)
       IF (ALLOCATED(SUB_SOL)) DEALLOCATE(SUB_SOL)
 C--------------------------
-      RETURN
- 999  CALL FREERR(1)
       RETURN
       END

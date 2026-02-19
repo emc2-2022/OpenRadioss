@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-#ifdef MUMPS5
-Chd|====================================================================
-Chd|  IMP_MUMPS1                    source/implicit/imp_mumps.F   
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        MUMPS_SET2                    source/implicit/imp_mumps.F   
-Chd|        PRINT_STIFF_MAT               source/implicit/imp_mumps.F   
-Chd|        SPMD_CDDL                     source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_INF_G                    source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_MUMPS_COUNT              source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_MUMPS_DEAL               source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_MUMPS_GATH               source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_MUMPS_INI                source/mpi/implicit/imp_spmd.F
-Chd|        TMPENVF                       source/system/tmpenv_c.c      
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        IMP_KBCS                      share/modules/impbufdef_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    imp_mumps1            ../engine/source/implicit/imp_mumps.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv              ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    mumps_set2            ../engine/source/implicit/imp_mumps.F
+!||    print_stiff_mat       ../engine/source/implicit/imp_mumps.F
+!||    spmd_cddl             ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_inf_g            ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_mumps_count      ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_mumps_deal       ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_mumps_gath       ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_mumps_ini        ../engine/source/mpi/implicit/imp_spmd.F
+!||    tmpenvf               ../engine/source/system/tmpenv_c.c
+!||--- uses       -----------------------------------------------------
+!||    imp_intm              ../engine/share/modules/imp_intm.F
+!||    imp_kbcs              ../engine/share/modules/impbufdef_mod.F
+!||    message_mod           ../engine/share/message_module/message_mod.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE IMP_MUMPS1(NDDL0  , NNZK0    , NDDL  , NNZK , NNMAX   ,
      .                      NODGLOB, IDDL     , NDOF  , INLOC, IKC     ,
      .                      IADK   , JDIK     , DIAG_K, LT_K , IAD_ELEM,
@@ -54,15 +55,18 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "impl1_c.inc"
-#include      "units_c.inc" 
-#include      "task_c.inc" 
-#include      "dmumps_struc.h"
+#if defined(MUMPS5)
+#include "dmumps_struc.h"
+#endif
+#include "impl1_c.inc"
+#include "task_c.inc"
+#include "units_c.inc"
+#include "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -72,7 +76,13 @@ C-----------------------------------------------
      .        ITOK(*), NDDLI, NNZI,IMPRINT,TLEN, IT
       my_real
      .        DIAG_K(*), LT_K(*), DIAG_I(*), LT_I(*)
+#ifdef MUMPS5
       TYPE(DMUMPS_STRUC) MUMPS_PAR
+#else
+      ! Fake declaration as DMUMPS_STRUC is shipped with MUMPS
+      INTEGER MUMPS_PAR 
+#endif
+#ifdef MUMPS5
 C----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -86,7 +96,7 @@ C-----------------------------------------------
       my_real
      .       , DIMENSION(:), ALLOCATABLE :: RTK
 C
-      IF (NDDLI.EQ.0) NNZI=0
+      IF (NDDLI==0) NNZI=0
 C Desallocations si necessaire
 
       CALL SPMD_MUMPS_DEAL(MUMPS_PAR)
@@ -94,7 +104,7 @@ C
       CALL SPMD_MUMPS_INI(MUMPS_PAR, 1)
 C
 
-      IF (NCYCLE.EQ.1.AND.INCONV.EQ.1) THEN
+      IF (NCYCLE==1.AND.INCONV==1) THEN
          MUMPS_PAR%ICNTL(3) = IOUT
       ELSE
          MUMPS_PAR%ICNTL(3) = -1    
@@ -120,15 +130,15 @@ C      MUMPS_PAR%ICNTL(22)=1
         MUMPS_PAR%ICNTL(22)=1
       ENDIF
 
-      IF (NSPMD.GT.1) THEN
+      IF (NSPMD>1) THEN
 C LMEMV is the memory on the host (i.e. node)
 C        MUMPS_PAR%ICNTL(23)=LMEMV/NSPMD_PER_NODE
-         IF (IMUMPSD.EQ.1) THEN
+         IF (IMUMPSD==1) THEN
             MUMPS_PAR%ICNTL(18)=3
-         ELSEIF (IMUMPSD.EQ.2) THEN
+         ELSEIF (IMUMPSD==2) THEN
             MUMPS_PAR%ICNTL(18)=0
          ENDIF
-         IF (IDTC.EQ.3) MUMPS_PAR%ICNTL(13)=1
+         IF (IDTC==3) MUMPS_PAR%ICNTL(13)=1
 C
          NDDLG0 = NDDL0
          NNZKG0 = NNZK0
@@ -161,12 +171,12 @@ c    .         ITK,   RTK,     NKFRONT, NKFLOC, NKLOC,
 c    .         NDDLG, IMPRINT )
 C
          NKFLOC = 0
-         NZLOC=NKLOC+NKFLOC	 
-         IF (IMUMPSD.EQ.1) THEN
+         NZLOC=NKLOC+NKFLOC   
+         IF (IMUMPSD==1) THEN
             ALLOCATE(MUMPS_PAR%A_LOC(NZLOC),
      .               MUMPS_PAR%IRN_LOC(NZLOC),
      .               MUMPS_PAR%JCN_LOC(NZLOC))
-            IF (ISPMD.EQ.0) THEN
+            IF (ISPMD==0) THEN
                ALLOCATE(MUMPS_PAR%RHS(NDDLG))
             ELSE
                ALLOCATE(MUMPS_PAR%RHS(0))
@@ -179,10 +189,10 @@ C
                MUMPS_PAR%JCN_LOC(I)=ITK(2,I)
                MUMPS_PAR%A_LOC(I)=RTK(I)
             ENDDO
-         ELSEIF (IMUMPSD.EQ.2) THEN
+         ELSEIF (IMUMPSD==2) THEN
             CALL SPMD_MUMPS_COUNT(NZLOC, NZP, NNZ)
 C
-            IF (ISPMD.EQ.0) THEN
+            IF (ISPMD==0) THEN
                ALLOCATE(MUMPS_PAR%A(NNZ),
      .                  MUMPS_PAR%IRN(NNZ),
      .                  MUMPS_PAR%JCN(NNZ),
@@ -243,7 +253,7 @@ C
             ENDDO
          ENDDO
 C
-         IF (IMPRINT.NE.0) THEN
+         IF (IMPRINT/=0) THEN
             WRITE(ISTDO,*)
             WRITE(ISTDO,'(A21,I10,A8,I10)')
      .' MUMPS    DIM : NNZ =',NNZK+NDDL,' NNZFR =',0
@@ -270,43 +280,49 @@ c      WRITE(IOUT,*) "NCYCLE,IT=",NCYCLE,IT
       ENDIF
 1000  FORMAT(5X,'--STIFFNESS MATRIX IS PRINTED--')
       RETURN
+#endif
       END
-Chd|====================================================================
-Chd|  PRINT_STIFF_MAT               source/implicit/imp_mumps.F   
-Chd|-- called by -----------
-Chd|        IMP_MUMPS1                    source/implicit/imp_mumps.F   
-Chd|-- calls ---------------
-Chd|        SPMD_INT_ALLREDUCE_MAX        source/mpi/implicit/imp_spmd.F
-Chd|====================================================================
+!||====================================================================
+!||    print_stiff_mat          ../engine/source/implicit/imp_mumps.F
+!||--- called by ------------------------------------------------------
+!||    imp_mumps1               ../engine/source/implicit/imp_mumps.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_int_allreduce_max   ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod      ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE PRINT_STIFF_MAT(MUMPS_PAR, NDDL, NODGLOB, IDDL, NDOF,  
      .                           CDDLP, INLOC, IKC, NDDLG, NDDLP)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
-C-----------------------------------------------
-C   M e s s a g e   P a s s i n g
-C-----------------------------------------------
-#ifdef  MPI
-#include "mpif.h"
-#endif
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "impl2_c.inc"
+#if defined(MUMPS5)
+#include      "dmumps_struc.h"
+#endif
+#include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "task_c.inc"
-#include      "spmd_c.inc"
-#include      "dmumps_struc.h"
+#include      "impl2_c.inc"
+C-----------------------------------------------
+C   M e s s a g e   P a s s i n g
+C-----------------------------------------------
+#include "spmd.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+#ifdef MUMPS5
       TYPE(DMUMPS_STRUC) MUMPS_PAR
-      INTEGER NDDL, NODGLOB(*), IDDL(*), NDOF(*), CDDLP(*), 
-     .        INLOC(*), IKC(*), NDDLG, NDDLP(*)
+#else
+      ! Fake declaration as DMUMPS_STRUC is shipped with MUMPS
+      INTEGER MUMPS_PAR 
+#endif
+      INTEGER NDDL, NODGLOB(*), IDDL(*), NDOF(*), CDDLP(*), INLOC(*), IKC(*), NDDLG, NDDLP(*)
+#ifdef MUMPS5
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -338,7 +354,7 @@ C TDDL: local DOF (at MPI domain level) to global node and direction (DX,DY,DZ,R
          DO J=1,NDOF(I)
             ND=IDDL(I)+J
             ID=ND-NKC
-            IF (IKC(ND).LT.1) THEN
+            IF (IKC(ND)<1) THEN
                TDDL(1,CDDLP(ID))=NODGLOB(I)
                TDDL(2,CDDLP(ID))=J
             ELSE
@@ -385,9 +401,9 @@ C All processes: write local stiffness coefficients (at MPI domain level) in Mat
       ENDIF   
       CLOSE(UNIT=OFFST+ISPMD)           
 #ifdef MPI
-      CALL MPI_BARRIER(MPI_COMM_WORLD,IERROR)
+      CALL MPI_BARRIER(SPMD_COMM_WORLD,IERROR)
 #endif
-C Process 0: read stiff. coeff. from all processes, sort (bubble) and write stiffness coefficients in MatrixMarket format         
+C Process 0: read stiffness coefficients from all processes, sort (bubble) and write stiffness coefficients in MatrixMarket format         
       IF (ISPMD == 0) THEN
          ALLOCATE(NENTRIEStmp(NSPMD))
          WRITE(CSPMD,'(I1)') NSPMD
@@ -436,7 +452,7 @@ C Bubble sort in ascending order of ICOLS and then IROWS
              ENDDO 
              I = I - 1
          ENDDO  
-C Write stiff. coeff. in only one file (suppress duplications) 
+C Write stiffness coefficients in only one file (suppress duplications) 
          IND = 1 
          DO WHILE (IND <= NENTRIES)
            tmpK = K(IND)
@@ -465,45 +481,55 @@ C Write stiff. coeff. in only one file (suppress duplications)
 1002  FORMAT(I10,I10,I10)   
 1003  FORMAT(I10,I10,E10.2)
 C
+#endif
       RETURN
       END                
-Chd|====================================================================
-Chd|  IMP_MUMPS2                    source/implicit/imp_mumps.F   
-Chd|-- called by -----------
-Chd|        LIN_SOLVP2                    source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|        SPMD_MUMPS_EXEC               source/mpi/implicit/imp_spmd.F
-Chd|        SPMD_MUMPS_RHS                source/mpi/implicit/imp_spmd.F
-Chd|====================================================================
+!||====================================================================
+!||    imp_mumps2            ../engine/source/implicit/imp_mumps.F
+!||--- called by ------------------------------------------------------
+!||    lin_solvp2            ../engine/source/implicit/lin_solv.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_mumps_exec       ../engine/source/mpi/implicit/imp_spmd.F
+!||    spmd_mumps_rhs        ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE IMP_MUMPS2(MUMPS_PAR, CDDLP, F, X, NDDL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "impl1_c.inc"
-#include      "dmumps_struc.h"
-#include      "task_c.inc"
-#include      "filescount_c.inc"
+#if defined(MUMPS5)
+#include "dmumps_struc.h"
+#endif
+#include "impl1_c.inc"
+#include "filescount_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER CDDLP(*), NDDL
-      my_real
-     .        F(*), X(*)
+      my_real F(*), X(*)
+#ifdef MUMPS5
       TYPE(DMUMPS_STRUC) MUMPS_PAR
+#else
+      ! Fake declaration as DMUMPS_STRUC is shipped with MUMPS
+      INTEGER MUMPS_PAR 
+#endif
+
+#ifdef MUMPS5
 C----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, NDDLG,LENT
 C
       IF (MUMPS_PAR%N<=0) RETURN
-      IF (IDSC.EQ.1) CALL SPMD_MUMPS_EXEC(MUMPS_PAR, 1)
+      IF (IDSC==1) CALL SPMD_MUMPS_EXEC(MUMPS_PAR, 1)
 C---------For licence
-      IF (IDSC.EQ.1) ISOLV_D = 1              
+      IF (IDSC==1) ISOLV_D = 1              
 C
       NDDLG=MUMPS_PAR%N
       CALL SPMD_MUMPS_RHS(F,     CDDLP, MUMPS_PAR%RHS, NDDL, 1,
@@ -513,20 +539,22 @@ C
 C
       CALL SPMD_MUMPS_RHS(X,     CDDLP, MUMPS_PAR%RHS, NDDL, 2,
      .                    NDDLG)
-C----FLAG for MUMPS: IF (IMPL_S.GT.0.AND.ISOLV.EQ.3.AND.IMACH.EQ.3)	
-	LENT = 1024*MUMPS_PAR%INFO(16)                   
+C----FLAG for MUMPS: IF (IMPL_S>0.AND.ISOLV==3)
+          LENT = 1024*MUMPS_PAR%INFO(16)                   
         MUMPSFILESIZE = MAX(MUMPSFILESIZE,LENT)       
 C
       RETURN
+#endif
       END  
 
-Chd|====================================================================
-Chd|  MUMPS_SET                     source/implicit/imp_mumps.F   
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        SPMD_IFRI                     source/mpi/implicit/imp_spmd.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    mumps_set             ../engine/source/implicit/imp_mumps.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_ifri             ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm              ../engine/share/modules/imp_intm.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE MUMPS_SET(IADK , JDIK    , DIAG_K , LT_K  , CDDLP,
      .                     NKLOC, NKFRONT , ITK    , RTK   , IDDL ,
      .                     INLOC, IAD_ELEM, FR_ELEM, NDOF  , IKC  ,
@@ -539,12 +567,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include "com01_c.inc"
 #include "com04_c.inc"
+#include "com08_c.inc"
 #include "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -555,6 +585,7 @@ C-----------------------------------------------
      .        JDII(*), ITOK(*)
       my_real
      .        DIAG_K(*), LT_K(*), RTK(*), DIAG_I(*), LT_I(*)
+#ifdef MUMPS5
 C----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -564,8 +595,7 @@ C-----------------------------------------------
      .        IADLFRONT(NDDL), IFOUND, CDDLP_REM(NDDL_SI),
      .        IDDL_REM(NDDL_SI)
       INTEGER, DIMENSION(:,:), ALLOCATABLE :: ITKFRONT
-      my_real
-     .       , DIMENSION(:), ALLOCATABLE :: RTKFRONT
+      my_real, DIMENSION(:), ALLOCATABLE :: RTKFRONT
 C
       ALLOCATE(ITKFRONT(2,NDDL+NNZK+NNZI+NZ_SI), 
      .         RTKFRONT(NDDL+NNZK+NNZI+NZ_SI))
@@ -582,12 +612,12 @@ C
          DO J=1,NDOF(I)
             ND=IDDL(I)+J
             ID=ND-NKC
-            IF (IKC(ND).GE.1) NKC=NKC+1
+            IF (IKC(ND)>=1) NKC=NKC+1
          ENDDO
       ENDDO
 C
       DO I=1,NSPMD
-C        IF (I.EQ.ISPMD+1) CYCLE
+C        IF (I==ISPMD+1) CYCLE
 C
          DO J=IAD_ELEM(1,I),IAD_ELEM(1,I+1)-1
             INOD=FR_ELEM(J)
@@ -595,7 +625,7 @@ C
             DO K=1,NDOF(INOD)
                ND=IDDL(INOD)+K
                ID=ND-NKC
-               IF (IKC(ND).LT.1) THEN
+               IF (IKC(ND)<1) THEN
                   IDDL_FRONT(1,ID)=IDDL_FRONT(1,ID)+1
                   NN=IDDL_FRONT(1,ID)
                   IDDL_FRONT(NN+1,ID)=I
@@ -609,11 +639,11 @@ C
       NKLOC=0
       NKFRONT=0
       DO I=1,NDDL
-         IF (IACTI(I).EQ.0) CYCLE
+         IF (IACTI(I)==0) CYCLE
          II=IACTI(I)
          IADL(II)=NKLOC+1
          IADLFRONT(II)=NKFRONT+1
-         IF (IDDL_FRONT(1,II).EQ.1) THEN
+         IF (IDDL_FRONT(1,II)==1) THEN
             NKLOC=NKLOC+1
             IDIAG(II)=NKLOC
             ITK(1,NKLOC)=CDDLP(II)
@@ -630,8 +660,8 @@ C
          DO J=IADK(I),IADK(I+1)-1
             ILOC=1
             JJ=IACTI(JDIK(J))
-            IF (JJ.EQ.0) CYCLE
-            IF (IDDL_FRONT(1,II).EQ.1.OR.IDDL_FRONT(1,JJ).EQ.1) THEN
+            IF (JJ==0) CYCLE
+            IF (IDDL_FRONT(1,II)==1.OR.IDDL_FRONT(1,JJ)==1) THEN
                ILOC=0
             ELSE
                DO K=1,NSPMD
@@ -650,15 +680,15 @@ C
                DO K=1,NSPMD
                   INDEX=INDEX+ITAG(1,K)*ITAG(2,K)
                ENDDO
-               IF (INDEX.EQ.1) ILOC=0
+               IF (INDEX==1) ILOC=0
             ENDIF
 C
-            IF (ILOC.EQ.0) THEN
+            IF (ILOC==0) THEN
                NKLOC=NKLOC+1
                ITK(1,NKLOC)=CDDLP(II)
                ITK(2,NKLOC)=CDDLP(JJ)
                RTK(NKLOC)=LT_K(J)
-            ELSEIF (ILOC.EQ.1) THEN
+            ELSEIF (ILOC==1) THEN
                NKFRONT=NKFRONT+1
                ITKFRONT(1,NKFRONT)=CDDLP(II)
                ITKFRONT(2,NKFRONT)=CDDLP(JJ)
@@ -666,13 +696,13 @@ C
             ENDIF
          ENDDO
       ENDDO
-      IF (NDDLI.GT.0) THEN
+      IF (NDDLI>0) THEN
 C Matrice de rigidite d'interface
          DO N=1,NDDLI
             I=ITOK(N)
-            IF (IACTI(I).EQ.0) CYCLE
+            IF (IACTI(I)==0) CYCLE
             II=IACTI(I)
-            IF (IDDL_FRONT(1,II).EQ.1) THEN
+            IF (IDDL_FRONT(1,II)==1) THEN
                J=IDIAG(II)
                RTK(J)=RTK(J)+DIAG_I(N)
             ELSE
@@ -684,8 +714,8 @@ C
                ILOC=1
                JJ=ITOK(JDII(J))
                JJ=IACTI(JJ)
-               IF (JJ.EQ.0) CYCLE
-               IF (IDDL_FRONT(1,II).EQ.1.OR.IDDL_FRONT(1,JJ).EQ.1) THEN
+               IF (JJ==0) CYCLE
+               IF (IDDL_FRONT(1,II)==1.OR.IDDL_FRONT(1,JJ)==1) THEN
                   ILOC=0
                ELSE
                   DO K=1,NSPMD
@@ -704,18 +734,18 @@ C
                   DO K=1,NSPMD
                      INDEX=INDEX+ITAG(1,K)*ITAG(2,K)
                   ENDDO
-                  IF (INDEX.EQ.1) ILOC=0
+                  IF (INDEX==1) ILOC=0
                ENDIF
 C
-               IF (ILOC.EQ.0) THEN
+               IF (ILOC==0) THEN
                   IFOUND=0
                   K=IADL(II)
-                  DO WHILE (IFOUND.EQ.0.AND.K.LE.IADL(II+1)-1)
-                     IF (CDDLP(II).EQ.ITK(1,K)
-     .              .AND.CDDLP(JJ).EQ.ITK(2,K)) IFOUND=K
+                  DO WHILE (IFOUND==0.AND.K<=IADL(II+1)-1)
+                     IF (CDDLP(II)==ITK(1,K)
+     .              .AND.CDDLP(JJ)==ITK(2,K)) IFOUND=K
                      K=K+1
                   ENDDO
-                  IF (IFOUND.NE.0) THEN
+                  IF (IFOUND/=0) THEN
                      RTK(IFOUND)=RTK(IFOUND)+LT_I(J)
                   ELSE
                      NKLOC=NKLOC+1
@@ -723,15 +753,15 @@ C
                      ITK(2,NKLOC)=CDDLP(JJ)
                      RTK(NKLOC)=LT_I(J)
                   ENDIF
-               ELSEIF (ILOC.EQ.1) THEN
+               ELSEIF (ILOC==1) THEN
                   IFOUND=0
                   K=IADLFRONT(II)
-                  DO WHILE (IFOUND.EQ.0.AND.K.LE.IADLFRONT(II+1)-1)
-                     IF (CDDLP(II).EQ.ITKFRONT(1,K)
-     .              .AND.CDDLP(JJ).EQ.ITKFRONT(2,K)) IFOUND=K
+                  DO WHILE (IFOUND==0.AND.K<=IADLFRONT(II+1)-1)
+                     IF (CDDLP(II)==ITKFRONT(1,K)
+     .              .AND.CDDLP(JJ)==ITKFRONT(2,K)) IFOUND=K
                      K=K+1
                   ENDDO
-                  IF (IFOUND.NE.0) THEN
+                  IF (IFOUND/=0) THEN
                      RTKFRONT(IFOUND)=RTKFRONT(IFOUND)+LT_I(J)
                   ELSE
                      NKFRONT=NKFRONT+1
@@ -743,13 +773,13 @@ C
             ENDDO 
          ENDDO
       ENDIF
-C Complement de la matrice de rigidite d'interface pour secnds remote     
+C Complement to the interface stiffness matrix for remote seconds
       DO I=1,NDDL_SL
         II=IDDL_SL(I)
          DO J=IAD_SS(I),IAD_SS(I+1)-1
                ILOC=1
             JJ=JDI_SL(J)
-               IF (IDDL_FRONT(1,II).EQ.1.OR.IDDL_FRONT(1,JJ).EQ.1) THEN
+               IF (IDDL_FRONT(1,II)==1.OR.IDDL_FRONT(1,JJ)==1) THEN
                   ILOC=0
                ELSE
                   DO K=1,NSPMD
@@ -768,14 +798,14 @@ C Complement de la matrice de rigidite d'interface pour secnds remote
                   DO K=1,NSPMD
                      INDEX=INDEX+ITAG(1,K)*ITAG(2,K)
                   ENDDO
-                  IF (INDEX.EQ.1) ILOC=0
+                  IF (INDEX==1) ILOC=0
                ENDIF
-            IF (ILOC.EQ.0) THEN
+            IF (ILOC==0) THEN
                NKLOC=NKLOC+1
                ITK(1,NKLOC)=CDDLP(II)
                ITK(2,NKLOC)=CDDLP(JJ)
                RTK(NKLOC)=LT_SL(J)
-            ELSEIF (ILOC.EQ.1) THEN
+            ELSEIF (ILOC==1) THEN
                NKFRONT=NKFRONT+1
                ITKFRONT(1,NKFRONT)=CDDLP(II)
                ITKFRONT(2,NKFRONT)=CDDLP(JJ)
@@ -783,19 +813,19 @@ C Complement de la matrice de rigidite d'interface pour secnds remote
             ENDIF
          ENDDO
       ENDDO
-C----- il manque DIAG_SL--------
+C----- It lacks diag_sl ---------
       DO N=1,NDDL_SL
        I=IDDL_SL(N)
-       IF (IACTI(I).EQ.0) CYCLE
+       IF (IACTI(I)==0) CYCLE
        II=IACTI(I)
        J=IDIAG(II)
-       IF (IDDL_FRONT(1,II).EQ.1) THEN
+       IF (IDDL_FRONT(1,II)==1) THEN
          RTK(J)=RTK(J)+DIAG_SL(N)
        ELSE
          RTKFRONT(J)=RTKFRONT(J)+DIAG_SL(N)
         ENDIF
       ENDDO
-      IF ((NDDL_SI+NDDL_SL).GT.0) THEN
+      IF ((NDDL_SI+NDDL_SL)>0) THEN
        CALL SPMD_IFRI(CDDLP, CDDLP_REM)
        DO I=1,NDDL
          IADL(I) = IDDL_FRONT(1,I)
@@ -805,7 +835,7 @@ C----- il manque DIAG_SL--------
       DO I=1,NDDL_SI
          DO J=IAD_SI(I),IAD_SI(I+1)-1
            JJ=JDI_SI(J)
-           IF (IDDL_FRONT(1,JJ).EQ.1.OR.IDDL_REM(I).EQ.1) THEN
+           IF (IDDL_FRONT(1,JJ)==1.OR.IDDL_REM(I)==1) THEN
             NKLOC=NKLOC+1
             ITK(1,NKLOC)=CDDLP_REM(I)
             ITK(2,NKLOC)=CDDLP(JJ)
@@ -828,18 +858,21 @@ C
       DEALLOCATE(ITKFRONT, RTKFRONT)
 C
       RETURN
+#endif
       END
 
 
-Chd|====================================================================
-Chd|  MUMPS_SET2                    source/implicit/imp_mumps.F   
-Chd|-- called by -----------
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|        IMP_MUMPS1                    source/implicit/imp_mumps.F   
-Chd|-- calls ---------------
-Chd|        SPMD_IFRI                     source/mpi/implicit/imp_spmd.F
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|====================================================================
+!||====================================================================
+!||    mumps_set2            ../engine/source/implicit/imp_mumps.F
+!||--- called by ------------------------------------------------------
+!||    imp_buck              ../engine/source/implicit/imp_buck.F
+!||    imp_mumps1            ../engine/source/implicit/imp_mumps.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_ifri             ../engine/source/mpi/implicit/imp_spmd.F
+!||--- uses       -----------------------------------------------------
+!||    imp_intm              ../engine/share/modules/imp_intm.F
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE MUMPS_SET2(IADK , JDIK    , DIAG_K , LT_K  , CDDLP,
      .                     NKLOC, NKFRONT , ITK    , RTK   , IDDL ,
      .                     INLOC, IAD_ELEM, FR_ELEM, NDOF  , IKC  ,
@@ -852,13 +885,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include "com01_c.inc"
 #include "com04_c.inc"
-#include "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -868,6 +901,7 @@ C-----------------------------------------------
      .        JDII(*), ITOK(*)
       my_real
      .        DIAG_K(*), LT_K(*), RTK(*), DIAG_I(*), LT_I(*)
+#ifdef MUMPS5
 C----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -882,13 +916,13 @@ C-----------------------------------------------
          DO J=1,NDOF(I)
             ND=IDDL(I)+J
             ID=ND-NKC
-            IF (IKC(ND).GE.1) NKC=NKC+1
+            IF (IKC(ND)>=1) NKC=NKC+1
          ENDDO
       ENDDO
 
       NKLOC=0
       DO I=1,NDDL
-         IF (IACTI(I).EQ.0) CYCLE
+         IF (IACTI(I)==0) CYCLE
          II=IACTI(I)
          IADL(II)=NKLOC+1
          NKLOC=NKLOC+1
@@ -899,7 +933,7 @@ C-----------------------------------------------
          DO J=IADK(I),IADK(I+1)-1
             ILOC=1
             JJ=IACTI(JDIK(J))
-            IF (JJ.EQ.0) CYCLE
+            IF (JJ==0) CYCLE
             NKLOC=NKLOC+1
             ITK(1,NKLOC)=CDDLP(II)
             ITK(2,NKLOC)=CDDLP(JJ)
@@ -907,11 +941,11 @@ C-----------------------------------------------
          ENDDO
       ENDDO
       IADL(NDDL+1) = NKLOC+1
-      IF (NDDLI.GT.0) THEN
+      IF (NDDLI>0) THEN
 C Matrice de rigidite d'interface
          DO N=1,NDDLI
             I=ITOK(N)
-            IF (IACTI(I).EQ.0) CYCLE
+            IF (IACTI(I)==0) CYCLE
             II=IACTI(I)
             J=IDIAG(II)
             RTK(J)=RTK(J)+DIAG_I(N)
@@ -919,15 +953,15 @@ C Matrice de rigidite d'interface
                ILOC=1
                JJ=ITOK(JDII(J))
                JJ=IACTI(JJ)
-               IF (JJ.EQ.0) CYCLE
+               IF (JJ==0) CYCLE
                IFOUND=0
                K=IADL(II)
-               DO WHILE (IFOUND.EQ.0.AND.K.LE.IADL(II+1)-1)
-                  IF (CDDLP(II).EQ.ITK(1,K)
-     .           .AND.CDDLP(JJ).EQ.ITK(2,K)) IFOUND=K
+               DO WHILE (IFOUND==0.AND.K<=IADL(II+1)-1)
+                  IF (CDDLP(II)==ITK(1,K)
+     .           .AND.CDDLP(JJ)==ITK(2,K)) IFOUND=K
                   K=K+1
                ENDDO
-               IF (IFOUND.NE.0) THEN
+               IF (IFOUND/=0) THEN
                   RTK(IFOUND)=RTK(IFOUND)+LT_I(J)
                ELSE
                   NKLOC=NKLOC+1
@@ -938,7 +972,7 @@ C Matrice de rigidite d'interface
             ENDDO 
          ENDDO
       ENDIF
-C Complement de la matrice de rigidite d'interface pour secnds remote     
+C Complement to the interface stiffness matrix for remote seconds
       DO I=1,NDDL_SL
         II=IDDL_SL(I)
          DO J=IAD_SS(I),IAD_SS(I+1)-1
@@ -953,12 +987,12 @@ C Complement de la matrice de rigidite d'interface pour secnds remote
 C----- il manque DIAG_SL--------
       DO N=1,NDDL_SL
        I=IDDL_SL(N)
-       IF (IACTI(I).EQ.0) CYCLE
+       IF (IACTI(I)==0) CYCLE
        II=IACTI(I)
        J=IDIAG(II)
        RTK(J)=RTK(J)+DIAG_SL(N)
       ENDDO
-      IF ((NDDL_SI+NDDL_SL).GT.0) THEN
+      IF ((NDDL_SI+NDDL_SL)>0) THEN
        CALL SPMD_IFRI(CDDLP, CDDLP_REM)
       ENDIF 
       DO I=1,NDDL_SI
@@ -972,5 +1006,5 @@ C----- il manque DIAG_SL--------
       ENDDO
 C
       RETURN
-      END
 #endif
+      END

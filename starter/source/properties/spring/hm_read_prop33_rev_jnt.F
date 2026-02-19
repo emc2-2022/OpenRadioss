@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP33_REV_JNT        source/properties/spring/hm_read_prop33_rev_jnt.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROP33                source/properties/spring/hm_read_prop33.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        SET_U_GEO                     source/user_interface/uaccess.F
-Chd|        SET_U_PNU                     source/user_interface/uaccess.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_PROP33_REV_JNT(IOUT, ITYP, SKFLAG, PARGEO,IS_CRYPTED,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop33_rev_jnt   ../starter/source/properties/spring/hm_read_prop33_rev_jnt.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_prop33           ../starter/source/properties/spring/hm_read_prop33.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    set_u_geo                ../starter/source/user_interface/uaccess.F
+!||    set_u_pnu                ../starter/source/user_interface/uaccess.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_PROP33_REV_JNT(IOUT, ITYP, SKFLAG, PARGEO,IS_ENCRYPTED,
      .                       UNITAB,IUNIT,ID,TITR,LSUBMODEL)
       USE UNITAB_MOD
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,9 +47,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   A n a l y s e   M o d u l e
 C-----------------------------------------------
-#include      "warn_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
 C----------+---------+---+---+--------------------------------------------
 C VAR      | SIZE    |TYP| RW| DEFINITION
 C----------+---------+---+---+--------------------------------------------
@@ -66,9 +64,8 @@ C-----------------------------------------------
       my_real PARGEO(*) 
 
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
-      LOGICAL IS_CRYPTED
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      LOGICAL IS_ENCRYPTED
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
 C=======================================================================
 C   L o c a l   V a r i a b l e s
@@ -124,28 +121,28 @@ C--------------------------------------------------
       CALL HM_GET_FLOATV('Crx',CRX,IS_AVAILABLE,LSUBMODEL,UNITAB)
       IF(.NOT.IS_AVAILABLE) OFLAG = OFLAG + 1
 C-----------------------
-      IF (IDSK1.LE.0.OR.IDSK1.LE.0) THEN
+      IF (IDSK1<=0.OR.IDSK1<=0) THEN
          CALL ANCMSG(MSGID=386,
-     .  	     MSGTYPE=MSGERROR,
-     .  	     ANMODE=ANINFO_BLIND_1,
-     .  	     I1=ID,
-     .  	     C1=TITR)
+     .         MSGTYPE=MSGERROR,
+     .         ANMODE=ANINFO_BLIND_1,
+     .         I1=ID,
+     .         C1=TITR)
       ENDIF
-      IF (KNN.EQ.0.) THEN
+      IF (KNN==0.) THEN
          CALL ANCMSG(MSGID=387,
-     .  	     MSGTYPE=MSGERROR,
-     .  	     ANMODE=ANINFO_BLIND_1,
-     .  	     I1=ID,
-     .  	     C1=TITR)
+     .         MSGTYPE=MSGERROR,
+     .         ANMODE=ANINFO_BLIND_1,
+     .         I1=ID,
+     .         C1=TITR)
       ENDIF
-      IF (CR.LT.ZERO.OR.CR.GT.1.) THEN
+      IF (CR<ZERO.OR.CR>1.) THEN
          CALL ANCMSG(MSGID=388,
-     .  	     MSGTYPE=MSGERROR,
-     .  	     ANMODE=ANINFO_BLIND_1,
-     .  	     I1=ID,
-     .  	     C1=TITR)
+     .         MSGTYPE=MSGERROR,
+     .         ANMODE=ANINFO_BLIND_1,
+     .         I1=ID,
+     .         C1=TITR)
       ENDIF
-      IF (CR.EQ.ZERO) CR = FIVEEM2
+      IF (CR==ZERO) CR = FIVEEM2
 C
       XTYP = ITYP
       XFLG = SKFLAG
@@ -154,8 +151,8 @@ C
       MASS = ZERO
       INER = ZERO
 C
-      IF(CRX.EQ.ZERO.AND.IFUN_CRX.NE.0)CRX = ONE
-      IF(KRX.EQ.ZERO.AND.IFUN_RX.NE.0) KRX = ONE
+      IF(CRX==ZERO.AND.IFUN_CRX/=0)CRX = ONE
+      IF(KRX==ZERO.AND.IFUN_RX/=0) KRX = ONE
 C
 C-----------------------
       IF (IFUN_RX  /= 0) KRX = KRX * FAC_MM
@@ -191,8 +188,8 @@ C-----------------------
       IERROR = SET_U_GEO(24,CRX)
       IERROR = SET_U_GEO(25,ZERO)
       IERROR = SET_U_GEO(26,ZERO)
-      IERROR = SET_U_GEO(27,FAC_CTX)		
-      IERROR = SET_U_GEO(28,FAC_CRX)		
+      IERROR = SET_U_GEO(27,FAC_CTX)
+      IERROR = SET_U_GEO(28,FAC_CRX)
       IERROR = SET_U_PNU(1,ZEROI,KFUNC)
       IERROR = SET_U_PNU(2,ZEROI,KFUNC)
       IERROR = SET_U_PNU(3,ZEROI,KFUNC)
@@ -207,10 +204,10 @@ C-----------------------
       IERROR = SET_U_PNU(12,ZEROI,KFUNC)
 C-----------------------
       WRITE(IOUT,500)
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
-       IF (OFLAG.EQ.2) THEN
+       IF (OFLAG==2) THEN
         WRITE(IOUT,1001)IDSK1,IDSK2,XK,CR,KNN,KRX,IFUN_RX
        ELSE
         WRITE(IOUT,1000)IDSK1,IDSK2,XK,CR,KNN,KRX,IFUN_RX,CRX,IFUN_CRX
@@ -238,6 +235,5 @@ C-----------------------
      & 5X,'BLOCKING STIFFNESS KNN . . . . . . . . =',1PG20.13/,
      & 5X,'LINEAR ROTATIONAL STIFFNESS KRX. . . . =',1PG20.13/,
      & 5X,'ROTATIONAL FUNCTION ID. . . . . . . . .=',I10//)
- 999  CALL FREERR(1)
       RETURN
       END

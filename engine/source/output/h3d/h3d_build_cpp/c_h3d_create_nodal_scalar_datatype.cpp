@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //
 #include <stdio.h>
 #include <string.h>
@@ -77,6 +77,7 @@ void c_h3d_create_nodal_scalar_datatype_(int *cpt_data, char *name, int *size, i
     float node[3]; 
     H3D_ID node_id;
     unsigned int elem_count = 1;
+    char* edata_type;
     
     char * CH_INTER_ID = new char [100];
     CH_INTER_ID[0] ='\0'; 
@@ -85,6 +86,7 @@ void c_h3d_create_nodal_scalar_datatype_(int *cpt_data, char *name, int *size, i
     cname=(char*) malloc(sizeof(char)*cname_len);
     for(i=0;i<*size;i++)  cname[i] = name[i];
     cname[*size]='\0'; 
+
 
     cname_len1 = *size1 + 1;
     cname1=(char*) malloc(sizeof(char)*cname_len1);
@@ -97,11 +99,10 @@ void c_h3d_create_nodal_scalar_datatype_(int *cpt_data, char *name, int *size, i
     ccomment[*s_comment]='\0';  
 
     char * LAYERPOOL = new char [*size1+11];
-    sprintf(LAYERPOOL, "%s %d\0" ,cname1,*info);
+    sprintf(LAYERPOOL, "%s %d" ,cname1,*info);
     H3D_ID layer_pool_id = H3D_NULL_ID;
     rc = Hyper3DAddString(h3d_file, LAYERPOOL, &layer_pool_id);
 
-    char edata_type[50];
 //
 
 //        printf( "scalar  %d  info = %d  %s\n", *cpt_data , *info, cname);
@@ -117,16 +118,28 @@ void c_h3d_create_nodal_scalar_datatype_(int *cpt_data, char *name, int *size, i
         pool_count = 2;
 
         dt_id++; 
-	   if (*INTER_ID != 0) 
-	   {
-             sprintf(CH_INTER_ID, "%d\0",*INTER_ID );
+        if (*INTER_ID != 0) 
+        {
+             sprintf(CH_INTER_ID, " %d",*INTER_ID );
+#ifdef _WIN64
+             strcat_s(cname,cname_len,CH_INTER_ID);
+#else
              cname = strcat(cname,CH_INTER_ID);
-	    }	    
-	     
-        strcpy (edata_type,cname);
+#endif
+        }
+            edata_type=(char*)malloc(sizeof(char)*(strlen(cname)+1));
+
+#ifdef _WIN64
+             strcpy_s(edata_type,strlen(cname)+1,cname);
+#else
+             strcpy(edata_type,cname);
+#endif
 
         rc = Hyper3DDatatypeWrite(h3d_file, edata_type, *cpt_data , H3D_DS_SCALAR, 
                                     H3D_DS_NODE, pool_count);
+                                    
+        free(edata_type);
+        
         if( !rc ) throw rc;
 
         if (strlen(ccomment) != 0) 

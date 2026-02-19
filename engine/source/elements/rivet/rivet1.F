@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RIVET1                        source/elements/rivet/rivet1.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rivet1   ../engine/source/elements/rivet/rivet1.F
+!||--- called by ------------------------------------------------------
+!||    resol    ../engine/source/engine/resol.F
+!||====================================================================
       SUBROUTINE RIVET1(MS    ,IN    ,A    ,AR   ,X   ,
      .                  IXRT  ,RIVET ,GEO  ,V    ,VR  ,
      .                  ITASK )
@@ -86,13 +85,13 @@ C-----------------------------------------------
        NIND2 = 0
        DO IS = 1 , NN
         I = JS+IS 
-C test si rivet a traiter sur le proc
-        IF(IXRT(2,I).GT.0)THEN
+C test if rivet to be processed on the processor
+        IF(IXRT(2,I)>0)THEN
 C----------------------------
 C       RUPTURE
 C----------------------------
          OFF = RIVET(1,I)
-         IF (OFF.NE.ZERO) THEN
+         IF (OFF/=ZERO) THEN
           IG=IXRT(1,I)
           N1=IXRT(2,I)
           N2=IXRT(3,I)
@@ -102,17 +101,17 @@ C----------------------------
           YN(IS)=X(2,N2)-X(2,N1)
           ZN(IS)=X(3,N2)-X(3,N1)
           DX2(IS)=XN(IS)**2+YN(IS)**2+ZN(IS)**2
-          IF(DX2(IS).GT.DMX2)THEN
+          IF(DX2(IS)>DMX2)THEN
             OFF=OFF-EM01
-            IF(OFF.LE.ZERO)THEN
+            IF(OFF<=ZERO)THEN
               RIVET(1,I)=-ONE
               RUPT = 1
             ELSE
               RIVET(1,I) = OFF
             ENDIF
           ENDIF
-          IF (OFF.GT.ZERO) THEN
-            IF(IMOD.EQ.1) THEN
+          IF (OFF>ZERO) THEN
+            IF(IMOD==1) THEN
               NIND1 = NIND1 + 1
               IND1(NIND1) = IS
             ELSE
@@ -141,7 +140,7 @@ C-----------------------------------------------
          IROT=NINT(GEO(4,IG))
          DT12M1=ONE/DT12
 C----------------------------
-C        TRANSLATION DU CDG
+C        TRANSLATION OF CENTER OF GRAVITY
 C----------------------------
          MASS = MS(N1)+MS(N2)
          MASM1= ONE / MASS
@@ -167,15 +166,15 @@ C
          VY = (VMY1+VMY2)*MASM1
          VZ = (VMZ1+VMZ2)*MASM1
 C
-         IF(IROT.EQ.0) THEN
+         IF(IROT==0) THEN
 C----------------------------
-C          CALCUL FORCES
+C          FORCE COMPUTATION
 C----------------------------
            AX = (-A(1,N1)+(VX-V(1,N1))*DT12M1)*MS(N1)
            AY = (-A(2,N1)+(VY-V(2,N1))*DT12M1)*MS(N1)
            AZ = (-A(3,N1)+(VZ-V(3,N1))*DT12M1)*MS(N1)
 C
-           IF(DX2(IS).GT.EM15)THEN
+           IF(DX2(IS)>EM15)THEN
 C            POINTS NON CONFONDUS CRITERE FN ET FT
              S  = ONE/SQRT(DX2(IS))
              XN(IS) =XN(IS)*S
@@ -202,7 +201,7 @@ C
            AY=ALP*AY
            AZ=ALP*AZ
 C----------------------------
-C          CALCUL ACCELERATIONS
+C          ACCELERATION COMPUTATION
 C----------------------------
            A(1,N1)=A(1,N1)+AX/MS(N1)
            A(2,N1)=A(2,N1)+AY/MS(N1)
@@ -212,7 +211,7 @@ C----------------------------
            A(3,N2)=A(3,N2)-AZ/MS(N2)
          ELSE
 C----------------------------
-C          ROTATION DU CDG
+C          ROTATION OF CENTER OF GRAVITY
 C----------------------------
            XX1=X(1,N1)-XCDG
            YY1=X(2,N1)-YCDG
@@ -240,7 +239,7 @@ C
            VZZ = (VRZ1*IN(N1)+XX1*VMY1-YY1*VMX1
      .         +  VRZ2*IN(N2)+XX2*VMY2-YY2*VMX2)*INM1
 C----------------------------
-C          CALCUL FORCES
+C          FORCE COMPUTATION
 C----------------------------
            VT1(1) = ZZ1*VYY - YY1*VZZ
            VT1(2) = XX1*VZZ - ZZ1*VXX
@@ -257,7 +256,7 @@ C
            AY = (-A(2,N1)+(VY+VT1(2)-V(2,N1))*DT12M1)*MS(N1)
            AZ = (-A(3,N1)+(VZ+VT1(3)-V(3,N1))*DT12M1)*MS(N1)
 C
-           IF(DX2(IS).GT.EM15)THEN
+           IF(DX2(IS)>EM15)THEN
 C            POINTS NON CONFONDUS CRITERE FN ET FT
              S = ONE/SQRT(DX2(IS))
              XN(IS) =XN(IS)*S
@@ -285,14 +284,14 @@ C
            AY=ALP*AY
            AZ=ALP*AZ
 C----------------------------
-C          CALCUL ACCELERATIONS
+C          ACCELERATION COMPUTATION
 C----------------------------
            DA1(1) = HALF*DT2*DT12M1*(VYY*VT1(3) - VZZ*VT1(2))
            DA1(2) = HALF*DT2*DT12M1*(VZZ*VT1(1) - VXX*VT1(3))
            DA1(3) = HALF*DT2*DT12M1*(VXX*VT1(1) - VYY*VT1(2))
            DA2(1) = HALF*DT2*DT12M1*(VYY*VT2(3) - VZZ*VT2(2))
            DA2(2) = HALF*DT2*DT12M1*(VZZ*VT2(1) - VXX*VT2(3))
-           DA2(3) = HALF*DT2*DT12M1*(VXX*VT2(1) - VYY*VT2(2))	   
+           DA2(3) = HALF*DT2*DT12M1*(VXX*VT2(1) - VYY*VT2(2))     
 C
            A(1,N1)=A(1,N1)+AX/MS(N1)+DA1(1)
            A(2,N1)=A(2,N1)+AY/MS(N1)+DA1(2)
@@ -330,7 +329,7 @@ C
            RIVET(11,I) = AR(2,N2)*I2
            RIVET(12,I) = AR(3,N2)*I2
            RIVET(13,I) = ZERO
-C          correction energie cinetique de rotation
+C          Rotation cinetic energy correction
            WW = VXX**2+VYY**2+VZZ**2
            WT = (VYY*ZN(IS)-VZZ*YN(IS))**2
      .        + (VZZ*XN(IS)-VXX*ZN(IS))**2
@@ -356,7 +355,7 @@ C-----------------------------------------------
          AMX=(A(1,N2)-A(1,N1)+(V(1,N2)-V(1,N1))/DT12)*XM
          AMY=(A(2,N2)-A(2,N1)+(V(2,N2)-V(2,N1))/DT12)*XM
          AMZ=(A(3,N2)-A(3,N1)+(V(3,N2)-V(3,N1))/DT12)*XM
-         IF(DX2(IS).GT.EM15)THEN
+         IF(DX2(IS)>EM15)THEN
 C          POINTS NON CONFONDUS CRITERE FN ET FT
            S = ONE/SQRT(DX2(IS))
            XN(IS) =XN(IS)*S
@@ -387,7 +386,7 @@ C          POINTS CONFONDUS CRITERE UNIQUEMENT SUR FN
          A(1,N2)=A(1,N2)-AMX/MS(N2)
          A(2,N2)=A(2,N2)-AMY/MS(N2)
          A(3,N2)=A(3,N2)-AMZ/MS(N2)
-         IF(IROT.EQ.1)THEN
+         IF(IROT==1)THEN
            INM1=ONE/(IN(N1)+IN(N2))
            AR(1,N1)=(AR(1,N1)*IN(N1)+AR(1,N2)*IN(N2))*INM1
            AR(2,N1)=(AR(2,N1)*IN(N1)+AR(2,N2)*IN(N2))*INM1
@@ -404,9 +403,9 @@ C
 #include "lockon.inc"
         ENROT = ENROT + ENROT_L 
 #include "lockoff.inc"
-      IF (RUPT.EQ.1) THEN
+      IF (RUPT==1) THEN
         DO I=LFT,LLT
-          IF(RIVET(1,I).EQ.-ONE)THEN
+          IF(RIVET(1,I)==-ONE)THEN
             RIVET(1,I)=ZERO
 #include "lockon.inc"
             WRITE(ISTDO,*)' FAILURE OF RIVET',IXRT(4,I)

@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I11BUC_VOX1                   source/interfaces/inter3d1/i11buc1.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        I11TRIVOX1                    source/interfaces/inter3d1/i11trivox1.F
-Chd|        FRONT_MOD                     share/modules1/front_mod.F    
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        TRI11                         share/modules1/tri11_mod.F    
-Chd|        TRI7BOX                       share/modules1/tri7box.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i11buc_vox1            ../starter/source/interfaces/inter3d1/i11buc1.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    i11trivox1             ../starter/source/interfaces/inter3d1/i11trivox1.F
+!||--- uses       -----------------------------------------------------
+!||    front_mod              ../starter/share/modules1/front_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    tri11                  ../starter/share/modules1/tri11_mod.F
+!||    tri7box                ../starter/share/modules1/tri7box.F
+!||====================================================================
        SUBROUTINE I11BUC_VOX1(
      1   X      ,IRECTS  ,IRECTM ,NRTS    ,NMN     ,
      2   NRTM   ,NSN     ,CAND_M ,CAND_S  ,MAXGAP  ,
@@ -49,7 +50,7 @@ C-----------------------------------------------
       USE TRI7BOX 
       USE TRI11   
       USE FRONT_MOD
-
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,14 +59,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "scr06_c.inc"
-#include      "scr17_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -83,14 +78,8 @@ C     REAL
      .   X(3,*), 
      .   GAP_S(*), GAP_M(*), GAP_S_L(*), GAP_M_L(*)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       TYPE(INTERSURFP) :: INTERCEP(3,NINTER)
-
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -104,14 +93,16 @@ C
       INTEGER NB_OLD(2,I_ADD_MAX+1)
       INTEGER NBX,NBY,NBZ
       INTEGER (KIND=8) :: NBX8,NBY8,NBZ8,RES8,LVOXEL8 
+      INTEGER (KIND=8) :: IONE,IHUNDRED
       INTEGER NB_N_B
       INTEGER IADFIN,II,L
       my_real :: XMAX,YMAX,ZMAX
       my_real :: XMIN,YMIN,ZMIN,XTMP
       my_real :: BMINMA(6)
       my_real :: DD,DX1,DY1,DZ1,DD1,MARGE_ST,TZINF_ST
-
-
+C Initializing constant
+      IONE=1
+      IHUNDRED=100
 C-----------------------------------------------
 C   definition from TRI7BOX module
 C-----------------------------------------------      
@@ -119,13 +110,12 @@ C
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
-C-----------------------------------------------
 C
-C----- TRI PAR BOITES 
+C----- SORTING BY BOXES
 C
 C-----------------------------------------------
-C SI ON A PAS ASSEZ DE MEMOIRE POUR LES PILES ON RECOMMENCE LE TRI
-C EN INCREMENTANT LE NB_N_B (NOMBRE DE NOEUDS PAR BOITE FINIE)
+C IF NOT ENOUGH MEMORY FOR STACKS, RESUME SORTING
+C BY INCREMENTING NB_N_B (NUMBER OF NODES PER FINAL BOX)
 C
 C     POINTEUR  NOM                 TAILLE
 C     P1........Elt Bas Pile        NRTM
@@ -134,7 +124,7 @@ C     P21.......Elt Bas Pile        NRTS
 C     P22.......Elt PILE            3*NRTS
       MAXSIZ = 3*(MAX(NRTM,NRTS)+100)
 C
-C-----INITIALISATION DES ADRESSES ET X,Y,Z
+C-----INITIALIZATION OF ADDRESSES AND X,Y,Z
 C
 C     ADDE     ADDN     X      Y      Z
 C     1        1        XMIN   YMIN   ZMIN
@@ -150,7 +140,7 @@ C
 
 C
 C
-C     CALCULER LES BMINMA ICI
+C     CALCULATE BMINMA HERE
 C
 C
 
@@ -167,18 +157,18 @@ C
       II_STOK = 0
      
 C
-c     IF (IFORM .NE. 2) THEN
+c     IF (IFORM /= 2) THEN
         DO I=1,NRTM
           ADDCM(I)=0
         ENDDO 
 c     ELSE
 c     ENDIF    
  
-C-----DEBUT DE LA PHASE DE TRI 
+C-----BEGINNING OF THE SORTING PHASE
 
       DD=ZERO
       DO L=1,NRTS
-C      CONNECIVITES ELEMENT
+C      ELEMENT CONNECTIVITIES
        N1=IRECTS(1,L)
        N2=IRECTS(2,L)
 C      LONGUEUR COTE 1
@@ -189,7 +179,7 @@ C      LONGUEUR COTE 1
        DD=DD+ DD1
       ENDDO
       DO L=1,NRTM
-C      CONNECIVITES ELEMENT
+C      ELEMENT CONNECTIVITIES
        N1=IRECTM(1,L)
        N2=IRECTM(2,L)
 C      LONGUEUR COTE 1
@@ -206,12 +196,12 @@ C     DD = MAX(DD/(NRTS+NRTM),1.251*MAXGAP)
 C      TZINF = BUMULT*DD
       MARGE = BUMULT*DD
       TZINF = MARGE + MAX(MAXGAP+DGAPLOAD,DRAD)
-C MARGE_ST : marge independante du BUMULT en input pour trouver les memes pene initiales
+C MARGE_ST: independent margin of BUMULT as input to find the same initial penetrations
       MARGE_ST = BMUL0*DD
-C 1er passage avec marge x2 pour trouver plus de candidats (revient a prendre bmul0=0.4 au lieu de 0.2)
-C      IF(IDDLEVEL.EQ.0) MARGE_ST = 2*MARGE_ST
+C 1st passage with margin x2 to find more candidates (amounts to taking bmul0 = 0.4 instead of 0.2)
+C      IF(IDDLEVEL==0) MARGE_ST = 2*MARGE_ST
 c     WRITE(6,*) __FILE__,__LINE__,MARGE
-      IF(IDDLEVEL.EQ.0) MARGE_ST = MARGE
+      IF(IDDLEVEL==0) MARGE_ST = MARGE
       TZINF_ST = MARGE_ST + MAX(MAXGAP+DGAPLOAD,DRAD)
 
       XMIN=EP30
@@ -223,7 +213,7 @@ c     WRITE(6,*) __FILE__,__LINE__,MARGE
 C
       DO I=1,NMN
          J=MSR(I)
-        IF(J.GT.0) THEN 
+        IF(J>0) THEN 
           XMIN= MIN(XMIN,X(1,J))
           YMIN= MIN(YMIN,X(2,J))
           ZMIN= MIN(ZMIN,X(3,J))
@@ -314,9 +304,9 @@ c     MARGE = TZINF - MAX(MAXGAP,DRAD)
       END IF
           
       IF(RES8 > LVOXEL8) THEN
-        NBX = MIN(100,MAX(NBX8,1))
-        NBY = MIN(100,MAX(NBY8,1))
-        NBZ = MIN(100,MAX(NBZ8,1))
+        NBX = MIN(IHUNDRED,MAX(NBX8,IONE))
+        NBY = MIN(IHUNDRED,MAX(NBY8,IONE))
+        NBZ = MIN(IHUNDRED,MAX(NBZ8,IONE))
       END IF
       
       DO I=INIVOXEL,(NBX+2)*(NBY+2)*(NBZ+2)
@@ -338,12 +328,12 @@ c     MARGE = TZINF - MAX(MAXGAP,DRAD)
 
 
 C
-C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATS
+C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATES
 
       IF (I_MEM == 2) RETURN
       IF(I_MEM ==1 .OR. I_MEM == 3)THEN
         NB_N_B = NB_N_B + 1
-        IF ( NB_N_B .GT. MAX(NRTM,NRTS)) THEN
+        IF ( NB_N_B > MAX(NRTM,NRTS)) THEN
           CALL ANCMSG(MSGID=83,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO ,
@@ -353,10 +343,10 @@ C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATS
         ENDIF
       ENDIF
 
-      IF ((NSN.NE.0)) THEN
+      IF ((NSN/=0)) THEN
       WRITE(IOUT,*)' POSSIBLE IMPACT NUMBER:',II_STOK,' (<=',
      . 1+(II_STOK-1)/NSN,'*NSN)'
-      ELSEIF(NSN.EQ.0) THEN
+      ELSEIF(NSN==0) THEN
        CALL ANCMSG(MSGID=552,
      .             MSGTYPE=MSGWARNING,
      .             ANMODE=ANINFO_BLIND_2,
@@ -378,16 +368,17 @@ C
 
 
 
-Chd|====================================================================
-Chd|  I11BUC1                       source/interfaces/inter3d1/i11buc1.F
-Chd|-- called by -----------
-Chd|        I20INI3                       source/interfaces/inter3d1/i20ini3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        I11STO                        source/interfaces/inter3d1/i11sto.F
-Chd|        I11TRI                        source/interfaces/inter3d1/i11tri.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i11buc1                ../starter/source/interfaces/inter3d1/i11buc1.F
+!||--- called by ------------------------------------------------------
+!||    i20ini3                ../starter/source/interfaces/inter3d1/i20ini3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    i11sto                 ../starter/source/interfaces/inter3d1/i11sto.F
+!||    i11tri                 ../starter/source/interfaces/inter3d1/i11tri.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I11BUC1(
      1   X     ,IRECTM,IRECTS,BUMULT,NRTS,
      2   NMN   ,NRTM ,MWA   ,NSN   ,CAND_M,
@@ -395,21 +386,22 @@ Chd|====================================================================
      4   DIST  ,TZINF,MAXBOX,MINBOX,MSR   ,   
      5   NSV   ,MULTIMP,ADDCM,CHAINE,I_MEM,
      6   ID,TITR,IDDLEVEL,DRAD,IT19)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C============================================================================
-C  cette routine est appelee par : ININT3(/inter3d1/inint3.F)
+C  this routine is called by: ININT3(/inter3d1/inint3.F)
 C----------------------------------------------------------------------------
 C  cette routine appelle : I11TRI(/inter3d1/i11tri.F)
 C                          I11STO(/inter3d1/i1chk3.F)
-C                          ARRET(/sortie1/arret.F)
+C                          Stop (/Sortie1/arret.f)
 C============================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -418,11 +410,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com04_c.inc"
-#include      "vect07_c.inc"
 #include      "scr06_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -430,13 +418,11 @@ C-----------------------------------------------
       INTEGER IRECTS(2,*),IRECTM(2,*),MWA(*)
       INTEGER CAND_M(*),CAND_S(*),MSR(*),NSV(*),ADDCM(*),CHAINE(2,*),
      *        II_STOK, IDDLEVEL, IT19
-C     REAL
       my_real
      .   X(3,*),XYZM(6,*),DIST,
      .   BUMULT,GAP,TZINF,MAXBOX,MINBOX,DRAD
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -460,11 +446,11 @@ C     REAL
 C
 C
 C
-C     1-CALCUL TAILLE DES ZONES INFLUENCES
-C     DD EST LA LONGEUR MOYENNE ELEMENT
+C     1-CALCULATION TAILLE DES ZONES INFLUENCES
+C     DD IS THE AVERAGE ELEMENT LENGTH
       DD=ZERO
       DO L=1,NRTS
-C      CONNECIVITES ELEMENT
+C      ELEMENT CONNECTIVITIES
        N1=IRECTS(1,L)
        N2=IRECTS(2,L)
 C      LONGUEUR COTE 1
@@ -475,7 +461,7 @@ C      LONGUEUR COTE 1
        DD=DD+ DD1
       ENDDO
       DO L=1,NRTM
-C      CONNECIVITES ELEMENT
+C      ELEMENT CONNECTIVITIES
        N1=IRECTM(1,L)
        N2=IRECTM(2,L)
 C      LONGUEUR COTE 1
@@ -492,10 +478,10 @@ C     DD = MAX(DD/(NRTS+NRTM),1.251*GAP)
 C      TZINF = BUMULT*DD
       MARGE = BUMULT*DD
       TZINF = MARGE + MAX(GAP,DRAD)
-C MARGE_ST : marge independante du BUMULT en input pour trouver les memes pene initiales
+C MARGE_ST: independent margin of BUMULT as input to find the same initial penetrations
       MARGE_ST = BMUL0*DD
-C 1er passage avec marge x2 pour trouver plus de candidats (revient a prendre bmul0=0.4 au lieu de 0.2)
-C      IF(IDDLEVEL.EQ.0) MARGE_ST = 2*MARGE_ST
+C 1st passage with margin x2 to find more candidates (amounts to taking bmul0 = 0.4 instead of 0.2)
+C      IF(IDDLEVEL==0) MARGE_ST = 2*MARGE_ST
 c     WRITE(6,*) __FILE__,__LINE__,"IDDLEVEL=",IDDLEVEL
 c     WRITE(6,*) __FILE__,__LINE__,MARGE
 c     WRITE(6,*) __FILE__,__LINE__,MINBOX,MAXBOX,MULTIMP
@@ -503,7 +489,7 @@ c     WRITE(6,*) __FILE__,__LINE__,DRAD,GAP,BMUL0
 
 
 
-      IF(IDDLEVEL.EQ.0) MARGE_ST = MARGE
+      IF(IDDLEVEL==0) MARGE_ST = MARGE
       TZINF_ST = MARGE_ST + MAX(GAP,DRAD)
 C
       MINBOX= DD + TZINF
@@ -511,10 +497,10 @@ C
       TZINF0 = TZINF
       MINBOX0 = MINBOX
       MAXBOX0 = MAXBOX
-C     MIS A ZERO POUR FAIRE SEARCH COMPLET CYCLE 0 ENGINE
+C     SET TO ZERO TO PERFORM COMPLETE SEARCH CYCLE 0 ENGINE
       DIST = ZERO
 C--------------------------------
-C     CALCUL DES BORNES DU DOMAINE
+C     CALCULATION OF DOMAIN BOUNDS
 C--------------------------------
       XMIN=EP30
       XMAX=-EP30
@@ -560,13 +546,13 @@ c     WRITE(6,*) "Z",ZMIN,ZMAX
 
 C
 C
-C-----2- TRI PAR BOITES DES ELEMENTS ET DES NOEUDS
+C-----2- SORTING BY BOXES OF ELEMENTS AND NODES
 C
       NB_N_B = 1
       I_MEM = 0
       II_STOK = 0
-C SI ON A PAS ASSEZ DE MEMOIRE POUR LES PILES ON RECOMMENCE LE TRI
-C EN INCREMENTANT LE NB_N_B (NOMBRE DE NOEUDS PAR BOITE FINIE)
+C SI NOT ENOUGH MEMORY FOR STACKS, RESUME SORTING
+C BY INCREMENTING NB_N_B (NUMBER OF NODES PER FINAL BOX)
  100  CONTINUE
 C     POINTEUR  NOM                 TAILLE
 C     P1........Elt Bas Pile        NRTM
@@ -581,7 +567,7 @@ C
       IP21= IP2+MAXSIZ
       IP22= IP21+NRTS+100
 
-C-----INITIALISATION DES ADRESSES ET X,Y,Z
+C-----INITIALIZATION OF ADDRESSES AND X,Y,Z
 C
 C     ADDE     ADDN     X      Y      Z
 C     1        1        XMIN   YMIN   ZMIN
@@ -609,7 +595,7 @@ C
       ISTOP = 0
       IADFIN = 0
 C
-C-----COPIE DES NOS DE SEGMENTS ET DE NOEUDS DANS MWA(IP1) ET IP21
+C-----COPY OF SEGMENT AND NODE NUMBERS INTO MWA(IP1) AND IP21
 C
       DO 120 I=1,NB_EC
         ADDCM(I)=0
@@ -619,9 +605,9 @@ C
         MWA(IP21+I-1) = I
   140 CONTINUE
 C
-C-----DEBUT DE LA PHASE DE TRI 
+C-----BEGINNING OF THE SORTING PHASE
 C 
-C     TANT QUE IL RESTE UNE ADRESSE A TRIER
+C     AS LONG AS THERE IS AN ADDRESS TO SORT
 C------------------
   200 CONTINUE
 c       WRITE(6,*) __FILE__,__LINE__
@@ -638,20 +624,20 @@ C       SEPARER B ET N EN TWO
 C------------------
       IF (I_MEM == 2) RETURN
 C     I_MEM = 1 ==> PAS ASSEZ DE MEMOIRE PILE
-C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATS
-      IF(I_MEM.EQ.1)THEN
+C     I_MEM = 2 ==> PAS ASSEZ DE MEMOIRE CANDIDATES
+      IF(I_MEM==1)THEN
         NB_N_B = NB_N_B + 1
         I_MEM = 0
         GO TO 100
       ENDIF
-      IF(I_ADD.NE.0) GO TO 200
-C     FIN BOUCLE TANT QUE
+      IF(I_ADD/=0) GO TO 200
+C     END OF WHILE LOOP
 C---------------------------------
 C-------------------------------------------------------------------------
-C     FIN DU TRI
+C     END OF SORTING
 C-------------------------------------------------------------------------
       I_STOK=II_STOK
-      IF(J_STOK.NE.0)CALL I11STO(
+      IF(J_STOK/=0)CALL I11STO(
      1              J_STOK,IRECTS,IRECTM,X     ,II_STOK,
      2              CAND_S,CAND_M,NSN   ,NOINT ,TZINF_ST,
      3              I_MEM ,PROV_S,PROV_M,MULTIMP,ADDCM,
@@ -659,7 +645,7 @@ C-------------------------------------------------------------------------
       IF (I_MEM == 2) RETURN
 
       I_STOK=II_STOK
-      IF ((NSN.NE.0).AND.(IT19.EQ.0)) THEN
+      IF ((NSN/=0).AND.(IT19==0)) THEN
       WRITE(IOUT,*)' POSSIBLE IMPACT NUMBER:',I_STOK,' (<=',
      . 1+(I_STOK-1)/NSN,'*NSN)'
 c     DO I = 1, I_STOK
@@ -667,7 +653,7 @@ c       WRITE(700+IDDLEVEL,*) CAND_S(I),CAND_M(I)
 c     ENDDO
 c     CALL FLUSH(700+IDDLEVEL)
 
-      ELSEIF(NSN.EQ.0) THEN
+      ELSEIF(NSN==0) THEN
        CALL ANCMSG(MSGID=552,
      .             MSGTYPE=MSGWARNING,
      .             ANMODE=ANINFO_BLIND_2,

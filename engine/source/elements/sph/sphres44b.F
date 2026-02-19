@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPHRES44B                     source/elements/sph/sphres44b.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sphres44b   ../engine/source/elements/sph/sphres44b.F
+!||--- called by ------------------------------------------------------
+!||    resol       ../engine/source/engine/resol.F
+!||====================================================================
       SUBROUTINE SPHRES44B(
      1    KXSP    ,IXSP    ,NOD2SP  ,IPARG   ,SPBUF   )
 C----6---------------------------------------------------------------7---------8
@@ -57,7 +56,7 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER N,IG,NG,I,OFFSET,NEL
 C-----------------------------------------------
-C     Construit les Numeros d'appartenance aux groupes. 
+C     Build the numbers of membership of the groups. 
 C-----------------------------------------------
       DO NG=1,NGROUP
       NEL=IPARG(2,NG)
@@ -67,13 +66,13 @@ C-----------------------------------------------
         OFFSET = IG - 1
         LFT=1
         LLT=MIN(MVSIZ,NEL-OFFSET)  
-        IF(ITY.EQ.51)THEN
+        IF(ITY==51)THEN
          DO I=LFT,LLT
           N =I+NFT
-          IF(SPBUF(9,N).GT.ZERO)THEN
+          IF(SPBUF(9,N)>ZERO)THEN
            KXSP(1,N) =0
            KXSP(2,N) =NG
-           SPBUF(9,N)=ZERO	   
+           SPBUF(9,N)=ZERO     
           ENDIF
          ENDDO
         ENDIF

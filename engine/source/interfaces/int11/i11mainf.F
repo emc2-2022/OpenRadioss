@@ -1,47 +1,52 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I11MAINF                      source/interfaces/int11/i11mainf.F
-Chd|-- called by -----------
-Chd|        INTFOP2                       source/interfaces/interf/intfop2.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        FRICTIONPARTS_MODEL_ISOT      source/interfaces/int07/frictionparts_model.F
-Chd|        I11CDCOR3                     source/interfaces/int11/i11cdcor3.F
-Chd|        I11COR3                       source/interfaces/int11/i11cor3.F
-Chd|        I11DST3                       source/interfaces/int11/i11dst3.F
-Chd|        I11FOR3                       source/interfaces/int11/i11for3.F
-Chd|        I11THERM                      source/interfaces/int11/i11therm.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        SUM_6_FLOAT_SENS              source/system/parit.F         
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUF_FRIC_MOD               share/modules/intbuf_fric_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE I11MAINF(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i11mainf                   ../engine/source/interfaces/int11/i11mainf.F
+!||--- called by ------------------------------------------------------
+!||    intfop2                    ../engine/source/interfaces/interf/intfop2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../engine/source/output/message/message.F
+!||    arret                      ../engine/source/system/arret.F
+!||    frictionparts_model_isot   ../engine/source/interfaces/int07/frictionparts_model.F
+!||    i11ass3                    ../engine/source/interfaces/int11/i11ass3.F
+!||    i11cdcor3                  ../engine/source/interfaces/int11/i11cdcor3.F
+!||    i11cor3                    ../engine/source/interfaces/int11/i11cor3.F
+!||    i11dst3                    ../engine/source/interfaces/int11/i11dst3.F
+!||    i11for3                    ../engine/source/interfaces/int11/i11for3.F
+!||    i11therm                   ../engine/source/interfaces/int11/i11therm.F
+!||    startime                   ../engine/source/system/timer_mod.F90
+!||    stoptime                   ../engine/source/system/timer_mod.F90
+!||    sum_6_float_sens           ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod                    ../engine/share/modules/h3d_mod.F
+!||    intbuf_fric_mod            ../common_source/modules/interfaces/intbuf_fric_mod.F90
+!||    intbufdef_mod              ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod                ../engine/share/message_module/message_mod.F
+!||    my_alloc_mod               ../common_source/tools/memory/my_alloc.F90
+!||    output_mod                 ../common_source/modules/output/output_mod.F90
+!||    timer_mod                  ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE I11MAINF(OUTPUT, TIMERS,
      1      IPARI   ,X         ,A       ,
      2      ICODT   ,FSAV      ,V        ,MS     ,DT2T    ,
      3      NELTST  ,ITYPTST   ,ITAB     ,STIFN  ,FSKYI   ,
@@ -53,14 +58,17 @@ Chd|====================================================================
      9      NPC     ,TF        ,CONDN    ,CONDNSKYI,FBSAV6,
      A      ISENSINT,DIMFB     ,FSAVSUB  ,H3D_DATA ,INTBUF_FRIC_TAB,
      B      ITASK   ,TAGNCONT  ,KLOADPINTER,LOADPINTER,LOADP_HYD_INTER,
-     C      DGAPLOADINT,S_LOADPINTER)
+     C      DGAPLOADINT,S_LOADPINTER,NODADT_THERM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE TIMER_MOD
+      USE OUTPUT_MOD
       USE INTBUFDEF_MOD
       USE H3D_MOD
       USE INTBUF_FRIC_MOD
       USE MESSAGE_MOD
+      USE MY_ALLOC_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -72,30 +80,28 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr04_c.inc"
-#include      "scr07_c.inc"
 #include      "warn_c.inc"
 #include      "task_c.inc"
 #include      "parit_c.inc"
 #include      "impl1_c.inc"
 #include      "timeri_c.inc"
-#include      "sms_c.inc"
 #include      "macro.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), intent(inout) :: output
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS
+      INTEGER ,INTENT(IN) :: NODADT_THERM
       INTEGER NELTST,ITYPTST,NIN,NEWFRONT,NSTRF(*)
       INTEGER IPARI(*), ICODT(*),
      .        ITAB(*), ISKY(*),ICONTACT(*),TAGNCONT(NLOADP_HYD_INTER,NUMNOD)
       INTEGER  , INTENT(IN) :: S_LOADPINTER
       INTEGER  , INTENT(IN) :: KLOADPINTER(NINTER+1),LOADPINTER(S_LOADPINTER),
      .         LOADP_HYD_INTER(NLOADP_HYD)
-C statistique interface
+C Interface Statistics
       INTEGER NB_JLT,NB_JLT_NEW,NB_STOK_N,JTASK,
      .        NISKYFI, LINDMAX,ITASK
       INTEGER NUM_IMP,NS_IMP(*),NE_IMP(*), 
@@ -117,18 +123,19 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER KD(50), JD(50), JFI, KFI,
-     .        I, J, H, IBC, NOINT, ISECIN, I_STOK, NSEG, 
+      INTEGER  
+     .        I, J, H, IBC, NOINT, ISECIN, I_STOK, 
      .        JLT , NFT, JLT_NEW, IGAP, IVIS2,
-     .        NB_LOC, I_STOK_LOC,DEBUT,I3N, IGSTI,IFORM,INTTH,IKTHE,
-     .        IFORMTH,SFSAVPARIT,NISUB,INTFRIC,NSETPRTS,NPARTFRIC,MFROT,IFQ,
+     .        NB_LOC, I_STOK_LOC,DEBUT, IGSTI,IFORM,INTTH,IKTHE,
+     .        IFORMTH,SFSAVPARIT,NISUB,INTFRIC,NSETPRTS,NPARTFRIC,MFROT,
      .        IERROR,IORTHFRIC,IFRIC,JJ,NINLOADP
       INTEGER N1(MVSIZ), N2(MVSIZ), M1(MVSIZ), M2(MVSIZ),
-     .        NSVG(MVSIZ), CS_LOC(MVSIZ), CM_LOC(MVSIZ),
+     .         CS_LOC(MVSIZ), CM_LOC(MVSIZ),
      .        NSMS(MVSIZ)
-      INTEGER I_STOK_NEW,CAND_S(MVSIZ),CAND_M(MVSIZ), INDEX2(LINDMAX),
-     .        INDEXM1(LINDMAX),IELECI(MVSIZ),IELESI(MVSIZ), IPARTFRICSI(MVSIZ),
+      INTEGER 
+     .        IELECI(MVSIZ),IELESI(MVSIZ), IPARTFRICSI(MVSIZ),
      .         IPARTFRICMI(MVSIZ)
+      INTEGER,DIMENSION(:), ALLOCATABLE :: INDEX2
 C     REAL
       my_real
      .   STARTT, FRIC, GAP, STOPT,
@@ -169,16 +176,20 @@ C     REAL
       INTEGER,TARGET, DIMENSION(1):: TABPARTS_FRIC_BID
       INTEGER,TARGET, DIMENSION(1):: ADPARTS_FRIC_BID
       my_real,TARGET, DIMENSION(1):: TABCOEF_FRIC_BID
+      INTEGER :: NRTS, NTY
 C-----------------------------------------------
-C	Calcul des adresses des buffers d'interfaces. 
-C	Les adresses des buffers J10-JFI et K10-KFI 
-C	sont remplaces systematiquement par des tableaux
-C	JD(i) et KD(i), en gardant les memes numeros d'indexes.
-C	Les anciens adresses directs Jn, Kn sont modifies
-C	dans la routine sans commentaires additionnels habituels
+      CALL MY_ALLOC(INDEX2,LINDMAX)
+C-----------------------------------------------
+C  calculation of interface buffer addresses
+C  addresses of buffers J10-JFI and K10-KFI
+C  are systematically replaced by arrays
+C  JD(i) et KD(i), en gardant les memes numeros d'indexes.
+C  old direct addresses Jn, Kn are modified
+C  in the routine without usual additional comments
 C----------------------------------------------------
 C
       NRTS  =IPARI(3)
+      NTY   =IPARI(7)
       IBC   =IPARI(11)
       IVIS2 =IPARI(14)
       NOINT =IPARI(15)
@@ -191,8 +202,8 @@ C
       STIGLO=-INTBUF_TAB%STFAC(1)
       STARTT=INTBUF_TAB%VARIABLES(3)
       STOPT =INTBUF_TAB%VARIABLES(11)
-      IF(STARTT.GT.TT) RETURN
-      IF(TT.GT.STOPT)  RETURN
+      IF(STARTT>TT) RETURN
+      IF(TT>STOPT)  RETURN
 C
       FRIC  =INTBUF_TAB%VARIABLES(1)
       GAP   =INTBUF_TAB%VARIABLES(2)
@@ -204,7 +215,7 @@ C
       DTMINI=INTBUF_TAB%VARIABLES(41)
       DGAPLOAD=INTBUF_TAB%VARIABLES(46)
       NUM_IMP = 0
-      IF (IMPL_S.EQ.1) THEN
+      IF (IMPL_S==1) THEN
           VISC  =ZERO
           VISCF =ZERO
       ENDIF
@@ -222,6 +233,9 @@ C--- Corresponding Friction model
       INTFRIC=IPARI(72)
       MFROT = 0
       IORTHFRIC = 0
+      NPARTFRIC = 0 
+      XFILTR_FRIC = 0 
+      NSETPRTS = 0
       IF(INTFRIC /= 0) THEN 
          TABCOUPLEPARTS_FRIC  => INTBUF_FRIC_TAB(INTFRIC)%TABCOUPLEPARTS_FRIC
          TABCOEF_FRIC  => INTBUF_FRIC_TAB(INTFRIC)%TABCOEF_FRIC
@@ -230,10 +244,7 @@ C--- Corresponding Friction model
          XFILTR_FRIC   = INTBUF_FRIC_TAB(INTFRIC)%XFILTR_FRIC
          NSETPRTS =   INTBUF_FRIC_TAB(INTFRIC)%NSETPRTS
          NPARTFRIC =   INTBUF_FRIC_TAB(INTFRIC)%S_TABPARTS_FRIC
-
          IORTHFRIC = INTBUF_FRIC_TAB(INTFRIC)%IORTHFRIC
-
-c         IFORM    =   INTBUF_FRIC_TAB(INTFRIC)%FRICFORM ! This Flags are already put in Ipari
       ELSE
          TABCOUPLEPARTS_FRIC  => TABCOUPLEPARTS_FRIC_BID
          TABPARTS_FRIC  => TABPARTS_FRIC_BID
@@ -244,26 +255,26 @@ C
       NINLOADP = IPARI(95) ! load pressure related to inter
 C
       I_STOK = INTBUF_TAB%I_STOK(1)
-C  cette partie est effectuee en // apres le calcul des forces des elem.
-C decoupage statique
+C  this part is done in parallel after the calculation of element forces
+C static decoupage
       NB_LOC = I_STOK / NTHREAD
-      IF (JTASK.EQ.NTHREAD) THEN
+      IF (JTASK==NTHREAD) THEN
           I_STOK_LOC = I_STOK-NB_LOC*(NTHREAD-1)
       ELSE
           I_STOK_LOC = NB_LOC
       ENDIF
       DEBUT = (JTASK-1)*NB_LOC
       I_STOK = 0
-C recalcul du istok
+C recalculation of istok
       DO I = DEBUT+1, DEBUT+I_STOK_LOC
-          IF(INTBUF_TAB%CAND_N(I).LT.0) THEN
+          IF(INTBUF_TAB%CAND_N(I)<0) THEN
             I_STOK = I_STOK + 1
             INDEX2(I_STOK) = I
 C inbuf == cand_S
             INTBUF_TAB%CAND_N(I) = -INTBUF_TAB%CAND_N(I)
           ENDIF
       ENDDO
-      IF (DEBUG(3).GE.1) THEN
+      IF (DEBUG(3)>=1) THEN
           NB_JLT = NB_JLT + I_STOK_LOC
           NB_STOK_N = NB_STOK_N + I_STOK
       ENDIF
@@ -274,7 +285,7 @@ C
           SFSAVPARIT = SFSAVPARIT + 1
         ENDIF
       ENDDO
-      IF (SFSAVPARIT .NE. 0) THEN
+      IF (SFSAVPARIT /= 0) THEN
         ALLOCATE(FSAVPARIT(NISUB+1,11,I_STOK),STAT=IERROR)
           IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
@@ -299,7 +310,7 @@ C
 C
       DO NFT = 0 , I_STOK - 1 , NVSIZ
           JLT = MIN( NVSIZ, I_STOK - NFT )
-C preparation candidats retenus
+C preparation CANDIDATES retenus
           CALL I11CDCOR3(
      1         JLT,INDEX2(NFT+1),INTBUF_TAB%CAND_E,INTBUF_TAB%CAND_N,CM_LOC,
      2         CS_LOC)
@@ -336,16 +347,16 @@ C preparation candidats retenus
      B        IPARTFRICMI,DGAPLOAD)
 
           JLT = JLT_NEW
-          IF(JLT_NEW.NE.0) THEN
-            IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(20,1)
+          IF(JLT_NEW/=0) THEN
+            IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(TIMERS,20)
             IPARI(29) = 1
-            IF (DEBUG(3).GE.1)
+            IF (DEBUG(3)>=1)
      .        NB_JLT_NEW = NB_JLT_NEW + JLT_NEW
 
 C-------------------------------------------------------------------------------
 C Friction model : computation of friction coefficients based on Material of connected Parts
 C-------------------------------------------------------------------------------
-      IF(ITASK==1) CALL STARTIME(MACRO_TIMER_FRIC,1)
+      IF(ITASK==1) CALL STARTIME(TIMERS,MACRO_TIMER_FRIC)
        JJ = 0
       CALL FRICTIONPARTS_MODEL_ISOT(
      1   INTFRIC    ,JLT          ,IPARTFRICSI      ,IPARTFRICMI  ,ADPARTS_FRIC,
@@ -355,9 +366,9 @@ C-------------------------------------------------------------------------------
      5   JJ         , TINT        ,TEMPI1           ,NPC          ,TF          ,
      6   TEMP       , HS1         ,HS2              ,HM1          ,HM2         ,
      7   N1         , N2          ,M1               ,M2           ,IFORM       )  
-      IF(ITASK==1) CALL STOPTIME(MACRO_TIMER_FRIC,1)
+      IF(ITASK==1) CALL STOPTIME(TIMERS,MACRO_TIMER_FRIC)
 
-      CALL I11FOR3(
+      CALL I11FOR3(output,
      1  JLT          ,FSAV    ,GAP                 ,FRIC       ,MS      ,
      2  VISC         ,VISCF   ,NOINT               ,ITAB      ,CS_LOC   ,
      3  CM_LOC       ,STIF    ,DT2T                ,HS1       ,HS2      ,
@@ -394,7 +405,7 @@ C
      7          PHIM2     ,CONDINTM1,CONDINTM2  ,IFORMTH  ) 
         ENDIF
 C
-	CALL I11ASS3 (
+          CALL I11ASS3 (
      1  JLT          ,A            ,NIN         ,NOINT       ,CS_LOC   ,
      2  STIFN        ,STIF         ,FSKYI       ,ISKY        ,FCONT    ,
      3  HS1          ,HS2          ,HM1         ,HM2         ,N1       ,
@@ -407,23 +418,24 @@ C
      A  C2           ,C3           ,C4          ,INTTH       ,PHIS1    ,
      B  PHIS2        ,PHIM1        ,PHIM2       ,FTHE        ,FTHESKYI ,
      C  CONDINTS1    ,CONDINTS2    ,CONDINTM1   ,CONDINTM2   ,CONDN    ,
-     D  CONDNSKYI    ,JTASK        ,H3D_DATA    )
+     D  CONDNSKYI    ,JTASK        ,H3D_DATA    ,NODADT_THERM)
 C
-            IF(IMPL_S.EQ.1) THEN
+            IF(IMPL_S==1) THEN
               DO I = 1 ,JLT_NEW
                 NS_IMP(I+NUM_IMP)=CS_LOC(I)
                 NE_IMP(I+NUM_IMP)=CM_LOC(I)
               ENDDO
               NUM_IMP=NUM_IMP+JLT_NEW
             ENDIF
-            IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(20,1)
+            IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(TIMERS,20)
           ENDIF
       ENDDO
       IF (SFSAVPARIT /= 0)THEN
           CALL SUM_6_FLOAT_SENS(FSAVPARIT, NISUB+1, 11, I_STOK,1,I_STOK,
-     .  			FBSAV6, 12, 6, DIMFB, ISENSINT )
+     .        FBSAV6, 12, 6, DIMFB, ISENSINT )
       ENDIF
       IF(ALLOCATED(FSAVPARIT)) DEALLOCATE (FSAVPARIT)
+      IF(ALLOCATED(INDEX2)) DEALLOCATE (INDEX2)
 
 C
       RETURN

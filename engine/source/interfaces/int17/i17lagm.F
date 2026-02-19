@@ -1,38 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I17LAGM                       source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17MAIN                       source/interfaces/int17/i17main.F
-Chd|-- calls ---------------
-Chd|        I17LLL                        source/interfaces/int17/i17lagm.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i17lagm       ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17main       ../engine/source/interfaces/int17/i17main.F
+!||--- calls      -----------------------------------------------------
+!||    i17lll        ../engine/source/interfaces/int17/i17lagm.F
+!||    my_barrier    ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE I17LAGM(X    ,V     ,LLL     ,JLL   ,SLL   ,
      2                  XLL   ,CANDN ,CANDE   ,I_STOK,IXS   ,
      3                  IXS16 ,IADLL ,EMINX   ,NELES ,NELEM ,
      4                  NC    ,N_MUL_MX,ITASK ,A     ,ITIED ,
      5                  NINT  ,NKMAX ,EMINXS  ,COMNTAG)
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,15 +48,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "warn_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "param_c.inc"
-#include      "couple_c.inc"
       COMMON /I17GLOBI/IE_MIN,IES_MIN
       COMMON /I17GLOBR/VIT_MIN
 C-----------------------------------------------
@@ -106,17 +102,17 @@ C        [L][M]-1[L]t la : HLA(NC)
 C        [L] ao - b      : B(NC)
 C        [M]-1[L]t la    : LTLA(NUMNOD)
 C
-C        NC : nombre de contact 
-C        NK : nombre de noeud pour un contact (8+1,16+1,8+8,16+16)
+C        NC : number of contacts
+C        NK: Number of node for contact (8+1.16+1.8+8.16+16)
 C
-C        IC : numero du contact (1,NC)
-C        IK : numero de noeud local a un contact (1,NK)
-C        I  : numero global du noeud (1,NUMNOD)
+C        IC : contact number (1,NC)
+C        IK : local node number for a contact (1,NK)
+C        I  : global node number (1,NUMNOD)
 C
 C        IADLL(NC)        : IAD = IADLL(IC)
 C        LLL(NC*(17,51))  : I  = LLL(IAD+1,2...IADNEXT-1)
 C-----------------------------------------------
-C  evaluation de b:
+C  evaluation of b:
 C
 C         Vs = Somme(Ni Vi)
 C         Vs_ + dt As = Somme(Ni Vi_) + Somme(dt Ni Ai)
@@ -129,7 +125,7 @@ C-----------------------------------------------
 C                 b  = [L] vo+/dt   +   vout
 C-----------------------------------------------
 C-----------------------------------------------------------------------
-C     boucle sur les candidats au contact   
+C     loop over contact candidates
 C-----------------------------------------------------------------------
       NC_SAV = NC
       VIT_MIN = ZERO
@@ -146,21 +142,21 @@ C-----------------------------------------------------------------------
         IE  = NELEM(LE)
         IES = NELES(LES)
 C-----------------------------------------------------------------------
-C       test si dans la boite   
+C       test if inside the box
 C-----------------------------------------------------------------------
-        IF(LE .GT.0.AND.LES.GT.0.AND.
-     .           EMINXS(4,LES).GT.EMINX(1,LE).AND.
-     .           EMINXS(5,LES).GT.EMINX(2,LE).AND.
-     .           EMINXS(6,LES).GT.EMINX(3,LE).AND.
-     .           EMINXS(1,LES).LT.EMINX(4,LE).AND.
-     .           EMINXS(2,LES).LT.EMINX(5,LE).AND.
-     .           EMINXS(3,LES).LT.EMINX(6,LE))THEN
+        IF(LE >0.AND.LES>0.AND.
+     .           EMINXS(4,LES)>EMINX(1,LE).AND.
+     .           EMINXS(5,LES)>EMINX(2,LE).AND.
+     .           EMINXS(6,LES)>EMINX(3,LE).AND.
+     .           EMINXS(1,LES)<EMINX(4,LE).AND.
+     .           EMINXS(2,LES)<EMINX(5,LE).AND.
+     .           EMINXS(3,LES)<EMINX(6,LE))THEN
 c
-c      print *, "dans la boite",XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX
+c      print *, "in la boite",XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX
 c
           LLT = LLT+1
-	  IEL(LLT)=IE
-	  IESL(LLT)=IES
+            IEL(LLT)=IE
+            IESL(LLT)=IES
           DO K=1,4
 C III 1,2,3,4,5,6,7,8, 9,10,11,12,13,14,15,16
             III(LLT,K)   =IXS(K+1,IE)
@@ -193,9 +189,9 @@ c
 c      print *, "XX(1,1),XX(1,9)",XX(1,1),XX(1,9)
 c
 C-----------------------------------------------------------------------
-C     calcul de  [L] par paquet de mvsiz   
+C     calculation of [L] by mvsiz packet
 C-----------------------------------------------------------------------
-          IF(LLT.EQ.MVSIZ-1)THEN
+          IF(LLT==MVSIZ-1)THEN
             CALL I17LLL(
      1       LLT ,LLL       ,JLL       ,SLL       ,XLL     ,V       ,
      2       XX  ,YY        ,ZZ        ,III       ,NC      ,IADLL   ,
@@ -211,9 +207,9 @@ c debug
         ENDIF
       ENDDO
 C-----------------------------------------------------------------------
-C     calcul de  [L] pour dernier paquet   
-C-----------------------------------------------------------------------	
-      IF(LLT.NE.0) CALL I17LLL(
+C     calculation of [L] for last packet
+C-----------------------------------------------------------------------
+      IF(LLT/=0) CALL I17LLL(
      1       LLT ,LLL       ,JLL       ,SLL       ,XLL     ,V       ,
      2       XX  ,YY        ,ZZ        ,III       ,NC      ,IADLL   ,
      3       N_MUL_MX ,A    ,X         ,ITIED     ,NINT    ,NKMAX   ,
@@ -224,16 +220,16 @@ C-----------------------------------------------
       CALL MY_BARRIER
       RETURN
       END
-Chd|====================================================================
-Chd|  I17LLL                        source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17LAGM                       source/interfaces/int17/i17lagm.F
-Chd|-- calls ---------------
-Chd|        I17LLL4                       source/interfaces/int17/i17lagm.F
-Chd|        I17MINI                       source/interfaces/int17/i17lagm.F
-Chd|        I17RST                        source/interfaces/int17/i17lagm.F
-Chd|        I17VIT4                       source/interfaces/int17/i17lagm.F
-Chd|====================================================================
+!||====================================================================
+!||    i17lll    ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17lagm   ../engine/source/interfaces/int17/i17lagm.F
+!||--- calls      -----------------------------------------------------
+!||    i17lll4   ../engine/source/interfaces/int17/i17lagm.F
+!||    i17mini   ../engine/source/interfaces/int17/i17lagm.F
+!||    i17rst    ../engine/source/interfaces/int17/i17lagm.F
+!||    i17vit4   ../engine/source/interfaces/int17/i17lagm.F
+!||====================================================================
       SUBROUTINE I17LLL(LLT  ,LLL    ,JLL   ,SLL    ,XLL   ,V      ,
      2                  XX   ,YY     ,ZZ    ,III    ,NC    ,IADLL  ,
      3                  N_MUL_MX,A   ,X     ,ITIED  ,NINT  ,NKMAX  ,
@@ -249,11 +245,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -284,13 +275,13 @@ C-----------------------------------------------
      .   R_CS(MVSIZ) ,S_CS(MVSIZ) ,T_CS(MVSIZ) ,VIT(MVSIZ),
      .   R_S(MVSIZ) ,T_S(MVSIZ) 
 C-----------------------------------------------
-C      calcul de r,s,t
+C      calculation de r,s,t
 C-----------------------------------------------
 c
 c      print *, "XX(1,1),XX(1,9)",XX(1,1),XX(1,9)
 c
 C-----------------------------------------------
-C      noeud centrale face 1 2 3 4
+C      central node face 1 2 3 4
 C-----------------------------------------------
       DO I=1,LLT
         XX(I,17) = HALF *(XXS(I,5) +XXS(I,6) +XXS(I,7) +XXS(I,8))
@@ -303,7 +294,7 @@ C-----------------------------------------------
       CALL I17RST(LLT   ,RI_S(1,1),SI_S(1,1),TI_S(1,1),NI_M  ,
      2            XX    ,YY       ,ZZ       )
 C-----------------------------------------------
-C      noeud centrale face 5 6 7 8
+C      Central node face 5 6 7 8
 C-----------------------------------------------
       DO I=1,LLT
         XX(I,17) = HALF *(XXS(I,13)+XXS(I,14)+XXS(I,15)+XXS(I,16))
@@ -319,7 +310,7 @@ C-----------------------------------------------
 C      choix face 1 2 3 4 face 5 6 7 8 cote second
 C-----------------------------------------------
       DO I=1,LLT
-        IF(ABS(SI_S(I,1)).LE.ABS(SI_S(I,2)))THEN
+        IF(ABS(SI_S(I,1))<=ABS(SI_S(I,2)))THEN
 C         face 1 2 3 4
           S_CS(I) = -ONE
         ELSE
@@ -364,8 +355,8 @@ C
         ENDIF
       ENDDO
 C-----------------------------------------------
-C      calcul de SI_S=s(relatif element main) 
-c      des 8 noeuds de la face de l'element second
+C      calculation de SI_S=s(relatif element main) 
+c      the 8 nodes of the face of the second element
 C-----------------------------------------------
       DO J=1,8
         DO I=1,LLT
@@ -377,7 +368,7 @@ C-----------------------------------------------
      2              XX    ,YY    ,ZZ    )
       ENDDO
 C-----------------------------------------------
-C      calcul du point de distance min
+C      calculation of the minimum distance point
 C      dSI_S/dr = 0 dSI_S/dt = 0     (r,t de l'element second) 
 C-----------------------------------------------
       CALL I17MINI(LLT   ,R_CS  ,S_CS  ,T_CS  ,RI_S  ,SI_S   ,
@@ -387,10 +378,10 @@ C-----------------------------------------------
      5             R_1M  ,R_2M  ,R_3M  ,R_4M  ,T_1M  ,T_2M   ,
      6             T_3M  ,T_4M  ,ICONT )
 C-----------------------------------------------
-C      choix face 1 2 3 4 face 5 6 7 8 cote main
+C      Choice Facing 1 2 3 4 Face 5 6 7 8 main side
 C-----------------------------------------------
       DO I=1,LLT
-        IF(S_CM(I).LE.0.)THEN
+        IF(S_CM(I)<=0.)THEN
 C         face 1 2 3 4
           III(I,5) = III(I,9)
           III(I,6) = III(I,10)
@@ -409,7 +400,7 @@ C         face 5 6 7 8
         ENDIF
       ENDDO
 C-----------------------------------------------------------------------
-C     calcul des vitesses de penetration
+C     calculation of penetration velocities
 C-----------------------------------------------------------------------
       DO I=1,LLT
         VIT(I) = EM20
@@ -430,13 +421,13 @@ C-----------------------------------------------------------------------
      2             NI_M      ,NI_S   ,NX     ,NY     ,NZ     ,VIT    ,
      3             ICONT(1,4),R_4M   ,T_4M   ,R_CS   ,T_2S   ,S_CS   ,
      4             R_CM      ,T_CM   ,R_S    ,T_S    ,ICONT(1,1))
-c tmp !!!!!!!!!!!!!!!!!!!!!!!!!!! un seul contact
+c tmp !!!!!!!!!!!!!!!!!!!!!!!!!!! single contact
 c      VV = 0.
 c      DO I=1,LLT
 c        VV = MIN(VV,VIT(I))
 c      ENDDO
 c      DO I=1,LLT
-c        IF(VV.EQ.VIT(I))THEN
+c        IF(VV==VIT(I))THEN
 c          VV=1.
 c        ELSE
 c          ICONT(I,1)=0
@@ -445,7 +436,7 @@ c      ENDDO
 c tmp !!!!!!!!!!!!!!!!!!!!!!!!!!!
 c      DO I=1,LLT
 c        PENE = 1. - ABS(S_CM(I))
-c        IF(ICONT(I,1).EQ.1.AND.PENE.GT.PENE_MAX)THEN
+c        IF(ICONT(I,1)==1.AND.PENE>PENE_MAX)THEN
 c          PENE_MAX = PENE
 c          NC = NC_SAV
 c          J  = I
@@ -456,10 +447,10 @@ c      ICONT(J,1) = 1
 #include "lockon.inc"
       J=0
       DO I=1,LLT
-        IF(VIT(I).LT.VIT_MIN.OR.
-     .    (VIT(I).EQ.VIT_MIN.AND.
-     .          (IE(I).LT.IE_MIN.OR.
-     .          (IE(I).EQ.IE_MIN.AND.IES(I).LT.IES_MIN))))THEN
+        IF(VIT(I)<VIT_MIN.OR.
+     .    (VIT(I)==VIT_MIN.AND.
+     .          (IE(I)<IE_MIN.OR.
+     .          (IE(I)==IE_MIN.AND.IES(I)<IES_MIN))))THEN
           VIT_MIN = VIT(I)
           IE_MIN  = IE(I)
           IES_MIN = IES(I)
@@ -469,34 +460,34 @@ c      ICONT(J,1) = 1
         ENDIF
         ICONT(I,1) = 0
       ENDDO
-      IF(J.NE.0)THEN
+      IF(J/=0)THEN
         ICONT(J,1) = ICON
-cc	print *,ITASK,':',VIT(J),IE(J),IES(J),NC,J,ICON
+cc  print *,ITASK,':',VIT(J),IE(J),IES(J),NC,J,ICON
       ENDIF
 C-----------------------------------------------------------------------
-C     calcul du contact
+C     contact calculation
 C-----------------------------------------------------------------------
       CALL I17LLL4(LLT       ,LLL    ,JLL    ,SLL    ,XLL    ,N_MUL_MX,
      2             ITIED     ,NINT   ,NKMAX  ,NC     ,V      ,A       ,
      3             IADLL     ,III    ,IIIS   ,NI_M   ,NI_S   ,
      4             NX        ,NY     ,NZ     ,VIT    ,COMNTAG,
      5             ICONT(1,1),R_CM   ,T_CM   ,R_S    ,T_S    )
-c      IF(J.NE.0)THEN
+c      IF(J/=0)THEN
 c        do i=1,nc*16
-c	print *,ITASK,':',i,':',LLL(i),JLL(i),XLL(i)
-c	enddo
+c  print *,ITASK,':',i,':',LLL(i),JLL(i),XLL(i)
+c  enddo
 c      ENDIF
 C
 #include "lockoff.inc"
       RETURN
       END
-Chd|====================================================================
-Chd|  I17VIT4                       source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17LLL                        source/interfaces/int17/i17lagm.F
-Chd|-- calls ---------------
-Chd|        I17NI                         source/interfaces/int17/i17lagm.F
-Chd|====================================================================
+!||====================================================================
+!||    i17vit4   ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17lll    ../engine/source/interfaces/int17/i17lagm.F
+!||--- calls      -----------------------------------------------------
+!||    i17ni     ../engine/source/interfaces/int17/i17lagm.F
+!||====================================================================
       SUBROUTINE I17VIT4(LLT,NINT ,V      ,A      ,III    ,IIIS   ,
      2             NI_M   ,NI_S   ,NX     ,NY     ,NZ     ,VIT    ,
      3             ICONT  ,RM     ,TM     ,RS     ,TS     ,SM     ,
@@ -509,11 +500,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -536,21 +522,21 @@ C-----------------------------------------------
       my_real
      .   NI_ML(MVSIZ,8) ,NI_SL(MVSIZ,8)
 C-----------------------------------------------------------------------
-C     calcul de Ni sur face  1 2 3 4 ou 5 6 7 8 du main (s=+-1)
+C     calculation of Ni on face 1 2 3 4 or 5 6 7 8 of the main (s=+-1)
 C-----------------------------------------------------------------------
       CALL I17NI(LLT,RM ,TM ,NI_ML )
 C-----------------------------------------------------------------------
-C     calcul de Ni sur face  1 2 3 4 ou 5 6 7 8 de l'second (s=+-1)
+C     calculation of Ni on face 1 2 3 4 or 5 6 7 8 of the second (s=+-1)
 C-----------------------------------------------------------------------
       CALL I17NI(LLT,RS ,TS ,NI_SL )
 C-----------------------------------------------
-C      calcul de [L]
+C      calculation of [L]
 C-----------------------------------------------
       DO I=1,LLT
 C-----------------------------------------------
-C       test si contact
+C       Test if contact
 C-----------------------------------------------
-        IF(ICONT(I).NE.0)THEN
+        IF(ICONT(I)/=0)THEN
 C
           VX = ZERO
           VY = ZERO
@@ -572,11 +558,11 @@ c            VZ = VZ + (V(3,IIIS(I,IK))+DT12*A(3,IIIS(I,IK)))*NI_S(I,IK)
 c
           VN = NX(I)*VX + NY(I)*VY + NZ(I)*VZ
 C-----------------------------------------------
-C         test si vitesse entrante en s
+C         Test if incoming velocity in S
 C-----------------------------------------------
-          IF(SM(I)*VN.LE.VIT(I))THEN
+          IF(SM(I)*VN<=VIT(I))THEN
 c
-c      print *, "vitesse entrante",vn
+c      print *, "velocity entrante",vn
 c      print *, "s = ",S(I)
 c
             VIT(I)=SM(I)*VN
@@ -598,15 +584,16 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I17LLL4                       source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17LLL                        source/interfaces/int17/i17lagm.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i17lll4       ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17lll        ../engine/source/interfaces/int17/i17lagm.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../engine/source/output/message/message.F
+!||    arret         ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I17LLL4(LLT,LLL  ,JLL    ,SLL    ,XLL    ,N_MUL_MX,
      2             ITIED  ,NINT   ,NKMAX  ,NC     ,V      ,A      ,
      3             IADLL  ,III    ,IIIS   ,NI_M   ,NI_S   ,
@@ -625,11 +612,6 @@ C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com08_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -650,21 +632,21 @@ C-----------------------------------------------
       my_real
      .   VX,VY,VZ,VN,AA
 C-----------------------------------------------
-      IF(ITIED.EQ.0)THEN
+      IF(ITIED==0)THEN
        DO I=1,LLT
 C-----------------------------------------------
-C       test si contact
+C       Test if contact
 C-----------------------------------------------
-        IF(ICONT(I).NE.0)THEN
+        IF(ICONT(I)/=0)THEN
 C
            NK = 16
             NC=NC+1
-            IF(NC.GT.N_MUL_MX)THEN
+            IF(NC>N_MUL_MX)THEN
               CALL ANCMSG(MSGID=89,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
             IADLL(NC+1)=IADLL(NC) + 48
-            IF(IADLL(NC+1)-1.GT.NKMAX)THEN
+            IF(IADLL(NC+1)-1>NKMAX)THEN
               CALL ANCMSG(MSGID=89,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
@@ -701,22 +683,22 @@ C
 c#include "lockoff.inc"
         ENDIF
        ENDDO
-      ELSEIF(ITIED.EQ.1)THEN
+      ELSEIF(ITIED==1)THEN
 C-----------------------------------------------
 C      ITIED = 1
 C-----------------------------------------------
        DO I=1,LLT
 C-----------------------------------------------
-C       test si contact
+C       Test if contact
 C-----------------------------------------------
-        IF(ICONT(I).NE.0)THEN
+        IF(ICONT(I)/=0)THEN
 C
            NK = 16
-            IF(NC+3.GT.N_MUL_MX)THEN
+            IF(NC+3>N_MUL_MX)THEN
               CALL ANCMSG(MSGID=89,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
-            IF(IADLL(NC+1)-1+16*3.GT.NKMAX)THEN
+            IF(IADLL(NC+1)-1+16*3>NKMAX)THEN
               CALL ANCMSG(MSGID=89,ANMODE=ANINFO)
               CALL ARRET(2)
             ENDIF
@@ -778,16 +760,16 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I17RST                        source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17LLL                        source/interfaces/int17/i17lagm.F
-Chd|        I17LLL_PENA                   source/interfaces/int17/i17for3.F
-Chd|-- calls ---------------
-Chd|        I16DERI                       source/interfaces/int16/i16lagm.F
-Chd|        I16NI                         source/interfaces/int16/i16lagm.F
-Chd|        I16RSTN                       source/interfaces/int16/i16lagm.F
-Chd|====================================================================
+!||====================================================================
+!||    i17rst        ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17lll        ../engine/source/interfaces/int17/i17lagm.F
+!||    i17lll_pena   ../engine/source/interfaces/int17/i17for3.F
+!||--- calls      -----------------------------------------------------
+!||    i16deri       ../engine/source/interfaces/int16/i16lagm.F
+!||    i16ni         ../engine/source/interfaces/int16/i16lagm.F
+!||    i16rstn       ../engine/source/interfaces/int16/i16lagm.F
+!||====================================================================
       SUBROUTINE I17RST(LLT,R  ,S     ,T     ,NI    ,
      2            XX    ,YY    ,ZZ    )
 C-----------------------------------------------
@@ -807,9 +789,6 @@ C     REAL
      .   XX(MVSIZ,17),YY(MVSIZ,17),ZZ(MVSIZ,17)
       my_real
      .   R(MVSIZ),S(MVSIZ),T(MVSIZ),NI(MVSIZ,17) 
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -863,14 +842,14 @@ C
          TT(I) = 0.
        ENDDO
 C-----------------------------------------------
-C      calcul de r,s,t   et   Ni(r,s,t)
+C      calculation de r,s,t   et   Ni(r,s,t)
 C-----------------------------------------------
        DO ITER=1,NITERMAX
 c
 c      print *, "iter",iter
 c
 C-----------------------------------------------
-C          calcul de Ni(r,s,t); [J]; [J]-1
+C          calculation de Ni(r,s,t); [J]; [J]-1
 C-----------------------------------------------
            CALL I16DERI(LLT,RR ,SS    ,TT    ,NI    ,
      2            DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
@@ -882,7 +861,7 @@ c
 c      print *, "jter",jter
 c
 C-----------------------------------------------
-C            calcul de r,s,t new
+C            calculation de r,s,t new
 C-----------------------------------------------
              CALL I16RSTN(LLT,RR,SS   ,TT    ,NI    ,CONV  ,
      2            DRDX  ,DRDY  ,DRDZ  ,DSDX  ,DSDY  ,DSDZ  ,
@@ -893,7 +872,7 @@ c      print *, "r,s,t",r(1),s(1),t(1)
 c      print *, "rr,ss,tt",rr(1),ss(1),tt(1)
 c
 C-----------------------------------------------
-C            calcul de Ni(-1<r<1 , -1<s<1 , -1<t<1)
+C            calculation de Ni(-1<r<1 , -1<s<1 , -1<t<1)
 C-----------------------------------------------
              CALL I16NI(LLT,RR ,SS ,TT ,NI  )
 C
@@ -903,16 +882,16 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I17MINI                       source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17LLL                        source/interfaces/int17/i17lagm.F
-Chd|-- calls ---------------
-Chd|        I17ABC                        source/interfaces/int17/i17lagm.F
-Chd|        I17BORNE                      source/interfaces/int17/i17lagm.F
-Chd|        I17NORM                       source/interfaces/int17/i17lagm.F
-Chd|        I17RACINE                     source/interfaces/int17/i17lagm.F
-Chd|====================================================================
+!||====================================================================
+!||    i17mini     ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17lll      ../engine/source/interfaces/int17/i17lagm.F
+!||--- calls      -----------------------------------------------------
+!||    i17abc      ../engine/source/interfaces/int17/i17lagm.F
+!||    i17borne    ../engine/source/interfaces/int17/i17lagm.F
+!||    i17norm     ../engine/source/interfaces/int17/i17lagm.F
+!||    i17racine   ../engine/source/interfaces/int17/i17lagm.F
+!||====================================================================
       SUBROUTINE I17MINI(LLT   ,R_CS  ,S_CS  ,T_CS  ,RI_S  ,SI_S  ,
      2                   TI_S  ,NI_S  ,XXS   ,YYS   ,ZZS   ,XX    ,
      3                   YY    ,ZZ    ,R_CM  ,S_CM  ,T_CM  ,NX    ,
@@ -944,9 +923,6 @@ C     REAL
      + R_3M(MVSIZ) ,R_4M(MVSIZ) ,T_3M(MVSIZ) ,T_4M(MVSIZ),
      + NX(MVSIZ) ,NY(MVSIZ) ,NZ(MVSIZ)   
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,ITER,NITERMAX
@@ -957,7 +933,6 @@ C-----------------------------------------------
      +        F1,F2,F3,F4,F5,F6,F7,F8,
      +        CC1,CC2,CC3,DD1,DD2,DD3,DD,D,
      +        A0,AB,BA,A4R,B4T,A5T,B5R,EPS
-C-----------------------------------------------
 C-----------------------------------------------
 C ro = r ri    to = t ti
 C
@@ -1077,7 +1052,7 @@ c
         T_CS(I) = ZERO
       ENDDO
 c------------------------------------------------
-c   newton iter : lineaRI_Sation en r et t
+c   Newton ITER: lineari_sation in r and t
 c------------------------------------------------
 C  fr = df/dr = A1 + A2 r + A3 t + A4 t r + A5 t t = 0
 C  ft = df/dt = B1 + B2 r + B3 t + B4 r t + B5 r r = 0 
@@ -1120,7 +1095,7 @@ c------------------------------------------------
           DD2  = B2(I) + B4T + B5R + B5R
           DD3  = B3(I) + B4(I) * R_CS(I)
           D    = DD3 * CC2 - CC3 * DD2 
-          IF(ABS(D).LT.EM20)THEN
+          IF(ABS(D)<EM20)THEN
             CC2 = CC2 + EM10
             DD3 = DD3 + EM10
             D   = DD3 * CC2 - CC3 * DD2 
@@ -1135,7 +1110,7 @@ c          print *,'it=',iter,' r=',r,' t=',t,' fr=',dfdr,' ft=',dfdt
         ENDDO
       ENDDO
 C-----------------------------------------------------------------------
-C     calcul de 4 points de l'iso S_M = +- 1
+C     calculation of 4 points of the iso S_M = +- 1
 C 
 C          second.           main
 C     1: <R_1S , T_CS>    <R_1M , T_1M>
@@ -1143,11 +1118,11 @@ C     2: <R_2S , T_CS>    <R_2M , T_2M>
 C     3: <R_CS , T_1S>    <R_3M , T_3M>
 C     4: <R_CS , T_2S>    <R_4M , T_4M> 
 C
-C     on borne r et t a +- 1 sur l'element second. :
+C     We limit R and you +- 1 on the second element.::
 C                -1 < R_1S < 1  et -1 < R_2S < 1 
 C                -1 < T_1S < 1  et -1 < T_2S < 1 
 c
-C     on borne r et t a +- 1 sur l'element main :
+C     We limit R and you +- 1 on the main element:
 C                -1 < R_M < 1   et -1 < T_M < 1 
 C-----------------------------------------------------------------------
       CALL  I17ABC(LLT ,SI_S,R_CS,T_CS,
@@ -1158,7 +1133,7 @@ C
       ENDDO
 c
       DO I=1,LLT
-          IF(S_CM(I).GT.ZERO)THEN
+          IF(S_CM(I)>ZERO)THEN
             B1(I) = B1(I) - ONE
             C1(I) = C1(I) - ONE
           ELSE
@@ -1175,7 +1150,7 @@ C  f = C1 + C2 t + C3 t^2
 C
       CALL I17RACINE(LLT,C3,C2,C1,T_1S,T_2S)
 c-----------------------------------------------------------------------
-c      borne r a +-1 sur le main
+c      bound r at +-1 on the main
 c-----------------------------------------------------------------------
 C
       CALL  I17ABC(LLT ,RI_S,R_CS,T_CS,
@@ -1196,7 +1171,7 @@ c      CALL I17BORNE(LLT ,T_CS,C3  ,C2  ,C1  ,ICONT(1,1),R_CM)
       CALL I17BORNE(LLT ,T_1S,C3  ,C2  ,C1  ,ICONT(1,3),R_3M)
       CALL I17BORNE(LLT ,T_2S,C3  ,C2  ,C1  ,ICONT(1,4),R_4M)
 c-----------------------------------------------------------------------
-c  2: borne t a +-1 sur le main 
+c  2: bound t at +-1 on the main
 c-----------------------------------------------------------------------
       CALL  I17ABC(LLT ,TI_S,R_CS,T_CS,
      +             B1  ,B2  ,B3  ,C1  ,C2  ,C3  )
@@ -1212,20 +1187,20 @@ c      CALL I17BORNE(LLT ,T_CS,C3  ,C2  ,C1  ,ICONT(1,1),T_CM)
       CALL I17BORNE(LLT ,T_1S,C3  ,C2  ,C1  ,ICONT(1,3),T_3M)
       CALL I17BORNE(LLT ,T_2S,C3  ,C2  ,C1  ,ICONT(1,4),T_4M)
 c-----------------------------------------------------------------------
-c  test si contact
+c  Test if contact
 c-----------------------------------------------------------------------
       CALL  I17ABC(LLT ,SI_S,R_CS,T_CS,
      +             B1  ,B2  ,B3  ,C1  ,C2  ,C3  )
       EPS = EM3
       DO I=1,LLT
         D = B1(I) + (B2(I) + B3(I)*R_1S(I)) * R_1S(I)
-        IF(D.LT.-ONE-EPS.OR.D.GT.ONE+EPS) ICONT(I,1)=0
+        IF(D<-ONE-EPS.OR.D>ONE+EPS) ICONT(I,1)=0
         D = B1(I) + (B2(I) + B3(I)*R_2S(I)) * R_2S(I)
-        IF(D.LT.-ONE-EPS.OR.D.GT.ONE+EPS) ICONT(I,2)=0
+        IF(D<-ONE-EPS.OR.D>ONE+EPS) ICONT(I,2)=0
         D = C1(I) + (C2(I) + C3(I)*T_1S(I)) * T_1S(I)
-        IF(D.LT.-ONE-EPS.OR.D.GT.ONE+EPS) ICONT(I,3)=0
+        IF(D<-ONE-EPS.OR.D>ONE+EPS) ICONT(I,3)=0
         D = C1(I) + (C2(I) + C3(I)*T_2S(I)) * T_2S(I)
-        IF(D.LT.-ONE-EPS.OR.D.GT.ONE+EPS) ICONT(I,4)=0
+        IF(D<-ONE-EPS.OR.D>ONE+EPS) ICONT(I,4)=0
 c        R_CS(I) = ICONT(I,1)*R_1S(I) + ICONT(I,2)*R_2S(I) +  
 c     +            ICONT(I,3)*R_CS(I) + ICONT(I,4)*R_CS(I)
 c        T_CS(I) = ICONT(I,1)*T_CS(I) + ICONT(I,2)*T_CS(I) +  
@@ -1236,7 +1211,7 @@ cc        T_CM(I) = ICONT(I,1)*T_1M(I) + ICONT(I,2)*T_2M(I) +
 cc     +            ICONT(I,3)*T_3S(I) + ICONT(I,4)*T_4S(I)
 c        ICONT(I,1) = ICONT(I,1) + ICONT(I,2) +  
 c     +               ICONT(I,3) + ICONT(I,4)
-c        IF(ICONT(I,1).NE.0)THEN
+c        IF(ICONT(I,1)/=0)THEN
 c          R_CS(I) = R_CS(I) / ICONT(I,1) 
 c          T_CS(I) = T_CS(I) / ICONT(I,1) 
 c          ICONT(I,1) = 1 
@@ -1261,7 +1236,7 @@ C
         T_CM(I) = B1(I) + (B2(I) + B3(I)*R_CS(I))*R_CS(I)
       ENDDO
 C-----------------------------------------------
-C          calcul de Ni(r,s,t); dNi/dr; dNi/dt; normale second(-n)
+C          calculation de Ni(r,s,t); dNi/dr; dNi/dt; normale second(-n)
 C-----------------------------------------------
       CALL I17NORM(LLT  ,R_CS  ,S_CS  ,T_CS  ,
      2             NX   ,NY    ,NZ    ,XXS   ,YYS   ,ZZS   )
@@ -1270,13 +1245,12 @@ c
 c-----------------------------------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I17NI                         source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17VIT4                       source/interfaces/int17/i17lagm.F
-Chd|        I17VIT_PENA                   source/interfaces/int17/i17for3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i17ni         ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17vit4       ../engine/source/interfaces/int17/i17lagm.F
+!||    i17vit_pena   ../engine/source/interfaces/int17/i17for3.F
+!||====================================================================
       SUBROUTINE I17NI(LLT,R ,T ,NI    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1303,7 +1277,7 @@ C-----------------------------------------------
      .  UMT_UMR,UMT_UPR,UPT_UMR,UPT_UPR,
      .  A,R05,S05,T05
 C-----------------------------------------------------------------------
-C     calcul de Ni
+C     calculation of Ni
 C-----------------------------------------------------------------------
       DO I=1,LLT
 C
@@ -1320,7 +1294,7 @@ C
         NI(I,1) = U_M_T * U_M_R * (-R(I)-T(I)-ONE)
         NI(I,2) = U_P_T * U_M_R * (-R(I)+T(I)-ONE)
         NI(I,3) = U_P_T * U_P_R * ( R(I)+T(I)-ONE)
-        NI(I,4) = U_M_T * U_P_R * ( R(I)-T(I)-ONE)	
+        NI(I,4) = U_M_T * U_P_R * ( R(I)-T(I)-ONE)
 C------------------------------------
         A = (ONE-R(I)*R(I))
         NI(I,6) = A * U_P_T
@@ -1334,22 +1308,21 @@ C------------------------------------
 C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I17RACINE                     source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17BORNE                      source/interfaces/int17/i17lagm.F
-Chd|        I17BORNE_PENA                 source/interfaces/int17/i17for3.F
-Chd|        I17MINI                       source/interfaces/int17/i17lagm.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i17racine       ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17borne        ../engine/source/interfaces/int17/i17lagm.F
+!||    i17borne_pena   ../engine/source/interfaces/int17/i17for3.F
+!||    i17mini         ../engine/source/interfaces/int17/i17lagm.F
+!||====================================================================
       SUBROUTINE I17RACINE(LLT,A,B,C,R1,R2)
 C-----------------------------------------------
 C
-C    calcul des racines r1,r2 bornees a +- 1
+C    calculation des racines r1,r2 bornees a +- 1
 C
 C    de  a x^2 + b x + c = 0
 C 
-C    la routine retourne -1,+1 s'il n'y a pas de racines
+C    The routine returns -1,+1 if there are no roots
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1374,17 +1347,17 @@ c
 C
       DO I=1,LLT
         D =  B(I)*B(I) - FOUR*A(I)*C(I) 
-        IF(ABS(A(I)).LT.EM20)THEN
-          IF(ABS(B(I)).LT.EM20)THEN
+        IF(ABS(A(I))<EM20)THEN
+          IF(ABS(B(I))<EM20)THEN
             R1(I) = -ONE
             R2(I) =  ONE
           ELSE
             R1(I) = -C(I) / B(I)
             R2(I) = B(I) / ABS(B(I))
           ENDIF
-        ELSEIF(D.LT.ZERO)THEN
+        ELSEIF(D<ZERO)THEN
             R1(I) = -ONE
-            R2(I) =  ONE	    
+            R2(I) =  ONE      
         ELSE
             D = SQRT( D )
             R1(I) = (-B(I) - D) / (TWO*A(I))
@@ -1392,7 +1365,7 @@ C
         ENDIF
       ENDDO
 c-----------------------------------------------------------------------
-c      borne r (ou t) a +-1 sur l'second
+c      bound r (or t) at +-1 on the second
 c-----------------------------------------------------------------------
       DO I=1,LLT
           R1(I) = MAX(-ONE,MIN(ONE,R1(I)))
@@ -1401,13 +1374,13 @@ c-----------------------------------------------------------------------
 c
       RETURN
       END
-Chd|====================================================================
-Chd|  I17BORNE                      source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17MINI                       source/interfaces/int17/i17lagm.F
-Chd|-- calls ---------------
-Chd|        I17RACINE                     source/interfaces/int17/i17lagm.F
-Chd|====================================================================
+!||====================================================================
+!||    i17borne    ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17mini     ../engine/source/interfaces/int17/i17lagm.F
+!||--- calls      -----------------------------------------------------
+!||    i17racine   ../engine/source/interfaces/int17/i17lagm.F
+!||====================================================================
       SUBROUTINE I17BORNE(LLT ,R_S ,A   ,B  ,C  ,ICONT,RS)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1430,16 +1403,16 @@ C-----------------------------------------------
       my_real
      +   CC(MVSIZ),R1(MVSIZ),R2(MVSIZ),RS1,RS2
 c-----------------------------------------------------------------------
-c  1: borne r(ou s au 2eme appel) a +-1 sur le main
+c  1: bound r (or s on the 2nd call) at +-1 on the main
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
-c  1.1: borne <r1,t> et <r,t1> a +-1 sur le main
+c  1.1: bound <r1,t> and <r,t1> at +-1 on the main
 c-----------------------------------------------------------------------
         DO I=1,LLT
           RS(I) = C(I) + ( B(I) + A(I)*R_S(I) )*R_S(I)
-          IF(RS(I).GT.ONE)THEN
+          IF(RS(I)>ONE)THEN
             CC(I) = C(I) - ONE
-          ELSEIF(RS(I).LT.-ONE)THEN
+          ELSEIF(RS(I)<-ONE)THEN
             CC(I) = C(I) + ONE
           ELSE 
             CC(I) = ONE
@@ -1451,26 +1424,26 @@ c
         CALL I17RACINE(LLT,A,B,CC,R1,R2)
 c
         DO I=1,LLT
-          IF(RS(I).GT.ONE.OR.RS(I).LT.-ONE)THEN
+          IF(RS(I)>ONE.OR.RS(I)<-ONE)THEN
             RS1 = C(I) + ( B(I) + A(I)*R1(I) )*R1(I)
             RS2 = C(I) + ( B(I) + A(I)*R2(I) )*R2(I)
-            IF(RS1.GE.-ONE.AND.RS1.LE.ONE.AND.
-     +         RS2.GE.-ONE.AND.RS2.LE.ONE)THEN
-              IF(ABS(RS(I)-R1(I)).LT.ABS(RS(I)-R2(I)))THEN
+            IF(RS1>=-ONE.AND.RS1<=ONE.AND.
+     +         RS2>=-ONE.AND.RS2<=ONE)THEN
+              IF(ABS(RS(I)-R1(I))<ABS(RS(I)-R2(I)))THEN
                 R_S(I) = R1(I)
                 RS(I)  = RS1
               ELSE
                 R_S(I) = R2(I)
                 RS(I)  = RS2
               ENDIF
-            ELSEIF(RS1.GE.-ONE.AND.RS1.LE.ONE)THEN
+            ELSEIF(RS1>=-ONE.AND.RS1<=ONE)THEN
                 R_S(I) = R1(I)
                 RS(I)  = RS1
-            ELSEIF(RS2.GE.-ONE.AND.RS2.LE.ONE)THEN
+            ELSEIF(RS2>=-ONE.AND.RS2<=ONE)THEN
                 R_S(I) = R2(I)
                 RS(I)  = RS2
             ELSE
-C pas de recouvrement main/second
+C No main/second cover
                 ICONT(I)=0
             ENDIF
           ENDIF
@@ -1478,13 +1451,12 @@ C pas de recouvrement main/second
 c
       RETURN
       END
-Chd|====================================================================
-Chd|  I17ABC                        source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17MINI                       source/interfaces/int17/i17lagm.F
-Chd|        I17MINI_PENA                  source/interfaces/int17/i17for3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i17abc         ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17mini        ../engine/source/interfaces/int17/i17lagm.F
+!||    i17mini_pena   ../engine/source/interfaces/int17/i17for3.F
+!||====================================================================
       SUBROUTINE I17ABC(LLT ,F   ,R   ,T   ,
      +                  B1  ,B2  ,B3  ,C1  ,C2  ,C3  )
 C-----------------------------------------------
@@ -1518,7 +1490,6 @@ C  A5 = (+f1 + f2 + f3 + f4         - 2 f6         - 2 f8)/4
 C  A6 = (+f1 + f2 + f3 + f4 - 2 f5         - 2 f7        )/4   
 C  A7 = (-f1 + f2 + f3 - f4         - 2 f6         + 2 f8)/4   
 C  A8 = (-f1 - f2 + f3 + f4 + 2 f5         - 2 f7        )/4  
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1572,18 +1543,16 @@ c
 c
       RETURN
       END
-Chd|====================================================================
-Chd|  I17NORM                       source/interfaces/int17/i17lagm.F
-Chd|-- called by -----------
-Chd|        I17MINI                       source/interfaces/int17/i17lagm.F
-Chd|        I17MINI_PENA                  source/interfaces/int17/i17for3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i17norm        ../engine/source/interfaces/int17/i17lagm.F
+!||--- called by ------------------------------------------------------
+!||    i17mini        ../engine/source/interfaces/int17/i17lagm.F
+!||    i17mini_pena   ../engine/source/interfaces/int17/i17for3.F
+!||====================================================================
       SUBROUTINE I17NORM(LLT ,RR  ,SS  ,TT    ,
      2                   NX  ,NY  ,NZ  ,XX    ,YY    ,ZZ    )
 C-----------------------------------------------
-C          calcul de Ni(r,t); dNi/dr; dNi/dt; normale
-C-----------------------------------------------
+C          calculation de Ni(r,t); dNi/dr; dNi/dt; normale
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1601,9 +1570,6 @@ C     REAL
      .   XX(MVSIZ,*) ,YY(MVSIZ,*),ZZ(MVSIZ,*),
      .   NX(MVSIZ) ,NY(MVSIZ) ,NZ(MVSIZ),
      .   RR(MVSIZ) ,SS(MVSIZ) ,TT(MVSIZ)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -1682,7 +1648,7 @@ C
         DNIDT(5) = A * (UMR_UMS + UMR_UPS)
         DNIDT(7) = A * (UPR_UMS + UPR_UPS)
 C-----------------------------------------------------------------------
-C     dx/dr; dx/dt
+C     DX/DR;DX/DT
 C-----------------------------------------------------------------------
         DXDR(I) = DNIDR(1)*XX(I,1) + DNIDR(2)*XX(I,2) + DNIDR(3)*XX(I,3)
      +          + DNIDR(4)*XX(I,4)   
@@ -1718,7 +1684,7 @@ C
      +    + DNIDT(5)*ZZ(I,5)   + DNIDT(6)*(ZZ(I,6) - ZZ(I,8))
      +    + DNIDT(7)*ZZ(I,7)
 C-----------------------------------------------------------------------
-C     calcul de la normale -n
+C     calculation of the normal -n
 C-----------------------------------------------------------------------
         NX(I) = -DYDT(I)*DZDR(I) + DZDT(I)*DYDR(I)
         NY(I) = -DZDT(I)*DXDR(I) + DXDT(I)*DZDR(I)

@@ -1,40 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I12CHK3                       source/interfaces/inter3d1/i12chk3.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        I12SOL3                       source/interfaces/inter3d1/insol3.F
-Chd|        ICINV3                        source/interfaces/inter3d1/icinv3.F
-Chd|        LOCAL_INDEX                   source/interfaces/interf1/local_index.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i12chk3                ../starter/source/interfaces/inter3d1/i12chk3.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    i12sol3                ../starter/source/interfaces/inter3d1/insol3.F
+!||    icinv3                 ../starter/source/interfaces/inter3d1/icinv3.F
+!||    local_index            ../starter/source/interfaces/interf1/local_index.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I12CHK3(X   ,IRECT,IXS,NRT   ,IXC,
      .                  NINT,NSN  ,NSV,NOINT ,MWA,
-     .                  IXTG,GEO,PM,ISEG,ALE_CONNECTIVITY,
+     .                  IXTG,PM,ISEG,ALE_CONNECTIVITY,
      .                  VARCONVINT,FCOUNT,ITIED,ITAB,KNOD2ELS,
      .                  NOD2ELS,NTY,ID,TITR)
 C-----------------------------------------------
@@ -42,6 +43,9 @@ C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE ALE_CONNECTIVITY_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE FORMAT_MOD , ONLY : FMW_10I
+      use element_mod , only :nixs,nixc,nixtg
 C-----------------------------------
 C     CHECK ELEMENT FOR TYPE 12
 C------------------------------------
@@ -55,7 +59,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr17_c.inc"
 #include      "units_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -65,9 +68,8 @@ C-----------------------------------------------
      .   NSV(*), IXTG(NIXTG,*), ISEG(*), VARCONVINT,
      .   ITAB(*), FCOUNT(*), KNOD2ELS(*), NOD2ELS(*)
       my_real
-     .   X(3,*),GEO(NPROPG,*), PM(NPROPM,*)
-      CHARACTER*nchartitle,
-     .        TITR
+     .   X(3,*), PM(NPROPM,*)
+      CHARACTER(LEN=NCHARTITLE) ::  TITR
       TYPE(t_ale_connectivity), INTENT(INOUT) :: ALE_CONNECTIVITY
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -79,36 +81,36 @@ C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
 
-      IF(ITIED.NE.3)THEN
+      IF(ITIED/=3)THEN
         CALL ICINV3(IXS,IXC,IXTG,MWA,MWA(1+(2+NUMNOD)))
-        IF(IPRI.GE.1 .AND. NINT.LT.0)WRITE(IOUT,1000)
-        IF(IPRI.GE.1 .AND. NINT.GT.0)WRITE(IOUT,1001)
+        IF(IPRI>=1 .AND. NINT<0)WRITE(IOUT,1000)
+        IF(IPRI>=1 .AND. NINT>0)WRITE(IOUT,1001)
         DO I=1,NRT
           INRT=I
           CALL I12SOL3(X,IRECT,IXS,NINT,NELS,INRT,
      .                 AREA,NOINT,MWA ,MWA(1+(2+NUMNOD)),NF,ITAB,
      .                 KNOD2ELS,NOD2ELS,NTY,ID,TITR)
-          IF(NELS.NE.0) THEN
+          IF(NELS/=0) THEN
             M=IXS(1,NELS)
             VARCONV=INT(PM(10,M))
-            IF(VARCONVINT.EQ.-1)VARCONVINT=VARCONV
-            IF(VARCONV.EQ.VARCONVINT)THEN
+            IF(VARCONVINT==-1)VARCONVINT=VARCONV
+            IF(VARCONV==VARCONVINT)THEN
               SEGINDX = SEGINDX+1
               ISEG(I) = SEGINDX
               IAD = ALE_CONNECTIVITY%ee_connect%iad_connect(NELS)
               ALE_CONNECTIVITY%ee_connect%connected(IAD + NF - 1) = -SEGINDX
-              IF(IPRI.GE.1)
+              IF(IPRI>=1)
      .        WRITE(IOUT,FMT=FMW_10I)I,IXS(11,NELS),NF,SEGINDX,NELS
             ELSE
-              IF(NINT.GT.0) WRITE (IOUT,1101) I, NOINT
-              IF(NINT.LT.0) WRITE (IOUT,1201) I, NOINT
+              IF(NINT>0) WRITE (IOUT,1101) I, NOINT
+              IF(NINT<0) WRITE (IOUT,1201) I, NOINT
               IERR=IERR+1
             ENDIF
           ELSE
-            IF(NINT.GT.0) WRITE (IOUT,1100) I, NOINT
-            IF(NINT.LT.0) WRITE (IOUT,1200) I, NOINT
+            IF(NINT>0) WRITE (IOUT,1100) I, NOINT
+            IF(NINT<0) WRITE (IOUT,1200) I, NOINT
             IERR=IERR+1
-          ENDIF !(NELS.NE.0)
+          ENDIF !(NELS/=0)
         END DO !I=1,NRT 
         CALL ANCMSG(MSGID=1245,
      .                  MSGTYPE=MSGERROR,
@@ -122,10 +124,10 @@ C-----------------------------------------------
      .                  I1=ID,
      .                  C1=TITR,
      .                  PRMOD=MSG_PRINT) 
-      END IF !(ITIED.NE.3)
+      END IF !(ITIED/=3)
       
       !------------------------------------------------------------------------!
-      !     LE NOEUD GLOBAL EST REMPLACE PAR LE NOEUD LOCAL DANS IRECT         !
+      ! !     THE GLOBAL NODE IS REPLACED BY THE LOCAL NODE IN IRECT         !
       !------------------------------------------------------------------------!
       DO I=1,NRT
         DO J=1,4
@@ -135,9 +137,9 @@ C-----------------------------------------------
         ENDDO
       ENDDO
       !------------------------------------------------------------------------!
-      !     COMPTAGE DU NOMBRE DE FACETTES CONNECTEES PAR NOEUD (SECONDARY ONLY!)  !
+      ! !     COUNTING THE NUMBER OF FACETS CONNECTED BY NODE (SECONDARY ONLY!)  !
       !------------------------------------------------------------------------!
-      IF(NINT.GT.0)THEN
+      IF(NINT>0)THEN
          DO  I=1,NSN
            FCOUNT(I)=0
          ENDDO

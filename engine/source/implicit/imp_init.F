@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  IMP_INIT                      source/implicit/imp_init.F    
-Chd|-- called by -----------
-Chd|        RESOL_INIT                    source/engine/resol_init.F    
-Chd|-- calls ---------------
-Chd|        DYNA_INI                      source/implicit/imp_dyna.F    
-Chd|        KTBUF_INI                     source/implicit/imp_init.F    
-Chd|        ZEROR                         source/system/zero.F          
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        IMP_ASPC                      share/modules/impbufdef_mod.F 
-Chd|        IMP_INTM                      share/modules/imp_intm.F      
-Chd|        IMP_KBCS                      share/modules/impbufdef_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    imp_init       ../engine/source/implicit/imp_init.F
+!||--- called by ------------------------------------------------------
+!||    resol_init     ../engine/source/engine/resol_init.F
+!||--- calls      -----------------------------------------------------
+!||    dyna_ini       ../engine/source/implicit/imp_dyna.F
+!||    ktbuf_ini      ../engine/source/implicit/imp_init.F
+!||    zeror          ../engine/source/system/zero.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    imp_aspc       ../engine/share/modules/impbufdef_mod.F
+!||    imp_intm       ../engine/share/modules/imp_intm.F
+!||    imp_kbcs       ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE IMP_INIT(V,VR,IPARG,IPM,IGEO,ELBUF_TAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -41,13 +42,10 @@ C-----------------------------------------------
       USE IMP_KBCS
       USE IMP_INTM
       USE ELBUFDEF_MOD            
-C----6---------------------------------------------------------------7---------8
+C----6------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -56,11 +54,8 @@ C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "impl1_c.inc"
 #include      "impl2_c.inc"
-#include      "scr05_c.inc" 
-#include      "units_c.inc" 
-#include      "mvsiz_p.inc"
 #include      "param_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IPARG(NPARG,NGROUP),IPM(NPROPMI,*),IGEO(*)
@@ -82,61 +77,61 @@ C----------------------------------------------------------
 C ADD FOR SOLVER AUTO SELECTION
       IFSTRUN = 1
 
-      IF(IMPL_S.EQ.1.OR.NEIG.GT.0)THEN
+      IF(IMPL_S==1.OR.NEIG>0)THEN
        IDEFKZ=0
-       IF (NEIG.GT.0.AND.KZ_TOL.EQ.ZERO) IDEFKZ=1
+       IF (NEIG>0.AND.KZ_TOL==ZERO) IDEFKZ=1
        NNSIZ=1024
        IKPAT=0
        TREST=TSTOP-TT
-       IF (D_TOL.EQ.ZERO.AND.N_PAT.GT.1) D_TOL=-ONE
-       IF (D_TOL.EQ.ZERO) D_TOL=THREE*EM5
-       IF (IPREC.EQ.5)IKPAT=1
-       IF (IPREC.EQ.6) THEN
+       IF (D_TOL==ZERO.AND.N_PAT>1) D_TOL=-ONE
+       IF (D_TOL==ZERO) D_TOL=THREE*EM5
+       IF (IPREC==5)IKPAT=1
+       IF (IPREC==6) THEN
         IPREC=5
         IKPAT=2
        ENDIF
-       IF (SK_INT.EQ.ZERO) SK_INT=ONEP01
+       IF (SK_INT==ZERO) SK_INT=ONEP01
 C--------direct-----
-       IF (DT_IMP.EQ.ZERO.OR.DT_IMP.GE.TREST) DT_IMP=TREST
-       IF (ILINE.EQ.1) THEN
+       IF (DT_IMP==ZERO.OR.DT_IMP>=TREST) DT_IMP=TREST
+       IF (ILINE==1) THEN
         DT_IMP=TREST
-        IF (KZ_TOL.EQ.ZERO) KZ_TOL=TWO*EM4
+        IF (KZ_TOL==ZERO) KZ_TOL=TWO*EM4
        ELSE
 C--------non-linear-----
-        IF (KZ_TOL.EQ.ZERO) KZ_TOL=FIVE*EM4
+        IF (KZ_TOL==ZERO) KZ_TOL=FIVE*EM4
        ENDIF
-       IF (ISPRB.EQ.1.AND.IDYNA.EQ.0) THEN
+       IF (ISPRB==1.AND.IDYNA==0) THEN
          CALL ZEROR(V,NUMNOD)
-         IF (IRODDL.NE.0) CALL ZEROR(VR,NUMNOD)    
+         IF (IRODDL/=0) CALL ZEROR(VR,NUMNOD)    
        ENDIF
-       IF (NEXP.EQ.0.OR.IDYNA.EQ.1) NEXP=1
-       IF (INTP_C.GE.0)THEN
-        IF (IMACH.EQ.3.AND.NSPMD.GT.1)THEN
-         IF (ISOLV.GE.2) INTP_C = 1
+       IF (NEXP==0.OR.IDYNA==1) NEXP=1
+       IF (INTP_C>=0)THEN
+        IF (NSPMD>1)THEN
+         IF (ISOLV>=2) INTP_C = 1
         ELSE
          INTP_C = 0
         ENDIF
        ENDIF
       ENDIF
-      IF (NEIG.GT.0) THEN
-         IF (IDEFKZ.EQ.1) KZ_TOL=TEN
+      IF (NEIG>0) THEN
+         IF (IDEFKZ==1) KZ_TOL=TEN
 C         IKG=0
          IKPAT=0
-        IF (IMACH.EQ.3) IKPAT=1
-	       IF (IAUTSPC.EQ.1) IAUTSPC=0
+         IKPAT=1
+         IF (IAUTSPC==1) IAUTSPC=0
       ENDIF
 
-      IF (IDYNA.GT.0)CALL DYNA_INI(1 ,NUMNOD ,HHT_A ,NEWM_A,NEWM_B,V,VR)
+      IF (IDYNA>0)CALL DYNA_INI(1 ,NUMNOD ,HHT_A ,NEWM_A,NEWM_B,V,VR)
 C
        NSPCL = 0
-       IF (B_MCORE.LT.0) THEN
+       IF (B_MCORE<0) THEN
         LMEMN=1000000
        ELSE
         LMEMN = 2*LMEMV/3
        ENDIF
 C       
-C      IF(INTP_C.LT.0) IRREF = MAX(2,IRREF)
-C      IF(IRREF.EQ.1.AND.IDYNA.GT.0) IRREF = 4
+C      IF(INTP_C<0) IRREF = MAX(2,IRREF)
+C      IF(IRREF==1.AND.IDYNA>0) IRREF = 4
 C      
       NDDL_SI = 0
       NDDL_SL = 0
@@ -147,32 +142,33 @@ C
       IF (IKT > 0 .OR.ISPRB==1) CALL KTBUF_INI(ELBUF_TAB,IPARG ,IPM ,IGEO)
 C
       IDTFIX=0     
-      IF (NITOL.EQ.123) THEN
+      IF (NITOL==123) THEN
        N_TOL=MAX(N_TOLE,N_TOLF,N_TOLU)
-      ELSEIF (NITOL.EQ.12) THEN
+      ELSEIF (NITOL==12) THEN
        N_TOL=MAX(N_TOLE,N_TOLF)
-      ELSEIF (NITOL.EQ.23) THEN
+      ELSEIF (NITOL==23) THEN
        N_TOL=MAX(N_TOLF,N_TOLU)
-      ELSEIF (NITOL.EQ.13) THEN
+      ELSEIF (NITOL==13) THEN
        N_TOL=MAX(N_TOLE,N_TOLU)
       ENDIF
 C
        RETURN
        END
 C-----------------------------------------------
-Chd|====================================================================
-Chd|  KTBUF_INI                     source/implicit/imp_init.F    
-Chd|-- called by -----------
-Chd|        IMP_INIT                      source/implicit/imp_init.F    
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        GRPREORDER                    source/implicit/imp_glob_k.F  
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        IMP_KTAN                      share/modules/impbufdef_mod.F 
-Chd|        IMP_KTAN_DEF                  share/modules/impbufdef_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    ktbuf_ini      ../engine/source/implicit/imp_init.F
+!||--- called by ------------------------------------------------------
+!||    imp_init       ../engine/source/implicit/imp_init.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    grpreorder     ../engine/source/implicit/imp_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    imp_ktan       ../engine/share/modules/impbufdef_mod.F
+!||    imp_ktan_def   ../engine/share/modules/impbufdef_mod.F
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE KTBUF_INI(ELBUF_TAB, IPARG ,IPM ,IGEO)
 C-----------------------------------------------
 C   M o d u l e s
@@ -185,12 +181,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -227,7 +217,7 @@ c-------------------------------------------------
       CALL  GRPREORDER(IPARG, IGROUC)
       DO IG = 1,NGROUP
         NG = IGROUC(IG)
-        MLW     = IPARG(1,NG)     ! type de loi mat
+        MLW     = IPARG(1,NG)     ! type of material law
         NEL     = IPARG(2,NG)
         NFT     = IPARG(3,NG)
         NPT     = IPARG(6,NG)
@@ -275,7 +265,7 @@ C--------add warning for HEPH-HSEPH-S8--
          ENDIF
         END IF
 C---- shell 3n,4n
-       ELSEIF(ITY.EQ.3.OR.ITY.EQ.7) THEN
+       ELSEIF(ITY==3.OR.ITY==7) THEN
 c       Compatibility :QEPH,QBAT,C3
         IF (JHBE==11) THEN
 C-------for the case when DKT18 was available for implicit
@@ -303,7 +293,7 @@ C------resulting model is not available
          END IF !(MLW==2.OR.MLW==36) THEN
        ENDIF   ! el type
 c -------------------------------------------------
-c       allocation des sub-structures de l'element buffer
+c       allocation of sub-structures of the element buffer
 c-------------------------------------------------
         IF (ITY /=1 .AND.ITY /=3 .AND.ITY /=7 ) CYCLE
         ALLOCATE (KTBUF_STR(NG)%MLAW_TAG(0:MAXLAW) ,STAT=ERR)
@@ -316,7 +306,7 @@ c-------------------------------------------------
         MTAG%L_A_KT =L_A_KT
         MTAG%L_SIGE =L_SIGE
         MTAG%L_SUBKT=L_SUBKT
-C        LENF = LENF + 4
+C        Lenf = lenf + 4
 c-------------------------------------------------
 c       Local variables per integration point
 c-------------------------------------------------
@@ -346,16 +336,15 @@ C      IF (LENF==0 .AND. IKT > 0 ) IKT=0
 C-----
       RETURN
       END SUBROUTINE KTBUF_INI
-Chd|====================================================================
-Chd|  IKTMAT_INI                    source/implicit/imp_init.F    
-Chd|-- called by -----------
-Chd|        GET_ETFAC_S                   source/elements/solid/solide8z/mmats.F
-Chd|        NUL_ETFAC_S                   source/elements/solid/solide8z/mmats.F
-Chd|        PUT_ETFAC                     source/elements/solid/solide8z/mmats.F
-Chd|-- calls ---------------
-Chd|        IMP_KTAN                      share/modules/impbufdef_mod.F 
-Chd|        IMP_KTAN_DEF                  share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    iktmat_ini     ../engine/source/implicit/imp_init.F
+!||--- called by ------------------------------------------------------
+!||    get_etfac_s    ../engine/source/elements/solid/solide8z/get_etfac_s.F
+!||    put_etfac      ../engine/source/elements/solid/solide8z/put_etfac.F
+!||--- uses       -----------------------------------------------------
+!||    imp_ktan       ../engine/share/modules/impbufdef_mod.F
+!||    imp_ktan_def   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE IKTMAT_INI(MTN,IKTMAT)
 C-----------------------------------------------
 C   M o d u l e s
@@ -366,12 +355,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -391,15 +374,16 @@ C-----------------------------------------------
 C       
       RETURN
       END SUBROUTINE IKTMAT_INI
-Chd|====================================================================
-Chd|  ETFAC_INI                     source/implicit/imp_init.F    
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        GRPREORDER                    source/implicit/imp_glob_k.F  
-Chd|        IMP_KTAN                      share/modules/impbufdef_mod.F 
-Chd|        IMP_KTAN_DEF                  share/modules/impbufdef_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    etfac_ini      ../engine/source/implicit/imp_init.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv       ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    grpreorder     ../engine/source/implicit/imp_glob_k.F
+!||--- uses       -----------------------------------------------------
+!||    imp_ktan       ../engine/share/modules/impbufdef_mod.F
+!||    imp_ktan_def   ../engine/share/modules/impbufdef_mod.F
+!||====================================================================
       SUBROUTINE ETFAC_INI(IPARG )
 C-----------------------------------------------
 C   M o d u l e s
@@ -410,12 +394,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -436,7 +414,7 @@ C=======================================================================
       CALL  GRPREORDER(IPARG, IGROUC)
       DO IG = 1,NGROUP
         NG = IGROUC(IG)
-        MLW     = IPARG(1,NG)     ! type de loi mat
+        MLW     = IPARG(1,NG)     ! type of material law
         NEL     = IPARG(2,NG)
         OFF     = IPARG(8,NG)
         ITY     = IPARG(5,NG)
@@ -454,11 +432,11 @@ c----------------------------------------------------
          L_ETFAC=1
         ENDIF   ! el type
 C---- shell 3n,4n
-       ELSEIF(ITY.EQ.3.OR.ITY.EQ.7) THEN
+       ELSEIF(ITY==3.OR.ITY==7) THEN
         IF (MLW==2.OR.MLW==36.OR.MLW==78) L_ETFAC=1
        ENDIF   ! el type
 c -------------------------------------------------
-c       allocation des sub-structures de l'element buffer
+c       allocation of sub-structures of the element buffer
 c-------------------------------------------------
         IF (ITY /=1 .AND.ITY /=3 .AND.ITY /=7 ) CYCLE
         IF (L_ETFAC>0) THEN

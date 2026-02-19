@@ -1,36 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C I17MAIN_LAG split in 3 routines for SPMD reorganization
-C nouvelle routine ne contenant plus que l'appel du critere de tri
-Chd|====================================================================
-Chd|  I17MAIN_CRIT_TRI              source/interfaces/int17/i17main_pena.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        I17CRIT                       source/interfaces/int17/i17crit.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i17main_crit_tri   ../engine/source/interfaces/int17/i17main_pena.F
+!||--- called by ------------------------------------------------------
+!||    inttri             ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||    i17crit            ../engine/source/interfaces/int17/i17crit.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod       ../common_source/modules/groupdef_mod.F
+!||    intbufdef_mod      ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    output_mod         ../common_source/modules/output/output_mod.F90
+!||====================================================================
       SUBROUTINE I17MAIN_CRIT_TRI(
      1          IPARI  ,INTBUF_TAB ,X       ,NIN    ,
      2          ITASK  ,IGRBRIC    ,EMINX   ,NME    ,
@@ -41,6 +43,8 @@ C   M o d u l e s
 C-----------------------------------------------
       USE INTBUFDEF_MOD    
       USE GROUPDEF_MOD
+      USE OUTPUT_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C
@@ -48,13 +52,13 @@ C-------------------------------------------------------------------------------
 C     NOM    DIMENSION               DESCRIPTION                       E/S
 C-------------------------------------------------------------------------------
 C
-C    NIN    1                        NUMERO INTERFACE                   E
+C    NIN    1                        INTERFACE NUMBER                   E
 C                  
 C   IPARI   NPARI,NINTER             PARAMETRES D'INTERFACE             E
 C                  
 C     X     3,NUMNOD                 COORDONNEES                        E
 C                  
-C     V     3,NUMNOD                 VITESSES                           E
+C     V     3,NUMNOD                 VELOCITIES                           E
 C                  
 C    EMINX  6*(NME+NMES)           MIN MAX DE CHAQUE ELEMENT        TMP_GLOBAL
 C                  
@@ -65,23 +69,15 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NIN,ITASK ,NC,N_MUL_MX ,NKMAX , NME, NMES  
+      INTEGER NIN,ITASK   , NME, NMES  
       INTEGER IPARI(NPARI,NINTER),
      .        IXS(NIXS,*)  ,IXS16(8,*)  ,IXS20(12,*)
 C     REAL
@@ -95,11 +91,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NAD,EAD,LWAT,
-     .        IGN,IGE,MULTIMP,NOINT,I,MX_CAND 
+      INTEGER 
+     .        IGN,IGE,MULTIMP,I,MX_CAND 
 C     REAL
       my_real
-     .        STARTT, STOPT,XX,XY,XZ,TZINF,MINBOX,
+     .        STARTT, STOPT,
      .        AZERO(3,NUMNOD)
 C-----------------------------------------------
 C   S o u r c e   L i n e s
@@ -115,16 +111,16 @@ C-----------------------------------------------
       MX_CAND=MULTIMP*IPARI(18,NIN)
       STARTT = INTBUF_TAB%VARIABLES(3)
       STOPT  = INTBUF_TAB%VARIABLES(11)
-      IF(STARTT.GT.TT) RETURN
-      IF(TT.GT.STOPT)  RETURN
+      IF(STARTT>TT) RETURN
+      IF(TT>STOPT)  RETURN
 C -------------------------------------------------------------
 C=======================================================================
-C      TEST pour savoir s'il faut retrier + initialisation
+C      Test to know whether to retriate + initialization
 C=======================================================================
-C       SIZE_T(NIN)=ZERO init dans inttri
+C       SIZE_T(NIN)=ZERO init in inttri
        CALL I17CRIT(
-     1   X     ,AZERO	     ,AZERO	   ,IGRBRIC(IGE)%ENTITY ,EMINX        ,
-     2   NME   ,ITASK	     ,INTBUF_TAB%XSAV,IXS 	 ,IXS16        ,
+     1   X     ,AZERO       ,AZERO     ,IGRBRIC(IGE)%ENTITY ,EMINX        ,
+     2   NME   ,ITASK       ,INTBUF_TAB%XSAV,IXS    ,IXS16        ,
      3   IXS20 ,XMSR_L       ,SIZE_T(NIN))
 C -------------------------------------------------------------
 C       CALL MY_BARRIER   inutile
@@ -137,27 +133,29 @@ C
       RETURN
       END
 C
-C nouvelle routine ne contenant plus que l'appel du tri
-Chd|====================================================================
-Chd|  I17MAIN_TRI                   source/interfaces/int17/i17main_pena.F
-Chd|-- called by -----------
-Chd|        INTTRI                        source/interfaces/intsort/inttri.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        I17BUCE_PENA                  source/interfaces/int17/i17buce.F
-Chd|        I17FROT                       source/interfaces/int17/i17main_pena.F
-Chd|        I17XSAVE                      source/interfaces/int17/i17xsave.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_TRI17BOX                 source/mpi/interfaces/spmd_tri17box.F
-Chd|        SPMD_TRI17GAT                 source/mpi/interfaces/spmd_i7crit.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE I17MAIN_TRI(
+!||====================================================================
+!||    i17main_tri     ../engine/source/interfaces/int17/i17main_pena.F
+!||--- called by ------------------------------------------------------
+!||    inttri          ../engine/source/interfaces/intsort/inttri.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg          ../engine/source/output/message/message.F
+!||    arret           ../engine/source/system/arret.F
+!||    i17buce_pena    ../engine/source/interfaces/int17/i17buce.F
+!||    i17frot         ../engine/source/interfaces/int17/i17main_pena.F
+!||    i17xsave        ../engine/source/interfaces/int17/i17xsave.F
+!||    my_barrier      ../engine/source/system/machine.F
+!||    spmd_tri17box   ../engine/source/mpi/interfaces/spmd_tri17box.F
+!||    spmd_tri17gat   ../engine/source/mpi/interfaces/spmd_i7crit.F
+!||    startime        ../engine/source/system/timer_mod.F90
+!||    stoptime        ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod    ../common_source/modules/groupdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod     ../engine/share/message_module/message_mod.F
+!||    timer_mod       ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE I17MAIN_TRI(TIMERS,
      1          IPARI  ,INTBUF_TAB ,X       ,NIN     ,
      2          ITASK  ,IGRBRIC    ,NME     ,NMES    ,
      3          EMINX  ,IXS        ,IXS16  ,IXS20   ,WEIGHT  ,
@@ -166,9 +164,11 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE TIMER_MOD
       USE MESSAGE_MOD
       USE INTBUFDEF_MOD
       USE GROUPDEF_MOD   
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C
@@ -176,13 +176,13 @@ C-------------------------------------------------------------------------------
 C     NOM    DIMENSION               DESCRIPTION                       E/S
 C-------------------------------------------------------------------------------
 C
-C    NIN    1                        NUMERO INTERFACE                   E
+C    NIN    1                        INTERFACE NUMBER                   E
 C                  
 C   IPARI   NPARI,NINTER             PARAMETRES D'INTERFACE             E
 C                  
 C     X     3,NUMNOD                 COORDONNEES                        E
 C                  
-C     V     3,NUMNOD                 VITESSES                           E
+C     V     3,NUMNOD                 VELOCITIES                           E
 C                  
 C    EMINX  6*NME<6*NUMELS           MIN MAX DE CHAQUE ELEMENT        TMP_GLOBAL
 C                  
@@ -194,22 +194,13 @@ C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "task_c.inc"
 #include      "timeri_c.inc"
-#include      "warn_c.inc" 
-#include      "scr17_c.inc"
       COMMON /I17MAINC/BMINMA,NMESR
       INTEGER NMESR
       my_real 
@@ -217,6 +208,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS
       INTEGER NIN,ITASK , NME, NMES, RETRI, NME_T, ESH_T
       INTEGER IPARI(NPARI,NINTER),
      .        IXS(NIXS,*)  ,IXS16(8,*)  ,IXS20(12,*),WEIGHT(*),
@@ -232,11 +224,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NAD,EAD,LWAT,RESULT,
+      INTEGER LWAT,RESULT,
      .        IGN,IGE,MULTIMP,NOINT,I,MX_CAND, NB_N_B
 C     REAL
       my_real
-     .   STARTT, STOPT,XX,XY,XZ,TZINF,MINBOX,DIST,
+     .   STARTT, STOPT,TZINF,MINBOX,DIST,
      .   XMAXL, YMAXL, ZMAXL, XMINL, YMINL, ZMINL,
      .   AZERO(3,NUMNOD)
 C-----------------------------------------------
@@ -256,27 +248,27 @@ C
       MX_CAND=MULTIMP*IPARI(18,NIN)
       STARTT = INTBUF_TAB%VARIABLES(3)
       STOPT  = INTBUF_TAB%VARIABLES(11)
-      IF(STARTT.GT.TT) RETURN
-      IF(TT.GT.STOPT)  RETURN
+      IF(STARTT>TT) RETURN
+      IF(TT>STOPT)  RETURN
 C -------------------------------------------------------------
 C -------------------------------------------------------------
 C-----------------------------------------------
-C     frottement (deplace de i7for3 a ici pour maj avant echange SPMD)
+C     Fat (Deplace de I7for3 A here for Maje before SPMD Exchange)
 C-----------------------------------------------
       CALL I17FROT(
      1  ITASK,INTBUF_TAB%FROTM,INTBUF_TAB%FROTS,NME,NMES)
 C=======================================================================
-C      TEST pour savoir s'il faut retrier + initialisation
+C      Test to know whether to retriate + initialization
 C=======================================================================
       DIST = INTBUF_TAB%VARIABLES(5)
       CALL MY_BARRIER
 C -------------------------------------------------------------
-      IF(DIST.LT.ZERO) THEN
+      IF(DIST<ZERO) THEN
          RETRI=1
          TZINF  = INTBUF_TAB%VARIABLES(8)
          MINBOX = INTBUF_TAB%VARIABLES(12)
          INTBUF_TAB%VARIABLES(5) = ABS(INTBUF_TAB%VARIABLES(5))
-C BMINMA inverse par rapport aux autres interfaces de contact
+C bminma reversed compared to other contact interfaces
          BMINMA(1)=EP30
          BMINMA(2)=EP30
          BMINMA(3)=EP30
@@ -290,13 +282,13 @@ C=======================================================================
 C BARRIER INIT BMINMA
          CALL MY_BARRIER
 C -------------------------------------------------------------
-C     CALCUL BORNE DOMAINE REMONTE DANS I17XSAVE
+C     CALCULATION BORNE DOMAINE REMONTE IN I17XSAVE
 C -------------------------------------------------------------
-	 CALL I17XSAVE(
-     1       X     ,V	  ,AZERO	,IXS	     ,IXS16,
-     2       NMES  ,NME_T ,ESH_T	,IGRBRIC(IGE)%ENTITY,IGRBRIC(IGN)%ENTITY,
-     3       EMINX ,ITASK ,INTBUF_TAB%XSAV,XMINL       ,YMINL	  ,
-     3       ZMINL ,XMAXL ,YMAXL	,ZMAXL  		  )
+           CALL I17XSAVE(
+     1       X     ,V    ,AZERO  ,IXS       ,IXS16,
+     2       NMES  ,NME_T ,ESH_T  ,IGRBRIC(IGE)%ENTITY,IGRBRIC(IGN)%ENTITY,
+     3       EMINX ,ITASK ,INTBUF_TAB%XSAV,XMINL       ,YMINL    ,
+     3       ZMINL ,XMAXL ,YMAXL  ,ZMAXL        )
 #include "lockon.inc"
          BMINMA(1) = MIN(BMINMA(1),XMINL)
          BMINMA(2) = MIN(BMINMA(2),YMINL)
@@ -307,10 +299,10 @@ C -------------------------------------------------------------
 #include "lockoff.inc"
 C BARRIER BMINMA
          CALL MY_BARRIER
-         IF(ITASK.EQ.0)THEN
-           IF(ABS(BMINMA(6)-BMINMA(3)).GT.2*EP30.OR.
-     +        ABS(BMINMA(5)-BMINMA(2)).GT.2*EP30.OR.
-     +        ABS(BMINMA(4)-BMINMA(1)).GT.2*EP30)THEN
+         IF(ITASK==0)THEN
+           IF(ABS(BMINMA(6)-BMINMA(3))>2*EP30.OR.
+     +        ABS(BMINMA(5)-BMINMA(2))>2*EP30.OR.
+     +        ABS(BMINMA(4)-BMINMA(1))>2*EP30)THEN
              CALL ANCMSG(MSGID=87,ANMODE=ANINFO,
      .            I1=NOINT)
              CALL ARRET(2)
@@ -322,9 +314,9 @@ C BARRIER BMINMA
            BMINMA(5) = BMINMA(5) + TZINF
            BMINMA(6) = BMINMA(6) + TZINF
            NMESR = 0
-           IF(NSPMD.GT.1)THEN
+           IF(NSPMD>1)THEN
 C -------------------------------------------------------------
-C recuperation des noeuds remote NMESR stockes dans XREM
+C retrieval of remote nodes nmesr stored in xrem
 C -------------------------------------------------------------
              CALL SPMD_TRI17BOX(
      1         IGRBRIC(IGN)%ENTITY  ,NMES    ,X    ,V    ,INTBUF_TAB%FROTS ,
@@ -347,18 +339,18 @@ C -------------------------------------------------------------
 C -------------------------------------------------------------
          CALL MY_BARRIER
 C -------------------------------------------------------------
-         IF(NSPMD.GT.1)THEN
+         IF(NSPMD>1)THEN
 !$OMP SINGLE
-          IF (IMONM > 0) CALL STARTIME(26,1)
+          IF (IMONM > 0) CALL STARTIME(TIMERS,26)
           INTBUF_TAB%VARIABLES(5) = -INTBUF_TAB%VARIABLES(5)
           RESULT = 0
-C comm SPMD apres tri (compactage)
+C Comm spmd after sorting (compacting)
           CALL SPMD_TRI17GAT(
      1      RESULT ,NMES ,INTBUF_TAB%CAND_N,IPARI(35,NIN),NIN,
      2      NMESR  )
-C sauvegarde des candidats additionnels dans IPARI(24)  pas besoin car pas de inacti
+C saving of additional candidates in ipari(24), not needed as there is no inacti
 c          IPARI(24,NIN) = NMESR
-          IF (IMONM > 0) CALL STOPTIME(26,1)
+          IF (IMONM > 0) CALL STOPTIME(TIMERS,26)
 !$OMP END SINGLE
 
          END IF
@@ -367,19 +359,21 @@ C
       RETURN
       END
 C
-C nouvelle routine ne contenant plus que le traitment de force
-Chd|====================================================================
-Chd|  I17MAIN_PENA                  source/interfaces/int17/i17main_pena.F
-Chd|-- called by -----------
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|-- calls ---------------
-Chd|        I17FOR3                       source/interfaces/int17/i17for3.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE I17MAIN_PENA(
+!||====================================================================
+!||    i17main_pena    ../engine/source/interfaces/int17/i17main_pena.F
+!||--- called by ------------------------------------------------------
+!||    i7mainf         ../engine/source/interfaces/int07/i7mainf.F
+!||--- calls      -----------------------------------------------------
+!||    i17for3         ../engine/source/interfaces/int17/i17for3.F
+!||    my_barrier      ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod     ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod    ../common_source/modules/groupdef_mod.F
+!||    h3d_mod         ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    output_mod      ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE I17MAIN_PENA(output,
      1          NIN    ,IPARI  ,INTBUF_TAB    ,X      ,V      ,
      2          A      ,ITASK  ,IGRBRIC ,EMINX  ,MS     ,
      3          IXS    ,IXS16  ,IXS20   ,STIFN  ,FSKYI  ,ISKY   ,
@@ -390,6 +384,8 @@ C-----------------------------------------------
       USE INTBUFDEF_MOD   
       USE H3D_MOD
       USE GROUPDEF_MOD
+      USE OUTPUT_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C
@@ -397,13 +393,13 @@ C-------------------------------------------------------------------------------
 C     NOM    DIMENSION               DESCRIPTION                       E/S
 C-------------------------------------------------------------------------------
 C
-C    NIN    1                        NUMERO INTERFACE                   E
+C    NIN    1                        INTERFACE NUMBER                   E
 C                  
 C   IPARI   NPARI,NINTER             PARAMETRES D'INTERFACE             E
 C                  
 C     X     3,NUMNOD                 COORDONNEES                        E
 C                  
-C     V     3,NUMNOD                 VITESSES                           E
+C     V     3,NUMNOD                 VELOCITIES                           E
 C                  
 C    EMINX  6*NME<6*NUMELS           MIN MAX DE CHAQUE ELEMENT        TMP_GLOBAL
 C                  
@@ -413,24 +409,16 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      type(output_), intent(inout) :: output
       INTEGER NIN,ITASK,NISKYFI   
       INTEGER IPARI(NPARI,NINTER),
      .        IXS(NIXS,*)  ,IXS16(8,*)  ,IXS20(12,*) ,ISKY(*)
@@ -446,8 +434,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NME,NAD,EAD,
-     .        IGN,IGE,MULTIMP,NOINT,I,MX_CAND,NMES,LSKYI17
+      INTEGER NME,
+     .        IGN,IGE,MULTIMP,NOINT,MX_CAND,NMES,LSKYI17
 C     REAL
       my_real
      .        STARTT, STOPT
@@ -460,30 +448,25 @@ C-----------------------------------------------
       IGE         = IPARI(34,NIN)
       NMES  =IGRBRIC(IGN)%NENTITY
       NME   =IGRBRIC(IGE)%NENTITY
-C
-      IF(IMACH.EQ.3)THEN
-        MX_CAND=MULTIMP*IPARI(18,NIN)
-      ELSE
-        MX_CAND=MULTIMP*NMES
-      END IF
-      IF(IPARIT.NE.0)THEN
+      MX_CAND=MULTIMP*IPARI(18,NIN)
+      IF(IPARIT/=0)THEN
 C        LSKYI17=MX_CAND
-C LSKYI17 fonction de IMAXIMP : nombre d'impacts max defini dans starter/lecint
+C Lskyi17 Imaximp function: number of Max Defini impacts in Starter/Lecint
         LSKYI17=MAX(MX_CAND,MULTIMP*IPARI(5,NIN)*8)
       ELSE
         LSKYI17=0
       END IF
       STARTT = INTBUF_TAB%VARIABLES(3)
       STOPT  = INTBUF_TAB%VARIABLES(11)
-      IF(STARTT.GT.TT) RETURN
-      IF(TT.GT.STOPT)  RETURN
+      IF(STARTT>TT) RETURN
+      IF(TT>STOPT)  RETURN
 C -------------------------------------------------------------
 C -------------------------------------------------------------
        CALL MY_BARRIER 
 C=======================================================================
 C      CONTACT
 C=======================================================================
-       CALL I17FOR3(
+       CALL I17FOR3(output,
      1   X       ,V         ,INTBUF_TAB%CAND_N,INTBUF_TAB%CAND_E,IPARI(35,NIN) ,
      2   IXS     ,IXS16     ,EMINX    ,IGRBRIC(IGN)%ENTITY,IGRBRIC(IGE)%ENTITY,
      3   ITASK   ,A         ,IPARI(30,NIN),NIN          ,EMINX(1,NME+1),
@@ -498,27 +481,20 @@ C -------------------------------------------------------------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  I17FROT                       source/interfaces/int17/i17main_pena.F
-Chd|-- called by -----------
-Chd|        I17MAIN_TRI                   source/interfaces/int17/i17main_pena.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i17frot       ../engine/source/interfaces/int17/i17main_pena.F
+!||--- called by ------------------------------------------------------
+!||    i17main_tri   ../engine/source/interfaces/int17/i17main_pena.F
+!||====================================================================
       SUBROUTINE I17FROT(ITASK,FROTM,FROTS,NME,NSE)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "warn_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -538,7 +514,7 @@ C-----------------------------------------------
       NSEF = 1 + ITASK*NSE / NTHREAD
       NSEL = (ITASK+1)*NSE / NTHREAD
 C-----------------------------------------------
-C     frottement (ancienne contrainte de frottement)
+C     Friction (old friction constraint)
 C-----------------------------------------------
       DO I=NMEF,NMEL
         AA = ONE/MAX(EM20,FROTM(4,I))

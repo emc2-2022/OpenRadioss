@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C_GR_ENTITY_E                 source/model/group/c_gr_entity.F
-Chd|-- called by -----------
-Chd|        C_GROUP_STR                   source/restart/ddsplit/c_group_str.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c_gr_entity_e   ../starter/source/model/group/c_gr_entity.F
+!||--- called by ------------------------------------------------------
+!||    c_group_str     ../starter/source/restart/ddsplit/c_group_str.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE C_GR_ENTITY_E(IGR  ,NGR  ,LENIGR ,CEP,
      .                         CEL    ,PROC ,ESHIFT ,LENIGR_L)
 C-----------------------------------------------
@@ -37,10 +36,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -54,7 +49,6 @@ C-----------------------------------------------
      .        R2R_SHARE,L_GROUP,ENTITY,
      .       NENTITY_L(NGR)
       CHARACTER TITR*40
-!      CHARACTER TITR*nchartitle
 C-----------------------------------------------
 !
       L_GROUP = 0
@@ -108,12 +102,10 @@ C-----------------------------------------------
 !---------
       RETURN
       END
-Chd|====================================================================
-Chd|  C_GR_ENTITY_P                 source/model/group/c_gr_entity.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    c_gr_entity_p   ../starter/source/model/group/c_gr_entity.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE C_GR_ENTITY_P(IGR  ,NGR  ,LENIGR ,CEP,
      .                         CEL  ,PROC ,LENIGR_L)
 C-----------------------------------------------
@@ -124,10 +116,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -140,7 +128,7 @@ C-----------------------------------------------
       INTEGER I,J,ID,IGU,NENTITY,GRTYPE,TRI,GRPGRP,LEVEL,R2R_ALL,
      .        R2R_SHARE,L_GROUP,ERR,ITITLE(40),ENTITY,NENTITY_L
       CHARACTER TITR*40
-!      CHARACTER TITR*nchartitle
+!      CHARACTER(LEN=NCHARTITLE)::TITR
       INTEGER LTITR
 C-----------------------------------------------
 !
@@ -193,13 +181,12 @@ C-----------------------------------------------
 !---------
       RETURN
       END
-Chd|====================================================================
-Chd|  C_GR_ENTITY_N                 source/model/group/c_gr_entity.F
-Chd|-- called by -----------
-Chd|        C_GROUP_STR                   source/restart/ddsplit/c_group_str.F
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    c_gr_entity_n   ../starter/source/model/group/c_gr_entity.F
+!||--- called by ------------------------------------------------------
+!||    c_group_str     ../starter/source/restart/ddsplit/c_group_str.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE C_GR_ENTITY_N(IGR  ,NGR     ,LENIGR    ,NODLOCAL,
      .                         PROC ,LENIGR_L,FRONTB_R2R,NUMNOD_L)
 C-----------------------------------------------
@@ -240,9 +227,12 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,ID,IGU,NOD,NNOD,GRTYPE,TRI,GRPGRP,LEVEL,R2R_ALL,
-     .        R2R_SHARE,L_GROUP,ERR,ITITLE(40),NNOD_LOC(NGR)
+     .        R2R_SHARE,L_GROUP,ERR,ITITLE(40),NNOD_LOC(NGR),
+     .        IGU1,IGU2
+      my_real
+     .        CODE
       CHARACTER TITR*40
-!      CHARACTER TITR*nchartitle
+!      CHARACTER(LEN=NCHARTITLE)::TITR
 C-----------------------------------------------
       L_GROUP = 0
 !
@@ -259,7 +249,7 @@ C-----------------------------------------------
 !
 !        IGROUP_L(L_GROUP+1) = ID
           L_GROUP = L_GROUP+1
-!        IGROUP_L(L_GROUP+1) = NNOD_LOC(IGU)
+!        Igroup_l (l_group+1) = nnod_loc (igu)
           L_GROUP = L_GROUP+1
 !        IGROUP_L(L_GROUP+1) = GRTYPE
           L_GROUP = L_GROUP+1
@@ -282,8 +272,15 @@ C-----------------------------------------------
           NOD = IGR(IGU)%ENTITY(J)
           IF (NOD > 0) THEN
 !---------multidomaines -> modif domdec
-            IF ((NSUBDOM.GT.0).AND.(IDDOM.EQ.0)) THEN
-              IF (FRONTB_R2R(NOD,PROC+1).EQ.IGU) CYCLE
+            IF ((NSUBDOM>0).AND.(IDDOM==0)) THEN
+              IF (FRONTB_R2R(NOD,PROC+1) == IGU) THEN
+                CYCLE
+              ELSEIF (FRONTB_R2R(NOD,PROC+1) > NGRNOD) THEN
+                CODE = FRONTB_R2R(NOD,PROC+1)/NGRNOD
+                IGU1 = NINT(CODE)
+                IGU2 = FRONTB_R2R(NOD,PROC+1) - IGU1*NGRNOD
+                IF ((IGU==IGU1).OR.(IGU==IGU2)) CYCLE
+              ENDIF
             ENDIF
 !---------
              IF( NODLOCAL(NOD)/=0.AND.NODLOCAL(NOD)<=NUMNOD_L ) THEN

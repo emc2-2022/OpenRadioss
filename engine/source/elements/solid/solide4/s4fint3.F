@@ -1,37 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S4FINT3                       source/elements/solid/solide4/s4fint3.F
-Chd|-- called by -----------
-Chd|        S4FORC3                       source/elements/solid/solide4/s4forc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s4fint3   ../engine/source/elements/solid/solide4/s4fint3.F
+!||--- called by ------------------------------------------------------
+!||    s4forc3   ../engine/source/elements/solid/solide4/s4forc3.F
+!||====================================================================
       SUBROUTINE S4FINT3(SIG,
      .   PX1, PX2, PX3, PX4,
      .   PY1, PY2, PY3, PY4,
      .   PZ1, PZ2, PZ3, PZ4,
      .   F11,F21,F31,F12,F22,F32,F13,F23,F33,F14,F24,F34,
-     .   VOL,QVIS,NEL)
+     .   VOL,QVIS,NEL,SVIS)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -53,12 +52,7 @@ C     REAL
      .   F11(*),F21(*),F31(*),F12(*),F22(*),F32(*),
      .   F13(*),F23(*),F33(*),F14(*),F24(*),F34(*),
      .   VOL(*),QVIS(*)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect01_c.inc"
-#include      "com01_c.inc"
-#include      "nsvis_c.inc"
+      my_real, DIMENSION(MVSIZ,6), INTENT(INOUT) :: SVIS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -66,10 +60,9 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   S1, S2, S3,
-     .   S4, S5, S6,
-     .   FINT
+     .   S4, S5, S6
 C-----------------------------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
         S1=(SIG(I,1)+SVIS(I,1)-QVIS(I))*VOL(I)
         S2=(SIG(I,2)+SVIS(I,2)-QVIS(I))*VOL(I)
         S3=(SIG(I,3)+SVIS(I,3)-QVIS(I))*VOL(I)

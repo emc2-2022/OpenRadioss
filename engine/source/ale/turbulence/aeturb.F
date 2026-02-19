@@ -1,49 +1,55 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  AETURB                        source/ale/turbulence/aeturb.F
-Chd|-- called by -----------
-Chd|        ALETHE                        source/ale/alethe.F           
-Chd|-- calls ---------------
-Chd|        ADIFF2                        source/ale/ale2d/adiff2.F     
-Chd|        ADIFF3                        source/ale/ale3d/adiff3.F     
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_EVOIS                    source/mpi/fluid/spmd_cfd.F   
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    aeturb                 ../engine/source/ale/turbulence/aeturb.F
+!||--- called by ------------------------------------------------------
+!||    alethe                 ../engine/source/ale/alethe.F
+!||--- calls      -----------------------------------------------------
+!||    adiff2                 ../engine/source/ale/ale2d/adiff2.F
+!||    adiff3                 ../engine/source/ale/ale3d/adiff3.F
+!||    initbuf                ../engine/share/resol/initbuf.F
+!||    my_barrier             ../engine/source/system/machine.F
+!||    spmd_evois             ../engine/source/mpi/fluid/spmd_cfd.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    elbufdef_mod           ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod            ../engine/share/resol/initbuf.F
+!||    matparam_def_mod       ../common_source/modules/mat_elem/matparam_def_mod.F90
+!||====================================================================
       SUBROUTINE AETURB(
      1  IPARG       ,ELBUF_TAB ,FLUX     ,VAL2     ,XE     ,
      2  ALE_CONNECT ,IXS       ,IXQ      ,PM       ,ITASK  ,
-     3  NERCVOIS    ,NESDVOIS  ,LERCVOIS ,LESDVOIS ,LENCOM)
+     3  NERCVOIS    ,NESDVOIS  ,LERCVOIS ,LESDVOIS ,LENCOM,
+     4  MATPARAM,s_flux,nv46)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
       USE ELBUFDEF_MOD            
       USE ALE_CONNECTIVITY_MOD
+      USE MATPARAM_DEF_MOD, ONLY : MATPARAM_STRUCT_
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -51,8 +57,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "vect01_c.inc"
@@ -61,17 +65,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      integer, intent(in) :: s_flux !< first dimension of flux array
+      integer, intent(in) :: nv46 !< second dimension of flux array
       INTEGER IPARG(NPARG,NGROUP), IXS(NIXS,NUMELS), IXQ(7,NUMELQ),
      .        NERCVOIS(*),NESDVOIS(*),LERCVOIS(*),LESDVOIS(*),
      .        LENCOM
       my_real FLUX(*), VAL2(*), XE(*), PM(NPROPM,NUMMAT)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
       TYPE(t_ale_connectivity), INTENT(IN) :: ALE_CONNECT
+      TYPE(MATPARAM_STRUCT_),DIMENSION(NUMMAT),INTENT(IN) :: MATPARAM !< material buffer
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NG, I, J, MT, ITASK
-      my_real RE, R
+      INTEGER NG, I, J, MT, ITASK, NEL, MID
+      my_real RE, R, RHOCP
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C-----------------------------------------------
 C   S o u r c e   L i n e s
@@ -79,7 +86,7 @@ C-----------------------------------------------
       DO NG=ITASK+1,NGROUP,NTHREAD
 C     ALE ON / OFF
         IF (IPARG(76, NG)  ==  1) CYCLE ! --> OFF
-        CALL INITBUF (IPARG    ,NG      ,                  
+        CALL INITBUF(IPARG    ,NG      ,                  
      2     MTN     ,LLT     ,NFT     ,IAD     ,ITY     ,   
      3     NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,   
      4     JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,   
@@ -131,13 +138,8 @@ C-----------------------------
 C       SPMD EXCHANGE : XE, VAL2
 C-----------------------------
       IF (NSPMD > 1) THEN
-C
-C Part not parallel smt
-C
 !$OMP SINGLE
-        CALL SPMD_EVOIS(XE      ,VAL2  ,NERCVOIS,NESDVOIS,LERCVOIS,
-     2                  LESDVOIS,LENCOM)
-C END Part not parallel smt
+        CALL SPMD_EVOIS(XE,VAL2,NERCVOIS,NESDVOIS,LERCVOIS,LESDVOIS,LENCOM)
 !$OMP END SINGLE
 
       END IF
@@ -145,7 +147,7 @@ C-----------------------------
       DO NG=ITASK+1,NGROUP,NTHREAD
 C     ALE ON / OFF
         IF (IPARG(76, NG)  ==  1) CYCLE ! --> OFF
-        CALL INITBUF (IPARG    ,NG      ,                  
+        CALL INITBUF(IPARG    ,NG      ,                  
      2     MTN     ,LLT     ,NFT     ,IAD     ,ITY     ,   
      3     NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,   
      4     JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,   
@@ -160,10 +162,16 @@ C     ALE ON / OFF
 c
         GBUF => ELBUF_TAB(NG)%GBUF
         LFT=1
+        NEL=IPARG(2,NG)
+        MID=IPARG(18,NG)
+        rhocp = pm(69,mid)
+        if(rhocp == zero)then
+          rhocp = pm(89,mid)*matparam(MID)%eos%cp
+        end if
         IF(N2D==0)THEN
-         CALL ADIFF3(GBUF%RE,XE,FLUX(6*NFT+1),VAL2,ALE_CONNECT,GBUF%VOL)
+         CALL ADIFF3(GBUF%RE,XE,FLUX,VAL2,ALE_CONNECT,GBUF%VOL,GBUF%TEMP,RHOCP,NEL,s_flux,nv46)
         ELSE
-         CALL ADIFF2(GBUF%RE,XE,FLUX(4*NFT+1),VAL2,ALE_CONNECT,GBUF%VOL)
+         CALL ADIFF2(GBUF%RE,XE,FLUX,VAL2,ALE_CONNECT,GBUF%VOL,GBUF%TEMP,RHOCP,NEL,s_flux,nv46)
         ENDIF
       ENDDO
 C-----------

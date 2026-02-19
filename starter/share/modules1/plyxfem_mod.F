@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PLYXFEM_MOD                   share/modules1/plyxfem_mod.F  
-Chd|-- called by -----------
-Chd|        SPMD_ANIM_PLY_INIT            source/spmd/spmd_anim_ply_init.F
-Chd|        W_ANIM_PLY                    source/restart/ddsplit/w_anim_ply.F
-Chd|        GET_PLY_NOD                   source/spmd/spmd_anim_ply_init.F
-Chd|        GET_PLY_NODID                 source/spmd/spmd_anim_ply_init.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    plyxfem_mod          ../starter/share/modules1/plyxfem_mod.F
+!||--- called by ------------------------------------------------------
+!||    get_ply_nod          ../starter/source/spmd/spmd_anim_ply_init.F
+!||    get_ply_nodid        ../starter/source/spmd/spmd_anim_ply_init.F
+!||    spmd_anim_ply_init   ../starter/source/spmd/spmd_anim_ply_init.F
+!||    w_anim_ply           ../starter/source/restart/ddsplit/w_anim_ply.F
+!||====================================================================
       MODULE PLYXFEM_MOD
 
 C---------------------------------------------

@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LASER1                        source/loads/laser/laser1.F   
-Chd|-- called by -----------
-Chd|        ALEWDX                        source/ale/grid/alewdx.F      
-Chd|-- calls ---------------
-Chd|        LASER2                        source/loads/laser/laser2.F   
-Chd|        LASER3                        source/loads/laser/laser2.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    laser1         ../engine/source/loads/laser/laser1.F
+!||--- called by ------------------------------------------------------
+!||    alewdx         ../engine/source/ale/grid/alewdx.F
+!||--- calls      -----------------------------------------------------
+!||    laser2         ../engine/source/loads/laser/laser2.F
+!||    laser3         ../engine/source/loads/laser/laser2.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE LASER1(LAS ,XLAS ,MS    ,X    ,V     ,
      .                  W   ,WA   ,IPARG ,IXQ  ,PM    , 
-     .                  TF  ,NPF , ELBUF_TAB)
+     .                  TF  ,NPF , ELBUF_TAB, WFEXT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -45,11 +46,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "units_c.inc"
 #include      "param_c.inc"
-#include      "scr11_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -59,6 +56,7 @@ C     REAL
      .   XLAS(*), MS(*), X(3,*), V(3,*), W(3,*), WA(3,*),
      .   TF(*), PM(NPROPM,*)
       TYPE(ELBUF_STRUCT_), DIMENSION(NGROUP) :: ELBUF_TAB
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -69,7 +67,7 @@ C-----------------------------------------------
       DO I=1,NLASER
        ITYP    = LAS(K1+5)
        NL = LAS(K1)
-       IF(ITYP.EQ.0)THEN
+       IF(ITYP==0)THEN
          N1 = LAS(K1+1)
          N2 = LAS(K1+2)
          WA(3,N1) = ZERO
@@ -88,14 +86,15 @@ C
        IFUNC   = LAS(K1+3)
        IAFUNC  = LAS(K1+4)
        ITYP    = LAS(K1+5)
-       IF(ITYP.EQ.1)THEN
-         CALL LASER3(NL        ,N1      ,N2   ,IFUNC    ,IAFUNC    ,
+       IF(ITYP==1)THEN
+         CALL LASER3(NL        ,IFUNC    ,
      .               LAS(K1+6) ,XLAS(K2),X    ,ELBUF_TAB,PM        ,
-     .               WA        ,IPARG   ,IXQ  ,TF       ,NPF       )
+     .               IPARG   ,IXQ  ,TF       ,NPF       ,WFEXT)
        ELSE
          CALL LASER2(NL       ,N1      ,N2   ,IFUNC    ,IAFUNC    ,
      .              LAS(K1+6) ,XLAS(K2),X    ,ELBUF_TAB,PM        ,
-     .              WA        ,IPARG   ,IXQ  ,TF       ,NPF       )
+     .              WA        ,IPARG   ,IXQ  ,TF       ,NPF       ,
+     .              WFEXT)
        ENDIF
        K1 = K1 + 6 + 2*(NL+1)
        K2 = K2 + 6
@@ -105,7 +104,7 @@ C
       DO I=1,NLASER
        ITYP    = LAS(K1+5)
        NL = LAS(K1)
-       IF(ITYP.EQ.0)THEN
+       IF(ITYP==0)THEN
          N1 = LAS(K1+1)
          N2 = LAS(K1+2)
          WA(1,N1) = ONE
@@ -120,15 +119,15 @@ C
       DO I=1,NLASER
        ITYP    = LAS(K1+5)
        NL = LAS(K1)
-       IF(ITYP.EQ.0)THEN
+       IF(ITYP==0)THEN
          N1 = LAS(K1+1)
          N2 = LAS(K1+2)
-         IF(WA(1,N1) .EQ. ONE)THEN
+         IF(WA(1,N1) == ONE)THEN
           W(3,N1) = V(3,N1) - WA(3,N1) / MS(N1)
           WA(1,N1) = ZERO
           WA(3,N1) = ZERO
          ENDIF
-         IF(WA(1,N2) .EQ. ONE)THEN
+         IF(WA(1,N2) == ONE)THEN
           W(3,N2) = V(3,N2) - WA(3,N2) / MS(N2)
           WA(1,N2) = ZERO
           WA(3,N2) = ZERO

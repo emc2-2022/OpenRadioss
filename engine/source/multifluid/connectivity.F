@@ -1,42 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BUILD_CONNECTIVITY            source/multifluid/connectivity.F
-Chd|-- called by -----------
-Chd|        ALEMAIN                       source/ale/alemain.F          
-Chd|-- calls ---------------
-Chd|        ARRET                         source/system/arret.F         
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    build_connectivity     ../engine/source/multifluid/connectivity.F
+!||--- called by ------------------------------------------------------
+!||    alemain                ../engine/source/ale/alemain.F
+!||--- calls      -----------------------------------------------------
+!||    arret                  ../engine/source/system/arret.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    multi_fvm_mod          ../common_source/modules/ale/multi_fvm_mod.F90
+!||====================================================================
       SUBROUTINE BUILD_CONNECTIVITY(ITASK, MULTI_FVM, ALE_CONNECTIVITY, IPARG)
 C-----------------------------------------------
 C     D e s c r i p t i o n
 C-----------------------------------------------
 C     Builds array KVOIS that contains the number kface2 of
-C     the face by which an element J is a neighboor of an 
+C     the face by which an element J is a neighbor of an 
 C     element I of tab IVOIS.
-C     If I is an element and KFACE a face number, if J the neighboor
+C     If I is an element and KFACE a face number, if J the neighbor
 C     of I by face KFACE, that is to say J = IVOIS (KFACE, I)
 C     then, KFACE2 is such that I = IVOIS (KFACE2, J)
 C-----------------------------------------------
@@ -73,10 +74,12 @@ C-----------------------------------------------
       INTEGER :: ITY, NFT, NEL, NG, NUMEL_SPMD
       LOGICAL :: IDBG 
       INTEGER :: IAD, IAD2, LGTH, LGTH2
+      NB_FACE = 0
+      NUMEL_SPMD = 0
 
       DO NG = ITASK + 1, NGROUP, NTHREAD
          MATLAW = IPARG(1, NG)
-         IF (MATLAW .EQ. 151) THEN
+         IF (MATLAW == 151) THEN
             NEL = IPARG(2, NG)
             NFT = IPARG(3, NG)
             ITY = IPARG(5, NG)
@@ -85,11 +88,11 @@ C-----------------------------------------------
                NB_FACE = 6
                NUMEL_SPMD = NUMELS
             CASE (1, 2)
-               IF (ITY .EQ. 2) THEN
+               IF (ITY == 2) THEN
 C     QUADS
                   NB_FACE = 4
                   NUMEL_SPMD = NUMELQ
-               ELSEIF (ITY .EQ. 7) THEN
+               ELSEIF (ITY == 7) THEN
 C     TRIANGLES
                   NB_FACE = 3
                   NUMEL_SPMD = NUMELTG
@@ -104,7 +107,7 @@ C     TRIANGLES
      .              ALE_CONNECTIVITY%ee_connect%iad_connect(I)
                DO KFACE = 1, LGTH
                   J = ALE_CONNECTIVITY%ee_connect%connected(IAD + KFACE - 1)
-                  IF (J .GT. 0 .AND. J .LE. NUMEL_SPMD) THEN
+                  IF (J > 0 .AND. J <= NUMEL_SPMD) THEN
                      IAD2 = ALE_CONNECTIVITY%ee_connect%iad_connect(J)
                      LGTH2 = ALE_CONNECTIVITY%ee_connect%iad_connect(J+1) - 
      .                    ALE_CONNECTIVITY%ee_connect%iad_connect(J)
@@ -125,7 +128,7 @@ C     Verification (debug only)
       IF (IDBG) THEN
          DO NG = ITASK + 1, NGROUP, NTHREAD
             MATLAW = IPARG(1, NG)
-            IF (MATLAW .EQ. 151) THEN
+            IF (MATLAW == 151) THEN
                NEL = IPARG(2, NG)
                NFT = IPARG(3, NG)
                ITY = IPARG(5, NG)
@@ -134,11 +137,11 @@ C     Verification (debug only)
                   NB_FACE = 6
                   NUMEL_SPMD = NUMELS
                CASE (1, 2)
-                  IF (ITY .EQ. 2) THEN
+                  IF (ITY == 2) THEN
 C     QUADS
                      NB_FACE = 4
                      NUMEL_SPMD = NUMELQ
-                  ELSEIF (ITY .EQ. 7) THEN
+                  ELSEIF (ITY == 7) THEN
 C     TRIANGLES
                      NB_FACE = 3
                      NUMEL_SPMD = NUMELTG
@@ -153,7 +156,7 @@ C     TRIANGLES
      .                 ALE_CONNECTIVITY%ee_connect%iad_connect(I)
                   DO KFACE = 1, LGTH
                      J = ALE_CONNECTIVITY%ee_connect%connected(IAD + KFACE - 1)
-                     IF (J.GT. 0 .AND. J .LE. NUMEL_SPMD) THEN
+                     IF (J> 0 .AND. J <= NUMEL_SPMD) THEN
                         IAD2 = ALE_CONNECTIVITY%ee_connect%iad_connect(J)
                         KFACE2 = MULTI_FVM%FVM_CONNECTIVITY%KVOIS(NB_FACE * (I - 1) + KFACE)
                         IF (ALE_CONNECTIVITY%ee_connect%connected(IAD2 + KFACE2 - 1) /= I) THEN

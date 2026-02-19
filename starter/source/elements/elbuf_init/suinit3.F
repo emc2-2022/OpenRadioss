@@ -1,58 +1,56 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SUINIT3                       source/elements/elbuf_init/suinit3.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        DTMAIN                        source/materials/time_step/dtmain.F
-Chd|        FAILINI                       source/elements/solid/solide/failini.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        MATINI                        source/materials/mat_share/matini.F
-Chd|        SBULK3                        source/elements/solid/solide/sbulk3.F
-Chd|        SCOOR3                        source/elements/solid/solide/scoor3.F
-Chd|        SDLEN3                        source/elements/solid/solide/sdlen3.F
-Chd|        SINI43                        source/elements/solid/sconnect/sini43.F
-Chd|        SPCOOR3                       source/elements/solid/sconnect/spcoor3.F
-Chd|        SRCOOR3                       source/elements/solid/solide/srcoor3.F
-Chd|        ST_USERLIB_SINIUSR            source/user_interface/dyn_userlib.c
-Chd|        SUDERI3                       source/elements/elbuf_init/suderi3.F
-Chd|        SUMASS3                       source/elements/elbuf_init/suinit3.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        DETONATORS_MOD                share/modules1/detonators_mod.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    suinit3                ../starter/source/elements/elbuf_init/suinit3.F
+!||--- called by ------------------------------------------------------
+!||    initia                 ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    dtmain                 ../starter/source/materials/time_step/dtmain.F
+!||    failini                ../starter/source/elements/solid/solide/failini.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    matini                 ../starter/source/materials/mat_share/matini.F
+!||    sbulk3                 ../starter/source/elements/solid/solide/sbulk3.F
+!||    scoor3                 ../starter/source/elements/solid/solide/scoor3.F
+!||    sdlen3                 ../starter/source/elements/solid/solide/sdlen3.F
+!||    sini43                 ../starter/source/elements/solid/sconnect/sini43.F
+!||    spcoor3                ../starter/source/elements/solid/sconnect/spcoor3.F
+!||    srcoor3                ../starter/source/elements/solid/solide/srcoor3.F
+!||    suderi3                ../starter/source/elements/elbuf_init/suderi3.F
+!||    sumass3                ../starter/source/elements/elbuf_init/suinit3.F
+!||--- uses       -----------------------------------------------------
+!||    detonators_mod         ../starter/share/modules1/detonators_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE SUINIT3(ELBUF_STR,MS      ,IXS    ,PM       ,X       ,
      .                   DETONATORS,GEO     ,VEUL   ,ALE_CONNECTIVITY ,IPARG   ,
      .                   DTELEM   ,SIGI    ,NEL    ,SKEW     ,IGEO    ,
      .                   STIFN    ,PARTSAV ,V      ,IPARTS   ,MSS     ,
-     .                   IPART    ,SIGSP   ,
+     .                   IPART    ,SIGSP   ,GLOB_THERM,TEMP  ,
      .                   NSIGI    ,IN      ,VR     ,IPM      ,NSIGS   ,
      .                   VOLNOD   ,BVOLNOD ,VNS    ,BNS      ,PTSOL   ,
      .                   BUFMAT   ,NPF     ,TF     ,FAIL_INI ,INS     ,
-     .                   ILOADP   ,FACLOAD ,RNOISE ,PERTURB  )
+     .                   ILOADP   ,FACLOAD ,RNOISE ,PERTURB  ,MAT_PARAM)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -60,6 +58,10 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE DETONATORS_MOD      
       USE ALE_CONNECTIVITY_MOD
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use glob_therm_mod
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -74,14 +76,11 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr01_c.inc"
-#include      "units_c.inc"
 #include      "scr03_c.inc"
 #include      "scr12_c.inc"
 #include      "scr17_c.inc"
 #include      "scry_c.inc"
 #include      "vect01_c.inc"
-#include      "warn_c.inc"
 #include      "scr15_c.inc"
 #include      "userlib.inc"
 C-----------------------------------------------
@@ -95,53 +94,39 @@ C-----------------------------------------------
      .   MS(*), X(3,*), GEO(NPROPG,*),PM(NPROPM,*),
      .   VEUL(LVEUL,*), DTELEM(*),SIGI(NSIGS,*),SKEW(LSKEW,*),STIFN(*),
      .   PARTSAV(20,*), V(3,*), MSS(8,*),RNOISE(NPERTURB,*), 
-     . SIGSP(NSIGI,*) , IN(*), VR(3,*),
+     . SIGSP(NSIGI,*) , IN(*), VR(3,*),TEMP(*),
      . VOLNOD(*), BVOLNOD(*), VNS(8,*), BNS(8,*),BUFMAT(*), TF(*),
      . INS(8,*)     
       TYPE(ELBUF_STRUCT_), TARGET :: ELBUF_STR
       INTEGER,INTENT(IN) :: ILOADP(SIZLOADP,*)
       my_real,INTENT(IN) :: FACLOAD(LFACLOAD,*)
-      TYPE(DETONATOR_STRUCT_)::DETONATORS
+      TYPE(DETONATORS_STRUCT_)::DETONATORS
       TYPE(t_ale_connectivity), INTENT(INOUT) :: ALE_CONNECTIVITY
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
+      type (glob_therm_) ,intent(in)      :: glob_therm
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NF1,IBID,JHBE,IGTYP,IREP,NCC,NUVAR,IP,NREFSTA,
+      INTEGER I,J,NF1,JHBE,IGTYP,IREP,NCC,NUVAR,IP,NREFSTA,
      .        IPID1,NPTR,NPTS,NPTT,NLAY,IADB,MLW,II(6)
       INTEGER MAT(MVSIZ), PID(MVSIZ), NGL(MVSIZ),
      .        IPROP(MVSIZ) ,IMAT(MVSIZ) ,SID(MVSIZ),
      .        NC1(MVSIZ), NC2(MVSIZ), NC3(MVSIZ), NC4(MVSIZ),
      .        NC5(MVSIZ), NC6(MVSIZ), NC7(MVSIZ), NC8(MVSIZ)
-      CHARACTER*nchartitle,
-     .   TITR1
+      CHARACTER(LEN=NCHARTITLE)::TITR1
       CHARACTER*50 OPTION
-      my_real
-     .   BID, FV, V8LOC(51,MVSIZ), VOLU(MVSIZ), DTX(MVSIZ),
-     .   MASS(MVSIZ),MAS(MVSIZ,8),INN(MVSIZ,8),XX(MVSIZ,8),YY(MVSIZ,8),
-     .   ZZ(MVSIZ,8),VX(MVSIZ,8),VY(MVSIZ,8),VZ(MVSIZ,8),VRX(MVSIZ,8),
-     .   VRY(MVSIZ,8),VRZ(MVSIZ,8),STI(MVSIZ),STIR(MVSIZ),VISCM(MVSIZ),
-     .   VISCR(MVSIZ),AREA(MVSIZ),
-     .   X1(MVSIZ),X2(MVSIZ),X3(MVSIZ),X4(MVSIZ),X5(MVSIZ),X6(MVSIZ),
-     .   X7(MVSIZ),X8(MVSIZ),Y1(MVSIZ),Y2(MVSIZ),Y3(MVSIZ),Y4(MVSIZ),
-     .   Y5(MVSIZ),Y6(MVSIZ),Y7(MVSIZ),Y8(MVSIZ),Z1(MVSIZ),Z2(MVSIZ),
-     .   Z3(MVSIZ),Z4(MVSIZ),Z5(MVSIZ),Z6(MVSIZ),Z7(MVSIZ),Z8(MVSIZ),
-     .   RX(MVSIZ) ,RY(MVSIZ) ,RZ(MVSIZ) ,SX(MVSIZ) ,
-     .   SY(MVSIZ) ,SZ(MVSIZ) ,TX(MVSIZ) ,TY(MVSIZ) ,TZ(MVSIZ) ,
-     .   E1X(MVSIZ),E1Y(MVSIZ),E1Z(MVSIZ),E2X(MVSIZ),
-     .   E2Y(MVSIZ),E2Z(MVSIZ),E3X(MVSIZ),E3Y(MVSIZ),E3Z(MVSIZ),
-     .   F1X(MVSIZ) ,F1Y(MVSIZ) ,F1Z(MVSIZ) ,
-     .   F2X(MVSIZ) ,F2Y(MVSIZ) ,F2Z(MVSIZ),
-     .   PX1(MVSIZ),PX2(MVSIZ),PX3(MVSIZ),PX4(MVSIZ),
-     .   PY1(MVSIZ),PY2(MVSIZ),PY3(MVSIZ),PY4(MVSIZ),
-     .   PZ1(MVSIZ),PZ2(MVSIZ),PZ3(MVSIZ),PZ4(MVSIZ),
-     .   SIG_LOC(6,NEL), DELTAX(MVSIZ), AIRE(1)
-      DOUBLE PRECISION 
-     .   XD1(MVSIZ), XD2(MVSIZ), XD3(MVSIZ), XD4(MVSIZ),
-     .   XD5(MVSIZ), XD6(MVSIZ), XD7(MVSIZ), XD8(MVSIZ),
-     .   YD1(MVSIZ), YD2(MVSIZ), YD3(MVSIZ), YD4(MVSIZ),
-     .   YD5(MVSIZ), YD6(MVSIZ), YD7(MVSIZ), YD8(MVSIZ),
-     .   ZD1(MVSIZ), ZD2(MVSIZ), ZD3(MVSIZ), ZD4(MVSIZ),
-     .   ZD5(MVSIZ), ZD6(MVSIZ), ZD7(MVSIZ), ZD8(MVSIZ)     
+      my_real :: BID, FV
+      my_real ,DIMENSION(MVSIZ,8) :: MAS,INN,XX,YY,ZZ,VX,VY,VZ,VRX,VRY,VRZ
+      my_real ,DIMENSION(MVSIZ)   :: VOLU,AREA,AIRE,MASS,DTX,DELTAX,STI,STIR,VISCM,VISCR,
+     .   X1,X2,X3,X4,X5,X6,X7,X8,Y1,Y2,Y3,Y4,Y5,Y6,Y7,Y8,Z1,Z2,Z3,Z4,Z5,Z6,Z7,Z8,
+     .   RX ,RY ,RZ ,SX ,SY ,SZ ,TX ,TY ,TZ ,
+     .   E1X,E1Y,E1Z,E2X,E2Y,E2Z,E3X,E3Y,E3Z,F1X,F1Y,F1Z,F2X,F2Y,F2Z
+      my_real :: SIG_LOC(6,NEL)
+      DOUBLE PRECISION ,DIMENSION(MVSIZ) ::
+     .   XD1, XD2, XD3, XD4, XD5, XD6, XD7, XD8,
+     .   YD1, YD2, YD3, YD4, YD5, YD6, YD7, YD8,
+     .   ZD1, ZD2, ZD3, ZD4, ZD5, ZD6, ZD7, ZD8       
+      my_real ,DIMENSION(NEL) :: TEMPEL,THICK
 C-----------------------------------------------
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(G_BUFEL_) ,POINTER :: GBUF     
@@ -149,6 +134,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C=======================================================================
+      DTX(1:MVSIZ) = -HUGE(DTX(1))
       GBUF => ELBUF_STR%GBUF
       LBUF => ELBUF_STR%BUFLY(1)%LBUF(1,1,1)
       MBUF => ELBUF_STR%BUFLY(1)%MAT(1,1,1)
@@ -174,13 +160,14 @@ C
 c--------------------------
       IF (IGTYP == 43) THEN
         CALL SPCOOR3(
-     .           X    ,IXS(1,NF1) ,GEO   ,MAT  ,PID  ,NGL  ,
+     .           X    ,IXS(1,NF1) ,GEO  ,NEL  ,MAT  ,PID  ,NGL  ,
      .           NC1  ,NC2  ,NC3  ,NC4  ,NC5  ,NC6  ,NC7  ,NC8  ,
      .           X1   ,X2   ,X3   ,X4   ,X5   ,X6   ,X7   ,X8   ,
      .           Y1   ,Y2   ,Y3   ,Y4   ,Y5   ,Y6   ,Y7   ,Y8   ,
      .           Z1   ,Z2   ,Z3   ,Z4   ,Z5   ,Z6   ,Z7   ,Z8   ,
      .           E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y  ,E3Z  ,
-     .           AREA )
+     .           AREA ,THICK)
+        IF (ELBUF_STR%GBUF%G_THK == 1) ELBUF_STR%GBUF%THK(1:NEL) = THICK(1:NEL)
       ELSEIF (JCVT == 0) THEN
         CALL SCOOR3(X ,BID  ,IXS(1,NF1) ,GEO  ,MAT  ,PID  ,NGL  ,
      .           NC1  ,NC2  ,NC3  ,NC4  ,NC5  ,NC6  ,NC7  ,NC8  ,
@@ -189,7 +176,7 @@ c--------------------------
      .           Z1   ,Z2   ,Z3   ,Z4   ,Z5   ,Z6   ,Z7   ,Z8   ,
      .           RX   ,RY   ,RZ   ,SX   ,SY   ,SZ   ,TX   ,TY   ,TZ   ,
      .           E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y  ,E3Z  ,
-     .           F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,BID, BID,
+     .           F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,BID, BID,GLOB_THERM%NINTEMP,
      .           XD1  ,XD2  ,XD3  ,XD4  ,XD5  ,XD6  ,XD7  ,XD8   ,
      .           YD1  ,YD2  ,YD3  ,YD4  ,YD5  ,YD6  ,YD7  ,YD8   ,
      .           ZD1  ,ZD2  ,ZD3  ,ZD4  ,ZD5  ,ZD6  ,ZD7  ,ZD8   )
@@ -201,16 +188,30 @@ c--------------------------
      .           Z1   ,Z2   ,Z3   ,Z4   ,Z5   ,Z6   ,Z7   ,Z8   ,
      .           RX   ,RY   ,RZ   ,SX   ,SY   ,SZ   ,TX   ,TY   ,TZ   ,
      .           E1X  ,E1Y  ,E1Z  ,E2X  ,E2Y  ,E2Z  ,E3X  ,E3Y  ,E3Z  ,
-     .           F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,BID  , BID,
+     .           F1X  ,F1Y  ,F1Z  ,F2X  ,F2Y  ,F2Z  ,BID  , BID,GLOB_THERM%NINTEMP,
      .           XD1  ,XD2  ,XD3  ,XD4  ,XD5  ,XD6  ,XD7  ,XD8   ,
      .           YD1  ,YD2  ,YD3  ,YD4  ,YD5  ,YD6  ,YD7  ,YD8   ,
      .           ZD1  ,ZD2  ,ZD3  ,ZD4  ,ZD5  ,ZD6  ,ZD7  ,ZD8   )
       ENDIF
+!
+!     Initialize element temperature from /initemp
+!      
+      IF (JTHE == 0 .and. GLOB_THERM%NINTEMP > 0) THEN
+        DO I=1,NEL
+          TEMPEL(I) = ONE_OVER_8 *(TEMP(IXS(2,I+NFT)) + TEMP(IXS(3,I+NFT))
+     .                           + TEMP(IXS(4,I+NFT)) + TEMP(IXS(5,I+NFT))        
+     .                           + TEMP(IXS(6,I+NFT)) + TEMP(IXS(7,I+NFT))        
+     .                           + TEMP(IXS(8,I+NFT)) + TEMP(IXS(9,I+NFT))) 
+        ENDDO
+      ELSE
+        TEMPEL(1:NEL) = PM(79,MAT(1:NEL))
+      END IF
 c--------------------------
       CALL SUDERI3(NEL ,GBUF%VOL,
      .            X1   ,X2   ,X3   ,X4   ,X5   ,X6   ,X7   ,X8   ,
      .            Y1   ,Y2   ,Y3   ,Y4   ,Y5   ,Y6   ,Y7   ,Y8   ,
      .            Z1   ,Z2   ,Z3   ,Z4   ,Z5   ,Z6   ,Z7   ,Z8   )
+      VOLU(1:NEL) = GBUF%VOL(1:NEL)
       CALL SDLEN3(
      .            X1   ,X2   ,X3   ,X4   ,X5   ,X6   ,X7   ,X8   ,
      .            Y1   ,Y2   ,Y3   ,Y4   ,Y5   ,Y6   ,Y7   ,Y8   ,
@@ -226,7 +227,7 @@ C
      .              MAT     ,IPM    ,NSIGS     ,NUMSOL    ,PTSOL  ,  
      .              IP      ,NGL    ,NPF       ,TF        ,BUFMAT ,  
      .              GBUF    ,LBUF   ,MBUF      ,ELBUF_STR ,ILOADP ,
-     .              FACLOAD, DELTAX)
+     .              FACLOAD, DELTAX ,TEMPEL    ,MAT_PARAM )
       ENDIF      
 C-----------------------------------------------
       DO J=1,8
@@ -259,7 +260,7 @@ C-----------------------------------------------
         IMAT(I) =IXS(1,I+NFT)
       ENDDO
       IADB  = IPM(7,IMAT(1))
-      NUVAR = IPM(8,IMAT(1))
+      NUVAR = ELBUF_STR%GBUF%G_NUVAR
 C----------------------------------------
 C     INITIALISATION USER: VOLUME, RHO, MASSES et INERTIES
 C----------------------------------------
@@ -275,7 +276,7 @@ C----------------------------------------
         IF (USERL_AVAIL==1)THEN
           CALL ST_USERLIB_SINIUSR(IGTYP,ROOTNAM,ROOTLEN,
      1       NEL    ,NUVAR    ,IPROP  ,IMAT   ,SID    ,
-     2       GBUF%EINT,GBUF%VOL,MBUF%VAR,GBUF%OFF,GBUF%RHO,SIG_LOC,
+     2       GBUF%EINT,GBUF%VOL,GBUF%VAR,GBUF%OFF,GBUF%RHO,SIG_LOC,
      3       XX(1,1),XX(1,2),XX(1,3),XX(1,4),XX(1,5),XX(1,6),XX(1,7),XX(1,8),
      4       YY(1,1),YY(1,2),YY(1,3),YY(1,4),YY(1,5),YY(1,6),YY(1,7),YY(1,8),
      5       ZZ(1,1),ZZ(1,2),ZZ(1,3),ZZ(1,4),ZZ(1,5),ZZ(1,6),ZZ(1,7),ZZ(1,8),
@@ -343,37 +344,37 @@ C
         ENDDO
       ENDIF
 C----------------------------------------
-C     INITIALISATION DES MASSES et INERTIES
+C     initialization of masses and inertias
 C----------------------------------------
       CALL SUMASS3(MS,PARTSAV,X,V,IPARTS(NF1),MSS(1,NF1),
      2             MAS,INN,GBUF%VOL,VOLU,MASS,IN,
      3             NC1, NC2, NC3, NC4, NC5, NC6, NC7, NC8,
-     4             INS,GBUF%FILL)
+     4             INS(1,NF1),GBUF%FILL)
 C----------------------------------------
 c Failure model initialisation
 C----------------------------------------
       CALL FAILINI(ELBUF_STR,NPTR,NPTS,NPTT,NLAY,
      .             IPM,SIGSP,NSIGI,FAIL_INI ,
      .             SIGI,NSIGS,IXS,NIXS,PTSOL,
-     .             RNOISE,PERTURB,BUFMAT)
+     .             RNOISE,PERTURB,MAT_PARAM)
 C------------------------------------------
-C     assemblage des Volumes nodaux et Modules nodaux
-C     (pour rigidites d'interface)
+C     assembly of nodal volumes and nodal modules
+C     (for interface rigidities)
 C------------------------------------------
-C   attention : NC1, NC2 ... NC8 sont sous la forme NC(MVSIZ,8)
-      IF(I7STIFS.NE.0)THEN
+C   Please note: NC1, NC2 ... NC8 are in the form NC (MVSIZ, 8)
+      IF(I7STIFS/=0)THEN
         NCC=8
         CALL SBULK3(VOLU  ,NC1    ,NCC,MAT,PM ,
      2              VOLNOD,BVOLNOD,VNS(1,NF1),BNS(1,NF1),BID,
      3              BID   ,GBUF%FILL)
       ENDIF
 C------------------------------------------
-C    CALCUL DES DT ELEMENTAIRES
+C    calculation of elementary dt
 C------------------------------------------
        AIRE(:) = ZERO
        CALL DTMAIN(GEO       ,PM        ,IPM         ,PID     ,MAT     ,FV    ,
      .      LBUF%EINT ,LBUF%TEMP ,LBUF%DELTAX ,LBUF%RK ,LBUF%RE ,BUFMAT, DELTAX, AIRE,
-     .      VOLU, DTX, IGEO)
+     .      VOLU, DTX, IGEO,IGTYP)
 C------------------------------------------
       DO I=LFT,LLT
         DTELEM(NFT+I)=DTX(I)
@@ -386,8 +387,8 @@ C------------------------------------------
         STIFN(IXS(8,I+NFT))=STIFN(IXS(8,I+NFT))+STI(I)
         STIFN(IXS(9,I+NFT))=STIFN(IXS(9,I+NFT))+STI(I)
       ENDDO
-      IF (IGTYP.NE.29 .AND. IGTYP.NE.30 .AND. IGTYP.NE.31  .AND.
-     .    IGTYP.NE.43) THEN
+      IF (IGTYP/=29 .AND. IGTYP/=30 .AND. IGTYP/=31  .AND.
+     .    IGTYP/=43) THEN
         DO I=LFT,LLT
              IPID1=IXS(NIXS-1,I+NFT)
              CALL FRETITL2(TITR1,IGEO(NPROPGI-LTITR+1,IPID1),LTITR)
@@ -405,12 +406,11 @@ C-----------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  SUMASS3                       source/elements/elbuf_init/suinit3.F
-Chd|-- called by -----------
-Chd|        SUINIT3                       source/elements/elbuf_init/suinit3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sumass3   ../starter/source/elements/elbuf_init/suinit3.F
+!||--- called by ------------------------------------------------------
+!||    suinit3   ../starter/source/elements/elbuf_init/suinit3.F
+!||====================================================================
       SUBROUTINE SUMASS3(MS,PARTSAV,X,V,IPART,MSS,
      2             MAS,INN,VOL,VOLU,MASS,IN,
      3             NC1, NC2, NC3, NC4, NC5, NC6, NC7, NC8,
@@ -438,11 +438,10 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IP,I1,I2,I3,I4,I5,I6,I7,I8, J
+      INTEGER I, IP,I1,I2,I3,I4,I5,I6,I7,I8
 C     REAL
       my_real
      .   XX,YY,ZZ,XY,YZ,ZX,
@@ -547,4 +546,5 @@ C
 C-----------
       RETURN
       END
+
 

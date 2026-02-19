@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 #include "hardware.inc"
 
 
@@ -241,10 +241,10 @@ CONTINUE:
     if ( RegOpenKeyEx ( HKEY_LOCAL_MACHINE,
 			"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
 			0, KEY_QUERY_VALUE, &handle ) != ERROR_SUCCESS )
-      return 0;
+      return;
     if ( RegQueryValueEx ( handle, "~MHz", NULL, NULL,
 			   (LPBYTE )(&mhz) ,(LPDWORD) &l ) != ERROR_SUCCESS )
-      return 0;
+      return;
     RegCloseKey ( handle );
     *frequence = (int)(mhz/50.0 +0.5)*50;
 

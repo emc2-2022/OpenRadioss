@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2CURV_REP                    source/interfaces/interf/i2curv_rep.F
-Chd|-- called by -----------
-Chd|        I2CURVF                       source/interfaces/interf/i2curvf.F
-Chd|        I2CURVFP                      source/interfaces/interf/i2curvfp.F
-Chd|        I2CURVV                       source/interfaces/interf/i2curvv.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2curv_rep   ../engine/source/interfaces/interf/i2curv_rep.F
+!||--- called by ------------------------------------------------------
+!||    i2curvf      ../engine/source/interfaces/interf/i2curvf.F
+!||    i2curvfp     ../engine/source/interfaces/interf/i2curvfp.F
+!||    i2curvv      ../engine/source/interfaces/interf/i2curvv.F
+!||====================================================================
       SUBROUTINE I2CURV_REP(
      .           INOD    , X      ,V       ,LS1     ,LS2     ,
      .           LT1     ,LT2     ,E1X     ,E1Y     ,E1Z     ,
@@ -43,8 +42,6 @@ C-----------------------------------------------
       INTEGER INOD(4)
 C     REAL
       my_real
-     .   S,T,HSL
-      my_real
      .   X(3,*),V(3,*)
       my_real
      .   E1X,E1Y,E1Z,E2X,E2Y,E2Z,E3X,E3Y,E3Z,
@@ -52,16 +49,15 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com08_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,J1,J2,J3,J4,II,JJ,L,NN,NIR
+      INTEGER J, JJ, NIR
 C     REAL
       my_real
      .   X21,X32,X34,X41,Y21,Y32,Y34,Y41,Z21,Z32,Z34,Z41,
-     .   SM,SP,TM,TP,SM2,SP2,TM2,TP2,SM3,SP3,TM3,TP3,SUMA,S1,S2
+     . TP22223333,SUMA,S1,S2
       my_real
      .   XM(4),YM(4),ZM(4)
 C=======================================================================
@@ -78,7 +74,7 @@ C=======================================================================
         YM(JJ)=X(2,J)+ V(2,J)*DT12*HALF                                                
         ZM(JJ)=X(3,J)+ V(3,J)*DT12*HALF                                                
       ENDDO                                                           
-C-----repere local main                                             
+C-----local frame main                                             
       X21 = XM(2) - XM(1)                                             
       X32 = XM(3) - XM(2)                                             
       X34 = XM(3) - XM(4)                                             

@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I24SURFI                      source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        LECINS                        source/interfaces/interf1/lecins.F
-Chd|        LECINT                        source/interfaces/interf1/lecint.F
-Chd|-- calls ---------------
-Chd|        I24EDGE1                      source/interfaces/inter3d1/i24surfi.F
-Chd|        I24EDGE2                      source/interfaces/inter3d1/i24surfi.F
-Chd|        IN24COQ_SOL3                  source/interfaces/inter3d1/i24surfi.F
-Chd|        SH2SURF                       source/interfaces/inter3d1/i24surfi.F
-Chd|        BITSET                        source/interfaces/inter3d1/bitget.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i24surfi       ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    lecins         ../starter/source/interfaces/interf1/lecins.F
+!||    lecint         ../starter/source/interfaces/interf1/lecint.F
+!||--- calls      -----------------------------------------------------
+!||    bitset         ../starter/source/interfaces/inter3d1/bitget.F
+!||    i24edge1       ../starter/source/interfaces/inter3d1/i24surfi.F
+!||    i24edge2       ../starter/source/interfaces/inter3d1/i24surfi.F
+!||    in24coq_sol3   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||    sh2surf        ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod     ../starter/share/modules1/format_mod.F90
+!||====================================================================
       SUBROUTINE I24SURFI(IALLO   ,IPARI   ,IGRNOD  ,IGRSURF ,
      1                    IRECT   ,FRIGAP  ,
      2                    NSV     ,MSR     ,ITAB    ,X       ,
@@ -46,28 +47,19 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
+      USE FORMAT_MOD , ONLY : FMW_10I, FMW_4I
+      use element_mod , only :nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com02_c.inc"
-#include      "com03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
-#include      "scr17_c.inc"
-#include      "conv_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -152,7 +144,7 @@ C-----attention: ISU2=ISU1 /=0
       END SELECT
 c      ISYM = IPARI(43)
 c---------------------------------------
-c     copie des surfaces (IALLO == 2)
+c     Copy of surfaces (Iallo == 2)
 c---------------------------------------
        IF(IALLO == 2)THEN
         DO I=1,NRTM
@@ -188,19 +180,18 @@ C------------ call anyway, if coating shell MSEGTYP(L)=MSEGTYP(L)+1
           ENDDO
         ENDIF
 #ifndef HYPERMESH_LIB
-        IF(IPRI.GE.5) THEN
+        IF(IPRI>=5) THEN
           WRITE(IOUT,'(/,A,/)')' SEGMENTS USED FOR MAIN SURFACE: '
           DO I=1,NRTM
             WRITE(IOUT,FMT=FMW_4I)(ITAB(IRECT(K,I)),K=1,4)
           ENDDO
         ENDIF
-#endif HYPERMESH_LIB
+#endif
       ENDIF
 C=======================================================================
-c     NOEUDS
-C=======================================================================
+c     NODES C=======================================================================
 c-----------------------------------------------------------------
-c     tag noeuds surfaces S1 S2; 1,2 on S1,S2, 3 on both (ILEV=1)
+c     tag nodes surfaces S1 S2; 1,2 on S1,S2, 3 on both (ILEV=1)
 c-----------------------------------------------------------------
       DO I=1,NUMNOD
         TAG(I)=0 ! initialisation
@@ -246,7 +237,7 @@ C for inteply activation needed for Plyxfem + Type24
          ENDIF 
       ENDIF
 c-----------------------------------------------------------------
-c     noeuds de la surface S2 : build TAGS,set NSV,MSR if IALLO= 2
+c     Surface nodes S2: Build Tags, Set NSV, Msr If Iallo = 2
 c-----------------------------------------------------------------
       IF(ISU2 /= 0)THEN
         DO J=1,IGRSURF(ISU2)%NSEG
@@ -257,7 +248,7 @@ c-----------------------------------------------------------------
               IF(IALLO == 2)MSR(NMN) = I
 c              TAGB(I) = BITSET(TAGB(I),4)
             ENDIF
-c     taged nodes on S2 -> negative value
+c     tagged nodes on S2 -> negative value
             IF(TAG(I) == 2 .OR. TAG(I) == 3)THEN
               TAG(I) = - TAG(I)
                  IF ( ILEV == 2.AND.TAGS(I) == 0 ) THEN
@@ -273,7 +264,7 @@ c     taged nodes on S2 -> negative value
         ENDDO
       ENDIF
 c-----------------------------------------------------------------
-c     noeuds de la surface S1: build TAGS,set NSV,MSR if IALLO= 2
+c     Surface nodes S1: Build Tags, Set NSV, Msr If Iallo = 2
 c-----------------------------------------------------------------
       IF(ISU1 /= 0)THEN
         DO J=1,IGRSURF(ISU1)%NSEG
@@ -287,7 +278,7 @@ c-----------------------------------------------------------------
                IF(ILEV == 2)NBINFLG(NSN) = BITSET(NBINFLG(NSN),0)
               END IF
             ENDIF
-c     taged nodes on S1 -> negative value, ->+3 for nodes on both
+c     tagged nodes on S1 -> negative value, ->+3 for nodes on both
             IF(TAG(I) == 1 .or. TAG(I) == -3)THEN
               TAG(I) = - TAG(I)
               NMN = NMN + 1
@@ -297,7 +288,7 @@ c     taged nodes on S1 -> negative value, ->+3 for nodes on both
         ENDDO
       ENDIF
 c-----------------------------------------------------------------
-c     noeuds du groupe de noeud NOD1: build TAGS,set NSV if IALLO= 2
+c     nodes of the nod1 nod group: build tags, set nsv if iallo = 2
 c-----------------------------------------------------------------
       IF(NOD1 /= 0)THEN
         DO J=1,IGRNOD(NOD1)%NENTITY
@@ -325,14 +316,14 @@ C=======================================================================
 C-----new subsuf/suf on edge-----
       IF(IEDGE == 4)THEN
         ISHIF=0
-         CALL I24EDGE2(IALLO   ,IGRSURF(ISU1)%NSEG,NLN     ,IEDGE-1  ,
+         CALL I24EDGE2(IALLO   ,IGRSURF(ISU1)%NSEG,NLN     ,
      1                 IGRSURF(ISU1)%NODES ,ITAB  ,ISU1    ,
      2                 X       ,EDG_COS ,MBINFLG  ,ISHIF   ,NLS1    ,
      3                 IRECT   ,NRTSE   ,IRTSE    ,NSNE    ,IS2SE   ,
      4                 IS2PT   ,NSN     ,NSV      ,IS2ID)
         ISHIF=NSU1
         IF(ISU2 /= 0 .AND. ILEV /= 1) THEN
-         CALL I24EDGE2(IALLO   ,IGRSURF(ISU2)%NSEG,NLN     ,IEDGE-1 ,
+         CALL I24EDGE2(IALLO   ,IGRSURF(ISU2)%NSEG,NLN     ,
      1                 IGRSURF(ISU2)%NODES ,ITAB  ,ISU2    ,
      2                 X       ,EDG_COS ,MBINFLG  ,ISHIF   ,NLS2    ,
      3                 IRECT   ,NRTSE   ,IRTSE    ,NSNE    ,IS2SE   ,
@@ -358,7 +349,7 @@ C-----new subsuf/suf on edge-----
 C=======================================================================
 C=======================================================================
 c-----------------------------------------------------------------
-c     nombre de noeuds dans l'interface(SECONDARY+MAIN+edge)
+c     number of nodes in the interface (SECONDARY + MAIN + edge)
 c-----------------------------------------------------------------
       IF(IALLO == 2) THEN 
        NLN   = IPARI(35)
@@ -366,7 +357,7 @@ c-----------------------------------------------------------------
        IPARI(52) = NLS2
        IF (IEDGE == 4) IPARI(52) = NRTSE
        IPARI(55) = NSNE
-C------initialization of doubler M_seg pour shells  add ISU1>0
+C------initialization of doubler M_seg for shells  add ISU1>0
        NRTM_SH= IPARI(42)
        NRTM0 = IPARI(4) - NRTM_SH
        CALL SH2SURF(NRTM0,IRECT,IMBIN,MBINFLG,MSEGTYP,IPARI(4))
@@ -418,16 +409,17 @@ C----------doubling shell segments-excepting coating shell-----------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I24EDGE1                      source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        I24SURFI                      source/interfaces/inter3d1/i24surfi.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        BITSET                        source/interfaces/inter3d1/bitget.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i24edge1      ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    i24surfi      ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||    bitset        ../starter/source/interfaces/inter3d1/bitget.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod    ../starter/share/modules1/format_mod.F90
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I24EDGE1(IALLO      ,NSEG    ,NACTIF  ,IEDGE   ,
      1                    SURF_NODES ,ITAB    ,ISU     ,
      2                    X          ,EDG_COS ,MBINFLG ,IADM    ,NLS     ,
@@ -439,28 +431,17 @@ C-----------------------------------------------
 #ifndef HYPERMESH_LIB
       USE MESSAGE_MOD
 #endif
+      USE FORMAT_MOD , ONLY : FMW_4I
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com02_c.inc"
-#include      "com03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
-#include      "scr17_c.inc"
-#include      "conv_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -520,7 +501,7 @@ c      ALLOCATE (TAG(NUMNOD)        ,STAT=stat)
 #endif
 
 c---------------------------------------
-c       recherche de toutes les lignes dans la surface
+c       search for all lines on the surface
 c---------------------------------------
 C initialize IXWORK to zero
       IXWORK(4,1:NLMAX)=0
@@ -573,8 +554,8 @@ C
         CALL MY_ORDERS(0,IWORK,LINEIX,INDEX,LL,2)
 
 c---------------------------------------
-c       suppression des lignes doubles
-c       + calcul des angles(sin) inter-facettes
+c       removal of duplicate lines
+c       + Calculation of angles (sin) inter-facet
 c---------------------------------------
         LI = INDEX(1)
         I1M = LINEIX(1,LI)
@@ -624,7 +605,7 @@ c store new edge
             IXWORK(5,NL)=1 ! bord
           ELSE
 C------internal lines are not incremented because they are always double
-C--------- and the sencond one does the correction
+C--------- and the second one does the correction
             IXWORK(5,NL)=0  ! interne
 c           second segment
             IF(IXWORK(8,LI)==0)THEN
@@ -644,7 +625,7 @@ c           second segment
           MZ = NZ
         ENDDO
 c---------------------------------------
-c       suppression des lignes internes (IEDGE == 1)
+c       Deletion of internal lines (iedge == 1)
 c       dimension first
 c---------------------------------------
         LL = NL
@@ -678,14 +659,14 @@ c         keep only border edges (IXWORK(5,L) == 1)
             ENDIF
           ENDDO
         ELSEIF(IEDGE == 2)THEN
-c         toutes les lignes sont conserves ET actives
+c         all lines are kept AND active
           DO L=1,LL
             NL = NL + 1
             IF(IXWORK(5,L) == 0)IXWORK(5,L)=-1 ! all on +-1
           ENDDO
         ELSEIF(IEDGE == 3)THEN
-c         les bords sont conservs
-c         les artes vives sont conservs (EDG_COS)
+c         the edges are preserved
+c         the live edges are preserved (EDG_COS)
           DO L=1,LL
             IF(IABS(IXWORK(5,L)) == 1)THEN
               NL = NL + 1
@@ -715,7 +696,7 @@ C             IXWORK(5,NL)=+-1 ! bord on
         ENDIF
 C
       ELSE
-C       pas de surfaces
+        ! no surface
         NL = 0
       ENDIF
 c---------------------------------------
@@ -741,22 +722,12 @@ c             print *,'edge I,J=',itab(IXWORK(1,L)),itab(IXWORK(2,L)),L
               J=I6+IADM
               MBINFLG(J) = BITSET(MBINFLG(J),I7)
               IF(IXWORK(5,L) == 1)MBINFLG(J) = BITSET(MBINFLG(J),6)
-c              MBINFLG(J) = BITSET(MBINFLG(J),8)
              END IF
             ENDIF
-c only one of both segments connected to an edge is tagged
-c            IF(IXWORK(5,L) == -1)THEN
-c              I3 = IXWORK(6,L)
-c              I4 = IXWORK(7,L)
-c              J=I3+IADM
-c              MBINFLG(J) = BITSET(MBINFLG(J),I4)
-c              IF(IXWORK(5,L) == 1)MBINFLG(J) = BITSET(MBINFLG(J),6)
-c              MBINFLG(J) = BITSET(MBINFLG(J),8)
-c            ENDIF
         ENDDO
       ENDIF
 c---------------------------------------
-c       nombre de lignes: may keep only NACTIF
+c       number de lignes: may keep only NACTIF
 c---------------------------------------
       NACTIF = NACTIF + NL
 c---------------------------------------
@@ -889,24 +860,16 @@ c      DEALLOCATE (TAG)
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  SH2SURF                       source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        I24SURFI                      source/interfaces/inter3d1/i24surfi.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sh2surf    ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    i24surfi   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||====================================================================
       SUBROUTINE SH2SURF(NRTM0,IRECT,IEDG,MBINFLG,MSEGTYP,NRTM )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -963,17 +926,19 @@ c        print *,'!!!NRTM0,NRTM1=', NRTM0,NRTM1
 C------------------------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  IN24COQ_SOL3                  source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        I24SURFI                      source/interfaces/inter3d1/i24surfi.F
-Chd|        I25SURFI                      source/interfaces/inter3d1/i25surfi.F
-Chd|-- calls ---------------
-Chd|        SEG_INS                       source/interfaces/inter3d1/i24surfi.F
-Chd|====================================================================
+!||====================================================================
+!||    in24coq_sol3   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    i24surfi       ../starter/source/interfaces/inter3d1/i24surfi.F
+!||    i25surfi       ../starter/source/interfaces/inter3d1/i25surfi.F
+!||--- calls      -----------------------------------------------------
+!||    seg_ins        ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE IN24COQ_SOL3(IRECT ,IXC ,IXTG ,MSEGTYP   ,X  ,
      .                   KNOD2ELC ,KNOD2ELTG ,NOD2ELC ,NOD2ELTG,
      .                   KNOD2ELS,NOD2ELS,IXS ,IXS10 ,IXS16 ,IXS20 )
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -981,9 +946,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1008,13 +971,13 @@ C--if MSEGTYP solid -> nothing
       IF (MSEGTYP/=0) RETURN
       NEL=0
       NELTG=0
-      IF(IRECT(3).EQ.IRECT(4).AND.NUMELTG.NE.0)THEN
+      IF(IRECT(3)==IRECT(4).AND.NUMELTG/=0)THEN
        DO 230 IAD=KNOD2ELTG(IRECT(1))+1,KNOD2ELTG(IRECT(1)+1)
         N = NOD2ELTG(IAD)
         DO 220 J=1,3
           II=IRECT(J)
           DO K=1,3
-            IF(IXTG(K+1,N).EQ.II) GOTO 220
+            IF(IXTG(K+1,N)==II) GOTO 220
           END DO
           GOTO 230
   220   CONTINUE
@@ -1022,13 +985,13 @@ C--if MSEGTYP solid -> nothing
   230  CONTINUE
       ENDIF
 C
-      IF(NUMELC.NE.0) THEN
+      IF(NUMELC/=0) THEN
        DO 430 IAD=KNOD2ELC(IRECT(1))+1,KNOD2ELC(IRECT(1)+1)
         N = NOD2ELC(IAD)
         DO 420 J=1,4
           II=IRECT(J)
           DO K=1,4
-            IF(IXC(K+1,N).EQ.II) GOTO 420
+            IF(IXC(K+1,N)==II) GOTO 420
           END DO
           GOTO 430
   420   CONTINUE
@@ -1054,7 +1017,7 @@ C
           DO 310 JJ=1,4
             II=IRECT(JJ)
             DO K=1,8
-              IF(IXS(K+1,N).EQ.II) GOTO 310
+              IF(IXS(K+1,N)==II) GOTO 310
             ENDDO
             GOTO 330
   310     CONTINUE
@@ -1064,10 +1027,10 @@ C
           DO 320 JJ=1,4
             II=IRECT(JJ)
             DO K=1,8
-              IF(IXS(K+1,N).EQ.II) GOTO 320
+              IF(IXS(K+1,N)==II) GOTO 320
             ENDDO
             DO K=1,6
-              IF(IXS10(K,N-NUMELS8).EQ.II) GOTO 320
+              IF(IXS10(K,N-NUMELS8)==II) GOTO 320
             ENDDO
             GOTO 330
   320     CONTINUE
@@ -1081,10 +1044,10 @@ C
           DO 322 JJ=1,4
             II=IRECT(JJ)
             DO K=1,8
-              IF(IXS(K+1,N).EQ.II) GOTO 322
+              IF(IXS(K+1,N)==II) GOTO 322
             ENDDO
             DO K=1,12
-              IF(IXS20(K,N-NUMELS8-NUMELS10).EQ.II) GOTO 322
+              IF(IXS20(K,N-NUMELS8-NUMELS10)==II) GOTO 322
             ENDDO
             GOTO 330
   322     CONTINUE
@@ -1095,10 +1058,10 @@ C
           DO 324 JJ=1,4
             II=IRECT(JJ)
             DO K=1,8
-              IF(IXS(K+1,N).EQ.II) GOTO 324
+              IF(IXS(K+1,N)==II) GOTO 324
             ENDDO
             DO K=1,8
-              IF(IXS16(K,N-NUMELS8-NUMELS10-NUMELS20).EQ.II) GOTO 324
+              IF(IXS16(K,N-NUMELS8-NUMELS10-NUMELS20)==II) GOTO 324
             ENDDO
             GOTO 330
   324     CONTINUE
@@ -1121,12 +1084,11 @@ C
       
       RETURN
       END
-Chd|====================================================================
-Chd|  SEG_INS                       source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        IN24COQ_SOL3                  source/interfaces/inter3d1/i24surfi.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    seg_ins        ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    in24coq_sol3   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||====================================================================
       SUBROUTINE SEG_INS(IRECT,NDS,NNOD,INS,X)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -1138,7 +1100,6 @@ C-----------------------------------------------
       INTEGER IRECT(4),NDS(*),NNOD,INS
       my_real
      .   X(3,*)
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -1191,16 +1152,18 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  I24EDGE2                      source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        I24SURFI                      source/interfaces/inter3d1/i24surfi.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE I24EDGE2(IALLO      ,NSEG    ,NACTIF  ,IEDGE   ,
+!||====================================================================
+!||    i24edge2      ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    i24surfi      ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg        ../starter/source/output/message/message.F
+!||    bitset        ../starter/source/interfaces/inter3d1/bitget.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod    ../starter/share/modules1/format_mod.F90
+!||    message_mod   ../starter/share/message_module/message_mod.F
+!||====================================================================
+      SUBROUTINE I24EDGE2(IALLO      ,NSEG    ,NACTIF  ,
      1                    SURF_NODES ,ITAB    ,ISU     ,
      2                    X          ,EDG_COS ,MBINFLG ,IADM    ,NLS     ,
      3                    IRECT      ,NRTSE   ,IRTSE   ,NSNE    ,IS2SE   ,
@@ -1211,32 +1174,21 @@ C-----------------------------------------------
 #ifndef HYPERMESH_LIB
       USE MESSAGE_MOD
 #endif
+      USE FORMAT_MOD , ONLY : FMW_4I
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com02_c.inc"
-#include      "com03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr12_c.inc"
-#include      "scr17_c.inc"
-#include      "conv_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IALLO,NACTIF,IEDGE,IADM,NLS,L24ADD,NSN,IFIRST,ISU
+      INTEGER IALLO,NACTIF,IADM,NLS,L24ADD,NSN,IFIRST,ISU
       INTEGER ITAB(*),MBINFLG(*),IRECT(4,*),NSEG,SURF_NODES(NSEG,4),
      .        IRTSE(5,*) ,NSV(*),NRTSE,NSNE,IS2SE(2,*),IS2PT(*),IS2ID(*)
       my_real
@@ -1279,7 +1231,6 @@ c---------------------------------------
       ALLOCATE (LINEIX2(2,NLMAX)   ,STAT=stat)
       ALLOCATE (XLINEIX(3,NLMAX)   ,STAT=stat)
       ALLOCATE (INDEX(2*NLMAX)     ,STAT=stat)
-c      ALLOCATE (TAG(NUMNOD)        ,STAT=stat)
       ALLOCATE (IXWORK(8,NLMAX)    ,STAT=stat)
 
 #ifndef HYPERMESH_LIB
@@ -1291,7 +1242,7 @@ c      ALLOCATE (TAG(NUMNOD)        ,STAT=stat)
       END IF
 #endif
 c---------------------------------------
-c       recherche de toutes les lignes dans la surface
+c       search for all lines on the surface
 c---------------------------------------
 C initialize IXWORK to zero
       IXWORK(4,1:NLMAX)=0
@@ -1344,8 +1295,8 @@ C-----------means I1,I2 has been exchanged
 C
         CALL MY_ORDERS(0,IWORK,LINEIX,INDEX,LL,2)
 c---------------------------------------
-c       suppression des lignes doubles
-c       + calcul des angles(sin) inter-facettes
+c       removal of duplicate lines
+c       + Calculation of angles (sin) inter-facet
 c---------------------------------------
         LI = INDEX(1)
         I1M = LINEIX(1,LI)
@@ -1395,7 +1346,7 @@ c store new edge
             IXWORK(5,NL)=1 ! bord
           ELSE
 C------internal lines are not incremented because they are always double
-C--------- and the sencond one does the correction
+C--------- and the second one does the correction
             IXWORK(5,NL)=0  ! interne
 c           second segment
             IF(IXWORK(8,LI)==0)THEN
@@ -1415,48 +1366,13 @@ c           second segment
           MZ = NZ
         ENDDO
 c---------------------------------------
-c       suppression des lignes internes (IEDGE == 1)
+c       Deletion of internal lines (iedge == 1)
 c       dimension first
 c---------------------------------------
         LL = NL
         NL = 0
-        IF(IEDGE == 1)THEN
-c         keep only border edges (IXWORK(5,L) == 1)
-          DO L=1,LL
-            IF(IXWORK(5,L) == 1)THEN
-              NL = NL + 1
-              I1=IXWORK(1,NL)
-              I2=IXWORK(2,NL)
-              I3=IXWORK(3,NL)
-              I4=IXWORK(4,NL)
-              I5=IXWORK(5,NL)
-              I6=IXWORK(6,NL)
-              I7=IXWORK(7,NL)
-              IXWORK(1,NL)=IXWORK(1,L)
-              IXWORK(2,NL)=IXWORK(2,L)
-              IXWORK(3,NL)=IXWORK(3,L)
-              IXWORK(4,NL)=IXWORK(4,L)
-              IXWORK(5,NL)=1 ! border
-              IXWORK(6,NL)=IXWORK(6,L)
-              IXWORK(7,NL)=IXWORK(7,L)
-              IXWORK(1,L)=I1  
-              IXWORK(2,L)=I2  
-              IXWORK(3,L)=I3  
-              IXWORK(4,L)=I4  
-              IXWORK(5,L)=I5 
-              IXWORK(6,L)=I6  
-              IXWORK(7,L)=I7 
-            ENDIF
-          ENDDO
-        ELSEIF(IEDGE == 2)THEN
-c         toutes les lignes sont conserves ET actives
-          DO L=1,LL
-            NL = NL + 1
-            IF(IXWORK(5,L) == 0)IXWORK(5,L)=-1 ! all on +-1
-          ENDDO
-        ELSEIF(IEDGE == 3)THEN
-c         les bords sont conservs
-c         les artes vives sont conservs (EDG_COS)
+c         the edges are preserved
+c         the live edges are preserved (EDG_COS)
           DO L=1,LL
             IF(IABS(IXWORK(5,L)) == 1)THEN
               NL = NL + 1
@@ -1484,10 +1400,9 @@ C             IXWORK(5,NL)=+-1 ! bord on
               IXWORK(7,L)=I7 
            ENDIF
           ENDDO
-        ENDIF
 C
       ELSE
-C       pas de surfaces
+C       no surfaces
         NL = 0
       ENDIF
 c---------------------------------------
@@ -1502,7 +1417,7 @@ C-------no double fictive SECONDARY nodes----
 C------NSN<-NSN0+NSNE;  3*4*NRTSE for IEDGE = 2  -> more interesting to coding seg/seg
 C------
       IF(IALLO == 1 )THEN
-        DO L=1,LL
+        DO L=1,NL
             IF(IABS(IXWORK(5,L)) == 1)THEN
                 I3 = IXWORK(3,L)
                 I6 = IXWORK(6,L)
@@ -1522,20 +1437,16 @@ c
             ENDIF
         ENDDO
       ELSEIF(IALLO == 2 )THEN
-        DO L=1,LL
+        DO L=1,NL
             IF(IABS(IXWORK(5,L)) == 1)THEN
                 I3 = IXWORK(3,L)
                 I6 = IXWORK(6,L)
-c             print *,'edge I,J=',itab(IXWORK(1,L)),itab(IXWORK(2,L)),L
-c             print *,'I3,I6,IADM=',I3,I6,IADM
              IF(I3/=0)THEN
               I4 = IXWORK(4,L)
               J=I3
               NRTSE = NRTSE + 1
               IRTSE(1:4,NRTSE)=SURF_NODES(J,1:4)
               IRTSE(5,NRTSE)=I4
-c             print *,'IRTSE(j,NRTSE)=',(itab(IRTSE(k,NRTSE)),k=1,4),
-c     +                  IRTSE(5,NRTSE)
               DO I = 1,NP_EDGE
                NSNE = NSNE + 1
                NSV(NSN+NSNE) = NUMNOD+NSNE
@@ -1556,8 +1467,6 @@ C -----IF IS2SE(1,NSNE) >0 and IS2SE(2,NSNE) >0, order is inversed on IS2SE(2
               NRTSE = NRTSE + 1
               IRTSE(1:4,NRTSE)=SURF_NODES(J,1:4)
               IRTSE(5,NRTSE)=I7
-c             print *,'IRTSE(j,NRTSE)=',(itab(IRTSE(k,NRTSE)),k=1,4),
-c     +                  IRTSE(5,NRTSE)
               IF(I3==0) THEN
                DO I = 1,NP_EDGE
                 NSNE = NSNE + 1
@@ -1578,10 +1487,8 @@ C------------------only  NP_EDGE_th node is added
             ENDIF
         ENDDO
       ENDIF
-C        NSN = NSN + NSNE
-c       print *,'IALLO,NSNE,NRTSE,NSN0=',IALLO,NSNE,NRTSE,NSN
 c---------------------------------------
-c       nombre de lignes: may keep only NACTIF
+c       edge number: may keep only NACTIF
 c---------------------------------------
       NACTIF = NACTIF + NL
 c---------------------------------------
@@ -1623,13 +1530,12 @@ C------Change to simplify SPMD
          IS2SE(2,I) = 0
         END IF
 C IS2ID Give global internal ID for Each Fictive node.
-C Usefull in SPMD to find easily the SECONDARY
+C Useful in SPMD to easily find the SECONDARY
         IS2ID(I)=I
        END DO !I = 1,NSNE
       ENDIF
 c---------------------------------------
       DEALLOCATE (INDEX)
-c      DEALLOCATE (TAG)
       DEALLOCATE (IXWORK)
       DEALLOCATE (LINEIX)
       DEALLOCATE (LINEIX2)
@@ -1638,22 +1544,19 @@ c      DEALLOCATE (TAG)
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24XFIC_INI                   source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        I24BUC1                       source/interfaces/inter3d1/i24buc1.F
-Chd|-- calls ---------------
-Chd|        I24FIC_GETN                   source/interfaces/inter3d1/i24surfi.F
-Chd|====================================================================
+!||====================================================================
+!||    i24xfic_ini   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    i24buc1       ../starter/source/interfaces/inter3d1/i24buc1.F
+!||--- calls      -----------------------------------------------------
+!||    i24fic_getn   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||====================================================================
       SUBROUTINE I24XFIC_INI(NRTSE   ,IRTSE   ,NSNE    ,IS2SE   ,IS2PT   ,
      4                       NSN     ,NSV     ,X       ,XFIC    ,NPT     )
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1739,22 +1642,18 @@ C---------left side
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24FICS_INI                   source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        I24STSECND                    source/interfaces/inter3d1/i24stslav.F
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i24fics_ini   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    i24stsecnd    ../starter/source/interfaces/inter3d1/i24stslav.F
+!||    inint3        ../starter/source/interfaces/inter3d1/inint3.F
+!||====================================================================
       SUBROUTINE I24FICS_INI(IRTSE   ,NSNE    ,IS2SE   ,NSV    ,IS2PT ,
      4                       NSN     ,FIC_S   )
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1814,21 +1713,17 @@ C=======================================================================
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24FICI_INI                   source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i24fici_ini   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    inint3        ../starter/source/interfaces/inter3d1/inint3.F
+!||====================================================================
       SUBROUTINE I24FICI_INI(IRTSE   ,NSNE    ,IS2SE   ,NSV    ,IS2PT ,
      4                       NSN     ,FIC_I   )
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1887,22 +1782,19 @@ C=======================================================================
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24ISEGPT_INI                 source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        I24FIC_GETN                   source/interfaces/inter3d1/i24surfi.F
-Chd|====================================================================
+!||====================================================================
+!||    i24isegpt_ini   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    inint3          ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    i24fic_getn     ../starter/source/interfaces/inter3d1/i24surfi.F
+!||====================================================================
       SUBROUTINE I24ISEGPT_INI(IRTSE   ,NSNE    ,IS2SE   ,NSV    ,IS2PT ,
      4                         NSN     ,ISEGPT  ,NPT , ISPT2)
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -1968,12 +1860,11 @@ C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  ISPT2_INI                     source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ispt2_ini   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    inint3      ../starter/source/interfaces/inter3d1/inint3.F
+!||====================================================================
       SUBROUTINE ISPT2_INI(CAND_N, I_STOK, NSN, IRTLM,
      *                     ISEGPT, ISPT2)
 C-----------------------------------------------
@@ -1994,10 +1885,10 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
          INTEGER I,NI,NSI
 C-----------------------------------------------
-	 ISPT2(1:NSN) = 0
+           ISPT2(1:NSN) = 0
          DO I=1,I_STOK
              NI=CAND_N(I)
-             IF(NI .LE. NSN)THEN
+             IF(NI <= NSN)THEN
                NSI = ISEGPT(NI)
                IF(NSI > 0)THEN
                   IF(IRTLM(NSI) /=0)THEN
@@ -2015,28 +1906,24 @@ C-----------------------------------------------
          
       END
 
-Chd|====================================================================
-Chd|  I24FIC_GETN                   source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        I24ISEGPT_INI                 source/interfaces/inter3d1/i24surfi.F
-Chd|        I24PEN3                       source/interfaces/inter3d1/i24pen3.F
-Chd|        I24TRI                        source/interfaces/inter3d1/i24tri.F
-Chd|        I24XFIC_INI                   source/interfaces/inter3d1/i24surfi.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i24fic_getn                      ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    i24isegpt_ini                    ../starter/source/interfaces/inter3d1/i24surfi.F
+!||    i24pen3                          ../starter/source/interfaces/inter3d1/i24pen3.F
+!||    i24tri                           ../starter/source/interfaces/inter3d1/i24tri.F
+!||    i24xfic_ini                      ../starter/source/interfaces/inter3d1/i24surfi.F
+!||    iwcontdd_type24                  ../starter/source/spmd/domain_decomposition/iwcontdd_type24.F
+!||    update_weight_inter_type_24_25   ../starter/source/spmd/domain_decomposition/update_weight_inter_type_24_25.F
+!||--- calls      -----------------------------------------------------
+!||    arret                            ../starter/source/system/arret.F
+!||====================================================================
       SUBROUTINE I24FIC_GETN(NS      ,IRTSE   ,IS2SE   ,IE    ,NS1     ,
      4                       NS2     )
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -2072,21 +1959,17 @@ C=======================================================================
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  I24FICV_INI                   source/interfaces/inter3d1/i24surfi.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i24ficv_ini   ../starter/source/interfaces/inter3d1/i24surfi.F
+!||--- called by ------------------------------------------------------
+!||    inint3        ../starter/source/interfaces/inter3d1/inint3.F
+!||====================================================================
       SUBROUTINE I24FICV_INI(IRTSE   ,NSNE    ,IS2SE   ,NSV    ,IS2PT ,
      +                       NSN     ,FIC_V   ,NPT   )
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -2148,12 +2031,18 @@ C=======================================================================
 C------mean value of IE        
         IF (IP==NPT) THEN
 C------mean value of NS1,NS2 
-         DO J=1,4
+         DO J=1,3
           N = ITAG(IRTSE(J,IE))
           NX = NX + FIC_V(1,N)
           NY = NY + FIC_V(2,N)
           NZ = NZ + FIC_V(3,N)
          END DO
+         IF (IRTSE(3,IE)/=IRTSE(4,IE)) THEN
+          N = ITAG(IRTSE(4,IE))
+          NX = NX + FIC_V(1,N)
+          NY = NY + FIC_V(2,N)
+          NZ = NZ + FIC_V(3,N)
+         END IF
         ELSE
           N = ITAG(NS1)
           NX = NX + FIC_V(1,N)

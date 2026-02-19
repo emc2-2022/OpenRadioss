@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  H3D_LIST_1D_SCALAR            source/output/h3d/input_list/h3d_list_1d_scalar.F
-Chd|-- called by -----------
-Chd|        LECH3D                        source/output/h3d/h3d_build_fortran/lech3d.F
-Chd|-- calls ---------------
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    h3d_list_1d_scalar   ../engine/source/output/h3d/input_list/h3d_list_1d_scalar.F
+!||--- called by ------------------------------------------------------
+!||    lech3d               ../engine/source/output/h3d/h3d_build_fortran/lech3d.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod              ../engine/share/modules/h3d_mod.F
+!||    message_mod          ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE H3D_LIST_1D_SCALAR(H3D_KEYWORD_ONED_SCALAR,GEO,NKEY)
 C-----------------------------------------------
 C   M o d u l e s
@@ -48,17 +48,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "chara_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NIPMAX
-C=========================================================================
+      INTEGER I
+C===============================================
       I = 0
 c-----------------------------------------------
       I = I + 1
@@ -155,15 +150,32 @@ c-----------------------------------------------
 c-----------------------------------------------
       I = I + 1
       H3D_KEYWORD_ONED_SCALAR(I)%KEY3  = 'GROUP'
-      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1  = 'debug - Group identifier'
+      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1  = 'Group identifier'
 c-----------------------------------------------
       I = I + 1
       H3D_KEYWORD_ONED_SCALAR(I)%KEY3  = 'INTERNAL.ID'
-      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1  = 'debug - Internal identifier'
+      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1  = 'Internal identifier'
 c-----------------------------------------------
       I = I + 1
       H3D_KEYWORD_ONED_SCALAR(I)%KEY3  = 'LOCAL.ID'
-      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1  = 'debug - Local identifier'
+      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1  = 'Local identifier within the group'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_ONED_SCALAR(I)%KEY3  = 'EPSD'
+      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1  = 'Strain rate'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_ONED_SCALAR(I)%KEY3    = 'DAMINI'
+      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1   = 'DAMAGE INITIATION'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_ONED_SCALAR(I)%KEY3    = 'DAMA'
+      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1   = 'MAX DAMAGE'
+      H3D_KEYWORD_ONED_SCALAR(I)%COMMENT = 'maximum damage over time'
+c-----------------------------------------------
+      I = I + 1
+      H3D_KEYWORD_ONED_SCALAR(I)%KEY3  = 'EINTV'
+      H3D_KEYWORD_ONED_SCALAR(I)%TEXT1  = 'Internal Energy per unit volume'
 c-----------------------------------------------
       NKEY=I
       END

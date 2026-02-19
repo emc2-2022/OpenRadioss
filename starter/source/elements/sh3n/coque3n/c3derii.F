@@ -1,33 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3DERII                       source/elements/sh3n/coque3n/c3derii.F
-Chd|-- called by -----------
-Chd|        C3INIT3                       source/elements/sh3n/coque3n/c3init3.F
-Chd|        INIRIG_MAT                    source/elements/initia/inirig_mat.F
-Chd|-- calls ---------------
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3derii           ../starter/source/elements/sh3n/coque3n/c3derii.F
+!||--- called by ------------------------------------------------------
+!||    c3init3           ../starter/source/elements/sh3n/coque3n/c3init3.F
+!||    inirig_mat        ../starter/source/elements/initia/inirig_mat.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE C3DERII(JFT,JLT,PM    ,GEO  ,PX1,
      .                   PY1,PY2,STIFN ,STIFR,IXTG,
      .                   THK,SH3TREE   ,ALDT ,UPARAM  ,IPM ,IGEO,
@@ -39,7 +38,8 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE MATPARAM_DEF_MOD            
+      USE GROUP_PARAM_MOD            
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -53,12 +53,11 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "remesh_c.inc"
-#include      "scr03_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JFT, JLT, ILEV,ISUBSTACK,IMAT,IPROP
+      INTEGER JFT, JLT,ISUBSTACK,IMAT,IPROP
       INTEGER IXTG(NIXTG,*), SH3TREE(KSH3TREE,*),IPM(NPROPMI,*),
      .         IGEO(NPROPGI,*)
 C     REAL
@@ -71,17 +70,17 @@ C     REAL
      .     E1X(MVSIZ), E1Y(MVSIZ), E1Z(MVSIZ),
      .     E2X(MVSIZ), E2Y(MVSIZ), E2Z(MVSIZ),
      .     E3X(MVSIZ), E3Y(MVSIZ), E3Z(MVSIZ)
-      TYPE (GRP_PARAM_STRUCT_)  :: GROUP_PARAM
+      TYPE (GROUP_PARAM_)  :: GROUP_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, IADB,I1,I3,IPTHK,IPPOS,IGTYP,I2,
-     .        IPMAT,MATLY,IPGMAT,IGMAT,IPOS
+      INTEGER I, N, IADB,IGTYP,
+     .        IPGMAT,IGMAT
       my_real ALDTV(MVSIZ)
       my_real VISCMX, A11, G, STI,STIR,SHF,VISCDEF,
-     .     AL1, AL2, AL3, ALMAX, SSP,YOUNG,NU,RHO,BULK,GMAX,
-     .     C1,IZ,THICKT,THKLY,POSLY,A1THK,C1THK,
-     .     GTHK,A11R,FAC,A12,E,ETHK,NUTHK,A12THK,RHOG
+     .     AL1, AL2, AL3, ALMAX, SSP,YOUNG,NU,RHO,GMAX,
+     .     
+     .     A11R,FAC
 C=======================================================================
       SSP = ZERO 
       
@@ -94,9 +93,9 @@ C=======================================================================
         X3(I)=E1X(I)*X31G(I)+E1Y(I)*Y31G(I)+E1Z(I)*Z31G(I)
       ENDDO
 C
-      IF(MTN.EQ.19)THEN
+      IF(MTN==19)THEN
          VISCDEF=FOURTH
-       ELSEIF(MTN.EQ.25.OR.MTN.EQ.27)THEN
+       ELSEIF(MTN==25 .OR. MTN==27 .OR. MTN == 123 .OR. MTN == 125 .OR. MTN == 127)THEN
           VISCDEF=FIVEEM2
       ELSE
            VISCDEF=ZERO
@@ -112,11 +111,16 @@ C
      .       ((IGTYP == 17 .OR. IGTYP == 51) .AND. IGMAT > 0 )) THEN
            SSP = PM_STACK(9 ,ISUBSTACK)
         ELSE
-         IF (MTN.LE.28) THEN
+         IF (MTN<=28) THEN
           SSP=PM(27,IMAT)
-         ELSEIF (MTN == 42 .OR. MTN  == 69 ) THEN
+         ELSEIF (MTN == 42) THEN
+           RHO  = PM(1 ,IMAT)
+           NU   = PM(21,IMAT)
+           GMAX = PM(22,IMAT) 
+           A11  = GMAX*(ONE + NU)/(ONE - NU**2)
+           SSP  = MAX(SSP, SQRT(A11/RHO)) 
+         ELSEIF (MTN == 69) THEN
           IADB = IPM(7,IMAT)-1                                               
-          BULK = UPARAM(IADB+11) 
           NU   = UPARAM(IADB+14)                             
           GMAX = UPARAM(IADB+1)*UPARAM(IADB+6)                 
      .         + UPARAM(IADB+2)*UPARAM(IADB+7)
@@ -139,8 +143,8 @@ C
         ENDIF 
         VISCMX = GROUP_PARAM%VISC_DM
         IF (VISCMX == ZERO) VISCMX = VISCDEF
-        IF(MTN.EQ.1.OR.MTN.EQ.2.OR.MTN.EQ.3.OR.
-     .       MTN.EQ.22.OR.MTN.EQ.23) VISCMX=ZERO
+        IF(MTN==1.OR.MTN==2.OR.MTN==3.OR.
+     .       MTN==22.OR.MTN==23) VISCMX=ZERO
         VISCMX=SQRT(ONE+VISCMX*VISCMX)-VISCMX
         ALDT(I)= TWO*AREA(I) / SQRT(ALMAX)
         ALDTV(I)= ALDT(I)*VISCMX
@@ -150,7 +154,7 @@ C-------------------------
 C     DT NODAL
 C-------------------------
       IPGMAT = 700 
-      IF(NADMESH.EQ.0)THEN
+      IF(NADMESH==0)THEN
        IF(IGTYP == 11 .AND. IGMAT > 0) THEN
          VISCMX = GROUP_PARAM%VISC_DM
          DO I=JFT,JLT
@@ -280,7 +284,7 @@ C-------------------------
       END IF
 C
 C---------------------------------------------------------
-      IF(ISMSTR.NE.3)THEN
+      IF(ISMSTR/=3)THEN
        DO 50 I=JFT,JLT
        PX1(I) = ZERO
        PY1(I) = ZERO
@@ -296,7 +300,7 @@ C
        ENDDO
 C
        DO 80 I=JFT,JLT
-        IF(GEO(5,IPROP).EQ.ZERO)GOTO 80
+        IF(GEO(5,IPROP)==ZERO)GOTO 80
          GEO(5,IPROP)= MIN(GEO(5,IPROP),DT(I))
  80    CONTINUE
       ENDIF

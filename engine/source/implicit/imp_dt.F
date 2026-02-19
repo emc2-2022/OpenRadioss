@@ -1,38 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  IMP_DT2                       source/implicit/imp_dt.F      
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    imp_dt2   ../engine/source/implicit/imp_dt.F
+!||--- called by ------------------------------------------------------
+!||    resol     ../engine/source/engine/resol.F
+!||====================================================================
       SUBROUTINE IMP_DT2(DT_E)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -54,36 +51,34 @@ C-----------------------------------------------
 C--------------------------------------------
 C         DT_MIN=MAX(DT_E,DT_MIN)
          TREST=TSTOP-TT
-         IF (IMCONV.EQ.1.AND.TREST.GT.EM10)  THEN
+         IF (IMCONV==1.AND.TREST>EM10)  THEN
           DT_E = MIN(DT_IMP,TREST)
-	  IF (IDYNA.GT.0) DT_E = DT_IMP
+            IF (IDYNA>0) DT_E = DT_IMP
           DT1_IMP= DT_E
-          IF (NCYCLE.EQ.0.AND.INCONV.EQ.1) DT0_IMP= DT_E
+          IF (NCYCLE==0.AND.INCONV==1) DT0_IMP= DT_E
          ELSE
           DT_E = DT1
           DT0_IMP= DT_E
          ENDIF
-         IF (NCYCLE.EQ.0) THEN
-	  DT1= DT_E
+         IF (NCYCLE==0) THEN
+            DT1= DT_E
           DT1_IMP= DT_E
-	 ENDIF
+           ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_DTN                       source/implicit/imp_dt.F      
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        IMP_DTF                       source/implicit/imp_dt.F      
-Chd|====================================================================
+!||====================================================================
+!||    imp_dtn    ../engine/source/implicit/imp_dt.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv   ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    imp_dtf    ../engine/source/implicit/imp_dt.F
+!||====================================================================
       SUBROUTINE IMP_DTN(IT,UL2,FAC,CUMUL_ALEN)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -91,7 +86,6 @@ C-----------------------------------------------
 #include      "units_c.inc"
 #include      "impl1_c.inc"
 #include      "impl2_c.inc"
-#include      "scr05_c.inc" 
 #include      "task_c.inc" 
 #include      "com08_c.inc"
 C-----------------------------------------------
@@ -109,25 +103,25 @@ C-----------------------------------------------
      .  TMP,FACL,LU,FACT,TREST
 C-----------------------------------
       FAC=ONE
-      IF (IT.EQ.0.AND.IMCONV.GT.0) RETURN
-      IF (IMCONV.LT.0)  THEN
-       IF (DT_IMP.GT.DT_MIN)  THEN
+      IF (IT==0.AND.IMCONV>0) RETURN
+      IF (IMCONV<0)  THEN
+       IF (DT_IMP>DT_MIN)  THEN
         FAC=SCAL_DTN
         TMP=DT_IMP
         DT_IMP=DT_IMP*FAC
         DT_IMP=MAX(DT_IMP,DT_MIN)
         FAC=DT_IMP/TMP
-        IF (IDTC.EQ.2.AND.ALEN0.NE.ZERO)ALEN=ALEN*SCAL_DTN
-        IF (IDTC.EQ.3) THEN
-	 ALEN=ALEN*SCAL_DTN
+        IF (IDTC==2.AND.ALEN0/=ZERO)ALEN=ALEN*SCAL_DTN
+        IF (IDTC==3) THEN
+           ALEN=ALEN*SCAL_DTN
          FACT = ONE
-	END IF
+          END IF
        ENDIF
-      ELSEIF (IMCONV.EQ.1)  THEN
-       IF (IDTFIX.GT.0)  THEN
+      ELSEIF (IMCONV==1)  THEN
+       IF (IDTFIX>0)  THEN
         DT_IMP = DTIMPF(101)
-       ELSEIF (IDTC.EQ.1)  THEN
-        IF (IT.LE.NL_DTP.AND.DT_IMP.LT.DT_MAX)  THEN
+       ELSEIF (IDTC==1)  THEN
+        IF (IT<=NL_DTP.AND.DT_IMP<DT_MAX)  THEN
 C--------increase----------------------
          FAC=SCAL_DTP
          TMP=DT_IMP
@@ -135,17 +129,17 @@ C--------increase----------------------
          DT_IMP=MIN(DT_IMP,DT_MAX)
          FAC=DT_IMP/TMP
         ENDIF
-       ELSEIF (IDTC.EQ.2)  THEN
+       ELSEIF (IDTC==2)  THEN
         LU=SQRT(UL2)
-        IF (NCYCLE.EQ.1)  THEN
+        IF (NCYCLE==1)  THEN
          ALEN=LU
-         IF (ALEN0.GT.ZERO) ALEN=ALEN0
+         IF (ALEN0>ZERO) ALEN=ALEN0
         ELSE
-         IF (ALEN.LE.EM20) ALEN=LU
-         IF (ALEN0.GT.ZERO) ALEN=ALEN0
+         IF (ALEN<=EM20) ALEN=LU
+         IF (ALEN0>ZERO) ALEN=ALEN0
          TMP=ONE*NL_DTP/IT
-         IF (IT.GT.NL_DTP.AND.SCAL_DTN.NE.ONE) THEN
-          IF (ALEN0.EQ.ZERO) THEN
+         IF (IT>NL_DTP.AND.SCAL_DTN/=ONE) THEN
+          IF (ALEN0==ZERO) THEN
            TMP=(NL_DTN-NL_DTP)/(ONE-SCAL_DTN)
            FACL=(TMP-IT+NL_DTP)/TMP
            ALEN=ALEN*FACL
@@ -154,34 +148,34 @@ C--------increase----------------------
           ENDIF
           FAC=ALEN/MAX(EM20,LU)
           FAC=MIN(ONE,FAC)
-         ELSEIF (IT.LT.NL_DTP.AND.NL_DTP.NE.1) THEN
-          IF (ALEN0.EQ.ZERO) THEN
+         ELSEIF (IT<NL_DTP.AND.NL_DTP/=1) THEN
+          IF (ALEN0==ZERO) THEN
            FACL=ONE+(NL_DTP-IT)/(NL_DTP-ONE)
            ALEN=ALEN*FACL
            ALEN=MIN(ALEN,LU*TWO)
           ENDIF
           FAC=ALEN/MAX(EM20,LU)
           FAC=MAX(ONE,FAC)
-         ELSEIF (IT.EQ.NL_DTP.AND.ALEN0.EQ.ZERO) THEN
+         ELSEIF (IT==NL_DTP.AND.ALEN0==ZERO) THEN
           ALEN=LU
          ENDIF
         ENDIF 
         TMP=DT_IMP
-        IF (FAC.GT.ONE) THEN
+        IF (FAC>ONE) THEN
          FAC=MIN(SCAL_DTP,FAC)
          DT_IMP=DT_IMP*FAC
          DT_IMP=MIN(DT_IMP,DT_MAX)
          FAC=DT_IMP/TMP
-        ELSEIF (FAC.LT.ONE) THEN
+        ELSEIF (FAC<ONE) THEN
          FAC=MAX(SCAL_DTN,FAC)
          DT_IMP=DT_IMP*FAC
          DT_IMP=MAX(DT_IMP,DT_MIN)
          FAC=DT_IMP/TMP
         ENDIF
-       ELSEIF (IDTC.EQ.3)  THEN
+       ELSEIF (IDTC==3)  THEN
         ILAST=0
-        IF (NCYCLE.EQ.1)  THEN
-         IF (ALEN0.GT.ZERO) THEN
+        IF (NCYCLE==1)  THEN
+         IF (ALEN0>ZERO) THEN
           ALEN=ALEN0
           FAC = ALEN0/SQRT(UL2)
           DT_IMP=DT_IMP*FAC
@@ -189,83 +183,83 @@ C--------increase----------------------
           ALEN=SQRT(UL2)
          ENDIF
          FACT = ONE
-	ELSE !(NCYCLE.GT.1)
+          ELSE !(NCYCLE>1)
 C----------time correction ------
          TT = TT + DLA_RIKS
          FACT = ONE+DLA_RIKS/DT2
-C------last step-------	 
-	 IF (TT.GT.TSTOP) THEN
+C------last step-------   
+           IF (TT>TSTOP) THEN
           ILAST=1
           TMP=DT_IMP
           DT_IMP = MAX(DT_MIN,TMP*EM3)
           FAC=DT_IMP/TMP
           TT =TSTOP-DT_IMP
-	 ELSE
+           ELSE
           TREST=TSTOP-TT
-          IF (ALEN0.GT.ZERO) THEN
+          IF (ALEN0>ZERO) THEN
            ALEN=ALEN0
            FAC = ONE
           ELSE         
            FACL=SQRT(ONE*NL_DTP/IT)
            TMP=DT_IMP
-           IF (FACL.GT.ONE) THEN
+           IF (FACL>ONE) THEN
             FACL=MIN(SCAL_DTP,FACL)
             DT_IMP=DT_IMP*FACL
             DT_IMP=MIN(DT_IMP,DT_MAX)
             FACL=MIN(DT_IMP/TMP,FACL)
             DT_IMP=MIN(DT_IMP,TREST)
             FAC=DT_IMP/TMP
-           ELSEIF (FACL.LT.ONE) THEN
+           ELSEIF (FACL<ONE) THEN
             FACL=MAX(SCAL_DTN,FACL)
             DT_IMP=DT_IMP*FACL
             DT_IMP=MAX(DT_IMP,DT_MIN)
             DT_IMP=MIN(DT_IMP,TREST)
             FAC=DT_IMP/TMP
            ENDIF
-	   ALEN=FACL*ALEN
-          END IF !IF (ALEN0.GT.ZERO)
-         ENDIF !IF (TT.GT.TSTOP) THEN
-        ENDIF !(NCYCLE.GT.1)
+             ALEN=FACL*ALEN
+          END IF !IF (ALEN0>ZERO)
+         ENDIF !IF (TT>TSTOP) THEN
+        ENDIF !(NCYCLE>1)
         DLA_RIKS = FACT*DT2
        ENDIF
       ENDIF
-C----------reput old dt du to fix_p ------
+C--------- Old DT MADE OF TO FIX_P -------
       IFIX0 = IDTFIX
-      IF (IFIX0.GT.0) THEN
+      IF (IFIX0>0) THEN
        IDTFIX = 0
       ELSE     
        CALL IMP_DTF(FAC)
       ENDIF
-      IF (IMACH.NE.3.OR.ISPMD.EQ.0) THEN
-      IF (NPRINT.NE.0) THEN
+      IF (ISPMD==0) THEN
+      IF (NPRINT/=0) THEN
        WRITE(IOUT,*)
-       IF(NPRINT.LT.0)WRITE(ISTDO,*)
-       IF (IDTC.EQ.3)  THEN
-        IF (FACT.NE.ONE) THEN
-	 WRITE(IOUT,1005) DLA_RIKS
-         IF (NPRINT.LT.0)WRITE(ISTDO,1005) DLA_RIKS
+       IF(NPRINT<0)WRITE(ISTDO,*)
+       IF (IDTC==3)  THEN
+        IF (FACT/=ONE) THEN
+           WRITE(IOUT,1005) DLA_RIKS
+         IF (NPRINT<0)WRITE(ISTDO,1005) DLA_RIKS
         END IF 
        ENDIF
-       IF (IFIX0.GT.0.AND.IMCONV.EQ.1) THEN
+       IF (IFIX0>0.AND.IMCONV==1) THEN
          WRITE(IOUT,1004) 
-         IF(NPRINT.LT.0)WRITE(ISTDO,1004) 
+         IF(NPRINT<0)WRITE(ISTDO,1004) 
        ELSE
-        IF (IDTFIX.GT.0) THEN
+        IF (IDTFIX>0) THEN
          WRITE(IOUT,1003) 
-         IF(NPRINT.LT.0)WRITE(ISTDO,1003) 
+         IF(NPRINT<0)WRITE(ISTDO,1003) 
         ENDIF
-        IF (FAC.GT.ONE)  THEN
+        IF (FAC>ONE)  THEN
          WRITE(IOUT,1001) FAC
-         IF(NPRINT.LT.0)WRITE(ISTDO,1001) FAC
-        ELSEIF (FAC.LT.ONE)  THEN
+         IF(NPRINT<0)WRITE(ISTDO,1001) FAC
+        ELSEIF (FAC<ONE)  THEN
          WRITE(IOUT,1002) FAC
-         IF(NPRINT.LT.0)WRITE(ISTDO,1002) FAC
+         IF(NPRINT<0)WRITE(ISTDO,1002) FAC
         ENDIF
        ENDIF
       ENDIF
       ENDIF
-      IF (IDTC.EQ.3.AND.ILAST.GT.0) DLA_RIKS=FAC
-      IF (IMCONV.LT.0) FAC=ONE 
+      IF (IDTC==3.AND.ILAST>0) DLA_RIKS=FAC
+      IF (IMCONV<0) FAC=ONE 
       CUMUL_ALEN = CUMUL_ALEN + ALEN
 C---------------------------
  1001 FORMAT(5X,'--NEXT TIMESTEP IS INCREASED BY--',E11.4/)
@@ -273,26 +267,21 @@ C---------------------------
  1003 FORMAT(5X,'--NEXT TIMESTEP IS DETERMINED BY INPUT FIX POINT--')
  1004 FORMAT(5X,'--RESET TIMESTEP DUE TO INPUT FIX POINT--')
  1005 FORMAT(5X,'--TIMESTEP IS ADJUSTED BY RIKS METHOD TO:',E11.4/)
- 1006 FORMAT(5X,'--TERMINAL LOADING TIME BY RIKS METHOD IS:',E11.4/)
       RETURN
       END
-Chd|====================================================================
-Chd|  IMP_DTF                       source/implicit/imp_dt.F      
-Chd|-- called by -----------
-Chd|        IMP_DTN                       source/implicit/imp_dt.F      
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    imp_dtf   ../engine/source/implicit/imp_dt.F
+!||--- called by ------------------------------------------------------
+!||    imp_dtn   ../engine/source/implicit/imp_dt.F
+!||====================================================================
       SUBROUTINE IMP_DTF(FAC)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com08_c.inc"
 #include      "impl1_c.inc"
 #include      "impl2_c.inc"
@@ -313,18 +302,18 @@ C-----------------------------------------------
       IDTFIX = 0
       K = 0
       DO I=1,NDTFIX
-       IF (TT.LT.DTIMPF(I)) THEN
+       IF (TT<DTIMPF(I)) THEN
         K = I
         GOTO 100
        ENDIF
       ENDDO
- 100  IF (K.EQ.0) RETURN
+ 100  IF (K==0) RETURN
       TREST= TT+DT_IMP- DTIMPF(K)
       TMP = DT_IMP*EM02 
-      IF (ABS(TREST).LE.TMP) THEN
+      IF (ABS(TREST)<=TMP) THEN
        FAC = FAC*(DTIMPF(K)-TT)/DT_IMP
        DT_IMP = DTIMPF(K)-TT
-      ELSEIF (TREST.GT.0) THEN
+      ELSEIF (TREST>0) THEN
        DTIMPF(101)=DT_IMP
        FAC = FAC*(DTIMPF(K)-TT)/DT_IMP
        DT_IMP = DTIMPF(K)-TT

@@ -1,38 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  TENSGPSTRAIN                  source/output/anim/generate/tensgpstrain.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|        GPSTRA_SOLID                  source/output/outmaxsubr.F    
-Chd|        H3D_NODAL_TENSOR              source/output/h3d/h3d_results/h3d_nodal_tensor.F
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SROTA6                        source/output/anim/generate/srota6.F
-Chd|        SZSTRAINGPS                   source/elements/solid/solidez/szhour3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    tensgpstrain       ../engine/source/output/anim/generate/tensgpstrain.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||    gpstra_solid       ../engine/source/output/outmaxsubr.F
+!||    h3d_nodal_tensor   ../engine/source/output/h3d/h3d_results/h3d_nodal_tensor.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf            ../engine/share/resol/initbuf.F
+!||    srota6             ../engine/source/output/anim/generate/srota6.F
+!||    szstraingps        ../engine/source/elements/solid/solidez/szstraingps.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod        ../engine/share/resol/initbuf.F
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||    outmax_mod         ../common_source/modules/outmax_mod.F
+!||====================================================================
       SUBROUTINE TENSGPSTRAIN(ELBUF_TAB,FUNC1   ,FUNC2   ,IPARG   ,GEO     ,
      .                    IXS      ,IXS10   ,IXS16   ,IXS20   ,IXQ     ,
      .                    IXC      ,IXTG    ,IXT     ,IXP     ,IXR     ,
@@ -42,6 +46,9 @@ C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
       USE ELBUFDEF_MOD            
+      USE OUTMAX_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixs,nixq,nixc,nixt,nixr,nixp,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -53,19 +60,11 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "scr18_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
-      my_real
-     .   FUNC1(3,*),FUNC2(3,*),GEO(NPROPG,*),X(3,*),
-     .   PM(NPROPM,*)
+      my_real FUNC1(3,*),FUNC2(3,*),GEO(NPROPG,*),X(3,*),PM(NPROPM,*)
       INTEGER IPARG(NPARG,*),
      .        IXS(NIXS,*),IXQ(NIXQ,*),IXC(NIXC,*),IXTG(NIXTG,*),
      .        IXT(NIXT,*),IXP(NIXP,*),IXR(NIXR,*),
@@ -74,43 +73,42 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C     REAL
-      my_real
-     .   EVAR(6,NUMNOD),GAMA(6),
-     .   OFF, P, VONM2, VONM, S1, S2, S12, S3, VALUE,
-     .   A1,B1,B2,B3,YEQ,F1,M1,M2,M3,FOR,AREA(MVSIZ),
+      my_real GAMA(6),
+     .     
+     .   
      .   A_GAUSS_R,A_GAUSS_S,A_GAUSS_T,N1,
      .   A_GAUSS_R1,A_GAUSS_S1,A_GAUSS_T1,
      .   A_GAUSS_P_R,A_GAUSS_P_S,A_GAUSS_P_T
-      INTEGER I,II, NG, NEL, ISS, ISC,NBGAMA,KCVT,
-     .        IADD, N, J, MLW,  
-     .        ISTRAIN,NN, JTURB,MT, IMID, IALEL,IPID,
-     .        NN1,NF,OFFSET,K,INC,KK, IUS, NUVAR,
-     .        INOD, ISOLNOD, IPRT, LIAD, NPTR, NPTS, NPTT, IPT,
-     .        IS, IR, IT, NPTG,NC(20,MVSIZ),NNOD,IEXPAN,IHBE,MPT,ILAY,
-     .        ICSIG,DIR,IVISC,JJ(6),IP
+      my_real,ALLOCATABLE,DIMENSION(:,:) :: EVAR
+      INTEGER I,II, NG, NEL,KCVT,
+     .         N, J, MLW,  
+     .        
+     . NN1,K,
+     .         ISOLNOD, NPTR, NPTS, NPTT,
+     .        IS, IR, IT,NC(20,MVSIZ),NNOD,ILAY,
+     .        ICSIG,IVISC,JJ(6),IP
       INTEGER MLW2,NLAY
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
       TYPE(L_BUFEL_)  ,POINTER :: LBUF   
       my_real
      .  A_GAUSS(9,9),EVAR_TMP(6),ALPHA,BETA,ALPHA_1,BETA_1,
-     .  JR0(MVSIZ),JS0(MVSIZ),JT0(MVSIZ),NU(MVSIZ),
-     .  RBID(6,MVSIZ),
-     .   XD1(MVSIZ), XD2(MVSIZ), XD3(MVSIZ), XD4(MVSIZ), XD5(MVSIZ),
-     .   XD6(MVSIZ), XD7(MVSIZ), XD8(MVSIZ), 
-     .   YD1(MVSIZ), YD2(MVSIZ), YD3(MVSIZ), YD4(MVSIZ), YD5(MVSIZ), 
-     .   YD6(MVSIZ), YD7(MVSIZ), YD8(MVSIZ), 
-     .   ZD1(MVSIZ), ZD2(MVSIZ), ZD3(MVSIZ), ZD4(MVSIZ), ZD5(MVSIZ),
-     .   ZD6(MVSIZ), ZD7(MVSIZ), ZD8(MVSIZ),
-     .   R11(MVSIZ),R12(MVSIZ),R13(MVSIZ),
-     .   R21(MVSIZ),R22(MVSIZ),R23(MVSIZ),
-     .   R31(MVSIZ),R32(MVSIZ),R33(MVSIZ),
-     .   RX(MVSIZ),RY(MVSIZ),RZ(MVSIZ),SX(MVSIZ),SY(MVSIZ),SZ(MVSIZ),
-     .   TX(MVSIZ),TY(MVSIZ),TZ(MVSIZ),
-     .   XDL(MVSIZ), YDL(MVSIZ), ZDL(MVSIZ),STR_IS24(MVSIZ,6,8),
+     .  
+     .  
+     .       
+     .      
+     .        
+     .      
+     .       
+     .     
+     .   
+     .   
+     .   
+     .   
+     .   
+     .     STR_IS24(MVSIZ,6,8),
      .   EVAR_T10(6,10)
       INTEGER 
-     .  SOL_NODE(3,8), IPERM1(10),IPERM2(10),NN2
+     .  SOL_NODE(3,8), IPERM1(10),IPERM2(10),NN2,ITSH
       DATA IPERM1/0,0,0,0,1,2,3,1,2,3/
       DATA IPERM2/0,0,0,0,2,3,1,4,4,4/
 C======================================================================= 
@@ -154,6 +152,7 @@ C=======================================================================
 C======================================================================= 
       ALPHA = ZEP1381966
       BETA  = ZEP5854102
+      CALL MY_ALLOC(EVAR,6,NUMNOD)
       DO I=1,NUMNOD
         EVAR(1,I) = ZERO
         EVAR(2,I) = ZERO
@@ -162,10 +161,11 @@ C=======================================================================
         EVAR(5,I) = ZERO
         EVAR(6,I) = ZERO
       ENDDO  
-      DO 900 NG=1,NGROUP
+      DO NG=1,NGROUP
+        IF (LMAX_NSTRA >0 .AND. IPART_OK(NG,2)==0) CYCLE
         IVISC = IPARG(61,NG)
         GBUF => ELBUF_TAB(NG)%GBUF
-        CALL INITBUF (IPARG    ,NG      ,                    
+        CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -173,6 +173,7 @@ C=======================================================================
      6          IREP    ,IINT    ,IGTYP   ,ISRAT   ,ISROT   ,  
      7          ICSEN   ,ISORTH  ,ISORTHG ,IFAILURE,JSMS    )
         MLW2 = MLW
+        IF (IPARG(8,NG)==1.OR.MLW==0.OR.MLW==13) CYCLE
         ICSIG=IPARG(17,NG)  
         ISOLNOD = IPARG(28,NG)
         LFT=1
@@ -234,27 +235,65 @@ C-----------------------------------------------
                NC(J+8,I) = IXS20(J,NN1)
              ENDDO
            ENDIF
-         ENDDO 
-C
+         ENDDO
          NPTR   = ELBUF_TAB(NG)%NPTR
          NPTS   = ELBUF_TAB(NG)%NPTS
          NPTT   = ELBUF_TAB(NG)%NPTT
          NLAY   = ELBUF_TAB(NG)%NLAY
          NPT = NPTR*NPTS*NPTT
          NNOD = ISOLNOD
+         IF(IGTYP == 20 .OR. IGTYP ==21 .OR. IGTYP == 22) THEN
+           ITSH=1
+         ELSE
+           ITSH=0
+         ENDIF
          IF (JHBE == 24) THEN
-            LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
+           LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
            NPTR = 2
            NPTS = 2
            NPTT = 2
-           CALL SZSTRAINGPS(LBUF%STRA,STR_IS24,GBUF%STRHG,NEL  )
+           CALL SZSTRAINGPS(LBUF%STRA, STR_IS24, GBUF%STRHG,NEL)
          ENDIF
 C----------
-         IF(ISOLNOD == 6 .OR. ISOLNOD == 8 .OR. 
-     .              ISOLNOD == 16 .OR. ISOLNOD == 20)THEN
-c
+         IF((ISOLNOD == 4.AND. ISROT/=1).OR.(ISOLNOD == 8.AND. JHBE<9))THEN
+
+           DO I=LFT,LLT
+             N = I + NFT
+             IF (KCVT /= 0) THEN
+               IF(KCVT==2)THEN
+                 GAMA(1) = GBUF%GAMA(JJ(1) + I)
+                 GAMA(2) = GBUF%GAMA(JJ(2) + I)
+                 GAMA(3) = GBUF%GAMA(JJ(3) + I)
+                 GAMA(4) = GBUF%GAMA(JJ(4) + I)
+                 GAMA(5) = GBUF%GAMA(JJ(5) + I)
+                 GAMA(6) = GBUF%GAMA(JJ(6) + I)
+               ELSE
+                 GAMA(1)=ONE
+                 GAMA(2)=ZERO
+                 GAMA(3)=ZERO
+                 GAMA(4)=ZERO
+                 GAMA(5)=ONE
+                 GAMA(6)=ZERO
+               END IF
+             END IF
+             N1 = FOURTH
+             ILAY = 1
+             LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)
+             EVAR_TMP(1) = LBUF%STRA(JJ(1) + I)
+             EVAR_TMP(2) = LBUF%STRA(JJ(2) + I)
+             EVAR_TMP(3) = LBUF%STRA(JJ(3) + I)
+             EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF
+             EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF
+             EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF
+             IF (KCVT /= 0)CALL SROTA6(X, IXS(1,N), KCVT, EVAR_TMP, GAMA, JHBE, IGTYP, ISORTH)
+             DO J=1,ISOLNOD
+               EVAR(1:6,NC(J,I)) = EVAR(1:6,NC(J,I)) +EVAR_TMP(1:6)
+             ENDDO
+           ENDDO
+         ELSEIF(ISOLNOD == 6 .OR. ISOLNOD == 8 .OR. ISOLNOD == 16 .OR. ISOLNOD == 20)THEN
+
 c T_SHELL ( JHBE = 15/16 )
-          IF(NLAY > 1 .AND. JHBE .NE. 14) THEN
+          IF(ITSH > 0 .AND. JHBE /= 14) THEN
            DO I=LFT,LLT
              II = 6*(I-1) 
              N = I + NFT
@@ -276,94 +315,67 @@ c T_SHELL ( JHBE = 15/16 )
                END IF
              END IF
              NPTS = NLAY
-C 
+
              DO J=1,8
                DO K=1,8
                 IF(SOL_NODE(2,K) == SOL_NODE(2,J)) THEN
-c
-                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == -1)
-     .           IR = 1
-                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == 1)
-     .           IR = MAX(1,NPTR-1)
-                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == 1)
-     .           IR = NPTR
-                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == -1)
-     .           IR = MIN(NPTR,2)
-                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == -1)
-     .           IS = 1
-                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == 1)
-     .           IS = MAX(1,NPTS-1)
-                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == 1)
-     .           IS = NPTS
-                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == -1)
-     .           IS = MIN(NPTS,2)
-                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == -1)
-     .           IT = 1
-                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == 1)
-     .           IT = MAX(1,NPTT-1)
-                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == 1)
-     .           IT = NPTT
-                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == -1)
-     .           IT = MIN(NPTT,2)
-c
+                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == -1) IR = 1
+                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == 1) IR = MAX(1,NPTR-1)
+                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == 1) IR = NPTR
+                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == -1) IR = MIN(NPTR,2)
+                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == -1) IS = 1
+                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == 1) IS = MAX(1,NPTS-1)
+                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == 1) IS = NPTS
+                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == -1) IS = MIN(NPTS,2)
+                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == -1) IT = 1
+                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == 1) IT = MAX(1,NPTT-1)
+                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == 1) IT = NPTT
+                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == -1) IT = MIN(NPTT,2)
+
                  A_GAUSS_P_R = ZERO
                  A_GAUSS_P_S = ZERO
                  A_GAUSS_P_T = ZERO
-c
+
                  IF (NPTR == 1)THEN
                    A_GAUSS_P_R = ZERO
                  ELSEIF (SOL_NODE(1,J) == -1 )THEN
                    A_GAUSS_R = A_GAUSS(1,NPTR)
                    A_GAUSS_R1 = A_GAUSS(2,NPTR)
-                   A_GAUSS_P_R =
-     .             (-ONE-HALF*(A_GAUSS_R1+A_GAUSS_R))/ 
-     .             (HALF*(A_GAUSS_R1-A_GAUSS_R))
+                   A_GAUSS_P_R = (-ONE-HALF*(A_GAUSS_R1+A_GAUSS_R))/(HALF*(A_GAUSS_R1-A_GAUSS_R))
                  ELSEIF(SOL_NODE(1,J) == 1 )THEN
                    A_GAUSS_R = A_GAUSS(NPTR-1,NPTR)
                    A_GAUSS_R1 = A_GAUSS(NPTR,NPTR)
-                   A_GAUSS_P_R =
-     .             (ONE+HALF*(A_GAUSS_R1+A_GAUSS_R))/ 
-     .             (HALF*(A_GAUSS_R1-A_GAUSS_R))
+                   A_GAUSS_P_R = (ONE+HALF*(A_GAUSS_R1+A_GAUSS_R))/(HALF*(A_GAUSS_R1-A_GAUSS_R))
                  ENDIF
-c
+
                  IF (NPTS == 1)THEN
                    A_GAUSS_P_S = ZERO
                  ELSEIF (SOL_NODE(2,J) == -1 )THEN
                    A_GAUSS_S = A_GAUSS(1,NPTS)
                    A_GAUSS_S1 = A_GAUSS(2,NPTS)
-                   A_GAUSS_P_S =
-     .             (-ONE-HALF*(A_GAUSS_S1+A_GAUSS_S))/ 
-     .             (HALF*(A_GAUSS_S1-A_GAUSS_S))
+                   A_GAUSS_P_S = (-ONE-HALF*(A_GAUSS_S1+A_GAUSS_S))/(HALF*(A_GAUSS_S1-A_GAUSS_S))
                  ELSEIF(SOL_NODE(2,J) == 1 )THEN
                    A_GAUSS_S = A_GAUSS(NPTS-1,NPTS)
                    A_GAUSS_S1 = A_GAUSS(NPTS,NPTS)
-                   A_GAUSS_P_S =
-     .             (ONE+HALF*(A_GAUSS_S1+A_GAUSS_S))/ 
-     .             (HALF*(A_GAUSS_S1-A_GAUSS_S))
+                   A_GAUSS_P_S = (ONE+HALF*(A_GAUSS_S1+A_GAUSS_S))/(HALF*(A_GAUSS_S1-A_GAUSS_S))
                  ENDIF
-c
+
                  IF (NPTT == 1)THEN
                    A_GAUSS_P_T = ZERO
                  ELSEIF (SOL_NODE(3,J) == -1 )THEN
                    A_GAUSS_T = A_GAUSS(1,NPTT)
                    A_GAUSS_T1 = A_GAUSS(2,NPTT)
-                   A_GAUSS_P_T =
-     .             (-ONE-HALF*(A_GAUSS_T1+A_GAUSS_T))/ 
-     .             (HALF*(A_GAUSS_T1-A_GAUSS_T))
+                   A_GAUSS_P_T = (-ONE-HALF*(A_GAUSS_T1+A_GAUSS_T))/(HALF*(A_GAUSS_T1-A_GAUSS_T))
                  ELSEIF(SOL_NODE(3,J) == 1 )THEN
                    A_GAUSS_T = A_GAUSS(NPTT-1,NPTT)
                    A_GAUSS_T1 = A_GAUSS(NPTT,NPTT)
-                   A_GAUSS_P_T =
-     .             (ONE+HALF*(A_GAUSS_T1+A_GAUSS_T))/ 
-     .             (HALF*(A_GAUSS_T1-A_GAUSS_T))
+                   A_GAUSS_P_T = (ONE+HALF*(A_GAUSS_T1+A_GAUSS_T))/(HALF*(A_GAUSS_T1-A_GAUSS_T))
                  ENDIF
-c
+
                  IF (JHBE == 15 .OR. JHBE == 16) THEN
                   ILAY = IS
                   IS = 1 
-                  N1 = FOURTH*(
-     .               (ONE+SOL_NODE(1,K) * A_GAUSS_P_R)  *
-     .               (ONE+SOL_NODE(3,K) * A_GAUSS_P_T)  )
+                  N1 = FOURTH*( (ONE+SOL_NODE(1,K) * A_GAUSS_P_R)  * (ONE+SOL_NODE(3,K) * A_GAUSS_P_T) )
                  ENDIF
 c       STRHG(NEL,6,8)
                    LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,IT)
@@ -374,8 +386,7 @@ c       STRHG(NEL,6,8)
                    EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF
                    EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF
                    EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF
-                   IF (KCVT /= 0)
-     .             CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA,JHBE,IGTYP)
+                   IF (KCVT /= 0)CALL SROTA6(X, IXS(1,N), KCVT, EVAR_TMP, GAMA, JHBE, IGTYP, ISORTH)
                    EVAR(1,NC(J,I)) = EVAR(1,NC(J,I)) + N1 * EVAR_TMP(1)
                    EVAR(2,NC(J,I)) = EVAR(2,NC(J,I)) + N1 * EVAR_TMP(2)
                    EVAR(3,NC(J,I)) = EVAR(3,NC(J,I)) + N1 * EVAR_TMP(3)
@@ -407,54 +418,34 @@ c       STRHG(NEL,6,8)
                  GAMA(6)=ZERO
                END IF
              END IF
-             IF(IGTYP == 20 .OR. IGTYP ==21 .OR. IGTYP == 22) THEN
-               NPTT = NLAY
-             ENDIF
+             IF(ITSH>0) NPTT = NLAY
              DO J=1,8
                DO K=1,8
-                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == -1)
-     .           IS = 1
-                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == 1)
-     .           IS = MAX(1,NPTS-1)
-                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == 1)
-     .           IS = NPTS
-                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == -1)
-     .           IS = MIN(NPTS,2)
-                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == -1)
-     .           IT = 1
-                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == 1)
-     .           IT = MAX(1,NPTT-1)
-                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == 1)
-     .           IT = NPTT
-                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == -1)
-     .           IT = MIN(NPTT,2)
-                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == -1)
-     .           IR = 1
-                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == 1)
-     .           IR = MAX(1,NPTR-1)
-                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == 1)
-     .           IR = NPTR
-                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == -1)
-     .           IR = MIN(NPTR,2)
-c
+                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == -1) IS = 1
+                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == 1) IS = MAX(1,NPTS-1)
+                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == 1) IS = NPTS
+                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == -1) IS = MIN(NPTS,2)
+                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == -1) IT = 1
+                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == 1)  IT = MAX(1,NPTT-1)
+                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == 1) IT = NPTT
+                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == -1) IT = MIN(NPTT,2)
+                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == -1) IR = 1
+                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == 1) IR = MAX(1,NPTR-1)
+                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == 1) IR = NPTR
+                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == -1) IR = MIN(NPTR,2)
                  A_GAUSS_P_R = ZERO
                  A_GAUSS_P_S = ZERO
                  A_GAUSS_P_T = ZERO
-c
                  IF (NPTR == 1)THEN
                    A_GAUSS_P_R = ZERO
                  ELSEIF (SOL_NODE(1,J) == -1 )THEN
                    A_GAUSS_R = A_GAUSS(1,NPTR)
                    A_GAUSS_R1 = A_GAUSS(2,NPTR)
-                   A_GAUSS_P_R =
-     .             (-ONE-HALF*(A_GAUSS_R1+A_GAUSS_R))/ 
-     .             (HALF*(A_GAUSS_R1-A_GAUSS_R))
+                   A_GAUSS_P_R = (-ONE-HALF*(A_GAUSS_R1+A_GAUSS_R))/(HALF*(A_GAUSS_R1-A_GAUSS_R))
                  ELSEIF(SOL_NODE(1,J) == 1 )THEN
                    A_GAUSS_R = A_GAUSS(NPTR-1,NPTR)
                    A_GAUSS_R1 = A_GAUSS(NPTR,NPTR)
-                   A_GAUSS_P_R =
-     .             (ONE+HALF*(A_GAUSS_R1+A_GAUSS_R))/ 
-     .             (HALF*(A_GAUSS_R1-A_GAUSS_R))
+                   A_GAUSS_P_R = (ONE+HALF*(A_GAUSS_R1+A_GAUSS_R))/(HALF*(A_GAUSS_R1-A_GAUSS_R))
                  ENDIF
 c
                  IF (NPTS == 1)THEN
@@ -462,38 +453,27 @@ c
                  ELSEIF (SOL_NODE(2,J) == -1 )THEN
                    A_GAUSS_S = A_GAUSS(1,NPTS)
                    A_GAUSS_S1 = A_GAUSS(2,NPTS)
-                   A_GAUSS_P_S =
-     .             (-ONE-HALF*(A_GAUSS_S1+A_GAUSS_S))/ 
-     .             (HALF*(A_GAUSS_S1-A_GAUSS_S))
+                   A_GAUSS_P_S = (-ONE-HALF*(A_GAUSS_S1+A_GAUSS_S))/ (HALF*(A_GAUSS_S1-A_GAUSS_S))
                  ELSEIF(SOL_NODE(2,J) == 1 )THEN
                    A_GAUSS_S = A_GAUSS(NPTS-1,NPTS)
                    A_GAUSS_S1 = A_GAUSS(NPTS,NPTS)
-                   A_GAUSS_P_S =
-     .             (ONE+HALF*(A_GAUSS_S1+A_GAUSS_S))/ 
-     .             (HALF*(A_GAUSS_S1-A_GAUSS_S))
+                   A_GAUSS_P_S = (ONE+HALF*(A_GAUSS_S1+A_GAUSS_S))/(HALF*(A_GAUSS_S1-A_GAUSS_S))
                  ENDIF
-c
+
                  IF (NPTT == 1)THEN
                    A_GAUSS_P_T = ZERO
                  ELSEIF (SOL_NODE(3,J) == -1 )THEN
                    A_GAUSS_T = A_GAUSS(1,NPTT)
                    A_GAUSS_T1 = A_GAUSS(2,NPTT)
-                   A_GAUSS_P_T =
-     .             (-ONE-HALF*(A_GAUSS_T1+A_GAUSS_T))/ 
-     .             (HALF*(A_GAUSS_T1-A_GAUSS_T))
+                   A_GAUSS_P_T = (-ONE-HALF*(A_GAUSS_T1+A_GAUSS_T))/(HALF*(A_GAUSS_T1-A_GAUSS_T))
                  ELSEIF(SOL_NODE(3,J) == 1 )THEN
                    A_GAUSS_T = A_GAUSS(NPTT-1,NPTT)
                    A_GAUSS_T1 = A_GAUSS(NPTT,NPTT)
-                   A_GAUSS_P_T =
-     .             (ONE+HALF*(A_GAUSS_T1+A_GAUSS_T))/ 
-     .             (HALF*(A_GAUSS_T1-A_GAUSS_T))
+                   A_GAUSS_P_T = (ONE+HALF*(A_GAUSS_T1+A_GAUSS_T))/(HALF*(A_GAUSS_T1-A_GAUSS_T))
                  ENDIF
-c
-                 N1 = ONE_OVER_8*(
-     .               (ONE+SOL_NODE(1,K) * A_GAUSS_P_R)  *
-     .               (ONE+SOL_NODE(2,K) * A_GAUSS_P_S)  *
-     .               (ONE+SOL_NODE(3,K) * A_GAUSS_P_T)  )
-c
+
+                 N1 = ONE_OVER_8*((ONE+SOL_NODE(1,K)*A_GAUSS_P_R)*(ONE+SOL_NODE(2,K)*A_GAUSS_P_S)*(ONE+SOL_NODE(3,K)*A_GAUSS_P_T))
+
                  IF (IGTYP == 20 .OR. IGTYP ==21 .OR. IGTYP == 22) THEN
                    ILAY = IT
                    IT = 1
@@ -518,8 +498,7 @@ c
                    EVAR_TMP(5) =  LBUF%STRA(JJ(5) + I)*HALF
                    EVAR_TMP(6) =  LBUF%STRA(JJ(6) + I)*HALF
                  ENDIF
-                 IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA, JHBE,IGTYP)
+                 IF (KCVT /= 0)CALL SROTA6(X, IXS(1,N), KCVT, EVAR_TMP, GAMA, JHBE, IGTYP, ISORTH)
                  EVAR(1,NC(J,I)) = EVAR(1,NC(J,I)) + N1 * EVAR_TMP(1)
                  EVAR(2,NC(J,I)) = EVAR(2,NC(J,I)) + N1 * EVAR_TMP(2)
                  EVAR(3,NC(J,I)) = EVAR(3,NC(J,I)) + N1 * EVAR_TMP(3)
@@ -530,50 +509,9 @@ c
              ENDDO
            ENDDO
           ENDIF
-c    
-         ELSEIF(ISOLNOD == 4 )THEN
-c    
-           DO I=LFT,LLT
-             N = I + NFT
-             IF (KCVT /= 0) THEN
-               IF(KCVT==2)THEN
-                 GAMA(1) = GBUF%GAMA(JJ(1) + I)
-                 GAMA(2) = GBUF%GAMA(JJ(2) + I)
-                 GAMA(3) = GBUF%GAMA(JJ(3) + I)
-                 GAMA(4) = GBUF%GAMA(JJ(4) + I)
-                 GAMA(5) = GBUF%GAMA(JJ(5) + I)
-                 GAMA(6) = GBUF%GAMA(JJ(6) + I)
-               ELSE
-                 GAMA(1)=ONE
-                 GAMA(2)=ZERO
-                 GAMA(3)=ZERO
-                 GAMA(4)=ZERO
-                 GAMA(5)=ONE
-                 GAMA(6)=ZERO
-               END IF
-             END IF
-                   N1 = FOURTH
-                   ILAY = 1
-                   LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)
-                 EVAR_TMP(1) = LBUF%STRA(JJ(1) + I)
-                 EVAR_TMP(2) = LBUF%STRA(JJ(2) + I)
-                 EVAR_TMP(3) = LBUF%STRA(JJ(3) + I)
-                 EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF
-                 EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF
-                 EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF
-                 IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA, JHBE,IGTYP)
-             DO J=1,4
-               EVAR(1,NC(J,I)) = EVAR(1,NC(J,I)) + N1 * EVAR_TMP(1)
-               EVAR(2,NC(J,I)) = EVAR(2,NC(J,I)) + N1 * EVAR_TMP(2)
-               EVAR(3,NC(J,I)) = EVAR(3,NC(J,I)) + N1 * EVAR_TMP(3)
-               EVAR(4,NC(J,I)) = EVAR(4,NC(J,I)) + N1 * EVAR_TMP(4)
-               EVAR(5,NC(J,I)) = EVAR(5,NC(J,I)) + N1 * EVAR_TMP(5)
-               EVAR(6,NC(J,I)) = EVAR(6,NC(J,I)) + N1 * EVAR_TMP(6)
-             ENDDO
-           ENDDO
+
          ELSEIF(ISOLNOD == 10)THEN
-c    
+
            ALPHA_1 = -ALPHA/(BETA-ALPHA)
            BETA_1  = (ONE-ALPHA)/(BETA-ALPHA)
            DO I=LFT,LLT
@@ -598,17 +536,16 @@ c
              DO J=1,4
                EVAR_T10(1:6,J)=ZERO
                DO K=1,4
-                   IR = K
-                   IS = 1
-                   IT = 1
-C
-                   IF (J==K) THEN
-                     N1 = BETA_1
-                   ELSE
-                     N1 = ALPHA_1
-                   ENDIF
-                   ILAY = 1
-                   LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,IT)
+                 IR = K
+                 IS = 1
+                 IT = 1
+                 IF (J==K) THEN
+                   N1 = BETA_1
+                 ELSE
+                   N1 = ALPHA_1
+                 ENDIF
+                 ILAY = 1
+                 LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,IT)
                  EVAR_T10(1,J) = EVAR_T10(1,J)+ N1 *LBUF%STRA(JJ(1) + I)
                  EVAR_T10(2,J) = EVAR_T10(2,J)+ N1 *LBUF%STRA(JJ(2) + I)
                  EVAR_T10(3,J) = EVAR_T10(3,J)+ N1 *LBUF%STRA(JJ(3) + I)
@@ -616,8 +553,7 @@ C
                  EVAR_T10(5,J) = EVAR_T10(5,J)+ N1 *LBUF%STRA(JJ(5) + I)*HALF
                  EVAR_T10(6,J) = EVAR_T10(6,J)+ N1 *LBUF%STRA(JJ(6) + I)*HALF
                ENDDO
-                 IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_T10(1,J),GAMA, JHBE,IGTYP)
+                 IF (KCVT /= 0)CALL SROTA6(X, IXS(1,N), KCVT, EVAR_T10(1,J), GAMA, JHBE, IGTYP, ISORTH)
              ENDDO
              DO J=5,10
                 NN1=IPERM1(J)
@@ -647,23 +583,27 @@ C
            ENDDO
          ENDDO
         ENDIF
-c
- 900  CONTINUE
+
+      ENDDO ! next NG
+      DEALLOCATE(EVAR)
 C-----------------------------------------------
       RETURN
       END SUBROUTINE TENSGPSTRAIN
-Chd|====================================================================
-Chd|  GPSSTRAIN_SKIN                source/output/anim/generate/tensgpstrain.F
-Chd|-- called by -----------
-Chd|        H3D_SOL_SKIN_SCALAR           source/output/h3d/h3d_results/h3d_sol_skin_scalar.F
-Chd|        H3D_SOL_SKIN_TENSOR           source/output/h3d/h3d_results/h3d_sol_skin_tensor.F
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SROTA6                        source/output/anim/generate/srota6.F
-Chd|        SZSTRAINGPS                   source/elements/solid/solidez/szhour3.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+!||====================================================================
+!||    gpsstrain_skin        ../engine/source/output/anim/generate/tensgpstrain.F
+!||--- called by ------------------------------------------------------
+!||    h3d_sol_skin_scalar   ../engine/source/output/h3d/h3d_results/h3d_sol_skin_scalar.F
+!||    h3d_sol_skin_tensor   ../engine/source/output/h3d/h3d_results/h3d_sol_skin_tensor.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf               ../engine/share/resol/initbuf.F
+!||    srota6                ../engine/source/output/anim/generate/srota6.F
+!||    szstraingps           ../engine/source/elements/solid/solidez/szstraingps.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod          ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod           ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod           ../engine/share/resol/initbuf.F
+!||    my_alloc_mod          ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE GPSSTRAIN_SKIN(ELBUF_TAB,FUNC1   ,FUNC2   ,IPARG   ,
      .                    IXS      ,IXS10   ,IXS16   ,IXS20   ,X        ,
      .                    ITAGPS  ,PM    ,TAG_SKIN_ND )
@@ -671,7 +611,9 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD            
+      USE ELBUFDEF_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -683,59 +625,49 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "scr18_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C     REAL
-      my_real
-     .   FUNC1(3,*),FUNC2(3,*),X(3,*),
-     .   PM(NPROPM,*)
-      INTEGER IPARG(NPARG,*),IXS(NIXS,*),
-     .        IXS10(6,*) ,IXS16(8,*) ,IXS20(12,*) ,ITAGPS(*) ,TAG_SKIN_ND(*)
+      my_real FUNC1(3,*),FUNC2(3,*),X(3,*), PM(NPROPM,*)
+      INTEGER IPARG(NPARG,*),IXS(NIXS,*),IXS10(6,*) ,IXS16(8,*) ,IXS20(12,*) ,ITAGPS(*) ,TAG_SKIN_ND(*)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-C     REAL
-      my_real
-     .   EVAR(6,NUMNOD),GAMA(6),
-     .   OFF, P, VONM2, VONM, S1, S2, S12, S3, VALUE,
-     .   A1,B1,B2,B3,YEQ,F1,M1,M2,M3,FOR,AREA(MVSIZ),
+      my_real GAMA(6),
+     .     
+     .   
      .   A_GAUSS_R,A_GAUSS_S,A_GAUSS_T,N1,
      .   A_GAUSS_R1,A_GAUSS_S1,A_GAUSS_T1,
      .   A_GAUSS_P_R,A_GAUSS_P_S,A_GAUSS_P_T
-      INTEGER I,II, NG, NEL, ISS, ISC,NBGAMA,KCVT,
-     .        IADD, N, J, MLW,  
-     .        ISTRAIN,NN, JTURB,MT, IMID, IALEL,IPID,
-     .        NN1,NF,OFFSET,K,INC,KK, IUS, NUVAR,
-     .        INOD, ISOLNOD, IPRT, LIAD, NPTR, NPTS, NPTT, IPT,
-     .        IS, IR, IT, NPTG,NC(20,MVSIZ),NNOD,IEXPAN,IHBE,MPT,ILAY,
-     .        ICSIG,DIR,IVISC,JJ(6),IP
+      my_real,ALLOCATABLE,DIMENSION(:,:) :: EVAR
+      INTEGER I,II, NG, NEL,KCVT,
+     .         N, J, MLW,  
+     .        
+     . NN1,K,
+     .         ISOLNOD, NPTR, NPTS, NPTT,
+     .        IS, IR, IT,NC(20,MVSIZ),NNOD,ILAY,
+     .        ICSIG,IVISC,JJ(6),IP,ITSH
       INTEGER MLW2,NLAY
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
       TYPE(L_BUFEL_)  ,POINTER :: LBUF   
       my_real
      .  A_GAUSS(9,9),EVAR_TMP(6),ALPHA,BETA,ALPHA_1,BETA_1,
-     .  JR0(MVSIZ),JS0(MVSIZ),JT0(MVSIZ),NU(MVSIZ),
-     .  RBID(6,MVSIZ),
-     .   XD1(MVSIZ), XD2(MVSIZ), XD3(MVSIZ), XD4(MVSIZ), XD5(MVSIZ),
-     .   XD6(MVSIZ), XD7(MVSIZ), XD8(MVSIZ), 
-     .   YD1(MVSIZ), YD2(MVSIZ), YD3(MVSIZ), YD4(MVSIZ), YD5(MVSIZ), 
-     .   YD6(MVSIZ), YD7(MVSIZ), YD8(MVSIZ), 
-     .   ZD1(MVSIZ), ZD2(MVSIZ), ZD3(MVSIZ), ZD4(MVSIZ), ZD5(MVSIZ),
-     .   ZD6(MVSIZ), ZD7(MVSIZ), ZD8(MVSIZ),
-     .   R11(MVSIZ),R12(MVSIZ),R13(MVSIZ),
-     .   R21(MVSIZ),R22(MVSIZ),R23(MVSIZ),
-     .   R31(MVSIZ),R32(MVSIZ),R33(MVSIZ),
-     .   RX(MVSIZ),RY(MVSIZ),RZ(MVSIZ),SX(MVSIZ),SY(MVSIZ),SZ(MVSIZ),
-     .   TX(MVSIZ),TY(MVSIZ),TZ(MVSIZ),
-     .   XDL(MVSIZ), YDL(MVSIZ), ZDL(MVSIZ),STR_IS24(MVSIZ,6,8),
+     .  
+     .  
+     .       
+     .      
+     .        
+     .      
+     .       
+     .     
+     .   
+     .   
+     .   
+     .   
+     .   
+     .     STR_IS24(MVSIZ,6,8),
      .   EVAR_T10(6,10)
       INTEGER 
      .  SOL_NODE(3,8), IPERM1(10),IPERM2(10),NN2,ISKIN(MVSIZ)
@@ -782,6 +714,7 @@ C=======================================================================
 C======================================================================= 
       ALPHA = ZEP1381966
       BETA  = ZEP5854102
+      CALL MY_ALLOC(EVAR,6,NUMNOD)
       DO I=1,NUMNOD
         EVAR(1,I) = ZERO
         EVAR(2,I) = ZERO
@@ -790,27 +723,28 @@ C=======================================================================
         EVAR(5,I) = ZERO
         EVAR(6,I) = ZERO
       ENDDO  
-      DO 900 NG=1,NGROUP
+      DO NG=1,NGROUP
         IVISC = IPARG(61,NG)
         GBUF => ELBUF_TAB(NG)%GBUF
-        CALL INITBUF (IPARG    ,NG      ,                    
-     2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
-     3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
-     4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
-     5          NVAUX   ,JPOR    ,KCVT    ,JCLOSE  ,JPLASOL ,  
-     6          IREP    ,IINT    ,IGTYP   ,ISRAT   ,ISROT   ,  
-     7          ICSEN   ,ISORTH  ,ISORTHG ,IFAILURE,JSMS    )
+        CALL INITBUF(IPARG   ,NG      ,
+     2               MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,
+     3               NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,
+     4               JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,
+     5               NVAUX   ,JPOR    ,KCVT    ,JCLOSE  ,JPLASOL ,
+     6               IREP    ,IINT    ,IGTYP   ,ISRAT   ,ISROT   ,
+     7               ICSEN   ,ISORTH  ,ISORTHG ,IFAILURE,JSMS    )
         MLW2 = MLW
+        IF (IPARG(8,NG)==1.OR.MLW==0.OR.MLW==13) CYCLE
         ICSIG=IPARG(17,NG)  
         ISOLNOD = IPARG(28,NG)
         LFT=1
         LLT=NEL
         NNOD = 0
-!
+
         DO I=1,6
           JJ(I) = NEL*(I-1)
         ENDDO
-!
+
 C-----------------------------------------------
 C       SOLID 8N
 C-----------------------------------------------
@@ -876,26 +810,66 @@ C-----------------------------------------------
              END DO              
            ENDIF
          ENDDO 
-C
+
          NPTR   = ELBUF_TAB(NG)%NPTR
          NPTS   = ELBUF_TAB(NG)%NPTS
          NPTT   = ELBUF_TAB(NG)%NPTT
          NLAY   = ELBUF_TAB(NG)%NLAY
          NPT = NPTR*NPTS*NPTT
          NNOD = ISOLNOD
+         IF(IGTYP == 20 .OR. IGTYP ==21 .OR. IGTYP == 22) THEN
+           ITSH=1
+         ELSE
+           ITSH=0
+         ENDIF
          IF (JHBE == 24) THEN
-            LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
+           LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
            NPTR = 2
            NPTS = 2
            NPTT = 2
-           CALL SZSTRAINGPS(LBUF%STRA,STR_IS24,GBUF%STRHG,NEL  )
+           CALL SZSTRAINGPS(LBUF%STRA, STR_IS24, GBUF%STRHG,NEL)
          ENDIF
 C----------
-         IF(ISOLNOD == 6 .OR. ISOLNOD == 8 .OR. 
-     .              ISOLNOD == 16 .OR. ISOLNOD == 20)THEN
-c
+         IF((ISOLNOD == 4.AND. ISROT/=1).OR.(ISOLNOD == 8.AND. JHBE<9))THEN
+
+           DO I=LFT,LLT
+             IF (ISKIN(I)==0) CYCLE
+             N = I + NFT
+             IF (KCVT /= 0) THEN
+               IF(KCVT==2)THEN
+                 GAMA(1) = GBUF%GAMA(JJ(1) + I)
+                 GAMA(2) = GBUF%GAMA(JJ(2) + I)
+                 GAMA(3) = GBUF%GAMA(JJ(3) + I)
+                 GAMA(4) = GBUF%GAMA(JJ(4) + I)
+                 GAMA(5) = GBUF%GAMA(JJ(5) + I)
+                 GAMA(6) = GBUF%GAMA(JJ(6) + I)
+               ELSE
+                 GAMA(1)=ONE
+                 GAMA(2)=ZERO
+                 GAMA(3)=ZERO
+                 GAMA(4)=ZERO
+                 GAMA(5)=ONE
+                 GAMA(6)=ZERO
+               END IF
+             END IF
+             N1 = FOURTH
+             ILAY = 1
+             LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)
+             EVAR_TMP(1) = LBUF%STRA(JJ(1) + I)
+             EVAR_TMP(2) = LBUF%STRA(JJ(2) + I)
+             EVAR_TMP(3) = LBUF%STRA(JJ(3) + I)
+             EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF
+             EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF
+             EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF
+             IF (KCVT /= 0)CALL SROTA6(X, IXS(1,N), KCVT, EVAR_TMP, GAMA, JHBE, IGTYP, ISORTH)
+             DO J=1,ISOLNOD
+               EVAR(1:6,NC(J,I)) = EVAR(1:6,NC(J,I)) + EVAR_TMP(1:6)
+             ENDDO
+           ENDDO
+         ELSEIF(ISOLNOD == 6 .OR. ISOLNOD == 8 .OR. ISOLNOD == 16 .OR. ISOLNOD == 20)THEN
+
 c T_SHELL ( JHBE = 15/16 )
-          IF(NLAY > 1 .AND. JHBE .NE. 14) THEN
+          IF(ITSH > 0 .AND. JHBE /= 14) THEN
            DO I=LFT,LLT
              IF (ISKIN(I)==0) CYCLE
              II = 6*(I-1) 
@@ -918,94 +892,68 @@ c T_SHELL ( JHBE = 15/16 )
                END IF
              END IF
              NPTS = NLAY
-C 
+C
              DO J=1,8
                DO K=1,8
                 IF(SOL_NODE(2,K) == SOL_NODE(2,J)) THEN
-c
-                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == -1)
-     .           IR = 1
-                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == 1)
-     .           IR = MAX(1,NPTR-1)
-                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == 1)
-     .           IR = NPTR
-                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == -1)
-     .           IR = MIN(NPTR,2)
-                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == -1)
-     .           IS = 1
-                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == 1)
-     .           IS = MAX(1,NPTS-1)
-                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == 1)
-     .           IS = NPTS
-                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == -1)
-     .           IS = MIN(NPTS,2)
-                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == -1)
-     .           IT = 1
-                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == 1)
-     .           IT = MAX(1,NPTT-1)
-                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == 1)
-     .           IT = NPTT
-                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == -1)
-     .           IT = MIN(NPTT,2)
-c
+
+                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == -1) IR = 1
+                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == 1) IR = MAX(1,NPTR-1)
+                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == 1) IR = NPTR
+                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == -1) IR = MIN(NPTR,2)
+                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == -1) IS = 1
+                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == 1) IS = MAX(1,NPTS-1)
+                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == 1) IS = NPTS
+                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == -1) IS = MIN(NPTS,2)
+                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == -1) IT = 1
+                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == 1) IT = MAX(1,NPTT-1)
+                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == 1) IT = NPTT
+                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == -1) IT = MIN(NPTT,2)
+
                  A_GAUSS_P_R = ZERO
                  A_GAUSS_P_S = ZERO
                  A_GAUSS_P_T = ZERO
-c
+
                  IF (NPTR == 1)THEN
                    A_GAUSS_P_R = ZERO
                  ELSEIF (SOL_NODE(1,J) == -1 )THEN
                    A_GAUSS_R = A_GAUSS(1,NPTR)
                    A_GAUSS_R1 = A_GAUSS(2,NPTR)
-                   A_GAUSS_P_R =
-     .             (-ONE-HALF*(A_GAUSS_R1+A_GAUSS_R))/ 
-     .             (HALF*(A_GAUSS_R1-A_GAUSS_R))
+                   A_GAUSS_P_R = (-ONE-HALF*(A_GAUSS_R1+A_GAUSS_R))/(HALF*(A_GAUSS_R1-A_GAUSS_R))
                  ELSEIF(SOL_NODE(1,J) == 1 )THEN
                    A_GAUSS_R = A_GAUSS(NPTR-1,NPTR)
                    A_GAUSS_R1 = A_GAUSS(NPTR,NPTR)
-                   A_GAUSS_P_R =
-     .             (ONE+HALF*(A_GAUSS_R1+A_GAUSS_R))/ 
-     .             (HALF*(A_GAUSS_R1-A_GAUSS_R))
+                   A_GAUSS_P_R = (ONE+HALF*(A_GAUSS_R1+A_GAUSS_R))/(HALF*(A_GAUSS_R1-A_GAUSS_R))
                  ENDIF
-c
+
                  IF (NPTS == 1)THEN
                    A_GAUSS_P_S = ZERO
                  ELSEIF (SOL_NODE(2,J) == -1 )THEN
                    A_GAUSS_S = A_GAUSS(1,NPTS)
                    A_GAUSS_S1 = A_GAUSS(2,NPTS)
-                   A_GAUSS_P_S =
-     .             (-ONE-HALF*(A_GAUSS_S1+A_GAUSS_S))/ 
-     .             (HALF*(A_GAUSS_S1-A_GAUSS_S))
+                   A_GAUSS_P_S = (-ONE-HALF*(A_GAUSS_S1+A_GAUSS_S))/(HALF*(A_GAUSS_S1-A_GAUSS_S))
                  ELSEIF(SOL_NODE(2,J) == 1 )THEN
                    A_GAUSS_S = A_GAUSS(NPTS-1,NPTS)
                    A_GAUSS_S1 = A_GAUSS(NPTS,NPTS)
-                   A_GAUSS_P_S =
-     .             (ONE+HALF*(A_GAUSS_S1+A_GAUSS_S))/ 
-     .             (HALF*(A_GAUSS_S1-A_GAUSS_S))
+                   A_GAUSS_P_S = (ONE+HALF*(A_GAUSS_S1+A_GAUSS_S))/(HALF*(A_GAUSS_S1-A_GAUSS_S))
                  ENDIF
-c
+
                  IF (NPTT == 1)THEN
                    A_GAUSS_P_T = ZERO
                  ELSEIF (SOL_NODE(3,J) == -1 )THEN
                    A_GAUSS_T = A_GAUSS(1,NPTT)
                    A_GAUSS_T1 = A_GAUSS(2,NPTT)
-                   A_GAUSS_P_T =
-     .             (-ONE-HALF*(A_GAUSS_T1+A_GAUSS_T))/ 
-     .             (HALF*(A_GAUSS_T1-A_GAUSS_T))
+                   A_GAUSS_P_T =(-ONE-HALF*(A_GAUSS_T1+A_GAUSS_T))/(HALF*(A_GAUSS_T1-A_GAUSS_T))
                  ELSEIF(SOL_NODE(3,J) == 1 )THEN
                    A_GAUSS_T = A_GAUSS(NPTT-1,NPTT)
                    A_GAUSS_T1 = A_GAUSS(NPTT,NPTT)
-                   A_GAUSS_P_T =
-     .             (ONE+HALF*(A_GAUSS_T1+A_GAUSS_T))/ 
-     .             (HALF*(A_GAUSS_T1-A_GAUSS_T))
+                   A_GAUSS_P_T = (ONE+HALF*(A_GAUSS_T1+A_GAUSS_T))/(HALF*(A_GAUSS_T1-A_GAUSS_T))
                  ENDIF
-c
+
                  IF (JHBE == 15 .OR. JHBE == 16) THEN
                   ILAY = IS
                   IS = 1 
-                  N1 = FOURTH*(
-     .               (ONE+SOL_NODE(1,K) * A_GAUSS_P_R)  *
-     .               (ONE+SOL_NODE(3,K) * A_GAUSS_P_T)  )
+                  N1 = FOURTH*((ONE+SOL_NODE(1,K) * A_GAUSS_P_R) * (ONE+SOL_NODE(3,K) * A_GAUSS_P_T)  )
                  ENDIF
 c       STRHG(NEL,6,8)
                    LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(IR,IS,IT)
@@ -1016,8 +964,7 @@ c       STRHG(NEL,6,8)
                    EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF
                    EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF
                    EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF
-                   IF (KCVT /= 0)
-     .             CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA,JHBE,IGTYP)
+                   IF (KCVT /= 0) CALL SROTA6(X, IXS(1,N), KCVT, EVAR_TMP, GAMA, JHBE, IGTYP, ISORTH)
                    EVAR(1,NC(J,I)) = EVAR(1,NC(J,I)) + N1 * EVAR_TMP(1)
                    EVAR(2,NC(J,I)) = EVAR(2,NC(J,I)) + N1 * EVAR_TMP(2)
                    EVAR(3,NC(J,I)) = EVAR(3,NC(J,I)) + N1 * EVAR_TMP(3)
@@ -1050,93 +997,64 @@ c       STRHG(NEL,6,8)
                  GAMA(6)=ZERO
                END IF
              END IF
-             IF(IGTYP == 20 .OR. IGTYP ==21 .OR. IGTYP == 22) THEN
-               NPTT = NLAY
-             ENDIF
+             IF(ITSH>0) NPTT = NLAY
              DO J=1,8
                DO K=1,8
-                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == -1)
-     .           IS = 1
-                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == 1)
-     .           IS = MAX(1,NPTS-1)
-                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == 1)
-     .           IS = NPTS
-                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == -1)
-     .           IS = MIN(NPTS,2)
-                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == -1)
-     .           IT = 1
-                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == 1)
-     .           IT = MAX(1,NPTT-1)
-                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == 1)
-     .           IT = NPTT
-                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == -1)
-     .           IT = MIN(NPTT,2)
-                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == -1)
-     .           IR = 1
-                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == 1)
-     .           IR = MAX(1,NPTR-1)
-                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == 1)
-     .           IR = NPTR
-                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == -1)
-     .           IR = MIN(NPTR,2)
-c
+                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == -1) IS = 1
+                 IF (SOL_NODE(1,K) == -1 .AND. SOL_NODE(1,J) == 1) IS = MAX(1,NPTS-1)
+                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == 1) IS = NPTS
+                 IF (SOL_NODE(1,K) == 1 .AND. SOL_NODE(1,J) == -1) IS = MIN(NPTS,2)
+                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == -1) IT = 1
+                 IF (SOL_NODE(2,K) == -1 .AND. SOL_NODE(2,J) == 1) IT = MAX(1,NPTT-1)
+                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == 1) IT = NPTT
+                 IF (SOL_NODE(2,K) == 1 .AND. SOL_NODE(2,J) == -1) IT = MIN(NPTT,2)
+                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == -1) IR = 1
+                 IF (SOL_NODE(3,K) == -1 .AND. SOL_NODE(3,J) == 1) IR = MAX(1,NPTR-1)
+                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == 1) IR = NPTR
+                 IF (SOL_NODE(3,K) == 1 .AND. SOL_NODE(3,J) == -1) IR = MIN(NPTR,2)
+
                  A_GAUSS_P_R = ZERO
                  A_GAUSS_P_S = ZERO
                  A_GAUSS_P_T = ZERO
-c
+
                  IF (NPTR == 1)THEN
                    A_GAUSS_P_R = ZERO
                  ELSEIF (SOL_NODE(1,J) == -1 )THEN
                    A_GAUSS_R = A_GAUSS(1,NPTR)
                    A_GAUSS_R1 = A_GAUSS(2,NPTR)
-                   A_GAUSS_P_R =
-     .             (-ONE-HALF*(A_GAUSS_R1+A_GAUSS_R))/ 
-     .             (HALF*(A_GAUSS_R1-A_GAUSS_R))
+                   A_GAUSS_P_R = (-ONE-HALF*(A_GAUSS_R1+A_GAUSS_R))/(HALF*(A_GAUSS_R1-A_GAUSS_R))
                  ELSEIF(SOL_NODE(1,J) == 1 )THEN
                    A_GAUSS_R = A_GAUSS(NPTR-1,NPTR)
                    A_GAUSS_R1 = A_GAUSS(NPTR,NPTR)
-                   A_GAUSS_P_R =
-     .             (ONE+HALF*(A_GAUSS_R1+A_GAUSS_R))/ 
-     .             (HALF*(A_GAUSS_R1-A_GAUSS_R))
+                   A_GAUSS_P_R = (ONE+HALF*(A_GAUSS_R1+A_GAUSS_R))/(HALF*(A_GAUSS_R1-A_GAUSS_R))
                  ENDIF
-c
+
                  IF (NPTS == 1)THEN
                    A_GAUSS_P_S = ZERO
                  ELSEIF (SOL_NODE(2,J) == -1 )THEN
                    A_GAUSS_S = A_GAUSS(1,NPTS)
                    A_GAUSS_S1 = A_GAUSS(2,NPTS)
-                   A_GAUSS_P_S =
-     .             (-ONE-HALF*(A_GAUSS_S1+A_GAUSS_S))/ 
-     .             (HALF*(A_GAUSS_S1-A_GAUSS_S))
+                   A_GAUSS_P_S = (-ONE-HALF*(A_GAUSS_S1+A_GAUSS_S))/(HALF*(A_GAUSS_S1-A_GAUSS_S))
                  ELSEIF(SOL_NODE(2,J) == 1 )THEN
                    A_GAUSS_S = A_GAUSS(NPTS-1,NPTS)
                    A_GAUSS_S1 = A_GAUSS(NPTS,NPTS)
-                   A_GAUSS_P_S =
-     .             (ONE+HALF*(A_GAUSS_S1+A_GAUSS_S))/ 
-     .             (HALF*(A_GAUSS_S1-A_GAUSS_S))
+                   A_GAUSS_P_S = (ONE+HALF*(A_GAUSS_S1+A_GAUSS_S))/(HALF*(A_GAUSS_S1-A_GAUSS_S))
                  ENDIF
-c
+
                  IF (NPTT == 1)THEN
                    A_GAUSS_P_T = ZERO
                  ELSEIF (SOL_NODE(3,J) == -1 )THEN
                    A_GAUSS_T = A_GAUSS(1,NPTT)
                    A_GAUSS_T1 = A_GAUSS(2,NPTT)
-                   A_GAUSS_P_T =
-     .             (-ONE-HALF*(A_GAUSS_T1+A_GAUSS_T))/ 
-     .             (HALF*(A_GAUSS_T1-A_GAUSS_T))
+                   A_GAUSS_P_T = (-ONE-HALF*(A_GAUSS_T1+A_GAUSS_T))/(HALF*(A_GAUSS_T1-A_GAUSS_T))
                  ELSEIF(SOL_NODE(3,J) == 1 )THEN
                    A_GAUSS_T = A_GAUSS(NPTT-1,NPTT)
                    A_GAUSS_T1 = A_GAUSS(NPTT,NPTT)
-                   A_GAUSS_P_T =
-     .             (ONE+HALF*(A_GAUSS_T1+A_GAUSS_T))/ 
-     .             (HALF*(A_GAUSS_T1-A_GAUSS_T))
+                   A_GAUSS_P_T = (ONE+HALF*(A_GAUSS_T1+A_GAUSS_T))/(HALF*(A_GAUSS_T1-A_GAUSS_T))
                  ENDIF
-c
-                 N1 = ONE_OVER_8*(
-     .               (ONE+SOL_NODE(1,K) * A_GAUSS_P_R)  *
-     .               (ONE+SOL_NODE(2,K) * A_GAUSS_P_S)  *
-     .               (ONE+SOL_NODE(3,K) * A_GAUSS_P_T)  )
-c
+
+                 N1 = ONE_OVER_8*((ONE+SOL_NODE(1,K)*A_GAUSS_P_R)*(ONE+SOL_NODE(2,K)*A_GAUSS_P_S)*(ONE+SOL_NODE(3,K)*A_GAUSS_P_T))
+
                  IF (IGTYP == 20 .OR. IGTYP ==21 .OR. IGTYP == 22) THEN
                    ILAY = IT
                    IT = 1
@@ -1161,8 +1079,7 @@ c
                    EVAR_TMP(5) =  LBUF%STRA(JJ(5) + I)*HALF
                    EVAR_TMP(6) =  LBUF%STRA(JJ(6) + I)*HALF
                  ENDIF
-                 IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA, JHBE,IGTYP)
+                 IF (KCVT /= 0) CALL SROTA6(X, IXS(1,N), KCVT, EVAR_TMP, GAMA, JHBE, IGTYP, ISORTH)
                  EVAR(1,NC(J,I)) = EVAR(1,NC(J,I)) + N1 * EVAR_TMP(1)
                  EVAR(2,NC(J,I)) = EVAR(2,NC(J,I)) + N1 * EVAR_TMP(2)
                  EVAR(3,NC(J,I)) = EVAR(3,NC(J,I)) + N1 * EVAR_TMP(3)
@@ -1173,51 +1090,9 @@ c
              ENDDO
            ENDDO
           ENDIF
-c    
-         ELSEIF(ISOLNOD == 4 )THEN
-c    
-           DO I=LFT,LLT
-             IF (ISKIN(I)==0) CYCLE
-             N = I + NFT
-             IF (KCVT /= 0) THEN
-               IF(KCVT==2)THEN
-                 GAMA(1) = GBUF%GAMA(JJ(1) + I)
-                 GAMA(2) = GBUF%GAMA(JJ(2) + I)
-                 GAMA(3) = GBUF%GAMA(JJ(3) + I)
-                 GAMA(4) = GBUF%GAMA(JJ(4) + I)
-                 GAMA(5) = GBUF%GAMA(JJ(5) + I)
-                 GAMA(6) = GBUF%GAMA(JJ(6) + I)
-               ELSE
-                 GAMA(1)=ONE
-                 GAMA(2)=ZERO
-                 GAMA(3)=ZERO
-                 GAMA(4)=ZERO
-                 GAMA(5)=ONE
-                 GAMA(6)=ZERO
-               END IF
-             END IF
-                   N1 = FOURTH
-                   ILAY = 1
-                   LBUF => ELBUF_TAB(NG)%BUFLY(ILAY)%LBUF(1,1,1)
-                 EVAR_TMP(1) = LBUF%STRA(JJ(1) + I)
-                 EVAR_TMP(2) = LBUF%STRA(JJ(2) + I)
-                 EVAR_TMP(3) = LBUF%STRA(JJ(3) + I)
-                 EVAR_TMP(4) = LBUF%STRA(JJ(4) + I)*HALF
-                 EVAR_TMP(5) = LBUF%STRA(JJ(5) + I)*HALF
-                 EVAR_TMP(6) = LBUF%STRA(JJ(6) + I)*HALF
-                 IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_TMP,GAMA, JHBE,IGTYP)
-             DO J=1,4
-               EVAR(1,NC(J,I)) = EVAR(1,NC(J,I)) + N1 * EVAR_TMP(1)
-               EVAR(2,NC(J,I)) = EVAR(2,NC(J,I)) + N1 * EVAR_TMP(2)
-               EVAR(3,NC(J,I)) = EVAR(3,NC(J,I)) + N1 * EVAR_TMP(3)
-               EVAR(4,NC(J,I)) = EVAR(4,NC(J,I)) + N1 * EVAR_TMP(4)
-               EVAR(5,NC(J,I)) = EVAR(5,NC(J,I)) + N1 * EVAR_TMP(5)
-               EVAR(6,NC(J,I)) = EVAR(6,NC(J,I)) + N1 * EVAR_TMP(6)
-             ENDDO
-           ENDDO
+
          ELSEIF(ISOLNOD == 10)THEN
-c    
+
            ALPHA_1 = -ALPHA/(BETA-ALPHA)
            BETA_1  = (ONE-ALPHA)/(BETA-ALPHA)
            DO I=LFT,LLT
@@ -1246,7 +1121,6 @@ c
                    IR = K
                    IS = 1
                    IT = 1
-C
                    IF (J==K) THEN
                      N1 = BETA_1
                    ELSE
@@ -1261,8 +1135,7 @@ C
                  EVAR_T10(5,J) = EVAR_T10(5,J)+ N1 *LBUF%STRA(JJ(5) + I)*HALF
                  EVAR_T10(6,J) = EVAR_T10(6,J)+ N1 *LBUF%STRA(JJ(6) + I)*HALF
                ENDDO
-                 IF (KCVT /= 0)
-     .           CALL SROTA6(X,IXS(1,N),KCVT,EVAR_T10(1,J),GAMA, JHBE,IGTYP)
+                 IF (KCVT /= 0) CALL SROTA6(X, IXS(1,N), KCVT, EVAR_T10(1,J), GAMA, JHBE, IGTYP, ISORTH)
              ENDDO
              DO J=5,10
                 NN1=IPERM1(J)
@@ -1293,8 +1166,9 @@ C
            ENDDO
          ENDDO
         ENDIF
-c
- 900  CONTINUE
+
+      ENDDO ! next NG
+      DEALLOCATE(EVAR)
 C-----------------------------------------------
       RETURN
       END SUBROUTINE GPSSTRAIN_SKIN

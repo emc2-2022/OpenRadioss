@@ -1,37 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS86C                     source/materials/mat/mat086/sigeps86c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps86c   ../engine/source/materials/mat/mat086/sigeps86c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||    vinter      ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS86C(
      1     NEL0    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC  ,
      2     NPF    ,NPT0    ,IPT     ,IFLAG   ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0   ,
-     3     AREA   ,EINT   ,THKLY   ,
+     3     AREA   ,EINT   ,THKLY   ,ISRATE  ,ASRATE ,
      4     EPSPXX ,EPSPYY ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
      5     DEPSXX ,DEPSYY ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
      6     EPSXX  ,EPSYY  ,EPSXY   ,EPSYZ   ,EPSZX  ,
@@ -40,7 +41,7 @@ Chd|====================================================================
      9     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
      A     SOUNDSP,VISCMAX,THK     ,PLA     ,UVAR   ,
      B     OFF    ,NGL    ,IPM     ,MAT     ,ETSE   ,
-     C     GS     ,YLD    ,EPSP    ,ISRATE  ,DPLA_I)
+     C     GS     ,YLD    ,EPSD_PG ,EPSP    ,DPLA_I)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -91,7 +92,7 @@ C SIGVXX  | NEL0    | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL0    | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL0    | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL0    | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL0    | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C THK     | NEL0    | F |R/W| THICKNESS
 C PLA     | NEL0    | F |R/W| PLASTIC STRAIN
@@ -101,9 +102,6 @@ C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
@@ -111,6 +109,9 @@ C-----------------------------------------------
 C
       INTEGER NEL0, NUPARAM, NUVAR, NPT0, IPT,IFLAG(*),
      .   NGL(NEL0),MAT(NEL0),ISRATE,IPM(NPROPMI,*)
+      my_real ,INTENT(IN) :: ASRATE
+      my_real ,DIMENSION(NEL0) ,INTENT(IN)    :: EPSD_PG !< global element strain rate in Gauss pt
+      my_real ,DIMENSION(NEL0) ,INTENT(INOUT) :: EPSP    !< local strain rate used in equations
       my_real
      .   TIME,TIMESTEP,
      .   AREA(NEL0),RHO0(NEL0),EINT(NEL0,2),
@@ -122,8 +123,7 @@ C
      .   EPSXX(NEL0) ,EPSYY(NEL0) ,
      .   EPSXY(NEL0) ,EPSYZ(NEL0) ,EPSZX(NEL0) ,
      .   SIGOXX(NEL0),SIGOYY(NEL0),
-     .   SIGOXY(NEL0),SIGOYZ(NEL0),SIGOZX(NEL0),
-     .   GS(*),EPSP(NEL0)
+     .   SIGOXY(NEL0),SIGOYZ(NEL0),SIGOZX(NEL0),GS(*)
       my_real ,DIMENSION(NUPARAM) :: UPARAM
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
@@ -203,16 +203,16 @@ C-----------------------------------------------
        EPSR21  =UPARAM(9+2*NRATE1)
        FISOKIN1=UPARAM(14+2*NRATE1)
        EPSF1= UPARAM(15+2*NRATE1)        
-       IF(EPSMAX1.EQ.ZERO)THEN
-         IF(TF(NPF(IPM(11,MAT(1))+1)-1).EQ.ZERO)THEN
+       IF(EPSMAX1==ZERO)THEN
+         IF(TF(NPF(IPM(11,MAT(1))+1)-1)==ZERO)THEN
            EPSMAX1=TF(NPF(IPM(11,MAT(1))+1)-2)
          ELSE
            EPSMAX1= EP30
          ENDIF
        ENDIF
 C
-       IF (ISIGI.EQ.0) THEN
-        IF(TIME.EQ.ZERO)THEN
+       IF (ISIGI==0) THEN
+        IF(TIME==ZERO)THEN
          DO I=1,NEL0
            UVAR(I,1)=ZERO
            UVAR(I,2)=ZERO
@@ -248,10 +248,13 @@ C-------------------
 C     STRAIN RATE
 C-------------------
 C
-         IF (ISRATE .EQ. 0) EPSP(I) = 
-     .     HALF*( ABS(EPSPXX(I)+EPSPYY(I))
-     .   + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
-     .                 + EPSPXY(I)*EPSPXY(I) ) )
+         IF (ISRATE == 0) THEN
+           EPSP(I) = HALF*( ABS(EPSPXX(I)+EPSPYY(I))
+     .             + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
+     .             + EPSPXY(I)*EPSPXY(I) ) )
+         ELSE
+           EPSP(I) = ASRATE*EPSD_PG(I) + (ONE-ASRATE)*EPSP(I)
+         END IF
 C-------------------
 C     STRAIN 
 C-------------------
@@ -264,10 +267,10 @@ C
 C-------------------
 C     CRITERE
 C-------------------
-Cel inversion boucles
+C   inversion boucles
        DO J=2,NRATE1-1
          DO I=1,NEL0
-           IF(EPSP(I).GE.UPARAM(6+J)) JJ(I) = J
+           IF(EPSP(I)>=UPARAM(6+J)) JJ(I) = J
          ENDDO
        ENDDO
 
@@ -292,7 +295,7 @@ C
        CALL VINTER(TF,IAD1,IPOS1,ILEN1,NEL0,PLA,DYDX1,Y1)
        CALL VINTER(TF,IAD2,IPOS2,ILEN2,NEL0,PLA,DYDX2,Y2)
 C
-       IF (FISOKIN1.EQ.ZERO) THEN
+       IF (FISOKIN1==ZERO) THEN
         DO I=1,NEL0
          J1 = JJ(I)
          J2 = J1+1
@@ -307,7 +310,7 @@ C
          UVAR(I,J1+4) = IPOS1(I)
          UVAR(I,J2+4) = IPOS2(I)
         ENDDO
-       ELSEIF (FISOKIN1.EQ.1.) THEN
+       ELSEIF (FISOKIN1==1.) THEN
 C
 C       ECROUISSAGE CINEMATIQUE
 C
@@ -358,9 +361,9 @@ C       ECROUISSAGE CINEMATIQUE
 C-------------------
 C     PROJECTION
 C-------------------
-       IF(IFLAG(1).EQ.0)THEN
+       IF(IFLAG(1)==0)THEN
          NU31 = ONE-NNU11
-C projection radiale 
+C radial projection 
          DO I=1,NEL0
            SVM(I)=SQRT(SIGNXX(I)*SIGNXX(I)
      .             +SIGNYY(I)*SIGNYY(I)
@@ -377,12 +380,12 @@ C projection radiale
            DEZZ = DPLA_I(I) * HALF*(SIGNXX(I)+SIGNYY(I)) / YLD(I)
            DEZZ=-(DEPSXX(I)+DEPSYY(I))*NNU11-NU31*DEZZ
            THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
-           IF(R.LT.ONE) ETSE(I)= H(I)/(H(I)+E1)
+           IF(R<ONE) ETSE(I)= H(I)/(H(I)+E1)
          ENDDO
 C
-       ELSEIF(IFLAG(1).EQ.1)THEN
+       ELSEIF(IFLAG(1)==1)THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     von mises criterion
 C-------------------------
          DO I=1,NEL0
            H(I) = MAX(ZERO,H(I))
@@ -400,13 +403,13 @@ C     GATHER PLASTIC FLOW
 C-------------------------
          NINDX=0
          DO I=1,NEL0
-           IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+           IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
              NINDX=NINDX+1
              INDEX(NINDX)=I
            ENDIF
          ENDDO
 C
-         IF(NINDX.NE.0) THEN
+         IF(NINDX/=0) THEN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
@@ -436,8 +439,8 @@ C
      .         *(E1-TWO*DR(I)*HK(I))/YLD_I
      .         -TWO*HK(I)*YLD_I
              DF = SIGN(MAX(ABS(DF),EM20),DF)
-             IF(DPLA_I(I).GT.ZERO) THEN
-C            IF(N.EQ.NMAX) THEN
+             IF(DPLA_I(I)>ZERO) THEN
+C            IF(N==NMAX) THEN
 C              ERR=ABS(F/(DF*DPLA_I(I)))
 C              WRITE(50,'(2I5,F8.5,4E12.3)') N,I,ERR,DPLA_I(I),F
 C            ENDIF
@@ -464,9 +467,9 @@ C------------------------------------------
           ENDDO
          ENDIF
 C-------------------------------------------
-       ELSEIF(IFLAG(1).EQ.2)THEN
+       ELSEIF(IFLAG(1)==2)THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     von mises criterion
 C-------------------------
          DO I=1,NEL0
            H(I) = MAX(ZERO,H(I))
@@ -484,15 +487,15 @@ C-------------------------
          NINDX=0
          DO I=1,NEL0
            YLD2(I)=YLD(I)*YLD(I)
-           IF(SVM2(I).GT.YLD2(I).AND.OFF(I).EQ.ONE) THEN
+           IF(SVM2(I)>YLD2(I).AND.OFF(I)==ONE) THEN
              NINDX=NINDX+1
              INDEX(NINDX)=I
            ENDIF
          ENDDO
 C
-         IF(NINDX.NE.0) THEN
+         IF(NINDX/=0) THEN
 C-------------
-C   PROJ NORMALE AU CRITERE AVEC CALCUL APPROCHE DE LA NORMALE + RETOUR RADIAL
+C   normal projection to the criterion with approximate calculation of the normal + radial return
 C-------------
           NU31 = ONE-NNU11
           DO J=1,NINDX
@@ -531,15 +534,15 @@ C
        ENDIF
 C
        DO I=1,NEL0
-         IF(OFF(I).EQ.ONE)THEN
-           IF(PLA(I).GT.EPSMAX1.OR.EPST(I).GT.EPSF1)OFF(I)=FOUR_OVER_5
+         IF(OFF(I)==ONE)THEN
+           IF(PLA(I)>EPSMAX1.OR.EPST(I)>EPSF1)OFF(I)=FOUR_OVER_5
          END IF
        ENDDO
 C------------------------------------------
 C     ECROUISSAGE CINE
 C------------------------------------------
-Cel test bypass
-       IF (FISOKIN1.NE.ZERO) THEN
+C   test bypass
+       IF (FISOKIN1/=ZERO) THEN
         DO I=1,NEL0
           DSXX = SIGEXX(I) - SIGNXX(I)
           DSYY = SIGEYY(I) - SIGNYY(I)

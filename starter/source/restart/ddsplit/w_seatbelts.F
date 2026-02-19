@@ -1,37 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 
 
-Chd|====================================================================
-Chd|  W_SEATBELTS                   source/restart/ddsplit/w_seatbelts.F
-Chd|-- called by -----------
-Chd|        DDSPLIT                       source/restart/ddsplit/ddsplit.F
-Chd|-- calls ---------------
-Chd|        WRITE_DB                      source/restart/ddsplit/wrrest.F
-Chd|        WRITE_I_C                     source/output/tools/write_routines.c
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        SEATBELT_MOD                  ../common_source/modules/seatbelt_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    w_seatbelts    ../starter/source/restart/ddsplit/w_seatbelts.F
+!||--- called by ------------------------------------------------------
+!||    ddsplit        ../starter/source/restart/ddsplit/ddsplit.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal         ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE W_SEATBELTS(LEN_IA,LEN_AM,P,NODLOCAL,N_ANCHOR_REMOTE_L,
      .                       N_ANCHOR_REMOTE_SEND_L,ANCHOR_REMOTE_L,ANCHOR_REMOTE_SEND_L)     
 C---------------------------------------------     
@@ -40,12 +38,8 @@ C---------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "mvsiz_p.inc"
 #include      "param_c.inc"
 #include      "com01_c.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -59,7 +53,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,OPTIONAL_NODE
+      INTEGER I,J,K,OPTIONAL_NODE,L_TABLE,NPT
 C-----------------------------------------------
 C
       DO I = 1, NSLIPRING
@@ -72,7 +66,8 @@ C
           CALL WRITE_I_C(SLIPRING(I)%IFUNC, 4)
           CALL WRITE_I_C(SLIPRING(I)%SENSID, 1)
           CALL WRITE_I_C(SLIPRING(I)%FL_FLAG, 1)
-          LEN_IA = LEN_IA + 9
+          CALL WRITE_I_C(SLIPRING(I)%RBODY, 1)
+          LEN_IA = LEN_IA + 10
 C
           CALL WRITE_DB(SLIPRING(I)%DC, 1)
           CALL WRITE_DB(SLIPRING(I)%A, 1)
@@ -106,15 +101,17 @@ C
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%VECTOR, 6)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%ORIENTATION_ANGLE, 1)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%MATERIAL_FLOW, 1)
+            CALL WRITE_DB(SLIPRING(I)%FRAM(J)%MATERIAL_FLOW_OLD, 1)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%DFS, 1)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%RESIDUAL_LENGTH, 2)
+            CALL WRITE_DB(SLIPRING(I)%FRAM(J)%CURRENT_LENGTH, 2)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%RINGSLIP, 1)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%BETA, 1)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%SLIP_FORCE, 3)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%PREV_REF_LENGTH, 1)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%INTVAR_STR1, 8)
             CALL WRITE_DB(SLIPRING(I)%FRAM(J)%INTVAR_STR2, 8)
-            LEN_AM = LEN_AM + 33
+            LEN_AM = LEN_AM + 35
 C
           ENDDO
 C
@@ -137,14 +134,16 @@ C
           CALL WRITE_I_C(RETRACTOR(I)%ISENS, 2)
           CALL WRITE_I_C(RETRACTOR(I)%TENS_TYP, 1)
           CALL WRITE_I_C(RETRACTOR(I)%LOCKED, 1)
+          CALL WRITE_I_C(RETRACTOR(I)%LOCKED_FREEZE, 1)
           CALL WRITE_I_C(RETRACTOR(I)%PRETENS_ACTIV, 1)
           CALL WRITE_I_C(RETRACTOR(I)%INACTI_NNOD, 1)
           CALL WRITE_I_C(RETRACTOR(I)%INACTI_NNOD_MAX, 1)
           DO K=1,RETRACTOR(I)%INACTI_NNOD
             CALL WRITE_I_C(NODLOCAL(RETRACTOR(I)%INACTI_NODE(K)), 1)
-          ENDDO
+          ENDDO         
           CALL WRITE_I_C(RETRACTOR(I)%N_REMOTE_PROC, 1)
-          LEN_IA = LEN_IA + 20 + RETRACTOR(I)%INACTI_NNOD
+          CALL WRITE_I_C(RETRACTOR(I)%S_TABLE, 2)
+          LEN_IA = LEN_IA + 23 + RETRACTOR(I)%INACTI_NNOD
           CALL WRITE_DB(RETRACTOR(I)%VECTOR, 3)
           CALL WRITE_DB(RETRACTOR(I)%ELEMENT_SIZE, 1)
           CALL WRITE_DB(RETRACTOR(I)%FORCE, 1)
@@ -155,16 +154,76 @@ C
           CALL WRITE_DB(RETRACTOR(I)%UNLOCK_FORCE, 1)
           CALL WRITE_DB(RETRACTOR(I)%LOCK_OFFSET, 1)
           CALL WRITE_DB(RETRACTOR(I)%LOCK_PULL, 1)
+          CALL WRITE_DB(RETRACTOR(I)%LOCK_PULL_SAV, 1)
           CALL WRITE_DB(RETRACTOR(I)%LOCK_YIELD_FORCE, 1)
           CALL WRITE_DB(RETRACTOR(I)%RINGSLIP, 1)
           CALL WRITE_DB(RETRACTOR(I)%PRETENS_TIME, 1)
           CALL WRITE_DB(RETRACTOR(I)%PRETENS_PULL, 1)
           CALL WRITE_DB(RETRACTOR(I)%PRETENS_PULLMAX, 1)
           CALL WRITE_DB(RETRACTOR(I)%RET_FORCE, 1)
-          LEN_AM = LEN_AM + 21
+          L_TABLE = 0
+          DO K=1,2
+            IF (RETRACTOR(I)%S_TABLE(K) > 0) THEN
+              NPT = RETRACTOR(I)%S_TABLE(K)    
+              L_TABLE = L_TABLE + 2*NPT
+              CALL WRITE_DB(RETRACTOR(I)%TABLE(K)%X(1)%VALUES(1:NPT),NPT)
+              CALL WRITE_DB(RETRACTOR(I)%TABLE(K)%Y%VALUES(1:NPT),NPT)
+            ENDIF  
+          ENDDO
+          LEN_AM = LEN_AM + 22 + L_TABLE
         ENDIF
 C
       ENDDO
+C
+      DO I = 1, NGUIDED_CABLE
+C
+        IF (NLOCAL(GUIDE(I)%CONT(1)%NODE(2),P)==1) THEN
+C
+          CALL WRITE_I_C(GUIDE(I)%ID, 1)
+          CALL WRITE_I_C(GUIDE(I)%ISTIFF, 1)
+          CALL WRITE_I_C(GUIDE(I)%NODE_SET, 1)
+          CALL WRITE_I_C(GUIDE(I)%PART_SET, 1)
+          CALL WRITE_I_C(GUIDE(I)%NCONT, 1)
+          CALL WRITE_I_C(GUIDE(I)%ELTYPE, 1)
+          CALL WRITE_I_C(GUIDE(I)%N_REMOTE_PROC, 1)
+          LEN_IA = LEN_IA + 7
+C
+          CALL WRITE_DB(GUIDE(I)%STFAC, 1)
+          CALL WRITE_DB(GUIDE(I)%FRIC, 1)
+          LEN_AM = LEN_AM + 2
+C
+          DO J=1,GUIDE(I)%NCONT
+C
+            CALL WRITE_I_C(GUIDE(I)%CONT(J)%UPDATE, 1)
+            CALL WRITE_I_C(GUIDE(I)%CONT(J)%ACTIVE_SEGMENT, 1)
+            CALL WRITE_I_C(NODLOCAL(GUIDE(I)%CONT(J)%ANCHOR_NODE), 1)      
+            DO K=1,3
+              IF (GUIDE(I)%CONT(J)%NODE(K) > 0) THEN
+                CALL WRITE_I_C(NODLOCAL(GUIDE(I)%CONT(J)%NODE(K)), 1)              
+              ELSE
+                CALL WRITE_I_C(0, 1)
+              ENDIF
+            ENDDO
+            DO K=1,2
+              IF (GUIDE(I)%CONT(J)%NODE_NEXT(K) > 0) THEN
+                CALL WRITE_I_C(NODLOCAL(GUIDE(I)%CONT(J)%NODE_NEXT(K)), 1)
+              ELSE
+                CALL WRITE_I_C(0, 1)
+              ENDIF
+            ENDDO
+            CALL WRITE_I_C(GUIDE(I)%CONT(J)%NODE_IREMOTE, 4)        
+            LEN_IA = LEN_IA + 12
+C
+            CALL WRITE_DB(GUIDE(I)%CONT(J)%FORC, 3)
+            CALL WRITE_DB(GUIDE(I)%CONT(J)%FORC_AD, 3)
+            CALL WRITE_DB(GUIDE(I)%CONT(J)%DIST, 1)
+            LEN_AM = LEN_AM + 7
+C
+          ENDDO
+C
+        ENDIF
+C
+      ENDDO      
 C
       IF (N_ANCHOR_REMOTE_L > 0) THEN
         CALL WRITE_I_C(ANCHOR_REMOTE_L%ADD_PROC, NSPMD+1)

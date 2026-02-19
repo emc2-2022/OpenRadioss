@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS86G                     source/materials/mat/mat086/sigeps86g.F
-Chd|-- called by -----------
-Chd|        MULAWGLC                      source/materials/mat_share/mulawglc.F
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps86g   ../engine/source/materials/mat/mat086/sigeps86g.F
+!||--- called by ------------------------------------------------------
+!||    mulawglc    ../engine/source/materials/mat_share/mulawglc.F
+!||--- calls      -----------------------------------------------------
+!||    vinter      ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS86G(
      1     NEL    ,NUVAR  ,NPF     ,
      2     TF     ,TIME   ,UPARAM  ,RHO0    ,
@@ -46,8 +46,8 @@ Chd|====================================================================
 C-----------------------------------------------------------------------------
 C    ZENG 15/07/97
 C    N,M SONT REMPLACES PAR N/H,M/H^2
-C    LES DIFFERENTES OPTIONS SONT SUPRIMEES 
-C    IL NE RESTE QUE : COUPLAGE M-N AVEC R (GAMA DANS LE PROGRAMME)VARIABLE
+C    the different options are removed
+C    only remains: coupling m-n with r (gamma in the program) variable
 C    MODIF POUVANT ETRE ENVISAGE: M(X) DONNE PAR USER -> CALCULER R
 C-----------------------------------------------------------------------------
 C   I M P L I C I T   T Y P E S
@@ -112,7 +112,7 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,J,NRATE,J1,J2,N,NINDX,NMAX,NFUNC,
+      INTEGER I,J,NRATE,J1,J2,N,NINDX,NMAX,
      .        IAD1(MVSIZ),IPOS1(MVSIZ),ILEN1(MVSIZ),
      .        IAD2(MVSIZ),IPOS2(MVSIZ),ILEN2(MVSIZ),
      .        JJ(MVSIZ),INDEX(MVSIZ),IFUNC(100),NFUNCV,
@@ -125,9 +125,9 @@ C-----------------------------------------------
      .        YFAC(MVSIZ,2),NNU1,NU1(MVSIZ),
      .        NU2(MVSIZ),NU3(MVSIZ),DPLA_I,DPLA_J(MVSIZ),H(MVSIZ),
      .        FAIL(MVSIZ),EPSMAX,EPSR1,EPSR2,
-     .        ERR,F,DF,YLD_I,TOL,
+     .        F,DF,YLD_I,TOL,
      .        C1,CP1,CQ1,CP2,CQ2,SM1(MVSIZ),SM2(MVSIZ),SM3,FN,FM,FNM,
-     .        PN2,QN2,PM2,QM2,DFN,DFM,DFNM,DA,DB,A_I,B_I,
+     .        DFN,DFM,DFNM,DA,DB,A_I,B_I,
      .        DFNP,DFNQ,DFMP,DFMQ,DFNMP,DFNMQ,XP,XQ,XPG,XQG,
      .        GM(MVSIZ),CM(MVSIZ),P_M,QM,PNM1,PNM2,QTIER(MVSIZ),
      .        CNM(MVSIZ),AM(MVSIZ),BM(MVSIZ),ANM(MVSIZ),BNM(MVSIZ),
@@ -145,13 +145,13 @@ C-----------------------------------------------
 C     USER VARIABLES INITIALIZATION
 C-----------------------------------------------
 C       R=0.833333333333
-       IF(IVECTOR.EQ.1) THEN
+       IF(IVECTOR==1) THEN
          MX = MAT(1)
          NFUNCM = 0
          NFUNCV = IPM(10,MX)
          NFUNCM = MAX(NFUNCM,NFUNCV)
          DO J=1,NFUNCM
-             IF(NFUNCV.GE.J) THEN
+             IF(NFUNCV>=J) THEN
                IFUNC(J) = IPM(10+J,MX)
              ENDIF
          ENDDO
@@ -169,9 +169,9 @@ C       R=0.833333333333
        NRATEM = MAX(NRATEM,NRATE)
        EPSMAX=UPARAM(IADBUFV+6+2*NRATE+1)
        EPSR1 =UPARAM(IADBUFV+6+2*NRATE+2)
-       IF(EPSR1.EQ.ZERO)EPSR1=EP30
+       IF(EPSR1==ZERO)EPSR1=EP30
        EPSR2 =UPARAM(IADBUFV+6+2*NRATE+3)
-       IF(EPSR2.EQ.ZERO)EPSR2=TWOEP30
+       IF(EPSR2==ZERO)EPSR2=TWOEP30
        EPSF = UPARAM(IADBUFV+6+2*NRATE+9) 
        NNU1 = NU / (ONE - NU) 
        DO I=1,NEL
@@ -183,10 +183,10 @@ C       R=0.833333333333
 C
 C
        ENDDO
-       IF(IVECTOR.EQ.1) THEN
+       IF(IVECTOR==1) THEN
          DO I=1,NEL
-           IF(EPSMAX.EQ.ZERO)THEN
-             IF(TF(NPF(IFUNC(1)+1)-1).EQ.ZERO)THEN
+           IF(EPSMAX==ZERO)THEN
+             IF(TF(NPF(IFUNC(1)+1)-1)==ZERO)THEN
                EPSMAX=TF(NPF(IFUNC(1)+1)-2)
              ELSE
                EPSMAX= EP30
@@ -195,8 +195,8 @@ C
         END DO
        ELSE
          DO I=1,NEL
-           IF(EPSMAX.EQ.ZERO)THEN
-             IF(TF(NPF(IPM(11,MAT(I))+1)-1).EQ.ZERO)THEN
+           IF(EPSMAX==ZERO)THEN
+             IF(TF(NPF(IPM(11,MAT(I))+1)-1)==ZERO)THEN
                EPSMAX=TF(NPF(IPM(11,MAT(I))+1)-2)
              ELSE
                EPSMAX= EP30
@@ -205,8 +205,8 @@ C
         END DO
        ENDIF
 C
-      IF (ISIGI.EQ.0) THEN
-       IF(TIME.EQ.ZERO)THEN
+      IF (ISIGI==0) THEN
+       IF(TIME==ZERO)THEN
         DO I=1,NEL
          UVAR(I,1)=ZERO
          UVAR(I,2)=ZERO 
@@ -254,8 +254,8 @@ C-------------------
       ENDDO
         DO J=2,NRATEM-1
           DO I=1,NEL
-            IF(NRATE-1.GE.J) THEN
-              IF(EPSP(I).GE.UPARAM(IADBUFV+6+J)) JJ(I) = J
+            IF(NRATE-1>=J) THEN
+              IF(EPSP(I)>=UPARAM(IADBUFV+6+J)) JJ(I) = J
             ENDIF
           ENDDO
         ENDDO
@@ -267,16 +267,16 @@ C
          YFAC(I,2)=UPARAM(IADBUFV+7+NRATE+JJ(I))
        ENDDO
 C
-      IF(IVECTOR.EQ.1) THEN
+      IF(IVECTOR==1) THEN
        DO I=1,NEL
         J1 = JJ(I)
         J2 = J1+1
         IPOS1(I) = NINT(UVAR(I,J1))
-        IAD1(I)  = HALF*NPF(IFUNC(J1)) + 1
-        ILEN1(I) = HALF*NPF(IFUNC(J1)+1) - IAD1(I) - IPOS1(I)
+        IAD1(I)  = NPF(IFUNC(J1))/2 + 1
+        ILEN1(I) = NPF(IFUNC(J1)+1)/2 - IAD1(I) - IPOS1(I)
         IPOS2(I) = NINT(UVAR(I,J2))
-        IAD2(I)  = HALF*NPF(IFUNC(J2)) + 1
-        ILEN2(I) = HALF*NPF(IFUNC(J2)+1) - IAD2(I) - IPOS2(I)
+        IAD2(I)  = NPF(IFUNC(J2))/2 + 1
+        ILEN2(I) = NPF(IFUNC(J2)+1)/2 - IAD2(I) - IPOS2(I)
        ENDDO
       ELSE
        DO I=1,NEL
@@ -308,7 +308,7 @@ C
         UVAR(I,J1) = IPOS1(I)
         UVAR(I,J2) = IPOS2(I)
       ENDDO
-      IF(IPLA.EQ.0) THEN
+      IF(IPLA==0) THEN
 C---------------------------
 C    RADIAL RETURN
 C---------------------------
@@ -320,7 +320,7 @@ C---------------------------
      .          + FS*FS+ THREE*(SIGNXY(I)*SIGNXY(I)-SIGNXX(I)*SIGNYY(I))
        SVM(I) = SQRT(MAX(SVM(I),EM20))
        RR(I) = MIN(ONE,YLD(I)/SVM(I))
-       IF(RR(I).LT.ONE) ETSE(I)= H(I)/(H(I)+E)
+       IF(RR(I)<ONE) ETSE(I)= H(I)/(H(I)+E)
       ENDDO
       DO  I=1,NEL
        SIGNXX(I) = SIGNXX(I)*RR(I)
@@ -356,14 +356,14 @@ C---------------------------
        DEZZ = - (DEPSXX(I)+DEPSYY(I)) * (NNU1*AAA + BBB) / CCC
        THK(I) = THK(I) * (ONE + DEZZ*OFF(I))
       ENDDO
-      ELSEIF(CODVERS.LT.44)THEN
-C     IF(CODVERS.LT.44.AND.IPLA.EQ.1) THEN
+      ELSEIF(CODVERS<44)THEN
+C     IF(CODVERS<44.AND.IPLA==1) THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     von mises criterion
 C-------------------------
       DO  I=1,NEL
 C-------------------------------------------------------------------------
-C     GAMA (L'INVERSE DE GAMA DANS LA FORMULE) A ETE PRIS A 2/3 PAR DEFAUT
+C     gamma (the inverse of gamma in the formula) is taken as 2/3 by default
 C-------------------------------------------------------------------------
        C1 = PLA(I)*E
        GAMA(I) = THREE_HALF*(C1+YLD(I))/(THREE_HALF*C1+YLD(I))
@@ -396,12 +396,12 @@ C     GATHER PLASTIC FLOW
 C-------------------------
       NINDX=0
       DO I=1,NEL
-      IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+      IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
         NINDX=NINDX+1
         INDEX(NINDX)=I
       ENDIF
       ENDDO
-      IF(NINDX.EQ.0) RETURN
+      IF(NINDX==0) RETURN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
@@ -417,7 +417,7 @@ C---------------------------
         ETSE(I)= H(I)/(H(I)+E)
       ENDDO
 C-------------------------------
-C     TIENT COMPTE DU COUPLAGE
+C     takes into account the coupling
 C-------------------------------
       DO N=1,NMAX
 #include "vectorize.inc"
@@ -454,7 +454,7 @@ C-------------------------------
         FN=AA*FNP*AN(I)+BB*FNQ*BN(I)
         FM=AA*FMP*AM(I)+BB*FMQ*BM(I)
         FNM=AA*FNMP*ANM(I)+BB*FNMQ*BNM(I)
-        IF (FNM.LT.ZERO) THEN
+        IF (FNM<ZERO) THEN
          FNM=-FNM
          S=-ONE
         ELSE
@@ -477,7 +477,7 @@ C-------------------------------
         DF    =(DFN+DFM+S*DFNM)*
      .         (E*HALF-DR*H(I))/YLD_I-2.*H(I)*YLD_I
 C DEBUG
-C          IF(I.EQ.21) THEN
+C          IF(I==21) THEN
 C            WRITE(12,*) 'DFN,DFM,DFNM'
 C            WRITE(12,*) DFN,DFM,DFNM
 C            ERR=ABS(F/(DF*DPLA_I))
@@ -512,7 +512,7 @@ C------------------------------------------
         FNMP=ONE-ONEP222*GAMA2(I)*XP*XP
         FNMQ=ONE-ONEP222*GAMA2(I)*XQ*XQ
         FNM=AA*FNMP*ANM(I)+BB*FNMQ*BNM(I)
-        IF (FNM.LT.ZERO) THEN
+        IF (FNM<ZERO) THEN
          S=-ONE
         ELSE
          S=ONE
@@ -539,7 +539,7 @@ C------------------------------------------
         DEZZ = - NU3(I)*DR*SN1*2./E
         THK(I) = THK(I) + DEZZ*THK(I)*OFF(I)
 C
-C            IF (I.EQ.21) THEN
+C            IF (I==21) THEN
 C            WRITE(12,'(/A, E12.4)') 'TIME', TIME
 C            WRITE(12,'(A,2E12.4)') 'THK ',THK(I),THKLY(I)
 C            WRITE(12,'(A,3E12.4)') 'DDEF',DEPSXX(I),DEPSYY(I),DEPSXY(I)
@@ -555,16 +555,16 @@ C            WRITE(12,'(A,3E12.4)') 'VONM',NVM(I),MVM(I),NMVM(I)
 C           ENDIF
       ENDDO
       ELSE
-C     IF(CODVERS.GE.44.AND.IPLA.EQ.1) THEN
+C     IF(CODVERS>=44.AND.IPLA==1) THEN
 C-------------------------
 C     ITERATIVE
 C-------------------------
 C-------------------------
-C     CRITERE DE VON MISES
+C     von mises criterion
 C-------------------------
       DO  I=1,NEL
 C-------------------------------------------------------------------------
-C     GAMA (L'INVERSE DE GAMA DANS LA FORMULE) 
+C     gamma (the inverse of gamma in the formula)
 C-------------------------------------------------------------------------
        C1 = PLA(I)*E
        CCC=EXP(-TWOP6667*C1/YLD(I))
@@ -598,12 +598,12 @@ C     GATHER PLASTIC FLOW
 C-------------------------
       NINDX=0
       DO I=1,NEL
-      IF(SVM(I).GT.YLD(I).AND.OFF(I).EQ.ONE) THEN
+      IF(SVM(I)>YLD(I).AND.OFF(I)==ONE) THEN
         NINDX=NINDX+1
         INDEX(NINDX)=I
       ENDIF
       ENDDO
-      IF(NINDX.EQ.0) RETURN
+      IF(NINDX==0) RETURN
 C---------------------------
 C    DEP EN CONTRAINTE PLANE
 C---------------------------
@@ -622,7 +622,7 @@ C---------------------------
         ETSE(I)= H(I)/(H(I)+E)
       ENDDO
 C-------------------------------
-C     TIENT COMPTE DU COUPLAGE
+C     takes into account the coupling
 C-------------------------------
       DO N=1,NMAX
 #include "vectorize.inc"
@@ -656,7 +656,7 @@ C-------------------------------
         FNMP=ONE+DFNMP*XP
         FNMQ=ONE+DFNMQ*XQ
         FNM=AA*FNMP*ANM(I)+BB*FNMQ*BNM(I)
-        IF (FNM.LT.ZERO) THEN
+        IF (FNM<ZERO) THEN
          S=-ONE
         ELSE
          S=ONE
@@ -671,7 +671,7 @@ C-------------------------------
         DF    =(CP2*NU1(I)+CQ2*NU2(I)-CP1*XPG-CQ1*XQG)*
      .         (A1-DR*H(I))/YLD_I-TWO*H(I)*YLD_I
 C DEBUG
-C          IF(I.EQ.21) THEN
+C          IF(I==21) THEN
 C            WRITE(12,*) 'FN,FM,FNM'
 C            WRITE(12,*) FNP+FNQ,FMP+FNQ,FNMP+FNMQ
 C            ERR=ABS(F/(DF*DPLA_I))
@@ -705,7 +705,7 @@ C------------------------------------------
         FNMP=ONE+QFNM(I)*XPG
         FNMQ=ONE+QFNM(I)*XQG
         FNM=AA*FNMP*ANM(I)+BB*FNMQ*BNM(I)
-        IF (FNM.LT.ZERO) THEN
+        IF (FNM<ZERO) THEN
          S=-ONEP732*GAMA(I)
         ELSE
          S=ONEP732*GAMA(I)
@@ -727,7 +727,7 @@ C------------------------------------------
         DEZZ = - NU3(I)*DR*SN1/E
         THK(I) = THK(I) + DEZZ*THK(I)*OFF(I)
 C
-C            IF (I.EQ.21) THEN
+C            IF (I==21) THEN
 C            WRITE(12,'(/A, E12.4)') 'TIME', TIME
 C            WRITE(12,'(A,2E12.4)') 'THK ',THK(I)
 C            WRITE(12,'(A,3E12.4)') 'DDEF',DEPSXX(I),DEPSYY(I),DEPSXY(I)
@@ -745,8 +745,8 @@ C           ENDIF
       ENDIF
 C
       DO I=1,NEL
-        IF((PLA(I).GT.EPSMAX.OR.EPST(I).GT.EPSF).
-     .   AND.OFF(I).EQ.ONE) THEN
+        IF((PLA(I)>EPSMAX.OR.EPST(I)>EPSF).
+     .   AND.OFF(I)==ONE) THEN
            OFF(I)=FOUR_OVER_5
 C           WRITE(12,'(A,I5,2E12.4)') 'RUPTURE', I, PLA(I), EPSMAX(I)
         ENDIF

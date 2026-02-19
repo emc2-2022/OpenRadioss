@@ -1,50 +1,51 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CNEPSINI                      source/elements/shell/coqueba/cnepsini.F
-Chd|-- called by -----------
-Chd|        CBAINIT3                      source/elements/shell/coqueba/cbainit3.F
-Chd|-- calls ---------------
-Chd|        CDEFOI                        source/elements/shell/coque/cepsini.F
-Chd|        CMLAWI                        source/elements/shell/coque/cepsini.F
-Chd|        CNEVECI                       source/elements/shell/coqueba/cneveci.F
-Chd|        CORTH3                        source/elements/shell/coque/corth3.F
-Chd|        CPXPYI                        source/elements/shell/coque/cepsini.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE CNEPSINI(ELBUF_STR,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cnepsini       ../starter/source/elements/shell/coqueba/cnepsini.F
+!||--- called by ------------------------------------------------------
+!||    cbainit3       ../starter/source/elements/shell/coqueba/cbainit3.F
+!||--- calls      -----------------------------------------------------
+!||    cdefoi         ../starter/source/elements/shell/coque/cepsini.F
+!||    cmlawi         ../starter/source/elements/shell/coque/cepsini.F
+!||    cneveci        ../starter/source/elements/shell/coqueba/cneveci.F
+!||    corth3         ../starter/source/elements/shell/coque/corth3.F
+!||    cpxpyi         ../starter/source/elements/shell/coque/cepsini.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE CNEPSINI(ELBUF_STR,MAT_PARAM,
      1           JFT    ,JLT    ,ISMSTR,MTN   ,ITHK   ,
      2           PM     ,GEO    ,IXC   ,X     ,XREFC  ,
      3           NLAY   ,FOR    ,THK   ,EINT  ,GSTR   ,
      4           PX1G   ,PX2G   ,PY1G  ,PY2G  ,X2S    ,
      5           Y2S    ,X3S    ,Y3S   ,X4S   ,Y4S    ,
-     6           OFF    ,UVAR  ,UPARAM,IPM    ,IMAT   ,
+     6           OFF    ,UVAR   ,IPM    ,IMAT   ,
      7           IGEO   ,NEL    ,DIR_A ,DIR_B ,SIGI   ,
      8           NPF    ,TF     ,IREP  )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD            
+      USE MAT_ELEM_MOD   
+      use element_mod , only : nixc         
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,7 +59,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "scr03_c.inc"
-#include      "scr21_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -69,13 +69,14 @@ C-----------------------------------------------
      . FOR(NEL,5) ,THK(*)   ,EINT(JLT,2),GSTR(NEL,8),
      . PX1G(*)  ,PX2G(*)  ,PY1G(*)  ,PY2G(*),
      . X2S(*)   ,Y2S(*)   ,X3S(*)   ,Y3S(*) ,X4S(*) ,
-     . Y4S(*)   ,OFF(*)  ,UPARAM(*),UVAR(NEL,*) ,
+     . Y4S(*)   ,OFF(*)  ,UVAR(NEL,*) ,
      . DIR_A(NEL,*),DIR_B(NEL,*),SIGI(NEL,3),TF(*)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
+      TYPE (MATPARAM_STRUCT_) ,INTENT(IN) :: MAT_PARAM
 C------------------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, NT, I1, I2, I3, I4,NITRS0
+      INTEGER I, NT, I1, I2, I3, I4,IDRAPE,IGTYP
       my_real FAC
       my_real
      .   X1(MVSIZ) , X2(MVSIZ) , X3(MVSIZ) , X4(MVSIZ) ,
@@ -92,6 +93,8 @@ C-----------------------------------------------
 C=======================================================================
 c     initial state
 c---------------------
+      IDRAPE = ELBUF_STR%IDRAPE
+      IGTYP  = ELBUF_STR%IGTYP
       DO I=JFT,JLT
         I1 = IXC(2,I)
         I2 = IXC(3,I)
@@ -160,10 +163,6 @@ c
         VL(3,4,I) = E1Z(I)*XL(1,4,I) + E2Z(I)*XL(2,4,I)
       ENDDO
 c-----------------
-      IF (MTN==58) THEN
-        NITRS0 = NITRS
-        NITRS = MAX(IPLA_D*100,NITRS0)
-      END IF
       FAC = ONE / FLOAT(NITRS)
       DO I=JFT,JLT
         VL(1,2,I) = (VL(1,2,I) - X2(I)) * FAC
@@ -209,7 +208,8 @@ c
      .                NLAY     ,IREP    ,NEL     ,
      .                X1  ,X2  ,X3  ,X4  ,Y1  ,Y2  ,
      .                Y3  ,Y4  ,Z1  ,Z2  ,Z3  ,Z4  ,
-     .                E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z )
+     .                E1X ,E2X ,E3X ,E1Y ,E2Y ,E3Y ,E1Z ,E2Z ,E3Z  ,
+     .                IDRAPE, IGTYP )
 c
           CALL CPXPYI(JFT  ,JLT  ,ISMSTR     ,AREA  ,
      .                PX1G ,PX2G ,PY1G ,PY2G ,
@@ -223,10 +223,11 @@ c
      .                PX1  ,PX2  ,PY1  ,PY2  ,NEL,
      .                AREA ,EXX  ,EYY  ,EXY  ,EYZ  ,EZX  ,
      .                E1X  ,E2X  ,E3X  ,E1Y  ,E2Y  ,E3Y  ,E1Z ,E2Z ,E3Z )
-          CALL CMLAWI(JFT  ,JLT  ,MTN    ,ITHK ,PM   ,
+          CALL CMLAWI(MAT_PARAM,
+     .                JFT  ,JLT  ,MTN    ,ITHK ,PM   ,
      .                FOR  ,THK  ,EINT   ,GSTR ,DIR_A,
-     .                DIR_B,UVAR ,UPARAM,IPM   ,IGEO ,
-     .                NEL  ,SIGI ,ISMSTR,NPF   ,TF   ,
+     .                DIR_B,UVAR ,IPM   ,
+     .                NEL  ,SIGI ,NPF   ,TF   ,
      .                AREA ,EXX  ,EYY   ,EXY   ,IMAT )
 C
         ENDDO
@@ -250,14 +251,14 @@ c
      .                AREA ,EXX  ,EYY  ,EXY  ,EYZ  ,EZX  ,                 
      .                E1X  ,E2X  ,E3X  ,E1Y  ,E2Y  ,E3Y  ,E1Z ,E2Z ,E3Z )  
 c
-          CALL CMLAWI(JFT,JLT,MTN,ITHK,PM,                                 
+          CALL CMLAWI(MAT_PARAM,
+     .                JFT,JLT,MTN,ITHK,PM,                                 
      .                FOR,THK,EINT,GSTR,DIR1,                              
-     .                DIR2,UVAR,UPARAM,IPM,IGEO,                           
-     .                NEL,SIGI,ISMSTR,NPF ,TF,                             
+     .                DIR2,UVAR,IPM,                          
+     .                NEL,SIGI,NPF ,TF,                             
      .                AREA,EXX    ,EYY    ,EXY, IMAT )                     
         ENDDO
       ENDIF
-      IF (MTN==58) NITRS = NITRS0
 C ---
       RETURN
       END

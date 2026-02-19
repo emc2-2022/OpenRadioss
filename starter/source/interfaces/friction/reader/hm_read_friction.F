@@ -1,42 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_FRICTION              source/interfaces/friction/reader/hm_read_friction.F
-Chd|-- called by -----------
-Chd|        HM_READ_FRICTION_MODELS       source/interfaces/friction/reader/hm_read_friction_models.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_friction           ../starter/source/interfaces/friction/reader/hm_read_friction.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_friction_models    ../starter/source/interfaces/friction/reader/hm_read_friction_models.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    fretitl                    ../starter/source/starter/freform.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_FRICTION(
      1        NIF     ,NOM_OPT   ,TITR       ,UNITAB    ,IGRPART       ,
      2        IPART   ,NSET      ,TAGPRT_FRIC,TABCOUPLEPARTS_FRIC_TMP  ,
@@ -54,13 +53,11 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -72,35 +69,25 @@ C-----------------------------------------------
       INTEGER NOM_OPT(LNOPT1,*)
       INTEGER NIF ,IFLAG ,MFROT ,IFQ ,FRICFORM ,NSET ,ORTHFRIC , NGRPF,LENG,NOINTF
       INTEGER IPART(LIPART1,*) ,TAGPRT_FRIC(*),
-     .   TABCOUPLEPARTS_FRIC_TMP(NINTERFRIC,*),IFRICORTH_TMP(NINTERFRIC,*),
-     .   LENGRPF(*)
-      my_real
-     .   XFILTR
+     .        TABCOUPLEPARTS_FRIC_TMP(NINTERFRIC,*),IFRICORTH_TMP(NINTERFRIC,*),
+     .        LENGRPF(*)
+      my_real XFILTR
       my_real TABCOEF_FRIC_TMP(NINTERFRIC,*)
-      CHARACTER TITR*nchartitle
+      CHARACTER(LEN=NCHARTITLE)::TITR
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRPART) :: IGRPART
       TYPE (SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com09_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "scr12_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J ,L ,IP ,IP1 ,IP2 ,N ,N1 ,N2 ,KK ,NL ,
+      INTEGER I ,J ,IP ,N ,N1 ,N2 ,KK ,NL ,
      .    GRPART1 ,GRPART2 ,IPART1 ,IPART2 ,FLAGP1 ,FLAGP2,FLAGGRP1, 
-     .    FLAGGRP2  ,IDTGRS1 ,IGRPART1 ,IDTGRS2 ,IGRPART2 ,NCOUPLE ,
+     .    FLAGGRP2  ,IDTGRS1 ,IDTGRS2 ,NCOUPLE ,
      .    IPP ,IPP1 ,IPP2  ,IDIR ,NTAB ,LENF ,GRPN ,GRPN1 ,GRPN2 ,
      .    NP0 ,NGR0 ,K ,NGR ,J1 ,J2 ,STAT ,WORK(70000),NINPUT
        INTEGER, DIMENSION(:),   ALLOCATABLE :: 
@@ -113,6 +100,9 @@ C-----------------------------------------------
 C=======================================================================
 C     READING FRICTION Model /FRICTION
 C=======================================================================
+       IP = -HUGE(IP)
+       IDTGRS1 = -HUGE(IDTGRS1)
+       IDTGRS2 = -HUGE(IDTGRS2)
 
        IS_AVAILABLE = .FALSE.
 
@@ -129,6 +119,7 @@ C
        NSET = 0
        NCOUPLE = 0
 C
+       LENF = 0
        IF(IFLAG==0 ) THEN 
           ORTHFRIC = 0
        ELSE
@@ -162,44 +153,34 @@ C EXTRACT DATAS (REAL VALUES)
 C
 C CHECKS
 C
-       IF (ALPHA.EQ.0.) IFQ = 0
+       IF (ALPHA==0.) IFQ = 0
        ALPHA = ALPHA 
 
-       IF (FRICFORM.EQ.0) FRICFORM = 1
-       IF (FRICFORM.EQ.2.AND.IFQ.LT.10) IFQ = IFQ + 10
+       IF (FRICFORM==0) FRICFORM = 1
+       IF (FRICFORM==2.AND.IFQ<10) IFQ = IFQ + 10
 C
-       IF (IFQ.GT.0) THEN
-           IF (IFQ.EQ.10) XFILTR = ONE
-           IF (MOD(IFQ,10).EQ.1) XFILTR = ALPHA
-           IF (MOD(IFQ,10).EQ.2) XFILTR=FOUR*ATAN2(ONE,ZERO) / ALPHA
-           IF (MOD(IFQ,10).EQ.3) XFILTR=FOUR*ATAN2(ONE,ZERO) * ALPHA
-           IF (XFILTR.LT.ZERO) THEN
-              CALL ANCMSG(MSGID=1591,
-     .                    MSGTYPE=MSGERROR,
-     .                    ANMODE=ANINFO_BLIND_1,
-     .                    I1=NOINTF,
-     .                    C1=TITR,
-     .                    R1=ALPHA)
-           ELSEIF (XFILTR.GT.1.AND.MOD(IFQ,10).LE.2) THEN
-                CALL ANCMSG(MSGID=1591,
-     .                      MSGTYPE=MSGERROR,
-     .                      ANMODE=ANINFO_BLIND_1,
-     .                      I1=NOINTF,
-     .                      C1=TITR,
-     .                      R1=ALPHA)
+       IF (IFQ>0) THEN
+           IF (IFQ==10) XFILTR = ONE
+           IF (MOD(IFQ,10)==1) XFILTR = ALPHA
+           IF (MOD(IFQ,10)==2) XFILTR=FOUR*ATAN2(ONE,ZERO) / ALPHA
+           IF (MOD(IFQ,10)==3) XFILTR=FOUR*ATAN2(ONE,ZERO) * ALPHA
+           IF (XFILTR<ZERO) THEN
+              CALL ANCMSG(MSGID=1591, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1, I1=NOINTF, C1=TITR, R1=ALPHA)
+           ELSEIF (XFILTR>1.AND.MOD(IFQ,10)<=2) THEN
+                CALL ANCMSG(MSGID=1591, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1, I1=NOINTF, C1=TITR, R1=ALPHA)
             ENDIF
        ELSE
            XFILTR = ZERO
        ENDIF
 
 C
-C STORAGE IN TEMPARAY INTBUF_FRIC_TAB
+C STORAGE IN TEMPORARY INTBUF_FRIC_TAB
 C
        IF(IFLAG == 1 ) THEN        
 
-          IF((FRIC.NE.ZERO.OR.MFROT.NE.0).AND.VISCF.EQ.ZERO)VISCF=ONE
+          IF((FRIC/=ZERO.OR.MFROT/=0).AND.VISCF==ZERO)VISCF=ONE
 
-          IF (FRICFORM.EQ.2)VISCF=ZERO
+          IF (FRICFORM==2)VISCF=ZERO
 
           TABCOEF_FRIC_TMP(NIF,1) = FRIC
           TABCOEF_FRIC_TMP(NIF,2) = VISCF
@@ -223,27 +204,31 @@ C          1st defaults
           ELSE
             WRITE(IOUT,1509) 
           ENDIF
-          IF(MFROT.EQ.0)THEN
+          IF(MFROT==0)THEN
              WRITE(IOUT,1503)  
-          ELSEIF(MFROT.EQ.1)THEN
+          ELSEIF(MFROT==1)THEN
             WRITE(IOUT,3505) 
-          ELSEIF(MFROT.EQ.2)THEN
+          ELSEIF(MFROT==2)THEN
             WRITE(IOUT,3506) 
-          ELSEIF(MFROT.EQ.3)THEN
+          ELSEIF(MFROT==3)THEN
             WRITE(IOUT,3507)  
+          ELSEIF(MFROT==4)THEN
+            WRITE(IOUT,3508)  
           ENDIF
           WRITE(IOUT,1502)MOD(IFQ,10), XFILTR
           WRITE(IOUT,1501)
 
-          IF(MFROT.EQ.0)THEN
+          IF(MFROT==0)THEN
              WRITE(IOUT,3503)  FRIC
              IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF
-          ELSEIF(MFROT.EQ.1)THEN
+          ELSEIF(MFROT==1)THEN
             WRITE(IOUT,1504)  FRIC,C1,C2,C3,C4,C5,C6
-          ELSEIF(MFROT.EQ.2)THEN
+          ELSEIF(MFROT==2)THEN
             WRITE(IOUT,1505)  FRIC,C1,C2,C3,C4,C5,C6
-          ELSEIF(MFROT.EQ.3)THEN
+          ELSEIF(MFROT==3)THEN
             WRITE(IOUT,1506)  C1,C2,C3,C4,C5,C6
+          ELSEIF(MFROT==4)THEN
+            WRITE(IOUT,1514)  FRIC,C1,C2
           ENDIF
        ENDIF
 C
@@ -302,7 +287,7 @@ C
           FLAGP2 = 0  
           FLAGGRP1 = 0  
           FLAGGRP2 = 0  
-
+          N1 = -HUGE(N1)
           IF(IPART1/=0)THEN
             DO N=1,NPART
                IF(IPART1 == IPART(4,N))THEN
@@ -322,7 +307,8 @@ C
             ENDIF
           ENDIF
 C
-          IF(IPART2/=0)THEN
+          N2 = -HUGE(N2)
+          IF(IPART2/=0)THEN            
              DO N=1,NPART
                 IF(IPART2 == IPART(4,N))THEN
                   FLAGP2 = 1 
@@ -341,7 +327,7 @@ C
              ENDIF
           ENDIF
 C
-C----CHECK PARTS group
+C--- CHECK PARTS Group
 C
           IF(GRPART1/=0)THEN
             FLAGGRP1 = 0
@@ -360,7 +346,7 @@ C
      .                      ANMODE=ANINFO_BLIND_1,
      .                      I1=NOINTF,
      .                      C1=TITR,
-     .                      I2=IGRPART1)
+     .                      I2=GRPART1)
             ENDIF
           ENDIF
 C
@@ -381,7 +367,7 @@ C
      .                      ANMODE=ANINFO_BLIND_1,
      .                      I1=NOINTF,
      .                      C1=TITR,
-     .                      I2=IGRPART2)
+     .                      I2=GRPART2)
              ENDIF
           ENDIF
 
@@ -389,25 +375,25 @@ C
 C----CHECK coefficient values
 C
           IF(IFLAG == 1 ) THEN
-             IF((FRIC.NE.ZERO.OR.MFROT.NE.0).AND.VISCF.EQ.ZERO)VISCF=ONE
+             IF((FRIC/=ZERO.OR.MFROT/=0).AND.VISCF==ZERO)VISCF=ONE
 
-             IF (FRICFORM.EQ.2)VISCF=ZERO
+             IF (FRICFORM==2)VISCF=ZERO
 
              IF(IDIR > 0) THEN
 
-                IF((FRIC2.NE.ZERO.OR.MFROT.NE.0).AND.VISCF2.EQ.ZERO)VISCF2=ONE
+                IF((FRIC2/=ZERO.OR.MFROT/=0).AND.VISCF2==ZERO)VISCF2=ONE
 
-                IF (FRICFORM.EQ.2)VISCF2=ZERO
+                IF (FRICFORM==2)VISCF2=ZERO
 
-                IF((FRIC2.NE.ZERO.OR.MFROT.NE.0).AND.VISCF2.EQ.ZERO)VISCF2=ONE
+                IF((FRIC2/=ZERO.OR.MFROT/=0).AND.VISCF2==ZERO)VISCF2=ONE
 
-                IF (FRICFORM.EQ.2)VISCF2=ZERO
+                IF (FRICFORM==2)VISCF2=ZERO
 
               ENDIF
           ENDIF
 
 C
-C COUNTING AND STORAGE IN TEMPARAY INTBUF_FRIC_TAB
+C COUNTING AND STORAGE IN TEMPORARY INTBUF_FRIC_TAB
 C
           IF(FLAGP1 /= 0.AND.FLAGP2 /= 0)THEN
 C
@@ -489,39 +475,45 @@ C
                 WRITE (IOUT,2001) IPART(4,N1),IPART(4,N2)
                 IF(IDIR==0) THEN
                   WRITE(IOUT,1510)
-                  IF(MFROT.EQ.0)THEN
+                  IF(MFROT==0)THEN
                     WRITE(IOUT,3503) FRIC
                     IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF
-                  ELSEIF(MFROT.EQ.1)THEN
+                  ELSEIF(MFROT==1)THEN
                     WRITE(IOUT,1504) FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.2)THEN
+                  ELSEIF(MFROT==2)THEN
                     WRITE(IOUT,1505)FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.3)THEN
+                  ELSEIF(MFROT==3)THEN
                     WRITE(IOUT,1506)C1,C2,C3,C4,C5,C6
+                  ELSEIF(MFROT==4)THEN
+                     WRITE(IOUT,1514)  FRIC,C1,C2
                   ENDIF
                 ELSE
                   WRITE(IOUT,1511)
                   WRITE(IOUT,1512)
-                  IF(MFROT.EQ.0)THEN
+                  IF(MFROT==0)THEN
                     WRITE(IOUT,3503) FRIC
                     IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF
-                  ELSEIF(MFROT.EQ.1)THEN
+                  ELSEIF(MFROT==1)THEN
                     WRITE(IOUT,1504) FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.2)THEN
+                  ELSEIF(MFROT==2)THEN
                     WRITE(IOUT,1505)FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.3)THEN
+                  ELSEIF(MFROT==3)THEN
                     WRITE(IOUT,1506)C1,C2,C3,C4,C5,C6
+                  ELSEIF(MFROT==4)THEN
+                     WRITE(IOUT,1514)  FRIC,C1,C2
                   ENDIF
                   WRITE(IOUT,1513)
-                  IF(MFROT.EQ.0)THEN
+                  IF(MFROT==0)THEN
                     WRITE(IOUT,3503) FRIC2
                     IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF2
-                  ELSEIF(MFROT.EQ.1)THEN
+                  ELSEIF(MFROT==1)THEN
                     WRITE(IOUT,1504) FRIC2,C11,C22,C33,C44,C55,C66
-                  ELSEIF(MFROT.EQ.2)THEN
+                  ELSEIF(MFROT==2)THEN
                     WRITE(IOUT,1505)FRIC2,C11,C22,C33,C44,C55,C66
-                  ELSEIF(MFROT.EQ.3)THEN
+                  ELSEIF(MFROT==3)THEN
                     WRITE(IOUT,1506)C11,C22,C33,C44,C55,C66
+                  ELSEIF(MFROT==4)THEN
+                    WRITE(IOUT,1514)  FRIC2,C11,C22
                   ENDIF
                 ENDIF
 C
@@ -657,9 +649,10 @@ C
                      IP = GRPN1
                   ELSE
                      IPP = GRPN1
+                     IP = GRPN2
                   ENDIF
 
-                      
+                  NSET = NSET + 1
                   NCOUPLE = NCOUPLE + 1          
                   TABCOUPLEPARTS_FRIC_TMP(NIF,NCOUPLE) = IPP  
                   NCOUPLE = NCOUPLE + 1          
@@ -705,39 +698,45 @@ C--Output--
      .             IPART(4,N1),GRPART2
                 IF(IDIR==0) THEN
                    WRITE(IOUT,1510)
-                   IF(MFROT.EQ.0)THEN
+                   IF(MFROT==0)THEN
                      WRITE(IOUT,3503) FRIC
                      IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF
-                   ELSEIF(MFROT.EQ.1)THEN
+                   ELSEIF(MFROT==1)THEN
                       WRITE(IOUT,1504) FRIC,C1,C2,C3,C4,C5,C6
-                   ELSEIF(MFROT.EQ.2)THEN
+                   ELSEIF(MFROT==2)THEN
                       WRITE(IOUT,1505)FRIC,C1,C2,C3,C4,C5,C6
-                   ELSEIF(MFROT.EQ.3)THEN
+                   ELSEIF(MFROT==3)THEN
                       WRITE(IOUT,1506)C1,C2,C3,C4,C5,C6
+                   ELSEIF(MFROT==4)THEN
+                     WRITE(IOUT,1514)  FRIC,C1,C2
                    ENDIF
                 ELSE
                    WRITE(IOUT,1511)
                    WRITE(IOUT,1512)
-                   IF(MFROT.EQ.0)THEN
+                   IF(MFROT==0)THEN
                       WRITE(IOUT,3503) FRIC
                       IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF
-                   ELSEIF(MFROT.EQ.1)THEN
+                   ELSEIF(MFROT==1)THEN
                       WRITE(IOUT,1504) FRIC,C1,C2,C3,C4,C5,C6
-                   ELSEIF(MFROT.EQ.2)THEN
+                   ELSEIF(MFROT==2)THEN
                       WRITE(IOUT,1505)FRIC,C1,C2,C3,C4,C5,C6
-                   ELSEIF(MFROT.EQ.3)THEN
+                   ELSEIF(MFROT==3)THEN
                       WRITE(IOUT,1506)C1,C2,C3,C4,C5,C6
+                   ELSEIF(MFROT==4)THEN
+                     WRITE(IOUT,1514)  FRIC,C1,C2
                    ENDIF
                    WRITE(IOUT,1513)
-                   IF(MFROT.EQ.0)THEN
+                   IF(MFROT==0)THEN
                       WRITE(IOUT,3503) FRIC2
                       IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF2
-                   ELSEIF(MFROT.EQ.1)THEN
+                   ELSEIF(MFROT==1)THEN
                       WRITE(IOUT,1504) FRIC2,C11,C22,C33,C44,C55,C66
-                   ELSEIF(MFROT.EQ.2)THEN
+                   ELSEIF(MFROT==2)THEN
                       WRITE(IOUT,1505)FRIC2,C11,C22,C33,C44,C55,C66
-                   ELSEIF(MFROT.EQ.3)THEN
+                   ELSEIF(MFROT==3)THEN
                       WRITE(IOUT,1506)C11,C22,C33,C44,C55,C66
+                   ELSEIF(MFROT==4)THEN
+                      WRITE(IOUT,1514) FRIC2,C11,C22
                    ENDIF
                 ENDIF
              ENDIF
@@ -873,7 +872,7 @@ C
                     IPP = GRPN1
                  ENDIF
 
-
+                 NSET = NSET + 1
                  NCOUPLE = NCOUPLE + 1          
                  TABCOUPLEPARTS_FRIC_TMP(NIF,NCOUPLE) = IPP  
                  NCOUPLE = NCOUPLE + 1          
@@ -916,39 +915,45 @@ C--Output--
      .             GRPART1,IPART(4,N2)
                IF(IDIR==0) THEN
                   WRITE(IOUT,1510)
-                  IF(MFROT.EQ.0)THEN
+                  IF(MFROT==0)THEN
                      WRITE(IOUT,3503) FRIC
                      IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF
-                  ELSEIF(MFROT.EQ.1)THEN
+                  ELSEIF(MFROT==1)THEN
                      WRITE(IOUT,1504) FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.2)THEN
+                  ELSEIF(MFROT==2)THEN
                      WRITE(IOUT,1505)FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.3)THEN
+                  ELSEIF(MFROT==3)THEN
                      WRITE(IOUT,1506)C1,C2,C3,C4,C5,C6
+                  ELSEIF(MFROT==4)THEN
+                     WRITE(IOUT,1514)  FRIC,C1,C2
                   ENDIF
                ELSE
                   WRITE(IOUT,1511)
                   WRITE(IOUT,1512)
-                  IF(MFROT.EQ.0)THEN
+                  IF(MFROT==0)THEN
                      WRITE(IOUT,3503) FRIC
                      IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF
-                  ELSEIF(MFROT.EQ.1)THEN
+                  ELSEIF(MFROT==1)THEN
                       WRITE(IOUT,1504) FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.2)THEN
+                  ELSEIF(MFROT==2)THEN
                      WRITE(IOUT,1505)FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.3)THEN
+                  ELSEIF(MFROT==3)THEN
                      WRITE(IOUT,1506)C1,C2,C3,C4,C5,C6
+                  ELSEIF(MFROT==4)THEN
+                     WRITE(IOUT,1514)  FRIC,C1,C2
                   ENDIF
                   WRITE(IOUT,1513)
-                  IF(MFROT.EQ.0)THEN
+                  IF(MFROT==0)THEN
                      WRITE(IOUT,3503) FRIC2
                      IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF2
-                  ELSEIF(MFROT.EQ.1)THEN
+                  ELSEIF(MFROT==1)THEN
                      WRITE(IOUT,1504) FRIC2,C11,C22,C33,C44,C55,C66
-                  ELSEIF(MFROT.EQ.2)THEN
+                  ELSEIF(MFROT==2)THEN
                      WRITE(IOUT,1505)FRIC2,C11,C22,C33,C44,C55,C66
-                  ELSEIF(MFROT.EQ.3)THEN
+                  ELSEIF(MFROT==3)THEN
                      WRITE(IOUT,1506)C11,C22,C33,C44,C55,C66
+                  ELSEIF(MFROT==4)THEN
+                    WRITE(IOUT,1514)  FRIC2,C11,C22
                   ENDIF
                ENDIF
             ENDIF
@@ -1214,39 +1219,45 @@ C--Output--
      .             GRPART1,GRPART2
                IF(IDIR==0) THEN
                   WRITE(IOUT,1510)
-                  IF(MFROT.EQ.0)THEN
+                  IF(MFROT==0)THEN
                      WRITE(IOUT,3503) FRIC
                      IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF
-                  ELSEIF(MFROT.EQ.1)THEN
+                  ELSEIF(MFROT==1)THEN
                      WRITE(IOUT,1504) FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.2)THEN
+                  ELSEIF(MFROT==2)THEN
                      WRITE(IOUT,1505)FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.3)THEN
+                  ELSEIF(MFROT==3)THEN
                      WRITE(IOUT,1506)C1,C2,C3,C4,C5,C6
+                  ELSEIF(MFROT==4)THEN
+                    WRITE(IOUT,1514)  FRIC,C1,C2
                   ENDIF
                ELSE
                   WRITE(IOUT,1511)
                   WRITE(IOUT,1512)
-                  IF(MFROT.EQ.0)THEN
+                  IF(MFROT==0)THEN
                      WRITE(IOUT,3503) FRIC
                      IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF
-                  ELSEIF(MFROT.EQ.1)THEN
+                  ELSEIF(MFROT==1)THEN
                      WRITE(IOUT,1504) FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.2)THEN
+                  ELSEIF(MFROT==2)THEN
                      WRITE(IOUT,1505)FRIC,C1,C2,C3,C4,C5,C6
-                  ELSEIF(MFROT.EQ.3)THEN
+                  ELSEIF(MFROT==3)THEN
                      WRITE(IOUT,1506)C1,C2,C3,C4,C5,C6
+                  ELSEIF(MFROT==4)THEN
+                    WRITE(IOUT,1514)  FRIC,C1,C2
                   ENDIF
                   WRITE(IOUT,1513)
-                  IF(MFROT.EQ.0)THEN
+                  IF(MFROT==0)THEN
                      WRITE(IOUT,3503) FRIC2
                      IF(FRICFORM /= 2) WRITE(IOUT,3504) VISCF2
-                  ELSEIF(MFROT.EQ.1)THEN
+                  ELSEIF(MFROT==1)THEN
                      WRITE(IOUT,1504) FRIC2,C11,C22,C33,C44,C55,C66
-                  ELSEIF(MFROT.EQ.2)THEN
+                  ELSEIF(MFROT==2)THEN
                      WRITE(IOUT,1505)FRIC2,C11,C22,C33,C44,C55,C66
-                  ELSEIF(MFROT.EQ.3)THEN
+                  ELSEIF(MFROT==3)THEN
                      WRITE(IOUT,1506)C11,C22,C33,C44,C55,C66
+                  ELSEIF(MFROT==4)THEN
+                    WRITE(IOUT,1514)  FRIC2,C11,C22
                   ENDIF
                ENDIF
             ENDIF
@@ -1310,6 +1321,13 @@ C
      .    '          C4 . . . . . . . . . . . . . . . . . . . ',1PG20.13/,
      .    '          C5 . . . . . . . . . . . . . . . . . . . ',1PG20.13/,
      .    '          C6 . . . . . . . . . . . . . . . . . . . ',1PG20.13/)
+ 3508 FORMAT(/
+     .    '        EXPONENTIAL DECAY FRICTION LAW   '/
+     .    '          MU = c1+(MUo-c1)*exp(-c2*v)')
+ 1514 FORMAT(/
+     .    '          STATIC COEFFICIENT MUo . . . . . . . . . ',1PG20.13/,
+     .    '          DYNAMIC COEFFICIENT C1 . . . . . . . . . ',1PG20.13/,
+     .    '          EXPONENTIAL DECAY COEFFICIENT C2 . . . . ',1PG20.13/)
 c 2503 FORMAT(/
 c     .    '      FRICTION COEFFICIENT . . . . . . . . .  . . ',1PG20.13/
 c     .    '      FRICTION CRITICAL DAMPING FACTOR. . . . . . ',1PG20.13)

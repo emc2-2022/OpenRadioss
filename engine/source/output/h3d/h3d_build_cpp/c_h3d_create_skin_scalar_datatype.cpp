@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //    
 #include <stdio.h>
 #include <string.h>
@@ -114,11 +114,19 @@ void c_h3d_create_skin_scalar_datatype_(int *cpt_data, char *name1, int *size1, 
     H3D_ID layer_pool_id = H3D_NULL_ID;
 
 
+#ifdef _WIN64
+     strcat_s(RES_STRING,100,cname);
+#else
      RES_STRING = strcat(RES_STRING,cname);
+#endif
      if(*nuvar > 0)
     {
-        sprintf(NUVAR_STRING, " %d \0",*nuvar);
+        sprintf(NUVAR_STRING, " %d ",*nuvar);
+#ifdef _WIN64
+        strcat_s(RES_STRING,100,NUVAR_STRING);
+#else
         RES_STRING = strcat(RES_STRING,NUVAR_STRING);
+#endif
     }
 
 

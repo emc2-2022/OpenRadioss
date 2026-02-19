@@ -1,36 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVSTATS                       source/airbag/fvstats.F       
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        FVSTATS1                      source/airbag/fvstats1.F      
-Chd|        SPMD_ALLGLOB_ISUM9            source/mpi/generic/spmd_allglob_isum9.F
-Chd|        SPMD_CHKW                     source/mpi/generic/spmd_chkw.F
-Chd|        SPMD_WIOUT                    source/mpi/generic/spmd_wiout.F
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvstats              ../engine/source/airbag/fvstats.F
+!||--- called by ------------------------------------------------------
+!||    resol                ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    fvstats1             ../engine/source/airbag/fvstats1.F
+!||    spmd_allglob_isum9   ../engine/source/mpi/generic/spmd_allglob_isum9.F
+!||    spmd_chkw            ../engine/source/mpi/generic/spmd_chkw.F
+!||    spmd_wiout           ../engine/source/mpi/generic/spmd_wiout.F
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod            ../engine/share/modules/fvbag_mod.F
+!||====================================================================
       SUBROUTINE FVSTATS(MONVOL)
 C-----------------------------------------------
 C   M o d u l e s 
@@ -56,12 +57,12 @@ C-----------------------------------------------
       INTEGER IWIOUT
 C
       IF(NFVBAG == 0) RETURN
-	  
-      CALL FVSTATS1(IOUT,MONVOL,0)	  
-C	  
+            
+      CALL FVSTATS1(IOUT,MONVOL,0)    
+C    
       IF (NSPMD > 1) THEN
         IWIOUT = 0
-        IF(ISPMD .NE. 0 ) CALL SPMD_CHKW(IWIOUT,IOUT)          
+        IF(ISPMD /= 0 ) CALL SPMD_CHKW(IWIOUT,IOUT)          
         CALL SPMD_ALLGLOB_ISUM9(IWIOUT,1)
         CALL SPMD_WIOUT(IOUT,IWIOUT)
       ENDIF

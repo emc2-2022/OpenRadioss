@@ -1,40 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SURF_MASS_MONV                source/output/th/surf_mass.F  
-Chd|-- called by -----------
-Chd|        ABFHIST2                      source/output/abf/abfhist2.F  
-Chd|        HIST2                         source/output/th/hist2.F      
-Chd|-- calls ---------------
-Chd|        SURF_MASS_COM                 source/output/th/surf_mass.F  
-Chd|        SURF_MASS_FVM                 source/output/th/surf_mass.F  
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    surf_mass_monv   ../engine/source/output/th/surf_mass.F
+!||--- called by ------------------------------------------------------
+!||    hist2            ../engine/source/output/th/hist2.F
+!||--- calls      -----------------------------------------------------
+!||    surf_mass_com    ../engine/source/output/th/surf_mass.F
+!||    surf_mass_fvm    ../engine/source/output/th/surf_mass.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod     ../common_source/modules/groupdef_mod.F
+!||    th_surf_mod      ../common_source/modules/interfaces/th_surf_mod.F
+!||====================================================================
       SUBROUTINE SURF_MASS_MONV(FSAVSURF, IGRSURF, MONVOL, VOLMON, FR_MV)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE GROUPDEF_MOD
+      USE TH_SURF_MOD , only : TH_SURF_NUM_CHANNEL
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,22 +47,19 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr17_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER MONVOL(*), FR_MV(NSPMD+2,NVOLU)
-C     REAL
-      my_real
-     .   FSAVSURF(3,NSURF), VOLMON(*)
-      TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
+      my_real FSAVSURF(TH_SURF_NUM_CHANNEL,NSURF), VOLMON(*)
+      TYPE (SURF_), DIMENSION(NSURF) :: IGRSURF
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, NN, IAD, KAD, ITYP, NCA, IDSURF, PMAIN
+      INTEGER I, N, KAD, ITYP, NCA, IDSURF, PMAIN
       INTEGER NTG, NTGI, NNT, KIBALE, KRBALE
-      INTEGER K1, K2, KK2, KI4, KR5, KR6, KR7, NNS, NNI, NTGT
+      INTEGER K1, K2, KK2, KR5, KR6, KR7, NNS, NNI, NTGT
       INTEGER :: KR1, KR2, KR3, KR4
 C-----------------------------------------------------------------------
          K1 = 1
@@ -104,7 +103,7 @@ C-----------------------------------------------------------------------
                   CALL SURF_MASS_COM(MONVOL(K2), VOLMON(KK2), NCA, IDSURF,
      .                               FSAVSURF(2,I),FSAVSURF(3,I))
                ENDDO
-             ENDIF			 
+             ENDIF       
            ENDIF
            K1 = K1+NIMV
            K2 = K2+NICBAG*NCA
@@ -113,25 +112,20 @@ C-----------------------------------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SURF_MASS_FVM                 source/output/th/surf_mass.F  
-Chd|-- called by -----------
-Chd|        SURF_MASS_MONV                source/output/th/surf_mass.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    surf_mass_fvm    ../engine/source/output/th/surf_mass.F
+!||--- called by ------------------------------------------------------
+!||    surf_mass_monv   ../engine/source/output/th/surf_mass.F
+!||====================================================================
       SUBROUTINE SURF_MASS_FVM(NTGI, ITAG, ELFMASS, MASS, ELFVEL, VEL, ELSINI)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NTGI, ITAG(*)
-C     REAL
       my_real
      .   ELFMASS(*), MASS, ELFVEL(*), VEL, ELSINI(*)
 C-----------------------------------------------
@@ -154,12 +148,11 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SURF_MASS_COM                 source/output/th/surf_mass.F  
-Chd|-- called by -----------
-Chd|        SURF_MASS_MONV                source/output/th/surf_mass.F  
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    surf_mass_com    ../engine/source/output/th/surf_mass.F
+!||--- called by ------------------------------------------------------
+!||    surf_mass_monv   ../engine/source/output/th/surf_mass.F
+!||====================================================================
       SUBROUTINE SURF_MASS_COM(ICBAG, RCBAG, NCA, IDSURF, MASS, VEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -168,7 +161,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s

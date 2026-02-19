@@ -1,34 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_DIAG_RBE2                 source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        SMS_RBE_5                     source/ams/sms_rbe2.F         
-Chd|        SPMD_EXCH_RBE2_SMS            source/mpi/kinematic_conditions/spmd_exch_rbe2_sms.F
-Chd|        SPMD_MAX_I                    source/mpi/implicit/imp_spmd.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_diag_rbe2        ../engine/source/ams/sms_rbe2.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2              ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    sms_rbe_5            ../engine/source/ams/sms_rbe2.F
+!||    spmd_exch_rbe2_sms   ../engine/source/mpi/kinematic_conditions/spmd_exch_rbe2_sms.F
+!||    spmd_max_i           ../engine/source/mpi/implicit/imp_spmd.F
+!||====================================================================
       SUBROUTINE SMS_DIAG_RBE2(
      1   IRBE2 ,LRBE2 ,NODXI_SMS,JAD_SMS,JDI_SMS,LT_SMS,
      2   NMRBE2,MS,DIAG_SMS,PREC_SMS3,IAD_RBE2,FR_RBE2M,
@@ -41,12 +40,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -70,14 +65,14 @@ C-----------------------------------------------
 C-----------------------------------------------
       CALL PRERBE2(IRBE2 ,JT  ,JR   )
       ICOM = IAD_RBE2(NSPMD+1)-IAD_RBE2(1)
-      IF (NSPMD.GT.1)CALL SPMD_MAX_I(ICOM)
+      IF (NSPMD>1)CALL SPMD_MAX_I(ICOM)
 C
       TAG(1:3,1:NUMNOD)=0
 C
       DO NHI=NHRBE2,0,-1
        DO N=1,NRBE2
-        IF (IRBE2(9,N).NE.NHI) CYCLE
-	IAD = IRBE2(1,N)
+        IF (IRBE2(9,N)/=NHI) CYCLE
+          IAD = IRBE2(1,N)
         NSN = IRBE2(5,N)
         M   = IRBE2(3,N)
         DO I=1,NSN
@@ -123,20 +118,20 @@ C
         END DO
        END DO
        DO N=1,NRBE2
-        IF (IRBE2(9,N).NE.NHI) CYCLE
-	IAD = IRBE2(1,N)
+        IF (IRBE2(9,N)/=NHI) CYCLE
+          IAD = IRBE2(1,N)
         NSN = IRBE2(5,N)
         M   = IRBE2(3,N)
         ISK = IRBE2(7,N)
-	MID = IABS(IRBE2(6,N))
-	IRAD = IRBE2(11,N)
+          MID = IABS(IRBE2(6,N))
+          IRAD = IRBE2(11,N)
         CALL SMS_RBE_5(NSN   ,LRBE2(IAD+1),DIAG_RBE2,MS    ,WEIGHT,
      1                 JT    ,FRBE2M6(1,1,MID),M      ,IRAD  ,ISK   ,
      2                 SKEW  )
 
        END DO
 C-----------------
-       IF (ICOM.GT.0) THEN
+       IF (ICOM>0) THEN
          ISIZE=3
          CALL SPMD_EXCH_RBE2_SMS(
      .    FRBE2M6 ,IAD_RBE2,FR_RBE2M,IAD_RBE2(NSPMD+1),ISIZE)
@@ -145,11 +140,11 @@ C
 C assemblage parith/ON
 #include    "vectorize.inc"
        DO N=1,NRBE2
-         IF (IRBE2(9,N).NE.NHI) CYCLE
+         IF (IRBE2(9,N)/=NHI) CYCLE
          M  = IRBE2(3,N)
          MID = IRBE2(6,N)
          IRAD = IRBE2(11,N)
-         IF (MID.LT.0) CYCLE
+         IF (MID<0) CYCLE
          DO J=1,3
            DD=DIAG_RBE2(J,M)
            DO K=1,6
@@ -189,7 +184,7 @@ C
         M  = IRBE2(3,N)
         MID = IRBE2(6,N)
         IRAD = IRBE2(11,N)
-        IF (MID.LT.0) CYCLE
+        IF (MID<0) CYCLE
         DO J=1,3
           IF(DIAG_RBE2(J,M)==ZERO)THEN
             PREC_SMS3(J,M)=ZERO
@@ -202,13 +197,13 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE2_NODXI                source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_BUILD_DIAG                source/ams/sms_build_diag.F   
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe2_nodxi   ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_build_diag   ../engine/source/ams/sms_build_diag.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2          ../engine/source/constraints/general/rbe2/rbe2f.F
+!||====================================================================
       SUBROUTINE SMS_RBE2_NODXI(
      1   IRBE2 ,LRBE2 ,NODXI_SMS)
 C-----------------------------------------------
@@ -219,12 +214,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -234,20 +224,20 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, N, ISK, I, J, M, JT(3,NRBE2),JR(3,NRBE2),
+      INTEGER  N, ISK, I, M, JT(3,NRBE2),JR(3,NRBE2),
      .        IAD, NS, NSN, MID, NHI, IRAD
 C-----------------------------------------------
       CALL PRERBE2(IRBE2 ,JT  ,JR   )
 C
       DO NHI=0,NHRBE2
        DO N=1,NRBE2
-        IF (IRBE2(9,N).NE.NHI) CYCLE
-	IAD = IRBE2(1,N)
+        IF (IRBE2(9,N)/=NHI) CYCLE
+          IAD = IRBE2(1,N)
         NSN = IRBE2(5,N)
         M   = IRBE2(3,N)
         ISK = IRBE2(7,N)
-	MID = IABS(IRBE2(6,N))
-	IRAD = IRBE2(11,N)
+          MID = IABS(IRBE2(6,N))
+          IRAD = IRBE2(11,N)
         IF(JT(1,N)+JT(2,N)+JT(3,N)/=0.AND.NODXI_SMS(M)==0)THEN
           DO I=1,NSN
            NS = LRBE2(IAD+I)
@@ -263,20 +253,20 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE_CNDS                  source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_ENCIN_2                   source/ams/sms_encin_2.F      
-Chd|        SMS_MASS_SCALE_2              source/ams/sms_mass_scale_2.F 
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        SMS_RBE2_S                    source/ams/sms_rbe2.F         
-Chd|        SMS_RBE_1                     source/ams/sms_rbe2.F         
-Chd|        SMS_RBE_2                     source/ams/sms_rbe2.F         
-Chd|        SPMD_EXCH_RBE2_SMS            source/mpi/kinematic_conditions/spmd_exch_rbe2_sms.F
-Chd|        SPMD_MAX_I                    source/mpi/implicit/imp_spmd.F
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe_cnds         ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_encin_2          ../engine/source/ams/sms_encin_2.F
+!||    sms_mass_scale_2     ../engine/source/ams/sms_mass_scale_2.F
+!||    sms_pcg              ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2              ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    sms_rbe2_s           ../engine/source/ams/sms_rbe2.F
+!||    sms_rbe_1            ../engine/source/ams/sms_rbe2.F
+!||    sms_rbe_2            ../engine/source/ams/sms_rbe2.F
+!||    spmd_exch_rbe2_sms   ../engine/source/mpi/kinematic_conditions/spmd_exch_rbe2_sms.F
+!||    spmd_max_i           ../engine/source/mpi/implicit/imp_spmd.F
+!||====================================================================
       SUBROUTINE SMS_RBE_CNDS(
      1   IRBE2 ,LRBE2 ,X      ,A      ,AR     ,
      1   MS    ,IN    ,SKEW   ,WEIGHT ,IAD_RBE2,
@@ -289,12 +279,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -308,14 +294,14 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, N, ISK, I, J, M, ISIZE, JT(3,NRBE2),JR(3,NRBE2),
-     .        IAD, NS, ICOM, NSN, MID, NHI, IRAD
+      INTEGER K, N, ISK, J, M, ISIZE, JT(3,NRBE2),JR(3,NRBE2),
+     .        IAD, ICOM, NSN, MID, NHI, IRAD
       DOUBLE PRECISION
      .   FRBE2M6(3,6,NMRBE2)
 C-----------------------------------------------
       CALL PRERBE2(IRBE2 ,JT  ,JR   )
       ICOM = IAD_RBE2(NSPMD+1)-IAD_RBE2(1)
-      IF (NSPMD.GT.1)CALL SPMD_MAX_I(ICOM)
+      IF (NSPMD>1)CALL SPMD_MAX_I(ICOM)
 C
       DO NHI=0,NHRBE2
        DO N=1,NMRBE2
@@ -326,19 +312,19 @@ C
         END DO
        END DO
        DO N=1,NRBE2
-        IF (IRBE2(9,N).NE.NHI) CYCLE
-	IAD = IRBE2(1,N)
+        IF (IRBE2(9,N)/=NHI) CYCLE
+          IAD = IRBE2(1,N)
         NSN = IRBE2(5,N)
         M   = IRBE2(3,N)
         ISK = IRBE2(7,N)
-	MID = IABS(IRBE2(6,N))
-	IRAD = IRBE2(11,N)
+          MID = IABS(IRBE2(6,N))
+          IRAD = IRBE2(11,N)
         CALL SMS_RBE_1(NSN   ,LRBE2(IAD+1),X       ,A     ,AR       ,
      1                 MS    ,IN    ,WEIGHT,JT(1,N),FRBE2M6(1,1,MID),
      2                 M     ,IRAD  ,ISK   ,SKEW   )
        END DO
 C-----------------
-       IF (ICOM.GT.0) THEN
+       IF (ICOM>0) THEN
          ISIZE=3
          CALL SPMD_EXCH_RBE2_SMS(
      .    FRBE2M6 ,IAD_RBE2,FR_RBE2M,IAD_RBE2(NSPMD+1),ISIZE)
@@ -367,14 +353,14 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE_ACCL                  source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        SMS_RBE_3                     source/ams/sms_rbe2.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe_accl   ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg        ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2        ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    sms_rbe_3      ../engine/source/ams/sms_rbe2.F
+!||====================================================================
       SUBROUTINE SMS_RBE_ACCL(
      1   IRBE2 ,LRBE2  ,R        ,A       ,PREC_SMS3,
      1   SKEW  ,WEIGHT ,IAD_RBE2 ,FR_RBE2M,NMRBE2)
@@ -386,12 +372,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -404,8 +385,8 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, N, ISK, I, J, M, ISIZE, JT(3,NRBE2),JR(3,NRBE2),
-     .        IAD, NS, ICOM, NSN, MID, NHI, IRAD
+      INTEGER  N, ISK, M, JT(3,NRBE2),JR(3,NRBE2),
+     .        IAD, NSN, IRAD
 C-----------------------------------------------
       CALL PRERBE2(IRBE2 ,JT  ,JR   )
 C
@@ -422,15 +403,15 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE_CORR                  source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_ENCIN_2                   source/ams/sms_encin_2.F      
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        SMS_RBE_4                     source/ams/sms_rbe2.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe_corr   ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_encin_2    ../engine/source/ams/sms_encin_2.F
+!||    sms_pcg        ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2        ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    sms_rbe_4      ../engine/source/ams/sms_rbe2.F
+!||====================================================================
       SUBROUTINE SMS_RBE_CORR(
      1   IRBE2 ,LRBE2 ,V      ,W      ,MS    ,
      1   SKEW   ,WEIGHT ,IAD_RBE2,FR_RBE2M,NMRBE2)
@@ -442,12 +423,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -460,8 +436,8 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, N, ISK, I, J, M, ISIZE, JT(3,NRBE2),JR(3,NRBE2),
-     .        IAD, NS, ICOM, NSN, MID, NHI, IRAD
+      INTEGER  N, ISK, M, JT(3,NRBE2),JR(3,NRBE2),
+     .        IAD, NSN, IRAD
 C-----------------------------------------------
       CALL PRERBE2(IRBE2 ,JT  ,JR   )
 C
@@ -478,16 +454,16 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE_PREC                  source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        SMS_RBE_5                     source/ams/sms_rbe2.F         
-Chd|        SPMD_EXCH_RBE2_SMS            source/mpi/kinematic_conditions/spmd_exch_rbe2_sms.F
-Chd|        SPMD_MAX_I                    source/mpi/implicit/imp_spmd.F
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe_prec         ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg              ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2              ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    sms_rbe_5            ../engine/source/ams/sms_rbe2.F
+!||    spmd_exch_rbe2_sms   ../engine/source/mpi/kinematic_conditions/spmd_exch_rbe2_sms.F
+!||    spmd_max_i           ../engine/source/mpi/implicit/imp_spmd.F
+!||====================================================================
       SUBROUTINE SMS_RBE_PREC(
      1   IRBE2 ,LRBE2  ,DIAG_SMS ,MS   ,DIAG_SMS3,
      1   SKEW  ,WEIGHT ,IAD_RBE2 ,FR_RBE2M,NMRBE2)
@@ -499,12 +475,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -517,8 +489,8 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, N, ISK, I, J, M, ISIZE, JT(3,NRBE2),JR(3,NRBE2),
-     .        IAD, NS, ICOM, NSN, MID, NHI, IRAD
+      INTEGER K, N, ISK, J, M, ISIZE, JT(3,NRBE2),JR(3,NRBE2),
+     .        IAD, ICOM, NSN, MID, NHI, IRAD
       my_real
      .        DD
       DOUBLE PRECISION
@@ -526,7 +498,7 @@ C-----------------------------------------------
 C-----------------------------------------------
       CALL PRERBE2(IRBE2 ,JT  ,JR   )
       ICOM = IAD_RBE2(NSPMD+1)-IAD_RBE2(1)
-      IF (NSPMD.GT.1)CALL SPMD_MAX_I(ICOM)
+      IF (NSPMD>1)CALL SPMD_MAX_I(ICOM)
 C
       DO NHI=0,NHRBE2
        DO N=1,NMRBE2
@@ -537,20 +509,20 @@ C
         END DO
        END DO
        DO N=1,NRBE2
-        IF (IRBE2(9,N).NE.NHI) CYCLE
-	IAD = IRBE2(1,N)
+        IF (IRBE2(9,N)/=NHI) CYCLE
+          IAD = IRBE2(1,N)
         NSN = IRBE2(5,N)
         M   = IRBE2(3,N)
         ISK = IRBE2(7,N)
-	MID = IABS(IRBE2(6,N))
-	IRAD = IRBE2(11,N)
+          MID = IABS(IRBE2(6,N))
+          IRAD = IRBE2(11,N)
         CALL SMS_RBE_5(NSN   ,LRBE2(IAD+1),DIAG_SMS3,MS    ,WEIGHT,
      1                 JT    ,FRBE2M6(1,1,MID),M      ,IRAD  ,ISK   ,
      2                 SKEW  )
 
        END DO
 C-----------------
-       IF (ICOM.GT.0) THEN
+       IF (ICOM>0) THEN
          ISIZE=3
          CALL SPMD_EXCH_RBE2_SMS(
      .    FRBE2M6 ,IAD_RBE2,FR_RBE2M,IAD_RBE2(NSPMD+1),ISIZE)
@@ -559,11 +531,11 @@ C
 C assemblage parith/ON
 #include    "vectorize.inc"
        DO N=1,NRBE2
-         IF (IRBE2(9,N).NE.NHI) CYCLE
+         IF (IRBE2(9,N)/=NHI) CYCLE
          M  = IRBE2(3,N)
          MID = IRBE2(6,N)
          IRAD = IRBE2(11,N)
-         IF (MID.LT.0) CYCLE
+         IF (MID<0) CYCLE
          DO J=1,3
            DD=DIAG_SMS3(J,M)
            DO K=1,6
@@ -578,14 +550,14 @@ C-----------------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE_1                     source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_RBE_CNDS                  source/ams/sms_rbe2.F         
-Chd|-- calls ---------------
-Chd|        CDI_BCN                       source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe_1      ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_rbe_cnds   ../engine/source/ams/sms_rbe2.F
+!||--- calls      -----------------------------------------------------
+!||    cdi_bcn        ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    sum_6_float    ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE SMS_RBE_1(NSL   ,ISL   ,X     ,A     ,AR    ,
      1                     MS    ,IN    ,WEIGHT,JT    ,FS6   ,
      2                     M     ,IRAD  ,ISK   ,SKEW  )
@@ -596,11 +568,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -613,12 +581,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, K, IJT, JT1(3), IC
+      INTEGER I, N, K, IJT, JT1(3), IC
 C     REAL
       my_real
      .   F1(NSL), F2(NSL), F3(NSL), RX, RY, RZ, CDT(9)
 C-----------------------------------------------
-      IF ((JT(1)+JT(2)+JT(3)).GT.0) THEN
+      IF ((JT(1)+JT(2)+JT(3))>0) THEN
        IJT=1
       ELSE
        IJT=0
@@ -626,7 +594,7 @@ C-----------------------------------------------
 
       IF(ISK<=1)THEN
 C
-C Remontee des forces
+C Feedback of forces
         DO K = 1, 6
           FS6(1,K) = ZERO
           FS6(2,K) = ZERO
@@ -635,7 +603,7 @@ C Remontee des forces
 C
         DO I=1,NSL
          N = ISL(I)
-         IF(WEIGHT(N).EQ.1) THEN
+         IF(WEIGHT(N)==1) THEN
            F1(I)=JT(1)*A(1,N)
            F2(I)=JT(2)*A(2,N)
            F3(I)=JT(3)*A(3,N)
@@ -660,7 +628,7 @@ C
         ENDDO
       END IF
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
       CALL SUM_6_FLOAT(1  ,NSL  ,F1, FS6(1,1), 3)
       CALL SUM_6_FLOAT(1  ,NSL  ,F2, FS6(2,1), 3)
@@ -669,12 +637,11 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE_2                     source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_RBE_CNDS                  source/ams/sms_rbe2.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe_2      ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_rbe_cnds   ../engine/source/ams/sms_rbe2.F
+!||====================================================================
       SUBROUTINE SMS_RBE_2(NSL   ,ISL   ,X     ,A     ,AR    ,
      1                     JT    ,M     ,IRAD  ,ISK   ,SKEW  )
 C-----------------------------------------------
@@ -684,11 +651,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -699,12 +662,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, IJT
+      INTEGER I, N, IJT
 C     REAL
       my_real
      .   AAX, AAY, AAZ
 C-----------------------------------------------
-      IF ((JT(1)+JT(2)+JT(3)).GT.0) THEN
+      IF ((JT(1)+JT(2)+JT(3))>0) THEN
        IJT=1
       ELSE
        IJT=0
@@ -714,13 +677,13 @@ C Reset 2nd membre
       IF(ISK<=1)THEN
         DO I=1,NSL
           N = ISL(I)
-          IF(JT(3).GT.0)THEN
+          IF(JT(3)>0)THEN
             A(3,N) =ZERO
           ENDIF
-          IF(JT(2).GT.0)THEN
+          IF(JT(2)>0)THEN
             A(2,N) =ZERO
           ENDIF
-          IF(JT(1).GT.0)THEN
+          IF(JT(1)>0)THEN
             A(1,N) =ZERO
           ENDIF
         END DO
@@ -739,12 +702,11 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE_3                     source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_RBE_ACCL                  source/ams/sms_rbe2.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe_3      ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_rbe_accl   ../engine/source/ams/sms_rbe2.F
+!||====================================================================
       SUBROUTINE SMS_RBE_3(NSL   ,ISL   ,R     ,A     ,PREC_SMS3,
      1                     JT    ,M     ,IRAD  ,ISK   ,SKEW  )
 C-----------------------------------------------
@@ -754,11 +716,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -769,32 +727,32 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, IJT
+      INTEGER I, N, IJT
 C     REAL
       my_real
      .     AAX, AAY, AAZ, DAX, DAY, DAZ
 C-----------------------------------------------
-      IF ((JT(1)+JT(2)+JT(3)).GT.0) THEN
+      IF ((JT(1)+JT(2)+JT(3))>0) THEN
        IJT=1
       ELSE
        IJT=0
       ENDIF
 C
 C retablit accelerations secnds == main 
-C (le terme de rotation AR x MN est dj pass au 2nd membre)
+C (the rotation term AR x MN is already passed to the 2nd member)
       IF(ISK<=1)THEN
-        IF(JT(3).GT.0)A(3,M)=R(3,M)*PREC_SMS3(3,M)
-        IF(JT(2).GT.0)A(2,M)=R(2,M)*PREC_SMS3(2,M)
-        IF(JT(1).GT.0)A(1,M)=R(1,M)*PREC_SMS3(1,M)
+        IF(JT(3)>0)A(3,M)=R(3,M)*PREC_SMS3(3,M)
+        IF(JT(2)>0)A(2,M)=R(2,M)*PREC_SMS3(2,M)
+        IF(JT(1)>0)A(1,M)=R(1,M)*PREC_SMS3(1,M)
         DO I=1,NSL
           N = ISL(I)
-          IF(JT(3).GT.0)THEN
+          IF(JT(3)>0)THEN
             A(3,N) =A(3,M)
           ENDIF
-          IF(JT(2).GT.0)THEN
+          IF(JT(2)>0)THEN
             A(2,N) =A(2,M)
           ENDIF
-          IF(JT(1).GT.0)THEN
+          IF(JT(1)>0)THEN
             A(1,N) =A(1,M)
           ENDIF
         END DO
@@ -817,12 +775,11 @@ C (le terme de rotation AR x MN est dj pass au 2nd membre)
       END
 
 
-Chd|====================================================================
-Chd|  SMS_RBE_4                     source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_RBE_CORR                  source/ams/sms_rbe2.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe_4      ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_rbe_corr   ../engine/source/ams/sms_rbe2.F
+!||====================================================================
       SUBROUTINE SMS_RBE_4(NSL   ,ISL   ,V     ,W     ,MS    ,
      1                     JT    ,M     ,IRAD  ,ISK   ,SKEW  )
 C-----------------------------------------------
@@ -832,11 +789,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -847,12 +800,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, IJT
+      INTEGER I, N, IJT
 C     REAL
       my_real
      .     AAX, AAY, AAZ, DAX, DAY, DAZ
 C-----------------------------------------------
-      IF ((JT(1)+JT(2)+JT(3)).GT.0) THEN
+      IF ((JT(1)+JT(2)+JT(3))>0) THEN
        IJT=1
       ELSE
        IJT=0
@@ -862,13 +815,13 @@ C Corrige W=[M]V (MS(N)*V(..,N) already counted into MS(M)*V(..,M))
       IF(ISK<=1)THEN
         DO I=1,NSL
           N = ISL(I)
-          IF(JT(3).GT.0)THEN
+          IF(JT(3)>0)THEN
             W(3,N) =W(3,N)-MS(N)*V(3,N)
           ENDIF
-          IF(JT(2).GT.0)THEN
+          IF(JT(2)>0)THEN
             W(2,N) =W(2,N)-MS(N)*V(2,N)
           ENDIF
-          IF(JT(1).GT.0)THEN
+          IF(JT(1)>0)THEN
             W(1,N) =W(1,N)-MS(N)*V(1,N)
           ENDIF
         END DO
@@ -890,15 +843,15 @@ C Corrige W=[M]V (MS(N)*V(..,N) already counted into MS(M)*V(..,M))
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE_5                     source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_DIAG_RBE2                 source/ams/sms_rbe2.F         
-Chd|        SMS_RBE_PREC                  source/ams/sms_rbe2.F         
-Chd|-- calls ---------------
-Chd|        CDI_BCN                       source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe_5       ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_diag_rbe2   ../engine/source/ams/sms_rbe2.F
+!||    sms_rbe_prec    ../engine/source/ams/sms_rbe2.F
+!||--- calls      -----------------------------------------------------
+!||    cdi_bcn         ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    sum_6_float     ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE SMS_RBE_5(NSL   ,ISL   ,DIAG_SMS3,MS    ,WEIGHT,
      1                     JT    ,FS6   ,M        ,IRAD  ,ISK   ,
      2                     SKEW  )
@@ -909,11 +862,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -926,19 +875,19 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, N, K, IJT, JT1(3), IC
+      INTEGER I, N, K, IJT, JT1(3), IC
 C     REAL
       my_real
      .   F1(NSL), F2(NSL), F3(NSL), RX, RY, RZ, CDT(9)
 C-----------------------------------------------
-      IF ((JT(1)+JT(2)+JT(3)).GT.0) THEN
+      IF ((JT(1)+JT(2)+JT(3))>0) THEN
        IJT=1
       ELSE
        IJT=0
       ENDIF
 
 C
-C Remontee des diagonales
+C Feedback of diagonals
       DO K = 1, 6
         FS6(1,K) = ZERO
         FS6(2,K) = ZERO
@@ -948,7 +897,7 @@ C
       IF(ISK<=1)THEN
         DO I=1,NSL
          N = ISL(I)
-         IF(WEIGHT(N).EQ.1) THEN
+         IF(WEIGHT(N)==1) THEN
            F1(I)=JT(1)*(DIAG_SMS3(1,N)-MS(N))
            F2(I)=JT(2)*(DIAG_SMS3(2,N)-MS(N))
            F3(I)=JT(3)*(DIAG_SMS3(3,N)-MS(N))
@@ -974,7 +923,7 @@ C
       END IF
 C
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
       CALL SUM_6_FLOAT(1  ,NSL  ,F1, FS6(1,1), 3)
       CALL SUM_6_FLOAT(1  ,NSL  ,F2, FS6(2,1), 3)
@@ -983,12 +932,11 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RBE2_S                    source/ams/sms_rbe2.F         
-Chd|-- called by -----------
-Chd|        SMS_RBE_CNDS                  source/ams/sms_rbe2.F         
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sms_rbe2_s     ../engine/source/ams/sms_rbe2.F
+!||--- called by ------------------------------------------------------
+!||    sms_rbe_cnds   ../engine/source/ams/sms_rbe2.F
+!||====================================================================
       SUBROUTINE SMS_RBE2_S(IRBE2 ,ISIZE,A     ,WEIGHT,F6    ,
      1                      NMRBE2,IH    )
 C-----------------------------------------------
@@ -996,40 +944,31 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IRBE2(NRBE2L,*),ISIZE, WEIGHT(*),NMRBE2,IH
-C     REAL
-      my_real
-     .   A(ISIZE,*)
-      DOUBLE PRECISION
-     .   F6(ISIZE,6,*)
+      my_real A(ISIZE,*)
+      DOUBLE PRECISION F6(ISIZE,6,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, K, N, NS ,NML, IAD,JJ,M,MID,IROT,IRAD
-C     REAL
+      INTEGER  J, K, N ,M,MID,IRAD
 C======================================================================|
 #include    "vectorize.inc"
       DO N=1,NRBE2
-        IF (IH.NE.IRBE2(9,N)) CYCLE
+        IF (IH/=IRBE2(9,N)) CYCLE
         M  = IRBE2(3,N)
         MID = IRBE2(6,N)
         IRAD = IRBE2(11,N)
-        IF (MID.LT.0) CYCLE
+        IF (MID<0) CYCLE
         DO K=1,6
          DO J=1,ISIZE
-	  A(J,M) = A(J,M)+ F6(J,K,MID)
+            A(J,M) = A(J,M)+ F6(J,K,MID)
          ENDDO
         ENDDO
       ENDDO

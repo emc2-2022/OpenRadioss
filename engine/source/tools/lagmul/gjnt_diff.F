@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  GJNT_DIFF                     source/tools/lagmul/gjnt_diff.F
-Chd|-- called by -----------
-Chd|        LAG_GJNT                      source/tools/lagmul/lag_gjnt.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    gjnt_diff   ../engine/source/tools/lagmul/gjnt_diff.F
+!||--- called by ------------------------------------------------------
+!||    lag_gjnt    ../engine/source/tools/lagmul/lag_gjnt.F
+!||====================================================================
       SUBROUTINE GJNT_DIFF(SK     ,L1     ,L2     ,L3     ,ALPHA  ,
      2                     IADLL  ,LLL    ,JLL    ,SLL    ,XLL    ,
      3                     X      ,N0     ,N1     ,N2     ,N3     ,
@@ -43,20 +42,20 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,J,JJ,IK,IC,IAD,INOD(4)
+      INTEGER I,JJ,IK,IAD,INOD(4)
       my_real 
      .        UX(3),UY(3),UZ(3),VX(3),VY(3),VZ(3),WX(3),WY(3),WZ(3),
      .        RX(3),RY(3),RZ(3),
      .        X0,Y0,Z0,X1,Y1,Z1,X2,Y2,Z2,X3,Y3,Z3,XS,YS,ZS,
-     .        X12,X22,X32,X42,Y12,Y22,Y32,Y42,Z12,Z22,Z32,Z42,
+     .        X12,X22,X32,Y12,Y22,Y32,Z12,Z22,Z32,
      .        XX,YY,ZZ,XXX,YYY,ZZZ,XY,YZ,ZX,XY2,YZ2,ZX2,
-     .        LX,LY,LZ,NORM,UNT,DEUT,B1,B2,B3,C1,C2,C3,DET
+     .        NORM,UNT,DEUT,B1,B2,B3,C1,C2,C3,DET
 C-----------------------------------------------
-C        NC : nombre de condition cinematique 
-C        IC : numero de la condition cinematique (1,NC)
+C        NC: number of cinematic condition 
+C        ic: number of the kinematic condition (1,nc)
 C        IK : 
-C        I  : numero global du noeud (1,NUMNOD)
-C        J  : direction 1,2,3,4,5,6
+C        I  : global node number (1,NUMNOD)
+C        J ': direction 1,2,3,4,5,6
 C------
 C        IADLL(NC)        : IAD = IADLL(IC)
 C        IK = IAD,IAD+1,IAD+2,...
@@ -73,7 +72,7 @@ C---  Node 1 skew
       UX(1) = UX(1)*NORM
       UY(1) = UY(1)*NORM
       UZ(1) = UZ(1)*NORM
-      IF (ABS(UX(1)).GT.ZEP99) THEN
+      IF (ABS(UX(1))>ZEP99) THEN
         WX(1) =-UZ(1)
         WY(1) = ZERO
         WZ(1) = UX(1)
@@ -97,7 +96,7 @@ C---  Node 2 skew
       UX(2) = UX(2)*NORM
       UY(2) = UY(2)*NORM
       UZ(2) = UZ(2)*NORM
-      IF (ABS(UX(2)).GT.ZEP99) THEN
+      IF (ABS(UX(2))>ZEP99) THEN
         WX(2) =-UZ(2)
         WY(2) = ZERO
         WZ(2) = UX(2)
@@ -121,7 +120,7 @@ C---  Node 3 skew
       UX(3) = UX(3)*NORM
       UY(3) = UY(3)*NORM
       UZ(3) = UZ(3)*NORM
-      IF (ABS(UX(3)).GT.ZEP99) THEN
+      IF (ABS(UX(3))>ZEP99) THEN
         WX(3) =-UZ(3)
         WY(3) = ZERO
         WZ(3) = UX(3)
@@ -315,7 +314,7 @@ C --- (vz)
       LLL(IK) = INOD(4)
       JLL(IK) = 3
       SLL(IK) = 0
-2      XLL(IK) = -ONE
+      XLL(IK) = -ONE
 C
 c      rotational dof of secnd
 C ---  (wx)

@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RBE2_IMP0                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        UPD_GLOB_K                    source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2_IMP1                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPL                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rbe2_imp0    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_glob_k   ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2      ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2_imp1    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impl    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_IMP0(
      1                    IRBE2  ,LRBE2  ,X      ,NSRB2  ,ISB2   ,
      2                    IKC    ,NDOF   ,IDDL   ,IADK   ,JDIK   ,
@@ -42,9 +42,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -71,7 +69,7 @@ C-----------------------------------------------
             NSJ  =IRBE2(8,N)
             IRAD =IRBE2(11,N)
         IC =JT(1,N)+JT(2,N)+JT(3,N)+JR(1,N)+JR(2,N)+JR(3,N)
-       IF (ISK.GT.1.AND.IC.LT.6) THEN
+       IF (ISK>1.AND.IC<6) THEN
          CALL RBE2_IMPL(M     ,NSN   ,LRBE2(IAD+1) ,X   ,NSRB2(IAD+1),
      2                  ISB2(IADJ),JT(1,N)  ,JR(1,N),IKC   ,NDOF  ,
      3                  IDDL  ,IADK   ,JDIK  ,DIAG_K,LT_K  ,B     ,
@@ -87,15 +85,15 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_IMPI                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        UPD_INT_K                     source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2_IMP1                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPL                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_impi   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_int_k   ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2     ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2_imp1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impl   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_IMPI(
      1                    IRBE2  ,LRBE2 ,X     ,SKEW   ,
      2                    NSB2   ,ISB2  ,IKC   ,NDOF   ,IDDL   ,
@@ -109,9 +107,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -143,8 +139,8 @@ C----------debug: only for the lowest hierarchy
         ENDDO
        END IF
          IC =JT(1,N)+JT(2,N)+JT(3,N)
-       IF (NDOF(M).GT.0) THEN
-        IF (ISK.GT.1.AND.IC.NE.3) THEN
+       IF (NDOF(M)>0) THEN
+        IF (ISK>1.AND.IC/=3) THEN
             CALL RBE2_IMPL(M     ,NSN   ,LRBE2(IAD+1) ,X ,NSB2(IAD+1),
      2                     ISB2(IADJ),JT(1,N)  ,JR(1,N),IKC   ,NDOF  ,
      3                     IDDL  ,IADK   ,JDIK  ,DIAG_K,LT_K  ,B     ,
@@ -164,23 +160,23 @@ C----------debug: only for the lowest hierarchy
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_IMP1                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_IMP0                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPI                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|        GET_KII                       source/implicit/imp_glob_k.F  
-Chd|        GET_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        PRINT_WKIJ                    source/implicit/imp_glob_k.F  
-Chd|        PUT_KII                       source/implicit/imp_glob_k.F  
-Chd|        PUT_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        SYM_KDD                       source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        UPDKB_RB                      source/constraints/general/rbody/rby_imp0.F
-Chd|        UPDKB_RB1                     source/constraints/general/rbody/rby_imp0.F
-Chd|        UPDK_BC                       source/constraints/general/rbe3/rbe3_imp0.F
-Chd|        UPDK_BC2                      source/constraints/general/rbe3/rbe3_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_imp1    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_imp0    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impi    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    get_kii      ../engine/source/implicit/imp_glob_k.F
+!||    get_kij      ../engine/source/implicit/imp_glob_k.F
+!||    print_wkij   ../engine/source/implicit/imp_glob_k.F
+!||    put_kii      ../engine/source/implicit/imp_glob_k.F
+!||    put_kij      ../engine/source/implicit/imp_glob_k.F
+!||    sym_kdd      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    updk_bc      ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    updk_bc2     ../engine/source/constraints/general/rbe3/rbe3_imp0.F
+!||    updkb_rb     ../engine/source/constraints/general/rbody/rby_imp0.F
+!||    updkb_rb1    ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_IMP1(M     ,NSN   ,ISL   ,X      ,NSJ    ,
      2                    ISJ   ,JT    ,JR    ,IKC    ,NDOF   ,
      3                    IDDL  ,IADK  ,JDIK  ,DIAG_K,LT_K    ,
@@ -198,10 +194,6 @@ C     REAL
       my_real
      .   X(3,*),DIAG_K(*),LT_K(*),B(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NIR, I, J, J1, J2, J3, J4, K, JD, II, L, JJ,
@@ -211,15 +203,15 @@ C     REAL
       my_real
      .   KDD(6,6),BD(6),XS,YS,ZS,TMP
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of the secondary nodes
 C------------------------------------
         IP =5
         IMD = IDDL(M)+1
         ND = NDOF(M)
-C--------boucle secnd nodes--
+C--------secondary nodes loop--
        NTDOF=JT(1)+JT(2)+JT(3)+JR(1)+JR(2)+JR(3)
 C-----cas exception: e.g.:contact-----
-       IF ((JT(1)+JT(2)+JT(3)).EQ.3.AND.JR(1).LT.0) THEN
+       IF ((JT(1)+JT(2)+JT(3))==3.AND.JR(1)<0) THEN
         NTDOF=6
         JR(1)=0
        ENDIF
@@ -227,7 +219,7 @@ C-----cas exception: e.g.:contact-----
        DO I=1,NSN
 C--------block diagonal Kmm--
         N = ISL(I)
-        IF (NDOF(N).GT.0) THEN
+        IF (NDOF(N)>0) THEN
          XS=X(1,N)-X(1,M)
          YS=X(2,N)-X(2,M)
          ZS=X(3,N)-X(3,M)
@@ -248,9 +240,9 @@ C--------block diagonal Kmm--
           BD(K)=B(ID)*JR(K-3)
          ENDDO
          CALL GET_KII(N ,IDDL ,IADK,DIAG_K,LT_K ,KDD,NDOF(N))
-         IF (IRAD.EQ.0) CALL UPDK_BC(JT,JR,KDD ,ISTIF)
+         IF (IRAD==0) CALL UPDK_BC(JT,JR,KDD ,ISTIF)
          CALL UPDKB_RB(NDOF(N),XS,YS,ZS,KDD,BD)
-         IF (IRAD.GT.0)CALL UPDK_BC(JT,JR,KDD ,ISTIF)
+         IF (IRAD>0)CALL UPDK_BC(JT,JR,KDD ,ISTIF)
 C-------Update K,B---
          CALL PUT_KII(M ,IDDL ,IADK,DIAG_K,LT_K ,KDD,ND)
          DO K=1,ND
@@ -269,21 +261,21 @@ C          NDM = MAX(NDM,NIDOF)
            ENDDO
           ENDDO
           CALL GET_KIJ(NI,N,IDDL,IADK,JDIK,LT_K,KDD,NIDOF,NDOF(N),IR)
-          IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(N) ,IP )
-          IF (IRAD.EQ.0) CALL UPDK_BC2(JT,JR,KDD,ISTIF)
+          IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(N) ,IP )
+          IF (IRAD==0) CALL UPDK_BC2(JT,JR,KDD,ISTIF)
 C-------  Update ---
            CALL UPDKB_RB1(NIDOF,NDOF(N),XS,YS,ZS,KDD)
-           IF (IRAD.GT.0) CALL UPDK_BC2(JT,JR,KDD ,ISTIF)
-           IF (NI.EQ.M) THEN
+           IF (IRAD>0) CALL UPDK_BC2(JT,JR,KDD ,ISTIF)
+           IF (NI==M) THEN
             CALL SYM_KDD(6,KDD)
             CALL PUT_KII(M ,IDDL ,IADK,DIAG_K,LT_K ,KDD,ND)
            ELSE
             CALL PUT_KIJ(NI,M,IDDL,IADK,JDIK,LT_K,KDD,NIDOF,ND,IR)
-            IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(M) ,IP )
+            IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(M) ,IP )
            ENDIF
          ENDDO
          J1=J1+NSJ(I)
-             IF (NTDOF.LT.6) THEN
+             IF (NTDOF<6) THEN
            DO K=1,6
             DO J=K,6
              KDD(K,J)=ZERO
@@ -295,36 +287,36 @@ C-------  Update ---
              KDD(J,K)=KDD(K,J)
             ENDDO
            ENDDO
-           IF (IRAD.EQ.0) CALL UPDK_BC2(JT,JR,KDD ,ISTIF)
+           IF (IRAD==0) CALL UPDK_BC2(JT,JR,KDD ,ISTIF)
            CALL UPDKB_RB1(NDOF(N),NDOF(N),XS,YS,ZS,KDD)
-           IF (IRAD.GT.0) CALL UPDK_BC2(JT,JR,KDD ,ISTIF)
+           IF (IRAD>0) CALL UPDK_BC2(JT,JR,KDD ,ISTIF)
            CALL PUT_KIJ(N,M,IDDL,IADK,JDIK,LT_K,KDD,NDOF(N),ND,IR)
-           IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(N) ,ITAB(M) ,IP )
+           IF (IR==1) CALL PRINT_WKIJ(ITAB(N) ,ITAB(M) ,IP )
              ENDIF
         ENDIF
-C-------fin -boucle secnd nodes--
+C-------end of secondary nodes loop--
        ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_IMPL                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_IMP0                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPI                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|        CDI_SKEW                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        GET_KII                       source/implicit/imp_glob_k.F  
-Chd|        GET_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        PRINT_WKIJ                    source/implicit/imp_glob_k.F  
-Chd|        PUT_KII                       source/implicit/imp_glob_k.F  
-Chd|        PUT_KIJ                       source/implicit/imp_glob_k.F  
-Chd|        RBE2_BCL                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPBL                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        SYM_KDD                       source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        UPDCDIK2_CDI                  source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        UPDK2_CDI                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_impl      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_imp0      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impi      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    cdi_skew       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    get_kii        ../engine/source/implicit/imp_glob_k.F
+!||    get_kij        ../engine/source/implicit/imp_glob_k.F
+!||    print_wkij     ../engine/source/implicit/imp_glob_k.F
+!||    put_kii        ../engine/source/implicit/imp_glob_k.F
+!||    put_kij        ../engine/source/implicit/imp_glob_k.F
+!||    rbe2_bcl       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impbl     ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    sym_kdd        ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    updcdik2_cdi   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    updk2_cdi      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_IMPL(M     ,NSN   ,ISL   ,X      ,NSJ    ,
      2                    ISJ    ,JT    ,JR    ,IKC    ,NDOF   ,
      3                    IDDL   ,IADK  ,JDIK  ,DIAG_K,LT_K    ,
@@ -342,10 +334,6 @@ C     REAL
       my_real
      .   X(3,*),DIAG_K(*),LT_K(*),B(*),SKEW(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NIR, I, J, J1, J2, J3, J4, K, JD, II, L, JJ,
@@ -355,7 +343,7 @@ C     REAL
       my_real
      .   KDD(6,6),BD(6),XS,YS,ZS,TMP,CDT(3,3),CDTR(3,3),CDR(3,3)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of the secondary nodes
 C------------------------------------
         IP =5
         IMD = IDDL(M)+1
@@ -366,12 +354,12 @@ C--------upd B--
          CALL RBE2_IMPBL(M      ,NSN    ,ISL   ,X   ,JT       ,
      1                   JR     ,NDOF   ,IDDL  ,B   ,SKEW     ,
      2                   IRAD   )
-C--------boucle secnd nodes--
+C--------secondary nodes loop--
        J1=0
        DO I=1,NSN
 C--------block diagonal Kmm--
         N = ISL(I)
-        IF (NDOF(N).GT.0) THEN
+        IF (NDOF(N)>0) THEN
          XS=X(1,N)-X(1,M)
          YS=X(2,N)-X(2,M)
          ZS=X(3,N)-X(3,M)
@@ -382,12 +370,12 @@ C--------block diagonal Kmm--
          ENDDO
          DO K=1,MIN(3,NDOF(N))
           ID = IDDL(N)+K
-          IF (NT.EQ.3)IKC(ID)=16*JT(K)
+          IF (NT==3)IKC(ID)=16*JT(K)
          ENDDO
          DO K=MIN(3,NDOF(N))+1,NDOF(N)
           ID = IDDL(N)+K
 c          IKC(ID)=16*JR(K-3)
-          IF (NR.EQ.3) IKC(ID)=16*JR(K-3)
+          IF (NR==3) IKC(ID)=16*JR(K-3)
          ENDDO
          CALL CDI_SKEW(XS,YS,ZS,JT,JR,SKEW,CDT,CDR,CDTR,JT1,JR1,IRAD)
          CALL GET_KII(N ,IDDL ,IADK,DIAG_K,LT_K ,KDD,NDOF(N))
@@ -411,20 +399,20 @@ C          NDM = MAX(NDM,NIDOF)
            ENDDO
           ENDDO
           CALL GET_KIJ(NI,N,IDDL,IADK,JDIK,LT_K,KDD,NIDOF,NDOF(N),IR)
-          IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(N) ,IP )
+          IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(N) ,IP )
 c          CALL UPDK_BC2(JT1,JR1,KDD ,ISTIF)
 C-------  Update ---
            CALL UPDK2_CDI(NIDOF,NDOF(N),CDT,CDR,CDTR,KDD)
-           IF (NI.EQ.M) THEN
+           IF (NI==M) THEN
             CALL SYM_KDD(6,KDD)
             CALL PUT_KII(M ,IDDL ,IADK,DIAG_K,LT_K ,KDD,ND)
            ELSE
             CALL PUT_KIJ(NI,M,IDDL,IADK,JDIK,LT_K,KDD,NIDOF,ND,IR)
-            IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(M) ,IP )
+            IF (IR==1) CALL PRINT_WKIJ(ITAB(NI) ,ITAB(M) ,IP )
            ENDIF
          ENDDO
          J1=J1+NSJ(I)
-C        IF ((NT+NR).LT.6) THEN
+C        IF ((NT+NR)<6) THEN
            DO K=1,6
             DO J=K,6
              KDD(K,J)=ZERO
@@ -438,38 +426,38 @@ C        IF ((NT+NR).LT.6) THEN
            ENDDO
            CALL UPDK2_CDI(NDOF(N),NDOF(N),CDT,CDR,CDTR,KDD)
            CALL PUT_KIJ(N,M,IDDL,IADK,JDIK,LT_K,KDD,NDOF(N),ND,IR)
-           IF (IR.EQ.1) CALL PRINT_WKIJ(ITAB(N) ,ITAB(M) ,IP )
+           IF (IR==1) CALL PRINT_WKIJ(ITAB(N) ,ITAB(M) ,IP )
 C        ENDIF
-          IF (NT.GT.0.AND.NT.LT.3) THEN
+          IF (NT>0.AND.NT<3) THEN
             IC = JT(1)*100+JT(2)*10+JT(3)
             IR =0
             CALL RBE2_BCL(IC   ,SKEW  ,IDDL  ,IKC   ,IADK ,
      1                    JDIK ,DIAG_K,LT_K  ,N     ,IR    )
           ENDIF
-          IF (NR.GT.0.AND.NR.LT.3) THEN
+          IF (NR>0.AND.NR<3) THEN
             IC = JR(1)*100+JR(2)*10+JR(3)
             IR =1
             CALL RBE2_BCL(IC   ,SKEW  ,IDDL  ,IKC   ,IADK ,
      1                    JDIK ,DIAG_K,LT_K  ,N     ,IR    )
           ENDIF
         ENDIF
-C-------fin -boucle secnd nodes--
+C-------end of secondary nodes loop--
        ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_IMPR1                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        IMP_DYKV                      source/implicit/imp_dyna.F    
-Chd|        IMP_DYKV0                     source/implicit/imp_dyna.F    
-Chd|        UPD_RHS                       source/implicit/upd_glob_k.F  
-Chd|        UPD_RHS_FR                    source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|        PRERBE2                       source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2_IMPB0                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPBL                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_impr1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    imp_dykv     ../engine/source/implicit/imp_dyna.F
+!||    imp_dykv0    ../engine/source/implicit/imp_dyna.F
+!||    upd_rhs      ../engine/source/implicit/upd_glob_k.F
+!||    upd_rhs_fr   ../engine/source/implicit/imp_solv.F
+!||--- calls      -----------------------------------------------------
+!||    prerbe2      ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2_impb0   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impbl   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_IMPR1(
      1                    IRBE2  ,LRBE2 ,X     ,SKEW   ,NDOF   ,
      2                    IDDL   ,B     ,WEIGHT)
@@ -481,9 +469,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -506,7 +492,7 @@ C-----------------------------------------------
         NSN = IRBE2(5,N)
         ISK = IRBE2(7,N)
         IRAD = IRBE2(11,N)
-        IF (ISK.GT.1) THEN
+        IF (ISK>1) THEN
          CALL RBE2_IMPBL(M      ,NSN    ,LRBE2(IAD+1),X   ,JT(1,N),
      1                   JR(1,N),NDOF   ,IDDL  ,B     ,SKEW(1,ISK),
      2                   IRAD   )
@@ -518,13 +504,13 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_IMPB0                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPR1                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|        UPDB_RB                       source/constraints/general/rbody/rby_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_impb0   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impr1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    updb_rb      ../engine/source/constraints/general/rbody/rby_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_IMPB0(M     ,NSN   ,ISL   ,X      ,JT    ,
      2                      JR    ,NDOF  ,IDDL  ,B      ,IRAD  )
 C-----------------------------------------------
@@ -539,10 +525,6 @@ C     REAL
       my_real
      .   X(3,*),B(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER ISK, I, N, J,NI,NJ,J1,K,L,ID,JD,ND,IMD,NIDOF
@@ -550,22 +532,22 @@ C     REAL
       my_real
      .   XS,YS,ZS,BD(6)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of the secondary nodes
 C------------------------------------
-       IF (NDOF(M).LE.0) RETURN
+       IF (NDOF(M)<=0) RETURN
 C
         ND = NDOF(M)
        DO I=1,NSN
 C--------block diagonal Kmm--
         N = ISL(I)
-       IF (NDOF(N).GT.0) THEN
+       IF (NDOF(N)>0) THEN
          XS=X(1,N)-X(1,M)
          YS=X(2,N)-X(2,M)
          ZS=X(3,N)-X(3,M)
          DO K=1,6
           BD(K)=ZERO
          ENDDO
-        IF (IRAD.GT.0) THEN
+        IF (IRAD>0) THEN
          DO K=1,MIN(3,NDOF(N))
           ID = IDDL(N)+K
           BD(K)=B(ID)
@@ -589,7 +571,7 @@ C--------block diagonal Kmm--
           BD(K)=B(ID)*JR(K-3)
          ENDDO
          CALL UPDB_RB(NDOF(N),XS,YS,ZS,BD)
-        END IF !(IRAD.GT.0) THEN
+        END IF !(IRAD>0) THEN
 C-------Update B---
          DO K=1,ND
           ID = IDDL(M)+K
@@ -600,15 +582,15 @@ C-------Update B---
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_IMPBL                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPL                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPR1                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|        CDI_SKEW                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2IMPBSN                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_impbl   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impl    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impr1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    cdi_skew     ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2impbsn   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_IMPBL(M     ,NSN   ,ISL   ,X      ,JT    ,
      2                      JR    ,NDOF  ,IDDL  ,B      ,SKEW  ,
      3                      IRAD  )
@@ -624,10 +606,6 @@ C     REAL
       my_real
      .   X(3,*),B(*),SKEW(*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER ISK, I, N, J,NI,NJ,J1,K,L,ID,JD,ND,IMD,NDS,
@@ -637,16 +615,16 @@ C     REAL
      .   XS,YS,ZS,LXS,LYS,LZS,BD(6),BDL(6),BB(3),BM(3),
      .   CDT(3,3),CDTR(3,3),CDR(3,3)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of the secondary nodes
 C------------------------------------
-       IF (NDOF(M).LE.0) RETURN
+       IF (NDOF(M)<=0) RETURN
 C
         ND = NDOF(M)
 C-------translation-------
        DO I=1,NSN
 C-------
         N = ISL(I)
-       IF (NDOF(N).GT.0) THEN
+       IF (NDOF(N)>0) THEN
          XS=X(1,N)-X(1,M)
          YS=X(2,N)-X(2,M)
          ZS=X(3,N)-X(3,M)
@@ -682,13 +660,13 @@ C-------Update B---
         ENDIF
        ENDDO
       IC = JT(1)*100+JT(2)*10+JT(3)
-      IF (IC.GT.0.AND.IC.LT.111) THEN
+      IF (IC>0.AND.IC<111) THEN
        IR = 0
        CALL RBE2IMPBSN(NSN   ,ISL   ,B     ,IC     ,NDOF   ,
      1                 IDDL  ,SKEW  ,IR    )
       END IF
       IC = JR(1)*100+JR(2)*10+JR(3)
-      IF (IC.GT.0.AND.IC.LT.111) THEN
+      IF (IC>0.AND.IC<111) THEN
        IR = 1
        CALL RBE2IMPBSN(NSN   ,ISL   ,B     ,IC     ,NDOF   ,
      1                 IDDL  ,SKEW  ,IR    )
@@ -696,13 +674,12 @@ C-------Update B---
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SYM_KDD                       source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_IMP1                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPL                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    sym_kdd     ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_imp1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impl   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE SYM_KDD(ND,KDD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -727,17 +704,17 @@ C-----------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CDI_SKEW                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_FRK                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPBL                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPKD                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPL                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|        CDI_BCN                       source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        CDI_BCN1                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    cdi_skew     ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_frk     ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impbl   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impkd   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impl    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    cdi_bcn      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    cdi_bcn1     ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE CDI_SKEW(XS,YS,ZS,JT,JR,SKEW,KT,KR,KTR,JT1,JR1,IRAD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -763,14 +740,13 @@ C------------------------KT=QtJTQ-----------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDK2_CDI                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_FRK                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPL                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        UPDCDIK2_CDI                  source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    updk2_cdi      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_frk       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impl      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    updcdik2_cdi   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE UPDK2_CDI(NI,NJ,CDT,CDR,CDTR,KDD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -821,15 +797,15 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  UPDCDIK2_CDI                  source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_FRK                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPKD                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2_IMPL                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|        UPDK2_CDI                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    updcdik2_cdi   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_frk       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impkd     ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_impl      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    updk2_cdi      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE UPDCDIK2_CDI(ND,CDT,CDR,CDTR,KDD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -875,25 +851,22 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_BCL                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPL                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|        BC_UPDK                       source/constraints/general/bcs/bc_imp0.F
-Chd|        BC_UPDK2                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        DIR_RBE2                      source/constraints/general/rbe2/rbe2v.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_bcl    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impl   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    bc_updk     ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    bc_updk2    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    dir_rbe2    ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    l_dir       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_BCL(ICT  ,SKEW  ,IADN  ,IFIX  ,IADK ,
      1                    JDIK ,DIAG_K,LT_K  ,I     ,IR    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -908,7 +881,7 @@ C-----------------------------------------------
      .   EJ(3),EJ1(3),S,EA,EB
 C----------------100-------------------------
         ND = IADN(I)
-          IF (IR.GT.0) ND = IADN(I) + 3
+          IF (IR>0) ND = IADN(I) + 3
 C-----IF J,J1 change during the deformation---    
          DO J=1,3
           IF (IFIX(ND +J) == 17) IFIX(ND +J)=0
@@ -952,7 +925,7 @@ C----------------011-------------------------
           EJ1(2)=SKEW(5)
           EJ1(3)=SKEW(6)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(4)/SKEW(3+J1)
@@ -978,7 +951,7 @@ C----------------101-------------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(1)/SKEW(J1)
@@ -1004,7 +977,7 @@ C----------------110-------------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(1)/SKEW(J1)
@@ -1023,26 +996,23 @@ C----------------110-------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CDI_BCN                       source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        CDI_SKEW                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2FL                        source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2FRF                       source/constraints/general/rbe2/rbe2f.F
-Chd|        SMS_RBE_1                     source/ams/sms_rbe2.F         
-Chd|        SMS_RBE_5                     source/ams/sms_rbe2.F         
-Chd|-- calls ---------------
-Chd|        DIR_RBE2                      source/constraints/general/rbe2/rbe2v.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    cdi_bcn     ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    cdi_skew    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2fl      ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2frf     ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    sms_rbe_1   ../engine/source/ams/sms_rbe2.F
+!||    sms_rbe_5   ../engine/source/ams/sms_rbe2.F
+!||--- calls      -----------------------------------------------------
+!||    dir_rbe2    ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    l_dir       ../engine/source/constraints/general/bcs/bc_imp0.F
+!||====================================================================
       SUBROUTINE CDI_BCN(ICT   ,SKEW  ,JT   ,KT  ,JT1 )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1103,7 +1073,7 @@ C----------------011-------------------------
           EJ1(2)=SKEW(5)
           EJ1(3)=SKEW(6)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(4)/SKEW(3+J1)
@@ -1130,7 +1100,7 @@ C----------------101-------------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(1)/SKEW(J1)
@@ -1157,7 +1127,7 @@ C----------------110-------------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(1)/SKEW(J1)
@@ -1184,23 +1154,20 @@ C----------------111-------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2IMPBSN                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        RBE2_IMPBL                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|        DIR_RBE2                      source/constraints/general/rbe2/rbe2v.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2impbsn   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    rbe2_impbl   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    dir_rbe2     ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    l_dir        ../engine/source/constraints/general/bcs/bc_imp0.F
+!||====================================================================
       SUBROUTINE RBE2IMPBSN(NSL   ,ISL   ,B     ,ICT    ,NDOF   ,
      2                     IDDL   ,SKEW  ,IR    )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1214,7 +1181,7 @@ C-----------------------------------------------
       my_real
      .   EJ(3),EJ1(3),S,EA,EB
 C----------------100-------------------------
-        IF (IR.EQ.0) THEN
+        IF (IR==0) THEN
          NR = 0
         ELSE
          NR = 3
@@ -1253,7 +1220,7 @@ C----------------011-------------------------
           EJ1(2)=SKEW(5)
           EJ1(3)=SKEW(6)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(4)/SKEW(3+J1)
@@ -1274,7 +1241,7 @@ C----------------101-------------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(1)/SKEW(J1)
@@ -1295,7 +1262,7 @@ C----------------110-------------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(1)/SKEW(J1)
@@ -1310,43 +1277,43 @@ C----------------110-------------------------
 C
        DO I=1,NSL
         NS = ISL(I)
-        IF (NDOF(NS).EQ.0) CYCLE
+        IF (NDOF(NS)==0) CYCLE
          ND =IDDL(NS)+NR
 C-------------------100---------------------
-         IF (ICT .EQ. 100 ) THEN
+         IF (ICT == 100 ) THEN
           B(ND+J1)=B(ND+J1)-EJ(J1)*B(ND+J)
           B(ND+K)=B(ND+K)-EJ(K)*B(ND+J)
 C-------------------010---------------------
-         ELSEIF (ICT .EQ. 10) THEN
+         ELSEIF (ICT == 10) THEN
           B(ND+J1)=B(ND+J1)-EJ(J1)*B(ND+J)
           B(ND+K)=B(ND+K)-EJ(K)*B(ND+J)
 C-------------------001---------------------
-         ELSEIF (ICT .EQ. 1) THEN
+         ELSEIF (ICT == 1) THEN
           B(ND+J1)=B(ND+J1)-EJ(J1)*B(ND+J)
           B(ND+K)=B(ND+K)-EJ(K)*B(ND+J)
 C-------------------011---------------------
-         ELSEIF (ICT .EQ. 11) THEN
+         ELSEIF (ICT == 11) THEN
           B(ND+K)=B(ND+K)+EA*B(ND+J)+EB*B(ND+J1)
 C-------------------101---------------------
-         ELSEIF (ICT .EQ. 101) THEN
+         ELSEIF (ICT == 101) THEN
           B(ND+K)=B(ND+K)+EA*B(ND+J)+EB*B(ND+J1)
 C-------------------110---------------------
-         ELSEIF (ICT .EQ. 110 ) THEN
+         ELSEIF (ICT == 110 ) THEN
           B(ND+K)=B(ND+K)+EA*B(ND+J)+EB*B(ND+J1)
          ENDIF
       ENDDO
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  BC_UPDK2                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        BC_UPDK2D                     source/constraints/general/bcs/bc_imp0.F
-Chd|        RBE2_BCL                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- calls ---------------
-Chd|        GET_KII                       source/implicit/imp_glob_k.F  
-Chd|        PUT_KII                       source/implicit/imp_glob_k.F  
-Chd|====================================================================
+!||====================================================================
+!||    bc_updk2    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    bc_updk2d   ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    rbe2_bcl    ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    get_kii     ../engine/source/implicit/imp_glob_k.F
+!||    put_kii     ../engine/source/implicit/imp_glob_k.F
+!||====================================================================
       SUBROUTINE BC_UPDK2(N     ,IDDL  ,J    ,L     ,K     ,
      1                    IR    ,EJ    ,EL   ,IADK  ,JDIK  ,
      2                    DIAG_K,LT_K  )
@@ -1372,18 +1339,18 @@ C-----------------------------------------------
       my_real
      .   KDD(6,6),KII(6,6)
 C------------K :free; J,L to be condentrated----------------------
-      IF (IR.EQ.0) THEN
+      IF (IR==0) THEN
        ND = 3
       ELSE
        ND = 6
       ENDIF
-      IF (EJ.EQ.ZERO.AND.EL.EQ.ZERO) RETURN
+      IF (EJ==ZERO.AND.EL==ZERO) RETURN
       DO I=1,ND
       DO JJ=1,ND
        KII(I,JJ)=ZERO
       ENDDO
       ENDDO
-      IF (IR.EQ.0) THEN
+      IF (IR==0) THEN
        J1 = J
        K1 = K
        L1 = L
@@ -1402,7 +1369,7 @@ C-------------first KNN------------
       KII(K1,K1)=EJ*(KDD(J1,J1)*EJ+TWO*EL*KDD(J1,L1)-TWO*KDD(J1,K1))
      .           +EL*(KDD(L1,L1)*EL-TWO*KDD(L1,K1))
 C +++ couplage t,r-----
-      IF (IR.NE.0) THEN
+      IF (IR/=0) THEN
        KII(K,K1)=-KDD(K,J1)*EJ-KDD(K,L1)*EL
        KII(J,K1)=-KDD(J,J1)*EJ-KDD(J,L1)*EL
        KII(L,K1)=-KDD(L,J1)*EJ-KDD(L,L1)*EL
@@ -1412,7 +1379,7 @@ C ---
 C  -----------KIJ-----
       IDJ = IDDL(N)+ J1
       IDL = IDDL(N)+ L1
-      IF (IKPAT.EQ.0) THEN
+      IF (IKPAT==0) THEN
         SHF = IABS(J-3)
         NJ = IADK(IDJ+1)-IADK(IDJ)-SHF
         JFT = IADK(IDJ)+SHF-1
@@ -1430,11 +1397,11 @@ C  -----------KIJ-----
         NJ =0
         NL =0
         DO JJ = IADK(I), IADK(I+1)-1
-         IF (JDIK(JJ).EQ.IDJ) NJ = JJ
-         IF (JDIK(JJ).EQ.IDL) NL = JJ
+         IF (JDIK(JJ)==IDJ) NJ = JJ
+         IF (JDIK(JJ)==IDL) NL = JJ
         ENDDO
-        IF (NJ.GT.0) LT_K(NJ+K1-J1) = LT_K(NJ+K1-J1)-EJ*LT_K(NJ)
-        IF (NL.GT.0) LT_K(NJ+K1-J1) = LT_K(NJ+K1-J1)-EL*LT_K(NL)
+        IF (NJ>0) LT_K(NJ+K1-J1) = LT_K(NJ+K1-J1)-EJ*LT_K(NJ)
+        IF (NL>0) LT_K(NJ+K1-J1) = LT_K(NJ+K1-J1)-EL*LT_K(NL)
        ENDDO
       ELSE
         SHF = J1-1
@@ -1455,37 +1422,34 @@ C---------
         NJ =0
         NL =0
         DO JJ = IADK(I), IADK(I+1)-1
-         IF (JDIK(JJ).EQ.IDJ) NJ = JJ
-         IF (JDIK(JJ).EQ.IDL) NL = JJ
+         IF (JDIK(JJ)==IDJ) NJ = JJ
+         IF (JDIK(JJ)==IDL) NL = JJ
         ENDDO
-        IF (NJ.GT.0) LT_K(NJ+K1-J1) = LT_K(NJ+K1-J1)-EJ*LT_K(NJ)
-        IF (NL.GT.0) LT_K(NJ+K1-J1) = LT_K(NJ+K1-J1)-EL*LT_K(NL)
+        IF (NJ>0) LT_K(NJ+K1-J1) = LT_K(NJ+K1-J1)-EJ*LT_K(NJ)
+        IF (NL>0) LT_K(NJ+K1-J1) = LT_K(NJ+K1-J1)-EL*LT_K(NL)
        ENDDO
       ENDIF
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CDI_BCN1                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        CDI_SKEW                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        RBE2DL2                       source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE2FL                        source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2FRF                       source/constraints/general/rbe2/rbe2f.F
-Chd|        RBE2VL1                       source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE2_FRD                      source/constraints/general/rbe2/rbe2v.F
-Chd|-- calls ---------------
-Chd|        DIR_RBE2                      source/constraints/general/rbe2/rbe2v.F
-Chd|        L_DIR                         source/constraints/general/bcs/bc_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    cdi_bcn1   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    cdi_skew   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    rbe2_frd   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe2dl2    ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe2fl     ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2frf    ../engine/source/constraints/general/rbe2/rbe2f.F
+!||    rbe2vl1    ../engine/source/constraints/general/rbe2/rbe2v.F
+!||--- calls      -----------------------------------------------------
+!||    dir_rbe2   ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    l_dir      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||====================================================================
       SUBROUTINE CDI_BCN1(XS,YS,ZS,JT,JR,SKEW,KTR,IRAD)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1508,7 +1472,7 @@ C-------JT1 presente the real consentration dof----------------------
         XL = VQ(1,1)*XS+ VQ(1,2)*YS+VQ(1,3)*ZS
         YL = VQ(2,1)*XS+ VQ(2,2)*YS+VQ(2,3)*ZS
         ZL = VQ(3,1)*XS+ VQ(3,2)*YS+VQ(3,3)*ZS
-       IF (IRAD.GT.0) THEN
+       IF (IRAD>0) THEN
         KK(1,2) =ZL*JR(2)
         KK(1,3) =-YL*JR(3)
         KK(2,1) =-ZL*JR(1)
@@ -1525,7 +1489,7 @@ C--------Nastran's formulation
         KK(3,1) =YL*JT(3)
         KK(3,2) =-XL*JT(3)
         ICT = JT(1)*100+JT(2)*10+JT(3)
-       END IF !(IR.GT.0) THEN
+       END IF !(IR>0) THEN
 C--------[Q]^t[Rs][Q]--------
         DO J=1,3
           KTR(1,J)=KK(1,2)*VQ(2,J)+KK(1,3)*VQ(3,J)
@@ -1577,7 +1541,7 @@ C----------------011-------------------------
           EJ1(2)=SKEW(5)
           EJ1(3)=SKEW(6)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(4)/SKEW(3+J1)
@@ -1602,7 +1566,7 @@ C----------------101-------------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(1)/SKEW(J1)
@@ -1627,7 +1591,7 @@ C----------------110-------------------------
           EJ1(2)=SKEW(2)
           EJ1(3)=SKEW(3)
           CALL L_DIR(EJ1,J1)
-          IF (J1.EQ.J) THEN
+          IF (J1==J) THEN
            EJ1(J)=ZERO
            CALL L_DIR(EJ1,J1)
            EJ1(1)=SKEW(1)/SKEW(J1)
@@ -1644,25 +1608,37 @@ C----------------110-------------------------
           ENDDO
 C----------------111-------------------------
          CASE(111)
-          DO I=1,3
-          DO J=1,3
-           KTR(I,J)=KK(I,J)
-          ENDDO
-          ENDDO
+           KTR =ZERO
+           IF (IRAD>0) THEN
+            KTR(1,2) = ZS*JR(2)
+            KTR(1,3) =-YS*JR(3)
+            KTR(2,1) =-ZS*JR(1)
+            KTR(2,3) = XS*JR(3)
+            KTR(3,1) = YS*JR(1)
+            KTR(3,2) =-XS*JR(2)
+!--------Nastran's formulation
+           ELSE
+            KTR(1,2) = ZS*JT(1)
+            KTR(1,3) =-YS*JT(1)
+            KTR(2,1) =-ZS*JT(2)
+            KTR(2,3) = XS*JT(2)
+            KTR(3,1) = YS*JT(3)
+            KTR(3,2) =-XS*JT(3)
+           END IF !(IR>0) THEN
        END SELECT
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_IMPKD                    source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        DIAG_INT                      source/mpi/implicit/imp_fri.F 
-Chd|        UPDK_MV                       source/airbag/monv_imp0.F     
-Chd|-- calls ---------------
-Chd|        BCL_IMPKD                     source/constraints/general/bcs/bc_imp0.F
-Chd|        CDI_SKEW                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        UPDCDIK2_CDI                  source/constraints/general/rbe2/rbe2_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_impkd     ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    diag_int       ../engine/source/mpi/implicit/imp_fri.F
+!||    updk_mv        ../engine/source/airbag/monv_imp0.F
+!||--- calls      -----------------------------------------------------
+!||    bcl_impkd      ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    cdi_skew       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    updcdik2_cdi   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_IMPKD(M     ,NS    ,X     ,ISK    ,JT     ,
      2                     JR     ,NDOF  ,SKEW0 ,KDD    ,DIAG_KM,
      3                     DIAG_KN,IRAD  )
@@ -1680,7 +1656,6 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -1693,12 +1668,12 @@ C     REAL
      .   XS,YS,ZS,TMP,CDT(3,3),CDTR(3,3),CDR(3,3),SKEW(LSKEW),
      .   KII(6,6)
 C------------------------------------
-C     VITESSES DES NOEUDS SECONDS
+C     velocities of the secondary nodes
 C------------------------------------
         ND = NDOF(M)
         NT=JT(1)+JT(2)+JT(3)
         NR=JR(1)+JR(2)+JR(3)
-        IF (ISK.GT.1) THEN
+        IF (ISK>1) THEN
          DO K=1,LSKEW
           SKEW(K)=SKEW0(K)
          ENDDO
@@ -1718,7 +1693,7 @@ C
         ENDDO
 C--------block diagonal Kmm--
         N = NS
-        IF (NDOF(N).GT.0) THEN
+        IF (NDOF(N)>0) THEN
          XS=X(1,N)-X(1,M)
          YS=X(2,N)-X(2,M)
          ZS=X(3,N)-X(3,M)
@@ -1728,11 +1703,11 @@ C-------Update K,
          DO K=1,6
           DIAG_KM(K)=DIAG_KM(K)+KII(K,K)
          ENDDO
-          IF (NT.GT.0.AND.NT.LT.3) THEN
+          IF (NT>0.AND.NT<3) THEN
             IC = JT(1)*4+JT(2)*2+JT(3)
             CALL BCL_IMPKD(IC  ,I1   ,SKEW  ,KII   ,DIAG_KN )
           ENDIF
-          IF (NR.GT.0.AND.NR.LT.3) THEN
+          IF (NR>0.AND.NR<3) THEN
            IC = JR(1)*4+JR(2)*2+JR(3)
            DO K=1,3
            DO J=1,3
@@ -1745,17 +1720,17 @@ C-------Update K,
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  RBE2_FRK                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|-- called by -----------
-Chd|        UPD_KML                       source/mpi/implicit/imp_fri.F 
-Chd|        UPD_KSL                       source/mpi/implicit/imp_fri.F 
-Chd|-- calls ---------------
-Chd|        CDI_SKEW                      source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        PUT_KMII                      source/implicit/imp_glob_k.F  
-Chd|        UPDCDIK2_CDI                  source/constraints/general/rbe2/rbe2_imp0.F
-Chd|        UPDK2_CDI                     source/constraints/general/rbe2/rbe2_imp0.F
-Chd|====================================================================
+!||====================================================================
+!||    rbe2_frk       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||--- called by ------------------------------------------------------
+!||    upd_kml        ../engine/source/mpi/implicit/imp_fri.F
+!||    upd_ksl        ../engine/source/mpi/implicit/imp_fri.F
+!||--- calls      -----------------------------------------------------
+!||    cdi_skew       ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    put_kmii       ../engine/source/implicit/imp_glob_k.F
+!||    updcdik2_cdi   ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||    updk2_cdi      ../engine/source/constraints/general/rbe2/rbe2_imp0.F
+!||====================================================================
       SUBROUTINE RBE2_FRK(NS    ,M    ,X     ,ISK  ,SKEW0 ,
      1                    IRAD  ,NDOF  ,IDDL ,JT   ,JR    ,
      2                    IADK  ,JDIK ,DIAG_K,LT_K ,B     ,
@@ -1777,7 +1752,6 @@ C     REAL
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -1792,7 +1766,7 @@ C     REAL
 C-------------------B is not modified-----------------
         ND = NDOF(M)
         NDOFI = 3
-        IF (ISK.GT.1) THEN
+        IF (ISK>1) THEN
          DO K=1,LSKEW
           SKEW(K)=SKEW0(K)
          ENDDO
@@ -1811,7 +1785,7 @@ C
            KDD(K,J)=ZERO
          ENDDO
         ENDDO
-       IF (ISS.GT.0) THEN
+       IF (ISS>0) THEN
          DO K=1,NDOFI
            KDD(K,K) = KSS(K)
          ENDDO
@@ -1826,7 +1800,7 @@ C-------Update K,
          CALL UPDCDIK2_CDI(ND,CDT,CDR,CDTR,KDD)
          CALL PUT_KMII(IDLM,IADK,DIAG_K,LT_K,KDD,ND)
        ENDIF
-       IF (ISM.GT.0) THEN
+       IF (ISM>0) THEN
 C--------no diag--Kjm=sum(KjsCsm)--
           DO K=1,NDOFI
           DO J=1,NDOFI

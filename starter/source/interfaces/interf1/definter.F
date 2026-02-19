@@ -1,62 +1,61 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DEFINTER                      source/interfaces/interf1/definter.F
-Chd|-- called by -----------
-Chd|        HM_READ_DEFINTER_TYPE02       source/general_controls/default_values/hm_read_definter_type02.F
-Chd|        HM_READ_DEFINTER_TYPE07       source/general_controls/default_values/hm_read_definter_type07.F
-Chd|        HM_READ_DEFINTER_TYPE11       source/general_controls/default_values/hm_read_definter_type11.F
-Chd|        HM_READ_DEFINTER_TYPE19       source/general_controls/default_values/hm_read_definter_type19.F
-Chd|        HM_READ_DEFINTER_TYPE24       source/general_controls/default_values/hm_read_definter_type24.F
-Chd|        HM_READ_DEFINTER_TYPE25       source/general_controls/default_values/hm_read_definter_type25.F
-Chd|        HM_READ_INTER_LAGDT_TYPE07    source/interfaces/int07/hm_read_inter_lagdt_type07.F
-Chd|        HM_READ_INTER_LAGMUL_TYPE02   source/interfaces/int02/hm_read_inter_lagmul_type02.F
-Chd|        HM_READ_INTER_TYPE02          source/interfaces/int02/hm_read_inter_type02.F
-Chd|        HM_READ_INTER_TYPE07          source/interfaces/int07/hm_read_inter_type07.F
-Chd|        HM_READ_INTER_TYPE11          source/interfaces/int11/hm_read_inter_type11.F
-Chd|        HM_READ_INTER_TYPE24          source/interfaces/int24/hm_read_inter_type24.F
-Chd|        HM_READ_INTER_TYPE25          source/interfaces/int25/hm_read_inter_type25.F
-Chd|        READ_INTER_TYPE02             source/interfaces/int02/read_inter_type02.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    definter                      ../starter/source/interfaces/interf1/definter.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_definter_type02       ../starter/source/general_controls/default_values/hm_read_definter_type02.F
+!||    hm_read_definter_type07       ../starter/source/general_controls/default_values/hm_read_definter_type07.F
+!||    hm_read_definter_type11       ../starter/source/general_controls/default_values/hm_read_definter_type11.F
+!||    hm_read_definter_type19       ../starter/source/general_controls/default_values/hm_read_definter_type19.F
+!||    hm_read_definter_type24       ../starter/source/general_controls/default_values/hm_read_definter_type24.F
+!||    hm_read_definter_type25       ../starter/source/general_controls/default_values/hm_read_definter_type25.F
+!||    hm_read_inter_lagdt_type07    ../starter/source/interfaces/int07/hm_read_inter_lagdt_type07.F
+!||    hm_read_inter_lagmul_type02   ../starter/source/interfaces/int02/hm_read_inter_lagmul_type02.F
+!||    hm_read_inter_type02          ../starter/source/interfaces/int02/hm_read_inter_type02.F
+!||    hm_read_inter_type07          ../starter/source/interfaces/int07/hm_read_inter_type07.F
+!||    hm_read_inter_type11          ../starter/source/interfaces/int11/hm_read_inter_type11.F
+!||    hm_read_inter_type24          ../starter/source/interfaces/int24/hm_read_inter_type24.F
+!||    hm_read_inter_type25          ../starter/source/interfaces/int25/hm_read_inter_type25.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                        ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod                   ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE DEFINTER(KEY,IVAL,FLAG,IPRINT,
      .                    ITYP ,DEF_INTER)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE MESSAGE_MOD
-C============================================================================
+      USE ALE_MOD
+C----------------------------------------------- 
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-#include      "warn_c.inc"
-#include      "fluid_scr_c.inc"
-#include      "com01_c.inc"
-C-----------------------------------------------
+C----------------------------------------------- 
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
+#include      "com01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -83,6 +82,7 @@ C DEF_INTER:  INTEGER ARRAY CONTAINING DEFAULT INTEGER VALUES
 C=======================================================================
       INDEX = 0
       IS_DEFAUT_1000 = .TRUE.
+      DEF_DEF = 0
       IF(ITYP == 2) THEN
         SELECT CASE (KEY)
 C
@@ -92,7 +92,7 @@ C
 C
           CASE ('ILEV')
             INDEX = 2
-            IF(ICAA == 1) THEN
+            IF(ALE%GLOBAL%ICAA == 1) THEN
               DEF_DEF = 4
             ELSE
               DEF_DEF = 5
@@ -310,18 +310,18 @@ C
           CASE DEFAULT
             INDEX = 0
         END SELECT
-        IF (DEF_DEF .NE. 1000) IS_DEFAUT_1000 = .FALSE.
+        IF (DEF_DEF /= 1000) IS_DEFAUT_1000 = .FALSE.
       ENDIF
 C
-      IF(INDEX.NE.0)THEN
+      IF(INDEX/=0)THEN
         IF(FLAG == 0 .AND. IPRINT == 0 
-     .              .AND. DEF_INTER(INDEX) .NE. 0)THEN 
+     .              .AND. DEF_INTER(INDEX) /= 0)THEN 
           CALL ANCMSG(MSGID=1073,
      .                     MSGTYPE=MSGERROR,
      .                     ANMODE=ANINFO,
      .                     I1=ITYP)
         ELSEIF(FLAG == 0 .AND. IPRINT == 0 
-     .                   .AND. IVAL .NE. 0)THEN 
+     .                   .AND. IVAL /= 0)THEN 
           ! put default value in DEF_INTER array
           DEF_INTER(INDEX) = IVAL
         ELSEIF(FLAG == 0 .AND. IPRINT == 0)THEN 
@@ -332,20 +332,20 @@ C
           IVAL = DEF_INTER(INDEX)
         ELSEIF(FLAG == 1 .AND. IPRINT == 0)THEN
           ! replace 0 by default value in /INTER
-          IF(IVAL == 0 .AND. DEF_INTER(INDEX) .NE. 0)THEN
+          IF(IVAL == 0 .AND. DEF_INTER(INDEX) /= 0)THEN
             IVAL = DEF_INTER( INDEX)
           ELSEIF(IVAL == 0)THEN
             IVAL = DEF_DEF
           ENDIF
           IF(IVAL == 1000 .AND. IS_DEFAUT_1000 ) IVAL = 0
         ELSEIF(FLAG == 1 .AND. IPRINT == 1)THEN
-          IF(IVAL == 0 .AND. DEF_INTER(INDEX) .NE. 0)THEN
+          IF(IVAL == 0 .AND. DEF_INTER(INDEX) /= 0)THEN
             IVAL = DEF_INTER(INDEX)
           ELSEIF(IVAL == 0 .AND. DEF_INTER(INDEX) == 0)THEN
             IVAL = DEF_DEF
           ENDIF
         ENDIF
-      ENDIF!(INDEX.NE.0)
+      ENDIF!(INDEX/=0)
 C-----
       RETURN
       END

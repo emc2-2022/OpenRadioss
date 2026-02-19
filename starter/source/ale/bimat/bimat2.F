@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  BIMAT2                        source/ale/bimat/bimat2.F     
-Chd|-- called by -----------
-Chd|        BINIT2                        source/ale/bimat/binit2.F     
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE BIMAT2(PM,MXT,VOLT,ALPH,FILL,
-     .                  VOL,OFF,IX)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    bimat2        ../starter/source/ale/bimat/bimat2.F
+!||--- called by ------------------------------------------------------
+!||    binit2        ../starter/source/ale/bimat/binit2.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
+      SUBROUTINE BIMAT2(VOLT,ALPH,FILL,VOL,OFF,IX)
+      use element_mod , only :nixq
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -44,20 +44,17 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IX(NIXQ,MVSIZ), MXT(MVSIZ)
-      my_real
-     .   PM(NPROPM,*),VOLT(MVSIZ),ALPH(MVSIZ),FILL(*),VOL(MVSIZ),
-     .   OFF(MVSIZ)
+      INTEGER IX(NIXQ,MVSIZ)
+      my_real VOLT(MVSIZ),ALPH(MVSIZ),FILL(*),VOL(MVSIZ),OFF(MVSIZ)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, MT
       INTEGER IX1, IX2, IX3, IX4
-      my_real
-     .   ALPHN, ALPHD
-
+      my_real ALPHN, ALPHD
 C-----------------------------------------------
-C=======================================================================
+C   S o u r c e   C o d e
+C-----------------------------------------------
       DO I=LFT,LLT
         OFF(I)=ONE
         ALPH(I) = ZERO
@@ -66,7 +63,6 @@ C=======================================================================
         IX2 = IX(3, I)
         IX3 = IX(4, I)
         IX4 = IX(5, I)
-        MXT(I)=NINT(PM(20+JMULT,MT))
         ALPHN= MAX(FILL(IX1),ZERO)
      .       + MAX(FILL(IX2),ZERO)
      .       + MAX(FILL(IX3),ZERO)
@@ -75,7 +71,7 @@ C=======================================================================
      .       +ABS(FILL(IX2))
      .       +ABS(FILL(IX3))
      .       +ABS(FILL(IX4))
-        IF(ALPHD.GT.EM20)ALPH(I)=ALPHN/ALPHD
+        IF(ALPHD>EM20)ALPH(I)=ALPHN/ALPHD
         VOL(I)=ALPH(I)*VOLT(I)
       ENDDO
 C-----------

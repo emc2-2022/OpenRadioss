@@ -1,129 +1,121 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPONFV                        source/elements/sph/sponfv.F  
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        SPMD_SPHGETA                  source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGETD                  source/mpi/elements/spmd_sph.F
-Chd|        WEIGHT0                       source/elements/sph/weight.F  
-Chd|        WEIGHT1                       source/elements/sph/weight.F  
-Chd|        MOD_SPLISSV                   source/elements/sph/splissv.F 
-Chd|        SPHBOX                        share/modules/sphbox.F        
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sponfv         ../engine/source/elements/sph/sponfv.F
+!||--- called by ------------------------------------------------------
+!||    resol          ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_sphgeta   ../engine/source/mpi/elements/spmd_sph.F
+!||    spmd_sphgetd   ../engine/source/mpi/elements/spmd_sph.F
+!||    weight0        ../engine/source/elements/sph/weight.F
+!||    weight1        ../engine/source/elements/sph/weight.F
+!||--- uses       -----------------------------------------------------
+!||    sph_work_mod   ../common_source/modules/mat_elem/sph_work.F90
+!||    sphbox         ../engine/share/modules/sphbox.F
+!||====================================================================
       SUBROUTINE SPONFV(X ,V        ,A       ,D       ,MS      ,
      2             SPBUF   ,ITAB    ,KXSP    ,IXSP    ,NOD2SP  ,
      3             NPC     ,PLD     ,ISPHIO  ,VSPHIO  ,IPART   ,
-     4             IPARTSP ,WASPACT ,WA      ,VNORMAL   )
+     4             IPARTSP ,WASPACT ,WA      ,VNORMAL ,SPH_WORK,
+     5             WFEXT  )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE SPHBOX    
-      USE MOD_SPLISSV
-C----6---------------------------------------------------------------7---------8
+      USE SPH_WORK_MOD
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "param_c.inc"
 #include      "sphcom.inc"
-#include      "scr01_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "task_c.inc"
 #include      "scr17_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER KXSP(NISP,*),IXSP(KVOISPH,*),NOD2SP(*),ITAB(*),NPC(*),
      .        ISPHIO(NISPHIO,*),IPART(LIPART1,*),IPARTSP(*),
      .        WASPACT(*)
-C     REAL
-      my_real
-     .   X(3,*) ,V(3,*) ,A(3,*) ,D(3,*) ,MS(*) ,SPBUF(NSPBUF,*) ,
-     .   PLD(*) ,VSPHIO(*), WA(*), VNORMAL(3,*)
+      my_real  X(3,*) ,V(3,*) ,A(3,*) ,D(3,*) ,MS(*) ,SPBUF(NSPBUF,*) ,PLD(*) ,VSPHIO(*), WA(*), VNORMAL(3,*)
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, ITYPE,
      .        II,IPT,JJ,NPF,IFVITS,
-     .        NS,N,INOD,IACTIVE,
+     .        NS,N,INOD,
      .        IPPV,J,M,JNOD,IMPOSE,JMPOSE,
-     .        NVOIS,IJ,NP,K,JMPOSE2,NN
-C     REAL
+     .        NP,K,JMPOSE2,NN
       my_real
-     .       TFEXTT,T05,
+     .       WFEXTT,T05,
      .       PENTV,VX,VY,VZ,VN,VT,UX,UY,UZ,UN1,NX,NY,NZ,
      .       PS,
      .       XI,YI,ZI,XJ,YJ,ZJ,DMIN,DD,DTINV,
      .       DI,RHOI,DJ,RHOJ,DIJ,
-     .       VXI,VYI,VZI,VXJ,VYJ,VZJ,
+     .       VXJ,VYJ,VZJ,
      .       VJ,VJX,VJY,VJZ,
      .       WGHT,WGRAD(3),WGRDX,WGRDY,WGRDZ,
-     .       DXX,DXY,DXZ,DYX,DYY,DYZ,DZX,DZY,DZZ,DT1D2,
-     .       EXX,EXY,EXZ,EYX,EYY,EYZ,EZX,EZY,EZZ,
+     .       DXX,DXY,DXZ,DYX,DYY,DYZ,DZX,DZY,DZZ,
+     .       
      .       ALPHAI,ALPHAXI,ALPHAYI,ALPHAZI,ALPHAI2,XP,YP,ZP
      
       LOGICAL lBOOL
 
       my_real       ,DIMENSION(:,:), ALLOCATABLE :: DSPHR
-
+      TYPE(SPH_WORK_) :: SPH_WORK
 C-----------------------------------------------
 C     inlets.
 C-----------------------------------------------
       T05=TT + HALF*DT2
+      XP = 0
+      YP = 0
+      ZP = 0
 
       DO I=1,NSPHIO
        ITYPE=ISPHIO(1,I)
-       IF(ITYPE.EQ.1)THEN
+       IF(ITYPE==1)THEN
 C------
        IFVITS=ISPHIO(8,I)
        VN    =ZERO
-       IF(IFVITS.NE.0)THEN
+       IF(IFVITS/=0)THEN
         NPF = (NPC(IFVITS+1)-NPC(IFVITS))/2
         II  = NPC(IFVITS)
-        IF (T05.LE.PLD(II)) THEN
+        IF (T05<=PLD(II)) THEN
           PENTV=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
           VN   =PLD(II+1)+PENTV*(T05-PLD(II))
-        ELSEIF (T05.GE.PLD(II+2*(NPF-1))) THEN
+        ELSEIF (T05>=PLD(II+2*(NPF-1))) THEN
           JJ=II+2*(NPF-1)
           PENTV=(PLD(JJ+1)-PLD(JJ-1))/(PLD(JJ)-PLD(JJ-2))
           VN   =PLD(JJ+1)+MAX(-PLD(JJ+1),PENTV*(T05-PLD(JJ)))
         ELSE
           DO IPT=1,NPF-1
-           IF (PLD(II).LE.T05.AND.T05.LE.PLD(II+2)) THEN
+           IF (PLD(II)<=T05.AND.T05<=PLD(II+2)) THEN
             PENTV=(PLD(II+3)-PLD(II+1))/(PLD(II+2)-PLD(II))
             VN   =PLD(II+1)+PENTV*(T05-PLD(II))
             GOTO 10
@@ -138,15 +130,15 @@ C------
       ENDDO
 
 C-----
-      TFEXTT=ZERO
+      WFEXTT=ZERO
       DTINV =ONE/DT12
 C
       DO NS=1,NSPHACT
       N=WASPACT(NS)
       IMPOSE=KXSP(2,N)/(NGROUP+1)
-      IF(IMPOSE.NE.0)THEN
+      IF(IMPOSE/=0)THEN
        ITYPE=ISPHIO(1,IMPOSE)
-       IF(ITYPE.EQ.1)THEN
+       IF(ITYPE==1)THEN
 C------
           VN=WA(IMPOSE)
 C------
@@ -161,7 +153,7 @@ C------
           VX=UX+(VN-UN1)*NX
           VY=UY+(VN-UN1)*NY
           VZ=UZ+(VN-UN1)*NZ
-          TFEXTT=TFEXTT+HALF*MS(INOD)*
+          WFEXTT=WFEXTT+HALF*MS(INOD)*
      .     ((VX*VX+VY*VY+VZ*VZ)-(UX*UX+UY*UY+UZ*UZ))
           A(1,INOD)=(VX-V(1,INOD))*DTINV
           A(2,INOD)=(VY-V(2,INOD))*DTINV
@@ -171,24 +163,25 @@ C------
       ENDDO
 
 C-----------------------------------------------
-C Comm D et A sur cellules remotes
+C Comm D and A on remote cells
 C-----------------------------------------------
-      IF(NSPMD.GT.1)THEN
-          ALLOCATE(ASPHR(3,NSPHR))
+      IF(NSPMD>1)THEN
+          ALLOCATE(SPH_WORK%ASPHR(3,NSPHR))
           ALLOCATE(DSPHR(12,NSPHR))
-          CALL SPMD_SPHGETA(KXSP,SPBUF,A,ASPHR)
+          CALL SPMD_SPHGETA(KXSP,SPBUF,A,SPH_WORK%ASPHR)
           CALL SPMD_SPHGETD(KXSP,IXSP,ISPHIO,X,WASPACT,NOD2SP,
-     .                      SPBUF,V,A,ASPHR,DSPHR)
+     .                      SPBUF,V,A,SPH_WORK%ASPHR,DSPHR)
       END IF
 C-------------------------------------------
 C     general outlet & silent boundary.
 C-------------------------------------------
+
       DO NS=1,NSPHACT
        N=WASPACT(NS)
        IMPOSE=KXSP(2,N)/(NGROUP+1)
        lBOOL=.FALSE.
        IF(IMPOSE /= 0)THEN
-         IF(ISPHIO(1,IMPOSE).EQ.2.OR.ISPHIO(1,IMPOSE).EQ.3)lBOOL=.TRUE.       
+         IF(ISPHIO(1,IMPOSE)==2.OR.ISPHIO(1,IMPOSE)==3)lBOOL=.TRUE.       
        ENDIF
        IF(lBOOL)THEN
           INOD=KXSP(3,N)
@@ -196,13 +189,13 @@ C-------------------------------------------
           YI=X(2,INOD)
           ZI=X(3,INOD)
 C-------
-C         plus proche voisin en amont de l'outlet => IPPV.
+C         closer neighbor upstream of the outlet => IPPV.
           IPPV=0
           DMIN=1.E+20
           DO  K=1,KXSP(4,N)  
            JNOD=IXSP(K,N)
   
-           IF(JNOD.GT.0)THEN
+           IF(JNOD>0)THEN
              M   =NOD2SP(JNOD)
              JMPOSE=KXSP(2,M)/(NGROUP+1)
              lBOOL=.FALSE.
@@ -216,7 +209,7 @@ C         plus proche voisin en amont de l'outlet => IPPV.
                YJ  =X(2,JNOD)
                ZJ  =X(3,JNOD)
                DD  =(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
-               IF(DD.LT.DMIN)THEN
+               IF(DD<DMIN)THEN
                 IPPV=JNOD
                 DMIN=DD
                ENDIF
@@ -224,17 +217,17 @@ C         plus proche voisin en amont de l'outlet => IPPV.
            ELSE
              NN = -JNOD
              JMPOSE = NINT(XSPHR(12,NN))
-             IF(JMPOSE.GT.0)THEN
+             IF(JMPOSE>0)THEN
                JMPOSE2=ISPHIO(1,JMPOSE)
              ELSE
                JMPOSE2=0
              ENDIF
-             IF(JMPOSE2.EQ.0.OR.JMPOSE2.EQ.1)THEN
+             IF(JMPOSE2==0.OR.JMPOSE2==1)THEN
                XJ  =XSPHR(3,NN)
                YJ  =XSPHR(4,NN)
                ZJ  =XSPHR(5,NN)
                DD  =(XI-XJ)*(XI-XJ)+(YI-YJ)*(YI-YJ)+(ZI-ZJ)*(ZI-ZJ)
-               IF(DD.LT.DMIN)THEN
+               IF(DD<DMIN)THEN
                 IPPV=JNOD
                 DMIN=DD
                ENDIF
@@ -242,8 +235,8 @@ C         plus proche voisin en amont de l'outlet => IPPV.
            ENDIF
           ENDDO
 C-------
-C         calcule grad.v en IPPV (approximation sph corrigee en amont de IPPV).
-          IF(IPPV.GT.0)THEN
+C         Calculated Grad.V in IPPV (approximation SPH corrected upstream of IPPV).
+          IF(IPPV>0)THEN
             NP=NOD2SP(IPPV)
             XP=X(1,IPPV)
             YP=X(2,IPPV)
@@ -261,8 +254,8 @@ C         calcule grad.v en IPPV (approximation sph corrigee en amont de IPPV).
           DO J=1,KXSP(4,NP)
            JNOD=IXSP(J,NP)
 
-c partie JNOD > 0
-           IF(JNOD.GT.0)THEN          ! particule locale
+c Jnod part> 0
+           IF(JNOD>0)THEN          ! particule locale
              M=NOD2SP(JNOD)
              JMPOSE=KXSP(2,M)/(NGROUP+1)
              lBOOL=.FALSE.
@@ -289,12 +282,12 @@ c partie JNOD > 0
              NN = -JNOD
              JMPOSE = NINT(XSPHR(12,NN))
 
-             IF(JMPOSE.GT.0)THEN
+             IF(JMPOSE>0)THEN
                JMPOSE2=ISPHIO(1,JMPOSE)
              ELSE
                 JMPOSE2=0
              ENDIF
-             IF(JMPOSE2.EQ.0.OR.JMPOSE2.EQ.1)THEN
+             IF(JMPOSE2==0.OR.JMPOSE2==1)THEN
                DJ  =XSPHR(2,NN)
                XJ  =XSPHR(3,NN)
                YJ  =XSPHR(4,NN)
@@ -332,7 +325,7 @@ C------
 
           DO J=1,KXSP(4,NP)
            JNOD=IXSP(J,NP)
-           IF(JNOD.GT.0)THEN
+           IF(JNOD>0)THEN
              M=NOD2SP(JNOD)
              JMPOSE=KXSP(2,M)/(NGROUP+1)
              lBOOL=.FALSE.
@@ -372,12 +365,12 @@ C------
            ELSE
              NN=-JNOD
              JMPOSE = NINT(XSPHR(12,NN))
-             IF(JMPOSE.GT.0)THEN
+             IF(JMPOSE>0)THEN
                JMPOSE2=ISPHIO(1,JMPOSE)
              ELSE
                JMPOSE2=0
              ENDIF
-             IF(JMPOSE2.EQ.0.OR.JMPOSE2.EQ.1)THEN
+             IF(JMPOSE2==0.OR.JMPOSE2==1)THEN
                DJ  =XSPHR(2,NN)
                XJ  =XSPHR(3,NN)
                YJ  =XSPHR(4,NN)
@@ -389,9 +382,9 @@ C------
                WGRDY=WGRAD(2)*ALPHAI+WGHT*ALPHAYI
                WGRDZ=WGRAD(3)*ALPHAI+WGHT*ALPHAZI
                VJ=XSPHR(8,NN)/MAX(EM20,RHOJ)
-               VXJ =XSPHR(9,NN)+DT12*ASPHR(1,NN)
-               VYJ =XSPHR(10,NN)+DT12*ASPHR(2,NN)
-               VZJ =XSPHR(11,NN)+DT12*ASPHR(3,NN)
+               VXJ =XSPHR(9,NN)+DT12*SPH_WORK%ASPHR(1,NN)
+               VYJ =XSPHR(10,NN)+DT12*SPH_WORK%ASPHR(2,NN)
+               VZJ =XSPHR(11,NN)+DT12*SPH_WORK%ASPHR(3,NN)
                VJX=VJ*(VXJ-VX)
                VJY=VJ*(VYJ-VY)
                VJZ=VJ*(VZJ-VZ)
@@ -408,8 +401,8 @@ C------
            ENDIF
           ENDDO
 C------           
-          ELSEIF(IPPV.LT.0)THEN! fin traitement IPPV > 0
-c traitement IPPV negatif on utilise infos recuperres ds routine comm  
+          ELSEIF(IPPV<0)THEN! End IPPV treatment> 0
+c NEGATIF IPPV Treatment We use information in Routine Comm Routine  
            DXX = DSPHR(1,-IPPV)
            DXY = DSPHR(2,-IPPV)
            DXZ = DSPHR(3,-IPPV)
@@ -427,7 +420,7 @@ c traitement IPPV negatif on utilise infos recuperres ds routine comm
            ZP=XSPHR(5,-IPPV)               
 c          ELSE ! cas IPPV=0 error
 c            print*,'IPPV nul ERROR'
-          ENDIF! fin traitement IPPV < 0
+          ENDIF! End treatment IPPV <0
 
           VX=VX+(DXX*(XI-XP)+DXY*(YI-YP)+DXZ*(ZI-ZP))
           VY=VY+(DYX*(XI-XP)+DYY*(YI-YP)+DYZ*(ZI-ZP))
@@ -435,8 +428,8 @@ c            print*,'IPPV nul ERROR'
 
           PS=VX*VNORMAL(1,N)+VY*VNORMAL(2,N)+VZ*VNORMAL(3,N)
 
-          IF(PS.LT.0.)THEN
-C          impose une vitesse sortante uniquement.
+          IF(PS<0.)THEN
+C          requires outgoing velocity only.
            VX=VX-PS*VNORMAL(1,N)
            VY=VY-PS*VNORMAL(2,N)
            VZ=VZ-PS*VNORMAL(3,N)
@@ -446,19 +439,18 @@ C          impose une vitesse sortante uniquement.
           UZ=V(3,INOD)+A(3,INOD)*DT12
 
           VT=VX*VX+VY*VY+VZ*VZ
-          TFEXTT=TFEXTT+HALF*MS(INOD)*(VT-(UX*UX+UY*UY+UZ*UZ))
+          WFEXTT=WFEXTT+HALF*MS(INOD)*(VT-(UX*UX+UY*UY+UZ*UZ))
           A(1,INOD)=(VX-V(1,INOD))*DTINV
           A(2,INOD)=(VY-V(2,INOD))*DTINV
           A(3,INOD)=(VZ-V(3,INOD))*DTINV
          ENDIF
       ENDDO
 C-------------------------------------------
-#include "atomic.inc"
-       TFEXT=TFEXT+TFEXTT
-#include "atomend.inc"
+!$OMP ATOMIC
+       WFEXT=WFEXT+WFEXTT
 C-------------------------------------------
-      IF(NSPMD.GT.1)THEN
-          DEALLOCATE(ASPHR,DSPHR)
+      IF(NSPMD>1)THEN
+          DEALLOCATE(SPH_WORK%ASPHR,DSPHR)
       END IF
 C-------------------------------------------
       RETURN

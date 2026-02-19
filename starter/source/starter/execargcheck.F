@@ -1,49 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  EXECARGCHECK                  source/starter/execargcheck.F 
-Chd|-- called by -----------
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|        BUILD_MSG                     source/output/message/build_msg.F
-Chd|        GET_IBUILTIN_ARCH             source/system/get_ibuiltin_arch.c
-Chd|        ISANARGUMENT                  source/starter/execargcheck.F 
-Chd|        MY_EXIT                       source/output/analyse/analyse.c
-Chd|        PEXECINFO                     source/starter/execargcheck.F 
-Chd|        PHELPINFO                     source/starter/execargcheck.F 
-Chd|        PRHELPINFO                    source/starter/execargcheck.F 
-Chd|        READ_MSGFILE                  source/output/message/read_msgfile.F
-Chd|        UPCASE                        source/starter/execargcheck.F 
-Chd|        CHECK_MOD                     ../common_source/modules/check_mod.F
-Chd|        GRP_SIZE_MOD                  share/modules1/grp_size_mod.F 
-Chd|        INOUTFILE_MOD                 ../common_source/modules/inoutfile_mod.F
-Chd|        RANDOM_MOD                    share/modules1/random_mod.F   
-Chd|====================================================================
-      SUBROUTINE EXECARGCHECK()
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    execargcheck           ../starter/source/starter/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    starter0               ../starter/source/starter/starter0.F
+!||--- calls      -----------------------------------------------------
+!||    build_msg              ../starter/source/output/message/build_msg.F
+!||    get_ibuiltin_arch      ../starter/source/system/get_ibuiltin_arch.c
+!||    isanargument           ../starter/source/starter/execargcheck.F
+!||    my_exit                ../starter/source/output/analyse/analyse.c
+!||    pexecinfo              ../starter/source/starter/execargcheck.F
+!||    phelpinfo              ../starter/source/starter/execargcheck.F
+!||    prhelpinfo             ../starter/source/starter/execargcheck.F
+!||    read_msgfile           ../starter/source/output/message/read_msgfile.F
+!||    upcase                 ../starter/source/starter/execargcheck.F
+!||--- uses       -----------------------------------------------------
+!||    grp_size_mod           ../starter/share/modules1/grp_size_mod.F
+!||    random_mod             ../starter/share/modules1/random_mod.F
+!||====================================================================
+      SUBROUTINE EXECARGCHECK(OUTPUT)
       USE CHECK_MOD
       USE INOUTFILE_MOD
       USE RANDOM_MOD
       USE GRP_SIZE_MOD
+      USE OUTPUT_MOD
+      USE PYTHON_FUNCT_MOD 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -61,17 +62,21 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_),  INTENT(INOUT)       :: OUTPUT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
        INTEGER ARGN
        INTEGER PHELPI,PEXECI,PINPUTI,PNCPUI, PNTHI, PTIMER, PUSERLNAMI,MDS_PATHI
+       INTEGER PCHECKSUMI             !< Flag for -checksum - stores Iteration in command line
+       INTEGER :: MDS_DIRI            !< Flag for -mdsdir - stores Iteration in command line
        INTEGER I,STRL,STRLN,ERR,LENLIST,ISIN,STRLNA,BEGIN
        INTEGER IDUM
        LOGICAL :: CONDITION
        CHARACTER C
        INTEGER GLOBAL_ERROR
        CHARACTER*2096 INPUTR,INPUTC,STRING,ARGP,ARGS
+       CHARACTER*2096 CHECKSUMR,CHECKSUMC    ! checksumr : read from command line / checksumc : capital_letter(checksumr)
        CHARACTER*4096 ULIBC
        character(len=2096) ARGS2,ARGS_REDUCE
        INTEGER :: LEN_DOMDEC_CPU_TYPE
@@ -81,8 +86,8 @@ C-----------------------------------------------
        INTEGER :: RANDM_SEED,RANDM_ALEA
        REAL(kind=8) :: RANDM_SEED_NBR,RANDM_ALEA_NBR
        INTEGER :: GOT_GRP_SIZE
-       PARAMETER (LENLIST=28)
-       CHARACTER (LEN=12) ::  ARGLIST(LENLIST)
+       PARAMETER (LENLIST=33)
+       CHARACTER (LEN=20) ::  ARGLIST(LENLIST)
        EXTERNAL IARGC
        DATA ARGLIST/
      .    '-VERSION',  '-V',
@@ -93,17 +98,26 @@ C-----------------------------------------------
      .    '-ERROR_MSG','-EM',
      .    '-NOTRAP' ,  '-TIMER',
      .    '-DYNAMIC_LIB', '-DYLIB',
-     .    '-MDS_LIBPATH',
+     .    '-MDS_LIBPATH', '-MDSDIR',
      .    '-MEM-MAP' ,  '-INSPIRE', '-DD_TUNING',
      .    '-INSPIRE_ALM' , '-FLUSH_RST', '-CHECK',
      .    '-HSTP_READ' , '-HSTP_WRITE', '-RXALEA', '-RSEED',
-     .    '-GRP_SIZE' /
-
+     .    '-PREVIEW',
+     .    '-GRP_SIZE' , '-PYTHON' , '-THNMS1','-CHECKSUM_READ'/
+       INTEGER :: RUNQA
+       CHARACTER (LEN=255) :: STR
 C-----------------------------------------------
        IDUM=-1
        ITRACE=1
        IERRMSG=0
        GLOBAL_ERROR = 0
+       PYTHON_ERROR = 1
+       STR = ' '
+      
+       CALL  GETENV('RUN_QA',STR)
+       RUNQA = 0
+       READ(STR,'(I10)')RUNQA
+       IF(RUNQA == 1) PYTHON_ERROR = 0
 
        GOT_INPUT = 0
        GOT_NCPU = 0
@@ -133,6 +147,8 @@ c
        PTIMER = 0
        PUSERLNAMI = 0
        MDS_PATHI = 0
+       MDS_DIRI = 0
+       PCHECKSUMI = 0
 !       ------------------------
 !      domdec optimization
        DOMDEC_TUNING = 0
@@ -171,6 +187,9 @@ c
         GOT_GRP_SIZE = 0
         GRP_SIZE=128     
 !       ------------------------
+        
+        OUTPUT%TH%DUMP_THNMS1_FILE = 0
+        OUTPUT%CHECKSUM%ST_CHECKSUM_READ = 0
 
        ARGS2(1:2096) = ''
 
@@ -247,6 +266,10 @@ C -MDS_LIBPATH
             CASE ( '-MDS_LIBPATH')
                 IF (MDS_PATHI==0) MDS_PATHI=I
 C------------------------------------------------
+C -MDSDIR
+            CASE ( '-MDSDIR')
+                IF (MDS_DIRI==0) MDS_DIRI=I
+C------------------------------------------------
 C -MEM-MAP
             CASE ( '-MEM-MAP')
                 GOT_MEM_MAP=1
@@ -283,44 +306,53 @@ C------------------------------------------------
                 RANDM_ALEA = I
             CASE('-RSEED')
                 RANDM_SEED = I
-                
+            CASE('-PYTHON')
+                PYTHON_ERROR = 0
+            CASE('-PREVIEW')
 C------------------------------------------------
             CASE ( '-GRP_SIZE')
                 GOT_GRP_SIZE = I
 C------------------------------------------------
-C Lignes de commande qui ne sont pas definies
+            CASE ( '-THNMS1')
+                OUTPUT%TH%DUMP_THNMS1_FILE = 1
+            CASE ( '-CHECKSUM_READ')
+                OUTPUT%CHECKSUM%ST_CHECKSUM_READ = 1
+                IF (PCHECKSUMI==0) PCHECKSUMI = I
             CASE DEFAULT
-            ERR = 0
-            IF (I == 1)THEN
-               ERR = 1
-            ELSE
-               CALL GET_COMMAND_ARGUMENT(I-1,ARGP)       !GETARG(I-1,ARGP)
-               CALL UPCASE(ARGP)
-               STRLN=LEN_TRIM(ARGP)
-C Check if argument string is a variable to an argument
-               IF (ARGP == '-I' .OR. ARGP =='-INPUT'  .OR.
-     *             ARGP == '-NP' .OR. ARGP =='-NSPMD' .OR.
-     *             ARGP == '-NT' .OR. ARGP =='-NTHREAD'.OR.
-     *             ARGP == '-TIMER' .OR. ARGP =='-DYLIB'.OR.
-     *             ARGP == '-DYNAMIC_LIB' .OR. ARGP == '-DD_TUNING'.OR.
-     *             ARGP == '-RSEED' .OR. ARGP == '-RXALEA'.OR.
-     *             ARGP == '-GRP_SIZE' .OR. ARGP == '-MDS_LIBPATH'  )THEN 
-                 ERR = 0
-               ELSE
-                 ERR = 1
-               ENDIF
-            ENDIF
-            IF (ERR == 1)THEN
-               CALL GET_COMMAND_ARGUMENT(I,ARGP)       !GETARG(I,ARGP)
-               STRLN=LEN_TRIM(ARGP) 
-               WRITE(6,'(A,A)') ' '
-               WRITE(6,'(A,A)') 
-     *           '***  ERROR : Unknown command line argument: ',
-     *            ARGP(1:STRLN)
-                  WRITE(6,'(A,A)') ' '
-               CALL PRHELPINFO()
-               CALL MY_EXIT(2)
-            ENDIF
+            ! ------------------------------------------------
+            ! unknown command line argument
+                ERR = 0
+
+                IF (I == 1)THEN
+                   ERR = 1
+                ELSE
+                   CALL GET_COMMAND_ARGUMENT(I-1,ARGP)       !GETARG(I-1,ARGP)
+                   CALL UPCASE(ARGP)
+                   STRLN=LEN_TRIM(ARGP)
+
+                   ! Check if argument string is a variable to an argument
+                   IF (ARGP == '-I' .OR. ARGP =='-INPUT'  .OR.
+     *                 ARGP == '-NP' .OR. ARGP =='-NSPMD' .OR.
+     *                 ARGP == '-NT' .OR. ARGP =='-NTHREAD'.OR.
+     *                 ARGP == '-TIMER' .OR. ARGP =='-DYLIB'.OR.
+     *                 ARGP == '-DYNAMIC_LIB' .OR. ARGP == '-DD_TUNING'.OR.
+     *                 ARGP == '-RSEED' .OR. ARGP == '-RXALEA'.OR.
+     *                 ARGP == '-GRP_SIZE' .OR. ARGP == '-MDS_LIBPATH' .OR. ARGP == '-MDSDIR' .OR. ARGP == '-CHECKSUM_READ' )THEN 
+                       ERR = 0
+                   ELSE
+                       ERR = 1
+                   ENDIF
+                ENDIF
+
+                IF (ERR == 1)THEN
+                   CALL GET_COMMAND_ARGUMENT(I,ARGP)       !GETARG(I,ARGP)
+                   STRLN=LEN_TRIM(ARGP) 
+                   WRITE(6,'(A,A)') ' '
+                   WRITE(6,'(A,A)') '***  ERROR : Unknown command line argument: ',ARGP(1:STRLN)
+                   WRITE(6,'(A,A)') ' '
+                   CALL PRHELPINFO()
+                   CALL MY_EXIT(2)
+                ENDIF
 C------------------------------------------------
             END SELECT
 
@@ -398,7 +430,7 @@ C------------------------------------------------
 C------------------------------------------------
 C -ERROR_MSG SET
 C------------------------------------------------
-       IF (IERRMSG .NE. 0)THEN
+       IF (IERRMSG /= 0)THEN
          IF (IERRMSG+1  > ARGN) THEN
 
 C          Case -I is last argument in the list.
@@ -435,10 +467,50 @@ C check if -i has got an argument or if the next string is an input command
            CALL BUILD_MSG()
          ENDIF
        ENDIF
+
+       ! ------------------------------------------------
+       ! -CHECKSUM ROOTNAME
+       ! ------------------------------------------------
+       IF (PCHECKSUMI /= 0)THEN
+
+         IF (PCHECKSUMI + 1 > ARGN) THEN                    ! Case -CHECKSUM is last argument in the list.
+
+           CALL GET_COMMAND_ARGUMENT(PCHECKSUMI,ARGP)       ! GETARG(PINPUTI,ARGP)
+           STRLN=LEN_TRIM(ARGP) 
+           WRITE(6,'(A)') ' '
+           WRITE(6,'(A,A)') '*** ERROR : Missing argument to ',ARGP(1:STRLN)
+           CALL PHELPINFO()
+           GLOBAL_ERROR = 1
+
+         ELSE
+           CALL GET_COMMAND_ARGUMENT(PCHECKSUMI+1,CHECKSUMR)  
+           LENI=LEN_TRIM(CHECKSUMR)
+           CHECKSUMC = CHECKSUMR
+           CALL UPCASE(CHECKSUMC)
+
+           ! check if -checksum has got an argument or if the next string is an input command
+           ISIN = 0
+           CALL ISANARGUMENT(ARGLIST,LENLIST,CHECKSUMC,ISIN)
+
+           IF ( ISIN==1 )THEN
+               CALL GET_COMMAND_ARGUMENT(PINPUTI,ARGP)      
+               STRLN=LEN_TRIM(ARGP) 
+               WRITE(6,'(A)') ' '
+               WRITE(6,'(A,A)') '*** ERROR : Missing argument to ',ARGP(1:STRLN)
+               CALL PHELPINFO()
+               GLOBAL_ERROR = 1
+
+           ELSE
+               OUTPUT%CHECKSUM%ROOTNAME = ''
+               OUTPUT%CHECKSUM%ROOTNAME(1:LENI) = CHECKSUMR(1:LENI)
+           ENDIF
+         ENDIF
+       ENDIF
+
 C------------------------------------------------
 C -INPUT SET
 C------------------------------------------------
-       IF (PINPUTI .NE. 0)THEN
+       IF (PINPUTI /= 0)THEN
          IF (PINPUTI+1  > ARGN) THEN
 
 C          Case -I is last argument in the list.
@@ -497,16 +569,18 @@ C               CALL PRHELPINFO()
          ENDIF
        ELSE
            ! PINPUTI is 0, which means -input/-i was not set
-           WRITE(6,'(A)') ' '
-           WRITE(6,'(A)') '*** ERROR : No input deck set. Use -input [Starter input file] '
-           WRITE(6,'(A)') ' '
-           CALL PHELPINFO()
+           if (PCHECKSUMI == 0)THEN    ! -checksum option is set, does not need -i
+              WRITE(6,'(A)') ' '
+              WRITE(6,'(A)') '*** ERROR : No input deck set. Use -input [Starter input file] '
+              WRITE(6,'(A)') ' '
+              CALL PHELPINFO()
+           endif
        ENDIF
  100    CONTINUE
 C------------------------------------------------
 C -NSPMD SET
 C------------------------------------------------
-       IF (PNCPUI .NE. 0)THEN
+       IF (PNCPUI /= 0)THEN
 
          IF (PNCPUI+1  > ARGN) THEN
 
@@ -565,7 +639,7 @@ C Error was found during Character to Integer translation
 C------------------------------------------------
 C -NTHREAD SET
 C------------------------------------------------
-       IF (PNTHI .NE. 0)THEN
+       IF (PNTHI /= 0)THEN
 
          IF (PNTHI+1  > ARGN) THEN
 
@@ -623,7 +697,7 @@ C Error was found during Character to Integer translation
 C------------------------------------------------
 C -DYLIB SET
 C------------------------------------------------
-       IF (PUSERLNAMI .NE. 0)THEN
+       IF (PUSERLNAMI /= 0)THEN
          IF (PUSERLNAMI+1  > ARGN) THEN
 
 C          Case -DYLIB is last argument in the list.
@@ -663,7 +737,7 @@ C               CALL PRHELPINFO()
 C------------------------------------------------
 C -MDS_LIBPATH
 C------------------------------------------------
-       IF (MDS_PATHI .NE. 0)THEN
+       IF (MDS_PATHI /= 0)THEN
 
          IF (MDS_PATHI+1  > ARGN) THEN
 
@@ -701,9 +775,48 @@ C               CALL PRHELPINFO()
        ENDIF
  4000  CONTINUE
 C------------------------------------------------
+C -MDSDIR
+C------------------------------------------------
+       IF (MDS_DIRI /= 0)THEN
+
+        IF (MDS_DIRI+1  > ARGN) THEN
+
+C          Case -DYLIB is last argument in the list.
+
+           CALL GET_COMMAND_ARGUMENT(MDS_DIRI,ARGP)       
+           STRLN=LEN_TRIM(ARGP) 
+C           CALL PRHELPINFO()
+           WRITE(6,'(A)') ' '
+           WRITE(6,'(A,A)') '*** ERROR : Missing argument to ',ARGP(1:STRLN)
+           GLOBAL_ERROR = 1
+
+        ELSE
+
+            CALL GET_COMMAND_ARGUMENT(MDS_DIRI+1,MDS_PATH)       
+            MDS_PATH_LEN=LEN_TRIM(MDS_PATH)
+            ! check if -mdsdir has got an argument or if the next string is an input command
+            ULIBC=''
+            ULIBC(1:MDS_PATH_LEN) = MDS_PATH(1:MDS_PATH_LEN)
+            CALL UPCASE(ULIBC)
+            ISIN = 0
+            CALL ISANARGUMENT(ARGLIST,LENLIST,ULIBC,ISIN)
+            IF ( ISIN==1 )THEN
+                  CALL GET_COMMAND_ARGUMENT(MDS_DIRI,ARGP)       !GETARG(PUSERLNAMI,ARGP)
+                  STRLN=LEN_TRIM(ARGP) 
+                  WRITE(6,'(A)') ' '
+                  WRITE(6,'(A,A)') '*** ERROR : Missing argument to ',
+     *                         ARGP(1:STRLN)
+                  GLOBAL_ERROR = 1
+
+            ENDIF 
+
+        ENDIF 
+       ENDIF
+
+C------------------------------------------------
 C -TIME SET (hidden option)
 C------------------------------------------------
-       IF (PTIMER.GT.0) THEN
+       IF (PTIMER>0) THEN
           GOT_TIMER = 1
        ENDIF
 
@@ -715,7 +828,7 @@ C------------------------------------------------
 !       DD_OPTIMIZATION = 1 --> DD optimized for Skylake processor                      - AVX-512
 !       DD_OPTIMIZATION = 2 --> DD optimized for Sandy Bridge processor                 - SSE3
 !       DD_OPTIMIZATION = 3 -->  DD optimized for ThunderX2 processor                   - ARM
-       IF (DOMDEC_TUNING .NE. 0)THEN
+       IF (DOMDEC_TUNING /= 0)THEN
          IF (DOMDEC_TUNING+1  > ARGN) THEN
 
 C          Case -DYLIB is last argument in the list.
@@ -889,7 +1002,7 @@ C Error was found during Character to real translation
 C------------------------------------------------
 C -GRP_SIZE hidden option
 C------------------------------------------------
-       IF (GOT_GRP_SIZE .NE. 0)THEN
+       IF (GOT_GRP_SIZE /= 0)THEN
          IF (GOT_GRP_SIZE+1  > ARGN) THEN
 C          Case -grp_size is last argument in the list.
 
@@ -943,7 +1056,6 @@ C Error was found during Character to Integer translation
        ENDIF
 
 
-
 !       ------------------------------------------------
  3010  CONTINUE
 
@@ -964,20 +1076,16 @@ C Error was found during Character to Integer translation
 
 
 
-Chd|====================================================================
-Chd|  UPCASE                        source/starter/execargcheck.F 
-Chd|-- called by -----------
-Chd|        EXECARGCHECK                  source/starter/execargcheck.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    upcase         ../starter/source/starter/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    execargcheck   ../starter/source/starter/execargcheck.F
+!||====================================================================
       SUBROUTINE UPCASE (STRING) 
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -999,20 +1107,16 @@ C
        END DO
        RETURN
        END
-Chd|====================================================================
-Chd|  ISANARGUMENT                  source/starter/execargcheck.F 
-Chd|-- called by -----------
-Chd|        EXECARGCHECK                  source/starter/execargcheck.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    isanargument   ../starter/source/starter/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    execargcheck   ../starter/source/starter/execargcheck.F
+!||====================================================================
        SUBROUTINE ISANARGUMENT(ARGLIST,LENLIST,ARG,ISIN)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -1032,25 +1136,19 @@ C-----------------------------------------------
 
 
 
-Chd|====================================================================
-Chd|  PEXECINFO                     source/starter/execargcheck.F 
-Chd|-- called by -----------
-Chd|        EXECARGCHECK                  source/starter/execargcheck.F 
-Chd|-- calls ---------------
-Chd|        MY_EXIT                       source/output/analyse/analyse.c
-Chd|        PREXECINFO                    source/starter/execargcheck.F 
-Chd|====================================================================
+!||====================================================================
+!||    pexecinfo      ../starter/source/starter/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    execargcheck   ../starter/source/starter/execargcheck.F
+!||--- calls      -----------------------------------------------------
+!||    my_exit        ../starter/source/output/analyse/analyse.c
+!||    prexecinfo     ../starter/source/starter/execargcheck.F
+!||====================================================================
         SUBROUTINE PEXECINFO(IDUM)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -1061,12 +1159,12 @@ C-----------------------------------------------
         CALL MY_EXIT(0)
         END
 
-Chd|====================================================================
-Chd|  PREXECINFO                    source/starter/execargcheck.F 
-Chd|-- called by -----------
-Chd|        PEXECINFO                     source/starter/execargcheck.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prexecinfo    ../starter/source/starter/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    pexecinfo     ../starter/source/starter/execargcheck.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
         SUBROUTINE PREXECINFO(IDUM)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1078,9 +1176,6 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "build_info.inc"
 C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
         INTEGER IDUM
@@ -1090,12 +1185,18 @@ C machine.inc include
         CHARACTER CPUNAM*20,ARCHTITLE*66
         INTEGER RDFLEXCOMP
 
-C variables inutiles mais definies dans machine.inc
-        INTEGER IBUILTIN,NSPMD,BMUL0,IEXPM,ICRAY,
-     *          IRESP,IMACH,IRFORM,IGFORM,LENBT,READER_ID
-
+C unnecessary variables but defined in machine.cinc
+        INTEGER IBUILTIN,NSPMD,IEXPM,ICRAY,IRESP,IRFORM,LENBT,READER_ID
+        INTEGER READER_COMMIT_ID_SIZE,READER_COMMIT_ID_LEN
+        CHARACTER(LEN=128):: READER_COMMIT_ID
+        my_real :: BMUL0
 C-----------------------------------------------
 #include "machine.inc"
+C-----------------------------------------------
+         ! Grab Build ID from hm_reader library
+         READER_COMMIT_ID_SIZE=128
+         CALL HM_BUILD_ID(READER_COMMIT_ID,READER_COMMIT_ID_SIZE,READER_COMMIT_ID_LEN)
+
 
          WRITE(6,'(A,A)') ' '
          WRITE(6,'(A,A)') 'OpenRadioss Starter '
@@ -1109,47 +1210,46 @@ C-----------------------------------------------
          WRITE(6,'(A,A)')   ' '
          WRITE(6,'(A,A)')   'Time of build : ',BTIME
          WRITE(6,'(A,A)')   'Date of build : ',BDATE
+         WRITE(6,'(A,A)') ' '
+         IF( BTAG(1:1) == ' ') THEN
+           WRITE(6,'(A)')   'CommitID : User Build'
+         ELSE
+           WRITE(6,'(A)')     BTAG(1:LEN_TRIM(BTAG))
+         ENDIF
+         WRITE(6,'(A,A)') 'Reader : ',READER_COMMIT_ID(1:READER_COMMIT_ID_LEN)
          WRITE(6,'(A,A)')   ' '
 
         END
 
-Chd|====================================================================
-Chd|  PHELPINFO                     source/starter/execargcheck.F 
-Chd|-- called by -----------
-Chd|        EXECARGCHECK                  source/starter/execargcheck.F 
-Chd|-- calls ---------------
-Chd|        MY_EXIT                       source/output/analyse/analyse.c
-Chd|        PRHELPINFO                    source/starter/execargcheck.F 
-Chd|====================================================================
+!||====================================================================
+!||    phelpinfo      ../starter/source/starter/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    execargcheck   ../starter/source/starter/execargcheck.F
+!||--- calls      -----------------------------------------------------
+!||    my_exit        ../starter/source/output/analyse/analyse.c
+!||    prhelpinfo     ../starter/source/starter/execargcheck.F
+!||====================================================================
         SUBROUTINE PHELPINFO()
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
 C-----------------------------------------------
         CALL PRHELPINFO()
 
         CALL MY_EXIT(0)
         END
 
-Chd|====================================================================
-Chd|  PRHELPINFO                    source/starter/execargcheck.F 
-Chd|-- called by -----------
-Chd|        EXECARGCHECK                  source/starter/execargcheck.F 
-Chd|        GET_FILE_NAME_INFO            source/system/get_file_name_info.F
-Chd|        PHELPINFO                     source/starter/execargcheck.F 
-Chd|        STARTER0                      source/starter/starter0.F     
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    prhelpinfo           ../starter/source/starter/execargcheck.F
+!||--- called by ------------------------------------------------------
+!||    execargcheck         ../starter/source/starter/execargcheck.F
+!||    get_file_name_info   ../starter/source/system/get_file_name_info.F
+!||    phelpinfo            ../starter/source/starter/execargcheck.F
+!||    starter0             ../starter/source/starter/starter0.F
+!||====================================================================
        SUBROUTINE PRHELPINFO()
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -1160,48 +1260,49 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "build_info.inc"
 C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
-C-----------------------------------------------
 C-----------------------------------------------
        WRITE(6,'(A)') ' '
        WRITE(6,'(A,A)') 'RADIOSS Starter version ',VERS(1:LEN_VERS)
        WRITE(6,'(A)') ' '
        WRITE(6,'(A)')   'Command line arguments help: '
-       WRITE(6,'(A,A)') '  -help           / -h                : ',
+       WRITE(6,'(A,A)') '  -help           / -h                 : ',
      *                  'Print this message'
-       WRITE(6,'(A,A)') '  -version        / -v                : ',
+       WRITE(6,'(A,A)') '  -version        / -v                 : ',
      *                  'Print RADIOSS release information'
-       WRITE(6,'(A,A)') '  -input [FILE]   / -i [FILE]         : ',
+       WRITE(6,'(A,A)') '  -input [FILE]   / -i [FILE]          : ',
      *                  'Set RADIOSS Starter input file'
-       WRITE(6,'(A,A)') '  -nspmd [INTEGER] / -np [INTEGER]    : ',
+       WRITE(6,'(A,A)') '  -nspmd [INTEGER] / -np [INTEGER]     : ',
      *                  'Set Number of RADIOSS SPMD domains '
-       WRITE(6,'(A,A)') '  -nthread [INTEGER] / -nt [INTEGER]  : ',
+       WRITE(6,'(A,A)') '  -nthread [INTEGER] / -nt [INTEGER]   : ',
      *                  'Set Number of SMP threads per SPMD domain'
-       WRITE(6,'(A,A)') '  -check                              : ',
+       WRITE(6,'(A,A)') '  -check                               : ',
      *                  'Check run - no restart file written'
-       WRITE(6,'(A,A)') '  -notrap                             : ',
+       WRITE(6,'(A,A)') '  -notrap                              : ',
      *                  'Disable error trapping'
-       WRITE(6,'(A,A)') '  -dynamic_lib [FILE] / -dylib [FILE] : ',
+       WRITE(6,'(A,A)') '  -dynamic_lib [FILE] / -dylib [FILE]  : ',
      *                  'Set name to the dynamic library for Radioss User Interface'
-       WRITE(6,'(A,A)') '  -mds_libpath [PATH]                 : ',
+       WRITE(6,'(A,A)') '  -mdsdir [PATH] / -mds_libpath [PATH] : ',
 #ifdef _WIN32
      *                  'Set directory to MDS Library (default is %ALTAIR_HOME%/hwsolver/MultiscaleDesigner/%arch%)'
 #else
      *                  'Set directory to MDS Library (default is $ALTAIR_HOME/hwsolver/MultiscaleDesigner/$arch)'
 #endif
-       WRITE(6,'(A,A)') '  -outfile=[PATH]                     : ',
+       WRITE(6,'(A,A)') '  -outfile=[PATH]                      : ',
      *                  'Set output file directory for all output and created files'
-       WRITE(6,'(A,A)') '  -hstp_write                         : ',
+       WRITE(6,'(A,A)') '  -hstp_write                          : ',
      *                  'Write the xml file hst_input.hstp with the parameters for HyperStudy'
-       WRITE(6,'(A,A)') '  -hstp_read                          : ',
+       WRITE(6,'(A,A)') '  -hstp_read                           : ',
      *                  'Read the xml file hst_input.hstp with the parameters from HyperStudy'
-       WRITE(6,'(A,A)') '  -rxalea [real value]                : ',
+       WRITE(6,'(A,A)') '  -rxalea [real value]                 : ',
      *                  'Activation of nodal random noise with a [value] alea'
-       WRITE(6,'(A,A)') '  -rseed [real value]                 : ',
+       WRITE(6,'(A,A)') '  -rseed [real value]                  : ',
      *                  'Optional value, set the seed value for nodal random noise'
+       WRITE(6,'(A,A)') '  -python                              : ',
+     *                  'Python function in model is safe and can be used'
+       WRITE(6,'(A,A)') '  -checksum_read [rootname]            : ',
+     *                  'Parse output files for /CHECKSUM fingerprints and [rootname].report file'
+
        WRITE(6,'(A)') ' '
        WRITE(6,'(A)') ' '
        END

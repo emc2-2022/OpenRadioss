@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_INJECT1               source/properties/injector/hm_read_inject1.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX_DIM  source/devtools/hm_reader/hm_get_float_array_index_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        NINTRI                        source/system/nintrr.F        
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_inject1                ../starter/source/properties/injector/hm_read_inject1.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties             ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                         ../starter/source/output/message/message.F
+!||    hm_get_float_array_index       ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_float_array_index_dim   ../starter/source/devtools/hm_reader/hm_get_float_array_index_dim.F
+!||    hm_get_floatv                  ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim              ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index         ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                    ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    nintri                         ../starter/source/system/nintrr.F
+!||    usr2sys                        ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod                   ../starter/share/modules1/elbuftag_mod.F
+!||    hm_option_read_mod             ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                    ../starter/share/message_module/message_mod.F
+!||    submodel_mod                   ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_INJECT1(GEO       ,IGEO     ,PROP_TAG ,IGTYP    ,PROP_ID        ,
      .                           IDTITL    ,UNITAB   ,LSUBMODEL,IPM      ,PM             ,
      .                           NPC       ,PLD)
@@ -50,33 +51,27 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
 #include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "tablen_c.inc"
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER IGEO(*)
-      INTEGER ,INTENT(IN) :: IGTYP,PROP_ID,IPM(NPROPMI,*),NPC(*)
-      my_real, INTENT(IN) :: PLD(*),PM(NPROPM,*)
+      INTEGER ,INTENT(IN) :: IGTYP,PROP_ID,IPM(NPROPMI,NUMMAT),NPC(*)
+      my_real, INTENT(IN) :: PLD(*),PM(NPROPM,NUMMAT)
       my_real, INTENT(INOUT) ::  GEO(*)
-      CHARACTER IDTITL*nchartitle
+      CHARACTER(LEN=NCHARTITLE)::IDTITL
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
 C-----------------------------------------------
@@ -134,7 +129,7 @@ C Initialisation
       CPEI_MIX=0   
       CPFI_MIX=0   
       FAC_TIME=ONE  
-C Lecture carte 1
+C Reading Card 1
       CALL HM_GET_INTV('NIP',NGASES,IS_AVAILABLE,LSUBMODEL)                       
       CALL HM_GET_INTV('IFLOW',IFLOW,IS_AVAILABLE,LSUBMODEL)                      
       CALL HM_GET_FLOATV('A_SCALE_X',ASTIME,IS_AVAILABLE,LSUBMODEL,UNITAB)        
@@ -157,7 +152,7 @@ C Verification
      .               I1=PROP_ID,
      .               C1=IDTITL)
       END IF
-C Lecture NGASES cartes
+C Reading ngases cards
       IF(NGASES>0)THEN
           CALL HM_GET_FLOAT_ARRAY_INDEX_DIM('ABG_Smass',FAC_MASS,1,IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOAT_ARRAY_INDEX_DIM('ABG_Stemp',FAC_TEMP,1,IS_AVAILABLE,LSUBMODEL,UNITAB)
@@ -169,7 +164,7 @@ C Lecture NGASES cartes
         CALL HM_GET_INT_ARRAY_INDEX('ABG_Itemp',F_IDTEMP(1,I),I,IS_AVAILABLE,LSUBMODEL)       
         CALL HM_GET_FLOAT_ARRAY_INDEX('ABG_Smass',FSMASS(I),I,IS_AVAILABLE,LSUBMODEL,UNITAB)  
         CALL HM_GET_FLOAT_ARRAY_INDEX('ABG_Stemp',FSTEMP(I),I,IS_AVAILABLE,LSUBMODEL,UNITAB)  
-C       Verification existence materiaux et functions                                         
+C       Material existence and funeration existence                                         
 C ---
 C ---   Materiaux                                                                             
         IF(FSMASS(I) == ZERO)FSMASS(I)=ONE*FAC_MASS                                            
@@ -182,7 +177,7 @@ C ---   Materiaux
      .                I1=PROP_ID,                                                             
      .                C1=IDTITL,                                                              
      .                I2=MAT_ID(1,I))                                                         
-        ELSEIF(IPM(2,MAT_ID(2,I)).NE.999) THEN                                                
+        ELSEIF(IPM(2,MAT_ID(2,I))/=999) THEN                                                
           CALL ANCMSG(MSGID=857,                                                              
      .                MSGTYPE=MSGERROR,                                                       
      .                ANMODE=ANINFO_BLIND_1,                                                  
@@ -201,7 +196,7 @@ C ---   Fonctions
             IF(NPC(NFUNCT+1+J) == F_IDTEMP(1,I)) F_IDTEMP(2,I)=J                              
           ENDDO                                                                               
         ENDIF                                                                                 
-        IF(F_IDMASS(1,I).NE.0.AND.F_IDMASS(2,I) == 0)THEN                                     
+        IF(F_IDMASS(1,I)/=0.AND.F_IDMASS(2,I) == 0)THEN                                     
           CALL ANCMSG(MSGID=708,                                                              
      .                MSGTYPE=MSGERROR,                                                       
      .                ANMODE=ANINFO_BLIND_1,                                                  
@@ -209,7 +204,7 @@ C ---   Fonctions
      .                 C1=IDTITL,                                                             
      .                 I2=F_IDMASS(1,I))                                                      
         ENDIF                                                                                 
-        IF(F_IDTEMP(1,I).NE.0.AND.F_IDTEMP(2,I) == 0)THEN                                     
+        IF(F_IDTEMP(1,I)/=0.AND.F_IDTEMP(2,I) == 0)THEN                                     
           CALL ANCMSG(MSGID=708,                                                              
      .                MSGTYPE=MSGERROR,                                                       
      .                ANMODE=ANINFO_BLIND_1,                                                  
@@ -219,25 +214,25 @@ C ---   Fonctions
         ENDIF                                                                                 
       ENDDO  ! I=1,NGASES                                                                     
 
-C Conversion d unites ----------------------
+C Units conversion --------------------
       IF(ASTIME == ZERO)ASTIME=ONE*FAC_TIME
       R_IGC1=PM(27,MAT_ID(2,1))
-C     Verification de la croissance des fonctions de masse
+C     Verification of the growth of mass function
       DO I=1,NGASES
         IFUN_TMP=0
         IFUN_TMP_USR=0
         IF (IGEO(22) == 1) THEN
-          IF (F_IDMASS(2,I).NE.0) THEN
+          IF (F_IDMASS(2,I)/=0) THEN
             IFUN_TMP=F_IDMASS(2,I)
             IFUN_TMP_USR=F_IDMASS(1,I)
           END IF
         ELSE IF (IGEO(22) == 2) THEN
-          IF (F_IDMF(2,I).NE.0) THEN
+          IF (F_IDMF(2,I)/=0) THEN
             IFUN_TMP=F_IDMF(2,I)
             IFUN_TMP_USR=F_IDMF(1,I)
           END IF
         END IF
-        IF (IFUN_TMP.NE.0) THEN
+        IF (IFUN_TMP/=0) THEN
           IF ((NPC(IFUN_TMP+1)-NPC(IFUN_TMP)) >= 4) THEN
             IF (IFLOW == 0) THEN
               DO J = NPC(IFUN_TMP),NPC(IFUN_TMP+1)-3,2
@@ -266,7 +261,7 @@ C     Verification de la croissance des fonctions de masse
         END IF
       END DO
 
-C Calcul des caracteristiques initiales du melange
+C Calculation of initial characteristics of the mixture
       MWI_MIXTURE=ZERO
       CPAI_MIX=ZERO
       CPBI_MIX=ZERO
@@ -280,18 +275,18 @@ C Calcul des caracteristiques initiales du melange
       MOL_TOT=ZERO
       INIT_MASS=ZERO
 
-C Calcul de la masse totale
+C Calculation of total mass
       DO I=1,NGASES
          IF (F_IDMASS(2,I) > 0) THEN
             MASS_TOT = MASS_TOT + PLD(NPC(F_IDMASS(2,I))+3)*FSMASS(I)
          ENDIF
       END DO
       DO I=1,NGASES
-C Moyenne simple dans le cas d une masse nulle
-C on considere que chaque gaz arrive avec la meme masse
-C attention dans ce cas la moyenne faite pour mw est :
+C Simple average in the case of a null mass
+C it is assumed that each gas arrives with the same mass
+C note that in this case the average made for mw is:
 C  mw = somme (moles) / somme (masses)
-C  mw = somme (1/masse_molaire) / somme (masses=1)=ngases
+C  mw = sum (1 / mass_molar) / sum (masses = 1) = ngase
        IF (MASS_TOT == ZERO .OR. F_IDMASS(2,I) == 0) THEN
          INIT_MASS=ONE
        ELSE
@@ -305,8 +300,8 @@ C  mw = somme (1/masse_molaire) / somme (masses=1)=ngases
         CPEI_MIX = CPEI_MIX + INIT_MASS*PM(25,MAT_ID(2,I))
         CPFI_MIX = CPFI_MIX + INIT_MASS*PM(26,MAT_ID(2,I))
       END DO
-C on utilise mass tot pour detecter
-C comment calculer init_mass
+C We use Mass Tot to detect
+C How to calculate Init_mass
       IF (MASS_TOT == ZERO) THEN
         MASS_TOT=NGASES
       END IF
@@ -401,6 +396,5 @@ C----------------------
      & 10X,'TIME FUNCTION FOR INCOMING GAS TEMP . .=',I10,/,
      & 10X,'SCALE FACTOR FOR INCOMING MASS. . . . .=',1PG20.13,/,
      & 10X,'SCALE FACTOR FOR INCOMING GAS TEMP. . .=',1PG20.13,/)
- 999  CALL FREERR(3)
       RETURN
       END

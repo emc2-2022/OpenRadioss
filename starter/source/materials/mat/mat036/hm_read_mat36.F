@@ -1,48 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT36                 source/materials/mat/mat036/hm_read_mat36.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX_DIM  source/devtools/hm_reader/hm_get_float_array_index_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_MAT36(UPARAM   ,MAXUPARAM,NUPARAM   ,NUVAR  ,NVARTMP  ,
-     .                         IFUNC    ,MAXFUNC  ,MFUNC     , PARMAT,UNITAB   ,
-     .                         ID       ,MTAG     ,TITR     , LSUBMODEL,PM     ,
-     .                         ISRATE   )                     
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat36                  ../starter/source/materials/mat/mat036/hm_read_mat36.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat                    ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                         ../starter/source/output/message/message.F
+!||    hm_get_float_array_index       ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_float_array_index_dim   ../starter/source/devtools/hm_reader/hm_get_float_array_index_dim.F
+!||    hm_get_floatv                  ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim              ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index         ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                    ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted         ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword               ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod                   ../starter/share/modules1/elbuftag_mod.F
+!||    hm_option_read_mod             ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                    ../starter/share/message_module/message_mod.F
+!||    submodel_mod                   ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_MAT36(UPARAM   ,MAXUPARAM,NUPARAM   ,NUVAR    ,NVARTMP  ,
+     .                         IFUNC    ,MAXFUNC  ,MFUNC     ,PARMAT   ,UNITAB   ,
+     .                         ID       ,MTAG     ,TITR      ,LSUBMODEL,PM       ,
+     .                         ISRATE   ,MATPARAM )                     
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -67,7 +68,8 @@ C-----------------------------------------------
       USE MESSAGE_MOD      
       USE SUBMODEL_MOD
       USE MATPARAM_DEF_MOD          
-      USE HM_OPTION_READ_MOD 
+      USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -75,48 +77,43 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       my_real, DIMENSION(NPROPM) ,INTENT(INOUT)   :: PM     
-      my_real, DIMENSION(100)    ,INTENT(OUT)     :: PARMAT
-      my_real, DIMENSION(MAXUPARAM) ,INTENT(OUT)  :: UPARAM
-      INTEGER, DIMENSION(MAXFUNC)   ,INTENT(OUT)  :: IFUNC
+      my_real, DIMENSION(100)    ,INTENT(INOUT)     :: PARMAT
+      my_real, DIMENSION(MAXUPARAM) ,INTENT(INOUT)  :: UPARAM
+      INTEGER, DIMENSION(MAXFUNC)   ,INTENT(INOUT)  :: IFUNC
       INTEGER, INTENT(INOUT)          :: MFUNC,NUPARAM,NUVAR,NVARTMP,ISRATE
       TYPE(MLAW_TAG_),INTENT(INOUT)   :: MTAG
       INTEGER,INTENT(IN)              :: ID,MAXFUNC,MAXUPARAM
-      CHARACTER*nchartitle,INTENT(IN) :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN) :: TITR
       TYPE(SUBMODEL_DATA),INTENT(IN)  :: LSUBMODEL(*)
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER :: NBMAT, MAT_ID  ! Number of declared materials
       INTEGER :: I,J,VP,YLDCHECK
-      INTEGER :: RHOFLAG,ICOMP,NRATE1,NRATE,IPFUN,IFUNCE,ISRAT,
+      INTEGER :: RHOFLAG,ICOMP,NRATE1,NRATE,IPFUN,IFUNCE,ISRAT,ISMOOTH,
      .           NBLINE,NBREAD,IFAIL,OPTE,ILAW,NFUNC
       my_real :: RHO0, RHOR,E,NU,G,C1,SOUNDSP, EPSMAX,EPSR1,EPSR2,EPSF,FISOKIN,FCUT,
      .           PSCAL_UNIT,PSCALE,EINF,CE ,
-     .           YFAC(MAXFUNC),RATE(MAXFUNC),STRAINRATE_UNIT(MAXFUNC),YFAC_UNIT(MAXFUNC)
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
+     .           YFAC(MAXFUNC),RATE(MAX(1,MAXFUNC)),STRAINRATE_UNIT(MAXFUNC),YFAC_UNIT(MAXFUNC)
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
+      RATE(1) = ZERO
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C-----------------------------------------------
       ILAW    = 36
       CALL HM_GET_FLOATV('MAT_RHO'  ,RHO0     ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -131,7 +128,7 @@ Card1
 C-----------------------------------------------
 Card2
       CALL HM_GET_INTV  ('NFUNC'        ,NRATE   ,IS_AVAILABLE,LSUBMODEL)
-      CALL HM_GET_INTV  ('Fsmooth'      ,ISRAT   ,IS_AVAILABLE,LSUBMODEL)
+      CALL HM_GET_INTV  ('Fsmooth'      ,ISMOOTH ,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_FLOATV('MAT_HARD'     ,FISOKIN ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Fcut'         ,FCUT    ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MAT_Epsilon_F',EPSF    ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -143,15 +140,15 @@ Card3
       CALL HM_GET_FLOATV('MAT_EFIB'     ,EINF    ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('MAT_C'        ,CE      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
 C-----------------------------------------------
+      ! Poisson's ratio check
+      IF (NU < ZERO .OR. NU >= HALF) THEN
+        CALL ANCMSG(MSGID=49,MSGTYPE=MSGERROR,ANMODE=ANINFO_BLIND_2,R1=NU,I1=ID,C1=TITR)
+      ENDIF
+c
       IF(NRATE > 100)THEN
-        CALL ANCMSG(MSGID=215, MSGTYPE=MSGERROR, ANMODE=ANINFO,
-     .               I1=36,
-     .               I2=ID,
-     .               C1=TITR)
+        CALL ANCMSG(MSGID=215, MSGTYPE=MSGERROR, ANMODE=ANINFO,I1=36,I2=ID,C1=TITR)
       ELSEIF (NRATE <= 0) THEN
-        CALL ANCMSG(MSGID=740, MSGTYPE=MSGERROR, ANMODE=ANINFO,
-     .              I1=ID,
-     .              C1=TITR)
+        CALL ANCMSG(MSGID=740, MSGTYPE=MSGERROR, ANMODE=ANINFO,I1=ID,C1=TITR)
       ENDIF
 c
       IF (IPFUN == 0) THEN
@@ -168,7 +165,6 @@ c------------------------
         DO J=1,NRATE
           CALL HM_GET_INT_ARRAY_INDEX ('FUN_LOAD',IFUNC(J),J,IS_AVAILABLE,LSUBMODEL)
         ENDDO
-c
         DO J=1,NRATE
           CALL HM_GET_FLOAT_ARRAY_INDEX    ('SCALE_LOAD',YFAC(J)     ,J,IS_AVAILABLE,LSUBMODEL,UNITAB)
           IF(YFAC(J) == ZERO) THEN
@@ -176,32 +172,29 @@ c
             YFAC(J)=ONE * YFAC_UNIT(J)
           ENDIF
         ENDDO
-c
+
+        RATE(1:MAXFUNC) = ZERO
         DO J=1,NRATE
           CALL HM_GET_FLOAT_ARRAY_INDEX    ('STRAINRATE_LOAD',RATE(J),J,IS_AVAILABLE,LSUBMODEL,UNITAB)
         ENDDO
-c
+
         DO I=1,NRATE-1                        
-	         IF (RATE(I) >= RATE(I+1)) THEN        
-            CALL ANCMSG(MSGID=478, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,
-     .                  I1=ID,
-     .                  C1=TITR)
+          IF (RATE(I) >= RATE(I+1)) THEN        
+            CALL ANCMSG(MSGID=478, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,I1=ID,C1=TITR)
             EXIT                         
           ENDIF                               
         ENDDO                                 
         DO I=1,NRATE
           IF (IFUNC(I) == 0) THEN
-            CALL ANCMSG(MSGID=126, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,
-     .                  I1=ID,
-     .                  C1=TITR,
-     .                  I2=IFUNC(I))
+            CALL ANCMSG(MSGID=126, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,I1=ID,C1=TITR,I2=IFUNC(I))
           ENDIF
         ENDDO
       ENDIF
 c-------------------------
       IF (NRATE == 1) THEN
         NFUNC  = 1
-        ISRAT  = 0
+        ISMOOTH= 0
+        ISRAT  = 0     ! strain rate is always calculated for output
         FCUT   = ZERO
         VP     = 0   !!!  no plastic strain rate dependency with single static curve
       ELSE    ! NRATE > 1
@@ -219,7 +212,7 @@ c-------------------------
         ENDIF
 c
         IF (FCUT == ZERO .or. VP == 1) THEN
-          FCUT = 10000.0D0*FAC_T_WORK
+          FCUT = 10000.0D0*UNITAB%FAC_T_WORK
         END IF 
       ENDIF
       ISRATE = MAX(ISRATE,ISRAT) 
@@ -229,12 +222,10 @@ c
       IFUNC(MFUNC) = IPFUN
 c-----------------------------------------------
       IF (FISOKIN > ONE .OR. FISOKIN < ZERO) THEN
-        CALL ANCMSG(MSGID=912, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,
-     .              I1=ID,C1='36',
-     .              C2=TITR)
+        CALL ANCMSG(MSGID=912, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,I1=ID,C1='36',C2=TITR)
       END IF
-C      
-      IF (EPSR1 == ZERO .AND. EPSR1 == ZERO .AND. EPSF == ZERO) THEN
+
+      IF (EPSR1 == ZERO .AND. EPSR2 == ZERO .AND. EPSF == ZERO) THEN
         IF (EPSMAX == ZERO) THEN
           IFAIL = 0
         ELSE
@@ -247,6 +238,10 @@ c     IFAIL = 0 => no failure at all inside material
 c     IFAIL = 1 => only failure vs max plastic strain
 c     IFAIL = 2 => failure + damage vs principal tensile strain
 c
+      IF (IFAIL > 0) THEN 
+        MTAG%G_DMG = 1
+        MTAG%L_DMG = 1        
+      ENDIF
       IF (EPSMAX== ZERO) EPSMAX= INFINITY
       IF (EPSR1 == ZERO) EPSR1 = INFINITY
       IF (EPSR2 == ZERO) EPSR2 = TWO*INFINITY
@@ -259,11 +254,15 @@ c     Limit max failure values
 c      
       IF (EPSR1 /= ZERO .AND. EPSR2 /= ZERO) THEN 
         IF (EPSR1 >= EPSR2) THEN
-         CALL ANCMSG(MSGID=480, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,
-     .               I1=ID,
-     .               C1=TITR)
+         CALL ANCMSG(MSGID=480, MSGTYPE=MSGERROR, ANMODE=ANINFO_BLIND_1,I1=ID,C1=TITR)
         ENDIF
       ENDIF
+
+      IF(E <= ZERO)THEN
+        CALL ANCMSG(MSGID=276,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=36,I2=ID,C1=TITR)
+        E=ZERO
+      ENDIF
+
 C------------------------------
       G = HALF*E/(ONE+NU)
       C1= E/THREE/(ONE - TWO*NU)
@@ -277,7 +276,6 @@ C------------------------------
       UPARAM(2)= E
       UPARAM(3)= E/(ONE - NU*NU)
       UPARAM(4)= NU*UPARAM(3)
-C---
       UPARAM(5)= G
       UPARAM(6)= NU
       DO J=1,NFUNC
@@ -286,7 +284,6 @@ C---
       DO J=1,NFUNC
         UPARAM(NFUNC + 6+J)= YFAC(J)
       ENDDO
-C---
       UPARAM(2*NFUNC + 7) = EPSMAX
       UPARAM(2*NFUNC + 8) = EPSR1
       UPARAM(2*NFUNC + 9) = EPSR2
@@ -302,7 +299,7 @@ C---
         UPARAM(2*NFUNC + 16) = MFUNC 
       ENDIF
       UPARAM(2*NFUNC + 17) = PSCALE 
-c sound speed coque
+c sound speed (shell)
       UPARAM(2*NFUNC + 18) = SQRT(E/(ONE - NU*NU)/RHO0)  ! soundspeed shells
       UPARAM(2*NFUNC + 19) = NU / (ONE-NU)
       UPARAM(2*NFUNC + 20) = THREE / (ONE+NU)
@@ -318,8 +315,9 @@ c -----------------------
       UPARAM(2*NFUNC + 26) = VP
       UPARAM(2*NFUNC + 27) = IFAIL
       UPARAM(2*NFUNC + 28) = YLDCHECK
+      UPARAM(2*NFUNC + 29) = ISMOOTH
 c
-      NUPARAM = 2*NFUNC + 28
+      NUPARAM = 2*NFUNC + 29
 c--------------------------------
       IF (RHOR == ZERO) RHOR=RHO0
       PM(1) = RHOR
@@ -352,15 +350,26 @@ C-----------------------
       IF (FISOKIN /= ZERO) THEN
         MTAG%L_SIGB = 6
       ENDIF
-
+C-----------------------  
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ELASTO_PLASTIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"INCREMENTAL")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"LARGE_STRAIN") 
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ISOTROPIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SPH")   
+      CALL INIT_MAT_KEYWORD(MATPARAM,"BEAM_INTEGRATED")    
+c
+      ! Material compatibility with /EOS option
+      CALL INIT_MAT_KEYWORD(MATPARAM,"EOS")
 C-----------------------      
       WRITE(IOUT,1001) TRIM(TITR),ID,36  
       WRITE(IOUT,1000)   
-      IF (IS_CRYPTED)THEN                                
+      IF (IS_ENCRYPTED)THEN                                
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE     
         WRITE(IOUT,1002) RHO0
-        WRITE(IOUT,1100) E,NU,EPSMAX,EPSR1,EPSR2,EPSF,FISOKIN,ISRATE,FCUT,VP
+        WRITE(IOUT,1100) E,NU,EPSMAX,EPSR1,EPSR2,EPSF,FISOKIN,ISMOOTH,FCUT,VP
         WRITE(IOUT,1200)(IFUNC(J),YFAC(J),RATE(J),J=1,NFUNC)
         WRITE(IOUT,1300) IPFUN,PSCALE, IFUNCE,EINF,CE
         WRITE(IOUT,*)' '
@@ -369,37 +378,41 @@ C-----------
       RETURN
 C-----------
  1000 FORMAT(
-     & 5X,40H  TABULATED ELASTIC PLASTIC LAW 36      ,/,
-     & 5X,40H  --------------------------------      ,//)
+     & 5X,'    TABULATED ELASTIC PLASTIC LAW 36    ',/,
+     & 5X,'    --------------------------------    ' ,//)
  1001 FORMAT(/
      & 5X,A,/,
-     & 5X,'MATERIAL NUMBER. . . . . . . . . . . . =',I10/,
-     & 5X,'MATERIAL LAW . . . . . . . . . . . . . =',I10/)
+     & 5X,'MATERIAL NUMBER . . . . . . . . . . . . . .=',I10/,
+     & 5X,'MATERIAL LAW. . . . . . . . . . . . . . . .=',I10/)
  1002 FORMAT(
-     & 5X,'INITIAL DENSITY. . . . . . . . . . . . =',1PG20.13/)  
+     & 5X,'INITIAL DENSITY . . . . . . . . . . . . . .=',1PG20.13/)  
  1100 FORMAT(
-     & 5X,'YOUNG''S MODULUS. . . . . . . . . . . .=',1PG20.13/
-     & 5X,'POISSON''S RATIO. . . . . . . . . . . .=',1PG20.13/
-     & 5X,'MAXIMUM PLASTIC STRAIN . . . . . . . . =',1PG20.13/
-     & 5X,'TENSION FAILURE STRAIN 1 . . . . . . . =',1PG20.13/
-     & 5X,'TENSION FAILURE STRAIN 2 . . . . . . . =',1PG20.13/
-     & 5X,'MAXIMUM TENSION FAILURE STRAIN  .. . . =',1PG20.13/     
-     & 5X,'ISO-KINEMATIC HARDENING FACTOR. . . .  =',1PG20.13/
-     & 5X,'SMOOTH STRAIN RATE OPTION. . . . . . . =',I10/
-     & 5X,'STRAIN RATE CUTTING FREQUENCY . . . . .=',1PG20.13/
-     & 5X,'PLASTIC STRAIN RATE DEPENDENCY FLAG . .=',I10/
-     & 5X,40H  - FLAG_PL = 0 -> TOTAL SR DEPENDENCY         ,/,
-     & 5X,40H  - FLAG_PL = 1 -> PLASTIC SR DEPENDENCY       ,//)
+     & 5X,'YOUNG MODULUS . . . . . . . . . . . . . . .=',1PG20.13/
+     & 5X,'POISSON RATIO . . . . . . . . . . . . . . .=',1PG20.13/
+     & 5X,'MAXIMUM PLASTIC STRAIN  . . . . . . . . . .=',1PG20.13/
+     & 5X,'TENSION FAILURE STRAIN 1  . . . . . . . . .=',1PG20.13/
+     & 5X,'TENSION FAILURE STRAIN 2  . . . . . . . . .=',1PG20.13/
+     & 5X,'MAXIMUM TENSION FAILURE STRAIN  . . . . . .=',1PG20.13/     
+     & 5X,'ISO-KINEMATIC HARDENING FACTOR. . . . . . .=',1PG20.13/
+     & 5X,'SMOOTH STRAIN RATE OPTION . . . . . . . . .=',I10/
+     & 5X,'     0 -> NO SMOOTHING                      ',/,
+     & 5X,'     1 -> SMOOTH + LINEAR INTERPOLATION     ',/,
+     & 5X,'     2 -> SMOOTH + LOG_N  INTERPOLATION     ',/
+     & 5X,'STRAIN RATE CUTTING FREQUENCY . . . . . . .=',1PG20.13/
+     & 5X,'PLASTIC STRAIN RATE DEPENDENCY FLAG . . . .=',I10/
+     & 5X,'   FLAG_PL = 0 -> TOTAL SR DEPENDENCY       ',/,
+     & 5X,'   FLAG_PL = 1 -> PLASTIC SR DEPENDENCY     ',/,
+     & 5X,'STRAIN RATE INTERPOLATION FLAG. . . . . . .=',I10/)
  1200 FORMAT(
-     & 5X,'YIELD STRESS FUNCTION NUMBER. . . . . .=',I10/
-     & 5X,'YIELD SCALE FACTOR. . . . . . . . . . .=',1PG20.13/
-     & 5X,'STRAIN RATE . . . . . . . . . . . . . .=',1PG20.13)
+     & 5X,'YIELD STRESS FUNCTION NUMBER. . . . . . . .=',I10/
+     & 5X,'YIELD SCALE FACTOR. . . . . . . . . . . . .=',1PG20.13/
+     & 5X,'STRAIN RATE . . . . . . . . . . . . . . . .=',1PG20.13)
  1300 FORMAT(
-     & 5X,'PRESSURE DEPENDENT YIELD FUNCTION . . . .=',I10/
-     & 5X,'PRESSURE SCALE FACTOR. . . . . . . . .  .=',1PG20.13/
-     & 5X,'YOUNG MODULUS SCALE FACTOR FUNCTION . . .=',I10/
-     & 5X,'YOUNG MODULUS EINF . . . . . . . . . . . =',1PG20.13/
-     & 5X,'PARAMETER CE . . . . . . . . . . . . . . =',1PG20.13)
+     & 5X,'PRESSURE DEPENDENT YIELD FUNCTION . . . . .=',I10/
+     & 5X,'PRESSURE SCALE FACTOR . . . . . . . . . . .=',1PG20.13/
+     & 5X,'YOUNG MODULUS SCALE FACTOR FUNCTION . . . .=',I10/
+     & 5X,'YOUNG MODULUS EINF. . . . . . . . . . . . .=',1PG20.13/
+     & 5X,'PARAMETER CE. . . . . . . . . . . . . . . .=',1PG20.13)
 c-----------
       RETURN
       END

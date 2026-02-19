@@ -1,61 +1,66 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I20MAINF                      source/interfaces/int20/i20mainf.F
-Chd|-- called by -----------
-Chd|        INTFOP2                       source/interfaces/interf/intfop2.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        I11CDCOR3                     source/interfaces/int11/i11cdcor3.F
-Chd|        I20COR3E                      source/interfaces/int20/i20cor3.F
-Chd|        I20DST3E                      source/interfaces/int20/i20cor3.F
-Chd|        I20FOR3                       source/interfaces/int20/i20for3.F
-Chd|        I20FOR3C                      source/interfaces/int20/i20for3.F
-Chd|        I20FOR3E                      source/interfaces/int20/i20for3.F
-Chd|        I20NORM                       source/interfaces/int20/i20curv.F
-Chd|        I20NORMCNT                    source/interfaces/int20/i20curv.F
-Chd|        I20NORME                      source/interfaces/int20/i20rcurv.F
-Chd|        I20NORMN                      source/interfaces/int20/i20rcurv.F
-Chd|        I20NORMNP                     source/interfaces/int20/i20rcurv.F
-Chd|        I20NORMP                      source/interfaces/int20/i20curv.F
-Chd|        I20NORMS                      source/interfaces/int20/i20curv.F
-Chd|        I20RCURV                      source/interfaces/int20/i20rcurv.F
-Chd|        I7CDCOR3                      source/interfaces/int07/i7cdcor3.F
-Chd|        I7THERM                       source/interfaces/int07/i7therm.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_EXCH_N                   source/mpi/generic/spmd_exch_n.F
-Chd|        SPMD_I20CURVSZ                source/mpi/interfaces/spmd_i20curvsz.F
-Chd|        SPMD_I20EXCH_N                source/mpi/interfaces/spmd_i20exch_n.F
-Chd|        SPMD_I20NORMF                 source/mpi/interfaces/spmd_i20normf.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        SUM_6_FLOAT_SENS              source/system/parit.F         
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE I20MAINF(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i20mainf           ../engine/source/interfaces/int20/i20mainf.F
+!||--- called by ------------------------------------------------------
+!||    intfop2            ../engine/source/interfaces/interf/intfop2.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../engine/source/output/message/message.F
+!||    arret              ../engine/source/system/arret.F
+!||    i11cdcor3          ../engine/source/interfaces/int11/i11cdcor3.F
+!||    i20cor3            ../engine/source/interfaces/int20/i20cor3.F
+!||    i20cor3e           ../engine/source/interfaces/int20/i20cor3.F
+!||    i20dst3            ../engine/source/interfaces/int20/i20dst3.F
+!||    i20dst3e           ../engine/source/interfaces/int20/i20cor3.F
+!||    i20for3            ../engine/source/interfaces/int20/i20for3.F
+!||    i20for3c           ../engine/source/interfaces/int20/i20for3.F
+!||    i20for3e           ../engine/source/interfaces/int20/i20for3.F
+!||    i20norm            ../engine/source/interfaces/int20/i20curv.F
+!||    i20normcnt         ../engine/source/interfaces/int20/i20curv.F
+!||    i20norme           ../engine/source/interfaces/int20/i20rcurv.F
+!||    i20normn           ../engine/source/interfaces/int20/i20rcurv.F
+!||    i20normnp          ../engine/source/interfaces/int20/i20rcurv.F
+!||    i20normp           ../engine/source/interfaces/int20/i20curv.F
+!||    i20norms           ../engine/source/interfaces/int20/i20curv.F
+!||    i20rcurv           ../engine/source/interfaces/int20/i20rcurv.F
+!||    i7cdcor3           ../engine/source/interfaces/int07/i7cdcor3.F
+!||    i7therm            ../engine/source/interfaces/int07/i7therm.F
+!||    my_barrier         ../engine/source/system/machine.F
+!||    spmd_exch_n        ../engine/source/mpi/generic/spmd_exch_n.F
+!||    spmd_i20curvsz     ../engine/source/mpi/interfaces/spmd_i20curvsz.F
+!||    spmd_i20exch_n     ../engine/source/mpi/interfaces/spmd_i20exch_n.F
+!||    spmd_i20normf      ../engine/source/mpi/interfaces/spmd_i20normf.F
+!||    startime           ../engine/source/system/timer_mod.F90
+!||    stoptime           ../engine/source/system/timer_mod.F90
+!||    sum_6_float_sens   ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod            ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod      ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod        ../engine/share/message_module/message_mod.F
+!||    output_mod         ../common_source/modules/output/output_mod.F90
+!||    timer_mod          ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE I20MAINF(OUTPUT,TIMERS,
      1       IPARI     ,X         ,A         ,
      2       ICODT     ,FSAV      ,V         ,MS        ,DT2T      ,
      3       NELTST    ,ITYPTST   ,ITAB      ,STIFN     ,FSKYI     ,
@@ -72,13 +77,13 @@ Chd|====================================================================
      F       IRLEN20   ,ISLEN20   ,IRLEN20T  ,ISLEN20T  ,IRLEN20E  ,
      G       ISLEN20E  ,MSKYI_SMS ,ISKYI_SMS ,NODNX_SMS ,NPC       ,
      H       TF        ,INTBUF_TAB,FBSAV6    ,ISENSINT  ,DIMFB     ,
-     I       H3D_DATA  )
+     I       H3D_DATA  ,theaccfact)
 C=======================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE MOD_NODNORM
-      USE MOD_RCURV
+      USE OUTPUT_MOD
+      USE TIMER_MOD
       USE INTBUFDEF_MOD
       USE H3D_MOD
       USE MESSAGE_MOD
@@ -97,19 +102,14 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
 #include      "warn_c.inc"
 #include      "task_c.inc"
 #include      "parit_c.inc"
 #include      "timeri_c.inc"
-C#include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      type(output_), intent(inout) :: output
       INTEGER NELTST,ITYPTST,NIN,NEWFRONT,NSTRF(*),
      .        NRTMDIM, IAD17, IRLEN20, ISLEN20, IRLEN20T, ISLEN20T,
      .        IRLEN20E, ISLEN20E, DIMFB
@@ -122,9 +122,8 @@ C-----------------------------------------------
       INTEGER IXS(*)  ,IXS16(*) ,IXS20(*)
       INTEGER IAD_ELEM(2,*),FR_ELEM(*), 
      .        ISKYI_SMS(*), NODNX_SMS(*),NPC(*), ISENSINT(*)
-      my_real 
-     .        EMINX(*)
-C     REAL
+      my_real, intent(in) :: theaccfact
+      my_real :: EMINX(*)
       my_real DT2T,
      .   X(*), A(3,*), FSAV(*), V(3,*),FSAVBAG(*),
      .   MS(*),STIFN(*),FSKYI(LSKYI,4),FCONT(3,*),
@@ -135,7 +134,7 @@ C     REAL
      .   MSKYI_SMS(*),TF(*)
 
       DOUBLE PRECISION FBSAV6(12,6,DIMFB)
-
+      TYPE(TIMER_) :: TIMERS
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
       TYPE(H3D_DATABASE) :: H3D_DATA
 C=======================================================================
@@ -145,10 +144,10 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, I_STOK, JLT_NEW, JLT , NFT, IVIS2,
-     .        IBC, NOINT, NSEG, ISECIN, IBAG, IADM,
+     . IBC, NOINT, ISECIN, IBAG, IADM,
      .        IGAP, INACTI, IFQ, MFROT, IGSTI, NISUB,
-     .        NB_LOC, I_STOK_LOC,DEBUT,JD42B,
-     .        ILAGM, LENR, LENT, MAXCC,INTTH,IFORM,JD22B,JD22C,
+     . NB_LOC, I_STOK_LOC,DEBUT,
+     . LENR, LENT, MAXCC,INTTH,IFORM,
      .        NLN, NRTMFT, NRTMLT, NMNFT, NMNLT, NRADM,
      .        NLNFT1, NLNLT, NLNL, IFUNCTK, SFSAVPARIT, J, H, IERROR
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
@@ -161,7 +160,7 @@ C     REAL
       my_real
      .   STARTT, FRIC, GAP, STOPT,
      .   VISC,VISCF,STIGLO,GAPMIN,
-     .   KMIN, KMAX, GAPMAX,RSTIF,FHEAT,TINT,RHOH,FRAD,DRAD,
+     . KMIN, KMAX, GAPMAX,RSTIF,FHEAT,TINT,FRAD,DRAD,
      .   XTHE,FHEATM,FHEATS
 C-----------------------------------------------
 C     REAL
@@ -176,7 +175,7 @@ C     REAL
      .     Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), Y4(MVSIZ),
      .     Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ),
      .     XI(MVSIZ), YI(MVSIZ), ZI(MVSIZ), STIF(MVSIZ),
-     .     PENE(MVSIZ),
+     .
      .     H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
      .     GAPV(MVSIZ),VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ),
      .     GAPR(MVSIZ),TEMPI(MVSIZ),PHI(MVSIZ),AREASI(MVSIZ)
@@ -191,20 +190,19 @@ C     REAL
      .     VYM1(MVSIZ), VYM2(MVSIZ), VZM1(MVSIZ), VZM2(MVSIZ),
      .     MS1(MVSIZ),  MS2(MVSIZ),  MM1(MVSIZ),  MM2(MVSIZ)
       my_real
-     .     SURF(3,NRTMDIM), PRES(NRTMDIM)
-      my_real
      .     RCURVI(MVSIZ), ANGLMI(MVSIZ), ANGLT, PADM
       my_real
      .    NNX1(MVSIZ), NNX2(MVSIZ), NNX3(MVSIZ), NNX4(MVSIZ),
      .    NNY1(MVSIZ), NNY2(MVSIZ), NNY3(MVSIZ), NNY4(MVSIZ),
      .    NNZ1(MVSIZ), NNZ2(MVSIZ), NNZ3(MVSIZ), NNZ4(MVSIZ),
-     .    CMAJ(MVSIZ), PENRAD(MVSIZ),CONDINT(MVSIZ),FNI(MVSIZ),
+     . CMAJ(MVSIZ),CONDINT(MVSIZ),FNI(MVSIZ),
      .   PHI1(MVSIZ),PHI2(MVSIZ),PHI3(MVSIZ),PHI4(MVSIZ),EFRICT(MVSIZ)
       INTEGER N1(MVSIZ), N2(MVSIZ), M1(MVSIZ), M2(MVSIZ),
      .        NL1(MVSIZ), NL2(MVSIZ),ML1(MVSIZ), ML2(MVSIZ), 
      .        CS_LOC(MVSIZ), CM_LOC(MVSIZ), NSMS(MVSIZ)
       INTEGER ICURV,IMPL_S0
       my_real, DIMENSION(:,:,:), ALLOCATABLE :: FSAVPARIT
+      INTEGER NSN, NTY,  NLINSA
 C
       NSN   =IPARI(5)
       NTY   =IPARI(7)
@@ -253,7 +251,7 @@ C
       TINT    = INTBUF_TAB%VARIABLES(22)
       FRAD  = ZERO
       DRAD  = ZERO
-C----deactive implicit part	  
+C----deactive implicit part   
       IMPL_S0 =0
       IF (IMPL_S0 == 1) THEN
          NUM_IMP = 0
@@ -265,143 +263,143 @@ C----deactive implicit part
       FHEATM   = ZERO
       FHEATS   = ZERO
 C----------------------------------------------------------------------
-C     NOEUDS/SURFACE
+C     NODES/SURFACE
 C----------------------------------------------------------------------
 
 c----------------------------------------------------
-c   Calcul des normales nodales
-c   Courbure quadratique ou Igap/=0 pour solides (GAP=0)
+c   calculation of nodal normals
+c   quadratic curvature or igap/=0 for solids (gap=0)
 c----------------------------------------------------
 
       IF(IGAP/=0)THEN
         CALL MY_BARRIER
-        IF(JTASK.EQ.1)THEN
-          ALLOCATE(SOLIDN_NORMAL (3,NUMNOD))
-          CALL I20NORMS(IPARI(4),INTBUF_TAB%IRECTM,NUMNOD,X,SOLIDN_NORMAL,
+        IF(JTASK==1)THEN
+          ALLOCATE(INTBUF_TAB%SOLIDN_NORMAL (3,NUMNOD))
+          CALL I20NORMS(IPARI(4),INTBUF_TAB%IRECTM,NUMNOD,X,INTBUF_TAB%SOLIDN_NORMAL,
      2           IPARI(6),INTBUF_TAB%MSR,NLN,INTBUF_TAB%NLG,INTBUF_TAB%GAP_SH,
      3           IAD_ELEM,FR_ELEM,INTBUF_TAB%NSV,NSN)
  
           IF(NSPMD > 1)THEN
               LENR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
-            CALL SPMD_I20EXCH_N(SOLIDN_NORMAL,IAD_ELEM,FR_ELEM,LENR)
-C Communication supplementaire normale sur proc remote en SPMD
-C allocation partie non edge sur taille NSNR (nb noeuds secnd remote)
-            ALLOCATE(SOLIDN_NORMAL_F (3,IPARI(24)))
-C allocation partie edge sur taille NLINR (nb lignes secnd remote)
-            ALLOCATE(SOLIDN_NORMAL_FE(3,2*IPARI(57)))
-	    CALL SPMD_I20NORMF(
-     1 SOLIDN_NORMAL,SOLIDN_NORMAL_F,SOLIDN_NORMAL_FE,NIN     ,IRLEN20 ,
-     2 ISLEN20      ,IRLEN20T	    ,ISLEN20T	     ,IRLEN20E,ISLEN20E,
+            CALL SPMD_I20EXCH_N(INTBUF_TAB%SOLIDN_NORMAL,IAD_ELEM,FR_ELEM,LENR)
+C Normal supplementary communication on proc remote in SPMD
+C NSNR Size NSNR (NB NODES STEND remote) allowance allowance
+            ALLOCATE(INTBUF_TAB%SOLIDN_NORMAL_F (3,IPARI(24)))
+C EDGE Party allowance on size n line (nb second remote lines)
+            ALLOCATE(INTBUF_TAB%SOLIDN_NORMAL_FE(3,2*IPARI(57)))
+      CALL SPMD_I20NORMF(
+     1 INTBUF_TAB%SOLIDN_NORMAL,INTBUF_TAB%SOLIDN_NORMAL_F,INTBUF_TAB%SOLIDN_NORMAL_FE,NIN     ,IRLEN20 ,
+     2 ISLEN20      ,IRLEN20T     ,ISLEN20T      ,IRLEN20E,ISLEN20E,
      3 INTBUF_TAB%NSV,INTBUF_TAB%NLG ,INTBUF_TAB%IXLINS   )
           END IF
-C il s agit de la barriere matchant celle de i20norm sur tache1
+C this is the barrier matching that of i20norm on task1
         END IF
         CALL MY_BARRIER()
       ENDIF
 c----------------------------------------------------
-c   Calcul des normales nodales
-c   Courbure quadratique ou Igap/=0 pour solides (GAP=0)
+c   calculation of nodal normals
+c   quadratic curvature or igap/=0 for solids (gap=0)
 c----------------------------------------------------
       IF(ICURV==3)THEN
         CALL MY_BARRIER()
-        IF(JTASK.EQ.1)THEN
-          ALLOCATE(NOD_NORMAL (3,NUMNOD))
-          IF(IPARIT.EQ.0)THEN
-            CALL I20NORM(IPARI(4),INTBUF_TAB%IRECTM,NUMNOD,X,NOD_NORMAL,
+        IF(JTASK==1)THEN
+          ALLOCATE(INTBUF_TAB%NODNORM_NORMAL (3,NUMNOD))
+          IF(IPARIT==0)THEN
+            CALL I20NORM(IPARI(4),INTBUF_TAB%IRECTM,NUMNOD,X,INTBUF_TAB%NODNORM_NORMAL,
      .                  IPARI(6),INTBUF_TAB%MSR,NLN,INTBUF_TAB%NLG)
 cc        CALL MY_BARRIER()
-            IF(NSPMD.GT.1)THEN
+            IF(NSPMD>1)THEN
               LENR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
-              CALL SPMD_EXCH_N(NOD_NORMAL,IAD_ELEM,FR_ELEM,LENR)
+              CALL SPMD_EXCH_N(INTBUF_TAB%NODNORM_NORMAL,IAD_ELEM,FR_ELEM,LENR)
             END IF
           ELSE
 C Traitement d'assemblage parith/on spmd a optimiser si besoin
             LENR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
             IF(NSPMD > 1)THEN
-	      CALL SPMD_I20CURVSZ(
+        CALL SPMD_I20CURVSZ(
      1        IPARI(4),INTBUF_TAB%IRECTM,NUMNOD,IAD_ELEM,FR_ELEM,
-     2        ISDSIZ	  ,IRCSIZ	,ITAG  ,LENR	,LENT	,
-     3        MAXCC	  ,NLN    ,INTBUF_TAB%NLG)
+     2        ISDSIZ    ,IRCSIZ ,ITAG  ,LENR  ,LENT ,
+     3        MAXCC   ,NLN    ,INTBUF_TAB%NLG)
             ELSE
               CALL I20NORMCNT(
      1        IPARI(4),INTBUF_TAB%IRECTM,NUMNOD      ,ITAG    ,LENT   ,
      2        MAXCC       ,NLN     ,INTBUF_TAB%NLG)
             ENDIF
-	    CALL I20NORMP(
-     1        IPARI(4),INTBUF_TAB%IRECTM,NUMNOD ,X    ,NOD_NORMAL,
+      CALL I20NORMP(
+     1        IPARI(4),INTBUF_TAB%IRECTM,NUMNOD ,X    ,INTBUF_TAB%NODNORM_NORMAL,
      2        IPARI(6),INTBUF_TAB%MSR,LENT   ,MAXCC,ISDSIZ    ,
      3        IRCSIZ  ,IAD_ELEM     ,FR_ELEM,ITAG ,NLN,INTBUF_TAB%NLG)
           END IF
 cc        ELSE
 cc          CALL MY_BARRIER()
-C il s agit de la barriere matchant celle de i20norm sur tache1
+C this is the barrier matching that of i20norm on task1
         END IF
         CALL MY_BARRIER()
       ENDIF
 c----------------------------------------------------
-c   Rayon de courbure : calcul des normales nodales (normees)
+c   radius of curvature: calculation of nodal normals (normalized)
 C   IADM!=0 + Icurv!=0 non available (starter error).
 c----------------------------------------------------
-      IF(IADM.NE.0)THEN
+      IF(IADM/=0)THEN
          CALL MY_BARRIER()
-         IF(JTASK.EQ.1)THEN
-           ALLOCATE(RCURV(NRTMDIM),ANGLM(NRTMDIM))
-           ALLOCATE(NOD_NORMAL (3,NUMNOD))
+         IF(JTASK==1)THEN
+           ALLOCATE(INTBUF_TAB%MODRCURV(NRTMDIM),INTBUF_TAB%MODANGLM(NRTMDIM))
+           ALLOCATE(INTBUF_TAB%NODNORM_NORMAL (3,NUMNOD))
 
-           IF(IPARIT.EQ.0)THEN
-	     CALL I20NORMN(
-     .         IPARI(4),INTBUF_TAB%IRECTM,NUMNOD,X ,NOD_NORMAL,
-     .  		 IPARI(6),INTBUF_TAB%MSR,NLN,INTBUF_TAB%NLG)
+           IF(IPARIT==0)THEN
+       CALL I20NORMN(
+     .         IPARI(4),INTBUF_TAB%IRECTM,NUMNOD,X ,INTBUF_TAB%NODNORM_NORMAL,
+     .       IPARI(6),INTBUF_TAB%MSR,NLN,INTBUF_TAB%NLG)
 cc             CALL MY_BARRIER()
-             IF(NSPMD.GT.1)THEN
+             IF(NSPMD>1)THEN
                LENR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
-               CALL SPMD_EXCH_N(NOD_NORMAL,IAD_ELEM,FR_ELEM,LENR)
+               CALL SPMD_EXCH_N(INTBUF_TAB%NODNORM_NORMAL,IAD_ELEM,FR_ELEM,LENR)
              END IF
            ELSE
 C Traitement d'assemblage parith/on spmd a optimiser si besoin
              LENR = IAD_ELEM(1,NSPMD+1)-IAD_ELEM(1,1)
              IF(NSPMD > 1)THEN
-	      CALL SPMD_I20CURVSZ(
+        CALL SPMD_I20CURVSZ(
      1        IPARI(4),INTBUF_TAB%IRECTM,NUMNOD,IAD_ELEM,FR_ELEM,
-     2        ISDSIZ	  ,IRCSIZ	,ITAG  ,LENR	,LENT	,
-     3        MAXCC	  ,NLN    ,INTBUF_TAB%NLG)
+     2        ISDSIZ    ,IRCSIZ ,ITAG  ,LENR  ,LENT ,
+     3        MAXCC   ,NLN    ,INTBUF_TAB%NLG)
              ELSE
-	      CALL I20NORMCNT(
-     1        IPARI(4),INTBUF_TAB%IRECTM,NUMNOD	 ,ITAG    ,LENT   ,
-     2        MAXCC	  ,NLN     ,INTBUF_TAB%NLG)
+        CALL I20NORMCNT(
+     1        IPARI(4),INTBUF_TAB%IRECTM,NUMNOD  ,ITAG    ,LENT   ,
+     2        MAXCC   ,NLN     ,INTBUF_TAB%NLG)
 
              ENDIF
-	     CALL I20NORMNP(
-     1         IPARI(4),INTBUF_TAB%IRECTM,NUMNOD ,X    ,NOD_NORMAL,
+       CALL I20NORMNP(
+     1         IPARI(4),INTBUF_TAB%IRECTM,NUMNOD ,X    ,INTBUF_TAB%NODNORM_NORMAL,
      2         IPARI(6),INTBUF_TAB%MSR,LENT   ,MAXCC,ISDSIZ    ,
-     3         IRCSIZ	   ,IAD_ELEM  ,FR_ELEM,ITAG ,NLN,INTBUF_TAB%NLG)
+     3         IRCSIZ    ,IAD_ELEM  ,FR_ELEM,ITAG ,NLN,INTBUF_TAB%NLG)
 
            END IF
 cc         ELSE
 cc           CALL MY_BARRIER()
-C il s agit de la barriere matchant celle de I7NORMN sur tache1
+C this is the barrier matching that of i7normn on task1
          END IF
          CALL MY_BARRIER()
 
          NMNFT=1+(JTASK-1)*IPARI(6)/NTHREAD
          NMNLT=JTASK*IPARI(6)/NTHREAD
 
-	  CALL I20NORME(
-     .       NMNFT,NMNLT,NOD_NORMAL,INTBUF_TAB%MSR,NLN,INTBUF_TAB%NLG)
+         CALL I20NORME(
+     .       NMNFT,NMNLT,INTBUF_TAB%NODNORM_NORMAL,INTBUF_TAB%MSR,NLN,INTBUF_TAB%NLG)
           CALL MY_BARRIER()
 
          NRTMFT=1+(JTASK-1)*IPARI(4)/NTHREAD
          NRTMLT=JTASK*IPARI(4)/NTHREAD
-         CALL I20RCURV(NRTMFT, NRTMLT ,X ,NOD_NORMAL ,INTBUF_TAB%IRECTM ,
-     .                RCURV , NRADM  ,ANGLM ,ANGLT,NLN,INTBUF_TAB%NLG )
+         CALL I20RCURV(NRTMFT, NRTMLT ,X ,INTBUF_TAB%NODNORM_NORMAL ,INTBUF_TAB%IRECTM ,
+     .                INTBUF_TAB%MODRCURV , NRADM  ,INTBUF_TAB%MODANGLM ,ANGLT,NLN,INTBUF_TAB%NLG )
          CALL MY_BARRIER()
       END IF
 C----------------------------------------------------
 C
       I_STOK = INTBUF_TAB%I_STOK(1)
-C decoupage statique
+C static decoupage
       NB_LOC = I_STOK / NTHREAD
-      IF (JTASK.EQ.NTHREAD) THEN
+      IF (JTASK==NTHREAD) THEN
         I_STOK_LOC = I_STOK-NB_LOC*(NTHREAD-1)
       ELSE
         I_STOK_LOC = NB_LOC
@@ -411,7 +409,7 @@ C decoupage statique
       I_STOK = 0
 C
 C
-C recalcul du istok
+C recalculation of istok
 C    
       DO I = DEBUT+1, DEBUT+I_STOK_LOC
         IF(INTBUF_TAB%CAND_N(I) < 0) THEN
@@ -422,7 +420,7 @@ C inbuf == cand_n
         ENDIF
       ENDDO
 c------------------------------------------------
-      IF (DEBUG(3).GE.1) THEN
+      IF (DEBUG(3)>=1) THEN
           NB_JLT = NB_JLT + I_STOK_LOC
           NB_STOK_N = NB_STOK_N + I_STOK
       ENDIF
@@ -434,7 +432,7 @@ C
             SFSAVPARIT = SFSAVPARIT + 1
           ENDIF
         ENDDO
-        IF (SFSAVPARIT .NE. 0) THEN
+        IF (SFSAVPARIT /= 0) THEN
           ALLOCATE(FSAVPARIT(NISUB+1,11,I_STOK),STAT=IERROR)
           IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
@@ -460,55 +458,55 @@ c
       DO NFT = 0 , I_STOK - 1 , NVSIZ
 c------------------------------------------------
         JLT = MIN( NVSIZ, I_STOK - NFT )
-C preparation candidats retenus
+C preparation CANDIDATES retenus
         CALL I7CDCOR3(
      1         JLT,INDEX2(NFT+1),INTBUF_TAB%CAND_E,INTBUF_TAB%CAND_N,
      2         CAND_E_N,CAND_N_N)
-C cand_n et cand_e remplace par cand_n_n et cand_e_n
-	CALL I20COR3(
-     1  JLT	  ,INTBUF_TAB%XA,INTBUF_TAB%IRECTM,INTBUF_TAB%NSV,CAND_E_N,
-     2  CAND_N_N  ,INTBUF_TAB%STFM,INTBUF_TAB%STFA,X1      ,X2	     ,
-     3  X3	  ,X4	      ,Y1	 ,Y2	       ,Y3	     ,
-     4  Y4	  ,Z1	      ,Z2	 ,Z3	       ,Z4	     ,
-     5  XI	  ,YI	      ,ZI	 ,STIF         ,IX1	     ,
-     6  IX2	  ,IX3        ,IX4	 ,NSVG         ,IGAP	     ,
-     7  GAP	  ,INTBUF_TAB%GAP_S,INTBUF_TAB%GAP_M,GAPV    ,GAPR	     ,
-     8  MS	  ,VXI        ,VYI	 ,NLN	       ,INTBUF_TAB%NLG,
-     9  VZI	  ,MSI        ,NSN	 ,INTBUF_TAB%VA,KINET	     ,
-     A  KINI	  ,NTY        ,NIN	 ,IGSTI        ,KMIN	     ,  
-     B  KMAX	  ,GAPMAX     ,GAPMIN	 ,IADM         ,RCURV	     ,
-     C  RCURVI    ,ANGLM      ,ANGLMI	 ,INTTH        ,TEMP	     ,
-     D  TEMPI	  ,PHI        ,INTBUF_TAB%AREAS,INTBUF_TAB%IELEC,AREASI    ,
-     E  IELECI    ,INTBUF_TAB%GAP_SH,INTBUF_TAB%STFAC,NODNX_SMS,NSMS	     )
+C cand_n and cand_e replaced by cand_n_n and cand_e_n
+        CALL I20COR3(
+     1  JLT   ,INTBUF_TAB%XA,INTBUF_TAB%IRECTM,INTBUF_TAB%NSV,CAND_E_N,
+     2  CAND_N_N  ,INTBUF_TAB%STFM,INTBUF_TAB%STFA,X1      ,X2       ,
+     3  X3    ,X4       ,Y1  ,Y2         ,Y3       ,
+     4  Y4    ,Z1       ,Z2  ,Z3         ,Z4       ,
+     5  XI    ,YI       ,ZI  ,STIF         ,IX1      ,
+     6  IX2   ,IX3        ,IX4   ,NSVG         ,IGAP       ,
+     7  GAP   ,INTBUF_TAB%GAP_S,INTBUF_TAB%GAP_M,GAPV    ,GAPR       ,
+     8  MS    ,VXI        ,VYI   ,NLN        ,INTBUF_TAB%NLG,
+     9  VZI   ,MSI        ,NSN   ,INTBUF_TAB%VA,KINET      ,
+     A  KINI    ,NTY        ,NIN   ,IGSTI        ,KMIN       ,  
+     B  KMAX    ,GAPMAX     ,GAPMIN  ,IADM         ,INTBUF_TAB%MODRCURV      ,
+     C  RCURVI    ,INTBUF_TAB%MODANGLM      ,ANGLMI  ,INTTH        ,TEMP       ,
+     D  TEMPI   ,PHI        ,INTBUF_TAB%AREAS,INTBUF_TAB%IELEC,AREASI    ,
+     E  IELECI    ,INTBUF_TAB%GAP_SH,INTBUF_TAB%STFAC,NODNX_SMS,NSMS       )
 C
         JLT_NEW = 0
 C
-	CALL I20DST3(
-     1 JLT	    ,CAND_N_N	 ,CAND_E_N   ,CN_LOC	,CE_LOC       ,
-     2 X1	    ,X2 	 ,X3	     ,X4	,Y1	      ,
-     3 Y2	    ,Y3 	 ,Y4	     ,Z1	,Z2	      ,
-     4 Z3	    ,Z4 	 ,XI	     ,YI	,ZI	      ,
-     5 NX1	    ,NX2	 ,NX3	     ,NX4	,NY1	      ,
-     6 NY2	    ,NY3	 ,NY4	     ,NZ1	,NZ2	      ,
-     7 NZ3	    ,NZ4	 ,LB1	     ,LB2	,LB3	      ,
-     8 LB4	    ,LC1	 ,LC2	     ,LC3	,LC4	      ,
-     9 P1	    ,P2 	 ,P3	     ,P4	,IX1	      ,
-     A IX2	    ,IX3	 ,IX4	     ,NSVG	,STIF	      ,
-     B JLT_NEW  		 ,GAPV       ,INACTI	,SOLIDN_NORMAL,
-     C INDEX2(NFT+1),VXI	 ,VYI	     ,GAPR	,INTBUF_TAB%GAP_SH,
-     D VZI	    ,MSI	 ,KINI       ,ICURV	,INTBUF_TAB%IRECTM,
-     E NNX1	    ,NNX2	 ,NNX3       ,NNX4	,NNY1	      ,
-     F NNY2	    ,NNY3	 ,NNY4       ,NNZ1	,NNZ2	      ,
-     G NNZ3	    ,NNZ4	 ,NOD_NORMAL ,IADM	,RCURVI       ,
-     H ANGLMI	    ,INTTH	 ,TEMPI      ,PHI	,AREASI       ,
-     I IELECI	    ,NLN	 ,INTBUF_TAB%NLG,IGAP	,GAPMAX       ,
-     J SOLIDN_NORMAL_F  	 ,NSMS    ,INTBUF_TAB%NBINFLG,INTBUF_TAB%GAP_M,
+        CALL I20DST3(
+     1 JLT      ,CAND_N_N  ,CAND_E_N   ,CN_LOC  ,CE_LOC       ,
+     2 X1     ,X2    ,X3       ,X4  ,Y1       ,
+     3 Y2     ,Y3    ,Y4       ,Z1  ,Z2       ,
+     4 Z3     ,Z4    ,XI       ,YI  ,ZI       ,
+     5 NX1      ,NX2   ,NX3      ,NX4 ,NY1        ,
+     6 NY2      ,NY3   ,NY4      ,NZ1 ,NZ2        ,
+     7 NZ3      ,NZ4   ,LB1      ,LB2 ,LB3        ,
+     8 LB4      ,LC1   ,LC2      ,LC3 ,LC4        ,
+     9 P1     ,P2    ,P3       ,P4  ,IX1        ,
+     A IX2      ,IX3   ,IX4      ,NSVG  ,STIF       ,
+     B JLT_NEW       ,GAPV       ,INACTI  ,INTBUF_TAB%SOLIDN_NORMAL,
+     C INDEX2(NFT+1),VXI   ,VYI      ,GAPR  ,INTBUF_TAB%GAP_SH,
+     D VZI      ,MSI   ,KINI       ,ICURV ,INTBUF_TAB%IRECTM,
+     E NNX1     ,NNX2  ,NNX3       ,NNX4  ,NNY1       ,
+     F NNY2     ,NNY3  ,NNY4       ,NNZ1  ,NNZ2       ,
+     G NNZ3     ,NNZ4  ,INTBUF_TAB%NODNORM_NORMAL ,IADM  ,RCURVI       ,
+     H ANGLMI     ,INTTH   ,TEMPI      ,PHI ,AREASI       ,
+     I IELECI     ,NLN   ,INTBUF_TAB%NLG,IGAP ,GAPMAX       ,
+     J INTBUF_TAB%SOLIDN_NORMAL_F     ,NSMS    ,INTBUF_TAB%NBINFLG,INTBUF_TAB%GAP_M,
      K CMAJ)
         JLT = JLT_NEW
-        IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(20,1)
-        IF(JLT_NEW.NE.0) THEN
+        IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(TIMERS,20)
+        IF(JLT_NEW/=0) THEN
           IPARI(29) = 1
-          IF (DEBUG(3).GE.1)NB_JLT_NEW = NB_JLT_NEW + JLT_NEW
+          IF (DEBUG(3)>=1)NB_JLT_NEW = NB_JLT_NEW + JLT_NEW
 C
           IF( INTTH > 0 ) THEN 
              CALL I7THERM(JLT   ,IPARG ,PM  ,IXS   ,IFORM ,X      ,   
@@ -520,11 +518,10 @@ C
      6                    GAPV  ,FNI    ,IFUNCTK,XTHE,NPC  ,TF    ,
      7                    CONDINT,PHI1,PHI2  ,PHI3   ,PHI4  ,FHEATS,
      7                    FHEATM,EFRICT,TEMP ,H1     ,H2     ,H3   ,
-     8                    H4)   
-
+     8                    H4,theaccfact)
           ENDIF
 C 
-          CALL I20FOR3(
+          CALL I20FOR3(output,
      1  JLT          ,A         ,INTBUF_TAB%VA,IBC         ,ICODT    ,
      2  FSAV         ,GAP       ,FRIC         ,MS          ,VISC     ,
      3  VISCF        ,NOINT     ,INTBUF_TAB%STFA,ITAB        ,CN_LOC   ,
@@ -547,10 +544,10 @@ C
      J  VISCN        ,VXI       ,VYI          ,VZI         ,MSI      ,
      K  KINI         ,NIN       ,NISUB   ,INTBUF_TAB%LISUB,INTBUF_TAB%ADDSUBS,
      L  INTBUF_TAB%ADDSUBM,INTBUF_TAB%LISUBS,INTBUF_TAB%LISUBM,FSAVSUB,INTBUF_TAB%CAND_N,
-     M  IPARI(33)    ,IPARI(39) ,NOD_NORMAL  ,FNCONT     ,FTCONT   ,
-     N  X1	     ,X2        ,X3          ,X4         ,Y1	     ,
-     O  Y2	     ,Y3        ,Y4          ,Z1         ,Z2	     ,
-     P  Z3	     ,Z4        ,XI          ,YI         ,ZI	     ,
+     M  IPARI(33)    ,IPARI(39) ,INTBUF_TAB%NODNORM_NORMAL  ,FNCONT     ,FTCONT   ,
+     N  X1       ,X2        ,X3          ,X4         ,Y1       ,
+     O  Y2       ,Y3        ,Y4          ,Z1         ,Z2       ,
+     P  Z3       ,Z4        ,XI          ,YI         ,ZI       ,
      Q  IADM         ,RCURVI    ,RCONTACT    ,ACONTACT   ,PCONTACT   ,
      R  ANGLMI       ,PADM      ,INTTH       , PHI       , FTHE      ,
      S  FTHESKYI     ,INTBUF_TAB%DAANC6,TEMP     ,TEMPI      ,RSTIF      ,
@@ -559,7 +556,7 @@ C
      V  FSAVPARIT    ,NFT       ,H3D_DATA    )
 C
         ENDIF
-        IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(20,1)
+        IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(TIMERS,20)
 
 C
         IF(IMPL_S0 == 1) THEN
@@ -575,7 +572,7 @@ C
 c
       IF (SFSAVPARIT /= 0)THEN
           CALL SUM_6_FLOAT_SENS(FSAVPARIT, NISUB+1, 11, I_STOK,1,I_STOK,
-     .  			FBSAV6, 12, 6, DIMFB, ISENSINT )
+     .        FBSAV6, 12, 6, DIMFB, ISENSINT )
       ENDIF
       IF(ALLOCATED(FSAVPARIT)) DEALLOCATE (FSAVPARIT)
 C----------------------------------------------------------------------
@@ -583,26 +580,18 @@ C     2- EDGES
 C----------------------------------------------------------------------
       NLINSA =IPARI(53)
       IF(NLINSA /= 0)THEN
-
-        NLINS  =IPARI(51)
-        NLINM  =IPARI(52)
-        NLINSA =IPARI(53)
-        NLINMA =IPARI(54)
-        NSNE   =IPARI(55)
-        NMNE   =IPARI(56)
-
         I_STOK = INTBUF_TAB%I_STOK_E(1)
-C  cette partie est effectuee en // apres le calcul des forces des elem.
-C decoupage statique
+C  this part is performed in parallel after the calculation of element forces
+C static decoupage
         NB_LOC = I_STOK / NTHREAD
-        IF (JTASK.EQ.NTHREAD) THEN
+        IF (JTASK==NTHREAD) THEN
           I_STOK_LOC = I_STOK-NB_LOC*(NTHREAD-1)
         ELSE
           I_STOK_LOC = NB_LOC
         ENDIF
         DEBUT = (JTASK-1)*NB_LOC
         I_STOK = 0
-C recalcul du istok
+C recalculation of istok
         DO I = DEBUT+1, DEBUT+I_STOK_LOC
           IF(INTBUF_TAB%LCAND_S(I) < 0) THEN
             I_STOK = I_STOK + 1
@@ -611,7 +600,7 @@ C           inbuf == cand_S
             INTBUF_TAB%LCAND_S(I) = -INTBUF_TAB%LCAND_S(I)
           ENDIF
         ENDDO
-        IF (DEBUG(3).GE.1) THEN
+        IF (DEBUG(3)>=1) THEN
           NB_JLT = NB_JLT + I_STOK_LOC
           NB_STOK_N = NB_STOK_N + I_STOK
         ENDIF
@@ -622,7 +611,7 @@ C
             SFSAVPARIT = SFSAVPARIT + 1
           ENDIF
         ENDDO
-        IF (SFSAVPARIT .NE. 0) THEN
+        IF (SFSAVPARIT /= 0) THEN
           ALLOCATE(FSAVPARIT(NISUB+1,11,I_STOK),STAT=IERROR)
           IF(IERROR/=0) THEN
             CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
@@ -647,28 +636,28 @@ C
 C
         DO NFT = 0 , I_STOK - 1 , NVSIZ
           JLT = MIN( NVSIZ, I_STOK - NFT )
-C         preparation candidats retenus
-	  CALL I11CDCOR3(
+C         preparation CANDIDATES retenus
+      CALL I11CDCOR3(
      1       JLT,INDEX2(NFT+1),INTBUF_TAB%LCAND_N,INTBUF_TAB%LCAND_S,CM_LOC,
      2       CS_LOC)
-	  CALL I20COR3E(
+      CALL I20COR3E(
      1 JLT     ,INTBUF_TAB%IXLINS,INTBUF_TAB%IXLINM,INTBUF_TAB%XA,INTBUF_TAB%VA,
-     2 CS_LOC	    ,CM_LOC	  ,INTBUF_TAB%STFS,INTBUF_TAB%STF,GAPMIN  ,
-     3 INTBUF_TAB%GAP_SE,INTBUF_TAB%GAP_ME,IGAP 	,GAPV	      ,MS      ,
-     4 STIF	    ,XXS1	  ,XXS2 	,XYS1	      ,XYS2    ,
-     5 XZS1	    ,XZS2	  ,XXM1 	,XXM2	      ,XYM1    ,
-     6 XYM2	    ,XZM1	  ,XZM2 	,VXS1	      ,VXS2    ,
-     7 VYS1	    ,VYS2	  ,VZS1 	,VZS2	      ,VXM1    ,
-     8 VXM2	    ,VYM1	  ,VYM2 	,VZM1	      ,VZM2    ,
-     9 MS1	    ,MS2	  ,MM1  	,MM2	      ,N1      ,
-     A N2	    ,M1 	  ,M2		,NLINSA       ,NIN     ,
-     B NL1	    ,NL2	  ,ML1  	,ML2	 ,INTBUF_TAB%NLG,
-     C INTBUF_TAB%STFAC,NODNX_SMS    ,NSMS 	)
+     2 CS_LOC     ,CM_LOC   ,INTBUF_TAB%STFS,INTBUF_TAB%STF,GAPMIN  ,
+     3 INTBUF_TAB%GAP_SE,INTBUF_TAB%GAP_ME,IGAP   ,GAPV       ,MS      ,
+     4 STIF     ,XXS1   ,XXS2   ,XYS1       ,XYS2    ,
+     5 XZS1     ,XZS2   ,XXM1   ,XXM2       ,XYM1    ,
+     6 XYM2     ,XZM1   ,XZM2   ,VXS1       ,VXS2    ,
+     7 VYS1     ,VYS2   ,VZS1   ,VZS2       ,VXM1    ,
+     8 VXM2     ,VYM1   ,VYM2   ,VZM1       ,VZM2    ,
+     9 MS1      ,MS2    ,MM1    ,MM2        ,N1      ,
+     A N2     ,M1     ,M2   ,NLINSA       ,NIN     ,
+     B NL1      ,NL2    ,ML1    ,ML2   ,INTBUF_TAB%NLG,
+     C INTBUF_TAB%STFAC,NODNX_SMS    ,NSMS  )
 
-	  CALL I20DST3E(
-     1      JLT    ,CS_LOC,CM_LOC ,HS1   ,HS2	,
-     2      HM1    ,HM2   ,NX	  ,NY	 ,NZ	,
-     3      STIF   ,N1    ,N2	  ,M1	 ,M2	,
+      CALL I20DST3E(
+     1      JLT    ,CS_LOC,CM_LOC ,HS1   ,HS2 ,
+     2      HM1    ,HM2   ,NX   ,NY  ,NZ  ,
+     3      STIF   ,N1    ,N2   ,M1  ,M2  ,
      4      JLT_NEW,XXS1  ,XXS2   ,XYS1  ,XYS2  ,
      5      XZS1   ,XZS2  ,XXM1   ,XXM2  ,XYM1  ,
      6      XYM2   ,XZM1  ,XZM2   ,VXS1  ,VXS2  ,
@@ -676,13 +665,13 @@ C         preparation candidats retenus
      8      VXM2   ,VYM1  ,VYM2   ,VZM1  ,VZM2  ,
      9      MS1    ,MS2   ,MM1    ,MM2   ,GAPV  ,
      A      NL1    ,NL2   ,ML1    ,ML2   ,IGAP  ,
-     B      SOLIDN_NORMAL,INTBUF_TAB%GAP_SE,INTBUF_TAB%GAP_ME,NLINSA,
-     C      SOLIDN_NORMAL_FE,NSMS)
+     B      INTBUF_TAB%SOLIDN_NORMAL,INTBUF_TAB%GAP_SE,INTBUF_TAB%GAP_ME,NLINSA,
+     C      INTBUF_TAB%SOLIDN_NORMAL_FE,NSMS)
           JLT = JLT_NEW
-          IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(20,1)
-          IF(JLT_NEW.NE.0) THEN
+          IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(TIMERS,20)
+          IF(JLT_NEW/=0) THEN
             IPARI(29) = 1
-            IF (DEBUG(3).GE.1)
+            IF (DEBUG(3)>=1)
      .        NB_JLT_NEW = NB_JLT_NEW + JLT_NEW
             CALL I20FOR3E(
      1 JLT          ,A            ,V            ,IBC        ,ICODT    ,
@@ -704,8 +693,8 @@ C         preparation candidats retenus
      H H3D_DATA     )
 
           ENDIF
-          IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(20,1)
-          IF(IMPL_S0.EQ.1) THEN
+          IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(TIMERS,20)
+          IF(IMPL_S0==1) THEN
             DO I = 1 ,JLT_NEW
              NS_IMP(I+NUM_IMP)=CS_LOC(I)
              NE_IMP(I+NUM_IMP)=CM_LOC(I)
@@ -721,13 +710,13 @@ C         preparation candidats retenus
       ENDIF
 
 C----------------------------------------------------------------------
-C     3- FORCES entre NOEUD SECOND. et NOEUD D'ANCRAGE
+C     3- Forces between second node.and anchor node
 C----------------------------------------------------------------------
       CALL MY_BARRIER
 C----------------------------------------------------------------------
-C     NOEUDS secnd,main,edge
+C     NODES second,main,edge
 C----------------------------------------------------------------------
-      IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(20,1)
+      IF (IMONM > 0 .AND. JTASK == 1) CALL STARTIME(TIMERS,20)
       NLNFT1= (JTASK-1)*NLN/NTHREAD
       NLNLT = JTASK*NLN/NTHREAD
       NLNL  = NLNLT - NLNFT1
@@ -738,24 +727,24 @@ C----------------------------------------------------------------------
      3      INTBUF_TAB%PENIA(1+5*NLNFT1),INTBUF_TAB%ALPHAK(1+3*NLNFT1),
      4      INTBUF_TAB%AVX_ANCR(1+6*NLN+3*NLNFT1),KMIN) 
 
-      IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(20,1)
+      IF (IMONM > 0 .AND. JTASK == 1) CALL STOPTIME(TIMERS,20)
       IF(IGAP/=0)THEN
         CALL MY_BARRIER
         IF(JTASK == 1) THEN
-          DEALLOCATE(SOLIDN_NORMAL)
+          DEALLOCATE(INTBUF_TAB%SOLIDN_NORMAL)
           IF(NSPMD > 1) THEN
-            DEALLOCATE(SOLIDN_NORMAL_F)
-            DEALLOCATE(SOLIDN_NORMAL_FE)
+            DEALLOCATE(INTBUF_TAB%SOLIDN_NORMAL_F)
+            DEALLOCATE(INTBUF_TAB%SOLIDN_NORMAL_FE)
           END IF
         END IF
       END IF
-      IF(ICURV==3.OR.IADM.NE.0)THEN
+      IF(ICURV==3.OR.IADM/=0)THEN
           CALL MY_BARRIER()
-          IF(JTASK == 1)DEALLOCATE(NOD_NORMAL)
+          IF(JTASK == 1)DEALLOCATE(INTBUF_TAB%NODNORM_NORMAL)
       END IF
-      IF(IADM.NE.0)THEN
+      IF(IADM/=0)THEN
           CALL MY_BARRIER()
-          IF(JTASK == 1)DEALLOCATE(RCURV,ANGLM)
+          IF(JTASK == 1)DEALLOCATE(INTBUF_TAB%MODRCURV,INTBUF_TAB%MODANGLM)
       END IF
 C-----------
       RETURN

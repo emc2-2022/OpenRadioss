@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CUPDTN3                       source/elements/shell/coque/cupdtn3.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cupdtn3       ../engine/source/elements/shell/coque/cupdtn3.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3      ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||    czforc3       ../engine/source/elements/shell/coquez/czforc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CUPDTN3(JFT  ,JLT  ,F   ,M   ,NVC  ,
      2                  OFFG ,OFF  ,STI ,STIR,STIFN,
      3                  STIFR,IXC  ,PM  ,AREA ,THK  ,
@@ -36,7 +37,8 @@ Chd|====================================================================
      7                  M14  ,M21  ,M22 ,M23 ,M24  ,
      8                  M31  ,M32  ,M33 ,M34 ,EINT,
      A                  PARTSAV,MAT,IPARTC,FAC,JTHE,
-     B                  THEM ,FTHE ,CONDN,CONDE)
+     B                  THEM ,FTHE ,CONDN,CONDE,NODADT_THERM)
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -49,11 +51,11 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
 #include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NODADT_THERM
       INTEGER JFT, JLT, NVC,JTHE
       INTEGER IXC(NIXC,MVSIZ),MAT(MVSIZ),IPARTC(*)
 C     REAL
@@ -72,35 +74,21 @@ CMasParINCLUDE 'cupdt3.intmap.inc'
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NVC1, NVC2, NVC3, NVC4, I, J, MX,IOFF,MT
+      INTEGER NVC1, NVC2, NVC3, NVC4, I
       my_real
-     .   OFF_L,CF(MVSIZ)
+     .   OFF_L
 C-----------------------------------------------
 C
-C cumul de l'energie des elements deletes AU moment du delete
+C cumulative energy of deleted elements at the moment of deletion
             
-      IOFF=0
-      DO I=JFT,JLT
-        IF(OFF(I).EQ.ZERO.AND.OFFG(I).GT.ZERO)IOFF=1
-      ENDDO
-      IF(IOFF.EQ.1)THEN
-       MT = MAT(JFT)
-       DO I=JFT,JLT
-        IF(OFF(I).EQ.ZERO.AND.OFFG(I).GT.ZERO)THEN
-           MX = IPARTC(I)
-           PARTSAV(24,MX)=PARTSAV(24,MX) + EINT(I,1) + EINT(I,2)
-           PARTSAV(25,MX)=PARTSAV(25,MX) + PM(1,MT)*AREA(I)*THK(I)
-        ENDIF
-       ENDDO
-      ENDIF
       OFF_L = ZERO
       DO I=JFT,JLT
-        IF(OFF(I).LT.ONE)OFFG(I) = OFF(I)
+        IF(OFF(I)<ONE)OFFG(I) = OFF(I)
         OFF_L = MIN(OFF_L,OFFG(I))
       ENDDO
-      IF(OFF_L.LT.ZERO)THEN
+      IF(OFF_L<ZERO)THEN
         DO I=JFT,JLT
-         IF(OFFG(I).LT.ZERO)THEN
+         IF(OFFG(I)<ZERO)THEN
            F11(I)=ZERO
            F21(I)=ZERO
            F31(I)=ZERO
@@ -138,7 +126,7 @@ C
       NVC3=(NVC-NVC1*8-NVC2*4)/2
       NVC4=(NVC-NVC1*8-NVC2*4-NVC3*2)
 C
-      IF(NVC1.EQ.0)THEN
+      IF(NVC1==0)THEN
        IF(JTHE == 0 ) THEN
 #include "vectorize.inc"
           DO I=JFT,JLT
@@ -225,7 +213,7 @@ C
        ENDIF
       ENDIF
 C
-      IF(NVC2.EQ.0)THEN
+      IF(NVC2==0)THEN
        IF(JTHE == 0 ) THEN
 #include "vectorize.inc"
          DO I=JFT,JLT
@@ -312,7 +300,7 @@ C
 C     
       ENDIF
 C
-      IF(NVC3.EQ.0)THEN
+      IF(NVC3==0)THEN
         IF(JTHE == 0) THEN
 #include "vectorize.inc"
          DO I=JFT,JLT
@@ -399,7 +387,7 @@ C
 C       
       ENDIF
 C
-      IF(NVC4.EQ.0)THEN
+      IF(NVC4==0)THEN
        IF(JTHE == 0) THEN
 #include "vectorize.inc"
            DO I=JFT,JLT
@@ -489,13 +477,14 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CUPDTN3P                      source/elements/shell/coque/cupdtn3.F
-Chd|-- called by -----------
-Chd|        CBAFORC3                      source/elements/shell/coqueba/cbaforc3.F
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    cupdtn3p      ../engine/source/elements/shell/coque/cupdtn3.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3      ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||    czforc3       ../engine/source/elements/shell/coquez/czforc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE CUPDTN3P(JFT  ,JLT  ,OFFG ,OFF  ,STI ,
      2                   STIR ,FSKY ,FSKYV,IADC ,
      4                   F11  ,F12  ,F13 ,F14 ,F21  ,
@@ -505,7 +494,8 @@ Chd|====================================================================
      8                   M31  ,M32  ,M33 ,M34 ,IXC,
      A                   EINT ,PARTSAV,MAT,IPARTC,PM,
      B                   AREA ,THK  ,FAC , JTHE , THEM,
-     C                   FTHESKY,CONDNSKY,CONDE )  
+     C                   FTHESKY,CONDNSKY,CONDE ,NODADT_THERM)  
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -519,14 +509,12 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
 #include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-C ds 41i 001 13/16/00 +1
-C     INTEGER JFT, JLT, IADC(4,*)
+      INTEGER ,INTENT(IN) :: NODADT_THERM
       INTEGER JFT, JLT, IADC(4,*), JTHE
       INTEGER IXC(NIXC,MVSIZ),MAT(MVSIZ),IPARTC(*)
 C     REAL
@@ -548,33 +536,19 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 C ds 41i 001 13/16/00 +1
 C     INTEGER I, II, K
-      INTEGER I, II, K, J, MX,IOFF, MT
+      INTEGER I, K
       my_real
      .   OFF_L
 C-----------------------------------------------
-C cumul de l'energie des elements deletes AU moment du delete 
-      IOFF=0
-      DO I=JFT,JLT
-        IF(OFF(I).EQ.ZERO.AND.OFFG(I).GT.ZERO)IOFF=1
-      ENDDO
-      IF(IOFF.EQ.1)THEN
-       MT = MAT(JFT)
-       DO I=JFT,JLT
-        IF(OFF(I).EQ.ZERO.AND.OFFG(I).GT.ZERO)THEN
-           MX = IPARTC(I)
-           PARTSAV(24,MX)=PARTSAV(24,MX) + EINT(I,1) + EINT(I,2)
-           PARTSAV(25,MX)=PARTSAV(25,MX) + PM(1,MT)*AREA(I)*THK(I)
-        ENDIF
-       ENDDO
-      ENDIF
+C cumulative energy of deleted elements at the moment of deletion
       OFF_L = ZERO
       DO I=JFT,JLT
-        IF(OFF(I).LT.ONE)OFFG(I) = OFF(I)
+        IF(OFF(I)<ONE)OFFG(I) = OFF(I)
         OFF_L = MIN(OFF_L,OFFG(I))
       ENDDO
-      IF(OFF_L.LT.ZERO)THEN
+      IF(OFF_L<ZERO)THEN
         DO I=JFT,JLT
-         IF(OFFG(I).LT.ZERO)THEN
+         IF(OFFG(I)<ZERO)THEN
            F11(I)=ZERO
            F21(I)=ZERO
            F31(I)=ZERO
@@ -606,7 +580,7 @@ C cumul de l'energie des elements deletes AU moment du delete
         ENDDO
       ENDIF
 
-      IF (IVECTOR.EQ.1) THEN
+      IF (IVECTOR==1) THEN
 #include "vectorize.inc"
        DO I=JFT,JLT
           FSKYV(IADC(1,I),1)=-F11(I)
@@ -725,7 +699,6 @@ C
 C
          IF(JTHE > 0 ) THEN
           DO I=JFT,JLT
-c#include "cupdt3_pf.inc"
             FTHESKY(IADC(1,I)) = THEM(I,1)
             FTHESKY(IADC(2,I)) = THEM(I,2)
             FTHESKY(IADC(3,I)) = THEM(I,3)

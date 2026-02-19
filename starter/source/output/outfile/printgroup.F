@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PRINTGROUP                    source/output/outfile/printgroup.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        OPTIONDEF_MOD                 ../common_source/modules/optiondef_mod.F
-Chd|        R2R_MOD                       share/modules1/r2r_mod.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    printgroup             ../starter/source/output/outfile/printgroup.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    r2r_mod                ../starter/share/modules1/r2r_mod.F
+!||====================================================================
       SUBROUTINE PRINTGROUP(
      1           ITAB     ,ITABM1   ,IGRNOD   ,NINICRACK,BUFSF   ,
      2           IGRSURF  ,IGRSLIN  ,INICRACK ,IXS      ,IXQ     ,
@@ -46,6 +46,9 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE R2R_MOD
       USE OPTIONDEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE FORMAT_MOD , ONLY : FMW_10I, FMW_6I, FMW_2I_X_F, FMW_4I
+      use element_mod , only : nixs,nixq,nixc,nixt,nixp,nixr,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,8 +61,7 @@ C-----------------------------------------------
      .        IXTG(NIXTG,*),IXS10(6,*),IXS20(12,*),IXS16(8,*),
      .        IPART(LIPART1,*),IXQ(NIXQ,*),
      .        KXX(NIXX,*),KXIG3D(NIXIG3D,*),IXIG3D(*)
-      my_real
-     .        BUFSF(*)
+      my_real BUFSF(*)
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD)  :: IGRNOD
       TYPE (GROUP_)  , DIMENSION(NGRBRIC) :: IGRBRIC
@@ -82,17 +84,15 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "sphcom.inc"
-#include      "submod_c.inc"
 #include      "r2r_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,L,II,KK,NEL,NNOD,NSEG,IAD0,DGR,ITYP,SRFTYP,NE,
      .        KR,IADR,NSEGIGE,ID
-      CHARACTER TITR*nchartitle,MESS*40,FMTT*15
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER MESS*40,FMTT*15
 C-----------------------------------------------
       IF (IPRI >= 0) THEN
 C-----------------------------------------------
@@ -103,11 +103,11 @@ c          WRITE(ISTDO,'(2A)')' .. ',MESS
             ID = IGRBRIC(I)%ID
             TITR = IGRBRIC(I)%TITLE
             NEL = IGRBRIC(I)%NENTITY
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines -> on prend le nb d'elts avant split----	    
-	       IF ((NEL.EQ.0).AND.(IGRBRIC(I)%R2R_ALL.NE.0)) GOTO 150
-	    ENDIF   
-C----------------------------------------------------------------------	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines -> on prend le nb d'elts avant split----      
+                 IF ((NEL==0).AND.(IGRBRIC(I)%R2R_ALL/=0)) GOTO 150
+              ENDIF   
+C----------------------------------------------------------------------      
             IF (NEL == 0 .AND. IGRBRIC(I)%SET_GROUP == 0) THEN
               CALL ANCMSG(MSGID=534,
      .                    MSGTYPE=MSGWARNING,
@@ -121,7 +121,7 @@ C----------------------------------------------------------------------
               WRITE(IOUT,'(A)')' --------------------'
               WRITE(IOUT,FMT=FMW_10I)(IXS(NIXS,IGRBRIC(I)%ENTITY(J)),J=1,NEL)
             END IF
-150	    CONTINUE
+150      CONTINUE
           ENDDO
         ENDIF
 C-----------------------------------------------
@@ -132,11 +132,11 @@ c          WRITE(ISTDO,'(2A)')' .. ',MESS
             ID = IGRQUAD(I)%ID
             TITR = IGRQUAD(I)%TITLE
             NEL =IGRQUAD(I)%NENTITY
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines -> on prend le nb d'elts avant split----	    
-	       IF ((NEL.EQ.0).AND.(IGRQUAD(I)%R2R_ALL.NE.0)) GOTO 160
-	    ENDIF 
-C----------------------------------------------------------------------	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines -> on prend le nb d'elts avant split----      
+                 IF ((NEL==0).AND.(IGRQUAD(I)%R2R_ALL/=0)) GOTO 160
+              ENDIF 
+C----------------------------------------------------------------------      
             IF (NEL == 0 .AND. IGRQUAD(I)%SET_GROUP == 0) THEN
               CALL ANCMSG(MSGID=534,
      .                    MSGTYPE=MSGWARNING,
@@ -150,7 +150,7 @@ C----------------------------------------------------------------------
               WRITE(IOUT,'(A)')' --------------------'
               WRITE(IOUT,FMT=FMW_10I)(IXQ(NIXQ,IGRQUAD(I)%ENTITY(J)),J=1,NEL)
             END IF
-160	    CONTINUE
+160      CONTINUE
           ENDDO
         ENDIF
 C-----------------------------------------------
@@ -161,11 +161,11 @@ c          WRITE(ISTDO,'(2A)')' .. ',MESS
             ID = IGRSH4N(I)%ID
             TITR = IGRSH4N(I)%TITLE
             NEL =IGRSH4N(I)%NENTITY
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines -> on prend le nb d'elts avant split----	    
-	       IF ((NEL.EQ.0).AND.(IGRSH4N(I)%R2R_ALL.NE.0)) GOTO 170
-	    ENDIF 
-C----------------------------------------------------------------------	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines -> on prend le nb d'elts avant split----      
+                 IF ((NEL==0).AND.(IGRSH4N(I)%R2R_ALL/=0)) GOTO 170
+              ENDIF 
+C----------------------------------------------------------------------      
             IF (NEL == 0 .AND. IGRSH4N(I)%SET_GROUP == 0) THEN
               CALL ANCMSG(MSGID=534,
      .                    MSGTYPE=MSGWARNING,
@@ -180,7 +180,7 @@ C----------------------------------------------------------------------
               WRITE(IOUT,'(A)')' --------------------'
               WRITE(IOUT,FMT=FMW_10I) (IXC(NIXC,IGRSH4N(I)%ENTITY(J)),J=1,NEL)
             END IF
-170	    CONTINUE
+170      CONTINUE
           ENDDO
         ENDIF
 C-----------------------------------------------
@@ -191,11 +191,11 @@ c          WRITE(ISTDO,'(2A)')' .. ',MESS
             ID = IGRTRUSS(I)%ID
             TITR = IGRTRUSS(I)%TITLE
             NEL =IGRTRUSS(I)%NENTITY
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines -> on prend le nb d'elts avant split----	    
-	       IF ((NEL.EQ.0).AND.(IGRTRUSS(I)%R2R_ALL.NE.0)) GOTO 180
-	    ENDIF 
-C----------------------------------------------------------------------	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines -> on prend le nb d'elts avant split----      
+                 IF ((NEL==0).AND.(IGRTRUSS(I)%R2R_ALL/=0)) GOTO 180
+              ENDIF 
+C----------------------------------------------------------------------      
             IF (NEL == 0.AND. IGRTRUSS(I)%SET_GROUP == 0) THEN
               CALL ANCMSG(MSGID=534,
      .                    MSGTYPE=MSGWARNING,
@@ -209,7 +209,7 @@ C----------------------------------------------------------------------
               WRITE(IOUT,'(A)')' --------------------'
               WRITE(IOUT,FMT=FMW_10I)(IXT(NIXT,IGRTRUSS(I)%ENTITY(J)),J=1,NEL)
             END IF
-180	    CONTINUE
+180      CONTINUE
           ENDDO
         ENDIF
 C-----------------------------------------------
@@ -220,11 +220,11 @@ c          WRITE(ISTDO,'(2A)')' .. ',MESS
             ID = IGRBEAM(I)%ID
             NEL =IGRBEAM(I)%NENTITY
             TITR = IGRBEAM(I)%TITLE
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines -> on prend le nb d'elts avant split----	    
-	       IF ((NEL.EQ.0).AND.(IGRBEAM(I)%R2R_ALL.NE.0)) GOTO 190
-	    ENDIF 
-C----------------------------------------------------------------------	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines -> on prend le nb d'elts avant split----      
+                 IF ((NEL==0).AND.(IGRBEAM(I)%R2R_ALL/=0)) GOTO 190
+              ENDIF 
+C----------------------------------------------------------------------      
             IF (NEL == 0 .AND. IGRBEAM(I)%SET_GROUP == 0) THEN
               CALL ANCMSG(MSGID=534,
      .                    MSGTYPE=MSGWARNING,
@@ -238,7 +238,7 @@ C----------------------------------------------------------------------
               WRITE(IOUT,'(A)')' --------------------'
               WRITE(IOUT,FMT=FMW_10I)(IXP(NIXP,IGRBEAM(I)%ENTITY(J)),J=1,NEL)
             END IF
-190	    CONTINUE
+190      CONTINUE
           ENDDO
         ENDIF
 C-----------------------------------------------
@@ -249,11 +249,11 @@ c          WRITE(ISTDO,'(2A)')' .. ',MESS
             ID = IGRSPRING(I)%ID
             TITR = IGRSPRING(I)%TITLE
             NEL =IGRSPRING(I)%NENTITY
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines -> on prend le nb d'elts avant split----	    
-	       IF ((NEL.EQ.0).AND.(IGRSPRING(I)%R2R_ALL.NE.0)) GOTO 200
-	    ENDIF 
-C----------------------------------------------------------------------	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines -> on prend le nb d'elts avant split----      
+                 IF ((NEL==0).AND.(IGRSPRING(I)%R2R_ALL/=0)) GOTO 200
+              ENDIF 
+C----------------------------------------------------------------------      
             IF (NEL == 0 .AND. IGRSPRING(I)%SET_GROUP == 0) THEN
               CALL ANCMSG(MSGID=534,
      .                    MSGTYPE=MSGWARNING,
@@ -267,7 +267,7 @@ C----------------------------------------------------------------------
               WRITE(IOUT,'(A)')' --------------------'
               WRITE(IOUT,FMT=FMW_10I)(IXR(NIXR,IGRSPRING(I)%ENTITY(J)),J=1,NEL)
             END IF
-200	    CONTINUE
+200      CONTINUE
           ENDDO
         ENDIF
 C-----------------------------------------------
@@ -278,19 +278,19 @@ c          WRITE(ISTDO,'(2A)')' .. ',MESS
             ID = IGRSH3N(I)%ID
             TITR = IGRSH3N(I)%TITLE
             NEL =IGRSH3N(I)%NENTITY
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines -> on prend le nb d'elts avant split----	    
-	       IF ((NEL.EQ.0).AND.(IGRSH3N(I)%R2R_ALL.NE.0)) GOTO 210
-	    ENDIF 
-C----------------------------------------------------------------------	 	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines -> on prend le nb d'elts avant split----      
+                 IF ((NEL==0).AND.(IGRSH3N(I)%R2R_ALL/=0)) GOTO 210
+              ENDIF 
+C----------------------------------------------------------------------         
             IF (NEL == 0 .AND. IGRSH3N(I)%SET_GROUP == 0) THEN
-              IF(N2D.EQ.0)
+              IF(N2D==0)
      .        CALL ANCMSG(MSGID=534,
      .                    MSGTYPE=MSGWARNING,
      .                    ANMODE=ANINFO_BLIND_1,
      .                    C1='SH3N',C2='SH3N',C3=TRIM(TITR),
      .                    I1=ID)
-              IF(N2D.NE.0)
+              IF(N2D/=0)
      .        CALL ANCMSG(MSGID=534,
      .                    MSGTYPE=MSGWARNING,
      .                    ANMODE=ANINFO_BLIND_1,
@@ -300,12 +300,12 @@ C----------------------------------------------------------------------
             IF (IPRI > 0) THEN
               WRITE(IOUT,'(A)') ' '
               WRITE(IOUT,'(A)') ' '
-              IF(N2D.EQ.0)WRITE(IOUT,'(A,I10,3A,I6,A)')' SH3N. GROUP:', ID,',',TRIM(TITR),',',NEL,' ELEMENTS: '
-              IF(N2D.NE.0)WRITE(IOUT,'(A,I10,3A,I6,A)')' TRIA. GROUP:', ID,',',TRIM(TITR),',',NEL,' ELEMENTS: '
+              IF(N2D==0)WRITE(IOUT,'(A,I10,3A,I6,A)')' SH3N. GROUP:', ID,',',TRIM(TITR),',',NEL,' ELEMENTS: '
+              IF(N2D/=0)WRITE(IOUT,'(A,I10,3A,I6,A)')' TRIA. GROUP:', ID,',',TRIM(TITR),',',NEL,' ELEMENTS: '
               WRITE(IOUT,'(A)')' --------------------'
               WRITE(IOUT,FMT=FMW_10I)(IXTG(NIXTG,IGRSH3N(I)%ENTITY(J)),J=1,NEL)
             END IF
-210	    CONTINUE
+210      CONTINUE
           ENDDO
         ENDIF
 C-----------------------------------------------
@@ -316,11 +316,11 @@ c          WRITE(ISTDO,'(2A)')' .. ',MESS
             ID = IGRPART(I)%ID
             TITR = IGRPART(I)%TITLE
             NEL =IGRPART(I)%NENTITY
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines -> on prend le nb de parts avant split-----	    
-	       IF ((NEL.EQ.0).AND.(IGRPART(I)%R2R_ALL.NE.0)) GOTO 220
-	    ENDIF   
-C----------------------------------------------------------------------	 	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines -> on prend le nb de parts avant split-----
+                 IF ((NEL==0).AND.(IGRPART(I)%R2R_ALL/=0)) GOTO 220
+              ENDIF   
+C----------------------------------------------------------------------         
             IF (NEL == 0 .AND. IGRPART(I)%SET_GROUP == 0) THEN
               CALL ANCMSG(MSGID=534,
      .                    MSGTYPE=MSGWARNING,
@@ -334,7 +334,7 @@ C----------------------------------------------------------------------
               WRITE(IOUT,'(A)')' ---------------------'
               WRITE(IOUT,FMT=FMW_10I)(IPART(4,IGRPART(I)%ENTITY(J)),J=1,NEL)
             END IF
-220	    CONTINUE	    
+220      CONTINUE      
           ENDDO
         ENDIF
 C-----------------------------------------------
@@ -355,9 +355,9 @@ C-----------------------------------------------
             ELSE
               NSEG=IGRSURF(I)%NSEG
               NSEGIGE=IGRSURF(I)%NSEG_IGE
-C-----------> Multidomaines -> on prend le nb de segments avant split----	    
-	      IF (NSUBDOM.GT.0) NSEG=ISURF_R2R(2,I)
-C----------------------------------------------------------------------		      
+C-----------> Multidomaines -> on prend le nb de segments avant split----
+                IF (NSUBDOM>0) NSEG=ISURF_R2R(2,I)
+C----------------------------------------------------------------------          
               IF (NSEG == 0 .AND. NSEGIGE == 0 .AND. IGRSURF(I)%SET_GROUP == 0) THEN
                 CALL ANCMSG(MSGID=692,
      .                      MSGTYPE=MSGWARNING,
@@ -369,11 +369,11 @@ C----------------------------------------------------------------------
 C---
             IF (IPRI > 0) THEN
               DO I=1,NSURF
-C-----------> Multidomaines --------------------------------------------	    
-	       IF (NSUBDOM.GT.0) THEN
-	         IF((IGRSURF(I)%NSEG.EQ.0).AND.(ISURF_R2R(2,I).NE.0)) GOTO 300
-	       ENDIF
-C----------------------------------------------------------------------		      
+C-----------> Multidomaines --------------------------------------------      
+                 IF (NSUBDOM>0) THEN
+                   IF((IGRSURF(I)%NSEG==0).AND.(ISURF_R2R(2,I)/=0)) GOTO 300
+                 ENDIF
+C----------------------------------------------------------------------          
                 SRFTYP=IGRSURF(I)%TYPE
                 IF (SRFTYP == 100) THEN
                   WRITE(IOUT,'(A)') ' '
@@ -408,7 +408,7 @@ C----------------------------------------------------------------------
                   WRITE(IOUT,1020)(BUFSF(IGRSURF(I)%IAD_BUFR+J),J=1,6)
                 ELSE
                   NSEG=IGRSURF(I)%NSEG
-!!                  IF (NSEG.NE.0) THEN
+!!                  IF (NSEG/=0) THEN
                     WRITE(IOUT,'(A)') ' '
                     WRITE(IOUT,'(A)') ' '
                     TITR = IGRSURF(I)%TITLE
@@ -434,8 +434,8 @@ C----------------------------------------------------------------------
                         WRITE(IOUT,'(2I10,16X,2I10)')(ITAB(IGRSURF(I)%NODES(J,L)),L=1,2),ITYP,NE
                       ENDIF
                     ENDDO
-!!                  ENDIF ! IF (NSEG.NE.0)
-                  IF (NSEGIGE.NE.0) THEN
+!!                  ENDIF ! IF (NSEG/=0)
+                  IF (NSEGIGE/=0) THEN
                     NSEGIGE=IGRSURF(I)%NSEG_IGE
                     WRITE(IOUT,'(A)') ' '
                     WRITE(IOUT,'(A)') ' '
@@ -456,9 +456,9 @@ C----------------------------------------------------------------------
                         WRITE(IOUT,'(2I10,16X,2I10)')(IGRSURF(I)%NODES_IGE(J,L),L=1,2),ITYP,NE
                       ENDIF
                     ENDDO
-                  ENDIF ! IF (NSEGIGE.NE.0)
+                  ENDIF ! IF (NSEGIGE/=0)
                 ENDIF ! IF (SRFTYP == 100)
-300		CONTINUE
+300    CONTINUE
               ENDDO ! DO I=1,NSURF
             ENDIF ! IF (IPRI > 0)
           ENDIF ! IF (NSURF > 0)
@@ -467,11 +467,11 @@ C-----------------------------------------------
           DO I=1,NSLIN
             NSEG=IGRSLIN(I)%NSEG
 C-----------> Multidomaines -> on prend le nb de segments avant split----
-	    IF (NSUBDOM.GT.0) NSEG=IGRSLIN(I)%NSEG_R2R_ALL
+              IF (NSUBDOM>0) NSEG=IGRSLIN(I)%NSEG_R2R_ALL
 C-----------> Type19 interface -> warning deactivated for lines generated in translator
             TITR = IGRSLIN(I)%TITLE
-            IF (TITR(1:19).EQ.'Type19 interface nb') CYCLE	    
-C----------------------------------------------------------------------		    
+            IF (TITR(1:19)=='Type19 interface nb') CYCLE      
+C----------------------------------------------------------------------        
             IF (NSEG == 0 .AND. IGRSLIN(I)%SET_GROUP == 0) THEN
               CALL ANCMSG(MSGID=691,
      .                    MSGTYPE=MSGWARNING,
@@ -482,11 +482,11 @@ C----------------------------------------------------------------------
 C---
           DO I=1,NSLIN
             NSEG=IGRSLIN(I)%NSEG
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines --------------------------------------------	    
-	       IF ((NSEG.EQ.0).AND.(IGRSLIN(I)%NSEG_R2R_ALL.NE.0)) GOTO 310
-	    ENDIF
-C----------------------------------------------------------------------	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines --------------------------------------------      
+                 IF ((NSEG==0).AND.(IGRSLIN(I)%NSEG_R2R_ALL/=0)) GOTO 310
+              ENDIF
+C----------------------------------------------------------------------      
             IF (IPRI > 0) THEN
               WRITE(IOUT,'(A)') ' '
               WRITE(IOUT,'(A)') ' '
@@ -518,14 +518,14 @@ C----------------------------------------------------------------------
                 WRITE(IOUT,FMT=FMW_4I)(ITAB(IGRSLIN(I)%NODES(J,L)),L=1,2),ITYP,NE
               ENDDO
             END IF
-310	    CONTINUE
+310      CONTINUE
           ENDDO
         ENDIF
 C-----------------------------------------------
         IF (NINICRACK > 0) THEN
           DO I=1,NINICRACK
               NSEG=INICRACK(I)%NSEG
-              IF (NSEG.EQ.0) THEN
+              IF (NSEG==0) THEN
                 CALL ANCMSG(MSGID=693,
      .                      MSGTYPE=MSGWARNING,
      .                      ANMODE=ANINFO_BLIND_1,
@@ -553,10 +553,10 @@ C-----------------------------------------------
           DO I=1,NGRNOD
             ID = IGRNOD(I)%ID
             NNOD=IGRNOD(I)%NENTITY
-	    IF (NSUBDOM.GT.0) NNOD=IGRNOD(I)%R2R_ALL
-C-----------> Multidomaines -> on prend le nb de noeuds avant split----	    
-C----------------------------------------------------------------------	    
-            IF (NNOD.EQ.0) THEN
+              IF (NSUBDOM>0) NNOD=IGRNOD(I)%R2R_ALL
+C-----------> Multidomaines -> on prend le nb de noeuds avant split----
+C----------------------------------------------------------------------      
+            IF (NNOD==0) THEN
               CALL ANCMSG(MSGID=690,
      .                    MSGTYPE=MSGWARNING,
      .                    ANMODE=ANINFO_BLIND_1,
@@ -567,11 +567,11 @@ C
           DO I=1,NGRNOD
             ID = IGRNOD(I)%ID
             NNOD=IGRNOD(I)%NENTITY
-	    IF (NSUBDOM.GT.0) THEN
-C-----------> Multidomaines --------------------------------------------	    
-	       IF ((NNOD.EQ.0).AND.(IGRNOD(I)%R2R_ALL.NE.0)) GOTO 350
-	    ENDIF
-C----------------------------------------------------------------------		     	    	    
+              IF (NSUBDOM>0) THEN
+C-----------> Multidomaines --------------------------------------------      
+                 IF ((NNOD==0).AND.(IGRNOD(I)%R2R_ALL/=0)) GOTO 350
+              ENDIF
+C----------------------------------------------------------------------                     
             IF (IPRI > 0) THEN
               WRITE(IOUT,'(A)') ' '
               WRITE(IOUT,'(A)') ' '
@@ -580,7 +580,7 @@ C----------------------------------------------------------------------
               WRITE(IOUT,'(A)')' -------------------'
             WRITE(IOUT,FMT=FMW_10I)(ITAB(IGRNOD(I)%ENTITY(J)),J=1,NNOD)
             END IF
-350	    CONTINUE
+350      CONTINUE
           ENDDO
         ENDIF
 C-----------

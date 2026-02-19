@@ -1,50 +1,52 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CZKE3                         source/elements/shell/coquez/czke3.F
-Chd|-- called by -----------
-Chd|        IMP_GLOB_K                    source/implicit/imp_glob_k.F  
-Chd|        IMP_GLOB_K0                   source/implicit/imp_glob_k.F  
-Chd|-- calls ---------------
-Chd|        ASSEM_C4                      source/implicit/assem_c4.F    
-Chd|        C4EOFF                        source/elements/shell/coque/c4eoff.F
-Chd|        CMATC3                        source/elements/shell/coqueba/cmatc3.F
-Chd|        CMATCH3                       source/elements/shell/coqueba/cmatc3.F
-Chd|        CMATIP3                       source/elements/shell/coqueba/cmatc3.F
-Chd|        CZBE3                         source/elements/shell/coquez/czbe3.F
-Chd|        CZBER3                        source/elements/shell/coquez/czbe3.F
-Chd|        CZCOORK3                      source/elements/shell/coquez/czcoork3.F
-Chd|        CZLKEC3                       source/elements/shell/coquez/czlkec3.F
-Chd|        CZLKECG3                      source/elements/shell/coquez/czlkecg3.F
-Chd|        CZLKECR3                      source/elements/shell/coquez/czlkec3.F
-Chd|        CZLKECT3                      source/elements/shell/coquez/czlkect3.F
-Chd|        CZLKEN3                       source/elements/shell/coquez/czlken3.F
-Chd|        CZLKENR3                      source/elements/shell/coquez/czlken3.F
-Chd|        CZSUMG3                       source/elements/shell/coquez/czsumg3.F
-Chd|        DRAPE_MOD                     share/modules/drape_mod.F     
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    czke3          ../engine/source/elements/shell/coquez/czke3.F
+!||--- called by ------------------------------------------------------
+!||    imp_glob_k     ../engine/source/implicit/imp_glob_k.F
+!||    imp_glob_k0    ../engine/source/implicit/imp_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    assem_c4       ../engine/source/implicit/assem_c4.F
+!||    c4eoff         ../engine/source/elements/shell/coque/c4eoff.F
+!||    cmatc3         ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    cmatch3        ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    cmatip3        ../engine/source/elements/shell/coqueba/cmatc3.F
+!||    czbe3          ../engine/source/elements/shell/coquez/czbe3.F
+!||    czber3         ../engine/source/elements/shell/coquez/czbe3.F
+!||    czcoork3       ../engine/source/elements/shell/coquez/czcoork3.F
+!||    czlkec3        ../engine/source/elements/shell/coquez/czlkec3.F
+!||    czlkecg3       ../engine/source/elements/shell/coquez/czlkecg3.F
+!||    czlkecr3       ../engine/source/elements/shell/coquez/czlkec3.F
+!||    czlkect3       ../engine/source/elements/shell/coquez/czlkect3.F
+!||    czlken3        ../engine/source/elements/shell/coquez/czlken3.F
+!||    czlkenr3       ../engine/source/elements/shell/coquez/czlken3.F
+!||    czsumg3        ../engine/source/elements/shell/coquez/czsumg3.F
+!||--- uses       -----------------------------------------------------
+!||    drape_mod      ../engine/share/modules/drape_mod.F
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    stack_mod      ../engine/share/modules/stack_mod.F
+!||====================================================================
        SUBROUTINE CZKE3 (
      1            JFT    ,JLT    ,NFT    ,NPT    ,MTN    ,
      2            ITHK   ,NCYCLE ,ISTRAIN,IPLA   ,PM     ,
@@ -53,13 +55,14 @@ Chd|====================================================================
      5            K_DIAG ,K_LT  , IADK  ,JDIK  ,     
      6            IHBE   ,THKE   ,ISMSTR ,X      ,IKGEO  ,
      7            IPM    ,IGEO   ,IEXPAN ,IPARG  ,ISUBSTACK,
-     8            STACK  ,DRAPE )
+     8            STACK  ,DRAPE_SH4N , INDX_DRAPE,SEDRAPE,NUMEL_DRAPE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD      
       USE STACK_MOD
-      USE DRAPE_MOD      
+      USE DRAPE_MOD
+      use element_mod , only : nixc
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
@@ -71,28 +74,28 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C O M M O N   B L O C K S
 C-----------------------------------------------
-#include      "scr01_c.inc"
-#include      "parit_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "impl1_c.inc"
-#include      "impl2_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
       INTEGER JFT     ,JLT    ,NFT    ,NPT    , 
      .        MTN     ,ITHK   ,NCYCLE,ISUBSTACK,
      .        ISTRAIN ,IPLA   ,OFFSET,IHBE    ,ISMSTR,IKGEO,IEXPAN
+      INTEGER ,    INTENT(IN)     ::        SEDRAPE,NUMEL_DRAPE
       INTEGER IXC(NIXC,*),IGEO(NPROPGI,*),IPM(*),IPARG(*)
       INTEGER INDXOF(MVSIZ),
      .         ETAG(*),IDDL(*)  ,NDOF(*)  ,IADK(*) ,JDIK(*)
-C     REAL OU REAL*8
+      INTEGER, DIMENSION(SEDRAPE) :: INDX_DRAPE
+     
+C     real or real*8
       my_real
      .   PM(NPROPM,*),GEO(NPROPG,*),BUFMAT(*),X(3,*),THKE(*),
      .   OFF(MVSIZ),K_DIAG(*) ,K_LT(*)
       TYPE (ELBUF_STRUCT_), TARGET :: ELBUF_STR
       TYPE (STACK_PLY) :: STACK
-      TYPE (DRAPE_) :: DRAPE
+      TYPE (DRAPE_) :: DRAPE_SH4N(NUMELC_DRAPE)
 C=======================================================================
 c FUNCTION: [K] stiffness Matrix of QEPH element
 c
@@ -108,7 +111,7 @@ c  I   NCYCLE        - cycle(increment) number
 c  I   ISTRAIN       - total strain output flag
 c  I   IPLA          -  radial return plasticity compute option
 c  I   PM ,GEO       - Material and geometrical property data
-c  I   IXC(NIXC,NEL) - connectivity and mid,pid interger data
+c  I   IXC(NIXC,NEL) - connectivity and mid,pid integer data
 c  I   BUFMAT()      - internal material data
 c  I   INDXOF(NEL)   - deleted element flag (not used in this subroutine)
 c  I   ETAG(NEL)     - activating element flag for Eigenvalue analysis
@@ -122,7 +125,7 @@ c  I   THKE          - initial thickness
 c  I   ISMSTR        - small strain flag
 c  I   IKGEO  ,      - geometrical stiffness matrix including (if >0)
 c  I   X(3,NUMNOD)         co-ordinate 
-c  I   IPM ,IGEO     - Material and geometrical property interger data 
+c  I   IPM ,IGEO     - Material and geometrical property integer data 
 c  I   IEXPAN        - thermo flag used in materials
 c  I   IPARG(NG)           element group data
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
@@ -130,7 +133,7 @@ C   L O C A L   V A R I A B L E S
 C--------------------------------
       INTEGER 
      .   I, J,J1,J2, NEL, NPLAT,IPLAT(MVSIZ), NLAY,L_DIRA,L_DIRB,
-     .   IREP,IBID,EP,IDRIL,IBID1
+     .   IREP,EP,IDRIL
       INTEGER  MAT(MVSIZ), PID(MVSIZ), NGL(MVSIZ),IORTH,IGTYP,IUN
       my_real 
      .  X13(MVSIZ),  X24(MVSIZ),  Y13(MVSIZ),  Y24(MVSIZ),
@@ -212,7 +215,7 @@ C
      6               IREP,NPT,ISMSTR,
      7               DIR_A,DIR_B,PID,MAT,NGL,NPLAT,IPLAT ,
      8               CORELV,OFF,THKE,NEL)
-       IF (IKPROJ.GT.0.OR.IDRIL.GT.0) THEN
+       IF (IKPROJ>0.OR.IDRIL>0) THEN
         DO I=1,9 
         DO EP=JFT,JLT 
          M11(I,EP) =ZERO
@@ -244,15 +247,15 @@ C
         ENDDO
         ENDDO
        ENDIF
-      IF (IREP.GT.0) THEN
+      IF (IREP>0) THEN
        CALL CMATC3(JFT    ,JLT       ,PM     ,MAT     ,GEO      ,
      1             PID    ,AREA      ,THK0   ,THK2    ,GBUF%THK ,
      2             THKE   ,VOL       ,MTN    ,NPT     ,ITHK     ,
      3             HM     ,HF        ,HC     ,HZ      ,IGTYP    ,
      4             IORTH  ,HMOR      ,HFOR   ,DIR_A   ,IGEO     ,
      5             IDRIL  ,IHBE      ,HMFOR  ,GS      ,ISUBSTACK,
-     6             STACK  ,ELBUF_STR ,NLAY   ,DRAPE   ,NFT      ,
-     7             NEL )
+     6             STACK  ,ELBUF_STR ,NLAY   ,DRAPE_SH4N   ,NFT      ,
+     7             NEL    ,INDX_DRAPE,SEDRAPE,NUMEL_DRAPE)
       ELSE
        CALL CMATC3(JFT    ,JLT       ,PM     ,MAT     ,GEO      ,
      1             PID    ,AREA      ,THK0   ,THK2    ,GBUF%THK ,
@@ -260,8 +263,8 @@ C
      3             HM     ,HF        ,HC     ,HZ      ,IGTYP    ,
      4             IORTH  ,HMOR      ,HFOR   ,DIRA    ,IGEO     ,
      5             IDRIL  ,IHBE      ,HMFOR  ,GS      ,ISUBSTACK,
-     6             STACK  ,ELBUF_STR ,NLAY   ,DRAPE   ,NFT      ,
-     7             NEL)
+     6             STACK  ,ELBUF_STR ,NLAY   ,DRAPE_SH4N   ,NFT      ,
+     7             NEL    ,INDX_DRAPE,SEDRAPE,NUMEL_DRAPE)
       ENDIF
 C-----------------------------------------------
 C     IF [KT]
@@ -320,7 +323,7 @@ C--------------------------
      7              MF34,MF44,FM12,FM13,FM14,FM23,FM24,FM34, 
      8              IORTH,HMOR,HFOR,HMFOR)
 C--------------------------
-C     2. Cisaillement Transversale (const+hourglass): 
+C     2. Transversal shear (Const+Hourglass): 
 C--------------------------
        CALL CZLKECT3(JFT  ,JLT   ,VOL  ,HC   ,RX   ,
      4               RY   ,SX    ,SY   ,RX2  ,RY2  ,
@@ -330,7 +333,7 @@ C--------------------------
      A               M11,M12,M13,M14,M22,M23,M24,M33,M34,M44,
      B               MF11,MF12,MF13,MF14,MF22,MF23,MF24,MF33, 
      C               MF34,MF44,FM12,FM13,FM14,FM23,FM24,FM34) 
-       IF (IDRIL.GT.0) THEN
+       IF (IDRIL>0) THEN
          CALL CZBER3(JFT ,JLT  ,AREA ,A_I  ,X13  ,
      1               X24  ,Y13  ,Y24  ,MX13 ,MX23 ,
      2               MX34 ,MY13 ,MY23 ,MY34 ,Z1   ,
@@ -354,7 +357,7 @@ C     3. PARTIE HOURGLASS
 C--------------------------
 C--------------modif here!!! with IKT>0---add ET in HM,HF
       IF ( IORTH >0 .OR. MTN == 27) THEN
-c      IF (MTN.EQ.19.OR.MTN.EQ.15.OR.MTN.EQ.25) THEN
+c      IF (MTN==19.OR.MTN==15.OR.MTN==25) THEN
 C-----------keep elastic-isotropic for hourglass part ------------
        CALL CMATCH3(JFT    ,JLT     ,PM     ,MAT     ,GEO   ,
      1             PID     ,MTN     ,IDRIL  ,IGEO    ,HM    ,
@@ -369,7 +372,7 @@ C-----------keep elastic-isotropic for hourglass part ------------
      7           MF11,MF12,MF13,MF14,MF22,MF23,MF24,MF33, 
      8           MF34,MF44,FM12,FM13,FM14,FM23,FM24,FM34,
      9           IDRIL )
-       IF (IDRIL.GT.0) THEN
+       IF (IDRIL>0) THEN
          CALL CZLKENR3(JFT ,JLT  ,VOL  ,THK0 ,THK2 ,
      2                 HM  ,HZ   ,A_I  ,PX1  ,PX2  ,
      3                 PY1  ,PY2  ,HXX  ,HYY  ,HXY  ,
@@ -381,7 +384,7 @@ C-----------keep elastic-isotropic for hourglass part ------------
      9           PHKRX,PHKRY,PHKRXY,PHERX,PHERY,PHERXY,
      A           PHKRZ,PHERZ,PHKX ,PHKY ,PHEX ,PHEY  ) 
        ENDIF
-       IF (IKGEO .EQ.1) 
+       IF (IKGEO ==1) 
      .  CALL CZLKECG3(JFT ,JLT   ,VOL  ,THK0 ,THK2 ,
      1               PX1  ,PX2  ,PY1   ,PY2  ,RX   ,
      2               RY   ,SX    ,SY   ,RX2  ,RY2  ,
@@ -405,7 +408,7 @@ C--------------------------
      7               KE11,KE22,KE33,KE44,KE12,KE13,KE14,KE23,
      8               KE24,KE34,CORELV,Z1   ,IDRIL ,IORTH)
 C
-             IF (NEIG.GT.0) CALL C4EOFF(
+             IF (NEIG>0) CALL C4EOFF(
      1                   JFT, JLT, IXC, ETAG, OFF)
 C
              CALL ASSEM_C4(
@@ -416,12 +419,11 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  CZFKEU3                       source/elements/shell/coquez/czke3.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        CZFIKIJUJ                     source/elements/shell/coquez/czke3.F
-Chd|====================================================================
+!||====================================================================
+!||    czfkeu3     ../engine/source/elements/shell/coquez/czke3.F
+!||--- calls      -----------------------------------------------------
+!||    czfikijuj   ../engine/source/elements/shell/coquez/czke3.F
+!||====================================================================
        SUBROUTINE CZFKEU3 (
      1            JFT    ,JLT    ,   
      8            KE11   ,KE22   ,KE33   ,KE44   ,   
@@ -437,13 +439,9 @@ C   G L O B A L   P A R A M E T E R S
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C O M M O N   B L O C K S
-C-----------------------------------------------
-C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
       INTEGER JFT     ,JLT 
-C     REAL OU REAL*8
       my_real    
      .   UI(3,4,MVSIZ),RI(3,4,MVSIZ),FI(3,4,MVSIZ),MI(3,4,MVSIZ)
       my_real    
@@ -454,7 +452,7 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
 C   L O C A L   V A R I A B L E S
 C--------------------------------
       INTEGER 
-     .   I, J, M ,EP,ITRAN0,ITRAN1
+     .   I, J ,EP,ITRAN0,ITRAN1
       my_real    
      .   FJ(3),MJ(3),UJ(3),RJ(3)
 C
@@ -602,12 +600,11 @@ C
 C      
       RETURN
       END
-Chd|====================================================================
-Chd|  CZFIKIJUJ                     source/elements/shell/coquez/czke3.F
-Chd|-- called by -----------
-Chd|        CZFKEU3                       source/elements/shell/coquez/czke3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    czfikijuj   ../engine/source/elements/shell/coquez/czke3.F
+!||--- called by ------------------------------------------------------
+!||    czfkeu3     ../engine/source/elements/shell/coquez/czke3.F
+!||====================================================================
        SUBROUTINE CZFIKIJUJ (KEIJ   ,UJ     ,RJ     ,FI     ,MI     ,
      .                      ITRAN   )
 C-----------------------------------------------
@@ -615,26 +612,18 @@ C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   G L O B A L   P A R A M E T E R S
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
-C   C O M M O N   B L O C K S
-C-----------------------------------------------
-C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
       INTEGER ITRAN
-C     REAL OU REAL*8
       my_real    
      .   UJ(3),RJ(3),FI(3),MI(3)
       my_real    
      .   KEIJ(6,6)
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
+C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
-C--------------------------------
+C-----------------------------------------------
       INTEGER 
-     .   I, J, M  
+     .   I, J  
 C
         DO I=1,3
          FI(I)=ZERO

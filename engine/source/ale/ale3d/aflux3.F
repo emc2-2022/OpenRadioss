@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  AFLUX3                        source/ale/ale3d/aflux3.F     
-Chd|-- called by -----------
-Chd|        AFLUX0                        source/ale/aflux0.F           
-Chd|-- calls ---------------
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
-      SUBROUTINE AFLUX3(PM,IXS,V,W,X,FLUX,FLU1,ALE_CONNECT,NSG, TAG22)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    aflux3                 ../engine/source/ale/ale3d/aflux3.F
+!||--- called by ------------------------------------------------------
+!||    aflux0                 ../engine/source/ale/aflux0.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    element_mod            ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod         ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||====================================================================
+      SUBROUTINE AFLUX3(PM,IXS,V,W,X,FLUX,FLU1,ALE_CONNECT,NSG, TAG22,s_flux)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE I22BUFBRIC_MOD 
       USE ALE_CONNECTIVITY_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,8 +56,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      integer, intent(in) :: s_flux !<first dimension of FLUX array
       INTEGER IXS(NIXS,NUMELS), NSG
-      my_real PM(NPROPM,NUMMAT), V(3,NUMNOD), W(3,NUMNOD), X(3,NUMNOD), FLUX(6,*), FLU1(*)
+      my_real PM(NPROPM,NUMMAT), V(3,NUMNOD), W(3,NUMNOD), X(3,NUMNOD), FLUX(s_flux,6), FLU1(*)
       TYPE(t_ale_connectivity), INTENT(IN) :: ALE_CONNECT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -92,7 +95,7 @@ C-----------------------------------------------
      .   VDY5(MVSIZ), VDY6(MVSIZ), VDY7(MVSIZ), VDY8(MVSIZ),
      .   VDZ1(MVSIZ), VDZ2(MVSIZ), VDZ3(MVSIZ), VDZ4(MVSIZ),
      .   VDZ5(MVSIZ), VDZ6(MVSIZ), VDZ7(MVSIZ), VDZ8(MVSIZ),
-     .   REDUC,UPWL(6,MVSIZ),
+     .   REDUC,UPWL(MVSIZ,6),
      .   XC(MVSIZ),YC(MVSIZ),ZC(MVSIZ),
      .   XF1(MVSIZ),YF1(MVSIZ),ZF1(MVSIZ),
      .   XF2(MVSIZ),YF2(MVSIZ),ZF2(MVSIZ),
@@ -120,7 +123,7 @@ C-----------------------------------------------
       DO I=LFT,LLT
         II=I+NFT
         MAT(I)=IXS(1,II)
-	!---8 local node numbers NC1 TO NC8 for solid element I ---!
+          !---8 local node numbers NC1 TO NC8 for solid element I ---!
         NC1(I)=IXS(2,II)
         NC2(I)=IXS(3,II)
         NC3(I)=IXS(4,II)
@@ -129,7 +132,7 @@ C-----------------------------------------------
         NC6(I)=IXS(7,II)
         NC7(I)=IXS(8,II)
         NC8(I)=IXS(9,II)
-	!
+          !
         !---Coordinates of the 8 nodes
         X1(I)=X(1,NC1(I))
         Y1(I)=X(2,NC1(I))
@@ -162,13 +165,13 @@ C-----------------------------------------------
         X8(I)=X(1,NC8(I))
         Y8(I)=X(2,NC8(I))
         Z8(I)=X(3,NC8(I))
-	!
+          !
         !Relative velocity on the 8 nodes.
         !  [VD_node] = [V_node] - [W_node]
-	!  where
-	!    [V_node] : material velocity on node
-	!    [W_node] : grid velocity on node
-	!
+          !  where
+          !    [V_node] : material velocity on node
+          !    [W_node] : grid velocity on node
+          !
         VDX1(I)=V(1,NC1(I)) - W(1,NC1(I))
         VDY1(I)=V(2,NC1(I)) - W(2,NC1(I))
         VDZ1(I)=V(3,NC1(I)) - W(3,NC1(I))
@@ -210,7 +213,7 @@ C-----------------------------------------------
       !======================================================!
       DO I=LFT,LLT
         ! X-component
-        VX1(I)=ONE_OVER_8*(VDX1(I)+VDX2(I)+VDX3(I)+VDX4(I))	
+        VX1(I)=ONE_OVER_8*(VDX1(I)+VDX2(I)+VDX3(I)+VDX4(I))
         VX2(I)=ONE_OVER_8*(VDX3(I)+VDX4(I)+VDX8(I)+VDX7(I))
         VX3(I)=ONE_OVER_8*(VDX5(I)+VDX6(I)+VDX7(I)+VDX8(I))
         VX4(I)=ONE_OVER_8*(VDX1(I)+VDX2(I)+VDX6(I)+VDX5(I))
@@ -270,31 +273,31 @@ C-----------------------------------------------
       !    (If at least there is one domain with closure)    ! 
       !    2S [CF].[n] = 0  => [2S*n] = 0                    !
       !    where                                             !
-      !      C: element centroid                             !
+      !      C: controid element                             !
       !      F: face centroid                                !
       !======================================================!
       IF(ICLOSE == 1) THEN
         DO I=LFT,LLT
-	  ! Solid Element Centorid
+            ! Solid Element Centorid
           XC(I)=ONE_OVER_8*(X1(I)+X2(I)+X3(I)+X4(I)+X5(I)+X6(I)+X7(I)+X8(I))
           YC(I)=ONE_OVER_8*(Y1(I)+Y2(I)+Y3(I)+Y4(I)+Y5(I)+Y6(I)+Y7(I)+Y8(I))
           ZC(I)=ONE_OVER_8*(Z1(I)+Z2(I)+Z3(I)+Z4(I)+Z5(I)+Z6(I)+Z7(I)+Z8(I))
-	  ! Solid faces centoids
-	  !   X-Components
+            ! Solid faces centoids
+            !   X-Components
           XF1(I)=FOURTH*(X1(I)+X2(I)+X3(I)+X4(I))
           XF2(I)=FOURTH*(X3(I)+X4(I)+X8(I)+X7(I))
           XF3(I)=FOURTH*(X5(I)+X6(I)+X7(I)+X8(I))
           XF4(I)=FOURTH*(X1(I)+X2(I)+X6(I)+X5(I))
           XF5(I)=FOURTH*(X2(I)+X3(I)+X7(I)+X6(I))
           XF6(I)=FOURTH*(X1(I)+X4(I)+X8(I)+X5(I))
-	  !   Y-Components
+            !   Y-component
           YF1(I)=FOURTH*(Y1(I)+Y2(I)+Y3(I)+Y4(I))
           YF2(I)=FOURTH*(Y3(I)+Y4(I)+Y8(I)+Y7(I))
           YF3(I)=FOURTH*(Y5(I)+Y6(I)+Y7(I)+Y8(I))
           YF4(I)=FOURTH*(Y1(I)+Y2(I)+Y6(I)+Y5(I))
           YF5(I)=FOURTH*(Y2(I)+Y3(I)+Y7(I)+Y6(I))
           YF6(I)=FOURTH*(Y1(I)+Y4(I)+Y8(I)+Y5(I))
-	  !   Z-Components
+            !   Component
           ZF1(I)=FOURTH*(Z1(I)+Z2(I)+Z3(I)+Z4(I))
           ZF2(I)=FOURTH*(Z3(I)+Z4(I)+Z8(I)+Z7(I))
           ZF3(I)=FOURTH*(Z5(I)+Z6(I)+Z7(I)+Z8(I))
@@ -302,7 +305,7 @@ C-----------------------------------------------
           ZF5(I)=FOURTH*(Z2(I)+Z3(I)+Z7(I)+Z6(I))
           ZF6(I)=FOURTH*(Z1(I)+Z4(I)+Z8(I)+Z5(I))          
         ENDDO
-	! Face-1
+          ! Face-1
         DO I=LFT,LLT
           TEST=(XF1(I)-XC(I))*N1X(I)+
      .         (YF1(I)-YC(I))*N1Y(I)+
@@ -313,7 +316,7 @@ C-----------------------------------------------
               N1Z(I)=ZERO     
           ENDIF
         ENDDO
-	! Face-2	
+          ! Face-2
         DO I=LFT,LLT
           TEST=(XF2(I)-XC(I))*N2X(I)+
      .         (YF2(I)-YC(I))*N2Y(I)+
@@ -324,7 +327,7 @@ C-----------------------------------------------
               N2Z(I)=ZERO     
           ENDIF
         ENDDO
-	! Face-3	
+          ! Face-3
         DO I=LFT,LLT
           TEST=(XF3(I)-XC(I))*N3X(I)+
      .         (YF3(I)-YC(I))*N3Y(I)+
@@ -335,7 +338,7 @@ C-----------------------------------------------
               N3Z(I)=ZERO              
           ENDIF
         ENDDO
-	! Face-4	
+          ! Face-4
         DO I=LFT,LLT
           TEST=(XF4(I)-XC(I))*N4X(I)+
      .         (YF4(I)-YC(I))*N4Y(I)+
@@ -346,7 +349,7 @@ C-----------------------------------------------
               N4Z(I)=ZERO              
           ENDIF
         ENDDO
-	! Face-5
+          ! Face-5
         DO I=LFT,LLT
           TEST=(XF5(I)-XC(I))*N5X(I)+
      .         (YF5(I)-YC(I))*N5Y(I)+
@@ -357,7 +360,7 @@ C-----------------------------------------------
               N5Z(I)=ZERO              
           ENDIF
         ENDDO
-	! Face-6	
+          ! Face-6
         DO I=LFT,LLT
           TEST=(XF6(I)-XC(I))*N6X(I)+
      .         (YF6(I)-YC(I))*N6Y(I)+
@@ -389,7 +392,7 @@ C-----------------------------------------------
       !   interface type22 (cut cell method)                 !
       !======================================================!
       IF(INT22 > 0)THEN
-      print *, "**inter22, CURRENLTY EULERIAN ONLY"
+      print *, "**inter22, CURRENTLY EULERIAN ONLY"
       stop 2204
         NIN   = 1
         DO I=LFT,LLT
@@ -424,12 +427,12 @@ C-----------------------------------------------
       !======================================================!
       IF(NINT(PM(19,MAT(1))) == 51)THEN
         DO I=LFT,LLT
-          FLUX(1,I)=FLUX1(I)
-          FLUX(2,I)=FLUX2(I)
-          FLUX(3,I)=FLUX3(I)
-          FLUX(4,I)=FLUX4(I)
-          FLUX(5,I)=FLUX5(I)
-          FLUX(6,I)=FLUX6(I)
+          FLUX(NFT+I,1)=FLUX1(I)
+          FLUX(NFT+I,2)=FLUX2(I)
+          FLUX(NFT+I,3)=FLUX3(I)
+          FLUX(NFT+I,4)=FLUX4(I)
+          FLUX(NFT+I,5)=FLUX5(I)
+          FLUX(NFT+I,6)=FLUX6(I)
         ENDDO
         RETURN
       ENDIF
@@ -441,22 +444,22 @@ C-----------------------------------------------
       IF (NSG == 1) THEN
          MA = MAT(1)
          DO I=LFT,LLT
-           UPWL(1,I)=PM(16,MA)
-           UPWL(2,I)=PM(16,MA)
-           UPWL(3,I)=PM(16,MA)
-           UPWL(4,I)=PM(16,MA)
-           UPWL(5,I)=PM(16,MA)
-           UPWL(6,I)=PM(16,MA)
+           UPWL(I,1)=PM(16,MA)
+           UPWL(I,2)=PM(16,MA)
+           UPWL(I,3)=PM(16,MA)
+           UPWL(I,4)=PM(16,MA)
+           UPWL(I,5)=PM(16,MA)
+           UPWL(I,6)=PM(16,MA)
          ENDDO
       ELSE
          IF (IVECTOR == 0) THEN
            DO I=LFT,LLT
-             UPWL(1,I)=PM(16,MAT(I))
-             UPWL(2,I)=PM(16,MAT(I))
-             UPWL(3,I)=PM(16,MAT(I))
-             UPWL(4,I)=PM(16,MAT(I))
-             UPWL(5,I)=PM(16,MAT(I))
-             UPWL(6,I)=PM(16,MAT(I))
+             UPWL(I,1)=PM(16,MAT(I))
+             UPWL(I,2)=PM(16,MAT(I))
+             UPWL(I,3)=PM(16,MAT(I))
+             UPWL(I,4)=PM(16,MAT(I))
+             UPWL(I,5)=PM(16,MAT(I))
+             UPWL(I,6)=PM(16,MAT(I))
            ENDDO
          ELSE
            IC=1
@@ -471,12 +474,12 @@ C-----------------------------------------------
            DO II=1,IC
              MA = MAT(II)
              DO I=JST(II),JST(II+1)-1
-               UPWL(1,I)=PM(16,MA)
-               UPWL(2,I)=PM(16,MA)
-               UPWL(3,I)=PM(16,MA)
-               UPWL(4,I)=PM(16,MA)
-               UPWL(5,I)=PM(16,MA)
-               UPWL(6,I)=PM(16,MA)
+               UPWL(I,1)=PM(16,MA)
+               UPWL(I,2)=PM(16,MA)
+               UPWL(I,3)=PM(16,MA)
+               UPWL(I,4)=PM(16,MA)
+               UPWL(I,5)=PM(16,MA)
+               UPWL(I,6)=PM(16,MA)
              ENDDO
            ENDDO
          ENDIF
@@ -530,20 +533,20 @@ C-----------------------------------------------
       !     sgn  : sgn(FLUX_face)                                !
       !==========================================================!
       DO I=LFT,LLT
-        ! 6 fluxes on faces
-        FLUX(1,I)=FLUX1(I)-UPWL(1,I)*ABS(FLUX1(I))
-        FLUX(2,I)=FLUX2(I)-UPWL(2,I)*ABS(FLUX2(I))
-        FLUX(3,I)=FLUX3(I)-UPWL(3,I)*ABS(FLUX3(I))
-        FLUX(4,I)=FLUX4(I)-UPWL(4,I)*ABS(FLUX4(I))
-        FLUX(5,I)=FLUX5(I)-UPWL(5,I)*ABS(FLUX5(I))
-        FLUX(6,I)=FLUX6(I)-UPWL(6,I)*ABS(FLUX6(I))
+        ! 6 flows we faces
+        FLUX(NFT+I,1)=FLUX1(I)-UPWL(I,1)*ABS(FLUX1(I))
+        FLUX(NFT+I,2)=FLUX2(I)-UPWL(I,2)*ABS(FLUX2(I))
+        FLUX(NFT+I,3)=FLUX3(I)-UPWL(I,3)*ABS(FLUX3(I))
+        FLUX(NFT+I,4)=FLUX4(I)-UPWL(I,4)*ABS(FLUX4(I))
+        FLUX(NFT+I,5)=FLUX5(I)-UPWL(I,5)*ABS(FLUX5(I))
+        FLUX(NFT+I,6)=FLUX6(I)-UPWL(I,6)*ABS(FLUX6(I))
         ! One global flux
-        FLU1(I)  =FLUX1(I)+UPWL(1,I)*ABS(FLUX1(I))
-     .           +FLUX2(I)+UPWL(2,I)*ABS(FLUX2(I))
-     .           +FLUX3(I)+UPWL(3,I)*ABS(FLUX3(I))
-     .           +FLUX4(I)+UPWL(4,I)*ABS(FLUX4(I))
-     .           +FLUX5(I)+UPWL(5,I)*ABS(FLUX5(I))
-     .           +FLUX6(I)+UPWL(6,I)*ABS(FLUX6(I))
+        FLU1(I)  =FLUX1(I)+UPWL(I,1)*ABS(FLUX1(I))
+     .           +FLUX2(I)+UPWL(I,2)*ABS(FLUX2(I))
+     .           +FLUX3(I)+UPWL(I,3)*ABS(FLUX3(I))
+     .           +FLUX4(I)+UPWL(I,4)*ABS(FLUX4(I))
+     .           +FLUX5(I)+UPWL(I,5)*ABS(FLUX5(I))
+     .           +FLUX6(I)+UPWL(I,6)*ABS(FLUX6(I))
       END DO
 C-----------------------------------------------
       RETURN

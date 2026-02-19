@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPLIT_JOINT                   source/constraints/general/cyl_joint/split_joint.F
-Chd|-- called by -----------
-Chd|        DOMDEC2                       source/spmd/domdec2.F         
-Chd|-- calls ---------------
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        PLIST_IFRONT                  source/spmd/node/ddtools.F    
-Chd|        NLOCAL                        source/spmd/node/ddtools.F    
-Chd|        JOINT_MOD                     share/modules1/joint_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    split_joint    ../starter/source/constraints/general/cyl_joint/split_joint.F
+!||--- called by ------------------------------------------------------
+!||    domdec2        ../starter/source/spmd/domdec2.F
+!||--- calls      -----------------------------------------------------
+!||    ifrontplus     ../starter/source/spmd/node/frontplus.F
+!||    nlocal         ../starter/source/spmd/node/ddtools.F
+!||    plist_ifront   ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    joint_mod      ../starter/share/modules1/joint_mod.F
+!||====================================================================
         SUBROUTINE SPLIT_JOINT( )
 !$COMMENT
 !       SPLIT_JOINT description
@@ -52,35 +53,19 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com01_c.inc"
-#include      "units_c.inc"
 #include      "com04_c.inc"
-#include      "r2r_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
         INTEGER :: I,II,NS,LJ,K
         INTEGER :: J,N,NN,IJK
-        INTEGER :: WEIGHT,M1,M2
+        INTEGER :: WEIGHT,M1
         INTEGER :: P,PROC_NUMBER,NB_NODE
         INTEGER, DIMENSION(NSPMD) :: PROC_LIST
-
-        INTEGER :: PROC,PROC_NUMBER_1,PROC_NUMBER_2
-        INTEGER, DIMENSION(NSPMD) :: PROC_LIST_1,PROC_LIST_2
-        INTEGER, EXTERNAL :: NLOCAL  
-
+        INTEGER, EXTERNAL :: NLOCAL
         LOGICAL, DIMENSION(:), ALLOCATABLE :: CHECK_MAIN
         TYPE(joint_main_node), DIMENSION(:), ALLOCATABLE :: MAIN_AND_SECONDARY
 C-----------------------------------------------
@@ -115,7 +100,7 @@ C=======================================================================
                     PROC_LIST(1:NSPMD) = -1
                     PROC_NUMBER = 0
                     NN = CYL_JOIN(I)%SECONDARY_NODE(LJ)
-	                CALL PLIST_IFRONT(PROC_LIST,NN,PROC_NUMBER)
+                          CALL PLIST_IFRONT(PROC_LIST,NN,PROC_NUMBER)
                     !returns in "PROC_LIST" array list of SPMD domains on which node I is sticked
                     !PROC_NUMBER is the number of SPMD domains on which node I is sticked
                     
@@ -127,7 +112,7 @@ C=======================================================================
 !                    ENDIF
 
                     ! add the secondary node to the CYL_JOINT structure for proc P
-                    ! for the restart writting
+                    ! for the restart writing
                     DO II=1,PROC_NUMBER
                         P = PROC_LIST(II)
                         CYL_JOIN(I)%NB_NODE(P) = CYL_JOIN(I)%NB_NODE(P) + 1
@@ -256,13 +241,14 @@ C=======================================================================
 
 
 
-Chd|====================================================================
-Chd|  print_JOINT                   source/constraints/general/cyl_joint/split_joint.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        PLIST_IFRONT                  source/spmd/node/ddtools.F    
-Chd|        JOINT_MOD                     share/modules1/joint_mod.F    
-Chd|====================================================================
+!||====================================================================
+!||    print_joint    ../starter/source/constraints/general/cyl_joint/split_joint.F
+!||--- calls      -----------------------------------------------------
+!||    nlocal         ../starter/source/spmd/node/ddtools.F
+!||    plist_ifront   ../starter/source/spmd/node/ddtools.F
+!||--- uses       -----------------------------------------------------
+!||    joint_mod      ../starter/share/modules1/joint_mod.F
+!||====================================================================
         SUBROUTINE print_JOINT(a)
 C-----------------------------------------------
 C   M o d u l e s
@@ -273,28 +259,16 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com01_c.inc"
-#include      "units_c.inc"
 #include      "com04_c.inc"
-#include      "r2r_c.inc"
-#include      "param_c.inc"
-C-----------------------------------------------
-C   D u m m y   A r g u m e n t s
-C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
         character(len=*) :: a
-        INTEGER :: I,II,NS,LJ,K
-        INTEGER :: WEIGHT,M1,M2
+        INTEGER :: I,NS,K
+        INTEGER :: M1,M2
         INTEGER :: P,PROC_NUMBER,NB_NODE
         INTEGER, DIMENSION(NSPMD) :: PROC_LIST
       INTEGER, EXTERNAL :: NLOCAL  

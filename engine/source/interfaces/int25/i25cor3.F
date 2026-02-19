@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I25COR3_1                     source/interfaces/int25/i25cor3.F
-Chd|-- called by -----------
-Chd|        I25COMP_1                     source/interfaces/int25/i25comp_1.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i25cor3_1   ../engine/source/interfaces/int25/i25cor3.F
+!||--- called by ------------------------------------------------------
+!||    i25comp_1   ../engine/source/interfaces/int25/i25comp_1.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box     ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25COR3_1(
      1               JLT     ,X      ,IRECT  ,NSV  ,CAND_E ,
      2               CAND_N  ,IRTLM  ,STF    ,STFN ,STIF   ,
@@ -52,16 +52,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER JLT, NSN, NIN, IGAP,
@@ -83,13 +73,13 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J , L, NN, IG, JFT, IX,  NI, I1, I2, I3, I4
+      INTEGER I ,J , L, NN, IG, IX,  NI
       my_real
      .        XN
 C-----------------------------------------------
       DO I=1,JLT
         NI = CAND_N(I)
-        IF(NI.LE.NSN)THEN
+        IF(NI<=NSN)THEN
           IG = NSV(NI)
           NSVG(I) = IG
           XI(I) = X(1,IG)
@@ -145,7 +135,7 @@ C
         DO I=1,JLT
           NI = CAND_N(I)
           L  = CAND_E(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             GAPMXL(I)=GAP_S_L(NI)+GAP_M_L(L)
           ELSE
             GAPMXL(I)=GAP_LFI(NIN)%P(NI-NSN)+GAP_M_L(L)
@@ -190,7 +180,7 @@ C
       END DO
 C
       DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           NNX(I,5)=FOURTH*(NNX(I,1)+NNX(I,2)+NNX(I,3)+NNX(I,4))
           NNY(I,5)=FOURTH*(NNY(I,1)+NNY(I,2)+NNY(I,3)+NNY(I,4))
           NNZ(I,5)=FOURTH*(NNZ(I,1)+NNZ(I,2)+NNZ(I,3)+NNZ(I,4))
@@ -208,7 +198,7 @@ C
       DO I=1,JLT
         L  = CAND_E(I)
         NI = CAND_N(I)
-        IF(NI.LE.NSN)THEN
+        IF(NI<=NSN)THEN
           STIF(I)=STF(L)*ABS(STFN(NI))
         ELSE
           NN = NI - NSN
@@ -234,13 +224,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I25COR3_21                    source/interfaces/int25/i25cor3.F
-Chd|-- called by -----------
-Chd|        I25COMP_2                     source/interfaces/int25/i25comp_2.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25cor3_21   ../engine/source/interfaces/int25/i25cor3.F
+!||--- called by ------------------------------------------------------
+!||    i25comp_2    ../engine/source/interfaces/int25/i25comp_2.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box      ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25COR3_21(
      1               JLT     ,X      ,IRECT ,NSV   ,CAND_E    ,
      2               CAND_N  ,STF    ,STFN  ,STIF  ,IGAP      ,
@@ -264,16 +254,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IRECT(4,*), NSV(*), CAND_E(*), CAND_N(*), MSEGTYP(*),
@@ -295,13 +275,13 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J , K, L, NN, IG, JFT, IX,  NI, I1, I2, I3, I4, NOR, II(4)
+      INTEGER I ,J , K, L, NN, IG, IX,  NI, NOR, II(4)
       my_real
      .        XN
 C-----------------------------------------------
       DO I=1,JLT
         NI = CAND_N(I)
-        IF(NI.LE.NSN)THEN
+        IF(NI<=NSN)THEN
           IG = NSV(NI)
           NSVG(I) = IG
           XI(I) = X(1,IG)
@@ -358,7 +338,7 @@ C
         DO I=1,JLT
           NI = CAND_N(I)
           L  = CAND_E(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             GAPMXL(I)=GAP_S_L(NI)+GAP_M_L(L)
           ELSE
             GAPMXL(I)=GAP_LFI(NIN)%P(NI-NSN)+GAP_M_L(L)
@@ -403,7 +383,7 @@ C
       END DO
 C
       DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           NNX(I,5)=FOURTH*(NNX(I,1)+NNX(I,2)+NNX(I,3)+NNX(I,4))
           NNY(I,5)=FOURTH*(NNY(I,1)+NNY(I,2)+NNY(I,3)+NNY(I,4))
           NNZ(I,5)=FOURTH*(NNZ(I,1)+NNZ(I,2)+NNZ(I,3)+NNZ(I,4))
@@ -421,7 +401,7 @@ C
       DO I=1,JLT
        L  = CAND_E(I)
        NI = CAND_N(I)
-       IF(NI.LE.NSN)THEN
+       IF(NI<=NSN)THEN
          STIF(I)=STF(L)*ABS(STFN(NI))
        ELSE
          NN = NI - NSN
@@ -442,7 +422,7 @@ C
         DO J=1,4
           MVOISN(I,J)=MVOISIN(J,L)
 
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             NOR=ISLIDE(J,NI)
           ELSE
             NN = NI - NSN
@@ -466,13 +446,13 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I25COR3_22                    source/interfaces/int25/i25cor3.F
-Chd|-- called by -----------
-Chd|        I25COMP_2                     source/interfaces/int25/i25comp_2.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25cor3_22   ../engine/source/interfaces/int25/i25cor3.F
+!||--- called by ------------------------------------------------------
+!||    i25comp_2    ../engine/source/interfaces/int25/i25comp_2.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box      ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25COR3_22(
      1               JLT     ,X      ,IRECT ,NSV   ,CAND_E      ,
      2               CAND_N  ,STF    ,STFN ,STIF   ,IGAP        ,
@@ -503,16 +483,6 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "com04_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IRECT(4,*), NSV(*), CAND_E(*), CAND_N(*),
@@ -541,13 +511,13 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J , K, L, NN, IG, JFT, IX,  NI, I1, I2, I3, I4, NOR, II(4), ISH
+      INTEGER I ,J , L, NN, IG, IX,  NI, ISH
       my_real
      .        XN
 C-----------------------------------------------
       DO I=1,JLT
         NI = CAND_N(I)
-        IF(NI.LE.NSN)THEN
+        IF(NI<=NSN)THEN
           IG = NSV(NI)
           NSVG(I) = IG
           XI(I) = X(1,IG)
@@ -628,7 +598,7 @@ C
         DO I=1,JLT
           NI = CAND_N(I)
           L  = CAND_E(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             GAPMXL(I)=GAP_S_L(NI)+GAP_M_L(L)
           ELSE
             GAPMXL(I)=GAP_LFI(NIN)%P(NI-NSN)+GAP_M_L(L)
@@ -673,7 +643,7 @@ C
       END DO
 C
       DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
          NAX(I,5)= FOURTH*(NAX(I,1)+NAX(I,2)+NAX(I,3)+NAX(I,4))
          NAY(I,5)= FOURTH*(NAY(I,1)+NAY(I,2)+NAY(I,3)+NAY(I,4))
          NAZ(I,5)= FOURTH*(NAZ(I,1)+NAZ(I,2)+NAZ(I,3)+NAZ(I,4))
@@ -693,7 +663,7 @@ C
         L  = ISHEL(I)
         IF(L==0) CYCLE
 C
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
 C
           NBX(I,1)=NOD_NORMAL(1,1,L)
           NBY(I,1)=NOD_NORMAL(2,1,L)
@@ -734,7 +704,7 @@ C
         L  = ISHEL(I)
         IF(L==0) CYCLE
 C
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
          NBX(I,5)= FOURTH*(NBX(I,1)+NBX(I,2)+NBX(I,3)+NBX(I,4))
          NBY(I,5)= FOURTH*(NBY(I,1)+NBY(I,2)+NBY(I,3)+NBY(I,4))
          NBZ(I,5)= FOURTH*(NBZ(I,1)+NBZ(I,2)+NBZ(I,3)+NBZ(I,4))
@@ -752,7 +722,7 @@ C
       DO I=1,JLT
        L  = CAND_E(I)
        NI = CAND_N(I)
-       IF(NI.LE.NSN)THEN
+       IF(NI<=NSN)THEN
          STIF(I)=STF(L)*ABS(STFN(NI))
        ELSE
          NN = NI - NSN
@@ -787,13 +757,14 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I25COR3_3                     source/interfaces/int25/i25cor3.F
-Chd|-- called by -----------
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i25cor3_3        ../engine/source/interfaces/int25/i25cor3.F
+!||--- called by ------------------------------------------------------
+!||    i25mainf         ../engine/source/interfaces/int25/i25mainf.F
+!||--- uses       -----------------------------------------------------
+!||    parameters_mod   ../common_source/modules/interfaces/parameters_mod.F
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I25COR3_3(
      1               JLT     ,X       ,IRECT  ,NSV   ,CAND_E      ,
      2               CAND_N  ,STF     ,STFN   ,STIF   ,NOD_NORMAL ,
@@ -817,11 +788,13 @@ Chd|====================================================================
      J               Z1        ,X2    ,Y2      ,Z2     ,X3          , 
      K               Y3        ,Z3    ,X4      ,Y4     ,Z4          ,
      L               INTTH     ,TEMP  ,TEMPI   ,IELES  ,IELESI      ,
-     M               IELEM     ,IELEMI) 
+     M               IELEM     ,IELEMI,ISTIF_MSDT,DTSTIF,STIFMSDT_S ,
+     N               STIFMSDT_M,NRTM  ,PARAMETERS) 
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE TRI7BOX
+      USE PARAMETERS_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -833,13 +806,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
 #include      "sms_c.inc"
-#include      "units_c.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -852,6 +819,8 @@ C-----------------------------------------------
      .        NSVG(MVSIZ), NSMS(MVSIZ), IRTLM(4,*), SUBTRIA(MVSIZ),
      .        IPARTFRICS(*),IPARTFRICSI(MVSIZ),IPARTFRICM(*),IPARTFRICMI(MVSIZ),
      .        IREP_FRICM(*),IREP_FRICMI(MVSIZ),IELESI(MVSIZ),IELEMI(MVSIZ)
+      INTEGER , INTENT(IN) :: ISTIF_MSDT
+      INTEGER , INTENT(IN) :: NRTM
 C     REAL
       my_real
      .   X(3,*), STF(*), STFN(*), MS(*), V(3,*), 
@@ -876,20 +845,23 @@ C     REAL
      .   Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ),
      .   TEMPI(MVSIZ)
       REAL*4 NOD_NORMAL(3,4,*)
+      my_real , INTENT(IN) :: DTSTIF
+      my_real , INTENT(IN) ::  STIFMSDT_S(NSN) ,STIFMSDT_M(NRTM)
+      TYPE (PARAMETERS_) ,INTENT(INOUT):: PARAMETERS
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J , L, NN, IG, JFT, IX,  NI, I1, I2, I3, I4, IT
+      INTEGER I ,J , L, NN, IG, IX,  NI, IT
       my_real
-     .        XN
+     .        XN,DTS,STIF_MSDT(MVSIZ)
 C-----------------------------------------------
       IBOUND(1:4,1:JLT)=0
       DO I=1,JLT
            NI = CAND_N(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IG = NSV(NI)
              NSVG(I) = IG
-C---------------voir quand KINET(IG) est utilise  
+C-------------- see when Kinet (IG) is used  
              KINI(I) = KINET(IG)
              XI(I) = X(1,IG)
              YI(I) = X(2,IG)
@@ -922,7 +894,7 @@ C
            L  = CAND_E(I)
 C
            IX=IRECT(1,L)  
-           IX1(I)=IX	  
+           IX1(I)=IX    
            XX(I,1)=X(1,IX)  
            YY(I,1)=X(2,IX)  
            ZZ(I,1)=X(3,IX)  
@@ -931,7 +903,7 @@ C
            VZ1(I)=V(3,IX)  
 C
            IX=IRECT(2,L)  
-           IX2(I)=IX	  
+           IX2(I)=IX    
            XX(I,2)=X(1,IX)  
            YY(I,2)=X(2,IX)  
            ZZ(I,2)=X(3,IX)  
@@ -940,7 +912,7 @@ C
            VZ2(I)=V(3,IX)  
 C
            IX=IRECT(3,L)  
-           IX3(I)=IX	  
+           IX3(I)=IX    
            XX(I,3)=X(1,IX)  
            YY(I,3)=X(2,IX)  
            ZZ(I,3)=X(3,IX)  
@@ -949,7 +921,7 @@ C
            VZ3(I)=V(3,IX)  
 C
            IX=IRECT(4,L)  
-           IX4(I)=IX	  
+           IX4(I)=IX    
            XX(I,4)=X(1,IX)  
            YY(I,4)=X(2,IX)  
            ZZ(I,4)=X(3,IX)  
@@ -982,7 +954,7 @@ C
         DO I=1,JLT
           NI = CAND_N(I)
           L  = CAND_E(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             GAPMXL(I)=GAP_S_L(NI)+GAP_M_L(L)
           ELSE
             GAPMXL(I)=GAP_LFI(NIN)%P(NI-NSN)+GAP_M_L(L)
@@ -1013,7 +985,7 @@ C
       END DO
 C
       DO I=1,JLT
-        IF(IX3(I).NE.IX4(I))THEN
+        IF(IX3(I)/=IX4(I))THEN
           NNX(I,5)=FOURTH*(NNX(I,1)+NNX(I,2)+NNX(I,3)+NNX(I,4))
           NNY(I,5)=FOURTH*(NNY(I,1)+NNY(I,2)+NNY(I,3)+NNY(I,4))
           NNZ(I,5)=FOURTH*(NNZ(I,1)+NNZ(I,2)+NNZ(I,3)+NNZ(I,4))
@@ -1028,62 +1000,62 @@ C
         NNZ(I,5)=XN*NNZ(I,5)       
       END DO
 C
-      IF(IGSTI.LE.1)THEN
+      IF(IGSTI<=1)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=STF(L)*ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF(I)=STF(L)*ABS(STIFI(NIN)%P(NN))
           END IF
-          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-      ELSEIF(IGSTI.EQ.2)THEN
+      ELSEIF(IGSTI==2)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF(I)=ABS(STIFI(NIN)%P(NN))
           END IF
           STIF(I)=HALF*(STF(L)+STIF(I))
-          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-      ELSEIF(IGSTI.EQ.3)THEN
+      ELSEIF(IGSTI==3)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF(I)=ABS(STIFI(NIN)%P(NN))
           END IF
           STIF(I)=MAX(STF(L),STIF(I))
-          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-      ELSEIF(IGSTI.EQ.4.OR.IGSTI.EQ.6)THEN
+      ELSEIF(IGSTI==4.OR.IGSTI==6)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
             STIF(I)=ABS(STIFI(NIN)%P(NN))
           END IF
           STIF(I)=MIN(STF(L),STIF(I))
-          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
          ENDDO
-      ELSEIF(IGSTI.EQ.5)THEN
+      ELSEIF(IGSTI==5)THEN
          DO I=1,JLT
           L  = CAND_E(I)
           NI = CAND_N(I)
-          IF(NI.LE.NSN)THEN
+          IF(NI<=NSN)THEN
             STIF(I)=ABS(STFN(NI))
           ELSE
             NN = NI - NSN
@@ -1091,13 +1063,45 @@ C
           END IF
           STIF(I)=STF(L)*STIF(I)/
      .            MAX(EM30,(STF(L)+STIF(I)))
-          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+c          STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+         ENDDO
+      ELSEIF(IGSTI==7)THEN
+         DO I=1,JLT
+            STIF(I)=ZERO
          ENDDO
       ENDIF
+
+C------------------------------------------
+C   Stiffness based on mass and time step
+C------------------------------------------
+      IF(ISTIF_MSDT > 0) THEN
+         IF(DTSTIF > ZERO) THEN
+            DTS = DTSTIF
+         ELSE
+            DTS = PARAMETERS%DT_STIFINT
+         ENDIF
+         DO I=1,JLT
+            L  = CAND_E(I)
+            NI = CAND_N(I)
+            IF(NI<=NSN)THEN
+              STIF_MSDT(I) = STIFMSDT_S(NI)
+            ELSE
+              NN = NI - NSN
+              STIF_MSDT(I) = ABS(STIF_MSDT_FI(NIN)%P(NN))
+            ENDIF
+            STIF_MSDT(I) = STIFMSDT_M(L)*STIF_MSDT(I)/(STIFMSDT_M(L)+STIF_MSDT(I))
+            STIF_MSDT(I) = STIF_MSDT(I)/(DTS*DTS)
+            STIF(I)=MAX(STIF(I),STIF_MSDT(I))
+         ENDDO
+      ENDIF
+C
+      DO I=1,JLT
+         STIF(I)=MAX(KMIN,MIN(STIF(I),KMAX))
+      ENDDO
 C----------
       IF(IDTMINS==2)THEN
        DO I=1,JLT
-        IF(NSVG(I).GT.0)THEN
+        IF(NSVG(I)>0)THEN
           NSMS(I)=NODNX_SMS(NSVG(I))
      .                       +NODNX_SMS(IX1(I))+NODNX_SMS(IX2(I))
      .                       +NODNX_SMS(IX3(I))+NODNX_SMS(IX4(I))
@@ -1110,7 +1114,7 @@ C----------
        ENDDO
        IF(IDTMINS_INT/=0)THEN
          DO I=1,JLT
-          IF(NSMS(I).EQ.0)NSMS(I)=-1
+          IF(NSMS(I)==0)NSMS(I)=-1
          ENDDO
        END IF
       ELSEIF(IDTMINS_INT/=0)THEN
@@ -1126,12 +1130,12 @@ C----------
         LC(I)  =LCM(IT,INDEX(I))
       ENDDO
 
-C----Friction model : secnd part IDs---------
+C----Friction model : second part IDs---------
       IF(INTFRIC > 0) THEN
          DO I=1,JLT
            NI = CAND_N(I)
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IPARTFRICSI(I)= IPARTFRICS(NI)
            ELSE
              NN = NI - NSN
@@ -1164,11 +1168,11 @@ C
 
 C----Adhesion case - mvsize division of if_adh done in dst3_3
         
-      IF(INTTH>0.OR.IVIS2.EQ.-1) THEN
+      IF(INTTH>0.OR.IVIS2==-1) THEN
         DO I=1,JLT
            NI = CAND_N(I)           
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              AREASI(I)= AREAS(NI)
            ELSE                
              NN = NI - NSN
@@ -1182,7 +1186,7 @@ C----Thermal case -
         DO I=1,JLT
            NI = CAND_N(I)           
            L  = CAND_E(I)
-           IF(NI.LE.NSN)THEN
+           IF(NI<=NSN)THEN
              IG = NSV(NI)
              TEMPI(I) = TEMP(IG)
              IELESI(I)= IELES(NI)

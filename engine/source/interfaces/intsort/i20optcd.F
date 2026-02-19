@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I20OPTCD                      source/interfaces/intsort/i20optcd.F
-Chd|-- called by -----------
-Chd|        I20MAIN_OPT_TRI               source/interfaces/intsort/i20main_opt_tri.F
-Chd|-- calls ---------------
-Chd|        SYNC_DATA                     source/system/machine.F       
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i20optcd          ../engine/source/interfaces/intsort/i20optcd.F
+!||--- called by ------------------------------------------------------
+!||    i20main_opt_tri   ../engine/source/interfaces/intsort/i20main_opt_tri.F
+!||--- calls      -----------------------------------------------------
+!||    sync_data         ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box           ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I20OPTCD(NSV    ,CAND_E ,CAND_N ,XA     ,I_STOK ,
      2                   IRECT  ,GAP    ,GAP_S  ,GAP_M  ,IGAP   ,
      3                   STFA   ,ITASK  ,STF    ,IFQ    ,IFPEN  ,
@@ -49,7 +50,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
@@ -67,11 +67,11 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,L,IS,JS,LS,NLS,NLT,NSEG,NLS2,SG,FIRST,LAST,MSEG,NLF,II
-      INTEGER LIST(MVSIZ),IG(MVSIZ),IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),
+      INTEGER LIST(MVSIZ), IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), 
      .        IX4(MVSIZ), LISTI(MVSIZ),IL(MVSIZ),COUNT_CAND,CT
       my_real
      .        XI,X1,X2,X3,X4,YI,Y1,Y2,Y3,Y4,ZI,Z1,Z2,Z3,Z4,
-     .        XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX,V12,V22,V32,V42
+     . XMIN,XMAX,YMIN,YMAX,ZMIN,ZMAX
       my_real
      .        GAPV(MVSIZ)
       my_real
@@ -86,7 +86,7 @@ C-----------------------------------------------
       DO SG = FIRST,LAST,MSEG
        NSEG = MIN(MSEG,LAST-JS)
        NLS=0
-       IF(NSPMD.GT.1) THEN
+       IF(NSPMD>1) THEN
 C
 C Partage cand_n local / frontiere
 C
@@ -94,7 +94,7 @@ C
          NLS2 = NSEG+1
          DO IS = 1, NSEG
            I=JS+IS
-           IF(CAND_N(I).LE.NSN)THEN
+           IF(CAND_N(I)<=NSN)THEN
              NLS=NLS+1
              LISTI(NLS)=IS
            ELSE
@@ -102,7 +102,7 @@ C
              LISTI(NLS2) = IS
            ENDIF
          ENDDO
-         IF(IGAP.EQ.0)THEN
+         IF(IGAP==0)THEN
            DO LS = 1, NLS
              IS = LISTI(LS)
              GAPV(IS)=GAP
@@ -112,13 +112,13 @@ C
              IS = LISTI(LS)
              I=JS+IS
              GAPV(IS)=GAP_S(CAND_N(I))+GAP_M(CAND_E(I))
-             IF(GAPMAX.NE.ZERO)GAPV(IS)=MIN(GAPV(IS),GAPMAX)
+             IF(GAPMAX/=ZERO)GAPV(IS)=MIN(GAPV(IS),GAPMAX)
              GAPV(IS)=MAX(GAPV(IS),GAP)
            ENDDO
          ENDIF
        ELSE
          NLS = NSEG
-         IF(IGAP.EQ.0)THEN
+         IF(IGAP==0)THEN
           DO IS=1,NSEG
             GAPV(IS)=GAP
             LISTI(IS)=IS
@@ -127,7 +127,7 @@ C
           DO IS=1,NSEG
             I=JS+IS
             GAPV(IS)=GAP_S(CAND_N(I))+GAP_M(CAND_E(I))
-            IF(GAPMAX.NE.ZERO)GAPV(IS)=MIN(GAPV(IS),GAPMAX)
+            IF(GAPMAX/=ZERO)GAPV(IS)=MIN(GAPV(IS),GAPMAX)
             GAPV(IS)=MAX(GAPV(IS),GAP)
             LISTI(IS)=IS
           ENDDO
@@ -143,7 +143,7 @@ C
           IS = LISTI(LS)
           I=JS+IS
           L  = CAND_E(I)
-          IF(STF(L).NE.ZERO.AND.STFA(NSV(CAND_N(I))).NE.ZERO) THEN 
+          IF(STF(L)/=ZERO.AND.STFA(NSV(CAND_N(I)))/=ZERO) THEN 
 
 c           IG(IS) = NSV(CAND_N(I))
 c           XI = X(1,IG(IS))
@@ -189,13 +189,12 @@ c           ZI = X(3,IG(IS))
           ENDIF
         ENDDO
        ELSE
-#include      "vectorize.inc"
         DO LS = NLF, NLT
-Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
+C   keep LISTI and LIST to optimize generated code (IA64)
           IS = LISTI(LS)
           I=JS+IS
           L  = CAND_E(I)
-          IF(STF(L).NE.ZERO.AND.STFA(NSV(CAND_N(I))).NE.ZERO) THEN 
+          IF(STF(L)/=ZERO.AND.STFA(NSV(CAND_N(I)))/=ZERO) THEN 
             IL(IS) = NSV(CAND_N(I))
             ZI = XA(3,IL(IS))
 
@@ -209,7 +208,7 @@ Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
             Z4=XA(3,IX4(IS))
             ZMIN = MIN(Z1,Z2,Z3,Z4)-GAPV(IS)
             ZMAX = MAX(Z1,Z2,Z3,Z4)+GAPV(IS)
-            IF (ZMIN.LE.ZI.AND.ZMAX.GE.ZI) THEN
+            IF (ZMIN<=ZI.AND.ZMAX>=ZI) THEN
              NLS=NLS+1
              LIST(NLS)=IS
             ENDIF
@@ -218,7 +217,6 @@ Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
 C
         NLT=NLS
         NLS=0
-#include      "vectorize.inc"
         DO LS=NLF,NLT
           IS=LIST(LS)
 
@@ -230,13 +228,12 @@ C
           Y4=XA(2,IX4(IS))
           YMIN = MIN(Y1,Y2,Y3,Y4)-GAPV(IS)
           YMAX = MAX(Y1,Y2,Y3,Y4)+GAPV(IS)
-          IF (YMIN.LE.YI.AND.YMAX.GE.YI) THEN
+          IF (YMIN<=YI.AND.YMAX>=YI) THEN
             NLS=NLS+1
             LIST(NLS)=IS
           ENDIF
         ENDDO
 C
-#include      "vectorize.inc"
         DO LS=NLF,NLS
           IS=LIST(LS)
 
@@ -248,23 +245,23 @@ C
           X4=XA(1,IX4(IS))
           XMIN = MIN(X1,X2,X3,X4)-GAPV(IS)
           XMAX = MAX(X1,X2,X3,X4)+GAPV(IS)
-          IF (XMIN.LE.XI.AND.XMAX.GE.XI) THEN
+          IF (XMIN<=XI.AND.XMAX>=XI) THEN
             I=JS+IS
             CAND_N(I) = -CAND_N(I)
             COUNT_CAND = COUNT_CAND+1
           ENDIF
         ENDDO
        ENDIF
-       IF(NSPMD.GT.1)THEN
+       IF(NSPMD>1)THEN
           NLF = NLS2
           NLT = NSEG
-          IF(IGAP.EQ.0)THEN
+          IF(IGAP==0)THEN
             DO LS = NLF, NLT
               IS = LISTI(LS)
               GAPV(IS)=GAP
             ENDDO
           ELSE
-            IF(GAPMAX.NE.ZERO)THEN
+            IF(GAPMAX/=ZERO)THEN
               DO LS = NLF, NLT
                 IS = LISTI(LS)
                 I=JS+IS
@@ -282,13 +279,12 @@ C
             ENDIF
           ENDIF
           IF(ICURV/=0)THEN
-#include      "vectorize.inc"
            DO LS = NLF, NLT
             IS = LISTI(LS)
             I=JS+IS
             II = CAND_N(I)-NSN
             L  = CAND_E(I)
-            IF(STF(L).NE.ZERO.AND.STIFI(NIN)%P(II).NE.ZERO) THEN 
+            IF(STF(L)/=ZERO.AND.STIFI(NIN)%P(II)/=ZERO) THEN 
              XI = XFI(NIN)%P(1,II)
              YI = XFI(NIN)%P(2,II)
              ZI = XFI(NIN)%P(3,II)
@@ -333,13 +329,12 @@ C
           ELSE
 
            NLS=0
-#include      "vectorize.inc"
            DO LS = NLF, NLT
             IS = LISTI(LS)
             I=JS+IS
             II = CAND_N(I)-NSN
             L  = CAND_E(I)
-            IF(STF(L).NE.ZERO.AND.STIFI(NIN)%P(II).NE.ZERO) THEN 
+            IF(STF(L)/=ZERO.AND.STIFI(NIN)%P(II)/=ZERO) THEN 
               ZI = XFI(NIN)%P(3,II)
               IX1(IS)=IRECT(1,L)
               Z1=XA(3,IX1(IS))
@@ -351,7 +346,7 @@ C
               Z4=XA(3,IX4(IS))
               ZMIN = MIN(Z1,Z2,Z3,Z4)-GAPV(IS)
               ZMAX = MAX(Z1,Z2,Z3,Z4)+GAPV(IS)
-              IF (ZMIN.LE.ZI.AND.ZMAX.GE.ZI) THEN
+              IF (ZMIN<=ZI.AND.ZMAX>=ZI) THEN
                 NLS=NLS+1
                 LIST(NLS)=IS
               ENDIF
@@ -361,7 +356,6 @@ C
            NLF=1
            NLT=NLS
            NLS=0
-#include      "vectorize.inc"
            DO LS=NLF,NLT
             IS=LIST(LS)
             I=JS+IS
@@ -373,13 +367,12 @@ C
             Y4=XA(2,IX4(IS))
             YMIN = MIN(Y1,Y2,Y3,Y4)-GAPV(IS)
             YMAX = MAX(Y1,Y2,Y3,Y4)+GAPV(IS)
-            IF (YMIN.LE.YI.AND.YMAX.GE.YI) THEN
+            IF (YMIN<=YI.AND.YMAX>=YI) THEN
               NLS=NLS+1
               LIST(NLS)=IS
             ENDIF
            ENDDO
 C
-#include      "vectorize.inc"
            DO LS=NLF,NLS
             IS=LIST(LS)
             I=JS+IS
@@ -391,7 +384,7 @@ C
             X4=XA(1,IX4(IS))
             XMIN = MIN(X1,X2,X3,X4)-GAPV(IS)
             XMAX = MAX(X1,X2,X3,X4)+GAPV(IS)
-            IF (XMIN.LE.XI.AND.XMAX.GE.XI) THEN
+            IF (XMIN<=XI.AND.XMAX>=XI) THEN
               CAND_N(I) = -CAND_N(I)
               COUNT_CAND = COUNT_CAND+1
               CT         = CT + 1
@@ -421,14 +414,15 @@ C
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I20OPTCDE                     source/interfaces/intsort/i20optcd.F
-Chd|-- called by -----------
-Chd|        I20MAIN_OPT_TRI               source/interfaces/intsort/i20main_opt_tri.F
-Chd|-- calls ---------------
-Chd|        SYNC_DATA                     source/system/machine.F       
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i20optcde         ../engine/source/interfaces/intsort/i20optcd.F
+!||--- called by ------------------------------------------------------
+!||    i20main_opt_tri   ../engine/source/interfaces/intsort/i20main_opt_tri.F
+!||--- calls      -----------------------------------------------------
+!||    sync_data         ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box           ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I20OPTCDE(CAND_M,CAND_S  ,XA      ,I_STOK,
      2                    IXLINS ,IXLINM  ,GAP     ,NIN   ,
      3                    V      ,GAP_S   ,GAP_M   ,IGAP  ,
@@ -458,27 +452,20 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "task_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
 #include      "com01_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "couple_c.inc"
 #include      "parit_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I , L, NN1, NN2
       my_real
-     .        XI,X1,X2,X3,X4,YI,Y1,Y2,Y3,Y4,ZI,Z1,Z2,Z3,Z4,
+     . X1,X2,X3,X4,Y1,Y2,Y3,Y4,Z1,Z2,Z3,Z4,
      .        XMINS,XMAXS,YMINS,YMAXS,ZMINS,ZMAXS,
-     .        XMINM,XMAXM,YMINM,YMAXM,ZMINM,ZMAXM,
-     .        V12,V22,V32,V42,VV
+     .        XMINM,XMAXM,YMINM,YMAXM,ZMINM,ZMAXM
       INTEGER MSEG
       my_real
-     .        GAPV(MVSIZ),DTTI(MVSIZ)
+     . GAPV(MVSIZ)
       INTEGER LIST(MVSIZ), LISTI(MVSIZ)
       INTEGER IS,JS,LS,NLS,NLT,NSEG,NLF,II,NLS2
       INTEGER N1L(MVSIZ),N2L(MVSIZ),M1L(MVSIZ),M2L(MVSIZ)
@@ -493,7 +480,7 @@ C-----------------------------------------------
       DO SG = FIRST,LAST,MSEG
        NSEG = MIN(MSEG,LAST-JS)
        NLS=0
-       IF(NSPMD.GT.1) THEN
+       IF(NSPMD>1) THEN
 C
 C Partage cand_n local / frontiere
 C
@@ -501,7 +488,7 @@ C
          NLS2 = NSEG+1
          DO IS = 1, NSEG
            I=JS+IS
-           IF(CAND_S(I).LE.NLINSA)THEN
+           IF(CAND_S(I)<=NLINSA)THEN
              NLS=NLS+1
              LISTI(NLS)=IS
            ELSE
@@ -509,7 +496,7 @@ C
              LISTI(NLS2) = IS
            ENDIF
          ENDDO
-         IF(IGAP.EQ.0)THEN
+         IF(IGAP==0)THEN
            DO LS = 1, NLS
              IS = LISTI(LS)
              GAPV(IS)=GAP
@@ -524,7 +511,7 @@ C
          ENDIF
        ELSE
          NLS = NSEG
-         IF(IGAP.EQ.0)THEN
+         IF(IGAP==0)THEN
           DO IS=1,NSEG
             GAPV(IS)=GAP
             LISTI(IS)=IS
@@ -542,18 +529,17 @@ C
        NLF = 1
        NLT = NLS
        NLS=0
-#include      "vectorize.inc"
        DO LS = NLF, NLT
          IS = LISTI(LS)
          I=JS+IS
          L  = CAND_S(I)
-         IF (STFS(L).NE.ZERO) THEN
+         IF (STFS(L)/=ZERO) THEN
            N1L(IS)=IXLINS(1,L)
            Z1=XA(3,N1L(IS))
            N2L(IS)=IXLINS(2,L)
            Z2=XA(3,N2L(IS))
            L  = CAND_M(I)
-           IF (STFM(L).NE.ZERO) THEN
+           IF (STFM(L)/=ZERO) THEN
 
             M1L(IS)=IXLINM(1,L)
             Z3=XA(3,M1L(IS))
@@ -563,7 +549,7 @@ C
             ZMAXS = MAX(Z1,Z2)+GAPV(IS)
             ZMINM = MIN(Z3,Z4)-GAPV(IS)
             ZMAXM = MAX(Z3,Z4)+GAPV(IS)
-            IF (ZMAXS.GE.ZMINM.AND.ZMAXM.GE.ZMINS) THEN
+            IF (ZMAXS>=ZMINM.AND.ZMAXM>=ZMINS) THEN
              NLS=NLS+1
              LIST(NLS)=IS
             ENDIF
@@ -573,7 +559,6 @@ C
 C
        NLT=NLS
        NLS=0
-#include      "vectorize.inc"
        DO LS=NLF,NLT
           IS=LIST(LS)
           I=JS+IS
@@ -591,13 +576,12 @@ C
           YMAXS = MAX(Y1,Y2)+GAPV(IS)
           YMINM = MIN(Y3,Y4)-GAPV(IS)
           YMAXM = MAX(Y3,Y4)+GAPV(IS)
-          IF (YMAXS.GE.YMINM.AND.YMAXM.GE.YMINS) THEN
+          IF (YMAXS>=YMINM.AND.YMAXM>=YMINS) THEN
             NLS=NLS+1
             LIST(NLS)=IS
           ENDIF
        ENDDO
 C
-#include      "vectorize.inc"
        DO LS=NLF,NLS
           IS=LIST(LS)
           I=JS+IS
@@ -615,16 +599,16 @@ C
           XMAXS = MAX(X1,X2)+GAPV(IS)
           XMINM = MIN(X3,X4)-GAPV(IS)
           XMAXM = MAX(X3,X4)+GAPV(IS)
-          IF (XMAXS.GE.XMINM.AND.XMAXM.GE.XMINS) THEN
+          IF (XMAXS>=XMINM.AND.XMAXM>=XMINS) THEN
             CAND_S(I) = -CAND_S(I)
             COUNT_CAND = COUNT_CAND+1
           ENDIF
        ENDDO
 C
-       IF(NSPMD.GT.1)THEN
+       IF(NSPMD>1)THEN
          NLF = NLS2
          NLT = NSEG
-         IF(IGAP.EQ.0)THEN
+         IF(IGAP==0)THEN
           DO LS=NLF, NLT
             IS = LISTI(LS)
             GAPV(IS)=GAP
@@ -639,19 +623,18 @@ C
          ENDIF
 C
          NLS=0
-#include      "vectorize.inc"
          DO LS = NLF, NLT
-Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
+C   keep LISTI and LIST to optimize generated code (IA64)
           IS = LISTI(LS)
           I=JS+IS
           II = CAND_S(I)-NLINSA
-          IF (STIFIE(NIN)%P(II).NE.ZERO) THEN
+          IF (STIFIE(NIN)%P(II)/=ZERO) THEN
            NN1 = 2*(II-1)+1
            NN2 = 2*II
            Z1=XFIE(NIN)%P(3,NN1)
            Z2=XFIE(NIN)%P(3,NN2)
            L  = CAND_M(I)
-           IF (STFM(L).NE.ZERO) THEN
+           IF (STFM(L)/=ZERO) THEN
             M1L(IS)=IXLINM(1,L)
             Z3=XA(3,M1L(IS))
             M2L(IS)=IXLINM(2,L)
@@ -660,7 +643,7 @@ Cel conserver LISTI et LIST pour optimiser le code genere (IA64)
             ZMAXS = MAX(Z1,Z2)+GAPV(IS)
             ZMINM = MIN(Z3,Z4)-GAPV(IS)
             ZMAXM = MAX(Z3,Z4)+GAPV(IS)
-            IF (ZMAXS.GE.ZMINM.AND.ZMAXM.GE.ZMINS) THEN
+            IF (ZMAXS>=ZMINM.AND.ZMAXM>=ZMINS) THEN
              NLS=NLS+1
              LIST(NLS)=IS
             ENDIF
@@ -671,7 +654,6 @@ C
         NLF=1
         NLT=NLS
         NLS=0
-#include      "vectorize.inc"
         DO LS=NLF,NLT
           IS=LIST(LS)
           I=JS+IS
@@ -689,13 +671,12 @@ C
           YMAXS = MAX(Y1,Y2)+GAPV(IS)
           YMINM = MIN(Y3,Y4)-GAPV(IS)
           YMAXM = MAX(Y3,Y4)+GAPV(IS)
-          IF (YMAXS.GE.YMINM.AND.YMAXM.GE.YMINS) THEN
+          IF (YMAXS>=YMINM.AND.YMAXM>=YMINS) THEN
             NLS=NLS+1
             LIST(NLS)=IS
           ENDIF
         ENDDO
 C
-#include      "vectorize.inc"
         DO LS=NLF,NLS
           IS=LIST(LS)
           I=JS+IS
@@ -713,7 +694,7 @@ C
           XMAXS = MAX(X1,X2)+GAPV(IS)
           XMINM = MIN(X3,X4)-GAPV(IS)
           XMAXM = MAX(X3,X4)+GAPV(IS)
-          IF (XMAXS.GE.XMINM.AND.XMAXM.GE.XMINS) THEN
+          IF (XMAXS>=XMINM.AND.XMAXM>=XMINS) THEN
             CAND_S(I) = -CAND_S(I)
             COUNT_CAND = COUNT_CAND+1
             CT = CT + 1

@@ -1,35 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I22ERR3                       source/interfaces/inter3d1/i22err3.F
-Chd|-- called by -----------
-Chd|        ININT3                        source/interfaces/inter3d1/inint3.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i22err3                ../starter/source/interfaces/inter3d1/i22err3.F
+!||--- called by ------------------------------------------------------
+!||    inint3                 ../starter/source/interfaces/inter3d1/inint3.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    loi_fluid              ../starter/source/fluid/loi_fluid.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I22ERR3(
-     1         X       ,NRTM    ,IRECT   ,NOINT   ,ITAB    ,
+     1         X       ,NRTM    ,IRECT   ,ITAB    ,
      2         PM      ,IXS     ,NBRIC   ,BRICS   ,
      3         ID,TITR,
      4         IX1      ,IX2    ,IX3    ,IX4    ,X1     ,
@@ -39,15 +41,18 @@ Chd|====================================================================
      8         Y0       ,Z0     ,XN1    ,YN1    ,ZN1    ,
      9         XN2      ,YN2    ,ZN2    ,XN3    ,YN3    ,
      1         ZN3      ,XN4    ,YN4    ,ZN4      )
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
+      use element_mod , only :nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "param_c.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -55,17 +60,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect07_c.inc"
-#include      "scr17_c.inc"
 #include      "inter22.inc"
-#include      "mmale51_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER              :: NRTM, IRECT(4,*), NOINT, ITAB(*), NBRIC, IXS(NIXS,*),  BRICS(*)
-      my_real              :: X(3,*), PM(NPROPM,*)    
-      INTEGER              :: ID, IMESG
-      CHARACTER*nchartitle :: TITR
+      INTEGER  :: NRTM, IRECT(4,*), ITAB(*), NBRIC, IXS(NIXS,*),  BRICS(*)
+      my_real  :: X(3,*), PM(NPROPM,*)
+      INTEGER  :: ID, IMESG
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       INTEGER, DIMENSION(MVSIZ), INTENT(INOUT) :: IX1,IX2,IX3,IX4
       my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: X1,X2,X3,X4
       my_real, DIMENSION(MVSIZ), INTENT(INOUT) :: Y1,Y2,Y3,Y4
@@ -79,7 +81,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, IDEB, ILAW, MID, IBRIC, JALE, JEUL, I22LAW06
+      INTEGER I, J, IDEB, ILAW, MID, IBRIC, I22LAW06
       my_real :: AN
       my_real, DIMENSION(MVSIZ) :: XX1,YY1,ZZ1
       my_real, DIMENSION(MVSIZ) :: XX2,YY2,ZZ2
@@ -88,34 +90,13 @@ C-----------------------------------------------
       LOGICAL LOI_FLUID
       EXTERNAL LOI_FLUID
 C-----------------------------------------------
-!      EQUIVALENCE (IX1,IV(1,1)) ,(IX2,IV(1,2)) ,(IX3,IV(1,3))
-!      EQUIVALENCE (IX4,IV(1,4))
-C
-!      EQUIVALENCE (X1,BV(1,1)) ,(Y1,BV(1,2)) ,(Z1,BV(1,3))
-!      EQUIVALENCE (X2,BV(1,4)) ,(Y2,BV(1,5)) ,(Z2,BV(1,6))
-!      EQUIVALENCE (X3,BV(1,7)) ,(Y3,BV(1,8)) ,(Z3,BV(1,9))
-!      EQUIVALENCE (X4,BV(1,10)),(Y4,BV(1,11)),(Z4,BV(1,12))
-!      EQUIVALENCE (N1,BV(1,19)) ,(N2,BV(1,20)) ,(N3,BV(1,21))
-!      EQUIVALENCE (X0,BV(1,31)) ,(Y0,BV(1,32)) ,(Z0,BV(1,33))
-!      EQUIVALENCE (XX1,BV(1,34)),(YY1,BV(1,35)),(ZZ1,BV(1,36))
-!      EQUIVALENCE (XX2,BV(1,37)),(YY2,BV(1,38)),(ZZ2,BV(1,39))
-!      EQUIVALENCE (XX3,BV(1,40)),(YY3,BV(1,41)),(ZZ3,BV(1,42))
-!      EQUIVALENCE (XX4,BV(1,43)),(YY4,BV(1,44)),(ZZ4,BV(1,45))
-!      EQUIVALENCE (XN1,BV(1,58)),(YN1,BV(1,59)),(ZN1,BV(1,60))
-!      EQUIVALENCE (XN2,BV(1,61)),(YN2,BV(1,62)),(ZN2,BV(1,63))
-!      EQUIVALENCE (XN3,BV(1,64)),(YN3,BV(1,65)),(ZN3,BV(1,66))
-!      EQUIVALENCE (XN4,BV(1,67)),(YN4,BV(1,68)),(ZN4,BV(1,69))
-C
-!      EQUIVALENCE (A12,X0),(A34,Z0)
-C
-
 C     #######################################################
 C     #   CHECKING DEGENERATED ELEMENTS IN LAGRAGIAN SIDE  ##
 C     #######################################################
       IDEB=0
-      DO WHILE(IDEB.LT.NRTM)
+      DO WHILE(IDEB<NRTM)
 C
-       !NRTM : nombre de faces mains
+       !NRTM: Number of main faces
        DO I=1,MIN(MVSIZ,NRTM-IDEB)
         J=IDEB+I
         IX1(I)=IRECT(1,J)
@@ -137,7 +118,7 @@ C
        ENDDO
 C
        DO I=1,MIN(MVSIZ,NRTM-IDEB)
-        !Calcul du centre de gravit   
+        !calculation of the center of gravity
         X0(I) = FOURTH*(X1(I)+X2(I)+X3(I)+X4(I))
         Y0(I) = FOURTH*(Y1(I)+Y2(I)+Y3(I)+Y4(I))
         Z0(I) = FOURTH*(Z1(I)+Z2(I)+Z3(I)+Z4(I))
@@ -157,9 +138,9 @@ C
         ZZ4(I) = Z4(I)-Z0(I)
        ENDDO
 C
-       !Decomposition de la coque en 4 triangles et calculs des aires
-       !Si l'aire de deux tirangles ayant en commun uniquement un sommet
-       ! (A12 et A34 par exemple) est nulle alors A_total=0 => dim=1
+       !decomposition of the shell into 4 triangles and calculation of areas
+       !If the area of two triangles having in common only a summit
+       ! (A12 and A34 for example) is zero then A_total=0 => dim=1
        DO I=1,MIN(MVSIZ,NRTM-IDEB)
         XN1(I) = YY1(I)*ZZ2(I) - YY2(I)*ZZ1(I)
         YN1(I) = ZZ1(I)*XX2(I) - ZZ2(I)*XX1(I)
@@ -179,7 +160,7 @@ C
        ENDDO
 C
        DO I=1,MIN(MVSIZ,NRTM-IDEB)
-        IF(IX3(I).NE.IX4(I)) THEN
+        IF(IX3(I)/=IX4(I)) THEN
          XN3(I) = YY3(I)*ZZ4(I) - YY4(I)*ZZ3(I)
          YN3(I) = ZZ3(I)*XX4(I) - ZZ4(I)*XX3(I)
          ZN3(I) = XX3(I)*YY4(I) - XX4(I)*YY3(I)
@@ -214,7 +195,7 @@ C
         Z0(I)=(N1(I)*XN3(I)+N2(I)*YN3(I)+N3(I)*ZN3(I))
 C
         ! Si element d
-        IF(Z0(I).EQ.ZERO.AND.X0(I).EQ.ZERO)THEN
+        IF(Z0(I)==ZERO.AND.X0(I)==ZERO)THEN
           CALL ANCMSG(MSGID=558,
      .                MSGTYPE=MSGERROR,
      .                ANMODE=ANINFO_BLIND_1,
@@ -244,27 +225,23 @@ C     #######################################################
         IBRIC = BRICS(I)
         MID   = IXS(1,IBRIC)
         ILAW  = NINT(PM(19,MID))
-	!JALE = NINT(PM(72,MID))
-	!JEUL = IPARG(11,NG)
-	!JLAG = IPARG(11,NG)
-
         I22LAW06 = 0
         I22LAW37 = 0
         I22LAW51 = 0
-        IF(ILAW .EQ. 37) I22LAW37 = 5               ! UVAR buffer size
-        IF(ILAW .EQ. 51) I22LAW51 = N0PHAS+4*NVPHAS ! UVAR buffer size
+        IF(ILAW == 37) I22LAW37 = 5               ! UVAR buffer size
+        IF(ILAW == 51) I22LAW51 = M51_N0PHAS+4*M51_NVPHAS ! UVAR buffer size
 
-	IF((ILAW.NE.0).AND.(ILAW.NE.11).AND.(ILAW.NE.51).AND.(ILAW.NE.6).AND.(ILAW.NE.37))THEN
+          IF((ILAW/=0).AND.(ILAW/=11).AND.(ILAW/=51).AND.(ILAW/=6).AND.(ILAW/=37))THEN
           IMESG = 97
-	  EXIT
-	END IF
+            EXIT
+          END IF
       END DO! next I
       
-      IF(I22LAW06*I22LAW37.NE.0 .OR. I22LAW06*I22LAW51.NE.0 .OR. I22LAW37*I22LAW51.NE.0 )THEN
+      IF(I22LAW06*I22LAW37/=0 .OR. I22LAW06*I22LAW51/=0 .OR. I22LAW37*I22LAW51/=0 )THEN
         IMESG = 91
       ENDIF
       
-      IF(IMESG.NE.0)THEN
+      IF(IMESG/=0)THEN
           CALL ANCMSG(MSGID   = IMESG,
      .                MSGTYPE = MSGERROR,
      .                ANMODE  = ANINFO_BLIND_1,

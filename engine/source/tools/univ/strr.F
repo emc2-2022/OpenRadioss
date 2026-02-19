@@ -1,36 +1,25 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STRR                          source/tools/univ/strr.F      
-Chd|-- called by -----------
-Chd|        HIST1                         source/output/th/hist1.F      
-Chd|        WRTDES                        source/output/th/wrtdes.F     
-Chd|        WRTSQR                        source/output/tools/wrtsqr.F  
-Chd|        WRTSQRDP                      source/output/tools/wrtsqr.F  
-Chd|        STRR                          source/tools/univ/strr.F      
-Chd|-- calls ---------------
-Chd|        STRR                          source/tools/univ/strr.F      
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
       CHARACTER*8 FUNCTION STRR(Y)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -60,7 +49,7 @@ C-----------------------------------------------
       X=MIN(X,BIG)
       X=MAX(X,-BIG)
       A=ABS(X)
-      IF(A.LT.ONEP001EM32)THEN
+      IF(A<ONEP001EM32)THEN
        STRR='10000000'
        RETURN
       ENDIF
@@ -71,12 +60,12 @@ C
       ISM=MAX(0,-ISM)
       XMAN =A*TEN**(-IEXP)
       XMAN =XMAN*EP9
-      IF(XMAN.GE.EP9)THEN
+      IF(XMAN>=EP9)THEN
       XMAN=XMAN/TEN
        IEXP=IEXP+1
       ENDIF
       MANT =XMAN
-      IF(MANT.GE.1000000000)THEN
+      IF(MANT>=1000000000)THEN
        MANT=MANT/10
        IEXP=IEXP+1
       ENDIF

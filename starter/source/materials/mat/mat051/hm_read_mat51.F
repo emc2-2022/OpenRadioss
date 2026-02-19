@@ -1,54 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT51                 source/materials/mat/mat051/hm_read_mat51.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX_DIM  source/devtools/hm_reader/hm_get_float_array_index_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        HM_READ_MAT51_IFORM11         source/materials/mat/mat051/hm_read_mat51_iform11.F
-Chd|        LECM51__CHECK_INITIAL_STATE   source/materials/mat/mat051/lecm51__check_initial_state.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat51                  ../starter/source/materials/mat/mat051/hm_read_mat51.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat                    ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                         ../starter/source/output/message/message.F
+!||    hm_get_float_array_index       ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_float_array_index_dim   ../starter/source/devtools/hm_reader/hm_get_float_array_index_dim.F
+!||    hm_get_floatv                  ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim              ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index         ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                    ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted         ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    hm_read_mat51_iform11          ../starter/source/materials/mat/mat051/hm_read_mat51_iform11.F
+!||    ie_bound                       ../starter/source/materials/mat/mat051/ie_bound.F
+!||    init_mat_keyword               ../starter/source/materials/mat/init_mat_keyword.F
+!||    lecm51__check_initial_state    ../starter/source/materials/mat/mat051/lecm51__check_initial_state.F
+!||    mat51_associate_eos            ../starter/source/materials/mat/mat051/mat51_associate_eos.F90
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod                   ../starter/share/modules1/elbuftag_mod.F
+!||    mat51_associate_eos_mod        ../starter/source/materials/mat/mat051/mat51_associate_eos.F90
+!||    message_mod                    ../starter/share/message_module/message_mod.F
+!||    submodel_mod                   ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT51(UPARAM ,MAXUPARAM,NUPARAM  ,ISRATE   , IMATVIS  ,
      .                         NUVAR  ,IFUNC    ,MAXFUNC  ,NFUNC    , PARMAT   ,
-     .                         UNITAB ,MAT_ID   ,TITR     ,MTAG     , LSUBMODEL,
-     .                         PM     ,IPM      )
+     .                         UNITAB ,MAT_UID   ,TITR    ,MTAG     , LSUBMODEL,
+     .                         PM     ,MAT_PARAM ,MAT_IID ,IPM      , NVARTMP  ,
+     .                         NUMMAT)
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
-C   READ MATERIAL LAW WITH HM READER
+C   Read MATERIAL LAW 51
 C
 C   DUMMY ARGUMENTS DESCRIPTION:
 C   ===================
@@ -56,11 +60,10 @@ C
 C     NAME            DESCRIPTION
 C
 C     PM              MATERIAL ARRAY(REAL)
-C     IPM             MATERIAL ARRAY(INTEGER)
 C     ISRATE          FLAG FOR STRAIN RATE FILTERING
 C     IMATVIS         FLAG FOR VISCOSITY
 C     UNITAB          UNITS ARRAY
-C     MAT_ID          MATERIAL ID(INTEGER)
+C     MAT_UID          MATERIAL ID(INTEGER)
 C     TITR            MATERIAL TITLE
 C     LSUBMODEL       SUBMODEL STRUCTURE
 C     UPARAM          MATERIAL BUFFER
@@ -74,7 +77,11 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
       USE MATPARAM_DEF_MOD
-      USE MATPARAM_DEF_MOD
+      USE ALEMUSCL_MOD , only:ALEMUSCL_Param
+      USE ALE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
+      USE MAT51_ASSOCIATE_EOS_MOD , ONLY : MAT51_ASSOCIATE_EOS
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -82,34 +89,31 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
-#include      "mmale51_c.inc"
-#include      "alemuscl.inc"
-#include      "alesolver.inc"
+#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB
-      my_real, INTENT(INOUT)                :: PM(NPROPM),PARMAT(100),UPARAM(MAXUPARAM)
-      INTEGER, INTENT(INOUT)                :: IPM(NPROPMI),ISRATE,IFUNC(MAXFUNC),NFUNC,MAXFUNC,MAXUPARAM,NUPARAM, NUVAR,IMATVIS
-      TYPE(MLAW_TAG_),INTENT(INOUT)         :: MTAG
-      INTEGER,INTENT(IN)                    :: MAT_ID
-      CHARACTER*nchartitle,INTENT(IN)       :: TITR
-      TYPE(SUBMODEL_DATA),INTENT(IN)        :: LSUBMODEL(*)
+      TYPE (UNIT_TYPE_),INTENT(IN)    :: UNITAB
+      my_real, INTENT(INOUT)          :: PM(NPROPM),PARMAT(100),UPARAM(MAXUPARAM)
+      INTEGER,INTENT(INOUT)           :: IPM(NPROPMI)
+      INTEGER, INTENT(INOUT)          :: ISRATE,IFUNC(MAXFUNC),NFUNC,MAXFUNC,MAXUPARAM,NUPARAM, NUVAR,IMATVIS
+      TYPE(MLAW_TAG_),INTENT(INOUT)   :: MTAG
+      INTEGER,INTENT(IN)              :: MAT_UID !user id
+      INTEGER,INTENT(IN)              :: MAT_IID !internal id
+      INTEGER,INTENT(IN)              :: NUMMAT  !total number of material laws in input fiile
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN) :: TITR
+      TYPE(SUBMODEL_DATA),INTENT(IN)  :: LSUBMODEL(NSUBMOD)
+      TYPE(MATPARAM_STRUCT_), TARGET ,INTENT(INOUT), DIMENSION(NUMMAT) :: MAT_PARAM
+      INTEGER,INTENT(INOUT) :: NVARTMP
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       !---Global parameters
-      my_real VIS,VISV,PEXT,PMIN,GAM,VIS2,VISV2
-      INTEGER MIP,MLN,NBMAT,IFLAG_BAK,IDX
+      my_real VIS,VISV,PEXT,PMIN
+      INTEGER MIP,NBMAT,IFLAG_BAK,IDX
       !---EOS parameters
       my_real      :: RHO0, RHOR, DPDMU(4)
       my_real      :: AV(4), RHO0_(4),C0(4),C1(4), E0(4),PMIN_(4),T0(4),C2(4),C3(4),C4(4),C5(4), GG(4)
@@ -120,33 +124,36 @@ C-----------------------------------------------
       !------ units
       my_real      :: FAC_UNIT_TIME, FAC_UNIT_SPH
       !------ Drucker-PRager
-      my_real      :: NU(4),A0(4),A1(4),A2(4),AMX(4),BUNL(4),MUMX(4),PSTAR(4),DET,DELTA,PTOT
+      my_real      :: NU(4),A0(4),A1(4),A2(4),AMX(4),BUNL(4),MUMX(4),PSTAR(4),DET,DELTA
       !---NRF
       my_real      :: P0(4),SSP(4),LC(4),TCARP,TCAR,ABCS
       !---INLET/OUTLET
       INTEGER      :: IOPT,IAV(4),IRHO(4),IE(4)
-      INTEGER      :: I,J,IFLG,io,IERROR
-      INTEGER      :: JTHE, NITER
+      INTEGER      :: I,IFLG,IERROR
+      INTEGER      :: NITER
       INTEGER      :: IEXP, N_LC, IPLA_, IPLA(4), IBFRAC
-      INTEGER      :: IVEL, IMID, NJWL, EOS_TYPE
-      INTEGER      :: tMID(4),SUM_MID
+      INTEGER      :: IVEL, IMID
+      INTEGER      :: tMID(4)
       !---temporary working arrays
-      my_real      :: tAV(4),tR0(4),tC0(4),tC1(4),tC2(4),tC3(4),tC4(4),tC5(4),tE0(4)
-      my_real      :: tPM(4), EINF(4),tA0(4),tA1(4),tA2(4),tPL(4),Pfar,Pini(4)
+      my_real      :: tAV(4)
+      my_real      :: EINF(4),Pfar,Pini(4)
       my_real      :: IE_BOUND, RATIO, SumVF,VEL
-      !---messages/output
-      CHARACTER*64 :: chain,chain1
+      !--- Messages/Output
+      CHARACTER*128 :: chain,chain1
       CHARACTER*32 :: CAV(4),CRHO0(34),CE0(4),CPM(4),CC0(4),CSSP(4)
       CHARACTER*32 :: CPEXT,CTCARP,CTCAR
       !---booleans
-      LOGICAL      :: IS_AVAILABLE,IS_CRYPTED, IFLG6_SUBMAT_DEFINED(4)
+      LOGICAL      :: IS_AVAILABLE,IS_ENCRYPTED, IFLG6_SUBMAT_DEFINED(4)
+      !
+      type(matparam_struct_) , pointer :: matparam
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
       ISRATE=0
       IMATVIS=0
+      matparam => mat_param(mat_iid)
       !----------------!
       MTAG%L_SSP  = 1
       MTAG%L_SIGV = 1
@@ -157,18 +164,20 @@ C-----------------------------------------------
       MTAG%G_TEMP = 1
       MTAG%L_TEMP = 1
       MTAG%L_VK   = 1
+      MTAG%G_TB   = 1
+      MTAG%L_TB   = 1
       NUPARAM = 280
       NFUNC = 10
       UPARAM(1:NUPARAM) = ZERO
       IFUNC(1:NFUNC)    = 0
-      IF (IALEMUSCl  >  0) I_LAW = 51  ! Communicate LAW to ALEMUSC_MOD
+      P0(:) = ZERO
+      IF (ALEMUSCL_Param%IALEMUSCl > 0) ALEMUSCL_Param%I_LAW = 51  ! Communicate LAW to ALEMUSCL_MOD
       IFLG6_SUBMAT_DEFINED(1:4)=.TRUE.
       !----------------!
       NITER  = 10
       N_LC   = 0
       IOPT   = 0
-      TRIMAT = 4 !MAX(TRIMAT,3)
-      NUVAR  = (N0PHAS + TRIMAT*NVPHAS)
+      NUVAR  = (M51_N0PHAS + 4*M51_NVPHAS)
       PEXT   = ZERO
       PFAR   = ZERO
       VIS    = ZERO
@@ -176,8 +185,8 @@ C-----------------------------------------------
       FAC_UNIT_SPH = ONE
       FAC_UNIT_TIME = ONE
       !----------------!
-      AV(1:4)=ZERO
-      RHO0_(1:4)=ZERO
+      AV(1:4) = ZERO
+      RHO0_(1:4) = ZERO
       E0(1:4) = ZERO
       PMIN_(1:4) = ZERO
       GG(1:4) = ZERO
@@ -188,16 +197,16 @@ C-----------------------------------------------
       C4(1:4) = ZERO
       C5(1:4) = ZERO
       !----------------!
-      SSP(1:4)= ZERO
+      SSP(1:4) = ZERO
       LC(1:4) = ZERO
-      TCARP   = ZERO
-      TCAR    = ZERO
-      ABCS    = 0
-      IAV(1:4)=0
-      IRHO(1:4)=0
-      IE(1:4)=0
-      IVEL    = 0
-      VEL     = ZERO
+      TCARP = ZERO
+      TCAR = ZERO
+      ABCS = 0
+      IAV(1:4) = 0
+      IRHO(1:4) = 0
+      IE(1:4) = 0
+      IVEL = 0
+      VEL = ZERO
       IOPT = 0
       RATIO = ZERO
       !----------------!
@@ -236,22 +245,29 @@ C-----------------------------------------------
       PSTAR(1:4)=-INFINITY
       NU(1:4)   = ZERO
       EINF(1:4) =-INFINITY
-      !==========================================!
-      ! IFLG == ALL (0,1,2,3,4,5,10,11,12)       !
-      !==========================================!
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      !====================================================================!
+      ! IFLG == ALL (0,1,2,3,4,5,10,11,12)                                 !
+      !   0,1,3,10,11 : obsolete                                           !
+      !   2,4,5 : material boundary (going to be replaced with /EBCS/INLET !
+      !   12 (new default since 2023.0)                                    !
+      !====================================================================!
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
       !line-1
-      CALL HM_GET_FLOATV('MAT_RHO'    ,RHO0        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-      CALL HM_GET_FLOATV('Refer_Rho'  ,RHOR        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+      CALL HM_GET_FLOATV('MAT_RHO'   ,RHO0, IS_AVAILABLE, LSUBMODEL, UNITAB)
+      CALL HM_GET_FLOATV('Refer_Rho' ,RHOR, IS_AVAILABLE, LSUBMODEL, UNITAB)
       !line-2
       IPLA_     = 0  !Plasticity Flag > 0 means that at least one plastic submaterial.
       IPLA(1:4) = 0  !1:JCOOK, 2:DPRAG
       CALL HM_GET_INTV  ('MAT_Iflag'  ,IFLG        ,IS_AVAILABLE, LSUBMODEL)
             IFLAG_BAK=IFLG
+      IF(INVERS_SRC >= 2023 .AND. IFLG == 0)THEN
+        IFLG = 12 !IForm 0,1,10,11 are obsolete input type since 2023.0
+        ! 2023.0 : IFLG=12 is the new default input type
+      ENDIF
       IF(IFLG == 11)THEN
-        CALL HM_GET_INTV  ('Mach1'      ,IPLA(1)     ,IS_AVAILABLE, LSUBMODEL)
-        CALL HM_GET_INTV  ('Mach2'      ,IPLA(2)     ,IS_AVAILABLE, LSUBMODEL)
-        CALL HM_GET_INTV  ('Mach3'      ,IPLA(3)     ,IS_AVAILABLE, LSUBMODEL)
+        CALL HM_GET_INTV  ('Mach1', IPLA(1), IS_AVAILABLE, LSUBMODEL)
+        CALL HM_GET_INTV  ('Mach2', IPLA(2), IS_AVAILABLE, LSUBMODEL)
+        CALL HM_GET_INTV  ('Mach3', IPLA(3), IS_AVAILABLE, LSUBMODEL)
       ENDIF
       IF(IFLG /= 11)THEN
         IPLA(1:4)=0
@@ -259,28 +275,33 @@ C-----------------------------------------------
       DO I=1,3
         IF(IPLA(I) < 0 .OR. IPLA(I) > 2)IPLA(I)=0
       ENDDO
+      CALL HM_GET_INTV('NIP',NBMAT,IS_AVAILABLE,LSUBMODEL)
       !----------------!
+      tAV(1:4) = ZERO
+      tMID(1:4)= 0
+      MATPARAM%multimat%old_data_format = 1
       SELECT CASE(IFLG)
       !============================!
       ! IFLG == 0                  !
       !============================!
       CASE(0)
+        !necessarily INVERS_SRC < 2023 : otherwise default leads to IFLG=12
         !line-3
-        CALL HM_GET_FLOATV('PEXT'       ,PEXT   ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-        CALL HM_GET_FLOATV('MAT_NU'     ,VIS    ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-        CALL HM_GET_FLOATV('MAT_Lamda'  ,VISV   ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('PEXT'     , PEXT , IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_NU'   , VIS  , IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_Lamda', VISV , IS_AVAILABLE, LSUBMODEL, UNITAB)
         DO I=1,3
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_ALPHA_Iflg0_phas'    ,AV(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_RHO_Iflg0_phas'      ,RHO0_(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_E_Iflg0_phas'        ,E0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_P_Iflg0_phas'        ,PMIN_(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C0_Iflg0_phas'       ,C0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C1_Iflg0_phas'       ,C1(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C2_Iflg0_phas'       ,C2(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C3_Iflg0_phas'       ,C3(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C4_Iflg0_phas'       ,C4(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C5_Iflg0_phas'       ,C5(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_G_Iflg0_phas'        ,GG(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_ALPHA_Iflg0_phas' , AV(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_RHO_Iflg0_phas'   , RHO0_(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_E_Iflg0_phas'     , E0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_P_Iflg0_phas'     , PMIN_(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C0_Iflg0_phas'    , C0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C1_Iflg0_phas'    , C1(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C2_Iflg0_phas'    , C2(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C3_Iflg0_phas'    , C3(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C4_Iflg0_phas'    , C4(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C5_Iflg0_phas'    , C5(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_G_Iflg0_phas'     , GG(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         ENDDO
         CALL HM_GET_FLOAT_ARRAY_INDEX_DIM('MAT_P_Iflg0_phas' ,FAC_UNIT_SPH   ,1 ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         IF(GG(1)+GG(2)+GG(3)==ZERO)THEN
@@ -296,36 +317,42 @@ C-----------------------------------------------
       !============================!
       CASE(1)
         IFLG = 0
+        !obsolete law51-formulation
+        IF(INVERS_SRC>=2023)THEN
+          chain1='INPUT TYPE IFORM=1 IS OBSOLETE SINCE 2023 VERSION : IFORM=12 MUST BE USED'
+          CALL ANCMSG(MSGID=75, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=MAT_UID,C1=TITR,C2=chain1)
+          RETURN
+        ENDIF
         !line-3
-        CALL HM_GET_FLOATV('PEXT'       ,PEXT   ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-        CALL HM_GET_FLOATV('MAT_NU'     ,VIS    ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-        CALL HM_GET_FLOATV('MAT_Lamda'  ,VISV   ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('PEXT'     , PEXT , IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_NU'   , VIS  , IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('MAT_Lamda', VISV , IS_AVAILABLE, LSUBMODEL, UNITAB)
         DO I=1,3
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_ALPHA_Iflg1_phas'    ,AV(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_RHO_Iflg1_phas'      ,RHO0_(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_E_Iflg1_phas'        ,E0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_P_Iflg1_phas'        ,PMIN_(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C0_Iflg1_phas'       ,C0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C1_Iflg1_phas'       ,C1(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C2_Iflg1_phas'       ,C2(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C3_Iflg1_phas'       ,C3(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C4_Iflg1_phas'       ,C4(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C5_Iflg1_phas'       ,C5(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MLAW51_G1'               ,GG(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('Sigma_Y1'                ,Y(I)     ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('BB1'                     ,BB(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('LAW51_N1'                ,N(I)     ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('CC1'                     ,CC(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('e01'                     ,EPDR(I)  ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('CM1'                     ,CM(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('T10'                     ,T0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('T_melt1'                 ,TMELT(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('T_limit1'                ,THETL(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('Rhocv'                   ,SPH(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('E_max1'                  ,PLAMX(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('sigma_max1'              ,SIGMX(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('K_A1'                    ,XKA(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('K_B1'                    ,XKB(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_ALPHA_Iflg1_phas' ,AV(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_RHO_Iflg1_phas'   ,RHO0_(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_E_Iflg1_phas'     ,E0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_P_Iflg1_phas'     ,PMIN_(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C0_Iflg1_phas'    ,C0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C1_Iflg1_phas'    ,C1(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C2_Iflg1_phas'    ,C2(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C3_Iflg1_phas'    ,C3(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C4_Iflg1_phas'    ,C4(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C5_Iflg1_phas'    ,C5(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MLAW51_G1'            ,GG(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('Sigma_Y1'             ,Y(I)     ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('BB1'                  ,BB(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('LAW51_N1'             ,N(I)     ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('CC1'                  ,CC(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('e01'                  ,EPDR(I)  ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('CM1'                  ,CM(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('T10'                  ,T0(I)    ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('T_melt1'              ,TMELT(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('T_limit1'             ,THETL(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('Rhocv'                ,SPH(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('E_max1'               ,PLAMX(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('sigma_max1'           ,SIGMX(I) ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('K_A1'                 ,XKA(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('K_B1'                 ,XKB(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         ENDDO
         CALL HM_GET_FLOAT_ARRAY_INDEX_DIM('Rhocv' ,FAC_UNIT_SPH   ,1 ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         IF(GG(1)+GG(2)+GG(3)==ZERO)THEN
@@ -340,25 +367,25 @@ C-----------------------------------------------
       ! IFLG == 2                  !
       !============================!
       CASE(2)
-        IS_BOUNDARY_MATERIAL = .TRUE.
-        CALL HM_GET_FLOATV('SCALE'       ,ABCS        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-        CALL HM_GET_FLOATV('PEXT'        ,PEXT        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-        CALL HM_GET_FLOATV('VEL_in'      ,VEL         ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-        CALL HM_GET_INTV  ('Fct_ID_vel'  ,IVEL        ,IS_AVAILABLE, LSUBMODEL)
+        ALE%GLOBAL%IS_BOUNDARY_MATERIAL = .TRUE.
+        CALL HM_GET_FLOATV('SCALE'      ,ABCS ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('PEXT'       ,PEXT ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_FLOATV('VEL_in'     ,VEL  ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+        CALL HM_GET_INTV  ('Fct_ID_vel' ,IVEL ,IS_AVAILABLE, LSUBMODEL)
         DO I=1,3
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_ALPHA_Iflg2_phas'     ,AV(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_RHO_Iflg2_phas'       ,RHO0_(I),I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_E_Iflg2_phas'         ,E0(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_INT_ARRAY_INDEX  ('ABG_N1'                   ,IAV(I)  ,I ,IS_AVAILABLE, LSUBMODEL)
-          CALL HM_GET_INT_ARRAY_INDEX  ('ABG_N2'                   ,IRHO(I) ,I ,IS_AVAILABLE, LSUBMODEL)
-          CALL HM_GET_INT_ARRAY_INDEX  ('ABG_N3'                   ,IE(I)   ,I ,IS_AVAILABLE, LSUBMODEL)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C1_Iflg2_phas'        ,C1(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C2_Iflg2_phas'        ,C2(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C3_Iflg2_phas'        ,C3(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C4_Iflg2_phas'        ,C4(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C5_Iflg2_phas'        ,C5(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_P_Iflg2_phas'         ,PMIN_(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
-          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C0_Iflg2_phas'        ,C0(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_ALPHA_Iflg2_phas' ,AV(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_RHO_Iflg2_phas'   ,RHO0_(I),I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_E_Iflg2_phas'     ,E0(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_INT_ARRAY_INDEX  ('ABG_N1'               ,IAV(I)  ,I ,IS_AVAILABLE, LSUBMODEL)
+          CALL HM_GET_INT_ARRAY_INDEX  ('ABG_N2'               ,IRHO(I) ,I ,IS_AVAILABLE, LSUBMODEL)
+          CALL HM_GET_INT_ARRAY_INDEX  ('ABG_N3'               ,IE(I)   ,I ,IS_AVAILABLE, LSUBMODEL)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C1_Iflg2_phas'    ,C1(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C2_Iflg2_phas'    ,C2(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C3_Iflg2_phas'    ,C3(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C4_Iflg2_phas'    ,C4(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C5_Iflg2_phas'    ,C5(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_P_Iflg2_phas'     ,PMIN_(I),I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+          CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_C0_Iflg2_phas'    ,C0(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         ENDDO
         CALL HM_GET_FLOAT_ARRAY_INDEX_DIM('MAT_P_Iflg2_phas' ,FAC_UNIT_SPH   ,1 ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         CALL HM_GET_FLOATV_DIM('SCALE'   ,FAC_UNIT_TIME  ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -367,11 +394,12 @@ C-----------------------------------------------
       !============================!
       CASE(3)
         !OBSOLETE use IFLG=6 instead
-        IS_BOUNDARY_MATERIAL = .TRUE.
-        CALL ANCMSG(MSGID   = 75              ,
-     .              MSGTYPE = MSGWARNING      ,
-     .              ANMODE  = ANINFO_BLIND_1
-     .              )
+        ALE%GLOBAL%IS_BOUNDARY_MATERIAL=.TRUE.
+        IF(INVERS_SRC>=2023)THEN
+          chain1='INPUT TYPE IFORM=3 IS OBSOLETE SINCE 2023 VERSION : IFORM=6 MUST BE USED'
+          CALL ANCMSG(MSGID=75, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=MAT_UID,C1=TITR,C2=chain1)
+          RETURN
+        ENDIF
         DO I=1,3
           CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_ALPHA_Iflg3_phas'     ,AV(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
           CALL HM_GET_FLOAT_ARRAY_INDEX('MAT_RHO_Iflg3_phas'       ,RHO0_(I),I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -384,7 +412,7 @@ C-----------------------------------------------
       ! IFLG == 4                  !
       !============================!
       CASE(4)
-        IS_BOUNDARY_MATERIAL = .TRUE.
+        ALE%GLOBAL%IS_BOUNDARY_MATERIAL = .TRUE.
         CALL HM_GET_FLOATV('SCALE'       ,ABCS        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         CALL HM_GET_FLOATV('PEXT'        ,PEXT        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         DO I=1,3
@@ -405,7 +433,7 @@ C-----------------------------------------------
       ! IFLG == 5                  !
       !============================!
       CASE(5)
-        IS_BOUNDARY_MATERIAL = .TRUE.
+        ALE%GLOBAL%IS_BOUNDARY_MATERIAL = .TRUE.
         CALL HM_GET_FLOATV('SCALE'       ,ABCS        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         CALL HM_GET_FLOATV('PEXT'        ,PEXT        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         DO I=1,3
@@ -425,7 +453,7 @@ C-----------------------------------------------
       ! IFLG == 6                  !
       !============================!
       CASE(6)
-        IS_BOUNDARY_MATERIAL = .TRUE.
+        ALE%GLOBAL%IS_BOUNDARY_MATERIAL = .TRUE.
         M51_IFLG6 = 1
         IERROR = 0
         CALL HM_GET_FLOATV('PEXT'        ,PEXT         ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -465,6 +493,12 @@ C-----------------------------------------------
       CASE(10)
         IFLG=1
         IEXP=1
+        !obsolete law51-formulation
+        IF(INVERS_SRC>=2023)THEN
+          chain1='INPUT TYPE IFORM=10 IS OBSOLETE SINCE 2023 VERSION : IFORM=12 MUST BE USED'        
+          CALL ANCMSG(MSGID=75, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=MAT_UID,C1=TITR,C2=chain1)
+          RETURN
+        ENDIF               
         CALL HM_GET_FLOATV('PEXT'       ,PEXT         ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         CALL HM_GET_FLOATV('MAT_NU'     ,VIS          ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         CALL HM_GET_FLOATV('MAT_Lamda'  ,VISV         ,IS_AVAILABLE, LSUBMODEL, UNITAB)
@@ -525,6 +559,12 @@ C-----------------------------------------------
       CASE(11)
         IFLG=1
         IEXP=1
+        !obsolete law51-formulation
+        IF(INVERS_SRC>=2023)THEN
+          chain1='INPUT TYPE IFORM=11 IS OBSOLETE SINCE 2023 VERSION : IFORM=12 MUST BE USED'        
+          CALL ANCMSG(MSGID=75, MSGTYPE=MSGERROR, ANMODE=ANINFO, I1=MAT_UID,C1=TITR,C2=chain1)
+          RETURN
+        ENDIF        
         CALL HM_READ_MAT51_IFORM11(
      .        AV     , RHO0_     ,E0       ,  PMIN_   , C0      ,
      .        C1     , C2        ,C3       ,  C4      , C5      ,
@@ -532,10 +572,10 @@ C-----------------------------------------------
      .        CC     , EPDR      ,CM       ,  T0      , TMELT   ,
      .        THETL  , SPH       ,PLAMX    ,  SIGMX   , XKA     ,
      .        XKB    , NU        ,A0       ,  A1      , A2      ,
-     .        AMX    , BUNL      ,MUMX     ,
+     .        AMX    ,
      .        B1     , B2        ,R1       ,  R2,       W,
      .        VDET   , PCJ       ,IBFRAC   ,  PEXT,     VIS,
-     .        VISV   , IS_CRYPTED,LSUBMODEL,  UNITAB)
+     .        VISV   , LSUBMODEL,  UNITAB)
         CALL HM_GET_FLOAT_ARRAY_INDEX_DIM('DAMP1' ,FAC_UNIT_SPH   ,1 ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         !Shear Modulus for DPRAG input
         IF(GG(1)==ZERO.AND.IPLA(1)==2)GG(1)=Y(1)/TWO/(ONE+NU(1))
@@ -553,11 +593,13 @@ C-----------------------------------------------
       ! IFLG == 12                 !
       !============================!
       CASE(12)
+        MATPARAM%multimat%old_data_format = 0
         IFLG  = 12
         IEXP  = 1
         NBMAT = 0
         tAV(1:4) = ZERO
         tMID(1:4)= 0
+        NVARTMP = 6 ! granular plastic model 3*2
         CALL HM_GET_FLOATV('MAT_NU'     ,VIS          ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         CALL HM_GET_FLOATV('MAT_Lamda'  ,VISV         ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         CALL HM_GET_INTV  ('MIP'       ,MIP        ,IS_AVAILABLE, LSUBMODEL)
@@ -569,51 +611,38 @@ C-----------------------------------------------
         ENDDO
         UPARAM(09:12) = tMID(1:4)
         UPARAM(13:16) = tAV(1:4)
+        AV(1:4) = tAV(1:4)
         IF(MIP==0)THEN
               chain1='SUBMATERIAL DATA NOT FOUND '
-              CALL ANCMSG(MSGID=99,
-     .                    MSGTYPE=MSGERROR,
-     .                    ANMODE=ANINFO,
-     .                    I1=MAT_ID,
-     .                    C1=TITR,
-     .                    C2=chain1)
+              CALL ANCMSG(MSGID=99,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=MAT_UID,C1=TITR,C2=chain1)
+              RETURN
         ENDIF
         DO I=1,MIP
-          IF(tAV(I).LT.ZERO .OR. tAV(I).GT.ONE)THEN
-              chain(1:20)='                    '
-              write(chain(1:20),'(e20.14)')tAV(I)
-              chain1='VOLUME FRACTION MUST BE BETWEEN 0.0 AND 1.0 , READ VALUE IS '// chain(1:20)
-              CALL ANCMSG(MSGID=99,
-     .                    MSGTYPE=MSGERROR,
-     .                    ANMODE=ANINFO,
-     .                    I1=MAT_ID,
-     .                    C1=TITR,
-     .                    C2=chain1)
-          ENDIF
           IF(tMID(I)  <= 0)THEN
               chain(1:10)='          '
               write(chain(1:10),'(i10)')tMID(I)
               chain1='INCORRECT MATERIAL IDENTIFIER '//chain(1:10)
-              CALL ANCMSG(MSGID=99,
-     .                    MSGTYPE=MSGERROR,
-     .                    ANMODE=ANINFO,
-     .                    I1=MAT_ID,
-     .                    C1=TITR,
-     .                    C2=chain1)
+              CALL ANCMSG(MSGID=99,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=MAT_UID,C1=TITR,C2=chain1)
               tMID(I)=0
+              RETURN
+          ENDIF
+        ENDDO      
+        DO I=1,MIP
+          IF(tAV(I)<ZERO .OR. tAV(I)>ONE)THEN
+              chain(1:20)='                    '
+              write(chain(1:20),'(e20.14)')tAV(I)
+              chain1='VOLUME FRACTION MUST BE BETWEEN 0.0 AND 1.0 , READ VALUE IS '// chain(1:20)
+              CALL ANCMSG(MSGID=99,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=MAT_UID,C1=TITR,C2=chain1)
+              RETURN
           ENDIF
         ENDDO
         SUMVF = SUM(tAV(1:4))
-        IF(SUMVF.GT.ONE)THEN
+        IF(SUMVF>ONE)THEN
             chain(1:20)='                    '
             write(chain(1:20),'(F20.8)')SUMVF
             chain1='SUM OF VOLUME FRACTION MUST BE EQUAL TO 1.0, CURRENT SUM IS '// chain(1:20)
-            CALL ANCMSG(MSGID=99,
-     .                  MSGTYPE=MSGERROR,
-     .                  ANMODE=ANINFO,
-     .                  I1=MAT_ID,
-     .                  C1=TITR,
-     .                  C2=chain1)
+            CALL ANCMSG(MSGID=99,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=MAT_UID,C1=TITR,C2=chain1)
+            RETURN
         ENDIF
       !============================!
       ! IFLG == NOT VALID          !
@@ -621,17 +650,13 @@ C-----------------------------------------------
       CASE DEFAULT
        !not correct iform value
            chain1='INCORRECT IFORM VALUE '
-           CALL ANCMSG(MSGID=99,
-     .                 MSGTYPE=MSGERROR,
-     .                 ANMODE=ANINFO_BLIND_1,
-     .                 I1=MAT_ID,
-     .                 C1=TITR,
-     .                 C2=chain1)
+           CALL ANCMSG(MSGID=99,MSGTYPE=MSGERROR,ANMODE=ANINFO_BLIND_1,I1=MAT_UID,C1=TITR,C2=chain1)
+           RETURN
       END SELECT
       !============================!
       ! PLASTICITY DEFAULT         !
       !============================! 
-      IF(RATIO.LE.ZERO)THEN
+      IF(RATIO<=ZERO)THEN
         RATIO = 0.25D00   !ONE is for previous formulation (permitted large volume change)
       ENDIF
       IF(IPLA_>0)THEN
@@ -662,9 +687,9 @@ C-----------------------------------------------
         IF(IPLA(I) == 2)THEN 
           IF(A2(I)==ZERO.AND.A1(I)/=ZERO)THEN   !(A21=A11=ZERO => error message)
             PSTAR(I)=-A0(I)/A1(I) 
-          ELSEIF(A2(I).NE.ZERO)THEN
+          ELSEIF(A2(I)/=ZERO)THEN
             DELTA = A1(I)*A1(I)-FOUR*A0(I)*A2(I)
-            !Si intersection avec l'axe
+            !If intersection with the axis
             IF(DELTA  >=  ZERO)THEN
               DELTA=SQRT(DELTA)
               PSTAR(I) = (-A1(I)+DELTA)/TWO/A2(I)
@@ -674,14 +699,7 @@ C-----------------------------------------------
               PSTAR(I) = -INFINITY
               chain='SUBMAT-0 : YIELD SURFACE HAS NO ROOT.                          '
               write(chain(8:8),'(i1.1)')I
-              CALL ANCMSG(MSGID=829,
-     .                    MSGTYPE=MSGWARNING,
-     .                    ANMODE=ANINFO,
-     .                    I1=51,
-     .                    I2=MAT_ID,
-     .                    C1='WARNING',
-     .                    C2=TITR,
-     .                    C3=chain)
+              CALL ANCMSG(MSGID=829,MSGTYPE=MSGWARNING,ANMODE=ANINFO,I1=51,I2=MAT_UID,C1='WARNING',C2=TITR,C3=chain)
             ENDIF
           ELSE
             !do nothing let user do what he wants
@@ -700,7 +718,7 @@ C     !============================!
           N_LC=1000
         ENDIF
       ENDIF       
-      IF(ABCS.EQ.ZERO) ABCS=  ONE*FAC_UNIT_TIME
+      IF(ABCS==ZERO) ABCS=  ONE*FAC_UNIT_TIME
       PMIN = -PEXT  
       DO I=1,4
         ! RhoCp
@@ -764,21 +782,13 @@ C     !============================!
       IF(RHO0_(4) > ZERO)THEN
         IF(C1(4)  <= ZERO)THEN
            chain1='BULK MODULUS C14 MUST BE PROVIDED FOR UNREACTED EXPLOSIVE'
-           CALL ANCMSG(MSGID=99,
-     .                 MSGTYPE=MSGERROR,
-     .                 ANMODE=ANINFO,
-     .                 I1=MAT_ID,
-     .                 C1=TITR,
-     .                 C2=chain1)
+           CALL ANCMSG(MSGID=99,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=MAT_UID,C1=TITR,C2=chain1)
+           RETURN
         ENDIF
         IF(VDET  <= ZERO)THEN
           chain1='DETONATION VELOCITY MUST BE INPUT FOR EXPLOSIVE SUBMATERIAL'
-          CALL ANCMSG(MSGID=99,
-     .                MSGTYPE=MSGERROR,
-     .                ANMODE=ANINFO,
-     .                I1=MAT_ID,
-     .                C1=TITR,
-     .                C2=chain1)
+          CALL ANCMSG(MSGID=99,MSGTYPE=MSGERROR,ANMODE=ANINFO,I1=MAT_UID,C1=TITR,C2=chain1)
+          RETURN
         ENDIF
       ENDIF
       !============================!
@@ -791,12 +801,11 @@ C     !============================!
       IF (IFLG /= 12) THEN
         CALL LECM51__CHECK_INITIAL_STATE(
      .   AV, RHO0_,  C0,  C1,  C2, C3, C4,  C5,
-     .   E0, PM, RHO0, RHOR, IEXP, JTHE,PEXT, IFLG,
-     .   A0, A1, A2, IPLA,
-     .   MAT_ID ,TITR,
+     .   E0, PM, RHO0, RHOR, IEXP, PEXT, IFLG,
+     .   A1, A2, IPLA,
+     .   MAT_UID ,TITR,
      .   SSP(1),SSP(2),SSP(3),SSP(4),
      .   LC(1), LC(2), LC(3), LC(4),
-     .   TCARP,
      .   Pini)
         !Inferior Boundary for Energy. It ensure EOS stability.
         !Inf(Eint), def=-INFINITY
@@ -808,16 +817,36 @@ C     !============================!
         ENDDO
         EINF(4)=ZERO
       END IF
-      !initialisation vitesse du son, loi51
+      !sound speed initialization loi51
       IF(IFLG == 0 .OR. IFLG == 1)THEN
         DO I=1,3
           P0(I)    = C0(I)+C4(I)*E0(I)
           DPDMU(I) = (C1(I)+C5(I)*E0(I)) + C4(I)*(PEXT+P0(I)) 
-          IF(RHO0_(I) .NE. ZERO) SSP(I)  = SQRT( (DPDMU(I) + TWO_THIRD*GG(I)) / RHO0_(I) )   !achtung GG = 2*G   =>  TWO_THIRD*GG = FOUR_OVER_3*G
+          IF(RHO0_(I) /= ZERO) SSP(I)  = SQRT( (DPDMU(I) + TWO_THIRD*GG(I)) / RHO0_(I) )   !warning GG = 2*G   =>  TWO_THIRD*GG = FOUR_OVER_3*G
         ENDDO
         P0(4)  = C0(4)
         SSP(4) = VDET
       ENDIF
+
+      !filling data structure for EMBEDDED EoS (OLD FORMAT)
+      ! this way we can use the generic datastructure %MULTIMAT%pEOS%EOS(submat_id) to retrieve EoS parameters
+      IF(MATPARAM%multimat%old_data_format == 1)THEN
+        CALL MATPARAM%multimat%EOS_CONSTRUCT  !allocate 4 EoS with NUPARAM=6 etc...
+        DO I=1,3
+          MATPARAM%multimat%eos(I)%PSH = +PEXT
+          MATPARAM%multimat%eos(I)%E0 = E0(I)
+          MATPARAM%multimat%eos(I)%PMIN = PMIN_(I)
+          MATPARAM%multimat%eos(I)%UPARAM(1) = (C0(I)+PEXT)-PEXT
+          MATPARAM%multimat%eos(I)%UPARAM(2) = C1(I)
+          MATPARAM%multimat%eos(I)%UPARAM(3) = C2(I)
+          MATPARAM%multimat%eos(I)%UPARAM(4) = C3(I)
+          MATPARAM%multimat%eos(I)%UPARAM(5) = C4(I)
+          MATPARAM%multimat%eos(I)%UPARAM(6) = C5(I)
+          MATPARAM%multimat%eos(I)%UPARAM(7) = ZERO
+        ENDDO
+        CALL mat51_associate_eos(MAT_PARAM,NUMMAT,MAT_IID)
+      ENDIF
+
       !============================!
       ! Output through UPARAM(*)   !
       !============================! 
@@ -834,6 +863,7 @@ C     !============================!
       UPARAM(31) = IFLG
       UPARAM(73) = NITER
       UPARAM(74) = RATIO
+      UPARAM(76) = IFLG
       IF (IFLG /= 12) THEN
         UPARAM(9)  = RHO0_(1)
         UPARAM(10) = RHO0_(2)
@@ -887,10 +917,10 @@ C     !============================!
         UPARAM(54) = W
         UPARAM(55) = IEXP
         UPARAM(56) = PMIN_(4)
-        UPARAM(57) = EINF(1)
-        UPARAM(58) = EINF(2)
-        UPARAM(59) = EINF(3)
-        UPARAM(60) = EINF(4)               
+        UPARAM(57) = ZERO !IBIJ(1)
+        UPARAM(58) = ZERO !IBIJ(2)
+        UPARAM(59) = ZERO !IBIJ(3)
+        UPARAM(60) = ZERO !IBIJ(4)
         UPARAM(61) = IOPT  
         UPARAM(62) = ONE/N_LC
         UPARAM(63) = IPLA_
@@ -949,8 +979,8 @@ C     !============================!
         UPARAM(274) = LC(4)
         UPARAM(275) = RHO0_(4)*SSP(4)*SSP(4)
         UPARAM(276) = ZERO
-        !bijective application (in case of new input you must retrieve phase order in legacy buffer)
-        ! example jwl is necessarily id 4 in legacy buffer, but not necessarily in user input (iform=12)
+        !bijective application (in case of new input -iform=12- you must retrieve phase order in legacy buffer)
+        ! jwl is necessarily submat id 4 in legacy buffer, but not necessarily in user input (iform=12)
         UPARAM(277) = 1
         UPARAM(278) = 2
         UPARAM(279) = 3
@@ -970,12 +1000,21 @@ C     !============================!
       PM(38) = UPARAM(42)  !VDET
       PARMAT(1) = MAX(C1(1), C1(2), C1(3), C1(4))
       PM(27) = MAXVAL(SSP(1:4))
+
+      ! Multimaterial data
+      MATPARAM%multimat%nb = 4
+      IF(.NOT.ALLOCATED(MATPARAM%multimat%vfrac))ALLOCATE(MATPARAM%multimat%vfrac(4))
+      IF(.NOT.ALLOCATED(MATPARAM%multimat%mid))  ALLOCATE(MATPARAM%multimat%mid(4))
+      MATPARAM%multimat%vfrac(1:4) = tAV(1:4)
+      MATPARAM%multimat%mid(1:4) = tMID(1:4)
+      IPM(20+1:20+4) = tMID(1:4)
+
       !============================!
       ! Starter Listing File       !
       !============================!
-      WRITE(IOUT,997) TRIM(TITR),MAT_ID,51
+      WRITE(IOUT,997) TRIM(TITR),MAT_UID,51
       WRITE(IOUT,998)
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
         IF(IFLG /= 12)THEN
@@ -1075,22 +1114,30 @@ C     !============================!
           ENDDO
         ENDIF
         !============================!
-        IF(NITER  /= 10)THEN
-          WRITE(IOUT,901)NITER
-        ENDIF   
+        IF(NITER  /= 10) WRITE(IOUT,901)NITER
+        !============================!
+        WRITE(IOUT,5100) !blank lines
       ENDIF  
       
       PM(38)=VDET    
-      IF(IFLG.EQ.12)RHO0=ONE    
-      IF(RHOR.EQ.ZERO)RHOR=RHO0
+      IF(IFLG==12)RHO0=ONE    
+      IF(RHOR==ZERO)RHOR=RHO0
       PM(1) =RHOR
       PM(89)=RHO0
       PM(91)=MAXVAL(RHO0_(1:4))
 
+      ! MATPARAM keywords
+
+      ! Material compatibility with /EOS option
+      CALL INIT_MAT_KEYWORD(MATPARAM,"EOS")
+
+      ! EOS/Thermo keyword for pressure treatment in elements
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HYDRO_EOS")
+      
+      ! Properties compatibility 
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")
 
       RETURN
-
-  999 CALL FREERR(3)
 
 C======================================================================|
   900 FORMAT(
@@ -1257,12 +1304,6 @@ C======================================================================|
      & 5X,'SUBMAT-3 PM3 CUT OFF PRESSURE. . . . . .=',A    /
      & 5X,'SUBMAT-3 P03 INITIAL PRESSURE. . . . . .=',A    /
      & 5X,'SUBMAT-3 SSP3 SOUND SPEED. . . . . . . .=',A    //)
- 2000 FORMAT(
-     & 5X,'Minimum Energies                      ',/
-     & 5X,'(Computed for Numerical Stability)    ',/
-     & 5X,'SUBMAT-1 Minimum ENERGY. . . . . . . . .=',E12.4/
-     & 5X,'SUBMAT-2 Minimum ENERGY. . . . . . . . .=',E12.4/
-     & 5X,'SUBMAT-3 Minimum ENERGY. . . . . . . . .=',E12.4//)
  4001 FORMAT(
      & 5X,'SUBMATERIAL-',I1,' ID =   ',I10)
  4002 FORMAT(
@@ -1365,5 +1406,8 @@ C======================================================================|
      & 5X,'|    PCJ  PRESSURE AT C-J STATE . . . .=',E12.4/
      & 5X,'|    VCJ  VOLUME AT C-J STATE . . . . .=',E12.4/
      & 5X,'|    FLAG FOR BURN FRACTION METHOD . . =',I10)
-      END
+ 5100 FORMAT(/,/)
+C-----------------------------------------------
+           END SUBROUTINE HM_READ_MAT51
+
 C======================================================================|

@@ -1,38 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INITWG_QUAD                   source/spmd/domain_decomposition/initwg_quad.F
-Chd|-- called by -----------
-Chd|        INITWG                        source/spmd/domain_decomposition/initwg.F
-Chd|-- calls ---------------
-Chd|        DDWEIGHTS_MOD                 share/modules1/ddweights_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    initwg_quad     ../starter/source/spmd/domain_decomposition/initwg_quad.F
+!||--- called by ------------------------------------------------------
+!||    initwg          ../starter/source/spmd/domain_decomposition/initwg.F
+!||--- uses       -----------------------------------------------------
+!||    ddweights_mod   ../starter/share/modules1/ddweights_mod.F
+!||====================================================================
       SUBROUTINE INITWG_QUAD(WD,PM,GEO,IXQ,IGEO,
      .            NUMELQ,IPM,OFF)
 C-----------------------------------------------
 C            M o d u l e s
 C-----------------------------------------------
       USE DDWEIGHTS_MOD
+      use element_mod , only : nixq
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,14 +42,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
-#include      "com_xfem1.inc"
-#include      "scr21_c.inc"
-#include      "scr05_c.inc"
 #include      "tablen_c.inc"
-#include      "scr23_c.inc"
-#include      "spmd_c.inc" 
-#include      "ddspmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -57,7 +51,7 @@ C-----------------------------------------------
      .  NUMMAT,NUMGEO,
      .  IXQ(NIXQ,*),IGEO(NPROPGI,*),
      .  IPM(NPROPMI,*),OFF
-C     REAL OU REAL*8
+C     REAL OR REAL*8
       my_real
      .    PM(NPROPM,*), GEO(NPROPG,*)
       REAL WD(*)
@@ -85,12 +79,12 @@ C-----------------------------------------------
         MID= IXQ(1,I)
         PID= IXQ(6,I)
         MLN = NINT(PM(19,ABS(MID)))
-c        IF(MID.LT.0)THEN
-c          IF(MLN.EQ.6.AND.JPOR.NE.2)MLN=17
-c          IF(MLN.EQ.46)MLN=47
+c        IF(MID<0)THEN
+c          IF(MLN==6.AND.JPOR/=2)MLN=17
+c          IF(MLN==46)MLN=47
 c        ENDIF
 C   test elem delete
-        IF (WD(I+OFF).EQ.0.)
+        IF (WD(I+OFF)==0.)
      .    WD(I+OFF) = WTYPE(2)
       ENDDO
     

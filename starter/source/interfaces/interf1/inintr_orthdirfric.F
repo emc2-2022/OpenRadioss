@@ -1,36 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ININTR_ORTHDIRFRIC            source/interfaces/interf1/inintr_orthdirfric.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        INCOQ3                        source/interfaces/inter3d1/incoq3.F
-Chd|        ORTHDIR_PROJ                  source/interfaces/interf1/inintr_orthdirfric.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUF_FRIC_MOD               share/modules1/intbuf_fric_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inintr_orthdirfric   ../starter/source/interfaces/interf1/inintr_orthdirfric.F
+!||--- called by ------------------------------------------------------
+!||    lectur               ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    incoq3               ../starter/source/interfaces/inter3d1/incoq3.F
+!||    orthdir_proj         ../starter/source/interfaces/interf1/inintr_orthdirfric.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod          ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ININTR_ORTHDIRFRIC(
      A                  IPARI   ,INTBUF_TAB,INTBUF_FRIC_TAB,IGEO  ,GEO      ,
      B                  X       , IXTG     ,IXC          ,IPARTTG , IPARTC  ,
@@ -44,20 +43,16 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE INTBUFDEF_MOD
       USE INTBUF_FRIC_MOD                     
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -72,7 +67,6 @@ c     .        IDFRICORIENT(*),
      .        PM_STACK(20,*) ,THK(*) ,SKEW(LSKEW,*)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
       TYPE(INTBUF_FRIC_STRUCT_) INTBUF_FRIC_TAB(*)
-c      CHARACTER*ncharline ,  TITFRICORIENT(*)
 
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -85,8 +79,6 @@ C-----------------------------------------------
      .   RX ,RY ,RZ ,SX ,SY ,SZ ,SUMA ,S1 ,S2 ,VR ,VS ,CP , SP ,
      .   AA ,BB ,D1 ,D2 ,S ,DET ,PHI ,U1X ,U1Y ,U2X ,U2Y ,W1X ,W1Y ,W2X ,W2Y ,
      .   TORTH , SUM
-c      CHARACTER*nchartitle,
-c     .   TITR 
 C-----------------------------------------------
 
 C----
@@ -106,7 +98,7 @@ C----
      .                            KNOD2ELTG         ,NOD2ELC ,NOD2ELTG,THK,NTY,IGEO,
      .                            PM_STACK          , IWORKSH)
 
-                     IF(NELTG.NE.0) THEN    
+                     IF(NELTG/=0) THEN    
                         IP= IPARTTG(NELTG)
                         IE = NELTG
                         IGTYP = IGEO(11,IXTG(NIXTG-1,IE))
@@ -119,7 +111,7 @@ C----
                      ENDIF
                      IF(IE > 0) THEN
                         IPORTH = PFRICORTH(IP)
-C---1st Case : orthotropic directions are defined in /FRITION/ORIENTATION for part IP
+C---1st Case : orthotropic directions are defined in /FRICTION/ORIENTATION for part IP
 
                         IF(IPORTH >0) THEN 
 c
@@ -187,14 +179,15 @@ C-----------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  ORTHDIR_PROJ                  source/interfaces/interf1/inintr_orthdirfric.F
-Chd|-- called by -----------
-Chd|        ININTR_ORTHDIRFRIC            source/interfaces/interf1/inintr_orthdirfric.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    orthdir_proj         ../starter/source/interfaces/interf1/inintr_orthdirfric.F
+!||--- called by ------------------------------------------------------
+!||    inintr_orthdirfric   ../starter/source/interfaces/interf1/inintr_orthdirfric.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg               ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod          ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ORTHDIR_PROJ(
      .                  I      ,VX    , VY        ,VZ     , PHI   ,          
      .                  IREP   ,X     ,IRECTM     , ITAB  ,
@@ -208,15 +201,8 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "param_c.inc"
-#include      "units_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -225,7 +211,6 @@ C-----------------------------------------------
      .        I ,IREP ,IP ,
      .        IRECTM(4,*),ITAB(*),IPART(LIPART1,*)
       my_real VX ,VY ,VZ ,PHI ,X(3,*), DIR_FRICM(2,*)
-c      CHARACTER*ncharline ,  TITFRICORIENT(*)
 
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -242,7 +227,7 @@ C-----------------------------------------------
         N3 = IRECTM(3,I)
         N4 = IRECTM(4,I)
 
-C---Element Frame :
+C--- Frame element:
 
         IF (N3 /= N4) THEN
 C---      shell 4N
@@ -298,7 +283,7 @@ C
         E2Y    = E3Z * E1X - E3X * E1Z
         E2Z    = E3X * E1Y - E3Y * E1X
 
-C---    projection of V on element plance
+C---    projection of V on element plane
         V  = VX*E3X + VY*E3Y + VZ*E3Z
         VX = VX-V*E3X
         VY = VY-V*E3Y

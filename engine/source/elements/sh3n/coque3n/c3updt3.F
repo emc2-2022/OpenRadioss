@@ -1,41 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3UPDT3                       source/elements/sh3n/coque3n/c3updt3.F
-Chd|-- called by -----------
-Chd|        C3FORC3                       source/elements/sh3n/coque3n/c3forc3.F
-Chd|        CDKFORC3                      source/elements/sh3n/coquedk/cdkforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3updt3       ../engine/source/elements/sh3n/coque3n/c3updt3.F
+!||--- called by ------------------------------------------------------
+!||    c3forc3       ../engine/source/elements/sh3n/coque3n/c3forc3.F
+!||    cdkforc3      ../engine/source/elements/sh3n/coquedk/cdkforc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||====================================================================
       SUBROUTINE C3UPDT3(JFT  ,JLT ,F   ,M   ,NVC  ,
      2                   OFFG ,OFF ,STI ,STIR,STIFN,
-     3                   STIFR,IXTG,F11  ,
-     4                   F12  ,F13 ,F21 ,F22 ,F23  ,
+     3                   STIFR,IXTG,NODADT_THERM,
+     4                   F11  ,F12  ,F13 ,F21 ,F22 ,F23  ,
      5                   F31  ,F32 ,F33 ,M11 ,M12  ,
      6                   M13  ,M21 ,M22 ,M23 ,M31  ,
      7                   M32  ,M33 ,JTHE,THEM,FTHE,
      8                   EINT ,PM  ,AREA,THK ,PARTSAV,
      9                   MAT,IPARTTG,CONDN,CONDE)
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,12 +49,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "task_c.inc"
 #include      "param_c.inc"
 #include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NODADT_THERM
       INTEGER JTHE,JFT, JLT, NVC
       INTEGER IXTG(NIXTG,*),MAT(MVSIZ),IPARTTG(*) 
       my_real  
@@ -69,25 +71,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NVC1,NVC2,NVC3,NC1,NC2,NC3,IOFF,MX,MT
+      INTEGER I,NVC1,NVC2,NVC3,NC1,NC2,NC3
       my_real
      .   OFF_L
 C=======================================================================
-C cumul de l'energie des elements deletes AU moment du delete
-      IOFF=0
-      DO I=JFT,JLT
-        IF(OFF(I) == ZERO .AND. OFFG(I) > ZERO) IOFF=1
-      ENDDO
-      IF(IOFF == 1)THEN
-       MT = MAT(JFT)
-       DO I=JFT,JLT 
-        IF (OFF(I) == ZERO .AND. OFFG(I) > ZERO)THEN
-           MX = IPARTTG(I)
-           PARTSAV(24,MX)=PARTSAV(24,MX) + EINT(I,1) + EINT(I,2)
-           PARTSAV(25,MX)=PARTSAV(25,MX) + PM(1,MT)*AREA(I)*THK(I)
-        ENDIF
-       ENDDO
-      ENDIF
+C cumulative energy of deleted elements AT the time of deletion
       OFF_L = ZERO
       DO I=JFT,JLT
         IF(OFF(I)<ONE)OFFG(I) = OFF(I)
@@ -405,13 +393,12 @@ C
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  C3UPDT3P                      source/elements/sh3n/coque3n/c3updt3.F
-Chd|-- called by -----------
-Chd|        C3FORC3                       source/elements/sh3n/coque3n/c3forc3.F
-Chd|        CDKFORC3                      source/elements/sh3n/coquedk/cdkforc3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    c3updt3p   ../engine/source/elements/sh3n/coque3n/c3updt3.F
+!||--- called by ------------------------------------------------------
+!||    c3forc3    ../engine/source/elements/sh3n/coque3n/c3forc3.F
+!||    cdkforc3   ../engine/source/elements/sh3n/coquedk/cdkforc3.F
+!||====================================================================
       SUBROUTINE C3UPDT3P(JFT,JLT ,OFFG ,OFF,STI,
      2                   STIR,FSKY,FSKYV,IADTG,F11  ,
      4                   F12  ,F13 ,F21 ,F22 ,F23  ,
@@ -419,7 +406,8 @@ Chd|====================================================================
      6                   M13  ,M21 ,M22 ,M23 ,M31  ,
      7                   M32  ,M33 ,JTHE,THEM,FTHESKY,
      8                   EINT ,PM  ,AREA,THK ,PARTSAV,
-     9                   MAT,IPARTTG,CONDNSKY,CONDE  )
+     9                   MAT,IPARTTG,CONDNSKY,CONDE  ,
+     .                   NODADT_THERM)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -432,12 +420,12 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "task_c.inc"
 #include      "parit_c.inc"
 #include      "scr18_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NODADT_THERM
       INTEGER JFT, JLT, IADTG(3,*),JTHE,MAT(MVSIZ),IPARTTG(*)
       my_real
      .   OFFG(*), OFF(*), STI(*), STIR(*), FSKYV(LSKY,8),
@@ -454,25 +442,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, II, K, IOFF, MX, MT
+      INTEGER I, K
       my_real
      .   OFF_L
 C=======================================================================
-C cumul de l'energie des elements deletes AU moment du delete
-      IOFF=0
-      DO I=JFT,JLT
-        IF(OFF(I) == ZERO.AND.OFFG(I) > ZERO)IOFF=1
-      ENDDO
-      IF(IOFF == 1)THEN
-       MT = MAT(JFT)
-       DO I=JFT,JLT
-        IF(OFF(I) == ZERO.AND.OFFG(I) > ZERO)THEN
-           MX = IPARTTG(I)
-           PARTSAV(24,MX)=PARTSAV(24,MX) + EINT(I,1) + EINT(I,2)
-           PARTSAV(25,MX)=PARTSAV(25,MX) + PM(1,MT)*AREA(I)*THK(I)
-        ENDIF
-       ENDDO
-      ENDIF
+C cumulative energy of deleted elements AT the time of deletion
       OFF_L = ZERO
       DO I=JFT,JLT
         IF (OFF(I) < ONE) OFFG(I) = OFF(I)

@@ -1,45 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_INIMAP2D_SPMD            source/output/sta/stat_inimap2d_spmd.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        SPMD_STATE_INIMAP2D_EXCH_DATA source/output/sta/spmd_state_inimap2d_exch_data.F
-Chd|        SPMD_STATE_INIMAP_EXCH_SIZ    source/output/sta/spmd_state_inimap_exch_siz.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        STATE_INIMAP_MOD              share/modules/state_inimap_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_inimap2d_spmd              ../engine/source/output/sta/stat_inimap2d_spmd.F
+!||--- called by ------------------------------------------------------
+!||    genstat                         ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                          ../engine/source/output/message/message.F
+!||    quicksort                       ../common_source/tools/sort/quicksort.F
+!||    quicksort_i2                    ../common_source/tools/sort/quicksort.F
+!||    spmd_state_inimap2d_exch_data   ../engine/source/output/sta/spmd_state_inimap2d_exch_data.F
+!||    spmd_state_inimap_exch_siz      ../engine/source/output/sta/spmd_state_inimap_exch_siz.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod                    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod                     ../common_source/modules/elements/element_mod.F90
+!||    matparam_def_mod                ../common_source/modules/mat_elem/matparam_def_mod.F90
+!||    message_mod                     ../engine/share/message_module/message_mod.F
+!||    multi_fvm_mod                   ../common_source/modules/ale/multi_fvm_mod.F90
+!||    multimat_param_mod              ../common_source/modules/multimat_param_mod.F90
+!||    state_inimap_mod                ../engine/share/modules/state_inimap_mod.F
+!||====================================================================
       SUBROUTINE STAT_INIMAP2D_SPMD(
-     .                        X        , V        , ITAB  , IPART_STATE, NODTAG,
-     .                        IPART    , IPARTS   , IPARTQ, IPARTTG    ,
-     .                        IGEO     , IPARG    , IXS   , IXQ        , IXTG  , 
+     .                        X        , V        , ITAB  , IPART_STATE, NODTAG   ,
+     .                        IPART    , IPARTS   , IPARTQ, IPARTTG    , MAT_PARAM,
+     .                        IGEO     , IPARG    , IXS   , IXQ        , IXTG     ,
      .                        ELBUF_TAB, MULTI_FVM, BUFMAT, IPM)
-      USE MESSAGE_MOD
-      USE STATE_INIMAP_MOD
 C-----------------------------------------------
 C   Description
 C-----------------------------------------------
@@ -51,9 +55,14 @@ C  User can use the generated file in a second run using #include command in the
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MESSAGE_MOD
+      USE STATE_INIMAP_MOD
       USE ELBUFDEF_MOD 
       USE STATE_INIMAP_MOD
       USE MULTI_FVM_MOD
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
+      USE MATPARAM_DEF_MOD, ONLY : MATPARAM_STRUCT_
+      use element_mod , only : nixs,nixq,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -65,34 +74,29 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "remesh_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr16_c.inc"
 #include      "scr17_c.inc"
-#include      "spmd_c.inc"
 #include      "task_c.inc"
 #include      "units_c.inc"
 #include      "chara_c.inc"
-#include      "mmale51_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER,INTENT(IN) :: ITAB(NUMNOD), IPART(LIPART1,*),IGEO(NPROPGI,NUMGEO), IXS(NIXS,NUMELS), IPART_STATE(NPART),
-     .                        IPARG(NPARG,*),IXQ(NIXQ,NUMELQ),IXTG(NIXTG,NUMELTG)
-      INTEGER, INTENT(INOUT) :: NODTAG(NUMNOD),
-     .                          IPM(NPROPMI,*)
+     .                      IPARG(NPARG,*),IXQ(NIXQ,NUMELQ),IXTG(NIXTG,NUMELTG)
+      INTEGER, INTENT(INOUT) :: NODTAG(NUMNOD), IPM(NPROPMI,*)
       INTEGER, TARGET :: IPARTS(*),IPARTQ(*),IPARTTG(*)
       my_real,INTENT(IN) :: X(3,NUMNOD),V(3,NUMNOD)
       my_real, INTENT(IN), TARGET :: BUFMAT(*)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET, INTENT(IN) :: ELBUF_TAB
-      TYPE(MULTI_FVM_STRUCT), INTENT(IN) :: MULTI_FVM      
+      TYPE(MULTI_FVM_STRUCT), INTENT(IN) :: MULTI_FVM
+      TYPE(MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, N, JJ,J, IPRT0, IPRT, K, STAT_NUMELS_1, KK, INOD
-      INTEGER NG, NEL, NFT, LFT, LLT, ITY, ISOLNOD, IOFF,NPT
-      INTEGER NUM_CENTROIDS, IPOS,MLW,IFORM,NBMAT,NB2,ISUBMAT,NNOD,NNOD2
+      INTEGER I, N, JJ, J, IPRT, K, KK, INOD
+      INTEGER NG, NEL, NFT, LFT, LLT, ITY, ISOLNOD, NPT
+      INTEGER NUM_CENTROIDS, IPOS, MLW, NBMAT, NB2, ISUBMAT, NNOD
       INTEGER NUVAR
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
       my_real MIN_X,MIN_Y,MIN_Z,MAX_X,MAX_Y,MAX_Z,P0(3),P0_INF(3),P0_SUP(3),LENGTH
@@ -103,7 +107,7 @@ C-----------------------------------------------
       my_real DOTPROD,TOL,XYZ(3),VEL(3),DIST,VECT(3)
       CHARACTER FILNAM*100, CHSTAT*4
       INTEGER XMIN_CELL_ID,YMIN_CELL_ID,ZMIN_CELL_ID,XMAX_CELL_ID,YMAX_CELL_ID,ZMAX_CELL_ID
-      INTEGER IS_ITY_1, IS_ITY_2, IS_ITY_7, LAST_CELL,FIRST_CELL,IMAT,NPAR,IADBUF
+      INTEGER IS_ITY_1, IS_ITY_2, IS_ITY_7, IMAT, NPAR, IADBUF
       INTEGER, POINTER,DIMENSION(:) :: IPART_PTR
       my_real, POINTER,DIMENSION(:) :: UPARAM
       TYPE(BUF_MAT_)  ,POINTER :: MBUF  
@@ -120,17 +124,14 @@ C-----------------------------------------------
       !IF(NUMELS+NUMELQ+NUMELTG == 0)RETURN
       
       IF(N2D == 0)THEN
-      
         !N2D not yet set when running frestat.F ; check must be done later, here.
         IF(.NOT.IS_STAT_INIMAP_MSG_ALREADY_DISPLAYED)THEN
           IF(ISPMD == 0)THEN
              CALL ANCMSG(MSGID=288,ANMODE=ANINFO)
              IS_STAT_INIMAP_MSG_ALREADY_DISPLAYED = .TRUE.
           ENDIF
-        ENDIF 
-             
+        ENDIF
         RETURN
-        
       ENDIF
    
 C-----------------------------------------------
@@ -157,7 +158,7 @@ C-----------------------------------------------
       !---ALLOCATIONS
       !
       IF(.NOT.(ALLOCATED(STATE_INIMAP_BUF))) THEN
-        IF(ISPMD.NE.0)THEN
+        IF(ISPMD/=0)THEN
           ALLOCATE(STATE_INIMAP_BUF(1))                                                                      
         ELSE
           ALLOCATE(STATE_INIMAP_BUF(NSPMD))  !process 0 will gather all data
@@ -201,8 +202,8 @@ C-----------------------------------------------
               NUM_CENTROIDS = NUM_CENTROIDS +1                                                                                
               DO K=1,NPT                                                                                                      
                 IF(IS_ITY_1==1)INOD=IXS(1+K,N)                                                                                
-                IF(IS_ITY_2==1)INOD=IXQ(1+K,N)  !faire passer IX (pointeur, en argument) et NIX => routine generique   
-                IF(IS_ITY_7==1)INOD=IXTG(1+K,N)  !faire passer IX (pointeur, en argument) et NIX => routine generique                          
+                IF(IS_ITY_2==1)INOD=IXQ(1+K,N)  !pass IX (pointer, argument) and nix => generic routine   
+                IF(IS_ITY_7==1)INOD=IXTG(1+K,N)  !pass IX (pointer, argument) and nix => generic routine                          
                 IF(IS_ITY_1==1)NODTAG(IXS(1+K,N)) = 1
                 IF(IS_ITY_2==1)NODTAG(IXQ(1+K,N)) = 1
                 IF(IS_ITY_7==1)NODTAG(IXTG(1+K,N)) = 1                                                                       
@@ -262,7 +263,7 @@ C-----------------------------------------------
       LY=ZERO
       LZ=ZERO
       IF(NUM_CENTROIDS > 0)THEN
-        !---BOX CONTAING USER-2D-DOMAIN   
+        !---BOX CONTAINING USER-2D-DOMAIN   
         !                                                                                      
         LX=MAX_X-MIN_X                                                                                                          
         LY=MAX_Y-MIN_Y                                    
@@ -337,7 +338,7 @@ C-----------------------------------------------
              !STATE_INIMAP_BUF(1)%CELL_IDS(K) = CELL_ID 
              WORK(K,1) = P0(2)   
              WORK(K,2) = P0(3)                                                           
-             WORK(K,3) = CELL_ID              
+             WORK(K,3) = CELL_ID  ! bug in sp if CELL_ID > 16M 
              GET_CELL_FOM_CENTROID(1,K) = NG                                              
              GET_CELL_FOM_CENTROID(2,K) = I                                                                     
              K=K+1                                                                                     
@@ -354,7 +355,7 @@ C-----------------------------------------------
       DO K=1,NUM_CENTROIDS
         STATE_INIMAP_BUF(1)%POS_CENTROIDS(K)  = WORK(IDX(K),1)
         STATE_INIMAP_BUF(1)%POS2_CENTROIDS(K) = WORK(IDX(K),2)                                                       
-        STATE_INIMAP_BUF(1)%CELL_IDS(K)       = WORK(K,3)      
+        STATE_INIMAP_BUF(1)%CELL_IDS(K)       = WORK(K,3) ! bug in SP if WORK(K,3) > 16M 
       ENDDO
       IF(ALLOCATED(WORK))DEALLOCATE(WORK)
 
@@ -421,13 +422,13 @@ C-----------------------------------------------
               N  = I + NFT  
               IPRT=IPART_PTR(N) 
               IMAT =IPART(1,IPRT)  
-              IF(IPM(20+ISUBMAT,IMAT) == 0)EXIT   !submaterial not defined. 
+              IF(MAT_PARAM(IMAT)%MULTIMAT%MID(ISUBMAT) == 0)EXIT   !submaterial not defined.
               NB2=MAX(NB2,IPM(5,IMAT))
               IADBUF = IPM(7,IMAT)                                                                                              
               NPAR = IPM(9,IMAT)                                                                                                
               NUVAR = IPM(8,IMAT)                                                                                               
-              UPARAM => BUFMAT(IADBUF:IADBUF+NPAR)             
-              KK = N0PHAS + (UPARAM(276+ISUBMAT)-1)*NVPHAS  
+              UPARAM => BUFMAT(IADBUF:IADBUF+NPAR-1)
+              KK = M51_N0PHAS + (UPARAM(276+ISUBMAT)-1)*M51_NVPHAS ! bug in SP if   (UPARAM(276+ISUBMAT)-1)*M51_NVPHAS > 16M
               MBUF => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)  
               STATE_INIMAP_BUF(1)%SUBMAT(ISUBMAT)%VFRAC(K) = MBUF%VAR(NEL*(01+KK-1)+I)
               STATE_INIMAP_BUF(1)%SUBMAT(ISUBMAT)%RHO(K) = MBUF%VAR(NEL*(12+KK-1)+I)
@@ -571,7 +572,7 @@ C-----------------------------------------------
         CALL QUICKSORT(WORK(:,5), IDX, 1, NPTS_TOT) 
         
         
-        !---remove duplicates (possible common nodes on adjacent domains)
+        !--- Remove duplicates (possible Common Nodes on Adjacent Domains)
         ! STAGGERED SCHEME ONLY
         !
         IF(MLW /= 151)THEN
@@ -855,12 +856,6 @@ C-----------------------------------------------
  
  1000 FORMAT('#---1----|----2----|----3----|----4----|----5----|----6----|----7----|----8----|----9----|---10----|')
 
- 1500 FORMAT('#---1----|----2----|----3----|----4----|----5----|----6----|----7----|----8----|----9----|---10----|',/,
-     .       '/MOVE_FUNCT/',I0,/,
-     .       'move_function__',I0,/,
-     .       '#            ASCALEx             FSCALEy             ASHIFTx             FSHIFTy',/,
-     .       (6X,E14.7) )     
- 
  2001 FORMAT('#---1----|----2----|----3----|----4----|----5----|----6----|----7----|----8----|----9----|---10----|',/,
      .       '/FUNC_2D/',I0,/,
      .       'volume fraction submaterial_',I0,/,

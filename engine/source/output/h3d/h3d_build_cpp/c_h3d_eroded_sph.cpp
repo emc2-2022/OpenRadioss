@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 //    
 #include <stdio.h>
 #include <string.h>
@@ -105,7 +105,7 @@ void c_h3d_eroded_sph_(my_real *TT,int *IH3D, int *NUMSPH, my_real *FUNC , int *
         {
           rc = Hyper3DDatasetBegin(h3d_file, *NUMSPH, sim_idx, subcase_id, H3D_DS_ELEM, 
                                         H3D_DS_EROSION, num_corners, num_modes, *CPT_DATATYPE, 
-                                        NULL, sphcell_poolname_id, complex); 
+                                        0, sphcell_poolname_id, complex); 
           if( !rc ) fflush(stdout);
           if( !rc ) throw rc;
 
@@ -115,7 +115,7 @@ void c_h3d_eroded_sph_(my_real *TT,int *IH3D, int *NUMSPH, my_real *FUNC , int *
           {
               elem_id = ID_ELEM[i];
               elem_result[0] = 0.0f;
-              if(  FUNC[i] < 0.0f ) 
+              if(  FUNC[i] <= 0.0f ) 
               {
                 elem_result[0] = 1.0f;
                 rc = Hyper3DDatasetWrite(h3d_file, elem_id, &elem_result[0]);

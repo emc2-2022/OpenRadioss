@@ -1,72 +1,64 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-      module MOD_SMS_WORK
-      implicit none
-#include      "my_real.inc"
-      my_real
-     .       , DIMENSION(:,:), ALLOCATABLE :: CJWORK, FREA, 
-     .         ARWORK,PR,ZR,YR
-      INTEGER, DIMENSION(:), ALLOCATABLE :: IRWL_WORK
-C-----
-      INTEGER, DIMENSION(:), ALLOCATABLE :: LIST_SMS,LIST_RMS
-      my_real
-     .       , DIMENSION(:), ALLOCATABLE :: MSKYI_FI_SMS
-      my_real
-     .       , DIMENSION(:,:), ALLOCATABLE :: VFI
-      DOUBLE PRECISION
-     .       , DIMENSION(:,:), ALLOCATABLE :: MW6
-      END MODULE MOD_SMS_WORK
-Chd|====================================================================
-Chd|  SMS_MASS_SCALE_2              source/ams/sms_mass_scale_2.F 
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SMS_ADMESH_0                  source/ams/sms_admesh.F       
-Chd|        SMS_BCS                       source/ams/sms_bcs.F          
-Chd|        SMS_BCSCYC                    source/ams/sms_bcscyc.F       
-Chd|        SMS_CJOINT_0                  source/ams/sms_cjoint.F       
-Chd|        SMS_CJOINT_2                  source/ams/sms_cjoint.F       
-Chd|        SMS_FIXVEL                    source/ams/sms_fixvel.F       
-Chd|        SMS_GRAVIT                    source/ams/sms_gravit.F       
-Chd|        SMS_MAV_LT                    source/ams/sms_pcg.F          
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|        SMS_RBE3T1                    source/ams/sms_rbe3.F         
-Chd|        SMS_RBE_CNDS                  source/ams/sms_rbe2.F         
-Chd|        SMS_THBCS                     source/ams/sms_thbcs.F        
-Chd|        SPMD_EXCH_A_RB6               source/mpi/kinematic_conditions/spmd_exch_a_rb6.F
-Chd|        SPMD_LIST_SMS                 source/mpi/ams/spmd_sms.F     
-Chd|        SPMD_MIJ_SMS                  source/mpi/ams/spmd_sms.F     
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        NGR2USR                       source/input/freform.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        INTSTAMP_MOD                  share/modules/intstamp_mod.F  
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
-      SUBROUTINE SMS_MASS_SCALE_2(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+
+!||====================================================================
+!||    sms_mass_scale_2   ../engine/source/ams/sms_mass_scale_2.F
+!||--- called by ------------------------------------------------------
+!||    resol              ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg             ../engine/source/output/message/message.F
+!||    arret              ../engine/source/system/arret.F
+!||    my_barrier         ../engine/source/system/machine.F
+!||    ngr2usr            ../engine/source/input/freform.F
+!||    sms_admesh_0       ../engine/source/ams/sms_admesh.F
+!||    sms_bcs            ../engine/source/ams/sms_bcs.F
+!||    sms_bcscyc         ../engine/source/ams/sms_bcscyc.F
+!||    sms_cjoint_0       ../engine/source/ams/sms_cjoint.F
+!||    sms_cjoint_2       ../engine/source/ams/sms_cjoint.F
+!||    sms_fixvel         ../engine/source/ams/sms_fixvel.F
+!||    sms_gravit         ../engine/source/ams/sms_gravit.F
+!||    sms_mav_lt         ../engine/source/ams/sms_pcg.F
+!||    sms_pcg            ../engine/source/ams/sms_pcg.F
+!||    sms_rbe3t1         ../engine/source/ams/sms_rbe3.F
+!||    sms_rbe_cnds       ../engine/source/ams/sms_rbe2.F
+!||    sms_thbcs          ../engine/source/ams/sms_thbcs.F
+!||    spmd_exch_a_rb6    ../engine/source/mpi/kinematic_conditions/spmd_exch_a_rb6.F
+!||    spmd_list_sms      ../engine/source/mpi/ams/spmd_sms.F
+!||    spmd_mij_sms       ../engine/source/mpi/ams/spmd_sms.F
+!||    startime           ../engine/source/system/timer_mod.F90
+!||    stoptime           ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    ams_work_mod       ../engine/source/modules/ams_work_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    groupdef_mod       ../common_source/modules/groupdef_mod.F
+!||    intstamp_mod       ../engine/share/modules/intstamp_mod.F
+!||    message_mod        ../engine/share/message_module/message_mod.F
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||    python_funct_mod   ../common_source/modules/python_mod.F90
+!||    sensor_mod         ../common_source/modules/sensor_mod.F90
+!||    timer_mod          ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE SMS_MASS_SCALE_2(TIMERS,PYTHON,
      1        ITASK    ,NODFT    ,NODLT    ,NODII_SMS ,INDX2_SMS ,
      2        NODXI_SMS,MS       ,MS0      ,A         ,ICODT     ,
      3        ICODR    ,ISKEW    ,SKEW     ,JAD_SMS   ,JDI_SMS   ,
@@ -75,7 +67,7 @@ Chd|====================================================================
      6        WEIGHT   ,NPBY      ,LPBY      ,
      7        TAGSLV_RBY_SMS,LAD_SMS ,KAD_SMS ,JRB_SMS,IBFV      ,
      8        VEL      ,NPC      ,TF       ,V         ,X         ,
-     9        D        ,SENSOR   ,LSENSOR  ,IFRAME    ,XFRAME    ,
+     9        D        ,SENSOR_TAB,NSENSOR ,IFRAME    ,XFRAME    ,
      A        JADI_SMS ,JDII_SMS ,LTI_SMS  ,FR_SMS    ,FR_RMS    ,
      B        ISKYI_SMS,MSKYI_SMS,RES_SMS  ,IGRV      ,AGRV      ,
      C        LGRAV    ,ILINK    ,RLINK    ,FR_RL     ,FRL6      ,
@@ -92,20 +84,25 @@ Chd|====================================================================
      O        LRBE3      ,FRBE3    ,IAD_RBE3M ,FR_RBE3M ,FR_RBE3MP,
      P        RRBE3      ,RRBE3_PON,PREC_SMS3 ,DIAG_SMS3,IAD_RBY  ,
      Q        FR_RBY6    ,RBY6     ,R3SIZE ,BETATE      ,IBCSCYC  ,
-     R        LBCSCYC  )
+     R        LBCSCYC    ,MSKYI_FI_SMS, LIST_SMS,LIST_RMS,CJWORK  ,
+     S        FREA       ,IRWL_WORK,VFI,sz_mw6,MW6,WFEXT,ams_work)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE MOD_SMS_WORK
+      USE TIMER_MOD
       USE INTSTAMP_MOD
       USE MESSAGE_MOD
       USE GROUPDEF_MOD
+      USE SENSOR_MOD
+      USE ams_work_mod
+      USE MY_ALLOC_MOD
+      use python_funct_mod, only : python_
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -113,14 +110,10 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "intstamp_c.inc"
-#include      "kincod_c.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
 #include      "remesh_c.inc"
-#include      "scr02_c.inc"
 #include      "scr03_c.inc"
-#include      "scr17_c.inc"
 #include      "sms_c.inc"
 #include      "tabsiz_c.inc"
 #include      "task_c.inc"
@@ -131,13 +124,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER  ITASK, NODFT, NODLT, NODII_SMS(*), INDX2_SMS(*),
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS
+      TYPE(python_), INTENT(INOUT) :: PYTHON
+      INTEGER  ITASK, NODFT,NSENSOR,NODLT, NODII_SMS(*), INDX2_SMS(*),
      .         NODXI_SMS(*), ICODT(*), ICODR(*),
      .         ISKEW(*), JAD_SMS(*), JDI_SMS(*), INDX1_SMS(*),
      .         IAD_ELEM(2,NSPMD+1) ,FR_ELEM(*), WEIGHT(*),
      .         NPBY(NNPBY,*), LPBY(*), TAGSLV_RBY_SMS(*), TAGSLV_RBY(*),
      .         LAD_SMS(*), KAD_SMS(*), JRB_SMS(*),
-     .         NPC(*), IBFV(NIFV,*), LSENSOR(NSENSI,*), IFRAME(LISKN,*),
+     .         NPC(*), IBFV(NIFV,*),IFRAME(LISKN,*),
      .         JADI_SMS(*), JDII_SMS(*),
      .         FR_RMS(NSPMD+1), FR_SMS(NSPMD+1), ISKYI_SMS(LSKYI_SMS,*),
      .         IGRV(*),CPTREAC,NODREAC(*),
@@ -158,7 +153,7 @@ C-----------------------------------------------
      .    SKEW(LSKEW,*), LT_SMS(*),
      .    X_SMS(3,*), P_SMS(3,*), Y_SMS(3,*), Z_SMS(3,*), PREC_SMS(*),
      .    V(3,*), X(3,*), D(3,*), TF(*), VEL(LFXVELR,*),
-     .    SENSOR(NSENSR,*), XFRAME(NXFRAME,*), LTI_SMS(*), MSKYI_SMS(*),
+     .    XFRAME(NXFRAME,*), LTI_SMS(*), MSKYI_SMS(*),
      .    RES_SMS(3,*), AGRV(*),LGRAV(*),
      .    FSAV(NTHVKI,*), AM(3,*), VR(3,*), IN(*), FRL(*), FNL(*),
      .    RWBUF(*), RWSAV(*), FOPT(*),FTHREAC(6,*),
@@ -166,9 +161,22 @@ C-----------------------------------------------
      .    FRBE3(*), RRBE3(*), PREC_SMS3(3,*), DIAG_SMS3(3,*),BETATE
       DOUBLE PRECISION FRL6(*), FNL6(*), FRWL6(*), RRBE3_PON(*)
       DOUBLE PRECISION RBY6(8,6,NRBYKIN)
+      my_real,dimension(fr_rms(nspmd+1)),intent(inout) :: MSKYI_FI_SMS
+      integer,dimension(fr_sms(nspmd+1)),intent(inout) :: LIST_SMS
+      integer,dimension(fr_rms(nspmd+1)),intent(inout) :: LIST_RMS
+      my_real, DIMENSION(18,NJOINT),intent(inout):: CJWORK
+      my_real, DIMENSION(3,NUMNOD),intent(inout):: FREA
+      integer, dimension(SLPRW),intent(inout):: IRWL_WORK
+      my_real, DIMENSION(3,FR_RMS(NSPMD+1)+FR_SMS(NSPMD+1) ), intent(inout):: VFI
+      integer, intent(in) :: sz_mw6
+      DOUBLE PRECISION,dimension(6,sz_mw6),intent(inout) :: MW6
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
+
       TYPE(INTSTAMP_DATA) INTSTAMP(*)
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) ,INTENT(IN) :: SENSOR_TAB
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD) :: IGRNOD
+      TYPE (AMS_WORK_) , INTENT(INOUT) :: AMS_WORK
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C-----------------------------------------------
@@ -181,32 +189,26 @@ C-----------------------------------------------
       INTEGER NODFT2_SMS, NODLT2_SMS,NGR2USR
       my_real
      .   VX,VY,VZ, MVX, MVY, MVZ,
-     .   VXJ, VYJ, VZJ, MAS,TFEXTT, ERRTET, DW, DT15, DT25, RBID,
+     .   VXJ, VYJ, VZJ, MAS,WFEXTT, ERRTET, DW, DT15, DT25, RBID,
      .   OMEGA, BETASDT, DAMPT, FACTB, D_TSTART, D_TSTOP, DA, ADT,
      .   P1, P2, P3, UOMEGA, DOMEGA
 C-----
       INTEGER, DIMENSION(:), ALLOCATABLE :: IMV
       my_real
      .       , DIMENSION(:), ALLOCATABLE :: MV
-      my_real,
-     .   DIMENSION(3,NUMNOD) :: MVSKW,VSKW,RSKW,DAMPSKW
+      my_real, DIMENSION(:,:), ALLOCATABLE :: MVSKW
+      my_real, DIMENSION(:,:), ALLOCATABLE :: VSKW
+      my_real, DIMENSION(:,:), ALLOCATABLE :: RSKW
+      my_real, DIMENSION(:,:), ALLOCATABLE :: DAMPSKW
       DOUBLE PRECISION
      .       , DIMENSION(:,:), ALLOCATABLE :: MV6
       EXTERNAL NGR2USR
 C-----------------------------------------------
-      IF(ITASK==0)THEN
-        ALLOCATE(CJWORK(18,NJOINT),
-     .  	 FREA(3,NUMNOD), IRWL_WORK(SLPRW),
-     .           STAT=IERROR)
-        IF(IERROR/=0) THEN
-          CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .  	      C1='(/DT/.../AMS)')
-          CALL ARRET(2)
-        ENDIF
-      END IF
-C
-      CALL MY_BARRIER
-C
+      CALL MY_ALLOC(MVSKW,3,NUMNOD)
+      CALL MY_ALLOC(VSKW,3,NUMNOD)
+      CALL MY_ALLOC(RSKW,3,NUMNOD)
+      CALL MY_ALLOC(DAMPSKW,3,NUMNOD)
+C-----------------------------------------------
       FREA(1:3,NODFT:NODLT)=ZERO
 C
       IF(IPARIT/=0)THEN
@@ -226,25 +228,7 @@ C
      .                C1='(/DT/.../AMS)')
           CALL ARRET(2)
         ENDIF
-        IF(ITASK==0)THEN
-          ALLOCATE(MW6(6,3*NUMNOD),STAT=IERROR)
-          IF(IERROR/=0) THEN
-            CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .                  C1='(/DT/.../AMS)')
-            CALL ARRET(2)
-          ENDIF
-        END IF
       END IF
-      IF(ITASK==0)THEN
-        ALLOCATE(LIST_SMS(FR_SMS(NSPMD+1)),LIST_RMS(FR_RMS(NSPMD+1)),
-     .        MSKYI_FI_SMS(FR_RMS(NSPMD+1)),
-     .        VFI(3,FR_RMS(NSPMD+1)+FR_SMS(NSPMD+1)),STAT=IERROR)
-        IF(IERROR/=0) THEN
-          CALL ANCMSG(MSGID=19,ANMODE=ANINFO,
-     .                C1='(/DT/.../AMS)')
-          CALL ARRET(2)
-        ENDIF
-      ENDIF
 C
       IF(NSPMD > 1)THEN
         IF(ITASK==0)THEN
@@ -262,7 +246,7 @@ C
 C
         CALL MY_BARRIER()
 C
-        IF(ITASK==0) THEN   ! comm sur 1er thread
+        IF(ITASK==0) THEN   ! communication on the first thread
           CALL SPMD_MIJ_SMS(
      1           ISKYI_SMS,FR_SMS,FR_RMS,LIST_RMS,MSKYI_SMS,
      2           MSKYI_FI_SMS)
@@ -271,8 +255,8 @@ C
 C----
 C
       CALL SMS_GRAVIT(IGRV  ,AGRV   ,NPC   ,TF   ,A     ,
-     2                V     ,X      ,SKEW  ,MS   ,SENSOR,
-     3                LSENSOR,WEIGHT,LGRAV ,ITASK,TAGSLV_RBY_SMS)
+     2                V     ,X      ,SKEW  ,MS   ,SENSOR_TAB,
+     3                WEIGHT,LGRAV ,ITASK,TAGSLV_RBY_SMS,NSENSOR,WFEXT, python)
 C
       CALL MY_BARRIER
 C
@@ -333,8 +317,8 @@ C
 C
         CALL MY_BARRIER
 C
-C       Z_SMS utilise temporairement pour [M]V
-        CALL SMS_MAV_LT(
+C       Z_SMS temporarily uses for [m] V
+        CALL SMS_MAV_LT(TIMERS,
      1           NODFT   ,NODLT  ,NUMNOD ,JAD_SMS  ,JDI_SMS  ,
      2           ITASK   ,DIAG_SMS,LT_SMS,X_SMS ,Z_SMS ,
      3           NODFT1_SMS,NODLT1_SMS,INDX1_SMS,NODXI_SMS,IAD_ELEM ,
@@ -413,8 +397,8 @@ C
         CALL MY_BARRIER
 C
 C-----------------------------------
-        IF(ITASK.EQ.0)THEN
-         IF (IMON.GT.0) CALL STARTIME(5,1)
+        IF(ITASK==0)THEN
+         IF (IMON>0) CALL STARTIME(TIMERS,5)
          DW = ZERO
          DO ND=1,NDAMP
           IGR   = NINT(DAMPR(2,ND))
@@ -423,10 +407,10 @@ C-----------------------------------
           DAMPT  = MIN(DT1,DT2)*FACTB
           D_TSTART = DAMPR(17,ND)
           D_TSTOP  = DAMPR(18,ND)
-          IF (TT.GE.D_TSTART .AND. TT.LE.D_TSTOP) THEN
-            IF(ISK.LE.1)THEN
-C----- Damping sur dof rotation et seulement -----
-             IF (DAMPR(19,ND).GT.0) CYCLE
+          IF (TT>=D_TSTART .AND. TT<=D_TSTOP) THEN
+            IF(ISK<=1)THEN
+C----- Damping on rotation dof and only -----
+             IF (DAMPR(19,ND)>0) CYCLE
              DAMPA = DAMPR(3,ND)
              DAMPB = DAMPR(4,ND)
              BETASDT= -MIN(DAMPB,DAMPT)*DT1/MAX(DT1*DT1,EM30)
@@ -587,9 +571,9 @@ C             2nd order error
           END IF
          END DO
 #include "lockon.inc"
-         TFEXT = TFEXT + DW
+         WFEXT = WFEXT + DW
 #include "lockoff.inc"
-         IF (IMON.GT.0) CALL STOPTIME(5,1)
+         IF (IMON>0) CALL STOPTIME(TIMERS,5)
         END IF
 C
         CALL MY_BARRIER
@@ -610,8 +594,8 @@ C-----------------------------------
                DW =DW+DA*V(J,I)*DT12*WEIGHT(I)
              END DO
           END DO
-		ELSE
-         IF(ISTATG.LT.0)THEN
+          ELSE
+         IF(ISTATG<0)THEN
           ISTATG=NGR2USR(-ISTATG,IGRNOD,NGRNOD)
          ENDIF
          DO J= 1,3
@@ -627,7 +611,7 @@ C-----------------------------------
          END DO
         END IF !(ISTATG==0)THEN
 #include "lockon.inc"
-         TFEXT = TFEXT + DW
+         WFEXT = WFEXT + DW
 #include "lockoff.inc"
 !$OMP END SINGLE
 C
@@ -639,7 +623,7 @@ C
 C-----------------------------------
 C RBE2
 C-----------------------------------
-      IF (NRBE2.GT.0.OR.R2SIZE.GT.0) THEN      
+      IF (NRBE2>0.OR.R2SIZE>0) THEN      
         IF(ITASK==0)THEN
           CALL SMS_RBE_CNDS(
      1     IRBE2 ,LRBE2 ,X      ,A      ,AM     ,
@@ -653,7 +637,7 @@ C
 C-----------------------------------
 C RBE3
 C-----------------------------------
-      IF (NRBE3.GT.0)THEN
+      IF (NRBE3>0)THEN
         IF(ITASK==0)THEN
           CALL SMS_RBE3T1(
      1      IRBE3 ,LRBE3  ,X        ,A       ,FRBE3    ,
@@ -683,7 +667,7 @@ C
 C
 C-----------------------------------
 C
-C     PREC_SMS utilise pour stocker la diagonale vraie (cf rbodies)
+C     PREC_SMS used to store the true diagonal (cf rbodies)
       PREC_SMS(NODFT:NODLT)=DIAG_SMS(NODFT:NODLT)
 C
       CALL MY_BARRIER()
@@ -758,11 +742,11 @@ C
         IF(ITASK==0)THEN
           IT=0
           CALL SMS_FIXVEL(IBFV   ,A       ,V        ,NPC    ,TF     ,
-     2                    VEL    ,MS      ,X        ,SKEW   ,SENSOR ,
-     3                    LSENSOR,WEIGHT  ,D        ,IFRAME ,XFRAME ,
+     2                    VEL    ,MS      ,X        ,SKEW   ,SENSOR_TAB,
+     3                    WEIGHT  ,D        ,IFRAME ,XFRAME ,NSENSOR ,
      4                    IT     ,PREC_SMS,NODXI_SMS,CPTREAC,NODREAC,
      5                    FTHREAC,AM      ,VR       ,DR     ,IN     ,
-     6                    RBY    )
+     6                    RBY    ,WFEXT)
         END IF
 C
         CALL MY_BARRIER
@@ -789,14 +773,14 @@ C
 C
       END IF
 C-----------------------------------
-      CALL SMS_PCG(NODFT  ,NODLT    ,NNZ_SMS,JAD_SMS  ,
+      CALL SMS_PCG(TIMERS, NODFT  ,NODLT    ,NNZ_SMS,JAD_SMS  ,
      2            JDI_SMS ,DIAG_SMS ,LT_SMS ,A      ,ISP      ,
      3            X_SMS   ,P_SMS    ,Z_SMS  ,Y_SMS  ,PREC_SMS ,
      4            NODFT1_SMS,NODLT1_SMS,INDX1_SMS,ICODT ,ICODR ,
      5            ISKEW   ,SKEW     ,ITASK  ,NODXI_SMS,IAD_ELEM,
      6            FR_ELEM ,WEIGHT   ,IBFV   ,VEL      ,NPC     ,
-     7            TF       ,V      ,X       ,D        ,SENSOR  ,
-     8            LSENSOR  ,IFRAME ,XFRAME  ,JADI_SMS ,JDII_SMS,
+     7            TF       ,V      ,X       ,D        ,SENSOR_TAB,
+     8            IFRAME ,XFRAME  ,JADI_SMS ,JDII_SMS ,NSENSOR   ,
      9            LTI_SMS  ,FR_SMS ,FR_RMS  ,LIST_SMS ,LIST_RMS,
      A            MSKYI_FI_SMS,VFI ,ISKYI_SMS,MSKYI_SMS,
      B            RES_SMS  ,ILINK  ,RLINK   ,FR_RL    ,FRL6    ,
@@ -814,7 +798,7 @@ C-----------------------------------
      N            IAD_RBE3M ,FR_RBE3M ,FR_RBE3MP,RRBE3,RRBE3_PON,
      O            PREC_SMS3,DIAG_SMS3,IAD_RBY  ,FR_RBY6    ,RBY6,
      P            TAGSLV_RBY_SMS,R3SIZE,NODFT2_SMS,NODLT2_SMS,INDX2_SMS,
-     Q            NODII_SMS,IBCSCYC ,LBCSCYC  )
+     Q            NODII_SMS,IBCSCYC ,LBCSCYC ,WFEXT,AMS_WORK )
 C
       CALL MY_BARRIER
 C
@@ -861,12 +845,13 @@ C
 C
       CALL MY_BARRIER
 C
-      IF(ITASK==0) DEALLOCATE(CJWORK, FREA, IRWL_WORK, 
-     .    	LIST_SMS,LIST_RMS,MSKYI_FI_SMS,VFI)
       IF(IPARIT/=0)THEN
         DEALLOCATE(IMV, MV, MV6)
-        IF(ITASK==0)DEALLOCATE(MW6)
       END IF
+      DEALLOCATE(MVSKW)
+      DEALLOCATE(VSKW)
+      DEALLOCATE(RSKW)
+      DEALLOCATE(DAMPSKW)
 C
       RETURN
       END

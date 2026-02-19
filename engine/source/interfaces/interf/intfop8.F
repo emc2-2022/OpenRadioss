@@ -1,52 +1,57 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTFOP8                       source/interfaces/interf/intfop8.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        INTVO8                        source/interfaces/inter3d/intvo8.F
-Chd|        SPMD_I8_REDUCE                source/mpi/interfaces/spmd_i8tool.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INT8_MOD                      ../common_source/modules/int8_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE INTFOP8(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    intfop8          ../engine/source/interfaces/interf/intfop8.F
+!||--- called by ------------------------------------------------------
+!||    resol            ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    intvo8           ../engine/source/interfaces/inter3d/intvo8.F
+!||    spmd_i8_reduce   ../engine/source/mpi/interfaces/spmd_i8tool.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod          ../engine/share/modules/h3d_mod.F
+!||    int8_mod         ../common_source/modules/interfaces/int8_mod.F90
+!||    intbufdef_mod    ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    output_mod       ../common_source/modules/output/output_mod.F90
+!||    sensor_mod       ../common_source/modules/sensor_mod.F90
+!||====================================================================
+      SUBROUTINE INTFOP8(output,
      1       IPARI ,X      ,A    ,
-     2       ICODT ,FSAV    ,WA      ,V      ,MS   ,
+     2       ICODT ,FSAV    ,V      ,MS   ,
      3       DT2T  ,NELTST  ,ITYPTST ,ITAB   ,STIFN,
      4       NPC   ,TF      ,FSKYI   ,ISKY   ,VR   ,
-     5       FCONT ,IN      ,BUFSF   ,FNCONT ,
+     5       FCONT ,IN      ,BUFSF   ,FNCONT ,NSENSOR,
      6       FTCONT,ICONTACT,RCONTACT,NUM_IMP,NS_IMP,
-     7       NE_IMP ,NT_IMP  ,SENSOR  ,INTBUF_TAB    ,
+     7       NE_IMP ,NT_IMP  ,SENSOR_TAB,INTBUF_TAB    ,
      8       H3D_DATA,PSKIDS,TAGNCONT,KLOADPINTER,LOADPINTER,
      9       LOADP_HYD_INTER)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
+      use output_mod
       USE INTBUFDEF_MOD
       USE INT8_MOD
       USE H3D_MOD
+      USE SENSOR_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,16 +63,14 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr04_c.inc"
-#include      "scr06_c.inc"
-#include      "task_c.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
 #include      "impl1_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      type(output_), intent(inout) :: output
+      INTEGER ,INTENT(IN) :: NSENSOR
       INTEGER NELTST,ITYPTST 
       INTEGER NUM_IMP(*),NS_IMP(*),NE_IMP(*),NT_IMP
       INTEGER IPARI(NPARI,*), ICODT(*),ITAB(*), 
@@ -78,55 +81,53 @@ C-----------------------------------------------
 
 C     REAL
       my_real DT2T, 
-     .   X(*), A(*), FSAV(NTHVKI,*) , WA(*), V(*),MS(*),
+     .   X(*), A(*), FSAV(NTHVKI,*) ,V(*),MS(*),
      .   STIFN(*), TF(*),FSKYI(LSKY,NFSKYI),VR(3,*),FCONT(3,*),IN(*),
-     .   BUFSF(*), FNCONT(3,*),FTCONT(3,*),RCONTACT(*),SENSOR(NSENSR,*),
-     .   PSKIDS(*)
+     .   BUFSF(*), FNCONT(3,*),FTCONT(3,*),RCONTACT(*),PSKIDS(*)
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
       TYPE(H3D_DATABASE) :: H3D_DATA
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) :: SENSOR_TAB
 
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, IAD,IDUM, ISENS,I
+      INTEGER N, IAD, ISENS,I
       my_real TS,STARTT,STOPT
       INTEGER NSLV,SIZ,NBT8
       my_real, DIMENSION(:,:), ALLOCATABLE :: FTSAV_BUF
-
+      INTEGER :: NTY
 C-----------------------------------------------
-#include "sync_dir.inc"
-C-----------------------------------------------
-      !CALL STARTIME(96,1)
+      !CALL STARTIME(TIMERS,96)
       NBT8 = 0
     
 
-      IF (IMPL_S.EQ.1) IAD = 1
+      IF (IMPL_S==1) IAD = 1
 C
       DO 200 N=1,NINTER
        NTY   =IPARI(7,N)
        ! used to identify the communication
        ! Will be replace by MPI_Request with
        ! MPI 3.0 support
-c      IF(ISPMD.NE.0) GOTO 200 !TO REMOVE
-       IF(NTY.EQ.8) THEN
+c      IF(ISPMD/=0) GOTO 200 !TO REMOVE
+       IF(NTY==8) THEN
         NBT8 = NBT8 + 1    
-        IF(IPARI(16,N).EQ.NCYCLE)THEN
+        IF(IPARI(16,N)==NCYCLE)THEN
         ELSE
         IPARI(16,N) = NCYCLE
 C 
-         ISENS = 0
+         ISENS = 0   ! ???
 
-         IF(ISENS.NE.0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
-            TS = SENSOR(2,ISENS)
+         IF (ISENS > 0) THEN    ! IF INTERFACE IS ACTIVATED BY SENSOR 
+            TS = SENSOR_TAB(ISENS)%TSTART
          ELSE
             TS = TT
          ENDIF
 C
-         IF(N2D.EQ.0)THEN
-           IF(IMPL_S.NE.1)THEN
-              IF(TT.GE.TS) THEN
-                CALL INTVO8(
+         IF(N2D==0)THEN
+           IF(IMPL_S/=1)THEN
+              IF(TT>=TS) THEN
+                CALL INTVO8(output,
      1        IPARI(1,N) ,X,A    ,
      2        ICODT      ,FSAV(1,N)    ,V ,MS       ,
      3        FSKYI      ,ISKY         ,FCONT   ,FNCONT ,FTCONT   ,
@@ -137,8 +138,8 @@ C
              ENDIF
            ELSE
              NUM_IMP(N) =0
-              IF(TT.GE.TS) THEN
-                CALL INTVO8(
+              IF(TT>=TS) THEN
+                CALL INTVO8(output,
      1          IPARI(1,N) ,X ,A        ,
      2          ICODT      ,FSAV(1,N)    ,V ,MS       ,
      3          FSKYI      ,ISKY         ,FCONT   ,FNCONT ,FTCONT   ,
@@ -153,7 +154,7 @@ C
 
          ENDIF !N2D
         ENDIF !IPARI(16)
-       ENDIF !NTY.EQ.8
+       ENDIF !NTY==8
   200 CONTINUE
 C
 
@@ -161,12 +162,12 @@ C
       NBT8 = 0
       DO N=1,NINTER
          NTY   =IPARI(7,N)
-c        IF(ISPMD.NE.0) GOTO 200 !TO REMOVE
-         IF(NTY.EQ.8) THEN
+c        IF(ISPMD/=0) GOTO 200 !TO REMOVE
+         IF(NTY==8) THEN
            NBT8 = NBT8+1
            STARTT=INTBUF_TAB(N)%VARIABLES(3)
            STOPT=INTBUF_TAB(N)%VARIABLES(11)
-           IF(STARTT.LE.TT .AND. TT.LE. STOPT) THEN
+           IF(STARTT<=TT .AND. TT<= STOPT) THEN
              IF(IPARI(48,N) == 2) THEN
                NSLV = IPARI(5,N)         
                ALLOCATE(FTSAV_BUF(3,NSLV))
@@ -190,8 +191,8 @@ c        IF(ISPMD.NE.0) GOTO 200 !TO REMOVE
       ENDDO
       ENDIF
 
-      IF (IMPL_S.EQ.1) NT_IMP=IAD-1
-      !CALL STOPTIME(96,1)
+      IF (IMPL_S==1) NT_IMP=IAD-1
+      !CALL STOPTIME(TIMERS,96)
 
 C      
       RETURN

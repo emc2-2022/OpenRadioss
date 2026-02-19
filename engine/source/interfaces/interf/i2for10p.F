@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I2FOR10P                      source/interfaces/interf/i2for10p.F
-Chd|-- called by -----------
-Chd|        INTTI2F                       source/interfaces/interf/intti2f.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i2for10p   ../engine/source/interfaces/interf/i2for10p.F
+!||--- called by ------------------------------------------------------
+!||    intti2f    ../engine/source/interfaces/interf/intti2f.F
+!||====================================================================
       SUBROUTINE I2FOR10P(A     ,MS    ,STIFN ,WEIGHT,IADI2 ,
      2                    FSKYI2,NSV   ,IRUPT ,CRST  ,FSM   ,
      3                    NIR   ,NSN   ,I0    ,I2SIZE, CSTS_BIS)
@@ -45,7 +44,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -54,7 +52,6 @@ C     REAL
       my_real
      .   SS,TT,XMSI,STFN,FXI,FYI,FZI,SP,SM,TP,TM,H1, H2, H3, H4,H21, H22, H23, H24
 C=======================================================================
-#include "vectorize.inc"
       DO II=1,NSN
         I=NSV(II)                      
         IF (I > 0) THEN                                           
@@ -87,7 +84,7 @@ C
           FZI=A(3,I)                              
 C
           IF (IRUPT(II) == 0) THEN                
-C---------  pas de rupture                      - 
+Cno rupture
 C
             IF (WEIGHT(I) == 1) THEN              
               XMSI = MS(I)                        
@@ -131,7 +128,7 @@ C
               A(3,I)=ZERO                         
             ENDIF                                 
           ELSEIF (IRUPT(II) == -1) THEN           
-C---------  rupture partielle                     - 
+C-------- partial break- 
 C
             FXI = FSM(1,II)                       
             FYI = FSM(2,II)                       
@@ -210,12 +207,11 @@ C-----------
       RETURN
       END SUBROUTINE I2FOR10P
 C      
-Chd|====================================================================
-Chd|  I2MOM10P                      source/interfaces/interf/i2for10p.F
-Chd|-- called by -----------
-Chd|        INTTI2F                       source/interfaces/interf/intti2f.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i2mom10p   ../engine/source/interfaces/interf/i2for10p.F
+!||--- called by ------------------------------------------------------
+!||    intti2f    ../engine/source/interfaces/interf/intti2f.F
+!||====================================================================
       SUBROUTINE I2MOM10P(
      1           X         ,A         ,AR        ,MS        ,IN        ,
      2           STIFN     ,STIFR     ,WEIGHT    ,IRECT     ,NSV       ,        
@@ -237,20 +233,12 @@ C     REAL
      .        A(3,*), AR(3,*),CRST(2,*), MS(*),
      .        X(3,*),IN(*),STIFN(*),STIFR(*), FSKYI2(I2SIZE,*), CSTS_BIS(2,*)
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I, J, II, L, NN
 C     REAL
       my_real
-     .   SS, TT, XMSI, FXI, FYI, FZI, MXI, MYI, MZI,INS,
+     .   SS, TT, FXI, FYI, FZI, MXI, MYI, MZI,INS,
      .   X0,X1,X2,X3,X4,Y0,Y1,Y2,Y3,Y4,Z0,Z1,Z2,Z3,Z4,AA,
      .   XC0,YC0,ZC0,SP,SM,TP,TM,XC,YC,ZC,H1, H2,H3,H4,
      .   STF,H21,H22,H23,H24
@@ -261,13 +249,12 @@ C-----------------------------------------------
         IN(J)=MAX(EM20,IN(J))
       ENDDO
 C
-#include "vectorize.inc"
       DO II=1,NSN
         I=NSV(II)
         IF (I > 0) THEN
 C
           IF (IRUPT(II) == 0) THEN
-C---------  pas de rupture                      - 
+Cno rupture
 C
             IF (WEIGHT(I) == 1) THEN
               L=IRTL(II)
@@ -371,7 +358,7 @@ C
             A(3,I)=ZERO
 C
           ELSEIF (WEIGHT(I) == 1) THEN
-C---------  rupture partielle ou totale                      - 
+Cpartial or total rupture
 C
             I0 = I0 + 1          
             NN = IADI2(1,I0)     

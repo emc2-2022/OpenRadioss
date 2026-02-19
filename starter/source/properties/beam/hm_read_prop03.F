@@ -1,40 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PROP03                source/properties/beam/hm_read_prop03.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROPERTIES            source/properties/hm_read_properties.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_prop03           ../starter/source/properties/beam/hm_read_prop03.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_properties       ../starter/source/properties/hm_read_properties.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    hm_get_floatv            ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted   ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod             ../starter/share/modules1/elbuftag_mod.F
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP03(GEO       ,IGEO     ,PROP_TAG ,IGTYP    ,IG        ,
      .                          IDTITL    ,UNITAB   ,LSUBMODEL)
 C============================================================================
@@ -45,23 +45,17 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "param_c.inc"
-#include      "warn_c.inc"
-#include      "scr17_c.inc"
 #include      "com01_c.inc"
 #include      "tablen_c.inc"
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -70,7 +64,7 @@ C-----------------------------------------------
       INTEGER IGTYP,IG
       my_real
      .   GEO(*)
-      CHARACTER IDTITL*nchartitle
+      CHARACTER(LEN=NCHARTITLE)::IDTITL
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
 C-----------------------------------------------
@@ -81,19 +75,19 @@ C-----------------------------------------------
      .   IR1X, IR1Y, IR1Z, IR2X, IR2Y, IR2Z,IRX 
       my_real
      .    PUN,CVIS
-      CHARACTER STRING*ncharfield,CHROT*7
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+      CHARACTER(LEN=NCHARFIELD) :: STRING
+      CHARACTER CHROT*7
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
       DATA PUN/0.1/
 C=======================================================================
 C
-        IS_CRYPTED = .FALSE.
+        IS_ENCRYPTED = .FALSE.
         IS_AVAILABLE = .FALSE.
 C--------------------------------------------------
 C OLD HIDDEN FLAGS - SET TO ZERO
-C READ(LINE,ERR=999,FMT=FMT_4I_4X_F) IHBE,ISMSTR,ISH3N,ISROT,CVIS
 C--------------------------------------------------
         IHBE=0
         ISMSTR=0
@@ -101,7 +95,7 @@ C--------------------------------------------------
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-        CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+        CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
@@ -125,33 +119,15 @@ C--------------------------------------------------
 C----------------------
 C
 C----------------------
-        IF(N2D.GT.0.AND.IHBE.NE.0.AND.IHBE.NE.2)THEN
-          IHBE_OLD=IHBE
-          IHBE=0
-          CALL ANCMSG(MSGID=321,
-     .                MSGTYPE=MSGWARNING,
-     .                ANMODE=ANINFO_BLIND_2,
-     .                I1=IG,
-     .                C1=IDTITL,
-     .                I2=IHBE_OLD,
-     .                I3=IHBE)
-        ENDIF
 C
         GEO(3)=ISMSTR
         IF ((ISMSTR==3).OR.(ISMSTR==1)) GEO(5)=EP06
-C  double stockage temporaire - supprimer GEO(12)=IGTYP apres tests
+C  Temporary double storage - Delete GEO (12) = Igtyp after tests
         IGEO( 1)=IG
         IGEO(10)=IHBE
         IGEO(11)=IGTYP
         GEO(12) =IGTYP+PUN
         GEO(171)=IHBE
-C
-        IF (IHBE.GT.11.AND.IHBE.LT.29) THEN
-C---------GEO(13,I) est utilise pour porte dn;GEO(17),CVIS se change ----
-          GEO(13)=GEO(17)
-          GEO(17)=CVIS
-C          IGEO(20)=ISROT
-        ENDIF
 C
 C----------------------
 C
@@ -168,13 +144,13 @@ C
         GEO(9)= 1.1-IR1Z
         GEO(10)=1.1-IR2Y
         GEO(11)=1.1-IR2Z
-        IF(ISHEAR.NE.0) THEN
+        IF(ISHEAR/=0) THEN
           GEO(37)=ONE
         ELSE
           GEO(37)=ZERO
         ENDIF
 C
-        IF (GEO(1).LE.ZERO) THEN
+        IF (GEO(1)<=ZERO) THEN
           CALL ANCMSG(MSGID=314,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -182,7 +158,7 @@ C
      .                   C1=IDTITL,
      .                   R1=GEO(1))
         ENDIF
-        IF (GEO(2).LE.ZERO) THEN
+        IF (GEO(2)<=ZERO) THEN
           CALL ANCMSG(MSGID=315,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -190,7 +166,7 @@ C
      .                   C1=IDTITL,
      .                   R1=GEO(2))
         ENDIF
-        IF (GEO(18).LE.ZERO) THEN
+        IF (GEO(18)<=ZERO) THEN
            CALL ANCMSG(MSGID=316,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -198,7 +174,7 @@ C
      .                   C1=IDTITL,
      .                   R1=GEO(18))
         ENDIF
-        IF (GEO(4).LE.ZERO) THEN
+        IF (GEO(4)<=ZERO) THEN
            CALL ANCMSG(MSGID=317,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -206,7 +182,7 @@ C
      .                   C1=IDTITL,
      .                   R1=GEO(4))
         ENDIF
-        IF(.NOT. IS_CRYPTED)THEN
+        IF(.NOT. IS_ENCRYPTED)THEN
           WRITE(IOUT,1300)IG,GEO(1),GEO(2),GEO(18),GEO(4),
      .                    IR1X,IR1Y,IR1Z,IR2X,IR2Y,IR2Z,ISHEAR,
      .                    GEO(16),GEO(17)
@@ -239,8 +215,6 @@ C
 C
 C------------------------------
 C----
-      RETURN
- 999  CALL FREERR(3)
       RETURN
 C-----------
  1300 FORMAT(

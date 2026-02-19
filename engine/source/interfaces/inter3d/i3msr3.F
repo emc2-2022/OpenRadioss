@@ -1,35 +1,38 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I3MSR3                        source/interfaces/inter3d/i3msr3.F
-Chd|-- called by -----------
-Chd|        I6MAIN                        source/interfaces/inter3d/i6main.F
-Chd|        I9MAIN3                       source/interfaces/int09/i9main3.F
-Chd|        INTVO3                        source/interfaces/inter3d/intvo3.F
-Chd|-- calls ---------------
-Chd|        NEAREST_SEG                   ../common_source/interf/nearest_seg.F
-Chd|====================================================================
-      SUBROUTINE I3MSR3(X,IRECT,LMSR,MSR,NSV,ILOC,IRTL,NSEG,XFACE)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i3msr3        ../engine/source/interfaces/inter3d/i3msr3.F
+!||--- called by ------------------------------------------------------
+!||    i6main        ../engine/source/interfaces/inter3d/i6main.F
+!||    i9main3       ../engine/source/interfaces/int09/i9main3.F
+!||    intvo3        ../engine/source/interfaces/inter3d/intvo3.F
+!||--- calls      -----------------------------------------------------
+!||    nearest_seg   ../common_source/interf/nearest_seg.F
+!||====================================================================
+      SUBROUTINE I3MSR3(
+     1   X,       IRECT,   LMSR,    MSR,
+     2   NSV,     ILOC,    IRTL,    NSEG,
+     3   XFACE,   LFT,     LLT,     NFT)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -41,6 +44,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(INOUT) :: LFT
+      INTEGER, INTENT(INOUT) :: LLT
+      INTEGER, INTENT(INOUT) :: NFT
       INTEGER, INTENT(IN)  :: IRECT(4,*), LMSR(*), MSR(*), NSV(*), ILOC(*), NSEG(*)
       INTEGER, INTENT(INOUT) :: IRTL(*)
       my_real, DIMENSION(MVSIZ), INTENT(IN) ::  XFACE
@@ -48,7 +54,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect07_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -64,21 +69,21 @@ C-----------------------------------------------
         JL=ILOC(IL)
         JG=MSR(JL)
         L=IRTL(IL)
-        IF(XFACE(I).EQ.ZERO)THEN
+        IF(XFACE(I)==ZERO)THEN
          IRTL(IL)=MAX(L,1)
         ELSE
          BMAX=-EP30
          LSEG_NEW=0
 C
-         IF(L.EQ.0) GOTO 100
+         IF(L==0) GOTO 100
          LSEG=L
          DO JJJ=1,4
            JJ=JJJ
-           IF(IRECT(JJ,L).EQ.JL) EXIT
+           IF(IRECT(JJ,L)==JL) EXIT
          ENDDO
          J1=KM1(JJ)
          J2=KN1(JJ)
-         IF(JJ.EQ.3.AND.IRECT(3,L).EQ.IRECT(4,L)) J1=1
+         IF(JJ==3.AND.IRECT(3,L)==IRECT(4,L)) J1=1
          M=MSR(IRECT(J1,L))
          N=MSR(IRECT(J2,L))
          CALL NEAREST_SEG(X, IG, JG, M, N, LSEG, LSEG_NEW, BMIN, BMAX)
@@ -90,14 +95,14 @@ C
          DO LL=LL1,LL2
            LG=LMSR(LL)
            LSEG=LG
-           IF(L.EQ.LG) CYCLE
+           IF(L==LG) CYCLE
            DO JJJ=1,4
              JJ=JJJ
-             IF(IRECT(JJ,LG).EQ.JL) EXIT
+             IF(IRECT(JJ,LG)==JL) EXIT
            ENDDO
            J1=KM1(JJ)
            J2=KN1(JJ)
-           IF(JJ.EQ.3.AND.IRECT(3,LG).EQ.IRECT(4,LG)) J1=1
+           IF(JJ==3.AND.IRECT(3,LG)==IRECT(4,LG)) J1=1
            M=MSR(IRECT(J1,LG))
            N=MSR(IRECT(J2,LG))
            CALL NEAREST_SEG(X, IG, JG, M, N, LSEG, LSEG_NEW, BMIN, BMAX)

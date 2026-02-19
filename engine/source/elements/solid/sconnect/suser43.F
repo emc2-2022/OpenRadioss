@@ -1,54 +1,56 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SUSER43                       source/elements/solid/sconnect/suser43.F
-Chd|-- called by -----------
-Chd|        SUFORC3                       source/user_interface/suforc3.F
-Chd|-- calls ---------------
-Chd|        ENG_USERLIB_GET_LAW_VAR       source/user_interface/dyn_userlib.c
-Chd|        ENG_USERLIB_SET_LAW_VAR       source/user_interface/dyn_userlib.c
-Chd|        ENG_USERLIB_SIGEPS99          source/user_interface/dyn_userlib.c
-Chd|        FAIL_CONNECT                  source/materials/fail/connect/fail_connect.F
-Chd|        FAIL_SNCONNECT                source/materials/fail/snconnect/fail_snconnect.F
-Chd|        SBILAN43                      source/elements/solid/sconnect/sbilan43.F
-Chd|        SCONNECT_OFF                  source/elements/solid/sconnect/sconnect_off.F
-Chd|        SCOOR43                       source/elements/solid/sconnect/scoor43.F
-Chd|        SDEF43                        source/elements/solid/sconnect/sdef43.F
-Chd|        SFINT43                       source/elements/solid/sconnect/sfint43.F
-Chd|        SIGEPS116                     source/materials/mat/mat116/sigeps116.F
-Chd|        SIGEPS117                     source/materials/mat/mat117/sigeps117.F
-Chd|        SIGEPS120_CONNECT_MAIN        source/materials/mat/mat120/sigeps120_connect_main.F
-Chd|        SIGEPS59                      source/materials/mat/mat059/sigeps59.F
-Chd|        SIGEPS83                      source/materials/mat/mat083/sigeps83.F
-Chd|        SMOM43                        source/elements/solid/sconnect/smom43.F
-Chd|        SRROTA3                       source/elements/solid/solide/srrota3.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        LAW_USERSO                    source/user_interface/law_userso.F
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
-      SUBROUTINE SUSER43(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    suser43                   ../engine/source/elements/solid/sconnect/suser43.F
+!||--- called by ------------------------------------------------------
+!||    suforc3                   ../engine/source/user_interface/suforc3.F
+!||--- calls      -----------------------------------------------------
+!||    fail_connect              ../engine/source/materials/fail/connect/fail_connect.F
+!||    fail_snconnect            ../engine/source/materials/fail/snconnect/fail_snconnect.F
+!||    sbilan43                  ../engine/source/elements/solid/sconnect/sbilan43.F
+!||    sconnect_off              ../engine/source/elements/solid/sconnect/sconnect_off.F
+!||    scoor43                   ../engine/source/elements/solid/sconnect/scoor43.F
+!||    sdef43                    ../engine/source/elements/solid/sconnect/sdef43.F
+!||    sfint43                   ../engine/source/elements/solid/sconnect/sfint43.F
+!||    sigeps116                 ../engine/source/materials/mat/mat116/sigeps116.F
+!||    sigeps117                 ../engine/source/materials/mat/mat117/sigeps117.F
+!||    sigeps120_connect_main    ../engine/source/materials/mat/mat120/sigeps120_connect_main.F
+!||    sigeps169_connect         ../engine/source/materials/mat/mat169/sigeps169_connect.F90
+!||    sigeps59                  ../engine/source/materials/mat/mat059/sigeps59.F
+!||    sigeps83                  ../engine/source/materials/mat/mat083/sigeps83.F
+!||    smom43                    ../engine/source/elements/solid/sconnect/smom43.F
+!||    srrota3                   ../engine/source/elements/solid/solide/srrota3.F
+!||    startime                  ../engine/source/system/timer_mod.F90
+!||    stoptime                  ../engine/source/system/timer_mod.F90
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod              ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    mat_elem_mod              ../common_source/modules/mat_elem/mat_elem_mod.F90
+!||    mvsiz_mod                 ../engine/share/spe_inc/mvsiz_mod.F90
+!||    sigeps169_connect_mod     ../engine/source/materials/mat/mat169/sigeps169_connect.F90
+!||    table_mod                 ../engine/share/modules/table_mod.F
+!||    timer_mod                 ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE SUSER43(TIMERS,
      1 ELBUF_STR,IOUT  ,IPROP  ,IMAT   ,NGL    ,TIME  ,TIMESTEP,FR_WAVE,
      2 XX1      ,XX2   ,XX3    ,XX4    ,XX5    ,XX6    ,XX7    ,XX8    ,   
      3 YY1      ,YY2   ,YY3    ,YY4    ,YY5    ,YY6    ,YY7    ,YY8    , 
@@ -64,13 +66,17 @@ Chd|====================================================================
      G FZ1      ,FZ2   ,FZ3    ,FZ4    ,FZ5    ,FZ6    ,FZ7    ,FZ8    ,
      H STIFM    ,STIFR ,VISCM  ,VISCR  ,PARTSAV,IPARTS ,BUFMAT ,IOUTPRT,
      L IFAILURE ,NPF   ,TF     ,IPM    ,IGEO   ,NPG    ,NEL    ,JSMS   ,
-     M DMELS    ,PM    ,GEO    ,ITASK  ,JTHE   ,TABLE )
+     M DMELS    ,PM    ,GEO    ,ITASK  ,JTHE   ,TABLE  ,MAT_PARAM,
+     N IDTMINS  ,DTFACS,DTMINS)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE TIMER_MOD
       USE TABLE_MOD
-      USE ELBUFDEF_MOD            
-      USE LAW_USERSO
+      USE MAT_ELEM_MOD            
+      USE SIGEPS169_CONNECT_MOD
+      USE ELBUFDEF_MOD
+      use MVSIZ_MOD,only : MVSIZ
 C-------------------------------------------------------------------------
 C     This subroutine compute user 8 nodes solids forces and moments.
 C----------+---------+---+---+--------------------------------------------
@@ -81,7 +87,7 @@ C NUVAR    |  1      | I | R | NUMBER OF USER ELEMENT VARIABLES
 C IOUT     |  1      | I | R | OUTPUT FILE UNIT (L01 file)
 C IPROP    |  1      | I | R | PROPERTY NUMBER
 C IMAT     |  1      | I | R | MATERIAL NUMBER
-C NGL |  NEL    | I | R | SOLID ELEMENT ID
+C NGL      |  NEL    | I | R | SOLID ELEMENT ID
 C----------+---------+---+---+--------------------------------------------
 C TIME     |  1      | F | R | CURRENT TIME 
 C TIMESTEP |  1      | F | R | CURRENT TIME STEP
@@ -99,7 +105,7 @@ C----------+---------+---+---+--------------------------------------------
 C OFF      |  NEL    | F |R/W| DELETE FLAG (=1. ON =0. OFF)
 C RHO      |  NEL    | F |R/W| DENSITY
 C SIG      | 6*NEL   | F |R/W| STRESS TENSOR SX,SY,SZ,SXY,SYZ,SZX
-C          |         |   |   | RHO and SIG cann be used for post processing 
+C          |         |   |   | RHO and SIG can be used for post processing 
 C          |         |   |   | in TH++ or ModAnim
 C          |         |   |   | The modification of these variables has only 
 C          |         |   |   | effect on output. If these value are not
@@ -143,16 +149,19 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "scr19_c.inc"
 #include      "task_c.inc"
-#include      "usrplas_c.inc"
 #include      "userlib.inc"
 #include      "timeri_c.inc"
 C----------------------------------------------------------
 C   D u m m y   A r g u m e n t s  
 C----------------------------------------------------------
+      TYPE(TIMER_), INTENT(INOUT) :: TIMERS
       INTEGER NEL,IOUT,IPROP,IMAT,IOUTPRT,IFAILURE,NPG, JSMS,JTHE
       INTEGER NGL(NEL),IPARTS(*),NPF(*),IPM(NPROPMI,*),
      .  IGEO(NPROPGI,*),ITASK
       TARGET  :: IPM
+      INTEGER,INTENT(IN)  :: IDTMINS
+      my_real,INTENT(IN)  :: DTFACS
+      my_real,INTENT(IN)  :: DTMINS
       my_real
      .  TIME,TIMESTEP,PARTSAV(NPSAV,*),DMELS(*),PM(NPROPM,*),
      .  STIFM(*) ,STIFR(*) , VISCM(*) ,VISCR(*) ,FR_WAVE(*),TF(*),             
@@ -171,17 +180,18 @@ C----------------------------------------------------------
      .  GEO(NPROPG,*)
       TYPE (ELBUF_STRUCT_)  ,TARGET :: ELBUF_STR
       my_real ,DIMENSION(*) ,TARGET :: BUFMAT
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(IN) :: MAT_PARAM
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER I,I1,I2,II,JJ(6),J,J1,J2,IC,IR,IP,IPG,JPT,IUV,IEL,ISRATE,
+      INTEGER I,J,IR,IPG,IEL,ISRATE,
      .  NPAR,NPARF,NVARF,NFUNC,NFUNCR,NFAILS,ISMSTR,ILAW_USER,IPTR,IPTS,IPTT,
-     .  IADBUF,IADBUFR,IFAIL,NUVAR,MTN,NDAMF,ISOLID,ISOLIDF,NUMTABL,NVARTMP
+     .  IADBUF,IFAIL,NUVAR,MTN,NDAMF,ISOLID,ISOLIDF,NUMTABL,NVARTMP,LF_DAMMX
       INTEGER IFUNC(MAXFUNC),IFUNCR(MAXFUNC)
-      my_real :: A,B,C,ALPHA,EPSP,ASRATE,TTHICK,OFF_EL
+      my_real :: EPSP,ASRATE,ALPHA,TTHICK,OFF_EL
       my_real 
      .   HH(NPG,NPG),AREAP(MVSIZ,NPG),AREAT(MVSIZ),
-     .   UXLOC(MVSIZ,8),UYLOC(MVSIZ,8),UZLOC(MVSIZ,8),
+     .
      .   VXLOC(MVSIZ,8),VYLOC(MVSIZ,8),VZLOC(MVSIZ,8),
      .   VXZ(MVSIZ,NPG),VYZ(MVSIZ,NPG),VZZ(MVSIZ,NPG),
      .   VGXA(MVSIZ),VGYA(MVSIZ),VGZA(MVSIZ), VGA2(MVSIZ),
@@ -202,14 +212,12 @@ C-----------------------------------------------
      .   USER_PLA(MVSIZ),USER_OFF(MVSIZ),USER_EINT(MVSIZ),USER_RHO(MVSIZ),USER_VOL(MVSIZ)
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
       TYPE(L_BUFEL_)  ,POINTER :: LBUF     
-      TYPE(BUF_MAT_)  ,POINTER :: MATBUF
       TYPE(FAIL_LOC_) ,POINTER :: FLOC
       TARGET :: AREAP   
-      TYPE(BUF_FAIL_), POINTER  :: FBUF
-      TYPE(ULAWINTBUF) :: USERBUF
       TYPE (TTABLE)  , DIMENSION(NTABLE) ::  TABLE
       INTEGER, DIMENSION(:) ,POINTER   :: ITABLE,VARTMP
-      my_real, DIMENSION(:),POINTER :: EPLASN,EPLAST,EPSD,UPARAM,UVAR,AREA,AREAN,OFFI
+      my_real, DIMENSION(:),POINTER :: EPLASN,EPLAST,EPSD,UPARAM,UVAR,AREA,AREAN
+      integer :: JJ(6)
      
 C=======================================================================
       GBUF  => ELBUF_STR%GBUF
@@ -230,7 +238,8 @@ C=======================================================================
       ITABLE => IPM(226+1:226+NUMTABL,IMAT)
                      
       ISRATE = IPM(3,IMAT)
-      ALPHA  = PM(9,IMAT)
+      ASRATE = PM(9,IMAT)   ! 2*PI*FCUT
+      ALPHA  = MIN(ONE,ASRATE*TIMESTEP)
       
       ISMSTR = IGEO(5,IPROP)
       TTHICK = GEO(41,IPROP)
@@ -308,8 +317,8 @@ c-----------------------------------------------------------------------
 C-------------------
 C     MEAN STRAIN RATE
 C-------------------
-      IF (MTN == 116) THEN
-        CONTINUE
+      IF (MTN == 116 .or. MTN == 83 .or. MTN == 120) THEN
+        GBUF%EPSD(1:NEL) = ZERO                                   
       ELSE
         DO IPG=1,NPG                                          
           DO I=1,NEL                                          
@@ -322,21 +331,19 @@ C-------------------
           EP1(I) = EP1(I)*FOURTH                               
           EP2(I) = EP2(I)*FOURTH                               
           EP3(I) = EP3(I)*FOURTH                               
-          EPSP   = SQRT(EP1(I)**2 + EP2(I)**2 + EP3(I)**2)    
-                                                              
+          EPSP   = SQRT(EP1(I)**2 + EP2(I)**2 + EP3(I)**2)                                                                  
           IF (ISRATE > 0) THEN                                
-            ASRATE = MIN(ONE,ALPHA*TIMESTEP)                    
-            EPSP = ASRATE*EPSP + (ONE - ASRATE)*GBUF%EPSD(I)    
-          ENDIF                                               
-          GBUF%EPSD(I)=EPSP                                   
+            EPSP  = ALPHA*EPSP + (ONE - ALPHA)*GBUF%EPSD(I)
+          ENDIF 
+          GBUF%EPSD(I) = EPSP                                   
         ENDDO
       END IF                                            
 C--------------------------------------------------
       DELTAE(1:NEL) = ZERO
 c--------------------------------------------------
-      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(35,1)
+      IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(TIMERS,35)
 c--------------------------------------------------
-c     BOUCLE SUR LES POINTS DE GAUSS
+c     loop over gauss points
 c--------------------------------------------------
       DO IPG = 1,NPG
         LBUF => ELBUF_STR%BUFLY(1)%LBUF(IPG,1,1)
@@ -379,7 +386,7 @@ C
 c--------------------------------------------------
 c       material laws           
 c--------------------------------------------------
-        IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(35,1)
+        IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(TIMERS,35)
 c--------------------------------------------------
         SELECT CASE(MTN)
 c---
@@ -405,7 +412,7 @@ c
      3         AREA     ,DEPSZZ   ,DEPSYZ   ,DEPSZX   ,NPAR     ,EPSZZ   ,  
      4         SIG0ZZ   ,SIG0YZ   ,SIG0ZX   ,SIGNZZ   ,SIGNYZ   ,SIGNZX  ,  
      5         LBUF%PLA ,JSMS     ,DMELS    ,SYM      ,UVAR     ,NUVAR   ,  
-     6         LBUF%DMG ,ASRATE   ,ISRATE   )                                                      
+     6         LBUF%DMG ,ALPHA    )                                                      
 c           mean Gauss point values for element output                                                     
             DO IEL=1,NEL
               GBUF%PLA(IEL)  = GBUF%PLA(IEL)  + FOURTH*LBUF%PLA(IEL)
@@ -434,7 +441,7 @@ c
      2        UPARAM   ,UVAR     ,AREA     ,GBUF%OFF ,LBUF%OFF ,   
      3        EPSZZ    ,EPSYZ    ,EPSZX    ,DEPSZZ   ,DEPSYZ   ,DEPSZX   ,
      4        SIGNZZ   ,SIGNYZ   ,SIGNZX   ,STIFM    ,DMELS    ,LBUF%DMG ,
-     5        IPG      ,ISOLIDF  ,NGL      ,NFUNC    ,IFUNC    ,NPF      ,TF)
+     5        IPG      ,ISOLIDF  ,NGL      ,NFUNC    ,IFUNC    ,NPF    ,TF)
 
           CASE (120) ! TAPO model
             CALL SIGEPS120_CONNECT_MAIN(
@@ -443,15 +450,26 @@ c
      3         AREA     ,DEPSZZ   ,DEPSYZ   ,DEPSZX   ,EPSZZ    ,NPAR     ,
      4         SIG0ZZ   ,SIG0YZ   ,SIG0ZX   ,SIGNZZ   ,SIGNYZ   ,SIGNZX  ,  
      5         LBUF%PLA ,JSMS     ,DMELS    ,UVAR     ,NUVAR    ,
-     6         NUMTABL  ,ITABLE   ,TABLE    ,NVARTMP  ,VARTMP   ,LBUF%TEMP    )                                           
+     6         NUMTABL  ,ITABLE   ,TABLE    ,NVARTMP  ,VARTMP   ,LBUF%TEMP,
+     7         LBUF%DMG)                                           
 c           mean Gauss point values for element output                                                     
             DO IEL=1,NEL
               GBUF%PLA(IEL)  = GBUF%PLA(IEL)  + FOURTH*LBUF%PLA(IEL)
               GBUF%EPSD(IEL) = GBUF%EPSD(IEL) + FOURTH*LBUF%EPSD(IEL)
             ENDDO 
 C-----------------------------------------------
+          CASE (169) ! MAT_ARUP_ADHESIVE
 
+           CALL SIGEPS169_CONNECT(
+     1        NEL      ,TIME     ,MAT_PARAM(IMAT)%IPARAM,  MAT_PARAM(IMAT)%UPARAM ,
+     2        MAT_PARAM(IMAT)%NIPARAM     ,MAT_PARAM(IMAT)%NUPARAM     ,STIFM    ,
+     3        AREA     ,GBUF%OFF ,NUVAR   ,UVAR     ,IPG      ,
+     4        DEPSZZ   ,DEPSYZ   ,DEPSZX  ,EPSZZ    ,EPSYZ    ,EPSZX   ,
+     5        SIG0ZZ   ,SIG0YZ   ,SIG0ZX  ,SIGNZZ   ,SIGNYZ   ,SIGNZX  ,
+     6        LBUF%PLA ,IOUT     ,JSMS    ,LBUF%DMG ,NGL      ,DMELS   ,
+     7        IDTMINS  ,DTFACS   ,DTMINS  ,GBUF%THK)
 
+C-----------------------------------------------
          CASE (99)
 c
           IF (USERL_AVAIL>0) THEN
@@ -479,7 +497,7 @@ C           Fill Structure in dynamical library
      *           BID,    BID, BID, BID, BID, BID,  BID,  
      *           BID,    DEPSZZ, BID, DEPSYZ, DEPSZX, RHO0, BID,   
      *           BID,    SIGNZZ,  BID,  SIGNYZ,  SIGNZX,  BID,  BID,  
-     *  	        BID,    BID, BID, BID )                 
+     *            BID,    BID, BID, BID )                 
 c
 c           Call user law in dynamical user library
             CALL  ENG_USERLIB_SIGEPS99(
@@ -515,46 +533,45 @@ c--------------------------------------------------
      .                DEPSZX(IEL)*(SIG0ZX(IEL) + SIGNZX(IEL)) ) 
         ENDDO
 c--------------------------------------------------
-        IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STOPTIME(35,1)
+        IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STOPTIME(TIMERS,35)
 c--------------------------------------------------
 c       Failure Models
 c--------------------------------------------------
-        IF ((ITASK==0).AND.(IMON_MAT==1))CALL STARTIME(121,1)
+        IF ((ITASK==0).AND.(IMON_MAT==1))CALL STARTIME(TIMERS,121)
 c--------------------------------------------------
         SOFT(1:NEL) = ONE
 c
         IF (IFAILURE == 1) THEN                                                
-          NFAILS = IPM(220, IMAT)       
+          NFAILS = MAT_PARAM(IMAT)%NFAIL     
                            
           DO IR = 1,NFAILS                                                     
-            IP = (IR -1)*15                                                    
-            IFAI L = IPM(111 +IP ,IMAT)                                        
-            NPARF  = IPM(112 +IP ,IMAT)                                        
-            NVARF  = IPM(113 +IP ,IMAT)    
-            IADBUFR= IPM(114 +IP ,IMAT)                                        
-            NFUNCR = IPM(115 +IP ,IMAT)                                        
+            IFAIL  = MAT_PARAM(IMAT)%FAIL(IR)%IRUPT                                   
+            NPARF  = MAT_PARAM(IMAT)%FAIL(IR)%NUPARAM                                       
+            NVARF  = MAT_PARAM(IMAT)%FAIL(IR)%NUVAR    
+            NFUNCR = MAT_PARAM(IMAT)%FAIL(IR)%NFUNC
             DO I=1,NFUNCR                                                      
-              IFUNCR(I) = IPM(115 + IP + I,IMAT)
+              IFUNCR(I) = MAT_PARAM(IMAT)%FAIL(IR)%IFUNC(I) 
             ENDDO                                                              
 C
-            FLOC  => ELBUF_STR%BUFLY(1)%FAIL(IPG,1,1)%FLOC(IR)                      
+            FLOC  => ELBUF_STR%BUFLY(1)%FAIL(IPG,1,1)%FLOC(IR)  
+            LF_DAMMX = FLOC%LF_DAMMX                    
 c
             IF (IFAIL == 20)THEN                                                   
 C
               CALL FAIL_CONNECT(                                                          
      1        NEL       ,NPARF    ,NVARF   ,NFUNCR   ,IFUNCR    ,                    
-     2        NPF       ,TF       ,TIME    ,TIMESTEP ,BUFMAT(IADBUFR),                
+     2        NPF       ,TF       ,TIME    ,TIMESTEP ,MAT_PARAM(IMAT)%FAIL(IR)%UPARAM,                
      3        FLOC%VAR  ,NGL      ,EPSZZ   ,EPSZX    ,EPSYZ     ,                           
      4        GBUF%EPSD ,GBUF%OFF ,LBUF%OFF,IPG      ,ISOLIDF   ,                       
      5        SIGNZZ    ,SIGNYZ   ,SIGNZX  ,DEIN     ,DEIT      ,              
-     6        FLOC%DAMMX,FLOC%TDEL,AREAN   ,SOFT     )                                                   
+     6        FLOC%DAMMX,LF_DAMMX ,FLOC%TDEL,AREAN   ,SOFT      )                                                   
 c
             ELSEIF (IFAIL == 26)THEN                                               
 C
               NDAMF =  FLOC%LF_DAM                                                  
               CALL FAIL_SNCONNECT(                                                          
      1        NEL       ,NPARF     ,NVARF     ,NFUNCR    ,IFUNCR    ,             
-     2        NPF       ,TF        ,TIME      ,TIMESTEP  ,BUFMAT(IADBUFR),         
+     2        NPF       ,TF        ,TIME      ,TIMESTEP  ,MAT_PARAM(IMAT)%FAIL(IR)%UPARAM,     
      3        FLOC%VAR  ,NGL       ,IPG       ,NPG       ,NDAMF     ,              
      4        LBUF%EPSD ,LBUF%PLA  ,GBUF%OFF  ,LBUF%OFF  ,ISOLIDF   ,         
      5        SIGNZZ    ,SIGNYZ    ,SIGNZX    ,SYM       ,AREAN     ,               
@@ -568,7 +585,7 @@ c
 c--------------------------------------------------
         ISOLID = MIN(ISOLID, ISOLIDF)
 c--------------------------------------------------
-        IF (ITASK==0 .and. IMON_MAT==1) CALL STOPTIME(121,1)                                                           
+        IF (ITASK==0 .and. IMON_MAT==1) CALL STOPTIME(TIMERS,121)                                                           
 c--------------------------------------------------
 c       global element constraints in local frame (for output)
 c
@@ -602,18 +619,18 @@ c       save current strain and stress
         ENDDO                               
         IF (ELBUF_STR%BUFLY(1)%L_EPE > 0) THEN
           DO IEL=1,NEL
-            LBUF%EPE(JJ(1)+IEL) = EPSZZ(IEL)	 
-            LBUF%EPE(JJ(2)+IEL) = EPSYZ(IEL)	 
-            LBUF%EPE(JJ(3)+IEL) = EPSZX(IEL)	 
+            LBUF%EPE(JJ(1)+IEL) = EPSZZ(IEL)   
+            LBUF%EPE(JJ(2)+IEL) = EPSYZ(IEL)   
+            LBUF%EPE(JJ(3)+IEL) = EPSZX(IEL)   
           ENDDO
         END IF
 c
 C----
       ENDDO   ! IPG=1,NPG                                                               
 c--------------------------------------------------
-c     FIN BOUCLE SUR LES POINTS DE GAUSS
+c     end of loop over gauss points
 c--------------------------------------------------
-c     element suppression
+c     delete element
 c--------------------------------------------------
       CALL SCONNECT_OFF(ELBUF_STR ,GBUF%OFF  ,NEL    ,NPG    ,NGL   ,
      .                  ISOLID    ,TIME      )
@@ -638,10 +655,16 @@ C     Add forces for moment equilibrium
      .     RXX   ,RYY   ,RZZ   ,TTHICK ) 
 C     Nodal forces : corotationnal --> global
       CALL SRROTA3(
-     .     E1X   ,E1Y   ,E1Z   ,E2X   ,E2Y   ,E2Z   ,E3X   ,E3Y   ,E3Z ,
-     .     FX1   ,FX2   ,FX3   ,FX4   ,FX5   ,FX6   ,FX7   ,FX8   ,
-     .     FY1   ,FY2   ,FY3   ,FY4   ,FY5   ,FY6   ,FY7   ,FY8   ,
-     .     FZ1   ,FZ2   ,FZ3   ,FZ4   ,FZ5   ,FZ6   ,FZ7   ,FZ8   )
+     1   E1X,     E1Y,     E1Z,     E2X,
+     2   E2Y,     E2Z,     E3X,     E3Y,
+     3   E3Z,     FX1,     FX2,     FX3,
+     4   FX4,     FX5,     FX6,     FX7,
+     5   FX8,     FY1,     FY2,     FY3,
+     6   FY4,     FY5,     FY6,     FY7,
+     7   FY8,     FZ1,     FZ2,     FZ3,
+     8   FZ4,     FZ5,     FZ6,     FZ7,
+     9   FZ8,     NEL)
 c-----------
       RETURN
       END
+

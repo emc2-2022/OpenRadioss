@@ -1,40 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ANIOFF0                       source/output/anim/generate/anioff0.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_IGET_PARTN               source/mpi/anim/spmd_iget_partn.F
-Chd|        WRITE_C_C                     source/output/tools/sortie_c.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    anioff0           ../engine/source/output/anim/generate/anioff0.F
+!||--- called by ------------------------------------------------------
+!||    genani            ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_iget_partn   ../engine/source/mpi/anim/spmd_iget_partn.F
+!||    write_c_c         ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod      ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    my_alloc_mod      ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE ANIOFF0(ELBUF_TAB ,IPARG   ,IOFF      ,EL2FA   ,
      .                   NBF       ,NBPART  ,IADG      ,SIOFF   ,SPH2SOL)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
-      USE ELBUFDEF_MOD         
+      USE ELBUFDEF_MOD
+      use my_alloc_mod
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -42,14 +45,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "mvsiz_p.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "sphcom.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
 #include      "task_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
@@ -63,11 +61,14 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
 C     REAL
       INTEGER I, NG, NEL, NFT, IAD, ITY, LFT,
-     .        N, LLT, MLW, NB1, 
-     .        NN1,NN2,
-     .        IOFFBUF(NBF),RBUF,IOFF_LOC(SIOFF)
+     .        N, LLT, MLW, 
+     .        NN1,NN2,RBUF
+      INTEGER, DIMENSION(:),ALLOCATABLE :: IOFFBUF
+      INTEGER, DIMENSION(:),ALLOCATABLE :: IOFF_LOC
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C=======================================================================
+      CALL MY_ALLOC(IOFFBUF,NBF)
+      CALL MY_ALLOC(IOFF_LOC,SIOFF)
       NN1 = 1
       NN2 = NN1 + (NUMSPH+MAXPJET)
 C-----------------------------------------------
@@ -96,7 +97,7 @@ C---      sleeping sol2sph particles considered as deleted in anim
             DO I=LFT,LLT
               N = NFT + I
               IOFF(EL2FA(NN1+N)) = NINT(MIN(GBUF%OFF(I),ONE))
-              IF (SPH2SOL(N).EQ.0) THEN
+              IF (SPH2SOL(N)==0) THEN
                 IOFF_LOC(EL2FA(NN1+N)) = IOFF(EL2FA(NN1+N))
               ELSE
                 IOFF_LOC(EL2FA(NN1+N)) = 0
@@ -132,5 +133,7 @@ C-----------------------------------------------
 
       ENDIF
 C-----------
+      DEALLOCATE(IOFFBUF)
+      DEALLOCATE(IOFF_LOC)
       RETURN
       END

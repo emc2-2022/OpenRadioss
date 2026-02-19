@@ -1,32 +1,32 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  THERMEXPPI                    source/elements/beam/thermexpp.F
-Chd|-- called by -----------
-Chd|        PFORC3                        source/elements/beam/pforc3.F 
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    thermexppi     ../engine/source/elements/beam/thermexpp.F
+!||--- called by ------------------------------------------------------
+!||    pforc3         ../engine/source/elements/beam/pforc3.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||====================================================================
       SUBROUTINE THERMEXPPI(ELBUF_STR,
      1                  NEL    ,NPT    ,MAT    , PID    ,
      2                  PM     ,GEO    , AL     ,ETH    ,
@@ -46,14 +46,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "scr17_c.inc"
 #include      "param_c.inc"
-#include      "com08_c.inc"
-#include      "com20_c.inc"
-#include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -68,8 +61,8 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER ICC(MVSIZ),IRTY(MVSIZ),INDX(MVSIZ)
-      INTEGER I, J, J1, J2, NPIF, MX, IPT, IPY,IPZ,IPA,NINDX,
+ 
+      INTEGER I, MX, IPT, IPA, 
      .        IR,IS,ILAYER,II(3)
 C     REAL
       my_real
@@ -81,7 +74,7 @@ C=======================================================================
 !   
    
 C-------------------------------------
-C     DEBUT DE BOUCLE SUR POINTS INTEGRATION
+C     START OF LOOP OVER INTEGRATION POINTS
 C--------------------------------------
 C             
       IPA  = 400  
@@ -102,32 +95,31 @@ C
           ENDDO
         ENDIF        
 C
-C---    Contraintes elastiques
+C--- Elastic constraints
 C
         DO I =1 ,NEL             
           MX = MAT(I)                            
           E    = PM(20,MX)                         
           SIGNXX =  -E*ETH(I)  
-C       FORCES ET MOMENTS
+C       FORCES AND MOMENTS
           APT = GEO(IPA+IPT,PID(I)) 
           DFXX = APT*SIGNXX
-          FOR(I,1) = FOR(I,1) + DFXX		 
+          FOR(I,1) = FOR(I,1) + DFXX     
 C                                                    
           LBUF%SIG(II(1)+I) = LBUF%SIG(II(1)+I) + SIGNXX
         ENDDO                                                       
 C-------------------------------------
-C       FIN DE BOUCLE SUR POINT INTEGRATION
+C       END OF LOOP OVER INTEGRATION POINTS
 C-------------------------------------
        ENDDO   
 C-----------
       RETURN
       END
-Chd|====================================================================
-Chd|  THERMEXPPG                    source/elements/beam/thermexpp.F
-Chd|-- called by -----------
-Chd|        PFORC3                        source/elements/beam/pforc3.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    thermexppg   ../engine/source/elements/beam/thermexpp.F
+!||--- called by ------------------------------------------------------
+!||    pforc3       ../engine/source/elements/beam/pforc3.F
+!||====================================================================
       SUBROUTINE THERMEXPPG(
      .              NEL    ,MAT     ,PID   , PM, GEO ,
      .              OFF    ,ETH     ,FOR     ,EINT  )
@@ -143,11 +135,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "scr06_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "vect01_c.inc"
-#include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -155,11 +142,11 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   PM(NPROPM,*), FOR(NEL,3),  EINT(NEL,2), GEO(NPROPG,*),
-     .   OFF(*),AL(MVSIZ),ETH(NEL)
+     . OFF(*),ETH(NEL)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J
+      INTEGER I
 C     REAL
       my_real
      .   YM,A1

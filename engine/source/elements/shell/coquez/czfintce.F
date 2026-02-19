@@ -1,38 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CZFINTCE                      source/elements/shell/coquez/czfintce.F
-Chd|-- called by -----------
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    czfintce      ../engine/source/elements/shell/coquez/czfintce.F
+!||--- called by ------------------------------------------------------
+!||    czforc3       ../engine/source/elements/shell/coquez/czforc3.F
+!||    czforc3_crk   ../engine/source/elements/xfem/czforc3_crk.F
+!||====================================================================
         SUBROUTINE CZFINTCE(JFT  ,JLT  ,THK  ,C1   ,A_I  ,X13  ,
      2                      X24  ,Y13  ,Y24  ,Z1   ,MX23 ,MX13 ,
      3                      MX34 ,MY13 ,MY23 ,MY34 ,VSTRE,MSTRE,
      4                      VF   ,VM   ,NEL)
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C        CALCUL LA PARTIE CONSTANTE
+C        calculation of the constant part
 C         VF(3,NODE),VM(2,NODE) : FORCES INTERNES GENERALISEES
 C        ENTREES  : THK,AREA,X13,X24,Y13,Y24,MX13,MX34,MY13,MY34,Z1,...
 C        SORTIES  : VF,VM
@@ -56,7 +55,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-        INTEGER I ,J
+        INTEGER I 
         my_real
      .     S1, C2, Y13S8, Y24S8, S42S, S52S, X13S8, X24S8
 C
@@ -102,13 +101,12 @@ C
        ENDDO
        RETURN
        END
-Chd|====================================================================
-Chd|  CZFINTCRZ                     source/elements/shell/coquez/czfintce.F
-Chd|-- called by -----------
-Chd|        CZFORC3                       source/elements/shell/coquez/czforc3.F
-Chd|        CZFORC3_CRK                   source/elements/xfem/czforc3_crk.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    czfintcrz     ../engine/source/elements/shell/coquez/czfintce.F
+!||--- called by ------------------------------------------------------
+!||    czforc3       ../engine/source/elements/shell/coquez/czforc3.F
+!||    czforc3_crk   ../engine/source/elements/xfem/czforc3_crk.F
+!||====================================================================
         SUBROUTINE CZFINTCRZ(JFT  ,JLT  ,THK  ,VOL  ,AREA ,X13  ,
      2                       X24  ,Y13  ,Y24  ,Z1   ,MX23 ,MX13 ,
      3                       MX34 ,MY13 ,MY23 ,MY34 ,VSTRE,VSRZ ,
@@ -134,7 +132,7 @@ C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
         INTEGER I ,J
         my_real
-     .     S1, C2, A05,ERZ,OFF05
+     .      C2,ERZ,OFF05
 C
 C      --------const sig_rz added here---------
        DO I=JFT,JLT

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS72C                     source/materials/mat/mat072/sigeps72c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps72c   ../engine/source/materials/mat/mat072/sigeps72c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||====================================================================
       SUBROUTINE SIGEPS72C(
      1     NEL      ,NUPARAM  ,NUVAR    ,
      2     TIME     ,TIMESTEP ,UPARAM   ,RHO0     ,THKLY    ,
@@ -34,7 +33,7 @@ Chd|====================================================================
      5     SIGNXX   ,SIGNYY   ,SIGNXY   ,SIGNYZ   ,SIGNZX   ,
      6     SOUNDSP  ,THK      ,PLA      ,UVAR     ,OFF      ,
      7     ETSE     ,GS       ,YLD      ,HARDM    ,SEQ      ,
-     8     DPLA     ,DMG      ,INLOC    ,DPLANL   )
+     8     DPLA     ,DMG      ,INLOC    ,DPLANL   ,LOFF     )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,10 +45,6 @@ C-----------------------------------------------
 C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
@@ -65,6 +60,7 @@ C
      .   SIGOXY(NEL),SIGOYZ(NEL),SIGOZX(NEL),
      .   GS(*),HARDM(NEL),SEQ(NEL),DMG(NEL),
      .   DPLANL(NEL)
+      my_real, DIMENSION(NEL), INTENT(IN) :: LOFF
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -80,7 +76,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,II,J,NMAX,NINDX,INDEX(MVSIZ),NITER,ITER
+      INTEGER I,II,NINDX,INDEX(MVSIZ),NITER,ITER
       my_real
      . E,NU,G,A11,A12,
      . SIGY,EPS0,NEXP,
@@ -216,12 +212,12 @@ c
           ! the consistency condition using the backward Euler implicit method
           ! with a Newton-Raphson iterative procedure
           ! Its expression at each iteration is : DLAMBDA = - PHI/DPHI_DLAMBDA
-	  ! -> PHI          : current value of yield function (known)
+            ! -> PHI          : current value of yield function (known)
           ! -> DPHI_DLAMBDA : derivative of PHI with respect to DLAMBDA by taking
           !                   into account of internal variables kinetic : 
           !                   plasticity, temperature and damage (to compute)
 c        
-	  ! 1 - Computation of DPHI_DSIG the normal to the yield surface
+            ! 1 - Computation of DPHI_DSIG the normal to the yield surface
           !------------------------------------------------------------- 
           NORMXX = (GG*SIGNXX(I) + HH*(SIGNXX(I)-SIGNYY(I)))/(MAX(SIGHL(I),EM20))
           NORMYY = (FF*SIGNYY(I) + HH*(SIGNYY(I)-SIGNXX(I)))/(MAX(SIGHL(I),EM20))
@@ -230,13 +226,13 @@ c
           ! 2 - Computation of DPHI_DLAMBDA
           !---------------------------------------------------------
 c        
-          !   a) Derivative with respect stress increments tensor DSIG			
+          !   a) Derivative with respect stress increments tensor DSIG
           !   --------------------------------------------------------
           DFDSIG2 = NORMXX * (A11*NORMXX + A12*NORMYY)
      .            + NORMYY * (A11*NORMYY + A12*NORMXX)
      .            + NORMXY * NORMXY * G         
 c
-          !   b) Derivatives with respect to plastic strain P 			
+          !   b) Derivatives with respect to plastic strain P 
           !   ------------------------------------------------  
 c          
           !     i) Derivative of the yield stress with respect to plastic strain dYLD / dPLA
@@ -312,12 +308,12 @@ C
 C
           ! Computation of triaxiality
           ETA = P/MAX(SVM(I),EM20)
-          IF (ETA < -TWO_THIRD) ETA = TWO_THIRD
-          IF (ETA > TWO_THIRD)  ETA = TWO_THIRD
+          IF (ETA < -TWO_THIRD) ETA = -TWO_THIRD
+          IF (ETA > TWO_THIRD)  ETA =  TWO_THIRD
           ! Computation of Lode angle
           COS3THETA = -HALF*TWENTY7*ETA*(ETA**2 - THIRD)
           IF (COS3THETA < -ONE ) COS3THETA = -ONE
-          IF (COS3THETA > ONE )  COS3THETA = ONE
+          IF (COS3THETA > ONE )  COS3THETA =  ONE
           THETA = ONE - TWO*ACOS(COS3THETA)/PI
 C             
           ! Computation of the failure factor
@@ -350,14 +346,21 @@ C
         ! Sound-speed
         SOUNDSP(I) = SQRT(A11/RHO0(I)) 
         ! Coefficient for hourglass
-        ETSE(I)    = H(I) / (H(I) + E)
-        HARDM(I)   = H(I)
+        IF (DPLA(I) > ZERO) THEN 
+          ETSE(I)  = H(I) / (H(I) + E)
+          HARDM(I) = H(I)
+        ELSE
+          ETSE(I)  = ONE
+          HARDM(I) = ZERO
+        ENDIF
         ! Computation of the thickness variation 
         DEELZZ(I)  = -NU*(SIGNXX(I)-SIGOXX(I)+SIGNYY(I)-SIGOYY(I))/E
         IF (INLOC > 0) THEN 
-          NORMXX   = (GG*SIGNXX(I) + HH*(SIGNXX(I)-SIGNYY(I)))/(MAX(SIGHL(I),EM20))
-          NORMYY   = (FF*SIGNYY(I) + HH*(SIGNYY(I)-SIGNXX(I)))/(MAX(SIGHL(I),EM20))
-          DEZZ(I)  = DEELZZ(I) - MAX(DPLANL(I),ZERO)*(NORMXX+NORMYY)
+          IF (LOFF(I) == ONE) THEN 
+            NORMXX   = (GG*SIGNXX(I) + HH*(SIGNXX(I)-SIGNYY(I)))/(MAX(SIGHL(I),EM20))
+            NORMYY   = (FF*SIGNYY(I) + HH*(SIGNYY(I)-SIGNXX(I)))/(MAX(SIGHL(I),EM20))
+            DEZZ(I)  = DEELZZ(I) - MAX(DPLANL(I),ZERO)*(NORMXX+NORMYY)
+          ENDIF
         ELSE
           DEZZ(I)  = DEELZZ(I) + DPZZ(I)
         ENDIF

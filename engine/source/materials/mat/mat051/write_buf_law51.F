@@ -1,32 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  WRITE_BUF_LAW51               source/materials/mat/mat051/write_buf_law51.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    write_buf_law51      ../engine/source/materials/mat/mat051/write_buf_law51.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod         ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod          ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    multimat_param_mod   ../common_source/modules/multimat_param_mod.F90
+!||====================================================================
       SUBROUTINE WRITE_BUF_LAW51 (
      1     IXS   , NFT     , NUVAR  , NEL    ,  UVAR   ,
      2     I     , UNEPHASE, DD     , dbVOLD , dbVOLD_f,
@@ -37,7 +38,9 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD   
-      USE I22BUFBRIC_MOD       
+      USE I22BUFBRIC_MOD
+      USE MULTIMAT_PARAM_MOD , ONLY : M51_N0PHAS, M51_NVPHAS
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -46,17 +49,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "param_c.inc"
-#include      "com06_c.inc"
 #include      "com01_c.inc"
 #include      "mvsiz_p.inc"
 #include      "inter22.inc"
-#include      "mmale51_c.inc"
-C
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER :: NEL, NUPARAM, NUVAR,IXS(NIXS,*)
+      INTEGER :: NEL, NUVAR, IXS(NIXS, *)
       INTEGER :: NFT, UNEPHASE
       my_real :: UVAR(NEL,NUVAR), DD, dbVOLD(4),dbVOLD_f(4),TAG22(MVSIZ),VOLUME(MVSIZ),VOLD, VAR
       my_real :: EPSPXX(MVSIZ), EPSPYY(MVSIZ), EPSPZZ(MVSIZ),BFRAC
@@ -66,7 +65,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER :: I,II, ITRIMAT, IPRESENT(4), Q, KK
-      my_real :: P
+ 
 C-----------------------------------------------
 C   S o u r c e L i n e s
 C-----------------------------------------------
@@ -78,12 +77,12 @@ C-----------------------------------------------
       
       VAR=ZERO
       DO ITRIMAT = 1,TRIMAT                                                
-        KK = N0PHAS + (ITRIMAT-1)*NVPHAS        
+        KK = M51_N0PHAS + (ITRIMAT-1)*M51_NVPHAS        
         VAR = VAR + UVAR(I,11+KK)
       ENDDO                 
     
       IF(INT22>0)THEN
-        IF(TAG22(I).GT.ZERO)THEN
+        IF(TAG22(I)>ZERO)THEN
         write (*,FMT='(A)')
      ."                 +---------SuperCell-----------+---------ELEMENT-----------+-------SUM(submat)-----------+-------SUM(submat
      .)+flux-----+"
@@ -127,7 +126,7 @@ C-----------------------------------------------
         !=====================!                                            
         ! submat_id = ITRIMAT !                                            
         !=====================!                                            
-        KK = N0PHAS + (ITRIMAT-1)*NVPHAS 
+        KK = M51_N0PHAS + (ITRIMAT-1)*M51_NVPHAS 
         write (*,FMT='(A16,I1)')     "   +-----submat=",ITRIMAT  
         IF(IPRESENT(ITRIMAT)==0)THEN
         write (*,FMT='(A16   )')     "           empty"         

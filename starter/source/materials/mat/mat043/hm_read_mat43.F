@@ -1,46 +1,47 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT43                 source/materials/mat/mat043/hm_read_mat43.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat43              ../starter/source/materials/mat/mat043/hm_read_mat43.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat                ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim          ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted     ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword           ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod               ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT43(UPARAM ,MAXUPARAM,NUPARAM  ,ISRATE   , IMATVIS  ,
      .                         NUVAR  ,IFUNC    ,MAXFUNC  ,NFUNC    , PARMAT   , 
      .                         UNITAB ,MAT_ID   ,TITR     ,MTAG     , LSUBMODEL,
-     .                         PM     ,IPM      )
+     .                         PM     ,IPM      ,MATPARAM )
 C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
@@ -64,7 +65,8 @@ C-----------------------------------------------
       USE ELBUFTAG_MOD            
       USE MESSAGE_MOD      
       USE SUBMODEL_MOD
-      USE MATPARAM_DEF_MOD          
+      USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -72,14 +74,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -90,23 +85,24 @@ C-----------------------------------------------
      .                                         MAXUPARAM,NUPARAM, NUVAR,IMATVIS
       TYPE(MLAW_TAG_),INTENT(INOUT)         :: MTAG
       INTEGER,INTENT(IN)                    :: MAT_ID
-      CHARACTER*nchartitle,INTENT(IN)       :: TITR
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN) :: TITR
       TYPE(SUBMODEL_DATA),INTENT(IN)        :: LSUBMODEL(*)
+      TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,NRATE,NPS,IR0
       MY_REAL 
      .         E,NU,G,C1,EPSMAX,EPSR1,EPSR2,RATE(11),YFAC(11),
-     .         R0,R45,R90,R,H,FISOKIN,M,
+     .         R0,R45,R90,R,H,FISOKIN,
      .         EINF,CE,FAC_PRES
       INTEGER IFUNCE, OPTE, NUM_FUNC,NUMCURVES
       my_real :: RHO0, RHOR, ASRATE
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
 C-----------------------------------------------
 C   S o u r c e   L i n e s 
 C-----------------------------------------------      
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
       MTAG%G_PLA  = 1
       MTAG%G_SEQ  = 1
@@ -118,7 +114,7 @@ C-----------------------------------------------
       IMATVIS = 0
  
  
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
       !line+1
       CALL HM_GET_FLOATV('MAT_RHO'    ,RHO0        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       !line-2
@@ -147,7 +143,7 @@ C-----------------------------------------------
 
       !========== DEFAULT VALUES=============!              
       RHOR=RHO0
-      !IF(RHOR.EQ.ZERO)RHOR=RHO0
+      !IF(RHOR==ZERO)RHOR=RHO0
       PM(1) =RHOR
       PM(89)=RHO0
       NRATE = 0
@@ -156,10 +152,10 @@ C-----------------------------------------------
         CALL HM_GET_INT_ARRAY_INDEX      ('FunctionIds' ,IFUNC(I)  ,I ,IS_AVAILABLE, LSUBMODEL)
         CALL HM_GET_FLOAT_ARRAY_INDEX    ('ABG_cpa'     ,YFAC(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)
         CALL HM_GET_FLOAT_ARRAY_INDEX    ('ABG_cpb'     ,RATE(I)   ,I ,IS_AVAILABLE, LSUBMODEL, UNITAB)        
-        IF(IFUNC(I).NE.0) NRATE = I
+        IF(IFUNC(I)/=0) NRATE = I
       ENDDO
 
-      IF (NRATE .EQ. 0) THEN
+      IF (NRATE == 0) THEN
          CALL ANCMSG(MSGID=366,
      .               MSGTYPE=MSGERROR,
      .               ANMODE=ANINFO,
@@ -167,24 +163,24 @@ C-----------------------------------------------
      .               C1=TITR)
       ENDIF
 C
-      IF(R0 .EQ.ZERO) R0    = ONE
-      IF(R45.EQ.ZERO) R45   = ONE
-      IF(R90.EQ.ZERO) R90   = ONE
-      IF(EPSR1.EQ.ZERO)EPSR1=INFINITY
-      IF(EPSR2.EQ.ZERO)EPSR2=TWO*INFINITY
+      IF(R0 ==ZERO) R0    = ONE
+      IF(R45==ZERO) R45   = ONE
+      IF(R90==ZERO) R90   = ONE
+      IF(EPSR1==ZERO)EPSR1=INFINITY
+      IF(EPSR2==ZERO)EPSR2=TWO*INFINITY
       DO I=1,NRATE
-       IF(YFAC(I).EQ.ZERO) YFAC(I)=ONE * FAC_PRES
+       IF(YFAC(I)==ZERO) YFAC(I)=ONE * FAC_PRES
       ENDDO
 C
       !----------------------------------------------------------
       ! Filtering frequency
       IF (ASRATE /= ZERO) THEN
-        ! If a flitering frequency is given by the user
+        ! If a filtering frequency is given by the user
         ISRATE = 1
       ELSE
         ! If no filtering frequency is given but the flag is activated
         IF (ISRATE /= 0) THEN
-          ASRATE  = 10000.0D0*FAC_T_WORK  
+          ASRATE  = 10000.0D0*UNITAB%FAC_T_WORK  
         ! If no filtering frequency and no flag is activated => no filtering
         ELSE
           ASRATE  = ZERO
@@ -192,13 +188,13 @@ C
       ENDIF
       !----------------------------------------------------------           
 C
-      IF (NRATE .EQ. 1) THEN
+      IF (NRATE == 1) THEN
        NUM_FUNC=2
        IFUNC(2)=IFUNC(1)
        RATE(1)=ZERO
        RATE(2)=ONE
        YFAC(2)=YFAC(1)
-      ELSEIF (RATE(1) .EQ. 0) THEN
+      ELSEIF (RATE(1) == 0) THEN
        NUM_FUNC=NRATE
       ELSE
        NUM_FUNC=NRATE+1
@@ -273,10 +269,14 @@ c------------------------------------
       PARMAT(5) = ASRATE
       NUVAR = 5+NUM_FUNC
 C
-
+      ! MATPARAM keywords
+      CALL INIT_MAT_KEYWORD(MATPARAM,"ORTHOTROPIC")
+      ! Properties compatibility
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ORTHOTROPIC")        
+C
       WRITE(IOUT,1001) TRIM(TITR),MAT_ID,43
       WRITE(IOUT,1000)
-      IF(IS_CRYPTED)THEN
+      IF(IS_ENCRYPTED)THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
         WRITE(IOUT,1002) RHO0

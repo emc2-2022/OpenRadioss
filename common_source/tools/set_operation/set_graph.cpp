@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 #include <iostream> 
 #include <iterator> 
 #include<tuple> 
@@ -47,24 +47,24 @@ class set_graph
 
     void recur_graph(int set_id,int * dependancy_list,int current_tree,int * check)
     //  ---------------------------------------------------------------------------------
-    //  recur_graph  recursive function goes through the tree & builds dependancy array  int * check)
+    //  recur_graph  recursive function goes through the tree & builds dependency array  int * check)
     //  ---------------------------------------------------------------------------------
     //  INPUT
     //   set_id          : current set ID
-    //  dependancy_list : dependancy list to build 
-    //   current_tree    : "Root" Set to inspect need for circular dependancy check
-    //   check           : check value, if negative - gets the SET ID which has circular dependancy
+    //  dependancy_list : dependency list to build 
+    //   current_tree    : "Root" Set to inspect need for circular dependency check
+    //   check           : check value, if negative - gets the SET ID which has circular dependency
     //  OUTPUT
     //   ----------------------------------------------------------------------------
     {
 
-      if (*check < 0) return;                                                 // Error occured do not continue
+      if (*check < 0) return;                                                 // Error occurred do not continue
 
       auto edge = set_gr.begin()+set_id-1;   
       if (edge -> color > 0) return;                                          // Current set appears already in list
 
       if (edge->closed_tree_check == current_tree) {                         
-        // cout << "error infinite dependancy in SET found" << endl;          // if check fails this SET has been visited twice for Same Root SET.
+        // cout << "error infinite dependency in SET found" << endl;          // if check fails this SET has been visited twice for Same Root SET.
         *check = -current_tree;                                               // Do not continue
         return;
       }
@@ -76,11 +76,11 @@ class set_graph
          // cout << "curr_tree= "<< edge->closed_tree_check  <<  " cur_set= " << set_id << " new_set= " <<  new_set << endl;
          recur_graph(new_set, dependancy_list, current_tree,check );
 
-         if (*check < 0) return;                                              // Error occured do not continue
+         if (*check < 0) return;                                              // Error occurred do not continue
       }
 
 
-      if (  edge->color == 0){                                                // If leave store it in dependancy list
+      if (  edge->color == 0){                                                // If leave store it in dependency list
             edge->color =edge->id;
             dependancy_list[depend_stack] = edge -> id;
             // cout << "Stack " <<  edge -> id << endl;
@@ -95,7 +95,7 @@ class set_graph
     //  ---------------------------------------------------------------------------------
     //  init_edge
     //  Create the Graph
-    //  Add a SET with its dependancies
+    //  Add a SET with its dependencies
     //  ---------------------------------------------------------------------------------
     //  INPUT
     //    edge            : the SET user ID
@@ -124,12 +124,12 @@ class set_graph
     void dependancy_sort(int * dependancy_list, int * check)
     //  ---------------------------------------------------------------------------------
     //  dependancy_sort
-    //  Sorting according to the dependancies - Used for SET of SETs 
+    //  Sorting according to the dependencies - Used for SET of SETs 
     //  when a SET depends from another SET : ensure Child SET is before.
     //  ---------------------------------------------------------------------------------
     //  INPUT
-    //   dependancy_list : dependancy list to build 
-    //   check           : check value, if negative - gets the SET ID which has circular dependancy
+    //   dependancy_list : dependency list to build 
+    //   check           : check value, if negative - gets the SET ID which has circular dependency
     //  OUTPUT
     //   ----------------------------------------------------------------------------
     {
@@ -146,7 +146,7 @@ class set_graph
 
          }else { 
                  recur_graph(edg_id, dependancy_list, edg_id ,check); 
-                  if (*check < 0) return;                                            // Error occured do not continue
+                  if (*check < 0) return;                                            // Error occurred do not continue
          }
       }
     }
@@ -199,7 +199,7 @@ extern "C"
     //  INPUT
     //   set_id    : Integer internal SET ID : must be set between 1 & nsets
     //   set_list  : list of child SETs : all child Sets must be existing internal SETid
-    //   list_size : number of Child SET (size of list bellow)
+    //   list_size : number of Child SET (size of list below)
     //  OUTPUT
     //   ----------------------------------------------------------------------------
 
@@ -209,11 +209,11 @@ extern "C"
 
   void  _FCALL set_graph_sort_(int * dependancy_list, int * check){
     //  ---------------------------------------------------------------------------------
-    //  Sort the sets according to their dependancy
+    //  Sort the sets according to their dependency
     //  Child SET are placed before Parent SET.
     //  ---------------------------------------------------------------------------------
     //  OUTPUT
-    //    int * dependancy_list    : sorted dependancy list
+    //    int * dependancy_list    : sorted dependency list
     //    int * check              : check flag - 0=ok  -SET=circular dependancy on SET
     //   --------------------------------------------------------------------------------
     *check = 0;
@@ -258,7 +258,7 @@ set_graph my_set_graph;
 
  my_set_graph.print();
  cout << endl;
- cout << endl <<  "  dependancy computation " << endl  ;
+ cout << endl <<  "  dependency computation " << endl  ;
  cout <<          " ------------------------" << endl << endl ;
 
  int slist=6;
@@ -268,7 +268,7 @@ set_graph my_set_graph;
  my_set_graph.dependancy_sort(list,&check);
  
  if (check < 0){
- cout << endl << "error - SET " << -check << " has circular dependancy" << endl; 
+ cout << endl << "error - SET " << -check << " has circular dependency" << endl; 
 }
 
  cout << "-------------------" << endl << endl ;

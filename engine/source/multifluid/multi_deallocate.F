@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  MULTI_DEALLOCATE              source/multifluid/multi_deallocate.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    multi_deallocate   ../engine/source/multifluid/multi_deallocate.F
+!||--- called by ------------------------------------------------------
+!||    resol              ../engine/source/engine/resol.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod        ../engine/share/message_module/message_mod.F
+!||    multi_fvm_mod      ../common_source/modules/ale/multi_fvm_mod.F90
+!||====================================================================
       SUBROUTINE MULTI_DEALLOCATE(MULTI_FVM)
 C-----------------------------------------------
 C   M o d u l e s
@@ -41,8 +41,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "spmd_c.inc"
 C----------------------------------------------
 C     D u m m y   a r g u m e n t s
 C----------------------------------------------
@@ -50,7 +48,7 @@ C----------------------------------------------
 C----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: IERR, IMAT, NBMAT
+      INTEGER :: NBMAT
 C----------------------------------------------
 C     B e g i n n i n g   o f   s u b r o u t i n e
 C----------------------------------------------
@@ -61,6 +59,7 @@ C     Multifluid law
          IF (ALLOCATED(MULTI_FVM%SUBMASS_FLUXES)) DEALLOCATE(MULTI_FVM%SUBMASS_FLUXES)
          IF (ALLOCATED(MULTI_FVM%SUBENER_FLUXES)) DEALLOCATE(MULTI_FVM%SUBENER_FLUXES)
          IF (ALLOCATED(MULTI_FVM%VEL)) DEALLOCATE(MULTI_FVM%VEL)
+         IF (ALLOCATED(MULTI_FVM%ACC)) DEALLOCATE(MULTI_FVM%ACC)
          IF (ALLOCATED(MULTI_FVM%SOUND_SPEED)) DEALLOCATE(MULTI_FVM%SOUND_SPEED)
          IF (ALLOCATED(MULTI_FVM%RHO)) DEALLOCATE(MULTI_FVM%RHO)
          IF (ALLOCATED(MULTI_FVM%EINT)) DEALLOCATE(MULTI_FVM%EINT)
@@ -80,7 +79,7 @@ C     Face data
          IF (ALLOCATED(MULTI_FVM%FACE_DATA%WFAC)) DEALLOCATE(MULTI_FVM%FACE_DATA%WFAC)
 C     Phase data
          NBMAT = MULTI_FVM%NBMAT
-         IF (NBMAT .GT. 1) THEN
+         IF (NBMAT > 1) THEN
             IF (ALLOCATED(MULTI_FVM%PHASE_ALPHA)) 
      .           DEALLOCATE(MULTI_FVM%PHASE_ALPHA)
             IF (ALLOCATED(MULTI_FVM%PHASE_PRES)) 
@@ -90,7 +89,7 @@ C     Phase data
             IF (ALLOCATED(MULTI_FVM%PHASE_EINT)) 
      .           DEALLOCATE(MULTI_FVM%PHASE_EINT)
             
-            IF (MULTI_FVM%MUSCL .GT. 0) THEN
+            IF (MULTI_FVM%MUSCL > 0) THEN
                IF (ALLOCATED(MULTI_FVM%PHASE_GRAD_RHO)) 
      .              DEALLOCATE(MULTI_FVM%PHASE_GRAD_RHO)
                IF (ALLOCATED(MULTI_FVM%PHASE_GRAD_ALPHA)) 

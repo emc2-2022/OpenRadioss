@@ -1,48 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_FRM                   source/tools/skew/hm_read_frm.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ANODSET                       source/output/analyse/analyse_node.c
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        IFRONTPLUS                    source/spmd/node/frontplus.F  
-Chd|        SUBROTPOINT                   source/model/submodel/subrot.F
-Chd|        SUBROTVECT                    source/model/submodel/subrot.F
-Chd|        UDOUBLE                       source/system/sysfus.F        
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_frm            ../starter/source/tools/skew/hm_read_frm.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    anodset                ../starter/source/output/analyse/analyse_node.c
+!||    fretitl                ../starter/source/starter/freform.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string          ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    ifrontplus             ../starter/source/spmd/node/frontplus.F
+!||    origin                 ../starter/source/model/remesh/build_admesh.F
+!||    subrotpoint            ../starter/source/model/submodel/subrot.F
+!||    subrotvect             ../starter/source/model/submodel/subrot.F
+!||    udouble                ../starter/source/system/sysfus.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod             ../starter/share/modules1/format_mod.F90
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_FRM(ISKN    ,X       ,ITAB     ,ITABM1  ,
      .                       XFRAME  ,LSUBMODEL,RTRANS ,NOM_OPT ,UNITAB)
 C-----------------------------------------------
@@ -52,6 +54,8 @@ C-----------------------------------------------
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARFIELD, NCHARKEY
+      USE FORMAT_MOD , ONLY : LFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -64,26 +68,17 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com10_c.inc"
 #include      "sphcom.inc"
 #include      "units_c.inc"
-#include      "titr_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER ISKN(LISKN,*), ITAB(*), ITABM1(*)
-C     REAL
-      my_real
-     .   X(3,*), XFRAME(NXFRAME,*),
-     .   RTRANS(NTRANSF,*)
+      my_real X(3,*), XFRAME(NXFRAME,*),RTRANS(NTRANSF,*)
       TYPE(SUBMODEL_DATA) LSUBMODEL(*)
       INTEGER NOM_OPT(LNOPT1,*)
 C-----------------------------------------------
@@ -92,12 +87,12 @@ C-----------------------------------------------
       INTEGER I, IMOV, INOD, J, N1, N2, N3, K, NSK,
      .        IUN, JJ, SUB_ID,
      .        IDIR,IFLAGUNIT,ID,UID,CPT
-C     REAL
-      my_real
-     .   P(12), PNOR1, PNOR2, PNORM1, DET1, DET2, DET3, DET, PP,BID
-      CHARACTER NOMFG*nchartitle
-      CHARACTER TITR*nchartitle,MESS*40,MESSF*40,KEY*ncharkey
-      CHARACTER DIR*ncharfield
+      my_real P(12), PNOR1, PNOR2, PNORM1, DET1, DET2, DET3, DET, PP,BID
+      CHARACTER(LEN=NCHARTITLE) ::  NOMFG
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      CHARACTER :: MESS*40,MESSF*40
+      CHARACTER(LEN=NCHARKEY) :: KEY
+      CHARACTER(LEN=NCHARFIELD) :: DIR
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -129,10 +124,9 @@ C
 C     Global Frame ID is set to -1
       ISKN(4,JJ)=-1
       NOM_OPT(1,NUMSKW+2)=-1
-      CALL FRETITL(NOMFG,NOM_OPT(LNOPT1-LTITR+1,
-     .                           NUMSKW+2),LTITR)
+      CALL FRETITL(NOMFG,NOM_OPT(LNOPT1-LTITR+1,NUMSKW+2),LTITR)
 C
-      IF(NUMFRAM.EQ.0)GOTO 900
+      IF(NUMFRAM==0)GOTO 900
 C--------------------------------------------------
 C START BROWSING MODEL PROPERTIES
 C--------------------------------------------------
@@ -159,13 +153,13 @@ C
      .                            NUMSKW+2+I),LTITR)
 C
         IFLAGUNIT = 0
-        DO J=1,NUNITS
+        DO J=1,UNITAB%NUNITS
           IF (UNITAB%UNIT_ID(J) == UID) THEN                 
             IFLAGUNIT = 1
             EXIT
           ENDIF
         ENDDO
-        IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+        IF (UID/=0.AND.IFLAGUNIT==0) THEN
           CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                I2=UID,I1=ID,C1='REFERENCE FRAME',
      .                C2='REFERENCE FRAME',
@@ -175,7 +169,7 @@ C
         INOD  =0
         IMOV  =0
 C
-        IF (KEY(1:3).EQ.'FIX') THEN
+        IF (KEY(1:3)=='FIX') THEN
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
 C--------------------------------------------------
@@ -191,7 +185,7 @@ C--------------------------------------------------
           CALL HM_GET_FLOATV('globalzaxisy',P(8),IS_AVAILABLE,LSUBMODEL,UNITAB)
           CALL HM_GET_FLOATV('globalzaxisz',P(9),IS_AVAILABLE,LSUBMODEL,UNITAB)
 C
-        ELSEIF (KEY(1:4).EQ.'MOV2') THEN
+        ELSEIF (KEY(1:4)=='MOV2') THEN
           IMOV=2
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
@@ -200,7 +194,7 @@ C--------------------------------------------------
           CALL HM_GET_INTV('axisnodeid',N2,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('planenodeid',N3,IS_AVAILABLE,LSUBMODEL)
 C
-        ELSEIF (KEY(1:3).EQ.'MOV') THEN
+        ELSEIF (KEY(1:3)=='MOV') THEN
           IMOV=1
           IDIR = 1
 C--------------------------------------------------
@@ -215,12 +209,12 @@ C--------------------------------------------------
           CALL HM_GET_STRING('DIR',DIR,ncharfield,IS_AVAILABLE)
           DO K = 1,LFIELD
             IF(DIR(K:K) == 'X'.OR.DIR(K:K) == 'x')IDIR = 1
-            IF(DIR(K:K) == 'Y'.OR.DIR(K:K) == 'Y')IDIR = 2
-            IF(DIR(K:K) == 'Z'.OR.DIR(K:K) == 'Z')IDIR = 3
+            IF(DIR(K:K) == 'Y'.OR.DIR(K:K) == 'y')IDIR = 2
+            IF(DIR(K:K) == 'Z'.OR.DIR(K:K) == 'z')IDIR = 3
           ENDDO
           ISKN(6,JJ)=IDIR
 C
-        ELSEIF (KEY(1:3).EQ.'NOD') THEN
+        ELSEIF (KEY(1:3)=='NOD') THEN
 C       Node defined moving frame
           INOD=1
 C--------------------------------------------------
@@ -229,7 +223,7 @@ C--------------------------------------------------
           CALL HM_GET_INTV('originnodeid',N1,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('axisnodeid',N2,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_INTV('planenodeid',N3,IS_AVAILABLE,LSUBMODEL)
-          IF (N2.EQ.0 .OR. N3.EQ.0) THEN
+          IF (N2==0 .OR. N3==0) THEN
             INOD=2
 C--------------------------------------------------
 C EXTRACT DATAS (REAL VALUES)
@@ -242,17 +236,17 @@ C
             CALL HM_GET_FLOATV('globalzaxisy',P(8),IS_AVAILABLE,LSUBMODEL,UNITAB)
             CALL HM_GET_FLOATV('globalzaxisz',P(9),IS_AVAILABLE,LSUBMODEL,UNITAB)
 C
-            IF(SUB_ID .NE. 0)
+            IF(SUB_ID /= 0)
      .          CALL SUBROTVECT(P(4),P(5),P(6),RTRANS,SUB_ID,LSUBMODEL)
-            IF(SUB_ID .NE. 0)
+            IF(SUB_ID /= 0)
      .          CALL SUBROTVECT(P(7),P(8),P(9),RTRANS,SUB_ID,LSUBMODEL)
           ENDIF
         ENDIF
         ISKN(4,JJ)=ID
 C----------------
-C     FRAME MOBILE (CALCUL DE LA POSITION INITIALE)
+C     moving frame (initial position calculation)
 C----------------
-        IF(IMOV.EQ.1)THEN
+        IF(IMOV==1)THEN
           N1=USR2SYS(N1,ITABM1,MESSF,ID)
           N2=USR2SYS(N2,ITABM1,MESSF,ID)
           CALL ANODSET(N1, CHECK_USED)
@@ -263,9 +257,9 @@ C----------------
           ISKN(2,JJ)=N2
           ISKN(5,JJ)=IMOV
 C-----------------
-C     CALCUL DE X' et Y0'
+C     calculation of x' and y0'
 C-----------------
-          IF(N2D.EQ.0)THEN
+          IF(N2D==0)THEN
 c
             IF (IDIR == 1) THEN
               P(1)=X(1,N2)-X(1,N1)
@@ -317,12 +311,12 @@ C
              P(12)=X(3,N1)
           ENDIF
 C----------------
-C     TESTS DE CONSISTANCE
+C     consistency checks
 C----------------
           IF (IDIR == 1) PNOR1=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
           IF (IDIR == 2) PNOR1=SQRT(P(4)*P(4)+P(5)*P(5)+P(6)*P(6))
           IF (IDIR == 3) PNOR1=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
-          IF(PNOR1.LT.1.E-20) THEN
+          IF(PNOR1<1.E-20) THEN
             CALL ANCMSG(MSGID=162,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_1,
@@ -331,10 +325,10 @@ C----------------
      .                  I3=ITAB(N2))
             RETURN
           ENDIF
-C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
+C     calculation of collinearity of vectors n1n2 and n1n3
           IF (IDIR == 1) THEN
             PNOR2=SQRT(P(4)*P(4)+P(5)*P(5)+P(6)*P(6))
-            IF(PNOR2.GT.EM20) THEN
+            IF(PNOR2>EM20) THEN
               PNORM1=ONE/(PNOR1*PNOR2)
               DET1=ABS((P(1)*P(5)-P(2)*P(4))*PNORM1)
               DET2=ABS((P(1)*P(6)-P(3)*P(4))*PNORM1)
@@ -343,12 +337,12 @@ C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
             ELSE
               DET=ZERO
             ENDIF
-            IF(DET.LT.EM5) THEN
+            IF(DET<EM5) THEN
               CALL ANCMSG(MSGID=163,
      .                    MSGTYPE=MSGWARNING,
      .                    ANMODE=ANINFO_BLIND_1,
      .                    I1=ID,C1=TITR)
-              IF(ABS(P(2)).GT.EM5) THEN
+              IF(ABS(P(2))>EM5) THEN
                 P(4)=ABS(P(1))+TEN
               ELSE
                 P(5)=TEN
@@ -356,7 +350,7 @@ C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
             ENDIF
           ELSEIF (IDIR == 2) THEN
             PNOR2=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
-            IF(PNOR2.GT.EM20) THEN
+            IF(PNOR2>EM20) THEN
               PNORM1=ONE/(PNOR1*PNOR2)
               DET1=ABS((P(4)*P(8)-P(5)*P(7))*PNORM1)
               DET2=ABS((P(4)*P(9)-P(6)*P(7))*PNORM1)
@@ -365,12 +359,12 @@ C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
             ELSE
               DET=ZERO
             ENDIF
-            IF(DET.LT.EM5) THEN
+            IF(DET<EM5) THEN
               CALL ANCMSG(MSGID=163,
      .                    MSGTYPE=MSGWARNING,
      .                    ANMODE=ANINFO_BLIND_1,
      .                    I1=ID,C1=TITR)
-              IF(ABS(P(5)).GT.EM5) THEN
+              IF(ABS(P(5))>EM5) THEN
                 P(7)=ABS(P(4))+TEN
               ELSE
                 P(8)=TEN
@@ -378,7 +372,7 @@ C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
             ENDIF
           ELSEIF (IDIR == 3) THEN
             PNOR2=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
-            IF(PNOR2.GT.EM20) THEN
+            IF(PNOR2>EM20) THEN
               PNORM1=ONE/(PNOR1*PNOR2)
               DET1=ABS((P(7)*P(2)-P(8)*P(1))*PNORM1)
               DET2=ABS((P(7)*P(3)-P(9)*P(1))*PNORM1)
@@ -387,12 +381,12 @@ C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
             ELSE
               DET=ZERO
             ENDIF
-            IF(DET.LT.EM5) THEN
+            IF(DET<EM5) THEN
               CALL ANCMSG(MSGID=163,
      .                    MSGTYPE=MSGWARNING,
      .                    ANMODE=ANINFO_BLIND_1,
      .                    I1=ID,C1=TITR)
-              IF(ABS(P(5)).GT.EM5) THEN
+              IF(ABS(P(5))>EM5) THEN
                 P(1)=ABS(P(7))+TEN
               ELSE
                 P(2)=TEN
@@ -400,7 +394,7 @@ C     CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
             ENDIF
           ENDIF
 C-----------------
-C     CALCUL DE Z'
+C     calculation of z'
 C-----------------
           IF (IDIR == 1) THEN
             P(7)=P(2)*P(6)-P(3)*P(5)
@@ -416,7 +410,7 @@ C-----------------
             P(6)=P(7)*P(2)-P(8)*P(1)
           ENDIF
 C-----------------
-C     CALCUL DE Y'
+C     calculation of y'
 C-----------------
           IF (IDIR == 1) THEN
             P(4)=P(8)*P(3)-P(9)*P(2)
@@ -455,13 +449,13 @@ C----------------
           P(2)=X(2,N3)-X(2,N1)
           P(3)=X(3,N3)-X(3,N1)
 C-----------------
-C       CALCUL DE Y = Z x X'
+C       CALCULATION OF Y = Z x X'
 C-----------------
           P(4)=P(8)*P(3)-P(9)*P(2)
           P(5)=P(9)*P(1)-P(7)*P(3)
           P(6)=P(7)*P(2)-P(8)*P(1)
 C-----------------
-C       CALCUL DE X = Y x Z
+C       CALCULATION OF X = Y x Z
 C-----------------
           P(1)=P(5)*P(9)-P(6)*P(8)
           P(2)=P(6)*P(7)-P(4)*P(9)
@@ -473,7 +467,7 @@ C-----------------
           P(11)=X(2,N1)
           P(12)=X(3,N1)
 C----------------
-C       TESTS DE CONSISTANCE
+C       consistency checks
 C----------------
           PNOR1=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
           IF (PNOR1 < EM20) THEN
@@ -484,7 +478,7 @@ C----------------
      .                  I1=ID,C1=TITR,
      .                  I3=ITAB(N2))
           ENDIF
-C       CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
+C       calculation of collinearity of vectors n1n2 and n1n3
           PNOR2=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
           IF (PNOR2 > EM20) THEN
             PNORM1=ONE/(PNOR1*PNOR2)
@@ -509,8 +503,8 @@ C       CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
 C----------------
 C     MOVING FRAME ATTACHED TO A NODE
 C----------------
-        ELSEIF (INOD.GE.1) THEN
-          IF (N1.LE.0) THEN
+        ELSEIF (INOD>=1) THEN
+          IF (N1<=0) THEN
             CALL ANCMSG(MSGID=900,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_1,
@@ -518,30 +512,30 @@ C----------------
      .                  C1=TITR,
      .                  I2=N1)
           ENDIF
-          IF (N1.NE.0) THEN
+          IF (N1/=0) THEN
             N1=USR2SYS(N1,ITABM1,MESSF,ID)
             CALL ANODSET(N1, CHECK_USED)
-	    CALL IFRONTPLUS(N1,1)
+              CALL IFRONTPLUS(N1,1)
           ENDIF
-          IF (N2.NE.0) THEN
+          IF (N2/=0) THEN
             N2=USR2SYS(N2,ITABM1,MESSF,ID)
             CALL ANODSET(N2, CHECK_USED)
-	    CALL IFRONTPLUS(N2,1)
+              CALL IFRONTPLUS(N2,1)
           ENDIF
           ISKN(1,JJ)=N1
           ISKN(2,JJ)=0
           ISKN(3,JJ)=0
-          IF (INOD.EQ.1) THEN
+          IF (INOD==1) THEN
 C         defined with 3 nodes
-C---      CALCUL DE X' et Y0'
-            IF(N2D.EQ.0)THEN
+Ccalculation of x' and y0'
+            IF(N2D==0)THEN
               P(1)=X(1,N2)-X(1,N1)
               P(2)=X(2,N2)-X(2,N1)
               P(3)=X(3,N2)-X(3,N1)
-              IF (N3.NE.0) THEN
+              IF (N3/=0) THEN
                 N3=USR2SYS(N3,ITABM1,MESSF,ID)
                 CALL ANODSET(N3, CHECK_USED)
-	        CALL IFRONTPLUS(N3,1)
+                  CALL IFRONTPLUS(N3,1)
               ENDIF
               P(4)=X(1,N3)-X(1,N1)
               P(5)=X(2,N3)-X(2,N1)
@@ -560,9 +554,9 @@ C---      CALCUL DE X' et Y0'
               P(11)=X(2,N1)
               P(12)=X(3,N1)
             ENDIF
-C---      TESTS DE CONSISTANCE
+Cconsistency checks
             PNOR1=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
-            IF(PNOR1.LT.EM20) THEN
+            IF(PNOR1<EM20) THEN
               CALL ANCMSG(MSGID=162,
      .                    MSGTYPE=MSGERROR,
      .                    ANMODE=ANINFO_BLIND_1,
@@ -571,9 +565,9 @@ C---      TESTS DE CONSISTANCE
      .                    I3=ITAB(N2))
               RETURN
             ENDIF
-C---      CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
+Ccalculation of collinearity of vectors n1n2 and n1n3
             PNOR2=SQRT(P(4)*P(4)+P(5)*P(5)+P(6)*P(6))
-            IF(PNOR2.GT.EM20) THEN
+            IF(PNOR2>EM20) THEN
               PNORM1=1./(PNOR1*PNOR2)
               DET1=ABS((P(1)*P(5)-P(2)*P(4))*PNORM1)
               DET2=ABS((P(1)*P(6)-P(3)*P(4))*PNORM1)
@@ -582,35 +576,35 @@ C---      CALCUL DE COLINEARITE DES VECTEURS N1N2 ET N1N3
             ELSE
               DET=ZERO
             ENDIF
-            IF(DET.LT.EM5) THEN
+            IF(DET<EM5) THEN
               CALL ANCMSG(MSGID=163,
      .                    MSGTYPE=MSGWARNING,
      .                    ANMODE=ANINFO_BLIND_1,
      .                    I1=ID,C1=TITR)
-              IF(ABS(P(2)).GT.EM5) THEN
+              IF(ABS(P(2))>EM5) THEN
                 P(4)=ABS(P(1))+TEN
               ELSE
                 P(5)=TEN
               ENDIF
             ENDIF
-C---      CALCUL DE Z'
+Ccalculation of z'
             P(7)=P(2)*P(6)-P(3)*P(5)
             P(8)=P(3)*P(4)-P(1)*P(6)
             P(9)=P(1)*P(5)-P(2)*P(4)
-C---      CALCUL DE Y'
+Ccalculation of y'
             P(4)=P(8)*P(3)-P(9)*P(2)
             P(5)=P(9)*P(1)-P(7)*P(3)
             P(6)=P(7)*P(2)-P(8)*P(1)
           ELSE
 C         defined with 1 node and 2 vectors
-C---      CALCUL DE X'
+Ccalculation of x'
             P(10)=X(1,N1)
             P(11)=X(2,N1)
             P(12)=X(3,N1)
             P(1)=P(5)*P(9)-P(6)*P(8)
             P(2)=P(6)*P(7)-P(4)*P(9)
             P(3)=P(4)*P(8)-P(5)*P(7)
-C---      CALCUL DE Y'
+Ccalculation of y'
             P(4)=P(8)*P(3)-P(9)*P(2)
             P(5)=P(9)*P(1)-P(7)*P(3)
             P(6)=P(7)*P(2)-P(8)*P(1)
@@ -624,43 +618,43 @@ C----------------
           ISKN(3,JJ)=0
           ISKN(5,JJ)=0
 C-----------------
-C     CALCUL DE X'
+C     calculation of x'
 C-----------------
           P(1)=P(5)*P(9)-P(6)*P(8)
           P(2)=P(6)*P(7)-P(4)*P(9)
           P(3)=P(4)*P(8)-P(5)*P(7)
 C-----------------
-C     CALCUL DE Y'
+C     calculation of y'
 C-----------------
           P(4)=P(8)*P(3)-P(9)*P(2)
           P(5)=P(9)*P(1)-P(7)*P(3)
           P(6)=P(7)*P(2)-P(8)*P(1)
-          IF(SUB_ID .NE. 0)
+          IF(SUB_ID /= 0)
      .      CALL SUBROTPOINT(P(10),P(11),P(12),RTRANS,SUB_ID,LSUBMODEL)
-          IF(SUB_ID .NE. 0)
+          IF(SUB_ID /= 0)
      .      CALL SUBROTVECT(P(1),P(2),P(3),RTRANS,SUB_ID,LSUBMODEL)
-          IF(SUB_ID .NE. 0)
+          IF(SUB_ID /= 0)
      .      CALL SUBROTVECT(P(4),P(5),P(6),RTRANS,SUB_ID,LSUBMODEL)
-          IF(SUB_ID .NE. 0)
+          IF(SUB_ID /= 0)
      .      CALL SUBROTVECT(P(7),P(8),P(9),RTRANS,SUB_ID,LSUBMODEL)
         ENDIF
 C-----------
 C     NORME
 C-----------
         PP=SQRT(P(1)*P(1)+P(2)*P(2)+P(3)*P(3))
-        IF(PP.NE.ZERO)THEN
+        IF(PP/=ZERO)THEN
           P(1)=P(1)/PP
           P(2)=P(2)/PP
           P(3)=P(3)/PP
         ENDIF
         PP=SQRT(P(4)*P(4)+P(5)*P(5)+P(6)*P(6))
-        IF(PP.NE.ZERO)THEN
+        IF(PP/=ZERO)THEN
           P(4)=P(4)/PP
           P(5)=P(5)/PP
           P(6)=P(6)/PP
         ENDIF
         PP=SQRT(P(7)*P(7)+P(8)*P(8)+P(9)*P(9))
-        IF(PP.NE.ZERO)THEN
+        IF(PP/=ZERO)THEN
           P(7)=P(7)/PP
           P(8)=P(8)/PP
           P(9)=P(9)/PP
@@ -686,9 +680,9 @@ C
         N1=ISKN(1,JJ)
         N2=ISKN(2,JJ)
         N3=ISKN(3,JJ)
-        IF(N1.NE.0)N1=ITAB(N1)
-        IF(N2.NE.0)N2=ITAB(N2)
-        IF(N3.NE.0)N3=ITAB(N3)
+        IF(N1/=0)N1=ITAB(N1)
+        IF(N2/=0)N2=ITAB(N2)
+        IF(N3/=0)N3=ITAB(N3)
         WRITE(IOUT,1000)
         WRITE(IOUT,'(1X,4I10,1X,3F16.7,3F16.7)')NSK,N1,N2,N3,
      &       (XFRAME(K,J),K=1,3),(XFRAME(K,J),K=10,12)
@@ -697,19 +691,18 @@ C
 C-----
  900  CONTINUE
 C-------------------------------------
-C Recherche des ID doubles
+C search for duplicate ids
 C-------------------------------------
-      IF (NUMFRAM+NUMSKW.NE.0)
+      IF (NUMFRAM+NUMSKW/=0)
      .   CALL UDOUBLE(ISKN(4,1),LISKN,
      .        NUMSKW+1+MIN(IUN,NSPCOND)*NUMSPH+NUMFRAM+1+NSUBMOD,
      .        MESS,0,BID)
 C-----
       RETURN
- 999  CALL FREERR(1)
 
  1000 FORMAT(5X,'NUMBER',8X,'N1',8X,'N2',8X,'N3',10X,'VECTORS',42X,
      .      'ORIGIN')
- 1001 FORMAT(5X,'NUMBER',10X,'VECTORS',42X,'ORIGIN')
+! 1001 FORMAT(5X,'NUMBER',10X,'VECTORS',42X,'ORIGIN')
       RETURN
       END
 

@@ -1,44 +1,48 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DFUNCC_PLY                    source/output/anim/generate/dfuncc_ply.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SIGROTA                       source/output/anim/generate/sigrota.F
-Chd|        SPMD_R4GET_PARTN              source/mpi/anim/spmd_r4get_partn.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|        PLYXFEM_MOD                   share/modules/plyxfem_mod.F   
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dfuncc_ply         ../engine/source/output/anim/generate/dfuncc_ply.F
+!||--- called by ------------------------------------------------------
+!||    genani             ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf            ../engine/share/resol/initbuf.F
+!||    sigrota            ../engine/source/output/anim/generate/sigrota.F
+!||    spmd_r4get_partn   ../engine/source/mpi/anim/spmd_r4get_partn.F
+!||    write_r_c          ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod        ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod        ../engine/share/resol/initbuf.F
+!||    matparam_def_mod   ../common_source/modules/mat_elem/matparam_def_mod.F90
+!||    my_alloc_mod       ../common_source/tools/memory/my_alloc.F90
+!||    plyxfem_mod        ../engine/share/modules/plyxfem_mod.F
+!||    stack_mod          ../engine/share/modules/stack_mod.F
+!||====================================================================
       SUBROUTINE DFUNCC_PLY(ELBUF_TAB, FUNC , IFUNC,IPARG,GEO,
      .                      IXC  , IXTG , MASS ,PM   ,EL2FA,
      .                      NBF  , IADP , NBF_L,EHOUR,ANIM ,
      .                      NBPART,IADG , IPM  ,IGEO ,THKE ,
-     .                      ERR_THK_SH4,ERR_THK_SH3,
+     .                      ERR_THK_SH4,ERR_THK_SH3,MAT_PARAM,
      .                      NBF_PXFEMG ,X, STACK)
 C-----------------------------------------------
 C   M o d u l e s
@@ -47,6 +51,9 @@ C-----------------------------------------------
       USE PLYXFEM_MOD
       USE ELBUFDEF_MOD     
       USE STACK_MOD       
+      USE MATPARAM_DEF_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,14 +65,9 @@ C-----------------------------------------------
 #include      "mvsiz_p.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "param_c.inc"
-#include      "rnur_c.inc"
 #include      "task_c.inc"
-#include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -78,8 +80,8 @@ C     REAL
      .   FUNC(*), MASS(*) , GEO(NPROPG,*),
      .   EHOUR(*),ANIM(*),PM(NPROPM,*),THKE(*),
      .   ERR_THK_SH4(*), ERR_THK_SH3(*), X(3,*)
-      REAL WAL(NBF_L)
       TYPE (ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(IN) :: MAT_PARAM
       TYPE (STACK_PLY) :: STACK
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -91,16 +93,16 @@ C     REAL
      .   A1,B1,B2,B3,YEQ,F1,M1,M2,M3, FAC, DAM1(MVSIZ),DAM2(MVSIZ),
      .   WPLA(MVSIZ), DMAX(MVSIZ),WPMAX(MVSIZ),
      .   FAIL(MVSIZ),SIGE(MVSIZ,5)
-      INTEGER I, NG, NEL, ISS, ISC,N, J, MLW, NUVAR, IUS,
+      INTEGER I, NG, NEL, ISS, N, J, MLW, NUVAR, IUS, 
      .        ISTRAIN,NN, K1, K2,JTURB,MT,IMID, IALEL,IPID,
      .        NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,NF,
      .        LLL,NINTLAY,NFAIL,
-     .        OFFSET,K,II,II_L,INC,KK,IHBE, N13, N14, N15, N16,
+     .        OFFSET,K,II,II_L,INC,KK,IHBE, 
      .        NPTM,NPG, NBVU, I1, MPT, NEL5, NEL8,
      .        IPT,BUF,NPTR,NPTS,NPTT,NLAY,IR,IS,PTF,LENF,IL,
      .        IADR,IPMAT,PID(MVSIZ),MAT(MVSIZ),MATLY(MVSIZ*100),
      .        NEL_PLY,ILAYER,IFLAG,JJ(5)
-      INTEGER IE,ISHPLYXFEM,IP,JPID,IPPID,IPLY0,ILAST,ION,NUVARV,
+      INTEGER IE, ISHPLYXFEM, ILAST, NUVARV, 
      .        IVISC,IPMAT_IPLY,NUVARD,MAT_IPLY,
      .        MATPLY,LL,IPLYC,I3,I2
       INTEGER PLYS,IPLY,PLYELEMS(NUMELC),ELC,NS1,MATL,
@@ -109,12 +111,14 @@ C     REAL
       TYPE(G_BUFEL_)    ,POINTER :: GBUF     
       TYPE(BUF_LAY_)    ,POINTER :: BUFLY     
       TYPE(L_BUFEL_)    ,POINTER :: LBUF     
-      TYPE(BUF_INTLAY_) ,POINTER :: INTLAY 
+ 
       TYPE(BUF_INTLOC_) ,POINTER :: ILBUF
       TYPE(BUF_FAIL_)   ,POINTER :: FBUF
       my_real,
      .  DIMENSION(:), POINTER  :: UVAR 
+      REAL,DIMENSION(:),ALLOCATABLE:: WAL
 C-----------------------------------------------
+      CALL MY_ALLOC(WAL,NBF_L)
 !
       LL = 0
 C      
@@ -138,7 +142,7 @@ C
       IFLAG = 0
 C
       DO 900 NG=1,NGROUP
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTURB   ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -183,7 +187,7 @@ c---------
           ENDDO
 c---------
 C          
-C test sur un seul element du groupe          
+C test on a single element of the group
 C
           N = 1 + NFT
           DO  I=LFT,LLT
@@ -241,18 +245,26 @@ c---------
             ENDDO
 c---------
           ELSEIF(IFUNC == 7)THEN   ! Von Mises
-c---------
+c---------available only for Batoz shell and TYPE17 PID
             DO I=LFT,LLT
                N = I + NFT 
                II = (I-1)*5
-              ILAYER = PLYELEMS(N)
-               BUFLY => ELBUF_TAB(NG)%BUFLY(ILAYER)
+               ILAYER = PLYELEMS(N)
+                S1  = ZERO
+                S2  = ZERO
+                S12 = ZERO
                IF(ILAYER > 0) THEN
-                 S1 = BUFLY%SIGPT(II + 1)
-                 S2 = BUFLY%SIGPT(II + 2)
-                 S12= BUFLY%SIGPT(II + 3)
-                 VONM2= S1*S1 + S2*S2 - S1*S2 + THREE*S12*S12
-                 EVAR(I) = SQRT(VONM2)
+                 BUFLY => ELBUF_TAB(NG)%BUFLY(ILAYER)
+                 DO IR=1,NPTR                                                       
+                   DO IS=1,NPTS 
+                       LBUF => BUFLY%LBUF(IR,IS,1)
+                       S1 = S1  + LBUF%SIG(I        )/NPG
+                       S2 = S2  + LBUF%SIG(NEL   + I)/NPG
+                       S12= S12 + LBUF%SIG(2*NEL + I)/NPG
+                    ENDDO 
+                 ENDDO    
+                   VONM2= S1*S1 + S2*S2 - S1*S2 + THREE*S12*S12
+                   EVAR(I) =  SQRT(VONM2) 
                ENDIF  
             ENDDO
 c---------
@@ -306,7 +318,7 @@ c---------
 !            ENDDO
            ENDIF
 c---------
-          ELSEIF (IFUNC.GE.14.AND.IFUNC.LE.15) THEN
+          ELSEIF (IFUNC>=14.AND.IFUNC<=15) THEN
 c---------
 C
 Cit's available just for law25 and batoz shell
@@ -316,14 +328,14 @@ Cit's available just for law25 and batoz shell
 C +
              IF(ITY == 3)THEN
               DO I=1,NEL
-            	MAT(I)=IXC(1,NFT+I)
-            	PID(I)=IXC(6,NFT+I)
-              END DO				    
+          MAT(I)=IXC(1,NFT+I)
+          PID(I)=IXC(6,NFT+I)
+              END DO            
             ELSE
               DO I=1,NEL
-            	MAT(I)=IXTG(1,NFT+I)
-            	PID(I)=IXTG(5,NFT+I)
-              END DO				    
+          MAT(I)=IXTG(1,NFT+I)
+          PID(I)=IXTG(5,NFT+I)
+              END DO            
             END IF   
              IVISC = 0
              IF(MLW == 25) THEN
@@ -338,7 +350,7 @@ C +
                      IADR = (N-1)*NEL                       
                       DO I=1,NEL                          
                         MATL   = STACK%IGEO(IPMAT+N,ISUBSTACK)
-                        IF(IPM(222,MATL) > 0 ) IVISC = 1
+                        IF (MAT_PARAM(MATL)%IVISC > 0 ) IVISC = 1
                       END DO                                
                   END DO                                       
                END IF  
@@ -390,7 +402,7 @@ C +
             ENDIF
 CCC
 c---------
-          ELSEIF(IFUNC.GE.17.AND.IFUNC.LE.19)THEN           
+          ELSEIF(IFUNC>=17.AND.IFUNC<=19)THEN           
 c---------
             IUS = IFUNC-14
 Cit's available just for law25 and batoz shell
@@ -400,14 +412,14 @@ c
             IF (MLW == 25.AND. IREP == 1) THEN
              IF(ITY == 3)THEN
               DO I=1,NEL
-            	MAT(I)=IXC(1,NFT+I)
-            	PID(I)=IXC(6,NFT+I)
-              END DO				    
+          MAT(I)=IXC(1,NFT+I)
+          PID(I)=IXC(6,NFT+I)
+              END DO            
             ELSE
               DO I=1,NEL
-            	MAT(I)=IXTG(1,NFT+I)
-            	PID(I)=IXTG(5,NFT+I)
-              END DO				    
+          MAT(I)=IXTG(1,NFT+I)
+          PID(I)=IXTG(5,NFT+I)
+              END DO            
             END IF   
               IVISC = 0
               NUVARV = 0
@@ -423,7 +435,7 @@ c
                      IADR = (N-1)*NEL                       
                       DO I=1,NEL                          
                         MATL   = STACK%IGEO(IPMAT+N,ISUBSTACK)
-                        IF(IPM(222,MATL) > 0 ) IVISC = 1
+                        IF (MAT_PARAM(MATL)%IVISC > 0 ) IVISC = 1
                       END DO                                
                   END DO                                       
                 END IF  
@@ -439,29 +451,16 @@ C -
               ENDDO
             ELSEIF (MLW == 25 .AND. IREP == 0) THEN
               IF (IHBE == 11) THEN  
-               NB13= NB12 + 8*NPG*NEL
-               NB14= NB13 + 8*NPG*NEL*ISTRAIN
-               NB15= NB14 + MAX(1,NPT)*NPG*NEL
                DO I=LFT,LLT 
                  EVAR(I) = ZERO
                  N = I + NFT 
                  ILAYER = PLYELEMS(N)
-                 IF(ILAYER > 0) THEN
-                    DO K=1,NPG
-                     I1 = NB15+NPT*5*NEL*(K-1)+5*LLT*(ILAYER-1)+(I-1)*5
-c                     EVAR(I) = EVAR(I) + BUFEL(I1+ IFUNC - 14)/NPG
-                    ENDDO  
-                 ENDIF
                 ENDDO 
               ELSE
 c                IADD  = NB10 + 5 * NEL * (ILAYER - 1)
                 DO I=LFT,LLT
                   N = I + NFT 
                   ILAYER = PLYELEMS(N)
-                  IF(ILAYER > 0) THEN
-c                   IADD  = NB10 + 5 * NEL * (ILAYER - 1)
-c                   EVAR(I) = BUFEL(IADD + (I-1)*5 + IFUNC - 14)
-                  ENDIF 
                 ENDDO
               ENDIF
             ELSE 
@@ -490,13 +489,13 @@ c            IADD  = NB3
               ENDIF
             ENDDO
 c---------
-         ELSEIF(IFUNC.GE.20.AND.IFUNC.LE.24)THEN
+         ELSEIF(IFUNC>=20.AND.IFUNC<=24)THEN
 c          USER VARIABLES from 1 to 5)THEN
 c---------
            IUS = IFUNC - 20                                
 CCC
            IF(IHBE == 11.AND.
-     .       (MLW == 29.OR.MLW == 30.OR.MLW == 31.OR.MLW.GE.33))THEN 
+     .       (MLW == 29.OR.MLW == 30.OR.MLW == 31.OR.MLW>=33))THEN 
                 NPG=0
 C------QBAT----
                IF (ITY == 3.AND.IHBE == 11) THEN
@@ -513,10 +512,6 @@ C------------------------
               NEL5 = NEL*5
               NEL8 = NEL*8    
 C-------QBAT,DKT18,
-              N13=NB12 + NPG*NEL8
-              N14=N13  + NPG*NEL8*ISTRAIN
-              N15=N14  + NPTM*NPG*NEL
-              N16=N15  + NPG*MPT*NEL5
 C
               IF (ITY == 7) THEN
                IGTYP = NINT(GEO(12,IXTG(6,NFT+1)))
@@ -531,7 +526,7 @@ C
                I1  = IUS*NEL
                DO I=LFT,LLT
                N = I + NFT
-               IF(NUVAR.GE.IUS)THEN
+               IF(NUVAR>=IUS)THEN
                    EVAR(I) = ZERO
                   N = I + NFT 
                   ILAYER = PLYELEMS(N)
@@ -549,19 +544,19 @@ C
                ENDDO
               ENDIF
            ELSEIF (MLW == 29 .OR. MLW == 30.OR.
-     .             MLW == 31.OR.MLW.GE.33) THEN
+     .             MLW == 31.OR.MLW>=33) THEN
 C---        USER VARIABLES
              IUS = IFUNC - 20
              DO I=LFT,LLT
                N = I + NFT
-                IF (IPM(8,IXC(1,N)).GT.IUS) THEN
+                IF (IPM(8,IXC(1,N))>IUS) THEN
                ENDIF
              ENDDO
            ENDIF
 c---------
-          ELSEIF(IFUNC.GE.27.AND.IFUNC.LE.39) THEN
+          ELSEIF(IFUNC>=27.AND.IFUNC<=39) THEN
 c---------
-            IF (MLW == 29.OR.MLW == 30.OR.MLW == 31.OR.MLW.GE.33)THEN 
+            IF (MLW == 29.OR.MLW == 30.OR.MLW == 31.OR.MLW>=33)THEN 
               IF (MPT > 0)THEN
                 IUS = IFUNC - 22
                 DO I=LFT,LLT               
@@ -572,7 +567,7 @@ c---------
                     IPT = ILAYER
                     NUVAR = ELBUF_TAB(NG)%BUFLY(IPT)%NVAR_MAT
                     I1 = IUS*NEL
-                    IF (NUVAR.GE.IUS)THEN
+                    IF (NUVAR>=IUS)THEN
                       DO IR = 1, NPTR
                        DO IS = 1, NPTS
                         UVAR=>ELBUF_TAB(NG)%BUFLY(IPT)%MAT(IR,IS,1)%VAR
@@ -585,13 +580,13 @@ c---------
               ENDIF
             ENDIF 
 c---------
-          ELSEIF((IFUNC.GE.40.AND.IFUNC.LE.2039).OR.
-     .           (IFUNC.GE.2240.AND.IFUNC.LE.10139)) THEN
+          ELSEIF((IFUNC>=40.AND.IFUNC<=2039).OR.
+     .           (IFUNC>=2240.AND.IFUNC<=10139)) THEN
 c---------
-            IF (IFUNC.GE.40.AND.IFUNC.LE.2039) THEN
+            IF (IFUNC>=40.AND.IFUNC<=2039) THEN
               IUS = (IFUNC - 39)/100
               IPT = MOD ((IFUNC - 39), 100)  
-            ELSEIF (IFUNC.GE.2240.AND.IFUNC.LE.10139) THEN 
+            ELSEIF (IFUNC>=2240.AND.IFUNC<=10139) THEN 
               IUS = ((IFUNC - 2239)/100) +20  
               IPT = MOD ((IFUNC - 2239), 100)  
             ENDIF  
@@ -606,7 +601,7 @@ c---------
               IL  = 1           
             ENDIF               
             IPT = ILAYER
-            IF (MLW == 29.OR.MLW == 30.OR.MLW == 31.OR.MLW.GE.33)THEN 
+            IF (MLW == 29.OR.MLW == 30.OR.MLW == 31.OR.MLW>=33)THEN 
                 NPG=0
 C              ------QBAT----
                IF (ITY == 3.AND.IHBE == 11) THEN
@@ -627,7 +622,7 @@ C              -----------------------
                  ELSE
                    NUVAR  = MAX(NUVAR,IPM(8,IXC(1,NFT+1)))
                  ENDIF
-                 IF (NUVAR.GE.IUS.AND.NPT.GE.IPT)THEN
+                 IF (NUVAR>=IUS.AND.NPT>=IPT)THEN
                    EVAR(I) = ZERO
                    ILAYER = PLYELEMS(N)
                    I1  = IUS*NEL
@@ -654,7 +649,7 @@ c---------
                   N = I + NFT                                                   
                   ILAYER = PLYELEMS(N)
                   NFAIL = 0
-                  IF(ILAYER .NE. 0.AND. ILAYER <= ELBUF_TAB(NG)%NINTLAY) 
+                  IF(ILAYER /= 0.AND. ILAYER <= ELBUF_TAB(NG)%NINTLAY) 
      .                NFAIL  = ELBUF_TAB(NG)%INTLAY(ILAYER)%NFAIL
                   IF (ILAYER > 0 .AND. ILAYER <= ELBUF_TAB(NG)%NINTLAY .AND. NFAIL > 0) THEN
                     NUVAR = ELBUF_TAB(NG)%INTLAY(ILAYER)%FAIL(1,1)%FLOC(1)%NVAR
@@ -674,7 +669,7 @@ c---------
                   N = I + NFT                                                                     
                   ILAYER = PLYELEMS(N)
                   NFAIL = 0
-                  IF(ILAYER .NE. 0.AND. ILAYER <= ELBUF_TAB(NG)%NINTLAY) 
+                  IF(ILAYER /= 0.AND. ILAYER <= ELBUF_TAB(NG)%NINTLAY) 
      .                NFAIL  = ELBUF_TAB(NG)%INTLAY(ILAYER)%NFAIL
                   IF (ILAYER > 0 .AND. ILAYER <= ELBUF_TAB(NG)%NINTLAY .AND. NFAIL > 0) THEN
                     NUVAR = ELBUF_TAB(NG)%INTLAY(ILAYER)%FAIL(1,1)%FLOC(1)%NVAR
@@ -691,7 +686,7 @@ c---------
               ENDIF                                                           
             ENDIF                                               
 c---------
-          ELSEIF((IFUNC.GE.10241.AND.IFUNC.LE.10243)) THEN 
+          ELSEIF((IFUNC>=10241.AND.IFUNC<=10243)) THEN 
 C           interply stress
 c---------
             LL = IFUNC - 10240 
@@ -710,7 +705,7 @@ c---------
                ENDDO                                                                  
              ENDIF   ! interply                                                       
 c---------
-          ELSEIF((IFUNC.GE.10244.AND.IFUNC.LE.10246)) THEN  
+          ELSEIF((IFUNC>=10244.AND.IFUNC<=10246)) THEN  
 C           interply strain
 c---------
             LL = IFUNC - 10243
@@ -770,12 +765,12 @@ c---------
              ENDDO                                       
            ENDIF                                         
 c---------
-         ELSEIF(IFUNC.GE.2042.AND.IFUNC.LE.2141) THEN   
+         ELSEIF(IFUNC>=2042.AND.IFUNC<=2141) THEN   
 c---------
-            IF(MLW.NE.1)THEN
+            IF(MLW/=1)THEN
               IPT = MOD ((IFUNC - 2041), 100)     
               IF(IPT == 0)IPT = 100
-              IF(NPT.GE.IPT)THEN 
+              IF(NPT>=IPT)THEN 
 c                 IADD  = NB11 + LLT*(ILAYER-1)
                  DO  I=LFT,LLT
                   ILAYER = PLYELEMS(N)
@@ -825,8 +820,8 @@ c
 !!                    WPLA(I) = LBUF%PLA(I)                           
 !!                    DMAX(I) = PM(64,MATLY(J))                       
 !!                    WPMAX(I)= PM(41,MATLY(J))                       
-!!                    IF(DAM1(I).GE.DMAX(I).OR.DAM2(I).GE.DMAX(I).OR. 
-!!     .                 WPLA(I).LT.ZERO.OR.WPLA(I).GE.WPMAX(I))      
+!!                    IF(DAM1(I)>=DMAX(I).OR.DAM2(I)>=DMAX(I).OR. 
+!!     .                 WPLA(I)<ZERO.OR.WPLA(I)>=WPMAX(I))      
 !!     .              FAIL(I) =  FAIL(I) + ONE                         
 !!                  ENDDO                                               
 !!                ENDDO                                               
@@ -834,9 +829,9 @@ c
 !!                IF(IFAILA == 1) THEN
 !!                  DO  I=LFT,LLT
 c                    OFF = BUFEL(IADD+I)
-!!                    IF(OFF.LT.ZERO)THEN
+!!                    IF(OFF<ZERO)THEN
 !!                      FAIL(I)= -ONE
-!!                    ELSEIF(OFF.GT.ZERO)THEN
+!!                    ELSEIF(OFF>ZERO)THEN
 !!                      FAIL(I)=  ONE
 !!                    ELSE
 !!                      FAIL(I)=  ZERO
@@ -878,7 +873,7 @@ C
            ENDIF
           ELSEIF(IFUNC == 3)THEN
 C-------------------
-C energie specifique
+C Specific energy
 C-------------------
            IF(ITY == 3)THEN
             DO I=LFT,LLT
@@ -928,7 +923,7 @@ C-------------------
           ENDIF
         ENDIF
 C-----------------------------------------------
-C       FIN DE BOUCLE SUR LES OFFSET
+C       end of loop over offsets
 C-----------------------------------------------
        END DO
  900  CONTINUE
@@ -961,6 +956,6 @@ C
           CALL SPMD_R4GET_PARTN(1,NBF_L,NBPART,IADG,WAL,BUF)
       ENDIF
 
- 
+      DEALLOCATE(WAL)
       RETURN
       END

@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CDKEVEC3                      source/elements/sh3n/coquedk/cdkevec3.F
-Chd|-- called by -----------
-Chd|        C3INIT3                       source/elements/sh3n/coque3n/c3init3.F
-Chd|        C3NEWVE3                      source/elements/sh3n/coque3n/c3epsini.F
-Chd|        CDKEPSINI                     source/elements/sh3n/coquedk/cdkepsini.F
-Chd|        CDKFINT_REG_INI               source/elements/sh3n/coquedk/cdkfint_reg_ini.F
-Chd|        CDKINIT3                      source/elements/sh3n/coquedk/cdkinit3.F
-Chd|-- calls ---------------
-Chd|        CLSKEW3                       source/elements/shell/coque/clskew.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cdkevec3          ../starter/source/elements/sh3n/coquedk/cdkevec3.F
+!||--- called by ------------------------------------------------------
+!||    c3init3           ../starter/source/elements/sh3n/coque3n/c3init3.F
+!||    c3newve3          ../starter/source/elements/sh3n/coque3n/c3epsini.F
+!||    cdkepsini         ../starter/source/elements/sh3n/coquedk/cdkepsini.F
+!||    cdkfint_reg_ini   ../starter/source/elements/sh3n/coquedk/cdkfint_reg_ini.F
+!||    cdkinit3          ../starter/source/elements/sh3n/coquedk/cdkinit3.F
+!||--- calls      -----------------------------------------------------
+!||    clskew3           ../starter/source/elements/shell/coque/clskew.F
+!||====================================================================
       SUBROUTINE CDKEVEC3(JFT ,JLT ,AREA,
      .                    X1  ,X2  ,X3  ,Y1  ,Y2  ,Y3  ,
      .                    Z1  ,Z2  ,Z3  ,E1X ,E2X ,E3X ,
@@ -54,10 +54,6 @@ C-----------------------------------------------
      .     E1X(MVSIZ), E1Y(MVSIZ), E1Z(MVSIZ),
      .     E2X(MVSIZ), E2Y(MVSIZ), E2Z(MVSIZ),
      .     E3X(MVSIZ), E3Y(MVSIZ), E3Z(MVSIZ)
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "vect01_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------

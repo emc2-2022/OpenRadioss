@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS55C                     source/materials/mat/mat055/sigeps55c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        VINTER                        source/tools/curve/vinter.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps55c   ../engine/source/materials/mat/mat055/sigeps55c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc      ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter      ../engine/source/tools/curve/finter.F
+!||    vinter      ../engine/source/tools/curve/vinter.F
+!||====================================================================
       SUBROUTINE SIGEPS55C(
      1     NEL0    ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC  ,
-     2     NPF    ,NPT0    ,IPT     ,IFLAG   ,
+     2     NPF    ,NPT0    ,IPT     ,IFLAG   ,ASRATE ,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0   ,
      3     AREA   ,EINT   ,THKLY   ,
      4     EPSPXX ,EPSPYY ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
@@ -40,7 +41,7 @@ Chd|====================================================================
      9     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
      A     SOUNDSP,VISCMAX,THK     ,PLA     ,UVAR   ,
      B     OFF    ,NGL    ,IPM     ,MAT     ,ETSE   ,
-     C     GS     ,YLD    ,EPSP    ,ISRATE  )
+     C     GS     ,YLD    ,EPSD_PG ,EPSP    ,ISRATE  )
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -91,7 +92,7 @@ C SIGVXX  | NEL0    | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL0    | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL0    | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL0    | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL0    | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C THK     | NEL0    | F |R/W| THICKNESS
 C PLA     | NEL0    | F |R/W| PLASTIC STRAIN
@@ -101,9 +102,6 @@ C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "parit_c.inc"
-#include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
@@ -111,6 +109,9 @@ C-----------------------------------------------
 C
       INTEGER NEL0, NUPARAM, NUVAR, NPT0,ISRATE, IPT,IFLAG(*),
      .   NGL(NEL0),MAT(NEL0),IPM(NPROPMI,*)
+      my_real ,INTENT(IN) :: ASRATE
+      my_real ,DIMENSION(NEL0) ,INTENT(IN)    :: EPSD_PG
+      my_real ,DIMENSION(NEL0) ,INTENT(INOUT) :: EPSP
       my_real TIME,TIMESTEP(NEL0),UPARAM(*),
      .   AREA(NEL0),RHO0(NEL0),EINT(NEL0,2),
      .   THKLY(NEL0),PLA(NEL0),
@@ -121,8 +122,7 @@ C
      .   EPSXX(NEL0) ,EPSYY(NEL0) ,
      .   EPSXY(NEL0) ,EPSYZ(NEL0) ,EPSZX(NEL0) ,
      .   SIGOXX(NEL0),SIGOYY(NEL0),
-     .   SIGOXY(NEL0),SIGOYZ(NEL0),SIGOZX(NEL0),
-     .   GS(*)       ,EPSP(NEL0)
+     .   SIGOXY(NEL0),SIGOYZ(NEL0),SIGOZX(NEL0),GS(*)
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -194,7 +194,7 @@ C-----------------------------------------------
 C------------------------------------------------------------------------------
 C    
 c------------------------------------------------------------------------------
-C   Pour le moment on fait qu'une projection radial
+C   for the moment, we only perform a radial projection
        IFLAG(1) = 2
        MX = MAT(1)       
        NFUNC  = IPM(10,MX)
@@ -224,8 +224,8 @@ C
 C
         NNU(I) = NU(I) / (ONE - NU(I))       
        ENDDO
-       IF (ISIGI.EQ.0) THEN
-       IF(TIME.EQ.ZERO)THEN
+       IF (ISIGI==0) THEN
+       IF(TIME==ZERO)THEN
          DO I=1,NEL0           
            DO J=1,NRATE(I)
              UVAR(I,J)=0
@@ -251,7 +251,7 @@ C
      .                         + VISC(I))*C11
          C2(I) = TWO*VISCV(I)*(THREE*VISC(I) 
      .                      - TWO*VISCV(I))*C11
-C la partie visqueuse 
+C the viscous part
          DTINV = TIMESTEP(I)**2/MAX(EM20, TIMESTEP(I))
            
          SIGVXX(I)= C2(I)*(EPSPXX(I)+EPSPYY(I))
@@ -264,18 +264,21 @@ C la partie visqueuse
 C  
          SOUNDSP(I) = SQRT(A1(I)/RHO0(I))
          C11 = C2(I) + 2*VISCV(I)
-C a verefier cette formule	  
+C to verify this formula
           VISCMAX(I) = MAX(C2(I), C11)
-	  VISCMAX(I) = VISCMAX(I)/
+            VISCMAX(I) = VISCMAX(I)/
      .          (ONEP414*RHO0(I)*SOUNDSP(I)*SQRT(AREA(I)))                   
          ETSE(I) = ONE
 C-------------------
 C     STRAIN RATE
 C-------------------
-         IF (ISRATE .EQ. 0) EPSP(I) = 
-     .     HALF*(EPSPXX(I)+EPSPYY(I)
-     .   + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
-     .                 + EPSPXY(I)*EPSPXY(I) ) )
+         IF (ISRATE == 0) THEN
+           EPSP(I) = HALF*(EPSPXX(I)+EPSPYY(I)
+     .             + SQRT( (EPSPXX(I)-EPSPYY(I))*(EPSPXX(I)-EPSPYY(I))
+     .             + EPSPXY(I)*EPSPXY(I) ) )
+         ELSE
+           EPSP(I) = ASRATE*EPSD_PG(I) + (ONE-ASRATE)*EPSP(I)
+         END IF
 C-------------------
 C     STRAIN 
 C-------------------
@@ -283,7 +286,7 @@ C
          EPST(I) = HALF*(EPSXX(I)+EPSYY(I)
      .   + SQRT( (EPSXX(I)-EPSYY(I))*(EPSXX(I)-EPSYY(I))
      .                 + EPSXY(I)*EPSXY(I) ) )         
-         IF(OFF(I).EQ.ONE.AND.EPST(I).GT.EPSMAX(I))OFF(I) =FOUR_OVER_5
+         IF(OFF(I)==ONE.AND.EPST(I)>EPSMAX(I))OFF(I) =FOUR_OVER_5
        ENDDO
 C-------------------
 C     CRITERE
@@ -296,14 +299,14 @@ C
        DO I=1,NEL0
         DO J=2,NRATEP(I)-1
            IADBUF = IPM(7,MAT(I)) - 1
-           IF(ABS(EPSP(I)).GE.UPARAM(IADBUF+ 10 +J)) JJ(I) = J 
+           IF(ABS(EPSP(I))>=UPARAM(IADBUF+ 10 +J)) JJ(I) = J 
          ENDDO         
        ENDDO
      
         DO I=1,NEL0
           DO J=2,NRATEN(I)-1
            IADBUF = IPM(7,MAT(I))-1        
-            IF(ABS(EPSP(I)).GE.
+            IF(ABS(EPSP(I))>=
      .         ABS(UPARAM(IADBUF+10 + NRATEP(I) + J))) II(I) = NRATEP(I) + J 
            ENDDO
          ENDDO
@@ -316,7 +319,7 @@ C
        ENDDO
 C
        DO I=1,NEL0
-C + 1 pour la courbe elastique JJ(I) + 1 , II(I) + 1     
+C + 1 for the elastic curve JJ (i) + 1, II (i) + 1     
            J1 = JJ(I) + 1
            J2 = J1+1
            I1 = II(I) +1
@@ -349,7 +352,7 @@ C
          CALL VINTER(TF,IAD1,IPOS1,ILEN1,NEL0,EPST,DYDX1,Y1)     
 C
 
-Cel remplacer par les sous cas :
+C   replace with the subcases:
 
         DO I=1,NEL0
          J1 = JJ(I) +1
@@ -367,7 +370,7 @@ C       min stress
            YLDMIN(I) = MAX(YLDMIN(I),EM20)           
            UVAR(I,I1) = IPOS1N(I)
            UVAR(I,I2) = IPOS2N(I)
-C   elastique courbe
+C   Curve elastic
            YLDELAS(I)= Y1(I)
            UVAR(I,1) = IPOS1(I)                 
         ENDDO
@@ -376,17 +379,17 @@ C   elastique courbe
 C-------------------
 C     PROJECTION
 C-------------------
-       IF(IFLAG(1).EQ.2)THEN
-C projection radiale 
+       IF(IFLAG(1)==2)THEN
+C radial projection 
          DO I=1,NEL0
-          IF(OFF(I).EQ.1) THEN 
+          IF(OFF(I)==1) THEN 
            SVM(I)=SQRT(SIGNXX(I)*SIGNXX(I)
      .             +SIGNYY(I)*SIGNYY(I)
      .             -SIGNXX(I)*SIGNYY(I)
      .          +THREE*SIGNXY(I)*SIGNXY(I))       
-C contrainte elastique ..       
-           IF(SVM(I).NE.ZERO) THEN     
-            IF(SVM(I).GE.YLDELAS(I))THEN 
+C Elastic constraint.       
+           IF(SVM(I)/=ZERO) THEN     
+            IF(SVM(I)>=YLDELAS(I))THEN 
               DO ITER = 1, 10              
                R  = MIN(ONE,YLDELAS(I)/MAX(EM20,SVM(I)))
                DEV = (SIGNXX(I) + SIGNYY(I))*THIRD          
@@ -414,9 +417,9 @@ CCCACTUALISATION
      .             +SIGEYY(I)*SIGEYY(I)
      .             -SIGEXX(I)*SIGEYY(I)
      .          + THREE*SIGEXY(I)*SIGEXY(I))           
-           IF(SVM(I).GE.YLDMAX(I)) THEN                
+           IF(SVM(I)>=YLDMAX(I)) THEN                
             R  = MIN(ONE,YLDMAX(I)/MAX(EM20,SVM(I)))                        
-            ELSEIF(SVM(I).LE.YLDMIN(I))THEN                            
+            ELSEIF(SVM(I)<=YLDMIN(I))THEN                            
             R = MAX(ONE,YLDMIN(I)/MAX(EM20,SVM(I)))            
            ENDIF   
             DEV = (SIGEXX(I) + SIGEYY(I))*THIRD
@@ -431,8 +434,8 @@ CCCACTUALISATION
      .             +SIGEYY(I)*SIGEYY(I)
      .             -SIGEXX(I)*SIGEYY(I)
      .          + THREE*SIGEXY(I)*SIGEXY(I))
-C calcul des contraintes visquenses                
-            IF(R.NE.1.) THEN              
+C calculation of viscous stresses
+            IF(R/=1.) THEN              
              SIGVXX(I)=SIGEXX(I) - SIGNXX(I)
              SIGVYY(I)=SIGEYY(I) - SIGNYY(I)
              SIGVXY(I)=SIGEXY(I) - SIGNXY(I)
@@ -449,7 +452,7 @@ C calcul des contraintes visquenses
           ENDIF
   200    ENDDO
             
-C contrainte elastique ..    
+C Elastic constraint.    
             DO I=1,NEL0
             LAMDA = NU(I) * E(I) /((ONE + NU(I))*(ONE - TWO* NU(I)))
             LAMDA = LAMDA + DTINV*THIRD*(THREE*VISC(I) - TWO*VISCV(I))
@@ -458,13 +461,13 @@ C contrainte elastique ..
            THK(I) = THK(I) + DEZZ*THKLY(I)*OFF(I)
          ENDDO
 C
-       ELSEIF(IFLAG(1).EQ.1)THEN
+       ELSEIF(IFLAG(1)==1)THEN
 C-------------------------
-C     CRITERE DE VON MISES
+C     von mises criterion
 C-------------------------
 
 C-------------------------------------------
-       ELSEIF(IFLAG(1).EQ.0)THEN
+       ELSEIF(IFLAG(1)==0)THEN
 C 
        ENDIF
 C

@@ -1,95 +1,112 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  C3FORC3_CRK                   source/elements/xfem/c3forc3_crk.F
-Chd|-- called by -----------
-Chd|        FORINTC                       source/elements/forintc.F     
-Chd|-- calls ---------------
-Chd|        C3BILAN                       source/elements/sh3n/coque3n/c3bilan.F
-Chd|        C3BRZ3                        source/elements/sh3n/coque3n/c3defo3.F
-Chd|        C3COEF3                       source/elements/sh3n/coque3n/c3coef3.F
-Chd|        C3COEFRZ3                     source/elements/sh3n/coquedk/cncoef3.F
-Chd|        C3COOR3_CRK                   source/elements/xfem/c3coor3_crk.F
-Chd|        C3CURV3                       source/elements/sh3n/coque3n/c3curv3.F
-Chd|        C3DEFO3                       source/elements/sh3n/coque3n/c3defo3.F
-Chd|        C3DEFRZ                       source/elements/sh3n/coque3n/c3defo3.F
-Chd|        C3DERI3                       source/elements/sh3n/coque3n/c3deri3.F
-Chd|        C3DT3                         source/elements/sh3n/coque3n/c3dt3.F
-Chd|        C3EVEC3                       source/elements/sh3n/coque3n/c3evec3.F
-Chd|        C3FCUM3                       source/elements/sh3n/coque3n/c3fcum3.F
-Chd|        C3FINT3                       source/elements/sh3n/coque3n/c3fint3.F
-Chd|        C3FINTRZ                      source/elements/sh3n/coque3n/c3fint3.F
-Chd|        C3MCUM3                       source/elements/sh3n/coque3n/c3mcum3.F
-Chd|        C3MZCUM3                      source/elements/sh3n/coque3n/c3mcum3.F
-Chd|        C3PXPY3                       source/elements/sh3n/coque3n/c3pxpy3.F
-Chd|        C3STRA3                       source/elements/sh3n/coque3n/c3stra3.F
-Chd|        C3UPDT3_CRK                   source/elements/xfem/xfemfsky.F
-Chd|        CMAIN3                        source/materials/mat_share/cmain3.F
-Chd|        CSENS3                        source/elements/shell/coque/csens3.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        TEMP3CG                       source/elements/sh3n/coque3n/temp3cg.F
-Chd|        THERM3C                       source/elements/sh3n/coque3n/therm3c.F
-Chd|        CRACKXFEM_MOD                 share/modules/crackxfem_mod.F 
-Chd|        DRAPE_MOD                     share/modules/drape_mod.F     
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        FAILWAVE_MOD                  ../common_source/modules/failwave_mod.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|        STACK_MOD                     share/modules/stack_mod.F     
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
-      SUBROUTINE C3FORC3_CRK(XFEM_STR,
-     1            JFT    ,JLT    ,PM     ,IXTG   ,X         ,
-     2            F      ,M      ,V      ,R      ,FAILWAVE  ,
-     3            NVC    ,MTN    ,GEO    ,TF     ,NPF       ,
-     4            BUFMAT ,PMSAV  ,DT2T   ,NELTST ,ITYPTST   ,
-     5            STIFN  ,STIFR  ,FSKY   ,CRKSKY ,IADTG     ,
-     6            EPSDOT ,OFFSET ,IPARTTG,THKE   ,F11       ,
-     7            F12    ,F13    ,F21    ,F22    ,F23       ,
-     8            F31    ,F32    ,F33    ,M11    ,M12       ,
-     9            M13    ,M21    ,M22    ,M23    ,M31       ,
-     A            M32    ,M33    ,KFTS   ,GROUP_PARAM,MATPARAM_TAB,
-     B            NEL    ,ISTRAIN,ISH3N  ,
-     C            ITHK   ,IOFC   ,IPLA   ,NFT    ,ISMSTR    ,
-     D            FZERO  ,IGEO   ,IPM    ,IFAILURE,ITASK     , 
-     E            JTHE   ,TEMP   ,FTHE   ,FTHESKY ,IEXPAN    ,
-     F            GRESAV ,GRTH   ,IGRTH  ,MSTG    ,DMELTG    ,
-     G            JSMS   ,TABLE  ,IPARG  ,LSENSOR ,SENSOR    ,
-     H            PTG    ,IXFEM  ,INOD_CRK,IEL_CRK,IADTG_CRK,
-     I            ELCUTC ,IXEL   ,STACK  ,ISUBSTACK ,
-     R            UXINT_MEAN,UYINT_MEAN  ,UZINT_MEAN,NLEVXF  ,
-     S            NODEDGE,CRKEDGE ,DRAPE_T3   ,IPRI          ,
-     T            NLOC_DMG)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    c3forc3_crk      ../engine/source/elements/xfem/c3forc3_crk.F
+!||--- called by ------------------------------------------------------
+!||    forintc          ../engine/source/elements/forintc.F
+!||--- calls      -----------------------------------------------------
+!||    c3bilan          ../engine/source/elements/sh3n/coque3n/c3bilan.F
+!||    c3brz3           ../engine/source/elements/sh3n/coque3n/c3defo3.F
+!||    c3coef3          ../engine/source/elements/sh3n/coque3n/c3coef3.F
+!||    c3coefrz3        ../engine/source/elements/sh3n/coquedk/cncoef3.F
+!||    c3coor3_crk      ../engine/source/elements/xfem/c3coor3_crk.F
+!||    c3curv3          ../engine/source/elements/sh3n/coque3n/c3curv3.F
+!||    c3defo3          ../engine/source/elements/sh3n/coque3n/c3defo3.F
+!||    c3defrz          ../engine/source/elements/sh3n/coque3n/c3defo3.F
+!||    c3deri3          ../engine/source/elements/sh3n/coque3n/c3deri3.F
+!||    c3dt3            ../engine/source/elements/sh3n/coque3n/c3dt3.F
+!||    c3evec3          ../engine/source/elements/sh3n/coque3n/c3evec3.F
+!||    c3fcum3          ../engine/source/elements/sh3n/coque3n/c3fcum3.F
+!||    c3fint3          ../engine/source/elements/sh3n/coque3n/c3fint3.F
+!||    c3fintrz         ../engine/source/elements/sh3n/coque3n/c3fint3.F
+!||    c3mcum3          ../engine/source/elements/sh3n/coque3n/c3mcum3.F
+!||    c3mzcum3         ../engine/source/elements/sh3n/coque3n/c3mcum3.F
+!||    c3pxpy3          ../engine/source/elements/sh3n/coque3n/c3pxpy3.F
+!||    c3stra3          ../engine/source/elements/sh3n/coque3n/c3stra3.F
+!||    c3updt3_crk      ../engine/source/elements/xfem/xfemfsky.F
+!||    cmain3           ../engine/source/materials/mat_share/cmain3.F
+!||    csens3           ../engine/source/elements/shell/coque/csens3.F
+!||    startime         ../engine/source/system/timer_mod.F90
+!||    stoptime         ../engine/source/system/timer_mod.F90
+!||    temp3cg          ../engine/source/elements/sh3n/coque3n/temp3cg.F
+!||    therm3c          ../engine/source/elements/sh3n/coque3n/therm3c.F
+!||--- uses       -----------------------------------------------------
+!||    crackxfem_mod    ../engine/share/modules/crackxfem_mod.F
+!||    drape_mod        ../engine/share/modules/drape_mod.F
+!||    dt_mod           ../engine/source/modules/dt_mod.F
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||    failwave_mod     ../common_source/modules/failwave_mod.F
+!||    glob_therm_mod   ../common_source/modules/mat_elem/glob_therm_mod.F90
+!||    mat_elem_mod     ../common_source/modules/mat_elem/mat_elem_mod.F90
+!||    nlocal_reg_mod   ../common_source/modules/nlocal_reg_mod.F
+!||    sensor_mod       ../common_source/modules/sensor_mod.F90
+!||    stack_mod        ../engine/share/modules/stack_mod.F
+!||    table_mod        ../engine/share/modules/table_mod.F
+!||    timer_mod        ../engine/source/system/timer_mod.F90
+!||====================================================================
+      SUBROUTINE C3FORC3_CRK(TIMERS,
+     1   XFEM_STR,    JFT,         JLT,         PM,
+     2   IXTG,        X,           F,           M,
+     3   V,           R,           FAILWAVE,    NVC,
+     4   MTN,         GEO,         TF,          NPF,
+     5   BUFMAT,      PMSAV,       DT2T,        NELTST,
+     6   ITYPTST,     STIFN,       STIFR,       FSKY,
+     7   CRKSKY,      IADTG,       EPSDOT,      OFFSET,
+     8   IPARTTG,     THKE,        F11,         F12,
+     9   F13,         F21,         F22,         F23,
+     A   F31,         F32,         F33,         M11,
+     B   M12,         M13,         M21,         M22,
+     C   M23,         M31,         M32,         M33,
+     D   KFTS,        GROUP_PARAM, MAT_ELEM,    NEL,
+     E   ISTRAIN,     ISH3N,       ITHK,        IOFC,
+     F   IPLA,        NFT,         ISMSTR,      FZERO,
+     G   IGEO,        IPM,         IFAILURE,    ITASK,
+     H   JTHE,        TEMP,        FTHE,        FTHESKY,
+     I   IEXPAN,      GRESAV,      GRTH,        IGRTH,
+     J   MSTG,        DMELTG,      JSMS,        TABLE,
+     K   IPARG,       SENSORS,     PTG,         IXFEM,
+     L   INOD_CRK,    IEL_CRK,     IADTG_CRK,   ELCUTC,
+     M   IXEL,        STACK,       ISUBSTACK,   UXINT_MEAN,
+     N   UYINT_MEAN,  UZINT_MEAN,  NLEVXF,      NODEDGE,
+     O   CRKEDGE,     DRAPE_SH3N,  IPRI,        NLOC_DMG,
+     P   INDX_DRAPE,  IGRE,        DT,          NCYCLE ,
+     R   SNPC,        STF,         GLOB_THERM,  IDEL7NOK,
+     Q   USERL_AVAIL, MAXFUNC,     SBUFMAT,IPART     ,LIPART1 )
 C-----------------------------------------------
+      USE TIMER_MOD
       USE TABLE_MOD
       USE CRACKXFEM_MOD
-      USE ELBUFDEF_MOD
       USE STACK_MOD
       USE FAILWAVE_MOD
-      USE MATPARAM_DEF_MOD  
+      USE MAT_ELEM_MOD  
       USE DRAPE_MOD 
       USE NLOCAL_REG_MOD          
+      USE SENSOR_MOD
+      USE ELBUFDEF_MOD
+      USE DT_MOD
+      use glob_therm_mod
+      use element_mod , only : nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -102,30 +119,31 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
 #include      "com_xfem1.inc"
-#include      "scr01_c.inc"
-#include      "scr03_c.inc"
-#include      "scr07_c.inc"
 #include      "parit_c.inc"
 #include      "timeri_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(TIMER_) :: TIMERS
+      INTEGER,INTENT(IN)    :: USERL_AVAIL ! Flag for User libraries availability
+      INTEGER,INTENT(IN)    :: MAXFUNC     ! Maximum number of functions
+      INTEGER,INTENT(INOUT) :: IDEL7NOK    ! Element deletion flag for IDEL flag in contact interfaces
+      INTEGER,INTENT(IN)    :: SBUFMAT     ! size of bufmat
+      INTEGER,INTENT(IN)    :: STF         ! size of TF
+      INTEGER,INTENT(IN)    :: SNPC        ! size of NPC
+      INTEGER, INTENT(IN) :: IGRE, NCYCLE
       INTEGER JFT,JLT,NVC,MTN,NELTST,ITYPTST,OFFSET,
      .        NEL,ISTRAIN,ISH3N,ICSEN,
      .        ITHK,IOFC,IPLA,NFT,ISMSTR,KFTS,IFAILURE,
      .        JSMS,IXEL,ISUBSTACK,NLEVXF,IPRI
       INTEGER NPF(*),IXTG(NIXTG,*),IADTG(3,*),IGEO(NPROPGI,*),IPM(*),
      .   IPARTTG(*),ITASK,JTHE,IEXPAN,GRTH(*),IGRTH(*),IPARG(*),
-     .   LSENSOR(NSENSI,*),IXFEM,INOD_CRK(*),IEL_CRK(*),IADTG_CRK(3,*),
-     .   ELCUTC(2,*),NODEDGE(2,*)
+     .   IXFEM,INOD_CRK(*),IEL_CRK(*),IADTG_CRK(3,*),
+     .   ELCUTC(2,*),NODEDGE(2,*),INDX_DRAPE(STDRAPE)
       my_real 
-     .   PM(*),F(*),M(*),V(*),R(*),
+     .   PM(NPROPM,*),F(*),M(*),V(*),R(*),
      .   GEO(NPROPG,*),TF(*),BUFMAT(*),PMSAV(*),STIFN(*),
      .   STIFR(*),FSKY(*),EPSDOT(6,*),THKE(*),DT2T,
      .   F11(MVSIZ),F12(MVSIZ),F13(MVSIZ),
@@ -135,7 +153,7 @@ C-----------------------------------------------
      .   M21(MVSIZ),M22(MVSIZ),M23(MVSIZ),
      .   M31(MVSIZ),M32(MVSIZ),M33(MVSIZ),
      .   FZERO(3,3,*),TEMP(*),FTHE(*),FTHESKY(*),GRESAV(*),
-     .   MSTG(*), DMELTG(*),SENSOR(NSENSR,*), PTG(3,*),
+     .   MSTG(*), DMELTG(*),PTG(3,*),
      .   UXINT_MEAN(NLEVXF,MVSIZ),UYINT_MEAN(NLEVXF,MVSIZ),
      .   UZINT_MEAN(NLEVXF,MVSIZ)
 !       SP issue :
@@ -146,23 +164,30 @@ C-----------------------------------------------
       TYPE (XFEM_SKY_)    , DIMENSION(*) :: CRKSKY
       TYPE (STACK_PLY) :: STACK
       TYPE (FAILWAVE_STR_) :: FAILWAVE 
-      TYPE (GRP_PARAM_STRUCT_) :: GROUP_PARAM 
-      TYPE(DRAPE_) :: DRAPE_T3
-      TYPE (MATPARAM_STRUCT_) , DIMENSION(NUMMAT) :: MATPARAM_TAB
+      TYPE (GROUP_PARAM_)  :: GROUP_PARAM 
+      TYPE (DRAPE_) :: DRAPE_SH3N(NUMELTG_DRAPE)
+      TYPE (MAT_ELEM_)   ,INTENT(INOUT) :: MAT_ELEM
       TYPE (NLOCAL_STR_) :: NLOC_DMG 
+      TYPE (SENSORS_) ,INTENT(INOUT) :: SENSORS
+      TYPE (DT_), INTENT(IN) :: DT
+      type (glob_therm_) ,intent(inout)   :: glob_therm
+      integer, intent(in) :: LIPART1
+      INTEGER, DIMENSION(LIPART1,NPART), INTENT(IN)     :: IPART
+    
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-c     indx utilise localement contrairement aux coques 4n 
+c     Indx uses locally unlike 4N shells 
       INTEGER 
-     .   I,J,J1,J2,IR,IS,IT,IPT,IFLAG,IGTYP,IXFEM2,IREP,IMAT,
-     .   IUN,NPG,IBID,IDRIL,NG,IXLAY,NXLAY,NLAYER,NPTT,STEP,
-     .   L_DIRA,L_DIRB,ILEV,IGMAT,IPTHK,ISH3NFR
+     .   I,J1,J2,IR,IS,IT,IGTYP,IXFEM2,IREP,IMAT,
+     .   IUN,NPG,IBID,IDRIL,NG,IXLAY,NXLAY,NLAYER,NPTT,
+     .   L_DIRA,L_DIRB,ILEV,IGMAT,IPTHK,ISH3NFR,ACTIFXFEM,
+     .   SEDRAPE, NUMEL_DRAPE
       INTEGER  MAT(MVSIZ),PID(MVSIZ),NGL(MVSIZ),INDX(MVSIZ),FWAVE(MVSIZ)
       my_real STI(MVSIZ),STIR(MVSIZ),RHO(MVSIZ),
      .   SSP(MVSIZ),VISCMX(MVSIZ),AREA(MVSIZ),
-     .   X21(MVSIZ), Y21(MVSIZ), Z21(MVSIZ),
-     .   X31(MVSIZ), Y31(MVSIZ), Z31(MVSIZ),
+     .     
+     .     
      .   EXX(MVSIZ),EYY(MVSIZ),EXY(MVSIZ),EYZ(MVSIZ),EZX(MVSIZ),
      .   KXX(MVSIZ),KYY(MVSIZ),KXY(MVSIZ),
      .   PX1(MVSIZ),PY1(MVSIZ),PY2(MVSIZ),
@@ -186,6 +211,8 @@ c     indx utilise localement contrairement aux coques 4n
      .   RLZ(MVSIZ,3),WXY(MVSIZ),MLZ(MVSIZ,3),KRZ(MVSIZ),
      .   B0RZ(MVSIZ,3),BKRZ(MVSIZ,2),BERZ(MVSIZ,2),BM0RZ(MVSIZ,3,2),
      .   ECOS(MVSIZ),ESIN(MVSIZ),A11R(MVSIZ),THKE0(MVSIZ),ALDT(MVSIZ)
+      my_real :: DTIME
+      my_real   , DIMENSIOn(NEL) :: ZOFFSET
       my_real 
      .   BID,THKR,F_DEF(MVSIZ,8),WKXY(MVSIZ)
 !       SP issue :
@@ -204,6 +231,10 @@ C---
       TYPE(G_BUFEL_) ,POINTER :: GBUF
       TYPE(L_BUFEL_) ,POINTER :: LBUF
 C
+!     variables for heat transfer
+      my_real, dimension(mvsiz) :: fheat
+      my_real, dimension(mvsiz) :: ssp_eq
+!
       my_real,
      .  DIMENSION(:) ,POINTER  ::  OFFG,THKG,STRAG,FORG,MOMG,
      .  EINTG,EPSDG,TEMPG,EINTTH,HOURGG
@@ -211,8 +242,11 @@ C
      .  DIMENSION(:) ,POINTER  ::  SMSTRG
       my_real,
      .  DIMENSION(:,:), ALLOCATABLE :: VARNL 
+      INTEGER NPTTOT
+      INTEGER SDIR_A    ! Size of DIR_A
+      INTEGER SDIR_B    ! Size of DIR_B
 C---------------------------
-c     Attention : Coque3N + ISMSTR=10 pas compatible avec XFEM !!!
+c     CAUTION: shell3N + ISMSTR = 10 Pas compatible with XFEM !!!
 C=======================================================================
       BID    = ZERO
       IUN  = 1  
@@ -222,8 +256,12 @@ C=======================================================================
       IS   = 1
       IT   = 1
       NG   = 1
+      SEDRAPE = STDRAPE
+      NUMEL_DRAPE = NUMELTG_DRAPE
+      NPTTOT = 1
       ALLOCATE(VARNL(NEL,1))
       VARNL = ZERO
+      DTIME = DT1C(1)
 C -----will put it in starter     
       IF (ISMSTR>=10) ISMSTR=4
 c
@@ -238,6 +276,7 @@ c
       IGTYP  = IGEO(11,PID(1))
       IREP   = IPARG(35)
       IDRIL  = IPARG(41)
+      ACTIFXFEM = IPARG(70)
 C-----------------------------------------
       GBUF  => XFEM_STR%GBUF
       NXLAY  = XFEM_STR%NLAY
@@ -263,6 +302,8 @@ C
       ALLOCATE(DIRB(NXLAY*NEL*L_DIRB))
       DIRA=ZERO
       DIRB=ZERO
+      SDIR_A=NXLAY*NEL*L_DIRA
+      SDIR_B=NXLAY*NEL*L_DIRB
       DIR_A => DIRA(1:NXLAY*NEL*L_DIRA)
       DIR_B => DIRB(1:NXLAY*NEL*L_DIRB)
 C
@@ -359,7 +400,7 @@ C----------use always old local sys
      .                 E1X      ,E1Y     ,E1Z     ,E2X      ,               
      .                 E2Y      ,E2Z     ,E3X     ,E3Y      ,E3Z     )
         ELSE
-C         bug : ismstr=3 non supporte pour coques 3N
+C         Bug: ISMSTR = 3 not supported for 3n shells
           CALL C3PXPY3(JFT       ,JLT     ,PM      ,STI     ,STIR,
      2                 SMSTRG    ,PX1     ,PY1     ,PY2     ,MAT ,
      3                 SSP       ,NEL     )
@@ -374,7 +415,7 @@ c
      4               G      ,YM      ,A11    ,A12      ,THKG    ,
      5               SSP    ,RHO     ,VOL0   ,GS       ,MTN     ,
      6               ITHK   ,NPTT    ,ISMSTR ,VOL00    ,IGEO    ,
-     7               A11R   , ISUBSTACK, STACK%PM)
+     7               A11R   , ISUBSTACK, STACK%PM, NEL     ,ZOFFSET)
 c
         CALL C3DEFO3(JFT  ,JLT  ,VL1  ,VL2  ,VL3  ,
      .               IXTG ,ISH3N,PX1  ,PY1  ,PY2  ,
@@ -412,39 +453,44 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
         IF (JTHE > 0 ) CALL TEMP3CG(JFT  ,JLT   ,PM     ,MAT   ,IXTG,   
      .                              TEMP ,TEMPEL)
 C--------------------------
-        IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(35,1)
+        IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STARTIME(TIMERS,35)
 C--------------------------
-        CALL CMAIN3(
+        CALL CMAIN3(TIMERS,
      1   XFEM_STR  ,JFT       ,JLT       ,NFT       ,IPARG     ,
      2   NEL       ,MTN       ,IPLA      ,ITHK      ,GROUP_PARAM,
      3   PM        ,GEO       ,NPF       ,TF        ,BUFMAT    ,
      4   SSP       ,RHO       ,VISCMX    ,DT1C      ,SIGY      ,
      5   AREA      ,EXX       ,EYY       ,EXY       ,EZX       ,
      6   EYZ       ,KXX       ,KYY       ,KXY       ,NU        ,
-     7   OFF       ,THK0      ,MAT       ,PID       ,MATPARAM_TAB,
+     7   OFF       ,THK0      ,MAT       ,PID       ,MAT_ELEM  ,
      8   FORG      ,MOMG      ,STRAG     ,FAILWAVE  ,FWAVE     ,
      9   THKG      ,EINTG     ,IOFC      ,
      A   G         ,A11       ,A12       ,VOL0      ,INDX      ,
      B   NGL       ,ZCFAC     ,SHF       ,GS        ,EPSDG     ,
      C   KFTS      ,ISH3N     ,ALPE      ,
      D   DIR_A     ,DIR_B     ,IGEO      ,
-     E   IPM       ,IFAILURE  ,NPG       ,
+     E   IPM       ,IFAILURE  ,NPG       ,FHEAT     ,
      F   TEMPEL    ,DIE       ,JTHE     ,IEXPAN     ,TEMPG     ,
      G   IBID      ,BID       ,
      H   BID       ,BID       ,BID       ,BID       ,BID       ,
      I   BID       ,BID       ,BID       ,E1X       ,E1Y       ,
      J   E1Z       ,E2X       ,E2Y       ,E2Z       ,E3X       ,
      K   E3Y       ,E3Z       ,NG        ,TABLE     ,IXFEM     ,
-     L   BID       ,LSENSOR   ,SENSOR    ,BID       ,ELCRKINI  ,
-     M   DIR1_CRK  ,DIR2_CRK  ,ALDT      ,
+     L   BID       ,SENSORS   ,BID       ,ELCRKINI  ,
+     M   DIR1_CRK  ,DIR2_CRK  ,ALDT      ,GLOB_THERM%IDT_THERM ,GLOB_THERM%THEACCFACT,
      P   ISMSTR    ,IR        ,IS        ,NLAYER    ,NPTT      ,
      Q   IXLAY     ,IXEL      ,ISUBSTACK ,STACK     ,
-     R   BID    ,ITASK        ,DRAPE_T3  ,VARNL     ,NLOC_DMG  )
+     P   BID    ,ITASK        ,DRAPE_SH3N  ,VARNL     ,NLOC_DMG ,
+     R   INDX_DRAPE , THKE    ,SEDRAPE   ,NUMEL_DRAPE,     DT  ,
+     Q   NCYCLE     ,SNPC      ,  STF    ,NXLAYMAX   ,IDEL7NOK ,
+     S   USERL_AVAIL, MAXFUNC,      NPTTOT,BUFMAT     ,SDIR_A   ,
+     T   SDIR_B     ,GBUF%FOR_G,SSP_EQ,
+     X    IPART     ,LIPART1 ,IPARTTG   )
 
 C--------------------------
-        IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STOPTIME(35,1)
+        IF ((ITASK==0).AND.(IMON_MAT==1)) CALL STOPTIME(TIMERS,35)
 C--------------------------
-C       PAS DE TEMPS
+C       TIME STEP
 C--------------------------
         IF (ISMSTR /= 3) CALL C3DT3(
      1          JFT      ,JLT       ,PM      ,OFF    ,DT2T    ,
@@ -453,18 +499,24 @@ C--------------------------
      4          ALPE     ,MSTG      ,DMELTG  ,JSMS   ,PTG     ,
      5          SHF      ,IGTYP     ,IGMAT   ,G     ,A11      ,
      6          A11R     ,GBUF%G_DT ,GBUF%DT ,ALDT  ,THK0     ,
-     7          AREA     ,NGL       ,IMAT    )
+     7          AREA     ,NGL       ,IMAT    ,MTN   ,NEL      ,
+     8          ZOFFSET  ,SSP_EQ   )
 
 C--------------------------
-C     BILANS PAR MATERIAU
+C     BALANCES BY MATERIAL
 C--------------------------
 c        IFLAG = MOD(NCYCLE,NCPRI)
         IF (IPRI>0)
-     +      CALL C3BILAN(JFT  ,JLT    ,PM    ,V    ,THKG    ,EINTG    ,
-     2                   PMSAV,IPARTTG,RHO   ,VOL00,IXTG    ,X        ,
-     3                   R    ,THK02  ,AREA  ,GRESAV  ,GRTH     ,
-     4                   IGRTH,OFF    ,IXFEM2,ILEV ,IEL_CRK ,IADTG_CRK,
-     5                   NFT  ,IEXPAN  ,EINTTH ,ITASK)
+     +      CALL C3BILAN(
+     1   JFT,      JLT,      PM,       V,
+     2   THKG,     EINTG,    PMSAV,    IPARTTG,
+     3   RHO,      VOL00,    IXTG,     X,
+     4   R,        THK02,    AREA,     GRESAV,
+     5   GRTH,     IGRTH,    OFF,      IXFEM2,
+     6   ILEV,     IEL_CRK,  IADTG_CRK,NFT,
+     7   IEXPAN,   EINTTH,   ITASK,    MAT,
+     8   GBUF%VOL, ACTIFXFEM,IGRE,SENSORS,
+     9   NEL,      GBUF%G_WPLA,GBUF%WPLA)
 C----------------------------
 C     FORCES INTERNES
 C----------------------------
@@ -483,12 +535,18 @@ C----------------------------
      6                  OFF       ,VOL0 ,NEL  )
         ENDIF
 C-------------------------
-c     Thermique des coques 
+c     Shell thermal
 C--------------------------
         IF (JTHE > 0) THEN
-          CALL THERM3C(JFT   ,JLT   ,PM   ,MAT  ,THK0 ,IXTG,
-     .                 PX1   ,PY1   ,PY2  ,AREA ,DT1C ,
-     .                 TEMP  ,TEMPEL,DIE  ,THEM )
+          IF (MAT_ELEM%MAT_PARAM(IMAT)%HEAT_FLAG == 1) THEN
+            CALL THERM3C(NEL   ,PM(1,IMAT)  ,THK0 ,IXTG,
+     .                   PX1   ,PY1   ,PY2  ,AREA ,DTIME ,
+     .                   TEMP  ,TEMPEL,FHEAT ,THEM ,GLOB_THERM%THEACCFACT)
+          ELSE
+            CALL THERM3C(NEL   ,PM (1,IMAT)  ,THK0 ,IXTG,
+     .                   PX1   ,PY1   ,PY2  ,AREA  ,DTIME ,
+     .                   TEMP  ,TEMPEL,DIE  ,THEM  ,GLOB_THERM%THEACCFACT)
+          END IF
         ENDIF
 C--------------------------
 C     THERMAL TIME STEP       --- to be added --- (see c3forc3.F)

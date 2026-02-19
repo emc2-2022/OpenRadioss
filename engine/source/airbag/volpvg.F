@@ -1,37 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C new routine (starter input format >= 4.4)
-Chd|====================================================================
-Chd|  VOLPVGA                       source/airbag/volpvg.F        
-Chd|-- called by -----------
-Chd|        MONVOL0                       source/airbag/monvol0.F       
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE VOLPVGA(IVOLU ,RVOLU   ,VOL     ,FSAV    ,NVENT   ,
-     .                 IBAGHOL ,RBAGHOL ,PMAIN )
+!||====================================================================
+!||    volpvga   ../engine/source/airbag/volpvg.F
+!||--- called by ------------------------------------------------------
+!||    monvol0   ../engine/source/airbag/monvol0.F
+!||====================================================================
+      SUBROUTINE VOLPVGA(IVOLU  ,RVOLU   ,VOL  , FSAV    ,NVENT   ,
+     .                  IBAGHOL ,RBAGHOL ,PMAIN, WFEXT )
 C-----------------------------------------------
 C      MONITORED VOLUMES TYPE PERFECT GAS, INPUT STARTER >= 4.4 (PRESSURE).
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -40,8 +38,6 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "task_c.inc"
@@ -49,22 +45,21 @@ C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IVOLU(*),NVENT,IBAGHOL(NIBHOL,*),PMAIN
-      my_real
-     .   RVOLU(*),VOL,FSAV(*),RBAGHOL(NRBHOL,*)
+      my_real RVOLU(*),VOL,FSAV(*),RBAGHOL(NRBHOL,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER IDEF,IV, II
-      my_real
-     .   VINC,GAMA,PRES,PMAX,VEPS,AREA,POLD,VOLD,
-     .   Q,QOLD,DV,AMU,ROT,
-     .   AMTOT,AMTOT_OLD,ENERGY,ENERG_OLD,DMOUT,DEOUT,FAC,
-     .   PDEF,DTPDEFC,M0, VOL0
-      my_real
-     .   TRELAX,DEIN, PEXT, PINI, CV, TEMPERATURE
+      my_real VINC,GAMA,PRES,PMAX,VEPS,AREA,POLD,VOLD,
+     .        Q,QOLD,DV,AMU,ROT,
+     .        AMTOT,ENERGY,ENERG_OLD,DMOUT,DEOUT,FAC,
+     .        PDEF,DTPDEFC,M0, VOL0
+      my_real TRELAX,DEIN, PEXT, PINI, CV, TEMPERATURE
       INTEGER :: IEQUI
       my_real :: MIN_TVENT
+      DOUBLE PRECISION,INTENT(INOUT) :: WFEXT
 C-----------------------------------------------
+      PRES = -HUGE(PRES)
       MIN_TVENT = EP30
       DO II = 1, NVENT
          MIN_TVENT = MIN(MIN_TVENT, RBAGHOL(3, II))
@@ -103,15 +98,16 @@ C------------------------
       CV = RVOLU(19)
       DV     =VOL-VOLD
       TEMPERATURE = ZERO
+      ENERGY = ZERO
 C
-      IF(IDEF.EQ.1)THEN
+      IF(IDEF==1)THEN
         PRES  = PEXT
         Q     = ZERO
       ELSE
          IF (IEQUI == 0 .OR. TRELAX == ZERO) THEN
             AMTOT=AMTOT-DMOUT*DT1
 C     
-C     CALCUL DE L ENERGIE PUIS DE LA PRESSION
+C     CALCULATION OF ENERGY THEN PRESSURE
             FAC  = HALF*(GAMA-ONE)*DV
             IF(TRELAX == ZERO .OR. TT > TRELAX)THEN
                DEIN = ZERO
@@ -149,13 +145,13 @@ C
             ENDIF
          ENDIF
          
-         IF(DT1.EQ.ZERO.OR.DV.GT.ZERO)THEN
+         IF(DT1==ZERO.OR.DV>ZERO)THEN
             Q=ZERO
          ELSE
             Q=-AMU*SQRT(PRES*AREA*ROT/VOL)*DV/AREA/DT1
          ENDIF
 C     
-         IF(PRES.GT.PMAX)THEN
+         IF(PRES>PMAX)THEN
             IDEF=1
             PRES = PEXT
             Q    = ZERO
@@ -171,8 +167,8 @@ C
       RVOLU(16) = VOL
       RVOLU(12) = PRES
 C
-      IF (ISPMD+1.EQ.PMAIN) THEN
-        TFEXT=TFEXT+(HALF*(Q+QOLD+PRES+POLD)-PEXT)*DV
+      IF (ISPMD+1==PMAIN) THEN
+        WFEXT=WFEXT+(HALF*(Q+QOLD+PRES+POLD)-PEXT)*DV
         FSAV(1)=AMTOT
         FSAV(2)=VOL
         FSAV(3)=PRES
@@ -181,9 +177,9 @@ C
         FSAV(6)=ZERO
         FSAV(7)=ZERO
         FSAV(8)=ZERO
-        FSAV(9)=ZERO	
+        FSAV(9)=ZERO
         FSAV(10)=ZERO
-        FSAV(11)=ZERO	
+        FSAV(11)=ZERO
         FSAV(12)=GAMA
       ENDIF
 C
@@ -194,19 +190,20 @@ C
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  VOLPVGB                       source/airbag/volpvg.F        
-Chd|-- called by -----------
-Chd|        MONVOL0                       source/airbag/monvol0.F       
-Chd|-- calls ---------------
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|        GET_U_FUNC                    source/user_interface/ufunc.F 
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    volpvgb         ../engine/source/airbag/volpvg.F
+!||--- called by ------------------------------------------------------
+!||    monvol0         ../engine/source/airbag/monvol0.F
+!||--- calls      -----------------------------------------------------
+!||    get_u_func      ../engine/source/user_interface/ufunc.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||    sum_6_float     ../engine/source/system/parit.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod    ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    groupdef_mod    ../common_source/modules/groupdef_mod.F
+!||====================================================================
       SUBROUTINE VOLPVGB(IVOLU ,RVOLU   ,VOL     ,FSAV    ,NVENT   ,
-     .                 IBAGHOL ,RBAGHOL ,N       ,NN      ,IGRSURF ,
+     .                 IBAGHOL ,RBAGHOL ,NORMAL  ,NN      ,IGRSURF ,
      .                 IPARG   ,ELBUF_TAB,FR_MV, IGROUPC,IGROUPTG)
 C-----------------------------------------------
 C      MONITORED VOLUMES TYPE PERFECT GAS, INPUT STARTER >= 4.4 (FUITES).
@@ -227,32 +224,28 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "vect01_c.inc"
-#include      "scr01_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IVOLU(*),NVENT,IBAGHOL(NIBHOL,*), FR_MV(*),
      .        NN,IPARG(NPARG,*)
       INTEGER, INTENT(IN) :: IGROUPC(*), IGROUPTG(*)
-C     REAL
       my_real
-     .   RVOLU(*),FSAV(*),RBAGHOL(NRBHOL,*),N(3,*)
+     .   RVOLU(*),FSAV(*),RBAGHOL(NRBHOL,*),NORMAL(3,*)
       TYPE(ELBUF_STRUCT_), DIMENSION(NGROUP), TARGET :: ELBUF_TAB
       TYPE (SURF_)   , DIMENSION(NSURF)   :: IGRSURF
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, K,IDEF,KK,PMAIN,
-     .   II,IPVENT,NNC,KAD,IPORT,IPORP,IPORA,
-     .   IOFF,NG,NEL,ISTRA,IEXPAN,IOK
+      INTEGER K,IDEF,KK,PMAIN,
+     .        II,IPVENT,NNC,KAD,IPORT,IPORP,IPORA,
+     .        IOFF,NG,NEL,ISTRA,IEXPAN,IOK
 
       my_real
      .   GAMA, PEXT, PDEF, AVENT, VOL, VINC,
-     .   AMTOT, ENERGY, P, RO, TEMP(4), M0, VOL0,
+     .   AMTOT, ENERGY, P, RO,
      .   U, DEOUT, DMOUT, TVENT,AREA, PCRIT, AOUTOT,
      .   APVENT,AOUT,FLOUT,DE,DERI,DTPDEFI,DTPDEFC,
      .   F1(NN),SCALT,SCALP,SCALS
@@ -266,7 +259,7 @@ C-----------------------------------------------
 C-----------------------------------------------
       PMAIN = FR_MV(NSPMD+2)
       IDEF  = IVOLU(14)
-      IF(IDEF.GT.0)GOTO 999
+      IF(IDEF>0)GOTO 999
 C--------------------------------
        GAMA   =RVOLU(1)
        PEXT   =RVOLU(3)
@@ -284,7 +277,7 @@ C
        RO    = AMTOT/(VOL-VINC)
        PCRIT = P*(TWO/(GAMA+ONE))**(GAMA/(GAMA-ONE))
 C
-C      FLUX SORTANT PAR LES TROUS
+C      OUTGOING FLUX THROUGH THE HOLES
 C
        AOUTOT=ZERO
        DO II = 1, NVENT
@@ -297,11 +290,11 @@ C
         AVENT  = RBAGHOL(2, II)
         TVENT  = RBAGHOL(3, II)
 C
-        IF(IDEF.LE.0.AND.P.GT.PDEF+PEXT.
-     .               AND.DTPDEFC.GT.DTPDEFI.
-     .               AND.VOL.GT.0.001*AREA**1.5) THEN
+        IF(IDEF<=0.AND.P>PDEF+PEXT.
+     .               AND.DTPDEFC>DTPDEFI.
+     .               AND.VOL>0.001*AREA**1.5) THEN
          IDEF=ABS(IDEF)
-         IF(ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
          WRITE(IOUT,*)
      .         ' *** MONITORED VOLUME MEMBRANE IS DEFLATED ***'
          WRITE(IOUT,*)' *** MONITORED VOLUME ',IVOLU(1),
@@ -309,9 +302,9 @@ C
          WRITE(ISTDO,*)' *** VENT HOLES MEMBRANE IS DEFLATED ***'
          ENDIF
         ENDIF
-        IF(IDEF.LE.0 .AND. TT.GT.TVENT) THEN
+        IF(IDEF<=0 .AND. TT>TVENT) THEN
          IDEF=ABS(IDEF)
-         IF(ISPMD+1.EQ.PMAIN) THEN
+         IF(ISPMD+1==PMAIN) THEN
          WRITE(IOUT,*) 
      .         ' *** MONITORED VOLUME VENTING STARTS ***'
          WRITE(IOUT,*) ' *** MONITORED VOLUME ',IVOLU(1),
@@ -320,40 +313,38 @@ C
          ENDIF
         ENDIF
 C
-        IF(IPVENT.NE.0)THEN
+        IF(IPVENT/=0)THEN
 C
-          IF(IDEF.EQ.1)THEN
+          IF(IDEF==1)THEN
 c            APVENT = ZERO
             NNC=IGRSURF(IPVENT)%NSEG
             DO KK=1,NNC
-               IF(IGRSURF(IPVENT)%ELTYP(KK).EQ.3)THEN
+               IF(IGRSURF(IPVENT)%ELTYP(KK)==3)THEN
 C                segment from shell
                  K=IGRSURF(IPVENT)%ELEM(KK)
-               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK).EQ.7)THEN
+               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK)==7)THEN
 C                segment from sh3n
                  K=IGRSURF(IPVENT)%ELEM(KK) + NUMELC
                ELSE
 C                segment only
                  K=IGRSURF(IPVENT)%ELEM(KK) + NUMELC + NUMELTG
                ENDIF
-               F1(KK) = SQRT( N(1,K)**2+N(2,K)**2+N(3,K)**2 )
-c               APVENT= APVENT+
-c     .            SQRT( N(1,K)**2+N(2,K)**2+N(3,K)**2 )
+               F1(KK) = SQRT( NORMAL(1,K)**2+NORMAL(2,K)**2+NORMAL(3,K)**2 )
                KAD=KAD+NISX
             ENDDO
 c            AOUT=APVENT
 C
-          ELSEIF(IDEF.GE.2)THEN
+          ELSEIF(IDEF>=2)THEN
 c            APVENT = ZERO
             NNC=IGRSURF(IPVENT)%NSEG
             DO KK=1,NNC
-               IF(IGRSURF(IPVENT)%ELTYP(KK).EQ.3)THEN
+               IF(IGRSURF(IPVENT)%ELTYP(KK)==3)THEN
 C                segment from shell
                  K=IGRSURF(IPVENT)%ELEM(KK)
                  IOK = 0
                  NG=IGROUPC(K)
                   ITY=IPARG(5,NG)
-                  IF(ITY.EQ.3)THEN
+                  IF(ITY==3)THEN
                      IOK = 1
                    ENDIF
                  IF (IOK == 1) THEN
@@ -369,13 +360,13 @@ C                segment from shell
                  ELSE
                    IOFF = 1
                  ENDIF
-               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK).EQ.7)THEN
+               ELSEIF(IGRSURF(IPVENT)%ELTYP(KK)==7)THEN
 C                segment from sh3n
                  K=IGRSURF(IPVENT)%ELEM(KK)
                  IOK = 0
                  NG=IGROUPTG(K)
                   ITY=IPARG(5,NG)
-                  IF(ITY.EQ.7)THEN
+                  IF(ITY==7)THEN
                      IOK = 1
                    ENDIF
                  IF (IOK == 1) THEN
@@ -396,26 +387,24 @@ C                segment from sh3n
 C                segment only
                  IOFF=1
                ENDIF
-               IF(IOFF.EQ.0) THEN
-                 F1(KK) = SQRT( N(1,K)**2+N(2,K)**2+N(3,K)**2 )
+               IF(IOFF==0) THEN
+                 F1(KK) = SQRT( NORMAL(1,K)**2+NORMAL(2,K)**2+NORMAL(3,K)**2 )
                ELSE
                  F1(KK) = ZERO
                END IF
-c               IF(IOFF.EQ.0) APVENT= APVENT+
-c     .                 SQRT( N(1,K)**2+N(2,K)**2+N(3,K)**2 )
                KAD=KAD+NISX
             ENDDO
 c            AOUT=APVENT
           ENDIF
 C
           
-          IF (IDEF.EQ.1.OR.IDEF.GE.2) THEN
+          IF (IDEF==1.OR.IDEF>=2) THEN
             DO KK = 1, 6
                 FRMV6(KK) = ZERO
             END DO
             CALL SUM_6_FLOAT(1, NNC, F1, FRMV6, 1)
-            IF (NSPMD.GT.1) THEN          
-                IF(FR_MV(ISPMD+1).NE.0) THEN
+            IF (NSPMD>1) THEN          
+                IF(FR_MV(ISPMD+1)/=0) THEN
                 CALL SPMD_EXCH_FR6(FR_MV,FRMV6,6)
                 END IF
             ENDIF
@@ -432,24 +421,24 @@ C
           AVENT=1.0
         ENDIF
 C
-        IF(IDEF.GT.0 .AND. P.GT.PEXT.
-     .               AND.VOL.GT.EM3*AREA**1.5)THEN
+        IF(IDEF>0 .AND. P>PEXT.
+     .               AND.VOL>EM3*AREA**1.5)THEN
          IPORT =IBAGHOL(3,II)
          IPORP =IBAGHOL(4,II)
          IPORA =IBAGHOL(5,II)
-         IF(IPORA.NE.0.AND.IPVENT.NE.0)THEN
+         IF(IPORA/=0.AND.IPVENT/=0)THEN
            AOUT=AVENT*GET_U_FUNC(IPORA,AOUT*SCALS,DERI)
          ELSE
            AOUT=AVENT*AOUT
          ENDIF
-         IF(IPORT.NE.0)AOUT=AOUT*GET_U_FUNC(IPORT,TT*SCALT,DERI)
-         IF(IPORP.NE.0)AOUT=AOUT*GET_U_FUNC(IPORP,(P-PEXT)*SCALP,DERI)
+         IF(IPORT/=0)AOUT=AOUT*GET_U_FUNC(IPORT,TT*SCALT,DERI)
+         IF(IPORP/=0)AOUT=AOUT*GET_U_FUNC(IPORP,(P-PEXT)*SCALP,DERI)
          AOUTOT=AOUTOT+AOUT
         ENDIF
         IBAGHOL(1,II)=IDEF
        ENDDO
 C-------
-       IF(AOUTOT.GT.0.)THEN
+       IF(AOUTOT>0.)THEN
            PEXT = MAX(PEXT,PCRIT)
            U=TWO*GAMA/(GAMA-ONE)*P/RO*(ONE-(PEXT/P)**((GAMA-ONE)/GAMA))
            U=SQRT(U)
@@ -467,7 +456,7 @@ C-------
            FLOUT= ZERO   
        ENDIF
 C-------
-       IF(ISPMD+1.EQ.PMAIN) THEN
+       IF(ISPMD+1==PMAIN) THEN
          FSAV(6)=AOUTOT
          FSAV(7)=FLOUT/MAX(EM20,AOUTOT)
        ENDIF

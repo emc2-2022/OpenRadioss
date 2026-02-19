@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C=======================================================================
-Chd|====================================================================
-Chd|  SENSOR_NIC                    source/tools/sensor/sensor_nic.F
-Chd|-- called by -----------
-Chd|        SENSOR1                       source/tools/sensor/sensor1.F 
-Chd|-- calls ---------------
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        SENSOR_MOD                    share/modules/sensor_mod.F    
-Chd|====================================================================
+!||====================================================================
+!||    sensor_nic     ../engine/source/tools/sensor/sensor_nic.F
+!||--- called by ------------------------------------------------------
+!||    sensor_base    ../engine/source/tools/sensor/sensor_base.F
+!||--- uses       -----------------------------------------------------
+!||    groupdef_mod   ../common_source/modules/groupdef_mod.F
+!||    sensor_mod     ../common_source/modules/sensor_mod.F90
+!||====================================================================
       SUBROUTINE SENSOR_NIC(SENSOR)
 C-----------------------------------------------
 C   M o d u l e s
@@ -44,9 +44,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "com01_c.inc"
 #include      "com08_c.inc"
-#include      "scr17_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -55,9 +53,9 @@ C-----------------------------------------------
 C----------------------------------------------------------
 C Local Variables
 C----------------------------------------------------------
-      INTEGER NPT,NPH,IADFX,IADFY,IADMX,IADMY
-      my_real :: FOR,MOM,DT,TIME,NIJMAX,NIC,ALPHA,BETA,CFC,
-     .           WD,WA,WA2,WA3,A0,A1,A2,B1,B2,X0,X1,X2,Y1,Y2,YF,YM
+      INTEGER NPT,NPH,IADFX,IADFY,IADMX,IADMY,ICRIT
+      my_real :: FOR,MOM,DT,TIME,NIJMAX,NIC,ALPHA,BETA,CFC,TMIN,TDELAY,
+     .   WD,WA,WA2,WA3,A0,A1,A2,B1,B2,X0,X1,X2,Y1,Y2,YF,YM
 c-----------------------------------------------------------------------
 c     Sensor state variables
 c        SENSOR%VAR(1) :  Current non filtered spring force
@@ -70,13 +68,16 @@ c        SENSOR%VAR(11-15)  :  filtered force values
 c        SENSOR%VAR(16-20   :  non filtered moment values 
 c        SENSOR%VAR(21-25)  :  filtered moment values 
 C=======================================================================
-      IF (SENSOR%STATUS == 3)    RETURN   ! already activated
+      IF (SENSOR%STATUS == 1)    RETURN   ! already activated
       IF (SENSOR%VAR(3) == ZERO) RETURN   ! spring is on different spmd domain
 c
+      TMIN   = SENSOR%TMIN
+      TDELAY = SENSOR%TDELAY
       NIJMAX = SENSOR%RPARAM(1)
       ALPHA  = SENSOR%RPARAM(6)
       CFC    = SENSOR%RPARAM(7)
       TIME   = TT
+      ICRIT  = 0
 c
 c     Parameters of SAE-J211 CFC filter
       DT   = DT2    
@@ -163,35 +164,36 @@ c
       Y1  = SENSOR%VAR(IADMY+NPH+1)
       Y2  = SENSOR%VAR(IADMY+NPH+2)
       MOM = A0*X0 + A1*X1 + A2*X2 + B1*Y1 + B2*Y2               
+c
+      NIC = FOR + MOM
+      IF (NIC >= NIJMAX) ICRIT = 1
 c-----------------------------------------
 c     Check Sensor State
 c-----------------------------------------
-      NIC = FOR + MOM
-c
-      IF (NIC >= NIJMAX) THEN
-        IF (SENSOR%STATUS == 0) THEN
-          SENSOR%STATUS = 1
-          SENSOR%TCRIT  = TIME + SENSOR%TMIN
+      IF (SENSOR%TCRIT + TMIN > TT) THEN
+        IF (ICRIT == 0) THEN
+          SENSOR%TCRIT = INFINITY
+        ELSE IF (SENSOR%TCRIT == INFINITY) THEN
+          SENSOR%TCRIT = MIN(SENSOR%TCRIT, TT)
         END IF
-        IF (SENSOR%TCRIT <= TIME) THEN
-          SENSOR%STATUS = 2
-        END IF
-        IF (SENSOR%STATUS == 2 .and. 
-     .      SENSOR%TCRIT + SENSOR%TDELAY <= TIME) THEN
-          SENSOR%STATUS = 3   ! activate
-          SENSOR%TSTART = TIME
-        END IF
-      ENDIF ! Fin test NIC
+      ELSE IF (SENSOR%TSTART == INFINITY) THEN
+        SENSOR%TSTART = SENSOR%TCRIT + TMIN + TDELAY
+      END IF
+      IF (SENSOR%TSTART <= TT) THEN   ! sensor activation
+        SENSOR%STATUS = 1
+      END IF
 c-----------------------------------------------------------------------      
-      IF (SENSOR%STATUS == 3 .and. ISPMD == 0) THEN
+      IF (SENSOR%STATUS == 1 .and. ISPMD == 0) THEN
 #include "lockon.inc"
         WRITE (ISTDO,1100 ) SENSOR%SENS_ID,SENSOR%TSTART,NIC
         WRITE (IOUT ,1100 ) SENSOR%SENS_ID,SENSOR%TSTART,NIC
+        WRITE (IOUT ,1200) NIJMAX,NIC
 #include "lockoff.inc"
       ENDIF
 c-----------------------------------------------------------------------      
-1100  FORMAT(' SENSOR NUMBER ',I10,' ,ACTIVATED AT TIME ',1PE12.5,
-     .       '      NIC VALUE  = ',1PE12.5)           
+1100  FORMAT(' SENSOR (RBODY) NUMBER ',I10,' ,ACTIVATED AT TIME ',1PE12.5)
+1200  FORMAT('      TARGET NIC VALUE = ',1PE12.5,/
+     .       '      CURRENT NIC VALUE AFTER TMIN and TDELAY = ',1PE12.5)
 c-----------------------------------------------------------------------      
       RETURN
       END SUBROUTINE

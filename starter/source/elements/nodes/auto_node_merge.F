@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  AUTO_NODE_MERGE               source/elements/nodes/auto_node_merge.F
-Chd|-- called by -----------
-Chd|        HM_PREREAD_NODE               source/elements/reader/hm_preread_node.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    auto_node_merge   ../starter/source/elements/nodes/auto_node_merge.F
+!||--- called by ------------------------------------------------------
+!||    hm_preread_node   ../starter/source/elements/reader/hm_preread_node.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg            ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod       ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE AUTO_NODE_MERGE(IS_DYNA,NUMNUSR,NUMCNOD,NUMNOD,ITAB,X)
 C-----------------------------------------------
       USE MESSAGE_MOD
@@ -38,30 +38,20 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER,INTENT(IN)::IS_DYNA
+      INTEGER,INTENT(IN) :: IS_DYNA
       INTEGER,INTENT(IN) :: NUMNUSR, NUMCNOD
-      INTEGER,INTENT(OUT):: NUMNOD
+      INTEGER,INTENT(OUT) :: NUMNOD
       INTEGER,INTENT(IN),DIMENSION(NUMNUSR+NUMCNOD)    :: ITAB
-      my_real, INTENT(IN),DIMENSION(3,NUMNUSR) ::
-     .         X
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "warn_c.inc"
-#include      "units_c.inc"
+      my_real, INTENT(IN),DIMENSION(3,NUMNUSR) :: X
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, IREF, J, STAT
+      INTEGER I, IREF, STAT
       INTEGER WORK(70000)
       INTEGER, DIMENSION(:), ALLOCATABLE :: ITABM1, INDX
-      my_real
-     .  XODUSR, XMIN, YMIN, ZMIN, XMAX, YMAX, ZMAX, DX, DY, DZ, TOL
+      my_real :: XODUSR, XMIN, YMIN, ZMIN, XMAX, YMAX, ZMAX, DX, DY, DZ, TOL
 C-----------------------------------------------
 C   S o u r c e  L i n e s
 C-----------------------------------------------
@@ -77,7 +67,7 @@ C     Possibly Merge Nodes
       
       CALL MY_ORDERS(0,WORK,ITAB,INDX,NUMNUSR,1)
       
-      IF(NUMNUSR.GE.1)THEN
+      IF(NUMNUSR>=1)THEN
         ITABM1(1)         = ITAB(INDX(1))
         ITABM1(NUMNUSR+1) = INDX(1)
       ENDIF
@@ -86,7 +76,7 @@ C     Possibly Merge Nodes
       
         DO I = 2, NUMNUSR
           ITABM1(I) = ITAB(INDX(I))
-          IF(ITABM1(I).EQ.ITABM1(I-1))THEN
+          IF(ITABM1(I)==ITABM1(I-1))THEN
             CALL ANCMSG(MSGID=56,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO,
@@ -131,7 +121,7 @@ C     Possibly Merge Nodes
           ZMIN = X(3,INDX(IREF))       
           ZMAX = X(3,INDX(IREF))       
          
-          DO WHILE(I <= NUMNUSR .AND. ITABM1(I).EQ.ITABM1(IREF))
+          DO WHILE(I <= NUMNUSR .AND. ITABM1(I)==ITABM1(IREF))
 
             XMIN = MIN(XMIN,X(1,INDX(I)))       
             XMAX = MAX(XMAX,X(1,INDX(I)))       
@@ -188,14 +178,14 @@ C-----------------------------------------------
       
       CALL MY_ORDERS(0,WORK,ITAB,INDX,NUMNUSR+NUMCNOD,1)
       
-      IF(NUMNUSR+NUMCNOD.GE.1)THEN
+      IF(NUMNUSR+NUMCNOD>=1)THEN
         ITABM1(1)                 = ITAB(INDX(1))
         ITABM1(NUMNUSR+NUMCNOD+1) = INDX(1)
       ENDIF
       
       DO I = 2, NUMNUSR+NUMCNOD
         ITABM1(I) = ITAB(INDX(I))
-        IF(ITABM1(I).EQ.ITABM1(I-1))THEN
+        IF(ITABM1(I)==ITABM1(I-1))THEN
           IF((INDX(I-1) < NUMNUSR .AND. INDX(I) > NUMNUSR) .OR.
      .       (INDX(I-1) > NUMNUSR .AND. INDX(I) < NUMNUSR)) THEN
 C           A Node and a Cnode have the same ID

@@ -1,46 +1,46 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_PERTURB_FAIL          source/general_controls/computation/hm_read_perturb_fail.F
-Chd|-- called by -----------
-Chd|        HM_READ_PERTURB               source/general_controls/computation/hm_read_perturb.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_STRING                 source/devtools/hm_reader/hm_get_string.F
-Chd|        HM_OPTION_COUNT               source/devtools/hm_reader/hm_option_count.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        PLOT_DISTRIB                  source/general_controls/computation/plot_distrib.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_PERTURB_FAIL(
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_perturb_fail   ../starter/source/general_controls/computation/hm_read_perturb_fail.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_perturb        ../starter/source/general_controls/computation/hm_read_perturb.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string          ../starter/source/devtools/hm_reader/hm_get_string.F
+!||    hm_option_count        ../starter/source/devtools/hm_reader/hm_option_count.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    plot_distrib           ../starter/source/general_controls/computation/plot_distrib.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_PERTURB_FAIL(MAT_PARAM,
      .      IPART    ,RNOISE   ,IPARTC ,IPARTG    ,IPARTSP  ,
-     .      IGRPART  ,IPARTS   ,IPM    ,PERTURB   ,IDPERTURB,
+     .      IGRPART  ,IPARTS   ,PERTURB   ,IDPERTURB,
      .      INDEX   ,INDEX_ITYP,NPART_SHELL,OFFS ,QP_IPERTURB,
      .      QP_RPERTURB,LSUBMODEL,UNITAB)
 C-----------------------------------------------
@@ -51,6 +51,8 @@ C-----------------------------------------------
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE MAT_ELEM_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARKEY
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -58,17 +60,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
-#include      "scry_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "remesh_c.inc"
 #include      "sphcom.inc"
-#include      "submod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -76,13 +72,14 @@ C-----------------------------------------------
       my_real :: RNOISE(NPERTURB,NUMELC+NUMELTG+NUMELS+NUMSPH),
      .   QP_RPERTURB(NPERTURB,4)
       INTEGER IPART(LIPART1,*),IPARTC(*),IPARTSP(*),IPARTG(*),IPARTS(*),
-     .   IPM(NPROPMI,*),PERTURB(NPERTURB),
+     .   PERTURB(NPERTURB),
      .   IDPERTURB(NPERTURB),INDEX(NUMELC+NUMELTG+NUMELS+NUMSPH),
      .   INDEX_ITYP(NUMELC+NUMELTG+NUMELS+NUMSPH),NPART_SHELL,
      .   QP_IPERTURB(NPERTURB,6)
       TYPE (UNIT_TYPE_)    ,INTENT(IN)  :: UNITAB
       TYPE (SUBMODEL_DATA) ,INTENT(IN)  :: LSUBMODEL(*)
       TYPE (GROUP_)  ,DIMENSION(NGRPART):: IGRPART
+      TYPE (MATPARAM_STRUCT_) ,DIMENSION(NUMMAT) ,INTENT(INOUT) :: MAT_PARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -95,11 +92,11 @@ C-----------------------------------------------
       INTEGER, DIMENSION(:),   ALLOCATABLE :: A_SEED
       my_real
      . MEAN,STDEV,MEAN_INPUT,SD_INPUT,MAX_DISTRIB,TEMP,MIN_VALUE,
-     . MAX_VALUE,INTERV,VALUE,MAX_VALUE1,MINVAL,MAXVAL,BID
+     . MAX_VALUE,MINVAL,MAXVAL
       my_real, DIMENSION(:), ALLOCATABLE :: ARRAY
-      CHARACTER TITR*nchartitle
+      CHARACTER(LEN=NCHARTITLE)::TITR
       CHARACTER*100 KEY1,KEY2
-      CHARACTER PARAM*ncharkey
+      CHARACTER(LEN=NCHARKEY) :: PARAM
       CHARACTER MESS*40
       LOGICAL IS_AVAILABLE
       DATA MESS/'PERTURBATION DEFINITION            '/
@@ -138,9 +135,9 @@ c
         IFAILMAT = 0
         IF (FAIL_ID > 0) THEN
           DO N=1,NUMMAT
-            DO J=1,IPM(220, N)
-              IF( IPM(236+J, N) == FAIL_ID)THEN
-                IF (IFAILTYPE .NE. IPM(241+J, N)) THEN
+            DO J=1,MAT_PARAM(N)%NFAIL
+              IF (MAT_PARAM(N)%FAIL(J)%FAIL_ID == FAIL_ID)THEN
+                IF (IFAILTYPE /= MAT_PARAM(N)%FAIL(J)%IRUPT) THEN
                   CALL ANCMSG(MSGID=1193, MSGTYPE=MSGERROR, ANMODE=ANINFO,
      .                 I1=OPT_ID,
      .                 C1=TITR,
@@ -241,8 +238,8 @@ c
           IFAILMAT = 0
           IF (FAIL_ID > 0)THEN
             DO N=1,NUMMAT
-              DO J=1,IPM(220, N)
-                IF (IPM(236+J, N) == FAIL_ID) THEN
+              DO J=1,MAT_PARAM(N)%NFAIL
+                IF (MAT_PARAM(N)%FAIL(J)%FAIL_ID == FAIL_ID) THEN
                   IFAILMAT = N
                   EXIT
                 END IF
@@ -382,7 +379,7 @@ c-------------------------------------------------------
           MEAN  = SUM(ARRAY)/NB_RANDOM
           STDEV = SQRT(SUM((ARRAY - MEAN)**2)/NB_RANDOM)
 c-------------------------------------------------------
-c         plot normal ditribution
+c         plot normal distribution
 c-------------------------------------------------------
           IF (I_METHOD == 2) THEN
             MAX_DISTRIB = ONE /(STDEV*SQRT(TWO * pi))
@@ -395,7 +392,7 @@ c-------------------------------------------------------
           WRITE(IOUT,*) ' '
           NB_INTERV = 50
           SIZEY = 20
-          IF (MINVAL .NE. -EP30 .AND. MAXVAL .NE. EP30) THEN
+          IF (MINVAL /= -EP30 .AND. MAXVAL /= EP30) THEN
             MIN_VALUE = MINVAL
             MAX_VALUE = MAXVAL
           ENDIF

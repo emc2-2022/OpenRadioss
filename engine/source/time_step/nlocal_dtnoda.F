@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  NLOCAL_DTNODA                 source/time_step/nlocal_dtnoda.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        NLOCAL_REG_MOD                ../common_source/modules/nlocal_reg_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    nlocal_dtnoda    ../engine/source/time_step/nlocal_dtnoda.F
+!||--- called by ------------------------------------------------------
+!||    resol            ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    my_barrier       ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    nlocal_reg_mod   ../common_source/modules/nlocal_reg_mod.F
+!||====================================================================
       SUBROUTINE NLOCAL_DTNODA(NODFT    ,NODLT    ,NLOC_DMG ,DTNOD_NLOCAL, DT2T )
 C-----------------------------------------------
 C   M o d u l e s
@@ -41,24 +42,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "rad2r_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "task_c.inc"
 #include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr17_c.inc"
 #include      "scr18_c.inc"
-#include      "units_c.inc"
-#include      "com08_c.inc"
-#include      "couple_c.inc"
-#include      "parit_c.inc"
-#include      "impl1_c.inc"
-#include      "vect01_c.inc"
-#include      "alesolver.inc"
 C-----------------------------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -76,12 +61,9 @@ C-----------------------------------------------
      .  MASS,STIFN
       my_real
      .  DTNOD,DT2P
-      ! Safety coefficient for non-local stability vs mechanical stability
-      ! (it has been slightly increased vs nloc_dmg_init.F)
-      my_real, PARAMETER :: CSTA  = 40.0D0
-      ! Coefficient for non-local stability to take into account damping
-      my_real, PARAMETER :: CDAMP = 0.7D0
 C  
+      DTNOD = EP20
+C
       IF (NODADT > 0) THEN
 C
         ! Recovering nodal stiffness and masses
@@ -91,7 +73,6 @@ C
         ! Allocating non-local nodal timestep table
         ALLOCATE(DTN(NLOC_DMG%L_NLOC))
         DTN(1:NLOC_DMG%L_NLOC) = ZERO   
-        DTNOD = EP20
 C
         ! Determining the minimum of non-local nodal timestep
         DO N = NODFT,NODLT
@@ -128,22 +109,24 @@ C
                 ENDIF
               ENDDO
             ENDDO
+            DTNOD = DTMIN1(11)*(SQRT(CSTA))
           ENDIF
-          DTNOD = DTMIN1(11)*(SQRT(CSTA))
         ENDIF 
 C
+#include "lockon.inc"
         ! Classical nodal timestep check
         IF (DTNOD < DT2T) THEN
           DT2T = MIN(DT2T,DTNOD)
         ENDIF
+#include "lockoff.inc"
 C       
-        ! Reseting non-local nodal stiffness
+        ! Resetting non-local nodal stiffness
         DO N = NODFT,NODLT
           ! Position of the first additional dof
           NPOS = NLOC_DMG%POSI(N)
           ! Number of additional degrees of freedom
           NDDL = NLOC_DMG%POSI(N+1) - NPOS
-          ! Reseting nodal stiffness
+          ! Resetting nodal stiffness
           STIFN(NPOS:NPOS+NDDL-1) = EM20
         ENDDO
 C

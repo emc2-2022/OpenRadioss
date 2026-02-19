@@ -1,52 +1,50 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SPMD_EXCH_RBE2_PON            source/mpi/kinematic_conditions/spmd_exch_rbe2_pon.F
-Chd|-- called by -----------
-Chd|        RBE2T1                        source/constraints/general/rbe2/rbe2f.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    spmd_exch_rbe2_pon    ../engine/source/mpi/kinematic_conditions/spmd_exch_rbe2_pon.F
+!||--- called by ------------------------------------------------------
+!||    rbe2t1                ../engine/source/constraints/general/rbe2/rbe2f.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    spmd_comm_world_mod   ../engine/source/mpi/spmd_comm_world.F90
+!||====================================================================
       SUBROUTINE SPMD_EXCH_RBE2_PON(
      1   A     ,AR     ,STIFN   ,STIFR  ,IAD_M   ,
      2   FR_M  ,LCOMM  ,ISIZE)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+        USE SPMD_COMM_WORLD_MOD, ONLY : SPMD_COMM_WORLD
 #include      "implicit_f.inc"
-#include      "r4r8_p.inc"
 C-----------------------------------------------
 C   M e s s a g e   P a s s i n g
 C-----------------------------------------------
-#ifdef MPI
-#include "mpif.h"
-#endif
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -70,20 +68,20 @@ C-----------------------------------------------
       LOC_PROC = ISPMD + 1
       ISIZE6=ISIZE*6
       IROT = 0
-      IF (ISIZE.GT.4) IROT=1
+      IF (ISIZE>4) IROT=1
 C
       IDEB = 1
       L = 0
       DO I = 1, NSPMD
         LEN = IAD_M(I+1)-IAD_M(I)
-        IF(LEN.GT.0) THEN
+        IF(LEN>0) THEN
           SIZ = LEN*ISIZE6
           L=L+1
           INDEXI(L)=I
           MSGTYP = MSGOFF 
           CALL MPI_IRECV(
      S      RBUF(IDEB),SIZ,MPI_DOUBLE_PRECISION,IT_SPMD(I),MSGTYP,
-     G      MPI_COMM_WORLD,REQ_R(L),IERROR)
+     G      SPMD_COMM_WORLD,REQ_R(L),IERROR)
           IDEB = IDEB + SIZ
         ENDIF
       ENDDO
@@ -94,7 +92,7 @@ C
         I = INDEXI(L)
         LEN = IAD_M(I+1) - IAD_M(I)
         IAD = IAD_M(I)-1
-        IF (IROT.EQ.0) THEN
+        IF (IROT==0) THEN
 #include      "vectorize.inc"
           DO J = 1, LEN
             NOD = FR_M(IAD+J)
@@ -133,7 +131,7 @@ C
         MSGTYP = MSGOFF
         CALL MPI_ISEND(
      S    SBUF(IDEB),SIZ,MPI_DOUBLE_PRECISION,IT_SPMD(I),MSGTYP,
-     G    MPI_COMM_WORLD,REQ_S(L),IERROR)
+     G    SPMD_COMM_WORLD,REQ_S(L),IERROR)
         IDEB = IDEB + SIZ
       ENDDO
 C
@@ -143,7 +141,7 @@ C
         IDEB = 1+(IAD_M(I)-1)*ISIZE6
         LEN = IAD_M(I+1)-IAD_M(I)
         IAD = IAD_M(I)-1
-        IF (IROT.EQ.0) THEN
+        IF (IROT==0) THEN
 #include      "vectorize.inc"
           DO J = 1, LEN
             NOD = FR_M(IAD+J)

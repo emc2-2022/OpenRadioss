@@ -1,63 +1,67 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        I20STA                        source/interfaces/inter3d1/inintr2.F
-Chd|        I24SURF_PXFEM                 source/interfaces/inter3d1/inintr2.F
-Chd|        I2_DTN                        source/interfaces/inter3d1/i2_dtn.F
-Chd|        I2_DTN_27                     source/interfaces/inter3d1/i2_dtn_27.F
-Chd|        I2_DTN_28                     source/interfaces/inter3d1/i2_dtn_28.F
-Chd|        INIEND                        source/interfaces/inter3d1/iniend.F
-Chd|        INIEND2D                      source/interfaces/inter3d1/iniend.F
-Chd|        INT2CY_CHK                    source/constraints/general/bcs/lecbcscyc.F
-Chd|        INT2MODIF_ND                  source/elements/solid/solide10/dim_s10edg.F
-Chd|        ITAGSL12                      source/interfaces/inter3d1/inintr2.F
-Chd|        ITAGSL2                       source/interfaces/inter3d1/itagsl2.F
-Chd|        REMN_I2OP                     source/interfaces/inter3d1/i7remnode.F
-Chd|        REMN_I2_EDGOP                 source/interfaces/inter3d1/i7remnode.F
-Chd|        RI2_INT24P_INI                source/interfaces/inter3d1/i7remnode.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTBUFSCRATCH_MOD             source/interfaces/interf1/intbufscratch_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inintr2                ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    fretitl2               ../starter/source/starter/freform.F
+!||    i20sta                 ../starter/source/interfaces/inter3d1/inintr2.F
+!||    i24surf_pxfem          ../starter/source/interfaces/inter3d1/inintr2.F
+!||    i2_dtn                 ../starter/source/interfaces/inter3d1/i2_dtn.F
+!||    i2_dtn_27              ../starter/source/interfaces/inter3d1/i2_dtn_27.F
+!||    i2_dtn_28              ../starter/source/interfaces/inter3d1/i2_dtn_28.F
+!||    iniend                 ../starter/source/interfaces/inter3d1/iniend.F
+!||    iniend2d               ../starter/source/interfaces/inter3d1/iniend.F
+!||    int2cy_chk             ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||    int2modif_nd           ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||    itagsl12               ../starter/source/interfaces/inter3d1/inintr2.F
+!||    itagsl2                ../starter/source/interfaces/inter3d1/itagsl2.F
+!||    remn_i2_edgop          ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    remn_i2op              ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    remn_self24            ../starter/source/interfaces/inter3d1/remn_self24.F
+!||    ri2_int24p_ini         ../starter/source/interfaces/inter3d1/i7remnode.F
+!||--- uses       -----------------------------------------------------
+!||    intbufscratch_mod      ../starter/source/interfaces/interf1/intbufscratch_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ININTR2(IPARI   ,INSCR   ,X     ,
      .                   IXS     ,IXQ    ,IXC   ,PM      ,GEO   ,
      .                   INTC    ,ITAB   ,MS    ,NPBY    ,LPBY  ,
      .                   MWA     ,IKINE  ,I2NSNT  ,IN    ,
      .                   STIFN   ,STIFINT,NOM_OPT,INOD_PXFEM,MS_PLY,
      .                   INTBUF_TAB,STIFINTR,ITAGND,ICNDS10,MS_B,IN_B,
-     .                   NSTRF   ,ITAGCYC)
+     .                   NSTRF   ,ITAGCYC,IRBE2  ,IRBE3  ,LRBE3 ,
+     .                   KNOD2ELS ,NOD2ELS,IXS10  ,IXS16 ,IXS20,
+     .                   S_NOD2ELS)
 C-----------------------------------------------
 C   M o d u l e s
 C----------------------------------------------- 
       USE MESSAGE_MOD
       USE INTBUFDEF_MOD
       USE INTBUFSCRATCH_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C============================================================================
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -68,20 +72,25 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "scr17_c.inc"
-#include      "warn_c.inc"
+#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, DIMENSION(6,NUMELS10)   ,INTENT(IN) :: IXS10
+      INTEGER, DIMENSION(8,NUMELS16)   ,INTENT(IN) :: IXS16
+      INTEGER, DIMENSION(12,NUMELS20)  ,INTENT(IN) :: IXS20
+      INTEGER, DIMENSION(NUMNOD+1)     ,INTENT(IN) :: KNOD2ELS
+      INTEGER,                          INTENT(IN) :: S_NOD2ELS
+      INTEGER, DIMENSION(S_NOD2ELS)    ,INTENT(IN) :: NOD2ELS
+      INTEGER, DIMENSION(NRBE2L,NRBE2), INTENT(IN) :: IRBE2
+      INTEGER, DIMENSION(NRBE3L,NRBE3), INTENT(IN) :: IRBE3
+      INTEGER, DIMENSION(SLRBE3), INTENT(IN) :: LRBE3
       INTEGER IPARI(NPARI,*), IXS(*), IXQ(*),
-     .    IXC(*), INTC(*), ITAB(*), NPBY(*), LPBY(*), MWA(*),
-     .    IKINE(*), I2NSNT,INOD_PXFEM(*),ITAGND(*),ICNDS10(3,*),
-     .    NSTRF(*),ITAGCYC(*)
-C     REAL
-      my_real
-     .  X(*), PM(*), GEO(*), MS(*), IN(*), STIFN(*),STIFINT(*),
-     .  MS_PLY(*),STIFINTR(*),MS_B(*),IN_B(*)
+     .        IXC(*), INTC(*), ITAB(*), NPBY(*), LPBY(*), MWA(*),
+     .        IKINE(*), I2NSNT,INOD_PXFEM(*),ITAGND(*),ICNDS10(3,*),
+     .        NSTRF(*),ITAGCYC(*)
+      my_real X(*), PM(*), GEO(*), MS(*), IN(*), STIFN(*),STIFINT(*),MS_PLY(*),STIFINTR(*),MS_B(*),IN_B(*)
       INTEGER NOM_OPT(LNOPT1,*)
 
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
@@ -90,11 +99,11 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, JINSCR, NINT, NTY,NRTM,NRTM0,
-     .        NRTM_SH,INTPLY,KFI,ILEV,SWITCH,NSN,NREMN(NINTER),NINT2
+      INTEGER N, JINSCR, NINT, NTY,NRTM,NRTM0,NRTM_SH,INTPLY,KFI,ILEV,SWITCH,NSN,NREMN(NINTER),NINT2
       INTEGER ID,I,K,J1,J2
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
+      INTEGER :: FLAG_OUTPUT !< flag for output
+      INTEGER :: SKIP_TYPE25_EDGE_2_EDGE !< flag to activate only the computation of interface type 25 with edge to edge
 C=======================================================================
 C
 C     SWITCH OF INTERF2 SPOTFLAG26 TO SPOTFLAG25 IF POSSIBLE 
@@ -109,13 +118,13 @@ C
         NSN   =IPARI(5,N)
         CALL FRETITL2(TITR,NOM_OPT(LNOPT1-LTITR+1,NINT),LTITR)
         SWITCH = 1
-        IF ((NTY.EQ.2).AND.(ILEV.EQ.26)) THEN
-          IF (IRODDL.EQ.1) THEN
+        IF ((NTY==2).AND.(ILEV==26)) THEN
+          IF (IRODDL==1) THEN
             DO I=1,NSN
-              IF (IN(INTBUF_TAB(N)%NSV(I)).GT.ZERO) SWITCH=0
+              IF (IN(INTBUF_TAB(N)%NSV(I))>ZERO) SWITCH=0
             ENDDO
           ENDIF
-          IF (SWITCH.EQ.1) THEN
+          IF (SWITCH==1) THEN
             IPARI(20,N) = 25
             CALL ANCMSG(MSGID=1177,
      .                MSGTYPE=MSGWARNING,
@@ -136,14 +145,13 @@ C
       DO N=1,NINTER
         NTY = IPARI(7,N)
 C--     deactivated interface
-        IF (NTY.EQ.0) CYCLE
+        IF (NTY==0) CYCLE
 C
         JINSCR=IPARI(10,N)
         NINT=N
        
         ID=NOM_OPT(1,NINT)
-        CALL FRETITL2(TITR,
-     .                NOM_OPT(LNOPT1-LTITR+1,NINT),LTITR)
+        CALL FRETITL2(TITR, NOM_OPT(LNOPT1-LTITR+1,NINT),LTITR)
         IF (N2D == 0) THEN
           CALL INIEND(
      1    INSCR(N)%WA  ,X            ,IXS  ,
@@ -157,26 +165,28 @@ C
         ENDIF
       ENDDO
 C
-C TAGAGE DESACTIVATION SECONDARY INTERF 12 AVEC CONDITION CINEMATIQUE
+C TAGAGE DESACTIVATION SECONDARY INTERF 12 WITH CONDITION CINEMATIQUE
 C
       DO N=1,NINTER
        NTY = IPARI(7,N)
        IF (NTY == 12) THEN
          CALL ITAGSL12(IPARI(1,N),ITAB,IKINE,INTBUF_TAB(N))
-       ELSEIF(NTY.EQ.2)THEN
+       ELSEIF(NTY==2)THEN
          I2NSNT = I2NSNT + IPARI(5,N)
        ENDIF
       ENDDO
 C
-C     SWITCH INTERF 2 AVEC CONDITION CINEMATIQUE => METHODE PENALITE
+C     SWITCH INTERF 2 WITH CONDITION CINEMATIQUE => METHODE penalty
 C
-      CALL ITAGSL2(IPARI,NOM_OPT,ITAB,IKINE,INTBUF_TAB,ITAGND,ICNDS10,NSTRF,ITAGCYC)
+      CALL ITAGSL2(IPARI ,NOM_OPT,ITAB  ,IKINE  ,INTBUF_TAB,
+     .                   ITAGND,ICNDS10,NSTRF ,ITAGCYC,IRBE2     ,
+     .                   IRBE3 ,LRBE3  )
 C
 C LIMITATION RIGIDITE ANCRAGE
 C
       DO N=1,NINTER
        NTY=IPARI(7,N)
-       IF(NTY.EQ.20)THEN
+       IF(NTY==20)THEN
          CALL I20STA(IPARI(1,N),STIFN,INTBUF_TAB(N))
        ENDIF
       ENDDO
@@ -210,35 +220,41 @@ C
         NTY = IPARI(7,N)
         ILEV  =IPARI(20,N)
         NSN   =IPARI(5,N)
-        IF (NTY.EQ.2) THEN
-          IF (ILEV.EQ.27) THEN
+        IF (NTY==2) THEN
+          IF (ILEV==27) THEN
             CALL I2_DTN_27(X,INTBUF_TAB,IPARI,STIFN,MS_B,IN_B,N,NSN)
-          ELSEIF (ILEV.EQ.28) THEN
+          ELSEIF (ILEV==28) THEN
             CALL I2_DTN_28(X,INTBUF_TAB,IPARI,STIFN,MS_B,IN_B,N,NSN)
           ELSEIF ((ILEV==0).OR.(ILEV==1).OR.(ILEV==25)) THEN
-            CALL I2_DTN(X,INTBUF_TAB,IPARI,STIFN,MS_B,IN_B,N,NSN,ILEV)
+            CALL I2_DTN(X,INTBUF_TAB,IPARI,STIFN,MS_B,IN_B,N,ILEV)
           ENDIF
         ENDIF
       END DO
 C
-       IF (N2D.EQ.0 .AND. NINT2 >0 ) THEN      
-         CALL REMN_I2OP(IPARI   ,INTBUF_TAB   ,ITAB, NOM_OPT,NREMN )
-         CALL REMN_I2_EDGOP(IPARI   ,INTBUF_TAB   ,ITAB, NREMN )
+       IF (N2D==0 ) THEN 
+         NREMN(1:NINTER) = 0    
+         FLAG_OUTPUT = 1   
+         SKIP_TYPE25_EDGE_2_EDGE = 0
+         IF (NINT2 >0) CALL REMN_I2OP(1,NINTER,IPARI   ,INTBUF_TAB   ,ITAB, NOM_OPT,NREMN,FLAG_OUTPUT,SKIP_TYPE25_EDGE_2_EDGE)
+         CALL REMN_SELF24(X   ,IXS   ,IXS10 ,IXS16,IXS20   ,
+     .                KNOD2ELS,NOD2ELS,IPARI ,INTBUF_TAB ,
+     .                ITAB , NOM_OPT,NREMN, S_NOD2ELS,FLAG_OUTPUT)
+         CALL REMN_I2_EDGOP(IPARI   ,INTBUF_TAB   ,ITAB, NREMN)
          CALL RI2_INT24P_INI(IPARI  ,INTBUF_TAB   ,ITAB, NOM_OPT,NREMN )
        END IF !(NINT2 >0) THEN   
 C-----------
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  ITAGSL12                      source/interfaces/inter3d1/inintr2.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        KINSET                        source/constraints/general/kinset.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    itagsl12        ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- called by ------------------------------------------------------
+!||    inintr2         ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    kinset          ../starter/source/constraints/general/kinset.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE ITAGSL12(IPARI,ITAB,IKINE,INTBUF_TAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -253,9 +269,7 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "units_c.inc"
-#include      "param_c.inc"
 #include      "com04_c.inc"
-#include      "warn_c.inc"
 #include      "kincod_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -290,16 +304,16 @@ C
       DO I=1,NSN
       NSV=INTBUF_TAB%NSV(I)
 C Cas1 corps rigide ou interface 2
-C Cas3 Condition au limite en translation
+C Case3 Condition at the limit in translation
       CAS1=ITF(IKINE(NSV))+IRB(IKINE(NSV))
       CAS2=CAS1+
      .  IBC(IKINE(NSV))+IKINE(NSV+NUMNOD) - 10*IKINE(NSV+NUMNOD)/10
-c        IF(ITF(IKINE(NSV)).NE.0 .OR. IRB(IKINE(NSV)).NE.0 )THEN
+c        IF(ITF(IKINE(NSV))/=0 .OR. IRB(IKINE(NSV))/=0 )THEN
 c
-c si SECONDARY d'une autre interface 2 ou 9 ou 12 ou rby on tag le SECONDARY pour dsactivation
+c If SECONDARY from another interface 2, 9, 12, or rby, tag SECONDARY for deactivation
 c
-        IF(     (IPARI(11).EQ.3 .AND. CAS2.NE.0)
-     .     .OR. (IPARI(11).EQ.2 .AND. CAS1.NE.0) )THEN
+        IF(     (IPARI(11)==3 .AND. CAS2/=0)
+     .     .OR. (IPARI(11)==2 .AND. CAS1/=0) )THEN
            JWARN=1
            INTBUF_TAB%FCOUNT(I)=-ABS(INTBUF_TAB%FCOUNT(I))
            WRITE(IOUT,1000)ITAB(NSV),NOINT
@@ -309,12 +323,12 @@ c
            CALL KINSET(2,ITAB(NSV),IKINE(NSV),3,0,IKINE1(NSV))
         ENDIF
       ENDDO
-      IF(JWARN.GT.0)THEN
-        IF(IPARI(11).EQ.2)WRITE(IOUT,1010)NOINT
-        IF(IPARI(11).EQ.3)WRITE(IOUT,1011)NOINT
+      IF(JWARN>0)THEN
+        IF(IPARI(11)==2)WRITE(IOUT,1010)NOINT
+        IF(IPARI(11)==3)WRITE(IOUT,1011)NOINT
         IWARN=IWARN+1
       ENDIF
-      IF(KWARN-KWARNO .EQ.0) THEN
+      IF(KWARN-KWARNO ==0) THEN
          WRITE(IOUT,2010)NOINT
       ELSE
          WRITE(IOUT,'(//)')
@@ -337,14 +351,14 @@ C-----------------------------------------------------------------------
  2010 FORMAT(' NO PROBLEM FOUND IN INTERFACE',I10,/)
 C----------------------------------------------------------------------- 
       END
-Chd|====================================================================
-Chd|  I20STA                        source/interfaces/inter3d1/inintr2.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        I20STAB                       source/interfaces/inter3d1/inintr2.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i20sta          ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- called by ------------------------------------------------------
+!||    inintr2         ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    i20stab         ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I20STA(IPARI,STIFN,INTBUF_TAB)
 C-----------------------------------------------
 C   M o d u l e s
@@ -354,13 +368,6 @@ C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -381,12 +388,11 @@ C
       RETURN
 C----------------------------------------------------------------------- 
       END
-Chd|====================================================================
-Chd|  I20STAB                       source/interfaces/inter3d1/inintr2.F
-Chd|-- called by -----------
-Chd|        I20STA                        source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i20stab   ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- called by ------------------------------------------------------
+!||    i20sta    ../starter/source/interfaces/inter3d1/inintr2.F
+!||====================================================================
       SUBROUTINE I20STAB(NLN,NLG,STFA,STIFN)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -415,22 +421,24 @@ C-----------
       RETURN
 C----------------------------------------------------------------------- 
       END
-Chd|====================================================================
-Chd|  I24SURF_PXFEM                 source/interfaces/inter3d1/inintr2.F
-Chd|-- called by -----------
-Chd|        ININTR2                       source/interfaces/inter3d1/inintr2.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i24surf_pxfem   ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- called by ------------------------------------------------------
+!||    inintr2         ../starter/source/interfaces/inter3d1/inintr2.F
+!||--- calls      -----------------------------------------------------
+!||    usr2sys         ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod     ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE I24SURF_PXFEM(NRTM  ,IRECT,INOD_PXFEM,INTPLY,
      .                         NVOISIN, MSEGTYP ,MS_PLY , ISEG_PXFEM,
      .                         ISEG_PLY)
 C      
       USE MESSAGE_MOD
 C-----------------------------------------------------------------------
-C     LECTURE DES SURFACES ET DECOMPTE DES SEGMENTS
+C     Reading surfaces and counting segments
 C           ENTREE : 
-C                    NRT NOMBRE DE RENSEIGNEMENTS A LIRE
+C                    NRT NUMBER OF ITEMS TO READ
 C           SORTIE : 
 C                    IRECT 
 C-----------------------------------------------
@@ -438,18 +446,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "scr03_c.inc"
-#include      "warn_c.inc"
-#include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -507,7 +506,7 @@ C Impacted ply node
           ISEG_PLY(11,I) = 0
           ISEG_PLY(12,I) = 0
           IF(ISEG_PXFEM(I) == 0) CYCLE
-C or by node segement if it needed            
+C or by node segment if it needed            
  !!          ISEG(I) = 0
 
           IF(MSEGTYP(I) == ZERO) CYCLE  

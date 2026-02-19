@@ -1,39 +1,39 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DMASANIC                      source/output/anim/dmasanic.F 
-Chd|-- called by -----------
-Chd|        GENANI1                       source/output/anim/genani1.F  
-Chd|-- calls ---------------
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dmasanic       ../starter/source/output/anim/dmasanic.F
+!||--- called by ------------------------------------------------------
+!||    genani1        ../starter/source/output/anim/genani1.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE DMASANIC(ELBUF_TAB,X   ,D    ,GEO  ,IPARG,                 
-     .                   IXQ  ,IXC  ,IXTG ,MAS  ,PM   ,                 
-     .                   EL2FA,NBF  ,IXUR )                             
+     .                   IXQ  ,IXC  ,IXTG ,MAS  ,PM   ,    
+     .                   EL2FA,NBF)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE ELBUFDEF_MOD            
+      use element_mod , only : nixq,nixc,nixtg
 C-----------------------------------------------                        
 C   I m p l i c i t   T y p e s                                         
 C-----------------------------------------------                        
@@ -43,8 +43,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------                        
 #include      "com01_c.inc"                                             
 #include      "com04_c.inc"                                             
-#include      "param_c.inc"                                             
-#include      "rnur_c.inc"                                              
+#include      "param_c.inc"
 C-----------------------------------------------                        
 C   D u m m y   A r g u m e n t s                                       
 C-----------------------------------------------                        
@@ -52,7 +51,7 @@ C     REAL
       my_real                                                           
      .   MAS(*) ,PM(NPROPM,*),GEO(NPROPG,*),X(3,*),            
      .   D(3,*)                                                         
-      INTEGER IPARG(NPARG,*),IXC(NIXC,*),IXTG(NIXTG,*),IXUR(NIXUR,*),   
+      INTEGER IPARG(NPARG,*),IXC(NIXC,*),IXTG(NIXTG,*),   
      .        IXQ(NIXQ,*),EL2FA(*),NBF                                  
       TYPE (ELBUF_STRUCT_), TARGET, DIMENSION(NGROUP) :: ELBUF_TAB
 C-----------------------------------------------                        
@@ -62,7 +61,7 @@ C     REAL
       my_real                                                           
      .   OFF,A0,THK0,RHO0,XX1,XX2,XX3,YY1,YY2,YY3,ZZ1,ZZ2,ZZ3,VALUE                       
       INTEGER I, NG, NEL, NFT, ITY, LFT, IALEL,MT,LLT, 
-     .        N,N1,N2,N3,N4,NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,NN10,                 
+     .        N,N1,N2,N3,N4,NN1,NN2,NN3,NN4,NN5,NN6,NN7,NN8,NN9,                 
      .        NFT_FA,N_FA                        
       TYPE(G_BUFEL_)  ,POINTER :: GBUF     
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
@@ -72,10 +71,9 @@ C---+----1----+----2----+----3----+----4----+----5----+----6----+----7--
       NN4 = NN3 + NUMELQ                                                
       NN5 = NN4 + NUMELC                                                
       NN6 = NN5 + NUMELTG                                               
-      NN7 = NN6                                                         
-      NN8 = NN7                                                         
-      NN9 = NN8                                                         
-      NN10= NN9 + NUMELUR                                               
+      NN7 = NN6
+      NN8 = NN7
+      NN9 = NN8
 C-----------------------------------------------                        
       DO 490 NG=1,NGROUP                                                
         GBUF => ELBUF_TAB(NG)%GBUF
@@ -88,13 +86,13 @@ C-----------------------------------------------
 C-----------------------------------------------                        
 C       QUAD                                                            
 C-----------------------------------------------                        
-        IF(ITY.EQ.2)THEN                                                
+        IF(ITY==2)THEN                                                
           IALEL=(IPARG(7,NG)+IPARG(11,NG))                               
 C                                                                       
           DO I=LFT,LLT                                                   
                N = I + NFT                                              
                N_FA = I + NFT_FA                                        
-               IF(IALEL.EQ.0)THEN                                       
+               IF(IALEL==0)THEN                                       
                  MT=IXQ(1,N)                                            
                  VALUE = PM(89,MT)* GBUF%VOL(I)                     
                ELSE                                                     
@@ -106,7 +104,7 @@ C
 C-----------------------------------------------                        
 C       COQUES 4 N                                                      
 C-----------------------------------------------                        
-        ELSEIF(ITY.EQ.3)THEN                                            
+        ELSEIF(ITY==3)THEN                                            
 C                                                                       
           DO I=LFT,LLT                                                  
             N = I + NFT                                                 
@@ -132,7 +130,7 @@ C
 C-----------------------------------------------                        
 C       COQUES 3 N                                                      
 C-----------------------------------------------                        
-        ELSEIF(ITY.EQ.7)THEN                                            
+        ELSEIF(ITY==7)THEN                                            
 C                                                                       
           DO I=LFT,LLT                                                  
             N = I + NFT                                                 
@@ -154,16 +152,6 @@ C
             A0  = HALF*SQRT(XX3*XX3 + YY3*YY3 + ZZ3*ZZ3)              
             MAS(EL2FA(NN5+N_FA)) = RHO0*THK0*A0                         
           ENDDO                                                         
-C                                                                       
-C-----------------------------------------------                        
-C       RNUR                                                            
-C-----------------------------------------------                        
-        ELSEIF(ITY.EQ.50)THEN                                           
-         DO I=LFT,LLT                                                   
-            N = I + NFT                                                 
-            N_FA = I + NFT_FA                                           
-            MAS(EL2FA(NN9+N_FA)) = GEO(21,IXUR(1,N))                    
-         ENDDO                                                          
 C                                                                       
         ELSE                                                            
         ENDIF                                                           

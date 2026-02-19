@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DERSBASISFUNS                 source/elements/ige3d/dersbasisfuns.F
-Chd|-- called by -----------
-Chd|        IGE3DAIRE                     source/elements/ige3d/ig3daire.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dersbasisfuns   ../engine/source/elements/ige3d/dersbasisfuns.F
+!||--- called by ------------------------------------------------------
+!||    ige3daire       ../engine/source/elements/ige3d/ig3daire.F
+!||====================================================================
       SUBROUTINE DERSBASISFUNS(IDXI, PXI, XI, KXI, DERS1, DERS2)
 C--------------------------------------------------------------------------------------------------------
 C
@@ -52,24 +51,17 @@ C-------------------------------------------------------------------------------
 C Dummy Arguments 
 C--------------------------------------------------------------------------------------------------------
       INTEGER PXI, IDXI
-      my_real, 
-     .  INTENT(IN) :: XI
-      my_real, 
-     .  DIMENSION(*), INTENT(IN) :: KXI
-      my_real, 
-     .  DIMENSION(*), INTENT(OUT) :: DERS1, DERS2
+      my_real, INTENT(IN) :: XI
+      my_real, DIMENSION(*), INTENT(IN) :: KXI
+      my_real, DIMENSION(*), INTENT(OUT) :: DERS1, DERS2
 C--------------------------------------------------------------------------------------------------------
 C Local variables 
 C--------------------------------------------------------------------------------------------------------
-      INTEGER I, J, K, L, KR, KP, J1, J2, NDERS, LS1, LS2
-      my_real 
-     .  SAVED, TEMP, D
-      my_real, 
-     .  DIMENSION(PXI+1) :: ALEFT, RIGHT
-      my_real, 
-     .  DIMENSION(2,PXI+1) :: DERS, A
-      my_real, 
-     .  DIMENSION(PXI+1,PXI+1) :: ANDU
+      INTEGER J, K, L, KR, KP, J1, J2, NDERS, LS1, LS2
+      my_real SAVED, TEMP, D
+      my_real, DIMENSION(PXI+1) :: ALEFT, RIGHT
+      my_real, DIMENSION(2,PXI+1) :: DERS, A
+      my_real, DIMENSION(PXI+1,PXI+1) :: ANDU
 
       NDERS=1
       ANDU(1,1)=ONE
@@ -79,10 +71,10 @@ C-------------------------------------------------------------------------------
         RIGHT(J+1) = KXI(IDXI+J) - XI
         SAVED = ZERO
         DO L = 0,J-1
-      	  ANDU(J+1,L+1) = RIGHT(L+2) + ALEFT(J-L+1)
-      	  TEMP = ANDU(L+1,J)/ANDU(J+1,L+1)
-      	  ANDU(L+1,J+1) = SAVED + RIGHT(L+2)*TEMP
-      	  SAVED = ALEFT(J-L+1)*TEMP
+            ANDU(J+1,L+1) = RIGHT(L+2) + ALEFT(J-L+1)
+            TEMP = ANDU(L+1,J)/ANDU(J+1,L+1)
+            ANDU(L+1,J+1) = SAVED + RIGHT(L+2)*TEMP
+            SAVED = ALEFT(J-L+1)*TEMP
         ENDDO
         ANDU(J+1,J+1) = SAVED
       ENDDO
@@ -97,7 +89,7 @@ C COMPUTE DERIVATES
         LS1 = 0
         LS2 = 1
         A(1,1) = ONE
-	
+
         DO K = 1,NDERS
           D = ZERO
           KR = L-K
@@ -113,8 +105,8 @@ C COMPUTE DERIVATES
           ENDIF
           IF ((L-1) <= KP) THEN
             J2 = K-1
-	  ELSE 
-	    J2 = PXI-L
+            ELSE 
+              J2 = PXI-L
           ENDIF
           DO J = J1,J2
             A(LS2+1,J+1) = (A(LS1+1,J+1) - A(LS1+1,J))/ANDU(KP+2,KR+J+1)
@@ -136,7 +128,7 @@ C MULTIPLY THROUGH BY THE CORRECT FACTORS
       L = PXI
       DO K = 1,NDERS
         DO J = 0,PXI
-	  DERS(K+1,J+1) = DERS(K+1,J+1)*L
+            DERS(K+1,J+1) = DERS(K+1,J+1)*L
         ENDDO
         L = L*(PXI-K)
       ENDDO
@@ -149,11 +141,9 @@ C MULTIPLY THROUGH BY THE CORRECT FACTORS
       RETURN
       END
 C
-Chd|====================================================================
-Chd|  BASISFUNS                     source/elements/ige3d/dersbasisfuns.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    basisfuns   ../engine/source/elements/ige3d/dersbasisfuns.F
+!||====================================================================
       SUBROUTINE BASISFUNS(IDXI, PXI, XI, KXI, DERS1)
 C--------------------------------------------------------------------------------------------------------
 C
@@ -179,22 +169,16 @@ C-------------------------------------------------------------------------------
 C Dummy Arguments 
 C--------------------------------------------------------------------------------------------------------
       INTEGER PXI, IDXI
-      my_real, 
-     .  INTENT(IN) :: XI
-      my_real, 
-     .  DIMENSION(*), INTENT(IN) :: KXI
-      my_real, 
-     .  DIMENSION(*), INTENT(OUT) :: DERS1
+      my_real, INTENT(IN) :: XI
+      my_real, DIMENSION(*), INTENT(IN) :: KXI
+      my_real, DIMENSION(*), INTENT(OUT) :: DERS1
 C--------------------------------------------------------------------------------------------------------
 C Local variables 
 C--------------------------------------------------------------------------------------------------------
-      INTEGER I, J, K, L
-      my_real 
-     .  SAVED, TEMP
-      my_real, 
-     .  DIMENSION(PXI+1) :: ALEFT, RIGHT
-      my_real, 
-     .  DIMENSION(PXI+1,PXI+1) :: ANDU
+      INTEGER J, L
+      my_real SAVED, TEMP
+      my_real, DIMENSION(PXI+1) :: ALEFT, RIGHT
+      my_real, DIMENSION(PXI+1,PXI+1) :: ANDU
 
       ANDU(1,1)=ONE
 
@@ -203,10 +187,10 @@ C-------------------------------------------------------------------------------
         RIGHT(J+1) = KXI(IDXI+J) - XI
         SAVED = ZERO
         DO L = 0,J-1
-      	  ANDU(J+1,L+1) = RIGHT(L+2) + ALEFT(J-L+1)
-      	  TEMP = ANDU(L+1,J)/ANDU(J+1,L+1)
-      	  ANDU(L+1,J+1) = SAVED + RIGHT(L+2)*TEMP
-      	  SAVED = ALEFT(J-L+1)*TEMP
+            ANDU(J+1,L+1) = RIGHT(L+2) + ALEFT(J-L+1)
+            TEMP = ANDU(L+1,J)/ANDU(J+1,L+1)
+            ANDU(L+1,J+1) = SAVED + RIGHT(L+2)*TEMP
+            SAVED = ALEFT(J-L+1)*TEMP
         ENDDO
         ANDU(J+1,J+1) = SAVED
       ENDDO

@@ -1,37 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I7CMP3B                       source/interfaces/inter3d1/i7cmp3.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i7cmp3b   ../starter/source/interfaces/inter3d1/i7cmp3.F
+!||====================================================================
       SUBROUTINE I7CMP3B(I_STOK,CAND_E  ,CAND_N, PROV_E, PROV_N,
      1                   PENE)
 C============================================================================
-C  cette routine est appelee par : I7BUC1(/inter3d1/i7buc1.F)
+C  this routine is called by: I7BUC1(/inter3d1/i7buc1.F)
 C                                  I7TRI(/inter3d1/i7tri.F)
 C----------------------------------------------------------------------------
-C  cette routine appelle : -
+C  this routine calls: -
 C============================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -56,10 +54,9 @@ C-----------------------------------------------
       INTEGER I
 C     REAL
 C-----------------------------------------------
-!      EQUIVALENCE (PENE,BV(1,22))
 C     CAS DECHARGEMENT
       DO I=LFT,LLT
-        IF(PENE(I).NE.0.0)THEN
+        IF(PENE(I)/=0.0)THEN
           I_STOK = I_STOK + 1
           CAND_N(I_STOK) = PROV_N(I)
           CAND_E(I_STOK) = PROV_E(I)
@@ -68,29 +65,25 @@ C     CAS DECHARGEMENT
       RETURN
       END
       
-Chd|====================================================================
-Chd|  I7CMP3                        source/interfaces/inter3d1/i7cmp3.F
-Chd|-- called by -----------
-Chd|        I21BUC1                       source/interfaces/inter3d1/i21buc3.F
-Chd|        I21TRI                        source/interfaces/inter3d1/i21tri.F
-Chd|        I23BUC1                       source/interfaces/inter3d1/i23buc3.F
-Chd|        I23TRI                        source/interfaces/inter3d1/i23tri.F
-Chd|        I24BUC1                       source/interfaces/inter3d1/i24buc1.F
-Chd|        I24TRI                        source/interfaces/inter3d1/i24tri.F
-Chd|        I25TRI                        source/interfaces/inter3d1/i25tri.F
-Chd|        I7BUC1                        source/interfaces/inter3d1/i7buc1.F
-Chd|        I7BUC_VOX1                    source/interfaces/inter3d1/i7buc_vox1.F
-Chd|        I7TRI                         source/interfaces/inter3d1/i7tri.F
-Chd|        I7TRIVOX1                     source/interfaces/inter3d1/i7trivox1.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i7cmp3    ../starter/source/interfaces/inter3d1/i7cmp3.F
+!||--- called by ------------------------------------------------------
+!||    i21buc1   ../starter/source/interfaces/inter3d1/i21buc3.F
+!||    i21tri    ../starter/source/interfaces/inter3d1/i21tri.F
+!||    i23buc1   ../starter/source/interfaces/inter3d1/i23buc3.F
+!||    i23tri    ../starter/source/interfaces/inter3d1/i23tri.F
+!||    i24buc1   ../starter/source/interfaces/inter3d1/i24buc1.F
+!||    i24tri    ../starter/source/interfaces/inter3d1/i24tri.F
+!||    i7buc1    ../starter/source/interfaces/inter3d1/i7buc1.F
+!||    i7tri     ../starter/source/interfaces/inter3d1/i7tri.F
+!||====================================================================
       SUBROUTINE I7CMP3(I_STOK,CAND_E  ,CAND_N, IFLAG,PENE,
      1                  PROV_N,PROV_E)
 C============================================================================
-C  cette routine est appelee par : I7BUC1(/inter3d1/i7buc1.F)
+C  this routine is called by: I7BUC1(/inter3d1/i7buc1.F)
 C                                  I7TRI(/inter3d1/i7tri.F)
 C----------------------------------------------------------------------------
-C  cette routine appelle : -
+C  this routine calls: -
 C============================================================================
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
@@ -107,7 +100,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER I_STOK,J_STOK,IFLAG
+      INTEGER I_STOK, IFLAG
       INTEGER CAND_N(*),CAND_E(*)
       INTEGER, DIMENSION(MVSIZ), INTENT(IN) :: PROV_N,PROV_E    
       my_real, DIMENSION(MVSIZ), INTENT(IN) :: PENE
@@ -117,22 +110,19 @@ C-----------------------------------------------
       INTEGER I
 C     REAL
 C-----------------------------------------------
-!      EQUIVALENCE (PROV_N,IV(1,6)) ,(PROV_E,IV(1,7)) 
-C
-!      EQUIVALENCE (PENE,BV(1,22))
 C
 C
-      IF(IFLAG.EQ.0) THEN
+      IF(IFLAG==0) THEN
 C     CAS DENOMBREMENT SEULEMENT
       DO 100 I=LFT,LLT
-      IF(PENE(I).NE.ZERO)THEN
+      IF(PENE(I)/=ZERO)THEN
        I_STOK = I_STOK + 1
       ENDIF
  100  CONTINUE
       ELSE
 C     CAS DECHARGEMENT
       DO 200 I=LFT,LLT
-      IF(PENE(I).NE.0.0)THEN
+      IF(PENE(I)/=0.0)THEN
        I_STOK = I_STOK + 1
        CAND_N(I_STOK) = PROV_N(I)
        CAND_E(I_STOK) = PROV_E(I)

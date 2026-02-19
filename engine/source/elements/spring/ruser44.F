@@ -1,34 +1,37 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RUSER44                       source/elements/spring/ruser44.F
-Chd|-- called by -----------
-Chd|        RFORC3                        source/elements/spring/rforc3.F
-Chd|-- calls ---------------
-Chd|        GET_V_FUNC                    source/user_interface/ufunc.F 
-Chd|        GET_U_GEO                     source/user_interface/upidmid.F
-Chd|        GET_U_PNU                     source/user_interface/upidmid.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ruser44      ../engine/source/elements/spring/ruser44.F
+!||--- called by ------------------------------------------------------
+!||    rforc3       ../engine/source/elements/spring/rforc3.F
+!||--- calls      -----------------------------------------------------
+!||    get_u_func   ../engine/source/user_interface/ufunc.F
+!||    get_u_mid    ../engine/source/user_interface/upidmid.F
+!||    get_u_mnu    ../engine/source/user_interface/upidmid.F
+!||    get_u_pid    ../engine/source/user_interface/upidmid.F
+!||    get_u_pnu    ../engine/source/user_interface/upidmid.F
+!||    get_v_func   ../engine/source/user_interface/ufunc.F
+!||====================================================================
       SUBROUTINE RUSER44(NEL,IOUT   ,IPROP  ,UVAR   ,NUVAR  ,
      2             FX      ,FY      ,FZ     ,XMOM   ,YMOM   ,
      3             ZMOM    ,E       ,OFF    ,STIFM  ,STIFR  ,
@@ -66,7 +69,7 @@ C         I     :     VARIABLE INDEX(1 for first function)
 C         IM    :     MATERIAL NUMBER
 C         KFUNC :     ONLY FUNCTION ARE YET AVAILABLE.
 C         THIS FUNCTION RETURN THE USER STORED FUNCTION NUMBER(function 
-C         refered by users materials).
+C         referred by users materials).
 C         SEE LECM29 FOR CORRESPONDING ID STORAGE.
 C-------------------------------------------------------------------------
 C my_real PARAMI = GET_U_GEO(I,IP)
@@ -146,7 +149,7 @@ C-----------------------------------------------
      .        XLIMG,XLIM,XXLIM,YY1LIM,YY2LIM,ZZ1LIM,ZZ2LIM,
      .        K11,K44,K55,K66,K5B,K6C,LENG2,LENG,ULENG0,R,AX,AY,AZ,
      .        FSCAL_X,FSCAL_RX,FSCAL_RY1,FSCAL_RY2,FSCAL_RZ1,FSCAL_RZ2,
-     .        A,B,D,FF1,FF2,R1,MM,FF,FSCAL_DAMP_X,FSCAL_DAMP_Y,
+     .        FF1,FF2,R1,MM,FF,FSCAL_DAMP_X,FSCAL_DAMP_Y,
      .        FSCAL_DAMP_Z,FSCAL_DAMP_XX,FSCAL_DAMP_YY,
      .        FSCAL_DAMP_ZZ,F_X,F_Y,F_Z,F_XX,F_YY,F_ZZ,ALPHA,NCF,
      .        IDAMPING
@@ -287,7 +290,7 @@ C=======================================================================
         MY1(I) = -YMOM(I)+HALF*XL(I)*FZ(I)
         MY2(I) =  YMOM(I)+HALF*XL(I)*FZ(I)
         MZ1(I) = -ZMOM(I)-HALF*XL(I)*FY(I)
-        MZ2(I) =  ZMOM(I)-HALF*XL(I)*FY(I)	  
+        MZ2(I) =  ZMOM(I)-HALF*XL(I)*FY(I)    
 C
         LENG = MAX(XL(I),EM20)
         LENG2 = LENG*LENG
@@ -375,7 +378,7 @@ C
         ENDDO
       ENDIF ! IF (IDAMPING > ZERO)
 C--------------------------------
-      IF (ICO == 0) THEN  ! => ELASTO PLASTIQUE - Classique
+      IF (ICO == 0) THEN  ! => Plastic elasto - classic
 C--------------------------------
         DO I=1,NEL
           ID1 = NINT(UVAR(29,I))/2
@@ -604,7 +607,7 @@ C
 !
         ENDDO
 C--------------------------------
-      ELSE    ! => ELASTO PLASTIQUE - Directions couplees
+      ELSE    ! => Plastic elasto - Couplees directions
 C--------------------------------
         DO I=1,NEL
           ID1 = NINT(UVAR(29,I))/2

@@ -1,364 +1,363 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ANCMSG                        source/output/message/message.F
-Chd|-- called by -----------
-Chd|        ADMERR                        source/model/remesh/admerr.F  
-Chd|        ADMINI                        source/model/remesh/admini.F  
-Chd|        ALERO2                        source/ale/ale2d/alero2.F     
-Chd|        ANIMX                         source/output/anim/generate/animx.F
-Chd|        ANIM_BUILD_INDEX_ALL          source/output/anim/reader/anim_build_index_all.F
-Chd|        ANIM_DCOD_KEY_0               source/output/anim/reader/anim_dcod_key_0.F
-Chd|        ARRET_MESSAGE                 source/system/arret_message.F 
-Chd|        ARRET_MESSAGE_SLID            source/system/arret_message.F 
-Chd|        BFORC2                        source/ale/bimat/bforc2.F     
-Chd|        BLERO2                        source/ale/bimat/blero2.F     
-Chd|        CHKV0_CY                      source/constraints/general/bcs/bcscyc.F
-Chd|        CP_IFRONT                     source/implicit/produt_v.F    
-Chd|        CREATE_H3D_ARG_KEYWORD        source/output/h3d/h3d_build_fortran/create_h3d_arg_keyword.F
-Chd|        DIM_INT7                      source/implicit/ind_glob_k.F  
-Chd|        DSACTI1                       source/implicit/dsolve/dsacti.F
-Chd|        DSCOND                        source/implicit/dsolve/dscond.F
-Chd|        DSRENUM                       source/implicit/dsolve/dsrenum.F
-Chd|        DSRESOL                       source/implicit/dsolve/dsresol.F
-Chd|        DSRESOL_ITER                  source/implicit/dsolve/dsresol.F
-Chd|        DTNODA                        source/time_step/dtnoda.F     
-Chd|        DTNODAMS                      source/time_step/dtnodams.F   
-Chd|        DYNA_INA                      source/implicit/imp_dyna.F    
-Chd|        DYNA_INI                      source/implicit/imp_dyna.F    
-Chd|        ECRIT                         source/output/ecrit.F         
-Chd|        ERRMSG                        source/input/errmsg.F         
-Chd|        ERROR_ALLOC                   source/system/error_alloc.F   
-Chd|        ERR_MEM                       source/implicit/lin_solv.F    
-Chd|        ERR_THK                       source/elements/shell/err_thk.F
-Chd|        EULRO2                        source/ale/euler2d/eulro2.F   
-Chd|        FACEPOLY                      source/airbag/fvmesh.F        
-Chd|        FORINT                        source/elements/forint.F      
-Chd|        FRALNK                        source/input/fralnk.F         
-Chd|        FRALNK2                       source/input/fralnk.F         
-Chd|        FREABF                        source/input/freabf.F         
-Chd|        FREANIM                       source/output/anim/reader/freanim.F
-Chd|        FREBCS                        source/input/frebcs.F         
-Chd|        FRECPL                        source/input/frecpl.F         
-Chd|        FREDAMP                       source/input/fredamp.F        
-Chd|        FREDEBUG                      source/input/fredebug.F       
-Chd|        FREDLI                        source/input/fredli.F         
-Chd|        FREDLI7                       source/input/fredli7.F        
-Chd|        FREDYNAIN                     source/input/fredynain.F      
-Chd|        FREEIG                        source/input/freeig.F         
-Chd|        FREFLW                        source/input/freflw.F         
-Chd|        FREFORM                       source/input/freform.F        
-Chd|        FREFUNC                       source/input/frefunc.F        
-Chd|        FREFVBAG                      source/input/frefvbag.F       
-Chd|        FREFXINP                      source/input/frefxinp.F       
-Chd|        FREIMPL                       source/input/freimpl.F        
-Chd|        FREINIV                       source/input/freiniv.F        
-Chd|        FREINT                        source/input/freint.F         
-Chd|        FRELNK                        source/input/frelnk.F         
-Chd|        FRENOIS                       source/input/frenois.F        
-Chd|        FREOUTP                       source/input/freoutp.F        
-Chd|        FRERBO                        source/input/frerbo.F         
-Chd|        FRESTAT                       source/input/frestat.F        
-Chd|        FRETHERMAL                    source/constraints/thermic/frethermal.F
-Chd|        FREUPWIND                     source/input/freupwind.F      
-Chd|        FREUPWM                       source/input/freupwm.F        
-Chd|        FR_RLALE                      source/mpi/kinematic_conditions/fr_rlink1.F
-Chd|        FR_RLINK1                     source/mpi/kinematic_conditions/fr_rlink1.F
-Chd|        FVBAG1                        source/airbag/fvbag.F         
-Chd|        FVRREST                       source/output/restart/rdresb.F
-Chd|        FVVENT0                       source/airbag/fvvent0.F       
-Chd|        FV_IMP0                       source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_UP_SWITCH                  source/airbag/fv_up_switch.F  
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|        GENDYNAIN                     source/output/dynain/gendynain.F
-Chd|        GENH3D                        source/output/h3d/h3d_results/genh3d.F
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|        H3D_READ                      source/output/h3d/h3d_build_fortran/h3d_read.F
-Chd|        I10BUCE                       source/interfaces/intsort/i10buce.F
-Chd|        I10LLL                        source/interfaces/int16/i10lagm.F
-Chd|        I10MAINF                      source/interfaces/int10/i10mainf.F
-Chd|        I10MAIN_TRI                   source/interfaces/intsort/i10main_tri.F
-Chd|        I10SMS2                       source/interfaces/int10/i10sms2.F
-Chd|        I11ASS2                       source/interfaces/int11/i11ass3.F
-Chd|        I11ASS25                      source/interfaces/int11/i11ass3.F
-Chd|        I11BUCE_VOX                   source/interfaces/intsort/i11buce.F
-Chd|        I11MAINF                      source/interfaces/int11/i11mainf.F
-Chd|        I11MAIN_TRI                   source/interfaces/intsort/i11main_tri.F
-Chd|        I11SMS2                       source/interfaces/int11/i11sms2.F
-Chd|        I15CMP                        source/interfaces/int15/i15cmp.F
-Chd|        I16LLL                        source/interfaces/int16/i16lagm.F
-Chd|        I16TRI                        source/interfaces/int16/i16tri.F
-Chd|        I17BUCE                       source/interfaces/int17/i17buce.F
-Chd|        I17FOR3                       source/interfaces/int17/i17for3.F
-Chd|        I17LLL4                       source/interfaces/int17/i17lagm.F
-Chd|        I17LLL4_PENA                  source/interfaces/int17/i17for3.F
-Chd|        I17MAIN_TRI                   source/interfaces/int17/i17main_pena.F
-Chd|        I17TRI                        source/interfaces/int17/i17tri.F
-Chd|        I18MAIN_KINE_I                source/interfaces/int18/i18main_kine.F
-Chd|        I20ASS2                       source/interfaces/int20/i20for3.F
-Chd|        I20ASS25                      source/interfaces/int20/i20for3.F
-Chd|        I20BUCE                       source/interfaces/intsort/i20buce.F
-Chd|        I20BUC_EDGE                   source/interfaces/intsort/i20buce.F
-Chd|        I20LLL                        source/interfaces/int16/i20lagm.F
-Chd|        I20MAINF                      source/interfaces/int20/i20mainf.F
-Chd|        I20MAIN_TRI                   source/interfaces/intsort/i20main_tri.F
-Chd|        I20SMS2E                      source/interfaces/int20/i20sms2.F
-Chd|        I21BUCE                       source/interfaces/intsort/i21buce.F
-Chd|        I21LLL                        source/interfaces/int17/i21lagm.F
-Chd|        I21MAINF                      source/interfaces/int21/i21mainf.F
-Chd|        I21SMS2                       source/interfaces/int21/i21sms2.F
-Chd|        I22ASS2                       source/interfaces/int22/i22assembly.F
-Chd|        I22BUCE                       source/interfaces/intsort/i22buce.F
-Chd|        I22MAINF                      source/interfaces/int22/i22mainf.F
-Chd|        I22MAIN_TRI                   source/interfaces/intsort/i22main_tri.F
-Chd|        I23BUCE                       source/interfaces/intsort/i23buce.F
-Chd|        I23MAINF                      source/interfaces/int23/i23mainf.F
-Chd|        I23MAIN_TRI                   source/interfaces/intsort/i23main_tri.F
-Chd|        I24ASS2                       source/interfaces/int24/i24for3.F
-Chd|        I24MAINF                      source/interfaces/int24/i24main.F
-Chd|        I24MAIN_TRI                   source/interfaces/intsort/i24main_tri.F
-Chd|        I24SMS2                       source/interfaces/int24/i24for3.F
-Chd|        I25ASS2                       source/interfaces/int25/i25ass3.F
-Chd|        I25ASSE2                      source/interfaces/int25/i25asse.F
-Chd|        I25ASSE25                     source/interfaces/int25/i25asse.F
-Chd|        I25ASSE25_E2S                 source/interfaces/int25/i25ass_e2s.F
-Chd|        I25ASSE2_E2S                  source/interfaces/int25/i25ass_e2s.F
-Chd|        I25MAINF                      source/interfaces/int25/i25mainf.F
-Chd|        I25MAIN_SLID                  source/interfaces/int25/i25main_slid.F
-Chd|        I25MAIN_TRI                   source/interfaces/intsort/i25main_tri.F
-Chd|        I25SMS0E                      source/interfaces/int25/i25smse.F
-Chd|        I25SMS2                       source/interfaces/int25/i25for3.F
-Chd|        I25SMS2E                      source/interfaces/int25/i25smse.F
-Chd|        I25SMS_E2S                    source/interfaces/int25/i25sms_e2s.F
-Chd|        I2RUPT                        source/interfaces/interf/int2rupt.F
-Chd|        I7ASS2                        source/interfaces/int07/i7ass3.F
-Chd|        I7ASS25                       source/interfaces/int07/i7ass3.F
-Chd|        I7BUCE_VOX                    source/interfaces/intsort/i7buce.F
-Chd|        I7LAGM                        source/interfaces/int07/i7lagm.F
-Chd|        I7MAINF                       source/interfaces/int07/i7mainf.F
-Chd|        I7MAIN_LMULT                  source/interfaces/int07/i7main_lmult.F
-Chd|        I7MAIN_TRI                    source/interfaces/intsort/i7main_tri.F
-Chd|        I7SMS2                        source/interfaces/int07/i7sms2.F
-Chd|        I7TRIVOX                      source/interfaces/intsort/i7trivox.F
-Chd|        I8LLL                         source/interfaces/int16/i8lagm.F
-Chd|        I9AVEL                        source/interfaces/int09/i9avel.F
-Chd|        IG3DUFORC3                    source/elements/ige3d/ig3duforc3.F
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|        IMP_FSA_INV2                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVH2                 source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP                  source/implicit/imp_fsa_inv.F 
-Chd|        IMP_FSA_INVP2                 source/implicit/imp_fsa_inv.F 
-Chd|        IMP_KFILTR                    source/implicit/imp_fsa_inv.F 
-Chd|        IMP_PCGH                      source/implicit/imp_pcg.F     
-Chd|        IMP_SOL_INIT                  source/implicit/imp_sol_init.F
-Chd|        IMP_STOP                      source/implicit/imp_solv.F    
-Chd|        IND_KTOT                      source/implicit/ind_glob_k.F  
-Chd|        INI_K0H                       source/implicit/imp_solv.F    
-Chd|        INI_KISC                      source/implicit/lin_solv.F    
-Chd|        INTER_COUNT_NODE_CURV         source/interfaces/generic/inter_count_node_curv.F
-Chd|        IQELA2                        source/ale/inter/iqela2.F     
-Chd|        KTBUF_INI                     source/implicit/imp_init.F    
-Chd|        L2G_KLOC                      source/implicit/ind_glob_k.F  
-Chd|        LAG_DIRECT                    source/tools/lagmul/lag_direct.F
-Chd|        LAG_I2MAIN                    source/tools/lagmul/lag_i2main.F
-Chd|        LAG_MULTP                     source/tools/lagmul/lag_mult.F
-Chd|        LAG_MULT_H                    source/tools/lagmul/lag_mult_h.F
-Chd|        LAG_MULT_HP                   source/tools/lagmul/lag_mult_h.F
-Chd|        LAG_RWALL                     source/tools/lagmul/lag_rwall.F
-Chd|        LCBCSF                        source/constraints/general/bcs/lcbcsf.F
-Chd|        LECDAMP                       source/input/lecdamp.F        
-Chd|        LECFLSW                       source/fluid/lecflsw.F        
-Chd|        LECFUN                        source/tools/curve/lecfun.F   
-Chd|        LECH3D                        source/output/h3d/h3d_build_fortran/lech3d.F
-Chd|        LECIMPL                       source/input/lectur.F         
-Chd|        LECINV                        source/input/lecinv.F         
-Chd|        LECNOISE                      source/general_controls/computation/lecnoise.F
-Chd|        LECSTAT                       source/input/lecstat.F        
-Chd|        LECTUR                        source/input/lectur.F         
-Chd|        L_DIR02                       source/constraints/general/impvel/fv_imp0.F
-Chd|        M13LAW                        source/materials/mat/mat013/m13law.F
-Chd|        M25CPLRC                      source/materials/mat/mat025/m25cplrc.F
-Chd|        MMAIN                         source/materials/mat_share/mmain.F
-Chd|        MPP_INIT                      source/mpi/interfaces/spmd_i7tool.F
-Chd|        MULAW                         source/materials/mat_share/mulaw.F
-Chd|        MULAW8                        source/materials/mat_share/mulaw8.F
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        MULTI_ALLOCATE                source/multifluid/multi_allocate.F
-Chd|        MULTI_I18_FORCE_PON           source/interfaces/int18/multi_i18_force_pon.F
-Chd|        MULTI_TIMEEVOLUTION           source/multifluid/multi_timeevolution.F
-Chd|        NDOF_FV                       source/implicit/ind_glob_k.F  
-Chd|        PROJECIG3D                    source/elements/ige3d/projecig3d.F
-Chd|        QSTAT_INI                     source/implicit/imp_dyna.F    
-Chd|        QVOLU2                        source/elements/solid_2d/quad/qvolu2.F
-Chd|        RADIOSS2                      source/engine/radioss2.F      
-Chd|        RBE3CL                        source/constraints/general/rbe3/rbe3f.F
-Chd|        RBYACT                        source/constraints/general/rbody/rbyact.F
-Chd|        RBY_DECOND                    source/tools/lagmul/lag_rby_cond.F
-Chd|        RDELE                         source/input/rdele.F          
-Chd|        RDRESA                        source/output/restart/rdresa.F
-Chd|        RDRESB                        source/output/restart/rdresb.F
-Chd|        READ_DYNAIN                   source/output/dynain/read_dynain.F
-Chd|        READ_MSGFILE                  source/output/message/read_msgfile.F
-Chd|        REALLOCATE_FI2                source/mpi/interfaces/spmd_i25slide.F
-Chd|        REALLOCATE_I_SKYLINE          source/system/reallocate_skyline.F
-Chd|        RESOL                         source/engine/resol.F         
-Chd|        RESTALLOC                     source/output/restart/arralloc.F
-Chd|        RFORC3                        source/elements/spring/rforc3.F
-Chd|        RGBODV                        source/constraints/general/rbody/rgbodv.F
-Chd|        S10DERI3                      source/elements/solid/solide10/s10deri3.F
-Chd|        S16DERI3                      source/elements/thickshell/solide16/s16deri3.F
-Chd|        S20DERI3                      source/elements/solid/solide20/s20deri3.F
-Chd|        S6CDERI3                      source/elements/thickshell/solide6c/s6cderi3.F
-Chd|        S8DERI3                       source/elements/solid/solide8/s8deri3.F
-Chd|        S8EDERIC3                     source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8EDERICM3                    source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8EDERICT3                    source/elements/solid/solide8e/s8ederi3.F
-Chd|        S8EFORC3                      source/elements/solid/solide8e/s8eforc3.F
-Chd|        S8SFORC3                      source/elements/solid/solide8s/s8sforc3.F
-Chd|        S8ZDERIC3                     source/elements/solid/solide8z/s8zderi3.F
-Chd|        S8ZDERICM3                    source/elements/solid/solide8z/s8zderi3.F
-Chd|        S8ZDERICT3                    source/elements/solid/solide8z/s8zderi3.F
-Chd|        S8ZDERICTO3                   source/elements/solid/solide8z/s8zderi3.F
-Chd|        S8ZFORC3                      source/elements/solid/solide8z/s8zforc3.F
-Chd|        SCDERI3                       source/elements/thickshell/solidec/scderi3.F
-Chd|        SCHKJAB3                      source/elements/solid/solide/sderi3.F
-Chd|        SCHKJABT3                     source/elements/solid/solide4/s4deri3.F
-Chd|        SECT_INI                      source/tools/sect/sectio.F    
-Chd|        SECT_READ                     source/tools/sect/sectio.F    
-Chd|        SECT_READP                    source/tools/sect/sectio.F    
-Chd|        SENSOR2                       source/tools/sensor/sensor2.F 
-Chd|        SIGEPS53                      source/materials/mat/mat053/sigeps53.F
-Chd|        SIGEPS75                      source/materials/mat/mat075/sigeps75.F
-Chd|        SMALLGEO3                     source/elements/solid/solide/small3.F
-Chd|        SMS_BUILD_MAT_2               source/ams/sms_build_mat_2.F  
-Chd|        SMS_CHECK                     source/ams/sms_fsa_inv.F      
-Chd|        SMS_ENCIN_2                   source/ams/sms_encin_2.F      
-Chd|        SMS_FSA_INVH                  source/ams/sms_fsa_inv.F      
-Chd|        SMS_INI_ERR                   source/ams/sms_init.F         
-Chd|        SMS_INI_JAD_3                 source/ams/sms_init.F         
-Chd|        SMS_INI_PART                  source/ams/sms_init.F         
-Chd|        SMS_MASS_SCALE_2              source/ams/sms_mass_scale_2.F 
-Chd|        SOLTOSPHA                     source/elements/sph/soltospha.F
-Chd|        SOLTOSPHF                     source/elements/sph/soltosph.F
-Chd|        SOLTOSPH_ON2                  source/elements/sph/soltosph_on2.F
-Chd|        SPADAH                        source/elements/sph/spadah.F  
-Chd|        SPBUC3                        source/elements/sph/spbuc3.F  
-Chd|        SPHPREP                       source/elements/sph/sphprep.F 
-Chd|        SPLISSV                       source/elements/sph/splissv.F 
-Chd|        SPMD_CELL_EXCHANGE            source/mpi/generic/spmd_cell_exchange.F
-Chd|        SPMD_CELL_SIZE_EXCHANGE       source/mpi/interfaces/spmd_cell_size_exchange.F
-Chd|        SPMD_CHECK_TAG                source/mpi/ams/spmd_check_tag.F
-Chd|        SPMD_EXCHM_SMS                source/mpi/ams/spmd_sms.F     
-Chd|        SPMD_EXCH_FA                  source/mpi/elements/spmd_exch_dttsh.F
-Chd|        SPMD_EXCH_I24                 source/mpi/interfaces/spmd_exch_i24.F
-Chd|        SPMD_EXCH_I25                 source/mpi/interfaces/spmd_exch_i25.F
-Chd|        SPMD_EXCH_MIN_MAX             source/mpi/ale/spmd_exch_min_max.F
-Chd|        SPMD_EXCH_PRESS               source/mpi/interfaces/spmd_exch_press.F
-Chd|        SPMD_EXCH_SMST2               source/mpi/ams/spmd_exch_smst2.F
-Chd|        SPMD_EXCH_TAGNCONT            source/mpi/forces/spmd_exch_tagncont.F
-Chd|        SPMD_EXCH_VMAX                source/mpi/elements/spmd_exch_dttsh.F
-Chd|        SPMD_FIADD11_PON              source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_FIADD20FE_PON            source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_FIADD20F_PON             source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_FIADD25E_PON             source/mpi/interfaces/spmd_fiadd25e_pon.F
-Chd|        SPMD_FIADD_PON                source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_GET_PENIS                source/mpi/interfaces/send_cand.F
-Chd|        SPMD_GET_PENIS20              source/mpi/interfaces/send_cand.F
-Chd|        SPMD_I17FROTS_PON             source/mpi/interfaces/spmd_i17frots_pon.F
-Chd|        SPMD_I18KINE_COM_A            source/mpi/interfaces/spmd_i18kine_com_a.F
-Chd|        SPMD_I18KINE_COM_ACC          source/mpi/interfaces/spmd_i18kine_com_acc.F
-Chd|        SPMD_I18KINE_COM_MS           source/mpi/interfaces/spmd_i18kine_com_ms.F
-Chd|        SPMD_I18KINE_COM_V            source/mpi/interfaces/spmd_i18kine_com_v.F
-Chd|        SPMD_I18KINE_PENE_COM_POFF    source/mpi/interfaces/spmd_i18kine_pene_com_poff.F
-Chd|        SPMD_I20NORMF                 source/mpi/interfaces/spmd_i20normf.F
-Chd|        SPMD_I21FTHECOM               source/mpi/interfaces/send_cand.F
-Chd|        SPMD_I21TEMPCOM               source/mpi/interfaces/send_cand.F
-Chd|        SPMD_I7FCOM_POFF              source/mpi/forces/spmd_i7fcom_poff.F
-Chd|        SPMD_I7FCOM_PON               source/mpi/forces/spmd_i7fcom_pon.F
-Chd|        SPMD_I7XVCOM2                 source/mpi/interfaces/spmd_i7xvcom2.F
-Chd|        SPMD_IFRONT                   source/mpi/interfaces/spmd_ifront.F
-Chd|        SPMD_IFRONT_STAMP             source/mpi/interfaces/send_cand.F
-Chd|        SPMD_INISPH                   source/mpi/sph/spmd_sptool.F  
-Chd|        SPMD_INITFI                   source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_INT18_LAW151_PON         source/mpi/forces/spmd_int18_law151_pon.F
-Chd|        SPMD_RST_CHECK                source/mpi/init/spmd_rst_check.F
-Chd|        SPMD_SD_XV                    source/mpi/nodes/spmd_sd_xv.F 
-Chd|        SPMD_SPHBOX                   source/mpi/elements/spmd_sph.F
-Chd|        SPMD_SPHGAT                   source/mpi/sph/spmd_sphgat.F  
-Chd|        SPMD_SPHGAT_old               source/mpi/sph/spmd_sphgat.F  
-Chd|        SPMD_SPHVOX                   source/mpi/sph/spmd_sphvox.F  
-Chd|        SPMD_SPHVOX_OLD               source/mpi/sph/spmd_sphvox.F  
-Chd|        SPMD_TAGNCONT_STAMP           source/mpi/forces/spmd_exch_tagncont.F
-Chd|        SPMD_TRI10BOX                 source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI10GAT                 source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI11GAT                 source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI11VOX                 source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI17BOX                 source/mpi/interfaces/spmd_tri17box.F
-Chd|        SPMD_TRI17GAT                 source/mpi/interfaces/spmd_i7crit.F
-Chd|        SPMD_TRI18_151VOX             source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI20BOX                 source/mpi/interfaces/spmd_tri20box.F
-Chd|        SPMD_TRI20BOXE                source/mpi/interfaces/spmd_tri20boxe.F
-Chd|        SPMD_TRI20GAT                 source/mpi/interfaces/spmd_i7crit.F
-Chd|        SPMD_TRI20GATE                source/mpi/interfaces/spmd_i7crit.F
-Chd|        SPMD_TRI22VOX                 source/mpi/interfaces/spmd_tri22vox.F
-Chd|        SPMD_TRI24GAT                 source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI24VOX                 source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI25GAT                 source/mpi/interfaces/spmd_tri25gat.F
-Chd|        SPMD_TRI25VOX                 source/mpi/interfaces/spmd_tri25vox.F
-Chd|        SPMD_TRI7GAT                  source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI7VOX                  source/mpi/interfaces/spmd_int.F
-Chd|        SPMD_TRI7VOX_OPTIMIZED        source/mpi/interfaces/spmd_tri7vox_optimized.F
-Chd|        SPONOF1                       source/elements/sph/sponof1.F 
-Chd|        SRHO3                         source/elements/solid/solide/srho3.F
-Chd|        STAT_INIMAP1D_FILE_SPMD       source/output/sta/stat_inimap1d_file_spmd.F
-Chd|        STAT_INIMAP1D_SPMD            source/output/sta/stat_inimap1d_spmd.F
-Chd|        STAT_INIMAP2D_FILE_SPMD       source/output/sta/stat_inimap2d_file_spmd.F
-Chd|        STAT_INIMAP2D_SPMD            source/output/sta/stat_inimap2d_spmd.F
-Chd|        SUFORC3                       source/user_interface/suforc3.F
-Chd|        SWITCH_TO_DTNODA              source/time_step/switch_to_dtnoda.F
-Chd|        TABLE2D_VINTERP_LOG           source/tools/curve/table2d_vinterp_log.F
-Chd|        TABLE_INTERP                  source/tools/curve/table_tools.F
-Chd|        TABLE_INTERP_LAW76            source/tools/curve/table_tools.F
-Chd|        TABLE_RRESTI                  source/tools/curve/table_tools.F
-Chd|        TABLE_RRESTI_MAT              source/tools/curve/table_tools.F
-Chd|        TABLE_VINTERP                 source/tools/curve/table_tools.F
-Chd|        TRACE_PRINT                   source/system/trace_back.F    
-Chd|        UPD_ASPC0                     source/constraints/general/bcs/bc_imp0.F
-Chd|        UPGRADE_REM_2RY               source/mpi/interfaces/spmd_i7tool.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|        USERMAT_SOLID                 source/materials/mat_share/usermat_solid.F
-Chd|        WCIUSC2                       source/input/wciusc2.F        
-Chd|        WRIUSC2                       source/input/wriusc2.F        
-Chd|        XANIM28                       source/elements/xelem/xanim28.F
-Chd|        XFORC28                       source/elements/xelem/xforc28.F
-Chd|        GET_U_FUNC_X                  source/user_interface/ufunc.F 
-Chd|        GET_U_FUNC_Y                  source/user_interface/ufunc.F 
-Chd|        GET_U_NUMNOD                  source/user_interface/uaccess.F
-Chd|        SYSFUS                        source/system/sysfus.F        
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD2                  share/message_module/message_mod2.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    ancmsg                       ../engine/source/output/message/message.F
+!||--- called by ------------------------------------------------------
+!||    admerr                       ../engine/source/model/remesh/admerr.F
+!||    admini                       ../engine/source/model/remesh/admini.F
+!||    alero2                       ../engine/source/ale/ale2d/alero2.F
+!||    anim_build_index_all         ../engine/source/output/anim/reader/anim_build_index_all.F
+!||    anim_dcod_key_0              ../engine/source/output/anim/reader/anim_dcod_key_0.F
+!||    animx                        ../engine/source/output/anim/generate/animx.F
+!||    arret_message                ../engine/source/system/arret_message.F
+!||    arret_message_slid           ../engine/source/system/arret_message.F
+!||    bcs_nrf                      ../engine/source/boundary_conditions/bcs_nrf.F90
+!||    bforc2                       ../engine/source/ale/bimat/bforc2.F
+!||    blero2                       ../engine/source/ale/bimat/blero2.F
+!||    chkv0_cy                     ../engine/source/constraints/general/bcs/bcscyc.F
+!||    cp_ifront                    ../engine/source/implicit/produt_v.F
+!||    create_h3d_arg_keyword       ../engine/source/output/h3d/h3d_build_fortran/create_h3d_arg_keyword.F
+!||    dim_int7                     ../engine/source/implicit/ind_glob_k.F
+!||    dtnoda                       ../engine/source/time_step/dtnoda.F
+!||    dtnodams                     ../engine/source/time_step/dtnodams.F
+!||    dyna_ina                     ../engine/source/implicit/imp_dyna.F
+!||    dyna_ini                     ../engine/source/implicit/imp_dyna.F
+!||    ecrit                        ../engine/source/output/ecrit.F
+!||    err_mem                      ../engine/source/implicit/lin_solv.F
+!||    errmsg                       ../engine/source/input/errmsg.F
+!||    error_alloc                  ../engine/source/system/error_alloc.F
+!||    eulro2                       ../engine/source/ale/euler2d/eulro2.F
+!||    facepoly                     ../engine/source/airbag/fvmesh.F
+!||    forint                       ../engine/source/elements/forint.F
+!||    fr_rlale                     ../engine/source/mpi/kinematic_conditions/fr_rlink1.F
+!||    fr_rlink1                    ../engine/source/mpi/kinematic_conditions/fr_rlink1.F
+!||    fralnk                       ../engine/source/input/fralnk.F
+!||    fralnk2                      ../engine/source/input/fralnk.F
+!||    freabf                       ../engine/source/input/freabf.F
+!||    freanim                      ../engine/source/output/anim/reader/freanim.F
+!||    frebcs                       ../engine/source/input/frebcs.F
+!||    frecpl                       ../engine/source/input/frecpl.F
+!||    fredamp                      ../engine/source/input/fredamp.F
+!||    fredebug                     ../engine/source/input/fredebug.F
+!||    fredli                       ../engine/source/input/fredli.F
+!||    fredli7                      ../engine/source/input/fredli7.F
+!||    fredynain                    ../engine/source/input/fredynain.F
+!||    freeig                       ../engine/source/input/freeig.F
+!||    freflw                       ../engine/source/input/freflw.F
+!||    freform                      ../engine/source/input/freform.F
+!||    frefunc                      ../engine/source/input/frefunc.F
+!||    frefvbag                     ../engine/source/input/frefvbag.F
+!||    frefxinp                     ../engine/source/input/frefxinp.F
+!||    freimpl                      ../engine/source/input/freimpl.F
+!||    freiniv                      ../engine/source/input/freiniv.F
+!||    freint                       ../engine/source/input/freint.F
+!||    frelnk                       ../engine/source/input/frelnk.F
+!||    frenois                      ../engine/source/input/frenois.F
+!||    freoutp                      ../engine/source/input/freoutp.F
+!||    frerbo                       ../engine/source/input/frerbo.F
+!||    frestat                      ../engine/source/input/frestat.F
+!||    frethermal                   ../engine/source/constraints/thermic/frethermal.F
+!||    freupwind                    ../engine/source/input/freupwind.F
+!||    freupwm                      ../engine/source/input/freupwm.F
+!||    fv_imp0                      ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fv_up_switch                 ../engine/source/airbag/fv_up_switch.F
+!||    fvbag1                       ../engine/source/airbag/fvbag1.F
+!||    fvrrest                      ../engine/source/output/restart/rdresb.F
+!||    fvvent0                      ../engine/source/airbag/fvvent0.F
+!||    genani                       ../engine/source/output/anim/generate/genani.F
+!||    gendynain                    ../engine/source/output/dynain/gendynain.F
+!||    genh3d                       ../engine/source/output/h3d/h3d_results/genh3d.F
+!||    genstat                      ../engine/source/output/sta/genstat.F
+!||    get_u_func_x                 ../engine/source/user_interface/ufunc.F
+!||    get_u_func_y                 ../engine/source/user_interface/ufunc.F
+!||    get_u_numnod                 ../engine/source/user_interface/uaccess.F
+!||    h3d_read                     ../engine/source/output/h3d/h3d_build_fortran/h3d_read.F
+!||    i10buce                      ../engine/source/interfaces/intsort/i10buce.F
+!||    i10lll                       ../engine/source/interfaces/int16/i10lagm.F
+!||    i10main_tri                  ../engine/source/interfaces/intsort/i10main_tri.F
+!||    i10mainf                     ../engine/source/interfaces/int10/i10mainf.F
+!||    i10sms2                      ../engine/source/interfaces/int10/i10sms2.F
+!||    i11ass2                      ../engine/source/interfaces/int11/i11ass3.F
+!||    i11ass25                     ../engine/source/interfaces/int11/i11ass3.F
+!||    i11buce_vox                  ../engine/source/interfaces/intsort/i11buce.F
+!||    i11main_tri                  ../engine/source/interfaces/intsort/i11main_tri.F
+!||    i11mainf                     ../engine/source/interfaces/int11/i11mainf.F
+!||    i11sms2                      ../engine/source/interfaces/int11/i11sms2.F
+!||    i15cmp                       ../engine/source/interfaces/int15/i15cmp.F
+!||    i16lll                       ../engine/source/interfaces/int16/i16lagm.F
+!||    i16tri                       ../engine/source/interfaces/int16/i16tri.F
+!||    i17buce                      ../engine/source/interfaces/int17/i17buce.F
+!||    i17for3                      ../engine/source/interfaces/int17/i17for3.F
+!||    i17lll4                      ../engine/source/interfaces/int17/i17lagm.F
+!||    i17lll4_pena                 ../engine/source/interfaces/int17/i17for3.F
+!||    i17main_tri                  ../engine/source/interfaces/int17/i17main_pena.F
+!||    i17tri                       ../engine/source/interfaces/int17/i17tri.F
+!||    i18main_kine_i               ../engine/source/interfaces/int18/i18main_kine.F
+!||    i20ass2                      ../engine/source/interfaces/int20/i20for3.F
+!||    i20ass25                     ../engine/source/interfaces/int20/i20for3.F
+!||    i20buc_edge                  ../engine/source/interfaces/intsort/i20buce.F
+!||    i20buce                      ../engine/source/interfaces/intsort/i20buce.F
+!||    i20lll                       ../engine/source/interfaces/int16/i20lagm.F
+!||    i20main_tri                  ../engine/source/interfaces/intsort/i20main_tri.F
+!||    i20mainf                     ../engine/source/interfaces/int20/i20mainf.F
+!||    i20sms2e                     ../engine/source/interfaces/int20/i20sms2.F
+!||    i21buce                      ../engine/source/interfaces/intsort/i21buce.F
+!||    i21lll                       ../engine/source/interfaces/int17/i21lagm.F
+!||    i21mainf                     ../engine/source/interfaces/int21/i21mainf.F
+!||    i21sms2                      ../engine/source/interfaces/int21/i21sms2.F
+!||    i22ass2                      ../engine/source/interfaces/int22/i22assembly.F
+!||    i22buce                      ../engine/source/interfaces/intsort/i22buce.F
+!||    i22main_tri                  ../engine/source/interfaces/intsort/i22main_tri.F
+!||    i22mainf                     ../engine/source/interfaces/int22/i22mainf.F
+!||    i23buce                      ../engine/source/interfaces/intsort/i23buce.F
+!||    i23main_tri                  ../engine/source/interfaces/intsort/i23main_tri.F
+!||    i23mainf                     ../engine/source/interfaces/int23/i23mainf.F
+!||    i24ass2                      ../engine/source/interfaces/int24/i24for3.F
+!||    i24main_tri                  ../engine/source/interfaces/intsort/i24main_tri.F
+!||    i24mainf                     ../engine/source/interfaces/int24/i24main.F
+!||    i24sms2                      ../engine/source/interfaces/int24/i24for3.F
+!||    i25ass2                      ../engine/source/interfaces/int25/i25ass3.F
+!||    i25asse2                     ../engine/source/interfaces/int25/i25asse.F
+!||    i25asse25                    ../engine/source/interfaces/int25/i25asse.F
+!||    i25asse25_e2s                ../engine/source/interfaces/int25/i25ass_e2s.F
+!||    i25asse2_e2s                 ../engine/source/interfaces/int25/i25ass_e2s.F
+!||    i25main_slid                 ../engine/source/interfaces/int25/i25main_slid.F
+!||    i25main_tri                  ../engine/source/interfaces/intsort/i25main_tri.F
+!||    i25mainf                     ../engine/source/interfaces/int25/i25mainf.F
+!||    i25sms0e                     ../engine/source/interfaces/int25/i25smse.F
+!||    i25sms2                      ../engine/source/interfaces/int25/i25for3.F
+!||    i25sms2e                     ../engine/source/interfaces/int25/i25smse.F
+!||    i25sms_e2s                   ../engine/source/interfaces/int25/i25sms_e2s.F
+!||    i2rupt                       ../engine/source/interfaces/interf/int2rupt.F
+!||    i7ass2                       ../engine/source/interfaces/int07/i7ass3.F
+!||    i7ass25                      ../engine/source/interfaces/int07/i7ass3.F
+!||    i7buce_vox                   ../engine/source/interfaces/intsort/i7buce.F
+!||    i7lagm                       ../engine/source/interfaces/int07/i7lagm.F
+!||    i7main_lmult                 ../engine/source/interfaces/int07/i7main_lmult.F
+!||    i7main_tri                   ../engine/source/interfaces/intsort/i7main_tri.F
+!||    i7mainf                      ../engine/source/interfaces/int07/i7mainf.F
+!||    i7sms2                       ../engine/source/interfaces/int07/i7sms2.F
+!||    i7trivox                     ../engine/source/interfaces/intsort/i7trivox.F
+!||    i8lll                        ../engine/source/interfaces/int16/i8lagm.F
+!||    i9avel                       ../engine/source/interfaces/int09/i9avel.F
+!||    ig3duforc3                   ../engine/source/elements/ige3d/ig3duforc3.F
+!||    imp_buck                     ../engine/source/implicit/imp_buck.F
+!||    imp_fsa_inv2                 ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh                 ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invh2                ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp                 ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_fsa_invp2                ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_kfiltr                   ../engine/source/implicit/imp_fsa_inv.F
+!||    imp_pcgh                     ../engine/source/implicit/imp_pcg.F
+!||    imp_sol_init                 ../engine/source/implicit/imp_sol_init.F
+!||    imp_stop                     ../engine/source/implicit/imp_solv.F
+!||    ind_ktot                     ../engine/source/implicit/ind_glob_k.F
+!||    ini_k0h                      ../engine/source/implicit/imp_solv.F
+!||    ini_kisc                     ../engine/source/implicit/lin_solv.F
+!||    inivel_start                 ../engine/source/loads/general/inivel/inivel_start.F90
+!||    inter7_collision_detection   ../engine/source/interfaces/intsort/inter7_collision_detection.F90
+!||    inter_count_node_curv        ../engine/source/interfaces/generic/inter_count_node_curv.F
+!||    iqela2                       ../engine/source/ale/inter/iqela2.F
+!||    ktbuf_ini                    ../engine/source/implicit/imp_init.F
+!||    l2g_kloc                     ../engine/source/implicit/ind_glob_k.F
+!||    l_dir02                      ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    lag_direct                   ../engine/source/tools/lagmul/lag_direct.F
+!||    lag_i2main                   ../engine/source/tools/lagmul/lag_i2main.F
+!||    lag_mult_h                   ../engine/source/tools/lagmul/lag_mult_h.F
+!||    lag_mult_hp                  ../engine/source/tools/lagmul/lag_mult_h.F
+!||    lag_multp                    ../engine/source/tools/lagmul/lag_mult.F
+!||    lag_rwall                    ../engine/source/tools/lagmul/lag_rwall.F
+!||    lcbcsf                       ../engine/source/constraints/general/bcs/lcbcsf.F
+!||    lecdamp                      ../engine/source/input/lecdamp.F
+!||    lecflsw                      ../engine/source/fluid/lecflsw.F
+!||    lecfun                       ../engine/source/tools/curve/lecfun.F
+!||    lech3d                       ../engine/source/output/h3d/h3d_build_fortran/lech3d.F
+!||    lecimpl                      ../engine/source/input/lectur.F
+!||    lecinv                       ../engine/source/input/lecinv.F
+!||    lecnoise                     ../engine/source/general_controls/computation/lecnoise.F
+!||    lecstat                      ../engine/source/input/lecstat.F
+!||    lectur                       ../engine/source/input/lectur.F
+!||    m13law                       ../engine/source/materials/mat/mat013/m13law.F
+!||    mat25_crasurv_c              ../engine/source/materials/mat/mat025/mat25_crasurv_c.F90
+!||    mat25_crasurv_s              ../engine/source/materials/mat/mat025/mat25_crasurv_s.F90
+!||    mat25_tsaiwu_s               ../engine/source/materials/mat/mat025/mat25_tsaiwu_s.F90
+!||    mmain                        ../engine/source/materials/mat_share/mmain.F90
+!||    mpp_init                     ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    mulaw                        ../engine/source/materials/mat_share/mulaw.F90
+!||    mulaw8                       ../engine/source/materials/mat_share/mulaw8.F90
+!||    mulawc                       ../engine/source/materials/mat_share/mulawc.F90
+!||    multi_allocate               ../engine/source/multifluid/multi_allocate.F
+!||    multi_i18_force_pon          ../engine/source/interfaces/int18/multi_i18_force_pon.F
+!||    multi_timeevolution          ../engine/source/multifluid/multi_timeevolution.F
+!||    ndof_fv                      ../engine/source/implicit/ind_glob_k.F
+!||    projecig3d                   ../engine/source/elements/ige3d/projecig3d.F
+!||    qstat_ini                    ../engine/source/implicit/imp_dyna.F
+!||    qvolu2                       ../engine/source/elements/solid_2d/quad/qvolu2.F
+!||    radioss2                     ../engine/source/engine/radioss2.F
+!||    rbe3cl                       ../engine/source/constraints/general/rbe3/rbe3f.F
+!||    rby_decond                   ../engine/source/tools/lagmul/lag_rby_cond.F
+!||    rbyact                       ../engine/source/constraints/general/rbody/rbyact.F
+!||    rdele                        ../engine/source/input/rdele.F
+!||    rdresa                       ../engine/source/output/restart/rdresa.F
+!||    rdresb                       ../engine/source/output/restart/rdresb.F
+!||    read_dynain                  ../engine/source/output/dynain/read_dynain.F
+!||    read_msgfile                 ../engine/source/output/message/read_msgfile.F
+!||    reallocate_fi2               ../engine/source/mpi/interfaces/spmd_i25slide.F
+!||    reallocate_i_skyline         ../engine/source/system/reallocate_skyline.F
+!||    resol                        ../engine/source/engine/resol.F
+!||    restalloc                    ../engine/source/output/restart/arralloc.F
+!||    retractor_table_inv          ../engine/source/tools/seatbelts/retractor_table_inv.F90
+!||    retractor_table_inv2         ../engine/source/tools/seatbelts/retractor_table_inv2.F90
+!||    rforc3                       ../engine/source/elements/spring/rforc3.F
+!||    rgbodv                       ../engine/source/constraints/general/rbody/rgbodv.F
+!||    s10deri3                     ../engine/source/elements/solid/solide10/s10deri3.F
+!||    s16deri3                     ../engine/source/elements/thickshell/solide16/s16deri3.F
+!||    s20deri3                     ../engine/source/elements/solid/solide20/s20deri3.F
+!||    s6cderi3                     ../engine/source/elements/thickshell/solide6c/s6cderi3.F
+!||    s8deri3                      ../engine/source/elements/solid/solide8/s8deri3.F
+!||    s8ederic3                    ../engine/source/elements/solid/solide8e/s8ederic3.F
+!||    s8edericm3                   ../engine/source/elements/solid/solide8e/s8edericm3.F
+!||    s8ederict3                   ../engine/source/elements/solid/solide8e/s8ederict3.F
+!||    s8ederipr3                   ../engine/source/elements/solid/solide8e/s8ederipr3.F
+!||    s8zderic3                    ../engine/source/elements/solid/solide8z/s8zderic3.F
+!||    s8zdericm3                   ../engine/source/elements/solid/solide8z/s8zdericm3.F
+!||    s8zderict3                   ../engine/source/elements/solid/solide8z/s8zderict3.F
+!||    s8zdericto3                  ../engine/source/elements/solid/solide8z/s8zdericto3.F
+!||    s8zderipr3                   ../engine/source/elements/solid/solide8z/s8zderipr3.F
+!||    scderi3                      ../engine/source/elements/thickshell/solidec/scderi3.F
+!||    schkjab3                     ../engine/source/elements/solid/solide/schkjab3.F
+!||    schkjabt3                    ../engine/source/elements/solid/solide4/schkjabt3.F
+!||    section_init                 ../engine/source/tools/sect/section_init.F
+!||    section_read                 ../engine/source/tools/sect/section_read.F
+!||    section_readp                ../engine/source/tools/sect/section_readp.F
+!||    sensor_base                  ../engine/source/tools/sensor/sensor_base.F
+!||    sigeps53                     ../engine/source/materials/mat/mat053/sigeps53.F
+!||    sigeps75                     ../engine/source/materials/mat/mat075/sigeps75.F
+!||    smallgeo3                    ../engine/source/elements/solid/solide/smallgeo3.F
+!||    sms_build_mat_2              ../engine/source/ams/sms_build_mat_2.F
+!||    sms_encin_2                  ../engine/source/ams/sms_encin_2.F
+!||    sms_fsa_invh                 ../engine/source/ams/sms_fsa_inv.F
+!||    sms_ini_err                  ../engine/source/ams/sms_init.F
+!||    sms_ini_jad_3                ../engine/source/ams/sms_init.F
+!||    sms_ini_part                 ../engine/source/ams/sms_init.F
+!||    sms_mass_scale_2             ../engine/source/ams/sms_mass_scale_2.F
+!||    soltosph_on2                 ../engine/source/elements/sph/soltosph_on2.F
+!||    soltospha                    ../engine/source/elements/sph/soltospha.F
+!||    soltosphf                    ../engine/source/elements/sph/soltosph.F
+!||    spadah                       ../engine/source/elements/sph/spadah.F
+!||    spbuc3                       ../engine/source/elements/sph/spbuc3.F
+!||    spmd_cell_exchange           ../engine/source/mpi/generic/spmd_cell_exchange.F
+!||    spmd_cell_size_exchange      ../engine/source/mpi/interfaces/spmd_cell_size_exchange.F
+!||    spmd_check_tag               ../engine/source/mpi/ams/spmd_check_tag.F
+!||    spmd_exch_efric              ../engine/source/mpi/interfaces/spmd_exch_efric.F
+!||    spmd_exch_fa                 ../engine/source/mpi/elements/spmd_exch_dttsh.F
+!||    spmd_exch_i24                ../engine/source/mpi/interfaces/spmd_exch_i24.F
+!||    spmd_exch_i25                ../engine/source/mpi/interfaces/spmd_exch_i25.F
+!||    spmd_exch_press              ../engine/source/mpi/interfaces/spmd_exch_press.F
+!||    spmd_exch_smst2              ../engine/source/mpi/ams/spmd_exch_smst2.F
+!||    spmd_exch_sorting_efric      ../engine/source/mpi/interfaces/spmd_exch_sorting_efric.F
+!||    spmd_exch_tagncont           ../engine/source/mpi/forces/spmd_exch_tagncont.F
+!||    spmd_exch_vmax               ../engine/source/mpi/elements/spmd_exch_dttsh.F
+!||    spmd_exchm_sms               ../engine/source/mpi/ams/spmd_sms.F
+!||    spmd_fiadd11_pon             ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    spmd_fiadd20f_pon            ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    spmd_fiadd20fe_pon           ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    spmd_fiadd25e_pon            ../engine/source/mpi/interfaces/spmd_fiadd25e_pon.F
+!||    spmd_fiadd_pon               ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    spmd_get_penis               ../engine/source/mpi/interfaces/send_cand.F
+!||    spmd_get_penis20             ../engine/source/mpi/interfaces/send_cand.F
+!||    spmd_i17frots_pon            ../engine/source/mpi/interfaces/spmd_i17frots_pon.F
+!||    spmd_i18kine_com_a           ../engine/source/mpi/interfaces/spmd_i18kine_com_a.F
+!||    spmd_i18kine_com_acc         ../engine/source/mpi/interfaces/spmd_i18kine_com_acc.F
+!||    spmd_i18kine_com_ms          ../engine/source/mpi/interfaces/spmd_i18kine_com_ms.F
+!||    spmd_i18kine_com_v           ../engine/source/mpi/interfaces/spmd_i18kine_com_v.F
+!||    spmd_i18kine_pene_com_poff   ../engine/source/mpi/interfaces/spmd_i18kine_pene_com_poff.F
+!||    spmd_i20normf                ../engine/source/mpi/interfaces/spmd_i20normf.F
+!||    spmd_i21fthecom              ../engine/source/mpi/interfaces/send_cand.F
+!||    spmd_i21tempcom              ../engine/source/mpi/interfaces/send_cand.F
+!||    spmd_i7fcom_poff             ../engine/source/mpi/forces/spmd_i7fcom_poff.F
+!||    spmd_i7fcom_pon              ../engine/source/mpi/forces/spmd_i7fcom_pon.F
+!||    spmd_i7xvcom2                ../engine/source/mpi/interfaces/spmd_i7xvcom2.F
+!||    spmd_ifront_stamp            ../engine/source/mpi/interfaces/send_cand.F
+!||    spmd_inisph                  ../engine/source/mpi/sph/spmd_sptool.F
+!||    spmd_initfi                  ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    spmd_int18_law151_pon        ../engine/source/mpi/forces/spmd_int18_law151_pon.F
+!||    spmd_rst_check               ../engine/source/mpi/init/spmd_rst_check.F
+!||    spmd_sd_xv                   ../engine/source/mpi/nodes/spmd_sd_xv.F
+!||    spmd_sphgat                  ../engine/source/mpi/sph/spmd_sphgat.F
+!||    spmd_sphvox                  ../engine/source/mpi/sph/spmd_sphvox.F
+!||    spmd_tri10box                ../engine/source/mpi/interfaces/spmd_int.F
+!||    spmd_tri10gat                ../engine/source/mpi/interfaces/spmd_int.F
+!||    spmd_tri11gat                ../engine/source/mpi/interfaces/spmd_int.F
+!||    spmd_tri11vox                ../engine/source/mpi/interfaces/spmd_int.F
+!||    spmd_tri17box                ../engine/source/mpi/interfaces/spmd_tri17box.F
+!||    spmd_tri17gat                ../engine/source/mpi/interfaces/spmd_i7crit.F
+!||    spmd_tri18_151vox            ../engine/source/mpi/interfaces/spmd_int.F
+!||    spmd_tri20box                ../engine/source/mpi/interfaces/spmd_tri20box.F
+!||    spmd_tri20boxe               ../engine/source/mpi/interfaces/spmd_tri20boxe.F
+!||    spmd_tri20gat                ../engine/source/mpi/interfaces/spmd_i7crit.F
+!||    spmd_tri20gate               ../engine/source/mpi/interfaces/spmd_i7crit.F
+!||    spmd_tri22vox                ../engine/source/mpi/interfaces/spmd_tri22vox.F
+!||    spmd_tri24gat                ../engine/source/mpi/interfaces/spmd_int.F
+!||    spmd_tri24vox                ../engine/source/mpi/interfaces/spmd_int.F
+!||    spmd_tri25gat                ../engine/source/mpi/interfaces/spmd_tri25gat.F
+!||    spmd_tri25vox                ../engine/source/mpi/interfaces/spmd_tri25vox.F
+!||    spmd_tri7gat                 ../engine/source/mpi/interfaces/spmd_int.F
+!||    spmd_tri7vox                 ../engine/source/mpi/interfaces/spmd_int.F
+!||    spmd_tri7vox_optimized       ../engine/source/mpi/interfaces/spmd_tri7vox_optimized.F
+!||    sponof1                      ../engine/source/elements/sph/sponof1.F
+!||    srho3                        ../engine/source/elements/solid/solide/srho3.F
+!||    stack_ply_alloc              ../engine/share/modules/stack_mod.F
+!||    stat_inimap1d_file_spmd      ../engine/source/output/sta/stat_inimap1d_file_spmd.F
+!||    stat_inimap1d_spmd           ../engine/source/output/sta/stat_inimap1d_spmd.F
+!||    stat_inimap2d_file_spmd      ../engine/source/output/sta/stat_inimap2d_file_spmd.F
+!||    stat_inimap2d_spmd           ../engine/source/output/sta/stat_inimap2d_spmd.F
+!||    stop_sensor                  ../engine/source/tools/sensor/stop_sensor.F
+!||    suforc3                      ../engine/source/user_interface/suforc3.F
+!||    switch_to_dtnoda             ../engine/source/time_step/switch_to_dtnoda.F
+!||    sysfus                       ../engine/source/system/sysfus.F
+!||    table2d_vinterp_log          ../engine/source/tools/curve/table2d_vinterp_log.F
+!||    table_interp                 ../engine/source/tools/curve/table_tools.F
+!||    table_interp_dydx            ../engine/source/tools/curve/table_tools.F
+!||    table_interp_law76           ../engine/source/tools/curve/table_tools.F
+!||    table_mat_vinterp            ../engine/source/materials/tools/table_mat_vinterp.F
+!||    table_mat_vinterp_c1         ../engine/source/materials/tools/table_mat_vinterp_c1.F90
+!||    table_rresti                 ../engine/source/tools/curve/table_tools.F
+!||    table_vinterp                ../engine/source/tools/curve/table_tools.F
+!||    trace_print                  ../engine/source/system/trace_back.F
+!||    upd_aspc0                    ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    update_slipring              ../engine/source/tools/seatbelts/update_slipring.F
+!||    upgrade_rem_2ry              ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    user_windows_routine         ../engine/source/user_interface/user_windows.F
+!||    usermat_shell                ../engine/source/materials/mat_share/usermat_shell.F
+!||    usermat_solid                ../engine/source/materials/mat_share/usermat_solid.F
+!||    wciusc2                      ../engine/source/input/wciusc2.F
+!||    wriusc2                      ../engine/source/input/wriusc2.F
+!||    xforc28                      ../engine/source/elements/xelem/xforc28.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod2                 ../engine/share/message_module/message_mod2.F
+!||    names_and_titles_mod         ../common_source/modules/names_and_titles_mod.F
+!||====================================================================
       SUBROUTINE ANCMSG(MSGID ,MSGTYPE,ANMODE,
      .                  I1    ,I2    ,I3    ,I4    ,
      .                  I5    ,I6    ,I7    ,I8    ,I9    ,
@@ -366,7 +365,11 @@ Chd|====================================================================
      .                  R5    ,R6    ,R7    ,R8    ,R9   ,
      .                  C1    ,C2    ,C3    ,C4    ,
      .                  C5    ,C6    ,C7    ,C8    ,C9    )
-      USE MESSAGE_MOD2 
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
+      USE MESSAGE_MOD2
+      USE NAMES_AND_TITLES_MOD, ONLY: NCHARLINE100
 C-----------------------------------------------
 C Usage sample :
 C      USE MESSAGE_MOD 
@@ -396,7 +399,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "nchara_c.inc"
+#include      "units_c.inc"
+#include      "comlock.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -420,30 +424,21 @@ C-----------------------------------------------
      .                 C1,C2,C3,C4,
      .                 C5,C6,C7,C8,C9
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "task_c.inc"
-#include      "units_c.inc"
-#include      "comlock.inc"
-C-----------------------------------------------
-C   E x t e r n a l   F u n c t i o n s
-C-----------------------------------------------
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER             IBUF(10)
       my_real             RBUF(10)
-      CHARACTER*ncharline CBUF(10)
+      CHARACTER(LEN=NCHARLINE100):: CBUF(10)
 C
-      CHARACTER*ncharline TMPLINE,MYFMT,TMPBUF
+      CHARACTER(LEN=NCHARLINE100):: TMPLINE,MYFMT,TMPBUF
       CHARACTER(LEN=NCHAROUT) ::  TMPOUT
       INTEGER ITYPE,ILINE,I,I0,J,J0,SBUFMSG(2),IFILE,IOLD,
      .        INDXI,INDXR,INDXC,INDXTMPOUT,BUFLEN,
      .        STMP
-      CHARACTER*ncharline BUFMSG(2,100),BUFFMT(2,100)
+      CHARACTER(LEN=NCHARLINE100):: BUFMSG(2,100),BUFFMT(2,100)
 C
       WRITE(ISTDO,'(/A,I10)')'MESSAGE ID : ',MSGID
-      IF (IOUT.NE.0) THEN
+      IF (IOUT/=0) THEN
         WRITE(IOUT,'(/A,I10)')'MESSAGE ID : ',MSGID
       END IF
       IBUF=0
@@ -553,14 +548,14 @@ C
               I=1
               IOLD=1
 !               DO J0=1,LEN_TRIM(TMPLINE)
-!                 IF (TMPLINE(J0:J0).EQ.'/') THEN
+!                 IF (TMPLINE(J0:J0)=='/') THEN
 !                   TMPLINE(J0:J0)=CHAR(10)
 !                 END IF
 !               END DO
-              DO WHILE (I+1.LE.LEN_TRIM(TMPLINE))
-                IF (TMPLINE(I:I).EQ.achar(92)) then !'\') THEN
+              DO WHILE (I+1<=LEN_TRIM(TMPLINE))
+                IF (TMPLINE(I:I)==achar(92)) then !'\') THEN
                   I=I+1
-                  IF (I-2.GE.1) THEN
+                  IF (I-2>=1) THEN
                     WRITE(TMPBUF,'(A,A)')TMPLINE(IOLD:I-2),TMPLINE(I:I)
                     BUFLEN=I-2-IOLD+1+1
                   ELSE
@@ -569,38 +564,38 @@ C
                   END IF
                   I=I+1
                   IOLD=I
-                ELSE IF (TMPLINE(I:I).EQ.'%') THEN
+                ELSE IF (TMPLINE(I:I)=='%') THEN
                   I=I+1
-                  IF (I-2.GE.1) THEN
+                  IF (I-2>=1) THEN
                     WRITE(TMPBUF,'(A)')TMPLINE(IOLD:I-2)
                     BUFLEN=I-2-IOLD+1
-                    IF (BUFLEN.GT.0) THEN
+                    IF (BUFLEN>0) THEN
                       TMPOUT=TMPOUT(1:INDXTMPOUT)//TMPBUF(1:BUFLEN) 
                       INDXTMPOUT=INDXTMPOUT+BUFLEN
                       BUFLEN=0
                     END IF
                   END IF
-                  IF (TMPLINE(I:I).EQ.'d') THEN 
+                  IF (TMPLINE(I:I)=='d') THEN 
                     I=I+1
                     IOLD=I
                     MYFMT='(I10)'
-                    IF (INDXI.LT.10) INDXI=INDXI+1
+                    IF (INDXI<10) INDXI=INDXI+1
                     WRITE(TMPBUF,MYFMT)IBUF(INDXI)
                     TMPBUF=ADJUSTL(TMPBUF)
                     BUFLEN=LEN_TRIM(TMPBUF)
-                  ELSE IF (TMPLINE(I:I).EQ.'f') THEN
+                  ELSE IF (TMPLINE(I:I)=='f') THEN
                     I=I+1
                     IOLD=I
                     MYFMT='(1PG20.13)'
-                    IF (INDXR.LT.10) INDXR=INDXR+1
+                    IF (INDXR<10) INDXR=INDXR+1
                     WRITE(TMPBUF,MYFMT)RBUF(INDXR)
                     TMPBUF=ADJUSTL(TMPBUF)
                     BUFLEN=LEN_TRIM(TMPBUF)
-                  ELSE IF (TMPLINE(I:I).EQ.'s') THEN
+                  ELSE IF (TMPLINE(I:I)=='s') THEN
                     I=I+1
                     IOLD=I
                     MYFMT='(A)'
-                    IF (INDXC.LT.10) INDXC=INDXC+1 
+                    IF (INDXC<10) INDXC=INDXC+1 
                     WRITE(TMPBUF,MYFMT)CBUF(INDXC)
                     TMPBUF=ADJUSTL(TMPBUF)
                     BUFLEN=LEN_TRIM(TMPBUF)
@@ -608,29 +603,29 @@ C
                 ELSE
                   I=I+1
                 END IF
-                IF (BUFLEN.GT.0) THEN
+                IF (BUFLEN>0) THEN
                   TMPOUT=TMPOUT(1:INDXTMPOUT)//TMPBUF(1:BUFLEN)
                   INDXTMPOUT=INDXTMPOUT+BUFLEN
                   BUFLEN=0
                 END IF
               END DO
-              IF (IOLD.LE.I) THEN
+              IF (IOLD<=I) THEN
                 WRITE(TMPBUF,'(A)')
      .          TMPLINE(IOLD:LEN_TRIM(TMPLINE))
                 BUFLEN=LEN_TRIM(TMPLINE)-IOLD+1
-                IF (BUFLEN.GT.0) THEN
+                IF (BUFLEN>0) THEN
                   TMPOUT=TMPOUT(1:INDXTMPOUT)//TMPBUF(1:BUFLEN)
                   INDXTMPOUT=INDXTMPOUT+BUFLEN
                   BUFLEN=0
                 END IF
               END IF
 ! #include "lockon.inc"
-              IF (INDXTMPOUT.GT.0) THEN
+              IF (INDXTMPOUT>0) THEN
 C               do not write description on stdout in case ANINFO_BLIND
-                IF (ANMODE.NE.ANINFO_BLIND.OR.ITYPE.EQ.1) THEN
+                IF (ANMODE/=ANINFO_BLIND.OR.ITYPE==1) THEN
                   WRITE(ISTDO,'(A)')TMPOUT(1:INDXTMPOUT)
                 END IF
-                IF (IOUT.NE.0) THEN
+                IF (IOUT/=0) THEN
                   WRITE(IOUT,'(A)')TMPOUT(1:INDXTMPOUT)
                 END IF
               END IF

@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTTI2                        source/interfaces/interf/intti2.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        INTTI12V                      source/interfaces/interf/intti12.F
-Chd|        INTTI2V                       source/interfaces/interf/intti2v.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    intti2          ../engine/source/interfaces/interf/intti2.F
+!||--- called by ------------------------------------------------------
+!||    resol           ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    intti12v        ../engine/source/interfaces/interf/intti12.F
+!||    intti2v         ../engine/source/interfaces/interf/intti2v.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE INTTI2(IPARI,X     ,V      ,
      .                  A    ,VR    ,AR    ,KHIE  ,MS     ,
      .                  IN   ,WEIGHT,WA    ,SKEW  ,
@@ -44,12 +45,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "param_c.inc"
 #include      "task_c.inc"
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -63,18 +61,18 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER N, NTY, JI, JB, NMN, NINT,K,ITIED,ILAGM
+      INTEGER N, NTY, JI, JB, NMN, NINT,ILAGM
       INTEGER :: ILEV,II,J
 C-----------------------------------------------
-C LES WA NE SONT PLUS UTILISES !!! 
+C wa are no longer used!!!
 C=======================================================================
       DO N=NINTER,1,-1
         NTY   = IPARI(7,N)                                             
         ILAGM = 0                                                     
         ILAGM = IPARI(33,N)                                           
-        IF (ILAGM.NE.0) CYCLE                                   
-        IF (NPARI.GE.26)THEN                                          
-          IF(IPARI(26,N).NE.KHIE) CYCLE                           
+        IF (ILAGM/=0) CYCLE                                   
+        IF (NPARI>=26)THEN                                          
+          IF(IPARI(26,N)/=KHIE) CYCLE                           
         ENDIF                                                         
         JI  =IPARI(1,N)                                                 
         JB  =IPARI(2,N)                                                 
@@ -83,7 +81,7 @@ C=======================================================================
         IF (NTY == 2) THEN                                            
           IF(IPARI(5,N)>0) THEN !       check if NSN=IPARI(5,N)>0
         !       Optimization :
-        !       If IPARI(5,N)=NSN=0, somes variables are loaded in INTTI2V
+        !       If IPARI(5,N)=NSN=0, some variables are loaded in INTTI2V
         !       if the number of TYPE2 interface is important (>3000) and if the number of
         !       spmd domain is quite important (NSPMD>50), the initialisation time is important :
         !       for_array_copy_in and other initialisations represent up to 5% of total CPUTIME
@@ -103,7 +101,7 @@ C=======================================================================
                 ENDIF
           ENDIF
         ELSEIF (NTY == 12) THEN                                       
-          IF(IMACH.NE.3 .OR. ISPMD==0)THEN                            
+          IF(ISPMD==0)THEN                            
             CALL INTTI12V(                                            
      .           IPARI(1,N),INTBUF_TAB(N)      ,X         ,V        , 
      .            A        ,MS       ,WEIGHT   ,WA        ,SKEW     ) 

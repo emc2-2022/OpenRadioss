@@ -1,88 +1,49 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RBMERGE_MOD                   source/constraints/general/merge/hm_read_merge.F
-Chd|-- called by -----------
-Chd|        HM_READ_MERGE                 source/constraints/general/merge/hm_read_merge.F
-Chd|        RETRIRBY                      source/constraints/general/merge/hm_read_merge.F
-Chd|        TRIRBMERGE                    source/constraints/general/merge/hm_read_merge.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      MODULE RBMERGE_MOD
-c=======================================================================   
-!                           RIGID BODY MERGE
-c=======================================================================   
-C-----------------------------------------------------------------------
-      TYPE RBMERGE_
-        INTEGER   :: ID ! - RIGID BODY identifier
-        INTEGER   :: NBSECONDARY   ! Number of SECONDARY rigid body
-        INTEGER, DIMENSION(:) , ALLOCATABLE :: IDSECONDARY ! SECONDARY rigid bodys attached to the MAIN
-        INTEGER   :: IMAIN   ! 0 if this rigid body doesn't have a MAIN
-!                              ! The Rigid body's MAIN 
-        INTEGER   :: LEVEL   ! Rigid body level
-!                                 = 0  ! if the rigid body is only a MAIN
-!                                 = -1 ! if the rigid body has a MAIN
-!                                 = -2 ! if the MAIN of the rigid body has a MAIN
-!                                 = -3 ! and again
-        INTEGER   :: FLAG_MAIN   ! Flag relating the rigid option merge to the MAIN
-!                                 = -1 ! if the rigid body is only a MAIN
-!                                 =  0 ! default value
-!                                 =  1 ! option 1
-!                                 =  2 ! option 2
-!                                 =  3 ! option 3
-        INTEGER   :: NNODE   ! Number of SECONDARY node
-        INTEGER, DIMENSION(:) , ALLOCATABLE :: NODE ! SECONDARY node attached to the MAIN
-        INTEGER, DIMENSION(:) , ALLOCATABLE :: FLAG_NODE ! Flag relating the rigid option merge to the MAIN
-!                                 =  0 ! default value
-!                                 =  1 ! option 1
-!                                 =  2 ! option 2
-!                                 =  3 ! option 3
-!--------------
-      END TYPE RBMERGE_
-      END MODULE RBMERGE_MOD
-C
-Chd|====================================================================
-Chd|  HM_READ_MERGE                 source/constraints/general/merge/hm_read_merge.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FRETITL                       source/starter/freform.F      
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        MY_ORDERS                     ../common_source/tools/sort/my_orders.c
-Chd|        TRIRBMERGE                    source/constraints/general/merge/hm_read_merge.F
-Chd|        NODGRNR5                      source/starter/freform.F      
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        RBMERGE_MOD                   source/constraints/general/merge/hm_read_merge.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_merge            ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- called by ------------------------------------------------------
+!||    lectur                   ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                   ../starter/source/output/message/message.F
+!||    fretitl                  ../starter/source/starter/freform.F
+!||    fretitl2                 ../starter/source/starter/freform.F
+!||    hm_get_int_array_index   ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv              ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key       ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start          ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    nodgrnr5                 ../starter/source/starter/freform.F
+!||    rbleveldown              ../starter/source/constraints/general/merge/hm_read_merge.F
+!||    rbtag1down               ../starter/source/constraints/general/merge/hm_read_merge.F
+!||    rbtag2down               ../starter/source/constraints/general/merge/hm_read_merge.F
+!||    trirbmerge               ../starter/source/constraints/general/merge/hm_read_merge.F
+!||    usr2sys                  ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod       ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod              ../starter/share/message_module/message_mod.F
+!||    rbmerge_mod              ../starter/source/constraints/general/merge/rbmerge_type.F90
+!||    submodel_mod             ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MERGE(
      .              MGRBY,SMGRBY,NPBY,LPBY,SLRBODY,
      .              RBY  ,NOM_OPT ,PTR_NOPT_RBMERGE,IGRNOD,
@@ -90,39 +51,33 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
-      USE RBMERGE_MOD
-      USE GROUPDEF_MOD
-      USE SUBMODEL_MOD
+      USE RBMERGE_MOD , ONLY : RBMERGE_
+      USE GROUPDEF_MOD , ONLY : GROUP_
+      USE SUBMODEL_MOD , ONLY : NSUBMOD, SUBMODEL_DATA
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : nchartitle, ncharkey
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "my_allocate.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER MGRBY(NMGRBY,*),NPBY(NNPBY,*),LPBY(*),
-     .        SLRBODY,SMGRBY,ITABM1(*),ITAB(*)
-C     REAL
-      my_real
-     .   RBY(NRBY,*)
+      INTEGER :: SMGRBY
+      INTEGER MGRBY(NMGRBY,SMGRBY),NPBY(NNPBY,*),LPBY(*),SLRBODY,ITABM1(*),ITAB(*)
+      my_real RBY(NRBY,*)
       INTEGER NOM_OPT(LNOPT1,*),PTR_NOPT_RBMERGE
       INTEGER IGRV(NIGRV,*),IBGR(*)
-      TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
+      TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(NSUBMOD)
 C-----------------------------------------------
       TYPE (GROUP_)  , DIMENSION(NGRNOD)  :: IGRNOD
 C-----------------------------------------------
@@ -130,20 +85,24 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,L,ID,IRBM,IRBS,NBMERGE,IGS,
      .        N,NOPT,UID, II, NOBJ
-      INTEGER, DIMENSION(:) , ALLOCATABLE :: INDEX
-      INTEGER, DIMENSION(:,:) , ALLOCATABLE :: INUM
-
       INTEGER IMAIN,ISECONDARY,FLAGG_OPT, FLAG_BOUCLE, FLAG_ERROR, 
      .        FLAG_DOUBLON, FLAG_DOUBLEMAIN, M_TYPE, S_TYPE, ID_OPT,
-     .        IDNODE, NN, PRT_OPT
-      INTEGER TABRB(NRBYKIN,2)
-      INTEGER NB_MAIN(NRBYKIN),NSECONDARY(NRBYKIN),
-     .        TAG1(NRBYKIN),TAG2(NRBYKIN)
-      INTEGER TABBOUCLE(NRBYKIN+1), IDBOUCLE, LEVEL
+     .        IDNODE, NN, PRT_OPT, IDBOUCLE, LEVEL
+      INTEGER, DIMENSION(:)   , ALLOCATABLE :: INDEX
+      INTEGER, DIMENSION(:,:) , ALLOCATABLE :: INUM
+      INTEGER, DIMENSION(:)   , ALLOCATABLE :: NB_MAIN
+      INTEGER, DIMENSION(:)   , ALLOCATABLE :: NSECONDARY
+      INTEGER, DIMENSION(:)   , ALLOCATABLE :: TAG1
+      INTEGER, DIMENSION(:)   , ALLOCATABLE :: TAG2
+      INTEGER, DIMENSION(:)   , ALLOCATABLE :: TABBOUCLE
+      INTEGER, DIMENSION(:,:) , ALLOCATABLE :: TABRB
+
       CHARACTER MYSTRING*100,MYLOOP*200
-      CHARACTER MESS*40,MESS2*40,TITR*nchartitle,KEY2*ncharkey
+      CHARACTER MESS*40,MESS2*40
+      CHARACTER(LEN=nchartitle) :: TITR
+      CHARACTER(LEN=ncharkey) :: KEY2
       TYPE(RBMERGE_), DIMENSION(:), ALLOCATABLE :: RBMERGE
-      INTEGER, DIMENSION(NUMNOD) :: ITAG, WORK
+      INTEGER, DIMENSION(:), ALLOCATABLE :: ITAG, WORK
       INTEGER IWORK(70000)
       LOGICAL   IS_AVAILABLE
 C-----------------------------------------------
@@ -153,6 +112,13 @@ C-----------------------------------------------
 C-----------------------------------------------
       DATA MESS/'RIGID BODY MERGE DEFINITION             '/
 C-----------------------------------------------
+      ALLOCATE(ITAG(NUMNOD),WORK(NUMNOD))
+      CALL MY_ALLOC(TABRB,NRBYKIN,2)
+      CALL MY_ALLOC(NB_MAIN,NRBYKIN)
+      CALL MY_ALLOC(NSECONDARY,NRBYKIN)
+      CALL MY_ALLOC(TAG1,NRBYKIN)
+      CALL MY_ALLOC(TAG2,NRBYKIN)
+      CALL MY_ALLOC(TABBOUCLE,NRBYKIN+1)
       J = 0
       N = 0
       NOPT = 0
@@ -167,12 +133,7 @@ C--------------------------------------------------
 C--------------------------------------------------
 C EXTRACT DATAS OF /RBODY/... LINE
 C--------------------------------------------------
-        CALL HM_OPTION_READ_KEY(LSUBMODEL,
-     .                       OPTION_ID = ID,
-     .                       UNIT_ID = UID,
-     .                       OPTION_TITR = TITR,
-     .                       KEYWORD2 = KEY2)
-
+        CALL HM_OPTION_READ_KEY(LSUBMODEL, OPTION_ID = ID, UNIT_ID = UID, OPTION_TITR = TITR, KEYWORD2 = KEY2)
 C--------------------------------------------------
 C WRITE TITLE IN OUT FILE
 C--------------------------------------------------
@@ -185,26 +146,25 @@ C--------------------------------------------------
         CALL HM_GET_INTV('NB_SUBOBJVE',NOBJ,IS_AVAILABLE,LSUBMODEL)
 C
         DO J=1,NOBJ
+          CALL HM_GET_INT_ARRAY_INDEX('Main_ID',IMAIN,J,IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INT_ARRAY_INDEX('M_type',M_TYPE,J,IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INT_ARRAY_INDEX('Secon_ID',ISECONDARY,J,IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INT_ARRAY_INDEX('S_type',S_TYPE,J,IS_AVAILABLE,LSUBMODEL)
+          CALL HM_GET_INT_ARRAY_INDEX('Iflag',FLAGG_OPT,J,IS_AVAILABLE,LSUBMODEL)
+          IF (IMAIN /= 0) THEN
             N = N + 1
-            CALL HM_GET_INT_ARRAY_INDEX('Main_ID',IMAIN,J,IS_AVAILABLE,LSUBMODEL)
-            CALL HM_GET_INT_ARRAY_INDEX('M_type',M_TYPE,J,IS_AVAILABLE,LSUBMODEL)
-            CALL HM_GET_INT_ARRAY_INDEX('Secon_ID',ISECONDARY,J,IS_AVAILABLE,LSUBMODEL)
-            CALL HM_GET_INT_ARRAY_INDEX('S_type',S_TYPE,J,IS_AVAILABLE,LSUBMODEL)
-            CALL HM_GET_INT_ARRAY_INDEX('Iflag',FLAGG_OPT,J,IS_AVAILABLE,LSUBMODEL)
-            IF (IMAIN /= 0) THEN 
-              IF(M_TYPE == 0) M_TYPE=1                   
-              IF(S_TYPE == 0) S_TYPE=1 
-              IF(FLAGG_OPT == 0) FLAGG_OPT=2  
-              MGRBY(1,N)=IMAIN
-              MGRBY(2,N)=M_TYPE
-              MGRBY(3,N)=ISECONDARY
-              MGRBY(4,N)=S_TYPE
-              MGRBY(5,N)=FLAGG_OPT
-              MGRBY(6,N)=ID!NOPT
-              MGRBY(7,N)=NOPT
-            ENDIF  ! IMAIN /= 0
+            IF(M_TYPE == 0) M_TYPE=1                   
+            IF(S_TYPE == 0) S_TYPE=1 
+            IF(FLAGG_OPT == 0) FLAGG_OPT=2  
+            MGRBY(1,N)=IMAIN
+            MGRBY(2,N)=M_TYPE
+            MGRBY(3,N)=ISECONDARY
+            MGRBY(4,N)=S_TYPE
+            MGRBY(5,N)=FLAGG_OPT
+            MGRBY(6,N)=ID!NOPT
+            MGRBY(7,N)=NOPT
+          ENDIF  ! IMAIN /= 0
         ENDDO
-
       ENDDO
 C
       ALLOCATE (RBMERGE(NRBYKIN))
@@ -231,7 +191,7 @@ c
       WRITE(IOUT,1000)
       PRT_OPT=0
 c
-      DO I=1,SMGRBY ! 1ERE PASSE POUR LES MERGE RBODY/RBODY
+      DO I=1,SMGRBY ! FIRST PASS FOR RBODY/RBODY MERGE
         IMAIN = MGRBY(1,I)
         M_TYPE = MGRBY(2,I)
         ISECONDARY = MGRBY(3,I)
@@ -247,7 +207,7 @@ c
             PRT_OPT = MGRBY(6,I)
           ENDIF
 C------------------------------------
-c  TESTS D'EXISTENCE SUR LES MAIN ET SECONDARYS
+c  EXISTENCE TESTS ON MAIN AND SECONDARIES
 C------------------------------------
           IRBM=0
           DO K=1,NRBYKIN
@@ -281,7 +241,7 @@ C------------------------------------
      .                  I2=ISECONDARY)                              
           ENDIF 
 C------------------------------------
-c  TRI DES RELATIONS LUES
+c  SORTING OF READ RELATIONS
 C------------------------------------
           IF((IRBM /= 0).AND.(IRBS /= 0)) THEN 
 
@@ -293,7 +253,7 @@ C------------------------------------
             IF(NB_MAIN(IRBS) >= 1) THEN 
               DO L=1,NBMERGE
                 IF(TABRB(L,2) == IRBS) THEN
-                  IF(TABRB(L,1) /= IRBM) THEN ! le SECONDARY est deja SECONDARY d'un autre
+                  IF(TABRB(L,1) /= IRBM) THEN ! IF(TABRB(L,1) /= IRBM) THEN ! the SECONDARY is already SECONDARY of another
                     CALL ANCMSG(MSGID=1028,
      .                          MSGTYPE=MSGERROR,
      .                          ANMODE=ANINFO_BLIND_1,
@@ -302,7 +262,7 @@ C------------------------------------
      .                          I2=ISECONDARY)
                     FLAG_DOUBLEMAIN = 1  
                     FLAG_ERROR = 1
-                  ELSE ! la relation de merge est en double
+                  ELSE ! ELSE ! the merge relation is a duplicate
                     CALL ANCMSG(MSGID=1027,
      .                          MSGTYPE=MSGWARNING,
      .                          ANMODE=ANINFO_BLIND_1,
@@ -331,7 +291,7 @@ c
               RBMERGE(IRBM)%ID = IMAIN
               RBMERGE(IRBM)%NBSECONDARY = RBMERGE(IRBM)%NBSECONDARY+1
               RBMERGE(IRBM)%IDSECONDARY(RBMERGE(IRBM)%NBSECONDARY) = IRBS                      
-            ELSEIF(FLAG_DOUBLON == 1) THEN ! Le flag est celui qu'on lit en dernier 
+            ELSEIF(FLAG_DOUBLON == 1) THEN ! ELSEIF(FLAG_DOUBLON == 1) THEN ! The flag is the one read last
               RBMERGE(IRBS)%FLAG_MAIN = FLAGG_OPT
             ENDIF
           ENDIF ! IRBM /= 0 IRBS /= 0
@@ -354,7 +314,7 @@ c
             PRT_OPT = MGRBY(6,I)
           ENDIF
 C------------------------------------
-c  TESTS D'EXISTENCE SUR LES MAIN ET SECONDARYS
+c  EXISTENCE TESTS ON MAIN AND SECONDARIES
 C------------------------------------
           IRBM=0
           DO K=1,NRBYKIN
@@ -406,7 +366,7 @@ C------------------------------------
               RBMERGE(IRBM)%NNODE = RBMERGE(IRBM)%NNODE+1
               RBMERGE(IRBM)%NODE(RBMERGE(IRBM)%NNODE) = IDNODE
               RBMERGE(IRBM)%FLAG_NODE(RBMERGE(IRBM)%NNODE) = FLAGG_OPT
-            ELSE ! Le flag est celui qu'on lit en dernier 
+            ELSE ! ELSE ! The flag is the one read last
               DO II=1,RBMERGE(IRBM)%NNODE
                 IF(RBMERGE(IRBM)%NODE(II) == IDNODE) THEN
                   RBMERGE(IRBM)%FLAG_NODE(II) = FLAGG_OPT
@@ -445,7 +405,7 @@ C------------------------------------
                 RBMERGE(IRBM)%NNODE = RBMERGE(IRBM)%NNODE+1
                 RBMERGE(IRBM)%NODE(RBMERGE(IRBM)%NNODE) = WORK(J)
                 RBMERGE(IRBM)%FLAG_NODE(RBMERGE(IRBM)%NNODE) = FLAGG_OPT
-              ELSE ! Le flag est celui qu'on lit en dernier 
+              ELSE ! ELSE ! The flag is the one read last
                 DO II=1,RBMERGE(IRBM)%NNODE
                   IF(RBMERGE(IRBM)%NODE(II) == WORK(J)) THEN
                     RBMERGE(IRBM)%FLAG_NODE(II) = FLAGG_OPT
@@ -459,7 +419,7 @@ C------------------------------------
 C-----             
       ENDDO
 C------------------------------------
-C TRI DES XTRA_NODES PAR FLAGS CROISSANTS
+C SORTING OF XTRA_NODES BY INCREASING FLAGS
 C------------------------------------
       DO I=1,NRBYKIN
         IF(RBMERGE(I)%NNODE > 0) THEN
@@ -485,7 +445,7 @@ C  TOUTES LES RELATIONS ONT ETE TRIEES (RBODY, NODE, GRNOD)
 C------------------------------------
       WRITE(IOUT,2000)
 C------------------------------------
-C  TAG ET RECHERCHE DES LOOPS
+C  TAGGING AND SEARCH FOR LOOPS
 C------------------------------------
       DO I=1,NRBYKIN
         IF(NB_MAIN(I) == 0) THEN
@@ -524,7 +484,7 @@ C
      .              PRMOD=MSG_PRINT)
       ENDIF
 C------------------------------------
-C SI PAS DE LOOP, CONSTRUCTION DES HIERARCHIES
+C IF NO LOOP, CONSTRUCTING HIERARCHIES
 C------------------------------------
       IF(FLAG_ERROR == 0) THEN 
         DO I=1,NRBYKIN  ! RB level calculation      
@@ -534,13 +494,19 @@ C------------------------------------
           ENDIF
         ENDDO
 C------------------------------------
-C ORDONNANCEMENT DES NPBY, LPBY ET RBY, OUTPUTS DES HIERARCHIES
+C SCHEDULING OF NPBY, LPBY AND RBY, OUTPUTS OF HIERARCHIES
 C------------------------------------
         CALL TRIRBMERGE(RBMERGE,NPBY  ,LPBY   ,SLRBODY,
      .                  RBY    ,NOM_OPT, ITAB,IBGR,IGRV)
       ENDIF
 c
-      DEALLOCATE(RBMERGE)
+      DEALLOCATE(RBMERGE,WORK,ITAG)
+      DEALLOCATE(TABRB)
+      DEALLOCATE(NB_MAIN)
+      DEALLOCATE(NSECONDARY)
+      DEALLOCATE(TAG1)
+      DEALLOCATE(TAG2)
+      DEALLOCATE(TABBOUCLE)
 cC-----------
       RETURN
 C
@@ -566,10 +532,13 @@ C
       END SUBROUTINE HM_READ_MERGE
 C
 C-----------------------------------------------
+!||====================================================================
+!||    rbtag1down      ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_merge   ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- calls      -----------------------------------------------------
+!||====================================================================
       RECURSIVE SUBROUTINE RBTAG1DOWN(TABRB,IDRB,TAG1,NBMERGE)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -600,6 +569,14 @@ C
       END
 C 
 C-----------------------------------------------
+!||====================================================================
+!||    rbtag2down      ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_merge   ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    rbmerge_mod     ../starter/source/constraints/general/merge/rbmerge_type.F90
+!||====================================================================
       RECURSIVE SUBROUTINE RBTAG2DOWN(IDRB,TAG2,RBMERGE,
      .                                FLAG_BOUCLE,TABBOUCLE,IDBOUCLE)
 C-----------------------------------------------
@@ -652,6 +629,14 @@ C
       END   
 C
 C-----------------------------------------------
+!||====================================================================
+!||    rbleveldown     ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_merge   ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    rbmerge_mod     ../starter/source/constraints/general/merge/rbmerge_type.F90
+!||====================================================================
       RECURSIVE SUBROUTINE RBLEVELDOWN(NPBY,RBMERGE,IDRB,LEVEL)
 C-----------------------------------------------
 C   M o d u l e s
@@ -701,68 +686,65 @@ C
       RETURN
       END
 C  
-Chd|====================================================================
-Chd|  TRIRBMERGE                    source/constraints/general/merge/hm_read_merge.F
-Chd|-- called by -----------
-Chd|        HM_READ_MERGE                 source/constraints/general/merge/hm_read_merge.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        SPMDSET                       source/constraints/general/rbody/spmdset.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        RBMERGE_MOD                   source/constraints/general/merge/hm_read_merge.F
-Chd|====================================================================
+!||====================================================================
+!||    trirbmerge             ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_merge          ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    rb_explore             ../starter/source/constraints/general/merge/hm_read_merge.F
+!||    spmdset                ../starter/source/constraints/general/rbody/spmdset.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    rbmerge_mod            ../starter/source/constraints/general/merge/rbmerge_type.F90
+!||====================================================================
       SUBROUTINE TRIRBMERGE(RBMERGE,NPBY   ,LPBY    ,SLRBODY,
      .                      RBY    ,NOM_OPT,ITAB    ,IBGR   ,IGRV   )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE RBMERGE_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : nchartitle
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "my_allocate.inc"
-#include      "tabsiz_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPBY(NNPBY,*),LPBY(*),SLRBODY,ITAB(*)
       TYPE (RBMERGE_)   , DIMENSION(NRBYKIN)   :: RBMERGE
-C     REAL
-      my_real
-     .   RBY(NRBY,*)
+      my_real RBY(NRBY,*)
       INTEGER NOM_OPT(LNOPT1,*)
       INTEGER IGRV(NIGRV,*),IBGR(*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,KK,M,N,ID,OFFSET,OFFSETID,FLAG_RB
-      INTEGER PILE(NRBYKIN), IDPILE, NPBY_TMP(NNPBY,NRBYKIN),
-     .        INDEX(NRBYKIN),LPBY_TMP(SLRBODY),
-     .        NOM_OPT_TMP(LNOPT1,NRBYKIN),INODE, IKREM,ISPHER,
+      INTEGER IDPILE,INODE, IKREM,ISPHER,
      .        ICDG,CNT,NN,IAD
-C     REAL
-      my_real
-     .   RBY_TMP(NRBY,NRBYKIN)
-      my_real
-     .     BID, DX, DY, DZ, DMSTR, DELT, DTMP
-      INTEGER NBSECONDARY, IDIR, IKINE1(3*NUMNOD), NSL, NSL_XTRA
-      INTEGER, DIMENSION(NUMNOD) :: ITAG 
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PILE
+      INTEGER,DIMENSION(:),ALLOCATABLE :: INDEX
+      INTEGER,DIMENSION(:),ALLOCATABLE :: LPBY_TMP
+      INTEGER,DIMENSION(:,:),ALLOCATABLE :: NPBY_TMP
+      INTEGER,DIMENSION(:,:),ALLOCATABLE :: NOM_OPT_TMP
+      my_real,DIMENSION(:,:),ALLOCATABLE :: RBY_TMP
+
+      my_real BID, DX, DY, DZ, DMSTR, DELT, DTMP
+      INTEGER NBSECONDARY, IDIR, NSL, NSL_XTRA
+      INTEGER, DIMENSION(:), ALLOCATABLE :: ITAG
       INTEGER, DIMENSION(NXTRA_NODE) :: LIST_XTRA 
-      CHARACTER MESS*40,TITR*nchartitle    
+      CHARACTER MESS*40
+      CHARACTER(LEN=nchartitle) :: TITR
 C-----------------------------------------------
 !   RBMERGE(IRBM)%ID   :: Rigid body identifier
 !   RBMERGE(IRBM)%NBSECONDARY   :: Number of SECONDARY rigid body
@@ -772,6 +754,14 @@ C-----------------------------------------------
 !   RBMERGE(IRBM)%FLAG_MAIN   :: Flag relating the rigid option merge to the MAIN
 !   RBMERGE(IRBM)%IDSECONDARY(J) :: SECONDARY rigid bodys attached to the MAIN
 C-----------------------------------------------
+      CALL MY_ALLOC(PILE,NRBYKIN)
+      CALL MY_ALLOC(NPBY_TMP,NNPBY,NRBYKIN)
+      CALL MY_ALLOC(INDEX,NRBYKIN)
+      CALL MY_ALLOC(LPBY_TMP,SLRBODY)
+      CALL MY_ALLOC(NOM_OPT_TMP,LNOPT1,NRBYKIN)
+      CALL MY_ALLOC(RBY_TMP,NRBY,NRBYKIN)
+
+      ALLOCATE(ITAG(NUMNOD))
       INDEX(1:NRBYKIN) = 0
       OFFSET = 0
       OFFSETID = 0
@@ -822,9 +812,9 @@ C-----------------------------------------------
       ENDDO
 c
 C------------------------------------
-c     Ajout des XTRA_NODES en triant les doublons 
-C     entre les RB qui seront fusionnes et ceux 
-C     qui ne le seront pas
+c     Addition of XTRA_NODES by sorting duplicates
+C     between the RBs that will be merged and those
+C     that will not be
 C------------------------------------
       INODE = 0
       LPBY_TMP(1:SLRBODY)=0
@@ -905,13 +895,11 @@ C
 C------------------------------------
 C  SPMD TREATMENT ONLY FOR XTRA_NODES
 C------------------------------------
-        IF (IMACH == 3) THEN
-          CALL SPMDSET(N,NPBY,NNPBY,LPBY,NSL_XTRA,K)
-        ENDIF
+        CALL SPMDSET(N,NPBY,NNPBY,LPBY,NSL_XTRA,K)
       ENDDO
 C------------------------------------
-C     tag des xtra noeuds SECONDARYs rby avec gravite
-C     pour calcul du travail des forces externes
+C     tag of extra secondary nodes rby with gravity
+C     for calculating the work of external forces
 C-------------------------------------
       DO I=1,NUMNOD
         ITAG(I)=0
@@ -920,7 +908,7 @@ C-------------------------------------
       DO N=1,NRBYKIN
         NSL_XTRA = NPBY(14,N)+NPBY(15,N)+NPBY(16,N)
         K = NPBY(11,N)+NPBY(2,N)-NSL_XTRA
-        IF(NPBY(7,N).NE.0)THEN
+        IF(NPBY(7,N)/=0)THEN
          DO I=1,NSL_XTRA
           ITAG(LPBY(I+K))=1
          ENDDO
@@ -931,12 +919,14 @@ C-------------------------------------
         IAD=IGRV(4,K)
         DO I=1,NN
           N=IBGR(I+IAD-1)
-          IF(ITAG(N) == 1)IBGR(I+IAD-1) = -N
+          IF(N > 0)THEN
+            IF(ITAG(N) == 1)IBGR(I+IAD-1) = -N
+          ENDIF
         ENDDO
       ENDDO
 C------------------------------------
-C     Sorties dans 0.out des bilans des fusions
-C     pour les top level MAIN
+C     Outputs in 0.out of the merger balances
+C     for the top level MAIN
 C-------------------------------------
       DO N=1,NRBYKIN
         NBSECONDARY=0
@@ -978,6 +968,13 @@ C-------------------------------------
 
       ENDDO
 C
+      DEALLOCATE(ITAG)
+      DEALLOCATE(PILE)
+      DEALLOCATE(NPBY_TMP)
+      DEALLOCATE(INDEX)
+      DEALLOCATE(LPBY_TMP)
+      DEALLOCATE(NOM_OPT_TMP)
+      DEALLOCATE(RBY_TMP)
       RETURN
 C
 1000  FORMAT(/5X,'MAIN RIGID BODY ID ',I10)
@@ -985,6 +982,14 @@ C
 1200  FORMAT(5X,'SECONDARY EXTRA NODES ID ',10I10)
       END
 C
+!||====================================================================
+!||    rb_explore    ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- called by ------------------------------------------------------
+!||    trirbmerge    ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    rbmerge_mod   ../starter/source/constraints/general/merge/rbmerge_type.F90
+!||====================================================================
       RECURSIVE SUBROUTINE RB_EXPLORE(IDRB,RBMERGE,PILE,IDPILE)
 C-----------------------------------------------
 C   M o d u l e s
@@ -1029,18 +1034,20 @@ C
       RETURN
       END     
 C
-Chd|====================================================================
-Chd|  RETRIRBY                      source/constraints/general/merge/hm_read_merge.F
-Chd|-- called by -----------
-Chd|        INITIA                        source/elements/initia/initia.F
-Chd|-- calls ---------------
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        RBMERGE_MOD                   source/constraints/general/merge/hm_read_merge.F
-Chd|====================================================================
+!||====================================================================
+!||    retrirby       ../starter/source/constraints/general/merge/hm_read_merge.F
+!||--- called by ------------------------------------------------------
+!||    initia         ../starter/source/elements/initia/initia.F
+!||--- calls      -----------------------------------------------------
+!||--- uses       -----------------------------------------------------
+!||    message_mod    ../starter/share/message_module/message_mod.F
+!||    rbmerge_mod    ../starter/source/constraints/general/merge/rbmerge_type.F90
+!||====================================================================
       SUBROUTINE RETRIRBY(NPBY ,LPBY ,RBY ,NOM_OPT)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
       USE MESSAGE_MOD
       USE RBMERGE_MOD
 C-----------------------------------------------
@@ -1048,40 +1055,32 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr17_c.inc"
-#include      "scr03_c.inc"
 #include      "com04_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
 #include      "param_c.inc"
-#include      "my_allocate.inc"
-#include      "tabsiz_c.inc"
 #include      "lagmult.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NPBY(NNPBY,*),LPBY(*)
-C     REAL
-      my_real
-     .   RBY(NRBY,*)
+      my_real RBY(NRBY,*)
       INTEGER NOM_OPT(LNOPT1,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,K,OFFSET,OFFSETEND,NRBYKINM
-      INTEGER NPBY_TMP(NNPBY,NRBYKIN+NRBYLAG),
-     .        INDEX(NRBYKIN+NRBYLAG),
-     .        NOM_OPT_TMP(LNOPT1,NRBYKIN+NRBYLAG),
+      INTEGER I,J,K,OFFSET,OFFSETEND,NRBYKINM,
      .        NEW_SIZE,CPT_RBY,CPT_RBY_SECONDARY
-C     REAL
-      my_real
-     .   RBY_TMP(NRBY,NRBYKIN+NRBYLAG)
+      INTEGER,DIMENSION(:,:),ALLOCATABLE :: NPBY_TMP
+      INTEGER,DIMENSION(:),ALLOCATABLE :: INDEX
+      INTEGER,DIMENSION(:,:),ALLOCATABLE :: NOM_OPT_TMP
+      my_real,DIMENSION(:,:),ALLOCATABLE ::  RBY_TMP
 C-----------------------------------------------
+      CALL MY_ALLOC(NPBY_TMP,NNPBY,NRBYKIN+NRBYLAG)
+      CALL MY_ALLOC(NOM_OPT_TMP,LNOPT1,NRBYKIN+NRBYLAG)
+      CALL MY_ALLOC(INDEX,NRBYKIN+NRBYLAG)
+      CALL MY_ALLOC(RBY_TMP,NRBY,NRBYKIN+NRBYLAG)
 C
       NEW_SIZE = 0       
       DO I=1,NRBYKIN+NRBYLAG
@@ -1108,12 +1107,19 @@ C--  SECONDARY RBODY - put at the end of the list
           NOM_OPT(1:LNOPT1,CPT_RBY_SECONDARY)=NOM_OPT_TMP(1:LNOPT1,I)
           NPBY(1:NNPBY,CPT_RBY_SECONDARY)=0!NPBY_TMP(1:NNPBY,I)
           RBY(1:NRBY,CPT_RBY_SECONDARY)=0!RBY_TMP(1:NRBY,I)
+          NPBY(6,CPT_RBY_SECONDARY) = NPBY_TMP(6,I)
+          NPBY(12,CPT_RBY_SECONDARY) = NPBY_TMP(12,I)
           NPBY(13,CPT_RBY_SECONDARY) = CPT_RBY+1
           CPT_RBY_SECONDARY = CPT_RBY_SECONDARY-1 
         ENDIF
       ENDDO
 C
       NRBYKIN=NEW_SIZE-NRBYLAG
+      DEALLOCATE(NPBY_TMP)
+      DEALLOCATE(NOM_OPT_TMP)
+      DEALLOCATE(INDEX)
+      DEALLOCATE(RBY_TMP)
+
 C
       RETURN
       END   

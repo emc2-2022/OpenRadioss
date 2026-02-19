@@ -1,46 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_XREF                  source/loads/reference_state/xref/hm_read_xref.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        FRETITL2                      source/starter/freform.F      
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        SUBROTPOINT                   source/model/submodel/subrot.F
-Chd|        ID                            source/boundary_conditions/ebcs/hm_read_ebcs_inlet.F
-Chd|        R2R_SYS                       source/coupling/rad2rad/routines_r2r.F
-Chd|        USR2SYS                       source/system/sysfus.F        
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_xref               ../starter/source/loads/reference_state/xref/hm_read_xref.F
+!||--- called by ------------------------------------------------------
+!||    lectur                     ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    fretitl2                   ../starter/source/starter/freform.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key         ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start            ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    r2r_sys                    ../starter/source/coupling/rad2rad/routines_r2r.F
+!||    subrotpoint                ../starter/source/model/submodel/subrot.F
+!||    usr2sys                    ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod         ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_XREF(ITABM1   ,IPART    ,IPARTC   ,IPARTG   ,IPARTS   ,
      .                        UNITAB   ,IXC      ,IXTG     ,IXS      ,X        ,
      .                        XREFC    ,XREFTG   ,XREFS    ,RTRANS   ,LSUBMODEL,
@@ -51,14 +50,13 @@ C-----------------------------------------------
       USE UNITAB_MOD
       USE SUBMODEL_MOD
       USE MESSAGE_MOD
-      USE HM_OPTION_READ_MOD       
+      USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs,nixc,nixtg
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
 C-----------------------------------------------
 C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
@@ -66,7 +64,6 @@ C-----------------------------------------------
 #include      "scr03_c.inc"
 #include      "scr17_c.inc"
 #include      "com04_c.inc"
-#include      "sysunit.inc"
 #include      "r2r_c.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -90,25 +87,27 @@ C MODIFIED ARGUMENT
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER  TAGELC(NUMELC),TAGELTG(NUMELTG),TAGELS(NUMELS)
-      INTEGER  TAGNOD(NUMNOD),IFLAGUNIT
+      INTEGER :: IFLAGUNIT
       INTEGER, DIMENSION(:), ALLOCATABLE :: ID
-      INTEGER  I,J,IE,IN,IP,IR,NN,NITER,PARTID,UID,ITYP
-      INTEGER  SUB_ID,NNOD,SUB_INDEX,IMID, MAT_ID,MTN,NSOLID,NPT
-C     REAL
-      my_real
-     .  XTMP(3,NUMNOD)
+      INTEGER  I,J,IE,IN,IP,IR,NN,NITER,PARTID,UID,ITYP,ICOMPA
+      INTEGER  SUB_ID,NNOD,SUB_INDEX,IMID, MAT_ID,MTN,NSOLID,NPT,ISMSTR
+      my_real, dimension(:,:), allocatable :: xtmp
       my_real, DIMENSION(:), ALLOCATABLE ::
      .  XX,YY,ZZ
-      CHARACTER MESS*40,TITR*nchartitle,TITR1*nchartitle
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR,TITR1
       DATA MESS/'XREF'/
-      LOGICAL :: IS_AVAILABLE,FOUND      
+      LOGICAL :: IS_AVAILABLE      
+      integer, dimension(:), allocatable :: TAGELC,TAGELTG,TAGELS,TAGNOD
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
       INTEGER USR2SYS,R2R_SYS
 C=======================================================================
       IS_AVAILABLE = .FALSE.
+      ALLOCATE(TAGELC(NUMELC),TAGELTG(NUMELTG),TAGELS(NUMELS),TAGNOD(NUMNOD))
+      ALLOCATE(XTMP(3,NUMNOD))
+
 C
       DO IE=1,NUMELC                          
         DO IN = 1,4                           
@@ -165,13 +164,13 @@ C
 C
         ! Checking UNIT_ID
         IFLAGUNIT = 0          
-        DO J=1,NUNITS                         
+        DO J=1,UNITAB%NUNITS                         
           IF (UNITAB%UNIT_ID(J) == UID) THEN               
               IFLAGUNIT = 1                      
               EXIT                              
           ENDIF                               
         ENDDO                                  
-        IF (UID.NE.0.AND.IFLAGUNIT.EQ.0) THEN
+        IF (UID/=0.AND.IFLAGUNIT==0) THEN
           CALL ANCMSG(MSGID=659,ANMODE=ANINFO,MSGTYPE=MSGERROR,
      .                I2=UID,I1=PARTID,C1='XREF',
      .               C2='XREF',
@@ -221,17 +220,16 @@ C
               MAT_ID = IPM(1,IMID)
               MTN = IPM(2, IMID)
               IF(MTN /= 35 .AND.MTN /= 38 .AND. MTN /= 42 .AND.
-     .             MTN /= 70 .AND. MTN /= 90)THEN
+     .             MTN /= 70 .AND. MTN /= 90 .AND. MTN /= 1)THEN
                    CALL FRETITL2(TITR1,IPM(NPROPMI-LTITR+1,IMID),LTITR)
-                   CALL ANCMSG(MSGID=2014,
-     .                       MSGTYPE=MSGERROR,
-     .                       ANMODE=ANSTOP,
-     .                       I1=MAT_ID,
-     .                       C1=TITR1,
-     .                       I2=MTN )
+                   CALL ANCMSG(MSGID=2014, MSGTYPE=MSGERROR, ANMODE=ANSTOP, I1=MAT_ID, C1=TITR1, I2=MTN )
                END IF
                NPT = IGEO(4,IPID)
-               IF( ((NSOLID /= 8 .AND.NSOLID /= 4) .OR.  NPT /= 1 )) THEN
+               ISMSTR = IGEO(5,IPID)
+               ICOMPA = 0
+               IF (NPT==1) ICOMPA = 1
+               IF (ISMSTR>=10.OR.ISMSTR<0) ICOMPA = 1
+               IF( ((NSOLID /= 8 .AND.NSOLID /= 4) .OR.  ICOMPA == 0 )) THEN
                     CALL FRETITL2(TITR1,IGEO(NPROPGI-LTITR+1,IPID),LTITR)
                     CALL ANCMSG(MSGID=2013,
      .                 MSGTYPE=MSGERROR,
@@ -246,7 +244,7 @@ C
           NITRS = MAX(NITRS,NITER)
 C
           IF(IDDLEVEL == 0) THEN
-            WRITE(IOUT,1001) TITR,NITRS,PARTID			
+            WRITE(IOUT,1001) TITR,NITRS,PARTID
             IF(IPRI >= 5) WRITE(IOUT,'(8X,A7,3(18X,A2))') 'NODE-ID',' X',' Y',' Z'
           ENDIF
 C
@@ -266,11 +264,12 @@ C
             CALL HM_GET_FLOAT_ARRAY_INDEX('globaly',YY(J),J,IS_AVAILABLE, LSUBMODEL, UNITAB)
             CALL HM_GET_FLOAT_ARRAY_INDEX('globalz',ZZ(J),J,IS_AVAILABLE, LSUBMODEL, UNITAB)
 C
-            IF(SUB_ID .NE. 0)
+            IF(SUB_ID /= 0)
      .        CALL SUBROTPOINT(XX(J),YY(J),ZZ(J),RTRANS,SUB_ID,LSUBMODEL)
-            IF (NSUBDOM.EQ.0) NN = USR2SYS(ID(J),ITABM1,MESS,PARTID)
-            IF (NSUBDOM.GT.0) THEN
+            IF (NSUBDOM>0) THEN
               NN = R2R_SYS(ID(J),ITABM1,MESS)
+            ELSE
+              NN = USR2SYS(ID(J),ITABM1,MESS,PARTID)
             ENDIF     
             IF(IDDLEVEL == 0.AND.IPRI >= 5) WRITE(IOUT,'(5X,I10,5X,1P3G20.13)') ID(J),XX(J),YY(J),ZZ(J)
             TAGNOD(NN) = 1
@@ -330,8 +329,9 @@ C
       IF (ALLOCATED(YY)) DEALLOCATE(YY)
       IF (ALLOCATED(ZZ)) DEALLOCATE(ZZ)
 C-----------
-      RETURN
- 999  CALL FREERR(3)
+      DEALLOCATE(TAGELC,TAGELTG,TAGELS,TAGNOD)
+      DEALLOCATE(XTMP)
+
       RETURN
  1000 FORMAT(//
      & 5X,'    REFERENCE STATE (XREF)  ',/

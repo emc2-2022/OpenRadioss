@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SOLTOSPHF                     source/elements/sph/soltosph.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        STARTIMEG                     source/system/timer.F         
-Chd|        STOPTIMEG                     source/system/timer.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SOLTOSPH_MOD                  share/modules/soltosph_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    soltosphf      ../engine/source/elements/sph/soltosph.F
+!||--- called by ------------------------------------------------------
+!||    resol          ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    my_barrier     ../engine/source/system/machine.F
+!||    startimeg      ../engine/source/system/timer.F
+!||    stoptimeg      ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||    soltosph_mod   ../engine/share/modules/soltosph_mod.F
+!||====================================================================
       SUBROUTINE SOLTOSPHF(
      1   A      ,SPBUF   ,IXS     ,KXSP    ,IPARTSP ,
      2   NOD2SP ,IRST   ,NGROUNC  ,IGROUNC ,IPARG   ,
@@ -44,24 +46,21 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD         
       USE SOLTOSPH_MOD         
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "param_c.inc"
 #include      "parit_c.inc"
 #include      "sphcom.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -76,16 +75,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,  J, IR, IS, IT, KP, NP, N, INOD, MG, NG, NEL,
-     .        KFT, N1, N2, N3, N4, N5, N6, N7, N8,
-     .        LENR, IG , NELEM, OFFSET, NSPHDIR, IPRTSPH, IAW,
+      INTEGER I,  J, IR, IS, IT, KP, NP, N, INOD, NG, NEL,
+     .         N1, N2, N3, N4, N5, N6, N7, N8,
+     .         IG , NELEM, OFFSET, NSPHDIR, IPRTSPH, IAW,
      .        MY_IAW, IERROR, NISK, NIFTSK, NILTSK, NISKYL, NSOL
 C                                                                    
       my_real
      .   PHI1,PHI2,PHI3,PHI4,PHI5,PHI6,PHI7,PHI8,
      .   KSI, ETA, ZETA
 C-----
-      TYPE(G_BUFEL_) ,POINTER :: GBUF, GBUFSP
+      TYPE(G_BUFEL_) ,POINTER :: GBUF
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
       TYPE(BUF_MAT_) ,POINTER :: MBUF  
 C-----------------------------------------------
@@ -176,8 +175,8 @@ C
 !$OMP DO SCHEDULE(DYNAMIC,1)
        DO IG = 1, NGROUNC
         NG = IGROUNC(IG)         
-        IF(IPARG(8,NG).EQ.1)GOTO 350
-        IF (IDDW.GT.0) CALL STARTIMEG(NG)
+        IF(IPARG(8,NG)==1)GOTO 350
+        IF (IDDW>0) CALL STARTIMEG(NG)
         DO NELEM = 1,IPARG(2,NG),NVSIZ
           OFFSET = NELEM - 1
           NEL   =IPARG(2,NG)
@@ -187,7 +186,7 @@ C
           IPRTSPH=IPARG(69,NG)
           LFT=1
           LLT=MIN(NVSIZ,NEL-NELEM+1)
-          IF(ITY.EQ.1.AND.IPRTSPH.NE.0) THEN
+          IF(ITY==1.AND.IPRTSPH/=0) THEN
 C-----------
             GBUF => ELBUF_TAB(NG)%GBUF
             LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
@@ -195,11 +194,11 @@ C-----------
 C-----
 C----TETRA---     
 C-----
-            IF (IPARG(28,NG).EQ.4) THEN
+            IF (IPARG(28,NG)==4) THEN
 C-----
             DO I=LFT,LLT
               N=NFT+I
-              IF(GBUF%OFF(I).NE.ZERO) THEN
+              IF(GBUF%OFF(I)/=ZERO) THEN
 C
                 N1=IXS(2,N)
                 N2=IXS(3,N)
@@ -256,7 +255,7 @@ C----HEXA---
 C-----
             DO I=LFT,LLT
               N=NFT+I
-              IF(GBUF%OFF(I).NE.ZERO) THEN
+              IF(GBUF%OFF(I)/=ZERO) THEN
 C
                 N1=IXS(2,N)
                 N2=IXS(3,N)
@@ -333,7 +332,7 @@ C
 C--------
             ENDIF
           ENDIF
-          IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+          IF (IDDW>0) CALL STOPTIMEG(NG)
         END DO
 C--------
  350    CONTINUE
@@ -372,12 +371,12 @@ C
               NISKYL = NISKY
               NISKY = NISKY + 8
 #include "lockoff.inc"
-              IF (NISKYL+8 .GT. LSKYI) THEN
+              IF (NISKYL+8 > LSKYI) THEN
                  CALL ANCMSG(MSGID=243,ANMODE=ANINFO_BLIND)
                  CALL ARRET(2)
               ENDIF
 C
-              IF (SOL2SPH_TYP(SPH2SOL(NP)).EQ.4) THEN
+              IF (SOL2SPH_TYP(SPH2SOL(NP))==4) THEN
 C---------------
 C------ Tetra -- 
 C---------------
@@ -506,26 +505,29 @@ C
       END IF
       RETURN
       END SUBROUTINE SOLTOSPHF
-Chd|====================================================================
-Chd|  SOLTOSPHP                     source/elements/sph/soltosph.F
-Chd|-- called by -----------
-Chd|        FORINTP                       source/elements/forintp.F     
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SIG_HEPH1                     source/elements/sph/soltosph_hour.F
-Chd|        SREP2GLO                      source/elements/sph/srep2glo.F
-Chd|        STARTIMEG                     source/system/timer.F         
-Chd|        STOPTIMEG                     source/system/timer.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+!||====================================================================
+!||    soltosphp      ../engine/source/elements/sph/soltosph.F
+!||--- called by ------------------------------------------------------
+!||    forintp        ../engine/source/elements/forintp.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf        ../engine/share/resol/initbuf.F
+!||    sig_heph1      ../engine/source/elements/sph/soltosph_hour.F
+!||    srep2glo       ../engine/source/elements/sph/srep2glo.F
+!||    startimeg      ../engine/source/system/timer.F
+!||    stoptimeg      ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod    ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE SOLTOSPHP(
      .   X      ,SPBUF   ,IXS     ,KXSP    ,IPARTSP ,
      .   IRST   ,ELBUF_TAB,IPARG  ,NGROUNC ,IGROUNC ,
      .   SOL2SPH,WA       ,PM)
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD         
+      USE ELBUFDEF_MOD 
+      use element_mod , only : nixs        
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -538,12 +540,10 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "sphcom.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -557,11 +557,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,  N, IP, KP, NG, MG, J, NP, KFT, IG, NELEM,
+      INTEGER I,  N, KP, NG, MG, J, NP, KFT, IG,
      .        NEL, OFFSET, MLW, IPLA,NELSP,K,IR,IS,IT,NSPHDIR,
      .        NPTR,NPTS,NPTT,II(6),JJ(6)
       my_real
-     .   RHON, RHOO, DIVV, SM,
+     .   RHON, RHOO, DIVV,
      .   R11(MVSIZ),R12(MVSIZ),R13(MVSIZ),
      .   R21(MVSIZ),R22(MVSIZ),R23(MVSIZ),
      .   R31(MVSIZ),R32(MVSIZ),R33(MVSIZ),
@@ -573,11 +573,11 @@ C-----------------------------------------------
      .   RZ(MVSIZ),SZ(MVSIZ),TZ(MVSIZ),
      .   G11,G22,G33,G12,G21,G23,G32,G13,G31,
      .   S11,S22,S33,S12,S21,S23,S32,S13,S31,
-     .   L11,L22,L33,L12,L21,L23,L32,L13,L31,
+     .   L11,L22,L33,L12,L23,L13,
      .   SIGLO(MVSIZ,6), STRAGLO(MVSIZ,6), ANGL(MVSIZ,6), 
      .   DGLO24(MVSIZ,6),SIG_HEPH(MVSIZ,6,7),
-     .   JR0(MVSIZ),JS0(MVSIZ),JT0(MVSIZ),NU(MVSIZ),SIG_HEPH_GLO(MVSIZ,6,7),
-     .   RBID(6,MVSIZ),ZETA,ETA,KSI,SIG_HA8(MVSIZ,3,3,3,6)
+     .   JR0(MVSIZ),JS0(MVSIZ),JT0(MVSIZ),SIG_HEPH_GLO(MVSIZ,6,7),
+     .   ZETA,ETA,KSI,SIG_HA8(MVSIZ,3,3,3,6)
 C                                                                    
 C-----
       TYPE(G_BUFEL_) ,POINTER :: GBUF, GBUFSP
@@ -617,15 +617,15 @@ C-----------------------------------------------
 !$OMP DO SCHEDULE(DYNAMIC,1)
       DO IG = 1, NGROUNC
         NG = IGROUNC(IG)         
-        IF(IPARG(8,NG).EQ.1)GOTO 300
-        IF (IDDW.GT.0) CALL STARTIMEG(NG)
+        IF(IPARG(8,NG)==1)GOTO 300
+        IF (IDDW>0) CALL STARTIMEG(NG)
         OFFSET  = 0
         ITY     = IPARG(5,NG)
         IPARTSPH= IPARG(69,NG)
-        IF(ITY.EQ.1.AND.IPARTSPH.NE.0) THEN
+        IF(ITY==1.AND.IPARTSPH/=0) THEN
 C
 C---
-          CALL INITBUF (IPARG    ,NG      ,                              
+          CALL INITBUF(IPARG    ,NG      ,                              
      2       MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,               
      3       NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,               
      4       JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,               
@@ -644,20 +644,28 @@ C-----------
           LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
           MBUF => ELBUF_TAB(NG)%BUFLY(1)%MAT(1,1,1)
 C-----------
-          CALL SREP2GLO(X,IXS(1,NFT+1),GBUF%GAMA,
-     .                  RX ,RY ,RZ, SX ,SY ,SZ ,TX ,TY ,TZ ,
-     .                  R11,R12,R13,R21,R22,R23,R31,R32,R33,
-     .                  T11,T12,T13,T21,T22,T23,T31,T32,T33,
-     .                  JR0,JS0,JT0,NEL)
+          CALL SREP2GLO(
+     1   X,           IXS(1,NFT+1),GBUF%GAMA,   RX,
+     2   RY,          RZ,          SX,          SY,
+     3   SZ,          TX,          TY,          TZ,
+     4   R11,         R12,         R13,         R21,
+     5   R22,         R23,         R31,         R32,
+     6   R33,         T11,         T12,         T13,
+     7   T21,         T22,         T23,         T31,
+     8   T32,         T33,         JR0,         JS0,
+     9   JT0,         NEL,         LFT,         LLT,
+     A   JHBE,        JCVT,        ISORTH)
 C
 C----------- HEPH -------
-          IF (JHBE.EQ.24) THEN
+          IF (JHBE==24) THEN
 C------------------------
           SIG_HEPH(1:MVSIZ,1:6,1:7) = ZERO
-          CALL SIG_HEPH1(JR0     ,JS0  ,JT0  ,GBUF%SIG  ,GBUF%HOURG,
-     .                   SIG_HEPH,PM   ,IXS  ,II        ,NEL       )          
+          CALL SIG_HEPH1(
+     1   JR0,       JS0,       JT0,       GBUF%SIG,
+     2   GBUF%HOURG,SIG_HEPH,  PM,        IXS,
+     3   II,        NEL,       LFT,       LLT)
 C
-          IF(ISORTH.EQ.0)THEN
+          IF(ISORTH==0)THEN
            DO J=1,7
            DO I=LFT,LLT
 C hourglass stress in corotational system
@@ -713,12 +721,12 @@ C hourglass stress in orthotropic system
            END DO
            ENDIF
 C----------- HA8  -------
-          ELSEIF (JHBE.EQ.14) THEN
+          ELSEIF (JHBE==14) THEN
 C------------------------
           NPTR   = ELBUF_TAB(NG)%NPTR
           NPTS   = ELBUF_TAB(NG)%NPTS
           NPTT   = ELBUF_TAB(NG)%NPTT
-          IF(ISORTH.EQ.0)THEN
+          IF(ISORTH==0)THEN
            DO IR=1,NPTR
            DO IS=1,NPTS
            DO IT=1,NPTT
@@ -1065,7 +1073,7 @@ C             TENSOR wrt ORTHOTROPIC SYSTEM
           END IF
 C-----------
           DO I=LFT,LLT
-            IF(GBUF%OFF(I).EQ.ZERO) CYCLE
+            IF(GBUF%OFF(I)==ZERO) CYCLE
             N=NFT+I
 C
 C           SOL2SPH(1,N)+1<=I<=SOLSPH(2,N) <=> N==SPH2SOL(I)
@@ -1073,189 +1081,203 @@ C           SOL2SPH(1,N)+1<=I<=SOLSPH(2,N) <=> N==SPH2SOL(I)
             DO KP=1,SOL2SPH(2,N)-SOL2SPH(1,N)
 C
               NP=SOL2SPH(1,N)+KP
-              MG =MOD(-KXSP(2,NP),NGROUP+1)
-              NELSP=IPARG(2,MG)
-              KFT=IPARG(3,MG)
-              GBUFSP => ELBUF_TAB(MG)%GBUF
-              LBUFSP => ELBUF_TAB(MG)%BUFLY(1)%LBUF(1,1,1)
-              MBUFSP => ELBUF_TAB(MG)%BUFLY(1)%MAT(1,1,1)
-              J=NP-KFT
-              RHON = GBUF%RHO(I)
-              RHOO = WA(10,NP)
-              DIVV = (RHOO-RHON)/MAX(EM30,RHOO*DT1)
-              WA(13,NP)     = DIVV
-              WA(14,NP)     = ZERO
-              SPBUF(2,NP)   = RHON
-              GBUFSP%RHO(J) = RHON
+              IF (KXSP(2,NP)/=0) THEN
+C              
+                MG =MOD(-KXSP(2,NP),NGROUP+1)
+                NELSP=IPARG(2,MG)
+                KFT=IPARG(3,MG)
+                GBUFSP => ELBUF_TAB(MG)%GBUF
+                LBUFSP => ELBUF_TAB(MG)%BUFLY(1)%LBUF(1,1,1)
+                MBUFSP => ELBUF_TAB(MG)%BUFLY(1)%MAT(1,1,1)
+                J=NP-KFT
+                RHON = GBUF%RHO(I)
+                RHOO = WA(10,NP)
+                DIVV = (RHOO-RHON)/MAX(EM30,RHOO*DT1)
+                WA(13,NP)     = DIVV
+                WA(14,NP)     = ZERO
+                SPBUF(2,NP)   = RHON
+                GBUFSP%RHO(J) = RHON
 C
-C             group was not computed 
-C             (there is no cloud active particle within the group)
-C             IF(IPARG(8,MG).EQ.1)CYCLE
+C               group was not computed 
+C               (there is no cloud active particle within the group)
+C               IF(IPARG(8,MG)==1)CYCLE
 C
-              GBUFSP%EINT(J)        =GBUF%EINT(I)
+                GBUFSP%EINT(J)        =GBUF%EINT(I)
 C
 !
-              DO K=1,6
-                JJ(K) = NELSP*(K-1)
-              ENDDO
-!
-C-----------
-              IF (JHBE.EQ.14) THEN
-C HA8 stress
-                IR=IRST(1,NP-FIRST_SPHSOL+1)
-                IS=IRST(2,NP-FIRST_SPHSOL+1)
-                IT=IRST(3,NP-FIRST_SPHSOL+1)
                 DO K=1,6
-                  GBUFSP%SIG(JJ(K)+J)=SIG_HA8(I,IR,IS,IT,K)
+                  JJ(K) = NELSP*(K-1)
                 ENDDO
-              ELSEIF (JHBE.EQ.24) THEN
+!
+C-----------
+                IF (JHBE==14) THEN
+C HA8 stress
+                  IR=IRST(1,NP-FIRST_SPHSOL+1)
+                  IS=IRST(2,NP-FIRST_SPHSOL+1)
+                  IT=IRST(3,NP-FIRST_SPHSOL+1)
+                  DO K=1,6
+                    GBUFSP%SIG(JJ(K)+J)=SIG_HA8(I,IR,IS,IT,K)
+                  ENDDO
+                ELSEIF (JHBE==24) THEN
 C Hourglass stress contribution for HEPH
-                IR=IRST(1,NP-FIRST_SPHSOL+1)
-                IS=IRST(2,NP-FIRST_SPHSOL+1)
-                IT=IRST(3,NP-FIRST_SPHSOL+1)
+                  IR=IRST(1,NP-FIRST_SPHSOL+1)
+                  IS=IRST(2,NP-FIRST_SPHSOL+1)
+                  IT=IRST(3,NP-FIRST_SPHSOL+1)
 C--- Permutation (KSI-> ETA;ETA->ZETA;ZETA->KSI) for consistencvy with HEPH convention
-                ETA  = A_GAUSS(IR,NSPHDIR)
-                ZETA = A_GAUSS(IS,NSPHDIR)
-                KSI  = A_GAUSS(IT,NSPHDIR)
+                  ETA  = A_GAUSS(IR,NSPHDIR)
+                  ZETA = A_GAUSS(IS,NSPHDIR)
+                  KSI  = A_GAUSS(IT,NSPHDIR)
 C-----------
-                DO K=1,6
-                  GBUFSP%SIG(JJ(K)+J) = SIG_HEPH_GLO(I,K,1)
-     .                            +ZETA*SIG_HEPH_GLO(I,K,2)
-     .                             +ETA*SIG_HEPH_GLO(I,K,3)
-     .                             +KSI*SIG_HEPH_GLO(I,K,4)
-     .                        +ZETA*ETA*SIG_HEPH_GLO(I,K,5)
-     .                        +ZETA*KSI*SIG_HEPH_GLO(I,K,6)
-     .                         +ETA*KSI*SIG_HEPH_GLO(I,K,7)            
-                END DO
-              ELSE
-                GBUFSP%SIG(JJ(1)+J) = SIGLO(I,1)
-                GBUFSP%SIG(JJ(2)+J) = SIGLO(I,2)
-                GBUFSP%SIG(JJ(3)+J) = SIGLO(I,3)
-                GBUFSP%SIG(JJ(4)+J) = SIGLO(I,4)
-                GBUFSP%SIG(JJ(5)+J) = SIGLO(I,5)
-                GBUFSP%SIG(JJ(6)+J) = SIGLO(I,6)
-              ENDIF
+                  DO K=1,6
+                    GBUFSP%SIG(JJ(K)+J) = SIG_HEPH_GLO(I,K,1)
+     .                              +ZETA*SIG_HEPH_GLO(I,K,2)
+     .                               +ETA*SIG_HEPH_GLO(I,K,3)
+     .                               +KSI*SIG_HEPH_GLO(I,K,4)
+     .                          +ZETA*ETA*SIG_HEPH_GLO(I,K,5)
+     .                          +ZETA*KSI*SIG_HEPH_GLO(I,K,6)
+     .                           +ETA*KSI*SIG_HEPH_GLO(I,K,7)            
+                  END DO
+                ELSE
+                  GBUFSP%SIG(JJ(1)+J) = SIGLO(I,1)
+                  GBUFSP%SIG(JJ(2)+J) = SIGLO(I,2)
+                  GBUFSP%SIG(JJ(3)+J) = SIGLO(I,3)
+                  GBUFSP%SIG(JJ(4)+J) = SIGLO(I,4)
+                  GBUFSP%SIG(JJ(5)+J) = SIGLO(I,5)
+                  GBUFSP%SIG(JJ(6)+J) = SIGLO(I,6)
+                ENDIF
 C-----------
-              WA(1,NP)=GBUFSP%SIG(JJ(1)+J)
-              WA(2,NP)=GBUFSP%SIG(JJ(2)+J)
-              WA(3,NP)=GBUFSP%SIG(JJ(3)+J)
-              WA(4,NP)=GBUFSP%SIG(JJ(4)+J)
-              WA(5,NP)=GBUFSP%SIG(JJ(5)+J)
-              WA(6,NP)=GBUFSP%SIG(JJ(6)+J)
+                WA(1,NP)=GBUFSP%SIG(JJ(1)+J)
+                WA(2,NP)=GBUFSP%SIG(JJ(2)+J)
+                WA(3,NP)=GBUFSP%SIG(JJ(3)+J)
+                WA(4,NP)=GBUFSP%SIG(JJ(4)+J)
+                WA(5,NP)=GBUFSP%SIG(JJ(5)+J)
+                WA(6,NP)=GBUFSP%SIG(JJ(6)+J)
 C
 C               (particles ARE computed with rho_old, Eold...)
 C-----------
-              IF(GBUF%G_PLA > 0) GBUFSP%PLA(J) = GBUF%PLA(I)
-              IF(GBUF%G_EPSD> 0) GBUFSP%EPSD(J)= GBUF%EPSD(I)
-              IF(GBUF%G_EPSQ> 0) GBUFSP%EPSQ(J)= GBUF%EPSQ(I)
+                IF(GBUF%G_PLA > 0) GBUFSP%PLA(J) = GBUF%PLA(I)
+                IF(GBUF%G_EPSD> 0) GBUFSP%EPSD(J)= GBUF%EPSD(I)
+                IF(GBUF%G_EPSQ> 0) GBUFSP%EPSQ(J)= GBUF%EPSQ(I)
 C-----------
-              IF(GBUF%G_GAMA > 0)THEN
+                IF(GBUF%G_GAMA > 0)THEN
 C
 C TIJ stores global to orthotropic system
-                GBUFSP%GAMA(JJ(1)+J)=T11(I)
-                GBUFSP%GAMA(JJ(2)+J)=T21(I)
-                GBUFSP%GAMA(JJ(3)+J)=T31(I)
-                GBUFSP%GAMA(JJ(4)+J)=T12(I)
-                GBUFSP%GAMA(JJ(5)+J)=T22(I)
-                GBUFSP%GAMA(JJ(6)+J)=T32(I)
-              END IF
+                  GBUFSP%GAMA(JJ(1)+J)=T11(I)
+                  GBUFSP%GAMA(JJ(2)+J)=T21(I)
+                  GBUFSP%GAMA(JJ(3)+J)=T31(I)
+                  GBUFSP%GAMA(JJ(4)+J)=T12(I)
+                  GBUFSP%GAMA(JJ(5)+J)=T22(I)
+                  GBUFSP%GAMA(JJ(6)+J)=T32(I)
+                END IF
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_STRA > 0.AND.
-     .           ELBUF_TAB(MG)%BUFLY(1)%L_STRA > 0)THEN
-                LBUFSP%STRA(JJ(1)+J)=STRAGLO(I,1)
-                LBUFSP%STRA(JJ(2)+J)=STRAGLO(I,2)
-                LBUFSP%STRA(JJ(3)+J)=STRAGLO(I,3)
-                LBUFSP%STRA(JJ(4)+J)=STRAGLO(I,4)
-                LBUFSP%STRA(JJ(5)+J)=STRAGLO(I,5)
-                LBUFSP%STRA(JJ(6)+J)=STRAGLO(I,6)
-              END IF
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_STRA > 0.AND.
+     .             ELBUF_TAB(MG)%BUFLY(1)%L_STRA > 0)THEN
+                  LBUFSP%STRA(JJ(1)+J)=STRAGLO(I,1)
+                  LBUFSP%STRA(JJ(2)+J)=STRAGLO(I,2)
+                  LBUFSP%STRA(JJ(3)+J)=STRAGLO(I,3)
+                  LBUFSP%STRA(JJ(4)+J)=STRAGLO(I,4)
+                  LBUFSP%STRA(JJ(5)+J)=STRAGLO(I,5)
+                  LBUFSP%STRA(JJ(6)+J)=STRAGLO(I,6)
+                END IF
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_ANG > 0)THEN
-                LBUFSP%ANG(JJ(1)+J)=ANGL(I,1)
-                LBUFSP%ANG(JJ(2)+J)=ANGL(I,2)
-                LBUFSP%ANG(JJ(3)+J)=ANGL(I,3)
-                LBUFSP%ANG(JJ(4)+J)=ANGL(I,4)
-                LBUFSP%ANG(JJ(5)+J)=ANGL(I,5)
-                LBUFSP%ANG(JJ(6)+J)=ANGL(I,6)
-              END IF
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_ANG > 0)THEN
+                  LBUFSP%ANG(JJ(1)+J)=ANGL(I,1)
+                  LBUFSP%ANG(JJ(2)+J)=ANGL(I,2)
+                  LBUFSP%ANG(JJ(3)+J)=ANGL(I,3)
+                  LBUFSP%ANG(JJ(4)+J)=ANGL(I,4)
+                  LBUFSP%ANG(JJ(5)+J)=ANGL(I,5)
+                  LBUFSP%ANG(JJ(6)+J)=ANGL(I,6)
+                END IF
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_SF > 0)THEN
-                LBUFSP%SF(JJ(1)+J)=LBUF%SF(II(1)+I)
-                LBUFSP%SF(JJ(2)+J)=LBUF%SF(II(2)+I)
-                LBUFSP%SF(JJ(3)+J)=LBUF%SF(II(3)+I)
-              END IF
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_SF > 0)THEN
+                  LBUFSP%SF(JJ(1)+J)=LBUF%SF(II(1)+I)
+                  LBUFSP%SF(JJ(2)+J)=LBUF%SF(II(2)+I)
+                  LBUFSP%SF(JJ(3)+J)=LBUF%SF(II(3)+I)
+                END IF
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_DAM > 0)THEN
-                DO K=1,ELBUF_TAB(NG)%BUFLY(1)%L_DAM
-                  LBUFSP%DAM(JJ(K)+J)=LBUF%DAM(II(K)+I)
-                ENDDO
-              END IF
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_DAM > 0)THEN
+                  DO K=1,ELBUF_TAB(NG)%BUFLY(1)%L_DAM
+                    LBUFSP%DAM(JJ(K)+J)=LBUF%DAM(II(K)+I)
+                  ENDDO
+                END IF
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_DSUM > 0)
-     .          LBUFSP%DSUM(J)=LBUF%DSUM(I)
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_DSUM > 0)
+     .            LBUFSP%DSUM(J)=LBUF%DSUM(I)
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_DGLO > 0)THEN
-                LBUFSP%DGLO(JJ(1)+J)=DGLO24(I,1)
-                LBUFSP%DGLO(JJ(2)+J)=DGLO24(I,2)
-                LBUFSP%DGLO(JJ(3)+J)=DGLO24(I,3)
-                LBUFSP%DGLO(JJ(4)+J)=DGLO24(I,4)
-                LBUFSP%DGLO(JJ(5)+J)=DGLO24(I,5)
-                LBUFSP%DGLO(JJ(6)+J)=DGLO24(I,6)
-              END IF
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_DGLO > 0)THEN
+                  LBUFSP%DGLO(JJ(1)+J)=DGLO24(I,1)
+                  LBUFSP%DGLO(JJ(2)+J)=DGLO24(I,2)
+                  LBUFSP%DGLO(JJ(3)+J)=DGLO24(I,3)
+                  LBUFSP%DGLO(JJ(4)+J)=DGLO24(I,4)
+                  LBUFSP%DGLO(JJ(5)+J)=DGLO24(I,5)
+                  LBUFSP%DGLO(JJ(6)+J)=DGLO24(I,6)
+                END IF
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_ROB > 0)
-     .          LBUFSP%ROB(J)=LBUF%ROB(I)
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_ROB > 0)
+     .            LBUFSP%ROB(J)=LBUF%ROB(I)
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_SIGC > 0)THEN
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_SIGC > 0)THEN
 C
 C Law24 / Stress in crack frame (same for SPH and solids)
-                LBUFSP%SIGC(JJ(1)+J)=LBUF%SIGC(II(1)+I)
-                LBUFSP%SIGC(JJ(2)+J)=LBUF%SIGC(II(2)+I)
-                LBUFSP%SIGC(JJ(3)+J)=LBUF%SIGC(II(3)+I)
-                LBUFSP%SIGC(JJ(4)+J)=LBUF%SIGC(II(4)+I)
-                LBUFSP%SIGC(JJ(5)+J)=LBUF%SIGC(II(5)+I)
-                LBUFSP%SIGC(JJ(6)+J)=LBUF%SIGC(II(6)+I)
-              END IF
+                  LBUFSP%SIGC(JJ(1)+J)=LBUF%SIGC(II(1)+I)
+                  LBUFSP%SIGC(JJ(2)+J)=LBUF%SIGC(II(2)+I)
+                  LBUFSP%SIGC(JJ(3)+J)=LBUF%SIGC(II(3)+I)
+                  LBUFSP%SIGC(JJ(4)+J)=LBUF%SIGC(II(4)+I)
+                  LBUFSP%SIGC(JJ(5)+J)=LBUF%SIGC(II(5)+I)
+                  LBUFSP%SIGC(JJ(6)+J)=LBUF%SIGC(II(6)+I)
+                END IF
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_CRAK > 0)THEN
-                LBUFSP%CRAK(JJ(1)+J)=LBUF%CRAK(II(1)+I)
-                LBUFSP%CRAK(JJ(2)+J)=LBUF%CRAK(II(2)+I)
-                LBUFSP%CRAK(JJ(3)+J)=LBUF%CRAK(II(3)+I)
-              END IF
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_CRAK > 0)THEN
+                  LBUFSP%CRAK(JJ(1)+J)=LBUF%CRAK(II(1)+I)
+                  LBUFSP%CRAK(JJ(2)+J)=LBUF%CRAK(II(2)+I)
+                  LBUFSP%CRAK(JJ(3)+J)=LBUF%CRAK(II(3)+I)
+                END IF
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_EPSA > 0)THEN
-                LBUFSP%EPSA(JJ(1)+J)=LBUF%EPSA(II(1)+I)
-                LBUFSP%EPSA(JJ(2)+J)=LBUF%EPSA(II(2)+I)
-                LBUFSP%EPSA(JJ(3)+J)=LBUF%EPSA(II(3)+I)
-              END IF
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_EPSA > 0)THEN
+                  LBUFSP%EPSA(JJ(1)+J)=LBUF%EPSA(II(1)+I)
+                  LBUFSP%EPSA(JJ(2)+J)=LBUF%EPSA(II(2)+I)
+                  LBUFSP%EPSA(JJ(3)+J)=LBUF%EPSA(II(3)+I)
+                END IF
 C-----------
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_SIGA > 0)THEN
-                LBUFSP%SIGA(JJ(1)+J)=LBUF%SIGA(II(1)+I)
-                LBUFSP%SIGA(JJ(2)+J)=LBUF%SIGA(II(2)+I)
-                LBUFSP%SIGA(JJ(3)+J)=LBUF%SIGA(II(3)+I)
-              END IF
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_SIGA > 0)THEN
+                  LBUFSP%SIGA(JJ(1)+J)=LBUF%SIGA(II(1)+I)
+                  LBUFSP%SIGA(JJ(2)+J)=LBUF%SIGA(II(2)+I)
+                  LBUFSP%SIGA(JJ(3)+J)=LBUF%SIGA(II(3)+I)
+                END IF
 C-----------
 C Stress in orthotropic skew for mulaw
-              IF(ELBUF_TAB(NG)%BUFLY(1)%L_SIGL > 0)THEN
-                LBUFSP%SIGL(JJ(1)+J)=LBUF%SIGL(II(1)+I)
-                LBUFSP%SIGL(JJ(2)+J)=LBUF%SIGL(II(2)+I)
-                LBUFSP%SIGL(JJ(3)+J)=LBUF%SIGL(II(3)+I)
-                LBUFSP%SIGL(JJ(4)+J)=LBUF%SIGL(II(4)+I)
-                LBUFSP%SIGL(JJ(5)+J)=LBUF%SIGL(II(5)+I)
-                LBUFSP%SIGL(JJ(6)+J)=LBUF%SIGL(II(6)+I)
+                IF(ELBUF_TAB(NG)%BUFLY(1)%L_SIGL > 0)THEN
+                  LBUFSP%SIGL(JJ(1)+J)=LBUF%SIGL(II(1)+I)
+                  LBUFSP%SIGL(JJ(2)+J)=LBUF%SIGL(II(2)+I)
+                  LBUFSP%SIGL(JJ(3)+J)=LBUF%SIGL(II(3)+I)
+                  LBUFSP%SIGL(JJ(4)+J)=LBUF%SIGL(II(4)+I)
+                  LBUFSP%SIGL(JJ(5)+J)=LBUF%SIGL(II(5)+I)
+                  LBUFSP%SIGL(JJ(6)+J)=LBUF%SIGL(II(6)+I)
+                END IF
+C-----------
+C Volume fraction
+              IF(ELBUF_TAB(NG)%BUFLY(1)%L_BFRAC > 0)THEN
+                LBUFSP%BFRAC(JJ(1)+J)=LBUF%BFRAC(II(1)+I)
+              END IF
+C-----------
+C Afterburning param
+              IF(ELBUF_TAB(NG)%BUFLY(1)%L_ABURN > 0)THEN
+                LBUFSP%ABURN(JJ(1)+J)=LBUF%ABURN(II(1)+I)
               END IF
 C-----------
 C User variables (same for SPH and solids)
-              IF(ELBUF_TAB(NG)%BUFLY(1)%NVAR_MAT > 0)THEN
-                DO K=1,ELBUF_TAB(NG)%BUFLY(1)%NVAR_MAT
-                  MBUFSP%VAR(NELSP*(K-1)+J) = MBUF%VAR(NEL*(K-1)+I)
-                END DO
-              ENDIF
+                IF(ELBUF_TAB(NG)%BUFLY(1)%NVAR_MAT > 0)THEN
+                  DO K=1,ELBUF_TAB(NG)%BUFLY(1)%NVAR_MAT
+                    MBUFSP%VAR(NELSP*(K-1)+J) = MBUF%VAR(NEL*(K-1)+I)
+                  END DO
+                ENDIF
+C              
+              ENDIF  
 C-----------
             ENDDO
           ENDDO
         END IF
-        IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+        IF (IDDW>0) CALL STOPTIMEG(NG)
 C--------
  300      CONTINUE
       END DO

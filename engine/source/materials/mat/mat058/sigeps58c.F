@@ -1,55 +1,56 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SIGEPS58C                     source/materials/mat/mat058/sigeps58c.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|        INTERFACE_TABLE_MOD           share/modules/table_mod.F     
-Chd|        TABLE_MOD                     share/modules/table_mod.F     
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sigeps58c             ../engine/source/materials/mat/mat058/sigeps58c.F
+!||--- called by ------------------------------------------------------
+!||    mulawc                ../engine/source/materials/mat_share/mulawc.F90
+!||--- calls      -----------------------------------------------------
+!||    finter                ../engine/source/tools/curve/finter.F
+!||--- uses       -----------------------------------------------------
+!||    interface_table_mod   ../engine/share/modules/table_mod.F
+!||    sensor_mod            ../common_source/modules/sensor_mod.F90
+!||    table_mod             ../engine/share/modules/table_mod.F
+!||====================================================================
       SUBROUTINE SIGEPS58C(
      1     NEL0   ,NUPARAM,NUVAR   ,MFUNC   ,KFUNC  ,
-     2     NPF    ,NPT0    ,IPT    ,IFLAG   ,
+     2     NPF    ,NPT0   ,IPT     ,NSENSOR,
      2     TF     ,TIME   ,TIMESTEP,UPARAM  ,RHO0   ,
-     3     AREA   ,EINT   ,THKLY   ,
-     4     EPSPXX ,EPSPYY ,EPSPXY  ,EPSPYZ  ,EPSPZX ,
-     5     DEPSXX ,DEPSYY ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
-     6     EPSXX  ,EPSYY  ,EPSXY   ,EPSYZ   ,EPSZX  ,
-     7     SIGOXX ,SIGOYY ,SIGOXY  ,SIGOYZ  ,SIGOZX ,
-     8     SIGNXX ,SIGNYY ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
-     9     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
-     A     SOUNDSP,VISCMAX,THK     ,PLA     ,UVAR   ,
-     B     OFF    ,NGL    ,PM      ,MAT     ,ETSE   ,
-     C     SHF    ,YLD    ,EPSP    ,TAN_PHI ,
-     D     ALDT   ,LSENSOR,SENSOR  ,ISMSTR  ,TABLE  ,
-     E     OFFGG   )
+     3     AREA   ,EINT   ,THKLY   ,NIPARAM ,IPARAM ,
+     4     DEPSXX ,DEPSYY ,DEPSXY  ,DEPSYZ  ,DEPSZX ,
+     5     EPSXX  ,EPSYY  ,EPSXY   ,EPSYZ   ,EPSZX  ,
+     6     SIGOXX ,SIGOYY ,SIGOXY  ,SIGOYZ  ,SIGOZX ,
+     7     SIGNXX ,SIGNYY ,SIGNXY  ,SIGNYZ  ,SIGNZX ,
+     8     SIGVXX ,SIGVYY ,SIGVXY  ,SIGVYZ  ,SIGVZX ,
+     9     SOUNDSP,VISCMAX,THK     ,PLA     ,UVAR   ,
+     A     OFF    ,NGL    ,PM      ,MAT     ,ETSE   ,
+     B     SHF    ,YLD    ,TAN_PHI ,ALDT    ,
+     C     SENSOR_TAB,ISMSTR,TABLE ,OFFGG   )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE TABLE_MOD
       USE INTERFACE_TABLE_MOD
+      USE SENSOR_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -70,7 +71,6 @@ C IFUNC   | NFUNC   | I | R | FUNCTION INDEX
 C NPF     |  *      | I | R | FUNCTION ARRAY   
 C NPT0    |  1      | I | R | NUMBER OF LAYERS OR INTEGRATION POINTS   
 C IPT     |  1      | I | R | LAYER OR INTEGRATION POINT NUMBER   
-C IFLAG   |  *      | I | R | GEOMETRICAL FLAGS   
 C TF      |  *      | F | R | FUNCTION ARRAY 
 C---------+---------+---+---+--------------------------------------------
 C TIME    |  1      | F | R | CURRENT TIME
@@ -80,9 +80,6 @@ C RHO0    | NEL0    | F | R | INITIAL DENSITY
 C AREA    | NEL0    | F | R | AREA
 C EINT    | 2*NEL0  | F | R | INTERNAL ENERGY(MEMBRANE,BENDING)
 C THKLY   | NEL0    | F | R | LAYER THICKNESS
-C EPSPXX  | NEL0    | F | R | STRAIN RATE XX
-C EPSPYY  | NEL0    | F | R | STRAIN RATE YY
-C ...     |         |   |   |
 C DEPSXX  | NEL0    | F | R | STRAIN INCREMENT XX
 C DEPSYY  | NEL0    | F | R | STRAIN INCREMENT YY
 C ...     |         |   |   |
@@ -100,7 +97,7 @@ C SIGVXX  | NEL0    | F | W | VISCOUS STRESS XX
 C SIGVYY  | NEL0    | F | W | VISCOUS STRESS YY
 C ...     |         |   |   |
 C SOUNDSP | NEL0    | F | W | SOUND SPEED (NEEDED FOR TIME STEP)
-C VISCMAX | NEL0    | F | W | MAXIMUN DAMPING MODULUS(NEEDED FOR TIME STEP)
+C VISCMAX | NEL0    | F | W | MAXIMUM DAMPING MODULUS(NEEDED FOR TIME STEP)
 C---------+---------+---+---+--------------------------------------------
 C THK     | NEL0    | F |R/W| THICKNESS
 C PLA     | NEL0    | F |R/W| PLASTIC STRAIN
@@ -110,28 +107,29 @@ C---------+---------+---+---+--------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
-#include      "parit_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com08_c.inc"
 C-----------------------------------------------
 C   I N P U T   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NEL0, NUPARAM, NUVAR, NPT0, IPT,ISMSTR,IFLAG(*),
-     .   NGL(NEL0),MAT(NEL0),LSENSOR(NSENSI,*)
-      my_real TIME,TIMESTEP(NEL0),UPARAM(*),
+      INTEGER ,INTENT(IN) :: NSENSOR
+      INTEGER ,INTENT(IN) :: NIPARAM
+      INTEGER ,INTENT(IN) :: NUPARAM
+      INTEGER :: NEL0, NUVAR,NPT0,IPT,ISMSTR
+      INTEGER :: NGL(NEL0),MAT(NEL0)
+      INTEGER ,DIMENSION(NIPARAM) ,INTENT(IN) :: IPARAM
+      my_real ,DIMENSION(NUPARAM) ,INTENT(IN) :: UPARAM
+      my_real TIME,TIMESTEP(NEL0),
      .   AREA(NEL0),RHO0(NEL0),EINT(NEL0,2),
      .   THKLY(NEL0),PLA(NEL0),OFFGG(NEL0),TAN_PHI(NEL0),
-     .   EPSPXX(NEL0),EPSPYY(NEL0),
-     .   EPSPXY(NEL0),EPSPYZ(NEL0),EPSPZX(NEL0),
      .   DEPSXX(NEL0),DEPSYY(NEL0),
      .   DEPSXY(NEL0),DEPSYZ(NEL0),DEPSZX(NEL0),
      .   EPSXX(NEL0) ,EPSYY(NEL0) ,
      .   EPSXY(NEL0) ,EPSYZ(NEL0) ,EPSZX(NEL0) ,
      .   SIGOXX(NEL0),SIGOYY(NEL0),
      .   SIGOXY(NEL0),SIGOYZ(NEL0),SIGOZX(NEL0),
-     .   PM(NPROPM,*),SHF(*),EPSP(NEL0),ALDT(NEL0),SENSOR(NSENSR,*)
+     .   PM(NPROPM,*),SHF(*),ALDT(NEL0)
 C-----------------------------------------------
 C   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
@@ -146,8 +144,8 @@ C   I N P U T   O U T P U T   A r g u m e n t s
 C-----------------------------------------------
       my_real UVAR(NEL0,NUVAR), OFF(NEL0),THK(NEL0),YLD(NEL0)
       TYPE(TTABLE) TABLE(*)
-      my_real,
-     .        DIMENSION(1) :: XX
+      my_real, DIMENSION(1) :: XX
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) ,INTENT(IN) :: SENSOR_TAB
 C-----------------------------------------------
 C   VARIABLES FOR FUNCTION INTERPOLATION 
 C-----------------------------------------------
@@ -164,7 +162,7 @@ C        NPF,TF  : FUNCTION PARAMETER
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,NC,NT,ISENS,ITER,NITER,NBFCT,NINDX,NUMOFF,UNLOAD,IERR,
+      INTEGER I,J,NC,NT,ISENS,ITER,NITER,NINDX,NUMOFF,UNLOAD,IERR,
      .        IFUNCC,IFUNCT,IDXCNT,IDX1,IDX2,IERRT,IERRC,INDEX(MVSIZ),
      .        INDXOFF(MVSIZ),TAGOLDC,TAGOLDT,TAGC(0:1),TAGT(0:1)
       my_real
@@ -194,11 +192,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   S t a t e    V a r i a b l e s  (U V A R)
 C-----------------------------------------------
-c     UVAR(1)  = SIGNXX + SIGVXX  ! total stress in 1st direction (elastic + viscous)
-c     UVAR(2)  = SIGNYY + SIGVYY  ! total stress in 2nd direction (elastic + viscous)
+c     UVAR(1)  = SIGNXX + SIGVXX  ! total engineering stress in 1st direction (elastic + viscous)
+c     UVAR(2)  = SIGNYY + SIGVYY  ! total engineering stress in 2nd direction (elastic + viscous)
 c     UVAR(3)  = SIGNXY + SIGVXY  ! total shear stress (elastic + friction)
-c     UVAR(4)  = EC               ! total element elongation in 1st direction
-c     UVAR(5)  = ET               ! total element elongation in 2nd direction
+c     UVAR(4)  = EC               ! total true element strain in 1st fiber direction
+c     UVAR(5)  = ET               ! total true element strain in 2nd fiber direction
 c     UVAR(6)  = DEPSXY           ! tan(alpha) of shear angle
 c     UVAR(7)  = YC               ! total flex element elongation in 1st direction
 c     UVAR(8)  = YT               ! total flex element elongation in 2nd direction
@@ -214,14 +212,18 @@ C======================================================================|
 C---  Initialisations
 C----------------------------------------------------------------------
       NITER    = 3
+!
+      UNLOAD   = IPARAM(1)
+      ISENS    = IPARAM(2)
+      NC       = IPARAM(3)  
+      NT       = IPARAM(4)  
+!
       LC0      = UPARAM( 1)  
       LT0      = UPARAM( 2)  
       DC0      = UPARAM( 3)  
       DT0      = UPARAM( 4)  
       HC0      = UPARAM( 5)  
       HT0      = UPARAM( 6)  
-      NC       = UPARAM( 7)  
-      NT       = UPARAM( 8)  
       KC0      = UPARAM( 9)  ! young dir1
       KT0      = UPARAM(10)  ! young dir2
       KKC      = UPARAM(40)  ! initial slope dir1
@@ -240,20 +242,13 @@ C----------------------------------------------------------------------
       AREAMIN  = UPARAM(22)  
       DAREAMIN = UPARAM(23)  
       ZEROSTRESS = UPARAM(24)
-      ISENS    = NINT(UPARAM(25))
-      TSTART   = ZERO
       FLEX1    = UPARAM(26)
       FLEX2    = UPARAM(27)
-      NBFCT    = NINT(UPARAM(31))
       GSH      = UPARAM(32)*SHF(1)
-      IF (ZEROSTRESS > ZERO) THEN
-        DO I=1,NSENSOR
-          IF (ISENS == LSENSOR(1,I)) THEN
-            ISENS = I
-            TSTART = SENSOR(2,ISENS)
-            EXIT
-          ENDIF
-        ENDDO
+      IF (ZEROSTRESS > ZERO .and. ISENS > 0) THEN
+        TSTART = SENSOR_TAB(ISENS)%TSTART
+      ELSE
+        TSTART   = ZERO
       ENDIF  
 c
       YFAC(1) = UPARAM(27 + 1 )
@@ -262,7 +257,6 @@ c
       YFAC(4) = UPARAM(33)
       YFAC(5) = UPARAM(34)
       YFAC(6) = UPARAM(42)
-      UNLOAD  = NINT(UPARAM(35))
 c
       KFC = KFC0  
       KFT = KFT0
@@ -271,7 +265,7 @@ c
       NINDX  = 0
       NUMOFF = 0
 C-----------------------------------------------------------
-C     DESACTIVATION FOR VERY WARPED ELEMENT (QBAT)
+C     DEACTIVATION FOR VERY WARPED ELEMENT (QBAT)
 C-----------------------------------------------------------
       IF (NPT0 ==1) THEN
         DO I=1,NEL0
@@ -290,7 +284,7 @@ c
         IF (KBC == ZERO) THEN 
           CCL = EP30 
         ELSE
-          CCL = KC / KBC ! condition pour derivee nulle 
+          CCL = KC / KBC ! Condition for derivee zero 
         ENDIF
 
         IF (KBT == ZERO) THEN
@@ -319,7 +313,7 @@ c
           CVIST(I) = SQRT(MASS*KFT0)*DTINV*THIRD
         ENDDO
 
-C---  integration des deformations
+C--- integration of deformations
 #include "vectorize.inc"
         DO  J=1,NINDX
           I=INDEX(J)
@@ -350,7 +344,7 @@ c---      uncoupled model  (compression of fiber)
           DYC = ZERO
           DYT = ZERO
           DO ITER = 1, NITER
-            HC  = HC0 + YC(I)  !longueur ressort
+            HC  = HC0 + YC(I)  !spring
             HT  = HT0 + YT(I)     
             DC  = SQRT(LC(I)*LC(I) + HC*HC) ! long fibre  
             DT  = SQRT(LT(I)*LT(I) + HT*HT)   
@@ -364,7 +358,7 @@ c---      uncoupled model  (compression of fiber)
               FC = YFAC(1)*FINTER(KFUNC(1),DCC,NPF,TF,FPC)
               FPC = FPC *YFAC(1)
               KC = FPC
-              KFC = FLEX1*FPC*HC0/DC0  ! rigidite de flexion
+              KFC = FLEX1*FPC*HC0/DC0  ! bending stiffness
               IF(KFC == ZERO)KFC=KFC0
               FPC = FPC*HDC
             ELSEIF (DCC >= CCL ) THEN 
@@ -509,14 +503,17 @@ C------------------------------------------------------------------
           ET2 = MAX(TRACE / (ET(I) + ONE), EM6)
           RFAC = NC / EC2
           RFAT = NT / ET2
-C---      contraintes membrane       
-          SIGC = RFAC * FC * LC(I) / DC
-          SIGT = RFAT * FT * LT(I) / DT
-          SIGNXX(I) = SIGC
-          SIGNYY(I) = SIGT
+C--- Membrane constraints       
+          SIGC = FC * LC(I) / DC
+          SIGT = FT * LT(I) / DT
+          SIGNXX(I) = SIGC * RFAC
+          SIGNYY(I) = SIGT * RFAT
+c
+          UVAR(I,1)  = SIGC
+          UVAR(I,2)  = SIGT
           UVAR(I,15) = DC
           UVAR(I,16) = DT
-C---      contraintes cisaillement      
+C--- Shear stresses      
 C------------------------------------------------------------------
 C------------------------------------------------------------------
 c++++++++++
@@ -541,14 +538,14 @@ c++++++++++
             SIGNXY(I) = G0*TAN_PHI(I) - SIG0
             KG        = G0*TAN2
           ENDIF
-C---      contraintes visc fibres   
+C--- Visc fibers constraints   
           DTINV = TIMESTEP(I)/MAX(TIMESTEP(I)*TIMESTEP(I),EM20)
           DAMP  = SQRT(RHO0(I)*AREA(I)*THKLY(I)*HALF)
           V1 = VISCE*DAMP*SQRT(NC*KC)
           V2 = VISCE*DAMP*SQRT(NT*KT)
           SIGVXX(I) = DTINV*(DEPSXX(I))*V1
           SIGVYY(I) = DTINV*(DEPSYY(I))*V2
-C---      contraintes frottement cisaillement  
+C--- Cisae friction constraints  
           IF (FN(I) > ZERO) THEN
             TFROT = TWO_THIRD*VISCG*FN(I)*(HC0+HT0)/(LC(I)+LT(I))
             DTANG(I) = DEPSXY(I) - TAN_PHI(I)
@@ -563,7 +560,7 @@ C---
           SINN = TAN_PHI(I) / SQRT(ONE + TAN2)
           KMAX = MAX(KC0*RFAC,KT0*RFAT)*(ONE+SINN) + KG
           LMIN = MIN(DC/DC0,DT/DT0)*UVAR(I,14)
-          if (RHO0(I)==ZERO.OR.LMIN==ZERO) print *,'RHO0(I),DC,DT,UVAR(I,14)=',RHO0(I),DC,DT,UVAR(I,14)
+c          if (RHO0(I)==ZERO.OR.LMIN==ZERO)
           SOUNDSP(I) = SQRT(KMAX/(RHO0(I)))*ALDT(I)/LMIN
           VISCMAX(I) = MAX(V1,V2)
           ETSE(I)    = ONE
@@ -572,8 +569,6 @@ C---
 #include "vectorize.inc"
         DO  J=1,NINDX
           I=INDEX(J)
-          UVAR(I,1) = SIGNXX(I) + SIGVXX(I)
-          UVAR(I,2) = SIGNYY(I) + SIGVYY(I)
           UVAR(I,3) = SIGNXY(I) + SIGVXY(I)
           TAN_PHI(I)= DEPSXY(I)
           UVAR(I,6) = DEPSXY(I)
@@ -622,7 +617,7 @@ c
         YT(I)    = UVAR(I,8)  
         TFOLD(I) = UVAR(I,9)  
        ENDDO
-C---  integration des deformations
+C--- integration of deformations
 #include "vectorize.inc"
       DO  J=1,NINDX
         I=INDEX(J)
@@ -656,7 +651,7 @@ C---  integration des deformations
         I=INDEX(J)
         FN(I) = ZERO
 c---    uncoupled model  (compression of fiber)         
-        HC  = HC0 + YC(I)  !longueur ressort           
+        HC  = HC0 + YC(I)  !spring           
         HT  = HT0 + YT(I)                              
         DC  = SQRT(LC(I)*LC(I) + HC*HC) ! long fibre   
         DT  = SQRT(LT(I)*LT(I) + HT*HT)                
@@ -669,7 +664,7 @@ c---    uncoupled model  (compression of fiber)
      .       (DDEC >=ZERO .AND. UVAR(I,17)==UVAR(I,18)) ) THEN     
            !----------------------LOAD
            DO ITER = 1, NITER           
-            HC  = HC0 + YC(I)  !longueur ressort   
+            HC  = HC0 + YC(I)  !spring   
             DC  = SQRT(LC(I)*LC(I) + HC*HC) ! long fibre    
             DCC = DC - DC0 
             DCC = MAX (UVAR(I,18),DCC)           
@@ -699,7 +694,7 @@ c---    uncoupled model  (compression of fiber)
           ELSEIF(DDEC >=ZERO    ) THEN     
            !----------------------RELOAD
            DO ITER = 1, NITER
-            HC  = HC0 + YC(I)  !longueur ressort   
+            HC  = HC0 + YC(I)  !spring   
             DC  = SQRT(LC(I)*LC(I) + HC*HC) ! long fibre    
             DCC = DC - DC0    
             DCC = MAX (UVAR(I,18),DCC)                             
@@ -735,7 +730,7 @@ c---    uncoupled model  (compression of fiber)
 c
            IF (UVAR(I,19) > ZERO) THEN  !emaxrl
            DO ITER = 1, NITER
-            HC  = HC0 + YC(I)  !longueur ressort   
+            HC  = HC0 + YC(I)  !spring   
             DC  = SQRT(LC(I)*LC(I) + HC*HC) ! long fibre    
             DCC = DC - DC0                    
             DCC = MAX (ZERO,DCC)                  
@@ -763,7 +758,7 @@ c
            ENDDO !iter
           ELSE!(UVAR(I,19) >ZERO
            DO ITER = 1, NITER
-            HC  = HC0 + YC(I)  !longueur ressort
+            HC  = HC0 + YC(I)  !spring
             DC  = SQRT(LC(I)*LC(I) + HC*HC) ! long fibre  
             UDC = ONE / DC                                        
             HDC = HC * UDC      !sinus(alpha)                                
@@ -785,9 +780,9 @@ c
           ENDIF!(UVAR(I,19) >ZERO)
           !TAGOLDC = 3
           ENDIF !LOAD RELOD OR UNLOAD
-         ELSE ! DCC < ZERO domaine de compression  
+         ELSE ! DCC <Zero Domaine de Compression  
           DO ITER = 1, NITER
-           HC  = HC0 + YC(I)  !longueur ressort
+           HC  = HC0 + YC(I)  !spring
            DC  = SQRT(LC(I)*LC(I) + HC*HC) ! long fibre  
            UDC = ONE / DC                                        
            HDC = HC * UDC      !sinus(alpha)                                
@@ -809,14 +804,14 @@ c
           SMAXRLC(I) = ZERO 
          ENDIF ! COMPRESSION OR TENSION FOR DIRECTION CHAINE
 c----------------------------------
-c----------------direction trame---
+c-------------- Direction Trame ---
 c----------------------------------
          IF(DTT >ZERO ) THEN !(DDET >=ZERO .AND. UVAR(I,22)==ZERO).OR.
           IF((DDET >=ZERO .AND.DTT>UVAR(I,21))
      .          .OR.(DDET >=ZERO .AND.UVAR(I,21)==UVAR(I,22))) THEN     
            !----------------------LOAD
            DO ITER = 1, NITER           
-            HT  = HT0 + YT(I)  !longueur ressort   
+            HT  = HT0 + YT(I)  !spring   
             DT  = SQRT(LT(I)*LT(I) + HT*HT) ! long fibre    
             DTT = DT - DT0     
             DTT = MAX (UVAR(I,22),DTT)     
@@ -848,7 +843,7 @@ c----------------------------------
           ELSEIF(DDET >=ZERO) THEN     
            !----------------------RELOAD
            DO ITER = 1, NITER
-            HT  = HT0 + YT(I)  !longueur ressort   
+            HT  = HT0 + YT(I)  !spring   
             DT  = SQRT(LT(I)*LT(I) + HT*HT) ! long fibre    
             DTT = DT - DT0                    
             DTT = MAX (UVAR(I,22),DTT)                  
@@ -887,7 +882,7 @@ c----------------------------------
             !-----------------------UNLOAD
            IF (UVAR(I,23)>ZERO)THEN
               DO ITER = 1, NITER
-               HT  = HT0 + YT(I)  !longueur ressort   
+               HT  = HT0 + YT(I)  !spring   
                DT  = SQRT(LT(I)*LT(I) + HT*HT) ! long fibre    
                DTT = DT - DT0                    
                DTT = MAX (zero,DTT)                  
@@ -915,7 +910,7 @@ c----------------------------------
               ENDDO !iter
            ELSE !(UVAR(I,23)>ZERO)
             DO ITER = 1, NITER
-             HT  = HT0 + YT(I)  !longueur ressort   
+             HT  = HT0 + YT(I)  !spring   
              DT  = SQRT(LT(I)*LT(I) + HT*HT) ! long fibre    
              UDT = ONE / DT                                         
              HDT = HT * UDT      !sinus(alpha)                                
@@ -938,7 +933,7 @@ c----------------------------------
           ENDIF !LOAD RELOD OR UNLOAD
          ELSE ! DTT < ZERO domaine de compression  
           DO ITER = 1, NITER
-           HT  = HT0 + YT(I)  !longueur ressort   
+           HT  = HT0 + YT(I)  !spring   
            DT  = SQRT(LT(I)*LT(I) + HT*HT) ! long fibre    
            UDT = ONE / DT                                         
            HDT = HT * UDT      !sinus(alpha)                                
@@ -1052,7 +1047,7 @@ c----------------------------------UNLOAD
               TAGC(IDX1) = 5            
               TAGC(IDX2) = 5            
            ENDIF ! (DCC1 >=ZERO  )            
-c ---------------direction trame ---------------------
+c ------------- Direction Trame -----------------------------------------------
            IF(DTT1 >=ZERO  ) THEN 
              IF((DDET >=ZERO .AND.DTT0>UVAR(I,21))
      .              .OR.(DDET >=ZERO .AND.UVAR(I,21)==UVAR(I,22))   ) THEN      
@@ -1213,7 +1208,7 @@ c
                   SMAXRLC(I) = ZERO                  
               END SELECT
 c
-c -----------------------direction trame 
+c --------------------- Direction Trame 
               SELECT CASE (TAGT(IDX1))
                 CASE(1)  ! tension load or reload
                   DTT = MAX (UVAR(I,22),DTT)                  
@@ -1510,15 +1505,19 @@ C=======================================================================
 c
         RFAC = ONE / EC2
         RFAT = ONE / ET2
-C---    contraintes membrane       
-        SIGC = RFAC * FC * LC(I) / DC
-        SIGT = RFAT * FT * LT(I) / DT
-        SIGNXX(I) = SIGC
-        SIGNYY(I) = SIGT
+C--- Membrane constraints       
+c
+        SIGC = FC * LC(I) / DC
+        SIGT = FT * LT(I) / DT
+        SIGNXX(I) = SIGC * RFAC
+        SIGNYY(I) = SIGT * RFAT
+c
+        UVAR(I,1)  = SIGC
+        UVAR(I,2)  = SIGT
         UVAR(I,15) = DC
         UVAR(I,16) = DT
 C------------------------------------------------------------------
-C---    contraintes cisaillement      
+C--- Shear stresses      
 C------------------------------------------------------------------
         SIG0    = UVAR(I,10)
         TAN_PHI(I)= DEPSXY(I)
@@ -1617,7 +1616,7 @@ c-----
 c
         ENDIF ! KFUNC(3) > 0
 c---------------------------------------------------------------------
-C---    contraintes visc fibres   
+C--- Visc fibers constraints   
 c
         DTINV = TIMESTEP(I)/MAX(TIMESTEP(I)*TIMESTEP(I),EM20)
         DAMP  = SQRT(RHO0(I)*AREA(I)*THKLY(I)*HALF)        
@@ -1631,7 +1630,7 @@ c
         V2 = VISCE*DAMP*SQRT(KT)
         SIGVXX(I) = DTINV*(DEPSXX(I))*V1
         SIGVYY(I) = DTINV*(DEPSYY(I))*V2
-C---    contraintes frottement cisaillement  
+C--- Cisae friction constraints  
         IF (FN(I) > ZERO) THEN
           TFROT = TWO_THIRD*VISCG*FN(I)*(HC0+HT0)/(LC(I)+LT(I))
           DTANG(I) = DEPSXY(I) - TAN_PHI(I)
@@ -1654,8 +1653,6 @@ C---
 #include "vectorize.inc"
       DO  J=1,NINDX
         I=INDEX(J)
-        UVAR(I,1) = SIGNXX(I) + SIGVXX(I)
-        UVAR(I,2) = SIGNYY(I) + SIGVYY(I)
         UVAR(I,3) = SIGNXY(I) + SIGVXY(I)
         TAN_PHI(I) = DEPSXY(I)
         UVAR(I,6)  = DEPSXY(I)
@@ -1754,7 +1751,7 @@ C-----------------------------------------------------------
       ENDIF
       !IF(ncycle== 2)!stop
 C-----------------------------------------------------------
-C     DESACTIVATION FOR VERY WARPED ELEMENT (QBAT)
+C     DEACTIVATION FOR VERY WARPED ELEMENT (QBAT)
 C-----------------------------------------------------------
       IF (NPT0 ==1) THEN
 #include "vectorize.inc"

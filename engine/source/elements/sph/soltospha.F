@@ -1,39 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SOLTOSPHA                     source/elements/sph/soltospha.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        STARTIMEG                     source/system/timer.F         
-Chd|        STOPTIMEG                     source/system/timer.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SOLTOSPH_MOD                  share/modules/soltosph_mod.F  
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    soltospha      ../engine/source/elements/sph/soltospha.F
+!||--- called by ------------------------------------------------------
+!||    resol          ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg         ../engine/source/output/message/message.F
+!||    arret          ../engine/source/system/arret.F
+!||    my_barrier     ../engine/source/system/machine.F
+!||    startimeg      ../engine/source/system/timer.F
+!||    stoptimeg      ../engine/source/system/timer.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod    ../common_source/modules/elements/element_mod.F90
+!||    message_mod    ../engine/share/message_module/message_mod.F
+!||    soltosph_mod   ../engine/share/modules/soltosph_mod.F
+!||====================================================================
       SUBROUTINE SOLTOSPHA(
      1   ITASK   ,V       ,A        ,MS      ,PM      ,
      2   IPART   ,IXS     ,IPARTS   ,KXSP    ,IPARTSP ,
@@ -43,26 +45,23 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD         
       USE SOLTOSPH_MOD         
       USE MESSAGE_MOD
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "sphcom.inc"
 #include      "scr11_c.inc"
 #include      "scr17_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "vect01_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -79,7 +78,7 @@ C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,  J, IR, IS, IT, KP, NP, N, INOD, IG, NG, MG, NEL,
-     .        N1, N2, N3, N4, N5, N6, N7, N8, IPRT, IMAT,
+     . N1, N2, N3, N4, N5, N6, N7, N8, IPRT,
      .        NELEM, OFFSET, NSPHDIR, KFT, IERROR
 C                                                                    
       my_real
@@ -87,10 +86,9 @@ C
      .   VY1,VY2,VY3,VY4,VY5,VY6,VY7,VY8,
      .   VZ1,VZ2,VZ3,VZ4,VZ5,VZ6,VZ7,VZ8,
      .   PHI1,PHI2,PHI3,PHI4,PHI5,PHI6,PHI7,PHI8,
-     .   KSI, ETA, ZETA, WI,
+     . KSI, ETA, ZETA,
      .   VXI, VYI, VZI, USDT, DT05,
-     .   XMASS_T, XMOMT_T, YMOMT_T, ZMOMT_T, ENCIN_T,
-     .   RHO0, MASS, VI2
+     .   XMASS_T, XMOMT_T, YMOMT_T, ZMOMT_T, ENCIN_T
 C-----
       TYPE(G_BUFEL_) ,POINTER :: GBUF, GBUFSP
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
@@ -185,8 +183,8 @@ C
 !$OMP DO SCHEDULE(DYNAMIC,1)
       DO IG = 1, NGROUNC
         NG = IGROUNC(IG)         
-        IF(IPARG(8,NG).EQ.1)GOTO 250
-        IF (IDDW.GT.0) CALL STARTIMEG(NG)
+        IF(IPARG(8,NG)==1)GOTO 250
+        IF (IDDW>0) CALL STARTIMEG(NG)
         DO NELEM = 1,IPARG(2,NG),NVSIZ
           OFFSET = NELEM - 1
           NEL   =IPARG(2,NG)
@@ -196,7 +194,7 @@ C
           IPARTSPH=IPARG(69,NG)
           LFT=1
           LLT=MIN(NVSIZ,NEL-NELEM+1)
-          IF(ITY.EQ.1.AND.IPARTSPH.NE.0) THEN
+          IF(ITY==1.AND.IPARTSPH/=0) THEN
 C-----------
             GBUF => ELBUF_TAB(NG)%GBUF
             LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
@@ -204,11 +202,11 @@ C-----------
 C-----
 C----TETRA---     
 C-----
-            IF (IPARG(28,NG).EQ.4) THEN
+            IF (IPARG(28,NG)==4) THEN
 C-----
               DO I=LFT,LLT
               N=NFT+I
-              IF(GBUF%OFF(I).EQ.ZERO) CYCLE
+              IF(GBUF%OFF(I)==ZERO) CYCLE
 C
 C             SOL2SPH(1,N)+1<=I<=SOLSPH(2,N) <=> N==SPH2SOL(I)
               N1=IXS(2,N)
@@ -261,7 +259,7 @@ C----HEXA---
 C-----
             DO I=LFT,LLT
               N=NFT+I
-              IF(GBUF%OFF(I).EQ.ZERO) CYCLE
+              IF(GBUF%OFF(I)==ZERO) CYCLE
 C
 C             SOL2SPH(1,N)+1<=I<=SOLSPH(2,N) <=> N==SPH2SOL(I)
               N1=IXS(2,N)
@@ -334,7 +332,7 @@ C-----
           ENDIF
 C-----
           ENDIF
-          IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+          IF (IDDW>0) CALL STOPTIMEG(NG)
         END DO
 C--------
  250    CONTINUE
@@ -344,8 +342,8 @@ C
 !$OMP DO SCHEDULE(DYNAMIC,1)
       DO IG = 1, NGROUNC
         NG = IGROUNC(IG)         
-        IF(IPARG(8,NG).EQ.1)GOTO 350
-        IF (IDDW.GT.0) CALL STARTIMEG(NG)
+        IF(IPARG(8,NG)==1)GOTO 350
+        IF (IDDW>0) CALL STARTIMEG(NG)
         DO NELEM = 1,IPARG(2,NG),NVSIZ
           OFFSET = NELEM - 1
           NEL   =IPARG(2,NG)
@@ -355,7 +353,7 @@ C
           IPARTSPH=IPARG(69,NG)
           LFT=1
           LLT=MIN(NVSIZ,NEL-NELEM+1)
-          IF(ITY.EQ.1.AND.IPARTSPH.NE.0) THEN
+          IF(ITY==1.AND.IPARTSPH/=0) THEN
 C-----------
             GBUF => ELBUF_TAB(NG)%GBUF
             LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(1,1,1)
@@ -363,52 +361,56 @@ C-----------
 C-----
             DO I=LFT,LLT
               N=NFT+I
-              IF(GBUF%OFF(I).NE.ZERO) THEN
+              IF(GBUF%OFF(I)/=ZERO) THEN
 C
 C               SOL2SPH(1,N)+1<=I<=SOLSPH(2,N) <=> N==SPH2SOL(I)
 C
                 DO KP=1,SOL2SPH(2,N)-SOL2SPH(1,N)
 C
                   NP=SOL2SPH(1,N)+KP
-                  MG =MOD(-KXSP(2,NP),NGROUP+1)
+                  IF (KXSP(2,NP)/=0) THEN
+C                  
+                    MG =MOD(-KXSP(2,NP),NGROUP+1)
 C
-                  INOD=KXSP(3,NP)
-                  VXI=V(1,INOD)+DT05*A(1,INOD)
-                  VYI=V(2,INOD)+DT05*A(2,INOD)
-                  VZI=V(3,INOD)+DT05*A(3,INOD)
-                  XMASS_T=XMASS_T-MS(INOD)
-                  XMOMT_T=XMOMT_T-MS(INOD)*VXI
-                  YMOMT_T=YMOMT_T-MS(INOD)*VYI
-                  ZMOMT_T=ZMOMT_T-MS(INOD)*VZI
-                  ENCIN_T=ENCIN_T
+                    INOD=KXSP(3,NP)
+                    VXI=V(1,INOD)+DT05*A(1,INOD)
+                    VYI=V(2,INOD)+DT05*A(2,INOD)
+                    VZI=V(3,INOD)+DT05*A(3,INOD)
+                    XMASS_T=XMASS_T-MS(INOD)
+                    XMOMT_T=XMOMT_T-MS(INOD)*VXI
+                    YMOMT_T=YMOMT_T-MS(INOD)*VYI
+                    ZMOMT_T=ZMOMT_T-MS(INOD)*VZI
+                    ENCIN_T=ENCIN_T
      .                   -HALF*MS(INOD)*(VXI*VXI+VYI*VYI+VZI*VZI)
 C
-C                 IPARG(8,MG).EQ.1 <=> group was not computed 
-C                 (there is no cloud active particle within the group)
-                  IF(IPARG(8,MG).EQ.1)CYCLE
+C                   IPARG(8,MG)==1 <=> group was not computed 
+C                   (there is no cloud active particle within the group)
+                    IF(IPARG(8,MG)==1)CYCLE
 C
-                  KFT=IPARG(3,MG)
-                  GBUFSP => ELBUF_TAB(MG)%GBUF
-                  IPRT=IPARTSP(NP)
-                  WPARTSAV(ITASK+1,1,IPRT)=WPARTSAV(ITASK+1,1,IPRT)
-     .              -GBUFSP%VOL(NP-KFT)*GBUFSP%EINT(NP-KFT)
-                  WPARTSAV(ITASK+1,2,IPRT)=WPARTSAV(ITASK+1,2,IPRT)
-     .              -HALF*MS(INOD)*(VXI*VXI+VYI*VYI+VZI*VZI)
-                  WPARTSAV(ITASK+1,3,IPRT)=WPARTSAV(ITASK+1,3,IPRT)
-     .              -MS(INOD)*VXI
-                  WPARTSAV(ITASK+1,4,IPRT)=WPARTSAV(ITASK+1,4,IPRT)
-     .              -MS(INOD)*VYI
-                  WPARTSAV(ITASK+1,5,IPRT)=WPARTSAV(ITASK+1,5,IPRT)
-     .              -MS(INOD)*VZI
-                  WPARTSAV(ITASK+1,6,IPRT)=WPARTSAV(ITASK+1,6,IPRT)
-     .              -MS(INOD)
+                    KFT=IPARG(3,MG)
+                    GBUFSP => ELBUF_TAB(MG)%GBUF
+                    IPRT=IPARTSP(NP)
+                    WPARTSAV(ITASK+1,1,IPRT)=WPARTSAV(ITASK+1,1,IPRT)
+     .                -GBUFSP%VOL(NP-KFT)*GBUFSP%EINT(NP-KFT)
+                    WPARTSAV(ITASK+1,2,IPRT)=WPARTSAV(ITASK+1,2,IPRT)
+     .                -HALF*MS(INOD)*(VXI*VXI+VYI*VYI+VZI*VZI)
+                    WPARTSAV(ITASK+1,3,IPRT)=WPARTSAV(ITASK+1,3,IPRT)
+     .                -MS(INOD)*VXI
+                    WPARTSAV(ITASK+1,4,IPRT)=WPARTSAV(ITASK+1,4,IPRT)
+     .                -MS(INOD)*VYI
+                    WPARTSAV(ITASK+1,5,IPRT)=WPARTSAV(ITASK+1,5,IPRT)
+     .                -MS(INOD)*VZI
+                    WPARTSAV(ITASK+1,6,IPRT)=WPARTSAV(ITASK+1,6,IPRT)
+     .                -MS(INOD)
+C
+                  ENDIF      
 C
                 ENDDO
               END IF
             END DO
           END IF
         END DO
-        IF (IDDW.GT.0) CALL STOPTIMEG(NG)
+        IF (IDDW>0) CALL STOPTIMEG(NG)
  350    CONTINUE
       END DO
 !$OMP END DO

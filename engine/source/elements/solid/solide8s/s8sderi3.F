@@ -1,40 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  S8SDERI3                      source/elements/solid/solide8s/s8sderi3.F
-Chd|-- called by -----------
-Chd|        S8SFORC3                      source/elements/solid/solide8s/s8sforc3.F
-Chd|        S8SKE3                        source/elements/solid/solide8s/s8ske3.F
-Chd|-- calls ---------------
-Chd|====================================================================
-      SUBROUTINE S8SDERI3(OFFG,OFF,VOLDP,NGL,
-     .    KSI,ETA,ZETA,WI,
-     .    X1,X2,X3,X4,X5,X6,X7,X8,
-     .    Y1,Y2,Y3,Y4,Y5,Y6,Y7,Y8,
-     .    Z1,Z2,Z3,Z4,Z5,Z6,Z7,Z8,
-     .    A11,A12,A13,A21,A22,A23,A31,A32,A33,
-     .    DN_R,DN_S,DN_T,INVJ,
-     .    DN_X,DN_Y,DN_Z,VOLN)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    s8sderi3   ../engine/source/elements/solid/solide8s/s8sderi3.F
+!||--- called by ------------------------------------------------------
+!||    s8sforc3   ../engine/source/elements/solid/solide8s/s8sforc3.F
+!||    s8ske3     ../engine/source/elements/solid/solide8s/s8ske3.F
+!||====================================================================
+      SUBROUTINE S8SDERI3(
+     1   OFFG,    OFF,     VOLDP,   NGL,
+     2   KSI,     ETA,     ZETA,    WI,
+     3   X1,      X2,      X3,      X4,
+     4   X5,      X6,      X7,      X8,
+     5   Y1,      Y2,      Y3,      Y4,
+     6   Y5,      Y6,      Y7,      Y8,
+     7   Z1,      Z2,      Z3,      Z4,
+     8   Z5,      Z6,      Z7,      Z8,
+     9   A11,     A12,     A13,     A21,
+     A   A22,     A23,     A31,     A32,
+     B   A33,     DN_R,    DN_S,    DN_T,
+     C   INVJ,    DN_X,    DN_Y,    DN_Z,
+     D   VOLN,    NEL)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -47,15 +52,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com06_c.inc"
 #include      "units_c.inc"
-#include      "vect01_c.inc"
 #include      "scr17_c.inc"
-#include      "scr18_c.inc"
 #include      "impl1_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER, INTENT(IN) :: NEL
       !INTEGER ICP,IDEG(*)
 C     REAL
       my_real
@@ -68,7 +71,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NGL(*), I, J ,ICOR,ep
+      INTEGER NGL(*), I, J ,ICOR
 C     REAL
 C                                                                     12
       my_real
@@ -77,12 +80,12 @@ C                                                                     12
      .   Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), Y4(MVSIZ), 
      .   Y5(MVSIZ), Y6(MVSIZ), Y7(MVSIZ), Y8(MVSIZ),
      .   Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ), 
-     .   Z5(MVSIZ), Z6(MVSIZ), Z7(MVSIZ), Z8(MVSIZ),VOL(MVSIZ)
+     .   Z5(MVSIZ), Z6(MVSIZ), Z7(MVSIZ), Z8(MVSIZ)
      
       DOUBLE PRECISION RI(8),SI(8),TI(8),DN_R(8),DN_S(8),DN_T(8),
      .   DX_R,DX_S,DX_T,DY_R,DY_S,DY_T,DZ_R,DZ_S,DZ_T,DETM1,
      .   DETJ(MVSIZ),INVJ(9,MVSIZ),
-     .   DN_X(MVSIZ,8),DN_Y(MVSIZ,8),DN_Z(MVSIZ,8),C(6,6,MVSIZ),DETDP
+     .   DN_X(MVSIZ,8),DN_Y(MVSIZ,8),DN_Z(MVSIZ,8),DETDP
 C-----------------------------------------------
       
       DATA RI /-1.0, -1.0,  1.0,  1.0,-1.0, -1.0, 1.0, 1.0/
@@ -96,7 +99,7 @@ C-----------------------------------------------
         DN_T(I) = TI(I)*(ONE+ETA*RI(I))*(ONE+ZETA*SI(I))/EIGHT
       ENDDO
 !     Jacobien
-      DO I=LFT,LLT
+      DO I=1,NEL
         DX_R = X1(I)*DN_R(1)+X2(I)*DN_R(2)+X3(I)*DN_R(3)+X4(I)*DN_R(4)
      .        +X5(I)*DN_R(5)+X6(I)*DN_R(6)+X7(I)*DN_R(7)+X8(I)*DN_R(8)
         DX_S = X1(I)*DN_S(1)+X2(I)*DN_S(2)+X3(I)*DN_S(3)+X4(I)*DN_S(4)
@@ -152,7 +155,7 @@ C-----------------------------------------------
       ENDDO
       
       DO J=1,8
-        DO I=LFT,LLT
+        DO I=1,NEL
           DN_X(I,J) = DN_R(J)*INVJ(1,I)+DN_S(J)*INVJ(2,I)+DN_T(J)*INVJ(3,I)
           DN_Y(I,J) = DN_R(J)*INVJ(4,I)+DN_S(J)*INVJ(5,I)+DN_T(J)*INVJ(6,I)
           DN_Z(I,J) = DN_R(J)*INVJ(7,I)+DN_S(J)*INVJ(8,I)+DN_T(J)*INVJ(9,I)
@@ -160,30 +163,30 @@ C-----------------------------------------------
       ENDDO
 
       ICOR = 0
-      DO I=LFT,LLT
+      DO I=1,NEL
         OFF(I)=OFFG(I)
-        IF(OFF(I).EQ.ZERO)THEN
+        IF(OFF(I)==ZERO)THEN
          DETJ(I)=ONE
-         IF (VOLDP(I).LE.ZERO) VOLDP(I)=ONE
-        ELSEIF (VOLDP(I).LE.ZERO ) THEN
+         IF (VOLDP(I)<=ZERO) VOLDP(I)=ONE
+        ELSEIF (VOLDP(I)<=ZERO ) THEN
          VOLDP(I)= EM20
          OFF(I) =ZERO
           ICOR=1
         ENDIF
       ENDDO
 C
-      IF (ICOR.GT.0.AND.IMPL_S.GT.0) THEN
-        DO I=LFT,LLT
-          IF(VOLDP(I).LE.ZERO.AND.OFF(I).NE.ZERO)THEN
+      IF (ICOR>0.AND.IMPL_S>0) THEN
+        DO I=1,NEL
+          IF(VOLDP(I)<=ZERO.AND.OFF(I)/=ZERO)THEN
             VOLDP(I)= EM20
             OFF(I) =ZERO 
-           IF (IMP_CHK.GT.0) THEN
+           IF (IMP_CHK>0) THEN
 #include "lockon.inc"
             WRITE(IOUT ,2001) NGL(I)
 #include "lockoff.inc"
             IDEL7NOK = 1
             IMP_IR = IMP_IR + 1
-           ELSEIF (IMCONV.EQ.1) THEN
+           ELSEIF (IMCONV==1) THEN
 #include "lockon.inc"
             WRITE(ISTDO,2000) NGL(I)
             WRITE(IOUT ,2000) NGL(I)
@@ -194,7 +197,7 @@ C
         ENDDO
       END IF
       
-      DO I=LFT,LLT
+      DO I=1,NEL
        VOLN(I) = VOLDP(I)
       ENDDO
 c

@@ -1,35 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FIND_NEWKNOT                  source/elements/ige3d/find_newknot.F
-Chd|-- called by -----------
-Chd|        PRERAFIG3D                    source/elements/ige3d/prerafig3d.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    find_newknot   ../starter/source/elements/ige3d/find_newknot.F
+!||--- called by ------------------------------------------------------
+!||    prerafig3d     ../starter/source/elements/ige3d/prerafig3d.F
+!||====================================================================
       SUBROUTINE FIND_NEWKNOT(IEL,KXIG3D,KNOT,DIR,IAD_KNOT,
      .                        NKNOT1,NKNOT2,NKNOT3,IDCUT,NEWKNOT)
 C----------------------------------------------------------------------
-C   ROUTINE QUI RENVOIE EN FONCTION DU NUMERO DE LA COUPE D'ELEMENT
+C   routine that returns according to the element cut number
 C   A REALISER LE KNOT CORRESPONDANT A INSERER
 C----------------------------------------------------------------------
 C-----------------------------------------------
@@ -37,15 +36,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com04_c.inc"
 #include      "param_c.inc"
-#include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -72,20 +65,20 @@ C     KXIG3D(13,*)  :   number of element's cuts needed in the Y direction
 C     KXIG3D(14,*)  :   number of element's cuts needed in the Z direction
 C=======================================================================                                         
 C----------------------------------------------------------------------
-C     INITIALISATION DES VARIABLES EN FONCTION DE LA DIRECTION DE COUPE
+C     initialization of variables according to the cutting direction
 C----------------------------------------------------------------------
 C
-      IF(DIR.EQ.1) THEN
+      IF(DIR==1) THEN
         IDNBCUT=12
-        IDKNOT1=6  ! index of 1nd knot in the Xknot vector corresponding to the element
+        IDKNOT1=6  ! index of 1st knot in the Xknot vector corresponding to the element
         IDKNOT2=9  ! index of 2nd knot in the Xknot vector corresponding to the element
         OFFSET_KNOT = IAD_KNOT
-      ELSEIF(DIR.EQ.2) THEN
+      ELSEIF(DIR==2) THEN
         IDNBCUT=13
         IDKNOT1=7  ! index of 1st knot in the Yknot vector corresponding to the element
         IDKNOT2=10 ! index of 1st knot in the Yknot vector corresponding to the element
         OFFSET_KNOT = IAD_KNOT + NKNOT1
-      ELSEIF(DIR.EQ.3) THEN
+      ELSEIF(DIR==3) THEN
         IDNBCUT=14
         IDKNOT1=8  ! index of 1st knot in the Zknot vector corresponding to the element
         IDKNOT2=11 ! index of 1st knot in the Zknot vector corresponding to the element
@@ -93,8 +86,8 @@ C
       ENDIF
 C
 C----------------------------------------------------------------------
-C  NE PERMET QUE LES COUPES PAR 2,4,8... (DES COUPES PAIRES), ET
-C  BORNE LE NOMBRE MAXIMAL DE COUPE PAR 8
+C  only allows cuts by 2, 4, 8... (even cuts), and
+C  limits the maximum number of cuts to 8
 C----------------------------------------------------------------------
 C
       SELECT CASE (IDCUT)
@@ -139,20 +132,14 @@ C
       END
 C
 C
-Chd|====================================================================
-Chd|  FIND_NEIGHBOURKNOT            source/elements/ige3d/find_newknot.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    find_neighbourknot   ../starter/source/elements/ige3d/find_newknot.F
+!||====================================================================
       SUBROUTINE FIND_NEIGHBOURKNOT(IDNEIGHBOUR,KXIG3D,TAB_OLDIDCUT,IDNBCUT,DIR,IDCUT_VOISIN)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-#include      "analyse_name.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -180,7 +167,7 @@ C
 
 cc LES ID VOISINS NE CORRESPONDENT PAS AU INITIAL CUT
 
-      IF(KXIG3D(IDNBCUT,IDNEIGHBOUR).EQ.1) THEN 
+      IF(KXIG3D(IDNBCUT,IDNEIGHBOUR)==1) THEN 
         IDCUT_VOISIN = 0
       ELSE
         IDCUT_VOISIN = TAB_OLDIDCUT(DIR,IDNEIGHBOUR)-KXIG3D(IDNBCUT,IDNEIGHBOUR)+1

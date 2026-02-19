@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  PFINT3                        source/elements/beam/pfint3.F 
-Chd|-- called by -----------
-Chd|        PFORC3                        source/elements/beam/pforc3.F 
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    pfint3   ../engine/source/elements/beam/pfint3.F
+!||--- called by ------------------------------------------------------
+!||    pforc3   ../engine/source/elements/beam/pforc3.F
+!||====================================================================
       SUBROUTINE PFINT3(FOR    ,MOM    ,GEO    ,OFFG   ,OFF,
      .                  AL     ,F1     ,F2     ,F3     ,M1 ,
      .                  M2     ,M3     ,STI    ,STIR   ,NEL,
@@ -43,7 +42,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "vect01_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -61,12 +59,12 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, IG, IR1Y, IR1Z, IR2Y, IR2Z
+      INTEGER I, IG, IR1Y, IR1Z, IR2Y, IR2Z
 C     REAL
       my_real
      .   OFF_L
 C---------------------------------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
         F11(I)= -F1(I)
         F21(I)= -F2(I)
         F31(I)= -F3(I)
@@ -78,7 +76,7 @@ C
 C
 C     CONTRIBUTION AU MOMENT DU CISAILLEMENT
 C
-      DO I=LFT,LLT
+      DO I=1,NEL
         M11(I)=-M1(I)
         M21(I)=-M2(I)+HALF*AL(I)*F3(I)
         M31(I)=-M3(I)-HALF*AL(I)*F2(I)
@@ -88,15 +86,14 @@ C
         M32(I)=M3(I)-HALF*AL(I)*F2(I)
       ENDDO
 C---------------------------------------------------
-C     LIBERATION DES ROTATIONS
+C     RELEASE OF ROTATIONS
 C---------------------------------------------------
-      DO I=LFT,LLT
+      DO I=1,NEL
         IG=PID(I)
         IR1Y=NINT(GEO(8 ,IG))
         IR1Z=NINT(GEO(9 ,IG))
         IR2Y=NINT(GEO(10,IG))
         IR2Z=NINT(GEO(11,IG))
-C ... this looks suspicious - DWS
         M21(I)=IR1Y*M21(I)+(1-IR2Y)*M22(I)
         M22(I)=IR2Y*M22(I)+(1-IR1Y)*M21(I)
         M31(I)=IR1Z*M31(I)+(1-IR2Z)*M32(I)
@@ -104,12 +101,12 @@ C ... this looks suspicious - DWS
       ENDDO
 C
       OFF_L = ZERO
-      DO I=LFT,LLT
+      DO I=1,NEL
         IF (OFF(I) < ONE) OFFG(I) = OFF(I)
         OFF_L = MIN(OFF_L,OFFG(I))
       ENDDO
       IF (OFF_L < ZERO) THEN
-        DO I=LFT,LLT
+        DO I=1,NEL
           IF (OFFG(I) < ZERO) THEN
             F11(I)=ZERO
             F21(I)=ZERO

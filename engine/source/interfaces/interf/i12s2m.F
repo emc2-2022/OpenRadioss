@@ -1,36 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I12S2M                        source/interfaces/interf/i12s2m.F
-Chd|-- called by -----------
-Chd|        INTTI12A                      source/interfaces/interf/intti12.F
-Chd|-- calls ---------------
-Chd|        SEGVAR_MOD                    share/modules/segvar_mod.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i12s2m       ../engine/source/interfaces/interf/i12s2m.F
+!||--- called by ------------------------------------------------------
+!||    intti12a     ../engine/source/interfaces/interf/intti12.F
+!||--- uses       -----------------------------------------------------
+!||    ale_mod      ../common_source/modules/ale/ale_mod.F
+!||    segvar_mod   ../engine/share/modules/segvar_mod.F
+!||====================================================================
       SUBROUTINE I12S2M(NSN,IRTL,NRTM,JCODV,NODVARS,MCOUNT,
      +                  NMN,NODVARM,IRECTM,NCOUNT,MSR,
      +                  SEGVAR,ISEGM,NOINT)
+C-----------------------------------------------
+C   M o d u l e s
+C-----------------------------------------------
       USE SEGVAR_MOD
+      USE ALE_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,20 +50,17 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "conv_c.inc"
-#include      "units_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NIR, I, J, II, L, JJ,KVAR,SEGAD,ADS,ADM,PB,TEST
+      INTEGER NIR, I, II, L, JJ,KVAR,SEGAD,ADS,ADM,PB,TEST
       my_real,DIMENSION(:),POINTER :: ptr
 C-----------------------------------------------
       TEST=0
       NIR=2
-      IF(N2D.EQ.0)NIR=4
+      IF(N2D==0)NIR=4
 
-
-      DO KVAR=1,NVCONV
+      DO KVAR=1,ALE%GLOBAL%NVCONV
       
         SELECT CASE(KVAR)                
           CASE(1)                        
@@ -88,7 +90,7 @@ C-----------------------------------------------
         MCOUNT(L)=MCOUNT(L)+ONE
       ENDDO
 
-      DO KVAR=1,NVCONV
+      DO KVAR=1,ALE%GLOBAL%NVCONV
       
         SELECT CASE(KVAR)                
           CASE(1)                        
@@ -105,18 +107,18 @@ C-----------------------------------------------
               
         DO II=1,NSN
           L=IRTL(II)
-          ADS=NVCONV*(II-1)+KVAR
+          ADS=ALE%GLOBAL%NVCONV*(II-1)+KVAR
           ptr(ISEGM(L))=ptr(ISEGM(L))+NODVARS(ADS)
          ENDDO
          
       ENDDO
 
-      !CALCUL PARTICULIER SI IL EXISTE ONE SEGMENT SANS NOEUD SECOND. DETECTE
+      !CALCULATION PARTICULIER SI IL EXISTE ONE SEGMENT SANS NODE SECOND. DETECTE
       PB=0
       DO I=1,NRTM
-        IF(MCOUNT(I).EQ.ZERO)PB=1
+        IF(MCOUNT(I)==ZERO)PB=1
       ENDDO
-      IF(PB.EQ.1)THEN
+      IF(PB==1)THEN
         DO I=1,NMN
 
           NCOUNT(I)=ZERO
@@ -127,31 +129,31 @@ C-----------------------------------------------
               NCOUNT(IRECTM(JJ,L))= NCOUNT(IRECTM(JJ,L))+1
             ENDDO
         ENDDO
-        DO KVAR=1,NVCONV
+        DO KVAR=1,ALE%GLOBAL%NVCONV
           DO I=1,NMN
-            ADM=NVCONV*(I-1)+KVAR
+            ADM=ALE%GLOBAL%NVCONV*(I-1)+KVAR
             NODVARM(ADM)=ZERO
           ENDDO
           DO II=1,NSN
             L=IRTL(II)
-            ADS=NVCONV*(II-1)+KVAR
+            ADS=ALE%GLOBAL%NVCONV*(II-1)+KVAR
             DO JJ=1,NIR
-              ADM=NVCONV*(IRECTM(JJ,L)-1)+KVAR
+              ADM=ALE%GLOBAL%NVCONV*(IRECTM(JJ,L)-1)+KVAR
               NODVARM(ADM)=NODVARM(ADM)+NODVARS(ADS)
             ENDDO
           ENDDO
         ENDDO
-        DO KVAR=1,NVCONV
+        DO KVAR=1,ALE%GLOBAL%NVCONV
           DO I=1,NMN
-            ADM=NVCONV*(I-1)+KVAR
-            IF(NCOUNT(I).GT.ZERO)THEN
+            ADM=ALE%GLOBAL%NVCONV*(I-1)+KVAR
+            IF(NCOUNT(I)>ZERO)THEN
               NODVARM(ADM)=NODVARM(ADM)/NCOUNT(I)
             ENDIF
           ENDDO
         ENDDO
       ENDIF
 
-      DO KVAR=1,NVCONV
+      DO KVAR=1,ALE%GLOBAL%NVCONV
       
         SELECT CASE(KVAR)                
           CASE(1)                        
@@ -167,21 +169,21 @@ C-----------------------------------------------
         END SELECT 
               
         DO I=1,NRTM
-          SEGAD=NVCONV*(ISEGM(I)-1)+KVAR
-          IF(MCOUNT(I).GT.ZERO)THEN
+          SEGAD=ALE%GLOBAL%NVCONV*(ISEGM(I)-1)+KVAR
+          IF(MCOUNT(I)>ZERO)THEN
             ptr(ISEGM(I))=ptr(ISEGM(I))/MCOUNT(I)
           ELSE
             ptr(ISEGM(I))=ZERO
             L=0
             DO JJ=1,NIR
               II=IRECTM(JJ,I)
-              ADM=NVCONV*(II-1)+KVAR
-              IF(NCOUNT(II).GT.ZERO)THEN
+              ADM=ALE%GLOBAL%NVCONV*(II-1)+KVAR
+              IF(NCOUNT(II)>ZERO)THEN
                 ptr(ISEGM(I))=ptr(ISEGM(I))+NODVARM(ADM)
                 L=L+1
               ENDIF
             ENDDO
-            IF(L.GT.0)THEN
+            IF(L>0)THEN
               ptr(ISEGM(I))=ptr(ISEGM(I))/FLOAT(L)
             ELSE
 
@@ -194,7 +196,7 @@ C-----------------------------------------------
       
         ENDDO
       ENDDO
-      ! IF(TEST .GT.0)WRITE(ISTDO,'(A,I8,I8,A)')
+      ! IF(TEST >0)WRITE(ISTDO,'(A,I8,I8,A)')
       !+      '*** WARNING INTERF #',NOINT,
       !+      TEST,' MAIN SEGMENTS WITHOUT SECONDARY NODE' 
 

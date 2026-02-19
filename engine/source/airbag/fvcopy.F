@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FVCOPY                        source/airbag/fvcopy.F        
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        FVBAG_MOD                     share/modules/fvbag_mod.F     
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fvcopy        ../engine/source/airbag/fvcopy.F
+!||--- called by ------------------------------------------------------
+!||    resol         ../engine/source/engine/resol.F
+!||--- uses       -----------------------------------------------------
+!||    fvbag_mod     ../engine/share/modules/fvbag_mod.F
+!||    message_mod   ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE FVCOPY(MONVOL)
 C-----------------------------------------------
 C   M o d u l e s 
@@ -45,7 +45,6 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "task_c.inc"
 C-----------------------------------------------
@@ -57,7 +56,10 @@ C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER K1, N, ITYP, IFV, NNS, NNTR, NPOLY, NPOLH, 
      .        LENP, LENH, I, J, IMESH, LENP_ANIM, NPOLH_ANIM,
-     .        LENH_ANIM, NNS_ANIM,NFVBAG_MAX
+     .        LENH_ANIM, NNS_ANIM,NFVBAG_MAX,KK
+C-----------------------------------------------
+C   S o u r c e   L i n e s
+C-----------------------------------------------
 
 
 C ========= 
@@ -66,9 +68,10 @@ C     than the size of FVDATA, since FVDATA is build before switches to
 C     UP
       K1 = 1
       NFVBAG_MAX=0
+      I = -HUGE(I)
       DO N=1,NVOLU
          ITYP=MONVOL(K1-1+2)
-         IF (ITYP.EQ.6.OR.ITYP.EQ.8) THEN
+         IF (ITYP==6.OR.ITYP==8) THEN
             IFV = MONVOL(K1-1+45)                   
             NFVBAG_MAX = MAX(NFVBAG_MAX,IFV)
          ENDIF
@@ -110,7 +113,9 @@ C
      .              FVDATA_OLD(I)%TPOLH,
      .              FVDATA_OLD(I)%CPDPOLH,
      .              FVDATA_OLD(I)%CPEPOLH,
-     .              FVDATA_OLD(I)%CPFPOLH)
+     .              FVDATA_OLD(I)%CPFPOLH,
+     .              FVDATA_OLD(I)%SSPPOLH,     
+     .              FVDATA_OLD(I)%CENTROID_POLH)
         ENDDO
 
         DO I=1,NFVBAG_MAX
@@ -171,39 +176,42 @@ C
      .              FVDATA(I)%TPOLH,
      .              FVDATA(I)%CPDPOLH,
      .              FVDATA(I)%CPEPOLH,
-     .              FVDATA(I)%CPFPOLH)
+     .              FVDATA(I)%CPFPOLH,
+     .              FVDATA(I)%SSPPOLH,     
+     .              FVDATA(I)%CENTROID_POLH)
          ENDDO
-        DO I=1,NFVBAG_MAX
-            FVDATA(I)%L_TYPE = ZERO
-            FVDATA(I)%ID_DT_OPTION = ZERO
-            FVDATA(I)%LAMBDA = ZERO
-            FVDATA(I)%DTOLD = ZERO
+         
+         DO I=1,NFVBAG_MAX
+           FVDATA(I)%L_TYPE = ZERO
+           FVDATA(I)%ID_DT_OPTION = ZERO
+           FVDATA(I)%LAMBDA = ZERO
+           FVDATA(I)%DTOLD = ZERO
 
-            FVDATA(I)%CFL_COEF = ZERO
-            FVDATA(I)%DTMIN = ZERO
-            FVDATA(I)%PDISP_OLD = ZERO
-            FVDATA(I)%PDISP = ZERO
-            FVDATA(I)%DLH = ZERO
+           FVDATA(I)%CFL_COEF = ZERO
+           FVDATA(I)%DTMIN = ZERO
+           FVDATA(I)%PDISP_OLD = ZERO
+           FVDATA(I)%PDISP = ZERO
+           FVDATA(I)%DLH = ZERO
 
-            FVDATA(I)%NNS = 0
-            FVDATA(I)%NNTR = 0
-            FVDATA(I)%LENP = 0
-            FVDATA(I)%NPOLY = 0
-            FVDATA(I)%LENH = 0
-            FVDATA(I)%NPOLH = 0
+           FVDATA(I)%NNS = 0
+           FVDATA(I)%NNTR = 0
+           FVDATA(I)%LENP = 0
+           FVDATA(I)%NPOLY = 0
+           FVDATA(I)%LENH = 0
+           FVDATA(I)%NPOLH = 0
 
-            FVDATA(I)%NPOLH_ANIM = 0
-            FVDATA(I)%NNS_ANIM = 0
-            FVDATA(I)%ID = 0
+           FVDATA(I)%NPOLH_ANIM = 0
+           FVDATA(I)%NNS_ANIM = 0
+           FVDATA(I)%ID = 0
         ENDDO
       ENDIF
 C
       K1=1
       IFV=0
       DO N=1,NVOLU
-         ITYP=MONVOL(K1-1+2)
-         IF (ITYP.EQ.6.OR.ITYP.EQ.8) THEN
-            IFV = MONVOL(K1-1+45)                   
+         ITYP = MONVOL(K1-1+2)
+         IF (ITYP==6.OR.ITYP==8) THEN
+            IFV = MONVOL(K1-1+45)                  
             IMESH=MONVOL(K1-1+56)
 C
             NNS=MONVOL(K1-1+46)
@@ -211,8 +219,8 @@ C
             NPOLY=MONVOL(K1-1+48)
             NPOLH=MONVOL(K1-1+49)
 C
-            IF (IMESH.EQ.1.AND.DT1.GT.ZERO.AND.NCYCLE.NE.0) THEN
-               IF (ISPMD.NE.FVSPMD(I)%PMAIN-1) THEN
+            IF (IMESH==1.AND.DT1>ZERO.AND.NCYCLE/=0) THEN
+               IF (ISPMD/=FVSPMD(I)%PMAIN-1) THEN
                   ALLOCATE(FVDATA_OLD(I)%IFVNOD(3,0),
      .                     FVDATA_OLD(I)%RFVNOD(2,0),
      .                     FVDATA_OLD(I)%IFVTRI(6,0),
@@ -233,7 +241,9 @@ C
      .                     FVDATA_OLD(I)%TPOLH(0),
      .                     FVDATA_OLD(I)%CPDPOLH(0),
      .                     FVDATA_OLD(I)%CPEPOLH(0),
-     .                     FVDATA_OLD(I)%CPFPOLH(0))
+     .                     FVDATA_OLD(I)%CPFPOLH(0),
+     .                     FVDATA_OLD(I)%SSPPOLH(0),     
+     .                     FVDATA_OLD(I)%CENTROID_POLH(3,0))
                   GOTO 1999
                ENDIF
                IF (ASSOCIATED(FVDATA_OLD(IFV)%IFVNOD)) 
@@ -279,6 +289,11 @@ C
      .                   DEALLOCATE(FVDATA_OLD(IFV)%CPEPOLH)
                IF (ASSOCIATED(FVDATA_OLD(IFV)%CPFPOLH)) 
      .                   DEALLOCATE(FVDATA_OLD(IFV)%CPFPOLH)
+C     
+               IF (ASSOCIATED(FVDATA_OLD(IFV)%SSPPOLH)) 
+     .                   DEALLOCATE(FVDATA_OLD(IFV)%SSPPOLH) 
+               IF (ASSOCIATED(FVDATA_OLD(IFV)%CENTROID_POLH)) 
+     .                   DEALLOCATE(FVDATA_OLD(IFV)%CENTROID_POLH)     
 C
                LENP=FVDATA(IFV)%LENP
                LENH=FVDATA(IFV)%LENH
@@ -310,7 +325,10 @@ C
      .                  FVDATA_OLD(IFV)%TPOLH(NPOLH),
      .                  FVDATA_OLD(IFV)%CPDPOLH(NPOLH),
      .                  FVDATA_OLD(IFV)%CPEPOLH(NPOLH),
-     .                  FVDATA_OLD(IFV)%CPFPOLH(NPOLH))
+     .                  FVDATA_OLD(IFV)%CPFPOLH(NPOLH),
+     .                  FVDATA_OLD(IFV)%SSPPOLH(NPOLH),     
+     .                  FVDATA_OLD(IFV)%CENTROID_POLH(3,NPOLH)     )
+     
 C
                DO I=1,NNS
                   FVDATA_OLD(IFV)%IFVNOD(1,I)=FVDATA(IFV)%IFVNOD(1,I)
@@ -354,11 +372,17 @@ C
                   FVDATA_OLD(IFV)%CPDPOLH(I)=FVDATA(IFV)%CPDPOLH(I)
                   FVDATA_OLD(IFV)%CPEPOLH(I)=FVDATA(IFV)%CPEPOLH(I)
                   FVDATA_OLD(IFV)%CPFPOLH(I)=FVDATA(IFV)%CPFPOLH(I)
+                  FVDATA_OLD(IFV)%SSPPOLH(I)=FVDATA(IFV)%SSPPOLH(I)
                ENDDO
+               DO KK=1,3
+                 DO I=1,NPOLH
+                    FVDATA_OLD(IFV)%CENTROID_POLH(KK,I)=FVDATA(IFV)%CENTROID_POLH(KK,I)
+                 ENDDO 
+               ENDDO              
 C
-            ELSEIF ((IMESH.EQ.0.AND.NCYCLE.EQ.0).OR. 
+            ELSEIF ((IMESH==0.AND.NCYCLE==0).OR. 
      .              (IMESH==0.AND.MCHECK > 0)) THEN
-               IF (ISPMD.NE.FVSPMD(IFV)%PMAIN-1) THEN
+               IF (ISPMD/=FVSPMD(IFV)%PMAIN-1) THEN
                   ALLOCATE(FVDATA(IFV)%IFVNOD(3,0),
      .                     FVDATA(IFV)%RFVNOD(2,0),
      .                     FVDATA(IFV)%IFVTRI(6,0),
@@ -390,7 +414,9 @@ C
      .                     FVDATA(IFV)%IFVPADR_ANIM(0),
      .                     FVDATA(IFV)%IFVTRI_ANIM(6,0),
      .                     FVDATA(IFV)%REDIR_ANIM(0),
-     .                     FVDATA(IFV)%NOD_ANIM(3,0))
+     .                     FVDATA(IFV)%NOD_ANIM(3,0),
+     .                     FVDATA(IFV)%SSPPOLH(0),
+     .                     FVDATA(IFV)%CENTROID_POLH(3,0))
                   GOTO 1999
                ENDIF 
                LENP=FVDATA_OLD(IFV)%LENP
@@ -441,7 +467,10 @@ C
      .                  FVDATA(IFV)%IFVPADR_ANIM(NPOLH_ANIM+1),
      .                  FVDATA(IFV)%IFVTRI_ANIM(6,NNTR),
      .                  FVDATA(IFV)%REDIR_ANIM(NNS_ANIM),
-     .                  FVDATA(IFV)%NOD_ANIM(3,NNS_ANIM))
+     .                  FVDATA(IFV)%NOD_ANIM(3,NNS_ANIM),
+     .                  FVDATA(IFV)%SSPPOLH(NPOLH),
+     .                  FVDATA(IFV)%CENTROID_POLH(3,NPOLH))
+     
 C
                FVDATA(IFV)%L_TYPE = FVDATA_OLD(IFV)%L_TYPE
                FVDATA(IFV)%ID_DT_OPTION = FVDATA_OLD(IFV)%ID_DT_OPTION
@@ -533,7 +562,15 @@ C
                   FVDATA(IFV)%CPDPOLH(I)=FVDATA_OLD(IFV)%CPDPOLH(I)
                   FVDATA(IFV)%CPEPOLH(I)=FVDATA_OLD(IFV)%CPEPOLH(I)
                   FVDATA(IFV)%CPFPOLH(I)=FVDATA_OLD(IFV)%CPFPOLH(I)
-               ENDDO
+                  FVDATA(IFV)%SSPPOLH(I)=FVDATA_OLD(IFV)%SSPPOLH(I)
+               ENDDO   
+               DO KK=1,3
+                 DO I=1,NPOLH
+                    FVDATA(IFV)%CENTROID_POLH(KK,I)=FVDATA_OLD(IFV)%CENTROID_POLH(KK,I)
+                 ENDDO 
+               ENDDO              
+
+                                          
                FVDATA(IFV)%DLH=FVDATA_OLD(IFV)%DLH
 C
                DEALLOCATE(FVDATA_OLD(IFV)%IFVNOD,
@@ -567,7 +604,9 @@ C
      .                    FVDATA_OLD(IFV)%IFVPADR_ANIM,
      .                    FVDATA_OLD(IFV)%IFVTRI_ANIM,
      .                    FVDATA_OLD(IFV)%REDIR_ANIM,
-     .                    FVDATA_OLD(IFV)%NOD_ANIM)
+     .                    FVDATA_OLD(IFV)%NOD_ANIM,
+     .                    FVDATA_OLD(IFV)%SSPPOLH,     
+     .                    FVDATA_OLD(IFV)%CENTROID_POLH)
             ENDIF
          ENDIF
  1999    CONTINUE

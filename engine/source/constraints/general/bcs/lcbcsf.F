@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LCBCSF                        source/constraints/general/bcs/lcbcsf.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/input/lectur.F         
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        SPMD_GLOB_ISUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SYSFUS2                       source/system/sysfus.F        
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lcbcsf            ../engine/source/constraints/general/bcs/lcbcsf.F
+!||--- called by ------------------------------------------------------
+!||    lectur            ../engine/source/input/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg            ../engine/source/output/message/message.F
+!||    spmd_glob_isum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    sysfus2           ../engine/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod       ../engine/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE LCBCSF(ICODE,ISKEW,NUMBCSN,ITAB,ITABM1,
      2                  NPBY ,ISKWN,WEIGHT )
 C-----------------------------------------------
@@ -52,7 +53,6 @@ C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "units_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "warn_c.inc"
 #include      "param_c.inc"
@@ -67,8 +67,6 @@ C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
       INTEGER SYSFUS2
 C     REAL
-      my_real
-     .   SYSFUS
 C-----------------------------------------------
 C
       DATA MESS/'BOUNDARY CONDITIONS                     '/
@@ -80,14 +78,14 @@ C
        NOSYS=SYSFUS2(NUSR,ITABM1,NUMNOD)
        NOSYSV = NOSYS
        IF(NSPMD > 1) CALL SPMD_GLOB_ISUM9(NOSYSV,1)
-       IF(ISPMD.EQ.0) THEN
-         IF(NOSYSV.EQ.0) THEN
+       IF(ISPMD==0) THEN
+         IF(NOSYSV==0) THEN
            CALL ANCMSG(MSGID=202,ANMODE=ANINFO,
      .                 I1=NUSR)
            IERR=IERR+1
          END IF
        END IF
-       IF(NOSYS.EQ.0)GOTO 10
+       IF(NOSYS==0)GOTO 10
 C
        ICO=ICODE(NOSYS)
        ICO1=ICO/512
@@ -108,9 +106,9 @@ C
        JO(12)=(ICO4-4*JO(10)-2*JO(11))
 C
        DO 5 I=1,12
-       IF(JJ(I).EQ.0)THEN
+       IF(JJ(I)==0)THEN
         JJ(I)=JO(I)
-       ELSEIF(JJ(I).EQ.2)THEN
+       ELSEIF(JJ(I)==2)THEN
         JJ(I)=0
        ENDIF
  5     CONTINUE
@@ -122,14 +120,14 @@ C
        IC=IC1*512+IC2*64+IC3*8+IC4
        ICODE(NOSYS)=IC
        DO 7 LL=0,NUMSKW
- 7       IF(IS.EQ.ISKWN(4,LL+1)) ISKEW(NOSYS)=LL+1
+ 7       IF(IS==ISKWN(4,LL+1)) ISKEW(NOSYS)=LL+1
 C       ISKEW(NOSYS)=IS
    10  CONTINUE
 C
-       IF(ISPMD.EQ.0) WRITE(IOUT,1300)
+       IF(ISPMD==0) WRITE(IOUT,1300)
        DO 500 N=1,NUMNOD
        IC=ICODE(N)
-       IF (IC.EQ.0) GO TO 500
+       IF (IC==0) GO TO 500
        IC1=IC/512
        IC2=(IC-512*IC1)/64
        IC3=(IC-512*IC1-64*IC2)/8
@@ -146,7 +144,7 @@ C
        JJ(10)=IC4/4
        JJ(11)=(IC4-4*JJ(10))/2
        JJ(12)=(IC4-4*JJ(10)-2*JJ(11))
-       IF(WEIGHT(N).EQ.1)
+       IF(WEIGHT(N)==1)
      .   WRITE(IOUT,'(1X,I10,4(1X,3I2),3X,I10)')ITAB(N),JJ,
      .                                        ISKWN(4,ISKEW(N))
  500   CONTINUE

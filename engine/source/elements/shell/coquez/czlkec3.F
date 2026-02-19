@@ -1,32 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  CZLKEC3                       source/elements/shell/coquez/czlkec3.F
-Chd|-- called by -----------
-Chd|        CZKE3                         source/elements/shell/coquez/czke3.F
-Chd|        CZKEL3                        source/elements/shell/coquez/czkel3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    czlkec3   ../engine/source/elements/shell/coquez/czlkec3.F
+!||--- called by ------------------------------------------------------
+!||    czke3     ../engine/source/elements/shell/coquez/czke3.F
+!||====================================================================
         SUBROUTINE CZLKEC3(JFT ,JLT   ,VOL  ,THK0 ,THK2 ,
      2                     HM  ,HF    ,HZ   ,A_I  ,Z1   ,
      3                    PX1  ,PX2  ,PY1   ,PY2  ,NPLAT,
@@ -47,7 +45,7 @@ C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-      INTEGER JFT,JLT,NPLAT,IPLAT(*),IKGEO,IORTH
+      INTEGER JFT,JLT,NPLAT,IPLAT(*),IORTH
       MY_REAL 
      .   VOL(*),THK0(*),THK2(*),A_I(*),Z1(*),
      .    HM(MVSIZ,4),HF(MVSIZ,4),HZ(*),
@@ -81,10 +79,10 @@ C-----------------------------------------------
      .    DF6_2(MVSIZ),DMF(3,3,MVSIZ),
      .    BXIBXJ(2,2,MVSIZ),BXIBYJ(2,2,MVSIZ),BYIBXJ(2,2,MVSIZ),
      .    BYIBYJ(2,2,MVSIZ),FAC2Z   
-C-----------Attention Matrice sym Kii ne calcul que la moitie---------72
+C----------- CAPTE Matrix Sym KII only calculates half ---------- 72
        NF=NPLAT+1
 #include "vectorize.inc"
-C--------Constante parts---------------
+C------- Constant Parts --------------
        DO M=JFT,JLT 
         EP=IPLAT(M)
         C2=VOL(EP)
@@ -150,7 +148,7 @@ C
 #include "vectorize.inc"
         DO M=JFT,JLT 
          EP=IPLAT(M)
- 	 C2=VOL(EP)
+           C2=VOL(EP)
          C1=THK2(EP)*C2
          DM5(M)=HMOR(EP,1)*C2
          DM6(M)=HMOR(EP,2)*C2
@@ -194,7 +192,7 @@ C
         ENDDO
         DO M=JFT,JLT 
          EP=IPLAT(M)
- 	 C2=VOL(EP)*THK0(EP)
+           C2=VOL(EP)*THK0(EP)
          DMF(1,1,M)=HMFOR(EP,1)*C2
          DMF(2,2,M)=HMFOR(EP,2)*C2
          DMF(1,2,M)=HMFOR(EP,3)*C2
@@ -299,7 +297,7 @@ C
          ENDDO
         ENDDO
         ENDDO
-       ENDIF !(IORTH.EQ.1)
+       ENDIF !(IORTH==1)
 C---+----1----+----2----+warped elements----+----5----+----6----+----7----+----8
 #include "vectorize.inc"
        DO M=NF,JLT
@@ -418,7 +416,7 @@ C
      2               DMF(3,3,EP)*BXIBXJ(2,2,EP)
         ENDDO
 C
-       END IF !(IORTH.EQ.1)
+       END IF !(IORTH==1)
 
 C
        DO I=1,2
@@ -485,7 +483,7 @@ C--------px1'py1=py1py2;px2'py1=py1py1;px2'py2=py1py2;px1'py2=py2py2;-----------
         MF22(2,1,EP)=DFZ*PX1PY2(EP)-DG(EP)*PX2PY1(EP)
         MF23(2,1,EP)=-(DFZ-DG(EP))*PX1PY1(EP)
        ENDDO
-       IF (IORTH.GT.0) THEN
+       IF (IORTH>0) THEN
         DO M=NF,JLT 
          DF5(M)=FACZ(M)*DF5(M)
          DF6(M)=FACZ(M)*DF6(M)
@@ -576,7 +574,7 @@ C ----add mem-bending coupling terms of orthotrope--warped(same than coplanar---
      1               -DMF(1,2,EP)*PX1PY2(EP)-DMF(2,3,EP)*PY1PY2(EP)
      2               -DMF(1,3,EP)*PX1PX2(EP)-DMF(3,3,EP)*PX2PY1(EP)
         ENDDO
-       END IF !(IORTH.EQ.1)
+       END IF !(IORTH==1)
 C 
        DO I=1,2
         DO J=1,2
@@ -617,10 +615,10 @@ C------ Mzz  ----------
         M44(3,3,EP)=M22(3,3,EP)
        ENDDO
 C------ renforce positive  ----------
-      IF (NEIG.EQ.0) THEN
+      IF (NEIG==0) THEN
        DO EP=JFT,JLT
         C1 = EM8*M11(3,3,EP)
-	C2 = EM8*M22(3,3,EP)
+          C2 = EM8*M22(3,3,EP)
         M11(3,3,EP)=M11(3,3,EP)+C1
         M22(3,3,EP)=M22(3,3,EP)+C2
         M33(3,3,EP)=M11(3,3,EP)
@@ -630,13 +628,11 @@ C------ renforce positive  ----------
 C
        RETURN
        END
-Chd|====================================================================
-Chd|  CZLKECR3                      source/elements/shell/coquez/czlkec3.F
-Chd|-- called by -----------
-Chd|        CZKE3                         source/elements/shell/coquez/czke3.F
-Chd|        CZKEL3                        source/elements/shell/coquez/czkel3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    czlkecr3   ../engine/source/elements/shell/coquez/czlkec3.F
+!||--- called by ------------------------------------------------------
+!||    czke3      ../engine/source/elements/shell/coquez/czke3.F
+!||====================================================================
         SUBROUTINE CZLKECR3(JFT ,JLT   ,VOL  ,THK0 ,THK2 ,
      2                     HM  ,HF    ,HZ   ,A_I  ,Z1   ,
      3                     PX1  ,PX2  ,PY1   ,PY2  ,
@@ -652,7 +648,6 @@ C   I M P L I C I T   T Y P E S
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "mvsiz_p.inc"
-#include      "com04_c.inc"
 C-----------------------------------------------
 C   D U M M Y   A R G U M E N T S
 C-----------------------------------------------
@@ -687,9 +682,9 @@ C-----------------------------------------------
      .    KZ11(2,2,MVSIZ),KZ12(2,2,MVSIZ),KZ22(2,2,MVSIZ),
      .    DMF(3,3,MVSIZ),PCX1(MVSIZ),PCX2(MVSIZ),PCY1(MVSIZ),
      .    PCY2(MVSIZ),FACZ(MVSIZ)
-C-----------Attention Matrice sym Kii ne calcul que la moitie---------72
+C----------- CAPTE Matrix Sym KII only calculates half ---------- 72
 #include "vectorize.inc"
-C--------Constante parts---------------
+C------- Constant Parts --------------
        DO M=JFT,JLT 
         EP=IPLAT(M)
         C2=VOL(EP)
@@ -701,10 +696,10 @@ C--------Constante parts---------------
         DM(1,3,M)=ZERO
         DM(2,3,M)=ZERO
        ENDDO
-       IF (IORTH.EQ.1) THEN
+       IF (IORTH==1) THEN
         DO M=JFT,JLT 
          EP=IPLAT(M)
- 	 C2=VOL(EP)
+           C2=VOL(EP)
          DM(1,3,M)=HMOR(EP,1)*C2
          DM(2,3,M)=HMOR(EP,2)*C2
         ENDDO
@@ -914,13 +909,13 @@ C------ Mzz  ----------
         M44(3,3,M)=M44(3,3,M)+PRX(4,M)*CBRX(4,M)+
      .              PRY(4,M)*CBRY(4,M)+PRXY(4,M)*CBRZ(4,M)
        ENDDO
-       IF (IORTH.GT.0) THEN
+       IF (IORTH>0) THEN
 C ----add mem-bending coupling terms of orthotrope--coplanar first---
         NF=NPLAT+1
 #include "vectorize.inc"
         DO M=JFT,JLT 
          EP=IPLAT(M)
- 	 C2=VOL(EP)*THK0(EP)
+           C2=VOL(EP)*THK0(EP)
          DMF(1,1,M)=HMFOR(EP,1)*C2
          DMF(2,2,M)=HMFOR(EP,2)*C2
          DMF(1,2,M)=HMFOR(EP,3)*C2
@@ -1066,7 +1061,7 @@ C
           FM14(3,1,EP)=FM14(3,1,EP)-C1
           FM14(3,2,EP)=FM14(3,2,EP)-C2
         ENDDO
-       ENDIF !IF (IORTH.EQ.1)
+       ENDIF !IF (IORTH==1)
 C
        RETURN
        END

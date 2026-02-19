@@ -1,36 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LAG_GJNT                      source/tools/lagmul/lag_gjnt.F
-Chd|-- called by -----------
-Chd|        LAG_MULT                      source/tools/lagmul/lag_mult.F
-Chd|-- calls ---------------
-Chd|        GJNT_DIFF                     source/tools/lagmul/gjnt_diff.F
-Chd|        GJNT_GEAR                     source/tools/lagmul/gjnt_gear.F
-Chd|        GJNT_RACK                     source/tools/lagmul/gjnt_rack.F
-Chd|        LAG_DIRECT                    source/tools/lagmul/lag_direct.F
-Chd|        ROTBMR                        source/tools/skew/rotbmr.F    
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lag_gjnt     ../engine/source/tools/lagmul/lag_gjnt.F
+!||--- called by ------------------------------------------------------
+!||    lag_mult     ../engine/source/tools/lagmul/lag_mult.F
+!||--- calls      -----------------------------------------------------
+!||    gjnt_diff    ../engine/source/tools/lagmul/gjnt_diff.F
+!||    gjnt_gear    ../engine/source/tools/lagmul/gjnt_gear.F
+!||    gjnt_rack    ../engine/source/tools/lagmul/gjnt_rack.F
+!||    lag_direct   ../engine/source/tools/lagmul/lag_direct.F
+!||    rotbmr       ../engine/source/tools/skew/rotbmr.F
+!||====================================================================
       SUBROUTINE LAG_GJNT(GJBUFI ,GJBUFR ,X      ,VR     ,AR     ,
      2                    IADLL  ,LLL    ,JLL    ,SLL    ,XLL    ,
      3                    COMNTAG,LTSM   ,ICFTAG ,JCFTAG ,MS     ,
@@ -116,17 +116,17 @@ C
         L2(3) = GJBUFR(16,I)
         NC_INI  = NC
         COMFLAG = 0
-        IF (COMNTAG(N0).GT.1) COMFLAG = 1
-        IF (COMNTAG(N1).GT.1) COMFLAG = 1
-        IF (COMNTAG(N2).GT.1) COMFLAG = 1
+        IF (COMNTAG(N0)>1) COMFLAG = 1
+        IF (COMNTAG(N1)>1) COMFLAG = 1
+        IF (COMNTAG(N2)>1) COMFLAG = 1
 C---
-        IF (JTYP.EQ.1) THEN
+        IF (JTYP==1) THEN
           NCL = 11
           CALL GJNT_GEAR(P      ,L1     ,L2     ,ALPHA  ,X      ,
      2                   IADLL  ,LLL    ,JLL    ,SLL    ,XLL    ,
      3                   N0     ,N1     ,N2     ,NC     )  
-        ELSEIF (JTYP.EQ.2) THEN
-          IF (COMNTAG(N3).GT.1) COMFLAG = 1
+        ELSEIF (JTYP==2) THEN
+          IF (COMNTAG(N3)>1) COMFLAG = 1
           NCL = 13
           L3(1) = GJBUFR(17,I)
           L3(2) = GJBUFR(18,I)
@@ -135,7 +135,7 @@ C---
      2                   IADLL  ,LLL    ,JLL    ,SLL    ,XLL    ,
      3                   X      ,N0     ,N1     ,N2     ,N3     ,
      4                   NC     )  
-        ELSEIF (JTYP.EQ.3) THEN
+        ELSEIF (JTYP==3) THEN
           NCL = 9
           CALL GJNT_RACK(P      ,L1     ,L2     ,ALPHA  ,X      ,
      2                   IADLL  ,LLL    ,JLL    ,SLL    ,XLL    ,
@@ -147,7 +147,7 @@ C---    Solving local Lagrange multipliers
      1           IADLL    ,LLL      ,JLL      ,XLL      ,LTSM     ,
      2           V        ,VR       ,A        ,AR       ,MS       ,
      3           IN       ,NC_INI   ,NCL      )
-        IF (COMFLAG.EQ.0) THEN
+        IF (COMFLAG==0) THEN
           ISKIP  = ISKIP + NCL
           NC = NC_INI
         ELSE

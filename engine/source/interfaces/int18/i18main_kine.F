@@ -1,55 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I18MAIN_KINE_1                source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        I18MAIN_KINE_F                source/interfaces/int18/i18main_kine.F
-Chd|        I18MAIN_KINE_I                source/interfaces/int18/i18main_kine.F
-Chd|        I18_KINE_M                    source/interfaces/int18/i18main_kine.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_I18KINE_COM_ACC          source/mpi/interfaces/spmd_i18kine_com_acc.F
-Chd|        SPMD_I18KINE_COM_MS           source/mpi/interfaces/spmd_i18kine_com_ms.F
-Chd|        SPMD_I18KINE_MACC_COM_POFF    source/mpi/interfaces/spmd_i18kine_macc_com_poff.F
-Chd|        SPMD_I18KINE_MSF_COM_POFF     source/mpi/interfaces/spmd_i18kine_msf_com_poff.F
-Chd|        SPMD_I18KINE_PENE_COM_POFF    source/mpi/interfaces/spmd_i18kine_pene_com_poff.F
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE I18MAIN_KINE_1(IPARI,INTBUF_TAB,X      ,V       ,
-     2                   A      ,ISKEW   ,SKEW     ,LCOD          ,WA      ,
-     3                   MS     ,ITAB    ,JTASK    ,KINET         ,STIFN   ,
-     4                   MTF    ,CAND_SAV,INT18ADD ,IAD_ELEM      ,FR_ELEM ,
-     5                   TAGPENE,H3D_DATA,MULTI_FVM,ALE_NE_CONNECT,XCELL)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i18main_kine_1               ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    resol                        ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    i18_kine_m                   ../engine/source/interfaces/int18/i18main_kine.F
+!||    i18main_kine_f               ../engine/source/interfaces/int18/i18main_kine.F
+!||    i18main_kine_i               ../engine/source/interfaces/int18/i18main_kine.F
+!||    my_barrier                   ../engine/source/system/machine.F
+!||    spmd_i18kine_com_acc         ../engine/source/mpi/interfaces/spmd_i18kine_com_acc.F
+!||    spmd_i18kine_com_ms          ../engine/source/mpi/interfaces/spmd_i18kine_com_ms.F
+!||    spmd_i18kine_macc_com_poff   ../engine/source/mpi/interfaces/spmd_i18kine_macc_com_poff.F
+!||    spmd_i18kine_msf_com_poff    ../engine/source/mpi/interfaces/spmd_i18kine_msf_com_poff.F
+!||    spmd_i18kine_pene_com_poff   ../engine/source/mpi/interfaces/spmd_i18kine_pene_com_poff.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod         ../common_source/modules/ale/ale_connectivity_mod.F
+!||    array_mod                    ../common_source/modules/array_mod.F
+!||    h3d_mod                      ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod                ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    multi_fvm_mod                ../common_source/modules/ale/multi_fvm_mod.F90
+!||    output_mod                   ../common_source/modules/output/output_mod.F90
+!||    tri7box                      ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE I18MAIN_KINE_1(output, IPARI   ,INTBUF_TAB ,X        ,V             ,
+     2                          A       ,ISKEW      ,SKEW     ,LCOD          ,WA      ,
+     3                          MS      ,ITAB       ,JTASK    ,KINET         ,STIFN   ,
+     4                          MTF     ,CAND_SAV   ,INT18ADD ,IAD_ELEM      ,FR_ELEM ,
+     5                          TAGPENE ,H3D_DATA   ,MULTI_FVM,ALE_NE_CONNECT,XCELL,XCELL_REMOTE)
 C-----------------------------------------------
 C   D e s c r i p t i o n 
 C-----------------------------------------------
 C This subroutine is a 'kinematic version' of coupling interface type 18
-C It is an old and experimental version which has never been released (abandonned)
+C It is an old and experimental version which has never been released (abandoned)
 C  Principle : Structural velocity is imposing fluid velocity
 C  Starter Keyword : /INTER/TYPE18/KINE
 C-----------------------------------------------
@@ -59,7 +62,9 @@ C-----------------------------------------------
       USE INTBUFDEF_MOD
       USE H3D_MOD
       USE MULTI_FVM_MOD    
-      USE ALE_CONNECTIVITY_MOD          
+      USE ALE_CONNECTIVITY_MOD
+      USE OUTPUT_MOD
+      USE ARRAY_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -71,15 +76,13 @@ C-----------------------------------------------
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "secur_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
 #include      "warn_c.inc"
-#include      "scr05_c.inc"
 #include      "tabsiz_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      type(output_), intent(inout) :: output
       INTEGER IPARI(NPARI,*), ISKEW(*), LCOD(*), ITAB(*),
      .   KINET(*),INT18ADD(*),JTASK,IAD_ELEM(2,*),FR_ELEM(*),TAGPENE(*)
       my_real
@@ -88,23 +91,24 @@ C-----------------------------------------------
       TYPE(INTBUF_STRUCT_) INTBUF_TAB(*)
       TYPE(H3D_DATABASE) :: H3D_DATA
       TYPE(MULTI_FVM_STRUCT), INTENT(IN) :: MULTI_FVM  
-      TYPE(t_connectivity), INTENT(IN) :: ALE_NE_CONNECT          
+      TYPE(t_connectivity), INTENT(IN) :: ALE_NE_CONNECT  
+      TYPE(array_type), DIMENSION(NINTER), INTENT(in) :: XCELL_REMOTE !< remote data structure for interface 18         
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,NODF,NODL,NRTMDIM
-      INTEGER N, NTY, NMN, NINT,INACTI,LINDMAX
+      INTEGER N, NTY, NMN, INACTI,LINDMAX
       INTEGER NB_JLT(PARASIZ),NB_JLT_NEW(PARASIZ),NB_STOK_N(PARASIZ),
-     *        NN,P,NODFI,IERROR1,IERROR2,IERROR3,IERROR4
+     * P,NODFI,IERROR1,IERROR2,IERROR3,IERROR4
       my_real
-     .    STARTT,STOPT,BID
+     .    STARTT,STOPT,BID,VBID
       SAVE NB_JLT,NB_JLT_NEW,NB_STOK_N
 C=======================================================================
 C     initialisation MTF(1:14,1:NUMNOD)
 C=======================================================================
 C
 c
-c     a reecrire sur mains uniquement
+c     To be reached on mains only
       NODF = 1 + (JTASK-1)*NUMNOD / NTHREAD
       NODL = JTASK*NUMNOD / NTHREAD
       DO I = NODF,NODL
@@ -117,7 +121,7 @@ c     a reecrire sur mains uniquement
         MTF(7,I) = ZERO   ! Fx mains
         MTF(8,I) = ZERO   ! Fy mains
         MTF(9,I) = ZERO   ! Fz mains
-        MTF(10,I)= ZERO   ! PENE cumulee sur second
+        MTF(10,I)= ZERO   ! cumulative penetration on second
 c        MTF(11,I)= EP30   ! Distance relative min
         MTF(11,I)= ZERO   ! pene max
         MTF(12,I) = ZERO  ! Nx second
@@ -186,19 +190,19 @@ C -------------------
       CALL MY_BARRIER
 C -------------------
       IF (NSPMD > 1)THEN
-C     MSFI (MASSE des noeuds seconds  n est pas mis a jour
-C     la masse est necessaire pour les calculs ensuite
+C     MSFI (mass of second nodes is not updated
+C     mass is needed for subsequent calculations
           CALL SPMD_I18KINE_COM_MS(IPARI,INTBUF_TAB,MTF,MS,ITAB)
       ENDIF
 C-----------------------------------------------
-C statistique interface
+C Interface Statistics
       IF (DEBUG(3) >= 1.AND.NCYCLE == 0) THEN
         NB_JLT(JTASK) = 0
         NB_JLT_NEW(JTASK) = 0
         NB_STOK_N(JTASK) = 0
       ENDIF
 C=======================================================================
-C     calcul des penetrations cumulees ...
+C     calculation of cumulative penetrations ...
 C     MTF(10,i) pene cumulee
 C     MTF(11,i) dist min relative
 C     MTF(12:14,i) normales cumulee
@@ -216,33 +220,34 @@ C LINDMAX = NCONT*MULTIMP
      2                       STIFN       ,V             ,A                     ,MS               , NMN             ,
      3                       ITAB        ,LINDMAX       ,CAND_SAV(INT18ADD(N)) ,MTF              , ALE_NE_CONNECT  ,
      4                       NRTMDIM     ,JTASK         ,NB_JLT(JTASK)         ,NB_JLT_NEW(JTASK),N B_STOK_N(JTASK),
-     5                       KINET       ,MULTI_FVM     ,XCELL)
+     5                       KINET       ,MULTI_FVM     ,XCELL,XCELL_REMOTE(N)%SIZE_MY_REAL_ARRAY_1D,
+     .                            XCELL_REMOTE(N)%MY_REAL_ARRAY_1D)
        ENDIF
       ENDDO
 C=======================================================================
 !$OMP SINGLE
 
-C     COMM SPMD : MTF(10,*)=somme des PENE
-C     COMM SPMD : MTF(11,*)=min des distances relatives
-C     COMM SPMD : MTF(12:14,*)=sommes des normales
-c   1: envoie sur le proc qui possede le noeud
-c   2: cumul(ou min) sur les noeuds frontieres secnd 18
-c   2: cumul sur les noeuds frontieres secnd 18
+C     Comm spmd: mtf (10,*) = sum of the pene
+C     Comm spmd: mtf (11,*) = min relative distances
+C     Comm SPMD: MTF (12:14,*) = IS NORMALS
+c   1: send to the proc that owns the node
+c   2: accumulate (or min) on secondary 18 boundary nodes
+c   2: accumulate on secondary 18 boundary nodes
       IF (NSPMD > 1)THEN
-         CALL SPMD_I18KINE_PENE_COM_POFF(IPARI,INTBUF_TAB,BID,
+         CALL SPMD_I18KINE_PENE_COM_POFF(output, IPARI,INTBUF_TAB,VBID,
      *                                   MTF,A,IAD_ELEM,FR_ELEM,1,BID,TAGPENE,ITAB,
      .                                   H3D_DATA  )
 
-c     Besoin des accelerations pour le noeud second
-c     quand on a surface main, noeud second. distant
-c     Dans le meme cas, retour du MTF_PENE+MTF_PENEMIN pour les
+c     need accelerations for the second node
+c     quand on a surface main, node second. distant
+c     in the same case, return MTF_PENE+MTF_PENEMIN for
 c     calculs suivants.
 
           CALL SPMD_I18KINE_COM_ACC(IPARI,INTBUF_TAB,MTF,A,ITAB,TAGPENE)
       ENDIF
 !$OMP END SINGLE
 C=======================================================================
-C     calcul des forces et des masses a transmettre aux mains
+C     calculation of forces and masses to be transmitted to the mains
 c     ponderation en pene/somme(pene)
 C=======================================================================
 C -------------------
@@ -260,15 +265,15 @@ C -------------------
        ENDIF
       ENDDO
 C=======================================================================
-C     COMM SPMD : MTF(1:9,*)= masses et forces des mains
-C     comm sur les noeuds frontieres main int 18
+C     Comm spmd: mtf (1: 9,*) = masses and main forces
+C     comm on main int 18 boundary nodes
 !$OMP SINGLE
       IF (NSPMD > 1)THEN
         CALL SPMD_I18KINE_MSF_COM_POFF(MTF,IAD_ELEM,FR_ELEM,ITAB)
       ENDIF
 !$OMP END SINGLE
 C=======================================================================
-C     calcul des nouvelles accelerations des mains
+C     calculation of new accelerations of the mains
 C=======================================================================
 C -------------------
       CALL MY_BARRIER
@@ -288,11 +293,11 @@ C -------------------
        ENDIF
       ENDDO
 C=======================================================================
-c     si MTF(1,*) /= 0 le noeuds est main int 18 sur ce proc
-c     et peut etre utilise comme flag
+c     if MTF(1,*) /= 0 the node is main int 18 on this proc
+c     and maybe used as flag
 
-c     => envoyer MTF(1,*) et A(1:3,*) pour TOUS les noeuds frontieres
-c     en reception si MTF(recu) est non nul
+c     => send MTF(1,*) and A(1:3,*) for ALL boundary nodes
+c     in reception if mtf (received) is not zero
 c     => ecraser A(local) par A(recu)
 !$OMP SINGLE
       IF(NSPMD > 1) CALL SPMD_I18KINE_MACC_COM_POFF(MTF,A,IAD_ELEM,FR_ELEM,ITAB)
@@ -302,22 +307,24 @@ C=======================================================================
       RETURN
 C
       END
-Chd|====================================================================
-Chd|  I18MAIN_KINE_2                source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        I18MAIN_KINE_S                source/interfaces/int18/i18main_kine.F
-Chd|        I18MAIN_KINE_V                source/interfaces/int18/i18main_kine.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_I18KINE_COM_A            source/mpi/interfaces/spmd_i18kine_com_a.F
-Chd|        SPMD_I18KINE_COM_V            source/mpi/interfaces/spmd_i18kine_com_v.F
-Chd|        SPMD_I18KINE_PENE_COM_POFF    source/mpi/interfaces/spmd_i18kine_pene_com_poff.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE I18MAIN_KINE_2(IPARI,INTBUF_TAB ,X   ,V       ,
+!||====================================================================
+!||    i18main_kine_2               ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    resol                        ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    i18main_kine_s               ../engine/source/interfaces/int18/i18main_kine.F
+!||    i18main_kine_v               ../engine/source/interfaces/int18/i18main_kine.F
+!||    my_barrier                   ../engine/source/system/machine.F
+!||    spmd_i18kine_com_a           ../engine/source/mpi/interfaces/spmd_i18kine_com_a.F
+!||    spmd_i18kine_com_v           ../engine/source/mpi/interfaces/spmd_i18kine_com_v.F
+!||    spmd_i18kine_pene_com_poff   ../engine/source/mpi/interfaces/spmd_i18kine_pene_com_poff.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod                      ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod                ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    output_mod                   ../common_source/modules/output/output_mod.F90
+!||    tri7box                      ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE I18MAIN_KINE_2(output,IPARI,INTBUF_TAB ,X   ,V       ,
      2                   A    ,ISKEW ,SKEW    ,LCOD   ,WA      ,
      3                   MS   ,ITAB  ,FSAV    ,JTASK  ,KINET   ,
      4                   STIFN,MTF   ,CAND_SAV,FCONT  ,INT18ADD,
@@ -325,6 +332,7 @@ Chd|====================================================================
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      use output_mod
       USE TRI7BOX
       USE INTBUFDEF_MOD
       USE H3D_MOD
@@ -337,16 +345,12 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "secur_c.inc"
 #include      "task_c.inc"
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "scr05_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      type(output_), intent(inout) :: output
       INTEGER IPARI(NPARI,*), ISKEW(*), LCOD(*), ITAB(*),
      .   KINET(*),INT18ADD(*),JTASK,IAD_ELEM(2,*),FR_ELEM(*)
       my_real
@@ -358,19 +362,15 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,NODF,NODL,NRTMDIM
-      INTEGER N, NTY, NMN, NINT,INACTI,LINDMAX
+      INTEGER I,NODF,NODL
+      INTEGER N, NTY, INACTI
       INTEGER NB_JLT(PARASIZ),NB_JLT_NEW(PARASIZ),NB_STOK_N(PARASIZ),
-     *        NN,P,NODFI,IERROR1,IERROR2,IERROR3,IERROR4,IBID
-      my_real
-     .    STARTT,STOPT
+     *        P,NODFI,IBID
       SAVE NB_JLT,NB_JLT_NEW,NB_STOK_N
       INTEGER, DIMENSION(:), ALLOCATABLE ::  SLVNDTAG
 C=======================================================================
 C     initialisation MTF(1:14,1:NUMNOD)
 C=======================================================================
-C Pbme en hybride SLVNDTAG commun    un proc SPMD
-C
       IF (NSPMD > 1)THEN
          ALLOCATE(SLVNDTAG(NUMNOD))
          SLVNDTAG = 0
@@ -379,19 +379,18 @@ C
          SLVNDTAG = 0
       ENDIF
 C=======================================================================
-C     calcul des vitesses a imposer aux second
+C     velocity calculation to be imposed on the second
 c     ponderation en pene/somme(pene)
 C=======================================================================
 C -------------------
       CALL MY_BARRIER
 C -------------------
-c
       NODF = 1 + (JTASK-1)*NUMNOD / NTHREAD
       NODL = JTASK*NUMNOD / NTHREAD
       DO I = NODF,NODL
-        MTF(1,I) = ZERO   ! vx second. impose par main
-        MTF(2,I) = ZERO   ! vy second. impose par main
-        MTF(3,I) = ZERO   ! vz second. impose par main
+        MTF(1,I) = ZERO   ! VX Second.main
+        MTF(2,I) = ZERO   ! Vy second.main
+        MTF(3,I) = ZERO   ! Vz second.main
         MTF(4,I) = ZERO   ! vxp second. old (v+a*dt)
         MTF(5,I) = ZERO   ! vyp second. old (v+a*dt)
         MTF(6,I) = ZERO   ! vzp second. old (v+a*dt)
@@ -442,14 +441,14 @@ C -------------------
       ENDDO
 C=======================================================================
 
-C     a faire:
+C     a to perform:
 C     COMM SPMD : MTF(1:6,*)= velocities
 
 c   1: send to proc which contain the fluid node
 c   2: cumul on boundary fluid nodes
 !$OMP SINGLE
       IF (NSPMD > 1)THEN
-        CALL SPMD_I18KINE_PENE_COM_POFF(IPARI,INTBUF_TAB,FCONT,
+        CALL SPMD_I18KINE_PENE_COM_POFF(output, IPARI,INTBUF_TAB,FCONT,
      *                                  MTF,A,IAD_ELEM,FR_ELEM,2,SLVNDTAG,IBID,ITAB,
      .                                  H3D_DATA )
 C reset  MTF_V on procs which do not have fluid node but have it as candidate
@@ -469,7 +468,7 @@ C -------------------
        NTY   =IPARI(7,N)
        INACTI =IPARI(22,N)
        IF(NTY==7.and.IPARI(34,N)==-2.and.INACTI==7)THEN
-         CALL I18MAIN_KINE_S(N,
+         CALL I18MAIN_KINE_S(output, N,
      1                       IPARI(1,N)   ,INTBUF_TAB(N)    ,X                    ,STIFN      ,
      2                       V            ,A                ,MS                   ,FSAV(1,N)  ,FCONT     ,
      3                       JTASK        ,ITAB             ,CAND_SAV(INT18ADD(N)),MTF        ,
@@ -481,9 +480,9 @@ C=======================================================================
 !$OMP SINGLE
 C     COMM SPMD : A(1:3,*)= acceleration des seconds
 
-c   1: envoie sur le proc qui possede le noeud qui ecrase l'acceleration
+c   1: send to the proc that owns the node that overwrites the acceleration
       IF (NSPMD > 1)THEN
-        CALL SPMD_I18KINE_PENE_COM_POFF(IPARI,INTBUF_TAB,FCONT,
+        CALL SPMD_I18KINE_PENE_COM_POFF(output,IPARI,INTBUF_TAB,FCONT,
      *                                  MTF,A,IAD_ELEM,FR_ELEM,3,SLVNDTAG,IBID,ITAB,
      .                                  H3D_DATA)
       ENDIF
@@ -496,44 +495,47 @@ C=======================================================================
       RETURN
 C
       END
-Chd|====================================================================
-Chd|  I18MAIN_KINE_I                source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_1                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        ARRET                         source/system/arret.F         
-Chd|        I18DST3                       source/interfaces/int18/i18dst3.F
-Chd|        I18KINE_I                     source/interfaces/int18/i18main_kine.F
-Chd|        I7CDCOR3                      source/interfaces/int07/i7cdcor3.F
-Chd|        I7COR3                        source/interfaces/int07/i7cor3.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        ALE_CONNECTIVITY_MOD          ../common_source/modules/ale_connectivity_mod.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i18main_kine_i         ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_1         ../engine/source/interfaces/int18/i18main_kine.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../engine/source/output/message/message.F
+!||    arret                  ../engine/source/system/arret.F
+!||    i18dst3                ../engine/source/interfaces/int18/i18dst3.F
+!||    i18kine_i              ../engine/source/interfaces/int18/i18main_kine.F
+!||    i7cdcor3               ../engine/source/interfaces/int07/i7cdcor3.F
+!||    i7cor3                 ../engine/source/interfaces/int07/i7cor3.F
+!||    my_barrier             ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    ale_connectivity_mod   ../common_source/modules/ale/ale_connectivity_mod.F
+!||    i18dst3_mod            ../engine/source/interfaces/int18/i18dst3.F
+!||    intbufdef_mod          ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    multi_fvm_mod          ../common_source/modules/ale/multi_fvm_mod.F90
+!||====================================================================
       SUBROUTINE I18MAIN_KINE_I(NIN,IPARI,INTBUF_TAB      ,X        ,
      2      STIFN    ,V         ,A          ,MS           ,NMN      ,
      3      ITAB     ,LINDMAX   ,CAND_SAV   ,MTF          ,ALE_NE_CONNECT,
      4      NRTMDIM  ,JTASK     ,NB_JLT     ,NB_JLT_NEW   ,NB_STOK_N,
-     5      KINET    ,MULTI_FVM ,XCELL)
+     5      KINET    ,MULTI_FVM ,XCELL,S_XCELL_REMOTE,XCELL_REMOTE)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
       USE INTBUFDEF_MOD
       USE MULTI_FVM_MOD 
-      USE ALE_CONNECTIVITY_MOD           
+      USE ALE_CONNECTIVITY_MOD
+      USE I18DST3_MOD , ONLY : I18DST3
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-------------------------------------------------------------------------------
 C     NOM    DIMENSION               DESCRIPTION                       E/S
 C-------------------------------------------------------------------------------
-C    NIN    1                        NUMERO INTERFACE                   E
+C    NIN    1                        INTERFACE NUMBER                   E
 C   IPARI   NPARI,NINTER             PARAMETRES D'INTERFACE             E
 C     X     3,NUMNOD                 COORDONNEES                        E
-C     V     3,NUMNOD                 VITESSES                           E
+C     V     3,NUMNOD                 VELOCITIES                           E
 C    EMINX  6*NME<6*NUMELS           MIN MAX DE CHAQUE ELEMENT        TMP_GLOBAL
 C
 C-----------------------------------------------
@@ -548,11 +550,9 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "task_c.inc"
 #include      "warn_c.inc"
 #include      "tabsiz_c.inc"
@@ -561,7 +561,10 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NIN,JTASK ,LINDMAX,NMN     ,
      .        NB_JLT,NB_JLT_NEW,NB_STOK_N,NRTMDIM
-      INTEGER IPARI(NPARI), KINET(*),ITAB(*),STIFN(*)
+      INTEGER IPARI(NPARI), KINET(*),ITAB(*)
+      my_real :: STIFN(*)
+      INTEGER, INTENT(in) :: S_XCELL_REMOTE
+      my_real, DIMENSION(S_XCELL_REMOTE), INTENT(in) :: XCELL_REMOTE
       my_real
      .   X(3,*), V(3,*), A(3,*), MS(*),
      .   MTF(14,*),CAND_SAV(8,*),XCELL(3,SXCELL)
@@ -571,16 +574,16 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,J,I_STOK_GLOB,NSN,NME,NAD,EAD,
-     .        NME_T,ESH_T,IGN,IGE,MULTIMP,NOINT,MX_CAND,NTY,IVIS2,
-     .        IGAP,INACTI,IBAG,I_STOK, I_STOK_LOC, JLT_NEW,NMNF,NMNL,
-     .        JLT, NFT,DEBUT,NBID,NB_LOC, I3N,IGSTI,ICURV,IADM
+      INTEGER I, NSN, 
+     .        NOINT,NTY,IVIS2,
+     . IGAP,INACTI,IBAG,I_STOK, I_STOK_LOC, JLT_NEW,
+     . JLT, NFT,DEBUT,NBID,NB_LOC,IGSTI,ICURV,IADM
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
      .        NSVG(MVSIZ), CN_LOC(MVSIZ),CE_LOC(MVSIZ),INDEX2(LINDMAX),
      .        CAND_N_N(MVSIZ),CAND_E_N(MVSIZ),KINI(MVSIZ),IBID
       my_real
      .   STARTT, STOPT,GAP,GAPMIN,MAXBOX,MINBOX,BID,
-     .   KMIN, KMAX, GAPMAX,SURF(3,NRTMDIM)
+     . KMIN, KMAX, GAPMAX
       my_real
      .     NX1(MVSIZ), NX2(MVSIZ), NX3(MVSIZ), NX4(MVSIZ),
      .     NY1(MVSIZ), NY2(MVSIZ), NY3(MVSIZ), NY4(MVSIZ),
@@ -592,26 +595,20 @@ C-----------------------------------------------
      .   Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), Y4(MVSIZ),
      .   Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ),
      .   XI(MVSIZ), YI(MVSIZ), ZI(MVSIZ), STIF(MVSIZ),
-     .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
-     .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
      .   GAPV(MVSIZ),VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ)
-      my_real
-     .    NNX1(MVSIZ), NNX2(MVSIZ), NNX3(MVSIZ), NNX4(MVSIZ),
-     .    NNY1(MVSIZ), NNY2(MVSIZ), NNY3(MVSIZ), NNY4(MVSIZ),
-     .    NNZ1(MVSIZ), NNZ2(MVSIZ), NNZ3(MVSIZ), NNZ4(MVSIZ)
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
       INACTI=IPARI(22)
-      IF(INACTI/=7.or.IPARI(34)==0)RETURN
+      IF(INACTI /= 7 .or. IPARI(34) == 0)RETURN
 C
 C -------------------
       CALL MY_BARRIER
 C -------------------
 
 C=======================================================================
-C     calcul des pene,normale,Hi...
-C     et calcul de la pene cumulee pour chaque second. MTF(10,i)
+C     calculation des pene,normale,Hi...
+C     and calculation of cumulative penetration for each second. MTF(10,i)
 C=======================================================================
       NBID=0
       BID=ZERO
@@ -641,7 +638,7 @@ C
       KMIN  =INTBUF_TAB%VARIABLES(17)
       KMAX  =INTBUF_TAB%VARIABLES(18)
 
-C     parrallel part after elem forces
+C     parallel part after elem forces
 C     static cutting
       NB_LOC = I_STOK / NTHREAD
       IF (JTASK == NTHREAD) THEN
@@ -678,7 +675,7 @@ C preparing retained candidates
           CALL I7CDCOR3(
      1         JLT,INDEX2(NFT+1),INTBUF_TAB%CAND_E,INTBUF_TAB%CAND_N,
      2         CAND_E_N,CAND_N_N)
-C cand_n et cand_e replaced with cand_n_n et cand_e_n
+C cand_n and cand_e replaced with cand_n_n and cand_e_n
           CALL I7COR3(
      1         JLT       ,X   ,INTBUF_TAB%IRECTM,INTBUF_TAB%NSV,CAND_E_N,
      2         CAND_N_N  ,INTBUF_TAB%STFM   ,INTBUF_TAB%STFNS  ,X1    ,X2   ,
@@ -699,25 +696,24 @@ C cand_n et cand_e replaced with cand_n_n et cand_e_n
    
           JLT_NEW = 0
           CALL I18DST3(
-     1        JLT          ,CAND_N_N ,CAND_E_N ,CN_LOC           ,CE_LOC ,
-     2        X1           ,X2       ,X3       ,X4               ,Y1     ,
-     3        Y2           ,Y3       ,Y4       ,Z1               ,Z2     ,
-     4        Z3           ,Z4       ,XI       ,YI               ,ZI     ,
-     5        NX1          ,NX2      ,NX3      ,NX4              ,NY1    ,
-     6        NY2          ,NY3      ,NY4      ,NZ1              ,NZ2    ,
-     7        NZ3          ,NZ4      ,LB1      ,LB2              ,LB3    ,
-     8        LB4          ,LC1      ,LC2      ,LC3              ,LC4    ,
-     9        P1           ,P2       ,P3       ,P4               ,IX1    ,
-     A        IX2          ,IX3      ,IX4      ,NSVG             ,STIF   ,
-     B        JLT_NEW      ,GAPV     ,INACTI   ,INTBUF_TAB%CAND_P,ALE_NE_CONNECT,
-     C        INDEX2(NFT+1),VXI      ,VYI      ,ITAB             ,XCELL  ,
-     D        VZI          ,MSI      ,KINI     ,SURF             ,IBAG    ,
-     E        IGAP         ,MULTI_FVM)
+     1        JLT           ,CAND_N_N  ,CAND_E_N          ,CN_LOC           ,CE_LOC ,
+     2        X1            ,X2        ,X3                ,X4               ,Y1     ,
+     3        Y2            ,Y3        ,Y4                ,Z1               ,Z2     ,
+     4        Z3            ,Z4        ,XI                ,YI               ,ZI     ,
+     5        NX1           ,NX2       ,NX3               ,NX4              ,NY1    ,
+     6        NY2           ,NY3       ,NY4               ,NZ1              ,NZ2    ,
+     7        NZ3           ,NZ4       ,LB1               ,LB2              ,LB3    ,
+     8        LB4           ,LC1       ,LC2               ,LC3              ,LC4    ,
+     9        P1            ,P2        ,P3                ,P4               ,IX1    ,
+     A        IX2           ,IX3       ,IX4               ,NSVG             ,STIF   ,
+     B        JLT_NEW       ,GAPV      ,INTBUF_TAB%CAND_P ,ALE_NE_CONNECT,
+     C        INDEX2(NFT+1) ,VXI       ,VYI               ,ITAB             ,XCELL  ,
+     D        VZI           ,MSI       ,KINI              ,
+     E        IGAP          ,MULTI_FVM ,S_XCELL_REMOTE    ,XCELL_REMOTE)
           JLT = JLT_NEW
           IF(JLT_NEW /= 0) THEN
             IPARI(29) = 1
-            IF (DEBUG(3) >= 1)
-     .        NB_JLT_NEW = NB_JLT_NEW + JLT_NEW
+            IF (DEBUG(3) >= 1) NB_JLT_NEW = NB_JLT_NEW + JLT_NEW
             CALL I18KINE_I(
      1                      JLT          ,A         ,V            ,
      2                      GAP          ,MS        ,NOINT        ,INTBUF_TAB%STFNS  ,ITAB ,
@@ -735,14 +731,15 @@ C cand_n et cand_e replaced with cand_n_n et cand_e_n
 
       RETURN
       END
-Chd|====================================================================
-Chd|  I18MAIN_KINE_F                source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_1                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        I18KINE_F                     source/interfaces/int18/i18main_kine.F
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i18main_kine_f   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_1   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- calls      -----------------------------------------------------
+!||    i18kine_f        ../engine/source/interfaces/int18/i18main_kine.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod    ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE I18MAIN_KINE_F(NIN,
      1                          IPARI     ,INTBUF_TAB          ,X         ,STIFN     ,
      2                          V         ,A        ,MS        ,ITAB      ,LINDMAX   ,
@@ -759,13 +756,13 @@ C-------------------------------------------------------------------------------
 C     NOM    DIMENSION               DESCRIPTION                       E/S
 C-------------------------------------------------------------------------------
 C
-C    NIN    1                        NUMERO INTERFACE                   E
+C    NIN    1                        INTERFACE NUMBER                   E
 C
 C   IPARI   NPARI,NINTER             PARAMETRES D'INTERFACE             E
 C
 C     X     3,NUMNOD                 COORDONNEES                        E
 C
-C     V     3,NUMNOD                 VITESSES                           E
+C     V     3,NUMNOD                 VELOCITIES                           E
 C
 C    EMINX  6*NME<6*NUMELS           MIN MAX DE CHAQUE ELEMENT        TMP_GLOBAL
 C
@@ -781,31 +778,27 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "task_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NIN,JTASK ,LINDMAX,
      .        NB_JLT,NB_JLT_NEW,NB_STOK_N
-      INTEGER IPARI(NPARI), STIFN(*),
+      INTEGER IPARI(NPARI), 
      .        ITAB(*)
       my_real
      .   X(3,*), V(3,*), A(3,*), MS(*),
-     .   MTF(14,*),CAND_SAV(8,*)
+     .   MTF(14,*),CAND_SAV(8,*),STIFN(*)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I_STOK_GLOB,NSN,NME,NAD,EAD,
-     .        NME_T,ESH_T,IGN,IGE,MULTIMP,NOINT,I,MX_CAND,NTY,IVIS2,
-     .        IGAP,INACTI,IBAG,I_STOK, I_STOK_LOC, JLT_NEW,
-     .        JLT, NFT,DEBUT,NB_LOC, I3N,IGSTI,ICURV,IADM
+      INTEGER NSN, 
+     . NME_TGNGE,NOINT,NTY,IVIS2,
+     . IGAP,INACTI,IBAG,I_STOK, I_STOK_LOC,
+     . JLT, NFT,DEBUT,NB_LOC,IGSTI,ICURV,IADM
       my_real
      .   STARTT, STOPT,GAP,GAPMIN,MAXBOX,MINBOX,
      .   KMIN, KMAX, GAPMAX
@@ -816,17 +809,8 @@ C-----------------------------------------------
      .     LB1(MVSIZ), LB2(MVSIZ), LB3(MVSIZ), LB4(MVSIZ),
      .     LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
      .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ),
-     .   X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), X4(MVSIZ),
-     .   Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), Y4(MVSIZ),
-     .   Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ),
-     .   XI(MVSIZ), YI(MVSIZ), ZI(MVSIZ), STIF(MVSIZ),
-     .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
-     .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
-     .   GAPV(MVSIZ),VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ)
-      my_real
-     .    NNX1(MVSIZ), NNX2(MVSIZ), NNX3(MVSIZ), NNX4(MVSIZ),
-     .    NNY1(MVSIZ), NNY2(MVSIZ), NNY3(MVSIZ), NNY4(MVSIZ),
-     .    NNZ1(MVSIZ), NNZ2(MVSIZ), NNZ3(MVSIZ), NNZ4(MVSIZ)
+     .     STIF(MVSIZ),
+     .     GAPV(MVSIZ),VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ)
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
@@ -834,8 +818,8 @@ C-----------------------------------------------
       IF(INACTI/=7.or.IPARI(34)==0)RETURN
 C
 C=======================================================================
-C     calcul des pene,normale,Hi...
-C     et calcul de la pene cumulee pour chaque second. MTF(10,i)
+C     calculation des pene,normale,Hi...
+C     and calculation of cumulative penetration for each second. MTF(10,i)
 C=======================================================================
       NSN   =IPARI(5)
       NTY   =IPARI(7)
@@ -860,8 +844,8 @@ C
       GAPMAX=INTBUF_TAB%VARIABLES(16)
       KMIN  =INTBUF_TAB%VARIABLES(17)
       KMAX  =INTBUF_TAB%VARIABLES(18)
-C     cette partie est effectuee en // apres le calcul des forces des elem.
-C     decoupage statique
+C     this part is done in parallel after the calculation of element forces
+C     static decoupage
       NB_LOC = I_STOK / NTHREAD
       IF (JTASK == NTHREAD) THEN
           I_STOK_LOC = I_STOK-NB_LOC*(NTHREAD-1)
@@ -870,7 +854,7 @@ C     decoupage statique
       ENDIF
       DEBUT = NB_LOC*(JTASK-1)
 C=======================================================================
-C     calcul des forces et des masses a transmettre aux mains
+C     calculation of the forces and masses to be transmitted to the mains
 c     ponderation en pene/somme(pene)
 C=======================================================================
 c      DO NFT = DEBUT , DEBUT + I_STOK_LOC - 1 , NVSIZ
@@ -893,12 +877,11 @@ c          JLT = MIN( NVSIZ, I_STOK_LOC - NFT )
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I18_KINE_M                    source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_1                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    i18_kine_m       ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_1   ../engine/source/interfaces/int18/i18main_kine.F
+!||====================================================================
       SUBROUTINE I18_KINE_M(
      1      ITASK     ,NMN     ,MSR     ,V        ,A       ,MS      ,
      2      MTF       ,ISKEW  ,SKEW     ,LCOD     ,ITAB    )
@@ -909,12 +892,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "warn_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -924,13 +901,9 @@ C-----------------------------------------------
       my_real
      .   A(3,*), V(3,*), MS(*),MTF(14,*), SKEW(LSKEW,*)
 C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
-C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER NMNF,NMNL,I, J,ISK
+      INTEGER NMNF, NMNL, I, J
       my_real
      .    A11,A12,A13,A22,A23,A33,B11,B12,B13,B22,B23,B33,
      .    USDET,FX   ,FY   ,FZ
@@ -945,7 +918,7 @@ C-----------------------------------------------
         J=MSR(I)
         IF(J > 0) THEN
 
-c     invertion matrice 3x3 sym et multiplication par un vecteur
+c     inversion of symmetric 3x3 matrix and multiplication by a vector
 c
 c     B = A^-1
 c
@@ -984,15 +957,16 @@ c         a = [B] f
 
       RETURN
       END
-Chd|====================================================================
-Chd|  I18MAIN_KINE_V                source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_2                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        I18KINE_V                     source/interfaces/int18/i18main_kine.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    i18main_kine_v   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_2   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- calls      -----------------------------------------------------
+!||    i18kine_v        ../engine/source/interfaces/int18/i18main_kine.F
+!||    my_barrier       ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    intbufdef_mod    ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE I18MAIN_KINE_V(NIN,
      1      IPARI     ,INTBUF_TAB         ,X       ,STIFN     ,
      2      V         ,A         ,MS      ,JTASK   ,ITAB      ,
@@ -1009,13 +983,13 @@ C-------------------------------------------------------------------------------
 C     NOM    DIMENSION               DESCRIPTION                       E/S
 C-------------------------------------------------------------------------------
 C
-C    NIN    1                        NUMERO INTERFACE                   E
+C    NIN    1                        INTERFACE NUMBER                   E
 C
 C   IPARI   NPARI,NINTER             PARAMETRES D'INTERFACE             E
 C
 C     X     3,NUMNOD                 COORDONNEES                        E
 C
-C     V     3,NUMNOD                 VITESSES                           E
+C     V     3,NUMNOD                 VELOCITIES                           E
 C
 C    EMINX  6*NME<6*NUMELS           MIN MAX DE CHAQUE ELEMENT        TMP_GLOBAL
 C
@@ -1031,31 +1005,27 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "task_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NIN,JTASK ,
      .        NB_JLT,NB_JLT_NEW,NB_STOK_N
-      INTEGER IPARI(NPARI), STIFN(*),
+      INTEGER IPARI(NPARI), 
      .        ITAB(*), ISKEW(*), LCOD(*)
       my_real
      .   X(3,*), V(3,*), A(3,*), MS(*),
-     .   MTF(14,*),CAND_SAV(8,*), SKEW(*)
+     .   MTF(14,*),CAND_SAV(8,*), SKEW(*), STIFN(*)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I_STOK_GLOB,NSN,NME,NAD,EAD,
-     .        NME_T,ESH_T,IGN,IGE,MULTIMP,NOINT,I,MX_CAND,NTY,IVIS2,
-     .        IGAP,INACTI,IBAG,I_STOK, I_STOK_LOC, JLT_NEW,DEBUT,
-     .        JLT, NFT,NBID,NB_LOC, I3N,IADM
+      INTEGER NSN, 
+     . NME_TGNGE,NOINT,NTY,IVIS2,
+     . IGAP,INACTI,IBAG,I_STOK, I_STOK_LOC,DEBUT,
+     . JLT, NFT,NB_LOC,IADM
       my_real
      .   STARTT, STOPT,GAP,GAPMIN,MAXBOX,MINBOX,
      .   KMIN, KMAX, GAPMAX
@@ -1065,18 +1035,8 @@ C-----------------------------------------------
      .     NZ1(MVSIZ), NZ2(MVSIZ), NZ3(MVSIZ), NZ4(MVSIZ),
      .     LB1(MVSIZ), LB2(MVSIZ), LB3(MVSIZ), LB4(MVSIZ),
      .     LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
-     .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ),
-     .   X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), X4(MVSIZ),
-     .   Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), Y4(MVSIZ),
-     .   Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ),
-     .   XI(MVSIZ), YI(MVSIZ), ZI(MVSIZ), STIF(MVSIZ),
-     .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
-     .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
+     .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ),STIF(MVSIZ),
      .   GAPV(MVSIZ),VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ)
-      my_real
-     .    NNX1(MVSIZ), NNX2(MVSIZ), NNX3(MVSIZ), NNX4(MVSIZ),
-     .    NNY1(MVSIZ), NNY2(MVSIZ), NNY3(MVSIZ), NNY4(MVSIZ),
-     .    NNZ1(MVSIZ), NNZ2(MVSIZ), NNZ3(MVSIZ), NNZ4(MVSIZ)
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
@@ -1104,8 +1064,8 @@ C
       GAPMAX=INTBUF_TAB%VARIABLES(16)
       KMIN  =INTBUF_TAB%VARIABLES(17)
       KMAX  =INTBUF_TAB%VARIABLES(18)
-C     cette partie est effectuee en // apres le calcul des forces des elem.
-C     decoupage statique
+C     this part is performed in parallel after the calculation of the forces of the elements
+C     static decoupage
       NB_LOC = I_STOK / NTHREAD
       IF (JTASK == NTHREAD) THEN
           I_STOK_LOC = I_STOK-NB_LOC*(NTHREAD-1)
@@ -1114,7 +1074,7 @@ C     decoupage statique
       ENDIF
       DEBUT = NB_LOC*(JTASK-1)
 C=======================================================================
-C     calcul des vitesses a imposer aux second
+C     velocity calculation to be imposed on the second
 c     ponderation en pene/somme(pene)
 C=======================================================================
 c      DO NFT = DEBUT , DEBUT + I_STOK_LOC - 1 , NVSIZ
@@ -1137,17 +1097,19 @@ c          JLT = MIN( NVSIZ, I_STOK_LOC - NFT )
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I18MAIN_KINE_S                source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_2                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        I18KINE_S                     source/interfaces/int18/i18main_kine.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE I18MAIN_KINE_S(NIN,
+!||====================================================================
+!||    i18main_kine_s   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_2   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- calls      -----------------------------------------------------
+!||    i18kine_s        ../engine/source/interfaces/int18/i18main_kine.F
+!||    my_barrier       ../engine/source/system/machine.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod          ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod    ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    output_mod       ../common_source/modules/output/output_mod.F90
+!||====================================================================
+      SUBROUTINE I18MAIN_KINE_S(output, NIN,
      1      IPARI     ,INTBUF_TAB         ,X       ,STIFN    ,
      2      V         ,A         ,MS      ,FSAV    ,FCONT    ,
      3      JTASK     ,ITAB      ,CAND_SAV,MTF      ,
@@ -1158,6 +1120,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE INTBUFDEF_MOD
       USE H3D_MOD
+      use output_mod
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C
@@ -1165,13 +1128,13 @@ C-------------------------------------------------------------------------------
 C     NOM    DIMENSION               DESCRIPTION                       E/S
 C-------------------------------------------------------------------------------
 C
-C    NIN    1                        NUMERO INTERFACE                   E
+C    NIN    1                        INTERFACE NUMBER                   E
 C
 C   IPARI   NPARI,NINTER             PARAMETRES D'INTERFACE             E
 C
 C     X     3,NUMNOD                 COORDONNEES                        E
 C
-C     V     3,NUMNOD                 VITESSES                           E
+C     V     3,NUMNOD                 VELOCITIES                           E
 C
 C    EMINX  6*NME<6*NUMELS           MIN MAX DE CHAQUE ELEMENT        TMP_GLOBAL
 C
@@ -1187,32 +1150,28 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com08_c.inc"
 #include      "param_c.inc"
-#include      "units_c.inc"
 #include      "task_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NIN,JTASK ,
-     .        NB_JLT,NB_JLT_NEW,NB_STOK_N
-      INTEGER IPARI(NPARI), STIFN(*),
+      type(output_), intent(inout) :: output
+      INTEGER NIN,JTASK
+      INTEGER IPARI(NPARI),NB_JLT_NEW,NB_STOK_N, NB_JLT,
      .        ITAB(*), ISKEW(*), LCOD(*) ,SLVNDTAG(*)
       my_real
-     .   X(3,*), V(3,*), A(3,*), MS(*),
+     .   X(3,*), V(3,*), A(3,*), MS(*), STIFN(*),
      .   MTF(14,*),CAND_SAV(8,*), FSAV(*),FCONT(3,*), SKEW(*)
       TYPE(INTBUF_STRUCT_) INTBUF_TAB
       TYPE(H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I_STOK_GLOB,NSN,NME,NAD,EAD,
-     .        NME_T,ESH_T,IGN,IGE,MULTIMP,NOINT,I,MX_CAND,NTY,IVIS2,
-     .        IGAP,INACTI,IBAG,I_STOK, I_STOK_LOC, JLT_NEW,DEBUT,
-     .        JLT, NFT,NBID,NB_LOC, I3N,IADM
+      INTEGER NSN,
+     .        NOINT,NTY,IVIS2,
+     .        IGAP,INACTI,IBAG,I_STOK, I_STOK_LOC, DEBUT,
+     .        JLT, NFT,NBID,NB_LOC, IADM
       my_real
      .   STARTT, STOPT,GAP,GAPMIN,MAXBOX,MINBOX,BID,
      .   KMIN, KMAX, GAPMAX
@@ -1223,17 +1182,8 @@ C-----------------------------------------------
      .     LB1(MVSIZ), LB2(MVSIZ), LB3(MVSIZ), LB4(MVSIZ),
      .     LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
      .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ),
-     .   X1(MVSIZ), X2(MVSIZ), X3(MVSIZ), X4(MVSIZ),
-     .   Y1(MVSIZ), Y2(MVSIZ), Y3(MVSIZ), Y4(MVSIZ),
-     .   Z1(MVSIZ), Z2(MVSIZ), Z3(MVSIZ), Z4(MVSIZ),
-     .   XI(MVSIZ), YI(MVSIZ), ZI(MVSIZ), STIF(MVSIZ),
-     .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
-     .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
-     .   GAPV(MVSIZ),VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ)
-      my_real
-     .    NNX1(MVSIZ), NNX2(MVSIZ), NNX3(MVSIZ), NNX4(MVSIZ),
-     .    NNY1(MVSIZ), NNY2(MVSIZ), NNY3(MVSIZ), NNY4(MVSIZ),
-     .    NNZ1(MVSIZ), NNZ2(MVSIZ), NNZ3(MVSIZ), NNZ4(MVSIZ)
+     .   GAPV(MVSIZ),VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ),
+     .   STIF(MVSIZ)
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
@@ -1282,7 +1232,7 @@ C=======================================================================
       if(JTASK/=1)return
       DO NFT = 0 , I_STOK - 1 , NVSIZ
           JLT = MIN( NVSIZ, I_STOK - NFT )
-          CALL I18KINE_S(
+          CALL I18KINE_S(output,
      1  JLT          ,A         ,V       ,INTBUF_TAB%CAND_E(1+NFT) ,INTBUF_TAB%CAND_N(1+NFT) ,
      2  GAP          ,MS        ,NOINT   ,INTBUF_TAB%STFNS,ITAB         ,
      3  STIFN        ,STIF      ,X       ,INTBUF_TAB%IRECTM,INTBUF_TAB%NSV,
@@ -1298,13 +1248,13 @@ C=======================================================================
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I18KINE_I                     source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_I                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i18kine_i        ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_i   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I18KINE_I(JLT ,A      ,V      ,
      2                  GAP    ,MS     ,NOINT  ,STFN  ,ITAB   ,
      3                  STIFN  ,STIF   ,X      ,IRECT ,
@@ -1332,31 +1282,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr03_c.inc"
 #include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr11_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
-#include      "parit_c.inc"
-#include      "warn_c.inc"
-#include      "couple_c.inc"
-#include      "param_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JLT,IBCM,IBCS,INACTI,NIN,
+      INTEGER JLT,INACTI,NIN,
      .        ITAB(*),INDEX(*),
-     .        NOINT,IRECT(4,*),
-     .        INTTH,IFORM
+     .        NOINT,IRECT(4,*)
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
      .        NSVG(MVSIZ)
       my_real
@@ -1370,50 +1303,26 @@ C-----------------------------------------------
      .     LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
      .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ), STIF(MVSIZ),
      .     GAPV(MVSIZ),
-     .     VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ),
-     .     RSTIF
+     .     VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, IG, J, JG , K0,NBINTER,K1S,K,IL,IE, NN, NI,
-     .        NA1,NA2
+      INTEGER I, IG, NN
       my_real
-     .   FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ), FNI(MVSIZ),
-     .   FXT(MVSIZ),FYT(MVSIZ),FZT(MVSIZ),
-     .   FX1(MVSIZ), FX2(MVSIZ), FX3(MVSIZ), FX4(MVSIZ),
-     .   FY1(MVSIZ), FY2(MVSIZ), FY3(MVSIZ), FY4(MVSIZ),
-     .   FZ1(MVSIZ), FZ2(MVSIZ), FZ3(MVSIZ), FZ4(MVSIZ),
      .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
-     .   DTMI(MVSIZ), XMU(MVSIZ),STIF0(MVSIZ),
      .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
-     .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ),DIST(MVSIZ),
-     .   VNX, VNY, VNZ, AA, CRIT,S2,RDIST,
-     .   V2, FM2, DT1INV, FAC,FF,ALPHI,ALPHA,BETA,
-     .   FX, FY, FZ, F2, MAS2, M2SK, DTMI0,DTI,FT,FN,FMAX,FTN,
-     .   FACM1, ECONTT, ECONVT, H0, LA1, LA2, LA3, LA4,
-     .   D1,D2,D3,D4,A1,A2,A3,A4,
-     .   E10, H0D, S2D, SUM,
-     .   LA1D,LA2D,LA3D,LA4D,T1,T1D,T2,T2D,FFD,FACD,D1D,
-     .   P1S(MVSIZ),P2S(MVSIZ),P3S(MVSIZ),P4S(MVSIZ),
-     .   D2D,D3D,D4D,VNXD,VNYD,VNZD,V2D,FM2D,F2D,AAD,FXD,FYD,FZD,
-     .   A1D,A2D,A3D,A4D,VV,AX1,AX2,AY1,AY2,AZ1,AZ2,AX,AY,AZ,
-     .   AREA,P,VV1,VV2,V21,DMU, DTI2,H00 ,A0X,A0Y,A0Z,RX,RY,RZ,
-     .   ANX,ANY,ANZ,AAN,AAX,AAY,AAZ ,RR,RS,AAA ,TM,TS
+     .   S2,
+     .   DT1INV,
+     .   H0, LA1, LA2, LA3, LA4,
+     .   D1,D2,D3,D4,
+     .   H00 
       my_real
      .   PREC
+      INTEGER IBID
       my_real
-     .   ST1(MVSIZ),ST2(MVSIZ),ST3(MVSIZ),ST4(MVSIZ),STV(MVSIZ),
-     .   KT(MVSIZ),C(MVSIZ),CF(MVSIZ),
-     .   KS(MVSIZ),K1(MVSIZ),K2(MVSIZ),K3(MVSIZ),K4(MVSIZ),
-     .   CS(MVSIZ),C1(MVSIZ),C2(MVSIZ),C3(MVSIZ),C4(MVSIZ),
-     .   CX,CY,CFI,AUX,PHI1(MVSIZ), PHI2(MVSIZ), PHI3(MVSIZ),
-     .   PHI4(MVSIZ)
-      INTEGER JJ,KK,IN,IBID
-      my_real
-     .   IMPX,IMPY,IMPZ,PP1,PP2,PP3,PP4,BID
+     .   PP1,PP2,PP3,PP4,BID
 C
 C-----------------------------------------------
-#include "sync_dir.inc"
       IF (IRESP == 1) THEN
            PREC = FIVEEM4
       ELSE
@@ -1424,8 +1333,6 @@ C-----------------------------------------------
       ELSE
         DT1INV =ZERO
       ENDIF
-      ECONTT = ZERO
-      ECONVT = ZERO
 C--------------------------------------------------------
 C  MIXED PACKAGES
 C--------------------------------------------------------
@@ -1562,13 +1469,13 @@ C---------------------
 C-----------------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I18KINE_F                     source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_F                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i18kine_f        ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_f   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I18KINE_F(JLT ,A      ,V       ,CAND_E,CAND_N ,
      2                  GAP    ,MS     ,NOINT   ,STFN  ,ITAB   ,
      3                  STIFN  ,STIF   ,X       ,IRECT ,NSV    ,
@@ -1593,33 +1500,12 @@ C   G l o b a l   P a r a m e t e r s
 C-----------------------------------------------
 #include      "mvsiz_p.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr11_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
-#include      "parit_c.inc"
-#include      "warn_c.inc"
-#include      "couple_c.inc"
-#include      "param_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JLT,IBCM,IBCS,INACTI,NIN,
+      INTEGER JLT,INACTI,NIN,
      .        ITAB(*),CAND_N(*),CAND_E(*), NSV(*),
      .        NOINT,IRECT(4,*),
-     .        INTTH,IFORM,NSN
+     .        NSN
       my_real
      .   X(3,*),A(3,*), MS(*), V(3,*), MTF(14,*),
      .   GAP, STFN(*),STIFN(*),CAND_SAV(8,*)
@@ -1631,24 +1517,20 @@ C-----------------------------------------------
      .     LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
      .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ), STIF(MVSIZ),
      .     GAPV(MVSIZ),
-     .     VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ),
-     .     RSTIF
+     .     VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, IG, J, JG , K0,NBINTER,K1S,K,IL,IE, NN, NI,
-     .        NA1,NA2,L
+      INTEGER I, IG, NN, NI, 
+     .        L
       INTEGER IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),IX4(MVSIZ),NSVG(MVSIZ)
       my_real
      .   FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ), FNI(MVSIZ),
-     .   FXT(MVSIZ),FYT(MVSIZ),FZT(MVSIZ),
      .   FX1(MVSIZ), FX2(MVSIZ), FX3(MVSIZ), FX4(MVSIZ),
      .   FY1(MVSIZ), FY2(MVSIZ), FY3(MVSIZ), FY4(MVSIZ),
      .   FZ1(MVSIZ), FZ2(MVSIZ), FZ3(MVSIZ), FZ4(MVSIZ),
      .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
-     .   DTMI(MVSIZ), XMU(MVSIZ),STIF0(MVSIZ),
      .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
-     .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ),DIST(MVSIZ),
      .   MT1XX(MVSIZ), MT1XY(MVSIZ), MT1XZ(MVSIZ),
      .   MT1YY(MVSIZ), MT1YZ(MVSIZ), MT1ZZ(MVSIZ),
      .   MT2XX(MVSIZ), MT2XY(MVSIZ), MT2XZ(MVSIZ),
@@ -1657,34 +1539,10 @@ C-----------------------------------------------
      .   MT3YY(MVSIZ), MT3YZ(MVSIZ), MT3ZZ(MVSIZ),
      .   MT4XX(MVSIZ), MT4XY(MVSIZ), MT4XZ(MVSIZ),
      .   MT4YY(MVSIZ), MT4YZ(MVSIZ), MT4ZZ(MVSIZ),
-     .   VNX, VNY, VNZ, AA, CRIT,S2,RDIST,
-     .   V2, FM2, DT1INV, FAC,FF,ALPHI,ALPHA,BETA,
-     .   FX, FY, FZ, F2, MAS2, M2SK, DTMI0,DTI,FT,FN,FMAX,FTN,
-     .   FACM1, ECONTT, ECONVT, H0, LA1, LA2, LA3, LA4,
-     .   D1,D2,D3,D4,A1,A2,A3,A4,
-     .   E10, H0D, S2D, SUM,
-     .   LA1D,LA2D,LA3D,LA4D,T1,T1D,T2,T2D,FFD,FACD,D1D,
-     .   P1S(MVSIZ),P2S(MVSIZ),P3S(MVSIZ),P4S(MVSIZ),
-     .   D2D,D3D,D4D,VNXD,VNYD,VNZD,V2D,FM2D,F2D,AAD,FXD,FYD,FZD,
-     .   A1D,A2D,A3D,A4D,VV,AX1,AX2,AY1,AY2,AZ1,AZ2,AX,AY,AZ,
-     .   AREA,P,VV1,VV2,V21,DMU, DTI2,H00 ,A0X,A0Y,A0Z,RX,RY,RZ,
-     .   ANX,ANY,ANZ,AAN,AAX,AAY,AAZ ,RR,RS,AAA ,TM,TS
+     .   AAA
       my_real
-     .   PREC
-      my_real
-     .   ST1(MVSIZ),ST2(MVSIZ),ST3(MVSIZ),ST4(MVSIZ),STV(MVSIZ),
-     .   KT(MVSIZ),C(MVSIZ),CF(MVSIZ),
-     .   KS(MVSIZ),K1(MVSIZ),K2(MVSIZ),K3(MVSIZ),K4(MVSIZ),
-     .   CS(MVSIZ),C1(MVSIZ),C2(MVSIZ),C3(MVSIZ),C4(MVSIZ),
-     .   CX,CY,CFI,AUX,PHI1(MVSIZ), PHI2(MVSIZ), PHI3(MVSIZ),
-     .   PHI4(MVSIZ)
-      INTEGER JJ,KK,IN,IBID
-      my_real
-     .   IMPX,IMPY,IMPZ,PP1,PP2,PP3,PP4,BID,
+     .
      .   MTXX,MTXY,MTXZ,MTYY,MTYZ,MTZZ
-C
-C-----------------------------------------------
-#include "sync_dir.inc"
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------
@@ -1761,7 +1619,7 @@ C
 C
       ENDDO
 C---------------------------------
-C    transfering fluid force to structure nodes
+C    transferring fluid force to structure nodes
 C---------------------------------
       DO I=1,JLT
         IF(PENE(I) > ZERO)THEN
@@ -1781,7 +1639,7 @@ C
           FY4(I)=FYI(I)*H4(I)
           FZ4(I)=FZI(I)*H4(I)
 C---------------------------------
-c       transfering fluid tensorial mass to structural nodes
+c       transferring fluid tensorial mass to structural nodes
 C---------------------------------
 c
 c            | nx*nx nx*ny nx*nz |
@@ -1878,13 +1736,13 @@ C
 C-----------------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  I18KINE_V                     source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_V                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+!||====================================================================
+!||    i18kine_v        ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_v   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- uses       -----------------------------------------------------
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I18KINE_V(JLT ,A      ,V      ,CAND_E ,CAND_N ,
      2                  GAP    ,MS     ,NOINT  ,STFN   ,ITAB  ,
      3                  STIFN  ,STIF   ,X      ,IRECT  ,NSV    ,
@@ -1911,31 +1769,14 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
-#include      "scr07_c.inc"
-#include      "scr11_c.inc"
-#include      "scr14_c.inc"
-#include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
-#include      "parit_c.inc"
-#include      "warn_c.inc"
-#include      "couple_c.inc"
-#include      "param_c.inc"
 ctmp+1
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JLT,IBCM,IBCS,INACTI,NIN,
+      INTEGER JLT,INACTI,NIN,
      .        ITAB(*),NOINT,IRECT(4,*),CAND_N(*),CAND_E(*),
-     .        INTTH,IFORM,NSN
+     .        NSN
       INTEGER NSV(*)
       my_real
      .   X(3,*),
@@ -1947,58 +1788,23 @@ C-----------------------------------------------
      .     LB1(MVSIZ), LB2(MVSIZ), LB3(MVSIZ), LB4(MVSIZ),
      .     LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
      .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ), STIF(MVSIZ),
-     .     GAPV(MVSIZ),STIFSAV(MVSIZ), MTF(14,*),CAND_SAV(8,*),
-     .     VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ),
-     .     RSTIF
+     . GAPV(MVSIZ), MTF(14,*),CAND_SAV(8,*),
+     .     VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, IG, J, JG , K0,NBINTER,K1S,K,IL,IE, NN, NI,
-     .        NA1,NA2,L
+      INTEGER I, IG, NN, NI, 
+     .        L
       INTEGER IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),IX4(MVSIZ),NSVG(MVSIZ)
       my_real
-     .   FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ), FNI(MVSIZ),
-     .   FXT(MVSIZ),FYT(MVSIZ),FZT(MVSIZ),
-     .   FX1(MVSIZ), FX2(MVSIZ), FX3(MVSIZ), FX4(MVSIZ),
-     .   FY1(MVSIZ), FY2(MVSIZ), FY3(MVSIZ), FY4(MVSIZ),
-     .   FZ1(MVSIZ), FZ2(MVSIZ), FZ3(MVSIZ), FZ4(MVSIZ),
      .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
-     .   VIS2(MVSIZ), DTMI(MVSIZ), XMU(MVSIZ),STIF0(MVSIZ),
      .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
-     .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ),DIST(MVSIZ),
-     .   VNX, VNY, VNZ, AA, CRIT,S2,RDIST,
-     .   FM2, VISCA, FAC,FF,ALPHI,ALPHA,BETA,
-     .   FX, FY, FZ, F2, MAS2, M2SK, DTMI0,DTI,FT,FN,FMAX,FTN,
-     .   FACM1, ECONTT, ECONVT, H0, LA1, LA2, LA3, LA4,
-     .   D1,D2,D3,D4,A1,A2,A3,A4,
-     .   FSAV1, FSAV2, FSAV3, FSAV4, FSAV5, FSAV6, FSAV7, FSAV8,
-     .   FSAV9, FSAV10, FSAV11, FSAV12, FSAV13, FSAV14, FSAV15, FFO,
-     .   E10, H0D, S2D, SUM,
-     .   LA1D,LA2D,LA3D,LA4D,T1,T1D,T2,T2D,FFD,VISD,FACD,D1D,
-     .   P1S(MVSIZ),P2S(MVSIZ),P3S(MVSIZ),P4S(MVSIZ),
-     .   D2D,D3D,D4D,VNXD,VNYD,VNZD,V2D,FM2D,F2D,AAD,FXD,FYD,FZD,
-     .   A1D,A2D,A3D,A4D,VV,AX1,AX2,AY1,AY2,AZ1,AZ2,AX,AY,AZ,
-     .   AREA,P,VV1,VV2,V21,DMU, DTI2,H00 ,A0X,A0Y,A0Z,RX,RY,RZ,
-     .   ANX,ANY,ANZ,AAN,AAX,AAY,AAZ ,RR,RS,AAA ,TM,TS
+     .   FAC,
+     .   AAA 
       my_real
-     .   PREC
-      my_real
-     .   ST1(MVSIZ),ST2(MVSIZ),ST3(MVSIZ),ST4(MVSIZ),STV(MVSIZ),
-     .   KT(MVSIZ),C(MVSIZ),CF(MVSIZ),
-     .   KS(MVSIZ),K1(MVSIZ),K2(MVSIZ),K3(MVSIZ),K4(MVSIZ),
-     .   CS(MVSIZ),C1(MVSIZ),C2(MVSIZ),C3(MVSIZ),C4(MVSIZ),
-     .   CX,CY,CFI,AUX,PHI1(MVSIZ), PHI2(MVSIZ), PHI3(MVSIZ),
-     .   PHI4(MVSIZ)
-      INTEGER JSUB,KSUB,JJ,KK,IN,NSUB,IBID
-      my_real
-     .   IMPX,IMPY,IMPZ,PP1,PP2,PP3,PP4,BID,
      .   V1,V2,V3,V4,VSX,VSY,VSZ
 C
 C-----------------------------------------------
-#include "sync_dir.inc"
-      ECONTT = ZERO
-      ECONVT = ZERO
-C--------------------------------------------------------
       DO I=1,JLT
         H1(I)   = CAND_SAV(1,I)
         H2(I)   = CAND_SAV(2,I)
@@ -2078,13 +1884,13 @@ C
 C-----------------------------------------------------
 C not useful so far
 C-----------------------------------------------------
-CC spmd : identification des noeuds interf. utiles a envoyer
+CC'espMD: Identification of interf nodes.useful to send
 C      IF (NSPMD > 1) THEN
 C        DO I = 1,JLT
 C          IF(PENE(I) > ZERO)THEN
 C           NN = NSVG(I)
 C          IF(NN < 0)THEN
-C tag temporaire de NSVFI a -
+C temporary tag of nsvfi a -
 C            NSVFI(NIN)%P(-NN) = -ABS(NSVFI(NIN)%P(-NN))
 C          ENDIF
 C         ENDIF
@@ -2094,15 +1900,16 @@ C-----------------------------------------------------
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  I18KINE_S                     source/interfaces/int18/i18main_kine.F
-Chd|-- called by -----------
-Chd|        I18MAIN_KINE_S                source/interfaces/int18/i18main_kine.F
-Chd|-- calls ---------------
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-      SUBROUTINE I18KINE_S(JLT ,A      ,V      ,CAND_E,CAND_N ,
+!||====================================================================
+!||    i18kine_s        ../engine/source/interfaces/int18/i18main_kine.F
+!||--- called by ------------------------------------------------------
+!||    i18main_kine_s   ../engine/source/interfaces/int18/i18main_kine.F
+!||--- uses       -----------------------------------------------------
+!||    h3d_mod          ../engine/share/modules/h3d_mod.F
+!||    output_mod       ../common_source/modules/output/output_mod.F90
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
+      SUBROUTINE I18KINE_S(OUTPUT,JLT ,A      ,V      ,CAND_E,CAND_N ,
      2                  GAP    ,MS    ,NOINT  ,STFN   ,ITAB   ,
      3                  STIFN  ,STIF   ,X      ,IRECT ,NSV    ,
      4                  NX1    ,NX2    ,NX3    ,NX4   ,NY1    ,
@@ -2118,6 +1925,7 @@ C   M o d u l e s
 C-----------------------------------------------
       USE TRI7BOX
       USE H3D_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -2131,100 +1939,53 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "com06_c.inc"
 #include      "com08_c.inc"
-#include      "scr02_c.inc"
-#include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
-#include      "scr11_c.inc"
 #include      "scr14_c.inc"
 #include      "scr16_c.inc"
-#include      "scr18_c.inc"
-#include      "units_c.inc"
-#include      "parit_c.inc"
-#include      "warn_c.inc"
-#include      "couple_c.inc"
-#include      "param_c.inc"
-ctmp+1
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER JLT,IBCM,IBCS,INACTI,NIN,
+      TYPE(OUTPUT_), INTENT(IN) :: OUTPUT
+      INTEGER JLT,INACTI,NIN,
      .        ITAB(*), NOINT, IRECT(4,*),CAND_N(*),CAND_E(*),
-     .        INTTH,IFORM,NSN
+     .        NSN
       INTEGER NSV(*) ,SLVNDTAG(*)
-      my_real
-     .   X(3,*),
-     .   A(3,*), MS(*), V(3,*), FSAV(*),FCONT(3,*),
-     .   GAP, STFN(*),STIFN(*), MTF(14,*),CAND_SAV(8,*)
-      my_real
-     .     NX1(MVSIZ), NX2(MVSIZ), NX3(MVSIZ), NX4(MVSIZ),
-     .     NY1(MVSIZ), NY2(MVSIZ), NY3(MVSIZ), NY4(MVSIZ),
-     .     NZ1(MVSIZ), NZ2(MVSIZ), NZ3(MVSIZ), NZ4(MVSIZ),
-     .     LB1(MVSIZ), LB2(MVSIZ), LB3(MVSIZ), LB4(MVSIZ),
-     .     LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
-     .     P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ), STIF(MVSIZ),
-     .     GAPV(MVSIZ),
-     .     STIFSAV(MVSIZ),
-     .     VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ),
-     .     RSTIF
+      my_real X(3,*), A(3,*), MS(*), V(3,*), FSAV(*),FCONT(3,*), GAP, STFN(*),STIFN(*), MTF(14,*),CAND_SAV(8,*)
+      my_real NX1(MVSIZ), NX2(MVSIZ), NX3(MVSIZ), NX4(MVSIZ),
+     .        NY1(MVSIZ), NY2(MVSIZ), NY3(MVSIZ), NY4(MVSIZ),
+     .        NZ1(MVSIZ), NZ2(MVSIZ), NZ3(MVSIZ), NZ4(MVSIZ),
+     .        LB1(MVSIZ), LB2(MVSIZ), LB3(MVSIZ), LB4(MVSIZ),
+     .        LC1(MVSIZ), LC2(MVSIZ), LC3(MVSIZ), LC4(MVSIZ),
+     .        P1(MVSIZ), P2(MVSIZ), P3(MVSIZ), P4(MVSIZ), STIF(MVSIZ),
+     . GAPV(MVSIZ),VXI(MVSIZ),VYI(MVSIZ),VZI(MVSIZ),MSI(MVSIZ)
       TYPE(H3D_DATABASE) :: H3D_DATA
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J1, IG, J, JG , K0,NBINTER,K1S,K,IL,IE, NN, NI,
-     .        NA1,NA2,L
+      INTEGER I, IG, JG, NN, NI, 
+     .        L
       INTEGER IX1(MVSIZ),IX2(MVSIZ),IX3(MVSIZ),IX4(MVSIZ),NSVG(MVSIZ)
-      my_real
-     .   FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ), FNI(MVSIZ),
-     .   FXT(MVSIZ),FYT(MVSIZ),FZT(MVSIZ),
-     .   FX1(MVSIZ), FX2(MVSIZ), FX3(MVSIZ), FX4(MVSIZ),
-     .   FY1(MVSIZ), FY2(MVSIZ), FY3(MVSIZ), FY4(MVSIZ),
-     .   FZ1(MVSIZ), FZ2(MVSIZ), FZ3(MVSIZ), FZ4(MVSIZ),
-     .   N1(MVSIZ), N2(MVSIZ), N3(MVSIZ), PENE(MVSIZ),
-     .   VIS2(MVSIZ), DTMI(MVSIZ), XMU(MVSIZ),STIF0(MVSIZ),
-     .   H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
-     .   VX(MVSIZ), VY(MVSIZ), VZ(MVSIZ), VN(MVSIZ),DIST(MVSIZ),
-     .   VNX, VNY, VNZ, AA, CRIT,S2,RDIST,
-     .   FM2, DT12INV, VISCA, FAC, FAC2,FF,ALPHI,ALPHA,BETA,
-     .   FX, FY, FZ, F2, MAS2, M2SK, DTMI0,DTI,FT,FN,FMAX,FTN,
-     .   FACM1, ECONTT, ECONVT, H0, LA1, LA2, LA3, LA4,
-     .   D1,D2,D3,D4,A1,A2,A3,A4,
-     .   FSAV1, FSAV2, FSAV3, FSAV4, FSAV5, FSAV6, FSAV7, FSAV8,
-     .   FSAV9, FSAV10, FSAV11, FSAV12, FSAV13, FSAV14, FSAV15, FFO,
-     .   E10, H0D, S2D, SUM,
-     .   LA1D,LA2D,LA3D,LA4D,T1,T1D,T2,T2D,FFD,VISD,FACD,D1D,
-     .   P1S(MVSIZ),P2S(MVSIZ),P3S(MVSIZ),P4S(MVSIZ),
-     .   D2D,D3D,D4D,VNXD,VNYD,VNZD,V2D,FM2D,F2D,AAD,FXD,FYD,FZD,
-     .   A1D,A2D,A3D,A4D,VV,AX1,AX2,AY1,AY2,AZ1,AZ2,AX,AY,AZ,
-     .   AREA,P,VV1,VV2,V21,DMU, DTI2,H00 ,A0X,A0Y,A0Z,RX,RY,RZ,
-     .   ANX,ANY,ANZ,AAN,AAX,AAY,AAZ ,RR,RS,AAA ,TM,TS
-      my_real
-     .   PREC
-      my_real
-     .   ST1(MVSIZ),ST2(MVSIZ),ST3(MVSIZ),ST4(MVSIZ),STV(MVSIZ),
-     .   KT(MVSIZ),C(MVSIZ),CF(MVSIZ),
-     .   KS(MVSIZ),K1(MVSIZ),K2(MVSIZ),K3(MVSIZ),K4(MVSIZ),
-     .   CS(MVSIZ),C1(MVSIZ),C2(MVSIZ),C3(MVSIZ),C4(MVSIZ),
-     .   CX,CY,CFI,AUX,PHI1(MVSIZ), PHI2(MVSIZ), PHI3(MVSIZ),
-     .   PHI4(MVSIZ)
-      INTEGER JSUB,KSUB,JJ,KK,IN,NSUB,IBID
-      my_real
-     .   IMPX,IMPY,IMPZ,PP1,PP2,PP3,PP4,BID,BBB,
-     .   V1,V2,V3,V4,VSX,VSY,VSZ,DVSX,DVSY,DVSZ,VSXP,VSYP,VSZP
+      my_real FXI(MVSIZ), FYI(MVSIZ), FZI(MVSIZ), FNI(MVSIZ),
+     .        FX1(MVSIZ), FX2(MVSIZ), FX3(MVSIZ), FX4(MVSIZ),
+     .        FY1(MVSIZ), FY2(MVSIZ), FY3(MVSIZ), FY4(MVSIZ),
+     .        FZ1(MVSIZ), FZ2(MVSIZ), FZ3(MVSIZ), FZ4(MVSIZ),
+     .        PENE(MVSIZ),
+     .        H1(MVSIZ), H2(MVSIZ), H3(MVSIZ), H4(MVSIZ),
+     .        DT12INV, FAC, FAC2,
+     .        FSAV1, FSAV2, FSAV3, FSAV8,
+     .        FSAV9, FSAV10, FSAV11,   
+     .        AAA
+      my_real IMPX,IMPY,IMPZ,BBB,
+     . VSX,VSY,VSZ,DVSX,DVSY,DVSZ,VSXP,VSYP,VSZP
 C
 C-----------------------------------------------
-#include "sync_dir.inc"
       IF(DT12 > ZERO)THEN
         DT12INV = ONE/DT12
       ELSE
         DT12INV =ZERO
       ENDIF
-      ECONTT = ZERO
-      ECONVT = ZERO
 C--------------------------------------------------------
       DO I=1,JLT
         H1(I)   = CAND_SAV(1,I)
@@ -2380,23 +2141,23 @@ C---------------------------------
 #include "lockoff.inc"
 C
       IF(ANIM_V(4)+OUTP_V(4)+H3D_DATA%N_VECT_CONT > 0.AND.
-     .          (TT >= TANIM.OR.TT >= TOUTP.OR.TT >= H3D_DATA%TH3D.OR.
+     .          ((TT>=OUTPUT%TANIM .AND. TT<=OUTPUT%TANIM_STOP).OR.TT >= TOUTP.OR.TT >= H3D_DATA%TH3D.OR.
      .              (MANIM >= 4.AND.MANIM <= 15).OR. H3D_DATA%MH3D  /=  0))THEN
 #include "lockon.inc"
          DO I=1,JLT
           IF(PENE(I) > ZERO)THEN
-	    FCONT(1,IX1(I)) =FCONT(1,IX1(I)) + FX1(I)
-	    FCONT(2,IX1(I)) =FCONT(2,IX1(I)) + FY1(I)
-	    FCONT(3,IX1(I)) =FCONT(3,IX1(I)) + FZ1(I)
-	    FCONT(1,IX2(I)) =FCONT(1,IX2(I)) + FX2(I)
-	    FCONT(2,IX2(I)) =FCONT(2,IX2(I)) + FY2(I)
-	    FCONT(3,IX2(I)) =FCONT(3,IX2(I)) + FZ2(I)
-	    FCONT(1,IX3(I)) =FCONT(1,IX3(I)) + FX3(I)
-	    FCONT(2,IX3(I)) =FCONT(2,IX3(I)) + FY3(I)
-	    FCONT(3,IX3(I)) =FCONT(3,IX3(I)) + FZ3(I)
-	    FCONT(1,IX4(I)) =FCONT(1,IX4(I)) + FX4(I)
-	    FCONT(2,IX4(I)) =FCONT(2,IX4(I)) + FY4(I)
-	    FCONT(3,IX4(I)) =FCONT(3,IX4(I)) + FZ4(I)
+              FCONT(1,IX1(I)) =FCONT(1,IX1(I)) + FX1(I)
+              FCONT(2,IX1(I)) =FCONT(2,IX1(I)) + FY1(I)
+              FCONT(3,IX1(I)) =FCONT(3,IX1(I)) + FZ1(I)
+              FCONT(1,IX2(I)) =FCONT(1,IX2(I)) + FX2(I)
+              FCONT(2,IX2(I)) =FCONT(2,IX2(I)) + FY2(I)
+              FCONT(3,IX2(I)) =FCONT(3,IX2(I)) + FZ2(I)
+              FCONT(1,IX3(I)) =FCONT(1,IX3(I)) + FX3(I)
+              FCONT(2,IX3(I)) =FCONT(2,IX3(I)) + FY3(I)
+              FCONT(3,IX3(I)) =FCONT(3,IX3(I)) + FZ3(I)
+              FCONT(1,IX4(I)) =FCONT(1,IX4(I)) + FX4(I)
+              FCONT(2,IX4(I)) =FCONT(2,IX4(I)) + FY4(I)
+              FCONT(3,IX4(I)) =FCONT(3,IX4(I)) + FZ4(I)
             JG = NSVG(I)
             IF(JG > 0) THEN
               FCONT(1,JG)=FCONT(1,JG)- FXI(I)

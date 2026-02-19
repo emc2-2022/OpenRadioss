@@ -1,44 +1,45 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C     This subroutine is organized as a user routine.
-Chd|====================================================================
-Chd|  HM_READ_PROP28                source/properties/xelem/hm_read_prop28.F
-Chd|-- called by -----------
-Chd|        HM_READ_PROP_GENERIC          source/properties/hm_read_prop_generic.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_GET_INT_ARRAY_INDEX        source/devtools/hm_reader/hm_get_int_array_index.F
-Chd|        HM_GET_STRING_INDEX           source/devtools/hm_reader/hm_get_string_index.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        SET_U_GEO                     source/user_interface/uaccess.F
-Chd|        SET_U_PNU                     source/user_interface/uaccess.F
-Chd|        ELBUFTAG_MOD                  share/modules1/elbuftag_mod.F 
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+!||====================================================================
+!||    hm_read_prop28             ../starter/source/properties/xelem/hm_read_prop28.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_prop_generic       ../starter/source/properties/hm_read_prop_generic.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_int_array_index     ../starter/source/devtools/hm_reader/hm_get_int_array_index.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_get_string_index        ../starter/source/devtools/hm_reader/hm_get_string_index.F
+!||    hm_option_is_encrypted     ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    set_u_geo                  ../starter/source/user_interface/uaccess.F
+!||    set_u_pnu                  ../starter/source/user_interface/uaccess.F
+!||--- uses       -----------------------------------------------------
+!||    elbuftag_mod               ../starter/share/modules1/elbuftag_mod.F
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_PROP28(IOUT  ,NUVAR ,PARGEO, UNITAB,ID,
      .                          TITR  ,IGTYP ,PROP_TAG,LSUBMODEL,IUNIT)
 C-----------------------------------------------
@@ -46,17 +47,14 @@ C-----------------------------------------------
       USE MESSAGE_MOD
       USE ELBUFTAG_MOD
       USE SUBMODEL_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE, NCHARLINE, NCHARFIELD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "tablen_c.inc"
 C----------+---------+---+---+--------------------------------------------
 C VAR      | SIZE    |TYP| RW| DEFINITION
@@ -97,15 +95,13 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER IOUT,NUVAR(*),IGTYP,IUNIT
-      my_real   
-     .        PARGEO(*)
+      my_real PARGEO(*)
       INTEGER SET_U_PNU,SET_U_GEO,
      .        KFUNC
       EXTERNAL SET_U_PNU,SET_U_GEO
       PARAMETER (KFUNC=29)
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       TYPE(PROP_TAG_) , DIMENSION(0:MAXPROP) :: PROP_TAG
       TYPE(SUBMODEL_DATA),INTENT(IN)::LSUBMODEL(*)
 C-----------------------------------------------
@@ -117,19 +113,19 @@ C-----------------------------------------------
      .  XK,XVTYP,RHO, XC, DMN, DMX, MU1, MU2, FRIC,Y_SCAL,X_SCAL
       my_real
      .   FAC_M, FAC_L, FAC_T
-      CHARACTER KEYWORD*ncharfield
-      CHARACTER CART*ncharline
+      CHARACTER(LEN=NCHARFIELD) :: KEYWORD
+      CHARACTER(LEN=NCHARLINE) :: CART
       INTEGER IP
-      LOGICAL IS_AVAILABLE, IS_CRYPTED
+      LOGICAL IS_AVAILABLE, IS_ENCRYPTED
 
 C=======================================================================
 C
-      IS_CRYPTED = .FALSE.
+      IS_ENCRYPTED = .FALSE.
       IS_AVAILABLE = .FALSE.
 C--------------------------------------------------
 C EXTRACT DATA (IS OPTION CRYPTED)
 C--------------------------------------------------
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 C--------------------------------------------------
 C EXTRACT DATAS (INTEGER VALUES)
 C--------------------------------------------------
@@ -171,7 +167,7 @@ C
       IF (X_SCAL == ZERO) X_SCAL = ONE / FAC_T 
 C      
         IERROR = SET_U_GEO(10,MU1)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -180,7 +176,7 @@ C
      .                 C2='SET_U_GEO(10,MU1)')
         ENDIF
         IERROR = SET_U_GEO(11,MU2)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -189,7 +185,7 @@ C
      .                 C2='SET_U_GEO(11,MU2)')
         ENDIF
         IERROR = SET_U_GEO(3,RHO)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -198,7 +194,7 @@ C
      .                 C2='SET_U_GEO(3,RHO)')
         ENDIF
         IERROR = SET_U_GEO(4,XK)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -207,7 +203,7 @@ C
      .                 C2='SET_U_GEO(4,XK)')
         ENDIF
         IERROR = SET_U_GEO(5,XC)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -216,7 +212,7 @@ C
      .                 C2='SET_U_GEO(5,XC)')
         ENDIF
         IERROR = SET_U_PNU(1,IFUNC,KFUNC)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -225,7 +221,7 @@ C
      .                 C2='SET_U_PNU(1,IFUNC,KFUNC)')
         ENDIF
         IERROR = SET_U_PNU(2,IFV,KFUNC)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -236,7 +232,7 @@ C
         IVTYP=100
         XVTYP=IVTYP
         IERROR = SET_U_GEO(7,XVTYP)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -245,7 +241,7 @@ C
      .                 C2='SET_U_GEO(7,XVTYP)')
         ENDIF
         IERROR = SET_U_GEO(8,DMN)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -254,7 +250,7 @@ C
      .                 C2='SET_U_GEO(8,DMN)')
         ENDIF
         IERROR = SET_U_GEO(9,DMX)
-        IF (IERROR.GT.0) THEN
+        IF (IERROR>0) THEN
            CALL ANCMSG(MSGID=378,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO_BLIND_1,
@@ -262,7 +258,7 @@ C
      .                 C1=TITR,
      .                 C2='SET_U_GEO(9,DMX)')
         ENDIF
-        IF(RHO.EQ.0.)THEN
+        IF(RHO==0.)THEN
            CALL ANCMSG(MSGID=423,
      .                 MSGTYPE=MSGERROR,
      .                 ANMODE=ANINFO,
@@ -289,7 +285,7 @@ C
      .                 C2='SET_U_GEO(13,X_SCAL)')
         ENDIF
 C
-        IF(.NOT. IS_CRYPTED)THEN 
+        IF(.NOT. IS_ENCRYPTED)THEN 
           WRITE(IOUT,3000)  RHO,XK,XC,IFUNC,IFV,Y_SCAL,X_SCAL,
      .                    DMN,DMX,MU1,MU2
         ELSE
@@ -302,7 +298,7 @@ C
 C      non user specified coefficient is set to negative value.
          FRIC=-1.0
          IERROR=SET_U_GEO(50+I,FRIC)
-         IF (IERROR.GT.0) THEN
+         IF (IERROR>0) THEN
             CALL ANCMSG(MSGID=378,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_1,
@@ -311,7 +307,7 @@ C      non user specified coefficient is set to negative value.
      .                 C2='SET_U_GEO(50+I,FRIC)')
          ENDIF
          IERROR=SET_U_GEO(525+I,FRIC)
-         IF (IERROR.GT.0) THEN
+         IF (IERROR>0) THEN
             CALL ANCMSG(MSGID=378,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_1,
@@ -329,8 +325,8 @@ C
           CALL HM_GET_INT_ARRAY_INDEX('Nb1_arr',I,IP,IS_AVAILABLE,LSUBMODEL)
           CALL HM_GET_FLOAT_ARRAY_INDEX('Mu_arr',FRIC,IP,IS_AVAILABLE,LSUBMODEL,UNITAB)
 C
-          IF (KEYWORD(1:6).EQ.'PULLEY') THEN
-            IF (I.LT.2.OR.I.GT.475) THEN
+          IF (KEYWORD(1:6)=='PULLEY') THEN
+            IF (I<2.OR.I>475) THEN
               CALL ANCMSG(MSGID=379,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -340,7 +336,7 @@ C
      .                   I2=I)
             ENDIF
             IERROR=SET_U_GEO(50+I,FRIC)
-            IF (IERROR.GT.0) THEN
+            IF (IERROR>0) THEN
               CALL ANCMSG(MSGID=378,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -348,11 +344,11 @@ C
      .                 C1=TITR,
      .                 C2='SET_U_GEO(50+I,FRIC)')
             ENDIF
-            IF(.NOT. IS_CRYPTED) WRITE(IOUT,'(A,I10,A,1PG20.13)')
+            IF(.NOT. IS_ENCRYPTED) WRITE(IOUT,'(A,I10,A,1PG20.13)')
      .                           'PULLEY FRICTION COEFFICIENT : PULLEY NUMBER =',I,
      .                           'VALUE =',FRIC
-          ELSEIF (KEYWORD(1:6).EQ.'STRAND') THEN
-             IF (I.LT.1.OR.I.GT.475) THEN
+          ELSEIF (KEYWORD(1:6)=='STRAND') THEN
+             IF (I<1.OR.I>475) THEN
                CALL ANCMSG(MSGID=379,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -362,7 +358,7 @@ C
      .                   I2=I)
              ENDIF
              IERROR=SET_U_GEO(525+I,FRIC)
-             IF (IERROR.GT.0) THEN
+             IF (IERROR>0) THEN
                CALL ANCMSG(MSGID=378,
      .                   MSGTYPE=MSGERROR,
      .                   ANMODE=ANINFO_BLIND_1,
@@ -371,7 +367,7 @@ C
      .                 C2='SET_U_GEO(525+I,FRIC)')
              ENDIF
 c
-             IF(.NOT. IS_CRYPTED) WRITE(IOUT,'(A,I10,A,1PG20.13)')
+             IF(.NOT. IS_ENCRYPTED) WRITE(IOUT,'(A,I10,A,1PG20.13)')
      .                            'STRAND FRICTION COEFFICIENT : STRAND NUMBER =',I,
      .                            'VALUE =',FRIC
           ELSE
@@ -395,10 +391,6 @@ C        PROP_TAG(IGTYP)%G_NUVARN = NINT(GEO(35,I)) ! init. in elbuf_ini
 
 C---------------------------------------------------------------
       RETURN
- 999  CALL ANCMSG(MSGID=606,
-     .            MSGTYPE=MSGERROR,
-     .            ANMODE=ANINFO,
-     .            C1=CART)
  3000 FORMAT(
      & 5X,'  NSTRAND PROPERTY SET   ',/,
      & 5X,'  --------------------   ',/,

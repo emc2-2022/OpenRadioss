@@ -1,33 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-C   |============================================================
-C   |  CBALYVIT                          /coqueba/cbalyvit.F
-C   |------------------------------------------------------------
-C   |-- appele -----------
-C   |-- appelee par -----------
-C   |         CBAFORC3                         /coqueba/cbaforc3.F
-C   |============================================================
-	SUBROUTINE CBAVIT_PLY(JFT,JLT,IXC,OFFG,OFF,NPLAT,IPLAT,NPT,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    cbavit_ply    ../engine/source/properties/composite_options/stack/cbavit_ply.F
+!||--- called by ------------------------------------------------------
+!||    cbaforc3      ../engine/source/elements/shell/coqueba/cbaforc3.F
+!||--- uses       -----------------------------------------------------
+!||    element_mod   ../common_source/modules/elements/element_mod.F90
+!||    plyxfem_mod   ../engine/share/modules/plyxfem_mod.F
+!||====================================================================
+          SUBROUTINE CBAVIT_PLY(JFT,JLT,IXC,OFFG,OFF,NPLAT,IPLAT,NPT,
      1                        VCORE,DI,ZL,VQ , VXYZ,X13_T  ,X24_T ,
      2                        Y13_T,Y24_T,AREA,INOD,DEL_PLY,
      .                        VNI,ISTACK,VR)  
@@ -35,8 +36,9 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
        USE PLYXFEM_MOD
+       use element_mod , only : nixc
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
-C	transformation au repere local est absolue
+C  transformation au repere local est absolue
 C---+----1----+----2----+----3----+----4----+----5----+----6----+----7----+----8
 C-----------------------------------------------
 C   I M P L I C I T   T Y P E S
@@ -46,7 +48,6 @@ c-----------------------------------------------
 c   g l o b a l   p a r a m e t e r s
 c-----------------------------------------------
 #include      "mvsiz_p.inc"
-#include      "param_c.inc"
 #include      "scr17_c.inc"
 #include      "com08_c.inc"
 #include      "impl1_c.inc"
@@ -66,8 +67,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L O C A L   V A R I A B L E S
 C-----------------------------------------------
-      INTEGER J,I,K,EP,NN(4), IPLY,IP,NPLAT0
-      INTEGER L,M,J1,J2
+      INTEGER J, I, EP, NN(4), IP, NPLAT0
+ 
       my_real
      .   PG,Z1,Z2,MX13,MY13,MX23,MY23,MX34,MY34,GAMA1,GAMA2, X21, 
      .   X34,Y21,Y34 ,Z21,Z34,L12,L34,X41,X32,Y41,Y32,Z41,Z32,XX1
@@ -83,28 +84,28 @@ C-----------------------------------------------
 C-----------------------------------------------
 !!        NPLAT0 = JLT
         NPLAT0 = NPLAT
-	A1 = ONE - PG
+          A1 = ONE - PG
         A2 = ONE + PG
 C (-PG, -PG)        
         VNI(1,1)= FOURTH*A2*A2
-	VNI(2,1)= FOURTH*A1*A2
-	VNI(3,1)= FOURTH*A1*A1
-	VNI(4,1)= VNI(2,1)
+          VNI(2,1)= FOURTH*A1*A2
+          VNI(3,1)= FOURTH*A1*A1
+          VNI(4,1)= VNI(2,1)
 C (xi = PG,eta=-PG)
         VNI(1,2)= VNI(2,1)
-	VNI(2,2)= VNI(1,1)
-	VNI(3,2)= VNI(2,1)
-	VNI(4,2)= VNI(3,1)
+          VNI(2,2)= VNI(1,1)
+          VNI(3,2)= VNI(2,1)
+          VNI(4,2)= VNI(3,1)
 C  xi = PG, eta = PG 
         VNI(1,3)= VNI(3,1)
-	VNI(2,3)= VNI(2,1)
-	VNI(3,3)= VNI(1,1)
-	VNI(4,3)= VNI(2,1)
+          VNI(2,3)= VNI(2,1)
+          VNI(3,3)= VNI(1,1)
+          VNI(4,3)= VNI(2,1)
 Cxi= -PG, eta= pG
         VNI(1,4)= VNI(2,1)
-	VNI(2,4)= VNI(3,1)
-	VNI(3,4)= VNI(2,1)
-	VNI(4,4)= VNI(1,1)
+          VNI(2,4)= VNI(3,1)
+          VNI(3,4)= VNI(2,1)
+          VNI(4,4)= VNI(1,1)
 C        
       DO EP=JFT,JLT
         AREA_I(EP)=ONE/MAX(EM20,AREA(EP))
@@ -155,7 +156,7 @@ C
      
          ENDDO 
 C ---
-       IF (ISHV51.GT.51.AND.IMPL_S.EQ.0) THEN
+       IF (IMPL_S==0) THEN
           DT05 = HALF*DT1
           DT025 =FOURTH*DT1
           DO I=JFT,JLT
@@ -167,12 +168,12 @@ C ---
              V24X = V24(I,1)
              VHIX = VHI(I,1)
              DDRZ1=DT025*(V13(I,2)-V24(I,2))/(X13_T(I)-X24_T(I))
-            IF (ABS(X13_T(I)-X24_T(I)).LT.EM10) DDRZ1 = ZERO
+            IF (ABS(X13_T(I)-X24_T(I))<EM10) DDRZ1 = ZERO
              V13(I,1) = V13(I,1)-DDRY*V13(I,3)-DDRZ1*V13(I,2)
              V24(I,1) = V24(I,1)-DDRY*V24(I,3)-DDRZ1*V24(I,2)
              VHI(I,1) = VHI(I,1)-DDRY*VHI(I,3)-DDRZ1*VHI(I,2)
              DDRZ2=DT025*(V13X+V24X)/(Y13_T(I)+Y24_T(I))
-            IF (ABS(Y13_T(I)+Y24_T(I)).LT.EM10) DDRZ2 = ZERO
+            IF (ABS(Y13_T(I)+Y24_T(I))<EM10) DDRZ2 = ZERO
              V13(I,2) = V13(I,2)-DDRX*V13(I,3)-DDRZ2*V13X
              V24(I,2) = V24(I,2)-DDRX*V24(I,3)-DDRZ2*V24X
              VHI(I,2) = VHI(I,2)-DDRX*VHI(I,3)-DDRZ2*VHIX
@@ -246,7 +247,7 @@ C
         ENDDO
       ENDDO
 C----------------------------
-C---------Facteur pour longueur caracteristique---
+C---------Factor for characteristic length---
 C----------------------------
       OFF_L = 0.
       DO EP=JFT,JLT
@@ -274,7 +275,7 @@ C----------------------------
        ENDDO  
       ENDIF
 C ---
-C  les deplacements nodaux dans le rep re local
+C  the nodal displacements in the local frame
       DO J=1, NPT
        DO EP=JFT,JLT
          IP = ISTACK(EP,J)
@@ -312,7 +313,7 @@ C  node 4 layer J
          DN_PLY(EP,12,J)=VQ(EP,1,3)*D1 + VQ(EP,2,3)*D2 + VQ(EP,3,3)*D3 
         ENDDO
        ENDDO  
-C  glissement elementaire
+C  Elementary shift
       DO J=1, NPT
        DO EP=JFT,JLT
          DEL_PLY(EP,1,J) = (
@@ -357,5 +358,5 @@ C 4th
          ENDDO 
         ENDDO
 C ---
-	RETURN
-	END
+          RETURN
+          END

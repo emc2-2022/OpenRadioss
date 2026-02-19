@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  RMATPON                       source/materials/mat/mat013/rmatpon.F
-Chd|-- called by -----------
-Chd|        RMATFORP                      source/materials/mat/mat013/rmatforp.F
-Chd|-- calls ---------------
-Chd|        ROTBMR                        source/tools/skew/rotbmr.F    
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    rmatpon       ../engine/source/materials/mat/mat013/rmatpon.F
+!||--- called by ------------------------------------------------------
+!||    rmatforp      ../engine/source/materials/mat/mat013/rmatforp.F
+!||--- calls      -----------------------------------------------------
+!||    rotbmr        ../engine/source/tools/skew/rotbmr.F
+!||    sum_6_float   ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE RMATPON(AF   ,AM   ,X    ,RBY   ,NOD  ,
      2                   NBY  ,STIFN,STIFR,WEIGHT,NSL  ,
      3                   RBF6 ,ICOD ,ARBY ,VRBY  ,ARRBY,
@@ -39,12 +39,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "scr06_c.inc"
-#include      "scr11_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -59,7 +54,7 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER M, I, N, LCOD, ISK, K
+      INTEGER M, I, N, LCOD, K
 C     REAL
       my_real
      .  VI(3),XG,YG,ZG,II1,II2,II3,II4,II5,II6,II7,II8,
@@ -67,7 +62,7 @@ C     REAL
      .   F1(NSL), F2(NSL), F3(NSL), F4(NSL),
      .   F5(NSL), F6(NSL)
 C-----------------------------------------------
-C premiere passe : calcul de force sur tous les r.b.
+C first pass: calculate force on all rb.
       M = NBY(1)
       IF( M < 0) RETURN
 C       
@@ -99,7 +94,7 @@ c       NSL   = NBY(2)
          END IF
        ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
        DO K = 1, 6
          RBF6(1,K) = ZERO
@@ -118,9 +113,9 @@ C
 C
 C phase 2 : 
 C
-      ELSEIF (IFLAG.EQ.2) THEN
+      ELSEIF (IFLAG==2) THEN
 C     
-C Traitement Parith/ON apres echange
+C Parith/ON processing after exchange
 C
        ARBY(1,M)  = RBF6(1,1)+RBF6(1,2)+RBF6(1,3)+
      +            RBF6(1,4)+RBF6(1,5)+RBF6(1,6)
@@ -150,7 +145,7 @@ C
         RB(12)= RBY(16)
         IN    = RBY(17)
         IF(LCOD > 0)THEN
-C       rotation de la matrice d'orientation (directions principales)
+C       rotation of the orientation matrix (main directions)
           VI(1)=RB(1)*VRRBY(1,M) + RB(2)*VRRBY(2,M)    
      .                           + RB(3)*VRRBY(3,M)   
           VI(2)=RB(4)*VRRBY(1,M) + RB(5)*VRRBY(2,M)   
@@ -180,7 +175,7 @@ C
           RBY(25)=RB(3)*II2 + RB(6)*II5 + RB(9)*II8  
           RBY(26)=RB(3)*II3 + RB(6)*II6 + RB(9)*II9  
 C
-C           ajout des termes [Iglobal] vr ^ vr
+C           Addition of terms [iglobal] vr ^ vr
           WA1=RBY(18)*VRRBY(1,M)+RBY(19)*VRRBY(2,M)+RBY(20)*VRRBY(3,M)  
           WA2=RBY(21)*VRRBY(1,M)+RBY(22)*VRRBY(2,M)+RBY(23)*VRRBY(3,M)  
           WA3=RBY(24)*VRRBY(1,M)+RBY(25)*VRRBY(2,M)+RBY(26)*VRRBY(3,M)  
@@ -189,16 +184,16 @@ C
           ARRBY(2,M)=ARRBY(2,M) + (WA3*VRRBY(1,M)-WA1*VRRBY(3,M))  
           ARRBY(3,M)=ARRBY(3,M) + (WA1*VRRBY(2,M)-WA2*VRRBY(1,M))  
 C------------------
-C       REPERE GLOBAL : 
-C       Resolution [Iglobal] gama = M, compte-tenu des conditions aux limites
+C       GLOBAL REFERENCE FRAME : 
+C       Resolution [iglobal] gama = m, given the limits
 C       Ex : gamaz=0
 C           | Ixx Ixy Ixz | { gamax }   { Mx }
 C           | Iyx Iyy Iyz | { gamay } = { My }
 C           | Izx Izy Izz | {   0   }   { Mz + DMz }  DMz inconnue
-C       equivaut a 
+C       Equivaut A 
 C           | Ixx Ixy | { gamax }   { Mx }
 C           | Iyx Iyy | { gamay } = { My }
-C           et gamaz=0
+C           and gamaz=0
 C------------------
           IF(LCOD == 1)THEN                                  
             DET=ONE/(RBY(18)*RBY(22) - RBY(19)*RBY(21))         
@@ -253,9 +248,9 @@ C------------------
 C
          ELSE
 C------------------------
-C  calcul des accelerations dans le r p re globale du main
+C  calculation of accelerations in the global r p re of the main
 C----------------------------      
-C correction des momemt M = m  - VRRBY X I.VRRBY
+C MOMEMT M '= M'- VRRBY X i.vrrby
 C 
           WA1=ARRBY(1,M)
           WA2=ARRBY(2,M)
@@ -264,7 +259,7 @@ C repere globale -> repere d'inertie principale
           ARRBY(1,M) = RB(1)*WA1 + RB(2)*WA2 + RB(3)*WA3
           ARRBY(2,M) = RB(4)*WA1 + RB(5)*WA2 + RB(6)*WA3
           ARRBY(3,M) = RB(7)*WA1 + RB(8)*WA2 + RB(9)*WA3
-C les contributions des VRRBY ne sont ajoutees que sur le processeur main
+C contributions of VRRBY are only added on the main processor
           VI(1) = RB(1)*VRRBY(1,M)+RB(2)*VRRBY(2,M)+RB(3)*VRRBY(3,M)
           VI(2) = RB(4)*VRRBY(1,M)+RB(5)*VRRBY(2,M)+RB(6)*VRRBY(3,M)
           VI(3) = RB(7)*VRRBY(1,M)+RB(8)*VRRBY(2,M)+RB(9)*VRRBY(3,M)
@@ -276,8 +271,8 @@ C
      .                   + ((RB(12)-RB(10))*VI(3)*VI(1))
           ARRBY(3,M) = ARRBY(3,M)  
      .                   + ((RB(10)-RB(11))*VI(1)*VI(2))
-C CALCUL D'ONE PSEUDO MOMENT: 
-C EN FAIT L'ACCELERATION DE ROTATION * INERTIE DU NOEUD MAIN (IMIN DU RB)
+C COMPUTATION OF A PSEUDO MOMENT:
+C IN FACT THE ROTATION ACCELERATION * MAIN NODE INERTIA (IMIN OF RB)
 C
           WA1 = ARRBY(1,M)*IN/RB(10)
           WA2 = ARRBY(2,M)*IN/RB(11)

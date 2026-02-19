@@ -1,35 +1,36 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  VELVEC                        source/output/anim/generate/velvec.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_ANIM_PLY_VELVEC          source/mpi/anim/spmd_anim_ply_velvec.F
-Chd|        SPMD_VGATH                    source/mpi/anim/spmd_vgath.F  
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        PLYXFEM_MOD                   share/modules/plyxfem_mod.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    velvec                 ../engine/source/output/anim/generate/velvec.F
+!||--- called by ------------------------------------------------------
+!||    genani                 ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_anim_ply_velvec   ../engine/source/mpi/anim/spmd_anim_ply_velvec.F
+!||    spmd_vgath             ../engine/source/mpi/anim/spmd_vgath.F
+!||    write_r_c              ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    plyxfem_mod            ../engine/share/modules/plyxfem_mod.F
+!||====================================================================
       SUBROUTINE VELVEC(V,V_TEMP,IVOIS,AL,NODCUT,NNWL,NNSRG,
      .                  NODGLOB,WEIGHT,NFVNOD,IFUNC,
      .                  NFNOD_PXFEM,NOD,INDX,NFNOD_CRKXFEMG,ITAB)
@@ -47,7 +48,6 @@ C-----------------------------------------------
 #include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
@@ -61,7 +61,7 @@ C-----------------------------------------------
      .   S3000,S
       REAL R4
       REAL, DIMENSION(:,:), ALLOCATABLE :: PLYVELVEC
-      INTEGER I,IVOIS(2,*),NODCUT,NNWL,K,P,BUF
+      INTEGER I,IVOIS(2,*),NODCUT,NNWL,BUF
       INTEGER NNSRG,NFVNOD,IFUNC,NFNOD_PXFEM,ND,EMPL,NFNOD_CRKXFEMG
 C-----------------------------------------------
       INTEGER N,IPLY,JJ,EMPSIZPL
@@ -91,16 +91,16 @@ C
         ENDDO
        ENDIF
       ELSE
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
            BUF = NUMNODG
         ELSE
            BUF = 1
          ENDIF
          CALL SPMD_VGATH(V,NODGLOB,WEIGHT,BUF)     
       ENDIF
-      IF(NODCUT.GT.0)THEN
+      IF(NODCUT>0)THEN
         IF (NSPMD > 1) THEN
-          IF (ISPMD.EQ.0) THEN
+          IF (ISPMD==0) THEN
             PRINT *, '** NODCUT NON PARALLELIZED OPTION!'
           END IF
           GO TO 211
@@ -129,7 +129,7 @@ C  node ply xfem
 C
       IF(ANIM_PLY > 0 ) THEN
        IF (NSPMD == 1) THEN 
-         IF (NFNOD_PXFEM.GT.0) THEN
+         IF (NFNOD_PXFEM>0) THEN
             IF(IFUNC == 1) THEN    
               ALLOCATE(PLYVELVEC(3,NFNOD_PXFEM))
               DO JJ =1,NPLYPART
@@ -211,7 +211,7 @@ c----------------------------
       ENDIF                             
 c----------------------------    
       IF (ISPMD==0)THEN          
-        IF (NFVNOD.GT.0) THEN      
+        IF (NFVNOD>0) THEN      
            R4 = 0.                 
            DO I=1,NFVNOD+3         
               CALL WRITE_R_C(R4,1) 
@@ -221,25 +221,27 @@ c----------------------------
         ENDIF                      
       ENDIF
 C-------------
- 300  CONTINUE
       RETURN
       END
 
-Chd|====================================================================
-Chd|  VELVEC2                       source/output/anim/generate/velvec.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        SPMD_VELVEC2                  source/mpi/anim/spmd_velvec2.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+!||====================================================================
+!||    velvec2           ../engine/source/output/anim/generate/velvec.F
+!||--- called by ------------------------------------------------------
+!||    genani            ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_glob_dsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    spmd_velvec2      ../engine/source/mpi/anim/spmd_velvec2.F
+!||    write_r_c         ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    my_alloc_mod      ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE VELVEC2(IVOIS,V_TEMP,AL   ,NODCUT,FOPT,
-     .                   NPBY,NNWL ,NNSRG,IXUR,NODGLOB,WEIGHT,FR_SEC,
+     .                   NPBY,NNWL ,NNSRG,NODGLOB,WEIGHT,FR_SEC,
      .                   NFVNOD,NFNOD_PXFEM,NFNOD_PXFEMG,NFNOD_CRKXFEMG)
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -248,9 +250,7 @@ C-----------------------------------------------
 #include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
-#include      "rnur_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -260,19 +260,23 @@ C     REAL
      .  AL(*),FOPT(6,*),V_TEMP(3,*)
 
       REAL R4
-      INTEGER IVOIS(2,*),NPBY(NNPBY,*),IXUR(NIXUR,*),NODCUT,NNWL
+      INTEGER IVOIS(2,*),NPBY(NNPBY,*),NODCUT,NNWL
       INTEGER NNSRG,NFNOD_PXFEM,NFNOD_PXFEMG
       INTEGER I,N,WEIGHT(*),FR_SEC(NSPMD+1,*)
 
-      INTEGER NODGLOB(*),K,P,RBUF,NNG
+      INTEGER NODGLOB(*),RBUF,NNG
       INTEGER NFVNOD,NFNOD_CRKXFEMG
 C-----------------------------------------------
 C   L o c a l  V a r i a b l e s
 C----------------------------------------------
-      my_real
-     .   RWA(3,NSECT),RWAL(3,NRWALL)    ,V(3,NUMNOD)
+      my_real, DIMENSION(:,:),ALLOCATABLE :: RWA
+      my_real, DIMENSION(:,:),ALLOCATABLE :: RWAL
+      my_real, DIMENSION(:,:),ALLOCATABLE :: V
       INTEGER LOC_PROC,PMAIN
 C=======================================================================
+      CALL MY_ALLOC(RWA,3,NSECT)
+      CALL MY_ALLOC(RWAL,3,NRWALL)
+      CALL MY_ALLOC(V,3,NUMNOD)
       LOC_PROC = ISPMD + 1
 C
       DO I=1,NUMNOD
@@ -281,7 +285,7 @@ C
        V(3,I) = ZERO        
       ENDDO
 C
-      IF (NSPMD.EQ.1) THEN
+      IF (NSPMD==1) THEN
         DO N=1,NRBODY
          I = NPBY(1,N)
          V(1,I) = FOPT(1,NSECT+N)
@@ -289,17 +293,11 @@ C
          V(3,I) = FOPT(3,NSECT+N)
         ENDDO
 C
-        DO N=1,NUMELUR
-         I = IXUR(3,N)
-         V(1,I) = V(1,I) + FOPT(1,NSECT+NRBODY+NRWALL+N)
-         V(2,I) = V(2,I) + FOPT(2,NSECT+NRBODY+NRWALL+N)
-         V(3,I) = V(3,I) + FOPT(3,NSECT+NRBODY+NRWALL+N)
-        ENDDO
       ELSE
          DO N=1,NRBODY
            I = NPBY(1,N)
-           IF (I.GT.0) THEN
-             IF (WEIGHT(I).EQ.1) THEN
+           IF (I>0) THEN
+             IF (WEIGHT(I)==1) THEN
                 V(1,I) = FOPT(1,NSECT+N)
                 V(2,I) = FOPT(2,NSECT+N)
                 V(3,I) = FOPT(3,NSECT+N)
@@ -307,14 +305,6 @@ C
            ENDIF
          ENDDO
 
-         DO N=1,NUMELUR
-           I = IXUR(3,N)
-           IF (WEIGHT(I).EQ.1) THEN
-             V(1,I) = V(1,I) + FOPT(1,NSECT+NRBODY+NRWALL+N)
-             V(2,I) = V(2,I) + FOPT(2,NSECT+NRBODY+NRWALL+N)
-             V(3,I) = V(3,I) + FOPT(3,NSECT+NRBODY+NRWALL+N)
-           ENDIF
-         ENDDO
       ENDIF
 C
       IF (NSPMD == 1) THEN
@@ -337,7 +327,7 @@ C
          ENDDO
         ENDIF
       ELSE
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
           RBUF = NUMNODM
           NNG = NUMNODG
         ELSE
@@ -348,10 +338,10 @@ C
       ENDIF
 
 C
-C nodcut non parallelises
-      IF(NODCUT.GT.0)THEN
+C NODCUT Non -paralle
+      IF(NODCUT>0)THEN
         IF (NSPMD > 1) THEN
-          IF (ISPMD.EQ.0)THEN
+          IF (ISPMD==0)THEN
             PRINT *, '** NODCUT NON PARALLELIZED OPTION'
           ENDIF
           GOTO 211
@@ -367,7 +357,7 @@ C nodcut non parallelises
  211    CONTINUE
       ENDIF
 C
-      IF (NSPMD.EQ.1) THEN
+      IF (NSPMD==1) THEN
         DO I=1,NSECT
          R4 = FOPT(1,I)
          CALL WRITE_R_C(R4,1)
@@ -379,7 +369,7 @@ C
       ELSE
         DO I=1,NSECT
          PMAIN = FR_SEC(NSPMD+1,I)
-          IF (PMAIN .EQ.LOC_PROC) THEN
+          IF (PMAIN ==LOC_PROC) THEN
            RWA(1,I) = FOPT(1,I)
            RWA(2,I) = FOPT(2,I)
            RWA(3,I) = FOPT(3,I)
@@ -389,9 +379,9 @@ C
            RWA(3,I) = ZERO
           ENDIF
         ENDDO
-        IF(NSECT.GT.0)
+        IF(NSECT>0)
      .    CALL SPMD_GLOB_DSUM9(RWA,3*NSECT)
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
           DO I=1,NSECT
             R4 = RWA(1,I)
             CALL WRITE_R_C(R4,1)
@@ -403,7 +393,7 @@ C
         ENDIF
       ENDIF
 C
-      IF (NSPMD.EQ.1) THEN
+      IF (NSPMD==1) THEN
         DO I=1,NRWALL
           R4 = FOPT(1,NSECT+NRBODY+I)
           CALL WRITE_R_C(R4,1)
@@ -418,9 +408,9 @@ C
           RWAL(2,I) = FOPT(2,NSECT+NRBODY+I)
           RWAL(3,I) = FOPT(3,NSECT+NRBODY+I)
         ENDDO
-        IF (NRWALL.GT.0)
+        IF (NRWALL>0)
      .    CALL SPMD_GLOB_DSUM9(RWAL,3*NRWALL)
-        IF (ISPMD.EQ.0) THEN 
+        IF (ISPMD==0) THEN 
           DO I=1,NRWALL
             R4 = RWAL(1,I)
             CALL WRITE_R_C(R4,1)
@@ -431,7 +421,7 @@ C
           ENDDO
         ENDIF
       ENDIF
-      IF (ISPMD.NE.0) GO TO 300
+      IF (ISPMD/=0) GO TO 300
       R4 = 0.
       DO I=1,NNWL
        CALL WRITE_R_C(R4,1)
@@ -446,7 +436,7 @@ C
         ENDDO
 C
       IF(ANIM_PLY > 0 ) THEN
-        IF(ISPMD==0 .AND. NFNOD_PXFEMG.GT.0) THEN
+        IF(ISPMD==0 .AND. NFNOD_PXFEMG>0) THEN
            R4 = ZERO
            DO I=1,NFNOD_PXFEMG
              CALL WRITE_R_C(R4,1)
@@ -469,7 +459,7 @@ c----------------------------
         ENDIF                           
       ENDIF                             
 c----------------------------    
-      IF (NFVNOD.GT.0) THEN
+      IF (NFVNOD>0) THEN
          R4=ZERO
          DO I=1,NFVNOD+3
             CALL WRITE_R_C(R4,1)
@@ -479,23 +469,29 @@ c----------------------------
       ENDIF
  300  CONTINUE
 C-----------
+      DEALLOCATE(RWA)
+      DEALLOCATE(RWAL)
+      DEALLOCATE(V)
       RETURN
       END
 
-Chd|====================================================================
-Chd|  VELVECC                       source/output/anim/generate/velvec.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_GLOB_FSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+!||====================================================================
+!||    velvecc           ../engine/source/output/anim/generate/velvec.F
+!||--- called by ------------------------------------------------------
+!||    genani            ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_glob_fsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    write_r_c         ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    my_alloc_mod      ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE VELVECC(V,V_TEMP,IVOIS,AL,NODCUT,NNWL,NNSRG,
      .                  NODGLOB,WEIGHT,NFVNOD,NFNOD_PXFEM,
      .                  NFNOD_PXFEMG,NFNOD_CRKXFEMG)
 C-----------------------------s------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -503,7 +499,6 @@ C-----------------------------------------------
 #include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
@@ -516,10 +511,15 @@ C     REAL
 C     REAL
       my_real
      .   S3000,S
-      REAL R4, VG(3,NUMNODG)
-      INTEGER I,IVOIS(2,*),NODCUT,NNWL,K,P,BUF
+      REAL R4
+      INTEGER I,IVOIS(2,*),NODCUT,NNWL,K
       INTEGER NNSRG,NFVNOD,NFNOD_PXFEM,NFNOD_PXFEMG,NFNOD_CRKXFEMG
 C-----------------------------------------------
+C   L o c a l  V a r i a b l e s
+C-----------------------------------------------
+      REAL, DIMENSION(:,:), ALLOCATABLE :: VG
+C-----------------------------------------------
+      CALL MY_ALLOC(VG,3,NUMNODG)
       S3000 = 3000.
       S     = ZERO
 
@@ -557,7 +557,7 @@ C-----------------------------------------------
 
         CALL SPMD_GLOB_FSUM9(VG,3*NUMNODG)
 
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
          DO I=1,NUMNODG
            CALL WRITE_R_C(VG(1,I),1)
            CALL WRITE_R_C(VG(2,I),1)
@@ -568,9 +568,9 @@ C-----------------------------------------------
 
 C
 C option non parallelisee !
-      IF(NODCUT.GT.0)THEN
+      IF(NODCUT>0)THEN
         IF (NSPMD > 1) THEN
-          IF (ISPMD.EQ.0) THEN
+          IF (ISPMD==0) THEN
             PRINT *, '** NODCUT NON PARALLELIZED OPTION'
           END IF
           GO TO 211
@@ -588,7 +588,7 @@ C option non parallelisee !
 C
       IF(ANIM_PLY > 0 ) THEN
 
-       IF(ISPMD==0 .AND. NFNOD_PXFEMG.GT.0) THEN
+       IF(ISPMD==0 .AND. NFNOD_PXFEMG>0) THEN
          R4 = ZERO
          DO I=1,NFNOD_PXFEMG
             CALL WRITE_R_C(R4,1)
@@ -611,14 +611,14 @@ c----------------------------
         ENDIF                           
       ENDIF                             
 c----------------------------    
-      IF (ISPMD.EQ.0) THEN
+      IF (ISPMD==0) THEN
         R4 = 0.
         DO I=1,NSECT+NRWALL+NNWL+NNSRG
          CALL WRITE_R_C(R4,1)
          CALL WRITE_R_C(R4,1)
          CALL WRITE_R_C(R4,1)
         ENDDO
-        IF (NFVNOD.GT.0) THEN
+        IF (NFVNOD>0) THEN
            R4 = 0.
            DO I=1,NFVNOD+3
               CALL WRITE_R_C(R4,1)
@@ -626,20 +626,20 @@ c----------------------------
               CALL WRITE_R_C(R4,1)
            ENDDO
         ENDIF
-      ENDIF!(ISPMD.EQ.0) 
+      ENDIF!(ISPMD==0) 
 c----------------------------  
- 300  CONTINUE
+      DEALLOCATE(VG)
       RETURN
       END
 
-Chd|====================================================================
-Chd|  VELVECC21                     source/output/anim/generate/velvec.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_GLOB_DSUM9               source/mpi/interfaces/spmd_th.F
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+!||====================================================================
+!||    velvecc21         ../engine/source/output/anim/generate/velvec.F
+!||--- called by ------------------------------------------------------
+!||    genani            ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_glob_dsum9   ../engine/source/mpi/interfaces/spmd_th.F
+!||    write_r_c         ../common_source/tools/input_output/write_routines.c
+!||====================================================================
       SUBROUTINE VELVECC21(V,V_TEMP,IVOIS,AL,NODCUT,NNWL,
      .                  NNSRG,NODGLOB,WEIGHT,NFVNOD,NFNOD_PXFEM,
      .                  NFNOD_PXFEMG,VG21,NFNOD_CRKXFEMG)
@@ -653,8 +653,6 @@ C-----------------------------------------------
 #include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "intstamp_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
@@ -668,7 +666,7 @@ C     REAL
       my_real
      .   S3000,S
       REAL R4
-      INTEGER I,IVOIS(2,*),NODCUT,NNWL,K,P,BUF
+      INTEGER I,IVOIS(2,*),NODCUT,NNWL,K
       INTEGER NNSRG,NFVNOD,NFNOD_PXFEM,NFNOD_PXFEMG,NFNOD_CRKXFEMG
        my_real
      .       , DIMENSION(:,:), ALLOCATABLE ::  V_TMP
@@ -727,9 +725,9 @@ C
       ENDIF
 C
 C option non parallelisee !
-      IF(NODCUT.GT.0)THEN
+      IF(NODCUT>0)THEN
         IF (NSPMD > 1) THEN
-          IF (ISPMD.EQ.0) THEN
+          IF (ISPMD==0) THEN
             PRINT *, '** NODCUT NON PARALLELIZED OPTION'
           END IF
           GO TO 211
@@ -747,7 +745,7 @@ C option non parallelisee !
 C
       IF(ANIM_PLY > 0 ) THEN
 
-       IF(ISPMD==0 .AND. NFNOD_PXFEMG.GT.0) THEN
+       IF(ISPMD==0 .AND. NFNOD_PXFEMG>0) THEN
          R4 = ZERO
          DO I=1,NFNOD_PXFEMG
             CALL WRITE_R_C(R4,1)
@@ -770,7 +768,7 @@ c----------------------------
         ENDIF                           
       ENDIF                             
 c----------------------------    
-      IF (ISPMD.NE.0) GOTO 300
+      IF (ISPMD/=0) GOTO 300
       R4 = 0.
       DO I=1,NSECT+NRWALL+NNWL+NNSRG
        CALL WRITE_R_C(R4,1)
@@ -778,7 +776,7 @@ c----------------------------
        CALL WRITE_R_C(R4,1)
       ENDDO
 C
-      IF (NFVNOD.GT.0) THEN
+      IF (NFVNOD>0) THEN
          R4 = 0.
          DO I=1,NFVNOD+3
             CALL WRITE_R_C(R4,1)
@@ -791,13 +789,13 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  VELVECC_MAX                   source/output/anim/generate/velvec.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+!||====================================================================
+!||    velvecc_max   ../engine/source/output/anim/generate/velvec.F
+!||--- called by ------------------------------------------------------
+!||    genani        ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    write_r_c     ../common_source/tools/input_output/write_routines.c
+!||====================================================================
       SUBROUTINE VELVECC_MAX(VMAX,NODCUT,NNWL,NNSRG,NFVNOD,
      .                       NFNOD_PXFEMG,NFNOD_CRKXFEMG)
 C-----------------------------s------------------
@@ -810,7 +808,6 @@ C-----------------------------------------------
 #include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "spmd_c.inc"
 C-----------------------------------------------
@@ -819,8 +816,8 @@ C-----------------------------------------------
       my_real
      .   VMAX(3,*)
       REAL R4  
-      INTEGER I,K,NODCUT,NNWL
-      INTEGER NNSRG,NFVNOD,NFNOD_PXFEM,NFNOD_PXFEMG,NFNOD_CRKXFEMG
+      INTEGER I,NODCUT,NNWL
+      INTEGER NNSRG,NFVNOD,NFNOD_PXFEMG,NFNOD_CRKXFEMG
 C-----------------------------------------------
 
       IF (NSPMD == 1) THEN
@@ -834,7 +831,7 @@ C-----------------------------------------------
         ENDDO
       ELSE
 
-        IF (ISPMD.EQ.0) THEN
+        IF (ISPMD==0) THEN
 
            DO I=1,NUMNODG
               R4 = VMAX(1,I)
@@ -849,9 +846,9 @@ C-----------------------------------------------
 
 C
 C option non parallelisee !
-      IF(NODCUT.GT.0)THEN
+      IF(NODCUT>0)THEN
         IF (NSPMD > 1) THEN
-          IF (ISPMD.EQ.0) THEN
+          IF (ISPMD==0) THEN
             PRINT *, '** NODCUT NON PARALLELIZED OPTION'
           END IF
           GO TO 211
@@ -869,7 +866,7 @@ C option non parallelisee !
 C
       IF(ANIM_PLY > 0 ) THEN
 
-       IF(ISPMD==0 .AND. NFNOD_PXFEMG.GT.0) THEN
+       IF(ISPMD==0 .AND. NFNOD_PXFEMG>0) THEN
          R4 = ZERO
          DO I=1,NFNOD_PXFEMG
             CALL WRITE_R_C(R4,1)
@@ -892,7 +889,7 @@ c----------------------------
         ENDIF                           
       ENDIF                             
 c----------------------------    
-      IF (ISPMD.NE.0) GOTO 300
+      IF (ISPMD/=0) GOTO 300
       R4 = 0.
       DO I=1,NSECT+NRWALL+NNWL+NNSRG
        CALL WRITE_R_C(R4,1)
@@ -900,7 +897,7 @@ c----------------------------
        CALL WRITE_R_C(R4,1)
       ENDDO
 C
-      IF (NFVNOD.GT.0) THEN
+      IF (NFVNOD>0) THEN
          R4 = 0.
          DO I=1,NFVNOD+3
             CALL WRITE_R_C(R4,1)
@@ -915,20 +912,23 @@ c----------------------------
       RETURN
       END
 
-Chd|====================================================================
-Chd|  VELVEC3                       source/output/anim/generate/velvec.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        SPMD_VGATH                    source/mpi/anim/spmd_vgath.F  
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|====================================================================
+!||====================================================================
+!||    velvec3        ../engine/source/output/anim/generate/velvec.F
+!||--- called by ------------------------------------------------------
+!||    genani         ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    spmd_vgath     ../engine/source/mpi/anim/spmd_vgath.F
+!||    write_r_c      ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    my_alloc_mod   ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE VELVEC3(V,V_TEMP,VALE,IVOIS,AL,NODCUT,NNWL,NNSRG,
      .                  NODGLOB,WEIGHT,NFVNOD,NFNOD_PXFEM,NFNOD_PXFEMG,
      .                  NFNOD_CRKXFEMG)
 C-----------------------------s------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
+      USE MY_ALLOC_MOD
 #include      "implicit_f.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
@@ -936,7 +936,6 @@ C-----------------------------------------------
 #include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
 #include      "spmd_c.inc"
 #include      "scr14_c.inc"
 C-----------------------------------------------
@@ -950,15 +949,18 @@ C     REAL
       my_real
      .   S3000,S
       REAL R4
-      INTEGER I,IVOIS(2,*),NODCUT,NNWL,K,P,BUF
+      INTEGER I,IVOIS(2,*),NODCUT,NNWL,BUF
       INTEGER NNSRG,NFVNOD,NFNOD_PXFEM,NFNOD_PXFEMG,NFNOD_CRKXFEMG
-      my_real
-     .    VGLOBAL(3,NUMNOD)
 C-----------------------------------------------
+C   L o c a l  V a r i a b l e s
+C-----------------------------------------------
+      my_real, DIMENSION(:,:), ALLOCATABLE :: VGLOBAL
+C-----------------------------------------------
+      CALL MY_ALLOC(VGLOBAL,3,NUMNOD)
       S3000 = 3000.
       S = 0.
 C
-      IF (ISPMD.EQ.0) THEN
+      IF (ISPMD==0) THEN
          BUF = NUMNODG
       ELSE
          BUF = 1
@@ -993,13 +995,13 @@ C
       ENDIF
 C
 C option non parallelisee !
-      IF(NODCUT.GT.0)THEN
-        IF (ISPMD.EQ.0) THEN
+      IF(NODCUT>0)THEN
+        IF (ISPMD==0) THEN
           PRINT *, '** NODCUT NON PARALLELIZED OPTION'
         END IF
       ENDIF
 C
-      IF (ISPMD.NE.0) GOTO 300
+      IF (ISPMD/=0) GOTO 300
       R4 = 0.
       DO I=1,NSECT+NRWALL+NNWL+NNSRG
        CALL WRITE_R_C(R4,1)
@@ -1008,7 +1010,7 @@ C
       ENDDO
 C      
       IF(ANIM_PLY > 0 ) THEN
-       IF(ISPMD.EQ.0 .AND. NFNOD_PXFEMG.GT.0) THEN
+       IF(ISPMD==0 .AND. NFNOD_PXFEMG>0) THEN
         R4 = ZERO
         DO I=1,NFNOD_PXFEMG
            CALL WRITE_R_C(R4,1)
@@ -1031,7 +1033,7 @@ c----------------------------
         ENDIF                           
       ENDIF                             
 c----------------------------    
-      IF (ISPMD.EQ.0.AND.NFVNOD.GT.0) THEN
+      IF (ISPMD==0.AND.NFVNOD>0) THEN
          R4 = 0.
          DO I=1,NFVNOD+3
             CALL WRITE_R_C(R4,1)
@@ -1041,22 +1043,26 @@ c----------------------------
       ENDIF
 C-------------
  300  CONTINUE
+      DEALLOCATE(VGLOBAL)
       RETURN
       END
 
 
 
-Chd|====================================================================
-Chd|  VELVECC22                     source/output/anim/generate/velvec.F
-Chd|-- called by -----------
-Chd|        GENANI                        source/output/anim/generate/genani.F
-Chd|-- calls ---------------
-Chd|        WRITE_R_C                     source/output/tools/sortie_c.c
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+!||====================================================================
+!||    velvecc22        ../engine/source/output/anim/generate/velvec.F
+!||--- called by ------------------------------------------------------
+!||    genani           ../engine/source/output/anim/generate/genani.F
+!||--- calls      -----------------------------------------------------
+!||    write_r_c        ../common_source/tools/input_output/write_routines.c
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod     ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod      ../common_source/modules/elements/element_mod.F90
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22edge_mod      ../common_source/modules/interfaces/cut-cell-buffer_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    initbuf_mod      ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE VELVECC22(ELBUF_TAB,IPARG,IFLG,IXS,IXQ,ITAB)
 C-----------------------------------------------
 C   D e s c r i p t i o n
@@ -1075,7 +1081,8 @@ C-----------------------------------------------
       USE ELBUFDEF_MOD  
       USE I22BUFBRIC_MOD   
       USE I22EDGE_MOD    
-      USE I22TRI_MOD         
+      USE I22TRI_MOD
+      use element_mod , only : nixs,nixq         
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -1083,12 +1090,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "task_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "scr05_c.inc"
-#include      "scr14_c.inc"
-#include      "spmd_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -1101,7 +1104,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   A r g u m e n t s
 C----------------------------------------------- 
-      INTEGER :: NGM, IDLOCM, IBM,ICELLM,MLW,NCELL,NELm,NBF,NBL,ICELL,NIN,NODE_ID,IB,NG,I
+      INTEGER :: NGM, IDLOCM, IBM,ICELLM,MLW,NCELL,NELm,NBF,NBL,ICELL,NIN,NODE_ID,IB,I
       my_real :: rho_cell, RHO(4), VFRAC(4)
       REAL,DIMENSION(:,:),ALLOCATABLE :: BUFFER
 C-----------------------------------------------
@@ -1117,7 +1120,7 @@ C-----------------------------------------------
        DO IB=NBF,NBL    
          ICELL               =  0                                                                
          NCELL               = BRICK_LIST(NIN,IB)%NBCUT                                                                                                          
-         DO WHILE (ICELL.LE.NCELL) ! loop on polyhedron {1:NCELL} U {9}                                                                            
+         DO WHILE (ICELL<=NCELL) ! loop on polyhedron {1:NCELL} U {9}                                                                            
            ICELL             = ICELL +1                                                                                                                        
            IF (ICELL>NCELL .AND. NCELL/=0)ICELL=9   
            IBM               = BRICK_LIST(NIN,IB)%POLY(ICELL)%WhereIsMain(4)
@@ -1133,7 +1136,7 @@ C-----------------------------------------------
            NELm              = IPARG(2,NGM)   
            MLW               = IPARG(1,NGM)                                             
            IF(MLW==37)THEN
-              !UVAR(I,1) : massic percentage of liquid * global density  (rho1*V1/V : it needs to give liquid mass multipling by element volume in aleconve.F)
+              !UVAR(I,1) : massic percentage of liquid * global density  (rho1*V1/V : it needs to give liquid mass multiplying by element volume in aleconve.F)
               !UVAR(I,2) : density of gas
               !UVAR(I,3) : density of liquid
               !UVAR(I,4) : volumetric fraction of liquid
@@ -1151,7 +1154,7 @@ C-----------------------------------------------
               rho_cell       = GBUF%RHO(IDLOCM)
            ENDIF
            NODE_ID           = BRICK_LIST(NIN,IB)%POLY(ICELL)%ID_FREE_NODE  
-           IF(NODE_ID.LE.0)CYCLE ! not enough nodes in the group or SMP disabling
+           IF(NODE_ID<=0)CYCLE ! not enough nodes in the group or SMP disabling
            IF(IFLG==1)THEN       
              !velocity vector : U                                                          
              BUFFER(1,NODE_ID) = GBUF%MOM(NELm*(1-1) + IDLOCm) / rho_cell                                                                               

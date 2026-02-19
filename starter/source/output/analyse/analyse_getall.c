@@ -1,5 +1,5 @@
 //Copyright>    OpenRadioss
-//Copyright>    Copyright (C) 1986-2022 Altair Engineering Inc.
+//Copyright>    Copyright (C) 1986-2026 Altair Engineering Inc.
 //Copyright>
 //Copyright>    This program is free software: you can redistribute it and/or modify
 //Copyright>    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,11 @@
 //Copyright>    along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //Copyright>
 //Copyright>
-//Copyright>    Commercial Alternative: Altair Radioss Software 
+//Copyright>    Commercial Alternative: Altair Radioss Software
 //Copyright>
-//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss 
-//Copyright>    software under a commercial license.  Contact Altair to discuss further if the 
-//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.    
+//Copyright>    As an alternative to this open-source version, Altair also offers Altair Radioss
+//Copyright>    software under a commercial license.  Contact Altair to discuss further if the
+//Copyright>    commercial version may interest you: https://www.altair.com/radioss/.
 /*********************************************************************
  *                        INCLUDES
  *********************************************************************/
@@ -64,8 +64,11 @@ int analyse_getint(int *x,int ncount,char *line)
 {
   int readret;
   char linecopy[21];
-  
+  #ifdef _WIN64
+  strncpy_s(linecopy,21,line,ncount);
+  #else
   strncpy(linecopy,line,ncount);
+  #endif
   *(linecopy+ncount)='\0';
   readret = sscanf(linecopy,"%d",x);
   if(readret < 0) 
@@ -82,7 +85,11 @@ int analyse_getdouble(double *x,int ncount,char *line)
   int readret;
   char linecopy[21];
   
+  #ifdef _WIN64
+  strncpy_s(linecopy,21,line,ncount);
+  #else
   strncpy(linecopy,line,ncount);
+  #endif
   *(linecopy+ncount)='\0';
   readret = sscanf(linecopy,"%lf",x);
   if(readret < 0) 

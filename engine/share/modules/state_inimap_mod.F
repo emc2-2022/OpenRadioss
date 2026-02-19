@@ -1,41 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 #include "my_real.inc"
 
-Chd|====================================================================
-Chd|  STATE_INIMAP_MOD              share/modules/state_inimap_mod.F
-Chd|-- called by -----------
-Chd|        FRESTAT                       source/input/frestat.F        
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|        SPMD_STATE_INIMAP1D_EXCH_DATA source/output/sta/spmd_state_inimap1d_exch_data.F
-Chd|        SPMD_STATE_INIMAP2D_EXCH_DATA source/output/sta/spmd_state_inimap2d_exch_data.F
-Chd|        SPMD_STATE_INIMAP_EXCH_SIZ    source/output/sta/spmd_state_inimap_exch_siz.F
-Chd|        STAT_INIMAP1D_FILE_SPMD       source/output/sta/stat_inimap1d_file_spmd.F
-Chd|        STAT_INIMAP1D_SPMD            source/output/sta/stat_inimap1d_spmd.F
-Chd|        STAT_INIMAP2D_FILE_SPMD       source/output/sta/stat_inimap2d_file_spmd.F
-Chd|        STAT_INIMAP2D_SPMD            source/output/sta/stat_inimap2d_spmd.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    state_inimap_mod                ../engine/share/modules/state_inimap_mod.F
+!||--- called by ------------------------------------------------------
+!||    frestat                         ../engine/source/input/frestat.F
+!||    genstat                         ../engine/source/output/sta/genstat.F
+!||    spmd_state_inimap1d_exch_data   ../engine/source/output/sta/spmd_state_inimap1d_exch_data.F
+!||    spmd_state_inimap2d_exch_data   ../engine/source/output/sta/spmd_state_inimap2d_exch_data.F
+!||    spmd_state_inimap_exch_siz      ../engine/source/output/sta/spmd_state_inimap_exch_siz.F
+!||    stat_inimap1d_file_spmd         ../engine/source/output/sta/stat_inimap1d_file_spmd.F
+!||    stat_inimap1d_spmd              ../engine/source/output/sta/stat_inimap1d_spmd.F
+!||    stat_inimap2d_file_spmd         ../engine/source/output/sta/stat_inimap2d_file_spmd.F
+!||    stat_inimap2d_spmd              ../engine/source/output/sta/stat_inimap2d_spmd.F
+!||====================================================================
       MODULE STATE_INIMAP_MOD
 
         INTEGER :: STATE_INIMAP_CALL_NUMBER

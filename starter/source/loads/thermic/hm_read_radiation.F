@@ -1,42 +1,44 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_RADIATION             source/loads/thermic/hm_read_radiation.F
-Chd|-- called by -----------
-Chd|        LECTUR                        source/starter/lectur.F       
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOATV_DIM             source/devtools/hm_reader/hm_get_floatv_dim.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_READ_KEY            source/devtools/hm_reader/hm_option_read_key.F
-Chd|        HM_OPTION_START               source/devtools/hm_reader/hm_option_start.F
-Chd|        GROUPDEF_MOD                  ../common_source/modules/groupdef_mod.F
-Chd|        HM_OPTION_READ_MOD            share/modules1/hm_option_read_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
-      SUBROUTINE HM_READ_RADIATION(IB, FAC, ITAB, IXS ,IGRSURF, UNITAB ,LSUBMODEL)
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_radiation      ../starter/source/loads/thermic/hm_read_radiation.F
+!||--- called by ------------------------------------------------------
+!||    lectur                 ../starter/source/starter/lectur.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||    hm_get_floatv          ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_floatv_dim      ../starter/source/devtools/hm_reader/hm_get_floatv_dim.F
+!||    hm_get_intv            ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_read_key     ../starter/source/devtools/hm_reader/hm_option_read_key.F
+!||    hm_option_start        ../starter/source/devtools/hm_reader/hm_option_start.F
+!||    usr2sys                ../starter/source/system/sysfus.F
+!||--- uses       -----------------------------------------------------
+!||    hm_option_read_mod     ../starter/share/modules1/hm_option_read_mod.F
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||    submodel_mod           ../starter/share/modules1/submodel_mod.F
+!||====================================================================
+      SUBROUTINE HM_READ_RADIATION(IB, FAC, ITAB, IXS ,IGRSURF, UNITAB ,LSUBMODEL,
+     .                             NRADIA,NUMRADIA,NIRADIA,LFACTHER)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -45,27 +47,25 @@ C-----------------------------------------------
       USE GROUPDEF_MOD
       USE SUBMODEL_MOD
       USE HM_OPTION_READ_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr17_c.inc"
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      INTEGER ,INTENT(IN) :: NRADIA
+      INTEGER ,INTENT(IN) :: NUMRADIA
+      INTEGER ,INTENT(IN) :: NIRADIA
+      INTEGER ,INTENT(IN) :: LFACTHER 
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER IB(NIRADIA,*), ITAB(*), IXS(NIXS,*)
       my_real FAC(LFACTHER,*)
@@ -80,7 +80,8 @@ C-----------------------------------------------
       my_real
      .   FCX, FCY, FAC_L, FAC_T, FAC_M, EMI, SIGMA, TSTART, TSTOP,
      .   EMISS(NUMRADIA),FCX_DIM,FCY_DIM,TSTOP_DIM
-      CHARACTER MESS*40,TITR*nchartitle
+      CHARACTER MESS*40
+      CHARACTER(LEN=NCHARTITLE) :: TITR
       LOGICAL IS_AVAILABLE
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
@@ -104,7 +105,7 @@ C--------------------------------------------------
      .                       OPTION_ID = ID,
      .                       OPTION_TITR = TITR)
         IFLAGUNIT = 0                                           
-        DO J=1,NUNITS                           
+        DO J=1,UNITAB%NUNITS                           
           IF (UNITAB%UNIT_ID(J) == UID) THEN       
             IFLAGUNIT = 1                       
             EXIT                                
@@ -138,8 +139,8 @@ C--------------------------------------------------
         IF (FCY == ZERO) FCY = FCY_DIM
         IF(TSTOP == ZERO) TSTOP= EP30 * TSTOP_DIM      
 C
-        FAC_M = FAC_M_WORK
-        FAC_T = FAC_T_WORK
+        FAC_M = UNITAB%FAC_M_WORK
+        FAC_T = UNITAB%FAC_T_WORK
         SIGMA=STEFBOLTZ*(FAC_T*FAC_T*FAC_T)/FAC_M
 C
         IS=0                                                     
@@ -150,11 +151,11 @@ C
           NN=IGRSURF(IS)%NSEG
           DO J=1,NN                                              
             K=K+1                                                
-            IB(1,K)=IGRSURF(IS)%NODES(J,1)				    
+            IB(1,K)=IGRSURF(IS)%NODES(J,1)            
             IB(2,K)=IGRSURF(IS)%NODES(J,2)
             IB(3,K)=IGRSURF(IS)%NODES(J,3)
             ITY    =IGRSURF(IS)%ELTYP(J)
-            IF(ITY.EQ.7)THEN                          
+            IF(ITY==7)THEN                          
 C          true triangles (not segments built from 3 nodes).   
              IB(4,K)=0                                           
             ELSE                                                 

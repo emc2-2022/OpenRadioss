@@ -1,32 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  ADD_ID                        source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        COMM_SEG_E                    source/interfaces/inter3d1/i24inisu_nei.F
-Chd|        I25NEIGH_SEG_E                source/interfaces/inter3d1/i25neigh.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    add_id           ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    comm_seg_e       ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||    i25neigh_seg_e   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||====================================================================
       SUBROUTINE ADD_ID(N,IC,ID)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -43,7 +42,7 @@ C-----------------------------------------------
 C----add ID--at end--if not inside already----------------
       IF (ID/=0) THEN
        DO I =1,N
-        IF (IC(I).EQ.ID) RETURN
+        IF (IC(I)==ID) RETURN
        ENDDO
       END IF 
       N =N+1
@@ -51,12 +50,11 @@ C----add ID--at end--if not inside already----------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  ADD_N_ID                      source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        COMM_SEG_N                    source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    add_n_id     ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    comm_seg_n   ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||====================================================================
       SUBROUTINE ADD_N_ID(N,IC,ID)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -76,20 +74,23 @@ C----add ID--at end----------------
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  INTAB                         source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        ADD_NS                        source/interfaces/inter3d1/i7remnode.F
-Chd|        ADD_NSFIC                     source/interfaces/inter3d1/i7remnode.F
-Chd|        COMM_SEG_E                    source/interfaces/inter3d1/i24inisu_nei.F
-Chd|        I24PENMAX                     source/interfaces/inter3d1/i24pen3.F
-Chd|        I25NEIGH_SEG_E                source/interfaces/inter3d1/i25neigh.F
-Chd|        ITAGSL2                       source/interfaces/inter3d1/itagsl2.F
-Chd|        RIGMODIF_ND                   source/elements/solid/solide10/dim_s10edg.F
-Chd|        SEG_OPP                       source/interfaces/inter3d1/i24tools.F
-Chd|        SAME_SEG                      source/interfaces/inter3d1/i24tools.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    intab              ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    add_nsfic          ../starter/source/interfaces/inter3d1/i7remnode.F
+!||    comm_seg_e         ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||    i24penmax          ../starter/source/interfaces/inter3d1/i24pen3.F
+!||    i25neigh_seg_e     ../starter/source/interfaces/inter3d1/i25neigh.F
+!||    i25neigh_seg_opp   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||    int2cy_chk         ../starter/source/constraints/general/bcs/lecbcscyc.F
+!||    int2modif_nd       ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||    itagsl2            ../starter/source/interfaces/inter3d1/itagsl2.F
+!||    rbe2modif_nd       ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||    rigmodif_nd        ../starter/source/elements/solid/solide10/dim_s10edg.F
+!||    s10edg_rlink       ../starter/source/elements/solid/solide10/s10edg_rlink.F
+!||    same_seg           ../starter/source/interfaces/inter3d1/i24tools.F
+!||    seg_opp            ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       LOGICAL FUNCTION INTAB(NIC,IC,N)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -106,7 +107,7 @@ C-----------------------------------------------
 C----6---------------------------------------------------------------7---------8
        INTAB=.FALSE.
        DO I =1,NIC
-        IF (N.EQ.IC(I)) THEN
+        IF (N==IC(I)) THEN
          INTAB=.TRUE.
          RETURN
         ENDIF
@@ -114,17 +115,16 @@ C----6---------------------------------------------------------------7---------8
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  NORMV3                        source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        I24NORMNS                     source/interfaces/inter3d1/i24sti3.F
-Chd|        I25NEIGH_REMOVEALLBUT1        source/interfaces/inter3d1/i25neigh.F
-Chd|        NORMVEC                       source/interfaces/inter3d1/i24sti3.F
-Chd|        REMOVEIC                      source/interfaces/inter3d1/i24tools.F
-Chd|        REMOVEIC1                     source/interfaces/inter3d1/i24tools.F
-Chd|        VOISIN2                       source/interfaces/inter3d1/i24tools.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    normv3                   ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    i24normns                ../starter/source/interfaces/inter3d1/i24sti3.F
+!||    i25neigh_removeallbut1   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||    normvec                  ../starter/source/interfaces/inter3d1/i24sti3.F
+!||    removeic                 ../starter/source/interfaces/inter3d1/i24tools.F
+!||    removeic1                ../starter/source/interfaces/inter3d1/i24tools.F
+!||    voisin2                  ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE NORMV3(V,NORM)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -151,15 +151,15 @@ C-----
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  VOISIN2                       source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        REMOVEIC                      source/interfaces/inter3d1/i24tools.F
-Chd|-- calls ---------------
-Chd|        NORMA4N                       source/interfaces/inter3d1/norma1.F
-Chd|        NORMA4NX                      source/interfaces/inter3d1/norma1.F
-Chd|        NORMV3                        source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    voisin2    ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    removeic   ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- calls      -----------------------------------------------------
+!||    norma4n    ../starter/source/interfaces/inter3d1/norma1.F
+!||    norma4nx   ../starter/source/interfaces/inter3d1/norma1.F
+!||    normv3     ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE VOISIN2(NC1,NC2,X ,I1 ,I2 ,YI,YJ,INV)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -173,15 +173,15 @@ C     REAL
       my_real
      .   X(3,*),YI(3),YJ(3)
 C-----------------------------------------------
-c FUNCTION: find the same orientation of two segement (4n)
+c FUNCTION: find the same orientation of two segments (4n)
 c
 c Note:
 c ARGUMENTS:  (I: input, O: output, IO: input * output, W: workspace)
 c
 c TYPE NAME                FUNCTION
 c  I   NC1(1:4),NC2(1:4) - connectivity
-c  I   I1,I2             - commun nodes of two seg
-c  I   X(3,*)            - co-ordinates
+c  I   I1,I2             - common nodes of two seg
+c  I   X(3,*)            - coordinates
 c  O   INV               - flag : 0 same orientation; 1 inverse one
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -215,12 +215,11 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  RE_ORI                        source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        COMM_SEG_EN                   source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    re_ori        ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    comm_seg_en   ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||====================================================================
       SUBROUTINE RE_ORI(I1,I2,IN,X )
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
@@ -259,36 +258,32 @@ c       print *,'---------change order-----------'
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  MSG_ERR                       source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        I24INISUR_NEI                 source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    msg_err                ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    i24inisur_nei          ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                 ../starter/source/output/message/message.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../starter/share/message_module/message_mod.F
+!||====================================================================
       SUBROUTINE MSG_ERR(I1,I2,ITAB,IRR,ID,TITR)
       USE MESSAGE_MOD
-C----6---------------------------------------------------------------7---------8
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "scr03_c.inc"
-#include      "scr17_c.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER I1,I2,ITAB(*),IRR
       INTEGER ID
-      CHARACTER*nchartitle,
-     .   TITR
+      CHARACTER(LEN=NCHARTITLE) :: TITR
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -319,23 +314,23 @@ c     +                 Itab(I1),Itab(I2)
 c        CALL ARRET(2)
        END IF
 #endif
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  SAME_SEG                      source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        COMM_SEG_E                    source/interfaces/inter3d1/i24inisu_nei.F
-Chd|        I25NEIGH_SEG_E                source/interfaces/inter3d1/i25neigh.F
-Chd|-- calls ---------------
-Chd|        INTAB                         source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    same_seg         ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    comm_seg_e       ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||    i25neigh_seg_e   ../starter/source/interfaces/inter3d1/i25neigh.F
+!||--- calls      -----------------------------------------------------
+!||    intab            ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       LOGICAL FUNCTION SAME_SEG(IRECT1,IRECT2)
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IRECT1(*),IRECT2(*)
@@ -368,27 +363,27 @@ C----6---------------------------------------------------------------7---------8
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  SEG_OPP                       source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        COMM_SEG_EN                   source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- calls ---------------
-Chd|        NORMA4N                       source/interfaces/inter3d1/norma1.F
-Chd|        INTAB                         source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    seg_opp       ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    comm_seg_en   ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- calls      -----------------------------------------------------
+!||    intab         ../starter/source/interfaces/inter3d1/i24tools.F
+!||    norma4n       ../starter/source/interfaces/inter3d1/norma1.F
+!||====================================================================
       SUBROUTINE SEG_OPP(EI,EJ,IRECT,X ,IOP)
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER EI,EJ,IRECT(4,*),IOP
 C     REAL
       my_real
      .   X(3,*)
-C----si the normal of two segements are opposite or near opposite
+C----if the normal of two segments are opposite or near opposite
 C----if two common segs, will also be eliminated 
 C-----------------------------------------------
 C   External function
@@ -406,7 +401,7 @@ C---
          CALL NORMA4N(NXI,NYI,NZI,AREA,IRECT(1,EI),X )
          CALL NORMA4N(NXJ,NYJ,NZJ,AREA,IRECT(1,EJ),X )
          S=NXI*NXJ+NYI*NYJ+NZI*NZJ
-	     IF (S<ZERO.AND.ABS(S)>0.99) IOP=1
+               IF (S<ZERO.AND.ABS(S)>0.99) IOP=1
          IF (IOP == 0 ) THEN
           NN = 0
           DO I = 1,3
@@ -419,32 +414,30 @@ C---
            IF (INTAB(3,IRECT(1,EJ),J)) NN = NN +1
            IF (IRECT(3,EJ)/=IRECT(4,EJ).AND.J==IRECT(4,EJ)) NN = NN +1
           END IF
-	      IF (NN > 2) IOP = 1
+                IF (NN > 2) IOP = 1
          END IF !IF (IOP == 0 )
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
       RETURN
       END
-Chd|====================================================================
-Chd|  REMOVEIC                      source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|-- calls ---------------
-Chd|        NORMA4N                       source/interfaces/inter3d1/norma1.F
-Chd|        NORMV3                        source/interfaces/inter3d1/i24tools.F
-Chd|        VOISIN2                       source/interfaces/inter3d1/i24tools.F
-Chd|====================================================================
+!||====================================================================
+!||    removeic   ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- calls      -----------------------------------------------------
+!||    norma4n    ../starter/source/interfaces/inter3d1/norma1.F
+!||    normv3     ../starter/source/interfaces/inter3d1/i24tools.F
+!||    voisin2    ../starter/source/interfaces/inter3d1/i24tools.F
+!||====================================================================
       SUBROUTINE REMOVEIC(N,IC,ISELF,IRECT,X ,I1,I2,IASYM,IRR)
 C----6---------------------------------------------------------------7---------8
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER N,IC(*),ISELF,IRECT(4,*),I1,I2,IE,IASYM,IRR
-C     REAL
       my_real
      .   X(3,*)
-C----ne reste qu'un seg
+C---- It's only one seg
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -527,7 +520,7 @@ C--------only groupe YJ*Ni<0  or no valid one
         END IF
 C ------still no valid one-----------       
         IF (J1==0) then
-c        print *,'***warning** No valid Neighbour Segs of',N,' candidats'
+c        print *,'***warning** No valid Neighbour Segs of',N,' CANDIDATES'
          IRR = 11
          IC(1)=0         
         ELSE
@@ -540,28 +533,28 @@ C
 C----6---------------------------------------------------------------7---------8
       RETURN
       END
-Chd|====================================================================
-Chd|  REMOVEIC1                     source/interfaces/inter3d1/i24tools.F
-Chd|-- called by -----------
-Chd|        COMM_SEG_EN                   source/interfaces/inter3d1/i24inisu_nei.F
-Chd|-- calls ---------------
-Chd|        NORMA4N                       source/interfaces/inter3d1/norma1.F
-Chd|        NORMV3                        source/interfaces/inter3d1/i24tools.F
-Chd|        VOISIN1                       source/interfaces/inter3d1/voisin1.F
-Chd|====================================================================
+!||====================================================================
+!||    removeic1     ../starter/source/interfaces/inter3d1/i24tools.F
+!||--- called by ------------------------------------------------------
+!||    comm_seg_en   ../starter/source/interfaces/inter3d1/i24inisu_nei.F
+!||--- calls      -----------------------------------------------------
+!||    norma4n       ../starter/source/interfaces/inter3d1/norma1.F
+!||    normv3        ../starter/source/interfaces/inter3d1/i24tools.F
+!||    voisin1       ../starter/source/interfaces/inter3d1/voisin1.F
+!||====================================================================
       SUBROUTINE REMOVEIC1(N,IC,ISELF,IRECT,X ,I1,I2,IASYM,IRR)
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------------------------
+C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER N,IC(*),ISELF,IRECT(4,*),I1,I2,IE,IASYM,IRR
 C     REAL
       my_real
      .   X(3,*)
-C----ne reste qu'un seg
+C---- It's only one seg
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
@@ -657,7 +650,7 @@ C--------groupe YJ*Ni<0 :convex keep angle (min_cos) only
         END IF !(J==N) then
 C ------still no valid one-----------       
         IF (J1==0) then
-c        print *,'***warning** No valid Neighbour Segs of',N,' candidats'
+c        print *,'***warning** No valid Neighbour Segs of',N,' CANDIDATES'
          IRR = 11
          IC(1)=0         
         ELSE
@@ -667,6 +660,6 @@ C
         DO I=2,N
          IC(I)=0
         END DO 
-C----6---------------------------------------------------------------7---------8
+C-----------------------------------------------
       RETURN
       END

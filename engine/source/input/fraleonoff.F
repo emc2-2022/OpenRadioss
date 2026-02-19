@@ -1,38 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FRALEONOFF                    source/input/fraleonoff.F     
-Chd|-- called by -----------
-Chd|        FREFORM                       source/input/freform.F        
-Chd|-- calls ---------------
-Chd|        WRIUSC2                       source/input/wriusc2.F        
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fraleonoff             ../engine/source/input/fraleonoff.F
+!||--- called by ------------------------------------------------------
+!||    freform                ../engine/source/input/freform.F
+!||--- calls      -----------------------------------------------------
+!||    wriusc2                ../engine/source/input/wriusc2.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod            ../engine/share/message_module/message_mod.F
+!||    names_and_titles_mod   ../common_source/modules/names_and_titles_mod.F
+!||====================================================================
       SUBROUTINE FRALEONOFF (IKAD, KEY0, KALEONOFF, NBALEONOFF)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE MESSAGE_MOD
+      USE NAMES_AND_TITLES_MOD, ONLY: NCHARLINE100
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,15 +48,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr07_c.inc"
 #include      "units_c.inc"
-#include      "nchara_c.inc"
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------      
       INTEGER K, IKEY, II, NB_PARTS, KK
-      CHARACTER CARTE*ncharline, KEY1*5, KEY2*5, KEY3*5,
-     .          KEY4*5, IOPT*5   
+      CHARACTER KEY1*5
       INTEGER, DIMENSION(:), ALLOCATABLE :: PART_IDS
       K = 0
       IKEY = KALEONOFF
@@ -61,14 +61,14 @@ C-----------------------------------------------
          READ (IUSC1, REC = IKAD(IKEY) + K, FMT = '(7X, A, 37X, I10)')
      .        KEY1, NB_PARTS
          ALLOCATE (PART_IDS(NB_PARTS))
-         IF (KEY1(1:2) .EQ. 'ON') THEN
+         IF (KEY1(1:2) == 'ON') THEN
             DO KK = 1, NB_PARTS
                CALL WRIUSC2 (IKAD(IKEY) + KK + K, 1, KEY0(IKEY))
                READ (IUSC2, * , ERR = 9990, END = 9990) PART_IDS(KK)
                WRITE (IIN, '(I10, I10)') PART_IDS(KK), 1
             ENDDO
          ENDIF
-         IF (KEY1(1:3) .EQ. 'OFF') THEN
+         IF (KEY1(1:3) == 'OFF') THEN
             DO KK = 1, NB_PARTS
                CALL WRIUSC2 (IKAD(IKEY) + KK + K, 1, KEY0(IKEY))
                READ (IUSC2, * , ERR = 9990, END = 9990) PART_IDS(KK)

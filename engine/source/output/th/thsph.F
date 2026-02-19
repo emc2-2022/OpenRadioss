@@ -1,35 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  THSPH                         source/output/th/thsph.F      
-Chd|-- called by -----------
-Chd|        ABFHIST2                      source/output/abf/abfhist2.F  
-Chd|        HIST2                         source/output/th/hist2.F      
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    thsph          ../engine/source/output/th/thsph.F
+!||--- called by ------------------------------------------------------
+!||    hist2          ../engine/source/output/th/hist2.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf        ../engine/share/resol/initbuf.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod   ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    initbuf_mod    ../engine/share/resol/initbuf.F
+!||====================================================================
       SUBROUTINE THSPH(ELBUF_TAB, NTHGRP2, ITHGRP, IPARG, ITHBUF,
      1                 SPBUF    ,    KXSP, NOD2SP,    PM,  WA    )
 C-----------------------------------------------
@@ -46,10 +46,7 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "vect01_c.inc"
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "sphcom.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "task_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
@@ -67,8 +64,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER II,JJ, I, J, N, IH, NG, MTE, 
-     .        K, IST, IP, L, LWA, NEL,KK(6)
+      INTEGER II,JJ, I, N, IH, NG, MTE, 
+     .        K, IP, L, NEL,KK(6)
       INTEGER :: NITER,IADR,NN,IADV,NVAR,ITYP,IJK
 
       my_real
@@ -141,15 +138,15 @@ C======================================================================|
                 II=0
                 IH=IADR
                            
-                DO WHILE((ITHBUF(IH+NN).NE.ISPMD).AND.(IH.LT.IADR+NN))               
+                DO WHILE((ITHBUF(IH+NN)/=ISPMD).AND.(IH<IADR+NN))               
                     IH = IH + 1                           
                 ENDDO                                   
-                IF (IH.GE.IADR+NN) GOTO 666               
+                IF (IH>=IADR+NN) GOTO 666               
                 DO NG=1,NGROUP
                     ITY=IPARG(5,NG)
 
-                    IF(ITY.EQ.51.OR.ITY.EQ.52) THEN
-                        CALL INITBUF (IPARG    ,NG      ,                    
+                    IF(ITY==51.OR.ITY==52) THEN
+                        CALL INITBUF(IPARG    ,NG      ,                    
      2                                MTE     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3                                NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4                                JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -169,18 +166,15 @@ C======================================================================|
                             K=ITHBUF(IH)
                             IP=ITHBUF(IH+NN)
       
-                            IF (K.EQ.N)THEN
+                            IF (K==N)THEN
                                 IH=IH+1
                                 !---spmd specific treatment---!
-                                IF (IMACH.EQ.3) THEN
-                                    !---search for ii---!
-                                    II = ((IH-1) - IADR)*NVAR
-                                    DO WHILE((ITHBUF(IH+NN).NE.ISPMD).AND.(IH.LT.IADR+NN))
-                                        IH = IH + 1
-                                    ENDDO
-                                ENDIF
-
-                                IF(IH.GT.IADR+NN) GOTO 666
+                                !---search for ii---!
+                                II = ((IH-1) - IADR)*NVAR
+                                DO WHILE((ITHBUF(IH+NN)/=ISPMD).AND.(IH<IADR+NN))
+                                    IH = IH + 1
+                                ENDDO
+                                IF(IH>IADR+NN) GOTO 666
                                 !---PROP type VOID ---!
                                 DO L=1,100
                                     WWA(L)=ZERO

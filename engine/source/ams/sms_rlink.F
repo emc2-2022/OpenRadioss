@@ -1,34 +1,34 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  SMS_RLINK10                   source/ams/sms_rlink.F        
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        SMS_RLINK1                    source/ams/sms_rlink.F        
-Chd|        SMS_RLINK2                    source/ams/sms_rlink.F        
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    sms_rlink10     ../engine/source/ams/sms_rlink.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg         ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    sms_rlink1      ../engine/source/ams/sms_rlink.F
+!||    sms_rlink2      ../engine/source/ams/sms_rlink.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||====================================================================
       SUBROUTINE SMS_RLINK10(
      1   MS    ,A     ,NLINK ,LLINK ,SKEW ,
      2   FR_RL ,WEIGHT,FRL6  ,IDOWN ,TAG_LNK_SMS,
@@ -42,10 +42,8 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -71,7 +69,7 @@ C
             K = K + NLINK(4*I-3)
           ENDDO
 C
-C boucle parallele sur les threads SMP
+C parallel loop on SMP threads
 !$OMP DO SCHEDULE(DYNAMIC,1)
           DO N=1,NRLINK
             FRL(1,N)=ZERO
@@ -86,7 +84,7 @@ C boucle parallele sur les threads SMP
 
             K = KIND(N)
             ISK=NLINK(K1+3)
-            IF(ISK.EQ.1)THEN
+            IF(ISK==1)THEN
               CALL SMS_RLINK1(
      1          MS      ,A       ,NLINK(K1) ,NLINK(K1+1),LLINK(K),
      2          WEIGHT,FRL6(1,1,N),1   ,IDOWN      ,FR_RL(NSPMD+2,N),
@@ -103,19 +101,18 @@ C boucle parallele sur les threads SMP
           IF(NSPMD > 1) THEN
 !$OMP SINGLE
 
-C routine appelee rlink par rlink a optimiser si besoin
+C routine called rlink by rlink to optimize if needed
             DO N=1,NRLINK
               IF(TAG_LNK_SMS(N)==0)CYCLE
-C routine de calcul Parith/ON de A rigid link
-              IF(FR_RL(ISPMD+1,N).NE.0)
+C calculation routine Parith/ON of A rigid link
+              IF(FR_RL(ISPMD+1,N)/=0)
      +          CALL SPMD_EXCH_FR6(FR_RL(1,N),FRL6(1,1,N),4*6)
             END DO
 
 !$OMP END SINGLE
           END IF
 
- 100      CONTINUE
-C boucle parallele sur les threads SMP
+C parallel loop on SMP threads
 !$OMP DO SCHEDULE(DYNAMIC,1)
           DO N=1,NRLINK
             IF(TAG_LNK_SMS(N) < 0)CYCLE
@@ -126,7 +123,7 @@ C boucle parallele sur les threads SMP
 
             K = KIND(N)
             ISK=NLINK(K1+3)
-            IF(ISK.EQ.1)THEN
+            IF(ISK==1)THEN
               CALL SMS_RLINK1(
      1          MS      ,A       ,NLINK(K1) ,NLINK(K1+1),LLINK(K),
      2          WEIGHT,FRL6(1,1,N),2  ,IDOWN      ,FR_RL(NSPMD+2,N),
@@ -142,16 +139,16 @@ C boucle parallele sur les threads SMP
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  SMS_RLINK11                   source/ams/sms_rlink.F        
-Chd|-- called by -----------
-Chd|        SMS_PCG                       source/ams/sms_pcg.F          
-Chd|-- calls ---------------
-Chd|        SMS_RLINK1                    source/ams/sms_rlink.F        
-Chd|        SMS_RLINK2                    source/ams/sms_rlink.F        
-Chd|        SMS_RLINK3                    source/ams/sms_rlink.F        
-Chd|        SPMD_EXCH_FR6                 source/mpi/kinematic_conditions/spmd_exch_fr6.F
-Chd|====================================================================
+!||====================================================================
+!||    sms_rlink11     ../engine/source/ams/sms_rlink.F
+!||--- called by ------------------------------------------------------
+!||    sms_pcg         ../engine/source/ams/sms_pcg.F
+!||--- calls      -----------------------------------------------------
+!||    sms_rlink1      ../engine/source/ams/sms_rlink.F
+!||    sms_rlink2      ../engine/source/ams/sms_rlink.F
+!||    sms_rlink3      ../engine/source/ams/sms_rlink.F
+!||    spmd_exch_fr6   ../engine/source/mpi/kinematic_conditions/spmd_exch_fr6.F
+!||====================================================================
       SUBROUTINE SMS_RLINK11(
      1   MS    ,A     ,NNLINK,LLLINK,SKEW  ,
      2   FR_LL ,WEIGHT,FRL6  ,X     ,XFRAME,
@@ -165,11 +162,9 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "com01_c.inc"
 #include      "com04_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -185,7 +180,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, K1, N, ISK, I, IC, IPOL, KIND(NLINK)
+      INTEGER K, N, ISK, I, IC, IPOL, KIND(NLINK)
 C-----------------------------------------------
 C
 C Pre calcul index
@@ -195,7 +190,7 @@ C
             KIND(I) = K
             K = K + NNLINK(1,I)
           ENDDO
-C boucle parallele sur les threads SMP
+C parallel loop on SMP threads
 !$OMP DO SCHEDULE(DYNAMIC,1)
           DO N=1,NLINK
             FRL(1,N)=ZERO
@@ -211,13 +206,13 @@ C boucle parallele sur les threads SMP
             IPOL=NNLINK(6,N)
             K = KIND(N)
             IPOL=NNLINK(6,N)
-            IF(IPOL.EQ.1)THEN
+            IF(IPOL==1)THEN
                CALL SMS_RLINK3(
      1      MS       ,X          ,A            ,V        ,NNLINK(1,N),
      2      NNLINK(3,N),LLLINK(K),XFRAME(1,ISK),WEIGHT   ,FRL6(1,1,N),
      3      1  ,IDOWN  ,FR_LL(NSPMD+2,N),FRL(1,N),TAG_LNK_SMS(NRLINK+N),
      4      ITAB)
-            ELSEIF(ISK.EQ.1)THEN
+            ELSEIF(ISK==1)THEN
                CALL SMS_RLINK1(
      1      MS       ,A        ,NNLINK(1,N),NNLINK(3,N),LLLINK(K),
      2      WEIGHT   ,FRL6(1,1,N),1   ,IDOWN      ,FR_LL(NSPMD+2,N),
@@ -233,20 +228,19 @@ C boucle parallele sur les threads SMP
           IF(NSPMD > 1) THEN
 !$OMP SINGLE
 
-C routine appelee rlink par rlink a optimiser si besoin
+C routine called rlink by rlink to optimize if needed
 
             DO N=1,NLINK
               IF(TAG_LNK_SMS(NRLINK+N) < 0)CYCLE
-C routine de calcul Parith/ON de A rigid link
-              IF(FR_LL(ISPMD+1,N).NE.0)
+C calculation routine Parith/ON of A rigid link
+              IF(FR_LL(ISPMD+1,N)/=0)
      +          CALL SPMD_EXCH_FR6(FR_LL(1,N),FRL6(1,1,N),4*6)
             END DO
 
 !$OMP END SINGLE
           END IF
 
- 100      CONTINUE
-C boucle parallele sur les threads SMP
+C parallel loop on SMP threads
 !$OMP DO SCHEDULE(DYNAMIC,1)
           DO N=1,NLINK
             IF(TAG_LNK_SMS(NRLINK+N) < 0)CYCLE
@@ -258,13 +252,13 @@ C boucle parallele sur les threads SMP
             IPOL=NNLINK(6,N)
             K = KIND(N)
             IPOL=NNLINK(6,N)
-            IF(IPOL.EQ.1)THEN
+            IF(IPOL==1)THEN
                CALL SMS_RLINK3(
      1      MS       ,X          ,A            ,V        ,NNLINK(1,N),
      2      NNLINK(3,N),LLLINK(K),XFRAME(1,ISK),WEIGHT   ,FRL6(1,1,N),
      3      2  ,IDOWN  ,FR_LL(NSPMD+2,N),FRL(1,N),TAG_LNK_SMS(NRLINK+N),
      4      ITAB)
-            ELSEIF(ISK.EQ.1)THEN
+            ELSEIF(ISK==1)THEN
                CALL SMS_RLINK1(
      1      MS       ,A        ,NNLINK(1,N),NNLINK(3,N),LLLINK(K),
      2      WEIGHT   ,FRL6(1,1,N),2  ,IDOWN      ,FR_LL(NSPMD+2,N),
@@ -281,14 +275,14 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RLINK1                    source/ams/sms_rlink.F        
-Chd|-- called by -----------
-Chd|        SMS_RLINK10                   source/ams/sms_rlink.F        
-Chd|        SMS_RLINK11                   source/ams/sms_rlink.F        
-Chd|-- calls ---------------
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_rlink1    ../engine/source/ams/sms_rlink.F
+!||--- called by ------------------------------------------------------
+!||    sms_rlink10   ../engine/source/ams/sms_rlink.F
+!||    sms_rlink11   ../engine/source/ams/sms_rlink.F
+!||--- calls      -----------------------------------------------------
+!||    sum_6_float   ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE SMS_RLINK1(MS    ,A    ,NSN  ,IC      ,NOD,
      .                      WEIGHT,FRL6 ,IFLAG,IDOWN   ,PMAIN ,
      .                      FRL   ,TAG_LNK,ITAB)
@@ -297,16 +291,9 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "com04_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER NSN, IC, IFLAG, IDOWN, NCNOD, PMAIN, TAG_LNK
+      INTEGER NSN, IC, IFLAG, IDOWN, PMAIN, TAG_LNK
       INTEGER NOD(*),WEIGHT(*), ITAB(*)
 C     REAL
       my_real
@@ -315,10 +302,10 @@ C     REAL
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, J, IJ, N, K
+      INTEGER I, N, K
 C     REAL
       my_real
-     .   MASS, AX, AY, AZ, XNSN,
+     .   MASS, AX, AY, AZ,
      .   F1(NSN), F2(NSN), F3(NSN), F4(NSN)
 C-----------------------------------------------
       SELECT CASE(IDOWN)
@@ -338,7 +325,7 @@ C Init Parith/ON
 C
        DO I=1,NSN
         N = NOD(I)
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F2(I)=A(1,N)
           F3(I)=A(2,N)
           F4(I)=A(3,N)
@@ -349,7 +336,7 @@ C
         ENDIF
        ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
        CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1), 4)
        CALL SUM_6_FLOAT(1  ,NSN  ,F3, FRL6(3,1), 4)
@@ -368,14 +355,14 @@ C
        DO I=1,NSN
          N = NOD(I)
 C
-C transmet force dans la dion au nd
-         IF(IC.EQ.1.OR.IC.EQ.3.OR.IC.EQ.5.OR.IC.EQ.7)THEN
+C transmits force in the dion to the nd
+         IF(IC==1.OR.IC==3.OR.IC==5.OR.IC==7)THEN
            A(3,N) =AZ
          ENDIF
-         IF(IC.EQ.2.OR.IC.EQ.3.OR.IC.EQ.6.OR.IC.EQ.7)THEN
+         IF(IC==2.OR.IC==3.OR.IC==6.OR.IC==7)THEN
            A(2,N) =AY
          ENDIF
-         IF(IC.EQ.4.OR.IC.EQ.5.OR.IC.EQ.6.OR.IC.EQ.7)THEN
+         IF(IC==4.OR.IC==5.OR.IC==6.OR.IC==7)THEN
            A(1,N) =AX
          ENDIF
        END DO
@@ -397,7 +384,7 @@ C Init Parith/ON
 C
        DO I=1,NSN
         N = NOD(I)
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F1(I)=MS(N)
           F2(I)=MS(N)*A(1,N)
           F3(I)=MS(N)*A(2,N)
@@ -410,7 +397,7 @@ C
         ENDIF
        ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
        CALL SUM_6_FLOAT(1  ,NSN  ,F1, FRL6(1,1), 4)
        CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1), 4)
@@ -434,13 +421,13 @@ C
        AZ=AZ/MAX(EM30,MASS)
        DO I=1,NSN
          N = NOD(I)
-         IF(IC.EQ.1.OR.IC.EQ.3.OR.IC.EQ.5.OR.IC.EQ.7)THEN
+         IF(IC==1.OR.IC==3.OR.IC==5.OR.IC==7)THEN
            A(3,N) =AZ
          ENDIF
-         IF(IC.EQ.2.OR.IC.EQ.3.OR.IC.EQ.6.OR.IC.EQ.7)THEN
+         IF(IC==2.OR.IC==3.OR.IC==6.OR.IC==7)THEN
            A(2,N) =AY
          ENDIF
-         IF(IC.EQ.4.OR.IC.EQ.5.OR.IC.EQ.6.OR.IC.EQ.7)THEN
+         IF(IC==4.OR.IC==5.OR.IC==6.OR.IC==7)THEN
            A(1,N) =AX
          ENDIF
        END DO
@@ -451,14 +438,14 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RLINK2                    source/ams/sms_rlink.F        
-Chd|-- called by -----------
-Chd|        SMS_RLINK10                   source/ams/sms_rlink.F        
-Chd|        SMS_RLINK11                   source/ams/sms_rlink.F        
-Chd|-- calls ---------------
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_rlink2    ../engine/source/ams/sms_rlink.F
+!||--- called by ------------------------------------------------------
+!||    sms_rlink10   ../engine/source/ams/sms_rlink.F
+!||    sms_rlink11   ../engine/source/ams/sms_rlink.F
+!||--- calls      -----------------------------------------------------
+!||    sum_6_float   ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE SMS_RLINK2(MS   ,A    ,NSN   ,IC   ,NOD  ,
      2                      SKEW,WEIGHT,FRL6  ,IFLAG,IDOWN,
      3                      PMAIN,FRL,TAG_LNK,ITAB)
@@ -467,16 +454,10 @@ C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "scr05_c.inc"
-#include      "com01_c.inc"
-#include      "task_c.inc"
-C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSN, IC, IFLAG, IDOWN, PMAIN, TAG_LNK
-      INTEGER NOD(*),WEIGHT(*), ITAB(*), ISK
+      INTEGER NOD(*),WEIGHT(*), ITAB(*)
 C     REAL
       my_real
      .   MS(*), A(3,*),SKEW(*), FRL(4)
@@ -488,7 +469,7 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   MASS, AX, AY, AZ, DAX, DAY, DAZ, AAX, AAY,
-     .   AAZ, XNSN,
+     .   AAZ,
      .   F1(NSN), F2(NSN), F3(NSN), F4(NSN)
 C-----------------------------------------------
       SELECT CASE(IDOWN)
@@ -513,7 +494,7 @@ c      AZ  =ZERO
 C
        DO I=1,NSN
         N = NOD(I)
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F2(I)=A(1,N)
           F3(I)=A(2,N)
           F4(I)=A(3,N)
@@ -524,7 +505,7 @@ C
         ENDIF
        ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
        CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1), 4)
        CALL SUM_6_FLOAT(1  ,NSN  ,F3, FRL6(3,1), 4)
@@ -545,7 +526,7 @@ C
        DO I=1,NSN
          N = NOD(I)
 C
-C transmet force dans la dion au nd
+C transmits force in the dion to the nd
          DAX  =A(1,N)-AX
          DAY  =A(2,N)-AY
          DAZ  =A(3,N)-AZ
@@ -580,7 +561,7 @@ c      AZ  =ZERO
 C
        DO I=1,NSN
         N = NOD(I)
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F1(I)=MS(N)
           F2(I)=MS(N)*A(1,N)
           F3(I)=MS(N)*A(2,N)
@@ -593,7 +574,7 @@ C
         ENDIF
        ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
        CALL SUM_6_FLOAT(1  ,NSN  ,F1, FRL6(1,1), 4)
        CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1), 4)
@@ -639,13 +620,13 @@ C
       RETURN
       END
 
-Chd|====================================================================
-Chd|  SMS_RLINK3                    source/ams/sms_rlink.F        
-Chd|-- called by -----------
-Chd|        SMS_RLINK11                   source/ams/sms_rlink.F        
-Chd|-- calls ---------------
-Chd|        SUM_6_FLOAT                   source/system/parit.F         
-Chd|====================================================================
+!||====================================================================
+!||    sms_rlink3    ../engine/source/ams/sms_rlink.F
+!||--- called by ------------------------------------------------------
+!||    sms_rlink11   ../engine/source/ams/sms_rlink.F
+!||--- calls      -----------------------------------------------------
+!||    sum_6_float   ../engine/source/system/parit.F
+!||====================================================================
       SUBROUTINE SMS_RLINK3(MS   ,X   ,A     ,V     ,NSN  ,
      2                      IC   ,NOD ,XFRAME,WEIGHT,FRL6 ,
      3                      IFLAG,IDOWN,PMAIN,FRL,TAG_LNK,
@@ -657,10 +638,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com08_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -677,8 +655,8 @@ C-----------------------------------------------
       INTEGER IC1, ICC, IC2, IC3, I, N, K
 C     REAL
       my_real
-     .   MASS, AX, AY, AZ, DAX, DAY, DAZ, AAX, AAY,
-     .   AAZ, RX, RY, RZ, SX, SY, SZ,
+     .   MASS, AX, AY, AZ,
+     .    RX, RY, RZ, SX, SY, SZ,
      .   TX, TY, TZ, OX, OY, OZ, AA, R2, ATR2,RX0, RY0, RZ0, R,
      .   MR2, ATMR2,
      .   F1(NSN), F2(NSN), F3(NSN), F4(NSN), F5(NSN)
@@ -712,7 +690,7 @@ C Init Parith/ON
 c       R2 = ZERO
 c       ATR2 = ZERO
 C-----------------------------------------------------------------------
-C     repere polaire axe S = X(frame) , rayon R , angle T
+C     Polar reference axis s' = x (frame), radius r, angle t
 C-----------------------------------------------------------------------
        DO I=1,NSN
         N = NOD(I)
@@ -732,7 +710,7 @@ C-----------------------------------------------------------------------
         R = RX * RX0 + RY * RY0 + RZ * RZ0
         R = MAX(R,EM20)
 C-----------------------------------------------------------------------
-C       changement de repere global => polaire
+C       Change of overall mark => Polar
 C-----------------------------------------------------------------------
         AX = A(1,N)
         AY = A(2,N)
@@ -740,7 +718,7 @@ C-----------------------------------------------------------------------
         A(1,N) = RX * AX + RY * AY + RZ * AZ
         A(2,N) = SX * AX + SY * AY + SZ * AZ
         A(3,N) = (TX * AX + TY * AY + TZ * AZ) / R
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F1(I) = R*R
           F2(I) = R*R*A(3,N)
 c          R2 = R2 + R*R
@@ -751,20 +729,20 @@ c          ATR2 = ATR2 + R*R*A(3,N)
         ENDIF
        ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
         CALL SUM_6_FLOAT(1  ,NSN  ,F1, FRL6(1,1),5)
         CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1),5)
 
 C-----------------------------------------------------------------------
-C       masse quantite de mouvement
+C       mass quantity of motion
 C-----------------------------------------------------------------------
         AX  =ZERO
         AY  =ZERO
         MASS=ZERO
         DO I=1,NSN
           N = NOD(I)
-          IF(WEIGHT(N).EQ.1) THEN
+          IF(WEIGHT(N)==1) THEN
             F3(I)=A(1,N)
             F4(I)=A(2,N)
           ELSE
@@ -773,7 +751,7 @@ C-----------------------------------------------------------------------
           ENDIF
         ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
         CALL SUM_6_FLOAT(1  ,NSN  ,F3, FRL6(3,1),5)
         CALL SUM_6_FLOAT(1  ,NSN  ,F4, FRL6(4,1),5)
@@ -798,13 +776,13 @@ C
          DO I=1,NSN
            N = NOD(I)
 C
-C transmet force dans la dion au nd 1
+C transmits force in the dion to nd 1
            A(1,N) =A(1,N)-IC1*(A(1,N)-AX)
            A(2,N) =A(2,N)-IC2*(A(2,N)-AY)
            A(3,N) =A(3,N)-IC3*(A(3,N)-AZ)
          END DO
 C-----------------------------------------------------------------------
-C     repere polaire axe S , rayon R , angle T
+C     Polar reference axis s, radius r, angle t
 C-----------------------------------------------------------------------
          DO I=1,NSN
           N = NOD(I)
@@ -824,7 +802,7 @@ C-----------------------------------------------------------------------
           R = RX * RX0 + RY * RY0 + RZ * RZ0
           R = MAX(R,EM20)
 C-----------------------------------------------------------------------
-C       changement de repere polaire => global
+C       Change of polar frame => global
 C-----------------------------------------------------------------------
           AX = RX * A(1,N) + SX * A(2,N) + TX * A(3,N) * R
           AY = RY * A(1,N) + SY * A(2,N) + TY * A(3,N) * R
@@ -850,7 +828,7 @@ C Redescente
        OY = XFRAME(11)
        OZ = XFRAME(12)
 C-----------------------------------------------------------------------
-C     repere polaire axe S = X(frame) , rayon R , angle T
+C     Polar reference axis s' = x (frame), radius r, angle t
 C-----------------------------------------------------------------------
       IF(IFLAG == 1)THEN
 
@@ -866,7 +844,7 @@ C Init Parith/ON
 c       R2 = ZERO
 c       ATR2 = ZERO
 C-----------------------------------------------------------------------
-C     repere polaire axe S = X(frame) , rayon R , angle T
+C     Polar reference axis s' = x (frame), radius r, angle t
 C-----------------------------------------------------------------------
        DO I=1,NSN
         N = NOD(I)
@@ -886,7 +864,7 @@ C-----------------------------------------------------------------------
         R = RX * RX0 + RY * RY0 + RZ * RZ0
         R = MAX(R,EM20)
 C-----------------------------------------------------------------------
-C       changement de repere global => polaire
+C       Change of overall mark => Polar
 C-----------------------------------------------------------------------
         AX = A(1,N)
         AY = A(2,N)
@@ -894,7 +872,7 @@ C-----------------------------------------------------------------------
         A(1,N) = RX * AX + RY * AY + RZ * AZ
         A(2,N) = SX * AX + SY * AY + SZ * AZ
         A(3,N) = (TX * AX + TY * AY + TZ * AZ) / R
-        IF(WEIGHT(N).EQ.1) THEN
+        IF(WEIGHT(N)==1) THEN
           F1(I) = R*R*MS(N)
           F2(I) = R*R*MS(N)*A(3,N)
 c          MR2 = MR2 + R*R*M
@@ -905,20 +883,20 @@ c          ATMR2 = ATMR2 + R*R*MS(N)*A(3,N)
         ENDIF
        ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
         CALL SUM_6_FLOAT(1  ,NSN  ,F1, FRL6(1,1),5)
         CALL SUM_6_FLOAT(1  ,NSN  ,F2, FRL6(2,1),5)
 
 C-----------------------------------------------------------------------
-C       masse quantite de mouvement
+C       mass quantity of motion
 C-----------------------------------------------------------------------
         AX  =ZERO
         AY  =ZERO
         MASS=ZERO
         DO I=1,NSN
           N = NOD(I)
-          IF(WEIGHT(N).EQ.1) THEN
+          IF(WEIGHT(N)==1) THEN
             F3(I)=A(1,N)
             F4(I)=A(2,N)
             F5(I)=MS(N)
@@ -929,7 +907,7 @@ C-----------------------------------------------------------------------
           ENDIF
         ENDDO
 C
-C Traitement Parith/ON avant echange
+C Parith treatment/We before exchange
 C
         CALL SUM_6_FLOAT(1  ,NSN  ,F3, FRL6(3,1),5)
         CALL SUM_6_FLOAT(1  ,NSN  ,F4, FRL6(4,1),5)
@@ -967,7 +945,7 @@ C-----------------------------------------------------------------------
          A(3,N) =A(3,N)-IC3*(A(3,N)-AZ)
         ENDDO
 C-----------------------------------------------------------------------
-C     repere polaire axe S , rayon R , angle T
+C     Polar reference axis s, radius r, angle t
 C-----------------------------------------------------------------------
        DO I=1,NSN
         N = NOD(I)
@@ -987,7 +965,7 @@ C-----------------------------------------------------------------------
         R = RX * RX0 + RY * RY0 + RZ * RZ0
         R = MAX(R,EM20)
 C-----------------------------------------------------------------------
-C       changement de repere polaire => global
+C       Change of polar frame => global
 C-----------------------------------------------------------------------
         AX = RX * A(1,N) + SX * A(2,N) + TX * A(3,N) * R
         AY = RY * A(1,N) + SY * A(2,N) + TY * A(3,N) * R

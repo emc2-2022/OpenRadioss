@@ -1,42 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FAIL_WIND_FRWAVE              source/materials/fail/alter/fail_wind_frwave.F
-Chd|-- called by -----------
-Chd|        MULAWC                        source/materials/mat_share/mulawc.F
-Chd|        USERMAT_SHELL                 source/materials/mat_share/usermat_shell.F
-Chd|-- calls ---------------
-Chd|        BROKMANN_CRACK_INIT           source/materials/fail/alter/brokmann_crack_init.F
-Chd|        FAIL_BROKMANN                 source/materials/fail/alter/fail_brokmann.F
-Chd|        RUPTURE_MOD                   share/modules/rupture_mod.F   
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fail_wind_frwave   ../engine/source/materials/fail/alter/fail_wind_frwave.F
+!||--- called by ------------------------------------------------------
+!||    mulawc             ../engine/source/materials/mat_share/mulawc.F90
+!||    usermat_shell      ../engine/source/materials/mat_share/usermat_shell.F
+!||--- calls      -----------------------------------------------------
+!||    fail_brokmann      ../engine/source/materials/fail/alter/fail_brokmann.F
+!||--- uses       -----------------------------------------------------
+!||    rupture_mod        ../engine/share/modules/rupture_mod.F
+!||====================================================================
       SUBROUTINE FAIL_WIND_FRWAVE(
      1     NEL       ,NUPARAM   ,NUVAR     ,UPARAM    ,UVAR      ,
      2     TIME      ,TIMESTEP  ,SSP       ,ALDT      ,FWAVE_EL  ,
      3     TDEL1     ,TDEL2     ,OFF       ,OFFLY     ,FOFF      ,
      4     SIGNXX    ,SIGNYY    ,SIGNXY    ,DFMAX     ,NGL       ,
      5     ILAY      ,IPT       ,NPT       ,CRKDIR    ,DADV      ,
-     6     DMG_FLAG  ,TRELAX    ,THK0      )
+     6     DMG_FLAG  ,TRELAX    )
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
@@ -80,7 +80,7 @@ C-----------------------------------------------
 c
       my_real :: TIME,TIMESTEP,TRELAX
       my_real, DIMENSION(NUPARAM) ,INTENT(IN) :: UPARAM
-      my_real, DIMENSION(NEL) :: SSP,ALDT,THK0,TDEL1,TDEL2,
+      my_real, DIMENSION(NEL) :: SSP,ALDT,TDEL1,TDEL2,
      .   SIGNXX,SIGNYY,SIGNXY
       my_real ,DIMENSION(NEL,2)  ,INTENT(OUT)   :: CRKDIR
       my_real ,DIMENSION(NEL)    ,INTENT(INOUT) :: OFF,DFMAX,DADV
@@ -92,13 +92,13 @@ C-----------------------------------------------
      .   ISIDE,ITGLASS
       INTEGER ,DIMENSION(NEL) :: INDXF1,INDXF2,INDXD1,INDXD2,RFLAG
 c
-      my_real SIGMAX,AA,BB,CC,CR,COSX,SINX,S1,S2,S3,K_IC,K_TH,
+      my_real AA,BB,CC,CR,COSX,SINX,S1,S2,S3,K_IC,K_TH,
      .   GEORED,CR_FOIL,CR_AIR,CR_CORE,CR_EDGE,ALPHA,ALPHAI,BETA,
      .   KRES1,KRES2,EXP_N,EXP_M,V0,VC,REFLEN,DMG1,DMG2,DMG3,TANPHI
       my_real ,DIMENSION(NEL) :: TPROPG,AI,FORMF,SIGP_AKT,DAM1,DAM2,
      .   SIGP1,SIGP2,SIGDT1,SIGDT2,SIG_DTF1,SIG_DTF2,SIGP_MIN,SIGP_MAX,
-     .   SP1,SP2,SP3,SIN2,COS2,COSI,TFACT1,TFACT2,CR_LEN,CR_DEPTH,CR_ANG   
-      my_real, DIMENSION(:), POINTER :: DIR1,DIR2
+     . SP1,SP2,SP3,SIN2,COS2,COSI,TFACT1,TFACT2
+ 
 c--------------------------------------------------------------------
 c---  state variables for Ch.Alter model
 c     UVAR(1)  = SIGP1       ! principal stress DIR1               
@@ -155,69 +155,17 @@ c
       ALPHAI = ONE - ALPHA
       EXP_M  = ONE / (ONE + EXP_N) 
 c--------------------------------------------------------------------
-      IF (TIME == ZERO) THEN
-c       Crack depth modification and definition of Y (formfactor)
-        DO I=1,NEL
-          IF (UVAR(I,10) == ONE) THEN  ! edge-element
-            AI(I) = CR_EDGE
-            FORMF(I) = 1.12
-          ELSE
-            FORMF(I) = ONE
-            IF (IPT == 1) THEN
-              AI(I) = CR_FOIL  ! crack depth at foil side in mm (unit system: length)
-            ELSEIF (IPT == NPT) THEN
-              AI(I) = CR_AIR   ! crack depth at top side in mm (unit system: length)
-            ELSE
-              AI(I) = CR_CORE  ! crack depth inside glass
-            ENDIF
-          ENDIF
-          SIGP_AKT(I) = (TWO*(EXP_N + ONE)*K_IC**EXP_N) /
-     .              ((EXP_N - TWO)*V0*(FORMF(I)*SQRT(PI))**EXP_N*
-     .               AI(I)**((EXP_N-TWO)/TWO))
-          SIGP_AKT(I) = SIGP_AKT(I)**EXP_M
-c
-          SIGP_MIN(I) = K_TH / (FORMF(I)*SQRT(PI*AI(I)))
-          SIGP_MAX(I) = K_IC / (FORMF(I)*SQRT(PI*AI(I)))
-          DADV(I)   = ONE
-          DAM1(I)   = ONE
-          DAM2(I)   = ONE
-          UVAR(I,5) = SIGP_MIN(I)
-          UVAR(I,6) = SIGP_MAX(I)
-          UVAR(I,7) = FORMF(I)
-          UVAR(I,8) = AI(I)
-          UVAR(I,9) = SIGP_AKT(I)
-          UVAR(I,11)= DAM1(I)
-          UVAR(I,12)= DAM2(I)
-        ENDDO
-      ELSE
-        SIGP_MIN(1:NEL) = UVAR(1:NEL,5)
-        SIGP_MAX(1:NEL) = UVAR(1:NEL,6)
-        FORMF(1:NEL)    = UVAR(1:NEL,7)
-        AI(1:NEL)       = UVAR(1:NEL,8)
-        SIGP_AKT(1:NEL) = UVAR(1:NEL,9)
-        DAM1(1:NEL)     = UVAR(1:NEL,11)
-        DAM2(1:NEL)     = UVAR(1:NEL,12)
-      ENDIF
+      SIGP_MIN(1:NEL) = UVAR(1:NEL,5)
+      SIGP_MAX(1:NEL) = UVAR(1:NEL,6)
+      FORMF(1:NEL)    = UVAR(1:NEL,7)
+      AI(1:NEL)       = UVAR(1:NEL,8)
+      SIGP_AKT(1:NEL) = UVAR(1:NEL,9)
+      DAM1(1:NEL)     = UVAR(1:NEL,11)
+      DAM2(1:NEL)     = UVAR(1:NEL,12)
 c--------------------------------------------------------------------
-c     Ch.Brokmann criterion - initialization 
+c     Test of Ch.Brokmann criterion
 c--------------------------------------------------------------------
       IF (ITGLASS == 1 .and. (IPT == 1 .or. IPT == NPT)) THEN
-        IF (TIME == ZERO) THEN
-c--------------------------------------------------------------------
-c         Crack initialization on top and bottom surfaces using Weibull distribution
-c--------------------------------------------------------------------
-          CALL BROKMANN_CRACK_INIT(
-     .     NEL       ,NUPARAM   ,NUVAR     ,IPT       ,NPT       ,
-     .     UPARAM    ,UVAR      ,NGL       ,THK0      ,ALDT      ,
-     .     CR_LEN    ,CR_DEPTH  ,CR_ANG    )
-c
-           UVAR(1:NEL,16) = CR_LEN(1:NEL)
-           UVAR(1:NEL,18) = CR_ANG(1:NEL)
-           UVAR(1:NEL,17) = CR_DEPTH(1:NEL)
-        ENDIF        ! END Brokmann criterion initialization (TIME 0)
-c--------------------------------------------------------------------
-c       Test of Ch.Brokmann criterion
-c--------------------------------------------------------------------      
         CALL FAIL_BROKMANN(
      .     NEL       ,NUPARAM   ,NUVAR     ,TIME      ,TIMESTEP  ,
      .     UPARAM    ,NGL       ,SIGNXX    ,SIGNYY    ,SIGNXY    ,
@@ -229,7 +177,7 @@ c       Brokmann model not actif => test only Alter failure model
 c
         UVAR(1:NEL,15) = ONE
 c
-      END IF   ! ITGLASS == 1 .and. (IPT == 1 .or. IPT == NPT)   
+      END IF
 c--------------------------------------------------------------------
       DO I = 1,NEL
         IF (FWAVE_EL(I) > 0) THEN

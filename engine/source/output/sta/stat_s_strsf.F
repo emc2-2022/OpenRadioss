@@ -1,39 +1,42 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  STAT_S_STRSF                  source/output/sta/stat_s_strsf.F
-Chd|-- called by -----------
-Chd|        GENSTAT                       source/output/sta/genstat.F   
-Chd|-- calls ---------------
-Chd|        INITBUF                       share/resol/initbuf.F         
-Chd|        SPMD_RGATHER9_DP              source/mpi/interfaces/spmd_outp.F
-Chd|        SPMD_STAT_PGATHER             source/mpi/output/spmd_stat.F 
-Chd|        SROTA6                        source/output/anim/generate/srota6.F
-Chd|        STRS_TXT50                    source/output/sta/sta_txt.F   
-Chd|        TAB_STRS_TXT50                source/output/sta/sta_txt.F   
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|        INITBUF_MOD                   share/resol/initbuf.F         
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    stat_s_strsf        ../engine/source/output/sta/stat_s_strsf.F
+!||--- called by ------------------------------------------------------
+!||    genstat             ../engine/source/output/sta/genstat.F
+!||--- calls      -----------------------------------------------------
+!||    initbuf             ../engine/share/resol/initbuf.F
+!||    spmd_rgather9_dp    ../engine/source/mpi/interfaces/spmd_outp.F
+!||    spmd_stat_pgather   ../engine/source/mpi/output/spmd_stat.F
+!||    srota6              ../engine/source/output/anim/generate/srota6.F
+!||    strs_txt50          ../engine/source/output/sta/sta_txt.F
+!||    tab_strs_txt50      ../engine/source/output/sta/sta_txt.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod        ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    element_mod         ../common_source/modules/elements/element_mod.F90
+!||    initbuf_mod         ../engine/share/resol/initbuf.F
+!||    my_alloc_mod        ../common_source/tools/memory/my_alloc.F90
+!||====================================================================
       SUBROUTINE STAT_S_STRSF(ELBUF_TAB,IPARG ,IPM ,IGEO ,IXS ,
      2                        WA,WAP0 ,IPARTS, IPART_STATE,
      3                        STAT_INDXS,X,IGLOB,IPART,SIZP0)
@@ -41,7 +44,9 @@ C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
       USE INITBUF_MOD
-      USE ELBUFDEF_MOD         
+      USE ELBUFDEF_MOD
+      USE MY_ALLOC_MOD
+      use element_mod , only : nixs         
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -50,21 +55,17 @@ C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
-#include      "com04_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr01_c.inc"
-#include      "scr05_c.inc"
 #include      "scr14_c.inc"
 #include      "task_c.inc"
-#include      "scr03_c.inc"
 #include      "scr16_c.inc"
 #include      "vect01_c.inc"
 #include      "scr17_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER SIZLOC,SIZP0,IGLOB
+      INTEGER SIZP0,IGLOB
       INTEGER IXS(NIXS,*),IPARG(NPARG,*),IPM(NPROPMI,*),IGEO(NPROPGI,*),
      .        IPARTS(*), IPART_STATE(*), STAT_INDXS(*),IPART(LIPART1,*)
       my_real  X(3,*)
@@ -73,11 +74,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I,N,J,K,JJ,LEN,ISOLNOD,IUS,MT,TSHELL,
-     .        NLAY,NPTR,NPTS,NPTT,NPTG,NGF,NGL,NN,NG,NEL,MLW,
-     .        ID, IPRT0, IPRT, NPG, IPG, IPT, IE,IP,IL,IR,IS,IT,PID,IOFF,
+      INTEGER I,N,J,K,JJ,LEN,ISOLNOD,TSHELL,
+     .        NLAY,NPTR,NPTS,NPTT,NPTG,NG,NEL,MLW,
+     .        ID, IPRT0, IPRT, IPT, IE,IL,IR,IS,IT,PID,IOFF,
      .        KK(6),KHBE
-      INTEGER PTWA(STAT_NUMELS), PTWA_P0(0:MAX(1,STAT_NUMELS_G))
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA
+      INTEGER,DIMENSION(:),ALLOCATABLE :: PTWA_P0
       my_real
      .   GAMA(6),WATMP(6)
       CHARACTER*100 DELIMIT,LINE
@@ -87,7 +89,10 @@ C-----------------------------------------------
      ./'----7----|----8----|----9----|----10---|'/
 C----  
       TYPE(L_BUFEL_) ,POINTER :: LBUF     
-      TYPE(G_BUFEL_) ,POINTER :: GBUF     
+      TYPE(G_BUFEL_) ,POINTER :: GBUF    
+C-----------------------------------------------
+      CALL MY_ALLOC(PTWA,STAT_NUMELS)
+      ALLOCATE(PTWA_P0(0:MAX(1,STAT_NUMELS_G)))
 C======================================================================|
       JJ = 0
       IF (STAT_NUMELS==0) GOTO 200
@@ -97,7 +102,7 @@ C======================================================================|
         ITY   =IPARG(5,NG)
 c
         IF (ITY == 1) THEN
-          CALL INITBUF (IPARG    ,NG      ,                    
+          CALL INITBUF(IPARG    ,NG      ,                    
      2          MLW     ,NEL     ,NFT     ,IAD     ,ITY     ,  
      3          NPT     ,JALE    ,ISMSTR  ,JEUL    ,JTUR    ,  
      4          JTHE    ,JLAG    ,JMULT   ,JHBE    ,JIVF    ,  
@@ -147,12 +152,12 @@ c---------------
               JJ = JJ + 12                                              
               IF (IGLOB == 1)THEN
                 IF (JCVT==2 ) THEN
-                  GAMA(1)=GBUF%GAMA(KK(1)+I)				  
-                  GAMA(2)=GBUF%GAMA(KK(2)+I)				  
-                  GAMA(3)=GBUF%GAMA(KK(3)+I)				  
-                  GAMA(4)=GBUF%GAMA(KK(4)+I)				  
-                  GAMA(5)=GBUF%GAMA(KK(5)+I)				  
-                  GAMA(6)=GBUF%GAMA(KK(6)+I)				  
+                  GAMA(1)=GBUF%GAMA(KK(1)+I)          
+                  GAMA(2)=GBUF%GAMA(KK(2)+I)          
+                  GAMA(3)=GBUF%GAMA(KK(3)+I)          
+                  GAMA(4)=GBUF%GAMA(KK(4)+I)          
+                  GAMA(5)=GBUF%GAMA(KK(5)+I)          
+                  GAMA(6)=GBUF%GAMA(KK(6)+I)          
                 ELSE
                   GAMA(1)=ONE
                   GAMA(2)=ZERO
@@ -174,26 +179,27 @@ c---
                     WATMP(4) = LBUF%SIG(KK(4)+I)
                     WATMP(5) = LBUF%SIG(KK(5)+I)
                     WATMP(6) = LBUF%SIG(KK(6)+I)
-                    IF (IGLOB == 1) CALL SROTA6(X,IXS(1,N),				    
-     .              		    JCVT,WATMP,GAMA,JHBE,IGTYP)   
+                    IF (IGLOB == 1) CALL SROTA6(
+     1   X,       IXS(1,N),JCVT,    WATMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                     WA(JJ + 1) = WATMP(1)
                     WA(JJ + 2) = WATMP(2)
                     WA(JJ + 3) = WATMP(3)
                     WA(JJ + 4) = WATMP(4)
                     WA(JJ + 5) = WATMP(5)
                     WA(JJ + 6) = WATMP(6)
-                    IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN			       
+                    IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN             
                       WA(JJ + 7) = ZERO
                     ELSE
-                      WA(JJ + 7) = LBUF%PLA(I)  		      
+                      WA(JJ + 7) = LBUF%PLA(I)            
                     ENDIF
-                    WA(JJ+8)= LBUF%EINT(I)			       
-                    WA(JJ+9)= LBUF%RHO(I)			       
+                    WA(JJ+8)= LBUF%EINT(I)             
+                    WA(JJ+9)= LBUF%RHO(I)             
                     JJ = JJ + 9
                   ENDDO
                 ENDDO
               ENDDO                                                      
-C             pointeur de fin de zone dans WA
+C             end-of-zone pointer in wa
               IE=IE+1
               PTWA(IE)=JJ
             ENDDO  !  I=LFT,LLT
@@ -219,12 +225,12 @@ c---------------
               JJ = JJ + 12                                              
               IF (IGLOB == 1)THEN
                 IF (JCVT==2 ) THEN
-                  GAMA(1)=GBUF%GAMA(KK(1)+I)				  
-                  GAMA(2)=GBUF%GAMA(KK(2)+I)				  
-                  GAMA(3)=GBUF%GAMA(KK(3)+I)				  
-                  GAMA(4)=GBUF%GAMA(KK(4)+I)				  
-                  GAMA(5)=GBUF%GAMA(KK(5)+I)				  
-                  GAMA(6)=GBUF%GAMA(KK(6)+I)				  
+                  GAMA(1)=GBUF%GAMA(KK(1)+I)          
+                  GAMA(2)=GBUF%GAMA(KK(2)+I)          
+                  GAMA(3)=GBUF%GAMA(KK(3)+I)          
+                  GAMA(4)=GBUF%GAMA(KK(4)+I)          
+                  GAMA(5)=GBUF%GAMA(KK(5)+I)          
+                  GAMA(6)=GBUF%GAMA(KK(6)+I)          
                 ELSE
                   GAMA(1)=ONE
                   GAMA(2)=ZERO
@@ -240,32 +246,33 @@ c---
                 DO IS=1,NPTS      
                   DO IR=1,NPTR                                                 
                     LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)     
-                    WATMP(1) = LBUF%SIG(KK(1)+I)			
-                    WATMP(2) = LBUF%SIG(KK(2)+I)			
-                    WATMP(3) = LBUF%SIG(KK(3)+I)			
-                    WATMP(4) = LBUF%SIG(KK(4)+I)			
-                    WATMP(5) = LBUF%SIG(KK(5)+I)			
-                    WATMP(6) = LBUF%SIG(KK(6)+I)			
-                    IF (IGLOB == 1) CALL SROTA6(X,IXS(1,N),				    
-     .              		    JCVT,WATMP,GAMA,JHBE,IGTYP)   
+                    WATMP(1) = LBUF%SIG(KK(1)+I)
+                    WATMP(2) = LBUF%SIG(KK(2)+I)
+                    WATMP(3) = LBUF%SIG(KK(3)+I)
+                    WATMP(4) = LBUF%SIG(KK(4)+I)
+                    WATMP(5) = LBUF%SIG(KK(5)+I)
+                    WATMP(6) = LBUF%SIG(KK(6)+I)
+                    IF (IGLOB == 1) CALL SROTA6(
+     1   X,       IXS(1,N),JCVT,    WATMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                     WA(JJ + 1) = WATMP(1)
                     WA(JJ + 2) = WATMP(2)
                     WA(JJ + 3) = WATMP(3)
                     WA(JJ + 4) = WATMP(4)
                     WA(JJ + 5) = WATMP(5)
                     WA(JJ + 6) = WATMP(6)
-                    IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN			       
+                    IF (ELBUF_TAB(NG)%BUFLY(IL)%L_PLA == 0) THEN             
                       WA(JJ + 7) = ZERO
                     ELSE
-                      WA(JJ + 7) = LBUF%PLA(I)  		      
+                      WA(JJ + 7) = LBUF%PLA(I)            
                     ENDIF
-                    WA(JJ+8)= LBUF%EINT(I)			       
-                    WA(JJ+9)= LBUF%RHO(I)			       
+                    WA(JJ+8)= LBUF%EINT(I)             
+                    WA(JJ+9)= LBUF%RHO(I)             
                     JJ = JJ + 9
                   ENDDO
                 ENDDO
               ENDDO                                                      
-C             pointeur de fin de zone dans WA
+C             end-of-zone pointer in wa
               IE=IE+1
               PTWA(IE)=JJ
             ENDDO  !  I=LFT,LLT
@@ -291,12 +298,12 @@ c---------------
               JJ = JJ + 12                                              
               IF (IGLOB == 1)THEN
                 IF (JCVT==2 ) THEN
-                  GAMA(1)=GBUF%GAMA(KK(1)+I)				  
-                  GAMA(2)=GBUF%GAMA(KK(2)+I)				  
-                  GAMA(3)=GBUF%GAMA(KK(3)+I)				  
-                  GAMA(4)=GBUF%GAMA(KK(4)+I)				  
-                  GAMA(5)=GBUF%GAMA(KK(5)+I)				  
-                  GAMA(6)=GBUF%GAMA(KK(6)+I)				  
+                  GAMA(1)=GBUF%GAMA(KK(1)+I)          
+                  GAMA(2)=GBUF%GAMA(KK(2)+I)          
+                  GAMA(3)=GBUF%GAMA(KK(3)+I)          
+                  GAMA(4)=GBUF%GAMA(KK(4)+I)          
+                  GAMA(5)=GBUF%GAMA(KK(5)+I)          
+                  GAMA(6)=GBUF%GAMA(KK(6)+I)          
                 ELSE
                   GAMA(1)=ONE
                   GAMA(2)=ZERO
@@ -312,14 +319,15 @@ c---
                   DO IT=1,NPTT    
                     DO IL=1,NLAY                                                 
                       LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)     
-                      WATMP(1) = LBUF%SIG(KK(1)+I)			  
-                      WATMP(2) = LBUF%SIG(KK(2)+I)			  
-                      WATMP(3) = LBUF%SIG(KK(3)+I)			  
-                      WATMP(4) = LBUF%SIG(KK(4)+I)			  
-                      WATMP(5) = LBUF%SIG(KK(5)+I)			  
-                      WATMP(6) = LBUF%SIG(KK(6)+I)			  
-                      IF (IGLOB == 1) CALL SROTA6(X,IXS(1,N),                                 
-     .                                JCVT,WATMP,GAMA,JHBE,IGTYP)   
+                      WATMP(1) = LBUF%SIG(KK(1)+I)        
+                      WATMP(2) = LBUF%SIG(KK(2)+I)        
+                      WATMP(3) = LBUF%SIG(KK(3)+I)        
+                      WATMP(4) = LBUF%SIG(KK(4)+I)        
+                      WATMP(5) = LBUF%SIG(KK(5)+I)        
+                      WATMP(6) = LBUF%SIG(KK(6)+I)        
+                      IF (IGLOB == 1) CALL SROTA6(
+     1   X,       IXS(1,N),JCVT,    WATMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                       WA(JJ + 1) = WATMP(1)
                       WA(JJ + 2) = WATMP(2)
                       WA(JJ + 3) = WATMP(3)
@@ -338,7 +346,7 @@ c---
                   ENDDO
                 ENDDO
               ENDDO                                                      
-C             pointeur de fin de zone dans WA
+C             end-of-zone pointer in wa
               IE=IE+1
               PTWA(IE)=JJ
             ENDDO  !  I=LFT,LLT
@@ -367,12 +375,12 @@ c---------------
               JJ = JJ + 12                                              
               IF (IGLOB == 1)THEN
                 IF (JCVT==2 ) THEN
-                GAMA(1)=GBUF%GAMA(KK(1)+I)				  
-                GAMA(2)=GBUF%GAMA(KK(2)+I)				  
-                GAMA(3)=GBUF%GAMA(KK(3)+I)				  
-                GAMA(4)=GBUF%GAMA(KK(4)+I)				  
-                GAMA(5)=GBUF%GAMA(KK(5)+I)				  
-                GAMA(6)=GBUF%GAMA(KK(6)+I)				  
+                GAMA(1)=GBUF%GAMA(KK(1)+I)          
+                GAMA(2)=GBUF%GAMA(KK(2)+I)          
+                GAMA(3)=GBUF%GAMA(KK(3)+I)          
+                GAMA(4)=GBUF%GAMA(KK(4)+I)          
+                GAMA(5)=GBUF%GAMA(KK(5)+I)          
+                GAMA(6)=GBUF%GAMA(KK(6)+I)          
                 ELSE
                   GAMA(1)=ONE
                   GAMA(2)=ZERO
@@ -388,14 +396,15 @@ c---
                   DO IS=1,NPTS
                     DO IR=1,NPTR
                       LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)    
-                      WATMP(1) = LBUF%SIG(KK(1)+I)			  
-                      WATMP(2) = LBUF%SIG(KK(2)+I)			  
-                      WATMP(3) = LBUF%SIG(KK(3)+I)			  
-                      WATMP(4) = LBUF%SIG(KK(4)+I)			  
-                      WATMP(5) = LBUF%SIG(KK(5)+I)			  
-                      WATMP(6) = LBUF%SIG(KK(6)+I)			    
-                      IF (IGLOB == 1) CALL SROTA6(X,IXS(1,N),                                 
-     .                                JCVT,WATMP,GAMA,JHBE,IGTYP)
+                      WATMP(1) = LBUF%SIG(KK(1)+I)        
+                      WATMP(2) = LBUF%SIG(KK(2)+I)        
+                      WATMP(3) = LBUF%SIG(KK(3)+I)        
+                      WATMP(4) = LBUF%SIG(KK(4)+I)        
+                      WATMP(5) = LBUF%SIG(KK(5)+I)        
+                      WATMP(6) = LBUF%SIG(KK(6)+I)          
+                      IF (IGLOB == 1) CALL SROTA6(
+     1   X,       IXS(1,N),JCVT,    WATMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                       WA(JJ + 1) = WATMP(1)
                       WA(JJ + 2) = WATMP(2)
                       WA(JJ + 3) = WATMP(3)
@@ -415,7 +424,7 @@ c---
                 ENDDO
               ENDDO                                                      
 c---
-C             pointeur de fin de zone dans WA
+C             end-of-zone pointer in wa
               IE=IE+1
               PTWA(IE)=JJ
             ENDDO                                                      
@@ -447,14 +456,15 @@ c---------------
 c---
               DO IR=1,NPTR                                                 
                 LBUF => ELBUF_TAB(NG)%BUFLY(1)%LBUF(IR,1,1)             
-                WATMP(1) = LBUF%SIG(KK(1)+I)				      
-                WATMP(2) = LBUF%SIG(KK(2)+I)				      
-                WATMP(3) = LBUF%SIG(KK(3)+I)				      
-                WATMP(4) = LBUF%SIG(KK(4)+I)				      
-                WATMP(5) = LBUF%SIG(KK(5)+I)				      
-                WATMP(6) = LBUF%SIG(KK(6)+I)				      
-                IF (IGLOB == 1) CALL SROTA6(X,IXS(1,N),                                       
-     .                          JCVT,WATMP,GAMA,JHBE,IGTYP)                
+                WATMP(1) = LBUF%SIG(KK(1)+I)              
+                WATMP(2) = LBUF%SIG(KK(2)+I)              
+                WATMP(3) = LBUF%SIG(KK(3)+I)              
+                WATMP(4) = LBUF%SIG(KK(4)+I)              
+                WATMP(5) = LBUF%SIG(KK(5)+I)              
+                WATMP(6) = LBUF%SIG(KK(6)+I)              
+                IF (IGLOB == 1) CALL SROTA6(
+     1   X,       IXS(1,N),JCVT,    WATMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                 WA(JJ + 1) = WATMP(1)                                      
                 WA(JJ + 2) = WATMP(2)                                      
                 WA(JJ + 3) = WATMP(3)                                      
@@ -471,7 +481,7 @@ c---
                 JJ = JJ + 9
               ENDDO                                                        
 c---
-C             pointeur de fin de zone dans WA
+C             end-of-zone pointer in wa
               IE=IE+1
               PTWA(IE)=JJ
             ENDDO                                                      
@@ -494,15 +504,16 @@ c---------------
               WA(JJ+10)= IGTYP 
               WA(JJ+11) = GBUF%OFF(I)        
               WA(JJ+12) = ISROT                                                                                         
+              IF (JHBE==1.AND.IINT==3) WA(JJ+ 9)=  5
               JJ = JJ + 12                                              
               IF (IGLOB == 1)THEN
                 IF (JCVT==2 ) THEN
-                GAMA(1)=GBUF%GAMA(KK(1)+I)				  
-                GAMA(2)=GBUF%GAMA(KK(2)+I)				  
-                GAMA(3)=GBUF%GAMA(KK(3)+I)				  
-                GAMA(4)=GBUF%GAMA(KK(4)+I)				  
-                GAMA(5)=GBUF%GAMA(KK(5)+I)				  
-                GAMA(6)=GBUF%GAMA(KK(6)+I)				  
+                GAMA(1)=GBUF%GAMA(KK(1)+I)          
+                GAMA(2)=GBUF%GAMA(KK(2)+I)          
+                GAMA(3)=GBUF%GAMA(KK(3)+I)          
+                GAMA(4)=GBUF%GAMA(KK(4)+I)          
+                GAMA(5)=GBUF%GAMA(KK(5)+I)          
+                GAMA(6)=GBUF%GAMA(KK(6)+I)          
                 ELSE
                   GAMA(1)=ONE
                   GAMA(2)=ZERO
@@ -518,14 +529,15 @@ c---
                   DO IS=1,NPTS
                     DO IT=1,NPTT
                       LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)     
-                      WATMP(1) = LBUF%SIG(KK(1)+I)			  
-                      WATMP(2) = LBUF%SIG(KK(2)+I)			  
-                      WATMP(3) = LBUF%SIG(KK(3)+I)			  
-                      WATMP(4) = LBUF%SIG(KK(4)+I)			  
-                      WATMP(5) = LBUF%SIG(KK(5)+I)			  
-                      WATMP(6) = LBUF%SIG(KK(6)+I)			   
-                      IF (IGLOB == 1) CALL SROTA6(X,IXS(1,N),                                 
-     .                                JCVT,WATMP,GAMA,JHBE,IGTYP)
+                      WATMP(1) = LBUF%SIG(KK(1)+I)        
+                      WATMP(2) = LBUF%SIG(KK(2)+I)        
+                      WATMP(3) = LBUF%SIG(KK(3)+I)        
+                      WATMP(4) = LBUF%SIG(KK(4)+I)        
+                      WATMP(5) = LBUF%SIG(KK(5)+I)        
+                      WATMP(6) = LBUF%SIG(KK(6)+I)         
+                      IF (IGLOB == 1) CALL SROTA6(
+     1   X,       IXS(1,N),JCVT,    WATMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                       WA(JJ + 1) = WATMP(1)
                       WA(JJ + 2) = WATMP(2)
                       WA(JJ + 3) = WATMP(3)
@@ -545,7 +557,7 @@ c---
                 ENDDO
               ENDDO                                                      
 c---
-C               pointeur de fin de zone dans WA
+C               end-of-zone pointer in wa
                 IE=IE+1
                 PTWA(IE)=JJ
             ENDDO  !  I=LFT,LLT
@@ -571,12 +583,12 @@ c---------------
               JJ = JJ + 12                                              
               IF (IGLOB == 1)THEN
                 IF (JCVT==2 ) THEN
-                GAMA(1)=GBUF%GAMA(KK(1)+I)				  
-                GAMA(2)=GBUF%GAMA(KK(2)+I)				  
-                GAMA(3)=GBUF%GAMA(KK(3)+I)				  
-                GAMA(4)=GBUF%GAMA(KK(4)+I)				  
-                GAMA(5)=GBUF%GAMA(KK(5)+I)				  
-                GAMA(6)=GBUF%GAMA(KK(6)+I)				  
+                GAMA(1)=GBUF%GAMA(KK(1)+I)          
+                GAMA(2)=GBUF%GAMA(KK(2)+I)          
+                GAMA(3)=GBUF%GAMA(KK(3)+I)          
+                GAMA(4)=GBUF%GAMA(KK(4)+I)          
+                GAMA(5)=GBUF%GAMA(KK(5)+I)          
+                GAMA(6)=GBUF%GAMA(KK(6)+I)          
                 ELSE
                   GAMA(1)=ONE
                   GAMA(2)=ZERO
@@ -592,14 +604,15 @@ c---
                   DO IS=1,NPTS
                     DO IT=1,NPTT
                       LBUF => ELBUF_TAB(NG)%BUFLY(IL)%LBUF(IR,IS,IT)    
-                      WATMP(1) = LBUF%SIG(KK(1)+I)			  
-                      WATMP(2) = LBUF%SIG(KK(2)+I)			  
-                      WATMP(3) = LBUF%SIG(KK(3)+I)			  
-                      WATMP(4) = LBUF%SIG(KK(4)+I)			  
-                      WATMP(5) = LBUF%SIG(KK(5)+I)			  
-                      WATMP(6) = LBUF%SIG(KK(6)+I)			     
-                      IF (IGLOB == 1) CALL SROTA6(X,IXS(1,N),                                 
-     .                                JCVT,WATMP,GAMA,JHBE,IGTYP)
+                      WATMP(1) = LBUF%SIG(KK(1)+I)        
+                      WATMP(2) = LBUF%SIG(KK(2)+I)        
+                      WATMP(3) = LBUF%SIG(KK(3)+I)        
+                      WATMP(4) = LBUF%SIG(KK(4)+I)        
+                      WATMP(5) = LBUF%SIG(KK(5)+I)        
+                      WATMP(6) = LBUF%SIG(KK(6)+I)           
+                      IF (IGLOB == 1) CALL SROTA6(
+     1   X,       IXS(1,N),JCVT,    WATMP,
+     2   GAMA,    JHBE,    IGTYP,   ISORTH)
                       WA(JJ + 1) = WATMP(1)
                       WA(JJ + 2) = WATMP(2)
                       WA(JJ + 3) = WATMP(3)
@@ -619,7 +632,7 @@ c---
                 ENDDO
               ENDDO                                                      
 c---
-C             pointeur de fin de zone dans WA
+C             end-of-zone pointer in wa
               IE=IE+1
               PTWA(IE)=JJ
             ENDDO  !  I=LFT,LLT
@@ -630,7 +643,7 @@ C             pointeur de fin de zone dans WA
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       IF (NSPMD == 1) THEN
-C       recopies inutiles pour simplification du code.
+C       unnecessary copies for code simplification
         PTWA_P0(0)=0
         DO N=1,STAT_NUMELS
           PTWA_P0(N) = PTWA(N)
@@ -640,7 +653,7 @@ C       recopies inutiles pour simplification du code.
           WAP0(J) = WA(J)
         END DO
       ELSE
-C       construit les pointeurs dans le tableau global WAP0
+C       builds the pointers in the global array wap0
         CALL SPMD_STAT_PGATHER(PTWA,STAT_NUMELS,PTWA_P0,STAT_NUMELS_G)
         LEN = 0
         CALL SPMD_RGATHER9_DP(WA,JJ,WAP0,SIZP0,LEN)
@@ -651,9 +664,9 @@ c-----------------------------------------------------------------------
 
         IPRT0=0
         DO N=1,STAT_NUMELS_G
-C         retrouve le nieme elt dans l'ordre d'id croissant
+C         find the nieme elt in the order of an increasing id
           K=STAT_INDXS(N)
-C         retrouve l'adresse dans WAP0
+C         Find the address in WAP0
           J=PTWA_P0(K-1)
 
           IPRT    = NINT(WAP0(J + 2))
@@ -687,7 +700,7 @@ c
      .        '# IF (NPT /= 0) REPEAT K=1,NPT : REPEAT I=1,NPG :'
                IF ((ISOLNOD == 8 .AND. 
      .         (JHBE==1.OR.JHBE==2.OR.JHBE==12.OR.JHBE==24.OR.JHBE==17 .OR. JHBE == 18)
-     .         .AND.IGTYP /= 43).OR. (ISOLNOD == 4 .AND. ISROT == 0)) THEN
+     .         .AND.IGTYP /= 43).OR. (ISOLNOD == 4 .AND. ISROT == 0).OR.JHBE==5) THEN
                  WRITE(IUGEO,'(A)') '#  EINT, RHO'
 c----------------------------------------------------------------------
                WRITE(IUGEO,'(A/A)') '#    S1,  S2,  S3',
@@ -732,7 +745,7 @@ c----------------------------------------------------------------------
               CALL STRS_TXT50(LINE,100)
               IF ((ISOLNOD == 8 .AND. 
      .         (JHBE==1.OR.JHBE==2.OR.JHBE==12.OR.JHBE==24.OR.JHBE==17 .OR. JHBE == 18)
-     .         .AND.IGTYP /= 43).OR. (ISOLNOD == 4 .AND. ISROT == 0)) THEN
+     .         .AND.IGTYP /= 43).OR. (ISOLNOD == 4 .AND. ISROT == 0).OR.JHBE==5) THEN
                 WRITE(LINE,'(A)') '#  EINT, RHO'
                 CALL STRS_TXT50(LINE,100) 
                 IF (IGLOB == 1)THEN 
@@ -816,12 +829,13 @@ c------------------------------------------------------------------
 c-------------------
           IF ((ISOLNOD == 8 .AND. 
      .         (JHBE==1.OR.JHBE==2.OR.JHBE==12.OR.JHBE==24.OR.JHBE==17 .OR. JHBE == 18)
-     .         .AND.IGTYP /= 43).OR. (ISOLNOD == 4 .AND. ISROT == 0)) THEN
+     .         .AND.IGTYP /= 43).OR. (ISOLNOD == 4 .AND. ISROT == 0)
+     .         .OR.(ISOLNOD == 4 .AND. ISROT == 3).OR.JHBE==5) THEN
             DO IPT = 1, NPTG
               IF (IZIPSTRS == 0) THEN
-                WRITE(IUGEO,'(1P2E20.13)')(WAP0(J + K),K=8,9)
-                WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=1,6)
-                WRITE(IUGEO,'(1P1E20.13)') WAP0(J + 7)
+                WRITE(IUGEO,'(1P2E20.13)')(WAP0(J + K),K=8,9) ! EINT,RHO
+                WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=1,6) ! Sig(1-6)
+                WRITE(IUGEO,'(1P1E20.13)') WAP0(J + 7)        ! EPS
               ELSE
                    CALL TAB_STRS_TXT50(WAP0(8),2,J,SIZP0,2)
                    CALL TAB_STRS_TXT50(WAP0(1),6,J,SIZP0,3)
@@ -833,9 +847,9 @@ c-------------------
 c---
             DO IPT = 1, NPTG
               IF (IZIPSTRS == 0) THEN
-                WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=1,3)
-                WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=4,6)
-                WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=7,9)
+                WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=1,3) ! Sig(1-3)
+                WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=4,6) ! Sig(4-6)
+                WRITE(IUGEO,'(1P3E20.13)')(WAP0(J + K),K=7,9) ! EPS,EINT,RHO
               ELSE
                 CALL TAB_STRS_TXT50(WAP0,9,J,SIZP0,3)
               ENDIF
@@ -846,6 +860,8 @@ c---
 c---
         ENDDO    !  N=1,STAT_NUMELS_G      
       ENDIF
+      DEALLOCATE(PTWA)
+      DEALLOCATE(PTWA_P0)
 c-----------
       RETURN
       END

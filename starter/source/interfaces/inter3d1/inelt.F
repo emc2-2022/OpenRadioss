@@ -1,43 +1,43 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INELTS                        source/interfaces/inter3d1/inelt.F
-Chd|-- called by -----------
-Chd|        I1CHK3                        source/interfaces/inter3d1/i1chk3.F
-Chd|        I21ELS3                       source/interfaces/inter3d1/i21els3.F
-Chd|        I2CHK3                        source/interfaces/inter3d1/i2chk3.F
-Chd|        I3STI3                        source/interfaces/inter3d1/i3sti3.F
-Chd|        I7STI3                        source/interfaces/inter3d1/i7sti3.F
-Chd|        I9STI3                        source/interfaces/int09/i9sti3.F
-Chd|-- calls ---------------
-Chd|        NORMA1                        source/interfaces/inter3d1/norma1.F
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inelts        ../starter/source/interfaces/inter3d1/inelt.F
+!||--- called by ------------------------------------------------------
+!||    i1chk3        ../starter/source/interfaces/inter3d1/i1chk3.F
+!||    i21els3       ../starter/source/interfaces/inter3d1/i21els3.F
+!||    i2_surfi      ../starter/source/interfaces/inter3d1/i2_surfi.F90
+!||    i2chk3        ../starter/source/interfaces/inter3d1/i2chk3.F
+!||    i3sti3        ../starter/source/interfaces/inter3d1/i3sti3.F
+!||    i7sti3        ../starter/source/interfaces/inter3d1/i7sti3.F
+!||    i9sti3        ../starter/source/interfaces/int09/i9sti3.F
+!||--- calls      -----------------------------------------------------
+!||    norma1        ../starter/source/interfaces/inter3d1/norma1.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE INELTS(X        ,IRECT ,IXS   ,NINT ,NEL       ,
      .                  I        ,AREA  ,NOINT ,IR   ,SURF_ELTYP,
      .                  SURF_ELEM)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
+      use element_mod , only :nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -45,11 +45,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "scr07_c.2.inc"
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -69,18 +64,19 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   N1, N2, N3, DDS
+      my_real :: XX1(4), XX2(4),XX3(4),XS1,YS1,ZS1,XC,YC,ZC
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
 C
       IC =0
       NEL=0
-      IF (I .LE. 0) RETURN
+      IF (I <= 0) RETURN
       IF (SURF_ELTYP(I) /= 1) RETURN
 C
       NEL=SURF_ELEM(I)
 C-----------------------------------------------
-C     VERIFICATION DE L'ORIENTATION DES SEGMENTS
+C     VERIFICATION OF THE ORIENTATION OF THE SEGMENTS
 C-----------------------------------------------
        XS1=0.
        YS1=0.
@@ -95,7 +91,7 @@ C-----------------------------------------------
        YS1=YS1+.25*X(2,NN)
   100  ZS1=ZS1+.25*X(3,NN)
 C
-       CALL NORMA1(N1,N2,N3,AREA)
+       CALL NORMA1(N1,N2,N3,AREA,XX1,XX2,XX3)
        XC=0.
        YC=0.
        ZC=0.
@@ -108,51 +104,37 @@ C
        XC=XC*ONE_OVER_8
        YC=YC*ONE_OVER_8
        ZC=ZC*ONE_OVER_8
-       IF(IR.NE.0) RETURN
-       IF(IC.GE.2)RETURN
+       IF(IR/=0) RETURN
+       IF(IC>=2)RETURN
        DDS=N1*(XC-XS1)+N2*(YC-YS1)+N3*(ZC-ZS1)
-       IF(DDS.LT.0) RETURN
-       IF(IY(3).EQ.IY(4)) THEN
+       IF(DDS<0) RETURN
+       IF(IY(3)==IY(4)) THEN
         IRECT(1,I)=IY(2)
         IRECT(2,I)=IY(1)
        ELSE
         DO 120 KK=1,4
   120   IRECT(KK,I)=IY(4-KK+1)
        ENDIF
-       IF(NINT.GT.0) WRITE (IOUT,1300) I,NOINT
-       IF(NINT.LT.0) WRITE (IOUT,1400) I,NOINT
        RETURN
 C
- 1300 FORMAT(' NODE NUMBERING OF SECONDARY  SEGMENT',I5,' OF INTERFACE',I10,
-     + ' REVERSED')
- 1400 FORMAT(' NODE NUMBERING OF MAIN SEGMENT',I5,' OF INTERFACE',I10,
-     + ' REVERSED')
       END
-Chd|====================================================================
-Chd|  INELTC                        source/interfaces/inter3d1/inelt.F
-Chd|-- called by -----------
-Chd|        I1CHK3                        source/interfaces/inter3d1/i1chk3.F
-Chd|        I20STI3                       source/interfaces/inter3d1/i20sti3.F
-Chd|        I21ELS3                       source/interfaces/inter3d1/i21els3.F
-Chd|        I24GAPM                       source/interfaces/inter3d1/i24sti3.F
-Chd|        I2CHK3                        source/interfaces/inter3d1/i2chk3.F
-Chd|        I3STI3                        source/interfaces/inter3d1/i3sti3.F
-Chd|        I7STI3                        source/interfaces/inter3d1/i7sti3.F
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    ineltc     ../starter/source/interfaces/inter3d1/inelt.F
+!||--- called by ------------------------------------------------------
+!||    i1chk3     ../starter/source/interfaces/inter3d1/i1chk3.F
+!||    i20sti3    ../starter/source/interfaces/inter3d1/i20sti3.F
+!||    i21els3    ../starter/source/interfaces/inter3d1/i21els3.F
+!||    i24gapm    ../starter/source/interfaces/inter3d1/i24sti3.F
+!||    i2_surfi   ../starter/source/interfaces/inter3d1/i2_surfi.F90
+!||    i2chk3     ../starter/source/interfaces/inter3d1/i2chk3.F
+!||    i3sti3     ../starter/source/interfaces/inter3d1/i3sti3.F
+!||    i7sti3     ../starter/source/interfaces/inter3d1/i7sti3.F
+!||====================================================================
       SUBROUTINE INELTC(NELC ,NELTG ,IS ,SURF_ELTYP, SURF_ELEM)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   C o m m o n   B l o c k s
-C-----------------------------------------------
-#include      "com04_c.inc"
-#include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -175,19 +157,18 @@ C-----------------------------------------------
 !---
       RETURN
       END
-Chd|====================================================================
-Chd|  I20NELTS                      source/interfaces/inter3d1/inelt.F
-Chd|-- called by -----------
-Chd|        I20STI3                       source/interfaces/inter3d1/i20sti3.F
-Chd|-- calls ---------------
-Chd|        NORMA1                        source/interfaces/inter3d1/norma1.F
-Chd|====================================================================
+!||====================================================================
+!||    i20nelts      ../starter/source/interfaces/inter3d1/inelt.F
+!||--- called by ------------------------------------------------------
+!||    i20sti3       ../starter/source/interfaces/inter3d1/i20sti3.F
+!||--- calls      -----------------------------------------------------
+!||    norma1        ../starter/source/interfaces/inter3d1/norma1.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE I20NELTS(X        ,IRECT ,IXS   ,NINT ,NEL       ,
      .                    I        ,AREA  ,NOINT ,IR   ,SURF_ELTYP,
      .                    SURF_ELEM)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -195,11 +176,6 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
-#include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "scr07_c.2.inc"
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -219,6 +195,7 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   N1, N2, N3, DDS
+      my_real  XX1(4), XX2(4),XX3(4),XS1,YS1,ZS1,XC,YC,ZC
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -226,12 +203,12 @@ C
       IC =0
       NEL=0
 
-      IF (I .LE. 0) RETURN
+      IF (I <= 0) RETURN
       IF (SURF_ELTYP(I) /= 1) RETURN
 C
       NEL=SURF_ELEM(I)
 C-----------------------------------------------
-C     VERIFICATION DE L'ORIENTATION DES SEGMENTS
+C     VERIFICATION OF THE ORIENTATION OF THE SEGMENTS
 C-----------------------------------------------
        XS1=0.
        YS1=0.
@@ -246,7 +223,7 @@ C-----------------------------------------------
        YS1=YS1+.25*X(2,NN)
   100  ZS1=ZS1+.25*X(3,NN)
 C
-       CALL NORMA1(N1,N2,N3,AREA)
+       CALL NORMA1(N1,N2,N3,AREA,XX1,XX2,XX3)
        XC=0.
        YC=0.
        ZC=0.
@@ -259,39 +236,32 @@ C
        XC=XC*ONE_OVER_8
        YC=YC*ONE_OVER_8
        ZC=ZC*ONE_OVER_8
-       IF(IR.NE.0) RETURN
-       IF(IC.GE.2)RETURN
+       IF(IR/=0) RETURN
+       IF(IC>=2)RETURN
        DDS=N1*(XC-XS1)+N2*(YC-YS1)+N3*(ZC-ZS1)
-       IF(DDS.LT.0) RETURN
-       IF(IY(3).EQ.IY(4)) THEN
+       IF(DDS<0) RETURN
+       IF(IY(3)==IY(4)) THEN
         IRECT(1)=IY(2)
         IRECT(2)=IY(1)
        ELSE
         DO 120 KK=1,4
   120   IRECT(KK)=IY(4-KK+1)
        ENDIF
-       IF(NINT.GT.0) WRITE (IOUT,1300) I,NOINT
-       IF(NINT.LT.0) WRITE (IOUT,1400) I,NOINT
        RETURN
 C
- 1300 FORMAT(' NODE NUMBERING OF SECONDARY  SEGMENT',I5,' OF INTERFACE',I10,
-     + ' REVERSED')
- 1400 FORMAT(' NODE NUMBERING OF MAIN SEGMENT',I5,' OF INTERFACE',I10,
-     + ' REVERSED')
       END
-Chd|====================================================================
-Chd|  INELTIGEO                     source/interfaces/inter3d1/inelt.F
-Chd|-- called by -----------
-Chd|        I7STI3                        source/interfaces/inter3d1/i7sti3.F
-Chd|-- calls ---------------
-Chd|        NORMA1                        source/interfaces/inter3d1/norma1.F
-Chd|====================================================================
+!||====================================================================
+!||    ineltigeo     ../starter/source/interfaces/inter3d1/inelt.F
+!||--- called by ------------------------------------------------------
+!||    i7sti3        ../starter/source/interfaces/inter3d1/i7sti3.F
+!||--- calls      -----------------------------------------------------
+!||    norma1        ../starter/source/interfaces/inter3d1/norma1.F
+!||--- uses       -----------------------------------------------------
+!||====================================================================
       SUBROUTINE INELTIGEO(XE     ,IRECT  ,IXS   ,NINT     ,NELIG3D   ,
      .                     I      ,AREA   ,NOINT ,IR       ,SURF_ELTYP_IGE,
      .                     IXIG3D ,KXIG3D ,IGEO  ,SURF_ELEM_IGE)
-C-----------------------------------------------
-C   M o d u l e s
-C-----------------------------------------------
+      use element_mod , only : nixs
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -299,11 +269,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "units_c.inc"
 #include      "param_c.inc"
-#include      "com04_c.inc"
-#include      "scr07_c.2.inc"
-#include      "scr03_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -325,6 +291,7 @@ C-----------------------------------------------
 C     REAL
       my_real
      .   N1, N2, N3, DDS
+      my_real :: XX1(4), XX2(4),XX3(4),XC,YC,ZC,XS1,YS1,ZS1
 C-----------------------------------------------
 C   E x t e r n a l   F u n c t i o n s
 C-----------------------------------------------
@@ -336,7 +303,7 @@ C
       NELIG3D=SURF_ELEM_IGE(I)
 
 C-----------------------------------------------
-C     VERIFICATION DE L'ORIENTATION DES SEGMENTS
+C     VERIFICATION OF THE ORIENTATION OF THE SEGMENTS
 C-----------------------------------------------
        XS1=0.
        YS1=0.
@@ -352,7 +319,7 @@ C-----------------------------------------------
          ZS1=ZS1+.25*XE(3,NN)
        ENDDO
 C
-       CALL NORMA1(N1,N2,N3,AREA)
+       CALL NORMA1(N1,N2,N3,AREA,XX1,XX2,XX3)
        XC=0.
        YC=0.
        ZC=0.
@@ -378,20 +345,14 @@ C
        XC=XC*ONE_OVER_8
        YC=YC*ONE_OVER_8
        ZC=ZC*ONE_OVER_8
-       IF(IR.NE.0) RETURN
-       IF(IC.GE.2)RETURN
+       IF(IR/=0) RETURN
+       IF(IC>=2)RETURN
        DDS=N1*(XC-XS1)+N2*(YC-YS1)+N3*(ZC-ZS1)
-       IF(DDS.LT.0) RETURN
+       IF(DDS<0) RETURN
        DO  KK=1,4
          IRECT(KK,I)=IY(4-KK+1)
        ENDDO
-       IF(NINT.GT.0) WRITE (IOUT,1300) I,NOINT
-       IF(NINT.LT.0) WRITE (IOUT,1400) I,NOINT
        RETURN
 C
- 1300 FORMAT(' NODE NUMBERING OF SECONDARY  SEGMENT',I5,' OF INTERFACE',I10,
-     + ' REVERSED')
- 1400 FORMAT(' NODE NUMBERING OF MAIN SEGMENT',I5,' OF INTERFACE',I10,
-     + ' REVERSED')
       END
 

@@ -1,31 +1,30 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  DIST_NODE_SEG4N               source/tools/sensor/dist_node_seg4n.F
-Chd|-- called by -----------
-Chd|        SENSOR_DIST_SURF0             source/tools/sensor/sensor_dist_surf0.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    dist_node_seg4n     ../engine/source/tools/sensor/dist_node_seg4n.F
+!||--- called by ------------------------------------------------------
+!||    sensor_dist_surf0   ../engine/source/tools/sensor/sensor_dist_surf0.F
+!||====================================================================
         SUBROUTINE DIST_NODE_SEG4N (
      .             DIST,DMIN,DMAX,NOD_X,NOD_Y,NOD_Z,
      .             AX,AY,AZ,BX,BY,BZ,CX,CY,CZ,DX,DY,DZ)
@@ -47,12 +46,12 @@ C----------------------------------------------------------
 C Local Variables
 C----------------------------------------------------------
       INTEGER :: OK
-      my_real :: ABX,ABY,ABZ,ACX,ACY,ACZ,BCX,BCY,BCZ,CDX,CDY,CDZ,DAX,DAY,DAZ,
-     .   UX,UY,UZ,VX,VY,VZ,WX,WY,WZ,QX,QY,QZ,QA_X,QA_Y,QA_Z,QB_X,QB_Y,QB_Z,
-     .   QC_X,QC_Y,QC_Z,MX,MY,MZ,MPX,MPY,MPZ,
+      my_real :: ABX,ABY,ABZ,BCX,BCY,BCZ,CDX,CDY,CDZ,DAX,DAY,DAZ,
+     .   QX,QY,QZ,
+     .   MX,MY,MZ,MPX,MPY,MPZ,
      .   AMX,AMY,AMZ,BMX,BMY,BMZ,CMX,CMY,CMZ,DMX,DMY,DMZ, 
      .   N1X,N1Y,N1Z,N2X,N2Y,N2Z,N3X,N3Y,N3Z,N4X,N4Y,N4Z,
-     .   SX,SY,SZ,D,D1,D2,D3,D4,NORM1,A1,A2,NORM2,NORM3,NORM4
+     .   SX,SY,SZ,D1,D2,D3,D4,NORM1,A1,A2,NORM2,NORM3,NORM4
 C=======================================================================
 c     segment barycenter
       MX = FOURTH*(AX + BX + CX + DX)
@@ -120,7 +119,7 @@ c---------------------------------------------------
 c     check if projection is inside sub-segments
 c     Q = projection of NODE on segment plane using normal(NPX,NPY,NPZ)
 c---------------------------------------------------
-c     1st sub-segment :       
+c     1st sub-segment :
       QX = NOD_X - D1*N1X / NORM1
       QY = NOD_Y - D1*N1Y / NORM1
       QZ = NOD_Z - D1*N1Z / NORM1
@@ -140,7 +139,7 @@ c
       END IF
 c      
       IF (OK == 0) THEN
-c       Test 2nd sub-segment :       
+c       Test 2nd sub-segment :
         QX = NOD_X - D2*N2X / NORM2
         QY = NOD_Y - D2*N2Y / NORM2
         QZ = NOD_Z - D2*N2Z / NORM2
@@ -159,7 +158,7 @@ c
         END IF
       END IF
       IF (OK == 0) THEN
-c       Test 3rd sub-segment :       
+c       Test 3rd sub-segment :
         QX = NOD_X - D3*N3X / NORM3
         QY = NOD_Y - D3*N3Y / NORM3
         QZ = NOD_Z - D3*N3Z / NORM3
@@ -178,7 +177,7 @@ c
         END IF
       END IF
       IF (OK == 0) THEN
-c       Test 4rd sub-segment :       
+c       Test 4th sub-segment :
         QX = NOD_X - D3*N3X / NORM4
         QY = NOD_Y - D3*N3Y / NORM4
         QZ = NOD_Z - D3*N3Z / NORM4

@@ -1,41 +1,40 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  HM_READ_MAT62                 source/materials/mat/mat062/hm_read_mat62.F
-Chd|-- called by -----------
-Chd|        HM_READ_MAT                   source/materials/mat/hm_read_mat.F
-Chd|-- calls ---------------
-Chd|        ANCMSG                        source/output/message/message.F
-Chd|        FREERR                        source/starter/freform.F      
-Chd|        HM_GET_FLOATV                 source/devtools/hm_reader/hm_get_floatv.F
-Chd|        HM_GET_FLOAT_ARRAY_INDEX      source/devtools/hm_reader/hm_get_float_array_index.F
-Chd|        HM_GET_INTV                   source/devtools/hm_reader/hm_get_intv.F
-Chd|        HM_OPTION_IS_CRYPTED          source/devtools/hm_reader/hm_option_is_crypted.F
-Chd|        INIT_MAT_KEYWORD              source/materials/mat/init_mat_keyword.F
-Chd|        MATPARAM_DEF_MOD              ../common_source/modules/matparam_def_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        SUBMODEL_MOD                  share/modules1/submodel_mod.F 
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    hm_read_mat62              ../starter/source/materials/mat/mat062/hm_read_mat62.F
+!||--- called by ------------------------------------------------------
+!||    hm_read_mat                ../starter/source/materials/mat/hm_read_mat.F90
+!||--- calls      -----------------------------------------------------
+!||    ancmsg                     ../starter/source/output/message/message.F
+!||    hm_get_float_array_index   ../starter/source/devtools/hm_reader/hm_get_float_array_index.F
+!||    hm_get_floatv              ../starter/source/devtools/hm_reader/hm_get_floatv.F
+!||    hm_get_intv                ../starter/source/devtools/hm_reader/hm_get_intv.F
+!||    hm_option_is_encrypted     ../starter/source/devtools/hm_reader/hm_option_is_encrypted.F
+!||    init_mat_keyword           ../starter/source/materials/mat/init_mat_keyword.F
+!||--- uses       -----------------------------------------------------
+!||    message_mod                ../starter/share/message_module/message_mod.F
+!||    submodel_mod               ../starter/share/modules1/submodel_mod.F
+!||====================================================================
       SUBROUTINE HM_READ_MAT62(
      .           UPARAM   ,MAXUPARAM,NUPARAM  ,NUVAR    ,NFUNC    ,
      .           PARMAT   ,UNITAB   ,PM       ,MAT_ID   ,TITR     ,
@@ -47,6 +46,7 @@ C-----------------------------------------------
       USE MESSAGE_MOD 
       USE SUBMODEL_MOD
       USE MATPARAM_DEF_MOD
+      USE NAMES_AND_TITLES_MOD , ONLY : NCHARTITLE
 C-----------------------------------------------
 C   ROUTINE DESCRIPTION :
 C   ===================
@@ -65,10 +65,7 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr17_c.inc"
 #include      "units_c.inc"
-#include      "submod_c.inc"
-#include      "sysunit.inc"
 #include      "param_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
@@ -76,21 +73,22 @@ C-----------------------------------------------
       TYPE (UNIT_TYPE_),INTENT(IN) ::UNITAB 
       INTEGER, INTENT(IN)    :: MAT_ID,MAXUPARAM
       my_real, DIMENSION(NPROPM) ,INTENT(INOUT) :: PM     
-      CHARACTER*nchartitle ,INTENT(IN) :: TITR
-      INTEGER, INTENT(OUT)   :: NUPARAM,NUVAR,NFUNC,IMATVIS
-      my_real, DIMENSION(MAXUPARAM) ,INTENT(OUT)   :: UPARAM
-      my_real, DIMENSION(100),INTENT(OUT) :: PARMAT
+      CHARACTER(LEN=NCHARTITLE) ,INTENT(IN) :: TITR
+      INTEGER, INTENT(INOUT)   :: NUPARAM,NUVAR,NFUNC,IMATVIS
+      my_real, DIMENSION(MAXUPARAM) ,INTENT(INOUT)   :: UPARAM
+      my_real, DIMENSION(100),INTENT(INOUT) :: PARMAT
       TYPE(SUBMODEL_DATA), DIMENSION(*),INTENT(IN) :: LSUBMODEL
       TYPE(MATPARAM_STRUCT_) ,INTENT(INOUT) :: MATPARAM
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER :: I,J,NORDER,NVISC,FLAG_VISC,IVISC,ILAW
-      my_real :: RHO0,RHOR,GAMMAINF,NU,SUM,GS,P,VISCMAX
-      my_real, DIMENSION(100) ::  MU,AL,GAMA,TAUX
-      LOGICAL :: IS_AVAILABLE,IS_CRYPTED
+      INTEGER :: J,NORDER,NVISC,FLAG_VISC,IVISC,ILAW,ITAG,
+     .           FLAG_RIGIDITY
+      my_real :: RHO0,RHOR,GAMMAINF,NUG,SUM,GS,VISCMAX,BULK
+      my_real, DIMENSION(100) ::  MU,AL,GAMA,TAUX,NU,BETA
+      LOGICAL :: IS_AVAILABLE,IS_ENCRYPTED
 C=======================================================================
-      IS_CRYPTED   = .FALSE.
+      IS_ENCRYPTED   = .FALSE.
       IS_AVAILABLE = .FALSE.
       ILAW    = 62
 c
@@ -98,7 +96,7 @@ C--------------------------------------------------
 C     check crypting
 C--------------------------------------------------
 c
-      CALL HM_OPTION_IS_CRYPTED(IS_CRYPTED)
+      CALL HM_OPTION_IS_ENCRYPTED(IS_ENCRYPTED)
 c
 C--------------------------------------------------
 C     Read DATA
@@ -106,11 +104,12 @@ C--------------------------------------------------
       CALL HM_GET_FLOATV('MAT_RHO'   ,RHO0      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_FLOATV('Refer_Rho' ,RHOR      ,IS_AVAILABLE, LSUBMODEL, UNITAB)
 c
-      CALL HM_GET_FLOATV('MAT_NU'    ,NU        ,IS_AVAILABLE, LSUBMODEL, UNITAB)
+      CALL HM_GET_FLOATV('MAT_NU'    ,NUG       ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_INTV  ('ORDER'     ,NORDER    ,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_INTV  ('Order2'    ,NVISC     ,IS_AVAILABLE,LSUBMODEL)
       CALL HM_GET_FLOATV('MU'        ,VISCMAX   ,IS_AVAILABLE, LSUBMODEL, UNITAB)
       CALL HM_GET_INTV  ('Vflag'     ,FLAG_VISC ,IS_AVAILABLE,LSUBMODEL)
+      CALL HM_GET_INTV  ('Rflag'     ,FLAG_RIGIDITY ,IS_AVAILABLE,LSUBMODEL)
 c
       IF (NORDER > 0) THEN
         DO J=1,NORDER    
@@ -135,40 +134,61 @@ c
           CALL HM_GET_FLOAT_ARRAY_INDEX('Tau_arr'  ,TAUX(J),J,IS_AVAILABLE,LSUBMODEL,UNITAB)
         ENDDO
       ENDIF
+      ITAG = 0
+      IF (NORDER > 0) THEN
+           DO J=1,NORDER                                                                            
+               CALL HM_GET_FLOAT_ARRAY_INDEX('Nu_arr'   ,NU(J),J,IS_AVAILABLE,LSUBMODEL,UNITAB)  
+               IF(NU(J) /= ZERO) ITAG = 1   
+               IF (NU(J) >= HALF) NU(J) = ZEP499
+           ENDDO                                                                                    
+      ENDIF                                                                                       
 c--------------------------------------------------
 c     CHECK VALUES
 c--------------------------------------------------
       IF (RHOR == ZERO)  RHOR  = RHO0
 c
-      DO I=1,NORDER
-        IF (AL(I) == ZERO) AL(I) = ONE
+      DO J=1,NORDER
+        IF (AL(J) == ZERO) AL(J) = ONE
       ENDDO  
 c
       GAMMAINF = ONE
       SUM      = ZERO
       IF (NVISC > 0) THEN 
-        DO I=1,NVISC
-          IF (TAUX(I) <= ZERO) TAUX(I) = EP20
-          IF (GAMA(I) > ONE .OR. GAMA(I) < ZERO) THEN
+        DO J=1,NVISC
+          IF (TAUX(J) <= ZERO) TAUX(J) = EP20
+          IF (GAMA(J) > ONE .OR. GAMA(J) < ZERO) THEN
             CALL ANCMSG(MSGID=560,
      .                  MSGTYPE=MSGERROR,
      .                  ANMODE=ANINFO_BLIND_1,
      .                  I1=MAT_ID,
      .                  C1=TITR,
-     .                  R1=GAMA(I))
+     .                  R1=GAMA(J))
           ENDIF  
-          SUM = SUM + GAMA(I)
+          SUM = SUM + GAMA(J)
         ENDDO
         GAMMAINF = ONE - SUM
+        IF(GAMMAINF <= ZERO ) THEN
+            CALL ANCMSG(MSGID=2084,
+     .                  MSGTYPE=MSGERROR,
+     .                  ANMODE=ANINFO_BLIND_1,
+     .                  I1=MAT_ID,
+     .                  C1=TITR,
+     .                  R1=GAMMAINF)
+        ENDIF
       ENDIF
-      IF (NU >= HALF) NU=0.49999999
+      IF (NUG >= HALF) NUG = ZEP499
       IF (VISCMAX == ZERO) VISCMAX=EP20
+      ! 
+      IF(NVISC > 0 .AND.  FLAG_RIGIDITY == 2)THEN
+         DO J=1,NORDER
+               MU(J)=  MU(J)/ GAMMAINF
+         ENDDO
+      ENDIF 
 c
       GS = ZERO
-      DO I=1,NORDER 
-        GS = GS + MU(I)
+      DO J=1,NORDER 
+        GS = GS + MU(J)
       ENDDO
-      GS = GS*TWO
       IF (GS < ZERO) THEN
         CALL ANCMSG(MSGID=846,
      .              MSGTYPE=MSGERROR,
@@ -176,8 +196,17 @@ c
      .              I1=MAT_ID,
      .              C1=TITR)
       ENDIF
-
-      P = GS*(ONE+NU)/MAX(EM20,THREE*(ONE-TWO*NU)) 
+      IF(ITAG == 1) THEN
+         BULK = ZERO
+         DO J=1,NORDER
+           BETA(J) = NU(J)/(ONE - TWO*NU(J))
+           BULK = BULK  + TWO*MU(J)*(THIRD + BETA(J))
+         ENDDO
+         NUG = HALF*(THREE*BULK - TWO*GS)/(THREE*BULK+ GS)
+      ELSE
+          BETA(1:NORDER) = NUG/(ONE - TWO*NUG)  
+          BULK = TWO_THIRD*GS*(ONE + NUG)/MAX(EM20,(ONE - TWO*NUG))  
+      ENDIF    
 C          
        IF (NVISC > 0) THEN
          IVISC = 1
@@ -187,31 +216,36 @@ C
        ENDIF  
        FLAG_VISC = MIN(FLAG_VISC, 2)
 c---------------------
-       UPARAM(1) = NU
+       UPARAM(1) = NUG
        UPARAM(2) = NORDER
        UPARAM(3) = NVISC
        UPARAM(4) = GAMMAINF
-       UPARAM(5) = P
+       UPARAM(5) = BULK
        UPARAM(6) = VISCMAX
-       DO I=1,NORDER
-         UPARAM(6 + I  ) = MU(I)
-         UPARAM(6 + NORDER +   I) = AL(I)
+       DO J=1,NORDER
+         UPARAM(6 + J  ) = MU(J)
+         UPARAM(6 + NORDER +   J) = AL(J)
        ENDDO
        IF (NVISC > 0) THEN
-         DO I= 1,NVISC 
-           UPARAM(6 + NORDER*2 + I)         = GAMA(I)
-           UPARAM(6 + NORDER*2 + NVISC + I) = TAUX(I)
+         DO J= 1,NVISC 
+           UPARAM(6 + NORDER*2 + J)         = GAMA(J)
+           UPARAM(6 + NORDER*2 + NVISC + J) = TAUX(J)
         ENDDO 
        ENDIF 
        NUPARAM = 6 + 2*NORDER + 2*NVISC + 1
-c      
        UPARAM(NUPARAM) = IVISC
+       !! adding beta_i
+        DO J=1,NORDER
+         UPARAM(NUPARAM + J  ) = BETA(J)
+       ENDDO
+       NUPARAM = NUPARAM + NORDER
 c---------------------
-      PARMAT(1) = P
-      PARMAT(2) = GS*(ONE + NU)
-      PARMAT(3) = NU
+      GS = GS*TWO
+      PARMAT(1) = BULK
+      PARMAT(2) = GS*(ONE + NUG)
+      PARMAT(3) = NUG
       PARMAT(16) = 2  ! Formulation for solid elements time step computation.
-      PARMAT(17) = GS/(P + TWO_THIRD*GS)
+      PARMAT(17) = GS/(BULK + TWO_THIRD*GS)
 c-----------------
       PM(1)  = RHOR
       PM(89) = RHO0
@@ -219,7 +253,7 @@ c---------------------
       NFUNC = 0
       NUVAR = 6 + 6*NVISC  
 c
-c     NUVAR   : pour savegarder H et S (integration convolutive)        
+c     NUVAR   : to save H and S (convolutive integration)
 c              + pressure viscosity NUVAR  = 9 + 3*NVISC*2 (a developpe en cas de besoin), 
 c---------------------
       IF (NVISC > 0) THEN
@@ -229,29 +263,42 @@ c---------------------
       ENDIF
 c-----------------
       CALL INIT_MAT_KEYWORD(MATPARAM,"TOTAL")
-      IF (NU >= 0.49) THEN
+      IF (NUG > 0.49) THEN
         CALL INIT_MAT_KEYWORD(MATPARAM,"INCOMPRESSIBLE")
       ELSE
         CALL INIT_MAT_KEYWORD(MATPARAM,"COMPRESSIBLE")
       END IF
+      CALL INIT_MAT_KEYWORD(MATPARAM,"HOOK")
+      ! Properties compatibility       
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SHELL_ISOTROPIC") 
+      CALL INIT_MAT_KEYWORD(MATPARAM,"SOLID_ISOTROPIC")       
 c-----------------
       WRITE(IOUT,1100) TRIM(TITR),MAT_ID,62
       WRITE(IOUT,1000)
-      IF (IS_CRYPTED) THEN
+      IF(IVISC > 0 ) THEN
+         SELECT CASE (FLAG_RIGIDITY)
+          CASE (0,1)
+            FLAG_RIGIDITY = 1
+            WRITE(IOUT,1010)FLAG_RIGIDITY
+          CASE (2)
+            WRITE(IOUT,1020)FLAG_RIGIDITY
+          END SELECT
+      ENDIF
+      IF (IS_ENCRYPTED) THEN
         WRITE(IOUT,'(5X,A,//)')'CONFIDENTIAL DATA'
       ELSE
         WRITE(IOUT,1200) RHO0
 
-        WRITE(IOUT,1300) NU,GS*HALF,VISCMAX,NORDER
-        WRITE(IOUT,1400) (MU(I),AL(I),I=1,NORDER)
+        WRITE(IOUT,1300) NUG,GS*HALF,VISCMAX,NORDER
+        WRITE(IOUT,1400) (MU(J),AL(J),NU(J),J=1,NORDER)
         IF (IVISC > 0) THEN
-          WRITE(IOUT,1500) NVISC,FLAG_VISC
-          IF (NVISC /= ZERO) WRITE(IOUT,1600)(GAMA(I),TAUX(I),I=1,NVISC)
+          WRITE(IOUT,1500) NVISC
+          IF (NVISC /= ZERO) WRITE(IOUT,1600)(GAMA(J),TAUX(J),J=1,NVISC)
+          WRITE(IOUT,1700) FLAG_VISC
         ENDIF  
       ENDIF     
 C-----------------
       RETURN
- 999  CALL FREERR(3)
 C-----------------
  1000 FORMAT
      & (5X,'MATERIAL MODEL : VISCO HYPERELASTIC',/,
@@ -263,21 +310,30 @@ C-----------------
  1200 FORMAT(
      & 5X,'INITIAL DENSITY . . . . . . . . . . . .=',1PG20.13/)  
  1300 FORMAT
-     &(5X,'POISSON RATIO. . . . . . . . . .  . . .=',E12.4/
+     &(5X,'EQUIVALENT POISSON RATIO . . . .  . . .=',E12.4/
      &,5X,'INITIAL SHEAR MODULUS . . . . . . . . .=',E12.4/
      & 5X,'MAXIMUM VISCOSITY. . . . .. . . . . . .=',E12.4// 
      &,5X,'ORDER OF STRAIN ENERGY. . . . . . . . .=',I8)
  1400 FORMAT(
-     & 5X,'MATERIAL PARAMETER (MU). . . . . . . . =',E12.4/
-     & 5X,'MATERIAL PARAMETER (ALPHA) . . . . . . =',E12.4)    
+     & 7X,'MATERIAL PARAMETER (MU). . . . . . . . =',E12.4/
+     & 7X,'MATERIAL PARAMETER (ALPHA) . . . . . . =',E12.4/
+     & 7X,'MATERIAL PARAMETER (NU) . . . . . . .  =',E12.4/)    
  1500 FORMAT(//
-     & 5X,'ORDER OF MAXWELL MODEL . . . . . . . . =',I8 / 
+     & 5X,'ORDER OF MAXWELL MODEL . . . . . . . . =',I8 )
+ 1600 FORMAT(
+     & 7X,'STIFFNESS RATIO. . . . . . . . . . .. .=',E12.4/
+     & 7X,'RELAXATION TIME . . . . . . . . . . .  =',E12.4)     
+ 1700 FORMAT(/
      & 5X,'VISCOUS STRESS FORMULATION . . . . . . =',I8 /
      &10X,' 0 : VISCOUS STRESS IS DEVIATORIC ' , /
      &10X,' 1 : VISCOUS STRESS IS SPHERICAL AND DEVIATORIC' )
- 1600 FORMAT(
-     & 5X,'STIFFNESS RATIO. . . . . . . . . . .. .=',E12.4/
-     & 5X,'RELAXATION TIME . . . . . . . . . . .  =',E12.4)     
+ 1010 FORMAT(/
+     & 5X,'LONG-TERM RIGIDITY FLAG . . . . . =',I8 /
+     & 5X,'INITIAL ELASTIC MODULUS IS THE INSTANTANEOUS RIGIDITY ' , / )
+ 1020 FORMAT(/
+     & 5X,'LONG-TERM RIGIDITY FLAG . . . . . =',I8 /
+     & 5X,' INITIAL ELASTIC MODULUS IS THE LONG-TERM RIGIDITY. ',/
+     & 5X,' THE MU VALUE ARE UPDATED ' , / )      
 C-----------------
       RETURN
       END

@@ -1,31 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  LEC_INISTATE_YFILE            source/initial_conditions/inista/lec_inistate_yfile.F
-Chd|-- called by -----------
-Chd|        LEC_INISTATE                  source/elements/initia/lec_inistate.F
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    lec_inistate_yfile   ../starter/source/initial_conditions/inista/lec_inistate_yfile.F
+!||--- called by ------------------------------------------------------
+!||    lec_inistate         ../starter/source/elements/initia/lec_inistate.F
+!||--- uses       -----------------------------------------------------
+!||    format_mod           ../starter/share/modules1/format_mod.F90
+!||    reader_old_mod       ../starter/share/modules1/reader_old_mod.F90
+!||====================================================================
       SUBROUTINE LEC_INISTATE_YFILE( 
      1                  NSIGSH    ,NSIGS     ,NSIGSPH   ,NSIGRS    ,NSIGI     ,                 
      2                  SIGSH     ,SIGI      ,SIGSPH    ,SIGRS     ,SIGSP     ,                  
@@ -33,17 +35,13 @@ Chd|====================================================================
      4                  ID_SIGSH  , ID_SOLID_SIGI, ID_QUAD_SIGI  )
 C-----------------------------------------------
 C   M o d u l e s
-C-----------------------------------------------                     
+C-----------------------------------------------
+        USE FORMAT_MOD
+        USE READER_OLD_MOD , ONLY : LINE
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
-C-----------------------------------------------
-C   A n a l y s e   M o d u l e
-C-----------------------------------------------
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -58,26 +56,18 @@ C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER NSIGI, NSIGSH, NSIGS, NSIGSPH, NSIGRS, ISIGSH, IUSER
       INTEGER ID_SIGSH(*), ID_SOLID_SIGI(*), ID_QUAD_SIGI(*)
-      my_real
-     .   SIGI(NSIGS,*),SIGSH(MAX(1,NSIGSH),*),
-     .   SIGSP(NSIGI,*),SIGSPH(NSIGSPH,*),SIGRS(NSIGRS,*)
+      my_real SIGI(NSIGS,*),SIGSH(MAX(1,NSIGSH),*),SIGSP(NSIGI,*),SIGSPH(NSIGSPH,*),SIGRS(NSIGRS,*)
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER K, N, I,J, IGTYP,
-     .   NUMS,IHBE,NE, ISH3N,IIS,NIP,IPG,NPG,PT,
-     .   J1,JJ1,NU,IP,JJ,NUVAR,
-     .   NVARSH,NUMR,NUMSOLID,KK,
-     .   JJHBE
+      INTEGER K, N, I, J, IGTYP, NUMS, IHBE, IIS, NIP, NPG, PT, J1, JJ1, NU, IP, NUVAR, NVARSH, NUMR, NUMSOLID, KK, JJHBE
       INTEGER KN
-      INTEGER IS_SOLID,IS_QUAD	 
-      my_real
-     .   THKI, EM, EB, H1, H2, H3, R0 , EIN, SMOOTHL
-      my_real
-     .   S(6), SIGLOC(6)
+      INTEGER IS_SOLID,IS_QUAD   
+      my_real THKI, EM, EB, H1, H2, H3, R0 , EIN, SMOOTHL
+      my_real S(6), SIGLOC(6)
 C=======================================================================
 C
-C -- LECTURE OF INITIAL STATE DATA - EXTRACTED FROM INITIA.F
+C -- READING OF INITIAL STATE DATA - EXTRACTED FROM INITIA.F
 C
 C=======================================================================
 
@@ -87,8 +77,8 @@ C------------------
        IS_SOLID = 0
        IS_QUAD = 0
   110  READ(IIN5,FMT='(A)',END=199,ERR=199)LINE
-       IF(LINE(1:7).NE.'/SOLIDE'.AND.N2D == 0)GOTO 110
-       IF(LINE(1:5).NE.'/QUAD'.AND.N2D.NE.0)  GOTO 110
+       IF(LINE(1:7)/='/SOLIDE'.AND.N2D == 0)GOTO 110
+       IF(LINE(1:5)/='/QUAD'.AND.N2D/=0)  GOTO 110
        IF(LINE(1:7) == '/SOLIDE')IS_SOLID=1
        IF(LINE(1:5) == '/QUAD')IS_QUAD=1
 C
@@ -109,7 +99,7 @@ C
          IF(IS_SOLID == 1) ID_SOLID_SIGI(I) = N
          IF(IS_QUAD == 1) ID_QUAD_SIGI(I) = N
         GOTO 115
- 117    IF(LINE(1:5).NE.'/TETRA'.AND.NUMELS10 == 0) GOTO 120
+ 117    IF(LINE(1:5)/='/TETRA'.AND.NUMELS10 == 0) GOTO 120
         READ(IIN5,FMT='(A)',END=199,ERR=199)LINE
  118    READ(IIN5,FMT='(A)',END=120,ERR=199)LINE
          IF(LINE(1:1) == '#')GOTO 118
@@ -135,7 +125,7 @@ C------------------
          REWIND(IIN4)
          GOTO 130
        ENDIF
-  122  IF(LINE(1:27).NE.'/SOLID     /SCALAR    /EPSP')GOTO 120
+  122  IF(LINE(1:27)/='/SOLID     /SCALAR    /EPSP')GOTO 120
        READ(IIN4,FMT='(A)',END=199,ERR=199)LINE
        I = 0
   125  READ(IIN4,FMT='(A)',END=130,ERR=199)LINE
@@ -148,7 +138,7 @@ C------------------
          ENDIF
          DO J=1,6
            I=I+1
-           IF(I.GT.NUMSOL+NUMQUAD) GOTO 130
+           IF(I>NUMSOL+NUMQUAD) GOTO 130
            SIGI(10,I) = S(J)
          ENDDO
        GOTO 125
@@ -160,7 +150,7 @@ C------------------
          REWIND(IIN4)
          GOTO 140
        ENDIF
-  132  IF(LINE(1:27).NE.'/SOLID     /SCALAR    /ENER')GOTO 130
+  132  IF(LINE(1:27)/='/SOLID     /SCALAR    /ENER')GOTO 130
        READ(IIN4,FMT='(A)',END=199,ERR=199)LINE
 C
        I = 0
@@ -174,7 +164,7 @@ C
          ENDIF
          DO J=1,6
            I=I+1
-           IF(I.GT.NUMSOL+NUMQUAD) GOTO 140
+           IF(I>NUMSOL+NUMQUAD) GOTO 140
            SIGI(9,I) = S(J)
          ENDDO
        GOTO 135
@@ -186,7 +176,7 @@ C------------------
          REWIND(IIN4)
          GOTO 144
        ENDIF
-  142  IF(LINE(1:27).NE.'/SOLID     /SCALAR    /DENS')GOTO 140
+  142  IF(LINE(1:27)/='/SOLID     /SCALAR    /DENS')GOTO 140
        READ(IIN4,FMT='(A)',END=199,ERR=199)LINE
 C
        I = 0
@@ -200,7 +190,7 @@ C
          ENDIF
          DO J=1,6
            I=I+1
-           IF(I.GT.NUMSOL+NUMQUAD) GOTO 144
+           IF(I>NUMSOL+NUMQUAD) GOTO 144
            SIGI(8,I) = S(J)
          ENDDO
        GOTO 145
@@ -210,7 +200,7 @@ C
          REWIND(IIN4)
          GOTO 150
        ENDIF
-  146  IF(LINE(1:28).NE.'/SOLID     /SCALAR    /USERS')GOTO 144
+  146  IF(LINE(1:28)/='/SOLID     /SCALAR    /USERS')GOTO 144
        READ(IIN4,FMT='(A)',END=199,ERR=199)LINE
         IUSER = 1
 C
@@ -238,12 +228,12 @@ C
          NU = 1
          KN = NUVAR
        ENDIF
-       IF(I.GT.NUMSOL+NUMQUAD) GOTO 150
+       IF(I>NUMSOL+NUMQUAD) GOTO 150
        IF(NUMS == 10.OR.NUMS == 16.OR.NUMS == 20.OR.
      .   (NUMS == 8.AND.JJHBE == 14).OR.(NUMS == 8.AND.JJHBE == 17).OR.
      .   ((NUMS == 6.OR.NUMS == 8).AND.JJHBE == 15).OR.
      .   (NUMS == 8.AND.NIP == 1.AND.
-     .   JJHBE.NE.14.AND.JJHBE.NE.15).OR.NUMS == 4)THEN
+     .   JJHBE/=14.AND.JJHBE/=15).OR.NUMS == 4)THEN
          DO K=1,NIP
           IIS = NVSOLID1 + NVSOLID2 + 4 + NUVAR*(K - 1)
           DO J1 = 1,NU
@@ -278,7 +268,7 @@ C------------------
          REWIND(IIN4)
          GOTO 170
        ENDIF
-  152  IF(LINE(1:29).NE.'/SOLID     /TENSOR    /STRESS')GOTO 150
+  152  IF(LINE(1:29)/='/SOLID     /TENSOR    /STRESS')GOTO 150
        READ(IIN4,FMT='(A)',END=199,ERR=199)LINE
 C
        I = 0
@@ -291,7 +281,7 @@ C
            READ(LINE,'(6F20.0)')(S(J),J=1,6)
          ENDIF
          I=I+1
-         IF(I.GT.NUMSOL+NUMQUAD) GOTO 170
+         IF(I>NUMSOL+NUMQUAD) GOTO 170
          DO J=1,6
            SIGI(J,I) = S(J)
          ENDDO
@@ -304,7 +294,7 @@ C------------------------------------------------------------------------
          REWIND(IIN4)
          GOTO 160
        ENDIF
-  172  IF(LINE(1:30).NE.'/SOLID     /TENSOR    /STR_FUL')GOTO 170
+  172  IF(LINE(1:30)/='/SOLID     /TENSOR    /STR_FUL')GOTO 170
        READ(IIN4,FMT='(A)',END=199,ERR=199)LINE
 C
        I = 0
@@ -314,7 +304,7 @@ C
        IF(LINE(1:1) == '/')GOTO 160
        J=J+1
          I=I+1
-         IF(I.GT.NUMSOL+NUMQUAD) GOTO 170
+         IF(I>NUMSOL+NUMQUAD) GOTO 170
          IF (IOUTP_FMT == 2) THEN
            READ(LINE,'(3I8)') NIP,NUMS,JJHBE
          ELSE
@@ -435,7 +425,7 @@ C--------------------------------------
          REWIND(IIN4)
          GOTO 199
        ENDIF
-  182  IF(LINE(1:33).NE.'/SOLID     /TENSOR    /STRAIN_FUL')GOTO 180
+  182  IF(LINE(1:33)/='/SOLID     /TENSOR    /STRAIN_FUL')GOTO 180
        READ(IIN4,FMT='(A)',END=199,ERR=199)LINE
 C
        I = 0
@@ -444,7 +434,7 @@ C
        IF(LINE(1:1) == '#')GOTO 184
        IF(LINE(1:1) == '/')GOTO 199
        J=J+1
-       IF(I.GT.NUMSOL+NUMQUAD) GOTO 199
+       IF(I>NUMSOL+NUMQUAD) GOTO 199
        IF (IOUTP_FMT == 2) THEN
           READ(LINE,'(3I8)')NIP,NUMS,NUMSOLID
        ELSE
@@ -473,7 +463,7 @@ C
  199   CONTINUE
 C
 C--------------------------------------------------------
-C     CONTRAINTES INITIALES + energies densites eps-plast
+C     Initial constraints + EPS-PLAST density energy
 C     SHELL 4N/3N
 C--------------------------------------------------------
 C
@@ -483,7 +473,7 @@ C
        REWIND(IIN5)
 C
   310  READ(IIN5,FMT='(A)',END=399,ERR=399)LINE
-       IF(LINE(1:6).NE.'/SHELL')GOTO 310
+       IF(LINE(1:6)/='/SHELL')GOTO 310
        READ(IIN5,FMT='(A)',END=399,ERR=399)LINE
 C
   312  READ(IIN5,FMT='(A)',END=314,ERR=399)LINE
@@ -499,14 +489,14 @@ C
        ELSE
          READ(LINE,'(2I10)')I,N
        ENDIF
-         IF(I.GT.NUMSHEL) GOTO 314
+         IF(I>NUMSHEL) GOTO 314
          SIGSH(1,I) = N
          ID_SIGSH(I) = N
        GOTO 312
 C
   314  REWIND(IIN5)
   315  READ(IIN5,FMT='(A)',END=399,ERR=399)LINE
-       IF(LINE(1:8).NE.'/SHELL3N')GOTO 315
+       IF(LINE(1:8)/='/SHELL3N')GOTO 315
        READ(IIN5,FMT='(A)',END=399,ERR=399)LINE
 C
   316  READ(IIN5,FMT='(A)',END=320,ERR=399)LINE
@@ -524,7 +514,7 @@ C
        ENDIF
          SIGSH(1,I+NUMSHEL) = N
          ID_SIGSH(I+NUMSHEL) = N
-         IF(I.GT.NUMSH3N) GOTO 320
+         IF(I>NUMSH3N) GOTO 320
        GOTO 316
 C----------------------------------------------
 C      FICHIER Ynnn
@@ -535,7 +525,7 @@ C----------------------------------------------
          REWIND(IIN4)
          GOTO 350
        ENDIF
-  322  IF(LINE(1:33).NE.'/SHELL     /TENSOR    /STRESS_FUL')GOTO 320
+  322  IF(LINE(1:33)/='/SHELL     /TENSOR    /STRESS_FUL')GOTO 320
        READ(IIN4,FMT='(A)',END=399,ERR=399)LINE
        ISIGSH =1
 C
@@ -546,7 +536,7 @@ C
        IF(LINE(1:1) == '/')GOTO 352
          J=J+1
          I=I+1
-         IF(J.GT.NUMSHEL+NUMSH3N) GOTO 350
+         IF(J>NUMSHEL+NUMSH3N) GOTO 350
          IF (IOUTP_FMT == 2) THEN
            READ(LINE,'(2I8)')NIP,NPG
            READ(IIN4,FMT='(6F12.0)',END=399,ERR=399)THKI,EM,EB,H1,H2,H3
@@ -557,7 +547,8 @@ C
          SIGSH(2,I) = NIP
          SIGSH(3,I) = THKI
          SIGSH(4,I) = EM
-         SIGSH(5,I) = EB
+         SIGSH(5,I) = EB 
+         SIGSH(NVSHELL - 1,I) = ONE
         IF (NPG == 0.OR.NPG == 1)THEN
          SIGSH(14,I) = H1
          SIGSH(15,I) = H2
@@ -576,7 +567,7 @@ C
              READ(IIN4,FMT='(3F20.0)',END=399,ERR=399)
      .                            SIGSH(28,I),SIGSH(29,I),SIGSH(30,I)
            ENDIF
-         ELSEIF(NIP.NE.0)THEN
+         ELSEIF(NIP/=0)THEN
            IF (IOUTP_FMT == 2) THEN
              DO K=1,NIP
                PT = 22 + 6*(K - 1)
@@ -593,7 +584,7 @@ C
              ENDDO
            ENDIF
          ENDIF
-        ELSEIF(NPG.GT.1) THEN
+        ELSEIF(NPG>1) THEN
           SIGSH(NVSHELL,I) = NPG
           IF(NIP == 0)THEN
            IF (IOUTP_FMT == 2) THEN
@@ -648,7 +639,7 @@ C------------------
          REWIND(IIN4)
          GOTO 360
        ENDIF
-  352  IF(LINE(1:33).NE.'/SHELL     /TENSOR    /STRAIN_FUL')GOTO 350
+  352  IF(LINE(1:33)/='/SHELL     /TENSOR    /STRAIN_FUL')GOTO 350
        READ(IIN4,FMT='(A)',END=399,ERR=399)LINE
        ISIGSH =1
 C
@@ -659,7 +650,8 @@ C
        IF(LINE(1:1) == '/')GOTO 360
          J=J+1
          I=I+1
-         IF(J.GT.NUMSHEL+NUMSH3N) GOTO 360
+         IF(J> NUMSHEL+NUMSH3N) GOTO 360
+         SIGSH(NVSHELL - 1,I) = ONE
          IF (IOUTP_FMT == 2) THEN
            READ(LINE,'(6F12.0)')SIGSH(6,I),SIGSH(7,I),SIGSH(8,I),
      .                          SIGSH(9,I),SIGSH(10,I),SIGSH(27,I)
@@ -683,7 +675,7 @@ C--------------------------------
           REWIND(IIN4)
           GO TO 520
         ENDIF
-  422   IF(LINE(1:27).NE.'/SHELL     /SCALAR    /EPSP')GOTO 420
+  422   IF(LINE(1:27)/='/SHELL     /SCALAR    /EPSP')GOTO 420
         READ(IIN4,FMT='(A)',END=399,ERR=399)LINE
         ISIGSH =1
 C
@@ -694,7 +686,8 @@ C
         IF(LINE(1:1) == '/')GOTO 522
          J=J+1
          I=I+1
-         IF(J.GT.NUMSHEL+NUMSH3N) GOTO 520
+         IF(J>NUMSHEL+NUMSH3N) GOTO 520
+         SIGSH(NVSHELL - 1,I) = ONE
          IF (IOUTP_FMT == 2) THEN
            READ(LINE,FMT='(6F12.0)')SIGLOC
          ELSE
@@ -703,23 +696,23 @@ C
          SIGSH(27,I)=SIGLOC(1)
          J=J+1
          I=I+1
-         IF(J.GT.NUMSHEL+NUMSH3N) GOTO 520
+         IF(J>NUMSHEL+NUMSH3N) GOTO 520
          SIGSH(27,I)=SIGLOC(2)
          J=J+1
          I=I+1
-         IF(J.GT.NUMSHEL+NUMSH3N) GOTO 520
+         IF(J>NUMSHEL+NUMSH3N) GOTO 520
          SIGSH(27,I)=SIGLOC(3)
          J=J+1
          I=I+1
-         IF(J.GT.NUMSHEL+NUMSH3N) GOTO 520
+         IF(J>NUMSHEL+NUMSH3N) GOTO 520
          SIGSH(27,I)=SIGLOC(4)
          J=J+1
          I=I+1
-         IF(J.GT.NUMSHEL+NUMSH3N) GOTO 520
+         IF(J>NUMSHEL+NUMSH3N) GOTO 520
          SIGSH(27,I)=SIGLOC(5)
          J=J+1
          I=I+1
-         IF(J.GT.NUMSHEL+NUMSH3N) GOTO 520
+         IF(J>NUMSHEL+NUMSH3N) GOTO 520
          SIGSH(27,I)=SIGLOC(6)
         GOTO 425
   520   READ(IIN4,FMT='(A)',END=399,ERR=399)LINE
@@ -727,7 +720,7 @@ C
           REWIND(IIN4)
           GOTO 450
         ENDIF
-  522   IF(LINE(1:28).NE.'/SHELL     /SCALAR    /USERS')GOTO 520
+  522   IF(LINE(1:28)/='/SHELL     /SCALAR    /USERS')GOTO 520
           READ(IIN4,FMT='(A)',END=399,ERR=399)LINE
 C
         IUSER = 1
@@ -739,7 +732,7 @@ C
         IF(LINE(1:1) == '/')GOTO 450
          J=J+1
          I=I+1
-         IF(J.GT.NUMSHEL+NUMSH3N) GOTO 450
+         IF(J>NUMSHEL+NUMSH3N) GOTO 450
          IF(IOUTP_FMT == 2)THEN
            READ(LINE,FMT='(4I8)') IHBE,NIP,NPG,NUVAR
          ELSE
@@ -758,7 +751,7 @@ C
           ENDIF
 C-----------------------
 C  COQUE STANDARD
-C  IHBE different de 11
+C  IHBE different from 11
 C-----------------------
          IF(NPG == 0)THEN
           IF(NIP == 0)THEN
@@ -879,7 +872,7 @@ C-----------------------
 C
 C--------------------------------------------------------
 C     CONTRAINTES INITIALES + ENERGIES DENSITES EPS-PLAST
-C     SPH particles
+C     Sph particles 
 C--------------------------------------------------------
 C
 C      FICHIER Y000
@@ -887,7 +880,7 @@ C
        REWIND(IIN4)
        REWIND(IIN5)
   610  READ(IIN5,FMT='(A)',END=699,ERR=699)LINE
-       IF(LINE(1:7).NE.'/SPHCEL')GOTO 610
+       IF(LINE(1:7)/='/SPHCEL')GOTO 610
 C
        READ(IIN5,FMT='(A)',END=699,ERR=699)LINE
 C
@@ -911,7 +904,7 @@ C
          REWIND(IIN4)
          GOTO 630
        ENDIF
-  622  IF(LINE(1:27).NE.'/SPHCEL    /SCALAR    /EPSP')GOTO 620
+  622  IF(LINE(1:27)/='/SPHCEL    /SCALAR    /EPSP')GOTO 620
        READ(IIN4,FMT='(A)',END=699,ERR=699)LINE
 C
        I = 0
@@ -925,7 +918,7 @@ C
          END IF
          DO J=1,6
            I=I+1
-           IF(I.GT.NUMSPHY) GOTO 630
+           IF(I>NUMSPHY) GOTO 630
            SIGSPH(10,I) = S(J)
          ENDDO
        GOTO 625
@@ -937,7 +930,7 @@ C------------------
          REWIND(IIN4)
          GOTO 640
        ENDIF
-  632  IF(LINE(1:27).NE.'/SPHCEL    /SCALAR    /ENER')GOTO 630
+  632  IF(LINE(1:27)/='/SPHCEL    /SCALAR    /ENER')GOTO 630
        READ(IIN4,FMT='(A)',END=699,ERR=699)LINE
 C
        I = 0
@@ -951,7 +944,7 @@ C
          END IF
          DO J=1,6
            I=I+1
-           IF(I.GT.NUMSPHY) GOTO 640
+           IF(I>NUMSPHY) GOTO 640
            SIGSPH(9,I) = S(J)
          ENDDO
        GOTO 635
@@ -963,7 +956,7 @@ C------------------
          REWIND(IIN4)
          GOTO 650
        ENDIF
-  642  IF(LINE(1:27).NE.'/SPHCEL    /SCALAR    /DENS')GOTO 640
+  642  IF(LINE(1:27)/='/SPHCEL    /SCALAR    /DENS')GOTO 640
        READ(IIN4,FMT='(A)',END=699,ERR=699)LINE
 C
        I = 0
@@ -977,7 +970,7 @@ C
          END IF
          DO J=1,6
            I=I+1
-           IF(I.GT.NUMSPHY) GOTO 650
+           IF(I>NUMSPHY) GOTO 650
            SIGSPH(8,I) = S(J)
          ENDDO
        GOTO 645
@@ -989,7 +982,7 @@ C------------------
          REWIND(IIN4)
          GOTO 660
        ENDIF
-  652  IF(LINE(1:27).NE.'/SPHCEL  /TENSOR    /STRESS')GOTO 650
+  652  IF(LINE(1:27)/='/SPHCEL  /TENSOR    /STRESS')GOTO 650
        READ(IIN4,FMT='(A)',END=699,ERR=699)LINE
 C
        I = 0
@@ -1002,7 +995,7 @@ C
            READ(LINE,'(6F20.0)')(S(J),J=1,6)
          END IF
          I=I+1
-         IF(I.GT.NUMSPHY) GOTO 660
+         IF(I>NUMSPHY) GOTO 660
          DO J=1,6
            SIGSPH(J,I) = S(J)
          ENDDO
@@ -1015,7 +1008,7 @@ C-----------------------
          REWIND(IIN4)
          GOTO 670
        ENDIF
-  662  IF(LINE(1:27).NE.'/SPHCEL    /SCALAR    /SLEN')GOTO 660
+  662  IF(LINE(1:27)/='/SPHCEL    /SCALAR    /SLEN')GOTO 660
        READ(IIN4,FMT='(A)',END=699,ERR=699)LINE
 C
        I = 0
@@ -1029,7 +1022,7 @@ C
          END IF
          DO J=1,6
            I=I+1
-           IF(I.GT.NUMSPHY) GOTO 670
+           IF(I>NUMSPHY) GOTO 670
            SIGSPH(11,I) = S(J)
          ENDDO
        GOTO 665
@@ -1041,7 +1034,7 @@ C-------------------------------------------------------------------
          REWIND(IIN4)
          GOTO 680
        ENDIF
-  672  IF(LINE(1:28).NE.'/SPHCEL  /TENSOR    /STR_FUL')GOTO 670
+  672  IF(LINE(1:28)/='/SPHCEL  /TENSOR    /STR_FUL')GOTO 670
        READ(IIN4,FMT='(A)',END=699,ERR=699)LINE
 C
        I = 0
@@ -1049,7 +1042,7 @@ C
        IF(LINE(1:1) == '#')GOTO 675
        IF(LINE(1:1) == '/')GOTO 680
         I=I+1
-        IF(I.GT.NUMSPHY) GOTO 670
+        IF(I>NUMSPHY) GOTO 670
         IF(IOUTP_FMT == 2)THEN
           READ(LINE,FMT='(3F12.0)') EIN,R0,SMOOTHL
         ELSE
@@ -1080,7 +1073,7 @@ C
  699    CONTINUE
 C
 C--------------------------------------------------------------
-C     EFFORT et MOMENTS INITIALES + energies densites eps-plast
+C      
 C     Ressort
 C--------------------------------------------------------------
 C

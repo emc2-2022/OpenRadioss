@@ -1,34 +1,35 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  I22COR3                       source/interfaces/int22/i22cor3.F
-Chd|-- called by -----------
-Chd|        I22MAINF                      source/interfaces/int22/i22mainf.F
-Chd|-- calls ---------------
-Chd|        I22BUFBRIC_MOD                ../common_source/modules/cut-cell-search_mod.F
-Chd|        I22TRI_MOD                    ../common_source/modules/cut-cell-search_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    i22cor3          ../engine/source/interfaces/int22/i22cor3.F
+!||--- called by ------------------------------------------------------
+!||    i22mainf         ../engine/source/interfaces/int22/i22mainf.F
+!||--- uses       -----------------------------------------------------
+!||    i22bufbric_mod   ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    i22edge_mod      ../common_source/modules/interfaces/cut-cell-buffer_mod.F
+!||    i22tri_mod       ../common_source/modules/interfaces/cut-cell-search_mod.F
+!||    tri7box          ../engine/share/modules/tri7box.F
+!||====================================================================
       SUBROUTINE I22COR3(
      1                JLT     ,X         ,IRECT  ,NSV     ,CAND_E ,
      2                CAND_B  ,STF       ,STFN   ,X1      ,X2     ,
@@ -49,7 +50,7 @@ C-----------------------------------------------
 C   D e s c r i p t i o n
 C-----------------------------------------------
 C Interface Type22 (/INTER/TYPE22) is an FSI coupling method based on cut cell method. 
-C   This experimental cut cell method is not completed, abandonned, and is not an official option.
+C   This experimental cut cell method is not completed, abandoned, and is not an official option.
 C
 C-----------------------------------------------
 C   M o d u l e s
@@ -69,17 +70,12 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "scr02_c.inc"
-#include      "scr05_c.inc"
-#include      "com06_c.inc"
-#include      "com08_c.inc"
-#include      "sms_c.inc"
 #include      "comlock.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
       INTEGER IRECT(4,*), NSV(*), CAND_E(*), CAND_B(*),KINET(*),KINI(*),
-     .        JLT,IDT, NOINT,IGAP ,NSN, ITY, NIN, IGSTI,
+     .        JLT,IGAP ,NSN, ITY, NIN, IGSTI,
      .        IADM,INTTH, CAND__E(*), CAND__B(*)
       INTEGER IX1(MVSIZ), IX2(MVSIZ), IX3(MVSIZ), IX4(MVSIZ),
      .        NSVG(MVSIZ),IELEC(*),IELECI(MVSIZ),  NSMS(MVSIZ), 
@@ -95,11 +91,11 @@ C-----------------------------------------------
      .   XI(MVSIZ), YI(MVSIZ), ZI(MVSIZ), STIF(MVSIZ),
      .   GAPV(MVSIZ),
      .   VXI(MVSIZ), VYI(MVSIZ), VZI(MVSIZ), MSI(MVSIZ),
-     .   KMIN, KMAX, GAPMAX, GAPMIN,SCUT
+     .   KMIN, KMAX, GAPMAX, GAPMIN
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I ,J  ,IL, EI, NN, IG,JFT, IX,  BI, NI
+      INTEGER I   , EI, IX,  BI, NI
 C-----------------------------------------------
 C   S o u r c e   L i n e s
 C-----------------------------------------------  
@@ -112,7 +108,7 @@ C      IRECT_L( 9:12, :)                         : Y-coordinates
 C      IRECT_L(13:16, :)                         : Z-coordinates
 C      IRECT_L(17:19, :)                         : Minimum X,Y,Z
 C      IRECT_L(20:22, :)                         : Maximum X,Y,Z
-C      IRECT_L(23   , :)                         : Stiffness
+C      Irect_l (23, :): Stiffness
 C      IRECT_L(24:26, :)                         : Lagrangian Velocity (mean)
 C      IRECT_L(    :,1+4*ESHIFT:4*ESHIFT+NRTM_T) : element data on current Thread
 C      IRECT_L(    :,NRTM+1:NRTM + NSNR)         : remotes elements data
@@ -132,7 +128,7 @@ C-----------------------------------------------
 
           DO I=1,JLT
            BI = CAND_B(I)    !up to i22intersect() : cand_b is related to couple I. It corresponds to brick IID = bufbric(cand_b(i))
-	                     !after that cand_b(i) is replaced by address in brick_list
+                               !after that cand_b(i) is replaced by address in brick_list
            EI = IABS(CAND_E(I))   
            NI=BI
            

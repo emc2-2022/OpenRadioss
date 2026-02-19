@@ -1,33 +1,33 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
 C
-Chd|====================================================================
-Chd|  I11THERM                      source/interfaces/int11/i11therm.F
-Chd|-- called by -----------
-Chd|        I11MAINF                      source/interfaces/int11/i11mainf.F
-Chd|-- calls ---------------
-Chd|        FINTER                        source/tools/curve/finter.F   
-Chd|====================================================================
+!||====================================================================
+!||    i11therm   ../engine/source/interfaces/int11/i11therm.F
+!||--- called by ------------------------------------------------------
+!||    i11mainf   ../engine/source/interfaces/int11/i11mainf.F
+!||--- calls      -----------------------------------------------------
+!||    finter     ../engine/source/tools/curve/finter.F
+!||====================================================================
       SUBROUTINE I11THERM(
      1                   JLT     ,PM     ,INTTH    ,PENRAD  , KTHE  ,
      2                   TEMPI1  ,TEMPI2  ,TEMPM1  ,TEMPM2  ,PHIS1   ,
@@ -47,16 +47,8 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com08_c.inc"
-#include      "scr04_c.inc"
-#include      "scr08_s_c.inc"
-#include      "scr08_a_c.inc"
 #include      "param_c.inc"
-#include      "scr05_c.inc"
-#include      "task_c.inc"
-#include      "com04_c.inc"
-#include      "warn_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
@@ -67,7 +59,7 @@ C     REAL
      .   TINT,FRAD,DRAD,DYDX,XTHE,
      .   PM(NPROPM,*),TF(*),TEMPI1(MVSIZ),TEMPI2(MVSIZ),TEMPM1(MVSIZ),
      .   TEMPM2(MVSIZ),PENRAD(MVSIZ),PHIS1(MVSIZ),PHIS2(MVSIZ),
-     .   KTHE,AREAS1(MVSIZ),AREAS2(MVSIZ),GAPV(MVSIZ),
+     .   KTHE,GAPV(MVSIZ),
      .   FNI(MVSIZ),HS1(MVSIZ), HS2(MVSIZ), HM1(MVSIZ), HM2(MVSIZ),
      .   CONDINTS1(MVSIZ),CONDINTS2(MVSIZ),PHIM1(MVSIZ),PHIM2(MVSIZ),
      .   CONDINTM1(MVSIZ),CONDINTM2(MVSIZ),AREAC(MVSIZ),PHI(MVSIZ),
@@ -76,10 +68,10 @@ C
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
-      INTEGER I, II,L,NB3M, I3N,LS,J,IE,MAT
+      INTEGER I,MAT
 C     REAL
       my_real
-     .   TS1, TS2, TM1 ,TM2, DIST, CONDS1 ,CONDS2 ,TSTIFM1 ,
+     .   TS1, TS2, TM1 ,TM2, DIST, CONDS1 ,CONDS2  ,
      .   TSTIFM ,TSTIFT,TM,P,RSTIFF,TS,CONDM1,CONDM2,CONDS,CONDM,
      .   COND,RSTIF
       my_real 
@@ -143,7 +135,7 @@ C
 C
        ELSE ! IFUNC
 C--------------------------------------------------------
-C  CAS DES PAQUETS MIXTES OU QUADRANGLE
+C  CASE OF MIXED OR QUADRANGLE PACKETS
 C--------------------------------------------------------
 C    
          DO I=1,JLT
@@ -176,7 +168,7 @@ C---------------------------------
               MAT = IELECI(I)
 
 C---------------------------------
-C           CALCUL DE LA CONDUCTIBILITE
+C           CALCULATION OF CONDUCTIVITY
 C---------------------------------
               P      = XTHE * FNI(I) / AREAC(I)
               RSTIFF  = ONE /MAX(EM30,FINTER(IFUNCTK,P,NPC,TF,DYDX)*KTHE)
@@ -210,7 +202,7 @@ C
 C
        IF(IFUNCTK==0)THEN ! KTHE =/ F(PEN)
 C--------------------------------------------------------
-C  CAS DES PAQUETS MIXTES OU QUADRANGLE
+C  CASE OF MIXED OR QUADRANGLE PACKETS
 C--------------------------------------------------------
 C     
         RSTIF = ONE/MAX(EM30,KTHE)

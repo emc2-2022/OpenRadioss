@@ -1,37 +1,41 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  FXBYFOR                       source/constraints/fxbody/fxbyfor.F
-Chd|-- called by -----------
-Chd|        RESOL                         source/engine/resol.F         
-Chd|-- calls ---------------
-Chd|        FXBODFP1                      source/constraints/fxbody/fxbodfp.F
-Chd|        FXBODFP2                      source/constraints/fxbody/fxbodfp.F
-Chd|        SPMD_FXB_FOR                  source/mpi/kinematic_conditions/spmd_fxb_for.F
-Chd|        SPMD_FXB_FOR_PON              source/mpi/kinematic_conditions/spmd_fxb_for_pon.F
-Chd|        ELBUFDEF_MOD                  ../common_source/modules/elbufdef_mod.F
-Chd|====================================================================
-      SUBROUTINE FXBYFOR(FXBIPM, FXBRPM,  FXBNOD , FXBMOD  , FXBGLM ,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    fxbyfor            ../engine/source/constraints/fxbody/fxbyfor.F
+!||--- called by ------------------------------------------------------
+!||    resol              ../engine/source/engine/resol.F
+!||--- calls      -----------------------------------------------------
+!||    fxbodfp1           ../engine/source/constraints/fxbody/fxbodfp.F
+!||    fxbodfp2           ../engine/source/constraints/fxbody/fxbodfp.F
+!||    spmd_fxb_for       ../engine/source/mpi/kinematic_conditions/spmd_fxb_for.F
+!||    spmd_fxb_for_pon   ../engine/source/mpi/kinematic_conditions/spmd_fxb_for_pon.F
+!||--- uses       -----------------------------------------------------
+!||    elbufdef_mod       ../common_source/modules/mat_elem/elbufdef_mod.F90
+!||    output_mod         ../common_source/modules/output/output_mod.F90
+!||    python_funct_mod   ../common_source/modules/python_mod.F90
+!||    sensor_mod         ../common_source/modules/sensor_mod.F90
+!||====================================================================
+      SUBROUTINE FXBYFOR(OUTPUT,FXBIPM, FXBRPM,  FXBNOD , FXBMOD  , FXBGLM ,
      .                   FXBCPM, FXBCPS,  FXBLM  , FXBFLS  , FXBDLS ,
      .                   FXBDEP, FXBVIT,  FXBACC , A       , AR     ,
      .                   X     , FXBMVN,  FXBMCD , FXBSE   , FXBSV  ,
@@ -39,12 +43,15 @@ Chd|====================================================================
      .                   FSAV  , FXBFP ,  FXBEFW , FXBFC   , D      ,
      .                   DT2T  , ITYPTST, NELTST , FXBGRVI , FXBGRVR,
      .                   IGRV  , NPC    , TF     , FXBGRP  , FXBGRW ,
-     .                   IPARG , SENSOR , LSENSOR, IAD_ELEM, FR_ELEM,
-     .                   AGRV  )
+     .                   IPARG , NSENSOR,SENSOR_TAB, IAD_ELEM, FR_ELEM,
+     .                   AGRV  , PYTHON)
 C-----------------------------------------------
 C   M o d u l e s
 C-----------------------------------------------
+      USE python_funct_mod, ONLY : python_
       USE ELBUFDEF_MOD            
+      USE SENSOR_MOD
+      USE OUTPUT_MOD
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
@@ -54,10 +61,8 @@ C   C o m m o n   B l o c k s
 C-----------------------------------------------
 #include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com06_c.inc"
 #include      "com08_c.inc"
 #include      "scr03_c.inc"
-#include      "scr05_c.inc"
 #include      "scr07_c.inc"
 #include      "scr18_c.inc"
 #include      "param_c.inc"
@@ -67,9 +72,11 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+      TYPE(OUTPUT_), INTENT(INOUT) :: OUTPUT
+      INTEGER ,INTENT(IN) :: NSENSOR
       INTEGER FXBIPM(NBIPM,*), FXBNOD(*), FXBELM(*), ITYPTST, NELTST,
      .        FXBGRVI(*), IGRV(NIGRV,*), NPC(*), IPARG(NPARG,*),
-     .        LSENSOR(NSENSI,*), IAD_ELEM(2,*), FR_ELEM(*)
+     .        IAD_ELEM(2,*), FR_ELEM(*)
       my_real
      .   FXBRPM(*), FXBMOD(*), FXBGLM(*), FXBCPM(*), FXBCPS(*), 
      .   FXBLM(*),  FXBFLS(*), FXBDLS(*), FXBDEP(*), FXBVIT(*),
@@ -77,29 +84,29 @@ C-----------------------------------------------
      .   FXBMCD(*), FXBSE(*),  FXBSV(*),  FXBSIG(*), ELBUF(*) , 
      .   PARTSAV(*),FSAV(NTHVKI,*), FXBFP(*),FXBEFW(*),
      .   FXBFC(*),  D(3,*), DT2T, FXBGRVR(*), TF(*), FXBGRP(*),
-     .   FXBGRW(*), SENSOR(NSENSR,*), AGRV(LFACGRV,*)
+     .   FXBGRW(*), AGRV(LFACGRV,*)
       TYPE (ELBUF_STRUCT_), DIMENSION (NGROUP) :: ELBUF_TAB
+      TYPE (SENSOR_STR_) ,DIMENSION(NSENSOR) :: SENSOR_TAB
+      TYPE(python_) :: python
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER NFX,ANOD,AMOD,AGLM,ACP,ALM,AFLS,ADLS,AVAR,ARPM,
      .        NME,NMOD,AMCD,ASE,ITN,NCYCLP1,AELM,ASIG,N2,NN2,
      .        AGRVI,AGRVR,NLGRAV,NSN,I,PMAIN
-      my_real
-     .        MFEXTP(LENVAR)
+      my_real MFEXTP(LENVAR)
       INTEGER NSNT, NMMAX, IAD(NFXBODY), ANOD2, J
-      my_real
-     .       , DIMENSION(:,:), ALLOCATABLE :: FSKYFXB
+      my_real, DIMENSION(:,:), ALLOCATABLE :: FSKYFXB
 C=======================================================================
       N2=NINTER+NRWALL+NRBODY+NSECT+NJOINT+NRBAG+NVOLU
       ITN=0
-      IF(TT.LT.TANIM) ITN=1
+      IF(TT<OUTPUT%TANIM) ITN=1
       NCYCLP1=NCYCLE+1
-      IF((NCYCLP1/NCRST)*NCRST.EQ.NCYCLP1.OR.MREST.NE.0) ITN=0
+      IF((NCYCLP1/NCRST)*NCRST==NCYCLP1.OR.MREST/=0) ITN=0
       DO I=1,LENVAR
          MFEXTP(I)=ZERO
       ENDDO
-      IF (IPARIT.NE.0) THEN
+      IF (IPARIT/=0) THEN
          NSNT=0
          NMMAX=0
          DO NFX=1,NFXBODY
@@ -130,7 +137,7 @@ C=======================================================================
          ASIG=FXBIPM(20,NFX)
          NSN=FXBIPM(18,NFX)
          ANOD2=ANOD+FXBIPM(3,NFX)
-         IF (NSN+FXBIPM(3,NFX).GT.0) 
+         IF (NSN+FXBIPM(3,NFX)>0) 
      .CALL FXBODFP1(
      .FXBIPM(1,NFX),FXBRPM(ARPM),FXBNOD(ANOD),FXBMOD(AMOD),FXBDEP(AVAR),
      .FXBVIT(AVAR) ,FXBACC(AVAR),A           ,AR          ,NME         ,
@@ -140,7 +147,7 @@ C=======================================================================
      .FSKYFXB      ,IAD(NFX)    ,FXBNOD(ANOD2),ELBUF_TAB  )
       ENDDO
 C
-      IF (IPARIT.EQ.0) THEN
+      IF (IPARIT==0) THEN
          IF(NSPMD > 1) CALL SPMD_FXB_FOR(FXBIPM, MFEXTP)
       ELSE
          CALL SPMD_FXB_FOR_PON(FXBIPM, MFEXTP, FSKYFXB, NSNT, IAD)
@@ -164,8 +171,8 @@ C
          AGRVI=FXBIPM(26,NFX)
          AGRVR=FXBIPM(27,NFX)
          PMAIN=FXBIPM(39,NFX)
-         IF (ISPMD.EQ.PMAIN) THEN
-            IF (DT2T.GT.DTFAC1(11)*FXBRPM(ARPM)) THEN
+         IF (ISPMD==PMAIN) THEN
+            IF (DT2T>DTFAC1(11)*FXBRPM(ARPM)) THEN
                 DT2T=DTFAC1(11)*FXBRPM(ARPM)
                 ITYPTST=11
                 NELTST=FXBIPM(2,NFX)
@@ -176,8 +183,8 @@ C
      .NME          ,NMOD        ,FXBMVN(ACP) ,FXBMCD(AMCD),FXBSE(ASE)  ,
      .FXBSV(ALM)   ,FSAV(1,NN2) ,FXBFP(AVAR) ,FXBEFW(NFX) ,FXBFC(ALM)  ,
      .FXBGRVI(AGRVI),FXBGRVR(AGRVR),NLGRAV   ,IGRV        ,NPC         ,
-     .TF           ,FXBGRP(AVAR),FXBGRW(NFX) ,SENSOR      , LSENSOR    ,
-     .MFEXTP(AVAR) ,AGRV        )
+     .TF           ,FXBGRP(AVAR),FXBGRW(NFX) ,SENSOR_TAB  ,NSENSOR     ,  
+     .MFEXTP(AVAR) ,AGRV    ,PYTHON    )
          ENDIF
       ENDDO
 C

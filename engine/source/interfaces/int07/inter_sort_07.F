@@ -1,51 +1,58 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-Chd|====================================================================
-Chd|  INTER_SORT_07                 source/interfaces/int07/inter_sort_07.F
-Chd|-- called by -----------
-Chd|        INTER_SORT                    source/interfaces/generic/inter_sort.F
-Chd|-- calls ---------------
-Chd|        I7BUCE                        source/interfaces/intsort/i7buce.F
-Chd|        I7BUCE_VOX                    source/interfaces/intsort/i7buce.F
-Chd|        MY_BARRIER                    source/system/machine.F       
-Chd|        SPMD_CELL_EXCHANGE            source/mpi/generic/spmd_cell_exchange.F
-Chd|        SPMD_RNUMCD                   source/mpi/interfaces/spmd_i7tool.F
-Chd|        SPMD_TRI7GAT                  source/mpi/interfaces/spmd_int.F
-Chd|        STARTIME                      source/system/timer.F         
-Chd|        STOPTIME                      source/system/timer.F         
-Chd|        UPGRADE_MULTIMP               ../common_source/interf/upgrade_multimp.F
-Chd|        H3D_MOD                       share/modules/h3d_mod.F       
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|        INTER_SORTING_MOD             share/modules/inter_sorting_mod.F
-Chd|        INTER_STRUCT_MOD              share/modules/inter_struct_mod.F
-Chd|        MESSAGE_MOD                   share/message_module/message_mod.F
-Chd|        MULTI_FVM_MOD                 ../common_source/modules/multi_fvm_mod.F
-Chd|        TRI7BOX                       share/modules/tri7box.F       
-Chd|====================================================================
-        SUBROUTINE INTER_SORT_07( IPARI,X,NIN,ITASK,ISENDTO,
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    inter_sort_07                    ../engine/source/interfaces/int07/inter_sort_07.F
+!||--- called by ------------------------------------------------------
+!||    inter_sort                       ../engine/source/interfaces/generic/inter_sort.F
+!||--- calls      -----------------------------------------------------
+!||    check_sorting_criteria           ../engine/source/interfaces/intsort/check_sorting_criteria.F90
+!||    i7buce                           ../engine/source/interfaces/intsort/i7buce.F
+!||    i7buce_vox                       ../engine/source/interfaces/intsort/i7buce.F
+!||    inter7_collision_detection       ../engine/source/interfaces/intsort/inter7_collision_detection.F90
+!||    my_barrier                       ../engine/source/system/machine.F
+!||    spmd_cell_exchange               ../engine/source/mpi/generic/spmd_cell_exchange.F
+!||    spmd_rnumcd                      ../engine/source/mpi/interfaces/spmd_i7tool.F
+!||    spmd_tri7gat                     ../engine/source/mpi/interfaces/spmd_int.F
+!||    startime                         ../engine/source/system/timer_mod.F90
+!||    stoptime                         ../engine/source/system/timer_mod.F90
+!||    upgrade_multimp                  ../common_source/interf/upgrade_multimp.F
+!||--- uses       -----------------------------------------------------
+!||    check_sorting_criteria_mod       ../engine/source/interfaces/intsort/check_sorting_criteria.F90
+!||    command_line_args_mod            ../engine/share/modules/command_line_args.F
+!||    h3d_mod                          ../engine/share/modules/h3d_mod.F
+!||    intbufdef_mod                    ../common_source/modules/interfaces/intbufdef_mod.F90
+!||    inter7_collision_detection_mod   ../engine/source/interfaces/intsort/inter7_collision_detection.F90
+!||    inter_sorting_mod                ../engine/share/modules/inter_sorting_mod.F
+!||    inter_struct_mod                 ../engine/share/modules/inter_struct_mod.F
+!||    message_mod                      ../engine/share/message_module/message_mod.F
+!||    multi_fvm_mod                    ../common_source/modules/ale/multi_fvm_mod.F90
+!||    timer_mod                        ../engine/source/system/timer_mod.F90
+!||    tri7box                          ../engine/share/modules/tri7box.F
+!||====================================================================
+        SUBROUTINE INTER_SORT_07(TIMERS, IPARI,X,NIN,ITASK,ISENDTO,
      1                            IRCVFROM,RETRI,ITAB,NRTM_T,RENUM,RENUM_SIZ,
      2                            NSNFIOLD,ESHIFT,MULTI_FVM,INTBUF_TAB,H3D_DATA,
-     3                            INTER_STRUCT,SORT_COMM)
+     3                            INTER_STRUCT,SORT_COMM,INTHEAT, IDT_THERM, NODADT_THERM)
 !$COMMENT
 !       INTER_SORT_07 description
 !       sort computation for interface TYP07
@@ -55,7 +62,9 @@ Chd|====================================================================
 C============================================================================
 C   M o d u l e s
 C-----------------------------------------------
+        USE TIMER_MOD
         USE TRI7BOX
+        USE COMMAND_LINE_ARGS_MOD
         USE MESSAGE_MOD
         USE INTBUFDEF_MOD
         USE H3D_MOD
@@ -63,18 +72,14 @@ C-----------------------------------------------
         USE INTER_STRUCT_MOD
         USE INTER_SORTING_MOD
         USE INTBUFDEF_MOD 
+        USE INTER7_COLLISION_DETECTION_MOD
+        use check_sorting_criteria_mod , only : check_sorting_criteria
 C-----------------------------------------------
 C   I m p l i c i t   T y p e s
 C-----------------------------------------------
 #include      "implicit_f.inc"
 #include      "comlock.inc"
-#ifdef MPI
-#include      "mpif.h"
-#endif
-C-----------------------------------------------
-C   G l o b a l   P a r a m e t e r s
-C-----------------------------------------------
-#include      "mvsiz_p.inc"
+#include "spmd.inc"
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
@@ -83,26 +88,25 @@ C-----------------------------------------------
 #include      "com08_c.inc"
 #include      "param_c.inc"
 #include      "units_c.inc"
-#include      "scr03_c.inc"
-#include      "scr04_c.inc"
-#include      "scr05_c.inc"
-#include      "warn_c.inc"
 #include      "task_c.inc"
-#include      "parit_c.inc"
 #include      "timeri_c.inc"
-C common pour variable globale en memoire partagee
+C Common for global variable in memory shared
         COMMON /I7MAINC/CURV_MAX_MAX,RESULT,NSNR,NSNROLD,I_MEMG,NMN_G
         INTEGER RESULT,NSNR,NSNROLD,I_MEMG,NMN_G
         my_real :: CURV_MAX_MAX
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
+        TYPE(TIMER_), INTENT(inout) :: TIMERS
         INTEGER, INTENT(in) :: RENUM_SIZ    ! size of RENUM
         INTEGER, INTENT(in) :: NIN ,ITASK,NRTM_T,ESHIFT
         INTEGER, INTENT(inout) :: RETRI
-        INTEGER, DIMENSION(NUMNOD), INTENT(inout) :: ITAB
+        INTEGER, INTENT(IN) :: INTHEAT
+        INTEGER, INTENT(IN) :: IDT_THERM
+        INTEGER, INTENT(IN) :: NODADT_THERM
+        INTEGER, DIMENSION(NUMNOD), INTENT(in) :: ITAB
         INTEGER, DIMENSION(NPARI,NINTER),INTENT(inout) :: IPARI
-        INTEGER, DIMENSION(NINTER+1,NSPMD+1),INTENT(inout) :: ISENDTO,IRCVFROM
+        INTEGER, DIMENSION(NINTER+1,NSPMD+1),INTENT(in) :: ISENDTO,IRCVFROM
         INTEGER, DIMENSION(RENUM_SIZ), INTENT(inout) :: RENUM
         INTEGER, DIMENSION(NSPMD), INTENT(inout) :: NSNFIOLD
         my_real, DIMENSION(3*NUMNOD), INTENT(in) :: X   ! position
@@ -110,7 +114,7 @@ C-----------------------------------------------
         TYPE(INTBUF_STRUCT_) INTBUF_TAB
         TYPE(H3D_DATABASE) :: H3D_DATA
         TYPE(MULTI_FVM_STRUCT), INTENT(INOUT) :: MULTI_FVM
-        TYPE(inter_struct_type), DIMENSION(NINTER), INTENT(inout) :: INTER_STRUCT   !   struture for interface
+        TYPE(inter_struct_type), DIMENSION(NINTER), INTENT(inout) :: INTER_STRUCT   !   structure for interface
         TYPE(sorting_comm_type), DIMENSION(NINTER), INTENT(inout) :: SORT_COMM   ! structure for interface sorting comm
 C-----------------------------------------------
 C   L o c a l   V a r i a b l e s
@@ -123,17 +127,24 @@ C-----------------------------------------------
      .        ILD, NCONT, NCONTACT, INACTII, INACIMP, INTTH,
      .        I_MEM,CAND_N_OLD,IDUM1(1),NMN_L, IVIS2,NUM_IMP
         my_real
-     .   STARTT,GAP,MAXBOX,MINBOX,STOPT,DIST,TZINF,
+     .   GAP,MAXBOX,MINBOX,TZINF,
      .   XMAXL, YMAXL, ZMAXL, XMINL, YMINL, ZMINL, GAPMIN, GAPMAX,
      .   C_MAXL,DRAD,MX,MY,MZ,DX,DY,DZ,SX,SY,SZ,SX2,SY2,SZ2,
      .   CURV_MAX(NRTM_T),RDUM1(1)
         my_real :: DGAPLOADP
         REAL T1  !elapsed time in smp
         LOGICAL TYPE18
-        INTEGER :: FIRST, LAST,ijk
+        INTEGER :: FIRST, LAST
+        INTEGER :: NSN,NMN,NTY,NRTM
+        logical :: need_computation
 C-----------------------------------------------
-#include "sync_dir.inc"
-C-----------------------------------------------
+        ! --------------
+        ! check if the current interface needs to be sorted
+        call check_sorting_criteria( need_computation,nin,npari,nspmd,  
+     .                               itask,ipari(1,nin),tt,intbuf_tab )
+        if( .not.need_computation ) return
+        ! --------------
+
         NUM_IMP = 0
 
         I_MEM  = 0
@@ -160,33 +171,25 @@ C
         TYPE18=.FALSE.
         IF(NTY==7 .AND. INACTI==7)TYPE18=.TRUE.
 
-        IF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7.OR.IFQ.GT.0.OR.
-     .     ITIED.NE.0)THEN
+        IF(INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.IFQ>0.OR.
+     .     ITIED/=0)THEN
             NSNROLD = IPARI(24,NIN)
         ELSE
             NSNROLD = 0
         ENDIF
 
-        STARTT=INTBUF_TAB%VARIABLES(3)
-        STOPT =INTBUF_TAB%VARIABLES(11)
-
-        IF(STARTT.GT.TT) RETURN
-        IF(TT.GT.STOPT)  RETURN
-
-        GAP    =INTBUF_TAB%VARIABLES(2)
-        GAPMIN=INTBUF_TAB%VARIABLES(13)
-        GAPMAX=INTBUF_TAB%VARIABLES(16)
+        GAP    =INTBUF_TAB%VARIABLES(gap_index)
+        GAPMIN=INTBUF_TAB%VARIABLES(gapmin_index)
+        GAPMAX=INTBUF_TAB%VARIABLES(gapmax_index)
         DRAD = ZERO
-        IF(IPARI(7,NIN)==7) DRAD =INTBUF_TAB%VARIABLES(32)
-        DGAPLOADP= INTBUF_TAB%VARIABLES(46)
+        IF(IPARI(7,NIN)==7) DRAD =INTBUF_TAB%VARIABLES(drad_index)
+        DGAPLOADP= INTBUF_TAB%VARIABLES(bgapemx_index)
 C -------------------------------------------------------------
-        DIST = INTBUF_TAB%VARIABLES(5)
-        IF (DIST.GT.ZERO) RETURN
         RETRI = 1
 C -------------------------------------------------------------
-        MAXBOX = INTBUF_TAB%VARIABLES(9)
-        MINBOX = INTBUF_TAB%VARIABLES(12)
-        TZINF  = INTBUF_TAB%VARIABLES(8)
+        MAXBOX = INTBUF_TAB%VARIABLES(maxbox_index)
+        MINBOX = INTBUF_TAB%VARIABLES(minbox_index)
+        TZINF  = INTBUF_TAB%VARIABLES(tzinf_index)
         CURV_MAX_MAX = ZERO
 
         CALL MY_BARRIER
@@ -198,22 +201,19 @@ C -------------------------------------------------------------
         RESULT = 0
         NMN_G = INTER_STRUCT(NIN)%NMN_G
 !$OMP END SINGLE
-        FIRST = 1 + ITASK*(NRTM/NTHREAD)
-        LAST = FIRST + NRTM_T - 1
-        IF(ITASK==NTHREAD-1) LAST=NRTM
-        CURV_MAX(1:NRTM_T) = INTER_STRUCT(NIN)%CURV_MAX(FIRST:LAST)
 
         IF(NSPMD > 1) THEN
         ! ---------------------------
-            IF(ITASK.EQ.0)THEN
+            IF(ITASK==0)THEN
             ! ---------------------------
             ! send/rcv the secondary node data
-                CALL SPMD_CELL_EXCHANGE( NIN,ISENDTO,IRCVFROM,NSNR,IPARI(21,NIN),
-     1                                   IFQ,INACTI,NSNFIOLD,IPARI(47,NIN),NTY,
-     2                                   ITIED,NMN,INTER_STRUCT,SORT_COMM )
+                CALL SPMD_CELL_EXCHANGE(TIMERS, NIN,ISENDTO,IRCVFROM,NSN,NSNR,IPARI(21,NIN),
+     1                                   IFQ,INACTI,NSNFIOLD,IPARI(47,NIN),NTY, intbuf_tab%stfns, intbuf_tab%nsv,
+     2                                   NRTM, X,
+     2                                   ITIED,NMN,INTER_STRUCT,SORT_COMM, GOT_PREVIEW)
 C
-                IF(INACTI.EQ.5.OR.INACTI.EQ.6.OR.INACTI.EQ.7.OR.
-     +               IFQ.GT.0.OR.ITIED.NE.0)THEN
+                IF(INACTI==5.OR.INACTI==6.OR.INACTI==7.OR.
+     +               IFQ>0.OR.ITIED/=0)THEN
                     CALL SPMD_RNUMCD(
      1                  INTBUF_TAB%CAND_N,RENUM  ,INTBUF_TAB%I_STOK(1), NIN,NSN,
      2                NSNFIOLD     ,NSNROLD)
@@ -221,6 +221,7 @@ C
             ! ---------------------------
             ENDIF
         END IF
+        ! Voxel remote secondary nodes
         ! ---------------------------
         CAND_N_OLD = INTBUF_TAB%I_STOK(1)
  40     CONTINUE
@@ -228,7 +229,14 @@ C
         ILD = 0
         NB_N_B = 1
 
- 50     CALL MY_BARRIER                              
+ 50     CALL MY_BARRIER    
+        IF(ITASK==0) THEN
+            IF(ALLOCATED( LIST_REMOTE_S_NODE ) ) DEALLOCATE( LIST_REMOTE_S_NODE )
+            ALLOCATE( LIST_REMOTE_S_NODE(NSNR) )
+            REMOTE_S_NODE = 0
+        ENDIF
+        CALL MY_BARRIER                          
+
         IF(IPARI(63,NIN) ==2 ) INTBUF_TAB%METRIC%ALGO = ALGO_VOXEL 
  
 #ifdef MPI
@@ -239,9 +247,32 @@ C
             INTBUF_TAB%METRIC%TIC = NINT(100.0 * T1) 
         ENDIF
 #endif
-        IF (IMONM > 0 .AND. ITASK == 0) CALL STARTIME(30,1)
+        IF (IMONM > 0 .AND. ITASK == 0) CALL STARTIME(TIMERS,30)
 C
-        IF(INTBUF_TAB%METRIC%ALGO == ALGO_VOXEL .OR.  INTBUF_TAB%METRIC%ALGO == TRY_ALGO_VOXEL) THEN
+        IF(GOT_PREVIEW == 1) THEN
+            CALL INTER7_COLLISION_DETECTION(
+     1      X      ,INTBUF_TAB%IRECTM,INTBUF_TAB%NSV       ,INACTI    ,INTBUF_TAB%CAND_P,
+     2      NRTM           ,NSN                  ,INTBUF_TAB%CAND_E,INTBUF_TAB%CAND_N,
+     3      GAP    ,NOINT            ,INTBUF_TAB%I_STOK(1) ,NCONTACT ,INTER_STRUCT(NIN)%BOX_LIMIT_MAIN,
+     4      TZINF  ,INTER_STRUCT(NIN)%CAND_A  ,INTER_STRUCT(NIN)%CURV_MAX, RENUM_SIZ,
+     6      NB_N_B ,ESHIFT      ,ILD            ,IFQ    ,INTBUF_TAB%IFPEN,
+     8      INTBUF_TAB%STFM,IPARI(21,NIN),INTBUF_TAB%GAP_S,
+     A      NSNR   ,NCONT  ,RENUM  ,NSNROLD  ,INTBUF_TAB%GAP_M,
+     B      GAPMIN ,GAPMAX  ,NUM_IMP   ,INTBUF_TAB%GAP_SL,
+     C      INTBUF_TAB%GAP_ML,ITASK  , INTBUF_TAB%VARIABLES(bgapsmx_index),I_MEM     ,  
+     D      INTBUF_TAB%KREMNODE,INTBUF_TAB%REMNODE,  IPARI(63,NIN),DRAD         ,
+     E      ITIED ,INTBUF_TAB%CAND_F,DGAPLOADP,
+     F      INTER_STRUCT(NIN)%SIZE_CAND_A,
+     .      INTBUF_TAB%S_KREMNODE, INTBUF_TAB%S_REMNODE, NSPMD, NUMNOD, INTER_STRUCT(nin),
+     .      INTHEAT, IDT_THERM, NODADT_THERM)
+
+        ELSE IF(INTBUF_TAB%METRIC%ALGO == ALGO_VOXEL .OR.  INTBUF_TAB%METRIC%ALGO == TRY_ALGO_VOXEL) THEN
+            FIRST = 1 + ITASK*(NRTM/NTHREAD)
+            LAST = FIRST + NRTM_T - 1
+            IF(ITASK==NTHREAD-1) LAST=NRTM
+            CURV_MAX(1:NRTM_T) = INTER_STRUCT(NIN)%CURV_MAX(FIRST:LAST)
+
+
             CALL I7BUCE_VOX(
      1      X      ,INTBUF_TAB%IRECTM(1+4*ESHIFT),INTBUF_TAB%NSV  ,INACTI    ,INTBUF_TAB%CAND_P,
      2      NMN_G  ,NRTM_T                       ,NSN     ,INTBUF_TAB%CAND_E,INTBUF_TAB%CAND_N,
@@ -251,11 +282,16 @@ C
      8      INTBUF_TAB%STFNS,NIN ,INTBUF_TAB%STFM(1+ESHIFT),IPARI(21,NIN),INTBUF_TAB%GAP_S,
      A      NSNR   ,NCONT  ,RENUM  ,NSNROLD  ,INTBUF_TAB%GAP_M(1+ESHIFT),
      B      GAPMIN ,GAPMAX      ,CURV_MAX_MAX   ,NUM_IMP   ,INTBUF_TAB%GAP_SL,
-     C      INTBUF_TAB%GAP_ML(1+ESHIFT),INTTH ,ITASK  , INTBUF_TAB%VARIABLES(7),I_MEM     ,  
+     C      INTBUF_TAB%GAP_ML(1+ESHIFT),INTTH ,ITASK  , INTBUF_TAB%VARIABLES(bgapsmx_index),I_MEM     ,  
      D      INTBUF_TAB%KREMNODE(1+2*ESHIFT),INTBUF_TAB%REMNODE,ITAB , IPARI(63,NIN),DRAD         ,
-     E      ITIED ,INTBUF_TAB%CAND_F,DGAPLOADP)
+     E      ITIED ,INTBUF_TAB%CAND_F,DGAPLOADP,REMOTE_S_NODE,LIST_REMOTE_S_NODE,
+     F      NRTM,INTHEAT,IDT_THERM,NODADT_THERM)
 
         ELSE
+            FIRST = 1 + ITASK*(NRTM/NTHREAD)
+            LAST = FIRST + NRTM_T - 1
+            IF(ITASK==NTHREAD-1) LAST=NRTM
+            CURV_MAX(1:NRTM_T) = INTER_STRUCT(NIN)%CURV_MAX(FIRST:LAST)
             CALL I7BUCE(
      1 X      ,INTBUF_TAB%IRECTM(1+4*ESHIFT),INTBUF_TAB%NSV  ,INACTI    ,INTBUF_TAB%CAND_P,
      2 NMN_G  ,NRTM_T                       ,NSN     ,INTBUF_TAB%CAND_E,INTBUF_TAB%CAND_N,
@@ -265,9 +301,9 @@ C
      8 INTBUF_TAB%STFNS,NIN ,INTBUF_TAB%STFM(1+ESHIFT),IPARI(21,NIN),INTBUF_TAB%GAP_S,
      A NSNR   ,NCONT  ,RENUM  ,NSNROLD  ,INTBUF_TAB%GAP_M(1+ESHIFT),
      B GAPMIN ,GAPMAX      ,CURV_MAX_MAX   ,NUM_IMP   ,INTBUF_TAB%GAP_SL,
-     C INTBUF_TAB%GAP_ML(1+ESHIFT),INTTH ,ITASK  , INTBUF_TAB%VARIABLES(7),I_MEM     ,  
+     C INTBUF_TAB%GAP_ML(1+ESHIFT),INTTH ,ITASK  , INTBUF_TAB%VARIABLES(bgapsmx_index),I_MEM     ,  
      D INTBUF_TAB%KREMNODE(1+2*ESHIFT),INTBUF_TAB%REMNODE,ITAB , IPARI(63,NIN),DRAD         ,
-     E ITIED ,INTBUF_TAB%CAND_F,DGAPLOADP)
+     E ITIED ,INTBUF_TAB%CAND_F,DGAPLOADP,INTHEAT, IDT_THERM, NODADT_THERM)
 
         ENDIF
       
@@ -308,7 +344,7 @@ C        UPGRADE_MULTIMP routine !!!!
         ENDIF
 
 C
-        IF (IMONM > 0 .AND. ITASK == 0) CALL STOPTIME(30,1)
+        IF (IMONM > 0 .AND. ITASK == 0) CALL STOPTIME(TIMERS,30)
         IF( ITASK == 0) THEN
             IF( INTBUF_TAB%METRIC%ALGO == TRY_ALGO_VOXEL) THEN ! if test phase
                 INTBUF_TAB%METRIC%ALGO =  TRY_ALGO_BUCKET
@@ -327,46 +363,51 @@ c    .                    "USES SORT1 FOR CONTACT INTERFACE",NOINT
         ENDIF
 C
 #include "lockon.inc"
-        INTBUF_TAB%VARIABLES(9)  = MIN(MAXBOX,INTBUF_TAB%VARIABLES(9))
-        INTBUF_TAB%VARIABLES(12) = MIN(MINBOX,INTBUF_TAB%VARIABLES(12))
-        INTBUF_TAB%VARIABLES(8)  = MIN(TZINF,INTBUF_TAB%VARIABLES(8))
-        INTBUF_TAB%VARIABLES(5)  = INTBUF_TAB%VARIABLES(8)-GAP
+        INTBUF_TAB%VARIABLES(maxbox_index)  = MIN(MAXBOX,INTBUF_TAB%VARIABLES(maxbox_index))
+        INTBUF_TAB%VARIABLES(minbox_index) = MIN(MINBOX,INTBUF_TAB%VARIABLES(minbox_index))
+        INTBUF_TAB%VARIABLES(tzinf_index)  = MIN(TZINF,INTBUF_TAB%VARIABLES(tzinf_index))
+        INTBUF_TAB%VARIABLES(distance_index)  = INTBUF_TAB%VARIABLES(tzinf_index)-GAP
         RESULT        = RESULT + ILD
 #include "lockoff.inc"
 C--------------------------------------------------------------
 C--------------------------------------------------------------
         CALL MY_BARRIER
-        IF (RESULT.NE.0) THEN
+        IF (RESULT/=0) THEN
             CALL MY_BARRIER
-            IF (ITASK.EQ.0) THEN
+            IF (ITASK==0) THEN
 C utile si on revient
                 INTBUF_TAB%I_STOK(1) = I_SK_OLD
                 RESULT = 0
             ENDIF
             CALL MY_BARRIER
             ILD  = 0
-            MAXBOX = INTBUF_TAB%VARIABLES(9)
-            MINBOX = INTBUF_TAB%VARIABLES(12)
-            TZINF  = INTBUF_TAB%VARIABLES(8)
+            MAXBOX = INTBUF_TAB%VARIABLES(maxbox_index)
+            MINBOX = INTBUF_TAB%VARIABLES(minbox_index)
+            TZINF  = INTBUF_TAB%VARIABLES(tzinf_index)
             GOTO 50
         ENDIF
-C mise a - de dist temporairement pour reperage dans partie frontiere
-        IF(NSPMD.GT.1)THEN
+C temporarily set dist to - for identification in the boundary part
+        IF(NSPMD>1)THEN
 C mono tache
 !$OMP SINGLE
-            IF (IMONM > 0) CALL STARTIME(26,1)
-            INTBUF_TAB%VARIABLES(5) = -INTBUF_TAB%VARIABLES(5)
+            IF (IMONM > 0) CALL STARTIME(TIMERS,26)
+            INTBUF_TAB%VARIABLES(distance_index) = -INTBUF_TAB%VARIABLES(distance_index)
 C
             CALL SPMD_TRI7GAT(
      1          RESULT       ,NSN     ,INTBUF_TAB%CAND_N,INTBUF_TAB%I_STOK(1),NIN,
      2          IPARI(21,NIN),NSNR    ,MULTIMP        ,NTY         ,IPARI(47,NIN),  
      3          IDUM1        ,NSNFIOLD, IPARI        , H3D_DATA    ,IPARI(72,NIN),
-     4          MULTI_FVM)
+     4          MULTI_FVM,NODADT_THERM)
             IPARI(24,NIN) = NSNR
 
-            IF (IMONM > 0) CALL STOPTIME(26,1)
+            IF (IMONM > 0) CALL STOPTIME(TIMERS,26)
 !$OMP END SINGLE
         END IF
-C
-      RETURN
-      END
+
+      IF(ITASK==0) THEN
+        IF(ALLOCATED( LIST_REMOTE_S_NODE ) ) DEALLOCATE( LIST_REMOTE_S_NODE )
+      ENDIF
+      CALL MY_BARRIER
+
+        RETURN
+        END

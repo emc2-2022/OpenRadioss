@@ -1,33 +1,31 @@
 Copyright>        OpenRadioss
-Copyright>        Copyright (C) 1986-2022 Altair Engineering Inc.
-Copyright>    
+Copyright>        Copyright (C) 1986-2026 Altair Engineering Inc.
+Copyright>
 Copyright>        This program is free software: you can redistribute it and/or modify
 Copyright>        it under the terms of the GNU Affero General Public License as published by
 Copyright>        the Free Software Foundation, either version 3 of the License, or
 Copyright>        (at your option) any later version.
-Copyright>    
+Copyright>
 Copyright>        This program is distributed in the hope that it will be useful,
 Copyright>        but WITHOUT ANY WARRANTY; without even the implied warranty of
 Copyright>        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 Copyright>        GNU Affero General Public License for more details.
-Copyright>    
+Copyright>
 Copyright>        You should have received a copy of the GNU Affero General Public License
 Copyright>        along with this program.  If not, see <https://www.gnu.org/licenses/>.
-Copyright>    
-Copyright>    
-Copyright>        Commercial Alternative: Altair Radioss Software 
-Copyright>    
-Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss 
-Copyright>        software under a commercial license.  Contact Altair to discuss further if the 
-Copyright>        commercial version may interest you: https://www.altair.com/radioss/.    
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  RECUDIS                       source/implicit/recudis.F     
-Chd|-- called by -----------
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|        LIN_SOLV                      source/implicit/lin_solv.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+Copyright>
+Copyright>
+Copyright>        Commercial Alternative: Altair Radioss Software
+Copyright>
+Copyright>        As an alternative to this open-source version, Altair also offers Altair Radioss
+Copyright>        software under a commercial license.  Contact Altair to discuss further if the
+Copyright>        commercial version may interest you: https://www.altair.com/radioss/.
+!||====================================================================
+!||    recudis    ../engine/source/implicit/recudis.F
+!||--- called by ------------------------------------------------------
+!||    imp_buck   ../engine/source/implicit/imp_buck.F
+!||    lin_solv   ../engine/source/implicit/lin_solv.F
+!||====================================================================
       SUBROUTINE RECUDIS(NDDL  ,IDDL  ,NDOF  ,IKC   ,LX    ,
      1                   D     ,DR    ,INLOC )
 C-----------------------------------------------
@@ -48,22 +46,22 @@ C----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,NKC,ID,ND,M,N
-C----No ddl actuelle -> IDDL(NUMNOD)+J(1-6)-NKC-----
+C---- NOT DDL Actual-> IDDL (NUMNOD)+J (1-6) -NKC -------
       NKC=0
       DO N = 1,NUMNOD
        I=INLOC(N)
        DO J=1,NDOF(I)
         ND = IDDL(I)+J
         ID = ND-NKC
-        IF (J.LE.3) THEN
-         IF (IKC(ND).LT.1) THEN
+        IF (J<=3) THEN
+         IF (IKC(ND)<1) THEN
           D(J,I)=LX(ID)
          ELSE
           NKC=NKC+1
          ENDIF
         ELSE
          K=J-3
-         IF (IKC(ND).LT.1) THEN
+         IF (IKC(ND)<1) THEN
           DR(K,I)=LX(ID)
          ELSE
           NKC=NKC+1
@@ -74,29 +72,29 @@ C----No ddl actuelle -> IDDL(NUMNOD)+J(1-6)-NKC-----
 C
       RETURN
       END
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  RECUKIN                       source/implicit/recudis.F     
-Chd|-- called by -----------
-Chd|        IMP_BUCK                      source/implicit/imp_buck.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|        RER02                         source/implicit/upd_glob_k.F  
-Chd|-- calls ---------------
-Chd|        BC_IMP2                       source/constraints/general/bcs/bc_imp0.F
-Chd|        FVBC_IMPD                     source/constraints/general/impvel/fv_imp0.F
-Chd|        FV_IMPD                       source/constraints/general/impvel/fv_imp0.F
-Chd|        I2_IMPD                       source/interfaces/interf/i2_impd.F
-Chd|        RBE2_IMPD                     source/constraints/general/rbe2/rbe2v.F
-Chd|        RBE3_IMPD                     source/constraints/general/rbe3/rbe3v.F
-Chd|        RBY_IMPD                      source/constraints/general/rbody/rby_impd.F
-Chd|        RM_IMP2                       source/model/remesh/rm_imp0.F 
-Chd|        RWL_IMPD                      source/constraints/general/rwall/srw_imp.F
-Chd|        IMP_FVBCL                     share/modules/impbufdef_mod.F 
-Chd|        INTBUFDEF_MOD                 ../common_source/modules/intbufdef_mod.F
-Chd|====================================================================
+!||====================================================================
+!||    recukin         ../engine/source/implicit/recudis.F
+!||--- called by ------------------------------------------------------
+!||    imp_buck        ../engine/source/implicit/imp_buck.F
+!||    imp_solv        ../engine/source/implicit/imp_solv.F
+!||    rer02           ../engine/source/implicit/upd_glob_k.F
+!||--- calls      -----------------------------------------------------
+!||    bc_imp2         ../engine/source/constraints/general/bcs/bc_imp0.F
+!||    fv_impd         ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    fvbc_impd       ../engine/source/constraints/general/impvel/fv_imp0.F
+!||    i2_impd         ../engine/source/interfaces/interf/i2_impd.F
+!||    rbe2_impd       ../engine/source/constraints/general/rbe2/rbe2v.F
+!||    rbe3_impd       ../engine/source/constraints/general/rbe3/rbe3v.F
+!||    rby_impd        ../engine/source/constraints/general/rbody/rby_impd.F
+!||    rm_imp2         ../engine/source/model/remesh/rm_imp0.F
+!||    rwl_impd        ../engine/source/constraints/general/rwall/srw_imp.F
+!||--- uses       -----------------------------------------------------
+!||    imp_fvbcl       ../engine/share/modules/impbufdef_mod.F
+!||    intbufdef_mod   ../common_source/modules/interfaces/intbufdef_mod.F90
+!||====================================================================
       SUBROUTINE RECUKIN(RBY   ,LPBY  ,NPBY  ,SKEW  ,ISKEW ,
-     1                   ITAB  ,WEIGHT,MS    ,IN    ,SENSOR,
-     2                   IBFV  ,VEL   ,LSENSOR,ICODT,ICODR ,
+     1                   ITAB  ,WEIGHT,MS    ,IN    ,
+     2                   IBFV  ,VEL   ,ICODT,ICODR ,
      3                   NRBYAC,IRBYAC,NINT2 ,IINT2 ,IPARI ,
      4                   INTBUF_TAB   ,NDOF  ,D     ,DR    ,
      5                   X     ,XFRAME,LJ    ,IXR   ,IXC   ,
@@ -114,16 +112,13 @@ C-----------------------------------------------
 C-----------------------------------------------
 C   C o m m o n   B l o c k s
 C-----------------------------------------------
-#include      "com01_c.inc"
 #include      "com04_c.inc"
-#include      "com08_c.inc"
-#include      "com09_c.inc"
 #include      "param_c.inc"
 #include      "remesh_c.inc"
 C-----------------------------------------------
 C   D u m m y   A r g u m e n t s
 C-----------------------------------------------
-      INTEGER IBFV(NIFV,*),LSENSOR(NSENSI,*),LJ(*)
+      INTEGER IBFV(NIFV,*),LJ(*)
       INTEGER WEIGHT(*),LPBY(*),NPBY(NNPBY,*),ITAB(*),
      .        IPARI(NPARI,*), ISKEW(*),
      .        NRBYAC,IRBYAC(*),NINT2 ,IINT2(*),IXR(*)
@@ -131,7 +126,7 @@ C-----------------------------------------------
      .         SH4TREE(*), SH3TREE(*),IRBE3(NRBE3L,*),LRBE3(*),
      .         IRBE2(*),LRBE2(*)
       my_real
-     .   RBY(NRBY,*) ,SKEW(*),IN(*),MS(*),SENSOR(NSENSR,*),
+     .   RBY(NRBY,*) ,SKEW(*),IN(*),MS(*),
      .   VEL(LFXVELR,*), XFRAME(NXFRAME,*),FRBE3(*)
       my_real
      .  X(3,*),D(3,*),DR(3,*)
@@ -148,7 +143,7 @@ C-------local FV-BCS coupling might modify global dirs due to unconsisting
      1                D      ,DR   ,ICODT  ,ICODR ,ISKEW ,
      2                ICT_1  ,ICR_1)
       END IF
-      IF(NFXVEL.GT.0)THEN
+      IF(NFXVEL>0)THEN
        CALL FV_IMPD(IBFV  ,LJ    ,SKEW  ,XFRAME ,D     ,
      1              DR    )
       ENDIF
@@ -160,19 +155,19 @@ C-------local FV-BCS coupling might modify global dirs due to unconsisting
        CALL BC_IMP2(ICODT ,ICODR ,ISKEW ,SKEW  ,NDOF   ,
      1             D     ,DR    )
       END IF
-      IF(NADMESH.NE.0)THEN
+      IF(NADMESH/=0)THEN
             CALL RM_IMP2(IXC   ,IXTG  ,D    ,DR    ,SH4TREE,SH3TREE)
       ENDIF
-      IF(NRBYAC.GT.0)THEN
+      IF(NRBYAC>0)THEN
        CALL RBY_IMPD(NRBYAC,IRBYAC,X    ,RBY,LPBY,NPBY,SKEW,
-     1              ISKEW,ITAB,WEIGHT,MS ,IN  ,SENSOR,
+     1              ISKEW,ITAB,WEIGHT,MS ,IN  ,
      2              NDOF  ,D    ,DR   ,IXR  )
       ENDIF
-      IF(NRBE3.GT.0)THEN
+      IF(NRBE3>0)THEN
        CALL RBE3_IMPD(IRBE3 ,LRBE3 ,X    ,D     ,DR    ,
      1                FRBE3  ,SKEW  )
       ENDIF
-      IF(NRBE2.GT.0)THEN
+      IF(NRBE2>0)THEN
        CALL RBE2_IMPD(IRBE2 ,LRBE2 ,X    ,D     ,DR    ,
      1                SKEW  )
       ENDIF
@@ -182,12 +177,11 @@ C-------local FV-BCS coupling might modify global dirs due to unconsisting
 C
       RETURN
       END
-Chd|====================================================================
-Chd|  IDDL2NOD                      source/implicit/recudis.F     
-Chd|-- called by -----------
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    iddl2nod   ../engine/source/implicit/recudis.F
+!||--- called by ------------------------------------------------------
+!||    imp_solv   ../engine/source/implicit/imp_solv.F
+!||====================================================================
       SUBROUTINE IDDL2NOD(NDDL  ,IDDL  ,NDOF  ,IKC   ,INLOC ,
      1                    IID   ,NN    )
 C-----------------------------------------------
@@ -206,7 +200,7 @@ C----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,NKC,ID,ND,N
-C----No ddl actuelle -> IDDL(NUMNOD)+J(1-6)-NKC-----
+C---- NOT DDL Actual-> IDDL (NUMNOD)+J (1-6) -NKC -------
       NN=0
       NKC=0
       DO N = 1,NUMNOD
@@ -214,8 +208,8 @@ C----No ddl actuelle -> IDDL(NUMNOD)+J(1-6)-NKC-----
        DO J=1,NDOF(I)
         ND = IDDL(I)+J
         ID = ND-NKC
-        IF (IKC(ND).LT.1) THEN
-         IF (ID.EQ.IID) THEN
+        IF (IKC(ND)<1) THEN
+         IF (ID==IID) THEN
           NN=I
           RETURN
          ENDIF
@@ -227,14 +221,12 @@ C----No ddl actuelle -> IDDL(NUMNOD)+J(1-6)-NKC-----
 C
       RETURN
       END
-C   ----  nouvelle routine---------
-Chd|====================================================================
-Chd|  WEIGHTDDL                     source/implicit/recudis.F     
-Chd|-- called by -----------
-Chd|        IMP_CHKM                      source/implicit/imp_solv.F    
-Chd|        IMP_SOLV                      source/implicit/imp_solv.F    
-Chd|-- calls ---------------
-Chd|====================================================================
+!||====================================================================
+!||    weightddl   ../engine/source/implicit/recudis.F
+!||--- called by ------------------------------------------------------
+!||    imp_chkm    ../engine/source/implicit/imp_solv.F
+!||    imp_solv    ../engine/source/implicit/imp_solv.F
+!||====================================================================
       SUBROUTINE WEIGHTDDL(IDDL  ,NDOF  ,IKC   ,WEIGHT,W_IMP ,
      1                     INLOC )
 C-----------------------------------------------
@@ -253,14 +245,14 @@ C----------------------------------------------
 C   L o c a l   V a r i a b l e s
 C-----------------------------------------------
       INTEGER I,J,K,NKC,ID,ND,M,N
-C----No ddl actuelle -> IDDL(NUMNOD)+J(1-6)-NKC-----
+C---- NOT DDL Actual-> IDDL (NUMNOD)+J (1-6) -NKC -------
       NKC=0
       DO N = 1,NUMNOD
        I=INLOC(N)
        DO J=1,NDOF(I)
         ND = IDDL(I)+J
         ID = ND-NKC
-        IF (IKC(ND).LT.1) THEN
+        IF (IKC(ND)<1) THEN
          W_IMP(ID)=WEIGHT(I)
         ELSE
          NKC=NKC+1
